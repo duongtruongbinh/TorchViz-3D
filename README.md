@@ -1,0 +1,52 @@
+# TorchViz-3D
+
+**TorchViz-3D** is a client-side visualization tool designed to render PyTorch neural network architectures as immersive 3D isometric block diagrams. Built for researchers and developers to quickly prototype, visualize, and export model architectures for publications.
+
+## ✨ Key Features
+
+* **3D Isometric Visualization**: Render layers (Conv2d, Linear, Pooling, etc.) as interactive 3D blocks.
+* **Client-Side Execution**: Runs entirely in your browser using **Pyodide**. Your code and data never leave your machine.
+* **Live Editor**: Write or paste `nn.Module` code and see changes instantly.
+* **Publication Ready**: Export visualizations as high-quality **SVG** (vector) or **PNG** for research papers.
+* **Interactive Controls**: Rotate, zoom, pan, and expand/collapse nested layers (Sequential, Blocks) to explore complex architectures.
+
+## 🛠️ Tech Stack
+
+* **Core**: React, TypeScript, Vite
+* **3D Engine**: Three.js, React Three Fiber
+* **Python Runtime**: Pyodide (WebAssembly)
+* **Editor**: Monaco Editor
+
+## 🚀 Getting Started
+
+### Prerequisites
+* Node.js (v16 or higher)
+
+### Installation
+
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/duongtruongbinh/TorchViz-3D.git
+    cd TorchViz-3D
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Run locally**
+    ```bash
+    npm run dev
+    ```
+    Open `http://localhost:3000` to view the app.
+
+## 📦 Building for Production
+
+To create a production-ready build:
+
+```bash
+npm run build
+```
+
+The output will be in the dist directory.

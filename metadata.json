@@ -1,0 +1,5 @@
+{
+  "name": "TorchViz 3D",
+  "description": "A client-side PyTorch architecture visualizer that renders 3D isometric block diagrams and exports SVG.",
+  "requestFramePermissions": []
+}

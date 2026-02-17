@@ -1,0 +1,44 @@
+/* TorchViz 3D — Design tokens & base styles */
+:root {
+  --canvas-bg: radial-gradient(circle at center, #18181b 0%, #09090b 100%);
+  --surface: #18181b;
+  --surface-elevated: #27272a;
+  --border: #3f3f46;
+  --border-subtle: rgba(63, 63, 70, 0.5);
+  --text: #e4e4e7;
+  --text-muted: #a1a1aa;
+  --text-dim: #71717a;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+}
+
+/* Block / Card consistent style */
+.block-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.block-tooltip {
+  font-size: 0.8125rem;
+}
+
+/* Scrollbar (backup if Tailwind not applied) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #18181b;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
