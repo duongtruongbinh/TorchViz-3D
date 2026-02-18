@@ -78,18 +78,33 @@ export function flattenIRNodes(nodes: IRNode[]): IRNode[] {
   return result;
 }
 
-/**
- * Build the initial collapsed-ID set from an IR graph.
- * Root-level containers start expanded; nested containers start collapsed.
- */
+/** Smart collapse: auto-expand small Sequentials, collapse large blocks, depth-based for others. Never collapse root. */
 export function initCollapsedIds(ir: IRGraph): Set<string> {
   const ids = new Set<string>();
+  const SEQ_AUTO_EXPAND_THRESHOLD = 3;
+  const LARGE_BLOCK_COLLAPSE_THRESHOLD = 5;
+
   function walk(nodes: IRNode[], depth: number) {
     for (const node of nodes) {
-      if (node.is_container && node.children?.length) {
-        if (depth > 0) ids.add(node.id);
-        walk(node.children, depth + 1);
+      if (!node.is_container || !node.children?.length) continue;
+
+      const childCount = node.children.length;
+      const opLower = node.op_type.toLowerCase();
+      const isSequential = opLower.includes('sequential');
+
+      let shouldCollapse: boolean;
+      if (depth === 0) {
+        shouldCollapse = false;
+      } else if (isSequential && childCount < SEQ_AUTO_EXPAND_THRESHOLD) {
+        shouldCollapse = false;
+      } else if (childCount > LARGE_BLOCK_COLLAPSE_THRESHOLD) {
+        shouldCollapse = true;
+      } else {
+        shouldCollapse = true;
       }
+
+      if (shouldCollapse) ids.add(node.id);
+      walk(node.children, depth + 1);
     }
   }
   walk(ir.nodes, 0);

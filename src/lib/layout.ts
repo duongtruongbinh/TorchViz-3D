@@ -52,6 +52,9 @@ function getOpColor(op: string): string {
   if (lower.includes('attn')) return '#a78bfa';
   if (lower.includes('add') || lower.includes('cat')) return '#f87171';
   if (lower.includes('relu') || lower.includes('gelu') || lower.includes('silu')) return '#22d3ee';
+  if (lower.includes('embedding')) return '#c084fc';
+  if (lower.includes('rnn') || lower.includes('lstm') || lower.includes('gru')) return '#fb923c';
+  if (lower.includes('pixelshuffle') || lower.includes('upsample')) return '#2dd4bf';
   return '#94a3b8';
 }
 

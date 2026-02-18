@@ -1,6 +1,4 @@
-
-// Embedding python sources here to ensure the Web Worker can load them 
-// without relying on fetch() of static assets which can be flaky in some demo environments.
+// Modular Python sources for torchstub. Web Worker loads these without fetch().
 
 export const PY_INIT = `
 __all__ = ["nn", "Tensor", "randn", "cat", "add"]
@@ -51,67 +49,45 @@ class Tensor:
 
     def __getitem__(self, idx):
         from .ops import _record
-        # Basic shape inference for slicing
         current_shape = list(self.shape)
-        
-        # normalize idx to tuple
         if not isinstance(idx, tuple):
             idx = (idx,)
-            
         new_shape = []
         dim_counter = 0
-        
-        # We need to handle Ellipsis '...' manually if it appears
         has_ellipsis = any(item is Ellipsis for item in idx)
         
         for item in idx:
             if item is Ellipsis:
-                # fill remaining dims logic would be here
-                # Simplified: just copy dimensions until the end minus remaining explicit indices
                 remaining_dims_in_idx = len(idx) - (idx.index(Ellipsis) + 1)
                 dims_to_copy = len(current_shape) - dim_counter - remaining_dims_in_idx
                 for _ in range(dims_to_copy):
                     new_shape.append(current_shape[dim_counter])
                     dim_counter += 1
                 continue
-                
             if dim_counter >= len(current_shape):
                 break
-
             if isinstance(item, int):
-                # Reduces dimension
                 dim_counter += 1
                 continue
-                
             if isinstance(item, slice):
-                # Keeps dimension, modifies size
                 start = item.start if item.start is not None else 0
                 stop = item.stop if item.stop is not None else current_shape[dim_counter]
                 step = item.step if item.step is not None else 1
-                
-                # handle negatives
                 dim_len = current_shape[dim_counter]
                 if start < 0: start += dim_len
                 if stop < 0: stop += dim_len
-                
-                # Clamp
                 start = max(0, min(start, dim_len))
                 stop = max(0, min(stop, dim_len))
-
                 if step > 0:
                     new_len = max(0, (stop - start + (step - 1)) // step)
                 else:
                     new_len = max(0, (start - stop + (-step - 1)) // (-step))
-
                 new_shape.append(new_len)
                 dim_counter += 1
                 continue
-        
-        # Append remaining dimensions
         while dim_counter < len(current_shape):
              new_shape.append(current_shape[dim_counter])
              dim_counter += 1
-             
         return _record("Slice", [self], tuple(new_shape))
 `;
 
@@ -187,7 +163,7 @@ def matmul(a, b):
     out[-1] = b.shape[-1]
     if a.shape[-1] != b.shape[-2]:
         return _record("MatMul", [a, b], tuple(out),
-            error=f"Shape Mismatch: matmul {tuple(a.shape)} @ {tuple(b.shape)}, dim {a.shape[-1]} != {b.shape[-2]}")
+            error=f"Shape Mismatch: matmul {tuple(a.shape)} @ {tuple(b.shape)}")
     return _record("MatMul", [a, b], tuple(out))
 
 def randn(*shape):
@@ -199,7 +175,6 @@ import inspect
 import sys
 
 class GraphError(Exception):
-    """Raised on shape mismatch; the partial graph built so far is still valid."""
     pass
 
 class GraphRecorder:
@@ -265,19 +240,13 @@ class GraphRecorder:
     def add_node(self, op_type, inputs, output, params=0, meta=None, error=None):
         node_id = f"node_{self.id_counter}"
         self.id_counter += 1
-
         for inp in inputs:
             if hasattr(inp, 'id') and inp.id in self.tensor_map:
                 from_node = self.tensor_map[inp.id]
                 edge_kind = "main"
                 if op_type == "Add": edge_kind = "residual"
                 elif op_type == "Concat": edge_kind = "concat"
-                self.edges.append({
-                    "from": from_node,
-                    "to": node_id,
-                    "kind": edge_kind,
-                })
-
+                self.edges.append({"from": from_node, "to": node_id, "kind": edge_kind})
         node = {
             "id": node_id,
             "name": f"{op_type}_{self.id_counter}",
@@ -288,19 +257,15 @@ class GraphRecorder:
             "lineno": self._get_lineno(),
             "meta": meta or {},
         }
-
         if error:
             node["error"] = error
             self.error_node_id = node_id
-
         self._current_children().append(node)
         self.tensor_map[output.id] = node_id
         return node_id
 
     def to_dict(self):
-        total_params = 0
-        for n in self.root_children:
-            total_params += n.get("params", 0)
+        total_params = sum(n.get("params", 0) for n in self.root_children)
         result = {
             "nodes": self.root_children,
             "edges": self.edges,
@@ -317,12 +282,14 @@ def get_recorder():
     return _instance
 `;
 
-export const PY_NN_INIT = `
+const PY_NN_IMPORTS = `
 from ..tensor import Tensor
 from ..ops import _record
 from ..recorder import get_recorder, GraphError
 import math
+`;
 
+const PY_NN_MODULE = `
 class Module:
     _leaf_types = set()
 
@@ -355,7 +322,9 @@ class Module:
 
     def forward(self, x):
         return x
+`;
 
+const PY_NN_CONV = `
 class Conv2d(Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0):
         super().__init__()
@@ -372,13 +341,14 @@ class Conv2d(Module):
             return _record("Conv2d", [x], x.shape, self.params,
                 {"kernel": self.kernel_size, "stride": self.stride},
                 error=f"Shape Mismatch: Conv2d expects 4D input [N,C,H,W], got {len(x.shape)}D {tuple(x.shape)}")
-        h_in, w_in = x.shape[2], x.shape[3]
-        h_out = math.floor((h_in + 2 * self.padding - self.kernel_size[0]) / self.stride + 1)
-        w_out = math.floor((w_in + 2 * self.padding - self.kernel_size[1]) / self.stride + 1)
+        h_out = math.floor((x.shape[2] + 2 * self.padding - self.kernel_size[0]) / self.stride + 1)
+        w_out = math.floor((x.shape[3] + 2 * self.padding - self.kernel_size[1]) / self.stride + 1)
         out_shape = (x.shape[0], self.out_channels, h_out, w_out)
         return _record("Conv2d", [x], out_shape, self.params,
                        {"kernel": self.kernel_size, "stride": self.stride})
+`;
 
+const PY_NN_LINEAR = `
 class Linear(Module):
     def __init__(self, in_features, out_features):
         super().__init__()
@@ -393,7 +363,9 @@ class Linear(Module):
             return _record("Linear", [x], tuple(out_shape), self.params,
                 error=f"Shape Mismatch: Linear expects input dim {self.in_features}, got {x.shape[-1]}")
         return _record("Linear", [x], tuple(out_shape), self.params)
+`;
 
+const PY_NN_POOL = `
 class MaxPool2d(Module):
     def __init__(self, kernel_size, stride=None, padding=0):
         super().__init__()
@@ -404,12 +376,10 @@ class MaxPool2d(Module):
     def forward(self, x):
         if len(x.shape) < 4:
             return _record("MaxPool", [x], x.shape,
-                error=f"Shape Mismatch: MaxPool2d expects 4D input, got {len(x.shape)}D {tuple(x.shape)}")
-        h_in, w_in = x.shape[2], x.shape[3]
-        ks = self.kernel_size
-        st = self.stride
-        h_out = math.floor((h_in + 2 * self.padding - ks) / st + 1)
-        w_out = math.floor((w_in + 2 * self.padding - ks) / st + 1)
+                error=f"Shape Mismatch: MaxPool2d expects 4D input, got {len(x.shape)}D")
+        ks, st = self.kernel_size, self.stride
+        h_out = math.floor((x.shape[2] + 2 * self.padding - ks) / st + 1)
+        w_out = math.floor((x.shape[3] + 2 * self.padding - ks) / st + 1)
         out_shape = (x.shape[0], x.shape[1], h_out, w_out)
         return _record("MaxPool", [x], out_shape)
 
@@ -423,12 +393,10 @@ class AvgPool2d(Module):
     def forward(self, x):
         if len(x.shape) < 4:
             return _record("AvgPool", [x], x.shape,
-                error=f"Shape Mismatch: AvgPool2d expects 4D input, got {len(x.shape)}D {tuple(x.shape)}")
-        h_in, w_in = x.shape[2], x.shape[3]
-        ks = self.kernel_size
-        st = self.stride
-        h_out = math.floor((h_in + 2 * self.padding - ks) / st + 1)
-        w_out = math.floor((w_in + 2 * self.padding - ks) / st + 1)
+                error=f"Shape Mismatch: AvgPool2d expects 4D input, got {len(x.shape)}D")
+        ks, st = self.kernel_size, self.stride
+        h_out = math.floor((x.shape[2] + 2 * self.padding - ks) / st + 1)
+        w_out = math.floor((x.shape[3] + 2 * self.padding - ks) / st + 1)
         out_shape = (x.shape[0], x.shape[1], h_out, w_out)
         return _record("AvgPool", [x], out_shape)
 
@@ -440,10 +408,12 @@ class AdaptiveAvgPool2d(Module):
     def forward(self, x):
         if len(x.shape) < 4:
             return _record("AdaptiveAvgPool", [x], x.shape,
-                error=f"Shape Mismatch: AdaptiveAvgPool2d expects 4D input, got {len(x.shape)}D {tuple(x.shape)}")
+                error=f"Shape Mismatch: AdaptiveAvgPool2d expects 4D input, got {len(x.shape)}D")
         out_shape = (x.shape[0], x.shape[1], self.output_size[0], self.output_size[1])
         return _record("AdaptiveAvgPool", [x], out_shape)
+`;
 
+const PY_NN_NORM_ACT = `
 class BatchNorm2d(Module):
     def __init__(self, num_features):
         super().__init__()
@@ -481,7 +451,9 @@ class Flatten(Module):
     def forward(self, x):
         from ..ops import flatten
         return flatten(x, 1)
+`;
 
+const PY_NN_EXTRA = `
 class Sequential(Module):
     def __init__(self, *args):
         super().__init__()
@@ -507,7 +479,102 @@ class MultiheadAttention(Module):
     def forward(self, query, key, value, attn_mask=None):
         return _record("MultiHeadAttn", [query], query.shape, self.params, {"heads": self.num_heads})
 
+class Embedding(Module):
+    def __init__(self, num_embeddings, embedding_dim):
+        super().__init__()
+        self.num_embeddings = num_embeddings
+        self.embedding_dim = embedding_dim
+        self.params = num_embeddings * embedding_dim
+
+    def forward(self, x):
+        out_shape = tuple(list(x.shape) + [self.embedding_dim])
+        return _record("Embedding", [x], out_shape, self.params)
+
+class RNN(Module):
+    def __init__(self, input_size, hidden_size, num_layers=1):
+        super().__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.params = (input_size * hidden_size + hidden_size * hidden_size + 2 * hidden_size) * num_layers
+
+    def forward(self, x, h=None):
+        batch = x.shape[1] if len(x.shape) > 1 else x.shape[0]
+        seq_len = x.shape[0] if len(x.shape) > 1 else 1
+        out_shape = (seq_len, batch, self.hidden_size)
+        return _record("RNN", [x], out_shape, self.params)
+
+class LSTM(Module):
+    def __init__(self, input_size, hidden_size, num_layers=1):
+        super().__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.params = 4 * (input_size * hidden_size + hidden_size * hidden_size + 2 * hidden_size) * num_layers
+
+    def forward(self, x, h=None):
+        batch = x.shape[1] if len(x.shape) > 1 else x.shape[0]
+        seq_len = x.shape[0] if len(x.shape) > 1 else 1
+        out_shape = (seq_len, batch, self.hidden_size)
+        return _record("LSTM", [x], out_shape, self.params)
+
+class GRU(Module):
+    def __init__(self, input_size, hidden_size, num_layers=1):
+        super().__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.params = 3 * (input_size * hidden_size + hidden_size * hidden_size + 2 * hidden_size) * num_layers
+
+    def forward(self, x, h=None):
+        batch = x.shape[1] if len(x.shape) > 1 else x.shape[0]
+        seq_len = x.shape[0] if len(x.shape) > 1 else 1
+        out_shape = (seq_len, batch, self.hidden_size)
+        return _record("GRU", [x], out_shape, self.params)
+
+class PixelShuffle(Module):
+    def __init__(self, upscale_factor):
+        super().__init__()
+        self.upscale_factor = upscale_factor if isinstance(upscale_factor, int) else (upscale_factor[0] if isinstance(upscale_factor, (list, tuple)) else 2)
+
+    def forward(self, x):
+        if len(x.shape) < 4:
+            return _record("PixelShuffle", [x], x.shape,
+                error=f"Shape Mismatch: PixelShuffle expects 4D input [N,C,H,W], got {len(x.shape)}D")
+        r = self.upscale_factor
+        c_ratio = x.shape[1] // (r * r)
+        if c_ratio < 1:
+            return _record("PixelShuffle", [x], x.shape,
+                error=f"PixelShuffle: channels {x.shape[1]} must be divisible by r^2={r*r}")
+        out_shape = (x.shape[0], c_ratio, x.shape[2] * r, x.shape[3] * r)
+        return _record("PixelShuffle", [x], out_shape)
+
+class Upsample(Module):
+    def __init__(self, size=None, scale_factor=None, mode='nearest'):
+        super().__init__()
+        self.scale_factor = scale_factor if isinstance(scale_factor, (int, float)) else (scale_factor[0] if scale_factor else 2)
+
+    def forward(self, x):
+        if len(x.shape) < 4:
+            return _record("Upsample", [x], x.shape)
+        sf = self.scale_factor
+        out_shape = (x.shape[0], x.shape[1], int(x.shape[2] * sf), int(x.shape[3] * sf))
+        return _record("Upsample", [x], out_shape)
+`;
+
+const PY_NN_LEAF_TYPES = `
 Module._leaf_types = {Conv2d, Linear, MaxPool2d, AvgPool2d, AdaptiveAvgPool2d,
                       BatchNorm2d, LayerNorm, ReLU, GELU, SiLU, Dropout, Flatten,
-                      MultiheadAttention}
+                      MultiheadAttention, Embedding, RNN, LSTM, GRU, PixelShuffle, Upsample}
 `;
+
+export const PY_NN_INIT = [
+  PY_NN_IMPORTS,
+  PY_NN_MODULE,
+  PY_NN_CONV,
+  PY_NN_LINEAR,
+  PY_NN_POOL,
+  PY_NN_NORM_ACT,
+  PY_NN_EXTRA,
+  PY_NN_LEAF_TYPES,
+].join('\n');

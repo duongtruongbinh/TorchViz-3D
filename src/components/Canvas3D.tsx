@@ -55,6 +55,122 @@ interface Canvas3DProps {
 }
 
 const HEADER_BAR_HEIGHT = 0.6;
+const INSTANCED_BATCH_MIN = 3;
+
+function flattenLeaves(nodes: LayoutNode[]): LayoutNode[] {
+  const out: LayoutNode[] = [];
+  for (const n of nodes) {
+    if (!n.is_container) {
+      out.push(n);
+    } else if (n.children?.length) {
+      out.push(...flattenLeaves(n.children));
+    }
+  }
+  return out;
+}
+
+function groupLeavesByIdentity(leaves: LayoutNode[]): { batches: LayoutNode[][]; singles: LayoutNode[] } {
+  const map = new Map<string, LayoutNode[]>();
+  for (const n of leaves) {
+    const key = `${n.width.toFixed(2)}_${n.height.toFixed(2)}_${n.depth.toFixed(2)}_${n.color}`;
+    const arr = map.get(key) ?? [];
+    arr.push(n);
+    map.set(key, arr);
+  }
+  const batches: LayoutNode[][] = [];
+  const singles: LayoutNode[] = [];
+  for (const arr of map.values()) {
+    if (arr.length >= INSTANCED_BATCH_MIN) {
+      batches.push(arr);
+    } else {
+      singles.push(...arr);
+    }
+  }
+  return { batches, singles };
+}
+
+/* ─── Instanced leaf blocks (performance: 3+ identical blocks) ─── */
+const InstancedLeafGroup: React.FC<{
+  nodes: LayoutNode[];
+  highlightNodeId: string | null;
+  onHover: (lineno: number | null) => void;
+  onClickNode: (nodeId: string) => void;
+}> = ({ nodes, highlightNodeId, onHover, onClickNode }) => {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const n = nodes[0];
+  const args = useMemo(() => [n.width, n.height, n.depth] as [number, number, number], [n.width, n.height, n.depth]);
+
+  useEffect(() => {
+    const mesh = ref.current;
+    if (!mesh) return;
+    const matrix = new THREE.Matrix4();
+    const pos = new THREE.Vector3();
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      pos.set(node.x, node.y, node.z);
+      matrix.compose(pos, new THREE.Quaternion(), new THREE.Vector3(1, 1, 1));
+      mesh.setMatrixAt(i, matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  }, [nodes]);
+
+  const baseColor = n.error ? '#ef4444' : n.color;
+
+  return (
+    <group>
+      <instancedMesh
+        ref={ref}
+        args={[undefined as any, undefined as any, nodes.length]}
+        onClick={(e: any) => {
+        e.stopPropagation();
+        const i = e.instanceId ?? 0;
+        onClickNode(nodes[i]?.id ?? '');
+      }}
+      onPointerOver={(e: any) => {
+        e.stopPropagation();
+        const i = e.instanceId ?? 0;
+        setHoveredId(i);
+        onHover(nodes[i]?.lineno ?? null);
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        setHoveredId(null);
+        onHover(null);
+        document.body.style.cursor = '';
+      }}
+    >
+      <boxGeometry args={args} />
+      <meshPhysicalMaterial
+        color={baseColor}
+        metalness={0.05}
+        roughness={0.5}
+        emissive={baseColor}
+        emissiveIntensity={0}
+      />
+    </instancedMesh>
+      {hoveredId !== null && nodes[hoveredId] && (
+        <Html
+          position={[nodes[hoveredId].x, nodes[hoveredId].y + nodes[hoveredId].height / 2, nodes[hoveredId].z]}
+          center
+          style={{ pointerEvents: 'none', zIndex: 1000 }}
+        >
+          <div className="bg-zinc-900/95 text-white border border-zinc-600 px-4 py-3 rounded-lg shadow-2xl min-w-[140px] text-center backdrop-blur-sm">
+            <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2 border-b border-zinc-700/50 pb-2">
+              {nodes[hoveredId].op_type}
+            </div>
+            <div className="text-sm font-mono font-medium text-zinc-100">
+              {nodes[hoveredId].out_shape?.join(' × ')}
+            </div>
+            {nodes[hoveredId].params > 0 && (
+              <div className="text-xs text-zinc-400 mt-1.5">{nodes[hoveredId].params.toLocaleString()} params</div>
+            )}
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
 
 /* ─── Pulsing emissive intensity for error nodes ─── */
 function useErrorPulse(hasError: boolean): number {
@@ -182,10 +298,11 @@ const ContainerBlock: React.FC<{
   node: LayoutNode;
   isRoot?: boolean;
   highlightNodeId: string | null;
+  skipLeaves?: boolean;
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
-}> = ({ node, isRoot, highlightNodeId, onToggle, onHover, onClickNode }) => {
+}> = ({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode }) => {
   const [hovered, setHover] = useState(false);
   const args = useMemo(
     () => [node.width, node.height, node.depth] as [number, number, number],
@@ -196,8 +313,8 @@ const ContainerBlock: React.FC<{
   const opacity = node.opacity ?? 0.15;
   const isOpaque = opacity >= 0.99;
 
-  // Root container: skip visual chrome, always expanded, render children directly
-  if (isRoot) {
+  // Root container: skip visual chrome when expanded; when collapsed show the block
+  if (isRoot && !node.collapsed) {
     return (
       <group>
         {node.children?.map((child) => (
@@ -205,6 +322,7 @@ const ContainerBlock: React.FC<{
             key={child.id}
             node={child}
             highlightNodeId={highlightNodeId}
+            skipLeaves={skipLeaves}
             onToggle={onToggle}
             onHover={onHover}
             onClickNode={onClickNode}
@@ -304,7 +422,7 @@ const ContainerBlock: React.FC<{
     <group>
       {/* Boundary box (visual only — no raycast) */}
       <group position={[node.x, node.y, node.z]}>
-        <RoundedBox args={args} radius={0.03} smoothness={2} raycast={() => {}}>
+        <RoundedBox args={args} radius={0.03} smoothness={2} raycast={() => { }}>
           <meshPhysicalMaterial
             color={borderColor}
             transparent
@@ -374,13 +492,66 @@ const ContainerBlock: React.FC<{
         </mesh>
       </group>
 
-      {/* Render children recursively — fully accessible to mouse events */}
+      {/* Render children recursively */}
       {node.children?.map((child) => (
         <SceneNode
           key={child.id}
           node={child}
           highlightNodeId={highlightNodeId}
+          skipLeaves={skipLeaves}
           onToggle={onToggle}
+          onHover={onHover}
+          onClickNode={onClickNode}
+        />
+      ))}
+    </group>
+  );
+};
+
+/* ─── Scene with instanced leaf batching ─── */
+const SceneWithInstancing: React.FC<{
+  layout: LayoutData;
+  highlightNodeId: string | null;
+  onToggle: (id: string) => void;
+  onHover: (lineno: number | null) => void;
+  onClickNode: (nodeId: string) => void;
+}> = ({ layout, highlightNodeId, onToggle, onHover, onClickNode }) => {
+  const { batches, singles } = useMemo(() => {
+    const leaves = flattenLeaves(layout.nodes);
+    return groupLeavesByIdentity(leaves);
+  }, [layout]);
+
+  return (
+    <group>
+      {layout.nodes.map((n) => {
+        const isRoot = !n.parentId && n.is_container && layout.nodes.length === 1;
+        return (
+          <SceneNode
+            key={n.id}
+            node={n}
+            isRoot={isRoot}
+            highlightNodeId={highlightNodeId}
+            skipLeaves={true}
+            onToggle={onToggle}
+            onHover={onHover}
+            onClickNode={onClickNode}
+          />
+        );
+      })}
+      {batches.map((nodes, i) => (
+        <InstancedLeafGroup
+          key={`inst-${i}-${nodes[0].width}-${nodes[0].color}`}
+          nodes={nodes}
+          highlightNodeId={highlightNodeId}
+          onHover={onHover}
+          onClickNode={onClickNode}
+        />
+      ))}
+      {singles.map((node) => (
+        <NodeBlock
+          key={node.id}
+          node={node}
+          highlighted={node.id === highlightNodeId}
           onHover={onHover}
           onClickNode={onClickNode}
         />
@@ -394,22 +565,25 @@ const SceneNode: React.FC<{
   node: LayoutNode;
   isRoot?: boolean;
   highlightNodeId: string | null;
+  skipLeaves?: boolean;
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
-}> = ({ node, isRoot, highlightNodeId, onToggle, onHover, onClickNode }) => {
+}> = ({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode }) => {
   if (node.is_container) {
     return (
       <ContainerBlock
         node={node}
         isRoot={isRoot}
         highlightNodeId={highlightNodeId}
+        skipLeaves={skipLeaves}
         onToggle={onToggle}
         onHover={onHover}
         onClickNode={onClickNode}
       />
     );
   }
+  if (skipLeaves) return null;
   return (
     <NodeBlock
       node={node}
@@ -625,21 +799,14 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
           <Bounds fit clip observe margin={0.15}>
             <BoundsAutoFit layoutKey={layoutKey} />
             <RecenterButton />
+            <SceneWithInstancing
+              layout={layout}
+              highlightNodeId={highlightNodeId}
+              onToggle={handleToggle}
+              onHover={handleHover}
+              onClickNode={handleClick}
+            />
             <group>
-              {layout.nodes.map((n) => {
-                const isRoot = !n.parentId && n.is_container && layout.nodes.length === 1;
-                return (
-                  <SceneNode
-                    key={n.id}
-                    node={n}
-                    isRoot={isRoot}
-                    highlightNodeId={highlightNodeId}
-                    onToggle={handleToggle}
-                    onHover={handleHover}
-                    onClickNode={handleClick}
-                  />
-                );
-              })}
               {layout.edges.map((e, i) => (
                 <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
               ))}

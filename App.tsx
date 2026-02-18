@@ -13,11 +13,19 @@ import { createWorker } from './src/workers/pyodideWorker';
 import lenetCode from './src/templates/lenet5';
 import resnetCode from './src/templates/mini_resnet';
 import vitCode from './src/templates/mini_vit';
+import alexnetCode from './src/templates/alexnet';
+import vgg16Code from './src/templates/vgg16';
+import mobilenetV2Code from './src/templates/mobilenet_v2';
+import unetCode from './src/templates/unet';
 
-const TEMPLATES = {
+const TEMPLATES: Record<string, { name: string; code: string; shape: number[] }> = {
   lenet: { name: 'LeNet-5 (CNN)', code: lenetCode, shape: [1, 1, 32, 32] },
   resnet: { name: 'Mini-ResNet', code: resnetCode, shape: [1, 3, 32, 32] },
   vit: { name: 'Mini-ViT', code: vitCode, shape: [1, 3, 32, 32] },
+  alexnet: { name: 'AlexNet', code: alexnetCode, shape: [1, 3, 224, 224] },
+  vgg16: { name: 'VGG-16', code: vgg16Code, shape: [1, 3, 224, 224] },
+  mobilenet: { name: 'MobileNetV2', code: mobilenetV2Code, shape: [1, 3, 224, 224] },
+  unet: { name: 'UNet', code: unetCode, shape: [1, 3, 128, 128] },
 };
 
 let nextRequestId = 0;
