@@ -5,6 +5,7 @@ import Inspector from './src/components/Inspector';
 import BottomTabs from './src/components/BottomTabs';
 import ExportSvgModal from './src/components/ExportSvgModal';
 import HelpModal from './src/components/HelpModal';
+import OnboardingTour, { hasSeenTour } from './src/components/OnboardingTour';
 import { IRGraph, LayoutData, initCollapsedIds, findNodeByLine } from './src/lib/irTypes';
 import { computeLayout } from './src/lib/layout';
 import { createWorker } from './src/workers/pyodideWorker';
@@ -34,6 +35,7 @@ export default function App() {
 
   const [isExportOpen, setExportOpen] = useState(false);
   const [isHelpOpen, setHelpOpen] = useState(false);
+  const [isTourOpen, setTourOpen] = useState(false);
 
   // Bi-directional highlighting + selection
   const [highlightLine, setHighlightLine] = useState<number | null>(null);
@@ -47,6 +49,10 @@ export default function App() {
 
   const workerRef = useRef<Worker | null>(null);
   const activeRequestIdRef = useRef<number>(-1);
+
+  useEffect(() => {
+    if (!hasSeenTour()) setTourOpen(true);
+  }, []);
 
   // --- Layout (memoised from IR + collapsed set) ---
   const layout = useMemo<LayoutData | null>(() => {
@@ -259,6 +265,7 @@ export default function App() {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="visualize"
             onClick={handleRun}
             disabled={loading || !!criticalError}
             className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-md text-xs font-semibold shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/50 hover:border-blue-400"
@@ -287,6 +294,14 @@ export default function App() {
           </button>
 
           <button
+            onClick={() => setTourOpen(true)}
+            className="w-8 h-8 flex items-center justify-center rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-zinc-400 hover:text-zinc-200 text-sm transition-colors"
+            title="Tour"
+            aria-label="Open tour"
+          >
+            ℹ
+          </button>
+          <button
             onClick={() => setHelpOpen(true)}
             className="w-8 h-8 flex items-center justify-center rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 text-zinc-400 hover:text-zinc-200 text-sm font-bold transition-colors"
             title="Help"
@@ -300,6 +315,7 @@ export default function App() {
       <div className="flex-1 flex overflow-hidden relative" ref={containerRef}>
         {/* Left Pane: Editor */}
         <div
+          data-tour="editor"
           style={{ width: leftWidth }}
           className="flex flex-col border-r border-zinc-800 bg-zinc-900 min-w-[200px] max-w-[800px] shrink-0 h-full"
         >
@@ -339,7 +355,7 @@ export default function App() {
         </div>
 
         {/* Center Pane: Canvas + Bottom Terminal */}
-        <div className="flex flex-col min-w-0 bg-zinc-950 relative h-full grow">
+        <div data-tour="canvas" className="flex flex-col min-w-0 bg-zinc-950 relative h-full grow">
           <div className="flex-1 relative w-full min-h-0 bg-gradient-to-b from-zinc-950 to-[#0c0c0e]">
             <div className="absolute inset-0 overflow-hidden">
               <Canvas3D
@@ -379,6 +395,7 @@ export default function App() {
 
       <ExportSvgModal isOpen={isExportOpen} onClose={() => setExportOpen(false)} layout={layout} />
       <HelpModal isOpen={isHelpOpen} onClose={() => setHelpOpen(false)} />
+      <OnboardingTour isOpen={isTourOpen} onClose={() => setTourOpen(false)} />
     </div>
   );
 }

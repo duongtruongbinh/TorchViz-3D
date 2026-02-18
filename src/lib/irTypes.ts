@@ -51,6 +51,7 @@ export interface LayoutNode extends IRNode {
   height: number;
   depth: number;
   color: string;
+  opacity?: number;
   children?: LayoutNode[];
 }
 

@@ -1,7 +1,7 @@
-import { IRGraph, IRNode, LayoutData, LayoutNode, LayoutEdge } from './irTypes';
+import { IRGraph, IRNode, IREdge, LayoutData, LayoutNode, LayoutEdge } from './irTypes';
 
-const CONTAINER_PADDING = 2.8;
-const NODE_GAP = 2;
+const BASE_PADDING = 3.0;
+const NODE_GAP = 2.5;
 
 const scaleDim = (val: number, minPixel = 1, factor = 0.8) => {
   if (val <= 1) return minPixel;
@@ -55,24 +55,32 @@ function getOpColor(op: string): string {
   return '#94a3b8';
 }
 
-/** Container colors — distinct, visible on dark theme. */
-const CONTAINER_PALETTE: string[] = [
-  '#3b82f6', '#6366f1', '#8b5cf6',
-  '#0ea5e9', '#14b8a6', '#22c55e',
-  '#eab308', '#f97316', '#ec4899',
-  '#64748b',
-];
-
-function getContainerColor(op: string, nestLevel: number): string {
+/** Collapsed container: solid, distinct color (no gray — avoids clash with params text). */
+function getCollapsedContainerColor(op: string): string {
   const lower = op.toLowerCase();
-  let baseIdx = 0;
-  if (lower.includes('resnet') || lower.includes('block')) baseIdx = 0;
-  else if (lower.includes('transformer') || lower.includes('attn') || lower.includes('vit') || lower.includes('vision')) baseIdx = 2;
-  else if (lower.includes('sequential')) baseIdx = 9;
-  else if (lower.includes('embed') || lower.includes('patch')) baseIdx = 4;
-  else if (lower.includes('mlp')) baseIdx = 5;
-  const idx = (baseIdx + nestLevel) % CONTAINER_PALETTE.length;
-  return CONTAINER_PALETTE[idx];
+  if (lower.includes('sequential') || lower.includes('modulelist')) return '#3b82f6';
+  if (lower.includes('resnet') || lower.includes('block') || lower.includes('basic')) return '#60a5fa';
+  if (lower.includes('transformer') || lower.includes('attn') || lower.includes('vit') || lower.includes('vision')) return '#a78bfa';
+  if (lower.includes('mlp')) return '#34d399';
+  if (lower.includes('embed') || lower.includes('patch')) return '#22d3ee';
+  return '#6366f1';
+}
+
+/** Expanded container: glass tint. Outer pale, inner slightly saturated. */
+function getExpandedContainerColor(_op: string, depth: number): string {
+  if (depth === 0) return '#e0f2fe';
+  if (depth === 1) return '#ccfbf1';
+  if (depth === 2) return '#a5b4fc';
+  if (depth >= 3) return '#818cf8';
+  return '#a78bfa';
+}
+
+/** Expanded only: outer more transparent, inner slightly more visible. */
+function getExpandedContainerOpacity(depth: number): number {
+  if (depth === 0) return 0.15;
+  if (depth === 1) return 0.25;
+  if (depth === 2) return 0.35;
+  return 0.4;
 }
 
 /** Map all descendants of a collapsed container to the container's ID. */
@@ -128,7 +136,8 @@ function layoutNodes(
         y: 0,
         z: 0,
         ...size,
-        color: getContainerColor(node.op_type, nestLevel),
+        color: getCollapsedContainerColor(node.op_type),
+        opacity: 1,
         collapsed: true,
       };
       result.push(ln);
@@ -136,8 +145,8 @@ function layoutNodes(
       mapDescendants(node, node.id, collapsedRemap);
       curX += size.width + NODE_GAP;
     } else {
-      // Expanded container — layout children inside a padded bounding box
-      const pad = CONTAINER_PADDING;
+      // Expanded container — dynamic padding by depth
+      const pad = Math.max(1.0, BASE_PADDING - nestLevel * 0.5);
       const childStartX = curX + pad;
       const { result: childLayout, endX: childEndX } = layoutNodes(
         node.children!, childStartX, collapsedIds, nodeMap, collapsedRemap, nestLevel + 1,
@@ -146,7 +155,7 @@ function layoutNodes(
       const rightEdge = childLayout.length > 0
         ? childEndX - NODE_GAP + pad
         : curX + 2 * pad + 1;
-      const containerWidth = rightEdge - curX;
+      const containerWidth = Math.max(rightEdge - curX, 2 * pad);
 
       let maxH = 2, maxD = 1;
       for (const ch of childLayout) {
@@ -166,7 +175,8 @@ function layoutNodes(
         width: containerWidth,
         height: containerH,
         depth: containerD,
-        color: getContainerColor(node.op_type, nestLevel),
+        color: getExpandedContainerColor(node.op_type, nestLevel),
+        opacity: getExpandedContainerOpacity(nestLevel),
         children: childLayout,
         collapsed: false,
       };
@@ -179,19 +189,51 @@ function layoutNodes(
   return { result, endX: curX };
 }
 
-export function computeLayout(ir: IRGraph, collapsedIds: Set<string>): LayoutData {
-  const nodeMap = new Map<string, LayoutNode>();
-  const collapsedRemap = new Map<string, string>();
+const EDGE_LIFT_CLEARANCE = 0.5;
+const ARC_HEIGHT_CEILING = 4;
 
-  const { result: layoutTree } = layoutNodes(
-    ir.nodes, 0, collapsedIds, nodeMap, collapsedRemap,
-  );
+/** Collect all LayoutNodes as a flat list for spatial queries. */
+function collectAllNodes(nodes: LayoutNode[]): LayoutNode[] {
+  const out: LayoutNode[] = [];
+  for (const n of nodes) {
+    out.push(n);
+    if (n.children?.length) out.push(...collectAllNodes(n.children));
+  }
+  return out;
+}
 
-  // --- Edges ---
+/** Max top (y + height/2) of nodes that overlap the horizontal span [startX, endX]. */
+function maxBlockTopBetween(
+  allNodes: LayoutNode[],
+  excludeIds: Set<string>,
+  startX: number,
+  endX: number,
+): number {
+  const [lo, hi] = startX < endX ? [startX, endX] : [endX, startX];
+  let maxTop = 0;
+  for (const n of allNodes) {
+    if (excludeIds.has(n.id)) continue;
+    const nLeft = n.x - n.width / 2;
+    const nRight = n.x + n.width / 2;
+    if (nRight <= lo || nLeft >= hi) continue;
+    const top = n.y + n.height / 2;
+    maxTop = Math.max(maxTop, top);
+  }
+  return maxTop;
+}
+
+function layoutEdgesStructured(
+  edges: IREdge[],
+  layoutTree: LayoutNode[],
+  nodeMap: Map<string, LayoutNode>,
+  collapsedRemap: Map<string, string>,
+  gap: number,
+): LayoutEdge[] {
   const layoutEdges: LayoutEdge[] = [];
   const seen = new Set<string>();
+  const allNodes = collectAllNodes(layoutTree);
 
-  for (const e of ir.edges) {
+  for (const e of edges) {
     const fromId = collapsedRemap.get(e.from) ?? e.from;
     const toId = collapsedRemap.get(e.to) ?? e.to;
     if (fromId === toId) continue;
@@ -206,28 +248,51 @@ export function computeLayout(ir: IRGraph, collapsedIds: Set<string>): LayoutDat
 
     const start = { x: src.x + src.width / 2, y: src.y, z: src.z };
     const end = { x: dst.x - dst.width / 2, y: dst.y, z: dst.z };
-    const dist = end.x - start.x;
 
     let pts: { x: number; y: number; z: number }[];
     if (e.kind === 'residual') {
-      const arcH = Math.max(2, Math.abs(dist) * 0.15);
+      const exclude = new Set<string>([fromId, toId]);
+      const maxY = maxBlockTopBetween(allNodes, exclude, start.x, end.x);
+      const arcH = Math.min(maxY + EDGE_LIFT_CLEARANCE, start.y + ARC_HEIGHT_CEILING);
       pts = [
         start,
-        { x: start.x + dist * 0.35, y: start.y + arcH, z: start.z },
-        { x: end.x - dist * 0.35, y: end.y + arcH, z: end.z },
+        { x: start.x + gap * 0.5, y: start.y, z: start.z },
+        { x: start.x + gap * 0.5, y: arcH, z: start.z },
+        { x: end.x - gap * 0.5, y: arcH, z: end.z },
+        { x: end.x - gap * 0.5, y: end.y, z: end.z },
         end,
       ];
     } else {
       pts = [
         start,
-        { x: start.x + dist * 0.28, y: start.y, z: start.z },
-        { x: end.x - dist * 0.28, y: end.y, z: end.z },
+        { x: start.x + gap * 0.5, y: start.y, z: start.z },
+        { x: end.x - gap * 0.5, y: end.y, z: end.z },
         end,
       ];
     }
 
     layoutEdges.push({ ...e, from: fromId, to: toId, points: pts });
   }
+
+  return layoutEdges;
+}
+
+export function computeLayout(ir: IRGraph, collapsedIds: Set<string>): LayoutData {
+  const nodeMap = new Map<string, LayoutNode>();
+  const collapsedRemap = new Map<string, string>();
+
+  const { result: layoutTree } = layoutNodes(
+    ir.nodes, 0, collapsedIds, nodeMap, collapsedRemap,
+  );
+
+  // --- Edges: Structured "circuit board" routing ---
+  const layoutEdges = layoutEdgesStructured(
+    ir.edges,
+    layoutTree,
+    nodeMap,
+    collapsedRemap,
+    NODE_GAP,
+  );
 
   // --- Bounds ---
   let minX = 0, maxX = 0;

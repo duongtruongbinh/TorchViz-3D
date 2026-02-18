@@ -110,12 +110,7 @@ function renderCube(
 
 function renderEdge(edge: LayoutEdge, s: number, lightBg: boolean): string {
   const p = edge.points;
-  if (p.length < 4) return '';
-
-  const p0 = isoProject(p[0].x, p[0].y, p[0].z, s);
-  const p1 = isoProject(p[1].x, p[1].y, p[1].z, s);
-  const p2 = isoProject(p[2].x, p[2].y, p[2].z, s);
-  const p3 = isoProject(p[3].x, p[3].y, p[3].z, s);
+  if (p.length < 2) return '';
 
   const color = lightBg
     ? (edge.kind === 'residual' ? '#6b7280' : '#4b5563')
@@ -123,7 +118,14 @@ function renderEdge(edge: LayoutEdge, s: number, lightBg: boolean): string {
   const dash = edge.kind === 'residual' ? ' stroke-dasharray="6 4"' : '';
   const width = edge.kind === 'residual' ? 0.8 : 1.2;
 
-  return `<path d="M${fmt(p0.x)},${fmt(p0.y)} C${fmt(p1.x)},${fmt(p1.y)} ${fmt(p2.x)},${fmt(p2.y)} ${fmt(p3.x)},${fmt(p3.y)}" fill="none" stroke="${color}" stroke-width="${width}"${dash} stroke-linecap="round"/>`;
+  const proj = p.map((pt) => isoProject(pt.x, pt.y, pt.z, s));
+  let d: string;
+  if (p.length === 4) {
+    d = `M${fmt(proj[0].x)},${fmt(proj[0].y)} C${fmt(proj[1].x)},${fmt(proj[1].y)} ${fmt(proj[2].x)},${fmt(proj[2].y)} ${fmt(proj[3].x)},${fmt(proj[3].y)}`;
+  } else {
+    d = proj.map((pt, i) => (i === 0 ? `M${fmt(pt.x)},${fmt(pt.y)}` : `L${fmt(pt.x)},${fmt(pt.y)}`)).join(' ');
+  }
+  return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}"${dash} stroke-linecap="round"/>`;
 }
 
 function escapeXml(s: string): string {
@@ -200,10 +202,8 @@ export function generateSVG(layout: LayoutData, options: SvgOptions): string {
 
   const nodesSvg = sorted.map(n => {
     const isExpandedContainer = n.is_container && n.children && !n.collapsed;
-    if (isExpandedContainer) {
-      return renderCube(n, S, n.color, 0.22, true, lightBg);
-    }
-    return renderCube(n, S, n.color, 1, false, lightBg);
+    const opacity = n.opacity ?? (isExpandedContainer ? 0.22 : 1);
+    return renderCube(n, S, n.color, opacity, isExpandedContainer, lightBg);
   }).join('\n');
 
   if (minX === Infinity) { minX = 0; minY = 0; maxX = 400; maxY = 300; }

@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import {
   OrbitControls,
   RoundedBox,
   Html,
   CubicBezierLine,
+  Line,
   Edges,
   ContactShadows,
   Bounds,
@@ -192,6 +193,8 @@ const ContainerBlock: React.FC<{
   );
   const hasError = !!node.has_error;
   const borderColor = hasError ? '#ef4444' : node.color;
+  const opacity = node.opacity ?? 0.15;
+  const isOpaque = opacity >= 0.99;
 
   // Root container: skip visual chrome, always expanded, render children directly
   if (isRoot) {
@@ -238,17 +241,15 @@ const ContainerBlock: React.FC<{
         >
           <meshPhysicalMaterial
             color={borderColor}
-            transparent
-            opacity={hovered ? 0.9 : 0.8}
-            metalness={0}
-            roughness={0.7}
+            metalness={0.05}
+            roughness={0.5}
             emissive={borderColor}
-            emissiveIntensity={hovered ? 0.2 : 0.08}
+            emissiveIntensity={hovered ? 0.2 : 0.05}
           />
         </RoundedBox>
 
-        <Edges threshold={15} color="#6b7280" scale={1.001} renderOrder={1}>
-          <lineBasicMaterial transparent opacity={hovered ? 0.8 : 0.5} />
+        <Edges threshold={15} color={isOpaque ? '#94a3b8' : '#bae6fd'} scale={1.001} renderOrder={1}>
+          <lineBasicMaterial transparent opacity={isOpaque ? 0.6 : 0.4} />
         </Edges>
 
         {/* Label */}
@@ -307,14 +308,16 @@ const ContainerBlock: React.FC<{
           <meshPhysicalMaterial
             color={borderColor}
             transparent
-            opacity={0.18}
-            metalness={0}
-            roughness={1}
+            transmission={0}
+            opacity={opacity}
+            metalness={0.8}
+            roughness={0.1}
+            depthWrite={false}
           />
         </RoundedBox>
 
-        <Edges threshold={15} color="#6b7280" scale={1.001} renderOrder={1}>
-          <lineBasicMaterial transparent opacity={0.5} />
+        <Edges threshold={15} color="#bae6fd" scale={1.002} renderOrder={1}>
+          <lineBasicMaterial transparent opacity={0.4} />
         </Edges>
 
         {/* Top-left label */}
@@ -417,29 +420,42 @@ const SceneNode: React.FC<{
   );
 };
 
-/* ─── Edge Line ─── */
+/* ─── Edge Line: Bezier for standard edges, polyline for residual/skip ─── */
 const EdgeLine: React.FC<{ edge: LayoutEdge }> = ({ edge }) => {
   const { points, kind } = edge;
-  if (points.length < 4) return null;
-
   const color = kind === 'residual' ? '#a1a1aa' : '#52525b';
-  const start = new THREE.Vector3(points[0].x, points[0].y, points[0].z);
-  const c1 = new THREE.Vector3(points[1].x, points[1].y, points[1].z);
-  const c2 = new THREE.Vector3(points[2].x, points[2].y, points[2].z);
-  const end = new THREE.Vector3(points[3].x, points[3].y, points[3].z);
 
-  return (
-    <CubicBezierLine
-      start={start}
-      midA={c1}
-      midB={c2}
-      end={end}
-      color={color}
-      lineWidth={kind === 'residual' ? 1 : 2}
-      dashed={kind === 'residual'}
-      dashScale={2}
-    />
-  );
+  if (points.length === 4) {
+    const start = new THREE.Vector3(points[0].x, points[0].y, points[0].z);
+    const c1 = new THREE.Vector3(points[1].x, points[1].y, points[1].z);
+    const c2 = new THREE.Vector3(points[2].x, points[2].y, points[2].z);
+    const end = new THREE.Vector3(points[3].x, points[3].y, points[3].z);
+    return (
+      <CubicBezierLine
+        start={start}
+        midA={c1}
+        midB={c2}
+        end={end}
+        color={color}
+        lineWidth={2}
+      />
+    );
+  }
+
+  if (points.length >= 5) {
+    const linePoints = points.map((p) => [p.x, p.y, p.z] as [number, number, number]);
+    return (
+      <Line
+        points={linePoints}
+        color={color}
+        lineWidth={kind === 'residual' ? 1 : 2}
+        dashed={kind === 'residual'}
+        dashScale={2}
+      />
+    );
+  }
+
+  return null;
 };
 
 /* ─── Auto-fit camera when layout changes ─── */
@@ -460,7 +476,6 @@ const BoundsAutoFit: React.FC<{ layoutKey: string }> = ({ layoutKey }) => {
 /* ─── Recenter button (lives inside Canvas to access useBounds) ─── */
 const RecenterButton: React.FC = () => {
   const bounds = useBounds();
-  const { size } = useThree();
   return (
     <Html
       position={[0, 0, 0]}
