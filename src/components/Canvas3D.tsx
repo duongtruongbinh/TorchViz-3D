@@ -4,6 +4,8 @@ import {
   OrbitControls,
   RoundedBox,
   Html,
+  Text,
+  Billboard,
   CubicBezierLine,
   Line,
   Edges,
@@ -13,6 +15,7 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { LayoutData, LayoutNode, LayoutEdge } from '../lib/irTypes';
+import { ERROR_COLOR, EDGE_COLOR_STD, EDGE_COLOR_RESIDUAL, EDGE_EDGES_OPAQUE, EDGE_EDGES_GLASS } from '../lib/constants';
 
 declare global {
   namespace JSX {
@@ -56,6 +59,24 @@ interface Canvas3DProps {
 
 const HEADER_BAR_HEIGHT = 0.6;
 const INSTANCED_BATCH_MIN = 3;
+
+const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
+const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×';
+
+const textBaseProps = {
+  font: FONT_URL,
+  characters: TEXT_CHARS,
+  anchorX: 'center' as const,
+  anchorY: 'middle' as const,
+  outlineWidth: 0.02,
+  outlineColor: '#000000',
+  outlineBlur: 0,
+  maxWidth: 4,
+  onSync: (t: { material: { depthTest: boolean; depthWrite: boolean } }) => {
+    t.material.depthTest = false;
+    t.material.depthWrite = false;
+  },
+};
 
 function flattenLeaves(nodes: LayoutNode[]): LayoutNode[] {
   const out: LayoutNode[] = [];
@@ -115,7 +136,7 @@ const InstancedLeafGroup: React.FC<{
     mesh.instanceMatrix.needsUpdate = true;
   }, [nodes]);
 
-  const baseColor = n.error ? '#ef4444' : n.color;
+  const baseColor = n.error ? ERROR_COLOR : n.color;
 
   return (
     <group>
@@ -123,50 +144,55 @@ const InstancedLeafGroup: React.FC<{
         ref={ref}
         args={[undefined as any, undefined as any, nodes.length]}
         onClick={(e: any) => {
-        e.stopPropagation();
-        const i = e.instanceId ?? 0;
-        onClickNode(nodes[i]?.id ?? '');
-      }}
-      onPointerOver={(e: any) => {
-        e.stopPropagation();
-        const i = e.instanceId ?? 0;
-        setHoveredId(i);
-        onHover(nodes[i]?.lineno ?? null);
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        setHoveredId(null);
-        onHover(null);
-        document.body.style.cursor = '';
-      }}
-    >
-      <boxGeometry args={args} />
-      <meshPhysicalMaterial
-        color={baseColor}
-        metalness={0.05}
-        roughness={0.5}
-        emissive={baseColor}
-        emissiveIntensity={0}
-      />
-    </instancedMesh>
+          e.stopPropagation();
+          const i = e.instanceId ?? 0;
+          onClickNode(nodes[i]?.id ?? '');
+        }}
+        onPointerOver={(e: any) => {
+          e.stopPropagation();
+          const i = e.instanceId ?? 0;
+          setHoveredId(i);
+          onHover(nodes[i]?.lineno ?? null);
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          setHoveredId(null);
+          onHover(null);
+          document.body.style.cursor = '';
+        }}
+      >
+        <boxGeometry args={args} />
+        <meshPhysicalMaterial
+          color={baseColor}
+          metalness={0.05}
+          roughness={0.5}
+          emissive={baseColor}
+          emissiveIntensity={0}
+        />
+      </instancedMesh>
+      {nodes.map((nd, i) => (
+        <Billboard key={nd.id} position={[nd.x, nd.y - nd.height / 2 - 0.7, nd.z]} renderOrder={100}>
+          <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
+            {nd.op_type}
+          </Text>
+        </Billboard>
+      ))}
       {hoveredId !== null && nodes[hoveredId] && (
-        <Html
-          position={[nodes[hoveredId].x, nodes[hoveredId].y + nodes[hoveredId].height / 2, nodes[hoveredId].z]}
-          center
-          style={{ pointerEvents: 'none', zIndex: 1000 }}
-        >
-          <div className="bg-zinc-900/95 text-white border border-zinc-600 px-4 py-3 rounded-lg shadow-2xl min-w-[140px] text-center backdrop-blur-sm">
-            <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2 border-b border-zinc-700/50 pb-2">
+        <Billboard position={[nodes[hoveredId].x, nodes[hoveredId].y + nodes[hoveredId].height / 2 + 1.2, nodes[hoveredId].z]} renderOrder={101}>
+          <group>
+            <Text {...textBaseProps} fontSize={0.38} color="#60a5fa" anchorY="top" position={[0, 0.5, 0]} letterSpacing={0.02}>
               {nodes[hoveredId].op_type}
-            </div>
-            <div className="text-sm font-mono font-medium text-zinc-100">
-              {nodes[hoveredId].out_shape?.join(' × ')}
-            </div>
+            </Text>
+            <Text {...textBaseProps} fontSize={0.42} color="#e5e7eb" anchorY="top" position={[0, 0.15, 0]}>
+              {nodes[hoveredId].out_shape?.join(' × ') ?? '-'}
+            </Text>
             {nodes[hoveredId].params > 0 && (
-              <div className="text-xs text-zinc-400 mt-1.5">{nodes[hoveredId].params.toLocaleString()} params</div>
+              <Text {...textBaseProps} fontSize={0.35} color="#9ca3af" anchorY="top" position={[0, -0.25, 0]}>
+                {nodes[hoveredId].params.toLocaleString()} params
+              </Text>
             )}
-          </div>
-        </Html>
+          </group>
+        </Billboard>
       )}
     </group>
   );
@@ -196,7 +222,7 @@ const NodeBlock: React.FC<{
   );
 
   const hasError = !!node.error;
-  const baseColor = hasError ? '#ef4444' : node.color;
+  const baseColor = hasError ? ERROR_COLOR : node.color;
   const isActive = hovered || highlighted;
   const errorPulse = useErrorPulse(hasError);
 
@@ -227,14 +253,14 @@ const NodeBlock: React.FC<{
           metalness={0.05}
           roughness={0.5}
           clearcoat={0}
-          emissive={hasError ? '#ef4444' : baseColor}
+          emissive={hasError ? ERROR_COLOR : baseColor}
           emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0.0}
         />
       </RoundedBox>
 
       <Edges
         threshold={15}
-        color={isActive ? '#ffffff' : hasError ? '#ef4444' : '#525252'}
+        color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD}
         scale={1.001}
         renderOrder={1}
       >
@@ -243,50 +269,39 @@ const NodeBlock: React.FC<{
 
       {/* Error floating label */}
       {hasError && (
-        <Html
-          position={[0, node.height / 2 + 0.8, 0]}
-          center
-          style={{ pointerEvents: 'none', zIndex: 1100, whiteSpace: 'nowrap' }}
-        >
-          <div className="bg-red-900/95 border border-red-500 text-red-200 px-3 py-2 rounded-lg text-xs font-mono shadow-xl shadow-red-900/40 max-w-[260px] text-center leading-tight">
+        <Billboard position={[0, node.height / 2 + 1.2, 0]} renderOrder={100}>
+          <Text {...textBaseProps} fontSize={0.4} color="#fecaca" anchorY="middle" maxWidth={3.5}>
             {node.error}
-          </div>
-        </Html>
+          </Text>
+        </Billboard>
       )}
 
       {/* Hover tooltip */}
       {hovered && !hasError && (
-        <Html
-          position={[0, node.height / 2, 0]}
-          center
-          style={{ pointerEvents: 'none', zIndex: 1000, whiteSpace: 'nowrap' }}
-        >
-          <div className="flex flex-col items-center pb-4">
-            <div className="bg-zinc-900/95 text-white border border-zinc-600 px-4 py-3 rounded-lg shadow-2xl min-w-[140px] text-center backdrop-blur-sm">
-              <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2 border-b border-zinc-700/50 pb-2">
-                {node.op_type}
-              </div>
-              <div className="text-sm font-mono font-medium text-zinc-100">
-                {node.out_shape?.join(' × ')}
-              </div>
-              {node.params > 0 && (
-                <div className="text-xs text-zinc-400 mt-1.5">
-                  {node.params.toLocaleString()} params
-                </div>
-              )}
-            </div>
-            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-zinc-900 -mt-[1px]" />
-          </div>
-        </Html>
+        <Billboard position={[0, node.height / 2 + 1.2, 0]} renderOrder={101}>
+          <group>
+            <Text {...textBaseProps} fontSize={0.38} color="#60a5fa" anchorY="top" position={[0, 0.5, 0]} letterSpacing={0.02}>
+              {node.op_type}
+            </Text>
+            <Text {...textBaseProps} fontSize={0.42} color="#e5e7eb" anchorY="top" position={[0, 0.15, 0]}>
+              {node.out_shape?.join(' × ') ?? '-'}
+            </Text>
+            {node.params > 0 && (
+              <Text {...textBaseProps} fontSize={0.35} color="#9ca3af" anchorY="top" position={[0, -0.25, 0]}>
+                {node.params.toLocaleString()} params
+              </Text>
+            )}
+          </group>
+        </Billboard>
       )}
 
       {/* Static label (when not hovered) */}
       {!hovered && !hasError && (
-        <Html position={[0, -node.height / 2 - 0.5, 0]} center style={{ pointerEvents: 'none' }}>
-          <div className="text-xs font-semibold text-zinc-400 select-none tracking-wide">
+        <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
+          <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
             {node.op_type}
-          </div>
-        </Html>
+          </Text>
+        </Billboard>
       )}
 
     </group>
@@ -309,7 +324,7 @@ const ContainerBlock: React.FC<{
     [node.width, node.height, node.depth],
   );
   const hasError = !!node.has_error;
-  const borderColor = hasError ? '#ef4444' : node.color;
+  const borderColor = hasError ? ERROR_COLOR : node.color;
   const opacity = node.opacity ?? 0.15;
   const isOpaque = opacity >= 0.99;
 
@@ -366,26 +381,23 @@ const ContainerBlock: React.FC<{
           />
         </RoundedBox>
 
-        <Edges threshold={15} color={isOpaque ? '#94a3b8' : '#bae6fd'} scale={1.001} renderOrder={1}>
+        <Edges threshold={15} color={isOpaque ? EDGE_EDGES_OPAQUE : EDGE_EDGES_GLASS} scale={1.001} renderOrder={1}>
           <lineBasicMaterial transparent opacity={isOpaque ? 0.6 : 0.4} />
         </Edges>
 
-        {/* Label */}
-        <Html position={[0, 0, 0]} center style={{ pointerEvents: 'none', zIndex: 900 }}>
-          <div className="flex flex-col items-center select-none" style={{ opacity: hovered ? 1 : 0.95 }}>
-            <div
-              className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg border backdrop-blur-sm"
-              style={{ color: '#fff', borderColor, background: 'rgba(9,9,11,0.92)' }}
-            >
+        {/* Label — below block, same as leaf blocks */}
+        <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
+          <group scale={hovered ? 1 : 0.95}>
+            <Text {...textBaseProps} fontSize={0.65} color="#ffffff" outlineColor={borderColor} outlineWidth={0.02}>
               {node.op_type}
-            </div>
+            </Text>
             {node.params > 0 && (
-              <div className="text-xs text-zinc-400 font-mono mt-0.5">
+              <Text {...textBaseProps} fontSize={0.45} color="#9ca3af" position={[0, -0.4, 0]} anchorY="top">
                 {node.params.toLocaleString()} params
-              </div>
+              </Text>
             )}
-          </div>
-        </Html>
+          </group>
+        </Billboard>
 
         {/* Expand button — top-right of block */}
         <Html
@@ -434,22 +446,16 @@ const ContainerBlock: React.FC<{
           />
         </RoundedBox>
 
-        <Edges threshold={15} color="#bae6fd" scale={1.002} renderOrder={1}>
+        <Edges threshold={15} color={EDGE_EDGES_GLASS} scale={1.002} renderOrder={1}>
           <lineBasicMaterial transparent opacity={0.4} />
         </Edges>
 
-        {/* Top-left label */}
-        <Html
-          position={[-node.width / 2 + 0.4, node.height / 2 + 0.35, 0]}
-          style={{ pointerEvents: 'none', zIndex: 800 }}
-        >
-          <div
-            className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg select-none backdrop-blur-sm"
-            style={{ color: borderColor, background: 'rgba(9,9,11,0.85)' }}
-          >
+        {/* Label — below container, same as leaf blocks */}
+        <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
+          <Text {...textBaseProps} fontSize={0.65} color={borderColor} outlineColor="#18181b" outlineWidth={0.02}>
             {node.op_type}
-          </div>
-        </Html>
+          </Text>
+        </Billboard>
 
         {/* Collapse button — top-right of container */}
         <Html
@@ -597,7 +603,7 @@ const SceneNode: React.FC<{
 /* ─── Edge Line: Bezier for standard edges, polyline for residual/skip ─── */
 const EdgeLine: React.FC<{ edge: LayoutEdge }> = ({ edge }) => {
   const { points, kind } = edge;
-  const color = kind === 'residual' ? '#a1a1aa' : '#52525b';
+  const color = kind === 'residual' ? EDGE_COLOR_RESIDUAL : EDGE_COLOR_STD;
 
   if (points.length === 4) {
     const start = new THREE.Vector3(points[0].x, points[0].y, points[0].z);
@@ -777,6 +783,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
         dpr={[1, 2]}
         gl={{
           antialias: true,
+          preserveDrawingBuffer: true,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.2,
         }}

@@ -30,10 +30,21 @@ const TEMPLATES: Record<string, { name: string; code: string; shape: number[] }>
 
 let nextRequestId = 0;
 
+function parseShape(s: string): number[] | null {
+  try {
+    const arr = JSON.parse(s);
+    if (!Array.isArray(arr) || arr.length === 0) return null;
+    if (!arr.every((n: unknown) => Number.isInteger(n) && (n as number) > 0)) return null;
+    return arr as number[];
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [activeTemplate, setActiveTemplate] = useState('lenet');
   const [code, setCode] = useState(TEMPLATES.lenet.code.trim());
-  const [inputShape, setInputShape] = useState(TEMPLATES.lenet.shape);
+  const [shapeInput, setShapeInput] = useState(JSON.stringify(TEMPLATES.lenet.shape));
 
   const [ir, setIr] = useState<IRGraph | null>(null);
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
@@ -139,16 +150,17 @@ export default function App() {
   // --- Manual run ---
   const handleRun = useCallback(() => {
     if (!workerRef.current || criticalError) return;
+    const shape = parseShape(shapeInput) ?? TEMPLATES[activeTemplate as keyof typeof TEMPLATES].shape;
     const id = ++nextRequestId;
     activeRequestIdRef.current = id;
     setLoading(true);
     setError(null);
     workerRef.current.postMessage({
       code: code.trim(),
-      inputShape,
+      inputShape: shape,
       requestId: id,
     });
-  }, [code, inputShape, criticalError]);
+  }, [code, shapeInput, activeTemplate, criticalError]);
 
   // --- Template change (instant run) ---
   const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -156,7 +168,7 @@ export default function App() {
     const t = TEMPLATES[key as keyof typeof TEMPLATES];
     setActiveTemplate(key);
     setCode(t.code.trim());
-    setInputShape(t.shape);
+    setShapeInput(JSON.stringify(t.shape));
     setIr(null);
     setError(null);
     setSelectedNodeId(null);
@@ -172,11 +184,7 @@ export default function App() {
     }
   };
 
-  const updateShape = (idx: number, val: number) => {
-    const s = [...inputShape];
-    s[idx] = val;
-    setInputShape(s);
-  };
+  const shapeValid = parseShape(shapeInput) !== null;
 
   // --- Collapse toggle ---
   const handleToggleCollapse = useCallback((nodeId: string) => {
@@ -253,20 +261,16 @@ export default function App() {
               <label className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
                 Input Shape
               </label>
-              <div className="flex items-center bg-zinc-800 border border-zinc-700 rounded px-1 group hover:border-zinc-600 transition-colors">
-                {['B', 'C', 'H', 'W'].map((label, i) => (
-                  <div key={label} className="flex items-center">
-                    <span className="text-[10px] text-zinc-500 px-1 select-none">{label}</span>
-                    <input
-                      type="number"
-                      className="w-10 bg-transparent text-center text-xs text-white focus:outline-none py-0.5 font-mono"
-                      value={inputShape[i]}
-                      onChange={(e) => updateShape(i, parseInt(e.target.value) || 1)}
-                    />
-                    {i < 3 && <span className="text-zinc-600 text-[10px] select-none">×</span>}
-                  </div>
-                ))}
-              </div>
+              <input
+                type="text"
+                placeholder="[1, 3, 224, 224]"
+                className={`w-36 bg-zinc-800 border rounded px-2 py-0.5 text-xs font-mono text-zinc-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-zinc-600 ${
+                  !shapeValid ? 'border-red-600/70' : 'border-zinc-700 hover:border-zinc-600'
+                }`}
+                value={shapeInput}
+                onChange={(e) => setShapeInput(e.target.value)}
+                title="JSON array, e.g. [1, 3, 224, 224] or [10, 32, 512] for 2D/3D models"
+              />
             </div>
           </div>
         </div>
@@ -275,7 +279,7 @@ export default function App() {
           <button
             data-tour="visualize"
             onClick={handleRun}
-            disabled={loading || !!criticalError}
+            disabled={loading || !!criticalError || !shapeValid}
             className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-md text-xs font-semibold shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/50 hover:border-blue-400"
           >
             {loading ? (
@@ -365,7 +369,7 @@ export default function App() {
         {/* Center Pane: Canvas + Bottom Terminal */}
         <div data-tour="canvas" className="flex flex-col min-w-0 bg-zinc-950 relative h-full grow">
           <div className="flex-1 relative w-full min-h-0 bg-gradient-to-b from-zinc-950 to-[#0c0c0e]">
-            <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden" data-torchviz-canvas-container>
               <Canvas3D
                 layout={layout}
                 loading={loading}

@@ -29,12 +29,25 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
   };
 
   const handleDownloadPng = () => {
-    const canvas = document.querySelector('canvas') as HTMLCanvasElement | null;
+    const container = document.querySelector('[data-torchviz-canvas-container]');
+    const canvas = container?.querySelector('canvas') as HTMLCanvasElement | null;
     if (!canvas) return;
-    canvas.toBlob((blob) => {
-      if (blob) downloadBlob(blob, 'model_architecture.png');
-      onClose();
-    }, 'image/png');
+    const capture = () => {
+      try {
+        canvas.toBlob(
+          (blob) => {
+            if (blob) downloadBlob(blob, 'model_architecture.png');
+            onClose();
+          },
+          'image/png',
+          1.0,
+        );
+      } catch (err) {
+        console.error('PNG export failed:', err);
+        onClose();
+      }
+    };
+    requestAnimationFrame(() => requestAnimationFrame(capture));
   };
 
   return (

@@ -1,4 +1,5 @@
 import { IRGraph, IRNode, IREdge, LayoutData, LayoutNode, LayoutEdge } from './irTypes';
+import { getOpColor, getCollapsedContainerColor, getExpandedContainerColor, getExpandedContainerOpacity, ERROR_COLOR } from './constants';
 
 const BASE_PADDING = 3.0;
 const NODE_GAP = 2.5;
@@ -42,50 +43,6 @@ function collapsedSize(node: IRNode): { width: number; height: number; depth: nu
   return { width: 2, height: 3, depth: 2 };
 }
 
-/** Leaf node colors — bright, high contrast on dark canvas (#09090b). */
-function getOpColor(op: string): string {
-  const lower = op.toLowerCase();
-  if (lower.includes('conv')) return '#60a5fa';
-  if (lower.includes('linear') || lower.includes('mlp')) return '#34d399';
-  if (lower.includes('pool')) return '#fbbf24';
-  if (lower.includes('norm')) return '#f472b6';
-  if (lower.includes('attn')) return '#a78bfa';
-  if (lower.includes('add') || lower.includes('cat')) return '#f87171';
-  if (lower.includes('relu') || lower.includes('gelu') || lower.includes('silu')) return '#22d3ee';
-  if (lower.includes('embedding')) return '#c084fc';
-  if (lower.includes('rnn') || lower.includes('lstm') || lower.includes('gru')) return '#fb923c';
-  if (lower.includes('pixelshuffle') || lower.includes('upsample')) return '#2dd4bf';
-  return '#94a3b8';
-}
-
-/** Collapsed container: solid, distinct color (no gray — avoids clash with params text). */
-function getCollapsedContainerColor(op: string): string {
-  const lower = op.toLowerCase();
-  if (lower.includes('sequential') || lower.includes('modulelist')) return '#3b82f6';
-  if (lower.includes('resnet') || lower.includes('block') || lower.includes('basic')) return '#60a5fa';
-  if (lower.includes('transformer') || lower.includes('attn') || lower.includes('vit') || lower.includes('vision')) return '#a78bfa';
-  if (lower.includes('mlp')) return '#34d399';
-  if (lower.includes('embed') || lower.includes('patch')) return '#22d3ee';
-  return '#6366f1';
-}
-
-/** Expanded container: glass tint. Outer pale, inner slightly saturated. */
-function getExpandedContainerColor(_op: string, depth: number): string {
-  if (depth === 0) return '#e0f2fe';
-  if (depth === 1) return '#ccfbf1';
-  if (depth === 2) return '#a5b4fc';
-  if (depth >= 3) return '#818cf8';
-  return '#a78bfa';
-}
-
-/** Expanded only: outer more transparent, inner slightly more visible. */
-function getExpandedContainerOpacity(depth: number): number {
-  if (depth === 0) return 0.15;
-  if (depth === 1) return 0.25;
-  if (depth === 2) return 0.35;
-  return 0.4;
-}
-
 /** Map all descendants of a collapsed container to the container's ID. */
 function mapDescendants(node: IRNode, targetId: string, map: Map<string, string>) {
   if (!node.children) return;
@@ -124,7 +81,7 @@ function layoutNodes(
         y: 0,
         z: 0,
         ...size,
-        color: node.error ? '#ef4444' : getOpColor(node.op_type),
+        color: node.error ? ERROR_COLOR : getOpColor(node.op_type),
       };
       result.push(ln);
       nodeMap.set(node.id, ln);

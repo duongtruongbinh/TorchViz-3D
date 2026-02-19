@@ -1,5 +1,5 @@
 import './src/index.css';
-import React from 'react';
+import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
@@ -20,6 +20,8 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <Suspense fallback={<div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#09090b', color: '#71717a', fontSize: 14 }}>Loading...</div>}>
+      <App />
+    </Suspense>
   </React.StrictMode>
 );

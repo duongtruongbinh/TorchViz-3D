@@ -1,6 +1,30 @@
 import React, { useEffect, useRef } from 'react';
 import Editor, { Monaco } from '@monaco-editor/react';
 
+const NN_COMPLETIONS: { label: string; detail?: string }[] = [
+  { label: 'Module', detail: 'Base class for all nn modules' },
+  { label: 'Conv2d', detail: '(in_channels, out_channels, kernel_size, ...)' },
+  { label: 'Linear', detail: '(in_features, out_features)' },
+  { label: 'Sequential', detail: '(*modules)' },
+  { label: 'MaxPool2d', detail: '(kernel_size, stride=None, padding=0)' },
+  { label: 'AvgPool2d', detail: '(kernel_size, stride=None, padding=0)' },
+  { label: 'AdaptiveAvgPool2d', detail: '(output_size)' },
+  { label: 'BatchNorm2d', detail: '(num_features)' },
+  { label: 'LayerNorm', detail: '(normalized_shape)' },
+  { label: 'ReLU', detail: '()' },
+  { label: 'GELU', detail: '()' },
+  { label: 'SiLU', detail: '()' },
+  { label: 'Dropout', detail: '(p=0.5)' },
+  { label: 'Flatten', detail: '()' },
+  { label: 'Embedding', detail: '(num_embeddings, embedding_dim)' },
+  { label: 'MultiheadAttention', detail: '(embed_dim, num_heads)' },
+  { label: 'RNN', detail: '(input_size, hidden_size, num_layers=1)' },
+  { label: 'LSTM', detail: '(input_size, hidden_size, num_layers=1)' },
+  { label: 'GRU', detail: '(input_size, hidden_size, num_layers=1)' },
+  { label: 'PixelShuffle', detail: '(upscale_factor)' },
+  { label: 'Upsample', detail: '(size=None, scale_factor=None, mode="nearest")' },
+];
+
 interface EditorPaneProps {
   code: string;
   onChange: (val: string) => void;
@@ -38,6 +62,23 @@ const EditorPane: React.FC<EditorPaneProps> = ({
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
       () => onRunRef.current?.(),
     );
+
+    // torchstub.nn IntelliSense: suggest nn.* when typing nn.
+    monaco.languages.registerCompletionItemProvider('python', {
+      triggerCharacters: ['.'],
+      provideCompletionItems: (model, position) => {
+        const lineContent = model.getLineContent(position.lineNumber);
+        const beforeCursor = lineContent.slice(0, position.column - 1).trimEnd();
+        if (!/nn\.?$/.test(beforeCursor)) return { suggestions: [] };
+        const suggestions = NN_COMPLETIONS.map(({ label, detail }) => ({
+          label,
+          kind: monaco.languages.CompletionItemKind.Class,
+          detail,
+          insertText: label,
+        }));
+        return { suggestions };
+      },
+    });
 
     setTimeout(() => editor.layout(), 50);
   };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { IRGraph, IRNode, findNodeById } from '../lib/irTypes';
-import { formatNumber, formatMemory } from '../lib/stats';
+import { formatNumber } from '../lib/stats';
+import { getOpColor } from '../lib/constants';
 
 interface InspectorProps {
   ir: IRGraph | null;
@@ -8,24 +9,6 @@ interface InspectorProps {
   highlightNodeId: string | null;
   onSelectNode: (id: string) => void;
   onHighlightNode: (id: string | null) => void;
-}
-
-const OP_COLOR: Record<string, string> = {
-  conv: 'bg-blue-500',
-  linear: 'bg-emerald-500',
-  pool: 'bg-amber-500',
-  norm: 'bg-pink-500',
-  attn: 'bg-violet-500',
-  relu: 'bg-cyan-500',
-  gelu: 'bg-cyan-500',
-};
-
-function dotColor(op: string): string {
-  const lower = op.toLowerCase();
-  for (const [key, cls] of Object.entries(OP_COLOR)) {
-    if (lower.includes(key)) return cls;
-  }
-  return 'bg-zinc-500';
 }
 
 /* ─── Recursive Tree Node ─── */
@@ -71,7 +54,7 @@ const TreeNode: React.FC<{
           <span className="w-3 flex-shrink-0" />
         )}
 
-        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor(node.op_type)}`} />
+        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: getOpColor(node.op_type) }} />
 
         <span className="font-medium truncate">{node.op_type}</span>
 
@@ -120,7 +103,7 @@ const NodeDetails: React.FC<{ node: IRNode }> = ({ node }) => {
   return (
     <div className="p-3 space-y-1">
       <div className="flex items-center gap-2 mb-2">
-        <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${dotColor(node.op_type)}`} />
+        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getOpColor(node.op_type) }} />
         <span className="text-sm font-bold text-zinc-100 uppercase tracking-wider">{node.op_type}</span>
       </div>
       <div className="bg-zinc-800/50 rounded border border-zinc-800 overflow-hidden">

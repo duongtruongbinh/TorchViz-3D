@@ -81,8 +81,8 @@ export function flattenIRNodes(nodes: IRNode[]): IRNode[] {
 /** Smart collapse: auto-expand small Sequentials, collapse large blocks, depth-based for others. Never collapse root. */
 export function initCollapsedIds(ir: IRGraph): Set<string> {
   const ids = new Set<string>();
-  const SEQ_AUTO_EXPAND_THRESHOLD = 3;
-  const LARGE_BLOCK_COLLAPSE_THRESHOLD = 5;
+  const SEQ_AUTO_EXPAND_THRESHOLD = 5;
+  const LARGE_BLOCK_COLLAPSE_THRESHOLD = 10;
 
   function walk(nodes: IRNode[], depth: number) {
     for (const node of nodes) {
