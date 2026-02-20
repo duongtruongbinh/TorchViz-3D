@@ -67,6 +67,12 @@ export function getExpandedContainerOpacity(depth: number): number {
 
 export const ERROR_COLOR = '#ef4444';
 export const EDGE_COLOR_STD = '#52525b';
+
+/** Expand/Collapse button theme (zinc palette, matches dark UI). */
+export const BTN_BG = '#27272a';
+export const BTN_BG_HOVER = '#3f3f46';
+export const BTN_BORDER = '#52525b';
+export const BTN_ICON = '#e4e4e7';
 export const EDGE_COLOR_RESIDUAL = '#a1a1aa';
 export const EDGE_EDGES_OPAQUE = '#94a3b8';
 export const EDGE_EDGES_GLASS = '#bae6fd';

@@ -30,13 +30,12 @@ const TreeNode: React.FC<{
   return (
     <div>
       <div
-        className={`flex items-center gap-2 py-1 pr-2 cursor-pointer transition-colors text-xs select-none border-l-2 ${
-          isSelected
-            ? 'bg-blue-500/15 border-blue-500 text-zinc-100'
+        className={`flex items-center gap-2 py-1 pr-2 cursor-pointer transition-all text-xs select-none border-l-[3px] ${isSelected
+            ? 'bg-[var(--surface-elevated)] border-blue-500 text-[var(--text)] font-semibold'
             : isHighlighted
-              ? 'bg-zinc-800/60 border-zinc-600 text-zinc-200'
-              : 'border-transparent text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
-        }`}
+              ? 'bg-[var(--border-subtle)] border-zinc-500 text-[var(--text)]'
+              : 'border-transparent text-[var(--text-muted)] hover:bg-[var(--border-subtle)] hover:text-[var(--text)]'
+          }`}
         style={{ paddingLeft: indent + 8 }}
         onClick={() => {
           onSelect(node.id);
@@ -104,16 +103,16 @@ const NodeDetails: React.FC<{ node: IRNode }> = ({ node }) => {
     <div className="p-3 space-y-1">
       <div className="flex items-center gap-2 mb-2">
         <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getOpColor(node.op_type) }} />
-        <span className="text-sm font-bold text-zinc-100 uppercase tracking-wider">{node.op_type}</span>
+        <span className="text-sm font-bold text-[var(--text)] uppercase tracking-wider">{node.op_type}</span>
       </div>
-      <div className="bg-zinc-800/50 rounded border border-zinc-800 overflow-hidden">
+      <div className="bg-[var(--border-subtle)] rounded-lg border border-[var(--border)] overflow-hidden">
         {rows.map(([label, value], i) => (
           <div
             key={label + i}
-            className={`flex items-start gap-2 px-3 py-2 text-xs ${i > 0 ? 'border-t border-zinc-800/50' : ''}`}
+            className={`flex items-start gap-2 px-3 py-2 text-xs transition-colors hover:bg-[var(--surface-elevated)] ${i > 0 ? 'border-t border-[var(--border-subtle)]' : ''}`}
           >
-            <span className="text-zinc-500 font-medium w-16 flex-shrink-0 uppercase text-xs pt-0.5">{label}</span>
-            <span className={`font-mono ${label === 'Error' ? 'text-red-400' : 'text-zinc-300'} break-all`}>{value}</span>
+            <span className="text-[var(--text-dim)] font-medium w-16 flex-shrink-0 uppercase text-[10px] tracking-wider pt-0.5">{label}</span>
+            <span className={`font-mono ${label === 'Error' ? 'text-red-400' : 'text-[var(--text-muted)]'} break-all`}>{value}</span>
           </div>
         ))}
       </div>
@@ -126,11 +125,11 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
   const selectedNode = ir && selectedNodeId ? findNodeById(ir.nodes, selectedNodeId) : null;
 
   return (
-    <div className="h-full flex flex-col bg-zinc-900 text-zinc-300">
+    <div className="h-full flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-2xl border-y-0 border-r-0 overflow-hidden ml-2 mb-2 mt-2 shadow-2xl">
       {/* Header */}
-      <div className="h-8 border-b border-zinc-800 flex items-center px-3 shrink-0 bg-zinc-900 select-none">
-        <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
+      <div className="h-10 border-b border-[var(--border)] flex items-center px-4 shrink-0 bg-[var(--surface-elevated)] select-none">
+        <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
             <path d="M2 3a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 7.586V3z" />
           </svg>
           Explorer
@@ -138,21 +137,21 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
       </div>
 
       {!ir ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-zinc-600 p-4">
+        <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-dim)] p-4">
           <span className="text-sm">No model loaded.</span>
-          <span className="text-xs mt-1.5">Run code to explore the model.</span>
+          <span className="text-[11px] mt-1.5 opacity-80">Run code to explore the model.</span>
         </div>
       ) : (
         <div className="flex-1 flex flex-col min-h-0">
           {/* ─── Top: Structure Tree (60%) ─── */}
           <div className="flex-[6] min-h-0 flex flex-col">
-            <div className="h-7 border-b border-zinc-800 flex items-center px-3 shrink-0 select-none">
-              <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Structure</span>
-              <span className="ml-auto text-xs font-mono text-zinc-600">
+            <div className="h-8 border-b border-[var(--border)] flex items-center px-4 shrink-0 select-none">
+              <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">Structure</span>
+              <span className="ml-auto text-[10px] font-mono text-[var(--text-muted)] bg-[var(--surface-elevated)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
                 {formatNumber(ir.stats.total_params)} params
               </span>
             </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar py-1">
+            <div className="flex-1 overflow-y-auto custom-scrollbar py-2">
               {ir.nodes.map((node) => (
                 <TreeNode
                   key={node.id}
@@ -168,15 +167,15 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
           </div>
 
           {/* ─── Bottom: Node Details (40%) ─── */}
-          <div className="flex-[4] min-h-0 border-t border-zinc-800 flex flex-col">
-            <div className="h-7 border-b border-zinc-800 flex items-center px-3 shrink-0 select-none">
-              <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Details</span>
+          <div className="flex-[4] min-h-0 border-t border-[var(--border)] flex flex-col bg-[var(--surface-elevated)]">
+            <div className="h-8 border-b border-[var(--border-subtle)] flex items-center px-4 shrink-0 select-none">
+              <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">Details</span>
             </div>
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {selectedNode ? (
                 <NodeDetails node={selectedNode} />
               ) : (
-                <div className="flex items-center justify-center h-full text-zinc-500 text-sm italic">
+                <div className="flex items-center justify-center h-full text-[var(--text-dim)] text-xs italic">
                   Click a node to inspect
                 </div>
               )}

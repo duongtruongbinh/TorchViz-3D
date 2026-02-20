@@ -9,16 +9,33 @@
 }
 
 :root {
-  --canvas-bg: radial-gradient(circle at center, #18181b 0%, #09090b 100%);
-  --surface: #18181b;
-  --surface-elevated: #27272a;
-  --border: #3f3f46;
-  --border-subtle: rgba(63, 63, 70, 0.5);
-  --text: #e4e4e7;
+  --canvas-bg: radial-gradient(circle at center, #111113 0%, #000000 100%);
+  --surface: rgba(17, 17, 19, 0.7);
+  --surface-elevated: rgba(28, 28, 30, 0.85);
+  --border: rgba(63, 63, 70, 0.4);
+  --border-subtle: rgba(63, 63, 70, 0.2);
+  --text: #f4f4f5;
   --text-muted: #a1a1aa;
-  --text-dim: #71717a;
+  --text-dim: #52525b;
   --accent: #3b82f6;
   --accent-hover: #60a5fa;
+  --glass-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2), 0 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  --panel-radius: 12px;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  background: var(--canvas-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass-panel {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  box-shadow: var(--glass-shadow);
 }
 
 /* Block / Card consistent style */

@@ -15,19 +15,22 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { LayoutData, LayoutNode, LayoutEdge } from '../lib/irTypes';
-import { ERROR_COLOR, EDGE_COLOR_STD, EDGE_COLOR_RESIDUAL, EDGE_EDGES_OPAQUE, EDGE_EDGES_GLASS } from '../lib/constants';
+import { BTN_BG, BTN_BG_HOVER, BTN_BORDER, BTN_ICON, ERROR_COLOR, EDGE_COLOR_STD, EDGE_COLOR_RESIDUAL, EDGE_EDGES_OPAQUE, EDGE_EDGES_GLASS } from '../lib/constants';
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
       group: any;
       mesh: any;
+      instancedMesh: any;
       meshPhysicalMaterial: any;
+      meshBasicMaterial: any;
       lineBasicMaterial: any;
       boxGeometry: any;
       ambientLight: any;
       directionalLight: any;
       gridHelper: any;
+      circleGeometry: any;
     }
   }
 }
@@ -37,12 +40,15 @@ declare module 'react' {
     interface IntrinsicElements {
       group: any;
       mesh: any;
+      instancedMesh: any;
       meshPhysicalMaterial: any;
+      meshBasicMaterial: any;
       lineBasicMaterial: any;
       boxGeometry: any;
       ambientLight: any;
       directionalLight: any;
       gridHelper: any;
+      circleGeometry: any;
     }
   }
 }
@@ -63,6 +69,51 @@ const INSTANCED_BATCH_MIN = 3;
 const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
 const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×';
 
+const ExpandCollapseButton: React.FC<{
+  position: [number, number, number];
+  icon: string;
+  title: string;
+  onToggle: () => void;
+}> = ({ position, icon, title, onToggle }) => {
+  const [hovered, setHovered] = useState(false);
+  const yOffset = 0;
+  const xOffset = 0;
+
+  return (
+    <group position={position}>
+      <Billboard renderOrder={1000}>
+        <mesh
+          onPointerDown={(e: any) => e.stopPropagation()}
+          onClick={(e: any) => { e.stopPropagation(); onToggle(); }}
+          onPointerOver={(e: any) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer'; }}
+          onPointerOut={(e: any) => { e.stopPropagation(); setHovered(false); document.body.style.cursor = ''; }}
+        >
+          <circleGeometry args={[0.75, 32]} />
+          <meshBasicMaterial color={hovered ? '#3f3f46' : '#27272a'} transparent opacity={0.98} depthTest={false} depthWrite={false} />
+        </mesh>
+
+        <mesh position={[0, 0, -0.01]}>
+          <circleGeometry args={[0.85, 32]} />
+          <meshBasicMaterial color={hovered ? '#a1a1aa' : '#52525b'} transparent opacity={0.9} depthTest={false} depthWrite={false} />
+        </mesh>
+
+        <Text
+          {...textBaseProps}
+          fontSize={0.8}
+          color="#ffffff"
+          position={[xOffset, yOffset, 0.01]}
+          anchorX="center"
+          anchorY="middle"
+          raycast={() => null}
+          renderOrder={1001}
+        >
+          {icon}
+        </Text>
+      </Billboard>
+    </group>
+  );
+};
+
 const textBaseProps = {
   font: FONT_URL,
   characters: TEXT_CHARS,
@@ -78,13 +129,12 @@ const textBaseProps = {
   },
 };
 
-function flattenLeaves(nodes: LayoutNode[]): LayoutNode[] {
-  const out: LayoutNode[] = [];
+function flattenLeaves(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[] {
   for (const n of nodes) {
     if (!n.is_container) {
       out.push(n);
     } else if (n.children?.length) {
-      out.push(...flattenLeaves(n.children));
+      flattenLeaves(n.children, out);
     }
   }
   return out;
@@ -93,7 +143,7 @@ function flattenLeaves(nodes: LayoutNode[]): LayoutNode[] {
 function groupLeavesByIdentity(leaves: LayoutNode[]): { batches: LayoutNode[][]; singles: LayoutNode[] } {
   const map = new Map<string, LayoutNode[]>();
   for (const n of leaves) {
-    const key = `${n.width.toFixed(2)}_${n.height.toFixed(2)}_${n.depth.toFixed(2)}_${n.color}`;
+    const key = `${n.width}_${n.height}_${n.depth}_${n.color}`;
     const arr = map.get(key) ?? [];
     arr.push(n);
     map.set(key, arr);
@@ -178,21 +228,19 @@ const InstancedLeafGroup: React.FC<{
         </Billboard>
       ))}
       {hoveredId !== null && nodes[hoveredId] && (
-        <Billboard position={[nodes[hoveredId].x, nodes[hoveredId].y + nodes[hoveredId].height / 2 + 1.2, nodes[hoveredId].z]} renderOrder={101}>
-          <group>
-            <Text {...textBaseProps} fontSize={0.38} color="#60a5fa" anchorY="top" position={[0, 0.5, 0]} letterSpacing={0.02}>
-              {nodes[hoveredId].op_type}
-            </Text>
-            <Text {...textBaseProps} fontSize={0.42} color="#e5e7eb" anchorY="top" position={[0, 0.15, 0]}>
+        <Html position={[nodes[hoveredId].x, nodes[hoveredId].y + nodes[hoveredId].height / 2 + 0.5, nodes[hoveredId].z]} center zIndexRange={[100, 0]} className="pointer-events-none">
+          <div className="glass-panel flex flex-col items-center bg-[var(--surface-elevated)] border-[var(--border)] px-4 py-2.5 rounded-xl text-center shadow-2xl min-w-[max-content] max-w-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <span className="text-[13px] font-bold text-blue-400 mb-1 tracking-wide uppercase break-words px-2">{nodes[hoveredId].op_type}</span>
+            <span className="text-xs font-mono text-zinc-200 bg-black/20 px-2 py-0.5 rounded mb-1.5 break-words">
               {nodes[hoveredId].out_shape?.join(' × ') ?? '-'}
-            </Text>
+            </span>
             {nodes[hoveredId].params > 0 && (
-              <Text {...textBaseProps} fontSize={0.35} color="#9ca3af" anchorY="top" position={[0, -0.25, 0]}>
+              <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">
                 {nodes[hoveredId].params.toLocaleString()} params
-              </Text>
+              </span>
             )}
-          </group>
-        </Billboard>
+          </div>
+        </Html>
       )}
     </group>
   );
@@ -278,21 +326,19 @@ const NodeBlock: React.FC<{
 
       {/* Hover tooltip */}
       {hovered && !hasError && (
-        <Billboard position={[0, node.height / 2 + 1.2, 0]} renderOrder={101}>
-          <group>
-            <Text {...textBaseProps} fontSize={0.38} color="#60a5fa" anchorY="top" position={[0, 0.5, 0]} letterSpacing={0.02}>
-              {node.op_type}
-            </Text>
-            <Text {...textBaseProps} fontSize={0.42} color="#e5e7eb" anchorY="top" position={[0, 0.15, 0]}>
+        <Html position={[0, node.height / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-none">
+          <div className="glass-panel flex flex-col items-center bg-[var(--surface-elevated)] border-[var(--border)] px-4 py-2.5 rounded-xl text-center shadow-2xl min-w-[max-content] max-w-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <span className="text-[13px] font-bold text-blue-400 mb-1 tracking-wide uppercase break-words px-2">{node.op_type}</span>
+            <span className="text-xs font-mono text-zinc-200 bg-black/20 px-2 py-0.5 rounded mb-1.5 break-words">
               {node.out_shape?.join(' × ') ?? '-'}
-            </Text>
+            </span>
             {node.params > 0 && (
-              <Text {...textBaseProps} fontSize={0.35} color="#9ca3af" anchorY="top" position={[0, -0.25, 0]}>
+              <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">
                 {node.params.toLocaleString()} params
-              </Text>
+              </span>
             )}
-          </group>
-        </Billboard>
+          </div>
+        </Html>
       )}
 
       {/* Static label (when not hovered) */}
@@ -399,24 +445,13 @@ const ContainerBlock: React.FC<{
           </group>
         </Billboard>
 
-        {/* Expand button — top-right of block */}
-        <Html
-          position={[node.width / 2 + 0.2, node.height / 2 + 0.15, 0]}
-          center
-          style={{ pointerEvents: 'auto', zIndex: 950 }}
-        >
-          <button
-            type="button"
-            title="Expand"
-            className="text-xs font-medium px-2 py-1 rounded-lg bg-blue-600/95 hover:bg-blue-500 text-white shadow cursor-pointer transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle(node.id);
-            }}
-          >
-            ▶
-          </button>
-        </Html>
+        {/* Expand button — DOM Overlay */}
+        <ExpandCollapseButton
+          position={[node.width / 2, node.height / 2, node.depth / 2]}
+          icon="+"
+          title="Expand"
+          onToggle={() => onToggle(node.id)}
+        />
       </group>
     );
   }
@@ -450,31 +485,27 @@ const ContainerBlock: React.FC<{
           <lineBasicMaterial transparent opacity={0.4} />
         </Edges>
 
-        {/* Label — below container, same as leaf blocks */}
+        {/* Label — below container, identical to collapsed state to prevent jumping */}
         <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
-          <Text {...textBaseProps} fontSize={0.65} color={borderColor} outlineColor="#18181b" outlineWidth={0.02}>
-            {node.op_type}
-          </Text>
+          <group scale={hovered ? 1 : 0.95}>
+            <Text {...textBaseProps} fontSize={0.65} color="#ffffff" outlineColor={borderColor} outlineWidth={0.02}>
+              {node.op_type}
+            </Text>
+            {node.params > 0 && (
+              <Text {...textBaseProps} fontSize={0.45} color="#9ca3af" position={[0, -0.4, 0]} anchorY="top">
+                {node.params.toLocaleString()} params
+              </Text>
+            )}
+          </group>
         </Billboard>
 
-        {/* Collapse button — top-right of container */}
-        <Html
-          position={[node.width / 2 - 0.15, node.height / 2 + 0.15, 0]}
-          center
-          style={{ pointerEvents: 'auto', zIndex: 850 }}
-        >
-          <button
-            type="button"
-            title="Collapse"
-            className="text-xs font-medium px-2 py-1 rounded-lg bg-blue-600/95 hover:bg-blue-500 text-white shadow cursor-pointer transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle(node.id);
-            }}
-          >
-            ▼
-          </button>
-        </Html>
+        {/* Collapse button — DOM Overlay */}
+        <ExpandCollapseButton
+          position={[node.width / 2, node.height / 2, node.depth / 2]}
+          icon="−"
+          title="Collapse"
+          onToggle={() => onToggle(node.id)}
+        />
 
         {/* Hover sensor at top — click = select container */}
         <mesh
@@ -638,17 +669,24 @@ const EdgeLine: React.FC<{ edge: LayoutEdge }> = ({ edge }) => {
   return null;
 };
 
+const BOUNDS_DEBOUNCE_MS = 200;
+
 /* ─── Auto-fit camera when layout changes ─── */
 const BoundsAutoFit: React.FC<{ layoutKey: string }> = ({ layoutKey }) => {
   const bounds = useBounds();
   const prevKey = useRef('');
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (layoutKey && layoutKey !== prevKey.current) {
-      prevKey.current = layoutKey;
-      // Slight delay to let geometry settle before measuring
-      const id = setTimeout(() => bounds.refresh().clip().fit(), 80);
-      return () => clearTimeout(id);
-    }
+    if (!layoutKey || layoutKey === prevKey.current) return;
+    prevKey.current = layoutKey;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = null;
+      bounds.refresh().clip().fit();
+    }, BOUNDS_DEBOUNCE_MS);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, [layoutKey, bounds]);
   return null;
 };

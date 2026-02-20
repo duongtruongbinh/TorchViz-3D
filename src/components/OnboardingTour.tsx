@@ -13,7 +13,7 @@ export function hasSeenTour(): boolean {
 export function markTourSeen(): void {
   try {
     localStorage.setItem(STORAGE_KEY, 'true');
-  } catch {}
+  } catch { }
 }
 
 interface Step {
@@ -52,10 +52,10 @@ function CutoutOverlay({
   const overlayStyle = { backgroundColor: 'rgba(0, 0, 0, 0.85)' };
   return (
     <>
-      <div className="absolute top-0 left-0 right-0 backdrop-blur-sm cursor-pointer" style={{ height: t, ...overlayStyle }} onClick={onBackdropClick} />
-      <div className="absolute left-0 backdrop-blur-sm cursor-pointer" style={{ top: t, left: 0, width: l, height: h, ...overlayStyle }} onClick={onBackdropClick} />
-      <div className="absolute backdrop-blur-sm cursor-pointer" style={{ top: t, left: l + w, width: vw - l - w, height: h, ...overlayStyle }} onClick={onBackdropClick} />
-      <div className="absolute left-0 right-0 bottom-0 backdrop-blur-sm cursor-pointer" style={{ top: t + h, height: vh - t - h, ...overlayStyle }} onClick={onBackdropClick} />
+      <div className="absolute top-0 left-0 right-0 cursor-pointer" style={{ height: Math.max(0, t), ...overlayStyle }} onClick={onBackdropClick} />
+      <div className="absolute left-0 cursor-pointer" style={{ top: Math.max(0, t), left: 0, width: Math.max(0, l), height: h, ...overlayStyle }} onClick={onBackdropClick} />
+      <div className="absolute cursor-pointer" style={{ top: Math.max(0, t), left: l + w, width: Math.max(0, vw - l - w), height: h, ...overlayStyle }} onClick={onBackdropClick} />
+      <div className="absolute left-0 right-0 bottom-0 cursor-pointer" style={{ top: t + h, height: Math.max(0, vh - t - h), ...overlayStyle }} onClick={onBackdropClick} />
     </>
   );
 }
@@ -111,7 +111,7 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
           />
         </>
       ) : (
-        <div className="absolute inset-0 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }} onClick={onClose} />
+        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }} onClick={onClose} />
       )}
       <div
         className="absolute z-10 bg-zinc-900 border border-zinc-600 rounded-xl shadow-2xl max-w-sm w-[90%] p-5"
