@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LayoutData } from '../lib/irTypes';
 import { generateSVG } from '../lib/svgExport';
 
@@ -20,10 +20,17 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
+  const [config, setConfig] = useState({
+    scale: 32,
+    legend: true,
+    lightBackground: false,
+    transparentBackground: false,
+  });
+
   if (!isOpen || !layout) return null;
 
   const handleDownloadSvg = () => {
-    const svgContent = generateSVG(layout, { scale: 32, legend: true, lightBackground: true });
+    const svgContent = generateSVG(layout, config);
     downloadBlob(new Blob([svgContent], { type: 'image/svg+xml' }), 'model_architecture.svg');
     onClose();
   };
@@ -51,34 +58,91 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-zinc-900 p-6 rounded-xl shadow-2xl w-[420px] border border-zinc-700/60">
-        <h3 className="text-lg font-bold text-zinc-100 mb-1">Export Visualization</h3>
-        <p className="text-zinc-400 text-xs mb-6 leading-relaxed">
-          Generate a publication-ready vector graphic or capture the current 3D view as a raster image.
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={onClose}
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="glass-panel p-6 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] w-[460px] border border-[var(--border)] animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+        role="document"
+      >
+        <h3 className="text-xl font-bold text-[var(--text)] mb-1">Export Visualization</h3>
+        <p className="text-[var(--text-dim)] text-sm mb-6 leading-relaxed">
+          Generate a publication-ready vector graphic or capture the current 3D view.
         </p>
 
-        <div className="flex flex-col gap-3 mb-6">
-          {/* SVG option */}
-          <button
-            onClick={handleDownloadSvg}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg border border-zinc-700/50 bg-zinc-800/60 hover:bg-zinc-800 hover:border-blue-500/40 transition-all group text-left"
-          >
-            <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-blue-400">
+        <div className="flex flex-col gap-4 mb-8">
+          {/* SVG Config Section */}
+          <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl p-4 shadow-sm">
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-blue-400 mb-3">SVG Settings</h4>
+
+            <div className="space-y-3">
+              <label className="flex items-center justify-between cursor-pointer group">
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Light Theme (Print-friendly)</span>
+                <input
+                  type="checkbox"
+                  checked={config.lightBackground}
+                  onChange={(e) => setConfig({ ...config, lightBackground: e.target.checked })}
+                  className="w-4 h-4 rounded border-[var(--border)] bg-black/20 text-blue-500 focus:ring-blue-500/30"
+                />
+              </label>
+
+              <label className="flex items-center justify-between cursor-pointer group">
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Transparent Background</span>
+                <input
+                  type="checkbox"
+                  checked={config.transparentBackground}
+                  onChange={(e) => setConfig({ ...config, transparentBackground: e.target.checked })}
+                  className="w-4 h-4 rounded border-[var(--border)] bg-black/20 text-blue-500 focus:ring-blue-500/30"
+                />
+              </label>
+
+              <label className="flex items-center justify-between cursor-pointer group">
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Include Legend</span>
+                <input
+                  type="checkbox"
+                  checked={config.legend}
+                  onChange={(e) => setConfig({ ...config, legend: e.target.checked })}
+                  className="w-4 h-4 rounded border-[var(--border)] bg-black/20 text-blue-500 focus:ring-blue-500/30"
+                />
+              </label>
+
+              <label className="flex items-center justify-between group pt-1">
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Export Scale</span>
+                <select
+                  value={config.scale}
+                  onChange={(e) => setConfig({ ...config, scale: Number(e.target.value) })}
+                  className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                >
+                  <option value={16}>Small (0.5x)</option>
+                  <option value={32}>Normal (1x)</option>
+                  <option value={64}>Large (2x)</option>
+                  <option value={128}>Huge (4x)</option>
+                </select>
+              </label>
+            </div>
+
+            <button
+              onClick={handleDownloadSvg}
+              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all shadow-md active:scale-[0.98]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm4.75 11.25a.75.75 0 001.5 0v-2.546l.943.944a.75.75 0 001.06-1.06l-2.22-2.22a.75.75 0 00-1.06 0l-2.22 2.22a.75.75 0 001.06 1.06l.937-.938v2.54z" clipRule="evenodd" />
               </svg>
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-zinc-200 group-hover:text-white">Download SVG</div>
-              <div className="text-[10px] text-zinc-500">Vector graphic &middot; Scalable &middot; Best for papers</div>
-            </div>
-          </button>
+              Download SVG
+            </button>
+          </div>
 
-          {/* PNG option */}
+          <div className="h-px bg-[var(--border)] w-full opacity-50" />
+
+          {/* PNG Option */}
           <button
             onClick={handleDownloadPng}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg border border-zinc-700/50 bg-zinc-800/60 hover:bg-zinc-800 hover:border-emerald-500/40 transition-all group text-left"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] hover:bg-[#3f3f46] transition-all group text-left shadow-sm active:scale-[0.98]"
           >
             <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-400">
@@ -86,8 +150,8 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
               </svg>
             </div>
             <div>
-              <div className="text-sm font-semibold text-zinc-200 group-hover:text-white">Export PNG (Screenshot)</div>
-              <div className="text-[10px] text-zinc-500">Raster image &middot; Exact 3D view with lighting</div>
+              <div className="text-sm font-semibold text-[var(--text)]">Export Screen (PNG)</div>
+              <div className="text-[11px] text-[var(--text-dim)]">Snapshot of the exact 3D canvas viewport</div>
             </div>
           </button>
         </div>
@@ -95,7 +159,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
         <div className="flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 text-sm transition-colors"
+            className="px-5 py-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-elevated)] text-sm font-medium transition-colors"
           >
             Cancel
           </button>

@@ -19,7 +19,7 @@ export const TEMPLATES: Record<string, { name: string; code: string; shape: numb
     unet: { name: 'UNet', code: unetCode, shape: [1, 3, 128, 128] },
 };
 
-export interface AppState {
+interface AppState {
     activeTemplate: string;
     code: string;
     shapeInput: string;

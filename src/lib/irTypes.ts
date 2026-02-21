@@ -1,7 +1,3 @@
-export interface IRShape {
-  dims: number[];
-}
-
 export interface IRNode {
   id: string;
   name: string;
@@ -63,19 +59,6 @@ export interface LayoutData {
   nodes: LayoutNode[];
   edges: LayoutEdge[];
   bounds: { minX: number; maxX: number; minY: number; maxY: number; minZ: number; maxZ: number };
-}
-
-/** Recursively collect all leaf (non-container) nodes from a hierarchical tree. */
-export function flattenIRNodes(nodes: IRNode[]): IRNode[] {
-  const result: IRNode[] = [];
-  for (const node of nodes) {
-    if (node.is_container && node.children && node.children.length > 0) {
-      result.push(...flattenIRNodes(node.children));
-    } else {
-      result.push(node);
-    }
-  }
-  return result;
 }
 
 /** Smart collapse: auto-expand small containers, collapse large ones. Never collapse root. */

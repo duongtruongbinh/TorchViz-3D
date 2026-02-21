@@ -74,6 +74,10 @@ export default function Header({
                             <div
                                 className="bg-[var(--surface-elevated)] border border-[var(--border)] hover:border-[var(--border-subtle)] text-xs text-zinc-200 rounded px-3 py-1 flex items-center justify-between cursor-pointer w-40 transition-colors shadow-sm"
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsDropdownOpen(!isDropdownOpen); }}
+                                role="combobox"
+                                aria-expanded={isDropdownOpen}
+                                tabIndex={0}
                             >
                                 <span className="truncate">{TEMPLATES[activeTemplate]?.name || 'Select Template'}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>
@@ -82,12 +86,16 @@ export default function Header({
                             </div>
 
                             {isDropdownOpen && (
-                                <div className="absolute top-[calc(100%+4px)] left-0 w-48 glass-panel rounded-lg shadow-xl shadow-black/40 z-50 overflow-hidden flex flex-col py-1 animate-in fade-in slide-in-from-top-2 duration-150">
+                                <div className="absolute top-[calc(100%+4px)] left-0 w-48 bg-[var(--surface-elevated)] border border-[var(--border)] rounded-lg shadow-xl shadow-black/80 z-50 overflow-hidden flex flex-col py-1 animate-in fade-in slide-in-from-top-2 duration-150">
                                     {Object.entries(TEMPLATES).map(([k, t]) => (
                                         <div
                                             key={k}
                                             className={`px-3 py-2 text-xs cursor-pointer transition-colors flex items-center justify-between ${activeTemplate === k ? 'bg-blue-500/10 text-blue-400 font-medium' : 'text-zinc-300 hover:bg-[var(--surface-elevated)] hover:text-zinc-100'}`}
                                             onClick={() => handleTemplateChange(k)}
+                                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTemplateChange(k); }}
+                                            role="option"
+                                            tabIndex={0}
+                                            aria-selected={activeTemplate === k}
                                         >
                                             <span className="truncate">{t.name}</span>
                                             {activeTemplate === k && (

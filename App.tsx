@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import EditorPane from './src/components/EditorPane';
+const EditorPane = React.lazy(() => import('./src/components/EditorPane'));
 import Canvas3D from './src/components/Canvas3D';
 import Inspector from './src/components/Inspector';
 import BottomTabs from './src/components/BottomTabs';
@@ -123,14 +123,16 @@ export default function App() {
             </span>
           </div>
           <div className="flex-1 relative w-full h-full overflow-hidden">
-            <EditorPane
-              code={code}
-              onChange={setCode}
-              onRun={() => workerService.run()}
-              errorLine={error?.lineno}
-              highlightLine={highlightLine}
-              onCursorChange={handleCursorChange}
-            />
+            <React.Suspense fallback={<div className="text-zinc-500 text-xs p-4 h-full flex items-center justify-center">Loading Editor module...</div>}>
+              <EditorPane
+                code={code}
+                onChange={setCode}
+                onRun={() => workerService.run()}
+                errorLine={error?.lineno}
+                highlightLine={highlightLine}
+                onCursorChange={handleCursorChange}
+              />
+            </React.Suspense>
           </div>
         </div>
 
@@ -138,6 +140,13 @@ export default function App() {
         <div
           className={`w-1 hover:w-1.5 transition-colors cursor-col-resize z-20 flex items-center justify-center shrink-0 ${isDragging ? 'bg-[var(--accent)] w-1.5' : 'bg-transparent'}`}
           onMouseDown={handleMouseDown}
+          role="separator"
+          aria-orientation="vertical"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowLeft') setLeftWidth(w => Math.max(200, w - 10));
+            if (e.key === 'ArrowRight') setLeftWidth(w => Math.min(800, w + 10));
+          }}
         >
           <div className="h-8 w-1 bg-[var(--border)] rounded-full hover:bg-[var(--text-muted)] transition-colors" />
         </div>

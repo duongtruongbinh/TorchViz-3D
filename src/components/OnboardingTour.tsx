@@ -10,7 +10,7 @@ export function hasSeenTour(): boolean {
   }
 }
 
-export function markTourSeen(): void {
+function markTourSeen(): void {
   try {
     localStorage.setItem(STORAGE_KEY, 'true');
   } catch { }
@@ -101,7 +101,7 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
         <>
           <CutoutOverlay targetRect={targetRect} onBackdropClick={onClose} />
           <div
-            className="absolute pointer-events-none border-2 border-blue-400 rounded-lg ring-2 ring-blue-400/50 ring-offset-2 ring-offset-transparent tour-spotlight-pulse"
+            className="absolute pointer-events-none border-2 border-[var(--accent)] rounded-lg ring-2 ring-[var(--accent)]/50 ring-offset-2 ring-offset-[#000000] tour-spotlight-pulse z-[101]"
             style={{
               top: targetRect.top - 4,
               left: targetRect.left - 4,
@@ -111,34 +111,34 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
           />
         </>
       ) : (
-        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }} onClick={onClose} />
+        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }} onClick={onClose} />
       )}
       <div
-        className="absolute z-10 bg-zinc-900 border border-zinc-600 rounded-xl shadow-2xl max-w-sm w-[90%] p-5"
+        className="absolute z-[102] glass-panel border border-[var(--border)] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] max-w-sm w-[90%] p-6 animate-in zoom-in-95 duration-200"
         style={(() => {
-          const hasSpaceBelow = targetRect && targetRect.bottom + 150 < window.innerHeight;
+          const hasSpaceBelow = targetRect && targetRect.bottom + 160 < window.innerHeight;
           const cardW = Math.min(384, window.innerWidth * 0.9);
           const centerX = (window.innerWidth - cardW) / 2;
-          const belowX = targetRect ? Math.max(12, Math.min(targetRect.left + targetRect.width / 2 - cardW / 2, window.innerWidth - cardW - 12)) : 12;
+          const belowX = targetRect ? Math.max(16, Math.min(targetRect.left + targetRect.width / 2 - cardW / 2, window.innerWidth - cardW - 16)) : 16;
           return {
             left: hasSpaceBelow ? belowX : centerX,
-            top: hasSpaceBelow && targetRect ? targetRect.bottom + 16 : (window.innerHeight - 180) / 2,
+            top: hasSpaceBelow && targetRect ? targetRect.bottom + 20 : (window.innerHeight - 200) / 2,
             width: cardW,
             transform: hasSpaceBelow ? 'none' : 'translateY(-50%)',
           };
         })()}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-bold text-zinc-100 mb-2">{s?.title}</h3>
-        <p className="text-zinc-300 text-sm leading-relaxed mb-4">{s?.body}</p>
+        <h3 className="text-xl font-bold text-[var(--text)] mb-2">{s?.title}</h3>
+        <p className="text-[var(--text-muted)] text-[15px] leading-relaxed mb-6">{s?.body}</p>
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5 flex-1">
             {STEPS.map((_, i) => (
               <button
-                key={i}
+                key={STEPS[i]?.target ?? i}
                 type="button"
                 aria-label={`Step ${i + 1}`}
-                className={`w-2 h-2 rounded-full transition-colors ${i === step ? 'bg-blue-500' : 'bg-zinc-600 hover:bg-zinc-500'}`}
+                className={`w-2 h-2 rounded-full transition-all ${i === step ? 'bg-[var(--accent)] scale-125' : 'bg-[var(--border)] hover:bg-[var(--border-subtle)]'}`}
                 onClick={() => setStep(i)}
               />
             ))}
@@ -146,16 +146,16 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
           <div className="flex gap-2 shrink-0">
             <button
               type="button"
-              className="text-xs font-medium px-3 py-1.5 rounded-lg bg-zinc-700 hover:bg-zinc-600 text-zinc-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="text-xs font-semibold px-4 py-2 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] hover:bg-[#3f3f46] text-[var(--text)] transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-wider"
               onClick={() => setStep((p) => p - 1)}
               disabled={isFirst}
             >
-              Previous
+              Back
             </button>
             {isLast ? (
               <button
                 type="button"
-                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider"
                 onClick={handleDone}
               >
                 Done
@@ -163,7 +163,7 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
             ) : (
               <button
                 type="button"
-                className="text-xs font-medium px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider"
                 onClick={() => setStep((p) => p + 1)}
               >
                 Next
@@ -171,7 +171,7 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
             )}
             <button
               type="button"
-              className="text-xs font-medium px-2 py-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="text-xs font-medium px-3 py-2 rounded-lg text-[var(--text-dim)] hover:text-[var(--text-muted)] hover:bg-[var(--surface-elevated)] transition-colors uppercase tracking-wider ml-1"
               onClick={() => {
                 markTourSeen();
                 onClose();

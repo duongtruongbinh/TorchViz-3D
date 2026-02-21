@@ -229,13 +229,13 @@ const InstancedLeafGroup: React.FC<{
       ))}
       {hoveredId !== null && nodes[hoveredId] && (
         <Html position={[nodes[hoveredId].x, nodes[hoveredId].y + nodes[hoveredId].height / 2 + 0.5, nodes[hoveredId].z]} center zIndexRange={[100, 0]} className="pointer-events-none">
-          <div className="glass-panel flex flex-col items-center bg-[var(--surface-elevated)] border-[var(--border)] px-4 py-2.5 rounded-xl text-center shadow-2xl min-w-[max-content] max-w-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <span className="text-[13px] font-bold text-blue-400 mb-1 tracking-wide uppercase break-words px-2">{nodes[hoveredId].op_type}</span>
-            <span className="text-xs font-mono text-zinc-200 bg-black/20 px-2 py-0.5 rounded mb-1.5 break-words">
+          <div className="glass-panel flex flex-col items-center justify-center gap-1.5 bg-[var(--surface-elevated)] border-[var(--border)] px-5 py-3 rounded-xl text-center shadow-2xl min-w-[12rem] max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <span className="text-[14px] font-bold text-blue-400 tracking-wide uppercase leading-tight break-words px-2">{nodes[hoveredId].op_type}</span>
+            <span className="text-xs font-mono text-[var(--text)] bg-black/30 px-2.5 py-1 rounded break-words">
               {nodes[hoveredId].out_shape?.join(' × ') ?? '-'}
             </span>
             {nodes[hoveredId].params > 0 && (
-              <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">
+              <span className="text-[11px] font-medium text-[var(--text-dim)] uppercase tracking-widest mt-1.5">
                 {nodes[hoveredId].params.toLocaleString()} params
               </span>
             )}
@@ -327,13 +327,13 @@ const NodeBlock: React.FC<{
       {/* Hover tooltip */}
       {hovered && !hasError && (
         <Html position={[0, node.height / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-none">
-          <div className="glass-panel flex flex-col items-center bg-[var(--surface-elevated)] border-[var(--border)] px-4 py-2.5 rounded-xl text-center shadow-2xl min-w-[max-content] max-w-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <span className="text-[13px] font-bold text-blue-400 mb-1 tracking-wide uppercase break-words px-2">{node.op_type}</span>
-            <span className="text-xs font-mono text-zinc-200 bg-black/20 px-2 py-0.5 rounded mb-1.5 break-words">
+          <div className="glass-panel flex flex-col items-center justify-center gap-1.5 bg-[var(--surface-elevated)] border-[var(--border)] px-5 py-3 rounded-xl text-center shadow-2xl min-w-[12rem] max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <span className="text-[14px] font-bold text-blue-400 tracking-wide uppercase leading-tight break-words px-2">{node.op_type}</span>
+            <span className="text-xs font-mono text-[var(--text)] bg-black/30 px-2.5 py-1 rounded break-words">
               {node.out_shape?.join(' × ') ?? '-'}
             </span>
             {node.params > 0 && (
-              <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">
+              <span className="text-[11px] font-medium text-[var(--text-dim)] uppercase tracking-widest mt-1.5">
                 {node.params.toLocaleString()} params
               </span>
             )}
@@ -575,9 +575,9 @@ const SceneWithInstancing: React.FC<{
           />
         );
       })}
-      {batches.map((nodes, i) => (
+      {batches.map((nodes) => (
         <InstancedLeafGroup
-          key={`inst-${i}-${nodes[0].width}-${nodes[0].color}`}
+          key={nodes[0]?.id ? `inst-${nodes[0].id}` : `inst-fallback-${Math.random()}`}
           nodes={nodes}
           highlightNodeId={highlightNodeId}
           onHover={onHover}
