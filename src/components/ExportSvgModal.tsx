@@ -22,9 +22,13 @@ function downloadBlob(blob: Blob, filename: string) {
 const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
   const [config, setConfig] = useState({
     scale: 32,
+    textScale: 1,
+    strokeScale: 1,
+    padding: 80,
     legend: true,
     lightBackground: false,
     transparentBackground: false,
+    pngScale: 2,
   });
 
   if (!isOpen || !layout) return null;
@@ -39,9 +43,35 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
     const container = document.querySelector('[data-torchviz-canvas-container]');
     const canvas = container?.querySelector('canvas') as HTMLCanvasElement | null;
     if (!canvas) return;
+
+    const dpr = config.pngScale;
+    const srcW = canvas.width;
+    const srcH = canvas.height;
+    const outW = Math.round((srcW / window.devicePixelRatio) * dpr);
+    const outH = Math.round((srcH / window.devicePixelRatio) * dpr);
+
+    // Create off-screen canvas at higher resolution
+    const offscreen = document.createElement('canvas');
+    offscreen.width = outW;
+    offscreen.height = outH;
+    const ctx = offscreen.getContext('2d');
+    if (!ctx) {
+      // Fallback to direct capture
+      canvas.toBlob(
+        (blob) => { if (blob) downloadBlob(blob, 'model_architecture.png'); onClose(); },
+        'image/png', 1.0,
+      );
+      return;
+    }
+
+    // Enable high-quality scaling
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     const capture = () => {
       try {
-        canvas.toBlob(
+        ctx.drawImage(canvas, 0, 0, srcW, srcH, 0, 0, outW, outH);
+        offscreen.toBlob(
           (blob) => {
             if (blob) downloadBlob(blob, 'model_architecture.png');
             onClose();
@@ -66,7 +96,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
       aria-modal="true"
     >
       <div
-        className="glass-panel p-6 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] w-[460px] border border-[var(--border)] animate-in zoom-in-95 duration-200"
+        className="glass-panel p-6 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] w-[480px] border border-[var(--border)] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
         role="document"
       >
@@ -118,10 +148,53 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
                   onChange={(e) => setConfig({ ...config, scale: Number(e.target.value) })}
                   className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
                 >
-                  <option value={16}>Small (0.5x)</option>
-                  <option value={32}>Normal (1x)</option>
-                  <option value={64}>Large (2x)</option>
-                  <option value={128}>Huge (4x)</option>
+                  <option value={16}>Small (0.5×)</option>
+                  <option value={32}>Normal (1×)</option>
+                  <option value={64}>Large (2×)</option>
+                  <option value={128}>Huge (4×)</option>
+                </select>
+              </label>
+
+              <label className="flex items-center justify-between group pt-1">
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Text Scale</span>
+                <select
+                  value={config.textScale}
+                  onChange={(e) => setConfig({ ...config, textScale: Number(e.target.value) })}
+                  className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                >
+                  <option value={0.5}>Small (0.5×)</option>
+                  <option value={0.75}>Compact (0.75×)</option>
+                  <option value={1}>Normal (1×)</option>
+                  <option value={1.25}>Large (1.25×)</option>
+                  <option value={1.5}>Larger (1.5×)</option>
+                  <option value={2}>XL (2×)</option>
+                </select>
+              </label>
+
+              <label className="flex items-center justify-between group pt-1">
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Stroke Scale</span>
+                <select
+                  value={config.strokeScale}
+                  onChange={(e) => setConfig({ ...config, strokeScale: Number(e.target.value) })}
+                  className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                >
+                  <option value={0.5}>Thin (0.5×)</option>
+                  <option value={1}>Normal (1×)</option>
+                  <option value={1.5}>Thick (1.5×)</option>
+                  <option value={2}>Bold (2×)</option>
+                </select>
+              </label>
+
+              <label className="flex items-center justify-between group pt-1">
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Padding</span>
+                <select
+                  value={config.padding}
+                  onChange={(e) => setConfig({ ...config, padding: Number(e.target.value) })}
+                  className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                >
+                  <option value={40}>Tight</option>
+                  <option value={80}>Normal</option>
+                  <option value={120}>Spacious</option>
                 </select>
               </label>
             </div>
@@ -139,21 +212,46 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
 
           <div className="h-px bg-[var(--border)] w-full opacity-50" />
 
-          {/* PNG Option */}
-          <button
-            onClick={handleDownloadPng}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] hover:bg-[#3f3f46] transition-all group text-left shadow-sm active:scale-[0.98]"
-          >
-            <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-400">
+          {/* PNG Option with scale selector */}
+          <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-400">
+                    <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909-3.22-3.22a.75.75 0 00-1.06 0L2.5 11.06zm12.22-4.81a1.25 1.25 0 10-2.5 0 1.25 1.25 0 002.5 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-[var(--text)]">Export Screen (PNG)</div>
+                  <div className="text-[11px] text-[var(--text-dim)]">High-quality snapshot of the 3D canvas</div>
+                </div>
+              </div>
+            </div>
+
+            <label className="flex items-center justify-between group mb-3">
+              <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Resolution</span>
+              <select
+                value={config.pngScale}
+                onChange={(e) => setConfig({ ...config, pngScale: Number(e.target.value) })}
+                className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+              >
+                <option value={1}>1× (Screen)</option>
+                <option value={2}>2× (High DPI)</option>
+                <option value={3}>3× (Print)</option>
+                <option value={4}>4× (Ultra)</option>
+              </select>
+            </label>
+
+            <button
+              onClick={handleDownloadPng}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-sm font-semibold transition-all active:scale-[0.98]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909-3.22-3.22a.75.75 0 00-1.06 0L2.5 11.06zm12.22-4.81a1.25 1.25 0 10-2.5 0 1.25 1.25 0 002.5 0z" clipRule="evenodd" />
               </svg>
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-[var(--text)]">Export Screen (PNG)</div>
-              <div className="text-[11px] text-[var(--text-dim)]">Snapshot of the exact 3D canvas viewport</div>
-            </div>
-          </button>
+              Download PNG ({config.pngScale}×)
+            </button>
+          </div>
         </div>
 
         <div className="flex justify-end">

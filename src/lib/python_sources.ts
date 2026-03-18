@@ -113,6 +113,9 @@ def gelu(x):
 def silu(x):
     return _record("SiLU", [x], x.shape)
 
+def sigmoid(x):
+    return _record("Sigmoid", [x], x.shape)
+
 def softmax(x, dim=-1):
     return _record("Softmax", [x], x.shape)
 
@@ -447,6 +450,16 @@ class Dropout(Module):
     def forward(self, x):
         return x
 
+class Sigmoid(Module):
+    def forward(self, x):
+        return _record("Sigmoid", [x], x.shape)
+
+class Softmax(Module):
+    def __init__(self, dim=-1):
+        super().__init__()
+    def forward(self, x):
+        return _record("Softmax", [x], x.shape)
+
 class Flatten(Module):
     def forward(self, x):
         from ..ops import flatten
@@ -564,7 +577,7 @@ class Upsample(Module):
 
 const PY_NN_LEAF_TYPES = `
 Module._leaf_types = {Conv2d, Linear, MaxPool2d, AvgPool2d, AdaptiveAvgPool2d,
-                      BatchNorm2d, LayerNorm, ReLU, GELU, SiLU, Dropout, Flatten,
+                      BatchNorm2d, LayerNorm, ReLU, GELU, SiLU, Sigmoid, Softmax, Dropout, Flatten,
                       MultiheadAttention, Embedding, RNN, LSTM, GRU, PixelShuffle, Upsample}
 `;
 

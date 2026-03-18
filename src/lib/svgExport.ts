@@ -1,8 +1,11 @@
 import { LayoutData, LayoutNode, LayoutEdge } from './irTypes';
-import { OP_COLORS } from './constants';
+import { getVisualMeta, getVisualKind, getActivationSubKind, getLegendItems, computeFontSize, type VisualKind } from './visualKind';
 
-interface SvgOptions {
+export interface SvgOptions {
   scale?: number;
+  textScale?: number;
+  strokeScale?: number;
+  padding?: number;
   legend?: boolean;
   lightBackground?: boolean;
   transparentBackground?: boolean;
@@ -21,20 +24,13 @@ const OBLIQUE_ANGLE = Math.PI / 6; // 30 degrees
 const COS_A = Math.cos(OBLIQUE_ANGLE);
 const SIN_A = Math.sin(OBLIQUE_ANGLE);
 
-// Transform 3D (x, y, z) into 2.5D Oblique Projection (px, py)
 function to25D(x: number, y: number, z: number, s: number): { x: number; y: number } {
-  // Classic LeNet paper style:
-  // - Sequence flows rightwards horizontally (+X)
-  // - Spatial Height is vertical (+Y goes up)
-  // - Spatial Width is diagonal depth (+Z goes Left & Down)
-  // So negative Z (the background) goes Right and Up.
   return {
     x: (x - z * COS_A) * s,
     y: (-y + z * SIN_A) * s,
   };
 }
 
-// Lighten/Darken Hex colors for 3D Faces
 function adjustColor(color: string, amount: number): string {
   if (color === 'transparent') return color;
   let r = 0, g = 0, b = 0;
@@ -76,15 +72,214 @@ function collectNodes(nodes: LayoutNode[]): LayoutNode[] {
   return result;
 }
 
-function renderCuboid(
-  n: LayoutNode,
-  s: number,
-  lightBg: boolean,
+// ── Per-kind SVG block renderers ──────────────────────────────────
+
+interface BlockCtx {
+  n: LayoutNode;
+  s: number;
+  lightBg: boolean;
+  textScale: number;
+  strokeScale: number;
+  meta: ReturnType<typeof getVisualMeta>;
+}
+
+/** Get the adjusted dimensions for a node based on its visual meta */
+function getAdjustedDims(n: LayoutNode, meta: ReturnType<typeof getVisualMeta>) {
+  return {
+    w: n.width * meta.widthMul,
+    h: n.height * meta.heightMul,
+    d: n.depth * meta.depthMul,
+  };
+}
+
+/** Standard cuboid faces (right, top, front) with stroke */
+function cuboidFaces(
+  cx: number, cy: number, cz: number,
+  w: number, h: number, d: number,
+  baseColor: string, s: number, lightBg: boolean, strokeScale: number,
 ): string {
+  const frontColor = adjustColor(baseColor, -20);
+  const topColor = adjustColor(baseColor, 20);
+  const strokeColor = lightBg ? '#1e293b' : '#27272a';
+  const sw = 0.75 * strokeScale;
+
+  const x0 = cx - w / 2, x1 = cx + w / 2;
+  const y0 = cy - h / 2, y1 = cy + h / 2;
+  const z0 = cz - d / 2, z1 = cz + d / 2;
+
+  // Right Face
+  const r1 = to25D(x1, y1, z0, s), r2 = to25D(x1, y1, z1, s);
+  const r3 = to25D(x1, y0, z1, s), r4 = to25D(x1, y0, z0, s);
+  // Top Face
+  const t1 = to25D(x0, y1, z0, s), t2 = to25D(x1, y1, z0, s);
+  const t3 = to25D(x1, y1, z1, s), t4 = to25D(x0, y1, z1, s);
+  // Front Face
+  const f1 = to25D(x0, y1, z1, s), f2 = to25D(x1, y1, z1, s);
+  const f3 = to25D(x1, y0, z1, s), f4 = to25D(x0, y0, z1, s);
+
+  let svg = '';
+  svg += `<polygon points="${fmt(t1.x)},${fmt(t1.y)} ${fmt(t2.x)},${fmt(t2.y)} ${fmt(t3.x)},${fmt(t3.y)} ${fmt(t4.x)},${fmt(t4.y)}" fill="${topColor}" stroke="${strokeColor}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+  svg += `<polygon points="${fmt(f1.x)},${fmt(f1.y)} ${fmt(f2.x)},${fmt(f2.y)} ${fmt(f3.x)},${fmt(f3.y)} ${fmt(f4.x)},${fmt(f4.y)}" fill="${frontColor}" stroke="${strokeColor}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+  svg += `<polygon points="${fmt(r1.x)},${fmt(r1.y)} ${fmt(r2.x)},${fmt(r2.y)} ${fmt(r3.x)},${fmt(r3.y)} ${fmt(r4.x)},${fmt(r4.y)}" fill="${baseColor}" stroke="${strokeColor}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+  return svg;
+}
+
+/** Render label centered on the right face */
+function blockLabel(
+  cx: number, cy: number, cz: number,
+  w: number, h: number,
+  opType: string, outShape: number[] | undefined,
+  s: number, lightBg: boolean, textScale: number,
+  meta: ReturnType<typeof getVisualMeta>,
+): string {
+  const x1 = cx + w / 2;
+  const center = to25D(x1, cy, cz, s);
+  const textFill = lightBg ? '#ffffff' : '#f8fafc';
+
+  // Scale-aware font sizes
+  const opFontSize = computeFontSize(h, s, { factor: 0.18, min: 8, max: 24 }) * textScale;
+  const shapeFontSize = Math.max(6, opFontSize * 0.7);
+
+  const label = meta.labelOverride ?? opType;
+  const lineSpacing = opFontSize * 1.4;
+
+  let svg = `<text x="${fmt(center.x)}" y="${fmt(center.y)}" text-anchor="middle" font-size="${fmt(opFontSize)}" fill="${textFill}" font-weight="600">${escapeXml(label)}</text>`;
+
+  if (outShape && outShape.length > 1) {
+    const shapeStr = outShape.slice(1).join('×');
+    svg += `<text x="${fmt(center.x)}" y="${fmt(center.y + lineSpacing)}" text-anchor="middle" font-size="${fmt(shapeFontSize)}" fill="${lightBg ? '#e2e8f0' : '#d4d4d8'}" font-family="monospace">${escapeXml(shapeStr)}</text>`;
+  }
+  return svg;
+}
+
+/** Standard cuboid block (Conv, Linear, Norm, Embedding, RNN, Default, etc.) */
+function renderStandardBlock(ctx: BlockCtx): string {
+  const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
+  const { w, h, d } = getAdjustedDims(n, meta);
+  const baseColor = meta.color;
+
+  let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
+
+  // Add per-kind visual decorations on right face
+  if (meta.kind === 'Norm') {
+    // Horizontal stripe bands
+    const x1 = n.x + w / 2;
+    const stripeCount = 3;
+    for (let i = 0; i < stripeCount; i++) {
+      const yPos = n.y - h / 2 + h * (i + 1) / (stripeCount + 1);
+      const p1 = to25D(x1, yPos, n.z - d / 2 * 0.8, s);
+      const p2 = to25D(x1, yPos, n.z + d / 2 * 0.8, s);
+      svg += `<line x1="${fmt(p1.x)}" y1="${fmt(p1.y)}" x2="${fmt(p2.x)}" y2="${fmt(p2.y)}" stroke="${adjustColor(baseColor, 40)}" stroke-width="${1.0 * strokeScale}" stroke-opacity="0.6"/>`;
+    }
+  }
+
+  svg += blockLabel(n.x, n.y, n.z, w, h, n.op_type, n.out_shape, s, lightBg, textScale, meta);
+  return svg;
+}
+
+
+
+/** Activation (ReLU, etc): thin block with bright glow inset */
+function renderActivationBlock(ctx: BlockCtx, icon?: string): string {
+  const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
+  const { w, h, d } = getAdjustedDims(n, meta);
+  const baseColor = meta.color;
+
+  let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
+
+  // Subtle glowing core line
+  const x1 = n.x + w / 2;
+  const coreTop = to25D(x1 + 0.01, n.y + h * 0.35, n.z, s);
+  const coreBot = to25D(x1 + 0.01, n.y - h * 0.35, n.z, s);
+  svg += `<line x1="${fmt(coreTop.x)}" y1="${fmt(coreTop.y)}" x2="${fmt(coreBot.x)}" y2="${fmt(coreBot.y)}" stroke="#ffffff" stroke-width="${2 * strokeScale}" stroke-opacity="0.6" stroke-linecap="round"/>`;
+
+  svg += blockLabel(n.x, n.y, n.z, w, h, n.op_type, n.out_shape, s, lightBg, textScale, meta);
+  return svg;
+}
+
+/** Flatten/Reshape/Permute/Slice: thin plate */
+function renderTransformBlock(ctx: BlockCtx): string {
+  const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
+  const { w, h, d } = getAdjustedDims(n, meta);
+  const baseColor = meta.color;
+
+  let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
+  svg += blockLabel(n.x, n.y, n.z, w, h, n.op_type, n.out_shape, s, lightBg, textScale, meta);
+  return svg;
+}
+
+/** Add/Concat: diamond-shaped block */
+function renderAddConcatBlock(ctx: BlockCtx): string {
+  const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
+  const { w, h, d } = getAdjustedDims(n, meta);
+  const baseColor = meta.color;
+  const strokeColor = lightBg ? '#1e293b' : '#27272a';
+  const sw = 1.0 * strokeScale;
+
+  const x1 = n.x + w / 2;
+
+  // Standard cuboid base
+  let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
+
+  // "+" symbol for Add glowing inset
+  const plusCenter = to25D(x1 + 0.01, n.y, n.z, s);
+  const plusSize = Math.min(h, d) * 0.2 * s;
+  svg += `<line x1="${fmt(plusCenter.x - plusSize)}" y1="${fmt(plusCenter.y)}" x2="${fmt(plusCenter.x + plusSize)}" y2="${fmt(plusCenter.y)}" stroke="#ffffff" stroke-width="${2 * strokeScale}" stroke-opacity="0.8" stroke-linecap="round"/>`;
+  svg += `<line x1="${fmt(plusCenter.x)}" y1="${fmt(plusCenter.y - plusSize)}" x2="${fmt(plusCenter.x)}" y2="${fmt(plusCenter.y + plusSize)}" stroke="#ffffff" stroke-width="${2 * strokeScale}" stroke-opacity="0.8" stroke-linecap="round"/>`;
+
+  svg += blockLabel(n.x, n.y, n.z, w, h, n.op_type, n.out_shape, s, lightBg, textScale, meta);
+  return svg;
+}
+
+/** Attention: striped multi-head block */
+function renderAttentionBlock(ctx: BlockCtx): string {
+  const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
+  const { w, h, d } = getAdjustedDims(n, meta);
+  const baseColor = meta.color;
+  const x1 = n.x + w / 2;
+
+  let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
+
+  // Vertical stripe hatching on right face
+  const stripeCount = 5;
+  for (let i = 0; i < stripeCount; i++) {
+    const zFrac = (i + 1) / (stripeCount + 1);
+    const zPos = n.z - d / 2 + d * zFrac;
+    const p1 = to25D(x1 + 0.01, n.y + h * 0.38, zPos, s);
+    const p2 = to25D(x1 + 0.01, n.y - h * 0.38, zPos, s);
+    svg += `<line x1="${fmt(p1.x)}" y1="${fmt(p1.y)}" x2="${fmt(p2.x)}" y2="${fmt(p2.y)}" stroke="#ffffff" stroke-width="${0.8 * strokeScale}" stroke-opacity="0.3"/>`;
+  }
+
+  svg += blockLabel(n.x, n.y, n.z, w, h, n.op_type, n.out_shape, s, lightBg, textScale, meta);
+  return svg;
+}
+
+/** Upsample: expanding trapezoid indicator */
+function renderUpsampleBlock(ctx: BlockCtx): string {
+  const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
+  const { w, h, d } = getAdjustedDims(n, meta);
+  const baseColor = meta.color;
+  const x1 = n.x + w / 2;
+
+  let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
+
+  // Expanding arrows on right face
+  const arrowCenter = to25D(x1 + 0.01, n.y, n.z, s);
+  const arrowSize = Math.min(h, d) * 0.2 * s;
+  // Up arrow
+  svg += `<polygon points="${fmt(arrowCenter.x)},${fmt(arrowCenter.y - arrowSize * 1.5)} ${fmt(arrowCenter.x - arrowSize * 0.5)},${fmt(arrowCenter.y - arrowSize * 0.5)} ${fmt(arrowCenter.x + arrowSize * 0.5)},${fmt(arrowCenter.y - arrowSize * 0.5)}" fill="#ffffff" fill-opacity="0.35"/>`;
+  // Down arrow
+  svg += `<polygon points="${fmt(arrowCenter.x)},${fmt(arrowCenter.y + arrowSize * 1.5)} ${fmt(arrowCenter.x - arrowSize * 0.5)},${fmt(arrowCenter.y + arrowSize * 0.5)} ${fmt(arrowCenter.x + arrowSize * 0.5)},${fmt(arrowCenter.y + arrowSize * 0.5)}" fill="#ffffff" fill-opacity="0.35"/>`;
+
+  svg += blockLabel(n.x, n.y, n.z, w, h, n.op_type, n.out_shape, s, lightBg, textScale, meta);
+  return svg;
+}
+
+/** Dispatch to the right renderer based on VisualKind */
+function renderBlock(n: LayoutNode, s: number, lightBg: boolean, textScale: number, strokeScale: number): string {
   const isExpandedContainer = n.is_container && n.children && !n.collapsed;
   if (isExpandedContainer) {
-    // Render Expanded Container as a dashed flat footprint below the nodes
-    // Using z = minZ to stick it to the floor.
+    // Render Expanded Container as a dashed flat footprint
     const hw = n.width / 2;
     const hd = n.depth / 2;
     const cX = n.x;
@@ -99,70 +294,29 @@ function renderCuboid(
     const fill = lightBg ? '#f3f4f6' : '#18181b';
     const stroke = lightBg ? '#9ca3af' : '#52525b';
     const labelFill = lightBg ? '#1f2937' : '#d4d4d8';
-    const center = to25D(cX, bottomY, cZ + hd + 0.5, s); // Label slightly forward
+    const center = to25D(cX, bottomY, cZ + hd + 0.5, s);
 
-    let svg = `<polygon points="${fmt(p1.x)},${fmt(p1.y)} ${fmt(p2.x)},${fmt(p2.y)} ${fmt(p3.x)},${fmt(p3.y)} ${fmt(p4.x)},${fmt(p4.y)}" fill="${fill}" fill-opacity="${n.opacity ?? 0.3}" stroke="${stroke}" stroke-width="1.5" stroke-dasharray="6 4"/>`;
-    svg += `<text x="${fmt(center.x)}" y="${fmt(center.y)}" text-anchor="middle" font-size="12" fill="${labelFill}" font-weight="700">${escapeXml(n.op_type)}</text>`;
+    const fontSize = computeFontSize(n.height, s, { factor: 0.1, min: 10, max: 18 }) * textScale;
+
+    let svg = `<polygon points="${fmt(p1.x)},${fmt(p1.y)} ${fmt(p2.x)},${fmt(p2.y)} ${fmt(p3.x)},${fmt(p3.y)} ${fmt(p4.x)},${fmt(p4.y)}" fill="${fill}" fill-opacity="${n.opacity ?? 0.3}" stroke="${stroke}" stroke-width="${1.5 * strokeScale}" stroke-dasharray="6 4"/>`;
+    svg += `<text x="${fmt(center.x)}" y="${fmt(center.y)}" text-anchor="middle" font-size="${fmt(fontSize)}" fill="${labelFill}" font-weight="700">${escapeXml(n.op_type)}</text>`;
     return svg;
   }
 
-  // 3D Cuboid for Blocks
-  // The 'Right' face (x=x1) is the main visible spatial card.
-  // The 'Top' face (y=y1) and 'Front' face (z=z1) are the edge thicknesses.
-  const baseColor = n.color || '#3b82f6';
-  const frontColor = adjustColor(baseColor, -20);
-  const topColor = adjustColor(baseColor, 20);
-  const strokeColor = lightBg ? '#1e293b' : '#27272a';
+  const meta = getVisualMeta(n.op_type);
+  const ctx: BlockCtx = { n, s, lightBg, textScale, strokeScale, meta };
 
-  const w = n.width;   // Channels (sequence thickness)
-  const h = n.height;  // Spatial H
-  const d = n.depth;   // Spatial W
+  const activationSub = getActivationSubKind(meta.kind);
+  if (activationSub !== null) return renderActivationBlock(ctx);
+  if (meta.kind === 'Flatten' || meta.kind === 'Reshape' || meta.kind === 'Permute' || meta.kind === 'Slice') return renderTransformBlock(ctx);
+  if (meta.kind === 'AddConcat') return renderAddConcatBlock(ctx);
+  if (meta.kind === 'Attention') return renderAttentionBlock(ctx);
+  if (meta.kind === 'Upsample') return renderUpsampleBlock(ctx);
 
-  const x0 = n.x - w / 2;
-  const x1 = n.x + w / 2;
-  const y0 = n.y - h / 2;
-  const y1 = n.y + h / 2;
-  const z0 = n.z - d / 2;
-  const z1 = n.z + d / 2;
-
-  // Right Face (x=x1) -> Main Card Surface
-  const r1 = to25D(x1, y1, z0, s); // Top-Back
-  const r2 = to25D(x1, y1, z1, s); // Top-Front
-  const r3 = to25D(x1, y0, z1, s); // Bottom-Front
-  const r4 = to25D(x1, y0, z0, s); // Bottom-Back
-
-  // Top Face (y=y1) -> Top edge thickness
-  const t1 = to25D(x0, y1, z0, s);
-  const t2 = to25D(x1, y1, z0, s);
-  const t3 = to25D(x1, y1, z1, s);
-  const t4 = to25D(x0, y1, z1, s);
-
-  // Front Face (z=z1) -> Left/Front edge thickness
-  const f1 = to25D(x0, y1, z1, s);
-  const f2 = to25D(x1, y1, z1, s);
-  const f3 = to25D(x1, y0, z1, s);
-  const f4 = to25D(x0, y0, z1, s);
-
-  let svg = ``;
-  svg += `<polygon points="${fmt(t1.x)},${fmt(t1.y)} ${fmt(t2.x)},${fmt(t2.y)} ${fmt(t3.x)},${fmt(t3.y)} ${fmt(t4.x)},${fmt(t4.y)}" fill="${topColor}" stroke="${strokeColor}" stroke-width="0.75" stroke-linejoin="round"/>`;
-  svg += `<polygon points="${fmt(f1.x)},${fmt(f1.y)} ${fmt(f2.x)},${fmt(f2.y)} ${fmt(f3.x)},${fmt(f3.y)} ${fmt(f4.x)},${fmt(f4.y)}" fill="${frontColor}" stroke="${strokeColor}" stroke-width="0.75" stroke-linejoin="round"/>`;
-  svg += `<polygon points="${fmt(r1.x)},${fmt(r1.y)} ${fmt(r2.x)},${fmt(r2.y)} ${fmt(r3.x)},${fmt(r3.y)} ${fmt(r4.x)},${fmt(r4.y)}" fill="${baseColor}" stroke="${strokeColor}" stroke-width="0.75" stroke-linejoin="round"/>`;
-
-  // Label explicitly strictly centered on the Right Face
-  const center = to25D(x1, n.y, n.z, s);
-
-  const textFill = lightBg ? '#ffffff' : '#f8fafc';
-  svg += `<text x="${fmt(center.x)}" y="${fmt(center.y + 2)}" text-anchor="middle" font-size="9" fill="${textFill}" font-weight="600">${escapeXml(n.op_type)}</text>`;
-
-  if (n.out_shape && n.out_shape.length > 1) {
-    const shapeStr = n.out_shape.slice(1).join('×');
-    svg += `<text x="${fmt(center.x)}" y="${fmt(center.y + 12)}" text-anchor="middle" font-size="7" fill="${lightBg ? '#e2e8f0' : '#d4d4d8'}" font-family="monospace">${escapeXml(shapeStr)}</text>`;
-  }
-
-  return svg;
+  return renderStandardBlock(ctx);
 }
 
-function renderEdgePath(edge: LayoutEdge, s: number, lightBg: boolean): string {
+function renderEdgePath(edge: LayoutEdge, s: number, lightBg: boolean, strokeScale: number): string {
   const p = edge.points;
   if (p.length < 2) return '';
 
@@ -171,7 +325,7 @@ function renderEdgePath(edge: LayoutEdge, s: number, lightBg: boolean): string {
     : edge.kind === 'residual' ? '#71717a' : '#a1a1aa';
 
   const dash = edge.kind === 'residual' ? ' stroke-dasharray="6 4"' : '';
-  const width = edge.kind === 'residual' ? 1.5 : 2;
+  const width = (edge.kind === 'residual' ? 1.5 : 2) * strokeScale;
 
   const pts = p.map((pt) => to25D(pt.x, pt.y, pt.z, s));
   let d: string;
@@ -181,32 +335,39 @@ function renderEdgePath(edge: LayoutEdge, s: number, lightBg: boolean): string {
     d = pts.map((pt, i) => (i === 0 ? `M${fmt(pt.x)},${fmt(pt.y)}` : `L${fmt(pt.x)},${fmt(pt.y)}`)).join(' ');
   }
 
-  // Use markers for arrows
   const markerRef = `url(#arrow-${lightBg ? 'light' : 'dark'})`;
   return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}"${dash} stroke-linecap="round" stroke-linejoin="round" marker-end="${markerRef}"/>`;
 }
 
-function renderLegend(x: number, y: number, lightBg: boolean): string {
-  const items = OP_COLORS;
-  const rowH = 16;
-  const w = 130;
-  const h = items.length * rowH + 12;
-  const bgFill = lightBg ? '#f9fafb' : '#18181b';
-  const stroke = lightBg ? '#d1d5db' : '#3f3f46';
-  const textFill = lightBg ? '#4b5563' : '#9ca3af';
+function renderLegend(vbX: number, vbY: number, lightBg: boolean, textScale: number, strokeScale: number): string {
+  const items = getLegendItems();
+  const baseFontSize = 11 * textScale;
+  const swatchSize = Math.max(10, 12 * textScale);
+  const rowH = swatchSize + 8;
+  const legW = Math.max(140, 160 * textScale);
+  const legH = items.length * rowH + 20;
+  const legBg = lightBg ? '#f8fafc' : '#18181b';
+  const legStroke = lightBg ? '#e2e8f0' : '#3f3f46';
+  const legText = lightBg ? '#475569' : '#a1a1aa';
 
   let rows = '';
-  items.forEach(([label, color], i) => {
-    const ry = 8 + i * rowH;
-    rows += `<rect x="8" y="${ry}" width="9" height="9" rx="2" fill="${color}"/>`;
-    rows += `<text x="22" y="${ry + 8}" font-size="9" fill="${textFill}">${label}</text>`;
+  items.forEach(({ label, color }, i) => {
+    const ry = 14 + i * rowH;
+    rows += `<rect x="16" y="${ry}" width="${fmt(swatchSize)}" height="${fmt(swatchSize)}" rx="4" fill="${color}"/>`;
+    rows += `<text x="${16 + swatchSize + 10}" y="${ry + swatchSize - 3}" font-size="${fmt(baseFontSize)}" font-weight="600" fill="${legText}">${label}</text>`;
   });
 
-  return `<g transform="translate(${fmt(x)},${fmt(y)})"><rect width="${w}" height="${h}" rx="6" fill="${bgFill}" stroke="${stroke}" stroke-width="1" shadow="0 4 12 rgba(0,0,0,0.1)"/>${rows}</g>`;
+  return `<g transform="translate(${fmt(vbX + 30)},${fmt(vbY + 30)})">
+      <rect width="${legW}" height="${legH}" rx="10" fill="${legBg}" stroke="${legStroke}" stroke-width="${1.5 * strokeScale}" opacity="0.95" />
+      ${rows}
+    </g>`;
 }
 
 export function generateSVG(layout: LayoutData, options: SvgOptions): string {
   const lightBg = options.lightBackground ?? true;
+  const textScale = options.textScale ?? 1;
+  const strokeScale = options.strokeScale ?? 1;
+  const padding = options.padding ?? 80;
   const allNodes = collectNodes(layout.nodes);
   const S = options.scale ?? 32;
 
@@ -222,9 +383,10 @@ export function generateSVG(layout: LayoutData, options: SvgOptions): string {
   };
 
   for (const n of allNodes) {
-    const w = n.width;
-    const h = n.height;
-    const d = n.depth;
+    const meta = getVisualMeta(n.op_type);
+    const w = n.is_container ? n.width : n.width * meta.widthMul;
+    const h = n.is_container ? n.height : n.height * meta.heightMul;
+    const d = n.is_container ? n.depth : n.depth * meta.depthMul;
 
     const x0 = n.x - w / 2;
     const x1 = n.x + w / 2;
@@ -233,7 +395,6 @@ export function generateSVG(layout: LayoutData, options: SvgOptions): string {
     const z0 = n.z - d / 2;
     const z1 = n.z + d / 2;
 
-    // Project all 8 corners of the bounding box
     [
       to25D(x0, y0, z0, S), to25D(x1, y0, z0, S),
       to25D(x0, y1, z0, S), to25D(x1, y1, z0, S),
@@ -241,7 +402,6 @@ export function generateSVG(layout: LayoutData, options: SvgOptions): string {
       to25D(x0, y1, z1, S), to25D(x1, y1, z1, S),
     ].forEach(p => updateBounds(p.x, p.y));
 
-    // Pad for container label footprint
     if (n.is_container) {
       const p = to25D(n.x, y0, z1 + d + 2, S);
       updateBounds(p.x, p.y);
@@ -255,54 +415,35 @@ export function generateSVG(layout: LayoutData, options: SvgOptions): string {
     }
   }
 
-  const pad = 60;
   if (minX === Infinity) {
     minX = 0; minY = 0; maxX = 400; maxY = 300;
   }
-  const vbX = minX - pad;
-  const vbY = minY - pad;
-  const vbW = maxX - minX + pad * 2;
-  const vbH = maxY - minY + pad * 2;
-  const trueW = Math.round(vbW);
-  const trueH = Math.round(vbH);
+  const vbX = minX - padding;
+  const vbY = minY - padding;
+  const vbW = maxX - minX + padding * 2;
+  const vbH = maxY - minY + padding * 2;
+  const trueW = Math.max(800, Math.round(vbW));
+  const trueH = Math.max(600, Math.round(vbH));
 
-  // Render elements
-  // Sort nodes by Z-index painter's algorithm: (x + y + z) ascending (furthest from camera is drawn first)
+  // Sort nodes by painter's algorithm
   const sortedNodes = allNodes.slice().sort((a, b) => {
     const distA = a.x + a.y + a.z;
     const distB = b.x + b.y + b.z;
     return distA - distB;
   });
 
-  const edgeSvgs = layout.edges.map((e) => renderEdgePath(e, S, lightBg));
+  const edgeSvgs = layout.edges.map((e) => renderEdgePath(e, S, lightBg, strokeScale));
 
-  // Separate containers and terminals since containers should be drawn under terminals
-  const containerSvgs = sortedNodes.filter(n => n.is_container && n.children && !n.collapsed).map((n) => renderCuboid(n, S, lightBg));
-  const terminalSvgs = sortedNodes.filter(n => !(n.is_container && n.children && !n.collapsed)).map((n) => renderCuboid(n, S, lightBg));
+  const containerSvgs = sortedNodes
+    .filter(n => n.is_container && n.children && !n.collapsed)
+    .map((n) => renderBlock(n, S, lightBg, textScale, strokeScale));
+  const terminalSvgs = sortedNodes
+    .filter(n => !(n.is_container && n.children && !n.collapsed))
+    .map((n) => renderBlock(n, S, lightBg, textScale, strokeScale));
 
   const bgRect = options.transparentBackground ? '' : `<rect x="${fmt(vbX)}" y="${fmt(vbY)}" width="${fmt(vbW)}" height="${fmt(vbH)}" fill="${lightBg ? '#ffffff' : '#09090b'}"/>`;
 
-  const actualLegendStr = options.legend !== false ? (() => {
-    const items = OP_COLORS;
-    const rowH = 22;
-    const legW = 150;
-    const legH = items.length * rowH + 20;
-    const legBg = lightBg ? '#f8fafc' : '#18181b';
-    const legStroke = lightBg ? '#e2e8f0' : '#3f3f46';
-    const legText = lightBg ? '#475569' : '#a1a1aa';
-
-    let rows = '';
-    items.forEach(([label, color], i) => {
-      const ry = 14 + i * rowH;
-      rows += `<rect x="16" y="${ry}" width="14" height="14" rx="4" fill="${color}"/>`;
-      rows += `<text x="40" y="${ry + 11}" font-size="12" font-weight="600" fill="${legText}">${label}</text>`;
-    });
-
-    return `<g transform="translate(${fmt(vbX + 30)},${fmt(vbY + 30)})">
-        <rect width="${legW}" height="${legH}" rx="10" fill="${legBg}" stroke="${legStroke}" stroke-width="1.5" opacity="0.95" />
-        ${rows}
-      </g>`;
-  })() : '';
+  const actualLegendStr = options.legend !== false ? renderLegend(vbX, vbY, lightBg, textScale, strokeScale) : '';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="${fmt(vbX)} ${fmt(vbY)} ${fmt(vbW)} ${fmt(vbH)}" width="${trueW}" height="${trueH}">

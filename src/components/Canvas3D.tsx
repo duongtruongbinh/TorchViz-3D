@@ -15,7 +15,8 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { LayoutData, LayoutNode, LayoutEdge } from '../lib/irTypes';
-import { BTN_BG, BTN_BG_HOVER, BTN_BORDER, BTN_ICON, ERROR_COLOR, EDGE_COLOR_STD, EDGE_COLOR_RESIDUAL, EDGE_EDGES_OPAQUE, EDGE_EDGES_GLASS } from '../lib/constants';
+import { ERROR_COLOR, EDGE_COLOR_STD, EDGE_COLOR_RESIDUAL, EDGE_EDGES_OPAQUE, EDGE_EDGES_GLASS } from '../lib/constants';
+import { getVisualMeta, getVisualKind, isActivation, getActivationSubKind, type VisualKind } from '../lib/visualKind';
 
 declare global {
   namespace JSX {
@@ -143,7 +144,21 @@ function flattenLeaves(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[
 function groupLeavesByIdentity(leaves: LayoutNode[]): { batches: LayoutNode[][]; singles: LayoutNode[] } {
   const map = new Map<string, LayoutNode[]>();
   for (const n of leaves) {
-    const key = `${n.width}_${n.height}_${n.depth}_${n.color}`;
+    const kind = getVisualKind(n.op_type);
+    const meta = getVisualMeta(n.op_type);
+    // Only batch simple geometries (non-special shapes)
+    if (meta.specialGeometry) {
+      // Special shapes always go to singles for per-node rendering
+      const arr = map.get(`__special_${n.id}`) ?? [];
+      arr.push(n);
+      map.set(`__special_${n.id}`, arr);
+      continue;
+    }
+    // Apply visual dimension multipliers to the key
+    const w = n.width * meta.widthMul;
+    const h = n.height * meta.heightMul;
+    const d = n.depth * meta.depthMul;
+    const key = `${kind}_${w.toFixed(2)}_${h.toFixed(2)}_${d.toFixed(2)}_${meta.color}`;
     const arr = map.get(key) ?? [];
     arr.push(n);
     map.set(key, arr);
@@ -170,7 +185,11 @@ const InstancedLeafGroup: React.FC<{
   const ref = useRef<THREE.InstancedMesh>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const n = nodes[0];
-  const args = useMemo(() => [n.width, n.height, n.depth] as [number, number, number], [n.width, n.height, n.depth]);
+  const meta = useMemo(() => getVisualMeta(n.op_type), [n.op_type]);
+  const args = useMemo(
+    () => [n.width * meta.widthMul, n.height * meta.heightMul, n.depth * meta.depthMul] as [number, number, number],
+    [n.width, n.height, n.depth, meta],
+  );
 
   useEffect(() => {
     const mesh = ref.current;
@@ -186,7 +205,7 @@ const InstancedLeafGroup: React.FC<{
     mesh.instanceMatrix.needsUpdate = true;
   }, [nodes]);
 
-  const baseColor = n.error ? ERROR_COLOR : n.color;
+  const baseColor = n.error ? ERROR_COLOR : meta.color;
 
   return (
     <group>
@@ -220,15 +239,15 @@ const InstancedLeafGroup: React.FC<{
           emissiveIntensity={0}
         />
       </instancedMesh>
-      {nodes.map((nd, i) => (
-        <Billboard key={nd.id} position={[nd.x, nd.y - nd.height / 2 - 0.7, nd.z]} renderOrder={100}>
+      {nodes.map((nd) => (
+        <Billboard key={nd.id} position={[nd.x, nd.y - (nd.height * meta.heightMul) / 2 - 0.7, nd.z]} renderOrder={100}>
           <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
-            {nd.op_type}
+            {meta.labelOverride ?? nd.op_type}
           </Text>
         </Billboard>
       ))}
       {hoveredId !== null && nodes[hoveredId] && (
-        <Html position={[nodes[hoveredId].x, nodes[hoveredId].y + nodes[hoveredId].height / 2 + 0.5, nodes[hoveredId].z]} center zIndexRange={[100, 0]} className="pointer-events-none">
+        <Html position={[nodes[hoveredId].x, nodes[hoveredId].y + (nodes[hoveredId].height * meta.heightMul) / 2 + 0.5, nodes[hoveredId].z]} center zIndexRange={[100, 0]} className="pointer-events-none">
           <div className="glass-panel flex flex-col items-center justify-center gap-1.5 bg-[var(--surface-elevated)] border-[var(--border)] px-5 py-3 rounded-xl text-center shadow-2xl min-w-[12rem] max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-200">
             <span className="text-[14px] font-bold text-blue-400 tracking-wide uppercase leading-tight break-words px-2">{nodes[hoveredId].op_type}</span>
             <span className="text-xs font-mono text-[var(--text)] bg-black/30 px-2.5 py-1 rounded break-words">
@@ -256,6 +275,150 @@ function useErrorPulse(hasError: boolean): number {
   return 0.5 + Math.sin(ref.current) * 0.4;
 }
 
+
+
+/* ─── Per-kind: Thin floating plate for Activation (ReLU/Sigmoid) ─── */
+const ActivationBlock: React.FC<{ w: number; h: number; d: number; color: string; isActive: boolean; hasError: boolean; errorPulse: number }> = ({ w, h, d, color, isActive, hasError, errorPulse }) => {
+  return (
+    <group>
+      {/* Very thin, glowing plate */}
+      <RoundedBox args={[w, h, d]} radius={0.01} smoothness={2}>
+        <meshPhysicalMaterial color={color} metalness={0.1} roughness={0.2} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.4 : 0.15} transmission={0.2} thickness={0.5} />
+      </RoundedBox>
+      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
+        <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
+      </Edges>
+    </group>
+  );
+};
+
+/* ─── Per-kind: Clean box with glowing '+' for Add/Concat ─── */
+const DiamondBlock: React.FC<{ w: number; h: number; d: number; color: string; isActive: boolean; hasError: boolean; errorPulse: number }> = ({ w, h, d, color, isActive, hasError, errorPulse }) => {
+  const plusSize = Math.min(h, d) * 0.2;
+  return (
+    <group>
+      <RoundedBox args={[w, h, d]} radius={0.02} smoothness={2}>
+        <meshPhysicalMaterial color={color} metalness={0.05} roughness={0.5} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0} />
+      </RoundedBox>
+      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
+        <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
+      </Edges>
+      {/* Bright '+' icon on the side */}
+      <group position={[w / 2 + 0.01, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <mesh>
+          <boxGeometry args={[plusSize * 2, plusSize * 0.4, 0.02]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.8} />
+        </mesh>
+        <mesh>
+          <boxGeometry args={[plusSize * 0.4, plusSize * 2, 0.02]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.8} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+/* ─── Per-kind: Clean striped block for Attention ─── */
+const AttentionBlock: React.FC<{ w: number; h: number; d: number; color: string; isActive: boolean; hasError: boolean; errorPulse: number }> = ({ w, h, d, color, isActive, hasError, errorPulse }) => {
+  const stripeCount = 3;
+  const stripeW = d / (stripeCount * 2 + 1);
+  return (
+    <group>
+      <RoundedBox args={[w, h, d]} radius={0.02} smoothness={2}>
+        <meshPhysicalMaterial color={color} metalness={0.05} roughness={0.5} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0} />
+      </RoundedBox>
+      {/* Heatsink-style subtle vertical inset stripes */}
+      {Array.from({ length: stripeCount }, (_, i) => (
+        <mesh key={i} position={[w / 2 + 0.01, 0, -d / 2 + stripeW * (2 * i + 1.5)]} rotation={[0, Math.PI / 2, 0]}>
+          <boxGeometry args={[stripeW * 0.6, h * 0.7, 0.02]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.25} />
+        </mesh>
+      ))}
+      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
+        <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
+      </Edges>
+    </group>
+  );
+};
+
+/* ─── Per-kind: Box with up-arrows for Upsample ─── */
+const UpsampleBlock: React.FC<{ w: number; h: number; d: number; color: string; isActive: boolean; hasError: boolean; errorPulse: number }> = ({ w, h, d, color, isActive, hasError, errorPulse }) => {
+  const arrowSize = Math.min(h, d) * 0.15;
+  const geo = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(0, arrowSize);
+    shape.lineTo(arrowSize, -arrowSize);
+    shape.lineTo(-arrowSize, -arrowSize);
+    shape.closePath();
+    return new THREE.ShapeGeometry(shape);
+  }, [arrowSize]);
+
+  return (
+    <group>
+      <RoundedBox args={[w, h, d]} radius={0.015} smoothness={2}>
+        <meshPhysicalMaterial color={color} metalness={0.05} roughness={0.5} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0} />
+      </RoundedBox>
+      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
+        <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
+      </Edges>
+      <group position={[w / 2 + 0.01, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <mesh geometry={geo} position={[0, arrowSize, 0]}>
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.6} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh geometry={geo} position={[0, -arrowSize, 0]}>
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.6} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+/* ─── Per-kind: Thin plate for Transform/Flatten ─── */
+const TransformBlock: React.FC<{ w: number; h: number; d: number; color: string; isActive: boolean; hasError: boolean; errorPulse: number }> = ({ w, h, d, color, isActive, hasError, errorPulse }) => {
+  return (
+    <group>
+      <RoundedBox args={[w, h, d]} radius={0.005} smoothness={1}>
+        <meshPhysicalMaterial color={color} metalness={0.05} roughness={0.5} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0} />
+      </RoundedBox>
+      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
+        <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
+      </Edges>
+    </group>
+  );
+};
+
+/* ─── Shape Dispatcher: renders the right 3D shape for a given visual kind ─── */
+const KindShape: React.FC<{
+  kind: VisualKind; w: number; h: number; d: number; color: string;
+  cornerRadius: number; isActive: boolean; hasError: boolean; errorPulse: number;
+}> = ({ kind, w, h, d, color, cornerRadius, isActive, hasError, errorPulse }) => {
+  const activationSub = getActivationSubKind(kind);
+  if (activationSub !== null) return <ActivationBlock w={w} h={h} d={d} color={color} isActive={isActive} hasError={hasError} errorPulse={errorPulse} />;
+  if (kind === 'AddConcat') return <DiamondBlock w={w} h={h} d={d} color={color} isActive={isActive} hasError={hasError} errorPulse={errorPulse} />;
+  if (kind === 'Attention') return <AttentionBlock w={w} h={h} d={d} color={color} isActive={isActive} hasError={hasError} errorPulse={errorPulse} />;
+  if (kind === 'Upsample') return <UpsampleBlock w={w} h={h} d={d} color={color} isActive={isActive} hasError={hasError} errorPulse={errorPulse} />;
+  if (kind === 'Flatten' || kind === 'Reshape' || kind === 'Permute' || kind === 'Slice') return <TransformBlock w={w} h={h} d={d} color={color} isActive={isActive} hasError={hasError} errorPulse={errorPulse} />;
+
+  // Default: RoundedBox
+  return (
+    <>
+      <RoundedBox args={[w, h, d]} radius={cornerRadius} smoothness={2}>
+        <meshPhysicalMaterial
+          color={color}
+          metalness={0.05}
+          roughness={0.5}
+          clearcoat={0}
+          emissive={hasError ? ERROR_COLOR : color}
+          emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0.0}
+        />
+      </RoundedBox>
+      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
+        <lineBasicMaterial transparent opacity={isActive ? 0.9 : hasError ? 0.6 : 0.4} />
+      </Edges>
+    </>
+  );
+};
+
 /* ─── Leaf Node Block ─── */
 const NodeBlock: React.FC<{
   node: LayoutNode;
@@ -264,22 +427,20 @@ const NodeBlock: React.FC<{
   onClickNode: (nodeId: string) => void;
 }> = ({ node, highlighted, onHover, onClickNode }) => {
   const [hovered, setHover] = useState(false);
-  const args = useMemo(
-    () => [node.width, node.height, node.depth] as [number, number, number],
-    [node.width, node.height, node.depth],
-  );
+  const meta = useMemo(() => getVisualMeta(node.op_type), [node.op_type]);
+  const w = node.width * meta.widthMul;
+  const h = node.height * meta.heightMul;
+  const d = node.depth * meta.depthMul;
 
   const hasError = !!node.error;
-  const baseColor = hasError ? ERROR_COLOR : node.color;
+  const baseColor = hasError ? ERROR_COLOR : meta.color;
   const isActive = hovered || highlighted;
   const errorPulse = useErrorPulse(hasError);
+  const displayLabel = meta.labelOverride ?? node.op_type;
 
   return (
     <group position={[node.x, node.y, node.z]}>
-      <RoundedBox
-        args={args}
-        radius={0.02}
-        smoothness={2}
+      <group
         onClick={(e: any) => {
           e.stopPropagation();
           onClickNode(node.id);
@@ -296,28 +457,12 @@ const NodeBlock: React.FC<{
           document.body.style.cursor = '';
         }}
       >
-        <meshPhysicalMaterial
-          color={baseColor}
-          metalness={0.05}
-          roughness={0.5}
-          clearcoat={0}
-          emissive={hasError ? ERROR_COLOR : baseColor}
-          emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0.0}
-        />
-      </RoundedBox>
-
-      <Edges
-        threshold={15}
-        color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD}
-        scale={1.001}
-        renderOrder={1}
-      >
-        <lineBasicMaterial transparent opacity={isActive ? 0.9 : hasError ? 0.6 : 0.4} />
-      </Edges>
+        <KindShape kind={meta.kind} w={w} h={h} d={d} color={baseColor} cornerRadius={meta.cornerRadius} isActive={isActive} hasError={hasError} errorPulse={errorPulse} />
+      </group>
 
       {/* Error floating label */}
       {hasError && (
-        <Billboard position={[0, node.height / 2 + 1.2, 0]} renderOrder={100}>
+        <Billboard position={[0, h / 2 + 1.2, 0]} renderOrder={100}>
           <Text {...textBaseProps} fontSize={0.4} color="#fecaca" anchorY="middle" maxWidth={3.5}>
             {node.error}
           </Text>
@@ -326,7 +471,7 @@ const NodeBlock: React.FC<{
 
       {/* Hover tooltip */}
       {hovered && !hasError && (
-        <Html position={[0, node.height / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-none">
+        <Html position={[0, h / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-none">
           <div className="glass-panel flex flex-col items-center justify-center gap-1.5 bg-[var(--surface-elevated)] border-[var(--border)] px-5 py-3 rounded-xl text-center shadow-2xl min-w-[12rem] max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-200">
             <span className="text-[14px] font-bold text-blue-400 tracking-wide uppercase leading-tight break-words px-2">{node.op_type}</span>
             <span className="text-xs font-mono text-[var(--text)] bg-black/30 px-2.5 py-1 rounded break-words">
@@ -343,9 +488,9 @@ const NodeBlock: React.FC<{
 
       {/* Static label (when not hovered) */}
       {!hovered && !hasError && (
-        <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
+        <Billboard position={[0, -h / 2 - 0.8, 0]} renderOrder={100}>
           <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
-            {node.op_type}
+            {displayLabel}
           </Text>
         </Billboard>
       )}
