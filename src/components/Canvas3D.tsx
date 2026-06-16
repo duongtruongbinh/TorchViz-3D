@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   OrbitControls,
   RoundedBox,
@@ -10,8 +10,6 @@ import {
   Line,
   Edges,
   ContactShadows,
-  Bounds,
-  useBounds,
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { LayoutData, LayoutNode, LayoutEdge } from '../lib/irTypes';
@@ -66,6 +64,10 @@ interface Canvas3DProps {
 
 const HEADER_BAR_HEIGHT = 0.6;
 const INSTANCED_BATCH_MIN = 3;
+const DEFAULT_CAMERA_OFFSET = new THREE.Vector3(50, 40, 50);
+const DEFAULT_CAMERA_ZOOM = 42;
+const DEFAULT_MIN_ZOOM = 6;
+const DEFAULT_VIEW_PADDING = 0.8;
 
 const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
 const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×';
@@ -816,47 +818,114 @@ const EdgeLine: React.FC<{ edge: LayoutEdge }> = ({ edge }) => {
 
 const BOUNDS_DEBOUNCE_MS = 200;
 
-/* ─── Auto-fit camera when layout changes ─── */
-const BoundsAutoFit: React.FC<{ layoutKey: string }> = ({ layoutKey }) => {
-  const bounds = useBounds();
+function collectLayoutNodes(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[] {
+  for (const node of nodes) {
+    out.push(node);
+    if (node.children?.length) collectLayoutNodes(node.children, out);
+  }
+  return out;
+}
+
+function getLayoutView(layout: LayoutData, viewport: { width: number; height: number }) {
+  const nodes = collectLayoutNodes(layout.nodes);
+  if (!nodes.length) {
+    return { target: new THREE.Vector3(), zoom: DEFAULT_CAMERA_ZOOM };
+  }
+
+  const box = new THREE.Box3();
+  for (const node of nodes) {
+    box.expandByPoint(new THREE.Vector3(node.x - node.width / 2, node.y - node.height / 2, node.z - node.depth / 2));
+    box.expandByPoint(new THREE.Vector3(node.x + node.width / 2, node.y + node.height / 2, node.z + node.depth / 2));
+  }
+
+  const size = box.getSize(new THREE.Vector3());
+  const projectedWidth = Math.max(size.x + size.z * 0.7, 1);
+  const projectedHeight = Math.max(size.y + size.z * 0.45, 1);
+  const zoom = Math.max(
+    DEFAULT_MIN_ZOOM,
+    Math.min(
+      DEFAULT_CAMERA_ZOOM,
+      viewport.width / (projectedWidth * DEFAULT_VIEW_PADDING),
+      viewport.height / (projectedHeight * DEFAULT_VIEW_PADDING),
+    ),
+  );
+
+  return { target: box.getCenter(new THREE.Vector3()), zoom };
+}
+
+type CameraControls = {
+  target?: THREE.Vector3;
+  update?: () => void;
+};
+
+function applyDefaultView(
+  camera: THREE.Camera,
+  controls: CameraControls | undefined,
+  layout: LayoutData,
+  viewport: { width: number; height: number },
+) {
+  const { target, zoom } = getLayoutView(layout, viewport);
+  camera.position.copy(target).add(DEFAULT_CAMERA_OFFSET);
+  if ('zoom' in camera) {
+    camera.zoom = zoom;
+    camera.updateProjectionMatrix();
+  }
+  controls?.target?.copy(target);
+  controls?.update?.();
+}
+
+/* ─── Set an overview camera when layout changes ─── */
+const BoundsAutoFit: React.FC<{ layout: LayoutData; layoutKey: string }> = ({ layout, layoutKey }) => {
+  const camera = useThree((state) => state.camera);
+  const controls = useThree((state) => state.controls) as CameraControls | undefined;
+  const size = useThree((state) => state.size);
   const prevKey = useRef('');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (!layoutKey || layoutKey === prevKey.current) return;
-    prevKey.current = layoutKey;
+    const viewKey = `${layoutKey}:${size.width}:${size.height}:${controls ? 'ready' : 'pending'}`;
+    if (!layoutKey || viewKey === prevKey.current) return;
+    prevKey.current = viewKey;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       timeoutRef.current = null;
-      bounds.refresh().clip().fit();
+      applyDefaultView(camera, controls, layout, size);
     }, BOUNDS_DEBOUNCE_MS);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [layoutKey, bounds]);
+  }, [layout, layoutKey, camera, controls, size]);
   return null;
 };
 
-/* ─── Recenter button (lives inside Canvas to access useBounds) ─── */
-const RecenterButton: React.FC = () => {
-  const bounds = useBounds();
+/* ─── Reset view button (lives inside Canvas to access camera controls) ─── */
+const RecenterButton: React.FC<{ layout: LayoutData }> = ({ layout }) => {
+  const camera = useThree((state) => state.camera);
+  const controls = useThree((state) => state.controls) as CameraControls | undefined;
+  const size = useThree((state) => state.size);
+
+  const resetView = () => {
+    applyDefaultView(camera, controls, layout, size);
+  };
+
   return (
     <Html
       position={[0, 0, 0]}
       style={{ pointerEvents: 'auto' }}
       zIndexRange={[50, 0]}
-      calculatePosition={(_, __, { width, height }) => [width - 90, height - 50]}
+      calculatePosition={(_, __, { width }) => [width - 48, 16]}
     >
       <button
-        className="fixed bottom-4 right-4 bg-zinc-800/95 hover:bg-zinc-700 border border-zinc-600 text-zinc-200 px-3 py-2 rounded-lg text-xs font-medium shadow-lg backdrop-blur-sm transition-all hover:text-white select-none"
-        onClick={() => bounds.refresh().clip().fit()}
-        title="Recenter camera"
+        className="w-8 h-8 flex items-center justify-center bg-zinc-900/55 hover:bg-zinc-800/75 border border-zinc-600/60 text-zinc-300 rounded-md shadow-md backdrop-blur-sm transition-all hover:text-white select-none"
+        onClick={resetView}
+        title="Reset camera view"
+        aria-label="Reset camera view"
       >
-        <span className="flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
-            <path fillRule="evenodd" d="M9.638 1.093a.75.75 0 01.724 0l2 1.104a.75.75 0 11-.724 1.313L10 2.607l-1.638.903a.75.75 0 11-.724-1.313l2-1.104zM5.403 4.287a.75.75 0 01-.295 1.019l-.805.444.805.444a.75.75 0 01-.724 1.313L3.19 6.86a.75.75 0 010-1.313l1.194-.66a.75.75 0 011.019.295zm9.194 0a.75.75 0 011.019-.295l1.194.66a.75.75 0 010 1.313l-1.194.659a.75.75 0 11-.724-1.313l.805-.444-.805-.444a.75.75 0 01-.295-1.019zM7.343 8.284a.75.75 0 011.019-.295L10 8.893l1.638-.904a.75.75 0 11.724 1.313l-2 1.104a.75.75 0 01-.724 0l-2-1.104a.75.75 0 01-.295-1.018z" clipRule="evenodd" />
-          </svg>
-          Recenter
-        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+          <path d="M3 12a9 9 0 0 1 15.3-6.4" />
+          <path d="M18 3v5h-5" />
+          <path d="M21 12a9 9 0 0 1-15.3 6.4" />
+          <path d="M6 21v-5h5" />
+        </svg>
       </button>
     </Html>
   );
@@ -962,7 +1031,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
 
       <Canvas
         orthographic
-        camera={{ zoom: 40, position: [50, 40, 50], near: -1000, far: 2000 }}
+        camera={{ zoom: DEFAULT_CAMERA_ZOOM, position: DEFAULT_CAMERA_OFFSET.toArray(), near: -1000, far: 2000 }}
         dpr={[1, 2]}
         gl={{
           antialias: true,
@@ -986,9 +1055,9 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
         />
 
         {layout && (
-          <Bounds fit clip observe margin={0.15}>
-            <BoundsAutoFit layoutKey={layoutKey} />
-            <RecenterButton />
+          <>
+            <BoundsAutoFit layout={layout} layoutKey={layoutKey} />
+            <RecenterButton layout={layout} />
             <SceneWithInstancing
               layout={layout}
               highlightNodeId={highlightNodeId}
@@ -1002,12 +1071,12 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
               ))}
             </group>
             <gridHelper args={[400, 80, 0x3f3f46, 0x18181b]} position={[0, -5, 0]} />
-          </Bounds>
+          </>
         )}
 
         <OrbitControls
           makeDefault
-          minZoom={10}
+          minZoom={DEFAULT_MIN_ZOOM}
           maxZoom={150}
           enableDamping
           dampingFactor={0.1}
