@@ -38,14 +38,14 @@ const STEPS: Step[] = [
   {
     target: '[data-tour="canvas"]',
     title: 'Canvas: Left click',
-    body: 'Left click inside the canvas to try rotating the 3D view.',
+    body: 'Left click and drag inside the canvas to pan the 3D view.',
     panelPlacement: 'canvas-side',
     requiredPointerButton: 0,
   },
   {
     target: '[data-tour="canvas"]',
     title: 'Canvas: Right click',
-    body: 'Right click inside the canvas to try the secondary canvas interaction.',
+    body: 'Right click and drag inside the canvas to rotate the 3D view.',
     panelPlacement: 'canvas-side',
     requiredPointerButton: 2,
   },

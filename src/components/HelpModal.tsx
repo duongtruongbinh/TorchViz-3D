@@ -32,11 +32,11 @@ const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <ul className="space-y-3 text-[var(--text-muted)] text-sm">
               <li className="flex items-center gap-2.5">
                 <span className="px-2 py-1 rounded bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text)] shrink-0 shadow-sm">Left btn</span>
-                Click + drag: Rotate camera
+                Click + drag: Pan
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="px-2 py-1 rounded bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text)] shrink-0 shadow-sm">Right btn</span>
-                Click + drag: Pan
+                Click + drag: Rotate camera
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="px-2 py-1 rounded bg-[var(--surface-elevated)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text)] shrink-0 shadow-sm">Scroll</span>

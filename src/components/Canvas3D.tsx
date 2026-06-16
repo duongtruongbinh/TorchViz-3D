@@ -1014,11 +1014,11 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
             <div className="flex items-center justify-center gap-5 text-xs text-zinc-500">
               <span className="flex items-center gap-2">
                 <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Left</span>
-                Rotate
+                Pan
               </span>
               <span className="flex items-center gap-2">
                 <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Right</span>
-                Pan
+                Rotate
               </span>
               <span className="flex items-center gap-2">
                 <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Scroll</span>
@@ -1082,6 +1082,11 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
           dampingFactor={0.1}
           maxPolarAngle={Math.PI / 1.8}
           minPolarAngle={0}
+          mouseButtons={{
+            LEFT: THREE.MOUSE.PAN,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.ROTATE,
+          }}
         />
       </Canvas>
     </div>
