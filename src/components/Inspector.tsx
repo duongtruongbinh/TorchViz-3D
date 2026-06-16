@@ -9,6 +9,7 @@ interface InspectorProps {
   highlightNodeId: string | null;
   onSelectNode: (id: string) => void;
   onHighlightNode: (id: string | null) => void;
+  headerAction?: React.ReactNode;
 }
 
 /* ─── Recursive Tree Node ─── */
@@ -121,11 +122,11 @@ const NodeDetails: React.FC<{ node: IRNode }> = ({ node }) => {
 };
 
 /* ─── Main Inspector / Model Explorer ─── */
-const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNodeId, onSelectNode, onHighlightNode }) => {
+const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNodeId, onSelectNode, onHighlightNode, headerAction }) => {
   const selectedNode = ir && selectedNodeId ? findNodeById(ir.nodes, selectedNodeId) : null;
 
   return (
-    <div className="h-full flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-2xl border-y-0 border-r-0 overflow-hidden ml-2 mb-2 mt-2 shadow-2xl">
+    <div className="h-full flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-md border-y-0 border-r-0 overflow-hidden ml-2 mb-2 mt-2 shadow-2xl">
       {/* Header */}
       <div className="h-10 border-b border-[var(--border)] flex items-center px-4 shrink-0 bg-[var(--surface-elevated)] select-none">
         <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider flex items-center gap-1.5">
@@ -134,6 +135,7 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
           </svg>
           Explorer
         </span>
+        {headerAction && <div className="ml-auto">{headerAction}</div>}
       </div>
 
       {!ir ? (
