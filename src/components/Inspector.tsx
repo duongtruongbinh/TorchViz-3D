@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { IRGraph, IRNode, findNodeById } from '../lib/irTypes';
 import { formatNumber } from '../lib/stats';
 import { getOpColor } from '../lib/constants';
+import { getLayerInsight } from '../lib/layerInsights';
 
 interface InspectorProps {
   ir: IRGraph | null;
@@ -9,6 +10,7 @@ interface InspectorProps {
   highlightNodeId: string | null;
   onSelectNode: (id: string) => void;
   onHighlightNode: (id: string | null) => void;
+  onOpenLayerInsight: (node: IRNode) => void;
   headerAction?: React.ReactNode;
 }
 
@@ -48,7 +50,8 @@ const TreeNode: React.FC<{
   highlightId: string | null;
   onSelect: (id: string) => void;
   onHighlight: (id: string | null) => void;
-}> = ({ node, depth, selectedId, highlightId, onSelect, onHighlight }) => {
+  onOpenLayerInsight: (node: IRNode) => void;
+}> = ({ node, depth, selectedId, highlightId, onSelect, onHighlight, onOpenLayerInsight }) => {
   const [expanded, setExpanded] = useState(depth < 2);
   const isContainer = node.is_container && node.children && node.children.length > 0;
   const isSelected = node.id === selectedId;
@@ -87,9 +90,17 @@ const TreeNode: React.FC<{
         <span className="font-medium truncate">{node.op_type}</span>
 
         {node.params > 0 && (
-          <span className="ml-auto text-xs text-zinc-600 font-mono flex-shrink-0">
+          <button
+            type="button"
+            className="ml-auto text-xs text-zinc-500 hover:text-blue-300 font-mono flex-shrink-0 underline underline-offset-4 decoration-dotted"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenLayerInsight(node);
+            }}
+            title="Explain parameter formula"
+          >
             {formatNumber(node.params)}
-          </span>
+          </button>
         )}
       </div>
 
@@ -102,6 +113,7 @@ const TreeNode: React.FC<{
           highlightId={highlightId}
           onSelect={onSelect}
           onHighlight={onHighlight}
+          onOpenLayerInsight={onOpenLayerInsight}
         />
       ))}
     </div>
@@ -109,13 +121,14 @@ const TreeNode: React.FC<{
 };
 
 /* ─── Node Details Panel ─── */
-const NodeDetails: React.FC<{ node: IRNode }> = ({ node }) => {
-  const rows: [string, string][] = [
-    ['Type', node.op_type],
+const NodeDetails: React.FC<{ node: IRNode; onOpenLayerInsight: (node: IRNode) => void }> = ({ node, onOpenLayerInsight }) => {
+  const insight = getLayerInsight(node);
+  const rows: [string, React.ReactNode][] = [
     ['Name', node.name],
-    ['Input', node.in_shape.length > 0 ? `(${node.in_shape.join(', ')})` : '-'],
-    ['Output', node.out_shape.length > 0 ? `(${node.out_shape.join(', ')})` : '-'],
-    ['Params', node.params > 0 ? node.params.toLocaleString() : '0'],
+    ['Type', node.op_type],
+    ['Line', node.lineno ? String(node.lineno) : '-'],
+    ['Formula', insight.paramFormula.formula],
+    ['Calc', insight.paramFormula.calculation],
   ];
 
   if (node.meta) {
@@ -133,6 +146,13 @@ const NodeDetails: React.FC<{ node: IRNode }> = ({ node }) => {
       <div className="flex items-center gap-2 mb-2">
         <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getOpColor(node.op_type) }} />
         <span className="text-sm font-bold text-[var(--text)] uppercase tracking-wider">{node.op_type}</span>
+        <button
+          type="button"
+          className="ml-auto text-xs font-mono text-blue-300 hover:text-blue-100 underline underline-offset-4 decoration-dotted"
+          onClick={() => onOpenLayerInsight(node)}
+        >
+          {insight.paramsLabel}
+        </button>
       </div>
       <div className="bg-[var(--border-subtle)] rounded-lg border border-[var(--border)] overflow-hidden">
         {rows.map(([label, value], i) => (
@@ -150,7 +170,7 @@ const NodeDetails: React.FC<{ node: IRNode }> = ({ node }) => {
 };
 
 /* ─── Main Inspector / Model Explorer ─── */
-const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNodeId, onSelectNode, onHighlightNode, headerAction }) => {
+const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNodeId, onSelectNode, onHighlightNode, onOpenLayerInsight, headerAction }) => {
   const selectedNode = ir && selectedNodeId ? findNodeById(ir.nodes, selectedNodeId) : null;
   const [isStructureCollapsed, setStructureCollapsed] = useState(false);
   const [isDetailsCollapsed, setDetailsCollapsed] = useState(false);
@@ -203,6 +223,7 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
                   highlightId={highlightNodeId}
                   onSelect={onSelectNode}
                   onHighlight={onHighlightNode}
+                  onOpenLayerInsight={onOpenLayerInsight}
                 />
               ))}
             </div>
@@ -223,7 +244,7 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
             </div>
             <div className={`flex-1 overflow-y-auto custom-scrollbar transition-[opacity,transform] duration-200 ease-out ${isDetailsCollapsed ? 'opacity-0 translate-y-1 pointer-events-none' : 'opacity-100 translate-y-0 delay-75'}`}>
               {selectedNode ? (
-                <NodeDetails node={selectedNode} />
+                <NodeDetails node={selectedNode} onOpenLayerInsight={onOpenLayerInsight} />
               ) : (
                 <div className="flex items-center justify-center h-full text-[var(--text-dim)] text-xs italic">
                   Click a node to inspect

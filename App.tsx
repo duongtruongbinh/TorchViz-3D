@@ -4,9 +4,10 @@ import Canvas3D from './src/components/Canvas3D';
 import Inspector from './src/components/Inspector';
 import BottomTabs from './src/components/BottomTabs';
 import ExportSvgModal from './src/components/ExportSvgModal';
+import ParamFormulaPopup from './src/components/ParamFormulaPopup';
 import Header from './src/components/Header';
 import { hasSeenTour } from './src/components/OnboardingTour';
-import { findNodeByLine } from './src/lib/irTypes';
+import { findNodeByLine, type IRNode } from './src/lib/irTypes';
 import { useStore } from './src/store/useStore';
 import { workerService } from './src/lib/workerService';
 
@@ -74,6 +75,7 @@ export default function App() {
   const [isExportOpen, setExportOpen] = useState(false);
   const [isHelpOpen, setHelpOpen] = useState(false);
   const [isTourOpen, setTourOpen] = useState(false);
+  const [layerInsightNode, setLayerInsightNode] = useState<IRNode | null>(null);
   const [tourResetViewToken, setTourResetViewToken] = useState(0);
 
   const [leftWidth, setLeftWidth] = useState(400);
@@ -232,6 +234,7 @@ export default function App() {
                 onToggleCollapse={toggleCollapse}
                 onHoverNode={setHighlightLine}
                 onClickNode={handleSelectNode}
+                onOpenLayerInsight={setLayerInsightNode}
                 resetViewToken={tourResetViewToken}
                 resetViewDisabled={isTourOpen}
               />
@@ -278,6 +281,7 @@ export default function App() {
               highlightNodeId={highlightNodeId}
               onSelectNode={handleSelectNode}
               onHighlightNode={setHighlightNodeId}
+              onOpenLayerInsight={setLayerInsightNode}
               headerAction={(
                 <PanelCollapseButton
                   side="right"
@@ -291,6 +295,7 @@ export default function App() {
       </div>
 
       <ExportSvgModal isOpen={isExportOpen} onClose={() => setExportOpen(false)} layout={layout} />
+      <ParamFormulaPopup node={layerInsightNode} onClose={() => setLayerInsightNode(null)} />
     </div>
   );
 }

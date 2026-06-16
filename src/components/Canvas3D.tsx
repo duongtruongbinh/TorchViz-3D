@@ -14,7 +14,8 @@ import {
 import * as THREE from 'three';
 import { LayoutData, LayoutNode, LayoutEdge } from '../lib/irTypes';
 import { ERROR_COLOR, EDGE_COLOR_STD, EDGE_COLOR_RESIDUAL, EDGE_EDGES_OPAQUE, EDGE_EDGES_GLASS } from '../lib/constants';
-import { getVisualMeta, getVisualKind, isActivation, getActivationSubKind, type VisualKind } from '../lib/visualKind';
+import { getVisualMeta, getVisualKind, getActivationSubKind, type VisualKind } from '../lib/visualKind';
+import { getLayerInsight } from '../lib/layerInsights';
 
 declare global {
   namespace JSX {
@@ -60,6 +61,7 @@ interface Canvas3DProps {
   onToggleCollapse?: (nodeId: string) => void;
   onHoverNode?: (lineno: number | null) => void;
   onClickNode?: (nodeId: string) => void;
+  onOpenLayerInsight?: (node: LayoutNode) => void;
   resetViewToken?: number;
   resetViewDisabled?: boolean;
 }
@@ -134,6 +136,34 @@ const textBaseProps = {
   },
 };
 
+function useHoverHold<T>(emptyValue: T, delay = 120) {
+  const [value, setValue] = useState<T>(emptyValue);
+  const hideTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+
+  const clearHideTimer = useCallback(() => {
+    if (!hideTimer.current) return;
+    window.clearTimeout(hideTimer.current);
+    hideTimer.current = null;
+  }, []);
+
+  const show = useCallback((nextValue: T) => {
+    clearHideTimer();
+    setValue(nextValue);
+  }, [clearHideTimer]);
+
+  const hide = useCallback(() => {
+    clearHideTimer();
+    hideTimer.current = window.setTimeout(() => {
+      setValue(emptyValue);
+      hideTimer.current = null;
+    }, delay);
+  }, [clearHideTimer, delay, emptyValue]);
+
+  useEffect(() => clearHideTimer, [clearHideTimer]);
+
+  return { value, show, hide, hold: clearHideTimer };
+}
+
 function flattenLeaves(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[] {
   for (const n of nodes) {
     if (!n.is_container) {
@@ -179,15 +209,57 @@ function groupLeavesByIdentity(leaves: LayoutNode[]): { batches: LayoutNode[][];
   return { batches, singles };
 }
 
+const NodeHoverPanel: React.FC<{
+  node: LayoutNode;
+  onOpenLayerInsight: (node: LayoutNode) => void;
+  onPointerEnter: () => void;
+  onPointerLeave: () => void;
+}> = ({ node, onOpenLayerInsight, onPointerEnter, onPointerLeave }) => {
+  const insight = getLayerInsight(node);
+
+  return (
+    <div
+      className="glass-panel flex flex-col gap-2 bg-[var(--surface-elevated)] border-[var(--border)] px-4 py-3 rounded-lg text-left shadow-2xl min-w-[15rem] max-w-[19rem] animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-auto"
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-[13px] font-bold text-blue-400 uppercase leading-tight break-words">{insight.title}</span>
+        <button
+          type="button"
+          className="text-[11px] text-zinc-400 hover:text-zinc-100 underline decoration-dotted underline-offset-4 whitespace-nowrap"
+          onClick={() => onOpenLayerInsight(node)}
+          title="Explain parameter formula"
+        >
+          {insight.paramsLabel}
+        </button>
+      </div>
+      <div className="grid grid-cols-[3.25rem_1fr] gap-x-2 gap-y-1 text-[11px]">
+        <span className="text-[var(--text-dim)] uppercase tracking-wider">Input</span>
+        <span className="font-mono text-[var(--text)] break-words">{insight.inputShape}</span>
+        <span className="text-[var(--text-dim)] uppercase tracking-wider">Output</span>
+        <span className="font-mono text-[var(--text)] break-words">{insight.outputShape}</span>
+      </div>
+      <div className="border-t border-[var(--border-subtle)] pt-2">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Why this matters?</div>
+        <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">{insight.why}</p>
+      </div>
+    </div>
+  );
+};
+
 /* ─── Instanced leaf blocks (performance: 3+ identical blocks) ─── */
 const InstancedLeafGroup: React.FC<{
   nodes: LayoutNode[];
   highlightNodeId: string | null;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
-}> = ({ nodes, highlightNodeId, onHover, onClickNode }) => {
+  onOpenLayerInsight: (node: LayoutNode) => void;
+}> = ({ nodes, highlightNodeId, onHover, onClickNode, onOpenLayerInsight }) => {
   const ref = useRef<THREE.InstancedMesh>(null);
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const hovered = useHoverHold<number | null>(null);
   const n = nodes[0];
   const meta = useMemo(() => getVisualMeta(n.op_type), [n.op_type]);
   const args = useMemo(
@@ -219,17 +291,20 @@ const InstancedLeafGroup: React.FC<{
         onClick={(e: any) => {
           e.stopPropagation();
           const i = e.instanceId ?? 0;
-          onClickNode(nodes[i]?.id ?? '');
+          const node = nodes[i];
+          if (!node) return;
+          onClickNode(node.id);
+          onOpenLayerInsight(node);
         }}
         onPointerOver={(e: any) => {
           e.stopPropagation();
           const i = e.instanceId ?? 0;
-          setHoveredId(i);
+          hovered.show(i);
           onHover(nodes[i]?.lineno ?? null);
           document.body.style.cursor = 'pointer';
         }}
         onPointerOut={() => {
-          setHoveredId(null);
+          hovered.hide();
           onHover(null);
           document.body.style.cursor = '';
         }}
@@ -250,19 +325,14 @@ const InstancedLeafGroup: React.FC<{
           </Text>
         </Billboard>
       ))}
-      {hoveredId !== null && nodes[hoveredId] && (
-        <Html position={[nodes[hoveredId].x, nodes[hoveredId].y + (nodes[hoveredId].height * meta.heightMul) / 2 + 0.5, nodes[hoveredId].z]} center zIndexRange={[100, 0]} className="pointer-events-none">
-          <div className="glass-panel flex flex-col items-center justify-center gap-1.5 bg-[var(--surface-elevated)] border-[var(--border)] px-5 py-3 rounded-xl text-center shadow-2xl min-w-[12rem] max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <span className="text-[14px] font-bold text-blue-400 tracking-wide uppercase leading-tight break-words px-2">{nodes[hoveredId].op_type}</span>
-            <span className="text-xs font-mono text-[var(--text)] bg-black/30 px-2.5 py-1 rounded break-words">
-              {nodes[hoveredId].out_shape?.join(' × ') ?? '-'}
-            </span>
-            {nodes[hoveredId].params > 0 && (
-              <span className="text-[11px] font-medium text-[var(--text-dim)] uppercase tracking-widest mt-1.5">
-                {nodes[hoveredId].params.toLocaleString()} params
-              </span>
-            )}
-          </div>
+      {hovered.value !== null && nodes[hovered.value] && (
+        <Html position={[nodes[hovered.value].x, nodes[hovered.value].y + (nodes[hovered.value].height * meta.heightMul) / 2 + 0.5, nodes[hovered.value].z]} center zIndexRange={[100, 0]} className="pointer-events-auto">
+          <NodeHoverPanel
+            node={nodes[hovered.value]}
+            onOpenLayerInsight={onOpenLayerInsight}
+            onPointerEnter={hovered.hold}
+            onPointerLeave={hovered.hide}
+          />
         </Html>
       )}
     </group>
@@ -429,8 +499,9 @@ const NodeBlock: React.FC<{
   highlighted: boolean;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
-}> = ({ node, highlighted, onHover, onClickNode }) => {
-  const [hovered, setHover] = useState(false);
+  onOpenLayerInsight: (node: LayoutNode) => void;
+}> = ({ node, highlighted, onHover, onClickNode, onOpenLayerInsight }) => {
+  const hovered = useHoverHold(false);
   const meta = useMemo(() => getVisualMeta(node.op_type), [node.op_type]);
   const w = node.width * meta.widthMul;
   const h = node.height * meta.heightMul;
@@ -438,7 +509,7 @@ const NodeBlock: React.FC<{
 
   const hasError = !!node.error;
   const baseColor = hasError ? ERROR_COLOR : meta.color;
-  const isActive = hovered || highlighted;
+  const isActive = hovered.value || highlighted;
   const errorPulse = useErrorPulse(hasError);
   const displayLabel = meta.labelOverride ?? node.op_type;
 
@@ -448,15 +519,16 @@ const NodeBlock: React.FC<{
         onClick={(e: any) => {
           e.stopPropagation();
           onClickNode(node.id);
+          onOpenLayerInsight(node);
         }}
         onPointerOver={(e: any) => {
           e.stopPropagation();
-          setHover(true);
+          hovered.show(true);
           onHover(node.lineno ?? null);
           document.body.style.cursor = 'pointer';
         }}
         onPointerOut={() => {
-          setHover(false);
+          hovered.hide();
           onHover(null);
           document.body.style.cursor = '';
         }}
@@ -474,24 +546,19 @@ const NodeBlock: React.FC<{
       )}
 
       {/* Hover tooltip */}
-      {hovered && !hasError && (
-        <Html position={[0, h / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-none">
-          <div className="glass-panel flex flex-col items-center justify-center gap-1.5 bg-[var(--surface-elevated)] border-[var(--border)] px-5 py-3 rounded-xl text-center shadow-2xl min-w-[12rem] max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <span className="text-[14px] font-bold text-blue-400 tracking-wide uppercase leading-tight break-words px-2">{node.op_type}</span>
-            <span className="text-xs font-mono text-[var(--text)] bg-black/30 px-2.5 py-1 rounded break-words">
-              {node.out_shape?.join(' × ') ?? '-'}
-            </span>
-            {node.params > 0 && (
-              <span className="text-[11px] font-medium text-[var(--text-dim)] uppercase tracking-widest mt-1.5">
-                {node.params.toLocaleString()} params
-              </span>
-            )}
-          </div>
+      {hovered.value && !hasError && (
+        <Html position={[0, h / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-auto">
+          <NodeHoverPanel
+            node={node}
+            onOpenLayerInsight={onOpenLayerInsight}
+            onPointerEnter={hovered.hold}
+            onPointerLeave={hovered.hide}
+          />
         </Html>
       )}
 
       {/* Static label (when not hovered) */}
-      {!hovered && !hasError && (
+      {!hovered.value && !hasError && (
         <Billboard position={[0, -h / 2 - 0.8, 0]} renderOrder={100}>
           <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
             {displayLabel}
@@ -512,8 +579,9 @@ const ContainerBlock: React.FC<{
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
-}> = ({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode }) => {
-  const [hovered, setHover] = useState(false);
+  onOpenLayerInsight: (node: LayoutNode) => void;
+}> = ({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
+  const hovered = useHoverHold(false);
   const args = useMemo(
     () => [node.width, node.height, node.depth] as [number, number, number],
     [node.width, node.height, node.depth],
@@ -536,6 +604,7 @@ const ContainerBlock: React.FC<{
             onToggle={onToggle}
             onHover={onHover}
             onClickNode={onClickNode}
+            onOpenLayerInsight={onOpenLayerInsight}
           />
         ))}
       </group>
@@ -554,15 +623,16 @@ const ContainerBlock: React.FC<{
           onClick={(e: any) => {
             e.stopPropagation();
             onClickNode(node.id);
+            onOpenLayerInsight(node);
           }}
           onPointerOver={(e: any) => {
             e.stopPropagation();
-            setHover(true);
+            hovered.show(true);
             onHover(node.lineno ?? null);
             document.body.style.cursor = 'pointer';
           }}
           onPointerOut={() => {
-            setHover(false);
+            hovered.hide();
             onHover(null);
             document.body.style.cursor = '';
           }}
@@ -572,7 +642,7 @@ const ContainerBlock: React.FC<{
             metalness={0.05}
             roughness={0.5}
             emissive={borderColor}
-            emissiveIntensity={hovered ? 0.2 : 0.05}
+            emissiveIntensity={hovered.value ? 0.2 : 0.05}
           />
         </RoundedBox>
 
@@ -582,7 +652,7 @@ const ContainerBlock: React.FC<{
 
         {/* Label — below block, same as leaf blocks */}
         <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
-          <group scale={hovered ? 1 : 0.95}>
+          <group scale={hovered.value ? 1 : 0.95}>
             <Text {...textBaseProps} fontSize={0.65} color="#ffffff" outlineColor={borderColor} outlineWidth={0.02}>
               {node.op_type}
             </Text>
@@ -601,6 +671,17 @@ const ContainerBlock: React.FC<{
           title="Expand"
           onToggle={() => onToggle(node.id)}
         />
+
+        {hovered.value && (
+          <Html position={[0, node.height / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-auto">
+            <NodeHoverPanel
+              node={node}
+              onOpenLayerInsight={onOpenLayerInsight}
+              onPointerEnter={hovered.hold}
+              onPointerLeave={hovered.hide}
+            />
+          </Html>
+        )}
       </group>
     );
   }
@@ -636,7 +717,7 @@ const ContainerBlock: React.FC<{
 
         {/* Label — below container, identical to collapsed state to prevent jumping */}
         <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
-          <group scale={hovered ? 1 : 0.95}>
+          <group scale={hovered.value ? 1 : 0.95}>
             <Text {...textBaseProps} fontSize={0.65} color="#ffffff" outlineColor={borderColor} outlineWidth={0.02}>
               {node.op_type}
             </Text>
@@ -662,14 +743,15 @@ const ContainerBlock: React.FC<{
           onClick={(e) => {
             e.stopPropagation();
             onClickNode(node.id);
+            onOpenLayerInsight(node);
           }}
           onPointerOver={(e) => {
             e.stopPropagation();
-            setHover(true);
+            hovered.show(true);
             document.body.style.cursor = 'pointer';
           }}
           onPointerOut={() => {
-            setHover(false);
+            hovered.hide();
             document.body.style.cursor = '';
           }}
         >
@@ -688,8 +770,20 @@ const ContainerBlock: React.FC<{
           onToggle={onToggle}
           onHover={onHover}
           onClickNode={onClickNode}
+          onOpenLayerInsight={onOpenLayerInsight}
         />
       ))}
+
+      {hovered.value && (
+        <Html position={[node.x, node.y + node.height / 2 + 0.5, node.z]} center zIndexRange={[100, 0]} className="pointer-events-auto">
+          <NodeHoverPanel
+            node={node}
+            onOpenLayerInsight={onOpenLayerInsight}
+            onPointerEnter={hovered.hold}
+            onPointerLeave={hovered.hide}
+          />
+        </Html>
+      )}
     </group>
   );
 };
@@ -701,7 +795,8 @@ const SceneWithInstancing: React.FC<{
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
-}> = ({ layout, highlightNodeId, onToggle, onHover, onClickNode }) => {
+  onOpenLayerInsight: (node: LayoutNode) => void;
+}> = ({ layout, highlightNodeId, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
   const { batches, singles } = useMemo(() => {
     const leaves = flattenLeaves(layout.nodes);
     return groupLeavesByIdentity(leaves);
@@ -721,6 +816,7 @@ const SceneWithInstancing: React.FC<{
             onToggle={onToggle}
             onHover={onHover}
             onClickNode={onClickNode}
+            onOpenLayerInsight={onOpenLayerInsight}
           />
         );
       })}
@@ -731,6 +827,7 @@ const SceneWithInstancing: React.FC<{
           highlightNodeId={highlightNodeId}
           onHover={onHover}
           onClickNode={onClickNode}
+          onOpenLayerInsight={onOpenLayerInsight}
         />
       ))}
       {singles.map((node) => (
@@ -740,6 +837,7 @@ const SceneWithInstancing: React.FC<{
           highlighted={node.id === highlightNodeId}
           onHover={onHover}
           onClickNode={onClickNode}
+          onOpenLayerInsight={onOpenLayerInsight}
         />
       ))}
     </group>
@@ -755,7 +853,8 @@ const SceneNode: React.FC<{
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
-}> = ({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode }) => {
+  onOpenLayerInsight: (node: LayoutNode) => void;
+}> = ({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
   if (node.is_container) {
     return (
       <ContainerBlock
@@ -766,6 +865,7 @@ const SceneNode: React.FC<{
         onToggle={onToggle}
         onHover={onHover}
         onClickNode={onClickNode}
+        onOpenLayerInsight={onOpenLayerInsight}
       />
     );
   }
@@ -776,6 +876,7 @@ const SceneNode: React.FC<{
       highlighted={node.id === highlightNodeId}
       onHover={onHover}
       onClickNode={onClickNode}
+      onOpenLayerInsight={onOpenLayerInsight}
     />
   );
 };
@@ -948,6 +1049,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   onToggleCollapse,
   onHoverNode,
   onClickNode,
+  onOpenLayerInsight,
   resetViewToken = 0,
   resetViewDisabled = false,
 }) => {
@@ -962,6 +1064,10 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   const handleClick = useCallback(
     (nodeId: string) => onClickNode?.(nodeId),
     [onClickNode],
+  );
+  const handleOpenLayerInsight = useCallback(
+    (node: LayoutNode) => onOpenLayerInsight?.(node),
+    [onOpenLayerInsight],
   );
   const [fittedLayoutKey, setFittedLayoutKey] = useState('');
 
@@ -1094,6 +1200,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
                   onToggle={handleToggle}
                   onHover={handleHover}
                   onClickNode={handleClick}
+                  onOpenLayerInsight={handleOpenLayerInsight}
                 />
                 <group>
                   {layout.edges.map((e, i) => (
