@@ -27,27 +27,73 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { target: '[data-tour="editor"]', title: 'Editor', body: 'Write your PyTorch code here.' },
+  {
+    target: '[data-tour="template-picker"]',
+    title: 'Templates',
+    body: 'Start from a model template when you want a quick example graph.',
+  },
+  {
+    target: '[data-tour="input-shape"]',
+    title: 'Input shape',
+    body: 'Set the tensor shape used to trace the model and calculate layer outputs.',
+  },
+  { target: '[data-tour="editor"]', title: 'Editor', body: 'Write or adjust PyTorch-style model code here.' },
   {
     target: '[data-tour="visualize"]',
     title: 'Visualize',
-    body: 'Click to build the 3D graph.',
+    body: 'Click to run the model trace and build the 3D graph.',
     advanceOnTargetClick: true,
     keepPanelCentered: true,
   },
   {
-    target: '[data-tour="canvas"]',
+    target: '[data-tour="canvas-surface"]',
     title: 'Canvas: Left click',
     body: 'Left click and drag inside the canvas to pan the 3D view.',
     panelPlacement: 'canvas-side',
     requiredPointerButton: 0,
   },
   {
-    target: '[data-tour="canvas"]',
+    target: '[data-tour="canvas-surface"]',
     title: 'Canvas: Right click',
     body: 'Right click and drag inside the canvas to rotate the 3D view.',
     panelPlacement: 'canvas-side',
     requiredPointerButton: 2,
+  },
+  {
+    target: '[data-tour="canvas-surface"]',
+    title: 'Layer blocks',
+    body: 'Hover blocks to see names, input and output shapes, parameter counts, and why the layer matters.',
+    panelPlacement: 'canvas-side',
+  },
+  {
+    target: '[data-tour="reset-view"]',
+    title: 'Reset view',
+    body: 'Use this button to recenter the camera after panning, rotating, or zooming.',
+  },
+  {
+    target: '[data-tour="structure"]',
+    title: 'Structure',
+    body: 'Browse the model tree, select layers, and open parameter formulas from underlined counts.',
+  },
+  {
+    target: '[data-tour="details"]',
+    title: 'Details',
+    body: 'Selected layers show secondary metadata, formula breakdowns, source line, and errors here.',
+  },
+  {
+    target: '[data-tour="terminal"]',
+    title: 'Terminal',
+    body: 'Build status, generated parameter totals, and runtime messages appear here.',
+  },
+  {
+    target: '[data-tour="export-svg"]',
+    title: 'Export SVG',
+    body: 'Export the current graph as an SVG once a model has been visualized.',
+  },
+  {
+    target: '[data-tour="help"]',
+    title: 'Help',
+    body: 'Open the help panel when you need controls, tips, or supported syntax.',
   },
 ];
 
@@ -142,13 +188,27 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
     if (!el) return;
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!el.contains(event.target as Node)) return;
+      const rect = el.getBoundingClientRect();
+      const isInsideTarget =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+      if (!isInsideTarget) return;
       if (event.button !== currentStep.requiredPointerButton) return;
       setCompletedInteractions((prev) => ({ ...prev, [step]: true }));
     };
 
     const handleContextMenu = (event: Event) => {
-      if (currentStep.requiredPointerButton !== 2 || !el.contains(event.target as Node)) return;
+      if (currentStep.requiredPointerButton !== 2) return;
+      const pointerEvent = event as PointerEvent;
+      const rect = el.getBoundingClientRect();
+      const isInsideTarget =
+        pointerEvent.clientX >= rect.left &&
+        pointerEvent.clientX <= rect.right &&
+        pointerEvent.clientY >= rect.top &&
+        pointerEvent.clientY <= rect.bottom;
+      if (!isInsideTarget) return;
       event.preventDefault();
     };
 
@@ -242,8 +302,8 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
         </button>
         <h3 className="text-xl font-bold text-[var(--text)] mb-2 pr-16">{s?.title}</h3>
         <p className="text-[var(--text-muted)] text-[15px] leading-relaxed mb-6">{s?.body}</p>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-          <div className="justify-self-start">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-3">
             <button
               type="button"
               className="text-xs font-semibold px-4 py-2 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] hover:bg-[#3f3f46] text-[var(--text)] transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-wider"
@@ -252,11 +312,36 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
             >
               Back
             </button>
+            <div className="min-w-[72px] flex justify-end">
+              {isLast ? (
+                <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
+                  <button
+                    type="button"
+                    className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+                    onClick={handleDone}
+                    disabled={!canAdvance}
+                  >
+                    Done
+                  </button>
+                </span>
+              ) : !requiresTargetClick ? (
+                <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
+                  <button
+                    type="button"
+                    className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+                    onClick={() => setStep((p) => p + 1)}
+                    disabled={!canAdvance}
+                  >
+                    Next
+                  </button>
+                </span>
+              ) : null}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 justify-self-center">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 px-2">
             {STEPS.map((_, i) => (
               <button
-                key={STEPS[i]?.target ?? i}
+                key={i}
                 type="button"
                 aria-label={`Step ${i + 1}`}
                 className={`w-2 h-2 rounded-full transition-all ${i === step ? 'bg-[var(--accent)] scale-125' : 'bg-[var(--border)] hover:bg-[var(--border-subtle)]'}`}
@@ -267,31 +352,6 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
                 disabled={i > maxReachableStep}
               />
             ))}
-          </div>
-          <div className="justify-self-end min-w-[72px] flex justify-end">
-            {isLast ? (
-              <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
-                <button
-                  type="button"
-                  className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
-                  onClick={handleDone}
-                  disabled={!canAdvance}
-                >
-                  Done
-                </button>
-              </span>
-            ) : !requiresTargetClick ? (
-              <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
-                <button
-                  type="button"
-                  className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
-                  onClick={() => setStep((p) => p + 1)}
-                  disabled={!canAdvance}
-                >
-                  Next
-                </button>
-              </span>
-            ) : null}
           </div>
         </div>
       </div>

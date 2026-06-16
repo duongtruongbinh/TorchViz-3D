@@ -80,7 +80,7 @@ export default function Header({
                     <div className="h-4 w-px bg-zinc-800 mx-2" />
 
                     <div className="flex items-center gap-4">
-                        <div className="flex flex-col justify-center relative" ref={dropdownRef}>
+                        <div data-tour="template-picker" className="flex flex-col justify-center relative" ref={dropdownRef}>
                             <label className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
                                 Template
                             </label>
@@ -122,7 +122,7 @@ export default function Header({
                             )}
                         </div>
 
-                        <div className="flex flex-col justify-center">
+                        <div data-tour="input-shape" className="flex flex-col justify-center">
                             <label className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
                                 Input Shape
                             </label>
@@ -162,6 +162,7 @@ export default function Header({
                     </button>
 
                     <button
+                        data-tour="export-svg"
                         onClick={onExportSvg}
                         disabled={!layout}
                         className="bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text)] px-3 py-1.5 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -178,6 +179,7 @@ export default function Header({
                         ℹ
                     </button>
                     <button
+                        data-tour="help"
                         onClick={() => setHelpOpen(true)}
                         className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm font-bold transition-colors ${buttonAttention ? 'tour-button-attention' : ''}`}
                         title="Help"
