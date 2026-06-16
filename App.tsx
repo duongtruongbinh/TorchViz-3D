@@ -107,7 +107,7 @@ export default function App() {
   const handleMouseUp = useCallback(() => setIsDragging(false), []);
 
   useEffect(() => {
-    if (isTourOpen && isDragging) {
+    if ((isTourOpen || isLeftCollapsed) && isDragging) {
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
       setIsDragging(false);
@@ -128,7 +128,7 @@ export default function App() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isTourOpen, isDragging, handleMouseMove, handleMouseUp]);
+  }, [isTourOpen, isLeftCollapsed, isDragging, handleMouseMove, handleMouseUp]);
 
   const handleCursorChange = useCallback(
     (line: number) => {

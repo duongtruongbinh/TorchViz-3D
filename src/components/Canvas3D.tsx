@@ -968,7 +968,22 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   // Stable key that changes when the graph structure changes
   const layoutKey = useMemo(() => {
     if (!layout) return '';
-    return collectLayoutNodes(layout.nodes).map((n) => `${n.id}:${n.collapsed}`).join(',');
+    const nodeKey = collectLayoutNodes(layout.nodes)
+      .map((n) => [
+        n.id,
+        n.collapsed,
+        n.x,
+        n.y,
+        n.z,
+        n.width,
+        n.height,
+        n.depth,
+      ].join(':'))
+      .join(',');
+    const edgeKey = layout.edges
+      .map((e) => `${e.from}:${e.to}:${e.kind ?? ''}`)
+      .join(',');
+    return `${nodeKey}|${edgeKey}`;
   }, [layout]);
   const viewReady = !!layout && fittedLayoutKey === layoutKey;
 
