@@ -20,26 +20,48 @@ interface Step {
   target: string;
   title: string;
   body: string;
+  advanceOnTargetClick?: boolean;
+  keepPanelCentered?: boolean;
+  panelPlacement?: 'canvas-side';
+  requiredPointerButton?: 0 | 2;
 }
 
 const STEPS: Step[] = [
   { target: '[data-tour="editor"]', title: 'Editor', body: 'Write your PyTorch code here.' },
-  { target: '[data-tour="visualize"]', title: 'Visualize', body: 'Click to build the 3D graph.' },
-  { target: '[data-tour="canvas"]', title: 'Canvas', body: 'Left click to rotate, scroll to zoom. Click blocks to expand or collapse.' },
+  {
+    target: '[data-tour="visualize"]',
+    title: 'Visualize',
+    body: 'Click to build the 3D graph.',
+    advanceOnTargetClick: true,
+    keepPanelCentered: true,
+  },
+  {
+    target: '[data-tour="canvas"]',
+    title: 'Canvas: Left click',
+    body: 'Left click inside the canvas to try rotating the 3D view.',
+    panelPlacement: 'canvas-side',
+    requiredPointerButton: 0,
+  },
+  {
+    target: '[data-tour="canvas"]',
+    title: 'Canvas: Right click',
+    body: 'Right click inside the canvas to try the secondary canvas interaction.',
+    panelPlacement: 'canvas-side',
+    requiredPointerButton: 2,
+  },
 ];
 
 interface OnboardingTourProps {
   isOpen: boolean;
   onClose: () => void;
+  onSkip?: () => void;
 }
 
 /** Cutout overlay: 4 panels dim the rest; highlighted area stays clear and visible. */
 function CutoutOverlay({
   targetRect,
-  onBackdropClick,
 }: {
   targetRect: DOMRect;
-  onBackdropClick: () => void;
 }) {
   const pad = 6;
   const t = targetRect.top - pad;
@@ -52,17 +74,18 @@ function CutoutOverlay({
   const overlayStyle = { backgroundColor: 'rgba(0, 0, 0, 0.85)' };
   return (
     <>
-      <div className="absolute top-0 left-0 right-0 cursor-pointer" style={{ height: Math.max(0, t), ...overlayStyle }} onClick={onBackdropClick} />
-      <div className="absolute left-0 cursor-pointer" style={{ top: Math.max(0, t), left: 0, width: Math.max(0, l), height: h, ...overlayStyle }} onClick={onBackdropClick} />
-      <div className="absolute cursor-pointer" style={{ top: Math.max(0, t), left: l + w, width: Math.max(0, vw - l - w), height: h, ...overlayStyle }} onClick={onBackdropClick} />
-      <div className="absolute left-0 right-0 bottom-0 cursor-pointer" style={{ top: t + h, height: Math.max(0, vh - t - h), ...overlayStyle }} onClick={onBackdropClick} />
+      <div className="absolute top-0 left-0 right-0 pointer-events-auto" style={{ height: Math.max(0, t), ...overlayStyle }} />
+      <div className="absolute left-0 pointer-events-auto" style={{ top: Math.max(0, t), left: 0, width: Math.max(0, l), height: h, ...overlayStyle }} />
+      <div className="absolute pointer-events-auto" style={{ top: Math.max(0, t), left: l + w, width: Math.max(0, vw - l - w), height: h, ...overlayStyle }} />
+      <div className="absolute left-0 right-0 bottom-0 pointer-events-auto" style={{ top: t + h, height: Math.max(0, vh - t - h), ...overlayStyle }} />
     </>
   );
 }
 
-export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
+export default function OnboardingTour({ isOpen, onClose, onSkip }: OnboardingTourProps) {
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const [completedInteractions, setCompletedInteractions] = useState<Record<number, boolean>>({});
 
   const updateTargetRect = useCallback(() => {
     const el = document.querySelector(STEPS[step]?.target);
@@ -84,11 +107,57 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
     };
   }, [isOpen, step, updateTargetRect]);
 
+  useEffect(() => {
+    const currentStep = STEPS[step];
+    if (!isOpen || !currentStep?.advanceOnTargetClick) return;
+
+    const handleTargetClick = (event: MouseEvent) => {
+      const el = document.querySelector(currentStep.target);
+      if (!el?.contains(event.target as Node)) return;
+      window.setTimeout(() => setStep((p) => Math.min(p + 1, STEPS.length - 1)), 0);
+    };
+
+    document.addEventListener('click', handleTargetClick, true);
+    return () => document.removeEventListener('click', handleTargetClick, true);
+  }, [isOpen, step]);
+
+  useEffect(() => {
+    const currentStep = STEPS[step];
+    if (!isOpen || currentStep?.requiredPointerButton === undefined) return;
+
+    const el = document.querySelector(currentStep.target);
+    if (!el) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!el.contains(event.target as Node)) return;
+      if (event.button !== currentStep.requiredPointerButton) return;
+      setCompletedInteractions((prev) => ({ ...prev, [step]: true }));
+    };
+
+    const handleContextMenu = (event: Event) => {
+      if (currentStep.requiredPointerButton !== 2 || !el.contains(event.target as Node)) return;
+      event.preventDefault();
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    document.addEventListener('contextmenu', handleContextMenu, true);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+      document.removeEventListener('contextmenu', handleContextMenu, true);
+    };
+  }, [isOpen, step]);
+
   if (!isOpen) return null;
 
   const s = STEPS[step];
   const isFirst = step === 0;
   const isLast = step === STEPS.length - 1;
+  const requiresTargetClick = !!s?.advanceOnTargetClick;
+  const requiresInteraction = s?.requiredPointerButton !== undefined;
+  const interactionDone = !requiresInteraction || !!completedInteractions[step];
+  const canAdvance = !requiresTargetClick && interactionDone;
+  const interactionTooltip = s?.requiredPointerButton === 2 ? 'Right click first' : 'Left click first';
+  const maxReachableStep = Math.min(STEPS.length - 1, step + (canAdvance ? 1 : 0));
 
   const handleDone = () => {
     markTourSeen();
@@ -96,10 +165,10 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
   };
 
   return (
-    <div className="fixed inset-0 z-[100]" role="dialog" aria-modal="true" aria-label="Onboarding tour">
+    <div className="fixed inset-0 z-[100] pointer-events-none" role="dialog" aria-modal="true" aria-label="Onboarding tour">
       {targetRect ? (
         <>
-          <CutoutOverlay targetRect={targetRect} onBackdropClick={onClose} />
+          <CutoutOverlay targetRect={targetRect} />
           <div
             className="absolute pointer-events-none border-2 border-[var(--accent)] rounded-lg ring-2 ring-[var(--accent)]/50 ring-offset-2 ring-offset-[#000000] tour-spotlight-pulse z-[101]"
             style={{
@@ -111,13 +180,29 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
           />
         </>
       ) : (
-        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }} onClick={onClose} />
+        <div className="absolute inset-0 pointer-events-auto" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }} />
       )}
       <div
-        className="absolute z-[102] glass-panel border border-[var(--border)] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] max-w-sm w-[90%] p-6 animate-in zoom-in-95 duration-200"
+        className="absolute z-[102] glass-panel border border-[var(--border)] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] max-w-sm w-[90%] p-6 animate-in zoom-in-95 duration-200 pointer-events-auto"
         style={(() => {
-          const hasSpaceBelow = targetRect && targetRect.bottom + 160 < window.innerHeight;
-          const cardW = Math.min(384, window.innerWidth * 0.9);
+          const cardW = Math.min(s?.panelPlacement === 'canvas-side' ? 320 : 384, window.innerWidth * 0.9);
+          if (targetRect && s?.panelPlacement === 'canvas-side') {
+            const gap = 20;
+            const leftOfCanvas = targetRect.left - cardW - gap;
+            const rightOfCanvas = targetRect.right + gap;
+            const panelLeft = leftOfCanvas >= 16
+              ? leftOfCanvas
+              : Math.min(rightOfCanvas, window.innerWidth - cardW - 16);
+
+            return {
+              left: Math.max(16, panelLeft),
+              top: Math.max(72, Math.min(targetRect.top + 72, window.innerHeight - 240)),
+              width: cardW,
+              transform: 'none',
+            };
+          }
+
+          const hasSpaceBelow = targetRect && !s?.keepPanelCentered && targetRect.bottom + 160 < window.innerHeight;
           const centerX = (window.innerWidth - cardW) / 2;
           const belowX = targetRect ? Math.max(16, Math.min(targetRect.left + targetRect.width / 2 - cardW / 2, window.innerWidth - cardW - 16)) : 16;
           return {
@@ -129,21 +214,21 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
         })()}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-xl font-bold text-[var(--text)] mb-2">{s?.title}</h3>
+        <button
+          type="button"
+          className="absolute top-4 right-5 text-[10px] font-medium text-[var(--text-dim)] hover:text-[var(--text-muted)] underline underline-offset-2 transition-colors uppercase tracking-wider"
+          onClick={() => {
+            markTourSeen();
+            onSkip?.();
+            onClose();
+          }}
+        >
+          Skip
+        </button>
+        <h3 className="text-xl font-bold text-[var(--text)] mb-2 pr-16">{s?.title}</h3>
         <p className="text-[var(--text-muted)] text-[15px] leading-relaxed mb-6">{s?.body}</p>
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-1.5 flex-1">
-            {STEPS.map((_, i) => (
-              <button
-                key={STEPS[i]?.target ?? i}
-                type="button"
-                aria-label={`Step ${i + 1}`}
-                className={`w-2 h-2 rounded-full transition-all ${i === step ? 'bg-[var(--accent)] scale-125' : 'bg-[var(--border)] hover:bg-[var(--border-subtle)]'}`}
-                onClick={() => setStep(i)}
-              />
-            ))}
-          </div>
-          <div className="flex gap-2 shrink-0">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+          <div className="justify-self-start">
             <button
               type="button"
               className="text-xs font-semibold px-4 py-2 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] hover:bg-[#3f3f46] text-[var(--text)] transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-wider"
@@ -152,33 +237,46 @@ export default function OnboardingTour({ isOpen, onClose }: OnboardingTourProps)
             >
               Back
             </button>
+          </div>
+          <div className="flex items-center gap-1.5 justify-self-center">
+            {STEPS.map((_, i) => (
+              <button
+                key={STEPS[i]?.target ?? i}
+                type="button"
+                aria-label={`Step ${i + 1}`}
+                className={`w-2 h-2 rounded-full transition-all ${i === step ? 'bg-[var(--accent)] scale-125' : 'bg-[var(--border)] hover:bg-[var(--border-subtle)]'}`}
+                onClick={() => {
+                  if (i > maxReachableStep) return;
+                  setStep(i);
+                }}
+                disabled={i > maxReachableStep}
+              />
+            ))}
+          </div>
+          <div className="justify-self-end min-w-[72px] flex justify-end">
             {isLast ? (
-              <button
-                type="button"
-                className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider"
-                onClick={handleDone}
-              >
-                Done
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider"
-                onClick={() => setStep((p) => p + 1)}
-              >
-                Next
-              </button>
-            )}
-            <button
-              type="button"
-              className="text-xs font-medium px-3 py-2 rounded-lg text-[var(--text-dim)] hover:text-[var(--text-muted)] hover:bg-[var(--surface-elevated)] transition-colors uppercase tracking-wider ml-1"
-              onClick={() => {
-                markTourSeen();
-                onClose();
-              }}
-            >
-              Skip
-            </button>
+              <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
+                <button
+                  type="button"
+                  className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+                  onClick={handleDone}
+                  disabled={!canAdvance}
+                >
+                  Next
+                </button>
+              </span>
+            ) : !requiresTargetClick ? (
+              <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
+                <button
+                  type="button"
+                  className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+                  onClick={() => setStep((p) => p + 1)}
+                  disabled={!canAdvance}
+                >
+                  Next
+                </button>
+              </span>
+            ) : null}
           </div>
         </div>
       </div>

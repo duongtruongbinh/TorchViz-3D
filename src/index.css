@@ -8,6 +8,15 @@
   animation: tour-spotlight-pulse 2s ease-in-out infinite;
 }
 
+@keyframes tour-button-attention {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0); border-color: var(--border); color: var(--text-muted); }
+  20%, 70% { box-shadow: 0 0 0 5px rgba(96, 165, 250, 0.28); border-color: var(--accent-hover); color: #ffffff; }
+}
+
+.tour-button-attention {
+  animation: tour-button-attention 900ms ease-in-out 2;
+}
+
 :root {
   --canvas-bg: radial-gradient(circle at center, #111113 0%, #000000 100%);
   --surface: rgba(17, 17, 19, 0.7);

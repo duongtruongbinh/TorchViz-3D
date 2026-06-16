@@ -29,6 +29,7 @@ export default function Header({
     const setShapeInput = useStore((s) => s.setShapeInput);
 
     const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+    const [tourButtonAttention, setTourButtonAttention] = React.useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
@@ -51,6 +52,16 @@ export default function Header({
 
     const handleRun = () => {
         workerService.run();
+    };
+
+    const openTour = () => {
+        setTourButtonAttention(false);
+        setTourOpen(true);
+    };
+
+    const handleTourSkip = () => {
+        setTourButtonAttention(true);
+        window.setTimeout(() => setTourButtonAttention(false), 1800);
     };
 
     return (
@@ -157,8 +168,8 @@ export default function Header({
                     </button>
 
                     <button
-                        onClick={() => setTourOpen(true)}
-                        className="w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm transition-colors"
+                        onClick={openTour}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm transition-colors ${tourButtonAttention ? 'tour-button-attention' : ''}`}
                         title="Tour"
                         aria-label="Open tour"
                     >
@@ -175,7 +186,7 @@ export default function Header({
             </header>
 
             <HelpModal isOpen={isHelpOpen} onClose={() => setHelpOpen(false)} />
-            <OnboardingTour isOpen={isTourOpen} onClose={() => setTourOpen(false)} />
+            <OnboardingTour isOpen={isTourOpen} onClose={() => setTourOpen(false)} onSkip={handleTourSkip} />
         </>
     );
 }
