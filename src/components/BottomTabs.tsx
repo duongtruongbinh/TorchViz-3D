@@ -4,21 +4,24 @@ import { IRGraph } from '../lib/irTypes';
 interface BottomTabsProps {
   ir: IRGraph | null;
   error: { message: string; lineno: number; hint: string } | null;
+  collapsed?: boolean;
+  headerAction?: React.ReactNode;
 }
 
-const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error }) => {
+const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, headerAction }) => {
   return (
     <div className="h-full flex flex-col bg-[var(--surface-elevated)] text-[var(--text-dim)] shadow-[0_-4px_24px_-1px_rgba(0,0,0,0.2)]">
       {/* Tab Bar */}
-      <div className="flex border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
+      <div className="flex items-center border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
         <div className="px-4 py-1.5 text-[11px] font-bold uppercase tracking-wide text-[var(--text)] border-b-2 border-blue-500 bg-[var(--surface-elevated)] select-none">
           Terminal
           {error && <span className="ml-2 w-2 h-2 inline-block rounded-full bg-red-500" />}
         </div>
+        {headerAction && <div className="ml-auto pr-2">{headerAction}</div>}
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-auto bg-[var(--surface-elevated)] font-mono text-xs">
+      <div className={`flex-1 overflow-auto bg-[var(--surface-elevated)] font-mono text-xs transition-[opacity,transform] duration-200 ease-out ${collapsed ? 'opacity-0 translate-y-1 pointer-events-none' : 'opacity-100 translate-y-0 delay-75'}`}>
         <div className="p-3 min-h-full">
           {error ? (
             <div className="bg-red-950/20 border-l-2 border-red-500 p-3 pl-4 rounded-r">

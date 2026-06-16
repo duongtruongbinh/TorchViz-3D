@@ -8,6 +8,7 @@ interface HeaderProps {
     onExportSvg: () => void;
     isTourOpen: boolean;
     setTourOpen: (v: boolean) => void;
+    onTourStepChange?: () => void;
     isHelpOpen: boolean;
     setHelpOpen: (v: boolean) => void;
 }
@@ -16,6 +17,7 @@ export default function Header({
     onExportSvg,
     isTourOpen,
     setTourOpen,
+    onTourStepChange,
     isHelpOpen,
     setHelpOpen
 }: HeaderProps) {
@@ -29,7 +31,7 @@ export default function Header({
     const setShapeInput = useStore((s) => s.setShapeInput);
 
     const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-    const [tourButtonAttention, setTourButtonAttention] = React.useState(false);
+    const [buttonAttention, setButtonAttention] = React.useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
@@ -55,13 +57,13 @@ export default function Header({
     };
 
     const openTour = () => {
-        setTourButtonAttention(false);
+        setButtonAttention(false);
         setTourOpen(true);
     };
 
-    const handleTourSkip = () => {
-        setTourButtonAttention(true);
-        window.setTimeout(() => setTourButtonAttention(false), 1800);
+    const triggerButtonAttention = () => {
+        setButtonAttention(true);
+        window.setTimeout(() => setButtonAttention(false), 1800);
     };
 
     return (
@@ -169,7 +171,7 @@ export default function Header({
 
                     <button
                         onClick={openTour}
-                        className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm transition-colors ${tourButtonAttention ? 'tour-button-attention' : ''}`}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm transition-colors ${buttonAttention ? 'tour-button-attention' : ''}`}
                         title="Tour"
                         aria-label="Open tour"
                     >
@@ -177,7 +179,7 @@ export default function Header({
                     </button>
                     <button
                         onClick={() => setHelpOpen(true)}
-                        className="w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm font-bold transition-colors"
+                        className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm font-bold transition-colors ${buttonAttention ? 'tour-button-attention' : ''}`}
                         title="Help"
                     >
                         ?
@@ -186,7 +188,13 @@ export default function Header({
             </header>
 
             <HelpModal isOpen={isHelpOpen} onClose={() => setHelpOpen(false)} />
-            <OnboardingTour isOpen={isTourOpen} onClose={() => setTourOpen(false)} onSkip={handleTourSkip} />
+            <OnboardingTour
+                isOpen={isTourOpen}
+                onClose={() => setTourOpen(false)}
+                onSkip={triggerButtonAttention}
+                onDone={triggerButtonAttention}
+                onStepChange={onTourStepChange}
+            />
         </>
     );
 }

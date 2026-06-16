@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   OrbitControls,
   RoundedBox,
@@ -10,8 +10,6 @@ import {
   Line,
   Edges,
   ContactShadows,
-  Bounds,
-  useBounds,
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { LayoutData, LayoutNode, LayoutEdge } from '../lib/irTypes';
@@ -62,10 +60,16 @@ interface Canvas3DProps {
   onToggleCollapse?: (nodeId: string) => void;
   onHoverNode?: (lineno: number | null) => void;
   onClickNode?: (nodeId: string) => void;
+  resetViewToken?: number;
+  resetViewDisabled?: boolean;
 }
 
 const HEADER_BAR_HEIGHT = 0.6;
 const INSTANCED_BATCH_MIN = 3;
+const DEFAULT_CAMERA_OFFSET = new THREE.Vector3(50, 40, 50);
+const DEFAULT_CAMERA_ZOOM = 42;
+const DEFAULT_MIN_ZOOM = 6;
+const DEFAULT_VIEW_PADDING = 0.8;
 
 const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
 const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×';
@@ -814,49 +818,122 @@ const EdgeLine: React.FC<{ edge: LayoutEdge }> = ({ edge }) => {
   return null;
 };
 
-const BOUNDS_DEBOUNCE_MS = 200;
+function collectLayoutNodes(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[] {
+  for (const node of nodes) {
+    out.push(node);
+    if (node.children?.length) collectLayoutNodes(node.children, out);
+  }
+  return out;
+}
 
-/* ─── Auto-fit camera when layout changes ─── */
-const BoundsAutoFit: React.FC<{ layoutKey: string }> = ({ layoutKey }) => {
-  const bounds = useBounds();
+function getLayoutView(layout: LayoutData, viewport: { width: number; height: number }) {
+  const nodes = collectLayoutNodes(layout.nodes);
+  if (!nodes.length) {
+    return { target: new THREE.Vector3(), zoom: DEFAULT_CAMERA_ZOOM };
+  }
+
+  const box = new THREE.Box3();
+  for (const node of nodes) {
+    box.expandByPoint(new THREE.Vector3(node.x - node.width / 2, node.y - node.height / 2, node.z - node.depth / 2));
+    box.expandByPoint(new THREE.Vector3(node.x + node.width / 2, node.y + node.height / 2, node.z + node.depth / 2));
+  }
+
+  const size = box.getSize(new THREE.Vector3());
+  const projectedWidth = Math.max(size.x + size.z * 0.7, 1);
+  const projectedHeight = Math.max(size.y + size.z * 0.45, 1);
+  const zoom = Math.max(
+    DEFAULT_MIN_ZOOM,
+    Math.min(
+      DEFAULT_CAMERA_ZOOM,
+      viewport.width / (projectedWidth * DEFAULT_VIEW_PADDING),
+      viewport.height / (projectedHeight * DEFAULT_VIEW_PADDING),
+    ),
+  );
+
+  return { target: box.getCenter(new THREE.Vector3()), zoom };
+}
+
+type CameraControls = {
+  target?: THREE.Vector3;
+  update?: () => void;
+};
+
+function applyDefaultView(
+  camera: THREE.Camera,
+  controls: CameraControls | undefined,
+  layout: LayoutData,
+  viewport: { width: number; height: number },
+) {
+  const { target, zoom } = getLayoutView(layout, viewport);
+  camera.position.copy(target).add(DEFAULT_CAMERA_OFFSET);
+  if ('zoom' in camera) {
+    camera.zoom = zoom;
+    camera.updateProjectionMatrix();
+  }
+  controls?.target?.copy(target);
+  controls?.update?.();
+}
+
+/* ─── Set an overview camera when layout changes ─── */
+const BoundsAutoFit: React.FC<{ layout: LayoutData; layoutKey: string; onFit: (layoutKey: string) => void }> = ({ layout, layoutKey, onFit }) => {
+  const camera = useThree((state) => state.camera);
+  const controls = useThree((state) => state.controls) as CameraControls | undefined;
+  const size = useThree((state) => state.size);
   const prevKey = useRef('');
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (!layoutKey || layoutKey === prevKey.current) return;
-    prevKey.current = layoutKey;
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      timeoutRef.current = null;
-      bounds.refresh().clip().fit();
-    }, BOUNDS_DEBOUNCE_MS);
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [layoutKey, bounds]);
+    const viewKey = `${layoutKey}:${controls ? 'ready' : 'pending'}`;
+    if (!layoutKey || !controls || viewKey === prevKey.current) return;
+    prevKey.current = viewKey;
+    applyDefaultView(camera, controls, layout, size);
+    onFit(layoutKey);
+  }, [layout, layoutKey, camera, controls, size, onFit]);
   return null;
 };
 
-/* ─── Recenter button (lives inside Canvas to access useBounds) ─── */
-const RecenterButton: React.FC = () => {
-  const bounds = useBounds();
+const ViewResetEffect: React.FC<{ layout: LayoutData; resetViewToken: number }> = ({ layout, resetViewToken }) => {
+  const camera = useThree((state) => state.camera);
+  const controls = useThree((state) => state.controls) as CameraControls | undefined;
+  const size = useThree((state) => state.size);
+  const prevToken = useRef(resetViewToken);
+
+  useEffect(() => {
+    if (!controls || resetViewToken === prevToken.current) return;
+    prevToken.current = resetViewToken;
+    applyDefaultView(camera, controls, layout, size);
+  }, [layout, resetViewToken, camera, controls, size]);
+
+  return null;
+};
+
+/* ─── Reset view button (lives inside Canvas to access camera controls) ─── */
+const RecenterButton: React.FC<{ layout: LayoutData }> = ({ layout }) => {
+  const camera = useThree((state) => state.camera);
+  const controls = useThree((state) => state.controls) as CameraControls | undefined;
+  const size = useThree((state) => state.size);
+
+  const resetView = () => {
+    applyDefaultView(camera, controls, layout, size);
+  };
+
   return (
     <Html
       position={[0, 0, 0]}
       style={{ pointerEvents: 'auto' }}
       zIndexRange={[50, 0]}
-      calculatePosition={(_, __, { width, height }) => [width - 90, height - 50]}
+      calculatePosition={(_, __, { width }) => [width - 48, 16]}
     >
       <button
-        className="fixed bottom-4 right-4 bg-zinc-800/95 hover:bg-zinc-700 border border-zinc-600 text-zinc-200 px-3 py-2 rounded-lg text-xs font-medium shadow-lg backdrop-blur-sm transition-all hover:text-white select-none"
-        onClick={() => bounds.refresh().clip().fit()}
-        title="Recenter camera"
+        className="w-8 h-8 flex items-center justify-center bg-zinc-900/55 hover:bg-zinc-800/75 border border-zinc-600/60 text-zinc-300 rounded-md shadow-md backdrop-blur-sm transition-all hover:text-white select-none"
+        onClick={resetView}
+        title="Reset camera view"
+        aria-label="Reset camera view"
       >
-        <span className="flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
-            <path fillRule="evenodd" d="M9.638 1.093a.75.75 0 01.724 0l2 1.104a.75.75 0 11-.724 1.313L10 2.607l-1.638.903a.75.75 0 11-.724-1.313l2-1.104zM5.403 4.287a.75.75 0 01-.295 1.019l-.805.444.805.444a.75.75 0 01-.724 1.313L3.19 6.86a.75.75 0 010-1.313l1.194-.66a.75.75 0 011.019.295zm9.194 0a.75.75 0 011.019-.295l1.194.66a.75.75 0 010 1.313l-1.194.659a.75.75 0 11-.724-1.313l.805-.444-.805-.444a.75.75 0 01-.295-1.019zM7.343 8.284a.75.75 0 011.019-.295L10 8.893l1.638-.904a.75.75 0 11.724 1.313l-2 1.104a.75.75 0 01-.724 0l-2-1.104a.75.75 0 01-.295-1.018z" clipRule="evenodd" />
-          </svg>
-          Recenter
-        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+          <path d="M3 12a9 9 0 0 1 15.3-6.4" />
+          <path d="M18 3v5h-5" />
+          <path d="M21 12a9 9 0 0 1-15.3 6.4" />
+          <path d="M6 21v-5h5" />
+        </svg>
       </button>
     </Html>
   );
@@ -871,6 +948,8 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   onToggleCollapse,
   onHoverNode,
   onClickNode,
+  resetViewToken = 0,
+  resetViewDisabled = false,
 }) => {
   const handleToggle = useCallback(
     (id: string) => onToggleCollapse?.(id),
@@ -884,12 +963,29 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     (nodeId: string) => onClickNode?.(nodeId),
     [onClickNode],
   );
+  const [fittedLayoutKey, setFittedLayoutKey] = useState('');
 
   // Stable key that changes when the graph structure changes
   const layoutKey = useMemo(() => {
     if (!layout) return '';
-    return layout.nodes.map((n) => `${n.id}:${n.collapsed}`).join(',');
+    const nodeKey = collectLayoutNodes(layout.nodes)
+      .map((n) => [
+        n.id,
+        n.collapsed,
+        n.x,
+        n.y,
+        n.z,
+        n.width,
+        n.height,
+        n.depth,
+      ].join(':'))
+      .join(',');
+    const edgeKey = layout.edges
+      .map((e) => `${e.from}:${e.to}:${e.kind ?? ''}`)
+      .join(',');
+    return `${nodeKey}|${edgeKey}`;
   }, [layout]);
+  const viewReady = !!layout && fittedLayoutKey === layoutKey;
 
   return (
     <div className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
@@ -945,11 +1041,11 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
             <div className="flex items-center justify-center gap-5 text-xs text-zinc-500">
               <span className="flex items-center gap-2">
                 <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Left</span>
-                Rotate
+                Pan
               </span>
               <span className="flex items-center gap-2">
                 <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Right</span>
-                Pan
+                Rotate
               </span>
               <span className="flex items-center gap-2">
                 <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Scroll</span>
@@ -962,7 +1058,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
 
       <Canvas
         orthographic
-        camera={{ zoom: 40, position: [50, 40, 50], near: -1000, far: 2000 }}
+        camera={{ zoom: DEFAULT_CAMERA_ZOOM, position: DEFAULT_CAMERA_OFFSET.toArray(), near: -1000, far: 2000 }}
         dpr={[1, 2]}
         gl={{
           antialias: true,
@@ -986,33 +1082,43 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
         />
 
         {layout && (
-          <Bounds fit clip observe margin={0.15}>
-            <BoundsAutoFit layoutKey={layoutKey} />
-            <RecenterButton />
-            <SceneWithInstancing
-              layout={layout}
-              highlightNodeId={highlightNodeId}
-              onToggle={handleToggle}
-              onHover={handleHover}
-              onClickNode={handleClick}
-            />
-            <group>
-              {layout.edges.map((e, i) => (
-                <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
-              ))}
-            </group>
-            <gridHelper args={[400, 80, 0x3f3f46, 0x18181b]} position={[0, -5, 0]} />
-          </Bounds>
+          <>
+            <BoundsAutoFit layout={layout} layoutKey={layoutKey} onFit={setFittedLayoutKey} />
+            <ViewResetEffect layout={layout} resetViewToken={resetViewToken} />
+            {viewReady && (
+              <>
+                {!resetViewDisabled && <RecenterButton layout={layout} />}
+                <SceneWithInstancing
+                  layout={layout}
+                  highlightNodeId={highlightNodeId}
+                  onToggle={handleToggle}
+                  onHover={handleHover}
+                  onClickNode={handleClick}
+                />
+                <group>
+                  {layout.edges.map((e, i) => (
+                    <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
+                  ))}
+                </group>
+                <gridHelper args={[400, 80, 0x3f3f46, 0x18181b]} position={[0, -5, 0]} />
+              </>
+            )}
+          </>
         )}
 
         <OrbitControls
           makeDefault
-          minZoom={10}
+          minZoom={DEFAULT_MIN_ZOOM}
           maxZoom={150}
           enableDamping
           dampingFactor={0.1}
           maxPolarAngle={Math.PI / 1.8}
           minPolarAngle={0}
+          mouseButtons={{
+            LEFT: THREE.MOUSE.PAN,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.ROTATE,
+          }}
         />
       </Canvas>
     </div>

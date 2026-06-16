@@ -9,7 +9,36 @@ interface InspectorProps {
   highlightNodeId: string | null;
   onSelectNode: (id: string) => void;
   onHighlightNode: (id: string | null) => void;
+  headerAction?: React.ReactNode;
 }
+
+const SectionCollapseButton: React.FC<{
+  collapsed: boolean;
+  label: string;
+  onClick: () => void;
+}> = ({ collapsed, label, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={collapsed ? `Expand ${label}` : `Collapse ${label}`}
+    aria-label={collapsed ? `Expand ${label}` : `Collapse ${label}`}
+    aria-pressed={collapsed}
+    className="w-6 h-6 flex items-center justify-center rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--border-subtle)] transition-colors"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className={`w-3 h-3 transition-transform duration-200 ease-out ${collapsed ? '-rotate-90' : 'rotate-0'}`}
+    >
+      <path
+        fillRule="evenodd"
+        d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  </button>
+);
 
 /* ─── Recursive Tree Node ─── */
 const TreeNode: React.FC<{
@@ -121,11 +150,15 @@ const NodeDetails: React.FC<{ node: IRNode }> = ({ node }) => {
 };
 
 /* ─── Main Inspector / Model Explorer ─── */
-const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNodeId, onSelectNode, onHighlightNode }) => {
+const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNodeId, onSelectNode, onHighlightNode, headerAction }) => {
   const selectedNode = ir && selectedNodeId ? findNodeById(ir.nodes, selectedNodeId) : null;
+  const [isStructureCollapsed, setStructureCollapsed] = useState(false);
+  const [isDetailsCollapsed, setDetailsCollapsed] = useState(false);
+  const structureFlex = isStructureCollapsed ? '0 0 32px' : isDetailsCollapsed ? '1 1 0' : '6 1 0';
+  const detailsFlex = isDetailsCollapsed ? '0 0 32px' : isStructureCollapsed ? '1 1 0' : '4 1 0';
 
   return (
-    <div className="h-full flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-2xl border-y-0 border-r-0 overflow-hidden ml-2 mb-2 mt-2 shadow-2xl">
+    <div className="h-full flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-md border-y-0 border-r-0 overflow-hidden ml-2 mb-2 mt-2 shadow-2xl">
       {/* Header */}
       <div className="h-10 border-b border-[var(--border)] flex items-center px-4 shrink-0 bg-[var(--surface-elevated)] select-none">
         <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider flex items-center gap-1.5">
@@ -134,6 +167,7 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
           </svg>
           Explorer
         </span>
+        {headerAction && <div className="ml-auto">{headerAction}</div>}
       </div>
 
       {!ir ? (
@@ -144,14 +178,22 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
       ) : (
         <div className="flex-1 flex flex-col min-h-0">
           {/* ─── Top: Structure Tree (60%) ─── */}
-          <div className="flex-[6] min-h-0 flex flex-col">
-            <div className="h-8 border-b border-[var(--border)] flex items-center px-4 shrink-0 select-none">
+          <div
+            className="min-h-0 flex flex-col transition-[flex] duration-200 ease-out"
+            style={{ flex: structureFlex }}
+          >
+            <div className="h-8 border-b border-[var(--border)] flex items-center px-2 pr-4 shrink-0 select-none">
+              <SectionCollapseButton
+                collapsed={isStructureCollapsed}
+                label="Structure"
+                onClick={() => setStructureCollapsed((v) => !v)}
+              />
               <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">Structure</span>
               <span className="ml-auto text-[10px] font-mono text-[var(--text-muted)] bg-[var(--surface-elevated)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
                 {formatNumber(ir.stats.total_params)} params
               </span>
             </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar py-2">
+            <div className={`flex-1 overflow-y-auto custom-scrollbar py-2 transition-[opacity,transform] duration-200 ease-out ${isStructureCollapsed ? 'opacity-0 -translate-y-1 pointer-events-none' : 'opacity-100 translate-y-0 delay-75'}`}>
               {ir.nodes.map((node) => (
                 <TreeNode
                   key={node.id}
@@ -167,11 +209,19 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
           </div>
 
           {/* ─── Bottom: Node Details (40%) ─── */}
-          <div className="flex-[4] min-h-0 border-t border-[var(--border)] flex flex-col bg-[var(--surface-elevated)]">
-            <div className="h-8 border-b border-[var(--border-subtle)] flex items-center px-4 shrink-0 select-none">
+          <div
+            className="min-h-0 border-t border-[var(--border)] flex flex-col bg-[var(--surface-elevated)] transition-[flex] duration-200 ease-out"
+            style={{ flex: detailsFlex }}
+          >
+            <div className="h-8 border-b border-[var(--border-subtle)] flex items-center px-2 pr-4 shrink-0 select-none">
+              <SectionCollapseButton
+                collapsed={isDetailsCollapsed}
+                label="Details"
+                onClick={() => setDetailsCollapsed((v) => !v)}
+              />
               <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">Details</span>
             </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className={`flex-1 overflow-y-auto custom-scrollbar transition-[opacity,transform] duration-200 ease-out ${isDetailsCollapsed ? 'opacity-0 translate-y-1 pointer-events-none' : 'opacity-100 translate-y-0 delay-75'}`}>
               {selectedNode ? (
                 <NodeDetails node={selectedNode} />
               ) : (
