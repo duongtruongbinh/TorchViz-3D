@@ -199,6 +199,7 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
         <div className="flex-1 flex flex-col min-h-0">
           {/* ─── Top: Structure Tree (60%) ─── */}
           <div
+            data-tour="structure"
             className="min-h-0 flex flex-col transition-[flex] duration-200 ease-out"
             style={{ flex: structureFlex }}
           >

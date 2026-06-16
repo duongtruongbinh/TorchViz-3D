@@ -224,7 +224,7 @@ export default function App() {
 
         {/* Center Pane: Canvas + Bottom Terminal */}
         <div data-tour="canvas" className="flex flex-col min-w-0 relative h-full grow">
-          <div className="flex-1 relative w-full min-h-0">
+          <div data-tour="canvas-surface" className="flex-1 relative w-full min-h-0">
             <div className="absolute inset-0 overflow-hidden" data-torchviz-canvas-container>
               <Canvas3D
                 layout={layout}
@@ -236,7 +236,6 @@ export default function App() {
                 onClickNode={handleSelectNode}
                 onOpenLayerInsight={setLayerInsightNode}
                 resetViewToken={tourResetViewToken}
-                resetViewDisabled={isTourOpen}
               />
             </div>
 

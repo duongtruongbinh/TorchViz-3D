@@ -46,21 +46,21 @@ const STEPS: Step[] = [
     keepPanelCentered: true,
   },
   {
-    target: '[data-tour="canvas"]',
+    target: '[data-tour="canvas-surface"]',
     title: 'Canvas: Left click',
     body: 'Left click and drag inside the canvas to pan the 3D view.',
     panelPlacement: 'canvas-side',
     requiredPointerButton: 0,
   },
   {
-    target: '[data-tour="canvas"]',
+    target: '[data-tour="canvas-surface"]',
     title: 'Canvas: Right click',
     body: 'Right click and drag inside the canvas to rotate the 3D view.',
     panelPlacement: 'canvas-side',
     requiredPointerButton: 2,
   },
   {
-    target: '[data-tour="canvas"]',
+    target: '[data-tour="canvas-surface"]',
     title: 'Layer blocks',
     body: 'Hover blocks to see names, input and output shapes, parameter counts, and why the layer matters.',
     panelPlacement: 'canvas-side',
@@ -71,8 +71,8 @@ const STEPS: Step[] = [
     body: 'Use this button to recenter the camera after panning, rotating, or zooming.',
   },
   {
-    target: '[data-tour="explorer"]',
-    title: 'Explorer',
+    target: '[data-tour="structure"]',
+    title: 'Structure',
     body: 'Browse the model tree, select layers, and open parameter formulas from underlined counts.',
   },
   {
@@ -188,13 +188,27 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
     if (!el) return;
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!el.contains(event.target as Node)) return;
+      const rect = el.getBoundingClientRect();
+      const isInsideTarget =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+      if (!isInsideTarget) return;
       if (event.button !== currentStep.requiredPointerButton) return;
       setCompletedInteractions((prev) => ({ ...prev, [step]: true }));
     };
 
     const handleContextMenu = (event: Event) => {
-      if (currentStep.requiredPointerButton !== 2 || !el.contains(event.target as Node)) return;
+      if (currentStep.requiredPointerButton !== 2) return;
+      const pointerEvent = event as PointerEvent;
+      const rect = el.getBoundingClientRect();
+      const isInsideTarget =
+        pointerEvent.clientX >= rect.left &&
+        pointerEvent.clientX <= rect.right &&
+        pointerEvent.clientY >= rect.top &&
+        pointerEvent.clientY <= rect.bottom;
+      if (!isInsideTarget) return;
       event.preventDefault();
     };
 
@@ -288,8 +302,8 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
         </button>
         <h3 className="text-xl font-bold text-[var(--text)] mb-2 pr-16">{s?.title}</h3>
         <p className="text-[var(--text-muted)] text-[15px] leading-relaxed mb-6">{s?.body}</p>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-          <div className="justify-self-start">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-3">
             <button
               type="button"
               className="text-xs font-semibold px-4 py-2 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] hover:bg-[#3f3f46] text-[var(--text)] transition-all disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-wider"
@@ -298,8 +312,33 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
             >
               Back
             </button>
+            <div className="min-w-[72px] flex justify-end">
+              {isLast ? (
+                <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
+                  <button
+                    type="button"
+                    className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+                    onClick={handleDone}
+                    disabled={!canAdvance}
+                  >
+                    Done
+                  </button>
+                </span>
+              ) : !requiresTargetClick ? (
+                <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
+                  <button
+                    type="button"
+                    className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+                    onClick={() => setStep((p) => p + 1)}
+                    disabled={!canAdvance}
+                  >
+                    Next
+                  </button>
+                </span>
+              ) : null}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 justify-self-center">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 px-2">
             {STEPS.map((_, i) => (
               <button
                 key={i}
@@ -313,31 +352,6 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
                 disabled={i > maxReachableStep}
               />
             ))}
-          </div>
-          <div className="justify-self-end min-w-[72px] flex justify-end">
-            {isLast ? (
-              <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
-                <button
-                  type="button"
-                  className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
-                  onClick={handleDone}
-                  disabled={!canAdvance}
-                >
-                  Done
-                </button>
-              </span>
-            ) : !requiresTargetClick ? (
-              <span title={!canAdvance && requiresInteraction ? interactionTooltip : undefined}>
-                <button
-                  type="button"
-                  className="text-xs font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-md active:scale-95 uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
-                  onClick={() => setStep((p) => p + 1)}
-                  disabled={!canAdvance}
-                >
-                  Next
-                </button>
-              </span>
-            ) : null}
           </div>
         </div>
       </div>

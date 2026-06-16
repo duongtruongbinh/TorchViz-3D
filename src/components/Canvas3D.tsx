@@ -139,7 +139,7 @@ const textBaseProps = {
 function useHoverHold<T>(emptyValue: T, delay = 120) {
   const [value, setValue] = useState<T>(emptyValue);
   const hideTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
-  const pointer = useRef({ x: -1, y: -1 });
+  const panelHovered = useRef(false);
 
   const clearHideTimer = useCallback(() => {
     if (!hideTimer.current) return;
@@ -155,8 +155,7 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
   const hide = useCallback(() => {
     clearHideTimer();
     hideTimer.current = window.setTimeout(() => {
-      const hoveredElement = document.elementFromPoint(pointer.current.x, pointer.current.y);
-      if (hoveredElement?.closest('[data-layer-hover-panel="true"]')) {
+      if (panelHovered.current) {
         hideTimer.current = null;
         return;
       }
@@ -165,17 +164,19 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
     }, delay);
   }, [clearHideTimer, delay, emptyValue]);
 
-  useEffect(() => {
-    const handlePointerMove = (event: PointerEvent) => {
-      pointer.current = { x: event.clientX, y: event.clientY };
-    };
-    window.addEventListener('pointermove', handlePointerMove, true);
-    return () => window.removeEventListener('pointermove', handlePointerMove, true);
-  }, []);
+  const hold = useCallback(() => {
+    panelHovered.current = true;
+    clearHideTimer();
+  }, [clearHideTimer]);
+
+  const release = useCallback(() => {
+    panelHovered.current = false;
+    hide();
+  }, [hide]);
 
   useEffect(() => clearHideTimer, [clearHideTimer]);
 
-  return { value, show, hide, hold: clearHideTimer };
+  return { value, show, hide, hold, release };
 }
 
 function flattenLeaves(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[] {
@@ -346,7 +347,7 @@ const InstancedLeafGroup: React.FC<{
             node={nodes[hovered.value]}
             onOpenLayerInsight={onOpenLayerInsight}
             onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.hide}
+            onPointerLeave={hovered.release}
           />
         </Html>
       )}
@@ -567,7 +568,7 @@ const NodeBlock: React.FC<{
             node={node}
             onOpenLayerInsight={onOpenLayerInsight}
             onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.hide}
+            onPointerLeave={hovered.release}
           />
         </Html>
       )}
@@ -693,7 +694,7 @@ const ContainerBlock: React.FC<{
               node={node}
               onOpenLayerInsight={onOpenLayerInsight}
               onPointerEnter={hovered.hold}
-              onPointerLeave={hovered.hide}
+              onPointerLeave={hovered.release}
             />
           </Html>
         )}
@@ -795,7 +796,7 @@ const ContainerBlock: React.FC<{
             node={node}
             onOpenLayerInsight={onOpenLayerInsight}
             onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.hide}
+            onPointerLeave={hovered.release}
           />
         </Html>
       )}
@@ -1038,20 +1039,24 @@ const RecenterButton: React.FC<{ layout: LayoutData }> = ({ layout }) => {
       zIndexRange={[50, 0]}
       calculatePosition={(_, __, { width }) => [width - 48, 16]}
     >
-      <button
+      <div
         data-tour="reset-view"
-        className="w-8 h-8 flex items-center justify-center bg-zinc-900/55 hover:bg-zinc-800/75 border border-zinc-600/60 text-zinc-300 rounded-md shadow-md backdrop-blur-sm transition-all hover:text-white select-none"
-        onClick={resetView}
-        title="Reset camera view"
-        aria-label="Reset camera view"
+        className="w-10 h-10 flex items-center justify-center rounded-lg border border-white/15 bg-black/10"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-          <path d="M3 12a9 9 0 0 1 15.3-6.4" />
-          <path d="M18 3v5h-5" />
-          <path d="M21 12a9 9 0 0 1-15.3 6.4" />
-          <path d="M6 21v-5h5" />
-        </svg>
-      </button>
+        <button
+          className="w-8 h-8 flex items-center justify-center bg-zinc-900/55 hover:bg-zinc-800/75 border border-zinc-600/60 text-zinc-300 rounded-md shadow-md backdrop-blur-sm transition-all hover:text-white select-none"
+          onClick={resetView}
+          title="Reset camera view"
+          aria-label="Reset camera view"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+            <path d="M3 12a9 9 0 0 1 15.3-6.4" />
+            <path d="M18 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-15.3 6.4" />
+            <path d="M6 21v-5h5" />
+          </svg>
+        </button>
+      </div>
     </Html>
   );
 };
