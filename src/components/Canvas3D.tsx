@@ -139,6 +139,7 @@ const textBaseProps = {
 function useHoverHold<T>(emptyValue: T, delay = 120) {
   const [value, setValue] = useState<T>(emptyValue);
   const hideTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const pointer = useRef({ x: -1, y: -1 });
 
   const clearHideTimer = useCallback(() => {
     if (!hideTimer.current) return;
@@ -154,10 +155,23 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
   const hide = useCallback(() => {
     clearHideTimer();
     hideTimer.current = window.setTimeout(() => {
+      const hoveredElement = document.elementFromPoint(pointer.current.x, pointer.current.y);
+      if (hoveredElement?.closest('[data-layer-hover-panel="true"]')) {
+        hideTimer.current = null;
+        return;
+      }
       setValue(emptyValue);
       hideTimer.current = null;
     }, delay);
   }, [clearHideTimer, delay, emptyValue]);
+
+  useEffect(() => {
+    const handlePointerMove = (event: PointerEvent) => {
+      pointer.current = { x: event.clientX, y: event.clientY };
+    };
+    window.addEventListener('pointermove', handlePointerMove, true);
+    return () => window.removeEventListener('pointermove', handlePointerMove, true);
+  }, []);
 
   useEffect(() => clearHideTimer, [clearHideTimer]);
 
@@ -219,6 +233,7 @@ const NodeHoverPanel: React.FC<{
 
   return (
     <div
+      data-layer-hover-panel="true"
       className="glass-panel flex flex-col gap-2 bg-[var(--surface-elevated)] border-[var(--border)] px-4 py-3 rounded-lg text-left shadow-2xl min-w-[15rem] max-w-[19rem] animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-auto"
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
@@ -1024,6 +1039,7 @@ const RecenterButton: React.FC<{ layout: LayoutData }> = ({ layout }) => {
       calculatePosition={(_, __, { width }) => [width - 48, 16]}
     >
       <button
+        data-tour="reset-view"
         className="w-8 h-8 flex items-center justify-center bg-zinc-900/55 hover:bg-zinc-800/75 border border-zinc-600/60 text-zinc-300 rounded-md shadow-md backdrop-blur-sm transition-all hover:text-white select-none"
         onClick={resetView}
         title="Reset camera view"

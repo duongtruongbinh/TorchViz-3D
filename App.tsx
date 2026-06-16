@@ -247,7 +247,7 @@ export default function App() {
             )}
           </div>
 
-          <div className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
+          <div data-tour="terminal" className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
             <BottomTabs
               ir={ir}
               error={error}
@@ -264,7 +264,7 @@ export default function App() {
         </div>
 
         {/* Right Pane: Model Explorer */}
-        <div className={`${isRightCollapsed ? 'w-11' : 'w-[280px]'} flex flex-col shrink-0 h-full z-10 relative overflow-hidden transition-[width] duration-300 ease-out`}>
+        <div data-tour="explorer" className={`${isRightCollapsed ? 'w-11' : 'w-[280px]'} flex flex-col shrink-0 h-full z-10 relative overflow-hidden transition-[width] duration-300 ease-out`}>
           <div className={`absolute inset-0 transition-opacity duration-200 ${isRightCollapsed ? 'opacity-100 delay-150' : 'opacity-0 pointer-events-none'}`}>
             <div className="h-[calc(100%-16px)] ml-2 my-2 bg-[var(--surface)] glass-panel rounded-l-md border-y-0 border-r-0 shadow-2xl flex items-start justify-center pt-1.5">
               <PanelCollapseButton

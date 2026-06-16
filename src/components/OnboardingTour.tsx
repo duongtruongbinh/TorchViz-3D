@@ -27,11 +27,21 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { target: '[data-tour="editor"]', title: 'Editor', body: 'Write your PyTorch code here.' },
+  {
+    target: '[data-tour="template-picker"]',
+    title: 'Templates',
+    body: 'Start from a model template when you want a quick example graph.',
+  },
+  {
+    target: '[data-tour="input-shape"]',
+    title: 'Input shape',
+    body: 'Set the tensor shape used to trace the model and calculate layer outputs.',
+  },
+  { target: '[data-tour="editor"]', title: 'Editor', body: 'Write or adjust PyTorch-style model code here.' },
   {
     target: '[data-tour="visualize"]',
     title: 'Visualize',
-    body: 'Click to build the 3D graph.',
+    body: 'Click to run the model trace and build the 3D graph.',
     advanceOnTargetClick: true,
     keepPanelCentered: true,
   },
@@ -48,6 +58,42 @@ const STEPS: Step[] = [
     body: 'Right click and drag inside the canvas to rotate the 3D view.',
     panelPlacement: 'canvas-side',
     requiredPointerButton: 2,
+  },
+  {
+    target: '[data-tour="canvas"]',
+    title: 'Layer blocks',
+    body: 'Hover blocks to see names, input and output shapes, parameter counts, and why the layer matters.',
+    panelPlacement: 'canvas-side',
+  },
+  {
+    target: '[data-tour="reset-view"]',
+    title: 'Reset view',
+    body: 'Use this button to recenter the camera after panning, rotating, or zooming.',
+  },
+  {
+    target: '[data-tour="explorer"]',
+    title: 'Explorer',
+    body: 'Browse the model tree, select layers, and open parameter formulas from underlined counts.',
+  },
+  {
+    target: '[data-tour="details"]',
+    title: 'Details',
+    body: 'Selected layers show secondary metadata, formula breakdowns, source line, and errors here.',
+  },
+  {
+    target: '[data-tour="terminal"]',
+    title: 'Terminal',
+    body: 'Build status, generated parameter totals, and runtime messages appear here.',
+  },
+  {
+    target: '[data-tour="export-svg"]',
+    title: 'Export SVG',
+    body: 'Export the current graph as an SVG once a model has been visualized.',
+  },
+  {
+    target: '[data-tour="help"]',
+    title: 'Help',
+    body: 'Open the help panel when you need controls, tips, or supported syntax.',
   },
 ];
 
@@ -256,7 +302,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
           <div className="flex items-center gap-1.5 justify-self-center">
             {STEPS.map((_, i) => (
               <button
-                key={STEPS[i]?.target ?? i}
+                key={i}
                 type="button"
                 aria-label={`Step ${i + 1}`}
                 className={`w-2 h-2 rounded-full transition-all ${i === step ? 'bg-[var(--accent)] scale-125' : 'bg-[var(--border)] hover:bg-[var(--border-subtle)]'}`}

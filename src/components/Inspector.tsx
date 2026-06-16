@@ -231,6 +231,7 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
 
           {/* ─── Bottom: Node Details (40%) ─── */}
           <div
+            data-tour="details"
             className="min-h-0 border-t border-[var(--border)] flex flex-col bg-[var(--surface-elevated)] transition-[flex] duration-200 ease-out"
             style={{ flex: detailsFlex }}
           >
