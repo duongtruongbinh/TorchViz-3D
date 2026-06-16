@@ -36,13 +36,13 @@ const PanelCollapseButton: React.FC<{
       title={titles[side]}
       aria-label={titles[side]}
       aria-pressed={collapsed}
-      className={`w-7 h-7 flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[#3f3f46] transition-colors ${className}`}
+      className={`w-7 h-7 flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[#3f3f46] transition-colors duration-200 ${className}`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 20"
         fill="currentColor"
-        className={`w-3.5 h-3.5 transition-transform ${rotation[side]}`}
+        className={`w-3.5 h-3.5 transition-transform duration-300 ease-out ${rotation[side]}`}
       >
         <path
           fillRule="evenodd"
@@ -165,10 +165,10 @@ export default function App() {
         <div
           data-tour="editor"
           style={{ width: isLeftCollapsed ? 44 : leftWidth }}
-          className={`flex flex-col border-r border-[var(--border)] bg-[var(--surface)] glass-panel rounded-r-md border-y-0 border-l-0 shrink-0 h-[calc(100%-16px)] my-2 shadow-[4px_0_24px_-4px_rgba(0,0,0,0.3)] z-10 overflow-hidden transition-[width] duration-200 ${isLeftCollapsed ? 'min-w-[44px] max-w-[44px]' : 'min-w-[200px] max-w-[800px]'}`}
+          className={`flex flex-col border-r border-[var(--border)] bg-[var(--surface)] glass-panel rounded-r-md border-y-0 border-l-0 shrink-0 h-[calc(100%-16px)] my-2 shadow-[4px_0_24px_-4px_rgba(0,0,0,0.3)] z-10 overflow-hidden transition-[width,min-width,max-width] duration-300 ease-out ${isLeftCollapsed ? 'min-w-[44px] max-w-[44px]' : 'min-w-[200px] max-w-[800px]'}`}
         >
           <div className={`h-10 bg-[var(--surface-elevated)] border-b border-[var(--border-subtle)] flex items-center shrink-0 select-none ${isLeftCollapsed ? 'justify-center px-1.5' : 'px-4 justify-between'}`}>
-            {!isLeftCollapsed && <span className="text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider flex items-center gap-2">
+            <span className={`text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider flex items-center gap-2 overflow-hidden whitespace-nowrap transition-all duration-200 ${isLeftCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
                 <path
                   fillRule="evenodd"
@@ -177,11 +177,11 @@ export default function App() {
                 />
               </svg>
               Editor
-            </span>}
+            </span>
             <div className="flex items-center gap-2">
-              {!isLeftCollapsed && <span className="text-[9px] font-mono text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700/50">
+              <span className={`text-[9px] font-mono text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700/50 overflow-hidden whitespace-nowrap transition-all duration-200 ${isLeftCollapsed ? 'w-0 opacity-0 px-0 border-transparent' : 'w-auto opacity-100'}`}>
                 model.py
-              </span>}
+              </span>
               <PanelCollapseButton
                 side="left"
                 collapsed={isLeftCollapsed}
@@ -189,7 +189,7 @@ export default function App() {
               />
             </div>
           </div>
-          {!isLeftCollapsed && <div className="flex-1 relative w-full h-full overflow-hidden">
+          <div className={`flex-1 relative w-full h-full overflow-hidden transition-opacity duration-200 ${isLeftCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <React.Suspense fallback={<div className="text-zinc-500 text-xs p-4 h-full flex items-center justify-center">Loading Editor module...</div>}>
               <EditorPane
                 code={code}
@@ -200,7 +200,7 @@ export default function App() {
                 onCursorChange={handleCursorChange}
               />
             </React.Suspense>
-          </div>}
+          </div>
         </div>
 
         {/* Resizer Handle */}
@@ -244,7 +244,7 @@ export default function App() {
             )}
           </div>
 
-          <div className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mt-[-16px] overflow-hidden transition-[height] duration-200`}>
+          <div className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
             <BottomTabs
               ir={ir}
               error={error}
@@ -261,8 +261,8 @@ export default function App() {
         </div>
 
         {/* Right Pane: Model Explorer */}
-        <div className={`${isRightCollapsed ? 'w-11' : 'w-[280px]'} flex flex-col shrink-0 h-full z-10 relative transition-[width] duration-200`}>
-          {isRightCollapsed ? (
+        <div className={`${isRightCollapsed ? 'w-11' : 'w-[280px]'} flex flex-col shrink-0 h-full z-10 relative overflow-hidden transition-[width] duration-300 ease-out`}>
+          <div className={`absolute inset-0 transition-opacity duration-200 ${isRightCollapsed ? 'opacity-100 delay-150' : 'opacity-0 pointer-events-none'}`}>
             <div className="h-[calc(100%-16px)] ml-2 my-2 bg-[var(--surface)] glass-panel rounded-l-md border-y-0 border-r-0 shadow-2xl flex items-start justify-center pt-1.5">
               <PanelCollapseButton
                 side="right"
@@ -270,7 +270,8 @@ export default function App() {
                 onClick={() => setRightCollapsed(false)}
               />
             </div>
-          ) : (
+          </div>
+          <div className={`w-[280px] h-full transition-[opacity,transform] duration-200 ease-out ${isRightCollapsed ? 'opacity-0 translate-x-2 pointer-events-none' : 'opacity-100 translate-x-0 delay-75'}`}>
             <Inspector
               ir={ir}
               selectedNodeId={selectedNodeId}
@@ -285,7 +286,7 @@ export default function App() {
                 />
               )}
             />
-          )}
+          </div>
         </div>
       </div>
 

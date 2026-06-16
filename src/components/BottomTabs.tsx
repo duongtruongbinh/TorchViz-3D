@@ -21,7 +21,7 @@ const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, h
       </div>
 
       {/* Content Area */}
-      {!collapsed && <div className="flex-1 overflow-auto bg-[var(--surface-elevated)] font-mono text-xs">
+      <div className={`flex-1 overflow-auto bg-[var(--surface-elevated)] font-mono text-xs transition-[opacity,transform] duration-200 ease-out ${collapsed ? 'opacity-0 translate-y-1 pointer-events-none' : 'opacity-100 translate-y-0 delay-75'}`}>
         <div className="p-3 min-h-full">
           {error ? (
             <div className="bg-red-950/20 border-l-2 border-red-500 p-3 pl-4 rounded-r">
@@ -52,7 +52,7 @@ const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, h
             </div>
           )}
         </div>
-      </div>}
+      </div>
     </div>
   );
 };

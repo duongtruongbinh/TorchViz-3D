@@ -881,7 +881,7 @@ const BoundsAutoFit: React.FC<{ layout: LayoutData; layoutKey: string; onFit: (l
   const size = useThree((state) => state.size);
   const prevKey = useRef('');
   useEffect(() => {
-    const viewKey = `${layoutKey}:${size.width}:${size.height}:${controls ? 'ready' : 'pending'}`;
+    const viewKey = `${layoutKey}:${controls ? 'ready' : 'pending'}`;
     if (!layoutKey || !controls || viewKey === prevKey.current) return;
     prevKey.current = viewKey;
     applyDefaultView(camera, controls, layout, size);
