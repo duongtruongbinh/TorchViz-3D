@@ -30,6 +30,7 @@ export default function App() {
   const [isExportOpen, setExportOpen] = useState(false);
   const [isHelpOpen, setHelpOpen] = useState(false);
   const [isTourOpen, setTourOpen] = useState(false);
+  const [tourResetViewToken, setTourResetViewToken] = useState(0);
 
   const [leftWidth, setLeftWidth] = useState(400);
   const [isDragging, setIsDragging] = useState(false);
@@ -43,21 +44,26 @@ export default function App() {
 
   // --- Resize logic ---
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (isTourOpen) return;
     e.preventDefault();
     setIsDragging(true);
   };
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (!isDragging) return;
+      if (!isDragging || isTourOpen) return;
       if (e.clientX > 200 && e.clientX < 800) setLeftWidth(e.clientX);
     },
-    [isDragging],
+    [isDragging, isTourOpen],
   );
 
   const handleMouseUp = useCallback(() => setIsDragging(false), []);
 
   useEffect(() => {
+    if (isTourOpen && isDragging) {
+      setIsDragging(false);
+      return;
+    }
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
@@ -73,7 +79,7 @@ export default function App() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isTourOpen, isDragging, handleMouseMove, handleMouseUp]);
 
   const handleCursorChange = useCallback(
     (line: number) => {
@@ -89,12 +95,17 @@ export default function App() {
     setHighlightNodeId(nodeId);
   }, [setSelectedNodeId, setHighlightNodeId]);
 
+  const resetTourView = useCallback(() => {
+    setTourResetViewToken((token) => token + 1);
+  }, []);
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden min-w-[1024px]">
       <Header
         onExportSvg={() => setExportOpen(true)}
         isTourOpen={isTourOpen}
         setTourOpen={setTourOpen}
+        onTourStepChange={resetTourView}
         isHelpOpen={isHelpOpen}
         setHelpOpen={setHelpOpen}
       />
@@ -138,12 +149,14 @@ export default function App() {
 
         {/* Resizer Handle */}
         <div
-          className={`w-1 hover:w-1.5 transition-colors cursor-col-resize z-20 flex items-center justify-center shrink-0 ${isDragging ? 'bg-[var(--accent)] w-1.5' : 'bg-transparent'}`}
+          className={`w-1 transition-colors z-20 flex items-center justify-center shrink-0 ${isTourOpen ? 'cursor-default opacity-40' : 'cursor-col-resize hover:w-1.5'} ${isDragging ? 'bg-[var(--accent)] w-1.5' : 'bg-transparent'}`}
           onMouseDown={handleMouseDown}
           role="separator"
           aria-orientation="vertical"
+          aria-disabled={isTourOpen}
           tabIndex={0}
           onKeyDown={(e) => {
+            if (isTourOpen) return;
             if (e.key === 'ArrowLeft') setLeftWidth(w => Math.max(200, w - 10));
             if (e.key === 'ArrowRight') setLeftWidth(w => Math.min(800, w + 10));
           }}
@@ -163,6 +176,8 @@ export default function App() {
                 onToggleCollapse={toggleCollapse}
                 onHoverNode={setHighlightLine}
                 onClickNode={handleSelectNode}
+                resetViewToken={tourResetViewToken}
+                resetViewDisabled={isTourOpen}
               />
             </div>
 

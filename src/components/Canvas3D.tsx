@@ -60,6 +60,8 @@ interface Canvas3DProps {
   onToggleCollapse?: (nodeId: string) => void;
   onHoverNode?: (lineno: number | null) => void;
   onClickNode?: (nodeId: string) => void;
+  resetViewToken?: number;
+  resetViewDisabled?: boolean;
 }
 
 const HEADER_BAR_HEIGHT = 0.6;
@@ -816,8 +818,6 @@ const EdgeLine: React.FC<{ edge: LayoutEdge }> = ({ edge }) => {
   return null;
 };
 
-const BOUNDS_DEBOUNCE_MS = 200;
-
 function collectLayoutNodes(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[] {
   for (const node of nodes) {
     out.push(node);
@@ -875,25 +875,33 @@ function applyDefaultView(
 }
 
 /* ─── Set an overview camera when layout changes ─── */
-const BoundsAutoFit: React.FC<{ layout: LayoutData; layoutKey: string }> = ({ layout, layoutKey }) => {
+const BoundsAutoFit: React.FC<{ layout: LayoutData; layoutKey: string; onFit: (layoutKey: string) => void }> = ({ layout, layoutKey, onFit }) => {
   const camera = useThree((state) => state.camera);
   const controls = useThree((state) => state.controls) as CameraControls | undefined;
   const size = useThree((state) => state.size);
   const prevKey = useRef('');
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     const viewKey = `${layoutKey}:${size.width}:${size.height}:${controls ? 'ready' : 'pending'}`;
-    if (!layoutKey || viewKey === prevKey.current) return;
+    if (!layoutKey || !controls || viewKey === prevKey.current) return;
     prevKey.current = viewKey;
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      timeoutRef.current = null;
-      applyDefaultView(camera, controls, layout, size);
-    }, BOUNDS_DEBOUNCE_MS);
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [layout, layoutKey, camera, controls, size]);
+    applyDefaultView(camera, controls, layout, size);
+    onFit(layoutKey);
+  }, [layout, layoutKey, camera, controls, size, onFit]);
+  return null;
+};
+
+const ViewResetEffect: React.FC<{ layout: LayoutData; resetViewToken: number }> = ({ layout, resetViewToken }) => {
+  const camera = useThree((state) => state.camera);
+  const controls = useThree((state) => state.controls) as CameraControls | undefined;
+  const size = useThree((state) => state.size);
+  const prevToken = useRef(resetViewToken);
+
+  useEffect(() => {
+    if (!controls || resetViewToken === prevToken.current) return;
+    prevToken.current = resetViewToken;
+    applyDefaultView(camera, controls, layout, size);
+  }, [layout, resetViewToken, camera, controls, size]);
+
   return null;
 };
 
@@ -940,6 +948,8 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   onToggleCollapse,
   onHoverNode,
   onClickNode,
+  resetViewToken = 0,
+  resetViewDisabled = false,
 }) => {
   const handleToggle = useCallback(
     (id: string) => onToggleCollapse?.(id),
@@ -953,12 +963,14 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     (nodeId: string) => onClickNode?.(nodeId),
     [onClickNode],
   );
+  const [fittedLayoutKey, setFittedLayoutKey] = useState('');
 
   // Stable key that changes when the graph structure changes
   const layoutKey = useMemo(() => {
     if (!layout) return '';
-    return layout.nodes.map((n) => `${n.id}:${n.collapsed}`).join(',');
+    return collectLayoutNodes(layout.nodes).map((n) => `${n.id}:${n.collapsed}`).join(',');
   }, [layout]);
+  const viewReady = !!layout && fittedLayoutKey === layoutKey;
 
   return (
     <div className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
@@ -1056,21 +1068,26 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
 
         {layout && (
           <>
-            <BoundsAutoFit layout={layout} layoutKey={layoutKey} />
-            <RecenterButton layout={layout} />
-            <SceneWithInstancing
-              layout={layout}
-              highlightNodeId={highlightNodeId}
-              onToggle={handleToggle}
-              onHover={handleHover}
-              onClickNode={handleClick}
-            />
-            <group>
-              {layout.edges.map((e, i) => (
-                <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
-              ))}
-            </group>
-            <gridHelper args={[400, 80, 0x3f3f46, 0x18181b]} position={[0, -5, 0]} />
+            <BoundsAutoFit layout={layout} layoutKey={layoutKey} onFit={setFittedLayoutKey} />
+            <ViewResetEffect layout={layout} resetViewToken={resetViewToken} />
+            {viewReady && (
+              <>
+                {!resetViewDisabled && <RecenterButton layout={layout} />}
+                <SceneWithInstancing
+                  layout={layout}
+                  highlightNodeId={highlightNodeId}
+                  onToggle={handleToggle}
+                  onHover={handleHover}
+                  onClickNode={handleClick}
+                />
+                <group>
+                  {layout.edges.map((e, i) => (
+                    <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
+                  ))}
+                </group>
+                <gridHelper args={[400, 80, 0x3f3f46, 0x18181b]} position={[0, -5, 0]} />
+              </>
+            )}
           </>
         )}
 

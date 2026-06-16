@@ -55,6 +55,8 @@ interface OnboardingTourProps {
   isOpen: boolean;
   onClose: () => void;
   onSkip?: () => void;
+  onDone?: () => void;
+  onStepChange?: () => void;
 }
 
 /** Cutout overlay: 4 panels dim the rest; highlighted area stays clear and visible. */
@@ -82,10 +84,21 @@ function CutoutOverlay({
   );
 }
 
-export default function OnboardingTour({ isOpen, onClose, onSkip }: OnboardingTourProps) {
+export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStepChange }: OnboardingTourProps) {
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [completedInteractions, setCompletedInteractions] = useState<Record<number, boolean>>({});
+  const prevStep = React.useRef(step);
+
+  useEffect(() => {
+    if (!isOpen) {
+      prevStep.current = step;
+      return;
+    }
+    if (prevStep.current === step) return;
+    prevStep.current = step;
+    onStepChange?.();
+  }, [isOpen, step, onStepChange]);
 
   const updateTargetRect = useCallback(() => {
     const el = document.querySelector(STEPS[step]?.target);
@@ -160,7 +173,9 @@ export default function OnboardingTour({ isOpen, onClose, onSkip }: OnboardingTo
   const maxReachableStep = Math.min(STEPS.length - 1, step + (canAdvance ? 1 : 0));
 
   const handleDone = () => {
+    onStepChange?.();
     markTourSeen();
+    onDone?.();
     onClose();
   };
 
@@ -262,7 +277,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip }: OnboardingTo
                   onClick={handleDone}
                   disabled={!canAdvance}
                 >
-                  Next
+                  Done
                 </button>
               </span>
             ) : !requiresTargetClick ? (
