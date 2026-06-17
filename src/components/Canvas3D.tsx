@@ -299,6 +299,57 @@ const HoverPanelHtml: React.FC<{
   </Html>
 );
 
+const NodeCaption: React.FC<{
+  label: string;
+  params?: number;
+  position: [number, number, number];
+  scaleOnHover?: boolean;
+  outlineColor?: string;
+  fontSize?: number;
+  color?: string;
+  outlineWidth?: number;
+  paramFontSize?: number;
+  paramOffsetY?: number;
+}> = ({
+  label,
+  params,
+  position,
+  scaleOnHover = false,
+  outlineColor,
+  fontSize = 0.5,
+  color = '#e5e7eb',
+  outlineWidth = 0.025,
+  paramFontSize = 0.4,
+  paramOffsetY = -0.36,
+}) => (
+  <Billboard position={position} renderOrder={2000}>
+    <group scale={scaleOnHover ? 1 : 0.95}>
+      <Text
+        {...textBaseProps}
+        fontSize={fontSize}
+        color={color}
+        outlineColor={outlineColor ?? textBaseProps.outlineColor}
+        outlineWidth={outlineWidth}
+        renderOrder={2001}
+      >
+        {label}
+      </Text>
+      {!!params && params > 0 && (
+        <Text
+          {...textBaseProps}
+          fontSize={paramFontSize}
+          color="#9ca3af"
+          position={[0, paramOffsetY, 0]}
+          anchorY="top"
+          renderOrder={2001}
+        >
+          {params.toLocaleString()} params
+        </Text>
+      )}
+    </group>
+  </Billboard>
+);
+
 /* ─── Instanced leaf blocks (performance: 3+ identical blocks) ─── */
 const InstancedLeafGroup: React.FC<{
   nodes: LayoutNode[];
@@ -368,11 +419,15 @@ const InstancedLeafGroup: React.FC<{
         />
       </instancedMesh>
       {nodes.map((nd) => (
-        <Billboard key={nd.id} position={[nd.x, nd.y - (nd.height * meta.heightMul) / 2 - 0.7, nd.z]} renderOrder={100}>
-          <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
-            {meta.labelOverride ?? nd.op_type}
-          </Text>
-        </Billboard>
+        <NodeCaption
+          key={nd.id}
+          label={meta.labelOverride ?? nd.op_type}
+          position={[
+            nd.x,
+            nd.y - (nd.height * meta.heightMul) / 2 - 0.9,
+            nd.z + (nd.depth * meta.depthMul) / 2 + 0.15,
+          ]}
+        />
       ))}
       {hovered.value !== null && nodes[hovered.value] && (
         <HoverPanelHtml
@@ -610,11 +665,10 @@ const NodeBlock: React.FC<{
 
       {/* Static label (when not hovered) */}
       {!hovered.value && !hasError && (
-        <Billboard position={[0, -h / 2 - 0.8, 0]} renderOrder={100}>
-          <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
-            {displayLabel}
-          </Text>
-        </Billboard>
+        <NodeCaption
+          label={displayLabel}
+          position={[0, -h / 2 - 0.9, d / 2 + 0.15]}
+        />
       )}
 
     </group>
@@ -702,18 +756,18 @@ const ContainerBlock: React.FC<{
         </Edges>
 
         {/* Label — below block, same as leaf blocks */}
-        <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
-          <group scale={hovered.value ? 1 : 0.95}>
-            <Text {...textBaseProps} fontSize={0.65} color="#ffffff" outlineColor={borderColor} outlineWidth={0.02}>
-              {node.op_type}
-            </Text>
-            {node.params > 0 && (
-              <Text {...textBaseProps} fontSize={0.45} color="#9ca3af" position={[0, -0.4, 0]} anchorY="top">
-                {node.params.toLocaleString()} params
-              </Text>
-            )}
-          </group>
-        </Billboard>
+        <NodeCaption
+          label={node.op_type}
+          params={node.params}
+          position={[0, -node.height / 2 - 0.9, node.depth / 2 + 0.15]}
+          scaleOnHover={hovered.value}
+          outlineColor={borderColor}
+          fontSize={0.65}
+          color="#ffffff"
+          outlineWidth={0.02}
+          paramFontSize={0.45}
+          paramOffsetY={-0.4}
+        />
 
         {/* Expand button — DOM Overlay */}
         <ExpandCollapseButton
@@ -766,18 +820,18 @@ const ContainerBlock: React.FC<{
         </Edges>
 
         {/* Label — below container, identical to collapsed state to prevent jumping */}
-        <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
-          <group scale={hovered.value ? 1 : 0.95}>
-            <Text {...textBaseProps} fontSize={0.65} color="#ffffff" outlineColor={borderColor} outlineWidth={0.02}>
-              {node.op_type}
-            </Text>
-            {node.params > 0 && (
-              <Text {...textBaseProps} fontSize={0.45} color="#9ca3af" position={[0, -0.4, 0]} anchorY="top">
-                {node.params.toLocaleString()} params
-              </Text>
-            )}
-          </group>
-        </Billboard>
+        <NodeCaption
+          label={node.op_type}
+          params={node.params}
+          position={[0, -node.height / 2 - 0.9, node.depth / 2 + 0.15]}
+          scaleOnHover={hovered.value}
+          outlineColor={borderColor}
+          fontSize={0.65}
+          color="#ffffff"
+          outlineWidth={0.02}
+          paramFontSize={0.45}
+          paramOffsetY={-0.4}
+        />
 
         {/* Collapse button — DOM Overlay */}
         <ExpandCollapseButton
