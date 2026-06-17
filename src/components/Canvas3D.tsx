@@ -136,9 +136,10 @@ const textBaseProps = {
   },
 };
 
-function useHoverHold<T>(emptyValue: T, delay = 120) {
+function useHoverHold<T>(emptyValue: T, delay = 120, showDelay = 160) {
   const [value, setValue] = useState<T>(emptyValue);
   const hideTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const showTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const panelHovered = useRef(false);
 
   const clearHideTimer = useCallback(() => {
@@ -147,13 +148,24 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
     hideTimer.current = null;
   }, []);
 
+  const clearShowTimer = useCallback(() => {
+    if (!showTimer.current) return;
+    window.clearTimeout(showTimer.current);
+    showTimer.current = null;
+  }, []);
+
   const show = useCallback((nextValue: T) => {
     clearHideTimer();
-    setValue(nextValue);
-  }, [clearHideTimer]);
+    clearShowTimer();
+    showTimer.current = window.setTimeout(() => {
+      setValue(nextValue);
+      showTimer.current = null;
+    }, showDelay);
+  }, [clearHideTimer, clearShowTimer, showDelay]);
 
   const hide = useCallback(() => {
     clearHideTimer();
+    clearShowTimer();
     hideTimer.current = window.setTimeout(() => {
       if (panelHovered.current) {
         hideTimer.current = null;
@@ -162,7 +174,7 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
       setValue(emptyValue);
       hideTimer.current = null;
     }, delay);
-  }, [clearHideTimer, delay, emptyValue]);
+  }, [clearHideTimer, clearShowTimer, delay, emptyValue]);
 
   const hold = useCallback(() => {
     panelHovered.current = true;
@@ -174,7 +186,10 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
     hide();
   }, [hide]);
 
-  useEffect(() => clearHideTimer, [clearHideTimer]);
+  useEffect(() => () => {
+    clearHideTimer();
+    clearShowTimer();
+  }, [clearHideTimer, clearShowTimer]);
 
   return { value, show, hide, hold, release };
 }
@@ -235,36 +250,54 @@ const NodeHoverPanel: React.FC<{
   return (
     <div
       data-layer-hover-panel="true"
-      className="glass-panel flex flex-col gap-2 bg-[var(--surface-elevated)] border-[var(--border)] px-4 py-3 rounded-lg text-left shadow-2xl min-w-[15rem] max-w-[19rem] animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-auto"
+      className="glass-panel flex flex-col gap-1.5 bg-[var(--surface-elevated)] border-[var(--border)] px-3 py-2.5 rounded-lg text-left shadow-2xl min-w-[13.5rem] max-w-[17rem] animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-auto"
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="text-[13px] font-bold text-blue-400 uppercase leading-tight break-words">{insight.title}</span>
+        <span className="text-[12px] font-bold text-[#7db2e8] uppercase leading-tight break-words">{insight.title}</span>
         <button
           type="button"
-          className="text-[11px] text-zinc-400 hover:text-zinc-100 underline decoration-dotted underline-offset-4 whitespace-nowrap"
+          className="text-[11px] font-mono font-semibold text-zinc-400 hover:text-zinc-100 underline decoration-dotted underline-offset-4 whitespace-nowrap"
           onClick={() => onOpenLayerInsight(node)}
           title="Explain parameter formula"
         >
           {insight.paramsLabel}
         </button>
       </div>
-      <div className="grid grid-cols-[3.25rem_1fr] gap-x-2 gap-y-1 text-[11px]">
-        <span className="text-[var(--text-dim)] uppercase tracking-wider">Input</span>
-        <span className="font-mono text-[var(--text)] break-words">{insight.inputShape}</span>
-        <span className="text-[var(--text-dim)] uppercase tracking-wider">Output</span>
-        <span className="font-mono text-[var(--text)] break-words">{insight.outputShape}</span>
+      <div className="grid grid-cols-[3.25rem_1fr] gap-x-3 gap-y-0.5 text-[11px]">
+        <span className="text-[#93b7d8] uppercase tracking-wider font-semibold">Input</span>
+        <span className="font-mono text-[#d7e5f3] break-words">{insight.inputShape}</span>
+        <span className="text-[#d8bd7a] uppercase tracking-wider font-semibold">Output</span>
+        <span className="font-mono text-[#f1dfb5] break-words">{insight.outputShape}</span>
       </div>
-      <div className="border-t border-[var(--border-subtle)] pt-2">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Why this matters?</div>
-        <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">{insight.why}</p>
+      <div className="border-t border-[var(--border-subtle)] pt-1.5">
+        <p className="text-[11px] leading-snug text-[var(--text-muted)]">{insight.why}</p>
       </div>
     </div>
   );
 };
+
+const HoverPanelHtml: React.FC<{
+  position: [number, number, number];
+  node: LayoutNode;
+  onOpenLayerInsight: (node: LayoutNode) => void;
+  onPointerEnter: () => void;
+  onPointerLeave: () => void;
+}> = ({ position, node, onOpenLayerInsight, onPointerEnter, onPointerLeave }) => (
+  <Html position={position} zIndexRange={[100, 0]} className="pointer-events-auto">
+    <div style={{ transform: 'translate(12px, calc(-100% - 12px))', transformOrigin: 'bottom left' }}>
+      <NodeHoverPanel
+        node={node}
+        onOpenLayerInsight={onOpenLayerInsight}
+        onPointerEnter={onPointerEnter}
+        onPointerLeave={onPointerLeave}
+      />
+    </div>
+  </Html>
+);
 
 /* ─── Instanced leaf blocks (performance: 3+ identical blocks) ─── */
 const InstancedLeafGroup: React.FC<{
@@ -342,14 +375,17 @@ const InstancedLeafGroup: React.FC<{
         </Billboard>
       ))}
       {hovered.value !== null && nodes[hovered.value] && (
-        <Html position={[nodes[hovered.value].x, nodes[hovered.value].y + (nodes[hovered.value].height * meta.heightMul) / 2 + 0.5, nodes[hovered.value].z]} center zIndexRange={[100, 0]} className="pointer-events-auto">
-          <NodeHoverPanel
-            node={nodes[hovered.value]}
-            onOpenLayerInsight={onOpenLayerInsight}
-            onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.release}
-          />
-        </Html>
+        <HoverPanelHtml
+          position={[
+            nodes[hovered.value].x + (nodes[hovered.value].width * meta.widthMul) / 2 + 0.35,
+            nodes[hovered.value].y + (nodes[hovered.value].height * meta.heightMul) / 2 + 0.6,
+            nodes[hovered.value].z,
+          ]}
+          node={nodes[hovered.value]}
+          onOpenLayerInsight={onOpenLayerInsight}
+          onPointerEnter={hovered.hold}
+          onPointerLeave={hovered.release}
+        />
       )}
     </group>
   );
@@ -563,14 +599,13 @@ const NodeBlock: React.FC<{
 
       {/* Hover tooltip */}
       {hovered.value && !hasError && (
-        <Html position={[0, h / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-auto">
-          <NodeHoverPanel
-            node={node}
-            onOpenLayerInsight={onOpenLayerInsight}
-            onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.release}
-          />
-        </Html>
+        <HoverPanelHtml
+          position={[w / 2 + 0.35, h / 2 + 0.6, 0]}
+          node={node}
+          onOpenLayerInsight={onOpenLayerInsight}
+          onPointerEnter={hovered.hold}
+          onPointerLeave={hovered.release}
+        />
       )}
 
       {/* Static label (when not hovered) */}
@@ -689,14 +724,13 @@ const ContainerBlock: React.FC<{
         />
 
         {hovered.value && (
-          <Html position={[0, node.height / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-auto">
-            <NodeHoverPanel
-              node={node}
-              onOpenLayerInsight={onOpenLayerInsight}
-              onPointerEnter={hovered.hold}
-              onPointerLeave={hovered.release}
-            />
-          </Html>
+          <HoverPanelHtml
+            position={[node.width / 2 + 0.35, node.height / 2 + 0.6, 0]}
+            node={node}
+            onOpenLayerInsight={onOpenLayerInsight}
+            onPointerEnter={hovered.hold}
+            onPointerLeave={hovered.release}
+          />
         )}
       </group>
     );
@@ -753,7 +787,7 @@ const ContainerBlock: React.FC<{
           onToggle={() => onToggle(node.id)}
         />
 
-        {/* Hover sensor at top — click = select container */}
+        {/* Header hit area — click = select container. Hover tooltip stays with child blocks. */}
         <mesh
           position={[0, node.height / 2 - HEADER_BAR_HEIGHT / 2, 0]}
           onClick={(e) => {
@@ -763,11 +797,9 @@ const ContainerBlock: React.FC<{
           }}
           onPointerOver={(e) => {
             e.stopPropagation();
-            hovered.show(true);
             document.body.style.cursor = 'pointer';
           }}
           onPointerOut={() => {
-            hovered.hide();
             document.body.style.cursor = '';
           }}
         >
@@ -790,16 +822,6 @@ const ContainerBlock: React.FC<{
         />
       ))}
 
-      {hovered.value && (
-        <Html position={[node.x, node.y + node.height / 2 + 0.5, node.z]} center zIndexRange={[100, 0]} className="pointer-events-auto">
-          <NodeHoverPanel
-            node={node}
-            onOpenLayerInsight={onOpenLayerInsight}
-            onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.release}
-          />
-        </Html>
-      )}
     </group>
   );
 };
