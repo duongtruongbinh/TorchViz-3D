@@ -13,21 +13,21 @@ const localizedText = {
   app: {
     language: { en: 'Language', vi: 'Ngôn ngữ' },
     editor: { en: 'Editor', vi: 'Trình soạn thảo' },
-    explorer: { en: 'Explorer', vi: 'Khám phá' },
+    explorer: { en: 'Explorer', vi: 'Bảng thông tin' },
     loadingEditorModule: { en: 'Loading Editor module...', vi: 'Đang tải mô-đun soạn thảo...' },
     demoErrorMessage: {
       en: 'module setup failed: missing required layer configuration',
-      vi: 'khởi tạo mô-đun thất bại: thiếu cấu hình lớp bắt buộc',
+      vi: 'module setup failed: missing required layer configuration',
     },
     demoErrorHint: {
       en: 'Check the layer constructor arguments or install the missing dependency.',
-      vi: 'Kiểm tra tham số khởi tạo lớp hoặc cài đặt phần phụ thuộc còn thiếu.',
+      vi: 'Check the layer constructor arguments or install the missing dependency.',
     },
     collapse: {
       expandEditorPanel: { en: 'Expand editor panel', vi: 'Mở rộng khung soạn thảo' },
       collapseEditorPanel: { en: 'Collapse editor panel', vi: 'Thu gọn khung soạn thảo' },
-      expandExplorerPanel: { en: 'Expand explorer panel', vi: 'Mở rộng khung khám phá' },
-      collapseExplorerPanel: { en: 'Collapse explorer panel', vi: 'Thu gọn khung khám phá' },
+      expandExplorerPanel: { en: 'Expand explorer panel', vi: 'Mở rộng bảng thông tin' },
+      collapseExplorerPanel: { en: 'Collapse explorer panel', vi: 'Thu gọn bảng thông tin' },
       expandTerminalPanel: { en: 'Expand terminal panel', vi: 'Mở rộng khung terminal' },
       collapseTerminalPanel: { en: 'Collapse terminal panel', vi: 'Thu gọn khung terminal' },
     },
@@ -55,17 +55,17 @@ const localizedText = {
     title: { en: 'Terminal', vi: 'Terminal' },
     runtimeErrorAtLine: {
       en: (line: number) => `Runtime Error at line ${line}`,
-      vi: (line: number) => `Lỗi runtime tại dòng ${line}`,
+      vi: (line: number) => `Runtime Error at line ${line}`,
     },
     hint: {
       en: (hint: string) => `Hint: ${hint}`,
-      vi: (hint: string) => `Gợi ý: ${hint}`,
+      vi: (hint: string) => `Hint: ${hint}`,
     },
-    systemReady: { en: '> System ready.', vi: '> Hệ thống sẵn sàng.' },
-    waitingForExecution: { en: '> Waiting for execution...', vi: '> Đang chờ thực thi...' },
+    systemReady: { en: '> System ready.', vi: '> System ready.' },
+    waitingForExecution: { en: '> Waiting for execution...', vi: '> Waiting for execution...' },
     buildSuccessful: {
       en: (params: string) => `> Build successful. Graph generated (${params} params).`,
-      vi: (params: string) => `> Chạy thành công. Đã tạo đồ thị (${params} tham số).`,
+      vi: (params: string) => `> Build successful. Graph generated (${params} params).`,
     },
   },
   inspector: {
@@ -358,7 +358,7 @@ const localizedText = {
         title: { en: 'Parameter formulas', vi: 'Công thức tham số' },
         body: {
           en: 'Click any layer block to open a popup with the parameter formula. Hover still shows names, shapes, counts, and why the layer matters.',
-          vi: 'Bấm vào bất kỳ khối lớp nào để mở popup công thức tham số. Khi rê chuột vẫn thấy tên, kích thước, số lượng và lý do lớp đó quan trọng.',
+          vi: 'Bấm vào bất kỳ khối lớp nào để mở bảng công thức tham số. Khi di chuột vẫn thấy tên, kích thước, số lượng và lý do lớp đó quan trọng.',
         },
       },
       {
