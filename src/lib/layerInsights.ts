@@ -1,5 +1,5 @@
 import type { IRNode } from './irTypes';
-import { strings, type LocalizedStrings } from './localization';
+import { strings, type LocalizedStrings } from './localization.ts';
 import { getVisualKind } from './visualKind.ts';
 
 export interface ParamFormula {
