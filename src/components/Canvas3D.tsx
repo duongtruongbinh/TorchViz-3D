@@ -72,6 +72,10 @@ const DEFAULT_CAMERA_OFFSET = new THREE.Vector3(50, 40, 50);
 const DEFAULT_CAMERA_ZOOM = 42;
 const DEFAULT_MIN_ZOOM = 6;
 const DEFAULT_VIEW_PADDING = 0.8;
+const HOVER_PANEL_ESTIMATED_WIDTH = 272;
+const HOVER_PANEL_ESTIMATED_HEIGHT = 170;
+const HOVER_PANEL_EDGE_PADDING = 12;
+const HOVER_PANEL_BELOW_X_OFFSET = 72;
 
 const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
 const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×';
@@ -286,18 +290,39 @@ const HoverPanelHtml: React.FC<{
   onOpenLayerInsight: (node: LayoutNode) => void;
   onPointerEnter: () => void;
   onPointerLeave: () => void;
-}> = ({ position, node, onOpenLayerInsight, onPointerEnter, onPointerLeave }) => (
-  <Html position={position} zIndexRange={[100, 0]} className="pointer-events-auto">
-    <div style={{ transform: 'translate(12px, calc(-100% - 12px))', transformOrigin: 'bottom left' }}>
-      <NodeHoverPanel
-        node={node}
-        onOpenLayerInsight={onOpenLayerInsight}
-        onPointerEnter={onPointerEnter}
-        onPointerLeave={onPointerLeave}
-      />
-    </div>
-  </Html>
-);
+}> = ({ position, node, onOpenLayerInsight, onPointerEnter, onPointerLeave }) => {
+  const calculateHoverPanelPosition = useCallback((el: THREE.Object3D, camera: THREE.Camera, size: { width: number; height: number }) => {
+    const projected = new THREE.Vector3().setFromMatrixPosition(el.matrixWorld);
+    projected.project(camera);
+
+    const anchorX = (projected.x * size.width) / 2 + size.width / 2;
+    const anchorY = -(projected.y * size.height) / 2 + size.height / 2;
+    const maxX = Math.max(HOVER_PANEL_EDGE_PADDING, size.width - HOVER_PANEL_ESTIMATED_WIDTH - HOVER_PANEL_EDGE_PADDING);
+    const maxY = Math.max(HOVER_PANEL_EDGE_PADDING, size.height - HOVER_PANEL_ESTIMATED_HEIGHT - HOVER_PANEL_EDGE_PADDING);
+    const aboveY = anchorY - HOVER_PANEL_ESTIMATED_HEIGHT - HOVER_PANEL_EDGE_PADDING;
+    const placeBelow = aboveY < HOVER_PANEL_EDGE_PADDING;
+    const xOffset = placeBelow ? HOVER_PANEL_BELOW_X_OFFSET : HOVER_PANEL_EDGE_PADDING;
+    const x = Math.min(Math.max(anchorX + xOffset, HOVER_PANEL_EDGE_PADDING), maxX);
+    const y = placeBelow
+      ? Math.min(anchorY + HOVER_PANEL_EDGE_PADDING, maxY)
+      : aboveY;
+
+    return [x, Math.max(HOVER_PANEL_EDGE_PADDING, y)];
+  }, []);
+
+  return (
+    <Html position={position} zIndexRange={[100, 0]} className="pointer-events-auto" calculatePosition={calculateHoverPanelPosition}>
+      <div style={{ transformOrigin: 'top left' }}>
+        <NodeHoverPanel
+          node={node}
+          onOpenLayerInsight={onOpenLayerInsight}
+          onPointerEnter={onPointerEnter}
+          onPointerLeave={onPointerLeave}
+        />
+      </div>
+    </Html>
+  );
+};
 
 const NodeCaption: React.FC<{
   label: string;
