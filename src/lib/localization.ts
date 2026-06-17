@@ -294,8 +294,8 @@ const localizedText = {
     plusButtonRest: { en: 'button on collapsed blocks to expand.', vi: 'trên khối đã thu gọn để mở rộng.' },
     clickMinus: { en: 'Click the', vi: 'Bấm nút' },
     minusButtonRest: {
-      en: 'button on the header of expanded blocks to collapse.',
-      vi: 'trên thanh tiêu đề của khối đã mở để thu gọn.',
+      en: 'button on the top corner of expanded blocks to collapse.',
+      vi: 'ở góc trên của khối đã mở để thu gọn.',
     },
     code: { en: 'Code', vi: 'Mã' },
     codeBeforeModel: { en: 'Define a', vi: 'Định nghĩa biến' },

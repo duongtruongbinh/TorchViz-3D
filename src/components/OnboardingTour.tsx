@@ -28,6 +28,7 @@ interface Step {
   keepPanelCentered?: boolean;
   panelPlacement?: 'canvas-side';
   requiredPointerButton?: 0 | 2;
+  avoidOverlapWith?: string;
 }
 
 const STEPS: Step[] = [
@@ -51,17 +52,20 @@ const STEPS: Step[] = [
     textIndex: 4,
     panelPlacement: 'canvas-side',
     requiredPointerButton: 0,
+    avoidOverlapWith: '[data-tour="terminal"]',
   },
   {
     target: '[data-tour="canvas-surface"]',
     textIndex: 5,
     panelPlacement: 'canvas-side',
     requiredPointerButton: 2,
+    avoidOverlapWith: '[data-tour="terminal"]',
   },
   {
     target: '[data-tour="canvas-surface"]',
     textIndex: 6,
     panelPlacement: 'canvas-side',
+    avoidOverlapWith: '[data-tour="terminal"]',
   },
   {
     target: '[data-tour="reset-view"]',
@@ -128,6 +132,37 @@ function CutoutOverlay({
   );
 }
 
+function rectContainsPoint(rect: DOMRect, x: number, y: number): boolean {
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
+function rectsOverlapHorizontally(a: DOMRect, b: DOMRect): boolean {
+  return a.left < b.right && a.right > b.left;
+}
+
+function getStepTargetRect(step: Step): DOMRect | null {
+  const target = document.querySelector(step.target);
+  if (!target) return null;
+
+  const rect = target.getBoundingClientRect();
+  if (!step.avoidOverlapWith) return rect;
+
+  const overlapEl = document.querySelector(step.avoidOverlapWith);
+  if (!overlapEl) return rect;
+
+  const overlapRect = overlapEl.getBoundingClientRect();
+  const overlapsBottom =
+    rectsOverlapHorizontally(rect, overlapRect) &&
+    overlapRect.top > rect.top &&
+    overlapRect.top < rect.bottom;
+
+  if (!overlapsBottom) return rect;
+
+  const bottomClearance = 8;
+  const nextBottom = Math.max(rect.top, overlapRect.top - bottomClearance);
+  return new DOMRect(rect.left, rect.top, rect.width, nextBottom - rect.top);
+}
+
 export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStepChange }: OnboardingTourProps) {
   const language = useStore((state) => state.language);
   const t = getStrings(language);
@@ -148,8 +183,8 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
   }, [isOpen, step, onStepChange]);
 
   const updateTargetRect = useCallback(() => {
-    const el = document.querySelector(STEPS[step]?.target);
-    setTargetRect(el ? el.getBoundingClientRect() : null);
+    const currentStep = STEPS[step];
+    setTargetRect(currentStep ? getStepTargetRect(currentStep) : null);
   }, [step]);
 
   useEffect(() => {
@@ -189,13 +224,8 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
     if (!el) return;
 
     const handlePointerDown = (event: PointerEvent) => {
-      const rect = el.getBoundingClientRect();
-      const isInsideTarget =
-        event.clientX >= rect.left &&
-        event.clientX <= rect.right &&
-        event.clientY >= rect.top &&
-        event.clientY <= rect.bottom;
-      if (!isInsideTarget) return;
+      const rect = getStepTargetRect(currentStep);
+      if (!rect || !rectContainsPoint(rect, event.clientX, event.clientY)) return;
       if (event.button !== currentStep.requiredPointerButton) return;
       setCompletedInteractions((prev) => ({ ...prev, [step]: true }));
     };
@@ -203,13 +233,8 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
     const handleContextMenu = (event: Event) => {
       if (currentStep.requiredPointerButton !== 2) return;
       const pointerEvent = event as PointerEvent;
-      const rect = el.getBoundingClientRect();
-      const isInsideTarget =
-        pointerEvent.clientX >= rect.left &&
-        pointerEvent.clientX <= rect.right &&
-        pointerEvent.clientY >= rect.top &&
-        pointerEvent.clientY <= rect.bottom;
-      if (!isInsideTarget) return;
+      const rect = getStepTargetRect(currentStep);
+      if (!rect || !rectContainsPoint(rect, pointerEvent.clientX, pointerEvent.clientY)) return;
       event.preventDefault();
     };
 
