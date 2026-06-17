@@ -17,8 +17,10 @@ export type VisualKind =
   | 'Activation_Sigmoid'
   | 'Activation_GELU'
   | 'Activation_SiLU'
+  | 'Activation_Tanh'
   | 'Activation_Softmax'
   | 'Activation_Other'
+  | 'Dropout'
   | 'Flatten'
   | 'Reshape'
   | 'Permute'
@@ -38,7 +40,9 @@ const KIND_RULES: [RegExp, VisualKind][] = [
   [/^sigmoid$/i, 'Activation_Sigmoid'],
   [/^gelu$/i, 'Activation_GELU'],
   [/^silu$/i, 'Activation_SiLU'],
+  [/^tanh$/i, 'Activation_Tanh'],
   [/^softmax$/i, 'Activation_Softmax'],
+  [/^dropout$/i, 'Dropout'],
   [/conv/i, 'Conv'],
   [/linear|mlp/i, 'Linear'],
   [/pool/i, 'Pool'],
@@ -100,7 +104,9 @@ const COLORS = {
   activationSigmoid: '#06b6d4',
   activationGELU: '#67e8f9',
   activationSiLU: '#a5f3fc',
+  activationTanh: '#2dd4bf',
   activationSoftmax: '#0891b2',
+  dropout: '#fb7185',
   embedding: '#c084fc',
   rnn: '#fb923c',
   upsample: '#2dd4bf',
@@ -205,6 +211,18 @@ const META_MAP: Record<VisualKind, Omit<VisualMeta, 'kind'>> = {
     specialGeometry: false,
     labelOverride: 'SiLU',
   },
+  Activation_Tanh: {
+    category: 'Activation',
+    color: COLORS.activationTanh,
+    cornerRadius: 0.08,
+    widthMul: 0.2,
+    heightMul: 0.7,
+    depthMul: 0.7,
+    svgStrokeDash: '',
+    svgStrokeWidthMul: 1,
+    specialGeometry: false,
+    labelOverride: 'Tanh',
+  },
   Activation_Softmax: {
     category: 'Activation',
     color: COLORS.activationSoftmax,
@@ -227,6 +245,18 @@ const META_MAP: Record<VisualKind, Omit<VisualMeta, 'kind'>> = {
     svgStrokeDash: '',
     svgStrokeWidthMul: 1,
     specialGeometry: false,
+    labelOverride: null,
+  },
+  Dropout: {
+    category: 'Dropout',
+    color: COLORS.dropout,
+    cornerRadius: 0.02,
+    widthMul: 0.25,
+    heightMul: 0.75,
+    depthMul: 0.75,
+    svgStrokeDash: '4 3',
+    svgStrokeWidthMul: 1,
+    specialGeometry: true,
     labelOverride: null,
   },
   Flatten: {
@@ -370,7 +400,7 @@ export function getVisualMeta(opType: string): VisualMeta {
 
 // ── Activation sub-kind helpers ───────────────────────────────────
 
-export type ActivationSubKind = 'relu' | 'sigmoid' | 'gelu' | 'silu' | 'softmax' | 'other';
+export type ActivationSubKind = 'relu' | 'sigmoid' | 'gelu' | 'silu' | 'tanh' | 'softmax' | 'other';
 
 export function getActivationSubKind(kind: VisualKind): ActivationSubKind | null {
   switch (kind) {
@@ -378,6 +408,7 @@ export function getActivationSubKind(kind: VisualKind): ActivationSubKind | null
     case 'Activation_Sigmoid': return 'sigmoid';
     case 'Activation_GELU': return 'gelu';
     case 'Activation_SiLU': return 'silu';
+    case 'Activation_Tanh': return 'tanh';
     case 'Activation_Softmax': return 'softmax';
     case 'Activation_Other': return 'other';
     default: return null;
@@ -397,7 +428,7 @@ export function getLegendItems(): { label: string; color: string; kind: VisualKi
   // Ordered list of representative kinds for legend
   const order: VisualKind[] = [
     'Conv', 'Linear', 'Pool', 'Norm', 'Activation_ReLU',
-    'Flatten', 'AddConcat', 'Attention', 'Embedding', 'RNN',
+    'Dropout', 'Flatten', 'AddConcat', 'Attention', 'Embedding', 'RNN',
     'Upsample', 'Default',
   ];
   for (const k of order) {
@@ -423,5 +454,4 @@ export function computeFontSize(
   const max = opts?.max ?? 22;
   return Math.max(min, Math.min(max, blockHeight * scale * factor));
 }
-
 

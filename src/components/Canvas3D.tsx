@@ -18,6 +18,18 @@ import { getVisualMeta, getVisualKind, getActivationSubKind, type VisualKind } f
 import { getLayerInsight } from '../lib/layerInsights';
 import { getStrings } from '../lib/localization';
 import { useStore } from '../store/useStore';
+import {
+  DataFlowDemo,
+  DemoControls,
+  DEMO_PLAY_SPEED,
+  useMnistTexture,
+} from './mnist-demo/MnistFlowDemo';
+import {
+  collectDemoStopNodes,
+  collectDemoStops,
+  isMnistDemoCompatible,
+} from './mnist-demo/demoStops';
+import { getSegmentState } from './operation-effects/effectMath';
 
 declare global {
   namespace JSX {
@@ -29,6 +41,9 @@ declare global {
       meshBasicMaterial: any;
       lineBasicMaterial: any;
       boxGeometry: any;
+      planeGeometry: any;
+      ringGeometry: any;
+      sphereGeometry: any;
       ambientLight: any;
       directionalLight: any;
       gridHelper: any;
@@ -47,6 +62,9 @@ declare module 'react' {
       meshBasicMaterial: any;
       lineBasicMaterial: any;
       boxGeometry: any;
+      planeGeometry: any;
+      ringGeometry: any;
+      sphereGeometry: any;
       ambientLight: any;
       directionalLight: any;
       gridHelper: any;
@@ -66,6 +84,7 @@ interface Canvas3DProps {
   onOpenLayerInsight?: (node: LayoutNode) => void;
   resetViewToken?: number;
   resetViewDisabled?: boolean;
+  demoModeEnabled?: boolean;
 }
 
 const HEADER_BAR_HEIGHT = 0.6;
@@ -170,8 +189,8 @@ const textBaseProps = {
 
 function useHoverHold<T>(emptyValue: T, delay = 120, showDelay = 160) {
   const [value, setValue] = useState<T>(emptyValue);
-  const hideTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
-  const showTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const hideTimer = useRef<number | null>(null);
+  const showTimer = useRef<number | null>(null);
   const panelHovered = useRef(false);
 
   const clearHideTimer = useCallback(() => {
@@ -757,6 +776,7 @@ const ContainerBlock: React.FC<{
   const borderColor = hasError ? ERROR_COLOR : node.color;
   const opacity = node.opacity ?? 0.15;
   const isOpaque = opacity >= 0.99;
+  const isActive = hovered.value || node.id === highlightNodeId;
 
   // Root container: skip visual chrome when expanded; when collapsed show the block
   if (isRoot && !node.collapsed) {
@@ -809,7 +829,7 @@ const ContainerBlock: React.FC<{
             metalness={0.05}
             roughness={0.5}
             emissive={borderColor}
-            emissiveIntensity={hovered.value ? 0.2 : 0.05}
+            emissiveIntensity={isActive ? 0.2 : 0.05}
           />
         </RoundedBox>
 
@@ -822,7 +842,7 @@ const ContainerBlock: React.FC<{
           label={node.op_type}
           params={node.params}
           position={[0, -node.height / 2 - 0.9, node.depth / 2 + 0.15]}
-          scaleOnHover={hovered.value}
+          scaleOnHover={isActive}
           outlineColor={borderColor}
           fontSize={0.65}
           color="#ffffff"
@@ -950,19 +970,33 @@ const ContainerBlock: React.FC<{
 const SceneWithInstancing: React.FC<{
   layout: LayoutData;
   highlightNodeId: string | null;
+  visibleNodeIds?: Set<string>;
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = ({ layout, highlightNodeId, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
-  const { batches, singles } = useMemo(() => {
-    const leaves = flattenLeaves(layout.nodes);
-    return groupLeavesByIdentity(leaves);
-  }, [layout]);
+}> = ({ layout, highlightNodeId, visibleNodeIds, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
+  const { batches, singles, visibleContainers } = useMemo(() => {
+    if (visibleNodeIds) {
+      const visibleStopNodes = collectDemoStopNodes(layout.nodes)
+        .filter((node) => visibleNodeIds.has(node.id));
+      const leaves = visibleStopNodes.filter((node) => !node.is_container);
+      const grouped = groupLeavesByIdentity(leaves);
+      return {
+        ...grouped,
+        visibleContainers: visibleStopNodes.filter((node) => node.is_container),
+      };
+    }
+
+    return {
+      ...groupLeavesByIdentity(flattenLeaves(layout.nodes)),
+      visibleContainers: [],
+    };
+  }, [layout, visibleNodeIds]);
 
   return (
     <group>
-      {layout.nodes.map((n) => {
+      {!visibleNodeIds && layout.nodes.map((n) => {
         const isRoot = !n.parentId && n.is_container && layout.nodes.length === 1;
         return (
           <SceneNode
@@ -978,9 +1012,20 @@ const SceneWithInstancing: React.FC<{
           />
         );
       })}
-      {batches.map((nodes) => (
+      {visibleNodeIds && visibleContainers.map((node) => (
+        <SceneNode
+          key={node.id}
+          node={node}
+          highlightNodeId={highlightNodeId}
+          onToggle={onToggle}
+          onHover={onHover}
+          onClickNode={onClickNode}
+          onOpenLayerInsight={onOpenLayerInsight}
+        />
+      ))}
+      {batches.map((nodes, index) => (
         <InstancedLeafGroup
-          key={nodes[0]?.id ? `inst-${nodes[0].id}` : `inst-fallback-${Math.random()}`}
+          key={nodes[0]?.id ? `inst-${nodes[0].id}` : `inst-fallback-${index}`}
           nodes={nodes}
           highlightNodeId={highlightNodeId}
           onHover={onHover}
@@ -1125,7 +1170,7 @@ function applyDefaultView(
 ) {
   const { target, zoom } = getLayoutView(layout, viewport);
   camera.position.copy(target).add(DEFAULT_CAMERA_OFFSET);
-  if ('zoom' in camera) {
+  if (camera instanceof THREE.OrthographicCamera || camera instanceof THREE.PerspectiveCamera) {
     camera.zoom = zoom;
     camera.updateProjectionMatrix();
   }
@@ -1217,6 +1262,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   onOpenLayerInsight,
   resetViewToken = 0,
   resetViewDisabled = false,
+  demoModeEnabled = false,
 }) => {
   const language = useStore((s) => s.language);
   const t = getStrings(language);
@@ -1237,6 +1283,11 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     [onOpenLayerInsight],
   );
   const [fittedLayoutKey, setFittedLayoutKey] = useState('');
+  const [demoProgress, setDemoProgress] = useState(0);
+  const [demoPlaying, setDemoPlaying] = useState(false);
+  const [demoAnimationSpeed, setDemoAnimationSpeed] = useState(DEMO_PLAY_SPEED);
+  const demoProgressRef = useRef(0);
+  const mnist = useMnistTexture();
 
   // Stable key that changes when the graph structure changes
   const layoutKey = useMemo(() => {
@@ -1260,9 +1311,87 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   }, [layout]);
   const viewReady = !!layout && fittedLayoutKey === layoutKey;
   const showLoadingOverlay = loading || (!!layout && !viewReady);
+  const demoStops = useMemo(() => (layout ? collectDemoStops(layout) : []), [layoutKey, layout]);
+  const maxDemoProgress = demoStops.length;
+  const demoCompatible = useMemo(() => isMnistDemoCompatible(demoStops), [demoStops]);
+  const useOperationBlocks = demoModeEnabled && !loading && demoCompatible && maxDemoProgress > 0;
+  const demoSegmentState = useMemo(() => getSegmentState(demoStops, demoProgress), [demoProgress, demoStops]);
+  const activeDemoNodeId = useOperationBlocks ? demoSegmentState.activeStop?.node.id ?? null : null;
+  const progressiveDemoNodeIds = useMemo(() => {
+    if (!useOperationBlocks || demoSegmentState.activeStopIndex < 0) return new Set<string>();
+    return new Set(demoStops.slice(0, demoSegmentState.activeStopIndex + 1).map((stop) => stop.node.id));
+  }, [demoSegmentState.activeStopIndex, demoStops, useOperationBlocks]);
+  const progressiveDemoEdges = useMemo(() => {
+    if (!layout || !useOperationBlocks || progressiveDemoNodeIds.size < 2) return [];
+    return layout.edges.filter((edge) => (
+      progressiveDemoNodeIds.has(edge.from) && progressiveDemoNodeIds.has(edge.to)
+    ));
+  }, [layout, progressiveDemoNodeIds, useOperationBlocks]);
+  const effectiveHighlightNodeId = activeDemoNodeId ?? highlightNodeId;
+
+  const handleDemoProgressChange = useCallback((nextProgress: number) => {
+    const clampedProgress = THREE.MathUtils.clamp(nextProgress, 0, maxDemoProgress);
+    demoProgressRef.current = clampedProgress;
+    setDemoProgress(clampedProgress);
+  }, [maxDemoProgress]);
+
+  useEffect(() => {
+    demoProgressRef.current = demoProgress;
+  }, [demoProgress]);
+
+  useEffect(() => {
+    demoProgressRef.current = 0;
+    setDemoProgress(0);
+    setDemoPlaying(false);
+  }, [layoutKey]);
+
+  useEffect(() => {
+    if (!demoModeEnabled || loading) setDemoPlaying(false);
+  }, [demoModeEnabled, loading]);
+
+  useEffect(() => {
+    if (!demoModeEnabled || !demoPlaying || maxDemoProgress <= 0) return;
+    let frameId = 0;
+    let prevTime = performance.now();
+
+    const tick = (time: number) => {
+      const delta = Math.min((time - prevTime) / 1000, 0.08);
+      prevTime = time;
+      const nextProgress = Math.min(
+        demoProgressRef.current + delta * demoAnimationSpeed * 0.5,
+        maxDemoProgress,
+      );
+      demoProgressRef.current = nextProgress;
+      setDemoProgress(nextProgress);
+      if (nextProgress >= maxDemoProgress) {
+        setDemoPlaying(false);
+        return;
+      }
+      frameId = window.requestAnimationFrame(tick);
+    };
+
+    frameId = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [demoAnimationSpeed, demoModeEnabled, demoPlaying, maxDemoProgress]);
 
   return (
     <div className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
+      {layout && viewReady && demoModeEnabled && !loading && demoCompatible && (
+        <>
+          <DemoControls
+            stops={demoStops}
+            progress={demoProgress}
+            playing={demoPlaying}
+            dataUrl={mnist?.dataUrl}
+            animationSpeed={demoAnimationSpeed}
+            t={t.canvas.demo}
+            onProgressChange={handleDemoProgressChange}
+            onPlayingChange={setDemoPlaying}
+            onAnimationSpeedChange={setDemoAnimationSpeed}
+          />
+        </>
+      )}
+
       {showLoadingOverlay && (
         <div className="absolute inset-0 flex items-center justify-center z-20 bg-zinc-950/70 backdrop-blur-sm transition-all duration-300">
           <div className="flex flex-col items-center gap-5 p-8 bg-zinc-900/95 rounded-2xl border border-zinc-700/60 shadow-2xl">
@@ -1364,17 +1493,35 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
                 {!resetViewDisabled && <RecenterButton layout={layout} />}
                 <SceneWithInstancing
                   layout={layout}
-                  highlightNodeId={highlightNodeId}
+                  highlightNodeId={effectiveHighlightNodeId}
+                  visibleNodeIds={useOperationBlocks ? progressiveDemoNodeIds : undefined}
                   onToggle={handleToggle}
                   onHover={handleHover}
                   onClickNode={handleClick}
                   onOpenLayerInsight={handleOpenLayerInsight}
                 />
-                <group>
-                  {layout.edges.map((e, i) => (
-                    <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
-                  ))}
-                </group>
+                {useOperationBlocks && (
+                  <group>
+                    {progressiveDemoEdges.map((e, i) => (
+                      <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
+                    ))}
+                  </group>
+                )}
+                {mnist && useOperationBlocks && (
+                  <DataFlowDemo
+                    stops={demoStops}
+                    progress={demoProgress}
+                    texture={mnist.texture}
+                    t={t.canvas.demo}
+                  />
+                )}
+                {!useOperationBlocks && (
+                  <group>
+                    {layout.edges.map((e, i) => (
+                      <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
+                    ))}
+                  </group>
+                )}
                 <gridHelper args={[400, 80, 0x3f3f46, 0x18181b]} position={[0, -5, 0]} />
               </>
             )}

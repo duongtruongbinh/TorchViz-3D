@@ -16,6 +16,7 @@ const NN_COMPLETIONS: { label: string; detail?: string }[] = [
   { label: 'ReLU', detail: '()' },
   { label: 'GELU', detail: '()' },
   { label: 'SiLU', detail: '()' },
+  { label: 'Tanh', detail: '()' },
   { label: 'Dropout', detail: '(p=0.5)' },
   { label: 'Flatten', detail: '()' },
   { label: 'Embedding', detail: '(num_embeddings, embedding_dim)' },
