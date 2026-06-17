@@ -1,6 +1,8 @@
 import React from 'react';
 import type { IRNode } from '../lib/irTypes';
 import { getLayerInsight } from '../lib/layerInsights';
+import { getStrings } from '../lib/localization';
+import { useStore } from '../store/useStore';
 
 interface ParamFormulaPopupProps {
   node: IRNode | null;
@@ -8,9 +10,11 @@ interface ParamFormulaPopupProps {
 }
 
 const ParamFormulaPopup: React.FC<ParamFormulaPopupProps> = ({ node, onClose }) => {
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
   if (!node) return null;
 
-  const insight = getLayerInsight(node);
+  const insight = getLayerInsight(node, t);
   const formula = insight.paramFormula;
 
   return (
@@ -24,7 +28,7 @@ const ParamFormulaPopup: React.FC<ParamFormulaPopupProps> = ({ node, onClose }) 
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)]">Parameter formula</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)]">{t.paramFormula.title}</div>
             <h2 className="mt-1 text-base font-semibold text-[var(--text)]">{formula.title}</h2>
           </div>
           <button
@@ -32,17 +36,17 @@ const ParamFormulaPopup: React.FC<ParamFormulaPopupProps> = ({ node, onClose }) 
             className="h-7 px-2 rounded-md border border-[var(--border)] text-xs text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--border-subtle)]"
             onClick={onClose}
           >
-            Close
+            {t.paramFormula.close}
           </button>
         </div>
 
         <div className="mt-4 space-y-3 text-sm">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Formula</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">{t.paramFormula.formula}</div>
             <div className="font-mono text-[var(--text)] bg-black/30 rounded-md px-3 py-2 break-words">{formula.formula}</div>
           </div>
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">Calculation</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)] mb-1">{t.paramFormula.calculation}</div>
             <div className="font-mono text-blue-200 bg-blue-950/30 rounded-md px-3 py-2 break-words">{formula.calculation}</div>
           </div>
           {formula.note && (

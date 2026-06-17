@@ -1,4 +1,5 @@
 import type { IRNode } from './irTypes';
+import { strings, type LocalizedStrings } from './localization.ts';
 import { getVisualKind } from './visualKind.ts';
 
 export interface ParamFormula {
@@ -35,57 +36,57 @@ function last(shape: number[]): number | null {
   return shape.length ? shape[shape.length - 1] : null;
 }
 
-function zeroParamFormula(opType: string): ParamFormula {
+function zeroParamFormula(opType: string, t: LocalizedStrings): ParamFormula {
   return {
-    title: `${opType} parameters`,
-    formula: 'No trainable weights',
-    calculation: '0 trainable parameters',
+    title: t.layerInsight.parameterTitle(opType),
+    formula: t.layerInsight.noTrainableWeights,
+    calculation: t.layerInsight.zeroTrainableParameters,
   };
 }
 
-function getWhy(opType: string): string {
+function getWhy(opType: string, t: LocalizedStrings): string {
   const kind = getVisualKind(opType);
   switch (kind) {
     case 'Conv':
-      return 'Learns local feature filters such as edges, textures, and spatial patterns.';
+      return t.layerInsight.why.conv;
     case 'Linear':
-      return 'Mixes features into task-specific scores or embeddings.';
+      return t.layerInsight.why.linear;
     case 'Pool':
-      return 'Reduces spatial size while keeping the strongest or averaged signals.';
+      return t.layerInsight.why.pool;
     case 'Norm':
-      return 'Stabilizes activations so training is less sensitive to scale shifts.';
+      return t.layerInsight.why.norm;
     case 'Activation_ReLU':
     case 'Activation_Sigmoid':
     case 'Activation_GELU':
     case 'Activation_SiLU':
     case 'Activation_Softmax':
     case 'Activation_Other':
-      return 'Adds non-linearity so stacked layers can model more complex patterns.';
+      return t.layerInsight.why.activation;
     case 'Flatten':
     case 'Reshape':
     case 'Permute':
     case 'Slice':
-      return 'Changes tensor layout so the next layer receives the expected shape.';
+      return t.layerInsight.why.transform;
     case 'AddConcat':
-      return 'Merges paths, commonly used for residual connections or feature fusion.';
+      return t.layerInsight.why.addConcat;
     case 'Attention':
-      return 'Lets tokens or positions weight the most relevant context dynamically.';
+      return t.layerInsight.why.attention;
     case 'Embedding':
-      return 'Turns discrete ids into learned dense vectors.';
+      return t.layerInsight.why.embedding;
     case 'RNN':
-      return 'Processes sequence state over time for ordered inputs.';
+      return t.layerInsight.why.rnn;
     case 'Upsample':
-      return 'Increases spatial resolution for decoder or segmentation outputs.';
+      return t.layerInsight.why.upsample;
     case 'Container':
-      return 'Groups child layers so the model structure is easier to scan.';
+      return t.layerInsight.why.container;
     default:
-      return 'Transforms tensor data for the next step in the model.';
+      return t.layerInsight.why.default;
   }
 }
 
-function getParamFormula(node: IRNode): ParamFormula {
+function getParamFormula(node: IRNode, t: LocalizedStrings): ParamFormula {
   const { op_type: opType, in_shape: input, out_shape: output, params } = node;
-  if (params <= 0) return zeroParamFormula(opType);
+  if (params <= 0) return zeroParamFormula(opType, t);
 
   const kind = getVisualKind(opType);
 
@@ -96,10 +97,10 @@ function getParamFormula(node: IRNode): ParamFormula {
     if (inChannels && outChannels) {
       const [kh, kw] = kernel;
       return {
-        title: `${opType} parameters`,
-        formula: '(kernel_h x kernel_w x in_channels + bias) x out_channels',
+        title: t.layerInsight.parameterTitle(opType),
+        formula: t.layerInsight.formula.conv,
         calculation: `(${kh} x ${kw} x ${inChannels} + 1) x ${outChannels} = ${formatParams(params)}`,
-        note: 'Bias is counted as one value per output channel.',
+        note: t.layerInsight.notes.biasOutputChannel,
       };
     }
   }
@@ -109,22 +110,22 @@ function getParamFormula(node: IRNode): ParamFormula {
     const outFeatures = last(output);
     if (inFeatures && outFeatures) {
       return {
-        title: `${opType} parameters`,
-        formula: '(in_features + bias) x out_features',
+        title: t.layerInsight.parameterTitle(opType),
+        formula: t.layerInsight.formula.linear,
         calculation: `(${inFeatures} + 1) x ${outFeatures} = ${formatParams(params)}`,
-        note: 'Bias is counted as one value per output feature.',
+        note: t.layerInsight.notes.biasOutputFeature,
       };
     }
   }
 
   if (kind === 'Norm') {
     const features = params / 2;
-    const featureLabel = Number.isInteger(features) ? formatParams(features) : 'features';
+    const featureLabel = Number.isInteger(features) ? formatParams(features) : t.layerInsight.features;
     return {
-      title: `${opType} parameters`,
-      formula: 'scale + shift',
+      title: t.layerInsight.parameterTitle(opType),
+      formula: t.layerInsight.formula.norm,
       calculation: `2 x ${featureLabel} = ${formatParams(params)}`,
-      note: 'Normalization layers usually learn gamma and beta.',
+      note: t.layerInsight.notes.normGammaBeta,
     };
   }
 
@@ -132,10 +133,10 @@ function getParamFormula(node: IRNode): ParamFormula {
     const embedDim = last(output);
     if (embedDim) {
       return {
-        title: `${opType} parameters`,
-        formula: '4 x (embed_dim x embed_dim + bias)',
+        title: t.layerInsight.parameterTitle(opType),
+        formula: t.layerInsight.formula.attention,
         calculation: `4 x (${embedDim} x ${embedDim} + ${embedDim}) = ${formatParams(params)}`,
-        note: node.meta?.heads ? `${node.meta.heads} attention heads.` : undefined,
+        note: node.meta?.heads ? t.layerInsight.notes.attentionHeads(node.meta.heads) : undefined,
       };
     }
   }
@@ -144,8 +145,8 @@ function getParamFormula(node: IRNode): ParamFormula {
     const embeddingDim = last(output);
     if (embeddingDim && params % embeddingDim === 0) {
       return {
-        title: `${opType} parameters`,
-        formula: 'num_embeddings x embedding_dim',
+        title: t.layerInsight.parameterTitle(opType),
+        formula: t.layerInsight.formula.embedding,
         calculation: `${formatParams(params / embeddingDim)} x ${embeddingDim} = ${formatParams(params)}`,
       };
     }
@@ -158,28 +159,28 @@ function getParamFormula(node: IRNode): ParamFormula {
     if (inputSize && hiddenSize) {
       const gatePrefix = gates > 1 ? `${gates} x ` : '';
       return {
-        title: `${opType} parameters`,
+        title: t.layerInsight.parameterTitle(opType),
         formula: `${gatePrefix}(input_size x hidden_size + hidden_size x hidden_size + 2 x hidden_size) x layers`,
-        calculation: `${formatParams(params)} total trainable parameters`,
-        note: 'Layer count is included in the total reported by the model.',
+        calculation: t.layerInsight.totalTrainableParameters(formatParams(params)),
+        note: t.layerInsight.notes.layerCountIncluded,
       };
     }
   }
 
   return {
-    title: `${opType} parameters`,
-    formula: 'Reported by layer implementation',
-    calculation: `${formatParams(params)} trainable parameters`,
+    title: t.layerInsight.parameterTitle(opType),
+    formula: t.layerInsight.formula.reportedByLayer,
+    calculation: t.layerInsight.trainableParameters(formatParams(params)),
   };
 }
 
-export function getLayerInsight(node: IRNode): LayerInsight {
+export function getLayerInsight(node: IRNode, t: LocalizedStrings = strings.en): LayerInsight {
   return {
     title: node.op_type,
     inputShape: formatShape(node.in_shape),
     outputShape: formatShape(node.out_shape),
-    paramsLabel: `${formatParams(node.params)} params`,
-    why: getWhy(node.op_type),
-    paramFormula: getParamFormula(node),
+    paramsLabel: t.layerInsight.paramsLabel(formatParams(node.params)),
+    why: getWhy(node.op_type, t),
+    paramFormula: getParamFormula(node, t),
   };
 }

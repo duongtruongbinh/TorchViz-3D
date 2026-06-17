@@ -32,7 +32,9 @@ class TransformerBlock(nn.Module):
         x = x + attn_out
         
         # MLP with residual
-        x = x + self.mlp(self.norm2(x))
+        mlp_in = self.norm2(x)
+        mlp_out = self.mlp(mlp_in)
+        x = x + mlp_out
         return x
 
 class MiniViT(nn.Module):

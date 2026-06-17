@@ -6,10 +6,11 @@ import BottomTabs from './src/components/BottomTabs';
 import ExportSvgModal from './src/components/ExportSvgModal';
 import ParamFormulaPopup from './src/components/ParamFormulaPopup';
 import Header from './src/components/Header';
-import { hasSeenTour } from './src/components/OnboardingTour';
+import { hasSeenTour, TERMINAL_ERROR_TOUR_STEP, TERMINAL_SUCCESS_TOUR_STEP } from './src/components/OnboardingTour';
 import { findNodeByLine, type IRNode } from './src/lib/irTypes';
 import { useStore } from './src/store/useStore';
 import { workerService } from './src/lib/workerService';
+import { getStrings, type LocalizedStrings } from './src/lib/localization';
 
 type CollapseSide = 'left' | 'right' | 'bottom';
 
@@ -17,18 +18,20 @@ const PanelCollapseButton: React.FC<{
   side: CollapseSide;
   collapsed: boolean;
   onClick: () => void;
+  t: LocalizedStrings;
   className?: string;
-}> = ({ side, collapsed, onClick, className = '' }) => {
+}> = ({ side, collapsed, onClick, t, className = '' }) => {
   const titles: Record<CollapseSide, string> = {
-    left: collapsed ? 'Expand editor panel' : 'Collapse editor panel',
-    right: collapsed ? 'Expand explorer panel' : 'Collapse explorer panel',
-    bottom: collapsed ? 'Expand terminal panel' : 'Collapse terminal panel',
+    left: collapsed ? t.app.collapse.expandEditorPanel : t.app.collapse.collapseEditorPanel,
+    right: collapsed ? t.app.collapse.expandExplorerPanel : t.app.collapse.collapseExplorerPanel,
+    bottom: collapsed ? t.app.collapse.expandTerminalPanel : t.app.collapse.collapseTerminalPanel,
   };
   const rotation: Record<CollapseSide, string> = {
     left: collapsed ? 'rotate-180' : '',
     right: collapsed ? '' : 'rotate-180',
     bottom: collapsed ? 'rotate-90' : '-rotate-90',
   };
+  const isRightPanelButton = side === 'right';
 
   return (
     <button
@@ -37,26 +40,43 @@ const PanelCollapseButton: React.FC<{
       title={titles[side]}
       aria-label={titles[side]}
       aria-pressed={collapsed}
-      className={`w-7 h-7 flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[#3f3f46] transition-colors duration-200 ${className}`}
+      className={`w-7 h-7 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[#3f3f46] transition-colors duration-200 ${className}`}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        className={`w-3.5 h-3.5 transition-transform duration-300 ease-out ${rotation[side]}`}
-      >
-        <path
-          fillRule="evenodd"
-          d="M12.78 4.22a.75.75 0 0 1 0 1.06L8.06 10l4.72 4.72a.75.75 0 1 1-1.06 1.06l-5.25-5.25a.75.75 0 0 1 0-1.06l5.25-5.25a.75.75 0 0 1 1.06 0Z"
-          clipRule="evenodd"
-        />
-      </svg>
+      {isRightPanelButton ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-5 h-5"
+        >
+          <rect x="4" y="5" width="16" height="14" rx="2" />
+          <path d="M14 5v14" />
+        </svg>
+      ) : (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          className={`w-3.5 h-3.5 transition-transform duration-300 ease-out ${rotation[side]}`}
+        >
+          <path
+            fillRule="evenodd"
+            d="M12.78 4.22a.75.75 0 0 1 0 1.06L8.06 10l4.72 4.72a.75.75 0 1 1-1.06 1.06l-5.25-5.25a.75.75 0 0 1 0-1.06l5.25-5.25a.75.75 0 0 1 1.06 0Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
     </button>
   );
 };
 
 export default function App() {
   const code = useStore(s => s.code);
+  const language = useStore(s => s.language);
   const ir = useStore(s => s.ir);
   const loading = useStore(s => s.loading);
   const error = useStore(s => s.error);
@@ -75,8 +95,10 @@ export default function App() {
   const [isExportOpen, setExportOpen] = useState(false);
   const [isHelpOpen, setHelpOpen] = useState(false);
   const [isTourOpen, setTourOpen] = useState(false);
+  const [currentTourStep, setCurrentTourStep] = useState<string | null>(null);
   const [layerInsightNode, setLayerInsightNode] = useState<IRNode | null>(null);
   const [tourResetViewToken, setTourResetViewToken] = useState(0);
+  const t = getStrings(language);
 
   const [leftWidth, setLeftWidth] = useState(400);
   const [isLeftCollapsed, setLeftCollapsed] = useState(false);
@@ -146,17 +168,39 @@ export default function App() {
     setHighlightNodeId(nodeId);
   }, [setSelectedNodeId, setHighlightNodeId]);
 
-  const resetTourView = useCallback(() => {
-    setTourResetViewToken((token) => token + 1);
+  const handleSetTourOpen = useCallback((open: boolean) => {
+    setTourOpen(open);
+    if (!open) setCurrentTourStep(null);
   }, []);
+
+  const handleTourStepChange = useCallback((stepTitle: string | null) => {
+    setCurrentTourStep(stepTitle);
+    if (stepTitle) setTourResetViewToken((token) => token + 1);
+    if (stepTitle === TERMINAL_SUCCESS_TOUR_STEP || stepTitle === TERMINAL_ERROR_TOUR_STEP) setBottomCollapsed(false);
+  }, []);
+
+  const isTerminalSuccessTourStep = isTourOpen && currentTourStep === TERMINAL_SUCCESS_TOUR_STEP;
+  const isTerminalErrorTourStep = isTourOpen && currentTourStep === TERMINAL_ERROR_TOUR_STEP;
+
+  const terminalDemoSuccessParams = isTerminalSuccessTourStep
+    ? 61706
+    : null;
+
+  const terminalDemoError = isTerminalErrorTourStep
+    ? {
+      lineno: 12,
+      message: t.app.demoErrorMessage,
+      hint: t.app.demoErrorHint,
+    }
+    : null;
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden min-w-[1024px]">
       <Header
         onExportSvg={() => setExportOpen(true)}
         isTourOpen={isTourOpen}
-        setTourOpen={setTourOpen}
-        onTourStepChange={resetTourView}
+        setTourOpen={handleSetTourOpen}
+        onTourStepChange={handleTourStepChange}
         isHelpOpen={isHelpOpen}
         setHelpOpen={setHelpOpen}
       />
@@ -178,7 +222,7 @@ export default function App() {
                   clipRule="evenodd"
                 />
               </svg>
-              Editor
+              {t.app.editor}
             </span>
             <div className="flex items-center gap-2">
               <span className={`text-[9px] font-mono text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700/50 overflow-hidden whitespace-nowrap transition-all duration-200 ${isLeftCollapsed ? 'w-0 opacity-0 px-0 border-transparent' : 'w-auto opacity-100'}`}>
@@ -188,11 +232,12 @@ export default function App() {
                 side="left"
                 collapsed={isLeftCollapsed}
                 onClick={() => setLeftCollapsed((v) => !v)}
+                t={t}
               />
             </div>
           </div>
           <div className={`flex-1 relative w-full h-full overflow-hidden transition-opacity duration-200 ${isLeftCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <React.Suspense fallback={<div className="text-zinc-500 text-xs p-4 h-full flex items-center justify-center">Loading Editor module...</div>}>
+            <React.Suspense fallback={<div className="text-zinc-500 text-xs p-4 h-full flex items-center justify-center">{t.app.loadingEditorModule}</div>}>
               <EditorPane
                 code={code}
                 onChange={setCode}
@@ -246,16 +291,18 @@ export default function App() {
             )}
           </div>
 
-          <div data-tour="terminal" className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
+          <div data-tour="terminal" className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mb-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
             <BottomTabs
               ir={ir}
-              error={error}
+              error={isTerminalSuccessTourStep ? null : (terminalDemoError ?? error)}
               collapsed={isBottomCollapsed}
+              demoSuccessParams={terminalDemoSuccessParams}
               headerAction={(
                 <PanelCollapseButton
                   side="bottom"
                   collapsed={isBottomCollapsed}
                   onClick={() => setBottomCollapsed((v) => !v)}
+                  t={t}
                 />
               )}
             />
@@ -270,6 +317,7 @@ export default function App() {
                 side="right"
                 collapsed={isRightCollapsed}
                 onClick={() => setRightCollapsed(false)}
+                t={t}
               />
             </div>
           </div>
@@ -286,6 +334,8 @@ export default function App() {
                   side="right"
                   collapsed={isRightCollapsed}
                   onClick={() => setRightCollapsed(true)}
+                  t={t}
+                  className="!w-6 !h-6 !bg-transparent hover:!bg-[var(--border-subtle)]"
                 />
               )}
             />

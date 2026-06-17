@@ -1,20 +1,25 @@
 import React from 'react';
 import { IRGraph } from '../lib/irTypes';
+import { getStrings } from '../lib/localization';
 
 interface BottomTabsProps {
   ir: IRGraph | null;
   error: { message: string; lineno: number; hint: string } | null;
   collapsed?: boolean;
   headerAction?: React.ReactNode;
+  demoSuccessParams?: number | null;
 }
 
-const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, headerAction }) => {
+const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, headerAction, demoSuccessParams = null }) => {
+  const t = getStrings('en');
+  const successParams = ir?.stats.total_params ?? demoSuccessParams;
+
   return (
     <div className="h-full flex flex-col bg-[var(--surface-elevated)] text-[var(--text-dim)] shadow-[0_-4px_24px_-1px_rgba(0,0,0,0.2)]">
       {/* Tab Bar */}
       <div className="flex items-center border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
         <div className="px-4 py-1.5 text-[11px] font-bold uppercase tracking-wide text-[var(--text)] border-b-2 border-blue-500 bg-[var(--surface-elevated)] select-none">
-          Terminal
+          {t.terminal.title}
           {error && <span className="ml-2 w-2 h-2 inline-block rounded-full bg-red-500" />}
         </div>
         {headerAction && <div className="ml-auto pr-2">{headerAction}</div>}
@@ -29,23 +34,23 @@ const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, h
                 <span className="text-red-500 font-bold mt-0.5">✖</span>
                 <div>
                   <div className="text-red-300 font-bold mb-1">
-                    Runtime Error at line {error.lineno}
+                    {t.terminal.runtimeErrorAtLine(error.lineno)}
                   </div>
                   <div className="text-red-200/80 mb-2">{error.message}</div>
-                  <div className="text-zinc-500 italic">Hint: {error.hint}</div>
+                  <div className="text-zinc-500 italic">{t.terminal.hint(error.hint)}</div>
                 </div>
               </div>
             </div>
           ) : (
             <div className="text-zinc-600 italic px-2">
-              &gt; System ready.
+              {t.terminal.systemReady}
               <br />
-              &gt; Waiting for execution...
-              {ir && (
+              {t.terminal.waitingForExecution}
+              {successParams !== null && (
                 <>
                   <br />
                   <span className="text-emerald-500">
-                    &gt; Build successful. Graph generated ({ir.stats.total_params.toLocaleString()} params).
+                    {t.terminal.buildSuccessful(successParams.toLocaleString())}
                   </span>
                 </>
               )}

@@ -3,6 +3,8 @@ import { IRGraph, IRNode, findNodeById } from '../lib/irTypes';
 import { formatNumber } from '../lib/stats';
 import { getOpColor } from '../lib/constants';
 import { getLayerInsight } from '../lib/layerInsights';
+import { getStrings, type LocalizedStrings } from '../lib/localization';
+import { useStore } from '../store/useStore';
 
 interface InspectorProps {
   ir: IRGraph | null;
@@ -17,13 +19,14 @@ interface InspectorProps {
 const SectionCollapseButton: React.FC<{
   collapsed: boolean;
   label: string;
+  t: LocalizedStrings;
   onClick: () => void;
-}> = ({ collapsed, label, onClick }) => (
+}> = ({ collapsed, label, t, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    title={collapsed ? `Expand ${label}` : `Collapse ${label}`}
-    aria-label={collapsed ? `Expand ${label}` : `Collapse ${label}`}
+    title={collapsed ? t.inspector.expandSection(label) : t.inspector.collapseSection(label)}
+    aria-label={collapsed ? t.inspector.expandSection(label) : t.inspector.collapseSection(label)}
     aria-pressed={collapsed}
     className="w-6 h-6 flex items-center justify-center rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--border-subtle)] transition-colors"
   >
@@ -51,7 +54,8 @@ const TreeNode: React.FC<{
   onSelect: (id: string) => void;
   onHighlight: (id: string | null) => void;
   onOpenLayerInsight: (node: IRNode) => void;
-}> = ({ node, depth, selectedId, highlightId, onSelect, onHighlight, onOpenLayerInsight }) => {
+  t: LocalizedStrings;
+}> = ({ node, depth, selectedId, highlightId, onSelect, onHighlight, onOpenLayerInsight, t }) => {
   const [expanded, setExpanded] = useState(depth < 2);
   const isContainer = node.is_container && node.children && node.children.length > 0;
   const isSelected = node.id === selectedId;
@@ -97,7 +101,7 @@ const TreeNode: React.FC<{
               e.stopPropagation();
               onOpenLayerInsight(node);
             }}
-            title="Explain parameter formula"
+            title={t.inspector.explainParameterFormula}
           >
             {formatNumber(node.params)}
           </button>
@@ -114,6 +118,7 @@ const TreeNode: React.FC<{
           onSelect={onSelect}
           onHighlight={onHighlight}
           onOpenLayerInsight={onOpenLayerInsight}
+          t={t}
         />
       ))}
     </div>
@@ -121,14 +126,14 @@ const TreeNode: React.FC<{
 };
 
 /* ─── Node Details Panel ─── */
-const NodeDetails: React.FC<{ node: IRNode; onOpenLayerInsight: (node: IRNode) => void }> = ({ node, onOpenLayerInsight }) => {
-  const insight = getLayerInsight(node);
+const NodeDetails: React.FC<{ node: IRNode; onOpenLayerInsight: (node: IRNode) => void; t: LocalizedStrings }> = ({ node, onOpenLayerInsight, t }) => {
+  const insight = getLayerInsight(node, t);
   const rows: [string, React.ReactNode][] = [
-    ['Name', node.name],
-    ['Type', node.op_type],
-    ['Line', node.lineno ? String(node.lineno) : '-'],
-    ['Formula', insight.paramFormula.formula],
-    ['Calc', insight.paramFormula.calculation],
+    [t.inspector.fields.name, node.name],
+    [t.inspector.fields.type, node.op_type],
+    [t.inspector.fields.line, node.lineno ? String(node.lineno) : '-'],
+    [t.inspector.fields.formula, insight.paramFormula.formula],
+    [t.inspector.fields.calc, insight.paramFormula.calculation],
   ];
 
   if (node.meta) {
@@ -138,7 +143,7 @@ const NodeDetails: React.FC<{ node: IRNode; onOpenLayerInsight: (node: IRNode) =
   }
 
   if (node.error) {
-    rows.push(['Error', node.error]);
+    rows.push([t.inspector.fields.error, node.error]);
   }
 
   return (
@@ -161,7 +166,7 @@ const NodeDetails: React.FC<{ node: IRNode; onOpenLayerInsight: (node: IRNode) =
             className={`flex items-start gap-2 px-3 py-2 text-xs transition-colors hover:bg-[var(--surface-elevated)] ${i > 0 ? 'border-t border-[var(--border-subtle)]' : ''}`}
           >
             <span className="text-[var(--text-dim)] font-medium w-16 flex-shrink-0 uppercase text-[10px] tracking-wider pt-0.5">{label}</span>
-            <span className={`font-mono ${label === 'Error' ? 'text-red-400' : 'text-[var(--text-muted)]'} break-all`}>{value}</span>
+            <span className={`font-mono ${label === t.inspector.fields.error ? 'text-red-400' : 'text-[var(--text-muted)]'} break-all`}>{value}</span>
           </div>
         ))}
       </div>
@@ -171,6 +176,8 @@ const NodeDetails: React.FC<{ node: IRNode; onOpenLayerInsight: (node: IRNode) =
 
 /* ─── Main Inspector / Model Explorer ─── */
 const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNodeId, onSelectNode, onHighlightNode, onOpenLayerInsight, headerAction }) => {
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
   const selectedNode = ir && selectedNodeId ? findNodeById(ir.nodes, selectedNodeId) : null;
   const [isStructureCollapsed, setStructureCollapsed] = useState(false);
   const [isDetailsCollapsed, setDetailsCollapsed] = useState(false);
@@ -178,22 +185,19 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
   const detailsFlex = isDetailsCollapsed ? '0 0 32px' : isStructureCollapsed ? '1 1 0' : '4 1 0';
 
   return (
-    <div className="h-full flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-md border-y-0 border-r-0 overflow-hidden ml-2 mb-2 mt-2 shadow-2xl">
+    <div className="h-[calc(100%-16px)] flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-md border-y-0 border-r-0 overflow-hidden ml-2 my-2 shadow-2xl">
       {/* Header */}
-      <div className="h-10 border-b border-[var(--border)] flex items-center px-4 shrink-0 bg-[var(--surface-elevated)] select-none">
-        <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
-            <path d="M2 3a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 7.586V3z" />
-          </svg>
-          Explorer
+      <div className="h-10 border-b border-[var(--border)] flex items-center gap-2 px-4 shrink-0 bg-[var(--surface-elevated)] select-none">
+        <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">
+          {t.app.explorer}
         </span>
         {headerAction && <div className="ml-auto">{headerAction}</div>}
       </div>
 
       {!ir ? (
         <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-dim)] p-4">
-          <span className="text-sm">No model loaded.</span>
-          <span className="text-[11px] mt-1.5 opacity-80">Run code to explore the model.</span>
+          <span className="text-sm">{t.inspector.noModelLoaded}</span>
+          <span className="text-[11px] mt-1.5 opacity-80">{t.inspector.runCodeToExplore}</span>
         </div>
       ) : (
         <div className="flex-1 flex flex-col min-h-0">
@@ -206,12 +210,13 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
             <div className="h-8 border-b border-[var(--border)] flex items-center px-2 pr-4 shrink-0 select-none">
               <SectionCollapseButton
                 collapsed={isStructureCollapsed}
-                label="Structure"
+                label={t.inspector.structure}
+                t={t}
                 onClick={() => setStructureCollapsed((v) => !v)}
               />
-              <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">Structure</span>
+              <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">{t.inspector.structure}</span>
               <span className="ml-auto text-[10px] font-mono text-[var(--text-muted)] bg-[var(--surface-elevated)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
-                {formatNumber(ir.stats.total_params)} params
+                {formatNumber(ir.stats.total_params)} {t.inspector.params}
               </span>
             </div>
             <div className={`flex-1 overflow-y-auto custom-scrollbar py-2 transition-[opacity,transform] duration-200 ease-out ${isStructureCollapsed ? 'opacity-0 -translate-y-1 pointer-events-none' : 'opacity-100 translate-y-0 delay-75'}`}>
@@ -225,6 +230,7 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
                   onSelect={onSelectNode}
                   onHighlight={onHighlightNode}
                   onOpenLayerInsight={onOpenLayerInsight}
+                  t={t}
                 />
               ))}
             </div>
@@ -239,17 +245,18 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
             <div className="h-8 border-b border-[var(--border-subtle)] flex items-center px-2 pr-4 shrink-0 select-none">
               <SectionCollapseButton
                 collapsed={isDetailsCollapsed}
-                label="Details"
+                label={t.inspector.details}
+                t={t}
                 onClick={() => setDetailsCollapsed((v) => !v)}
               />
-              <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">Details</span>
+              <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">{t.inspector.details}</span>
             </div>
             <div className={`flex-1 overflow-y-auto custom-scrollbar transition-[opacity,transform] duration-200 ease-out ${isDetailsCollapsed ? 'opacity-0 translate-y-1 pointer-events-none' : 'opacity-100 translate-y-0 delay-75'}`}>
               {selectedNode ? (
-                <NodeDetails node={selectedNode} onOpenLayerInsight={onOpenLayerInsight} />
+                <NodeDetails node={selectedNode} onOpenLayerInsight={onOpenLayerInsight} t={t} />
               ) : (
                 <div className="flex items-center justify-center h-full text-[var(--text-dim)] text-xs italic">
-                  Click a node to inspect
+                  {t.inspector.clickNodeToInspect}
                 </div>
               )}
             </div>

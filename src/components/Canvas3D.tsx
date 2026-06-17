@@ -16,6 +16,8 @@ import { LayoutData, LayoutNode, LayoutEdge } from '../lib/irTypes';
 import { ERROR_COLOR, EDGE_COLOR_STD, EDGE_COLOR_RESIDUAL, EDGE_EDGES_OPAQUE, EDGE_EDGES_GLASS } from '../lib/constants';
 import { getVisualMeta, getVisualKind, getActivationSubKind, type VisualKind } from '../lib/visualKind';
 import { getLayerInsight } from '../lib/layerInsights';
+import { getStrings } from '../lib/localization';
+import { useStore } from '../store/useStore';
 
 declare global {
   namespace JSX {
@@ -72,9 +74,13 @@ const DEFAULT_CAMERA_OFFSET = new THREE.Vector3(50, 40, 50);
 const DEFAULT_CAMERA_ZOOM = 42;
 const DEFAULT_MIN_ZOOM = 6;
 const DEFAULT_VIEW_PADDING = 0.8;
+const HOVER_PANEL_ESTIMATED_WIDTH = 272;
+const HOVER_PANEL_ESTIMATED_HEIGHT = 170;
+const HOVER_PANEL_EDGE_PADDING = 12;
+const HOVER_PANEL_BELOW_X_OFFSET = 72;
 
 const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
-const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×';
+const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×áàảãạăắằẳẵặâấầẩẫậđéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ';
 
 const ExpandCollapseButton: React.FC<{
   position: [number, number, number];
@@ -136,9 +142,10 @@ const textBaseProps = {
   },
 };
 
-function useHoverHold<T>(emptyValue: T, delay = 120) {
+function useHoverHold<T>(emptyValue: T, delay = 120, showDelay = 160) {
   const [value, setValue] = useState<T>(emptyValue);
   const hideTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const showTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const panelHovered = useRef(false);
 
   const clearHideTimer = useCallback(() => {
@@ -147,13 +154,24 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
     hideTimer.current = null;
   }, []);
 
+  const clearShowTimer = useCallback(() => {
+    if (!showTimer.current) return;
+    window.clearTimeout(showTimer.current);
+    showTimer.current = null;
+  }, []);
+
   const show = useCallback((nextValue: T) => {
     clearHideTimer();
-    setValue(nextValue);
-  }, [clearHideTimer]);
+    clearShowTimer();
+    showTimer.current = window.setTimeout(() => {
+      setValue(nextValue);
+      showTimer.current = null;
+    }, showDelay);
+  }, [clearHideTimer, clearShowTimer, showDelay]);
 
   const hide = useCallback(() => {
     clearHideTimer();
+    clearShowTimer();
     hideTimer.current = window.setTimeout(() => {
       if (panelHovered.current) {
         hideTimer.current = null;
@@ -162,7 +180,7 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
       setValue(emptyValue);
       hideTimer.current = null;
     }, delay);
-  }, [clearHideTimer, delay, emptyValue]);
+  }, [clearHideTimer, clearShowTimer, delay, emptyValue]);
 
   const hold = useCallback(() => {
     panelHovered.current = true;
@@ -174,7 +192,10 @@ function useHoverHold<T>(emptyValue: T, delay = 120) {
     hide();
   }, [hide]);
 
-  useEffect(() => clearHideTimer, [clearHideTimer]);
+  useEffect(() => () => {
+    clearHideTimer();
+    clearShowTimer();
+  }, [clearHideTimer, clearShowTimer]);
 
   return { value, show, hide, hold, release };
 }
@@ -230,39 +251,136 @@ const NodeHoverPanel: React.FC<{
   onPointerEnter: () => void;
   onPointerLeave: () => void;
 }> = ({ node, onOpenLayerInsight, onPointerEnter, onPointerLeave }) => {
-  const insight = getLayerInsight(node);
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
+  const insight = getLayerInsight(node, t);
 
   return (
     <div
       data-layer-hover-panel="true"
-      className="glass-panel flex flex-col gap-2 bg-[var(--surface-elevated)] border-[var(--border)] px-4 py-3 rounded-lg text-left shadow-2xl min-w-[15rem] max-w-[19rem] animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-auto"
+      className="glass-panel flex flex-col gap-1.5 bg-[var(--surface-elevated)] border-[var(--border)] px-3 py-2.5 rounded-lg text-left shadow-2xl min-w-[13.5rem] max-w-[17rem] animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-auto"
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="text-[13px] font-bold text-blue-400 uppercase leading-tight break-words">{insight.title}</span>
+        <span className="text-[12px] font-bold text-[#7db2e8] uppercase leading-tight break-words">{insight.title}</span>
         <button
           type="button"
-          className="text-[11px] text-zinc-400 hover:text-zinc-100 underline decoration-dotted underline-offset-4 whitespace-nowrap"
+          className="text-[11px] font-mono font-semibold text-zinc-400 hover:text-zinc-100 underline decoration-dotted underline-offset-4 whitespace-nowrap"
           onClick={() => onOpenLayerInsight(node)}
-          title="Explain parameter formula"
+          title={t.inspector.explainParameterFormula}
         >
           {insight.paramsLabel}
         </button>
       </div>
-      <div className="grid grid-cols-[3.25rem_1fr] gap-x-2 gap-y-1 text-[11px]">
-        <span className="text-[var(--text-dim)] uppercase tracking-wider">Input</span>
-        <span className="font-mono text-[var(--text)] break-words">{insight.inputShape}</span>
-        <span className="text-[var(--text-dim)] uppercase tracking-wider">Output</span>
-        <span className="font-mono text-[var(--text)] break-words">{insight.outputShape}</span>
+      <div className="grid grid-cols-[3.25rem_1fr] gap-x-3 gap-y-0.5 text-[11px]">
+        <span className="text-[#93b7d8] uppercase tracking-wider font-semibold">{t.inspector.input}</span>
+        <span className="font-mono text-[#d7e5f3] break-words">{insight.inputShape}</span>
+        <span className="text-[#d8bd7a] uppercase tracking-wider font-semibold">{t.inspector.output}</span>
+        <span className="font-mono text-[#f1dfb5] break-words">{insight.outputShape}</span>
       </div>
-      <div className="border-t border-[var(--border-subtle)] pt-2">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Why this matters?</div>
-        <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">{insight.why}</p>
+      <div className="border-t border-[var(--border-subtle)] pt-1.5">
+        <p className="text-[11px] leading-snug text-[var(--text-muted)]">{insight.why}</p>
       </div>
     </div>
+  );
+};
+
+const HoverPanelHtml: React.FC<{
+  position: [number, number, number];
+  node: LayoutNode;
+  onOpenLayerInsight: (node: LayoutNode) => void;
+  onPointerEnter: () => void;
+  onPointerLeave: () => void;
+}> = ({ position, node, onOpenLayerInsight, onPointerEnter, onPointerLeave }) => {
+  const calculateHoverPanelPosition = useCallback((el: THREE.Object3D, camera: THREE.Camera, size: { width: number; height: number }) => {
+    const projected = new THREE.Vector3().setFromMatrixPosition(el.matrixWorld);
+    projected.project(camera);
+
+    const anchorX = (projected.x * size.width) / 2 + size.width / 2;
+    const anchorY = -(projected.y * size.height) / 2 + size.height / 2;
+    const maxX = Math.max(HOVER_PANEL_EDGE_PADDING, size.width - HOVER_PANEL_ESTIMATED_WIDTH - HOVER_PANEL_EDGE_PADDING);
+    const maxY = Math.max(HOVER_PANEL_EDGE_PADDING, size.height - HOVER_PANEL_ESTIMATED_HEIGHT - HOVER_PANEL_EDGE_PADDING);
+    const aboveY = anchorY - HOVER_PANEL_ESTIMATED_HEIGHT - HOVER_PANEL_EDGE_PADDING;
+    const placeBelow = aboveY < HOVER_PANEL_EDGE_PADDING;
+    const xOffset = placeBelow ? HOVER_PANEL_BELOW_X_OFFSET : HOVER_PANEL_EDGE_PADDING;
+    const x = Math.min(Math.max(anchorX + xOffset, HOVER_PANEL_EDGE_PADDING), maxX);
+    const y = placeBelow
+      ? Math.min(anchorY + HOVER_PANEL_EDGE_PADDING, maxY)
+      : aboveY;
+
+    return [x, Math.max(HOVER_PANEL_EDGE_PADDING, y)];
+  }, []);
+
+  return (
+    <Html position={position} zIndexRange={[100, 0]} className="pointer-events-auto" calculatePosition={calculateHoverPanelPosition}>
+      <div style={{ transformOrigin: 'top left' }}>
+        <NodeHoverPanel
+          node={node}
+          onOpenLayerInsight={onOpenLayerInsight}
+          onPointerEnter={onPointerEnter}
+          onPointerLeave={onPointerLeave}
+        />
+      </div>
+    </Html>
+  );
+};
+
+const NodeCaption: React.FC<{
+  label: string;
+  params?: number;
+  position: [number, number, number];
+  scaleOnHover?: boolean;
+  outlineColor?: string;
+  fontSize?: number;
+  color?: string;
+  outlineWidth?: number;
+  paramFontSize?: number;
+  paramOffsetY?: number;
+}> = ({
+  label,
+  params,
+  position,
+  scaleOnHover = false,
+  outlineColor,
+  fontSize = 0.5,
+  color = '#e5e7eb',
+  outlineWidth = 0.025,
+  paramFontSize = 0.4,
+  paramOffsetY = -0.36,
+}) => {
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
+
+  return (
+    <Billboard position={position} renderOrder={2000}>
+      <group scale={scaleOnHover ? 1 : 0.95}>
+        <Text
+          {...textBaseProps}
+          fontSize={fontSize}
+          color={color}
+          outlineColor={outlineColor ?? textBaseProps.outlineColor}
+          outlineWidth={outlineWidth}
+          renderOrder={2001}
+        >
+          {label}
+        </Text>
+        {!!params && params > 0 && (
+          <Text
+            {...textBaseProps}
+            fontSize={paramFontSize}
+            color="#9ca3af"
+            position={[0, paramOffsetY, 0]}
+            anchorY="top"
+            renderOrder={2001}
+          >
+            {params.toLocaleString()} {t.inspector.params}
+          </Text>
+        )}
+      </group>
+    </Billboard>
   );
 };
 
@@ -335,21 +453,28 @@ const InstancedLeafGroup: React.FC<{
         />
       </instancedMesh>
       {nodes.map((nd) => (
-        <Billboard key={nd.id} position={[nd.x, nd.y - (nd.height * meta.heightMul) / 2 - 0.7, nd.z]} renderOrder={100}>
-          <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
-            {meta.labelOverride ?? nd.op_type}
-          </Text>
-        </Billboard>
+        <NodeCaption
+          key={nd.id}
+          label={meta.labelOverride ?? nd.op_type}
+          position={[
+            nd.x,
+            nd.y - (nd.height * meta.heightMul) / 2 - 0.9,
+            nd.z + (nd.depth * meta.depthMul) / 2 + 0.15,
+          ]}
+        />
       ))}
       {hovered.value !== null && nodes[hovered.value] && (
-        <Html position={[nodes[hovered.value].x, nodes[hovered.value].y + (nodes[hovered.value].height * meta.heightMul) / 2 + 0.5, nodes[hovered.value].z]} center zIndexRange={[100, 0]} className="pointer-events-auto">
-          <NodeHoverPanel
-            node={nodes[hovered.value]}
-            onOpenLayerInsight={onOpenLayerInsight}
-            onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.release}
-          />
-        </Html>
+        <HoverPanelHtml
+          position={[
+            nodes[hovered.value].x + (nodes[hovered.value].width * meta.widthMul) / 2 + 0.35,
+            nodes[hovered.value].y + (nodes[hovered.value].height * meta.heightMul) / 2 + 0.6,
+            nodes[hovered.value].z,
+          ]}
+          node={nodes[hovered.value]}
+          onOpenLayerInsight={onOpenLayerInsight}
+          onPointerEnter={hovered.hold}
+          onPointerLeave={hovered.release}
+        />
       )}
     </group>
   );
@@ -563,23 +688,21 @@ const NodeBlock: React.FC<{
 
       {/* Hover tooltip */}
       {hovered.value && !hasError && (
-        <Html position={[0, h / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-auto">
-          <NodeHoverPanel
-            node={node}
-            onOpenLayerInsight={onOpenLayerInsight}
-            onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.release}
-          />
-        </Html>
+        <HoverPanelHtml
+          position={[w / 2 + 0.35, h / 2 + 0.6, 0]}
+          node={node}
+          onOpenLayerInsight={onOpenLayerInsight}
+          onPointerEnter={hovered.hold}
+          onPointerLeave={hovered.release}
+        />
       )}
 
       {/* Static label (when not hovered) */}
       {!hovered.value && !hasError && (
-        <Billboard position={[0, -h / 2 - 0.8, 0]} renderOrder={100}>
-          <Text {...textBaseProps} fontSize={0.5} color="#e5e7eb" outlineWidth={0.025}>
-            {displayLabel}
-          </Text>
-        </Billboard>
+        <NodeCaption
+          label={displayLabel}
+          position={[0, -h / 2 - 0.9, d / 2 + 0.15]}
+        />
       )}
 
     </group>
@@ -597,6 +720,8 @@ const ContainerBlock: React.FC<{
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
 }> = ({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
   const hovered = useHoverHold(false);
   const args = useMemo(
     () => [node.width, node.height, node.depth] as [number, number, number],
@@ -667,36 +792,35 @@ const ContainerBlock: React.FC<{
         </Edges>
 
         {/* Label — below block, same as leaf blocks */}
-        <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
-          <group scale={hovered.value ? 1 : 0.95}>
-            <Text {...textBaseProps} fontSize={0.65} color="#ffffff" outlineColor={borderColor} outlineWidth={0.02}>
-              {node.op_type}
-            </Text>
-            {node.params > 0 && (
-              <Text {...textBaseProps} fontSize={0.45} color="#9ca3af" position={[0, -0.4, 0]} anchorY="top">
-                {node.params.toLocaleString()} params
-              </Text>
-            )}
-          </group>
-        </Billboard>
+        <NodeCaption
+          label={node.op_type}
+          params={node.params}
+          position={[0, -node.height / 2 - 0.9, node.depth / 2 + 0.15]}
+          scaleOnHover={hovered.value}
+          outlineColor={borderColor}
+          fontSize={0.65}
+          color="#ffffff"
+          outlineWidth={0.02}
+          paramFontSize={0.45}
+          paramOffsetY={-0.4}
+        />
 
         {/* Expand button — DOM Overlay */}
         <ExpandCollapseButton
           position={[node.width / 2, node.height / 2, node.depth / 2]}
           icon="+"
-          title="Expand"
+          title={t.inspector.expand}
           onToggle={() => onToggle(node.id)}
         />
 
         {hovered.value && (
-          <Html position={[0, node.height / 2 + 0.5, 0]} center zIndexRange={[100, 0]} className="pointer-events-auto">
-            <NodeHoverPanel
-              node={node}
-              onOpenLayerInsight={onOpenLayerInsight}
-              onPointerEnter={hovered.hold}
-              onPointerLeave={hovered.release}
-            />
-          </Html>
+          <HoverPanelHtml
+            position={[node.width / 2 + 0.35, node.height / 2 + 0.6, 0]}
+            node={node}
+            onOpenLayerInsight={onOpenLayerInsight}
+            onPointerEnter={hovered.hold}
+            onPointerLeave={hovered.release}
+          />
         )}
       </group>
     );
@@ -732,28 +856,28 @@ const ContainerBlock: React.FC<{
         </Edges>
 
         {/* Label — below container, identical to collapsed state to prevent jumping */}
-        <Billboard position={[0, -node.height / 2 - 0.8, 0]} renderOrder={100}>
-          <group scale={hovered.value ? 1 : 0.95}>
-            <Text {...textBaseProps} fontSize={0.65} color="#ffffff" outlineColor={borderColor} outlineWidth={0.02}>
-              {node.op_type}
-            </Text>
-            {node.params > 0 && (
-              <Text {...textBaseProps} fontSize={0.45} color="#9ca3af" position={[0, -0.4, 0]} anchorY="top">
-                {node.params.toLocaleString()} params
-              </Text>
-            )}
-          </group>
-        </Billboard>
+        <NodeCaption
+          label={node.op_type}
+          params={node.params}
+          position={[0, -node.height / 2 - 0.9, node.depth / 2 + 0.15]}
+          scaleOnHover={hovered.value}
+          outlineColor={borderColor}
+          fontSize={0.65}
+          color="#ffffff"
+          outlineWidth={0.02}
+          paramFontSize={0.45}
+          paramOffsetY={-0.4}
+        />
 
         {/* Collapse button — DOM Overlay */}
         <ExpandCollapseButton
           position={[node.width / 2, node.height / 2, node.depth / 2]}
           icon="−"
-          title="Collapse"
+          title={t.inspector.collapse}
           onToggle={() => onToggle(node.id)}
         />
 
-        {/* Hover sensor at top — click = select container */}
+        {/* Header hit area — click = select container. Hover tooltip stays with child blocks. */}
         <mesh
           position={[0, node.height / 2 - HEADER_BAR_HEIGHT / 2, 0]}
           onClick={(e) => {
@@ -763,11 +887,9 @@ const ContainerBlock: React.FC<{
           }}
           onPointerOver={(e) => {
             e.stopPropagation();
-            hovered.show(true);
             document.body.style.cursor = 'pointer';
           }}
           onPointerOut={() => {
-            hovered.hide();
             document.body.style.cursor = '';
           }}
         >
@@ -790,16 +912,6 @@ const ContainerBlock: React.FC<{
         />
       ))}
 
-      {hovered.value && (
-        <Html position={[node.x, node.y + node.height / 2 + 0.5, node.z]} center zIndexRange={[100, 0]} className="pointer-events-auto">
-          <NodeHoverPanel
-            node={node}
-            onOpenLayerInsight={onOpenLayerInsight}
-            onPointerEnter={hovered.hold}
-            onPointerLeave={hovered.release}
-          />
-        </Html>
-      )}
     </group>
   );
 };
@@ -1024,6 +1136,8 @@ const ViewResetEffect: React.FC<{ layout: LayoutData; resetViewToken: number }> 
 
 /* ─── Reset view button (lives inside Canvas to access camera controls) ─── */
 const RecenterButton: React.FC<{ layout: LayoutData }> = ({ layout }) => {
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
   const camera = useThree((state) => state.camera);
   const controls = useThree((state) => state.controls) as CameraControls | undefined;
   const size = useThree((state) => state.size);
@@ -1046,8 +1160,8 @@ const RecenterButton: React.FC<{ layout: LayoutData }> = ({ layout }) => {
         <button
           className="w-8 h-8 flex items-center justify-center bg-zinc-900/55 hover:bg-zinc-800/75 border border-zinc-600/60 text-zinc-300 rounded-md shadow-md backdrop-blur-sm transition-all hover:text-white select-none"
           onClick={resetView}
-          title="Reset camera view"
-          aria-label="Reset camera view"
+          title={t.inspector.resetCameraView}
+          aria-label={t.inspector.resetCameraView}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
             <path d="M3 12a9 9 0 0 1 15.3-6.4" />
@@ -1074,6 +1188,8 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   resetViewToken = 0,
   resetViewDisabled = false,
 }) => {
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
   const handleToggle = useCallback(
     (id: string) => onToggleCollapse?.(id),
     [onToggleCollapse],
@@ -1123,7 +1239,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
               <div className="w-11 h-11 border-2 border-zinc-600 border-t-blue-500 rounded-full animate-spin" />
             </div>
             <span className="text-zinc-200 font-mono text-sm tracking-wider animate-pulse">
-              Running TorchScript...
+              {t.canvas.runningTorchScript}
             </span>
           </div>
         </div>
@@ -1139,10 +1255,10 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
               </svg>
             </div>
             <h3 className="text-red-200 font-semibold text-base mb-3 tracking-wide">
-              Compilation Failed
+              {t.canvas.compilationFailed}
             </h3>
             <p className="text-red-300/90 text-sm leading-relaxed font-mono break-words max-h-36 overflow-auto">
-              {error.message || 'Unknown error'}
+              {error.message || t.canvas.unknownError}
             </p>
             {error.hint && (
               <p className="text-zinc-500 text-xs mt-3">{error.hint}</p>
@@ -1159,24 +1275,24 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
               <span className="text-4xl opacity-40 grayscale">🧊</span>
             </div>
             <h3 className="text-zinc-100 font-semibold text-base mb-3 tracking-wide">
-              Ready to Visualize
+              {t.canvas.readyToVisualize}
             </h3>
             <p className="text-zinc-400 text-sm leading-relaxed mb-5">
-              Select a template or write PyTorch code on the left, then press
-              <span className="text-blue-400 font-bold ml-1">Visualize</span>.
+              {t.canvas.emptyBefore}
+              <span className="text-blue-400 font-bold ml-1">{t.header.visualize}</span>{t.canvas.emptyAfter}
             </p>
             <div className="flex items-center justify-center gap-5 text-xs text-zinc-500">
               <span className="flex items-center gap-2">
-                <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Left</span>
-                Pan
+                <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">{t.canvas.left}</span>
+                {t.canvas.pan}
               </span>
               <span className="flex items-center gap-2">
-                <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Right</span>
-                Rotate
+                <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">{t.canvas.right}</span>
+                {t.canvas.rotate}
               </span>
               <span className="flex items-center gap-2">
-                <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">Scroll</span>
-                Zoom
+                <span className="px-2 py-1 rounded-lg bg-zinc-800/90 border border-zinc-600/50 text-zinc-300 font-medium">{t.help.scroll}</span>
+                {t.canvas.zoom}
               </span>
             </div>
           </div>

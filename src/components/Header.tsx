@@ -3,12 +3,13 @@ import { useStore, TEMPLATES } from '../store/useStore';
 import { workerService, parseShape } from '../lib/workerService';
 import OnboardingTour from './OnboardingTour';
 import HelpModal from './HelpModal';
+import { getStrings, LANGUAGE_OPTIONS, type Language } from '../lib/localization';
 
 interface HeaderProps {
     onExportSvg: () => void;
     isTourOpen: boolean;
     setTourOpen: (v: boolean) => void;
-    onTourStepChange?: () => void;
+    onTourStepChange?: (stepTitle: string | null) => void;
     isHelpOpen: boolean;
     setHelpOpen: (v: boolean) => void;
 }
@@ -22,22 +23,30 @@ export default function Header({
     setHelpOpen
 }: HeaderProps) {
     const activeTemplate = useStore((s) => s.activeTemplate);
+    const language = useStore((s) => s.language);
     const shapeInput = useStore((s) => s.shapeInput);
     const loading = useStore((s) => s.loading);
     const criticalError = useStore((s) => s.criticalError);
     const layout = useStore((s) => s.layout);
 
     const setActiveTemplate = useStore((s) => s.setActiveTemplate);
+    const setLanguage = useStore((s) => s.setLanguage);
     const setShapeInput = useStore((s) => s.setShapeInput);
+    const t = getStrings(language);
 
     const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+    const [isLanguageOpen, setIsLanguageOpen] = React.useState(false);
     const [buttonAttention, setButtonAttention] = React.useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null);
+    const languageRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
+            }
+            if (languageRef.current && !languageRef.current.contains(event.target as Node)) {
+                setIsLanguageOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -82,7 +91,7 @@ export default function Header({
                     <div className="flex items-center gap-4">
                         <div data-tour="template-picker" className="flex flex-col justify-center relative" ref={dropdownRef}>
                             <label className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
-                                Template
+                                {t.header.template}
                             </label>
                             <div
                                 className="bg-[var(--surface-elevated)] border border-[var(--border)] hover:border-[var(--border-subtle)] text-xs text-zinc-200 rounded px-3 py-1 flex items-center justify-between cursor-pointer w-40 transition-colors shadow-sm"
@@ -92,7 +101,7 @@ export default function Header({
                                 aria-expanded={isDropdownOpen}
                                 tabIndex={0}
                             >
-                                <span className="truncate">{TEMPLATES[activeTemplate]?.name || 'Select Template'}</span>
+                                <span className="truncate">{TEMPLATES[activeTemplate]?.name || t.header.selectTemplate}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>
                                     <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                                 </svg>
@@ -124,7 +133,7 @@ export default function Header({
 
                         <div data-tour="input-shape" className="flex flex-col justify-center">
                             <label className="text-[9px] uppercase font-bold text-zinc-500 leading-none mb-1 tracking-wider">
-                                Input Shape
+                                {t.header.inputShape}
                             </label>
                             <input
                                 type="text"
@@ -133,7 +142,7 @@ export default function Header({
                                     }`}
                                 value={shapeInput}
                                 onChange={(e) => setShapeInput(e.target.value)}
-                                title="JSON array, e.g. [1, 3, 224, 224] or [10, 32, 512] for 2D/3D models"
+                                title={t.header.inputShapeTitle}
                             />
                         </div>
                     </div>
@@ -153,7 +162,7 @@ export default function Header({
                                 <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.841z" />
                             </svg>
                         )}
-                        {loading ? 'Running...' : 'Visualize'}
+                        {loading ? t.header.running : t.header.visualize}
                         {!loading && (
                             <kbd className="hidden sm:inline-flex text-[9px] font-mono bg-blue-700/60 px-1 py-0.5 rounded text-blue-200/80 border border-blue-500/30 ml-0.5">
                                 {navigator.platform?.includes('Mac') ? '⌘' : 'Ctrl'}↵
@@ -167,14 +176,14 @@ export default function Header({
                         disabled={!layout}
                         className="bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text)] px-3 py-1.5 rounded-md text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Export SVG
+                        {t.header.exportSvg}
                     </button>
 
                     <button
                         onClick={openTour}
                         className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm transition-colors ${buttonAttention ? 'tour-button-attention' : ''}`}
-                        title="Tour"
-                        aria-label="Open tour"
+                        title={t.header.tour}
+                        aria-label={t.header.openTour}
                     >
                         ℹ
                     </button>
@@ -182,10 +191,63 @@ export default function Header({
                         data-tour="help"
                         onClick={() => setHelpOpen(true)}
                         className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm font-bold transition-colors ${buttonAttention ? 'tour-button-attention' : ''}`}
-                        title="Help"
+                        title={t.header.help}
                     >
                         ?
                     </button>
+
+                    <div className="relative" ref={languageRef}>
+                        <button
+                            type="button"
+                            onClick={() => setIsLanguageOpen((v) => !v)}
+                            className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border text-[var(--text-muted)] hover:text-white transition-all ${isLanguageOpen ? 'border-blue-500 text-blue-300 ring-2 ring-blue-500/25 bg-blue-500/10' : 'border-[var(--border)]'}`}
+                            title={t.app.language}
+                            aria-label={t.app.language}
+                            aria-haspopup="menu"
+                            aria-expanded={isLanguageOpen}
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="w-4 h-4"
+                            >
+                                <path d="M4 5h9" />
+                                <path d="M9 3v2" />
+                                <path d="M6 9c1.2 2.5 3.3 4.2 6 5" />
+                                <path d="M11 9c-.7 1.8-2.1 3.4-4 4.6" />
+                                <path d="M14 19l3-7 3 7" />
+                                <path d="M15.1 16.5h3.8" />
+                            </svg>
+                        </button>
+
+                        {isLanguageOpen && (
+                            <div
+                                className="absolute right-0 top-[calc(100%+6px)] w-36 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl shadow-black/90 z-50 overflow-hidden flex flex-col py-1 animate-in fade-in slide-in-from-top-2 duration-150"
+                                role="menu"
+                            >
+                                {LANGUAGE_OPTIONS.map((option) => (
+                                    <button
+                                        key={option.code}
+                                        type="button"
+                                        className={`px-3 py-2 text-left text-xs transition-colors ${language === option.code ? 'bg-blue-600/20 text-blue-300 font-medium' : 'text-zinc-200 hover:bg-zinc-800 hover:text-zinc-50'}`}
+                                        onClick={() => {
+                                            setLanguage(option.code as Language);
+                                            setIsLanguageOpen(false);
+                                        }}
+                                        role="menuitemradio"
+                                        aria-checked={language === option.code}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
 
