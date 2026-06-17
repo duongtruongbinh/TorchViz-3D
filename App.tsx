@@ -10,6 +10,7 @@ import { hasSeenTour, TERMINAL_ERROR_TOUR_STEP, TERMINAL_SUCCESS_TOUR_STEP } fro
 import { findNodeByLine, type IRNode } from './src/lib/irTypes';
 import { useStore } from './src/store/useStore';
 import { workerService } from './src/lib/workerService';
+import { getStrings, type LocalizedStrings } from './src/lib/localization';
 
 type CollapseSide = 'left' | 'right' | 'bottom';
 
@@ -17,12 +18,13 @@ const PanelCollapseButton: React.FC<{
   side: CollapseSide;
   collapsed: boolean;
   onClick: () => void;
+  t: LocalizedStrings;
   className?: string;
-}> = ({ side, collapsed, onClick, className = '' }) => {
+}> = ({ side, collapsed, onClick, t, className = '' }) => {
   const titles: Record<CollapseSide, string> = {
-    left: collapsed ? 'Expand editor panel' : 'Collapse editor panel',
-    right: collapsed ? 'Expand explorer panel' : 'Collapse explorer panel',
-    bottom: collapsed ? 'Expand terminal panel' : 'Collapse terminal panel',
+    left: collapsed ? t.app.collapse.expandEditorPanel : t.app.collapse.collapseEditorPanel,
+    right: collapsed ? t.app.collapse.expandExplorerPanel : t.app.collapse.collapseExplorerPanel,
+    bottom: collapsed ? t.app.collapse.expandTerminalPanel : t.app.collapse.collapseTerminalPanel,
   };
   const rotation: Record<CollapseSide, string> = {
     left: collapsed ? 'rotate-180' : '',
@@ -74,6 +76,7 @@ const PanelCollapseButton: React.FC<{
 
 export default function App() {
   const code = useStore(s => s.code);
+  const language = useStore(s => s.language);
   const ir = useStore(s => s.ir);
   const loading = useStore(s => s.loading);
   const error = useStore(s => s.error);
@@ -95,6 +98,7 @@ export default function App() {
   const [currentTourStep, setCurrentTourStep] = useState<string | null>(null);
   const [layerInsightNode, setLayerInsightNode] = useState<IRNode | null>(null);
   const [tourResetViewToken, setTourResetViewToken] = useState(0);
+  const t = getStrings(language);
 
   const [leftWidth, setLeftWidth] = useState(400);
   const [isLeftCollapsed, setLeftCollapsed] = useState(false);
@@ -185,8 +189,8 @@ export default function App() {
   const terminalDemoError = isTerminalErrorTourStep
     ? {
       lineno: 12,
-      message: 'module setup failed: missing required layer configuration',
-      hint: 'Check the layer constructor arguments or install the missing dependency.',
+      message: t.app.demoErrorMessage,
+      hint: t.app.demoErrorHint,
     }
     : null;
 
@@ -218,7 +222,7 @@ export default function App() {
                   clipRule="evenodd"
                 />
               </svg>
-              Editor
+              {t.app.editor}
             </span>
             <div className="flex items-center gap-2">
               <span className={`text-[9px] font-mono text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700/50 overflow-hidden whitespace-nowrap transition-all duration-200 ${isLeftCollapsed ? 'w-0 opacity-0 px-0 border-transparent' : 'w-auto opacity-100'}`}>
@@ -228,11 +232,12 @@ export default function App() {
                 side="left"
                 collapsed={isLeftCollapsed}
                 onClick={() => setLeftCollapsed((v) => !v)}
+                t={t}
               />
             </div>
           </div>
           <div className={`flex-1 relative w-full h-full overflow-hidden transition-opacity duration-200 ${isLeftCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <React.Suspense fallback={<div className="text-zinc-500 text-xs p-4 h-full flex items-center justify-center">Loading Editor module...</div>}>
+            <React.Suspense fallback={<div className="text-zinc-500 text-xs p-4 h-full flex items-center justify-center">{t.app.loadingEditorModule}</div>}>
               <EditorPane
                 code={code}
                 onChange={setCode}
@@ -297,6 +302,7 @@ export default function App() {
                   side="bottom"
                   collapsed={isBottomCollapsed}
                   onClick={() => setBottomCollapsed((v) => !v)}
+                  t={t}
                 />
               )}
             />
@@ -311,6 +317,7 @@ export default function App() {
                 side="right"
                 collapsed={isRightCollapsed}
                 onClick={() => setRightCollapsed(false)}
+                t={t}
               />
             </div>
           </div>
@@ -327,6 +334,7 @@ export default function App() {
                   side="right"
                   collapsed={isRightCollapsed}
                   onClick={() => setRightCollapsed(true)}
+                  t={t}
                   className="!w-6 !h-6 !bg-transparent hover:!bg-[var(--border-subtle)]"
                 />
               )}

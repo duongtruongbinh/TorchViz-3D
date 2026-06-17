@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { LayoutData } from '../lib/irTypes';
 import { generateSVG } from '../lib/svgExport';
+import { getStrings } from '../lib/localization';
+import { useStore } from '../store/useStore';
 
 interface Props {
   isOpen: boolean;
@@ -20,6 +22,8 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
   const [config, setConfig] = useState({
     scale: 32,
     textScale: 1,
@@ -100,19 +104,19 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
         onClick={(e) => e.stopPropagation()}
         role="document"
       >
-        <h3 className="text-xl font-bold text-[var(--text)] mb-1">Export Visualization</h3>
+        <h3 className="text-xl font-bold text-[var(--text)] mb-1">{t.export.title}</h3>
         <p className="text-[var(--text-dim)] text-sm mb-6 leading-relaxed">
-          Generate a publication-ready vector graphic or capture the current 3D view.
+          {t.export.description}
         </p>
 
         <div className="flex flex-col gap-4 mb-8">
           {/* SVG Config Section */}
           <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl p-4 shadow-sm">
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-blue-400 mb-3">SVG Settings</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-blue-400 mb-3">{t.export.svgSettings}</h4>
 
             <div className="space-y-3">
               <label className="flex items-center justify-between cursor-pointer group">
-                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Light Theme (Print-friendly)</span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">{t.export.lightTheme}</span>
                 <input
                   type="checkbox"
                   checked={config.lightBackground}
@@ -122,7 +126,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
               </label>
 
               <label className="flex items-center justify-between cursor-pointer group">
-                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Transparent Background</span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">{t.export.transparentBackground}</span>
                 <input
                   type="checkbox"
                   checked={config.transparentBackground}
@@ -132,7 +136,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
               </label>
 
               <label className="flex items-center justify-between cursor-pointer group">
-                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Include Legend</span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">{t.export.includeLegend}</span>
                 <input
                   type="checkbox"
                   checked={config.legend}
@@ -142,59 +146,59 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
               </label>
 
               <label className="flex items-center justify-between group pt-1">
-                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Export Scale</span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">{t.export.exportScale}</span>
                 <select
                   value={config.scale}
                   onChange={(e) => setConfig({ ...config, scale: Number(e.target.value) })}
                   className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
                 >
-                  <option value={16}>Small (0.5×)</option>
-                  <option value={32}>Normal (1×)</option>
-                  <option value={64}>Large (2×)</option>
-                  <option value={128}>Huge (4×)</option>
+                  <option value={16}>{t.export.options.smallHalf}</option>
+                  <option value={32}>{t.export.options.normal}</option>
+                  <option value={64}>{t.export.options.largeDouble}</option>
+                  <option value={128}>{t.export.options.hugeQuad}</option>
                 </select>
               </label>
 
               <label className="flex items-center justify-between group pt-1">
-                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Text Scale</span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">{t.export.textScale}</span>
                 <select
                   value={config.textScale}
                   onChange={(e) => setConfig({ ...config, textScale: Number(e.target.value) })}
                   className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
                 >
-                  <option value={0.5}>Small (0.5×)</option>
-                  <option value={0.75}>Compact (0.75×)</option>
-                  <option value={1}>Normal (1×)</option>
-                  <option value={1.25}>Large (1.25×)</option>
-                  <option value={1.5}>Larger (1.5×)</option>
-                  <option value={2}>XL (2×)</option>
+                  <option value={0.5}>{t.export.options.smallHalf}</option>
+                  <option value={0.75}>{t.export.options.compact}</option>
+                  <option value={1}>{t.export.options.normal}</option>
+                  <option value={1.25}>{t.export.options.large125}</option>
+                  <option value={1.5}>{t.export.options.larger}</option>
+                  <option value={2}>{t.export.options.xlDouble}</option>
                 </select>
               </label>
 
               <label className="flex items-center justify-between group pt-1">
-                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Stroke Scale</span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">{t.export.strokeScale}</span>
                 <select
                   value={config.strokeScale}
                   onChange={(e) => setConfig({ ...config, strokeScale: Number(e.target.value) })}
                   className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
                 >
-                  <option value={0.5}>Thin (0.5×)</option>
-                  <option value={1}>Normal (1×)</option>
-                  <option value={1.5}>Thick (1.5×)</option>
-                  <option value={2}>Bold (2×)</option>
+                  <option value={0.5}>{t.export.options.thin}</option>
+                  <option value={1}>{t.export.options.normal}</option>
+                  <option value={1.5}>{t.export.options.thick}</option>
+                  <option value={2}>{t.export.options.boldDouble}</option>
                 </select>
               </label>
 
               <label className="flex items-center justify-between group pt-1">
-                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Padding</span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">{t.export.padding}</span>
                 <select
                   value={config.padding}
                   onChange={(e) => setConfig({ ...config, padding: Number(e.target.value) })}
                   className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
                 >
-                  <option value={40}>Tight</option>
-                  <option value={80}>Normal</option>
-                  <option value={120}>Spacious</option>
+                  <option value={40}>{t.export.options.tight}</option>
+                  <option value={80}>{t.export.options.normalPlain}</option>
+                  <option value={120}>{t.export.options.spacious}</option>
                 </select>
               </label>
             </div>
@@ -206,7 +210,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm4.75 11.25a.75.75 0 001.5 0v-2.546l.943.944a.75.75 0 001.06-1.06l-2.22-2.22a.75.75 0 00-1.06 0l-2.22 2.22a.75.75 0 001.06 1.06l.937-.938v2.54z" clipRule="evenodd" />
               </svg>
-              Download SVG
+              {t.export.downloadSvg}
             </button>
           </div>
 
@@ -222,23 +226,23 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
                   </svg>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-[var(--text)]">Export Screen (PNG)</div>
-                  <div className="text-[11px] text-[var(--text-dim)]">High-quality snapshot of the 3D canvas</div>
+                  <div className="text-sm font-semibold text-[var(--text)]">{t.export.exportScreenPng}</div>
+                  <div className="text-[11px] text-[var(--text-dim)]">{t.export.pngDescription}</div>
                 </div>
               </div>
             </div>
 
             <label className="flex items-center justify-between group mb-3">
-              <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">Resolution</span>
+              <span className="text-[13px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors shrink-0">{t.export.resolution}</span>
               <select
                 value={config.pngScale}
                 onChange={(e) => setConfig({ ...config, pngScale: Number(e.target.value) })}
                 className="bg-black/30 border border-[var(--border)] rounded text-xs text-[var(--text)] px-2 py-1 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
               >
-                <option value={1}>1× (Screen)</option>
-                <option value={2}>2× (High DPI)</option>
-                <option value={3}>3× (Print)</option>
-                <option value={4}>4× (Ultra)</option>
+                <option value={1}>{t.export.options.screen}</option>
+                <option value={2}>{t.export.options.highDpi}</option>
+                <option value={3}>{t.export.options.print}</option>
+                <option value={4}>{t.export.options.ultra}</option>
               </select>
             </label>
 
@@ -249,7 +253,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                 <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909-3.22-3.22a.75.75 0 00-1.06 0L2.5 11.06zm12.22-4.81a1.25 1.25 0 10-2.5 0 1.25 1.25 0 002.5 0z" clipRule="evenodd" />
               </svg>
-              Download PNG ({config.pngScale}×)
+              {t.export.downloadPng(config.pngScale)}
             </button>
           </div>
         </div>
@@ -259,7 +263,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
             onClick={onClose}
             className="px-5 py-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-elevated)] text-sm font-medium transition-colors"
           >
-            Cancel
+            {t.export.cancel}
           </button>
         </div>
       </div>

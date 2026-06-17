@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { getStrings } from '../lib/localization';
+import { useStore } from '../store/useStore';
 
 const STORAGE_KEY = 'torchviz-hasSeenTour';
-export const TERMINAL_SUCCESS_TOUR_STEP = 'Terminal: Success';
-export const TERMINAL_ERROR_TOUR_STEP = 'Terminal: Errors';
+export const TERMINAL_SUCCESS_TOUR_STEP = 'terminal-success';
+export const TERMINAL_ERROR_TOUR_STEP = 'terminal-error';
 
 export function hasSeenTour(): boolean {
   try {
@@ -19,9 +21,9 @@ function markTourSeen(): void {
 }
 
 interface Step {
+  id?: string;
   target: string;
-  title: string;
-  body: string;
+  textIndex: number;
   advanceOnTargetClick?: boolean;
   keepPanelCentered?: boolean;
   panelPlacement?: 'canvas-side';
@@ -31,76 +33,65 @@ interface Step {
 const STEPS: Step[] = [
   {
     target: '[data-tour="template-picker"]',
-    title: 'Templates',
-    body: 'Start from a model template when you want a quick example graph.',
+    textIndex: 0,
   },
   {
     target: '[data-tour="input-shape"]',
-    title: 'Input shape',
-    body: 'Set the tensor shape used to trace the model and calculate layer outputs.',
+    textIndex: 1,
   },
-  { target: '[data-tour="editor"]', title: 'Editor', body: 'Write or adjust PyTorch-style model code here.' },
+  { target: '[data-tour="editor"]', textIndex: 2 },
   {
     target: '[data-tour="visualize"]',
-    title: 'Visualize',
-    body: 'Click to run the model trace and build the 3D graph.',
+    textIndex: 3,
     advanceOnTargetClick: true,
     keepPanelCentered: true,
   },
   {
     target: '[data-tour="canvas-surface"]',
-    title: 'Canvas: Left click',
-    body: 'Left click and drag inside the canvas to pan the 3D view.',
+    textIndex: 4,
     panelPlacement: 'canvas-side',
     requiredPointerButton: 0,
   },
   {
     target: '[data-tour="canvas-surface"]',
-    title: 'Canvas: Right click',
-    body: 'Right click and drag inside the canvas to rotate the 3D view.',
+    textIndex: 5,
     panelPlacement: 'canvas-side',
     requiredPointerButton: 2,
   },
   {
     target: '[data-tour="canvas-surface"]',
-    title: 'Parameter formulas',
-    body: 'Click any layer block to open a popup with the parameter formula. Hover still shows names, shapes, counts, and why the layer matters.',
+    textIndex: 6,
     panelPlacement: 'canvas-side',
   },
   {
     target: '[data-tour="reset-view"]',
-    title: 'Reset view',
-    body: 'Use this button to recenter the camera after panning, rotating, or zooming.',
+    textIndex: 7,
   },
   {
     target: '[data-tour="structure"]',
-    title: 'Structure',
-    body: 'Browse the model tree, select layers, and jump between nested modules.',
+    textIndex: 8,
   },
   {
     target: '[data-tour="details"]',
-    title: 'Details',
-    body: 'Selected layers show secondary metadata, formula breakdowns, source line, and errors here.',
+    textIndex: 9,
   },
   {
+    id: TERMINAL_SUCCESS_TOUR_STEP,
     target: '[data-tour="terminal"]',
-    title: TERMINAL_SUCCESS_TOUR_STEP,
-    body: 'When the trace succeeds, the terminal confirms the graph build and shows the generated parameter total.',
+    textIndex: 10,
   },
   {
+    id: TERMINAL_ERROR_TOUR_STEP,
     target: '[data-tour="terminal"]',
-    title: TERMINAL_ERROR_TOUR_STEP,
-    body: 'If setup or code is wrong, the terminal reports the error directly with a line number, message, and hint.',
+    textIndex: 11,
   },
   {
     target: '[data-tour="export-svg"]',
-    title: 'Export SVG',
-    body: 'Export the current graph as an SVG once a model has been visualized.',
+    textIndex: 12,
   },
   {
     target: '[data-tour="help"]',
-    title: 'Help',
-    body: 'Open the help panel when you need controls, tips, or supported syntax.',
+    textIndex: 13,
   },
 ];
 
@@ -138,6 +129,8 @@ function CutoutOverlay({
 }
 
 export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStepChange }: OnboardingTourProps) {
+  const language = useStore((state) => state.language);
+  const t = getStrings(language);
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [completedInteractions, setCompletedInteractions] = useState<Record<number, boolean>>({});
@@ -151,7 +144,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
     }
     if (prevStep.current === step) return;
     prevStep.current = step;
-    onStepChange?.(STEPS[step]?.title ?? null);
+    onStepChange?.(STEPS[step]?.id ?? `step-${step}`);
   }, [isOpen, step, onStepChange]);
 
   const updateTargetRect = useCallback(() => {
@@ -231,13 +224,14 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
   if (!isOpen) return null;
 
   const s = STEPS[step];
+  const stepText = t.tour.steps[s.textIndex];
   const isFirst = step === 0;
   const isLast = step === STEPS.length - 1;
   const requiresTargetClick = !!s?.advanceOnTargetClick;
   const requiresInteraction = s?.requiredPointerButton !== undefined;
   const interactionDone = !requiresInteraction || !!completedInteractions[step];
   const canAdvance = !requiresTargetClick && interactionDone;
-  const interactionTooltip = s?.requiredPointerButton === 2 ? 'Right click first' : 'Left click first';
+  const interactionTooltip = s?.requiredPointerButton === 2 ? t.tour.rightClickFirst : t.tour.leftClickFirst;
   const maxReachableStep = Math.min(STEPS.length - 1, step + (canAdvance ? 1 : 0));
 
   const handleDone = () => {
@@ -248,7 +242,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
   };
 
   return (
-    <div className="fixed inset-0 z-[100] pointer-events-none" role="dialog" aria-modal="true" aria-label="Onboarding tour">
+    <div className="fixed inset-0 z-[100] pointer-events-none" role="dialog" aria-modal="true" aria-label={t.tour.ariaLabel}>
       {targetRect ? (
         <>
           <CutoutOverlay targetRect={targetRect} />
@@ -306,10 +300,10 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
             onClose();
           }}
         >
-          Skip
+          {t.tour.skip}
         </button>
-        <h3 className="text-xl font-bold text-[var(--text)] mb-2 pr-16">{s?.title}</h3>
-        <p className="text-[var(--text-muted)] text-[15px] leading-relaxed mb-6">{s?.body}</p>
+        <h3 className="text-xl font-bold text-[var(--text)] mb-2 pr-16">{stepText.title}</h3>
+        <p className="text-[var(--text-muted)] text-[15px] leading-relaxed mb-6">{stepText.body}</p>
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
             <button
@@ -318,7 +312,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
               onClick={() => setStep((p) => p - 1)}
               disabled={isFirst}
             >
-              Back
+              {t.tour.back}
             </button>
             <div className="min-w-[72px] flex justify-end">
               {isLast ? (
@@ -329,7 +323,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
                     onClick={handleDone}
                     disabled={!canAdvance}
                   >
-                    Done
+                    {t.tour.done}
                   </button>
                 </span>
               ) : !requiresTargetClick ? (
@@ -340,7 +334,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
                     onClick={() => setStep((p) => p + 1)}
                     disabled={!canAdvance}
                   >
-                    Next
+                    {t.tour.next}
                   </button>
                 </span>
               ) : null}
@@ -351,7 +345,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
               <button
                 key={i}
                 type="button"
-                aria-label={`Step ${i + 1}`}
+                aria-label={t.tour.stepLabel(i + 1)}
                 className={`w-2 h-2 rounded-full transition-all ${i === step ? 'bg-[var(--accent)] scale-125' : 'bg-[var(--border)] hover:bg-[var(--border-subtle)]'}`}
                 onClick={() => {
                   if (i > maxReachableStep) return;

@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Editor, { Monaco } from '@monaco-editor/react';
+import { getStrings } from '../lib/localization';
+import { useStore } from '../store/useStore';
 
 const NN_COMPLETIONS: { label: string; detail?: string }[] = [
   { label: 'Module', detail: 'Base class for all nn modules' },
@@ -42,6 +44,8 @@ const EditorPane: React.FC<EditorPaneProps> = ({
   highlightLine,
   onCursorChange,
 }) => {
+  const language = useStore((s) => s.language);
+  const t = getStrings(language);
   const editorRef = useRef<any>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const errorDecRef = useRef<string[]>([]);
@@ -73,7 +77,7 @@ const EditorPane: React.FC<EditorPaneProps> = ({
         const suggestions = NN_COMPLETIONS.map(({ label, detail }) => ({
           label,
           kind: monaco.languages.CompletionItemKind.Class,
-          detail,
+          detail: label === 'Module' ? t.editor.completionModuleDetail : detail,
           insertText: label,
         }));
         return { suggestions };
@@ -138,9 +142,7 @@ const EditorPane: React.FC<EditorPaneProps> = ({
         value={code}
         onChange={(val) => onChange(val || '')}
         onMount={handleEditorDidMount}
-        loading={
-          <div className="text-zinc-500 text-xs p-4">Loading Editor...</div>
-        }
+        loading={<div className="text-zinc-500 text-xs p-4">{t.editor.loading}</div>}
         options={{
           minimap: { enabled: false },
           fontSize: 12,
