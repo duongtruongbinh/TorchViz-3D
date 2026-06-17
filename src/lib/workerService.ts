@@ -25,11 +25,12 @@ class WorkerService {
                 const { type, data, error: err, requestId } = e.data;
                 if (requestId !== undefined && requestId !== this.activeRequestId) return;
 
-                useStore.getState().setLoading(false);
                 if (type === 'success' || type === 'partial') {
                     useStore.getState().setIrResult(data, type === 'partial' ? (data.error || err) : null);
+                    useStore.getState().setLoading(false);
                 } else {
                     useStore.getState().setError(err);
+                    useStore.getState().setLoading(false);
                 }
             };
             this.worker.onerror = (err) => {

@@ -82,47 +82,73 @@ const HOVER_PANEL_BELOW_X_OFFSET = 72;
 const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
 const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×áàảãạăắằẳẵặâấầẩẫậđéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ';
 
+const getExpandCollapseButtonPosition = (node: LayoutNode): [number, number, number] => [
+  node.width / 2,
+  node.height / 2,
+  -node.depth / 2,
+];
+
+const EXPAND_COLLAPSE_BUTTON_Z_INDEX = 5;
+
 const ExpandCollapseButton: React.FC<{
   position: [number, number, number];
   icon: string;
   title: string;
+  nodeLabel: string;
+  expanded: boolean;
   onToggle: () => void;
-}> = ({ position, icon, title, onToggle }) => {
+}> = ({ position, icon, title, nodeLabel, expanded, onToggle }) => {
   const [hovered, setHovered] = useState(false);
-  const yOffset = 0;
-  const xOffset = 0;
+  const ariaLabel = `${title}: ${nodeLabel}`;
+
+  useEffect(() => () => {
+    document.body.style.cursor = '';
+  }, []);
 
   return (
     <group position={position}>
-      <Billboard renderOrder={1000}>
-        <mesh
-          onPointerDown={(e: any) => e.stopPropagation()}
-          onClick={(e: any) => { e.stopPropagation(); onToggle(); }}
-          onPointerOver={(e: any) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer'; }}
-          onPointerOut={(e: any) => { e.stopPropagation(); setHovered(false); document.body.style.cursor = ''; }}
-        >
-          <circleGeometry args={[0.75, 32]} />
-          <meshBasicMaterial color={hovered ? '#3f3f46' : '#27272a'} transparent opacity={0.98} depthTest={false} depthWrite={false} />
-        </mesh>
-
-        <mesh position={[0, 0, -0.01]}>
-          <circleGeometry args={[0.85, 32]} />
-          <meshBasicMaterial color={hovered ? '#a1a1aa' : '#52525b'} transparent opacity={0.9} depthTest={false} depthWrite={false} />
-        </mesh>
-
-        <Text
-          {...textBaseProps}
-          fontSize={0.8}
-          color="#ffffff"
-          position={[xOffset, yOffset, 0.01]}
-          anchorX="center"
-          anchorY="middle"
-          raycast={() => null}
-          renderOrder={1001}
+      <Html center zIndexRange={[EXPAND_COLLAPSE_BUTTON_Z_INDEX, 0]}>
+        <button
+          type="button"
+          title={title}
+          aria-label={ariaLabel}
+          aria-expanded={expanded}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            document.body.style.cursor = '';
+            onToggle();
+          }}
+          onPointerEnter={() => {
+            setHovered(true);
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerLeave={() => {
+            setHovered(false);
+            document.body.style.cursor = '';
+          }}
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            border: `2px solid ${hovered ? '#a1a1aa' : '#52525b'}`,
+            background: hovered ? '#3f3f46' : '#27272a',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 15,
+            lineHeight: 1,
+            fontWeight: 400,
+            padding: 0,
+            boxShadow: '0 1px 5px rgba(0, 0, 0, 0.45)',
+            pointerEvents: 'auto',
+            userSelect: 'none',
+          }}
         >
           {icon}
-        </Text>
-      </Billboard>
+        </button>
+      </Html>
     </group>
   );
 };
@@ -807,9 +833,11 @@ const ContainerBlock: React.FC<{
 
         {/* Expand button — DOM Overlay */}
         <ExpandCollapseButton
-          position={[node.width / 2, node.height / 2, node.depth / 2]}
+          position={getExpandCollapseButtonPosition(node)}
           icon="+"
           title={t.inspector.expand}
+          nodeLabel={node.op_type}
+          expanded={false}
           onToggle={() => onToggle(node.id)}
         />
 
@@ -871,9 +899,11 @@ const ContainerBlock: React.FC<{
 
         {/* Collapse button — DOM Overlay */}
         <ExpandCollapseButton
-          position={[node.width / 2, node.height / 2, node.depth / 2]}
+          position={getExpandCollapseButtonPosition(node)}
           icon="−"
           title={t.inspector.collapse}
+          nodeLabel={node.op_type}
+          expanded
           onToggle={() => onToggle(node.id)}
         />
 
@@ -1229,10 +1259,11 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     return `${nodeKey}|${edgeKey}`;
   }, [layout]);
   const viewReady = !!layout && fittedLayoutKey === layoutKey;
+  const showLoadingOverlay = loading || (!!layout && !viewReady);
 
   return (
     <div className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
-      {loading && (
+      {showLoadingOverlay && (
         <div className="absolute inset-0 flex items-center justify-center z-20 bg-zinc-950/70 backdrop-blur-sm transition-all duration-300">
           <div className="flex flex-col items-center gap-5 p-8 bg-zinc-900/95 rounded-2xl border border-zinc-700/60 shadow-2xl">
             <div className="relative">

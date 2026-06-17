@@ -11,7 +11,7 @@ import unetCode from '../templates/unet';
 import type { Language } from '../lib/localization';
 
 export const TEMPLATES: Record<string, { name: string; code: string; shape: number[] }> = {
-    lenet: { name: 'LeNet-5 (CNN)', code: lenetCode, shape: [1, 1, 32, 32] },
+    lenet: { name: 'LeNet-5', code: lenetCode, shape: [1, 1, 32, 32] },
     resnet: { name: 'Mini-ResNet', code: resnetCode, shape: [1, 3, 32, 32] },
     vit: { name: 'Mini-ViT', code: vitCode, shape: [1, 3, 32, 32] },
     alexnet: { name: 'AlexNet', code: alexnetCode, shape: [1, 3, 224, 224] },
@@ -92,14 +92,12 @@ export const useStore = create<AppState>((set, get) => ({
 
     setIrResult: (ir, error) => {
         const collapsedIds = initCollapsedIds(ir);
-        set({ ir, collapsedIds, error, selectedNodeId: null });
-        // update layout immediately
         try {
             const layout = computeLayout(ir, collapsedIds);
-            set({ layout });
+            set({ ir, collapsedIds, error, selectedNodeId: null, layout });
         } catch (e) {
             console.error('Layout computation failed:', e);
-            set({ layout: null });
+            set({ ir, collapsedIds, error, selectedNodeId: null, layout: null });
         }
     },
 
