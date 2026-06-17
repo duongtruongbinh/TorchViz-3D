@@ -171,15 +171,18 @@ export default function App() {
 
   const handleTourStepChange = useCallback((stepTitle: string | null) => {
     setCurrentTourStep(stepTitle);
-    setTourResetViewToken((token) => token + 1);
+    if (stepTitle) setTourResetViewToken((token) => token + 1);
     if (stepTitle === TERMINAL_SUCCESS_TOUR_STEP || stepTitle === TERMINAL_ERROR_TOUR_STEP) setBottomCollapsed(false);
   }, []);
 
-  const terminalDemoSuccessParams = isTourOpen && currentTourStep === TERMINAL_SUCCESS_TOUR_STEP && !ir && !error
+  const isTerminalSuccessTourStep = isTourOpen && currentTourStep === TERMINAL_SUCCESS_TOUR_STEP;
+  const isTerminalErrorTourStep = isTourOpen && currentTourStep === TERMINAL_ERROR_TOUR_STEP;
+
+  const terminalDemoSuccessParams = isTerminalSuccessTourStep
     ? 61706
     : null;
 
-  const terminalDemoError = isTourOpen && currentTourStep === TERMINAL_ERROR_TOUR_STEP && !error
+  const terminalDemoError = isTerminalErrorTourStep
     ? {
       lineno: 12,
       message: 'module setup failed: missing required layer configuration',
@@ -286,7 +289,7 @@ export default function App() {
           <div data-tour="terminal" className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mb-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
             <BottomTabs
               ir={ir}
-              error={error ?? terminalDemoError}
+              error={isTerminalSuccessTourStep ? null : (terminalDemoError ?? error)}
               collapsed={isBottomCollapsed}
               demoSuccessParams={terminalDemoSuccessParams}
               headerAction={(
