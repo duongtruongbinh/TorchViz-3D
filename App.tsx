@@ -6,7 +6,7 @@ import BottomTabs from './src/components/BottomTabs';
 import ExportSvgModal from './src/components/ExportSvgModal';
 import ParamFormulaPopup from './src/components/ParamFormulaPopup';
 import Header from './src/components/Header';
-import { hasSeenTour } from './src/components/OnboardingTour';
+import { hasSeenTour, TERMINAL_ERROR_TOUR_STEP, TERMINAL_SUCCESS_TOUR_STEP } from './src/components/OnboardingTour';
 import { findNodeByLine, type IRNode } from './src/lib/irTypes';
 import { useStore } from './src/store/useStore';
 import { workerService } from './src/lib/workerService';
@@ -92,6 +92,7 @@ export default function App() {
   const [isExportOpen, setExportOpen] = useState(false);
   const [isHelpOpen, setHelpOpen] = useState(false);
   const [isTourOpen, setTourOpen] = useState(false);
+  const [currentTourStep, setCurrentTourStep] = useState<string | null>(null);
   const [layerInsightNode, setLayerInsightNode] = useState<IRNode | null>(null);
   const [tourResetViewToken, setTourResetViewToken] = useState(0);
 
@@ -163,17 +164,36 @@ export default function App() {
     setHighlightNodeId(nodeId);
   }, [setSelectedNodeId, setHighlightNodeId]);
 
-  const resetTourView = useCallback(() => {
-    setTourResetViewToken((token) => token + 1);
+  const handleSetTourOpen = useCallback((open: boolean) => {
+    setTourOpen(open);
+    if (!open) setCurrentTourStep(null);
   }, []);
+
+  const handleTourStepChange = useCallback((stepTitle: string | null) => {
+    setCurrentTourStep(stepTitle);
+    setTourResetViewToken((token) => token + 1);
+    if (stepTitle === TERMINAL_SUCCESS_TOUR_STEP || stepTitle === TERMINAL_ERROR_TOUR_STEP) setBottomCollapsed(false);
+  }, []);
+
+  const terminalDemoSuccessParams = isTourOpen && currentTourStep === TERMINAL_SUCCESS_TOUR_STEP && !ir && !error
+    ? 61706
+    : null;
+
+  const terminalDemoError = isTourOpen && currentTourStep === TERMINAL_ERROR_TOUR_STEP && !error
+    ? {
+      lineno: 12,
+      message: 'module setup failed: missing required layer configuration',
+      hint: 'Check the layer constructor arguments or install the missing dependency.',
+    }
+    : null;
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden min-w-[1024px]">
       <Header
         onExportSvg={() => setExportOpen(true)}
         isTourOpen={isTourOpen}
-        setTourOpen={setTourOpen}
-        onTourStepChange={resetTourView}
+        setTourOpen={handleSetTourOpen}
+        onTourStepChange={handleTourStepChange}
         isHelpOpen={isHelpOpen}
         setHelpOpen={setHelpOpen}
       />
@@ -266,8 +286,9 @@ export default function App() {
           <div data-tour="terminal" className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mb-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
             <BottomTabs
               ir={ir}
-              error={error}
+              error={error ?? terminalDemoError}
               collapsed={isBottomCollapsed}
+              demoSuccessParams={terminalDemoSuccessParams}
               headerAction={(
                 <PanelCollapseButton
                   side="bottom"

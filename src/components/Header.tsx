@@ -8,7 +8,7 @@ interface HeaderProps {
     onExportSvg: () => void;
     isTourOpen: boolean;
     setTourOpen: (v: boolean) => void;
-    onTourStepChange?: () => void;
+    onTourStepChange?: (stepTitle: string | null) => void;
     isHelpOpen: boolean;
     setHelpOpen: (v: boolean) => void;
 }

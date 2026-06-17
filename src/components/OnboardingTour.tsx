@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'torchviz-hasSeenTour';
+export const TERMINAL_SUCCESS_TOUR_STEP = 'Terminal: Success';
+export const TERMINAL_ERROR_TOUR_STEP = 'Terminal: Errors';
 
 export function hasSeenTour(): boolean {
   try {
@@ -82,8 +84,13 @@ const STEPS: Step[] = [
   },
   {
     target: '[data-tour="terminal"]',
-    title: 'Terminal',
-    body: 'Build status, generated parameter totals, and runtime messages appear here.',
+    title: TERMINAL_SUCCESS_TOUR_STEP,
+    body: 'When the trace succeeds, the terminal confirms the graph build and shows the generated parameter total.',
+  },
+  {
+    target: '[data-tour="terminal"]',
+    title: TERMINAL_ERROR_TOUR_STEP,
+    body: 'If setup or code is wrong, the terminal reports the error directly with a line number, message, and hint.',
   },
   {
     target: '[data-tour="export-svg"]',
@@ -102,7 +109,7 @@ interface OnboardingTourProps {
   onClose: () => void;
   onSkip?: () => void;
   onDone?: () => void;
-  onStepChange?: () => void;
+  onStepChange?: (stepTitle: string | null) => void;
 }
 
 /** Cutout overlay: 4 panels dim the rest; highlighted area stays clear and visible. */
@@ -134,16 +141,17 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [completedInteractions, setCompletedInteractions] = useState<Record<number, boolean>>({});
-  const prevStep = React.useRef(step);
+  const prevStep = React.useRef<number | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
-      prevStep.current = step;
+      prevStep.current = null;
+      onStepChange?.(null);
       return;
     }
     if (prevStep.current === step) return;
     prevStep.current = step;
-    onStepChange?.();
+    onStepChange?.(STEPS[step]?.title ?? null);
   }, [isOpen, step, onStepChange]);
 
   const updateTargetRect = useCallback(() => {
@@ -233,7 +241,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
   const maxReachableStep = Math.min(STEPS.length - 1, step + (canAdvance ? 1 : 0));
 
   const handleDone = () => {
-    onStepChange?.();
+    onStepChange?.(null);
     markTourSeen();
     onDone?.();
     onClose();

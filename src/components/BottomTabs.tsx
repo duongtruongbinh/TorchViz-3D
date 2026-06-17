@@ -6,9 +6,12 @@ interface BottomTabsProps {
   error: { message: string; lineno: number; hint: string } | null;
   collapsed?: boolean;
   headerAction?: React.ReactNode;
+  demoSuccessParams?: number | null;
 }
 
-const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, headerAction }) => {
+const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, headerAction, demoSuccessParams = null }) => {
+  const successParams = ir?.stats.total_params ?? demoSuccessParams;
+
   return (
     <div className="h-full flex flex-col bg-[var(--surface-elevated)] text-[var(--text-dim)] shadow-[0_-4px_24px_-1px_rgba(0,0,0,0.2)]">
       {/* Tab Bar */}
@@ -41,11 +44,11 @@ const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, h
               &gt; System ready.
               <br />
               &gt; Waiting for execution...
-              {ir && (
+              {successParams !== null && (
                 <>
                   <br />
                   <span className="text-emerald-500">
-                    &gt; Build successful. Graph generated ({ir.stats.total_params.toLocaleString()} params).
+                    &gt; Build successful. Graph generated ({successParams.toLocaleString()} params).
                   </span>
                 </>
               )}
