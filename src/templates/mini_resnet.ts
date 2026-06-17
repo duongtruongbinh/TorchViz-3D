@@ -18,8 +18,11 @@ class BasicBlock(nn.Module):
             )
 
     def forward(self, x):
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = F.relu(out)
+        out = self.conv2(out)
+        out = self.bn2(out)
         # Residual connection
         out += self.shortcut(x)
         out = F.relu(out)
@@ -38,7 +41,9 @@ class MiniResNet(nn.Module):
         self.fc = nn.Linear(32, 10)
 
     def forward(self, x):
-        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = F.relu(out)
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.avgpool(out)

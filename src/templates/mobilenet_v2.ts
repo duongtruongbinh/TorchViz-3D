@@ -24,8 +24,11 @@ class InvertedResidual(nn.Module):
 
     def forward(self, x):
         if self.use_res_connect:
-            return x + self.conv(x)
-        return self.conv(x)
+            out = self.conv(x)
+            out = x + out
+            return out
+        out = self.conv(x)
+        return out
 
 class MobileNetV2(nn.Module):
     def __init__(self, num_classes=1000):

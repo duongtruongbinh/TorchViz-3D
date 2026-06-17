@@ -15,15 +15,21 @@ class LeNet5(nn.Module):
 
     def forward(self, x):
         # Convolution -> ReLU -> MaxPool
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
+        x = self.conv1(x)
+        x = F.relu(x)
+        x = self.pool(x)
+        x = self.conv2(x)
+        x = F.relu(x)
+        x = self.pool(x)
         
         # Flatten
         x = x.flatten(1)
         
         # Fully connected layers
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        x = self.fc1(x)
+        x = F.relu(x)
+        x = self.fc2(x)
+        x = F.relu(x)
         x = self.fc3(x)
         return x
 
