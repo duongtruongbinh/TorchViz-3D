@@ -61,8 +61,8 @@ const STEPS: Step[] = [
   },
   {
     target: '[data-tour="canvas-surface"]',
-    title: 'Layer blocks',
-    body: 'Hover blocks to see names, input and output shapes, parameter counts, and why the layer matters.',
+    title: 'Parameter formulas',
+    body: 'Click any layer block to open a popup with the parameter formula. Hover still shows names, shapes, counts, and why the layer matters.',
     panelPlacement: 'canvas-side',
   },
   {
@@ -73,7 +73,7 @@ const STEPS: Step[] = [
   {
     target: '[data-tour="structure"]',
     title: 'Structure',
-    body: 'Browse the model tree, select layers, and open parameter formulas from underlined counts.',
+    body: 'Browse the model tree, select layers, and jump between nested modules.',
   },
   {
     target: '[data-tour="details"]',

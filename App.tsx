@@ -29,6 +29,7 @@ const PanelCollapseButton: React.FC<{
     right: collapsed ? '' : 'rotate-180',
     bottom: collapsed ? 'rotate-90' : '-rotate-90',
   };
+  const isRightPanelButton = side === 'right';
 
   return (
     <button
@@ -37,20 +38,36 @@ const PanelCollapseButton: React.FC<{
       title={titles[side]}
       aria-label={titles[side]}
       aria-pressed={collapsed}
-      className={`w-7 h-7 flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[#3f3f46] transition-colors duration-200 ${className}`}
+      className={`w-7 h-7 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[#3f3f46] transition-colors duration-200 ${className}`}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        className={`w-3.5 h-3.5 transition-transform duration-300 ease-out ${rotation[side]}`}
-      >
-        <path
-          fillRule="evenodd"
-          d="M12.78 4.22a.75.75 0 0 1 0 1.06L8.06 10l4.72 4.72a.75.75 0 1 1-1.06 1.06l-5.25-5.25a.75.75 0 0 1 0-1.06l5.25-5.25a.75.75 0 0 1 1.06 0Z"
-          clipRule="evenodd"
-        />
-      </svg>
+      {isRightPanelButton ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-5 h-5"
+        >
+          <rect x="4" y="5" width="16" height="14" rx="2" />
+          <path d="M14 5v14" />
+        </svg>
+      ) : (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          className={`w-3.5 h-3.5 transition-transform duration-300 ease-out ${rotation[side]}`}
+        >
+          <path
+            fillRule="evenodd"
+            d="M12.78 4.22a.75.75 0 0 1 0 1.06L8.06 10l4.72 4.72a.75.75 0 1 1-1.06 1.06l-5.25-5.25a.75.75 0 0 1 0-1.06l5.25-5.25a.75.75 0 0 1 1.06 0Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
     </button>
   );
 };
@@ -246,7 +263,7 @@ export default function App() {
             )}
           </div>
 
-          <div data-tour="terminal" className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
+          <div data-tour="terminal" className={`${isBottomCollapsed ? 'h-10' : 'h-32'} border-t border-[var(--border)] flex flex-col shrink-0 z-10 glass-panel rounded-t-md border-x-0 border-b-0 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] mx-2 mb-2 mt-[-16px] overflow-hidden transition-[height] duration-300 ease-out`}>
             <BottomTabs
               ir={ir}
               error={error}
@@ -286,6 +303,7 @@ export default function App() {
                   side="right"
                   collapsed={isRightCollapsed}
                   onClick={() => setRightCollapsed(true)}
+                  className="!w-6 !h-6 !bg-transparent hover:!bg-[var(--border-subtle)]"
                 />
               )}
             />

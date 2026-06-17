@@ -178,13 +178,10 @@ const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNode
   const detailsFlex = isDetailsCollapsed ? '0 0 32px' : isStructureCollapsed ? '1 1 0' : '4 1 0';
 
   return (
-    <div className="h-full flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-md border-y-0 border-r-0 overflow-hidden ml-2 mb-2 mt-2 shadow-2xl">
+    <div className="h-[calc(100%-16px)] flex flex-col bg-[var(--surface)] text-[var(--text)] glass-panel rounded-l-md border-y-0 border-r-0 overflow-hidden ml-2 my-2 shadow-2xl">
       {/* Header */}
-      <div className="h-10 border-b border-[var(--border)] flex items-center px-4 shrink-0 bg-[var(--surface-elevated)] select-none">
-        <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
-            <path d="M2 3a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 7.586V3z" />
-          </svg>
+      <div className="h-10 border-b border-[var(--border)] flex items-center gap-2 px-4 shrink-0 bg-[var(--surface-elevated)] select-none">
+        <span className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-wider">
           Explorer
         </span>
         {headerAction && <div className="ml-auto">{headerAction}</div>}
