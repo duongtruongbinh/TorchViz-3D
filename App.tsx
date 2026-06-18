@@ -95,6 +95,7 @@ export default function App() {
   const [isExportOpen, setExportOpen] = useState(false);
   const [isHelpOpen, setHelpOpen] = useState(false);
   const [isTourOpen, setTourOpen] = useState(false);
+  const [demoModeEnabled, setDemoModeEnabled] = useState(false);
   const [currentTourStep, setCurrentTourStep] = useState<string | null>(null);
   const [layerInsightNode, setLayerInsightNode] = useState<IRNode | null>(null);
   const [tourResetViewToken, setTourResetViewToken] = useState(0);
@@ -203,6 +204,8 @@ export default function App() {
         onTourStepChange={handleTourStepChange}
         isHelpOpen={isHelpOpen}
         setHelpOpen={setHelpOpen}
+        demoModeEnabled={demoModeEnabled}
+        onDemoModeChange={setDemoModeEnabled}
       />
 
       {/* --- Main Workspace --- */}
@@ -281,6 +284,7 @@ export default function App() {
                 onClickNode={handleSelectNode}
                 onOpenLayerInsight={setLayerInsightNode}
                 resetViewToken={tourResetViewToken}
+                demoModeEnabled={demoModeEnabled}
               />
             </div>
 

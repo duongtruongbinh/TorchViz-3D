@@ -59,9 +59,12 @@ function getWhy(opType: string, t: LocalizedStrings): string {
     case 'Activation_Sigmoid':
     case 'Activation_GELU':
     case 'Activation_SiLU':
+    case 'Activation_Tanh':
     case 'Activation_Softmax':
     case 'Activation_Other':
       return t.layerInsight.why.activation;
+    case 'Dropout':
+      return t.layerInsight.why.dropout;
     case 'Flatten':
     case 'Reshape':
     case 'Permute':

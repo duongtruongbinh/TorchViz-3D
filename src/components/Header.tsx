@@ -4,6 +4,7 @@ import { workerService, parseShape } from '../lib/workerService';
 import OnboardingTour from './OnboardingTour';
 import HelpModal from './HelpModal';
 import { getStrings, LANGUAGE_OPTIONS, type Language } from '../lib/localization';
+import { isMnistDemoLayoutCompatible } from './mnist-demo/demoStops';
 
 interface HeaderProps {
     onExportSvg: () => void;
@@ -12,6 +13,8 @@ interface HeaderProps {
     onTourStepChange?: (stepTitle: string | null) => void;
     isHelpOpen: boolean;
     setHelpOpen: (v: boolean) => void;
+    demoModeEnabled: boolean;
+    onDemoModeChange: (enabled: boolean) => void;
 }
 
 export default function Header({
@@ -20,7 +23,9 @@ export default function Header({
     setTourOpen,
     onTourStepChange,
     isHelpOpen,
-    setHelpOpen
+    setHelpOpen,
+    demoModeEnabled,
+    onDemoModeChange,
 }: HeaderProps) {
     const activeTemplate = useStore((s) => s.activeTemplate);
     const language = useStore((s) => s.language);
@@ -74,6 +79,11 @@ export default function Header({
         setButtonAttention(true);
         window.setTimeout(() => setButtonAttention(false), 1800);
     };
+    const demoAvailable = !!layout && !loading && !criticalError && isMnistDemoLayoutCompatible(layout);
+
+    React.useEffect(() => {
+        if (demoModeEnabled && !demoAvailable) onDemoModeChange(false);
+    }, [demoAvailable, demoModeEnabled, onDemoModeChange]);
 
     return (
         <>
@@ -168,6 +178,48 @@ export default function Header({
                                 {navigator.platform?.includes('Mac') ? '⌘' : 'Ctrl'}↵
                             </kbd>
                         )}
+                    </button>
+
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={demoModeEnabled}
+                        aria-label={`${t.canvas.demo.mode}: ${demoModeEnabled ? t.canvas.demo.modeOn : t.canvas.demo.modeOff}`}
+                        onClick={() => onDemoModeChange(!demoModeEnabled)}
+                        disabled={!demoAvailable}
+                        className={`group h-8 flex items-center gap-2 rounded-md border px-2.5 text-xs font-medium transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${
+                            demoModeEnabled
+                                ? 'border-blue-500/35 bg-[var(--surface-elevated)] text-zinc-100'
+                                : 'border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:bg-[#3f3f46] hover:text-[var(--text)]'
+                        }`}
+                        title={demoAvailable ? t.canvas.demo.mode : t.canvas.demo.unavailable}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            className={`h-3.5 w-3.5 transition-colors ${demoModeEnabled ? 'text-blue-300' : 'text-zinc-500 group-hover:text-zinc-300'}`}
+                            aria-hidden="true"
+                        >
+                            <path d="M10 3.25a.75.75 0 0 1 .75.75v1.13a4.9 4.9 0 0 1 2.06.86l.8-.8a.75.75 0 1 1 1.06 1.06l-.8.8c.43.62.72 1.33.86 2.06h1.13a.75.75 0 0 1 0 1.5h-1.13a4.9 4.9 0 0 1-.86 2.06l.8.8a.75.75 0 0 1-1.06 1.06l-.8-.8a4.9 4.9 0 0 1-2.06.86v1.13a.75.75 0 0 1-1.5 0v-1.13a4.9 4.9 0 0 1-2.06-.86l-.8.8a.75.75 0 0 1-1.06-1.06l.8-.8a4.9 4.9 0 0 1-.86-2.06H4.14a.75.75 0 0 1 0-1.5h1.13a4.9 4.9 0 0 1 .86-2.06l-.8-.8A.75.75 0 0 1 6.39 5.2l.8.8a4.9 4.9 0 0 1 2.06-.86V4a.75.75 0 0 1 .75-.75Zm0 4.25a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" />
+                        </svg>
+                        <span>{t.canvas.demo.mode}</span>
+                        <span
+                            className={`inline-flex h-5 w-9 shrink-0 items-center rounded-full border p-0.5 transition-all ${
+                                demoModeEnabled
+                                    ? 'justify-end border-blue-400/60 bg-blue-500/35'
+                                    : 'border-zinc-600/80 bg-black/20 group-hover:border-zinc-500'
+                            }`}
+                            aria-hidden="true"
+                        >
+                            <span
+                                className={`h-4 w-4 rounded-full shadow-sm transition-colors duration-200 ${
+                                    demoModeEnabled
+                                        ? 'bg-blue-50 shadow-blue-950/30'
+                                        : 'translate-x-0.5 bg-zinc-500 group-hover:bg-zinc-300'
+                                }`}
+                            />
+                        </span>
                     </button>
 
                     <button
