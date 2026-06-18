@@ -89,6 +89,11 @@ export function createWorker(): Worker {
       return pyodide;
     }
 
+    // Number of preamble lines injected before the user's code in \`wrappedCode\` below
+    // (the import block + blank line). Used to translate Python traceback line numbers
+    // back to the user's editor lines. MUST equal the actual preamble line count —
+    // if you change the wrappedCode header, update this or error highlighting will
+    // point at the wrong lines. See docs/ARCHITECTURE.md (Fragile spots).
     const WRAPPER_LINE_OFFSET = 7;
 
     function parseErrorLineno(msg) {

@@ -50,3 +50,8 @@ npm run build
 ```
 
 The output will be in the dist directory.
+
+## 📚 Documentation
+
+* [Architecture](docs/ARCHITECTURE.md) — data-flow pipeline, the `torchstub` shape-tracing core, the IR contract, and the layout engine.
+* [Extending torchstub](docs/TORCHSTUB.md) — how to add support for a new layer.

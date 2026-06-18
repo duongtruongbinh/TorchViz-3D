@@ -1,4 +1,13 @@
 // Modular Python sources for torchstub. Web Worker loads these without fetch().
+//
+// `torchstub` is a fake `torch.nn` that does SHAPE INFERENCE ONLY — no tensor math.
+// Tensors carry a `.shape` and nothing else; each layer computes its output shape and
+// parameter count, and `Module.__call__` traces calls into a GraphRecorder to build the
+// IR that drives the 3D diagram.
+//
+// To add a new layer: define a `Module` subclass with a `forward` that calls `_record(...)`,
+// add it to `Module._leaf_types` (PY_NN_LEAF_TYPES), and give it a color in constants.ts.
+// Full walkthrough: docs/TORCHSTUB.md. Big picture: docs/ARCHITECTURE.md.
 
 export const PY_INIT = `
 __all__ = ["nn", "Tensor", "randn", "cat", "add"]
