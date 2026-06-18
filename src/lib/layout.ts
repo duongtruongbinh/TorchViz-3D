@@ -4,6 +4,10 @@ import { getOpColor, getCollapsedContainerColor, getExpandedContainerColor, getE
 const BASE_PADDING = 3.0;
 const NODE_GAP = 2.5;
 
+/**
+ * Block sizes are logarithmic so a 512-channel layer isn't 256x larger than a
+ * 2-channel one. size = log2(val) * factor, clamped to a minimum.
+ */
 const scaleDim = (val: number, minPixel = 1, factor = 0.8) => {
   if (val <= 1) return minPixel;
   return Math.max(minPixel, Math.log2(val) * factor);
@@ -27,7 +31,10 @@ function leafSize(shape: number[]): { width: number; height: number; depth: numb
     w = 0.5;
     d = 0.5;
   }
-  // Convention: width=depth-of-tensor, height=spatial, depth=spatial
+  // IMPORTANT axis convention (deliberate, not a bug): the block's visual `width`
+  // encodes the tensor's channel/feature depth (`d`), while `height`/`depth` encode
+  // the spatial dims (`h`/`w`). This keeps data flowing along +X with channels read
+  // as block thickness. See docs/ARCHITECTURE.md (Layout).
   return { width: d, height: h, depth: w };
 }
 
