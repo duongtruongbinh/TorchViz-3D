@@ -1,12 +1,13 @@
 import * as THREE from 'three';
-import type { LayoutNode } from '../../lib/irTypes';
+import type { LayoutEdge, LayoutNode } from '../../lib/irTypes';
+import { getEasedSegmentProgress } from '../../lib/mnistAnimation.ts';
 import {
   DEMO_INPUT_TILE_SIZE,
   DEMO_KERNEL_SIZE,
   DEMO_POOL_SIZE,
   DEMO_POOL_STRIDE,
   DEMO_SAMPLE_SIZE,
-} from './effectData';
+} from './effectData.ts';
 
 export type DemoStop = {
   node: LayoutNode;
@@ -37,6 +38,13 @@ export type SegmentState = {
   activeStopIndex: number;
   activeStop: DemoStop | null;
   segmentProgress: number;
+};
+
+export type DataPacketRoute = {
+  position: THREE.Vector3;
+  points: THREE.Vector3[];
+  easedProgress: number;
+  pulse: number;
 };
 
 export function getNodeDemoPosition(node: LayoutNode): THREE.Vector3 {
@@ -75,6 +83,70 @@ export function getSegmentState(stops: DemoStop[], progress: number): SegmentSta
     activeStopIndex,
     activeStop,
     segmentProgress,
+  };
+}
+
+function toVector3(point: LayoutEdge['points'][number]): THREE.Vector3 {
+  return new THREE.Vector3(point.x, point.y, point.z);
+}
+
+function getCubicBezierPoint(points: THREE.Vector3[], progress: number): THREE.Vector3 {
+  const [start, c1, c2, end] = points;
+  const t = progress;
+  const oneMinusT = 1 - t;
+  return new THREE.Vector3(
+    oneMinusT ** 3 * start.x + 3 * oneMinusT ** 2 * t * c1.x + 3 * oneMinusT * t ** 2 * c2.x + t ** 3 * end.x,
+    oneMinusT ** 3 * start.y + 3 * oneMinusT ** 2 * t * c1.y + 3 * oneMinusT * t ** 2 * c2.y + t ** 3 * end.y,
+    oneMinusT ** 3 * start.z + 3 * oneMinusT ** 2 * t * c1.z + 3 * oneMinusT * t ** 2 * c2.z + t ** 3 * end.z,
+  );
+}
+
+function getPolylinePoint(points: THREE.Vector3[], progress: number): THREE.Vector3 {
+  if (points.length === 1) return points[0].clone();
+
+  const segmentLengths = points.slice(0, -1).map((point, index) => point.distanceTo(points[index + 1]));
+  const totalLength = segmentLengths.reduce((total, length) => total + length, 0);
+  if (totalLength <= 0.001) return points[0].clone();
+
+  let remaining = totalLength * progress;
+  for (let index = 0; index < segmentLengths.length; index++) {
+    const length = segmentLengths[index];
+    if (remaining <= length) {
+      const localProgress = length <= 0.001 ? 0 : remaining / length;
+      return new THREE.Vector3().lerpVectors(points[index], points[index + 1], localProgress);
+    }
+    remaining -= length;
+  }
+
+  return points[points.length - 1].clone();
+}
+
+function getEdgePoint(points: THREE.Vector3[], progress: number): THREE.Vector3 {
+  if (points.length === 4) return getCubicBezierPoint(points, progress);
+  return getPolylinePoint(points, progress);
+}
+
+export function getDataPacketRoute(stops: DemoStop[], segment: SegmentState, edges: LayoutEdge[]): DataPacketRoute | null {
+  if (!segment.activeStop || segment.activeStopIndex <= 0) return null;
+
+  const previousStop = stops[segment.activeStopIndex - 1];
+  if (!previousStop) return null;
+
+  const edge = edges.find((candidate) => (
+    candidate.from === previousStop.node.id && candidate.to === segment.activeStop!.node.id
+  ));
+  if (!edge || edge.points.length < 2) return null;
+
+  const easedProgress = getEasedSegmentProgress(segment.segmentProgress);
+  const points = edge.points.map(toVector3);
+  const position = getEdgePoint(points, easedProgress);
+  const pulse = 0.55 + 0.45 * Math.sin(easedProgress * Math.PI);
+
+  return {
+    position,
+    points,
+    easedProgress,
+    pulse,
   };
 }
 
@@ -199,7 +271,10 @@ export function getActiveCellFromFlatIndex(flatIndex: number, cols: number): { r
 
 export function getPanelPosition(node: LayoutNode): THREE.Vector3 {
   const position = getNodeDemoPosition(node);
-  position.x += Math.max(node.width / 2 + 22.0, 24.0);
+  const horizontalOffset = node.x < 16
+    ? Math.max(node.width / 2 + 22.0, 24.0)
+    : Math.max(node.width / 2 + 10.0, 12.0);
+  position.x += horizontalOffset;
   position.y += Math.max(node.height / 2 + 9.0, 10.5);
   position.z += 2.4;
   return position;

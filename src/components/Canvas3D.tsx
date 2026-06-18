@@ -17,6 +17,7 @@ import { ERROR_COLOR, EDGE_COLOR_STD, EDGE_COLOR_RESIDUAL, EDGE_EDGES_OPAQUE, ED
 import { getVisualMeta, getVisualKind, getActivationSubKind, type VisualKind } from '../lib/visualKind';
 import { getLayerInsight } from '../lib/layerInsights';
 import { getStrings } from '../lib/localization';
+import { getPlaybackProgress, shouldSyncAnimationState } from '../lib/mnistAnimation';
 import { useStore } from '../store/useStore';
 import {
   DataFlowDemo,
@@ -1287,6 +1288,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   const [demoPlaying, setDemoPlaying] = useState(false);
   const [demoAnimationSpeed, setDemoAnimationSpeed] = useState(DEMO_PLAY_SPEED);
   const demoProgressRef = useRef(0);
+  const demoLastSyncRef = useRef(0);
   const mnist = useMnistTexture();
 
   // Stable key that changes when the graph structure changes
@@ -1332,6 +1334,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   const handleDemoProgressChange = useCallback((nextProgress: number) => {
     const clampedProgress = THREE.MathUtils.clamp(nextProgress, 0, maxDemoProgress);
     demoProgressRef.current = clampedProgress;
+    demoLastSyncRef.current = performance.now();
     setDemoProgress(clampedProgress);
   }, [maxDemoProgress]);
 
@@ -1341,6 +1344,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
 
   useEffect(() => {
     demoProgressRef.current = 0;
+    demoLastSyncRef.current = 0;
     setDemoProgress(0);
     setDemoPlaying(false);
   }, [layoutKey]);
@@ -1353,16 +1357,22 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     if (!demoModeEnabled || !demoPlaying || maxDemoProgress <= 0) return;
     let frameId = 0;
     let prevTime = performance.now();
+    demoLastSyncRef.current = 0;
 
     const tick = (time: number) => {
-      const delta = Math.min((time - prevTime) / 1000, 0.08);
+      const deltaMs = time - prevTime;
       prevTime = time;
-      const nextProgress = Math.min(
-        demoProgressRef.current + delta * demoAnimationSpeed * 0.5,
+      const nextProgress = getPlaybackProgress(
+        demoProgressRef.current,
+        deltaMs,
+        demoAnimationSpeed,
         maxDemoProgress,
       );
       demoProgressRef.current = nextProgress;
-      setDemoProgress(nextProgress);
+      if (shouldSyncAnimationState(time, demoLastSyncRef.current) || nextProgress >= maxDemoProgress) {
+        demoLastSyncRef.current = time;
+        setDemoProgress(nextProgress);
+      }
       if (nextProgress >= maxDemoProgress) {
         setDemoPlaying(false);
         return;
@@ -1510,6 +1520,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
                 {mnist && useOperationBlocks && (
                   <DataFlowDemo
                     stops={demoStops}
+                    edges={progressiveDemoEdges}
                     progress={demoProgress}
                     texture={mnist.texture}
                     t={t.canvas.demo}
