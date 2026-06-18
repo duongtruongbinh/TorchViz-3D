@@ -126,7 +126,7 @@ const localizedText = {
       next: { en: 'Next block', vi: 'Block kế tiếp' },
       scrub: { en: 'Move between blocks', vi: 'Di chuyển giữa các block' },
       jumpTo: { en: 'Jump to block', vi: 'Nhảy tới block' },
-      speed: { en: 'Animation speed', vi: 'Tốc độ animation' },
+      speed: { en: 'Speed', vi: 'Tốc độ' },
       inputMap: { en: 'input map', vi: 'bản đồ vào' },
       outputMap: { en: 'output map', vi: 'bản đồ ra' },
       kernel: { en: '3x3 kernel', vi: 'kernel 3x3' },
