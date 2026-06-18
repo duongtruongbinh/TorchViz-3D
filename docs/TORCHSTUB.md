@@ -49,7 +49,7 @@ class ConvTranspose2d(Module):
         self.stride = stride
         self.padding = padding
         k = self.kernel_size
-        self.params = (k[0] * k[1] * out_channels + 1) * in_channels
+        self.params = (k[0] * k[1] * in_channels + 1) * out_channels
 
     def forward(self, x):
         if len(x.shape) < 4:
