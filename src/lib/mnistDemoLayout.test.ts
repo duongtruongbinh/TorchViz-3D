@@ -4,6 +4,8 @@ import * as THREE from 'three';
 import {
   getDataPacketRoute,
   getPanelPosition,
+  getDemoInputPose,
+  getSamplePlaneRotation,
   type DemoStop,
   type SegmentState,
 } from '../components/operation-effects/effectMath.ts';
@@ -69,10 +71,12 @@ test('does not create a data packet route before a stop is active', () => {
 });
 
 test('does not create a data packet route without a real graph edge', () => {
+  // activeStopIndex: 1 represents routing from stop 0 to stop 1, which requires a real edge.
   const first = stop('conv', new THREE.Vector3(10, 0, 3));
-  const route = getDataPacketRoute([first], segment({
-    activeStopIndex: 0,
-    activeStop: first,
+  const second = stop('relu', new THREE.Vector3(20, 0, 3));
+  const route = getDataPacketRoute([first, second], segment({
+    activeStopIndex: 1,
+    activeStop: second,
     segmentProgress: 0.5,
   }), []);
 
@@ -112,4 +116,43 @@ test('routes later data packets on the matching visual edge path', () => {
   assert.equal(Number(route.position.z.toFixed(3)), 3.5);
   assert.deepEqual(first.position.toArray(), firstPosition.toArray());
   assert.deepEqual(second.position.toArray(), secondPosition.toArray());
+});
+
+test('getDemoInputPose positions input tile correctly in world space', () => {
+  const firstStop = stop('conv', new THREE.Vector3(10, 2, 4));
+  firstStop.node.width = 4;
+  firstStop.node.x = 10;
+  firstStop.node.y = 2;
+  firstStop.node.z = 4;
+
+  const pose = getDemoInputPose([firstStop]);
+
+  // input is before first block on X (10 - (4 * 0.2)/2 - 2.5 = 7.1)
+  assert.equal(pose.position.x, 7.1);
+  // shares aligned Y/Z convention
+  assert.equal(pose.position.y, 2);
+  assert.equal(pose.position.z, 4);
+  // uses fixed rotation [0, PI/2, 0]
+  assert.deepEqual(pose.rotation, [0, Math.PI / 2, 0]);
+});
+
+test('getDataPacketRoute supports virtual first route (input -> first block)', () => {
+  const first = stop('conv', new THREE.Vector3(10, 0, 3));
+  const inputPos = new THREE.Vector3(4, 0, 3);
+  const route = getDataPacketRoute([first], segment({
+    inputPosition: inputPos,
+    activeStopIndex: 0,
+    activeStop: first,
+    segmentProgress: 0.5,
+  }), []);
+
+  assert.ok(route);
+  assert.deepEqual(route.points.map(p => p.toArray()), [
+    [4, 0, 3],
+    [10, 0, 3],
+  ]);
+  // Position is at midpoint (7, 0, 3)
+  assert.equal(route.position.x, 7);
+  assert.equal(route.position.y, 0);
+  assert.equal(route.position.z, 3);
 });
