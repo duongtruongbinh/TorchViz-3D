@@ -1,44 +1,48 @@
-/** Centralized theme & layer colors. Single source of truth for 3D, Inspector, and SVG export. */
+/** Centralized theme, layers, fonts, sizes, and rendering orders. */
 
-/** [label, hex] pairs for legend and getOpColor matching. Order matters for legend. */
-export const OP_COLORS: [string, string][] = [
-  ['Conv', '#60a5fa'],
-  ['Linear', '#34d399'],
-  ['Pool', '#fbbf24'],
-  ['Norm', '#f472b6'],
-  ['Attention', '#a78bfa'],
-  ['Add/Concat', '#f87171'],
-  ['Activation', '#22d3ee'],
-  ['Flatten/Reshape', '#f59e0b'],
-  ['Embedding', '#c084fc'],
-  ['RNN/LSTM/GRU', '#fb923c'],
-  ['Upsample', '#2dd4bf'],
-  ['Default', '#94a3b8'],
-];
+// --- Fonts & Text styling ---
+export const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
 
-const OP_MATCHERS: [RegExp | ((op: string) => boolean), string][] = [
-  [/conv/i, '#60a5fa'],
-  [/linear|mlp/i, '#34d399'],
-  [/pool/i, '#fbbf24'],
-  [/norm/i, '#f472b6'],
-  [/attn|attention/i, '#a78bfa'],
-  [/add|cat/i, '#f87171'],
-  [/relu|gelu|silu|sigmoid|tanh|softmax/i, '#22d3ee'],
-  [/dropout/i, '#fb7185'],
-  [/flatten|reshape|permute|slice/i, '#f59e0b'],
-  [/embedding/i, '#c084fc'],
-  [/rnn|lstm|gru/i, '#fb923c'],
-  [/pixelshuffle|upsample/i, '#2dd4bf'],
-];
+export const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×áàảãạăắằẳẵặâấầẩẫậđéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ';
 
-/** Leaf node color by op_type. High contrast on dark canvas. */
-export function getOpColor(opType: string): string {
-  const lower = opType.toLowerCase();
-  for (const [matcher, color] of OP_MATCHERS) {
-    if (typeof matcher === 'function' ? matcher(opType) : matcher.test(lower)) return color;
-  }
-  return OP_COLORS[OP_COLORS.length - 1][1];
-}
+export const TEXT_BASE_PROPS = {
+  font: FONT_URL,
+  characters: TEXT_CHARS,
+  anchorX: 'center' as const,
+  anchorY: 'middle' as const,
+  outlineWidth: 0.02,
+  outlineColor: '#000000',
+  outlineBlur: 0,
+  maxWidth: 4,
+  onSync: (t: { material: { depthTest: boolean; depthWrite: boolean } }) => {
+    t.material.depthTest = false;
+    t.material.depthWrite = false;
+  },
+};
+
+// --- Render Orders (higher = renders on top) ---
+export const RENDER_ORDER_EDGES = 1;
+export const RENDER_ORDER_ERROR_LABEL = 100;
+export const RENDER_ORDER_CAPTION_BILLBOARD = 2000;
+export const RENDER_ORDER_CAPTION_TEXT = 2001;
+export const RENDER_ORDER_INPUT_TILE_BILLBOARD = 2100;
+export const RENDER_ORDER_INPUT_TILE_TEXT = 2101;
+export const RENDER_ORDER_DATA_PACKET = 2200;
+export const RENDER_ORDER_PANEL_SHELL = 2300;
+export const RENDER_ORDER_PANEL_TEXT = 2301;
+export const RENDER_ORDER_PANEL_TEXT_FRONT = 2302;
+
+// --- HTML zIndex overlays ---
+export const Z_INDEX_EXPAND_COLLAPSE_BUTTON = 5;
+export const Z_INDEX_RECENTER_BUTTON = 50;
+export const Z_INDEX_HOVER_PANEL = 100;
+
+// --- Colors ---
+export const ERROR_COLOR = '#ef4444';
+export const EDGE_COLOR_STD = '#52525b';
+export const EDGE_COLOR_RESIDUAL = '#a1a1aa';
+export const EDGE_EDGES_OPAQUE = '#94a3b8';
+export const EDGE_EDGES_GLASS = '#bae6fd';
 
 /** Collapsed container colors (distinct, no gray). */
 export function getCollapsedContainerColor(opType: string): string {
@@ -68,14 +72,8 @@ export function getExpandedContainerOpacity(depth: number): number {
   return 0.4;
 }
 
-export const ERROR_COLOR = '#ef4444';
-export const EDGE_COLOR_STD = '#52525b';
-
 /** Expand/Collapse button theme (zinc palette, matches dark UI). */
 export const BTN_BG = '#27272a';
 export const BTN_BG_HOVER = '#3f3f46';
 export const BTN_BORDER = '#52525b';
 export const BTN_ICON = '#e4e4e7';
-export const EDGE_COLOR_RESIDUAL = '#a1a1aa';
-export const EDGE_EDGES_OPAQUE = '#94a3b8';
-export const EDGE_EDGES_GLASS = '#bae6fd';

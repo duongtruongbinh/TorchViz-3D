@@ -5,102 +5,89 @@ import { clamp01, getEasedSegmentProgress } from '../../lib/mnistAnimation';
 import type { LayoutEdge } from '../../lib/irTypes';
 import type { getStrings } from '../../lib/localization';
 import {
-  DEMO_INPUT_TILE_SIZE,
   DEMO_PLAY_SPEED,
+  DEMO_MNIST_MATRIX,
 } from '../operation-effects/effectData';
 import type { DemoStop } from '../operation-effects/effectMath';
 import {
   getDataPacketRoute,
   getSegmentState,
+  getDemoInputPose,
+  getSamplePlaneRotation,
   type DataPacketRoute,
 } from '../operation-effects/effectMath';
 import {
   hasOperationEffect as hasOperationDemo,
   OperationEffect as OperationDemo,
 } from '../operation-effects';
+import {
+  TEXT_BASE_PROPS,
+  RENDER_ORDER_INPUT_TILE_BILLBOARD,
+  RENDER_ORDER_INPUT_TILE_TEXT,
+  RENDER_ORDER_DATA_PACKET,
+} from '../../lib/constants';
 
-const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
 const MIN_ANIMATION_SPEED = 0.25;
 const MAX_ANIMATION_SPEED = 2.5;
-
-const textBaseProps = {
-  font: FONT_URL,
-  anchorX: 'center' as const,
-  anchorY: 'middle' as const,
-  outlineWidth: 0.02,
-  outlineColor: '#000000',
-  outlineBlur: 0,
-  maxWidth: 4,
-  onSync: (t: { material: { depthTest: boolean; depthWrite: boolean } }) => {
-    t.material.depthTest = false;
-    t.material.depthWrite = false;
-  },
-};
 
 type DemoLabels = ReturnType<typeof getStrings>['canvas']['demo'];
 
 export { DEMO_PLAY_SPEED };
 
-function createMnistCanvas(size = 112): HTMLCanvasElement | null {
+/**
+ * Creates texture canvas directly from canonical 8x8 matrix
+ * to ensure 100% semantic consistency.
+ */
+function createMnistCanvasFromMatrix(matrix: number[][], size = 112): HTMLCanvasElement | null {
   if (typeof document === 'undefined') return null;
 
-  const source = document.createElement('canvas');
-  source.width = 28;
-  source.height = 28;
-  const sourceCtx = source.getContext('2d');
-  if (!sourceCtx) return null;
-
-  sourceCtx.fillStyle = '#030712';
-  sourceCtx.fillRect(0, 0, 28, 28);
-  sourceCtx.lineCap = 'round';
-  sourceCtx.lineJoin = 'round';
-  sourceCtx.strokeStyle = '#f8fafc';
-  sourceCtx.shadowColor = '#ffffff';
-  sourceCtx.shadowBlur = 1.2;
-  sourceCtx.lineWidth = 3.2;
-  sourceCtx.beginPath();
-  sourceCtx.moveTo(7.5, 8.0);
-  sourceCtx.bezierCurveTo(10.0, 4.6, 18.4, 4.4, 20.4, 8.1);
-  sourceCtx.bezierCurveTo(23.1, 13.0, 15.7, 15.1, 11.0, 19.2);
-  sourceCtx.bezierCurveTo(9.3, 20.7, 7.8, 22.1, 6.4, 23.8);
-  sourceCtx.lineTo(21.8, 23.8);
-  sourceCtx.stroke();
-
-  sourceCtx.globalAlpha = 0.35;
-  sourceCtx.lineWidth = 1.4;
-  sourceCtx.beginPath();
-  sourceCtx.moveTo(8.0, 8.7);
-  sourceCtx.bezierCurveTo(11.0, 7.0, 16.5, 7.1, 19.0, 9.2);
-  sourceCtx.stroke();
-  sourceCtx.globalAlpha = 1;
-
-  const output = document.createElement('canvas');
-  output.width = size;
-  output.height = size;
-  const ctx = output.getContext('2d');
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
   if (!ctx) return null;
-  ctx.imageSmoothingEnabled = false;
+
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  const cellW = size / cols;
+  const cellH = size / rows;
+
+  // Background
   ctx.fillStyle = '#020617';
   ctx.fillRect(0, 0, size, size);
-  ctx.drawImage(source, 0, 0, size, size);
 
+  // Draw scaled cells matching the active color palette logic
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const val = matrix[r][c];
+      if (val > 0.001) {
+        const red = Math.floor((0.03 + val * 0.70) * 255);
+        const green = Math.floor((0.06 + val * 0.82) * 255);
+        const blue = Math.floor((0.10 + val * 0.92) * 255);
+        ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
+        ctx.fillRect(c * cellW, r * cellH, cellW, cellH);
+      }
+    }
+  }
+
+  // Add low-res screen/pixel glow structure
   ctx.globalCompositeOperation = 'screen';
-  for (let y = 0; y < 28; y++) {
-    for (let x = 0; x < 28; x++) {
+  for (let y = 0; y < size; y += 4) {
+    for (let x = 0; x < size; x += 4) {
       const n = (x * 17 + y * 31) % 19;
       if (n !== 0 && n !== 7) continue;
       ctx.fillStyle = n === 0 ? 'rgba(255,255,255,0.045)' : 'rgba(125,178,232,0.035)';
-      ctx.fillRect(x * 4, y * 4, 4, 4);
+      ctx.fillRect(x, y, 4, 4);
     }
   }
   ctx.globalCompositeOperation = 'source-over';
 
-  return output;
+  return canvas;
 }
 
 export function useMnistTexture() {
   const mnist = useMemo(() => {
-    const canvas = createMnistCanvas();
+    const canvas = createMnistCanvasFromMatrix(DEMO_MNIST_MATRIX);
     if (!canvas) return null;
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -117,45 +104,52 @@ export function useMnistTexture() {
   return mnist;
 }
 
-const MnistPlane: React.FC<{ texture: THREE.Texture; size: number }> = ({ texture, size }) => (
-  <mesh>
-    <planeGeometry args={[size, size]} />
-    <meshBasicMaterial map={texture} toneMapped={false} />
-  </mesh>
-);
-
-const DemoInputTile: React.FC<{ texture: THREE.Texture; position: THREE.Vector3; label: string }> = ({ texture, position, label }) => (
-  <Billboard position={position.toArray()} renderOrder={2100}>
-    <group>
+const DemoInputTile: React.FC<{
+  texture: THREE.Texture;
+  position: THREE.Vector3;
+  rotation: [number, number, number];
+  size: [number, number];
+  label: string;
+}> = React.memo(({ texture, position, rotation, size, label }) => {
+  const [w, h] = size;
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Background Plane */}
       <mesh position={[0, 0, -0.035]}>
-        <planeGeometry args={[DEMO_INPUT_TILE_SIZE + 0.35, DEMO_INPUT_TILE_SIZE + 0.35]} />
+        <planeGeometry args={[w + 0.35, h + 0.35]} />
         <meshBasicMaterial color="#0f172a" transparent opacity={0.92} toneMapped={false} />
       </mesh>
-      <MnistPlane texture={texture} size={DEMO_INPUT_TILE_SIZE} />
-      <Text
-        {...textBaseProps}
-        fontSize={0.34}
-        color="#dbeafe"
-        outlineWidth={0.018}
-        position={[0, -DEMO_INPUT_TILE_SIZE / 2 - 0.42, 0]}
-        renderOrder={2101}
-      >
-        {label}
-      </Text>
+      {/* MNIST Plane (fixed world mesh) */}
+      <mesh>
+        <planeGeometry args={[w, h]} />
+        <meshBasicMaterial map={texture} toneMapped={false} />
+      </mesh>
+      {/* Label Text remains billboarded for camera readability */}
+      <Billboard position={[0, -h / 2 - 0.42, 0]} renderOrder={RENDER_ORDER_INPUT_TILE_BILLBOARD}>
+        <Text
+          {...TEXT_BASE_PROPS}
+          fontSize={0.34}
+          color="#dbeafe"
+          outlineWidth={0.018}
+          renderOrder={RENDER_ORDER_INPUT_TILE_TEXT}
+        >
+          {label}
+        </Text>
+      </Billboard>
     </group>
-  </Billboard>
-);
+  );
+});
 
 const DataPacket: React.FC<{
   route: DataPacketRoute;
-}> = ({ route }) => {
+}> = React.memo(({ route }) => {
   return (
-    <mesh position={route.position.toArray()} renderOrder={2200}>
+    <mesh position={route.position.toArray()} renderOrder={RENDER_ORDER_DATA_PACKET}>
       <sphereGeometry args={[0.18 + route.pulse * 0.05, 16, 16]} />
       <meshBasicMaterial color="#bae6fd" transparent opacity={0.7 + route.pulse * 0.2} toneMapped={false} />
     </mesh>
   );
-};
+});
 
 export const DataFlowDemo: React.FC<{
   stops: DemoStop[];
@@ -163,17 +157,24 @@ export const DataFlowDemo: React.FC<{
   progress: number;
   texture: THREE.Texture;
   t: DemoLabels;
-}> = ({ stops, edges, progress, texture, t }) => {
+}> = React.memo(({ stops, edges, progress, texture, t }) => {
   if (!stops.length) return null;
 
-  const segment = getSegmentState(stops, progress);
+  const pose = useMemo(() => getDemoInputPose(stops), [stops]);
+  const segment = getSegmentState(stops, progress, pose.position);
   const operationActive = !!segment.activeStop && hasOperationDemo(segment.activeStop.node.op_type);
   const packetRoute = getDataPacketRoute(stops, segment, edges);
   const easedOperationProgress = getEasedSegmentProgress(segment.segmentProgress);
 
   return (
     <group>
-      <DemoInputTile texture={texture} position={segment.inputPosition} label={t.input} />
+      <DemoInputTile
+        texture={texture}
+        position={pose.position}
+        rotation={pose.rotation}
+        size={pose.size}
+        label={t.input}
+      />
       {packetRoute && <DataPacket route={packetRoute} />}
       {segment.activeStop && operationActive && (
         <OperationDemo
@@ -184,7 +185,7 @@ export const DataFlowDemo: React.FC<{
       )}
     </group>
   );
-};
+});
 
 const DemoIcon: React.FC<{ playing: boolean }> = ({ playing }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5" aria-hidden="true">
@@ -216,7 +217,7 @@ export const DemoControls: React.FC<{
   onProgressChange: (progress: number) => void;
   onPlayingChange: (playing: boolean) => void;
   onAnimationSpeedChange: (speed: number) => void;
-}> = ({
+}> = React.memo(({
   stops,
   progress,
   playing,
@@ -351,4 +352,4 @@ export const DemoControls: React.FC<{
       </div>
     </div>
   );
-};
+});

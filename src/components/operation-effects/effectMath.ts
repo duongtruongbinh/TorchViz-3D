@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { LayoutEdge, LayoutNode } from '../../lib/irTypes';
 import { getEasedSegmentProgress } from '../../lib/mnistAnimation.ts';
+import { getVisualMeta } from '../../lib/visualKind.ts';
 import {
   DEMO_INPUT_TILE_SIZE,
   DEMO_KERNEL_SIZE,
@@ -47,26 +48,60 @@ export type DataPacketRoute = {
   pulse: number;
 };
 
+// --- Single Pose API ---
+
+export function getSamplePlaneRotation(): [number, number, number] {
+  // Rotate plane normal [0, 0, 1] to [1, 0, 0] so it faces along +X (aligned with network block Y-Z face)
+  return [0, Math.PI / 2, 0];
+}
+
+export function getNodeDemoPose(node: LayoutNode) {
+  const meta = getVisualMeta(node.op_type);
+  const w = node.depth * meta.depthMul;
+  const h = node.height * meta.heightMul;
+  return {
+    position: new THREE.Vector3(node.x, node.y, node.z),
+    rotation: getSamplePlaneRotation(),
+    size: [w, h] as [number, number],
+  };
+}
+
+export function getDemoInputPose(stops: DemoStop[]) {
+  const first = stops[0]?.node;
+  const gap = 2.5; // NODE_GAP
+  if (!first) {
+    return {
+      position: new THREE.Vector3(-4, 0, 0),
+      rotation: getSamplePlaneRotation(),
+      size: [DEMO_INPUT_TILE_SIZE, DEMO_INPUT_TILE_SIZE] as [number, number],
+    };
+  }
+  const firstMeta = getVisualMeta(first.op_type);
+  const firstWidth = first.width * firstMeta.widthMul;
+  return {
+    position: new THREE.Vector3(
+      first.x - firstWidth / 2 - gap,
+      first.y,
+      first.z,
+    ),
+    rotation: getSamplePlaneRotation(),
+    size: [DEMO_INPUT_TILE_SIZE, DEMO_INPUT_TILE_SIZE] as [number, number],
+  };
+}
+
+// Deprecated positions (keep for backward compatibility or intermediate conversions)
 export function getNodeDemoPosition(node: LayoutNode): THREE.Vector3 {
-  return new THREE.Vector3(
-    node.x,
-    node.y,
-    node.z + node.depth / 2 + DEMO_SAMPLE_SIZE * 0.65,
-  );
+  // New aligned position using getNodeDemoPose
+  return getNodeDemoPose(node).position;
 }
 
 export function getDemoInputPosition(stops: DemoStop[]): THREE.Vector3 {
-  const first = stops[0]?.node;
-  if (!first) return new THREE.Vector3(-4, 0, 1.5);
-  return new THREE.Vector3(
-    first.x - first.width / 2 - DEMO_INPUT_TILE_SIZE * 0.9,
-    first.y,
-    first.z + first.depth / 2 + DEMO_SAMPLE_SIZE * 0.65,
-  );
+  // New aligned position using getDemoInputPose
+  return getDemoInputPose(stops).position;
 }
 
-export function getSegmentState(stops: DemoStop[], progress: number): SegmentState {
-  const inputPosition = getDemoInputPosition(stops);
+export function getSegmentState(stops: DemoStop[], progress: number, precomputedInputPos?: THREE.Vector3): SegmentState {
+  const inputPosition = precomputedInputPos || getDemoInputPosition(stops);
   const activeStopIndex = progress <= 0 ? -1 : Math.min(stops.length - 1, Math.ceil(progress) - 1);
   const activeStop = activeStopIndex >= 0 ? stops[activeStopIndex] : null;
   const fractional = progress - Math.floor(progress);
@@ -127,7 +162,24 @@ function getEdgePoint(points: THREE.Vector3[], progress: number): THREE.Vector3 
 }
 
 export function getDataPacketRoute(stops: DemoStop[], segment: SegmentState, edges: LayoutEdge[]): DataPacketRoute | null {
-  if (!segment.activeStop || segment.activeStopIndex <= 0) return null;
+  if (!segment.activeStop || segment.activeStopIndex < 0) return null;
+
+  const easedProgress = getEasedSegmentProgress(segment.segmentProgress);
+  const pulse = 0.55 + 0.45 * Math.sin(easedProgress * Math.PI);
+
+  if (segment.activeStopIndex === 0) {
+    // Virtual first route from input tile to the first block
+    const start = segment.inputPosition;
+    const end = segment.activeStop.position;
+    const points = [start, end];
+    const position = new THREE.Vector3().lerpVectors(start, end, easedProgress);
+    return {
+      position,
+      points,
+      easedProgress,
+      pulse,
+    };
+  }
 
   const previousStop = stops[segment.activeStopIndex - 1];
   if (!previousStop) return null;
@@ -137,10 +189,8 @@ export function getDataPacketRoute(stops: DemoStop[], segment: SegmentState, edg
   ));
   if (!edge || edge.points.length < 2) return null;
 
-  const easedProgress = getEasedSegmentProgress(segment.segmentProgress);
   const points = edge.points.map(toVector3);
   const position = getEdgePoint(points, easedProgress);
-  const pulse = 0.55 + 0.45 * Math.sin(easedProgress * Math.PI);
 
   return {
     position,

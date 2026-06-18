@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 const EditorPane = React.lazy(() => import('./src/components/EditorPane'));
-import Canvas3D from './src/components/Canvas3D';
+import Canvas3D from './src/components/canvas/Canvas3D';
 import Inspector from './src/components/Inspector';
 import BottomTabs from './src/components/BottomTabs';
 import ExportSvgModal from './src/components/ExportSvgModal';

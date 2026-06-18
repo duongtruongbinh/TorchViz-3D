@@ -1,5 +1,6 @@
 import { IRGraph, IRNode, IREdge, LayoutData, LayoutNode, LayoutEdge } from './irTypes';
-import { getOpColor, getCollapsedContainerColor, getExpandedContainerColor, getExpandedContainerOpacity, ERROR_COLOR } from './constants';
+import { getCollapsedContainerColor, getExpandedContainerColor, getExpandedContainerOpacity, ERROR_COLOR } from './constants';
+import { getVisualMeta } from './visualKind';
 
 const BASE_PADDING = 3.0;
 const NODE_GAP = 2.5;
@@ -88,7 +89,7 @@ function layoutNodes(
         y: 0,
         z: 0,
         ...size,
-        color: node.error ? ERROR_COLOR : getOpColor(node.op_type),
+        color: node.error ? ERROR_COLOR : getVisualMeta(node.op_type).color,
       };
       result.push(ln);
       nodeMap.set(node.id, ln);

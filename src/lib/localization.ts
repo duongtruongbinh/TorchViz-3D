@@ -116,7 +116,10 @@ const localizedText = {
     demo: {
       title: { en: 'MNIST flow demo', vi: 'Demo luồng MNIST' },
       mode: { en: 'MNIST demo', vi: 'Demo MNIST' },
-      unavailable: { en: 'Run LeNet-5 to use the MNIST demo', vi: 'Chạy LeNet-5 để dùng demo MNIST' },
+      unavailable: {
+        en: 'MNIST demo requires input shape [N, 1, 32, 32] and a 10-class linear output head',
+        vi: 'Demo MNIST yêu cầu hình dạng đầu vào [N, 1, 32, 32] và lớp phân loại tuyến tính đầu ra 10 lớp',
+      },
       modeOn: { en: 'On', vi: 'Bật' },
       modeOff: { en: 'Off', vi: 'Tắt' },
       input: { en: 'MNIST input', vi: 'Input MNIST' },

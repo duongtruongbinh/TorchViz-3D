@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IRGraph, IRNode, findNodeById } from '../lib/irTypes';
 import { formatNumber } from '../lib/stats';
-import { getOpColor } from '../lib/constants';
+import { getVisualMeta } from '../lib/visualKind';
 import { getLayerInsight } from '../lib/layerInsights';
 import { getStrings, type LocalizedStrings } from '../lib/localization';
 import { useStore } from '../store/useStore';
@@ -89,7 +89,7 @@ const TreeNode: React.FC<{
           <span className="w-3 flex-shrink-0" />
         )}
 
-        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: getOpColor(node.op_type) }} />
+        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: getVisualMeta(node.op_type).color }} />
 
         <span className="font-medium truncate">{node.op_type}</span>
 
@@ -149,7 +149,7 @@ const NodeDetails: React.FC<{ node: IRNode; onOpenLayerInsight: (node: IRNode) =
   return (
     <div className="p-3 space-y-1">
       <div className="flex items-center gap-2 mb-2">
-        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getOpColor(node.op_type) }} />
+        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: getVisualMeta(node.op_type).color }} />
         <span className="text-sm font-bold text-[var(--text)] uppercase tracking-wider">{node.op_type}</span>
         <button
           type="button"

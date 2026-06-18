@@ -18,8 +18,8 @@ export const OperationPanelFrame: React.FC<{
   title: string;
   children: React.ReactNode;
 }> = ({ node, width, height, title, children }) => {
-  const panelPosition = getPanelPosition(node);
-  const panelScale = getPanelScale(node);
+  const panelPosition = React.useMemo(() => getPanelPosition(node), [node]);
+  const panelScale = React.useMemo(() => getPanelScale(node), [node]);
 
   return (
     <group>
