@@ -23,6 +23,7 @@ function node(overrides: Partial<LayoutNode> = {}): LayoutNode {
     width: 4,
     height: 3,
     depth: 2,
+    color: '#ffffff',
     is_container: false,
     collapsed: false,
     children: [],
