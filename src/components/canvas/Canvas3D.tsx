@@ -12,6 +12,7 @@ import {
   DEMO_PLAY_SPEED,
   useMnistTexture,
 } from '../mnist-demo/MnistFlowDemo';
+import { ConvExerciseModal } from '../mnist-demo/ConvExerciseModal';
 import {
   collectDemoStops,
   isMnistDemoCompatible,
@@ -85,6 +86,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   const [fittedLayoutKey, setFittedLayoutKey] = useState('');
   const [demoProgress, setDemoProgress] = useState(0);
   const [demoPlaying, setDemoPlaying] = useState(false);
+  const [exerciseOpen, setExerciseOpen] = useState(false);
   const [demoAnimationSpeed, setDemoAnimationSpeed] = useState(DEMO_PLAY_SPEED);
   const demoProgressRef = useRef(0);
   const demoLastSyncRef = useRef(0);
@@ -127,6 +129,8 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   }, [demoProgress, demoStops, inputPose.position]);
 
   const activeDemoNodeId = useOperationBlocks ? demoSegmentState.activeStop?.node.id ?? null : null;
+  const activeDemoOpType = demoSegmentState.activeStop?.node.op_type ?? '';
+  const exerciseSupported = /conv/i.test(activeDemoOpType);
 
   const progressiveDemoNodeIds = useMemo(() => {
     if (!useOperationBlocks || demoSegmentState.activeStopIndex < 0) return new Set<string>();
@@ -168,11 +172,16 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     demoLastSyncRef.current = 0;
     setDemoProgress(0);
     setDemoPlaying(false);
+    setExerciseOpen(false);
   }, [layoutKey, activeTemplate, shapeInput]);
 
   useEffect(() => {
     if (!demoModeEnabled || loading) setDemoPlaying(false);
   }, [demoModeEnabled, loading]);
+
+  useEffect(() => {
+    if (!exerciseSupported) setExerciseOpen(false);
+  }, [exerciseSupported]);
 
   useEffect(() => {
     if (!demoModeEnabled || !demoPlaying || maxDemoProgress <= 0) return;
@@ -208,17 +217,29 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   return (
     <div className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
       {layout && viewReady && demoModeEnabled && !loading && demoCompatible && (
-        <DemoControls
-          stops={demoStops}
-          progress={demoProgress}
-          playing={demoPlaying}
-          dataUrl={mnist?.dataUrl}
-          animationSpeed={demoAnimationSpeed}
-          t={t.canvas.demo}
-          onProgressChange={handleDemoProgressChange}
-          onPlayingChange={setDemoPlaying}
-          onAnimationSpeedChange={setDemoAnimationSpeed}
-        />
+        <>
+          <DemoControls
+            stops={demoStops}
+            progress={demoProgress}
+            playing={demoPlaying}
+            dataUrl={mnist?.dataUrl}
+            animationSpeed={demoAnimationSpeed}
+            exerciseSupported={exerciseSupported}
+            t={t.canvas.demo}
+            onProgressChange={handleDemoProgressChange}
+            onPlayingChange={setDemoPlaying}
+            onAnimationSpeedChange={setDemoAnimationSpeed}
+            onOpenExercise={() => {
+              setDemoPlaying(false);
+              setExerciseOpen(true);
+            }}
+          />
+          <ConvExerciseModal
+            isOpen={exerciseOpen}
+            t={t.canvas.demo}
+            onClose={() => setExerciseOpen(false)}
+          />
+        </>
       )}
 
       {showLoadingOverlay && (

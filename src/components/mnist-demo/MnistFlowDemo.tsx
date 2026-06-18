@@ -213,20 +213,24 @@ export const DemoControls: React.FC<{
   playing: boolean;
   dataUrl?: string;
   animationSpeed: number;
+  exerciseSupported?: boolean;
   t: DemoLabels;
   onProgressChange: (progress: number) => void;
   onPlayingChange: (playing: boolean) => void;
   onAnimationSpeedChange: (speed: number) => void;
+  onOpenExercise?: () => void;
 }> = React.memo(({
   stops,
   progress,
   playing,
   dataUrl,
   animationSpeed,
+  exerciseSupported = false,
   t,
   onProgressChange,
   onPlayingChange,
   onAnimationSpeedChange,
+  onOpenExercise,
 }) => {
   if (!stops.length) return null;
 
@@ -248,7 +252,7 @@ export const DemoControls: React.FC<{
   const speedMultiplier = animationSpeed / DEMO_PLAY_SPEED;
 
   return (
-    <div className="absolute left-4 top-4 z-30 w-[min(15rem,calc(100%-5.5rem))] rounded-lg border border-white/15 bg-zinc-950/72 shadow-2xl backdrop-blur-md pointer-events-auto">
+    <div className="absolute left-4 top-4 z-30 w-[min(20rem,calc(100%-5.5rem))] rounded-lg border border-white/15 bg-zinc-950/72 shadow-2xl backdrop-blur-md pointer-events-auto">
       <div className="flex items-center gap-2.5 px-2.5 py-2 border-b border-white/10">
         <div className="w-9 h-9 rounded-md overflow-hidden border border-sky-300/40 bg-black shrink-0">
           {dataUrl && <img src={dataUrl} alt="" className="w-full h-full object-cover [image-rendering:pixelated]" />}
@@ -264,89 +268,120 @@ export const DemoControls: React.FC<{
       </div>
 
       <div className="px-2.5 py-2 flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="w-8 h-8 flex items-center justify-center rounded-md border border-zinc-600/70 bg-zinc-900/70 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors shrink-0"
-            onClick={() => stepBy(-1)}
-            title={t.previous}
-            aria-label={t.previous}
-          >
-            <DemoStepIcon direction="prev" />
-          </button>
-          <button
-            type="button"
-            className="w-9 h-8 flex items-center justify-center rounded-md border border-sky-400/60 bg-sky-500/20 text-sky-100 hover:bg-sky-500/30 transition-colors shrink-0"
-            onClick={() => {
-              if (playing) {
-                onPlayingChange(false);
-                return;
-              }
-              if (progress >= maxProgress) onProgressChange(0);
-              onPlayingChange(true);
-            }}
-            title={playing ? t.pause : t.play}
-            aria-label={playing ? t.pause : t.play}
-          >
-            <DemoIcon playing={playing} />
-          </button>
-          <button
-            type="button"
-            className="w-8 h-8 flex items-center justify-center rounded-md border border-zinc-600/70 bg-zinc-900/70 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors shrink-0"
-            onClick={() => stepBy(1)}
-            title={t.next}
-            aria-label={t.next}
-          >
-            <DemoStepIcon direction="next" />
-          </button>
-          <input
-            className="min-w-0 flex-1 accent-sky-400"
-            type="range"
-            min={0}
-            max={maxProgress}
-            step={0.01}
-            value={progress}
-            aria-label={t.scrub}
-            onPointerDown={() => onPlayingChange(false)}
-            onChange={(event) => {
-              onPlayingChange(false);
-              onProgressChange(Number(event.currentTarget.value));
-            }}
-          />
+        <div className="grid grid-cols-[6.75rem_minmax(0,1fr)] gap-2">
+          <div className="rounded-md border border-zinc-700/60 bg-zinc-950/55 p-1.5">
+            <div className="grid grid-cols-3 gap-1">
+              <button
+                type="button"
+                className="h-8 flex items-center justify-center rounded-md border border-zinc-600/70 bg-zinc-900/70 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors"
+                onClick={() => stepBy(-1)}
+                title={t.previous}
+                aria-label={t.previous}
+              >
+                <DemoStepIcon direction="prev" />
+              </button>
+              <button
+                type="button"
+                className="h-8 flex items-center justify-center rounded-md border border-sky-400/60 bg-sky-500/20 text-sky-100 hover:bg-sky-500/30 transition-colors"
+                onClick={() => {
+                  if (playing) {
+                    onPlayingChange(false);
+                    return;
+                  }
+                  if (progress >= maxProgress) onProgressChange(0);
+                  onPlayingChange(true);
+                }}
+                title={playing ? t.pause : t.play}
+                aria-label={playing ? t.pause : t.play}
+              >
+                <DemoIcon playing={playing} />
+              </button>
+              <button
+                type="button"
+                className="h-8 flex items-center justify-center rounded-md border border-zinc-600/70 bg-zinc-900/70 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors"
+                onClick={() => stepBy(1)}
+                title={t.next}
+                aria-label={t.next}
+              >
+                <DemoStepIcon direction="next" />
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-md border border-zinc-700/60 bg-zinc-950/55 px-2 py-1.5 flex items-center">
+            <div className="flex w-full items-center gap-2">
+              <span className="w-12 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 leading-none">
+                {t.speed}
+              </span>
+              <input
+                id="mnist-demo-speed"
+                className="min-w-0 flex-1 accent-sky-400"
+                type="range"
+                min={MIN_ANIMATION_SPEED}
+                max={MAX_ANIMATION_SPEED}
+                step={0.05}
+                value={animationSpeed}
+                aria-label={t.speed}
+                onChange={(event) => onAnimationSpeedChange(Number(event.currentTarget.value))}
+              />
+              <span className="w-8 text-right text-[10px] font-mono text-sky-100 tabular-nums">
+                {speedMultiplier.toFixed(1)}x
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
-          <select
-            className="h-8 min-w-0 rounded-md border border-zinc-600/70 bg-zinc-950/80 px-2 text-xs text-zinc-200 outline-none focus:border-sky-400"
-            value={selectedIndex}
-            aria-label={t.jumpTo}
-            onChange={(event) => {
-              onPlayingChange(false);
-              onProgressChange(Number(event.currentTarget.value));
-            }}
-          >
-            <option value={0}>{t.input}</option>
-            {stops.map((stop, index) => (
-              <option key={stop.node.id} value={index + 1}>
-                {index + 1}. {stop.label}
-              </option>
-            ))}
-          </select>
-          <div className="flex flex-col gap-1">
-            <span className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 leading-none">
-              {t.speed}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="min-w-0 rounded-md border border-zinc-700/60 bg-zinc-950/55 p-1.5">
+            <span className="block px-0.5 pb-1 text-[9px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+              {t.step}
             </span>
-            <input
-              id="mnist-demo-speed"
-              className="w-full accent-sky-400"
-              type="range"
-              min={MIN_ANIMATION_SPEED}
-              max={MAX_ANIMATION_SPEED}
-              step={0.05}
-              value={animationSpeed}
-              aria-label={t.speed}
-              onChange={(event) => onAnimationSpeedChange(Number(event.currentTarget.value))}
-            />
+            <select
+              className="h-8 w-full min-w-0 rounded-md border border-zinc-600/70 bg-zinc-950/80 px-2 text-xs text-zinc-200 outline-none focus:border-sky-400"
+              value={selectedIndex}
+              aria-label={t.jumpTo}
+              onChange={(event) => {
+                onPlayingChange(false);
+                onProgressChange(Number(event.currentTarget.value));
+              }}
+            >
+              <option value={0}>{t.input}</option>
+              {stops.map((stop, index) => (
+                <option key={stop.node.id} value={index + 1}>
+                  {index + 1}. {stop.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={`min-w-0 rounded-md p-1.5 ${
+            exerciseSupported
+              ? 'border border-emerald-300/25 bg-emerald-400/10'
+              : 'border border-zinc-700/60 bg-zinc-950/55'
+          }`} title={exerciseSupported ? undefined : t.noExercisesTooltip}>
+            <span className={`block px-0.5 pb-1 text-[9px] font-bold uppercase tracking-[0.18em] ${
+              exerciseSupported ? 'text-emerald-300/80' : 'text-zinc-500'
+            }`}>
+              {t.exercises}
+            </span>
+            <select
+              className={`h-8 w-full min-w-0 rounded-md border px-2 text-xs outline-none transition-colors ${
+                exerciseSupported
+                  ? 'border-emerald-300/45 bg-emerald-950/45 text-emerald-100 focus:border-emerald-300'
+                  : 'border-zinc-700/70 bg-zinc-900/50 text-zinc-500 cursor-not-allowed'
+              }`}
+              value=""
+              disabled={!exerciseSupported}
+              aria-label={t.exercises}
+              title={exerciseSupported ? t.chooseExercise : t.noExercisesTooltip}
+              onChange={(event) => {
+                if (!event.currentTarget.value) return;
+                onOpenExercise?.();
+              }}
+            >
+              <option value="">{exerciseSupported ? t.chooseExercise : t.noExercises}</option>
+              {exerciseSupported && <option value="conv">{t.convExercise}</option>}
+            </select>
           </div>
         </div>
       </div>
