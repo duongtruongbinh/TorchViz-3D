@@ -7,6 +7,7 @@ import ExportSvgModal from './src/components/ExportSvgModal';
 import ParamFormulaPopup from './src/components/ParamFormulaPopup';
 import Header from './src/components/Header';
 import { hasSeenTour, TERMINAL_ERROR_TOUR_STEP, TERMINAL_SUCCESS_TOUR_STEP } from './src/components/OnboardingTour';
+import { shouldCloseLayerInsightForTourStep } from './src/lib/onboardingTourSteps';
 import { findNodeByLine, type IRNode } from './src/lib/irTypes';
 import { useStore } from './src/store/useStore';
 import { workerService } from './src/lib/workerService';
@@ -176,6 +177,7 @@ export default function App() {
 
   const handleTourStepChange = useCallback((stepTitle: string | null) => {
     setCurrentTourStep(stepTitle);
+    if (shouldCloseLayerInsightForTourStep(stepTitle)) setLayerInsightNode(null);
     if (stepTitle) setTourResetViewToken((token) => token + 1);
     if (stepTitle === TERMINAL_SUCCESS_TOUR_STEP || stepTitle === TERMINAL_ERROR_TOUR_STEP) setBottomCollapsed(false);
   }, []);

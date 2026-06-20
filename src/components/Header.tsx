@@ -200,6 +200,7 @@ export default function Header({
                     </button>
 
                     <button
+                        data-tour="mnist-demo-toggle"
                         type="button"
                         role="switch"
                         aria-checked={demoModeEnabled}

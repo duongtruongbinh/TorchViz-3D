@@ -113,7 +113,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
+    <div ref={containerRef} data-tour="mnist-demo-flow" className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
       {layout && viewReady && demoModeEnabled && demo.compatibility.ok && (
         <>
           <DemoControls
