@@ -1,8 +1,8 @@
 ---
 title: LLM wiki — OKF bundle + codified workflow
-status: approved
+status: executing
 created: 2026-06-21T00:00:00Z
-updated: 2026-06-21T00:00:00Z
+updated: 2026-06-21T12:00:00Z
 author: hienlong
 task: "set up llm-wiki (OKF bundle) and codify the task workflow as mandatory practice"
 supersedes: []   # genesis plan — no predecessor
@@ -105,3 +105,26 @@ non-empty `type`; cross-links are bundle-relative (`/...`).
 # Execution log
 - 2026-06-21 — Plan created and approved (Phase 0). Renamed to date-prefixed
   filename; added lineage convention. Awaiting review before Phase 1.
+- 2026-06-21 — Phases 1–3 confirmed in place (`docs/WORKFLOW.md`, `CLAUDE.md`,
+  `CONTRIBUTING.md`, `.github/pull_request_template.md`). Added approval-mechanics
+  clause to WORKFLOW.md step 5.
+- 2026-06-21 — **Phase 4 executed.** Built the OKF v0.1 bundle under `wiki/`:
+  `index.md`, `architecture.md`, `glossary.md`; concepts (`torchstub`,
+  `pyodide-worker`, `ir-contract`, `layout-engine`, `state-store`, `rendering`);
+  guide (`add-a-layer`); reference (`templates`, `gotchas`); section listings.
+  Authored against the **current code**, not the prose docs — surfaced two
+  drifts: `WRAPPER_LINE_OFFSET` is now auto-derived via `countPythonPreambleLines`
+  (docs/ARCHITECTURE.md + CLAUDE.md still say hardcoded `7`), and op color moved
+  to `src/lib/visualKind.ts` (docs/TORCHSTUB.md still cites `OP_MATCHERS`/`OP_COLORS`).
+- 2026-06-21 — **Phase 5 executed.** Added `wiki/log.md` (init entry). Conformance
+  pass PASSED: all 15 non-reserved pages have a non-empty `type`; `log.md`
+  reserved; all bundle-relative (`/...`) links resolve. **Pausing for review
+  before Phase 6** (README + ARCHITECTURE cross-links), per plan pacing.
+- 2026-06-21 — **Link convention changed (overrides a Phase 4 locked decision).**
+  The locked rule was "cross-links are bundle-relative (`/...`)", but a leading
+  `/` resolves to the *workspace* root in editors/GitHub, so no intra-wiki link
+  opened. Converted all links to **standard relative paths** (`concepts/x.md`,
+  `../glossary.md`). Also fixed `../docs/...` → `../../docs/...` in subdir pages
+  (the original `/...` conformance check had not validated `../`-style links).
+  Re-verified: every link now resolves **from its host file**. Updated the index
+  page's stated convention to match.
