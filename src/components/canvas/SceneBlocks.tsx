@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { RoundedBox, Html, Text, Billboard, Edges } from '@react-three/drei';
 import * as THREE from 'three';
 import { LayoutNode, LayoutData } from '../../lib/irTypes';
@@ -211,10 +211,12 @@ export const InstancedLeafGroup: React.FC<{
     if (!mesh) return;
     const matrix = new THREE.Matrix4();
     const pos = new THREE.Vector3();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3(1, 1, 1);
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
       pos.set(node.x, node.y, node.z);
-      matrix.compose(pos, new THREE.Quaternion(), new THREE.Vector3(1, 1, 1));
+      matrix.compose(pos, quaternion, scale);
       mesh.setMatrixAt(i, matrix);
     }
     mesh.instanceMatrix.needsUpdate = true;
@@ -227,7 +229,7 @@ export const InstancedLeafGroup: React.FC<{
       <instancedMesh
         ref={ref}
         args={[undefined as any, undefined as any, nodes.length]}
-        onClick={(e: any) => {
+        onClick={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();
           const i = e.instanceId ?? 0;
           const node = nodes[i];
@@ -235,7 +237,7 @@ export const InstancedLeafGroup: React.FC<{
           onClickNode(node.id);
           onOpenLayerInsight(node);
         }}
-        onPointerOver={(e: any) => {
+        onPointerOver={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();
           const i = e.instanceId ?? 0;
           hovered.show(i);
@@ -444,12 +446,12 @@ export const NodeBlock: React.FC<{
   return (
     <group position={[node.x, node.y, node.z]}>
       <group
-        onClick={(e: any) => {
+        onClick={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();
           onClickNode(node.id);
           onOpenLayerInsight(node);
         }}
-        onPointerOver={(e: any) => {
+        onPointerOver={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();
           hovered.show(true);
           onHover(node.lineno ?? null);
@@ -541,12 +543,12 @@ export const ContainerBlock: React.FC<{
           args={args}
           radius={0.03}
           smoothness={2}
-          onClick={(e: any) => {
+          onClick={(e: ThreeEvent<MouseEvent>) => {
             e.stopPropagation();
             onClickNode(node.id);
             onOpenLayerInsight(node);
           }}
-          onPointerOver={(e: any) => {
+          onPointerOver={(e: ThreeEvent<MouseEvent>) => {
             e.stopPropagation();
             hovered.show(true);
             onHover(node.lineno ?? null);

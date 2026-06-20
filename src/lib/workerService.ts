@@ -1,5 +1,6 @@
 import { createWorker } from '../workers/pyodideWorker';
 import { useStore, TEMPLATES } from '../store/useStore';
+import type { AppError } from './appError';
 
 export function parseShape(s: string): number[] | null {
     try {
@@ -26,10 +27,10 @@ class WorkerService {
                 if (requestId !== undefined && requestId !== this.activeRequestId) return;
 
                 if (type === 'success' || type === 'partial') {
-                    useStore.getState().setIrResult(data, type === 'partial' ? (data.error || err) : null);
+                    useStore.getState().setIrResult(data, type === 'partial' ? ((data.error || err) as AppError) : null);
                     useStore.getState().setLoading(false);
                 } else {
-                    useStore.getState().setError(err);
+                    useStore.getState().setError(err as AppError);
                     useStore.getState().setLoading(false);
                 }
             };
@@ -38,8 +39,9 @@ class WorkerService {
                 console.error('Worker error:', err);
                 useStore.getState().setCriticalError('Python Runtime Error. Check console/network.');
             };
-        } catch (err: any) {
-            useStore.getState().setCriticalError(`Init Error: ${err.message}`);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            useStore.getState().setCriticalError(`Init Error: ${message}`);
         }
     }
 

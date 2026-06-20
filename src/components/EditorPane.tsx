@@ -6,6 +6,7 @@ import { useStore } from '../store/useStore';
 const NN_COMPLETIONS: { label: string; detail?: string }[] = [
   { label: 'Module', detail: 'Base class for all nn modules' },
   { label: 'Conv2d', detail: '(in_channels, out_channels, kernel_size, ...)' },
+  { label: 'ConvTranspose2d', detail: '(in_channels, out_channels, kernel_size, ...)' },
   { label: 'Linear', detail: '(in_features, out_features)' },
   { label: 'Sequential', detail: '(*modules)' },
   { label: 'MaxPool2d', detail: '(kernel_size, stride=None, padding=0)' },
@@ -13,11 +14,18 @@ const NN_COMPLETIONS: { label: string; detail?: string }[] = [
   { label: 'AdaptiveAvgPool2d', detail: '(output_size)' },
   { label: 'BatchNorm2d', detail: '(num_features)' },
   { label: 'LayerNorm', detail: '(normalized_shape)' },
+  { label: 'GroupNorm', detail: '(num_groups, num_channels)' },
+  { label: 'InstanceNorm2d', detail: '(num_features)' },
+  { label: 'Identity', detail: '()' },
   { label: 'ReLU', detail: '()' },
   { label: 'GELU', detail: '()' },
   { label: 'SiLU', detail: '()' },
+  { label: 'LeakyReLU', detail: '(negative_slope=0.01)' },
+  { label: 'ELU', detail: '(alpha=1.0)' },
+  { label: 'Hardswish', detail: '()' },
   { label: 'Tanh', detail: '()' },
   { label: 'Dropout', detail: '(p=0.5)' },
+  { label: 'Dropout2d', detail: '(p=0.5)' },
   { label: 'Flatten', detail: '()' },
   { label: 'Embedding', detail: '(num_embeddings, embedding_dim)' },
   { label: 'MultiheadAttention', detail: '(embed_dim, num_heads)' },
@@ -58,7 +66,7 @@ const EditorPane: React.FC<EditorPaneProps> = ({
     editorRef.current = editor;
     monacoRef.current = monaco;
 
-    editor.onDidChangeCursorPosition((e: any) => {
+    editor.onDidChangeCursorPosition((e: { position: { lineNumber: number } }) => {
       onCursorChange?.(e.position.lineNumber);
     });
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Billboard, Text } from '@react-three/drei';
+import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { clamp01, getEasedSegmentProgress } from '../../lib/mnistAnimation';
 import type { LayoutEdge } from '../../lib/irTypes';
@@ -12,9 +12,8 @@ import type { DemoStop } from '../operation-effects/effectMath';
 import {
   getDataPacketRoute,
   getSegmentState,
-  getDemoInputPose,
-  getSamplePlaneRotation,
   type DataPacketRoute,
+  type DemoPose,
 } from '../operation-effects/effectMath';
 import {
   hasOperationEffect as hasOperationDemo,
@@ -144,37 +143,56 @@ const DataPacket: React.FC<{
   route: DataPacketRoute;
 }> = React.memo(({ route }) => {
   return (
-    <mesh position={route.position.toArray()} renderOrder={RENDER_ORDER_DATA_PACKET}>
+    <mesh position={route.position} renderOrder={RENDER_ORDER_DATA_PACKET}>
       <sphereGeometry args={[0.18 + route.pulse * 0.05, 16, 16]} />
       <meshBasicMaterial color="#bae6fd" transparent opacity={0.7 + route.pulse * 0.2} toneMapped={false} />
     </mesh>
   );
 });
 
+const VirtualInputRoute: React.FC<{ points: THREE.Vector3[] }> = React.memo(({ points }) => (
+  <Line
+    points={points}
+    color="#7dd3fc"
+    lineWidth={1.5}
+    dashed
+    dashScale={1.4}
+    dashSize={0.32}
+    gapSize={0.18}
+    transparent
+    opacity={0.78}
+  />
+));
+
 export const DataFlowDemo: React.FC<{
   stops: DemoStop[];
   edges: LayoutEdge[];
   progress: number;
   texture: THREE.Texture;
+  inputPose: DemoPose;
   t: DemoLabels;
-}> = React.memo(({ stops, edges, progress, texture, t }) => {
+}> = React.memo(({ stops, edges, progress, texture, inputPose, t }) => {
   if (!stops.length) return null;
 
-  const pose = useMemo(() => getDemoInputPose(stops), [stops]);
-  const segment = getSegmentState(stops, progress, pose.position);
+  const segment = getSegmentState(stops, progress, inputPose.position);
   const operationActive = !!segment.activeStop && hasOperationDemo(segment.activeStop.node.op_type);
   const packetRoute = getDataPacketRoute(stops, segment, edges);
   const easedOperationProgress = getEasedSegmentProgress(segment.segmentProgress);
+  const virtualInputRoutePoints = useMemo(
+    () => [inputPose.position, stops[0].position],
+    [inputPose.position, stops],
+  );
 
   return (
     <group>
       <DemoInputTile
         texture={texture}
-        position={pose.position}
-        rotation={pose.rotation}
-        size={pose.size}
+        position={inputPose.position}
+        rotation={inputPose.rotation}
+        size={inputPose.size}
         label={t.input}
       />
+      <VirtualInputRoute points={virtualInputRoutePoints} />
       {packetRoute && <DataPacket route={packetRoute} />}
       {segment.activeStop && operationActive && (
         <OperationDemo

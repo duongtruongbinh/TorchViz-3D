@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {
   getDataPacketRoute,
+  getMatrixCenter,
   getPanelPosition,
   getDemoInputPose,
+  getPatchCenter,
   getSamplePlaneRotation,
   type DemoStop,
   type SegmentState,
@@ -155,4 +157,17 @@ test('getDataPacketRoute supports virtual first route (input -> first block)', (
   assert.equal(route.position.x, 7);
   assert.equal(route.position.y, 0);
   assert.equal(route.position.z, 3);
+});
+
+
+test('getMatrixCenter returns the geometric center of a centered matrix visual', () => {
+  const center = getMatrixCenter([1.25, -0.5, 0.02]);
+
+  assert.deepEqual(center.toArray().map((value) => Number(value.toFixed(3))), [1.25, -0.5, 0.14]);
+});
+
+test('getPatchCenter returns pool/kernel patch center independent of patch size', () => {
+  const center = getPatchCenter([0, 0.3, 0.02], 0.98);
+
+  assert.deepEqual(center.toArray().map((value) => Number(value.toFixed(3))), [0, 0.3, 0.14]);
 });

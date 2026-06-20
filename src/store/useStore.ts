@@ -9,6 +9,7 @@ import vgg16Code from '../templates/vgg16';
 import mobilenetV2Code from '../templates/mobilenet_v2';
 import unetCode from '../templates/unet';
 import type { Language } from '../lib/localization';
+import type { AppError } from '../lib/appError';
 
 export const TEMPLATES: Record<string, { name: string; code: string; shape: number[] }> = {
     lenet: { name: 'LeNet-5', code: lenetCode, shape: [1, 1, 32, 32] },
@@ -29,7 +30,7 @@ interface AppState {
     ir: IRGraph | null;
     collapsedIds: Set<string>;
     loading: boolean;
-    error: any | null;
+    error: AppError | null;
     criticalError: string | null;
 
     highlightLine: number | null;
@@ -42,9 +43,9 @@ interface AppState {
     setActiveTemplate: (templateId: string) => void;
     setCode: (code: string) => void;
     setShapeInput: (shape: string) => void;
-    setIrResult: (ir: IRGraph, error: any | null) => void;
+    setIrResult: (ir: IRGraph, error: AppError | null) => void;
     setLoading: (loading: boolean) => void;
-    setError: (error: any) => void;
+    setError: (error: AppError | null) => void;
     setCriticalError: (err: string | null) => void;
 
     toggleCollapse: (nodeId: string) => void;
