@@ -38,8 +38,11 @@ function stop(overrides: Partial<LayoutNode> = {}): DemoStop {
   };
 }
 
-function reason(result: MnistDemoCompatibility): MnistDemoCompatibility['reason'] {
-  return result.reason;
+function reason(result: MnistDemoCompatibility): string | undefined {
+  if (result.ok === false) {
+    return result.reason;
+  }
+  return undefined;
 }
 
 test('reports no-layout compatibility reason before layout exists', () => {

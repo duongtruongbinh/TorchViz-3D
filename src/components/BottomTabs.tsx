@@ -1,10 +1,11 @@
 import React from 'react';
 import { IRGraph } from '../lib/irTypes';
 import { getStrings } from '../lib/localization';
+import type { AppError } from '../lib/appError';
 
 interface BottomTabsProps {
   ir: IRGraph | null;
-  error: { message: string; lineno: number; hint: string } | null;
+  error: AppError | null;
   collapsed?: boolean;
   headerAction?: React.ReactNode;
   demoSuccessParams?: number | null;
@@ -33,11 +34,15 @@ const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, h
               <div className="flex items-start gap-3">
                 <span className="text-red-500 font-bold mt-0.5">✖</span>
                 <div>
-                  <div className="text-red-300 font-bold mb-1">
-                    {t.terminal.runtimeErrorAtLine(error.lineno)}
-                  </div>
-                  <div className="text-red-200/80 mb-2">{error.message}</div>
-                  <div className="text-zinc-500 italic">{t.terminal.hint(error.hint)}</div>
+                  {error.lineno !== undefined && (
+                    <div className="text-red-300 font-bold mb-1">
+                      {t.terminal.runtimeErrorAtLine(error.lineno)}
+                    </div>
+                  )}
+                  <div className="text-red-200/80 mb-2">{error.message || 'Unknown error'}</div>
+                  {error.hint && (
+                    <div className="text-zinc-500 italic">{t.terminal.hint(error.hint)}</div>
+                  )}
                 </div>
               </div>
             </div>

@@ -31,15 +31,15 @@ export type SpatialShapeBreakdown = {
 };
 
 export function normalize2DParam(value: Shape2DParam): [number, number] {
-  if (Array.isArray(value)) {
-    if (value.length !== 2) throw new Error('2D parameter tuple must have length 2');
-    return [
-      normalizeInteger(value[0], '2D parameter', { min: 0 }),
-      normalizeInteger(value[1], '2D parameter', { min: 0 }),
-    ];
+  if (typeof value === 'number') {
+    const normalized = normalizeInteger(value, '2D parameter', { min: 0 });
+    return [normalized, normalized];
   }
-  const normalized = normalizeInteger(value, '2D parameter', { min: 0 });
-  return [normalized, normalized];
+  if (value.length !== 2) throw new Error('2D parameter tuple must have length 2');
+  return [
+    normalizeInteger(value[0], '2D parameter', { min: 0 }),
+    normalizeInteger(value[1], '2D parameter', { min: 0 }),
+  ];
 }
 
 export function getConv2dOutputShape(input: number[], config: Conv2dShapeConfig): number[] {

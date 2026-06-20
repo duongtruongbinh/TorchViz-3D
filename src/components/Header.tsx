@@ -85,17 +85,19 @@ export default function Header({
         : getMnistDemoLayoutCompatibility(layout, loading);
     const demoAvailable = demoCompatibility.ok;
     const demoUnavailableTitle = (() => {
-        if (demoCompatibility.ok) return t.canvas.demo.mode;
-        switch (demoCompatibility.reason) {
-            case 'loading':
-                return 'MNIST demo unavailable: graph is still loading.';
-            case 'no-layout':
-                return 'MNIST demo unavailable: visualize a model first.';
-            case 'input-shape':
-                return 'MNIST demo unavailable: input shape must be [N, 1, 32, 32].';
-            case 'missing-head':
-                return 'MNIST demo unavailable: model needs a 10-class Linear head.';
+        if (demoCompatibility.ok === false) {
+            switch (demoCompatibility.reason) {
+                case 'loading':
+                    return 'MNIST demo unavailable: graph is still loading.';
+                case 'no-layout':
+                    return 'MNIST demo unavailable: visualize a model first.';
+                case 'input-shape':
+                    return 'MNIST demo unavailable: input shape must be [N, 1, 32, 32].';
+                case 'missing-head':
+                    return 'MNIST demo unavailable: model needs a 10-class Linear head.';
+            }
         }
+        return t.canvas.demo.mode;
     })();
 
     React.useEffect(() => {
