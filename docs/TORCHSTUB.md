@@ -81,15 +81,17 @@ Module._leaf_types = {Conv2d, ConvTranspose2d, Linear, MaxPool2d, ...}
 
 ### 3. Give it a color
 
-Colors are matched by regex on `op_type` in **`src/lib/constants.ts`** (`OP_MATCHERS`). If an
-existing pattern already covers your op name you're done; otherwise add a matcher and a legend
-entry in `OP_COLORS`:
+Colors are matched by regex on `op_type` in **`src/lib/visualKind.ts`** — the ordered
+`KIND_RULES` table maps the op name to a `VisualKind`, and `META_MAP` gives that kind its
+color. If an existing rule already covers your op name you're done; otherwise add a
+`KIND_RULES` entry (specific patterns before generic ones — first match wins) and, for a new
+category, a `META_MAP` entry:
 
 ```ts
-[/conv/i, '#60a5fa'],   // already matches "ConvTranspose2d" — nothing to add
+[/conv/i, 'Conv'],   // already matches "ConvTranspose2d" — nothing to add
 ```
 
-Unmatched ops fall back to the gray `Default` color.
+Unmatched ops fall back to the gray `Default` kind/color.
 
 ### 4. (Optional) expose it under `F`
 
@@ -132,5 +134,6 @@ subtree. `Sequential` (in `PY_NN_EXTRA`) is the reference example.
 - **`meta` is free-form** and surfaced in the Inspector; use it for kernel/stride/heads/etc.
 - **Don't reach for `inspect`/line numbers** in your layer — `GraphRecorder._get_lineno()`
   already captures source lines for editor highlighting.
-- After editing the **wrapper preamble** in `pyodideWorker.ts` (not normally needed for a new
-  layer), update `WRAPPER_LINE_OFFSET` — see ARCHITECTURE.md gotchas.
+- Editing the **wrapper preamble** in `pyodideWorker.ts` is not normally needed for a new
+  layer; if you do, `WRAPPER_LINE_OFFSET` is auto-derived from it (no manual bump) — see
+  ARCHITECTURE.md gotchas.

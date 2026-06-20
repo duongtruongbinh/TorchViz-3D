@@ -58,9 +58,11 @@ Read [wiki/architecture.md](wiki/architecture.md) for the full pipeline, and the
 ## Gotchas
 
 See [wiki/reference/gotchas.md](wiki/reference/gotchas.md). The big ones:
-`WRAPPER_LINE_OFFSET` in the worker must equal the injected preamble's line
-count; the layout axis convention is intentionally swapped; module resolution is
-split between an importmap and Vite bundling. Desktop + online only.
+`WRAPPER_LINE_OFFSET` in the worker is auto-derived from the injected preamble
+(`countPythonPreambleLines`), not hardcoded; the layout axis convention is
+intentionally swapped; op color lives in `visualKind.ts` (not `constants.ts`);
+module resolution is split between an importmap and Vite bundling. Desktop +
+online only.
 
 ## Common commands
 

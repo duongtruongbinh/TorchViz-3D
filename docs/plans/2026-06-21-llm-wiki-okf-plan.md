@@ -1,8 +1,8 @@
 ---
 title: LLM wiki — OKF bundle + codified workflow
-status: executing
+status: done
 created: 2026-06-21T00:00:00Z
-updated: 2026-06-21T12:00:00Z
+updated: 2026-06-21T18:00:00Z
 author: hienlong
 task: "set up llm-wiki (OKF bundle) and codify the task workflow as mandatory practice"
 supersedes: []   # genesis plan — no predecessor
@@ -128,3 +128,10 @@ non-empty `type`; cross-links are bundle-relative (`/...`).
   (the original `/...` conformance check had not validated `../`-style links).
   Re-verified: every link now resolves **from its host file**. Updated the index
   page's stated convention to match.
+- 2026-06-21 — **Phase 6 executed (plan complete).** `README.md`: added a
+  "Knowledge bundle" pointer to `wiki/` under Documentation. `docs/ARCHITECTURE.md`:
+  added a cross-link to the wiki near the top. While cross-linking, corrected the
+  two stale claims the wiki had flagged, at their source: `WRAPPER_LINE_OFFSET` is
+  auto-derived (fixed in ARCHITECTURE.md, TORCHSTUB.md, CLAUDE.md), and op color
+  lives in `visualKind.ts` not `constants.ts`/`OP_MATCHERS` (fixed in
+  ARCHITECTURE.md, TORCHSTUB.md, CLAUDE.md). Status → done.
