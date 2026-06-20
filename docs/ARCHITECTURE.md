@@ -58,14 +58,23 @@ need it — to *draw* a network we only need each layer's **output shape** and *
 count**, not its actual numeric output.
 
 So the worker writes a small fake package called `torchstub` into Pyodide's virtual
-filesystem (its source lives in `src/lib/python_sources.ts`). The user's code imports it as
-if it were `torch`:
+filesystem (its source lives in `src/lib/python_sources.ts`). Before running the user's code,
+the worker injects a preamble (`pyodideWorker.ts`) that imports the stub under the usual
+PyTorch aliases:
 
 ```python
-import torchstub as torch
+import torchstub
 import torchstub.nn as nn
 import torchstub.nn.functional as F
+from torchstub import Tensor
+import math
 ```
+
+So user code just uses `nn` / `F` as it would with real PyTorch — no `import torch` needed
+(the built-in templates redeclare `import torchstub.nn as nn` for clarity, which is
+harmlessly redundant). Counting the blank lines that wrap it, this preamble occupies
+`WRAPPER_LINE_OFFSET` (7) lines before the user's code begins; see
+[Fragile spots](#fragile-spots--gotchas).
 
 `torchstub` mimics the `torch.nn` API but does **shape inference only**:
 

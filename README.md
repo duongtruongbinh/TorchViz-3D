@@ -20,7 +20,9 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
-* Node.js (v16 or higher)
+* **Node.js 20 or higher** (CI builds on Node 24; Vite 6 requires a modern LTS).
+* A **desktop browser** — the UI is laid out for screens ≥ 1024px wide.
+* **Internet access** — Pyodide, Tailwind, and fonts load from CDNs at runtime.
 
 ### Installation
 
@@ -40,6 +42,12 @@
     npm run dev
     ```
     Open `http://localhost:3000` to view the app.
+
+### Running tests
+
+```bash
+npm test
+```
 
 ## 📦 Building for Production
 
