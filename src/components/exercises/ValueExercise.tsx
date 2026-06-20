@@ -6,6 +6,7 @@ import {
   buildValueExerciseModel,
   checkNumericAnswers,
   type ValueExerciseId,
+  type ValueExerciseModel,
 } from '../../lib/valueExerciseModels';
 
 export const ValueExercise: React.FC<{
@@ -29,6 +30,7 @@ export const ValueExercise: React.FC<{
   const [poolHintIndex, setPoolHintIndex] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [activationHintIndex, setActivationHintIndex] = useState<number | null>(null);
   const poolOutput = useMemo(
     () => computePoolOutput(POOL_INPUT_MATRIX, poolKernel, poolStride, poolMode),
     [poolKernel, poolMode, poolStride],
@@ -42,6 +44,7 @@ export const ValueExercise: React.FC<{
     setPoolKernel(2);
     setPoolStride(2);
     setPoolHintIndex(null);
+    setActivationHintIndex(null);
     setSubmitted(false);
     setShowHint(false);
   }, [isOpen, model, node?.op_type]);
@@ -55,6 +58,9 @@ export const ValueExercise: React.FC<{
   useEffect(() => {
     if (!showHint || model?.id !== 'pool-value') {
       setPoolHintIndex(null);
+    }
+    if (!showHint || model?.id !== 'activation-value') {
+      setActivationHintIndex(null);
     }
   }, [model?.id, showHint]);
 
@@ -89,6 +95,20 @@ export const ValueExercise: React.FC<{
     setShowHint(true);
     setPoolAnswers((current) => current.map((answer, index) => (
       index === targetIndex ? formatPoolValue(poolExpected[targetIndex]) : answer
+    )));
+  };
+
+  const showActivationHint = () => {
+    if (!model) return;
+    const nextIndex = model.expectedAnswers.findIndex((expected, index) => (
+      !checkNumericAnswers([answers[index] ?? ''], [expected])[0]
+    ));
+    const targetIndex = nextIndex >= 0 ? nextIndex : 0;
+    setActivationHintIndex(targetIndex);
+    setSubmitted(false);
+    setShowHint(true);
+    setAnswers((current) => current.map((answer, index) => (
+      index === targetIndex ? formatPoolValue(model.expectedAnswers[targetIndex]) : answer
     )));
   };
 
@@ -260,6 +280,22 @@ export const ValueExercise: React.FC<{
               </section>
             )}
           </div>
+        ) : model.id === 'activation-value' ? (
+          <ActivationValuePanel
+            model={model}
+            answers={answers}
+            statuses={statuses}
+            submitted={submitted}
+            t={t}
+            language={language}
+            showHint={showHint}
+            activationHintIndex={activationHintIndex}
+            onAnswerChange={(index, value) => {
+              setAnswers((current) => current.map((item, answerIndex) => (
+                answerIndex === index ? value : item
+              )));
+            }}
+          />
         ) : (
         <div className="grid grid-cols-1 gap-5 p-5 xl:grid-cols-[minmax(18rem,1fr)_minmax(16rem,0.8fr)_minmax(18rem,1fr)]">
           <section className="min-w-0 p-4">
@@ -400,6 +436,7 @@ export const ValueExercise: React.FC<{
                 setAnswers(model.expectedAnswers.map(() => ''));
                 setPoolAnswers(poolExpected.map(() => ''));
                 setPoolHintIndex(null);
+                setActivationHintIndex(null);
                 setSubmitted(false);
               }}
             >
@@ -415,6 +452,10 @@ export const ValueExercise: React.FC<{
               onClick={() => {
                 if (model.id === 'pool-value') {
                   showPoolHint();
+                  return;
+                }
+                if (model.id === 'activation-value') {
+                  showActivationHint();
                   return;
                 }
                 setShowHint((visible) => !visible);
@@ -439,6 +480,7 @@ export const ValueExercise: React.FC<{
 };
 
 type PoolMode = 'max' | 'avg';
+type DemoLabels = ReturnType<typeof getStrings>['canvas']['demo'];
 
 const POOL_INPUT_MATRIX = [
   [2, 5, 1, 0, 3],
@@ -577,3 +619,189 @@ const StepperField: React.FC<{
     </div>
   </label>
 );
+
+const ActivationValuePanel: React.FC<{
+  model: ValueExerciseModel;
+  answers: string[];
+  statuses: boolean[];
+  submitted: boolean;
+  t: DemoLabels;
+  language: 'en' | 'vi';
+  showHint: boolean;
+  activationHintIndex: number | null;
+  onAnswerChange: (index: number, value: string) => void;
+}> = ({ model, answers, statuses, submitted, t, language, showHint, activationHintIndex, onAnswerChange }) => {
+  const inputValues = readVectorSection(model.displaySections[0]?.rows[0] ?? '');
+
+  return (
+    <div className="grid grid-cols-1 gap-5 p-5 xl:grid-cols-[minmax(20rem,0.85fr)_minmax(22rem,1fr)_minmax(22rem,0.95fr)]">
+      <section className="min-w-0 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">
+            {language === 'vi' ? 'Vector đầu vào' : 'Input vector'}
+          </h3>
+          <span className="text-[10px] font-mono text-zinc-500">
+            {inputValues.length}
+          </span>
+        </div>
+        <div className="rounded-md border border-sky-300/15 bg-zinc-950/80 p-3">
+          <div className="grid grid-cols-5 gap-2">
+            {inputValues.map((value, index) => {
+              const isHintCell = activationHintIndex === index;
+              return (
+                <div
+                  key={`${value}-${index}`}
+                  className={`flex h-14 flex-col items-center justify-center rounded-sm border font-mono transition-all ${
+                    isHintCell
+                      ? 'border-amber-300/80 bg-amber-300/14 text-amber-50 ring-1 ring-amber-300/25 animate-pulse'
+                      : value < 0
+                      ? 'border-red-300/35 bg-red-400/10 text-red-100'
+                      : value === 0
+                        ? 'border-zinc-600/70 bg-zinc-900/75 text-zinc-300'
+                        : 'border-sky-300/35 bg-sky-400/12 text-sky-100'
+                  }`}
+                >
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">x{index}</span>
+                  <span className="text-sm font-bold">{formatPoolValue(value)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+          {language === 'vi'
+            ? 'ReLU giữ giá trị dương và đưa giá trị âm về 0.'
+            : 'ReLU keeps positive values and clamps negative values to 0.'}
+        </p>
+      </section>
+
+      <section className="flex min-w-0 flex-col justify-center gap-3 p-4">
+        <div className="rounded-md border border-zinc-800 bg-zinc-950/80 p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">ReLU</h3>
+            <span className="rounded border border-sky-300/20 bg-sky-400/12 px-2 py-1 font-mono text-[10px] font-bold text-sky-100">
+              {model.configRows[0] ?? 'rule=max(0, x)'}
+            </span>
+          </div>
+          <ReluChart />
+        </div>
+      </section>
+
+      <section className="min-w-0 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">
+            {t.enterAnswer}
+          </h3>
+          <span className="text-[10px] font-mono text-zinc-500">
+            {submitted ? `${statuses.filter(Boolean).length}/${model.expectedAnswers.length}` : `0/${model.expectedAnswers.length}`}
+          </span>
+        </div>
+        <div className="grid grid-cols-5 gap-2 rounded-md border border-emerald-300/15 bg-zinc-950/80 p-3">
+          {model.expectedAnswers.map((expected, index) => {
+            const hasStatus = submitted;
+            const isCorrect = statuses[index] ?? false;
+            const isHintCell = activationHintIndex === index;
+            return (
+              <label key={`${model.seed}-${index}`} className="block">
+                <span className="mb-1 block text-center text-[10px] font-semibold tracking-wider text-zinc-500 uppercase">
+                  {model.answerLabels[index]}
+                </span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={answers[index] ?? ''}
+                  onChange={(event) => onAnswerChange(index, event.currentTarget.value.replace(/[^\d.-]/g, ''))}
+                  className={`h-12 w-full rounded-sm border bg-zinc-900/75 px-1 text-center text-sm font-mono font-bold outline-none transition-colors ${
+                    isHintCell
+                      ? 'border-amber-300/80 bg-amber-300/14 text-amber-50 ring-1 ring-amber-300/25 animate-pulse'
+                      : hasStatus
+                      ? isCorrect
+                        ? 'border-emerald-300/70 text-emerald-100 ring-1 ring-emerald-300/20'
+                        : 'border-red-300/70 text-red-100 ring-1 ring-red-300/20'
+                      : 'border-zinc-600/70 text-zinc-100 focus:border-sky-300'
+                  }`}
+                  aria-label={`Answer ${model.answerLabels[index]}`}
+                  title={submitted && !isCorrect ? t.expected(expected) : undefined}
+                />
+              </label>
+            );
+          })}
+        </div>
+      </section>
+
+      {showHint && (
+        <section className="rounded-lg border border-zinc-800 bg-zinc-900/30 p-4 text-zinc-200 xl:col-span-3">
+          <div className="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-amber-400">
+              <path d="M10 2a6 6 0 00-6 6c0 1.887.874 3.57 2.25 4.686A3.722 3.722 0 017.5 15.5c0 .6.4 1 1 1h3c.6 0 1-.4 1-1a3.722 3.722 0 011.25-2.814A6 6 0 0016 8a6 6 0 00-6-6z" />
+            </svg>
+            {t.hintExercise}
+          </div>
+          <div className="space-y-3 font-mono text-sm leading-relaxed text-zinc-300">
+            <div>
+              {activationHintIndex !== null
+                ? (language === 'vi'
+                  ? `Đang xem xét phần tử x${activationHintIndex} = ${inputValues[activationHintIndex]}.`
+                  : `Inspecting element x${activationHintIndex} = ${inputValues[activationHintIndex]}.`)
+                : (language === 'vi' ? 'Bấm Hint để xem gợi ý từng phần tử.' : 'Press Hint to inspect one element.')}
+            </div>
+            {activationHintIndex !== null && (
+              <div className="rounded-md border border-zinc-800 bg-zinc-950/80 px-3 py-2 text-zinc-100 font-bold">
+                {language === 'vi'
+                  ? (inputValues[activationHintIndex] < 0
+                    ? `x${activationHintIndex} = ${inputValues[activationHintIndex]} < 0  ⇒  y${activationHintIndex} = max(0, ${inputValues[activationHintIndex]}) = 0`
+                    : `x${activationHintIndex} = ${inputValues[activationHintIndex]} ≥ 0  ⇒  y${activationHintIndex} = max(0, ${inputValues[activationHintIndex]}) = ${inputValues[activationHintIndex]}`)
+                  : (inputValues[activationHintIndex] < 0
+                    ? `x${activationHintIndex} = ${inputValues[activationHintIndex]} < 0  ⇒  y${activationHintIndex} = max(0, ${inputValues[activationHintIndex]}) = 0`
+                    : `x${activationHintIndex} = ${inputValues[activationHintIndex]} ≥ 0  ⇒  y${activationHintIndex} = max(0, ${inputValues[activationHintIndex]}) = ${inputValues[activationHintIndex]}`)}
+              </div>
+            )}
+            <div className="border-t border-zinc-800 mt-2.5 pt-2.5">
+              <div className="mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                {language === 'vi' ? 'Quy tắc chung:' : 'General Rule:'}
+              </div>
+              {model.hintLines.map((line) => (
+                <div key={line} className="text-zinc-400">
+                  • {line}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+};
+
+const ReluChart: React.FC = () => (
+  <div className="relative h-52 overflow-hidden rounded-md border border-zinc-800 bg-zinc-950">
+    <svg viewBox="0 0 320 180" className="h-full w-full" role="img" aria-label="ReLU graph">
+      <defs>
+        <linearGradient id="relu-line" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#64748b" />
+          <stop offset="45%" stopColor="#64748b" />
+          <stop offset="46%" stopColor="#38bdf8" />
+          <stop offset="100%" stopColor="#34d399" />
+        </linearGradient>
+      </defs>
+      <g stroke="#1f2937" strokeWidth="1">
+        {[40, 80, 120, 160, 200, 240, 280].map((x) => <line key={`x-${x}`} x1={x} x2={x} y1="18" y2="154" />)}
+        {[34, 64, 94, 124, 154].map((y) => <line key={`y-${y}`} x1="26" x2="298" y1={y} y2={y} />)}
+      </g>
+      <line x1="26" x2="298" y1="124" y2="124" stroke="#94a3b8" strokeWidth="1.5" />
+      <line x1="152" x2="152" y1="18" y2="154" stroke="#94a3b8" strokeWidth="1.5" />
+      <polyline points="42,124 152,124 276,28" fill="none" stroke="url(#relu-line)" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="152" cy="124" r="4" fill="#fbbf24" />
+      <text x="282" y="31" fill="#d1fae5" fontSize="12" fontWeight="700">y=x</text>
+      <text x="48" y="116" fill="#cbd5e1" fontSize="12" fontWeight="700">0</text>
+      <text x="160" y="139" fill="#fef3c7" fontSize="12" fontWeight="700">x=0</text>
+      <text x="98" y="166" fill="#94a3b8" fontSize="11">negative input</text>
+      <text x="206" y="166" fill="#67e8f9" fontSize="11">positive input</text>
+    </svg>
+  </div>
+);
+
+function readVectorSection(row: string): number[] {
+  const matches = row.match(/-?\d+(?:\.\d+)?/g);
+  return matches ? matches.map(Number) : [];
+}

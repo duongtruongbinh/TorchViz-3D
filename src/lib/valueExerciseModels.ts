@@ -155,12 +155,10 @@ function buildActivationExercise(node: LayoutNode, language: ExerciseLanguage): 
       ? [
         'ReLU giữ nguyên giá trị dương.',
         'ReLU đổi giá trị âm thành 0.',
-        `Output: ${formatVector(output)}.`,
       ]
       : [
         'ReLU keeps positive values unchanged.',
         'ReLU changes negative values to 0.',
-        `Output: ${formatVector(output)}.`,
       ],
   };
 }
