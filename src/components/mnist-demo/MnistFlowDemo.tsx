@@ -376,7 +376,7 @@ export const DemoControls: React.FC<{
           </div>
 
           {availableExercises.length > 0 && (
-            <div className="min-w-0 rounded-md border border-emerald-300/25 bg-emerald-400/10 p-1.5 flex flex-col justify-between">
+            <div className="min-w-0 rounded-md border border-zinc-700/60 bg-zinc-950/55 p-1.5 flex flex-col justify-between">
               <ExerciseLauncher
                 exercises={availableExercises}
                 activeOperation={activeOperation}

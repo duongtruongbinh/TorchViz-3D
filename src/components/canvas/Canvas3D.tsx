@@ -138,7 +138,6 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
             isOpen={demo.activeExerciseId === 'shape-output' || demo.activeExerciseId === 'attention-shape'}
             exerciseId={demo.activeExerciseId === 'attention-shape' ? 'attention-shape' : 'shape-output'}
             node={demo.segmentState.activeStop?.node}
-            fallbackModal={shortExerciseFallbackModal}
             t={t.canvas.demo}
             language={language}
             onClose={demo.closeExercise}
