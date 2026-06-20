@@ -113,6 +113,39 @@ def _record(op_type, inputs, out_shape, params=0, meta=None, error=None):
         raise GraphError(error)
     return out_tensor
 
+def _numel(shape):
+    total = 1
+    for s in shape:
+        total *= s
+    return total
+
+def _normalize_shape_arg(shape):
+    if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+        return list(shape[0])
+    return list(shape)
+
+def _normalize_dim(dim, rank, name):
+    if dim < 0:
+        dim += rank
+    if dim < 0 or dim >= rank:
+        raise ValueError(f"{name} {dim} out of range for tensor rank {rank}")
+    return dim
+
+def _broadcast_shape(a_shape, b_shape):
+    result = []
+    a_rev = list(a_shape)[::-1]
+    b_rev = list(b_shape)[::-1]
+    for i in range(max(len(a_rev), len(b_rev))):
+        a = a_rev[i] if i < len(a_rev) else 1
+        b = b_rev[i] if i < len(b_rev) else 1
+        if a == 1:
+            result.append(b)
+        elif b == 1 or a == b:
+            result.append(a)
+        else:
+            raise ValueError(f"cannot broadcast shapes {tuple(a_shape)} and {tuple(b_shape)}")
+    return tuple(result[::-1])
+
 def relu(x):
     return _record("ReLU", [x], x.shape)
 
@@ -133,7 +166,14 @@ def softmax(x, dim=-1):
 
 def flatten(x, start_dim=0, end_dim=-1):
     shape = list(x.shape)
-    if end_dim == -1: end_dim = len(shape) - 1
+    rank = len(shape)
+    try:
+        start_dim = _normalize_dim(start_dim, rank, "start_dim")
+        end_dim = _normalize_dim(end_dim, rank, "end_dim")
+        if start_dim > end_dim:
+            raise ValueError(f"start_dim {start_dim} must be <= end_dim {end_dim}")
+    except ValueError as err:
+        return _record("Flatten", [x], x.shape, error=f"Shape Mismatch: flatten {err}")
     new_shape = shape[:start_dim]
     flat_dim = 1
     for s in shape[start_dim:end_dim+1]:
@@ -143,18 +183,29 @@ def flatten(x, start_dim=0, end_dim=-1):
     return _record("Flatten", [x], tuple(new_shape))
 
 def view(x, *shape):
-    target = list(shape)
-    total_elements = 1
-    for s in x.shape: total_elements *= s
+    target = _normalize_shape_arg(shape)
+    total_elements = _numel(x.shape)
     neg_idx = -1
     current_prod = 1
     for i, s in enumerate(target):
         if s == -1:
+            if neg_idx != -1:
+                return _record("Reshape", [x], x.shape,
+                    error=f"Shape Mismatch: view can infer only one dimension, got {tuple(target)}")
             neg_idx = i
         else:
+            if s <= 0:
+                return _record("Reshape", [x], x.shape,
+                    error=f"Shape Mismatch: view dimensions must be positive or -1, got {tuple(target)}")
             current_prod *= s
     if neg_idx != -1:
+        if current_prod == 0 or total_elements % current_prod != 0:
+            return _record("Reshape", [x], x.shape,
+                error=f"Shape Mismatch: cannot infer view shape {tuple(target)} for input {tuple(x.shape)}")
         target[neg_idx] = total_elements // current_prod
+    elif current_prod != total_elements:
+        return _record("Reshape", [x], tuple(target),
+            error=f"Shape Mismatch: view shape {tuple(target)} has {current_prod} elements, expected {total_elements}")
     return _record("Reshape", [x], tuple(target))
 
 def permute(x, *dims):
@@ -162,7 +213,13 @@ def permute(x, *dims):
     return _record("Permute", [x], tuple(new_shape))
 
 def add(a, b):
-    return _record("Add", [a, b], a.shape)
+    if not hasattr(b, "shape"):
+        return _record("Add", [a], a.shape, 0, {"broadcast": "scalar"})
+    try:
+        out_shape = _broadcast_shape(a.shape, b.shape)
+    except ValueError as err:
+        return _record("Add", [a, b], a.shape, error=f"Shape Mismatch: Add cannot broadcast: {err}")
+    return _record("Add", [a, b], out_shape, 0, {"broadcast": True})
 
 def cat(tensors, dim=0):
     if not tensors: return Tensor((0,))
@@ -302,6 +359,12 @@ from ..tensor import Tensor
 from ..ops import _record
 from ..recorder import get_recorder, GraphError
 import math
+
+def _pair(value):
+    return value if isinstance(value, tuple) else (value, value)
+
+def _rank_error(op_type, x, expected):
+    return _record(op_type, [x], x.shape, error=f"Shape Mismatch: {op_type} expects {expected}, got {len(x.shape)}D {tuple(x.shape)}")
 `;
 
 const PY_NN_MODULE = `
@@ -360,6 +423,34 @@ class Conv2d(Module):
         w_out = math.floor((x.shape[3] + 2 * self.padding - self.kernel_size[1]) / self.stride + 1)
         out_shape = (x.shape[0], self.out_channels, h_out, w_out)
         return _record("Conv2d", [x], out_shape, self.params,
+                       {"kernel": self.kernel_size, "stride": self.stride})
+
+class ConvTranspose2d(Module):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, output_padding=0, dilation=1):
+        super().__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = _pair(kernel_size)
+        self.stride = _pair(stride)
+        self.padding = _pair(padding)
+        self.output_padding = _pair(output_padding)
+        self.dilation = _pair(dilation)
+        k = self.kernel_size
+        self.params = (k[0] * k[1] * in_channels + 1) * out_channels
+
+    def forward(self, x):
+        if len(x.shape) != 4:
+            return _rank_error("ConvTranspose2d", x, "4D input [N,C,H,W]")
+        h_out = ((x.shape[2] - 1) * self.stride[0]
+                 - 2 * self.padding[0]
+                 + self.dilation[0] * (self.kernel_size[0] - 1)
+                 + self.output_padding[0] + 1)
+        w_out = ((x.shape[3] - 1) * self.stride[1]
+                 - 2 * self.padding[1]
+                 + self.dilation[1] * (self.kernel_size[1] - 1)
+                 + self.output_padding[1] + 1)
+        out_shape = (x.shape[0], self.out_channels, h_out, w_out)
+        return _record("ConvTranspose2d", [x], out_shape, self.params,
                        {"kernel": self.kernel_size, "stride": self.stride})
 `;
 
@@ -434,6 +525,8 @@ class BatchNorm2d(Module):
         super().__init__()
         self.params = num_features * 2
     def forward(self, x):
+        if len(x.shape) != 4:
+            return _rank_error("BatchNorm", x, "4D input [N,C,H,W]")
         return _record("BatchNorm", [x], x.shape, self.params)
 
 class LayerNorm(Module):
@@ -442,39 +535,123 @@ class LayerNorm(Module):
         dim = normalized_shape if isinstance(normalized_shape, int) else normalized_shape[0]
         self.params = dim * 2
     def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("LayerNorm", x, "rank >= 1 input")
         return _record("LayerNorm", [x], x.shape, self.params)
+
+class GroupNorm(Module):
+    def __init__(self, num_groups, num_channels, affine=True):
+        super().__init__()
+        self.num_groups = num_groups
+        self.num_channels = num_channels
+        self.params = num_channels * 2 if affine else 0
+    def forward(self, x):
+        if len(x.shape) < 2:
+            return _rank_error("GroupNorm", x, "rank >= 2 input [N,C,...]")
+        if x.shape[1] != self.num_channels:
+            return _record("GroupNorm", [x], x.shape, self.params,
+                error=f"Shape Mismatch: GroupNorm expects {self.num_channels} channels, got {x.shape[1]}")
+        return _record("GroupNorm", [x], x.shape, self.params)
+
+class InstanceNorm2d(Module):
+    def __init__(self, num_features, affine=False):
+        super().__init__()
+        self.num_features = num_features
+        self.params = num_features * 2 if affine else 0
+    def forward(self, x):
+        if len(x.shape) != 4:
+            return _rank_error("InstanceNorm2d", x, "4D input [N,C,H,W]")
+        if x.shape[1] != self.num_features:
+            return _record("InstanceNorm2d", [x], x.shape, self.params,
+                error=f"Shape Mismatch: InstanceNorm2d expects {self.num_features} channels, got {x.shape[1]}")
+        return _record("InstanceNorm2d", [x], x.shape, self.params)
+
+class Identity(Module):
+    def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("Identity", x, "rank >= 1 input")
+        return _record("Identity", [x], x.shape)
 
 class GELU(Module):
     def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("GELU", x, "rank >= 1 input")
         return _record("GELU", [x], x.shape)
 
 class SiLU(Module):
     def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("SiLU", x, "rank >= 1 input")
         return _record("SiLU", [x], x.shape)
 
 class ReLU(Module):
     def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("ReLU", x, "rank >= 1 input")
         return _record("ReLU", [x], x.shape)
+
+class LeakyReLU(Module):
+    def __init__(self, negative_slope=0.01):
+        super().__init__()
+        self.negative_slope = negative_slope
+    def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("LeakyReLU", x, "rank >= 1 input")
+        return _record("LeakyReLU", [x], x.shape, 0, {"negative_slope": self.negative_slope})
+
+class ELU(Module):
+    def __init__(self, alpha=1.0):
+        super().__init__()
+        self.alpha = alpha
+    def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("ELU", x, "rank >= 1 input")
+        return _record("ELU", [x], x.shape, 0, {"alpha": self.alpha})
+
+class Hardswish(Module):
+    def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("Hardswish", x, "rank >= 1 input")
+        return _record("Hardswish", [x], x.shape)
+
+HardSwish = Hardswish
 
 class Dropout(Module):
     def __init__(self, p=0.5):
         super().__init__()
         self.p = p
     def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("Dropout", x, "rank >= 1 input")
         return _record("Dropout", [x], x.shape, 0, {"p": self.p})
+
+class Dropout2d(Module):
+    def __init__(self, p=0.5):
+        super().__init__()
+        self.p = p
+    def forward(self, x):
+        if len(x.shape) not in (3, 4):
+            return _rank_error("Dropout2d", x, "3D or 4D input")
+        return _record("Dropout2d", [x], x.shape, 0, {"p": self.p})
 
 class Sigmoid(Module):
     def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("Sigmoid", x, "rank >= 1 input")
         return _record("Sigmoid", [x], x.shape)
 
 class Tanh(Module):
     def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("Tanh", x, "rank >= 1 input")
         return _record("Tanh", [x], x.shape)
 
 class Softmax(Module):
     def __init__(self, dim=-1):
         super().__init__()
     def forward(self, x):
+        if len(x.shape) < 1:
+            return _rank_error("Softmax", x, "rank >= 1 input")
         return _record("Softmax", [x], x.shape)
 
 class Flatten(Module):
@@ -594,7 +771,9 @@ class Upsample(Module):
 
 const PY_NN_LEAF_TYPES = `
 Module._leaf_types = {Conv2d, Linear, MaxPool2d, AvgPool2d, AdaptiveAvgPool2d,
-                      BatchNorm2d, LayerNorm, ReLU, GELU, SiLU, Sigmoid, Tanh, Softmax, Dropout, Flatten,
+                      ConvTranspose2d, BatchNorm2d, LayerNorm, GroupNorm, InstanceNorm2d,
+                      Identity, ReLU, GELU, SiLU, LeakyReLU, ELU, Hardswish,
+                      Sigmoid, Tanh, Softmax, Dropout, Dropout2d, Flatten,
                       MultiheadAttention, Embedding, RNN, LSTM, GRU, PixelShuffle, Upsample}
 `;
 

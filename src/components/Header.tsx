@@ -4,7 +4,8 @@ import { workerService, parseShape } from '../lib/workerService';
 import OnboardingTour from './OnboardingTour';
 import HelpModal from './HelpModal';
 import { getStrings, LANGUAGE_OPTIONS, type Language } from '../lib/localization';
-import { isMnistDemoLayoutCompatible } from './mnist-demo/demoStops';
+import { getMnistDemoLayoutCompatibility } from './mnist-demo/demoStops';
+import type { MnistDemoCompatibility } from '../lib/mnistCompatibility';
 
 interface HeaderProps {
     onExportSvg: () => void;
@@ -79,7 +80,25 @@ export default function Header({
         setButtonAttention(true);
         window.setTimeout(() => setButtonAttention(false), 1800);
     };
-    const demoAvailable = !!layout && !loading && !criticalError && isMnistDemoLayoutCompatible(layout);
+    const demoCompatibility = criticalError
+        ? ({ ok: false, reason: 'no-layout' } as MnistDemoCompatibility)
+        : getMnistDemoLayoutCompatibility(layout, loading);
+    const demoAvailable = demoCompatibility.ok;
+    const demoUnavailableTitle = (() => {
+        if (demoCompatibility.ok === false) {
+            switch (demoCompatibility.reason) {
+                case 'loading':
+                    return 'MNIST demo unavailable: graph is still loading.';
+                case 'no-layout':
+                    return 'MNIST demo unavailable: visualize a model first.';
+                case 'input-shape':
+                    return 'MNIST demo unavailable: input shape must be [N, 1, 32, 32].';
+                case 'missing-head':
+                    return 'MNIST demo unavailable: model needs a 10-class Linear head.';
+            }
+        }
+        return t.canvas.demo.mode;
+    })();
 
     React.useEffect(() => {
         if (demoModeEnabled && !demoAvailable) onDemoModeChange(false);
@@ -192,7 +211,7 @@ export default function Header({
                                 ? 'border-blue-500/35 bg-[var(--surface-elevated)] text-zinc-100'
                                 : 'border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:bg-[#3f3f46] hover:text-[var(--text)]'
                         }`}
-                        title={demoAvailable ? t.canvas.demo.mode : t.canvas.demo.unavailable}
+                        title={demoAvailable ? t.canvas.demo.mode : demoUnavailableTitle}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

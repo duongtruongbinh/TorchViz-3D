@@ -1,6 +1,7 @@
 import type { LayoutData, LayoutNode } from '../../lib/irTypes';
-import { getVisualKind, getVisualMeta } from '../../lib/visualKind';
-import { getNodeDemoPosition, type DemoStop } from '../operation-effects/effectMath';
+import { getVisualMeta } from '../../lib/visualKind';
+import { getMnistDemoCompatibility, type MnistDemoCompatibility } from '../../lib/mnistCompatibility';
+import { getNodeDemoPose, type DemoStop } from '../operation-effects/effectMath';
 
 export function collectDemoStopNodes(nodes: LayoutNode[], isTopLevel = true, out: LayoutNode[] = []): LayoutNode[] {
   for (const node of nodes) {
@@ -61,22 +62,30 @@ export function collectDemoStops(layout: LayoutData): DemoStop[] {
     .map((node) => ({
       node,
       label: getVisualMeta(node.op_type).labelOverride ?? node.op_type,
-      position: getNodeDemoPosition(node),
+      position: getNodeDemoPose(node).position,
     }));
 }
 
 export function isMnistDemoCompatible(stops: DemoStop[]): boolean {
-  const firstLeaf = stops.find((stop) => !stop.node.is_container && stop.node.in_shape?.length);
-  const input = firstLeaf?.node.in_shape ?? [];
-  const hasMnistInput = input.length === 4 && input[1] === 1 && input[2] === 32 && input[3] === 32;
-  const hasTenClassHead = stops.some((stop) => {
-    const outShape = stop.node.out_shape ?? [];
-    return getVisualKind(stop.node.op_type) === 'Linear' && outShape[outShape.length - 1] === 10;
-  });
+  return getMnistDemoCompatibility(stops).ok;
+}
 
-  return hasMnistInput && hasTenClassHead;
+export function getMnistDemoStopsCompatibility(
+  stops: DemoStop[] | null,
+  loading = false,
+): MnistDemoCompatibility {
+  return getMnistDemoCompatibility(stops, { loading });
 }
 
 export function isMnistDemoLayoutCompatible(layout: LayoutData | null): boolean {
   return !!layout && isMnistDemoCompatible(collectDemoStops(layout));
+}
+
+export function getMnistDemoLayoutCompatibility(
+  layout: LayoutData | null,
+  loading = false,
+): MnistDemoCompatibility {
+  if (loading) return { ok: false, reason: 'loading' };
+  if (!layout) return { ok: false, reason: 'no-layout' };
+  return getMnistDemoCompatibility(collectDemoStops(layout));
 }

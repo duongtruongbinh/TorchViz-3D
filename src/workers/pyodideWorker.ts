@@ -1,5 +1,15 @@
 
 import { PY_INIT, PY_NN_INIT, PY_OPS, PY_RECORDER, PY_TENSOR } from '../lib/python_sources';
+import { countPythonPreambleLines } from '../lib/workerLineMapping';
+
+const USER_CODE_PREAMBLE = `import torchstub
+import torchstub.nn as nn
+import torchstub.nn.functional as F
+from torchstub import Tensor
+import math
+
+`;
+const USER_CODE_PREAMBLE_LINE_COUNT = countPythonPreambleLines(USER_CODE_PREAMBLE);
 
 export function createWorker(): Worker {
   // We explicitly inline the python sources into the worker script string.
@@ -89,18 +99,17 @@ export function createWorker(): Worker {
       return pyodide;
     }
 
-    // Number of preamble lines injected before the user's code in \`wrappedCode\` below
-    // (the import block + blank line). Used to translate Python traceback line numbers
-    // back to the user's editor lines. MUST equal the actual preamble line count —
-    // if you change the wrappedCode header, update this or error highlighting will
-    // point at the wrong lines. See docs/ARCHITECTURE.md (Fragile spots).
-    const WRAPPER_LINE_OFFSET = 7;
+    const USER_CODE_PREAMBLE = ${JSON.stringify(USER_CODE_PREAMBLE)};
+    const WRAPPER_LINE_OFFSET = ${USER_CODE_PREAMBLE_LINE_COUNT};
+
+    function toUserLineno(wrappedLine) {
+      return Math.max(1, wrappedLine - WRAPPER_LINE_OFFSET);
+    }
 
     function parseErrorLineno(msg) {
       const match = msg.match(/File "<exec>", line (\\d+)/);
       if (match) {
-        const raw = parseInt(match[1]) - WRAPPER_LINE_OFFSET;
-        return raw < 1 ? 1 : raw;
+        return toUserLineno(parseInt(match[1]));
       }
       return 0;
     }
@@ -109,7 +118,7 @@ export function createWorker(): Worker {
       if (!nodes) return;
       for (const n of nodes) {
         if (n.lineno && n.lineno > 0) {
-          n.lineno = Math.max(1, n.lineno - offset);
+              n.lineno = Math.max(1, n.lineno - offset);
         }
         if (n.children) adjustNodeLinenos(n.children, offset);
       }
@@ -133,14 +142,7 @@ import torchstub.recorder
 torchstub.recorder.get_recorder().reset()
         \`);
 
-        const wrappedCode = \`
-import torchstub
-import torchstub.nn as nn
-import torchstub.nn.functional as F
-from torchstub import Tensor
-import math
-
-\${code}
+        const wrappedCode = \`\${USER_CODE_PREAMBLE}\${code}
 
 if 'model' not in locals():
     if 'Net' in locals():
@@ -186,8 +188,7 @@ except Exception as _tvs_err:
 
           if (data.error) {
             if (data.error.lineno) {
-              data.error.lineno -= WRAPPER_LINE_OFFSET;
-              if (data.error.lineno < 1) data.error.lineno = 1;
+              data.error.lineno = toUserLineno(data.error.lineno);
             }
             data.error.hint = data.error.hint || "Check tensor shapes";
           } else if (runError) {

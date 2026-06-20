@@ -12,8 +12,11 @@ export const EdgeLine: React.FC<EdgeLineProps> = React.memo(({ edge }) => {
   const { points, kind } = edge;
   const color = kind === 'residual' ? EDGE_COLOR_RESIDUAL : EDGE_COLOR_STD;
 
-  // Use pre-computed Vector3s if available to avoid garbage collection overhead
-  const pts = edge.vectorPoints || points.map(p => new THREE.Vector3(p.x, p.y, p.z));
+  const fallbackPoints = React.useMemo(
+    () => points.map((point) => new THREE.Vector3(point.x, point.y, point.z)),
+    [points],
+  );
+  const pts = edge.vectorPoints || fallbackPoints;
 
   if (pts.length === 4) {
     return (

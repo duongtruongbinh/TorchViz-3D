@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Billboard, Text } from '@react-three/drei';
+import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { clamp01, getEasedSegmentProgress } from '../../lib/mnistAnimation';
 import type { LayoutEdge } from '../../lib/irTypes';
@@ -12,9 +12,8 @@ import type { DemoStop } from '../operation-effects/effectMath';
 import {
   getDataPacketRoute,
   getSegmentState,
-  getDemoInputPose,
-  getSamplePlaneRotation,
   type DataPacketRoute,
+  type DemoPose,
 } from '../operation-effects/effectMath';
 import {
   hasOperationEffect as hasOperationDemo,
@@ -26,6 +25,8 @@ import {
   RENDER_ORDER_INPUT_TILE_TEXT,
   RENDER_ORDER_DATA_PACKET,
 } from '../../lib/constants';
+import { ExerciseLauncher } from '../exercises/ExerciseLauncher';
+import type { ExerciseDefinition, ExerciseId } from '../exercises/types';
 
 const MIN_ANIMATION_SPEED = 0.25;
 const MAX_ANIMATION_SPEED = 2.5;
@@ -144,37 +145,56 @@ const DataPacket: React.FC<{
   route: DataPacketRoute;
 }> = React.memo(({ route }) => {
   return (
-    <mesh position={route.position.toArray()} renderOrder={RENDER_ORDER_DATA_PACKET}>
+    <mesh position={route.position} renderOrder={RENDER_ORDER_DATA_PACKET}>
       <sphereGeometry args={[0.18 + route.pulse * 0.05, 16, 16]} />
       <meshBasicMaterial color="#bae6fd" transparent opacity={0.7 + route.pulse * 0.2} toneMapped={false} />
     </mesh>
   );
 });
 
+const VirtualInputRoute: React.FC<{ points: THREE.Vector3[] }> = React.memo(({ points }) => (
+  <Line
+    points={points}
+    color="#7dd3fc"
+    lineWidth={1.5}
+    dashed
+    dashScale={1.4}
+    dashSize={0.32}
+    gapSize={0.18}
+    transparent
+    opacity={0.78}
+  />
+));
+
 export const DataFlowDemo: React.FC<{
   stops: DemoStop[];
   edges: LayoutEdge[];
   progress: number;
   texture: THREE.Texture;
+  inputPose: DemoPose;
   t: DemoLabels;
-}> = React.memo(({ stops, edges, progress, texture, t }) => {
+}> = React.memo(({ stops, edges, progress, texture, inputPose, t }) => {
   if (!stops.length) return null;
 
-  const pose = useMemo(() => getDemoInputPose(stops), [stops]);
-  const segment = getSegmentState(stops, progress, pose.position);
+  const segment = getSegmentState(stops, progress, inputPose.position);
   const operationActive = !!segment.activeStop && hasOperationDemo(segment.activeStop.node.op_type);
   const packetRoute = getDataPacketRoute(stops, segment, edges);
   const easedOperationProgress = getEasedSegmentProgress(segment.segmentProgress);
+  const virtualInputRoutePoints = useMemo(
+    () => [inputPose.position, stops[0].position],
+    [inputPose.position, stops],
+  );
 
   return (
     <group>
       <DemoInputTile
         texture={texture}
-        position={pose.position}
-        rotation={pose.rotation}
-        size={pose.size}
+        position={inputPose.position}
+        rotation={inputPose.rotation}
+        size={inputPose.size}
         label={t.input}
       />
+      <VirtualInputRoute points={virtualInputRoutePoints} />
       {packetRoute && <DataPacket route={packetRoute} />}
       {segment.activeStop && operationActive && (
         <OperationDemo
@@ -213,19 +233,19 @@ export const DemoControls: React.FC<{
   playing: boolean;
   dataUrl?: string;
   animationSpeed: number;
-  exerciseSupported?: boolean;
+  availableExercises?: ExerciseDefinition[];
   t: DemoLabels;
   onProgressChange: (progress: number) => void;
   onPlayingChange: (playing: boolean) => void;
   onAnimationSpeedChange: (speed: number) => void;
-  onOpenExercise?: () => void;
+  onOpenExercise?: (id: ExerciseId) => void;
 }> = React.memo(({
   stops,
   progress,
   playing,
   dataUrl,
   animationSpeed,
-  exerciseSupported = false,
+  availableExercises = [],
   t,
   onProgressChange,
   onPlayingChange,
@@ -238,6 +258,7 @@ export const DemoControls: React.FC<{
   const segment = getSegmentState(stops, progress);
   const selectedIndex = segment.activeStopIndex < 0 ? 0 : segment.activeStopIndex + 1;
   const progressPct = maxProgress > 0 ? Math.round((progress / maxProgress) * 100) : 0;
+  const activeOperation = segment.activeStop?.label ?? t.input;
 
   const stepBy = (delta: number) => {
     onPlayingChange(false);
@@ -331,8 +352,8 @@ export const DemoControls: React.FC<{
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <div className="min-w-0 rounded-md border border-zinc-700/60 bg-zinc-950/55 p-1.5">
+        <div className={availableExercises.length > 0 ? "grid grid-cols-[1fr_1.1fr] gap-2" : "grid grid-cols-1 gap-2"}>
+          <div className="min-w-0 rounded-md border border-zinc-700/60 bg-zinc-950/55 p-1.5 flex flex-col justify-between">
             <span className="block px-0.5 pb-1 text-[9px] font-bold uppercase tracking-[0.18em] text-zinc-500">
               {t.step}
             </span>
@@ -354,35 +375,16 @@ export const DemoControls: React.FC<{
             </select>
           </div>
 
-          <div className={`min-w-0 rounded-md p-1.5 ${
-            exerciseSupported
-              ? 'border border-emerald-300/25 bg-emerald-400/10'
-              : 'border border-zinc-700/60 bg-zinc-950/55'
-          }`} title={exerciseSupported ? undefined : t.noExercisesTooltip}>
-            <span className={`block px-0.5 pb-1 text-[9px] font-bold uppercase tracking-[0.18em] ${
-              exerciseSupported ? 'text-emerald-300/80' : 'text-zinc-500'
-            }`}>
-              {t.exercises}
-            </span>
-            <select
-              className={`h-8 w-full min-w-0 rounded-md border px-2 text-xs outline-none transition-colors ${
-                exerciseSupported
-                  ? 'border-emerald-300/45 bg-emerald-950/45 text-emerald-100 focus:border-emerald-300'
-                  : 'border-zinc-700/70 bg-zinc-900/50 text-zinc-500 cursor-not-allowed'
-              }`}
-              value=""
-              disabled={!exerciseSupported}
-              aria-label={t.exercises}
-              title={exerciseSupported ? t.chooseExercise : t.noExercisesTooltip}
-              onChange={(event) => {
-                if (!event.currentTarget.value) return;
-                onOpenExercise?.();
-              }}
-            >
-              <option value="">{exerciseSupported ? t.chooseExercise : t.noExercises}</option>
-              {exerciseSupported && <option value="conv">{t.convExercise}</option>}
-            </select>
-          </div>
+          {availableExercises.length > 0 && (
+            <div className="min-w-0 rounded-md border border-emerald-300/25 bg-emerald-400/10 p-1.5 flex flex-col justify-between">
+              <ExerciseLauncher
+                exercises={availableExercises}
+                activeOperation={activeOperation}
+                t={t}
+                onOpenExercise={(id) => onOpenExercise?.(id)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -16,12 +16,28 @@ export type DemoStop = {
   position: THREE.Vector3;
 };
 
+export type DemoPose = {
+  position: THREE.Vector3;
+  rotation: [number, number, number];
+  size: [number, number];
+};
+
 export type GridRegion = {
   row: number;
   col: number;
   rows: number;
   cols: number;
 };
+
+export type MatrixVisualPosition = [number, number, number];
+
+export function getMatrixCenter(position: MatrixVisualPosition, z = 0.12): THREE.Vector3 {
+  return new THREE.Vector3(position[0], position[1], position[2] + z);
+}
+
+export function getPatchCenter(position: MatrixVisualPosition, _size: number, z = 0.12): THREE.Vector3 {
+  return getMatrixCenter(position, z);
+}
 
 export type SlidingWindowFrame = {
   outputRows: number;
@@ -55,7 +71,7 @@ export function getSamplePlaneRotation(): [number, number, number] {
   return [0, Math.PI / 2, 0];
 }
 
-export function getNodeDemoPose(node: LayoutNode) {
+export function getNodeDemoPose(node: LayoutNode): DemoPose {
   const meta = getVisualMeta(node.op_type);
   const w = node.depth * meta.depthMul;
   const h = node.height * meta.heightMul;
@@ -66,7 +82,7 @@ export function getNodeDemoPose(node: LayoutNode) {
   };
 }
 
-export function getDemoInputPose(stops: DemoStop[]) {
+export function getDemoInputPose(stops: DemoStop[]): DemoPose {
   const first = stops[0]?.node;
   const gap = 2.5; // NODE_GAP
   if (!first) {
@@ -78,6 +94,12 @@ export function getDemoInputPose(stops: DemoStop[]) {
   }
   const firstMeta = getVisualMeta(first.op_type);
   const firstWidth = first.width * firstMeta.widthMul;
+  const firstSpatialSize = getNodeDemoPose(first).size;
+  const tileSize = THREE.MathUtils.clamp(
+    Math.min(firstSpatialSize[0], firstSpatialSize[1]),
+    DEMO_INPUT_TILE_SIZE * 0.65,
+    DEMO_INPUT_TILE_SIZE * 1.4,
+  );
   return {
     position: new THREE.Vector3(
       first.x - firstWidth / 2 - gap,
@@ -85,18 +107,17 @@ export function getDemoInputPose(stops: DemoStop[]) {
       first.z,
     ),
     rotation: getSamplePlaneRotation(),
-    size: [DEMO_INPUT_TILE_SIZE, DEMO_INPUT_TILE_SIZE] as [number, number],
+    size: [tileSize, tileSize],
   };
 }
 
-// Deprecated positions (keep for backward compatibility or intermediate conversions)
+// Deprecated: use getNodeDemoPose(node).position for new callers.
 export function getNodeDemoPosition(node: LayoutNode): THREE.Vector3 {
-  // New aligned position using getNodeDemoPose
   return getNodeDemoPose(node).position;
 }
 
+// Deprecated: use getDemoInputPose(stops).position for new callers.
 export function getDemoInputPosition(stops: DemoStop[]): THREE.Vector3 {
-  // New aligned position using getDemoInputPose
   return getDemoInputPose(stops).position;
 }
 
@@ -161,7 +182,11 @@ function getEdgePoint(points: THREE.Vector3[], progress: number): THREE.Vector3 
   return getPolylinePoint(points, progress);
 }
 
-export function getDataPacketRoute(stops: DemoStop[], segment: SegmentState, edges: LayoutEdge[]): DataPacketRoute | null {
+export function getDataPacketRoute(
+  stops: DemoStop[],
+  segment: SegmentState,
+  edges: (LayoutEdge & { vectorPoints?: THREE.Vector3[] })[],
+): DataPacketRoute | null {
   if (!segment.activeStop || segment.activeStopIndex < 0) return null;
 
   const easedProgress = getEasedSegmentProgress(segment.segmentProgress);
@@ -189,7 +214,7 @@ export function getDataPacketRoute(stops: DemoStop[], segment: SegmentState, edg
   ));
   if (!edge || edge.points.length < 2) return null;
 
-  const points = edge.points.map(toVector3);
+  const points = edge.vectorPoints ?? edge.points.map(toVector3);
   const position = getEdgePoint(points, easedProgress);
 
   return {

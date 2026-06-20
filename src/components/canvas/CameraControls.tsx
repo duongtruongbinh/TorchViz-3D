@@ -2,28 +2,23 @@ import React, { useEffect, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
-import { LayoutData, LayoutNode } from '../../lib/irTypes';
+import { LayoutData } from '../../lib/irTypes';
 import { useStore } from '../../store/useStore';
 import { getStrings } from '../../lib/localization';
 import { Z_INDEX_RECENTER_BUTTON } from '../../lib/constants';
+import {
+  DEFAULT_CAMERA_OFFSET,
+  DEFAULT_CAMERA_ZOOM,
+  DEFAULT_MIN_ZOOM,
+  collectLayoutNodes,
+} from '../../lib/canvasUtils';
 
-const DEFAULT_CAMERA_OFFSET = new THREE.Vector3(50, 40, 50);
-const DEFAULT_CAMERA_ZOOM = 42;
-const DEFAULT_MIN_ZOOM = 6;
 const DEFAULT_VIEW_PADDING = 0.8;
 
 type CameraControls = {
   target?: THREE.Vector3;
   update?: () => void;
 };
-
-function collectLayoutNodes(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[] {
-  for (const node of nodes) {
-    out.push(node);
-    if (node.children?.length) collectLayoutNodes(node.children, out);
-  }
-  return out;
-}
 
 function getLayoutView(layout: LayoutData, viewport: { width: number; height: number }) {
   const nodes = collectLayoutNodes(layout.nodes);
@@ -32,9 +27,11 @@ function getLayoutView(layout: LayoutData, viewport: { width: number; height: nu
   }
 
   const box = new THREE.Box3();
+  const minPoint = new THREE.Vector3();
+  const maxPoint = new THREE.Vector3();
   for (const node of nodes) {
-    box.expandByPoint(new THREE.Vector3(node.x - node.width / 2, node.y - node.height / 2, node.z - node.depth / 2));
-    box.expandByPoint(new THREE.Vector3(node.x + node.width / 2, node.y + node.height / 2, node.z + node.depth / 2));
+    box.expandByPoint(minPoint.set(node.x - node.width / 2, node.y - node.height / 2, node.z - node.depth / 2));
+    box.expandByPoint(maxPoint.set(node.x + node.width / 2, node.y + node.height / 2, node.z + node.depth / 2));
   }
 
   const size = box.getSize(new THREE.Vector3());

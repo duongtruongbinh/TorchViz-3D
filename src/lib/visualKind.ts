@@ -42,7 +42,8 @@ const KIND_RULES: [RegExp, VisualKind][] = [
   [/^silu$/i, 'Activation_SiLU'],
   [/^tanh$/i, 'Activation_Tanh'],
   [/^softmax$/i, 'Activation_Softmax'],
-  [/^dropout$/i, 'Dropout'],
+  [/^(leakyrelu|elu|hardswish|hard_swish)$/i, 'Activation_Other'],
+  [/^dropout/i, 'Dropout'],
   [/conv/i, 'Conv'],
   [/linear|mlp/i, 'Linear'],
   [/pool/i, 'Pool'],
@@ -454,4 +455,3 @@ export function computeFontSize(
   const max = opts?.max ?? 22;
   return Math.max(min, Math.min(max, blockHeight * scale * factor));
 }
-
