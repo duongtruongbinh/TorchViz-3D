@@ -84,7 +84,7 @@ export function getNodeDemoPose(node: LayoutNode): DemoPose {
 
 export function getDemoInputPose(stops: DemoStop[]): DemoPose {
   const first = stops[0]?.node;
-  const gap = 2.5; // NODE_GAP
+  const gap = 3.6;
   if (!first) {
     return {
       position: new THREE.Vector3(-4, 0, 0),

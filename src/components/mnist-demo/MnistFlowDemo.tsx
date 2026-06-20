@@ -126,12 +126,12 @@ const DemoInputTile: React.FC<{
         <meshBasicMaterial map={texture} toneMapped={false} />
       </mesh>
       {/* Label Text remains billboarded for camera readability */}
-      <Billboard position={[0, -h / 2 - 0.42, 0]} renderOrder={RENDER_ORDER_INPUT_TILE_BILLBOARD}>
+      <Billboard position={[-2.95, -h / 2 - 0.9, 0.28]} renderOrder={RENDER_ORDER_INPUT_TILE_BILLBOARD}>
         <Text
           {...TEXT_BASE_PROPS}
-          fontSize={0.34}
-          color="#dbeafe"
-          outlineWidth={0.018}
+          fontSize={0.5}
+          color="#e5e7eb"
+          outlineWidth={0.025}
           renderOrder={RENDER_ORDER_INPUT_TILE_TEXT}
         >
           {label}

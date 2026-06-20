@@ -122,7 +122,7 @@ const localizedText = {
       },
       modeOn: { en: 'On', vi: 'Bật' },
       modeOff: { en: 'Off', vi: 'Tắt' },
-      input: { en: 'MNIST input', vi: 'Input MNIST' },
+      input: { en: 'MNIST Input', vi: 'Input MNIST' },
       play: { en: 'Play MNIST flow', vi: 'Phát luồng MNIST' },
       pause: { en: 'Pause MNIST flow', vi: 'Tạm dừng luồng MNIST' },
       previous: { en: 'Previous block', vi: 'Block trước' },

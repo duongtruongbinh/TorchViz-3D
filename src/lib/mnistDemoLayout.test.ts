@@ -129,8 +129,8 @@ test('getDemoInputPose positions input tile correctly in world space', () => {
 
   const pose = getDemoInputPose([firstStop]);
 
-  // input is before first block on X (10 - (4 * 0.2)/2 - 2.5 = 7.1)
-  assert.equal(pose.position.x, 7.1);
+  // input is before first block on X (10 - (4 * 0.2)/2 - 3.6 = 6)
+  assert.equal(pose.position.x, 6);
   // shares aligned Y/Z convention
   assert.equal(pose.position.y, 2);
   assert.equal(pose.position.z, 4);
