@@ -7,6 +7,10 @@ together so you can navigate and extend the codebase.
 If you read only one section, read [The central idea: `torchstub`](#the-central-idea-torchstub).
 It is the non-obvious trick the whole project is built on.
 
+> For a structured, agent-readable map of the same material — per-subsystem concept pages,
+> guides, and reference — see the [OKF knowledge bundle](../wiki/index.md). This prose doc and
+> the wiki cite each other; where they disagree, the code wins.
+
 ---
 
 ## Data-flow pipeline
@@ -58,14 +62,23 @@ need it — to *draw* a network we only need each layer's **output shape** and *
 count**, not its actual numeric output.
 
 So the worker writes a small fake package called `torchstub` into Pyodide's virtual
-filesystem (its source lives in `src/lib/python_sources.ts`). The user's code imports it as
-if it were `torch`:
+filesystem (its source lives in `src/lib/python_sources.ts`). Before running the user's code,
+the worker injects a preamble (`pyodideWorker.ts`) that imports the stub under the usual
+PyTorch aliases:
 
 ```python
-import torchstub as torch
+import torchstub
 import torchstub.nn as nn
 import torchstub.nn.functional as F
+from torchstub import Tensor
+import math
 ```
+
+So user code just uses `nn` / `F` as it would with real PyTorch — no `import torch` needed
+(the built-in templates redeclare `import torchstub.nn as nn` for clarity, which is
+harmlessly redundant). Counting the blank lines that wrap it, this preamble occupies
+`WRAPPER_LINE_OFFSET` (7) lines before the user's code begins; see
+[Fragile spots](#fragile-spots--gotchas).
 
 `torchstub` mimics the `torch.nn` API but does **shape inference only**:
 
@@ -148,8 +161,9 @@ Key conventions worth knowing before you touch this file:
 - **Edges** route as orthogonal "circuit-board" polylines. `residual` edges arc *over* any
   blocks between source and target (`maxBlockTopBetween`) so they read as skip connections.
 
-Colors come from `src/lib/constants.ts` (`getOpColor`, container colors, error color) — the
-single source of truth shared by the 3D canvas, the Inspector, and SVG export.
+Op colors come from `src/lib/visualKind.ts` (`getVisualMeta` → `KIND_RULES`/`META_MAP`) — the
+single source of truth shared by the 3D canvas and SVG export; `src/lib/constants.ts` holds
+container colors, the error color, and the rest of the theme.
 
 ---
 
@@ -168,10 +182,11 @@ A single small zustand store holds: editor `code`, active template, `ir`, `colla
 
 ## Fragile spots / gotchas
 
-- **`WRAPPER_LINE_OFFSET = 7`** in `pyodideWorker.ts` is a magic number equal to the line
-  count of the wrapper preamble injected before the user's code. It is used to translate
-  Python tracebacks back to editor line numbers. **If you edit the preamble, update this
-  constant** or error-highlighting silently points at the wrong lines.
+- **`WRAPPER_LINE_OFFSET`** in `pyodideWorker.ts` is the line count of the wrapper preamble
+  injected before the user's code, used to translate Python tracebacks back to editor line
+  numbers. It is **auto-derived** from the preamble via `countPythonPreambleLines`
+  (`src/lib/workerLineMapping.ts`) — not a hardcoded constant — so editing the preamble
+  updates it automatically. Keep `USER_CODE_PREAMBLE` and `countPythonPreambleLines` honest.
 - **Dual module resolution.** `index.html` ships an importmap (esm.sh CDN) *and* Vite bundles
   the same deps. Vite's bundling is authoritative for dev/build; the importmap is the
   no-build-tool fallback. `zustand` is intentionally only in `package.json`. Don't "fix" one

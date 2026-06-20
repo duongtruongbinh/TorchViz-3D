@@ -20,7 +20,9 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
-* Node.js (v16 or higher)
+* **Node.js 20 or higher** (CI builds on Node 24; Vite 6 requires a modern LTS).
+* A **desktop browser** — the UI is laid out for screens ≥ 1024px wide.
+* **Internet access** — Pyodide, Tailwind, and fonts load from CDNs at runtime.
 
 ### Installation
 
@@ -41,6 +43,12 @@
     ```
     Open `http://localhost:3000` to view the app.
 
+### Running tests
+
+```bash
+npm test
+```
+
 ## 📦 Building for Production
 
 To create a production-ready build:
@@ -53,5 +61,6 @@ The output will be in the dist directory.
 
 ## 📚 Documentation
 
+* [Knowledge bundle (`wiki/`)](wiki/index.md) — the structured, agent-readable OKF bundle: per-subsystem concept pages, guides, and reference. **Start here** for a navigable map of the codebase.
 * [Architecture](docs/ARCHITECTURE.md) — data-flow pipeline, the `torchstub` shape-tracing core, the IR contract, and the layout engine.
 * [Extending torchstub](docs/TORCHSTUB.md) — how to add support for a new layer.
