@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { getPlaybackProgress, shouldSyncAnimationState } from '../../lib/mnistAnimation';
 import type { LayoutEdgeWithVectors } from '../../lib/canvasUtils';
 import { getMnistDemoCompatibility } from '../../lib/mnistCompatibility';
+import { getExerciseById, getExercisesForNode } from '../exercises/exerciseRegistry';
+import type { ExerciseId } from '../exercises/types';
 import { getDemoInputPose, getSegmentState, type DemoStop } from '../operation-effects/effectMath';
 import { DEMO_PLAY_SPEED } from './MnistFlowDemo';
 
@@ -27,7 +29,7 @@ export function useMnistDemoState({
 }: UseMnistDemoStateArgs) {
   const [progress, setProgress] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [exerciseOpen, setExerciseOpen] = useState(false);
+  const [activeExerciseId, setActiveExerciseId] = useState<ExerciseId | null>(null);
   const [animationSpeed, setAnimationSpeed] = useState(DEMO_PLAY_SPEED);
   const progressRef = useRef(0);
   const lastSyncRef = useRef(0);
@@ -44,8 +46,10 @@ export function useMnistDemoState({
     [demoStops, progress, inputPose.position],
   );
   const activeNodeId = useOperationBlocks ? segmentState.activeStop?.node.id ?? null : null;
-  const activeOpType = segmentState.activeStop?.node.op_type ?? '';
-  const exerciseSupported = /conv/i.test(activeOpType);
+  const availableExercises = useMemo(
+    () => getExercisesForNode(useOperationBlocks ? segmentState.activeStop?.node : null),
+    [segmentState.activeStop?.node, useOperationBlocks],
+  );
 
   const visibleNodeIds = useMemo(() => {
     if (!useOperationBlocks || segmentState.activeStopIndex < 0) return new Set<string>();
@@ -73,16 +77,30 @@ export function useMnistDemoState({
     lastSyncRef.current = 0;
     setProgress(0);
     setPlaying(false);
-    setExerciseOpen(false);
+    setActiveExerciseId(null);
   }, [layoutKey, activeTemplate, shapeInput]);
 
   useEffect(() => {
     if (!demoModeEnabled || loading || !compatibility.ok) setPlaying(false);
   }, [compatibility.ok, demoModeEnabled, loading]);
 
+  const openExercise = useCallback((id: ExerciseId) => {
+    const exercise = getExerciseById(id);
+    if (!exercise || !availableExercises.some((available) => available.id === id)) return;
+    setPlaying(false);
+    setActiveExerciseId(id);
+  }, [availableExercises]);
+
+  const closeExercise = useCallback(() => {
+    setActiveExerciseId(null);
+  }, []);
+
   useEffect(() => {
-    if (!exerciseSupported) setExerciseOpen(false);
-  }, [exerciseSupported]);
+    if (!activeExerciseId) return;
+    if (!availableExercises.some((exercise) => exercise.id === activeExerciseId)) {
+      setActiveExerciseId(null);
+    }
+  }, [activeExerciseId, availableExercises]);
 
   useEffect(() => {
     if (!demoModeEnabled || !playing || maxProgress <= 0) return;
@@ -117,10 +135,10 @@ export function useMnistDemoState({
 
   return {
     activeNodeId,
+    activeExerciseId,
     animationSpeed,
+    availableExercises,
     compatibility,
-    exerciseOpen,
-    exerciseSupported,
     inputPose,
     maxProgress,
     playing,
@@ -129,8 +147,9 @@ export function useMnistDemoState({
     useOperationBlocks,
     visibleEdges,
     visibleNodeIds,
+    closeExercise,
+    openExercise,
     setAnimationSpeed,
-    setExerciseOpen,
     setPlaying,
     setProgress: handleProgressChange,
   };

@@ -6,6 +6,7 @@ import { LayoutNode, LayoutData } from '../../lib/irTypes';
 import { useStore } from '../../store/useStore';
 import { getStrings } from '../../lib/localization';
 import { getVisualMeta, getVisualKind, getActivationSubKind, type VisualKind } from '../../lib/visualKind';
+import { shouldRenderLeafCaption, type LabelMode } from '../../lib/labelMode';
 import { collectDemoStopNodes } from '../mnist-demo/demoStops';
 import { useHoverHold, HoverPanelHtml } from './HoverPanels';
 import {
@@ -192,11 +193,14 @@ function groupLeavesByIdentity(leaves: LayoutNode[]): { batches: LayoutNode[][];
 
 export const InstancedLeafGroup: React.FC<{
   nodes: LayoutNode[];
-  highlightNodeId: string | null;
+  selectedNodeId: string | null;
+  activeNodeId: string | null;
+  labelMode: LabelMode;
+  leafCount: number;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ nodes, highlightNodeId, onHover, onClickNode, onOpenLayerInsight }) => {
+}> = React.memo(({ nodes, selectedNodeId, activeNodeId, labelMode, leafCount, onHover, onClickNode, onOpenLayerInsight }) => {
   const ref = useRef<THREE.InstancedMesh>(null);
   const hovered = useHoverHold<number | null>(null);
   const n = nodes[0];
@@ -259,17 +263,28 @@ export const InstancedLeafGroup: React.FC<{
           emissiveIntensity={0}
         />
       </instancedMesh>
-      {nodes.map((nd) => (
-        <NodeCaption
-          key={nd.id}
-          label={meta.labelOverride ?? nd.op_type}
-          position={[
-            nd.x,
-            nd.y - (nd.height * meta.heightMul) / 2 - 0.9,
-            nd.z + (nd.depth * meta.depthMul) / 2 + 0.15,
-          ]}
-        />
-      ))}
+      {nodes.map((nd, index) => {
+        const shouldRenderCaption = shouldRenderLeafCaption({
+          labelMode,
+          leafCount,
+          nodeId: nd.id,
+          hoveredNodeId: hovered.value === index ? nd.id : null,
+          selectedNodeId,
+          activeNodeId,
+        });
+        if (!shouldRenderCaption) return null;
+        return (
+          <NodeCaption
+            key={nd.id}
+            label={meta.labelOverride ?? nd.op_type}
+            position={[
+              nd.x,
+              nd.y - (nd.height * meta.heightMul) / 2 - 0.9,
+              nd.z + (nd.depth * meta.depthMul) / 2 + 0.15,
+            ]}
+          />
+        );
+      })}
       {hovered.value !== null && nodes[hovered.value] && (
         <HoverPanelHtml
           position={[
@@ -427,10 +442,14 @@ export const KindShape: React.FC<{
 export const NodeBlock: React.FC<{
   node: LayoutNode;
   highlighted: boolean;
+  selectedNodeId: string | null;
+  activeNodeId: string | null;
+  labelMode: LabelMode;
+  leafCount: number;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ node, highlighted, onHover, onClickNode, onOpenLayerInsight }) => {
+}> = React.memo(({ node, highlighted, selectedNodeId, activeNodeId, labelMode, leafCount, onHover, onClickNode, onOpenLayerInsight }) => {
   const hovered = useHoverHold(false);
   const meta = useMemo(() => getVisualMeta(node.op_type), [node.op_type]);
   const w = node.width * meta.widthMul;
@@ -442,6 +461,14 @@ export const NodeBlock: React.FC<{
   const isActive = hovered.value || highlighted;
   const errorPulse = useErrorPulse(hasError);
   const displayLabel = meta.labelOverride ?? node.op_type;
+  const shouldRenderCaption = shouldRenderLeafCaption({
+    labelMode,
+    leafCount,
+    nodeId: node.id,
+    hoveredNodeId: hovered.value ? node.id : null,
+    selectedNodeId,
+    activeNodeId,
+  });
 
   return (
     <group position={[node.x, node.y, node.z]}>
@@ -484,7 +511,7 @@ export const NodeBlock: React.FC<{
         />
       )}
 
-      {!hovered.value && !hasError && (
+      {shouldRenderCaption && !hasError && (
         <NodeCaption
           label={displayLabel}
           position={[0, -h / 2 - 0.9, d / 2 + 0.15]}
@@ -498,12 +525,16 @@ export const ContainerBlock: React.FC<{
   node: LayoutNode;
   isRoot?: boolean;
   highlightNodeId: string | null;
+  selectedNodeId: string | null;
+  activeNodeId: string | null;
+  labelMode: LabelMode;
+  leafCount: number;
   skipLeaves?: boolean;
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
+}> = React.memo(({ node, isRoot, highlightNodeId, selectedNodeId, activeNodeId, labelMode, leafCount, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
   const language = useStore((s) => s.language);
   const t = getStrings(language);
   const hovered = useHoverHold(false);
@@ -525,6 +556,10 @@ export const ContainerBlock: React.FC<{
             key={child.id}
             node={child}
             highlightNodeId={highlightNodeId}
+            selectedNodeId={selectedNodeId}
+            activeNodeId={activeNodeId}
+            labelMode={labelMode}
+            leafCount={leafCount}
             skipLeaves={skipLeaves}
             onToggle={onToggle}
             onHover={onHover}
@@ -680,6 +715,10 @@ export const ContainerBlock: React.FC<{
           key={child.id}
           node={child}
           highlightNodeId={highlightNodeId}
+          selectedNodeId={selectedNodeId}
+          activeNodeId={activeNodeId}
+          labelMode={labelMode}
+          leafCount={leafCount}
           skipLeaves={skipLeaves}
           onToggle={onToggle}
           onHover={onHover}
@@ -695,18 +734,26 @@ export const SceneNode: React.FC<{
   node: LayoutNode;
   isRoot?: boolean;
   highlightNodeId: string | null;
+  selectedNodeId: string | null;
+  activeNodeId: string | null;
+  labelMode: LabelMode;
+  leafCount: number;
   skipLeaves?: boolean;
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ node, isRoot, highlightNodeId, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
+}> = React.memo(({ node, isRoot, highlightNodeId, selectedNodeId, activeNodeId, labelMode, leafCount, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
   if (node.is_container) {
     return (
       <ContainerBlock
         node={node}
         isRoot={isRoot}
         highlightNodeId={highlightNodeId}
+        selectedNodeId={selectedNodeId}
+        activeNodeId={activeNodeId}
+        labelMode={labelMode}
+        leafCount={leafCount}
         skipLeaves={skipLeaves}
         onToggle={onToggle}
         onHover={onHover}
@@ -720,6 +767,10 @@ export const SceneNode: React.FC<{
     <NodeBlock
       node={node}
       highlighted={node.id === highlightNodeId}
+      selectedNodeId={selectedNodeId}
+      activeNodeId={activeNodeId}
+      labelMode={labelMode}
+      leafCount={leafCount}
       onHover={onHover}
       onClickNode={onClickNode}
       onOpenLayerInsight={onOpenLayerInsight}
@@ -730,13 +781,16 @@ export const SceneNode: React.FC<{
 export const SceneWithInstancing: React.FC<{
   layout: LayoutData;
   highlightNodeId: string | null;
+  selectedNodeId?: string | null;
+  activeNodeId?: string | null;
+  labelMode?: LabelMode;
   visibleNodeIds?: Set<string>;
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ layout, highlightNodeId, visibleNodeIds, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
-  const { batches, singles, visibleContainers } = useMemo(() => {
+}> = React.memo(({ layout, highlightNodeId, selectedNodeId = null, activeNodeId = null, labelMode = 'auto', visibleNodeIds, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
+  const { batches, singles, visibleContainers, leafCount } = useMemo(() => {
     if (visibleNodeIds) {
       const visibleStopNodes = collectDemoStopNodes(layout.nodes)
         .filter((node) => visibleNodeIds.has(node.id));
@@ -744,12 +798,15 @@ export const SceneWithInstancing: React.FC<{
       const grouped = groupLeavesByIdentity(leaves);
       return {
         ...grouped,
+        leafCount: leaves.length,
         visibleContainers: visibleStopNodes.filter((node) => node.is_container),
       };
     }
 
+    const leaves = flattenLeaves(layout.nodes);
     return {
-      ...groupLeavesByIdentity(flattenLeaves(layout.nodes)),
+      ...groupLeavesByIdentity(leaves),
+      leafCount: leaves.length,
       visibleContainers: [],
     };
   }, [layout, visibleNodeIds]);
@@ -764,6 +821,10 @@ export const SceneWithInstancing: React.FC<{
             node={n}
             isRoot={isRoot}
             highlightNodeId={highlightNodeId}
+            selectedNodeId={selectedNodeId}
+            activeNodeId={activeNodeId}
+            labelMode={labelMode}
+            leafCount={leafCount}
             skipLeaves={true}
             onToggle={onToggle}
             onHover={onHover}
@@ -777,6 +838,10 @@ export const SceneWithInstancing: React.FC<{
           key={node.id}
           node={node}
           highlightNodeId={highlightNodeId}
+          selectedNodeId={selectedNodeId}
+          activeNodeId={activeNodeId}
+          labelMode={labelMode}
+          leafCount={leafCount}
           onToggle={onToggle}
           onHover={onHover}
           onClickNode={onClickNode}
@@ -787,7 +852,10 @@ export const SceneWithInstancing: React.FC<{
         <InstancedLeafGroup
           key={nodes[0]?.id ? `inst-${nodes[0].id}` : `inst-fallback-${index}`}
           nodes={nodes}
-          highlightNodeId={highlightNodeId}
+          selectedNodeId={selectedNodeId}
+          activeNodeId={activeNodeId}
+          labelMode={labelMode}
+          leafCount={leafCount}
           onHover={onHover}
           onClickNode={onClickNode}
           onOpenLayerInsight={onOpenLayerInsight}
@@ -798,6 +866,10 @@ export const SceneWithInstancing: React.FC<{
           key={node.id}
           node={node}
           highlighted={node.id === highlightNodeId}
+          selectedNodeId={selectedNodeId}
+          activeNodeId={activeNodeId}
+          labelMode={labelMode}
+          leafCount={leafCount}
           onHover={onHover}
           onClickNode={onClickNode}
           onOpenLayerInsight={onOpenLayerInsight}

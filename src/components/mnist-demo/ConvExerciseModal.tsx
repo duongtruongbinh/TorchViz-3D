@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { getStrings } from '../../lib/localization';
 
@@ -543,6 +543,10 @@ export const ConvExerciseModal: React.FC<{
   t: DemoLabels;
   onClose: () => void;
 }> = ({ isOpen, t, onClose }) => {
+  const titleId = useId();
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [kernelValues, setKernelValues] = useState(() => stringifyKernel(EXERCISES.easy.kernel));
   const [values, setValues] = useState<Record<string, string>>({});
@@ -564,6 +568,37 @@ export const ConvExerciseModal: React.FC<{
   const hintProductRows = useMemo(() => (
     hintCell ? getHintProductRows(config.input, numericKernel, hintCell) : []
   ), [config.input, hintCell, numericKernel]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      if (wasOpenRef.current) {
+        wasOpenRef.current = false;
+        const previousFocus = previousFocusRef.current;
+        if (previousFocus && document.contains(previousFocus)) previousFocus.focus();
+      }
+      return;
+    }
+
+    previousFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    wasOpenRef.current = true;
+
+    const frameId = window.requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      onClose();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     setKernelValues(stringifyKernel(EXERCISES[difficulty].kernel));
@@ -674,17 +709,23 @@ export const ConvExerciseModal: React.FC<{
 
   return createPortal((
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/82 backdrop-blur-xl pointer-events-auto">
-      <div className="flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-white/15 bg-zinc-950/96 shadow-2xl">
-        <div className="relative flex items-start justify-between gap-4 border-b border-white/10 px-4 py-3">
-          <div className="min-w-0">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-sky-100">{t.exerciseTitle}</h2>
+      <div
+        className="flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-white/15 bg-zinc-950/96 shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4 border-b border-white/10 px-4 py-3">
+          <div className="min-w-0 self-center">
+            <h2 id={titleId} className="text-sm font-bold uppercase tracking-wider text-sky-100">{t.exerciseTitle}</h2>
           </div>
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="min-w-0 justify-self-center">
             <DifficultyTabs difficulty={difficulty} t={t} onChange={setDifficulty} />
           </div>
           <button
+            ref={closeButtonRef}
             type="button"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
+            className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
             onClick={onClose}
             aria-label={t.closeExercise}
             title={t.closeExercise}
@@ -696,7 +737,7 @@ export const ConvExerciseModal: React.FC<{
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto">
-          <div className="grid grid-cols-[minmax(18rem,1fr)_auto_minmax(17rem,1fr)] gap-5 p-5">
+          <div className="grid grid-cols-1 gap-5 p-5 xl:grid-cols-[minmax(18rem,1fr)_minmax(16rem,auto)_minmax(17rem,1fr)]">
             <section className="min-w-0">
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">{t.inputMap}</h3>
@@ -740,9 +781,7 @@ export const ConvExerciseModal: React.FC<{
               )}
             </section>
 
-            <div className={`flex min-w-[9rem] flex-col items-center justify-center gap-3 px-1 ${
-              difficulty === 'hard' ? '-translate-x-32' : ''
-            }`}>
+            <div className="flex min-w-0 flex-col items-center justify-center gap-3 px-1">
               <KernelEditor
                 kernelValues={kernelValues}
                 activeChannel={activeKernelChannel}
@@ -754,9 +793,7 @@ export const ConvExerciseModal: React.FC<{
               />
               <button
                 type="button"
-                className={`h-8 rounded-md border border-amber-300/35 bg-amber-400/12 px-3 text-[11px] font-bold uppercase tracking-wider text-amber-100 hover:bg-amber-400/22 ${
-                  difficulty === 'hard' ? 'translate-x-7 -translate-y-3' : ''
-                }`}
+                className="h-8 rounded-md border border-amber-300/35 bg-amber-400/12 px-3 text-[11px] font-bold uppercase tracking-wider text-amber-100 hover:bg-amber-400/22"
                 onClick={applyNextKernelPreset}
                 title={BASE_KERNEL_PRESETS[(presetIndex + 1) % BASE_KERNEL_PRESETS.length].name}
               >

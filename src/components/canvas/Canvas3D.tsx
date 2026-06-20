@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
@@ -11,6 +11,9 @@ import {
   useMnistTexture,
 } from '../mnist-demo/MnistFlowDemo';
 import { ConvExerciseModal } from '../mnist-demo/ConvExerciseModal';
+import { ShapeExercise } from '../exercises/ShapeExercise';
+import { ValueExercise } from '../exercises/ValueExercise';
+import type { ValueExerciseId } from '../../lib/valueExerciseModels';
 import { collectDemoStops } from '../mnist-demo/demoStops';
 import { useMnistDemoState } from '../mnist-demo/useMnistDemoState';
 import { SceneWithInstancing } from './SceneBlocks';
@@ -58,6 +61,8 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   const activeTemplate = useStore((s) => s.activeTemplate);
   const shapeInput = useStore((s) => s.shapeInput);
   const t = getStrings(language);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [shortExerciseFallbackModal, setShortExerciseFallbackModal] = useState(false);
 
   const handleToggle = useCallback(
     (id: string) => onToggleCollapse?.(id),
@@ -96,8 +101,19 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   });
   const effectiveHighlightNodeId = demo.activeNodeId ?? highlightNodeId;
 
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) => {
+      setShortExerciseFallbackModal(entry.contentRect.width < 760);
+    });
+    observer.observe(element);
+    setShortExerciseFallbackModal(element.clientWidth < 760);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
+    <div ref={containerRef} className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
       {layout && viewReady && demoModeEnabled && demo.compatibility.ok && (
         <>
           <DemoControls
@@ -106,20 +122,35 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
             playing={demo.playing}
             dataUrl={mnist?.dataUrl}
             animationSpeed={demo.animationSpeed}
-            exerciseSupported={demo.exerciseSupported}
+            availableExercises={demo.availableExercises}
             t={t.canvas.demo}
             onProgressChange={demo.setProgress}
             onPlayingChange={demo.setPlaying}
             onAnimationSpeedChange={demo.setAnimationSpeed}
-            onOpenExercise={() => {
-              demo.setPlaying(false);
-              demo.setExerciseOpen(true);
-            }}
+            onOpenExercise={demo.openExercise}
           />
           <ConvExerciseModal
-            isOpen={demo.exerciseOpen}
+            isOpen={demo.activeExerciseId === 'conv-value'}
             t={t.canvas.demo}
-            onClose={() => demo.setExerciseOpen(false)}
+            onClose={demo.closeExercise}
+          />
+          <ShapeExercise
+            isOpen={demo.activeExerciseId === 'shape-output' || demo.activeExerciseId === 'attention-shape'}
+            exerciseId={demo.activeExerciseId === 'attention-shape' ? 'attention-shape' : 'shape-output'}
+            node={demo.segmentState.activeStop?.node}
+            fallbackModal={shortExerciseFallbackModal}
+            t={t.canvas.demo}
+            language={language}
+            onClose={demo.closeExercise}
+          />
+          <ValueExercise
+            isOpen={isValueExerciseId(demo.activeExerciseId)}
+            exerciseId={isValueExerciseId(demo.activeExerciseId) ? demo.activeExerciseId : null}
+            node={demo.segmentState.activeStop?.node}
+            fallbackModal={shortExerciseFallbackModal}
+            t={t.canvas.demo}
+            language={language}
+            onClose={demo.closeExercise}
           />
         </>
       )}
@@ -163,6 +194,9 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
                 <SceneWithInstancing
                   layout={layout}
                   highlightNodeId={effectiveHighlightNodeId}
+                  selectedNodeId={highlightNodeId}
+                  activeNodeId={demo.activeNodeId}
+                  labelMode="auto"
                   visibleNodeIds={demo.useOperationBlocks ? demo.visibleNodeIds : undefined}
                   onToggle={handleToggle}
                   onHover={handleHover}
@@ -219,3 +253,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
 };
 
 export default Canvas3D;
+
+function isValueExerciseId(id: string | null): id is ValueExerciseId {
+  return id === 'pool-value' || id === 'linear-value' || id === 'activation-value';
+}
