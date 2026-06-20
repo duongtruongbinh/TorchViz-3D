@@ -46,6 +46,7 @@ test('builds deterministic ReLU vector exercise', () => {
   const model = buildValueExerciseModel('activation-value', node('ReLU'));
 
   assert.equal(model?.seed, 'activation-value:relu');
+  assert.deepEqual(model?.inputValues, [-2, 0, 3, -0.5, 1]);
   assert.deepEqual(model?.expectedAnswers, [0, 0, 3, 0, 1]);
 });
 

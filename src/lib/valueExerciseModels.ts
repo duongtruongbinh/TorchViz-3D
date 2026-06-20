@@ -17,6 +17,7 @@ export type ValueExerciseModel = {
   prompt: string;
   configRows: string[];
   displaySections: ValueExerciseDisplaySection[];
+  inputValues?: number[];
   answerLabels: string[];
   expectedAnswers: number[];
   hintLines: string[];
@@ -149,6 +150,7 @@ function buildActivationExercise(node: LayoutNode, language: ExerciseLanguage): 
       : 'Apply ReLU to each vector element.',
     configRows: ['rule=max(0, x)'],
     displaySections: [{ title: 'Input', rows: [formatVector(input)] }],
+    inputValues: input,
     answerLabels: output.map((_, index) => `y${index}`),
     expectedAnswers: output,
     hintLines: language === 'vi'

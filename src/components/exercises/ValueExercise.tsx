@@ -294,6 +294,8 @@ export const ValueExercise: React.FC<{
               setAnswers((current) => current.map((item, answerIndex) => (
                 answerIndex === index ? value : item
               )));
+              setActivationHintIndex(null);
+              setShowHint(false);
             }}
           />
         ) : (
@@ -438,6 +440,7 @@ export const ValueExercise: React.FC<{
                 setPoolHintIndex(null);
                 setActivationHintIndex(null);
                 setSubmitted(false);
+                setShowHint(false);
               }}
             >
               {t.resetExercise}
@@ -631,7 +634,7 @@ const ActivationValuePanel: React.FC<{
   activationHintIndex: number | null;
   onAnswerChange: (index: number, value: string) => void;
 }> = ({ model, answers, statuses, submitted, t, language, showHint, activationHintIndex, onAnswerChange }) => {
-  const inputValues = readVectorSection(model.displaySections[0]?.rows[0] ?? '');
+  const inputValues = model.inputValues ?? readVectorSection(model.displaySections[0]?.rows[0] ?? '');
 
   return (
     <div className="grid grid-cols-1 gap-5 p-5 xl:grid-cols-[minmax(20rem,0.85fr)_minmax(22rem,1fr)_minmax(22rem,0.95fr)]">
@@ -745,17 +748,17 @@ const ActivationValuePanel: React.FC<{
                   : `Inspecting element x${activationHintIndex} = ${inputValues[activationHintIndex]}.`)
                 : (language === 'vi' ? 'Bấm Hint để xem gợi ý từng phần tử.' : 'Press Hint to inspect one element.')}
             </div>
-            {activationHintIndex !== null && (
-              <div className="rounded-md border border-zinc-800 bg-zinc-950/80 px-3 py-2 text-zinc-100 font-bold">
-                {language === 'vi'
-                  ? (inputValues[activationHintIndex] < 0
-                    ? `x${activationHintIndex} = ${inputValues[activationHintIndex]} < 0  ⇒  y${activationHintIndex} = max(0, ${inputValues[activationHintIndex]}) = 0`
-                    : `x${activationHintIndex} = ${inputValues[activationHintIndex]} ≥ 0  ⇒  y${activationHintIndex} = max(0, ${inputValues[activationHintIndex]}) = ${inputValues[activationHintIndex]}`)
-                  : (inputValues[activationHintIndex] < 0
-                    ? `x${activationHintIndex} = ${inputValues[activationHintIndex]} < 0  ⇒  y${activationHintIndex} = max(0, ${inputValues[activationHintIndex]}) = 0`
-                    : `x${activationHintIndex} = ${inputValues[activationHintIndex]} ≥ 0  ⇒  y${activationHintIndex} = max(0, ${inputValues[activationHintIndex]}) = ${inputValues[activationHintIndex]}`)}
-              </div>
-            )}
+            {activationHintIndex !== null && (() => {
+              const v = inputValues[activationHintIndex];
+              const formula = v < 0
+                ? `x${activationHintIndex} = ${v} < 0  ⇒  y${activationHintIndex} = max(0, ${v}) = 0`
+                : `x${activationHintIndex} = ${v} ≥ 0  ⇒  y${activationHintIndex} = max(0, ${v}) = ${v}`;
+              return (
+                <div className="rounded-md border border-zinc-800 bg-zinc-950/80 px-3 py-2 text-zinc-100 font-bold">
+                  {formula}
+                </div>
+              );
+            })()}
             <div className="border-t border-zinc-800 mt-2.5 pt-2.5">
               <div className="mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500">
                 {language === 'vi' ? 'Quy tắc chung:' : 'General Rule:'}
