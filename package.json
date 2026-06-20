@@ -5,13 +5,15 @@
   "type": "module",
   "overrides": {
     "monaco-editor": {
-      "dompurify": "3.4.10"
+      "dompurify": "3.4.11"
     }
   },
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc --noEmit",
     "test": "node --test src/lib/*.test.ts",
     "build": "vite build",
+    "verify": "npm run typecheck && npm test && npm run build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -25,6 +27,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"

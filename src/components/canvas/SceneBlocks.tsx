@@ -692,12 +692,12 @@ export const ContainerBlock: React.FC<{
 
         <mesh
           position={[0, node.height / 2 - HEADER_BAR_HEIGHT / 2, 0]}
-          onClick={(e) => {
+          onClick={(e: ThreeEvent<MouseEvent>) => {
             e.stopPropagation();
             onClickNode(node.id);
             onOpenLayerInsight(node);
           }}
-          onPointerOver={(e) => {
+          onPointerOver={(e: ThreeEvent<MouseEvent>) => {
             e.stopPropagation();
             document.body.style.cursor = 'pointer';
           }}

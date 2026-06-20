@@ -79,7 +79,7 @@ const EditorPane: React.FC<EditorPaneProps> = ({
     // torchstub.nn IntelliSense: suggest nn.* when typing nn.
     monaco.languages.registerCompletionItemProvider('python', {
       triggerCharacters: ['.'],
-      provideCompletionItems: (model, position) => {
+      provideCompletionItems: (model: any, position: any) => {
         const lineContent = model.getLineContent(position.lineNumber);
         const beforeCursor = lineContent.slice(0, position.column - 1).trimEnd();
         if (!/nn\.?$/.test(beforeCursor)) return { suggestions: [] };

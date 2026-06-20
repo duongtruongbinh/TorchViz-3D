@@ -1,44 +1,43 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
-      - "feature/**"
   pull_request:
+  push:
     branches:
       - main
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test-build:
-    name: Test and build
+  quality:
+    name: Quality gate
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 24.x
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
         run: npm test
 
-      - name: Build
+      - name: Production build
         run: npm run build
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: torchviz-studio-dist
-          path: dist
-          if-no-files-found: error
