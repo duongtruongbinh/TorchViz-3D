@@ -59,9 +59,9 @@ const SectionHeader: React.FC<{ title: string; meta?: string; flush?: boolean }>
 }) => (
   <div className={`${flush ? '' : 'mb-3'} flex items-center justify-between gap-3`}>
     <div className="flex min-w-0 items-center">
-      <h3 className="min-w-0 truncate text-xs font-bold uppercase tracking-wider text-zinc-200">{title}</h3>
+      <h3 className="min-w-0 truncate text-sm font-bold uppercase tracking-wider text-zinc-200">{title}</h3>
     </div>
-    {meta && <span className="shrink-0 text-[10px] font-mono text-zinc-500">{meta}</span>}
+    {meta && <span className="shrink-0 text-[11px] font-mono text-zinc-500">{meta}</span>}
   </div>
 );
 
@@ -108,7 +108,10 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
   const [hintPaused, setHintPaused] = useState(false);
   const [editableInputShape, setEditableInputShape] = useState<string[]>([]);
   const [editableConfig, setEditableConfig] = useState<EditableShapeConfig | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const hintRef = useRef<HTMLElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
 
   const configured = useMemo(
     () => (model
@@ -117,6 +120,37 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
     [editableConfig, editableInputShape, model],
   );
   const exerciseModel = configured.model;
+
+  useEffect(() => {
+    if (!isOpen) {
+      if (wasOpenRef.current) {
+        wasOpenRef.current = false;
+        const previousFocus = previousFocusRef.current;
+        if (previousFocus && document.contains(previousFocus)) previousFocus.focus();
+      }
+      return;
+    }
+
+    previousFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    wasOpenRef.current = true;
+
+    const frameId = window.requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      onClose();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen || !model) return;
@@ -163,9 +197,10 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
     )));
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const displayModel = exerciseModel ?? model;
+  const hasEditableError = Boolean(configured.inputError || configured.configError);
   const activeHintStep = showHint && displayModel?.breakdown
     ? SPATIAL_HINT_SEQUENCE[hintStepIndex % SPATIAL_HINT_SEQUENCE.length]
     : null;
@@ -199,14 +234,12 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4 border-b border-zinc-800 bg-zinc-950/95 px-4 py-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-zinc-800 bg-zinc-950/95 px-4 py-3">
           <div className="min-w-0 self-center">
-            <h2 id={titleId} className="text-sm font-bold uppercase tracking-wider text-zinc-100">{t.shapeExerciseTitle}</h2>
-          </div>
-          <div className="min-w-0 justify-self-center rounded-md border border-sky-400/25 bg-sky-500/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-sky-100">
-            {model?.opType ?? node?.op_type ?? 'Layer'}
+            <h2 id={titleId} className="text-base font-bold uppercase tracking-wider text-zinc-100">{t.shapeExerciseTitle}</h2>
           </div>
           <button
+            ref={closeButtonRef}
             type="button"
             className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
             onClick={onClose}
@@ -227,7 +260,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
         <>
           <div className="min-h-0 flex-1 overflow-auto">
             <div className="space-y-4 p-5">
-              <section className="min-w-0 rounded-md border border-zinc-800 bg-zinc-900/45 p-4">
+              <section className="min-w-0 rounded-md p-4">
                 <SectionHeader
                   title={t.inputShapeLabel}
                   meta={`${displayModel.inputShape.length}D`}
@@ -248,7 +281,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                 />
               </section>
 
-              <section className="min-w-0 rounded-md border border-zinc-800 bg-zinc-900/45 p-4">
+              <section className="min-w-0 rounded-md p-4">
                 <SectionHeader
                   title={t.layerConfigLabel}
                   meta={`${displayModel.configRows.length}`}
@@ -267,7 +300,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
 
               <FormulaPanel model={displayModel} activeHintStep={activeHintStep} />
 
-              <section className="rounded-md border border-emerald-400/25 bg-emerald-950/10 p-4">
+              <section className="rounded-md p-4">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <SectionHeader
@@ -275,12 +308,12 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                       flush
                     />
                   </div>
-                  <span className="shrink-0 rounded border border-emerald-300/35 bg-emerald-400/12 px-2.5 py-1 text-xs font-mono font-bold text-emerald-100">
+                  <span className="shrink-0 rounded border border-emerald-300/35 bg-emerald-400/12 px-2.5 py-1 text-sm font-mono font-bold text-emerald-100">
                     {correctCount}/{outputCells}
                   </span>
                 </div>
 
-                <div className="rounded-md border border-emerald-300/15 bg-zinc-950/80 px-4 py-5">
+                <div className="rounded-md px-4 py-5">
                   <div className="flex flex-wrap items-end justify-center gap-2 font-mono">
                     <span className="pb-2 text-2xl font-bold text-zinc-500">[</span>
                     {displayModel.expectedShape.map((expected, index) => {
@@ -292,7 +325,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                       return (
                         <React.Fragment key={`${index}-${expected}`}>
                         <label className="block w-24">
-                          <span className={`mb-1 block text-center text-[10px] font-bold uppercase tracking-wider ${
+                          <span className={`mb-1 block text-center text-[11px] font-bold uppercase tracking-wider ${
                             isHintDimension ? 'text-amber-200' : 'text-zinc-500'
                           }`}>{label}</span>
                           <input
@@ -300,7 +333,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                             inputMode="numeric"
                             value={answer}
                             onChange={(event) => updateAnswer(index, event.target.value)}
-                            className={`h-12 w-full rounded-md border bg-zinc-950 px-1 text-center text-lg font-bold outline-none transition-all ${
+                            className={`h-12 w-full rounded-md border bg-zinc-950 px-1 text-center text-xl font-bold outline-none transition-all ${
                               hasStatus
                                 ? isCorrect
                                   ? 'border-emerald-300/70 text-emerald-100 ring-1 ring-emerald-300/20'
@@ -312,7 +345,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                             aria-label={`Output shape dimension ${label}`}
                           />
                           {hasStatus && (
-                            <span className={`mt-1.5 block text-center text-[10px] font-medium leading-none ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            <span className={`mt-1.5 block text-center text-[11px] font-medium leading-none ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
                               {isCorrect ? t.correct : t.expected(expected)}
                             </span>
                           )}
@@ -380,8 +413,10 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
             </div>
           </div>
           <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3">
-            <p className="text-xs text-zinc-400">
-              {submitted ? `${correctCount}/${outputCells}` : t.enterOutputShape}
+            <p className="text-sm text-zinc-400">
+              {hasEditableError
+                ? (configured.inputError ?? configured.configError)
+                : submitted ? `${correctCount}/${outputCells}` : t.enterOutputShape}
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -408,7 +443,12 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
               </button>
               <button
                 type="button"
-                className="h-8 rounded-md border border-emerald-300/45 bg-emerald-400/18 px-3 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/28"
+                className={`h-8 rounded-md border px-3 text-xs font-semibold ${
+                  hasEditableError
+                    ? 'cursor-not-allowed border-zinc-700 bg-zinc-900 text-zinc-500'
+                    : 'border-emerald-300/45 bg-emerald-400/18 text-emerald-100 hover:bg-emerald-400/28'
+                }`}
+                disabled={hasEditableError}
                 onClick={() => setSubmitted(true)}
               >
                 {t.checkExercise}
@@ -453,9 +493,10 @@ const NumericField: React.FC<{
   label: string;
   value: string;
   min?: number;
+  allowTuple?: boolean;
   hintActive?: boolean;
   onChange: (value: string) => void;
-}> = ({ label, value, min = 1, hintActive = false, onChange }) => {
+}> = ({ label, value, min = 1, allowTuple = false, hintActive = false, onChange }) => {
   const tone = getFieldTone(label);
   const stepValue = (delta: number) => {
     onChange(adjustNumberInputValue(value, delta, min));
@@ -467,19 +508,19 @@ const NumericField: React.FC<{
       ? 'border-amber-300/60 bg-amber-900/14 ring-1 ring-amber-300/16'
       : 'border-zinc-700'
   }`}>
-    <span className={`flex h-5 w-full items-center justify-center text-center text-[11px] font-bold uppercase leading-none tracking-wide ${
+    <span className={`flex h-5 w-full items-center justify-center text-center text-[12px] font-bold uppercase leading-none tracking-wide ${
       hintActive ? 'text-amber-200' : tone.text
     }`}>{label}</span>
     <div className={`relative h-8 overflow-hidden rounded-sm border bg-zinc-900/70 ${
       hintActive ? 'border-amber-300/60 bg-amber-950/20' : 'border-zinc-800'
     }`}>
       <input
-        className={`block h-full w-full bg-transparent px-6 text-center font-mono text-[16px] font-bold leading-8 outline-none ${
+        className={`block h-full w-full bg-transparent px-6 text-center font-mono text-[17px] font-bold leading-8 outline-none ${
           hintActive ? 'text-amber-50' : tone.value
         }`}
         type="text"
-        inputMode="numeric"
-        value={normalizeNumberInputValue(value)}
+        inputMode={allowTuple ? 'text' : 'numeric'}
+        value={value}
         spellCheck={false}
         onChange={(event) => onChange(event.currentTarget.value)}
       />
@@ -576,7 +617,7 @@ const ConfigEditor: React.FC<{
       <div>
         <div className="flex flex-wrap gap-2">
           {model.configRows.map((item) => (
-            <span key={item} className="rounded border border-sky-300/25 bg-zinc-950 px-2.5 py-1 text-[13px] font-mono text-sky-100">
+            <span key={item} className="rounded border border-sky-300/25 bg-zinc-950 px-2.5 py-1 text-sm font-mono text-sky-100">
               {item}
             </span>
           ))}
@@ -589,6 +630,7 @@ const ConfigEditor: React.FC<{
     onChange({ ...config, [name]: value } as EditableShapeConfig);
   };
   const fields = getEditableFields(config);
+  const tupleFieldNames = new Set(['kernel', 'stride', 'padding', 'dilation']);
 
   return (
     <div>
@@ -599,12 +641,13 @@ const ConfigEditor: React.FC<{
             label={field.label}
             value={field.value}
             min={field.min}
+            allowTuple={tupleFieldNames.has(field.name)}
             hintActive={isActiveConfigHint(field.name, activeHintStep)}
             onChange={(nextValue) => setField(field.name, nextValue)}
           />
         ))}
       </div>
-      <p className={`mt-2 text-xs ${error ? 'text-red-300' : 'text-zinc-500'}`}>
+      <p className={`mt-2 text-[13px] ${error ? 'text-red-300' : 'text-zinc-500'}`}>
         {error ?? 'Use integer values.'}
       </p>
     </div>
@@ -614,7 +657,7 @@ const ConfigEditor: React.FC<{
 const FormulaPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHintStep | null }> = ({ model, activeHintStep }) => {
   if (model.breakdown) {
     return (
-      <section className="rounded-md border border-zinc-800 bg-zinc-900/45 p-4">
+      <section className="rounded-md p-4">
         <SectionHeader title="Formula" meta={model.opType} />
         <SpatialFormulaPanel activeHintStep={activeHintStep} />
       </section>
@@ -625,15 +668,15 @@ const FormulaPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: Spatia
   if (!rows.length) return null;
 
   return (
-    <section className="rounded-md border border-zinc-800 bg-zinc-900/45 p-4">
+    <section className="rounded-md p-4">
       <SectionHeader title="Formula" meta={model.opType} />
       <div className="grid gap-2 lg:grid-cols-2">
         {rows.map((row) => (
           <div key={row.label} className="rounded-md border border-sky-300/15 bg-zinc-950/80 p-3">
-            <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-sky-100">{row.label}</div>
-            <div className="font-mono text-sm leading-relaxed text-zinc-300">{row.formula}</div>
+            <div className="mb-1 text-[12px] font-bold uppercase tracking-wider text-sky-100">{row.label}</div>
+            <div className="font-mono text-base leading-relaxed text-zinc-300">{row.formula}</div>
             {row.substitution && (
-              <div className="mt-1.5 border-t border-white/10 pt-1.5 font-mono text-[13px] leading-relaxed text-zinc-500">
+              <div className="mt-1.5 border-t border-white/10 pt-1.5 font-mono text-sm leading-relaxed text-zinc-500">
                 {row.substitution}
               </div>
             )}
@@ -644,22 +687,17 @@ const FormulaPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: Spatia
   );
 };
 
-const SpatialFormulaPanel: React.FC<{ activeHintStep: SpatialHintStep | null }> = ({ activeHintStep }) => {
-  const hintActive = !!activeHintStep;
-  return (
-  <div className="rounded-md border border-sky-300/15 bg-zinc-950/80 p-4">
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <div className={`text-[11px] font-bold uppercase tracking-wider ${
-        hintActive ? 'text-amber-200' : 'text-sky-100'
-      }`}>Spatial rule</div>
-      {activeHintStep && (
-        <div className="rounded border border-amber-300/30 bg-amber-400/10 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-100">
+const SpatialFormulaPanel: React.FC<{ activeHintStep: SpatialHintStep | null }> = ({ activeHintStep }) => (
+  <div className="rounded-md bg-zinc-950/80 p-4">
+    {activeHintStep && (
+      <div className="mb-3 flex items-center justify-end gap-3">
+        <div className="rounded border border-amber-300/30 bg-amber-400/10 px-2 py-0.5 font-mono text-[12px] font-bold text-amber-100">
           {activeHintStep.axis}
         </div>
-      )}
-    </div>
+      </div>
+    )}
     <div className="overflow-x-auto rounded border border-white/10 bg-black/25 px-4 py-3">
-      <div className="min-w-max text-center font-mono text-base font-semibold leading-relaxed text-zinc-100">
+      <div className="min-w-max text-center font-mono text-lg font-semibold leading-relaxed text-zinc-100">
         <FormulaToken>out</FormulaToken>
         <FormulaToken> = </FormulaToken>
         <FormulaToken active={activeHintStep?.token === 'floor'}>floor</FormulaToken>
@@ -678,12 +716,11 @@ const SpatialFormulaPanel: React.FC<{ activeHintStep: SpatialHintStep | null }> 
         <FormulaToken>)</FormulaToken>
       </div>
     </div>
-    <div className="mt-2 text-[13px] leading-relaxed text-zinc-500">
+    <div className="mt-2 text-sm leading-relaxed text-zinc-500">
       P: padding, D: dilation, K: kernel, S: stride.
     </div>
   </div>
-  );
-};
+);
 
 const FormulaToken: React.FC<{ active?: boolean; children: React.ReactNode }> = ({
   active = false,
@@ -740,7 +777,7 @@ const HintPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHi
         <HintLine axis="W" steps={model.breakdown.w} activeHintStep={activeHintStep} />
       </div>
     ) : model.adaptiveHint ? (
-      <div className="space-y-2 font-mono text-[13px] text-sky-100">
+      <div className="space-y-2 font-mono text-sm text-sky-100">
         <div className="flex items-center justify-between">
           <span className="font-bold text-sky-100">H</span>
           <span className="text-zinc-400">target_h = {model.adaptiveHint.h}</span>
@@ -751,7 +788,7 @@ const HintPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHi
         </div>
       </div>
     ) : model.hintLines?.length ? (
-      <div className="space-y-2 font-mono text-[13px] leading-relaxed text-sky-100">
+      <div className="space-y-2 font-mono text-sm leading-relaxed text-sky-100">
         {model.hintLines.map((line, idx) => (
           <div key={line} className={idx > 0 ? "border-t border-white/10 pt-2" : ""}>
             {line}
@@ -759,7 +796,7 @@ const HintPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHi
         ))}
       </div>
     ) : (
-      <div className="text-xs leading-relaxed text-zinc-400">
+      <div className="text-sm leading-relaxed text-zinc-400">
         Use the displayed output shape and preserve dimensions where the layer does not change them.
       </div>
     )}
@@ -923,9 +960,9 @@ function getEditableFields(config: EditableShapeConfig): Array<{ name: string; l
   if (config.kind === 'conv') {
     return [
       { name: 'outChannels', label: 'out channels', value: config.outChannels },
+      { name: 'padding', label: 'padding', value: config.padding, min: 0 },
       { name: 'kernel', label: 'kernel', value: config.kernel },
       { name: 'stride', label: 'stride', value: config.stride },
-      { name: 'padding', label: 'padding', value: config.padding, min: 0 },
       { name: 'dilation', label: 'dilation', value: config.dilation },
     ];
   }
@@ -998,14 +1035,24 @@ function parseIntegerWithMin(value: string, label: string, options: { min?: numb
   return parsed;
 }
 
-function normalizeNumberInputValue(value: string): string {
+function getNumberInputParts(value: string): string[] {
   const trimmed = value.trim();
   const cleaned = trimmed.replace(/^\[/, '').replace(/\]$/, '').replace(/^\(/, '').replace(/\)$/, '');
-  return cleaned.split(',')[0]?.trim() ?? '';
+  return cleaned.split(',').map((part) => part.trim()).filter(Boolean);
 }
 
 function adjustNumberInputValue(value: string, delta: number, min: number): string {
-  const current = Number(normalizeNumberInputValue(value));
+  const parts = getNumberInputParts(value);
+  if (parts.length === 2) {
+    const adjusted = parts.map((part) => {
+      const current = Number(part);
+      const base = Number.isInteger(current) ? current : min;
+      return Math.max(min, base + delta);
+    });
+    return `(${adjusted[0]}, ${adjusted[1]})`;
+  }
+
+  const current = Number(parts[0] ?? '');
   const base = Number.isInteger(current) ? current : min;
   return String(Math.max(min, base + delta));
 }
@@ -1020,8 +1067,8 @@ const HintLine: React.FC<{
   const beforeFloor = steps.numerator / steps.stride + 1;
   return (
   <div className="flex flex-col gap-1.5 rounded-md border border-sky-300/15 bg-zinc-950 p-3">
-    <div className="flex flex-wrap items-center gap-1.5 font-mono text-[13px]">
-      <HintToken active={token === 'input'} className="text-xs font-bold text-sky-100">{axis}</HintToken>
+    <div className="flex flex-wrap items-center gap-1.5 font-mono text-sm">
+      <HintToken active={token === 'input'} className="text-sm font-bold text-sky-100">{axis}</HintToken>
       <span className="text-zinc-500">=</span>
       <HintToken active={token === 'floor'} className="text-sky-100">floor</HintToken>
       <span className="text-sky-100">(</span>
@@ -1036,7 +1083,7 @@ const HintLine: React.FC<{
       <HintToken active={token === 'combine'} className="text-zinc-300"> - 1) - 1) / {steps.stride} + 1</HintToken>
       <span className="text-sky-100">)</span>
     </div>
-    <div className="flex items-center gap-1.5 border-t border-white/10 pt-1.5 font-mono text-[13px] text-zinc-400">
+    <div className="flex items-center gap-1.5 border-t border-white/10 pt-1.5 font-mono text-sm text-zinc-400">
       <span>=</span>
       <HintToken active={token === 'floor'}>floor</HintToken>
       <span>(</span>
