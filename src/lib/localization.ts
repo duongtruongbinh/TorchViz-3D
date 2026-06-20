@@ -411,10 +411,21 @@ const localizedText = {
   },
   help: {
     title: { en: 'User Guide', vi: 'Hướng dẫn sử dụng' },
-    description: {
-      en: 'How to navigate and interact with the 3D visualization.',
-      vi: 'Cách điều hướng và tương tác với trực quan hóa 3D.',
-    },
+    workflow: { en: 'Workflow', vi: 'Quy trình' },
+    workflowItems: [
+      {
+        en: 'Pick a template or edit the model code.',
+        vi: 'Chọn mẫu kiến trúc hoặc chỉnh mã mô hình.',
+      },
+      {
+        en: 'Set the input shape, then press Visualize.',
+        vi: 'Đặt kích thước đầu vào, rồi bấm Trực quan hóa.',
+      },
+      {
+        en: 'Use the terminal for trace success, errors, and hints.',
+        vi: 'Xem terminal để biết trace thành công, lỗi và gợi ý.',
+      },
+    ],
     navigation: { en: 'Navigation', vi: 'Điều hướng' },
     leftButton: { en: 'Left btn', vi: 'Nút trái' },
     rightButton: { en: 'Right btn', vi: 'Nút phải' },
@@ -422,11 +433,40 @@ const localizedText = {
     pan: { en: 'Click + drag: Pan', vi: 'Bấm + kéo: Di chuyển' },
     rotateCamera: { en: 'Click + drag: Rotate camera', vi: 'Bấm + kéo: Xoay camera' },
     zoom: { en: 'Zoom in / out', vi: 'Phóng to / thu nhỏ' },
+    canvasItems: [
+      {
+        en: 'Left drag pans the canvas.',
+        vi: 'Kéo chuột trái để di chuyển canvas.',
+      },
+      {
+        en: 'Right drag rotates the camera.',
+        vi: 'Kéo chuột phải để xoay camera.',
+      },
+      {
+        en: 'Scroll to zoom; Reset view recenters the graph.',
+        vi: 'Cuộn để thu phóng; Đặt lại góc nhìn để căn giữa đồ thị.',
+      },
+    ],
     interaction: { en: 'Interaction', vi: 'Tương tác' },
+    blocks: { en: 'Blocks', vi: 'Block' },
     clickBlocks: {
       en: 'Click blocks to view details in the right panel.',
       vi: 'Bấm vào các khối để xem chi tiết ở khung bên phải.',
     },
+    blockItems: [
+      {
+        en: 'Click a block to select it and open its parameter formula.',
+        vi: 'Bấm block để chọn và mở công thức tham số.',
+      },
+      {
+        en: 'Use + and - on grouped blocks to expand or collapse modules.',
+        vi: 'Dùng + và - trên block nhóm để mở rộng hoặc thu gọn module.',
+      },
+      {
+        en: 'The right panel shows structure, metadata, source line, and errors.',
+        vi: 'Khung bên phải hiển thị cấu trúc, metadata, dòng nguồn và lỗi.',
+      },
+    ],
     clickPlus: { en: 'Click the', vi: 'Bấm nút' },
     plusButtonRest: { en: 'button on collapsed blocks to expand.', vi: 'trên khối đã thu gọn để mở rộng.' },
     clickMinus: { en: 'Click the', vi: 'Bấm nút' },
@@ -438,6 +478,32 @@ const localizedText = {
     codeBeforeModel: { en: 'Define a', vi: 'Định nghĩa biến' },
     codeAfterModel: { en: 'variable in the Python editor, then press', vi: 'trong trình soạn thảo Python, rồi bấm' },
     codeAfterVisualize: { en: 'to generate the graph.', vi: 'để tạo đồ thị.' },
+    mnistDemo: { en: 'MNIST Demo', vi: 'Demo MNIST' },
+    mnistItems: [
+      {
+        en: 'Available for LeNet-style graphs with input [N, 1, 32, 32] and a 10-class Linear head.',
+        vi: 'Khả dụng với đồ thị kiểu LeNet có input [N, 1, 32, 32] và Linear head 10 lớp.',
+      },
+      {
+        en: 'Turn on MNIST demo, then press Play to watch the digit input move through blocks.',
+        vi: 'Bật Demo MNIST, rồi bấm Play để xem input chữ số đi qua các block.',
+      },
+      {
+        en: 'Use step, speed, and exercises to inspect each operation.',
+        vi: 'Dùng bước, tốc độ và bài tập để xem từng phép toán.',
+      },
+    ],
+    exportAndTour: { en: 'Export & Tour', vi: 'Xuất & Tour' },
+    exportItems: [
+      {
+        en: 'Export SVG after a graph is visualized.',
+        vi: 'Xuất SVG sau khi đồ thị đã được dựng.',
+      },
+      {
+        en: 'Open Tour anytime for guided, clickable onboarding.',
+        vi: 'Mở Tour bất cứ lúc nào để xem hướng dẫn tương tác từng bước.',
+      },
+    ],
     gotIt: { en: 'Got it', vi: 'Đã hiểu' },
   },
   tour: {
@@ -531,6 +597,27 @@ const localizedText = {
         body: {
           en: 'If setup or code is wrong, the terminal reports the error directly with a line number, message, and hint.',
           vi: 'Nếu thiết lập hoặc mã sai, terminal báo lỗi trực tiếp với số dòng, thông báo và gợi ý.',
+        },
+      },
+      {
+        title: { en: 'Demo MNIST', vi: 'Demo MNIST' },
+        body: {
+          en: 'Turn on MNIST demo mode to show the sample digit input and the flow controls for this LeNet graph.',
+          vi: 'Bật chế độ Demo MNIST để hiện input chữ số mẫu và bộ điều khiển luồng cho đồ thị LeNet này.',
+        },
+      },
+      {
+        title: { en: 'Press Play', vi: 'Bấm Play' },
+        body: {
+          en: 'Click Play to start the MNIST flow. The tour continues only after you start the demo.',
+          vi: 'Bấm Play để chạy luồng MNIST. Tour chỉ đi tiếp sau khi bạn thật sự khởi động demo.',
+        },
+      },
+      {
+        title: { en: 'Follow the input', vi: 'Theo dõi input' },
+        body: {
+          en: 'Watch the digit input move from block to block. Each active block shows how that operation transforms the data.',
+          vi: 'Quan sát input chữ số đi qua từng block. Mỗi block đang hoạt động sẽ minh họa phép toán biến đổi dữ liệu như thế nào.',
         },
       },
       {

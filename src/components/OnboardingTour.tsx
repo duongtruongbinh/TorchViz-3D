@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getStrings } from '../lib/localization';
+import {
+  TERMINAL_ERROR_TOUR_STEP,
+  TERMINAL_SUCCESS_TOUR_STEP,
+  TOUR_STEPS,
+  getClosedTourState,
+  type TourStep,
+} from '../lib/onboardingTourSteps';
 import { useStore } from '../store/useStore';
 
 const STORAGE_KEY = 'torchviz-hasSeenTour';
-export const TERMINAL_SUCCESS_TOUR_STEP = 'terminal-success';
-export const TERMINAL_ERROR_TOUR_STEP = 'terminal-error';
+export { TERMINAL_ERROR_TOUR_STEP, TERMINAL_SUCCESS_TOUR_STEP };
 
 export function hasSeenTour(): boolean {
   try {
@@ -19,85 +25,6 @@ function markTourSeen(): void {
     localStorage.setItem(STORAGE_KEY, 'true');
   } catch { }
 }
-
-interface Step {
-  id?: string;
-  target: string;
-  textIndex: number;
-  advanceOnTargetClick?: boolean;
-  keepPanelCentered?: boolean;
-  panelPlacement?: 'canvas-side';
-  requiredPointerButton?: 0 | 2;
-  avoidOverlapWith?: string;
-}
-
-const STEPS: Step[] = [
-  {
-    target: '[data-tour="template-picker"]',
-    textIndex: 0,
-  },
-  {
-    target: '[data-tour="input-shape"]',
-    textIndex: 1,
-  },
-  { target: '[data-tour="editor"]', textIndex: 2 },
-  {
-    target: '[data-tour="visualize"]',
-    textIndex: 3,
-    advanceOnTargetClick: true,
-    keepPanelCentered: true,
-  },
-  {
-    target: '[data-tour="canvas-surface"]',
-    textIndex: 4,
-    panelPlacement: 'canvas-side',
-    requiredPointerButton: 0,
-    avoidOverlapWith: '[data-tour="terminal"]',
-  },
-  {
-    target: '[data-tour="canvas-surface"]',
-    textIndex: 5,
-    panelPlacement: 'canvas-side',
-    requiredPointerButton: 2,
-    avoidOverlapWith: '[data-tour="terminal"]',
-  },
-  {
-    target: '[data-tour="canvas-surface"]',
-    textIndex: 6,
-    panelPlacement: 'canvas-side',
-    avoidOverlapWith: '[data-tour="terminal"]',
-  },
-  {
-    target: '[data-tour="reset-view"]',
-    textIndex: 7,
-  },
-  {
-    target: '[data-tour="structure"]',
-    textIndex: 8,
-  },
-  {
-    target: '[data-tour="details"]',
-    textIndex: 9,
-  },
-  {
-    id: TERMINAL_SUCCESS_TOUR_STEP,
-    target: '[data-tour="terminal"]',
-    textIndex: 10,
-  },
-  {
-    id: TERMINAL_ERROR_TOUR_STEP,
-    target: '[data-tour="terminal"]',
-    textIndex: 11,
-  },
-  {
-    target: '[data-tour="export-svg"]',
-    textIndex: 12,
-  },
-  {
-    target: '[data-tour="help"]',
-    textIndex: 13,
-  },
-];
 
 interface OnboardingTourProps {
   isOpen: boolean;
@@ -140,7 +67,7 @@ function rectsOverlapHorizontally(a: DOMRect, b: DOMRect): boolean {
   return a.left < b.right && a.right > b.left;
 }
 
-function getStepTargetRect(step: Step): DOMRect | null {
+function getStepTargetRect(step: TourStep): DOMRect | null {
   const target = document.querySelector(step.target);
   if (!target) return null;
 
@@ -173,17 +100,20 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
 
   useEffect(() => {
     if (!isOpen) {
+      const closedState = getClosedTourState({ step, completedInteractions });
+      if (step !== closedState.step) setStep(closedState.step);
+      if (Object.keys(completedInteractions).length > 0) setCompletedInteractions(closedState.completedInteractions);
       prevStep.current = null;
       onStepChange?.(null);
       return;
     }
     if (prevStep.current === step) return;
     prevStep.current = step;
-    onStepChange?.(STEPS[step]?.id ?? `step-${step}`);
+    onStepChange?.(TOUR_STEPS[step]?.id ?? `step-${step}`);
   }, [isOpen, step, onStepChange]);
 
   const updateTargetRect = useCallback(() => {
-    const currentStep = STEPS[step];
+    const currentStep = TOUR_STEPS[step];
     setTargetRect(currentStep ? getStepTargetRect(currentStep) : null);
   }, [step]);
 
@@ -191,7 +121,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
     if (!isOpen) return;
     updateTargetRect();
     const ro = new ResizeObserver(updateTargetRect);
-    const el = document.querySelector(STEPS[step]?.target);
+    const el = document.querySelector(TOUR_STEPS[step]?.target);
     if (el) ro.observe(el);
     window.addEventListener('scroll', updateTargetRect, true);
     window.addEventListener('resize', updateTargetRect);
@@ -203,13 +133,13 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
   }, [isOpen, step, updateTargetRect]);
 
   useEffect(() => {
-    const currentStep = STEPS[step];
+    const currentStep = TOUR_STEPS[step];
     if (!isOpen || !currentStep?.advanceOnTargetClick) return;
 
     const handleTargetClick = (event: MouseEvent) => {
       const el = document.querySelector(currentStep.target);
       if (!el?.contains(event.target as Node)) return;
-      window.setTimeout(() => setStep((p) => Math.min(p + 1, STEPS.length - 1)), 0);
+      window.setTimeout(() => setStep((p) => Math.min(p + 1, TOUR_STEPS.length - 1)), 0);
     };
 
     document.addEventListener('click', handleTargetClick, true);
@@ -217,7 +147,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
   }, [isOpen, step]);
 
   useEffect(() => {
-    const currentStep = STEPS[step];
+    const currentStep = TOUR_STEPS[step];
     if (!isOpen || currentStep?.requiredPointerButton === undefined) return;
 
     const el = document.querySelector(currentStep.target);
@@ -248,16 +178,16 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
 
   if (!isOpen) return null;
 
-  const s = STEPS[step];
+  const s = TOUR_STEPS[step];
   const stepText = t.tour.steps[s.textIndex];
   const isFirst = step === 0;
-  const isLast = step === STEPS.length - 1;
+  const isLast = step === TOUR_STEPS.length - 1;
   const requiresTargetClick = !!s?.advanceOnTargetClick;
   const requiresInteraction = s?.requiredPointerButton !== undefined;
   const interactionDone = !requiresInteraction || !!completedInteractions[step];
   const canAdvance = !requiresTargetClick && interactionDone;
   const interactionTooltip = s?.requiredPointerButton === 2 ? t.tour.rightClickFirst : t.tour.leftClickFirst;
-  const maxReachableStep = Math.min(STEPS.length - 1, step + (canAdvance ? 1 : 0));
+  const maxReachableStep = Math.min(TOUR_STEPS.length - 1, step + (canAdvance ? 1 : 0));
 
   const handleDone = () => {
     onStepChange?.(null);
@@ -366,7 +296,7 @@ export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStep
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-1.5 px-2">
-            {STEPS.map((_, i) => (
+            {TOUR_STEPS.map((_, i) => (
               <button
                 key={i}
                 type="button"

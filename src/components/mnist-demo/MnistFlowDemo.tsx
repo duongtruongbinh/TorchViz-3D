@@ -273,7 +273,7 @@ export const DemoControls: React.FC<{
   const speedMultiplier = animationSpeed / DEMO_PLAY_SPEED;
 
   return (
-    <div className="absolute left-4 top-4 z-30 w-[min(20rem,calc(100%-5.5rem))] rounded-lg border border-white/15 bg-zinc-950/72 shadow-2xl backdrop-blur-md pointer-events-auto">
+    <div data-tour="mnist-demo-controls" className="absolute left-4 top-4 z-30 w-[min(20rem,calc(100%-5.5rem))] rounded-lg border border-white/15 bg-zinc-950/72 shadow-2xl backdrop-blur-md pointer-events-auto">
       <div className="flex items-center gap-2.5 px-2.5 py-2 border-b border-white/10">
         <div className="w-9 h-9 rounded-md overflow-hidden border border-sky-300/40 bg-black shrink-0">
           {dataUrl && <img src={dataUrl} alt="" className="w-full h-full object-cover [image-rendering:pixelated]" />}
@@ -302,6 +302,7 @@ export const DemoControls: React.FC<{
                 <DemoStepIcon direction="prev" />
               </button>
               <button
+                data-tour="mnist-demo-play"
                 type="button"
                 className="h-8 flex items-center justify-center rounded-md border border-sky-400/60 bg-sky-500/20 text-sky-100 hover:bg-sky-500/30 transition-colors"
                 onClick={() => {
@@ -376,7 +377,7 @@ export const DemoControls: React.FC<{
           </div>
 
           {availableExercises.length > 0 && (
-            <div className="min-w-0 rounded-md border border-emerald-300/25 bg-emerald-400/10 p-1.5 flex flex-col justify-between">
+            <div className="min-w-0 rounded-md border border-zinc-700/60 bg-zinc-950/55 p-1.5 flex flex-col justify-between">
               <ExerciseLauncher
                 exercises={availableExercises}
                 activeOperation={activeOperation}

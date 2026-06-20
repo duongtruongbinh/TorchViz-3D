@@ -708,16 +708,16 @@ export const ConvExerciseModal: React.FC<{
   };
 
   return createPortal((
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/82 backdrop-blur-xl pointer-events-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto">
       <div
-        className="flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-white/15 bg-zinc-950/96 shadow-2xl"
+        className="flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4 border-b border-white/10 px-4 py-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4 border-b border-zinc-800 bg-zinc-950/95 px-4 py-3">
           <div className="min-w-0 self-center">
-            <h2 id={titleId} className="text-sm font-bold uppercase tracking-wider text-sky-100">{t.exerciseTitle}</h2>
+            <h2 id={titleId} className="text-sm font-bold uppercase tracking-wider text-zinc-100">{t.exerciseTitle}</h2>
           </div>
           <div className="min-w-0 justify-self-center">
             <DifficultyTabs difficulty={difficulty} t={t} onChange={setDifficulty} />
@@ -737,8 +737,12 @@ export const ConvExerciseModal: React.FC<{
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto">
-          <div className="grid grid-cols-1 gap-5 p-5 xl:grid-cols-[minmax(18rem,1fr)_minmax(16rem,auto)_minmax(17rem,1fr)]">
-            <section className="min-w-0">
+          <div className={`grid grid-cols-1 gap-5 p-5 ${
+            difficulty === 'hard'
+              ? 'xl:grid-cols-[minmax(20rem,0.9fr)_minmax(13rem,0.55fr)_minmax(21rem,1fr)]'
+              : 'xl:grid-cols-[minmax(18rem,1fr)_minmax(16rem,auto)_minmax(17rem,1fr)]'
+          }`}>
+            <section className="min-w-0 p-4">
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">{t.inputMap}</h3>
                 <span className="pr-10 text-[10px] font-mono text-white">
@@ -781,7 +785,11 @@ export const ConvExerciseModal: React.FC<{
               )}
             </section>
 
-            <div className="flex min-w-0 flex-col items-center justify-center gap-3 px-1">
+            <div className={`flex min-w-0 flex-col gap-3 p-4 ${
+              difficulty === 'hard'
+                ? 'items-start justify-center xl:-ml-4'
+                : 'items-center justify-center'
+            }`}>
               <KernelEditor
                 kernelValues={kernelValues}
                 activeChannel={activeKernelChannel}
@@ -801,7 +809,7 @@ export const ConvExerciseModal: React.FC<{
               </button>
             </div>
 
-            <section className="min-w-0">
+            <section className="min-w-0 p-4">
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">{t.outputMap}</h3>
                 <span className="text-[10px] font-mono text-zinc-500">{completedCells}/{outputCells}</span>
@@ -850,16 +858,17 @@ export const ConvExerciseModal: React.FC<{
           </div>
 
           {hintCell && (
-            <div className="border-t border-white/10 px-5 py-3">
+            <div className="px-5 py-4">
               <div className="mb-3 flex items-center justify-between gap-3">
-                <h3 className="text-[16px] font-bold uppercase tracking-wider text-sky-100">
+                <h3 className="text-[16px] font-bold uppercase tracking-wider text-zinc-100">
                   {t.hintBreakdownTitle}
                 </h3>
                 <span className="text-[13px] font-mono text-zinc-500">
                   {t.outputCell(hintCell.row + 1, hintCell.col + 1)}
                 </span>
               </div>
-              <div className="rounded-md border border-sky-300/15 bg-sky-400/8 p-3">
+              <div className="p-1">
+                <div className="rounded-md bg-zinc-950/80 p-3">
                 <div className="flex flex-wrap items-center gap-2">
                   {hintProductRows.flatMap((terms, channelIndex) => {
                     const channelBits: React.ReactNode[] = [];
@@ -910,12 +919,13 @@ export const ConvExerciseModal: React.FC<{
                     )}
                   </div>
                 )}
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3">
+        <div className="flex items-center justify-between gap-3 border-t border-zinc-800 bg-zinc-950/95 px-4 py-3">
           <p className="text-xs text-zinc-400">
             {submitted ? t.exerciseResult(completedCells, outputCells) : t.exerciseInstruction}
           </p>
