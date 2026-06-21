@@ -113,10 +113,12 @@ This page consolidates the former Landing-specific plan pages:
 
 # Documentation Rule
 
-Landing-related docs should remain consolidated here and in
-`wiki/concepts/learning-lab-refactor.md`. Do not create another Landing docs
-page for a small visual, copy, or layout iteration unless the new work introduces
-a genuinely separate subsystem or long-lived reference surface.
+Do not create a new docs page when an existing relevant page already owns the
+topic. Update the existing page instead. Create a new page only when the work is
+substantially different in scope or needs its own long-lived reference surface.
+
+For the current Landing/AppShell work, the owning docs are this plan and
+`wiki/concepts/learning-lab-refactor.md`.
 
 # Execution Log
 

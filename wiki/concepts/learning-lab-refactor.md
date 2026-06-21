@@ -73,12 +73,13 @@ Read docs/WORKFLOW.md, CLAUDE.md, and this wiki page before editing.
 Preserve the current TorchViz-3D workspace until an approved plan says otherwise.
 Treat Learning Lab files, learning core helpers, and uiStore as inert scaffold
 unless the current task explicitly implements a phase. AppShell and landing
-components are active; update this existing page for related Landing docs before
-creating any new docs page.
+components are active. Update existing relevant docs before creating any new
+docs page.
 ```
 
-For small Landing UI, copy, or layout changes, update the consolidated Landing
-plan and this page instead of creating another Landing docs page.
+For small UI, copy, layout, or follow-up changes, update the existing page that
+already owns the topic. Create a new page only when the work is substantially
+different in scope or needs its own long-lived reference surface.
 
 ## Invariants
 

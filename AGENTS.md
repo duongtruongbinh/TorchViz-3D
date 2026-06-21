@@ -40,10 +40,9 @@ plan imports them into the running app. Do not change `App.tsx`, add routing, or
 implement real UI store behavior unless the current approved plan explicitly
 requires it.
 
-Do not create a new Landing docs page for small visual, copy, or layout
-iterations. Update the consolidated Landing plan and the existing Learning Lab
-refactor wiki page unless a genuinely separate subsystem needs its own
-long-lived reference page.
+Do not create a new docs page when an existing relevant page already owns the
+topic. Update the existing page instead. Create a new page only when the work is
+substantially different in scope or needs its own long-lived reference surface.
 
 ## Verification
 
