@@ -1,6 +1,7 @@
 import { IRGraph, IRNode, IREdge, LayoutData, LayoutNode, LayoutEdge } from './irTypes';
 import { getCollapsedContainerColor, getExpandedContainerColor, getExpandedContainerOpacity, ERROR_COLOR } from './constants';
 import { getVisualMeta } from './visualKind';
+import { getLayoutWorldBounds, getRenderableNodeBox } from './renderBounds';
 
 const BASE_PADDING = 3.0;
 const NODE_GAP = 2.5;
@@ -85,15 +86,17 @@ function layoutNodes(
       const { children: _c, ...rest } = node;
       const ln: LayoutNode = {
         ...rest,
-        x: curX + size.width / 2,
+        x: 0,
         y: 0,
         z: 0,
         ...size,
         color: node.error ? ERROR_COLOR : getVisualMeta(node.op_type).color,
       };
+      const renderBox = getRenderableNodeBox(ln);
+      ln.x = curX + renderBox.width / 2;
       result.push(ln);
       nodeMap.set(node.id, ln);
-      curX += size.width + NODE_GAP;
+      curX += renderBox.width + NODE_GAP;
     } else if (isCollapsed) {
       // Collapsed container — render as single block
       const size = collapsedSize(node);
@@ -120,19 +123,24 @@ function layoutNodes(
         node.children!, childStartX, collapsedIds, nodeMap, collapsedRemap, nestLevel + 1,
       );
 
-      const rightEdge = childLayout.length > 0
-        ? childEndX - NODE_GAP + pad
-        : curX + 2 * pad + 1;
-      const containerWidth = Math.max(rightEdge - curX, 2 * pad);
-
+      let childMinX = Infinity;
+      let childMaxX = -Infinity;
       let maxH = 2, maxD = 1;
       for (const ch of childLayout) {
-        maxH = Math.max(maxH, ch.height);
-        maxD = Math.max(maxD, ch.depth);
+        const box = getRenderableNodeBox(ch);
+        childMinX = Math.min(childMinX, box.minX);
+        childMaxX = Math.max(childMaxX, box.maxX);
+        maxH = Math.max(maxH, box.height);
+        maxD = Math.max(maxD, box.depth);
       }
+      const rightEdge = childLayout.length > 0
+        ? Math.max(childEndX - NODE_GAP + pad, childMaxX + pad)
+        : curX + 2 * pad + 1;
+      const leftEdge = childLayout.length > 0 ? Math.min(curX, childMinX - pad) : curX;
+      const containerWidth = Math.max(rightEdge - leftEdge, 2 * pad);
       const containerH = maxH + 2 * pad;
       const containerD = maxD + 2 * pad;
-      const centerX = curX + containerWidth / 2;
+      const centerX = leftEdge + containerWidth / 2;
 
       const { children: _c, ...rest } = node;
       const ln: LayoutNode = {
@@ -214,8 +222,10 @@ function layoutEdgesStructured(
     const dst = nodeMap.get(toId);
     if (!src || !dst) continue;
 
-    const start = { x: src.x + src.width / 2, y: src.y, z: src.z };
-    const end = { x: dst.x - dst.width / 2, y: dst.y, z: dst.z };
+    const srcBox = getRenderableNodeBox(src);
+    const dstBox = getRenderableNodeBox(dst);
+    const start = { x: srcBox.maxX, y: src.y, z: src.z };
+    const end = { x: dstBox.minX, y: dst.y, z: dst.z };
 
     let pts: { x: number; y: number; z: number }[];
     if (e.kind === 'residual') {
@@ -262,16 +272,16 @@ export function computeLayout(ir: IRGraph, collapsedIds: Set<string>): LayoutDat
     NODE_GAP,
   );
 
-  // --- Bounds ---
-  let minX = 0, maxX = 0;
-  nodeMap.forEach(n => {
-    minX = Math.min(minX, n.x - n.width / 2);
-    maxX = Math.max(maxX, n.x + n.width / 2);
-  });
+  const partialLayout = {
+    nodes: layoutTree,
+    edges: layoutEdges,
+    bounds: { minX: 0, maxX: 0, minY: 0, maxY: 0, minZ: 0, maxZ: 0 },
+  };
+  const bounds = getLayoutWorldBounds(partialLayout, { includeEdges: true });
 
   return {
     nodes: layoutTree,
     edges: layoutEdges,
-    bounds: { minX, maxX, minY: -5, maxY: 5, minZ: -5, maxZ: 5 },
+    bounds,
   };
 }

@@ -83,6 +83,8 @@ export default function App() {
   const error = useStore(s => s.error);
   const criticalError = useStore(s => s.criticalError);
   const layout = useStore(s => s.layout);
+  const graphRevision = useStore(s => s.graphRevision);
+  const layoutRevision = useStore(s => s.layoutRevision);
   const highlightLine = useStore(s => s.highlightLine);
   const highlightNodeId = useStore(s => s.highlightNodeId);
   const selectedNodeId = useStore(s => s.selectedNodeId);
@@ -278,6 +280,8 @@ export default function App() {
             <div className="absolute inset-0 overflow-hidden z-0" data-torchviz-canvas-container>
               <Canvas3D
                 layout={layout}
+                graphRevision={graphRevision}
+                layoutRevision={layoutRevision}
                 loading={loading}
                 error={error}
                 highlightNodeId={highlightNodeId}

@@ -18,7 +18,7 @@ import { collectDemoStops } from '../mnist-demo/demoStops';
 import { useMnistDemoState } from '../mnist-demo/useMnistDemoState';
 import { SceneWithInstancing } from './SceneBlocks';
 import { EdgeLine } from './EdgeRendering';
-import { BoundsAutoFit, ViewResetEffect, RecenterButton } from './CameraControls';
+import { CameraFitController, RecenterButton } from './CameraControls';
 import { CanvasEmptyOverlay, CanvasErrorOverlay, CanvasLoadingOverlay } from './CanvasOverlays';
 import { useCanvasLayoutKey } from './useCanvasLayoutKey';
 import {
@@ -29,9 +29,12 @@ import {
   getVectorizedLayoutEdges,
 } from '../../lib/canvasUtils';
 import type { AppError } from '../../lib/appError';
+import { getAdaptiveGridSpec, getLayoutWorldBounds } from '../../lib/renderBounds';
 
 export interface Canvas3DProps {
   layout: LayoutData | null;
+  graphRevision?: number;
+  layoutRevision?: number;
   loading: boolean;
   error?: AppError | null;
   highlightNodeId?: string | null;
@@ -46,6 +49,8 @@ export interface Canvas3DProps {
 
 const Canvas3D: React.FC<Canvas3DProps> = ({
   layout,
+  graphRevision = 0,
+  layoutRevision = 0,
   loading,
   error = null,
   highlightNodeId = null,
@@ -63,6 +68,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   const t = getStrings(language);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [shortExerciseFallbackModal, setShortExerciseFallbackModal] = useState(false);
+  const [manualFitToken, setManualFitToken] = useState(0);
 
   const handleToggle = useCallback(
     (id: string) => onToggleCollapse?.(id),
@@ -81,12 +87,18 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     [onOpenLayerInsight],
   );
 
-  const [fittedLayoutKey, setFittedLayoutKey] = useState('');
   const mnist = useMnistTexture();
 
   const layoutKey = useCanvasLayoutKey(layout);
-  const viewReady = !!layout && fittedLayoutKey === layoutKey;
-  const showLoadingOverlay = loading || (!!layout && !viewReady);
+  const showLoadingOverlay = loading;
+  const worldBounds = useMemo(
+    () => (layout ? getLayoutWorldBounds(layout, { includeEdges: true }) : null),
+    [layout],
+  );
+  const gridSpec = useMemo(
+    () => (worldBounds ? getAdaptiveGridSpec(worldBounds) : null),
+    [worldBounds],
+  );
 
   const demoStops = useMemo(() => (layout ? collectDemoStops(layout) : []), [layout]);
   const memoizedEdges = useMemo(() => getVectorizedLayoutEdges(layout), [layout]);
@@ -114,7 +126,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
 
   return (
     <div ref={containerRef} data-tour="mnist-demo-flow" className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
-      {layout && viewReady && demoModeEnabled && demo.compatibility.ok && (
+      {layout && demoModeEnabled && demo.compatibility.ok && (
         <>
           <DemoControls
             stops={demoStops}
@@ -155,8 +167,8 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
       )}
 
       {showLoadingOverlay && <CanvasLoadingOverlay t={t.canvas} />}
-      {!layout && !loading && error && <CanvasErrorOverlay error={error} t={t.canvas} />}
-      {!layout && !loading && !error && <CanvasEmptyOverlay canvas={t.canvas} header={t.header} help={t.help} />}
+      {!layout && !showLoadingOverlay && error && <CanvasErrorOverlay error={error} t={t.canvas} />}
+      {!layout && !showLoadingOverlay && !error && <CanvasEmptyOverlay canvas={t.canvas} header={t.header} help={t.help} />}
 
       <Canvas
         orthographic
@@ -175,59 +187,68 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
         <directionalLight position={[-20, 20, -30]} intensity={0.4} color="#e0e7ff" />
 
         <ContactShadows
+          key={`contact-shadows-${layoutRevision}`}
           opacity={0.4}
-          scale={40}
+          scale={gridSpec?.size ?? 40}
           blur={2}
           far={10}
           resolution={256}
+          frames={1}
           color="#000000"
         />
 
         {layout && (
           <>
-            <BoundsAutoFit layout={layout} layoutKey={layoutKey} onFit={setFittedLayoutKey} />
-            <ViewResetEffect layout={layout} resetViewToken={resetViewToken} />
-            {viewReady && (
-              <>
-                {!resetViewDisabled && <RecenterButton layout={layout} />}
-                <SceneWithInstancing
-                  layout={layout}
-                  highlightNodeId={effectiveHighlightNodeId}
-                  selectedNodeId={highlightNodeId}
-                  activeNodeId={demo.activeNodeId}
-                  labelMode="auto"
-                  visibleNodeIds={demo.useOperationBlocks ? demo.visibleNodeIds : undefined}
-                  onToggle={handleToggle}
-                  onHover={handleHover}
-                  onClickNode={handleClick}
-                  onOpenLayerInsight={handleOpenLayerInsight}
-                />
-                {demo.useOperationBlocks && (
-                  <group>
-                    {demo.visibleEdges.map((e, i) => (
-                      <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
-                    ))}
-                  </group>
-                )}
-                {mnist && demo.useOperationBlocks && (
-                  <DataFlowDemo
-                    stops={demoStops}
-                    edges={demo.visibleEdges}
-                    progress={demo.progress}
-                    texture={mnist.texture}
-                    inputPose={demo.inputPose}
-                    t={t.canvas.demo}
-                  />
-                )}
-                {!demo.useOperationBlocks && (
-                  <group>
-                    {memoizedEdges.map((e, i) => (
-                      <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
-                    ))}
-                  </group>
-                )}
-                <gridHelper args={[400, 80, 0x3f3f46, 0x18181b]} position={[0, -5, 0]} />
-              </>
+            <CameraFitController
+              layout={layout}
+              graphRevision={graphRevision}
+              layoutRevision={layoutRevision}
+              manualFitToken={resetViewToken + manualFitToken}
+            />
+            {!resetViewDisabled && (
+              <RecenterButton onRecenter={() => setManualFitToken((token) => token + 1)} />
+            )}
+            <SceneWithInstancing
+              layout={layout}
+              highlightNodeId={effectiveHighlightNodeId}
+              selectedNodeId={highlightNodeId}
+              activeNodeId={demo.activeNodeId}
+              labelMode="auto"
+              visibleNodeIds={demo.useOperationBlocks ? demo.visibleNodeIds : undefined}
+              onToggle={handleToggle}
+              onHover={handleHover}
+              onClickNode={handleClick}
+              onOpenLayerInsight={handleOpenLayerInsight}
+            />
+            {demo.useOperationBlocks && (
+              <group>
+                {demo.visibleEdges.map((e, i) => (
+                  <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
+                ))}
+              </group>
+            )}
+            {mnist && demo.useOperationBlocks && (
+              <DataFlowDemo
+                stops={demoStops}
+                edges={demo.visibleEdges}
+                progress={demo.progress}
+                texture={mnist.texture}
+                inputPose={demo.inputPose}
+                t={t.canvas.demo}
+              />
+            )}
+            {!demo.useOperationBlocks && (
+              <group>
+                {memoizedEdges.map((e, i) => (
+                  <EdgeLine key={`${e.from}-${e.to}-${i}`} edge={e} />
+                ))}
+              </group>
+            )}
+            {gridSpec && (
+              <gridHelper
+                args={[gridSpec.size, gridSpec.divisions, 0x3f3f46, 0x18181b]}
+                position={gridSpec.center}
+              />
             )}
           </>
         )}
@@ -251,7 +272,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   );
 };
 
-export default Canvas3D;
+export default React.memo(Canvas3D);
 
 function isValueExerciseId(id: string | null): id is ValueExerciseId {
   return id === 'pool-value' || id === 'linear-value' || id === 'activation-value';
