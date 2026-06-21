@@ -6,31 +6,48 @@ updated: 2026-06-21
 
 # Learning Lab Refactor Scaffold
 
-This page documents the scaffold-only Landing Page and Learning Lab refactor.
+This page documents the Landing Page and Learning Lab refactor scaffold.
 The source plan is
 [docs/plans/2026-06-21-learning-lab-refactor.md](../../docs/plans/2026-06-21-learning-lab-refactor.md).
+Landing visual iteration history is consolidated in
+[docs/plans/2026-06-21-landing-ui-iteration.md](../../docs/plans/2026-06-21-landing-ui-iteration.md).
 
 ## Status
 
-The current PR creates placeholders only. The files are intentionally inert and
-are not imported by `App.tsx`.
+MVP 1 makes the Landing Page and AppShell active runtime behavior. The app opens
+on Landing, the active TorchViz-3D card enters the existing workspace, and the
+workspace header can return to Landing.
+
+Landing includes the same language selector behavior as the workspace header;
+both are backed by the global `useStore` language state.
+
+The active Landing first screen is a viewport-fit bento composition: top intro
+copy, a left "live graph preview" animation that flows through model stages, and
+compact right-side cards for Workspace and Learning Lab. Connection lines are
+computed from real DOM anchors between the final classifier block and each card;
+the Workspace route is visually primary and the Learning Lab route is muted.
+
+Learning Lab remains disabled/coming soon. The Learning Lab component
+placeholders, core learning helpers, and `src/store/uiStore.ts` are intentionally
+inert.
 
 Active behavior remains unchanged:
 
-- The existing workspace still opens through the current `App.tsx`.
+- The existing workspace still uses the current editor, canvas, inspector, and
+  bottom tabs after entering from Landing.
 - Existing editor, canvas, inspector, bottom tabs, exercises, and MNIST demo
   behavior are not modified.
-- No router, page switcher, answer-checking logic, or real UI store behavior is
-  implemented in this scaffold.
+- No router, answer-checking logic, Learning Lab runtime behavior, or real UI
+  store behavior is implemented in this MVP.
 
 ## Scaffold Map
 
 | Path | Intended future responsibility |
 |---|---|
-| `src/components/AppShell.tsx` | Future root view switcher for Landing, TorchViz workspace, and Learning Lab. |
-| `src/components/landing/LandingPage.tsx` | Future entry screen with Tool and Learning Lab choices. |
-| `src/components/landing/ToolCard.tsx` | Future card for entering the existing TorchViz-3D workspace. |
-| `src/components/landing/LearningCard.tsx` | Future card for entering Learning Lab. |
+| `src/components/AppShell.tsx` | MVP 1 root view switcher for Landing and TorchViz workspace. |
+| `src/components/landing/LandingPage.tsx` | Active Landing first screen with intro copy, live graph preview, Workspace CTA, and disabled Learning Lab card. |
+| `src/components/landing/ToolCard.tsx` | Active card for entering the existing TorchViz-3D workspace. |
+| `src/components/landing/LearningCard.tsx` | Disabled/coming-soon card for Learning Lab. |
 | `src/components/learning/LearningLabView.tsx` | Future full-screen Learning Lab surface. |
 | `src/components/learning/LearningLabHeader.tsx` | Future lab header with Back, mode toggle, and later role switcher. |
 | `src/components/learning/ReviewMode.tsx` | Future free-review practice mode. |
@@ -54,14 +71,20 @@ short prompt for the next implementation phase:
 ```text
 Read docs/WORKFLOW.md, CLAUDE.md, and this wiki page before editing.
 Preserve the current TorchViz-3D workspace until an approved plan says otherwise.
-Treat the Learning Lab files as inert scaffold unless the current task explicitly
-implements a phase. Do not import AppShell, landing, learning, or uiStore files
-into the running app without a matching plan and verification.
+Treat Learning Lab files, learning core helpers, and uiStore as inert scaffold
+unless the current task explicitly implements a phase. AppShell and landing
+components are active. Update existing relevant docs before creating any new
+docs page.
 ```
+
+For small UI, copy, layout, or follow-up changes, update the existing page that
+already owns the topic. Create a new page only when the work is substantially
+different in scope or needs its own long-lived reference surface.
 
 ## Invariants
 
-- Scaffold files can be imported only in a later approved implementation PR.
+- Learning Lab scaffold files can be imported only in a later approved
+  implementation PR.
 - `src/core/` must remain React-free when real logic is added.
 - Learning Lab should reuse existing exercise concepts instead of duplicating
   behavior without a plan.

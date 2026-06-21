@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 const EditorPane = React.lazy(() => import('./src/components/EditorPane'));
+import AppShell from './src/components/AppShell';
 import Canvas3D from './src/components/canvas/Canvas3D';
 import Inspector from './src/components/Inspector';
 import BottomTabs from './src/components/BottomTabs';
@@ -75,7 +76,11 @@ const PanelCollapseButton: React.FC<{
   );
 };
 
-export default function App() {
+type TorchVizWorkspaceProps = {
+  onBackToLanding: () => void;
+};
+
+function TorchVizWorkspace({ onBackToLanding }: TorchVizWorkspaceProps) {
   const code = useStore(s => s.code);
   const language = useStore(s => s.language);
   const ir = useStore(s => s.ir);
@@ -202,6 +207,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-full w-full overflow-hidden min-w-[1024px]">
       <Header
+        onBackToLanding={onBackToLanding}
         onExportSvg={() => setExportOpen(true)}
         isTourOpen={isTourOpen}
         setTourOpen={handleSetTourOpen}
@@ -357,4 +363,8 @@ export default function App() {
       <ParamFormulaPopup node={layerInsightNode} onClose={() => setLayerInsightNode(null)} />
     </div>
   );
+}
+
+export default function App() {
+  return <AppShell renderWorkspace={({ onBackToLanding }) => <TorchVizWorkspace onBackToLanding={onBackToLanding} />} />;
 }

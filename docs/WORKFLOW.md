@@ -155,3 +155,11 @@ When step 8 (update docs) applies, keep these in sync:
 
 See [the OKF knowledge bundle](../wiki/index.md) for the structured wiki and
 its authoring rules.
+
+### Prefer updating existing pages
+
+Do not create a new documentation page when an existing relevant page can be
+updated clearly. New pages are appropriate for a genuinely new subsystem,
+long-lived reference surface, or decision record with a distinct scope. For
+small UI, copy, layout, or follow-up changes, update the existing plan/wiki/doc
+that already owns the topic and add a concise execution-log entry instead.

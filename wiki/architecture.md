@@ -59,8 +59,8 @@ See [concepts/torchstub](concepts/torchstub.md) for the full mechanism.
 | Worker↔renderer contract | [ir-contract](concepts/ir-contract.md) | `src/lib/irTypes.ts` |
 | Layout engine | [layout-engine](concepts/layout-engine.md) | `src/lib/layout.ts` |
 | App state + templates | [state-store](concepts/state-store.md) | `src/store/useStore.ts` |
-| 3D rendering + taxonomy | [rendering](concepts/rendering.md) | `src/components/canvas/Canvas3D.tsx`, `src/lib/visualKind.ts` |
-| Planned Landing/Lab scaffold | [learning-lab-refactor](concepts/learning-lab-refactor.md) | `src/components/landing/*`, `src/components/learning/*`, `src/core/*`, `src/store/uiStore.ts` |
+| 3D rendering + taxonomy | [rendering](concepts/rendering.md) | `src/components/Canvas3D.tsx`, `src/lib/visualKind.ts` |
+| Landing/Lab scaffold | [learning-lab-refactor](concepts/learning-lab-refactor.md) | `src/components/AppShell.tsx`, `src/components/landing/*`, `src/components/learning/*`, `src/core/*`, `src/store/uiStore.ts` |
 
 ## Key invariants
 
@@ -75,10 +75,14 @@ See [concepts/torchstub](concepts/torchstub.md) for the full mechanism.
 
 See [reference/gotchas](reference/gotchas.md) for the fragile spots.
 
-## Planned UI surfaces
+## Landing and planned UI surfaces
 
-The Learning Lab refactor scaffold adds inert placeholders for a future
-`AppShell`, Landing Page, Learning Lab, shared learning sections, and a UI store.
-These files are not part of the active pipeline yet and are not imported by
-`App.tsx`. See [learning-lab-refactor](concepts/learning-lab-refactor.md) and
-`CLAUDE.md` before implementing the next phase.
+The Learning Lab refactor scaffold now has an MVP 1 runtime entry point:
+`App.tsx` renders `AppShell`, the Landing Page can open the existing TorchViz-3D
+workspace, and the Learning Lab card is disabled/coming soon. The active Landing
+screen uses a bento live graph preview plus compact Workspace/Learning cards;
+details live in the existing
+[learning-lab-refactor](concepts/learning-lab-refactor.md) page rather than a
+separate Landing page. Learning Lab components, core learning helpers, and
+`src/store/uiStore.ts` remain inert. See that page and `CLAUDE.md` before
+implementing the next phase.

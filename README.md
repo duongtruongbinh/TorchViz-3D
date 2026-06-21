@@ -88,7 +88,7 @@ EditorPane -> zustand store -> WorkerService -> Pyodide worker + torchstub
 
 ## Current Scope
 
-TorchViz-3D is desktop-first and online-first. It intentionally supports a
-partial PyTorch API surface: layers must exist in `torchstub` before they can be
-traced. Real tensor values, training, inference, and model uploads are out of
-scope.
+* [Knowledge bundle (`wiki/`)](wiki/index.md) — the structured, agent-readable OKF bundle: per-subsystem concept pages, guides, and reference. **Start here** for a navigable map of the codebase.
+* [Architecture](docs/ARCHITECTURE.md) — data-flow pipeline, the `torchstub` shape-tracing core, the IR contract, and the layout engine.
+* [Extending torchstub](docs/TORCHSTUB.md) — how to add support for a new layer.
+* [Learning Lab refactor plan](docs/plans/2026-06-21-learning-lab-refactor.md) — scaffold plan plus MVP 1 Landing/AppShell entry point; Learning Lab remains disabled/coming soon.
