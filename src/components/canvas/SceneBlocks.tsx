@@ -7,6 +7,7 @@ import { useStore } from '../../store/useStore';
 import { getStrings } from '../../lib/localization';
 import { getVisualMeta, getVisualKind, getActivationSubKind, type VisualKind } from '../../lib/visualKind';
 import { shouldRenderLeafCaption, type LabelMode } from '../../lib/labelMode';
+import { getRenderableNodeSize } from '../../lib/renderBounds';
 import { collectDemoStopNodes } from '../mnist-demo/demoStops';
 import { useHoverHold, HoverPanelHtml } from './HoverPanels';
 import {
@@ -171,9 +172,7 @@ function groupLeavesByIdentity(leaves: LayoutNode[]): { batches: LayoutNode[][];
       map.set(`__special_${n.id}`, arr);
       continue;
     }
-    const w = n.width * meta.widthMul;
-    const h = n.height * meta.heightMul;
-    const d = n.depth * meta.depthMul;
+    const { width: w, height: h, depth: d } = getRenderableNodeSize(n);
     const key = `${kind}_${w.toFixed(2)}_${h.toFixed(2)}_${d.toFixed(2)}_${meta.color}`;
     const arr = map.get(key) ?? [];
     arr.push(n);
@@ -197,17 +196,21 @@ export const InstancedLeafGroup: React.FC<{
   activeNodeId: string | null;
   labelMode: LabelMode;
   leafCount: number;
+  onHoverNodeId: (nodeId: string | null) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ nodes, selectedNodeId, activeNodeId, labelMode, leafCount, onHover, onClickNode, onOpenLayerInsight }) => {
+}> = React.memo(({ nodes, onHoverNodeId, onHover, onClickNode, onOpenLayerInsight }) => {
   const ref = useRef<THREE.InstancedMesh>(null);
   const hovered = useHoverHold<number | null>(null);
   const n = nodes[0];
   const meta = useMemo(() => getVisualMeta(n.op_type), [n.op_type]);
   const args = useMemo(
-    () => [n.width * meta.widthMul, n.height * meta.heightMul, n.depth * meta.depthMul] as [number, number, number],
-    [n.width, n.height, n.depth, meta],
+    () => {
+      const { width, height, depth } = getRenderableNodeSize(n);
+      return [width, height, depth] as [number, number, number];
+    },
+    [n],
   );
 
   useEffect(() => {
@@ -245,11 +248,13 @@ export const InstancedLeafGroup: React.FC<{
           e.stopPropagation();
           const i = e.instanceId ?? 0;
           hovered.show(i);
+          onHoverNodeId(nodes[i]?.id ?? null);
           onHover(nodes[i]?.lineno ?? null);
           document.body.style.cursor = 'pointer';
         }}
         onPointerOut={() => {
           hovered.hide();
+          onHoverNodeId(null);
           onHover(null);
           document.body.style.cursor = '';
         }}
@@ -263,33 +268,11 @@ export const InstancedLeafGroup: React.FC<{
           emissiveIntensity={0}
         />
       </instancedMesh>
-      {nodes.map((nd, index) => {
-        const shouldRenderCaption = shouldRenderLeafCaption({
-          labelMode,
-          leafCount,
-          nodeId: nd.id,
-          hoveredNodeId: hovered.value === index ? nd.id : null,
-          selectedNodeId,
-          activeNodeId,
-        });
-        if (!shouldRenderCaption) return null;
-        return (
-          <NodeCaption
-            key={nd.id}
-            label={meta.labelOverride ?? nd.op_type}
-            position={[
-              nd.x,
-              nd.y - (nd.height * meta.heightMul) / 2 - 0.9,
-              nd.z + (nd.depth * meta.depthMul) / 2 + 0.15,
-            ]}
-          />
-        );
-      })}
       {hovered.value !== null && nodes[hovered.value] && (
         <HoverPanelHtml
           position={[
-            nodes[hovered.value].x + (nodes[hovered.value].width * meta.widthMul) / 2 + 0.35,
-            nodes[hovered.value].y + (nodes[hovered.value].height * meta.heightMul) / 2 + 0.6,
+            nodes[hovered.value].x + getRenderableNodeSize(nodes[hovered.value]).width / 2 + 0.35,
+            nodes[hovered.value].y + getRenderableNodeSize(nodes[hovered.value]).height / 2 + 0.6,
             nodes[hovered.value].z,
           ]}
           node={nodes[hovered.value]}
@@ -439,37 +422,68 @@ export const KindShape: React.FC<{
   );
 });
 
-export const NodeBlock: React.FC<{
+function sameNodeRenderFields(a: LayoutNode, b: LayoutNode): boolean {
+  return (
+    a.id === b.id &&
+    a.op_type === b.op_type &&
+    a.x === b.x &&
+    a.y === b.y &&
+    a.z === b.z &&
+    a.width === b.width &&
+    a.height === b.height &&
+    a.depth === b.depth &&
+    a.color === b.color &&
+    a.opacity === b.opacity &&
+    a.collapsed === b.collapsed &&
+    a.error === b.error &&
+    a.has_error === b.has_error &&
+    a.params === b.params
+  );
+}
+
+function nodeSubtreeHasId(node: LayoutNode, id: string | null | undefined): boolean {
+  if (!id) return false;
+  if (node.id === id) return true;
+  return !!node.children?.some((child) => nodeSubtreeHasId(child, id));
+}
+
+type NodeBlockProps = {
   node: LayoutNode;
   highlighted: boolean;
   selectedNodeId: string | null;
   activeNodeId: string | null;
   labelMode: LabelMode;
   leafCount: number;
+  onHoverNodeId: (nodeId: string | null) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ node, highlighted, selectedNodeId, activeNodeId, labelMode, leafCount, onHover, onClickNode, onOpenLayerInsight }) => {
+};
+
+function areNodeBlockPropsEqual(prev: NodeBlockProps, next: NodeBlockProps): boolean {
+  return (
+    sameNodeRenderFields(prev.node, next.node) &&
+    prev.highlighted === next.highlighted &&
+    prev.selectedNodeId === next.selectedNodeId &&
+    prev.activeNodeId === next.activeNodeId &&
+    prev.labelMode === next.labelMode &&
+    prev.leafCount === next.leafCount &&
+    prev.onHoverNodeId === next.onHoverNodeId &&
+    prev.onHover === next.onHover &&
+    prev.onClickNode === next.onClickNode &&
+    prev.onOpenLayerInsight === next.onOpenLayerInsight
+  );
+}
+
+const NodeBlockComponent: React.FC<NodeBlockProps> = ({ node, highlighted, onHoverNodeId, onHover, onClickNode, onOpenLayerInsight }) => {
   const hovered = useHoverHold(false);
   const meta = useMemo(() => getVisualMeta(node.op_type), [node.op_type]);
-  const w = node.width * meta.widthMul;
-  const h = node.height * meta.heightMul;
-  const d = node.depth * meta.depthMul;
+  const { width: w, height: h, depth: d } = getRenderableNodeSize(node);
 
   const hasError = !!node.error;
   const baseColor = hasError ? ERROR_COLOR : meta.color;
   const isActive = hovered.value || highlighted;
   const errorPulse = useErrorPulse(hasError);
-  const displayLabel = meta.labelOverride ?? node.op_type;
-  const shouldRenderCaption = shouldRenderLeafCaption({
-    labelMode,
-    leafCount,
-    nodeId: node.id,
-    hoveredNodeId: hovered.value ? node.id : null,
-    selectedNodeId,
-    activeNodeId,
-  });
-
   return (
     <group position={[node.x, node.y, node.z]}>
       <group
@@ -481,11 +495,13 @@ export const NodeBlock: React.FC<{
         onPointerOver={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();
           hovered.show(true);
+          onHoverNodeId(node.id);
           onHover(node.lineno ?? null);
           document.body.style.cursor = 'pointer';
         }}
         onPointerOut={() => {
           hovered.hide();
+          onHoverNodeId(null);
           onHover(null);
           document.body.style.cursor = '';
         }}
@@ -510,18 +526,13 @@ export const NodeBlock: React.FC<{
           onPointerLeave={hovered.release}
         />
       )}
-
-      {shouldRenderCaption && !hasError && (
-        <NodeCaption
-          label={displayLabel}
-          position={[0, -h / 2 - 0.9, d / 2 + 0.15]}
-        />
-      )}
     </group>
   );
-});
+};
 
-export const ContainerBlock: React.FC<{
+export const NodeBlock = React.memo(NodeBlockComponent, areNodeBlockPropsEqual);
+
+type ContainerBlockProps = {
   node: LayoutNode;
   isRoot?: boolean;
   highlightNodeId: string | null;
@@ -530,11 +541,43 @@ export const ContainerBlock: React.FC<{
   labelMode: LabelMode;
   leafCount: number;
   skipLeaves?: boolean;
+  onHoverNodeId: (nodeId: string | null) => void;
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ node, isRoot, highlightNodeId, selectedNodeId, activeNodeId, labelMode, leafCount, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
+};
+
+function subtreeIdChangeAffectsContainer(
+  prev: ContainerBlockProps,
+  next: ContainerBlockProps,
+  getId: (props: ContainerBlockProps) => string | null,
+): boolean {
+  const prevId = getId(prev);
+  const nextId = getId(next);
+  if (prevId === nextId) return false;
+  return nodeSubtreeHasId(prev.node, prevId) || nodeSubtreeHasId(prev.node, nextId);
+}
+
+function areContainerBlockPropsEqual(prev: ContainerBlockProps, next: ContainerBlockProps): boolean {
+  return (
+    sameNodeRenderFields(prev.node, next.node) &&
+    prev.isRoot === next.isRoot &&
+    prev.labelMode === next.labelMode &&
+    prev.leafCount === next.leafCount &&
+    prev.skipLeaves === next.skipLeaves &&
+    prev.onHoverNodeId === next.onHoverNodeId &&
+    prev.onToggle === next.onToggle &&
+    prev.onHover === next.onHover &&
+    prev.onClickNode === next.onClickNode &&
+    prev.onOpenLayerInsight === next.onOpenLayerInsight &&
+    !subtreeIdChangeAffectsContainer(prev, next, (props) => props.highlightNodeId) &&
+    !subtreeIdChangeAffectsContainer(prev, next, (props) => props.selectedNodeId) &&
+    !subtreeIdChangeAffectsContainer(prev, next, (props) => props.activeNodeId)
+  );
+}
+
+const ContainerBlockComponent: React.FC<ContainerBlockProps> = ({ node, isRoot, highlightNodeId, selectedNodeId, activeNodeId, labelMode, leafCount, skipLeaves, onHoverNodeId, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
   const language = useStore((s) => s.language);
   const t = getStrings(language);
   const hovered = useHoverHold(false);
@@ -561,6 +604,7 @@ export const ContainerBlock: React.FC<{
             labelMode={labelMode}
             leafCount={leafCount}
             skipLeaves={skipLeaves}
+            onHoverNodeId={onHoverNodeId}
             onToggle={onToggle}
             onHover={onHover}
             onClickNode={onClickNode}
@@ -720,6 +764,7 @@ export const ContainerBlock: React.FC<{
           labelMode={labelMode}
           leafCount={leafCount}
           skipLeaves={skipLeaves}
+          onHoverNodeId={onHoverNodeId}
           onToggle={onToggle}
           onHover={onHover}
           onClickNode={onClickNode}
@@ -728,7 +773,9 @@ export const ContainerBlock: React.FC<{
       ))}
     </group>
   );
-});
+};
+
+export const ContainerBlock = React.memo(ContainerBlockComponent, areContainerBlockPropsEqual);
 
 export const SceneNode: React.FC<{
   node: LayoutNode;
@@ -739,11 +786,12 @@ export const SceneNode: React.FC<{
   labelMode: LabelMode;
   leafCount: number;
   skipLeaves?: boolean;
+  onHoverNodeId: (nodeId: string | null) => void;
   onToggle: (id: string) => void;
   onHover: (lineno: number | null) => void;
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
-}> = React.memo(({ node, isRoot, highlightNodeId, selectedNodeId, activeNodeId, labelMode, leafCount, skipLeaves, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
+}> = React.memo(({ node, isRoot, highlightNodeId, selectedNodeId, activeNodeId, labelMode, leafCount, skipLeaves, onHoverNodeId, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
   if (node.is_container) {
     return (
       <ContainerBlock
@@ -755,6 +803,7 @@ export const SceneNode: React.FC<{
         labelMode={labelMode}
         leafCount={leafCount}
         skipLeaves={skipLeaves}
+        onHoverNodeId={onHoverNodeId}
         onToggle={onToggle}
         onHover={onHover}
         onClickNode={onClickNode}
@@ -771,12 +820,51 @@ export const SceneNode: React.FC<{
       activeNodeId={activeNodeId}
       labelMode={labelMode}
       leafCount={leafCount}
+      onHoverNodeId={onHoverNodeId}
       onHover={onHover}
       onClickNode={onClickNode}
       onOpenLayerInsight={onOpenLayerInsight}
     />
   );
 });
+
+const LeafCaptionsLayer: React.FC<{
+  nodes: LayoutNode[];
+  hoveredNodeId: string | null;
+  selectedNodeId: string | null;
+  activeNodeId: string | null;
+  labelMode: LabelMode;
+  leafCount: number;
+}> = React.memo(({ nodes, hoveredNodeId, selectedNodeId, activeNodeId, labelMode, leafCount }) => (
+  <group>
+    {nodes.map((node) => {
+      if (node.error) return null;
+      const shouldRenderCaption = shouldRenderLeafCaption({
+        labelMode,
+        leafCount,
+        nodeId: node.id,
+        hoveredNodeId,
+        selectedNodeId,
+        activeNodeId,
+      });
+      if (!shouldRenderCaption) return null;
+
+      const meta = getVisualMeta(node.op_type);
+      const { height, depth } = getRenderableNodeSize(node);
+      return (
+        <NodeCaption
+          key={node.id}
+          label={meta.labelOverride ?? node.op_type}
+          position={[
+            node.x,
+            node.y - height / 2 - 0.9,
+            node.z + depth / 2 + 0.15,
+          ]}
+        />
+      );
+    })}
+  </group>
+));
 
 export const SceneWithInstancing: React.FC<{
   layout: LayoutData;
@@ -790,7 +878,8 @@ export const SceneWithInstancing: React.FC<{
   onClickNode: (nodeId: string) => void;
   onOpenLayerInsight: (node: LayoutNode) => void;
 }> = React.memo(({ layout, highlightNodeId, selectedNodeId = null, activeNodeId = null, labelMode = 'auto', visibleNodeIds, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
-  const { batches, singles, visibleContainers, leafCount } = useMemo(() => {
+  const [hoveredCaptionNodeId, setHoveredCaptionNodeId] = useState<string | null>(null);
+  const { batches, singles, visibleContainers, captionNodes, leafCount } = useMemo(() => {
     if (visibleNodeIds) {
       const visibleStopNodes = collectDemoStopNodes(layout.nodes)
         .filter((node) => visibleNodeIds.has(node.id));
@@ -798,6 +887,7 @@ export const SceneWithInstancing: React.FC<{
       const grouped = groupLeavesByIdentity(leaves);
       return {
         ...grouped,
+        captionNodes: leaves,
         leafCount: leaves.length,
         visibleContainers: visibleStopNodes.filter((node) => node.is_container),
       };
@@ -806,6 +896,7 @@ export const SceneWithInstancing: React.FC<{
     const leaves = flattenLeaves(layout.nodes);
     return {
       ...groupLeavesByIdentity(leaves),
+      captionNodes: leaves,
       leafCount: leaves.length,
       visibleContainers: [],
     };
@@ -826,6 +917,7 @@ export const SceneWithInstancing: React.FC<{
             labelMode={labelMode}
             leafCount={leafCount}
             skipLeaves={true}
+            onHoverNodeId={setHoveredCaptionNodeId}
             onToggle={onToggle}
             onHover={onHover}
             onClickNode={onClickNode}
@@ -842,6 +934,7 @@ export const SceneWithInstancing: React.FC<{
           activeNodeId={activeNodeId}
           labelMode={labelMode}
           leafCount={leafCount}
+          onHoverNodeId={setHoveredCaptionNodeId}
           onToggle={onToggle}
           onHover={onHover}
           onClickNode={onClickNode}
@@ -856,6 +949,7 @@ export const SceneWithInstancing: React.FC<{
           activeNodeId={activeNodeId}
           labelMode={labelMode}
           leafCount={leafCount}
+          onHoverNodeId={setHoveredCaptionNodeId}
           onHover={onHover}
           onClickNode={onClickNode}
           onOpenLayerInsight={onOpenLayerInsight}
@@ -870,11 +964,20 @@ export const SceneWithInstancing: React.FC<{
           activeNodeId={activeNodeId}
           labelMode={labelMode}
           leafCount={leafCount}
+          onHoverNodeId={setHoveredCaptionNodeId}
           onHover={onHover}
           onClickNode={onClickNode}
           onOpenLayerInsight={onOpenLayerInsight}
         />
       ))}
+      <LeafCaptionsLayer
+        nodes={captionNodes}
+        hoveredNodeId={hoveredCaptionNodeId}
+        selectedNodeId={selectedNodeId}
+        activeNodeId={activeNodeId}
+        labelMode={labelMode}
+        leafCount={leafCount}
+      />
     </group>
   );
 });

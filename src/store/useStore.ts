@@ -38,6 +38,8 @@ interface AppState {
     selectedNodeId: string | null;
 
     layout: LayoutData | null;
+    graphRevision: number;
+    layoutRevision: number;
 
     setLanguage: (language: Language) => void;
     setActiveTemplate: (templateId: string) => void;
@@ -71,6 +73,8 @@ export const useStore = create<AppState>((set, get) => ({
     selectedNodeId: null,
 
     layout: null,
+    graphRevision: 0,
+    layoutRevision: 0,
 
     setLanguage: (language) => set({ language }),
 
@@ -95,10 +99,26 @@ export const useStore = create<AppState>((set, get) => ({
         const collapsedIds = initCollapsedIds(ir);
         try {
             const layout = computeLayout(ir, collapsedIds);
-            set({ ir, collapsedIds, error, selectedNodeId: null, layout });
+            set((state) => ({
+                ir,
+                collapsedIds,
+                error,
+                selectedNodeId: null,
+                layout,
+                graphRevision: state.graphRevision + 1,
+                layoutRevision: state.layoutRevision + 1,
+            }));
         } catch (e) {
             console.error('Layout computation failed:', e);
-            set({ ir, collapsedIds, error, selectedNodeId: null, layout: null });
+            set((state) => ({
+                ir,
+                collapsedIds,
+                error,
+                selectedNodeId: null,
+                layout: null,
+                graphRevision: state.graphRevision + 1,
+                layoutRevision: state.layoutRevision + 1,
+            }));
         }
     },
 
@@ -115,7 +135,7 @@ export const useStore = create<AppState>((set, get) => ({
 
         try {
             const layout = computeLayout(state.ir, next);
-            set({ collapsedIds: next, layout });
+            set((current) => ({ collapsedIds: next, layout, layoutRevision: current.layoutRevision + 1 }));
         } catch (e) {
             console.error('Layout computation failed:', e);
             set({ collapsedIds: next });

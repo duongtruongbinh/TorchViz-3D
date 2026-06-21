@@ -1,5 +1,6 @@
 import { LayoutData, LayoutNode, LayoutEdge } from './irTypes';
-import { getVisualMeta, getVisualKind, getActivationSubKind, getLegendItems, computeFontSize, type VisualKind } from './visualKind';
+import { getVisualMeta, getActivationSubKind, getLegendItems, computeFontSize } from './visualKind';
+import { collectRenderableNodes, getRenderableNodeBox, getRenderableNodeSize } from './renderBounds';
 
 export interface SvgOptions {
   scale?: number;
@@ -60,18 +61,6 @@ function adjustColor(color: string, amount: number): string {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-/** Collect all drawable nodes recursively. */
-function collectNodes(nodes: LayoutNode[]): LayoutNode[] {
-  const result: LayoutNode[] = [];
-  for (const n of nodes) {
-    result.push(n);
-    if (n.children && !n.collapsed) {
-      result.push(...collectNodes(n.children));
-    }
-  }
-  return result;
-}
-
 // ── Per-kind SVG block renderers ──────────────────────────────────
 
 interface BlockCtx {
@@ -85,11 +74,8 @@ interface BlockCtx {
 
 /** Get the adjusted dimensions for a node based on its visual meta */
 function getAdjustedDims(n: LayoutNode, meta: ReturnType<typeof getVisualMeta>) {
-  return {
-    w: n.width * meta.widthMul,
-    h: n.height * meta.heightMul,
-    d: n.depth * meta.depthMul,
-  };
+  const { width, height, depth } = getRenderableNodeSize(n);
+  return { w: width, h: height, d: depth };
 }
 
 /** Standard cuboid faces (right, top, front) with stroke */
@@ -368,7 +354,7 @@ export function generateSVG(layout: LayoutData, options: SvgOptions): string {
   const textScale = options.textScale ?? 1;
   const strokeScale = options.strokeScale ?? 1;
   const padding = options.padding ?? 80;
-  const allNodes = collectNodes(layout.nodes);
+  const allNodes = collectRenderableNodes(layout.nodes);
   const S = options.scale ?? 32;
 
   let minX = Infinity;
@@ -383,27 +369,17 @@ export function generateSVG(layout: LayoutData, options: SvgOptions): string {
   };
 
   for (const n of allNodes) {
-    const meta = getVisualMeta(n.op_type);
-    const w = n.is_container ? n.width : n.width * meta.widthMul;
-    const h = n.is_container ? n.height : n.height * meta.heightMul;
-    const d = n.is_container ? n.depth : n.depth * meta.depthMul;
-
-    const x0 = n.x - w / 2;
-    const x1 = n.x + w / 2;
-    const y0 = n.y - h / 2;
-    const y1 = n.y + h / 2;
-    const z0 = n.z - d / 2;
-    const z1 = n.z + d / 2;
+    const box = getRenderableNodeBox(n);
 
     [
-      to25D(x0, y0, z0, S), to25D(x1, y0, z0, S),
-      to25D(x0, y1, z0, S), to25D(x1, y1, z0, S),
-      to25D(x0, y0, z1, S), to25D(x1, y0, z1, S),
-      to25D(x0, y1, z1, S), to25D(x1, y1, z1, S),
+      to25D(box.minX, box.minY, box.minZ, S), to25D(box.maxX, box.minY, box.minZ, S),
+      to25D(box.minX, box.maxY, box.minZ, S), to25D(box.maxX, box.maxY, box.minZ, S),
+      to25D(box.minX, box.minY, box.maxZ, S), to25D(box.maxX, box.minY, box.maxZ, S),
+      to25D(box.minX, box.maxY, box.maxZ, S), to25D(box.maxX, box.maxY, box.maxZ, S),
     ].forEach(p => updateBounds(p.x, p.y));
 
     if (n.is_container) {
-      const p = to25D(n.x, y0, z1 + d + 2, S);
+      const p = to25D(n.x, box.minY, box.maxZ + box.depth + 2, S);
       updateBounds(p.x, p.y);
     }
   }
