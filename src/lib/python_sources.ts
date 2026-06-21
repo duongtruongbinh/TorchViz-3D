@@ -6,7 +6,7 @@
 // IR that drives the 3D diagram.
 //
 // To add a new layer: define a `Module` subclass with a `forward` that calls `_record(...)`,
-// add it to `Module._leaf_types` (PY_NN_LEAF_TYPES), and give it a color in constants.ts.
+// add it to `Module._leaf_types` (PY_NN_LEAF_TYPES), and give it a color in visualKind.ts.
 // Full walkthrough: docs/TORCHSTUB.md. Big picture: docs/ARCHITECTURE.md.
 
 export const PY_INIT = `

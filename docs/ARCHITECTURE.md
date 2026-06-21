@@ -76,8 +76,9 @@ import math
 
 So user code just uses `nn` / `F` as it would with real PyTorch — no `import torch` needed
 (the built-in templates redeclare `import torchstub.nn as nn` for clarity, which is
-harmlessly redundant). Counting the blank lines that wrap it, this preamble occupies
-`WRAPPER_LINE_OFFSET` (7) lines before the user's code begins; see
+harmlessly redundant). The worker derives `WRAPPER_LINE_OFFSET` from this preamble
+with `countPythonPreambleLines(USER_CODE_PREAMBLE)`, then subtracts it from Python
+traceback and node line numbers; see
 [Fragile spots](#fragile-spots--gotchas).
 
 `torchstub` mimics the `torch.nn` API but does **shape inference only**:
@@ -238,11 +239,11 @@ for the scaffold map.
 | `src/lib/python_sources.ts` | The `torchstub` fake-PyTorch source (Python as TS strings). |
 | `src/lib/irTypes.ts` | IR + Layout type definitions; tree helpers; smart-collapse defaults. |
 | `src/lib/layout.ts` | Pure IR → 3D `LayoutData` engine + edge routing. |
-| `src/lib/constants.ts` | Colors / theme — shared by canvas, Inspector, SVG export. |
+| `src/lib/constants.ts` | Non-op theme constants — container, edge, text, and UI colors. |
 | `src/lib/workerService.ts` | Worker lifecycle + request-id guarding. |
 | `src/lib/svgExport.ts` | Publication-quality SVG/PNG export. |
 | `src/store/useStore.ts` | zustand app state + built-in templates. |
-| `src/components/Canvas3D.tsx` | React Three Fiber scene (blocks, edges, controls). |
+| `src/components/canvas/Canvas3D.tsx` | React Three Fiber scene (blocks, edges, controls). |
 | `src/components/Inspector.tsx` | Layer-tree explorer panel. |
 | `src/components/EditorPane.tsx` | Monaco editor wrapper. |
 | `src/components/operation-effects/` | Per-op animated effect overlays. |

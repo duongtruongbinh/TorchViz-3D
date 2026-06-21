@@ -73,14 +73,14 @@ Leaf colors come from `getVisualMeta(op_type).color` in
 use `ERROR_COLOR`). Container colors come from `constants.ts`. `visualKind.ts` is
 the single source of truth shared by the 3D canvas and SVG export.
 
-> The prose [docs/TORCHSTUB.md](../../docs/TORCHSTUB.md) still points at
-> `OP_MATCHERS`/`OP_COLORS` in `constants.ts` for op color; coloring has since
-> moved to `visualKind.ts`. See [reference/gotchas](../reference/gotchas.md).
+> Op color belongs in `visualKind.ts`, not `constants.ts`. See
+> [reference/gotchas](../reference/gotchas.md).
 
 ## Output
 
-`LayoutData = { nodes: LayoutNode[], edges: LayoutEdge[], bounds }`. `bounds.minX/maxX`
-are derived from node extents; `minY/maxY/minZ/maxZ` are fixed at ±5.
+`LayoutData = { nodes: LayoutNode[], edges: LayoutEdge[], bounds }`. Bounds are
+computed dynamically with `getLayoutWorldBounds(..., { includeEdges: true })`,
+which includes renderable node boxes and routed edge points.
 
 ## Failure mode
 

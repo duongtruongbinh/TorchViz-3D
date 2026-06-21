@@ -1,7 +1,7 @@
 ---
 title: Rendering
 type: Subsystem
-source: src/components/Canvas3D.tsx, src/lib/visualKind.ts, src/lib/constants.ts
+source: src/components/canvas/Canvas3D.tsx, src/lib/visualKind.ts, src/lib/constants.ts
 updated: 2026-06-21
 ---
 
@@ -14,7 +14,7 @@ orders).
 
 ## Canvas3D
 
-`src/components/Canvas3D.tsx` is the React Three Fiber / three.js scene. It reads
+`src/components/canvas/Canvas3D.tsx` is the React Three Fiber / three.js scene. It reads
 `layout` from the [store](../concepts/state-store.md) and draws:
 
 - **Blocks** for each `LayoutNode` (positioned/sized by the
@@ -43,10 +43,9 @@ consumed by both Canvas3D (3D) and `svgExport` (2D/2.5D).
 - **`getLegendItems()`** produces the de-duplicated legend; `computeFontSize`
   gives scale-aware, clamped label sizing.
 
-> Op color lives **here**, not in `constants.ts`. The prose
-> [docs/TORCHSTUB.md](../../docs/TORCHSTUB.md) still references `OP_MATCHERS` /
-> `OP_COLORS` — stale. To recolor or add an op category, edit `KIND_RULES` +
-> `META_MAP`. See [reference/gotchas](../reference/gotchas.md).
+> Op color lives **here**, not in `constants.ts`. To recolor or add an op
+> category, edit `KIND_RULES` + `META_MAP`. See
+> [reference/gotchas](../reference/gotchas.md).
 
 ## Theme & constants (`constants.ts`)
 

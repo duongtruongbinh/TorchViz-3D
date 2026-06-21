@@ -23,7 +23,7 @@ EditorPane (Monaco)
   → IRGraph JSON  (success | partial | error)
   → setIrResult → computeLayout(ir, collapsedIds)  src/lib/layout.ts
   → LayoutData
-  → Canvas3D (React Three Fiber / three.js)        src/components/Canvas3D.tsx
+  → Canvas3D (React Three Fiber / three.js)        src/components/canvas/Canvas3D.tsx
     + Inspector / BottomTabs
 ```
 
