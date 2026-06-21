@@ -9,11 +9,11 @@ no `type` frontmatter required.)
   Phase 4). Pages: root `index.md`, `architecture.md`, `glossary.md`; concepts
   (`torchstub`, `pyodide-worker`, `ir-contract`, `layout-engine`, `state-store`,
   `rendering`); a guide (`add-a-layer`); reference (`templates`, `gotchas`); and
-  the section `index.md` listings. Authored against the current code, with two
-  corrections where the prose docs lag the implementation:
+  the section `index.md` listings. Authored against the code at the time, with
+  two corrections where the prose docs then lagged the implementation:
   `WRAPPER_LINE_OFFSET` is auto-derived (not a hardcoded `7`), and op coloring
-  lives in `src/lib/visualKind.ts` (not `OP_MATCHERS`/`OP_COLORS` in
-  `constants.ts`).
+  lives in `src/lib/visualKind.ts` rather than the older constants-based color
+  matcher names.
 - **2026-06-21 — Learning Lab scaffold docs.** Added a planned subsystem page for
   the scaffold-only Landing Page and Learning Lab refactor
   ([wiki/concepts/learning-lab-refactor.md](concepts/learning-lab-refactor.md)),

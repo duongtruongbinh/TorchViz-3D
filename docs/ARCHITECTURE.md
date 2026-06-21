@@ -76,8 +76,9 @@ import math
 
 So user code just uses `nn` / `F` as it would with real PyTorch — no `import torch` needed
 (the built-in templates redeclare `import torchstub.nn as nn` for clarity, which is
-harmlessly redundant). Counting the blank lines that wrap it, this preamble occupies
-`WRAPPER_LINE_OFFSET` (7) lines before the user's code begins; see
+harmlessly redundant). The worker derives `WRAPPER_LINE_OFFSET` from this preamble
+with `countPythonPreambleLines(USER_CODE_PREAMBLE)`, then subtracts it from Python
+traceback and node line numbers; see
 [Fragile spots](#fragile-spots--gotchas).
 
 `torchstub` mimics the `torch.nn` API but does **shape inference only**:
@@ -213,10 +214,11 @@ for the scaffold map.
   numbers. It is **auto-derived** from the preamble via `countPythonPreambleLines`
   (`src/lib/workerLineMapping.ts`) — not a hardcoded constant — so editing the preamble
   updates it automatically. Keep `USER_CODE_PREAMBLE` and `countPythonPreambleLines` honest.
-- **Dual module resolution.** `index.html` ships an importmap (esm.sh CDN) *and* Vite bundles
-  the same deps. Vite's bundling is authoritative for dev/build; the importmap is the
-  no-build-tool fallback. `zustand` is intentionally only in `package.json`. Don't "fix" one
-  without understanding the other.
+- **Dual module resolution.** `index.html` ships an importmap (esm.sh CDN) and Vite bundles
+  the runtime dependencies for dev/build. Vite's bundling is authoritative; the importmap is
+  the no-build-tool fallback and is not guaranteed to match `package.json` one-for-one.
+  `zustand` is intentionally only in `package.json`. Don't "fix" one without understanding
+  the other.
 - **Desktop / online only.** The UI enforces `min-width: 1024px` and disables zoom; Pyodide,
   Tailwind, and Google Fonts load from CDNs at runtime.
 
@@ -230,11 +232,11 @@ for the scaffold map.
 | `src/lib/python_sources.ts` | The `torchstub` fake-PyTorch source (Python as TS strings). |
 | `src/lib/irTypes.ts` | IR + Layout type definitions; tree helpers; smart-collapse defaults. |
 | `src/lib/layout.ts` | Pure IR → 3D `LayoutData` engine + edge routing. |
-| `src/lib/constants.ts` | Colors / theme — shared by canvas, Inspector, SVG export. |
+| `src/lib/constants.ts` | Non-op theme constants — container, edge, text, and UI colors. |
 | `src/lib/workerService.ts` | Worker lifecycle + request-id guarding. |
 | `src/lib/svgExport.ts` | Publication-quality SVG/PNG export. |
 | `src/store/useStore.ts` | zustand app state + built-in templates. |
-| `src/components/Canvas3D.tsx` | React Three Fiber scene (blocks, edges, controls). |
+| `src/components/canvas/Canvas3D.tsx` | React Three Fiber scene (blocks, edges, controls). |
 | `src/components/Inspector.tsx` | Layer-tree explorer panel. |
 | `src/components/EditorPane.tsx` | Monaco editor wrapper. |
 | `src/components/operation-effects/` | Per-op animated effect overlays. |

@@ -10,5 +10,4 @@ Lookup material.
 
 - [templates](../reference/templates.md) — the seven built-in models, their ids,
   and default input shapes.
-- [gotchas](../reference/gotchas.md) — the canonical list of fragile spots and the
-  two places the prose docs lag the code.
+- [gotchas](../reference/gotchas.md) — the canonical list of fragile spots.
