@@ -50,7 +50,7 @@ export const FlattenEffect: React.FC<OperationEffectProps> = ({ node, segmentPro
         activeIndex={activeIndex}
         orientation="vertical"
       />
-      <DemoArrow points={[source, new THREE.Vector3(-0.05, 0.18, 0.12), target]} opacity={0.82} />
+      <DemoArrow points={[source, target]} opacity={0.82} />
     </OperationPanelFrame>
   );
 };
