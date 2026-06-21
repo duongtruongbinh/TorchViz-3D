@@ -14,3 +14,8 @@ no `type` frontmatter required.)
   `WRAPPER_LINE_OFFSET` is auto-derived (not a hardcoded `7`), and op coloring
   lives in `src/lib/visualKind.ts` (not `OP_MATCHERS`/`OP_COLORS` in
   `constants.ts`).
+- **2026-06-21 — Learning Lab scaffold docs.** Added a planned subsystem page for
+  the scaffold-only Landing Page and Learning Lab refactor
+  ([wiki/concepts/learning-lab-refactor.md](concepts/learning-lab-refactor.md)),
+  linked it from the wiki index and architecture pages, and added an embedded
+  Codex init prompt derived from `CLAUDE.md`.

@@ -21,5 +21,8 @@ source file. Read them in roughly pipeline order:
    `src/store/useStore.ts`.
 6. [rendering](../concepts/rendering.md) — Canvas3D, the visual taxonomy, theme.
    `src/components/Canvas3D.tsx`, `src/lib/visualKind.ts`, `src/lib/constants.ts`.
+7. [learning-lab-refactor](../concepts/learning-lab-refactor.md) — the
+   scaffold-only Landing Page and Learning Lab refactor map. `src/components/landing/*`,
+   `src/components/learning/*`, `src/core/*`, `src/store/uiStore.ts`.
 
 See also the [architecture overview](../architecture.md) for how they connect.

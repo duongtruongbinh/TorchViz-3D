@@ -60,6 +60,7 @@ See [concepts/torchstub](concepts/torchstub.md) for the full mechanism.
 | Layout engine | [layout-engine](concepts/layout-engine.md) | `src/lib/layout.ts` |
 | App state + templates | [state-store](concepts/state-store.md) | `src/store/useStore.ts` |
 | 3D rendering + taxonomy | [rendering](concepts/rendering.md) | `src/components/Canvas3D.tsx`, `src/lib/visualKind.ts` |
+| Planned Landing/Lab scaffold | [learning-lab-refactor](concepts/learning-lab-refactor.md) | `src/components/landing/*`, `src/components/learning/*`, `src/core/*`, `src/store/uiStore.ts` |
 
 ## Key invariants
 
@@ -73,3 +74,11 @@ See [concepts/torchstub](concepts/torchstub.md) for the full mechanism.
   (blank canvas); shape errors render an inline red node.
 
 See [reference/gotchas](reference/gotchas.md) for the fragile spots.
+
+## Planned UI surfaces
+
+The Learning Lab refactor scaffold adds inert placeholders for a future
+`AppShell`, Landing Page, Learning Lab, shared learning sections, and a UI store.
+These files are not part of the active pipeline yet and are not imported by
+`App.tsx`. See [learning-lab-refactor](concepts/learning-lab-refactor.md) and
+`CLAUDE.md` before implementing the next phase.

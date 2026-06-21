@@ -35,6 +35,7 @@ an intermediate graph, which a pure layout engine turns into 3D geometry.
 | Concepts | [layout-engine](concepts/layout-engine.md) | `computeLayout` — pure IR → 3D `LayoutData`. |
 | Concepts | [state-store](concepts/state-store.md) | The zustand store and built-in templates. |
 | Concepts | [rendering](concepts/rendering.md) | Canvas3D, the visual taxonomy, theme. |
+| Concepts | [learning-lab-refactor](concepts/learning-lab-refactor.md) | Scaffold-only plan for future Landing Page and Learning Lab surfaces. |
 | Guides | [add-a-layer](guides/add-a-layer.md) | Playbook: add a new `torchstub` layer. |
 | Reference | [templates](reference/templates.md) | The 7 built-in models and their input shapes. |
 | Reference | [gotchas](reference/gotchas.md) | Canonical list of fragile spots. |
