@@ -84,10 +84,10 @@ const USER_CODE_PREAMBLE_LINE_COUNT = countPythonPreambleLines(USER_CODE_PREAMBL
 `File "<exec>", line N`) and `adjustNodeLinenos` (walks the node tree) subtract
 this offset.
 
-> The prose [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md) and `CLAUDE.md` still
-> describe this as a hardcoded `7`; the code now derives it. Editing the preamble
-> no longer needs a manual constant bump — but keep `USER_CODE_PREAMBLE` and
-> `countPythonPreambleLines` honest. See [reference/gotchas](../reference/gotchas.md).
+> Editing the preamble no longer needs a manual constant bump because the code
+> derives the offset — but keep `USER_CODE_PREAMBLE` and
+> `countPythonPreambleLines` honest. See
+> [reference/gotchas](../reference/gotchas.md).
 
 ## Result message types
 

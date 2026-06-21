@@ -1,67 +1,94 @@
 # TorchViz-3D
 
-**TorchViz-3D** is a client-side visualization tool designed to render PyTorch neural network architectures as immersive 3D isometric block diagrams. Built for researchers and developers to quickly prototype, visualize, and export model architectures for publications.
+**TorchViz-3D turns PyTorch-style `nn.Module` code into interactive 3D neural
+network architecture diagrams, entirely in the browser.**
 
-## ✨ Key Features
+[![React](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=111)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=fff)](https://vite.dev/)
+[![Pyodide](https://img.shields.io/badge/Pyodide-WASM-2f6f9f)](https://pyodide.org/)
+[![Three.js](https://img.shields.io/badge/Three.js-R3F-000?logo=threedotjs&logoColor=fff)](https://threejs.org/)
 
-* **3D Isometric Visualization**: Render layers (Conv2d, Linear, Pooling, etc.) as interactive 3D blocks.
-* **Client-Side Execution**: Runs entirely in your browser using **Pyodide**. Your code and data never leave your machine.
-* **Live Editor**: Write or paste `nn.Module` code and see changes instantly.
-* **Publication Ready**: Export visualizations as high-quality **SVG** (vector) or **PNG** for research papers.
-* **Interactive Controls**: Rotate, zoom, pan, and expand/collapse nested layers (Sequential, Blocks) to explore complex architectures.
+No backend. No model upload. No real PyTorch runtime. TorchViz-3D runs a
+shape-only `torchstub` inside Pyodide, traces your model into an intermediate
+graph, lays it out, and renders it as an explorable 3D scene.
 
-## 🛠️ Tech Stack
+![TorchViz-3D interface showing the editor, 3D architecture canvas, layer explorer, and build terminal](docs/assets/torchviz-studio-screenshot.png)
 
-* **Core**: React, TypeScript, Vite
-* **3D Engine**: Three.js, React Three Fiber
-* **Python Runtime**: Pyodide (WebAssembly)
-* **Editor**: Monaco Editor
+## What It Does
 
-## 🚀 Getting Started
+- **Visualize PyTorch-like models** from `nn.Module` source code in a Monaco editor.
+- **Render architecture as 3D blocks** with channels, spatial sizes, nested modules, and skip/concat edges.
+- **Trace safely in-browser** using Pyodide and a fake shape-only `torch.nn`; your code stays local.
+- **Inspect model structure** through a layer tree, parameter counts, hover/select sync, and terminal output.
+- **Catch shape problems inline** by highlighting the failed layer instead of only throwing a traceback.
+- **Start from built-in templates** including LeNet-5, Mini-ResNet, Mini-ViT, AlexNet, VGG-16, MobileNetV2, and UNet.
+- **Export diagrams** as publication-friendly SVG or screen PNG.
+- **Explore compatible demos** with MNIST/data-flow overlays and focused learning exercises.
 
-### Prerequisites
-* **Node.js 20 or higher** (CI builds on Node 24; Vite 6 requires a modern LTS).
-* A **desktop browser** — the UI is laid out for screens ≥ 1024px wide.
-* **Internet access** — Pyodide, Tailwind, and fonts load from CDNs at runtime.
+## How It Works
 
-### Installation
-
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/duongtruongbinh/TorchViz-3D.git
-    cd TorchViz-3D
-    ```
-
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
-
-3.  **Run locally**
-    ```bash
-    npm run dev
-    ```
-    Open `http://localhost:3000` to view the app.
-
-### Running tests
-
-```bash
-npm test
+```mermaid
+flowchart LR
+  A["EditorPane<br/>Monaco source"] --> B["Zustand store<br/>code + input shape"]
+  B --> C["WorkerService<br/>requestId guard"]
+  C --> D["Web Worker<br/>Pyodide + torchstub"]
+  D --> E["IRGraph JSON<br/>nodes, edges, stats"]
+  E --> F["computeLayout<br/>3D positions + routes"]
+  F --> G["Canvas3D<br/>React Three Fiber"]
+  F --> H["SVG / PNG export"]
 ```
 
-## 📦 Building for Production
+The core trick is `torchstub`: a small fake `torch.nn` package that computes
+output shapes and parameter counts without tensor math. It is enough information
+to draw the architecture, while staying light enough to run in a browser.
 
-To create a production-ready build:
+## Try It Locally
+
+### Requirements
+
+- Node.js 20 or newer.
+- A desktop browser; the workspace is designed for screens at least 1024px wide.
+- Internet access on first load; Pyodide, Tailwind, and fonts are fetched from CDNs.
+
+### Run
 
 ```bash
-npm run build
+git clone https://github.com/duongtruongbinh/TorchViz-3D.git
+cd TorchViz-3D
+npm install
+npm run dev
 ```
 
-The output will be in the dist directory.
+Open `http://localhost:3000`, pick a template or edit the model, then click
+**Visualize** or press `Ctrl/Cmd+Enter`.
 
-## 📚 Documentation
+## Development
 
-* [Knowledge bundle (`wiki/`)](wiki/index.md) — the structured, agent-readable OKF bundle: per-subsystem concept pages, guides, and reference. **Start here** for a navigable map of the codebase.
-* [Architecture](docs/ARCHITECTURE.md) — data-flow pipeline, the `torchstub` shape-tracing core, the IR contract, and the layout engine.
-* [Extending torchstub](docs/TORCHSTUB.md) — how to add support for a new layer.
-* [Learning Lab refactor plan](docs/plans/2026-06-21-learning-lab-refactor.md) — scaffold-only plan for the planned Landing Page and Learning Lab surfaces.
+```bash
+npm test         # node --test on src/lib/*.test.ts
+npm run build    # production build in dist/
+npm run verify   # typecheck + tests + build
+```
+
+The main runtime pipeline is:
+
+```text
+EditorPane -> zustand store -> WorkerService -> Pyodide worker + torchstub
+  -> IRGraph -> computeLayout -> Canvas3D
+```
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md) - full data flow, IR contract, layout engine, and rendering notes.
+- [Extending torchstub](docs/TORCHSTUB.md) - add support for more PyTorch layers.
+- [Knowledge bundle](wiki/index.md) - structured subsystem docs, guides, and gotchas.
+- [Workflow](docs/WORKFLOW.md) - required contribution workflow and plan format.
+- [Learning Lab refactor plan](docs/plans/2026-06-21-learning-lab-refactor.md) - scaffold-only plan for future learning surfaces.
+
+## Current Scope
+
+TorchViz-3D is desktop-first and online-first. It intentionally supports a
+partial PyTorch API surface: layers must exist in `torchstub` before they can be
+traced. Real tensor values, training, inference, and model uploads are out of
+scope.

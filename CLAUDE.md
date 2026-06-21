@@ -51,9 +51,9 @@ Read [wiki/architecture.md](wiki/architecture.md) for the full pipeline, and the
 | `src/workers/pyodideWorker.ts` | Boots Pyodide; runs user code; emits IR. |
 | `src/lib/irTypes.ts` | IR + Layout types (the worker↔renderer contract). |
 | `src/lib/layout.ts` | Pure IR → 3D `LayoutData` engine. |
-| `src/lib/constants.ts` | Colors/theme — shared by canvas, Inspector, SVG. |
+| `src/lib/constants.ts` | Non-op theme constants — container, edge, text, and UI colors. |
 | `src/store/useStore.ts` | zustand state + built-in templates. |
-| `src/components/Canvas3D.tsx` | React Three Fiber scene. |
+| `src/components/canvas/Canvas3D.tsx` | React Three Fiber scene. |
 
 ## Gotchas
 

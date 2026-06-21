@@ -18,8 +18,6 @@ layout, or the build config.
   to editor line numbers. Editing the preamble updates the offset automatically.
   Keep `USER_CODE_PREAMBLE` and `countPythonPreambleLines` consistent; don't
   reintroduce a magic constant.
-  - ⚠️ **Stale prose:** [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md) and
-    `CLAUDE.md` still describe this as a hardcoded `7`. The code has moved on.
 - **Pyodide loads from a CDN.** `pyodideWorker.ts` tries jsDelivr → unpkg →
   iodide via `importScripts`. The app needs network access on first load; if all
   CDNs fail, the worker throws a clear error surfaced as a critical UI error.
@@ -54,17 +52,16 @@ layout, or the build config.
 
 - **Op color lives in `src/lib/visualKind.ts`** (`KIND_RULES` → `META_MAP`), the
   single source shared by Canvas3D and SVG export — **not** `constants.ts`.
-  - ⚠️ **Stale prose:** [docs/TORCHSTUB.md](../../docs/TORCHSTUB.md) still references
-    `OP_MATCHERS` / `OP_COLORS` in `constants.ts`.
 - **`KIND_RULES` order matters** — first regex match wins; put specific patterns
   (e.g. `^relu$`) before generic ones.
 
 ## Build / environment
 
-- **Dual module resolution.** `index.html` ships an importmap (esm.sh CDN) *and*
-  Vite bundles the same deps. Vite is authoritative for dev/build; the importmap
-  is the no-build-tool fallback. `zustand` is intentionally only in
-  `package.json`. Don't "fix" one without understanding the other.
+- **Dual module resolution.** `index.html` ships an importmap (esm.sh CDN), while
+  Vite bundles runtime dependencies for dev/build. Vite is authoritative; the
+  importmap is the no-build-tool fallback and is not guaranteed to match
+  `package.json` one-for-one. `zustand` is intentionally only in `package.json`.
+  Don't "fix" one without understanding the other.
 - **Desktop + online only.** The UI enforces a `min-width` and disables zoom;
   Pyodide, Tailwind, and Google Fonts load from CDNs at runtime.
 
