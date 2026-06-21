@@ -8,6 +8,7 @@ import { getMnistDemoLayoutCompatibility } from './mnist-demo/demoStops';
 import type { MnistDemoCompatibility } from '../lib/mnistCompatibility';
 
 interface HeaderProps {
+    onBackToLanding?: () => void;
     onExportSvg: () => void;
     isTourOpen: boolean;
     setTourOpen: (v: boolean) => void;
@@ -19,6 +20,7 @@ interface HeaderProps {
 }
 
 export default function Header({
+    onBackToLanding,
     onExportSvg,
     isTourOpen,
     setTourOpen,
@@ -108,6 +110,18 @@ export default function Header({
         <>
             <header className="h-14 glass-panel border-b-0 border-b-[var(--border)] flex items-center px-5 justify-between shrink-0 z-50">
                 <div className="flex items-center gap-4">
+                    {onBackToLanding && (
+                        <button
+                            type="button"
+                            onClick={onBackToLanding}
+                            className="h-8 flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-elevated)] px-2.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:bg-[#3f3f46] hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                            title={t.header.backToLanding}
+                            aria-label={t.header.backToLanding}
+                        >
+                            <span aria-hidden="true">{'<-'}</span>
+                            <span>{t.header.landing}</span>
+                        </button>
+                    )}
                     <div className="flex items-center gap-2 select-none group cursor-pointer">
                         <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all">
                             <span className="text-white font-bold text-xs">T</span>

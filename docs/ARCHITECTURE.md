@@ -180,11 +180,12 @@ A single small zustand store holds: editor `code`, active template, `ir`, `colla
 
 ---
 
-## Planned Landing Page and Learning Lab scaffold
+## Landing Page and Learning Lab scaffold
 
 The scaffold in
 [`docs/plans/2026-06-21-learning-lab-refactor.md`](plans/2026-06-21-learning-lab-refactor.md)
-adds inert placeholder files for future UI surfaces:
+adds UI surfaces for the Landing/AppShell path plus inert placeholder files for
+future Learning Lab work:
 
 - `src/components/AppShell.tsx`
 - `src/components/landing/*`
@@ -194,10 +195,17 @@ adds inert placeholder files for future UI surfaces:
 - `src/core/answerCheck.ts`
 - `src/store/uiStore.ts`
 
-These files are intentionally not imported by the running app yet. Until a later
-approved implementation plan says otherwise, the current `App.tsx` workspace
-remains the entry point and the existing editor/canvas/inspector flow is
-unchanged.
+MVP 1 imports `AppShell` and `src/components/landing/*` from the root `App.tsx`.
+The app opens on the Landing Page, then enters the existing editor/canvas/
+inspector workspace through the active TorchViz-3D card. Learning Lab remains
+disabled/coming soon: `src/components/learning/*`, `src/core/*`, and
+`src/store/uiStore.ts` are still not part of the runtime path.
+
+The active Landing screen is a compact bento layout with top intro copy, a
+left-side live graph preview, and right-side Workspace/Learning cards. The
+preview's final classifier block draws anchor-based visual routes to the real
+card anchors; the Workspace route is emphasized and Learning Lab stays muted and
+non-interactive.
 
 Codex agents should use the repo orientation in `CLAUDE.md` as the source for
 the initial system prompt, then read the OKF page
@@ -217,7 +225,7 @@ for the scaffold map.
   the same deps. Vite's bundling is authoritative for dev/build; the importmap is the
   no-build-tool fallback. `zustand` is intentionally only in `package.json`. Don't "fix" one
   without understanding the other.
-- **Desktop / online only.** The UI enforces `min-width: 1024px` and disables zoom; Pyodide,
+- **Desktop / online only.** The workspace UI enforces `min-width: 1024px` and disables zoom; Pyodide,
   Tailwind, and Google Fonts load from CDNs at runtime.
 
 ---

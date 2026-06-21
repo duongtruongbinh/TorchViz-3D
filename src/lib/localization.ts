@@ -46,6 +46,8 @@ const localizedText = {
     tour: { en: 'Tour', vi: 'Hướng dẫn' },
     openTour: { en: 'Open tour', vi: 'Mở hướng dẫn' },
     help: { en: 'Help', vi: 'Trợ giúp' },
+    landing: { en: 'Landing', vi: 'Trang chính' },
+    backToLanding: { en: 'Back to Landing', vi: 'Quay lại trang chính' },
   },
   editor: {
     loading: { en: 'Loading Editor...', vi: 'Đang tải trình soạn thảo...' },

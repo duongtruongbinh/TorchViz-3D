@@ -19,3 +19,12 @@ no `type` frontmatter required.)
   ([wiki/concepts/learning-lab-refactor.md](concepts/learning-lab-refactor.md)),
   linked it from the wiki index and architecture pages, and added an embedded
   Codex init prompt derived from `CLAUDE.md`.
+- **2026-06-21 — Landing/AppShell MVP docs.** Updated the Learning Lab scaffold
+  docs after MVP 1 made `AppShell` and landing components active runtime
+  behavior. Learning Lab, learning core helpers, and `uiStore` remain inert.
+- **2026-06-21 — Landing bento UI docs.** Folded the finalized Landing hero
+  summary into the existing
+  [learning-lab-refactor](concepts/learning-lab-refactor.md) page instead of
+  creating a separate Landing page. The docs now note the live graph preview,
+  compact Workspace/Learning cards, anchor-based routes, and disabled Learning
+  Lab state.
