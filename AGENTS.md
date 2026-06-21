@@ -32,12 +32,18 @@ EditorPane -> zustand store -> WorkerService -> Pyodide worker + torchstub
 For Landing Page or Learning Lab work, read these before editing:
 
 - [docs/plans/2026-06-21-learning-lab-refactor.md](docs/plans/2026-06-21-learning-lab-refactor.md)
+- [docs/plans/2026-06-21-landing-ui-iteration.md](docs/plans/2026-06-21-landing-ui-iteration.md)
 - [wiki/concepts/learning-lab-refactor.md](wiki/concepts/learning-lab-refactor.md)
 
 The scaffold files are intentionally inert until a later approved implementation
 plan imports them into the running app. Do not change `App.tsx`, add routing, or
 implement real UI store behavior unless the current approved plan explicitly
 requires it.
+
+Do not create a new Landing docs page for small visual, copy, or layout
+iterations. Update the consolidated Landing plan and the existing Learning Lab
+refactor wiki page unless a genuinely separate subsystem needs its own
+long-lived reference page.
 
 ## Verification
 

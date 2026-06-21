@@ -28,3 +28,7 @@ no `type` frontmatter required.)
   creating a separate Landing page. The docs now note the live graph preview,
   compact Workspace/Learning cards, anchor-based routes, and disabled Learning
   Lab state.
+- **2026-06-21 — Landing docs consolidation.** Consolidated the separate
+  Landing iteration plan pages into one Landing UI iteration page and clarified
+  that small follow-up docs should update existing pages instead of creating
+  new pages.

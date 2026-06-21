@@ -9,6 +9,8 @@ updated: 2026-06-21
 This page documents the Landing Page and Learning Lab refactor scaffold.
 The source plan is
 [docs/plans/2026-06-21-learning-lab-refactor.md](../../docs/plans/2026-06-21-learning-lab-refactor.md).
+Landing visual iteration history is consolidated in
+[docs/plans/2026-06-21-landing-ui-iteration.md](../../docs/plans/2026-06-21-landing-ui-iteration.md).
 
 ## Status
 
@@ -74,6 +76,9 @@ unless the current task explicitly implements a phase. AppShell and landing
 components are active; update this existing page for related Landing docs before
 creating any new docs page.
 ```
+
+For small Landing UI, copy, or layout changes, update the consolidated Landing
+plan and this page instead of creating another Landing docs page.
 
 ## Invariants
 
