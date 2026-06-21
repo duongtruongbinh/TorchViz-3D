@@ -13,7 +13,7 @@ import {
   collectLayoutNodes,
 } from '../../lib/canvasUtils';
 
-const DEFAULT_VIEW_PADDING = 0.8;
+const DEFAULT_VIEW_PADDING = 1.0;
 
 type CameraControls = {
   target?: THREE.Vector3;
