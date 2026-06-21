@@ -11,8 +11,9 @@ supersedes:
 
 # Goal
 
-Create a small PR scaffold for the Learning Lab refactor. This PR only adds the
-approved plan document and empty directory/file structure for later work.
+Create a small PR scaffold for the Learning Lab refactor. This PR adds the
+approved plan document, empty directory/file structure for later work, and the
+matching docs/wiki orientation requested during review.
 
 This PR must not implement product logic, move existing files, import the
 scaffold into the running app, or change the current TorchViz-3D workspace UI.
@@ -30,6 +31,8 @@ stored approved plan, execute, record modifications, and update docs when needed
 - Learning Lab will be a separate full-screen view, not an overlay.
 - The current TorchViz-3D UI must remain unchanged in this scaffold PR.
 - The scaffold files are intentionally inert and are not imported by `App.tsx`.
+- The Codex init prompt is embedded in the wiki and derived from `CLAUDE.md`;
+  do not add a root `CODEX.md` file in this PR.
 - The first scaffold includes only:
   - `src/core/types.ts`
   - `src/core/answerCheck.ts`
@@ -37,6 +40,8 @@ stored approved plan, execute, record modifications, and update docs when needed
   - `src/store/uiStore.ts`
 - No tests are added in this PR.
 - No app routing, Zustand behavior, or exercise logic is implemented in this PR.
+- Docs/wiki updates may describe the scaffold, but must not imply the scaffold
+  is active runtime behavior.
 
 # Target Architecture
 
@@ -71,6 +76,7 @@ App
   `scaffold: add plan doc + empty directory structure for Learning Lab refactor`
 - Open a PR with:
   `Scaffold: Learning Lab refactor plan + directory structure`
+- Add docs/wiki orientation for the scaffold and Codex init prompt.
 
 ## Out of Scope
 
@@ -150,12 +156,13 @@ export const useUIStore = create(() => ({}));
 - `docs/plans/2026-06-21-learning-lab-refactor.md` exists and contains this
   full scaffold plan.
 - All scaffold files exist at the exact requested paths.
-- Existing tracked files are not modified.
+- Existing runtime/source files are not modified.
 - `App.tsx` is not changed.
 - Scaffold files are not imported by the app.
 - `npm run verify` passes.
 - Commit message matches the requested format.
 - PR description states: "No logic changes, no existing files modified."
+- Docs/wiki describe the scaffold and link the embedded Codex init prompt.
 
 # Execution Log
 
@@ -163,3 +170,10 @@ export const useUIStore = create(() => ({}));
 - 2026-06-21 - Added scaffold-only plan, core placeholders, page/component
   placeholders, and dummy UI store. Verified with `npm run verify`:
   typecheck passed, 51 tests passed, and production build passed.
+- 2026-06-21 - Review expanded scope to include docs/wiki in this PR. Added
+  README/architecture pointers, OKF concept page
+  `wiki/concepts/learning-lab-refactor.md`, wiki index links, wiki log entry,
+  and an embedded Codex init prompt derived from `CLAUDE.md`. No `CODEX.md` file
+  is added.
+- 2026-06-21 - Re-ran `npm run verify` after docs/wiki updates: typecheck
+  passed, 51 tests passed, and production build passed.

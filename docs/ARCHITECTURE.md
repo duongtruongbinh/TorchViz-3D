@@ -180,6 +180,32 @@ A single small zustand store holds: editor `code`, active template, `ir`, `colla
 
 ---
 
+## Planned Landing Page and Learning Lab scaffold
+
+The scaffold in
+[`docs/plans/2026-06-21-learning-lab-refactor.md`](plans/2026-06-21-learning-lab-refactor.md)
+adds inert placeholder files for future UI surfaces:
+
+- `src/components/AppShell.tsx`
+- `src/components/landing/*`
+- `src/components/learning/*`
+- `src/components/learning/shared/*`
+- `src/core/types.ts`
+- `src/core/answerCheck.ts`
+- `src/store/uiStore.ts`
+
+These files are intentionally not imported by the running app yet. Until a later
+approved implementation plan says otherwise, the current `App.tsx` workspace
+remains the entry point and the existing editor/canvas/inspector flow is
+unchanged.
+
+Codex agents should use the repo orientation in `CLAUDE.md` as the source for
+the initial system prompt, then read the OKF page
+[`wiki/concepts/learning-lab-refactor.md`](../wiki/concepts/learning-lab-refactor.md)
+for the scaffold map.
+
+---
+
 ## Fragile spots / gotchas
 
 - **`WRAPPER_LINE_OFFSET`** in `pyodideWorker.ts` is the line count of the wrapper preamble
