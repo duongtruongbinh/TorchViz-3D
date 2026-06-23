@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import type { LayoutData, LayoutNode, LayoutEdge } from './irTypes.ts';
 import { getRenderableNodeBox, getRenderableNodeSize } from './renderBounds.ts';
-import { collectDemoStops, buildDemoFlowEdges } from '../components/mnist-demo/demoStops.ts';
+import { collectDemoStops, buildDemoFlowEdges, buildVisibleDemoNodeIds } from '../components/mnist-demo/demoStops.ts';
 
 let counter = 0;
 function leaf(op_type: string, overrides: Partial<LayoutNode> = {}): LayoutNode {
@@ -108,6 +108,27 @@ test('expanded container output residual remaps to the last descendant stop', ()
     residual!.edge.points[2].y > getRenderableNodeBox(attn).maxY,
     'remapped residual should lift above intervening attention block',
   );
+});
+
+test('visible demo nodes include already revealed flow edge endpoints', () => {
+  const conv = leaf('Conv2d', { id: 'conv' });
+  const relu = leaf('ReLU', { id: 'relu' });
+  const add = leaf('Add', { id: 'add' });
+  const root = container('net', [conv, relu, add]);
+  const layout: LayoutData = {
+    nodes: [root],
+    edges: [
+      edge('conv', 'relu'),
+      edge('relu', 'add'),
+      edge('conv', 'add', 'residual'),
+    ],
+    bounds: { minX: 0, maxX: 1, minY: 0, maxY: 1, minZ: 0, maxZ: 1 },
+  };
+  const stops = collectDemoStops(layout);
+  const flows = buildDemoFlowEdges(stops, withVectors(layout.edges), layout.nodes);
+  const visibleAtAdd = buildVisibleDemoNodeIds(stops, flows, 2);
+
+  assert.deepEqual([...visibleAtAdd].sort(), ['add', 'conv', 'relu']);
 });
 
 test('collapsed residual block: draws an explicit bypass arc', () => {

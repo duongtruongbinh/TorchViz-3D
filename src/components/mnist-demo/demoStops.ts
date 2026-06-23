@@ -263,6 +263,26 @@ export function buildDemoFlowEdges(
   return result;
 }
 
+export function buildVisibleDemoNodeIds(
+  stops: DemoStop[],
+  flowEdges: DemoFlowEdge[],
+  activeStopIndex: number,
+): Set<string> {
+  const visible = new Set<string>();
+  if (activeStopIndex < 0) return visible;
+
+  const stopIds = new Set(stops.map((stop) => stop.node.id));
+  stops.slice(0, activeStopIndex + 1).forEach((stop) => visible.add(stop.node.id));
+
+  for (const flow of flowEdges) {
+    if (flow.revealIndex > activeStopIndex) continue;
+    if (stopIds.has(flow.edge.from)) visible.add(flow.edge.from);
+    if (stopIds.has(flow.edge.to)) visible.add(flow.edge.to);
+  }
+
+  return visible;
+}
+
 export function isForwardPassCompatible(stops: DemoStop[]): boolean {
   return getForwardPassCompatibility(stops).ok;
 }

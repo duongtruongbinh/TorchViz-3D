@@ -7,7 +7,7 @@ import { getForwardPassCompatibility } from '../../lib/mnistCompatibility';
 import { getExerciseById, getExercisesForNode } from '../exercises/exerciseRegistry';
 import type { ExerciseId } from '../exercises/types';
 import { getDemoInputPose, getSegmentState, type DemoStop } from '../operation-effects/effectMath';
-import { buildDemoFlowEdges } from './demoStops';
+import { buildDemoFlowEdges, buildVisibleDemoNodeIds } from './demoStops';
 import { DEMO_PLAY_SPEED } from './MnistFlowDemo';
 
 type UseMnistDemoStateArgs = {
@@ -55,12 +55,12 @@ export function useMnistDemoState({
     [segmentState.activeStop?.node, useOperationBlocks],
   );
 
-  const visibleNodeIds = useMemo(() => {
-    if (!useOperationBlocks || segmentState.activeStopIndex < 0) return new Set<string>();
-    return new Set(demoStops.slice(0, segmentState.activeStopIndex + 1).map((stop) => stop.node.id));
-  }, [demoStops, segmentState.activeStopIndex, useOperationBlocks]);
-
   const flowEdges = useMemo(() => buildDemoFlowEdges(demoStops, edges, layoutNodes), [demoStops, edges, layoutNodes]);
+
+  const visibleNodeIds = useMemo(() => {
+    if (!useOperationBlocks) return new Set<string>();
+    return buildVisibleDemoNodeIds(demoStops, flowEdges, segmentState.activeStopIndex);
+  }, [demoStops, flowEdges, segmentState.activeStopIndex, useOperationBlocks]);
 
   const visibleEdges = useMemo(() => {
     if (!useOperationBlocks || segmentState.activeStopIndex < 1) return [];
