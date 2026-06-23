@@ -5,7 +5,7 @@ import {
   DEMO_CLASS_SCORES,
   DEMO_LINEAR_INPUT_VECTOR,
   DEMO_RELU_INPUT_MATRIX,
-  DEMO_TARGET_DIGIT,
+  DEMO_TARGET_CLASS,
 } from './effectData';
 import {
   getActiveCellFromFlatIndex,
@@ -34,6 +34,7 @@ import {
   softmax,
 } from './shared';
 import type { OperationEffectProps } from './types';
+import { CIFAR_CLASS_NAMES } from '../mnist-demo/cifarSamples';
 
 export const ActivationEffect: React.FC<OperationEffectProps> = ({ node, segmentProgress, t }) => {
   const kind = getVisualKind(node.op_type);
@@ -224,10 +225,19 @@ export const NormEffect: React.FC<OperationEffectProps> = ({ node, segmentProgre
   );
 };
 
-export const LinearEffect: React.FC<OperationEffectProps> = ({ node, segmentProgress, t }) => {
-  const revealedUnits = Math.min(DEMO_CLASS_SCORES.length, Math.max(1, Math.ceil(segmentProgress * DEMO_CLASS_SCORES.length)));
-  const scanIndex = getActiveIndex(segmentProgress, DEMO_CLASS_SCORES.length);
-  const activeUnit = segmentProgress > 0.82 ? DEMO_TARGET_DIGIT : scanIndex;
+export const LinearEffect: React.FC<OperationEffectProps> = ({ node, segmentProgress, targetClass, t }) => {
+  const classCount = DEMO_CLASS_SCORES.length;
+  const winningClass = (((targetClass ?? DEMO_TARGET_CLASS) % classCount) + classCount) % classCount;
+  // Rotate the canned scores so their peak lands on the active sample's class,
+  // making the highlighted output prediction match the CIFAR-10 input image.
+  const classScores = useMemo(() => {
+    const shift = winningClass - DEMO_TARGET_CLASS;
+    return DEMO_CLASS_SCORES.map((_, i) => DEMO_CLASS_SCORES[(((i - shift) % classCount) + classCount) % classCount]);
+  }, [winningClass, classCount]);
+
+  const revealedUnits = Math.min(classCount, Math.max(1, Math.ceil(segmentProgress * classCount)));
+  const scanIndex = getActiveIndex(segmentProgress, classCount);
+  const activeUnit = segmentProgress > 0.82 ? winningClass : scanIndex;
   const activeInput = getActiveIndex((segmentProgress * 1.35) % 1, DEMO_LINEAR_INPUT_VECTOR.length);
   const vectorPos: [number, number, number] = [-1.65, 0, 0];
   const unitsPos: [number, number, number] = [2.35, 0, 0];
@@ -236,9 +246,9 @@ export const LinearEffect: React.FC<OperationEffectProps> = ({ node, segmentProg
   return (
     <OperationPanelFrame node={node} width={6.45} height={4.12} title={t.linearCaption}>
       <VectorStrip values={DEMO_LINEAR_INPUT_VECTOR} position={vectorPos} label={t.inputVector} cellWidth={0.30} cellHeight={0.14} activeIndex={activeInput} orientation="vertical" />
-      {DEMO_CLASS_SCORES.map((_, unitIndex) => {
+      {classScores.map((_, unitIndex) => {
         const visible = unitIndex < revealedUnits || unitIndex === activeUnit;
-        const unitCenter = getUnitCenter(unitsPos, DEMO_CLASS_SCORES.length, unitIndex);
+        const unitCenter = getUnitCenter(unitsPos, classCount, unitIndex);
         const lineSamples = unitIndex === activeUnit ? inputSamples : inputSamples.filter((_, index) => index % 2 === unitIndex % 2).slice(0, 2);
         return lineSamples.map((inputIndex) => {
           const inputCenter = getVectorCellCenter(vectorPos, DEMO_LINEAR_INPUT_VECTOR.length, 0.30, inputIndex, 0.12, 'vertical', 0.14);
@@ -254,7 +264,12 @@ export const LinearEffect: React.FC<OperationEffectProps> = ({ node, segmentProg
           );
         });
       })}
-      <UnitColumn values={DEMO_CLASS_SCORES} position={unitsPos} label={t.classScores} revealedUnits={revealedUnits} activeIndex={activeUnit} />
+      <UnitColumn values={classScores} position={unitsPos} label={t.classScores} revealedUnits={revealedUnits} activeIndex={activeUnit} />
+      {segmentProgress > 0.82 && (
+        <DemoText position={[unitsPos[0], -1.92, 0.12]} fontSize={0.22} color="#6ee7b7">
+          {`→ ${CIFAR_CLASS_NAMES[winningClass]}`}
+        </DemoText>
+      )}
     </OperationPanelFrame>
   );
 };

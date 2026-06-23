@@ -116,17 +116,17 @@ const localizedText = {
     rotate: { en: 'Rotate', vi: 'Xoay' },
     zoom: { en: 'Zoom', vi: 'Thu phóng' },
     demo: {
-      title: { en: 'MNIST flow demo', vi: 'Demo luồng MNIST' },
-      mode: { en: 'MNIST demo', vi: 'Demo MNIST' },
+      title: { en: 'Forward pass', vi: 'Lan truyền xuôi' },
+      mode: { en: 'Forward pass', vi: 'Lan truyền xuôi' },
       unavailable: {
-        en: 'MNIST demo requires input shape [N, 1, 32, 32] and a 10-class linear output head',
-        vi: 'Demo MNIST yêu cầu hình dạng đầu vào [N, 1, 32, 32] và lớp phân loại tuyến tính đầu ra 10 lớp',
+        en: 'Forward pass needs a visualized model with at least one layer',
+        vi: 'Lan truyền xuôi cần một mô hình đã trực quan hóa với ít nhất một lớp',
       },
       modeOn: { en: 'On', vi: 'Bật' },
       modeOff: { en: 'Off', vi: 'Tắt' },
-      input: { en: 'MNIST Input', vi: 'Input MNIST' },
-      play: { en: 'Play MNIST flow', vi: 'Phát luồng MNIST' },
-      pause: { en: 'Pause MNIST flow', vi: 'Tạm dừng luồng MNIST' },
+      input: { en: 'Input image', vi: 'Ảnh đầu vào' },
+      play: { en: 'Play forward pass', vi: 'Phát lan truyền xuôi' },
+      pause: { en: 'Pause forward pass', vi: 'Tạm dừng lan truyền xuôi' },
       previous: { en: 'Previous block', vi: 'Block trước' },
       next: { en: 'Next block', vi: 'Block kế tiếp' },
       scrub: { en: 'Move between blocks', vi: 'Di chuyển giữa các block' },
@@ -480,15 +480,15 @@ const localizedText = {
     codeBeforeModel: { en: 'Define a', vi: 'Định nghĩa biến' },
     codeAfterModel: { en: 'variable in the Python editor, then press', vi: 'trong trình soạn thảo Python, rồi bấm' },
     codeAfterVisualize: { en: 'to generate the graph.', vi: 'để tạo đồ thị.' },
-    mnistDemo: { en: 'MNIST Demo', vi: 'Demo MNIST' },
+    mnistDemo: { en: 'Forward Pass', vi: 'Lan truyền xuôi' },
     mnistItems: [
       {
-        en: 'Available for LeNet-style graphs with input [N, 1, 32, 32] and a 10-class Linear head.',
-        vi: 'Khả dụng với đồ thị kiểu LeNet có input [N, 1, 32, 32] và Linear head 10 lớp.',
+        en: 'Available for any visualized model — flows a sample image through every layer.',
+        vi: 'Khả dụng cho mọi mô hình đã trực quan hóa — đưa ảnh mẫu đi qua từng lớp.',
       },
       {
-        en: 'Turn on MNIST demo, then press Play to watch the digit input move through blocks.',
-        vi: 'Bật Demo MNIST, rồi bấm Play để xem input chữ số đi qua các block.',
+        en: 'Turn on Forward pass, then press Play to watch the input image move through blocks.',
+        vi: 'Bật Lan truyền xuôi, rồi bấm Play để xem ảnh đầu vào đi qua các block.',
       },
       {
         en: 'Use step, speed, and exercises to inspect each operation.',
@@ -602,24 +602,24 @@ const localizedText = {
         },
       },
       {
-        title: { en: 'Demo MNIST', vi: 'Demo MNIST' },
+        title: { en: 'Forward pass', vi: 'Lan truyền xuôi' },
         body: {
-          en: 'Turn on MNIST demo mode to show the sample digit input and the flow controls for this LeNet graph.',
-          vi: 'Bật chế độ Demo MNIST để hiện input chữ số mẫu và bộ điều khiển luồng cho đồ thị LeNet này.',
+          en: 'Turn on Forward pass mode to show the sample image input and the flow controls for this graph.',
+          vi: 'Bật chế độ Lan truyền xuôi để hiện ảnh đầu vào mẫu và bộ điều khiển luồng cho đồ thị này.',
         },
       },
       {
         title: { en: 'Press Play', vi: 'Bấm Play' },
         body: {
-          en: 'Click Play to start the MNIST flow. The tour continues only after you start the demo.',
-          vi: 'Bấm Play để chạy luồng MNIST. Tour chỉ đi tiếp sau khi bạn thật sự khởi động demo.',
+          en: 'Click Play to start the forward pass. The tour continues only after you start the demo.',
+          vi: 'Bấm Play để chạy lan truyền xuôi. Tour chỉ đi tiếp sau khi bạn thật sự khởi động demo.',
         },
       },
       {
         title: { en: 'Follow the input', vi: 'Theo dõi input' },
         body: {
-          en: 'Watch the digit input move from block to block. Each active block shows how that operation transforms the data.',
-          vi: 'Quan sát input chữ số đi qua từng block. Mỗi block đang hoạt động sẽ minh họa phép toán biến đổi dữ liệu như thế nào.',
+          en: 'Watch the input image move from block to block. Each active block shows how that operation transforms the data.',
+          vi: 'Quan sát ảnh đầu vào đi qua từng block. Mỗi block đang hoạt động sẽ minh họa phép toán biến đổi dữ liệu như thế nào.',
         },
       },
       {

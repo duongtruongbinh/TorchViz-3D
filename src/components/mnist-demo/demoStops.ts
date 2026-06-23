@@ -1,6 +1,6 @@
 import type { LayoutData, LayoutNode } from '../../lib/irTypes';
 import { getVisualMeta } from '../../lib/visualKind';
-import { getMnistDemoCompatibility, type MnistDemoCompatibility } from '../../lib/mnistCompatibility';
+import { getForwardPassCompatibility, type ForwardPassCompatibility } from '../../lib/mnistCompatibility';
 import { getNodeDemoPose, type DemoStop } from '../operation-effects/effectMath';
 
 export function collectDemoStopNodes(nodes: LayoutNode[], isTopLevel = true, out: LayoutNode[] = []): LayoutNode[] {
@@ -66,26 +66,26 @@ export function collectDemoStops(layout: LayoutData): DemoStop[] {
     }));
 }
 
-export function isMnistDemoCompatible(stops: DemoStop[]): boolean {
-  return getMnistDemoCompatibility(stops).ok;
+export function isForwardPassCompatible(stops: DemoStop[]): boolean {
+  return getForwardPassCompatibility(stops).ok;
 }
 
-export function getMnistDemoStopsCompatibility(
+export function getForwardPassStopsCompatibility(
   stops: DemoStop[] | null,
   loading = false,
-): MnistDemoCompatibility {
-  return getMnistDemoCompatibility(stops, { loading });
+): ForwardPassCompatibility {
+  return getForwardPassCompatibility(stops, { loading });
 }
 
-export function isMnistDemoLayoutCompatible(layout: LayoutData | null): boolean {
-  return !!layout && isMnistDemoCompatible(collectDemoStops(layout));
+export function isForwardPassLayoutCompatible(layout: LayoutData | null): boolean {
+  return !!layout && isForwardPassCompatible(collectDemoStops(layout));
 }
 
-export function getMnistDemoLayoutCompatibility(
+export function getForwardPassLayoutCompatibility(
   layout: LayoutData | null,
   loading = false,
-): MnistDemoCompatibility {
+): ForwardPassCompatibility {
   if (loading) return { ok: false, reason: 'loading' };
   if (!layout) return { ok: false, reason: 'no-layout' };
-  return getMnistDemoCompatibility(collectDemoStops(layout));
+  return getForwardPassCompatibility(collectDemoStops(layout));
 }

@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { LayoutNode } from './irTypes.ts';
 import {
-  getMnistDemoCompatibility,
-  type MnistDemoCompatibility,
+  getForwardPassCompatibility,
+  type ForwardPassCompatibility,
 } from './mnistCompatibility.ts';
 import type { DemoStop } from '../components/operation-effects/effectMath.ts';
 
@@ -38,43 +38,57 @@ function stop(overrides: Partial<LayoutNode> = {}): DemoStop {
   };
 }
 
-function reason(result: MnistDemoCompatibility): string | undefined {
+function reason(result: ForwardPassCompatibility): string | undefined {
   if (result.ok === false) {
     return result.reason;
   }
   return undefined;
 }
 
-test('reports no-layout compatibility reason before layout exists', () => {
-  assert.deepEqual(getMnistDemoCompatibility(null), {
+test('reports no-layout before any stops exist', () => {
+  assert.deepEqual(getForwardPassCompatibility(null), {
+    ok: false,
+    reason: 'no-layout',
+  });
+  assert.deepEqual(getForwardPassCompatibility([]), {
     ok: false,
     reason: 'no-layout',
   });
 });
 
-test('reports incompatible input shape separately from missing head', () => {
-  const result = getMnistDemoCompatibility([
+test('reports loading reason while the graph is computing', () => {
+  assert.deepEqual(getForwardPassCompatibility([stop()], { loading: true }), {
+    ok: false,
+    reason: 'loading',
+  });
+});
+
+test('reports no-stops when no leaf carries an input shape', () => {
+  const result = getForwardPassCompatibility([
+    stop({ is_container: true, in_shape: [] }),
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(reason(result), 'no-stops');
+});
+
+test('accepts MNIST/LeNet-style graph (1-channel, 10-class head)', () => {
+  assert.deepEqual(getForwardPassCompatibility([
+    stop(),
+    stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 10] }),
+  ]), { ok: true });
+});
+
+test('accepts 3-channel CIFAR-style input regardless of head size', () => {
+  // ResNet / ViT use [1,3,32,32]; AlexNet/VGG/MobileNet use 1000-class heads.
+  assert.deepEqual(getForwardPassCompatibility([
     stop({ in_shape: [1, 3, 32, 32] }),
-    stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 10] }),
-  ]);
-
-  assert.equal(result.ok, false);
-  assert.equal(reason(result), 'input-shape');
+    stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 1000] }),
+  ]), { ok: true });
 });
 
-test('reports missing 10-class Linear head after input shape is valid', () => {
-  const result = getMnistDemoCompatibility([
-    stop(),
-    stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 8] }),
-  ]);
-
-  assert.equal(result.ok, false);
-  assert.equal(reason(result), 'missing-head');
-});
-
-test('accepts MNIST input with a 10-class Linear head', () => {
-  assert.deepEqual(getMnistDemoCompatibility([
-    stop(),
-    stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 10] }),
+test('accepts a segmentation graph with no Linear head (UNet)', () => {
+  assert.deepEqual(getForwardPassCompatibility([
+    stop({ in_shape: [1, 3, 128, 128] }),
+    stop({ id: 'out', op_type: 'Conv2d', out_shape: [1, 2, 128, 128] }),
   ]), { ok: true });
 });

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { getPlaybackProgress, shouldSyncAnimationState } from '../../lib/mnistAnimation';
 import type { LayoutEdgeWithVectors } from '../../lib/canvasUtils';
-import { getMnistDemoCompatibility } from '../../lib/mnistCompatibility';
+import { getForwardPassCompatibility } from '../../lib/mnistCompatibility';
 import { getExerciseById, getExercisesForNode } from '../exercises/exerciseRegistry';
 import type { ExerciseId } from '../exercises/types';
 import { getDemoInputPose, getSegmentState, type DemoStop } from '../operation-effects/effectMath';
@@ -35,7 +35,7 @@ export function useMnistDemoState({
   const lastSyncRef = useRef(0);
 
   const compatibility = useMemo(
-    () => getMnistDemoCompatibility(demoStops, { loading }),
+    () => getForwardPassCompatibility(demoStops, { loading }),
     [demoStops, loading],
   );
   const maxProgress = demoStops.length;

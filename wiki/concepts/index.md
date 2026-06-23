@@ -23,6 +23,10 @@ source file. Read them in roughly pipeline order:
    `src/components/canvas/Canvas3D.tsx`, `src/lib/visualKind.ts`, `src/lib/constants.ts`.
 7. [learning-lab-refactor](../concepts/learning-lab-refactor.md) — the
    Landing/AppShell MVP and Learning Lab refactor map. `src/components/landing/*`,
-   `src/components/learning/*`, `src/core/*`, `src/store/uiStore.ts`.
+   `src/components/Canvas3D.tsx`, `src/lib/visualKind.ts`, `src/lib/constants.ts`.
+8. [forward-pass](../concepts/forward-pass.md) — the animated forward pass:
+   ordered stops, CIFAR-10 input packet, per-op effects, and the generalized
+   availability gate. `src/components/mnist-demo/*`, `src/components/operation-effects/*`,
+   `src/lib/mnistCompatibility.ts`.
 
 See also the [architecture overview](../architecture.md) for how they connect.
