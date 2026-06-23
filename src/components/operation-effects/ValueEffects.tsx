@@ -264,12 +264,14 @@ export const LinearEffect: React.FC<OperationEffectProps> = ({ node, segmentProg
           );
         });
       })}
-      <UnitColumn values={classScores} position={unitsPos} label={t.classScores} revealedUnits={revealedUnits} activeIndex={activeUnit} />
-      {segmentProgress > 0.82 && (
-        <DemoText position={[unitsPos[0], -1.92, 0.12]} fontSize={0.22} color="#6ee7b7">
-          {`→ ${CIFAR_CLASS_NAMES[winningClass]}`}
-        </DemoText>
-      )}
+      <UnitColumn
+        values={classScores}
+        position={unitsPos}
+        label={t.classScores}
+        revealedUnits={revealedUnits}
+        activeIndex={activeUnit}
+        activeLabel={segmentProgress > 0.82 ? CIFAR_CLASS_NAMES[winningClass] : undefined}
+      />
     </OperationPanelFrame>
   );
 };

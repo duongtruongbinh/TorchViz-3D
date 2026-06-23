@@ -381,7 +381,8 @@ export const UnitColumn: React.FC<{
   label: string;
   revealedUnits?: number;
   activeIndex?: number;
-}> = ({ values, position, label, revealedUnits = values.length, activeIndex }) => {
+  activeLabel?: string;
+}> = ({ values, position, label, revealedUnits = values.length, activeIndex, activeLabel }) => {
   const spacing = 0.33;
   const startY = ((values.length - 1) * spacing) / 2;
 
@@ -412,6 +413,20 @@ export const UnitColumn: React.FC<{
             >
               {index}
             </Text>
+            {active && activeLabel && (
+              <Text
+                {...textBaseProps}
+                fontSize={0.18}
+                color="#6ee7b7"
+                outlineWidth={0.014}
+                maxWidth={1.15}
+                anchorX="left"
+                position={[0.22, 0, 0.04]}
+                renderOrder={2303}
+              >
+                {activeLabel}
+              </Text>
+            )}
           </group>
         );
       })}
