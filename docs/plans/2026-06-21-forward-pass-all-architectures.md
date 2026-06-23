@@ -190,3 +190,33 @@ Write this file. (Done by creating it.) **Checkpoint: get approval before Phase 
   canned scores so the peak/highlight lands on the input's class and prints the
   predicted class name (`→ ship`). Falls back to `DEMO_TARGET_CLASS` when no
   sample. `npm test` 57/57 green; `npm run build` clean.
+- 2026-06-21 — **Bugfix (block connections not showing).** Layout edges are
+  remapped through collapsed containers and only exist where the IR traced
+  them, so nested (Sequential) models' consecutive demo stops had no matching
+  edge → the old `visibleEdges` filter (both endpoints in the revealed set)
+  produced nothing, and the data packet had no route. Added
+  `buildDemoFlowEdges(stops, layoutEdges)` in `demoStops.ts`: one edge per
+  consecutive stop pair, reusing a real edge when its exact `(from,to)` exists,
+  else synthesizing a 4-point bézier between the blocks' faces (with
+  `vectorPoints`). `useMnistDemoState` now derives `visibleEdges` from this flow
+  path (`flowEdges.slice(0, activeStopIndex)`), which also feeds the packet
+  route. Connections + packet now render for every architecture. `npm test`
+  57/57 green; `npm run build` clean.
+- 2026-06-21 — **Follow-up (skip/residual branches).** `buildDemoFlowEdges` now
+  returns `DemoFlowEdge[]` (`{ edge, revealIndex }`) and, after the linear main
+  chain, adds every remaining real layout edge whose endpoints are both stops —
+  the residual/skip (ResNet `Add`) and concat (UNet) branches — revealed once
+  their later endpoint is reached. `useMnistDemoState` filters by `revealIndex`.
+  These render with their real `kind` (residual = dashed arc); the packet still
+  follows the main chain. `npm test` 57/57 green; `npm run build` clean.
+- 2026-06-21 — **Follow-up (collapsed residual blocks: ViT/UNet/MobileNet).**
+  Root cause: when a residual sub-block (MobileNet `InvertedResidual`, collapsed
+  transformer block) is collapsed to one box, its internal `Add` is dropped by
+  the collapse remap (self-referential), so the skip was invisible. Added a
+  bypass pass to `buildDemoFlowEdges`: any collapsed container whose subtree
+  contains an `Add` gets an explicit residual bézier arc drawn over the block.
+  Verified the edge-building (expanded skip included, collapsed bypass drawn,
+  no false positives) with a new `src/lib/demoFlowEdges.test.ts` (4 tests). To
+  make it run under `node --test` (the suite globs `src/lib/*.test.ts`), added
+  `.ts` extensions to `demoStops.ts`'s value imports, matching the rest of the
+  testable chain. `npm test` 61/61 green; `npm run build` clean.

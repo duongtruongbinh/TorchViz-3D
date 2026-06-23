@@ -113,6 +113,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     shapeInput,
     demoStops,
     edges: memoizedEdges,
+    layoutNodes: layout?.nodes ?? [],
   });
   const effectiveHighlightNodeId = demo.activeNodeId ?? highlightNodeId;
 
