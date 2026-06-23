@@ -2,7 +2,7 @@
 title: Fix forward-pass residual edge visibility
 status: done
 created: 2026-06-23T21:36:37+07:00
-updated: 2026-06-23T22:23:00+07:00
+updated: 2026-06-23T22:38:00+07:00
 author: Codex
 task: "Fix missing residual/skip edges in forward-pass mode, especially Mini-ViT."
 supersedes:
@@ -107,3 +107,13 @@ Write this plan as the first allowed file modification.
   standard layout residual clearance rule. Strengthened the regression to assert
   the branch clears the intervening attention block. `npm.cmd test` passes
   (60/60); `npm.cmd run build` passes with the existing Vite chunk size warning.
+- 2026-06-23 - Reopened for packet behavior: the Forward pass packet should
+  duplicate onto residual branches and meet the main packet at `Add`, not only
+  draw the residual line.
+- 2026-06-23 - Added plural packet routing in
+  `src/components/operation-effects/effectMath.ts`: the main route remains
+  unchanged, and when `Add` is active, residual edges ending at that `Add` spawn
+  secondary packet routes from their skip sources. `DataFlowDemo` now renders
+  all packet routes, tinting residual duplicates warm red. Added a regression in
+  `src/lib/mnistDemoLayout.test.ts`. `npm.cmd test` passes (61/61);
+  `npm.cmd run build` passes with the existing Vite chunk size warning.

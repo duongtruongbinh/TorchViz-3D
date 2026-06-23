@@ -13,7 +13,7 @@ import {
 } from './cifarSamples';
 import type { DemoStop } from '../operation-effects/effectMath';
 import {
-  getDataPacketRoute,
+  getDataPacketRoutes,
   getSegmentState,
   type DataPacketRoute,
   type DemoPose,
@@ -154,10 +154,16 @@ const DemoInputTile: React.FC<{
 const DataPacket: React.FC<{
   route: DataPacketRoute;
 }> = React.memo(({ route }) => {
+  const isResidual = route.kind === 'residual';
   return (
     <mesh position={route.position} renderOrder={RENDER_ORDER_DATA_PACKET}>
       <sphereGeometry args={[0.18 + route.pulse * 0.05, 16, 16]} />
-      <meshBasicMaterial color="#bae6fd" transparent opacity={0.7 + route.pulse * 0.2} toneMapped={false} />
+      <meshBasicMaterial
+        color={isResidual ? '#fecaca' : '#bae6fd'}
+        transparent
+        opacity={0.7 + route.pulse * 0.2}
+        toneMapped={false}
+      />
     </mesh>
   );
 });
@@ -191,7 +197,7 @@ export const DataFlowDemo: React.FC<{
 
   const segment = getSegmentState(stops, progress, inputPose.position);
   const operationActive = !!segment.activeStop && hasOperationDemo(segment.activeStop.node.op_type);
-  const packetRoute = getDataPacketRoute(stops, segment, edges);
+  const packetRoutes = getDataPacketRoutes(stops, segment, edges);
   const easedOperationProgress = getEasedSegmentProgress(segment.segmentProgress);
   const virtualInputRoutePoints = useMemo(
     () => [inputPose.position, stops[0].position],
@@ -209,7 +215,9 @@ export const DataFlowDemo: React.FC<{
         label={t.input}
       />
       <VirtualInputRoute points={virtualInputRoutePoints} />
-      {packetRoute && <DataPacket route={packetRoute} />}
+      {packetRoutes.map((route, index) => (
+        <DataPacket key={`${route.kind}-${index}`} route={route} />
+      ))}
       {segment.activeStop && operationActive && (
         <OperationDemo
           node={segment.activeStop.node}

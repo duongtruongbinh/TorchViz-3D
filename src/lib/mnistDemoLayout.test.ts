@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {
   getDataPacketRoute,
+  getDataPacketRoutes,
   getMatrixCenter,
   getPanelPosition,
   getDemoInputPose,
@@ -50,9 +51,9 @@ test('keeps early operation panels clear of compact controls', () => {
   assert.ok(position.x - active.x >= 22);
 });
 
-function stop(id: string, position: THREE.Vector3): DemoStop {
+function stop(id: string, position: THREE.Vector3, op_type = 'ReLU'): DemoStop {
   return {
-    node: node({ id, name: id }),
+    node: node({ id, name: id, op_type }),
     label: id,
     position,
   };
@@ -89,6 +90,10 @@ function edge(from: string, to: string, points: LayoutEdge['points']): LayoutEdg
   return { from, to, kind: 'main', points };
 }
 
+function residualEdge(from: string, to: string, points: LayoutEdge['points']): LayoutEdge {
+  return { from, to, kind: 'residual', points };
+}
+
 test('routes later data packets on the matching visual edge path', () => {
   const firstPosition = new THREE.Vector3(10, 0, 3);
   const secondPosition = new THREE.Vector3(22, 4, 4);
@@ -118,6 +123,43 @@ test('routes later data packets on the matching visual edge path', () => {
   assert.equal(Number(route.position.z.toFixed(3)), 3.5);
   assert.deepEqual(first.position.toArray(), firstPosition.toArray());
   assert.deepEqual(second.position.toArray(), secondPosition.toArray());
+});
+
+test('duplicates the data packet onto residual branches when Add is active', () => {
+  const skip = stop('permute', new THREE.Vector3(10, 0, 3), 'Permute');
+  const norm = stop('norm', new THREE.Vector3(18, 0, 3), 'LayerNorm');
+  const attn = stop('attn', new THREE.Vector3(26, 0, 3), 'MultiHeadAttn');
+  const add = stop('add', new THREE.Vector3(34, 0, 3), 'Add');
+  const routes = getDataPacketRoutes([skip, norm, attn, add], segment({
+    activeStopIndex: 3,
+    activeStop: add,
+    segmentProgress: 0.5,
+  }), [
+    edge('permute', 'norm', [{ x: 10, y: 0, z: 3 }, { x: 18, y: 0, z: 3 }]),
+    edge('norm', 'attn', [{ x: 18, y: 0, z: 3 }, { x: 26, y: 0, z: 3 }]),
+    residualEdge('attn', 'add', [{ x: 26, y: 0, z: 3 }, { x: 34, y: 0, z: 3 }]),
+    residualEdge('permute', 'add', [
+      { x: 10, y: 0, z: 3 },
+      { x: 12, y: 0, z: 3 },
+      { x: 12, y: 6, z: 3 },
+      { x: 32, y: 6, z: 3 },
+      { x: 32, y: 0, z: 3 },
+      { x: 34, y: 0, z: 3 },
+    ]),
+  ]);
+
+  assert.equal(routes.length, 2);
+  assert.equal(routes[0].kind, 'main');
+  assert.equal(routes[1].kind, 'residual');
+  assert.deepEqual(routes[1].points.map((point) => point.toArray()), [
+    [10, 0, 3],
+    [12, 0, 3],
+    [12, 6, 3],
+    [32, 6, 3],
+    [32, 0, 3],
+    [34, 0, 3],
+  ]);
+  assert.equal(routes[1].position.y, 6);
 });
 
 test('getDemoInputPose positions input tile correctly in world space', () => {
