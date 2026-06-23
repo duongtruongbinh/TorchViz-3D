@@ -118,3 +118,52 @@ export const AddConcatEffect: React.FC<OperationEffectProps> = ({ node, segmentP
     </OperationPanelFrame>
   );
 };
+
+function upsampleNearest(matrix: number[][], scale = 2): number[][] {
+  return matrix.flatMap((row) => (
+    Array.from({ length: scale }, () => row.flatMap((value) => Array.from({ length: scale }, () => value)))
+  ));
+}
+
+export const UpsampleEffect: React.FC<OperationEffectProps> = ({ node, segmentProgress, t }) => {
+  const inputMatrix = [
+    [0.18, 0.56, 0.34],
+    [0.78, 0.42, 0.64],
+    [0.26, 0.70, 0.90],
+  ];
+  const outputMatrix = useMemo(() => upsampleNearest(inputMatrix), []);
+  const inputRows = inputMatrix.length;
+  const inputCols = inputMatrix[0].length;
+  const outputRows = outputMatrix.length;
+  const outputCols = outputMatrix[0].length;
+  const totalOutputCells = outputRows * outputCols;
+  const activeOutputIndex = getActiveIndex(segmentProgress, totalOutputCells);
+  const activeOutputCell = getActiveCellFromFlatIndex(activeOutputIndex, outputCols);
+  const activeInputCell = {
+    row: Math.floor(activeOutputCell.row / 2),
+    col: Math.floor(activeOutputCell.col / 2),
+  };
+  const source = getGridCellCenter([-2.35, -0.04, 0], 1.38, inputRows, inputCols, activeInputCell.row, activeInputCell.col);
+  const target = getGridCellCenter([2.20, -0.04, 0], 1.92, outputRows, outputCols, activeOutputCell.row, activeOutputCell.col);
+  const formula = node.in_shape?.length && node.out_shape?.length
+    ? t.upsampleFormula(shapeLabel(node.in_shape), shapeLabel(node.out_shape))
+    : t.upsampleFormula('H x W', '2H x 2W');
+
+  return (
+    <OperationPanelFrame node={node} width={6.85} height={3.18} title={t.upsampleCaption}>
+      <FeatureMapGrid matrix={inputMatrix} size={1.38} position={[-2.35, -0.04, 0]} label={shapeLabel(node.in_shape)} activeCell={activeInputCell} />
+      <DemoText position={[0, 0.36, 0.06]} fontSize={0.18} color="#fde68a">{formula}</DemoText>
+      <DemoText position={[0, 0.04, 0.06]} fontSize={0.16} color="#99f6e4">{t.upsampleCopyRule}</DemoText>
+      <FeatureMapGrid
+        matrix={outputMatrix}
+        size={1.92}
+        position={[2.20, -0.04, 0]}
+        label={t.upsampledOutput}
+        activeCell={activeOutputCell}
+        revealedCells={getRevealCount(segmentProgress, totalOutputCells)}
+        dimUnrevealed
+      />
+      <DemoArrow points={[source, new THREE.Vector3(0, 0.18, 0.12), target]} color="#2dd4bf" />
+    </OperationPanelFrame>
+  );
+};

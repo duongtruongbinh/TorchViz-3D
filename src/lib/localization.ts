@@ -213,10 +213,15 @@ const localizedText = {
       probabilities: { en: 'probabilities sum to 1', vi: 'xác suất có tổng bằng 1' },
       averagedOutput: { en: 'averaged output', vi: 'đầu ra trung bình' },
       fixedOutput: { en: 'fixed output', vi: 'đầu ra cố định' },
+      upsampledOutput: { en: 'upsampled output', vi: 'đầu ra phóng to' },
       meanWindow: { en: 'mean(window)', vi: 'trung bình(cửa sổ)' },
       targetShape: {
         en: (shape: string) => `target ${shape}`,
         vi: (shape: string) => `đích ${shape}`,
+      },
+      upsampleFormula: {
+        en: (input: string, output: string) => `${input} -> ${output}`,
+        vi: (input: string, output: string) => `${input} -> ${output}`,
       },
       concatAxisAdd: { en: 'dim +', vi: 'trục +' },
       perChannelStats: { en: 'per channel stats', vi: 'thống kê theo kênh' },
@@ -227,6 +232,10 @@ const localizedText = {
       adaptiveAvgPoolCaption: {
         en: 'AdaptiveAvgPool: resize regions to target grid',
         vi: 'AdaptiveAvgPool: co vùng về lưới đích',
+      },
+      upsampleCaption: {
+        en: 'Upsample: expand spatial cells',
+        vi: 'Upsample: phóng to các ô không gian',
       },
       reluCaption: { en: 'ReLU: clamp negatives to zero', vi: 'ReLU: chặn giá trị âm về 0' },
       sigmoidCaption: { en: 'Sigmoid: squeeze to 0..1', vi: 'Sigmoid: nén về 0..1' },
@@ -247,6 +256,7 @@ const localizedText = {
       orderPreserved: { en: 'order preserved', vi: 'giữ nguyên thứ tự' },
       axisOrderChanges: { en: 'values stay, axis order changes', vi: 'giữ giá trị, đổi thứ tự trục' },
       dropoutFormula: { en: 'mask · x / keep', vi: 'mask · x / keep' },
+      upsampleCopyRule: { en: 'nearest: each input cell copies into a 2x2 block', vi: 'nearest: mỗi ô input sao chép thành block 2x2' },
     },
   },
   layerInsight: {
