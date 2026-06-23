@@ -2,7 +2,7 @@
 title: Fix forward-pass residual edge visibility
 status: done
 created: 2026-06-23T21:36:37+07:00
-updated: 2026-06-23T22:38:00+07:00
+updated: 2026-06-23T22:53:00+07:00
 author: Codex
 task: "Fix missing residual/skip edges in forward-pass mode, especially Mini-ViT."
 supersedes:
@@ -117,3 +117,14 @@ Write this plan as the first allowed file modification.
   all packet routes, tinting residual duplicates warm red. Added a regression in
   `src/lib/mnistDemoLayout.test.ts`. `npm.cmd test` passes (61/61);
   `npm.cmd run build` passes with the existing Vite chunk size warning.
+- 2026-06-23 - Reopened for packet direction: the main packet into `Add` should
+  use the forward chain path, not the residual arc that `torchstub` assigns to
+  all `Add` inputs.
+- 2026-06-23 - Fixed packet direction by changing the demo main-chain edge
+  builder to reuse exact layout edges only when they are `kind: "main"`;
+  residual/concat exact matches on the immediate previous stop now get a
+  synthesized forward-chain edge. The non-previous residual edge remains the
+  duplicate skip branch. Strengthened `src/lib/demoFlowEdges.test.ts` to assert
+  `MultiHeadAttn -> Add` is a main edge while `Permute -> Add` stays residual.
+  `npm.cmd test` passes (61/61); `npm.cmd run build` passes with the existing
+  Vite chunk size warning.

@@ -230,7 +230,7 @@ export function buildDemoFlowEdges(
   for (let i = 1; i < stops.length; i++) {
     const from = stops[i - 1].node;
     const to = stops[i].node;
-    const real = layoutEdges.find((edge) => edge.from === from.id && edge.to === to.id);
+    const real = layoutEdges.find((edge) => edge.from === from.id && edge.to === to.id && edge.kind === 'main');
     result.push({ edge: real ?? synthesizeFlowEdge(from, to), revealIndex: i });
     used.add(`${from.id}->${to.id}`);
   }

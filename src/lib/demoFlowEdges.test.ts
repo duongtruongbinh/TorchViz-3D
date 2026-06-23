@@ -93,7 +93,11 @@ test('expanded container output residual remaps to the last descendant stop', ()
   };
   const stops = collectDemoStops(layout);
   const flows = buildDemoFlowEdges(stops, withVectors(layout.edges), layout.nodes);
+  const mainIntoAdd = flows.find((f) => f.edge.from === 'attn' && f.edge.to === 'add1');
   const residual = flows.find((f) => f.edge.from === 'patch_permute' && f.edge.to === 'add1');
+  assert.ok(mainIntoAdd, 'expected the immediate previous stop to keep a main-chain edge into Add');
+  assert.equal(mainIntoAdd!.edge.kind, 'main');
+  assert.equal(mainIntoAdd!.edge.points.length, 4);
   assert.ok(residual, 'expected patch_embed -> add1 to render from visible patch_permute -> add1');
   assert.equal(residual!.edge.kind, 'residual');
   assert.equal(residual!.edge.points[0].x, permute.x + getRenderableNodeSize(permute).width / 2);
