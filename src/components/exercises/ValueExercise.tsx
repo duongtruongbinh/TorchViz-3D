@@ -16,8 +16,9 @@ export const ValueExercise: React.FC<{
   fallbackModal?: boolean;
   t: ReturnType<typeof getStrings>['canvas']['demo'];
   language: 'en' | 'vi';
+  theme?: 'dark' | 'light';
   onClose: () => void;
-}> = ({ isOpen, exerciseId, node, t, language, onClose }) => {
+}> = ({ isOpen, exerciseId, node, t, language, theme = 'dark', onClose }) => {
   const titleId = useId();
   const model = useMemo(() => (
     exerciseId && node ? buildValueExerciseModel(exerciseId, node, language) : null
@@ -115,7 +116,7 @@ export const ValueExercise: React.FC<{
   if (!isOpen || typeof document === 'undefined') return null;
 
   return createPortal((
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto">
+    <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto ${theme === 'light' ? 'learning-lab-light learning-exercise-modal-root' : ''}`}>
       <div
         className="flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl"
         role="dialog"

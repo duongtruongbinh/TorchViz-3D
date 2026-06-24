@@ -1,7 +1,8 @@
 import { useState, type ReactElement } from 'react';
 import LandingPage from './landing/LandingPage';
+import LearningLabView from './learning/LearningLabView';
 
-type AppView = 'landing' | 'workspace';
+type AppView = 'landing' | 'workspace' | 'learning';
 
 type AppShellProps = {
   renderWorkspace: (props: { onBackToLanding: () => void }) => ReactElement;
@@ -14,5 +15,14 @@ export default function AppShell({ renderWorkspace }: AppShellProps) {
     return renderWorkspace({ onBackToLanding: () => setView('landing') });
   }
 
-  return <LandingPage onOpenWorkspace={() => setView('workspace')} />;
+  if (view === 'learning') {
+    return <LearningLabView onBackToLanding={() => setView('landing')} />;
+  }
+
+  return (
+    <LandingPage
+      onOpenWorkspace={() => setView('workspace')}
+      onOpenLearningLab={() => setView('learning')}
+    />
+  );
 }
