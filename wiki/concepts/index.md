@@ -1,7 +1,7 @@
 ---
 title: Concepts
 type: Index
-updated: 2026-06-21
+updated: 2026-06-24
 ---
 
 # Concepts
@@ -22,8 +22,8 @@ source file. Read them in roughly pipeline order:
 6. [rendering](../concepts/rendering.md) — Canvas3D, the visual taxonomy, theme.
    `src/components/canvas/Canvas3D.tsx`, `src/lib/visualKind.ts`, `src/lib/constants.ts`.
 7. [learning-lab-refactor](../concepts/learning-lab-refactor.md) — the
-   Landing/AppShell MVP and Learning Lab refactor map. `src/components/landing/*`,
-   `src/components/Canvas3D.tsx`, `src/lib/visualKind.ts`, `src/lib/constants.ts`.
+   Landing/AppShell entry point plus active Learning Lab Path/Review surface.
+   `src/components/landing/*`, `src/components/learning/*`, `src/core/learningContent.ts`.
 8. [forward-pass](../concepts/forward-pass.md) — the animated forward pass:
    ordered stops, CIFAR-10 input packet, per-op effects, and the generalized
    availability gate. `src/components/mnist-demo/*`, `src/components/operation-effects/*`,

@@ -35,3 +35,11 @@ no `type` frontmatter required.)
   Landing iteration plan pages into one Landing UI iteration page and clarified
   that small follow-up docs should update existing pages instead of creating
   new pages.
+- **2026-06-24 — Learning Path activation.** Activated Learning Lab as a
+  separate Path/Review surface from Landing and documented the first-pass
+  exercise separation: Learning Lab references existing exercise IDs/concepts
+  while the Workspace/Demo exercise flow remains unchanged.
+- **2026-06-24 — Learning Lab embedded practice.** Updated Learning Lab from
+  reference-only cards to inline exercises with answer checking, reset, and
+  hints. Practice cards reuse existing shape/value model builders through a
+  shared exercise adapter, keeping Learning Path content metadata-only.

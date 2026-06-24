@@ -49,6 +49,318 @@ const localizedText = {
     landing: { en: 'Landing', vi: 'Trang chính' },
     backToLanding: { en: 'Back to Landing', vi: 'Quay lại trang chính' },
   },
+  landingPage: {
+    language: { en: 'Language', vi: 'Ngôn ngữ' },
+    eyebrow: {
+      en: 'Browser-native neural network diagrams',
+      vi: 'Sơ đồ mạng neural chạy trực tiếp trong trình duyệt',
+    },
+    title: { en: 'TorchViz 3D', vi: 'TorchViz 3D' },
+    subtitle: { en: 'From interaction to understanding', vi: 'Từ tương tác đến thấu hiểu' },
+    description: {
+      en: 'Explore model architecture visually, trace tensor shapes locally, and build intuition for how each layer transforms data.',
+      vi: 'Khám phá kiến trúc mô hình bằng trực quan, truy vết tensor shape cục bộ, và xây dựng trực giác về cách từng layer biến đổi dữ liệu.',
+    },
+    workspaceTitle: { en: 'TorchViz-3D Workspace', vi: 'Không gian TorchViz-3D' },
+    workspaceDescription: {
+      en: 'Open the editor, run shape tracing, and explore the rendered model graph.',
+      vi: 'Mở editor, chạy truy vết shape, và khám phá graph mô hình đã render.',
+    },
+    workspaceOpen: { en: 'Open workspace', vi: 'Mở workspace' },
+    learningTitle: { en: 'Learning Lab', vi: 'Learning Lab' },
+    learningDescription: {
+      en: 'Guided lessons and review practice for CNN shapes, parameters, and operations.',
+      vi: 'Bài học có hướng dẫn và luyện tập ôn tập cho shape CNN, tham số, và phép toán.',
+    },
+    learningOpen: { en: 'Start learning', vi: 'Bắt đầu học' },
+    stages: {
+      convolution: {
+        title: { en: 'Convolution', vi: 'Convolution' },
+        caption: { en: 'extract edges', vi: 'trích xuất biên' },
+      },
+      activation: {
+        title: { en: 'Activation', vi: 'Activation' },
+        caption: { en: 'apply nonlinearity', vi: 'áp dụng phi tuyến' },
+      },
+      pooling: {
+        title: { en: 'Pooling', vi: 'Pooling' },
+        caption: { en: 'compress map', vi: 'nén feature map' },
+      },
+      classifier: {
+        title: { en: 'Classifier', vi: 'Classifier' },
+        caption: { en: 'score classes', vi: 'chấm điểm lớp' },
+      },
+    },
+  },
+  learningLab: {
+    label: { en: 'TORCHVIZ LEARNING LAB', vi: 'TORCHVIZ LEARNING LAB' },
+    title: { en: 'TorchViz Foundations', vi: 'Lộ trình TorchViz' },
+    description: {
+      en: 'A guided path that turns the existing demo exercises into ordered shape and value practice.',
+      vi: 'Học theo lộ trình và làm bài trực tiếp bằng các bài tập shape/value trong Learning Lab.',
+    },
+    back: { en: 'Back', vi: 'Quay lại' },
+    landing: { en: 'Landing', vi: 'Trang chính' },
+    path: { en: 'Path', vi: 'Lộ trình' },
+    review: { en: 'Review', vi: 'Ôn tập' },
+    role: { en: 'Role', vi: 'Vai trò' },
+    domain: { en: 'Domain', vi: 'Mảng kiến thức' },
+    lesson: { en: 'Lesson', vi: 'Bài học' },
+    pathDescription: {
+      en: 'Choose a role and domain first, then open a focused lesson.',
+      vi: 'Chọn vai trò và mảng kiến thức trước, rồi mở bài học phù hợp.',
+    },
+    chooseRoleTitle: { en: 'Choose your learning track', vi: 'Chọn hướng học' },
+    chooseRoleDescription: {
+      en: 'Start from the role closest to your work. Each role narrows the lab into domains and focused lessons.',
+      vi: 'Bắt đầu từ vai trò gần với công việc của bạn. Mỗi vai trò sẽ thu hẹp Lab thành các mảng kiến thức và bài học phù hợp.',
+    },
+    chooseDomainTitle: {
+      en: () => 'Choose a domain',
+      vi: () => 'Chọn mảng kiến thức',
+    },
+    chooseDomainDescription: {
+      en: 'Pick the model area you want to practice first. The next step opens the lesson list.',
+      vi: 'Chọn vùng kiến thức muốn luyện trước. Bước tiếp theo sẽ mở danh sách bài học.',
+    },
+    roleProfiles: {
+      aiEngineer: {
+        title: { en: 'AI Engineer', vi: 'Kỹ sư AI' },
+        description: {
+          en: 'Build, debug, and ship neural network systems.',
+          vi: 'Xây dựng, debug và đưa hệ thống mô hình vào sản phẩm.',
+        },
+        focus: { en: 'Build and debug model systems', vi: 'Xây dựng và debug hệ thống mô hình' },
+        body: {
+          en: 'AI Engineers use the Lab to reason from architecture to runtime behavior: how tensors move, where assumptions break, and whether model components remain reliable as the system grows.',
+          vi: 'Kỹ sư AI dùng Lab để nối tư duy kiến trúc với hành vi khi chạy: tensor di chuyển ra sao, giả định hỏng ở đâu, và các thành phần mô hình có còn đáng tin khi hệ thống lớn dần hay không.',
+        },
+        detail: {
+          en: 'This path is useful when you want to build stronger debugging instincts, inspect layer interactions, and make model changes with clearer confidence before integration or deployment.',
+          vi: 'Lộ trình này phù hợp khi bạn muốn rèn trực giác debug, kiểm tra tương tác giữa các layer, và tự tin hơn khi thay đổi mô hình trước lúc tích hợp hoặc đưa vào sản phẩm.',
+        },
+      },
+      dataScientist: {
+        title: { en: 'Data Scientist', vi: 'Nhà Khoa học dữ liệu' },
+        description: {
+          en: 'Inspect model behavior and connect outputs back to data questions.',
+          vi: 'Kiểm tra hành vi mô hình và nối output về câu hỏi dữ liệu.',
+        },
+        focus: { en: 'Inspect and explain model behavior', vi: 'Kiểm tra và giải thích hành vi mô hình' },
+        body: {
+          en: 'Data Scientists use the Lab to connect model internals with data reasoning: what changed through each transformation, which signals are preserved, and how outputs support an analytical question.',
+          vi: 'Nhà Khoa học dữ liệu dùng Lab để nối bên trong mô hình với tư duy dữ liệu: mỗi phép biến đổi làm thay đổi điều gì, tín hiệu nào được giữ lại, và output hỗ trợ câu hỏi phân tích ra sao.',
+        },
+        detail: {
+          en: 'This path is useful when you want to explain behavior, validate modeling assumptions, and translate tensor-level observations into clearer decisions for experiments, reports, or stakeholders.',
+          vi: 'Lộ trình này phù hợp khi bạn muốn giải thích hành vi mô hình, kiểm chứng giả định, và chuyển quan sát ở mức tensor thành quyết định rõ hơn cho thí nghiệm, báo cáo hoặc trao đổi với stakeholders.',
+        },
+      },
+    },
+    domainProfiles: {
+      aiEngineer: {
+        cv: {
+          title: { en: 'Computer Vision', vi: 'Computer Vision' },
+          shortDescription: { en: 'CNN, pooling, activation, classifier.', vi: 'CNN, pooling, activation, classifier.' },
+          longDescription: {
+            en: 'Understand how image tensors change across convolution, pooling, activation, and classifier stages so you can reason about spatial resolution, channels, and feature extraction decisions.',
+            vi: 'Hiểu cách tensor ảnh thay đổi qua convolution, pooling, activation và classifier để suy luận rõ hơn về độ phân giải không gian, số kênh và quyết định trích xuất đặc trưng.',
+          },
+        },
+        nlp: {
+          title: { en: 'NLP', vi: 'NLP' },
+          shortDescription: { en: 'Attention, sequence, embedding shape.', vi: 'Attention, sequence, embedding shape.' },
+          longDescription: {
+            en: 'Trace sequence representations through attention-style blocks, focusing on batch, token, head, and embedding dimensions before they become hard-to-debug integration issues.',
+            vi: 'Theo dõi biểu diễn chuỗi qua các khối kiểu attention, tập trung vào batch, token, head và embedding dimension trước khi chúng trở thành lỗi tích hợp khó debug.',
+          },
+        },
+        ml: {
+          title: { en: 'ML Foundations', vi: 'ML Foundations' },
+          shortDescription: { en: 'Tensor shape, value flow, layer contracts.', vi: 'Tensor shape, value flow, layer contract.' },
+          longDescription: {
+            en: 'Build a reliable mental model for tensor shape, value flow, and layer contracts that transfers across model families, from small prototypes to larger production architectures.',
+            vi: 'Xây dựng mô hình tư duy chắc chắn về tensor shape, dòng giá trị và contract giữa các layer, dùng được từ prototype nhỏ đến kiến trúc production lớn hơn.',
+          },
+        },
+      },
+      dataScientist: {
+        ml: {
+          title: { en: 'ML Foundations', vi: 'ML Foundations' },
+          shortDescription: { en: 'Tensor behavior and model inspection.', vi: 'Hành vi tensor và kiểm tra mô hình.' },
+          longDescription: {
+            en: 'Read tensor transformations as evidence: understand which quantities changed, which assumptions remain valid, and how intermediate behavior supports a modeling conclusion.',
+            vi: 'Đọc các phép biến đổi tensor như bằng chứng: đại lượng nào đã thay đổi, giả định nào còn đúng, và hành vi trung gian hỗ trợ kết luận mô hình ra sao.',
+          },
+        },
+        cv: {
+          title: { en: 'Computer Vision', vi: 'Computer Vision' },
+          shortDescription: { en: 'Spatial shape, pooling, visual features.', vi: 'Spatial shape, pooling, đặc trưng ảnh.' },
+          longDescription: {
+            en: 'Inspect image-model behavior through spatial changes, channel growth, pooling effects, and classifier outputs so visual features can be connected back to the data question.',
+            vi: 'Kiểm tra hành vi mô hình ảnh qua thay đổi không gian, tăng số kênh, hiệu ứng pooling và output classifier để nối đặc trưng thị giác về câu hỏi dữ liệu.',
+          },
+        },
+        nlp: {
+          title: { en: 'NLP', vi: 'NLP' },
+          shortDescription: { en: 'Sequence, attention, interpretation.', vi: 'Sequence, attention, diễn giải.' },
+          longDescription: {
+            en: 'Reason about sequence and attention outputs in a way that supports interpretation, error analysis, and clearer communication of what the model is using from text-like inputs.',
+            vi: 'Suy luận về output sequence và attention theo cách hỗ trợ diễn giải, phân tích lỗi, và giao tiếp rõ hơn về tín hiệu mô hình dùng từ dữ liệu dạng văn bản.',
+          },
+        },
+      },
+    },
+    domainPreviewTitle: { en: 'What this role will focus on', vi: 'Vai trò này sẽ tập trung vào gì' },
+    domainPreviewBody: {
+      en: 'Use the left panel to choose a domain. The lesson list will then switch to the exact practice sequence for that model area.',
+      vi: 'Dùng panel bên trái để chọn mảng kiến thức. Danh sách bài học sau đó sẽ chuyển sang đúng chuỗi luyện tập cho vùng mô hình đó.',
+    },
+    domainCount: {
+      en: (count: number) => `${count} ${count === 1 ? 'domain' : 'domains'}`,
+      vi: (count: number) => `${count} mảng`,
+    },
+    lessonCount: {
+      en: (count: number) => `${count} ${count === 1 ? 'lesson' : 'lessons'}`,
+      vi: (count: number) => `${count} bài học`,
+    },
+    openNextLevel: { en: 'Open next level', vi: 'Mở cấp tiếp theo' },
+    practiceCount: {
+      en: (count: number) => `${count} practice ${count === 1 ? 'item' : 'items'}`,
+      vi: (count: number) => `${count} bài luyện tập`,
+    },
+    openWorkspace: { en: 'Open workspace', vi: 'Mở workspace' },
+    language: { en: 'Language', vi: 'Ngôn ngữ' },
+    lightTheme: { en: 'Light', vi: 'Sáng' },
+    darkTheme: { en: 'Dark', vi: 'Tối' },
+    theory: { en: 'Theory', vi: 'Lý thuyết' },
+    hints: { en: 'Hints', vi: 'Gợi ý' },
+    hint: { en: 'Hint', vi: 'Gợi ý' },
+    practice: { en: 'Practice', vi: 'Luyện tập' },
+    outputShape: { en: 'Your output shape', vi: 'Output shape của bạn' },
+    check: { en: 'Check', vi: 'Kiểm tra' },
+    reset: { en: 'Reset', vi: 'Làm lại' },
+    hideHint: { en: 'Hide hint', vi: 'Ẩn gợi ý' },
+    correctFeedback: { en: 'Correct. Nice, the shape math landed.', vi: 'Đúng rồi. Shape/value đã khớp.' },
+    incorrectFeedback: {
+      en: 'Not quite yet. Check the highlighted answers or open a hint.',
+      vi: 'Chưa đúng. Kiểm tra ô được tô màu hoặc mở gợi ý.',
+    },
+    inlineUnavailable: {
+      en: 'This practice item is mapped, but the inline model is not available yet.',
+      vi: 'Bài luyện tập này đã được ánh xạ, nhưng model inline chưa sẵn sàng.',
+    },
+    startExercise: { en: 'Start exercise', vi: 'Làm bài' },
+    unavailablePractice: { en: 'In progress', vi: 'Đang hoàn thiện' },
+    workspaceExerciseNote: {
+      en: 'Opens the same interactive exercise surface used in Workspace, including checks and hints.',
+      vi: 'Mở cùng giao diện bài tập tương tác như Workspace, gồm kiểm tra đáp án và gợi ý.',
+    },
+    reviewTitle: { en: 'Review practice', vi: 'Ôn tập' },
+    reviewDescription: {
+      en: 'Browse the same practice set outside the guided order. Each card can be answered directly in the lab.',
+      vi: 'Luyện cùng bộ bài tập ngoài thứ tự lộ trình. Mỗi thẻ có thể làm trực tiếp trong Lab.',
+    },
+    openLesson: { en: 'Open lesson', vi: 'Mở bài học' },
+    reviewKinds: {
+      all: { en: 'All', vi: 'Tất cả' },
+      shape: { en: 'Shape', vi: 'Shape' },
+      value: { en: 'Value', vi: 'Giá trị' },
+      review: { en: 'Review', vi: 'Ôn tập' },
+    },
+    lessonStatus: {
+      available: { en: 'Available', vi: 'Sẵn sàng' },
+      next: { en: 'Next up', vi: 'Tiếp theo' },
+      locked: { en: 'Preview', vi: 'Xem trước' },
+    },
+    lessons: {
+      shapeBasics: {
+        title: { en: 'Shape basics', vi: 'Nền tảng shape' },
+        eyebrow: { en: 'Lesson 1', vi: 'Bài 1' },
+        duration: { en: '6 min', vi: '6 phút' },
+        theory: [
+          {
+            en: 'Every block in the graph carries an input shape and an output shape.',
+            vi: 'Mỗi block trong đồ thị đều có shape đầu vào và shape đầu ra.',
+          },
+          {
+            en: 'The fastest way to debug a model is to predict the next shape before reading the rendered label.',
+            vi: 'Cách debug mô hình nhanh nhất là tự dự đoán shape kế tiếp trước khi đọc nhãn được render.',
+          },
+        ],
+      },
+      conv2dOutput: {
+        title: { en: 'Conv2d output shape', vi: 'Shape đầu ra của Conv2d' },
+        eyebrow: { en: 'Lesson 2', vi: 'Bài 2' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          {
+            en: 'Conv2d changes spatial size according to kernel, stride, padding, and dilation.',
+            vi: 'Conv2d thay đổi kích thước không gian dựa trên kernel, stride, padding và dilation.',
+          },
+          {
+            en: 'It also changes the channel count to the configured out_channels value.',
+            vi: 'Conv2d cũng đổi số kênh thành giá trị out_channels đã cấu hình.',
+          },
+        ],
+      },
+      poolingOutput: {
+        title: { en: 'Pooling output shape', vi: 'Shape đầu ra của pooling' },
+        eyebrow: { en: 'Lesson 3', vi: 'Bài 3' },
+        duration: { en: '7 min', vi: '7 phút' },
+        theory: [
+          {
+            en: 'Pooling usually keeps channels unchanged while reducing spatial resolution.',
+            vi: 'Pooling thường giữ nguyên số kênh và giảm độ phân giải không gian.',
+          },
+          {
+            en: 'MaxPool and AvgPool share the same shape logic but explain different value behavior.',
+            vi: 'MaxPool và AvgPool dùng cùng logic shape nhưng biểu diễn hành vi giá trị khác nhau.',
+          },
+        ],
+      },
+      linearActivation: {
+        title: { en: 'Linear and activation values', vi: 'Giá trị Linear và activation' },
+        eyebrow: { en: 'Lesson 4', vi: 'Bài 4' },
+        duration: { en: '9 min', vi: '9 phút' },
+        theory: [
+          {
+            en: 'Linear layers turn an input vector into class or feature scores.',
+            vi: 'Linear layer biến vector đầu vào thành điểm lớp hoặc điểm đặc trưng.',
+          },
+          {
+            en: 'Activations reshape the values without changing the tensor rank in typical feed-forward blocks.',
+            vi: 'Activation biến đổi giá trị mà thường không đổi rank của tensor trong các khối feed-forward.',
+          },
+        ],
+      },
+      attentionShape: {
+        title: { en: 'Attention shape', vi: 'Shape của attention' },
+        eyebrow: { en: 'Lesson 5', vi: 'Bài 5' },
+        duration: { en: '10 min', vi: '10 phút' },
+        theory: [
+          {
+            en: 'Attention practice focuses on preserving the batch and token axes while projecting feature dimensions.',
+            vi: 'Bài attention tập trung vào việc giữ trục batch và token trong khi chiếu đổi chiều đặc trưng.',
+          },
+          {
+            en: 'The path keeps this lesson visible now, but deeper embedding can wait until the adapter supports richer node fixtures.',
+            vi: 'Lộ trình tạm thời giữ bài này ở dạng xem trước; phần nhúng sâu hơn có thể làm sau khi adapter hỗ trợ fixture node phong phú hơn.',
+          },
+        ],
+      },
+    },
+    practiceItems: {
+      shapeBasicsOutput: { title: { en: 'Read the next output shape', vi: 'Đọc shape đầu ra kế tiếp' } },
+      conv2dShapeOutput: { title: { en: 'Predict Conv2d shape', vi: 'Dự đoán shape Conv2d' } },
+      conv2dValueWindow: { title: { en: 'Follow one convolution window', vi: 'Theo dõi một cửa sổ convolution' } },
+      poolShapeOutput: { title: { en: 'Predict pooling shape', vi: 'Dự đoán shape pooling' } },
+      poolValueWindow: { title: { en: 'Choose the pooled value', vi: 'Chọn giá trị sau pooling' } },
+      linearValueScore: { title: { en: 'Compute one Linear score', vi: 'Tính một điểm Linear' } },
+      activationValuePass: { title: { en: 'Apply ReLU to values', vi: 'Áp dụng ReLU lên giá trị' } },
+      attentionShapeOutput: { title: { en: 'Trace attention dimensions', vi: 'Theo dõi chiều attention' } },
+    },
+  },
   editor: {
     loading: { en: 'Loading Editor...', vi: 'Đang tải trình soạn thảo...' },
     completionModuleDetail: { en: 'Base class for all nn modules', vi: 'Lớp cơ sở cho mọi mô-đun nn' },
@@ -146,6 +458,7 @@ const localizedText = {
       shapeExerciseTitle: { en: 'Shape exercise', vi: 'Bài tập shape' },
       inputShapeLabel: { en: 'Input shape', vi: 'Shape đầu vào' },
       layerConfigLabel: { en: 'Layer config', vi: 'Cấu hình lớp' },
+      formulaLabel: { en: 'Formula', vi: 'Công thức' },
       enterOutputShape: { en: 'Enter output shape', vi: 'Nhập shape đầu ra' },
       enterAnswer: { en: 'Enter answer', vi: 'Nhập đáp án' },
       checkAnswer: { en: 'Check answer', vi: 'Kiểm tra' },
@@ -671,7 +984,37 @@ export const strings = {
 };
 
 export type LocalizedStrings = typeof strings.en;
+type LearningLabStrings = LocalizedStrings['learningLab'];
+type LearningLessonText = {
+  title: string;
+  eyebrow: string;
+  duration: string;
+  theory: string[];
+};
+type LearningPracticeText = {
+  title: string;
+};
 
 export function getStrings(language: Language): LocalizedStrings {
   return strings[language] ?? strings.en;
+}
+
+export function getLearningLessonText(
+  t: LearningLabStrings,
+  lesson: { id: string },
+): LearningLessonText {
+  const lessons = t.lessons as Record<string, LearningLessonText>;
+  return lessons[toLearningContentKey(lesson.id)] ?? { title: lesson.id, eyebrow: '', duration: '', theory: [] };
+}
+
+export function getLearningPracticeText(
+  t: LearningLabStrings,
+  practice: { id: string },
+): LearningPracticeText {
+  const practiceItems = t.practiceItems as Record<string, LearningPracticeText>;
+  return practiceItems[toLearningContentKey(practice.id)] ?? { title: practice.id };
+}
+
+function toLearningContentKey(id: string): string {
+  return id.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ExerciseDefinition, ExerciseId } from './types';
 import type { getStrings } from '../../lib/localization';
+import { getExerciseSurface } from './exerciseRegistry';
 
 type DemoLabels = ReturnType<typeof getStrings>['canvas']['demo'];
 
@@ -39,7 +40,8 @@ export const ExerciseLauncher: React.FC<{
 });
 
 function getExerciseOptionLabel(id: ExerciseId, t: DemoLabels): string {
-  if (id === 'shape-output' || id === 'attention-shape') return t.exerciseShape;
-  if (id === 'conv-value') return t.exerciseConvValue;
+  const surface = getExerciseSurface(id);
+  if (surface === 'shape') return t.exerciseShape;
+  if (surface === 'conv-value') return t.exerciseConvValue;
   return t.exerciseValue;
 }

@@ -181,12 +181,12 @@ A single small zustand store holds: editor `code`, active template, `ir`, `colla
 
 ---
 
-## Landing Page and Learning Lab scaffold
+## Landing Page and Learning Lab
 
 The scaffold in
 [`docs/plans/2026-06-21-learning-lab-refactor.md`](plans/2026-06-21-learning-lab-refactor.md)
-adds UI surfaces for the Landing/AppShell path plus inert placeholder files for
-future Learning Lab work:
+added UI surfaces for the Landing/AppShell path plus placeholder files for
+Learning Lab work:
 
 - `src/components/AppShell.tsx`
 - `src/components/landing/*`
@@ -198,15 +198,23 @@ future Learning Lab work:
 
 MVP 1 imports `AppShell` and `src/components/landing/*` from the root `App.tsx`.
 The app opens on the Landing Page, then enters the existing editor/canvas/
-inspector workspace through the active TorchViz-3D card. Learning Lab remains
-disabled/coming soon: `src/components/learning/*`, `src/core/*`, and
-`src/store/uiStore.ts` are still not part of the runtime path.
+inspector workspace through the active TorchViz-3D card.
+
+The Learning Lab is now also reachable from Landing as a separate full-screen
+view. It implements a lightweight Learning Path and Review mode backed by
+React-free learning content in `src/core/learningContent.ts` and
+`src/core/types.ts`. Learning Lab practice cards use a shared exercise adapter
+to build representative `LayoutNode`s, validate them through the existing
+exercise registry, and feed them into the existing shape/value exercise model
+builders, so users can answer exercises without leaving the lab. The existing
+in-graph exercise launcher remains unchanged. `src/core/answerCheck.ts` and
+`src/store/uiStore.ts` remain reserved for later phases.
 
 The active Landing screen is a compact bento layout with top intro copy, a
 left-side live graph preview, and right-side Workspace/Learning cards. The
 preview's final classifier block draws anchor-based visual routes to the real
-card anchors; the Workspace route is emphasized and Learning Lab stays muted and
-non-interactive.
+card anchors; Workspace opens the editor/canvas flow, and Learning Lab opens the
+guided path/review flow.
 
 Codex agents should use the repo orientation in `CLAUDE.md` as the source for
 the initial system prompt, then read the OKF page

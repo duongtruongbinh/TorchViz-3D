@@ -24,6 +24,7 @@ type ShapeExerciseProps = {
   node: LayoutNode | null | undefined;
   t: ReturnType<typeof getStrings>['canvas']['demo'];
   language: 'en' | 'vi';
+  theme?: 'dark' | 'light';
   onClose: () => void;
 };
 
@@ -57,9 +58,9 @@ const SectionHeader: React.FC<{ title: string; meta?: string; flush?: boolean }>
   meta,
   flush = false,
 }) => (
-  <div className={`${flush ? '' : 'mb-3'} flex items-center justify-between gap-3`}>
+  <div className={`${flush ? '' : 'mb-2'} flex items-center justify-between gap-3`}>
     <div className="flex min-w-0 items-center">
-      <h3 className="min-w-0 truncate text-sm font-bold uppercase tracking-wider text-zinc-200">{title}</h3>
+      <h3 className="min-w-0 truncate text-sm font-bold uppercase tracking-wider text-zinc-500">{title}</h3>
     </div>
     {meta && <span className="shrink-0 text-[11px] font-mono text-zinc-500">{meta}</span>}
   </div>
@@ -93,6 +94,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
   node,
   t,
   language,
+  theme = 'dark',
   onClose,
 }) => {
   const titleId = useId();
@@ -227,14 +229,14 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
   };
 
   return createPortal((
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto">
+    <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto ${theme === 'light' ? 'learning-lab-light learning-exercise-modal-root' : ''}`}>
       <div
-        className="flex w-[min(76rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl"
+        className="shape-exercise-modal flex w-[min(60rem,calc(100%-1.25rem))] flex-col overflow-auto rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-zinc-800 bg-zinc-950/95 px-4 py-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 bg-zinc-950/95 px-4 py-2.5">
           <div className="min-w-0 self-center">
             <h2 id={titleId} className="text-base font-bold uppercase tracking-wider text-zinc-100">{t.shapeExerciseTitle}</h2>
           </div>
@@ -258,9 +260,9 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
         </div>
       ) : (
         <>
-          <div className="min-h-0 flex-1 overflow-auto">
-            <div className="space-y-4 p-5">
-              <section className="min-w-0 rounded-md p-4">
+          <div className="shape-exercise-body">
+            <div className="shape-exercise-grid grid min-h-full content-start gap-3 p-3 xl:grid-cols-2">
+              <section className="min-w-0 rounded-md p-2">
                 <SectionHeader
                   title={t.inputShapeLabel}
                   meta={`${displayModel.inputShape.length}D`}
@@ -281,7 +283,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                 />
               </section>
 
-              <section className="min-w-0 rounded-md p-4">
+              <section className="min-w-0 rounded-md p-2">
                 <SectionHeader
                   title={t.layerConfigLabel}
                   meta={`${displayModel.configRows.length}`}
@@ -298,24 +300,26 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                 />
               </section>
 
-              <FormulaPanel model={displayModel} activeHintStep={activeHintStep} />
+              <div className="h-px bg-white/10 xl:col-span-2" />
 
-              <section className="rounded-md p-4">
-                <div className="mb-4 flex items-center justify-between gap-3">
+              <FormulaPanel model={displayModel} activeHintStep={activeHintStep} title={t.formulaLabel} />
+
+              <section className="rounded-md p-2 xl:col-span-2">
+                <div className="mb-2 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <SectionHeader
                       title={t.enterOutputShape}
                       flush
                     />
                   </div>
-                  <span className="shrink-0 rounded border border-emerald-300/35 bg-emerald-400/12 px-2.5 py-1 text-sm font-mono font-bold text-emerald-100">
+                    <span className="shrink-0 rounded bg-emerald-400/12 px-2.5 py-1 text-sm font-mono font-bold text-emerald-100">
                     {correctCount}/{outputCells}
                   </span>
                 </div>
 
-                <div className="rounded-md px-4 py-5">
+                <div className="rounded-md px-2 py-2">
                   <div className="flex flex-wrap items-end justify-center gap-2 font-mono">
-                    <span className="pb-2 text-2xl font-bold text-zinc-500">[</span>
+                    <span className="pb-1.5 text-xl font-bold text-zinc-500">[</span>
                     {displayModel.expectedShape.map((expected, index) => {
                       const answer = answers[index] ?? '';
                       const isCorrect = answer.trim() !== '' && Number(answer) === expected;
@@ -324,7 +328,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                       const isHintDimension = isActiveOutputHint(label, activeHintStep);
                       return (
                         <React.Fragment key={`${index}-${expected}`}>
-                        <label className="block w-24">
+                        <label className="block w-20">
                           <span className={`mb-1 block text-center text-[11px] font-bold uppercase tracking-wider ${
                             isHintDimension ? 'text-amber-200' : 'text-zinc-500'
                           }`}>{label}</span>
@@ -333,13 +337,13 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                             inputMode="numeric"
                             value={answer}
                             onChange={(event) => updateAnswer(index, event.target.value)}
-                            className={`h-12 w-full rounded-md border bg-zinc-950 px-1 text-center text-xl font-bold outline-none transition-all ${
+                            className={`h-10 w-full rounded-md border bg-zinc-950 px-1 text-center text-lg font-bold outline-none transition-all ${
                               hasStatus
                                 ? isCorrect
                                   ? 'border-emerald-300/70 text-emerald-100 ring-1 ring-emerald-300/20'
                                   : 'border-red-300/70 text-red-100 ring-1 ring-red-300/20'
                                 : isHintDimension
-                                  ? 'border-amber-300/65 bg-amber-900/18 text-amber-50 ring-1 ring-amber-300/18 focus:border-amber-300/70'
+                                  ? 'border-amber-300/65 bg-amber-900/18 text-amber-50 ring-1 ring-amber-300/18'
                                   : 'border-zinc-700 text-zinc-100 hover:border-zinc-500 focus:border-sky-300 focus:ring-1 focus:ring-sky-300/25'
                             }`}
                             aria-label={`Output shape dimension ${label}`}
@@ -351,12 +355,12 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                           )}
                         </label>
                         {index < displayModel.expectedShape.length - 1 && (
-                          <span className="pb-3 text-xl font-bold text-zinc-600">,</span>
+                          <span className="pb-2 text-lg font-bold text-zinc-600">,</span>
                         )}
                         </React.Fragment>
                       );
                     })}
-                    <span className="pb-2 text-2xl font-bold text-zinc-500">]</span>
+                    <span className="pb-1.5 text-xl font-bold text-zinc-500">]</span>
                   </div>
                 </div>
               </section>
@@ -364,7 +368,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
               {showHint && (
                 <section
                   ref={hintRef}
-                  className={hintPulse ? 'shape-hint-attention rounded-md' : 'rounded-md'}
+                  className={`${hintPulse ? 'shape-hint-attention rounded-md' : 'rounded-md'} xl:col-span-2`}
                 >
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <SectionHeader title={t.hintExercise} flush />
@@ -412,12 +416,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
               )}
             </div>
           </div>
-          <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3">
-            <p className="text-sm text-zinc-400">
-              {hasEditableError
-                ? (configured.inputError ?? configured.configError)
-                : submitted ? `${correctCount}/${outputCells}` : t.enterOutputShape}
-            </p>
+          <div className="flex items-center justify-end gap-3 px-4 py-3">
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -503,19 +502,19 @@ const NumericField: React.FC<{
   };
 
   return (
-  <label className={`grid min-h-[4.4rem] grid-rows-[1.2rem_2rem] items-center gap-1 rounded-md border bg-zinc-950/80 px-2.5 py-2 transition-colors hover:border-zinc-600 focus-within:border-sky-300 focus-within:ring-1 focus-within:ring-sky-300/20 ${
+  <label className={`group grid min-h-[3.6rem] grid-rows-[1rem_1.75rem] items-center gap-1 rounded-md bg-zinc-950/65 px-2 py-1.5 transition-colors focus-within:ring-1 focus-within:ring-sky-300/25 ${
     hintActive
-      ? 'border-amber-300/60 bg-amber-900/14 ring-1 ring-amber-300/16'
-      : 'border-zinc-700'
+      ? 'bg-amber-900/14 ring-1 ring-amber-300/18'
+      : ''
   }`}>
-    <span className={`flex h-5 w-full items-center justify-center text-center text-[12px] font-bold uppercase leading-none tracking-wide ${
+    <span className={`flex h-4 w-full items-center justify-center text-center text-[11px] font-bold uppercase leading-none tracking-wide ${
       hintActive ? 'text-amber-200' : tone.text
     }`}>{label}</span>
-    <div className={`relative h-8 overflow-hidden rounded-sm border bg-zinc-900/70 ${
-      hintActive ? 'border-amber-300/60 bg-amber-950/20' : 'border-zinc-800'
+    <div className={`relative h-7 overflow-hidden rounded-sm bg-zinc-900/70 ${
+      hintActive ? 'bg-amber-950/20' : ''
     }`}>
       <input
-        className={`block h-full w-full bg-transparent px-6 text-center font-mono text-[17px] font-bold leading-8 outline-none ${
+        className={`block h-full w-full bg-transparent px-6 text-center font-mono text-[15px] font-bold leading-7 outline-none ${
           hintActive ? 'text-amber-50' : tone.value
         }`}
         type="text"
@@ -524,7 +523,7 @@ const NumericField: React.FC<{
         spellCheck={false}
         onChange={(event) => onChange(event.currentTarget.value)}
       />
-      <div className="absolute right-0 top-0 grid h-full w-5 grid-rows-2 border-l border-zinc-800/90">
+      <div className="absolute right-0 top-0 grid h-full w-5 grid-rows-2 bg-black/10 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
         <button
           type="button"
           className="flex items-center justify-center text-[9px] leading-none text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
@@ -536,7 +535,7 @@ const NumericField: React.FC<{
         </button>
         <button
           type="button"
-          className="flex items-center justify-center border-t border-zinc-800/90 text-[9px] leading-none text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+          className="flex items-center justify-center text-[9px] leading-none text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
           onClick={() => stepValue(-1)}
           aria-label={`Decrease ${label}`}
           title={`Decrease ${label}`}
@@ -634,7 +633,7 @@ const ConfigEditor: React.FC<{
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-5">
         {fields.map((field) => (
           <NumericField
             key={field.name}
@@ -647,20 +646,22 @@ const ConfigEditor: React.FC<{
           />
         ))}
       </div>
-      <p className={`mt-2 text-[13px] ${error ? 'text-red-300' : 'text-zinc-500'}`}>
+      <p className={`mt-1.5 text-[12px] ${error ? 'text-red-300' : 'text-zinc-500'}`}>
         {error ?? 'Use integer values.'}
       </p>
     </div>
   );
 };
 
-const FormulaPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHintStep | null }> = ({ model, activeHintStep }) => {
+const FormulaPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHintStep | null; title: string }> = ({ model, activeHintStep, title }) => {
   if (model.breakdown) {
     return (
-      <section className="rounded-md p-4">
-        <SectionHeader title="Formula" meta={model.opType} />
+    <section className="rounded-md p-2 xl:col-span-2">
+      <SectionHeader title={title} meta={model.opType} />
+      <div className="flex justify-center">
         <SpatialFormulaPanel activeHintStep={activeHintStep} />
-      </section>
+      </div>
+    </section>
     );
   }
 
@@ -668,15 +669,15 @@ const FormulaPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: Spatia
   if (!rows.length) return null;
 
   return (
-    <section className="rounded-md p-4">
-      <SectionHeader title="Formula" meta={model.opType} />
-      <div className="grid gap-2 lg:grid-cols-2">
+    <section className="rounded-md p-2 xl:col-span-2">
+      <SectionHeader title={title} meta={model.opType} />
+      <div className="grid justify-center gap-2 lg:grid-cols-2">
         {rows.map((row) => (
-          <div key={row.label} className="rounded-md border border-sky-300/15 bg-zinc-950/80 p-3">
+          <div key={row.label} className="rounded-md bg-zinc-950/70 p-3">
             <div className="mb-1 text-[12px] font-bold uppercase tracking-wider text-sky-100">{row.label}</div>
             <div className="font-mono text-base leading-relaxed text-zinc-300">{row.formula}</div>
             {row.substitution && (
-              <div className="mt-1.5 border-t border-white/10 pt-1.5 font-mono text-sm leading-relaxed text-zinc-500">
+              <div className="mt-1.5 pt-1.5 font-mono text-sm leading-relaxed text-zinc-500">
                 {row.substitution}
               </div>
             )}
@@ -688,16 +689,16 @@ const FormulaPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: Spatia
 };
 
 const SpatialFormulaPanel: React.FC<{ activeHintStep: SpatialHintStep | null }> = ({ activeHintStep }) => (
-  <div className="rounded-md bg-zinc-950/80 p-4">
+  <div className="w-full max-w-3xl rounded-md bg-zinc-950/80 p-3">
     {activeHintStep && (
-      <div className="mb-3 flex items-center justify-end gap-3">
+      <div className="mb-2 flex items-center justify-end gap-3">
         <div className="rounded border border-amber-300/30 bg-amber-400/10 px-2 py-0.5 font-mono text-[12px] font-bold text-amber-100">
           {activeHintStep.axis}
         </div>
       </div>
     )}
-    <div className="overflow-x-auto rounded border border-white/10 bg-black/25 px-4 py-3">
-      <div className="min-w-max text-center font-mono text-lg font-semibold leading-relaxed text-zinc-100">
+    <div className="rounded bg-black/20 px-3 py-2">
+      <div className="text-center font-mono text-sm font-semibold leading-relaxed text-zinc-100">
         <FormulaToken>out</FormulaToken>
         <FormulaToken> = </FormulaToken>
         <FormulaToken active={activeHintStep?.token === 'floor'}>floor</FormulaToken>
@@ -716,7 +717,7 @@ const SpatialFormulaPanel: React.FC<{ activeHintStep: SpatialHintStep | null }> 
         <FormulaToken>)</FormulaToken>
       </div>
     </div>
-    <div className="mt-2 text-sm leading-relaxed text-zinc-500">
+    <div className="mt-1.5 text-xs leading-relaxed text-zinc-500">
       P: padding, D: dilation, K: kernel, S: stride.
     </div>
   </div>
@@ -770,9 +771,9 @@ const HintPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHi
   model,
   activeHintStep,
 }) => (
-  <section className="rounded-md border border-sky-300/15 bg-zinc-900/70 p-3">
+  <section className="rounded-md p-0">
     {model.breakdown ? (
-      <div className="space-y-3">
+      <div className="grid gap-2 xl:grid-cols-2">
         <HintLine axis="H" steps={model.breakdown.h} activeHintStep={activeHintStep} />
         <HintLine axis="W" steps={model.breakdown.w} activeHintStep={activeHintStep} />
       </div>
@@ -782,7 +783,7 @@ const HintPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHi
           <span className="font-bold text-sky-100">H</span>
           <span className="text-zinc-400">target_h = {model.adaptiveHint.h}</span>
         </div>
-        <div className="flex items-center justify-between border-t border-white/10 pt-1.5">
+        <div className="flex items-center justify-between pt-1.5">
           <span className="font-bold text-sky-100">W</span>
           <span className="text-zinc-400">target_w = {model.adaptiveHint.w}</span>
         </div>
@@ -790,7 +791,7 @@ const HintPanel: React.FC<{ model: ShapeExerciseModel; activeHintStep: SpatialHi
     ) : model.hintLines?.length ? (
       <div className="space-y-2 font-mono text-sm leading-relaxed text-sky-100">
         {model.hintLines.map((line, idx) => (
-          <div key={line} className={idx > 0 ? "border-t border-white/10 pt-2" : ""}>
+          <div key={line} className={idx > 0 ? "pt-2" : ""}>
             {line}
           </div>
         ))}
@@ -1066,8 +1067,8 @@ const HintLine: React.FC<{
   const token = axisActive ? activeHintStep.token : null;
   const beforeFloor = steps.numerator / steps.stride + 1;
   return (
-  <div className="flex flex-col gap-1.5 rounded-md border border-sky-300/15 bg-zinc-950 p-3">
-    <div className="flex flex-wrap items-center gap-1.5 font-mono text-sm">
+  <div className="flex min-w-0 flex-col gap-1 rounded-md border border-white/10 p-2">
+    <div className="flex flex-wrap items-center gap-1 font-mono text-xs">
       <HintToken active={token === 'input'} className="text-sm font-bold text-sky-100">{axis}</HintToken>
       <span className="text-zinc-500">=</span>
       <HintToken active={token === 'floor'} className="text-sky-100">floor</HintToken>
@@ -1083,7 +1084,7 @@ const HintLine: React.FC<{
       <HintToken active={token === 'combine'} className="text-zinc-300"> - 1) - 1) / {steps.stride} + 1</HintToken>
       <span className="text-sky-100">)</span>
     </div>
-    <div className="flex items-center gap-1.5 border-t border-white/10 pt-1.5 font-mono text-sm text-zinc-400">
+    <div className="flex flex-wrap items-center gap-1 pt-1 font-mono text-xs text-zinc-400">
       <span>=</span>
       <HintToken active={token === 'floor'}>floor</HintToken>
       <span>(</span>

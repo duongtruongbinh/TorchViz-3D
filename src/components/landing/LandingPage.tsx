@@ -1,60 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { LANGUAGE_OPTIONS, type Language } from '../../lib/localization';
+import { getStrings, LANGUAGE_OPTIONS } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningCard from './LearningCard';
 import ToolCard from './ToolCard';
 
 type LandingPageProps = {
   onOpenWorkspace: () => void;
+  onOpenLearningLab: () => void;
 };
 
-const landingText = {
-  en: {
-    language: 'Language',
-    eyebrow: 'Browser-native neural network diagrams',
-    title: 'TorchViz 3D',
-    subtitle: 'From interaction to understanding',
-    description:
-      'Explore model architecture visually, trace tensor shapes locally, and build intuition for how each layer transforms data.',
-    workspaceTitle: 'TorchViz-3D Workspace',
-    workspaceDescription: 'Open the editor, run shape tracing, and explore the rendered model graph.',
-    workspaceAvailability: 'Available now',
-    workspaceOpen: 'Open workspace',
-    learningTitle: 'Learning Lab',
-    learningDescription: 'Guided lessons and review practice for CNN shapes, parameters, and operations.',
-    learningStatus: 'Coming soon',
-  },
-  vi: {
-    language: 'Ngôn ngữ',
-    eyebrow: 'Sơ đồ mạng neural chạy trực tiếp trong trình duyệt',
-    title: 'TorchViz 3D',
-    subtitle: 'Từ tương tác đến thấu hiểu',
-    description:
-      'Khám phá kiến trúc mô hình bằng trực quan, truy vết tensor shape cục bộ, và xây dựng trực giác về cách từng layer biến đổi dữ liệu.',
-    workspaceTitle: 'Không gian TorchViz-3D',
-    workspaceDescription: 'Mở editor, chạy truy vết shape, và khám phá graph mô hình đã render.',
-    workspaceAvailability: 'Sẵn sàng',
-    workspaceOpen: 'Mở workspace',
-    learningTitle: 'Learning Lab',
-    learningDescription: 'Bài học có hướng dẫn và luyện tập ôn tập cho shape CNN, tham số, và phép toán.',
-    learningStatus: 'Sắp ra mắt',
-  },
-} satisfies Record<Language, {
-  language: string;
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  workspaceTitle: string;
-  workspaceDescription: string;
-  workspaceAvailability: string;
-  workspaceOpen: string;
-  learningTitle: string;
-  learningDescription: string;
-  learningStatus: string;
-}>;
-
-function HeroVisual() {
+function HeroVisual({ stages }: { stages: ReturnType<typeof getStrings>['landingPage']['stages'] }) {
   return (
     <div className="landing-hero-visual group relative z-[2] h-full min-h-0 overflow-hidden rounded-lg border border-blue-300/20 bg-[#080b10]/95 shadow-2xl shadow-black/45">
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(96,165,250,0.2),transparent_34%),linear-gradient(315deg,rgba(52,211,153,0.16),transparent_36%),radial-gradient(circle_at_54%_44%,rgba(15,23,42,0.18),transparent_45%)]" />
@@ -73,8 +28,8 @@ function HeroVisual() {
             <div className="landing-stage-kernel" />
           </div>
           <div>
-            <div className="landing-clean-title">Convolution</div>
-            <div className="landing-clean-caption">extract edges</div>
+            <div className="landing-clean-title">{stages.convolution.title}</div>
+            <div className="landing-clean-caption">{stages.convolution.caption}</div>
           </div>
         </div>
         <div className="landing-clean-stage landing-clean-activation" style={{ '--stage-color': '#22d3ee' } as CSSProperties}>
@@ -87,8 +42,8 @@ function HeroVisual() {
             </svg>
           </div>
           <div>
-            <div className="landing-clean-title">Activation</div>
-            <div className="landing-clean-caption">apply nonlinearity</div>
+            <div className="landing-clean-title">{stages.activation.title}</div>
+            <div className="landing-clean-caption">{stages.activation.caption}</div>
           </div>
         </div>
         <div className="landing-clean-stage landing-clean-pool" style={{ '--stage-color': '#fbbf24' } as CSSProperties}>
@@ -106,8 +61,8 @@ function HeroVisual() {
             </div>
           </div>
           <div>
-            <div className="landing-clean-title">Pooling</div>
-            <div className="landing-clean-caption">compress map</div>
+            <div className="landing-clean-title">{stages.pooling.title}</div>
+            <div className="landing-clean-caption">{stages.pooling.caption}</div>
           </div>
         </div>
         <div className="landing-clean-stage landing-clean-head" style={{ '--stage-color': '#34d399' } as CSSProperties}>
@@ -119,8 +74,8 @@ function HeroVisual() {
             <span />
           </div>
           <div>
-            <div className="landing-clean-title">Classifier</div>
-            <div className="landing-clean-caption">score classes</div>
+            <div className="landing-clean-title">{stages.classifier.title}</div>
+            <div className="landing-clean-caption">{stages.classifier.caption}</div>
           </div>
         </div>
       </div>
@@ -129,7 +84,7 @@ function HeroVisual() {
   );
 }
 
-export default function LandingPage({ onOpenWorkspace }: LandingPageProps) {
+export default function LandingPage({ onOpenWorkspace, onOpenLearningLab }: LandingPageProps) {
   const language = useStore((s) => s.language);
   const setLanguage = useStore((s) => s.setLanguage);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
@@ -143,7 +98,7 @@ export default function LandingPage({ onOpenWorkspace }: LandingPageProps) {
     available: '',
     soon: '',
   });
-  const text = landingText[language];
+  const text = getStrings(language).landingPage;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -283,7 +238,7 @@ export default function LandingPage({ onOpenWorkspace }: LandingPageProps) {
 
           <div
             ref={bentoRef}
-            className="relative mt-[clamp(20px,3vh,32px)] grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(260px,1fr)_auto] gap-[clamp(16px,1.7vw,28px)] p-0 xl:grid-cols-[minmax(0,1fr)_clamp(280px,20vw,340px)] xl:grid-rows-1"
+            className="relative mt-[clamp(18px,2.6vh,28px)] grid h-[clamp(300px,45vh,380px)] min-h-0 grid-cols-1 grid-rows-[minmax(220px,1fr)_auto] gap-[clamp(14px,1.4vw,22px)] p-0 xl:grid-cols-[minmax(0,1fr)_clamp(280px,20vw,340px)] xl:grid-rows-1"
           >
             <svg
               className="landing-bento-branches pointer-events-none absolute inset-0 z-[3]"
@@ -299,26 +254,26 @@ export default function LandingPage({ onOpenWorkspace }: LandingPageProps) {
               )}
             </svg>
             <div className="min-h-0 min-w-0">
-              <HeroVisual />
+              <HeroVisual stages={text.stages} />
             </div>
 
-            <div className="relative z-[4] grid min-h-0 content-center grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1 xl:grid-rows-[minmax(144px,164px)_minmax(126px,142px)]">
-              <div className="landing-bento-target landing-bento-target-available min-h-0">
+            <div className="relative z-[4] grid min-h-0 content-center grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="landing-bento-target landing-bento-target-available">
                 <span ref={availableAnchorRef} className="landing-card-anchor landing-card-anchor-available" aria-hidden="true" />
                 <ToolCard
                   title={text.workspaceTitle}
                   description={text.workspaceDescription}
-                  availabilityLabel={text.workspaceAvailability}
                   openLabel={text.workspaceOpen}
                   onOpen={onOpenWorkspace}
                 />
               </div>
-              <div className="landing-bento-target landing-bento-target-soon min-h-0">
+              <div className="landing-bento-target landing-bento-target-soon">
                 <span ref={soonAnchorRef} className="landing-card-anchor landing-card-anchor-soon" aria-hidden="true" />
                 <LearningCard
                   title={text.learningTitle}
                   description={text.learningDescription}
-                  statusLabel={text.learningStatus}
+                  openLabel={text.learningOpen}
+                  onOpen={onOpenLearningLab}
                 />
               </div>
             </div>
