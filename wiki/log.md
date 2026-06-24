@@ -3,6 +3,9 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-06-24 — Architecture bulk collapse controls.** Updated the
+  [state store](concepts/state-store.md) reference for the new `expandAll()` and
+  `collapseAll()` actions, including the intentional top-level root exclusion.
 - **2026-06-21 — Initialization.** Created the OKF v0.1 bundle under `wiki/` as
   the first task executed under the new workflow
   ([docs/plans/2026-06-21-llm-wiki-okf-plan.md](../docs/plans/2026-06-21-llm-wiki-okf-plan.md),

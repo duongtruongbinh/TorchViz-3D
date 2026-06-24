@@ -2,7 +2,7 @@
 title: State Store
 type: Subsystem
 source: src/store/useStore.ts
-updated: 2026-06-21
+updated: 2026-06-24
 ---
 
 # State Store
@@ -24,13 +24,17 @@ Initial state seeds from the LeNet template: `code = TEMPLATES.lenet.code.trim()
 ## Layout recomputation (synchronous, guarded)
 
 Layout is recomputed **synchronously** on every IR change and every collapse
-toggle, each wrapped in `try/catch`:
+action, each wrapped in `try/catch`:
 
 - **`setIrResult(ir, error)`** — computes `initCollapsedIds(ir)`, then
   `computeLayout(ir, collapsedIds)`. On success sets `{ ir, collapsedIds, error,
   layout }`; on throw, logs and sets `layout: null` (blank canvas, no crash).
 - **`toggleCollapse(nodeId)`** — flips the id in a fresh `Set`, recomputes layout,
   and updates `{ collapsedIds, layout }` (or just `collapsedIds` on failure).
+- **`expandAll()`** clears `collapsedIds` and recomputes layout once.
+- **`collapseAll()`** collects every non-root container with children into
+  `collapsedIds` and recomputes layout once. Top-level root wrappers stay
+  expanded so the architecture remains visible instead of becoming one block.
 
 `setActiveTemplate` resets `ir`, `error`, `selectedNodeId`, and `layout` to null
 and loads the template's code + default shape.

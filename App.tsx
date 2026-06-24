@@ -96,6 +96,8 @@ function TorchVizWorkspace({ onBackToLanding }: TorchVizWorkspaceProps) {
 
   const setCode = useStore(s => s.setCode);
   const toggleCollapse = useStore(s => s.toggleCollapse);
+  const expandAll = useStore(s => s.expandAll);
+  const collapseAll = useStore(s => s.collapseAll);
   const setHighlightLine = useStore(s => s.setHighlightLine);
   const setHighlightNodeId = useStore(s => s.setHighlightNodeId);
   const setSelectedNodeId = useStore(s => s.setSelectedNodeId);
@@ -292,6 +294,8 @@ function TorchVizWorkspace({ onBackToLanding }: TorchVizWorkspaceProps) {
                 error={error}
                 highlightNodeId={highlightNodeId}
                 onToggleCollapse={toggleCollapse}
+                onExpandAll={expandAll}
+                onCollapseAll={collapseAll}
                 onHoverNode={setHighlightLine}
                 onClickNode={handleSelectNode}
                 onOpenLayerInsight={setLayerInsightNode}

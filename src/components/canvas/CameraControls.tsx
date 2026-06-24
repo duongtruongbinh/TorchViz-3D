@@ -264,7 +264,45 @@ export const CameraFitController: React.FC<{
   return null;
 });
 
-export const RecenterButton: React.FC<{ onRecenter: () => void }> = React.memo(({ onRecenter }) => {
+const ToolbarButton: React.FC<{
+  title: string;
+  disabled?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}> = ({ title, disabled = false, onClick, children }) => (
+  <button
+    type="button"
+    className="w-8 h-8 flex items-center justify-center bg-zinc-900/55 hover:bg-zinc-800/75 disabled:bg-zinc-900/30 border border-zinc-600/60 text-zinc-300 disabled:text-zinc-600 rounded-md shadow-md backdrop-blur-sm transition-all hover:text-white disabled:cursor-not-allowed select-none"
+    onClick={onClick}
+    disabled={disabled}
+    title={title}
+    aria-label={title}
+  >
+    {children}
+  </button>
+);
+
+const LayersIcon: React.FC<{ expanded: boolean }> = ({ expanded }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+    <g transform="translate(1.8 2.2) scale(0.90)">
+      <path d="m12 3 8 4-8 4-8-4 8-4Z" />
+      <path d="m4 12 8 4 8-4" />
+      <path d="m4 17 8 4 8-4" />
+    </g>
+    <path
+      strokeWidth="2"
+      d={expanded ? 'M19.5 2.5v4M17.5 4.5h4' : 'M17.5 4.5h4'}
+    />
+  </svg>
+);
+
+export const ArchitectureControls: React.FC<{
+  disabled: boolean;
+  showRecenter: boolean;
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
+  onRecenter: () => void;
+}> = React.memo(({ disabled, showRecenter, onExpandAll, onCollapseAll, onRecenter }) => {
   const language = useStore((s) => s.language);
   const t = getStrings(language);
 
@@ -273,25 +311,28 @@ export const RecenterButton: React.FC<{ onRecenter: () => void }> = React.memo((
       position={[0, 0, 0]}
       style={{ pointerEvents: 'auto' }}
       zIndexRange={[Z_INDEX_RECENTER_BUTTON, 0]}
-      calculatePosition={(_, __, { width }) => [width - 48, 16]}
+      calculatePosition={(_, __, { width }) => [width - (showRecenter ? 120 : 84), 16]}
     >
       <div
         data-tour="reset-view"
-        className="w-10 h-10 flex items-center justify-center rounded-lg border border-white/15 bg-black/10"
+        className="h-10 px-1 flex items-center gap-1 rounded-lg border border-white/15 bg-black/10"
       >
-        <button
-          className="w-8 h-8 flex items-center justify-center bg-zinc-900/55 hover:bg-zinc-800/75 border border-zinc-600/60 text-zinc-300 rounded-md shadow-md backdrop-blur-sm transition-all hover:text-white select-none"
-          onClick={onRecenter}
-          title={t.inspector.resetCameraView}
-          aria-label={t.inspector.resetCameraView}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-            <path d="M3 12a9 9 0 0 1 15.3-6.4" />
-            <path d="M18 3v5h-5" />
-            <path d="M21 12a9 9 0 0 1-15.3 6.4" />
-            <path d="M6 21v-5h5" />
-          </svg>
-        </button>
+        <ToolbarButton title={t.inspector.expandAll} disabled={disabled} onClick={onExpandAll}>
+          <LayersIcon expanded />
+        </ToolbarButton>
+        <ToolbarButton title={t.inspector.collapseAll} disabled={disabled} onClick={onCollapseAll}>
+          <LayersIcon expanded={false} />
+        </ToolbarButton>
+        {showRecenter && (
+          <ToolbarButton title={t.inspector.resetCameraView} onClick={onRecenter}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+              <path d="M3 12a9 9 0 0 1 15.3-6.4" />
+              <path d="M18 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-15.3 6.4" />
+              <path d="M6 21v-5h5" />
+            </svg>
+          </ToolbarButton>
+        )}
       </div>
     </Html>
   );

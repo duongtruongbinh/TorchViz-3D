@@ -89,6 +89,22 @@ export function initCollapsedIds(ir: IRGraph): Set<string> {
   return ids;
 }
 
+/** Collect every collapsible container below the graph's top-level roots. */
+export function collectCollapsibleContainerIds(ir: IRGraph): Set<string> {
+  const ids = new Set<string>();
+
+  function walk(nodes: IRNode[], depth: number) {
+    for (const node of nodes) {
+      if (!node.is_container || !node.children?.length) continue;
+      if (depth > 0) ids.add(node.id);
+      walk(node.children, depth + 1);
+    }
+  }
+
+  walk(ir.nodes, 0);
+  return ids;
+}
+
 /** Find a node in the IR tree by its ID. */
 export function findNodeById(nodes: IRNode[], id: string): IRNode | null {
   for (const node of nodes) {

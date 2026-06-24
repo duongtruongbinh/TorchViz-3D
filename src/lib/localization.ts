@@ -98,6 +98,8 @@ const localizedText = {
     output: { en: 'Output', vi: 'Output' },
     expand: { en: 'Expand', vi: 'Mở rộng' },
     collapse: { en: 'Collapse', vi: 'Thu gọn' },
+    expandAll: { en: 'Expand all architecture blocks', vi: 'Mở rộng tất cả khối kiến trúc' },
+    collapseAll: { en: 'Collapse all architecture blocks', vi: 'Thu gọn tất cả khối kiến trúc' },
     resetCameraView: { en: 'Reset camera view', vi: 'Đặt lại góc nhìn camera' },
   },
   canvas: {
