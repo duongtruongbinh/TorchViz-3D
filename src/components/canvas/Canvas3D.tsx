@@ -18,7 +18,7 @@ import { collectDemoStops } from '../mnist-demo/demoStops';
 import { useMnistDemoState } from '../mnist-demo/useMnistDemoState';
 import { SceneWithInstancing } from './SceneBlocks';
 import { EdgeLine } from './EdgeRendering';
-import { CameraFitController, RecenterButton } from './CameraControls';
+import { ArchitectureControls, CameraFitController } from './CameraControls';
 import { CanvasEmptyOverlay, CanvasErrorOverlay, CanvasLoadingOverlay } from './CanvasOverlays';
 import { useCanvasLayoutKey } from './useCanvasLayoutKey';
 import {
@@ -39,6 +39,8 @@ export interface Canvas3DProps {
   error?: AppError | null;
   highlightNodeId?: string | null;
   onToggleCollapse?: (nodeId: string) => void;
+  onExpandAll?: () => void;
+  onCollapseAll?: () => void;
   onHoverNode?: (lineno: number | null) => void;
   onClickNode?: (nodeId: string) => void;
   onOpenLayerInsight?: (node: LayoutNode) => void;
@@ -55,6 +57,8 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   error = null,
   highlightNodeId = null,
   onToggleCollapse,
+  onExpandAll,
+  onCollapseAll,
   onHoverNode,
   onClickNode,
   onOpenLayerInsight,
@@ -190,6 +194,14 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
         <directionalLight position={[30, 40, 30]} intensity={0.7} color="#ffffff" />
         <directionalLight position={[-20, 20, -30]} intensity={0.4} color="#e0e7ff" />
 
+        <ArchitectureControls
+          disabled={!layout}
+          showRecenter={!resetViewDisabled && !!layout}
+          onExpandAll={() => onExpandAll?.()}
+          onCollapseAll={() => onCollapseAll?.()}
+          onRecenter={() => setManualFitToken((token) => token + 1)}
+        />
+
         <ContactShadows
           key={`contact-shadows-${layoutRevision}`}
           opacity={0.4}
@@ -209,9 +221,6 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
               layoutRevision={layoutRevision}
               manualFitToken={resetViewToken + manualFitToken}
             />
-            {!resetViewDisabled && (
-              <RecenterButton onRecenter={() => setManualFitToken((token) => token + 1)} />
-            )}
             <SceneWithInstancing
               layout={layout}
               highlightNodeId={effectiveHighlightNodeId}

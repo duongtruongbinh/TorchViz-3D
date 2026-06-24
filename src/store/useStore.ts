@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { IRGraph, LayoutData, initCollapsedIds } from '../lib/irTypes';
+import {
+    IRGraph,
+    LayoutData,
+    collectCollapsibleContainerIds,
+    initCollapsedIds,
+} from '../lib/irTypes';
 import { computeLayout } from '../lib/layout';
 import lenetCode from '../templates/lenet5';
 import resnetCode from '../templates/mini_resnet';
@@ -51,6 +56,8 @@ interface AppState {
     setCriticalError: (err: string | null) => void;
 
     toggleCollapse: (nodeId: string) => void;
+    expandAll: () => void;
+    collapseAll: () => void;
     setHighlightLine: (line: number | null) => void;
     setHighlightNodeId: (id: string | null) => void;
     setSelectedNodeId: (id: string | null) => void;
@@ -132,6 +139,34 @@ export const useStore = create<AppState>((set, get) => ({
         const next = new Set(state.collapsedIds);
         if (next.has(nodeId)) next.delete(nodeId);
         else next.add(nodeId);
+
+        try {
+            const layout = computeLayout(state.ir, next);
+            set((current) => ({ collapsedIds: next, layout, layoutRevision: current.layoutRevision + 1 }));
+        } catch (e) {
+            console.error('Layout computation failed:', e);
+            set({ collapsedIds: next });
+        }
+    },
+
+    expandAll: () => {
+        const state = get();
+        if (!state.ir) return;
+        const next = new Set<string>();
+
+        try {
+            const layout = computeLayout(state.ir, next);
+            set((current) => ({ collapsedIds: next, layout, layoutRevision: current.layoutRevision + 1 }));
+        } catch (e) {
+            console.error('Layout computation failed:', e);
+            set({ collapsedIds: next });
+        }
+    },
+
+    collapseAll: () => {
+        const state = get();
+        if (!state.ir) return;
+        const next = collectCollapsibleContainerIds(state.ir);
 
         try {
             const layout = computeLayout(state.ir, next);
