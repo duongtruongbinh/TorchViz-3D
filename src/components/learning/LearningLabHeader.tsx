@@ -47,7 +47,7 @@ export default function LearningLabHeader({
               aria-label={text.back}
             >
               <span aria-hidden="true">{'<-'}</span>
-              <span>Landing</span>
+              <span>{text.landing}</span>
             </button>
             <span>{text.label}</span>
           </div>

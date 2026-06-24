@@ -100,6 +100,7 @@ const localizedText = {
       vi: 'Học theo lộ trình và làm bài trực tiếp bằng các bài tập shape/value trong Learning Lab.',
     },
     back: { en: 'Back', vi: 'Quay lại' },
+    landing: { en: 'Landing', vi: 'Trang chính' },
     path: { en: 'Path', vi: 'Lộ trình' },
     review: { en: 'Review', vi: 'Ôn tập' },
     role: { en: 'Role', vi: 'Vai trò' },
@@ -124,7 +125,7 @@ const localizedText = {
     },
     roleProfiles: {
       aiEngineer: {
-        title: { en: 'AI Engineer', vi: 'AI Engineer' },
+        title: { en: 'AI Engineer', vi: 'Kỹ sư AI' },
         description: {
           en: 'Build, debug, and ship neural network systems.',
           vi: 'Xây dựng, debug và đưa hệ thống mô hình vào sản phẩm.',
@@ -132,7 +133,7 @@ const localizedText = {
         focus: { en: 'Build and debug model systems', vi: 'Xây dựng và debug hệ thống mô hình' },
         body: {
           en: 'AI Engineers use the Lab to reason from architecture to runtime behavior: how tensors move, where assumptions break, and whether model components remain reliable as the system grows.',
-          vi: 'AI Engineer dùng Lab để nối tư duy kiến trúc với hành vi khi chạy: tensor di chuyển ra sao, giả định hỏng ở đâu, và các thành phần mô hình có còn đáng tin khi hệ thống lớn dần hay không.',
+          vi: 'Kỹ sư AI dùng Lab để nối tư duy kiến trúc với hành vi khi chạy: tensor di chuyển ra sao, giả định hỏng ở đâu, và các thành phần mô hình có còn đáng tin khi hệ thống lớn dần hay không.',
         },
         detail: {
           en: 'This path is useful when you want to build stronger debugging instincts, inspect layer interactions, and make model changes with clearer confidence before integration or deployment.',
@@ -140,7 +141,7 @@ const localizedText = {
         },
       },
       dataScientist: {
-        title: { en: 'Data Scientist', vi: 'Data Scientist' },
+        title: { en: 'Data Scientist', vi: 'Nhà Khoa học dữ liệu' },
         description: {
           en: 'Inspect model behavior and connect outputs back to data questions.',
           vi: 'Kiểm tra hành vi mô hình và nối output về câu hỏi dữ liệu.',
@@ -148,7 +149,7 @@ const localizedText = {
         focus: { en: 'Inspect and explain model behavior', vi: 'Kiểm tra và giải thích hành vi mô hình' },
         body: {
           en: 'Data Scientists use the Lab to connect model internals with data reasoning: what changed through each transformation, which signals are preserved, and how outputs support an analytical question.',
-          vi: 'Data Scientist dùng Lab để nối bên trong mô hình với tư duy dữ liệu: mỗi phép biến đổi làm thay đổi điều gì, tín hiệu nào được giữ lại, và output hỗ trợ câu hỏi phân tích ra sao.',
+          vi: 'Nhà Khoa học dữ liệu dùng Lab để nối bên trong mô hình với tư duy dữ liệu: mỗi phép biến đổi làm thay đổi điều gì, tín hiệu nào được giữ lại, và output hỗ trợ câu hỏi phân tích ra sao.',
         },
         detail: {
           en: 'This path is useful when you want to explain behavior, validate modeling assumptions, and translate tensor-level observations into clearer decisions for experiments, reports, or stakeholders.',
