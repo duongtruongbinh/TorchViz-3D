@@ -11,6 +11,7 @@ import {
   FlattenEffect,
   PermuteEffect,
   ReshapeEffect,
+  UpsampleEffect,
 } from './TransformEffects';
 import {
   ActivationEffect,
@@ -35,6 +36,7 @@ export {
   FlattenEffect,
   PermuteEffect,
   ReshapeEffect,
+  UpsampleEffect,
 } from './TransformEffects';
 export {
   ActivationEffect,
@@ -59,6 +61,7 @@ const EFFECT_BY_KIND: Partial<Record<VisualKind, OperationEffectComponent>> = {
   Reshape: ReshapeEffect,
   Permute: PermuteEffect,
   AddConcat: AddConcatEffect,
+  Upsample: UpsampleEffect,
   Linear: LinearEffect,
 };
 

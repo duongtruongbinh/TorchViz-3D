@@ -2,10 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { getPlaybackProgress, shouldSyncAnimationState } from '../../lib/mnistAnimation';
 import type { LayoutEdgeWithVectors } from '../../lib/canvasUtils';
-import { getMnistDemoCompatibility } from '../../lib/mnistCompatibility';
+import type { LayoutNode } from '../../lib/irTypes';
+import { getForwardPassCompatibility } from '../../lib/mnistCompatibility';
 import { getExerciseById, getExercisesForNode } from '../exercises/exerciseRegistry';
 import type { ExerciseId } from '../exercises/types';
 import { getDemoInputPose, getSegmentState, type DemoStop } from '../operation-effects/effectMath';
+import { buildDemoFlowEdges, buildVisibleDemoNodeIds } from './demoStops';
 import { DEMO_PLAY_SPEED } from './MnistFlowDemo';
 
 type UseMnistDemoStateArgs = {
@@ -16,6 +18,7 @@ type UseMnistDemoStateArgs = {
   shapeInput: string;
   demoStops: DemoStop[];
   edges: LayoutEdgeWithVectors[];
+  layoutNodes: LayoutNode[];
 };
 
 export function useMnistDemoState({
@@ -26,6 +29,7 @@ export function useMnistDemoState({
   shapeInput,
   demoStops,
   edges,
+  layoutNodes,
 }: UseMnistDemoStateArgs) {
   const [progress, setProgress] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -35,7 +39,7 @@ export function useMnistDemoState({
   const lastSyncRef = useRef(0);
 
   const compatibility = useMemo(
-    () => getMnistDemoCompatibility(demoStops, { loading }),
+    () => getForwardPassCompatibility(demoStops, { loading }),
     [demoStops, loading],
   );
   const maxProgress = demoStops.length;
@@ -51,15 +55,21 @@ export function useMnistDemoState({
     [segmentState.activeStop?.node, useOperationBlocks],
   );
 
+  const flowEdges = useMemo(() => buildDemoFlowEdges(demoStops, edges, layoutNodes), [demoStops, edges, layoutNodes]);
+
   const visibleNodeIds = useMemo(() => {
-    if (!useOperationBlocks || segmentState.activeStopIndex < 0) return new Set<string>();
-    return new Set(demoStops.slice(0, segmentState.activeStopIndex + 1).map((stop) => stop.node.id));
-  }, [demoStops, segmentState.activeStopIndex, useOperationBlocks]);
+    if (!useOperationBlocks) return new Set<string>();
+    return buildVisibleDemoNodeIds(demoStops, flowEdges, segmentState.activeStopIndex);
+  }, [demoStops, flowEdges, segmentState.activeStopIndex, useOperationBlocks]);
 
   const visibleEdges = useMemo(() => {
-    if (!useOperationBlocks || visibleNodeIds.size < 2) return [];
-    return edges.filter((edge) => visibleNodeIds.has(edge.from) && visibleNodeIds.has(edge.to));
-  }, [edges, useOperationBlocks, visibleNodeIds]);
+    if (!useOperationBlocks || segmentState.activeStopIndex < 1) return [];
+    // An edge (main chain or skip/residual branch) is visible once the stop at
+    // its revealIndex has been reached.
+    return flowEdges
+      .filter((flow) => flow.revealIndex <= segmentState.activeStopIndex)
+      .map((flow) => flow.edge);
+  }, [flowEdges, useOperationBlocks, segmentState.activeStopIndex]);
 
   const handleProgressChange = useCallback((nextProgress: number) => {
     const clampedProgress = THREE.MathUtils.clamp(nextProgress, 0, maxProgress);

@@ -884,9 +884,9 @@ export const SceneWithInstancing: React.FC<{
       const visibleStopNodes = collectDemoStopNodes(layout.nodes)
         .filter((node) => visibleNodeIds.has(node.id));
       const leaves = visibleStopNodes.filter((node) => !node.is_container);
-      const grouped = groupLeavesByIdentity(leaves);
       return {
-        ...grouped,
+        batches: [],
+        singles: leaves,
         captionNodes: leaves,
         leafCount: leaves.length,
         visibleContainers: visibleStopNodes.filter((node) => node.is_container),

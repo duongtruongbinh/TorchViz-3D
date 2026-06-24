@@ -4,8 +4,8 @@ import { workerService, parseShape } from '../lib/workerService';
 import OnboardingTour from './OnboardingTour';
 import HelpModal from './HelpModal';
 import { getStrings, LANGUAGE_OPTIONS, type Language } from '../lib/localization';
-import { getMnistDemoLayoutCompatibility } from './mnist-demo/demoStops';
-import type { MnistDemoCompatibility } from '../lib/mnistCompatibility';
+import { getForwardPassLayoutCompatibility } from './mnist-demo/demoStops';
+import type { ForwardPassCompatibility } from '../lib/mnistCompatibility';
 
 interface HeaderProps {
     onBackToLanding?: () => void;
@@ -83,20 +83,18 @@ export default function Header({
         window.setTimeout(() => setButtonAttention(false), 1800);
     };
     const demoCompatibility = criticalError
-        ? ({ ok: false, reason: 'no-layout' } as MnistDemoCompatibility)
-        : getMnistDemoLayoutCompatibility(layout, loading);
+        ? ({ ok: false, reason: 'no-layout' } as ForwardPassCompatibility)
+        : getForwardPassLayoutCompatibility(layout, loading);
     const demoAvailable = demoCompatibility.ok;
     const demoUnavailableTitle = (() => {
         if (demoCompatibility.ok === false) {
             switch (demoCompatibility.reason) {
                 case 'loading':
-                    return 'MNIST demo unavailable: graph is still loading.';
+                    return 'Forward pass unavailable: graph is still loading.';
                 case 'no-layout':
-                    return 'MNIST demo unavailable: visualize a model first.';
-                case 'input-shape':
-                    return 'MNIST demo unavailable: input shape must be [N, 1, 32, 32].';
-                case 'missing-head':
-                    return 'MNIST demo unavailable: model needs a 10-class Linear head.';
+                    return 'Forward pass unavailable: visualize a model first.';
+                case 'no-stops':
+                    return 'Forward pass unavailable: no layers with a known input shape.';
             }
         }
         return t.canvas.demo.mode;

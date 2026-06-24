@@ -1,14 +1,27 @@
 import type { LayoutData } from './irTypes';
 
-export type MnistDemoCompatibilityReason =
+/**
+ * Forward-pass (a.k.a. "demo mode") compatibility.
+ *
+ * Historically this gate was MNIST/LeNet-specific (required a `[N,1,32,32]`
+ * input and a 10-class `Linear` head). It is now generalized: the animated
+ * forward pass runs for any graph that has at least one ordered leaf stop with
+ * a known input shape. The remaining reasons only describe states where there
+ * is nothing to animate yet.
+ */
+export type ForwardPassCompatibilityReason =
   | 'loading'
   | 'no-layout'
-  | 'input-shape'
-  | 'missing-head';
+  | 'no-stops';
 
-export type MnistDemoCompatibility =
+export type ForwardPassCompatibility =
   | { ok: true }
-  | { ok: false; reason: MnistDemoCompatibilityReason };
+  | { ok: false; reason: ForwardPassCompatibilityReason };
+
+/** @deprecated Use {@link ForwardPassCompatibilityReason}. */
+export type MnistDemoCompatibilityReason = ForwardPassCompatibilityReason;
+/** @deprecated Use {@link ForwardPassCompatibility}. */
+export type MnistDemoCompatibility = ForwardPassCompatibility;
 
 type DemoCompatibilityStop = {
   node: {
@@ -19,33 +32,34 @@ type DemoCompatibilityStop = {
   };
 };
 
-export function getMnistDemoCompatibility(
+export function getForwardPassCompatibility(
   stops: DemoCompatibilityStop[] | null,
   options: { loading?: boolean } = {},
-): MnistDemoCompatibility {
+): ForwardPassCompatibility {
   if (options.loading) return { ok: false, reason: 'loading' };
   if (!stops?.length) return { ok: false, reason: 'no-layout' };
 
-  const firstLeaf = stops.find((stop) => !stop.node.is_container && stop.node.in_shape?.length);
-  const input = firstLeaf?.node.in_shape ?? [];
-  const hasMnistInput = input.length === 4 && input[1] === 1 && input[2] === 32 && input[3] === 32;
-  if (!hasMnistInput) return { ok: false, reason: 'input-shape' };
-
-  const hasTenClassHead = stops.some((stop) => {
-    const outShape = stop.node.out_shape ?? [];
-    return stop.node.op_type === 'Linear' && outShape[outShape.length - 1] === 10;
-  });
-  if (!hasTenClassHead) return { ok: false, reason: 'missing-head' };
+  // Need at least one leaf with a known input shape to seed the input packet.
+  const hasSeedableLeaf = stops.some(
+    (stop) => !stop.node.is_container && (stop.node.in_shape?.length ?? 0) > 0,
+  );
+  if (!hasSeedableLeaf) return { ok: false, reason: 'no-stops' };
 
   return { ok: true };
 }
 
-export function getMnistDemoLayoutAvailability(
+/** @deprecated Use {@link getForwardPassCompatibility}. */
+export const getMnistDemoCompatibility = getForwardPassCompatibility;
+
+export function getForwardPassLayoutAvailability(
   layout: LayoutData | null,
   stops: DemoCompatibilityStop[] | null,
   loading: boolean,
-): MnistDemoCompatibility {
+): ForwardPassCompatibility {
   if (loading) return { ok: false, reason: 'loading' };
   if (!layout) return { ok: false, reason: 'no-layout' };
-  return getMnistDemoCompatibility(stops);
+  return getForwardPassCompatibility(stops);
 }
+
+/** @deprecated Use {@link getForwardPassLayoutAvailability}. */
+export const getMnistDemoLayoutAvailability = getForwardPassLayoutAvailability;

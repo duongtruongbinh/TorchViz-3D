@@ -8,7 +8,7 @@ import { useStore } from '../../store/useStore';
 import {
   DataFlowDemo,
   DemoControls,
-  useMnistTexture,
+  useForwardPassInput,
 } from '../mnist-demo/MnistFlowDemo';
 import { ConvExerciseModal } from '../mnist-demo/ConvExerciseModal';
 import { ShapeExercise } from '../exercises/ShapeExercise';
@@ -87,8 +87,6 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     [onOpenLayerInsight],
   );
 
-  const mnist = useMnistTexture();
-
   const layoutKey = useCanvasLayoutKey(layout);
   const showLoadingOverlay = loading;
   const worldBounds = useMemo(
@@ -101,6 +99,11 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   );
 
   const demoStops = useMemo(() => (layout ? collectDemoStops(layout) : []), [layout]);
+  const inputChannels = useMemo(() => {
+    const firstLeaf = demoStops.find((stop) => !stop.node.is_container && stop.node.in_shape?.length);
+    return firstLeaf?.node.in_shape?.[1] ?? 3;
+  }, [demoStops]);
+  const mnist = useForwardPassInput(`${activeTemplate}:${layoutKey}`, inputChannels);
   const memoizedEdges = useMemo(() => getVectorizedLayoutEdges(layout), [layout]);
   const demo = useMnistDemoState({
     demoModeEnabled,
@@ -110,6 +113,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     shapeInput,
     demoStops,
     edges: memoizedEdges,
+    layoutNodes: layout?.nodes ?? [],
   });
   const effectiveHighlightNodeId = demo.activeNodeId ?? highlightNodeId;
 
@@ -233,6 +237,9 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
                 edges={demo.visibleEdges}
                 progress={demo.progress}
                 texture={mnist.texture}
+                sampleMatrix={mnist.sampleMatrix}
+                channels={inputChannels}
+                targetClass={mnist.classIndex}
                 inputPose={demo.inputPose}
                 t={t.canvas.demo}
               />

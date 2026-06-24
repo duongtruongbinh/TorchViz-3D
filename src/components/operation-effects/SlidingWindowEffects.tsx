@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import {
   DEMO_EDGE_KERNEL,
-  DEMO_MNIST_MATRIX,
+  DEMO_SAMPLE_MATRIX,
   DEMO_POOL_INPUT_MATRIX,
 } from './effectData';
 import {
@@ -45,18 +45,19 @@ const POOL_OUTPUT_SIZE = 1.58;
 const AVG_POOL_MEAN_POS: [number, number, number] = [0, 0.25, 0.04];
 const ADAPTIVE_POOL_LABEL_POS: [number, number, number] = [0, 0.32, 0.04];
 
-export const Conv2dEffect: React.FC<OperationEffectProps> = ({ node, segmentProgress, t }) => {
-  const outputMatrix = useMemo(() => convolveDemoMatrix(DEMO_MNIST_MATRIX, DEMO_EDGE_KERNEL), []);
-  const frame = getConvFrame(segmentProgress, DEMO_MNIST_MATRIX.length);
+export const Conv2dEffect: React.FC<OperationEffectProps> = ({ node, segmentProgress, sampleMatrix, t }) => {
+  const inputMatrix = sampleMatrix && sampleMatrix.length ? sampleMatrix : DEMO_SAMPLE_MATRIX;
+  const outputMatrix = useMemo(() => convolveDemoMatrix(inputMatrix, DEMO_EDGE_KERNEL), [inputMatrix]);
+  const frame = getConvFrame(segmentProgress, inputMatrix.length);
   const outputRows = outputMatrix.length;
   const outputCols = outputMatrix[0].length;
   const inputWindowCenter = useMemo(() => getGridRegionCenter(
     CONV_INPUT_POS,
     CONV_INPUT_SIZE,
-    DEMO_MNIST_MATRIX.length,
-    DEMO_MNIST_MATRIX[0].length,
+    inputMatrix.length,
+    inputMatrix[0].length,
     frame.region,
-  ), [frame.region.col, frame.region.cols, frame.region.row, frame.region.rows]);
+  ), [inputMatrix, frame.region.col, frame.region.cols, frame.region.row, frame.region.rows]);
   const kernelCenter = useMemo(() => getPatchCenter(CONV_KERNEL_POS, CONV_KERNEL_SIZE), []);
   const outputCellCenter = useMemo(() => getGridCellCenter(
     CONV_OUTPUT_POS,
@@ -73,7 +74,7 @@ export const Conv2dEffect: React.FC<OperationEffectProps> = ({ node, segmentProg
 
   return (
     <OperationPanelFrame node={node} width={7.45} height={3.08} title={t.convCaption}>
-      <FeatureMapGrid matrix={DEMO_MNIST_MATRIX} size={CONV_INPUT_SIZE} position={CONV_INPUT_POS} label={t.inputMap} highlightRegion={frame.region} />
+      <FeatureMapGrid matrix={inputMatrix} size={CONV_INPUT_SIZE} position={CONV_INPUT_POS} label={t.inputMap} highlightRegion={frame.region} />
       <MatrixPatch matrix={DEMO_EDGE_KERNEL} size={CONV_KERNEL_SIZE} position={CONV_KERNEL_POS} label={t.kernel} active />
       <FeatureMapGrid
         matrix={outputMatrix}

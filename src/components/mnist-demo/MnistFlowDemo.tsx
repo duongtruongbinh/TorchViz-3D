@@ -4,13 +4,16 @@ import * as THREE from 'three';
 import { clamp01, getEasedSegmentProgress } from '../../lib/mnistAnimation';
 import type { LayoutEdge } from '../../lib/irTypes';
 import type { getStrings } from '../../lib/localization';
+import { DEMO_PLAY_SPEED } from '../operation-effects/effectData';
 import {
-  DEMO_PLAY_SPEED,
-  DEMO_MNIST_MATRIX,
-} from '../operation-effects/effectData';
+  CIFAR_SAMPLES,
+  deriveSampleMatrix,
+  pickCifarSampleIndex,
+  renderCifarSampleCanvas,
+} from './cifarSamples';
 import type { DemoStop } from '../operation-effects/effectMath';
 import {
-  getDataPacketRoute,
+  getDataPacketRoutes,
   getSegmentState,
   type DataPacketRoute,
   type DemoPose,
@@ -35,96 +38,103 @@ type DemoLabels = ReturnType<typeof getStrings>['canvas']['demo'];
 
 export { DEMO_PLAY_SPEED };
 
+export type ForwardPassInput = {
+  texture: THREE.Texture;
+  dataUrl: string;
+  /** Normalized 8x8 grayscale of the sample; the Conv effect's input map. */
+  sampleMatrix: number[][];
+  /** CIFAR-10 class label of the chosen sample. */
+  label: string;
+  /** CIFAR-10 class index of the chosen sample; the output highlights it. */
+  classIndex: number;
+};
+
 /**
- * Creates texture canvas directly from canonical 8x8 matrix
- * to ensure 100% semantic consistency.
+ * Builds the forward-pass input packet: a CIFAR-10-style colour image chosen
+ * from a small rotating set (keyed on the active template/layout), grayscaled
+ * when the model declares a 1-channel input.
  */
-function createMnistCanvasFromMatrix(matrix: number[][], size = 112): HTMLCanvasElement | null {
-  if (typeof document === 'undefined') return null;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return null;
-
-  const rows = matrix.length;
-  const cols = matrix[0].length;
-  const cellW = size / cols;
-  const cellH = size / rows;
-
-  // Background
-  ctx.fillStyle = '#020617';
-  ctx.fillRect(0, 0, size, size);
-
-  // Draw scaled cells matching the active color palette logic
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const val = matrix[r][c];
-      if (val > 0.001) {
-        const red = Math.floor((0.03 + val * 0.70) * 255);
-        const green = Math.floor((0.06 + val * 0.82) * 255);
-        const blue = Math.floor((0.10 + val * 0.92) * 255);
-        ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
-        ctx.fillRect(c * cellW, r * cellH, cellW, cellH);
-      }
-    }
-  }
-
-  // Add low-res screen/pixel glow structure
-  ctx.globalCompositeOperation = 'screen';
-  for (let y = 0; y < size; y += 4) {
-    for (let x = 0; x < size; x += 4) {
-      const n = (x * 17 + y * 31) % 19;
-      if (n !== 0 && n !== 7) continue;
-      ctx.fillStyle = n === 0 ? 'rgba(255,255,255,0.045)' : 'rgba(125,178,232,0.035)';
-      ctx.fillRect(x, y, 4, 4);
-    }
-  }
-  ctx.globalCompositeOperation = 'source-over';
-
-  return canvas;
-}
-
-export function useMnistTexture() {
-  const mnist = useMemo(() => {
-    const canvas = createMnistCanvasFromMatrix(DEMO_MNIST_MATRIX);
+export function useForwardPassInput(rotationKey: string, channels: number): ForwardPassInput | null {
+  const input = useMemo(() => {
+    const sample = CIFAR_SAMPLES[pickCifarSampleIndex(rotationKey)];
+    const canvas = renderCifarSampleCanvas(sample, 128, channels === 1);
     if (!canvas) return null;
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
-    texture.magFilter = THREE.NearestFilter;
-    texture.minFilter = THREE.NearestFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
     texture.needsUpdate = true;
-    return { texture, dataUrl: canvas.toDataURL('image/png') };
-  }, []);
+    return {
+      texture,
+      dataUrl: canvas.toDataURL('image/png'),
+      sampleMatrix: deriveSampleMatrix(canvas, 8),
+      label: sample.label,
+      classIndex: sample.classIndex,
+    };
+  }, [rotationKey, channels]);
 
   useEffect(() => () => {
-    mnist?.texture.dispose();
-  }, [mnist]);
+    input?.texture.dispose();
+  }, [input]);
 
-  return mnist;
+  return input;
 }
+
+// R/G/B channel tints for the volumetric input. Additively blended, the three
+// tinted copies of the RGB image recombine into the original colour while the
+// depth offset exposes them as separate C×H×W channel slices.
+const CHANNEL_TINTS = ['#ff3030', '#30ff5a', '#3080ff'];
 
 const DemoInputTile: React.FC<{
   texture: THREE.Texture;
+  channels: number;
   position: THREE.Vector3;
   rotation: [number, number, number];
   size: [number, number];
   label: string;
-}> = React.memo(({ texture, position, rotation, size, label }) => {
+}> = React.memo(({ texture, channels, position, rotation, size, label }) => {
   const [w, h] = size;
+  const isRgb = channels === 3;
+  const sliceCount = channels <= 1 ? 1 : isRgb ? 3 : Math.min(channels, 6);
+  const gap = Math.min(w, h) * 0.13;
+  const totalDepth = gap * (sliceCount - 1);
+  const frameGeometry = useMemo(
+    () => new THREE.BoxGeometry(w, h, Math.max(totalDepth, 0.001)),
+    [w, h, totalDepth],
+  );
+
   return (
     <group position={position} rotation={rotation}>
-      {/* Background Plane */}
-      <mesh position={[0, 0, -0.035]}>
+      {/* Background plane behind the whole stack */}
+      <mesh position={[0, 0, -totalDepth / 2 - 0.05]}>
         <planeGeometry args={[w + 0.35, h + 0.35]} />
         <meshBasicMaterial color="#0f172a" transparent opacity={0.92} toneMapped={false} />
       </mesh>
-      {/* MNIST Plane (fixed world mesh) */}
-      <mesh>
-        <planeGeometry args={[w, h]} />
-        <meshBasicMaterial map={texture} toneMapped={false} />
-      </mesh>
+
+      {/* Channel slices stacked along local Z to read as a C×H×W volume */}
+      {Array.from({ length: sliceCount }, (_, i) => (
+        <mesh key={i} position={[0, 0, totalDepth / 2 - i * gap]}>
+          <planeGeometry args={[w, h]} />
+          <meshBasicMaterial
+            map={texture}
+            color={isRgb ? CHANNEL_TINTS[i] : '#ffffff'}
+            toneMapped={false}
+            transparent
+            opacity={isRgb ? 0.92 : 1}
+            blending={isRgb ? THREE.AdditiveBlending : THREE.NormalBlending}
+            depthWrite={!isRgb}
+          />
+        </mesh>
+      ))}
+
+      {/* Volume frame so it reads as a 3D tensor, not a flat tile */}
+      {sliceCount > 1 && (
+        <lineSegments>
+          <edgesGeometry args={[frameGeometry]} />
+          <lineBasicMaterial color="#7dd3fc" transparent opacity={0.45} />
+        </lineSegments>
+      )}
+
       {/* Label Text remains billboarded for camera readability */}
       <Billboard position={[-2.95, -h / 2 - 0.9, 0.28]} renderOrder={RENDER_ORDER_INPUT_TILE_BILLBOARD}>
         <Text
@@ -144,10 +154,16 @@ const DemoInputTile: React.FC<{
 const DataPacket: React.FC<{
   route: DataPacketRoute;
 }> = React.memo(({ route }) => {
+  const isResidual = route.kind === 'residual';
   return (
     <mesh position={route.position} renderOrder={RENDER_ORDER_DATA_PACKET}>
       <sphereGeometry args={[0.18 + route.pulse * 0.05, 16, 16]} />
-      <meshBasicMaterial color="#bae6fd" transparent opacity={0.7 + route.pulse * 0.2} toneMapped={false} />
+      <meshBasicMaterial
+        color={isResidual ? '#fecaca' : '#bae6fd'}
+        transparent
+        opacity={0.7 + route.pulse * 0.2}
+        toneMapped={false}
+      />
     </mesh>
   );
 });
@@ -171,14 +187,17 @@ export const DataFlowDemo: React.FC<{
   edges: LayoutEdge[];
   progress: number;
   texture: THREE.Texture;
+  sampleMatrix: number[][];
+  channels: number;
+  targetClass: number;
   inputPose: DemoPose;
   t: DemoLabels;
-}> = React.memo(({ stops, edges, progress, texture, inputPose, t }) => {
+}> = React.memo(({ stops, edges, progress, texture, sampleMatrix, channels, targetClass, inputPose, t }) => {
   if (!stops.length) return null;
 
   const segment = getSegmentState(stops, progress, inputPose.position);
   const operationActive = !!segment.activeStop && hasOperationDemo(segment.activeStop.node.op_type);
-  const packetRoute = getDataPacketRoute(stops, segment, edges);
+  const packetRoutes = getDataPacketRoutes(stops, segment, edges);
   const easedOperationProgress = getEasedSegmentProgress(segment.segmentProgress);
   const virtualInputRoutePoints = useMemo(
     () => [inputPose.position, stops[0].position],
@@ -189,17 +208,22 @@ export const DataFlowDemo: React.FC<{
     <group>
       <DemoInputTile
         texture={texture}
+        channels={channels}
         position={inputPose.position}
         rotation={inputPose.rotation}
         size={inputPose.size}
         label={t.input}
       />
       <VirtualInputRoute points={virtualInputRoutePoints} />
-      {packetRoute && <DataPacket route={packetRoute} />}
+      {packetRoutes.map((route, index) => (
+        <DataPacket key={`${route.kind}-${index}`} route={route} />
+      ))}
       {segment.activeStop && operationActive && (
         <OperationDemo
           node={segment.activeStop.node}
           segmentProgress={clamp01((easedOperationProgress - 0.10) / 0.90)}
+          sampleMatrix={sampleMatrix}
+          targetClass={targetClass}
           t={t}
         />
       )}

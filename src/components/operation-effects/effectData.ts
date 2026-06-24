@@ -1,13 +1,18 @@
 export const DEMO_SAMPLE_SIZE = 2.15;
 export const DEMO_INPUT_TILE_SIZE = 4.8;
 export const DEMO_PLAY_SPEED = 0.85;
-export const DEMO_TARGET_DIGIT = 2;
+/** Index of the "winning" unit highlighted in the Softmax demo. */
+export const DEMO_TARGET_CLASS = 2;
 export const DEMO_KERNEL_SIZE = 3;
 export const DEMO_MATRIX_SIZE = 8;
 export const DEMO_POOL_SIZE = 2;
 export const DEMO_POOL_STRIDE = 2;
 
-export const DEMO_MNIST_MATRIX = [
+/**
+ * Fallback 8x8 grayscale input map for the Conv effect, used when no live
+ * CIFAR-10 sample matrix is supplied. A generic structured patch (not a digit).
+ */
+export const DEMO_SAMPLE_MATRIX = [
   [0.00, 0.02, 0.18, 0.72, 0.93, 0.66, 0.12, 0.00],
   [0.00, 0.22, 0.86, 0.38, 0.16, 0.84, 0.46, 0.00],
   [0.00, 0.04, 0.08, 0.00, 0.26, 0.86, 0.34, 0.00],

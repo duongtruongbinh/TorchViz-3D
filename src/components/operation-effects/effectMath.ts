@@ -62,6 +62,7 @@ export type DataPacketRoute = {
   points: THREE.Vector3[];
   easedProgress: number;
   pulse: number;
+  kind: 'main' | 'residual';
 };
 
 // --- Single Pose API ---
@@ -182,7 +183,22 @@ function getEdgePoint(points: THREE.Vector3[], progress: number): THREE.Vector3 
   return getPolylinePoint(points, progress);
 }
 
-export function getDataPacketRoute(
+function buildDataPacketRoute(
+  points: THREE.Vector3[],
+  easedProgress: number,
+  pulse: number,
+  kind: DataPacketRoute['kind'],
+): DataPacketRoute {
+  return {
+    position: getEdgePoint(points, easedProgress),
+    points,
+    easedProgress,
+    pulse,
+    kind,
+  };
+}
+
+function getMainDataPacketRoute(
   stops: DemoStop[],
   segment: SegmentState,
   edges: (LayoutEdge & { vectorPoints?: THREE.Vector3[] })[],
@@ -203,6 +219,7 @@ export function getDataPacketRoute(
       points,
       easedProgress,
       pulse,
+      kind: 'main',
     };
   }
 
@@ -215,14 +232,40 @@ export function getDataPacketRoute(
   if (!edge || edge.points.length < 2) return null;
 
   const points = edge.vectorPoints ?? edge.points.map(toVector3);
-  const position = getEdgePoint(points, easedProgress);
+  return buildDataPacketRoute(points, easedProgress, pulse, 'main');
+}
 
-  return {
-    position,
-    points,
-    easedProgress,
-    pulse,
-  };
+export function getDataPacketRoutes(
+  stops: DemoStop[],
+  segment: SegmentState,
+  edges: (LayoutEdge & { vectorPoints?: THREE.Vector3[] })[],
+): DataPacketRoute[] {
+  const mainRoute = getMainDataPacketRoute(stops, segment, edges);
+  if (!mainRoute || !segment.activeStop || segment.activeStopIndex < 1) return mainRoute ? [mainRoute] : [];
+  if (segment.activeStop.node.op_type !== 'Add') return [mainRoute];
+
+  const previousStop = stops[segment.activeStopIndex - 1];
+  const residualRoutes = edges
+    .filter((edge) => (
+      edge.kind === 'residual' &&
+      edge.to === segment.activeStop!.node.id &&
+      edge.from !== previousStop.node.id &&
+      edge.points.length >= 2
+    ))
+    .map((edge) => {
+      const points = edge.vectorPoints ?? edge.points.map(toVector3);
+      return buildDataPacketRoute(points, mainRoute.easedProgress, mainRoute.pulse, 'residual');
+    });
+
+  return [mainRoute, ...residualRoutes];
+}
+
+export function getDataPacketRoute(
+  stops: DemoStop[],
+  segment: SegmentState,
+  edges: (LayoutEdge & { vectorPoints?: THREE.Vector3[] })[],
+): DataPacketRoute | null {
+  return getMainDataPacketRoute(stops, segment, edges);
 }
 
 export function normalizeMatrix(matrix: number[][]): number[][] {
