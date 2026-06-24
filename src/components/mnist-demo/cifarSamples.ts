@@ -81,30 +81,50 @@ export const CIFAR_SAMPLES: CifarSample[] = [
     },
   },
   {
-    label: 'Airplane',
-    classIndex: 0,
+    label: 'Truck',
+    classIndex: 9,
     draw: (ctx, s) => {
-      verticalGradient(ctx, s, [96, 150, 214], [176, 208, 240], 0, s); // sky
-      ctx.fillStyle = '#4b5563';
-      // fuselage
+      verticalGradient(ctx, s, [128, 185, 228], [215, 229, 238], 0, s * 0.68);
+      ctx.fillStyle = '#5b626c';
+      ctx.fillRect(0, s * 0.68, s, s * 0.32);
+
+      // Cargo box and cab.
+      ctx.fillStyle = '#d94b45';
+      ctx.fillRect(s * 0.12, s * 0.34, s * 0.48, s * 0.36);
       ctx.beginPath();
-      ctx.ellipse(s * 0.5, s * 0.5, s * 0.32, s * 0.08, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // wings
-      ctx.beginPath();
-      ctx.moveTo(s * 0.46, s * 0.5);
-      ctx.lineTo(s * 0.58, s * 0.24);
-      ctx.lineTo(s * 0.64, s * 0.26);
-      ctx.lineTo(s * 0.54, s * 0.5);
+      ctx.moveTo(s * 0.6, s * 0.46);
+      ctx.lineTo(s * 0.74, s * 0.46);
+      ctx.lineTo(s * 0.88, s * 0.59);
+      ctx.lineTo(s * 0.88, s * 0.7);
+      ctx.lineTo(s * 0.6, s * 0.7);
       ctx.closePath();
       ctx.fill();
+
+      // Windshield and headlight make the front immediately readable.
+      ctx.fillStyle = '#bfe3f4';
       ctx.beginPath();
-      ctx.moveTo(s * 0.46, s * 0.5);
-      ctx.lineTo(s * 0.58, s * 0.76);
-      ctx.lineTo(s * 0.64, s * 0.74);
-      ctx.lineTo(s * 0.54, s * 0.5);
+      ctx.moveTo(s * 0.67, s * 0.5);
+      ctx.lineTo(s * 0.73, s * 0.5);
+      ctx.lineTo(s * 0.82, s * 0.59);
+      ctx.lineTo(s * 0.67, s * 0.59);
       ctx.closePath();
       ctx.fill();
+      ctx.fillStyle = '#f2c94c';
+      ctx.fillRect(s * 0.84, s * 0.62, s * 0.04, s * 0.04);
+
+      // Chassis and wheels.
+      ctx.fillStyle = '#252a31';
+      ctx.fillRect(s * 0.1, s * 0.67, s * 0.8, s * 0.07);
+      for (const x of [0.27, 0.7]) {
+        ctx.fillStyle = '#252a31';
+        ctx.beginPath();
+        ctx.arc(s * x, s * 0.74, s * 0.105, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#9aa4af';
+        ctx.beginPath();
+        ctx.arc(s * x, s * 0.74, s * 0.045, 0, Math.PI * 2);
+        ctx.fill();
+      }
     },
   },
   {

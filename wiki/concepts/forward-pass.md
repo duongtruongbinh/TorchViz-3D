@@ -44,7 +44,7 @@ built-in templates — and arbitrary user models — animate.
 ## Input packet (CIFAR-10)
 
 The flowing input is a small **rotating set** of procedurally-rendered
-CIFAR-10-class colour scenes (`cifarSamples.ts`: Ship / Airplane / Horse /
+CIFAR-10-class colour scenes (`cifarSamples.ts`: Ship / Truck / Horse /
 Automobile). Real CIFAR binaries are **not** bundled (offline constraint), so the
 scenes are drawn on a canvas. One sample is picked deterministically per
 `${template}:${layoutKey}`.
