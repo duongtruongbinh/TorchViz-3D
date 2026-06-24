@@ -69,6 +69,10 @@ export function createLearningPracticeNode(practice: LearningPracticeRef): Layou
   return node;
 }
 
+export function isLearningPracticeApproved(practice: LearningPracticeRef): boolean {
+  return practice.approval?.status === 'approved' && Boolean(practice.approval.implementedBy);
+}
+
 function createNode(id: string, spec: PracticeNodeSpec): LayoutNode {
   return {
     id,

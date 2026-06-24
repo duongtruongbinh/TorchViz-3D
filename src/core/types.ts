@@ -1,9 +1,17 @@
+export type ExerciseId =
+  | 'conv-value'
+  | 'shape-output'
+  | 'attention-shape'
+  | 'pool-value'
+  | 'linear-value'
+  | 'activation-value';
+
 export type LearningPracticeKind = 'shape' | 'value' | 'review';
 
 export type LearningPracticeRef = {
   id: string;
   kind: LearningPracticeKind;
-  exerciseId: 'conv-value' | 'shape-output' | 'attention-shape' | 'pool-value' | 'linear-value' | 'activation-value';
+  exerciseId: ExerciseId;
   targetOperation: string;
   approval?: {
     status: 'approved' | 'unavailable';

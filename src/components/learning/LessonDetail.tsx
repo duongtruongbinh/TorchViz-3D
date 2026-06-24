@@ -1,14 +1,7 @@
 import type { LearningLesson } from '../../core/types';
-import { getStrings } from '../../lib/localization';
+import { getLearningLessonText, getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import PracticeSection from './shared/PracticeSection';
-
-type LocalizedLessonText = {
-  title: string;
-  eyebrow: string;
-  duration: string;
-  theory: string[];
-};
 
 type LessonDetailProps = {
   theme: 'dark' | 'light';
@@ -18,7 +11,7 @@ type LessonDetailProps = {
 export default function LessonDetail({ theme, lesson }: LessonDetailProps) {
   const language = useStore((s) => s.language);
   const t = getStrings(language).learningLab;
-  const lessonText = getLessonText(t, lesson);
+  const lessonText = getLearningLessonText(t, lesson);
   return (
     <article className="min-h-0 rounded-lg border border-zinc-800 bg-[#080b10]/95 p-5 shadow-2xl shadow-black/25">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -43,10 +36,4 @@ export default function LessonDetail({ theme, lesson }: LessonDetailProps) {
       <PracticeSection theme={theme} practice={lesson.practice} />
     </article>
   );
-}
-
-function getLessonText(t: ReturnType<typeof getStrings>['learningLab'], lesson: LearningLesson) {
-  const lessons = t.lessons as Record<string, LocalizedLessonText>;
-  const key = lesson.id.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
-  return lessons[key] ?? { title: lesson.id, eyebrow: '', duration: '', theory: [] };
 }

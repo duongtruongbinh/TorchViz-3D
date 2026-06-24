@@ -984,7 +984,37 @@ export const strings = {
 };
 
 export type LocalizedStrings = typeof strings.en;
+type LearningLabStrings = LocalizedStrings['learningLab'];
+type LearningLessonText = {
+  title: string;
+  eyebrow: string;
+  duration: string;
+  theory: string[];
+};
+type LearningPracticeText = {
+  title: string;
+};
 
 export function getStrings(language: Language): LocalizedStrings {
   return strings[language] ?? strings.en;
+}
+
+export function getLearningLessonText(
+  t: LearningLabStrings,
+  lesson: { id: string },
+): LearningLessonText {
+  const lessons = t.lessons as Record<string, LearningLessonText>;
+  return lessons[toLearningContentKey(lesson.id)] ?? { title: lesson.id, eyebrow: '', duration: '', theory: [] };
+}
+
+export function getLearningPracticeText(
+  t: LearningLabStrings,
+  practice: { id: string },
+): LearningPracticeText {
+  const practiceItems = t.practiceItems as Record<string, LearningPracticeText>;
+  return practiceItems[toLearningContentKey(practice.id)] ?? { title: practice.id };
+}
+
+function toLearningContentKey(id: string): string {
+  return id.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
 }

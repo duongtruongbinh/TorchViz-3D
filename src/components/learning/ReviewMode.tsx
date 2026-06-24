@@ -1,17 +1,9 @@
 import { useMemo, useState } from 'react';
-import type { LearningLesson, LearningPracticeKind, LearningPracticeRef } from '../../core/types';
-import { getStrings } from '../../lib/localization';
+import type { LearningLesson, LearningPracticeKind } from '../../core/types';
+import { getLearningLessonText, getLearningPracticeText, getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import PracticeSection from './shared/PracticeSection';
 import ReviewPicker from './ReviewPicker';
-
-type LocalizedLessonReviewText = {
-  title: string;
-};
-
-type LocalizedPracticeText = {
-  title: string;
-};
 
 type ReviewModeProps = {
   theme: 'dark' | 'light';
@@ -46,8 +38,8 @@ export default function ReviewMode({ theme, lessons, onSelectLesson }: ReviewMod
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         {filteredPractice.map(({ lesson, item }) => {
-          const lessonText = getLessonText(t, lesson);
-          const practiceText = getPracticeText(t, item);
+          const lessonText = getLearningLessonText(t, lesson);
+          const practiceText = getLearningPracticeText(t, item);
 
           return (
             <article key={`${lesson.id}-${item.id}`} className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
@@ -71,16 +63,4 @@ export default function ReviewMode({ theme, lessons, onSelectLesson }: ReviewMod
       </div>
     </div>
   );
-}
-
-function getLessonText(t: ReturnType<typeof getStrings>['learningLab'], lesson: LearningLesson) {
-  const lessons = t.lessons as Record<string, LocalizedLessonReviewText>;
-  const key = lesson.id.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
-  return lessons[key] ?? { title: lesson.id };
-}
-
-function getPracticeText(t: ReturnType<typeof getStrings>['learningLab'], practice: LearningPracticeRef) {
-  const practiceItems = t.practiceItems as Record<string, LocalizedPracticeText>;
-  const key = practice.id.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
-  return practiceItems[key] ?? { title: practice.id };
 }

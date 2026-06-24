@@ -1,12 +1,6 @@
 import type { LearningLesson } from '../../core/types';
-import { getStrings } from '../../lib/localization';
+import { getLearningLessonText, getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
-
-type LocalizedLessonListText = {
-  title: string;
-  eyebrow: string;
-  duration: string;
-};
 
 type PathNodeProps = {
   lesson: LearningLesson;
@@ -24,7 +18,7 @@ const statusClasses: Record<LearningLesson['status'], string> = {
 export default function PathNode({ lesson, index, isSelected, onSelect }: PathNodeProps) {
   const language = useStore((s) => s.language);
   const t = getStrings(language).learningLab;
-  const lessonText = getLessonText(t, lesson);
+  const lessonText = getLearningLessonText(t, lesson);
   return (
     <button
       type="button"
@@ -49,10 +43,4 @@ export default function PathNode({ lesson, index, isSelected, onSelect }: PathNo
       </div>
     </button>
   );
-}
-
-function getLessonText(t: ReturnType<typeof getStrings>['learningLab'], lesson: LearningLesson) {
-  const lessons = t.lessons as Record<string, LocalizedLessonListText>;
-  const key = lesson.id.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
-  return lessons[key] ?? { title: lesson.id, eyebrow: '', duration: '' };
 }

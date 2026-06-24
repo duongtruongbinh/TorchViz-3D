@@ -13,7 +13,11 @@ import {
 import { ConvExerciseModal } from '../mnist-demo/ConvExerciseModal';
 import { ShapeExercise } from '../exercises/ShapeExercise';
 import { ValueExercise } from '../exercises/ValueExercise';
-import type { ValueExerciseId } from '../../lib/valueExerciseModels';
+import {
+  isConvValueExerciseId,
+  isShapeExerciseId,
+  isValueExerciseId,
+} from '../exercises/exerciseRegistry';
 import { collectDemoStops } from '../mnist-demo/demoStops';
 import { useMnistDemoState } from '../mnist-demo/useMnistDemoState';
 import { SceneWithInstancing } from './SceneBlocks';
@@ -150,13 +154,13 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
             onOpenExercise={demo.openExercise}
           />
           <ConvExerciseModal
-            isOpen={demo.activeExerciseId === 'conv-value'}
+            isOpen={isConvValueExerciseId(demo.activeExerciseId)}
             t={t.canvas.demo}
             onClose={demo.closeExercise}
           />
           <ShapeExercise
-            isOpen={demo.activeExerciseId === 'shape-output' || demo.activeExerciseId === 'attention-shape'}
-            exerciseId={demo.activeExerciseId === 'attention-shape' ? 'attention-shape' : 'shape-output'}
+            isOpen={isShapeExerciseId(demo.activeExerciseId)}
+            exerciseId={isShapeExerciseId(demo.activeExerciseId) ? demo.activeExerciseId : undefined}
             node={demo.segmentState.activeStop?.node}
             t={t.canvas.demo}
             language={language}
@@ -289,7 +293,3 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
 };
 
 export default React.memo(Canvas3D);
-
-function isValueExerciseId(id: string | null): id is ValueExerciseId {
-  return id === 'pool-value' || id === 'linear-value' || id === 'activation-value';
-}

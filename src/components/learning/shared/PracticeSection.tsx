@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { ShapeExercise } from '../../exercises/ShapeExercise';
 import { ValueExercise } from '../../exercises/ValueExercise';
-import { createLearningPracticeNode } from '../../exercises/learningPracticeAdapter';
+import {
+  createLearningPracticeNode,
+  isLearningPracticeApproved,
+} from '../../exercises/learningPracticeAdapter';
+import {
+  isConvValueExerciseId,
+  isShapeExerciseId,
+  isValueExerciseId,
+} from '../../exercises/exerciseRegistry';
 import { ConvExerciseModal } from '../../mnist-demo/ConvExerciseModal';
 import type { LearningPracticeRef } from '../../../core/types';
-import { getStrings } from '../../../lib/localization';
+import { getLearningPracticeText, getStrings } from '../../../lib/localization';
 import type { LayoutNode } from '../../../lib/irTypes';
-import type { ShapeExerciseId } from '../../../lib/shapeExerciseModels';
-import type { ValueExerciseId } from '../../../lib/valueExerciseModels';
 import { useStore } from '../../../store/useStore';
 
 type PracticeSectionProps = {
@@ -26,10 +32,9 @@ export default function PracticeSection({ theme = 'dark', practice }: PracticeSe
   const labText = t.learningLab;
   const [activePractice, setActivePractice] = useState<ActivePractice | null>(null);
   const activeExerciseId = activePractice?.practice.exerciseId;
-  const isShapeExercise = activeExerciseId === 'shape-output' || activeExerciseId === 'attention-shape';
-  const isConvValueExercise = activeExerciseId === 'conv-value';
-  const activeShapeId = isShapeExercise ? activeExerciseId as ShapeExerciseId : undefined;
-  const activeValueId = activeExerciseId && !isShapeExercise && !isConvValueExercise ? activeExerciseId as ValueExerciseId : null;
+  const isShapeExercise = isShapeExerciseId(activeExerciseId);
+  const isConvValueExercise = isConvValueExerciseId(activeExerciseId);
+  const isStandardValueExercise = isValueExerciseId(activeExerciseId);
 
   if (!practice.length) return null;
 
@@ -38,8 +43,8 @@ export default function PracticeSection({ theme = 'dark', practice }: PracticeSe
       <div className="grid gap-3 md:grid-cols-2">
         {practice.map((item) => {
           const node = createLearningPracticeNode(item);
-          const practiceText = getPracticeText(labText, item);
-          const isAvailable = isApprovedPractice(item) && Boolean(node);
+          const practiceText = getLearningPracticeText(labText, item);
+          const isAvailable = isLearningPracticeApproved(item) && Boolean(node);
 
           return (
             <section key={item.id} className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
@@ -68,7 +73,7 @@ export default function PracticeSection({ theme = 'dark', practice }: PracticeSe
 
       <ShapeExercise
         isOpen={Boolean(activePractice && isShapeExercise)}
-        exerciseId={activeShapeId}
+        exerciseId={isShapeExercise ? activeExerciseId : undefined}
         node={activePractice?.node}
         t={t.canvas.demo}
         language={language}
@@ -81,8 +86,8 @@ export default function PracticeSection({ theme = 'dark', practice }: PracticeSe
         onClose={() => setActivePractice(null)}
       />
       <ValueExercise
-        isOpen={Boolean(activePractice && activeValueId)}
-        exerciseId={activeValueId}
+        isOpen={Boolean(activePractice && isStandardValueExercise)}
+        exerciseId={isStandardValueExercise ? activeExerciseId : null}
         node={activePractice?.node}
         t={t.canvas.demo}
         language={language}
@@ -91,14 +96,4 @@ export default function PracticeSection({ theme = 'dark', practice }: PracticeSe
       />
     </div>
   );
-}
-
-function isApprovedPractice(practice: LearningPracticeRef) {
-  return practice.approval?.status === 'approved' && Boolean(practice.approval.implementedBy);
-}
-
-function getPracticeText(t: ReturnType<typeof getStrings>['learningLab'], practice: LearningPracticeRef) {
-  const practiceItems = t.practiceItems as Record<string, { title: string }>;
-  const key = practice.id.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
-  return practiceItems[key] ?? { title: practice.id };
 }
