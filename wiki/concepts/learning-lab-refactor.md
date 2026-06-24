@@ -25,10 +25,10 @@ both are backed by the global `useStore` language state.
 
 The active Landing first screen is a viewport-fit bento composition: top intro
 copy, a left "live graph preview" animation that flows through model stages, and
-compact right-side cards for Workspace and Learning Lab. Connection lines are
-computed from real DOM anchors between the final classifier block and each card;
-the Workspace route enters the editor/canvas flow and the Learning Lab route
-enters the guided learning flow.
+compact right-side cards for Workspace, Learning Lab, and Reinforcement Learning.
+Connection lines are computed from real DOM anchors between the final classifier
+block and the main cards; the Workspace route enters the editor/canvas flow and
+the Learning Lab route enters the guided deep-learning flow.
 
 Learning Lab is active as a separate full-screen view. It currently provides:
 
@@ -56,7 +56,7 @@ Active behavior remains unchanged:
 | `src/components/AppShell.tsx` | MVP 1 root view switcher for Landing and TorchViz workspace. |
 | `src/components/landing/LandingPage.tsx` | Active Landing first screen with intro copy, live graph preview, Workspace CTA, and Learning Lab CTA. |
 | `src/components/landing/ToolCard.tsx` | Active card for entering the existing TorchViz-3D workspace. |
-| `src/components/landing/LearningCard.tsx` | Active card for entering Learning Lab. |
+| `src/components/landing/LearningCard.tsx` | Reused landing card for entering guided surfaces. |
 | `src/components/learning/LearningLabView.tsx` | Full-screen Learning Lab surface and local mode/lesson state. |
 | `src/components/learning/LearningLabHeader.tsx` | Lab header with Back, Path/Review mode toggle, and Workspace action. |
 | `src/components/learning/ReviewMode.tsx` | Free-review browser over practice references. |
@@ -83,9 +83,9 @@ short prompt for the next implementation phase:
 Read docs/WORKFLOW.md, CLAUDE.md, and this wiki page before editing.
 Preserve the current TorchViz-3D workspace until an approved plan says otherwise.
 Treat Learning Lab as active Path/Review UI backed by static learning content
-and embedded practice cards. Reuse existing exercise model builders before
-moving or duplicating exercise UI. AppShell, landing components, and Learning
-Lab components are active.
+and embedded practice cards. Reuse existing exercise model builders for tensor
+exercises before moving or duplicating exercise UI. AppShell, landing
+components, and Learning Lab components are active.
 `answerCheck.ts` and `uiStore.ts` remain reserved for later phases. Update
 existing relevant docs before creating any new docs page.
 ```

@@ -7,6 +7,7 @@ import ToolCard from './ToolCard';
 type LandingPageProps = {
   onOpenWorkspace: () => void;
   onOpenLearningLab: () => void;
+  onOpenReinforcementLearning: () => void;
 };
 
 function HeroVisual({ stages }: { stages: ReturnType<typeof getStrings>['landingPage']['stages'] }) {
@@ -84,7 +85,7 @@ function HeroVisual({ stages }: { stages: ReturnType<typeof getStrings>['landing
   );
 }
 
-export default function LandingPage({ onOpenWorkspace, onOpenLearningLab }: LandingPageProps) {
+export default function LandingPage({ onOpenWorkspace, onOpenLearningLab, onOpenReinforcementLearning }: LandingPageProps) {
   const language = useStore((s) => s.language);
   const setLanguage = useStore((s) => s.setLanguage);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
@@ -257,7 +258,7 @@ export default function LandingPage({ onOpenWorkspace, onOpenLearningLab }: Land
               <HeroVisual stages={text.stages} />
             </div>
 
-            <div className="relative z-[4] grid min-h-0 content-center grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="relative z-[4] grid min-h-0 content-center grid-cols-1 gap-3 sm:grid-cols-3 xl:grid-cols-1">
               <div className="landing-bento-target landing-bento-target-available">
                 <span ref={availableAnchorRef} className="landing-card-anchor landing-card-anchor-available" aria-hidden="true" />
                 <ToolCard
@@ -274,6 +275,14 @@ export default function LandingPage({ onOpenWorkspace, onOpenLearningLab }: Land
                   description={text.learningDescription}
                   openLabel={text.learningOpen}
                   onOpen={onOpenLearningLab}
+                />
+              </div>
+              <div className="landing-bento-target">
+                <LearningCard
+                  title={text.reinforcementLearningTitle}
+                  description={text.reinforcementLearningDescription}
+                  openLabel={text.reinforcementLearningOpen}
+                  onOpen={onOpenReinforcementLearning}
                 />
               </div>
             </div>

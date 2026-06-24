@@ -73,6 +73,12 @@ const localizedText = {
       vi: 'Bài học có hướng dẫn và luyện tập ôn tập cho shape CNN, tham số, và phép toán.',
     },
     learningOpen: { en: 'Start learning', vi: 'Bắt đầu học' },
+    reinforcementLearningTitle: { en: 'Reinforcement Learning', vi: 'Reinforcement Learning' },
+    reinforcementLearningDescription: {
+      en: 'Guided reinforcement learning lessons for MDPs, Bellman updates, Q-Learning, and SARSA.',
+      vi: 'Bài học reinforcement learning về MDP, Bellman update, Q-Learning và SARSA.',
+    },
+    reinforcementLearningOpen: { en: 'Start RL path', vi: 'Bắt đầu RL' },
     stages: {
       convolution: {
         title: { en: 'Convolution', vi: 'Convolution' },
@@ -359,6 +365,219 @@ const localizedText = {
       linearValueScore: { title: { en: 'Compute one Linear score', vi: 'Tính một điểm Linear' } },
       activationValuePass: { title: { en: 'Apply ReLU to values', vi: 'Áp dụng ReLU lên giá trị' } },
       attentionShapeOutput: { title: { en: 'Trace attention dimensions', vi: 'Theo dõi chiều attention' } },
+    },
+  },
+  reinforcementLearning: {
+    label: { en: 'TORCHVIZ REINFORCEMENT LEARNING', vi: 'TORCHVIZ REINFORCEMENT LEARNING' },
+    title: { en: 'Reinforcement Learning', vi: 'Reinforcement Learning' },
+    description: {
+      en: 'A guided path for reinforcement learning fundamentals, from MDPs to temporal-difference updates.',
+      vi: 'Lộ trình reinforcement learning từ MDP đến các cập nhật temporal-difference.',
+    },
+    back: { en: 'Back', vi: 'Quay lại' },
+    landing: { en: 'Landing', vi: 'Trang chính' },
+    path: { en: 'Path', vi: 'Lộ trình' },
+    review: { en: 'Review', vi: 'Ôn tập' },
+    role: { en: 'Track', vi: 'Hướng học' },
+    domain: { en: 'Focus', vi: 'Trọng tâm' },
+    lesson: { en: 'Lesson', vi: 'Bài học' },
+    theory: { en: 'Theory', vi: 'Lý thuyết' },
+    language: { en: 'Language', vi: 'Ngôn ngữ' },
+    lightTheme: { en: 'Light', vi: 'Sáng' },
+    darkTheme: { en: 'Dark', vi: 'Tối' },
+    pathDescription: {
+      en: 'Choose a track and focus area first, then open a focused lesson.',
+      vi: 'Chọn hướng học và trọng tâm trước, rồi mở bài học phù hợp.',
+    },
+    chooseRoleTitle: { en: 'Choose your RL track', vi: 'Chọn hướng học RL' },
+    chooseRoleDescription: {
+      en: 'Start from the way you want to use reinforcement learning. Each track narrows the page into focused practice sequences.',
+      vi: 'Bắt đầu từ cách bạn muốn dùng reinforcement learning. Mỗi hướng học sẽ thu hẹp trang thành các chuỗi luyện tập phù hợp.',
+    },
+    chooseDomainTitle: {
+      en: () => 'Choose a focus area',
+      vi: () => 'Chọn trọng tâm',
+    },
+    chooseDomainDescription: {
+      en: 'Pick the RL idea you want to practice first. The next step opens the lesson sequence.',
+      vi: 'Chọn ý tưởng RL muốn luyện trước. Bước tiếp theo sẽ mở chuỗi bài học.',
+    },
+    domainPreviewTitle: { en: 'What this track will focus on', vi: 'Hướng học này sẽ tập trung vào gì' },
+    domainPreviewBody: {
+      en: 'Use the left panel to choose a focus area. The lesson list will then switch to that RL sequence.',
+      vi: 'Dùng panel bên trái để chọn trọng tâm. Danh sách bài học sau đó sẽ chuyển sang đúng chuỗi RL đó.',
+    },
+    emptyTrackTitle: { en: 'No content yet', vi: 'Chưa có nội dung' },
+    emptyTrackDescription: {
+      en: 'This track is reserved for future Robot Learning lessons.',
+      vi: 'Hướng học này được giữ chỗ cho các bài Robot Learning sau này.',
+    },
+    openNextLevel: { en: 'Open next level', vi: 'Mở cấp tiếp theo' },
+    roleProfiles: {
+      reinforcementLearning: {
+        title: { en: 'Reinforcement Learning', vi: 'Reinforcement Learning' },
+        description: {
+          en: 'Learn RL fundamentals from MDPs to temporal-difference updates.',
+          vi: 'Học nền tảng RL từ MDP đến các cập nhật temporal-difference.',
+        },
+        body: {
+          en: 'This track emphasizes the mechanics behind an agent update: what state the agent saw, which action it took, and how the value estimate changes after feedback.',
+          vi: 'Hướng này tập trung vào cơ chế phía sau một cập nhật agent: agent thấy state nào, chọn action nào, và ước lượng giá trị đổi ra sao sau phản hồi.',
+        },
+        detail: {
+          en: 'Use it when you want implementation-level confidence before wiring a loop, reward signal, or policy into a larger system.',
+          vi: 'Dùng hướng này khi bạn muốn tự tin ở mức triển khai trước khi nối loop, reward signal hoặc policy vào hệ thống lớn hơn.',
+        },
+      },
+      robotLearning: {
+        title: { en: 'Robot Learning', vi: 'Robot Learning' },
+        description: {
+          en: 'Reserved for embodied agents, control, and robotics practice.',
+          vi: 'Giữ chỗ cho embodied agents, control và luyện tập robotics.',
+        },
+        body: {
+          en: 'Robot Learning content is not available yet.',
+          vi: 'Nội dung Robot Learning chưa sẵn sàng.',
+        },
+        detail: {
+          en: 'This placeholder keeps the track visible while the lesson sequence is still being designed.',
+          vi: 'Mục giữ chỗ này giúp hướng học hiển thị trong khi chuỗi bài học còn đang được thiết kế.',
+        },
+      },
+    },
+    domainProfiles: {
+      reinforcementLearning: {
+        tabularControl: {
+          title: { en: 'Tabular Control', vi: 'Điều khiển dạng bảng' },
+          shortDescription: { en: 'MDP, Bellman, Q-table updates.', vi: 'MDP, Bellman, cập nhật Q-table.' },
+          longDescription: {
+            en: 'Practice the core tabular loop: define the environment, read values from a table, and update Q estimates one transition at a time.',
+            vi: 'Luyện vòng lặp tabular cốt lõi: định nghĩa environment, đọc giá trị từ bảng, và cập nhật Q từng transition.',
+          },
+        },
+        policyBehavior: {
+          title: { en: 'Policy Behavior', vi: 'Hành vi policy' },
+          shortDescription: { en: 'Compare off-policy and on-policy updates.', vi: 'So sánh cập nhật off-policy và on-policy.' },
+          longDescription: {
+            en: 'Focus on how action selection changes the target in Q-Learning and SARSA, especially when exploration and the greedy action diverge.',
+            vi: 'Tập trung vào cách chọn action làm đổi target trong Q-Learning và SARSA, nhất là khi exploration khác action tham lam.',
+          },
+        },
+      },
+    },
+    reviewTitle: { en: 'RL review practice', vi: 'Ôn tập RL' },
+    reviewDescription: {
+      en: 'Jump directly to MDP, Bellman, or GridWorld practice outside the guided order.',
+      vi: 'Nhảy thẳng đến bài MDP, Bellman hoặc GridWorld ngoài thứ tự lộ trình.',
+    },
+    openLesson: { en: 'Open lesson', vi: 'Mở bài học' },
+    unavailablePractice: { en: 'In progress', vi: 'Đang hoàn thiện' },
+    practiceCount: {
+      en: (count: number) => `${count} practice ${count === 1 ? 'item' : 'items'}`,
+      vi: (count: number) => `${count} bài luyện tập`,
+    },
+    lessonStatus: {
+      available: { en: 'Available', vi: 'Sẵn sàng' },
+      next: { en: 'Next up', vi: 'Tiếp theo' },
+      locked: { en: 'Preview', vi: 'Xem trước' },
+    },
+    reviewKinds: {
+      all: { en: 'All', vi: 'Tất cả' },
+      rlShape: { en: 'MDP', vi: 'MDP' },
+      rlValue: { en: 'Bellman', vi: 'Bellman' },
+      gridworld: { en: 'GridWorld', vi: 'GridWorld' },
+    },
+    exercise: {
+      mdpPrompt: {
+        en: 'Identify the MDP pieces from the transition sketch. Use the transition that reaches Goal.',
+        vi: 'Xác định các thành phần MDP từ sơ đồ transition. Dùng transition đi đến Goal.',
+      },
+      bellmanPrompt: {
+        en: 'For optimal control, V*(s) is the maximum Q(s,a). Enter the best Q value.',
+        vi: 'Với điều khiển tối ưu, V*(s) là Q(s,a) lớn nhất. Nhập giá trị Q tốt nhất.',
+      },
+      gridPrompt: {
+        en: 'Compute the updated Q value for this single GridWorld step.',
+        vi: 'Tính giá trị Q mới cho một bước GridWorld này.',
+      },
+      qLearningFormula: { en: 'Q <- Q + alpha * [r + gamma * max Q(next) - Q]', vi: 'Q <- Q + alpha * [r + gamma * max Q(next) - Q]' },
+      sarsaFormula: { en: 'Q <- Q + alpha * [r + gamma * Q(next, next_action) - Q]', vi: 'Q <- Q + alpha * [r + gamma * Q(next, action kế tiếp) - Q]' },
+      state: { en: 'State', vi: 'State' },
+      action: { en: 'Action', vi: 'Action' },
+      reward: { en: 'Reward', vi: 'Reward' },
+      discount: { en: 'Discount', vi: 'Discount' },
+      check: { en: 'Check', vi: 'Kiểm tra' },
+      reset: { en: 'Reset', vi: 'Làm lại' },
+      correct: { en: 'Correct.', vi: 'Đúng rồi.' },
+      incorrect: { en: 'Not quite yet. Recheck the update.', vi: 'Chưa đúng. Kiểm tra lại phép cập nhật.' },
+    },
+    lessons: {
+      rlMdpBasics: {
+        title: { en: 'MDP basics', vi: 'Nền tảng MDP' },
+        eyebrow: { en: 'RL Lesson 1', vi: 'Bài RL 1' },
+        duration: { en: '7 min', vi: '7 phút' },
+        theory: [
+          {
+            en: 'An MDP defines states, actions, transition dynamics, rewards, a discount factor, episodes, and a policy.',
+            vi: 'MDP định nghĩa state, action, dynamics chuyển trạng thái, reward, hệ số discount, episode và policy.',
+          },
+          {
+            en: 'The useful debugging habit is to name which part of the environment each symbol represents before applying an update.',
+            vi: 'Thói quen debug hữu ích là gọi tên từng ký hiệu thuộc phần nào của environment trước khi áp dụng công thức.',
+          },
+        ],
+      },
+      rlBellman: {
+        title: { en: 'Bellman values', vi: 'Giá trị Bellman' },
+        eyebrow: { en: 'RL Lesson 2', vi: 'Bài RL 2' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          {
+            en: 'Bellman equations connect a current value to immediate reward plus discounted future value.',
+            vi: 'Phương trình Bellman nối giá trị hiện tại với reward tức thời cộng giá trị tương lai đã discount.',
+          },
+          {
+            en: 'For optimality, the agent chooses the action with the highest future value estimate.',
+            vi: 'Với tối ưu, agent chọn action có ước lượng giá trị tương lai cao nhất.',
+          },
+        ],
+      },
+      rlQLearning: {
+        title: { en: 'Q-Learning update', vi: 'Cập nhật Q-Learning' },
+        eyebrow: { en: 'RL Lesson 3', vi: 'Bài RL 3' },
+        duration: { en: '10 min', vi: '10 phút' },
+        theory: [
+          {
+            en: 'Q-Learning is off-policy: the target uses the best next action, even if exploration picked something else.',
+            vi: 'Q-Learning là off-policy: target dùng action kế tiếp tốt nhất, dù exploration có thể chọn action khác.',
+          },
+          {
+            en: 'The update moves the old Q estimate toward reward plus discounted max next Q.',
+            vi: 'Cập nhật kéo ước lượng Q cũ về reward cộng max next Q đã discount.',
+          },
+        ],
+      },
+      rlSarsa: {
+        title: { en: 'SARSA update', vi: 'Cập nhật SARSA' },
+        eyebrow: { en: 'RL Lesson 4', vi: 'Bài RL 4' },
+        duration: { en: '10 min', vi: '10 phút' },
+        theory: [
+          {
+            en: 'SARSA is on-policy: the target uses the next action actually selected by the current policy.',
+            vi: 'SARSA là on-policy: target dùng action kế tiếp thật sự được policy hiện tại chọn.',
+          },
+          {
+            en: 'Comparing SARSA with Q-Learning makes the policy boundary visible in one update.',
+            vi: 'So sánh SARSA với Q-Learning làm rõ ranh giới policy chỉ trong một cập nhật.',
+          },
+        ],
+      },
+    },
+    practiceItems: {
+      rlMdpComponentsGridworld: { title: { en: 'Identify MDP components', vi: 'Xác định thành phần MDP' } },
+      rlBellmanQTableValue: { title: { en: 'Pick the Bellman value', vi: 'Chọn giá trị Bellman' } },
+      rlQLearningGridworldStep: { title: { en: 'Update Q-Learning once', vi: 'Cập nhật Q-Learning một bước' } },
+      rlSarsaGridworldStep: { title: { en: 'Update SARSA once', vi: 'Cập nhật SARSA một bước' } },
     },
   },
   editor: {
@@ -994,6 +1213,7 @@ type LearningLessonText = {
 type LearningPracticeText = {
   title: string;
 };
+type ReinforcementLearningStrings = LocalizedStrings['reinforcementLearning'];
 
 export function getStrings(language: Language): LocalizedStrings {
   return strings[language] ?? strings.en;
@@ -1009,6 +1229,22 @@ export function getLearningLessonText(
 
 export function getLearningPracticeText(
   t: LearningLabStrings,
+  practice: { id: string },
+): LearningPracticeText {
+  const practiceItems = t.practiceItems as Record<string, LearningPracticeText>;
+  return practiceItems[toLearningContentKey(practice.id)] ?? { title: practice.id };
+}
+
+export function getReinforcementLessonText(
+  t: ReinforcementLearningStrings,
+  lesson: { id: string },
+): LearningLessonText {
+  const lessons = t.lessons as Record<string, LearningLessonText>;
+  return lessons[toLearningContentKey(lesson.id)] ?? { title: lesson.id, eyebrow: '', duration: '', theory: [] };
+}
+
+export function getReinforcementPracticeText(
+  t: ReinforcementLearningStrings,
   practice: { id: string },
 ): LearningPracticeText {
   const practiceItems = t.practiceItems as Record<string, LearningPracticeText>;
