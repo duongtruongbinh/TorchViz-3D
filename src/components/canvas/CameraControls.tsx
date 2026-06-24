@@ -241,7 +241,13 @@ export const CameraFitController: React.FC<{
       return;
     }
 
-    if ((layoutChanged || sizeChanged) && !isLayoutContained(camera, layout, size)) {
+    if (layoutChanged) {
+      previous.current.layoutRevision = layoutRevision;
+      startAnimation(getFitView(layout, size, DEFAULT_CAMERA_OFFSET.clone()));
+      return;
+    }
+
+    if (sizeChanged && !isLayoutContained(camera, layout, size)) {
       previous.current.layoutRevision = layoutRevision;
       const offset = getCurrentOffset(camera, controls);
       const fit = getFitView(layout, size, offset);
@@ -258,7 +264,7 @@ export const CameraFitController: React.FC<{
   useEffect(() => {
     if (!controls || manualFitToken === previous.current.manualFitToken) return;
     previous.current.manualFitToken = manualFitToken;
-    startAnimation(getFitView(layout, size, getCurrentOffset(camera, controls)));
+    startAnimation(getFitView(layout, size, DEFAULT_CAMERA_OFFSET.clone()));
   }, [layout, manualFitToken, camera, controls, size, invalidate]);
 
   return null;
