@@ -2,7 +2,7 @@
 title: Learning Lab Path and Practice Flow
 status: done
 created: 2026-06-24T13:49:49+07:00
-updated: 2026-06-24T15:05:00+07:00
+updated: 2026-06-24T15:20:00+07:00
 author: nmkhiem
 task: "activate Learning Lab as a Path/Review surface with embedded practice while preserving Workspace exercises"
 supersedes:
@@ -35,8 +35,9 @@ for the Learning Lab scaffold and intended component map.
   available.
 - Keep Learning Lab page state local to the lab; do not add routing,
   persistence, deep links, workspace handoff, or a real UI store yet.
-- Keep `src/core/` React-free. Learning content stores IDs, fixture metadata,
-  approval metadata, and mappings only.
+- Keep `src/core/` React-free. Learning content stores IDs, approval metadata,
+  and mappings only; representative exercise nodes live in a shared exercise
+  adapter instead of the learning content file.
 - Store all English/Vietnamese UI copy in `src/lib/localization.ts`.
 - Practice cards are available only when `approval.status: approved` and
   `approval.implementedBy` are present. Other cards show "In progress" /
@@ -56,8 +57,11 @@ for the Learning Lab scaffold and intended component map.
 - `PathMode` presents role -> domain -> lesson flow with static lesson metadata.
 - `ReviewMode` browses practice outside the guided order and can return to the
   selected lesson in Path mode.
-- `src/core/learningContent.ts` stores static learning roles, lessons, fixtures,
-  approval metadata, and the fixture-to-`LayoutNode` helper.
+- `src/core/learningContent.ts` stores static learning roles, lessons, and
+  approval metadata.
+- A shared exercise adapter builds representative `LayoutNode`s and validates
+  them against the existing exercise registry before Learning Lab opens an
+  exercise.
 - `PracticeSection` gates availability from approval metadata and opens:
   `ShapeExercise` for shape practice, `ConvExerciseModal` for `conv-value`, and
   `ValueExercise` for approved non-convolution value practice.
@@ -115,3 +119,7 @@ for the Learning Lab scaffold and intended component map.
 - 2026-06-24T15:05:00+07:00 - Consolidated the separate embedded-practice plan
   into this shorter Learning Lab / Learning Path plan and removed the duplicate
   plan file.
+- 2026-06-24T15:20:00+07:00 - Refactor approved in chat: move representative
+  node fixtures out of `learningContent.ts` and into a shared exercise adapter
+  so Learning Lab content remains metadata-only and reuses the Workspace
+  exercise registry boundary.

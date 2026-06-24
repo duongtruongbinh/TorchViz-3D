@@ -203,11 +203,12 @@ inspector workspace through the active TorchViz-3D card.
 The Learning Lab is now also reachable from Landing as a separate full-screen
 view. It implements a lightweight Learning Path and Review mode backed by
 React-free learning content in `src/core/learningContent.ts` and
-`src/core/types.ts`. Learning Lab practice cards build representative
-`LayoutNode` fixtures and feed them into the existing shape/value exercise model
-builders, so users can answer exercises inline without leaving the lab. The
-existing in-graph exercise launcher remains unchanged. `src/core/answerCheck.ts`
-and `src/store/uiStore.ts` remain reserved for later phases.
+`src/core/types.ts`. Learning Lab practice cards use a shared exercise adapter
+to build representative `LayoutNode`s, validate them through the existing
+exercise registry, and feed them into the existing shape/value exercise model
+builders, so users can answer exercises without leaving the lab. The existing
+in-graph exercise launcher remains unchanged. `src/core/answerCheck.ts` and
+`src/store/uiStore.ts` remain reserved for later phases.
 
 The active Landing screen is a compact bento layout with top intro copy, a
 left-side live graph preview, and right-side Workspace/Learning cards. The

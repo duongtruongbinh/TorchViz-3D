@@ -10,14 +10,6 @@ export type LearningPracticeRef = {
     implementedBy?: string;
   };
   reuseStatus: 'metadata' | 'model-backed' | 'embedded';
-  fixture: LearningNodeFixture;
-};
-
-export type LearningNodeFixture = {
-  opType: string;
-  inShape: number[];
-  outShape: number[];
-  meta?: Record<string, unknown>;
 };
 
 export type LearningLesson = {

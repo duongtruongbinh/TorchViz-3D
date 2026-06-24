@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { ShapeExercise } from '../../exercises/ShapeExercise';
 import { ValueExercise } from '../../exercises/ValueExercise';
+import { createLearningPracticeNode } from '../../exercises/learningPracticeAdapter';
 import { ConvExerciseModal } from '../../mnist-demo/ConvExerciseModal';
-import { createLearningPracticeNode } from '../../../core/learningContent';
 import type { LearningPracticeRef } from '../../../core/types';
 import { getStrings } from '../../../lib/localization';
 import type { LayoutNode } from '../../../lib/irTypes';
@@ -39,7 +39,7 @@ export default function PracticeSection({ theme = 'dark', practice }: PracticeSe
         {practice.map((item) => {
           const node = createLearningPracticeNode(item);
           const practiceText = getPracticeText(labText, item);
-          const isAvailable = isApprovedPractice(item);
+          const isAvailable = isApprovedPractice(item) && Boolean(node);
 
           return (
             <section key={item.id} className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
@@ -49,7 +49,9 @@ export default function PracticeSection({ theme = 'dark', practice }: PracticeSe
               {isAvailable ? (
                 <button
                   type="button"
-                  onClick={() => setActivePractice({ practice: item, node })}
+                  onClick={() => {
+                    if (node) setActivePractice({ practice: item, node });
+                  }}
                   className="learning-lab-primary-action mt-4 w-full rounded-md border border-teal-200/50 bg-teal-400/15 px-5 py-2 text-sm font-bold text-teal-50 transition-colors hover:bg-teal-400/25 focus:outline-none focus:ring-2 focus:ring-teal-300/40"
                 >
                   {labText.startExercise}

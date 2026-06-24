@@ -36,7 +36,8 @@ Learning Lab is active as a separate full-screen view. It currently provides:
 - A Review mode over the same embedded practice set.
 - A header toggle between Path and Review, with Review lesson links returning
   users to the selected lesson in Path mode.
-- Inline exercises that build representative `LayoutNode` fixtures and reuse
+- Practice cards that use a shared exercise adapter to build representative
+  `LayoutNode`s, validate them against the existing exercise registry, and reuse
   existing shape/value exercise model builders.
 
 Active behavior remains unchanged:
@@ -68,7 +69,8 @@ Active behavior remains unchanged:
 | `src/components/learning/shared/PracticeSection.tsx` | Shared inline practice renderer with answer checking, reset, and hints. |
 | `src/components/learning/shared/HintSection.tsx` | Shared hint renderer. |
 | `src/core/types.ts` | Pure learning-domain types. |
-| `src/core/learningContent.ts` | Static Learning Path content, practice fixtures, and fixture-to-node helper. |
+| `src/core/learningContent.ts` | Static Learning Path content, role/domain mappings, practice IDs, and approval metadata. |
+| `src/components/exercises/learningPracticeAdapter.ts` | Representative practice-node adapter that bridges Learning Lab metadata to existing exercise registry/model builders. |
 | `src/core/answerCheck.ts` | Future pure answer validation helpers. |
 | `src/store/uiStore.ts` | Future UI/page state store. |
 

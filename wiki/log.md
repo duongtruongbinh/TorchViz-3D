@@ -41,5 +41,5 @@ no `type` frontmatter required.)
   while the Workspace/Demo exercise flow remains unchanged.
 - **2026-06-24 — Learning Lab embedded practice.** Updated Learning Lab from
   reference-only cards to inline exercises with answer checking, reset, and
-  hints. Practice cards reuse existing shape/value model builders with static
-  representative node fixtures.
+  hints. Practice cards reuse existing shape/value model builders through a
+  shared exercise adapter, keeping Learning Path content metadata-only.
