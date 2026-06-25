@@ -91,4 +91,4 @@ EditorPane -> zustand store -> WorkerService -> Pyodide worker + torchstub
 * [Knowledge bundle (`wiki/`)](wiki/index.md) — the structured, agent-readable OKF bundle: per-subsystem concept pages, guides, and reference. **Start here** for a navigable map of the codebase.
 * [Architecture](docs/ARCHITECTURE.md) — data-flow pipeline, the `torchstub` shape-tracing core, the IR contract, and the layout engine.
 * [Extending torchstub](docs/TORCHSTUB.md) — how to add support for a new layer.
-* [Learning Lab refactor plan](docs/plans/2026-06-21-learning-lab-refactor.md) — Landing/AppShell entry point plus active DL and Reinforcement Learning surfaces.
+* [Learning Lab refactor plan](docs/plans/2026-06-21-learning-lab-refactor.md) — Landing/AppShell entry point plus the active domain-based Learning Lab.

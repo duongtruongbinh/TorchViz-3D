@@ -75,14 +75,12 @@ See [concepts/torchstub](concepts/torchstub.md) for the full mechanism.
 
 See [reference/gotchas](reference/gotchas.md) for the fragile spots.
 
-## Landing and planned UI surfaces
+## Landing and Learning Lab
 
-The Learning Lab refactor scaffold now has an MVP 1 runtime entry point:
 `App.tsx` renders `AppShell`, the Landing Page can open the existing TorchViz-3D
-workspace, and the Learning Lab card is disabled/coming soon. The active Landing
-screen uses a bento live graph preview plus compact Workspace/Learning cards;
-details live in the existing
-[learning-lab-refactor](concepts/learning-lab-refactor.md) page rather than a
-separate Landing page. Learning Lab components, core learning helpers, and
-`src/store/uiStore.ts` remain inert. See that page and `CLAUDE.md` before
-implementing the next phase.
+workspace, and Learning Lab is the active learning container. The active Landing
+screen uses a bento live graph preview plus compact Workspace/Learning cards.
+Learning Lab uses a domain-first catalog for ML Foundations, CV, NLP,
+Reinforcement Learning, and Robot Learning placeholder. Reinforcement Learning
+is a Learning Lab domain, not a sibling top-level surface. Details live in
+[learning-lab-refactor](concepts/learning-lab-refactor.md).

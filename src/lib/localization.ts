@@ -69,8 +69,8 @@ const localizedText = {
     workspaceOpen: { en: 'Open workspace', vi: 'Mở workspace' },
     learningTitle: { en: 'Learning Lab', vi: 'Learning Lab' },
     learningDescription: {
-      en: 'Guided lessons and review practice for CNN shapes, parameters, and operations.',
-      vi: 'Bài học có hướng dẫn và luyện tập ôn tập cho shape CNN, tham số, và phép toán.',
+      en: 'One learning lab for ML foundations, CV, NLP, Reinforcement Learning, and future Robot Learning.',
+      vi: 'Một Learning Lab cho ML foundations, CV, NLP, Reinforcement Learning và Robot Learning sau này.',
     },
     learningOpen: { en: 'Start learning', vi: 'Bắt đầu học' },
     reinforcementLearningTitle: { en: 'Reinforcement Learning', vi: 'Reinforcement Learning' },
@@ -1268,7 +1268,6 @@ type LearningLessonText = {
 type LearningPracticeText = {
   title: string;
 };
-type ReinforcementLearningStrings = LocalizedStrings['reinforcementLearning'];
 
 export function getStrings(language: Language): LocalizedStrings {
   return strings[language] ?? strings.en;
@@ -1284,22 +1283,6 @@ export function getLearningLessonText(
 
 export function getLearningPracticeText(
   t: LearningLabStrings,
-  practice: { id: string },
-): LearningPracticeText {
-  const practiceItems = t.practiceItems as Record<string, LearningPracticeText>;
-  return practiceItems[toLearningContentKey(practice.id)] ?? { title: practice.id };
-}
-
-export function getReinforcementLessonText(
-  t: ReinforcementLearningStrings,
-  lesson: { id: string },
-): LearningLessonText {
-  const lessons = t.lessons as Record<string, LearningLessonText>;
-  return lessons[toLearningContentKey(lesson.id)] ?? { title: lesson.id, eyebrow: '', duration: '', theory: [] };
-}
-
-export function getReinforcementPracticeText(
-  t: ReinforcementLearningStrings,
   practice: { id: string },
 ): LearningPracticeText {
   const practiceItems = t.practiceItems as Record<string, LearningPracticeText>;

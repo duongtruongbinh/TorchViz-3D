@@ -191,8 +191,10 @@ Learning Lab work:
 - `src/components/AppShell.tsx`
 - `src/components/landing/*`
 - `src/components/learning/*`
-- `src/components/learning/shared/*`
-- `src/core/types.ts`
+- `src/components/learning/shell/*`
+- `src/components/learning/lesson/*`
+- `src/components/learning/practice/*`
+- `src/core/learning/*`
 - `src/core/answerCheck.ts`
 - `src/store/uiStore.ts`
 
@@ -200,21 +202,24 @@ MVP 1 imports `AppShell` and `src/components/landing/*` from the root `App.tsx`.
 The app opens on the Landing Page, then enters the existing editor/canvas/
 inspector workspace through the active TorchViz-3D card.
 
-The Learning Lab is now also reachable from Landing as a separate full-screen
-view. It implements a lightweight Learning Path and Review mode backed by
-React-free learning content in `src/core/learningContent.ts` and
-`src/core/types.ts`. Learning Lab practice cards use a shared exercise adapter
-to build representative `LayoutNode`s, validate them through the existing
-exercise registry, and feed them into the existing shape/value exercise model
-builders, so users can answer exercises without leaving the lab. The existing
-in-graph exercise launcher remains unchanged. `src/core/answerCheck.ts` and
-`src/store/uiStore.ts` remain reserved for later phases.
+The Learning Lab is now reachable from Landing as the single learning
+container. It uses a domain-first flow backed by React-free catalog metadata in
+`src/core/learning/*`: ML Foundations, Computer Vision, NLP, Reinforcement
+Learning, and a Robot Learning placeholder. Tensor practice cards build
+representative `LayoutNode`s, validate them through the existing exercise
+registry, and feed them into the existing shape/value exercise model builders.
+Reinforcement Learning practice uses dedicated deterministic fixtures for
+MDP/Bellman/GridWorld concepts instead of forcing those concepts into the tensor
+registry. The existing in-graph exercise launcher remains unchanged.
+`src/core/answerCheck.ts` and `src/store/uiStore.ts` remain reserved for later
+phases.
 
 The active Landing screen is a compact bento layout with top intro copy, a
 left-side live graph preview, and right-side Workspace/Learning cards. The
 preview's final classifier block draws anchor-based visual routes to the real
 card anchors; Workspace opens the editor/canvas flow, and Learning Lab opens the
-guided path/review flow.
+domain catalog. Legacy Reinforcement Learning hash routes redirect into the
+Learning Lab RL domain.
 
 Codex agents should use the repo orientation in `CLAUDE.md` as the source for
 the initial system prompt, then read the OKF page

@@ -409,56 +409,56 @@
   box-shadow: 0 0 10px rgba(148, 163, 184, 0.26);
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) {
+.learning-lab-light {
   --surface-elevated: rgba(255, 255, 255, 0.9);
   --border: rgba(148, 163, 184, 0.52);
   --text-muted: #475569;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light).learning-exercise-modal-root {
+.learning-lab-light.learning-exercise-modal-root {
   background-color: rgba(15, 23, 42, 0.28) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) header,
-:is(.learning-lab-light, .reinforcement-learning-light) article,
-:is(.learning-lab-light, .reinforcement-learning-light) aside,
-:is(.learning-lab-light, .reinforcement-learning-light) section,
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="bg-[#080b10]"],
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="bg-zinc-950"],
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="bg-zinc-900"],
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="bg-black"] {
+.learning-lab-light header,
+.learning-lab-light article,
+.learning-lab-light aside,
+.learning-lab-light section,
+.learning-lab-light [class*="bg-[#080b10]"],
+.learning-lab-light [class*="bg-zinc-950"],
+.learning-lab-light [class*="bg-zinc-900"],
+.learning-lab-light [class*="bg-black"] {
   border-color: rgba(148, 163, 184, 0.45) !important;
   background-color: rgba(255, 255, 255, 0.88) !important;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="border-zinc"] {
+.learning-lab-light [class*="border-zinc"] {
   border-color: rgba(148, 163, 184, 0.48) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="border-teal"] {
+.learning-lab-light [class*="border-teal"] {
   border-color: rgba(13, 148, 136, 0.52) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="border-sky"] {
+.learning-lab-light [class*="border-sky"] {
   border-color: rgba(2, 132, 199, 0.36) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="border-emerald"] {
+.learning-lab-light [class*="border-emerald"] {
   border-color: rgba(5, 150, 105, 0.38) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="border-amber"] {
+.learning-lab-light [class*="border-amber"] {
   border-color: rgba(217, 119, 6, 0.38) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) h1,
-:is(.learning-lab-light, .reinforcement-learning-light) h2,
-:is(.learning-lab-light, .reinforcement-learning-light) h3,
-:is(.learning-lab-light, .reinforcement-learning-light) h4,
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-white"],
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-zinc-100"],
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-zinc-200"] {
+.learning-lab-light h1,
+.learning-lab-light h2,
+.learning-lab-light h3,
+.learning-lab-light h4,
+.learning-lab-light [class*="text-white"],
+.learning-lab-light [class*="text-zinc-100"],
+.learning-lab-light [class*="text-zinc-200"] {
   color: #0f172a !important;
 }
 
@@ -474,80 +474,80 @@
   color: #f59e0b !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) .learning-domain-title-cv {
+.learning-lab-light .learning-domain-title-cv {
   color: #0369a1 !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) .learning-domain-title-nlp {
+.learning-lab-light .learning-domain-title-nlp {
   color: #15803d !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) .learning-domain-title-ml {
+.learning-lab-light .learning-domain-title-ml {
   color: #b45309 !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-zinc-300"],
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-zinc-400"],
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-zinc-500"] {
+.learning-lab-light [class*="text-zinc-300"],
+.learning-lab-light [class*="text-zinc-400"],
+.learning-lab-light [class*="text-zinc-500"] {
   color: #475569 !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-teal-"] {
+.learning-lab-light [class*="text-teal-"] {
   color: #0f766e !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-sky-"] {
+.learning-lab-light [class*="text-sky-"] {
   color: #0369a1 !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-emerald-"] {
+.learning-lab-light [class*="text-emerald-"] {
   color: #047857 !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="text-amber-"] {
+.learning-lab-light [class*="text-amber-"] {
   color: #b45309 !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="bg-teal-"] {
+.learning-lab-light [class*="bg-teal-"] {
   background-color: rgba(20, 184, 166, 0.12) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="bg-sky-"] {
+.learning-lab-light [class*="bg-sky-"] {
   background-color: rgba(14, 165, 233, 0.1) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="bg-emerald-"] {
+.learning-lab-light [class*="bg-emerald-"] {
   background-color: rgba(16, 185, 129, 0.1) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) [class*="bg-amber-"] {
+.learning-lab-light [class*="bg-amber-"] {
   background-color: rgba(245, 158, 11, 0.12) !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) .learning-lab-primary-action {
+.learning-lab-light .learning-lab-primary-action {
   border-color: rgba(13, 148, 136, 0.72) !important;
   background-color: #0f766e !important;
   color: #ffffff !important;
   box-shadow: 0 12px 24px rgba(15, 118, 110, 0.18);
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) .learning-lab-primary-action:hover {
+.learning-lab-light .learning-lab-primary-action:hover {
   background-color: #115e59 !important;
   color: #ffffff !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) input,
-:is(.learning-lab-light, .reinforcement-learning-light) textarea {
+.learning-lab-light input,
+.learning-lab-light textarea {
   border-color: rgba(148, 163, 184, 0.65) !important;
   background: #ffffff !important;
   color: #0f172a !important;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) button {
+.learning-lab-light button {
   color: #1e293b;
 }
 
-:is(.learning-lab-light, .reinforcement-learning-light) button:hover {
+.learning-lab-light button:hover {
   color: #0f172a;
 }
 

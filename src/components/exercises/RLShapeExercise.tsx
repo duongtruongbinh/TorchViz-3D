@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { RLPracticeFixture } from './rlPracticeAdapter';
+import type { RLPracticeFixture } from '../learning/practice/adapters/reinforcementPracticeAdapter';
 
 type RLShapeExerciseProps = {
   fixture: Extract<RLPracticeFixture, { type: 'mdp' }>;

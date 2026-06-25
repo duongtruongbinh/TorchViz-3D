@@ -1,81 +1,84 @@
 ---
 title: Reinforcement Learning
-type: Active Subsystem
-updated: 2026-06-25
+type: Active Learning Lab Domain
+updated: 2026-06-26
 ---
 
 # Reinforcement Learning
 
-This page documents the Reinforcement Learning surface. It is a sibling
-top-level AppShell surface, separate from the Learning Lab subsystem.
+This page documents the Reinforcement Learning domain inside Learning Lab.
+Reinforcement Learning is no longer a sibling top-level AppShell surface.
 
-The activation history is captured in:
+The implementation history is captured in:
 
 - [docs/plans/2026-06-24-reinforcement-learning-track-ui.md](../../docs/plans/2026-06-24-reinforcement-learning-track-ui.md)
+- [docs/plans/2026-06-25-learning-lab-domain-refactor.md](../../docs/plans/2026-06-25-learning-lab-domain-refactor.md)
 
 ## Status
 
-Reinforcement Learning is active as a separate full-screen view reachable from
-Landing. It currently provides:
+Reinforcement Learning is active as a Learning Lab domain reachable through:
 
-- A Guide mode that introduces the RL learning loop and links into lessons.
-- A Path mode backed by static track, domain, and lesson metadata.
-- A 3D Visualization placeholder mode for the future visual surface.
-- A populated Reinforcement Learning track for MDP, Bellman, Q-Learning, and
-  SARSA practice.
-- A Robot Learning placeholder track with no domains or lessons yet.
+```text
+/#/learning/reinforcement-learning
+/#/learning/reinforcement-learning/:trackId
+```
+
+Legacy routes redirect into the domain:
+
+```text
+/#/reinforcement-learning
+/#/reinforcement-learning/roadmap/:trackId
+```
+
+The domain currently provides:
+
+- Tabular Control and Policy Behavior tracks.
+- MDP, Bellman, Q-Learning, and SARSA lessons.
 - MDP component identification practice.
 - Bellman/Q-table value practice.
 - Compact GridWorld single-step Q-Learning and SARSA practice.
-- Dedicated RL exercise fixtures under `src/components/exercises/` instead of
-  forcing non-tensor concepts into the existing `LayoutNode` registry.
+- A Robot Learning placeholder exists as a separate Learning Lab domain.
+- Dedicated RL exercise fixtures instead of forcing non-tensor concepts into the
+  tensor `LayoutNode` exercise registry.
 
 Active behavior remains scoped:
 
 - Workspace behavior is unchanged.
-- Learning Lab behavior is unchanged.
-- App navigation uses hash routes so static-host refreshes stay on `index.html`.
-- There is no persistence, progress tracking, or workspace handoff for this
-  surface.
+- Forward Pass demo behavior is unchanged.
+- Learning Lab is the learning container for RL and tensor domains.
+- There is no persistence, progress tracking, workspace handoff, or full RL
+  simulation.
 
 ## Runtime Boundary
 
 ```text
 LandingPage
-  -> AppShell view: reinforcement-learning
-      -> src/components/reinforcement_learning/View.tsx
-      -> Header
-      -> GuideTour
-      -> PathMode
-      -> Visualization 3D placeholder
+  -> AppShell route: /learning
+      -> LearningLabView
+          -> domain catalog
+          -> reinforcement-learning domain
+          -> track/topic
+          -> lesson detail
+          -> shared PracticeSection
+              -> ReinforcementPracticeRenderer
+              -> RLShapeExercise / RLValueExercise / GridWorldExercise
 ```
 
-The guide and path UIs read static role/domain/lesson metadata from
-`src/core/rlLearningContent.ts`. Users choose a learning track, then a focus
-area, then a lesson sequence. Practice cards use deterministic fixtures from
-`src/components/exercises/rlPracticeAdapter.ts`.
+Learning catalog metadata lives in `src/core/learning/content/*` with pure
+selectors in `src/core/learning/selectors.ts`. RL practice fixtures live in
+`src/components/learning/practice/adapters/reinforcementPracticeAdapter.ts`.
 
-The current track split is:
-
-| Track | Content |
-|---|---|
-| Reinforcement Learning | Active RL foundations path with tabular control and policy behavior focus areas. |
-| Robot Learning | Empty placeholder for future embodied-agent and robotics lessons. |
-
-## Surface Map
+## Domain Map
 
 | Path | Responsibility |
 |---|---|
-| `src/components/reinforcement_learning/View.tsx` | Full-screen Reinforcement Learning surface and local mode/lesson state. |
-| `src/components/reinforcement_learning/Header.tsx` | Header with Back, Guide/Path/3D mode toggle, sidebar, theme, language, and RL logo controls. |
-| `src/components/reinforcement_learning/GuideTour.tsx` | Overlay tour with spotlight targets for the RL logo, sidebar, mode switch, and path content. |
-| `src/components/reinforcement_learning/PathMode.tsx` | Guided reinforcement path mode. |
-| `src/components/reinforcement_learning/PathNode.tsx` | Reinforcement lesson node with available/next/preview states. |
-| `src/components/reinforcement_learning/LessonDetail.tsx` | Inline reinforcement lesson detail. |
-| `src/components/reinforcement_learning/PracticeSection.tsx` | Inline reinforcement practice renderer. |
-| `src/core/rlTypes.ts` | Pure RL learning-domain types. |
-| `src/core/rlLearningContent.ts` | Static RL role/domain/lesson list, practice IDs, and approval metadata. |
-| `src/components/exercises/rlPracticeAdapter.ts` | Deterministic RL practice fixtures and approval helpers. |
+| `src/core/learning/content/reinforcementLearning.ts` | RL domain, tracks, lessons, practice IDs, and approval metadata. |
+| `src/core/learning/types.ts` | Unified React-free Learning Lab catalog types. |
+| `src/core/learning/selectors.ts` | Pure catalog lookup helpers. |
+| `src/components/learning/LearningLabView.tsx` | Route-aware Learning Lab shell containing the RL domain. |
+| `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson renderer for RL and tensor domains. |
+| `src/components/learning/practice/ReinforcementPracticeRenderer.tsx` | RL practice dispatcher. |
+| `src/components/learning/practice/adapters/reinforcementPracticeAdapter.ts` | Deterministic RL fixtures and numeric answer helper. |
 | `src/components/exercises/RLShapeExercise.tsx` | MDP component identification exercise. |
 | `src/components/exercises/RLValueExercise.tsx` | Bellman/Q-table value exercise. |
 | `src/components/exercises/GridWorldExercise.tsx` | Single-step Q-Learning/SARSA GridWorld exercise. |
@@ -83,11 +86,10 @@ The current track split is:
 ## Invariants
 
 - `src/core/` must remain React-free.
-- Reinforcement Learning is a sibling surface, not a Learning Lab mode.
-- Reinforcement Learning Path mode should preserve the track -> focus -> lesson
-  flow unless a later approved plan changes the learning model.
-- Reinforcement Learning may use dedicated exercise fixtures for RL concepts
-  that are not tensor-shape or tensor-value exercises.
+- Reinforcement Learning is a Learning Lab domain, not a top-level AppShell
+  surface.
+- RL practice may use dedicated fixtures for concepts that are not
+  tensor-shape or tensor-value exercises.
 - Practice cards are available only when `approval.status` is `approved` and
   `approval.implementedBy` is set.
 - Unapproved or unavailable items must show "In progress" / "Đang hoàn thiện".

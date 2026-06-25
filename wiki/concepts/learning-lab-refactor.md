@@ -1,7 +1,7 @@
 ---
 title: Learning Lab Refactor
 type: Active Subsystem
-updated: 2026-06-24
+updated: 2026-06-26
 ---
 
 # Learning Lab Refactor
@@ -13,6 +13,8 @@ Landing visual iteration history is consolidated in
 [docs/plans/2026-06-21-landing-ui-iteration.md](../../docs/plans/2026-06-21-landing-ui-iteration.md).
 The Learning Path activation plan is
 [docs/plans/2026-06-24-learning-path-exercise-separation.md](../../docs/plans/2026-06-24-learning-path-exercise-separation.md).
+The domain refactor plan is
+[docs/plans/2026-06-25-learning-lab-domain-refactor.md](../../docs/plans/2026-06-25-learning-lab-domain-refactor.md).
 
 ## Status
 
@@ -25,29 +27,36 @@ both are backed by the global `useStore` language state.
 
 The active Landing first screen is a viewport-fit bento composition: top intro
 copy, a left "live graph preview" animation that flows through model stages, and
-compact right-side cards for Workspace, Learning Lab, and Reinforcement Learning.
+compact right-side cards for Workspace and Learning Lab.
 Connection lines are computed from real DOM anchors between the final classifier
 block and the main cards; the Workspace route enters the editor/canvas flow and
-the Learning Lab route enters the guided deep-learning flow.
+the Learning Lab route enters the guided learning flow.
 
-Learning Lab is active as a separate full-screen view. It currently provides:
+Learning Lab is active as the single learning container. It currently provides:
 
-- A guided Path mode backed by static lesson metadata.
-- A Review mode over the same embedded practice set.
-- A header toggle between Path and Review, with Review lesson links returning
-  users to the selected lesson in Path mode.
-- Practice cards that use a shared exercise adapter to build representative
-  `LayoutNode`s, validate them against the existing exercise registry, and reuse
-  existing shape/value exercise model builders.
+- A domain-first flow: Learning Lab -> domain -> track/topic -> lesson.
+- Domains for ML Foundations, Computer Vision, NLP, Reinforcement Learning, and
+  Robot Learning placeholder.
+- A Path mode backed by React-free static catalog metadata.
+- A Review mode over practice cards from the active domain or catalog.
+- Tensor practice cards that build representative `LayoutNode`s, validate them
+  against the existing exercise registry, and reuse existing shape/value
+  exercise model builders.
+- Reinforcement Learning practice cards for MDP, Bellman/Q-table, Q-Learning,
+  SARSA, and GridWorld, backed by deterministic fixtures.
+- A shared Learning Lab shell using the former RL surface's cleaner
+  light-theme/card/sidebar visual treatment as the style baseline.
 
 Active behavior remains unchanged:
 
 - The existing workspace still uses the current editor, canvas, inspector, and
   bottom tabs after entering from Landing.
-- Existing editor, canvas, inspector, bottom tabs, exercises, and MNIST demo
+- Existing editor, canvas, inspector, bottom tabs, exercises, and Forward Pass
   behavior are not modified.
-- No router, persistence, deep workspace handoff, answer-checking logic, or real
-  UI store behavior is implemented in this phase.
+- Hash routes remain static-host friendly. Legacy `/reinforcement-learning`
+  routes redirect into the Learning Lab RL domain.
+- No persistence, progress tracking, deep workspace handoff, or real UI store
+  behavior is implemented in this phase.
 
 ## Scaffold Map
 
@@ -56,21 +65,22 @@ Active behavior remains unchanged:
 | `src/components/AppShell.tsx` | MVP 1 root view switcher for Landing and TorchViz workspace. |
 | `src/components/landing/LandingPage.tsx` | Active Landing first screen with intro copy, live graph preview, Workspace CTA, and Learning Lab CTA. |
 | `src/components/landing/ToolCard.tsx` | Active card for entering the existing TorchViz-3D workspace. |
-| `src/components/landing/LearningCard.tsx` | Reused landing card for entering guided surfaces. |
-| `src/components/learning/LearningLabView.tsx` | Full-screen Learning Lab surface and local mode/lesson state. |
-| `src/components/learning/LearningLabHeader.tsx` | Lab header with Back, Path/Review mode toggle, and Workspace action. |
-| `src/components/learning/ReviewMode.tsx` | Free-review browser over practice references. |
-| `src/components/learning/ReviewPicker.tsx` | Selector for practice kind. |
-| `src/components/learning/PathMode.tsx` | Guided path mode. |
-| `src/components/learning/PathMap.tsx` | Roadmap/list of lessons. |
-| `src/components/learning/PathNode.tsx` | Lesson node with available/next/preview states. |
-| `src/components/learning/LessonDetail.tsx` | Inline lesson detail. |
-| `src/components/learning/shared/TheorySection.tsx` | Shared theory renderer. |
-| `src/components/learning/shared/PracticeSection.tsx` | Shared inline practice renderer with answer checking, reset, and hints. |
-| `src/components/learning/shared/HintSection.tsx` | Shared hint renderer. |
-| `src/core/types.ts` | Pure learning-domain types. |
-| `src/core/learningContent.ts` | Static Learning Path content, role/domain mappings, practice IDs, and approval metadata. |
-| `src/components/exercises/learningPracticeAdapter.ts` | Representative practice-node adapter that bridges Learning Lab metadata to existing exercise registry/model builders. |
+| `src/components/landing/LearningCard.tsx` | Landing card for entering Learning Lab. |
+| `src/components/learning/LearningLabView.tsx` | Full-screen Learning Lab container, route-aware domain/track/lesson shell, and local mode/theme state. |
+| `src/components/learning/LearningLabHeader.tsx` | RL-style Lab header with Path/Review, theme, language, and sidebar controls. |
+| `src/components/learning/shell/DomainCatalog.tsx` | Domain-first catalog entry surface. |
+| `src/components/learning/shell/TrackList.tsx` | Track/topic cards for a selected domain. |
+| `src/components/learning/shell/ReviewMode.tsx` | Review browser over active-domain or catalog practice. |
+| `src/components/learning/lesson/LessonNode.tsx` | Shared lesson node. |
+| `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory and practice rendering. |
+| `src/components/learning/practice/PracticeSection.tsx` | Shared practice dispatcher for tensor, RL, and placeholder practice. |
+| `src/components/learning/practice/TensorPracticeRenderer.tsx` | Tensor Shape/Value/Conv modal launcher. |
+| `src/components/learning/practice/ReinforcementPracticeRenderer.tsx` | Inline RL MDP/Bellman/GridWorld renderer. |
+| `src/components/learning/practice/adapters/tensorPracticeAdapter.ts` | Representative tensor practice node adapter. |
+| `src/components/learning/practice/adapters/reinforcementPracticeAdapter.ts` | Deterministic RL practice fixtures and answer helpers. |
+| `src/core/learning/types.ts` | React-free unified learning catalog types. |
+| `src/core/learning/content/*` | React-free static domain/track/lesson metadata. |
+| `src/core/learning/selectors.ts` | React-free catalog selectors. |
 | `src/core/answerCheck.ts` | Future pure answer validation helpers. |
 | `src/store/uiStore.ts` | Future UI/page state store. |
 
@@ -82,10 +92,11 @@ short prompt for the next implementation phase:
 ```text
 Read docs/WORKFLOW.md, CLAUDE.md, and this wiki page before editing.
 Preserve the current TorchViz-3D workspace until an approved plan says otherwise.
-Treat Learning Lab as active Path/Review UI backed by static learning content
-and embedded practice cards. Reuse existing exercise model builders for tensor
-exercises before moving or duplicating exercise UI. AppShell, landing
-components, and Learning Lab components are active.
+Treat Learning Lab as the single learning container backed by React-free static
+domain catalog metadata. Reinforcement Learning is a Learning Lab domain, not a
+top-level surface. Reuse existing tensor exercise model builders and dedicated
+RL fixtures before adding new practice UI. AppShell, landing components, and
+Learning Lab components are active.
 `answerCheck.ts` and `uiStore.ts` remain reserved for later phases. Update
 existing relevant docs before creating any new docs page.
 ```
@@ -97,14 +108,16 @@ different in scope or needs its own long-lived reference surface.
 ## Invariants
 
 - `src/core/` must remain React-free when real logic is added.
-- Learning Lab should reuse existing exercise concepts instead of duplicating
-  behavior without a plan.
+- Learning Lab owns learning navigation; new domains should enter through the
+  unified catalog rather than adding top-level AppShell surfaces.
+- Learning Lab should reuse existing exercise concepts and dedicated fixtures
+  instead of duplicating behavior without a plan.
 - Any future page state must not reset the current TorchViz-3D editor/canvas
   state unexpectedly.
 - Existing Workspace/Demo exercise entry points must remain available unless a
   later approved plan explicitly changes that behavior.
-- Learning Lab practice should stay inline and model-backed; avoid importing
-  Workspace modal UI unless a later plan extracts shared presentation pieces.
+- Learning Lab tensor practice may launch existing Workspace exercise modals;
+  RL practice stays inline through dedicated fixtures and exercise components.
 - Practice cards are available only when `approval.status` is `approved` and
   `approval.implementedBy` is set. Unapproved or unavailable items must show
   "In progress" / "Đang hoàn thiện".

@@ -43,3 +43,7 @@ no `type` frontmatter required.)
   reference-only cards to inline exercises with answer checking, reset, and
   hints. Practice cards reuse existing shape/value model builders through a
   shared exercise adapter, keeping Learning Path content metadata-only.
+- **2026-06-26 — Learning Lab domain refactor.** Merged Reinforcement Learning
+  into Learning Lab as a domain, replaced the sibling RL surface route with
+  Learning Lab domain routes, and documented the shared domain catalog/practice
+  renderer boundary.

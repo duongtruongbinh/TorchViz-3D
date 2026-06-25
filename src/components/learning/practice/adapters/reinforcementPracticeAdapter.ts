@@ -1,4 +1,4 @@
-import type { RLLearningPracticeRef } from '../../core/rlTypes';
+import type { ReinforcementPracticeRef } from '../../../../core/learning/types';
 
 export type RLPracticeFixture =
   | {
@@ -90,11 +90,11 @@ const FIXTURES: Record<string, RLPracticeFixture> = {
   },
 };
 
-export function isRLPracticeApproved(practice: RLLearningPracticeRef): boolean {
+export function isRLPracticeApproved(practice: ReinforcementPracticeRef): boolean {
   return practice.approval?.status === 'approved' && Boolean(practice.approval.implementedBy);
 }
 
-export function getRLPracticeFixture(practice: RLLearningPracticeRef): RLPracticeFixture | null {
+export function getRLPracticeFixture(practice: ReinforcementPracticeRef): RLPracticeFixture | null {
   if (!isRLPracticeApproved(practice)) return null;
   return FIXTURES[practice.id] ?? null;
 }

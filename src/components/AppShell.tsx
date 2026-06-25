@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
-import { HashRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 
 import LandingPage from './landing/LandingPage';
 import LearningLabView from './learning/LearningLabView';
-import ReinforcementLearningView from './reinforcement_learning/View';
 
 type AppShellProps = {
   renderWorkspace: (props: { onBackToLanding: () => void }) => ReactElement;
@@ -20,7 +19,6 @@ function AppRoutes({ renderWorkspace }: AppShellProps) {
           <LandingPage
             onOpenWorkspace={() => navigate('/workspace')}
             onOpenLearningLab={() => navigate('/learning')}
-            onOpenReinforcementLearning={() => navigate('/reinforcement-learning')}
           />
         }
       />
@@ -36,18 +34,35 @@ function AppRoutes({ renderWorkspace }: AppShellProps) {
       />
 
       <Route
+        path="/learning/:domainId"
+        element={<LearningLabView onBackToLanding={() => navigate('/')} />}
+      />
+
+      <Route
+        path="/learning/:domainId/:trackId"
+        element={<LearningLabView onBackToLanding={() => navigate('/')} />}
+      />
+
+      <Route
         path="/reinforcement-learning"
-        element={<ReinforcementLearningView onBackToLanding={() => navigate('/')} />}
+        element={<Navigate to="/learning/reinforcement-learning" replace />}
       />
 
       <Route
         path="/reinforcement-learning/roadmap/:trackId"
-        element={<ReinforcementLearningView onBackToLanding={() => navigate('/')} />}
+        element={<LegacyReinforcementLearningRedirect />}
       />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
+}
+
+function LegacyReinforcementLearningRedirect() {
+  const { trackId } = useParams();
+  if (trackId === 'robot-learning') return <Navigate to="/learning/robot-learning" replace />;
+  if (trackId === 'reinforcement-learning') return <Navigate to="/learning/reinforcement-learning" replace />;
+  return <Navigate to={`/learning/reinforcement-learning/${trackId ?? 'tabular-control'}`} replace />;
 }
 
 export default function AppShell({ renderWorkspace }: AppShellProps) {
