@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 
 import LandingPage from './landing/LandingPage';
 import LearningLabView from './learning/LearningLabView';
@@ -52,8 +52,8 @@ function AppRoutes({ renderWorkspace }: AppShellProps) {
 
 export default function AppShell({ renderWorkspace }: AppShellProps) {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppRoutes renderWorkspace={renderWorkspace} />
-    </BrowserRouter>
+    </HashRouter>
   );
 }

@@ -5,9 +5,10 @@ import { rlLearningRoles } from '../../core/rlLearningContent';
 import type { RLLearningLesson, RLLearningRole } from '../../core/rlTypes';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
-import rlLogoUrl from '../../../docs/assets/Future-HMI ip.gif';
 import LessonDetail from './LessonDetail';
 import PathNode from './PathNode';
+
+const rlLogoUrl = new URL('../../../docs/assets/Future-HMI ip.gif', import.meta.url).href;
 
 type PathModeProps = {
   lessons: RLLearningLesson[];

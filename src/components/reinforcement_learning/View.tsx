@@ -1,11 +1,12 @@
 import { useState } from 'react';
 
 import { rlLearningPath } from '../../core/rlLearningContent';
-import rlLogoUrl from '../../../docs/assets/Future-HMI ip.gif';
 import { useStore } from '../../store/useStore';
 import GuideTour from './GuideTour';
 import Header from './Header';
 import PathMode from './PathMode';
+
+const rlLogoUrl = new URL('../../../docs/assets/Future-HMI ip.gif', import.meta.url).href;
 
 type ViewMode = 'path' | 'visualization-3d';
 
@@ -37,6 +38,7 @@ export default function View({ onBackToLanding }: ViewProps) {
       }`}
     >
       <aside
+        data-tour="rl-sidebar"
         className={`min-h-screen overflow-hidden rounded-r-lg border-r shadow-sm transition-colors ${
           isLight
             ? 'border-sky-100 bg-gradient-to-b from-white via-[#f6fbff] to-[#eef6ff] text-slate-950 shadow-sky-100/70'
@@ -126,12 +128,14 @@ export default function View({ onBackToLanding }: ViewProps) {
         <section className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-5">
           <div className="w-full max-w-none">
             {mode === 'path' ? (
-              <PathMode
-                lessons={rlLearningPath.lessons}
-                selectedLessonId={selectedLessonId}
-                onSelectLesson={setSelectedLessonId}
-                theme={theme}
-              />
+              <div data-tour="rl-path-content">
+                <PathMode
+                  lessons={rlLearningPath.lessons}
+                  selectedLessonId={selectedLessonId}
+                  onSelectLesson={setSelectedLessonId}
+                  theme={theme}
+                />
+              </div>
             ) : (
               <div
                 className={`flex min-h-[420px] w-full items-center justify-center rounded-xl border p-8 shadow-sm ${

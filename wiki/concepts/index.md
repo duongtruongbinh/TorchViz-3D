@@ -1,7 +1,7 @@
 ---
 title: Concepts
 type: Index
-updated: 2026-06-24
+updated: 2026-06-25
 ---
 
 # Concepts
@@ -25,7 +25,7 @@ source file. Read them in roughly pipeline order:
    Landing/AppShell entry point plus active Learning Lab Path/Review surface.
    `src/components/landing/*`, `src/components/learning/*`, `src/core/learningContent.ts`.
 8. [reinforcement-learning](../concepts/reinforcement-learning.md) — the
-   separate Reinforcement Learning surface with RL Path/Review practice.
+   separate Reinforcement Learning surface with RL Path practice and a 3D placeholder.
    `src/components/reinforcement_learning/*`, `src/core/rlLearningContent.ts`.
 9. [forward-pass](../concepts/forward-pass.md) — the animated forward pass:
    ordered stops, CIFAR-10 input packet, per-op effects, and the generalized

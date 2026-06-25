@@ -22,7 +22,8 @@ Success means:
 
 - RL domain content and types exist in React-free core files.
 - Reinforcement Learning is reachable from Landing as its own AppShell surface.
-- The surface provides Path and Review modes plus deterministic RL practice.
+- The surface provides Path mode, a 3D Visualization placeholder, a Guide tour,
+  and deterministic RL practice.
 - Path mode follows the Learning Lab-style track -> focus -> lesson flow.
 - Header theme and language controls match the Learning Lab treatment.
 - The current track split is Reinforcement Learning plus an empty Robot
@@ -88,12 +89,10 @@ Learning plan fragments:
   - `View.tsx`
   - `Header.tsx`
   - `PathMode.tsx`
-  - `PathMap.tsx`
   - `PathNode.tsx`
   - `LessonDetail.tsx`
-  - `ReviewMode.tsx`
-  - `ReviewPicker.tsx`
   - `PracticeSection.tsx`
+  - `GuideTour.tsx`
 - Keep `src/core/rlTypes.ts` and `src/core/rlLearningContent.ts` as
   domain-data names.
 - Use deterministic RL fixtures for concepts that do not fit the tensor
@@ -115,7 +114,8 @@ LandingPage
        -> src/components/reinforcement_learning/View.tsx
           -> Header
           -> PathMode
-          -> ReviewMode
+          -> GuideTour
+          -> Visualization 3D placeholder
 
 src/core/rlLearningContent.ts
   -> deterministic RL practice fixtures
@@ -148,7 +148,8 @@ src/core/rlLearningContent.ts
 
 ## Phase 3 - Reinforcement Learning UI surface
 
-- Added the Path/Review UI.
+- Added the Path UI and later replaced the top-level Review mode with a 3D
+  Visualization placeholder plus inline lesson practice.
 - Added a Landing CTA.
 - Extended `AppShell` with the `reinforcement-learning` sibling route.
 - Added English/Vietnamese localization.
@@ -169,8 +170,8 @@ src/core/rlLearningContent.ts
 - Renamed `src/components/reinforcement/` to
   `src/components/reinforcement_learning/`.
 - Shortened files inside that folder to `View.tsx`, `Header.tsx`,
-  `PathMode.tsx`, `PathMap.tsx`, `PathNode.tsx`, `LessonDetail.tsx`,
-  `ReviewMode.tsx`, `ReviewPicker.tsx`, and `PracticeSection.tsx`.
+  `PathMode.tsx`, `PathNode.tsx`, `LessonDetail.tsx`, and
+  `PracticeSection.tsx`.
 - Updated imports and wiki path references.
 
 ## Phase 6 - Wiki split
@@ -188,7 +189,7 @@ src/core/rlLearningContent.ts
   Learning Lab-style track -> focus -> lesson progression.
 - Added English/Vietnamese track, role, and focus-area copy under
   `reinforcementLearning`.
-- Preserved the existing lessons, practice cards, and Review mode.
+- Preserved the existing lessons and inline practice cards.
 
 ## Phase 8 - Header parity
 
@@ -196,7 +197,7 @@ src/core/rlLearningContent.ts
   toggle uses the same switch-style control as Learning Lab.
 - Updated the language picker to use the same icon button and menu treatment as
   Learning Lab.
-- Kept Path/Review mode, Back/Landing behavior, and RL-specific copy unchanged.
+- Kept Path mode, Back/Landing behavior, and RL-specific copy unchanged.
 
 ## Phase 9 - Track rename
 
@@ -243,11 +244,23 @@ src/core/rlLearningContent.ts
 - Reconnect `GuideTour.tsx` from `View.tsx` so the header tour button opens the
   Workspace-style RL guide tour.
 
+## Phase 14 - Route, tour, and stale component cleanup
+
+- Switch `AppShell` from `BrowserRouter` to `HashRouter` so static-host refreshes
+  for Workspace, Learning Lab, and Reinforcement Learning routes resolve through
+  `index.html`.
+- Add the missing RL guide tour targets for the sidebar and path content.
+- Remove stale unused `PathMap.tsx`, `ReviewMode.tsx`, and `ReviewPicker.tsx`
+  after confirming the current RL surface no longer exposes top-level Review
+  mode.
+- Update wiki docs and this plan to describe the current Path + 3D placeholder
+  state.
+
 # Out of Scope
 
 - No Workspace behavior changes.
 - No changes to the existing Learning Lab lesson flow.
-- No router, persistence, progress tracking, deep links, or workspace handoff.
+- No persistence, progress tracking, or workspace handoff.
 - No policy-gradient lessons.
 - No full RL simulator or multi-episode training loop.
 - No Robot Learning lesson content yet.
@@ -258,7 +271,8 @@ src/core/rlLearningContent.ts
 - `src/core/rlTypes.ts` and `src/core/rlLearningContent.ts` exist.
 - Reinforcement Learning is reachable from Landing and can return to Landing.
 - Existing Workspace and Learning Lab CTAs remain functional.
-- Reinforcement Learning has Path and Review modes.
+- Reinforcement Learning has Path mode, a Guide tour, and a 3D Visualization
+  placeholder.
 - Reinforcement Learning Path mode starts with track selection.
 - Users can select a focus area before seeing the lesson list for populated
   tracks.
@@ -273,6 +287,7 @@ src/core/rlLearningContent.ts
   page without becoming a separate page mode.
 - Reinforcement Learning has a Guide tour that introduces the page without
   becoming a separate page mode.
+- Static-host refreshes use hash routes rather than server-side SPA fallback.
 - The four initial RL lessons render with localized title/theory/practice copy.
 - Approved RL practice cards render the relevant exercise surface.
 - Active Reinforcement Learning UI files live under
@@ -365,6 +380,14 @@ src/core/rlLearningContent.ts
   existing large chunk warning for the Three.js bundle, and the GIF asset is
   still about 5.5 MB.
 - 2026-06-25T16:31:12+07:00 - `git diff --check` passed.
+- 2026-06-25T23:08:42+07:00 - `rg` confirmed no active
+  `PathMap`/`ReviewMode`/`ReviewPicker` references remain under the
+  Reinforcement Learning components.
+- 2026-06-25T23:08:42+07:00 - `npm run typecheck` passed for the route, tour
+  target, and stale component cleanup.
+- 2026-06-25T23:08:42+07:00 - `npm run build` passed. Vite still reports the
+  existing large chunk warning and the RL GIF asset remains about 5.5 MB.
+- 2026-06-25T23:08:42+07:00 - `git diff --check` passed.
 
 # Execution Log
 
@@ -460,3 +483,7 @@ src/core/rlLearningContent.ts
   `src/components/reinforcement_learning/PathMode.tsx` after it contained
   accidental `View.tsx` content, and reconnected `GuideTour.tsx` from
   `View.tsx` so the header tour button opens the tour.
+- 2026-06-25T23:08:42+07:00 - Switched AppShell to hash routing, added missing
+  RL tour targets, removed stale `PathMap.tsx`, `ReviewMode.tsx`, and
+  `ReviewPicker.tsx`, and updated wiki/plan docs to reflect Path + 3D
+  placeholder behavior.

@@ -34,17 +34,18 @@ Active behavior remains scoped:
 
 - Workspace behavior is unchanged.
 - Learning Lab behavior is unchanged.
-- There is no router, persistence, progress tracking, deep linking, or
-  workspace handoff for this surface.
+- App navigation uses hash routes so static-host refreshes stay on `index.html`.
+- There is no persistence, progress tracking, or workspace handoff for this
+  surface.
 
 ## Runtime Boundary
 
 ```text
 LandingPage
   -> AppShell view: reinforcement-learning
-    -> src/components/reinforcement_learning/View.tsx
+      -> src/components/reinforcement_learning/View.tsx
       -> Header
-      -> GuideMode
+      -> GuideTour
       -> PathMode
       -> Visualization 3D placeholder
 ```
@@ -67,9 +68,8 @@ The current track split is:
 |---|---|
 | `src/components/reinforcement_learning/View.tsx` | Full-screen Reinforcement Learning surface and local mode/lesson state. |
 | `src/components/reinforcement_learning/Header.tsx` | Header with Back, Guide/Path/3D mode toggle, sidebar, theme, language, and RL logo controls. |
-| `src/components/reinforcement_learning/GuideMode.tsx` | Orientation mode with learning steps, core concepts, and lesson entry points. |
+| `src/components/reinforcement_learning/GuideTour.tsx` | Overlay tour with spotlight targets for the RL logo, sidebar, mode switch, and path content. |
 | `src/components/reinforcement_learning/PathMode.tsx` | Guided reinforcement path mode. |
-| `src/components/reinforcement_learning/PathMap.tsx` | Reinforcement roadmap/list of lessons. |
 | `src/components/reinforcement_learning/PathNode.tsx` | Reinforcement lesson node with available/next/preview states. |
 | `src/components/reinforcement_learning/LessonDetail.tsx` | Inline reinforcement lesson detail. |
 | `src/components/reinforcement_learning/PracticeSection.tsx` | Inline reinforcement practice renderer. |
