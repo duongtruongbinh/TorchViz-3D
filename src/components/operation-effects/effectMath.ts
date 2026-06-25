@@ -7,7 +7,6 @@ import {
   DEMO_KERNEL_SIZE,
   DEMO_POOL_SIZE,
   DEMO_POOL_STRIDE,
-  DEMO_SAMPLE_SIZE,
 } from './effectData.ts';
 
 export type DemoStop = {

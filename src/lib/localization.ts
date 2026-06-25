@@ -73,12 +73,6 @@ const localizedText = {
       vi: 'Một Learning Lab cho ML foundations, CV, NLP, Reinforcement Learning và Robot Learning sau này.',
     },
     learningOpen: { en: 'Start learning', vi: 'Bắt đầu học' },
-    reinforcementLearningTitle: { en: 'Reinforcement Learning', vi: 'Reinforcement Learning' },
-    reinforcementLearningDescription: {
-      en: 'Guided reinforcement learning lessons for MDPs, Bellman updates, Q-Learning, and SARSA.',
-      vi: 'Bài học reinforcement learning về MDP, Bellman update, Q-Learning và SARSA.',
-    },
-    reinforcementLearningOpen: { en: 'Start RL path', vi: 'Bắt đầu RL' },
     stages: {
       convolution: {
         title: { en: 'Convolution', vi: 'Convolution' },

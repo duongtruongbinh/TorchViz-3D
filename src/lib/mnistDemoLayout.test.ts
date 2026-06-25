@@ -8,7 +8,6 @@ import {
   getPanelPosition,
   getDemoInputPose,
   getPatchCenter,
-  getSamplePlaneRotation,
   type DemoStop,
   type SegmentState,
 } from '../components/operation-effects/effectMath.ts';

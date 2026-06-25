@@ -1,6 +1,6 @@
 
-import { PY_INIT, PY_NN_INIT, PY_OPS, PY_RECORDER, PY_TENSOR } from '../lib/python_sources';
-import { countPythonPreambleLines } from '../lib/workerLineMapping';
+import { PY_INIT, PY_NN_INIT, PY_OPS, PY_RECORDER, PY_TENSOR } from '../lib/python_sources.ts';
+import { countPythonPreambleLines } from '../lib/workerLineMapping.ts';
 
 const USER_CODE_PREAMBLE = `import torchstub
 import torchstub.nn as nn

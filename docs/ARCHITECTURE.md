@@ -195,8 +195,6 @@ Learning Lab work:
 - `src/components/learning/lesson/*`
 - `src/components/learning/practice/*`
 - `src/core/learning/*`
-- `src/core/answerCheck.ts`
-- `src/store/uiStore.ts`
 
 MVP 1 imports `AppShell` and `src/components/landing/*` from the root `App.tsx`.
 The app opens on the Landing Page, then enters the existing editor/canvas/
@@ -211,8 +209,6 @@ registry, and feed them into the existing shape/value exercise model builders.
 Reinforcement Learning practice uses dedicated deterministic fixtures for
 MDP/Bellman/GridWorld concepts instead of forcing those concepts into the tensor
 registry. The existing in-graph exercise launcher remains unchanged.
-`src/core/answerCheck.ts` and `src/store/uiStore.ts` remain reserved for later
-phases.
 
 The active Landing screen is a compact bento layout with top intro copy, a
 left-side live graph preview, and right-side Workspace/Learning cards. The

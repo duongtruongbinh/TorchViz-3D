@@ -73,7 +73,7 @@ interface BlockCtx {
 }
 
 /** Get the adjusted dimensions for a node based on its visual meta */
-function getAdjustedDims(n: LayoutNode, meta: ReturnType<typeof getVisualMeta>) {
+function getAdjustedDims(n: LayoutNode) {
   const { width, height, depth } = getRenderableNodeSize(n);
   return { w: width, h: height, d: depth };
 }
@@ -141,7 +141,7 @@ function blockLabel(
 /** Standard cuboid block (Conv, Linear, Norm, Embedding, RNN, Default, etc.) */
 function renderStandardBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
-  const { w, h, d } = getAdjustedDims(n, meta);
+  const { w, h, d } = getAdjustedDims(n);
   const baseColor = meta.color;
 
   let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
@@ -166,9 +166,9 @@ function renderStandardBlock(ctx: BlockCtx): string {
 
 
 /** Activation (ReLU, etc): thin block with bright glow inset */
-function renderActivationBlock(ctx: BlockCtx, icon?: string): string {
+function renderActivationBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
-  const { w, h, d } = getAdjustedDims(n, meta);
+  const { w, h, d } = getAdjustedDims(n);
   const baseColor = meta.color;
 
   let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
@@ -186,7 +186,7 @@ function renderActivationBlock(ctx: BlockCtx, icon?: string): string {
 /** Flatten/Reshape/Permute/Slice: thin plate */
 function renderTransformBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
-  const { w, h, d } = getAdjustedDims(n, meta);
+  const { w, h, d } = getAdjustedDims(n);
   const baseColor = meta.color;
 
   let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
@@ -197,10 +197,8 @@ function renderTransformBlock(ctx: BlockCtx): string {
 /** Add/Concat: diamond-shaped block */
 function renderAddConcatBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
-  const { w, h, d } = getAdjustedDims(n, meta);
+  const { w, h, d } = getAdjustedDims(n);
   const baseColor = meta.color;
-  const strokeColor = lightBg ? '#1e293b' : '#27272a';
-  const sw = 1.0 * strokeScale;
 
   const x1 = n.x + w / 2;
 
@@ -220,7 +218,7 @@ function renderAddConcatBlock(ctx: BlockCtx): string {
 /** Attention: striped multi-head block */
 function renderAttentionBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
-  const { w, h, d } = getAdjustedDims(n, meta);
+  const { w, h, d } = getAdjustedDims(n);
   const baseColor = meta.color;
   const x1 = n.x + w / 2;
 
@@ -243,7 +241,7 @@ function renderAttentionBlock(ctx: BlockCtx): string {
 /** Upsample: expanding trapezoid indicator */
 function renderUpsampleBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
-  const { w, h, d } = getAdjustedDims(n, meta);
+  const { w, h, d } = getAdjustedDims(n);
   const baseColor = meta.color;
   const x1 = n.x + w / 2;
 

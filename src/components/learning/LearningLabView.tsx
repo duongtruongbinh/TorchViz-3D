@@ -24,10 +24,10 @@ type LearningLabViewProps = {
   onBackToLanding: () => void;
 };
 
-const DOMAIN_IDS: LearningDomainId[] = ['fundamentals', 'cv', 'nlp', 'reinforcement-learning', 'robot-learning'];
+const DOMAIN_IDS = new Set<LearningDomainId>(learningCatalog.domains.map((domain) => domain.id));
 
 function isLearningDomainId(value: string | undefined): value is LearningDomainId {
-  return Boolean(value && DOMAIN_IDS.includes(value as LearningDomainId));
+  return Boolean(value && DOMAIN_IDS.has(value as LearningDomainId));
 }
 
 export default function LearningLabView({ onBackToLanding }: LearningLabViewProps) {

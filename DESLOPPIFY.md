@@ -6,6 +6,16 @@ Created: 2026-06-26
 This file is the running cleanup backlog from a project-wide desloppify scan.
 Items are grouped by priority and are meant to be selected one at a time.
 
+## Resolution Status
+
+- **Resolved in cleanup batch 2026-06-26:** `C3`, `M1`, `M4`, `M6`, `M7`.
+- **Partially resolved in cleanup batch 2026-06-26:** `M2` route domain
+  validation now derives from the learning catalog; `M8` stale landing RL copy
+  was removed.
+- **Still open:** `C1`, `C2`, `M2` catalog-owned display metadata, `M3`, `M5`,
+  `M8` remaining Learning Lab hard-coded strings, `M9`, `N1`, `N2`, `N3`,
+  `N4`.
+
 ## Critical Issues
 
 ### C1 - Production HTML still loads third-party CDN assets
@@ -39,6 +49,8 @@ Items are grouped by priority and are meant to be selected one at a time.
 
 ### C3 - User Python execution has no timeout or recovery path
 
+Status: resolved in cleanup batch 2026-06-26.
+
 - **Where:** `src/workers/pyodideWorker.ts`, `src/lib/workerService.ts`
 - **Why it matters:** `py.runPython(wrappedCode)` is synchronous inside the
   worker. If user code contains an infinite loop or very expensive shape logic,
@@ -57,6 +69,8 @@ Items are grouped by priority and are meant to be selected one at a time.
 
 ### M1 - Dead code is not enforced by verification
 
+Status: resolved in cleanup batch 2026-06-26.
+
 - **Where:** `tsconfig.json`, `vite.config.ts`,
   `src/components/operation-effects/effectMath.ts`, `src/lib/stats.ts`,
   `src/lib/svgExport.ts`, `src/lib/mnistDemoLayout.test.ts`
@@ -71,6 +85,8 @@ Items are grouped by priority and are meant to be selected one at a time.
   small PR because enabling the flags can surface more issues over time.
 
 ### M2 - Learning Lab domain metadata is split across core and UI code
+
+Status: partially resolved in cleanup batch 2026-06-26.
 
 - **Where:** `src/core/learning/types.ts`,
   `src/core/learning/content/*`, `src/components/learning/LearningLabView.tsx`,
@@ -105,6 +121,8 @@ Items are grouped by priority and are meant to be selected one at a time.
 
 ### M4 - Reserved `uiStore` stub is dead and now confusing
 
+Status: resolved in cleanup batch 2026-06-26.
+
 - **Where:** `src/store/uiStore.ts`, `docs/ARCHITECTURE.md`,
   `wiki/architecture.md`, `wiki/concepts/learning-lab-refactor.md`
 - **Why it matters:** `src/store/uiStore.ts` exports an empty Zustand store and
@@ -134,6 +152,8 @@ Items are grouped by priority and are meant to be selected one at a time.
 
 ### M6 - Dead scaffold files remain after feature direction changed
 
+Status: resolved in cleanup batch 2026-06-26.
+
 - **Where:** `src/core/answerCheck.ts`,
   `src/components/exercises/LearningDrawer.tsx`, plus docs that still list
   reserved scaffold files
@@ -147,6 +167,8 @@ Items are grouped by priority and are meant to be selected one at a time.
   referenced at runtime.
 
 ### M7 - Input shape validation is inconsistent and can silently fallback
+
+Status: resolved in cleanup batch 2026-06-26.
 
 - **Where:** `src/components/Header.tsx`, `src/components/EditorPane.tsx`,
   `src/lib/workerService.ts`
@@ -163,6 +185,8 @@ Items are grouped by priority and are meant to be selected one at a time.
   focused tests for `parseShape`/run validation plus one shortcut smoke test.
 
 ### M8 - Localization is drifting after the Learning Lab/RL merge
+
+Status: partially resolved in cleanup batch 2026-06-26.
 
 - **Where:** `src/lib/localization.ts`,
   `src/components/learning/LearningLabView.tsx`,

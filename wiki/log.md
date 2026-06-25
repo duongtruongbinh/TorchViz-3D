@@ -47,3 +47,7 @@ no `type` frontmatter required.)
   into Learning Lab as a domain, replaced the sibling RL surface route with
   Learning Lab domain routes, and documented the shared domain catalog/practice
   renderer boundary.
+- **2026-06-26 — Desloppify cleanup batch.** Removed unused scaffold files
+  (`answerCheck.ts`, `uiStore.ts`, and `LearningDrawer.tsx`), added worker
+  timeout recovery, tightened input-shape validation, and enabled unused-symbol
+  TypeScript checks.

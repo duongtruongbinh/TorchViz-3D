@@ -81,8 +81,6 @@ Active behavior remains unchanged:
 | `src/core/learning/types.ts` | React-free unified learning catalog types. |
 | `src/core/learning/content/*` | React-free static domain/track/lesson metadata. |
 | `src/core/learning/selectors.ts` | React-free catalog selectors. |
-| `src/core/answerCheck.ts` | Future pure answer validation helpers. |
-| `src/store/uiStore.ts` | Future UI/page state store. |
 
 ## Codex Init Prompt
 
@@ -97,8 +95,7 @@ domain catalog metadata. Reinforcement Learning is a Learning Lab domain, not a
 top-level surface. Reuse existing tensor exercise model builders and dedicated
 RL fixtures before adding new practice UI. AppShell, landing components, and
 Learning Lab components are active.
-`answerCheck.ts` and `uiStore.ts` remain reserved for later phases. Update
-existing relevant docs before creating any new docs page.
+Update existing relevant docs before creating any new docs page.
 ```
 
 For small UI, copy, layout, or follow-up changes, update the existing page that
