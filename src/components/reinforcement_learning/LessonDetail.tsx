@@ -13,7 +13,7 @@ export default function LessonDetail({ lesson }: LessonDetailProps) {
   const lessonText = getReinforcementLessonText(t, lesson);
 
   return (
-    <article className="min-h-0 rounded-lg border border-zinc-800 bg-[#080b10]/95 p-5 shadow-2xl shadow-black/25">
+    <article data-tour="rl-lesson-detail" className="min-h-0 rounded-lg border border-zinc-800 bg-[#080b10]/95 p-5 shadow-2xl shadow-black/25">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-xs font-black uppercase text-emerald-200">{lessonText.eyebrow}</div>

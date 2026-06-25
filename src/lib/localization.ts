@@ -107,6 +107,8 @@ const localizedText = {
     },
     back: { en: 'Back', vi: 'Quay lại' },
     landing: { en: 'Landing', vi: 'Trang chính' },
+    guide: { en: 'Guide', vi: 'Hướng dẫn' },
+    visualization3d: { en: '3D', vi: '3D' },
     path: { en: 'Path', vi: 'Lộ trình' },
     review: { en: 'Review', vi: 'Ôn tập' },
     role: { en: 'Role', vi: 'Vai trò' },
@@ -406,6 +408,59 @@ const localizedText = {
     domainPreviewBody: {
       en: 'Use the left panel to choose a focus area. The lesson list will then switch to that RL sequence.',
       vi: 'Dùng panel bên trái để chọn trọng tâm. Danh sách bài học sau đó sẽ chuyển sang đúng chuỗi RL đó.',
+    },
+    guideTour: {
+      ariaLabel: { en: 'Reinforcement Learning guide tour', vi: 'Hướng dẫn Reinforcement Learning' },
+      skip: { en: 'Skip', vi: 'Bỏ qua' },
+      back: { en: 'Back', vi: 'Quay lại' },
+      next: { en: 'Next', vi: 'Tiếp' },
+      done: { en: 'Done', vi: 'Hoàn tất' },
+      stepLabel: {
+        en: (step: number, total: number) => `Step ${step}/${total}`,
+        vi: (step: number, total: number) => `Bước ${step}/${total}`,
+      },
+      steps: [
+        {
+          target: { en: '[data-tour="rl-logo"]', vi: '[data-tour="rl-logo"]' },
+          title: { en: 'RL header', vi: 'Header RL' },
+          body: {
+            en: 'This is the Reinforcement Learning surface. The logo returns with the page header and the left brand area takes you back to Landing.',
+            vi: 'Đây là khu vực Reinforcement Learning. Logo nằm trong header và vùng thương hiệu bên trái đưa bạn về Landing.',
+          },
+        },
+        {
+          target: { en: '[data-tour="rl-sidebar-toggle"]', vi: '[data-tour="rl-sidebar-toggle"]' },
+          title: { en: 'Track sidebar', vi: 'Thanh lộ trình' },
+          body: {
+            en: 'Use this button to collapse or reopen the track sidebar when you want more room for the lesson content.',
+            vi: 'Dùng nút này để thu gọn hoặc mở lại thanh lộ trình khi cần thêm không gian cho nội dung bài học.',
+          },
+        },
+        {
+          target: { en: '[data-tour="rl-mode-switch"]', vi: '[data-tour="rl-mode-switch"]' },
+          title: { en: 'RL and 3D modes', vi: 'Chế độ RL và 3D' },
+          body: {
+            en: 'Switch between the RL learning path and the upcoming 3D visualization area.',
+            vi: 'Chuyển giữa lộ trình học RL và khu vực trực quan hóa 3D sắp có.',
+          },
+        },
+        {
+          target: { en: '[data-tour="rl-sidebar"]', vi: '[data-tour="rl-sidebar"]' },
+          title: { en: 'Choose track and focus', vi: 'Chọn hướng và trọng tâm' },
+          body: {
+            en: 'Start with a track, choose a focus area, then open the ordered lesson list.',
+            vi: 'Bắt đầu bằng hướng học, chọn trọng tâm, rồi mở danh sách bài học theo thứ tự.',
+          },
+        },
+        {
+          target: { en: '[data-tour="rl-path-content"]', vi: '[data-tour="rl-path-content"]' },
+          title: { en: 'Lesson preview', vi: 'Xem trước bài học' },
+          body: {
+            en: 'The main panel explains what the selected track or focus area covers before you enter exercises.',
+            vi: 'Khung chính giải thích hướng học hoặc trọng tâm đang chọn trước khi vào bài luyện tập.',
+          },
+        },
+      ],
     },
     emptyTrackTitle: { en: 'No content yet', vi: 'Chưa có nội dung' },
     emptyTrackDescription: {

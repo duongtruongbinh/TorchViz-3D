@@ -2,7 +2,7 @@
 title: Reinforcement Learning Surface Consolidated Plan
 status: done
 created: 2026-06-24T20:53:32+07:00
-updated: 2026-06-24T23:41:12+07:00
+updated: 2026-06-25T16:31:12+07:00
 author: Codex
 task: "consolidate the Reinforcement Learning surface implementation, track UI, header parity, track rename, folder cleanup, and wiki split into one plan"
 supersedes:
@@ -207,6 +207,42 @@ src/core/rlLearningContent.ts
 - Updated `wiki/concepts/reinforcement-learning.md` with the current track
   split.
 
+## Phase 10 - Header-owned sidebar toggle
+
+- Move the Path sidebar open/close state from `PathMode.tsx` to `View.tsx`.
+- Add a sidebar toggle button to `Header.tsx`.
+- Pass `isSidebarOpen` into `PathMode.tsx`.
+- Remove the inline sidebar toggle button from `PathMode.tsx`.
+- Use `overflow-x-hidden` and a closed-sidebar `gap-0` grid to reduce the right
+  black blank caused by horizontal overflow.
+
+## Phase 11 - RL header logo
+
+- Use `docs/assets/Future-HMI ip.gif` as the TorchViz3D Reinforcement Learning
+  logo in the RL page header only.
+- Import the GIF through the React header so Vite bundles the asset.
+- Add a minimal GIF module declaration if TypeScript needs it.
+
+## Phase 12 - Guide tour
+
+- Add a Guide tour for the Reinforcement Learning page.
+- Keep the page in normal RL Path / 3D Visualization modes.
+- Add a header button that opens the tour overlay.
+- Match the Workspace onboarding tour behavior and visual treatment: cutout
+  dimming panels, accent spotlight ring, glass-panel card, Back/Next/Done/Skip,
+  and progress dots.
+- Spotlight the RL logo/header, sidebar, mode switch, path content, and lesson
+  area with guided steps.
+- Keep Review behavior out of the top-level RL mode list.
+
+## Phase 13 - RL page error repair
+
+- Restore `src/components/reinforcement_learning/PathMode.tsx` after it was
+  accidentally overwritten with `View.tsx` content.
+- Keep `PathMode.tsx` responsible for the track -> focus -> lesson flow.
+- Reconnect `GuideTour.tsx` from `View.tsx` so the header tour button opens the
+  Workspace-style RL guide tour.
+
 # Out of Scope
 
 - No Workspace behavior changes.
@@ -229,6 +265,14 @@ src/core/rlLearningContent.ts
 - The first track is named "Reinforcement Learning".
 - The second track is named "Robot Learning" and has no domain/lesson content.
 - The Reinforcement Learning theme and language controls match Learning Lab.
+- The Reinforcement Learning sidebar toggle lives in the header and collapses
+  the Path sidebar without leaving horizontal blank space.
+- The Reinforcement Learning header uses `docs/assets/Future-HMI ip.gif` as its
+  header-only logo.
+- Reinforcement Learning has a Workspace-style Guide tour that introduces the
+  page without becoming a separate page mode.
+- Reinforcement Learning has a Guide tour that introduces the page without
+  becoming a separate page mode.
 - The four initial RL lessons render with localized title/theory/practice copy.
 - Approved RL practice cards render the relevant exercise surface.
 - Active Reinforcement Learning UI files live under
@@ -298,6 +342,29 @@ src/core/rlLearningContent.ts
 - 2026-06-24T23:41:12+07:00 - Confirmed this canonical plan includes the
   track UI parity, header parity, track rename, and Robot Learning placeholder
   sections.
+- 2026-06-25T00:23:18+07:00 - `npm run typecheck` passed for the
+  header-owned sidebar toggle fix.
+- 2026-06-25T00:23:18+07:00 - `npm run build` passed. Vite reported the
+  existing large chunk warning for the Three.js bundle.
+- 2026-06-25T00:23:18+07:00 - `git diff --check` passed.
+- 2026-06-25T14:52:38+07:00 - `npm run typecheck` passed for the RL header GIF
+  logo change.
+- 2026-06-25T14:52:38+07:00 - `npm run build` passed and bundled
+  `Future-HMI ip.gif` as a production asset. Vite reported the existing large
+  chunk warning for the Three.js bundle, and the GIF asset is about 5.5 MB.
+- 2026-06-25T14:52:38+07:00 - `git diff --check` passed.
+- 2026-06-25T16:05:38+07:00 - `npm run typecheck` passed after aligning the
+  RL Guide tour with the Workspace onboarding tour behavior and entry point.
+- 2026-06-25T16:05:38+07:00 - `npm run build` passed. Vite reported the
+  existing large chunk warning for the Three.js bundle, and the GIF asset is
+  still about 5.5 MB.
+- 2026-06-25T16:05:38+07:00 - `git diff --check` passed.
+- 2026-06-25T16:31:12+07:00 - `npm run typecheck` passed after restoring
+  `PathMode.tsx` and reconnecting the RL guide tour from `View.tsx`.
+- 2026-06-25T16:31:12+07:00 - `npm run build` passed. Vite reported the
+  existing large chunk warning for the Three.js bundle, and the GIF asset is
+  still about 5.5 MB.
+- 2026-06-25T16:31:12+07:00 - `git diff --check` passed.
 
 # Execution Log
 
@@ -374,3 +441,22 @@ src/core/rlLearningContent.ts
 - 2026-06-24T23:41:12+07:00 - Removed the three redundant follow-up plan files
   and the temporary merge plan so this file remains the single canonical
   Reinforcement Learning plan.
+- 2026-06-25T00:18:22+07:00 - Added Phase 10 after the user provided
+  instructions to move the Path sidebar toggle from `PathMode.tsx` into the
+  Reinforcement Learning header and address right-side horizontal overflow.
+- 2026-06-25T00:23:18+07:00 - Moved sidebar state to
+  `src/components/reinforcement_learning/View.tsx`, wired the header toggle,
+  passed `isSidebarOpen` to `PathMode.tsx`, removed the inline PathMode toggle,
+  and added horizontal overflow guards.
+- 2026-06-25T14:52:38+07:00 - Imported `docs/assets/Future-HMI ip.gif` into
+  `src/components/reinforcement_learning/Header.tsx`, rendered it in the RL
+  header brand area, and added `src/assets.d.ts` for GIF imports.
+- 2026-06-25T16:05:38+07:00 - Added the RL Guide tour as an overlay rather than
+  a page mode, then tightened `src/components/reinforcement_learning/GuideTour.tsx`
+  to follow the Workspace onboarding tour mechanics, including `ResizeObserver`,
+  cutout panels, spotlight ring, glass panel, restricted progress dots, and an
+  info-style header tour button.
+- 2026-06-25T16:31:12+07:00 - Repaired the RL page error by restoring
+  `src/components/reinforcement_learning/PathMode.tsx` after it contained
+  accidental `View.tsx` content, and reconnected `GuideTour.tsx` from
+  `View.tsx` so the header tour button opens the tour.

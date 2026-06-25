@@ -1,7 +1,7 @@
 ---
 title: Reinforcement Learning
 type: Active Subsystem
-updated: 2026-06-24
+updated: 2026-06-25
 ---
 
 # Reinforcement Learning
@@ -11,18 +11,19 @@ top-level AppShell surface, separate from the Learning Lab subsystem.
 
 The activation history is captured in:
 
-- [docs/plans/2026-06-24-rl-wiki-page-split.md](../../docs/plans/2026-06-24-rl-wiki-page-split.md)
+- [docs/plans/2026-06-24-reinforcement-learning-track-ui.md](../../docs/plans/2026-06-24-reinforcement-learning-track-ui.md)
 
 ## Status
 
 Reinforcement Learning is active as a separate full-screen view reachable from
 Landing. It currently provides:
 
-- A guided Path mode backed by static track, domain, and lesson metadata.
+- A Guide mode that introduces the RL learning loop and links into lessons.
+- A Path mode backed by static track, domain, and lesson metadata.
+- A 3D Visualization placeholder mode for the future visual surface.
 - A populated Reinforcement Learning track for MDP, Bellman, Q-Learning, and
   SARSA practice.
 - A Robot Learning placeholder track with no domains or lessons yet.
-- A Review mode over the same RL practice set.
 - MDP component identification practice.
 - Bellman/Q-table value practice.
 - Compact GridWorld single-step Q-Learning and SARSA practice.
@@ -43,11 +44,12 @@ LandingPage
   -> AppShell view: reinforcement-learning
     -> src/components/reinforcement_learning/View.tsx
       -> Header
+      -> GuideMode
       -> PathMode
-      -> ReviewMode
+      -> Visualization 3D placeholder
 ```
 
-The path UI reads static role/domain/lesson metadata from
+The guide and path UIs read static role/domain/lesson metadata from
 `src/core/rlLearningContent.ts`. Users choose a learning track, then a focus
 area, then a lesson sequence. Practice cards use deterministic fixtures from
 `src/components/exercises/rlPracticeAdapter.ts`.
@@ -64,13 +66,12 @@ The current track split is:
 | Path | Responsibility |
 |---|---|
 | `src/components/reinforcement_learning/View.tsx` | Full-screen Reinforcement Learning surface and local mode/lesson state. |
-| `src/components/reinforcement_learning/Header.tsx` | Header with Back, Path/Review mode toggle, theme, and language controls. |
+| `src/components/reinforcement_learning/Header.tsx` | Header with Back, Guide/Path/3D mode toggle, sidebar, theme, language, and RL logo controls. |
+| `src/components/reinforcement_learning/GuideMode.tsx` | Orientation mode with learning steps, core concepts, and lesson entry points. |
 | `src/components/reinforcement_learning/PathMode.tsx` | Guided reinforcement path mode. |
 | `src/components/reinforcement_learning/PathMap.tsx` | Reinforcement roadmap/list of lessons. |
 | `src/components/reinforcement_learning/PathNode.tsx` | Reinforcement lesson node with available/next/preview states. |
 | `src/components/reinforcement_learning/LessonDetail.tsx` | Inline reinforcement lesson detail. |
-| `src/components/reinforcement_learning/ReviewMode.tsx` | Free-review browser over reinforcement practice. |
-| `src/components/reinforcement_learning/ReviewPicker.tsx` | Selector for reinforcement practice kind. |
 | `src/components/reinforcement_learning/PracticeSection.tsx` | Inline reinforcement practice renderer. |
 | `src/core/rlTypes.ts` | Pure RL learning-domain types. |
 | `src/core/rlLearningContent.ts` | Static RL role/domain/lesson list, practice IDs, and approval metadata. |
