@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Check, CircleX, Lightbulb, X } from 'lucide-react';
 import type { LayoutNode } from '../../lib/irTypes';
 import type { getStrings } from '../../lib/localization';
 import {
@@ -144,9 +145,7 @@ export const ValueExercise: React.FC<{
             aria-label={t.closeExercise}
             title={t.closeExercise}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
-              <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L8.94 10l-4.72 4.72a.75.75 0 1 0 1.06 1.06L10 11.06l4.72 4.72a.75.75 0 1 0 1.06-1.06L11.06 10l4.72-4.72a.75.75 0 1 0-1.06-1.06L10 8.94 5.28 4.22Z" />
-            </svg>
+            <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
 
@@ -385,16 +384,12 @@ export const ValueExercise: React.FC<{
                       <span className={`mt-1.5 flex items-center justify-center gap-1 text-[10px] font-medium leading-none ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
                         {isCorrect ? (
                           <>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                              <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
-                            </svg>
+                            <Check className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                             {t.correct}
                           </>
                         ) : (
                           <>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                            </svg>
+                            <CircleX className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                             {t.expected(expected)}
                           </>
                         )}
@@ -409,9 +404,7 @@ export const ValueExercise: React.FC<{
           {showHint && (
             <section className="rounded-lg border border-amber-500/20 bg-amber-950/5 p-4 text-sm text-amber-50 xl:col-span-3">
               <div className="mb-3 text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                  <path d="M10 2a6 6 0 00-6 6c0 1.887.874 3.57 2.25 4.686A3.722 3.722 0 017.5 15.5c0 .6.4 1 1 1h3c.6 0 1-.4 1-1a3.722 3.722 0 011.25-2.814A6 6 0 0016 8a6 6 0 00-6-6z" />
-                </svg>
+                <Lightbulb className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                 {t.hintExercise}
               </div>
               <div className="space-y-1.5 p-2.5 rounded bg-amber-950/20 border border-amber-500/10 font-mono text-[11px] text-zinc-300 leading-relaxed">
@@ -739,9 +732,7 @@ const ActivationValuePanel: React.FC<{
       {showHint && (
         <section className="rounded-lg border border-zinc-800 bg-zinc-900/30 p-4 text-zinc-200 xl:col-span-3">
           <div className="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-amber-400">
-              <path d="M10 2a6 6 0 00-6 6c0 1.887.874 3.57 2.25 4.686A3.722 3.722 0 017.5 15.5c0 .6.4 1 1 1h3c.6 0 1-.4 1-1a3.722 3.722 0 011.25-2.814A6 6 0 0016 8a6 6 0 00-6-6z" />
-            </svg>
+            <Lightbulb className="h-4 w-4 text-amber-400" strokeWidth={1.8} aria-hidden="true" />
             {t.hintExercise}
           </div>
           <div className="space-y-3 font-mono text-sm leading-relaxed text-zinc-300">

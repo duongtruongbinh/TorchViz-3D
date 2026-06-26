@@ -1,4 +1,5 @@
 import React from 'react';
+import { CircleAlert } from 'lucide-react';
 import type { AppError } from '../../lib/appError';
 import type { getStrings } from '../../lib/localization';
 
@@ -26,9 +27,7 @@ export const CanvasErrorOverlay: React.FC<{
   <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none select-none">
     <div className="text-center p-10 max-w-md border border-red-700/50 bg-red-950/50 rounded-2xl backdrop-blur-sm">
       <div className="w-16 h-16 bg-gradient-to-br from-red-900 to-red-950 rounded-2xl mx-auto flex items-center justify-center mb-5 border border-red-600/50 shadow-inner">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-8 h-8 text-red-400">
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-        </svg>
+        <CircleAlert className="h-8 w-8 text-red-400" strokeWidth={1.8} aria-hidden="true" />
       </div>
       <h3 className="text-red-200 font-semibold text-base mb-3 tracking-wide">
         {t.compilationFailed}

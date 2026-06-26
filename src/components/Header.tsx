@@ -1,9 +1,10 @@
 import React from 'react';
+import { ArrowLeftToLine, Check, ChevronDown, CircleQuestionMark, Eye, Info, Languages, Play } from 'lucide-react';
 import { useStore, TEMPLATES } from '../store/useStore';
 import { workerService, parseShape } from '../lib/workerService';
 import OnboardingTour from './OnboardingTour';
 import HelpModal from './HelpModal';
-import { getStrings, LANGUAGE_OPTIONS, type Language } from '../lib/localization';
+import { getStrings, type Language } from '../lib/localization';
 import { getForwardPassLayoutCompatibility } from './mnist-demo/demoStops';
 import type { ForwardPassCompatibility } from '../lib/mnistCompatibility';
 
@@ -43,18 +44,13 @@ export default function Header({
     const t = getStrings(language);
 
     const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-    const [isLanguageOpen, setIsLanguageOpen] = React.useState(false);
     const [buttonAttention, setButtonAttention] = React.useState(false);
     const dropdownRef = React.useRef<HTMLDivElement>(null);
-    const languageRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
-            }
-            if (languageRef.current && !languageRef.current.contains(event.target as Node)) {
-                setIsLanguageOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -116,7 +112,7 @@ export default function Header({
                             title={t.header.backToLanding}
                             aria-label={t.header.backToLanding}
                         >
-                            <span aria-hidden="true">{'<-'}</span>
+                            <ArrowLeftToLine className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                             <span>{t.header.landing}</span>
                         </button>
                     )}
@@ -143,9 +139,7 @@ export default function Header({
                                 tabIndex={0}
                             >
                                 <span className="truncate">{TEMPLATES[activeTemplate]?.name || t.header.selectTemplate}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>
-                                    <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                                </svg>
+                                <ChevronDown className={`h-3.5 w-3.5 text-zinc-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} strokeWidth={1.8} aria-hidden="true" />
                             </div>
 
                             {isDropdownOpen && (
@@ -162,9 +156,7 @@ export default function Header({
                                         >
                                             <span className="truncate">{t.name}</span>
                                             {activeTemplate === k && (
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                                                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
-                                                </svg>
+                                                <Check className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                                             )}
                                         </div>
                                     ))}
@@ -199,9 +191,7 @@ export default function Header({
                         {loading ? (
                             <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                                <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.841z" />
-                            </svg>
+                            <Play className="h-3.5 w-3.5 fill-current" strokeWidth={1.8} aria-hidden="true" />
                         )}
                         {loading ? t.header.running : t.header.visualize}
                         {!loading && (
@@ -226,15 +216,11 @@ export default function Header({
                         }`}
                         title={demoAvailable ? t.canvas.demo.mode : demoUnavailableTitle}
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
+                        <Eye
                             className={`h-3.5 w-3.5 transition-colors ${demoModeEnabled ? 'text-blue-300' : 'text-zinc-500 group-hover:text-zinc-300'}`}
+                            strokeWidth={1.8}
                             aria-hidden="true"
-                        >
-                            <path d="M10 3.25a.75.75 0 0 1 .75.75v1.13a4.9 4.9 0 0 1 2.06.86l.8-.8a.75.75 0 1 1 1.06 1.06l-.8.8c.43.62.72 1.33.86 2.06h1.13a.75.75 0 0 1 0 1.5h-1.13a4.9 4.9 0 0 1-.86 2.06l.8.8a.75.75 0 0 1-1.06 1.06l-.8-.8a4.9 4.9 0 0 1-2.06.86v1.13a.75.75 0 0 1-1.5 0v-1.13a4.9 4.9 0 0 1-2.06-.86l-.8.8a.75.75 0 0 1-1.06-1.06l.8-.8a4.9 4.9 0 0 1-.86-2.06H4.14a.75.75 0 0 1 0-1.5h1.13a4.9 4.9 0 0 1 .86-2.06l-.8-.8A.75.75 0 0 1 6.39 5.2l.8.8a4.9 4.9 0 0 1 2.06-.86V4a.75.75 0 0 1 .75-.75Zm0 4.25a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" />
-                        </svg>
+                        />
                         <span>{t.canvas.demo.mode}</span>
                         <span
                             className={`inline-flex h-5 w-9 shrink-0 items-center rounded-full border p-0.5 transition-all ${
@@ -269,7 +255,7 @@ export default function Header({
                         title={t.header.tour}
                         aria-label={t.header.openTour}
                     >
-                        ℹ
+                        <Info className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
                     </button>
                     <button
                         data-tour="help"
@@ -277,61 +263,19 @@ export default function Header({
                         className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border border-[var(--border)] text-[var(--text-muted)] hover:text-white text-sm font-bold transition-colors ${buttonAttention ? 'tour-button-attention' : ''}`}
                         title={t.header.help}
                     >
-                        ?
+                        <CircleQuestionMark className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
                     </button>
 
-                    <div className="relative" ref={languageRef}>
-                        <button
-                            type="button"
-                            onClick={() => setIsLanguageOpen((v) => !v)}
-                            className={`w-8 h-8 flex items-center justify-center rounded-md bg-[var(--surface-elevated)] hover:bg-[#3f3f46] border text-[var(--text-muted)] hover:text-white transition-all ${isLanguageOpen ? 'border-blue-500 text-blue-300 ring-2 ring-blue-500/25 bg-blue-500/10' : 'border-[var(--border)]'}`}
-                            title={t.app.language}
-                            aria-label={t.app.language}
-                            aria-haspopup="menu"
-                            aria-expanded={isLanguageOpen}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.8"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="w-4 h-4"
-                            >
-                                <path d="M4 5h9" />
-                                <path d="M9 3v2" />
-                                <path d="M6 9c1.2 2.5 3.3 4.2 6 5" />
-                                <path d="M11 9c-.7 1.8-2.1 3.4-4 4.6" />
-                                <path d="M14 19l3-7 3 7" />
-                                <path d="M15.1 16.5h3.8" />
-                            </svg>
-                        </button>
-
-                        {isLanguageOpen && (
-                            <div
-                                className="absolute right-0 top-[calc(100%+6px)] w-36 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl shadow-black/90 z-50 overflow-hidden flex flex-col py-1 animate-in fade-in slide-in-from-top-2 duration-150"
-                                role="menu"
-                            >
-                                {LANGUAGE_OPTIONS.map((option) => (
-                                    <button
-                                        key={option.code}
-                                        type="button"
-                                        className={`px-3 py-2 text-left text-xs transition-colors ${language === option.code ? 'bg-blue-600/20 text-blue-300 font-medium' : 'text-zinc-200 hover:bg-zinc-800 hover:text-zinc-50'}`}
-                                        onClick={() => {
-                                            setLanguage(option.code as Language);
-                                            setIsLanguageOpen(false);
-                                        }}
-                                        role="menuitemradio"
-                                        aria-checked={language === option.code}
-                                    >
-                                        {option.label}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setLanguage(language === 'vi' ? ('en' as Language) : ('vi' as Language))}
+                        className="h-8 w-8 flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] transition-all hover:bg-[#3f3f46] hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        title={language === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
+                        aria-label={language === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
+                        aria-pressed={language === 'vi'}
+                    >
+                        <Languages className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
+                    </button>
                 </div>
             </header>
 

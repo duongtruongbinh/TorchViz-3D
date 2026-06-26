@@ -1,3 +1,5 @@
+import { ArrowRight } from 'lucide-react';
+
 type ToolCardProps = {
   title: string;
   description: string;
@@ -21,7 +23,7 @@ export default function ToolCard({ title, description, openLabel, onOpen }: Tool
       <div className="flex justify-end pt-2">
         <span className="inline-flex h-8 min-w-40 items-center justify-center gap-2 rounded-md border border-blue-200/45 bg-blue-400/20 px-3 text-[13px] font-bold text-blue-50 shadow-[0_0_18px_rgba(96,165,250,0.22)] transition-all group-hover:border-blue-100/80 group-hover:bg-blue-400/30 group-hover:shadow-[0_0_24px_rgba(96,165,250,0.35)]">
           <span className="whitespace-nowrap">{openLabel}</span>
-          <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">-&gt;</span>
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.8} aria-hidden="true" />
         </span>
       </div>
     </button>

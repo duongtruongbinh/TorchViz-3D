@@ -18,14 +18,14 @@ export default function LessonDetail({ lesson, theme, language }: LessonDetailPr
   const themeClasses = getLearningLabTheme(theme);
 
   return (
-    <article className={cx('min-h-0 rounded-xl border p-5 shadow-sm', themeClasses.card)}>
+    <article className={cx('min-h-0 border p-5 shadow-sm', themeClasses.radius.panel, themeClasses.surface.card)}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>{domainText.title}</div>
           <h2 className={cx('mt-2 text-2xl font-black leading-tight', themeClasses.titleText)}>{lessonText.title}</h2>
           <p className={cx('mt-2 text-sm', themeClasses.mutedText)}>{lessonText.duration}</p>
         </div>
-        <span className={cx('rounded-full border px-3 py-1.5 text-xs font-black uppercase', themeClasses.lessonStatus(lesson.status))}>
+        <span className={cx('border px-3 py-1.5 text-xs font-black uppercase', themeClasses.radius.pill, themeClasses.lessonStatus(lesson.status))}>
           {strings.learningLab.lessonStatus[lesson.status]}
         </span>
       </div>

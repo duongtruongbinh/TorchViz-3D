@@ -1,3 +1,5 @@
+import { ArrowRight } from 'lucide-react';
+
 type LearningCardProps = {
   title: string;
   description: string;
@@ -21,7 +23,7 @@ export default function LearningCard({ title, description, openLabel, onOpen }: 
       <div className="flex justify-end pt-2">
         <span className="inline-flex h-8 min-w-40 items-center justify-center gap-2 rounded-md border border-teal-200/45 bg-teal-400/15 px-3 text-[13px] font-bold text-teal-50 shadow-[0_0_18px_rgba(45,212,191,0.18)] transition-all group-hover:border-teal-100/80 group-hover:bg-teal-400/25">
           <span className="whitespace-nowrap">{openLabel}</span>
-          <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">-&gt;</span>
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.8} aria-hidden="true" />
         </span>
       </div>
     </button>

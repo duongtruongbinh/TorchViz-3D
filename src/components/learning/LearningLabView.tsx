@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ArrowLeftToLine, PanelLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { learningCatalog } from '../../core/learning/content';
@@ -73,34 +74,59 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
         isSidebarOpen ? 'grid-cols-[300px_minmax(0,1fr)]' : 'grid-cols-[72px_minmax(0,1fr)]'
       } ${themeClasses.page}`}
     >
-      <aside className={cx('min-h-screen overflow-hidden rounded-r-lg border-r shadow-sm transition-colors', themeClasses.sidebar)}>
-        <button
-          type="button"
-          onClick={onBackToLanding}
+      <aside className={cx('relative z-50 flex min-h-screen flex-col overflow-visible border-r shadow-sm transition-colors', themeClasses.radius.sidebarEdge, themeClasses.sidebar)}>
+        <div
           className={cx(
-            'flex h-16 w-full items-center rounded-tr-lg transition-colors',
+            'flex h-16 w-full items-center rounded-tr-lg',
             isSidebarOpen ? 'gap-3 px-5 text-left' : 'justify-center px-0',
-            themeClasses.sidebarHover,
           )}
-          title={strings.backToLanding}
-          aria-label={strings.backToLanding}
         >
-          <span className={cx('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border font-black', themeClasses.brandTile)}>
-            TV
+          <span className={cx('group relative flex h-10 w-10 shrink-0 items-center justify-center border font-black', themeClasses.radius.icon, themeClasses.brandTile)}>
+            <span className={!isSidebarOpen ? 'transition-opacity group-hover:opacity-0 group-focus-within:opacity-0' : undefined}>
+              TV
+            </span>
+            {!isSidebarOpen ? (
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(true)}
+                className={cx(
+                  'absolute inset-0 flex h-full w-full items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100',
+                  themeClasses.radius.icon,
+                  themeClasses.button.icon,
+                )}
+                title={strings.openSidebar}
+                aria-label={strings.openSidebar}
+                aria-pressed={isSidebarOpen}
+              >
+                <PanelLeft className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            ) : null}
           </span>
           {isSidebarOpen ? (
-            <span className="min-w-0">
-              <span className="block truncate text-xl font-black leading-6">
-                TorchViz<span className={themeClasses.accentText}>3D</span>
+            <>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-xl font-black leading-6">
+                  TorchViz<span className={themeClasses.accentText}>3D</span>
+                </span>
+                <span className={cx('block truncate text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
+                  {strings.searchLabel}
+                </span>
               </span>
-              <span className={cx('block truncate text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
-                {strings.searchLabel}
-              </span>
-            </span>
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                className={cx('flex h-10 w-10 shrink-0 items-center justify-center', themeClasses.radius.icon, themeClasses.button.ghost)}
+                title={strings.closeSidebar}
+                aria-label={strings.closeSidebar}
+                aria-pressed={isSidebarOpen}
+              >
+                <PanelLeft className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            </>
           ) : null}
-        </button>
+        </div>
 
-        <nav className={isSidebarOpen ? 'px-4 py-5' : 'px-3 py-5'} aria-label={strings.sidebarDomains}>
+        <nav className={isSidebarOpen ? 'flex-1 px-4 py-5' : 'flex-1 px-3 py-5'} aria-label={strings.sidebarDomains}>
           {isSidebarOpen ? (
             <div className={cx('mb-3 px-1 text-xs font-black uppercase tracking-wide', themeClasses.mutedText)}>
               {strings.sidebarDomains}
@@ -118,9 +144,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   type="button"
                   onClick={() => openDomain(domain.id)}
                   className={cx(
-                    'flex h-11 w-full items-center rounded-xl text-left text-sm font-black transition-colors',
+                    'flex h-11 w-full items-center text-left text-sm',
                     isSidebarOpen ? 'gap-3 px-2' : 'justify-center px-0',
-                    themeClasses.navItem(isActive),
+                    themeClasses.radius.button,
+                    themeClasses.button.nav(isActive),
                   )}
                   title={text.title}
                   aria-current={isActive ? 'page' : undefined}
@@ -134,16 +161,32 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             })}
           </div>
         </nav>
+
+        <div className={isSidebarOpen ? 'px-4 pb-5' : 'px-3 pb-5'}>
+          <button
+            type="button"
+            onClick={onBackToLanding}
+            className={cx(
+              'flex h-11 w-full items-center text-sm',
+              isSidebarOpen ? 'gap-3 px-2 text-left' : 'justify-center px-0',
+              themeClasses.radius.button,
+              themeClasses.button.nav(false),
+            )}
+            title={strings.backToLanding}
+            aria-label={strings.backToLanding}
+          >
+            <ArrowLeftToLine className="h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            {isSidebarOpen ? <span className="min-w-0 truncate">{strings.backToLanding}</span> : null}
+          </button>
+        </div>
       </aside>
 
       <div className="flex min-h-screen min-w-0 flex-col">
         <LearningLabHeader
           mode={mode}
           theme={theme}
-          isSidebarOpen={isSidebarOpen}
           onModeChange={setMode}
           onToggleTheme={() => setTheme((value) => (value === 'dark' ? 'light' : 'dark'))}
-          onToggleSidebar={() => setIsSidebarOpen((value) => !value)}
         />
 
         <section className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-5">
@@ -158,7 +201,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             <DomainCatalog catalog={learningCatalog} language={language} theme={theme} onOpenDomain={openDomain} />
           ) : activeDomain && !activeTrack ? (
             <section className="grid gap-5">
-              <div className={cx('rounded-xl border p-6 shadow-sm', themeClasses.card)}>
+              <div className={cx('border p-6 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
                 <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
                   {getDomainText(language, activeDomain).title}
                 </div>
@@ -174,7 +217,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : activeTrack && selectedLesson ? (
             <section className="grid min-h-0 w-full gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
               <aside className="grid max-h-full gap-3 overflow-auto pr-1">
-                <div className={cx('rounded-xl border p-4 shadow-sm', themeClasses.card)}>
+                <div className={cx('border p-4 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
                   <div className={cx('text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
                     {getDomainTextById(language, activeTrack.domainId).title}
                   </div>
@@ -200,7 +243,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               <LessonDetail lesson={selectedLesson} theme={theme} language={language} />
             </section>
           ) : (
-            <div className={cx('rounded-xl border p-6 text-sm font-black shadow-sm', themeClasses.card, themeClasses.mutedText)}>
+            <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
               {strings.contentInProgress}
             </div>
           )}

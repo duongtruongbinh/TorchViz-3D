@@ -8,9 +8,82 @@ export function cx(...classes: Array<string | false | null | undefined>): string
 
 export function getLearningLabTheme(theme: LearningLabTheme) {
   const isLight = theme === 'light';
+  const focusRing = 'focus:outline-none focus:ring-2 focus:ring-sky-300';
+  const radius = {
+    icon: 'rounded-lg',
+    button: 'rounded-lg',
+    card: 'rounded-xl',
+    panel: 'rounded-xl',
+    pill: 'rounded-full',
+    sidebarEdge: 'rounded-r-lg',
+    headerEdge: 'rounded-b-lg',
+  };
+  const surface = {
+    card: isLight
+      ? 'border-sky-100 bg-white text-slate-950 shadow-sky-100/70'
+      : 'border-slate-800 bg-slate-900 text-slate-100 shadow-black/30',
+    interactiveCard: isLight
+      ? 'border-sky-100 bg-gradient-to-br from-white to-[#f6fbff] text-slate-950 shadow-sky-100/70 hover:border-sky-300'
+      : 'border-slate-800 bg-gradient-to-br from-slate-900 to-[#101827] text-slate-100 shadow-black/30 hover:border-sky-500/70',
+    unavailable: isLight
+      ? 'border-slate-200 bg-slate-50 text-slate-500'
+      : 'border-slate-700 bg-slate-800 text-slate-400',
+  };
+  const button = {
+    primary: cx(
+      'font-black shadow-sm transition-colors',
+      focusRing,
+      isLight
+        ? 'bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-300'
+        : 'bg-sky-500 text-slate-950 hover:bg-sky-400 focus:ring-sky-300',
+    ),
+    secondary: cx(
+      'border font-black shadow-sm transition-colors',
+      focusRing,
+      isLight
+        ? 'border-sky-100 bg-white text-slate-700 hover:bg-sky-50 hover:text-sky-700'
+        : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white',
+    ),
+    ghost: cx(
+      'font-black transition-colors',
+      focusRing,
+      isLight
+        ? 'text-slate-500 hover:bg-sky-50 hover:text-sky-700'
+        : 'text-slate-400 hover:bg-slate-800 hover:text-white',
+    ),
+    icon: cx(
+      'border shadow-sm transition-colors',
+      focusRing,
+      isLight
+        ? 'border-sky-100 bg-white text-slate-700 hover:bg-sky-50 hover:text-sky-700'
+        : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white',
+    ),
+    nav: (isActive: boolean) => cx(
+      'font-black transition-colors',
+      focusRing,
+      isActive
+        ? isLight ? 'bg-sky-50 text-sky-700' : 'bg-slate-800/90 text-sky-200'
+        : isLight ? 'text-slate-600 hover:bg-sky-50 hover:text-sky-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white',
+    ),
+    card: cx(
+      'border text-left shadow-sm transition-transform duration-150 hover:-translate-y-0.5',
+      focusRing,
+      surface.interactiveCard,
+    ),
+    segmented: (isActive: boolean) => cx(
+      'font-black transition-colors',
+      focusRing,
+      isActive
+        ? isLight ? 'bg-white text-sky-700 shadow-sm' : 'bg-slate-700 text-sky-100 shadow-sm'
+        : isLight ? 'text-slate-500 hover:text-sky-700' : 'text-slate-400 hover:text-sky-200',
+    ),
+  };
 
   return {
     isLight,
+    radius,
+    surface,
+    button,
     page: isLight ? 'learning-lab-light bg-[#f6fbff] text-slate-950' : 'bg-[#050b16] text-slate-100',
     sidebar: isLight
       ? 'border-sky-100 bg-gradient-to-b from-white via-[#f6fbff] to-[#eef6ff] text-slate-950 shadow-sky-100/70'
@@ -24,36 +97,22 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     bodyText: isLight ? 'text-slate-600' : 'text-slate-300',
     titleText: isLight ? 'text-slate-950' : 'text-white',
     eyebrowText: isLight ? 'text-sky-700' : 'text-sky-300',
-    card: isLight
-      ? 'border-sky-100 bg-white text-slate-950 shadow-sky-100/70'
-      : 'border-slate-800 bg-slate-900 text-slate-100 shadow-black/30',
-    interactiveCard: isLight
-      ? 'border-sky-100 bg-gradient-to-br from-white to-[#f6fbff] text-slate-950 shadow-sky-100/70 hover:border-sky-300'
-      : 'border-slate-800 bg-gradient-to-br from-slate-900 to-[#101827] text-slate-100 shadow-black/30 hover:border-sky-500/70',
+    card: surface.card,
+    interactiveCard: surface.interactiveCard,
     iconTile: isLight ? 'bg-[#eef6ff] text-sky-700' : 'bg-slate-800 text-sky-200',
-    focusRing: 'focus:outline-none focus:ring-2 focus:ring-sky-300',
-    primaryAction: isLight
-      ? 'bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-300'
-      : 'bg-sky-500 text-slate-950 hover:bg-sky-400 focus:ring-sky-300',
-    unavailable: isLight
-      ? 'border-slate-200 bg-slate-50 text-slate-500'
-      : 'border-slate-700 bg-slate-800 text-slate-400',
+    focusRing,
+    primaryAction: button.primary,
+    unavailable: surface.unavailable,
     header: isLight
       ? 'border-sky-100 bg-white/95 text-slate-950 shadow-sky-100/70'
       : 'border-slate-800 bg-[#0f172a] text-slate-100 shadow-black/20',
     searchBox: isLight ? 'bg-[#eef6ff] text-slate-500' : 'bg-slate-900 text-slate-400',
     segmented: isLight ? 'border-sky-100 bg-[#eef6ff]' : 'border-slate-800 bg-slate-900',
-    segmentActive: isLight ? 'bg-white text-sky-700 shadow-sm' : 'bg-slate-700 text-sky-100 shadow-sm',
-    segmentIdle: isLight ? 'text-slate-500 hover:text-sky-700' : 'text-slate-400 hover:text-sky-200',
-    iconButton: isLight
-      ? 'border-sky-100 bg-white text-slate-700 shadow-sm hover:bg-sky-50 hover:text-sky-700'
-      : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white',
-    plainIconButton: isLight
-      ? 'text-slate-500 hover:bg-sky-50 hover:text-sky-700'
-      : 'text-slate-400 hover:bg-slate-800 hover:text-white',
-    navItem: (isActive: boolean) => isActive
-      ? isLight ? 'bg-sky-50 text-sky-700' : 'bg-slate-800/90 text-sky-200'
-      : isLight ? 'text-slate-600 hover:bg-sky-50 hover:text-sky-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white',
+    segmentActive: button.segmented(true),
+    segmentIdle: button.segmented(false),
+    iconButton: button.icon,
+    plainIconButton: button.ghost,
+    navItem: button.nav,
     statusPill: (isPlaceholder: boolean) => isPlaceholder
       ? isLight ? 'bg-slate-100 text-slate-500' : 'bg-slate-800 text-slate-400'
       : isLight ? 'bg-sky-100 text-sky-700' : 'bg-sky-500/15 text-sky-200',

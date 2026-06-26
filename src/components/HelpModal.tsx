@@ -1,4 +1,5 @@
 import React from 'react';
+import { Binary, Boxes, Download, Navigation, Workflow, X, type LucideIcon } from 'lucide-react';
 import { getStrings } from '../lib/localization';
 import { useStore } from '../store/useStore';
 
@@ -9,31 +10,23 @@ interface Props {
 
 type GuideIcon = 'workflow' | 'navigation' | 'blocks' | 'mnist' | 'export';
 
-const guideIconPaths: Record<GuideIcon, string> = {
-  workflow: 'M4 6.5h8M4 12h6m5-6 2 2 3-4M4 17.5h8',
-  navigation: 'M12 3l7 16-7-3-7 3 7-16Z',
-  blocks: 'M4 5h6v6H4V5Zm10 0h6v6h-6V5ZM4 15h6v4H4v-4Zm10 0h6v4h-6v-4Z',
-  mnist: 'M7 4h10v16H7V4Zm3 3h4m-4 4h4m-4 4h2M5 8H3m2 4H3m2 4H3m18-8h-2m2 4h-2m2 4h-2',
-  export: 'M12 3v10m0-10 4 4m-4-4-4 4M5 13v6h14v-6',
+const guideIcons: Record<GuideIcon, LucideIcon> = {
+  workflow: Workflow,
+  navigation: Navigation,
+  blocks: Boxes,
+  mnist: Binary,
+  export: Download,
 };
 
-const GuideIconBadge: React.FC<{ icon: GuideIcon }> = ({ icon }) => (
-  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-blue-400/25 bg-blue-500/10 text-blue-300">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d={guideIconPaths[icon]} />
-    </svg>
-  </span>
-);
+const GuideIconBadge: React.FC<{ icon: GuideIcon }> = ({ icon }) => {
+  const Icon = guideIcons[icon];
+
+  return (
+    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-blue-400/25 bg-blue-500/10 text-blue-300">
+      <Icon className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+    </span>
+  );
+};
 
 const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const language = useStore((s) => s.language);
@@ -73,15 +66,7 @@ const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:bg-[#3f3f46] hover:text-[var(--text)] transition-colors"
               aria-label={t.help.gotIt}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
-                <path d="M5.22 5.22a.75.75 0 0 1 1.06 0L10 8.94l3.72-3.72a.75.75 0 1 1 1.06 1.06L11.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06L10 11.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06L8.94 10 5.22 6.28a.75.75 0 0 1 0-1.06Z" />
-              </svg>
+              <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
         </div>

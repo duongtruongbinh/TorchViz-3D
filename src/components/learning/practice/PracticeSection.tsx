@@ -50,7 +50,7 @@ export default function PracticeSection({ practice, theme, language }: PracticeS
         }
 
         return (
-          <section key={item.id} className={cx('rounded-xl border p-4 text-sm font-black shadow-sm', themeClasses.card, themeClasses.mutedText)}>
+          <section key={item.id} className={cx('border p-4 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
             {strings.learningLab.unavailablePractice}
           </section>
         );

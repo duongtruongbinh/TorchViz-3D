@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Billboard, Line, Text } from '@react-three/drei';
+import { Pause, Play, SkipBack, SkipForward } from 'lucide-react';
 import * as THREE from 'three';
 import { clamp01, getEasedSegmentProgress } from '../../lib/mnistAnimation';
 import type { LayoutEdge } from '../../lib/irTypes';
@@ -232,23 +233,15 @@ export const DataFlowDemo: React.FC<{
 });
 
 const DemoIcon: React.FC<{ playing: boolean }> = ({ playing }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5" aria-hidden="true">
-    {playing ? (
-      <path d="M6.25 4.5A1.25 1.25 0 0 1 7.5 5.75v8.5a1.25 1.25 0 1 1-2.5 0v-8.5A1.25 1.25 0 0 1 6.25 4.5Zm7 0a1.25 1.25 0 0 1 1.25 1.25v8.5a1.25 1.25 0 1 1-2.5 0v-8.5a1.25 1.25 0 0 1 1.25-1.25Z" />
-    ) : (
-      <path d="M6.5 4.4v11.2c0 .6.66.96 1.16.63l8.35-5.6a.75.75 0 0 0 0-1.25L7.66 3.77A.75.75 0 0 0 6.5 4.4Z" />
-    )}
-  </svg>
+  playing
+    ? <Pause className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
+    : <Play className="h-3.5 w-3.5 fill-current" strokeWidth={1.8} aria-hidden="true" />
 );
 
 const DemoStepIcon: React.FC<{ direction: 'prev' | 'next' }> = ({ direction }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5" aria-hidden="true">
-    {direction === 'prev' ? (
-      <path d="M5.25 4.75A.75.75 0 0 1 6 5.5v3.18l6.35-3.93a.75.75 0 0 1 1.15.64v9.22a.75.75 0 0 1-1.15.64L6 11.32v3.18a.75.75 0 0 1-1.5 0v-9a.75.75 0 0 1 .75-.75Z" />
-    ) : (
-      <path d="M14.75 4.75A.75.75 0 0 0 14 5.5v3.18L7.65 4.75a.75.75 0 0 0-1.15.64v9.22a.75.75 0 0 0 1.15.64L14 11.32v3.18a.75.75 0 0 0 1.5 0v-9a.75.75 0 0 0-.75-.75Z" />
-    )}
-  </svg>
+  direction === 'prev'
+    ? <SkipBack className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
+    : <SkipForward className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
 );
 
 export const DemoControls: React.FC<{

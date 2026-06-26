@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import { Layers, Layers2, RefreshCcw } from 'lucide-react';
 import * as THREE from 'three';
 import { LayoutData } from '../../lib/irTypes';
 import { useStore } from '../../store/useStore';
@@ -288,20 +289,6 @@ const ToolbarButton: React.FC<{
   </button>
 );
 
-const LayersIcon: React.FC<{ expanded: boolean }> = ({ expanded }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-    <g transform="translate(1.8 2.2) scale(0.90)">
-      <path d="m12 3 8 4-8 4-8-4 8-4Z" />
-      <path d="m4 12 8 4 8-4" />
-      <path d="m4 17 8 4 8-4" />
-    </g>
-    <path
-      strokeWidth="2"
-      d={expanded ? 'M19.5 2.5v4M17.5 4.5h4' : 'M17.5 4.5h4'}
-    />
-  </svg>
-);
-
 export const ArchitectureControls: React.FC<{
   disabled: boolean;
   showRecenter: boolean;
@@ -324,19 +311,14 @@ export const ArchitectureControls: React.FC<{
         className="h-10 px-1 flex items-center gap-1 rounded-lg border border-white/15 bg-black/10"
       >
         <ToolbarButton title={t.inspector.expandAll} disabled={disabled} onClick={onExpandAll}>
-          <LayersIcon expanded />
+          <Layers className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
         </ToolbarButton>
         <ToolbarButton title={t.inspector.collapseAll} disabled={disabled} onClick={onCollapseAll}>
-          <LayersIcon expanded={false} />
+          <Layers2 className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
         </ToolbarButton>
         {showRecenter && (
           <ToolbarButton title={t.inspector.resetCameraView} onClick={onRecenter}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-              <path d="M3 12a9 9 0 0 1 15.3-6.4" />
-              <path d="M18 3v5h-5" />
-              <path d="M21 12a9 9 0 0 1-15.3 6.4" />
-              <path d="M6 21v-5h5" />
-            </svg>
+            <RefreshCcw className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
           </ToolbarButton>
         )}
       </div>
