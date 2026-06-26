@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeftToLine, PanelLeft } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { learningCatalog } from '../../core/learning/content';
 import {
@@ -36,7 +36,10 @@ function isLearningDomainId(value: string | undefined): value is LearningDomainI
 export default function LearningLabView({ onBackToLanding }: LearningLabViewProps) {
   const navigate = useNavigate();
   const { domainId, trackId } = useParams();
+  const [searchParams] = useSearchParams();
   const routeDomainId = isLearningDomainId(domainId) ? domainId : null;
+  const routeLessonId = searchParams.get('lesson');
+  const routePracticeId = searchParams.get('practice');
   const language = useStore((s) => s.language);
   const [mode, setMode] = useState<LearningLabMode>('path');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
@@ -53,10 +56,25 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   useEffect(() => {
     if (!activeTrack || !trackLessons.length) return;
+    if (routeLessonId && trackLessons.some((lesson) => lesson.id === routeLessonId)) {
+      if (selectedLessonId !== routeLessonId) setSelectedLessonId(routeLessonId);
+      return;
+    }
     if (!selectedLesson || selectedLesson.id !== selectedLessonId) {
       setSelectedLessonId(trackLessons[0].id);
     }
-  }, [activeTrack, selectedLesson, selectedLessonId, trackLessons]);
+  }, [activeTrack, routeLessonId, selectedLesson, selectedLessonId, trackLessons]);
+
+  useEffect(() => {
+    if (!routePracticeId || !selectedLesson?.practice.some((practice) => practice.id === routePracticeId)) return;
+    const frameId = window.requestAnimationFrame(() => {
+      document.getElementById(`practice-${routePracticeId}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+    return () => window.cancelAnimationFrame(frameId);
+  }, [routePracticeId, selectedLesson?.id]);
 
   const openDomain = (nextDomainId: LearningDomainId) => {
     setMode('path');
@@ -240,7 +258,12 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   />
                 ))}
               </aside>
-              <LessonDetail lesson={selectedLesson} theme={theme} language={language} />
+              <LessonDetail
+                lesson={selectedLesson}
+                theme={theme}
+                language={language}
+                selectedPracticeId={routePracticeId}
+              />
             </section>
           ) : (
             <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>

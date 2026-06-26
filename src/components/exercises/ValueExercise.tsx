@@ -19,8 +19,10 @@ export const ValueExercise: React.FC<{
   t: ReturnType<typeof getStrings>['canvas']['demo'];
   language: 'en' | 'vi';
   theme?: 'dark' | 'light';
-  onClose: () => void;
-}> = ({ isOpen, exerciseId, node, t, language, theme = 'dark', onClose }) => {
+  displayMode?: 'modal' | 'inline';
+  onClose?: () => void;
+}> = ({ isOpen, exerciseId, node, t, language, theme = 'dark', displayMode = 'modal', onClose = () => {} }) => {
+  const isInline = displayMode === 'inline';
   const titleId = useId();
   const model = useMemo(() => (
     exerciseId && node ? buildValueExerciseModel(exerciseId, node, language) : null
@@ -34,7 +36,7 @@ export const ValueExercise: React.FC<{
   const [submitted, setSubmitted] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [activationHintIndex, setActivationHintIndex] = useState<number | null>(null);
-  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen, onClose });
+  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen: isOpen && !isInline, onClose });
   const poolOutput = useMemo(
     () => computePoolOutput(POOL_INPUT_MATRIX, poolKernel, poolStride, poolMode),
     [poolKernel, poolMode, poolStride],
@@ -116,14 +118,13 @@ export const ValueExercise: React.FC<{
     )));
   };
 
-  if (!isOpen || typeof document === 'undefined') return null;
+  if (!isOpen || (!isInline && typeof document === 'undefined')) return null;
 
-  return createPortal((
-    <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto ${theme === 'light' ? 'learning-lab-light learning-exercise-modal-root' : ''}`}>
+  const content = (
       <div
-        className="flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl"
-        role="dialog"
-        aria-modal="true"
+        className={`${isInline ? 'flex min-h-0 w-full flex-col overflow-hidden rounded-md border border-zinc-700/70 bg-zinc-950 text-zinc-100' : 'flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl'}`}
+        role={isInline ? undefined : 'dialog'}
+        aria-modal={isInline ? undefined : true}
         aria-labelledby={titleId}
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-zinc-800 bg-zinc-950/95 px-4 py-3">
@@ -137,16 +138,18 @@ export const ValueExercise: React.FC<{
               </p>
             )}
           </div>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
-            onClick={onClose}
-            aria-label={t.closeExercise}
-            title={t.closeExercise}
-          >
-            <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-          </button>
+          {!isInline ? (
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
+              onClick={onClose}
+              aria-label={t.closeExercise}
+              title={t.closeExercise}
+            >
+              <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+            </button>
+          ) : null}
         </div>
 
       {!model ? (
@@ -475,6 +478,19 @@ export const ValueExercise: React.FC<{
         </>
       )}
       </div>
+  );
+
+  if (isInline) {
+    return (
+      <div className={theme === 'light' ? 'learning-lab-light learning-exercise-modal-root' : ''}>
+        {content}
+      </div>
+    );
+  }
+
+  return createPortal((
+    <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto ${theme === 'light' ? 'learning-lab-light learning-exercise-modal-root' : ''}`}>
+      {content}
     </div>
   ), document.body);
 };

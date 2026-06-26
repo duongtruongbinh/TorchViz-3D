@@ -4,8 +4,7 @@ import { getPlaybackProgress, shouldSyncAnimationState } from '../../lib/mnistAn
 import type { LayoutEdgeWithVectors } from '../../lib/canvasUtils';
 import type { LayoutNode } from '../../lib/irTypes';
 import { getForwardPassCompatibility } from '../../lib/mnistCompatibility';
-import { getExerciseById, getExercisesForNode } from '../exercises/exerciseRegistry';
-import type { ExerciseId } from '../exercises/types';
+import { getExercisesForNode } from '../exercises/exerciseRegistry';
 import { getDemoInputPose, getSegmentState, type DemoStop } from '../operation-effects/effectMath';
 import { buildDemoFlowEdges, buildVisibleDemoNodeIds } from './demoStops';
 import { DEMO_PLAY_SPEED } from './MnistFlowDemo';
@@ -33,7 +32,6 @@ export function useMnistDemoState({
 }: UseMnistDemoStateArgs) {
   const [progress, setProgress] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [activeExerciseId, setActiveExerciseId] = useState<ExerciseId | null>(null);
   const [animationSpeed, setAnimationSpeed] = useState(DEMO_PLAY_SPEED);
   const progressRef = useRef(0);
   const lastSyncRef = useRef(0);
@@ -87,30 +85,11 @@ export function useMnistDemoState({
     lastSyncRef.current = 0;
     setProgress(0);
     setPlaying(false);
-    setActiveExerciseId(null);
   }, [layoutKey, activeTemplate, shapeInput]);
 
   useEffect(() => {
     if (!demoModeEnabled || loading || !compatibility.ok) setPlaying(false);
   }, [compatibility.ok, demoModeEnabled, loading]);
-
-  const openExercise = useCallback((id: ExerciseId) => {
-    const exercise = getExerciseById(id);
-    if (!exercise || !availableExercises.some((available) => available.id === id)) return;
-    setPlaying(false);
-    setActiveExerciseId(id);
-  }, [availableExercises]);
-
-  const closeExercise = useCallback(() => {
-    setActiveExerciseId(null);
-  }, []);
-
-  useEffect(() => {
-    if (!activeExerciseId) return;
-    if (!availableExercises.some((exercise) => exercise.id === activeExerciseId)) {
-      setActiveExerciseId(null);
-    }
-  }, [activeExerciseId, availableExercises]);
 
   useEffect(() => {
     if (!demoModeEnabled || !playing || maxProgress <= 0) return;
@@ -145,7 +124,6 @@ export function useMnistDemoState({
 
   return {
     activeNodeId,
-    activeExerciseId,
     animationSpeed,
     availableExercises,
     compatibility,
@@ -157,8 +135,6 @@ export function useMnistDemoState({
     useOperationBlocks,
     visibleEdges,
     visibleNodeIds,
-    closeExercise,
-    openExercise,
     setAnimationSpeed,
     setPlaying,
     setProgress: handleProgressChange,

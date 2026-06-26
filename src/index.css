@@ -78,6 +78,10 @@ body {
   max-height: calc(100vh - 1rem);
 }
 
+.shape-exercise-inline {
+  max-height: none;
+}
+
 .shape-exercise-grid {
   gap: 0.5rem;
   padding: 0.5rem;

@@ -833,10 +833,20 @@ const localizedText = {
       speed: { en: 'Speed', vi: 'Tốc độ' },
       step: { en: 'Step', vi: 'Bước' },
       exercises: { en: 'Exercises', vi: 'Bài tập' },
+      learning: { en: 'Learning', vi: 'Learning' },
       exercisePanelTitle: {
         en: (operation: string) => `Exercises · ${operation}`,
         vi: (operation: string) => `Bài tập · ${operation}`,
       },
+      learningOpenPanelTitle: {
+        en: (exercise: string) => `Open ${exercise} in Learning Lab`,
+        vi: (exercise: string) => `Mở ${exercise} trong Learning Lab`,
+      },
+      learningOpenPanelBody: {
+        en: 'The current visualization will stay here. Open the matching lesson in a new tab to study the theory, animation, and exercise inline.',
+        vi: 'Trang visualization hiện tại sẽ được giữ nguyên. Mở lesson tương ứng ở tab mới để học lý thuyết, animation và bài tập inline.',
+      },
+      openLearningNewTab: { en: 'Open new tab', vi: 'Mở tab mới' },
       exerciseShape: { en: 'Shape', vi: 'Shape' },
       exerciseValue: { en: 'Value', vi: 'Giá trị' },
       exerciseConvValue: { en: 'Conv value', vi: 'Giá trị Conv' },
