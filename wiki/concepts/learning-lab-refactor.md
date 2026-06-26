@@ -46,6 +46,21 @@ Learning Lab is active as the single learning container. It currently provides:
   SARSA, and GridWorld, backed by deterministic fixtures.
 - A shared Learning Lab shell using the former RL surface's cleaner
   light-theme/card/sidebar visual treatment as the style baseline.
+- Workspace forward-pass controls expose a familiar dropdown-style exercise
+  select for approved practice targets. Selecting an item keeps the current
+  visualization page in place and opens a small Learning panel whose action
+  opens the matching Learning Lab domain/track in a new tab as a HashRouter URL
+  with `lesson` and `practice` query state; the URL helper is covered by route
+  tests so new tabs use `/#/learning/...` instead of direct `/learning/...`
+  paths. Each dropdown option row shows a trailing `>`
+  affordance; hovering or focusing a row previews the handoff panel beside the
+  exercise control for that specific practice target. The panel has no close
+  button, dismisses when the pointer leaves it, and is portaled above ordinary
+  canvas/workspace overlays while remaining below modal export surfaces.
+- Tensor practice in Learning Lab renders directly inside the lesson page.
+  Shape, value, and convolution exercises reuse the existing answer-checking and
+  hint logic through inline exercise mode; the Learning Lab page owns the theory,
+  animation, and exercise surface together.
 
 Active behavior remains unchanged:
 
@@ -155,10 +170,11 @@ different in scope or needs its own long-lived reference surface.
   instead of duplicating behavior without a plan.
 - Any future page state must not reset the current TorchViz-3D editor/canvas
   state unexpectedly.
-- Existing Workspace/Demo exercise entry points must remain available unless a
-  later approved plan explicitly changes that behavior.
-- Learning Lab tensor practice may launch existing Workspace exercise modals;
-  RL practice stays inline through dedicated fixtures and exercise components.
+- Existing Workspace/Demo exercise entry points must keep the visualization page
+  in place and open approved Learning practice through a Learning Lab new-tab
+  handoff unless a later approved plan explicitly changes that behavior.
+- Learning Lab tensor practice renders inline on the page; RL practice stays
+  inline through dedicated fixtures and exercise components.
 - Practice cards are available only when `approval.status` is `approved` and
   `approval.implementedBy` is set. Unapproved or unavailable items must show
   "In progress" / "Đang hoàn thiện".

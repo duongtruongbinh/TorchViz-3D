@@ -9,15 +9,16 @@ type PracticeSectionProps = {
   practice: LearningPracticeRef[];
   theme: 'dark' | 'light';
   language: Language;
+  selectedPracticeId?: string | null;
 };
 
-export default function PracticeSection({ practice, theme, language }: PracticeSectionProps) {
+export default function PracticeSection({ practice, theme, language, selectedPracticeId = null }: PracticeSectionProps) {
   const strings = getStrings(language);
   const themeClasses = getLearningLabTheme(theme);
   if (!practice.length) return null;
 
   return (
-    <div className="mt-5 grid gap-3 xl:grid-cols-2">
+    <div className="mt-5 grid gap-3">
       {practice.map((item) => {
         const title = getUnifiedPracticeText(language, item).title;
 
@@ -30,7 +31,7 @@ export default function PracticeSection({ practice, theme, language }: PracticeS
               theme={theme}
               language={language}
               unavailableText={strings.learningLab.unavailablePractice}
-              startText={strings.learningLab.startExercise}
+              isSelected={selectedPracticeId === item.id}
             />
           );
         }

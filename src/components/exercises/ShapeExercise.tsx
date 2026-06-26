@@ -27,7 +27,8 @@ type ShapeExerciseProps = {
   t: ReturnType<typeof getStrings>['canvas']['demo'];
   language: 'en' | 'vi';
   theme?: 'dark' | 'light';
-  onClose: () => void;
+  displayMode?: 'modal' | 'inline';
+  onClose?: () => void;
 };
 
 const DEFAULT_DIM_LABELS = ['B', 'C', 'H', 'W'];
@@ -97,8 +98,10 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
   t,
   language,
   theme = 'dark',
-  onClose,
+  displayMode = 'modal',
+  onClose = () => {},
 }) => {
+  const isInline = displayMode === 'inline';
   const titleId = useId();
   const model = useMemo(
     () => (node ? buildShapeExerciseModel(node, exerciseId, language) : null),
@@ -113,7 +116,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
   const [editableInputShape, setEditableInputShape] = useState<string[]>([]);
   const [editableConfig, setEditableConfig] = useState<EditableShapeConfig | null>(null);
   const hintRef = useRef<HTMLElement | null>(null);
-  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen, onClose });
+  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen: isOpen && !isInline, onClose });
 
   const configured = useMemo(
     () => (model
@@ -168,7 +171,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
     )));
   };
 
-  if (!isOpen || typeof document === 'undefined') return null;
+  if (!isOpen || (!isInline && typeof document === 'undefined')) return null;
 
   const displayModel = exerciseModel ?? model;
   const hasEditableError = Boolean(configured.inputError || configured.configError);
@@ -197,28 +200,29 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
     ));
   };
 
-  return createPortal((
-    <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto ${theme === 'light' ? 'learning-lab-light learning-exercise-modal-root' : ''}`}>
+  const content = (
       <div
-        className="shape-exercise-modal flex w-[min(60rem,calc(100%-1.25rem))] flex-col overflow-auto rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl"
-        role="dialog"
-        aria-modal="true"
+        className={`${isInline ? 'shape-exercise-modal shape-exercise-inline flex min-h-0 w-full flex-col overflow-hidden rounded-md border border-zinc-700/70 bg-zinc-950 text-zinc-100' : 'shape-exercise-modal flex w-[min(60rem,calc(100%-1.25rem))] flex-col overflow-auto rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl'}`}
+        role={isInline ? undefined : 'dialog'}
+        aria-modal={isInline ? undefined : true}
         aria-labelledby={titleId}
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 bg-zinc-950/95 px-4 py-2.5">
           <div className="min-w-0 self-center">
             <h2 id={titleId} className="text-base font-bold uppercase tracking-wider text-zinc-100">{t.shapeExerciseTitle}</h2>
           </div>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
-            onClick={onClose}
-            aria-label={t.closeExercise}
-            title={t.closeExercise}
-          >
-            <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-          </button>
+          {!isInline ? (
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
+              onClick={onClose}
+              aria-label={t.closeExercise}
+              title={t.closeExercise}
+            >
+              <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+            </button>
+          ) : null}
         </div>
 
       {!displayModel ? (
@@ -428,6 +432,19 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
         </>
       )}
       </div>
+  );
+
+  if (isInline) {
+    return (
+      <div className={theme === 'light' ? 'learning-lab-light learning-exercise-modal-root' : ''}>
+        {content}
+      </div>
+    );
+  }
+
+  return createPortal((
+    <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto ${theme === 'light' ? 'learning-lab-light learning-exercise-modal-root' : ''}`}>
+      {content}
     </div>
   ), document.body);
 };

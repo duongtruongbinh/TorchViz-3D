@@ -1,9 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import type { TensorPracticeRef } from '../../../core/learning/types';
 import type { Language } from '../../../lib/localization';
 import { getStrings } from '../../../lib/localization';
-import type { LayoutNode } from '../../../lib/irTypes';
 import { ConvExerciseModal } from '../../mnist-demo/ConvExerciseModal';
 import { ShapeExercise } from '../../exercises/ShapeExercise';
 import { ValueExercise } from '../../exercises/ValueExercise';
@@ -21,12 +20,7 @@ type TensorPracticeRendererProps = {
   theme: 'dark' | 'light';
   language: Language;
   unavailableText: string;
-  startText: string;
-};
-
-type ActivePractice = {
-  practice: TensorPracticeRef;
-  node: LayoutNode;
+  isSelected?: boolean;
 };
 
 export default function TensorPracticeRenderer({
@@ -35,62 +29,66 @@ export default function TensorPracticeRenderer({
   theme,
   language,
   unavailableText,
-  startText,
+  isSelected = false,
 }: TensorPracticeRendererProps) {
   const strings = getStrings(language);
-  const [activePractice, setActivePractice] = useState<ActivePractice | null>(null);
   const node = useMemo(() => createTensorPracticeNode(practice), [practice]);
   const isAvailable = isTensorPracticeApproved(practice) && Boolean(node);
-  const activeExerciseId = activePractice?.practice.exerciseId;
-  const isShapeExercise = isShapeExerciseId(activeExerciseId);
-  const isConvValueExercise = isConvValueExerciseId(activeExerciseId);
-  const isStandardValueExercise = isValueExerciseId(activeExerciseId);
+  const exerciseId = practice.exerciseId;
+  const isShapeExercise = isShapeExerciseId(exerciseId);
+  const isConvValueExercise = isConvValueExerciseId(exerciseId);
+  const isStandardValueExercise = isValueExerciseId(exerciseId);
   const themeClasses = getLearningLabTheme(theme);
 
   return (
-    <section className={cx('border p-4 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
+    <section
+      id={`practice-${practice.id}`}
+      className={cx(
+        'scroll-mt-6 border p-4 shadow-sm',
+        themeClasses.radius.card,
+        isSelected ? 'border-emerald-300/70 ring-2 ring-emerald-300/20' : themeClasses.surface.card,
+      )}
+    >
       <div className={cx('text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>{practice.kind}</div>
       <h3 className={cx('mt-1 text-base font-black', themeClasses.titleText)}>{title}</h3>
       <p className={cx('mt-2 text-xs leading-5', themeClasses.mutedText)}>{practice.targetOperation}</p>
-      {isAvailable ? (
-        <button
-          type="button"
-          onClick={() => {
-            if (node) setActivePractice({ practice, node });
-          }}
-          className={cx('mt-4 w-full px-4 py-2 text-sm', themeClasses.radius.button, themeClasses.button.primary)}
-        >
-          {startText}
-        </button>
-      ) : (
+      {!isAvailable ? (
         <div className={cx('mt-4 border px-4 py-2 text-center text-sm font-black', themeClasses.radius.button, themeClasses.surface.unavailable)}>
           {unavailableText}
         </div>
+      ) : (
+        <div className="mt-4">
+          {isShapeExercise ? (
+            <ShapeExercise
+              isOpen
+              displayMode="inline"
+              exerciseId={exerciseId}
+              node={node}
+              t={strings.canvas.demo}
+              language={language}
+              theme={theme}
+            />
+          ) : null}
+          {isConvValueExercise ? (
+            <ConvExerciseModal
+              isOpen
+              displayMode="inline"
+              t={strings.canvas.demo}
+            />
+          ) : null}
+          {isStandardValueExercise ? (
+            <ValueExercise
+              isOpen
+              displayMode="inline"
+              exerciseId={exerciseId}
+              node={node}
+              t={strings.canvas.demo}
+              language={language}
+              theme={theme}
+            />
+          ) : null}
+        </div>
       )}
-
-      <ShapeExercise
-        isOpen={Boolean(activePractice && isShapeExercise)}
-        exerciseId={isShapeExercise ? activeExerciseId : undefined}
-        node={activePractice?.node}
-        t={strings.canvas.demo}
-        language={language}
-        theme={theme}
-        onClose={() => setActivePractice(null)}
-      />
-      <ConvExerciseModal
-        isOpen={Boolean(activePractice && isConvValueExercise)}
-        t={strings.canvas.demo}
-        onClose={() => setActivePractice(null)}
-      />
-      <ValueExercise
-        isOpen={Boolean(activePractice && isStandardValueExercise)}
-        exerciseId={isStandardValueExercise ? activeExerciseId : null}
-        node={activePractice?.node}
-        t={strings.canvas.demo}
-        language={language}
-        theme={theme}
-        onClose={() => setActivePractice(null)}
-      />
     </section>
   );
 }

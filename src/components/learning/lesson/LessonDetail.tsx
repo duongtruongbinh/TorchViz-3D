@@ -9,9 +9,10 @@ type LessonDetailProps = {
   lesson: LearningLesson;
   theme: 'dark' | 'light';
   language: Language;
+  selectedPracticeId?: string | null;
 };
 
-export default function LessonDetail({ lesson, theme, language }: LessonDetailProps) {
+export default function LessonDetail({ lesson, theme, language, selectedPracticeId = null }: LessonDetailProps) {
   const strings = getStrings(language);
   const lessonText = getUnifiedLessonText(language, lesson);
   const domainText = getDomainTextById(language, lesson.domainId);
@@ -39,7 +40,12 @@ export default function LessonDetail({ lesson, theme, language }: LessonDetailPr
         </div>
       </div>
 
-      <PracticeSection theme={theme} language={language} practice={lesson.practice} />
+      <PracticeSection
+        theme={theme}
+        language={language}
+        practice={lesson.practice}
+        selectedPracticeId={selectedPracticeId}
+      />
     </article>
   );
 }

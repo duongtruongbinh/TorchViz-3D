@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 
 import {
   APP_ROUTES,
+  getHashRouterUrl,
   getLearningDomainPath,
+  getLearningPracticePath,
   getLearningTrackPath,
   getLegacyReinforcementLearningRedirectPath,
 } from './appRoutes.ts';
@@ -23,6 +25,32 @@ test('app route helpers build Learning Lab domain and track paths', () => {
   assert.equal(
     getLearningTrackPath('reinforcement-learning', 'tabular-control'),
     '/learning/reinforcement-learning/tabular-control',
+  );
+});
+
+test('app route helpers build Learning Lab practice paths with lesson query state', () => {
+  assert.equal(
+    getLearningPracticePath({
+      domainId: 'cv',
+      trackId: 'cnn-shape-value',
+      lessonId: 'conv2d-output',
+      practiceId: 'conv2d-value-window',
+    }),
+    '/learning/cv/cnn-shape-value?lesson=conv2d-output&practice=conv2d-value-window',
+  );
+});
+
+test('app route helpers build HashRouter URLs for new-tab Learning Lab handoff', () => {
+  const path = getLearningPracticePath({
+    domainId: 'cv',
+    trackId: 'cnn-shape-value',
+    lessonId: 'conv2d-output',
+    practiceId: 'conv2d-value-window',
+  });
+
+  assert.equal(
+    getHashRouterUrl('https://example.test/torchviz/?debug=1#/workspace', path),
+    'https://example.test/torchviz/#/learning/cv/cnn-shape-value?lesson=conv2d-output&practice=conv2d-value-window',
   );
 });
 

@@ -543,10 +543,12 @@ const KernelEditor: React.FC<{
 export const ConvExerciseModal: React.FC<{
   isOpen: boolean;
   t: DemoLabels;
-  onClose: () => void;
-}> = ({ isOpen, t, onClose }) => {
+  displayMode?: 'modal' | 'inline';
+  onClose?: () => void;
+}> = ({ isOpen, t, displayMode = 'modal', onClose = () => {} }) => {
+  const isInline = displayMode === 'inline';
   const titleId = useId();
-  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen, onClose });
+  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen: isOpen && !isInline, onClose });
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [kernelValues, setKernelValues] = useState(() => stringifyKernel(EXERCISES.easy.kernel));
   const [values, setValues] = useState<Record<string, string>>({});
@@ -614,7 +616,7 @@ export const ConvExerciseModal: React.FC<{
     setActiveKernelChannel(Math.min(channel, kernelValues.length - 1));
   }, [activePairIndex, difficulty, kernelValues.length]);
 
-  if (!isOpen || typeof document === 'undefined') return null;
+  if (!isOpen || (!isInline && typeof document === 'undefined')) return null;
 
   const outputCells = answers.length * (answers[0]?.length ?? 0);
   const completedCells = answers.reduce((total, row, rowIndex) => (
@@ -676,31 +678,32 @@ export const ConvExerciseModal: React.FC<{
     )));
   };
 
-  return createPortal((
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto">
+  const content = (
       <div
-        className="flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl"
-        role="dialog"
-        aria-modal="true"
+        className={`${isInline ? 'flex min-h-0 w-full flex-col overflow-hidden rounded-md border border-zinc-700/70 bg-zinc-950 text-zinc-100' : 'flex w-[min(86rem,calc(100%-1.25rem))] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-lg border border-zinc-700/70 bg-zinc-950 text-zinc-100 shadow-2xl'}`}
+        role={isInline ? undefined : 'dialog'}
+        aria-modal={isInline ? undefined : true}
         aria-labelledby={titleId}
       >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4 border-b border-zinc-800 bg-zinc-950/95 px-4 py-3">
+        <div className={`${isInline ? 'grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4' : 'grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-4'} border-b border-zinc-800 bg-zinc-950/95 px-4 py-3`}>
           <div className="min-w-0 self-center">
             <h2 id={titleId} className="text-sm font-bold uppercase tracking-wider text-zinc-100">{t.exerciseTitle}</h2>
           </div>
           <div className="min-w-0 justify-self-center">
             <DifficultyTabs difficulty={difficulty} t={t} onChange={setDifficulty} />
           </div>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
-            onClick={onClose}
-            aria-label={t.closeExercise}
-            title={t.closeExercise}
-          >
-            <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-          </button>
+          {!isInline ? (
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
+              onClick={onClose}
+              aria-label={t.closeExercise}
+              title={t.closeExercise}
+            >
+              <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+            </button>
+          ) : null}
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto">
@@ -921,6 +924,13 @@ export const ConvExerciseModal: React.FC<{
           </div>
         </div>
       </div>
+  );
+
+  if (isInline) return content;
+
+  return createPortal((
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/90 backdrop-blur-sm pointer-events-auto">
+      {content}
     </div>
   ), document.body);
 };

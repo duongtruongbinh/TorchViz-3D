@@ -255,7 +255,8 @@ export const DemoControls: React.FC<{
   onProgressChange: (progress: number) => void;
   onPlayingChange: (playing: boolean) => void;
   onAnimationSpeedChange: (speed: number) => void;
-  onOpenExercise?: (id: ExerciseId) => void;
+  onPreviewExercise?: (id: ExerciseId, anchor: DOMRect) => void;
+  onSelectExercise?: (id: ExerciseId, anchor: DOMRect) => void;
 }> = React.memo(({
   stops,
   progress,
@@ -267,7 +268,8 @@ export const DemoControls: React.FC<{
   onProgressChange,
   onPlayingChange,
   onAnimationSpeedChange,
-  onOpenExercise,
+  onPreviewExercise,
+  onSelectExercise,
 }) => {
   if (!stops.length) return null;
 
@@ -399,7 +401,8 @@ export const DemoControls: React.FC<{
                 exercises={availableExercises}
                 activeOperation={activeOperation}
                 t={t}
-                onOpenExercise={(id) => onOpenExercise?.(id)}
+                onPreviewExercise={(id, anchor) => onPreviewExercise?.(id, anchor)}
+                onSelectExercise={(id, anchor) => onSelectExercise?.(id, anchor)}
               />
             </div>
           )}
