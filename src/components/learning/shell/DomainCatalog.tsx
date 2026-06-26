@@ -1,3 +1,5 @@
+import { ArrowRight } from 'lucide-react';
+
 import type { LearningCatalog, LearningDomainId } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getDomainText } from '../learningText';
@@ -16,7 +18,7 @@ export default function DomainCatalog({ catalog, language, theme, onOpenDomain }
 
   return (
     <section className="grid gap-5">
-      <div className={cx('rounded-xl border p-6 shadow-sm', themeClasses.card)}>
+      <div className={cx('border p-6 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
         <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
           {strings.domainCatalogLabel}
         </div>
@@ -39,25 +41,26 @@ export default function DomainCatalog({ catalog, language, theme, onOpenDomain }
               type="button"
               onClick={() => onOpenDomain(domain.id)}
               className={cx(
-                'group w-full rounded-xl border p-5 text-left shadow-sm transition-transform duration-150 hover:-translate-y-0.5',
-                themeClasses.interactiveCard,
-                themeClasses.focusRing,
+                'group w-full p-5',
+                themeClasses.radius.card,
+                themeClasses.button.card,
               )}
             >
               <div className="flex items-start gap-3">
-                <div className={cx('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl font-black', themeClasses.iconTile)}>
+                <div className={cx('flex h-12 w-12 shrink-0 items-center justify-center text-xl font-black', themeClasses.radius.icon, themeClasses.iconTile)}>
                   {index + 1}
                 </div>
                 <div className="min-w-0">
                   <div className="mb-3 flex flex-wrap gap-2">
-                    <span className={cx('rounded-full px-3 py-1 text-xs font-black', themeClasses.statusPill(isPlaceholder))}>
+                    <span className={cx('px-3 py-1 text-xs font-black', themeClasses.radius.pill, themeClasses.statusPill(isPlaceholder))}>
                       {isPlaceholder ? strings.domainPlaceholder : strings.domainAvailable}
                     </span>
                   </div>
                   <h2 className={cx('text-lg font-black leading-tight', themeClasses.titleText)}>{text.title}</h2>
                   <p className={cx('mt-3 line-clamp-3 text-sm leading-6', themeClasses.bodyText)}>{text.description}</p>
-                  <span className={cx('mt-5 block text-sm font-black transition-colors', themeClasses.eyebrowText)}>
+                  <span className={cx('mt-5 inline-flex items-center gap-2 text-sm font-black transition-colors', themeClasses.eyebrowText)}>
                     {strings.openDomain}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.8} aria-hidden="true" />
                   </span>
                 </div>
               </div>

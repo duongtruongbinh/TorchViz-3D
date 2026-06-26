@@ -23,13 +23,14 @@ export default function LessonNode({ lesson, index, isSelected, language, theme,
       type="button"
       onClick={() => onSelect(lesson.id)}
       className={cx(
-        'w-full rounded-xl border p-4 text-left shadow-sm transition-all',
-        themeClasses.focusRing,
+        'w-full border p-4 text-left shadow-sm transition-all',
+        themeClasses.radius.card,
         themeClasses.lessonCard(isSelected),
+        themeClasses.focusRing,
       )}
     >
       <div className="flex items-start gap-3">
-        <span className={cx('flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-black', themeClasses.lessonStatus(lesson.status))}>
+        <span className={cx('flex h-8 w-8 shrink-0 items-center justify-center border text-sm font-black', themeClasses.radius.icon, themeClasses.lessonStatus(lesson.status))}>
           {index + 1}
         </span>
         <span className="min-w-0">

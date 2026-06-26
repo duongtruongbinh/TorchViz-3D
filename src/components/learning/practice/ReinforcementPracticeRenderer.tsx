@@ -28,7 +28,7 @@ export default function ReinforcementPracticeRenderer({
   const themeClasses = getLearningLabTheme(theme);
 
   return (
-    <section className={cx('rounded-xl border p-4 shadow-sm', themeClasses.card)}>
+    <section className={cx('border p-4 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
       <div className={cx('text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>{practice.kind}</div>
       <h3 className={cx('mt-1 text-base font-black', themeClasses.titleText)}>{title}</h3>
       <p className={cx('mt-2 text-xs leading-5', themeClasses.mutedText)}>{targetConcept}</p>
@@ -36,7 +36,7 @@ export default function ReinforcementPracticeRenderer({
       {isAvailable && fixture?.type === 'bellman' && <RLValueExercise fixture={fixture} text={text} />}
       {isAvailable && fixture?.type === 'gridworld' && <GridWorldExercise fixture={fixture} text={text} />}
       {!isAvailable && (
-        <div className={cx('mt-4 rounded-lg border px-4 py-2 text-center text-sm font-black', themeClasses.unavailable)}>
+        <div className={cx('mt-4 border px-4 py-2 text-center text-sm font-black', themeClasses.radius.button, themeClasses.surface.unavailable)}>
           {unavailableText}
         </div>
       )}

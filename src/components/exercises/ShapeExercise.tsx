@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Pause, Play, SkipBack, SkipForward, X } from 'lucide-react';
 import type { LayoutNode } from '../../lib/irTypes';
 import type { getStrings } from '../../lib/localization';
 import {
@@ -216,9 +217,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
             aria-label={t.closeExercise}
             title={t.closeExercise}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
-              <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L8.94 10l-4.72 4.72a.75.75 0 1 0 1.06 1.06L10 11.06l4.72 4.72a.75.75 0 1 0 1.06-1.06L11.06 10l4.72-4.72a.75.75 0 1 0-1.06-1.06L10 8.94 5.28 4.22Z" />
-            </svg>
+            <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
 
@@ -349,7 +348,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                           aria-label="Previous hint step"
                           title="Previous hint step"
                         >
-                          ‹
+                          <SkipBack className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                         </button>
                         <button
                           type="button"
@@ -358,7 +357,11 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                           aria-label={hintPaused ? 'Play hint steps' : 'Pause hint steps'}
                           title={hintPaused ? 'Play hint steps' : 'Pause hint steps'}
                         >
-                          {hintPaused ? 'Play' : 'Pause'}
+                          {hintPaused ? (
+                            <Play className="h-3.5 w-3.5 fill-current" strokeWidth={1.8} aria-hidden="true" />
+                          ) : (
+                            <Pause className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
+                          )}
                         </button>
                         <span className="min-w-14 rounded border border-zinc-700 bg-zinc-950 px-2 py-1 text-center font-mono text-[11px] font-bold text-amber-100">
                           {activeHintStep?.axis ?? 'H'} {((hintStepIndex % 6) + 1)}/6
@@ -370,7 +373,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                           aria-label="Next hint step"
                           title="Next hint step"
                         >
-                          ›
+                          <SkipForward className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                         </button>
                       </div>
                     ) : (

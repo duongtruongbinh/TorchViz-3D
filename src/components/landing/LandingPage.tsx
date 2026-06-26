@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { Languages } from 'lucide-react';
 
-import { getStrings, LANGUAGE_OPTIONS } from '../../lib/localization';
+import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningCard from './LearningCard';
 import ToolCard from './ToolCard';
@@ -117,8 +118,6 @@ export default function LandingPage({
 }: LandingPageProps) {
   const language = useStore((s) => s.language);
   const setLanguage = useStore((s) => s.setLanguage);
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
-  const languageRef = useRef<HTMLDivElement>(null);
   const bentoRef = useRef<HTMLDivElement>(null);
   const availableAnchorRef = useRef<HTMLSpanElement>(null);
   const soonAnchorRef = useRef<HTMLSpanElement>(null);
@@ -129,17 +128,6 @@ export default function LandingPage({
     soon: '',
   });
   const text = getStrings(language).landingPage;
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (languageRef.current && !languageRef.current.contains(event.target as Node)) {
-        setIsLanguageOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   useLayoutEffect(() => {
     const bento = bentoRef.current;
@@ -206,65 +194,17 @@ export default function LandingPage({
         <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(90deg,#ffffff_1px,transparent_1px),linear-gradient(#ffffff_1px,transparent_1px)] [background-size:72px_72px]" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/45 to-transparent" />
 
-        <div className="absolute right-8 top-8 z-10" ref={languageRef}>
+        <div className="absolute right-8 top-8 z-10">
           <button
             type="button"
-            onClick={() => setIsLanguageOpen((value) => !value)}
-            className={`flex h-9 w-9 items-center justify-center rounded-md border bg-zinc-950/70 text-zinc-300 transition-all hover:bg-zinc-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400/40 ${
-              isLanguageOpen
-                ? 'border-blue-400 text-blue-200 ring-2 ring-blue-500/25'
-                : 'border-zinc-700'
-            }`}
-            title={text.language}
-            aria-label={text.language}
-            aria-haspopup="menu"
-            aria-expanded={isLanguageOpen}
+            onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')}
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-zinc-700 bg-zinc-950/70 text-zinc-300 transition-all hover:bg-zinc-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400/40"
+            title={language === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
+            aria-label={language === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
+            aria-pressed={language === 'vi'}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-            >
-              <path d="M4 5h9" />
-              <path d="M9 3v2" />
-              <path d="M6 9c1.2 2.5 3.3 4.2 6 5" />
-              <path d="M11 9c-.7 1.8-2.1 3.4-4 4.6" />
-              <path d="M14 19l3-7 3 7" />
-              <path d="M15.1 16.5h3.8" />
-            </svg>
+            <Languages className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
           </button>
-
-          {isLanguageOpen && (
-            <div
-              className="absolute right-0 top-[calc(100%+6px)] flex w-36 flex-col overflow-hidden rounded-lg border border-zinc-700 bg-zinc-900 py-1 shadow-xl shadow-black/80"
-              role="menu"
-            >
-              {LANGUAGE_OPTIONS.map((option) => (
-                <button
-                  key={option.code}
-                  type="button"
-                  className={`px-3 py-2 text-left text-xs transition-colors ${
-                    language === option.code
-                      ? 'bg-blue-600/20 font-medium text-blue-300'
-                      : 'text-zinc-200 hover:bg-zinc-800 hover:text-zinc-50'
-                  }`}
-                  onClick={() => {
-                    setLanguage(option.code);
-                    setIsLanguageOpen(false);
-                  }}
-                  role="menuitemradio"
-                  aria-checked={language === option.code}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="relative mx-auto flex h-screen min-h-0 w-full max-w-[min(1680px,100vw)] flex-col px-[clamp(20px,3.2vw,56px)] py-[clamp(18px,3vh,32px)]">

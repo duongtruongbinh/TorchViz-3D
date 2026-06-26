@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FileDown, Image, ImageDown } from 'lucide-react';
 import { LayoutData } from '../lib/irTypes';
 import { generateSVG } from '../lib/svgExport';
 import { getStrings } from '../lib/localization';
@@ -207,9 +208,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
               onClick={handleDownloadSvg}
               className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all shadow-md active:scale-[0.98]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm4.75 11.25a.75.75 0 001.5 0v-2.546l.943.944a.75.75 0 001.06-1.06l-2.22-2.22a.75.75 0 00-1.06 0l-2.22 2.22a.75.75 0 001.06 1.06l.937-.938v2.54z" clipRule="evenodd" />
-              </svg>
+              <FileDown className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
               {t.export.downloadSvg}
             </button>
           </div>
@@ -221,9 +220,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-400">
-                    <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909-3.22-3.22a.75.75 0 00-1.06 0L2.5 11.06zm12.22-4.81a1.25 1.25 0 10-2.5 0 1.25 1.25 0 002.5 0z" clipRule="evenodd" />
-                  </svg>
+                  <Image className="h-4 w-4 text-emerald-400" strokeWidth={1.8} aria-hidden="true" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-[var(--text)]">{t.export.exportScreenPng}</div>
@@ -250,9 +247,7 @@ const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
               onClick={handleDownloadPng}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-sm font-semibold transition-all active:scale-[0.98]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909-3.22-3.22a.75.75 0 00-1.06 0L2.5 11.06zm12.22-4.81a1.25 1.25 0 10-2.5 0 1.25 1.25 0 002.5 0z" clipRule="evenodd" />
-              </svg>
+              <ImageDown className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
               {t.export.downloadPng(config.pngScale)}
             </button>
           </div>

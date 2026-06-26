@@ -82,6 +82,50 @@ Active behavior remains unchanged:
 | `src/core/learning/content/*` | React-free static domain/track/lesson metadata. |
 | `src/core/learning/selectors.ts` | React-free catalog selectors. |
 
+## UI Conventions
+
+Learning Lab UI conventions live in `src/components/learning/theme.ts`.
+New Learning Lab controls should use `getLearningLabTheme(theme)` instead of
+hand-rolling color, hover, focus, or radius classes in component files.
+
+Use the semantic helpers as the default:
+
+- `themeClasses.radius.icon` for square icon controls and brand tiles.
+- `themeClasses.radius.button` for regular buttons and sidebar nav rows.
+- `themeClasses.radius.card` for repeated cards.
+- `themeClasses.radius.panel` for larger panels/detail surfaces.
+- `themeClasses.radius.pill` for segmented controls, chips, and status pills.
+- `themeClasses.button.primary`, `.secondary`, `.ghost`, `.icon`, `.nav()`,
+  `.card`, and `.segmented()` for button interaction states.
+- `themeClasses.surface.card` and `.unavailable` for non-button panels.
+
+Do not add new hex colors or ad hoc Tailwind color/radius choices in Learning
+Lab components unless the element is a special visualization or a later
+approved plan extends the convention.
+
+Common action icons across Landing, Workspace, Canvas controls, and Learning
+Lab should come from `lucide-react`; do not paste inline SVG for normal UI
+controls. Current standard icons include:
+
+- `Search` for the header search affordance.
+- `Sun` and `Moon` for theme switching.
+- `PanelLeft` for sidebar open/close.
+- `ArrowRight` for open/start/enter actions.
+- `ArrowLeftToLine` for Back to landing.
+- `Languages` icon-only for direct language toggles.
+- `ChevronDown` and `Check` for menus.
+- `Play`, `Pause`, `SkipBack`, and `SkipForward` for playback controls.
+- `X`, `CircleAlert`, `CircleX`, `Check`, and `Lightbulb` for modal/status
+  controls.
+
+The language switch intentionally remains an app-wide direct two-mode toggle
+with a standalone `Languages` icon; do not reintroduce text labels or language
+dropdowns unless a later approved plan changes the interaction.
+
+SVG is still appropriate when it is the visual content itself: Landing preview
+graphs/routes, exercise/math graphs, generated SVG export output, or custom
+canvas/Three.js visualizations.
+
 ## Codex Init Prompt
 
 Codex agents should derive their initial prompt from `CLAUDE.md`, then use this
