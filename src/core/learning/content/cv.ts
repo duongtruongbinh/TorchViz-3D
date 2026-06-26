@@ -2,6 +2,7 @@ import type { LearningDomain, LearningLesson, LearningTrack } from '../types.ts'
 
 export const cvDomain: LearningDomain = {
   id: 'cv',
+  textKey: 'cv',
   status: 'active',
   trackIds: ['cnn-shape-value'],
 };
@@ -9,6 +10,7 @@ export const cvDomain: LearningDomain = {
 export const cvTracks: LearningTrack[] = [
   {
     id: 'cnn-shape-value',
+    textKey: 'cnnShapeValue',
     domainId: 'cv',
     status: 'available',
     lessonIds: ['conv2d-output', 'pooling-output'],

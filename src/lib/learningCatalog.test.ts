@@ -20,6 +20,13 @@ test('learning catalog exposes reinforcement learning as a Learning Lab domain',
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
 });
 
+test('learning catalog owns display text keys for domains and tracks', () => {
+  assert.ok(learningCatalog.domains.every((domain) => domain.textKey.length > 0));
+  assert.ok(learningCatalog.tracks.every((track) => track.textKey.length > 0));
+  assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.textKey, 'reinforcementLearning');
+  assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'tabular-control')?.textKey, 'tabularControl');
+});
+
 test('reinforcement learning tracks keep the existing lessons and practice', () => {
   const tabularTrack = getLearningTrack(learningCatalog, 'reinforcement-learning', 'tabular-control');
   const policyTrack = getLearningTrack(learningCatalog, 'reinforcement-learning', 'policy-behavior');

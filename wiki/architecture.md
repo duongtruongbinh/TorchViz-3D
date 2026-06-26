@@ -19,7 +19,7 @@ EditorPane (Monaco)
   → WorkerService.run()               src/lib/workerService.ts
       postMessage({ code, inputShape, requestId })
   → Web Worker (Blob URL)             src/workers/pyodideWorker.ts
-      Pyodide (Python on WASM, CDN) + torchstub   src/lib/python_sources.ts
+      Pyodide (Python on WASM, local asset) + torchstub   src/lib/python_sources.ts
   → IRGraph JSON  (success | partial | error)
   → setIrResult → computeLayout(ir, collapsedIds)  src/lib/layout.ts
   → LayoutData
@@ -37,8 +37,9 @@ EditorPane (Monaco)
 5. **Render** — `Canvas3D` draws blocks and edges; the Inspector and BottomTabs
    show the layer tree, stats, and terminal output.
 
-Everything runs locally. Pyodide, Tailwind, and fonts are fetched from CDNs at
-runtime, so the app needs network access on first load.
+Everything runs locally. Tailwind is compiled through Vite/PostCSS, the app uses
+local/system fonts, and Pyodide is served from the pinned npm package through
+`/pyodide/` assets copied by the Vite build.
 
 ## The central idea: `torchstub`
 
@@ -84,3 +85,10 @@ Learning Lab uses a domain-first catalog for ML Foundations, CV, NLP,
 Reinforcement Learning, and Robot Learning placeholder. Reinforcement Learning
 is a Learning Lab domain, not a sibling top-level surface. Details live in
 [learning-lab-refactor](concepts/learning-lab-refactor.md).
+
+## Entrypoint convention
+
+The root `index.html`, `index.tsx`, and `App.tsx` files are intentional Vite
+entrypoints. Application code should stay under `src/`; the root files only boot
+React and connect `AppShell` to the workspace surface. Move them only in a
+dedicated import-path cleanup.

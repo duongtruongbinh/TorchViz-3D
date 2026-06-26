@@ -2,45 +2,42 @@ import type { LearningLesson } from '../../../core/learning/types';
 import type { Language } from '../../../lib/localization';
 import { getStrings } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
+import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 
 type LessonNodeProps = {
   lesson: LearningLesson;
   index: number;
   isSelected: boolean;
   language: Language;
+  theme: LearningLabTheme;
   onSelect: (lessonId: string) => void;
 };
 
-const statusClasses: Record<LearningLesson['status'], string> = {
-  available: 'border-sky-200 bg-sky-50 text-sky-700',
-  next: 'border-violet-200 bg-violet-50 text-violet-700',
-  locked: 'border-slate-200 bg-slate-50 text-slate-500',
-};
-
-export default function LessonNode({ lesson, index, isSelected, language, onSelect }: LessonNodeProps) {
+export default function LessonNode({ lesson, index, isSelected, language, theme, onSelect }: LessonNodeProps) {
   const strings = getStrings(language);
   const lessonText = getUnifiedLessonText(language, lesson);
+  const themeClasses = getLearningLabTheme(theme);
 
   return (
     <button
       type="button"
       onClick={() => onSelect(lesson.id)}
-      className={`w-full rounded-xl border p-4 text-left shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-300 ${
-        isSelected
-          ? 'border-sky-300 bg-sky-50 shadow-sky-100/80'
-          : 'border-sky-100 bg-white hover:border-sky-200 hover:bg-sky-50/60'
-      }`}
+      className={cx(
+        'w-full rounded-xl border p-4 text-left shadow-sm transition-all',
+        themeClasses.focusRing,
+        themeClasses.lessonCard(isSelected),
+      )}
     >
       <div className="flex items-start gap-3">
-        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-black ${statusClasses[lesson.status]}`}>
+        <span className={cx('flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-black', themeClasses.lessonStatus(lesson.status))}>
           {index + 1}
         </span>
         <span className="min-w-0">
-          <span className="block text-[11px] font-black uppercase tracking-wide text-slate-400">
+          <span className={cx('block text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
             {lessonText.eyebrow} - {lessonText.duration}
           </span>
-          <span className="mt-1 block text-sm font-black text-slate-950">{lessonText.title}</span>
-          <span className="mt-2 block text-xs leading-5 text-slate-500">
+          <span className={cx('mt-1 block text-sm font-black', themeClasses.titleText)}>{lessonText.title}</span>
+          <span className={cx('mt-2 block text-xs leading-5', themeClasses.mutedText)}>
             {strings.learningLab.practiceCount(lesson.practice.length)}
           </span>
         </span>

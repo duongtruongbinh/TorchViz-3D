@@ -5,9 +5,22 @@ export const LANGUAGE_OPTIONS: { code: Language; label: string }[] = [
   { code: 'vi', label: 'Tiếng Việt' },
 ];
 
-type LocalizedValue = string | ((...args: any[]) => string);
+type LocalizedFormatter =
+  | (() => string)
+  | ((value: string) => string)
+  | ((value: number) => string)
+  | ((value: unknown) => string)
+  | ((first: string, second: string) => string)
+  | ((first: number, second: number) => string)
+  | ((first: number, second: number, third: number) => string);
+type LocalizedValue = string | LocalizedFormatter;
 type LocalizedPair = Record<Language, LocalizedValue>;
 type LocalizedNode = LocalizedPair | { [key: string]: LocalizedNode } | LocalizedNode[];
+type SelectedLocalizedText<T> =
+  T extends LocalizedPair ? T[Language]
+    : T extends readonly (infer Item)[] ? SelectedLocalizedText<Item>[]
+      : T extends object ? { [Key in keyof T]: SelectedLocalizedText<T[Key]> }
+        : never;
 
 const localizedText = {
   app: {
@@ -124,6 +137,110 @@ const localizedText = {
     chooseDomainDescription: {
       en: 'Pick the model area you want to practice first. The next step opens the lesson list.',
       vi: 'Chọn vùng kiến thức muốn luyện trước. Bước tiếp theo sẽ mở danh sách bài học.',
+    },
+    backToLanding: { en: 'Back to landing', vi: 'Quay lại trang chính' },
+    openSidebar: { en: 'Open sidebar', vi: 'Mở thanh điều hướng' },
+    closeSidebar: { en: 'Close sidebar', vi: 'Đóng thanh điều hướng' },
+    sidebarDomains: { en: 'Domains', vi: 'Domain' },
+    searchLabel: { en: 'Learning Lab', vi: 'Learning Lab' },
+    domainCatalogLabel: { en: 'Learning Lab', vi: 'Learning Lab' },
+    domainCatalogTitle: { en: 'Choose a learning domain', vi: 'Chọn domain học tập' },
+    domainCatalogDescription: {
+      en: 'Learning Lab brings ML foundations, CV, NLP, Reinforcement Learning, and Robot Learning into one flow.',
+      vi: 'Learning Lab gom ML foundations, CV, NLP, Reinforcement Learning và Robot Learning vào cùng một flow.',
+    },
+    domainAvailable: { en: 'Available', vi: 'Sẵn sàng' },
+    domainPlaceholder: { en: 'Placeholder', vi: 'Sắp có' },
+    openDomain: { en: 'Open domain', vi: 'Mở domain' },
+    startTrack: { en: 'Start track', vi: 'Bắt đầu track' },
+    contentInProgress: { en: 'Content is in progress.', vi: 'Nội dung đang hoàn thiện.' },
+    domains: {
+      fundamentals: {
+        title: { en: 'ML Foundations', vi: 'ML Foundations' },
+        description: {
+          en: 'Tensor shape, value flow, and layer-contract fundamentals.',
+          vi: 'Nền tảng tensor shape, value flow và layer contracts.',
+        },
+      },
+      cv: {
+        title: { en: 'Computer Vision', vi: 'Computer Vision' },
+        description: {
+          en: 'CNN, convolution, pooling, and classifier shape/value practice.',
+          vi: 'CNN, convolution, pooling và classifier shape/value practice.',
+        },
+      },
+      nlp: {
+        title: { en: 'NLP', vi: 'NLP' },
+        description: {
+          en: 'Attention, sequence, embedding shape, and sequence model practice.',
+          vi: 'Attention, sequence, embedding shape và các bài sequence model.',
+        },
+      },
+      reinforcementLearning: {
+        title: { en: 'Reinforcement Learning', vi: 'Reinforcement Learning' },
+        description: {
+          en: 'MDPs, Bellman values, Q-tables, Q-Learning, SARSA, and GridWorld practice.',
+          vi: 'MDP, Bellman, Q-table, Q-Learning, SARSA và GridWorld practice.',
+        },
+      },
+      robotLearning: {
+        title: { en: 'Robot Learning', vi: 'Robot Learning' },
+        description: {
+          en: 'Reserved for embodied agents, control, and robotics practice.',
+          vi: 'Giữ chỗ cho embodied agents, control và robotics practice.',
+        },
+      },
+    },
+    tracks: {
+      tensorShapeFundamentals: {
+        title: { en: 'Tensor shape fundamentals', vi: 'Tensor shape fundamentals' },
+        description: {
+          en: 'Read and predict shapes through core layers.',
+          vi: 'Đọc và dự đoán shape qua các layer cơ bản.',
+        },
+      },
+      valueFlow: {
+        title: { en: 'Value flow', vi: 'Value flow' },
+        description: {
+          en: 'Follow values through Linear and activation operations.',
+          vi: 'Theo dõi giá trị qua Linear và activation.',
+        },
+      },
+      cnnShapeValue: {
+        title: { en: 'CNN shape and value', vi: 'CNN shape and value' },
+        description: {
+          en: 'Convolution and pooling from shape math to values.',
+          vi: 'Convolution và pooling từ shape đến giá trị.',
+        },
+      },
+      attentionShapes: {
+        title: { en: 'Attention shapes', vi: 'Attention shapes' },
+        description: {
+          en: 'Batch, token, and embedding dimensions in attention.',
+          vi: 'Batch, token và embedding dimensions trong attention.',
+        },
+      },
+      tabularControl: {
+        title: { en: 'Tabular Control', vi: 'Tabular Control' },
+        description: {
+          en: 'MDPs, Bellman values, and Q updates one transition at a time.',
+          vi: 'MDP, Bellman và cập nhật Q từng transition.',
+        },
+      },
+      policyBehavior: {
+        title: { en: 'Policy Behavior', vi: 'Policy Behavior' },
+        description: {
+          en: 'Compare off-policy Q-Learning with on-policy SARSA.',
+          vi: 'So sánh off-policy Q-Learning với on-policy SARSA.',
+        },
+      },
+      embodiedAgents: {
+        title: { en: 'Embodied agents', vi: 'Embodied agents' },
+        description: {
+          en: 'Robot Learning content will be added later.',
+          vi: 'Nội dung Robot Learning sẽ được bổ sung sau.',
+        },
+      },
     },
     roleProfiles: {
       aiEngineer: {
@@ -1006,6 +1123,10 @@ const localizedText = {
   },
   help: {
     title: { en: 'User Guide', vi: 'Hướng dẫn sử dụng' },
+    description: {
+      en: 'Controls, workflow, and model tracing notes for the workspace.',
+      vi: 'Điều khiển, quy trình và ghi chú trace mô hình trong workspace.',
+    },
     workflow: { en: 'Workflow', vi: 'Quy trình' },
     workflowItems: [
       {
@@ -1237,13 +1358,15 @@ function isLocalizedPair(value: unknown): value is LocalizedPair {
   return !!value && typeof value === 'object' && 'en' in value && 'vi' in value;
 }
 
-function selectLocalizedText(node: LocalizedNode, language: Language): any {
-  if (Array.isArray(node)) return node.map((item) => selectLocalizedText(item, language));
-  if (isLocalizedPair(node)) return node[language];
+function selectLocalizedText<T extends LocalizedNode>(node: T, language: Language): SelectedLocalizedText<T> {
+  if (Array.isArray(node)) {
+    return node.map((item) => selectLocalizedText(item, language)) as SelectedLocalizedText<T>;
+  }
+  if (isLocalizedPair(node)) return node[language] as SelectedLocalizedText<T>;
 
   return Object.fromEntries(
     Object.entries(node).map(([key, value]) => [key, selectLocalizedText(value, language)]),
-  );
+  ) as SelectedLocalizedText<T>;
 }
 
 export const strings = {

@@ -1,6 +1,7 @@
 import type { LearningPracticeRef } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getUnifiedPracticeText } from '../learningText';
+import { cx, getLearningLabTheme } from '../theme';
 import ReinforcementPracticeRenderer from './ReinforcementPracticeRenderer';
 import TensorPracticeRenderer from './TensorPracticeRenderer';
 
@@ -12,6 +13,7 @@ type PracticeSectionProps = {
 
 export default function PracticeSection({ practice, theme, language }: PracticeSectionProps) {
   const strings = getStrings(language);
+  const themeClasses = getLearningLabTheme(theme);
   if (!practice.length) return null;
 
   return (
@@ -40,6 +42,7 @@ export default function PracticeSection({ practice, theme, language }: PracticeS
               practice={item}
               title={title}
               targetConcept={item.targetConcept}
+              theme={theme}
               text={strings.reinforcementLearning.exercise}
               unavailableText={strings.reinforcementLearning.unavailablePractice}
             />
@@ -47,7 +50,7 @@ export default function PracticeSection({ practice, theme, language }: PracticeS
         }
 
         return (
-          <section key={item.id} className="rounded-xl border border-sky-100 bg-white p-4 text-sm font-black text-slate-500 shadow-sm shadow-sky-100/70">
+          <section key={item.id} className={cx('rounded-xl border p-4 text-sm font-black shadow-sm', themeClasses.card, themeClasses.mutedText)}>
             {strings.learningLab.unavailablePractice}
           </section>
         );

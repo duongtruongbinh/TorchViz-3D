@@ -2,6 +2,7 @@ import type { LearningDomain, LearningLesson, LearningTrack } from '../types.ts'
 
 export const fundamentalsDomain: LearningDomain = {
   id: 'fundamentals',
+  textKey: 'fundamentals',
   status: 'active',
   trackIds: ['tensor-shape-fundamentals', 'value-flow'],
 };
@@ -9,12 +10,14 @@ export const fundamentalsDomain: LearningDomain = {
 export const fundamentalsTracks: LearningTrack[] = [
   {
     id: 'tensor-shape-fundamentals',
+    textKey: 'tensorShapeFundamentals',
     domainId: 'fundamentals',
     status: 'available',
     lessonIds: ['shape-basics'],
   },
   {
     id: 'value-flow',
+    textKey: 'valueFlow',
     domainId: 'fundamentals',
     status: 'available',
     lessonIds: ['linear-activation'],

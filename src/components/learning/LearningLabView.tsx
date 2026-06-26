@@ -9,14 +9,16 @@ import {
   getLearningTracksForDomain,
 } from '../../core/learning/selectors';
 import type { LearningDomainId, LearningTrack } from '../../core/learning/types';
+import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';
 import LessonDetail from './lesson/LessonDetail';
 import LessonNode from './lesson/LessonNode';
-import { getDomainText, getTrackText } from './learningText';
+import { getDomainText, getDomainTextById, getTrackText } from './learningText';
 import DomainCatalog from './shell/DomainCatalog';
 import ReviewMode from './shell/ReviewMode';
 import TrackList from './shell/TrackList';
+import { cx, getLearningLabTheme } from './theme';
 
 type LearningLabMode = 'path' | 'review';
 
@@ -39,7 +41,8 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedLessonId, setSelectedLessonId] = useState('');
-  const isLight = theme === 'light';
+  const strings = getStrings(language).learningLab;
+  const themeClasses = getLearningLabTheme(theme);
 
   const activeDomain = routeDomainId ? getLearningDomain(learningCatalog, routeDomainId) : null;
   const activeTracks = routeDomainId ? getLearningTracksForDomain(learningCatalog, routeDomainId) : [];
@@ -68,57 +71,45 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     <main
       className={`learning-lab grid min-h-screen w-full overflow-hidden transition-[grid-template-columns] duration-300 ${
         isSidebarOpen ? 'grid-cols-[300px_minmax(0,1fr)]' : 'grid-cols-[72px_minmax(0,1fr)]'
-      } ${
-        isLight
-          ? 'learning-lab-light bg-[#f6fbff] text-slate-950'
-          : 'bg-[#050b16] text-slate-100'
-      }`}
+      } ${themeClasses.page}`}
     >
-      <aside className={`min-h-screen overflow-hidden rounded-r-lg border-r shadow-sm transition-colors ${
-        isLight
-          ? 'border-sky-100 bg-gradient-to-b from-white via-[#f6fbff] to-[#eef6ff] text-slate-950 shadow-sky-100/70'
-          : 'border-slate-800 bg-gradient-to-b from-[#101827] via-[#0b1220] to-[#050b16] text-slate-100 shadow-black/30'
-      }`}>
+      <aside className={cx('min-h-screen overflow-hidden rounded-r-lg border-r shadow-sm transition-colors', themeClasses.sidebar)}>
         <button
           type="button"
           onClick={onBackToLanding}
-          className={`flex h-16 w-full items-center rounded-tr-lg transition-colors ${
-            isSidebarOpen ? 'gap-3 px-5 text-left' : 'justify-center px-0'
-          } ${isLight ? 'hover:bg-sky-50' : 'hover:bg-slate-800/80'}`}
-          title="Back to landing"
-          aria-label="Back to landing"
+          className={cx(
+            'flex h-16 w-full items-center rounded-tr-lg transition-colors',
+            isSidebarOpen ? 'gap-3 px-5 text-left' : 'justify-center px-0',
+            themeClasses.sidebarHover,
+          )}
+          title={strings.backToLanding}
+          aria-label={strings.backToLanding}
         >
-          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border font-black ${
-            isLight ? 'border-sky-100 bg-[#eef6ff] text-sky-700' : 'border-slate-700 bg-slate-950 text-sky-300'
-          }`}>
+          <span className={cx('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border font-black', themeClasses.brandTile)}>
             TV
           </span>
           {isSidebarOpen ? (
             <span className="min-w-0">
               <span className="block truncate text-xl font-black leading-6">
-                TorchViz<span className={isLight ? 'text-sky-600' : 'text-sky-300'}>3D</span>
+                TorchViz<span className={themeClasses.accentText}>3D</span>
               </span>
-              <span className={`block truncate text-[11px] font-black uppercase tracking-wide ${
-                isLight ? 'text-slate-500' : 'text-slate-400'
-              }`}>
-                Learning Lab
+              <span className={cx('block truncate text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
+                {strings.searchLabel}
               </span>
             </span>
           ) : null}
         </button>
 
-        <nav className={isSidebarOpen ? 'px-4 py-5' : 'px-3 py-5'} aria-label="Learning Lab domains">
+        <nav className={isSidebarOpen ? 'px-4 py-5' : 'px-3 py-5'} aria-label={strings.sidebarDomains}>
           {isSidebarOpen ? (
-            <div className={`mb-3 px-1 text-xs font-black uppercase tracking-wide ${
-              isLight ? 'text-slate-500' : 'text-slate-400'
-            }`}>
-              Domains
+            <div className={cx('mb-3 px-1 text-xs font-black uppercase tracking-wide', themeClasses.mutedText)}>
+              {strings.sidebarDomains}
             </div>
           ) : null}
 
           <div className="grid gap-2">
             {learningCatalog.domains.map((domain, index) => {
-              const text = getDomainText(language, domain.id);
+              const text = getDomainText(language, domain);
               const isActive = routeDomainId === domain.id;
 
               return (
@@ -126,13 +117,11 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   key={domain.id}
                   type="button"
                   onClick={() => openDomain(domain.id)}
-                  className={`flex h-11 w-full items-center rounded-xl text-left text-sm font-black transition-colors ${
-                    isSidebarOpen ? 'gap-3 px-2' : 'justify-center px-0'
-                  } ${
-                    isActive
-                      ? isLight ? 'bg-sky-50 text-sky-700' : 'bg-slate-800/90 text-sky-200'
-                      : isLight ? 'text-slate-600 hover:bg-sky-50 hover:text-sky-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                  }`}
+                  className={cx(
+                    'flex h-11 w-full items-center rounded-xl text-left text-sm font-black transition-colors',
+                    isSidebarOpen ? 'gap-3 px-2' : 'justify-center px-0',
+                    themeClasses.navItem(isActive),
+                  )}
                   title={text.title}
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -166,33 +155,33 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               theme={theme}
             />
           ) : !routeDomainId ? (
-            <DomainCatalog catalog={learningCatalog} language={language} onOpenDomain={openDomain} />
+            <DomainCatalog catalog={learningCatalog} language={language} theme={theme} onOpenDomain={openDomain} />
           ) : activeDomain && !activeTrack ? (
             <section className="grid gap-5">
-              <div className="rounded-xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-100/70">
-                <div className="text-xs font-black uppercase tracking-wide text-sky-700">
-                  {getDomainText(language, activeDomain.id).title}
+              <div className={cx('rounded-xl border p-6 shadow-sm', themeClasses.card)}>
+                <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
+                  {getDomainText(language, activeDomain).title}
                 </div>
-                <h1 className="mt-2 text-3xl font-black leading-tight text-slate-950">
-                  {getDomainText(language, activeDomain.id).title}
+                <h1 className={cx('mt-2 text-3xl font-black leading-tight', themeClasses.titleText)}>
+                  {getDomainText(language, activeDomain).title}
                 </h1>
-                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-                  {getDomainText(language, activeDomain.id).description}
+                <p className={cx('mt-3 max-w-3xl text-sm leading-6', themeClasses.bodyText)}>
+                  {getDomainText(language, activeDomain).description}
                 </p>
               </div>
-              <TrackList tracks={activeTracks} language={language} onOpenTrack={openTrack} />
+              <TrackList tracks={activeTracks} language={language} theme={theme} onOpenTrack={openTrack} />
             </section>
           ) : activeTrack && selectedLesson ? (
             <section className="grid min-h-0 w-full gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
               <aside className="grid max-h-full gap-3 overflow-auto pr-1">
-                <div className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-100/70">
-                  <div className="text-[11px] font-black uppercase tracking-wide text-slate-400">
-                    {getDomainText(language, activeTrack.domainId).title}
+                <div className={cx('rounded-xl border p-4 shadow-sm', themeClasses.card)}>
+                  <div className={cx('text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
+                    {getDomainTextById(language, activeTrack.domainId).title}
                   </div>
-                  <h2 className="mt-1 text-lg font-black text-slate-950">
+                  <h2 className={cx('mt-1 text-lg font-black', themeClasses.titleText)}>
                     {getTrackText(language, activeTrack).title}
                   </h2>
-                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                  <p className={cx('mt-2 text-xs leading-5', themeClasses.mutedText)}>
                     {getTrackText(language, activeTrack).description}
                   </p>
                 </div>
@@ -203,6 +192,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                     index={index}
                     isSelected={lesson.id === selectedLesson.id}
                     language={language}
+                    theme={theme}
                     onSelect={setSelectedLessonId}
                   />
                 ))}
@@ -210,8 +200,8 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               <LessonDetail lesson={selectedLesson} theme={theme} language={language} />
             </section>
           ) : (
-            <div className="rounded-xl border border-sky-100 bg-white p-6 text-sm font-black text-slate-500 shadow-sm shadow-sky-100/70">
-              {language === 'vi' ? 'Nội dung đang hoàn thiện.' : 'Content is in progress.'}
+            <div className={cx('rounded-xl border p-6 text-sm font-black shadow-sm', themeClasses.card, themeClasses.mutedText)}>
+              {strings.contentInProgress}
             </div>
           )}
         </section>

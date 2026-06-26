@@ -82,6 +82,7 @@ export type LearningLesson = {
 
 export type LearningTrack = {
   id: string;
+  textKey: string;
   domainId: LearningDomainId;
   lessonIds: string[];
   status: LearningTrackStatus;
@@ -89,6 +90,7 @@ export type LearningTrack = {
 
 export type LearningDomain = {
   id: LearningDomainId;
+  textKey: string;
   status: LearningDomainStatus;
   trackIds: string[];
 };

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Billboard, Line, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { FONT_URL, UNICODE_FONTS_URL } from '../../lib/constants';
 import type { GridRegion } from './effectMath';
-
-const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
 
 const textBaseProps = {
   font: FONT_URL,
+  unicodeFontsURL: UNICODE_FONTS_URL,
   anchorX: 'center' as const,
   anchorY: 'middle' as const,
   outlineWidth: 0.018,

@@ -51,3 +51,8 @@ no `type` frontmatter required.)
   (`answerCheck.ts`, `uiStore.ts`, and `LearningDrawer.tsx`), added worker
   timeout recovery, tightened input-shape validation, and enabled unused-symbol
   TypeScript checks.
+- **2026-06-26 — Complete Desloppify backlog.** Finished the remaining
+  cleanup backlog by self-hosting Tailwind, Pyodide, Monaco, and text font
+  assets; moving Learning Lab display metadata through catalog/localization
+  adapters; sharing Learning Lab theme tokens and exercise modal lifecycle;
+  adding route smoke coverage; and documenting the root entrypoint convention.

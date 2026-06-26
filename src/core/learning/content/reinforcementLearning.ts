@@ -2,6 +2,7 @@ import type { LearningDomain, LearningLesson, LearningTrack } from '../types.ts'
 
 export const reinforcementLearningDomain: LearningDomain = {
   id: 'reinforcement-learning',
+  textKey: 'reinforcementLearning',
   status: 'active',
   trackIds: ['tabular-control', 'policy-behavior'],
 };
@@ -9,12 +10,14 @@ export const reinforcementLearningDomain: LearningDomain = {
 export const reinforcementLearningTracks: LearningTrack[] = [
   {
     id: 'tabular-control',
+    textKey: 'tabularControl',
     domainId: 'reinforcement-learning',
     status: 'available',
     lessonIds: ['rl-mdp-basics', 'rl-bellman', 'rl-q-learning', 'rl-sarsa'],
   },
   {
     id: 'policy-behavior',
+    textKey: 'policyBehavior',
     domainId: 'reinforcement-learning',
     status: 'available',
     lessonIds: ['rl-mdp-basics', 'rl-q-learning', 'rl-sarsa'],

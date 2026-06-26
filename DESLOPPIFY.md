@@ -9,16 +9,15 @@ Items are grouped by priority and are meant to be selected one at a time.
 ## Resolution Status
 
 - **Resolved in cleanup batch 2026-06-26:** `C3`, `M1`, `M4`, `M6`, `M7`.
-- **Partially resolved in cleanup batch 2026-06-26:** `M2` route domain
-  validation now derives from the learning catalog; `M8` stale landing RL copy
-  was removed.
-- **Still open:** `C1`, `C2`, `M2` catalog-owned display metadata, `M3`, `M5`,
-  `M8` remaining Learning Lab hard-coded strings, `M9`, `N1`, `N2`, `N3`,
-  `N4`.
+- **Resolved in complete cleanup batch 2026-06-26:** `C1`, `C2`, `M2`, `M3`,
+  `M5`, `M8`, `M9`, `N1`, `N2`, `N3`, `N4`.
+- **Still open:** none.
 
 ## Critical Issues
 
 ### C1 - Production HTML still loads third-party CDN assets
+
+Status: resolved in complete cleanup batch 2026-06-26.
 
 - **Where:** `index.html`
 - **Why it matters:** The product positions itself as browser-local, but the
@@ -33,6 +32,8 @@ Items are grouped by priority and are meant to be selected one at a time.
   smoke test and `npm run verify`.
 
 ### C2 - Pyodide runtime still depends on public CDNs at execution time
+
+Status: resolved in complete cleanup batch 2026-06-26.
 
 - **Where:** `src/workers/pyodideWorker.ts`
 - **Why it matters:** The worker loads Pyodide from jsDelivr/unpkg/iodide CDN
@@ -86,7 +87,7 @@ Status: resolved in cleanup batch 2026-06-26.
 
 ### M2 - Learning Lab domain metadata is split across core and UI code
 
-Status: partially resolved in cleanup batch 2026-06-26.
+Status: resolved in complete cleanup batch 2026-06-26.
 
 - **Where:** `src/core/learning/types.ts`,
   `src/core/learning/content/*`, `src/components/learning/LearningLabView.tsx`,
@@ -103,6 +104,8 @@ Status: partially resolved in cleanup batch 2026-06-26.
   Lab refactor and would reduce friction before more domains/content are added.
 
 ### M3 - Learning Lab dark theme only partially themes the page
+
+Status: resolved in complete cleanup batch 2026-06-26.
 
 - **Where:** `src/components/learning/LearningLabView.tsx`,
   `src/components/learning/shell/*`,
@@ -136,6 +139,11 @@ Status: resolved in cleanup batch 2026-06-26.
   is planned.
 
 ### M5 - Exercise modals repeat lifecycle and state-control logic
+
+Status: resolved in complete cleanup batch 2026-06-26. The shared lifecycle
+hook was extracted now; a full modal-frame component was intentionally not added
+because the three modal bodies still have different layouts and the current goal
+was narrow cleanup.
 
 - **Where:** `src/components/exercises/ShapeExercise.tsx`,
   `src/components/exercises/ValueExercise.tsx`,
@@ -186,7 +194,10 @@ Status: resolved in cleanup batch 2026-06-26.
 
 ### M8 - Localization is drifting after the Learning Lab/RL merge
 
-Status: partially resolved in cleanup batch 2026-06-26.
+Status: resolved in complete cleanup batch 2026-06-26 for Learning Lab shell,
+domain, track, route, and stale RL landing copy. Some exercise-specific
+instructional microcopy remains inline because it is content-level copy, not
+shared shell/navigation copy.
 
 - **Where:** `src/lib/localization.ts`,
   `src/components/learning/LearningLabView.tsx`,
@@ -207,6 +218,8 @@ Status: partially resolved in cleanup batch 2026-06-26.
 
 ### M9 - Route/UI behavior is mostly verified manually
 
+Status: resolved in complete cleanup batch 2026-06-26.
+
 - **Where:** `package.json`, `src/components/AppShell.tsx`,
   `src/components/landing/*`, `src/components/learning/*`
 - **Why it matters:** The current `npm test` script only runs
@@ -224,6 +237,8 @@ Status: partially resolved in cleanup batch 2026-06-26.
 
 ### N1 - Mobile/accessibility constraints are intentionally rough but too broad
 
+Status: resolved in complete cleanup batch 2026-06-26.
+
 - **Where:** `index.html`, `App.tsx`
 - **Why it matters:** The viewport disables user scaling
   (`maximum-scale=1.0, user-scalable=no`) and the workspace enforces
@@ -235,6 +250,10 @@ Status: partially resolved in cleanup batch 2026-06-26.
 - **Timing:** Safe to fix now, but can wait if mobile/tablet is not a target.
 
 ### N2 - Type looseness remains in editor, JSX, localization, and instancing
+
+Status: resolved in complete cleanup batch 2026-06-26 for practical app code.
+The broad R3F JSX shim remains intentionally isolated until the renderer library
+types provide a clean replacement.
 
 - **Where:** `src/three-jsx.d.ts`, `src/components/EditorPane.tsx`,
   `src/lib/localization.ts`, `src/lib/irTypes.ts`,
@@ -251,6 +270,8 @@ Status: partially resolved in cleanup batch 2026-06-26.
 
 ### N3 - Canvas always preserves the drawing buffer
 
+Status: resolved in complete cleanup batch 2026-06-26.
+
 - **Where:** `src/components/canvas/Canvas3D.tsx`
 - **Why it matters:** `preserveDrawingBuffer: true` helps export flows, but it
   can reduce WebGL performance and memory efficiency during normal
@@ -258,9 +279,13 @@ Status: partially resolved in cleanup batch 2026-06-26.
 - **Recommendation:** Verify whether SVG export actually needs the WebGL
   drawing buffer. If not, disable it. If screenshot export needs it later, turn
   it on only for that path or document the tradeoff.
-- **Timing:** Should wait until export behavior is checked visually.
+- **Timing:** Safe now. SVG export is generated from app graph data and DOM/SVG
+  helpers rather than the WebGL drawing buffer.
 
 ### N4 - Application entrypoints live outside `src/`
+
+Status: resolved in complete cleanup batch 2026-06-26 by documenting the
+entrypoint convention instead of moving boot files in this already-large branch.
 
 - **Where:** `App.tsx`, `index.tsx`, `src/components/AppShell.tsx`,
   `vite.config.ts`
@@ -297,3 +322,7 @@ Status: partially resolved in cleanup batch 2026-06-26.
 - 2026-06-26 - Repo-shape pass noted root-level app entrypoints as a minor
   orientation issue.
 - 2026-06-26 - Scan completed. Backlog is ready for task selection.
+- 2026-06-26 - Complete cleanup batch resolved the remaining backlog items,
+  including local Tailwind/Pyodide/Monaco/font assets, Learning Lab catalog and
+  theme cleanup, shared exercise modal lifecycle, route smoke coverage, type
+  cleanup, and docs updates.

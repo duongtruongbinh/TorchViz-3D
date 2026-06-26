@@ -2,7 +2,7 @@
 title: Rendering
 type: Subsystem
 source: src/components/canvas/Canvas3D.tsx, src/lib/visualKind.ts, src/lib/constants.ts
-updated: 2026-06-21
+updated: 2026-06-26
 ---
 
 # Rendering
@@ -49,8 +49,8 @@ consumed by both Canvas3D (3D) and `svgExport` (2D/2.5D).
 
 ## Theme & constants (`constants.ts`)
 
-`src/lib/constants.ts` centralizes non-op theme: the web font URL + text props,
-**render orders** (z-stacking of edges, labels, captions, panels), HTML overlay
+`src/lib/constants.ts` centralizes non-op theme: the local 3D text font asset +
+text props, **render orders** (z-stacking of edges, labels, captions, panels), HTML overlay
 z-indices, edge colors, **container** colors/opacity
 (`getCollapsedContainerColor`, `getExpandedContainerColor`,
 `getExpandedContainerOpacity` — used by the layout engine), and button theme.
@@ -59,4 +59,5 @@ z-indices, edge colors, **container** colors/opacity
 
 - [layout-engine](../concepts/layout-engine.md) — produces what this draws.
 - [state-store](../concepts/state-store.md) — supplies `layout`, holds selection.
-- [reference/gotchas](../reference/gotchas.md) — desktop-only, CDN fonts.
+- [reference/gotchas](../reference/gotchas.md) — desktop-oriented workspace,
+  local build/runtime assets.

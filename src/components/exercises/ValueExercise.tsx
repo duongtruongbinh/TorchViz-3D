@@ -8,6 +8,7 @@ import {
   type ValueExerciseId,
   type ValueExerciseModel,
 } from '../../lib/valueExerciseModels';
+import { useExerciseModalLifecycle } from './useExerciseModalLifecycle';
 
 export const ValueExercise: React.FC<{
   isOpen: boolean;
@@ -32,6 +33,7 @@ export const ValueExercise: React.FC<{
   const [submitted, setSubmitted] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [activationHintIndex, setActivationHintIndex] = useState<number | null>(null);
+  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen, onClose });
   const poolOutput = useMemo(
     () => computePoolOutput(POOL_INPUT_MATRIX, poolKernel, poolStride, poolMode),
     [poolKernel, poolMode, poolStride],
@@ -135,6 +137,7 @@ export const ValueExercise: React.FC<{
             )}
           </div>
           <button
+            ref={closeButtonRef}
             type="button"
             className="flex h-8 w-8 shrink-0 items-center justify-center justify-self-end rounded-md border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500 hover:text-white"
             onClick={onClose}

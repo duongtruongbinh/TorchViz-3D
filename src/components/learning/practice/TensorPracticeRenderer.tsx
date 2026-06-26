@@ -12,6 +12,7 @@ import {
   isShapeExerciseId,
   isValueExerciseId,
 } from '../../exercises/exerciseRegistry';
+import { cx, getLearningLabTheme } from '../theme';
 import { createTensorPracticeNode, isTensorPracticeApproved } from './adapters/tensorPracticeAdapter';
 
 type TensorPracticeRendererProps = {
@@ -44,24 +45,25 @@ export default function TensorPracticeRenderer({
   const isShapeExercise = isShapeExerciseId(activeExerciseId);
   const isConvValueExercise = isConvValueExerciseId(activeExerciseId);
   const isStandardValueExercise = isValueExerciseId(activeExerciseId);
+  const themeClasses = getLearningLabTheme(theme);
 
   return (
-    <section className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-100/70">
-      <div className="text-[11px] font-black uppercase tracking-wide text-slate-400">{practice.kind}</div>
-      <h3 className="mt-1 text-base font-black text-slate-950">{title}</h3>
-      <p className="mt-2 text-xs leading-5 text-slate-500">{practice.targetOperation}</p>
+    <section className={cx('rounded-xl border p-4 shadow-sm', themeClasses.card)}>
+      <div className={cx('text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>{practice.kind}</div>
+      <h3 className={cx('mt-1 text-base font-black', themeClasses.titleText)}>{title}</h3>
+      <p className={cx('mt-2 text-xs leading-5', themeClasses.mutedText)}>{practice.targetOperation}</p>
       {isAvailable ? (
         <button
           type="button"
           onClick={() => {
             if (node) setActivePractice({ practice, node });
           }}
-          className="mt-4 w-full rounded-lg bg-sky-600 px-4 py-2 text-sm font-black text-white shadow-sm transition-colors hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-300"
+          className={cx('mt-4 w-full rounded-lg px-4 py-2 text-sm font-black shadow-sm transition-colors', themeClasses.primaryAction, themeClasses.focusRing)}
         >
           {startText}
         </button>
       ) : (
-        <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center text-sm font-black text-slate-500">
+        <div className={cx('mt-4 rounded-lg border px-4 py-2 text-center text-sm font-black', themeClasses.unavailable)}>
           {unavailableText}
         </div>
       )}
