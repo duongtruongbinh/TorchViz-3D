@@ -1,5 +1,4 @@
 import { Languages, Moon, Search, Sun } from 'lucide-react';
-
 import { getStrings, type Language } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import { cx, getLearningLabTheme } from './theme';
@@ -25,7 +24,7 @@ export default function LearningLabHeader({
   const isLight = themeClasses.isLight;
 
   return (
-    <header className={cx('sticky top-0 z-40 w-full border-b shadow-sm', themeClasses.radius.headerEdge, themeClasses.header)}>
+    <header className={cx('sticky top-0 z-40 w-full border-b shadow-sm', themeClasses.header)}>
       <div className="flex h-16 w-full items-center gap-4 px-5">
         <div className={cx('flex h-10 overflow-hidden border p-1', themeClasses.radius.pill, themeClasses.segmented)}>
           {(['path', 'review'] as const).map((item) => (
@@ -45,7 +44,7 @@ export default function LearningLabHeader({
           ))}
         </div>
 
-        <div className={cx('hidden h-10 min-w-[260px] max-w-[520px] flex-1 items-center gap-2 px-4 lg:flex', themeClasses.radius.pill, themeClasses.searchBox)}>
+        <div className={cx('hidden h-10 min-w-[260px] max-w-[520px] flex-1 items-center gap-2 border px-4 lg:flex', themeClasses.radius.pill, themeClasses.searchBox)}>
           <Search className="h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" />
           <span className="truncate text-sm">{text.searchLabel}</span>
         </div>

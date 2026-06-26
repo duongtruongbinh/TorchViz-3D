@@ -143,16 +143,11 @@ const localizedText = {
     closeSidebar: { en: 'Close sidebar', vi: 'Đóng thanh điều hướng' },
     sidebarDomains: { en: 'Domains', vi: 'Domain' },
     searchLabel: { en: 'Learning Lab', vi: 'Learning Lab' },
-    domainCatalogLabel: { en: 'Learning Lab', vi: 'Learning Lab' },
     domainCatalogTitle: { en: 'Choose a learning domain', vi: 'Chọn domain học tập' },
-    domainCatalogDescription: {
-      en: 'Learning Lab brings ML foundations, CV, NLP, Reinforcement Learning, and Robot Learning into one flow.',
-      vi: 'Learning Lab gom ML foundations, CV, NLP, Reinforcement Learning và Robot Learning vào cùng một flow.',
-    },
     domainAvailable: { en: 'Available', vi: 'Sẵn sàng' },
-    domainPlaceholder: { en: 'Placeholder', vi: 'Sắp có' },
-    openDomain: { en: 'Open domain', vi: 'Mở domain' },
-    startTrack: { en: 'Start track', vi: 'Bắt đầu track' },
+    domainPlaceholder: { en: 'Placeholder', vi: 'Đang cập nhật' },
+    openDomain: { en: "Let's go", vi: "Let's go" },
+    startTrack: { en: "Let's go", vi: "Let's go" },
     contentInProgress: { en: 'Content is in progress.', vi: 'Nội dung đang hoàn thiện.' },
     domains: {
       fundamentals: {
@@ -552,7 +547,7 @@ const localizedText = {
           title: { en: 'RL and 3D modes', vi: 'Chế độ RL và 3D' },
           body: {
             en: 'Switch between the RL learning path and the upcoming 3D visualization area.',
-            vi: 'Chuyển giữa lộ trình học RL và khu vực trực quan hóa 3D sắp có.',
+            vi: 'Chuyển đổi giữa lộ trình học RL và khu vực trực quan hóa 3D đang triển khai.',
           },
         },
         {
