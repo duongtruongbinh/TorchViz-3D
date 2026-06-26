@@ -24,7 +24,7 @@ export default function LearningLabHeader({
   const isLight = themeClasses.isLight;
 
   return (
-    <header className={cx('sticky top-0 z-40 w-full border-b shadow-sm', themeClasses.radius.headerEdge, themeClasses.header)}>
+    <header className={cx('sticky top-0 z-40 w-full border-b shadow-sm', themeClasses.header)}>
       <div className="flex h-16 w-full items-center gap-4 px-5">
         <div className={cx('flex h-10 overflow-hidden border p-1', themeClasses.radius.pill, themeClasses.segmented)}>
           {(['path', 'review'] as const).map((item) => (

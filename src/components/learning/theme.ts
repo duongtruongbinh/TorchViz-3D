@@ -16,8 +16,6 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     card: 'rounded-xl',
     panel: 'rounded-xl',
     pill: 'rounded-full',
-    sidebarEdge: 'rounded-r-lg',
-    headerEdge: 'rounded-b-lg',
   };
 
   const surface = {
@@ -26,7 +24,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
       : 'border-[#A8B8C8]/20 bg-[#172232] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
     interactiveCard: isLight
       ? 'border-[#205089]/14 bg-gradient-to-br from-[#E3EAF2] to-[#B8C8DA]/58 text-[#030509] shadow-[0_8px_18px_rgba(32,80,137,0.07)] hover:border-[#205089]/30 hover:from-[#DCE6F1] hover:to-[#B8C8DA]/70'
-      : 'border-[#A8B8C8]/20 bg-gradient-to-br from-[#172232] to-[#223247] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:border-[#A8B8C8]/42 hover:from-[#1E2D3F] hover:to-[#2A3B52]',
+      : 'border-[#A8B8C8]/20 bg-gradient-to-br from-[#1A2636] to-[#26384E] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:border-[#A8B8C8]/42 hover:from-[#213148] hover:to-[#2D425B]',
     unavailable: isLight
       ? 'border-[#205089]/10 bg-[#B8C8DA]/42 text-[#030509]/58'
       : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/10 text-[#F2F6FA]/62',
@@ -65,8 +63,8 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
       'font-black transition-colors',
       focusRing,
       isActive
-        ? isLight ? 'bg-[#B8C8DA]/70 text-[#123B68]' : 'bg-[#496F98]/42 text-[#F2F6FA]'
-        : isLight ? 'text-[#030509]/72 hover:bg-[#9FB4CA]/70 hover:text-[#123B68]' : 'text-[#F2F6FA]/78 hover:bg-[#A8B8C8]/18 hover:text-[#F2F6FA]',
+        ? isLight ? 'bg-[#B8C8DA]/70 text-[#123B68]' : 'bg-[#D7DCE2]/16 text-[#F4EFE6] shadow-[inset_0_0_0_1px_rgba(215,220,226,0.18)]'
+        : isLight ? 'text-[#030509]/72 hover:bg-[#9FB4CA]/70 hover:text-[#123B68]' : 'text-[#F2F6FA]/72 hover:bg-[#D7DCE2]/10 hover:text-[#F4EFE6]',
     ),
     card: cx(
       'border text-left shadow-sm transition-transform duration-150 hover:-translate-y-0.5',
@@ -77,8 +75,8 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
       'font-black transition-colors',
       focusRing,
       isActive
-        ? isLight ? 'bg-[#DCE6F1] text-[#123B68] shadow-[0_8px_18px_rgba(32,80,137,0.07)]' : 'bg-[#496F98]/76 text-[#F2F6FA] shadow-[0_8px_16px_rgba(0,0,0,0.14)]'
-        : isLight ? 'text-[#030509]/62 hover:text-[#123B68]' : 'text-[#F2F6FA]/66 hover:text-[#F2F6FA]',
+        ? isLight ? 'bg-white text-[#123B68] shadow-[inset_0_0_0_1px_rgba(32,80,137,0.18),0_6px_14px_rgba(32,80,137,0.10)]' : 'bg-[#D7DCE2] text-[#121A24] shadow-[0_6px_14px_rgba(0,0,0,0.24)]'
+        : isLight ? 'text-[#030509]/48 hover:text-[#123B68]' : 'text-[#F2F6FA]/48 hover:text-[#F2F6FA]',
     ),
   };
 
@@ -88,27 +86,29 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     surface,
     button,
     page: isLight ? 'learning-lab-light bg-[#D3DEEA] text-[#030509]' : 'bg-[#121A24] text-[#F2F6FA]',
+    content: isLight ? 'bg-white/90' : 'bg-[#121A24]',
     sidebar: isLight
-      ? 'border-[#205089]/14 bg-gradient-to-b from-[#DCE6F1] via-[#D3DEEA] to-[#B8C8DA] text-[#030509] shadow-[0_12px_28px_rgba(32,80,137,0.07)]'
-      : 'border-[#A8B8C8]/18 bg-gradient-to-b from-[#223247] via-[#172232] to-[#121A24] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
+      ? 'border-[#9A9A9A]/16 bg-gradient-to-b from-[#DCE6F1] via-[#D3DEEA] to-[#B8C8DA] text-[#030509] shadow-[0_12px_28px_rgba(32,80,137,0.07)]'
+      : 'border-[#3A414A] bg-gradient-to-b from-[#223247] via-[#172232] to-[#121A24] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
     sidebarHover: isLight ? 'hover:bg-[#B8C8DA]/55' : 'hover:bg-[#A8B8C8]/16',
     brandTile: isLight
       ? 'border-[#205089]/16 bg-[#B8C8DA]/70 text-[#123B68]'
       : 'border-[#A8B8C8]/24 bg-[#172232] text-[#A8B8C8]',
     accentText: isLight ? 'text-[#123B68]' : 'text-[#A8B8C8]',
     mutedText: isLight ? 'text-[#030509]/56' : 'text-[#F2F6FA]/60',
+    backLink: isLight ? 'text-[#5F6B7A]' : 'text-[#9AA6B2]',
     bodyText: isLight ? 'text-[#030509]/72' : 'text-[#F2F6FA]/78',
-    titleText: isLight ? 'text-[#030509]' : 'text-white',
+    titleText: isLight ? 'text-[#030509]' : 'text-[#F4EFE6]',
     eyebrowText: isLight ? 'text-[#123B68]' : 'text-[#A8B8C8]',
-    card: surface.card,
-    interactiveCard: surface.interactiveCard,
     iconTile: isLight ? 'bg-[#B8C8DA]/70 text-[#123B68]' : 'bg-[#496F98]/32 text-[#F2F6FA]',
     focusRing,
-    primaryAction: button.primary,
+    ctaPill: isLight
+      ? 'bg-[#F2C94C] text-[#444444] shadow-[0_8px_20px_rgba(242,201,76,0.24)] hover:bg-[#FFD65A]'
+      : 'bg-[#F2C94C] text-[#444444] shadow-[0_8px_22px_rgba(242,201,76,0.22)] hover:bg-[#FFD65A]',
     unavailable: surface.unavailable,
     header: isLight
-      ? 'border-[#205089]/14 bg-[#DCE6F1]/95 text-[#030509] shadow-[0_8px_18px_rgba(32,80,137,0.07)]'
-      : 'border-[#A8B8C8]/18 bg-[#172232]/96 text-[#F2F6FA] shadow-[0_10px_20px_rgba(0,0,0,0.14)]',
+      ? 'border-[#205089]/8 bg-white/90 text-[#030509] shadow-[0_8px_18px_rgba(32,80,137,0.07)]'
+      : 'border-[#A8B8C8]/10 bg-[#172232]/96 text-[#F2F6FA] shadow-[0_10px_20px_rgba(0,0,0,0.14)]',
     searchBox: isLight ? 'border-[#205089]/16 bg-[#B8C8DA]/48 text-[#030509]/60' : 'border-[#A8B8C8]/28 bg-[#121A24] text-[#F2F6FA]/72',
     segmented: isLight ? 'border-[#205089]/14 bg-[#B8C8DA]/45' : 'border-[#A8B8C8]/22 bg-[#121A24]',
     segmentActive: button.segmented(true),
@@ -117,8 +117,8 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     plainIconButton: button.ghost,
     navItem: button.nav,
     statusPill: (isPlaceholder: boolean) => isPlaceholder
-      ? isLight ? 'bg-[#B8C8DA]/52 text-[#030509]/58' : 'bg-[#A8B8C8]/10 text-[#F2F6FA]/60'
-      : isLight ? 'bg-[#205089]/12 text-[#123B68]' : 'bg-[#496F98]/22 text-[#F2F6FA]',
+      ? isLight ? 'border border-[#8A94A3]/24 bg-[#8A94A3]/10 text-[#5F6B7A]' : 'border border-[#8A94A3]/26 bg-[#8A94A3]/12 text-[#B4BDC7]'
+      : isLight ? 'border border-[#2FBF71]/34 bg-[#2FBF71]/15 text-[#2E8A5A]' : 'border border-[#2FBF71]/38 bg-[#2FBF71]/20 text-[#A6E8C1]',
     lessonCard: (isSelected: boolean) => isSelected
       ? isLight
         ? 'border-[#205089]/38 bg-[#B8C8DA]/72 shadow-[0_8px_18px_rgba(32,80,137,0.10)]'

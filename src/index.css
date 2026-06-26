@@ -483,6 +483,16 @@ body {
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
+.learning-lab-light .learning-lab-content-area {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: none !important;
+}
+
+.learning-lab-light .learning-lab-catalog {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
 .learning-lab-light [class*="border-zinc"] {
   border-color: rgba(148, 163, 184, 0.48) !important;
 }

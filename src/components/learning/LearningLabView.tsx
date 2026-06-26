@@ -97,19 +97,19 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   return (
     <main
       className={`learning-lab grid min-h-screen w-full overflow-hidden transition-[grid-template-columns] duration-300 ${
-        isSidebarOpen ? 'grid-cols-[300px_minmax(0,1fr)]' : 'grid-cols-[72px_minmax(0,1fr)]'
+        isSidebarOpen ? 'grid-cols-[252px_minmax(0,1fr)]' : 'grid-cols-[72px_minmax(0,1fr)]'
       } ${themeClasses.page}`}
     >
-      <aside className={cx('relative z-50 flex min-h-screen flex-col overflow-visible border-r shadow-sm transition-colors', themeClasses.radius.sidebarEdge, themeClasses.sidebar)}>
+      <aside className={cx('relative z-50 flex min-h-screen flex-col overflow-visible border-r shadow-sm transition-colors', themeClasses.sidebar)}>
         <div
           className={cx(
-            'flex h-16 w-full items-center rounded-tr-lg',
-            isSidebarOpen ? 'gap-3 px-5 text-left' : 'justify-center px-0',
+            'flex h-16 w-full items-center',
+            isSidebarOpen ? 'gap-3 px-4 text-left' : 'justify-center px-0',
           )}
         >
           <span
             className={cx(
-              'group relative flex h-10 w-10 shrink-0 items-center justify-center border font-black',
+              'group relative flex h-10 w-10 shrink-0 items-center justify-center font-black',
               isSidebarOpen ? 'cursor-pointer' : undefined,
               themeClasses.radius.icon,
               themeClasses.brandTile,
@@ -174,8 +174,8 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : null}
         </div>
 
-        <nav className={isSidebarOpen ? 'flex-1 px-4 py-5' : 'flex-1 px-3 py-5'} aria-label={strings.sidebarDomains}>
-          <div className="grid gap-2">
+        <nav className={isSidebarOpen ? 'flex-1 px-3 pb-5 pt-10' : 'flex-1 px-3 py-5'} aria-label={strings.sidebarDomains}>
+          <div className="grid gap-3">
             {learningCatalog.domains.map((domain) => {
               const text = getDomainText(language, domain);
               const isActive = routeDomainId === domain.id;
@@ -186,7 +186,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   onClick={() => openDomain(domain.id)}
                   className={cx(
                     'flex h-11 w-full items-center text-left text-sm',
-                    isSidebarOpen ? 'gap-3 px-2' : 'justify-center px-0',
+                    isSidebarOpen ? 'gap-2 px-2' : 'justify-center px-0',
                     themeClasses.radius.button,
                     themeClasses.button.nav(isActive),
                   )}
@@ -207,22 +207,23 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           </div>
         </nav>
 
-        <div className={isSidebarOpen ? 'px-4 pb-5' : 'px-3 pb-5'}>
+        <div className={isSidebarOpen ? 'px-3 pb-5' : 'px-3 pb-5'}>
           <button
             type="button"
             onClick={onBackToLanding}
             className={cx(
               'flex h-11 w-full items-center text-sm',
-              isSidebarOpen ? 'gap-3 px-2 text-left' : 'justify-center px-0',
+              isSidebarOpen ? 'gap-2 px-2 text-left' : 'justify-center px-0',
               themeClasses.radius.button,
-              themeClasses.button.nav(false),
+              themeClasses.button.ghost,
+              themeClasses.backLink,
               themeClasses.isLight ? 'hover:bg-[#CAD6E5]/75 hover:text-[#205089]' : 'hover:bg-[#205089]/40 hover:text-[#EBEFF4]',
             )}
             title={strings.backToLanding}
             aria-label={strings.backToLanding}
           >
-            <ArrowLeftToLine className="h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            {isSidebarOpen ? <span className="min-w-0 truncate">{strings.backToLanding}</span> : null}
+            <ArrowLeftToLine className="h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            {isSidebarOpen ? <span className="min-w-0 truncate text-xs">{strings.backToLanding}</span> : null}
           </button>
         </div>
       </aside>
@@ -234,7 +235,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           onModeChange={setMode}
           onToggleTheme={() => setTheme((value) => (value === 'dark' ? 'light' : 'dark'))}
         />
-        <section className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-5">
+        <section className={cx('learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4', themeClasses.content)}>
           {mode === 'review' ? (
             <ReviewMode
               catalog={learningCatalog}
@@ -245,22 +246,19 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : !routeDomainId ? (
             <DomainCatalog catalog={learningCatalog} language={language} theme={theme} onOpenDomain={openDomain} />
           ) : activeDomain && !activeTrack ? (
-            <section className="grid gap-5">
-              <div className={cx('border p-6 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
-                <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-                  {getDomainText(language, activeDomain).title}
-                </div>
-                <h1 className={cx('mt-2 text-3xl font-black leading-tight', themeClasses.titleText)}>
+            <section className="learning-lab-catalog grid gap-5 px-2">
+              <div>
+                <h1 className={cx('text-3xl font-black leading-tight', themeClasses.titleText)}>
                   {getDomainText(language, activeDomain).title}
                 </h1>
-                <p className={cx('mt-3 max-w-3xl text-sm leading-6', themeClasses.bodyText)}>
+                <p className={cx('mt-2 max-w-3xl text-sm leading-6', themeClasses.bodyText)}>
                   {getDomainText(language, activeDomain).description}
                 </p>
               </div>
               <TrackList tracks={activeTracks} language={language} theme={theme} onOpenTrack={openTrack} />
             </section>
           ) : activeTrack && selectedLesson ? (
-            <section className="grid min-h-0 w-full gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <section className="learning-lab-catalog grid min-h-0 w-full gap-5 px-2 lg:grid-cols-[320px_minmax(0,1fr)]">
               <aside className="grid max-h-full gap-3 overflow-auto pr-1">
                 <div className={cx('border p-4 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
                   <div className={cx('text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
