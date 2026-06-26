@@ -8,7 +8,8 @@ export function cx(...classes: Array<string | false | null | undefined>): string
 
 export function getLearningLabTheme(theme: LearningLabTheme) {
   const isLight = theme === 'light';
-  const focusRing = 'focus:outline-none focus:ring-2 focus:ring-sky-300';
+  const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#517FCB]/30';
+
   const radius = {
     icon: 'rounded-lg',
     button: 'rounded-lg',
@@ -18,52 +19,54 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     sidebarEdge: 'rounded-r-lg',
     headerEdge: 'rounded-b-lg',
   };
+
   const surface = {
     card: isLight
-      ? 'border-sky-100 bg-white text-slate-950 shadow-sky-100/70'
-      : 'border-slate-800 bg-slate-900 text-slate-100 shadow-black/30',
+      ? 'border-[#205089]/14 bg-[#DCE6F1] text-[#030509] shadow-[0_8px_18px_rgba(32,80,137,0.07)]'
+      : 'border-[#A8B8C8]/20 bg-[#172232] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
     interactiveCard: isLight
-      ? 'border-sky-100 bg-gradient-to-br from-white to-[#f6fbff] text-slate-950 shadow-sky-100/70 hover:border-sky-300'
-      : 'border-slate-800 bg-gradient-to-br from-slate-900 to-[#101827] text-slate-100 shadow-black/30 hover:border-sky-500/70',
+      ? 'border-[#205089]/14 bg-gradient-to-br from-[#E3EAF2] to-[#B8C8DA]/58 text-[#030509] shadow-[0_8px_18px_rgba(32,80,137,0.07)] hover:border-[#205089]/30 hover:from-[#DCE6F1] hover:to-[#B8C8DA]/70'
+      : 'border-[#A8B8C8]/20 bg-gradient-to-br from-[#172232] to-[#223247] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:border-[#A8B8C8]/42 hover:from-[#1E2D3F] hover:to-[#2A3B52]',
     unavailable: isLight
-      ? 'border-slate-200 bg-slate-50 text-slate-500'
-      : 'border-slate-700 bg-slate-800 text-slate-400',
+      ? 'border-[#205089]/10 bg-[#B8C8DA]/42 text-[#030509]/58'
+      : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/10 text-[#F2F6FA]/62',
   };
+
   const button = {
     primary: cx(
-      'font-black shadow-sm transition-colors',
+      'font-black shadow-[0_8px_24px_rgba(32,80,137,0.24)] transition-colors',
       focusRing,
       isLight
-        ? 'bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-300'
-        : 'bg-sky-500 text-slate-950 hover:bg-sky-400 focus:ring-sky-300',
+        ? 'bg-[#205089]/95 text-[#EBEFF4] hover:bg-[#205089]'
+        : 'bg-[#496F98] text-[#F2F6FA] hover:bg-[#5A7FA8]',
     ),
     secondary: cx(
-      'border font-black shadow-sm transition-colors',
+      'border font-black shadow-[0_8px_24px_rgba(32,80,137,0.12)] transition-colors',
       focusRing,
       isLight
-        ? 'border-sky-100 bg-white text-slate-700 hover:bg-sky-50 hover:text-sky-700'
-        : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white',
+        ? 'border-[#205089]/16 bg-[#B8C8DA]/58 text-[#030509] hover:border-[#205089]/28 hover:bg-[#DCE6F1]'
+        : 'border-[#A8B8C8]/20 bg-[#A8B8C8]/10 text-[#F2F6FA]/84 hover:border-[#A8B8C8]/40 hover:bg-[#496F98]/28 hover:text-[#F2F6FA]',
     ),
     ghost: cx(
       'font-black transition-colors',
       focusRing,
       isLight
-        ? 'text-slate-500 hover:bg-sky-50 hover:text-sky-700'
-        : 'text-slate-400 hover:bg-slate-800 hover:text-white',
+        ? 'text-[#030509]/68 hover:bg-[#B8C8DA]/48 hover:text-[#205089]'
+        : 'text-[#F2F6FA]/70 hover:bg-[#A8B8C8]/14 hover:text-[#F2F6FA]',
     ),
     icon: cx(
-      'border shadow-sm transition-colors',
+      'border shadow-[0_8px_24px_rgba(32,80,137,0.10)] transition-colors',
       focusRing,
       isLight
-        ? 'border-sky-100 bg-white text-slate-700 hover:bg-sky-50 hover:text-sky-700'
-        : 'border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white',
+        ? 'border-[#205089]/14 bg-[#DCE6F1] text-[#030509]/76 hover:border-[#205089]/28 hover:bg-[#B8C8DA]/50 hover:text-[#205089]'
+        : 'border-[#A8B8C8]/20 bg-[#172232] text-[#F2F6FA]/80 hover:border-[#A8B8C8]/42 hover:bg-[#496F98]/26 hover:text-[#F2F6FA]',
     ),
     nav: (isActive: boolean) => cx(
       'font-black transition-colors',
       focusRing,
       isActive
-        ? isLight ? 'bg-sky-50 text-sky-700' : 'bg-slate-800/90 text-sky-200'
-        : isLight ? 'text-slate-600 hover:bg-sky-50 hover:text-sky-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white',
+        ? isLight ? 'bg-[#B8C8DA]/70 text-[#123B68]' : 'bg-[#496F98]/42 text-[#F2F6FA]'
+        : isLight ? 'text-[#030509]/72 hover:bg-[#9FB4CA]/70 hover:text-[#123B68]' : 'text-[#F2F6FA]/78 hover:bg-[#A8B8C8]/18 hover:text-[#F2F6FA]',
     ),
     card: cx(
       'border text-left shadow-sm transition-transform duration-150 hover:-translate-y-0.5',
@@ -74,8 +77,8 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
       'font-black transition-colors',
       focusRing,
       isActive
-        ? isLight ? 'bg-white text-sky-700 shadow-sm' : 'bg-slate-700 text-sky-100 shadow-sm'
-        : isLight ? 'text-slate-500 hover:text-sky-700' : 'text-slate-400 hover:text-sky-200',
+        ? isLight ? 'bg-[#DCE6F1] text-[#123B68] shadow-[0_8px_18px_rgba(32,80,137,0.07)]' : 'bg-[#496F98]/76 text-[#F2F6FA] shadow-[0_8px_16px_rgba(0,0,0,0.14)]'
+        : isLight ? 'text-[#030509]/62 hover:text-[#123B68]' : 'text-[#F2F6FA]/66 hover:text-[#F2F6FA]',
     ),
   };
 
@@ -84,59 +87,59 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     radius,
     surface,
     button,
-    page: isLight ? 'learning-lab-light bg-[#f6fbff] text-slate-950' : 'bg-[#050b16] text-slate-100',
+    page: isLight ? 'learning-lab-light bg-[#D3DEEA] text-[#030509]' : 'bg-[#121A24] text-[#F2F6FA]',
     sidebar: isLight
-      ? 'border-sky-100 bg-gradient-to-b from-white via-[#f6fbff] to-[#eef6ff] text-slate-950 shadow-sky-100/70'
-      : 'border-slate-800 bg-gradient-to-b from-[#101827] via-[#0b1220] to-[#050b16] text-slate-100 shadow-black/30',
-    sidebarHover: isLight ? 'hover:bg-sky-50' : 'hover:bg-slate-800/80',
+      ? 'border-[#205089]/14 bg-gradient-to-b from-[#DCE6F1] via-[#D3DEEA] to-[#B8C8DA] text-[#030509] shadow-[0_12px_28px_rgba(32,80,137,0.07)]'
+      : 'border-[#A8B8C8]/18 bg-gradient-to-b from-[#223247] via-[#172232] to-[#121A24] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
+    sidebarHover: isLight ? 'hover:bg-[#B8C8DA]/55' : 'hover:bg-[#A8B8C8]/16',
     brandTile: isLight
-      ? 'border-sky-100 bg-[#eef6ff] text-sky-700'
-      : 'border-slate-700 bg-slate-950 text-sky-300',
-    accentText: isLight ? 'text-sky-600' : 'text-sky-300',
-    mutedText: isLight ? 'text-slate-500' : 'text-slate-400',
-    bodyText: isLight ? 'text-slate-600' : 'text-slate-300',
-    titleText: isLight ? 'text-slate-950' : 'text-white',
-    eyebrowText: isLight ? 'text-sky-700' : 'text-sky-300',
+      ? 'border-[#205089]/16 bg-[#B8C8DA]/70 text-[#123B68]'
+      : 'border-[#A8B8C8]/24 bg-[#172232] text-[#A8B8C8]',
+    accentText: isLight ? 'text-[#123B68]' : 'text-[#A8B8C8]',
+    mutedText: isLight ? 'text-[#030509]/56' : 'text-[#F2F6FA]/60',
+    bodyText: isLight ? 'text-[#030509]/72' : 'text-[#F2F6FA]/78',
+    titleText: isLight ? 'text-[#030509]' : 'text-white',
+    eyebrowText: isLight ? 'text-[#123B68]' : 'text-[#A8B8C8]',
     card: surface.card,
     interactiveCard: surface.interactiveCard,
-    iconTile: isLight ? 'bg-[#eef6ff] text-sky-700' : 'bg-slate-800 text-sky-200',
+    iconTile: isLight ? 'bg-[#B8C8DA]/70 text-[#123B68]' : 'bg-[#496F98]/32 text-[#F2F6FA]',
     focusRing,
     primaryAction: button.primary,
     unavailable: surface.unavailable,
     header: isLight
-      ? 'border-sky-100 bg-white/95 text-slate-950 shadow-sky-100/70'
-      : 'border-slate-800 bg-[#0f172a] text-slate-100 shadow-black/20',
-    searchBox: isLight ? 'bg-[#eef6ff] text-slate-500' : 'bg-slate-900 text-slate-400',
-    segmented: isLight ? 'border-sky-100 bg-[#eef6ff]' : 'border-slate-800 bg-slate-900',
+      ? 'border-[#205089]/14 bg-[#DCE6F1]/95 text-[#030509] shadow-[0_8px_18px_rgba(32,80,137,0.07)]'
+      : 'border-[#A8B8C8]/18 bg-[#172232]/96 text-[#F2F6FA] shadow-[0_10px_20px_rgba(0,0,0,0.14)]',
+    searchBox: isLight ? 'border-[#205089]/16 bg-[#B8C8DA]/48 text-[#030509]/60' : 'border-[#A8B8C8]/28 bg-[#121A24] text-[#F2F6FA]/72',
+    segmented: isLight ? 'border-[#205089]/14 bg-[#B8C8DA]/45' : 'border-[#A8B8C8]/22 bg-[#121A24]',
     segmentActive: button.segmented(true),
     segmentIdle: button.segmented(false),
     iconButton: button.icon,
     plainIconButton: button.ghost,
     navItem: button.nav,
     statusPill: (isPlaceholder: boolean) => isPlaceholder
-      ? isLight ? 'bg-slate-100 text-slate-500' : 'bg-slate-800 text-slate-400'
-      : isLight ? 'bg-sky-100 text-sky-700' : 'bg-sky-500/15 text-sky-200',
+      ? isLight ? 'bg-[#B8C8DA]/52 text-[#030509]/58' : 'bg-[#A8B8C8]/10 text-[#F2F6FA]/60'
+      : isLight ? 'bg-[#205089]/12 text-[#123B68]' : 'bg-[#496F98]/22 text-[#F2F6FA]',
     lessonCard: (isSelected: boolean) => isSelected
       ? isLight
-        ? 'border-sky-300 bg-sky-50 shadow-sky-100/80'
-        : 'border-sky-500/70 bg-slate-800 shadow-black/30'
+        ? 'border-[#205089]/38 bg-[#B8C8DA]/72 shadow-[0_8px_18px_rgba(32,80,137,0.10)]'
+        : 'border-[#A8B8C8]/40 bg-[#496F98]/24 shadow-[0_10px_24px_rgba(0,0,0,0.18)]'
       : isLight
-        ? 'border-sky-100 bg-white hover:border-sky-200 hover:bg-sky-50/60'
-        : 'border-slate-800 bg-slate-900 hover:border-slate-700 hover:bg-slate-800/80',
+        ? 'border-[#205089]/14 bg-[#DCE6F1] hover:border-[#205089]/28 hover:bg-[#B8C8DA]/48'
+        : 'border-[#A8B8C8]/18 bg-[#172232] hover:border-[#A8B8C8]/38 hover:bg-[#223247]',
     lessonStatus: (status: LearningLessonStatus) => {
       if (status === 'available') {
         return isLight
-          ? 'border-sky-200 bg-sky-50 text-sky-700'
-          : 'border-sky-500/40 bg-sky-500/15 text-sky-200';
+          ? 'border-[#205089]/24 bg-[#205089]/12 text-[#123B68]'
+          : 'border-[#A8B8C8]/32 bg-[#496F98]/18 text-[#F2F6FA]';
       }
       if (status === 'next') {
         return isLight
-          ? 'border-violet-200 bg-violet-50 text-violet-700'
-          : 'border-violet-500/40 bg-violet-500/15 text-violet-200';
+          ? 'border-[#205089]/22 bg-[#B8C8DA]/58 text-[#123B68]'
+          : 'border-[#A8B8C8]/28 bg-[#496F98]/16 text-[#F2F6FA]';
       }
       return isLight
-        ? 'border-slate-200 bg-slate-50 text-slate-500'
-        : 'border-slate-700 bg-slate-800 text-slate-400';
+        ? 'border-[#205089]/12 bg-[#B8C8DA]/42 text-[#030509]/58'
+        : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/58';
     },
   };
 }

@@ -1,5 +1,4 @@
-import { ArrowRight } from 'lucide-react';
-
+import { ArrowRight, BookOpen, Bot, Eye, MessageSquareText, Route } from 'lucide-react';
 import type { LearningCatalog, LearningDomainId } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getDomainText } from '../learningText';
@@ -31,7 +30,7 @@ export default function DomainCatalog({ catalog, language, theme, onOpenDomain }
       </div>
 
       <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-        {catalog.domains.map((domain, index) => {
+        {catalog.domains.map((domain) => {
           const text = getDomainText(language, domain);
           const isPlaceholder = domain.status === 'placeholder';
 
@@ -48,7 +47,11 @@ export default function DomainCatalog({ catalog, language, theme, onOpenDomain }
             >
               <div className="flex items-start gap-3">
                 <div className={cx('flex h-12 w-12 shrink-0 items-center justify-center text-xl font-black', themeClasses.radius.icon, themeClasses.iconTile)}>
-                  {index + 1}
+                  {domain.id === 'fundamentals' ? <BookOpen className="h-6 w-6" strokeWidth={1.8} /> : null}
+                  {domain.id === 'cv' ? <Eye className="h-6 w-6" strokeWidth={1.8} /> : null}
+                  {domain.id === 'nlp' ? <MessageSquareText className="h-6 w-6" strokeWidth={1.8} /> : null}
+                  {domain.id === 'reinforcement-learning' ? <Route className="h-6 w-6" strokeWidth={1.8} /> : null}
+                  {domain.id === 'robot-learning' ? <Bot className="h-6 w-6" strokeWidth={1.8} /> : null}
                 </div>
                 <div className="min-w-0">
                   <div className="mb-3 flex flex-wrap gap-2">

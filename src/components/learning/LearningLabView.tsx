@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeftToLine, PanelLeft } from 'lucide-react';
+import { ArrowLeftToLine, BookOpen, Bot, Eye, MessageSquareText, PanelLeft, Route } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-
 import { learningCatalog } from '../../core/learning/content';
 import {
   getLearningDomain,
@@ -28,6 +27,7 @@ type LearningLabViewProps = {
 };
 
 const DOMAIN_IDS = new Set<LearningDomainId>(learningCatalog.domains.map((domain) => domain.id));
+const futureHmiLogoUrl = new URL('../../../docs/assets/Future-HMIip.webp', import.meta.url).href;
 
 function isLearningDomainId(value: string | undefined): value is LearningDomainId {
   return Boolean(value && DOMAIN_IDS.has(value as LearningDomainId));
@@ -37,14 +37,17 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const navigate = useNavigate();
   const { domainId, trackId } = useParams();
   const [searchParams] = useSearchParams();
+
   const routeDomainId = isLearningDomainId(domainId) ? domainId : null;
   const routeLessonId = searchParams.get('lesson');
   const routePracticeId = searchParams.get('practice');
+
   const language = useStore((s) => s.language);
   const [mode, setMode] = useState<LearningLabMode>('path');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedLessonId, setSelectedLessonId] = useState('');
+
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
 
@@ -86,6 +89,11 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     navigate(`/learning/${track.domainId}/${track.id}`);
   };
 
+  const openLearningHome = () => {
+    setMode('path');
+    navigate('/learning');
+  };
+
   return (
     <main
       className={`learning-lab grid min-h-screen w-full overflow-hidden transition-[grid-template-columns] duration-300 ${
@@ -99,10 +107,26 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             isSidebarOpen ? 'gap-3 px-5 text-left' : 'justify-center px-0',
           )}
         >
-          <span className={cx('group relative flex h-10 w-10 shrink-0 items-center justify-center border font-black', themeClasses.radius.icon, themeClasses.brandTile)}>
-            <span className={!isSidebarOpen ? 'transition-opacity group-hover:opacity-0 group-focus-within:opacity-0' : undefined}>
-              TV
-            </span>
+          <span
+            className={cx(
+              'group relative flex h-10 w-10 shrink-0 items-center justify-center border font-black',
+              isSidebarOpen ? 'cursor-pointer' : undefined,
+              themeClasses.radius.icon,
+              themeClasses.brandTile,
+            )}
+            onClick={isSidebarOpen ? openLearningHome : undefined}
+            title={isSidebarOpen ? strings.domainCatalogTitle : undefined}
+            aria-label={isSidebarOpen ? strings.domainCatalogTitle : undefined}
+          >
+            <img
+              src={futureHmiLogoUrl}
+              alt="TorchViz3D"
+              className={cx(
+                'h-8 w-8 object-cover',
+                themeClasses.radius.icon,
+                !isSidebarOpen ? 'transition-opacity group-hover:opacity-0 group-focus-within:opacity-0' : undefined,
+              )}
+            />
             {!isSidebarOpen ? (
               <button
                 type="button"
@@ -122,14 +146,20 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           </span>
           {isSidebarOpen ? (
             <>
-              <span className="min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={openLearningHome}
+                className={cx('min-w-0 flex-1 text-left', themeClasses.focusRing)}
+                title={strings.domainCatalogTitle}
+                aria-label={strings.domainCatalogTitle}
+              >
                 <span className="block truncate text-xl font-black leading-6">
                   TorchViz<span className={themeClasses.accentText}>3D</span>
                 </span>
                 <span className={cx('block truncate text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
                   {strings.searchLabel}
                 </span>
-              </span>
+              </button>
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
@@ -145,17 +175,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
         </div>
 
         <nav className={isSidebarOpen ? 'flex-1 px-4 py-5' : 'flex-1 px-3 py-5'} aria-label={strings.sidebarDomains}>
-          {isSidebarOpen ? (
-            <div className={cx('mb-3 px-1 text-xs font-black uppercase tracking-wide', themeClasses.mutedText)}>
-              {strings.sidebarDomains}
-            </div>
-          ) : null}
-
           <div className="grid gap-2">
-            {learningCatalog.domains.map((domain, index) => {
+            {learningCatalog.domains.map((domain) => {
               const text = getDomainText(language, domain);
               const isActive = routeDomainId === domain.id;
-
               return (
                 <button
                   key={domain.id}
@@ -171,7 +194,11 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   aria-current={isActive ? 'page' : undefined}
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center text-sm" aria-hidden="true">
-                    {index + 1}
+                    {domain.id === 'fundamentals' ? <BookOpen className="h-5 w-5" strokeWidth={1.8} /> : null}
+                    {domain.id === 'cv' ? <Eye className="h-5 w-5" strokeWidth={1.8} /> : null}
+                    {domain.id === 'nlp' ? <MessageSquareText className="h-5 w-5" strokeWidth={1.8} /> : null}
+                    {domain.id === 'reinforcement-learning' ? <Route className="h-5 w-5" strokeWidth={1.8} /> : null}
+                    {domain.id === 'robot-learning' ? <Bot className="h-5 w-5" strokeWidth={1.8} /> : null}
                   </span>
                   {isSidebarOpen ? <span className="min-w-0 truncate">{text.title}</span> : null}
                 </button>
@@ -189,6 +216,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               isSidebarOpen ? 'gap-3 px-2 text-left' : 'justify-center px-0',
               themeClasses.radius.button,
               themeClasses.button.nav(false),
+              themeClasses.isLight ? 'hover:bg-[#CAD6E5]/75 hover:text-[#205089]' : 'hover:bg-[#205089]/40 hover:text-[#EBEFF4]',
             )}
             title={strings.backToLanding}
             aria-label={strings.backToLanding}
@@ -206,7 +234,6 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           onModeChange={setMode}
           onToggleTheme={() => setTheme((value) => (value === 'dark' ? 'light' : 'dark'))}
         />
-
         <section className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-5">
           {mode === 'review' ? (
             <ReviewMode
