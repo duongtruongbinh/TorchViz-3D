@@ -8,7 +8,7 @@ export type LearningDomainId =
 export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';
 export type LearningTrackStatus = 'available' | 'placeholder';
 export type LearningLessonStatus = 'available' | 'next' | 'locked';
-export type LearningPracticeApprovalStatus = 'approved' | 'unavailable';
+export type LearningPracticeApprovalStatus = 'approved' | 'unapproved' | 'unavailable';
 
 export type LearningPracticeApproval = {
   status: LearningPracticeApprovalStatus;
