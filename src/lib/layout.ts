@@ -1,7 +1,7 @@
-import { IRGraph, IRNode, IREdge, LayoutData, LayoutNode, LayoutEdge } from './irTypes';
-import { getCollapsedContainerColor, getExpandedContainerColor, getExpandedContainerOpacity, ERROR_COLOR } from './constants';
-import { getVisualMeta } from './visualKind';
-import { getLayoutWorldBounds, getRenderableNodeBox } from './renderBounds';
+import type { IRGraph, IRNode, IREdge, LayoutData, LayoutNode, LayoutEdge } from './irTypes.ts';
+import { getCollapsedContainerColor, getExpandedContainerColor, getExpandedContainerOpacity, ERROR_COLOR } from './constants.ts';
+import { getVisualMeta } from './visualKind.ts';
+import { getLayoutWorldBounds, getRenderableNodeBox } from './renderBounds.ts';
 
 const BASE_PADDING = 3.0;
 const NODE_GAP = 2.5;

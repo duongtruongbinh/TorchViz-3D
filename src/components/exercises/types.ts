@@ -1,4 +1,4 @@
-import type { ExerciseId } from '../../core/types';
+import type { TensorExerciseId as ExerciseId } from '../../core/learning/types';
 import type { LayoutNode } from '../../lib/irTypes';
 
 export type { ExerciseId };

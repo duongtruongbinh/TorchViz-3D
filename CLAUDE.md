@@ -22,6 +22,11 @@ a `# Lineage` section. See [docs/WORKFLOW.md](docs/WORKFLOW.md) for the template
 
 Trivial fixes (typos, one-line doc edits) are exempt. When in doubt, write the plan.
 
+### Branch constraints
+Before making any commits or pushing code, you **MUST** ensure you are not on the main/base branch. You must check out a separate feature branch.
+- **Branch Naming:** The branch name must follow the pattern `feat/`, `fix/`, or `refactor/` (e.g. `feat/some-feature`).
+- **Commit & Push Restriction:** Direct commits and pushes to the main/base branch are strictly prohibited. Always create a branch first.
+
 ## What this project is
 
 TorchViz-3D renders PyTorch `nn.Module` source as interactive 3D isometric block

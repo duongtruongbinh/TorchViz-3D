@@ -43,3 +43,16 @@ no `type` frontmatter required.)
   reference-only cards to inline exercises with answer checking, reset, and
   hints. Practice cards reuse existing shape/value model builders through a
   shared exercise adapter, keeping Learning Path content metadata-only.
+- **2026-06-26 — Learning Lab domain refactor.** Merged Reinforcement Learning
+  into Learning Lab as a domain, replaced the sibling RL surface route with
+  Learning Lab domain routes, and documented the shared domain catalog/practice
+  renderer boundary.
+- **2026-06-26 — Desloppify cleanup batch.** Removed unused scaffold files
+  (`answerCheck.ts`, `uiStore.ts`, and `LearningDrawer.tsx`), added worker
+  timeout recovery, tightened input-shape validation, and enabled unused-symbol
+  TypeScript checks.
+- **2026-06-26 — Complete Desloppify backlog.** Finished the remaining
+  cleanup backlog by self-hosting Tailwind, Pyodide, Monaco, and text font
+  assets; moving Learning Lab display metadata through catalog/localization
+  adapters; sharing Learning Lab theme tokens and exercise modal lifecycle;
+  adding route smoke coverage; and documenting the root entrypoint convention.

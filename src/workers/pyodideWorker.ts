@@ -1,6 +1,6 @@
 
-import { PY_INIT, PY_NN_INIT, PY_OPS, PY_RECORDER, PY_TENSOR } from '../lib/python_sources';
-import { countPythonPreambleLines } from '../lib/workerLineMapping';
+import { PY_INIT, PY_NN_INIT, PY_OPS, PY_RECORDER, PY_TENSOR } from '../lib/python_sources.ts';
+import { countPythonPreambleLines } from '../lib/workerLineMapping.ts';
 
 const USER_CODE_PREAMBLE = `import torchstub
 import torchstub.nn as nn
@@ -21,44 +21,24 @@ export function createWorker(): Worker {
     PY_RECORDER,
     PY_TENSOR
   };
+  const pyodideBaseUrl = new URL('/pyodide/', window.location.origin).toString();
 
   const workerCode = `
-    // Pyodide loading logic with fallback
-    let pyodideIndexUrl = "";
-    const cdnSources = [
-      { 
-        script: "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js", 
-        index: "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/" 
-      },
-      { 
-        script: "https://unpkg.com/pyodide@0.25.1/pyodide.js", 
-        index: "https://unpkg.com/pyodide@0.25.1/" 
-      },
-      {
-        script: "https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js", 
-        index: "https://pyodide-cdn2.iodide.io/v0.15.0/full/" 
-      }
-    ];
-
+    const pyodideIndexUrl = ${JSON.stringify(pyodideBaseUrl)};
     let loaded = false;
     let loadError = null;
 
-    // Try to load Pyodide from available CDNs
     async function loadPyodideScript() {
-      for (const src of cdnSources) {
-        try {
-          // In a worker, we must use importScripts
-          importScripts(src.script);
-          // Check if it loaded by looking for the global loadPyodide function
-          if (typeof loadPyodide !== 'undefined') {
-            pyodideIndexUrl = src.index;
-            loaded = true;
-            return;
-          }
-        } catch (e) {
-          console.warn("Failed to load Pyodide from " + src.script, e);
-          loadError = e;
+      try {
+        importScripts(pyodideIndexUrl + "pyodide.js");
+        if (typeof loadPyodide !== 'undefined') {
+          loaded = true;
+          return;
         }
+        throw new Error("loadPyodide global is missing after loading local runtime.");
+      } catch (e) {
+        console.warn("Failed to load local Pyodide from " + pyodideIndexUrl, e);
+        loadError = e;
       }
     }
 
@@ -72,7 +52,7 @@ export function createWorker(): Worker {
 
     async function setupPyodide() {
       if (!loaded) {
-         throw new Error("Could not load Pyodide from any CDN. Please check your internet connection or firewall.");
+         throw new Error("Could not load local Pyodide runtime from " + pyodideIndexUrl + ". " + (loadError?.message || ""));
       }
       
       if (pyodide) return pyodide;
@@ -95,7 +75,6 @@ export function createWorker(): Worker {
       // FIX: Add functional.py by aliasing ops, allowing 'import torchstub.nn.functional as F'
       pyodide.FS.writeFile('/home/pyodide/torchstub/nn/functional.py', 'from ..ops import *');
       
-      await pyodide.loadPackage(['micropip']);
       return pyodide;
     }
 

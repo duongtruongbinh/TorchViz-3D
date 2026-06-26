@@ -35,8 +35,8 @@ an intermediate graph, which a pure layout engine turns into 3D geometry.
 | Concepts | [layout-engine](concepts/layout-engine.md) | `computeLayout` — pure IR → 3D `LayoutData`. |
 | Concepts | [state-store](concepts/state-store.md) | The zustand store and built-in templates. |
 | Concepts | [rendering](concepts/rendering.md) | Canvas3D, the visual taxonomy, theme. |
-| Concepts | [learning-lab-refactor](concepts/learning-lab-refactor.md) | Active Landing/AppShell entry point plus Learning Lab Path/Review surface. |
-| Concepts | [reinforcement-learning](concepts/reinforcement-learning.md) | Separate Reinforcement Learning Path surface, 3D placeholder, and RL practice fixtures. |
+| Concepts | [learning-lab-refactor](concepts/learning-lab-refactor.md) | Active Landing/AppShell entry point plus domain-based Learning Lab. |
+| Concepts | [reinforcement-learning](concepts/reinforcement-learning.md) | Reinforcement Learning as a Learning Lab domain with RL practice fixtures. |
 | Concepts | [forward-pass](concepts/forward-pass.md) | The animated forward pass: stops, CIFAR-10 input, per-op effects, availability gate. |
 | Guides | [add-a-layer](guides/add-a-layer.md) | Playbook: add a new `torchstub` layer. |
 | Reference | [templates](reference/templates.md) | The 7 built-in models and their input shapes. |

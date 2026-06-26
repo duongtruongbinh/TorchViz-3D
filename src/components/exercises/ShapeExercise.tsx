@@ -17,6 +17,7 @@ import {
   type ShapeExerciseId,
   type ShapeExerciseModel,
 } from '../../lib/shapeExerciseModels';
+import { useExerciseModalLifecycle } from './useExerciseModalLifecycle';
 
 type ShapeExerciseProps = {
   isOpen: boolean;
@@ -110,10 +111,8 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
   const [hintPaused, setHintPaused] = useState(false);
   const [editableInputShape, setEditableInputShape] = useState<string[]>([]);
   const [editableConfig, setEditableConfig] = useState<EditableShapeConfig | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const hintRef = useRef<HTMLElement | null>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
-  const wasOpenRef = useRef(false);
+  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen, onClose });
 
   const configured = useMemo(
     () => (model
@@ -122,37 +121,6 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
     [editableConfig, editableInputShape, model],
   );
   const exerciseModel = configured.model;
-
-  useEffect(() => {
-    if (!isOpen) {
-      if (wasOpenRef.current) {
-        wasOpenRef.current = false;
-        const previousFocus = previousFocusRef.current;
-        if (previousFocus && document.contains(previousFocus)) previousFocus.focus();
-      }
-      return;
-    }
-
-    previousFocusRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
-    wasOpenRef.current = true;
-
-    const frameId = window.requestAnimationFrame(() => {
-      closeButtonRef.current?.focus();
-    });
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.preventDefault();
-      onClose();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen || !model) return;

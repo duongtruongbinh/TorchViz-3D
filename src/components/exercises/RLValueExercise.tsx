@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { checkRLNumericAnswer, type RLPracticeFixture } from './rlPracticeAdapter';
+import { checkRLNumericAnswer, type RLPracticeFixture } from '../learning/practice/adapters/reinforcementPracticeAdapter';
 import { ExerciseActions } from './RLShapeExercise';
 
 type RLValueExerciseProps = {

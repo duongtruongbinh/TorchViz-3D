@@ -2,7 +2,7 @@
 title: Pyodide Worker
 type: Subsystem
 source: src/workers/pyodideWorker.ts
-updated: 2026-06-21
+updated: 2026-06-26
 ---
 
 # Pyodide Worker
@@ -17,17 +17,17 @@ Source: `src/workers/pyodideWorker.ts`. Driven by
 
 ## Boot sequence (`setupPyodide`)
 
-1. **Load Pyodide from a CDN, with fallback.** `cdnSources` lists three CDNs
-   (jsDelivr → unpkg → iodide); `loadPyodideScript()` tries each via
-   `importScripts` until `loadPyodide` is defined. The chosen `indexURL` is
-   passed to `loadPyodide` so it can find the `.wasm` files.
+1. **Load Pyodide from local app assets.** Vite serves and copies the pinned
+   `pyodide` npm package files under `/pyodide/`; the worker loads
+   `/pyodide/pyodide.js` via `importScripts` and passes `/pyodide/` as
+   `indexURL` so Pyodide can find the `.wasm` and stdlib assets.
 2. **Write the `torchstub` package** into the virtual FS:
    `torchstub/__init__.py`, `tensor.py`, `ops.py`, `recorder.py`,
    `nn/__init__.py`, and `nn/functional.py` (= `from ..ops import *`).
-3. **`loadPackage(['micropip'])`** and cache the `pyodide` instance.
+3. Cache the `pyodide` instance for future runs.
 
-If no CDN loads, `setupPyodide` throws a clear "could not load Pyodide" error
-that surfaces as a critical error in the UI.
+If local runtime assets are missing, `setupPyodide` throws a clear "could not
+load local Pyodide runtime" error that surfaces as a critical error in the UI.
 
 ## Per-run sequence (`self.onmessage`)
 
@@ -104,4 +104,4 @@ responses (see [ir-contract](../concepts/ir-contract.md) and
 
 - [torchstub](../concepts/torchstub.md) — the package this worker writes and runs.
 - [ir-contract](../concepts/ir-contract.md) — the JSON the worker emits.
-- [reference/gotchas](../reference/gotchas.md) — CDN dependence, line offset.
+- [reference/gotchas](../reference/gotchas.md) — local Pyodide assets, line offset.

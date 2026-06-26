@@ -2,6 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "module": "ESNext",
@@ -27,5 +29,10 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "dist",
+    "node_modules",
+    ".playwright-cli"
+  ]
 }

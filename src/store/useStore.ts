@@ -1,20 +1,22 @@
 import { create } from 'zustand';
 import {
-    IRGraph,
-    LayoutData,
     collectCollapsibleContainerIds,
     initCollapsedIds,
-} from '../lib/irTypes';
-import { computeLayout } from '../lib/layout';
-import lenetCode from '../templates/lenet5';
-import resnetCode from '../templates/mini_resnet';
-import vitCode from '../templates/mini_vit';
-import alexnetCode from '../templates/alexnet';
-import vgg16Code from '../templates/vgg16';
-import mobilenetV2Code from '../templates/mobilenet_v2';
-import unetCode from '../templates/unet';
-import type { Language } from '../lib/localization';
-import type { AppError } from '../lib/appError';
+} from '../lib/irTypes.ts';
+import type {
+    IRGraph,
+    LayoutData,
+} from '../lib/irTypes.ts';
+import { computeLayout } from '../lib/layout.ts';
+import lenetCode from '../templates/lenet5.ts';
+import resnetCode from '../templates/mini_resnet.ts';
+import vitCode from '../templates/mini_vit.ts';
+import alexnetCode from '../templates/alexnet.ts';
+import vgg16Code from '../templates/vgg16.ts';
+import mobilenetV2Code from '../templates/mobilenet_v2.ts';
+import unetCode from '../templates/unet.ts';
+import type { Language } from '../lib/localization.ts';
+import type { AppError } from '../lib/appError.ts';
 
 export const TEMPLATES: Record<string, { name: string; code: string; shape: number[] }> = {
     lenet: { name: 'LeNet-5', code: lenetCode, shape: [1, 1, 32, 32] },

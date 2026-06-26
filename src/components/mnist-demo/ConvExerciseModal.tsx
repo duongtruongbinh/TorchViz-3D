@@ -1,6 +1,7 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { getStrings } from '../../lib/localization';
+import { useExerciseModalLifecycle } from '../exercises/useExerciseModalLifecycle';
 
 type DemoLabels = ReturnType<typeof getStrings>['canvas']['demo'];
 type CellStatus = 'idle' | 'correct' | 'wrong';
@@ -544,9 +545,7 @@ export const ConvExerciseModal: React.FC<{
   onClose: () => void;
 }> = ({ isOpen, t, onClose }) => {
   const titleId = useId();
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
-  const wasOpenRef = useRef(false);
+  const { closeButtonRef } = useExerciseModalLifecycle({ isOpen, onClose });
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [kernelValues, setKernelValues] = useState(() => stringifyKernel(EXERCISES.easy.kernel));
   const [values, setValues] = useState<Record<string, string>>({});
@@ -568,37 +567,6 @@ export const ConvExerciseModal: React.FC<{
   const hintProductRows = useMemo(() => (
     hintCell ? getHintProductRows(config.input, numericKernel, hintCell) : []
   ), [config.input, hintCell, numericKernel]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      if (wasOpenRef.current) {
-        wasOpenRef.current = false;
-        const previousFocus = previousFocusRef.current;
-        if (previousFocus && document.contains(previousFocus)) previousFocus.focus();
-      }
-      return;
-    }
-
-    previousFocusRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
-    wasOpenRef.current = true;
-
-    const frameId = window.requestAnimationFrame(() => {
-      closeButtonRef.current?.focus();
-    });
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.preventDefault();
-      onClose();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
 
   useEffect(() => {
     setKernelValues(stringifyKernel(EXERCISES[difficulty].kernel));

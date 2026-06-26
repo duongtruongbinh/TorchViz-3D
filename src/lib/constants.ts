@@ -1,13 +1,22 @@
 /** Centralized theme, layers, fonts, sizes, and rendering orders. */
 
-// --- Fonts & Text styling ---
-export const FONT_URL = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff';
+import { configureTextBuilder } from 'troika-three-text';
 
-export const TEXT_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};\':",./<>? ×áàảãạăắằẳẵặâấầẩẫậđéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ';
+// --- Fonts & Text styling ---
+const ASSET_ORIGIN = typeof window === 'undefined' ? '' : window.location.origin;
+
+function appAssetUrl(path: string): string {
+  return `${ASSET_ORIGIN}${path}`;
+}
+
+export const FONT_URL = appAssetUrl('/fonts/inter-vietnamese-600-normal.woff');
+export const UNICODE_FONTS_URL = appAssetUrl('/unicode-fonts');
+
+configureTextBuilder({ unicodeFontsURL: UNICODE_FONTS_URL });
 
 export const TEXT_BASE_PROPS = {
   font: FONT_URL,
-  characters: TEXT_CHARS,
+  unicodeFontsURL: UNICODE_FONTS_URL,
   anchorX: 'center' as const,
   anchorY: 'middle' as const,
   outlineWidth: 0.02,

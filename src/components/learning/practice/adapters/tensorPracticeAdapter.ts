@@ -1,6 +1,6 @@
-import type { LearningPracticeRef } from '../../core/types';
-import type { LayoutNode } from '../../lib/irTypes';
-import { getExerciseById } from './exerciseRegistry';
+import type { TensorPracticeRef } from '../../../../core/learning/types';
+import type { LayoutNode } from '../../../../lib/irTypes';
+import { getExerciseById } from '../../../exercises/exerciseRegistry';
 
 type PracticeNodeSpec = {
   opType: string;
@@ -58,7 +58,7 @@ const PRACTICE_NODE_SPECS: Record<string, PracticeNodeSpec> = {
   },
 };
 
-export function createLearningPracticeNode(practice: LearningPracticeRef): LayoutNode | null {
+export function createTensorPracticeNode(practice: TensorPracticeRef): LayoutNode | null {
   const spec = PRACTICE_NODE_SPECS[practice.id];
   if (!spec) return null;
 
@@ -69,7 +69,7 @@ export function createLearningPracticeNode(practice: LearningPracticeRef): Layou
   return node;
 }
 
-export function isLearningPracticeApproved(practice: LearningPracticeRef): boolean {
+export function isTensorPracticeApproved(practice: TensorPracticeRef): boolean {
   return practice.approval?.status === 'approved' && Boolean(practice.approval.implementedBy);
 }
 

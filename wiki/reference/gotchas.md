@@ -1,7 +1,7 @@
 ---
 title: Gotchas
 type: Reference
-updated: 2026-06-21
+updated: 2026-06-26
 ---
 
 # Gotchas
@@ -18,9 +18,9 @@ layout, or the build config.
   to editor line numbers. Editing the preamble updates the offset automatically.
   Keep `USER_CODE_PREAMBLE` and `countPythonPreambleLines` consistent; don't
   reintroduce a magic constant.
-- **Pyodide loads from a CDN.** `pyodideWorker.ts` tries jsDelivr → unpkg →
-  iodide via `importScripts`. The app needs network access on first load; if all
-  CDNs fail, the worker throws a clear error surfaced as a critical UI error.
+- **Pyodide runtime assets are build-owned.** `vite.config.ts` serves/copies the
+  pinned `pyodide` npm package under `/pyodide/`. If those files are missing,
+  `pyodideWorker.ts` throws a clear local-runtime error surfaced in the UI.
 - **The worker is an inlined Blob string.** Sources are `JSON.stringify`'d into
   the worker code; you can't `import` arbitrary modules into it. New `torchstub`
   parts must be threaded through the `pythonSources` object.
@@ -57,13 +57,11 @@ layout, or the build config.
 
 ## Build / environment
 
-- **Dual module resolution.** `index.html` ships an importmap (esm.sh CDN), while
-  Vite bundles runtime dependencies for dev/build. Vite is authoritative; the
-  importmap is the no-build-tool fallback and is not guaranteed to match
-  `package.json` one-for-one. `zustand` is intentionally only in `package.json`.
-  Don't "fix" one without understanding the other.
-- **Desktop + online only.** The UI enforces a `min-width` and disables zoom;
-  Pyodide, Tailwind, and Google Fonts load from CDNs at runtime.
+- **Vite owns module resolution.** `index.html` does not carry a browser
+  importmap. Runtime dependencies must be declared in `package.json` and bundled
+  or copied by Vite.
+- **Desktop-oriented workspace.** The workspace UI still enforces a
+  `min-width`, but the global viewport does not disable browser zoom.
 
 ## Stale renders
 

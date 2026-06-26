@@ -1,9 +1,13 @@
 import type { ReactElement } from 'react';
-import { HashRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 
+import {
+  APP_ROUTES,
+  getLegacyReinforcementLearningRedirectPath,
+  getLearningDomainPath,
+} from '../lib/appRoutes';
 import LandingPage from './landing/LandingPage';
 import LearningLabView from './learning/LearningLabView';
-import ReinforcementLearningView from './reinforcement_learning/View';
 
 type AppShellProps = {
   renderWorkspace: (props: { onBackToLanding: () => void }) => ReactElement;
@@ -15,39 +19,53 @@ function AppRoutes({ renderWorkspace }: AppShellProps) {
   return (
     <Routes>
       <Route
-        path="/"
+        path={APP_ROUTES.landing}
         element={
           <LandingPage
-            onOpenWorkspace={() => navigate('/workspace')}
-            onOpenLearningLab={() => navigate('/learning')}
-            onOpenReinforcementLearning={() => navigate('/reinforcement-learning')}
+            onOpenWorkspace={() => navigate(APP_ROUTES.workspace)}
+            onOpenLearningLab={() => navigate(APP_ROUTES.learning)}
           />
         }
       />
 
       <Route
-        path="/workspace"
-        element={renderWorkspace({ onBackToLanding: () => navigate('/') })}
+        path={APP_ROUTES.workspace}
+        element={renderWorkspace({ onBackToLanding: () => navigate(APP_ROUTES.landing) })}
       />
 
       <Route
-        path="/learning"
-        element={<LearningLabView onBackToLanding={() => navigate('/')} />}
+        path={APP_ROUTES.learning}
+        element={<LearningLabView onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
       />
 
       <Route
-        path="/reinforcement-learning"
-        element={<ReinforcementLearningView onBackToLanding={() => navigate('/')} />}
+        path={APP_ROUTES.learningDomain}
+        element={<LearningLabView onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
       />
 
       <Route
-        path="/reinforcement-learning/roadmap/:trackId"
-        element={<ReinforcementLearningView onBackToLanding={() => navigate('/')} />}
+        path={APP_ROUTES.learningTrack}
+        element={<LearningLabView onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
       />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path={APP_ROUTES.legacyReinforcementLearning}
+        element={<Navigate to={getLearningDomainPath('reinforcement-learning')} replace />}
+      />
+
+      <Route
+        path={APP_ROUTES.legacyReinforcementLearningTrack}
+        element={<LegacyReinforcementLearningRedirect />}
+      />
+
+      <Route path="*" element={<Navigate to={APP_ROUTES.landing} replace />} />
     </Routes>
   );
+}
+
+function LegacyReinforcementLearningRedirect() {
+  const { trackId } = useParams();
+  return <Navigate to={getLegacyReinforcementLearningRedirectPath(trackId)} replace />;
 }
 
 export default function AppShell({ renderWorkspace }: AppShellProps) {

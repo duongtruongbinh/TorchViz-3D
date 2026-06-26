@@ -8,7 +8,6 @@ import ToolCard from './ToolCard';
 type LandingPageProps = {
   onOpenWorkspace: () => void;
   onOpenLearningLab: () => void;
-  onOpenReinforcementLearning: () => void;
 };
 
 type BranchPaths = {
@@ -16,7 +15,6 @@ type BranchPaths = {
   height: number;
   available: string;
   soon: string;
-  reinforcement: string;
 };
 
 function HeroVisual({
@@ -116,7 +114,6 @@ function HeroVisual({
 export default function LandingPage({
   onOpenWorkspace,
   onOpenLearningLab,
-  onOpenReinforcementLearning,
 }: LandingPageProps) {
   const language = useStore((s) => s.language);
   const setLanguage = useStore((s) => s.setLanguage);
@@ -125,13 +122,11 @@ export default function LandingPage({
   const bentoRef = useRef<HTMLDivElement>(null);
   const availableAnchorRef = useRef<HTMLSpanElement>(null);
   const soonAnchorRef = useRef<HTMLSpanElement>(null);
-  const reinforcementAnchorRef = useRef<HTMLSpanElement>(null);
   const [branchPaths, setBranchPaths] = useState<BranchPaths>({
     width: 1400,
     height: 620,
     available: '',
     soon: '',
-    reinforcement: '',
   });
   const text = getStrings(language).landingPage;
 
@@ -150,9 +145,8 @@ export default function LandingPage({
     const bento = bentoRef.current;
     const availableAnchor = availableAnchorRef.current;
     const soonAnchor = soonAnchorRef.current;
-    const reinforcementAnchor = reinforcementAnchorRef.current;
 
-    if (!bento || !availableAnchor || !soonAnchor || !reinforcementAnchor) {
+    if (!bento || !availableAnchor || !soonAnchor) {
       return undefined;
     }
 
@@ -174,7 +168,6 @@ export default function LandingPage({
       const start = getAnchorCenter(classifierAnchor);
       const available = getAnchorCenter(availableAnchor);
       const soon = getAnchorCenter(soonAnchor);
-      const reinforcement = getAnchorCenter(reinforcementAnchor);
 
       const makePath = (end: { x: number; y: number }) => {
         const handle = Math.max(48, Math.min(120, (end.x - start.x) * 0.45));
@@ -188,7 +181,6 @@ export default function LandingPage({
         height: bentoRect.height,
         available: makePath(available),
         soon: makePath(soon),
-        reinforcement: makePath(reinforcement),
       });
     };
 
@@ -198,7 +190,6 @@ export default function LandingPage({
     resizeObserver.observe(bento);
     resizeObserver.observe(availableAnchor);
     resizeObserver.observe(soonAnchor);
-    resizeObserver.observe(reinforcementAnchor);
     window.addEventListener('resize', updateBranches);
 
     return () => {
@@ -309,23 +300,13 @@ export default function LandingPage({
               {branchPaths.soon && (
                 <path className="landing-route landing-route-soon" d={branchPaths.soon} />
               )}
-              {branchPaths.reinforcement && (
-                <path
-                  className="landing-route landing-route-reinforcement"
-                  d={branchPaths.reinforcement}
-                  fill="none"
-                  stroke="#7dd3fc"
-                  strokeWidth={2.5}
-                  strokeLinecap="round"
-                />
-              )}
             </svg>
 
             <div className="min-h-0 min-w-0">
               <HeroVisual stages={text.stages} />
             </div>
 
-            <div className="relative z-[4] grid min-h-0 content-center grid-cols-1 gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            <div className="relative z-[4] grid min-h-0 content-center grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
               <div className="landing-bento-target landing-bento-target-available">
                 <span
                   ref={availableAnchorRef}
@@ -354,19 +335,6 @@ export default function LandingPage({
                 />
               </div>
 
-              <div className="landing-bento-target landing-bento-target-reinforcement">
-                <span
-                  ref={reinforcementAnchorRef}
-                  className="landing-card-anchor landing-card-anchor-reinforcement absolute left-0 top-1/2 h-px w-px -translate-x-1/2 -translate-y-1/2"
-                  aria-hidden="true"
-                />
-                <LearningCard
-                  title={text.reinforcementLearningTitle}
-                  description={text.reinforcementLearningDescription}
-                  openLabel={text.reinforcementLearningOpen}
-                  onOpen={onOpenReinforcementLearning}
-                />
-              </div>
             </div>
           </div>
         </div>

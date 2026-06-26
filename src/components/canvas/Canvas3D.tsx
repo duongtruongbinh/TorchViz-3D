@@ -188,7 +188,6 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
         dpr={[1, 2]}
         gl={{
           antialias: true,
-          preserveDrawingBuffer: true,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.2,
         }}

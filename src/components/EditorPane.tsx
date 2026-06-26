@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import Editor, { Monaco } from '@monaco-editor/react';
+import Editor, { Monaco, loader, type OnMount } from '@monaco-editor/react';
 import { getStrings } from '../lib/localization';
 import { useStore } from '../store/useStore';
+
+loader.config({ paths: { vs: '/monaco/vs' } });
 
 const NN_COMPLETIONS: { label: string; detail?: string }[] = [
   { label: 'Module', detail: 'Base class for all nn modules' },
@@ -45,6 +47,15 @@ interface EditorPaneProps {
   onCursorChange?: (line: number) => void;
 }
 
+type CompletionModel = {
+  getLineContent: (lineNumber: number) => string;
+};
+
+type CompletionPosition = {
+  lineNumber: number;
+  column: number;
+};
+
 const EditorPane: React.FC<EditorPaneProps> = ({
   code,
   onChange,
@@ -55,14 +66,14 @@ const EditorPane: React.FC<EditorPaneProps> = ({
 }) => {
   const language = useStore((s) => s.language);
   const t = getStrings(language);
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const errorDecRef = useRef<string[]>([]);
   const highlightDecRef = useRef<string[]>([]);
   const onRunRef = useRef(onRun);
   onRunRef.current = onRun;
 
-  const handleEditorDidMount = (editor: any, monaco: Monaco) => {
+  const handleEditorDidMount: OnMount = (editor, monaco: Monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
 
@@ -79,7 +90,7 @@ const EditorPane: React.FC<EditorPaneProps> = ({
     // torchstub.nn IntelliSense: suggest nn.* when typing nn.
     monaco.languages.registerCompletionItemProvider('python', {
       triggerCharacters: ['.'],
-      provideCompletionItems: (model: any, position: any) => {
+      provideCompletionItems: (model: CompletionModel, position: CompletionPosition) => {
         const lineContent = model.getLineContent(position.lineNumber);
         const beforeCursor = lineContent.slice(0, position.column - 1).trimEnd();
         if (!/nn\.?$/.test(beforeCursor)) return { suggestions: [] };
