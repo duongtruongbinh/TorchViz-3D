@@ -30,6 +30,7 @@ type ShapeExerciseProps = {
   displayMode?: 'modal' | 'inline';
   onClose?: () => void;
 };
+type DemoLabels = ReturnType<typeof getStrings>['canvas']['demo'];
 
 const DEFAULT_DIM_LABELS = ['B', 'C', 'H', 'W'];
 const SPATIAL_HINT_INTERVAL_MS = 1700;
@@ -120,9 +121,9 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
 
   const configured = useMemo(
     () => (model
-      ? applyEditableState(model, editableInputShape, editableConfig)
+      ? applyEditableState(model, editableInputShape, editableConfig, t)
       : { model: null, inputError: null, configError: null }),
-    [editableConfig, editableInputShape, model],
+    [editableConfig, editableInputShape, model, t],
   );
   const exerciseModel = configured.model;
 
@@ -264,6 +265,7 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                   model={displayModel}
                   error={configured.configError}
                   activeHintStep={activeHintStep}
+                  t={t}
                   onChange={(nextConfig) => {
                     setEditableConfig(nextConfig);
                     setSubmitted(false);
@@ -349,8 +351,8 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                           type="button"
                           className="flex h-7 w-7 items-center justify-center rounded border border-zinc-700 bg-zinc-950 text-sm font-bold text-zinc-300 hover:border-amber-300/60 hover:text-amber-100"
                           onClick={() => moveHintStep(-1)}
-                          aria-label="Previous hint step"
-                          title="Previous hint step"
+                          aria-label={t.shapeExercise.previousHintStep}
+                          title={t.shapeExercise.previousHintStep}
                         >
                           <SkipBack className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                         </button>
@@ -358,8 +360,8 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                           type="button"
                           className="flex h-7 min-w-14 items-center justify-center rounded border border-amber-300/25 bg-amber-400/10 px-2 text-center text-[11px] font-bold text-amber-100 hover:border-amber-300/60 hover:bg-amber-400/18"
                           onClick={() => setHintPaused((paused) => !paused)}
-                          aria-label={hintPaused ? 'Play hint steps' : 'Pause hint steps'}
-                          title={hintPaused ? 'Play hint steps' : 'Pause hint steps'}
+                          aria-label={hintPaused ? t.shapeExercise.playHintSteps : t.shapeExercise.pauseHintSteps}
+                          title={hintPaused ? t.shapeExercise.playHintSteps : t.shapeExercise.pauseHintSteps}
                         >
                           {hintPaused ? (
                             <Play className="h-3.5 w-3.5 fill-current" strokeWidth={1.8} aria-hidden="true" />
@@ -374,8 +376,8 @@ export const ShapeExercise: React.FC<ShapeExerciseProps> = ({
                           type="button"
                           className="flex h-7 w-7 items-center justify-center rounded border border-zinc-700 bg-zinc-950 text-sm font-bold text-zinc-300 hover:border-amber-300/60 hover:text-amber-100"
                           onClick={() => moveHintStep(1)}
-                          aria-label="Next hint step"
-                          title="Next hint step"
+                          aria-label={t.shapeExercise.nextHintStep}
+                          title={t.shapeExercise.nextHintStep}
                         >
                           <SkipForward className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                         </button>
@@ -597,8 +599,9 @@ const ConfigEditor: React.FC<{
   model: ShapeExerciseModel;
   error: string | null;
   activeHintStep: SpatialHintStep | null;
+  t: DemoLabels;
   onChange: (config: EditableShapeConfig) => void;
-}> = ({ config, model, error, activeHintStep, onChange }) => {
+}> = ({ config, model, error, activeHintStep, t, onChange }) => {
   if (!config) {
     return (
       <div>
@@ -616,7 +619,7 @@ const ConfigEditor: React.FC<{
   const setField = (name: string, value: string) => {
     onChange({ ...config, [name]: value } as EditableShapeConfig);
   };
-  const fields = getEditableFields(config);
+  const fields = getEditableFields(config, t);
   const tupleFieldNames = new Set(['kernel', 'stride', 'padding', 'dilation']);
 
   return (
@@ -635,7 +638,7 @@ const ConfigEditor: React.FC<{
         ))}
       </div>
       <p className={`mt-1.5 text-[12px] ${error ? 'text-red-300' : 'text-zinc-500'}`}>
-        {error ?? 'Use integer values.'}
+        {error ?? t.shapeExercise.useIntegerValues}
       </p>
     </div>
   );
@@ -856,6 +859,7 @@ function applyEditableState(
   model: ShapeExerciseModel,
   inputShapeValues: string[],
   config: EditableShapeConfig | null,
+  t: DemoLabels,
 ): { model: ShapeExerciseModel; inputError: string | null; configError: string | null } {
   const inputShape = inputShapeValues.length ? inputShapeValues : model.inputShape.map(String);
   try {
@@ -863,17 +867,17 @@ function applyEditableState(
       const label = DEFAULT_DIM_LABELS[index] ?? `D${index}`;
       return parsePositiveInteger(value, label);
     });
-    const configured = applyEditableConfig({ ...model, inputShape: parsedInputShape }, config);
+    const configured = applyEditableConfig({ ...model, inputShape: parsedInputShape }, config, t);
     return {
       model: configured.model,
       inputError: null,
       configError: configured.error,
     };
   } catch (error) {
-    const configured = applyEditableConfig(model, config);
+    const configured = applyEditableConfig(model, config, t);
     return {
       model: configured.model,
-      inputError: error instanceof Error ? error.message : 'Invalid input shape',
+      inputError: error instanceof Error ? error.message : t.shapeExercise.invalidInputShape,
       configError: configured.error,
     };
   }
@@ -882,6 +886,7 @@ function applyEditableState(
 function applyEditableConfig(
   model: ShapeExerciseModel,
   config: EditableShapeConfig | null,
+  t: DemoLabels,
 ): { model: ShapeExerciseModel; error: string | null } {
   if (!config) return { model, error: null };
 
@@ -940,32 +945,32 @@ function applyEditableConfig(
   } catch (error) {
     return {
       model: { ...model, configRows: getEditableConfigRows(config) },
-      error: error instanceof Error ? error.message : 'Invalid config',
+      error: error instanceof Error ? error.message : t.shapeExercise.invalidConfig,
     };
   }
 }
 
-function getEditableFields(config: EditableShapeConfig): Array<{ name: string; label: string; value: string; min?: number }> {
+function getEditableFields(config: EditableShapeConfig, t: DemoLabels): Array<{ name: string; label: string; value: string; min?: number }> {
   if (config.kind === 'conv') {
     return [
-      { name: 'outChannels', label: 'out channels', value: config.outChannels },
-      { name: 'padding', label: 'padding', value: config.padding, min: 0 },
-      { name: 'kernel', label: 'kernel', value: config.kernel },
-      { name: 'stride', label: 'stride', value: config.stride },
-      { name: 'dilation', label: 'dilation', value: config.dilation },
+      { name: 'outChannels', label: t.shapeExercise.fields.outChannels, value: config.outChannels },
+      { name: 'padding', label: t.shapeExercise.fields.padding, value: config.padding, min: 0 },
+      { name: 'kernel', label: t.shapeExercise.fields.kernel, value: config.kernel },
+      { name: 'stride', label: t.shapeExercise.fields.stride, value: config.stride },
+      { name: 'dilation', label: t.shapeExercise.fields.dilation, value: config.dilation },
     ];
   }
   if (config.kind === 'pool') {
     return [
-      { name: 'kernel', label: 'kernel', value: config.kernel },
-      { name: 'stride', label: 'stride', value: config.stride },
-      { name: 'padding', label: 'padding', value: config.padding, min: 0 },
-      { name: 'dilation', label: 'dilation', value: config.dilation },
+      { name: 'kernel', label: t.shapeExercise.fields.kernel, value: config.kernel },
+      { name: 'stride', label: t.shapeExercise.fields.stride, value: config.stride },
+      { name: 'padding', label: t.shapeExercise.fields.padding, value: config.padding, min: 0 },
+      { name: 'dilation', label: t.shapeExercise.fields.dilation, value: config.dilation },
     ];
   }
   return [
-    { name: 'outputH', label: 'output h', value: config.outputH },
-    { name: 'outputW', label: 'output w', value: config.outputW },
+    { name: 'outputH', label: t.shapeExercise.fields.outputH, value: config.outputH },
+    { name: 'outputW', label: t.shapeExercise.fields.outputW, value: config.outputW },
   ];
 }
 

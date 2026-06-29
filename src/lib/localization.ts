@@ -25,6 +25,8 @@ type SelectedLocalizedText<T> =
 const localizedText = {
   app: {
     language: { en: 'Language', vi: 'Ngôn ngữ' },
+    switchToEnglish: { en: 'Switch to English', vi: 'Chuyển sang English' },
+    switchToVietnamese: { en: 'Switch to Vietnamese', vi: 'Chuyển sang Tiếng Việt' },
     editor: { en: 'Editor', vi: 'Trình soạn thảo' },
     explorer: { en: 'Explorer', vi: 'Bảng thông tin' },
     loadingEditorModule: { en: 'Loading Editor module...', vi: 'Đang tải mô-đun soạn thảo...' },
@@ -113,6 +115,7 @@ const localizedText = {
       vi: 'Học theo lộ trình và làm bài trực tiếp bằng các bài tập shape/value trong Learning Lab.',
     },
     back: { en: 'Back', vi: 'Quay lại' },
+    home: { en: 'Home', vi: 'Trang chủ' },
     landing: { en: 'Landing', vi: 'Trang chính' },
     guide: { en: 'Guide', vi: 'Hướng dẫn' },
     visualization3d: { en: '3D', vi: '3D' },
@@ -148,6 +151,74 @@ const localizedText = {
     domainCatalogDescription: {
       en: 'Pick the model area you want to practice first. Each domain opens a focused learning path.',
       vi: 'Chọn vùng kiến thức muốn luyện trước. Mỗi domain mở một lộ trình học tập tập trung.',
+    },
+    homePage: {
+      eyebrow: { en: 'Project home', vi: 'Trang chủ dự án' },
+      title: {
+        en: 'TorchViz-3D turns neural networks into something you can inspect, question, and understand.',
+        vi: 'TorchViz-3D biến mạng neural thành thứ có thể quan sát, đặt câu hỏi và thật sự hiểu.',
+      },
+      subtitle: {
+        en: 'We are building a local-first learning environment where model structure, tensor shape, and algorithm behavior become visible instead of hidden behind code output.',
+        vi: 'Chúng tôi xây dựng một môi trường học local-first, nơi cấu trúc mô hình, tensor shape và hành vi thuật toán trở nên nhìn thấy được thay vì ẩn sau kết quả code.',
+      },
+      simpleTitle: {
+        en: 'A visual learning lab for neural networks.',
+        vi: 'Một learning lab trực quan cho neural networks.',
+      },
+      simpleSubtitle: {
+        en: 'TorchViz-3D helps learners see how model code becomes structure, how tensors change shape, and why each step matters.',
+        vi: 'TorchViz-3D giúp người học nhìn thấy cách code mô hình trở thành cấu trúc, cách tensor đổi shape và vì sao từng bước lại quan trọng.',
+      },
+      projectLabel: { en: 'Learning Lab goal', vi: 'Mục tiêu của Learning Lab' },
+      projectTitle: {
+        en: 'A visual lab for learning how modern AI systems move information.',
+        vi: 'Một phòng lab trực quan để học cách hệ thống AI hiện đại truyền và biến đổi thông tin.',
+      },
+      projectBody: [
+        {
+          en: 'TorchViz-3D started from a simple belief: learners should not have to imagine every tensor transformation in their head. The interface should make the path of data visible.',
+          vi: 'TorchViz-3D giúp bạn nhìn thấy đường đi của dữ liệu trong mô hình, thay vì phải tự hình dung từng bước biến đổi tensor.',
+        },
+        {
+          en: 'The Learning Lab extends that idea beyond diagrams. It connects concepts, visual explanations, and practice into one place so students can move from curiosity to working intuition.',
+          vi: 'Learning Lab mở rộng ý tưởng đó ra ngoài sơ đồ. Nó kết nối khái niệm, giải thích trực quan và thực hành trong cùng một nơi để người học đi từ tò mò đến trực giác có thể sử dụng được.',
+        },
+      ],
+      goalLabel: { en: 'Our goal', vi: 'Mục tiêu' },
+      goal: {
+        en: 'If AI feels hard to understand, Learning Lab should make it clear. If you still do not understand, the lab is not optimized enough, not you.',
+        vi: 'Nếu AI khó hiểu, Learning Lab sẽ làm nó dễ hiểu. Nếu bạn vẫn chưa hiểu, đó là do lab chưa tối ưu, không phải lỗi của bạn.',
+      },
+      goalBody: {
+        en: 'Every lesson, animation, and practice surface should help learners explain what changed, why it changed, and how that change affects the next step.',
+        vi: 'Mỗi bài học, animation và phần thực hành cần giúp người học giải thích điều gì đã thay đổi, vì sao nó thay đổi và thay đổi đó ảnh hưởng thế nào đến bước tiếp theo.',
+      },
+      idealsLabel: { en: 'How we teach', vi: 'Cách học' },
+      idealVisualTitle: { en: 'Simple and Clear', vi: 'Đơn Giản, Dễ Hiểu' },
+      idealVisualBody: {
+        en: 'Each lesson stays focused: less noise, fewer unnecessary terms, and enough context to know what you are looking at.',
+        vi: 'Mỗi phần học giữ đúng trọng tâm: ít nhiễu, ít thuật ngữ thừa, và đủ rõ để bạn biết mình đang nhìn vào điều gì.',
+      },
+      idealLocalTitle: { en: 'Visual Practice', vi: 'Bài Tập Trực Quan' },
+      idealLocalBody: {
+        en: 'Work through short exercises, watch tensors move through each layer, and see how shapes or values change step by step.',
+        vi: 'Làm bài tập ngắn, xem tensor đi qua từng layer, và quan sát cách shape hoặc giá trị thay đổi sau mỗi bước.',
+      },
+      idealHumanTitle: { en: 'Plain-Language Theory', vi: 'Lý Thuyết Dễ Hiểu' },
+      idealHumanBody: {
+        en: 'Start with simple words first, then bring in formulas, code, and technical details only when they are needed.',
+        vi: 'Giải thích bằng từ đơn giản trước, rồi mới đi vào công thức, code và chi tiết kỹ thuật khi thật sự cần.',
+      },
+      nextLabel: { en: 'Choose a domain to start', vi: 'Chọn một domain để bắt đầu' },
+      nextBody: {
+        en: 'Choose a domain on the left when you are ready. Each domain opens a focused course page, while this Home page stays as the project’s shared north star.',
+        vi: 'Khi sẵn sàng, hãy chọn một domain ở bên trái. Mỗi domain mở một trang học tập tập trung, còn Home là nơi giữ tinh thần chung của dự án.',
+      },
+      artifactLabel: { en: 'Learning artifact', vi: 'Mẫu học tập' },
+      sourceCode: { en: 'Source code', vi: 'Code PyTorch' },
+      shapeTrace: { en: 'Shape trace', vi: 'Luồng tensor' },
+      practiceLoop: { en: 'Practice loop', vi: 'Bài tập ngắn' },
     },
     domainAvailable: { en: 'Available', vi: 'Sẵn sàng' },
     domainPlaceholder: { en: 'Placeholder', vi: 'Đang cập nhật' },
@@ -347,6 +418,89 @@ const localizedText = {
     practiceCount: {
       en: (count: number) => `${count} practice ${count === 1 ? 'item' : 'items'}`,
       vi: (count: number) => `${count} bài luyện tập`,
+    },
+    coursePage: {
+      languageEnglish: { en: 'English', vi: 'English' },
+      languageVietnamese: { en: 'Tiếng Việt', vi: 'Tiếng Việt' },
+      updated: { en: 'Last updated 6/2026', vi: 'Cập nhật lần cuối 6/2026' },
+      whatYouWillLearn: { en: "What you'll learn", vi: 'Bạn sẽ học được gì' },
+      courseContent: { en: 'Course content', vi: 'Nội dung khóa học' },
+      courseSummary: {
+        en: (value: unknown) => {
+          const { lessons, minutes, practice } = value as { lessons: number; minutes: number; practice: number };
+          return `${lessons} ${lessons === 1 ? 'lesson' : 'lessons'} - ${minutes} min - ${practice} practice ${practice === 1 ? 'item' : 'items'}`;
+        },
+        vi: (value: unknown) => {
+          const { lessons, minutes, practice } = value as { lessons: number; minutes: number; practice: number };
+          return `${lessons} bài học - ${minutes} phút - ${practice} bài practice`;
+        },
+      },
+      trackSummary: {
+        en: (value: unknown) => {
+          const { lessons, minutes, description } = value as { lessons: number; minutes: number; description: string };
+          return `${lessons} ${lessons === 1 ? 'lesson' : 'lessons'} - ${minutes} min - ${description}`;
+        },
+        vi: (value: unknown) => {
+          const { lessons, minutes, description } = value as { lessons: number; minutes: number; description: string };
+          return `${lessons} bài học - ${minutes} phút - ${description}`;
+        },
+      },
+      masterLesson: {
+        en: (title: string) => `Master ${title}.`,
+        vi: (title: string) => `Nắm chắc ${title}.`,
+      },
+      generic: {
+        requirementsTitle: { en: 'Requirements', vi: 'Yêu cầu' },
+        requirements: [
+          { en: 'Basic Python.', vi: 'Python cơ bản.' },
+          { en: 'Basic tensors.', vi: 'Tensor cơ bản.' },
+          { en: 'No prior experience.', vi: 'Không cần kinh nghiệm trước.' },
+        ],
+        descriptionTitle: { en: 'Description', vi: 'Nội dung' },
+        organizedDescription: {
+          en: (tracks: string) => `This path is organized around ${tracks}, with short visual lessons and inline TorchViz-3D practice where content is available.`,
+          vi: (tracks: string) => `Lộ trình này được tổ chức quanh ${tracks}, với bài học trực quan ngắn và practice inline trong TorchViz-3D khi nội dung đã sẵn sàng.`,
+        },
+        placeholderDescription: {
+          en: 'This path is prepared as part of Learning Lab and will expand as more lessons are added.',
+          vi: 'Lộ trình này là một phần của Learning Lab và sẽ mở rộng khi có thêm bài học.',
+        },
+        goalDescription: {
+          en: 'The goal is to build enough intuition to inspect model behavior visually instead of memorizing formulas or framework boilerplate.',
+          vi: 'Mục tiêu là xây đủ trực giác để quan sát hành vi model bằng trực quan, thay vì ghi nhớ công thức hoặc framework boilerplate.',
+        },
+      },
+      reinforcementLearning: {
+        title: {
+          en: 'Reinforcement Learning for Neural Network Builders',
+          vi: 'Reinforcement Learning for Neural Network Builders',
+        },
+        subtitle: {
+          en: 'Move from MDPs, Bellman values, and Q-tables into Q-Learning and SARSA with short visual lessons and inline TorchViz-3D practice.',
+          vi: 'Đi từ MDP, Bellman values, Q-table đến Q-Learning và SARSA bằng các bài học ngắn, trực quan, có practice ngay trong TorchViz-3D.',
+        },
+        requirementsTitle: { en: 'Requirements', vi: 'Yêu cầu' },
+        requirements: [
+          { en: 'Basic Python.', vi: 'Python cơ bản.' },
+          { en: 'Basic tensors.', vi: 'Tensor cơ bản.' },
+          { en: 'No prior RL.', vi: 'Không cần RL trước.' },
+        ],
+        descriptionTitle: { en: 'Description', vi: 'Nội dung' },
+        description: [
+          {
+            en: 'This path teaches reinforcement learning the same way TorchViz teaches model structure: one small system at a time, with the important state and value flow visible.',
+            vi: 'Lộ trình này dạy reinforcement learning theo cách TorchViz dạy cấu trúc model: từng hệ thống nhỏ một, với state và value flow quan trọng được hiển thị rõ.',
+          },
+          {
+            en: 'You will start with the vocabulary of an MDP, then connect Bellman updates to concrete Q-table entries before comparing off-policy Q-Learning with on-policy SARSA.',
+            vi: 'Bạn sẽ bắt đầu với thuật ngữ của MDP, rồi nối Bellman updates với các ô Q-table cụ thể trước khi so sánh off-policy Q-Learning với on-policy SARSA.',
+          },
+          {
+            en: 'The goal is not to memorize formulas. The goal is to build enough intuition to inspect an RL loop and understand why an update moved a value in a specific direction.',
+            vi: 'Mục tiêu không phải là ghi nhớ công thức. Mục tiêu là xây đủ trực giác để quan sát một RL loop và hiểu vì sao một update đẩy value theo hướng cụ thể.',
+          },
+        ],
+      },
     },
     openWorkspace: { en: 'Open workspace', vi: 'Mở workspace' },
     language: { en: 'Language', vi: 'Ngôn ngữ' },
@@ -672,6 +826,8 @@ const localizedText = {
       action: { en: 'Action', vi: 'Action' },
       reward: { en: 'Reward', vi: 'Reward' },
       discount: { en: 'Discount', vi: 'Discount' },
+      updatedQ: { en: 'updated Q', vi: 'updated Q' },
+      maxQ: { en: 'max Q', vi: 'max Q' },
       check: { en: 'Check', vi: 'Kiểm tra' },
       reset: { en: 'Reset', vi: 'Làm lại' },
       correct: { en: 'Correct.', vi: 'Đúng rồi.' },
@@ -892,6 +1048,85 @@ const localizedText = {
         vi: 'Nhập giá trị với 2 chữ số thập phân, rồi kiểm tra đáp án.',
       },
       hintExercise: { en: 'Hint', vi: 'Gợi ý' },
+      shapeExercise: {
+        previousHintStep: { en: 'Previous hint step', vi: 'Bước gợi ý trước' },
+        nextHintStep: { en: 'Next hint step', vi: 'Bước gợi ý tiếp theo' },
+        playHintSteps: { en: 'Play hint steps', vi: 'Chạy các bước gợi ý' },
+        pauseHintSteps: { en: 'Pause hint steps', vi: 'Tạm dừng các bước gợi ý' },
+        useIntegerValues: { en: 'Use integer values.', vi: 'Dùng giá trị integer.' },
+        invalidInputShape: { en: 'Invalid input shape', vi: 'Input shape không hợp lệ' },
+        invalidConfig: { en: 'Invalid config', vi: 'Config không hợp lệ' },
+        fields: {
+          outChannels: { en: 'out channels', vi: 'out channels' },
+          padding: { en: 'padding', vi: 'padding' },
+          kernel: { en: 'kernel', vi: 'kernel' },
+          stride: { en: 'stride', vi: 'stride' },
+          dilation: { en: 'dilation', vi: 'dilation' },
+          outputH: { en: 'output h', vi: 'output h' },
+          outputW: { en: 'output w', vi: 'output w' },
+        },
+      },
+      valueExercise: {
+        inputTable: { en: 'Input table', vi: 'Bảng input' },
+        poolingConfig: { en: 'Pooling config', vi: 'Config pooling' },
+        poolingType: { en: 'Pooling type', vi: 'Loại pooling' },
+        fillOutput: { en: 'Fill output', vi: 'Điền output' },
+        inputVector: { en: 'Input vector', vi: 'Vector input' },
+        reluKeepsPositive: {
+          en: 'ReLU keeps positive values and clamps negative values to 0.',
+          vi: 'ReLU giữ giá trị dương và đưa giá trị âm về 0.',
+        },
+        generalRule: { en: 'General Rule:', vi: 'Quy tắc chung:' },
+        outputCell: {
+          en: (index: number) => `Output cell ${index}`,
+          vi: (index: number) => `Ô output ${index}`,
+        },
+        poolHint: {
+          en: (value: unknown) => {
+            const { stride, outputRow, outputCol, windowRow, windowCol, mode } = value as {
+              stride: number;
+              outputRow: number;
+              outputCol: number;
+              windowRow: number;
+              windowCol: number;
+              mode: 'max' | 'avg';
+            };
+            return `With stride = ${stride}, output (${outputRow}, ${outputCol}) reads the window starting at row ${windowRow}, col ${windowCol}; then takes the ${mode === 'max' ? 'maximum value' : 'average'} from that window.`;
+          },
+          vi: (value: unknown) => {
+            const { stride, outputRow, outputCol, windowRow, windowCol, mode } = value as {
+              stride: number;
+              outputRow: number;
+              outputCol: number;
+              windowRow: number;
+              windowCol: number;
+              mode: 'max' | 'avg';
+            };
+            return `Với stride = ${stride}, ô output (${outputRow}, ${outputCol}) đọc window bắt đầu tại hàng ${windowRow}, cột ${windowCol}; sau đó lấy ${mode === 'max' ? 'giá trị lớn nhất' : 'trung bình'} trong window.`;
+          },
+        },
+        poolHintIdle: {
+          en: 'Press Hint to inspect one output cell.',
+          vi: 'Bấm Hint để xem một ô output.',
+        },
+        activationHint: {
+          en: (value: unknown) => {
+            const { index, input } = value as { index: number; input: number };
+            return `Inspecting element x${index} = ${input}.`;
+          },
+          vi: (value: unknown) => {
+            const { index, input } = value as { index: number; input: number };
+            return `Đang xem xét phần tử x${index} = ${input}.`;
+          },
+        },
+        activationHintIdle: {
+          en: 'Press Hint to inspect one element.',
+          vi: 'Bấm Hint để xem gợi ý từng phần tử.',
+        },
+        reluGraph: { en: 'ReLU graph', vi: 'Biểu đồ ReLU' },
+        negativeInput: { en: 'negative input', vi: 'input âm' },
+        positiveInput: { en: 'positive input', vi: 'input dương' },
+      },
       hintBreakdownTitle: { en: 'Input x kernel products', vi: 'Input x kernel từng ô' },
       hintFormula: {
         en: (parts: string, total: string) => `${parts} = ${total}`,

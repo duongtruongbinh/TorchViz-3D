@@ -12,6 +12,7 @@ type GridWorldExerciseProps = {
     reset: string;
     correct: string;
     incorrect: string;
+    updatedQ: string;
   };
 };
 
@@ -54,7 +55,7 @@ export default function GridWorldExercise({ fixture, text }: GridWorldExercisePr
             <div>{fixture.algorithm === 'q-learning' ? `max next Q=${fixture.nextMaxQ}` : `next action Q=${fixture.nextActionQ}`}</div>
           </div>
           <label className="mt-3 block">
-            <span className="mb-1 block text-[11px] font-bold uppercase text-zinc-500">updated Q</span>
+            <span className="mb-1 block text-[11px] font-bold uppercase text-zinc-500">{text.updatedQ}</span>
             <input
               value={answer}
               onChange={(event) => setAnswer(event.currentTarget.value)}

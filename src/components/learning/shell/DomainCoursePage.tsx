@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { BookOpen, Check, ChevronDown, Clock3, FileText, Globe2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 import type { LearningDomain, LearningLesson, LearningTrack } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
@@ -34,8 +33,8 @@ export default function DomainCoursePage({
   const domainText = getDomainText(language, domain);
   const practiceCount = new Set(lessons.flatMap((lesson) => lesson.practice.map((practice) => practice.id))).size;
   const lessonCount = lessons.length;
-  const copy = getCourseCopy(language, domain, domainText, tracks);
-  const learnItems = buildLearnItems(lessons, tracks, language);
+  const copy = getCourseCopy(strings.coursePage, language, domain, domainText, tracks);
+  const learnItems = buildLearnItems(strings.coursePage, lessons, tracks, language);
   const courseSections = tracks.map((track) => ({
     track,
     lessons: track.lessonIds
@@ -48,41 +47,45 @@ export default function DomainCoursePage({
     <section className={cx('-mx-4 -mb-4 -mt-4 min-h-full w-[calc(100%+2rem)] shadow-[0_20px_55px_rgba(18,24,36,0.10)]', themeClasses.page)}>
       <div className="relative bg-[#121A24] text-[#F2F6FA]">
         <div className="relative">
-          <div className="px-6 pb-10 pt-8 sm:px-10 lg:px-14 lg:pb-14">
-            <nav className="flex flex-wrap items-center gap-2 text-xs font-black text-[#A8B8C8] sm:text-sm" aria-label={copy.breadcrumbLabel}>
-              <Link className="transition-colors hover:text-[#F2F6FA] hover:underline hover:underline-offset-2" to="/learning">
-                {strings.searchLabel}
-              </Link>
-              <span className="text-[#F2F6FA]/45">&gt;</span>
-              <Link className="transition-colors hover:text-[#F2F6FA] hover:underline hover:underline-offset-2" to={`/learning/${domain.id}`}>
-                {domainText.title}
-              </Link>
-            </nav>
+          <div className="grid gap-7 px-6 pb-10 pt-8 sm:px-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-14 lg:pb-14">
+            <div>
+              <div
+                role="heading"
+                aria-level={1}
+                className="max-w-4xl text-[1.65rem] font-black leading-tight text-[#F2F6FA]/82 sm:text-[2rem] lg:text-[2.25rem]"
+              >
+                {copy.title}
+              </div>
+              <p className="mt-4 max-w-3xl text-base leading-7 text-[#F2F6FA]/82 sm:text-lg">
+                {copy.subtitle}
+              </p>
 
-            <div
-              role="heading"
-              aria-level={1}
-              className="mt-7 max-w-4xl text-[1.65rem] font-black leading-tight text-[#F2F6FA]/82 sm:text-[2rem] lg:text-[2.25rem]"
-            >
-              {copy.title}
+              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#F2F6FA]/82 sm:text-sm">
+                <span className="inline-flex items-center gap-2">
+                  <Clock3 className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                  {copy.updated}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <Globe2 className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                  {language === 'vi' ? strings.coursePage.languageVietnamese : strings.coursePage.languageEnglish}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                  {strings.lessonCount(lessonCount)}
+                </span>
+              </div>
             </div>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-[#F2F6FA]/82 sm:text-lg">
-              {copy.subtitle}
-            </p>
 
-            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#F2F6FA]/82 sm:text-sm">
-              <span className="inline-flex items-center gap-2">
-                <Clock3 className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                {copy.updated}
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Globe2 className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                {language === 'vi' ? 'Tiếng Việt' : 'English'}
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <BookOpen className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                {strings.lessonCount(lessonCount)}
-              </span>
+            <div className="self-start rounded-xl bg-white/[0.06] p-4 text-[#F2F6FA]/86 shadow-[inset_0_0_0_1px_rgba(242,246,250,0.10)]">
+              <div className="text-sm font-black uppercase tracking-wide text-[#7DD3FC]">{copy.requirementsTitle}</div>
+              <ul className="mt-3 grid gap-2 text-sm leading-6">
+                {copy.requirements.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#A8B8C8]" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
@@ -91,6 +94,15 @@ export default function DomainCoursePage({
 
       <div className="grid gap-5 px-6 pb-0 pt-6 sm:px-10 lg:px-14">
         <div className="grid gap-5">
+          <div className="pb-0 pt-4 sm:pb-0 sm:pt-5">
+            <h2 className={cx('text-2xl font-black', themeClasses.titleText)}>{copy.descriptionTitle}</h2>
+            <div className={cx('mt-4 grid gap-4 text-sm leading-7', themeClasses.bodyText)}>
+              {copy.description.map((item) => (
+                <p key={item}>{item}</p>
+              ))}
+            </div>
+          </div>
+
           <div
             className={cx(
               'border p-6 sm:p-7',
@@ -112,7 +124,7 @@ export default function DomainCoursePage({
           <div className="py-4 sm:py-5">
             <h2 className={cx('text-2xl font-black', themeClasses.titleText)}>{copy.courseContent}</h2>
             <p className={cx('mt-2 text-sm', themeClasses.mutedText)}>
-              {copy.courseSummary(lessonCount, totalMinutes, practiceCount)}
+              {copy.courseSummary({ lessons: lessonCount, minutes: totalMinutes, practice: practiceCount })}
             </p>
             <div className={cx('mt-4 overflow-hidden border', themeClasses.radius.card, themeClasses.surface.card)}>
               {courseSections.map((section) => (
@@ -123,27 +135,6 @@ export default function DomainCoursePage({
                   theme={theme}
                   onOpenLesson={onOpenLesson}
                 />
-              ))}
-            </div>
-          </div>
-
-          <div className="py-6 sm:py-7">
-            <h2 className={cx('text-2xl font-black', themeClasses.titleText)}>{copy.requirementsTitle}</h2>
-            <ul className={cx('mt-4 grid gap-2 text-sm leading-6', themeClasses.bodyText)}>
-              {copy.requirements.map((item) => (
-                <li key={item} className="flex gap-3">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#205089]" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="pb-0 pt-4 sm:pb-0 sm:pt-5">
-            <h2 className={cx('text-2xl font-black', themeClasses.titleText)}>{copy.descriptionTitle}</h2>
-            <div className={cx('mt-4 grid gap-4 text-sm leading-7', themeClasses.bodyText)}>
-              {copy.description.map((item) => (
-                <p key={item}>{item}</p>
               ))}
             </div>
           </div>
@@ -195,7 +186,7 @@ function CourseContentSection({
         <span className="min-w-0">
           <span className={cx('block font-black', themeClasses.titleText)}>{trackText.title}</span>
           <span className={cx('mt-1 block text-sm', themeClasses.mutedText)}>
-            {strings.lessonCount(section.lessons.length)} - {minutes} min - {trackText.description}
+            {strings.coursePage.trackSummary({ lessons: section.lessons.length, minutes, description: trackText.description })}
           </span>
         </span>
       </button>
@@ -228,7 +219,12 @@ function CourseContentSection({
   );
 }
 
-function buildLearnItems(lessons: LearningLesson[], tracks: LearningTrack[], language: Language): string[] {
+function buildLearnItems(
+  courseText: ReturnType<typeof getStrings>['learningLab']['coursePage'],
+  lessons: LearningLesson[],
+  tracks: LearningTrack[],
+  language: Language,
+): string[] {
   const lessonTitles = lessons.map((lesson) => getUnifiedLessonText(language, lesson).title);
   const concepts = lessons
     .flatMap((lesson) => lesson.practice)
@@ -240,7 +236,7 @@ function buildLearnItems(lessons: LearningLesson[], tracks: LearningTrack[], lan
     .filter((item): item is string => Boolean(item));
 
   const items = [
-    ...lessonTitles.map((title) => `${language === 'vi' ? 'Nắm chắc' : 'Master'} ${title}.`),
+    ...lessonTitles.map((title) => courseText.masterLesson(title)),
     ...concepts,
   ];
 
@@ -264,83 +260,52 @@ function getPracticeLabel(practice: LearningLesson['practice'][number]): string 
   return practice.targetOperation;
 }
 
-function getCourseCopy(language: Language, domain: LearningDomain, domainText: { title: string; description: string }, tracks: LearningTrack[]) {
-  if (domain.id === 'reinforcement-learning' && language === 'vi') {
-    return {
-      breadcrumbLabel: 'Course breadcrumb',
-      title: 'Reinforcement Learning for Neural Network Builders',
-      subtitle: 'Đi từ MDP, Bellman values, Q-table đến Q-Learning và SARSA bằng các bài học ngắn, trực quan, có practice ngay trong TorchViz-3D.',
-      updated: 'Last updated 6/2026',
-      whatYouWillLearn: "What you'll learn",
-      courseContent: 'Course content',
-      courseSummary: (lessons: number, minutes: number, practice: number) => `${lessons} lessons - ${minutes} min - ${practice} practice items`,
-      requirementsTitle: 'Requirements',
-      requirements: [
-        'You can read basic Python-like model code.',
-        'You know tensors or are willing to learn by tracing them visually.',
-        'No prior reinforcement learning implementation is required.',
-      ],
-      descriptionTitle: 'Description',
-      description: [
-        'This path teaches reinforcement learning the same way TorchViz teaches model structure: one small system at a time, with the important state and value flow visible.',
-        'You will start with the vocabulary of an MDP, then connect Bellman updates to concrete Q-table entries before comparing off-policy Q-Learning with on-policy SARSA.',
-        'The goal is not to memorize formulas. The goal is to build enough intuition to inspect an RL loop and understand why an update moved a value in a specific direction.',
-      ],
-    };
-  }
-
+function getCourseCopy(
+  courseText: ReturnType<typeof getStrings>['learningLab']['coursePage'],
+  language: Language,
+  domain: LearningDomain,
+  domainText: { title: string; description: string },
+  tracks: LearningTrack[],
+) {
   if (domain.id === 'reinforcement-learning') {
     return {
-      breadcrumbLabel: 'Course breadcrumb',
-      title: 'Reinforcement Learning for Neural Network Builders',
-      subtitle: 'Move from MDPs, Bellman values, and Q-tables into Q-Learning and SARSA with short visual lessons and inline TorchViz-3D practice.',
-      updated: 'Last updated 6/2026',
-      whatYouWillLearn: "What you'll learn",
-      courseContent: 'Course content',
-      courseSummary: (lessons: number, minutes: number, practice: number) => `${lessons} lessons - ${minutes} min - ${practice} practice items`,
-      requirementsTitle: 'Requirements',
-      requirements: [
-        'You can read basic Python-like model code.',
-        'You know tensors or are willing to learn by tracing them visually.',
-        'No prior reinforcement learning implementation is required.',
-      ],
-      descriptionTitle: 'Description',
-      description: [
-        'This path teaches reinforcement learning the same way TorchViz teaches model structure: one small system at a time, with the important state and value flow visible.',
-        'You will start with the vocabulary of an MDP, then connect Bellman updates to concrete Q-table entries before comparing off-policy Q-Learning with on-policy SARSA.',
-        'The goal is not to memorize formulas. The goal is to build enough intuition to inspect an RL loop and understand why an update moved a value in a specific direction.',
-      ],
+      title: courseText.reinforcementLearning.title,
+      subtitle: courseText.reinforcementLearning.subtitle,
+      updated: courseText.updated,
+      whatYouWillLearn: courseText.whatYouWillLearn,
+      courseContent: courseText.courseContent,
+      courseSummary: courseText.courseSummary,
+      requirementsTitle: courseText.reinforcementLearning.requirementsTitle,
+      requirements: courseText.reinforcementLearning.requirements,
+      descriptionTitle: courseText.reinforcementLearning.descriptionTitle,
+      description: courseText.reinforcementLearning.description,
     };
   }
 
   const trackNames = tracks.map((track) => getTrackText(language, track).title).filter(Boolean);
-  const joinedTracks = formatList(trackNames);
+  const joinedTracks = formatList(trackNames, language);
 
   return {
-    breadcrumbLabel: 'Course breadcrumb',
     title: domainText.title,
     subtitle: domainText.description,
-    updated: 'Last updated 6/2026',
-    whatYouWillLearn: "What you'll learn",
-    courseContent: 'Course content',
-    courseSummary: (lessons: number, minutes: number, practice: number) => `${lessons} lessons - ${minutes} min - ${practice} practice items`,
-    requirementsTitle: 'Requirements',
-    requirements: [
-      'You can read basic Python-like model code.',
-      'You know tensors or are willing to learn by tracing them visually.',
-      'No prior implementation in this domain is required.',
-    ],
-    descriptionTitle: 'Description',
+    updated: courseText.updated,
+    whatYouWillLearn: courseText.whatYouWillLearn,
+    courseContent: courseText.courseContent,
+    courseSummary: courseText.courseSummary,
+    requirementsTitle: courseText.generic.requirementsTitle,
+    requirements: courseText.generic.requirements,
+    descriptionTitle: courseText.generic.descriptionTitle,
     description: [
       domainText.description,
-      joinedTracks ? `This path is organized around ${joinedTracks}, with short visual lessons and inline TorchViz-3D practice where content is available.` : 'This path is prepared as part of Learning Lab and will expand as more lessons are added.',
-      'The goal is to build enough intuition to inspect model behavior visually instead of memorizing formulas or framework boilerplate.',
+      joinedTracks ? courseText.generic.organizedDescription(joinedTracks) : courseText.generic.placeholderDescription,
+      courseText.generic.goalDescription,
     ],
   };
 }
 
-function formatList(items: string[]): string {
+function formatList(items: string[], language: Language): string {
   if (items.length <= 1) return items[0] ?? '';
-  if (items.length === 2) return `${items[0]} and ${items[1]}`;
-  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+  const conjunction = language === 'vi' ? 'và' : 'and';
+  if (items.length === 2) return `${items[0]} ${conjunction} ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')}, ${conjunction} ${items[items.length - 1]}`;
 }

@@ -19,7 +19,8 @@ export default function LearningLabHeader({
   const language = useStore((s) => s.language);
   const setLanguage = useStore((s) => s.setLanguage);
   const currentLanguage = language === 'vi' ? ('vi' as Language) : ('en' as Language);
-  const text = getStrings(currentLanguage).learningLab;
+  const strings = getStrings(currentLanguage);
+  const text = strings.learningLab;
   const themeClasses = getLearningLabTheme(theme);
   const isLight = themeClasses.isLight;
 
@@ -69,8 +70,8 @@ export default function LearningLabHeader({
           type="button"
           onClick={() => setLanguage(currentLanguage === 'vi' ? ('en' as Language) : ('vi' as Language))}
           className={cx('flex h-10 w-10 items-center justify-center', themeClasses.radius.icon, themeClasses.button.icon)}
-          title={currentLanguage === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
-          aria-label={currentLanguage === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
+          title={currentLanguage === 'vi' ? strings.app.switchToEnglish : strings.app.switchToVietnamese}
+          aria-label={currentLanguage === 'vi' ? strings.app.switchToEnglish : strings.app.switchToVietnamese}
           aria-pressed={currentLanguage === 'vi'}
         >
           <Languages className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />

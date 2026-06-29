@@ -10,6 +10,7 @@ type RLValueExerciseProps = {
     reset: string;
     correct: string;
     incorrect: string;
+    maxQ: string;
   };
 };
 
@@ -34,7 +35,7 @@ export default function RLValueExercise({ fixture, text }: RLValueExerciseProps)
           </div>
         </div>
         <label className="block">
-          <span className="mb-1 block text-[11px] font-bold uppercase text-zinc-500">max Q</span>
+          <span className="mb-1 block text-[11px] font-bold uppercase text-zinc-500">{text.maxQ}</span>
           <input
             value={answer}
             onChange={(event) => setAnswer(event.currentTarget.value)}

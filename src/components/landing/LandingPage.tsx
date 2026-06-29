@@ -24,11 +24,17 @@ function HeroVisual({
   stages: ReturnType<typeof getStrings>['landingPage']['stages'];
 }) {
   return (
-    <div className="landing-hero-visual group relative z-[2] h-full min-h-0 overflow-hidden rounded-lg border border-blue-300/20 bg-[#080b10]/95 shadow-2xl shadow-black/45">
-      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(96,165,250,0.2),transparent_34%),linear-gradient(315deg,rgba(52,211,153,0.16),transparent_36%),radial-gradient(circle_at_54%_44%,rgba(15,23,42,0.18),transparent_45%)]" />
-      <div className="absolute inset-0 opacity-[0.2] [background-image:linear-gradient(rgba(148,163,184,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.2)_1px,transparent_1px)] [background-size:34px_34px]" />
+    <div className="landing-hero-visual group relative z-[2] h-full min-h-0 overflow-hidden rounded-lg border border-zinc-700/80 bg-[#0b0f14] shadow-2xl shadow-black/35">
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(56,189,248,0.14),transparent_38%),linear-gradient(315deg,rgba(16,185,129,0.12),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_34%)]" />
+      <div className="absolute inset-0 opacity-[0.14] [background-image:linear-gradient(rgba(226,232,240,0.24)_1px,transparent_1px),linear-gradient(90deg,rgba(226,232,240,0.24)_1px,transparent_1px)] [background-size:36px_36px]" />
+      <div className="absolute left-0 right-0 top-0 z-[2] flex h-11 items-center gap-2 border-b border-white/10 bg-white/[0.035] px-4">
+        <span className="h-2 w-2 rounded-full bg-rose-300/80" aria-hidden="true" />
+        <span className="h-2 w-2 rounded-full bg-amber-300/80" aria-hidden="true" />
+        <span className="h-2 w-2 rounded-full bg-emerald-300/80" aria-hidden="true" />
+        <span className="ml-3 h-px flex-1 bg-white/10" aria-hidden="true" />
+      </div>
 
-      <div className="landing-clean-flow absolute z-[2] left-[clamp(20px,3vw,40px)] right-[clamp(20px,3vw,40px)] bottom-[clamp(24px,4vh,64px)] top-[clamp(28px,5vh,48px)]">
+      <div className="landing-clean-flow absolute z-[2] left-[clamp(18px,3vw,42px)] right-[clamp(18px,3vw,42px)] bottom-[clamp(22px,4vh,54px)] top-[clamp(64px,9vh,76px)]">
         <div className="landing-clean-beam" />
         <div className="landing-clean-pulse" />
 
@@ -127,7 +133,8 @@ export default function LandingPage({
     available: '',
     soon: '',
   });
-  const text = getStrings(language).landingPage;
+  const strings = getStrings(language);
+  const text = strings.landingPage;
 
   useLayoutEffect(() => {
     const bento = bentoRef.current;
@@ -187,34 +194,34 @@ export default function LandingPage({
   }, []);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#06070a] text-zinc-100">
-      <section className="relative flex min-h-screen items-stretch">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,#05060a_0%,#09090b_42%,#111827_100%)]" />
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_52%_45%,rgba(59,130,246,0.18),transparent_30%),radial-gradient(circle_at_72%_62%,rgba(52,211,153,0.12),transparent_26%)]" />
-        <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(90deg,#ffffff_1px,transparent_1px),linear-gradient(#ffffff_1px,transparent_1px)] [background-size:72px_72px]" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/45 to-transparent" />
+    <main className="min-h-screen overflow-x-hidden bg-[#090b0f] text-zinc-100">
+      <section className="relative flex min-h-screen items-stretch overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,#08090d_0%,#10141a_52%,#15120f_100%)]" />
+        <div className="absolute inset-0 opacity-[0.11] [background-image:linear-gradient(90deg,#ffffff_1px,transparent_1px),linear-gradient(#ffffff_1px,transparent_1px)] [background-size:84px_84px]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/50 to-transparent" />
 
         <div className="absolute right-8 top-8 z-10">
           <button
             type="button"
             onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')}
-            className="flex h-9 w-9 items-center justify-center rounded-md border border-zinc-700 bg-zinc-950/70 text-zinc-300 transition-all hover:bg-zinc-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400/40"
-            title={language === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
-            aria-label={language === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
+            className="flex h-11 w-11 items-center justify-center rounded-md border border-white/12 bg-white/[0.055] text-zinc-300 shadow-lg shadow-black/20 transition-all hover:border-cyan-200/45 hover:bg-white/[0.085] hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-300/45"
+            title={language === 'vi' ? strings.app.switchToEnglish : strings.app.switchToVietnamese}
+            aria-label={language === 'vi' ? strings.app.switchToEnglish : strings.app.switchToVietnamese}
             aria-pressed={language === 'vi'}
           >
             <Languages className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
           </button>
         </div>
 
-        <div className="relative mx-auto flex h-screen min-h-0 w-full max-w-[min(1680px,100vw)] flex-col px-[clamp(20px,3.2vw,56px)] py-[clamp(18px,3vh,32px)]">
+        <div className="relative mx-auto flex h-screen min-h-0 w-full max-w-[min(1580px,100vw)] flex-col px-[clamp(18px,3.2vw,54px)] py-[clamp(18px,3vh,34px)]">
           <div className="mx-auto max-w-4xl shrink-0 text-center">
-            <h1 className="text-[clamp(3.4rem,5.4vw,5.3rem)] font-black leading-[0.9] text-white">
+            <h1 className="text-[clamp(3rem,5vw,5rem)] font-black leading-[0.92] text-white">
               {text.title}
             </h1>
-            <p className="mx-auto mt-[clamp(12px,1.8vh,18px)] flex max-w-4xl items-center justify-center gap-2 text-[clamp(1.05rem,1.35vw,1.35rem)] font-semibold leading-8 text-blue-100">
+            <p className="mx-auto mt-[clamp(12px,1.8vh,18px)] flex max-w-4xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[clamp(1rem,1.25vw,1.25rem)] font-semibold leading-7 text-cyan-50">
               <span>{text.eyebrow}</span>
-              <span className="text-blue-300/60" aria-hidden="true">
+              <span className="text-emerald-200/55" aria-hidden="true">
                 -
               </span>
               <span>{text.subtitle}</span>
@@ -226,10 +233,10 @@ export default function LandingPage({
 
           <div
             ref={bentoRef}
-            className="relative mt-[clamp(18px,2.6vh,28px)] grid h-[clamp(300px,45vh,380px)] min-h-0 grid-cols-1 grid-rows-[minmax(220px,1fr)_auto] gap-[clamp(14px,1.4vw,22px)] p-0 xl:grid-cols-[minmax(0,1fr)_clamp(280px,20vw,340px)] xl:grid-rows-1"
+            className="relative mt-[clamp(18px,2.6vh,30px)] grid h-[clamp(340px,48vh,430px)] min-h-0 grid-cols-1 grid-rows-[minmax(230px,1fr)_auto] gap-[clamp(14px,1.5vw,24px)] p-0 xl:grid-cols-[minmax(0,1fr)_clamp(300px,22vw,360px)] xl:grid-rows-1"
           >
             <svg
-              className="landing-bento-branches pointer-events-none absolute inset-0 z-[3]"
+              className="landing-bento-branches pointer-events-none absolute inset-0 z-[3] hidden xl:block"
               viewBox={`0 0 ${branchPaths.width} ${branchPaths.height}`}
               preserveAspectRatio="none"
               aria-hidden="true"
@@ -246,7 +253,7 @@ export default function LandingPage({
               <HeroVisual stages={text.stages} />
             </div>
 
-            <div className="relative z-[4] grid min-h-0 content-center grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="relative z-[4] grid min-h-0 content-center grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
               <div className="landing-bento-target landing-bento-target-available">
                 <span
                   ref={availableAnchorRef}

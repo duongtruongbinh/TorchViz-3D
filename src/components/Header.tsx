@@ -270,8 +270,8 @@ export default function Header({
                         type="button"
                         onClick={() => setLanguage(language === 'vi' ? ('en' as Language) : ('vi' as Language))}
                         className="h-8 w-8 flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--text-muted)] transition-all hover:bg-[#3f3f46] hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                        title={language === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
-                        aria-label={language === 'vi' ? 'Switch to English' : 'Switch to Vietnamese'}
+                        title={language === 'vi' ? t.app.switchToEnglish : t.app.switchToVietnamese}
+                        aria-label={language === 'vi' ? t.app.switchToEnglish : t.app.switchToVietnamese}
                         aria-pressed={language === 'vi'}
                     >
                         <Languages className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
