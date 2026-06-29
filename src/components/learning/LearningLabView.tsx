@@ -8,16 +8,16 @@ import {
   getLearningTrack,
   getLearningTracksForDomain,
 } from '../../core/learning/selectors';
-import type { LearningDomainId, LearningTrack } from '../../core/learning/types';
+import type { LearningDomainId, LearningLesson, LearningTrack } from '../../core/learning/types';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';
 import LessonDetail from './lesson/LessonDetail';
 import LessonNode from './lesson/LessonNode';
 import { getDomainText, getDomainTextById, getTrackText } from './learningText';
+import DomainCoursePage from './shell/DomainCoursePage';
 import DomainCatalog from './shell/DomainCatalog';
 import ReviewMode from './shell/ReviewMode';
-import TrackList from './shell/TrackList';
 import { cx, getLearningLabTheme } from './theme';
 
 type LearningLabMode = 'path' | 'review';
@@ -84,9 +84,9 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     navigate(`/learning/${nextDomainId}`);
   };
 
-  const openTrack = (track: LearningTrack) => {
+  const openLesson = (track: LearningTrack, lesson: LearningLesson) => {
     setMode('path');
-    navigate(`/learning/${track.domainId}/${track.id}`);
+    navigate(`/learning/${track.domainId}/${track.id}?lesson=${lesson.id}`);
   };
 
   const openLearningHome = () => {
@@ -246,17 +246,14 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : !routeDomainId ? (
             <DomainCatalog catalog={learningCatalog} language={language} theme={theme} onOpenDomain={openDomain} />
           ) : activeDomain && !activeTrack ? (
-            <section className="learning-lab-catalog grid gap-5 px-2">
-              <div>
-                <h1 className={cx('text-3xl font-black leading-tight', themeClasses.titleText)}>
-                  {getDomainText(language, activeDomain).title}
-                </h1>
-                <p className={cx('mt-2 max-w-3xl text-sm leading-6', themeClasses.bodyText)}>
-                  {getDomainText(language, activeDomain).description}
-                </p>
-              </div>
-              <TrackList tracks={activeTracks} language={language} theme={theme} onOpenTrack={openTrack} />
-            </section>
+            <DomainCoursePage
+              domain={activeDomain}
+              tracks={activeTracks}
+              lessons={learningCatalog.lessons.filter((lesson) => lesson.domainId === activeDomain.id)}
+              language={language}
+              theme={theme}
+              onOpenLesson={openLesson}
+            />
           ) : activeTrack && selectedLesson ? (
             <section className="learning-lab-catalog grid min-h-0 w-full gap-5 px-2 lg:grid-cols-[320px_minmax(0,1fr)]">
               <aside className="grid max-h-full gap-3 overflow-auto pr-1">

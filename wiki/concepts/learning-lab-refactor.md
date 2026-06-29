@@ -1,7 +1,7 @@
 ---
 title: Learning Lab Refactor
 type: Active Subsystem
-updated: 2026-06-26
+updated: 2026-06-28
 ---
 
 # Learning Lab Refactor
@@ -44,6 +44,11 @@ Learning Lab is active as the single learning container. It currently provides:
   exercise model builders.
 - Reinforcement Learning practice cards for MDP, Bellman/Q-table, Q-Learning,
   SARSA, and GridWorld, backed by deterministic fixtures.
+- Domain landing pages use a shared course-style layout with a dark hero,
+  outcomes, closed-by-default course content accordions, requirements,
+  description, and a simple Future HMI footer. Lesson rows navigate into the
+  existing track lesson pages with `?lesson=` query state; accordion headers only
+  expand or collapse.
 - A shared Learning Lab shell using the former RL surface's cleaner
   light-theme/card/sidebar visual treatment as the style baseline.
 - Workspace forward-pass controls expose a familiar dropdown-style exercise
@@ -84,7 +89,8 @@ Active behavior remains unchanged:
 | `src/components/learning/LearningLabView.tsx` | Full-screen Learning Lab container, route-aware domain/track/lesson shell, and local mode/theme state. |
 | `src/components/learning/LearningLabHeader.tsx` | RL-style Lab header with Path/Review, theme, language, and sidebar controls. |
 | `src/components/learning/shell/DomainCatalog.tsx` | Domain-first catalog entry surface. |
-| `src/components/learning/shell/TrackList.tsx` | Track/topic cards for a selected domain. |
+| `src/components/learning/shell/DomainCoursePage.tsx` | Shared course-style landing page for selected domains, including hero, outcomes, course content accordions, requirements, description, and footer. |
+| `src/components/learning/shell/TrackList.tsx` | Legacy track/topic card surface retained for possible reuse; domain landing routes now use `DomainCoursePage`. |
 | `src/components/learning/shell/ReviewMode.tsx` | Review browser over active-domain or catalog practice. |
 | `src/components/learning/lesson/LessonNode.tsx` | Shared lesson node. |
 | `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory and practice rendering. |

@@ -16,8 +16,20 @@ export default function DomainCatalog({ catalog, language, theme, onOpenDomain }
   const themeClasses = getLearningLabTheme(theme);
 
   return (
-    <section className="learning-lab-catalog grid gap-5 px-2">
-      <div className="grid max-w-6xl gap-5 xl:grid-cols-2 2xl:grid-cols-3">
+    <div className={cx('-m-4 grid min-h-full w-[calc(100%+2rem)] gap-5 p-4', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      <div className={cx('border p-6 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
+        <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
+          {strings.domainCatalogLabel}
+        </div>
+        <h1 className={cx('mt-2 text-3xl font-black leading-tight', themeClasses.titleText)}>
+          {strings.domainCatalogTitle}
+        </h1>
+        <p className={cx('mt-3 max-w-3xl text-sm leading-6', themeClasses.bodyText)}>
+          {strings.domainCatalogDescription}
+        </p>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
         {catalog.domains.map((domain) => {
           const text = getDomainText(language, domain);
           const isPlaceholder = domain.status === 'placeholder';
@@ -28,39 +40,37 @@ export default function DomainCatalog({ catalog, language, theme, onOpenDomain }
               type="button"
               onClick={() => onOpenDomain(domain.id)}
               className={cx(
-                'group flex min-h-44 w-full flex-col gap-2 p-4',
+                'group w-full p-5',
                 themeClasses.radius.card,
                 themeClasses.button.card,
               )}
             >
-              <div className="grid grid-cols-[40px_minmax(0,1fr)_auto] items-start gap-3">
-                <div className={cx('flex h-10 w-10 shrink-0 items-center justify-center text-xl font-black', themeClasses.radius.icon, themeClasses.iconTile)}>
+              <div className="flex items-start gap-3">
+                <div className={cx('flex h-12 w-12 shrink-0 items-center justify-center text-xl font-black', themeClasses.radius.icon, themeClasses.iconTile)}>
                   {domain.id === 'fundamentals' ? <BookOpen className="h-6 w-6" strokeWidth={1.8} /> : null}
                   {domain.id === 'cv' ? <Eye className="h-6 w-6" strokeWidth={1.8} /> : null}
                   {domain.id === 'nlp' ? <MessageSquareText className="h-6 w-6" strokeWidth={1.8} /> : null}
                   {domain.id === 'reinforcement-learning' ? <Route className="h-6 w-6" strokeWidth={1.8} /> : null}
                   {domain.id === 'robot-learning' ? <Bot className="h-6 w-6" strokeWidth={1.8} /> : null}
                 </div>
-                <h2 className={cx('min-w-0 pt-1 text-base font-black leading-tight', themeClasses.titleText)}>{text.title}</h2>
-                <span className={cx('shrink-0 px-2.5 py-0.5 text-[11px] font-black', themeClasses.radius.pill, themeClasses.statusPill(isPlaceholder))}>
-                  {isPlaceholder ? strings.domainPlaceholder : strings.domainAvailable}
-                </span>
-              </div>
-              <div className="flex flex-1 flex-col pl-[52px]">
-                <p className={cx('line-clamp-2 text-sm leading-5', themeClasses.bodyText)}>{text.description}</p>
-                {!isPlaceholder ? (
-                  <span className="mt-auto flex justify-end pt-3">
-                    <span className={cx('inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-black transition-colors', themeClasses.ctaPill)}>
-                      {strings.openDomain}
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.8} aria-hidden="true" />
+                <div className="min-w-0">
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    <span className={cx('px-3 py-1 text-xs font-black', themeClasses.radius.pill, themeClasses.statusPill(isPlaceholder))}>
+                      {isPlaceholder ? strings.domainPlaceholder : strings.domainAvailable}
                     </span>
+                  </div>
+                  <h2 className={cx('text-lg font-black leading-tight', themeClasses.titleText)}>{text.title}</h2>
+                  <p className={cx('mt-3 line-clamp-3 text-sm leading-6', themeClasses.bodyText)}>{text.description}</p>
+                  <span className={cx('mt-5 inline-flex items-center gap-2 text-sm font-black transition-colors', themeClasses.eyebrowText)}>
+                    {strings.openDomain}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.8} aria-hidden="true" />
                   </span>
-                ) : null}
+                </div>
               </div>
             </button>
           );
         })}
       </div>
-    </section>
+    </div>
   );
 }

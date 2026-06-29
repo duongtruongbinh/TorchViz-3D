@@ -143,7 +143,12 @@ const localizedText = {
     closeSidebar: { en: 'Close sidebar', vi: 'Đóng thanh điều hướng' },
     sidebarDomains: { en: 'Domains', vi: 'Domain' },
     searchLabel: { en: 'Learning Lab', vi: 'Learning Lab' },
+    domainCatalogLabel: { en: 'Learning Lab catalog', vi: 'Learning Lab catalog' },
     domainCatalogTitle: { en: 'Choose a learning domain', vi: 'Chọn domain học tập' },
+    domainCatalogDescription: {
+      en: 'Pick the model area you want to practice first. Each domain opens a focused learning path.',
+      vi: 'Chọn vùng kiến thức muốn luyện trước. Mỗi domain mở một lộ trình học tập tập trung.',
+    },
     domainAvailable: { en: 'Available', vi: 'Sẵn sàng' },
     domainPlaceholder: { en: 'Placeholder', vi: 'Đang cập nhật' },
     openDomain: { en: "Let's go", vi: "Let's go" },
