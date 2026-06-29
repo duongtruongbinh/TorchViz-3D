@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeftToLine, BookOpen, Bot, Eye, MessageSquareText, PanelLeft, Route } from 'lucide-react';
+import { BookOpen, Bot, Eye, Home, MessageSquareText, PanelLeft, Route } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { learningCatalog } from '../../core/learning/content';
 import {
@@ -110,13 +110,13 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           <span
             className={cx(
               'group relative flex h-10 w-10 shrink-0 items-center justify-center font-black',
-              isSidebarOpen ? 'cursor-pointer' : undefined,
+              'cursor-pointer',
               themeClasses.radius.icon,
               themeClasses.brandTile,
             )}
-            onClick={isSidebarOpen ? openLearningHome : undefined}
-            title={isSidebarOpen ? strings.domainCatalogTitle : undefined}
-            aria-label={isSidebarOpen ? strings.domainCatalogTitle : undefined}
+            onClick={isSidebarOpen ? onBackToLanding : undefined}
+            title={isSidebarOpen ? strings.backToLanding : strings.openSidebar}
+            aria-label={isSidebarOpen ? strings.backToLanding : strings.openSidebar}
           >
             <img
               src={futureHmiLogoUrl}
@@ -130,7 +130,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             {!isSidebarOpen ? (
               <button
                 type="button"
-                onClick={() => setIsSidebarOpen(true)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setIsSidebarOpen(true);
+                }}
                 className={cx(
                   'absolute inset-0 flex h-full w-full items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100',
                   themeClasses.radius.icon,
@@ -148,10 +151,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             <>
               <button
                 type="button"
-                onClick={openLearningHome}
+                onClick={onBackToLanding}
                 className={cx('min-w-0 flex-1 text-left', themeClasses.focusRing)}
-                title={strings.domainCatalogTitle}
-                aria-label={strings.domainCatalogTitle}
+                title={strings.backToLanding}
+                aria-label={strings.backToLanding}
               >
                 <span className="block truncate text-xl font-black leading-6">
                   TorchViz<span className={themeClasses.accentText}>3D</span>
@@ -174,8 +177,26 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : null}
         </div>
 
-        <nav className={isSidebarOpen ? 'flex-1 px-3 pb-5 pt-10' : 'flex-1 px-3 py-5'} aria-label={strings.sidebarDomains}>
-          <div className="grid gap-3">
+        <nav className={isSidebarOpen ? 'flex-1 overflow-y-auto px-3 pb-5 pt-5' : 'flex-1 overflow-y-auto px-3 py-5'} aria-label={strings.sidebarDomains}>
+          <div className="grid gap-2">
+            <button
+              type="button"
+              onClick={openLearningHome}
+              className={cx(
+                'flex h-11 w-full items-center text-left text-sm',
+                isSidebarOpen ? 'gap-2 px-2' : 'justify-center px-0',
+                themeClasses.radius.button,
+                themeClasses.button.nav(!routeDomainId && mode === 'path'),
+              )}
+              title={strings.home}
+              aria-current={!routeDomainId && mode === 'path' ? 'page' : undefined}
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center text-sm" aria-hidden="true">
+                <Home className="h-5 w-5" strokeWidth={1.8} />
+              </span>
+              {isSidebarOpen ? <span className="min-w-0 truncate">{strings.home}</span> : null}
+            </button>
+
             {learningCatalog.domains.map((domain) => {
               const text = getDomainText(language, domain);
               const isActive = routeDomainId === domain.id;
@@ -207,25 +228,6 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           </div>
         </nav>
 
-        <div className={isSidebarOpen ? 'px-3 pb-5' : 'px-3 pb-5'}>
-          <button
-            type="button"
-            onClick={onBackToLanding}
-            className={cx(
-              'flex h-11 w-full items-center text-sm',
-              isSidebarOpen ? 'gap-2 px-2 text-left' : 'justify-center px-0',
-              themeClasses.radius.button,
-              themeClasses.button.ghost,
-              themeClasses.backLink,
-              themeClasses.isLight ? 'hover:bg-[#CAD6E5]/75 hover:text-[#205089]' : 'hover:bg-[#205089]/40 hover:text-[#EBEFF4]',
-            )}
-            title={strings.backToLanding}
-            aria-label={strings.backToLanding}
-          >
-            <ArrowLeftToLine className="h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            {isSidebarOpen ? <span className="min-w-0 truncate text-xs">{strings.backToLanding}</span> : null}
-          </button>
-        </div>
       </aside>
 
       <div className="flex min-h-screen min-w-0 flex-col">
@@ -244,7 +246,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               theme={theme}
             />
           ) : !routeDomainId ? (
-            <DomainCatalog catalog={learningCatalog} language={language} theme={theme} onOpenDomain={openDomain} />
+            <DomainCatalog language={language} theme={theme} />
           ) : activeDomain && !activeTrack ? (
             <DomainCoursePage
               domain={activeDomain}

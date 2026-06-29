@@ -1,7 +1,7 @@
 ---
 title: Learning Lab Refactor
 type: Active Subsystem
-updated: 2026-06-28
+updated: 2026-06-29
 ---
 
 # Learning Lab Refactor
@@ -25,12 +25,13 @@ workspace header can return to Landing.
 Landing includes the same language selector behavior as the workspace header;
 both are backed by the global `useStore` language state.
 
-The active Landing first screen is a viewport-fit bento composition: top intro
-copy, a left "live graph preview" animation that flows through model stages, and
-compact right-side cards for Workspace and Learning Lab.
-Connection lines are computed from real DOM anchors between the final classifier
-block and the main cards; the Workspace route enters the editor/canvas flow and
-the Learning Lab route enters the guided learning flow.
+The active Landing first screen is a restrained dark technical composition: top
+intro copy, a quieter live model-flow preview, and clearer right-side entry
+cards for Workspace and Learning Lab. On wide screens, subtle connection lines
+are computed from real DOM anchors between the final classifier block and the
+main cards; smaller layouts hide those routes to keep the page readable. The
+Workspace route enters the editor/canvas flow and the Learning Lab route enters
+the guided learning flow.
 
 Learning Lab is active as the single learning container. It currently provides:
 
@@ -109,6 +110,16 @@ Learning Lab UI conventions live in `src/components/learning/theme.ts`.
 New Learning Lab controls should use `getLearningLabTheme(theme)` instead of
 hand-rolling color, hover, focus, or radius classes in component files.
 
+`LearningLabView` keeps the left sidebar intentionally shallow: an explicit
+Home item appears at the top, followed only by top-level domains. The Home page
+is a simple, text-focused introduction to the TorchViz-3D project, its learning
+goal, and the team ideals behind the lab; it does not duplicate domain cards or
+show a project logo in the main content. Track and lesson structure belongs in
+the main content area on the right, through the domain course page and lesson
+detail surfaces, instead of expanding as a tree in the sidebar. The TorchViz
+brand/logo in the sidebar is the Landing return affordance; there is no
+separate Back to landing row.
+
 Use the semantic helpers as the default:
 
 - `themeClasses.radius.icon` for square icon controls and brand tiles.
@@ -132,7 +143,8 @@ controls. Current standard icons include:
 - `Sun` and `Moon` for theme switching.
 - `PanelLeft` for sidebar open/close.
 - `ArrowRight` for open/start/enter actions.
-- `ArrowLeftToLine` for Back to landing.
+- Use the TorchViz brand/logo as the Learning Lab return-to-Landing affordance;
+  do not add a separate Back to landing row.
 - `Languages` icon-only for direct language toggles.
 - `ChevronDown` and `Check` for menus.
 - `Play`, `Pause`, `SkipBack`, and `SkipForward` for playback controls.
@@ -142,6 +154,12 @@ controls. Current standard icons include:
 The language switch intentionally remains an app-wide direct two-mode toggle
 with a standalone `Languages` icon; do not reintroduce text labels or language
 dropdowns unless a later approved plan changes the interaction.
+
+Learning Lab course-page copy, inline practice labels, hint-control accessibility
+text, and Landing/Workspace/Lab language-toggle tooltips live in
+`src/lib/localization.ts`. Vietnamese copy should preserve English technical
+terms such as ReLU, MDP, Q-value, GridWorld, tensor, shape, output, kernel,
+stride, and padding.
 
 SVG is still appropriate when it is the visual content itself: Landing preview
 graphs/routes, exercise/math graphs, generated SVG export output, or custom

@@ -3,6 +3,17 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-06-29 — Landing home redesign.** Refined the outer Landing page into a
+  quieter dark technical composition with less glow, clearer Workspace/Learning
+  cards, wider touch targets, reduced-motion support, and desktop-only route
+  lines.
+- **2026-06-29 — Learning Lab sidebar hierarchy.** Documented the shallow
+  Learning Lab sidebar model: Home stays at the top, domains remain top-level,
+  and track/lesson structure stays in the right-side main content instead of a
+  sidebar tree. The TorchViz logo is now the Landing return affordance.
+- **2026-06-29 — Learning Lab Home role.** Clarified that the `/learning` Home
+  page is a text-focused TorchViz-3D project introduction, while domain
+  navigation remains in the sidebar.
 - **2026-06-24 — Architecture bulk collapse controls.** Updated the
   [state store](concepts/state-store.md) reference for the new `expandAll()` and
   `collapseAll()` actions, including the intentional top-level root exclusion.

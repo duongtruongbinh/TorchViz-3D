@@ -164,7 +164,7 @@ export const ValueExercise: React.FC<{
             <section className="min-w-0 p-4">
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">
-                  {language === 'vi' ? 'Bảng đầu vào' : 'Input table'}
+                  {t.valueExercise.inputTable}
                 </h3>
                 <span className="text-[10px] font-mono text-zinc-500">
                   {POOL_INPUT_MATRIX.length} x {POOL_INPUT_MATRIX[0].length}
@@ -182,12 +182,12 @@ export const ValueExercise: React.FC<{
             <section className="flex min-w-0 flex-col justify-center gap-3 p-4">
               <div className="rounded-md border border-zinc-800 bg-zinc-950/80 p-4">
                 <div className="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-200">
-                  {language === 'vi' ? 'Cấu hình pooling' : 'Pooling config'}
+                  {t.valueExercise.poolingConfig}
                 </div>
                 <div className="space-y-3">
                   <label className="block">
                     <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                      {language === 'vi' ? 'Loại pooling' : 'Pooling type'}
+                      {t.valueExercise.poolingType}
                     </span>
                     <select
                       value={poolMode}
@@ -222,7 +222,7 @@ export const ValueExercise: React.FC<{
             <section className="min-w-0 p-4">
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">
-                  {language === 'vi' ? 'Điền output' : 'Fill output'}
+                  {t.valueExercise.fillOutput}
                 </h3>
                 <span className="text-[10px] font-mono text-zinc-500">
                   {submitted ? `${poolCorrect}/${poolExpected.length}` : `0/${poolExpected.length}`}
@@ -256,7 +256,7 @@ export const ValueExercise: React.FC<{
                             : 'border-red-300/70 text-red-100 ring-1 ring-red-300/20'
                           : 'border-zinc-600/70 text-zinc-100 focus:border-sky-300'
                       }`}
-                      aria-label={`Output cell ${index + 1}`}
+                      aria-label={t.valueExercise.outputCell(index + 1)}
                       title={submitted && !isCorrect ? t.expected(expected) : undefined}
                     />
                   );
@@ -272,10 +272,15 @@ export const ValueExercise: React.FC<{
                 <div className="space-y-2 font-mono text-[11px] leading-relaxed text-zinc-300">
                   <div>
                     {poolHintCell
-                      ? (language === 'vi'
-                        ? `Với stride = ${poolStride}, ô output (${poolHintCell.row + 1}, ${poolHintCell.col + 1}) đọc window bắt đầu tại hàng ${poolHintWindow!.row + 1}, cột ${poolHintWindow!.col + 1}; sau đó lấy ${poolMode === 'max' ? 'giá trị lớn nhất' : 'trung bình'} trong window.`
-                        : `With stride = ${poolStride}, output (${poolHintCell.row + 1}, ${poolHintCell.col + 1}) reads the window starting at row ${poolHintWindow!.row + 1}, col ${poolHintWindow!.col + 1}; then takes the ${poolMode === 'max' ? 'maximum value' : 'average'} from that window.`)
-                      : (language === 'vi' ? 'Bấm Hint để xem một ô output.' : 'Press Hint to inspect one output cell.')}
+                      ? t.valueExercise.poolHint({
+                        stride: poolStride,
+                        outputRow: poolHintCell.row + 1,
+                        outputCol: poolHintCell.col + 1,
+                        windowRow: poolHintWindow!.row + 1,
+                        windowCol: poolHintWindow!.col + 1,
+                        mode: poolMode,
+                      })
+                      : t.valueExercise.poolHintIdle}
                   </div>
                   {poolHintDetail && (
                     <div className="rounded-md border border-amber-300/20 bg-zinc-950/80 px-3 py-2 text-amber-100">
@@ -293,7 +298,6 @@ export const ValueExercise: React.FC<{
             statuses={statuses}
             submitted={submitted}
             t={t}
-            language={language}
             showHint={showHint}
             activationHintIndex={activationHintIndex}
             onAnswerChange={(index, value) => {
@@ -642,11 +646,10 @@ const ActivationValuePanel: React.FC<{
   statuses: boolean[];
   submitted: boolean;
   t: DemoLabels;
-  language: 'en' | 'vi';
   showHint: boolean;
   activationHintIndex: number | null;
   onAnswerChange: (index: number, value: string) => void;
-}> = ({ model, answers, statuses, submitted, t, language, showHint, activationHintIndex, onAnswerChange }) => {
+}> = ({ model, answers, statuses, submitted, t, showHint, activationHintIndex, onAnswerChange }) => {
   const inputValues = model.inputValues ?? readVectorSection(model.displaySections[0]?.rows[0] ?? '');
 
   return (
@@ -654,7 +657,7 @@ const ActivationValuePanel: React.FC<{
       <section className="min-w-0 p-4">
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">
-            {language === 'vi' ? 'Vector đầu vào' : 'Input vector'}
+            {t.valueExercise.inputVector}
           </h3>
           <span className="text-[10px] font-mono text-zinc-500">
             {inputValues.length}
@@ -685,9 +688,7 @@ const ActivationValuePanel: React.FC<{
           </div>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-          {language === 'vi'
-            ? 'ReLU giữ giá trị dương và đưa giá trị âm về 0.'
-            : 'ReLU keeps positive values and clamps negative values to 0.'}
+          {t.valueExercise.reluKeepsPositive}
         </p>
       </section>
 
@@ -699,7 +700,7 @@ const ActivationValuePanel: React.FC<{
               {model.configRows[0] ?? 'rule=max(0, x)'}
             </span>
           </div>
-          <ReluChart />
+          <ReluChart t={t} />
         </div>
       </section>
 
@@ -754,10 +755,8 @@ const ActivationValuePanel: React.FC<{
           <div className="space-y-3 font-mono text-sm leading-relaxed text-zinc-300">
             <div>
               {activationHintIndex !== null
-                ? (language === 'vi'
-                  ? `Đang xem xét phần tử x${activationHintIndex} = ${inputValues[activationHintIndex]}.`
-                  : `Inspecting element x${activationHintIndex} = ${inputValues[activationHintIndex]}.`)
-                : (language === 'vi' ? 'Bấm Hint để xem gợi ý từng phần tử.' : 'Press Hint to inspect one element.')}
+                ? t.valueExercise.activationHint({ index: activationHintIndex, input: inputValues[activationHintIndex] })
+                : t.valueExercise.activationHintIdle}
             </div>
             {activationHintIndex !== null && (() => {
               const v = inputValues[activationHintIndex];
@@ -772,7 +771,7 @@ const ActivationValuePanel: React.FC<{
             })()}
             <div className="border-t border-zinc-800 mt-2.5 pt-2.5">
               <div className="mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500">
-                {language === 'vi' ? 'Quy tắc chung:' : 'General Rule:'}
+                {t.valueExercise.generalRule}
               </div>
               {model.hintLines.map((line) => (
                 <div key={line} className="text-zinc-400">
@@ -787,9 +786,9 @@ const ActivationValuePanel: React.FC<{
   );
 };
 
-const ReluChart: React.FC = () => (
+const ReluChart: React.FC<{ t: DemoLabels }> = ({ t }) => (
   <div className="relative h-52 overflow-hidden rounded-md border border-zinc-800 bg-zinc-950">
-    <svg viewBox="0 0 320 180" className="h-full w-full" role="img" aria-label="ReLU graph">
+    <svg viewBox="0 0 320 180" className="h-full w-full" role="img" aria-label={t.valueExercise.reluGraph}>
       <defs>
         <linearGradient id="relu-line" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="#64748b" />
@@ -809,8 +808,8 @@ const ReluChart: React.FC = () => (
       <text x="282" y="31" fill="#d1fae5" fontSize="12" fontWeight="700">y=x</text>
       <text x="48" y="116" fill="#cbd5e1" fontSize="12" fontWeight="700">0</text>
       <text x="160" y="139" fill="#fef3c7" fontSize="12" fontWeight="700">x=0</text>
-      <text x="98" y="166" fill="#94a3b8" fontSize="11">negative input</text>
-      <text x="206" y="166" fill="#67e8f9" fontSize="11">positive input</text>
+      <text x="98" y="166" fill="#94a3b8" fontSize="11">{t.valueExercise.negativeInput}</text>
+      <text x="206" y="166" fill="#67e8f9" fontSize="11">{t.valueExercise.positiveInput}</text>
     </svg>
   </div>
 );
