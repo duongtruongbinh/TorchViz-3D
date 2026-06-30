@@ -493,6 +493,13 @@ body {
   box-shadow: none !important;
 }
 
+.learning-lab-light .learning-lab-catalog > aside,
+.learning-lab-light .learning-lab-catalog > aside > div,
+.learning-lab-light .learning-lab-catalog > aside button {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
 .learning-lab-light [class*="border-zinc"] {
   border-color: rgba(148, 163, 184, 0.48) !important;
 }
@@ -602,6 +609,35 @@ body {
   border-color: rgba(148, 163, 184, 0.65) !important;
   background: #ffffff !important;
   color: #0f172a !important;
+}
+
+.learning-lab-light .learning-lab-rail-search-input {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-active {
+  border-color: rgba(47, 111, 159, 0.18) !important;
+  background-color: #d7e8f5 !important;
+  box-shadow: inset 0 0 0 1px rgba(47, 111, 159, 0.1) !important;
+  color: #255e88 !important;
+}
+
+.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-idle {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: rgba(18, 59, 104, 0.58) !important;
+}
+
+.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-idle:hover {
+  background-color: rgba(255, 255, 255, 0.58) !important;
+  color: #123b68 !important;
+}
+
+.learning-lab-light .learning-lab-lesson-node-current {
+  color: #ffffff !important;
 }
 
 .learning-lab-light button {

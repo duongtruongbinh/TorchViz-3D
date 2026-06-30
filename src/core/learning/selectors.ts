@@ -3,6 +3,7 @@ import type {
   LearningDomainId,
   LearningLesson,
   LearningPracticeRef,
+  LearningRouteAlias,
   LearningTrack,
   TensorExerciseId,
   TensorPracticeRef,
@@ -24,10 +25,123 @@ export function getLearningTrack(catalog: LearningCatalog, domainId: LearningDom
   return catalog.tracks.find((track) => track.domainId === domainId && track.id === trackId) ?? null;
 }
 
+export function getLearningLesson(catalog: LearningCatalog, domainId: LearningDomainId, lessonId: string) {
+  return catalog.lessons.find((lesson) => lesson.domainId === domainId && lesson.id === lessonId) ?? null;
+}
+
 export function getLearningLessonsForTrack(catalog: LearningCatalog, track: LearningTrack): LearningLesson[] {
   return track.lessonIds
     .map((lessonId) => catalog.lessons.find((lesson) => lesson.domainId === track.domainId && lesson.id === lessonId))
     .filter((lesson): lesson is LearningLesson => Boolean(lesson));
+}
+
+export type GroupedLearningLessons = {
+  track: LearningTrack;
+  lessons: LearningLesson[];
+};
+
+export function getGroupedLearningLessonsForDomain(
+  catalog: LearningCatalog,
+  domainId: LearningDomainId,
+): GroupedLearningLessons[] {
+  const seen = new Set<string>();
+  return getLearningTracksForDomain(catalog, domainId).map((track) => ({
+    track,
+    lessons: getLearningLessonsForTrack(catalog, track).filter((lesson) => {
+      if (seen.has(lesson.id)) return false;
+      seen.add(lesson.id);
+      return true;
+    }),
+  }));
+}
+
+export function getFirstLearningLessonRoute(
+  catalog: LearningCatalog,
+  domainId: LearningDomainId,
+  trackId?: string,
+): { track: LearningTrack; lesson: LearningLesson } | null {
+  const groups = getGroupedLearningLessonsForDomain(catalog, domainId);
+  const orderedGroups = trackId
+    ? [
+      ...groups.filter((group) => group.track.id === trackId),
+      ...groups.filter((group) => group.track.id !== trackId),
+    ]
+    : groups;
+  for (const { track, lessons } of orderedGroups) {
+    const lesson = lessons[0];
+    if (lesson) return { track, lesson };
+  }
+  return null;
+}
+
+export type LearningRouteResolution = {
+  track: LearningTrack;
+  lesson: LearningLesson;
+  isCanonical: boolean;
+};
+
+export function resolveLearningLessonRoute(
+  catalog: LearningCatalog,
+  {
+    domainId,
+    trackId,
+    lessonId,
+  }: {
+    domainId: LearningDomainId;
+    trackId?: string | null;
+    lessonId?: string | null;
+  },
+): LearningRouteResolution | null {
+  const trackAlias = trackId ? findTrackAlias(catalog, domainId, trackId) : null;
+  const canonicalTrackId = trackAlias?.toTrackId ?? trackId ?? undefined;
+  const lessonAlias = lessonId ? findLessonAlias(catalog, domainId, lessonId) : null;
+  const canonicalLessonId = lessonAlias?.toLessonId ?? lessonId ?? undefined;
+  const preferredTrackId = lessonAlias?.toTrackId ?? canonicalTrackId;
+
+  if (canonicalLessonId) {
+    const lesson = getLearningLesson(catalog, domainId, canonicalLessonId);
+    if (lesson) {
+      const track = getLearningTrack(catalog, domainId, lesson.trackId);
+      if (track) {
+        return {
+          track,
+          lesson,
+          isCanonical: track.id === trackId && lesson.id === lessonId,
+        };
+      }
+    }
+  }
+
+  const fallback = getFirstLearningLessonRoute(catalog, domainId, preferredTrackId);
+  if (!fallback) return null;
+  return {
+    ...fallback,
+    isCanonical: fallback.track.id === trackId && (!lessonId || fallback.lesson.id === lessonId),
+  };
+}
+
+function findTrackAlias(
+  catalog: LearningCatalog,
+  domainId: LearningDomainId,
+  trackId: string,
+): LearningRouteAlias | null {
+  return catalog.routeAliases?.find((alias) => (
+    alias.domainId === domainId
+    && alias.fromTrackId === trackId
+    && Boolean(alias.toTrackId)
+  )) ?? null;
+}
+
+function findLessonAlias(
+  catalog: LearningCatalog,
+  domainId: LearningDomainId,
+  lessonId: string,
+): LearningRouteAlias | null {
+  return catalog.routeAliases?.find((alias) => (
+    alias.domainId === domainId
+    && alias.fromLessonId === lessonId
+    && Boolean(alias.toLessonId)
+  )) ?? null;
 }
 
 export function getLearningPracticeForDomain(catalog: LearningCatalog, domainId: LearningDomainId): LearningPracticeRef[] {

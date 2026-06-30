@@ -37,11 +37,13 @@ export function getDomainTextById(language: Language, domainId: LearningDomainId
 
 export function getUnifiedLessonText(language: Language, lesson: LearningLesson) {
   const strings = getStrings(language);
+  const learningLabText = getLearningLessonText(strings.learningLab, lesson, language);
+  if (learningLabText.title !== lesson.id || lesson.text) return learningLabText;
   if (lesson.domainId === 'reinforcement-learning') {
     const lessons = strings.reinforcementLearning.lessons as Record<string, LessonText>;
     return lessons[toContentKey(lesson.id)] ?? { title: lesson.id, eyebrow: '', duration: '', theory: [] };
   }
-  return getLearningLessonText(strings.learningLab, lesson);
+  return learningLabText;
 }
 
 export function getUnifiedPracticeText(language: Language, practice: LearningPracticeRef) {

@@ -55,14 +55,14 @@ test('app route helpers build HashRouter URLs for new-tab Learning Lab handoff',
 });
 
 test('legacy RL roadmap URLs map into Learning Lab domain routes', () => {
-  assert.equal(getLegacyReinforcementLearningRedirectPath(), '/learning/reinforcement-learning/tabular-control');
+  assert.equal(getLegacyReinforcementLearningRedirectPath(), '/learning/reinforcement-learning/rl-fundamentals');
   assert.equal(
     getLegacyReinforcementLearningRedirectPath('tabular-control'),
-    '/learning/reinforcement-learning/tabular-control',
+    '/learning/reinforcement-learning/rl-fundamentals',
   );
   assert.equal(
     getLegacyReinforcementLearningRedirectPath('policy-behavior'),
-    '/learning/reinforcement-learning/policy-behavior',
+    '/learning/reinforcement-learning/value-based-methods',
   );
   assert.equal(getLegacyReinforcementLearningRedirectPath('reinforcement-learning'), '/learning/reinforcement-learning');
   assert.equal(getLegacyReinforcementLearningRedirectPath('robot-learning'), '/learning/robot-learning');

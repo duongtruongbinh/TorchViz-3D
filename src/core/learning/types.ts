@@ -1,7 +1,14 @@
 export type LearningDomainId =
+  | 'programming-foundation'
+  | 'math-statistics-ai'
   | 'fundamentals'
+  | 'deep-learning'
   | 'cv'
   | 'nlp'
+  | 'llm-ai-engineering'
+  | 'mlops-llmops-production-systems'
+  | 'ai-system-design'
+  | 'ai-ethics-safety-governance'
   | 'reinforcement-learning'
   | 'robot-learning';
 
@@ -13,6 +20,11 @@ export type LearningPracticeApprovalStatus = 'approved' | 'unapproved' | 'unavai
 export type LearningPracticeApproval = {
   status: LearningPracticeApprovalStatus;
   implementedBy?: string;
+};
+
+export type LearningLocalizedText = {
+  en: string;
+  vi: string;
 };
 
 export type TensorExerciseId =
@@ -76,6 +88,12 @@ export type LearningLesson = {
   domainId: LearningDomainId;
   trackId: string;
   status: LearningLessonStatus;
+  text?: {
+    title: LearningLocalizedText;
+    eyebrow?: LearningLocalizedText;
+    duration?: LearningLocalizedText;
+    theory: LearningLocalizedText[];
+  };
   sections: LearningLessonSection[];
   practice: LearningPracticeRef[];
 };
@@ -95,8 +113,17 @@ export type LearningDomain = {
   trackIds: string[];
 };
 
+export type LearningRouteAlias = {
+  domainId: LearningDomainId;
+  fromTrackId?: string;
+  fromLessonId?: string;
+  toTrackId?: string;
+  toLessonId?: string;
+};
+
 export type LearningCatalog = {
   domains: LearningDomain[];
   tracks: LearningTrack[];
   lessons: LearningLesson[];
+  routeAliases?: LearningRouteAlias[];
 };

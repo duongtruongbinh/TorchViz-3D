@@ -225,12 +225,47 @@ const localizedText = {
     openDomain: { en: "Let's go", vi: "Let's go" },
     startTrack: { en: "Let's go", vi: "Let's go" },
     contentInProgress: { en: 'Content is in progress.', vi: 'Nội dung đang hoàn thiện.' },
+    lessonSearchPlaceholder: { en: 'Search lessons', vi: 'Tìm bài học' },
+    lessonFilterLabel: { en: 'Lesson filters', vi: 'Bộ lọc bài học' },
+    lessonFilters: {
+      all: { en: 'All', vi: 'Tất cả' },
+      ready: { en: 'Ready', vi: 'Sẵn sàng' },
+      locked: { en: 'Locked', vi: 'Đã khóa' },
+      practice: { en: 'Practice', vi: 'Practice' },
+    },
+    lessonFilterCount: {
+      en: (first: number, second: number) => `${first}/${second}`,
+      vi: (first: number, second: number) => `${first}/${second}`,
+    },
+    clearLessonSearch: { en: 'Clear lesson search', vi: 'Xóa tìm kiếm bài học' },
+    lessonFilterEmpty: { en: 'No lessons match this filter.', vi: 'Không có bài học khớp bộ lọc.' },
     domains: {
-      fundamentals: {
-        title: { en: 'ML Foundations', vi: 'ML Foundations' },
+      programmingFoundation: {
+        title: { en: 'Programming', vi: 'Programming' },
         description: {
-          en: 'Tensor shape, value flow, and layer-contract fundamentals.',
-          vi: 'Nền tảng tensor shape, value flow và layer contracts.',
+          en: 'Write clean, production-quality Python. This is non-negotiable.',
+          vi: 'Viết Python sạch, đạt chất lượng production. Đây là nền tảng bắt buộc.',
+        },
+      },
+      mathStatisticsAi: {
+        title: { en: 'Math & Statistics', vi: 'Math & Statistics' },
+        description: {
+          en: "Understand the math behind what models do. You don't need to derive everything, but you must understand it.",
+          vi: 'Hiểu toán phía sau hành vi của model. Không cần tự derive mọi thứ, nhưng phải hiểu bản chất.',
+        },
+      },
+      fundamentals: {
+        title: { en: 'Machine Learning', vi: 'Machine Learning' },
+        description: {
+          en: 'Understand the classic ML algorithms that power AI feature engineering and evaluation.',
+          vi: 'Hiểu các thuật toán ML cổ điển đứng sau feature engineering và evaluation trong AI.',
+        },
+      },
+      deepLearning: {
+        title: { en: 'Deep Learning', vi: 'Deep Learning' },
+        description: {
+          en: 'Understand neural networks deeply enough to work with transformers.',
+          vi: 'Hiểu neural networks đủ sâu để làm việc với transformers.',
         },
       },
       cv: {
@@ -243,15 +278,43 @@ const localizedText = {
       nlp: {
         title: { en: 'NLP', vi: 'NLP' },
         description: {
-          en: 'Attention, sequence, embedding shape, and sequence model practice.',
-          vi: 'Attention, sequence, embedding shape và các bài sequence model.',
+          en: 'Deep NLP expertise for LLM-powered products.',
+          vi: 'Kiến thức NLP sâu để xây dựng sản phẩm dùng LLM.',
+        },
+      },
+      llmAiEngineering: {
+        title: { en: 'LLMs & AI Engineering', vi: 'LLMs & AI Engineering' },
+        description: {
+          en: 'Master LLM fundamentals, APIs, and production patterns.',
+          vi: 'Nắm vững nền tảng LLM, API và các pattern production.',
+        },
+      },
+      mlopsLlmopsProductionSystems: {
+        title: { en: 'MLOps, LLMOps & Production', vi: 'MLOps, LLMOps & Production' },
+        description: {
+          en: 'Ship AI to production reliably, cheaply, and scalably.',
+          vi: 'Đưa AI lên production ổn định, tiết kiệm và scale được.',
+        },
+      },
+      aiSystemDesign: {
+        title: { en: 'AI System Design', vi: 'AI System Design' },
+        description: {
+          en: 'Design AI systems at scale for real-world products and interviews.',
+          vi: 'Thiết kế hệ thống AI ở quy mô lớn cho sản phẩm thực tế và phỏng vấn.',
+        },
+      },
+      aiEthicsSafetyGovernance: {
+        title: { en: 'AI Ethics, Safety & Governance', vi: 'AI Ethics, Safety & Governance' },
+        description: {
+          en: 'Build AI responsibly. This is increasingly a job requirement.',
+          vi: 'Xây dựng AI có trách nhiệm. Đây ngày càng là yêu cầu nghề nghiệp.',
         },
       },
       reinforcementLearning: {
         title: { en: 'Reinforcement Learning', vi: 'Reinforcement Learning' },
         description: {
-          en: 'MDPs, Bellman values, Q-tables, Q-Learning, SARSA, and GridWorld practice.',
-          vi: 'MDP, Bellman, Q-table, Q-Learning, SARSA và GridWorld practice.',
+          en: 'Understand RL enough to work with RLHF, PPO, and agentic training.',
+          vi: 'Hiểu RL đủ để làm việc với RLHF, PPO và agentic training.',
         },
       },
       robotLearning: {
@@ -263,6 +326,125 @@ const localizedText = {
       },
     },
     tracks: {
+      pythonFundamentals: {
+        title: { en: '1.1 Python Fundamentals', vi: '1.1 Python Fundamentals' },
+        description: {
+          en: 'Types, strings, collections, and control flow.',
+          vi: 'Kiểu dữ liệu, string, collection và control flow.',
+        },
+      },
+      pythonFunctions: {
+        title: { en: '1.2 Functions', vi: '1.2 Functions' },
+        description: {
+          en: 'Function definitions, arguments, returns, lambdas, recursion, and docstrings.',
+          vi: 'Định nghĩa hàm, arguments, return, lambda, recursion và docstring.',
+        },
+      },
+      pythonOop: {
+        title: { en: '1.3 Object-Oriented Programming', vi: '1.3 Object-Oriented Programming' },
+        description: {
+          en: 'Classes, methods, inheritance, dunder methods, decorators, and ABCs.',
+          vi: 'Class, method, inheritance, dunder method, decorator và ABC.',
+        },
+      },
+      pythonicCodeIdioms: {
+        title: { en: '1.4 Pythonic Code & Idioms', vi: '1.4 Pythonic Code & Idioms' },
+        description: {
+          en: 'Comprehensions, generators, unpacking, sorting, and collections utilities.',
+          vi: 'Comprehension, generator, unpacking, sorting và tiện ích collections.',
+        },
+      },
+      fileIoDataHandling: {
+        title: { en: '1.5 File I/O & Data Handling', vi: '1.5 File I/O & Data Handling' },
+        description: {
+          en: 'Text, CSV, JSON, pickle, paths, directories, and glob patterns.',
+          vi: 'Text, CSV, JSON, pickle, path, folder và glob pattern.',
+        },
+      },
+      errorHandlingDebugging: {
+        title: { en: '1.6 Error Handling & Debugging', vi: '1.6 Error Handling & Debugging' },
+        description: {
+          en: 'Exceptions, logging, breakpoints, and traceback reading.',
+          vi: 'Exception, logging, breakpoint và đọc traceback.',
+        },
+      },
+      performanceMemory: {
+        title: { en: '1.7 Performance & Memory', vi: '1.7 Performance & Memory' },
+        description: {
+          en: 'Generators, itertools, profiling, copies, and vectorization.',
+          vi: 'Generator, itertools, profiling, copy và vectorization.',
+        },
+      },
+      numpyForAi: {
+        title: { en: '1.8 NumPy', vi: '1.8 NumPy' },
+        description: {
+          en: 'Arrays, shapes, reshaping, broadcasting, matrix math, aggregation, and randomness.',
+          vi: 'Array, shape, reshape, broadcasting, ma trận, aggregation và random.',
+        },
+      },
+      pandasDataWork: {
+        title: { en: '1.9 Pandas', vi: '1.9 Pandas' },
+        description: {
+          en: 'DataFrames, indexing, filtering, missing values, groupby, reshaping, and dates.',
+          vi: 'DataFrame, indexing, filtering, missing value, groupby, reshape và ngày tháng.',
+        },
+      },
+      codeQualityProjectStructure: {
+        title: { en: '1.10 Code Quality & Project Structure', vi: '1.10 Code Quality & Project Structure' },
+        description: {
+          en: 'Environments, requirements, modules, typing, dataclasses, tests, linting, and formatting.',
+          vi: 'Environment, requirements, module, typing, dataclass, test, lint và format.',
+        },
+      },
+      pythonAiWorkflows: {
+        title: { en: '1.11 Python for AI Workflows', vi: '1.11 Python for AI Workflows' },
+        description: {
+          en: 'Notebooks, Colab, tqdm, CLI args, configs, dotenv, seeds, and model persistence.',
+          vi: 'Notebook, Colab, tqdm, CLI args, config, dotenv, seed và lưu model.',
+        },
+      },
+      asyncPythonAiApis: {
+        title: { en: '1.12 Async Python', vi: '1.12 Async Python' },
+        description: {
+          en: 'async/await, event loops, async HTTP, concurrency, httpx, and streaming LLM responses.',
+          vi: 'async/await, event loop, async HTTP, concurrency, httpx và streaming LLM.',
+        },
+      },
+      linearAlgebra: {
+        title: { en: '1.1 Linear Algebra', vi: '1.1 Linear Algebra' },
+        description: {
+          en: 'Vectors, matrices, ML operations, eigenvectors, PCA, and SVD.',
+          vi: 'Vector, ma trận, phép toán ML, eigenvector, PCA và SVD.',
+        },
+      },
+      calculus: {
+        title: { en: '1.2 Calculus', vi: '1.2 Calculus' },
+        description: {
+          en: 'Derivatives, gradients, chain rule, computational graphs, and ML losses.',
+          vi: 'Đạo hàm, gradient, chain rule, computational graph và loss trong ML.',
+        },
+      },
+      probabilityStatistics: {
+        title: { en: '1.3 Probability & Statistics', vi: '1.3 Probability & Statistics' },
+        description: {
+          en: 'Probability, Bayes, random variables, distributions, and statistical estimation.',
+          vi: 'Xác suất, Bayes, biến ngẫu nhiên, phân phối và estimation.',
+        },
+      },
+      optimization: {
+        title: { en: '1.4 Optimization', vi: '1.4 Optimization' },
+        description: {
+          en: 'Loss functions, gradient descent, optimizers, training challenges, and regularization.',
+          vi: 'Loss, gradient descent, optimizer, vấn đề khi train và regularization.',
+        },
+      },
+      informationTheory: {
+        title: { en: '1.5 Information Theory', vi: '1.5 Information Theory' },
+        description: {
+          en: 'Entropy, cross-entropy, KL divergence, mutual information, bits, and nats.',
+          vi: 'Entropy, cross-entropy, KL divergence, mutual information, bit và nat.',
+        },
+      },
       tensorShapeFundamentals: {
         title: { en: 'Tensor shape fundamentals', vi: 'Tensor shape fundamentals' },
         description: {
@@ -275,6 +457,384 @@ const localizedText = {
         description: {
           en: 'Follow values through Linear and activation operations.',
           vi: 'Theo dõi giá trị qua Linear và activation.',
+        },
+      },
+      coreMlConcepts: {
+        title: { en: '1.1 Core ML Concepts', vi: '1.1 Core ML Concepts' },
+        description: {
+          en: 'Classic dataset splits, generalization, validation, and metrics.',
+          vi: 'Dataset split, generalization, validation và metrics nền tảng.',
+        },
+      },
+      linearLogisticRegression: {
+        title: { en: '1.2 Linear & Logistic Regression', vi: '1.2 Linear & Logistic Regression' },
+        description: {
+          en: 'Regression, classification, costs, regularization, and one-vs-rest.',
+          vi: 'Regression, classification, cost, regularization và one-vs-rest.',
+        },
+      },
+      decisionTreesEnsembles: {
+        title: { en: '1.3 Decision Trees & Ensembles', vi: '1.3 Decision Trees & Ensembles' },
+        description: {
+          en: 'Trees, forests, boosting, and feature importance.',
+          vi: 'Tree, forest, boosting và feature importance.',
+        },
+      },
+      unsupervisedLearning: {
+        title: { en: '1.4 Unsupervised Learning', vi: '1.4 Unsupervised Learning' },
+        description: {
+          en: 'Clustering, dimensionality reduction, and embedding visualization.',
+          vi: 'Clustering, giảm chiều và trực quan hóa embedding.',
+        },
+      },
+      hyperparameterTuning: {
+        title: { en: '1.5 Hyperparameter Tuning', vi: '1.5 Hyperparameter Tuning' },
+        description: {
+          en: 'Search strategies, training knobs, and early stopping.',
+          vi: 'Chiến lược search, tham số train và early stopping.',
+        },
+      },
+      mlWithScikitLearn: {
+        title: { en: '1.6 ML with Scikit-Learn', vi: '1.6 ML với Scikit-Learn' },
+        description: {
+          en: 'Pipelines, preprocessors, model selection, persistence, and API patterns.',
+          vi: 'Pipeline, preprocessor, model selection, lưu model và pattern API.',
+        },
+      },
+      neuralNetworkFundamentals: {
+        title: { en: '1.1 Neural Network Fundamentals', vi: '1.1 Neural Network Fundamentals' },
+        description: {
+          en: 'Neurons, activation, forward flow, gradients, initialization, and gradient stability.',
+          vi: 'Neuron, activation, forward flow, gradient, initialization và độ ổn định gradient.',
+        },
+      },
+      trainingTechniques: {
+        title: { en: '1.2 Training Techniques', vi: '1.2 Training Techniques' },
+        description: {
+          en: 'Normalization, dropout, residual connections, and clipping for stable training.',
+          vi: 'Normalization, dropout, residual connection và clipping để train ổn định.',
+        },
+      },
+      convolutionalNeuralNetworks: {
+        title: { en: '1.3 Convolutional Neural Networks', vi: '1.3 Convolutional Neural Networks' },
+        description: {
+          en: 'Convolutions, pooling, CNN architectures, transfer learning, and vision applications.',
+          vi: 'Convolution, pooling, kiến trúc CNN, transfer learning và ứng dụng vision.',
+        },
+      },
+      recurrentNeuralNetworks: {
+        title: { en: '1.4 Recurrent Neural Networks', vi: '1.4 Recurrent Neural Networks' },
+        description: {
+          en: 'RNNs, hidden state, LSTM, GRU, bidirectionality, seq2seq, and decoding.',
+          vi: 'RNN, hidden state, LSTM, GRU, bidirectional, seq2seq và decoding.',
+        },
+      },
+      attentionMechanism: {
+        title: { en: '1.5 Attention Mechanism', vi: '1.5 Attention Mechanism' },
+        description: {
+          en: 'Pre-transformer attention as soft alignment for sequence models.',
+          vi: 'Attention trước transformer như soft alignment cho sequence models.',
+        },
+      },
+      pytorchMastery: {
+        title: { en: '1.6 PyTorch', vi: '1.6 PyTorch' },
+        description: {
+          en: 'Tensors, modules, optimizers, datasets, loaders, training loops, GPU, and persistence.',
+          vi: 'Tensor, module, optimizer, dataset, loader, training loop, GPU và lưu/tải model.',
+        },
+      },
+      transferLearning: {
+        title: { en: '1.7 Transfer Learning', vi: '1.7 Transfer Learning' },
+        description: {
+          en: 'Pretraining, fine-tuning, feature extraction, freezing, and HuggingFace models.',
+          vi: 'Pretraining, fine-tuning, feature extraction, freezing và HuggingFace models.',
+        },
+      },
+      textPreprocessing: {
+        title: { en: '1.1 Text Preprocessing', vi: '1.1 Text Preprocessing' },
+        description: {
+          en: 'Tokenization, normalization, stopwords, stemming, sentence boundaries, special tokens, and Unicode.',
+          vi: 'Tokenization, normalization, stopword, stemming, tách câu, special token và Unicode.',
+        },
+      },
+      classicalTextRepresentation: {
+        title: { en: '1.2 Classical Text Representation', vi: '1.2 Classical Text Representation' },
+        description: {
+          en: 'Bag of Words, TF-IDF, n-grams, one-hot encoding, and sparse versus dense representations.',
+          vi: 'Bag of Words, TF-IDF, n-gram, one-hot encoding và biểu diễn sparse/dense.',
+        },
+      },
+      wordEmbeddings: {
+        title: { en: '1.3 Word Embeddings', vi: '1.3 Word Embeddings' },
+        description: {
+          en: 'Dense semantic vectors, Word2Vec, GloVe, FastText, similarity, analogies, and contextual embeddings.',
+          vi: 'Vector ngữ nghĩa dense, Word2Vec, GloVe, FastText, similarity, analogy và contextual embedding.',
+        },
+      },
+      subwordTokenization: {
+        title: { en: '1.4 Subword Tokenization', vi: '1.4 Subword Tokenization' },
+        description: {
+          en: 'BPE, WordPiece, SentencePiece, special tokens, token IDs, and vocabulary tradeoffs.',
+          vi: 'BPE, WordPiece, SentencePiece, special token, token ID và tradeoff vocabulary.',
+        },
+      },
+      transformerArchitecture: {
+        title: { en: '1.5 Transformer Architecture', vi: '1.5 Transformer Architecture' },
+        description: {
+          en: 'Self-attention, QKV, multi-head attention, position, feed-forward blocks, normalization, and masks.',
+          vi: 'Self-attention, QKV, multi-head attention, vị trí, feed-forward, normalization và mask.',
+        },
+      },
+      languageModeling: {
+        title: { en: '1.6 Language Modeling', vi: '1.6 Language Modeling' },
+        description: {
+          en: 'Next-token probabilities, autoregressive and masked language modeling, perplexity, and decoding.',
+          vi: 'Xác suất next-token, autoregressive/masked language modeling, perplexity và decoding.',
+        },
+      },
+      keyPretrainedModels: {
+        title: { en: '1.7 Key Pretrained Models', vi: '1.7 Key Pretrained Models' },
+        description: {
+          en: 'BERT, GPT, Claude, Gemini, T5, LLaMA, Mistral, and Qwen model families.',
+          vi: 'Các họ model BERT, GPT, Claude, Gemini, T5, LLaMA, Mistral và Qwen.',
+        },
+      },
+      nlpEvaluationMetrics: {
+        title: { en: '1.8 NLP Evaluation Metrics', vi: '1.8 NLP Evaluation Metrics' },
+        description: {
+          en: 'Classification metrics, BLEU, ROUGE, perplexity, BERTScore, human evaluation, and exact match.',
+          vi: 'Metric phân loại, BLEU, ROUGE, perplexity, BERTScore, human evaluation và exact match.',
+        },
+      },
+      keyPythonLibraries: {
+        title: { en: '1.9 Key Python Libraries', vi: '1.9 Key Python Libraries' },
+        description: {
+          en: 'NLTK, spaCy, HuggingFace transformers and datasets, sentence-transformers, tiktoken, and evaluate.',
+          vi: 'NLTK, spaCy, HuggingFace transformers/datasets, sentence-transformers, tiktoken và evaluate.',
+        },
+      },
+      llmFundamentals: {
+        title: { en: '1.1 LLM Fundamentals', vi: '1.1 LLM Fundamentals' },
+        description: {
+          en: 'Scaled transformer architecture, inference internals, training methods, preferences, and scaling laws.',
+          vi: 'Kiến trúc transformer ở scale lớn, inference internals, training, preference learning và scaling laws.',
+        },
+      },
+      productionPromptEngineering: {
+        title: { en: '1.2 Prompt Engineering', vi: '1.2 Prompt Engineering' },
+        description: {
+          en: 'Prompt anatomy, prompting techniques, production constraints, injection defense, and prompt tools.',
+          vi: 'Cấu trúc prompt, kỹ thuật prompting, ràng buộc production, chống prompt injection và tooling.',
+        },
+      },
+      workingWithAiApis: {
+        title: { en: '1.3 Working with AI APIs', vi: '1.3 Working with AI APIs' },
+        description: {
+          en: 'OpenAI, Anthropic, Gemini, Mistral, LLaMA, Ollama, and provider-specific API patterns.',
+          vi: 'OpenAI, Anthropic, Gemini, Mistral, LLaMA, Ollama và pattern API theo provider.',
+        },
+      },
+      apiIntegrationPatterns: {
+        title: { en: '1.4 API Integration Patterns', vi: '1.4 API Integration Patterns' },
+        description: {
+          en: 'Token limits, streaming, retries, queues, cost controls, caching, async work, and fallbacks.',
+          vi: 'Token limit, streaming, retry, queue, kiểm soát cost, cache, async work và fallback.',
+        },
+      },
+      secureApiIntegration: {
+        title: { en: '1.5 Secure API Integration', vi: '1.5 Secure API Integration' },
+        description: {
+          en: 'API key safety, backend proxies, per-user rate limits, key rotation, logging, and monitoring.',
+          vi: 'Bảo vệ API key, backend proxy, rate limit theo user, key rotation, logging và monitoring.',
+        },
+      },
+      dataManagementVersioning: {
+        title: { en: '1.1 Data Management & Versioning', vi: '1.1 Data Management & Versioning' },
+        description: {
+          en: 'Dataset and model versioning, validation, lineage, feature stores, and data pipelines.',
+          vi: 'Versioning dataset/model, validation, lineage, feature store và data pipeline.',
+        },
+      },
+      experimentTracking: {
+        title: { en: '1.2 Experiment Tracking', vi: '1.2 Experiment Tracking' },
+        description: {
+          en: 'Track runs, hyperparameters, metrics, artifacts, code versions, comparisons, and reports.',
+          vi: 'Theo dõi run, hyperparameter, metric, artifact, code version, so sánh và báo cáo.',
+        },
+      },
+      modelDevelopmentTrainingInfrastructure: {
+        title: { en: '1.3 Training Infrastructure', vi: '1.3 Training Infrastructure' },
+        description: {
+          en: 'GPU cloud, distributed training, mixed precision, checkpoints, and training monitoring.',
+          vi: 'GPU cloud, distributed training, mixed precision, checkpoint và monitoring khi train.',
+        },
+      },
+      modelEvaluationTesting: {
+        title: { en: '1.4 Model Evaluation & Testing', vi: '1.4 Model Evaluation & Testing' },
+        description: {
+          en: 'Offline benchmarks, human evaluation, LLM-as-judge, red teaming, and online release evaluation.',
+          vi: 'Benchmark offline, human evaluation, LLM-as-judge, red teaming và đánh giá release online.',
+        },
+      },
+      modelDeploymentServing: {
+        title: { en: '1.5 Model Deployment & Serving', vi: '1.5 Model Deployment & Serving' },
+        description: {
+          en: 'API serving, serving optimization, inference backends, and unified provider interfaces.',
+          vi: 'API serving, tối ưu serving, inference backend và interface provider thống nhất.',
+        },
+      },
+      containerizationOrchestration: {
+        title: { en: '1.6 Containerization & Orchestration', vi: '1.6 Containerization & Orchestration' },
+        description: {
+          en: 'Docker, Compose, Kubernetes, Helm, autoscaling, and GPU scheduling.',
+          vi: 'Docker, Compose, Kubernetes, Helm, autoscaling và GPU scheduling.',
+        },
+      },
+      cloudDeployment: {
+        title: { en: '1.7 Cloud Deployment', vi: '1.7 Cloud Deployment' },
+        description: {
+          en: 'AWS, GCP, and Azure services for model hosting, storage, containers, serverless, and monitoring.',
+          vi: 'Dịch vụ AWS, GCP và Azure cho hosting model, storage, container, serverless và monitoring.',
+        },
+      },
+      monitoringLogging: {
+        title: { en: '1.8 Monitoring & Logging', vi: '1.8 Monitoring & Logging' },
+        description: {
+          en: 'Cost, latency, provider errors, prompt and response quality, drift, observability, and alerts.',
+          vi: 'Cost, latency, lỗi provider, chất lượng prompt/response, drift, observability và cảnh báo.',
+        },
+      },
+      ciCdForAi: {
+        title: { en: '1.9 CI/CD for AI', vi: '1.9 CI/CD for AI' },
+        description: {
+          en: 'AI pipelines, automated tests, model and prompt validation, feature flags, and deployments.',
+          vi: 'Pipeline AI, test tự động, validation model/prompt, feature flag và deployment.',
+        },
+      },
+      llmSecuritySafety: {
+        title: { en: '1.10 LLM Security & Safety', vi: '1.10 LLM Security & Safety' },
+        description: {
+          en: 'Prompt injection defense, moderation, PII handling, data residency, on-premise deployment, and audit logs.',
+          vi: 'Chống prompt injection, moderation, xử lý PII, data residency, on-premise deployment và audit log.',
+        },
+      },
+      aiSystemDesignFramework: {
+        title: { en: '1.1 AI System Design Framework', vi: '1.1 AI System Design Framework' },
+        description: {
+          en: 'Requirements, AI task decomposition, data flow, model choice, scale, cost, reliability, and monitoring.',
+          vi: 'Requirement, tách tác vụ AI, data flow, chọn model, scale, cost, reliability và monitoring.',
+        },
+      },
+      classicAiSystemDesigns: {
+        title: { en: '1.2 Classic AI System Designs', vi: '1.2 Classic AI System Designs' },
+        description: {
+          en: 'Chatbot memory, RAG, recommendation, PDF Q&A at scale, and AI customer support patterns.',
+          vi: 'Pattern chatbot memory, RAG, recommendation, PDF Q&A ở scale lớn và AI customer support.',
+        },
+      },
+      inferencePlacementStrategy: {
+        title: { en: '1.3 Inference Placement Strategy', vi: '1.3 Inference Placement Strategy' },
+        description: {
+          en: 'Choose backend, client-side, edge, or async queue inference based on security, latency, and workload.',
+          vi: 'Chọn inference ở backend, client, edge hoặc async queue theo security, latency và workload.',
+        },
+      },
+      cachingStrategies: {
+        title: { en: '1.4 Caching Strategies', vi: '1.4 Caching Strategies' },
+        description: {
+          en: 'Exact match caching, semantic caching, and prompt template caching for AI systems.',
+          vi: 'Exact match caching, semantic caching và prompt template caching cho hệ thống AI.',
+        },
+      },
+      asyncAiArchitecture: {
+        title: { en: '1.5 Async AI Architecture', vi: '1.5 Async AI Architecture' },
+        description: {
+          en: 'Use task APIs, workers, polling, and webhooks when AI work is slow, expensive, or batch-oriented.',
+          vi: 'Dùng task API, worker, polling và webhook khi tác vụ AI chậm, tốn kém hoặc chạy batch.',
+        },
+      },
+      costAwareArchitecture: {
+        title: { en: '1.6 Cost-Aware Architecture', vi: '1.6 Cost-Aware Architecture' },
+        description: {
+          en: 'Route models per feature and reduce cost with compression, limits, caching, downgrades, batching, and context control.',
+          vi: 'Route model theo feature và giảm cost bằng compression, giới hạn output, cache, downgrade, batching và tối ưu context.',
+        },
+      },
+      rlFundamentals: {
+        title: { en: '1.1 RL Fundamentals', vi: '1.1 RL Fundamentals' },
+        description: {
+          en: 'MDPs, agents, environments, policies, values, Q-functions, exploration, and discounting.',
+          vi: 'MDP, agent, environment, policy, value, Q-function, exploration và discount factor.',
+        },
+      },
+      valueBasedMethods: {
+        title: { en: '1.2 Value-Based Methods', vi: '1.2 Value-Based Methods' },
+        description: {
+          en: 'Q-learning, DQN, Double DQN, Dueling DQN, prioritized replay, and TD update practice.',
+          vi: 'Q-learning, DQN, Double DQN, Dueling DQN, prioritized replay và practice TD update.',
+        },
+      },
+      policyBasedMethods: {
+        title: { en: '1.3 Policy-Based Methods', vi: '1.3 Policy-Based Methods' },
+        description: {
+          en: 'REINFORCE, actor-critic methods, PPO for RLHF, and GRPO for reasoning models.',
+          vi: 'REINFORCE, actor-critic, PPO cho RLHF và GRPO cho reasoning model.',
+        },
+      },
+      rlForLlms: {
+        title: { en: '1.4 RL for LLMs', vi: '1.4 RL for LLMs' },
+        description: {
+          en: 'RLHF, reward models, PPO with KL constraints, DPO, RLAIF, Constitutional AI, PRMs, and ORMs.',
+          vi: 'RLHF, reward model, PPO với KL constraint, DPO, RLAIF, Constitutional AI, PRM và ORM.',
+        },
+      },
+      multiAgentRl: {
+        title: { en: '1.5 Multi-Agent RL', vi: '1.5 Multi-Agent RL' },
+        description: {
+          en: 'Cooperative and competitive agents, game theory, self-play, and multi-agent communication.',
+          vi: 'Agent hợp tác/cạnh tranh, game theory, self-play và multi-agent communication.',
+        },
+      },
+      aiSafetyFundamentals: {
+        title: { en: '1.1 AI Safety Fundamentals', vi: '1.1 AI Safety Fundamentals' },
+        description: {
+          en: 'AI harms, alignment, hallucination, bias, fairness, and dual-use concerns.',
+          vi: 'Tác hại AI, alignment, hallucination, bias, fairness và dual-use.',
+        },
+      },
+      promptInjectionSecurity: {
+        title: { en: '1.2 Prompt Injection & Security', vi: '1.2 Prompt Injection & Security' },
+        description: {
+          en: 'Direct and indirect injection, defenses, jailbreak mitigations, and adversarial red teaming.',
+          vi: 'Direct/indirect injection, phòng thủ, giảm jailbreak và red teaming đối kháng.',
+        },
+      },
+      biasFairness: {
+        title: { en: '1.3 Bias & Fairness', vi: '1.3 Bias & Fairness' },
+        description: {
+          en: 'Bias sources and types, fairness metrics, detection tools, and mitigation strategies.',
+          vi: 'Nguồn và loại bias, fairness metric, công cụ phát hiện và chiến lược giảm bias.',
+        },
+      },
+      privacyDataGovernance: {
+        title: { en: '1.4 Privacy & Data Governance', vi: '1.4 Privacy & Data Governance' },
+        description: {
+          en: 'PII, GDPR, data minimization, right to erasure, differential privacy, and federated learning.',
+          vi: 'PII, GDPR, data minimization, right to erasure, differential privacy và federated learning.',
+        },
+      },
+      aiTransparencyExplainability: {
+        title: { en: '1.5 AI Transparency & Explainability', vi: '1.5 AI Transparency & Explainability' },
+        description: {
+          en: 'Model cards, system cards, SHAP, LIME, attention visualization, and explanation tradeoffs.',
+          vi: 'Model card, system card, SHAP, LIME, attention visualization và tradeoff giải thích.',
+        },
+      },
+      responsibleAiProduction: {
+        title: { en: '1.6 Responsible AI in Production', vi: '1.6 Responsible AI in Production' },
+        description: {
+          en: 'Moderation architecture, safety classifiers, human review, audit trails, incident response, and governance frameworks.',
+          vi: 'Moderation architecture, safety classifier, human review, audit trail, incident response và governance framework.',
         },
       },
       cnnShapeValue: {
@@ -456,7 +1016,7 @@ const localizedText = {
           { en: 'Basic tensors.', vi: 'Tensor cơ bản.' },
           { en: 'No prior experience.', vi: 'Không cần kinh nghiệm trước.' },
         ],
-        descriptionTitle: { en: 'Description', vi: 'Nội dung' },
+        descriptionTitle: { en: 'Description', vi: 'Mô tả' },
         organizedDescription: {
           en: (tracks: string) => `This path is organized around ${tracks}, with short visual lessons and inline TorchViz-3D practice where content is available.`,
           vi: (tracks: string) => `Lộ trình này được tổ chức quanh ${tracks}, với bài học trực quan ngắn và practice inline trong TorchViz-3D khi nội dung đã sẵn sàng.`,
@@ -620,6 +1180,141 @@ const localizedText = {
             en: 'The path keeps this lesson visible now, but deeper embedding can wait until the adapter supports richer node fixtures.',
             vi: 'Lộ trình tạm thời giữ bài này ở dạng xem trước; phần nhúng sâu hơn có thể làm sau khi adapter hỗ trợ fixture node phong phú hơn.',
           },
+        ],
+      },
+      tensorRankBroadcasting: {
+        title: { en: 'Rank and broadcasting', vi: 'Rank và broadcasting' },
+        eyebrow: { en: 'Lesson 2', vi: 'Bài 2' },
+        duration: { en: '7 min', vi: '7 phút' },
+        theory: [
+          { en: 'Tensor rank tells you how many axes a value carries.', vi: 'Tensor rank cho biết một giá trị có bao nhiêu trục.' },
+          { en: 'Broadcasting lets compatible shapes interact without manually copying values.', vi: 'Broadcasting cho phép các shape tương thích tương tác mà không cần copy giá trị thủ công.' },
+        ],
+      },
+      reshapeFlatten: {
+        title: { en: 'Reshape and flatten', vi: 'Reshape và flatten' },
+        eyebrow: { en: 'Lesson 3', vi: 'Bài 3' },
+        duration: { en: '7 min', vi: '7 phút' },
+        theory: [
+          { en: 'Reshape changes how dimensions are grouped while preserving the number of elements.', vi: 'Reshape đổi cách nhóm chiều nhưng giữ nguyên số phần tử.' },
+          { en: 'Flatten is the bridge from spatial feature maps to vector-based classifier heads.', vi: 'Flatten là cầu nối từ feature map không gian sang classifier dạng vector.' },
+        ],
+      },
+      lossSoftmax: {
+        title: { en: 'Softmax and loss', vi: 'Softmax và loss' },
+        eyebrow: { en: 'Lesson 5', vi: 'Bài 5' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          { en: 'Softmax turns raw scores into a distribution over classes.', vi: 'Softmax biến điểm thô thành phân phối trên các lớp.' },
+          { en: 'Loss measures how far the model prediction is from the target answer.', vi: 'Loss đo dự đoán của model cách đáp án mục tiêu bao xa.' },
+        ],
+      },
+      trainingLoopBasics: {
+        title: { en: 'Training loop basics', vi: 'Nền tảng training loop' },
+        eyebrow: { en: 'Lesson 6', vi: 'Bài 6' },
+        duration: { en: '9 min', vi: '9 phút' },
+        theory: [
+          { en: 'A training loop repeats forward pass, loss, backward pass, and optimizer step.', vi: 'Training loop lặp forward pass, loss, backward pass và optimizer step.' },
+          { en: 'The goal is to connect code structure with the learning signal moving through the model.', vi: 'Mục tiêu là nối cấu trúc code với tín hiệu học đi qua model.' },
+        ],
+      },
+      cnnClassifierHead: {
+        title: { en: 'CNN classifier head', vi: 'Đầu phân loại CNN' },
+        eyebrow: { en: 'Lesson 4', vi: 'Bài 4' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          { en: 'Classifier heads convert feature maps into class scores.', vi: 'Đầu phân loại biến feature map thành điểm lớp.' },
+          { en: 'The key shape move is from channels and spatial axes into a final feature vector.', vi: 'Bước shape chính là từ channel và trục không gian sang vector đặc trưng cuối.' },
+        ],
+      },
+      batchnormDropout: {
+        title: { en: 'BatchNorm and Dropout', vi: 'BatchNorm và Dropout' },
+        eyebrow: { en: 'Lesson 5', vi: 'Bài 5' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          { en: 'BatchNorm stabilizes feature statistics during training.', vi: 'BatchNorm ổn định thống kê đặc trưng trong lúc train.' },
+          { en: 'Dropout changes value flow during training while keeping the tensor shape readable.', vi: 'Dropout đổi luồng giá trị khi train nhưng vẫn giữ shape dễ đọc.' },
+        ],
+      },
+      visionAugmentation: {
+        title: { en: 'Vision augmentation', vi: 'Augmentation ảnh' },
+        eyebrow: { en: 'Lesson 6', vi: 'Bài 6' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          { en: 'Augmentation changes input examples to make the model less brittle.', vi: 'Augmentation đổi mẫu đầu vào để model bớt mong manh.' },
+          { en: 'Good augmentation preserves the label while varying appearance.', vi: 'Augmentation tốt giữ nguyên nhãn nhưng làm đa dạng hình thức.' },
+        ],
+      },
+      tokenizationSequences: {
+        title: { en: 'Tokens and sequences', vi: 'Token và sequence' },
+        eyebrow: { en: 'Lesson 1', vi: 'Bài 1' },
+        duration: { en: '7 min', vi: '7 phút' },
+        theory: [
+          { en: 'NLP models read text as token sequences, not raw sentences.', vi: 'Model NLP đọc văn bản dưới dạng chuỗi token, không phải câu thô.' },
+          { en: 'Sequence length becomes a visible axis that later attention layers preserve or transform.', vi: 'Độ dài sequence trở thành một trục rõ ràng mà attention giữ hoặc biến đổi.' },
+        ],
+      },
+      embeddingShapes: {
+        title: { en: 'Embedding shapes', vi: 'Shape của embedding' },
+        eyebrow: { en: 'Lesson 2', vi: 'Bài 2' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          { en: 'Embedding layers map token ids into dense feature vectors.', vi: 'Embedding layer ánh xạ token id thành vector đặc trưng dense.' },
+          { en: 'The output shape usually keeps batch and sequence axes while adding feature width.', vi: 'Output thường giữ batch và sequence, đồng thời thêm chiều đặc trưng.' },
+        ],
+      },
+      transformerBlock: {
+        title: { en: 'Transformer block', vi: 'Transformer block' },
+        eyebrow: { en: 'Lesson 4', vi: 'Bài 4' },
+        duration: { en: '10 min', vi: '10 phút' },
+        theory: [
+          { en: 'A transformer block combines attention, residual paths, normalization, and feed-forward layers.', vi: 'Transformer block kết hợp attention, residual path, normalization và feed-forward.' },
+          { en: 'The main reading habit is to track which axes stay stable across the block.', vi: 'Thói quen đọc chính là theo dõi trục nào ổn định qua block.' },
+        ],
+      },
+      sequenceClassifier: {
+        title: { en: 'Sequence classifier', vi: 'Sequence classifier' },
+        eyebrow: { en: 'Lesson 5', vi: 'Bài 5' },
+        duration: { en: '9 min', vi: '9 phút' },
+        theory: [
+          { en: 'Sequence classifiers compress token-level features into a decision.', vi: 'Sequence classifier nén đặc trưng theo token thành một quyết định.' },
+          { en: 'Pooling strategy determines which sequence information reaches the final head.', vi: 'Chiến lược pooling quyết định thông tin sequence nào đi tới head cuối.' },
+        ],
+      },
+      robotStateAction: {
+        title: { en: 'Robot state and action', vi: 'State và action robot' },
+        eyebrow: { en: 'Lesson 1', vi: 'Bài 1' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          { en: 'Robot learning starts by naming what the agent observes and controls.', vi: 'Robot learning bắt đầu bằng việc gọi tên agent quan sát và điều khiển gì.' },
+          { en: 'State and action spaces define the boundary between model code and the physical task.', vi: 'Không gian state và action định nghĩa ranh giới giữa code model và tác vụ vật lý.' },
+        ],
+      },
+      controlLoopBasics: {
+        title: { en: 'Control loop basics', vi: 'Nền tảng control loop' },
+        eyebrow: { en: 'Lesson 2', vi: 'Bài 2' },
+        duration: { en: '9 min', vi: '9 phút' },
+        theory: [
+          { en: 'A control loop repeatedly observes, decides, acts, and receives feedback.', vi: 'Control loop lặp quan sát, quyết định, hành động và nhận phản hồi.' },
+          { en: 'Timing and feedback make embodied learning different from static prediction.', vi: 'Thời gian và phản hồi khiến embodied learning khác dự đoán tĩnh.' },
+        ],
+      },
+      imitationLearning: {
+        title: { en: 'Imitation learning', vi: 'Imitation learning' },
+        eyebrow: { en: 'Lesson 3', vi: 'Bài 3' },
+        duration: { en: '9 min', vi: '9 phút' },
+        theory: [
+          { en: 'Imitation learning trains behavior from demonstrations.', vi: 'Imitation learning huấn luyện hành vi từ demo.' },
+          { en: 'The core question is what observation-action pairs should teach the policy.', vi: 'Câu hỏi cốt lõi là cặp observation-action nào nên dạy policy.' },
+        ],
+      },
+      simToReal: {
+        title: { en: 'Sim-to-real gap', vi: 'Khoảng cách sim-to-real' },
+        eyebrow: { en: 'Lesson 4', vi: 'Bài 4' },
+        duration: { en: '10 min', vi: '10 phút' },
+        theory: [
+          { en: 'Sim-to-real work asks whether behavior learned in simulation survives the real world.', vi: 'Sim-to-real hỏi hành vi học trong mô phỏng có sống được ngoài đời thật không.' },
+          { en: 'The lesson path will later compare dynamics, sensing noise, and domain randomization.', vi: 'Lộ trình sau này sẽ so sánh dynamics, nhiễu cảm biến và domain randomization.' },
         ],
       },
     },
@@ -891,6 +1586,36 @@ const localizedText = {
           {
             en: 'Comparing SARSA with Q-Learning makes the policy boundary visible in one update.',
             vi: 'So sánh SARSA với Q-Learning làm rõ ranh giới policy chỉ trong một cập nhật.',
+          },
+        ],
+      },
+      rlExplorationPolicy: {
+        title: { en: 'Exploration policy', vi: 'Policy exploration' },
+        eyebrow: { en: 'RL Lesson 5', vi: 'Bài RL 5' },
+        duration: { en: '8 min', vi: '8 phút' },
+        theory: [
+          {
+            en: 'Exploration controls how often the agent tries actions that are not currently best.',
+            vi: 'Exploration kiểm soát tần suất agent thử action chưa phải tốt nhất hiện tại.',
+          },
+          {
+            en: 'This placeholder will later compare greedy, epsilon-greedy, and scheduled exploration.',
+            vi: 'Placeholder này sau này sẽ so sánh greedy, epsilon-greedy và exploration theo lịch.',
+          },
+        ],
+      },
+      rlPolicyEvaluation: {
+        title: { en: 'Policy evaluation', vi: 'Đánh giá policy' },
+        eyebrow: { en: 'RL Lesson 6', vi: 'Bài RL 6' },
+        duration: { en: '9 min', vi: '9 phút' },
+        theory: [
+          {
+            en: 'Policy evaluation estimates how good a policy is before changing it.',
+            vi: 'Policy evaluation ước lượng policy tốt đến đâu trước khi thay đổi policy đó.',
+          },
+          {
+            en: 'The lesson will later connect rollouts, returns, and value estimates.',
+            vi: 'Bài này sau này sẽ nối rollout, return và ước lượng value.',
           },
         ],
       },
@@ -1637,10 +2362,34 @@ export function getStrings(language: Language): LocalizedStrings {
 
 export function getLearningLessonText(
   t: LearningLabStrings,
-  lesson: { id: string },
+  lesson: {
+    id: string;
+    text?: {
+      title: Record<Language, string>;
+      eyebrow?: Record<Language, string>;
+      duration?: Record<Language, string>;
+      theory: Record<Language, string>[];
+    };
+  },
+  language: Language,
 ): LearningLessonText {
   const lessons = t.lessons as Record<string, LearningLessonText>;
-  return lessons[toLearningContentKey(lesson.id)] ?? { title: lesson.id, eyebrow: '', duration: '', theory: [] };
+  const localizedLesson = lessons[toLearningContentKey(lesson.id)];
+  if (localizedLesson) return localizedLesson;
+  if (lesson.text) {
+    return {
+      title: lesson.text.title[language],
+      eyebrow: lesson.text.eyebrow?.[language] ?? '',
+      duration: lesson.text.duration?.[language] ?? '',
+      theory: lesson.text.theory.map((item) => item[language]),
+    };
+  }
+  return {
+    title: lesson.id,
+    eyebrow: '',
+    duration: '',
+    theory: [t.contentInProgress],
+  };
 }
 
 export function getLearningPracticeText(
