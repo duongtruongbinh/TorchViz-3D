@@ -1,21 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
-import { BookOpen, Bot, Eye, Home, MessageSquareText, PanelLeft, Route } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, MessageSquareText, Network, PanelLeft, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { learningCatalog } from '../../core/learning/content';
 import {
+  getFirstLearningLessonRoute,
+  getGroupedLearningLessonsForDomain,
   getLearningDomain,
-  getLearningLessonsForTrack,
-  getLearningTrack,
-  getLearningTracksForDomain,
+  resolveLearningLessonRoute,
 } from '../../core/learning/selectors';
-import type { LearningDomainId, LearningLesson, LearningTrack } from '../../core/learning/types';
+import type { LearningDomainId } from '../../core/learning/types';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';
 import LessonDetail from './lesson/LessonDetail';
-import LessonNode from './lesson/LessonNode';
-import { getDomainText, getDomainTextById, getTrackText } from './learningText';
-import DomainCoursePage from './shell/DomainCoursePage';
+import LessonRail, { filterLessonRailGroups, type LessonRailFilter } from './lesson/LessonRail';
+import { getDomainText } from './learningText';
 import DomainCatalog from './shell/DomainCatalog';
 import ReviewMode from './shell/ReviewMode';
 import { cx, getLearningLabTheme } from './theme';
@@ -27,6 +26,20 @@ type LearningLabViewProps = {
 };
 
 const DOMAIN_IDS = new Set<LearningDomainId>(learningCatalog.domains.map((domain) => domain.id));
+const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
+  'programming-foundation': Code2,
+  'math-statistics-ai': Calculator,
+  fundamentals: BookOpen,
+  'deep-learning': BrainCircuit,
+  cv: Eye,
+  nlp: MessageSquareText,
+  'llm-ai-engineering': Cpu,
+  'mlops-llmops-production-systems': ServerCog,
+  'ai-system-design': Network,
+  'ai-ethics-safety-governance': ShieldCheck,
+  'reinforcement-learning': Route,
+  'robot-learning': Bot,
+};
 const futureHmiLogoUrl = new URL('../../../docs/assets/Future-HMIip.webp', import.meta.url).href;
 
 function isLearningDomainId(value: string | undefined): value is LearningDomainId {
@@ -46,27 +59,73 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [mode, setMode] = useState<LearningLabMode>('path');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [selectedLessonId, setSelectedLessonId] = useState('');
+  const [collapsedChapters, setCollapsedChapters] = useState<Set<string>>(() => new Set());
+  const [lessonSearchQuery, setLessonSearchQuery] = useState('');
+  const [lessonRailFilter, setLessonRailFilter] = useState<LessonRailFilter>('all');
+  const [, startLessonTransition] = useTransition();
 
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
 
   const activeDomain = routeDomainId ? getLearningDomain(learningCatalog, routeDomainId) : null;
-  const activeTracks = routeDomainId ? getLearningTracksForDomain(learningCatalog, routeDomainId) : [];
-  const activeTrack = routeDomainId && trackId ? getLearningTrack(learningCatalog, routeDomainId, trackId) : null;
-  const trackLessons = useMemo(() => activeTrack ? getLearningLessonsForTrack(learningCatalog, activeTrack) : [], [activeTrack]);
-  const selectedLesson = trackLessons.find((lesson) => lesson.id === selectedLessonId) ?? trackLessons[0] ?? null;
+  const resolvedRoute = useMemo(() => (
+    routeDomainId
+      ? resolveLearningLessonRoute(learningCatalog, {
+        domainId: routeDomainId,
+        trackId,
+        lessonId: routeLessonId,
+      })
+      : null
+  ), [routeDomainId, routeLessonId, trackId]);
+  const activeTrack = resolvedRoute?.track ?? null;
+  const groupedDomainLessons = useMemo(() => (
+    routeDomainId ? getGroupedLearningLessonsForDomain(learningCatalog, routeDomainId) : []
+  ), [routeDomainId]);
+  const filteredGroupedDomainLessons = useMemo(() => filterLessonRailGroups(groupedDomainLessons, {
+    filter: lessonRailFilter,
+    language,
+    query: lessonSearchQuery,
+  }), [groupedDomainLessons, language, lessonRailFilter, lessonSearchQuery]);
+  const domainLessons = useMemo(() => {
+    return groupedDomainLessons.flatMap((group) => group.lessons);
+  }, [groupedDomainLessons]);
+  const lessonIndexById = useMemo(() => new Map(domainLessons.map((lesson, index) => [lesson.id, index])), [domainLessons]);
+  const routeSelectedLesson = resolvedRoute?.lesson ?? null;
+  const firstFilteredLesson = filteredGroupedDomainLessons[0]?.lessons[0] ?? null;
+  const filteredLessonIds = useMemo(() => new Set(filteredGroupedDomainLessons.flatMap((group) => group.lessons.map((lesson) => lesson.id))), [filteredGroupedDomainLessons]);
+  const isLessonRailFiltered = lessonSearchQuery.trim().length > 0 || lessonRailFilter !== 'all';
+  const selectedLesson = routeSelectedLesson && (!isLessonRailFiltered || filteredLessonIds.has(routeSelectedLesson.id))
+    ? routeSelectedLesson
+    : firstFilteredLesson;
+  const railSelectedLesson = selectedLesson ?? routeSelectedLesson ?? domainLessons[0] ?? null;
+  const selectedLessonIndex = selectedLesson ? lessonIndexById.get(selectedLesson.id) ?? -1 : -1;
 
   useEffect(() => {
-    if (!activeTrack || !trackLessons.length) return;
-    if (routeLessonId && trackLessons.some((lesson) => lesson.id === routeLessonId)) {
-      if (selectedLessonId !== routeLessonId) setSelectedLessonId(routeLessonId);
-      return;
-    }
-    if (!selectedLesson || selectedLesson.id !== selectedLessonId) {
-      setSelectedLessonId(trackLessons[0].id);
-    }
-  }, [activeTrack, routeLessonId, selectedLesson, selectedLessonId, trackLessons]);
+    setCollapsedChapters(new Set());
+    setLessonSearchQuery('');
+    setLessonRailFilter('all');
+  }, [routeDomainId]);
+
+  useEffect(() => {
+    if (!routeDomainId || !resolvedRoute) return;
+    if (resolvedRoute.isCanonical) return;
+    navigate(`/learning/${routeDomainId}/${resolvedRoute.track.id}?lesson=${resolvedRoute.lesson.id}`, { replace: true });
+  }, [navigate, resolvedRoute, routeDomainId]);
+
+  useEffect(() => {
+    if (!routeDomainId || !selectedLesson || selectedLesson.id === routeSelectedLesson?.id) return;
+    navigate(`/learning/${routeDomainId}/${selectedLesson.trackId}?lesson=${selectedLesson.id}`, { replace: true });
+  }, [navigate, routeDomainId, routeSelectedLesson?.id, selectedLesson]);
+
+  useEffect(() => {
+    if (!selectedLesson) return;
+    setCollapsedChapters((current) => {
+      if (!current.has(selectedLesson.trackId)) return current;
+      const next = new Set(current);
+      next.delete(selectedLesson.trackId);
+      return next;
+    });
+  }, [selectedLesson?.trackId]);
 
   useEffect(() => {
     if (!routePracticeId || !selectedLesson?.practice.some((practice) => practice.id === routePracticeId)) return;
@@ -81,12 +140,12 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   const openDomain = (nextDomainId: LearningDomainId) => {
     setMode('path');
-    navigate(`/learning/${nextDomainId}`);
-  };
-
-  const openLesson = (track: LearningTrack, lesson: LearningLesson) => {
-    setMode('path');
-    navigate(`/learning/${track.domainId}/${track.id}?lesson=${lesson.id}`);
+    const firstRoute = getFirstLearningLessonRoute(learningCatalog, nextDomainId);
+    if (!firstRoute) {
+      navigate(`/learning/${nextDomainId}`);
+      return;
+    }
+    navigate(`/learning/${nextDomainId}/${firstRoute.track.id}?lesson=${firstRoute.lesson.id}`);
   };
 
   const openLearningHome = () => {
@@ -94,10 +153,30 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     navigate('/learning');
   };
 
+  const toggleChapter = useCallback((trackId: string) => {
+    setCollapsedChapters((current) => {
+      const next = new Set(current);
+      if (next.has(trackId)) {
+        next.delete(trackId);
+      } else {
+        next.add(trackId);
+      }
+      return next;
+    });
+  }, []);
+
+  const selectLesson = useCallback((lessonId: string) => {
+    const targetLesson = domainLessons.find((item) => item.id === lessonId);
+    if (!targetLesson) return;
+    startLessonTransition(() => {
+      navigate(`/learning/${targetLesson.domainId}/${targetLesson.trackId}?lesson=${lessonId}`);
+    });
+  }, [domainLessons, navigate, startLessonTransition]);
+
   return (
     <main
       className={`learning-lab grid min-h-screen w-full overflow-hidden transition-[grid-template-columns] duration-300 ${
-        isSidebarOpen ? 'grid-cols-[252px_minmax(0,1fr)]' : 'grid-cols-[72px_minmax(0,1fr)]'
+        isSidebarOpen ? 'grid-cols-[300px_minmax(0,1fr)]' : 'grid-cols-[72px_minmax(0,1fr)]'
       } ${themeClasses.page}`}
     >
       <aside className={cx('relative z-50 flex min-h-screen flex-col overflow-visible border-r shadow-sm transition-colors', themeClasses.sidebar)}>
@@ -200,6 +279,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             {learningCatalog.domains.map((domain) => {
               const text = getDomainText(language, domain);
               const isActive = routeDomainId === domain.id;
+              const DomainIcon = DOMAIN_ICONS[domain.id];
               return (
                 <button
                   key={domain.id}
@@ -215,11 +295,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   aria-current={isActive ? 'page' : undefined}
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center text-sm" aria-hidden="true">
-                    {domain.id === 'fundamentals' ? <BookOpen className="h-5 w-5" strokeWidth={1.8} /> : null}
-                    {domain.id === 'cv' ? <Eye className="h-5 w-5" strokeWidth={1.8} /> : null}
-                    {domain.id === 'nlp' ? <MessageSquareText className="h-5 w-5" strokeWidth={1.8} /> : null}
-                    {domain.id === 'reinforcement-learning' ? <Route className="h-5 w-5" strokeWidth={1.8} /> : null}
-                    {domain.id === 'robot-learning' ? <Bot className="h-5 w-5" strokeWidth={1.8} /> : null}
+                    <DomainIcon className="h-5 w-5" strokeWidth={1.8} />
                   </span>
                   {isSidebarOpen ? <span className="min-w-0 truncate">{text.title}</span> : null}
                 </button>
@@ -248,46 +324,40 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : !routeDomainId ? (
             <DomainCatalog language={language} theme={theme} />
           ) : activeDomain && !activeTrack ? (
-            <DomainCoursePage
-              domain={activeDomain}
-              tracks={activeTracks}
-              lessons={learningCatalog.lessons.filter((lesson) => lesson.domainId === activeDomain.id)}
-              language={language}
-              theme={theme}
-              onOpenLesson={openLesson}
-            />
-          ) : activeTrack && selectedLesson ? (
-            <section className="learning-lab-catalog grid min-h-0 w-full gap-5 px-2 lg:grid-cols-[320px_minmax(0,1fr)]">
-              <aside className="grid max-h-full gap-3 overflow-auto pr-1">
-                <div className={cx('border p-4 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
-                  <div className={cx('text-[11px] font-black uppercase tracking-wide', themeClasses.mutedText)}>
-                    {getDomainTextById(language, activeTrack.domainId).title}
-                  </div>
-                  <h2 className={cx('mt-1 text-lg font-black', themeClasses.titleText)}>
-                    {getTrackText(language, activeTrack).title}
-                  </h2>
-                  <p className={cx('mt-2 text-xs leading-5', themeClasses.mutedText)}>
-                    {getTrackText(language, activeTrack).description}
-                  </p>
-                </div>
-                {trackLessons.map((lesson, index) => (
-                  <LessonNode
-                    key={lesson.id}
-                    lesson={lesson}
-                    index={index}
-                    isSelected={lesson.id === selectedLesson.id}
-                    language={language}
-                    theme={theme}
-                    onSelect={setSelectedLessonId}
-                  />
-                ))}
-              </aside>
-              <LessonDetail
-                lesson={selectedLesson}
-                theme={theme}
+            <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
+              {strings.contentInProgress}
+            </div>
+          ) : activeTrack && railSelectedLesson ? (
+            <section className="learning-lab-catalog -m-4 grid min-h-full w-[calc(100%+2rem)] gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+              <LessonRail
+                groups={filteredGroupedDomainLessons}
+                collapsedTrackIds={collapsedChapters}
+                isFiltered={isLessonRailFiltered}
                 language={language}
-                selectedPracticeId={routePracticeId}
+                lessonIndexById={lessonIndexById}
+                searchQuery={lessonSearchQuery}
+                selectedFilter={lessonRailFilter}
+                selectedLesson={railSelectedLesson}
+                selectedLessonIndex={selectedLessonIndex}
+                theme={theme}
+                onClearSearch={() => setLessonSearchQuery('')}
+                onSearchChange={setLessonSearchQuery}
+                onSelectFilter={setLessonRailFilter}
+                onSelectLesson={selectLesson}
+                onToggleTrack={toggleChapter}
               />
+              {selectedLesson ? (
+                <LessonDetail
+                  lesson={selectedLesson}
+                  theme={theme}
+                  language={language}
+                  selectedPracticeId={routePracticeId}
+                />
+              ) : (
+                <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
+                  {strings.lessonFilterEmpty}
+                </div>
+              )}
             </section>
           ) : (
             <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>

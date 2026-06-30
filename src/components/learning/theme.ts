@@ -86,7 +86,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     surface,
     button,
     page: isLight ? 'learning-lab-light bg-[#D3DEEA] text-[#030509]' : 'bg-[#121A24] text-[#F2F6FA]',
-    content: isLight ? 'bg-white/90' : 'bg-[#121A24]',
+    content: isLight ? 'bg-[#D3DEEA]' : 'bg-[#121A24]',
     sidebar: isLight
       ? 'border-[#9A9A9A]/16 bg-gradient-to-b from-[#DCE6F1] via-[#D3DEEA] to-[#B8C8DA] text-[#030509] shadow-[0_12px_28px_rgba(32,80,137,0.07)]'
       : 'border-[#3A414A] bg-gradient-to-b from-[#223247] via-[#172232] to-[#121A24] text-[#F2F6FA] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',

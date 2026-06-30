@@ -1,7 +1,7 @@
 ---
 title: Learning Lab Refactor
 type: Active Subsystem
-updated: 2026-06-29
+updated: 2026-06-30
 ---
 
 # Learning Lab Refactor
@@ -36,10 +36,17 @@ the guided learning flow.
 Learning Lab is active as the single learning container. It currently provides:
 
 - A domain-first flow: Learning Lab -> domain -> track/topic -> lesson.
-- Domains for ML Foundations, Computer Vision, NLP, Reinforcement Learning, and
-  Robot Learning placeholder.
+- Domains for Programming, Math & Statistics, Machine Learning, Deep Learning,
+  Computer Vision, NLP, LLM AI Engineering, MLOps/LLMOps, AI System Design,
+  Reinforcement Learning, AI Ethics/Safety/Governance, and Robot Learning.
 - A Path mode backed by React-free static catalog metadata.
 - A Review mode over practice cards from the active domain or catalog.
+- Canonical route resolution for `domain -> chapter -> lesson` paths. Legacy
+  route ids are kept as catalog aliases that redirect to the canonical roadmap
+  lesson instead of duplicating content.
+- A lesson rail with catalog-wide search, status/practice filters, and
+  chapter-level collapse. The rail is a dedicated component so
+  `LearningLabView` can stay focused on shell and route orchestration.
 - Tensor practice cards that build representative `LayoutNode`s, validate them
   against the existing exercise registry, and reuse existing shape/value
   exercise model builders.
@@ -67,6 +74,9 @@ Learning Lab is active as the single learning container. It currently provides:
   Shape, value, and convolution exercises reuse the existing answer-checking and
   hint logic through inline exercise mode; the Learning Lab page owns the theory,
   animation, and exercise surface together.
+- Expanded placeholder roadmaps get lesson display text from the catalog seed
+  model. `src/lib/localization.ts` still owns UI chrome and exercise labels, but
+  generated lesson titles no longer require a separate global title registry.
 
 Active behavior remains unchanged:
 
@@ -93,6 +103,7 @@ Active behavior remains unchanged:
 | `src/components/learning/shell/DomainCoursePage.tsx` | Shared course-style landing page for selected domains, including hero, outcomes, course content accordions, requirements, description, and footer. |
 | `src/components/learning/shell/TrackList.tsx` | Legacy track/topic card surface retained for possible reuse; domain landing routes now use `DomainCoursePage`. |
 | `src/components/learning/shell/ReviewMode.tsx` | Review browser over active-domain or catalog practice. |
+| `src/components/learning/lesson/LessonRail.tsx` | Searchable/filterable lesson rail, chapter collapse behavior, and lesson-node list rendering. |
 | `src/components/learning/lesson/LessonNode.tsx` | Shared lesson node. |
 | `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory and practice rendering. |
 | `src/components/learning/practice/PracticeSection.tsx` | Shared practice dispatcher for tensor, RL, and placeholder practice. |
@@ -103,6 +114,7 @@ Active behavior remains unchanged:
 | `src/core/learning/types.ts` | React-free unified learning catalog types. |
 | `src/core/learning/content/*` | React-free static domain/track/lesson metadata. |
 | `src/core/learning/selectors.ts` | React-free catalog selectors. |
+| `src/core/learning/content/seed.ts` | Placeholder roadmap seed builder that produces typed catalog lesson entries and catalog-owned lesson text. |
 
 ## UI Conventions
 
@@ -190,6 +202,9 @@ different in scope or needs its own long-lived reference surface.
 - `src/core/` must remain React-free when real logic is added.
 - Learning Lab owns learning navigation; new domains should enter through the
   unified catalog rather than adding top-level AppShell surfaces.
+- Canonical lesson identity lives in the catalog. Legacy track or lesson ids
+  should be represented as `routeAliases` that resolve to one canonical lesson
+  attachment, not as duplicated lesson/practice content.
 - Learning Lab should reuse existing exercise concepts and dedicated fixtures
   instead of duplicating behavior without a plan.
 - Any future page state must not reset the current TorchViz-3D editor/canvas

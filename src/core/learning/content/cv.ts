@@ -13,7 +13,7 @@ export const cvTracks: LearningTrack[] = [
     textKey: 'cnnShapeValue',
     domainId: 'cv',
     status: 'available',
-    lessonIds: ['conv2d-output', 'pooling-output'],
+    lessonIds: ['conv2d-output', 'pooling-output', 'cnn-classifier-head', 'batchnorm-dropout', 'vision-augmentation'],
   },
 ];
 
@@ -79,5 +79,29 @@ export const cvLessons: LearningLesson[] = [
         reuseStatus: 'embedded',
       },
     ],
+  },
+  {
+    id: 'cnn-classifier-head',
+    domainId: 'cv',
+    trackId: 'cnn-shape-value',
+    status: 'locked',
+    sections: [{ kind: 'theory', refId: 'cnn-classifier-head' }, { kind: 'code', refId: 'cnn-classifier-head-code' }],
+    practice: [],
+  },
+  {
+    id: 'batchnorm-dropout',
+    domainId: 'cv',
+    trackId: 'cnn-shape-value',
+    status: 'locked',
+    sections: [{ kind: 'theory', refId: 'batchnorm-dropout' }, { kind: 'calculation', refId: 'batchnorm-dropout-calculation' }],
+    practice: [],
+  },
+  {
+    id: 'vision-augmentation',
+    domainId: 'cv',
+    trackId: 'cnn-shape-value',
+    status: 'locked',
+    sections: [{ kind: 'theory', refId: 'vision-augmentation' }, { kind: 'code', refId: 'vision-augmentation-code' }],
+    practice: [],
   },
 ];
