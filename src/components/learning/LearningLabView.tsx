@@ -57,7 +57,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   const language = useStore((s) => s.language);
   const [mode, setMode] = useState<LearningLabMode>('path');
-  const [theme, setTheme] = useState<'dark' | 'light'>('light');
+  const theme = 'light' as const;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [collapsedChapters, setCollapsedChapters] = useState<Set<string>>(() => new Set());
   const [lessonSearchQuery, setLessonSearchQuery] = useState('');
@@ -311,7 +311,6 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           mode={mode}
           theme={theme}
           onModeChange={setMode}
-          onToggleTheme={() => setTheme((value) => (value === 'dark' ? 'light' : 'dark'))}
         />
         <section className={cx('learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4', themeClasses.content)}>
           {mode === 'review' ? (
