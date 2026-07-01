@@ -24,7 +24,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-repomix-output.xml
+repomix*
 
 # Local reference dumps
 docs/reference/building-llms-from-scratch-gist.md

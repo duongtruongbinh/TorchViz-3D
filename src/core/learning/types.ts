@@ -93,7 +93,18 @@ export type LearningLessonExtra =
       title: LearningLocalizedText;
       image: LearningAssetId;
       imageAlt: LearningLocalizedText;
-      body: LearningLocalizedText;
+      body: LearningLocalizedText[];
+      hierarchy?: {
+        ariaLabel: LearningLocalizedText;
+        rows: Array<{
+          shortName: string;
+          fullName: string;
+          description: LearningLocalizedText;
+          depth: 'widest' | 'middle' | 'branch' | 'target';
+          compact?: boolean;
+        }>;
+        branchLabel?: LearningLocalizedText;
+      };
     }
   | {
       kind: 'conceptInteraction';
@@ -106,6 +117,12 @@ export type LearningLessonExtra =
       imageAlt: LearningLocalizedText;
       prompt: LearningLocalizedText;
       blankLabel: LearningLocalizedText;
+      labels: {
+        chooseNextToken: LearningLocalizedText;
+        emptySentence: LearningLocalizedText;
+        removeLastWord: LearningLocalizedText;
+        reset: LearningLocalizedText;
+      };
       options: Array<{
         label: LearningLocalizedText;
         isCorrect?: boolean;

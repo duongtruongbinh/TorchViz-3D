@@ -31,7 +31,7 @@ function MotivationBlock({ extra, language, themeClasses }: {
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
-  const intro = splitMotivationIntro(text(extra.body, language));
+  const intro = extra.body.map((paragraph) => text(paragraph, language));
 
   return (
     <div className="overflow-hidden">
@@ -45,7 +45,9 @@ function MotivationBlock({ extra, language, themeClasses }: {
             ))}
           </div>
 
-          <AiHierarchyFlow themeClasses={themeClasses} />
+          {extra.hierarchy && (
+            <AiHierarchyFlow hierarchy={extra.hierarchy} language={language} themeClasses={themeClasses} />
+          )}
 
         </div>
 
@@ -62,46 +64,49 @@ function MotivationBlock({ extra, language, themeClasses }: {
   );
 }
 
-function AiHierarchyFlow({ themeClasses }: {
+function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
+  hierarchy: NonNullable<Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy']>;
+  language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
+  const leadingRows = hierarchy.rows.filter((row) => row.depth !== 'branch' && row.depth !== 'target');
+  const branchRows = hierarchy.rows.filter((row) => row.depth === 'branch');
+  const targetRows = hierarchy.rows.filter((row) => row.depth === 'target');
+
   return (
-    <div className="mt-5 grid max-w-[70ch] gap-3" aria-label="AI hierarchy flow">
-      <HierarchyRow shortName="AI" fullName="Artificial Intelligence" description="Vòng ngoài cùng, chứa mọi cách làm cho máy có hành vi thông minh." themeClasses={themeClasses} depth="widest" />
-      <HierarchyRow shortName="ML" fullName="Machine Learning" description="Bên trong AI, nơi máy học từ dữ liệu thay vì làm theo luật cố định." themeClasses={themeClasses} depth="middle" />
-      <HierarchyRow shortName="DL" fullName="Deep Learning" description="Bên trong ML, dùng nhiều lớp xử lý để học các pattern phức tạp hơn." themeClasses={themeClasses} depth="middle" />
+    <div className="mt-5 grid max-w-[70ch] gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
+      {leadingRows.map((row) => (
+        <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
+      ))}
 
-      <div className="grid gap-3 py-2">
-        <div className={cx('text-xs font-normal uppercase tracking-wide', themeClasses.mutedText)}>
-          Deep Learning tách thành hai hướng chuyên biệt
+      {branchRows.length ? (
+        <div className="grid gap-3 py-2">
+          {hierarchy.branchLabel && (
+            <div className={cx('text-xs font-normal uppercase tracking-wide', themeClasses.mutedText)}>
+              {text(hierarchy.branchLabel, language)}
+            </div>
+          )}
+          <div className="grid gap-3 md:grid-cols-2">
+            {branchRows.map((row) => (
+              <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
+            ))}
+          </div>
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <HierarchyRow shortName="CV" fullName="Computer Vision" description="Xử lý hình ảnh." themeClasses={themeClasses} depth="branch" compact />
-          <HierarchyRow shortName="NLP" fullName="Natural Language Processing" description="Xử lý ngôn ngữ." themeClasses={themeClasses} depth="branch" compact />
-        </div>
-      </div>
+      ) : null}
 
-      <HierarchyRow shortName="LLM" fullName="Large Language Model" description="Nằm sâu hơn bên trong NLP, đây là phần chúng ta sẽ tập trung giải thích." themeClasses={themeClasses} depth="target" />
+      {targetRows.map((row) => (
+        <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
+      ))}
     </div>
   );
 }
 
-function HierarchyRow({
-  shortName,
-  fullName,
-  description,
-  themeClasses,
-  depth,
-  compact = false,
-}: {
-  shortName: string;
-  fullName: string;
-  description: string;
+function HierarchyRow({ row, language, themeClasses }: {
+  row: NonNullable<Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy']>['rows'][number];
+  language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
-  depth: 'widest' | 'middle' | 'branch' | 'target';
-  compact?: boolean;
 }) {
-  const isTarget = depth === 'target';
+  const isTarget = row.depth === 'target';
   const rowTone = isTarget
     ? themeClasses.isLight
       ? 'bg-[#205089]/8 shadow-[inset_3px_0_0_rgba(32,80,137,0.78)] hover:bg-[#205089]/12'
@@ -116,15 +121,15 @@ function HierarchyRow({
         'group grid gap-2 px-3 py-2 text-sm transition-colors sm:items-start',
         themeClasses.radius.button,
         rowTone,
-        compact ? 'sm:grid-cols-[3.75rem_minmax(0,1fr)]' : 'sm:grid-cols-[4.5rem_minmax(0,1fr)]',
+        row.compact ? 'sm:grid-cols-[3.75rem_minmax(0,1fr)]' : 'sm:grid-cols-[4.5rem_minmax(0,1fr)]',
       )}
     >
       <div className={cx('font-black leading-6', isTarget ? themeClasses.accentText : themeClasses.titleText)}>
-        {shortName}
+        {row.shortName}
       </div>
       <div className="min-w-0">
-        <div className={cx('font-normal leading-6', themeClasses.titleText)}>{fullName}</div>
-        <p className={cx('mt-0.5 leading-6', themeClasses.bodyText)}>{description}</p>
+        <div className={cx('font-normal leading-6', themeClasses.titleText)}>{row.fullName}</div>
+        <p className={cx('mt-0.5 leading-6', themeClasses.bodyText)}>{text(row.description, language)}</p>
       </div>
     </div>
   );
@@ -140,6 +145,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
   const [selectedWordIndexes, setSelectedWordIndexes] = useState<number[]>([]);
   const selectedOption = selectedIndex === null ? null : extra.options[selectedIndex];
   const selectedLabel = selectedOption ? text(selectedOption.label, language) : text(extra.blankLabel, language);
+  const labels = extra.labels;
   const noteText = extra.note ? text(extra.note, language) : '';
   const sentenceBuilder = extra.sentenceBuilder;
   const selectedWords = sentenceBuilder ? selectedWordIndexes.map((index) => text(sentenceBuilder.choices[index], language)) : [];
@@ -188,7 +194,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
         <div className="grid justify-items-center gap-3">
           <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
             <Sparkles className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
-            {language === 'vi' ? 'Thử chọn token tiếp theo' : 'Choose the next token'}
+            {text(labels.chooseNextToken, language)}
           </div>
 
           <div className={cx('flex flex-wrap items-center justify-center gap-2 text-base font-semibold leading-8 md:text-lg', themeClasses.titleText)}>
@@ -270,7 +276,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
                 ))
               ) : (
                 <span className={cx('inline-flex min-h-9 min-w-[9rem] items-center justify-center rounded-lg border border-dashed px-3 text-sm font-black', themeClasses.isLight ? 'border-[#205089]/28 text-[#123B68]/70' : 'border-[#A8B8C8]/28 text-[#F2F6FA]/62')}>
-                  {language === 'vi' ? 'chọn từng từ' : 'choose words'}
+                  {text(labels.emptySentence, language)}
                 </span>
               )}
             </div>
@@ -278,7 +284,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
               type="button"
               onClick={() => setSelectedWordIndexes((current) => current.slice(0, -1))}
               disabled={!selectedWordIndexes.length}
-              aria-label={language === 'vi' ? 'Xóa từ vừa chọn' : 'Remove last word'}
+              aria-label={text(labels.removeLastWord, language)}
               className={cx('inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-30', themeClasses.isLight ? 'text-[#123B68] hover:bg-[#205089]/10' : 'text-[#F2F6FA]/76 hover:bg-[#A8B8C8]/14')}
             >
               <X className="h-4 w-4" aria-hidden="true" />
@@ -313,7 +319,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
               className={cx('inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-xs font-black transition-colors disabled:cursor-not-allowed disabled:opacity-40', themeClasses.isLight ? 'bg-[#205089]/10 text-[#123B68] hover:bg-[#205089]/14' : 'bg-[#A8B8C8]/10 text-[#F2F6FA]/76 hover:bg-[#A8B8C8]/14')}
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
-              Reset
+              {text(labels.reset, language)}
             </button>
           </div>
 
@@ -331,13 +337,4 @@ function ConceptInteraction({ extra, language, themeClasses }: {
       )}
     </div>
   );
-}
-
-
-function splitMotivationIntro(value: string): string[] {
-  return value
-    .replace(' Hãy tưởng tượng', '\nHãy tưởng tượng')
-    .split('\n')
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
 }

@@ -7,8 +7,12 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       'llm-roadmap-motivation',
       'llm-from-scratch-roadmap',
       'Tổng quan',
-      'Trước khi bàn về các mô hình ngôn ngữ lớn, hãy cùng phân tách Artificial Intelligence (AI) và các lĩnh vực thành phần của nó theo phạm vi từ lớn đến nhỏ. Hãy tưởng tượng đây là những vòng tròn lồng vào nhau: vòng ngoài cùng rộng nhất, càng vào trong càng hẹp và càng chuyên biệt.',
+      [
+        'Trước khi bàn về các mô hình ngôn ngữ lớn, hãy cùng phân tách Artificial Intelligence (AI) và các lĩnh vực thành phần của nó theo phạm vi từ lớn đến nhỏ.',
+        'Hãy tưởng tượng đây là những vòng tròn lồng vào nhau: vòng ngoài cùng rộng nhất, càng vào trong càng hẹp và càng chuyên biệt.',
+      ],
       'Sơ đồ tổng quan các lĩnh vực AI từ phạm vi rộng đến chuyên biệt.',
+      aiHierarchy(),
     ),
     conceptInteraction(
       'what-is-llm',
@@ -91,16 +95,17 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
   ],
 };
 
-function loc(value: string) {
-  return { en: value, vi: value };
+function loc(en: string, vi = en) {
+  return { en, vi };
 }
 
 function motivation(
   id: string,
   sectionRefId: string,
   title: string,
-  body: string,
+  body: string[],
   imageAlt: string,
+  hierarchy?: Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy'],
 ): LearningLessonExtra {
   return {
     kind: 'motivation',
@@ -109,7 +114,8 @@ function motivation(
     title: loc(title),
     image: 'llm-from-scratch-roadmap.ai-hierarchy',
     imageAlt: loc(imageAlt),
-    body: loc(body),
+    body: body.map((paragraph) => loc(paragraph)),
+    hierarchy,
   };
 }
 
@@ -130,12 +136,18 @@ function conceptInteraction(
     id,
     sectionRefId,
     title: loc(title),
-    body: body.map(loc),
+    body: body.map((paragraph) => loc(paragraph)),
     note: loc(note),
     imageAlt: loc(imageAlt),
     image: 'llm-from-scratch-roadmap.next-token-loop',
     prompt: loc(prompt),
     blankLabel: loc(blankLabel),
+    labels: {
+      chooseNextToken: loc('Choose the next token', 'Thử chọn token tiếp theo'),
+      emptySentence: loc('choose words', 'chọn từng từ'),
+      removeLastWord: loc('Remove last word', 'Xóa từ vừa chọn'),
+      reset: loc('Reset'),
+    },
     options: options.map((item) => ({
       label: loc(item.label),
       isCorrect: item.isCorrect,
@@ -147,6 +159,53 @@ function conceptInteraction(
 
 function option(label: string, isCorrect: boolean, feedback: string) {
   return { label, isCorrect, feedback };
+}
+
+function aiHierarchy(): Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy'] {
+  return {
+    ariaLabel: loc('AI hierarchy flow'),
+    branchLabel: loc('Deep Learning tách thành hai hướng chuyên biệt'),
+    rows: [
+      {
+        shortName: 'AI',
+        fullName: 'Artificial Intelligence',
+        description: loc('Vòng ngoài cùng, chứa mọi cách làm cho máy có hành vi thông minh.'),
+        depth: 'widest',
+      },
+      {
+        shortName: 'ML',
+        fullName: 'Machine Learning',
+        description: loc('Bên trong AI, nơi máy học từ dữ liệu thay vì làm theo luật cố định.'),
+        depth: 'middle',
+      },
+      {
+        shortName: 'DL',
+        fullName: 'Deep Learning',
+        description: loc('Bên trong ML, dùng nhiều lớp xử lý để học các pattern phức tạp hơn.'),
+        depth: 'middle',
+      },
+      {
+        shortName: 'CV',
+        fullName: 'Computer Vision',
+        description: loc('Xử lý hình ảnh.'),
+        depth: 'branch',
+        compact: true,
+      },
+      {
+        shortName: 'NLP',
+        fullName: 'Natural Language Processing',
+        description: loc('Xử lý ngôn ngữ.'),
+        depth: 'branch',
+        compact: true,
+      },
+      {
+        shortName: 'LLM',
+        fullName: 'Large Language Model',
+        description: loc('Nằm sâu hơn bên trong NLP, đây là phần chúng ta sẽ tập trung giải thích.'),
+        depth: 'target',
+      },
+    ],
+  };
 }
 
 function conceptPanel(
@@ -168,8 +227,8 @@ function conceptPanel(
     sectionRefId,
     title: loc(title),
     emphasis: config.emphasis ? loc(config.emphasis) : undefined,
-    body: config.body?.map(loc),
-    bodyAfter: config.bodyAfter?.map(loc),
+    body: config.body?.map((paragraph) => loc(paragraph)),
+    bodyAfter: config.bodyAfter?.map((paragraph) => loc(paragraph)),
     highlights: config.highlights?.map((item) => ({
       shortName: loc(item[0]),
       fullName: loc(item[1]),
@@ -195,8 +254,8 @@ function sentenceBuilder(
   return {
     title: loc(title),
     prompt: loc(prompt),
-    targets: targets.map((target) => target.map(loc)),
-    choices: choices.map(loc),
+    targets: targets.map((target) => target.map((word) => loc(word))),
+    choices: choices.map((choice) => loc(choice)),
     success: loc(success),
     error: loc(error),
   };
