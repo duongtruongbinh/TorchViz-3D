@@ -1,7 +1,7 @@
 ---
 title: Learning Lab Refactor
 type: Active Subsystem
-updated: 2026-06-30
+updated: 2026-07-02
 ---
 
 # Learning Lab Refactor
@@ -39,6 +39,21 @@ Learning Lab is active as the single learning container. It currently provides:
 - Domains for Programming, Math & Statistics, Machine Learning, Deep Learning,
   Computer Vision, NLP, LLM AI Engineering, MLOps/LLMOps, AI System Design,
   Reinforcement Learning, AI Ethics/Safety/Governance, and Robot Learning.
+- The LLM AI Engineering domain includes a Vietnamese-first LLM-from-scratch
+  course path inspired by `rasbt/LLMs-from-scratch` but organized around the
+  TorchViz learning rhythm: theory -> hand calculation or theory quiz -> code.
+  Its catalog-owned lesson copy explains why each concept matters, where it
+  sits in the LLM pipeline, what learners should calculate or check by hand,
+  and what the later code step is meant to implement. The course also carries
+  React-free lesson metadata for data-driven diagrams, formulas, concrete
+  checkpoint exercises, and code contracts. The Learning Lab lesson renderer
+  turns that metadata into compact visuals and renders math with KaTeX rather
+  than a custom LaTeX parser. A later alignment pass downloaded the supplied
+  "Building LLMs From Scratch" gist into
+  `docs/reference/building-llms-from-scratch-gist.md` and uses it as a local
+  reference for source-grounded paraphrases; concepts outside the current lab
+  scope, such as training-loop bells and LoRA, are marked as placeholders for
+  future supplementation instead of being implemented prematurely.
 - A Path mode backed by React-free static catalog metadata.
 - A Review mode over practice cards from the active domain or catalog.
 - Canonical route resolution for `domain -> chapter -> lesson` paths. Legacy
@@ -106,6 +121,7 @@ Active behavior remains unchanged:
 | `src/components/learning/lesson/LessonRail.tsx` | Searchable/filterable lesson rail, chapter collapse behavior, and lesson-node list rendering. |
 | `src/components/learning/lesson/LessonNode.tsx` | Shared lesson node. |
 | `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory and practice rendering. |
+| `src/components/learning/lesson/LessonExtras.tsx` | Data-driven renderer for lesson diagrams, KaTeX formulas, checkpoint exercises, and code contracts. |
 | `src/components/learning/practice/PracticeSection.tsx` | Shared practice dispatcher for tensor, RL, and placeholder practice. |
 | `src/components/learning/practice/TensorPracticeRenderer.tsx` | Tensor Shape/Value/Conv modal launcher. |
 | `src/components/learning/practice/ReinforcementPracticeRenderer.tsx` | Inline RL MDP/Bellman/GridWorld renderer. |
@@ -121,6 +137,13 @@ Active behavior remains unchanged:
 Learning Lab UI conventions live in `src/components/learning/theme.ts`.
 New Learning Lab controls should use `getLearningLabTheme(theme)` instead of
 hand-rolling color, hover, focus, or radius classes in component files.
+
+The main lesson panel should stay visually flat: `LessonDetail` owns the single
+outer panel, while theory, calculation, code, practice, and lesson extras use
+section spacing, dividers, and subtle left accents instead of stacking full
+cards inside cards. Reserve framed surfaces for repeated cards, modals, practice
+engines, and small functional elements such as formulas, matrix cells, or token
+pills.
 
 `LearningLabView` keeps the left sidebar intentionally shallow: an explicit
 Home item appears at the top, followed only by top-level domains. The Home page
