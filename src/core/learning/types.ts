@@ -15,7 +15,14 @@ export type LearningDomainId =
 export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';
 export type LearningTrackStatus = 'available' | 'placeholder';
 export type LearningLessonStatus = 'available' | 'next' | 'locked';
+export type LearningLessonApprovalStatus = 'approved' | 'placeholder' | 'draft';
 export type LearningPracticeApprovalStatus = 'approved' | 'unapproved' | 'unavailable';
+
+export type LearningLessonApproval = {
+  status: LearningLessonApprovalStatus;
+  approvedBy?: string;
+  approvedAt?: string;
+};
 
 export type LearningPracticeApproval = {
   status: LearningPracticeApprovalStatus;
@@ -26,6 +33,8 @@ export type LearningLocalizedText = {
   en: string;
   vi: string;
 };
+
+export type LearningAssetId = string;
 
 export type TensorExerciseId =
   | 'conv-value'
@@ -119,15 +128,15 @@ export type LearningLessonDiagram =
     };
 
 export type LearningLessonExtra =
-  | {
-      kind: 'motivation';
-      id: string;
-      sectionRefId?: string;
-      title: LearningLocalizedText;
-      image: 'ai-overview';
-      imageAlt: LearningLocalizedText;
-      body: LearningLocalizedText;
-    }
+	  | {
+	      kind: 'motivation';
+	      id: string;
+	      sectionRefId?: string;
+	      title: LearningLocalizedText;
+	      image: LearningAssetId;
+	      imageAlt: LearningLocalizedText;
+	      body: LearningLocalizedText;
+	    }
   | {
       kind: 'diagram';
       id: string;
@@ -153,14 +162,14 @@ export type LearningLessonExtra =
     }
   | {
       kind: 'conceptInteraction';
-      id: string;
-      sectionRefId?: string;
-      title: LearningLocalizedText;
-      body: LearningLocalizedText[];
-      note?: LearningLocalizedText;
-      image: 'llm-predict';
-      imageAlt: LearningLocalizedText;
-      prompt: LearningLocalizedText;
+	      id: string;
+	      sectionRefId?: string;
+	      title: LearningLocalizedText;
+	      body: LearningLocalizedText[];
+	      note?: LearningLocalizedText;
+	      image: LearningAssetId;
+	      imageAlt: LearningLocalizedText;
+	      prompt: LearningLocalizedText;
       blankLabel: LearningLocalizedText;
       options: Array<{
         label: LearningLocalizedText;
@@ -224,11 +233,12 @@ export type LearningLessonExtra =
     };
 
 export type LearningLesson = {
-  id: string;
-  domainId: LearningDomainId;
-  trackId: string;
-  status: LearningLessonStatus;
-  text?: {
+	  id: string;
+	  domainId: LearningDomainId;
+	  trackId: string;
+	  status: LearningLessonStatus;
+	  approval?: LearningLessonApproval;
+	  text?: {
     title: LearningLocalizedText;
     eyebrow?: LearningLocalizedText;
     duration?: LearningLocalizedText;

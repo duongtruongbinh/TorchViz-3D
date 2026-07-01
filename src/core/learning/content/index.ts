@@ -12,7 +12,7 @@ import {
   llmAiEngineeringDomain,
   llmAiEngineeringLessons,
   llmAiEngineeringTracks,
-} from './llmAiEngineering.ts';
+} from './llm-ai-engineering/index.ts';
 import { mathStatisticsAiDomain, mathStatisticsAiLessons, mathStatisticsAiTracks } from './mathStatisticsAi.ts';
 import {
   mlopsLlmopsProductionSystemsDomain,
