@@ -1,6 +1,6 @@
 import type { LearningDomain, LearningLesson, LearningTrack } from '../../types.ts';
 import { buildPlaceholderContent } from '../seed.ts';
-import { APPROVED_LESSONS, isApprovedLesson } from './approval.ts';
+import { isApprovedLesson } from './approval.ts';
 import { llmFromScratchExtras } from './extras.ts';
 import { chapters } from './tracks.ts';
 
@@ -15,7 +15,6 @@ const llmAiEngineeringContent = buildPlaceholderContent({
 export const llmAiEngineeringDomain: LearningDomain = llmAiEngineeringContent.domain;
 export const llmAiEngineeringTracks: LearningTrack[] = llmAiEngineeringContent.tracks;
 export const llmAiEngineeringLessons: LearningLesson[] = llmAiEngineeringContent.lessons.map((lesson) => {
-  const approval = APPROVED_LESSONS[lesson.id];
   const extras = isApprovedLesson(lesson.id) ? llmFromScratchExtras[lesson.id] : undefined;
-  return extras ? { ...lesson, approval, extras } : lesson;
+  return extras ? { ...lesson, extras } : lesson;
 });

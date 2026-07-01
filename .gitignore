@@ -25,3 +25,6 @@ dist-ssr
 *.sln
 *.sw?
 repomix-output.xml
+
+# Local reference dumps
+docs/reference/building-llms-from-scratch-gist.md

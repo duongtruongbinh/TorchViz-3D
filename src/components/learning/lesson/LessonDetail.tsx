@@ -6,7 +6,7 @@ import { getStrings } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
 import PracticeSection from '../practice/PracticeSection';
 import { cx, getLearningLabTheme } from '../theme';
-import LessonExtras from './LessonExtras';
+import LessonExtras from './extras/LessonExtras';
 
 type LessonDetailProps = {
   lesson: LearningLesson;
@@ -36,7 +36,6 @@ export default function LessonDetail({ lesson, theme, language, selectedPractice
             const remainingExtras = sectionExtras.filter((extra) => extra.kind !== 'motivation');
             if (motivationExtras.length) {
               const conceptExtras = remainingExtras.filter((extra) => extra.kind === 'conceptInteraction' || extra.kind === 'conceptPanel');
-              const followUpExtras = remainingExtras.filter((extra) => extra.kind !== 'conceptInteraction' && extra.kind !== 'conceptPanel');
               return (
                 <Fragment key={`${section.kind}-${section.refId}`}>
                   <SectionShell sectionDivider={sectionDivider} className="learning-lab-motivation-section">
@@ -60,11 +59,6 @@ export default function LessonDetail({ lesson, theme, language, selectedPractice
                     </SectionShell>
                   ) : null}
 
-                  {followUpExtras.map((extra) => (
-                    <SectionShell key={extra.id} sectionDivider={sectionDivider}>
-                      <LessonExtras extras={[extra]} language={language} themeClasses={themeClasses} className="grid gap-5" />
-                    </SectionShell>
-                  ))}
                 </Fragment>
               );
             }

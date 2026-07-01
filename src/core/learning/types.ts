@@ -15,14 +15,7 @@ export type LearningDomainId =
 export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';
 export type LearningTrackStatus = 'available' | 'placeholder';
 export type LearningLessonStatus = 'available' | 'next' | 'locked';
-export type LearningLessonApprovalStatus = 'approved' | 'placeholder' | 'draft';
 export type LearningPracticeApprovalStatus = 'approved' | 'unapproved' | 'unavailable';
-
-export type LearningLessonApproval = {
-  status: LearningLessonApprovalStatus;
-  approvedBy?: string;
-  approvedAt?: string;
-};
 
 export type LearningPracticeApproval = {
   status: LearningPracticeApprovalStatus;
@@ -92,84 +85,26 @@ export type LearningLessonSection = {
   refId: string;
 };
 
-export type LearningLessonDiagram =
-  | {
-      variant: 'pipeline';
-      title: LearningLocalizedText;
-      steps: LearningLocalizedText[];
-    }
-  | {
-      variant: 'shape-flow';
-      title: LearningLocalizedText;
-      steps: Array<{
-        label: LearningLocalizedText;
-        shape: string;
-        note?: LearningLocalizedText;
-      }>;
-    }
-  | {
-      variant: 'matrix';
-      title: LearningLocalizedText;
-      columns: string[];
-      rows: Array<{
-        label: string;
-        cells: Array<'allowed' | 'blocked' | 'target'>;
-      }>;
-      legend?: LearningLocalizedText;
-    }
-  | {
-      variant: 'sliding-window';
-      title: LearningLocalizedText;
-      tokens: string[];
-      windows: Array<{
-        input: string[];
-        target: string[];
-      }>;
-    };
-
 export type LearningLessonExtra =
-	  | {
-	      kind: 'motivation';
-	      id: string;
-	      sectionRefId?: string;
-	      title: LearningLocalizedText;
-	      image: LearningAssetId;
-	      imageAlt: LearningLocalizedText;
-	      body: LearningLocalizedText;
-	    }
   | {
-      kind: 'diagram';
-      id: string;
-      sectionRefId?: string;
-      diagram: LearningLessonDiagram;
-    }
-  | {
-      kind: 'formula';
+      kind: 'motivation';
       id: string;
       sectionRefId?: string;
       title: LearningLocalizedText;
-      latex: string;
-      note?: LearningLocalizedText;
-    }
-  | {
-      kind: 'exercise';
-      id: string;
-      sectionRefId?: string;
-      title: LearningLocalizedText;
-      prompt: LearningLocalizedText;
-      tasks: LearningLocalizedText[];
-      answer?: LearningLocalizedText;
+      image: LearningAssetId;
+      imageAlt: LearningLocalizedText;
+      body: LearningLocalizedText;
     }
   | {
       kind: 'conceptInteraction';
-	      id: string;
-	      sectionRefId?: string;
-	      title: LearningLocalizedText;
-	      body: LearningLocalizedText[];
-	      note?: LearningLocalizedText;
-	      image: LearningAssetId;
-	      imageAlt: LearningLocalizedText;
-	      prompt: LearningLocalizedText;
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      body: LearningLocalizedText[];
+      note?: LearningLocalizedText;
+      image: LearningAssetId;
+      imageAlt: LearningLocalizedText;
+      prompt: LearningLocalizedText;
       blankLabel: LearningLocalizedText;
       options: Array<{
         label: LearningLocalizedText;
@@ -198,16 +133,6 @@ export type LearningLessonExtra =
         fullName: LearningLocalizedText;
         description: LearningLocalizedText;
       }>;
-      table?: {
-        columns: LearningLocalizedText[];
-        rows: Array<{
-          cells: LearningLocalizedText[];
-        }>;
-      };
-      steps?: Array<{
-        title: LearningLocalizedText;
-        body: LearningLocalizedText;
-      }>;
       outline?: Array<{
         title: LearningLocalizedText;
         body: LearningLocalizedText;
@@ -216,29 +141,18 @@ export type LearningLessonExtra =
           body: LearningLocalizedText;
         }>;
       }>;
-      bullets?: LearningLocalizedText[];
       links?: Array<{
         label: LearningLocalizedText;
         href: string;
       }>;
-    }
-  | {
-      kind: 'codeContract';
-      id: string;
-      sectionRefId?: string;
-      title: LearningLocalizedText;
-      input: LearningLocalizedText;
-      output: LearningLocalizedText;
-      observe: LearningLocalizedText;
     };
 
 export type LearningLesson = {
-	  id: string;
-	  domainId: LearningDomainId;
-	  trackId: string;
-	  status: LearningLessonStatus;
-	  approval?: LearningLessonApproval;
-	  text?: {
+  id: string;
+  domainId: LearningDomainId;
+  trackId: string;
+  status: LearningLessonStatus;
+  text?: {
     title: LearningLocalizedText;
     eyebrow?: LearningLocalizedText;
     duration?: LearningLocalizedText;

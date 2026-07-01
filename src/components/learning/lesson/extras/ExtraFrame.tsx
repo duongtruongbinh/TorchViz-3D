@@ -2,18 +2,16 @@ import type { ReactNode } from 'react';
 import { cx, getLearningLabTheme } from '../../theme';
 
 type ExtraFrameProps = {
-  icon: ReactNode;
   title: string;
   children: ReactNode;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
   customTitle?: ReactNode;
 };
 
-export default function ExtraFrame({ icon, title, children, themeClasses, customTitle }: ExtraFrameProps) {
+export default function ExtraFrame({ title, children, themeClasses, customTitle }: ExtraFrameProps) {
   return (
     <div className="py-1">
       <div className={cx('mb-3 flex items-center gap-2 text-sm font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-        <span className="hidden" aria-hidden="true">{icon}</span>
         {customTitle ?? <span>{title}</span>}
       </div>
       {children}

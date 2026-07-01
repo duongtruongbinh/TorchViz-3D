@@ -1,13 +1,5 @@
-import type { LearningLessonApproval } from '../../types.ts';
-
-export const APPROVED_LESSONS: Record<string, LearningLessonApproval> = {
-  'llm-from-scratch-roadmap': {
-    status: 'approved',
-    approvedBy: 'nmkhiem',
-    approvedAt: '2026-07-02',
-  },
-};
+const APPROVED_LESSON_IDS = new Set<string>(['llm-from-scratch-roadmap']);
 
 export function isApprovedLesson(lessonId: string): boolean {
-  return APPROVED_LESSONS[lessonId]?.status === 'approved';
+  return APPROVED_LESSON_IDS.has(lessonId);
 }

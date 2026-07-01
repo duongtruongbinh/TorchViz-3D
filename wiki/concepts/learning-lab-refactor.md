@@ -44,19 +44,19 @@ Learning Lab is active as the single learning container. It currently provides:
   TorchViz learning rhythm: theory -> hand calculation or theory quiz -> code.
   Its catalog-owned lesson copy explains why each concept matters, where it
   sits in the LLM pipeline, what learners should calculate or check by hand,
-  and what the later code step is meant to implement. The course also carries
-  React-free lesson metadata for data-driven diagrams, formulas, concrete
-  checkpoint exercises, and code contracts. The Learning Lab lesson renderer
-  turns that metadata into compact visuals and renders math with KaTeX rather
-  than a custom LaTeX parser. A later alignment pass downloaded the supplied
-  "Building LLMs From Scratch" gist into
+  and what the later code step is meant to implement. The currently approved
+  roadmap lesson carries React-free extras for its motivation panel, LLM token
+  interaction, concept panels, and reference links. Deeper formulas, checkpoint
+  exercises, and code contracts stay in the roadmap copy until a later approved
+  lesson attaches them to the runtime. A later alignment pass downloaded the
+  supplied "Building LLMs From Scratch" gist into
   `docs/reference/building-llms-from-scratch-gist.md` and uses it as a local
   reference for source-grounded paraphrases; concepts outside the current lab
   scope, such as training-loop bells and LoRA, are marked as placeholders for
   future supplementation instead of being implemented prematurely.
 - LLM AI Engineering content is now a domain package under
   `src/core/learning/content/llm-ai-engineering/`. The package owns its tracks,
-  approved extras, source references, and lesson approval metadata while keeping
+  approved roadmap extras, source references, and local approval gate while keeping
   the global catalog export stable.
 - A Path mode backed by React-free static catalog metadata.
 - A Review mode over practice cards from the active domain or catalog.
@@ -126,7 +126,7 @@ Active behavior remains unchanged:
 | `src/components/learning/lesson/LessonNode.tsx` | Shared lesson node. |
 | `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory and practice rendering. |
 | `src/components/learning/lesson/LessonExtras.tsx` | Compatibility wrapper for the lesson extras package. |
-| `src/components/learning/lesson/extras/*` | Shared core extra dispatch, diagrams, KaTeX formulas, checkpoint exercises, concept panels, code contracts, asset resolution, and custom-renderer registration. |
+| `src/components/learning/lesson/extras/*` | Shared extra dispatch for currently approved extras, concept panels, asset resolution, and small text helpers. |
 | `src/components/learning/domains/*/renderers.tsx` | Optional domain-owned custom extra renderers for interactions or visual treatments that should not live in the shared renderer. |
 | `src/components/learning/practice/PracticeSection.tsx` | Shared practice dispatcher for tensor, RL, and placeholder practice. |
 | `src/components/learning/practice/TensorPracticeRenderer.tsx` | Tensor Shape/Value/Conv modal launcher. |
@@ -135,7 +135,7 @@ Active behavior remains unchanged:
 | `src/components/learning/practice/adapters/reinforcementPracticeAdapter.ts` | Deterministic RL practice fixtures and answer helpers. |
 | `src/core/learning/types.ts` | React-free unified learning catalog types. |
 | `src/core/learning/content/*` | React-free static domain/track/lesson metadata. Larger domains may own a package folder instead of a single file. |
-| `src/core/learning/content/llm-ai-engineering/*` | LLM AI Engineering domain package: tracks, approved extras, references, and lesson approval metadata. |
+| `src/core/learning/content/llm-ai-engineering/*` | LLM AI Engineering domain package: tracks, approved roadmap extras, references, and a local approval gate. |
 | `src/core/learning/selectors.ts` | React-free catalog selectors. |
 | `src/core/learning/content/seed.ts` | Placeholder roadmap seed builder that produces typed catalog lesson entries and catalog-owned lesson text. |
 
@@ -144,7 +144,8 @@ Active behavior remains unchanged:
 Learning Lab content should scale by domain package ownership, not by a rigid
 one-file-per-lesson rule. A small placeholder-heavy domain can remain a single
 content file. A growing or custom-heavy domain should move into a folder that
-owns its tracks, approvals, sources, long-form lesson copy, extras, and assets.
+owns its tracks, approval gates, sources, long-form lesson copy, extras, and
+assets.
 
 Split files by volatility:
 
@@ -156,10 +157,11 @@ Split files by volatility:
   or tests to justify independent ownership.
 
 Global shared types and renderers should describe reusable contracts. Domain
-packages should own their own source references, asset ids, approval metadata,
-and custom renderer registration so future domains do not inflate
+packages should own their own source references, asset ids, approval gates,
+and custom renderer components so future domains do not inflate
 `src/lib/localization.ts`, `src/core/learning/types.ts`, or the shared lesson
-extra renderer.
+extra renderer. Do not add a registry layer until more than one domain needs
+keyed custom extra routing.
 
 ## UI Conventions
 
@@ -170,7 +172,8 @@ hand-rolling color, hover, focus, or radius classes in component files.
 Runtime lesson media should live under `src/assets/learning/<domain>/...` and be
 resolved through a renderer-side asset registry. `docs/assets/` is for
 documentation media, screenshots, and reference artifacts rather than app
-runtime lesson images. Use lesson-searchable file names:
+runtime lesson images. Use lesson-scoped asset ids and lesson-searchable file
+names:
 
 ```text
 <lesson-number>-<lesson-id>-<asset-purpose>.<ext>
