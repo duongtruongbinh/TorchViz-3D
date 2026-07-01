@@ -66,7 +66,7 @@ interface AppState {
 }
 
 export const useStore = create<AppState>((set, get) => ({
-    language: 'en',
+    language: 'vi',
     activeTemplate: 'lenet',
     code: TEMPLATES.lenet.code.trim(),
     shapeInput: JSON.stringify(TEMPLATES.lenet.shape),
