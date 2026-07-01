@@ -61,7 +61,7 @@ function LessonNode({ lesson, index, isCompleted, isLast, isSelected, language, 
         </span>
       </span>
       <span className="min-w-0 pb-1.5 pt-0.5">
-        <span className={cx('line-clamp-2 block text-sm font-black leading-5', titleClass)}>
+        <span className={cx('line-clamp-2 block text-sm font-normal leading-5', titleClass)}>
           {lessonText.title}
         </span>
       </span>

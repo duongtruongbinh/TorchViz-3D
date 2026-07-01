@@ -1,4 +1,5 @@
 import './src/index.css';
+import 'katex/dist/katex.min.css';
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';

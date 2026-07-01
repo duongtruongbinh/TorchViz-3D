@@ -20,11 +20,13 @@
     "@monaco-editor/react": "4.6.0",
     "@react-three/drei": "9.122.0",
     "@react-three/fiber": "8.15.12",
+    "katex": "^0.17.0",
     "lucide-react": "^1.21.0",
     "monaco-editor": "0.55.1",
     "pyodide": "0.25.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-katex": "^3.1.0",
     "react-router-dom": "^7.18.0",
     "three": "0.160.0",
     "zustand": "^5.0.11"

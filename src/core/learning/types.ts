@@ -83,6 +83,146 @@ export type LearningLessonSection = {
   refId: string;
 };
 
+export type LearningLessonDiagram =
+  | {
+      variant: 'pipeline';
+      title: LearningLocalizedText;
+      steps: LearningLocalizedText[];
+    }
+  | {
+      variant: 'shape-flow';
+      title: LearningLocalizedText;
+      steps: Array<{
+        label: LearningLocalizedText;
+        shape: string;
+        note?: LearningLocalizedText;
+      }>;
+    }
+  | {
+      variant: 'matrix';
+      title: LearningLocalizedText;
+      columns: string[];
+      rows: Array<{
+        label: string;
+        cells: Array<'allowed' | 'blocked' | 'target'>;
+      }>;
+      legend?: LearningLocalizedText;
+    }
+  | {
+      variant: 'sliding-window';
+      title: LearningLocalizedText;
+      tokens: string[];
+      windows: Array<{
+        input: string[];
+        target: string[];
+      }>;
+    };
+
+export type LearningLessonExtra =
+  | {
+      kind: 'motivation';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      image: 'ai-overview';
+      imageAlt: LearningLocalizedText;
+      body: LearningLocalizedText;
+    }
+  | {
+      kind: 'diagram';
+      id: string;
+      sectionRefId?: string;
+      diagram: LearningLessonDiagram;
+    }
+  | {
+      kind: 'formula';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      latex: string;
+      note?: LearningLocalizedText;
+    }
+  | {
+      kind: 'exercise';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      prompt: LearningLocalizedText;
+      tasks: LearningLocalizedText[];
+      answer?: LearningLocalizedText;
+    }
+  | {
+      kind: 'conceptInteraction';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      body: LearningLocalizedText[];
+      note?: LearningLocalizedText;
+      image: 'llm-predict';
+      imageAlt: LearningLocalizedText;
+      prompt: LearningLocalizedText;
+      blankLabel: LearningLocalizedText;
+      options: Array<{
+        label: LearningLocalizedText;
+        isCorrect?: boolean;
+        feedback: LearningLocalizedText;
+      }>;
+      sentenceBuilder?: {
+        title: LearningLocalizedText;
+        prompt: LearningLocalizedText;
+        targets: LearningLocalizedText[][];
+        choices: LearningLocalizedText[];
+        success: LearningLocalizedText;
+        error: LearningLocalizedText;
+      };
+    }
+  | {
+      kind: 'conceptPanel';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      emphasis?: LearningLocalizedText;
+      body?: LearningLocalizedText[];
+      bodyAfter?: LearningLocalizedText[];
+      highlights?: Array<{
+        shortName: LearningLocalizedText;
+        fullName: LearningLocalizedText;
+        description: LearningLocalizedText;
+      }>;
+      table?: {
+        columns: LearningLocalizedText[];
+        rows: Array<{
+          cells: LearningLocalizedText[];
+        }>;
+      };
+      steps?: Array<{
+        title: LearningLocalizedText;
+        body: LearningLocalizedText;
+      }>;
+      outline?: Array<{
+        title: LearningLocalizedText;
+        body: LearningLocalizedText;
+        items: Array<{
+          title: LearningLocalizedText;
+          body: LearningLocalizedText;
+        }>;
+      }>;
+      bullets?: LearningLocalizedText[];
+      links?: Array<{
+        label: LearningLocalizedText;
+        href: string;
+      }>;
+    }
+  | {
+      kind: 'codeContract';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      input: LearningLocalizedText;
+      output: LearningLocalizedText;
+      observe: LearningLocalizedText;
+    };
+
 export type LearningLesson = {
   id: string;
   domainId: LearningDomainId;
@@ -95,6 +235,7 @@ export type LearningLesson = {
     theory: LearningLocalizedText[];
   };
   sections: LearningLessonSection[];
+  extras?: LearningLessonExtra[];
   practice: LearningPracticeRef[];
 };
 

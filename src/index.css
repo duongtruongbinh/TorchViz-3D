@@ -488,6 +488,18 @@ body {
   box-shadow: none !important;
 }
 
+.learning-lab-light .learning-lab-motivation-section {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  color: #030509 !important;
+  box-shadow: none !important;
+}
+
+.learning-lab-light .learning-lab-motivation-section p,
+.learning-lab-light .learning-lab-motivation-section div,
+.learning-lab-light .learning-lab-motivation-section span {
+  color: inherit;
+}
+
 .learning-lab-light .learning-lab-catalog {
   background-color: transparent !important;
   box-shadow: none !important;
