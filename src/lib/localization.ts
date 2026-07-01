@@ -649,7 +649,7 @@ const localizedText = {
         },
       },
       llmFromScratchOrientation: {
-        title: { en: '1.1 LLM From Scratch Orientation', vi: '1.1 LLM From Scratch Orientation' },
+        title: { en: '1.1 Orientation', vi: '1.1 Orientation' },
         description: {
           en: 'A TorchViz-native loop for learning LLM internals: theory, hand reasoning, then code.',
           vi: 'Vòng học LLM internals theo kiểu TorchViz: lý thuyết, suy luận bằng tay, rồi code.',
