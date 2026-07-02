@@ -1,6 +1,6 @@
 ---
 title: Learning Lab Scrollbar and Search UI Cleanup
-status: draft
+status: approved
 created: 2026-07-02T12:00:00+07:00
 updated: 2026-07-02T12:00:00+07:00
 author: GitHub Copilot
