@@ -42,7 +42,14 @@ export default function LearningLabHeader({
           ))}
         </div>
 
-        <div className={cx('hidden h-10 min-w-[260px] max-w-[520px] flex-1 items-center gap-2 border px-4 lg:flex', themeClasses.radius.pill, themeClasses.searchBox)}>
+        <div
+          className={cx(
+            'pointer-events-none hidden h-10 min-w-[260px] max-w-[520px] flex-1 cursor-not-allowed items-center gap-2 border px-4 opacity-45 lg:flex',
+            themeClasses.radius.pill,
+            themeClasses.searchBox,
+          )}
+          aria-disabled="true"
+        >
           <Search className="h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" />
           <span className="truncate text-sm">{text.searchLabel}</span>
         </div>

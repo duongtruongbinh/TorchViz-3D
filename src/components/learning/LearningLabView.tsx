@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, MessageSquareText, Network, PanelLeft, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, MessageSquareText, Network, PanelLeft, PanelLeftOpen, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { learningCatalog } from '../../core/learning/content';
 import {
@@ -60,6 +60,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [mode, setMode] = useState<LearningLabMode>('path');
   const theme = 'light' as const;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLessonRailOpen, setIsLessonRailOpen] = useState(true);
   const [collapsedChapters, setCollapsedChapters] = useState<Set<string>>(() => new Set());
   const [lessonSearchQuery, setLessonSearchQuery] = useState('');
   const [lessonRailFilter, setLessonRailFilter] = useState<LessonRailFilter>('all');
@@ -113,6 +114,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     setCollapsedChapters(new Set());
     setLessonSearchQuery('');
     setLessonRailFilter('all');
+    setIsLessonRailOpen(true);
   }, [routeDomainId]);
 
   useEffect(() => {
@@ -331,41 +333,98 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               {strings.contentInProgress}
             </div>
           ) : activeTrack && railSelectedLesson ? (
-            <section className="learning-lab-catalog -m-4 grid h-full min-h-0 w-[calc(100%+2rem)] gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)]">
-              <LessonRail
-                groups={filteredGroupedDomainLessons}
-                collapsedTrackIds={collapsedChapters}
-                completedLessonIds={completedLessonIds}
-                isFiltered={isLessonRailFiltered}
-                language={language}
-                lessonIndexById={lessonIndexById}
-                searchQuery={lessonSearchQuery}
-                selectedFilter={lessonRailFilter}
-                selectedLesson={railSelectedLesson}
-                theme={theme}
-                onClearSearch={() => setLessonSearchQuery('')}
-                onSearchChange={setLessonSearchQuery}
-                onSelectFilter={setLessonRailFilter}
-                onSelectLesson={selectLesson}
-                onToggleTrack={toggleChapter}
-              />
-              {selectedLesson ? (
-                <LessonDetail
-                  lesson={selectedLesson}
-                  theme={theme}
+            <section
+              className={cx(
+                'learning-lab-catalog -m-4 grid h-full min-h-0 w-[calc(100%+2rem)] gap-4 p-4 transition-[grid-template-columns] duration-200',
+                isLessonRailOpen ? 'lg:grid-cols-[300px_minmax(0,1fr)]' : 'lg:grid-cols-[44px_minmax(0,1fr)]',
+              )}
+            >
+              <div
+                className={cx(
+                  'relative hidden min-h-0 lg:block',
+                  !isLessonRailOpen && 'w-11',
+                )}
+              >
+                <div
+                  className={cx(
+                    'absolute inset-y-0 left-0 w-[300px] min-w-0 overflow-hidden transition-[opacity,transform] duration-200',
+                    isLessonRailOpen
+                      ? 'pointer-events-auto translate-x-0 opacity-100'
+                      : 'pointer-events-none -translate-x-3 opacity-0',
+                  )}
+                >
+                  <LessonRail
+                    groups={filteredGroupedDomainLessons}
+                    collapsedTrackIds={collapsedChapters}
+                    completedLessonIds={completedLessonIds}
+                    isFiltered={isLessonRailFiltered}
+                    language={language}
+                    lessonIndexById={lessonIndexById}
+                    searchQuery={lessonSearchQuery}
+                    selectedFilter={lessonRailFilter}
+                    selectedLesson={railSelectedLesson}
+                    theme={theme}
+                    isRailOpen={isLessonRailOpen}
+                    onClearSearch={() => setLessonSearchQuery('')}
+                    onToggleRail={() => setIsLessonRailOpen(false)}
+                    onSearchChange={setLessonSearchQuery}
+                    onSelectFilter={setLessonRailFilter}
+                    onSelectLesson={selectLesson}
+                    onToggleTrack={toggleChapter}
+                  />
+                </div>
+                {!isLessonRailOpen ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsLessonRailOpen(true)}
+                    className={getLessonRailToggleButtonClass(themeClasses)}
+                    title="Table of contents"
+                    aria-label="Table of contents"
+                    aria-expanded={isLessonRailOpen}
+                  >
+                    <PanelLeftOpen className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
+                  </button>
+                ) : null}
+              </div>
+              <div className="min-h-0 lg:hidden">
+                <LessonRail
+                  groups={filteredGroupedDomainLessons}
+                  collapsedTrackIds={collapsedChapters}
+                  completedLessonIds={completedLessonIds}
+                  isFiltered={isLessonRailFiltered}
                   language={language}
-                  selectedPracticeId={routePracticeId}
-                  hasNextLesson={Boolean(nextLesson)}
-                  onSelectNextLesson={() => {
-                    if (!nextLesson) return;
-                    setCompletedLessonIds((current) => {
-                      const next = new Set(current);
-                      next.add(selectedLesson.id);
-                      return next;
-                    });
-                    selectLesson(nextLesson.id);
-                  }}
+                  lessonIndexById={lessonIndexById}
+                  searchQuery={lessonSearchQuery}
+                  selectedFilter={lessonRailFilter}
+                  selectedLesson={railSelectedLesson}
+                  theme={theme}
+                  isRailOpen={true}
+                  onClearSearch={() => setLessonSearchQuery('')}
+                  onSearchChange={setLessonSearchQuery}
+                  onSelectFilter={setLessonRailFilter}
+                  onSelectLesson={selectLesson}
+                  onToggleTrack={toggleChapter}
                 />
+              </div>
+              {selectedLesson ? (
+                <div className="min-h-0 min-w-0">
+                  <LessonDetail
+                    lesson={selectedLesson}
+                    theme={theme}
+                    language={language}
+                    selectedPracticeId={routePracticeId}
+                    hasNextLesson={Boolean(nextLesson)}
+                    onSelectNextLesson={() => {
+                      if (!nextLesson) return;
+                      setCompletedLessonIds((current) => {
+                        const next = new Set(current);
+                        next.add(selectedLesson.id);
+                        return next;
+                      });
+                      selectLesson(nextLesson.id);
+                    }}
+                  />
+                </div>
               ) : (
                 <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
                   {strings.lessonFilterEmpty}
@@ -380,5 +439,17 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
         </section>
       </div>
     </main>
+  );
+}
+
+type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
+
+function getLessonRailToggleButtonClass(themeClasses: LearningThemeClasses): string {
+  return cx(
+    'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-colors',
+    themeClasses.focusRing,
+    themeClasses.isLight
+      ? 'border-[#205089]/10 bg-[#DCE6F1]/34 text-[#123B68]/52 hover:bg-[#DCE6F1]/70 hover:text-[#123B68]'
+      : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/52 hover:bg-[#A8B8C8]/14 hover:text-[#F2F6FA]',
   );
 }

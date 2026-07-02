@@ -18,11 +18,8 @@ export const chapters: LearningChapterSeed[] = [
       lessonSeed(
         'llm-component-checkpoint-quiz',
         'Roadmap checkpoint quiz',
-        'Quiz kiểm tra roadmap',
-        [
-          'Bài quiz này kiểm tra lại các ý nền tảng vừa học: AI, ML, DL, CV, NLP, LLM nằm trong cùng một bản đồ khái niệm như thế nào; LLM học bằng objective nào; token là gì; và vì sao chữ Large chủ yếu nói về scale.',
-          'Mục tiêu không phải là thuộc lòng định nghĩa. Mục tiêu là nhìn một câu hỏi về LLM và biết nó đang hỏi về phạm vi lĩnh vực, đơn vị dữ liệu, objective học, hay quy mô training.',
-        ],
+        'Quiz',
+        [],
         ['theory'],
         'available',
       ),
@@ -53,6 +50,8 @@ export const chapters: LearningChapterSeed[] = [
         [
           'LLM không đọc chữ như con người. Nó nhận một dãy số nguyên gọi là token ids. Tokenization là bước biến text thô thành dãy id ổn định để model có thể tra embedding và xử lý bằng tensor.',
           'Một token có thể là một ký tự, một từ, một mảnh subword, dấu câu, khoảng trắng, hoặc special token. Lựa chọn vocabulary quyết định model nhìn thế giới bằng đơn vị nào: quá thô thì không xử lý được từ mới, quá nhỏ thì sequence dài và tốn context window.',
+          'Ví dụ, câu `I love tokenization!` có thể được cắt thành word tokens như `I`, `love`, `tokenization`, `!`; hoặc thành sub-word tokens như `I`, `love`, `token`, `ization`, `!`. Khoảng trắng cũng có thể được giữ như một token riêng, hoặc được gắn vào token kế bên tùy tokenizer.',
+          'Điểm quan trọng: không có một cách chia token duy nhất đúng cho mọi model. Whitespace tokenizer, character tokenizer, BPE, WordPiece, SentencePiece hay tokenizer của GPT/Llama có thể cắt cùng một câu thành các token khác nhau. Vì vậy khi nói "token tiếp theo", ta luôn đang nói theo vocabulary và thuật toán tokenizer cụ thể của model đó.',
           'Special tokens xử lý những tình huống không phải chữ thường: `<|unk|>` cho token chưa biết, `<|endoftext|>` để ngăn cách hai nguồn text độc lập, `[BOS]`/`[EOS]` cho biên sequence, và `[PAD]` để padding batch. Các token này vẫn là token thật, vẫn có id, và vẫn có thể ảnh hưởng loss nếu bạn không mask đúng.',
           'BPE là một bước tiến so với tokenizer tách từ đơn giản. Thay vì thay toàn bộ từ lạ bằng `<|unk|>`, BPE có thể bẻ từ thành subword hoặc ký tự nhỏ hơn. Nhờ vậy tokenizer thường parse được từ mới mà vẫn giữ vocabulary hữu hạn.',
           'Trong pipeline LLM, tokenization đứng trước mọi thứ khác. Nếu tokenizer cắt một câu thành 30 token thay vì 12 token, attention phải xử lý ma trận lớn hơn, dataloader tạo nhiều cửa sổ hơn, và training loop nhìn thấy nhiều target hơn.',

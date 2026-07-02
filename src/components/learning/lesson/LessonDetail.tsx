@@ -7,6 +7,7 @@ import { getUnifiedLessonText } from '../learningText';
 import PracticeSection from '../practice/PracticeSection';
 import { cx, getLearningLabTheme } from '../theme';
 import LessonExtras from './extras/LessonExtras';
+import type { QuizQuestionState } from './extras/LessonExtraRenderer';
 
 type LessonDetailProps = {
   lesson: LearningLesson;
@@ -31,11 +32,20 @@ export default function LessonDetail({
   const sectionDivider = themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12';
   const [sectionPageIndex, setSectionPageIndex] = useState(0);
   const [hasReadCurrentPage, setHasReadCurrentPage] = useState(true);
+  const [quizQuestionStates, setQuizQuestionStates] = useState<Record<string, QuizQuestionState>>({});
   const pageViewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setSectionPageIndex(0);
+    setQuizQuestionStates({});
   }, [lesson.id]);
+
+  const updateQuizQuestionState = useCallback((questionId: string, state: QuizQuestionState) => {
+    setQuizQuestionStates((current) => ({
+      ...current,
+      [questionId]: state,
+    }));
+  }, []);
 
   const sectionPages = lesson.sections.flatMap((section) => {
     const meta = getSectionMeta(section.kind, strings, language);
@@ -61,6 +71,19 @@ export default function LessonDetail({
             </SectionShell>,
           ] : []),
         ];
+      }
+      if (!lessonText.theory.length && sectionExtras.length) {
+        return getSectionExtraPages(sectionExtras).map(({ key, extras }) => (
+          <SectionShell key={`${section.kind}-${section.refId}-${key}`} sectionDivider={sectionDivider}>
+            <LessonExtras
+              extras={extras}
+              language={language}
+              quizQuestionStates={quizQuestionStates}
+              themeClasses={themeClasses}
+              onQuizQuestionStateChange={updateQuizQuestionState}
+            />
+          </SectionShell>
+        ));
       }
       return [
         <SectionShell key={`${section.kind}-${section.refId}`} sectionDivider={sectionDivider}>
@@ -208,6 +231,26 @@ export default function LessonDetail({
 
 function isMotivationExtra(extra: LearningLessonExtra): extra is Extract<LearningLessonExtra, { kind: 'motivation' }> {
   return extra.kind === 'motivation';
+}
+
+function getSectionExtraPages(extras: LearningLessonExtra[]): Array<{
+  key: string;
+  extras: LearningLessonExtra[];
+}> {
+  return extras.flatMap((extra) => {
+    if (extra.kind !== 'quiz' || extra.questions.length <= 1) {
+      return [{ key: extra.id, extras: [extra] }];
+    }
+
+    return extra.questions.map((question) => ({
+      key: `${extra.id}-${question.id}`,
+      extras: [{
+        ...extra,
+        id: `${extra.id}-${question.id}`,
+        questions: [question],
+      }],
+    }));
+  });
 }
 
 type LearningLabStrings = ReturnType<typeof getStrings>;

@@ -32,6 +32,41 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
         option('chiếc bàn', false, 'Sao lại “chiếc bàn” được trời? Doesn\'t make any sense!!'),
         option('17.3', false, 'Lựa chọn táo bạo đấy, đủ để tụi mình cảm thấy bất ngờ. Chọn lại đi.'),
       ],
+      undefined,
+      {
+        interactionPlacement: 'none',
+        tokenExample: {
+          title: 'Ví dụ tokenization',
+          variants: [
+            ['Word tokens', ['I', 'love', 'tokenization', '!'], 'Cắt gần giống cách người đọc nhìn thấy từng từ và dấu câu.'],
+            ['Sub-word tokens', ['I', 'love', 'token', 'ization', '!'], 'Từ dài hoặc từ lạ có thể bị bẻ thành các mảnh nhỏ hơn.'],
+          ],
+          specialTitle: 'Trường hợp đặc biệt',
+          specialCases: [
+            ['Dấu câu', [',', '.', '?', '!'], 'Dấu câu thường được giữ thành token riêng để model học nhịp câu.'],
+            ['Khoảng trắng', ['space', '\\n'], 'Một số tokenizer giữ khoảng trắng hoặc xuống dòng như tín hiệu riêng.'],
+            ['Special tokens', ['<BOS>', '<EOS>', '<PAD>'], 'Token điều khiển biên câu, kết thúc chuỗi, hoặc padding batch.'],
+          ],
+          notes: [
+            'Không có một cách chia token duy nhất đúng cho mọi model. BPE, WordPiece, SentencePiece, GPT tokenizer hay Llama tokenizer có thể cắt cùng một câu thành các dãy token khác nhau.',
+          ],
+        },
+      },
+    ),
+    conceptInteraction(
+      'what-is-llm-interactions',
+      'llm-from-scratch-roadmap',
+      'Thử model dự đoán từng bước',
+      [],
+      '',
+      'Hình minh họa LLM nhận prompt, dự đoán token tiếp theo, rồi lặp lại để tạo câu trả lời. Hình ảnh sẽ được bổ sung sau.',
+      'Tôi cảm thấy',
+      'chọn một đáp án',
+      [
+        option('rất vui', true, 'Quá dễ hen. Về sau bạn sẽ thấy LLM không chỉ nối chữ theo bề mặt, mà còn học được nhiều pattern ngữ nghĩa từ rất nhiều ví dụ văn bản.'),
+        option('chiếc bàn', false, 'Sao lại “chiếc bàn” được trời? Doesn\'t make any sense!!'),
+        option('17.3', false, 'Lựa chọn táo bạo đấy, đủ để tụi mình cảm thấy bất ngờ. Chọn lại đi.'),
+      ],
       sentenceBuilder(
         'Ghép thành một câu trả lời',
         'Tôi cảm thấy',
@@ -40,9 +75,12 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
           ['admin', 'rất', 'đẹp', 'trai'],
         ],
         ['rất', 'chiếc', 'vui', 'admin', '17.3', 'vì', 'hôm', 'bàn', 'nay', 'trời', 'đẹp', 'trai', 'khá', 'ổn'],
-        'Đúng rồi. Một câu trả lời dài cũng được tạo từ nhiều bước nhỏ như vậy. Đặc biệt nếu bạn chọn câu admin đẹp trai thì model này khá là có gu đấy.',
+        'Đúng rồi. Một câu trả lời dài cũng được tạo từ nhiều bước nhỏ như vậy. Đặc biệt nếu bạn chọn câu admin rất đẹp trai thì model này khá là có gu đấy.',
         'Sai nhịp rồi. Bấm hoàn tác hoặc làm lại, chứ câu này đang chuẩn bị đi du lịch hơi xa.',
       ),
+      {
+        interactionPlacement: 'only',
+      },
     ),
     conceptPanel('why-large', 'llm-from-scratch-roadmap', 'Tại sao gọi là Large Language Model?', {
       emphasis: 'Large',
@@ -98,15 +136,15 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
     quiz('llm-roadmap-checkpoint-quiz', 'llm-component-checkpoint-quiz', 'Quiz kiểm tra nhanh', [
       {
         id: 'ai-hierarchy-order',
-        title: 'Sắp xếp theo level',
-        prompt: 'AI, ML, DL, CV, NLP, LLM quan hệ với nhau như thế nào?',
+        title: 'Sắp xếp thứ tự theo mức độ tổng quát',
+        prompt: '',
         mode: 'order',
         options: [
-          ['ai', 'AI'],
           ['ml', 'ML'],
-          ['dl', 'DL'],
-          ['cv-nlp', 'CV / NLP'],
           ['llm', 'LLM'],
+          ['ai', 'AI'],
+          ['cv-nlp', 'CV / NLP'],
+          ['dl', 'DL'],
         ],
         correctOrder: ['ai', 'ml', 'dl', 'cv-nlp', 'llm'],
         success: 'Đúng rồi. AI là phạm vi rộng nhất, ML nằm trong AI, DL nằm trong ML, CV và NLP là hai nhánh dưới DL, còn LLM nằm sâu trong NLP.',
@@ -128,19 +166,30 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       },
       {
         id: 'valid-token-examples',
-        title: 'Chọn các token hợp lệ',
-        prompt: 'Token có thể là những loại đơn vị nào?',
-        mode: 'multi',
-        options: [
-          ['word', 'Một từ', true],
-          ['subword', 'Một phần của từ', true],
-          ['punctuation', 'Dấu câu', true],
-          ['special-symbol', 'Ký hiệu đặc biệt', true],
-          ['full-dataset', 'Toàn bộ tập dữ liệu huấn luyện', false],
-          ['gpu', 'Một GPU dùng để train model', false],
+        title: 'Phân loại token',
+        prompt: 'Kéo từng ví dụ vào đúng loại token',
+        mode: 'categorize',
+        categories: [
+          ['word', 'Một từ'],
+          ['subword', 'Một phần của từ'],
+          ['punctuation', 'Dấu câu'],
+          ['whitespace', 'Khoảng trắng'],
+          ['special-symbol', 'Ký hiệu đặc biệt'],
         ],
-        success: 'Đúng. Token là đơn vị nhỏ model xử lý, không phải hạ tầng hay toàn bộ dataset.',
-        error: 'Chưa khớp. Token là đơn vị văn bản/ký hiệu nhỏ đi vào model.',
+        options: [
+          ['hello', 'hello', 'word'],
+          ['model', 'model', 'word'],
+          ['sub-ing', '##ing', 'subword'],
+          ['sub-tion', 'tion', 'subword'],
+          ['comma', ',', 'punctuation'],
+          ['question-mark', '?', 'punctuation'],
+          ['space', 'space', 'whitespace'],
+          ['newline', '\\n', 'whitespace'],
+          ['bos', '<BOS>', 'special-symbol'],
+          ['eos', '<EOS>', 'special-symbol'],
+        ],
+        success: 'Đúng. Token có thể là từ, mảnh từ, dấu câu, khoảng trắng hoặc special token.',
+        error: 'Chưa khớp. Hãy nhớ token là đơn vị văn bản/ký hiệu nhỏ đi vào model.',
       },
       {
         id: 'why-large',
@@ -211,6 +260,16 @@ function conceptInteraction(
   blankLabel: string,
   options: Array<{ label: string; isCorrect?: boolean; feedback: string }>,
   builder?: Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>['sentenceBuilder'],
+  config?: {
+    interactionPlacement?: Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>['interactionPlacement'];
+    tokenExample?: {
+      title: string;
+      variants: Array<[string, string[], string]>;
+      specialTitle: string;
+      specialCases: Array<[string, string[], string]>;
+      notes: string[];
+    };
+  },
 ): LearningLessonExtra {
   return {
     kind: 'conceptInteraction',
@@ -234,6 +293,24 @@ function conceptInteraction(
       isCorrect: item.isCorrect,
       feedback: loc(item.feedback),
     })),
+    interactionPlacement: config?.interactionPlacement,
+    tokenExample: config?.tokenExample
+      ? {
+        title: loc(config.tokenExample.title),
+        variants: config.tokenExample.variants.map(([label, tokens, description]) => ({
+          label: loc(label),
+          tokens,
+          description: loc(description),
+        })),
+        specialTitle: loc(config.tokenExample.specialTitle),
+        specialCases: config.tokenExample.specialCases.map(([label, tokens, description]) => ({
+          label: loc(label),
+          tokens,
+          description: loc(description),
+        })),
+        notes: config.tokenExample.notes.map((note) => loc(note)),
+      }
+      : undefined,
     sentenceBuilder: builder,
   };
 }
@@ -333,7 +410,8 @@ function quiz(
     title: string;
     prompt: string;
     mode: Extract<LearningLessonExtra, { kind: 'quiz' }>['questions'][number]['mode'];
-    options: Array<[string, string, boolean?]>;
+    categories?: Array<[string, string]>;
+    options: Array<[string, string, (boolean | string)?]>;
     correctOrder?: string[];
     success: string;
     error: string;
@@ -349,10 +427,15 @@ function quiz(
       title: loc(question.title),
       prompt: loc(question.prompt),
       mode: question.mode,
-      options: question.options.map(([optionId, label, isCorrect]) => ({
+      categories: question.categories?.map(([categoryId, label]) => ({
+        id: categoryId,
+        label: loc(label),
+      })),
+      options: question.options.map(([optionId, label, answer]) => ({
         id: optionId,
         label: loc(label),
-        isCorrect,
+        isCorrect: typeof answer === 'boolean' ? answer : undefined,
+        categoryId: typeof answer === 'string' ? answer : undefined,
       })),
       correctOrder: question.correctOrder,
       success: loc(question.success),

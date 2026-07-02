@@ -1,4 +1,4 @@
-import { ChevronDown, Search, X } from 'lucide-react';
+import { ChevronDown, PanelLeftClose, Search, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
 import type { LearningLesson, LearningTrack } from '../../../core/learning/types';
@@ -26,7 +26,9 @@ type LessonRailProps = {
   selectedLesson: LearningLesson;
   selectedFilter: LessonRailFilter;
   theme: LearningLabTheme;
+  isRailOpen?: boolean;
   onClearSearch: () => void;
+  onToggleRail?: () => void;
   onSearchChange: (value: string) => void;
   onSelectFilter: (filter: LessonRailFilter) => void;
   onSelectLesson: (lessonId: string) => void;
@@ -46,7 +48,9 @@ export default function LessonRail({
   selectedLesson,
   selectedFilter,
   theme,
+  isRailOpen,
   onClearSearch,
+  onToggleRail,
   onSearchChange,
   onSelectFilter,
   onSelectLesson,
@@ -64,33 +68,47 @@ export default function LessonRail({
             themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12',
           )}
         >
-          <div
-            className={cx(
-              'flex h-11 items-center gap-2 border px-3 shadow-[0_6px_16px_rgba(18,59,104,0.06)]',
-              themeClasses.radius.button,
-              themeClasses.isLight
-                ? 'border-[#205089]/14 bg-white/68 text-[#123B68]'
-                : 'border-[#A8B8C8]/18 bg-[#172232]/72 text-[#F2F6FA]/82',
-            )}
-          >
-            <Search className="h-4 w-4 shrink-0 opacity-70" strokeWidth={2} aria-hidden="true" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(event) => onSearchChange(event.target.value)}
-              className="learning-lab-rail-search-input min-w-0 flex-1 bg-transparent text-sm font-bold outline-none placeholder:text-current placeholder:opacity-50"
-              placeholder={strings.lessonSearchPlaceholder}
-              aria-label={strings.lessonSearchPlaceholder}
-            />
-            {searchQuery ? (
+          <div className="flex min-w-0 items-center gap-2">
+            <div
+              className={cx(
+                'flex h-11 min-w-0 flex-1 items-center gap-2 border px-3 shadow-[0_6px_16px_rgba(18,59,104,0.06)]',
+                themeClasses.radius.button,
+                themeClasses.isLight
+                  ? 'border-[#205089]/14 bg-white/68 text-[#123B68]'
+                  : 'border-[#A8B8C8]/18 bg-[#172232]/72 text-[#F2F6FA]/82',
+              )}
+            >
+              <Search className="h-4 w-4 shrink-0 opacity-70" strokeWidth={2} aria-hidden="true" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => onSearchChange(event.target.value)}
+                className="learning-lab-rail-search-input min-w-0 flex-1 bg-transparent text-sm font-bold outline-none placeholder:text-current placeholder:opacity-50"
+                placeholder={strings.lessonSearchPlaceholder}
+                aria-label={strings.lessonSearchPlaceholder}
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={onClearSearch}
+                  className={cx('flex h-7 w-7 shrink-0 items-center justify-center transition-colors', themeClasses.radius.icon, getRailIconButtonClass(themeClasses))}
+                  title={strings.clearLessonSearch}
+                  aria-label={strings.clearLessonSearch}
+                >
+                  <X className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                </button>
+              ) : null}
+            </div>
+            {onToggleRail ? (
               <button
                 type="button"
-                onClick={onClearSearch}
-                className={cx('flex h-7 w-7 shrink-0 items-center justify-center transition-colors', themeClasses.radius.icon, getRailIconButtonClass(themeClasses))}
-                title={strings.clearLessonSearch}
-                aria-label={strings.clearLessonSearch}
+                onClick={onToggleRail}
+                className={getRailToggleButtonClass(themeClasses)}
+                title="Hide table of contents"
+                aria-label="Hide table of contents"
+                aria-expanded={isRailOpen}
               >
-                <X className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                <PanelLeftClose className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
               </button>
             ) : null}
           </div>
@@ -205,6 +223,16 @@ function getRailIconButtonClass(themeClasses: LearningThemeClasses): string {
     themeClasses.isLight
       ? 'text-[#123B68]/58 hover:bg-[#205089]/10 hover:text-[#123B68]'
       : 'text-[#F2F6FA]/54 hover:bg-[#A8B8C8]/12 hover:text-[#F2F6FA]',
+  );
+}
+
+function getRailToggleButtonClass(themeClasses: LearningThemeClasses): string {
+  return cx(
+    'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-colors',
+    themeClasses.focusRing,
+    themeClasses.isLight
+      ? 'border-[#205089]/10 bg-[#DCE6F1]/34 text-[#123B68]/52 hover:bg-[#DCE6F1]/70 hover:text-[#123B68]'
+      : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/52 hover:bg-[#A8B8C8]/14 hover:text-[#F2F6FA]',
   );
 }
 
