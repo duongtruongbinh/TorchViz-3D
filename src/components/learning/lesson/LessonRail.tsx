@@ -121,6 +121,7 @@ export default function LessonRail({
 
         {groups.map(({ track, lessons, totalLessonCount }) => {
           const isCollapsed = collapsedTrackIds.has(track.id);
+          const isCurrentTrack = track.id === selectedLesson.trackId;
           return (
             <div key={track.id} className="grid gap-1.5">
               <button
@@ -128,13 +129,23 @@ export default function LessonRail({
                 onClick={() => onToggleTrack(track.id)}
                 aria-expanded={!isCollapsed}
                 className={cx(
-                  '-ml-1 flex w-full items-center gap-2 px-0.5 text-left text-[17px] font-black leading-7 transition-colors',
+                  'group -ml-1 flex w-full items-center gap-2 px-0.5 text-left text-[17px] font-black leading-7 transition-colors duration-200',
                   themeClasses.focusRing,
-                  themeClasses.isLight ? 'text-[#123B68] hover:text-[#0E2F55]' : 'text-[#D8E3EC] hover:text-[#F2F6FA]',
+                  themeClasses.rail.trackHeading(isCurrentTrack),
                 )}
               >
-                <ChevronDown className={cx('h-5 w-5 shrink-0 transition-transform', isCollapsed && '-rotate-90')} strokeWidth={2.5} aria-hidden="true" />
-                <span className="min-w-0">{getTrackText(language, track).title}</span>
+                <ChevronDown
+                  className={cx(
+                    'h-5 w-5 shrink-0 transition-transform duration-200',
+                    isCollapsed && '-rotate-90',
+                    !isCurrentTrack && 'opacity-60',
+                  )}
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+                <span className={cx('min-w-0', themeClasses.rail.trackTitle(isCurrentTrack))}>
+                  {getTrackText(language, track).title}
+                </span>
                 {isFiltered ? (
                   <span className={getRailCountClass(themeClasses)}>
                     {strings.lessonFilterCount(lessons.length, totalLessonCount)}
@@ -153,6 +164,7 @@ export default function LessonRail({
                         isCompleted={selectedLessonIndex > index}
                         isLast={lessonIndex === lessons.length - 1}
                         isSelected={lesson.id === selectedLesson.id}
+                        isTrackActive={isCurrentTrack}
                         language={language}
                         theme={theme}
                         onSelect={onSelectLesson}
