@@ -419,6 +419,10 @@ class Conv2d(Module):
             return _record("Conv2d", [x], x.shape, self.params,
                 {"kernel": self.kernel_size, "stride": self.stride},
                 error=f"Shape Mismatch: Conv2d expects 4D input [N,C,H,W], got {len(x.shape)}D {tuple(x.shape)}")
+        if x.shape[1] != self.in_channels:
+            return _record("Conv2d", [x], x.shape, self.params,
+                {"kernel": self.kernel_size, "stride": self.stride},
+                error=f"Shape Mismatch: Conv2d expects {self.in_channels} input channels, got {x.shape[1]}")
         kh, kw = self.kernel_size
         sh, sw = self.stride
         ph, pw = self.padding
@@ -444,6 +448,10 @@ class ConvTranspose2d(Module):
     def forward(self, x):
         if len(x.shape) != 4:
             return _rank_error("ConvTranspose2d", x, "4D input [N,C,H,W]")
+        if x.shape[1] != self.in_channels:
+            return _record("ConvTranspose2d", [x], x.shape, self.params,
+                {"kernel": self.kernel_size, "stride": self.stride},
+                error=f"Shape Mismatch: ConvTranspose2d expects {self.in_channels} input channels, got {x.shape[1]}")
         h_out = ((x.shape[2] - 1) * self.stride[0]
                  - 2 * self.padding[0]
                  + self.dilation[0] * (self.kernel_size[0] - 1)
@@ -756,6 +764,9 @@ class PixelShuffle(Module):
             return _record("PixelShuffle", [x], x.shape,
                 error=f"Shape Mismatch: PixelShuffle expects 4D input [N,C,H,W], got {len(x.shape)}D")
         r = self.upscale_factor
+        if x.shape[1] % (r * r) != 0:
+            return _record("PixelShuffle", [x], x.shape,
+                error=f"PixelShuffle: channels {x.shape[1]} must be divisible by r^2={r*r}")
         c_ratio = x.shape[1] // (r * r)
         if c_ratio < 1:
             return _record("PixelShuffle", [x], x.shape,

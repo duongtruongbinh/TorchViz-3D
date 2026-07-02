@@ -288,6 +288,7 @@ export default function TorchVizWorkspace({ onBackToLanding }: TorchVizWorkspace
                 loading={loading}
                 error={error}
                 highlightNodeId={highlightNodeId}
+                selectedNodeId={selectedNodeId}
                 onToggleCollapse={toggleCollapse}
                 onExpandAll={expandAll}
                 onCollapseAll={collapseAll}

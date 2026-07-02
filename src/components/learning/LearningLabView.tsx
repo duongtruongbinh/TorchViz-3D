@@ -14,7 +14,7 @@ import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';
 import LessonDetail from './lesson/LessonDetail';
-import LessonRail, { filterLessonRailGroups, type LessonRailFilter } from './lesson/LessonRail';
+import LessonRail, { filterLessonRailGroups, type LessonRailFilter, type LessonRailProps } from './lesson/LessonRail';
 import { getDomainText } from './learningText';
 import DomainCatalog from './shell/DomainCatalog';
 import ReviewMode from './shell/ReviewMode';
@@ -178,6 +178,26 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
       navigate(`/learning/${targetLesson.domainId}/${targetLesson.trackId}?lesson=${lessonId}`);
     });
   }, [domainLessons, navigate, startLessonTransition]);
+  const clearLessonSearch = useCallback(() => setLessonSearchQuery(''), []);
+  const openLessonRail = useCallback(() => setIsLessonRailOpen(true), []);
+  const closeLessonRail = useCallback(() => setIsLessonRailOpen(false), []);
+  const lessonRailProps = railSelectedLesson ? ({
+    groups: filteredGroupedDomainLessons,
+    collapsedTrackIds: collapsedChapters,
+    completedLessonIds,
+    isFiltered: isLessonRailFiltered,
+    language,
+    lessonIndexById,
+    searchQuery: lessonSearchQuery,
+    selectedFilter: lessonRailFilter,
+    selectedLesson: railSelectedLesson,
+    theme,
+    onClearSearch: clearLessonSearch,
+    onSearchChange: setLessonSearchQuery,
+    onSelectFilter: setLessonRailFilter,
+    onSelectLesson: selectLesson,
+    onToggleTrack: toggleChapter,
+  } satisfies Omit<LessonRailProps, 'isRailOpen' | 'onToggleRail'>) : null;
 
   return (
     <main
@@ -332,7 +352,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
               {strings.contentInProgress}
             </div>
-          ) : activeTrack && railSelectedLesson ? (
+          ) : activeTrack && lessonRailProps ? (
             <section
               className={cx(
                 'learning-lab-catalog -m-4 grid h-full min-h-0 w-[calc(100%+2rem)] gap-4 p-4 transition-[grid-template-columns] duration-200',
@@ -354,32 +374,18 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   )}
                 >
                   <LessonRail
-                    groups={filteredGroupedDomainLessons}
-                    collapsedTrackIds={collapsedChapters}
-                    completedLessonIds={completedLessonIds}
-                    isFiltered={isLessonRailFiltered}
-                    language={language}
-                    lessonIndexById={lessonIndexById}
-                    searchQuery={lessonSearchQuery}
-                    selectedFilter={lessonRailFilter}
-                    selectedLesson={railSelectedLesson}
-                    theme={theme}
+                    {...lessonRailProps}
                     isRailOpen={isLessonRailOpen}
-                    onClearSearch={() => setLessonSearchQuery('')}
-                    onToggleRail={() => setIsLessonRailOpen(false)}
-                    onSearchChange={setLessonSearchQuery}
-                    onSelectFilter={setLessonRailFilter}
-                    onSelectLesson={selectLesson}
-                    onToggleTrack={toggleChapter}
+                    onToggleRail={closeLessonRail}
                   />
                 </div>
                 {!isLessonRailOpen ? (
                   <button
                     type="button"
-                    onClick={() => setIsLessonRailOpen(true)}
-                    className={getLessonRailToggleButtonClass(themeClasses)}
-                    title="Table of contents"
-                    aria-label="Table of contents"
+                    onClick={openLessonRail}
+                    className={themeClasses.rail.railToggleButton}
+                    title={strings.lessonRailOpenLabel}
+                    aria-label={strings.lessonRailOpenLabel}
                     aria-expanded={isLessonRailOpen}
                   >
                     <PanelLeftOpen className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
@@ -388,22 +394,8 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               </div>
               <div className="min-h-0 lg:hidden">
                 <LessonRail
-                  groups={filteredGroupedDomainLessons}
-                  collapsedTrackIds={collapsedChapters}
-                  completedLessonIds={completedLessonIds}
-                  isFiltered={isLessonRailFiltered}
-                  language={language}
-                  lessonIndexById={lessonIndexById}
-                  searchQuery={lessonSearchQuery}
-                  selectedFilter={lessonRailFilter}
-                  selectedLesson={railSelectedLesson}
-                  theme={theme}
+                  {...lessonRailProps}
                   isRailOpen={true}
-                  onClearSearch={() => setLessonSearchQuery('')}
-                  onSearchChange={setLessonSearchQuery}
-                  onSelectFilter={setLessonRailFilter}
-                  onSelectLesson={selectLesson}
-                  onToggleTrack={toggleChapter}
                 />
               </div>
               {selectedLesson ? (
@@ -439,17 +431,5 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
         </section>
       </div>
     </main>
-  );
-}
-
-type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
-
-function getLessonRailToggleButtonClass(themeClasses: LearningThemeClasses): string {
-  return cx(
-    'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-colors',
-    themeClasses.focusRing,
-    themeClasses.isLight
-      ? 'border-[#205089]/10 bg-[#DCE6F1]/34 text-[#123B68]/52 hover:bg-[#DCE6F1]/70 hover:text-[#123B68]'
-      : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/52 hover:bg-[#A8B8C8]/14 hover:text-[#F2F6FA]',
   );
 }

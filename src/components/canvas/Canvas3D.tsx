@@ -41,6 +41,7 @@ export interface Canvas3DProps {
   loading: boolean;
   error?: AppError | null;
   highlightNodeId?: string | null;
+  selectedNodeId?: string | null;
   onToggleCollapse?: (nodeId: string) => void;
   onExpandAll?: () => void;
   onCollapseAll?: () => void;
@@ -59,6 +60,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   loading,
   error = null,
   highlightNodeId = null,
+  selectedNodeId = null,
   onToggleCollapse,
   onExpandAll,
   onCollapseAll,
@@ -236,7 +238,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
             <SceneWithInstancing
               layout={layout}
               highlightNodeId={effectiveHighlightNodeId}
-              selectedNodeId={highlightNodeId}
+              selectedNodeId={selectedNodeId}
               activeNodeId={demo.activeNodeId}
               labelMode="auto"
               visibleNodeIds={demo.useOperationBlocks ? demo.visibleNodeIds : undefined}

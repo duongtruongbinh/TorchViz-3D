@@ -15,7 +15,7 @@ export type FilteredLearningLessonGroup = {
   totalLessonCount: number;
 };
 
-type LessonRailProps = {
+export type LessonRailProps = {
   groups: FilteredLearningLessonGroup[];
   collapsedTrackIds: Set<string>;
   completedLessonIds: Set<string>;
@@ -103,9 +103,9 @@ export default function LessonRail({
               <button
                 type="button"
                 onClick={onToggleRail}
-                className={getRailToggleButtonClass(themeClasses)}
-                title="Hide table of contents"
-                aria-label="Hide table of contents"
+                className={themeClasses.rail.railToggleButton}
+                title={strings.lessonRailCloseLabel}
+                aria-label={strings.lessonRailCloseLabel}
                 aria-expanded={isRailOpen}
               >
                 <PanelLeftClose className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
@@ -223,16 +223,6 @@ function getRailIconButtonClass(themeClasses: LearningThemeClasses): string {
     themeClasses.isLight
       ? 'text-[#123B68]/58 hover:bg-[#205089]/10 hover:text-[#123B68]'
       : 'text-[#F2F6FA]/54 hover:bg-[#A8B8C8]/12 hover:text-[#F2F6FA]',
-  );
-}
-
-function getRailToggleButtonClass(themeClasses: LearningThemeClasses): string {
-  return cx(
-    'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-colors',
-    themeClasses.focusRing,
-    themeClasses.isLight
-      ? 'border-[#205089]/10 bg-[#DCE6F1]/34 text-[#123B68]/52 hover:bg-[#DCE6F1]/70 hover:text-[#123B68]'
-      : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/52 hover:bg-[#A8B8C8]/14 hover:text-[#F2F6FA]',
   );
 }
 

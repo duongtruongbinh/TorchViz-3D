@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { lazy, Suspense, type ReactElement } from 'react';
 import { HashRouter, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 
 import {
@@ -7,7 +7,8 @@ import {
   getLearningDomainPath,
 } from '../lib/appRoutes';
 import LandingPage from './landing/LandingPage';
-import LearningLabView from './learning/LearningLabView';
+
+const LearningLabView = lazy(() => import('./learning/LearningLabView'));
 
 type AppShellProps = {
   renderWorkspace: (props: { onBackToLanding: () => void }) => ReactElement;
@@ -35,17 +36,17 @@ function AppRoutes({ renderWorkspace }: AppShellProps) {
 
       <Route
         path={APP_ROUTES.learning}
-        element={<LearningLabView onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
+        element={<LearningLabRoute onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
       />
 
       <Route
         path={APP_ROUTES.learningDomain}
-        element={<LearningLabView onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
+        element={<LearningLabRoute onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
       />
 
       <Route
         path={APP_ROUTES.learningTrack}
-        element={<LearningLabView onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
+        element={<LearningLabRoute onBackToLanding={() => navigate(APP_ROUTES.landing)} />}
       />
 
       <Route
@@ -60,6 +61,14 @@ function AppRoutes({ renderWorkspace }: AppShellProps) {
 
       <Route path="*" element={<Navigate to={APP_ROUTES.landing} replace />} />
     </Routes>
+  );
+}
+
+function LearningLabRoute({ onBackToLanding }: { onBackToLanding: () => void }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--surface)]" />}>
+      <LearningLabView onBackToLanding={onBackToLanding} />
+    </Suspense>
   );
 }
 

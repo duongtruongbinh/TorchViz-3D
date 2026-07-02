@@ -1,9 +1,10 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
 import type { LearningLessonExtra } from '../../../../core/learning/types';
-import type { Language } from '../../../../lib/localization';
+import { getStrings, type Language } from '../../../../lib/localization';
 import { renderLlmAiEngineeringExtra } from '../../domains/llm-ai-engineering/renderers';
 import { cx, getLearningLabTheme } from '../../theme';
+import { scrollLearningLabElementIntoView } from '../scrolling';
 import ExtraFrame from './ExtraFrame';
 import { text } from './lessonExtraText';
 
@@ -84,27 +85,6 @@ function QuizBlock({
   );
 }
 
-function scrollLearningLabElementIntoView(element: HTMLElement | null) {
-  if (!element) return;
-  const scrollContainer = element.closest('.learning-lab-scrollbar') as HTMLElement | null;
-  if (!scrollContainer) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
-  const elementBounds = element.getBoundingClientRect();
-  const containerBounds = scrollContainer.getBoundingClientRect();
-  const targetScrollTop = scrollContainer.scrollTop
-    + elementBounds.top
-    - containerBounds.top
-    - (scrollContainer.clientHeight - elementBounds.height) / 2;
-
-  scrollContainer.scrollTo({
-    top: Math.max(targetScrollTop, 0),
-    behavior: 'smooth',
-  });
-}
-
 export type QuizQuestionState = {
   selectedIds: string[];
   categoryAssignments?: Record<string, string>;
@@ -130,8 +110,7 @@ function QuizQuestion({
   themeClasses: ReturnType<typeof getLearningLabTheme>;
   onStateChange: (state: QuizQuestionState) => void;
 }) {
-  const checkLabel = language === 'vi' ? 'Kiểm tra' : 'Check';
-  const resetLabel = language === 'vi' ? 'Làm lại' : 'Reset';
+  const strings = getStrings(language).learningLab;
   const isOrderMode = question.mode === 'order';
   const isCategorizeMode = question.mode === 'categorize';
   const quizPalette = getQuizPalette(themeClasses);
@@ -322,7 +301,7 @@ function QuizQuestion({
             canCheck ? quizPalette.checkButton : quizPalette.disabledButton,
           )}
         >
-          {checkLabel}
+          {strings.check}
         </button>
         <button
           type="button"
@@ -331,7 +310,7 @@ function QuizQuestion({
           className={cx('inline-flex h-10 items-center gap-2 rounded-lg px-4 text-xs font-black transition-colors disabled:cursor-not-allowed disabled:opacity-35', quizPalette.resetButton)}
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
-          {resetLabel}
+          {strings.reset}
         </button>
       </div>
 
@@ -367,6 +346,7 @@ function CategorizeQuestion({
   quizPalette: QuizPalette;
   onAssign: (optionId: string, categoryId: string | null) => void;
 }) {
+  const strings = getStrings(language).learningLab;
   const categories = question.categories ?? [];
   const unassignedOptions = question.options.filter((option) => !assignments[option.id]);
   const shouldShowIncorrect = feedback === 'incorrect';
@@ -392,7 +372,7 @@ function CategorizeQuestion({
         onDrop={(event) => handleDrop(event, null)}
       >
         <div className={cx('text-xs font-black uppercase tracking-wide', quizPalette.categoryCaption)}>
-          {language === 'vi' ? 'Token chưa phân loại' : 'Unsorted tokens'}
+          {strings.quizCategorizeUnsorted}
         </div>
         <div className="flex flex-wrap gap-2">
           {unassignedOptions.length ? unassignedOptions.map((option) => (
@@ -405,7 +385,7 @@ function CategorizeQuestion({
             />
           )) : (
             <span className={cx('text-sm font-semibold leading-6', quizPalette.categoryCaption)}>
-              {language === 'vi' ? 'Tất cả token đã được kéo vào nhóm.' : 'All tokens have been placed.'}
+              {strings.quizCategorizeComplete}
             </span>
           )}
         </div>

@@ -1,10 +1,11 @@
 import { Angry, CheckCircle2, Info, MousePointer2, RotateCcw, Sparkles, X } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import type { LearningLessonExtra } from '../../../../core/learning/types';
-import type { Language } from '../../../../lib/localization';
+import { getStrings, type Language } from '../../../../lib/localization';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningAssetUrl } from '../../lesson/extras/assetRegistry';
 import { text } from '../../lesson/extras/lessonExtraText';
+import { scrollLearningLabElementIntoView } from '../../lesson/scrolling';
 
 type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
 
@@ -24,27 +25,6 @@ export function renderLlmAiEngineeringExtra({ extra, language, themeClasses }: D
   }
 
   return null;
-}
-
-function scrollLearningLabElementIntoView(element: HTMLElement | null) {
-  if (!element) return;
-  const scrollContainer = element.closest('.learning-lab-scrollbar') as HTMLElement | null;
-  if (!scrollContainer) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
-  const elementBounds = element.getBoundingClientRect();
-  const containerBounds = scrollContainer.getBoundingClientRect();
-  const targetScrollTop = scrollContainer.scrollTop
-    + elementBounds.top
-    - containerBounds.top
-    - (scrollContainer.clientHeight - elementBounds.height) / 2;
-
-  scrollContainer.scrollTo({
-    top: Math.max(targetScrollTop, 0),
-    behavior: 'smooth',
-  });
 }
 
 function MotivationBlock({ extra, language, themeClasses }: {
@@ -375,6 +355,8 @@ function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
+  const strings = getStrings(language).learningLab;
+
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <section className="grid min-h-[15rem] p-0">
@@ -390,7 +372,7 @@ function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
 
       <section className={getTheoryTileClass(themeClasses)}>
         <div className={cx('mb-3 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-          {language === 'vi' ? 'Lý thuyết cốt lõi' : 'Core idea'}
+          {strings.coreIdea}
         </div>
         <div className="grid gap-3">
           {extra.body.map((paragraph) => (
