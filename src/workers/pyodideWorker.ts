@@ -43,7 +43,7 @@ export function createWorker(): Worker {
     }
 
     // Wrap execution
-    (async function() {
+    const pyodideScriptReady = (async function() {
        await loadPyodideScript();
     })();
 
@@ -51,6 +51,7 @@ export function createWorker(): Worker {
     let pyodide = null;
 
     async function setupPyodide() {
+      await pyodideScriptReady;
       if (!loaded) {
          throw new Error("Could not load local Pyodide runtime from " + pyodideIndexUrl + ". " + (loadError?.message || ""));
       }
@@ -77,6 +78,12 @@ export function createWorker(): Worker {
       
       return pyodide;
     }
+
+    const pyodideReady = setupPyodide().then((py) => {
+      self.postMessage({ type: 'ready' });
+      return py;
+    });
+    pyodideReady.catch(() => undefined);
 
     const USER_CODE_PREAMBLE = ${JSON.stringify(USER_CODE_PREAMBLE)};
     const WRAPPER_LINE_OFFSET = ${USER_CODE_PREAMBLE_LINE_COUNT};
@@ -114,7 +121,7 @@ json.dumps(rec.to_dict())
       const { code, inputShape, requestId } = e.data;
       
       try {
-        const py = await setupPyodide();
+        const py = await pyodideReady;
 
         py.runPython(\`
 import torchstub.recorder

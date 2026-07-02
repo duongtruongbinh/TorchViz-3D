@@ -27,6 +27,8 @@ export type LearningLocalizedText = {
   vi: string;
 };
 
+export type LearningAssetId = string;
+
 export type TensorExerciseId =
   | 'conv-value'
   | 'shape-output'
@@ -83,6 +85,85 @@ export type LearningLessonSection = {
   refId: string;
 };
 
+export type LearningLessonExtra =
+  | {
+      kind: 'motivation';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      image: LearningAssetId;
+      imageAlt: LearningLocalizedText;
+      body: LearningLocalizedText[];
+      hierarchy?: {
+        ariaLabel: LearningLocalizedText;
+        rows: Array<{
+          shortName: string;
+          fullName: string;
+          description: LearningLocalizedText;
+          depth: 'widest' | 'middle' | 'branch' | 'target';
+          compact?: boolean;
+        }>;
+        branchLabel?: LearningLocalizedText;
+      };
+    }
+  | {
+      kind: 'conceptInteraction';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      body: LearningLocalizedText[];
+      note?: LearningLocalizedText;
+      image: LearningAssetId;
+      imageAlt: LearningLocalizedText;
+      prompt: LearningLocalizedText;
+      blankLabel: LearningLocalizedText;
+      labels: {
+        chooseNextToken: LearningLocalizedText;
+        emptySentence: LearningLocalizedText;
+        removeLastWord: LearningLocalizedText;
+        reset: LearningLocalizedText;
+      };
+      options: Array<{
+        label: LearningLocalizedText;
+        isCorrect?: boolean;
+        feedback: LearningLocalizedText;
+      }>;
+      sentenceBuilder?: {
+        title: LearningLocalizedText;
+        prompt: LearningLocalizedText;
+        targets: LearningLocalizedText[][];
+        choices: LearningLocalizedText[];
+        success: LearningLocalizedText;
+        error: LearningLocalizedText;
+      };
+    }
+  | {
+      kind: 'conceptPanel';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      emphasis?: LearningLocalizedText;
+      body?: LearningLocalizedText[];
+      bodyAfter?: LearningLocalizedText[];
+      highlights?: Array<{
+        shortName: LearningLocalizedText;
+        fullName: LearningLocalizedText;
+        description: LearningLocalizedText;
+      }>;
+      outline?: Array<{
+        title: LearningLocalizedText;
+        body: LearningLocalizedText;
+        items: Array<{
+          title: LearningLocalizedText;
+          body: LearningLocalizedText;
+        }>;
+      }>;
+      links?: Array<{
+        label: LearningLocalizedText;
+        href: string;
+      }>;
+    };
+
 export type LearningLesson = {
   id: string;
   domainId: LearningDomainId;
@@ -95,6 +176,7 @@ export type LearningLesson = {
     theory: LearningLocalizedText[];
   };
   sections: LearningLessonSection[];
+  extras?: LearningLessonExtra[];
   practice: LearningPracticeRef[];
 };
 

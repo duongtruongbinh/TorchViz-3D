@@ -14,6 +14,10 @@ class FakeWorker {
     this.messages.push(message);
   }
 
+  emit(message: unknown) {
+    this.onmessage?.({ data: message } as MessageEvent);
+  }
+
   terminate() {
     this.terminated = true;
   }
@@ -58,6 +62,7 @@ test('run timeout terminates and recreates a stuck worker', async () => {
 
   service.init();
   service.run();
+  firstWorker.emit({ type: 'ready' });
 
   assert.equal(workers.length, 1);
   assert.equal(useStore.getState().loading, true);
@@ -69,6 +74,39 @@ test('run timeout terminates and recreates a stuck worker', async () => {
   assert.equal(secondWorker.terminated, false);
   assert.equal(useStore.getState().loading, false);
   assert.equal(useStore.getState().error?.message, 'Python execution timed out.');
+
+  service.terminate();
+});
+
+test('run timeout starts after worker ready when run is requested during init', async () => {
+  resetStore('[1, 1, 32, 32]');
+  const worker = new FakeWorker();
+  const service = new WorkerService(() => worker as unknown as Worker, 10, 50);
+
+  service.init();
+  service.run();
+  await delay(25);
+  assert.equal(worker.terminated, false);
+  assert.equal(useStore.getState().loading, true);
+
+  worker.emit({ type: 'ready' });
+  await delay(25);
+  assert.equal(worker.terminated, true);
+  assert.equal(useStore.getState().error?.message, 'Python execution timed out.');
+
+  service.terminate();
+});
+
+test('init timeout reports runtime initialization failure before ready', async () => {
+  resetStore('[1, 1, 32, 32]');
+  const worker = new FakeWorker();
+  const service = new WorkerService(() => worker as unknown as Worker, 50, 5);
+
+  service.init();
+  await delay(25);
+
+  assert.equal(worker.terminated, true);
+  assert.match(useStore.getState().criticalError ?? '', /Python Runtime Error/);
 
   service.terminate();
 });

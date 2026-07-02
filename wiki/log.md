@@ -3,6 +3,25 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-02 — Learning lesson panel flattening.** Documented the Learning Lab
+  convention that the main lesson detail surface should remain one flat panel,
+  with section spacing/dividers and subtle left accents instead of nested cards.
+- **2026-07-02 — Learning Lab domain package cleanup.** Trimmed the LLM domain
+  package docs to describe the current approval-gated roadmap extras, local
+  approval gate, scoped asset ids, and direct domain renderer use instead of a
+  premature custom renderer registry.
+- **2026-07-01 — LLM-from-scratch course content.** Updated the
+  [Learning Lab refactor](concepts/learning-lab-refactor.md) page to document
+  the Vietnamese-first LLM AI Engineering course path and its theory -> hand
+  calculation/quiz -> code teaching rhythm.
+- **2026-07-01 — LLM-from-scratch visuals and formulas.** Extended the
+  [Learning Lab refactor](concepts/learning-lab-refactor.md) page for the
+  LLM-from-scratch course's planned React-free visual/formula metadata, concrete
+  checkpoint exercises, and code-step contracts.
+- **2026-07-02 — LLM-from-scratch gist reference alignment.** Downloaded the
+  supplied "Building LLMs From Scratch" gist into `docs/reference/` and aligned
+  the LLM course copy/checkpoints with source-grounded paraphrases plus explicit
+  placeholders for out-of-scope extension labs.
 - **2026-06-29 — Landing home redesign.** Refined the outer Landing page into a
   quieter dark technical composition with less glow, clearer Workspace/Learning
   cards, wider touch targets, reduced-motion support, and desktop-only route

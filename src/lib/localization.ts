@@ -283,7 +283,7 @@ const localizedText = {
         },
       },
       llmAiEngineering: {
-        title: { en: 'LLMs & AI Engineering', vi: 'LLMs & AI Engineering' },
+        title: { en: 'LLMs', vi: 'LLMs' },
         description: {
           en: 'Master LLM fundamentals, APIs, and production patterns.',
           vi: 'Nắm vững nền tảng LLM, API và các pattern production.',
@@ -614,38 +614,80 @@ const localizedText = {
         },
       },
       llmFundamentals: {
-        title: { en: '1.1 LLM Fundamentals', vi: '1.1 LLM Fundamentals' },
+        title: { en: '2.1 LLM Fundamentals', vi: '2.1 LLM Fundamentals' },
         description: {
           en: 'Scaled transformer architecture, inference internals, training methods, preferences, and scaling laws.',
           vi: 'Kiến trúc transformer ở scale lớn, inference internals, training, preference learning và scaling laws.',
         },
       },
       productionPromptEngineering: {
-        title: { en: '1.2 Prompt Engineering', vi: '1.2 Prompt Engineering' },
+        title: { en: '2.2 Prompt Engineering', vi: '2.2 Prompt Engineering' },
         description: {
           en: 'Prompt anatomy, prompting techniques, production constraints, injection defense, and prompt tools.',
           vi: 'Cấu trúc prompt, kỹ thuật prompting, ràng buộc production, chống prompt injection và tooling.',
         },
       },
       workingWithAiApis: {
-        title: { en: '1.3 Working with AI APIs', vi: '1.3 Working with AI APIs' },
+        title: { en: '2.3 Working with AI APIs', vi: '2.3 Working with AI APIs' },
         description: {
           en: 'OpenAI, Anthropic, Gemini, Mistral, LLaMA, Ollama, and provider-specific API patterns.',
           vi: 'OpenAI, Anthropic, Gemini, Mistral, LLaMA, Ollama và pattern API theo provider.',
         },
       },
       apiIntegrationPatterns: {
-        title: { en: '1.4 API Integration Patterns', vi: '1.4 API Integration Patterns' },
+        title: { en: '2.4 API Integration Patterns', vi: '2.4 API Integration Patterns' },
         description: {
           en: 'Token limits, streaming, retries, queues, cost controls, caching, async work, and fallbacks.',
           vi: 'Token limit, streaming, retry, queue, kiểm soát cost, cache, async work và fallback.',
         },
       },
       secureApiIntegration: {
-        title: { en: '1.5 Secure API Integration', vi: '1.5 Secure API Integration' },
+        title: { en: '2.5 Secure API Integration', vi: '2.5 Secure API Integration' },
         description: {
           en: 'API key safety, backend proxies, per-user rate limits, key rotation, logging, and monitoring.',
           vi: 'Bảo vệ API key, backend proxy, rate limit theo user, key rotation, logging và monitoring.',
+        },
+      },
+      llmFromScratchOrientation: {
+        title: { en: '1.1 Orientation', vi: '1.1 Orientation' },
+        description: {
+          en: 'A TorchViz-native loop for learning LLM internals: theory, hand reasoning, then code.',
+          vi: 'Vòng học LLM internals theo kiểu TorchViz: lý thuyết, suy luận bằng tay, rồi code.',
+        },
+      },
+      textDataAndTokenization: {
+        title: { en: '1.2 Text Data & Tokenization', vi: '1.2 Text Data & Tokenization' },
+        description: {
+          en: 'Raw text, token ids, context windows, batches, and the first dataloader.',
+          vi: 'Text thô, token id, context window, batch và dataloader đầu tiên.',
+        },
+      },
+      attentionAndTransformersFromScratch: {
+        title: { en: '1.3 Attention & Transformers From Scratch', vi: '1.3 Attention & Transformers From Scratch' },
+        description: {
+          en: 'Causal masks, QKV shapes, attention scores, heads, and a minimal attention module.',
+          vi: 'Causal mask, shape QKV, attention score, head và module attention tối thiểu.',
+        },
+      },
+      gptModelFromScratch: {
+        title: { en: '1.4 GPT Model From Scratch', vi: '1.4 GPT Model From Scratch' },
+        description: {
+          en: 'Decoder-only blocks, residual streams, normalization, MLPs, logits, and parameter checks.',
+          vi: 'Decoder-only block, residual stream, normalization, MLP, logits và kiểm tra parameter.',
+        },
+      },
+      pretrainingAndGeneration: {
+        title: { en: '1.5 Pretraining & Generation', vi: '1.5 Pretraining & Generation' },
+        description: {
+          en: 'Next-token loss, perplexity, training loops, checkpoints, and autoregressive generation.',
+          vi: 'Next-token loss, perplexity, training loop, checkpoint và generation autoregressive.',
+        },
+      },
+      finetuningAndAlignment: {
+        title: { en: '1.6 Fine-tuning & Alignment', vi: '1.6 Fine-tuning & Alignment' },
+        description: {
+          en: 'Classification, instruction data, supervised fine-tuning, and preference-oriented thinking.',
+          vi: 'Classification, instruction data, supervised fine-tuning và tư duy theo preference.',
         },
       },
       dataManagementVersioning: {

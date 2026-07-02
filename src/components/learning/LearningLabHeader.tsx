@@ -1,4 +1,4 @@
-import { Languages, Moon, Search, Sun } from 'lucide-react';
+import { Languages, Search } from 'lucide-react';
 import { getStrings, type Language } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import { cx, getLearningLabTheme } from './theme';
@@ -7,14 +7,12 @@ type LearningLabHeaderProps = {
   mode: 'path' | 'review';
   theme: 'dark' | 'light';
   onModeChange: (mode: 'path' | 'review') => void;
-  onToggleTheme: () => void;
 };
 
 export default function LearningLabHeader({
   mode,
   theme,
   onModeChange,
-  onToggleTheme,
 }: LearningLabHeaderProps) {
   const language = useStore((s) => s.language);
   const setLanguage = useStore((s) => s.setLanguage);
@@ -22,7 +20,6 @@ export default function LearningLabHeader({
   const strings = getStrings(currentLanguage);
   const text = strings.learningLab;
   const themeClasses = getLearningLabTheme(theme);
-  const isLight = themeClasses.isLight;
 
   return (
     <header className={cx('sticky top-0 z-40 w-full border-b shadow-sm', themeClasses.header)}>
@@ -52,24 +49,8 @@ export default function LearningLabHeader({
 
         <button
           type="button"
-          role="switch"
-          aria-checked={theme === 'dark'}
-          onClick={onToggleTheme}
-          className={cx('ml-auto flex h-10 w-10 items-center justify-center', themeClasses.radius.icon, themeClasses.button.icon)}
-          title={theme === 'dark' ? text.lightTheme : text.darkTheme}
-          aria-label={theme === 'dark' ? text.lightTheme : text.darkTheme}
-        >
-          {isLight ? (
-            <Sun className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
-          ) : (
-            <Moon className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
-          )}
-        </button>
-
-        <button
-          type="button"
           onClick={() => setLanguage(currentLanguage === 'vi' ? ('en' as Language) : ('vi' as Language))}
-          className={cx('flex h-10 w-10 items-center justify-center', themeClasses.radius.icon, themeClasses.button.icon)}
+          className={cx('ml-auto flex h-10 w-10 items-center justify-center', themeClasses.radius.icon, themeClasses.button.icon)}
           title={currentLanguage === 'vi' ? strings.app.switchToEnglish : strings.app.switchToVietnamese}
           aria-label={currentLanguage === 'vi' ? strings.app.switchToEnglish : strings.app.switchToVietnamese}
           aria-pressed={currentLanguage === 'vi'}

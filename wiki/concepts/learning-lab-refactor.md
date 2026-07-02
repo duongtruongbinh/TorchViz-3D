@@ -1,7 +1,7 @@
 ---
 title: Learning Lab Refactor
 type: Active Subsystem
-updated: 2026-06-30
+updated: 2026-07-02
 ---
 
 # Learning Lab Refactor
@@ -39,6 +39,25 @@ Learning Lab is active as the single learning container. It currently provides:
 - Domains for Programming, Math & Statistics, Machine Learning, Deep Learning,
   Computer Vision, NLP, LLM AI Engineering, MLOps/LLMOps, AI System Design,
   Reinforcement Learning, AI Ethics/Safety/Governance, and Robot Learning.
+- The LLM AI Engineering domain includes a Vietnamese-first LLM-from-scratch
+  course path inspired by `rasbt/LLMs-from-scratch` but organized around the
+  TorchViz learning rhythm: theory -> hand calculation or theory quiz -> code.
+  Its catalog-owned lesson copy explains why each concept matters, where it
+  sits in the LLM pipeline, what learners should calculate or check by hand,
+  and what the later code step is meant to implement. The currently approved
+  roadmap lesson carries React-free extras for its motivation panel, LLM token
+  interaction, concept panels, and reference links. Deeper formulas, checkpoint
+  exercises, and code contracts stay in the roadmap copy until a later approved
+  lesson attaches them to the runtime. A later alignment pass downloaded the
+  supplied "Building LLMs From Scratch" gist into
+  `docs/reference/building-llms-from-scratch-gist.md` and uses it as a local
+  reference for source-grounded paraphrases; concepts outside the current lab
+  scope, such as training-loop bells and LoRA, are marked as placeholders for
+  future supplementation instead of being implemented prematurely.
+- LLM AI Engineering content is now a domain package under
+  `src/core/learning/content/llm-ai-engineering/`. The package owns its tracks,
+  approved roadmap extras, source references, and local approval gate while keeping
+  the global catalog export stable.
 - A Path mode backed by React-free static catalog metadata.
 - A Review mode over practice cards from the active domain or catalog.
 - Canonical route resolution for `domain -> chapter -> lesson` paths. Legacy
@@ -106,21 +125,70 @@ Active behavior remains unchanged:
 | `src/components/learning/lesson/LessonRail.tsx` | Searchable/filterable lesson rail, chapter collapse behavior, and lesson-node list rendering. |
 | `src/components/learning/lesson/LessonNode.tsx` | Shared lesson node. |
 | `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory and practice rendering. |
+| `src/components/learning/lesson/LessonExtras.tsx` | Compatibility wrapper for the lesson extras package. |
+| `src/components/learning/lesson/extras/*` | Shared extra dispatch for currently approved extras, concept panels, asset resolution, and small text helpers. |
+| `src/components/learning/domains/*/renderers.tsx` | Optional domain-owned custom extra renderers for interactions or visual treatments that should not live in the shared renderer. |
 | `src/components/learning/practice/PracticeSection.tsx` | Shared practice dispatcher for tensor, RL, and placeholder practice. |
 | `src/components/learning/practice/TensorPracticeRenderer.tsx` | Tensor Shape/Value/Conv modal launcher. |
 | `src/components/learning/practice/ReinforcementPracticeRenderer.tsx` | Inline RL MDP/Bellman/GridWorld renderer. |
 | `src/components/learning/practice/adapters/tensorPracticeAdapter.ts` | Representative tensor practice node adapter. |
 | `src/components/learning/practice/adapters/reinforcementPracticeAdapter.ts` | Deterministic RL practice fixtures and answer helpers. |
 | `src/core/learning/types.ts` | React-free unified learning catalog types. |
-| `src/core/learning/content/*` | React-free static domain/track/lesson metadata. |
+| `src/core/learning/content/*` | React-free static domain/track/lesson metadata. Larger domains may own a package folder instead of a single file. |
+| `src/core/learning/content/llm-ai-engineering/*` | LLM AI Engineering domain package: tracks, approved roadmap extras, references, and a local approval gate. |
 | `src/core/learning/selectors.ts` | React-free catalog selectors. |
 | `src/core/learning/content/seed.ts` | Placeholder roadmap seed builder that produces typed catalog lesson entries and catalog-owned lesson text. |
+
+## Content Ownership
+
+Learning Lab content should scale by domain package ownership, not by a rigid
+one-file-per-lesson rule. A small placeholder-heavy domain can remain a single
+content file. A growing or custom-heavy domain should move into a folder that
+owns its tracks, approval gates, sources, long-form lesson copy, extras, and
+assets.
+
+Split files by volatility:
+
+- Track/course files when a domain has many chapters or roadmap groups.
+- Lesson files only when a lesson has long prose, many extras, custom
+  interaction payloads, or independent approval/source history.
+- Domain renderer files when UI treatment is genuinely domain-specific.
+- Deeper component folders only when an interaction has enough state, animation,
+  or tests to justify independent ownership.
+
+Global shared types and renderers should describe reusable contracts. Domain
+packages should own their own source references, asset ids, approval gates,
+and custom renderer components so future domains do not inflate
+`src/lib/localization.ts`, `src/core/learning/types.ts`, or the shared lesson
+extra renderer. Do not add a registry layer until more than one domain needs
+keyed custom extra routing.
 
 ## UI Conventions
 
 Learning Lab UI conventions live in `src/components/learning/theme.ts`.
 New Learning Lab controls should use `getLearningLabTheme(theme)` instead of
 hand-rolling color, hover, focus, or radius classes in component files.
+
+Runtime lesson media should live under `src/assets/learning/<domain>/...` and be
+resolved through a renderer-side asset registry. `docs/assets/` is for
+documentation media, screenshots, and reference artifacts rather than app
+runtime lesson images. Use lesson-scoped asset ids and lesson-searchable file
+names:
+
+```text
+<lesson-number>-<lesson-id>-<asset-purpose>.<ext>
+```
+
+For example, the first LLM roadmap lesson uses
+`01-llm-from-scratch-roadmap-ai-hierarchy.png` and
+`01-llm-from-scratch-roadmap-next-token-loop.png`.
+
+The main lesson panel should stay visually flat: `LessonDetail` owns the single
+outer panel, while theory, calculation, code, practice, and lesson extras use
+section spacing, dividers, and subtle left accents instead of stacking full
+cards inside cards. Reserve framed surfaces for repeated cards, modals, practice
+engines, and small functional elements such as formulas, matrix cells, or token
+pills.
 
 `LearningLabView` keeps the left sidebar intentionally shallow: an explicit
 Home item appears at the top, followed only by top-level domains. The Home page

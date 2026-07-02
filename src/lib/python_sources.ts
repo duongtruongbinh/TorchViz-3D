@@ -408,9 +408,9 @@ class Conv2d(Module):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.kernel_size = kernel_size if isinstance(kernel_size, tuple) else (kernel_size, kernel_size)
-        self.stride = stride
-        self.padding = padding
+        self.kernel_size = _pair(kernel_size)
+        self.stride = _pair(stride)
+        self.padding = _pair(padding)
         k = self.kernel_size
         self.params = (k[0] * k[1] * in_channels + 1) * out_channels
 
@@ -419,8 +419,11 @@ class Conv2d(Module):
             return _record("Conv2d", [x], x.shape, self.params,
                 {"kernel": self.kernel_size, "stride": self.stride},
                 error=f"Shape Mismatch: Conv2d expects 4D input [N,C,H,W], got {len(x.shape)}D {tuple(x.shape)}")
-        h_out = math.floor((x.shape[2] + 2 * self.padding - self.kernel_size[0]) / self.stride + 1)
-        w_out = math.floor((x.shape[3] + 2 * self.padding - self.kernel_size[1]) / self.stride + 1)
+        kh, kw = self.kernel_size
+        sh, sw = self.stride
+        ph, pw = self.padding
+        h_out = math.floor((x.shape[2] + 2 * ph - kh) / sh + 1)
+        w_out = math.floor((x.shape[3] + 2 * pw - kw) / sw + 1)
         out_shape = (x.shape[0], self.out_channels, h_out, w_out)
         return _record("Conv2d", [x], out_shape, self.params,
                        {"kernel": self.kernel_size, "stride": self.stride})
@@ -475,34 +478,38 @@ const PY_NN_POOL = `
 class MaxPool2d(Module):
     def __init__(self, kernel_size, stride=None, padding=0):
         super().__init__()
-        self.kernel_size = kernel_size
-        self.stride = stride if stride is not None else kernel_size
-        self.padding = padding
+        self.kernel_size = _pair(kernel_size)
+        self.stride = _pair(stride if stride is not None else kernel_size)
+        self.padding = _pair(padding)
 
     def forward(self, x):
         if len(x.shape) < 4:
             return _record("MaxPool", [x], x.shape,
                 error=f"Shape Mismatch: MaxPool2d expects 4D input, got {len(x.shape)}D")
-        ks, st = self.kernel_size, self.stride
-        h_out = math.floor((x.shape[2] + 2 * self.padding - ks) / st + 1)
-        w_out = math.floor((x.shape[3] + 2 * self.padding - ks) / st + 1)
+        kh, kw = self.kernel_size
+        sh, sw = self.stride
+        ph, pw = self.padding
+        h_out = math.floor((x.shape[2] + 2 * ph - kh) / sh + 1)
+        w_out = math.floor((x.shape[3] + 2 * pw - kw) / sw + 1)
         out_shape = (x.shape[0], x.shape[1], h_out, w_out)
         return _record("MaxPool", [x], out_shape)
 
 class AvgPool2d(Module):
     def __init__(self, kernel_size, stride=None, padding=0):
         super().__init__()
-        self.kernel_size = kernel_size
-        self.stride = stride if stride is not None else kernel_size
-        self.padding = padding
+        self.kernel_size = _pair(kernel_size)
+        self.stride = _pair(stride if stride is not None else kernel_size)
+        self.padding = _pair(padding)
 
     def forward(self, x):
         if len(x.shape) < 4:
             return _record("AvgPool", [x], x.shape,
                 error=f"Shape Mismatch: AvgPool2d expects 4D input, got {len(x.shape)}D")
-        ks, st = self.kernel_size, self.stride
-        h_out = math.floor((x.shape[2] + 2 * self.padding - ks) / st + 1)
-        w_out = math.floor((x.shape[3] + 2 * self.padding - ks) / st + 1)
+        kh, kw = self.kernel_size
+        sh, sw = self.stride
+        ph, pw = self.padding
+        h_out = math.floor((x.shape[2] + 2 * ph - kh) / sh + 1)
+        w_out = math.floor((x.shape[3] + 2 * pw - kw) / sw + 1)
         out_shape = (x.shape[0], x.shape[1], h_out, w_out)
         return _record("AvgPool", [x], out_shape)
 
