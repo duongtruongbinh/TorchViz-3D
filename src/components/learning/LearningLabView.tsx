@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, MessageSquareText, Network, PanelLeft, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, MessageSquareText, Network, PanelLeft, PanelLeftOpen, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { learningCatalog } from '../../core/learning/content';
 import {
@@ -14,7 +14,7 @@ import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';
 import LessonDetail from './lesson/LessonDetail';
-import LessonRail, { filterLessonRailGroups, type LessonRailFilter } from './lesson/LessonRail';
+import LessonRail, { filterLessonRailGroups, type LessonRailFilter, type LessonRailProps } from './lesson/LessonRail';
 import { getDomainText } from './learningText';
 import DomainCatalog from './shell/DomainCatalog';
 import ReviewMode from './shell/ReviewMode';
@@ -60,9 +60,11 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [mode, setMode] = useState<LearningLabMode>('path');
   const theme = 'light' as const;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLessonRailOpen, setIsLessonRailOpen] = useState(true);
   const [collapsedChapters, setCollapsedChapters] = useState<Set<string>>(() => new Set());
   const [lessonSearchQuery, setLessonSearchQuery] = useState('');
   const [lessonRailFilter, setLessonRailFilter] = useState<LessonRailFilter>('all');
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(() => new Set());
   const [, startLessonTransition] = useTransition();
 
   const strings = getStrings(language).learningLab;
@@ -105,12 +107,14 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     isLessonRailFiltered,
     firstDomainLesson: domainLessons[0] ?? null,
   });
-  const selectedLessonIndex = railSelectedLesson ? lessonIndexById.get(railSelectedLesson.id) ?? -1 : -1;
+  const detailLessonIndex = selectedLesson ? lessonIndexById.get(selectedLesson.id) ?? -1 : -1;
+  const nextLesson = detailLessonIndex >= 0 ? domainLessons[detailLessonIndex + 1] ?? null : null;
 
   useEffect(() => {
     setCollapsedChapters(new Set());
     setLessonSearchQuery('');
     setLessonRailFilter('all');
+    setIsLessonRailOpen(true);
   }, [routeDomainId]);
 
   useEffect(() => {
@@ -174,6 +178,26 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
       navigate(`/learning/${targetLesson.domainId}/${targetLesson.trackId}?lesson=${lessonId}`);
     });
   }, [domainLessons, navigate, startLessonTransition]);
+  const clearLessonSearch = useCallback(() => setLessonSearchQuery(''), []);
+  const openLessonRail = useCallback(() => setIsLessonRailOpen(true), []);
+  const closeLessonRail = useCallback(() => setIsLessonRailOpen(false), []);
+  const lessonRailProps = railSelectedLesson ? ({
+    groups: filteredGroupedDomainLessons,
+    collapsedTrackIds: collapsedChapters,
+    completedLessonIds,
+    isFiltered: isLessonRailFiltered,
+    language,
+    lessonIndexById,
+    searchQuery: lessonSearchQuery,
+    selectedFilter: lessonRailFilter,
+    selectedLesson: railSelectedLesson,
+    theme,
+    onClearSearch: clearLessonSearch,
+    onSearchChange: setLessonSearchQuery,
+    onSelectFilter: setLessonRailFilter,
+    onSelectLesson: selectLesson,
+    onToggleTrack: toggleChapter,
+  } satisfies Omit<LessonRailProps, 'isRailOpen' | 'onToggleRail'>) : null;
 
   return (
     <main
@@ -258,7 +282,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : null}
         </div>
 
-        <nav className={isSidebarOpen ? 'flex-1 overflow-y-auto px-3 pb-5 pt-5' : 'flex-1 overflow-y-auto px-3 py-5'} aria-label={strings.sidebarDomains}>
+        <nav className={isSidebarOpen ? 'custom-scrollbar flex-1 overflow-y-auto px-3 pb-5 pt-5' : 'custom-scrollbar flex-1 overflow-y-auto px-3 py-5'} aria-label={strings.sidebarDomains}>
           <div className="grid gap-2">
             <button
               type="button"
@@ -328,32 +352,71 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
               {strings.contentInProgress}
             </div>
-          ) : activeTrack && railSelectedLesson ? (
-            <section className="learning-lab-catalog -m-4 grid min-h-full w-[calc(100%+2rem)] gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)]">
-              <LessonRail
-                groups={filteredGroupedDomainLessons}
-                collapsedTrackIds={collapsedChapters}
-                isFiltered={isLessonRailFiltered}
-                language={language}
-                lessonIndexById={lessonIndexById}
-                searchQuery={lessonSearchQuery}
-                selectedFilter={lessonRailFilter}
-                selectedLesson={railSelectedLesson}
-                selectedLessonIndex={selectedLessonIndex}
-                theme={theme}
-                onClearSearch={() => setLessonSearchQuery('')}
-                onSearchChange={setLessonSearchQuery}
-                onSelectFilter={setLessonRailFilter}
-                onSelectLesson={selectLesson}
-                onToggleTrack={toggleChapter}
-              />
-              {selectedLesson ? (
-                <LessonDetail
-                  lesson={selectedLesson}
-                  theme={theme}
-                  language={language}
-                  selectedPracticeId={routePracticeId}
+          ) : activeTrack && lessonRailProps ? (
+            <section
+              className={cx(
+                'learning-lab-catalog -m-4 grid h-full min-h-0 w-[calc(100%+2rem)] gap-4 p-4 transition-[grid-template-columns] duration-200',
+                isLessonRailOpen ? 'lg:grid-cols-[300px_minmax(0,1fr)]' : 'lg:grid-cols-[44px_minmax(0,1fr)]',
+              )}
+            >
+              <div
+                className={cx(
+                  'relative hidden min-h-0 lg:block',
+                  !isLessonRailOpen && 'w-11',
+                )}
+              >
+                <div
+                  className={cx(
+                    'absolute inset-y-0 left-0 w-[300px] min-w-0 overflow-hidden transition-[opacity,transform] duration-200',
+                    isLessonRailOpen
+                      ? 'pointer-events-auto translate-x-0 opacity-100'
+                      : 'pointer-events-none -translate-x-3 opacity-0',
+                  )}
+                >
+                  <LessonRail
+                    {...lessonRailProps}
+                    isRailOpen={isLessonRailOpen}
+                    onToggleRail={closeLessonRail}
+                  />
+                </div>
+                {!isLessonRailOpen ? (
+                  <button
+                    type="button"
+                    onClick={openLessonRail}
+                    className={themeClasses.rail.railToggleButton}
+                    title={strings.lessonRailOpenLabel}
+                    aria-label={strings.lessonRailOpenLabel}
+                    aria-expanded={isLessonRailOpen}
+                  >
+                    <PanelLeftOpen className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
+                  </button>
+                ) : null}
+              </div>
+              <div className="min-h-0 lg:hidden">
+                <LessonRail
+                  {...lessonRailProps}
+                  isRailOpen={true}
                 />
+              </div>
+              {selectedLesson ? (
+                <div className="min-h-0 min-w-0">
+                  <LessonDetail
+                    lesson={selectedLesson}
+                    theme={theme}
+                    language={language}
+                    selectedPracticeId={routePracticeId}
+                    hasNextLesson={Boolean(nextLesson)}
+                    onSelectNextLesson={() => {
+                      if (!nextLesson) return;
+                      setCompletedLessonIds((current) => {
+                        const next = new Set(current);
+                        next.add(selectedLesson.id);
+                        return next;
+                      });
+                      selectLesson(nextLesson.id);
+                    }}
+                  />
+                </div>
               ) : (
                 <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
                   {strings.lessonFilterEmpty}

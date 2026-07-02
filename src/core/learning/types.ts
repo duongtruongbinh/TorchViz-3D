@@ -128,6 +128,22 @@ export type LearningLessonExtra =
         isCorrect?: boolean;
         feedback: LearningLocalizedText;
       }>;
+      interactionPlacement?: 'inline' | 'none' | 'only';
+      tokenExample?: {
+        title: LearningLocalizedText;
+        variants: Array<{
+          label: LearningLocalizedText;
+          tokens: string[];
+          description: LearningLocalizedText;
+        }>;
+        specialTitle: LearningLocalizedText;
+        specialCases: Array<{
+          label: LearningLocalizedText;
+          tokens: string[];
+          description: LearningLocalizedText;
+        }>;
+        notes: LearningLocalizedText[];
+      };
       sentenceBuilder?: {
         title: LearningLocalizedText;
         prompt: LearningLocalizedText;
@@ -161,6 +177,31 @@ export type LearningLessonExtra =
       links?: Array<{
         label: LearningLocalizedText;
         href: string;
+      }>;
+    }
+  | {
+      kind: 'quiz';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      questions: Array<{
+        id: string;
+        title: LearningLocalizedText;
+        prompt: LearningLocalizedText;
+        mode: 'order' | 'single' | 'multi' | 'categorize';
+        options: Array<{
+          id: string;
+          label: LearningLocalizedText;
+          isCorrect?: boolean;
+          categoryId?: string;
+        }>;
+        categories?: Array<{
+          id: string;
+          label: LearningLocalizedText;
+        }>;
+        correctOrder?: string[];
+        success: LearningLocalizedText;
+        error: LearningLocalizedText;
       }>;
     };
 

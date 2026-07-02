@@ -72,6 +72,39 @@ print("ok")
   assert.equal(out, 'ok');
 });
 
+test('rejects invalid channel-dependent 2D operations', () => {
+  const out = runPython(`
+from torchstub import Tensor, nn
+from torchstub.recorder import GraphError, get_recorder
+
+try:
+    nn.Conv2d(3, 8, 3)(Tensor((1, 1, 16, 16)))
+except GraphError:
+    assert "expects 3 input channels" in get_recorder().to_dict()["nodes"][-1]["error"]
+else:
+    raise AssertionError("Conv2d channel mismatch should fail")
+
+get_recorder().reset()
+try:
+    nn.ConvTranspose2d(3, 8, 3)(Tensor((1, 1, 16, 16)))
+except GraphError:
+    assert "expects 3 input channels" in get_recorder().to_dict()["nodes"][-1]["error"]
+else:
+    raise AssertionError("ConvTranspose2d channel mismatch should fail")
+
+get_recorder().reset()
+try:
+    nn.PixelShuffle(2)(Tensor((1, 5, 8, 8)))
+except GraphError:
+    assert "must be divisible" in get_recorder().to_dict()["nodes"][-1]["error"]
+else:
+    raise AssertionError("PixelShuffle indivisible channels should fail")
+
+print("ok")
+`);
+  assert.equal(out, 'ok');
+});
+
 test('handles robust flatten, reshape inference, and broadcasting Add', () => {
   const out = runPython(`
 from torchstub import Tensor, add

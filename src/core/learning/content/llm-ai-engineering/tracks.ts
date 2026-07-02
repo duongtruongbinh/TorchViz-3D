@@ -17,16 +17,10 @@ export const chapters: LearningChapterSeed[] = [
       ),
       lessonSeed(
         'llm-component-checkpoint-quiz',
-        'Component checkpoint quiz',
-        'Quiz kiểm tra thành phần',
-        [
-          'Bài kiểm tra này dùng để xác nhận bạn đã đặt đúng vai trò của từng thành phần trước khi viết code. Một lỗi rất phổ biến khi học LLM from scratch là nhớ tên các module, nhưng không biết tensor nào đi vào đâu và tensor nào được so với target.',
-          'Hãy tự vẽ chuỗi xử lý cho một câu ngắn: text -> token ids -> token embedding + positional embedding -> nhiều GPT block -> logits -> cross-entropy loss. Ở mỗi mũi tên, hãy ghi shape dự kiến bằng ký hiệu batch, sequence length, vocab size, và embedding dimension.',
-          'Câu hỏi lý thuyết đầu tiên: vì sao output cuối của model là logits trên toàn vocabulary, chứ không phải trực tiếp là một chữ hoặc một token? Câu trả lời đúng phải nhắc đến việc softmax và loss cần một điểm số cho từng token ứng viên.',
-          'Câu hỏi thứ hai: causal mask nằm ở đâu trong pipeline? Nó không thuộc tokenizer và cũng không thuộc loss; nó nằm trong attention score trước softmax để mỗi vị trí không nhìn thấy token tương lai.',
-          'Câu hỏi thứ ba: nếu context window dài 8, batch size là 4, vocab size là 1000, model dimension là 64, logits cuối cùng nên có shape nào? Nếu bạn trả lời được `(4, 8, 1000)` và giải thích vì sao không phải `(4, 8, 64)`, bạn đã sẵn sàng sang skeleton code.',
-        ],
-        ['theory', 'calculation'],
+        'Roadmap checkpoint quiz',
+        'Quiz',
+        [],
+        ['theory'],
         'available',
       ),
       lessonSeed(
@@ -56,6 +50,8 @@ export const chapters: LearningChapterSeed[] = [
         [
           'LLM không đọc chữ như con người. Nó nhận một dãy số nguyên gọi là token ids. Tokenization là bước biến text thô thành dãy id ổn định để model có thể tra embedding và xử lý bằng tensor.',
           'Một token có thể là một ký tự, một từ, một mảnh subword, dấu câu, khoảng trắng, hoặc special token. Lựa chọn vocabulary quyết định model nhìn thế giới bằng đơn vị nào: quá thô thì không xử lý được từ mới, quá nhỏ thì sequence dài và tốn context window.',
+          'Ví dụ, câu `I love tokenization!` có thể được cắt thành word tokens như `I`, `love`, `tokenization`, `!`; hoặc thành sub-word tokens như `I`, `love`, `token`, `ization`, `!`. Khoảng trắng cũng có thể được giữ như một token riêng, hoặc được gắn vào token kế bên tùy tokenizer.',
+          'Điểm quan trọng: không có một cách chia token duy nhất đúng cho mọi model. Whitespace tokenizer, character tokenizer, BPE, WordPiece, SentencePiece hay tokenizer của GPT/Llama có thể cắt cùng một câu thành các token khác nhau. Vì vậy khi nói "token tiếp theo", ta luôn đang nói theo vocabulary và thuật toán tokenizer cụ thể của model đó.',
           'Special tokens xử lý những tình huống không phải chữ thường: `<|unk|>` cho token chưa biết, `<|endoftext|>` để ngăn cách hai nguồn text độc lập, `[BOS]`/`[EOS]` cho biên sequence, và `[PAD]` để padding batch. Các token này vẫn là token thật, vẫn có id, và vẫn có thể ảnh hưởng loss nếu bạn không mask đúng.',
           'BPE là một bước tiến so với tokenizer tách từ đơn giản. Thay vì thay toàn bộ từ lạ bằng `<|unk|>`, BPE có thể bẻ từ thành subword hoặc ký tự nhỏ hơn. Nhờ vậy tokenizer thường parse được từ mới mà vẫn giữ vocabulary hữu hạn.',
           'Trong pipeline LLM, tokenization đứng trước mọi thứ khác. Nếu tokenizer cắt một câu thành 30 token thay vì 12 token, attention phải xử lý ma trận lớn hơn, dataloader tạo nhiều cửa sổ hơn, và training loop nhìn thấy nhiều target hơn.',

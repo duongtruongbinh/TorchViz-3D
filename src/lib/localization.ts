@@ -237,8 +237,21 @@ const localizedText = {
       en: (first: number, second: number) => `${first}/${second}`,
       vi: (first: number, second: number) => `${first}/${second}`,
     },
+    lessonStepCount: {
+      en: (first: number, second: number) => `${first} / ${second}`,
+      vi: (first: number, second: number) => `${first} / ${second}`,
+    },
+    lessonPreviousSection: { en: 'Back', vi: 'Quay lại' },
+    lessonNextSection: { en: 'Next', vi: 'Tiếp theo' },
+    lessonCompleteAndContinue: { en: 'Too easy!', vi: 'Quá dễ!' },
+    lessonScrollToContinue: { en: 'Scroll to the bottom to continue.', vi: 'Cuộn xuống cuối trang để tiếp tục.' },
+    lessonRailOpenLabel: { en: 'Table of contents', vi: 'Mục lục bài học' },
+    lessonRailCloseLabel: { en: 'Hide table of contents', vi: 'Ẩn mục lục bài học' },
     clearLessonSearch: { en: 'Clear lesson search', vi: 'Xóa tìm kiếm bài học' },
     lessonFilterEmpty: { en: 'No lessons match this filter.', vi: 'Không có bài học khớp bộ lọc.' },
+    coreIdea: { en: 'Core idea', vi: 'Lý thuyết cốt lõi' },
+    quizCategorizeUnsorted: { en: 'Unsorted tokens', vi: 'Token chưa phân loại' },
+    quizCategorizeComplete: { en: 'All tokens have been placed.', vi: 'Tất cả token đã được kéo vào nhóm.' },
     domains: {
       programmingFoundation: {
         title: { en: 'Programming', vi: 'Programming' },

@@ -1,10 +1,11 @@
 import { Angry, CheckCircle2, Info, MousePointer2, RotateCcw, Sparkles, X } from 'lucide-react';
-import { useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import type { LearningLessonExtra } from '../../../../core/learning/types';
-import type { Language } from '../../../../lib/localization';
+import { getStrings, type Language } from '../../../../lib/localization';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningAssetUrl } from '../../lesson/extras/assetRegistry';
 import { text } from '../../lesson/extras/lessonExtraText';
+import { scrollLearningLabElementIntoView } from '../../lesson/scrolling';
 
 type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
 
@@ -35,27 +36,27 @@ function MotivationBlock({ extra, language, themeClasses }: {
 
   return (
     <div className="overflow-hidden">
-      <div className="grid gap-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-        <div className="min-w-0">
-          <div className="grid max-w-[70ch] gap-3">
-            {intro.map((paragraph) => (
-              <p key={paragraph} className={cx('text-sm leading-7', themeClasses.bodyText)}>
-                {paragraph}
-              </p>
-            ))}
-          </div>
+      <div className="grid w-full gap-3">
+        {intro.map((paragraph) => (
+          <p key={paragraph} className={cx('text-sm leading-7', themeClasses.bodyText)}>
+            {paragraph}
+          </p>
+        ))}
+      </div>
 
+      <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10 xl:gap-12">
+        <div className="min-w-0">
           {extra.hierarchy && (
             <AiHierarchyFlow hierarchy={extra.hierarchy} language={language} themeClasses={themeClasses} />
           )}
 
         </div>
 
-        <figure className="min-w-0 pt-5 lg:pt-0">
+        <figure className="flex min-w-0 items-center justify-center pt-5 lg:pt-0">
           <img
             src={getLearningAssetUrl(extra.image)}
             alt={text(extra.imageAlt, language)}
-            className="aspect-[1672/941] w-full object-contain"
+            className="aspect-[1672/941] w-full max-w-[42rem] object-contain"
             loading="lazy"
           />
         </figure>
@@ -74,7 +75,7 @@ function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
   const targetRows = hierarchy.rows.filter((row) => row.depth === 'target');
 
   return (
-    <div className="mt-5 grid max-w-[70ch] gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
+    <div className="mt-5 grid w-full gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
       {leadingRows.map((row) => (
         <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
       ))}
@@ -143,55 +144,53 @@ function ConceptInteraction({ extra, language, themeClasses }: {
 }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [selectedWordIndexes, setSelectedWordIndexes] = useState<number[]>([]);
+  const [sentenceFeedbackPulseKey, setSentenceFeedbackPulseKey] = useState(0);
   const selectedOption = selectedIndex === null ? null : extra.options[selectedIndex];
   const selectedLabel = selectedOption ? text(selectedOption.label, language) : text(extra.blankLabel, language);
   const labels = extra.labels;
   const noteText = extra.note ? text(extra.note, language) : '';
   const sentenceBuilder = extra.sentenceBuilder;
+  const interactionPlacement = extra.interactionPlacement ?? 'inline';
+  const shouldShowIntro = interactionPlacement !== 'only';
+  const shouldShowInteractions = interactionPlacement !== 'none';
   const selectedWords = sentenceBuilder ? selectedWordIndexes.map((index) => text(sentenceBuilder.choices[index], language)) : [];
   const targetSentences = sentenceBuilder ? sentenceBuilder.targets.map((target) => target.map((word) => text(word, language))) : [];
   const matchingTargets = targetSentences.filter((target) => selectedWords.every((word, index) => word === target[index]));
   const isSentenceComplete = matchingTargets.some((target) => selectedWords.length === target.length);
   const isSentenceOffTrack = sentenceBuilder ? selectedWords.length > 0 && matchingTargets.length === 0 : false;
   const firstViableTarget = matchingTargets[0] ?? targetSentences[0] ?? [];
+  const optionFeedbackRef = useRef<HTMLDivElement | null>(null);
+  const sentenceFeedbackRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!selectedOption) return;
+    optionFeedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [selectedOption]);
+
+  useEffect(() => {
+    if (!isSentenceComplete && !isSentenceOffTrack) return;
+    setSentenceFeedbackPulseKey((value) => value + 1);
+    const frameId = window.requestAnimationFrame(() => {
+      scrollLearningLabElementIntoView(sentenceFeedbackRef.current);
+    });
+    return () => window.cancelAnimationFrame(frameId);
+  }, [isSentenceComplete, isSentenceOffTrack]);
 
   return (
     <div className="py-1">
-      <div className="grid gap-5 lg:grid-cols-[minmax(16rem,0.72fr)_minmax(0,1fr)]">
-        <figure className="min-w-0">
-          <img
-            src={getLearningAssetUrl(extra.image)}
-            alt={text(extra.imageAlt, language)}
-            className={cx('aspect-[1672/941] w-full object-contain', themeClasses.radius.card)}
-            loading="lazy"
-          />
-        </figure>
-
-        <div className="min-w-0">
-          <div className={cx('mb-3 flex items-center gap-2 text-sm font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-            <MousePointer2 className="h-4 w-4" aria-hidden="true" />
-            <span>{text(extra.title, language)}</span>
-          </div>
-
-          <div className="grid max-w-[72ch] gap-3">
-            {extra.body.map((paragraph) => (
-              <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
-                {text(paragraph, language)}
-              </p>
-            ))}
-          </div>
-
-          {noteText && (
-            <div className={cx('mt-4 flex gap-3 rounded-lg px-3 py-3 text-sm leading-6', themeClasses.isLight ? 'bg-[#205089]/8 text-[#123B68]' : 'bg-[#9ED0FF]/10 text-[#D7EAFE]')}>
-              <Info className="mt-1 h-4 w-4 shrink-0" strokeWidth={2.1} aria-hidden="true" />
-              <p>{noteText}</p>
-            </div>
-          )}
+      {shouldShowIntro && (
+        <div className={cx('mb-3 text-left text-lg font-black uppercase leading-7 tracking-wide md:text-xl', themeClasses.eyebrowText)}>
+          {text(extra.title, language)}
         </div>
-      </div>
+      )}
 
-      <div className={cx('mt-5 grid gap-4 rounded-lg border p-4 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-[#B8C8DA]/18' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7')}>
-        <div className="grid justify-items-center gap-3">
+      {shouldShowIntro && (
+        <ConceptIntroGrid extra={extra} noteText={noteText} language={language} themeClasses={themeClasses} />
+      )}
+
+      {shouldShowInteractions && (
+        <div className={cx('mt-4 grid gap-3 rounded-lg border p-3 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7')}>
+        <div className="grid justify-items-center gap-2.5">
           <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
             <Sparkles className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
             {text(labels.chooseNextToken, language)}
@@ -214,7 +213,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           </div>
 
           {selectedOption && (
-            <div className={cx('mx-auto flex max-w-[64ch] gap-2 text-left text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
+            <div ref={optionFeedbackRef} className={cx('flex w-full justify-center gap-2 text-center text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
               {selectedOption.isCorrect ? (
                 <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
               ) : (
@@ -225,7 +224,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           )}
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2" aria-label={text(extra.blankLabel, language)}>
+        <div className="flex flex-wrap justify-center gap-1.5" aria-label={text(extra.blankLabel, language)}>
           {extra.options.map((option, index) => {
             const isSelected = selectedIndex === index;
             const isCorrect = Boolean(option.isCorrect);
@@ -248,16 +247,17 @@ function ConceptInteraction({ extra, language, themeClasses }: {
             );
           })}
         </div>
-      </div>
+        </div>
+      )}
 
-      {sentenceBuilder && (
-        <div className={cx('mt-4 grid gap-4 rounded-lg border p-4 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-[#B8C8DA]/14' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/6')}>
+      {shouldShowInteractions && sentenceBuilder && (
+        <div className={cx('mt-3 grid gap-3 rounded-lg border p-3 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/6')}>
           <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
             <MousePointer2 className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
             {text(sentenceBuilder.title, language)}
           </div>
 
-          <div className={cx('mx-auto grid w-full max-w-[76ch] grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-3 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-white/62 text-[#030509]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
+          <div className={cx('grid w-full grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-transparent text-[#030509]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
             <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
               <span>{text(sentenceBuilder.prompt, language)}</span>
               {selectedWords.length ? (
@@ -291,7 +291,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
             </button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-1.5">
             {sentenceBuilder.choices.map((choice, index) => {
               const isUsed = selectedWordIndexes.includes(index);
               return (
@@ -311,7 +311,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
             })}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-1.5">
             <button
               type="button"
               onClick={() => setSelectedWordIndexes([])}
@@ -324,7 +324,17 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           </div>
 
           {(isSentenceComplete || isSentenceOffTrack) && (
-            <div className={cx('mx-auto flex max-w-[64ch] gap-2 text-left text-sm leading-6', isSentenceComplete ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
+            <div
+              key={sentenceFeedbackPulseKey}
+              ref={sentenceFeedbackRef}
+              className={cx(
+                'learning-lab-answer-reveal flex w-full justify-center gap-2 rounded-lg border px-3 py-2.5 text-center text-sm font-semibold leading-6',
+                isSentenceComplete
+                  ? themeClasses.isLight ? 'border-[#1F6F48]/18 bg-[#E8F7EE] text-[#1F6F48]' : 'border-[#A6E8C1]/18 bg-[#A6E8C1]/10 text-[#A6E8C1]'
+                  : themeClasses.isLight ? 'border-[#8C3333]/18 bg-[#FBECEC] text-[#8C3333]' : 'border-[#FCA5A5]/18 bg-[#FCA5A5]/10 text-[#FCA5A5]',
+              )}
+              role="status"
+            >
               {isSentenceComplete ? (
                 <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
               ) : (
@@ -336,5 +346,144 @@ function ConceptInteraction({ extra, language, themeClasses }: {
         </div>
       )}
     </div>
+  );
+}
+
+function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
+  extra: Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>;
+  noteText: string;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const strings = getStrings(language).learningLab;
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <section className="grid min-h-[15rem] p-0">
+        <figure className="flex min-h-full min-w-0 items-center justify-center overflow-hidden">
+          <img
+            src={getLearningAssetUrl(extra.image)}
+            alt={text(extra.imageAlt, language)}
+            className={cx('aspect-[1672/941] w-full max-w-[34rem] object-contain', themeClasses.radius.card)}
+            loading="lazy"
+          />
+        </figure>
+      </section>
+
+      <section className={getTheoryTileClass(themeClasses)}>
+        <div className={cx('mb-3 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
+          {strings.coreIdea}
+        </div>
+        <div className="grid gap-3">
+          {extra.body.map((paragraph) => (
+            <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
+              {text(paragraph, language)}
+            </p>
+          ))}
+        </div>
+        {noteText && (
+          <div className={cx('mt-4 flex gap-3 rounded-lg px-3 py-2.5 text-sm leading-6', themeClasses.sectionAccent.note)}>
+            <Info className="mt-1 h-4 w-4 shrink-0" strokeWidth={2.1} aria-hidden="true" />
+            <p>{noteText}</p>
+          </div>
+        )}
+      </section>
+
+      {extra.tokenExample && (
+        <>
+          <TokenExampleBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} />
+          <SpecialTokenBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function TokenExampleBlock({ example, language, themeClasses }: {
+  example: NonNullable<Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>['tokenExample']>;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  return (
+    <section className={cx(getConceptTileClass(themeClasses), 'gap-4')}>
+      <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
+        {text(example.title, language)}
+      </div>
+
+      <div className="grid gap-3">
+        {example.variants.map((variant) => (
+          <TokenExampleGroup key={text(variant.label, language)} item={variant} language={language} themeClasses={themeClasses} />
+        ))}
+      </div>
+
+      <div className="grid gap-2">
+        {example.notes.map((note) => (
+          <div key={text(note, language)} className={cx('flex gap-2 text-sm font-semibold leading-6', themeClasses.bodyText)}>
+            <Info className={cx('mt-1 h-4 w-4 shrink-0', themeClasses.accentText)} strokeWidth={2.1} aria-hidden="true" />
+            <p>{text(note, language)}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SpecialTokenBlock({ example, language, themeClasses }: {
+  example: NonNullable<Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>['tokenExample']>;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  return (
+    <section className={cx(getConceptTileClass(themeClasses), 'gap-4')}>
+      <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
+        {text(example.specialTitle, language)}
+      </div>
+
+      <div className="grid gap-3">
+        {example.specialCases.map((item) => (
+          <TokenExampleGroup key={text(item.label, language)} item={item} language={language} themeClasses={themeClasses} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TokenExampleGroup({ item, language, themeClasses }: {
+  item: {
+    label: { en: string; vi: string };
+    tokens: string[];
+    description: { en: string; vi: string };
+  };
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  return (
+    <div className={cx('grid gap-3 rounded-lg border p-3', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
+      <div>
+        <div className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{text(item.label, language)}</div>
+        <p className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{text(item.description, language)}</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {item.tokens.map((token) => (
+          <span
+            key={`${text(item.label, language)}-${token}`}
+            className={cx('inline-flex min-h-8 items-center rounded-md border px-2.5 font-mono text-xs font-black', themeClasses.isLight ? 'border-[#2F6B55]/14 bg-[#EEF7F2] text-[#1F5A46]' : 'border-[#A6E8C1]/18 bg-[#A6E8C1]/10 text-[#A6E8C1]')}
+          >
+            {token}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function getConceptTileClass(themeClasses: ReturnType<typeof getLearningLabTheme>) {
+  return cx('grid min-h-[15rem] p-0', themeClasses.isLight ? 'text-[#123B68]' : 'text-[#F2F6FA]');
+}
+
+function getTheoryTileClass(themeClasses: ReturnType<typeof getLearningLabTheme>) {
+  return cx(
+    'grid min-h-[15rem] rounded-lg border p-4',
+    themeClasses.isLight ? 'border-[#205089]/12 bg-[#F8FAFC]' : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/6',
   );
 }

@@ -1,4 +1,4 @@
-import { ChevronDown, Search, X } from 'lucide-react';
+import { ChevronDown, PanelLeftClose, Search, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
 import type { LearningLesson, LearningTrack } from '../../../core/learning/types';
@@ -15,18 +15,20 @@ export type FilteredLearningLessonGroup = {
   totalLessonCount: number;
 };
 
-type LessonRailProps = {
+export type LessonRailProps = {
   groups: FilteredLearningLessonGroup[];
   collapsedTrackIds: Set<string>;
+  completedLessonIds: Set<string>;
   isFiltered: boolean;
   language: Language;
   lessonIndexById: Map<string, number>;
   searchQuery: string;
   selectedLesson: LearningLesson;
-  selectedLessonIndex: number;
   selectedFilter: LessonRailFilter;
   theme: LearningLabTheme;
+  isRailOpen?: boolean;
   onClearSearch: () => void;
+  onToggleRail?: () => void;
   onSearchChange: (value: string) => void;
   onSelectFilter: (filter: LessonRailFilter) => void;
   onSelectLesson: (lessonId: string) => void;
@@ -38,15 +40,17 @@ const LESSON_RAIL_FILTERS: LessonRailFilter[] = ['all', 'ready', 'locked', 'prac
 export default function LessonRail({
   groups,
   collapsedTrackIds,
+  completedLessonIds,
   isFiltered,
   language,
   lessonIndexById,
   searchQuery,
   selectedLesson,
-  selectedLessonIndex,
   selectedFilter,
   theme,
+  isRailOpen,
   onClearSearch,
+  onToggleRail,
   onSearchChange,
   onSelectFilter,
   onSelectLesson,
@@ -56,7 +60,7 @@ export default function LessonRail({
   const themeClasses = getLearningLabTheme(theme);
 
   return (
-    <aside className="flex max-h-full justify-center overflow-auto pr-1">
+    <aside className="custom-scrollbar learning-lab-scrollbar flex max-h-full justify-center overflow-auto pr-1">
       <div className="grid w-full max-w-[280px] content-start gap-4">
         <div
           className={cx(
@@ -64,33 +68,47 @@ export default function LessonRail({
             themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12',
           )}
         >
-          <div
-            className={cx(
-              'flex h-11 items-center gap-2 border px-3 shadow-[0_6px_16px_rgba(18,59,104,0.06)]',
-              themeClasses.radius.button,
-              themeClasses.isLight
-                ? 'border-[#205089]/14 bg-white/68 text-[#123B68]'
-                : 'border-[#A8B8C8]/18 bg-[#172232]/72 text-[#F2F6FA]/82',
-            )}
-          >
-            <Search className="h-4 w-4 shrink-0 opacity-70" strokeWidth={2} aria-hidden="true" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(event) => onSearchChange(event.target.value)}
-              className="learning-lab-rail-search-input min-w-0 flex-1 bg-transparent text-sm font-bold outline-none placeholder:text-current placeholder:opacity-50"
-              placeholder={strings.lessonSearchPlaceholder}
-              aria-label={strings.lessonSearchPlaceholder}
-            />
-            {searchQuery ? (
+          <div className="flex min-w-0 items-center gap-2">
+            <div
+              className={cx(
+                'flex h-11 min-w-0 flex-1 items-center gap-2 border px-3 shadow-[0_6px_16px_rgba(18,59,104,0.06)]',
+                themeClasses.radius.button,
+                themeClasses.isLight
+                  ? 'border-[#205089]/14 bg-white/68 text-[#123B68]'
+                  : 'border-[#A8B8C8]/18 bg-[#172232]/72 text-[#F2F6FA]/82',
+              )}
+            >
+              <Search className="h-4 w-4 shrink-0 opacity-70" strokeWidth={2} aria-hidden="true" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => onSearchChange(event.target.value)}
+                className="learning-lab-rail-search-input min-w-0 flex-1 bg-transparent text-sm font-bold outline-none placeholder:text-current placeholder:opacity-50"
+                placeholder={strings.lessonSearchPlaceholder}
+                aria-label={strings.lessonSearchPlaceholder}
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={onClearSearch}
+                  className={cx('flex h-7 w-7 shrink-0 items-center justify-center transition-colors', themeClasses.radius.icon, getRailIconButtonClass(themeClasses))}
+                  title={strings.clearLessonSearch}
+                  aria-label={strings.clearLessonSearch}
+                >
+                  <X className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                </button>
+              ) : null}
+            </div>
+            {onToggleRail ? (
               <button
                 type="button"
-                onClick={onClearSearch}
-                className={cx('flex h-7 w-7 shrink-0 items-center justify-center transition-colors', themeClasses.radius.icon, getRailIconButtonClass(themeClasses))}
-                title={strings.clearLessonSearch}
-                aria-label={strings.clearLessonSearch}
+                onClick={onToggleRail}
+                className={themeClasses.rail.railToggleButton}
+                title={strings.lessonRailCloseLabel}
+                aria-label={strings.lessonRailCloseLabel}
+                aria-expanded={isRailOpen}
               >
-                <X className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                <PanelLeftClose className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
               </button>
             ) : null}
           </div>
@@ -121,6 +139,7 @@ export default function LessonRail({
 
         {groups.map(({ track, lessons, totalLessonCount }) => {
           const isCollapsed = collapsedTrackIds.has(track.id);
+          const isCurrentTrack = track.id === selectedLesson.trackId;
           return (
             <div key={track.id} className="grid gap-1.5">
               <button
@@ -128,13 +147,23 @@ export default function LessonRail({
                 onClick={() => onToggleTrack(track.id)}
                 aria-expanded={!isCollapsed}
                 className={cx(
-                  '-ml-1 flex w-full items-center gap-2 px-0.5 text-left text-[17px] font-black leading-7 transition-colors',
+                  'group -ml-1 flex w-full items-center gap-2 px-0.5 text-left text-[17px] font-black leading-7 transition-colors duration-200',
                   themeClasses.focusRing,
-                  themeClasses.isLight ? 'text-[#123B68] hover:text-[#0E2F55]' : 'text-[#D8E3EC] hover:text-[#F2F6FA]',
+                  themeClasses.rail.trackHeading(isCurrentTrack),
                 )}
               >
-                <ChevronDown className={cx('h-5 w-5 shrink-0 transition-transform', isCollapsed && '-rotate-90')} strokeWidth={2.5} aria-hidden="true" />
-                <span className="min-w-0">{getTrackText(language, track).title}</span>
+                <ChevronDown
+                  className={cx(
+                    'h-5 w-5 shrink-0 transition-transform duration-200',
+                    isCollapsed && '-rotate-90',
+                    !isCurrentTrack && 'opacity-60',
+                  )}
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+                <span className={cx('min-w-0', themeClasses.rail.trackTitle(isCurrentTrack))}>
+                  {getTrackText(language, track).title}
+                </span>
                 {isFiltered ? (
                   <span className={getRailCountClass(themeClasses)}>
                     {strings.lessonFilterCount(lessons.length, totalLessonCount)}
@@ -150,9 +179,10 @@ export default function LessonRail({
                         key={lesson.id}
                         lesson={lesson}
                         index={index}
-                        isCompleted={selectedLessonIndex > index}
+                        isCompleted={completedLessonIds.has(lesson.id)}
                         isLast={lessonIndex === lessons.length - 1}
                         isSelected={lesson.id === selectedLesson.id}
+                        isTrackActive={isCurrentTrack}
                         language={language}
                         theme={theme}
                         onSelect={onSelectLesson}
