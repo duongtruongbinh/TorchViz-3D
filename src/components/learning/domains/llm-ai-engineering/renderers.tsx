@@ -37,7 +37,7 @@ function MotivationBlock({ extra, language, themeClasses }: {
     <div className="overflow-hidden">
       <div className="grid gap-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         <div className="min-w-0">
-          <div className="grid max-w-[70ch] gap-3">
+          <div className="grid w-full gap-3">
             {intro.map((paragraph) => (
               <p key={paragraph} className={cx('text-sm leading-7', themeClasses.bodyText)}>
                 {paragraph}
@@ -74,7 +74,7 @@ function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
   const targetRows = hierarchy.rows.filter((row) => row.depth === 'target');
 
   return (
-    <div className="mt-5 grid max-w-[70ch] gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
+    <div className="mt-5 grid w-full gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
       {leadingRows.map((row) => (
         <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
       ))}
@@ -183,7 +183,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
         </figure>
 
         <div className="min-w-0">
-          <div className="grid max-w-[72ch] gap-3">
+          <div className="grid w-full gap-3">
             {extra.body.map((paragraph) => (
               <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
                 {text(paragraph, language)}
@@ -224,7 +224,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           </div>
 
           {selectedOption && (
-            <div ref={optionFeedbackRef} className={cx('mx-auto flex max-w-[64ch] gap-2 text-left text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
+            <div ref={optionFeedbackRef} className={cx('flex w-full gap-2 text-left text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
               {selectedOption.isCorrect ? (
                 <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
               ) : (
@@ -267,7 +267,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
             {text(sentenceBuilder.title, language)}
           </div>
 
-          <div className={cx('mx-auto grid w-full max-w-[76ch] grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-transparent text-[#030509]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
+          <div className={cx('grid w-full grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-transparent text-[#030509]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
             <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
               <span>{text(sentenceBuilder.prompt, language)}</span>
               {selectedWords.length ? (
@@ -334,7 +334,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           </div>
 
           {(isSentenceComplete || isSentenceOffTrack) && (
-            <div ref={sentenceFeedbackRef} className={cx('mx-auto flex max-w-[64ch] gap-2 text-left text-sm leading-6', isSentenceComplete ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
+            <div ref={sentenceFeedbackRef} className={cx('flex w-full gap-2 text-left text-sm leading-6', isSentenceComplete ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
               {isSentenceComplete ? (
                 <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
               ) : (

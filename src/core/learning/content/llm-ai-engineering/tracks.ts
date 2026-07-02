@@ -17,16 +17,13 @@ export const chapters: LearningChapterSeed[] = [
       ),
       lessonSeed(
         'llm-component-checkpoint-quiz',
-        'Component checkpoint quiz',
-        'Quiz kiểm tra thành phần',
+        'Roadmap checkpoint quiz',
+        'Quiz kiểm tra roadmap',
         [
-          'Bài kiểm tra này dùng để xác nhận bạn đã đặt đúng vai trò của từng thành phần trước khi viết code. Một lỗi rất phổ biến khi học LLM from scratch là nhớ tên các module, nhưng không biết tensor nào đi vào đâu và tensor nào được so với target.',
-          'Hãy tự vẽ chuỗi xử lý cho một câu ngắn: text -> token ids -> token embedding + positional embedding -> nhiều GPT block -> logits -> cross-entropy loss. Ở mỗi mũi tên, hãy ghi shape dự kiến bằng ký hiệu batch, sequence length, vocab size, và embedding dimension.',
-          'Câu hỏi lý thuyết đầu tiên: vì sao output cuối của model là logits trên toàn vocabulary, chứ không phải trực tiếp là một chữ hoặc một token? Câu trả lời đúng phải nhắc đến việc softmax và loss cần một điểm số cho từng token ứng viên.',
-          'Câu hỏi thứ hai: causal mask nằm ở đâu trong pipeline? Nó không thuộc tokenizer và cũng không thuộc loss; nó nằm trong attention score trước softmax để mỗi vị trí không nhìn thấy token tương lai.',
-          'Câu hỏi thứ ba: nếu context window dài 8, batch size là 4, vocab size là 1000, model dimension là 64, logits cuối cùng nên có shape nào? Nếu bạn trả lời được `(4, 8, 1000)` và giải thích vì sao không phải `(4, 8, 64)`, bạn đã sẵn sàng sang skeleton code.',
+          'Bài quiz này kiểm tra lại các ý nền tảng vừa học: AI, ML, DL, CV, NLP, LLM nằm trong cùng một bản đồ khái niệm như thế nào; LLM học bằng objective nào; token là gì; và vì sao chữ Large chủ yếu nói về scale.',
+          'Mục tiêu không phải là thuộc lòng định nghĩa. Mục tiêu là nhìn một câu hỏi về LLM và biết nó đang hỏi về phạm vi lĩnh vực, đơn vị dữ liệu, objective học, hay quy mô training.',
         ],
-        ['theory', 'calculation'],
+        ['theory'],
         'available',
       ),
       lessonSeed(

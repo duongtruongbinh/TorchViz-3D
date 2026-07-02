@@ -18,12 +18,12 @@ export type FilteredLearningLessonGroup = {
 type LessonRailProps = {
   groups: FilteredLearningLessonGroup[];
   collapsedTrackIds: Set<string>;
+  completedLessonIds: Set<string>;
   isFiltered: boolean;
   language: Language;
   lessonIndexById: Map<string, number>;
   searchQuery: string;
   selectedLesson: LearningLesson;
-  selectedLessonIndex: number;
   selectedFilter: LessonRailFilter;
   theme: LearningLabTheme;
   onClearSearch: () => void;
@@ -38,12 +38,12 @@ const LESSON_RAIL_FILTERS: LessonRailFilter[] = ['all', 'ready', 'locked', 'prac
 export default function LessonRail({
   groups,
   collapsedTrackIds,
+  completedLessonIds,
   isFiltered,
   language,
   lessonIndexById,
   searchQuery,
   selectedLesson,
-  selectedLessonIndex,
   selectedFilter,
   theme,
   onClearSearch,
@@ -161,7 +161,7 @@ export default function LessonRail({
                         key={lesson.id}
                         lesson={lesson}
                         index={index}
-                        isCompleted={selectedLessonIndex > index}
+                        isCompleted={completedLessonIds.has(lesson.id)}
                         isLast={lessonIndex === lessons.length - 1}
                         isSelected={lesson.id === selectedLesson.id}
                         isTrackActive={isCurrentTrack}

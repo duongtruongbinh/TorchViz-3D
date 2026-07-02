@@ -243,6 +243,8 @@ const localizedText = {
     },
     lessonPreviousSection: { en: 'Back', vi: 'Quay lại' },
     lessonNextSection: { en: 'Next', vi: 'Tiếp theo' },
+    lessonCompleteAndContinue: { en: 'Too easy!', vi: 'Quá dễ!' },
+    lessonScrollToContinue: { en: 'Scroll to the bottom to continue.', vi: 'Cuộn xuống cuối trang để tiếp tục.' },
     clearLessonSearch: { en: 'Clear lesson search', vi: 'Xóa tìm kiếm bài học' },
     lessonFilterEmpty: { en: 'No lessons match this filter.', vi: 'Không có bài học khớp bộ lọc.' },
     domains: {

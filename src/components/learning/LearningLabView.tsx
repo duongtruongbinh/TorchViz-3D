@@ -63,6 +63,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [collapsedChapters, setCollapsedChapters] = useState<Set<string>>(() => new Set());
   const [lessonSearchQuery, setLessonSearchQuery] = useState('');
   const [lessonRailFilter, setLessonRailFilter] = useState<LessonRailFilter>('all');
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(() => new Set());
   const [, startLessonTransition] = useTransition();
 
   const strings = getStrings(language).learningLab;
@@ -105,7 +106,8 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     isLessonRailFiltered,
     firstDomainLesson: domainLessons[0] ?? null,
   });
-  const selectedLessonIndex = railSelectedLesson ? lessonIndexById.get(railSelectedLesson.id) ?? -1 : -1;
+  const detailLessonIndex = selectedLesson ? lessonIndexById.get(selectedLesson.id) ?? -1 : -1;
+  const nextLesson = detailLessonIndex >= 0 ? domainLessons[detailLessonIndex + 1] ?? null : null;
 
   useEffect(() => {
     setCollapsedChapters(new Set());
@@ -333,13 +335,13 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               <LessonRail
                 groups={filteredGroupedDomainLessons}
                 collapsedTrackIds={collapsedChapters}
+                completedLessonIds={completedLessonIds}
                 isFiltered={isLessonRailFiltered}
                 language={language}
                 lessonIndexById={lessonIndexById}
                 searchQuery={lessonSearchQuery}
                 selectedFilter={lessonRailFilter}
                 selectedLesson={railSelectedLesson}
-                selectedLessonIndex={selectedLessonIndex}
                 theme={theme}
                 onClearSearch={() => setLessonSearchQuery('')}
                 onSearchChange={setLessonSearchQuery}
@@ -353,6 +355,16 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   theme={theme}
                   language={language}
                   selectedPracticeId={routePracticeId}
+                  hasNextLesson={Boolean(nextLesson)}
+                  onSelectNextLesson={() => {
+                    if (!nextLesson) return;
+                    setCompletedLessonIds((current) => {
+                      const next = new Set(current);
+                      next.add(selectedLesson.id);
+                      return next;
+                    });
+                    selectLesson(nextLesson.id);
+                  }}
                 />
               ) : (
                 <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>

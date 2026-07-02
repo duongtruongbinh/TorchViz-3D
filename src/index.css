@@ -464,27 +464,30 @@ body {
   --surface-elevated: rgba(255, 255, 255, 0.9);
   --border: rgba(148, 163, 184, 0.52);
   --text-muted: #475569;
+  --learning-lab-surface-page: #ffffff;
+  --learning-lab-surface-content: rgba(255, 255, 255, 0.88);
+  --learning-lab-surface-elevated: rgba(255, 255, 255, 0.88);
+  --learning-lab-border-soft: rgba(148, 163, 184, 0.45);
+  --learning-lab-shadow-elevated: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
 .learning-lab-light.learning-exercise-modal-root {
   background-color: rgba(15, 23, 42, 0.28);
 }
 
-.learning-lab-light header,
-.learning-lab-light article,
-.learning-lab-light aside,
-.learning-lab-light section,
-.learning-lab-light [class*="bg-[#080b10]"],
-.learning-lab-light [class*="bg-zinc-950"],
-.learning-lab-light [class*="bg-zinc-900"],
-.learning-lab-light [class*="bg-black"] {
-  border-color: rgba(148, 163, 184, 0.45);
-  background-color: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+.learning-lab-light .learning-lab-surface-elevated {
+  border-color: var(--learning-lab-border-soft);
+  background-color: var(--learning-lab-surface-elevated);
+  box-shadow: var(--learning-lab-shadow-elevated);
+}
+
+.learning-lab-light .learning-lab-surface-content {
+  background-color: var(--learning-lab-surface-content);
+  box-shadow: none;
 }
 
 .learning-lab-light .learning-lab-content-area {
-  background-color: rgba(255, 255, 255, 0.88);
+  background-color: var(--learning-lab-surface-content);
   box-shadow: none;
 }
 
@@ -501,6 +504,11 @@ body {
 
 .learning-lab .learning-lab-lesson-title {
   color: var(--learning-lab-lesson-title);
+}
+
+.learning-lab-light .learning-lab-lesson-page-section {
+  background-color: var(--learning-lab-surface-page);
+  box-shadow: none;
 }
 
 .learning-lab-scrollbar {
@@ -535,8 +543,7 @@ body {
 }
 
 .learning-lab-light .learning-lab-catalog > aside,
-.learning-lab-light .learning-lab-catalog > aside > div,
-.learning-lab-light .learning-lab-catalog > aside button {
+.learning-lab-light .learning-lab-catalog > aside > div {
   background-color: transparent;
   box-shadow: none;
 }
@@ -675,14 +682,6 @@ body {
 
 .learning-lab-light .learning-lab-lesson-node-current {
   color: #ffffff;
-}
-
-.learning-lab-light button {
-  color: #1e293b;
-}
-
-.learning-lab-light button:hover {
-  color: #0f172a;
 }
 
 @media (max-height: 820px), (max-width: 1280px) {

@@ -1,4 +1,7 @@
-const APPROVED_LESSON_IDS = new Set<string>(['llm-from-scratch-roadmap']);
+const APPROVED_LESSON_IDS = new Set<string>([
+  'llm-from-scratch-roadmap',
+  'llm-component-checkpoint-quiz',
+]);
 
 export function isApprovedLesson(lessonId: string): boolean {
   return APPROVED_LESSON_IDS.has(lessonId);

@@ -94,6 +94,86 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       links: LLM_AI_ENGINEERING_REFERENCE_LINKS.map(({ label, href }) => [label, href]),
     }),
   ],
+  'llm-component-checkpoint-quiz': [
+    quiz('llm-roadmap-checkpoint-quiz', 'llm-component-checkpoint-quiz', 'Quiz kiểm tra nhanh', [
+      {
+        id: 'ai-hierarchy-order',
+        title: 'Sắp xếp theo level',
+        prompt: 'AI, ML, DL, CV, NLP, LLM quan hệ với nhau như thế nào?',
+        mode: 'order',
+        options: [
+          ['ai', 'AI'],
+          ['ml', 'ML'],
+          ['dl', 'DL'],
+          ['cv-nlp', 'CV / NLP'],
+          ['llm', 'LLM'],
+        ],
+        correctOrder: ['ai', 'ml', 'dl', 'cv-nlp', 'llm'],
+        success: 'Đúng rồi. AI là phạm vi rộng nhất, ML nằm trong AI, DL nằm trong ML, CV và NLP là hai nhánh dưới DL, còn LLM nằm sâu trong NLP.',
+        error: 'Chưa đúng thứ tự. Hãy đi từ phạm vi rộng nhất tới phần chuyên biệt nhất.',
+      },
+      {
+        id: 'llm-learning-objective',
+        title: 'Chọn một đáp án',
+        prompt: 'LLM học bằng cách nào?',
+        mode: 'single',
+        options: [
+          ['next-token', 'Dự đoán token tiếp theo trong một chuỗi văn bản dựa trên dữ liệu đã thấy.', true],
+          ['image-label', 'Gán nhãn thủ công từng ảnh rồi học nhận diện vật thể.', false],
+          ['rules-only', 'Lưu một bộ luật ngữ pháp cố định và áp dụng nguyên văn.', false],
+          ['one-shot-answer', 'Tạo toàn bộ câu trả lời trong một lượt duy nhất mà không dự đoán từng bước.', false],
+        ],
+        success: 'Chính xác. Next-token prediction là objective nền tảng của LLM.',
+        error: 'Chưa đúng. Hãy nhớ LLM sinh câu trả lời bằng nhiều bước dự đoán token kế tiếp.',
+      },
+      {
+        id: 'valid-token-examples',
+        title: 'Chọn các token hợp lệ',
+        prompt: 'Token có thể là những loại đơn vị nào?',
+        mode: 'multi',
+        options: [
+          ['word', 'Một từ', true],
+          ['subword', 'Một phần của từ', true],
+          ['punctuation', 'Dấu câu', true],
+          ['special-symbol', 'Ký hiệu đặc biệt', true],
+          ['full-dataset', 'Toàn bộ tập dữ liệu huấn luyện', false],
+          ['gpu', 'Một GPU dùng để train model', false],
+        ],
+        success: 'Đúng. Token là đơn vị nhỏ model xử lý, không phải hạ tầng hay toàn bộ dataset.',
+        error: 'Chưa khớp. Token là đơn vị văn bản/ký hiệu nhỏ đi vào model.',
+      },
+      {
+        id: 'why-large',
+        title: 'Chọn tất cả ý đúng',
+        prompt: 'Vì sao LLM được gọi là "Large"?',
+        mode: 'multi',
+        options: [
+          ['params', 'Số tham số rất lớn, từ hàng trăm triệu tới hàng nghìn tỷ.', true],
+          ['data', 'Dữ liệu huấn luyện khổng lồ, có thể lên tới hàng trăm GB văn bản.', true],
+          ['compute', 'Thời gian huấn luyện dài trên nhiều GPU.', true],
+          ['always-correct', 'Vì model luôn trả lời đúng.', false],
+          ['only-long-output', 'Vì model chỉ tạo được câu trả lời rất dài.', false],
+        ],
+        success: 'Đúng rồi. Large nói về scale: parameters, data và compute.',
+        error: 'Chưa đủ. Hãy chọn các lý do liên quan tới quy mô tham số, dữ liệu và compute.',
+      },
+      {
+        id: 'pattern-learning-fill',
+        title: 'Chọn tất cả từ điền đúng',
+        prompt: 'Điền vào chỗ trống: "Sau 1000 lần luyện tập, model đã ___ được pattern."',
+        mode: 'multi',
+        options: [
+          ['learned', 'học', true],
+          ['noticed', 'nhận ra', true],
+          ['memorized', 'ghi nhớ', true],
+          ['deleted', 'xóa', false],
+          ['ignored', 'bỏ qua', false],
+        ],
+        success: 'Chuẩn. Cả "học", "nhận ra", và "ghi nhớ" đều diễn đạt được việc model bắt được pattern.',
+        error: 'Chưa đúng. Các đáp án hợp lý phải nói rằng model đã bắt được pattern.',
+      },
+    ]),
+  ],
 };
 
 function loc(en: string, vi = en) {
@@ -241,6 +321,43 @@ function conceptPanel(
       items: group[2].map((item) => ({ title: loc(item[0]), body: loc(item[1]) })),
     })),
     links: config.links?.map((link) => ({ label: loc(link[0]), href: link[1] })),
+  };
+}
+
+function quiz(
+  id: string,
+  sectionRefId: string,
+  title: string,
+  questions: Array<{
+    id: string;
+    title: string;
+    prompt: string;
+    mode: Extract<LearningLessonExtra, { kind: 'quiz' }>['questions'][number]['mode'];
+    options: Array<[string, string, boolean?]>;
+    correctOrder?: string[];
+    success: string;
+    error: string;
+  }>,
+): LearningLessonExtra {
+  return {
+    kind: 'quiz',
+    id,
+    sectionRefId,
+    title: loc(title),
+    questions: questions.map((question) => ({
+      id: question.id,
+      title: loc(question.title),
+      prompt: loc(question.prompt),
+      mode: question.mode,
+      options: question.options.map(([optionId, label, isCorrect]) => ({
+        id: optionId,
+        label: loc(label),
+        isCorrect,
+      })),
+      correctOrder: question.correctOrder,
+      success: loc(question.success),
+      error: loc(question.error),
+    })),
   };
 }
 

@@ -162,6 +162,26 @@ export type LearningLessonExtra =
         label: LearningLocalizedText;
         href: string;
       }>;
+    }
+  | {
+      kind: 'quiz';
+      id: string;
+      sectionRefId?: string;
+      title: LearningLocalizedText;
+      questions: Array<{
+        id: string;
+        title: LearningLocalizedText;
+        prompt: LearningLocalizedText;
+        mode: 'order' | 'single' | 'multi';
+        options: Array<{
+          id: string;
+          label: LearningLocalizedText;
+          isCorrect?: boolean;
+        }>;
+        correctOrder?: string[];
+        success: LearningLocalizedText;
+        error: LearningLocalizedText;
+      }>;
     };
 
 export type LearningLesson = {
