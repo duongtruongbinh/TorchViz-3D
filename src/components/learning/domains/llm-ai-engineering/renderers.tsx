@@ -1,5 +1,5 @@
 import { Angry, CheckCircle2, Info, MousePointer2, RotateCcw, Sparkles, X } from 'lucide-react';
-import { useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import type { LearningLessonExtra } from '../../../../core/learning/types';
 import type { Language } from '../../../../lib/localization';
 import { cx, getLearningLabTheme } from '../../theme';
@@ -154,25 +154,35 @@ function ConceptInteraction({ extra, language, themeClasses }: {
   const isSentenceComplete = matchingTargets.some((target) => selectedWords.length === target.length);
   const isSentenceOffTrack = sentenceBuilder ? selectedWords.length > 0 && matchingTargets.length === 0 : false;
   const firstViableTarget = matchingTargets[0] ?? targetSentences[0] ?? [];
+  const optionFeedbackRef = useRef<HTMLDivElement | null>(null);
+  const sentenceFeedbackRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!selectedOption) return;
+    optionFeedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [selectedOption]);
+
+  useEffect(() => {
+    if (!isSentenceComplete && !isSentenceOffTrack) return;
+    sentenceFeedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [isSentenceComplete, isSentenceOffTrack]);
 
   return (
     <div className="py-1">
-      <div className="grid gap-5 lg:grid-cols-[minmax(16rem,0.72fr)_minmax(0,1fr)]">
-        <figure className="min-w-0">
+      <div className={cx('mb-3 text-left text-lg font-black uppercase leading-7 tracking-wide md:text-xl', themeClasses.eyebrowText)}>
+        {text(extra.title, language)}
+      </div>
+      <div className="grid gap-4 lg:grid-cols-[minmax(16rem,0.72fr)_minmax(0,1fr)]">
+        <figure className="min-w-0 overflow-hidden">
           <img
             src={getLearningAssetUrl(extra.image)}
             alt={text(extra.imageAlt, language)}
-            className={cx('aspect-[1672/941] w-full object-contain', themeClasses.radius.card)}
+            className={cx('aspect-[1672/941] w-full -translate-y-6 scale-[1.04] object-contain', themeClasses.radius.card)}
             loading="lazy"
           />
         </figure>
 
         <div className="min-w-0">
-          <div className={cx('mb-3 flex items-center gap-2 text-sm font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-            <MousePointer2 className="h-4 w-4" aria-hidden="true" />
-            <span>{text(extra.title, language)}</span>
-          </div>
-
           <div className="grid max-w-[72ch] gap-3">
             {extra.body.map((paragraph) => (
               <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
@@ -182,7 +192,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           </div>
 
           {noteText && (
-            <div className={cx('mt-4 flex gap-3 rounded-lg px-3 py-3 text-sm leading-6', themeClasses.isLight ? 'bg-[#205089]/8 text-[#123B68]' : 'bg-[#9ED0FF]/10 text-[#D7EAFE]')}>
+            <div className={cx('mt-3 flex gap-3 rounded-lg px-3 py-2.5 text-sm leading-6', themeClasses.sectionAccent.note)}>
               <Info className="mt-1 h-4 w-4 shrink-0" strokeWidth={2.1} aria-hidden="true" />
               <p>{noteText}</p>
             </div>
@@ -190,8 +200,8 @@ function ConceptInteraction({ extra, language, themeClasses }: {
         </div>
       </div>
 
-      <div className={cx('mt-5 grid gap-4 rounded-lg border p-4 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-[#B8C8DA]/18' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7')}>
-        <div className="grid justify-items-center gap-3">
+      <div className={cx('mt-4 grid gap-3 rounded-lg border p-3 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7')}>
+        <div className="grid justify-items-center gap-2.5">
           <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
             <Sparkles className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
             {text(labels.chooseNextToken, language)}
@@ -214,7 +224,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           </div>
 
           {selectedOption && (
-            <div className={cx('mx-auto flex max-w-[64ch] gap-2 text-left text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
+            <div ref={optionFeedbackRef} className={cx('mx-auto flex max-w-[64ch] gap-2 text-left text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
               {selectedOption.isCorrect ? (
                 <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
               ) : (
@@ -225,7 +235,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           )}
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2" aria-label={text(extra.blankLabel, language)}>
+        <div className="flex flex-wrap justify-center gap-1.5" aria-label={text(extra.blankLabel, language)}>
           {extra.options.map((option, index) => {
             const isSelected = selectedIndex === index;
             const isCorrect = Boolean(option.isCorrect);
@@ -251,13 +261,13 @@ function ConceptInteraction({ extra, language, themeClasses }: {
       </div>
 
       {sentenceBuilder && (
-        <div className={cx('mt-4 grid gap-4 rounded-lg border p-4 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-[#B8C8DA]/14' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/6')}>
+        <div className={cx('mt-3 grid gap-3 rounded-lg border p-3 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/6')}>
           <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
             <MousePointer2 className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
             {text(sentenceBuilder.title, language)}
           </div>
 
-          <div className={cx('mx-auto grid w-full max-w-[76ch] grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-3 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-white/62 text-[#030509]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
+          <div className={cx('mx-auto grid w-full max-w-[76ch] grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-transparent text-[#030509]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
             <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
               <span>{text(sentenceBuilder.prompt, language)}</span>
               {selectedWords.length ? (
@@ -291,7 +301,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
             </button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-1.5">
             {sentenceBuilder.choices.map((choice, index) => {
               const isUsed = selectedWordIndexes.includes(index);
               return (
@@ -311,7 +321,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
             })}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-1.5">
             <button
               type="button"
               onClick={() => setSelectedWordIndexes([])}
@@ -324,7 +334,7 @@ function ConceptInteraction({ extra, language, themeClasses }: {
           </div>
 
           {(isSentenceComplete || isSentenceOffTrack) && (
-            <div className={cx('mx-auto flex max-w-[64ch] gap-2 text-left text-sm leading-6', isSentenceComplete ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
+            <div ref={sentenceFeedbackRef} className={cx('mx-auto flex max-w-[64ch] gap-2 text-left text-sm leading-6', isSentenceComplete ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
               {isSentenceComplete ? (
                 <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
               ) : (

@@ -21,6 +21,7 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       [
         'Khi bạn đặt câu hỏi với ChatGPT, bản chất là bạn đang đưa cho một mô hình LLM một đoạn văn bản mở đầu và nó sẽ dự đoán xem tiếp theo nên trả lời cho bạn như thế nào.',
         'LLM, viết tắt của Large Language Model, là một mô hình được huấn luyện để dự đoán token tiếp theo trong một chuỗi. Token có thể là một từ, một phần của từ, dấu câu, hoặc ký hiệu đặc biệt. Quá trình này lặp đi lặp lại nhiều lần cho đến khi mô hình tạo ra một câu, một đoạn văn, hoặc một câu trả lời hoàn chỉnh.',
+        'Điểm quan trọng là LLM không tạo ra câu trả lời trong một lượt duy nhất. Các từ sẽ xuất hiện lần lượt: mô hình nhìn vào toàn bộ ngữ cảnh đã có, chọn token tiếp theo có xác suất phù hợp, ghép token đó vào câu, rồi dùng câu mới làm ngữ cảnh cho bước tiếp theo.',
       ],
       '',
       'Hình minh họa LLM nhận prompt, dự đoán token tiếp theo, rồi lặp lại để tạo câu trả lời. Hình ảnh sẽ được bổ sung sau.',

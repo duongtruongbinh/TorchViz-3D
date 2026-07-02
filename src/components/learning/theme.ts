@@ -153,12 +153,21 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     },
   };
 
+  const sectionAccent = {
+    section: isLight
+      ? '[--learning-lab-section-accent-bg:rgba(255,255,255,0.88)] [--learning-lab-section-accent-text:#030509] shadow-none'
+      : '[--learning-lab-section-accent-bg:#17304A] [--learning-lab-section-accent-text:#F2F6FA] shadow-none',
+    heading: isLight ? 'text-[#123B68]' : 'text-[#A8D4FF]',
+    note: isLight ? 'bg-[#205089]/8 text-[#123B68]' : 'bg-[#A8D4FF]/10 text-[#D7EAFE]',
+  };
+
   return {
     isLight,
     radius,
     surface,
     button,
     rail,
+    sectionAccent,
     page: isLight ? 'learning-lab-light bg-[#D3DEEA] text-[#030509]' : 'bg-[#121A24] text-[#F2F6FA]',
     content: isLight ? 'bg-[#D3DEEA]' : 'bg-[#121A24]',
     sidebar: isLight
@@ -173,6 +182,8 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     backLink: isLight ? 'text-[#5F6B7A]' : 'text-[#9AA6B2]',
     bodyText: isLight ? 'text-[#030509]/72' : 'text-[#F2F6FA]/78',
     titleText: isLight ? 'text-[#030509]' : 'text-[#F4EFE6]',
+    lessonTitleText: isLight ? '[--learning-lab-lesson-title:#1F5F5B]' : '[--learning-lab-lesson-title:#D8E3EC]',
+    lessonPageViewport: isLight ? 'bg-white/88' : 'bg-[#172232]',
     eyebrowText: isLight ? 'text-[#123B68]' : 'text-[#A8B8C8]',
     iconTile: isLight ? 'bg-[#B8C8DA]/70 text-[#123B68]' : 'bg-[#496F98]/32 text-[#F2F6FA]',
     focusRing,

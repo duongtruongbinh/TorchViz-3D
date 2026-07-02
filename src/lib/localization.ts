@@ -237,6 +237,12 @@ const localizedText = {
       en: (first: number, second: number) => `${first}/${second}`,
       vi: (first: number, second: number) => `${first}/${second}`,
     },
+    lessonStepCount: {
+      en: (first: number, second: number) => `${first} / ${second}`,
+      vi: (first: number, second: number) => `${first} / ${second}`,
+    },
+    lessonPreviousSection: { en: 'Back', vi: 'Quay lại' },
+    lessonNextSection: { en: 'Next', vi: 'Tiếp theo' },
     clearLessonSearch: { en: 'Clear lesson search', vi: 'Xóa tìm kiếm bài học' },
     lessonFilterEmpty: { en: 'No lessons match this filter.', vi: 'Không có bài học khớp bộ lọc.' },
     domains: {

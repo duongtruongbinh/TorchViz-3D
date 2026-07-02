@@ -329,7 +329,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               {strings.contentInProgress}
             </div>
           ) : activeTrack && railSelectedLesson ? (
-            <section className="learning-lab-catalog -m-4 grid min-h-full w-[calc(100%+2rem)] gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+            <section className="learning-lab-catalog -m-4 grid h-full min-h-0 w-[calc(100%+2rem)] gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)]">
               <LessonRail
                 groups={filteredGroupedDomainLessons}
                 collapsedTrackIds={collapsedChapters}
