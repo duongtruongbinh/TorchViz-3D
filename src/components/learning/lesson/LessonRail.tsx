@@ -60,7 +60,7 @@ export default function LessonRail({
   const themeClasses = getLearningLabTheme(theme);
 
   return (
-    <aside className="learning-lab-scrollbar flex max-h-full justify-center overflow-auto pr-1">
+    <aside className="custom-scrollbar learning-lab-scrollbar flex max-h-full justify-center overflow-auto pr-1">
       <div className="grid w-full max-w-[280px] content-start gap-4">
         <div
           className={cx(

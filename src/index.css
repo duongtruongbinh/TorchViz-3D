@@ -532,34 +532,39 @@ body {
   }
 }
 
-.learning-lab-scrollbar {
+.learning-lab-scrollbar,
+.custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(71, 85, 105, 0.28) transparent;
+  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
 }
 
-.learning-lab-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+.learning-lab-scrollbar::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.learning-lab-scrollbar::-webkit-scrollbar-track {
+.learning-lab-scrollbar::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.learning-lab-scrollbar::-webkit-scrollbar-thumb {
+.learning-lab-scrollbar::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb {
   min-height: 48px;
   border: 2px solid transparent;
   border-radius: 999px;
-  background: rgba(71, 85, 105, 0.22);
+  background: rgba(148, 163, 184, 0.6);
   background-clip: padding-box;
 }
 
-.learning-lab-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(47, 111, 159, 0.38);
-  background-clip: padding-box;
+.learning-lab-scrollbar::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.8);
 }
 
-.learning-lab-scrollbar::-webkit-scrollbar-corner {
+.learning-lab-scrollbar::-webkit-scrollbar-corner,
+.custom-scrollbar::-webkit-scrollbar-corner {
   background: transparent;
 }
 

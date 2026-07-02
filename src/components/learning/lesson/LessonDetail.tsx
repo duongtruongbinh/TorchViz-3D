@@ -173,7 +173,7 @@ export default function LessonDetail({
       <div
         ref={pageViewportRef}
         onScroll={updateCurrentPageReadState}
-        className={cx('learning-lab-scrollbar grid min-h-0 min-w-0 overflow-y-auto overflow-x-hidden', themeClasses.lessonPageViewport)}
+        className={cx('custom-scrollbar learning-lab-scrollbar grid min-h-0 min-w-0 overflow-y-auto overflow-x-hidden', themeClasses.lessonPageViewport)}
       >
         {sectionPages[currentSectionPageIndex] ?? null}
       </div>

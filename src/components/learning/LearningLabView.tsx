@@ -262,7 +262,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : null}
         </div>
 
-        <nav className={isSidebarOpen ? 'flex-1 overflow-y-auto px-3 pb-5 pt-5' : 'flex-1 overflow-y-auto px-3 py-5'} aria-label={strings.sidebarDomains}>
+        <nav className={isSidebarOpen ? 'custom-scrollbar flex-1 overflow-y-auto px-3 pb-5 pt-5' : 'custom-scrollbar flex-1 overflow-y-auto px-3 py-5'} aria-label={strings.sidebarDomains}>
           <div className="grid gap-2">
             <button
               type="button"
