@@ -9,6 +9,7 @@ import {
   resolveLearningLessonRoute,
 } from '../../core/learning/selectors';
 import type { LearningDomainId } from '../../core/learning/types';
+import { resolveVisibleLearningLesson } from '../../core/learning/visibleLesson';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';
@@ -94,11 +95,17 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const firstFilteredLesson = filteredGroupedDomainLessons[0]?.lessons[0] ?? null;
   const filteredLessonIds = useMemo(() => new Set(filteredGroupedDomainLessons.flatMap((group) => group.lessons.map((lesson) => lesson.id))), [filteredGroupedDomainLessons]);
   const isLessonRailFiltered = lessonSearchQuery.trim().length > 0 || lessonRailFilter !== 'all';
-  const selectedLesson = routeSelectedLesson && (!isLessonRailFiltered || filteredLessonIds.has(routeSelectedLesson.id))
-    ? routeSelectedLesson
-    : firstFilteredLesson;
-  const railSelectedLesson = selectedLesson ?? routeSelectedLesson ?? domainLessons[0] ?? null;
-  const selectedLessonIndex = selectedLesson ? lessonIndexById.get(selectedLesson.id) ?? -1 : -1;
+  const {
+    detailLesson: selectedLesson,
+    railLesson: railSelectedLesson,
+  } = resolveVisibleLearningLesson({
+    routeSelectedLesson,
+    firstFilteredLesson,
+    filteredLessonIds,
+    isLessonRailFiltered,
+    firstDomainLesson: domainLessons[0] ?? null,
+  });
+  const selectedLessonIndex = railSelectedLesson ? lessonIndexById.get(railSelectedLesson.id) ?? -1 : -1;
 
   useEffect(() => {
     setCollapsedChapters(new Set());
@@ -113,19 +120,14 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   }, [navigate, resolvedRoute, routeDomainId]);
 
   useEffect(() => {
-    if (!routeDomainId || !selectedLesson || selectedLesson.id === routeSelectedLesson?.id) return;
-    navigate(`/learning/${routeDomainId}/${selectedLesson.trackId}?lesson=${selectedLesson.id}`, { replace: true });
-  }, [navigate, routeDomainId, routeSelectedLesson?.id, selectedLesson]);
-
-  useEffect(() => {
-    if (!selectedLesson) return;
+    if (!railSelectedLesson) return;
     setCollapsedChapters((current) => {
-      if (!current.has(selectedLesson.trackId)) return current;
+      if (!current.has(railSelectedLesson.trackId)) return current;
       const next = new Set(current);
-      next.delete(selectedLesson.trackId);
+      next.delete(railSelectedLesson.trackId);
       return next;
     });
-  }, [selectedLesson?.trackId]);
+  }, [railSelectedLesson?.trackId]);
 
   useEffect(() => {
     if (!routePracticeId || !selectedLesson?.practice.some((practice) => practice.id === routePracticeId)) return;

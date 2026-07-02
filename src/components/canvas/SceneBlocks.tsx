@@ -5,9 +5,10 @@ import * as THREE from 'three';
 import { LayoutNode, LayoutData } from '../../lib/irTypes';
 import { useStore } from '../../store/useStore';
 import { getStrings } from '../../lib/localization';
-import { getVisualMeta, getVisualKind, getActivationSubKind, type VisualKind } from '../../lib/visualKind';
+import { getVisualMeta, getActivationSubKind, type VisualKind } from '../../lib/visualKind';
 import { shouldRenderLeafCaption, type LabelMode } from '../../lib/labelMode';
 import { getRenderableNodeSize } from '../../lib/renderBounds';
+import { partitionLeavesForInstancing } from '../../lib/leafBatching';
 import { collectDemoStopNodes } from '../mnist-demo/demoStops';
 import { useHoverHold, HoverPanelHtml } from './HoverPanels';
 import {
@@ -159,35 +160,6 @@ function flattenLeaves(nodes: LayoutNode[], out: LayoutNode[] = []): LayoutNode[
     }
   }
   return out;
-}
-
-function groupLeavesByIdentity(leaves: LayoutNode[]): { batches: LayoutNode[][]; singles: LayoutNode[] } {
-  const map = new Map<string, LayoutNode[]>();
-  for (const n of leaves) {
-    const kind = getVisualKind(n.op_type);
-    const meta = getVisualMeta(n.op_type);
-    if (meta.specialGeometry) {
-      const arr = map.get(`__special_${n.id}`) ?? [];
-      arr.push(n);
-      map.set(`__special_${n.id}`, arr);
-      continue;
-    }
-    const { width: w, height: h, depth: d } = getRenderableNodeSize(n);
-    const key = `${kind}_${w.toFixed(2)}_${h.toFixed(2)}_${d.toFixed(2)}_${meta.color}`;
-    const arr = map.get(key) ?? [];
-    arr.push(n);
-    map.set(key, arr);
-  }
-  const batches: LayoutNode[][] = [];
-  const singles: LayoutNode[] = [];
-  for (const arr of map.values()) {
-    if (arr.length >= INSTANCED_BATCH_MIN) {
-      batches.push(arr);
-    } else {
-      singles.push(...arr);
-    }
-  }
-  return { batches, singles };
 }
 
 export const InstancedLeafGroup: React.FC<{
@@ -894,13 +866,20 @@ export const SceneWithInstancing: React.FC<{
     }
 
     const leaves = flattenLeaves(layout.nodes);
+    const { batches, singles } = partitionLeavesForInstancing(leaves, {
+      highlightedNodeId: highlightNodeId,
+      selectedNodeId,
+      activeNodeId,
+    }, INSTANCED_BATCH_MIN);
+
     return {
-      ...groupLeavesByIdentity(leaves),
+      batches,
+      singles,
       captionNodes: leaves,
       leafCount: leaves.length,
       visibleContainers: [],
     };
-  }, [layout, visibleNodeIds]);
+  }, [activeNodeId, highlightNodeId, layout, selectedNodeId, visibleNodeIds]);
 
   return (
     <group>

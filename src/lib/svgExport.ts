@@ -1,6 +1,7 @@
-import { LayoutData, LayoutNode, LayoutEdge } from './irTypes';
-import { getVisualMeta, getActivationSubKind, getLegendItems, computeFontSize } from './visualKind';
-import { collectRenderableNodes, getRenderableNodeBox, getRenderableNodeSize } from './renderBounds';
+import type { LayoutData, LayoutNode, LayoutEdge } from './irTypes.ts';
+import { getVisualMeta, getActivationSubKind, getLegendItems, computeFontSize } from './visualKind.ts';
+import { collectRenderableNodes, getRenderableNodeBox, getRenderableNodeSize } from './renderBounds.ts';
+import { getLayoutNodeBaseColor } from './nodeVisualStyle.ts';
 
 export interface SvgOptions {
   scale?: number;
@@ -142,7 +143,7 @@ function blockLabel(
 function renderStandardBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
   const { w, h, d } = getAdjustedDims(n);
-  const baseColor = meta.color;
+  const baseColor = getLayoutNodeBaseColor(n);
 
   let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
 
@@ -169,7 +170,7 @@ function renderStandardBlock(ctx: BlockCtx): string {
 function renderActivationBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
   const { w, h, d } = getAdjustedDims(n);
-  const baseColor = meta.color;
+  const baseColor = getLayoutNodeBaseColor(n);
 
   let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
 
@@ -187,7 +188,7 @@ function renderActivationBlock(ctx: BlockCtx): string {
 function renderTransformBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
   const { w, h, d } = getAdjustedDims(n);
-  const baseColor = meta.color;
+  const baseColor = getLayoutNodeBaseColor(n);
 
   let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
   svg += blockLabel(n.x, n.y, n.z, w, h, n.op_type, n.out_shape, s, lightBg, textScale, meta);
@@ -198,7 +199,7 @@ function renderTransformBlock(ctx: BlockCtx): string {
 function renderAddConcatBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
   const { w, h, d } = getAdjustedDims(n);
-  const baseColor = meta.color;
+  const baseColor = getLayoutNodeBaseColor(n);
 
   const x1 = n.x + w / 2;
 
@@ -219,7 +220,7 @@ function renderAddConcatBlock(ctx: BlockCtx): string {
 function renderAttentionBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
   const { w, h, d } = getAdjustedDims(n);
-  const baseColor = meta.color;
+  const baseColor = getLayoutNodeBaseColor(n);
   const x1 = n.x + w / 2;
 
   let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);
@@ -242,7 +243,7 @@ function renderAttentionBlock(ctx: BlockCtx): string {
 function renderUpsampleBlock(ctx: BlockCtx): string {
   const { n, s, lightBg, textScale, strokeScale, meta } = ctx;
   const { w, h, d } = getAdjustedDims(n);
-  const baseColor = meta.color;
+  const baseColor = getLayoutNodeBaseColor(n);
   const x1 = n.x + w / 2;
 
   let svg = cuboidFaces(n.x, n.y, n.z, w, h, d, baseColor, s, lightBg, strokeScale);

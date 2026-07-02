@@ -60,6 +60,18 @@ print("ok")
   assert.equal(out, 'ok');
 });
 
+test('supports tuple Conv2d and Pool2d spatial parameters', () => {
+  const out = runPython(`
+from torchstub import Tensor, nn
+x = Tensor((1, 3, 32, 28))
+assert nn.Conv2d(3, 8, (3, 5), stride=(2, 1), padding=(1, 2))(x).shape == (1, 8, 16, 28)
+assert nn.MaxPool2d((2, 4), stride=(2, 3), padding=(0, 1))(x).shape == (1, 3, 16, 9)
+assert nn.AvgPool2d((4, 2), stride=(4, 2), padding=(0, 0))(x).shape == (1, 3, 8, 14)
+print("ok")
+`);
+  assert.equal(out, 'ok');
+});
+
 test('handles robust flatten, reshape inference, and broadcasting Add', () => {
   const out = runPython(`
 from torchstub import Tensor, add
