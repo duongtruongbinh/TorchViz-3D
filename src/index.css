@@ -705,6 +705,11 @@ body {
   color: #123b68;
 }
 
+.learning-lab-focus-panel {
+  opacity: 0.58;
+  filter: saturate(0.78);
+}
+
 .learning-lab-focus-group:has(.learning-lab-focus-panel:hover) .learning-lab-focus-panel:not(:hover),
 .learning-lab-focus-group:has(.learning-lab-focus-panel:focus-within) .learning-lab-focus-panel:not(:focus-within) {
   opacity: 0.48;
@@ -852,4 +857,3 @@ body {
 .block-tooltip {
   font-size: 0.8125rem;
 }
-
