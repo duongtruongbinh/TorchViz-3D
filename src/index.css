@@ -732,6 +732,14 @@ body {
     inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
+.learning-lab-focus-group:has(.learning-lab-focus-panel:hover) .learning-lab-focus-panel[data-active="true"]:not(:hover),
+.learning-lab-focus-group:has(.learning-lab-focus-panel:focus-within) .learning-lab-focus-panel[data-active="true"]:not(:focus-within) {
+  opacity: 0.48;
+  filter: saturate(0.72);
+  transform: none;
+  box-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .learning-lab-focus-panel {
     transition: none;

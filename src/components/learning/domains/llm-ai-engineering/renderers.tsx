@@ -92,7 +92,7 @@ function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
               {text(hierarchy.branchLabel, language)}
             </div>
           )}
-          <div className="learning-lab-focus-group grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             {branchRows.map((row) => (
               <HierarchyRow
                 key={row.shortName}
