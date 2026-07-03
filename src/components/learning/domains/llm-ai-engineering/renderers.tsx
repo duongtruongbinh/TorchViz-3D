@@ -387,10 +387,10 @@ function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
       </section>
 
       {extra.tokenExample && (
-        <>
+        <div className="grid gap-4 md:col-span-2">
           <TokenExampleBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} />
           <SpecialTokenBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} />
-        </>
+        </div>
       )}
     </div>
   );
