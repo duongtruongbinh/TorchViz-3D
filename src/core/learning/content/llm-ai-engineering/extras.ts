@@ -14,6 +14,24 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       'Sơ đồ tổng quan các lĩnh vực AI từ phạm vi rộng đến chuyên biệt.',
       aiHierarchy(),
     ),
+    conceptPanel('why-split-ai-fields', 'llm-from-scratch-roadmap', 'Vì sao cần chia như vậy?', {
+      body: [
+        'Việc chia AI thành AI, ML, Deep Learning, NLP, CV, LLM không phải để học thuộc tên gọi. Mục tiêu là nhìn ra mỗi lớp đang giải một kiểu bài toán khác nhau.',
+        'Khi bài toán khác nhau, dữ liệu đầu vào, cách đánh giá, mô hình phù hợp, lỗi thường gặp và công cụ làm việc cũng khác nhau. Nhận ra mình đang đứng ở lớp nào giúp bạn học đúng kỹ năng thay vì gom mọi thứ vào một chữ AI rất rộng.',
+      ],
+      comparisonTable: {
+        columns: ['Nhánh', 'Bài toán thường gặp', 'Công cụ / mô hình', 'Kỹ năng & công việc'],
+        rows: [
+          ['ML', 'Dự đoán churn, scoring tín dụng, phân cụm khách hàng, dự báo nhu cầu.', 'Scikit-learn, XGBoost, LightGBM, feature store, tabular pipelines.', 'Feature engineering, metrics, experiment tracking; ML Engineer, Data Scientist.'],
+          ['CV', 'Nhận diện vật thể, phân loại ảnh, OCR, kiểm tra lỗi sản phẩm bằng camera.', 'CNN, ViT, YOLO, augmentation, OpenCV, labeling tools.', 'Xử lý ảnh/video, dataset labeling, deployment edge; Computer Vision Engineer.'],
+          ['LLM', 'Chatbot, summarization, RAG search, extraction, coding assistant, agent workflow.', 'Tokenizer, Transformer, embedding, vector database, prompt/tool calling APIs.', 'Tokenization, context, prompting, evaluation, serving; LLM Engineer, AI Product Engineer.'],
+        ],
+      },
+      bodyAfter: [
+        'Một nghề cho chín còn hơn chín nghề. Trong thực tế, một đội ngũ AI tốt thường có nhiều chuyên gia ở các lĩnh vực khác nhau: mỗi người chịu trách nhiệm chính cho một kiểu bài toán, còn những người khác thường ở vai trò phối hợp và hỗ trợ.',
+        'Với sinh viên mới ra trường, việc tìm hiểu doanh nghiệp đang giải bài toán gì trước khi apply rất quan trọng. Nếu bạn hiểu domain của họ và điều chỉnh CV, project, cách kể kinh nghiệm theo đúng bài toán đó, cơ hội mở ra những cuộc trò chuyện chất lượng sẽ cao hơn rất nhiều.',
+      ],
+    }),
     conceptInteraction(
       'what-is-llm',
       'llm-from-scratch-roadmap',
@@ -375,6 +393,10 @@ function conceptPanel(
     body?: string[];
     bodyAfter?: string[];
     highlights?: string[][];
+    comparisonTable?: {
+      columns: string[];
+      rows: string[][];
+    };
     outline?: Array<[string, string, string[][]]>;
     links?: string[][];
   },
@@ -392,6 +414,13 @@ function conceptPanel(
       fullName: loc(item[1]),
       description: loc(item[2]),
     })),
+    comparisonTable: config.comparisonTable ? {
+      columns: config.comparisonTable.columns.map((column) => loc(column)),
+      rows: config.comparisonTable.rows.map((row) => ({
+        label: loc(row[0]),
+        cells: row.slice(1).map((cell) => loc(cell)),
+      })),
+    } : undefined,
     outline: config.outline?.map((group) => ({
       title: loc(group[0]),
       body: loc(group[1]),

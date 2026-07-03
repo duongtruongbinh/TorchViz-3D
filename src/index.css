@@ -716,6 +716,7 @@ body {
   filter: saturate(0.72);
 }
 
+.learning-lab-focus-panel[data-active="true"],
 .learning-lab-focus-panel:hover,
 .learning-lab-focus-panel:focus-within {
   opacity: 1;
@@ -724,6 +725,14 @@ body {
   box-shadow:
     0 16px 34px rgba(18, 59, 104, 0.18),
     0 0 0 1px rgba(47, 111, 159, 0.22);
+}
+
+.learning-lab-focus-group:has(.learning-lab-focus-panel:hover) .learning-lab-focus-panel[data-active="true"]:not(:hover),
+.learning-lab-focus-group:has(.learning-lab-focus-panel:focus-within) .learning-lab-focus-panel[data-active="true"]:not(:focus-within) {
+  opacity: 0.48;
+  filter: saturate(0.72);
+  transform: none;
+  box-shadow: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

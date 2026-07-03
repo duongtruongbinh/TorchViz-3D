@@ -166,6 +166,13 @@ export type LearningLessonExtra =
         fullName: LearningLocalizedText;
         description: LearningLocalizedText;
       }>;
+      comparisonTable?: {
+        columns: LearningLocalizedText[];
+        rows: Array<{
+          label: LearningLocalizedText;
+          cells: LearningLocalizedText[];
+        }>;
+      };
       outline?: Array<{
         title: LearningLocalizedText;
         body: LearningLocalizedText;

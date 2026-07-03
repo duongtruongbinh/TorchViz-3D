@@ -1,4 +1,4 @@
-import { Angry, CheckCircle2, Info, MousePointer2, RotateCcw, Sparkles, X } from 'lucide-react';
+import { Angry, CheckCircle2, CircleAlert, Info, MousePointer2, RotateCcw, Sparkles, X } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import type { LearningLessonExtra } from '../../../../core/learning/types';
 import { getStrings, type Language } from '../../../../lib/localization';
@@ -70,39 +70,63 @@ function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
   const leadingRows = hierarchy.rows.filter((row) => row.depth !== 'branch' && row.depth !== 'target');
   const branchRows = hierarchy.rows.filter((row) => row.depth === 'branch');
   const targetRows = hierarchy.rows.filter((row) => row.depth === 'target');
+  const [activeRowName, setActiveRowName] = useState(hierarchy.rows[0]?.shortName ?? '');
 
   return (
     <div className="learning-lab-focus-group mt-5 grid w-full gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
       {leadingRows.map((row) => (
-        <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
+        <HierarchyRow
+          key={row.shortName}
+          row={row}
+          isActive={activeRowName === row.shortName}
+          language={language}
+          themeClasses={themeClasses}
+          onActivate={setActiveRowName}
+        />
       ))}
 
       {branchRows.length ? (
         <div className="grid gap-3 py-2">
           {hierarchy.branchLabel && (
-            <div className={cx('text-xs font-normal uppercase tracking-wide', themeClasses.mutedText)}>
+            <div className={cx('text-sm font-semibold leading-6', themeClasses.mutedText)}>
               {text(hierarchy.branchLabel, language)}
             </div>
           )}
-          <div className="learning-lab-focus-group grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2">
             {branchRows.map((row) => (
-              <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
+              <HierarchyRow
+                key={row.shortName}
+                row={row}
+                isActive={activeRowName === row.shortName}
+                language={language}
+                themeClasses={themeClasses}
+                onActivate={setActiveRowName}
+              />
             ))}
           </div>
         </div>
       ) : null}
 
       {targetRows.map((row) => (
-        <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
+        <HierarchyRow
+          key={row.shortName}
+          row={row}
+          isActive={activeRowName === row.shortName}
+          language={language}
+          themeClasses={themeClasses}
+          onActivate={setActiveRowName}
+        />
       ))}
     </div>
   );
 }
 
-function HierarchyRow({ row, language, themeClasses }: {
+function HierarchyRow({ row, isActive, language, themeClasses, onActivate }: {
   row: NonNullable<Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy']>['rows'][number];
+  isActive: boolean;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
+  onActivate: (shortName: string) => void;
 }) {
   const isTarget = row.depth === 'target';
   const rowTone = isTarget
@@ -115,6 +139,9 @@ function HierarchyRow({ row, language, themeClasses }: {
 
   return (
     <div
+      data-active={isActive ? 'true' : undefined}
+      onFocus={() => onActivate(row.shortName)}
+      onMouseEnter={() => onActivate(row.shortName)}
       className={cx(
         'learning-lab-focus-panel group grid gap-2 px-3 py-2 text-sm transition-[background-color,box-shadow,filter,opacity,transform] duration-200 sm:items-start',
         themeClasses.radius.button,
@@ -143,13 +170,20 @@ function ConceptInteraction({ extra, language, themeClasses }: {
   const [selectedWordIndexes, setSelectedWordIndexes] = useState<number[]>([]);
   const [sentenceFeedbackPulseKey, setSentenceFeedbackPulseKey] = useState(0);
   const selectedOption = selectedIndex === null ? null : extra.options[selectedIndex];
-  const selectedLabel = selectedOption ? text(selectedOption.label, language) : text(extra.blankLabel, language);
   const labels = extra.labels;
   const noteText = extra.note ? text(extra.note, language) : '';
   const sentenceBuilder = extra.sentenceBuilder;
   const interactionPlacement = extra.interactionPlacement ?? 'inline';
+  const selectedLabel = selectedOption ? text(selectedOption.label, language) : interactionPlacement === 'only' ? '_____' : text(extra.blankLabel, language);
+  const isInteractionOnly = interactionPlacement === 'only';
   const shouldShowIntro = interactionPlacement !== 'only';
   const shouldShowInteractions = interactionPlacement !== 'none';
+  const interactionOnlyPrompt = language === 'vi'
+    ? 'Chọn từ để điền vào chỗ trống cho phù hợp.'
+    : 'Choose words to fill the blank appropriately.';
+  const neutralPlaceholderTone = themeClasses.isLight
+    ? 'border-[#94A3B8]/28 bg-[#F8FAFC] text-[#64748B]'
+    : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/6 text-[#F2F6FA]/48';
   const selectedWords = sentenceBuilder ? selectedWordIndexes.map((index) => text(sentenceBuilder.choices[index], language)) : [];
   const targetSentences = sentenceBuilder ? sentenceBuilder.targets.map((target) => target.map((word) => text(word, language))) : [];
   const matchingTargets = targetSentences.filter((target) => selectedWords.every((word, index) => word === target[index]));
@@ -185,74 +219,86 @@ function ConceptInteraction({ extra, language, themeClasses }: {
         <ConceptIntroGrid extra={extra} noteText={noteText} language={language} themeClasses={themeClasses} />
       )}
 
+      {isInteractionOnly && (
+        <p className={cx('mb-3 text-left text-base font-black leading-7 md:text-lg', themeClasses.accentText)}>
+          {interactionOnlyPrompt}
+        </p>
+      )}
+
       {shouldShowInteractions && (
         <div className={cx('mt-4 grid gap-3 rounded-lg border p-3 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7')}>
-        <div className="grid justify-items-center gap-2.5">
-          <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-            <Sparkles className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
-            {text(labels.chooseNextToken, language)}
-          </div>
+          <div className="grid justify-items-center gap-2.5">
+            {!isInteractionOnly && (
+              <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
+                <Sparkles className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+                {text(labels.chooseNextToken, language)}
+              </div>
+            )}
 
-          <div className={cx('flex flex-wrap items-center justify-center gap-2 text-base font-semibold leading-8 md:text-lg', themeClasses.titleText)}>
-            <span>{text(extra.prompt, language)}</span>
-            <span
-              className={cx(
-                'inline-flex min-h-10 min-w-[8rem] items-center justify-center rounded-lg border px-3 text-sm font-black transition-colors',
-                selectedOption?.isCorrect
-                  ? themeClasses.isLight ? 'border-[#2FBF71]/42 bg-[#2FBF71]/14 text-[#1F6F48]' : 'border-[#2FBF71]/46 bg-[#2FBF71]/18 text-[#A6E8C1]'
-                  : selectedOption
-                    ? themeClasses.isLight ? 'border-[#C45151]/34 bg-[#C45151]/8 text-[#8C3333]' : 'border-[#F87171]/36 bg-[#F87171]/12 text-[#FCA5A5]'
-                    : themeClasses.isLight ? 'border-[#205089]/24 bg-white/70 text-[#123B68]' : 'border-[#A8B8C8]/24 bg-[#121A24]/48 text-[#F2F6FA]',
-              )}
-            >
-              {selectedLabel}
-            </span>
-          </div>
-
-          {selectedOption && (
-            <div ref={optionFeedbackRef} className={cx('flex w-full justify-center gap-2 text-center text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
-              {selectedOption.isCorrect ? (
-                <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
-              ) : (
-                <Angry className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
-              )}
-              <p>{text(selectedOption.feedback, language)}</p>
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-wrap justify-center gap-1.5" aria-label={text(extra.blankLabel, language)}>
-          {extra.options.map((option, index) => {
-            const isSelected = selectedIndex === index;
-            const isCorrect = Boolean(option.isCorrect);
-            return (
-              <button
-                key={text(option.label, language)}
-                type="button"
-                onClick={() => setSelectedIndex(index)}
+            <div className={cx('flex flex-wrap items-center justify-center gap-2 text-base font-semibold leading-8 md:text-lg', themeClasses.titleText)}>
+              <span>{text(extra.prompt, language)}</span>
+              <span
+                aria-label={!selectedOption ? text(extra.blankLabel, language) : undefined}
                 className={cx(
-                  'min-h-11 rounded-lg border px-4 py-2 text-left text-sm font-black shadow-sm transition-colors',
-                  isSelected && isCorrect
-                    ? themeClasses.isLight ? 'border-[#2FBF71]/50 bg-[#2FBF71]/16 text-[#1F6F48]' : 'border-[#2FBF71]/50 bg-[#2FBF71]/18 text-[#A6E8C1]'
-                    : isSelected
-                      ? themeClasses.isLight ? 'border-[#C45151]/38 bg-[#C45151]/10 text-[#8C3333]' : 'border-[#F87171]/40 bg-[#F87171]/14 text-[#FCA5A5]'
-                      : themeClasses.isLight ? 'border-[#205089]/18 bg-white/78 text-[#123B68] hover:bg-[#DCE6F1]' : 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
+                  'inline-flex min-h-10 min-w-[8rem] items-center justify-center rounded-lg border px-3 text-sm transition-colors',
+                  isInteractionOnly && !selectedOption ? 'font-semibold' : 'font-black',
+                  selectedOption?.isCorrect
+                    ? themeClasses.isLight ? 'border-[#2FBF71]/42 bg-[#2FBF71]/14 text-[#1F6F48]' : 'border-[#2FBF71]/46 bg-[#2FBF71]/18 text-[#A6E8C1]'
+                    : selectedOption
+                      ? themeClasses.isLight ? 'border-[#C45151]/34 bg-[#C45151]/8 text-[#8C3333]' : 'border-[#F87171]/36 bg-[#F87171]/12 text-[#FCA5A5]'
+                        : isInteractionOnly ? neutralPlaceholderTone : themeClasses.isLight ? 'border-[#205089]/24 bg-white/70 text-[#123B68]' : 'border-[#A8B8C8]/24 bg-[#121A24]/48 text-[#F2F6FA]',
                 )}
               >
-                {text(option.label, language)}
-              </button>
-            );
-          })}
-        </div>
+                {selectedLabel}
+              </span>
+            </div>
+
+            {selectedOption && (
+              <div ref={optionFeedbackRef} className={cx('flex w-full justify-center gap-2 text-center text-sm leading-6', selectedOption.isCorrect ? themeClasses.isLight ? 'text-[#1F6F48]' : 'text-[#A6E8C1]' : themeClasses.isLight ? 'text-[#8C3333]' : 'text-[#FCA5A5]')}>
+                {selectedOption.isCorrect ? (
+                  <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+                ) : (
+                  <Angry className="mt-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+                )}
+                <p>{text(selectedOption.feedback, language)}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-1.5" aria-label={text(extra.blankLabel, language)}>
+            {extra.options.map((option, index) => {
+              const isSelected = selectedIndex === index;
+              const isCorrect = Boolean(option.isCorrect);
+              return (
+                <button
+                  key={text(option.label, language)}
+                  type="button"
+                  onClick={() => setSelectedIndex(index)}
+                  className={cx(
+                    'min-h-11 rounded-lg border px-4 py-2 text-left text-sm font-black shadow-sm transition-colors',
+                    isSelected && isCorrect
+                      ? themeClasses.isLight ? 'border-[#2FBF71]/50 bg-[#2FBF71]/16 text-[#1F6F48]' : 'border-[#2FBF71]/50 bg-[#2FBF71]/18 text-[#A6E8C1]'
+                      : isSelected
+                        ? themeClasses.isLight ? 'border-[#C45151]/38 bg-[#C45151]/10 text-[#8C3333]' : 'border-[#F87171]/40 bg-[#F87171]/14 text-[#FCA5A5]'
+                          : themeClasses.isLight ? 'border-[#205089]/18 bg-white/78 text-[#123B68] hover:bg-[#DCE6F1]' : 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
+                  )}
+                >
+                  {text(option.label, language)}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
       {shouldShowInteractions && sentenceBuilder && (
         <div className={cx('mt-3 grid gap-3 rounded-lg border p-3 text-center', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/6')}>
-          <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-            <MousePointer2 className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
-            {text(sentenceBuilder.title, language)}
-          </div>
+          {!isInteractionOnly && (
+            <div className={cx('flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
+              <MousePointer2 className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+              {text(sentenceBuilder.title, language)}
+            </div>
+          )}
 
           <div className={cx('grid w-full grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-transparent text-[#030509]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
             <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
@@ -272,8 +318,8 @@ function ConceptInteraction({ extra, language, themeClasses }: {
                   </span>
                 ))
               ) : (
-                <span className={cx('inline-flex min-h-9 min-w-[9rem] items-center justify-center rounded-lg border border-dashed px-3 text-sm font-black', themeClasses.isLight ? 'border-[#205089]/28 text-[#123B68]/70' : 'border-[#A8B8C8]/28 text-[#F2F6FA]/62')}>
-                  {text(labels.emptySentence, language)}
+                <span aria-label={text(labels.emptySentence, language)} className={cx('inline-flex min-h-9 min-w-[9rem] items-center justify-center rounded-lg border border-dashed px-3 text-sm font-semibold', isInteractionOnly ? neutralPlaceholderTone : themeClasses.isLight ? 'border-[#205089]/28 text-[#123B68]/70' : 'border-[#A8B8C8]/28 text-[#F2F6FA]/62')}>
+                  {isInteractionOnly ? '_____' : text(labels.emptySentence, language)}
                 </span>
               )}
             </div>
@@ -389,7 +435,6 @@ function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
       {extra.tokenExample && (
         <div className="grid gap-4 md:col-span-2">
           <TokenExampleBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} />
-          <SpecialTokenBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} />
         </div>
       )}
     </div>
@@ -401,6 +446,8 @@ function TokenExampleBlock({ example, language, themeClasses }: {
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
+  const [activeLabel, setActiveLabel] = useState(example.variants[0]?.label.en ?? example.specialCases[0]?.label.en ?? '');
+
   return (
     <section className={cx(getConceptTileClass(themeClasses), 'gap-4')}>
       <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
@@ -409,15 +456,33 @@ function TokenExampleBlock({ example, language, themeClasses }: {
 
       <div className="learning-lab-focus-group grid gap-3">
         {example.variants.map((variant) => (
-          <TokenExampleGroup key={text(variant.label, language)} item={variant} language={language} themeClasses={themeClasses} />
+          <TokenExampleGroup
+            key={text(variant.label, language)}
+            item={variant}
+            isActive={activeLabel === variant.label.en}
+            language={language}
+            themeClasses={themeClasses}
+            onActivate={setActiveLabel}
+          />
+        ))}
+
+        {example.specialCases.map((item) => (
+          <TokenExampleGroup
+            key={text(item.label, language)}
+            item={item}
+            isActive={activeLabel === item.label.en}
+            language={language}
+            themeClasses={themeClasses}
+            onActivate={setActiveLabel}
+          />
         ))}
       </div>
 
-      <div className="grid gap-2">
+      <div className="mt-7 grid gap-2">
         {example.notes.map((note) => (
-          <div key={text(note, language)} className={cx('flex gap-2 text-sm font-semibold leading-6', themeClasses.bodyText)}>
-            <Info className={cx('mt-1 h-4 w-4 shrink-0', themeClasses.accentText)} strokeWidth={2.1} aria-hidden="true" />
-            <p>{text(note, language)}</p>
+          <div key={text(note, language)} className={cx('mx-auto flex max-w-3xl gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
+            <CircleAlert className="mt-1 h-4 w-4 shrink-0 text-[#D97706]" strokeWidth={2.1} aria-hidden="true" />
+            <p className="text-justify">{text(note, language)}</p>
           </div>
         ))}
       </div>
@@ -425,41 +490,34 @@ function TokenExampleBlock({ example, language, themeClasses }: {
   );
 }
 
-function SpecialTokenBlock({ example, language, themeClasses }: {
-  example: NonNullable<Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>['tokenExample']>;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
-  return (
-    <section className={cx(getConceptTileClass(themeClasses), 'gap-3')}>
-      <div className="learning-lab-focus-group grid gap-3">
-        {example.specialCases.map((item) => (
-          <TokenExampleGroup key={text(item.label, language)} item={item} language={language} themeClasses={themeClasses} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function TokenExampleGroup({ item, language, themeClasses }: {
+function TokenExampleGroup({ item, isActive, language, themeClasses, onActivate }: {
   item: {
     label: { en: string; vi: string };
     tokens: string[];
     description: { en: string; vi: string };
   };
+  isActive: boolean;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
+  onActivate: (label: string) => void;
 }) {
+  const label = text(item.label, language);
+
   return (
-    <div className={cx('learning-lab-focus-panel grid gap-3 rounded-lg border p-3 transition-[box-shadow,filter,opacity,transform] duration-200', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
+    <div
+      data-active={isActive ? 'true' : undefined}
+      onFocus={() => onActivate(item.label.en)}
+      onMouseEnter={() => onActivate(item.label.en)}
+      className={cx('learning-lab-focus-panel grid gap-3 rounded-lg border p-3 transition-[box-shadow,filter,opacity,transform] duration-200', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}
+    >
       <div>
-        <div className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{text(item.label, language)}</div>
+        <div className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{label}</div>
         <p className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{text(item.description, language)}</p>
       </div>
       <div className="flex flex-wrap gap-2">
         {item.tokens.map((token) => (
           <span
-            key={`${text(item.label, language)}-${token}`}
+            key={`${label}-${token}`}
             className={cx('inline-flex min-h-8 items-center rounded-md border px-2.5 font-mono text-xs font-black', themeClasses.isLight ? 'border-[#2F6B55]/14 bg-[#EEF7F2] text-[#1F5A46]' : 'border-[#A6E8C1]/18 bg-[#A6E8C1]/10 text-[#A6E8C1]')}
           >
             {token}

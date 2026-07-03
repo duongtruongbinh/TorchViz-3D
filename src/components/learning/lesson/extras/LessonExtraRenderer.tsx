@@ -1,4 +1,4 @@
-import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
+import { Check, CheckCircle2, Circle, CircleAlert, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
 import type { LearningLessonExtra } from '../../../../core/learning/types';
 import { getStrings, type Language } from '../../../../lib/localization';
@@ -591,6 +591,39 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
           </div>
         )}
 
+        {extra.comparisonTable && (
+          <div className={cx('overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/32')}>
+            <div className={cx('hidden grid-cols-[7rem_repeat(3,minmax(0,1fr))] border-b text-xs font-black uppercase tracking-wide md:grid', themeClasses.isLight ? 'border-[#205089]/10 bg-[#EEF4FA] text-[#123B68]/72' : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/62')}>
+              {extra.comparisonTable.columns.map((column) => (
+                <div key={text(column, language)} className="px-3 py-3">
+                  {text(column, language)}
+                </div>
+              ))}
+            </div>
+            <div className="grid">
+              {extra.comparisonTable.rows.map((row, rowIndex) => (
+                <div
+                  key={text(row.label, language)}
+                  className={cx(
+                    'grid gap-3 px-3 py-4 md:grid-cols-[7rem_repeat(3,minmax(0,1fr))] md:gap-0',
+                    rowIndex > 0 && (themeClasses.isLight ? 'border-t border-[#205089]/10' : 'border-t border-[#A8B8C8]/12'),
+                  )}
+                >
+                  <div className={cx('text-base font-black leading-6 md:text-sm', themeClasses.accentText)}>{text(row.label, language)}</div>
+                  {row.cells.map((cell, cellIndex) => (
+                    <div key={`${text(row.label, language)}-${cellIndex}`} className="min-w-0 md:px-3">
+                      <div className={cx('mb-1 text-[11px] font-black uppercase tracking-wide md:hidden', themeClasses.mutedText)}>
+                        {text(extra.comparisonTable?.columns[cellIndex + 1] ?? row.label, language)}
+                      </div>
+                      <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(cell, language)}</p>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {extra.outline && (
           <div className="grid gap-6">
             {extra.outline.map((group, groupIndex) => (
@@ -663,11 +696,24 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
           </div>
         )}
 
-        {extra.bodyAfter?.map((paragraph) => (
-          <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
-            {text(paragraph, language)}
-          </p>
-        ))}
+        {extra.bodyAfter && (
+          extra.id === 'why-split-ai-fields' ? (
+            <div className={cx('mx-auto flex max-w-3xl gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
+              <CircleAlert className="mt-1 h-4 w-4 shrink-0 text-[#D97706]" strokeWidth={2.1} aria-hidden="true" />
+              <div className="grid gap-2">
+                {extra.bodyAfter.map((paragraph) => (
+                  <p key={text(paragraph, language)}>{text(paragraph, language)}</p>
+                ))}
+              </div>
+            </div>
+          ) : (
+            extra.bodyAfter.map((paragraph) => (
+              <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
+                {text(paragraph, language)}
+              </p>
+            ))
+          )
+        )}
       </div>
     </ExtraFrame>
   );
