@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, MessageSquareText, Network, PanelLeft, PanelLeftOpen, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { learningCatalog } from '../../core/learning/content';
@@ -66,6 +66,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [lessonRailFilter, setLessonRailFilter] = useState<LessonRailFilter>('all');
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(() => new Set());
   const [, startLessonTransition] = useTransition();
+  const contentAreaRef = useRef<HTMLElement | null>(null);
 
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
@@ -143,6 +144,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     });
     return () => window.cancelAnimationFrame(frameId);
   }, [routePracticeId, selectedLesson?.id]);
+
+  useEffect(() => {
+    contentAreaRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+  }, [selectedLesson?.id]);
 
   const openDomain = (nextDomainId: LearningDomainId) => {
     setMode('path');
@@ -338,7 +343,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           theme={theme}
           onModeChange={setMode}
         />
-        <section className={cx('learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4', themeClasses.content)}>
+        <section ref={contentAreaRef} className={cx('custom-scrollbar learning-lab-scrollbar learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4', themeClasses.content)}>
           {mode === 'review' ? (
             <ReviewMode
               catalog={learningCatalog}
@@ -355,13 +360,13 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : activeTrack && lessonRailProps ? (
             <section
               className={cx(
-                'learning-lab-catalog -m-4 grid h-full min-h-0 w-[calc(100%+2rem)] gap-4 p-4 transition-[grid-template-columns] duration-200',
+                'learning-lab-catalog -m-4 grid min-h-full w-[calc(100%+2rem)] items-start gap-4 p-4 transition-[grid-template-columns] duration-200',
                 isLessonRailOpen ? 'lg:grid-cols-[300px_minmax(0,1fr)]' : 'lg:grid-cols-[44px_minmax(0,1fr)]',
               )}
             >
               <div
                 className={cx(
-                  'relative hidden min-h-0 lg:block',
+                  'sticky top-4 hidden h-[calc(100vh-7rem)] lg:block',
                   !isLessonRailOpen && 'w-11',
                 )}
               >
@@ -399,7 +404,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                 />
               </div>
               {selectedLesson ? (
-                <div className="min-h-0 min-w-0">
+                <div className="min-w-0">
                   <LessonDetail
                     lesson={selectedLesson}
                     theme={theme}
