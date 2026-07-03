@@ -44,15 +44,8 @@ function MotivationBlock({ extra, language, themeClasses }: {
         ))}
       </div>
 
-      <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10 xl:gap-12">
-        <div className="min-w-0">
-          {extra.hierarchy && (
-            <AiHierarchyFlow hierarchy={extra.hierarchy} language={language} themeClasses={themeClasses} />
-          )}
-
-        </div>
-
-        <figure className="flex min-w-0 items-center justify-center pt-5 lg:pt-0">
+      <div className="mt-5 grid gap-6">
+        <figure className="flex min-w-0 items-center justify-center">
           <img
             src={getLearningAssetUrl(extra.image)}
             alt={text(extra.imageAlt, language)}
@@ -60,6 +53,10 @@ function MotivationBlock({ extra, language, themeClasses }: {
             loading="lazy"
           />
         </figure>
+
+        {extra.hierarchy && (
+          <AiHierarchyFlow hierarchy={extra.hierarchy} language={language} themeClasses={themeClasses} />
+        )}
       </div>
     </div>
   );
