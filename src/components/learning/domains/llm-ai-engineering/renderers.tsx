@@ -431,11 +431,7 @@ function SpecialTokenBlock({ example, language, themeClasses }: {
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   return (
-    <section className={cx(getConceptTileClass(themeClasses), 'gap-4')}>
-      <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-        {text(example.specialTitle, language)}
-      </div>
-
+    <section className={cx(getConceptTileClass(themeClasses), 'gap-3')}>
       <div className="grid gap-3">
         {example.specialCases.map((item) => (
           <TokenExampleGroup key={text(item.label, language)} item={item} language={language} themeClasses={themeClasses} />
