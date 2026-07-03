@@ -719,9 +719,11 @@ body {
 .learning-lab-focus-panel:hover,
 .learning-lab-focus-panel:focus-within {
   opacity: 1;
-  filter: saturate(1.08);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(18, 59, 104, 0.12);
+  filter: saturate(1.22) contrast(1.06);
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 34px rgba(18, 59, 104, 0.18),
+    0 0 0 1px rgba(47, 111, 159, 0.22);
 }
 
 @media (prefers-reduced-motion: reduce) {
