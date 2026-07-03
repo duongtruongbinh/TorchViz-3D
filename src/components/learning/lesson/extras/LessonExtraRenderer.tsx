@@ -557,6 +557,7 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
   const [titleBeforeEmphasis, titleAfterEmphasis] = emphasis ? panelTitle.split(emphasis) : [panelTitle, ''];
   const outlineGroupTitleText = themeClasses.isLight ? 'text-[#254F70]' : themeClasses.titleText;
   const outlineItemTitleText = themeClasses.isLight ? 'text-[#385F7A]' : themeClasses.titleText;
+  const [activeOutlineItemKey, setActiveOutlineItemKey] = useState('0-0');
 
   return (
     <ExtraFrame
@@ -625,7 +626,7 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
         )}
 
         {extra.outline && (
-          <div className="grid gap-6">
+          <div className="learning-lab-focus-group grid gap-6">
             {extra.outline.map((group, groupIndex) => (
               <div
                 key={text(group.title, language)}
@@ -650,30 +651,39 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
                 </div>
 
                 <div className="grid gap-1 sm:pl-14">
-                  {group.items.map((item, itemIndex) => (
-                    <div
-                      key={text(item.title, language)}
-                      className={cx(
-                        'group grid gap-3 py-2.5 sm:grid-cols-[3.25rem_minmax(0,1fr)] sm:items-start',
-                        itemIndex > 0 && (themeClasses.isLight ? 'border-t border-[#205089]/8' : 'border-t border-[#A8B8C8]/10'),
-                      )}
-                    >
-                      <span
+                  {group.items.map((item, itemIndex) => {
+                    const itemKey = `${groupIndex}-${itemIndex}`;
+                    const isActive = activeOutlineItemKey === itemKey;
+                    return (
+                      <div
+                        key={text(item.title, language)}
+                        data-active={isActive ? 'true' : undefined}
+                        tabIndex={0}
+                        onFocus={() => setActiveOutlineItemKey(itemKey)}
+                        onMouseEnter={() => setActiveOutlineItemKey(itemKey)}
                         className={cx(
-                          'inline-flex min-h-8 w-fit items-center rounded-lg px-2 text-[11px] font-black leading-5 tabular-nums transition-colors',
-                          themeClasses.isLight
-                            ? 'bg-[#B8C8DA]/24 text-[#123B68] group-hover:bg-[#205089]/10'
-                            : 'bg-[#A8B8C8]/8 text-[#D7EAFE] group-hover:bg-[#A8B8C8]/12',
+                          'learning-lab-focus-panel group grid gap-3 px-3 py-2.5 transition-[box-shadow,filter,opacity,transform] duration-200 sm:grid-cols-[3.25rem_minmax(0,1fr)] sm:items-start',
+                          themeClasses.radius.button,
+                          itemIndex > 0 && (themeClasses.isLight ? 'border-t border-[#205089]/8' : 'border-t border-[#A8B8C8]/10'),
                         )}
                       >
-                        {groupIndex + 1}.{itemIndex + 1}
-                      </span>
-                      <div className="min-w-0 lg:grid lg:grid-cols-[minmax(9rem,0.26fr)_minmax(0,1fr)] lg:gap-4">
-                        <div className={cx('text-sm font-black leading-6', outlineItemTitleText)}>{text(item.title, language)}</div>
-                        <p className={cx('mt-1 text-sm leading-6 lg:mt-0', themeClasses.bodyText)}>{text(item.body, language)}</p>
+                        <span
+                          className={cx(
+                            'inline-flex min-h-8 w-fit items-center rounded-lg px-2 text-[11px] font-black leading-5 tabular-nums transition-colors',
+                            themeClasses.isLight
+                              ? 'bg-[#B8C8DA]/24 text-[#123B68] group-hover:bg-[#205089]/10'
+                              : 'bg-[#A8B8C8]/8 text-[#D7EAFE] group-hover:bg-[#A8B8C8]/12',
+                          )}
+                        >
+                          {groupIndex + 1}.{itemIndex + 1}
+                        </span>
+                        <div className="min-w-0 lg:grid lg:grid-cols-[minmax(9rem,0.26fr)_minmax(0,1fr)] lg:gap-4">
+                          <div className={cx('text-sm font-black leading-6', outlineItemTitleText)}>{text(item.title, language)}</div>
+                          <p className={cx('mt-1 text-sm leading-6 lg:mt-0', themeClasses.bodyText)}>{text(item.body, language)}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}
