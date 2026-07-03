@@ -72,7 +72,7 @@ function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
   const targetRows = hierarchy.rows.filter((row) => row.depth === 'target');
 
   return (
-    <div className="mt-5 grid w-full gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
+    <div className="learning-lab-focus-group mt-5 grid w-full gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
       {leadingRows.map((row) => (
         <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
       ))}
@@ -84,7 +84,7 @@ function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
               {text(hierarchy.branchLabel, language)}
             </div>
           )}
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="learning-lab-focus-group grid gap-3 md:grid-cols-2">
             {branchRows.map((row) => (
               <HierarchyRow key={row.shortName} row={row} language={language} themeClasses={themeClasses} />
             ))}
@@ -116,7 +116,7 @@ function HierarchyRow({ row, language, themeClasses }: {
   return (
     <div
       className={cx(
-        'group grid gap-2 px-3 py-2 text-sm transition-colors sm:items-start',
+        'learning-lab-focus-panel group grid gap-2 px-3 py-2 text-sm transition-[background-color,box-shadow,filter,opacity,transform] duration-200 sm:items-start',
         themeClasses.radius.button,
         rowTone,
         row.compact ? 'sm:grid-cols-[3.75rem_minmax(0,1fr)]' : 'sm:grid-cols-[4.5rem_minmax(0,1fr)]',
@@ -407,7 +407,7 @@ function TokenExampleBlock({ example, language, themeClasses }: {
         {text(example.title, language)}
       </div>
 
-      <div className="grid gap-3">
+      <div className="learning-lab-focus-group grid gap-3">
         {example.variants.map((variant) => (
           <TokenExampleGroup key={text(variant.label, language)} item={variant} language={language} themeClasses={themeClasses} />
         ))}
@@ -432,7 +432,7 @@ function SpecialTokenBlock({ example, language, themeClasses }: {
 }) {
   return (
     <section className={cx(getConceptTileClass(themeClasses), 'gap-3')}>
-      <div className="grid gap-3">
+      <div className="learning-lab-focus-group grid gap-3">
         {example.specialCases.map((item) => (
           <TokenExampleGroup key={text(item.label, language)} item={item} language={language} themeClasses={themeClasses} />
         ))}
@@ -451,7 +451,7 @@ function TokenExampleGroup({ item, language, themeClasses }: {
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   return (
-    <div className={cx('grid gap-3 rounded-lg border p-3', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
+    <div className={cx('learning-lab-focus-panel grid gap-3 rounded-lg border p-3 transition-[box-shadow,filter,opacity,transform] duration-200', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
       <div>
         <div className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{text(item.label, language)}</div>
         <p className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{text(item.description, language)}</p>

@@ -705,6 +705,31 @@ body {
   color: #123b68;
 }
 
+.learning-lab-focus-group:has(.learning-lab-focus-panel:hover) .learning-lab-focus-panel:not(:hover),
+.learning-lab-focus-group:has(.learning-lab-focus-panel:focus-within) .learning-lab-focus-panel:not(:focus-within) {
+  opacity: 0.48;
+  filter: saturate(0.72);
+}
+
+.learning-lab-focus-panel:hover,
+.learning-lab-focus-panel:focus-within {
+  opacity: 1;
+  filter: saturate(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(18, 59, 104, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learning-lab-focus-panel {
+    transition: none;
+  }
+
+  .learning-lab-focus-panel:hover,
+  .learning-lab-focus-panel:focus-within {
+    transform: none;
+  }
+}
+
 .learning-lab-light .learning-lab-lesson-node-current {
   color: #ffffff;
 }
@@ -827,5 +852,4 @@ body {
 .block-tooltip {
   font-size: 0.8125rem;
 }
-
 
