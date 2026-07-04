@@ -27,13 +27,13 @@ function LessonNode({ lesson, index, isCompleted, isLast, isSelected, isTrackAct
       type="button"
       onClick={() => onSelect(lesson.id)}
       className={cx(
-        'group relative grid min-h-10 w-full grid-cols-[30px_minmax(0,1fr)] items-start gap-2.5 border px-1 py-1 text-left transition duration-200',
+        'group relative grid min-h-10 w-full grid-cols-[30px_minmax(0,1fr)] items-center gap-2.5 border px-1 py-1 text-left transition duration-200',
         themeClasses.radius.button,
         themeClasses.rail.lessonRowSurface(tone),
         themeClasses.focusRing,
       )}
     >
-      <span className="relative flex h-9 w-[30px] shrink-0 justify-center">
+      <span className="relative flex h-9 w-[30px] shrink-0 items-center justify-center">
         {!isLast ? (
           <span className={cx('absolute left-1/2 top-7 h-[calc(100%+0.5rem)] w-0.5 -translate-x-1/2', themeClasses.rail.lessonConnector(tone, isCompleted))} aria-hidden="true" />
         ) : null}
@@ -47,7 +47,7 @@ function LessonNode({ lesson, index, isCompleted, isLast, isSelected, isTrackAct
           {isCompleted ? <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" /> : index + 1}
         </span>
       </span>
-      <span className="min-w-0 pb-1.5 pt-0.5">
+      <span className="min-w-0">
         <span className={cx('line-clamp-2 block text-sm leading-5', isSelected ? 'font-semibold' : 'font-normal', themeClasses.rail.lessonTitle(tone))}>
           {lessonText.title}
         </span>
