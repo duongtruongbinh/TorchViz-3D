@@ -347,7 +347,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               theme={theme}
             />
           ) : !routeDomainId ? (
-            <DomainCatalog language={language} theme={theme} />
+            <DomainCatalog language={language} theme={theme} onOpenDomain={openDomain} />
           ) : activeDomain && !activeTrack ? (
             <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
               {strings.contentInProgress}

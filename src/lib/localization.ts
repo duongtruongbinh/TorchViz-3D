@@ -215,6 +215,16 @@ const localizedText = {
         en: 'Choose a domain on the left when you are ready. Each domain opens a focused course page, while this Home page stays as the project’s shared north star.',
         vi: 'Khi sẵn sàng, hãy chọn một domain ở bên trái. Mỗi domain mở một trang học tập tập trung, còn Home là nơi giữ tinh thần chung của dự án.',
       },
+      syllabusLabel: { en: 'Syllabus index', vi: 'Mục lục khóa học' },
+      syllabusTitle: {
+        en: 'Traverse the full Learning Lab catalog.',
+        vi: 'Duyệt toàn bộ catalog Learning Lab.',
+      },
+      syllabusBody: {
+        en: 'Scan every domain, preview its course tracks, and jump directly into the first lesson route.',
+        vi: 'Xem nhanh từng domain, các track chính, rồi mở thẳng lộ trình bài học đầu tiên.',
+      },
+      openSyllabusDomain: { en: 'Open path', vi: 'Mở lộ trình' },
       artifactLabel: { en: 'Learning artifact', vi: 'Mẫu học tập' },
       sourceCode: { en: 'Source code', vi: 'Code PyTorch' },
       shapeTrace: { en: 'Shape trace', vi: 'Luồng tensor' },
@@ -1024,6 +1034,10 @@ const localizedText = {
     domainCount: {
       en: (count: number) => `${count} ${count === 1 ? 'domain' : 'domains'}`,
       vi: (count: number) => `${count} mảng`,
+    },
+    trackCount: {
+      en: (count: number) => `${count} ${count === 1 ? 'track' : 'tracks'}`,
+      vi: (count: number) => `${count} track`,
     },
     lessonCount: {
       en: (count: number) => `${count} ${count === 1 ? 'lesson' : 'lessons'}`,
