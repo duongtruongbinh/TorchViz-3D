@@ -72,12 +72,17 @@ export default function LessonDetail({
       }
       if (!lessonText.theory.length && sectionExtras.length) {
         return getSectionExtraPages(sectionExtras).map(({ key, extras }) => (
-          <SectionShell key={`${section.kind}-${section.refId}-${key}`} sectionDivider={sectionDivider}>
+          <SectionShell
+            key={`${section.kind}-${section.refId}-${key}`}
+            sectionDivider={sectionDivider}
+            className={extras.every((extra) => extra.kind === 'quiz') ? 'pt-3 md:pt-4' : undefined}
+          >
             <LessonExtras
               extras={extras}
               language={language}
               quizQuestionStates={quizQuestionStates}
               themeClasses={themeClasses}
+              className={extras.every((extra) => extra.kind === 'quiz') ? 'grid gap-4' : undefined}
               onQuizQuestionStateChange={updateQuizQuestionState}
             />
           </SectionShell>

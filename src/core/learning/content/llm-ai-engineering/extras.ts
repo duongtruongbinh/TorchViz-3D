@@ -150,6 +150,21 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       links: LLM_AI_ENGINEERING_REFERENCE_LINKS.map(({ label, href }) => [label, href]),
     }),
   ],
+  'minimal-llm-project-skeleton': [
+    conceptPanel('colab-coding-requirements', 'minimal-llm-project-skeleton', 'Coding sẽ học theo kiểu nào?', {
+      body: [
+        'Giai đoạn đầu của course sẽ chạy tuần tự trên Google Colab với mục tiêu giữ sự đơn giản và nhanh gọn cho người đọc hết mức có thể.',
+      ],
+      highlights: [
+        ['Cần biết trước', 'Google Colab, Python, NumPy và PyTorch cơ bản', 'Bạn nên biết cách chạy cell trên Colab, đọc lỗi Python đơn giản, thao tác tensor/array cơ bản, và hiểu PyTorch ở mức tạo tensor, dùng module, gọi forward, tính loss.'],
+        ['Tuần tự', 'Mỗi notebook section nối tiếp section trước', 'Code được viết và bổ sung theo trình tự học tập để bạn thấy dữ liệu đang đi qua bước nào, thay vì phải mở nhiều file ngay từ đầu.'],
+        ['Kiểm tra được', 'Mỗi bước phải in shape và ví dụ nhỏ', 'Section nào tạo tensor hoặc object mới thì phải có output quan sát được: shape, vài giá trị mẫu, hoặc một assert đơn giản.'],
+      ],
+      bodyAfter: [
+        'Về sau, đến chương build GPT-mini hoàn chỉnh, chúng ta sẽ gom các phần đã chạy trên Colab thành project OOP với cấu trúc thư mục rõ ràng hơn: config, tokenizer/dataset, model, trainer, generator và checkpoint.',
+      ],
+    }),
+  ],
   'llm-component-checkpoint-quiz': [
     quiz('llm-roadmap-checkpoint-quiz', 'llm-component-checkpoint-quiz', 'Quiz kiểm tra nhanh', [
       {
@@ -190,8 +205,7 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
         categories: [
           ['word', 'Một từ'],
           ['subword', 'Một phần của từ'],
-          ['punctuation', 'Dấu câu'],
-          ['whitespace', 'Khoảng trắng'],
+          ['punctuation-whitespace', 'Dấu câu & khoảng trắng'],
           ['special-symbol', 'Ký hiệu đặc biệt'],
         ],
         options: [
@@ -199,10 +213,10 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
           ['model', 'model', 'word'],
           ['sub-ing', '##ing', 'subword'],
           ['sub-tion', 'tion', 'subword'],
-          ['comma', ',', 'punctuation'],
-          ['question-mark', '?', 'punctuation'],
-          ['space', 'space', 'whitespace'],
-          ['newline', '\\n', 'whitespace'],
+          ['comma', ',', 'punctuation-whitespace'],
+          ['question-mark', '?', 'punctuation-whitespace'],
+          ['space', 'space', 'punctuation-whitespace'],
+          ['newline', '\\n', 'punctuation-whitespace'],
           ['bos', '<BOS>', 'special-symbol'],
           ['eos', '<EOS>', 'special-symbol'],
         ],

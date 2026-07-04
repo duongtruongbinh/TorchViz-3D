@@ -558,6 +558,7 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
   const outlineGroupTitleText = themeClasses.isLight ? 'text-[#254F70]' : themeClasses.titleText;
   const outlineItemTitleText = themeClasses.isLight ? 'text-[#385F7A]' : themeClasses.titleText;
   const [activeOutlineItemKey, setActiveOutlineItemKey] = useState('0-0');
+  const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
 
   return (
     <ExtraFrame
@@ -579,14 +580,16 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
         ))}
 
         {extra.highlights && (
-          <div className="grid gap-3">
-            {extra.highlights.map((item) => (
+          <div className="learning-lab-focus-group grid gap-3">
+            {extra.highlights.map((item, itemIndex) => (
               <ConceptHighlightRow
                 key={text(item.shortName, language)}
                 shortName={text(item.shortName, language)}
                 fullName={text(item.fullName, language)}
                 description={text(item.description, language)}
+                isActive={activeHighlightIndex === itemIndex}
                 themeClasses={themeClasses}
+                onActivate={() => setActiveHighlightIndex(itemIndex)}
               />
             ))}
           </div>
@@ -708,9 +711,18 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
 
         {extra.bodyAfter && (
           extra.id === 'why-split-ai-fields' ? (
-            <div className={cx('mx-auto flex max-w-3xl gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
-              <CircleAlert className="mt-1 h-4 w-4 shrink-0 text-[#D97706]" strokeWidth={2.1} aria-hidden="true" />
-              <div className="grid gap-2">
+            <div className="mx-auto grid max-w-3xl gap-2">
+              {extra.bodyAfter.map((paragraph) => (
+                <div key={text(paragraph, language)} className={cx('flex gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
+                  <CircleAlert className="mt-1 h-4 w-4 shrink-0 text-[#D97706]" strokeWidth={2.1} aria-hidden="true" />
+                  <p>{text(paragraph, language)}</p>
+                </div>
+              ))}
+            </div>
+          ) : extra.id === 'colab-coding-requirements' ? (
+            <div className={cx('mx-auto flex max-w-3xl gap-3 rounded-lg px-4 py-3 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
+              <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-[#D97706]" strokeWidth={2.1} aria-hidden="true" />
+              <div className="min-w-0">
                 {extra.bodyAfter.map((paragraph) => (
                   <p key={text(paragraph, language)}>{text(paragraph, language)}</p>
                 ))}
@@ -733,26 +745,34 @@ function ConceptHighlightRow({
   shortName,
   fullName,
   description,
+  isActive,
   themeClasses,
+  onActivate,
 }: {
   shortName: string;
   fullName: string;
   description: string;
+  isActive: boolean;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
+  onActivate: () => void;
 }) {
   const rowTone = themeClasses.isLight
-    ? 'bg-[#B8C8DA]/20 hover:bg-[#B8C8DA]/34'
-    : 'bg-[#A8B8C8]/6 hover:bg-[#A8B8C8]/10';
+    ? 'border border-[#205089]/10 bg-white hover:bg-white'
+    : 'border border-[#A8B8C8]/14 bg-[#121A24]/42 hover:bg-[#121A24]/56';
 
   return (
     <div
+      data-active={isActive ? 'true' : undefined}
+      tabIndex={0}
+      onFocus={onActivate}
+      onMouseEnter={onActivate}
       className={cx(
-        'group grid gap-2 px-3 py-2 text-sm transition-colors sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:items-start',
+        'learning-lab-focus-panel group grid gap-2 px-3 py-2 text-sm transition-[background-color,box-shadow,filter,opacity,transform] duration-200 sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-start',
         themeClasses.radius.button,
         rowTone,
       )}
     >
-      <div className={cx('font-black leading-6', themeClasses.titleText)}>{shortName}</div>
+      <div className={cx('whitespace-nowrap font-black leading-6', themeClasses.titleText)}>{shortName}</div>
       <div className="min-w-0">
         <div className={cx('font-normal leading-6', themeClasses.titleText)}>{fullName}</div>
         <p className={cx('mt-0.5 leading-6', themeClasses.bodyText)}>{description}</p>
