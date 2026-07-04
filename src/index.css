@@ -706,14 +706,12 @@ body {
 }
 
 .learning-lab-focus-panel {
-  opacity: 0.58;
-  filter: saturate(0.78);
+  opacity: 1;
+  filter: saturate(1);
 }
 
-.learning-lab-focus-group:has(.learning-lab-focus-panel:hover) .learning-lab-focus-panel:not(:hover),
-.learning-lab-focus-group:has(.learning-lab-focus-panel:focus-within) .learning-lab-focus-panel:not(:focus-within) {
-  opacity: 0.48;
-  filter: saturate(0.72);
+.learning-lab-focus-group {
+  padding-inline: 2px;
 }
 
 .learning-lab-focus-group {
