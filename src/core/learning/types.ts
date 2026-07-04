@@ -165,6 +165,10 @@ export type LearningLessonExtra =
         shortName: LearningLocalizedText;
         fullName: LearningLocalizedText;
         description: LearningLocalizedText;
+        links?: Array<{
+          label: LearningLocalizedText;
+          href: string;
+        }>;
       }>;
       comparisonTable?: {
         columns: LearningLocalizedText[];

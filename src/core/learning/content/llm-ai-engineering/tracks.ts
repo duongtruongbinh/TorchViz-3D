@@ -8,6 +8,14 @@ export const chapters: LearningChapterSeed[] = [
     textKey: 'llmFromScratchOrientation',
     lessonIds: [
       lessonSeed(
+        'minimal-llm-project-skeleton',
+        'Requirements',
+        'Yêu cầu',
+        [],
+        ['theory'],
+        'next',
+      ),
+      lessonSeed(
         'llm-from-scratch-roadmap',
         'LLM from scratch roadmap',
         'Roadmap LLM from Scratch',
@@ -22,14 +30,6 @@ export const chapters: LearningChapterSeed[] = [
         [],
         ['theory'],
         'available',
-      ),
-      lessonSeed(
-        'minimal-llm-project-skeleton',
-        'Colab coding requirements',
-        'Yêu cầu coding',
-        [],
-        ['theory'],
-        'next',
       ),
     ],
   },

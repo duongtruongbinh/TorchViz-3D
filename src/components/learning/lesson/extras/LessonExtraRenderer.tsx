@@ -4,6 +4,7 @@ import type { LearningLessonExtra } from '../../../../core/learning/types';
 import { getStrings, type Language } from '../../../../lib/localization';
 import { renderLlmAiEngineeringExtra } from '../../domains/llm-ai-engineering/renderers';
 import { cx, getLearningLabTheme } from '../../theme';
+import { getLearningAssetUrl } from './assetRegistry';
 import { scrollLearningLabElementIntoView } from '../scrolling';
 import ExtraFrame from './ExtraFrame';
 import { text } from './lessonExtraText';
@@ -579,7 +580,59 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
           </p>
         ))}
 
-        {extra.highlights && (
+        {extra.highlights && extra.id === 'why-llms-are-popular-now' ? (
+          <>
+            <div className="learning-lab-focus-group grid gap-3 md:grid-cols-3">
+              {extra.highlights.slice(0, 3).map((item, itemIndex) => (
+                <ConceptHighlightCard
+                  key={text(item.shortName, language)}
+                  shortName={text(item.shortName, language)}
+                  fullName={text(item.fullName, language)}
+                  description={text(item.description, language)}
+                  links={item.links?.map((link) => ({ label: text(link.label, language), href: link.href }))}
+                  toneIndex={itemIndex}
+                  isActive={activeHighlightIndex === itemIndex}
+                  themeClasses={themeClasses}
+                  onActivate={() => setActiveHighlightIndex(itemIndex)}
+                />
+              ))}
+            </div>
+            <figure className={cx('mx-auto w-full max-w-4xl overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
+              <img
+                src={getLearningAssetUrl('llm-from-scratch-roadmap.why-llms-popular-product')}
+                alt="Ba lý do LLM dễ ứng dụng trong doanh nghiệp: dễ dùng, đa nhiệm và dễ tích hợp."
+                className="aspect-[1672/941] w-full object-contain"
+                loading="lazy"
+              />
+            </figure>
+            <div className="learning-lab-focus-group grid gap-3 md:grid-cols-3">
+              {extra.highlights.slice(3).map((item, itemOffset) => {
+                const itemIndex = itemOffset + 3;
+                return (
+                  <ConceptHighlightCard
+                    key={text(item.shortName, language)}
+                    shortName={text(item.shortName, language)}
+                    fullName={text(item.fullName, language)}
+                    description={text(item.description, language)}
+                    links={item.links?.map((link) => ({ label: text(link.label, language), href: link.href }))}
+                    toneIndex={itemIndex}
+                    isActive={activeHighlightIndex === itemIndex}
+                    themeClasses={themeClasses}
+                    onActivate={() => setActiveHighlightIndex(itemIndex)}
+                  />
+                );
+              })}
+            </div>
+            <figure className={cx('mx-auto w-full max-w-4xl overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
+              <img
+                src={getLearningAssetUrl('llm-from-scratch-roadmap.why-llms-popular-technical')}
+                alt="Ba lý do kỹ thuật giúp AI hiện đại phát triển mạnh: Transformer, big data và GPU compute."
+                className="aspect-[1672/941] w-full object-contain"
+                loading="lazy"
+              />
+            </figure>
+          </>
+        ) : extra.highlights ? (
           <div className="learning-lab-focus-group grid gap-3">
             {extra.highlights.map((item, itemIndex) => (
               <ConceptHighlightRow
@@ -587,13 +640,14 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
                 shortName={text(item.shortName, language)}
                 fullName={text(item.fullName, language)}
                 description={text(item.description, language)}
+                links={item.links?.map((link) => ({ label: text(link.label, language), href: link.href }))}
                 isActive={activeHighlightIndex === itemIndex}
                 themeClasses={themeClasses}
                 onActivate={() => setActiveHighlightIndex(itemIndex)}
               />
             ))}
           </div>
-        )}
+        ) : null}
 
         {extra.comparisonTable && (
           <div className={cx('overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/32')}>
@@ -745,6 +799,7 @@ function ConceptHighlightRow({
   shortName,
   fullName,
   description,
+  links,
   isActive,
   themeClasses,
   onActivate,
@@ -752,10 +807,12 @@ function ConceptHighlightRow({
   shortName: string;
   fullName: string;
   description: string;
+  links?: Array<{ label: string; href: string }>;
   isActive: boolean;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
   onActivate: () => void;
 }) {
+  const descriptionLines = description.split('\n').filter(Boolean);
   const rowTone = themeClasses.isLight
     ? 'border border-[#205089]/10 bg-white hover:bg-white'
     : 'border border-[#A8B8C8]/14 bg-[#121A24]/42 hover:bg-[#121A24]/56';
@@ -775,8 +832,111 @@ function ConceptHighlightRow({
       <div className={cx('whitespace-nowrap font-black leading-6', themeClasses.titleText)}>{shortName}</div>
       <div className="min-w-0">
         <div className={cx('font-normal leading-6', themeClasses.titleText)}>{fullName}</div>
-        <p className={cx('mt-0.5 leading-6', themeClasses.bodyText)}>{description}</p>
+        {descriptionLines.length > 1 ? (
+          <ul className={cx('mt-1 grid gap-1 leading-6', themeClasses.bodyText)}>
+            {descriptionLines.map((line) => (
+              <li key={line} className="flex gap-2">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-55" aria-hidden="true" />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={cx('mt-0.5 leading-6', themeClasses.bodyText)}>{description}</p>
+        )}
+        {links && links.length > 0 && (
+          <ul className={cx('mt-2 grid gap-1.5 text-xs leading-5', themeClasses.bodyText)}>
+            {links.map((link) => (
+              <li key={link.href} className="flex min-w-0 gap-2">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-55" aria-hidden="true" />
+                <span className="min-w-0">
+                  <span className={cx('font-black', themeClasses.titleText)}>{link.label}: </span>
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={cx('break-all font-semibold underline decoration-dotted underline-offset-4', themeClasses.accentText)}
+                  >
+                    {link.href}
+                  </a>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+    </div>
+  );
+}
+
+function ConceptHighlightCard({
+  shortName,
+  fullName,
+  description,
+  links,
+  toneIndex,
+  isActive,
+  themeClasses,
+  onActivate,
+}: {
+  shortName: string;
+  fullName: string;
+  description: string;
+  links?: Array<{ label: string; href: string }>;
+  toneIndex: number;
+  isActive: boolean;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+  onActivate: () => void;
+}) {
+  const lightTones = [
+    'border border-[#2F6F9F]/14 bg-[#EEF6FB] hover:bg-[#E7F2FA]',
+    'border border-[#2F6B55]/14 bg-[#EEF7F2] hover:bg-[#E7F2EC]',
+    'border border-[#B7791F]/16 bg-[#FFF7E6] hover:bg-[#FFF1D1]',
+  ];
+  const darkTones = [
+    'border border-[#8FC7EA]/18 bg-[#183044]/52 hover:bg-[#1D3951]/62',
+    'border border-[#A6E8C1]/18 bg-[#173528]/52 hover:bg-[#1C4030]/62',
+    'border border-[#F2C94C]/20 bg-[#3A2D12]/50 hover:bg-[#473716]/62',
+  ];
+  const rowTone = themeClasses.isLight
+    ? lightTones[toneIndex % lightTones.length]
+    : darkTones[toneIndex % darkTones.length];
+
+  return (
+    <div
+      data-active={isActive ? 'true' : undefined}
+      tabIndex={0}
+      onFocus={onActivate}
+      onMouseEnter={onActivate}
+      className={cx(
+        'learning-lab-focus-panel group grid content-start gap-2 px-3 py-3 text-sm transition-[background-color,box-shadow,filter,opacity,transform] duration-200',
+        themeClasses.radius.button,
+        rowTone,
+      )}
+    >
+      <div className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{shortName}</div>
+      <div className={cx('text-sm font-normal leading-6', themeClasses.titleText)}>{fullName}</div>
+      <p className={cx('leading-6', themeClasses.bodyText)}>{description}</p>
+      {links && links.length > 0 && (
+        <ul className={cx('mt-1 grid gap-1.5 text-xs leading-5', themeClasses.bodyText)}>
+          {links.map((link) => (
+            <li key={link.href} className="flex min-w-0 gap-2">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-55" aria-hidden="true" />
+              <span className="min-w-0">
+                <span className={cx('font-black', themeClasses.titleText)}>{link.label}: </span>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={cx('break-all font-semibold underline decoration-dotted underline-offset-4', themeClasses.accentText)}
+                >
+                  {link.href}
+                </a>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
