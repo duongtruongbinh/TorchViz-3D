@@ -121,7 +121,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
       if (tone === 'selected') return isLight ? 'text-[#123F63]' : 'text-[#E2EAF1]';
       if (tone === 'quiet') {
         return isLight
-          ? 'text-[#6C7A88] group-hover:text-[#254F70]'
+          ? 'text-[#526676] group-hover:text-[#254F70]'
           : 'text-[#A8B4C0] group-hover:text-[#D8E3EC]';
       }
       if (tone === 'future') {
@@ -136,7 +136,9 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     lessonNumber: (tone: LearningRailLessonTone, isCompleted: boolean) => {
       if (isCompleted) {
         return tone === 'quiet'
-          ? 'border-[#2FBF71]/40 bg-[#2FBF71]/20 text-[#2FBF71]'
+          ? isLight
+            ? 'border-[#2FBF71]/42 bg-[#DDF7EA] text-[#2FBF71]'
+            : 'border-[#2FBF71]/40 bg-[#123D28] text-[#A6E8C1]'
           : 'border-[#2FBF71] bg-[#2FBF71] text-white shadow-[0_4px_10px_rgba(47,191,113,0.24)]';
       }
       if (tone === 'selected') {
@@ -153,7 +155,9 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
           : 'border-[#A8B8C8]/25 bg-[#A8B8C8]/10 text-[#F2F6FA]/60';
     },
     lessonConnector: (tone: LearningRailLessonTone, isCompleted: boolean) => {
-      if (isCompleted) return tone === 'quiet' ? 'bg-[#2FBF71]/30' : 'bg-[#2FBF71]';
+      if (isCompleted) {
+        return tone === 'quiet' ? 'bg-[#2FBF71]/30' : 'bg-[#2FBF71]';
+      }
       return isLight
         ? tone === 'quiet' ? 'bg-[#8A94A3]/10' : 'bg-[#8A94A3]/30'
         : tone === 'quiet' ? 'bg-[#A8B8C8]/10' : 'bg-[#A8B8C8]/20';

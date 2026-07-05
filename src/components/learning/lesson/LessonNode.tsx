@@ -9,6 +9,7 @@ type LessonNodeProps = {
   lesson: LearningLesson;
   index: number;
   isCompleted: boolean;
+  isConnectorCompleted: boolean;
   isLast: boolean;
   isSelected: boolean;
   isTrackActive: boolean;
@@ -17,7 +18,7 @@ type LessonNodeProps = {
   onSelect: (lessonId: string) => void;
 };
 
-function LessonNode({ lesson, index, isCompleted, isLast, isSelected, isTrackActive, language, theme, onSelect }: LessonNodeProps) {
+function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, isSelected, isTrackActive, language, theme, onSelect }: LessonNodeProps) {
   const lessonText = getUnifiedLessonText(language, lesson);
   const themeClasses = getLearningLabTheme(theme);
   const tone = getLessonTone({ isCompleted, isSelected, isTrackActive });
@@ -35,7 +36,7 @@ function LessonNode({ lesson, index, isCompleted, isLast, isSelected, isTrackAct
     >
       <span className="relative flex h-9 w-[30px] shrink-0 justify-center">
         {!isLast ? (
-          <span className={cx('absolute left-1/2 top-7 h-[calc(100%+0.5rem)] w-0.5 -translate-x-1/2', themeClasses.rail.lessonConnector(tone, isCompleted))} aria-hidden="true" />
+          <span className={cx('absolute left-1/2 top-7 h-[calc(100%+0.5rem)] w-0.5 -translate-x-1/2', themeClasses.rail.lessonConnector(tone, isConnectorCompleted))} aria-hidden="true" />
         ) : null}
         <span
           className={cx(

@@ -174,12 +174,16 @@ export default function LessonRail({
                 <div className="ml-5 grid gap-0">
                   {lessons.map((lesson, lessonIndex) => {
                     const index = lessonIndexById.get(lesson.id) ?? lessonIndex;
+                    const nextLesson = lessons[lessonIndex + 1] ?? null;
+                    const isCompleted = completedLessonIds.has(lesson.id);
+                    const isConnectorCompleted = isCompleted && Boolean(nextLesson && completedLessonIds.has(nextLesson.id));
                     return (
                       <LessonNode
                         key={lesson.id}
                         lesson={lesson}
                         index={index}
-                        isCompleted={completedLessonIds.has(lesson.id)}
+                        isCompleted={isCompleted}
+                        isConnectorCompleted={isConnectorCompleted}
                         isLast={lessonIndex === lessons.length - 1}
                         isSelected={lesson.id === selectedLesson.id}
                         isTrackActive={isCurrentTrack}

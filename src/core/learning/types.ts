@@ -165,7 +165,18 @@ export type LearningLessonExtra =
         shortName: LearningLocalizedText;
         fullName: LearningLocalizedText;
         description: LearningLocalizedText;
+        links?: Array<{
+          label: LearningLocalizedText;
+          href: string;
+        }>;
       }>;
+      comparisonTable?: {
+        columns: LearningLocalizedText[];
+        rows: Array<{
+          label: LearningLocalizedText;
+          cells: LearningLocalizedText[];
+        }>;
+      };
       outline?: Array<{
         title: LearningLocalizedText;
         body: LearningLocalizedText;

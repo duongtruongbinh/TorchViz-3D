@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, Beaker, BookOpen, Calculator, Code2, type LucideIcon } from 'lucide-react';
-import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import type { LearningLesson, LearningLessonExtra } from '../../../core/learning/types';
 import type { Language } from '../../../lib/localization';
 import { getStrings } from '../../../lib/localization';
@@ -31,9 +31,7 @@ export default function LessonDetail({
   const themeClasses = getLearningLabTheme(theme);
   const sectionDivider = themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12';
   const [sectionPageIndex, setSectionPageIndex] = useState(0);
-  const [hasReadCurrentPage, setHasReadCurrentPage] = useState(true);
   const [quizQuestionStates, setQuizQuestionStates] = useState<Record<string, QuizQuestionState>>({});
-  const pageViewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setSectionPageIndex(0);
@@ -74,12 +72,17 @@ export default function LessonDetail({
       }
       if (!lessonText.theory.length && sectionExtras.length) {
         return getSectionExtraPages(sectionExtras).map(({ key, extras }) => (
-          <SectionShell key={`${section.kind}-${section.refId}-${key}`} sectionDivider={sectionDivider}>
+          <SectionShell
+            key={`${section.kind}-${section.refId}-${key}`}
+            sectionDivider={sectionDivider}
+            className={extras.every((extra) => extra.kind === 'quiz') ? 'pt-3 md:pt-4' : undefined}
+          >
             <LessonExtras
               extras={extras}
               language={language}
               quizQuestionStates={quizQuestionStates}
               themeClasses={themeClasses}
+              className={extras.every((extra) => extra.kind === 'quiz') ? 'grid gap-4' : undefined}
               onQuizQuestionStateChange={updateQuizQuestionState}
             />
           </SectionShell>
@@ -125,55 +128,18 @@ export default function LessonDetail({
   });
   const currentSectionPageIndex = Math.min(sectionPageIndex, Math.max(sectionPages.length - 1, 0));
   const canGoBack = currentSectionPageIndex > 0;
-  const canGoNext = currentSectionPageIndex < sectionPages.length - 1 && hasReadCurrentPage;
+  const canGoNext = currentSectionPageIndex < sectionPages.length - 1;
   const hasNextPage = currentSectionPageIndex < sectionPages.length - 1;
-  const canCompleteLesson = !hasNextPage && hasReadCurrentPage && hasNextLesson;
-  const nextButtonTitle = hasNextPage && !hasReadCurrentPage
-    ? strings.learningLab.lessonScrollToContinue
-    : strings.learningLab.lessonNextSection;
-  const completeButtonTitle = !hasReadCurrentPage
-    ? strings.learningLab.lessonScrollToContinue
-    : strings.learningLab.lessonCompleteAndContinue;
-  const updateCurrentPageReadState = useCallback(() => {
-    const viewport = pageViewportRef.current;
-    if (!viewport) return;
-    const scrollBuffer = 2;
-    const isScrollable = viewport.scrollHeight > viewport.clientHeight + scrollBuffer;
-    const isAtBottom = viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - scrollBuffer;
-    if (!isScrollable || isAtBottom) {
-      setHasReadCurrentPage(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    const viewport = pageViewportRef.current;
-    if (!viewport) return;
-    viewport.scrollTop = 0;
-    setHasReadCurrentPage(false);
-
-    const frameId = window.requestAnimationFrame(updateCurrentPageReadState);
-    const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateCurrentPageReadState);
-    resizeObserver?.observe(viewport);
-    if (viewport.firstElementChild) {
-      resizeObserver?.observe(viewport.firstElementChild);
-    }
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      resizeObserver?.disconnect();
-    };
-  }, [currentSectionPageIndex, lesson.id, updateCurrentPageReadState]);
+  const canCompleteLesson = !hasNextPage && hasNextLesson;
 
   return (
-    <article className={cx('grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden border shadow-sm', themeClasses.radius.panel, themeClasses.surface.card)}>
+    <article className={cx('grid min-w-0 overflow-hidden border shadow-sm', themeClasses.radius.panel, themeClasses.surface.card)}>
       <header className={cx('border-b px-5 py-5 md:px-6', sectionDivider)}>
         <h2 className={cx('learning-lab-lesson-title text-2xl font-black leading-tight', themeClasses.lessonTitleText)}>{lessonText.title}</h2>
       </header>
 
       <div
-        ref={pageViewportRef}
-        onScroll={updateCurrentPageReadState}
-        className={cx('custom-scrollbar learning-lab-scrollbar grid min-h-0 min-w-0 overflow-y-auto overflow-x-hidden', themeClasses.lessonPageViewport)}
+        className={cx('grid min-w-0 overflow-visible', themeClasses.lessonPageViewport)}
       >
         {sectionPages[currentSectionPageIndex] ?? null}
       </div>
@@ -182,7 +148,10 @@ export default function LessonDetail({
         <footer className={cx('flex items-center justify-between gap-3 border-t px-5 py-4 md:px-6', sectionDivider)}>
           <button
             type="button"
-            onClick={() => setSectionPageIndex((value) => Math.max(value - 1, 0))}
+            onClick={(event) => {
+              scrollLearningContentAreaToTop(event.currentTarget);
+              setSectionPageIndex((value) => Math.max(value - 1, 0));
+            }}
             disabled={!canGoBack}
             className={getLessonPagerButtonClass(themeClasses, canGoBack)}
           >
@@ -195,15 +164,15 @@ export default function LessonDetail({
           {hasNextPage ? (
             <button
               type="button"
-              onClick={() => {
+              onClick={(event) => {
                 if (!canGoNext) return;
-                setHasReadCurrentPage(false);
+                scrollLearningContentAreaToTop(event.currentTarget);
                 setSectionPageIndex((value) => Math.min(value + 1, sectionPages.length - 1));
               }}
               disabled={!canGoNext}
               className={getLessonPagerButtonClass(themeClasses, canGoNext)}
-              title={nextButtonTitle}
-              aria-label={nextButtonTitle}
+              title={strings.learningLab.lessonNextSection}
+              aria-label={strings.learningLab.lessonNextSection}
             >
               {strings.learningLab.lessonNextSection}
               <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
@@ -217,8 +186,8 @@ export default function LessonDetail({
               }}
               disabled={!canCompleteLesson}
               className={getLessonCompleteButtonClass(themeClasses, canCompleteLesson)}
-              title={completeButtonTitle}
-              aria-label={completeButtonTitle}
+              title={strings.learningLab.lessonCompleteAndContinue}
+              aria-label={strings.learningLab.lessonCompleteAndContinue}
             >
               {strings.learningLab.lessonCompleteAndContinue}
             </button>
@@ -227,6 +196,11 @@ export default function LessonDetail({
       ) : null}
     </article>
   );
+}
+
+function scrollLearningContentAreaToTop(element: HTMLElement) {
+  const scrollContainer = element.closest('.learning-lab-content-area') as HTMLElement | null;
+  scrollContainer?.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function isMotivationExtra(extra: LearningLessonExtra): extra is Extract<LearningLessonExtra, { kind: 'motivation' }> {
@@ -284,7 +258,7 @@ function SectionShell({
   className?: string;
 }) {
   return (
-    <section className={cx('learning-lab-lesson-page-section min-h-full border-t px-5 py-5 first:border-t-0 md:px-6 md:py-6', sectionDivider, className)}>
+    <section className={cx('learning-lab-lesson-page-section border-t px-5 py-5 first:border-t-0 md:px-6 md:py-6', sectionDivider, className)}>
       {children}
     </section>
   );

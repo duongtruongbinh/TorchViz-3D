@@ -2,6 +2,26 @@ import type { LearningLessonExtra } from '../../types.ts';
 import { LLM_AI_ENGINEERING_REFERENCE_LINKS } from './references.ts';
 
 export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
+  'llm-data-pipeline-overview': [
+    conceptPanel('llm-data-pipeline-architecture', 'llm-data-pipeline-overview', 'LLM data pipeline overview', {
+      body: [
+        'Text thô không đi thẳng vào Transformer. Một LLM from scratch cần một pipeline biến văn bản thành tensor học được, rồi biến output của model thành tín hiệu loss hoặc text sinh ra.',
+      ],
+      highlights: [
+        ['1', 'Raw text', 'Văn bản ban đầu đưa vào pipeline: có thể là prompt chưa đầy đủ như "Tôi thích", hoặc đoạn text trong dataset.'],
+        ['2', 'Tokenization', 'Cắt raw text thành token: từ, ký tự, mảnh subword, dấu câu, khoảng trắng hoặc special token.'],
+        ['3', 'Token IDs & vocabulary', 'Ánh xạ mỗi token thành một số nguyên ổn định để model có thể tra embedding.'],
+        ['4', 'Token embedding', 'Biến token ids thành vector biểu diễn nội dung của từng token.'],
+        ['5', 'Positional embedding', 'Cộng thêm vector vị trí để model biết token đang nằm ở đâu trong context window.'],
+        ['6', 'GPT model', 'GPT blocks tạo representation có ngữ cảnh cho từng vị trí. Output head biến mỗi vị trí thành logits trên toàn bộ vocabulary.'],
+        ['7', 'Training signal', 'Trong training, logits được so với target token kế tiếp bằng cross-entropy loss để cập nhật tham số.'],
+        ['7*', 'Decode', 'Khi generation, lấy logits ở vị trí cuối, chọn hoặc sample token id, rồi decode token đó thành text.'],
+      ],
+      bodyAfter: [
+        'Chương 1.2 bắt đầu ở bước 2: tokenization. Khi bước này rõ, các node sau sẽ nối dần sang vocabulary, dataloader, embedding và training loop.',
+      ],
+    }),
+  ],
   'llm-from-scratch-roadmap': [
     motivation(
       'llm-roadmap-motivation',
@@ -14,13 +34,32 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       'Sơ đồ tổng quan các lĩnh vực AI từ phạm vi rộng đến chuyên biệt.',
       aiHierarchy(),
     ),
+    conceptPanel('why-split-ai-fields', 'llm-from-scratch-roadmap', 'Vì sao cần chia như vậy?', {
+      body: [
+        'Việc chia AI thành AI, ML, Deep Learning, NLP, CV, LLM không phải để học thuộc tên gọi. Mục tiêu là nhìn ra mỗi lớp đang giải một kiểu bài toán khác nhau.',
+        'Khi bài toán khác nhau, dữ liệu đầu vào, cách đánh giá, mô hình phù hợp, lỗi thường gặp và công cụ làm việc cũng khác nhau. Nhận ra mình đang đứng ở lớp nào giúp bạn học đúng kỹ năng thay vì gom mọi thứ vào một chữ AI rất rộng.',
+      ],
+      comparisonTable: {
+        columns: ['Nhánh', 'Bài toán thường gặp', 'Công cụ / mô hình', 'Kỹ năng & công việc'],
+        rows: [
+          ['ML', 'Dự đoán churn, scoring tín dụng, phân cụm khách hàng, dự báo nhu cầu.', 'Scikit-learn, XGBoost, LightGBM, feature store, tabular pipelines.', 'Feature engineering, metrics, experiment tracking; ML Engineer, Data Scientist.'],
+          ['CV', 'Nhận diện vật thể, phân loại ảnh, OCR, kiểm tra lỗi sản phẩm bằng camera.', 'CNN, ViT, YOLO, augmentation, OpenCV, labeling tools.', 'Xử lý ảnh/video, dataset labeling, deployment edge; Computer Vision Engineer.'],
+          ['LLM', 'Chatbot, summarization, RAG search, extraction, coding assistant, agent workflow.', 'Tokenizer, Transformer, embedding, vector database, prompt/tool calling APIs.', 'Tokenization, context, prompting, evaluation, serving; LLM Engineer, AI Product Engineer.'],
+        ],
+      },
+      bodyAfter: [
+        'Một nghề cho chín còn hơn chín nghề. Trong thực tế, một đội ngũ AI tốt thường có nhiều chuyên gia ở các lĩnh vực khác nhau: mỗi người chịu trách nhiệm chính cho một kiểu bài toán, còn những người khác thường ở vai trò phối hợp và hỗ trợ.',
+        'Với sinh viên mới ra trường, việc tìm hiểu doanh nghiệp đang giải bài toán gì trước khi apply rất quan trọng. Nếu bạn hiểu domain của họ và điều chỉnh CV, project, cách kể kinh nghiệm theo đúng bài toán đó, cơ hội mở ra những cuộc trò chuyện chất lượng sẽ cao hơn rất nhiều.',
+      ],
+    }),
     conceptInteraction(
       'what-is-llm',
       'llm-from-scratch-roadmap',
-      'LLM là gì?',
+      'Large Language Model là gì?',
       [
+        'Nhìn vào tên gọi, ta có thể đoán đây là một mô hình AI chuyên làm việc với ngôn ngữ: chatbot, tóm tắt văn bản, phân tích cảm xúc, trích xuất thông tin, hoặc hỗ trợ viết code.',
         'Khi bạn đặt câu hỏi với ChatGPT, bản chất là bạn đang đưa cho một mô hình LLM một đoạn văn bản mở đầu và nó sẽ dự đoán xem tiếp theo nên trả lời cho bạn như thế nào.',
-        'LLM, viết tắt của Large Language Model, là một mô hình được huấn luyện để dự đoán token tiếp theo trong một chuỗi. Token có thể là một từ, một phần của từ, dấu câu, hoặc ký hiệu đặc biệt. Quá trình này lặp đi lặp lại nhiều lần cho đến khi mô hình tạo ra một câu, một đoạn văn, hoặc một câu trả lời hoàn chỉnh.',
+        'Large Language Model (LLM) là một mô hình được huấn luyện để dự đoán token tiếp theo trong một chuỗi. Token có thể là một từ, một phần của từ, dấu câu, hoặc ký hiệu đặc biệt. Quá trình này lặp đi lặp lại nhiều lần cho đến khi mô hình tạo ra một câu, một đoạn văn, hoặc một câu trả lời hoàn chỉnh.',
         'Điểm quan trọng là LLM không tạo ra câu trả lời trong một lượt duy nhất. Các từ sẽ xuất hiện lần lượt: mô hình nhìn vào toàn bộ ngữ cảnh đã có, chọn token tiếp theo có xác suất phù hợp, ghép token đó vào câu, rồi dùng câu mới làm ngữ cảnh cho bước tiếp theo.',
       ],
       '',
@@ -96,6 +135,22 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
         'Quy mô lớn, nhưng kiến thức cơ bản đều giống nhau. Trong course này, mục tiêu là hiểu rõ từng cơ chế và tự build một phiên bản nhỏ GPT-mini.',
       ],
     }),
+    conceptPanel('why-llms-are-popular-now', 'llm-from-scratch-roadmap', 'Vì sao LLM phổ biến đến vậy?', {
+      body: [
+        'LLM không chỉ mạnh hơn các model NLP cũ. Điểm làm chúng phổ biến là chúng biến rất nhiều bài toán khác nhau thành một giao diện quen thuộc: nhập ngôn ngữ tự nhiên, nhận lại câu trả lời, đoạn code, bản tóm tắt, hoặc dữ liệu đã được cấu trúc.',
+      ],
+      highlights: [
+        ['Dễ dùng', 'Ngôn ngữ tự nhiên trở thành giao diện', 'Người dùng không cần biết cú pháp phức tạp. Họ có thể mô tả mục tiêu bằng lời, giống như đang trao đổi với một trợ lý.'],
+        ['Đa nhiệm', 'Một model có thể làm nhiều việc', 'Cùng một nền tảng có thể chat, tóm tắt, dịch, phân tích cảm xúc, trích xuất thông tin, viết code, hoặc hỗ trợ tìm kiếm tri thức.'],
+        ['Dễ tích hợp', 'API và tooling làm tốc độ thử nghiệm rất nhanh', 'Doanh nghiệp có thể bắt đầu bằng API, prompt, RAG, tool calling hoặc workflow agent trước khi nghĩ tới training model riêng.'],
+        ['Transformer', 'Kiến trúc giúp học ngữ cảnh dài hiệu quả hơn', 'Transformer thay đổi cách model xử lý chuỗi: attention cho phép mỗi token đọc các token liên quan trong context, đồng thời dễ song song hóa hơn RNN/LSTM khi train trên dữ liệu lớn.'],
+        ['Big data', 'Internet tạo ra nguồn text khổng lồ để pretrain', 'Web text, sách, code, tài liệu và dữ liệu hội thoại giúp model học nhiều pattern ngôn ngữ, kiến thức phổ thông, style viết và cấu trúc task khác nhau.'],
+        ['GPU/Compute', 'Phần cứng làm scale trở nên khả thi', 'GPU/TPU và hạ tầng distributed training cho phép train model nhiều tham số trên batch lớn trong thời gian chấp nhận được, biến ý tưởng scale thành sản phẩm thực tế.'],
+      ],
+      bodyAfter: [
+        'Vì vậy LLM vừa là một hướng nghiên cứu model, vừa là một nền tảng sản phẩm. Người học cần hiểu cơ chế bên trong để biết khi nào model thật sự phù hợp, khi nào cần dữ liệu tốt hơn, và khi nào cần thiết kế hệ thống xung quanh model.',
+      ],
+    }),
     conceptPanel('course-section-roadmap', 'llm-from-scratch-roadmap', 'Roadmap domain LLM & AI Engineering', {
       outline: [
         ['LLM from scratch', 'Phần nền tảng nhất: hiểu cách text được biến thành dữ liệu học, sau đó ghép dần thành một GPT mini có thể train và generate.', [
@@ -130,6 +185,45 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
     }),
     conceptPanel('llm-main-references', 'llm-from-scratch-roadmap', 'Nguồn tham khảo chính', {
       links: LLM_AI_ENGINEERING_REFERENCE_LINKS.map(({ label, href }) => [label, href]),
+    }),
+  ],
+  'minimal-llm-project-skeleton': [
+    conceptPanel('colab-coding-requirements', 'minimal-llm-project-skeleton', 'Yêu cầu & setup trước khi học', {
+      body: [
+        'Giai đoạn đầu của course khuyến nghị chạy tuần tự trên Google Colab. Bạn chỉ cần chuẩn bị đủ vài tool bên dưới, sau đó tập trung vào token, shape, mask, logits, loss và generation loop.',
+      ],
+      highlights: [
+        ['Cần biết trước', 'Nền tảng tối thiểu', 'Biết dùng Google Colab và đọc lỗi Python đơn giản.\nNắm NumPy và PyTorch cơ bản: tensor, module, forward, loss.\nĐã học Neural Networks và các sequence-to-sequence model như RNN, LSTM, GRU.'],
+        ['Google Colab', 'Môi trường chính cho giai đoạn đầu', 'Dùng để mở notebook, chạy cell từ trên xuống dưới, upload dataset/file .py khi cần, và bật GPU ở các phần train nặng.'],
+        ['Python', 'Ngôn ngữ và runtime chính', 'Cần biết chạy script/notebook, đọc traceback cơ bản, dùng pip/venv ở mức đơn giản. Nếu chỉ chạy Colab thì Python đã có sẵn, nhưng local vẫn nên cài Python để làm project sau này.'],
+        ['uv', 'Tool cài dependency nhanh', 'Dùng để cài requirements trong Colab hoặc local nhanh hơn pip. Ví dụ trên Colab có thể chạy ở cell đầu: pip install uv && uv pip install --system -r https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/refs/heads/main/requirements.txt'],
+        ['VSCode', 'Editor cho local/project về sau', 'Chưa bắt buộc ở những notebook đầu, nhưng nên chuẩn bị để đọc code nhiều file, chỉnh module, dùng terminal, Git và extension Python khi chuyển sang project GPT-mini hoàn chỉnh.'],
+        ['Kiểm tra được', 'Mỗi bước phải in shape và ví dụ nhỏ', 'Section nào tạo tensor hoặc object mới thì phải có output quan sát được: shape, vài giá trị mẫu, hoặc một assert đơn giản.\nNếu một cell lỗi, sửa ngay tại cell đó rồi chạy lại các cell phụ thuộc phía sau; đừng nhảy qua lỗi rồi debug ở cuối notebook.'],
+      ],
+      highlightLinks: [
+        [],
+        [
+          ['Document', 'https://colab.research.google.com/'],
+          ['Video', 'https://www.youtube.com/watch?v=RLYoEyIHL6A'],
+        ],
+        [
+          ['Document', 'https://docs.python.org/3/using/index.html'],
+          ['Video', 'https://www.youtube.com/watch?v=YYXdXT2l-Gg'],
+        ],
+        [
+          ['Document', 'https://docs.astral.sh/uv/getting-started/installation/'],
+          ['Video', 'https://www.youtube.com/watch?v=AMdG7IjgSPM'],
+        ],
+        [
+          ['Document', 'https://code.visualstudio.com/docs/setup/setup-overview'],
+          ['Video', 'https://learn.microsoft.com/en-us/shows/visual-studio-code/learn-visual-studio-code-in-7min-official-beginner-tutorial'],
+        ],
+        [],
+      ],
+      bodyAfter: [
+        'Tóm lại: chuẩn bị Colab, Python, uv và VSCode ở mức vừa đủ. Course sẽ bắt đầu bằng Colab cho đơn giản, sau đó mới chuyển sang local/VSCode khi cần làm việc như một project thật.',
+        'Về sau, đến chương build GPT-mini hoàn chỉnh, chúng ta sẽ gom các phần đã chạy trên Colab thành project OOP với cấu trúc thư mục rõ ràng hơn: config, tokenizer/dataset, model, trainer, generator và checkpoint.',
+      ],
     }),
   ],
   'llm-component-checkpoint-quiz': [
@@ -172,8 +266,7 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
         categories: [
           ['word', 'Một từ'],
           ['subword', 'Một phần của từ'],
-          ['punctuation', 'Dấu câu'],
-          ['whitespace', 'Khoảng trắng'],
+          ['punctuation-whitespace', 'Dấu câu & khoảng trắng'],
           ['special-symbol', 'Ký hiệu đặc biệt'],
         ],
         options: [
@@ -181,10 +274,10 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
           ['model', 'model', 'word'],
           ['sub-ing', '##ing', 'subword'],
           ['sub-tion', 'tion', 'subword'],
-          ['comma', ',', 'punctuation'],
-          ['question-mark', '?', 'punctuation'],
-          ['space', 'space', 'whitespace'],
-          ['newline', '\\n', 'whitespace'],
+          ['comma', ',', 'punctuation-whitespace'],
+          ['question-mark', '?', 'punctuation-whitespace'],
+          ['space', 'space', 'punctuation-whitespace'],
+          ['newline', '\\n', 'punctuation-whitespace'],
           ['bos', '<BOS>', 'special-symbol'],
           ['eos', '<EOS>', 'special-symbol'],
         ],
@@ -375,6 +468,11 @@ function conceptPanel(
     body?: string[];
     bodyAfter?: string[];
     highlights?: string[][];
+    highlightLinks?: string[][][];
+    comparisonTable?: {
+      columns: string[];
+      rows: string[][];
+    };
     outline?: Array<[string, string, string[][]]>;
     links?: string[][];
   },
@@ -387,11 +485,22 @@ function conceptPanel(
     emphasis: config.emphasis ? loc(config.emphasis) : undefined,
     body: config.body?.map((paragraph) => loc(paragraph)),
     bodyAfter: config.bodyAfter?.map((paragraph) => loc(paragraph)),
-    highlights: config.highlights?.map((item) => ({
+    highlights: config.highlights?.map((item, itemIndex) => ({
       shortName: loc(item[0]),
       fullName: loc(item[1]),
       description: loc(item[2]),
+      links: config.highlightLinks?.[itemIndex]?.map((link) => ({
+        label: loc(link[0]),
+        href: link[1],
+      })),
     })),
+    comparisonTable: config.comparisonTable ? {
+      columns: config.comparisonTable.columns.map((column) => loc(column)),
+      rows: config.comparisonTable.rows.map((row) => ({
+        label: loc(row[0]),
+        cells: row.slice(1).map((cell) => loc(cell)),
+      })),
+    } : undefined,
     outline: config.outline?.map((group) => ({
       title: loc(group[0]),
       body: loc(group[1]),
