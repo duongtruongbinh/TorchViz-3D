@@ -2,7 +2,7 @@
 title: Learning Lab LLM Lesson Polish
 status: done
 created: 2026-07-04T22:04:30+07:00
-updated: 2026-07-05T14:11:00+07:00
+updated: 2026-07-05T14:24:00+07:00
 author: Codex
 task: "Polish LLM Learning Lab lesson panels, quiz spacing, roadmap content, and completed-node rail visuals."
 supersedes:
@@ -88,3 +88,6 @@ for the current LLM domain renderer and approved roadmap lesson package.
 - 2026-07-05T14:11:00+07:00 - Reduced duplicate highlight-link rendering,
   removed the linear arrow into the `7*` generation decode branch, and reran
   `npm run verify` successfully.
+- 2026-07-05T14:24:00+07:00 - Corrected LLM lesson approval gating so only
+  node 4 (`llm-data-pipeline-overview`) is currently approved; other LLM nodes
+  remain placeholders until explicitly approved.
