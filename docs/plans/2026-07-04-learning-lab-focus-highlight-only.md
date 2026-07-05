@@ -2,7 +2,7 @@
 title: Learning Lab LLM Lesson Polish
 status: done
 created: 2026-07-04T22:04:30+07:00
-updated: 2026-07-04T22:41:19+07:00
+updated: 2026-07-05T13:28:37+07:00
 author: Codex
 task: "Polish LLM Learning Lab lesson panels, quiz spacing, roadmap content, and completed-node rail visuals."
 supersedes:
@@ -74,3 +74,12 @@ for the current LLM domain renderer and approved roadmap lesson package.
   note blocks, merged punctuation/whitespace quiz categories, approved the Colab
   coding requirements lesson, replaced its second slide with a one-slide concept
   panel, and refined completed rail node connector rendering.
+- 2026-07-05T13:22:00+07:00 - Extended the approved LLM lesson polish with the
+  "Pipeline dữ liệu của LLM" page: added the pipeline overview lesson and custom
+  visual, clarified GPT logits over vocabulary, shifted training targets,
+  cross-entropy loss, and generation-time decode, and labelled decode as the
+  `7*` generation branch rather than a linear step after training.
+- 2026-07-05T13:28:37+07:00 - Reviewed the diff before commit, removed the
+  redundant follow-up plan file, made the pipeline flow column titles visible,
+  fixed the `PipelineExample` literal typing issue found by TypeScript, and ran
+  `npm run verify` successfully.

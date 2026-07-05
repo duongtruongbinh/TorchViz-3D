@@ -3,6 +3,10 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-05 — LLM data pipeline clarity.** Clarified the Learning Lab LLM
+  data pipeline visual/copy so GPT logits, shifted training targets,
+  cross-entropy over vocabulary, and generation-time decode are separated for
+  beginners.
 - **2026-07-02 — Learning lesson panel flattening.** Documented the Learning Lab
   convention that the main lesson detail surface should remain one flat panel,
   with section spacing/dividers and subtle left accents instead of nested cards.

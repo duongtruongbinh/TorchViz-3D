@@ -2,6 +2,26 @@ import type { LearningLessonExtra } from '../../types.ts';
 import { LLM_AI_ENGINEERING_REFERENCE_LINKS } from './references.ts';
 
 export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
+  'llm-data-pipeline-overview': [
+    conceptPanel('llm-data-pipeline-architecture', 'llm-data-pipeline-overview', 'LLM data pipeline overview', {
+      body: [
+        'Text thô không đi thẳng vào Transformer. Một LLM from scratch cần một pipeline biến văn bản thành tensor học được, rồi biến output của model thành tín hiệu loss hoặc text sinh ra.',
+      ],
+      highlights: [
+        ['1', 'Raw text', 'Văn bản ban đầu đưa vào pipeline: có thể là prompt chưa đầy đủ như "Tôi thích", hoặc đoạn text trong dataset.'],
+        ['2', 'Tokenization', 'Cắt raw text thành token: từ, ký tự, mảnh subword, dấu câu, khoảng trắng hoặc special token.'],
+        ['3', 'Token IDs & vocabulary', 'Ánh xạ mỗi token thành một số nguyên ổn định để model có thể tra embedding.'],
+        ['4', 'Token embedding', 'Biến token ids thành vector biểu diễn nội dung của từng token.'],
+        ['5', 'Positional embedding', 'Cộng thêm vector vị trí để model biết token đang nằm ở đâu trong context window.'],
+        ['6', 'GPT model', 'GPT blocks tạo representation có ngữ cảnh cho từng vị trí. Output head biến mỗi vị trí thành logits trên toàn bộ vocabulary.'],
+        ['7', 'Training signal', 'Trong training, logits được so với target token kế tiếp bằng cross-entropy loss để cập nhật tham số.'],
+        ['7*', 'Decode', 'Khi generation, lấy logits ở vị trí cuối, chọn hoặc sample token id, rồi decode token đó thành text.'],
+      ],
+      bodyAfter: [
+        'Chương 1.2 bắt đầu ở bước 2: tokenization. Khi bước này rõ, các node sau sẽ nối dần sang vocabulary, dataloader, embedding và training loop.',
+      ],
+    }),
+  ],
   'llm-from-scratch-roadmap': [
     motivation(
       'llm-roadmap-motivation',
