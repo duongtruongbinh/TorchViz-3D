@@ -2,7 +2,7 @@
 title: Learning Lab LLM Lesson Polish
 status: done
 created: 2026-07-04T22:04:30+07:00
-updated: 2026-07-05T13:28:37+07:00
+updated: 2026-07-05T14:11:00+07:00
 author: Codex
 task: "Polish LLM Learning Lab lesson panels, quiz spacing, roadmap content, and completed-node rail visuals."
 supersedes:
@@ -82,4 +82,9 @@ for the current LLM domain renderer and approved roadmap lesson package.
 - 2026-07-05T13:28:37+07:00 - Reviewed the diff before commit, removed the
   redundant follow-up plan file, made the pipeline flow column titles visible,
   fixed the `PipelineExample` literal typing issue found by TypeScript, and ran
+  `npm run verify` successfully.
+- 2026-07-05T14:05:00+07:00 - Reopened the approved plan for merge-readiness
+  review and small safe cleanup requested before merging.
+- 2026-07-05T14:11:00+07:00 - Reduced duplicate highlight-link rendering,
+  removed the linear arrow into the `7*` generation decode branch, and reran
   `npm run verify` successfully.

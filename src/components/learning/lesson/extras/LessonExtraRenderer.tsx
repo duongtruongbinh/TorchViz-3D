@@ -853,26 +853,7 @@ function ConceptHighlightRow({
         ) : (
           <p className={cx('mt-0.5 leading-6', themeClasses.bodyText)}>{description}</p>
         )}
-        {links && links.length > 0 && (
-          <ul className={cx('mt-2 grid gap-1.5 text-xs leading-5', themeClasses.bodyText)}>
-            {links.map((link) => (
-              <li key={link.href} className="flex min-w-0 gap-2">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-55" aria-hidden="true" />
-                <span className="min-w-0">
-                  <span className={cx('font-black', themeClasses.titleText)}>{link.label}: </span>
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={cx('break-all font-semibold underline decoration-dotted underline-offset-4', themeClasses.accentText)}
-                  >
-                    {link.href}
-                  </a>
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <ConceptHighlightLinks links={links} className="mt-2" themeClasses={themeClasses} />
       </div>
     </div>
   );
@@ -926,27 +907,41 @@ function ConceptHighlightCard({
       <div className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{shortName}</div>
       <div className={cx('text-sm font-normal leading-6', themeClasses.titleText)}>{fullName}</div>
       <p className={cx('leading-6', themeClasses.bodyText)}>{description}</p>
-      {links && links.length > 0 && (
-        <ul className={cx('mt-1 grid gap-1.5 text-xs leading-5', themeClasses.bodyText)}>
-          {links.map((link) => (
-            <li key={link.href} className="flex min-w-0 gap-2">
-              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-55" aria-hidden="true" />
-              <span className="min-w-0">
-                <span className={cx('font-black', themeClasses.titleText)}>{link.label}: </span>
-                <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={cx('break-all font-semibold underline decoration-dotted underline-offset-4', themeClasses.accentText)}
-                >
-                  {link.href}
-                </a>
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ConceptHighlightLinks links={links} className="mt-1" themeClasses={themeClasses} />
     </div>
+  );
+}
+
+function ConceptHighlightLinks({
+  links,
+  className,
+  themeClasses,
+}: {
+  links?: Array<{ label: string; href: string }>;
+  className?: string;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  if (!links?.length) return null;
+
+  return (
+    <ul className={cx(className, 'grid gap-1.5 text-xs leading-5', themeClasses.bodyText)}>
+      {links.map((link) => (
+        <li key={link.href} className="flex min-w-0 gap-2">
+          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-55" aria-hidden="true" />
+          <span className="min-w-0">
+            <span className={cx('font-black', themeClasses.titleText)}>{link.label}: </span>
+            <a
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+              className={cx('break-all font-semibold underline decoration-dotted underline-offset-4', themeClasses.accentText)}
+            >
+              {link.href}
+            </a>
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -1112,6 +1107,8 @@ function LlmPipelineArchitecture({
       <div className="grid gap-2">
         {items.map((item, itemIndex) => {
           const example = pipelineExamples[itemIndex];
+          const nextItem = items[itemIndex + 1];
+          const shouldShowStepArrow = Boolean(nextItem && !nextItem.shortName.endsWith('*'));
           return (
             <div key={item.fullName} className="grid gap-2">
               <div className="grid gap-3 lg:grid-cols-[9.5rem_minmax(0,1.2fr)_minmax(0,0.42fr)] lg:items-stretch">
@@ -1136,7 +1133,7 @@ function LlmPipelineArchitecture({
                   <p className={cx('text-center text-sm font-semibold leading-6', themeClasses.bodyText)}>{example?.note}</p>
                 </div>
               </div>
-              {itemIndex < items.length - 1 ? (
+              {shouldShowStepArrow ? (
                 <div className="grid gap-3 lg:grid-cols-[9.5rem_minmax(0,1.2fr)_minmax(0,0.42fr)]" aria-hidden="true">
                   <div className="hidden lg:block" />
                   <div className={cx('grid h-5 w-full place-items-center text-center text-2xl font-black leading-none', arrowTone)}>
