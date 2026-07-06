@@ -77,28 +77,23 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
                     type="button"
                     onClick={() => onOpenDomain(item.domain.id)}
                     className={cx(
-                      'group grid w-full gap-4 border p-4 text-left transition-transform duration-150 hover:-translate-y-0.5 md:grid-cols-[auto_minmax(0,1fr)_auto]',
+                      'group w-full border p-4 text-left transition-transform duration-150 hover:-translate-y-0.5',
                       themeClasses.radius.card,
                       themeClasses.focusRing,
                       themeClasses.surface.interactiveCard,
                     )}
                   >
-                    <span className={cx('flex h-12 w-12 items-center justify-center text-sm font-black', themeClasses.radius.icon, themeClasses.iconTile)}>
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
                     <span className="min-w-0">
                       <span className="flex flex-wrap items-center gap-2">
+                        <span className={cx('text-sm font-black leading-tight', mutedTone)}>
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
                         <span className={cx('text-base font-black leading-tight', titleTone)}>{item.title}</span>
                         <span className={cx('px-2.5 py-0.5 text-[11px] font-black', themeClasses.radius.pill, themeClasses.statusPill(item.domain.status === 'placeholder'))}>
                           {item.domain.status === 'placeholder' ? strings.domainPlaceholder : strings.domainAvailable}
                         </span>
                       </span>
                       <span className={cx('mt-1 block text-sm leading-6', bodyTone)}>{item.description}</span>
-                      <span className="mt-3 flex flex-wrap gap-2">
-                        <Metric text={strings.trackCount(item.trackCount)} toneClass={mutedTone} />
-                        <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
-                        <Metric text={strings.practiceCount(item.practiceCount)} toneClass={mutedTone} />
-                      </span>
                       {item.previewTracks.length ? (
                         <span className="mt-3 flex flex-wrap gap-2">
                           {item.previewTracks.map((track) => (
@@ -116,8 +111,12 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
                         </span>
                       ) : null}
                     </span>
-                    <span className="flex items-center justify-end md:items-start">
-                      <span className={cx('inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-black transition-colors', themeClasses.ctaPill)}>
+                    <span className="mt-4 flex flex-col gap-3 border-t border-[#205089]/10 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="flex flex-wrap gap-2">
+                        <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
+                        <Metric text={strings.practiceCount(item.practiceCount)} toneClass={mutedTone} />
+                      </span>
+                      <span className={cx('inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-black transition-colors sm:min-w-32', themeClasses.button.primary)}>
                         {home.openSyllabusDomain}
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.8} aria-hidden="true" />
                       </span>
@@ -160,7 +159,6 @@ function buildSyllabusItem(domain: LearningDomain, language: Language) {
     domain,
     title: text.title,
     description: text.description,
-    trackCount: tracks.length,
     lessonCount: lessons.length,
     practiceCount,
     previewTracks: tracks.slice(0, 3).map((track) => ({
