@@ -1,8 +1,8 @@
-import { Check, CheckCircle2, Circle, CircleAlert, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
-import { Fragment, type DragEvent, useEffect, useRef, useState } from 'react';
+import { ArrowDown, ArrowRight, Check, CheckCircle2, Circle, CircleAlert, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
+import { Fragment, type DragEvent, type ReactNode, useEffect, useRef, useState } from 'react';
 import type { LearningLessonExtra } from '../../../../core/learning/types';
 import { getStrings, type Language } from '../../../../lib/localization';
-import { renderLlmAiEngineeringExtra } from '../../domains/llm-ai-engineering/renderers';
+import { renderLlmAiEngineeringExtra, TokenExampleBlock } from '../../domains/llm-ai-engineering/renderers';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningAssetUrl } from './assetRegistry';
 import { scrollLearningLabElementIntoView } from '../scrolling';
@@ -561,6 +561,48 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
   const [activeOutlineItemKey, setActiveOutlineItemKey] = useState('0-0');
   const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
 
+  if (extra.id === 'tokenization-example' && extra.tokenExample) {
+    return (
+      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
+        <TokenizationExamplePanel extra={extra} language={language} themeClasses={themeClasses} />
+      </ExtraFrame>
+    );
+  }
+
+  if (extra.id === 'iris-scale-comparison-roadmap') {
+    return (
+      <ExtraFrame
+        title={panelTitle}
+        themeClasses={themeClasses}
+        customTitle={(
+          <span className={cx('flex flex-wrap items-baseline gap-x-2 gap-y-1', themeClasses.eyebrowText)}>
+            <span>{titleBeforeEmphasis}</span>
+            <span className={cx('text-2xl font-black leading-none normal-case md:text-3xl', themeClasses.accentText)}>{emphasis}</span>
+            <span>{titleAfterEmphasis}</span>
+          </span>
+        )}
+      >
+        <IrisScaleComparisonPanel extra={extra} language={language} themeClasses={themeClasses} />
+      </ExtraFrame>
+    );
+  }
+
+  if (extra.id === 'llm-training-lifecycle') {
+    return (
+      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
+        <LlmTrainingLifecyclePanel extra={extra} language={language} themeClasses={themeClasses} />
+      </ExtraFrame>
+    );
+  }
+
+  if (extra.id.startsWith('transformer-translation-step-')) {
+    return (
+      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
+        <TransformerTranslationStepPanel extra={extra} language={language} themeClasses={themeClasses} />
+      </ExtraFrame>
+    );
+  }
+
   return (
     <ExtraFrame
       title={panelTitle}
@@ -579,6 +621,10 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
             {text(paragraph, language)}
           </p>
         ))}
+
+        {extra.tokenExample && (
+          <TokenExampleBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} hideTitle />
+        )}
 
         {extra.highlights && extra.id === 'llm-data-pipeline-architecture' ? (
           <LlmPipelineArchitecture
@@ -801,6 +847,483 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
         )}
       </div>
     </ExtraFrame>
+  );
+}
+
+function TransformerTranslationStepPanel({ extra, language, themeClasses }: {
+  extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const activeStep = Number(extra.id.replace('transformer-translation-step-', '')) || 1;
+  const paragraphs = extra.body?.map((paragraph) => text(paragraph, language)) ?? [];
+  const description = paragraphs.join(' ');
+  const introParagraphs = activeStep === 1 && paragraphs.length >= 4 ? paragraphs.slice(0, 2) : [description];
+  const bulletParagraphs = activeStep === 1 && paragraphs.length >= 4 ? paragraphs.slice(2) : [];
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid gap-2">
+        {introParagraphs.map((paragraph, index) => (
+          <p key={paragraph} className={cx('text-sm leading-6', themeClasses.bodyText)}>
+            {renderTransformerDescription(paragraph, index === 0 ? extra.links?.[0]?.href : undefined, themeClasses)}
+          </p>
+        ))}
+        {bulletParagraphs.length > 0 ? (
+          <ol className={cx('list-decimal space-y-1 pl-5 text-sm leading-6', themeClasses.bodyText)}>
+            {bulletParagraphs.map((paragraph) => (
+              <li key={paragraph}>{renderTransformerBullet(paragraph)}</li>
+            ))}
+          </ol>
+        ) : null}
+      </div>
+
+      <TransformerTranslationDiagram activeStep={activeStep} themeClasses={themeClasses} language={language} />
+    </div>
+  );
+}
+
+function renderTransformerBullet(paragraph: string): ReactNode {
+  const [label, detail] = paragraph.split(': ');
+  if (!detail) return paragraph;
+
+  return (
+    <>
+      <strong>{label}</strong>: {detail}
+    </>
+  );
+}
+
+function renderTransformerDescription(
+  description: string,
+  paperHref: string | undefined,
+  themeClasses: ReturnType<typeof getLearningLabTheme>,
+): ReactNode {
+  const phrase = '"Attention Is All You Need"';
+  if (!paperHref || !description.includes(phrase)) return description;
+
+  const [before, after] = description.split(phrase);
+  return (
+    <>
+      {before}
+      <a
+        href={paperHref}
+        target="_blank"
+        rel="noreferrer"
+        className={cx('underline decoration-dotted underline-offset-4', themeClasses.accentText)}
+      >
+        {phrase}
+      </a>
+      {after}
+    </>
+  );
+}
+
+function TransformerTranslationDiagram({
+  activeStep,
+  themeClasses,
+  language,
+}: {
+  activeStep: number;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+  language: Language;
+}) {
+  const labels = language === 'vi'
+    ? {
+        source: '"This is an example"',
+        encoderPrep: 'Preprocessing',
+        encoder: 'Encoder',
+        embeddings: 'Vector mã hóa Embeddings',
+        partial: '"Das ist ein __"',
+        decoderPrep: 'Preprocessing',
+        decoder: 'Decoder',
+        complete: '"Das ist ein Beispiel"',
+      }
+    : {
+        source: '"This is an example"',
+        encoderPrep: 'Preprocessing',
+        encoder: 'Encoder',
+        embeddings: 'Encoder vectors',
+        partial: '"Das ist ein __"',
+        decoderPrep: 'Preprocessing',
+        decoder: 'Decoder',
+        complete: '"Das ist ein Beispiel"',
+      };
+  const connectorTone = themeClasses.isLight ? 'text-[#7892A8]' : 'text-[#A8B8C8]/72';
+
+  return (
+    <div className="px-0 py-1">
+      <div className="mx-auto grid w-full max-w-[52rem] gap-x-4 gap-y-1.5 md:grid-cols-[minmax(0,1fr)_11rem_3rem_minmax(0,1fr)]">
+        <DiagramFlowItem>
+          <DiagramBox active={activeStep === 1} visited={activeStep > 1} label={labels.source} kind="text" themeClasses={themeClasses} className="min-h-12 w-full" />
+        </DiagramFlowItem>
+        <div className="hidden md:block" />
+        <div className="hidden md:block" />
+        <DiagramFlowItem>
+          <DiagramBox active={activeStep === 5} visited={activeStep > 5} label={labels.partial} kind="text" themeClasses={themeClasses} className="min-h-12 w-full" />
+        </DiagramFlowItem>
+
+        <DiagramConnector active={activeStep === 2} tone={connectorTone} />
+        <div className="hidden md:block" />
+        <div className="hidden md:block" />
+        <DiagramConnector active={activeStep === 6} tone={connectorTone} />
+
+        <DiagramFlowItem>
+          <DiagramPrepBox
+            active={activeStep === 2}
+            visited={activeStep > 2}
+            expanded={activeStep === 2}
+            title={labels.encoderPrep}
+            inputLabel={labels.source}
+            themeClasses={themeClasses}
+          />
+        </DiagramFlowItem>
+        <div className="hidden md:block" />
+        <div className="hidden md:block" />
+        <DiagramFlowItem>
+          <DiagramPrepBox
+            active={activeStep === 6}
+            visited={activeStep > 6}
+            expanded={activeStep === 6}
+            title={labels.decoderPrep}
+            inputLabel={labels.partial}
+            themeClasses={themeClasses}
+          />
+        </DiagramFlowItem>
+
+        <DiagramConnector active={activeStep === 3} tone={connectorTone} />
+        <div className="hidden md:block" />
+        <div className="hidden md:block" />
+        <DiagramConnector active={activeStep === 7} tone={connectorTone} />
+
+        <DiagramFlowItem>
+          <DiagramBox active={activeStep === 3} visited={activeStep > 3} label={labels.encoder} kind="module" tone="encoder" themeClasses={themeClasses} className="min-h-28 w-full" />
+        </DiagramFlowItem>
+        <div className="flex min-w-0 items-center justify-center gap-2">
+          <ArrowRight className={cx('h-6 w-6 shrink-0 transition-opacity', activeStep === 4 ? 'opacity-100' : 'opacity-[0.36]', activeStep === 4 ? themeClasses.accentText : themeClasses.mutedText)} strokeWidth={2.6} aria-hidden="true" />
+          <DiagramBox active={activeStep === 4} visited={activeStep > 4} label={labels.embeddings} kind="thin" themeClasses={themeClasses} className="min-h-16 w-full" />
+        </div>
+        <div className="hidden items-center justify-center md:flex">
+          <ArrowRight className={cx('h-8 w-8 transition-opacity', activeStep === 4 || activeStep === 7 ? 'opacity-100' : 'opacity-[0.36]', activeStep === 4 || activeStep === 7 ? themeClasses.accentText : themeClasses.mutedText)} strokeWidth={2.6} aria-hidden="true" />
+        </div>
+        <DiagramFlowItem>
+          <DiagramBox active={activeStep === 7} visited={activeStep > 7} label={labels.decoder} kind="module" tone="decoder" themeClasses={themeClasses} className="min-h-28 w-full" />
+        </DiagramFlowItem>
+
+        <div className="hidden md:block" />
+        <div className="hidden md:block" />
+        <div className="hidden md:block" />
+        <DiagramConnector active={activeStep === 7 || activeStep === 8} tone={connectorTone} />
+
+        <div className="hidden md:block" />
+        <div className="hidden md:block" />
+        <div className="hidden md:block" />
+        <DiagramBox active={activeStep === 8} visited={activeStep > 8} label={labels.complete} kind="text" themeClasses={themeClasses} className="min-h-12 w-full" />
+      </div>
+    </div>
+  );
+}
+
+function DiagramBox({
+  active,
+  visited,
+  label,
+  kind,
+  tone,
+  themeClasses,
+  className,
+}: {
+  active: boolean;
+  visited: boolean;
+  label: string;
+  kind: 'text' | 'thin' | 'module' | 'dark';
+  tone?: 'encoder' | 'decoder';
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+  className?: string;
+}) {
+  const base = 'grid whitespace-pre-line place-items-center px-2 text-center transition-[background-color,box-shadow,opacity,transform] duration-200 sm:px-3';
+  const muted = active || visited ? 'opacity-100' : 'opacity-[0.42]';
+  const activeRing = active ? (themeClasses.isLight ? 'scale-[1.015] shadow-[0_0_0_3px_rgba(32,80,137,0.2)]' : 'scale-[1.015] shadow-[0_0_0_3px_rgba(168,184,200,0.24)]') : '';
+  const shapeClass = kind === 'module'
+    ? 'rounded-[1.75rem] text-xl font-black leading-7 md:text-3xl'
+    : kind === 'text'
+      ? 'rounded-none text-sm font-semibold leading-5 md:text-lg md:leading-6'
+      : kind === 'dark'
+        ? 'rounded-lg text-xs font-black leading-5 md:text-base md:leading-6'
+        : 'rounded-lg text-xs font-semibold leading-4 md:text-sm md:leading-5';
+  const colorClass = kind === 'module'
+    ? tone === 'decoder'
+      ? themeClasses.isLight ? 'bg-[#CFE7F7] text-[#153D59]' : 'bg-[#183044] text-[#E7F4FB]'
+      : themeClasses.isLight ? 'bg-[#E5E5E1] text-[#202427]' : 'bg-[#2A3036] text-[#F0F3F5]'
+    : kind === 'dark'
+      ? themeClasses.isLight ? 'bg-[#3E4853] text-white' : 'bg-[#D8E2EC]/18 text-[#F6FAFD]'
+      : themeClasses.isLight ? 'bg-[#F8FAFC] text-[#1D2730]' : 'bg-[#0B1118] text-[#F6FAFD]';
+
+  return (
+    <div className={cx(base, muted, activeRing, shapeClass, colorClass, className)}>
+      {label}
+    </div>
+  );
+}
+
+function DiagramPrepBox({
+  active,
+  visited,
+  expanded,
+  title,
+  inputLabel,
+  themeClasses,
+}: {
+  active: boolean;
+  visited: boolean;
+  expanded: boolean;
+  title: string;
+  inputLabel: string;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  if (!expanded) {
+    return (
+      <DiagramBox
+        active={active}
+        visited={visited}
+        label={title}
+        kind="thin"
+        themeClasses={themeClasses}
+        className="min-h-12 w-[88%]"
+      />
+    );
+  }
+
+  const muted = active || visited ? 'opacity-100' : 'opacity-[0.42]';
+  const activeRing = active ? (themeClasses.isLight ? 'scale-[1.015] shadow-[0_0_0_3px_rgba(32,80,137,0.2)]' : 'scale-[1.015] shadow-[0_0_0_3px_rgba(168,184,200,0.24)]') : '';
+  const shellTone = themeClasses.isLight ? 'bg-[#F8FAFC] text-[#1D2730]' : 'bg-[#0B1118] text-[#F6FAFD]';
+  const stepTone = themeClasses.isLight ? 'bg-white/78 text-[#334155]' : 'bg-[#D8E2EC]/8 text-[#E2E8F0]';
+  const arrowTone = themeClasses.isLight ? 'text-[#7892A8]' : 'text-[#A8B8C8]/72';
+  const isDecoderInput = inputLabel.includes('Das');
+  const tokens = isDecoderInput ? ['Das', 'ist', 'ein'] : ['This', 'is', 'an', 'example'];
+  const ids = isDecoderInput ? ['41', '812', '394'] : ['1212', '318', '281', '1672'];
+  const steps = [
+    { label: 'Tokens', value: tokens.join(' | ') },
+    { label: 'Token IDs', value: ids.join(', ') },
+    { label: 'Token embedding', value: '[T, d_model]' },
+    { label: '+ Positional embedding', value: '[T, d_model]' },
+  ];
+
+  return (
+    <div className={cx('grid w-[88%] gap-2 rounded-lg px-2.5 py-2.5 text-center transition-[box-shadow,opacity,transform] duration-200', muted, activeRing, shellTone)}>
+      <div className="text-xs font-black leading-5 md:text-sm">{title}</div>
+      <div className="grid gap-1.5">
+        {steps.map((step, index) => (
+          <Fragment key={`${title}-${step.label}`}>
+            <div className={cx('grid min-h-8 place-items-center rounded-md px-2 text-[11px] font-semibold leading-4 md:text-xs', stepTone)}>
+              <span className="font-black">{step.label}</span>
+              <span className="mt-0.5 break-words font-semibold opacity-82">{step.value}</span>
+            </div>
+            {index < steps.length - 1 ? (
+              <ArrowDown className={cx('mx-auto h-3.5 w-3.5', arrowTone)} strokeWidth={2.4} aria-hidden="true" />
+            ) : null}
+          </Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DiagramConnector({
+  active,
+  tone,
+}: {
+  active: boolean;
+  tone: string;
+}) {
+  return (
+    <div className={cx('grid h-7 justify-items-center transition-opacity', active ? 'opacity-100' : 'opacity-[0.36]', tone)}>
+      <div className="h-4 w-0.5 rounded-full bg-current" />
+      <ArrowDown className="-mt-1 h-4 w-4" strokeWidth={2.4} aria-hidden="true" />
+    </div>
+  );
+}
+
+function DiagramFlowItem({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 justify-center">
+      {children}
+    </div>
+  );
+}
+
+function TokenizationExamplePanel({ extra, language, themeClasses }: {
+  extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  if (!extra.tokenExample) return null;
+
+  const steps = language === 'vi'
+    ? [
+        ['1', 'Ngữ cảnh', 'Prompt và text đã sinh là đầu vào cho bước hiện tại.'],
+        ['2', 'Token kế tiếp', 'Model chọn một token phù hợp từ phân phối xác suất.'],
+        ['3', 'Vòng lặp', 'Token mới được ghép vào chuỗi rồi dùng cho bước sau.'],
+      ]
+    : [
+        ['1', 'Context', 'The prompt and generated text feed the current step.'],
+        ['2', 'Next token', 'The model chooses one suitable token from a probability distribution.'],
+        ['3', 'Loop', 'The new token is appended and reused in the next step.'],
+      ];
+
+  return (
+    <div className="grid gap-4">
+      <div className={cx('rounded-lg border p-3', themeClasses.isLight ? 'border-[#205089]/12 bg-[#F8FBFD]' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
+        <div className="grid gap-2 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-stretch">
+          {steps.map(([number, label, description], index) => (
+            <Fragment key={number}>
+              <div className={cx('grid min-h-24 content-start gap-2 rounded-lg border px-3 py-3', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/7')}>
+                <div className="flex items-center gap-2">
+                  <span className={cx('grid h-7 w-7 place-items-center rounded-md text-xs font-black tabular-nums', themeClasses.isLight ? 'bg-[#205089]/10 text-[#123B68]' : 'bg-[#A8B8C8]/12 text-[#F2F6FA]')}>
+                    {number}
+                  </span>
+                  <span className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{label}</span>
+                </div>
+                <p className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{description}</p>
+              </div>
+              {index < steps.length - 1 && (
+                <div className={cx('hidden items-center justify-center md:flex', themeClasses.mutedText)}>
+                  <ArrowRight className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
+                </div>
+              )}
+            </Fragment>
+          ))}
+        </div>
+      </div>
+
+      <TokenExampleBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} hideTitle />
+    </div>
+  );
+}
+
+function IrisScaleComparisonPanel({ extra, language, themeClasses }: {
+  extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const iris = extra.highlights?.[0];
+  const llm = extra.highlights?.[1];
+  if (!iris || !llm) return null;
+
+  return (
+    <div className="grid gap-3 md:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] md:items-stretch">
+      <ScaleComparisonCard
+        eyebrow={text(iris.fullName, language)}
+        value={text(iris.shortName, language)}
+        description={text(iris.description, language)}
+        tone="compact"
+        themeClasses={themeClasses}
+      />
+      <ScaleComparisonCard
+        eyebrow={text(llm.fullName, language)}
+        value={text(llm.shortName, language)}
+        description={text(llm.description, language)}
+        tone="large"
+        themeClasses={themeClasses}
+      />
+    </div>
+  );
+}
+
+function ScaleComparisonCard({
+  eyebrow,
+  value,
+  description,
+  tone,
+  themeClasses,
+}: {
+  eyebrow: string;
+  value: string;
+  description: string;
+  tone: 'compact' | 'large';
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const toneClass = tone === 'compact'
+    ? themeClasses.isLight
+      ? 'border-[#2F6B55]/16 bg-[#EEF7F2]'
+      : 'border-[#A6E8C1]/18 bg-[#173528]/52'
+    : themeClasses.isLight
+      ? 'border-[#2F6F9F]/16 bg-[#EEF6FB]'
+      : 'border-[#8FC7EA]/18 bg-[#183044]/52';
+
+  return (
+    <div className={cx('grid min-h-44 grid-rows-[auto_1fr_auto] gap-4 rounded-lg border p-4', toneClass)}>
+      <div className="grid min-h-24 content-start gap-2">
+        <div className={cx('text-xs font-black uppercase leading-5 tracking-wide', themeClasses.eyebrowText)}>{eyebrow}</div>
+        <div className={cx('break-all text-3xl font-black leading-none tracking-normal md:text-5xl', themeClasses.accentText)}>
+          {value}
+        </div>
+      </div>
+      <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{description}</p>
+    </div>
+  );
+}
+
+function LlmTrainingLifecyclePanel({ extra, language, themeClasses }: {
+  extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const stages = extra.highlights ?? [];
+
+  return (
+    <div className="grid gap-4">
+      {extra.body?.map((paragraph) => (
+        <p key={text(paragraph, language)} className={cx('text-left text-sm font-normal leading-7', themeClasses.bodyText)}>
+          {text(paragraph, language)}
+        </p>
+      ))}
+
+      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch">
+        {stages.map((stage, index) => (
+          <Fragment key={text(stage.shortName, language)}>
+            <TrainingLifecycleCard
+              title={text(stage.fullName, language)}
+              tone={index === 0 ? 'pretrain' : 'finetune'}
+              themeClasses={themeClasses}
+            />
+            {index === 0 && stages.length > 1 ? (
+              <div className={cx('hidden items-center justify-center px-1 md:flex', themeClasses.mutedText)}>
+                <ArrowRight className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
+              </div>
+            ) : null}
+          </Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TrainingLifecycleCard({
+  title,
+  tone,
+  themeClasses,
+}: {
+  title: string;
+  tone: 'pretrain' | 'finetune';
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const toneClass = tone === 'pretrain'
+    ? themeClasses.isLight
+      ? 'border-[#2F6F9F]/16 bg-[#EEF6FB]'
+      : 'border-[#8FC7EA]/18 bg-[#183044]/52'
+    : themeClasses.isLight
+      ? 'border-[#2F6B55]/16 bg-[#EEF7F2]'
+      : 'border-[#A6E8C1]/18 bg-[#173528]/52';
+
+  return (
+    <div className={cx('grid min-h-28 place-items-center rounded-lg border p-4 text-center', toneClass)}>
+      <div className={cx('text-xl font-black leading-7 md:text-2xl', themeClasses.titleText)}>{title}</div>
+    </div>
   );
 }
 

@@ -85,6 +85,22 @@ export type LearningLessonSection = {
   refId: string;
 };
 
+export type LearningTokenExample = {
+  title: LearningLocalizedText;
+  variants: Array<{
+    label: LearningLocalizedText;
+    tokens: string[];
+    description: LearningLocalizedText;
+  }>;
+  specialTitle: LearningLocalizedText;
+  specialCases: Array<{
+    label: LearningLocalizedText;
+    tokens: string[];
+    description: LearningLocalizedText;
+  }>;
+  notes: LearningLocalizedText[];
+};
+
 export type LearningLessonExtra =
   | {
       kind: 'motivation';
@@ -129,21 +145,7 @@ export type LearningLessonExtra =
         feedback: LearningLocalizedText;
       }>;
       interactionPlacement?: 'inline' | 'none' | 'only';
-      tokenExample?: {
-        title: LearningLocalizedText;
-        variants: Array<{
-          label: LearningLocalizedText;
-          tokens: string[];
-          description: LearningLocalizedText;
-        }>;
-        specialTitle: LearningLocalizedText;
-        specialCases: Array<{
-          label: LearningLocalizedText;
-          tokens: string[];
-          description: LearningLocalizedText;
-        }>;
-        notes: LearningLocalizedText[];
-      };
+      tokenExample?: LearningTokenExample;
       sentenceBuilder?: {
         title: LearningLocalizedText;
         prompt: LearningLocalizedText;
@@ -189,6 +191,7 @@ export type LearningLessonExtra =
         label: LearningLocalizedText;
         href: string;
       }>;
+      tokenExample?: LearningTokenExample;
     }
   | {
       kind: 'quiz';

@@ -1,10 +1,10 @@
 ---
-title: Learning Lab Domain Package Refactor
+title: Learning Lab LLM Domain Compact
 status: done
 created: 2026-07-02T05:24:08+07:00
-updated: 2026-07-02T05:57:43+07:00
+updated: 2026-07-09T15:30:00+07:00
 author: Codex
-task: "Initialize and then simplify the Learning Lab LLM domain package without changing current visible behavior."
+task: "Compact record for the Learning Lab LLM AI Engineering domain package, lesson polish, and early roadmap content changes."
 supersedes:
   - docs/plans/2026-06-25-learning-lab-domain-refactor.md
   - docs/plans/2026-06-30-learning-lab-catalog-consistency-fixes.md
@@ -12,37 +12,110 @@ supersedes:
 
 # Goal
 
-Move LLM AI Engineering content toward a domain-owned package while preserving
-the current approved `llm-from-scratch-roadmap` lesson, keeping Learning Lab
-light-theme-only, and avoiding premature abstractions.
+This file is the single compact plan/history record for the Learning Lab LLM AI
+Engineering domain. It replaces the scattered LLM-specific plan notes that used
+to live in separate files for the domain package refactor, early lesson polish,
+the Iris scale slide, the tokenization split, and the beginner node 1-4 copy
+pass.
 
-# Lineage
+# Current Boundary
 
-Supersedes
-[2026-06-25-learning-lab-domain-refactor](./2026-06-25-learning-lab-domain-refactor.md)
-for the unified Learning Lab domain/catalog boundary.
-
-Supersedes
-[2026-06-30-learning-lab-catalog-consistency-fixes](./2026-06-30-learning-lab-catalog-consistency-fixes.md)
-for catalog consistency work.
+- LLM AI Engineering content lives in
+  `src/core/learning/content/llm-ai-engineering/`.
+- The package owns tracks, approved lesson extras, references, and local approval
+  gating.
+- Domain-specific LLM extra rendering lives in
+  `src/components/learning/domains/llm-ai-engineering/renderers.tsx`.
+- Shared extra dispatch and asset lookup stay under
+  `src/components/learning/lesson/extras/`.
+- Runtime lesson images live under
+  `src/assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/`.
+- The approved early LLM path currently centers on nodes 1-4:
+  `minimal-llm-project-skeleton`, `llm-from-scratch-roadmap`,
+  `llm-component-checkpoint-quiz`, and `llm-data-pipeline-overview`.
 
 # Decisions
 
-- Keep `src/core/learning/content/llm-ai-engineering/` as the domain package for
-  LLM tracks, references, approved roadmap extras, and local approval gating.
-- Keep only currently visible approved extras in runtime metadata. Planned
-  diagrams, formulas, exercises, and code contracts stay out of the shared type
-  surface until a later approved lesson needs them.
-- Use direct domain renderer handling for current custom LLM extras. Do not keep
-  a renderer registry until more than one domain needs keyed custom routing.
-- Keep runtime lesson images under `src/assets/learning/...` with
-  lesson-searchable filenames and lesson-scoped asset ids.
-- Keep documentation-only/reference dumps out of Git when they are local source
-  material rather than app/runtime docs.
-- Preserve current visible Learning Lab output and avoid route, theme, or
-  workspace behavior changes.
+- Keep the LLM domain as a domain-owned package, not a growing monolithic
+  catalog file.
+- Keep approval gating local to the LLM package.
+- Keep lesson content Vietnamese-first while preserving standard English
+  technical terms such as token, embedding, logits, loss, Transformer, and GPT.
+- Do not add a renderer registry until multiple domains need keyed custom extra
+  routing.
+- Keep Learning Lab route, shell, theme, and Workspace behavior out of LLM
+  content-only changes.
+- Prefer concrete learner examples over broad abstract paragraphs for the first
+  LLM nodes.
+- Treat the current node 1-4 copy pass as unsettled content, not final pedagogy,
+  because the latest review found the result too shallow and visually confusing.
 
-# Final Shape
+# Compact History
+
+## 2026-07-02 - Domain Package Refactor
+
+- Moved LLM AI Engineering content into
+  `src/core/learning/content/llm-ai-engineering/`.
+- Moved roadmap runtime images into `src/assets/learning/...`.
+- Added domain-owned renderers and asset resolution.
+- Trimmed runtime extras to the approved payload.
+- Simplified approval gating to a local id set.
+- Removed premature shared type/rendering support for dormant diagrams,
+  formulas, exercises, and code contracts.
+- Removed unused KaTeX dependencies.
+- Updated the Learning Lab wiki to describe approval-gated runtime support.
+- Verification at the time: `npm run verify` passed.
+
+## 2026-07-04 to 2026-07-05 - LLM Lesson Polish
+
+- Changed focus panels so sibling panels remain visible instead of dimmed.
+- Reused focus-panel styling for concept/highlight panels.
+- Tightened quiz spacing and note block rendering.
+- Approved the Colab coding requirements lesson as a compact one-slide setup
+  node.
+- Added the "Pipeline dữ liệu của LLM" lesson and custom pipeline visual.
+- Clarified the pipeline idea around tokenization, GPT logits over vocabulary,
+  target shifting, cross-entropy loss, and generation-time decode.
+- Corrected approval gating after clarification: nodes 1-4 are approved; later
+  LLM nodes remain placeholders.
+- Verification at the time included `npm test`, `npm run build`, and later
+  `npm run verify`.
+
+## 2026-07-08 - Iris Scale Slide
+
+- Added `iris-scale-comparison-roadmap` after the `why-large` slide in
+  `llm-from-scratch-roadmap`.
+- Removed the separate `classic-ml-vs-llm-iris` node from tracks, approval
+  gating, and extras.
+- Intent: show that small classical ML/statistical examples such as Iris can use
+  tiny models, while modern LLMs operate at much larger parameter/data/compute
+  scale.
+
+## 2026-07-09 - Tokenization Example Split
+
+- Split the roadmap tokenization example out of the first "Large Language Model
+  là gì?" page into its own extra page.
+- Kept the example before the next-token interaction so learners see token units
+  before trying generation-by-token.
+- Added `LearningTokenExample` support to concept panels where needed.
+
+## 2026-07-09 - Beginner Node 1-4 Copy Pass
+
+- Attempted to make nodes 1-4 easier for a learner who knows basic Python but
+  does not yet know deep learning or Transformers deeply.
+- Intended changes:
+  - lower node 1 prerequisites;
+  - add a node 2 mental model that text becomes tokens, tokens become ids, and
+    the model predicts the next token;
+  - adjust node 3 quiz wording away from memorization as the main story;
+  - make node 4 start from a concrete data-pipeline/input-target bridge before
+    the Transformer translation background.
+- Outcome: technically verified, but content quality was rejected in review as
+  too shallow, over-constrained, visually weaker, and harder to understand than
+  the previous version. Treat this pass as a caution and not as a final content
+  direction.
+
+# Current Files
 
 ```text
 src/core/learning/content/llm-ai-engineering/
@@ -52,47 +125,33 @@ src/core/learning/content/llm-ai-engineering/
   references.ts
   tracks.ts
 
-src/components/learning/lesson/extras/
-  ExtraFrame.tsx
-  LessonExtraRenderer.tsx
-  LessonExtras.tsx
-  assetRegistry.ts
-  lessonExtraText.ts
-
 src/components/learning/domains/llm-ai-engineering/
   renderers.tsx
+
+src/components/learning/lesson/extras/
+  LessonExtraRenderer.tsx
+  assetRegistry.ts
 
 src/assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/
   01-llm-from-scratch-roadmap-ai-hierarchy.png
   01-llm-from-scratch-roadmap-next-token-loop.png
+  01-llm-from-scratch-roadmap-why-llms-popular-product.png
+  01-llm-from-scratch-roadmap-why-llms-popular-technical.png
 ```
 
 # Out Of Scope
 
-- No new Learning Lab features.
-- No visual redesign or dark-theme work.
-- No route behavior changes.
-- No changes to Pyodide, torchstub, IR tracing, layout, Canvas3D, or Workspace
-  behavior.
-- No changes to the approved LLM roadmap visible content.
+- No route, shell, Landing, Workspace, Pyodide, torchstub, IR, layout, or
+  Canvas3D changes are implied by this compact doc.
+- No new lesson ids or new visual assets are implied by this compact doc.
+- No claim that the latest node 1-4 content is pedagogically final.
 
-# Execution Log
+# Absorbed Files
 
-- 2026-07-02T05:24:08+07:00 - Draft plan created and approved in chat.
-- 2026-07-02T05:32:34+07:00 - Moved LLM AI Engineering content into
-  `src/core/learning/content/llm-ai-engineering/`, moved runtime lesson images
-  into `src/assets/learning/...`, and added initial domain-owned renderers and
-  asset resolution.
-- 2026-07-02T05:39:21+07:00 - Renamed the two roadmap runtime images to
-  lesson-searchable filenames and documented the convention.
-- 2026-07-02T05:57:43+07:00 - Cleanup review approved. Trimmed runtime extras to
-  the approved roadmap payload, simplified approval gating to a local id set,
-  removed unused lesson approval metadata from shared learning types, removed the
-  premature renderer registry and dormant diagram/formula/exercise/code-contract
-  renderer support, removed KaTeX dependencies, scoped asset ids, and updated the
-  Learning Lab wiki to describe current approval-gated runtime support.
-- 2026-07-02T05:57:43+07:00 - Ran `npm run verify`; typecheck, 78 tests, and
-  production build passed.
-- 2026-07-02T05:57:43+07:00 - Follow-up cleanup moved remaining renderer copy
-  for the LLM roadmap hierarchy and token interaction controls into domain
-  content metadata.
+The following LLM-specific plan files were compacted into this single record and
+removed from `docs/plans/`:
+
+- `2026-07-04-learning-lab-focus-highlight-only.md`
+- `2026-07-08-add-iris-comparison-slide.md`
+- `2026-07-09-tokenization-example-next-page.md`
+- `2026-07-09-llm-node-1-4-beginner-copy-pass.md`

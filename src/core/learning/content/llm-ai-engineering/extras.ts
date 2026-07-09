@@ -1,24 +1,61 @@
-import type { LearningLessonExtra } from '../../types.ts';
+import type { LearningLessonExtra, LearningTokenExample } from '../../types.ts';
 import { LLM_AI_ENGINEERING_REFERENCE_LINKS } from './references.ts';
 
 export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
   'llm-data-pipeline-overview': [
-    conceptPanel('llm-data-pipeline-architecture', 'llm-data-pipeline-overview', 'LLM data pipeline overview', {
+    conceptPanel('llm-training-lifecycle', 'llm-data-pipeline-overview', 'Quy trình chung để tạo LLM', {
       body: [
-        'Text thô không đi thẳng vào Transformer. Một LLM from scratch cần một pipeline biến văn bản thành tensor học được, rồi biến output của model thành tín hiệu loss hoặc text sinh ra.',
+        'Một LLM thường được tạo qua hai giai đoạn lớn. Pretraining là giai đoạn ban đầu, khi model học trên tập dữ liệu lớn và đa dạng để hình thành hiểu biết rộng về ngôn ngữ. Fine-tuning dùng model đã pretrain làm nền tảng, rồi huấn luyện thêm trên dữ liệu hẹp hơn cho một tác vụ hoặc lĩnh vực cụ thể.',
       ],
       highlights: [
-        ['1', 'Raw text', 'Văn bản ban đầu đưa vào pipeline: có thể là prompt chưa đầy đủ như "Tôi thích", hoặc đoạn text trong dataset.'],
-        ['2', 'Tokenization', 'Cắt raw text thành token: từ, ký tự, mảnh subword, dấu câu, khoảng trắng hoặc special token.'],
-        ['3', 'Token IDs & vocabulary', 'Ánh xạ mỗi token thành một số nguyên ổn định để model có thể tra embedding.'],
-        ['4', 'Token embedding', 'Biến token ids thành vector biểu diễn nội dung của từng token.'],
-        ['5', 'Positional embedding', 'Cộng thêm vector vị trí để model biết token đang nằm ở đâu trong context window.'],
-        ['6', 'GPT model', 'GPT blocks tạo representation có ngữ cảnh cho từng vị trí. Output head biến mỗi vị trí thành logits trên toàn bộ vocabulary.'],
-        ['7', 'Training signal', 'Trong training, logits được so với target token kế tiếp bằng cross-entropy loss để cập nhật tham số.'],
-        ['7*', 'Decode', 'Khi generation, lấy logits ở vị trí cuối, chọn hoặc sample token id, rồi decode token đó thành text.'],
+        ['Pretraining', 'Pretraining', ''],
+        ['Fine-tuning', 'Fine-tuning', ''],
       ],
-      bodyAfter: [
-        'Chương 1.2 bắt đầu ở bước 2: tokenization. Khi bước này rõ, các node sau sẽ nối dần sang vocabulary, dataloader, embedding và training loop.',
+    }),
+    conceptPanel('transformer-translation-step-1', 'llm-data-pipeline-overview', 'Bước 1:', {
+      body: [
+        'Tất cả đều dựa trên Transformer, kiến trúc được giới thiệu trong bài báo năm 2017 "Attention Is All You Need".',
+        'Transformer ban đầu được dùng để dịch ngôn ngữ và có hai khối chính:',
+        'Encoder: đọc câu gốc và biến nó thành dạng số để máy có thể xử lý.',
+        'Decoder: dùng thông tin từ encoder để viết câu dịch, từng token một.',
+      ],
+      links: [
+        ['Paper: Attention Is All You Need', 'https://arxiv.org/abs/1706.03762'],
+      ],
+    }),
+    conceptPanel('transformer-translation-step-2', 'llm-data-pipeline-overview', 'Bước 2: Chuẩn bị input cho encoder', {
+      body: [
+        'Câu nguồn không đi thẳng vào mạng nơ-ron dưới dạng chữ. Nó được tách thành token, đổi thành token ids, tra thành token embeddings, rồi cộng positional embeddings để encoder biết cả nội dung lẫn vị trí của từng token.',
+      ],
+    }),
+    conceptPanel('transformer-translation-step-3', 'llm-data-pipeline-overview', 'Bước 3: Encoder đọc toàn bộ câu nguồn', {
+      body: [
+        'Encoder có quyền nhìn toàn bộ câu nguồn "This is an example" để tạo representation có ngữ cảnh cho từng vị trí.',
+      ],
+    }),
+    conceptPanel('transformer-translation-step-4', 'llm-data-pipeline-overview', 'Bước 4: Encoder trả embedding vector cho decoder', {
+      body: [
+        'Đến bước này, encoder đã tạo ra chuỗi embedding vector cho câu nguồn. Mỗi vector không chỉ mang thông tin mã hóa về một token, mà còn chứa ngữ cảnh từ các token khác trong câu. Decoder sẽ dùng chuỗi vector này để hiểu câu nguồn và tạo bản dịch từng token một.',
+      ],
+    }),
+    conceptPanel('transformer-translation-step-5', 'llm-data-pipeline-overview', 'Bước 5: Decoder nhận câu đã dịch một phần', {
+      body: [
+        'Ở giai đoạn cuối của ví dụ, decoder đã có "Das ist ein __" và cần điền token/từ tiếp theo.',
+      ],
+    }),
+    conceptPanel('transformer-translation-step-6', 'llm-data-pipeline-overview', 'Bước 6: Chuẩn bị input cho decoder', {
+      body: [
+        'Phần output đã có cũng đi qua cùng kiểu chuẩn bị: tách token, đổi thành token ids, tra embedding và cộng positional embedding trước khi vào decoder.',
+      ],
+    }),
+    conceptPanel('transformer-translation-step-7', 'llm-data-pipeline-overview', 'Bước 7: Decoder sinh từng từ', {
+      body: [
+        'Decoder dùng context từ encoder và phần câu đích đã có để dự đoán từ tiếp theo. Trong ví dụ này, từ cần sinh là "Beispiel".',
+      ],
+    }),
+    conceptPanel('transformer-translation-step-8', 'llm-data-pipeline-overview', 'Bước 8: Hoàn thành bản dịch', {
+      body: [
+        'Sau khi token mới được sinh và ghép vào câu, bản dịch trở thành "Das ist ein Beispiel".',
       ],
     }),
   ],
@@ -36,8 +73,7 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
     ),
     conceptPanel('why-split-ai-fields', 'llm-from-scratch-roadmap', 'Vì sao cần chia như vậy?', {
       body: [
-        'Việc chia AI thành AI, ML, Deep Learning, NLP, CV, LLM không phải để học thuộc tên gọi. Mục tiêu là nhìn ra mỗi lớp đang giải một kiểu bài toán khác nhau.',
-        'Khi bài toán khác nhau, dữ liệu đầu vào, cách đánh giá, mô hình phù hợp, lỗi thường gặp và công cụ làm việc cũng khác nhau. Nhận ra mình đang đứng ở lớp nào giúp bạn học đúng kỹ năng thay vì gom mọi thứ vào một chữ AI rất rộng.',
+        'Khi bài toán khác nhau, dữ liệu đầu vào, cách đánh giá, mô hình phù hợp, lỗi thường gặp và công cụ làm việc cũng khác nhau. Chọn một nhánh phù hợp với sở thích và thế mạnh giúp bạn học đúng kỹ năng thay vì gom mọi thứ vào một chữ AI rất rộng.',
       ],
       comparisonTable: {
         columns: ['Nhánh', 'Bài toán thường gặp', 'Công cụ / mô hình', 'Kỹ năng & công việc'],
@@ -48,7 +84,6 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
         ],
       },
       bodyAfter: [
-        'Một nghề cho chín còn hơn chín nghề. Trong thực tế, một đội ngũ AI tốt thường có nhiều chuyên gia ở các lĩnh vực khác nhau: mỗi người chịu trách nhiệm chính cho một kiểu bài toán, còn những người khác thường ở vai trò phối hợp và hỗ trợ.',
         'Với sinh viên mới ra trường, việc tìm hiểu doanh nghiệp đang giải bài toán gì trước khi apply rất quan trọng. Nếu bạn hiểu domain của họ và điều chỉnh CV, project, cách kể kinh nghiệm theo đúng bài toán đó, cơ hội mở ra những cuộc trò chuyện chất lượng sẽ cao hơn rất nhiều.',
       ],
     }),
@@ -57,10 +92,10 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       'llm-from-scratch-roadmap',
       'Large Language Model là gì?',
       [
-        'Nhìn vào tên gọi, ta có thể đoán đây là một mô hình AI chuyên làm việc với ngôn ngữ: chatbot, tóm tắt văn bản, phân tích cảm xúc, trích xuất thông tin, hoặc hỗ trợ viết code.',
-        'Khi bạn đặt câu hỏi với ChatGPT, bản chất là bạn đang đưa cho một mô hình LLM một đoạn văn bản mở đầu và nó sẽ dự đoán xem tiếp theo nên trả lời cho bạn như thế nào.',
-        'Large Language Model (LLM) là một mô hình được huấn luyện để dự đoán token tiếp theo trong một chuỗi. Token có thể là một từ, một phần của từ, dấu câu, hoặc ký hiệu đặc biệt. Quá trình này lặp đi lặp lại nhiều lần cho đến khi mô hình tạo ra một câu, một đoạn văn, hoặc một câu trả lời hoàn chỉnh.',
-        'Điểm quan trọng là LLM không tạo ra câu trả lời trong một lượt duy nhất. Các từ sẽ xuất hiện lần lượt: mô hình nhìn vào toàn bộ ngữ cảnh đã có, chọn token tiếp theo có xác suất phù hợp, ghép token đó vào câu, rồi dùng câu mới làm ngữ cảnh cho bước tiếp theo.',
+        'Các mô hình ngôn ngữ lớn (Large Language Models - LLM), chẳng hạn như những mô hình đứng sau ChatGPT, là các mô hình mạng nơ-ron sâu được phát triển mạnh trong vài năm gần đây. Chúng mở ra một giai đoạn mới cho xử lý ngôn ngữ tự nhiên (NLP): thay vì chỉ làm tốt một vài bài toán hẹp, LLM có thể đọc, tạo, tóm tắt, dịch, trả lời câu hỏi, phân tích cảm xúc, trích xuất thông tin và hỗ trợ viết code trong cùng một giao diện ngôn ngữ tự nhiên.',
+        'Trước khi có LLM hiện đại, nhiều phương pháp NLP truyền thống rất hữu ích cho các tác vụ cụ thể như phân loại email rác, gán nhãn văn bản, hoặc nhận dạng những pattern đơn giản có thể mô tả bằng luật thủ công hay mô hình nhỏ hơn. Nhưng chúng thường kém linh hoạt hơn ở những tác vụ cần hiểu chỉ thị dài, dùng ngữ cảnh phức tạp, hoặc tạo ra văn bản mới mạch lạc. Ví dụ, việc viết một email hoàn chỉnh từ vài gạch đầu dòng là chuyện khá tự nhiên với LLM hiện nay, nhưng không hề đơn giản với nhiều thế hệ mô hình ngôn ngữ trước đó.',
+        'Khi nói LLM "hiểu" ngôn ngữ, ta cần hiểu theo nghĩa kỹ thuật: mô hình xử lý chuỗi token và tạo ra văn bản có vẻ mạch lạc, phù hợp với ngữ cảnh, chứ không có ý thức hay sự thấu hiểu giống con người. Khả năng này đến từ deep learning, lượng dữ liệu văn bản rất lớn, và quá trình huấn luyện giúp mô hình học được nhiều pattern về cú pháp, ngữ nghĩa, style viết và quan hệ giữa các ý trong câu.',
+        'Khi bạn đặt câu hỏi với ChatGPT, bản chất là bạn đưa cho mô hình một đoạn văn bản mở đầu. LLM đọc toàn bộ ngữ cảnh đã có, rồi dự đoán token tiếp theo nên xuất hiện là gì. Token có thể là một từ, một phần của từ, dấu câu, khoảng trắng, hoặc ký hiệu đặc biệt.',
       ],
       '',
       'Hình minh họa LLM nhận prompt, dự đoán token tiếp theo, rồi lặp lại để tạo câu trả lời. Hình ảnh sẽ được bổ sung sau.',
@@ -72,26 +107,11 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
         option('17.3', false, 'Lựa chọn táo bạo đấy, đủ để tụi mình cảm thấy bất ngờ. Chọn lại đi.'),
       ],
       undefined,
-      {
-        interactionPlacement: 'none',
-        tokenExample: {
-          title: 'Ví dụ tokenization',
-          variants: [
-            ['Word tokens', ['I', 'love', 'tokenization', '!'], 'Cắt gần giống cách người đọc nhìn thấy từng từ và dấu câu.'],
-            ['Sub-word tokens', ['I', 'love', 'token', 'ization', '!'], 'Từ dài hoặc từ lạ có thể bị bẻ thành các mảnh nhỏ hơn.'],
-          ],
-          specialTitle: 'Trường hợp đặc biệt',
-          specialCases: [
-            ['Dấu câu', [',', '.', '?', '!'], 'Dấu câu thường được giữ thành token riêng để model học nhịp câu.'],
-            ['Khoảng trắng', ['space', '\\n'], 'Một số tokenizer giữ khoảng trắng hoặc xuống dòng như tín hiệu riêng.'],
-            ['Special tokens', ['<BOS>', '<EOS>', '<PAD>'], 'Token điều khiển biên câu, kết thúc chuỗi, hoặc padding batch.'],
-          ],
-          notes: [
-            'Không có một cách chia token duy nhất đúng cho mọi model. BPE, WordPiece, SentencePiece, GPT tokenizer hay Llama tokenizer có thể cắt cùng một câu thành các dãy token khác nhau.',
-          ],
-        },
-      },
+      { interactionPlacement: 'none' },
     ),
+    conceptPanel('tokenization-example', 'llm-from-scratch-roadmap', 'Ví dụ tokenization', {
+      tokenExample: tokenizationExample(),
+    }),
     conceptInteraction(
       'what-is-llm-interactions',
       'llm-from-scratch-roadmap',
@@ -133,6 +153,13 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
       ],
       bodyAfter: [
         'Quy mô lớn, nhưng kiến thức cơ bản đều giống nhau. Trong course này, mục tiêu là hiểu rõ từng cơ chế và tự build một phiên bản nhỏ GPT-mini.',
+      ],
+    }),
+    conceptPanel('iris-scale-comparison-roadmap', 'llm-from-scratch-roadmap', 'Large đến mức nào?', {
+      emphasis: 'Large',
+      highlights: [
+        ['2', 'Mô hình Iris', 'Bài toán Iris có thể đạt độ chính xác cao với một mô hình rất nhỏ.'],
+        ['~100,000,000,000+', 'LLM hiện đại', 'LLM cần quy mô lớn để học ngôn ngữ, ngữ cảnh và tri thức phức tạp.'],
       ],
     }),
     conceptPanel('why-llms-are-popular-now', 'llm-from-scratch-roadmap', 'Vì sao LLM phổ biến đến vậy?', {
@@ -475,6 +502,7 @@ function conceptPanel(
     };
     outline?: Array<[string, string, string[][]]>;
     links?: string[][];
+    tokenExample?: LearningTokenExample;
   },
 ): LearningLessonExtra {
   return {
@@ -507,6 +535,46 @@ function conceptPanel(
       items: group[2].map((item) => ({ title: loc(item[0]), body: loc(item[1]) })),
     })),
     links: config.links?.map((link) => ({ label: loc(link[0]), href: link[1] })),
+    tokenExample: config.tokenExample,
+  };
+}
+
+function tokenizationExample(): LearningTokenExample {
+  return {
+    title: loc('Ví dụ tokenization'),
+    variants: [
+      {
+        label: loc('Word tokens'),
+        tokens: ['I', 'love', 'tokenization', '!'],
+        description: loc('Cắt gần giống cách người đọc nhìn thấy từng từ và dấu câu.'),
+      },
+      {
+        label: loc('Sub-word tokens'),
+        tokens: ['I', 'love', 'token', 'ization', '!'],
+        description: loc('Từ dài hoặc từ lạ có thể bị bẻ thành các mảnh nhỏ hơn.'),
+      },
+    ],
+    specialTitle: loc('Trường hợp đặc biệt'),
+    specialCases: [
+      {
+        label: loc('Dấu câu'),
+        tokens: [',', '.', '?', '!'],
+        description: loc('Dấu câu thường được giữ thành token riêng để model học nhịp câu.'),
+      },
+      {
+        label: loc('Khoảng trắng'),
+        tokens: ['space', '\\n'],
+        description: loc('Một số tokenizer giữ khoảng trắng hoặc xuống dòng như tín hiệu riêng.'),
+      },
+      {
+        label: loc('Special tokens'),
+        tokens: ['<BOS>', '<EOS>', '<PAD>'],
+        description: loc('Token điều khiển biên câu, kết thúc chuỗi, hoặc padding batch.'),
+      },
+    ],
+    notes: [
+      loc('Không có một cách chia token duy nhất đúng cho mọi model. BPE, WordPiece, SentencePiece, GPT tokenizer hay Llama tokenizer có thể cắt cùng một câu thành các dãy token khác nhau.'),
+    ],
   };
 }
 

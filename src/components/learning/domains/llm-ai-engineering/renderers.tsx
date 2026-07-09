@@ -1,6 +1,6 @@
 import { Angry, CheckCircle2, CircleAlert, Info, MousePointer2, RotateCcw, Sparkles, X } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import type { LearningLessonExtra } from '../../../../core/learning/types';
+import type { LearningLessonExtra, LearningTokenExample } from '../../../../core/learning/types';
 import { getStrings, type Language } from '../../../../lib/localization';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningAssetUrl } from '../../lesson/extras/assetRegistry';
@@ -441,18 +441,21 @@ function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
   );
 }
 
-function TokenExampleBlock({ example, language, themeClasses }: {
-  example: NonNullable<Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>['tokenExample']>;
+export function TokenExampleBlock({ example, language, themeClasses, hideTitle = false }: {
+  example: LearningTokenExample;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
+  hideTitle?: boolean;
 }) {
   const [activeLabel, setActiveLabel] = useState(example.variants[0]?.label.en ?? example.specialCases[0]?.label.en ?? '');
 
   return (
     <section className={cx(getConceptTileClass(themeClasses), 'gap-4')}>
-      <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
-        {text(example.title, language)}
-      </div>
+      {!hideTitle && (
+        <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.eyebrowText)}>
+          {text(example.title, language)}
+        </div>
+      )}
 
       <div className="learning-lab-focus-group grid gap-3">
         {example.variants.map((variant) => (
