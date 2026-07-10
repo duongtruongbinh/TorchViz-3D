@@ -192,13 +192,14 @@ pills.
 
 `LearningLabView` keeps the left sidebar intentionally shallow: an explicit
 Home item appears at the top, followed only by top-level domains. The Home page
-is a simple, text-focused introduction to the TorchViz-3D project, its learning
-goal, and the team ideals behind the lab; it does not duplicate domain cards or
-show a project logo in the main content. Track and lesson structure belongs in
-the main content area on the right, through the domain course page and lesson
-detail surfaces, instead of expanding as a tree in the sidebar. The TorchViz
-brand/logo in the sidebar is the Landing return affordance; there is no
-separate Back to landing row.
+introduces the TorchViz-3D project, its learning goal, and the team ideals
+behind the lab, then shows a catalog-backed syllabus/index so learners can scan
+domains, track previews, lesson counts, and practice counts before opening a
+path. Track and lesson structure belongs in the main content area on the right,
+through the Home syllabus, domain course page, and lesson detail surfaces,
+instead of expanding as a tree in the sidebar. The TorchViz brand/logo in the
+sidebar is the Landing return affordance; there is no separate Back to landing
+row.
 
 Use the semantic helpers as the default:
 

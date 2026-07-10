@@ -215,6 +215,16 @@ const localizedText = {
         en: 'Choose a domain on the left when you are ready. Each domain opens a focused course page, while this Home page stays as the project’s shared north star.',
         vi: 'Khi sẵn sàng, hãy chọn một domain ở bên trái. Mỗi domain mở một trang học tập tập trung, còn Home là nơi giữ tinh thần chung của dự án.',
       },
+      syllabusLabel: { en: 'Syllabus index', vi: 'Mục lục khóa học' },
+      syllabusTitle: {
+        en: 'Traverse the full Learning Lab catalog.',
+        vi: 'Duyệt toàn bộ catalog Learning Lab.',
+      },
+      syllabusBody: {
+        en: 'Scan every domain, preview its course tracks, and jump directly into the first lesson route.',
+        vi: 'Xem nhanh từng domain, các track chính, rồi mở thẳng lộ trình bài học đầu tiên.',
+      },
+      openSyllabusDomain: { en: 'Open path', vi: 'Mở lộ trình' },
       artifactLabel: { en: 'Learning artifact', vi: 'Mẫu học tập' },
       sourceCode: { en: 'Source code', vi: 'Code PyTorch' },
       shapeTrace: { en: 'Shape trace', vi: 'Luồng tensor' },
@@ -256,85 +266,85 @@ const localizedText = {
       programmingFoundation: {
         title: { en: 'Programming', vi: 'Programming' },
         description: {
-          en: 'Write clean, production-quality Python. This is non-negotiable.',
-          vi: 'Viết Python sạch, đạt chất lượng production. Đây là nền tảng bắt buộc.',
+          en: 'Build the Python fluency needed for AI work: functions, classes, files, debugging, NumPy-style arrays, project structure, async API calls, and clean code habits that make model experiments reliable.',
+          vi: 'Xây nền Python cho công việc AI: function, class, file, debugging, array kiểu NumPy, cấu trúc project, async API call và thói quen code sạch để thử nghiệm model đáng tin cậy.',
         },
       },
       mathStatisticsAi: {
         title: { en: 'Math & Statistics', vi: 'Math & Statistics' },
         description: {
-          en: "Understand the math behind what models do. You don't need to derive everything, but you must understand it.",
-          vi: 'Hiểu toán phía sau hành vi của model. Không cần tự derive mọi thứ, nhưng phải hiểu bản chất.',
+          en: 'Learn the math that explains model behavior: vectors, matrices, gradients, probability, statistics, optimization, loss functions, entropy, and the intuition behind training signals.',
+          vi: 'Học phần toán giải thích hành vi model: vector, ma trận, gradient, xác suất, thống kê, tối ưu, loss function, entropy và trực giác phía sau tín hiệu training.',
         },
       },
       fundamentals: {
         title: { en: 'Machine Learning', vi: 'Machine Learning' },
         description: {
-          en: 'Understand the classic ML algorithms that power AI feature engineering and evaluation.',
-          vi: 'Hiểu các thuật toán ML cổ điển đứng sau feature engineering và evaluation trong AI.',
+          en: 'Move from data splits and evaluation into regression, classification, trees, ensembles, unsupervised learning, tuning, and practical Scikit-Learn workflows for baseline AI systems.',
+          vi: 'Đi từ chia dữ liệu và evaluation đến regression, classification, tree, ensemble, unsupervised learning, tuning và workflow Scikit-Learn thực tế cho hệ thống AI baseline.',
         },
       },
       deepLearning: {
         title: { en: 'Deep Learning', vi: 'Deep Learning' },
         description: {
-          en: 'Understand neural networks deeply enough to work with transformers.',
-          vi: 'Hiểu neural networks đủ sâu để làm việc với transformers.',
+          en: 'Understand how neural networks move tensors through layers: activations, gradients, normalization, residuals, CNNs, RNNs, attention, PyTorch modules, training loops, and transfer learning.',
+          vi: 'Hiểu cách neural network đưa tensor qua các layer: activation, gradient, normalization, residual, CNN, RNN, attention, PyTorch module, training loop và transfer learning.',
         },
       },
       cv: {
         title: { en: 'Computer Vision', vi: 'Computer Vision' },
         description: {
-          en: 'CNN, convolution, pooling, and classifier shape/value practice.',
-          vi: 'CNN, convolution, pooling và classifier shape/value practice.',
+          en: 'Follow image tensors through vision models: NCHW shape, kernels, stride, padding, convolution values, pooling effects, flattening, classifier heads, transfer learning, and visual feature reasoning.',
+          vi: 'Theo dấu tensor ảnh qua model vision: shape NCHW, kernel, stride, padding, giá trị convolution, hiệu ứng pooling, flatten, classifier head, transfer learning và suy luận feature thị giác.',
         },
       },
       nlp: {
         title: { en: 'NLP', vi: 'NLP' },
         description: {
-          en: 'Deep NLP expertise for LLM-powered products.',
-          vi: 'Kiến thức NLP sâu để xây dựng sản phẩm dùng LLM.',
+          en: 'Build the language-model foundation before LLMs: text cleaning, tokenization, sparse and dense representations, embeddings, sequence shapes, attention, transformer blocks, decoding, and evaluation.',
+          vi: 'Xây nền tảng language model trước LLM: làm sạch text, tokenization, biểu diễn sparse/dense, embedding, shape sequence, attention, transformer block, decoding và evaluation.',
         },
       },
       llmAiEngineering: {
         title: { en: 'LLMs', vi: 'LLMs' },
         description: {
-          en: 'Master LLM fundamentals, APIs, and production patterns.',
-          vi: 'Nắm vững nền tảng LLM, API và các pattern production.',
+          en: 'Study LLMs from internals to product use: token data, causal attention, GPT blocks, logits, generation, fine-tuning, alignment, prompt engineering, API integration, streaming, cost, and security patterns.',
+          vi: 'Học LLM từ internals đến sản phẩm: dữ liệu token, causal attention, GPT block, logits, generation, fine-tuning, alignment, prompt engineering, tích hợp API, streaming, cost và security pattern.',
         },
       },
       mlopsLlmopsProductionSystems: {
         title: { en: 'MLOps, LLMOps & Production', vi: 'MLOps, LLMOps & Production' },
         description: {
-          en: 'Ship AI to production reliably, cheaply, and scalably.',
-          vi: 'Đưa AI lên production ổn định, tiết kiệm và scale được.',
+          en: 'Learn how AI systems survive production: data and model versioning, experiment tracking, training infrastructure, evals, serving, containers, cloud deployment, monitoring, CI/CD, and LLM safety controls.',
+          vi: 'Học cách hệ thống AI sống được ở production: versioning data/model, experiment tracking, hạ tầng train, eval, serving, container, cloud deployment, monitoring, CI/CD và kiểm soát an toàn LLM.',
         },
       },
       aiSystemDesign: {
         title: { en: 'AI System Design', vi: 'AI System Design' },
         description: {
-          en: 'Design AI systems at scale for real-world products and interviews.',
-          vi: 'Thiết kế hệ thống AI ở quy mô lớn cho sản phẩm thực tế và phỏng vấn.',
+          en: 'Design complete AI products: requirements, data flow, model choice, RAG, memory, recommendations, inference placement, caching, latency, cost, reliability, observability, and interview-ready tradeoffs.',
+          vi: 'Thiết kế sản phẩm AI hoàn chỉnh: requirement, data flow, chọn model, RAG, memory, recommendation, vị trí inference, caching, latency, cost, reliability, observability và tradeoff cho phỏng vấn.',
         },
       },
       aiEthicsSafetyGovernance: {
         title: { en: 'AI Ethics, Safety & Governance', vi: 'AI Ethics, Safety & Governance' },
         description: {
-          en: 'Build AI responsibly. This is increasingly a job requirement.',
-          vi: 'Xây dựng AI có trách nhiệm. Đây ngày càng là yêu cầu nghề nghiệp.',
+          en: 'Handle AI risk with practical discipline: bias, privacy, hallucination, evaluation, red teaming, safety filters, model cards, audit trails, governance checklists, and deployment review habits.',
+          vi: 'Quản lý rủi ro AI bằng kỷ luật thực tế: bias, privacy, hallucination, evaluation, red teaming, safety filter, model card, audit trail, checklist governance và thói quen review trước khi deploy.',
         },
       },
       reinforcementLearning: {
         title: { en: 'Reinforcement Learning', vi: 'Reinforcement Learning' },
         description: {
-          en: 'Understand RL enough to work with RLHF, PPO, and agentic training.',
-          vi: 'Hiểu RL đủ để làm việc với RLHF, PPO và agentic training.',
+          en: 'Learn decision-making systems step by step: agents, environments, rewards, MDPs, value functions, Bellman updates, Q-tables, Q-Learning, SARSA, policy behavior, and the bridge toward RLHF.',
+          vi: 'Học hệ thống ra quyết định từng bước: agent, environment, reward, MDP, value function, Bellman update, Q-table, Q-Learning, SARSA, policy behavior và cầu nối đến RLHF.',
         },
       },
       robotLearning: {
         title: { en: 'Robot Learning', vi: 'Robot Learning' },
         description: {
-          en: 'Reserved for embodied agents, control, and robotics practice.',
-          vi: 'Giữ chỗ cho embodied agents, control và robotics practice.',
+          en: 'Prepare for embodied AI topics: perception-action loops, robot state, control basics, imitation learning, reinforcement learning for robotics, sim-to-real gaps, safety, and evaluation.',
+          vi: 'Chuẩn bị cho embodied AI: vòng lặp perception-action, trạng thái robot, control cơ bản, imitation learning, reinforcement learning cho robotics, khoảng cách sim-to-real, safety và evaluation.',
         },
       },
     },

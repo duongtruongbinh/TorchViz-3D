@@ -1,15 +1,20 @@
 import type { ReactNode } from 'react';
-import { BookOpen, GraduationCap, Network } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Network } from 'lucide-react';
 
+import { learningCatalog } from '../../../core/learning/content';
+import { getGroupedLearningLessonsForDomain } from '../../../core/learning/selectors';
+import type { LearningDomain, LearningDomainId } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
+import { getDomainText, getTrackText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 
 type DomainCatalogProps = {
   language: Language;
   theme: LearningLabTheme;
+  onOpenDomain: (domainId: LearningDomainId) => void;
 };
 
-export default function DomainCatalog({ language, theme }: DomainCatalogProps) {
+export default function DomainCatalog({ language, theme, onOpenDomain }: DomainCatalogProps) {
   const strings = getStrings(language).learningLab;
   const home = strings.homePage;
   const themeClasses = getLearningLabTheme(theme);
@@ -36,10 +41,11 @@ export default function DomainCatalog({ language, theme }: DomainCatalogProps) {
   const labelTone = isLight ? 'text-[#245B8F]' : themeClasses.eyebrowText;
   const mutedTone = isLight ? 'text-[#6B7C91]' : themeClasses.mutedText;
   const dividerTone = isLight ? 'bg-[#8EA7C1]/55' : 'bg-[#A8B8C8]/32';
+  const syllabus = learningCatalog.domains.map((domain) => buildSyllabusItem(domain, language));
 
   return (
     <div className={cx('-m-4 min-h-full w-[calc(100%+2rem)]', pageTone)}>
-      <div className="mx-auto flex min-h-full w-full max-w-6xl items-center px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-full w-full max-w-6xl px-4 py-5 sm:px-6 lg:px-8">
         <div className={cx('w-full p-4 sm:p-5', themeClasses.radius.panel, panelTone)}>
           <div className="min-w-0">
             <SectionLabel text={home.projectLabel} toneClass={labelTone} />
@@ -52,6 +58,73 @@ export default function DomainCatalog({ language, theme }: DomainCatalogProps) {
               <Principle index="02" icon={<Network className="h-6 w-6" strokeWidth={1.8} />} title={home.idealLocalTitle} body={home.idealLocalBody} toneClass={tileTone[1]} titleTone={titleTone} bodyTone={bodyTone} mutedTone={mutedTone} dividerTone={dividerTone} />
               <Principle index="03" icon={<GraduationCap className="h-6 w-6" strokeWidth={1.8} />} title={home.idealHumanTitle} body={home.idealHumanBody} toneClass={tileTone[2]} titleTone={titleTone} bodyTone={bodyTone} mutedTone={mutedTone} dividerTone={dividerTone} />
             </div>
+
+            <section className="mt-7" aria-labelledby="learning-home-syllabus-title">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <SectionLabel text={home.syllabusLabel} toneClass={labelTone} />
+                  <h1 id="learning-home-syllabus-title" className={cx('mt-2 text-[clamp(1.45rem,2vw,2rem)] font-black leading-tight', titleTone)}>
+                    {home.syllabusTitle}
+                  </h1>
+                </div>
+                <p className={cx('max-w-xl text-sm leading-6 sm:text-right', mutedTone)}>{home.syllabusBody}</p>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                {syllabus.map((item, index) => (
+                  <button
+                    key={item.domain.id}
+                    type="button"
+                    onClick={() => onOpenDomain(item.domain.id)}
+                    className={cx(
+                      'group w-full border p-4 text-left transition-transform duration-150 hover:-translate-y-0.5',
+                      themeClasses.radius.card,
+                      themeClasses.focusRing,
+                      themeClasses.surface.interactiveCard,
+                    )}
+                  >
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className={cx('text-sm font-black leading-tight', mutedTone)}>
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        <span className={cx('text-base font-black leading-tight', titleTone)}>{item.title}</span>
+                        <span className={cx('px-2.5 py-0.5 text-[11px] font-black', themeClasses.radius.pill, themeClasses.statusPill(item.domain.status === 'placeholder'))}>
+                          {item.domain.status === 'placeholder' ? strings.domainPlaceholder : strings.domainAvailable}
+                        </span>
+                      </span>
+                      <span className={cx('mt-1 block text-sm leading-6', bodyTone)}>{item.description}</span>
+                      {item.previewTracks.length ? (
+                        <span className="mt-3 flex flex-wrap gap-2">
+                          {item.previewTracks.map((track) => (
+                            <span
+                              key={track.id}
+                              className={cx(
+                                'max-w-full truncate border px-2.5 py-1 text-xs font-bold',
+                                themeClasses.radius.pill,
+                                themeClasses.isLight ? 'border-[#205089]/14 bg-white/54 text-[#123B68]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/10 text-[#F2F6FA]/74',
+                              )}
+                            >
+                              {track.title}
+                            </span>
+                          ))}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="mt-4 flex flex-col gap-3 border-t border-[#205089]/10 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="flex flex-wrap gap-2">
+                        <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
+                        <Metric text={strings.practiceCount(item.practiceCount)} toneClass={mutedTone} />
+                      </span>
+                      <span className={cx('inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-black transition-colors sm:min-w-32', themeClasses.button.primary)}>
+                        {home.openSyllabusDomain}
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.8} aria-hidden="true" />
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </div>
@@ -65,6 +138,34 @@ function SectionLabel({ text, toneClass }: { text: string; toneClass: string }) 
       {text}
     </div>
   );
+}
+
+function Metric({ text, toneClass }: { text: string; toneClass: string }) {
+  return (
+    <span className={cx('inline-flex items-center rounded-full bg-current/10 px-2.5 py-1 text-xs font-black', toneClass)}>
+      {text}
+    </span>
+  );
+}
+
+function buildSyllabusItem(domain: LearningDomain, language: Language) {
+  const groupedLessons = getGroupedLearningLessonsForDomain(learningCatalog, domain.id);
+  const tracks = groupedLessons.map((group) => group.track);
+  const lessons = groupedLessons.flatMap((group) => group.lessons);
+  const practiceCount = new Set(lessons.flatMap((lesson) => lesson.practice.map((practice) => practice.id))).size;
+  const text = getDomainText(language, domain);
+
+  return {
+    domain,
+    title: text.title,
+    description: text.description,
+    lessonCount: lessons.length,
+    practiceCount,
+    previewTracks: tracks.slice(0, 3).map((track) => ({
+      id: track.id,
+      title: getTrackText(language, track).title,
+    })),
+  };
 }
 
 function Principle({
