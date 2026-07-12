@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ArrowRight, BookOpen, GraduationCap, Network } from 'lucide-react';
+import { ArrowDown, ArrowRight, BookOpen, Dumbbell, GraduationCap, LibraryBig, Network } from 'lucide-react';
 
 import { learningCatalog } from '../../../core/learning/content';
 import { getGroupedLearningLessonsForDomain } from '../../../core/learning/selectors';
@@ -22,78 +22,89 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
   const pageTone = isLight
     ? 'bg-white/[0.72]'
     : 'bg-[#172232]/[0.72]';
-  const panelTone = isLight
-    ? 'bg-white/[0.72] shadow-[0_24px_70px_rgba(33,66,105,0.13)]'
-    : 'bg-[#172232]/[0.72] shadow-[0_24px_70px_rgba(0,0,0,0.24)]';
-  const tileTone = isLight
-    ? [
-        'border border-[#D8C59A]/55 bg-[#FFFBF0]/[0.84] shadow-[0_14px_30px_rgba(126,92,24,0.08)]',
-        'border border-[#D8C59A]/55 bg-[#FFFBF0]/[0.84] shadow-[0_14px_30px_rgba(126,92,24,0.08)]',
-        'border border-[#D8C59A]/55 bg-[#FFFBF0]/[0.84] shadow-[0_14px_30px_rgba(126,92,24,0.08)]',
-      ]
-    : [
-        'border border-[#7DD3FC]/18 bg-[#0E2230]/[0.82] shadow-[0_14px_30px_rgba(0,0,0,0.18)]',
-        'border border-[#7DD3FC]/18 bg-[#0E2230]/[0.82] shadow-[0_14px_30px_rgba(0,0,0,0.18)]',
-        'border border-[#7DD3FC]/18 bg-[#0E2230]/[0.82] shadow-[0_14px_30px_rgba(0,0,0,0.18)]',
-      ];
   const titleTone = isLight ? 'text-[#132033]' : themeClasses.titleText;
   const bodyTone = isLight ? 'text-[#42546A]' : themeClasses.bodyText;
   const labelTone = isLight ? 'text-[#245B8F]' : themeClasses.eyebrowText;
   const mutedTone = isLight ? 'text-[#6B7C91]' : themeClasses.mutedText;
-  const dividerTone = isLight ? 'bg-[#8EA7C1]/55' : 'bg-[#A8B8C8]/32';
   const syllabus = learningCatalog.domains.map((domain) => buildSyllabusItem(domain, language));
+  const lessonCount = syllabus.reduce((total, item) => total + item.lessonCount, 0);
+  const practiceCount = syllabus.reduce((total, item) => total + item.practiceCount, 0);
 
   return (
-    <div className={cx('-m-4 min-h-full w-[calc(100%+2rem)]', pageTone)}>
-      <div className="mx-auto flex min-h-full w-full max-w-6xl px-4 py-5 sm:px-6 lg:px-8">
-        <div className={cx('w-full p-4 sm:p-5', themeClasses.radius.panel, panelTone)}>
-          <div className="min-w-0">
-            <SectionLabel text={home.projectLabel} toneClass={labelTone} />
-            <p className={cx('mt-3 max-w-none text-[clamp(0.88rem,1.05vw,1.08rem)] font-semibold leading-7', bodyTone)}>
-              {home.goal}
-            </p>
-
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
-              <Principle index="01" icon={<BookOpen className="h-6 w-6" strokeWidth={1.8} />} title={home.idealVisualTitle} body={home.idealVisualBody} toneClass={tileTone[0]} titleTone={titleTone} bodyTone={bodyTone} mutedTone={mutedTone} dividerTone={dividerTone} />
-              <Principle index="02" icon={<Network className="h-6 w-6" strokeWidth={1.8} />} title={home.idealLocalTitle} body={home.idealLocalBody} toneClass={tileTone[1]} titleTone={titleTone} bodyTone={bodyTone} mutedTone={mutedTone} dividerTone={dividerTone} />
-              <Principle index="03" icon={<GraduationCap className="h-6 w-6" strokeWidth={1.8} />} title={home.idealHumanTitle} body={home.idealHumanBody} toneClass={tileTone[2]} titleTone={titleTone} bodyTone={bodyTone} mutedTone={mutedTone} dividerTone={dividerTone} />
-            </div>
-
-            <section className="mt-7" aria-labelledby="learning-home-syllabus-title">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <SectionLabel text={home.syllabusLabel} toneClass={labelTone} />
-                  <h1 id="learning-home-syllabus-title" className={cx('mt-2 text-[clamp(1.45rem,2vw,2rem)] font-black leading-tight', titleTone)}>
-                    {home.syllabusTitle}
-                  </h1>
-                </div>
-                <p className={cx('max-w-xl text-sm leading-6 sm:text-right', mutedTone)}>{home.syllabusBody}</p>
+    <div className={cx('-m-3 min-h-full w-[calc(100%+1.5rem)] sm:-m-4 sm:w-[calc(100%+2rem)]', pageTone)}>
+      <div className="mx-auto min-h-full w-full max-w-[1480px] px-3 py-4 sm:px-6 sm:py-6 lg:px-8 xl:px-10">
+        <div className="min-w-0">
+          <section className="relative overflow-hidden rounded-2xl bg-[#13283F] text-white shadow-[0_24px_64px_rgba(18,59,104,0.20)]">
+            <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,0.09)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.09)_1px,transparent_1px)] [background-size:44px_44px]" aria-hidden="true" />
+            <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#5DA6D8]/20 blur-3xl" aria-hidden="true" />
+            <div className="relative grid gap-7 px-5 py-7 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:items-center lg:px-10 lg:py-9 xl:gap-12 xl:px-12">
+              <div>
+                <div className="text-sm font-black uppercase tracking-[0.16em] text-[#9DD7F5]">{home.projectLabel}</div>
+                <h1 className="mt-3 max-w-4xl text-[clamp(2rem,3.2vw,3.75rem)] font-black leading-[1.02] tracking-[-0.035em] text-white">
+                  {home.simpleTitle}
+                </h1>
+                <p className="mt-4 max-w-3xl text-base font-semibold leading-7 text-[#E6F1F8]/84 lg:text-lg">
+                  {home.simpleSubtitle}
+                </p>
+                <a
+                  href="#learning-home-syllabus-title"
+                  className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#F2C94C] px-5 py-2.5 text-sm font-black text-[#263240] shadow-[0_12px_28px_rgba(242,201,76,0.20)] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#FFD65A] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                >
+                  {home.syllabusLabel}
+                  <ArrowDown className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                </a>
               </div>
 
-              <div className="mt-5 grid gap-3">
+              <div className="grid grid-cols-3 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] lg:grid-cols-1">
+                <CatalogMetric icon={<LibraryBig />} value={syllabus.length} label={strings.sidebarDomains} />
+                <CatalogMetric icon={<BookOpen />} value={lessonCount} label={strings.lessonCount(lessonCount)} hideValueInLabel />
+                <CatalogMetric icon={<Dumbbell />} value={practiceCount} label={strings.practiceCount(practiceCount)} hideValueInLabel />
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-4 grid overflow-hidden rounded-xl border border-[#205089]/12 bg-white/82 shadow-[0_12px_32px_rgba(33,66,105,0.08)] md:grid-cols-3" aria-label={home.projectLabel}>
+            <Principle icon={<BookOpen />} title={home.idealVisualTitle} body={home.idealVisualBody} titleTone={titleTone} bodyTone={bodyTone} />
+            <Principle icon={<Network />} title={home.idealLocalTitle} body={home.idealLocalBody} titleTone={titleTone} bodyTone={bodyTone} />
+            <Principle icon={<GraduationCap />} title={home.idealHumanTitle} body={home.idealHumanBody} titleTone={titleTone} bodyTone={bodyTone} />
+          </section>
+
+          <section className="mt-8" aria-labelledby="learning-home-syllabus-title">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <SectionLabel text={home.syllabusLabel} toneClass={labelTone} />
+                <h2 id="learning-home-syllabus-title" className={cx('mt-1 text-[clamp(1.55rem,2vw,2.25rem)] font-black leading-tight tracking-[-0.02em]', titleTone)}>
+                  {home.syllabusTitle}
+                </h2>
+              </div>
+              <p className={cx('max-w-xl text-sm leading-6 sm:text-right', mutedTone)}>{home.syllabusBody}</p>
+            </div>
+
+            <div className="mt-5 grid gap-4 xl:grid-cols-2">
                 {syllabus.map((item, index) => (
                   <button
                     key={item.domain.id}
                     type="button"
                     onClick={() => onOpenDomain(item.domain.id)}
                     className={cx(
-                      'group w-full border p-4 text-left transition-transform duration-150 hover:-translate-y-0.5',
+                      'group grid min-h-[238px] w-full grid-rows-[auto_1fr_auto] border p-5 text-left transition-[border-color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(32,80,137,0.13)]',
                       themeClasses.radius.card,
                       themeClasses.focusRing,
                       themeClasses.surface.interactiveCard,
                     )}
                   >
                     <span className="min-w-0">
-                      <span className="flex flex-wrap items-center gap-2">
+                      <span className="flex items-start gap-3">
                         <span className={cx('text-sm font-black leading-tight', mutedTone)}>
                           {String(index + 1).padStart(2, '0')}
                         </span>
-                        <span className={cx('text-base font-black leading-tight', titleTone)}>{item.title}</span>
+                        <span className={cx('min-w-0 flex-1 text-lg font-black leading-tight', titleTone)}>{item.title}</span>
                         <span className={cx('px-2.5 py-0.5 text-[11px] font-black', themeClasses.radius.pill, themeClasses.statusPill(item.domain.status === 'placeholder'))}>
                           {item.domain.status === 'placeholder' ? strings.domainPlaceholder : strings.domainAvailable}
                         </span>
+                        <ArrowRight className={cx('h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
                       </span>
-                      <span className={cx('mt-1 block text-sm leading-6', bodyTone)}>{item.description}</span>
+                      <span className={cx('mt-3 line-clamp-3 block text-sm leading-6', bodyTone)}>{item.description}</span>
                       {item.previewTracks.length ? (
                         <span className="mt-3 flex flex-wrap gap-2">
                           {item.previewTracks.map((track) => (
@@ -111,21 +122,17 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
                         </span>
                       ) : null}
                     </span>
-                    <span className="mt-4 flex flex-col gap-3 border-t border-[#205089]/10 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="mt-4 flex items-center justify-between gap-3 border-t border-[#205089]/10 pt-3">
                       <span className="flex flex-wrap gap-2">
                         <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
                         <Metric text={strings.practiceCount(item.practiceCount)} toneClass={mutedTone} />
                       </span>
-                      <span className={cx('inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-black transition-colors sm:min-w-32', themeClasses.button.primary)}>
-                        {home.openSyllabusDomain}
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.8} aria-hidden="true" />
-                      </span>
+                      <span className={cx('shrink-0 text-xs font-black', themeClasses.accentText)}>{home.openSyllabusDomain}</span>
                     </span>
                   </button>
                 ))}
-              </div>
-            </section>
-          </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -145,6 +152,19 @@ function Metric({ text, toneClass }: { text: string; toneClass: string }) {
     <span className={cx('inline-flex items-center rounded-full bg-current/10 px-2.5 py-1 text-xs font-black', toneClass)}>
       {text}
     </span>
+  );
+}
+
+function CatalogMetric({ icon, value, label, hideValueInLabel = false }: { icon: ReactNode; value: number; label: string; hideValueInLabel?: boolean }) {
+  const normalizedLabel = hideValueInLabel ? label.replace(String(value), '').trim() : label;
+  return (
+    <div className="flex min-w-0 flex-col items-center justify-center gap-1 border-l border-white/10 px-3 py-4 text-center first:border-l-0 lg:flex-row lg:justify-start lg:gap-4 lg:border-l-0 lg:border-t lg:px-5 lg:text-left lg:first:border-t-0">
+      <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-[#9DD7F5] lg:flex [&>svg]:h-5 [&>svg]:w-5" aria-hidden="true">{icon}</span>
+      <span className="min-w-0">
+        <span className="block text-2xl font-black tabular-nums text-white">{value}</span>
+        <span className="block truncate text-xs font-bold text-[#E6F1F8]/66">{normalizedLabel}</span>
+      </span>
+    </div>
   );
 }
 
@@ -169,37 +189,27 @@ function buildSyllabusItem(domain: LearningDomain, language: Language) {
 }
 
 function Principle({
-  index,
   icon,
   title,
   body,
-  toneClass,
   titleTone,
   bodyTone,
-  mutedTone,
-  dividerTone,
 }: {
-  index: string;
   icon: ReactNode;
   title: string;
   body: string;
-  toneClass: string;
   titleTone: string;
   bodyTone: string;
-  mutedTone: string;
-  dividerTone: string;
 }) {
   return (
-    <div className={cx('grid min-h-[280px] grid-rows-[auto_auto_auto_1fr] rounded-xl p-5', toneClass)}>
-      <div className="flex items-center justify-between gap-3">
-        <div className={cx('flex h-12 w-12 items-center justify-center rounded-lg bg-current/10', mutedTone)}>
-          {icon}
-        </div>
-        <span className={cx('text-sm font-black', mutedTone)}>{index}</span>
+    <div className="flex gap-4 border-t border-[#205089]/10 p-4 first:border-t-0 md:border-l md:border-t-0 md:p-5 md:first:border-l-0">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#D7E8F5] text-[#255E88] [&>svg]:h-5 [&>svg]:w-5">
+        {icon}
       </div>
-      <h3 className={cx('mt-6 text-[clamp(1.25rem,1.55vw,1.5rem)] font-black leading-tight', titleTone)}>{title}</h3>
-      <div className={cx('mt-4 h-0.5 w-full rounded-full', dividerTone)} />
-      <p className={cx('mt-5 text-[clamp(0.92rem,1.02vw,1rem)] leading-7', bodyTone)}>{body}</p>
+      <div className="min-w-0">
+        <h3 className={cx('text-sm font-black leading-5', titleTone)}>{title}</h3>
+        <p className={cx('mt-1 line-clamp-3 text-xs leading-5', bodyTone)}>{body}</p>
+      </div>
     </div>
   );
 }

@@ -201,6 +201,31 @@ instead of expanding as a tree in the sidebar. The TorchViz brand/logo in the
 sidebar is the Landing return affordance; there is no separate Back to landing
 row.
 
+The Learning Lab shell is responsive rather than a scaled-down desktop grid.
+At desktop widths the domain sidebar remains persistent and collapsible. Below
+the desktop breakpoint, the header exposes a menu button and the domain list
+opens as an overlay drawer, leaving the learning content at full viewport
+width. Escape and the backdrop dismiss compact navigation. Lesson pages use the
+same pattern for the lesson rail: desktop keeps a collapsible rail beside the
+lesson, while compact screens show an explicit table-of-contents action and a
+dismissible right-side drawer. Dense catalogs initially expand only the current
+chapter so the learner's location and lesson content remain visually primary.
+
+Home, Review, and lesson surfaces share the Learning Lab theme primitives for
+cards, panels, buttons, focus rings, radii, and muted text. Responsive layout
+changes should preserve this semantic styling contract and must not expose
+off-canvas navigation to keyboard or accessibility-tree users while it is
+closed.
+
+On desktop, Learning Home uses a product-level hero followed by a compact value
+strip and a two-column curriculum directory. The hero derives domain, lesson,
+and practice totals from the live catalog rather than hardcoding marketing
+claims. Domain cards remain whole-card navigation targets and show factual
+status, track previews, lesson count, and practice count; a quiet directional
+affordance replaces a repeated primary CTA on every card. At standard laptop
+widths the curriculum begins in the first viewport, while wide displays use a
+larger content boundary instead of leaving excessive empty margins.
+
 Use the semantic helpers as the default:
 
 - `themeClasses.radius.icon` for square icon controls and brand tiles.

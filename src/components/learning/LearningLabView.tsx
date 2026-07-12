@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, MessageSquareText, Network, PanelLeft, PanelLeftOpen, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, ListTree, MessageSquareText, Network, PanelLeft, PanelLeftOpen, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { learningCatalog } from '../../core/learning/content';
 import {
@@ -59,8 +59,8 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const language = useStore((s) => s.language);
   const [mode, setMode] = useState<LearningLabMode>('path');
   const theme = 'light' as const;
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isLessonRailOpen, setIsLessonRailOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
+  const [isLessonRailOpen, setIsLessonRailOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
   const [collapsedChapters, setCollapsedChapters] = useState<Set<string>>(() => new Set());
   const [lessonSearchQuery, setLessonSearchQuery] = useState('');
   const [lessonRailFilter, setLessonRailFilter] = useState<LessonRailFilter>('all');
@@ -112,10 +112,37 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const nextLesson = detailLessonIndex >= 0 ? domainLessons[detailLessonIndex + 1] ?? null : null;
 
   useEffect(() => {
-    setCollapsedChapters(new Set());
+    setCollapsedChapters(new Set(
+      groupedDomainLessons
+        .map((group) => group.track.id)
+        .filter((groupTrackId) => groupTrackId !== activeTrack?.id),
+    ));
     setLessonSearchQuery('');
     setLessonRailFilter('all');
-    setIsLessonRailOpen(true);
+    setIsLessonRailOpen(window.matchMedia('(min-width: 1024px)').matches);
+  }, [routeDomainId]); // Intentionally reset only when entering another domain.
+
+  useEffect(() => {
+    if (!isSidebarOpen && !isLessonRailOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      if (window.matchMedia('(max-width: 1023px)').matches) {
+        setIsSidebarOpen(false);
+        setIsLessonRailOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLessonRailOpen, isSidebarOpen]);
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 1024px)');
+    const handleBreakpointChange = (event: MediaQueryListEvent) => {
+      setIsSidebarOpen(event.matches);
+      setIsLessonRailOpen(event.matches && Boolean(routeDomainId));
+    };
+    desktopQuery.addEventListener('change', handleBreakpointChange);
+    return () => desktopQuery.removeEventListener('change', handleBreakpointChange);
   }, [routeDomainId]);
 
   useEffect(() => {
@@ -157,11 +184,13 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
       return;
     }
     navigate(`/learning/${nextDomainId}/${firstRoute.track.id}?lesson=${firstRoute.lesson.id}`);
+    if (window.matchMedia('(max-width: 1023px)').matches) setIsSidebarOpen(false);
   };
 
   const openLearningHome = () => {
     setMode('path');
     navigate('/learning');
+    if (window.matchMedia('(max-width: 1023px)').matches) setIsSidebarOpen(false);
   };
 
   const toggleChapter = useCallback((trackId: string) => {
@@ -206,25 +235,38 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   return (
     <main
-      className={`learning-lab grid min-h-screen w-full overflow-hidden transition-[grid-template-columns] duration-300 ${
-        isSidebarOpen ? 'grid-cols-[300px_minmax(0,1fr)]' : 'grid-cols-[72px_minmax(0,1fr)]'
+      className={`learning-lab min-h-screen w-full overflow-hidden lg:grid lg:transition-[grid-template-columns] lg:duration-300 ${
+        isSidebarOpen ? 'lg:grid-cols-[300px_minmax(0,1fr)]' : 'lg:grid-cols-[72px_minmax(0,1fr)]'
       } ${themeClasses.page}`}
     >
-      <aside className={cx('relative z-50 flex min-h-screen flex-col overflow-visible border-r shadow-sm transition-colors', themeClasses.sidebar)}>
+      {isSidebarOpen ? (
+        <button
+          type="button"
+          className="fixed inset-y-0 left-[min(320px,calc(100vw-3rem))] right-0 z-50 bg-[#0D1826]/35 backdrop-blur-[2px] lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-label={strings.closeSidebar}
+        />
+      ) : null}
+      <aside className={cx(
+        'fixed inset-y-0 left-0 z-[60] flex min-h-screen w-[min(320px,calc(100vw-3rem))] flex-col overflow-visible border-r shadow-xl transition-transform duration-300 lg:relative lg:z-50 lg:w-auto lg:translate-x-0 lg:shadow-sm',
+        isSidebarOpen ? 'visible translate-x-0' : 'invisible -translate-x-full lg:visible lg:translate-x-0',
+        themeClasses.sidebar,
+      )}>
         <div
           className={cx(
             'flex h-16 w-full items-center',
             isSidebarOpen ? 'gap-3 px-4 text-left' : 'justify-center px-0',
           )}
         >
-          <span
+          <button
+            type="button"
             className={cx(
               'group relative flex h-10 w-10 shrink-0 items-center justify-center font-black',
-              'cursor-pointer',
               themeClasses.radius.icon,
               themeClasses.brandTile,
+              themeClasses.focusRing,
             )}
-            onClick={isSidebarOpen ? onBackToLanding : undefined}
+            onClick={isSidebarOpen ? onBackToLanding : () => setIsSidebarOpen(true)}
             title={isSidebarOpen ? strings.backToLanding : strings.openSidebar}
             aria-label={isSidebarOpen ? strings.backToLanding : strings.openSidebar}
           >
@@ -238,25 +280,17 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               )}
             />
             {!isSidebarOpen ? (
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setIsSidebarOpen(true);
-                }}
+              <span
                 className={cx(
-                  'absolute inset-0 flex h-full w-full items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100',
+                  'absolute inset-0 flex h-full w-full items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100',
                   themeClasses.radius.icon,
                   themeClasses.button.icon,
                 )}
-                title={strings.openSidebar}
-                aria-label={strings.openSidebar}
-                aria-pressed={isSidebarOpen}
               >
                 <PanelLeft className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
-              </button>
+              </span>
             ) : null}
-          </span>
+          </button>
           {isSidebarOpen ? (
             <>
               <button
@@ -342,8 +376,9 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           mode={mode}
           theme={theme}
           onModeChange={setMode}
+          onOpenNavigation={() => setIsSidebarOpen(true)}
         />
-        <section ref={contentAreaRef} className={cx('custom-scrollbar learning-lab-scrollbar learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-4', themeClasses.content)}>
+        <section ref={contentAreaRef} className={cx('custom-scrollbar learning-lab-scrollbar learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4', themeClasses.content)}>
           {mode === 'review' ? (
             <ReviewMode
               catalog={learningCatalog}
@@ -360,7 +395,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           ) : activeTrack && lessonRailProps ? (
             <section
               className={cx(
-                'learning-lab-catalog -m-4 grid min-h-full w-[calc(100%+2rem)] items-start gap-4 p-4 transition-[grid-template-columns] duration-200',
+                'learning-lab-catalog -m-3 grid min-h-full w-[calc(100%+1.5rem)] items-start gap-3 p-3 transition-[grid-template-columns] duration-200 sm:-m-4 sm:w-[calc(100%+2rem)] sm:gap-4 sm:p-4',
                 isLessonRailOpen ? 'lg:grid-cols-[300px_minmax(0,1fr)]' : 'lg:grid-cols-[44px_minmax(0,1fr)]',
               )}
             >
@@ -397,11 +432,33 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   </button>
                 ) : null}
               </div>
-              <div className="min-h-0 lg:hidden">
-                <LessonRail
-                  {...lessonRailProps}
-                  isRailOpen={true}
-                />
+              <div className="lg:hidden">
+                <button
+                  type="button"
+                  onClick={openLessonRail}
+                  className={cx('flex min-h-11 w-full items-center justify-center gap-2 px-4 text-sm', themeClasses.radius.button, themeClasses.button.secondary)}
+                  aria-expanded={isLessonRailOpen}
+                >
+                  <ListTree className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                  {strings.lessonRailOpenLabel}
+                </button>
+                {isLessonRailOpen ? (
+                  <div className="fixed inset-0 z-[70] lg:hidden" role="dialog" aria-modal="true" aria-label={strings.lessonRailOpenLabel}>
+                    <button
+                      type="button"
+                      className="absolute inset-0 bg-[#0D1826]/35 backdrop-blur-[2px]"
+                      onClick={closeLessonRail}
+                      aria-label={strings.lessonRailCloseLabel}
+                    />
+                    <div className={cx('absolute inset-y-0 right-0 w-[min(340px,calc(100vw-2rem))] overflow-hidden border-l p-4 shadow-2xl', themeClasses.sidebar)}>
+                      <LessonRail
+                        {...lessonRailProps}
+                        isRailOpen={true}
+                        onToggleRail={closeLessonRail}
+                      />
+                    </div>
+                  </div>
+                ) : null}
               </div>
               {selectedLesson ? (
                 <div className="min-w-0">
