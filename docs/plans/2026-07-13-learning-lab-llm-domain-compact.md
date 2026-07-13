@@ -2,7 +2,7 @@
 title: Learning Lab LLM Domain Compact
 status: done
 created: 2026-07-02T05:24:08+07:00
-updated: 2026-07-13T12:00:00+07:00
+updated: 2026-07-13T18:25:00+07:00
 author: Codex
 task: "Compact record for the Learning Lab LLM AI Engineering domain package, approved nodes 1-5, lesson polish, and cleanup prompt."
 supersedes:
@@ -159,6 +159,8 @@ src/components/learning/domains/llm-ai-engineering/
 
 src/components/learning/lesson/extras/
   LessonExtraRenderer.tsx
+  QuizBlock.tsx
+  ConceptPanelBlock.tsx
   assetRegistry.ts
 
 src/assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/
@@ -184,6 +186,7 @@ removed from `docs/plans/`:
 - `2026-07-08-add-iris-comparison-slide.md`
 - `2026-07-09-tokenization-example-next-page.md`
 - `2026-07-09-llm-node-1-4-beginner-copy-pass.md`
+- `2026-07-13-learning-extra-renderer-refactor.md`
 
 # Cleanup Pass Plan — 2026-07-13
 
@@ -271,3 +274,61 @@ compared with `main`, while preserving the approved behavior for nodes 1-5:
   spacing, or vertical-panel behavior.
 - 2026-07-13 — Verification passed with `npm run typecheck` and
   `npm run verify`.
+
+# Extra Renderer Refactor — 2026-07-13
+
+Status: done.
+
+## Goal
+
+Reduce `src/components/learning/lesson/extras/LessonExtraRenderer.tsx` from a
+large shared/domain mix into a thin dispatcher, while preserving approved LLM
+behavior for nodes 1-5.
+
+## Decisions
+
+- Keep shared lesson extras generic:
+  - top-level extra dispatch;
+  - quiz rendering and quiz state types;
+  - concept-panel rendering for intentionally generic panels;
+  - shared frame/text/asset helpers.
+- Keep LLM-specific concept panels domain-owned in
+  `src/components/learning/domains/llm-ai-engineering/renderers.tsx`.
+- Route custom LLM panels explicitly by domain/id. Do not add a silent fallback
+  where missing custom renderer coverage quietly receives the generic design.
+- Avoid a global renderer registry until at least two domains need keyed custom
+  extra routing.
+
+## Moved To LLM Domain Renderer
+
+- `colab-coding-requirements`
+- `tokenization-example`
+- `iris-scale-comparison-roadmap`
+- `llm-training-lifecycle`
+- `transformer-translation-step-*`
+- `why-split-ai-fields`
+- `why-large`
+- `why-llms-are-popular-now`
+
+## Result
+
+- Extracted shared quiz rendering and `QuizQuestionState` into
+  `src/components/learning/lesson/extras/QuizBlock.tsx`.
+- Extracted intentionally generic concept-panel rendering into
+  `src/components/learning/lesson/extras/ConceptPanelBlock.tsx`.
+- Replaced `LessonExtraRenderer.tsx` with a thin dispatcher that receives
+  `domainId`, routes explicit LLM custom extras to the LLM domain renderer,
+  routes quiz extras to `QuizBlock`, and routes generic concept panels to
+  `ConceptPanelBlock`.
+- Moved LLM custom concept-panel rendering into
+  `src/components/learning/domains/llm-ai-engineering/renderers.tsx`.
+- Updated `LessonDetail`/`LessonExtras` to thread `lesson.domainId` narrowly
+  through extra rendering.
+- Updated component wiring tests so scroll-helper and quiz-label guards track
+  the new `QuizBlock` boundary.
+- Updated `wiki/concepts/learning-lab-refactor.md` to describe the shared
+  extras/domain-renderer boundary.
+
+## Verification
+
+- `npm run verify` passed: TypeScript, 92 node tests, and production build.
