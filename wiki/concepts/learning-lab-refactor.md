@@ -1,7 +1,7 @@
 ---
 title: Learning Lab Refactor
 type: Active Subsystem
-updated: 2026-07-02
+updated: 2026-07-13
 ---
 
 # Learning Lab Refactor
@@ -44,12 +44,16 @@ Learning Lab is active as the single learning container. It currently provides:
   TorchViz learning rhythm: theory -> hand calculation or theory quiz -> code.
   Its catalog-owned lesson copy explains why each concept matters, where it
   sits in the LLM pipeline, what learners should calculate or check by hand,
-  and what the later code step is meant to implement. The currently approved
-  roadmap lesson carries React-free extras for its motivation panel, LLM token
-  interaction, concept panels, and reference links. Deeper formulas, checkpoint
-  exercises, and code contracts stay in the roadmap copy until a later approved
-  lesson attaches them to the runtime. A later alignment pass downloaded the
-  supplied "Building LLMs From Scratch" gist into
+  and what the later code step is meant to implement. The current approval gate
+  covers the first five LLM nodes: setup requirements, roadmap, roadmap quiz,
+  data-pipeline overview, and data-pipeline quiz. Current LLM domain history is
+  compacted in
+  [docs/plans/2026-07-13-learning-lab-llm-domain-compact.md](../../docs/plans/2026-07-13-learning-lab-llm-domain-compact.md).
+  The approved early lessons carry React-free extras for motivation panels,
+  token interactions, concept panels, checkpoint quizzes, and reference links.
+  Deeper formulas, later exercises, and code contracts stay in the roadmap copy
+  until a later approved lesson attaches them to the runtime. A later alignment
+  pass downloaded the supplied "Building LLMs From Scratch" gist into
   `docs/reference/building-llms-from-scratch-gist.md` and uses it as a local
   reference for source-grounded paraphrases; concepts outside the current lab
   scope, such as training-loop bells and LoRA, are marked as placeholders for

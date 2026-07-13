@@ -1,4 +1,4 @@
-import { Angry, CheckCircle2, CircleAlert, Info, MousePointer2, RotateCcw, Sparkles, X } from 'lucide-react';
+import { Angry, Braces, CheckCircle2, CircleAlert, CircleDot, CornerDownLeft, Info, MousePointer2, RotateCcw, Scissors, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import type { LearningLessonExtra, LearningTokenExample } from '../../../../core/learning/types';
 import { getStrings, type Language } from '../../../../lib/localization';
@@ -457,23 +457,13 @@ export function TokenExampleBlock({ example, language, themeClasses, hideTitle =
         </div>
       )}
 
-      <div className="learning-lab-focus-group grid gap-3">
-        {example.variants.map((variant) => (
+      <div className="learning-lab-focus-group grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {[...example.variants, ...example.specialCases].map((variant, variantIndex) => (
           <TokenExampleGroup
             key={text(variant.label, language)}
             item={variant}
             isActive={activeLabel === variant.label.en}
-            language={language}
-            themeClasses={themeClasses}
-            onActivate={setActiveLabel}
-          />
-        ))}
-
-        {example.specialCases.map((item) => (
-          <TokenExampleGroup
-            key={text(item.label, language)}
-            item={item}
-            isActive={activeLabel === item.label.en}
+            toneIndex={variantIndex}
             language={language}
             themeClasses={themeClasses}
             onActivate={setActiveLabel}
@@ -493,42 +483,137 @@ export function TokenExampleBlock({ example, language, themeClasses, hideTitle =
   );
 }
 
-function TokenExampleGroup({ item, isActive, language, themeClasses, onActivate }: {
+function TokenExampleGroup({ item, isActive, toneIndex, language, themeClasses, onActivate }: {
   item: {
     label: { en: string; vi: string };
     tokens: string[];
     description: { en: string; vi: string };
   };
   isActive: boolean;
+  toneIndex: number;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
   onActivate: (label: string) => void;
 }) {
   const label = text(item.label, language);
+  const palette = getTokenExamplePalette(themeClasses, toneIndex);
+  const icons: LucideIcon[] = [Type, Scissors, CircleDot, CornerDownLeft, Braces];
+  const Icon = icons[toneIndex % icons.length] ?? Type;
 
   return (
     <div
       data-active={isActive ? 'true' : undefined}
+      tabIndex={0}
       onFocus={() => onActivate(item.label.en)}
       onMouseEnter={() => onActivate(item.label.en)}
-      className={cx('learning-lab-focus-panel grid gap-3 rounded-lg border p-3 transition-[box-shadow,filter,opacity,transform] duration-200', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}
+      className={cx(
+        'learning-lab-focus-panel grid h-full min-h-[19rem] grid-rows-[7rem_minmax(0,1fr)] overflow-hidden rounded-lg border shadow-[inset_0_1px_0_rgba(255,255,255,0.54)] transition-[box-shadow,filter,opacity,transform] duration-200',
+        palette.card,
+      )}
     >
-      <div>
-        <div className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{label}</div>
-        <p className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{text(item.description, language)}</p>
+      <div className={cx('grid h-28 place-items-center border-b', palette.top)}>
+        <div className={cx('grid h-14 w-14 shrink-0 place-items-center rounded-xl shadow-sm', palette.icon)}>
+          <Icon className="h-7 w-7" strokeWidth={2.1} aria-hidden="true" />
+        </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {item.tokens.map((token) => (
-          <span
-            key={`${label}-${token}`}
-            className={cx('inline-flex min-h-8 items-center rounded-md border px-2.5 font-mono text-xs font-black', themeClasses.isLight ? 'border-[#2F6B55]/14 bg-[#EEF7F2] text-[#1F5A46]' : 'border-[#A6E8C1]/18 bg-[#A6E8C1]/10 text-[#A6E8C1]')}
-          >
-            {token}
-          </span>
-        ))}
+      <div className="grid content-start gap-3 p-4">
+        <div className="grid gap-1">
+          <div className={cx('text-base font-black leading-6', palette.title)}>{label}</div>
+          <p className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{text(item.description, language)}</p>
+        </div>
+        <div className="flex flex-wrap content-start gap-2">
+          {item.tokens.map((token) => (
+            <span
+              key={`${label}-${token}`}
+              className={cx('inline-flex min-h-8 items-center rounded-md border px-2.5 font-mono text-xs font-black', palette.token)}
+            >
+              {token}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
+}
+
+function getTokenExamplePalette(themeClasses: ReturnType<typeof getLearningLabTheme>, toneIndex: number) {
+  const palettes = themeClasses.isLight
+    ? [
+        {
+          card: 'border-[#2563EB]/14 bg-white',
+          top: 'border-[#2563EB]/10 bg-[#EFF6FF]',
+          icon: 'border border-[#2563EB]/14 bg-white text-[#1D4ED8]',
+          title: themeClasses.titleText,
+          token: 'border-[#2563EB]/14 bg-[#EFF6FF] text-[#1D4ED8]',
+        },
+        {
+          card: 'border-[#7C3AED]/14 bg-white',
+          top: 'border-[#7C3AED]/10 bg-[#F3EEFF]',
+          icon: 'border border-[#7C3AED]/14 bg-white text-[#6D28D9]',
+          title: themeClasses.titleText,
+          token: 'border-[#7C3AED]/14 bg-[#F3EEFF] text-[#6D28D9]',
+        },
+        {
+          card: 'border-[#F59E0B]/18 bg-white',
+          top: 'border-[#F59E0B]/12 bg-[#FFF7E6]',
+          icon: 'border border-[#F59E0B]/18 bg-white text-[#8A4F00]',
+          title: themeClasses.titleText,
+          token: 'border-[#F59E0B]/20 bg-[#FFF7E6] text-[#8A4F00]',
+        },
+        {
+          card: 'border-[#2FBF71]/16 bg-white',
+          top: 'border-[#2FBF71]/10 bg-[#ECFDF3]',
+          icon: 'border border-[#2FBF71]/16 bg-white text-[#1F6F48]',
+          title: themeClasses.titleText,
+          token: 'border-[#2FBF71]/18 bg-[#ECFDF3] text-[#1F6F48]',
+        },
+        {
+          card: 'border-[#EC4899]/14 bg-white',
+          top: 'border-[#EC4899]/10 bg-[#FDF2F8]',
+          icon: 'border border-[#EC4899]/14 bg-white text-[#BE185D]',
+          title: themeClasses.titleText,
+          token: 'border-[#EC4899]/14 bg-[#FDF2F8] text-[#BE185D]',
+        },
+      ]
+    : [
+        {
+          card: 'border-[#7FB0FF]/18 bg-[#121A24]/36',
+          top: 'border-[#7FB0FF]/14 bg-[#7FB0FF]/12',
+          icon: 'border border-[#7FB0FF]/18 bg-[#7FB0FF]/10 text-[#DCEAFF]',
+          title: themeClasses.titleText,
+          token: 'border-[#7FB0FF]/20 bg-[#7FB0FF]/12 text-[#DCEAFF]',
+        },
+        {
+          card: 'border-[#C4B5FD]/18 bg-[#121A24]/36',
+          top: 'border-[#C4B5FD]/14 bg-[#C4B5FD]/12',
+          icon: 'border border-[#C4B5FD]/18 bg-[#C4B5FD]/10 text-[#EEE8FF]',
+          title: themeClasses.titleText,
+          token: 'border-[#C4B5FD]/20 bg-[#C4B5FD]/12 text-[#EEE8FF]',
+        },
+        {
+          card: 'border-[#FBBF24]/20 bg-[#121A24]/36',
+          top: 'border-[#FBBF24]/14 bg-[#FBBF24]/12',
+          icon: 'border border-[#FBBF24]/20 bg-[#FBBF24]/10 text-[#FFE7AD]',
+          title: themeClasses.titleText,
+          token: 'border-[#FBBF24]/20 bg-[#FBBF24]/12 text-[#FFE7AD]',
+        },
+        {
+          card: 'border-[#74D99F]/18 bg-[#121A24]/36',
+          top: 'border-[#74D99F]/14 bg-[#74D99F]/12',
+          icon: 'border border-[#74D99F]/18 bg-[#74D99F]/10 text-[#DDF7E8]',
+          title: themeClasses.titleText,
+          token: 'border-[#74D99F]/20 bg-[#74D99F]/12 text-[#DDF7E8]',
+        },
+        {
+          card: 'border-[#F9A8D4]/18 bg-[#121A24]/36',
+          top: 'border-[#F9A8D4]/14 bg-[#F9A8D4]/12',
+          icon: 'border border-[#F9A8D4]/18 bg-[#F9A8D4]/10 text-[#FFE3F1]',
+          title: themeClasses.titleText,
+          token: 'border-[#F9A8D4]/20 bg-[#F9A8D4]/12 text-[#FFE3F1]',
+        },
+      ];
+
+  return palettes[toneIndex % palettes.length]!;
 }
 
 function getConceptTileClass(themeClasses: ReturnType<typeof getLearningLabTheme>) {

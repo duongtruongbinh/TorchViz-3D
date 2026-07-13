@@ -12,7 +12,7 @@ export const chapters: LearningChapterSeed[] = [
       lessonSeed(
         'minimal-llm-project-skeleton',
         'Requirements',
-        'Yêu cầu',
+        'Yêu cầu chuẩn bị',
         [],
         ['theory'],
         'next',

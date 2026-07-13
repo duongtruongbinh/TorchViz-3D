@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight, Check, CheckCircle2, Circle, CircleAlert, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
+import { ArrowDown, ArrowRight, Check, CheckCircle2, Circle, CircleAlert, Code2, Cpu, Database, GripVertical, type LucideIcon, Monitor, RotateCcw, SlidersHorizontal, Square, Terminal, Wrench, XCircle } from 'lucide-react';
 import { Fragment, type DragEvent, type ReactNode, useEffect, useRef, useState } from 'react';
 import type { LearningLessonExtra } from '../../../../core/learning/types';
 import { getStrings, type Language } from '../../../../lib/localization';
@@ -566,11 +566,7 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
   const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
 
   if (extra.id === 'tokenization-example' && extra.tokenExample) {
-    return (
-      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
-        <TokenizationExamplePanel extra={extra} language={language} themeClasses={themeClasses} />
-      </ExtraFrame>
-    );
+    return <TokenizationExamplePanel extra={extra} language={language} themeClasses={themeClasses} />;
   }
 
   if (extra.id === 'iris-scale-comparison-roadmap') {
@@ -607,6 +603,10 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
     );
   }
 
+  if (extra.id === 'colab-coding-requirements') {
+    return <ColabCodingRequirementsPanel extra={extra} language={language} themeClasses={themeClasses} />;
+  }
+
   return (
     <ExtraFrame
       title={panelTitle}
@@ -639,21 +639,43 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
             }))}
             themeClasses={themeClasses}
           />
-        ) : extra.highlights && extra.id === 'why-llms-are-popular-now' ? (
-          <>
-            <div className="learning-lab-focus-group grid gap-3 md:grid-cols-3">
-              {extra.highlights.slice(0, 3).map((item, itemIndex) => (
-                <ConceptHighlightCard
+        ) : extra.highlights && extra.id === 'why-large' ? (
+          <div className="learning-lab-focus-group grid gap-3 md:grid-cols-3">
+            {extra.highlights.map((item, itemIndex) => {
+              const scaleIcons = [SlidersHorizontal, Database, Cpu];
+              return (
+                <LlmScaleFactorCard
                   key={text(item.shortName, language)}
                   shortName={text(item.shortName, language)}
                   fullName={text(item.fullName, language)}
                   description={text(item.description, language)}
-                  links={item.links?.map((link) => ({ label: text(link.label, language), href: link.href }))}
+                  Icon={scaleIcons[itemIndex] ?? SlidersHorizontal}
                   toneIndex={itemIndex}
                   isActive={activeHighlightIndex === itemIndex}
                   themeClasses={themeClasses}
                   onActivate={() => setActiveHighlightIndex(itemIndex)}
                 />
+              );
+            })}
+          </div>
+        ) : extra.highlights && extra.id === 'why-llms-are-popular-now' ? (
+          <>
+            <div className="learning-lab-focus-group grid w-full gap-6 px-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_4rem_minmax(0,1fr)_4rem_minmax(0,1fr)] lg:px-6 xl:grid-cols-[minmax(0,1fr)_5rem_minmax(0,1fr)_5rem_minmax(0,1fr)]">
+              {extra.highlights.slice(0, 3).map((item, itemIndex) => (
+                <Fragment key={text(item.shortName, language)}>
+                  <ConceptHighlightCard
+                    shortName={text(item.shortName, language)}
+                    fullName={text(item.fullName, language)}
+                    description={text(item.description, language)}
+                    links={item.links?.map((link) => ({ label: text(link.label, language), href: link.href }))}
+                    toneIndex={itemIndex}
+                    hideFullName
+                    isActive={activeHighlightIndex === itemIndex}
+                    themeClasses={themeClasses}
+                    onActivate={() => setActiveHighlightIndex(itemIndex)}
+                  />
+                  {itemIndex < 2 ? <ConceptPanelConnector themeClasses={themeClasses} /> : null}
+                </Fragment>
               ))}
             </div>
             <figure className={cx('mx-auto w-full max-w-4xl overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
@@ -664,21 +686,24 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
                 loading="lazy"
               />
             </figure>
-            <div className="learning-lab-focus-group grid gap-3 md:grid-cols-3">
+            <div className="learning-lab-focus-group grid w-full gap-6 px-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_4rem_minmax(0,1fr)_4rem_minmax(0,1fr)] lg:px-6 xl:grid-cols-[minmax(0,1fr)_5rem_minmax(0,1fr)_5rem_minmax(0,1fr)]">
               {extra.highlights.slice(3).map((item, itemOffset) => {
                 const itemIndex = itemOffset + 3;
                 return (
-                  <ConceptHighlightCard
-                    key={text(item.shortName, language)}
-                    shortName={text(item.shortName, language)}
-                    fullName={text(item.fullName, language)}
-                    description={text(item.description, language)}
-                    links={item.links?.map((link) => ({ label: text(link.label, language), href: link.href }))}
-                    toneIndex={itemIndex}
-                    isActive={activeHighlightIndex === itemIndex}
-                    themeClasses={themeClasses}
-                    onActivate={() => setActiveHighlightIndex(itemIndex)}
-                  />
+                  <Fragment key={text(item.shortName, language)}>
+                    <ConceptHighlightCard
+                      shortName={text(item.shortName, language)}
+                      fullName={text(item.fullName, language)}
+                      description={text(item.description, language)}
+                      links={item.links?.map((link) => ({ label: text(link.label, language), href: link.href }))}
+                      toneIndex={itemIndex}
+                      hideFullName
+                      isActive={activeHighlightIndex === itemIndex}
+                      themeClasses={themeClasses}
+                      onActivate={() => setActiveHighlightIndex(itemIndex)}
+                    />
+                    {itemOffset < 2 ? <ConceptPanelConnector themeClasses={themeClasses} /> : null}
+                  </Fragment>
                 );
               })}
             </div>
@@ -852,6 +877,130 @@ function ConceptPanelBlock({ extra, language, themeClasses }: {
       </div>
     </ExtraFrame>
   );
+}
+
+function ColabCodingRequirementsPanel({ extra, language, themeClasses }: {
+  extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const highlights = extra.highlights ?? [];
+  const toolItems = highlights.slice(0, 4);
+  const summaryNotes = extra.bodyAfter?.map((paragraph) => text(paragraph, language)) ?? [];
+  const toolIcons = [Monitor, Code2, Terminal, Wrench];
+  const toolPalettes = themeClasses.isLight
+    ? [
+        {
+          card: 'border-[#205089]/12 bg-white',
+          top: 'bg-[#F1F5F9]',
+          icon: 'border border-[#205089]/12 bg-white text-[#123B68]',
+          title: themeClasses.titleText,
+        },
+      ]
+    : [
+        {
+          card: 'border-[#A8B8C8]/14 bg-[#121A24]/36',
+          top: 'bg-white/5',
+          icon: 'border border-white/10 bg-white/7 text-[#F2F6FA]',
+          title: themeClasses.titleText,
+        },
+      ];
+
+  return (
+    <div className="grid gap-5 py-1">
+      {toolItems.length ? (
+        <section className="grid gap-3">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {toolItems.map((item, itemIndex) => {
+              const Icon = toolIcons[itemIndex] ?? Wrench;
+              const palette = toolPalettes[itemIndex % toolPalettes.length]!;
+              const descriptionLines = splitRequirementLines(text(item.description, language));
+              const commandLine = descriptionLines.find((line) => line.includes('uv pip install'));
+              const plainLines = commandLine ? descriptionLines.filter((line) => line !== commandLine) : descriptionLines;
+              return (
+                <div
+                  key={text(item.shortName, language)}
+                  className={cx(
+                    'grid h-full min-h-[20rem] grid-rows-[8rem_minmax(0,1fr)] overflow-hidden rounded-lg border shadow-[inset_0_1px_0_rgba(255,255,255,0.54)] transition-[filter,opacity,box-shadow] duration-200',
+                    palette.card,
+                  )}
+                >
+                  <div className={cx('grid h-32 place-items-center border-b', palette.top, themeClasses.isLight ? 'border-black/5' : 'border-white/10')}>
+                    <div className={cx(
+                      'grid h-14 w-14 shrink-0 place-items-center rounded-xl shadow-sm',
+                      palette.icon,
+                    )}>
+                      <Icon className="h-7 w-7" strokeWidth={2.1} aria-hidden="true" />
+                    </div>
+                  </div>
+
+                  <div className="grid content-start gap-3 p-4">
+                    <div className="min-w-0">
+                      <div className="grid gap-2">
+                        <div className={cx('text-base font-black leading-6', palette.title)}>
+                          {text(item.shortName, language)}
+                        </div>
+                      </div>
+                      <p className={cx('mt-0.5 text-sm font-semibold leading-6', themeClasses.mutedText)}>{text(item.fullName, language)}</p>
+                    </div>
+
+                    <div className="grid gap-2">
+                      {plainLines.map((line) => (
+                        <p key={line} className={cx('text-sm leading-6', themeClasses.bodyText)}>{line}</p>
+                      ))}
+                      {commandLine ? (
+                        <code className={cx(
+                          'block overflow-x-auto rounded-lg px-3 py-2 text-xs leading-5',
+                          themeClasses.isLight ? 'bg-[#0B1220] text-[#E5EEF8]' : 'bg-black/30 text-[#E5EEF8]',
+                        )}>
+                          {commandLine}
+                        </code>
+                      ) : null}
+                    </div>
+
+                    {item.links?.length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {item.links.map((link) => (
+                          <a
+                            key={link.href}
+                            href={link.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={cx(
+                              'inline-flex min-h-9 items-center rounded-lg border px-3 text-xs font-black leading-5 transition-colors',
+                              themeClasses.focusRing,
+                              themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC] text-[#123B68] hover:bg-[#EEF4FA]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7 text-[#F2F6FA] hover:bg-[#A8B8C8]/11',
+                            )}
+                          >
+                            {text(link.label, language)}
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      {summaryNotes.length ? (
+        <div className={cx('grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
+          {summaryNotes.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function splitRequirementLines(value: string): string[] {
+  return value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 function TransformerTranslationStepPanel({ extra, language, themeClasses }: {
@@ -1202,31 +1351,56 @@ function TokenizationExamplePanel({ extra, language, themeClasses }: {
         ['2', 'Next token', 'The model chooses one suitable token from a probability distribution.'],
         ['3', 'Loop', 'The new token is appended and reused in the next step.'],
       ];
+  const stepPalettes = themeClasses.isLight
+    ? [
+        {
+          card: 'border-[#205089]/12 bg-white',
+          badge: 'border border-[#205089]/12 bg-[#F1F5F9] text-[#123B68]',
+          title: themeClasses.titleText,
+        },
+      ]
+    : [
+        {
+          card: 'border-[#A8B8C8]/14 bg-[#121A24]/36',
+          badge: 'border border-white/10 bg-white/7 text-[#F2F6FA]',
+          title: themeClasses.titleText,
+        },
+      ];
 
   return (
     <div className="grid gap-4">
-      <div className={cx('rounded-lg border p-3', themeClasses.isLight ? 'border-[#205089]/12 bg-[#F8FBFD]' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
-        <div className="grid gap-2 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-stretch">
-          {steps.map(([number, label, description], index) => (
+      <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)_2rem_minmax(0,1fr)] md:items-stretch">
+        {steps.map(([number, label, description], index) => {
+          const palette = stepPalettes[index % stepPalettes.length]!;
+          return (
             <Fragment key={number}>
-              <div className={cx('grid min-h-24 content-start gap-2 rounded-lg border px-3 py-3', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/7')}>
-                <div className="flex items-center gap-2">
-                  <span className={cx('grid h-7 w-7 place-items-center rounded-md text-xs font-black tabular-nums', themeClasses.isLight ? 'bg-[#205089]/10 text-[#123B68]' : 'bg-[#A8B8C8]/12 text-[#F2F6FA]')}>
-                    {number}
-                  </span>
-                  <span className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{label}</span>
+              <div
+                className={cx(
+                  'flex min-h-20 items-center gap-3 rounded-lg border px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.54)]',
+                  palette.card,
+                )}
+              >
+                <span className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-lg text-sm font-black tabular-nums shadow-sm', palette.badge)}>
+                  {number}
+                </span>
+                <div className="min-w-0">
+                  <div className={cx('text-sm font-black leading-5', palette.title)}>{label}</div>
+                  <p className={cx('mt-0.5 text-xs font-semibold leading-5', themeClasses.bodyText)}>{description}</p>
                 </div>
-                <p className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{description}</p>
               </div>
-              {index < steps.length - 1 && (
-                <div className={cx('hidden items-center justify-center md:flex', themeClasses.mutedText)}>
+              {index < steps.length - 1 ? (
+                <div className={cx('hidden h-full place-items-center md:grid', themeClasses.mutedText)}>
                   <ArrowRight className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
                 </div>
-              )}
+              ) : null}
             </Fragment>
-          ))}
-        </div>
+          );
+        })}
       </div>
+
+      <p className={cx('text-sm font-black leading-6', themeClasses.titleText)}>
+        {language === 'vi' ? 'Ví dụ về Tokenization' : 'Tokenization example'}
+      </p>
 
       <TokenExampleBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} hideTitle />
     </div>
@@ -1304,7 +1478,6 @@ function LlmTrainingLifecyclePanel({ extra, language, themeClasses }: {
   const stages = extra.highlights ?? [];
   const bodyParagraphs = extra.body?.map((paragraph) => text(paragraph, language)) ?? [];
   const introParagraph = bodyParagraphs[0];
-  const bulletParagraphs = bodyParagraphs.slice(1);
 
   return (
     <div className="grid gap-4">
@@ -1314,37 +1487,24 @@ function LlmTrainingLifecyclePanel({ extra, language, themeClasses }: {
         </p>
       ) : null}
 
-      {bulletParagraphs.length > 0 ? (
-        <ul className={cx('grid list-disc gap-2 pl-5 text-left text-sm font-normal leading-7', themeClasses.bodyText)}>
-          {bulletParagraphs.map((paragraph) => {
-            const keyword = paragraph.startsWith('Pretraining')
-              ? 'Pretraining'
-              : paragraph.startsWith('Fine-tuning')
-                ? 'Fine-tuning'
-                : '';
-            const rest = keyword ? paragraph.slice(keyword.length) : paragraph;
-
-            return (
-              <li key={paragraph}>
-                {keyword ? <strong className={themeClasses.titleText}>{keyword}</strong> : null}
-                {rest}
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
-
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch">
+      <div className="grid w-full gap-3 md:grid-cols-[minmax(0,1fr)_minmax(4rem,6rem)_minmax(0,1fr)] md:items-stretch">
         {stages.map((stage, index) => (
           <Fragment key={text(stage.shortName, language)}>
             <TrainingLifecycleCard
               title={text(stage.fullName, language)}
+              label={language === 'vi' ? `Giai đoạn ${index + 1}` : `Stage ${index + 1}`}
+              description={text(stage.description, language)}
               tone={index === 0 ? 'pretrain' : 'finetune'}
+              align={index === 0 ? 'right' : 'left'}
               themeClasses={themeClasses}
             />
             {index === 0 && stages.length > 1 ? (
-              <div className={cx('hidden items-center justify-center px-1 md:flex', themeClasses.mutedText)}>
-                <ArrowRight className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
+              <div className="hidden h-full items-center md:flex" aria-hidden="true">
+                <div className="flex w-full items-center">
+                  <span className={cx('h-2 w-2 shrink-0 rounded-full', themeClasses.isLight ? 'bg-[#123B68] opacity-70' : 'bg-[#F2F6FA] opacity-60')} />
+                  <span className={cx('h-[3px] min-w-8 flex-1 rounded-full', themeClasses.isLight ? 'bg-[#123B68] opacity-55' : 'bg-[#F2F6FA] opacity-45')} />
+                  <span className={cx('h-2 w-2 shrink-0 rounded-full', themeClasses.isLight ? 'bg-[#123B68] opacity-70' : 'bg-[#F2F6FA] opacity-60')} />
+                </div>
               </div>
             ) : null}
           </Fragment>
@@ -1356,24 +1516,62 @@ function LlmTrainingLifecyclePanel({ extra, language, themeClasses }: {
 
 function TrainingLifecycleCard({
   title,
+  label,
+  description,
   tone,
+  align,
   themeClasses,
 }: {
   title: string;
+  label: string;
+  description: string;
   tone: 'pretrain' | 'finetune';
+  align: 'left' | 'right';
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
-  const toneClass = tone === 'pretrain'
+  const Icon = tone === 'pretrain' ? Database : Wrench;
+  const palette = tone === 'pretrain'
     ? themeClasses.isLight
-      ? 'border-[#2F6F9F]/16 bg-[#EEF6FB]'
-      : 'border-[#8FC7EA]/18 bg-[#183044]/52'
+      ? {
+          card: 'border-[#2563EB]/14 bg-white',
+          top: 'border-[#2563EB]/10 bg-[#EFF6FF]',
+          icon: 'border border-[#2563EB]/14 bg-white text-[#1D4ED8]',
+        }
+      : {
+          card: 'border-[#7FB0FF]/18 bg-[#121A24]/36',
+          top: 'border-[#7FB0FF]/14 bg-[#7FB0FF]/12',
+          icon: 'border border-[#7FB0FF]/18 bg-[#7FB0FF]/10 text-[#DCEAFF]',
+        }
     : themeClasses.isLight
-      ? 'border-[#2F6B55]/16 bg-[#EEF7F2]'
-      : 'border-[#A6E8C1]/18 bg-[#173528]/52';
+      ? {
+          card: 'border-[#2FBF71]/16 bg-white',
+          top: 'border-[#2FBF71]/10 bg-[#ECFDF3]',
+          icon: 'border border-[#2FBF71]/16 bg-white text-[#1F6F48]',
+        }
+      : {
+          card: 'border-[#74D99F]/18 bg-[#121A24]/36',
+          top: 'border-[#74D99F]/14 bg-[#74D99F]/12',
+          icon: 'border border-[#74D99F]/18 bg-[#74D99F]/10 text-[#DDF7E8]',
+        };
 
   return (
-    <div className={cx('grid min-h-28 place-items-center rounded-lg border p-4 text-center', toneClass)}>
-      <div className={cx('text-xl font-black leading-7 md:text-2xl', themeClasses.titleText)}>{title}</div>
+    <div className={cx(
+      'learning-lab-focus-panel grid h-full min-h-[17rem] w-full max-w-[17rem] grid-rows-[6.5rem_minmax(0,1fr)] overflow-hidden rounded-lg border text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.54)]',
+      align === 'right' ? 'justify-self-end' : 'justify-self-start',
+      palette.card,
+    )}>
+      <div className={cx('grid h-[6.5rem] place-items-center border-b', palette.top)}>
+        <div className={cx('grid h-[3.25rem] w-[3.25rem] shrink-0 place-items-center rounded-xl shadow-sm', palette.icon)}>
+          <Icon className="h-6 w-6" strokeWidth={2.1} aria-hidden="true" />
+        </div>
+      </div>
+      <div className="grid content-start gap-2.5 p-4">
+        <div className="grid gap-1">
+          <div className={cx('text-xs font-black uppercase leading-5 tracking-wide', themeClasses.mutedText)}>{label}</div>
+          <div className={cx('text-base font-black leading-6', themeClasses.titleText)}>{title}</div>
+        </div>
+        <p className={cx('leading-6', themeClasses.bodyText)}>{description}</p>
+      </div>
     </div>
   );
 }
@@ -1433,12 +1631,96 @@ function ConceptHighlightRow({
   );
 }
 
+function LlmScaleFactorCard({
+  shortName,
+  fullName,
+  description,
+  Icon,
+  toneIndex,
+  isActive,
+  themeClasses,
+  onActivate,
+}: {
+  shortName: string;
+  fullName: string;
+  description: string;
+  Icon: LucideIcon;
+  toneIndex: number;
+  isActive: boolean;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+  onActivate: () => void;
+}) {
+  const palettes = themeClasses.isLight
+    ? [
+        {
+          card: 'border-[#2563EB]/14 bg-white',
+          top: 'border-[#2563EB]/10 bg-[#EFF6FF]',
+          icon: 'border border-[#2563EB]/14 bg-white text-[#1D4ED8]',
+        },
+        {
+          card: 'border-[#2FBF71]/16 bg-white',
+          top: 'border-[#2FBF71]/10 bg-[#ECFDF3]',
+          icon: 'border border-[#2FBF71]/16 bg-white text-[#1F6F48]',
+        },
+        {
+          card: 'border-[#F59E0B]/18 bg-white',
+          top: 'border-[#F59E0B]/12 bg-[#FFF7E6]',
+          icon: 'border border-[#F59E0B]/18 bg-white text-[#8A4F00]',
+        },
+      ]
+    : [
+        {
+          card: 'border-[#7FB0FF]/18 bg-[#121A24]/36',
+          top: 'border-[#7FB0FF]/14 bg-[#7FB0FF]/12',
+          icon: 'border border-[#7FB0FF]/18 bg-[#7FB0FF]/10 text-[#DCEAFF]',
+        },
+        {
+          card: 'border-[#74D99F]/18 bg-[#121A24]/36',
+          top: 'border-[#74D99F]/14 bg-[#74D99F]/12',
+          icon: 'border border-[#74D99F]/18 bg-[#74D99F]/10 text-[#DDF7E8]',
+        },
+        {
+          card: 'border-[#FBBF24]/20 bg-[#121A24]/36',
+          top: 'border-[#FBBF24]/14 bg-[#FBBF24]/12',
+          icon: 'border border-[#FBBF24]/20 bg-[#FBBF24]/10 text-[#FFE7AD]',
+        },
+      ];
+  const palette = palettes[toneIndex % palettes.length]!;
+
+  return (
+    <div
+      data-active={isActive ? 'true' : undefined}
+      tabIndex={0}
+      onFocus={onActivate}
+      onMouseEnter={onActivate}
+      className={cx(
+        'learning-lab-focus-panel grid h-full min-h-[18rem] grid-rows-[7rem_minmax(0,1fr)] overflow-hidden rounded-lg border text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.54)] transition-[background-color,box-shadow,filter,opacity,transform] duration-200',
+        palette.card,
+      )}
+    >
+      <div className={cx('grid h-28 place-items-center border-b', palette.top)}>
+        <div className={cx('grid h-14 w-14 shrink-0 place-items-center rounded-xl shadow-sm', palette.icon)}>
+          <Icon className="h-7 w-7" strokeWidth={2.1} aria-hidden="true" />
+        </div>
+      </div>
+      <div className="grid content-start gap-3 p-4">
+        <div className="grid gap-1">
+          <div className={cx('text-xs font-black uppercase leading-5 tracking-wide', themeClasses.mutedText)}>{shortName}</div>
+          <div className={cx('text-base font-black leading-6', themeClasses.titleText)}>{fullName}</div>
+        </div>
+        <p className={cx('leading-6', themeClasses.bodyText)}>{description}</p>
+      </div>
+    </div>
+  );
+}
+
 function ConceptHighlightCard({
   shortName,
   fullName,
   description,
   links,
   toneIndex,
+  hideFullName = false,
   isActive,
   themeClasses,
   onActivate,
@@ -1448,23 +1730,79 @@ function ConceptHighlightCard({
   description: string;
   links?: Array<{ label: string; href: string }>;
   toneIndex: number;
+  hideFullName?: boolean;
   isActive: boolean;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
   onActivate: () => void;
 }) {
-  const lightTones = [
-    'border border-[#2F6F9F]/14 bg-[#EEF6FB] hover:bg-[#E7F2FA]',
-    'border border-[#2F6B55]/14 bg-[#EEF7F2] hover:bg-[#E7F2EC]',
-    'border border-[#B7791F]/16 bg-[#FFF7E6] hover:bg-[#FFF1D1]',
-  ];
-  const darkTones = [
-    'border border-[#8FC7EA]/18 bg-[#183044]/52 hover:bg-[#1D3951]/62',
-    'border border-[#A6E8C1]/18 bg-[#173528]/52 hover:bg-[#1C4030]/62',
-    'border border-[#F2C94C]/20 bg-[#3A2D12]/50 hover:bg-[#473716]/62',
-  ];
-  const rowTone = themeClasses.isLight
-    ? lightTones[toneIndex % lightTones.length]
-    : darkTones[toneIndex % darkTones.length];
+  const icons: LucideIcon[] = [Monitor, Square, Wrench, SlidersHorizontal, Database, Cpu];
+  const Icon = icons[toneIndex % icons.length] ?? Monitor;
+  const palettes = themeClasses.isLight
+    ? [
+        {
+          card: 'border-[#2563EB]/14 bg-white',
+          top: 'border-[#2563EB]/10 bg-[#EFF6FF]',
+          icon: 'border border-[#2563EB]/14 bg-white text-[#1D4ED8]',
+        },
+        {
+          card: 'border-[#7C3AED]/14 bg-white',
+          top: 'border-[#7C3AED]/10 bg-[#F3EEFF]',
+          icon: 'border border-[#7C3AED]/14 bg-white text-[#6D28D9]',
+        },
+        {
+          card: 'border-[#2FBF71]/16 bg-white',
+          top: 'border-[#2FBF71]/10 bg-[#ECFDF3]',
+          icon: 'border border-[#2FBF71]/16 bg-white text-[#1F6F48]',
+        },
+        {
+          card: 'border-[#F59E0B]/18 bg-white',
+          top: 'border-[#F59E0B]/12 bg-[#FFF7E6]',
+          icon: 'border border-[#F59E0B]/18 bg-white text-[#8A4F00]',
+        },
+        {
+          card: 'border-[#EC4899]/14 bg-white',
+          top: 'border-[#EC4899]/10 bg-[#FDF2F8]',
+          icon: 'border border-[#EC4899]/14 bg-white text-[#BE185D]',
+        },
+        {
+          card: 'border-[#0EA5E9]/16 bg-white',
+          top: 'border-[#0EA5E9]/10 bg-[#F0F9FF]',
+          icon: 'border border-[#0EA5E9]/16 bg-white text-[#0369A1]',
+        },
+      ]
+    : [
+        {
+          card: 'border-[#7FB0FF]/18 bg-[#121A24]/36',
+          top: 'border-[#7FB0FF]/14 bg-[#7FB0FF]/12',
+          icon: 'border border-[#7FB0FF]/18 bg-[#7FB0FF]/10 text-[#DCEAFF]',
+        },
+        {
+          card: 'border-[#C4B5FD]/18 bg-[#121A24]/36',
+          top: 'border-[#C4B5FD]/14 bg-[#C4B5FD]/12',
+          icon: 'border border-[#C4B5FD]/18 bg-[#C4B5FD]/10 text-[#EEE8FF]',
+        },
+        {
+          card: 'border-[#74D99F]/18 bg-[#121A24]/36',
+          top: 'border-[#74D99F]/14 bg-[#74D99F]/12',
+          icon: 'border border-[#74D99F]/18 bg-[#74D99F]/10 text-[#DDF7E8]',
+        },
+        {
+          card: 'border-[#FBBF24]/20 bg-[#121A24]/36',
+          top: 'border-[#FBBF24]/14 bg-[#FBBF24]/12',
+          icon: 'border border-[#FBBF24]/20 bg-[#FBBF24]/10 text-[#FFE7AD]',
+        },
+        {
+          card: 'border-[#F9A8D4]/18 bg-[#121A24]/36',
+          top: 'border-[#F9A8D4]/14 bg-[#F9A8D4]/12',
+          icon: 'border border-[#F9A8D4]/18 bg-[#F9A8D4]/10 text-[#FFE3F1]',
+        },
+        {
+          card: 'border-[#67E8F9]/18 bg-[#121A24]/36',
+          top: 'border-[#67E8F9]/14 bg-[#67E8F9]/12',
+          icon: 'border border-[#67E8F9]/18 bg-[#67E8F9]/10 text-[#CFFAFE]',
+        },
+      ];
+  const palette = palettes[toneIndex % palettes.length]!;
 
   return (
     <div
@@ -1473,15 +1811,35 @@ function ConceptHighlightCard({
       onFocus={onActivate}
       onMouseEnter={onActivate}
       className={cx(
-        'learning-lab-focus-panel group grid content-start gap-2 px-3 py-3 text-sm transition-[background-color,box-shadow,filter,opacity,transform] duration-200',
-        themeClasses.radius.button,
-        rowTone,
+        'learning-lab-focus-panel grid h-full min-h-[24rem] w-full max-w-[17rem] justify-self-center grid-rows-[7rem_minmax(0,1fr)] overflow-hidden rounded-lg border text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.54)] transition-[background-color,box-shadow,filter,opacity,transform] duration-200',
+        palette.card,
       )}
     >
-      <div className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{shortName}</div>
-      <div className={cx('text-sm font-normal leading-6', themeClasses.titleText)}>{fullName}</div>
-      <p className={cx('leading-6', themeClasses.bodyText)}>{description}</p>
-      <ConceptHighlightLinks links={links} className="mt-1" themeClasses={themeClasses} />
+      <div className={cx('grid h-28 place-items-center border-b', palette.top)}>
+        <div className={cx('grid h-14 w-14 shrink-0 place-items-center rounded-xl shadow-sm', palette.icon)}>
+          <Icon className="h-7 w-7" strokeWidth={2.1} aria-hidden="true" />
+        </div>
+      </div>
+      <div className="grid content-start gap-3 p-4">
+        <div className="grid gap-1">
+          <div className={cx('text-xs font-black uppercase leading-5 tracking-wide', themeClasses.mutedText)}>{shortName}</div>
+          {hideFullName ? null : (
+            <div className={cx('text-base font-black leading-6', themeClasses.titleText)}>{fullName}</div>
+          )}
+        </div>
+        <p className={cx('leading-6', themeClasses.bodyText)}>{description}</p>
+        <ConceptHighlightLinks links={links} className="mt-1" themeClasses={themeClasses} />
+      </div>
+    </div>
+  );
+}
+
+function ConceptPanelConnector({ themeClasses }: {
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  return (
+    <div className="hidden h-full place-items-center lg:grid" aria-hidden="true">
+      <div className={cx('h-px w-full', themeClasses.isLight ? 'bg-[#205089]/18' : 'bg-[#A8B8C8]/18')} />
     </div>
   );
 }

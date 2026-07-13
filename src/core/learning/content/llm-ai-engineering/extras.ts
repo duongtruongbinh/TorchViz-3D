@@ -6,12 +6,10 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
     conceptPanel('llm-training-lifecycle', 'llm-data-pipeline-overview', 'Quy trình chung để tạo LLM', {
       body: [
         'Một LLM thường được tạo qua hai giai đoạn lớn.',
-        'Pretraining là giai đoạn ban đầu, khi model học trên tập dữ liệu lớn và đa dạng để hình thành hiểu biết rộng về ngôn ngữ.',
-        'Fine-tuning dùng model đã pretrain làm nền tảng, rồi huấn luyện thêm trên dữ liệu hẹp hơn cho một tác vụ hoặc lĩnh vực cụ thể.',
       ],
       highlights: [
-        ['Pretraining', 'Pretraining', ''],
-        ['Fine-tuning', 'Fine-tuning', ''],
+        ['Pretraining', 'Pretraining', 'Giai đoạn ban đầu, khi model học trên tập dữ liệu lớn và đa dạng để hình thành hiểu biết rộng về ngôn ngữ.'],
+        ['Fine-tuning', 'Fine-tuning', 'Dùng model đã pretrain làm nền tảng, rồi huấn luyện thêm trên dữ liệu hẹp hơn cho một tác vụ hoặc lĩnh vực cụ thể.'],
       ],
     }),
     conceptPanel('transformer-translation-step-1', 'llm-data-pipeline-overview', 'Bước 1:', {
@@ -316,20 +314,14 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
     }),
   ],
   'minimal-llm-project-skeleton': [
-    conceptPanel('colab-coding-requirements', 'minimal-llm-project-skeleton', 'Yêu cầu & setup trước khi học', {
-      body: [
-        'Giai đoạn đầu của course khuyến nghị chạy tuần tự trên Google Colab. Bạn chỉ cần chuẩn bị đủ vài tool bên dưới, sau đó tập trung vào token, shape, mask, logits, loss và generation loop.',
-      ],
+    conceptPanel('colab-coding-requirements', 'minimal-llm-project-skeleton', '', {
       highlights: [
-        ['Cần biết trước', 'Nền tảng tối thiểu', 'Biết dùng Google Colab và đọc lỗi Python đơn giản.\nNắm NumPy và PyTorch cơ bản: tensor, module, forward, loss.\nĐã học Neural Networks và các sequence-to-sequence model như RNN, LSTM, GRU.'],
-        ['Google Colab', 'Môi trường chính cho giai đoạn đầu', 'Dùng để mở notebook, chạy cell từ trên xuống dưới, upload dataset/file .py khi cần, và bật GPU ở các phần train nặng.'],
-        ['Python', 'Ngôn ngữ và runtime chính', 'Cần biết chạy script/notebook, đọc traceback cơ bản, dùng pip/venv ở mức đơn giản. Nếu chỉ chạy Colab thì Python đã có sẵn, nhưng local vẫn nên cài Python để làm project sau này.'],
-        ['uv', 'Tool cài dependency nhanh', 'Dùng để cài requirements trong Colab hoặc local nhanh hơn pip. Ví dụ trên Colab có thể chạy ở cell đầu: pip install uv && uv pip install --system -r https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/refs/heads/main/requirements.txt'],
-        ['VSCode', 'Editor cho local/project về sau', 'Chưa bắt buộc ở những notebook đầu, nhưng nên chuẩn bị để đọc code nhiều file, chỉnh module, dùng terminal, Git và extension Python khi chuyển sang project GPT-mini hoàn chỉnh.'],
-        ['Kiểm tra được', 'Mỗi bước phải in shape và ví dụ nhỏ', 'Section nào tạo tensor hoặc object mới thì phải có output quan sát được: shape, vài giá trị mẫu, hoặc một assert đơn giản.\nNếu một cell lỗi, sửa ngay tại cell đó rồi chạy lại các cell phụ thuộc phía sau; đừng nhảy qua lỗi rồi debug ở cuối notebook.'],
+        ['Google Colab', 'Môi trường học chính', 'Mở notebook, chạy cell theo thứ tự, upload file khi cần và bật GPU ở các phần train nặng.'],
+        ['Python', 'Runtime chính', 'Biết chạy notebook/script, đọc lỗi, và dùng pip hoặc venv ở mức đơn giản. Colab đã có Python, local nên cài để làm project sau này.'],
+        ['uv', 'Cài dependency nhanh', 'Dùng trong Colab hoặc local để cài requirements nhanh hơn pip.\npip install uv && uv pip install --system -r https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/refs/heads/main/requirements.txt'],
+        ['VSCode', 'Editor cho project sau này', 'Chuẩn bị để đọc code nhiều file, dùng terminal/Git và chuyển notebook thành GPT-mini project hoàn chỉnh.'],
       ],
       highlightLinks: [
-        [],
         [
           ['Document', 'https://colab.research.google.com/'],
           ['Video', 'https://www.youtube.com/watch?v=RLYoEyIHL6A'],
@@ -346,11 +338,9 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
           ['Document', 'https://code.visualstudio.com/docs/setup/setup-overview'],
           ['Video', 'https://learn.microsoft.com/en-us/shows/visual-studio-code/learn-visual-studio-code-in-7min-official-beginner-tutorial'],
         ],
-        [],
       ],
       bodyAfter: [
-        'Tóm lại: chuẩn bị Colab, Python, uv và VSCode ở mức vừa đủ. Course sẽ bắt đầu bằng Colab cho đơn giản, sau đó mới chuyển sang local/VSCode khi cần làm việc như một project thật.',
-        'Về sau, đến chương build GPT-mini hoàn chỉnh, chúng ta sẽ gom các phần đã chạy trên Colab thành project OOP với cấu trúc thư mục rõ ràng hơn: config, tokenizer/dataset, model, trainer, generator và checkpoint.',
+        'Đến phần GPT-mini, các notebook sẽ được gom thành project OOP: config, tokenizer/dataset, model, trainer, generator và checkpoint.',
       ],
     }),
   ],
