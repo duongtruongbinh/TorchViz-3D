@@ -73,18 +73,13 @@ test('Learning Lab feedback scroll uses one shared helper', () => {
   );
 });
 
-test('Learning Home in-page navigation preserves the HashRouter route', () => {
+test('Learning Home avoids fragment links that replace the HashRouter route', () => {
   const domainCatalog = readSource('src/components/learning/shell/DomainCatalog.tsx');
 
   assert.doesNotMatch(
     domainCatalog,
     /href=["']#/,
     'in-page links must not replace the HashRouter fragment',
-  );
-  assert.match(
-    domainCatalog,
-    /getElementById\('learning-home-syllabus-title'\)\?\.scrollIntoView/,
-    'the syllabus CTA should scroll without changing the route hash',
   );
 });
 

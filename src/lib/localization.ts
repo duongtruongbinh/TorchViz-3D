@@ -18,9 +18,9 @@ type LocalizedPair = Record<Language, LocalizedValue>;
 type LocalizedNode = LocalizedPair | { [key: string]: LocalizedNode } | LocalizedNode[];
 type SelectedLocalizedText<T> =
   T extends LocalizedPair ? T[Language]
-    : T extends readonly (infer Item)[] ? SelectedLocalizedText<Item>[]
-      : T extends object ? { [Key in keyof T]: SelectedLocalizedText<T[Key]> }
-        : never;
+  : T extends readonly (infer Item)[] ? SelectedLocalizedText<Item>[]
+  : T extends object ? { [Key in keyof T]: SelectedLocalizedText<T[Key]> }
+  : never;
 
 const localizedText = {
   app: {
@@ -153,48 +153,11 @@ const localizedText = {
       vi: 'Chọn vùng kiến thức muốn luyện trước. Mỗi domain mở một lộ trình học tập tập trung.',
     },
     homePage: {
-      eyebrow: { en: 'Project home', vi: 'Trang chủ dự án' },
-      title: {
-        en: 'TorchViz-3D turns neural networks into something you can inspect, question, and understand.',
-        vi: 'TorchViz-3D biến mạng neural thành thứ có thể quan sát, đặt câu hỏi và thật sự hiểu.',
-      },
-      subtitle: {
-        en: 'We are building a local-first learning environment where model structure, tensor shape, and algorithm behavior become visible instead of hidden behind code output.',
-        vi: 'Chúng tôi xây dựng một môi trường học local-first, nơi cấu trúc mô hình, tensor shape và hành vi thuật toán trở nên nhìn thấy được thay vì ẩn sau kết quả code.',
-      },
       simpleTitle: {
         en: 'A visual learning lab for neural networks.',
         vi: 'Một learning lab trực quan cho neural networks.',
       },
-      simpleSubtitle: {
-        en: 'TorchViz-3D helps learners see how model code becomes structure, how tensors change shape, and why each step matters.',
-        vi: 'TorchViz-3D giúp người học nhìn thấy cách code mô hình trở thành cấu trúc, cách tensor đổi shape và vì sao từng bước lại quan trọng.',
-      },
-      projectLabel: { en: 'Learning Lab goal', vi: 'Mục tiêu của Learning Lab' },
-      projectTitle: {
-        en: 'A visual lab for learning how modern AI systems move information.',
-        vi: 'Một phòng lab trực quan để học cách hệ thống AI hiện đại truyền và biến đổi thông tin.',
-      },
-      projectBody: [
-        {
-          en: 'TorchViz-3D started from a simple belief: learners should not have to imagine every tensor transformation in their head. The interface should make the path of data visible.',
-          vi: 'TorchViz-3D giúp bạn nhìn thấy đường đi của dữ liệu trong mô hình, thay vì phải tự hình dung từng bước biến đổi tensor.',
-        },
-        {
-          en: 'The Learning Lab extends that idea beyond diagrams. It connects concepts, visual explanations, and practice into one place so students can move from curiosity to working intuition.',
-          vi: 'Learning Lab mở rộng ý tưởng đó ra ngoài sơ đồ. Nó kết nối khái niệm, giải thích trực quan và thực hành trong cùng một nơi để người học đi từ tò mò đến trực giác có thể sử dụng được.',
-        },
-      ],
-      goalLabel: { en: 'Our goal', vi: 'Mục tiêu' },
-      goal: {
-        en: 'If AI feels hard to understand, Learning Lab should make it clear. If you still do not understand, the lab is not optimized enough, not you.',
-        vi: 'Nếu AI khó hiểu, Learning Lab sẽ làm nó dễ hiểu. Nếu bạn vẫn chưa hiểu, đó là do lab chưa tối ưu, không phải lỗi của bạn.',
-      },
-      goalBody: {
-        en: 'Every lesson, animation, and practice surface should help learners explain what changed, why it changed, and how that change affects the next step.',
-        vi: 'Mỗi bài học, animation và phần thực hành cần giúp người học giải thích điều gì đã thay đổi, vì sao nó thay đổi và thay đổi đó ảnh hưởng thế nào đến bước tiếp theo.',
-      },
-      idealsLabel: { en: 'How we teach', vi: 'Cách học' },
+      projectLabel: { en: 'Goal', vi: 'Mục tiêu' },
       idealVisualTitle: { en: 'Simple and Clear', vi: 'Đơn Giản, Dễ Hiểu' },
       idealVisualBody: {
         en: 'Each lesson stays focused: less noise, fewer unnecessary terms, and enough context to know what you are looking at.',
@@ -210,11 +173,6 @@ const localizedText = {
         en: 'Start with simple words first, then bring in formulas, code, and technical details only when they are needed.',
         vi: 'Giải thích bằng từ đơn giản trước, rồi mới đi vào công thức, code và chi tiết kỹ thuật khi thật sự cần.',
       },
-      nextLabel: { en: 'Choose a domain to start', vi: 'Chọn một domain để bắt đầu' },
-      nextBody: {
-        en: 'Choose a domain on the left when you are ready. Each domain opens a focused course page, while this Home page stays as the project’s shared north star.',
-        vi: 'Khi sẵn sàng, hãy chọn một domain ở bên trái. Mỗi domain mở một trang học tập tập trung, còn Home là nơi giữ tinh thần chung của dự án.',
-      },
       syllabusLabel: { en: 'Syllabus index', vi: 'Mục lục khóa học' },
       syllabusTitle: {
         en: 'Traverse the full Learning Lab catalog.',
@@ -224,11 +182,6 @@ const localizedText = {
         en: 'Scan every domain, preview its course tracks, and jump directly into the first lesson route.',
         vi: 'Xem nhanh từng domain, các track chính, rồi mở thẳng lộ trình bài học đầu tiên.',
       },
-      openSyllabusDomain: { en: 'Open path', vi: 'Mở lộ trình' },
-      artifactLabel: { en: 'Learning artifact', vi: 'Mẫu học tập' },
-      sourceCode: { en: 'Source code', vi: 'Code PyTorch' },
-      shapeTrace: { en: 'Shape trace', vi: 'Luồng tensor' },
-      practiceLoop: { en: 'Practice loop', vi: 'Bài tập ngắn' },
     },
     domainAvailable: { en: 'Available', vi: 'Sẵn sàng' },
     domainPlaceholder: { en: 'Placeholder', vi: 'Đang cập nhật' },

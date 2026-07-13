@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
-import { ArrowDown, ArrowRight, BookOpen, Dumbbell, GraduationCap, LibraryBig, Network } from 'lucide-react';
+import { ArrowRight, BookOpen, Dumbbell, GraduationCap, LibraryBig, Network } from 'lucide-react';
 
 import { learningCatalog } from '../../../core/learning/content';
 import { getGroupedLearningLessonsForDomain } from '../../../core/learning/selectors';
 import type { LearningDomain, LearningDomainId } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
-import { getDomainText, getTrackText } from '../learningText';
+import { getDomainText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 
 type DomainCatalogProps = {
@@ -43,22 +43,6 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
                 <h1 className="mt-3 max-w-4xl text-[clamp(2rem,3.2vw,3.75rem)] font-black leading-[1.02] tracking-[-0.035em] text-white">
                   {home.simpleTitle}
                 </h1>
-                <p className="mt-4 max-w-3xl text-base font-semibold leading-7 text-[#E6F1F8]/84 lg:text-lg">
-                  {home.simpleSubtitle}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    document.getElementById('learning-home-syllabus-title')?.scrollIntoView({
-                      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-                      block: 'start',
-                    });
-                  }}
-                  className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#F2C94C] px-5 py-2.5 text-sm font-black text-[#263240] shadow-[0_12px_28px_rgba(242,201,76,0.20)] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#FFD65A] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                >
-                  {home.syllabusLabel}
-                  <ArrowDown className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-                </button>
               </div>
 
               <div className="grid grid-cols-3 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] lg:grid-cols-1">
@@ -87,13 +71,13 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
             </div>
 
             <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                {syllabus.map((item, index) => (
+              {syllabus.map((item, index) => (
                   <button
                     key={item.domain.id}
                     type="button"
                     onClick={() => onOpenDomain(item.domain.id)}
                     className={cx(
-                      'group grid min-h-[238px] w-full grid-rows-[auto_1fr_auto] border p-5 text-left transition-[border-color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(32,80,137,0.13)]',
+                      'group grid min-h-[190px] w-full grid-rows-[1fr_auto] border p-5 text-left transition-[border-color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(32,80,137,0.13)]',
                       themeClasses.radius.card,
                       themeClasses.focusRing,
                       themeClasses.surface.interactiveCard,
@@ -108,35 +92,18 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
                         <span className={cx('px-2.5 py-0.5 text-[11px] font-black', themeClasses.radius.pill, themeClasses.statusPill(item.domain.status === 'placeholder'))}>
                           {item.domain.status === 'placeholder' ? strings.domainPlaceholder : strings.domainAvailable}
                         </span>
-                        <ArrowRight className={cx('h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
                       </span>
-                      <span className={cx('mt-3 line-clamp-3 block text-sm leading-6', bodyTone)}>{item.description}</span>
-                      {item.previewTracks.length ? (
-                        <span className="mt-3 flex flex-wrap gap-2">
-                          {item.previewTracks.map((track) => (
-                            <span
-                              key={track.id}
-                              className={cx(
-                                'max-w-full truncate border px-2.5 py-1 text-xs font-bold',
-                                themeClasses.radius.pill,
-                                themeClasses.isLight ? 'border-[#205089]/14 bg-white/54 text-[#123B68]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/10 text-[#F2F6FA]/74',
-                              )}
-                            >
-                              {track.title}
-                            </span>
-                          ))}
-                        </span>
-                      ) : null}
+                      <span className={cx('mt-3 line-clamp-2 block text-sm leading-6', bodyTone)}>{item.description}</span>
                     </span>
                     <span className="mt-4 flex items-center justify-between gap-3 border-t border-[#205089]/10 pt-3">
                       <span className="flex flex-wrap gap-2">
                         <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
                         <Metric text={strings.practiceCount(item.practiceCount)} toneClass={mutedTone} />
                       </span>
-                      <span className={cx('shrink-0 text-xs font-black', themeClasses.accentText)}>{home.openSyllabusDomain}</span>
+                      <ArrowRight className={cx('h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
                     </span>
                   </button>
-                ))}
+              ))}
             </div>
           </section>
         </div>
@@ -176,7 +143,6 @@ function CatalogMetric({ icon, value, label, hideValueInLabel = false }: { icon:
 
 function buildSyllabusItem(domain: LearningDomain, language: Language) {
   const groupedLessons = getGroupedLearningLessonsForDomain(learningCatalog, domain.id);
-  const tracks = groupedLessons.map((group) => group.track);
   const lessons = groupedLessons.flatMap((group) => group.lessons);
   const practiceCount = new Set(lessons.flatMap((lesson) => lesson.practice.map((practice) => practice.id))).size;
   const text = getDomainText(language, domain);
@@ -187,10 +153,6 @@ function buildSyllabusItem(domain: LearningDomain, language: Language) {
     description: text.description,
     lessonCount: lessons.length,
     practiceCount,
-    previewTracks: tracks.slice(0, 3).map((track) => ({
-      id: track.id,
-      title: getTrackText(language, track).title,
-    })),
   };
 }
 
