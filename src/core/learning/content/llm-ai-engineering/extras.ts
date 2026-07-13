@@ -473,13 +473,6 @@ function conceptInteraction(
   builder?: Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>['sentenceBuilder'],
   config?: {
     interactionPlacement?: Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>['interactionPlacement'];
-    tokenExample?: {
-      title: string;
-      variants: Array<[string, string[], string]>;
-      specialTitle: string;
-      specialCases: Array<[string, string[], string]>;
-      notes: string[];
-    };
   },
 ): LearningLessonExtra {
   return {
@@ -505,23 +498,6 @@ function conceptInteraction(
       feedback: loc(item.feedback),
     })),
     interactionPlacement: config?.interactionPlacement,
-    tokenExample: config?.tokenExample
-      ? {
-        title: loc(config.tokenExample.title),
-        variants: config.tokenExample.variants.map(([label, tokens, description]) => ({
-          label: loc(label),
-          tokens,
-          description: loc(description),
-        })),
-        specialTitle: loc(config.tokenExample.specialTitle),
-        specialCases: config.tokenExample.specialCases.map(([label, tokens, description]) => ({
-          label: loc(label),
-          tokens,
-          description: loc(description),
-        })),
-        notes: config.tokenExample.notes.map((note) => loc(note)),
-      }
-      : undefined,
     sentenceBuilder: builder,
   };
 }
@@ -645,7 +621,6 @@ function tokenizationExample(): LearningTokenExample {
         description: loc('Từ dài hoặc từ lạ có thể bị bẻ thành các mảnh nhỏ hơn.'),
       },
     ],
-    specialTitle: loc('Trường hợp đặc biệt'),
     specialCases: [
       {
         label: loc('Dấu câu'),

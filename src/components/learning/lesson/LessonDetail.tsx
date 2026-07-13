@@ -7,7 +7,7 @@ import { getUnifiedLessonText } from '../learningText';
 import PracticeSection from '../practice/PracticeSection';
 import { cx, getLearningLabTheme } from '../theme';
 import LessonExtras from './extras/LessonExtras';
-import type { QuizQuestionState } from './extras/LessonExtraRenderer';
+import type { QuizQuestionState } from './extras/QuizBlock';
 
 type LessonDetailProps = {
   lesson: LearningLesson;
@@ -56,11 +56,11 @@ export default function LessonDetail({
         return [
           <SectionShell key={`${section.kind}-${section.refId}-motivation`} sectionDivider={sectionDivider} className={cx('learning-lab-section-accent', themeClasses.sectionAccent.section)}>
             <AccentSectionHeading label={motivationExtras[0].title[language] ?? motivationExtras[0].title.en} themeClasses={themeClasses} />
-            <LessonExtras extras={motivationExtras} language={language} themeClasses={themeClasses} className="grid gap-5" />
+            <LessonExtras domainId={lesson.domainId} extras={motivationExtras} language={language} themeClasses={themeClasses} className="grid gap-5" />
           </SectionShell>,
           ...conceptExtras.map((extra) => (
             <SectionShell key={extra.id} sectionDivider={sectionDivider}>
-              <LessonExtras extras={[extra]} language={language} themeClasses={themeClasses} className="grid gap-5" />
+              <LessonExtras domainId={lesson.domainId} extras={[extra]} language={language} themeClasses={themeClasses} className="grid gap-5" />
             </SectionShell>
           )),
           ...(lessonText.theory.length ? [
@@ -78,6 +78,7 @@ export default function LessonDetail({
             className={extras.every((extra) => extra.kind === 'quiz') ? 'pt-3 md:pt-4' : undefined}
           >
             <LessonExtras
+              domainId={lesson.domainId}
               extras={extras}
               language={language}
               quizQuestionStates={quizQuestionStates}
@@ -92,7 +93,7 @@ export default function LessonDetail({
         <SectionShell key={`${section.kind}-${section.refId}`} sectionDivider={sectionDivider}>
           <SectionHeading icon={meta.icon} label={meta.label} themeClasses={themeClasses} />
           <FullWidthTheoryCopy items={lessonText.theory} themeClasses={themeClasses} className="mt-4" />
-          <LessonExtras extras={sectionExtras} language={language} themeClasses={themeClasses} />
+          <LessonExtras domainId={lesson.domainId} extras={sectionExtras} language={language} themeClasses={themeClasses} />
         </SectionShell>,
       ];
     }
@@ -117,7 +118,7 @@ export default function LessonDetail({
       <SectionShell key={`${section.kind}-${section.refId}`} sectionDivider={sectionDivider}>
         <SectionHeading icon={meta.icon} label={meta.label} themeClasses={themeClasses} />
         {sectionExtras.length ? (
-          <LessonExtras extras={sectionExtras} language={language} themeClasses={themeClasses} />
+          <LessonExtras domainId={lesson.domainId} extras={sectionExtras} language={language} themeClasses={themeClasses} />
         ) : (
           <p className={cx('mt-4 border-l-2 py-1 pl-4 text-sm leading-6', themeClasses.mutedText, themeClasses.isLight ? 'border-[#205089]/20' : 'border-[#A8B8C8]/22')}>
             {meta.placeholder}

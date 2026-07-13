@@ -2,7 +2,7 @@
 title: Learning Lab LLM Domain Compact
 status: done
 created: 2026-07-02T05:24:08+07:00
-updated: 2026-07-13T00:00:00+07:00
+updated: 2026-07-13T12:00:00+07:00
 author: Codex
 task: "Compact record for the Learning Lab LLM AI Engineering domain package, approved nodes 1-5, lesson polish, and cleanup prompt."
 supersedes:
@@ -175,55 +175,6 @@ src/assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/
 - No new lesson ids or new visual assets are implied by this compact doc.
 - No claim that the old node 1-4 copy pass is pedagogically final.
 
-# Prompt For Reducing Branch Code Against Main
-
-Use this prompt when starting a dedicated cleanup pass for the current LLM branch:
-
-```text
-You are working in /home/khiem/TorchViz-3D on the current LLM Learning Lab branch.
-Goal: reduce redundant or over-scoped code introduced on this branch compared
-with main, while preserving the approved LLM domain behavior for nodes 1-5.
-
-First inspect:
-- git diff main...HEAD -- src/components/learning src/core/learning src/lib/localization.ts
-- docs/plans/2026-07-13-learning-lab-llm-domain-compact.md
-- wiki/concepts/learning-lab-refactor.md
-- src/core/learning/content/llm-ai-engineering/approval.ts
-
-Preserve:
-- Approved nodes:
-  1. minimal-llm-project-skeleton
-  2. llm-from-scratch-roadmap
-  3. llm-component-checkpoint-quiz
-  4. llm-data-pipeline-overview
-  5. llm-data-pipeline-checkpoint-quiz
-- Vietnamese-first copy and standard English technical terms.
-- The vertical lesson-panel pattern where it is currently user-approved.
-- Domain-owned LLM content under src/core/learning/content/llm-ai-engineering/.
-
-Cleanup targets:
-- Remove dead props, duplicated palette arrays, unused renderer branches, unused
-  imports, and one-off abstractions that no approved node uses.
-- Merge repeated vertical-panel/card styling only when the local pattern is
-  genuinely duplicated and the extraction reduces code.
-- Keep domain-specific renderers domain-owned; do not create a global registry
-  unless more than one domain needs it.
-- Do not change route behavior, Landing, Workspace, Pyodide, torchstub, IR,
-  layout engine, Canvas3D, or unrelated domains.
-- Do not rewrite approved content just to refactor code.
-
-Verification:
-- Prefer the narrowest checks first: TypeScript or targeted tests if available.
-- Run npm run verify only when the cleanup touches shared behavior or when the
-  user explicitly asks.
-
-Output:
-- List each removed/reduced code path and why it was safe.
-- List any behavior intentionally preserved.
-- Mention any remaining duplication that should stay until another domain needs
-  the same pattern.
-```
-
 # Absorbed Files
 
 The following LLM-specific plan files were compacted into this single record and
@@ -233,3 +184,90 @@ removed from `docs/plans/`:
 - `2026-07-08-add-iris-comparison-slide.md`
 - `2026-07-09-tokenization-example-next-page.md`
 - `2026-07-09-llm-node-1-4-beginner-copy-pass.md`
+
+# Cleanup Pass Plan — 2026-07-13
+
+Status: awaiting approval.
+
+## Goal
+
+Reduce redundant or over-scoped code introduced on the current LLM branch
+compared with `main`, while preserving the approved behavior for nodes 1-5:
+
+- `minimal-llm-project-skeleton`
+- `llm-from-scratch-roadmap`
+- `llm-component-checkpoint-quiz`
+- `llm-data-pipeline-overview`
+- `llm-data-pipeline-checkpoint-quiz`
+
+## Inspection Summary
+
+- Reviewed `git diff main...HEAD -- src/components/learning
+  src/core/learning src/lib/localization.ts`.
+- Reviewed this compact plan, the Learning Lab wiki, and
+  `src/core/learning/content/llm-ai-engineering/approval.ts`.
+- Confirmed the approval gate includes nodes 1-5 only.
+- Confirmed node 4 currently uses `llm-training-lifecycle` and
+  `transformer-translation-step-*` concept panels, not the older
+  `llm-data-pipeline-architecture` renderer branch.
+
+## Proposed Cleanup
+
+1. Remove the unused `llm-data-pipeline-architecture` concept-panel renderer
+   branch and its local helper payload/components in
+   `LessonExtraRenderer.tsx`.
+   - Safe because no approved LLM extra currently has id
+     `llm-data-pipeline-architecture`.
+2. Remove unused `conceptInteraction.tokenExample` support from the shared type,
+   LLM content helper, and domain renderer.
+   - Safe because the approved tokenization example is a `conceptPanel`
+     (`tokenization-example`) and still uses `LearningTokenExample`.
+3. Remove the unused `LearningTokenExample.specialTitle` field and its content.
+   - Safe because the token example renderer combines variants and special cases
+     visually and does not render this title.
+4. Reduce one-item or repeated local palette arrays only where the extraction is
+   smaller than the duplicated branch.
+   - Candidate: one-item vertical-card palettes in setup requirements and
+     tokenization step cards.
+   - Avoid broad global palette extraction unless the local diff genuinely gets
+     shorter.
+5. Keep domain-specific LLM renderers domain-owned and avoid introducing a
+   global registry.
+
+## Preserve
+
+- Vietnamese-first copy and standard English technical terms.
+- The approved vertical lesson-panel pattern for setup requirements, scale
+  cards, tokenization examples, why-LLMs-are-popular cards, and data-pipeline
+  lifecycle panels.
+- Approved LLM content under
+  `src/core/learning/content/llm-ai-engineering/`.
+- Route behavior, Landing, Workspace, Pyodide, torchstub, IR, layout engine,
+  Canvas3D, and unrelated domains.
+
+## Verification
+
+- Run TypeScript first via the narrowest available project check.
+- Run `npm run verify` only if cleanup touches shared behavior enough to justify
+  the broader pass.
+
+## Execution Log
+
+- 2026-07-13 — Stored cleanup pass plan in the current LLM compact doc instead
+  of creating a new plan file, per user request.
+- 2026-07-13 — Cleanup pass approved; execution started.
+- 2026-07-13 — Removed the unused `llm-data-pipeline-architecture` renderer
+  branch plus its local pipeline example payload/components from
+  `LessonExtraRenderer.tsx`. This was safe because no approved node 1-5 extra
+  uses that id; node 4 uses `llm-training-lifecycle` and
+  `transformer-translation-step-*`.
+- 2026-07-13 — Removed unused `conceptInteraction.tokenExample` support from
+  shared types, the LLM content helper, and the LLM domain renderer. The
+  approved tokenization example remains a `conceptPanel` payload.
+- 2026-07-13 — Removed unused `LearningTokenExample.specialTitle` from the
+  shared type and content payload because no renderer displayed it.
+- 2026-07-13 — Flattened one-item palette arrays in the approved setup
+  requirements and tokenization step cards without changing their colors,
+  spacing, or vertical-panel behavior.
+- 2026-07-13 — Verification passed with `npm run typecheck` and
+  `npm run verify`.

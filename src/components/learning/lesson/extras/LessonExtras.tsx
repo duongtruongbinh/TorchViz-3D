@@ -1,9 +1,11 @@
-import type { LearningLessonExtra } from '../../../../core/learning/types';
+import type { LearningDomainId, LearningLessonExtra } from '../../../../core/learning/types';
 import type { Language } from '../../../../lib/localization';
 import { getLearningLabTheme } from '../../theme';
-import LessonExtraRenderer, { type QuizQuestionState } from './LessonExtraRenderer';
+import LessonExtraRenderer from './LessonExtraRenderer';
+import type { QuizQuestionState } from './QuizBlock';
 
 type LessonExtrasProps = {
+  domainId: LearningDomainId;
   extras: LearningLessonExtra[];
   language: Language;
   quizQuestionStates?: Record<string, QuizQuestionState>;
@@ -13,6 +15,7 @@ type LessonExtrasProps = {
 };
 
 export default function LessonExtras({
+  domainId,
   extras,
   language,
   quizQuestionStates,
@@ -27,6 +30,7 @@ export default function LessonExtras({
       {extras.map((extra) => (
         <LessonExtraRenderer
           key={extra.id}
+          domainId={domainId}
           extra={extra}
           language={language}
           quizQuestionStates={quizQuestionStates}

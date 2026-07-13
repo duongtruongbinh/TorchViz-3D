@@ -130,8 +130,8 @@ Active behavior remains unchanged:
 | `src/components/learning/lesson/LessonNode.tsx` | Shared lesson node. |
 | `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory and practice rendering. |
 | `src/components/learning/lesson/LessonExtras.tsx` | Compatibility wrapper for the lesson extras package. |
-| `src/components/learning/lesson/extras/*` | Shared extra dispatch for currently approved extras, concept panels, asset resolution, and small text helpers. |
-| `src/components/learning/domains/*/renderers.tsx` | Optional domain-owned custom extra renderers for interactions or visual treatments that should not live in the shared renderer. |
+| `src/components/learning/lesson/extras/*` | Shared extra dispatch and generic extra components, including the thin dispatcher, quiz renderer, generic concept-panel renderer, asset resolution, and small text helpers. |
+| `src/components/learning/domains/*/renderers.tsx` | Optional domain-owned custom extra renderers for interactions or visual treatments that should not live in the shared renderer. The LLM domain owns its custom concept panels directly. |
 | `src/components/learning/practice/PracticeSection.tsx` | Shared practice dispatcher for tensor, RL, and placeholder practice. |
 | `src/components/learning/practice/TensorPracticeRenderer.tsx` | Tensor Shape/Value/Conv modal launcher. |
 | `src/components/learning/practice/ReinforcementPracticeRenderer.tsx` | Inline RL MDP/Bellman/GridWorld renderer. |
@@ -166,6 +166,11 @@ and custom renderer components so future domains do not inflate
 `src/lib/localization.ts`, `src/core/learning/types.ts`, or the shared lesson
 extra renderer. Do not add a registry layer until more than one domain needs
 keyed custom extra routing.
+
+Shared lesson extra rendering should stay intentionally generic: quiz behavior,
+default concept panels, frame/text helpers, and asset lookup. Domain-specific
+panels should be routed explicitly by domain/id and should not silently fall
+back to the generic design when custom coverage is missing.
 
 ## UI Conventions
 

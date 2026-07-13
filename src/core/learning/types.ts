@@ -92,7 +92,6 @@ export type LearningTokenExample = {
     tokens: string[];
     description: LearningLocalizedText;
   }>;
-  specialTitle: LearningLocalizedText;
   specialCases: Array<{
     label: LearningLocalizedText;
     tokens: string[];
@@ -145,7 +144,6 @@ export type LearningLessonExtra =
         feedback: LearningLocalizedText;
       }>;
       interactionPlacement?: 'inline' | 'none' | 'only';
-      tokenExample?: LearningTokenExample;
       sentenceBuilder?: {
         title: LearningLocalizedText;
         prompt: LearningLocalizedText;
