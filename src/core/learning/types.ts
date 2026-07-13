@@ -203,6 +203,9 @@ export type LearningLessonExtra =
         title: LearningLocalizedText;
         prompt: LearningLocalizedText;
         mode: 'order' | 'single' | 'multi' | 'categorize';
+        hideUnsortedLabel?: boolean;
+        unsortedLabel?: LearningLocalizedText;
+        completeLabel?: LearningLocalizedText;
         options: Array<{
           id: string;
           label: LearningLocalizedText;

@@ -5,7 +5,9 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
   'llm-data-pipeline-overview': [
     conceptPanel('llm-training-lifecycle', 'llm-data-pipeline-overview', 'Quy trình chung để tạo LLM', {
       body: [
-        'Một LLM thường được tạo qua hai giai đoạn lớn. Pretraining là giai đoạn ban đầu, khi model học trên tập dữ liệu lớn và đa dạng để hình thành hiểu biết rộng về ngôn ngữ. Fine-tuning dùng model đã pretrain làm nền tảng, rồi huấn luyện thêm trên dữ liệu hẹp hơn cho một tác vụ hoặc lĩnh vực cụ thể.',
+        'Một LLM thường được tạo qua hai giai đoạn lớn.',
+        'Pretraining là giai đoạn ban đầu, khi model học trên tập dữ liệu lớn và đa dạng để hình thành hiểu biết rộng về ngôn ngữ.',
+        'Fine-tuning dùng model đã pretrain làm nền tảng, rồi huấn luyện thêm trên dữ liệu hẹp hơn cho một tác vụ hoặc lĩnh vực cụ thể.',
       ],
       highlights: [
         ['Pretraining', 'Pretraining', ''],
@@ -25,12 +27,16 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
     }),
     conceptPanel('transformer-translation-step-2', 'llm-data-pipeline-overview', 'Bước 2: Chuẩn bị input cho encoder', {
       body: [
-        'Câu nguồn không đi thẳng vào mạng nơ-ron dưới dạng chữ. Nó được tách thành token, đổi thành token ids, tra thành token embeddings, rồi cộng positional embeddings để encoder biết cả nội dung lẫn vị trí của từng token.',
+        'Câu nguồn không đi thẳng vào mạng nơ-ron dưới dạng chữ.',
+        '- Nó sẽ được tách thành các token.',
+        '- Mỗi token được quy đổi thành một con số tương ứng gọi là token id.',
+        '- Một con số đơn lẻ không thể đại diện đủ cho ý nghĩa của token, nên token id sẽ được biến đổi thành một vector gọi là token embedding. Lúc này model mới biết input có những thông tin gì, tuy nhiên chưa phân biệt được các token đang đứng ở vị trí nào trong câu.',
+        '- Positional embedding được cộng thêm để encoder biết cả nội dung lẫn vị trí của từng token.',
       ],
     }),
     conceptPanel('transformer-translation-step-3', 'llm-data-pipeline-overview', 'Bước 3: Encoder đọc toàn bộ câu nguồn', {
       body: [
-        'Encoder có quyền nhìn toàn bộ câu nguồn "This is an example" để tạo representation có ngữ cảnh cho từng vị trí.',
+        'Encoder có quyền nhìn toàn bộ câu nguồn "Anh trai vượt ngàn chông gai" để tạo representation có ngữ cảnh cho từng vị trí.',
       ],
     }),
     conceptPanel('transformer-translation-step-4', 'llm-data-pipeline-overview', 'Bước 4: Encoder trả embedding vector cho decoder', {
@@ -40,7 +46,7 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
     }),
     conceptPanel('transformer-translation-step-5', 'llm-data-pipeline-overview', 'Bước 5: Decoder nhận câu đã dịch một phần', {
       body: [
-        'Ở giai đoạn cuối của ví dụ, decoder đã có "Das ist ein __" và cần điền token/từ tiếp theo.',
+        'Ở giai đoạn cuối của ví dụ, decoder đã có "披荆斩棘的__" và cần điền token/từ tiếp theo.',
       ],
     }),
     conceptPanel('transformer-translation-step-6', 'llm-data-pipeline-overview', 'Bước 6: Chuẩn bị input cho decoder', {
@@ -50,14 +56,109 @@ export const llmFromScratchExtras: Record<string, LearningLessonExtra[]> = {
     }),
     conceptPanel('transformer-translation-step-7', 'llm-data-pipeline-overview', 'Bước 7: Decoder sinh từng từ', {
       body: [
-        'Decoder dùng context từ encoder và phần câu đích đã có để dự đoán từ tiếp theo. Trong ví dụ này, từ cần sinh là "Beispiel".',
+        'Decoder dùng context từ encoder và phần câu đích đã có để dự đoán từ tiếp theo. Trong ví dụ này, từ cần sinh là "哥哥".',
       ],
     }),
     conceptPanel('transformer-translation-step-8', 'llm-data-pipeline-overview', 'Bước 8: Hoàn thành bản dịch', {
       body: [
-        'Sau khi token mới được sinh và ghép vào câu, bản dịch trở thành "Das ist ein Beispiel".',
+        'Sau khi token mới được sinh và ghép vào câu, bản dịch trở thành "披荆斩棘的哥哥".',
       ],
     }),
+  ],
+  'llm-data-pipeline-checkpoint-quiz': [
+    quiz('llm-data-pipeline-checkpoint-quiz', 'llm-data-pipeline-checkpoint-quiz', 'Quiz kiểm tra nhanh', [
+      {
+        id: 'pretraining-facts',
+        title: 'Chọn các ý đúng về Pretraining',
+        prompt: '',
+        mode: 'multi',
+        options: [
+          ['pretraining-initial-stage', 'Là giai đoạn ban đầu.', true],
+          ['pretraining-large-data', 'Model học trên tập dữ liệu lớn và đa dạng.', true],
+          ['pretraining-broad-language', 'Giúp model hình thành hiểu biết rộng về ngôn ngữ.', true],
+          ['pretraining-narrow-task', 'Chỉ học trên dữ liệu hẹp cho một tác vụ cụ thể.', false],
+        ],
+        success: 'Đúng. Pretraining là giai đoạn đầu, dùng dữ liệu lớn và đa dạng để tạo nền hiểu biết rộng.',
+        error: 'Chưa đúng. Hãy nhớ pretraining là giai đoạn đầu và học trên dữ liệu lớn, đa dạng.',
+      },
+      {
+        id: 'finetuning-facts',
+        title: 'Chọn các ý đúng về Fine-tuning',
+        prompt: '',
+        mode: 'multi',
+        options: [
+          ['finetuning-from-pretrained', 'Dùng model đã pretrain làm nền tảng.', true],
+          ['finetuning-narrow-data', 'Huấn luyện thêm trên dữ liệu hẹp hơn.', true],
+          ['finetuning-specific-purpose', 'Nhắm tới một tác vụ hoặc lĩnh vực cụ thể.', true],
+          ['finetuning-first-stage', 'Là giai đoạn đầu tiên để model học ngôn ngữ từ đầu.', false],
+        ],
+        success: 'Đúng. Fine-tuning lấy model đã pretrain rồi huấn luyện thêm cho mục tiêu hẹp hơn.',
+        error: 'Chưa đúng. Fine-tuning không bắt đầu từ đầu; nó dùng model đã pretrain làm nền.',
+      },
+      {
+        id: 'training-stage-task-match',
+        title: 'Kéo từng ví dụ vào đúng giai đoạn tương ứng.',
+        prompt: '',
+        mode: 'categorize',
+        hideUnsortedLabel: true,
+        completeLabel: 'Tất cả ví dụ đã được kéo vào nhóm.',
+        categories: [
+          ['pretraining', 'Pretraining'],
+          ['fine-tuning', 'Fine-tuning'],
+        ],
+        options: [
+          ['pretraining-large-corpus', 'Học từ một corpus lớn gồm nhiều loại văn bản.', 'pretraining'],
+          ['pretraining-general-language', 'Học các pattern ngôn ngữ chung.', 'pretraining'],
+          ['finetuning-chat-format', 'Huấn luyện thêm để trả lời theo format chat.', 'fine-tuning'],
+          ['finetuning-domain-support', 'Huấn luyện thêm cho dữ liệu customer support.', 'fine-tuning'],
+        ],
+        success: 'Đúng. Pretraining tạo nền rộng; fine-tuning điều chỉnh nền đó cho task hoặc lĩnh vực cụ thể.',
+        error: 'Chưa đúng. Ví dụ dữ liệu lớn, đa dạng thuộc pretraining; ví dụ huấn luyện thêm cho mục tiêu hẹp thuộc fine-tuning.',
+      },
+      {
+        id: 'transformer-main-blocks',
+        title: 'Chọn một đáp án',
+        prompt: 'Trong Transformer ban đầu dùng cho dịch ngôn ngữ, có mấy block chính và chúng dùng để làm gì?',
+        mode: 'single',
+        options: [
+          ['encoder-decoder', 'Có 2 block chính: Encoder đọc câu gốc và biến nó thành dạng số để máy xử lý; Decoder dùng thông tin từ encoder để viết câu dịch từng token một.', true],
+          ['tokenizer-only', 'Có 1 block chính: Tokenizer đọc câu gốc và trực tiếp viết câu dịch hoàn chỉnh.', false],
+          ['training-stages', 'Có 2 block chính: Pretraining học dữ liệu lớn và Fine-tuning học dữ liệu hẹp hơn.', false],
+          ['input-prep-blocks', 'Có 3 block chính: Token id, Embedding, và Positional embedding, mỗi block tự sinh ra một phần bản dịch.', false],
+        ],
+        success: 'Đúng. Transformer dịch máy ban đầu có hai block chính: encoder đọc câu nguồn, decoder viết câu dịch từng token một.',
+        error: 'Chưa đúng. Ở slide này, hai block chính cần nhớ là Encoder và Decoder.',
+      },
+      {
+        id: 'encoder-input-prep-order',
+        title: 'Sắp xếp thứ tự',
+        prompt: 'Sắp xếp pipeline chuẩn bị input cho encoder',
+        mode: 'order',
+        options: [
+          ['token-embedding', 'Token id -> token embedding'],
+          ['tokenize', 'Tách câu thành token'],
+          ['positional-embedding', 'Cộng positional embedding'],
+          ['token-id', 'Token -> token id'],
+        ],
+        correctOrder: ['tokenize', 'token-id', 'token-embedding', 'positional-embedding'],
+        success: 'Đúng. Text phải thành token, token id, token embedding, rồi mới thêm thông tin vị trí.',
+        error: 'Chưa đúng thứ tự. Hãy đi từ chữ người đọc được sang vector mà encoder xử lý.',
+      },
+      {
+        id: 'why-position-embedding',
+        title: 'Chọn một đáp án',
+        prompt: 'Vì sao cần positional embedding?',
+        mode: 'single',
+        options: [
+          ['position', 'Vì token embedding cho biết token là gì, nhưng chưa cho biết token đứng ở vị trí nào trong câu.', true],
+          ['translate-directly', 'Vì positional embedding tự dịch câu nguồn sang câu đích.', false],
+          ['replace-tokenizer', 'Vì positional embedding thay thế tokenizer.', false],
+          ['remove-encoder', 'Vì positional embedding làm encoder không còn cần thiết.', false],
+        ],
+        success: 'Đúng. Positional embedding bổ sung thông tin thứ tự/vị trí cho token embedding.',
+        error: 'Chưa đúng. Token embedding nói về nội dung token; positional embedding thêm vị trí của token.',
+      },
+    ]),
   ],
   'llm-from-scratch-roadmap': [
     motivation(
@@ -587,6 +688,9 @@ function quiz(
     title: string;
     prompt: string;
     mode: Extract<LearningLessonExtra, { kind: 'quiz' }>['questions'][number]['mode'];
+    hideUnsortedLabel?: boolean;
+    unsortedLabel?: string;
+    completeLabel?: string;
     categories?: Array<[string, string]>;
     options: Array<[string, string, (boolean | string)?]>;
     correctOrder?: string[];
@@ -604,6 +708,9 @@ function quiz(
       title: loc(question.title),
       prompt: loc(question.prompt),
       mode: question.mode,
+      hideUnsortedLabel: question.hideUnsortedLabel,
+      unsortedLabel: question.unsortedLabel ? loc(question.unsortedLabel) : undefined,
+      completeLabel: question.completeLabel ? loc(question.completeLabel) : undefined,
       categories: question.categories?.map(([categoryId, label]) => ({
         id: categoryId,
         label: loc(label),

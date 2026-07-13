@@ -205,11 +205,11 @@ function QuizQuestion({
       quizPalette.card,
     )}>
       <div className="grid gap-2">
-        <div className={cx('text-xl font-black leading-8 md:text-2xl md:leading-9', quizPalette.title)}>
+        <div className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.title)}>
           {text(question.title, language)}
         </div>
         {promptText ? (
-          <p className={cx('text-xl font-black leading-8 md:text-2xl md:leading-9', quizPalette.prompt)}>{promptText}</p>
+          <p className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{promptText}</p>
         ) : null}
       </div>
 
@@ -350,6 +350,8 @@ function CategorizeQuestion({
   const strings = getStrings(language).learningLab;
   const categories = question.categories ?? [];
   const unassignedOptions = question.options.filter((option) => !assignments[option.id]);
+  const unsortedLabel = question.unsortedLabel ? text(question.unsortedLabel, language) : strings.quizCategorizeUnsorted;
+  const completeLabel = question.completeLabel ? text(question.completeLabel, language) : strings.quizCategorizeComplete;
   const shouldShowIncorrect = feedback === 'incorrect';
   const isOptionIncorrect = (option: typeof question.options[number]) => (
     shouldShowIncorrect && Boolean(assignments[option.id]) && assignments[option.id] !== option.categoryId
@@ -372,9 +374,11 @@ function CategorizeQuestion({
         }}
         onDrop={(event) => handleDrop(event, null)}
       >
-        <div className={cx('text-xs font-black uppercase tracking-wide', quizPalette.categoryCaption)}>
-          {strings.quizCategorizeUnsorted}
-        </div>
+        {question.hideUnsortedLabel ? null : (
+          <div className={cx('text-xs font-black uppercase tracking-wide', quizPalette.categoryCaption)}>
+            {unsortedLabel}
+          </div>
+        )}
         <div className="flex flex-wrap gap-2">
           {unassignedOptions.length ? unassignedOptions.map((option) => (
             <TokenChip
@@ -386,7 +390,7 @@ function CategorizeQuestion({
             />
           )) : (
             <span className={cx('text-sm font-semibold leading-6', quizPalette.categoryCaption)}>
-              {strings.quizCategorizeComplete}
+              {completeLabel}
             </span>
           )}
         </div>
@@ -860,16 +864,35 @@ function TransformerTranslationStepPanel({ extra, language, themeClasses }: {
   const description = paragraphs.join(' ');
   const introParagraphs = activeStep === 1 && paragraphs.length >= 4 ? paragraphs.slice(0, 2) : [description];
   const bulletParagraphs = activeStep === 1 && paragraphs.length >= 4 ? paragraphs.slice(2) : [];
+  const markdownBulletParagraphs = paragraphs.filter((paragraph) => paragraph.startsWith('- '));
+  const plainParagraphs = markdownBulletParagraphs.length > 0
+    ? paragraphs.filter((paragraph) => !paragraph.startsWith('- '))
+    : [];
 
   return (
     <div className="grid gap-5">
       <div className="grid gap-2">
-        {introParagraphs.map((paragraph, index) => (
-          <p key={paragraph} className={cx('text-sm leading-6', themeClasses.bodyText)}>
-            {renderTransformerDescription(paragraph, index === 0 ? extra.links?.[0]?.href : undefined, themeClasses)}
-          </p>
-        ))}
-        {bulletParagraphs.length > 0 ? (
+        {markdownBulletParagraphs.length > 0 ? (
+          <>
+            {plainParagraphs.map((paragraph, index) => (
+              <p key={paragraph} className={cx('text-sm leading-6', themeClasses.bodyText)}>
+                {renderTransformerDescription(paragraph, index === 0 ? extra.links?.[0]?.href : undefined, themeClasses)}
+              </p>
+            ))}
+            <ul className={cx('list-disc space-y-1 pl-5 text-sm leading-6', themeClasses.bodyText)}>
+              {markdownBulletParagraphs.map((paragraph) => (
+                <li key={paragraph}>{paragraph.slice(2)}</li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          introParagraphs.map((paragraph, index) => (
+            <p key={paragraph} className={cx('text-sm leading-6', themeClasses.bodyText)}>
+              {renderTransformerDescription(paragraph, index === 0 ? extra.links?.[0]?.href : undefined, themeClasses)}
+            </p>
+          ))
+        )}
+        {markdownBulletParagraphs.length === 0 && bulletParagraphs.length > 0 ? (
           <ol className={cx('list-decimal space-y-1 pl-5 text-sm leading-6', themeClasses.bodyText)}>
             {bulletParagraphs.map((paragraph) => (
               <li key={paragraph}>{renderTransformerBullet(paragraph)}</li>
@@ -930,32 +953,33 @@ function TransformerTranslationDiagram({
 }) {
   const labels = language === 'vi'
     ? {
-        source: '"This is an example"',
+        source: '"Anh trai vượt ngàn chông gai"',
         encoderPrep: 'Preprocessing',
         encoder: 'Encoder',
         embeddings: 'Vector mã hóa Embeddings',
-        partial: '"Das ist ein __"',
+        partial: '"披荆斩棘的__"',
         decoderPrep: 'Preprocessing',
         decoder: 'Decoder',
-        complete: '"Das ist ein Beispiel"',
+        complete: '"披荆斩棘的哥哥"',
       }
     : {
-        source: '"This is an example"',
+        source: '"Anh trai vượt ngàn chông gai"',
         encoderPrep: 'Preprocessing',
         encoder: 'Encoder',
         embeddings: 'Encoder vectors',
-        partial: '"Das ist ein __"',
+        partial: '"披荆斩棘的__"',
         decoderPrep: 'Preprocessing',
         decoder: 'Decoder',
-        complete: '"Das ist ein Beispiel"',
+        complete: '"披荆斩棘的哥哥"',
       };
   const connectorTone = themeClasses.isLight ? 'text-[#7892A8]' : 'text-[#A8B8C8]/72';
+  const isOverviewStep = activeStep === 1;
 
   return (
     <div className="px-0 py-1">
       <div className="mx-auto grid w-full max-w-[52rem] gap-x-4 gap-y-1.5 md:grid-cols-[minmax(0,1fr)_11rem_3rem_minmax(0,1fr)]">
         <DiagramFlowItem>
-          <DiagramBox active={activeStep === 1} visited={activeStep > 1} label={labels.source} kind="text" themeClasses={themeClasses} className="min-h-12 w-full" />
+          <DiagramBox active={false} visited={activeStep > 1} label={labels.source} kind="text" compactText themeClasses={themeClasses} className="min-h-12 w-full" />
         </DiagramFlowItem>
         <div className="hidden md:block" />
         <div className="hidden md:block" />
@@ -997,7 +1021,7 @@ function TransformerTranslationDiagram({
         <DiagramConnector active={activeStep === 7} tone={connectorTone} />
 
         <DiagramFlowItem>
-          <DiagramBox active={activeStep === 3} visited={activeStep > 3} label={labels.encoder} kind="module" tone="encoder" themeClasses={themeClasses} className="min-h-28 w-full" />
+          <DiagramBox active={isOverviewStep || activeStep === 3} visited={activeStep > 3} label={labels.encoder} kind="module" tone="encoder" themeClasses={themeClasses} className="min-h-28 w-full" />
         </DiagramFlowItem>
         <div className="flex min-w-0 items-center justify-center gap-2">
           <ArrowRight className={cx('h-6 w-6 shrink-0 transition-opacity', activeStep === 4 ? 'opacity-100' : 'opacity-[0.36]', activeStep === 4 ? themeClasses.accentText : themeClasses.mutedText)} strokeWidth={2.6} aria-hidden="true" />
@@ -1007,7 +1031,7 @@ function TransformerTranslationDiagram({
           <ArrowRight className={cx('h-8 w-8 transition-opacity', activeStep === 4 || activeStep === 7 ? 'opacity-100' : 'opacity-[0.36]', activeStep === 4 || activeStep === 7 ? themeClasses.accentText : themeClasses.mutedText)} strokeWidth={2.6} aria-hidden="true" />
         </div>
         <DiagramFlowItem>
-          <DiagramBox active={activeStep === 7} visited={activeStep > 7} label={labels.decoder} kind="module" tone="decoder" themeClasses={themeClasses} className="min-h-28 w-full" />
+          <DiagramBox active={isOverviewStep || activeStep === 7} visited={activeStep > 7} label={labels.decoder} kind="module" tone="decoder" themeClasses={themeClasses} className="min-h-28 w-full" />
         </DiagramFlowItem>
 
         <div className="hidden md:block" />
@@ -1030,6 +1054,7 @@ function DiagramBox({
   label,
   kind,
   tone,
+  compactText = false,
   themeClasses,
   className,
 }: {
@@ -1038,6 +1063,7 @@ function DiagramBox({
   label: string;
   kind: 'text' | 'thin' | 'module' | 'dark';
   tone?: 'encoder' | 'decoder';
+  compactText?: boolean;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
   className?: string;
 }) {
@@ -1047,7 +1073,9 @@ function DiagramBox({
   const shapeClass = kind === 'module'
     ? 'rounded-[1.75rem] text-xl font-black leading-7 md:text-3xl'
     : kind === 'text'
-      ? 'rounded-none text-sm font-semibold leading-5 md:text-lg md:leading-6'
+      ? compactText
+        ? 'rounded-none text-xs font-semibold leading-5 md:text-sm md:leading-6'
+        : 'rounded-none text-sm font-semibold leading-5 md:text-lg md:leading-6'
       : kind === 'dark'
         ? 'rounded-lg text-xs font-black leading-5 md:text-base md:leading-6'
         : 'rounded-lg text-xs font-semibold leading-4 md:text-sm md:leading-5';
@@ -1099,9 +1127,9 @@ function DiagramPrepBox({
   const shellTone = themeClasses.isLight ? 'bg-[#F8FAFC] text-[#1D2730]' : 'bg-[#0B1118] text-[#F6FAFD]';
   const stepTone = themeClasses.isLight ? 'bg-white/78 text-[#334155]' : 'bg-[#D8E2EC]/8 text-[#E2E8F0]';
   const arrowTone = themeClasses.isLight ? 'text-[#7892A8]' : 'text-[#A8B8C8]/72';
-  const isDecoderInput = inputLabel.includes('Das');
-  const tokens = isDecoderInput ? ['Das', 'ist', 'ein'] : ['This', 'is', 'an', 'example'];
-  const ids = isDecoderInput ? ['41', '812', '394'] : ['1212', '318', '281', '1672'];
+  const isDecoderInput = inputLabel.includes('披荆斩棘');
+  const tokens = isDecoderInput ? ['披荆斩棘', '的'] : ['Anh', 'trai', 'vượt', 'ngàn', 'chông', 'gai'];
+  const ids = isDecoderInput ? ['9301', '102'] : ['211', '842', '1904', '673', '2451', '998'];
   const steps = [
     { label: 'Tokens', value: tokens.join(' | ') },
     { label: 'Token IDs', value: ids.join(', ') },
@@ -1274,14 +1302,37 @@ function LlmTrainingLifecyclePanel({ extra, language, themeClasses }: {
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   const stages = extra.highlights ?? [];
+  const bodyParagraphs = extra.body?.map((paragraph) => text(paragraph, language)) ?? [];
+  const introParagraph = bodyParagraphs[0];
+  const bulletParagraphs = bodyParagraphs.slice(1);
 
   return (
     <div className="grid gap-4">
-      {extra.body?.map((paragraph) => (
-        <p key={text(paragraph, language)} className={cx('text-left text-sm font-normal leading-7', themeClasses.bodyText)}>
-          {text(paragraph, language)}
+      {introParagraph ? (
+        <p className={cx('text-left text-sm font-normal leading-7', themeClasses.bodyText)}>
+          {introParagraph}
         </p>
-      ))}
+      ) : null}
+
+      {bulletParagraphs.length > 0 ? (
+        <ul className={cx('grid list-disc gap-2 pl-5 text-left text-sm font-normal leading-7', themeClasses.bodyText)}>
+          {bulletParagraphs.map((paragraph) => {
+            const keyword = paragraph.startsWith('Pretraining')
+              ? 'Pretraining'
+              : paragraph.startsWith('Fine-tuning')
+                ? 'Fine-tuning'
+                : '';
+            const rest = keyword ? paragraph.slice(keyword.length) : paragraph;
+
+            return (
+              <li key={paragraph}>
+                {keyword ? <strong className={themeClasses.titleText}>{keyword}</strong> : null}
+                {rest}
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
 
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch">
         {stages.map((stage, index) => (
