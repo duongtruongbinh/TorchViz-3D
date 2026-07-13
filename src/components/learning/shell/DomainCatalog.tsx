@@ -46,13 +46,19 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
                 <p className="mt-4 max-w-3xl text-base font-semibold leading-7 text-[#E6F1F8]/84 lg:text-lg">
                   {home.simpleSubtitle}
                 </p>
-                <a
-                  href="#learning-home-syllabus-title"
+                <button
+                  type="button"
+                  onClick={() => {
+                    document.getElementById('learning-home-syllabus-title')?.scrollIntoView({
+                      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                      block: 'start',
+                    });
+                  }}
                   className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#F2C94C] px-5 py-2.5 text-sm font-black text-[#263240] shadow-[0_12px_28px_rgba(242,201,76,0.20)] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#FFD65A] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   {home.syllabusLabel}
                   <ArrowDown className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-                </a>
+                </button>
               </div>
 
               <div className="grid grid-cols-3 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] lg:grid-cols-1">
