@@ -40,7 +40,7 @@ Routes covered:
 - Added `src/components/learning/shell/DomainCoursePage.tsx`.
 - Updated `src/components/learning/LearningLabView.tsx` to render
   `DomainCoursePage` for every `activeDomain && !activeTrack` route.
-- Updated `wiki/concepts/learning-lab-refactor.md` to document the shared
+- Updated `wiki/concepts/learning-lab.md` to document the shared
   course-style domain landing behavior.
 - Updated `index.html` favicon to use `docs/assets/Future-HMIip.webp`.
 

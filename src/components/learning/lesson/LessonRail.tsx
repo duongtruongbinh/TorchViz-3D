@@ -2,12 +2,14 @@ import { ChevronDown, PanelLeftClose, Search, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
 import type { LearningLesson, LearningTrack } from '../../../core/learning/types';
+import { normalizeLearningSearch } from '../../../core/learning/mdxContract';
+import { getLearningSearchDocument } from '../learningSearch';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getTrackText, getUnifiedLessonText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 import LessonNode from './LessonNode';
 
-export type LessonRailFilter = 'all' | 'ready' | 'locked' | 'practice';
+export type LessonRailFilter = 'all' | 'ready' | 'locked';
 
 export type FilteredLearningLessonGroup = {
   track: LearningTrack;
@@ -35,8 +37,7 @@ export type LessonRailProps = {
   onToggleTrack: (trackId: string) => void;
 };
 
-const LESSON_RAIL_FILTERS: LessonRailFilter[] = ['all', 'ready', 'locked', 'practice'];
-
+const LESSON_RAIL_FILTERS: LessonRailFilter[] = ['all', 'ready', 'locked'];
 export default function LessonRail({
   groups,
   collapsedTrackIds,
@@ -251,7 +252,7 @@ export function filterLessonRailGroups(
     query: string;
   },
 ): FilteredLearningLessonGroup[] {
-  const normalizedQuery = normalizeLessonSearch(query);
+  const normalizedQuery = normalizeLearningSearch(query);
   const isFiltered = normalizedQuery.length > 0 || filter !== 'all';
   return groups
     .map(({ track, lessons }) => ({
@@ -268,16 +269,12 @@ export function filterLessonRailGroups(
 function lessonMatchesRailFilter(lesson: LearningLesson, filter: LessonRailFilter): boolean {
   if (filter === 'ready') return lesson.status === 'available' || lesson.status === 'next';
   if (filter === 'locked') return lesson.status === 'locked';
-  if (filter === 'practice') return lesson.practice.length > 0;
   return true;
 }
 
 function lessonMatchesSearchQuery(lesson: LearningLesson, normalizedQuery: string, language: Language): boolean {
   if (!normalizedQuery) return true;
   const lessonText = getUnifiedLessonText(language, lesson);
-  return normalizeLessonSearch(`${lessonText.title} ${lesson.id}`).includes(normalizedQuery);
-}
-
-function normalizeLessonSearch(value: string): string {
-  return value.trim().toLocaleLowerCase();
+  const content = getLearningSearchDocument(lesson.domainId, lesson.id, language)?.text ?? '';
+  return normalizeLearningSearch(`${lessonText.title} ${lesson.id} ${content}`).includes(normalizedQuery);
 }

@@ -3,7 +3,10 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin, type ResolvedConfig } from 'vite';
+import mdx from '@mdx-js/rollup';
 import react from '@vitejs/plugin-react';
+import { learningMdxSearchPlugin } from './scripts/learningContentMdx';
+import { learningCatalog } from './src/content/learning/index.ts';
 
 const require = createRequire(import.meta.url);
 const configDir = path.dirname(fileURLToPath(import.meta.url));
@@ -180,7 +183,12 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
   },
-  plugins: [react(), pyodideAssetsPlugin()],
+  plugins: [
+    learningMdxSearchPlugin(path.join(configDir, 'src/content/learning'), learningCatalog),
+    mdx(),
+    react(),
+    pyodideAssetsPlugin(),
+  ],
   resolve: {
     alias: {
       '@': configDir,

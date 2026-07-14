@@ -1,0 +1,24 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'pooling-value-exercise',
+  locale: 'vi',
+  title: 'Bài tập giá trị Pooling',
+  headings: ['Đọc cửa sổ pooling', 'Tự tính giá trị output'],
+  keywords: ['pooling', 'maxpool', 'avgpool', 'window', 'stride', 'output value'],
+  pageCount: 1,
+}
+
+## Đọc cửa sổ pooling
+
+Pooling đọc từng cửa sổ nhỏ của feature map. MaxPool lấy giá trị lớn nhất, còn AvgPool lấy trung bình các giá trị trong cùng cửa sổ.
+
+## Tự tính giá trị output
+
+Chọn chế độ Max hoặc Average, thay đổi kernel và stride, rồi điền toàn bộ ma trận output. Phần gợi ý sẽ đánh dấu chính xác cửa sổ input đang tạo ra từng ô output.
+
+<CvExercise fixture={{
+  opType: 'MaxPool2d',
+  inputShape: [1, 1, 4, 4],
+  outputShape: [1, 1, 2, 2],
+  config: { kernel: 2, stride: 2, padding: 0, dilation: 1 },
+}} />

@@ -23,7 +23,7 @@ Success means:
 - The Landing preview reads as a compact model flow:
   `Conv2d -> ReLU -> MaxPool -> Linear`.
 - Landing docs stay consolidated in this page plus the existing
-  `wiki/concepts/learning-lab-refactor.md` overview.
+  `wiki/concepts/learning-lab.md` overview.
 
 # Lineage
 
@@ -118,7 +118,7 @@ topic. Update the existing page instead. Create a new page only when the work is
 substantially different in scope or needs its own long-lived reference surface.
 
 For the current Landing/AppShell work, the owning docs are this plan and
-`wiki/concepts/learning-lab-refactor.md`.
+`wiki/concepts/learning-lab.md`.
 
 # Execution Log
 

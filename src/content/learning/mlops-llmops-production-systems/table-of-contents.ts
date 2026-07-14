@@ -1,0 +1,196 @@
+import type { LearningTableOfContents, LearningTocTrackSeed } from '../../../core/learning/types.ts';
+
+const chapters: LearningTocTrackSeed[] = [
+  {
+    id: 'data-management-versioning',
+    text: {
+      title: { en: "1.1 Data Management & Versioning", vi: "1.1 Data Management & Versioning" },
+      description: { en: "Dataset and model versioning, validation, lineage, feature stores, and data pipelines.", vi: "Versioning dataset/model, validation, lineage, feature store và data pipeline." },
+    },
+    lessonIds: [
+      'dvc-data-version-control',
+      'data-validation-great-expectations-pandera',
+      'data-lineage',
+      'feature-stores',
+      'data-pipelines',
+    ],
+  },
+  {
+    id: 'experiment-tracking',
+    text: {
+      title: { en: "1.2 Experiment Tracking", vi: "1.2 Experiment Tracking" },
+      description: { en: "Track runs, hyperparameters, metrics, artifacts, code versions, comparisons, and reports.", vi: "Theo dõi run, hyperparameter, metric, artifact, code version, so sánh và báo cáo." },
+    },
+    lessonIds: [
+      'weights-biases-tracking',
+      'mlflow-tracking',
+      'experiment-tracking-fields',
+      'comparing-runs-reporting',
+    ],
+  },
+  {
+    id: 'model-development-training-infrastructure',
+    text: {
+      title: { en: "1.3 Training Infrastructure", vi: "1.3 Training Infrastructure" },
+      description: { en: "GPU cloud, distributed training, mixed precision, checkpoints, and training monitoring.", vi: "GPU cloud, distributed training, mixed precision, checkpoint và monitoring khi train." },
+    },
+    lessonIds: [
+      'gpu-cloud-training',
+      'distributed-training',
+      'mixed-precision-training',
+      'model-checkpointing',
+      'training-monitoring-alerting',
+    ],
+  },
+  {
+    id: 'model-evaluation-testing',
+    text: {
+      title: { en: "1.4 Model Evaluation & Testing", vi: "1.4 Model Evaluation & Testing" },
+      description: { en: "Offline benchmarks, human evaluation, LLM-as-judge, red teaming, and online release evaluation.", vi: "Benchmark offline, human evaluation, LLM-as-judge, red teaming và đánh giá release online." },
+    },
+    lessonIds: [
+      'task-specific-benchmarks',
+      'human-evaluation-guidelines',
+      'llm-as-judge',
+      'red-teaming',
+      'model-ab-testing',
+      'shadow-deployment',
+      'canary-releases',
+      'user-feedback-collection',
+    ],
+  },
+  {
+    id: 'model-deployment-serving',
+    text: {
+      title: { en: "1.5 Model Deployment & Serving", vi: "1.5 Model Deployment & Serving" },
+      description: { en: "API serving, serving optimization, inference backends, and unified provider interfaces.", vi: "API serving, tối ưu serving, inference backend và interface provider thống nhất." },
+    },
+    lessonIds: [
+      'fastapi-ml-apis',
+      'flask-ml-apis',
+      'grpc-internal-services',
+      'bentoml-serving',
+      'ray-serve',
+      'quantization-serving',
+      'pruning-model-optimization',
+      'knowledge-distillation',
+      'onnx-model-format',
+      'tensorrt-inference',
+      'ollama-serving',
+      'vllm-serving',
+      'tgi-serving',
+      'litellm-unified-api',
+      'nvidia-nim-inference',
+    ],
+  },
+  {
+    id: 'containerization-orchestration',
+    text: {
+      title: { en: "1.6 Containerization & Orchestration", vi: "1.6 Containerization & Orchestration" },
+      description: { en: "Docker, Compose, Kubernetes, Helm, autoscaling, and GPU scheduling.", vi: "Docker, Compose, Kubernetes, Helm, autoscaling và GPU scheduling." },
+    },
+    lessonIds: [
+      'docker-containerization',
+      'ml-service-dockerfile',
+      'multi-stage-builds',
+      'docker-compose-dev',
+      'kubernetes-orchestration',
+      'helm-charts',
+      'horizontal-pod-autoscaler',
+      'gpu-scheduling-k8s',
+    ],
+  },
+  {
+    id: 'cloud-deployment',
+    text: {
+      title: { en: "1.7 Cloud Deployment", vi: "1.7 Cloud Deployment" },
+      description: { en: "AWS, GCP, and Azure services for model hosting, storage, containers, serverless, and monitoring.", vi: "Dịch vụ AWS, GCP và Azure cho hosting model, storage, container, serverless và monitoring." },
+    },
+    lessonIds: [
+      'aws-ec2-sagemaker',
+      'aws-lambda-ai-functions',
+      'aws-ecs-eks-containers',
+      'aws-s3-model-data-storage',
+      'aws-cloudwatch-monitoring',
+      'gcp-vertex-ai',
+      'gcp-cloud-run',
+      'gcp-gke',
+      'gcp-bigquery-ml-data',
+      'azure-ml',
+      'azure-openai-service',
+      'azure-aks',
+    ],
+  },
+  {
+    id: 'monitoring-logging',
+    text: {
+      title: { en: "1.8 Monitoring & Logging", vi: "1.8 Monitoring & Logging" },
+      description: { en: "Cost, latency, provider errors, prompt and response quality, drift, observability, and alerts.", vi: "Cost, latency, lỗi provider, chất lượng prompt/response, drift, observability và cảnh báo." },
+    },
+    lessonIds: [
+      'token-usage-monitoring',
+      'latency-percentiles',
+      'provider-error-rates',
+      'prompt-quality-monitoring',
+      'response-quality-scores',
+      'hallucination-detection',
+      'behavior-drift-detection',
+      'langsmith-monitoring',
+      'helicone-analytics',
+      'langfuse-observability',
+      'prometheus-grafana',
+      'datadog-monitoring',
+      'sentry-error-tracking',
+    ],
+  },
+  {
+    id: 'ci-cd-for-ai',
+    text: {
+      title: { en: "1.9 CI/CD for AI", vi: "1.9 CI/CD for AI" },
+      description: { en: "AI pipelines, automated tests, model and prompt validation, feature flags, and deployments.", vi: "Pipeline AI, test tự động, validation model/prompt, feature flag và deployment." },
+    },
+    lessonIds: [
+      'github-actions-gitlab-ci',
+      'automated-ml-testing',
+      'model-validation-before-deployment',
+      'prompt-regression-testing',
+      'automated-model-evaluation-ci',
+      'ai-feature-flags',
+      'blue-green-deployments',
+    ],
+  },
+  {
+    id: 'llm-security-safety',
+    text: {
+      title: { en: "1.10 LLM Security & Safety", vi: "1.10 LLM Security & Safety" },
+      description: { en: "Prompt injection defense, moderation, PII handling, data residency, on-premise deployment, and audit logs.", vi: "Chống prompt injection, moderation, xử lý PII, data residency, on-premise deployment và audit log." },
+    },
+    lessonIds: [
+      'role-separation-security',
+      'input-sanitization',
+      'output-validation',
+      'suspicious-prompt-logging',
+      'file-injection-scanning',
+      'openai-moderation-api',
+      'input-pre-screening',
+      'output-post-screening',
+      'category-based-blocking',
+      'custom-moderation-classifiers',
+      'pii-detection-masking',
+      'data-residency-requirements',
+      'on-premise-deployment',
+      'compliance-audit-logs',
+    ],
+  },
+];
+
+export const learningTableOfContents = {
+  id: 'mlops-llmops-production-systems',
+  text: {
+    title: { en: "MLOps, LLMOps & Production", vi: "MLOps, LLMOps & Production" },
+    description: { en: "Learn how AI systems survive production: data and model versioning, experiment tracking, training infrastructure, evals, serving, containers, cloud deployment, monitoring, CI/CD, and LLM safety controls.", vi: "Học cách hệ thống AI sống được ở production: versioning data/model, experiment tracking, hạ tầng train, eval, serving, container, cloud deployment, monitoring, CI/CD và kiểm soát an toàn LLM." },
+  },
+  status: 'active',
+  chapters,
+  sectionKinds: ['theory', 'code'],
+} satisfies LearningTableOfContents;

@@ -194,22 +194,24 @@ Learning Lab work:
 - `src/components/learning/*`
 - `src/components/learning/shell/*`
 - `src/components/learning/lesson/*`
-- `src/components/learning/practice/*`
 - `src/core/learning/*`
 
 MVP 1 imports `AppShell` and `src/components/landing/*` from the root `App.tsx`.
 The app opens on the Landing Page, then enters the existing editor/canvas/
 inspector workspace through the active TorchViz-3D card.
 
-The Learning Lab is now reachable from Landing as the single learning
-container. It uses a domain-first flow backed by React-free catalog metadata in
-`src/core/learning/*`: ML Foundations, Computer Vision, NLP, Reinforcement
-Learning, and a Robot Learning placeholder. Tensor practice cards build
-representative `LayoutNode`s, validate them through the existing exercise
-registry, and feed them into the existing shape/value exercise model builders.
-Reinforcement Learning practice uses dedicated deterministic fixtures for
-MDP/Bellman/GridWorld concepts instead of forcing those concepts into the tensor
-registry. The existing in-graph exercise launcher remains unchanged.
+The Learning Lab is reachable from Landing as the single learning container.
+It uses a domain-first flow backed by twelve typed, React-free domain TOCs and a
+stable catalog export in `src/content/learning/index.ts`, constructed and
+validated by pure helpers in `src/core/learning/*`. The catalog has 615 navigable
+nodes, including four canonical CV exercise lessons. Five
+Vietnamese-first LLM lessons and four Vietnamese-first CV exercise lessons have
+authored MDX; the other 606 nodes use one shared localized placeholder. TOCs own
+localized navigation metadata, locale MDX owns authored lesson content, and
+`src/lib/localization.ts` owns system/UI copy. Learning Lab has no practice
+registry or practice subnodes. Review mode is derived from published lessons
+tagged `exercise`, and applicable Workspace Forward Pass nodes open those
+canonical lesson routes through React-free catalog entry-point metadata.
 
 The active Landing screen is a compact bento layout with top intro copy, a
 left-side live graph preview, and right-side Workspace/Learning cards. The
@@ -233,7 +235,7 @@ entrypoints in one dedicated change.
 
 Codex agents should use the repo orientation in `CLAUDE.md` as the source for
 the initial system prompt, then read the OKF page
-[`wiki/concepts/learning-lab-refactor.md`](../wiki/concepts/learning-lab-refactor.md)
+[`wiki/concepts/learning-lab.md`](../wiki/concepts/learning-lab.md)
 for the scaffold map.
 
 ---

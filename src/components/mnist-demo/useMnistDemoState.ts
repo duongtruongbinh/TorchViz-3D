@@ -4,10 +4,10 @@ import { getPlaybackProgress, shouldSyncAnimationState } from '../../lib/mnistAn
 import type { LayoutEdgeWithVectors } from '../../lib/canvasUtils';
 import type { LayoutNode } from '../../lib/irTypes';
 import { getForwardPassCompatibility } from '../../lib/mnistCompatibility';
-import { getExercisesForNode } from '../exercises/exerciseRegistry';
 import { getDemoInputPose, getSegmentState, type DemoStop } from '../operation-effects/effectMath';
 import { buildDemoFlowEdges, buildVisibleDemoNodeIds } from './demoStops';
 import { DEMO_PLAY_SPEED } from './MnistFlowDemo';
+import { getExercisesForNode } from '../exercises/exerciseRegistry';
 
 type UseMnistDemoStateArgs = {
   demoModeEnabled: boolean;
@@ -52,7 +52,6 @@ export function useMnistDemoState({
     () => getExercisesForNode(useOperationBlocks ? segmentState.activeStop?.node : null),
     [segmentState.activeStop?.node, useOperationBlocks],
   );
-
   const flowEdges = useMemo(() => buildDemoFlowEdges(demoStops, edges, layoutNodes), [demoStops, edges, layoutNodes]);
 
   const visibleNodeIds = useMemo(() => {
@@ -124,8 +123,8 @@ export function useMnistDemoState({
 
   return {
     activeNodeId,
-    animationSpeed,
     availableExercises,
+    animationSpeed,
     compatibility,
     inputPose,
     maxProgress,

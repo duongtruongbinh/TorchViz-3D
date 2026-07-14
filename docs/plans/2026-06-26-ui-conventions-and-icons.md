@@ -25,7 +25,7 @@ Success means:
 - Language toggles stay direct two-mode controls and render only the
   `Languages` icon, with no visible `EN`/`VI` text.
 - SVGs that are visual content remain unchanged.
-- The convention is documented in `wiki/concepts/learning-lab-refactor.md`
+- The convention is documented in `wiki/concepts/learning-lab.md`
   instead of a new long-lived docs page.
 
 # Context Read
@@ -35,7 +35,7 @@ Success means:
 - `docs/plans/2026-06-21-learning-lab-refactor.md` defines Learning Lab as an
   active app surface and preserves the existing workspace boundary.
 - `docs/plans/2026-06-21-landing-ui-iteration.md` owns Landing visual history.
-- `wiki/concepts/learning-lab-refactor.md` owns Learning Lab docs and is the
+- `wiki/concepts/learning-lab.md` owns Learning Lab docs and is the
   existing place for UI convention notes.
 - `src/components/learning/theme.ts` owns Learning Lab semantic color classes
   and is the right place for Learning Lab UI helpers.
@@ -95,7 +95,7 @@ Success means:
   and exercise modal/status controls.
 - Standardized open/start/enter affordances on `ArrowRight`, Back to landing on
   `ArrowLeftToLine`, and language toggles on icon-only `Languages`.
-- Updated `wiki/concepts/learning-lab-refactor.md` with UI and icon
+- Updated `wiki/concepts/learning-lab.md` with UI and icon
   conventions plus the SVG exception rule.
 
 # Out of Scope

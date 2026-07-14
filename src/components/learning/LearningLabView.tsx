@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, ListTree, MessageSquareText, Network, PanelLeft, PanelLeftOpen, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { learningCatalog } from '../../core/learning/content';
+import { learningCatalog } from '../../content/learning/index.ts';
 import {
   getFirstLearningLessonRoute,
   getGroupedLearningLessonsForDomain,
@@ -9,7 +9,7 @@ import {
   resolveLearningLessonRoute,
 } from '../../core/learning/selectors';
 import type { LearningDomainId } from '../../core/learning/types';
-import { resolveVisibleLearningLesson } from '../../core/learning/visibleLesson';
+import { resolveVisibleLearningLesson } from './lesson/visibleLesson';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';
@@ -19,8 +19,6 @@ import { getDomainText } from './learningText';
 import DomainCatalog from './shell/DomainCatalog';
 import ReviewMode from './shell/ReviewMode';
 import { cx, getLearningLabTheme } from './theme';
-
-type LearningLabMode = 'path' | 'review';
 
 type LearningLabViewProps = {
   onBackToLanding: () => void;
@@ -54,11 +52,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   const routeDomainId = isLearningDomainId(domainId) ? domainId : null;
   const routeLessonId = searchParams.get('lesson');
-  const routePracticeId = searchParams.get('practice');
 
   const language = useStore((s) => s.language);
-  const [mode, setMode] = useState<LearningLabMode>('path');
   const theme = 'light' as const;
+  const [mode, setMode] = useState<'path' | 'review'>('path');
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
   const [isLessonRailOpen, setIsLessonRailOpen] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
   const [collapsedChapters, setCollapsedChapters] = useState<Set<string>>(() => new Set());
@@ -160,17 +157,6 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
       return next;
     });
   }, [railSelectedLesson?.trackId]);
-
-  useEffect(() => {
-    if (!routePracticeId || !selectedLesson?.practice.some((practice) => practice.id === routePracticeId)) return;
-    const frameId = window.requestAnimationFrame(() => {
-      document.getElementById(`practice-${routePracticeId}`)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    });
-    return () => window.cancelAnimationFrame(frameId);
-  }, [routePracticeId, selectedLesson?.id]);
 
   useEffect(() => {
     contentAreaRef.current?.scrollTo({ top: 0, behavior: 'auto' });
@@ -330,10 +316,10 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                 'flex h-11 w-full items-center text-left text-sm',
                 isSidebarOpen ? 'gap-2 px-2' : 'justify-center px-0',
                 themeClasses.radius.button,
-                themeClasses.button.nav(!routeDomainId && mode === 'path'),
+                themeClasses.button.nav(!routeDomainId),
               )}
               title={strings.home}
-              aria-current={!routeDomainId && mode === 'path' ? 'page' : undefined}
+              aria-current={!routeDomainId ? 'page' : undefined}
             >
               <span className="flex h-8 w-8 shrink-0 items-center justify-center text-sm" aria-hidden="true">
                 <Home className="h-5 w-5" strokeWidth={1.8} />
@@ -382,9 +368,12 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           {mode === 'review' ? (
             <ReviewMode
               catalog={learningCatalog}
-              domainId={routeDomainId}
               language={language}
               theme={theme}
+              onSelectLesson={(lesson) => {
+                setMode('path');
+                navigate(`/learning/${lesson.domainId}/${lesson.trackId}?lesson=${lesson.id}`);
+              }}
             />
           ) : !routeDomainId ? (
             <DomainCatalog language={language} theme={theme} onOpenDomain={openDomain} />
@@ -466,7 +455,6 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                     lesson={selectedLesson}
                     theme={theme}
                     language={language}
-                    selectedPracticeId={routePracticeId}
                     hasNextLesson={Boolean(nextLesson)}
                     onSelectNextLesson={() => {
                       if (!nextLesson) return;

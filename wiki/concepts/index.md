@@ -21,12 +21,12 @@ source file. Read them in roughly pipeline order:
    `src/store/useStore.ts`.
 6. [rendering](../concepts/rendering.md) — Canvas3D, the visual taxonomy, theme.
    `src/components/canvas/Canvas3D.tsx`, `src/lib/visualKind.ts`, `src/lib/constants.ts`.
-7. [learning-lab-refactor](../concepts/learning-lab-refactor.md) — the
+7. [learning-lab](../concepts/learning-lab.md) — the
    Landing/AppShell entry point plus active domain-based Learning Lab.
    `src/components/landing/*`, `src/components/learning/*`, `src/core/learning/*`.
 8. [reinforcement-learning](../concepts/reinforcement-learning.md) — the
-   Reinforcement Learning domain inside Learning Lab with RL practice fixtures.
-   `src/core/learning/content/reinforcementLearning.ts`, `src/components/learning/practice/*`.
+   placeholder Reinforcement Learning catalog domain and its preserved route
+   aliases. `src/content/learning/reinforcement-learning/table-of-contents.ts`.
 9. [forward-pass](../concepts/forward-pass.md) — the animated forward pass:
    ordered stops, CIFAR-10 input packet, per-op effects, and the generalized
    availability gate. `src/components/mnist-demo/*`, `src/components/operation-effects/*`,

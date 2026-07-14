@@ -1,0 +1,424 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-from-scratch-roadmap',
+  locale: 'vi',
+  title: 'Roadmap LLM from Scratch',
+  headings: ['Tổng quan AI', 'Large Language Model', 'Tokenization', 'Scale', 'Vì sao LLM phổ biến', 'Roadmap', 'Nguồn tham khảo'],
+  keywords: ['AI', 'ML', 'DL', 'NLP', 'LLM', 'next-token', 'tokenization', 'parameters', 'compute', 'Transformer'],
+  pageCount: 11,
+}
+
+<MdxPage page={0}>
+  <AiHierarchy content={{
+    "title": { vi: "Tổng quan" },
+    "image": "llm-from-scratch-roadmap.ai-hierarchy",
+    "imageAlt": { vi: "Sơ đồ tổng quan các lĩnh vực AI từ phạm vi rộng đến chuyên biệt." },
+    "body": [
+      { vi: "Trước khi bàn về các mô hình ngôn ngữ lớn, hãy cùng phân tách Artificial Intelligence (AI) và các lĩnh vực thành phần của nó theo phạm vi từ lớn đến nhỏ." },
+      { vi: "Hãy tưởng tượng đây là những vòng tròn lồng vào nhau: vòng ngoài cùng rộng nhất, càng vào trong càng hẹp và càng chuyên biệt." }
+    ],
+    "hierarchy": {
+      "ariaLabel": { vi: "AI hierarchy flow" },
+      "branchLabel": { vi: "Deep Learning tách thành hai hướng chuyên biệt" },
+      "rows": [
+        {
+          "shortName": "AI",
+          "fullName": "Artificial Intelligence",
+          "description": { vi: "Vòng ngoài cùng, chứa mọi cách làm cho máy có hành vi thông minh." },
+          "depth": "widest"
+        },
+        {
+          "shortName": "ML",
+          "fullName": "Machine Learning",
+          "description": { vi: "Bên trong AI, nơi máy học từ dữ liệu thay vì làm theo luật cố định." },
+          "depth": "middle"
+        },
+        {
+          "shortName": "DL",
+          "fullName": "Deep Learning",
+          "description": { vi: "Bên trong ML, dùng nhiều lớp xử lý để học các pattern phức tạp hơn." },
+          "depth": "middle"
+        },
+        {
+          "shortName": "CV",
+          "fullName": "Computer Vision",
+          "description": { vi: "Xử lý hình ảnh." },
+          "depth": "branch",
+          "compact": true
+        },
+        {
+          "shortName": "NLP",
+          "fullName": "Natural Language Processing",
+          "description": { vi: "Xử lý ngôn ngữ." },
+          "depth": "branch",
+          "compact": true
+        },
+        {
+          "shortName": "LLM",
+          "fullName": "Large Language Model",
+          "description": { vi: "Nằm sâu hơn bên trong NLP, đây là phần chúng ta sẽ tập trung giải thích." },
+          "depth": "target"
+        }
+      ]
+    }
+  }} />
+</MdxPage>
+
+<MdxPage page={1}>
+  <DomainComparison content={{
+    "title": { vi: "Vì sao cần chia như vậy?" },
+    "body": [
+      { vi: "Khi bài toán khác nhau, dữ liệu đầu vào, cách đánh giá, mô hình phù hợp, lỗi thường gặp và công cụ làm việc cũng khác nhau. Chọn một nhánh phù hợp với sở thích và thế mạnh giúp bạn học đúng kỹ năng thay vì gom mọi thứ vào một chữ AI rất rộng." }
+    ],
+    "bodyAfter": [
+      { vi: "Với sinh viên mới ra trường, việc tìm hiểu doanh nghiệp đang giải bài toán gì trước khi apply rất quan trọng. Nếu bạn hiểu domain của họ và điều chỉnh CV, project, cách kể kinh nghiệm theo đúng bài toán đó, cơ hội mở ra những cuộc trò chuyện chất lượng sẽ cao hơn rất nhiều." }
+    ],
+    "comparisonTable": {
+      "columns": [
+        { vi: "Nhánh" },
+        { vi: "Bài toán thường gặp" },
+        { vi: "Công cụ / mô hình" },
+        { vi: "Kỹ năng & công việc" }
+      ],
+      "rows": [
+        {
+          "label": { vi: "ML" },
+          "cells": [
+            { vi: "Dự đoán churn, scoring tín dụng, phân cụm khách hàng, dự báo nhu cầu." },
+            { vi: "Scikit-learn, XGBoost, LightGBM, feature store, tabular pipelines." },
+            { vi: "Feature engineering, metrics, experiment tracking; ML Engineer, Data Scientist." }
+          ]
+        },
+        {
+          "label": { vi: "CV" },
+          "cells": [
+            { vi: "Nhận diện vật thể, phân loại ảnh, OCR, kiểm tra lỗi sản phẩm bằng camera." },
+            { vi: "CNN, ViT, YOLO, augmentation, OpenCV, labeling tools." },
+            { vi: "Xử lý ảnh/video, dataset labeling, deployment edge; Computer Vision Engineer." }
+          ]
+        },
+        {
+          "label": { vi: "LLM" },
+          "cells": [
+            { vi: "Chatbot, summarization, RAG search, extraction, coding assistant, agent workflow." },
+            { vi: "Tokenizer, Transformer, embedding, vector database, prompt/tool calling APIs." },
+            { vi: "Tokenization, context, prompting, evaluation, serving; LLM Engineer, AI Product Engineer." }
+          ]
+        }
+      ]
+    }
+  }} />
+</MdxPage>
+
+<MdxPage page={2}>
+  <LlmOverview content={{
+    "title": { vi: "Large Language Model là gì?" },
+    "body": [
+      { vi: "Các mô hình ngôn ngữ lớn (Large Language Models - LLM), chẳng hạn như những mô hình đứng sau ChatGPT, là các mô hình mạng nơ-ron sâu được phát triển mạnh trong vài năm gần đây. Chúng mở ra một giai đoạn mới cho xử lý ngôn ngữ tự nhiên (NLP): thay vì chỉ làm tốt một vài bài toán hẹp, LLM có thể đọc, tạo, tóm tắt, dịch, trả lời câu hỏi, phân tích cảm xúc, trích xuất thông tin và hỗ trợ viết code trong cùng một giao diện ngôn ngữ tự nhiên." },
+      { vi: "Trước khi có LLM hiện đại, nhiều phương pháp NLP truyền thống rất hữu ích cho các tác vụ cụ thể như phân loại email rác, gán nhãn văn bản, hoặc nhận dạng những pattern đơn giản có thể mô tả bằng luật thủ công hay mô hình nhỏ hơn. Nhưng chúng thường kém linh hoạt hơn ở những tác vụ cần hiểu chỉ thị dài, dùng ngữ cảnh phức tạp, hoặc tạo ra văn bản mới mạch lạc. Ví dụ, việc viết một email hoàn chỉnh từ vài gạch đầu dòng là chuyện khá tự nhiên với LLM hiện nay, nhưng không hề đơn giản với nhiều thế hệ mô hình ngôn ngữ trước đó." },
+      { vi: "Khi nói LLM \"hiểu\" ngôn ngữ, ta cần hiểu theo nghĩa kỹ thuật: mô hình xử lý chuỗi token và tạo ra văn bản có vẻ mạch lạc, phù hợp với ngữ cảnh, chứ không có ý thức hay sự thấu hiểu giống con người. Khả năng này đến từ deep learning, lượng dữ liệu văn bản rất lớn, và quá trình huấn luyện giúp mô hình học được nhiều pattern về cú pháp, ngữ nghĩa, style viết và quan hệ giữa các ý trong câu." },
+      { vi: "Khi bạn đặt câu hỏi với ChatGPT, bản chất là bạn đưa cho mô hình một đoạn văn bản mở đầu. LLM đọc toàn bộ ngữ cảnh đã có, rồi dự đoán token tiếp theo nên xuất hiện là gì. Token có thể là một từ, một phần của từ, dấu câu, khoảng trắng, hoặc ký hiệu đặc biệt." }
+    ],
+    "note": { vi: "" },
+    "imageAlt": { vi: "Hình minh họa LLM nhận prompt, dự đoán token tiếp theo, rồi lặp lại để tạo câu trả lời. Hình ảnh sẽ được bổ sung sau." },
+    "image": "llm-from-scratch-roadmap.next-token-loop",
+    "prompt": { vi: "Tôi cảm thấy" },
+    "blankLabel": { vi: "chọn một đáp án" },
+    "labels": {
+      "chooseNextToken": { vi: "Thử chọn token tiếp theo" },
+      "emptySentence": { vi: "chọn từng từ" },
+      "removeLastWord": { vi: "Xóa từ vừa chọn" },
+      "reset": { vi: "Reset" }
+    },
+    "options": [
+      {
+        "label": { vi: "rất vui" },
+        "isCorrect": true,
+        "feedback": { vi: "Quá dễ hen. Về sau bạn sẽ thấy LLM không chỉ nối chữ theo bề mặt, mà còn học được nhiều pattern ngữ nghĩa từ rất nhiều ví dụ văn bản." }
+      },
+      {
+        "label": { vi: "chiếc bàn" },
+        "isCorrect": false,
+        "feedback": { vi: "Sao lại “chiếc bàn” được trời? Doesn't make any sense!!" }
+      },
+      {
+        "label": { vi: "17.3" },
+        "isCorrect": false,
+        "feedback": { vi: "Lựa chọn táo bạo đấy, đủ để tụi mình cảm thấy bất ngờ. Chọn lại đi." }
+      }
+    ],
+    "interactionPlacement": "none"
+  }} />
+</MdxPage>
+
+<MdxPage page={3}>
+  <TokenizationExample content={{
+    "title": { vi: "Ví dụ tokenization" },
+    "tokenExample": {
+      "title": { vi: "Ví dụ tokenization" },
+      "variants": [
+        {
+          "label": { vi: "Word tokens" },
+          "tokens": [
+            "I",
+            "love",
+            "tokenization",
+            "!"
+          ],
+          "description": { vi: "Cắt gần giống cách người đọc nhìn thấy từng từ và dấu câu." }
+        },
+        {
+          "label": { vi: "Sub-word tokens" },
+          "tokens": [
+            "I",
+            "love",
+            "token",
+            "ization",
+            "!"
+          ],
+          "description": { vi: "Từ dài hoặc từ lạ có thể bị bẻ thành các mảnh nhỏ hơn." }
+        }
+      ],
+      "specialCases": [
+        {
+          "label": { vi: "Dấu câu" },
+          "tokens": [
+            ",",
+            ".",
+            "?",
+            "!"
+          ],
+          "description": { vi: "Dấu câu thường được giữ thành token riêng để model học nhịp câu." }
+        },
+        {
+          "label": { vi: "Khoảng trắng" },
+          "tokens": [
+            "space",
+            "\\n"
+          ],
+          "description": { vi: "Một số tokenizer giữ khoảng trắng hoặc xuống dòng như tín hiệu riêng." }
+        },
+        {
+          "label": { vi: "Special tokens" },
+          "tokens": [
+            "<BOS>",
+            "<EOS>",
+            "<PAD>"
+          ],
+          "description": { vi: "Token điều khiển biên câu, kết thúc chuỗi, hoặc padding batch." }
+        }
+      ],
+      "notes": [
+        { vi: "Không có một cách chia token duy nhất đúng cho mọi model. BPE, WordPiece, SentencePiece, GPT tokenizer hay Llama tokenizer có thể cắt cùng một câu thành các dãy token khác nhau." }
+      ]
+    }
+  }} />
+</MdxPage>
+
+<MdxPage page={4}>
+  <NextTokenExercise content={{
+    "title": { vi: "Thử model dự đoán từng bước" },
+    "body": [],
+    "note": { vi: "" },
+    "imageAlt": { vi: "Hình minh họa LLM nhận prompt, dự đoán token tiếp theo, rồi lặp lại để tạo câu trả lời. Hình ảnh sẽ được bổ sung sau." },
+    "image": "llm-from-scratch-roadmap.next-token-loop",
+    "prompt": { vi: "Tôi cảm thấy" },
+    "blankLabel": { vi: "chọn một đáp án" },
+    "labels": {
+      "chooseNextToken": { vi: "Thử chọn token tiếp theo" },
+      "emptySentence": { vi: "chọn từng từ" },
+      "removeLastWord": { vi: "Xóa từ vừa chọn" },
+      "reset": { vi: "Reset" }
+    },
+    "options": [
+      {
+        "label": { vi: "rất vui" },
+        "isCorrect": true,
+        "feedback": { vi: "Quá dễ hen. Về sau bạn sẽ thấy LLM không chỉ nối chữ theo bề mặt, mà còn học được nhiều pattern ngữ nghĩa từ rất nhiều ví dụ văn bản." }
+      },
+      {
+        "label": { vi: "chiếc bàn" },
+        "isCorrect": false,
+        "feedback": { vi: "Sao lại “chiếc bàn” được trời? Doesn't make any sense!!" }
+      },
+      {
+        "label": { vi: "17.3" },
+        "isCorrect": false,
+        "feedback": { vi: "Lựa chọn táo bạo đấy, đủ để tụi mình cảm thấy bất ngờ. Chọn lại đi." }
+      }
+    ],
+    "interactionPlacement": "only",
+    "sentenceBuilder": {
+      "title": { vi: "Ghép thành một câu trả lời" },
+      "prompt": { vi: "Tôi cảm thấy" },
+      "targets": [
+        [
+          { vi: "rất" },
+          { vi: "vui" },
+          { vi: "vì" },
+          { vi: "hôm" },
+          { vi: "nay" },
+          { vi: "trời" },
+          { vi: "đẹp" }
+        ],
+        [
+          { vi: "admin" },
+          { vi: "rất" },
+          { vi: "đẹp" },
+          { vi: "trai" }
+        ]
+      ],
+      "choices": [
+        { vi: "rất" },
+        { vi: "chiếc" },
+        { vi: "vui" },
+        { vi: "admin" },
+        { vi: "17.3" },
+        { vi: "vì" },
+        { vi: "hôm" },
+        { vi: "bàn" },
+        { vi: "nay" },
+        { vi: "trời" },
+        { vi: "đẹp" },
+        { vi: "trai" },
+        { vi: "khá" },
+        { vi: "ổn" }
+      ],
+      "success": { vi: "Đúng rồi. Một câu trả lời dài cũng được tạo từ nhiều bước nhỏ như vậy. Đặc biệt nếu bạn chọn câu admin rất đẹp trai thì model này khá là có gu đấy." },
+      "error": { vi: "Sai nhịp rồi. Bấm hoàn tác hoặc làm lại, chứ câu này đang chuẩn bị đi du lịch hơi xa." }
+    }
+  }} />
+</MdxPage>
+
+<MdxPage page={5}>
+  <ScaleFactors content={{
+    "title": { vi: "Tại sao gọi là Large Language Model?" },
+    "emphasis": { vi: "Large" },
+    "body": [
+      { vi: "Chữ Large chủ yếu nói về quy mô: nhiều tham số hơn, nhiều dữ liệu hơn, và quá trình train tốn nhiều compute hơn." }
+    ],
+    "bodyAfter": [
+      { vi: "Quy mô lớn, nhưng kiến thức cơ bản đều giống nhau. Trong course này, mục tiêu là hiểu rõ từng cơ chế và tự build một phiên bản nhỏ GPT-mini." }
+    ],
+    "highlights": [
+      {
+        "shortName": { vi: "Params" },
+        "fullName": { vi: "Số tham số" },
+        "description": { vi: "GPT-2 có 117M tham số; các model hiện đại có thể lên tới hàng trăm tỷ hoặc hơn." }
+      },
+      {
+        "shortName": { vi: "Data" },
+        "fullName": { vi: "Dữ liệu" },
+        "description": { vi: "Training thường cần lượng văn bản rất lớn, từ hàng chục đến hàng trăm GB hoặc hơn." }
+      },
+      {
+        "shortName": { vi: "Compute" },
+        "fullName": { vi: "Thời gian train" },
+        "description": { vi: "Một model lớn có thể train nhiều ngày hoặc nhiều tuần trên cluster GPU." }
+      }
+    ]
+  }} />
+</MdxPage>
+
+<MdxPage page={6}>
+  <ScaleComparison content={{
+    "title": { vi: "Large đến mức nào?" },
+    "emphasis": { vi: "Large" },
+    "highlights": [
+      {
+        "shortName": { vi: "2" },
+        "fullName": { vi: "Mô hình Iris" },
+        "description": { vi: "Bài toán Iris có thể đạt độ chính xác cao với một mô hình rất nhỏ." }
+      },
+      {
+        "shortName": { vi: "~100,000,000,000+" },
+        "fullName": { vi: "LLM hiện đại" },
+        "description": { vi: "LLM cần quy mô lớn để học ngôn ngữ, ngữ cảnh và tri thức phức tạp." }
+      }
+    ]
+  }} />
+</MdxPage>
+
+<MdxPage page={7}>
+  <LlmPopularity content={{
+    "title": { vi: "Vì sao LLM phổ biến đến vậy?" },
+    "body": [
+      { vi: "LLM không chỉ mạnh hơn các model NLP cũ. Điểm làm chúng phổ biến là chúng biến rất nhiều bài toán khác nhau thành một giao diện quen thuộc: nhập ngôn ngữ tự nhiên, nhận lại câu trả lời, đoạn code, bản tóm tắt, hoặc dữ liệu đã được cấu trúc." }
+    ],
+    "bodyAfter": [
+      { vi: "Vì vậy LLM vừa là một hướng nghiên cứu model, vừa là một nền tảng sản phẩm. Người học cần hiểu cơ chế bên trong để biết khi nào model thật sự phù hợp, khi nào cần dữ liệu tốt hơn, và khi nào cần thiết kế hệ thống xung quanh model." }
+    ],
+    "highlights": [
+      {
+        "shortName": { vi: "Dễ dùng" },
+        "fullName": { vi: "Ngôn ngữ tự nhiên trở thành giao diện" },
+        "description": { vi: "Người dùng không cần biết cú pháp phức tạp. Họ có thể mô tả mục tiêu bằng lời, giống như đang trao đổi với một trợ lý." }
+      },
+      {
+        "shortName": { vi: "Đa nhiệm" },
+        "fullName": { vi: "Một model có thể làm nhiều việc" },
+        "description": { vi: "Cùng một nền tảng có thể chat, tóm tắt, dịch, phân tích cảm xúc, trích xuất thông tin, viết code, hoặc hỗ trợ tìm kiếm tri thức." }
+      },
+      {
+        "shortName": { vi: "Dễ tích hợp" },
+        "fullName": { vi: "API và tooling làm tốc độ thử nghiệm rất nhanh" },
+        "description": { vi: "Doanh nghiệp có thể bắt đầu bằng API, prompt, RAG, tool calling hoặc workflow agent trước khi nghĩ tới training model riêng." }
+      },
+      {
+        "shortName": { vi: "Transformer" },
+        "fullName": { vi: "Kiến trúc giúp học ngữ cảnh dài hiệu quả hơn" },
+        "description": { vi: "Transformer thay đổi cách model xử lý chuỗi: attention cho phép mỗi token đọc các token liên quan trong context, đồng thời dễ song song hóa hơn RNN/LSTM khi train trên dữ liệu lớn." }
+      },
+      {
+        "shortName": { vi: "Big data" },
+        "fullName": { vi: "Internet tạo ra nguồn text khổng lồ để pretrain" },
+        "description": { vi: "Web text, sách, code, tài liệu và dữ liệu hội thoại giúp model học nhiều pattern ngôn ngữ, kiến thức phổ thông, style viết và cấu trúc task khác nhau." }
+      },
+      {
+        "shortName": { vi: "GPU/Compute" },
+        "fullName": { vi: "Phần cứng làm scale trở nên khả thi" },
+        "description": { vi: "GPU/TPU và hạ tầng distributed training cho phép train model nhiều tham số trên batch lớn trong thời gian chấp nhận được, biến ý tưởng scale thành sản phẩm thực tế." }
+      }
+    ]
+  }} />
+</MdxPage>
+
+<MdxPage page={8}>
+## Roadmap domain LLM & AI Engineering
+
+### LLM from scratch
+
+Hiểu cách text trở thành dữ liệu học, sau đó ghép dần thành một GPT mini có thể train và generate:
+
+- Orientation và toàn cảnh các thành phần của LLM.
+- Text data, tokenization và embedding.
+- Attention, Transformer và GPT model.
+- Pretraining, generation, fine-tuning và alignment.
+
+### LLM fundamentals
+
+- Scale, context window và KV cache.
+- Flash attention, grouped-query attention và sliding-window attention.
+- Instruction tuning, RLHF, DPO và scaling laws.
+
+### Production AI Engineering
+
+- Prompt structure, few-shot, ReAct, prompt chaining và observability.
+- API, streaming, structured output, tool calling và embeddings.
+- Retry, fallback, caching, cost control, rate limit và bảo vệ API key.
+</MdxPage>
+
+<MdxPage page={9}>
+## Nguồn tham khảo chính
+
+- [Repo: Building-LLMs-from-scratch](https://github.com/codewithdark-git/Building-LLMs-from-scratch)
+- [Sách: Build a Large Language Model (From Scratch), Sebastian Raschka](https://www.manning.com/books/build-a-large-language-model-from-scratch)
+</MdxPage>
+
+<MdxPage page={10}>
+## Bước tiếp theo
+
+Roadmap này nối các khái niệm thành một lộ trình duy nhất: chuẩn bị text, xây tokenizer và data loader, học attention, ghép GPT mini, train bằng next-token prediction, rồi đưa model vào một hệ thống có đánh giá, bảo mật và kiểm soát chi phí.
+
+Ở các bài tiếp theo, hãy luôn tự hỏi dữ liệu đang có shape nào, token nào là input và target, state nào thuộc model, và behavior nào phải được kiểm tra trước khi tăng scale.
+</MdxPage>

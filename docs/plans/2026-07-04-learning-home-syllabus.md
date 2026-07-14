@@ -31,7 +31,7 @@ for the catalog-owned domain/track/lesson structure.
 - `docs/plans/2026-06-21-learning-lab-refactor.md` and
   `docs/plans/2026-06-21-landing-ui-iteration.md` establish that Learning Lab
   and Landing are active runtime surfaces.
-- `wiki/concepts/learning-lab-refactor.md` documents current Learning Lab UI
+- `wiki/concepts/learning-lab.md` documents current Learning Lab UI
   conventions: Home is shallow, route/course detail lives in the main content,
   and new UI should use existing theme/localization helpers.
 - `src/components/learning/LearningLabView.tsx` renders `DomainCatalog` when
@@ -119,7 +119,7 @@ for the catalog-owned domain/track/lesson structure.
   `DomainCatalog`; `DomainCatalog` derives domain, track, lesson, practice, and
   track-preview data from the existing Learning Catalog; `src/lib/localization.ts`
   owns the new bilingual syllabus labels; and
-  `wiki/concepts/learning-lab-refactor.md` documents the updated Home behavior.
+  `wiki/concepts/learning-lab.md` documents the updated Home behavior.
 - 2026-07-04T00:25:00+07:00 - Verification passed with `npm.cmd run verify`
   after PowerShell blocked `npm.ps1` via execution policy. The dev server was
   started on `http://127.0.0.1:3000`, and `/learning` responded with HTTP 200.

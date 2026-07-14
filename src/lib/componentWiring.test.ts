@@ -53,12 +53,12 @@ test('AppShell lazy-loads Learning Lab instead of importing it into the landing 
 });
 
 test('Learning Lab feedback scroll uses one shared helper', () => {
-  const quizBlock = readSource('src/components/learning/lesson/extras/QuizBlock.tsx');
+  const quizBlock = readSource('src/components/learning/lesson/QuizBlock.tsx');
   const domainRenderer = readSource('src/components/learning/domains/llm-ai-engineering/renderers.tsx');
 
   assert.match(
     quizBlock,
-    /import\s+\{\s*scrollLearningLabElementIntoView\s*\}\s+from\s+['"]\.\.\/scrolling['"]/,
+    /import\s+\{\s*scrollLearningLabElementIntoView\s*\}\s+from\s+['"]\.\/scrolling['"]/,
     'QuizBlock should import the shared Learning Lab scroll helper',
   );
   assert.match(
@@ -83,11 +83,24 @@ test('Learning Home avoids fragment links that replace the HashRouter route', ()
   );
 });
 
+test('CV review and Workspace handoff derive from catalog exercise lessons', () => {
+  const reviewMode = readSource('src/components/learning/shell/ReviewMode.tsx');
+  const cvComponents = readSource('src/components/learning/domains/cv/mdxComponents.tsx');
+  const canvas = readSource('src/components/canvas/Canvas3D.tsx');
+
+  assert.match(reviewMode, /getReviewableLearningLessons\(catalog\)/);
+  assert.doesNotMatch(reviewMode, /conv2d-shape-exercise|pooling-value-exercise/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ShapeExercise['"]\)/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ValueExercise['"]\)/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ConvExercise['"]\)/);
+  assert.match(canvas, /resolveLearningExerciseLessonTarget/);
+  assert.doesNotMatch(`${reviewMode}\n${cvComponents}\n${canvas}`, /practiceId|[?&]practice=/);
+});
+
 test('Learning Lab rail toggle and quiz labels use shared theme/localization surfaces', () => {
   const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
   const lessonRail = readSource('src/components/learning/lesson/LessonRail.tsx');
-  const extraRenderer = readSource('src/components/learning/lesson/extras/LessonExtraRenderer.tsx');
-  const quizBlock = readSource('src/components/learning/lesson/extras/QuizBlock.tsx');
+  const quizBlock = readSource('src/components/learning/lesson/QuizBlock.tsx');
   const theme = readSource('src/components/learning/theme.ts');
   const localization = readSource('src/lib/localization.ts');
 
@@ -112,7 +125,7 @@ test('Learning Lab rail toggle and quiz labels use shared theme/localization sur
     'localized strings should own the close lesson rail label',
   );
   assert.doesNotMatch(
-    `${learningLabView}\n${lessonRail}\n${extraRenderer}\n${quizBlock}`,
+    `${learningLabView}\n${lessonRail}\n${quizBlock}`,
     /language === 'vi' \? '(?:Kiểm tra|Làm lại|Token chưa phân loại|Tất cả token đã được kéo vào nhóm\.|Lý thuyết cốt lõi)'/,
     'new Learning Lab controls should use localization or content text helpers instead of inline language checks',
   );

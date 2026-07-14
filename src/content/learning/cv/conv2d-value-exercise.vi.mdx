@@ -1,0 +1,24 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'conv2d-value-exercise',
+  locale: 'vi',
+  title: 'Bài tập giá trị Conv2d',
+  headings: ['Từ cửa sổ input đến output', 'Tự tính convolution'],
+  keywords: ['conv2d', 'kernel', 'convolution value', 'feature map', 'channel'],
+  pageCount: 1,
+}
+
+## Từ cửa sổ input đến output
+
+Mỗi ô output là tổng các tích giữa một cửa sổ input và kernel tương ứng trên từng channel. Bài tập cho phép đổi độ khó và kernel để bạn quan sát trực tiếp từng đóng góp vào kết quả.
+
+## Tự tính convolution
+
+Chọn một ô output, theo dõi các cặp phép nhân trong phần gợi ý, rồi nhập kết quả với hai chữ số thập phân.
+
+<CvExercise fixture={{
+  opType: 'Conv2d',
+  inputShape: [1, 1, 5, 5],
+  outputShape: [1, 1, 3, 3],
+  config: { kernel: 3, stride: 1, padding: 0, dilation: 1 },
+}} />

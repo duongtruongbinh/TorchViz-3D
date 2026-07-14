@@ -41,19 +41,13 @@ export default function LearningLabHeader({
               key={item}
               type="button"
               onClick={() => onModeChange(item)}
-              className={cx(
-                'min-w-0 px-3 text-xs sm:px-4 sm:text-sm',
-                themeClasses.radius.pill,
-                themeClasses.button.segmented(mode === item),
-              )}
+              className={cx('min-w-0 px-3 text-xs sm:px-4 sm:text-sm', themeClasses.radius.pill, themeClasses.button.segmented(mode === item))}
               aria-pressed={mode === item}
             >
               {item === 'path' ? text.path : text.review}
             </button>
           ))}
         </div>
-
-
         <button
           type="button"
           onClick={() => setLanguage(currentLanguage === 'vi' ? ('en' as Language) : ('vi' as Language))}

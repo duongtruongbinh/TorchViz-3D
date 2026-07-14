@@ -1,8 +1,6 @@
 import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, ContactShadows } from '@react-three/drei';
-import { ExternalLink } from 'lucide-react';
 import * as THREE from 'three';
 import { LayoutData, LayoutNode } from '../../lib/irTypes';
 import { getStrings } from '../../lib/localization';
@@ -28,11 +26,9 @@ import {
 } from '../../lib/canvasUtils';
 import type { AppError } from '../../lib/appError';
 import { getAdaptiveGridSpec, getLayoutWorldBounds } from '../../lib/renderBounds';
-import { resolveTensorPracticeTarget } from '../../core/learning/selectors';
-import { learningCatalog } from '../../core/learning/content';
-import { getHashRouterUrl, getLearningPracticePath } from '../../lib/appRoutes';
+import { resolveLearningExerciseLessonTarget, type LearningExerciseLessonTarget } from '../../core/learning/selectors';
+import { getHashRouterUrl, getLearningLessonPath } from '../../lib/appRoutes';
 import type { ExerciseId } from '../exercises/types';
-import { getExerciseOptionLabel } from '../exercises/ExerciseLauncher';
 
 export interface Canvas3DProps {
   layout: LayoutData | null;
@@ -77,11 +73,6 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   const t = getStrings(language);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [manualFitToken, setManualFitToken] = useState(0);
-  const [pendingLearningTarget, setPendingLearningTarget] = useState<{
-    href: string;
-    label: string;
-    anchor: { top: number; right: number };
-  } | null>(null);
 
   const handleToggle = useCallback(
     (id: string) => onToggleCollapse?.(id),
@@ -129,64 +120,55 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
     layoutNodes: layout?.nodes ?? [],
   });
   const effectiveHighlightNodeId = demo.activeNodeId ?? highlightNodeId;
-  const learningExercises = useMemo(() => {
-    const activeNode = demo.segmentState.activeStop?.node;
-    if (!activeNode) return [];
-    return demo.availableExercises.filter((exercise) => (
-      resolveTensorPracticeTarget(learningCatalog, {
-        exerciseId: exercise.id,
-        operation: activeNode.op_type,
-      })
-    ));
-  }, [demo.availableExercises, demo.segmentState.activeStop?.node]);
-  const showLearningPracticePanel = useCallback((exerciseId: ExerciseId, anchor: DOMRect, options: { pause?: boolean } = {}) => {
-    const activeNode = demo.segmentState.activeStop?.node;
-    if (!activeNode) return;
-    const target = resolveTensorPracticeTarget(learningCatalog, {
-      exerciseId,
-      operation: activeNode.op_type,
-    });
-    if (!target) return;
-    if (options.pause) demo.setPlaying(false);
-    setPendingLearningTarget({
-      href: getLearningPracticePath(target),
-      label: getExerciseOptionLabel(exerciseId, t.canvas.demo),
-      anchor: { top: anchor.top, right: anchor.right },
-    });
-  }, [demo, t.canvas.demo]);
-
+  const [learningExerciseTargets, setLearningExerciseTargets] = useState<Map<ExerciseId, LearningExerciseLessonTarget>>(() => new Map());
   useEffect(() => {
-    setPendingLearningTarget(null);
-  }, [layoutKey, demo.segmentState.activeStop?.node.id]);
+    const activeNode = demo.segmentState.activeStop?.node;
+    if (!activeNode) {
+      setLearningExerciseTargets(new Map());
+      return;
+    }
+    let cancelled = false;
+    void import('../../content/learning/index.ts').then(({ learningCatalog }) => {
+      if (cancelled) return;
+      const targets = new Map<ExerciseId, LearningExerciseLessonTarget>();
+      for (const exercise of demo.availableExercises) {
+        const target = resolveLearningExerciseLessonTarget(learningCatalog, { exerciseId: exercise.id, operation: activeNode.op_type });
+        if (target) targets.set(exercise.id, target);
+      }
+      setLearningExerciseTargets(targets);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [demo.availableExercises, demo.segmentState.activeStop?.node]);
+  const learningExercises = useMemo(
+    () => demo.availableExercises.filter((exercise) => learningExerciseTargets.has(exercise.id)),
+    [demo.availableExercises, learningExerciseTargets],
+  );
+  const openLearningExercise = useCallback((exerciseId: ExerciseId) => {
+    const target = learningExerciseTargets.get(exerciseId);
+    if (!target) return;
+    demo.setPlaying(false);
+    const path = getLearningLessonPath(target.domainId, target.trackId, target.lessonId);
+    window.open(getHashRouterUrl(window.location.href, path), '_blank', 'noopener,noreferrer');
+  }, [demo.setPlaying, learningExerciseTargets]);
 
   return (
     <div ref={containerRef} data-tour="mnist-demo-flow" className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
       {layout && demoModeEnabled && demo.compatibility.ok && (
-        <>
-          <DemoControls
-            stops={demoStops}
-            progress={demo.progress}
-            playing={demo.playing}
-            dataUrl={mnist?.dataUrl}
-            animationSpeed={demo.animationSpeed}
-            availableExercises={learningExercises}
-            t={t.canvas.demo}
-            onProgressChange={demo.setProgress}
-            onPlayingChange={demo.setPlaying}
-            onAnimationSpeedChange={demo.setAnimationSpeed}
-            onPreviewExercise={(id, anchor) => showLearningPracticePanel(id, anchor)}
-            onSelectExercise={(id, anchor) => showLearningPracticePanel(id, anchor, { pause: true })}
-          />
-          {pendingLearningTarget ? (
-            <LearningOpenPanel
-              href={pendingLearningTarget.href}
-              label={pendingLearningTarget.label}
-              anchor={pendingLearningTarget.anchor}
-              t={t.canvas.demo}
-              onClose={() => setPendingLearningTarget(null)}
-            />
-          ) : null}
-        </>
+        <DemoControls
+          stops={demoStops}
+          progress={demo.progress}
+          playing={demo.playing}
+          dataUrl={mnist?.dataUrl}
+          animationSpeed={demo.animationSpeed}
+          t={t.canvas.demo}
+          onProgressChange={demo.setProgress}
+          onPlayingChange={demo.setPlaying}
+          onAnimationSpeedChange={demo.setAnimationSpeed}
+          availableExercises={learningExercises}
+          onSelectExercise={openLearningExercise}
+        />
       )}
 
       {showLoadingOverlay && <CanvasLoadingOverlay t={t.canvas} />}
@@ -300,59 +282,6 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
       </Canvas>
     </div>
   );
-};
-
-const LearningOpenPanel: React.FC<{
-  href: string;
-  label: string;
-  anchor: { top: number; right: number };
-  t: ReturnType<typeof getStrings>['canvas']['demo'];
-  onClose: () => void;
-}> = ({ href, label, anchor, t, onClose }) => {
-  const openLearning = () => {
-    window.open(getHashRouterUrl(window.location.href, href), '_blank', 'noopener,noreferrer');
-  };
-  if (typeof document === 'undefined') return null;
-
-  const width = Math.min(288, window.innerWidth - 32);
-  const estimatedHeight = 204;
-  const hasRightSpace = anchor.right + 8 + width <= window.innerWidth - 16;
-  const left = hasRightSpace
-    ? anchor.right + 8
-    : Math.max(16, anchor.right - width - 8);
-  const top = Math.max(16, Math.min(anchor.top - 4, window.innerHeight - estimatedHeight - 16));
-
-  return createPortal((
-    <aside
-      className="fixed z-[190] rounded-lg border border-emerald-300/35 bg-zinc-950/88 p-3 text-zinc-100 shadow-2xl backdrop-blur-md pointer-events-auto"
-      style={{
-        left,
-        top,
-        width,
-      }}
-      onMouseLeave={onClose}
-    >
-      <div className="min-w-0">
-        <div className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">
-          {t.learning}
-        </div>
-        <h2 className="mt-1 text-sm font-black leading-5 text-white">
-          {t.learningOpenPanelTitle(label)}
-        </h2>
-      </div>
-      <p className="mt-2 text-xs leading-5 text-zinc-300">
-        {t.learningOpenPanelBody}
-      </p>
-      <button
-        type="button"
-        className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-md border border-emerald-300/55 bg-emerald-400/16 px-3 text-xs font-black text-emerald-100 hover:bg-emerald-400/26"
-        onClick={openLearning}
-      >
-        <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
-        {t.openLearningNewTab}
-      </button>
-    </aside>
-  ), document.body);
 };
 
 export default React.memo(Canvas3D);

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { LearningLesson } from '../core/learning/types.ts';
-import { resolveVisibleLearningLesson } from '../core/learning/visibleLesson.ts';
+import { resolveVisibleLearningLesson } from '../components/learning/lesson/visibleLesson.ts';
 
 function lesson(id: string): LearningLesson {
   return {
@@ -9,7 +9,9 @@ function lesson(id: string): LearningLesson {
     domainId: 'cv',
     trackId: 'cnn-shape-value',
     status: 'available',
-    practice: [],
+    contentStatus: 'missing',
+    tags: [],
+    entryPoints: [],
     sections: [],
   };
 }

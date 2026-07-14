@@ -28,7 +28,7 @@ polish work:
 
 It preserves the catalog/domain architecture documented by the earlier Learning
 Lab refactor plans and the conventions in
-`wiki/concepts/learning-lab-refactor.md`.
+`wiki/concepts/learning-lab.md`.
 
 # Context and audit findings
 
@@ -137,7 +137,7 @@ Lab refactor plans and the conventions in
 - Check Home, one dense domain (LLMs), one practice-heavy domain, Review mode,
   sidebar/drawer states, lesson rail, and lesson paging.
 - Record actual files and verification results in this plan's execution log.
-- Update `wiki/concepts/learning-lab-refactor.md` with the final responsive and
+- Update `wiki/concepts/learning-lab.md` with the final responsive and
   UI convention changes; do not create another long-lived docs page.
 
 # Acceptance criteria
