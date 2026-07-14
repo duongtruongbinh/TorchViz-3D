@@ -2,6 +2,8 @@ import type { LearningLessonSection, LearningLessonStatus } from '../../types.ts
 import type { LearningChapterSeed } from '../seed.ts';
 import { isApprovedLesson } from './approval.ts';
 
+// Each lessonSeed below is one node in the lesson table of contents.
+// Concept panels inside a lesson are slides/steps, not TOC nodes.
 export const chapters: LearningChapterSeed[] = [
   {
     id: 'llm-from-scratch-orientation',
@@ -10,7 +12,7 @@ export const chapters: LearningChapterSeed[] = [
       lessonSeed(
         'minimal-llm-project-skeleton',
         'Requirements',
-        'Yêu cầu',
+        'Yêu cầu chuẩn bị',
         [],
         ['theory'],
         'next',
@@ -41,6 +43,13 @@ export const chapters: LearningChapterSeed[] = [
         'llm-data-pipeline-overview',
         'LLM data pipeline overview',
         'Pipeline dữ liệu của LLM',
+        [],
+        ['theory'],
+      ),
+      lessonSeed(
+        'llm-data-pipeline-checkpoint-quiz',
+        'LLM data pipeline checkpoint quiz',
+        'Quiz',
         [],
         ['theory'],
       ),

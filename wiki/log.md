@@ -3,6 +3,11 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-13 — LLM domain docs compacted.** Renamed the compact LLM domain
+  plan/history record to
+  [2026-07-13-learning-lab-llm-domain-compact](../docs/plans/2026-07-13-learning-lab-llm-domain-compact.md),
+  updated the approved boundary to nodes 1-5, and added a cleanup prompt for
+  reducing redundant branch code against `main`.
 - **2026-07-05 — LLM data pipeline clarity.** Clarified the Learning Lab LLM
   data pipeline visual/copy so GPT logits, shifted training targets,
   cross-entropy over vocabulary, and generation-time decode are separated for
