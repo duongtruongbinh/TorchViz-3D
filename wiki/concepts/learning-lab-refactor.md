@@ -1,7 +1,7 @@
 ---
 title: Learning Lab Refactor
 type: Active Subsystem
-updated: 2026-07-13
+updated: 2026-07-14
 ---
 
 # Learning Lab Refactor
@@ -58,10 +58,11 @@ Learning Lab is active as the single learning container. It currently provides:
   reference for source-grounded paraphrases; concepts outside the current lab
   scope, such as training-loop bells and LoRA, are marked as placeholders for
   future supplementation instead of being implemented prematurely.
-- LLM AI Engineering content is now a domain package under
+- LLM AI Engineering content is a domain package under
   `src/core/learning/content/llm-ai-engineering/`. The package owns its tracks,
-  approved roadmap extras, source references, and local approval gate while keeping
-  the global catalog export stable.
+  source references, local approval gate, and domain component-name contract
+  while keeping the global catalog export stable. Generic MDX discovery,
+  validation, locale selection, assembly, and search live outside this domain.
 - A Path mode backed by React-free static catalog metadata.
 - A Review mode over practice cards from the active domain or catalog.
 - Canonical route resolution for `domain -> chapter -> lesson` paths. Legacy
@@ -128,10 +129,14 @@ Active behavior remains unchanged:
 | `src/components/learning/shell/ReviewMode.tsx` | Review browser over active-domain or catalog practice. |
 | `src/components/learning/lesson/LessonRail.tsx` | Searchable/filterable lesson rail, chapter collapse behavior, and lesson-node list rendering. |
 | `src/components/learning/lesson/LessonNode.tsx` | Shared lesson node. |
-| `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory and practice rendering. |
-| `src/components/learning/lesson/LessonExtras.tsx` | Compatibility wrapper for the lesson extras package. |
-| `src/components/learning/lesson/extras/*` | Shared extra dispatch and generic extra components, including the thin dispatcher, quiz renderer, generic concept-panel renderer, asset resolution, and small text helpers. |
-| `src/components/learning/domains/*/renderers.tsx` | Optional domain-owned custom extra renderers for interactions or visual treatments that should not live in the shared renderer. The LLM domain owns its custom concept panels directly. |
+| `src/components/learning/lesson/LessonDetail.tsx` | Shared lesson detail with theory/practice rendering and generic MDX lesson lookup. |
+| `src/components/learning/lesson/QuizBlock.tsx` | Shared stateful quiz renderer used by the generic MDX quiz component. |
+| `src/components/learning/lesson/scrolling.ts` | Shared feedback-scroll helper used by quiz and domain interactions. |
+| `src/components/learning/learningMdxComponents.tsx` | Shared Markdown renderers, lesson frame, theme/lesson context, and quiz behavior. |
+| `src/components/learning/learningMdxRegistry.tsx` | Generic compiled-lesson registry and the small optional domain-component composition map. |
+| `src/components/learning/domains/*/mdxComponents.tsx` | Optional domain-owned MDX visual/interaction adapters. Markdown-only domains need no adapter. |
+| `src/components/learning/domains/*/renderers.tsx` | Domain-owned custom visualizations and stateful interactions. The LLM domain owns its custom concept panels and media ids directly. |
+| `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Convention-based locale-specific lesson sources compiled locally by Vite. Only the five approved Vietnamese-first LLM lessons have migrated so far. |
 | `src/components/learning/practice/PracticeSection.tsx` | Shared practice dispatcher for tensor, RL, and placeholder practice. |
 | `src/components/learning/practice/TensorPracticeRenderer.tsx` | Tensor Shape/Value/Conv modal launcher. |
 | `src/components/learning/practice/ReinforcementPracticeRenderer.tsx` | Inline RL MDP/Bellman/GridWorld renderer. |
@@ -139,38 +144,113 @@ Active behavior remains unchanged:
 | `src/components/learning/practice/adapters/reinforcementPracticeAdapter.ts` | Deterministic RL practice fixtures and answer helpers. |
 | `src/core/learning/types.ts` | React-free unified learning catalog types. |
 | `src/core/learning/content/*` | React-free static domain/track/lesson metadata. Larger domains may own a package folder instead of a single file. |
-| `src/core/learning/content/llm-ai-engineering/*` | LLM AI Engineering domain package: tracks, approved roadmap extras, references, and a local approval gate. |
+| `src/core/learning/content/mdxContract.ts` | React-free generic filename, metadata, locale, and search normalization contract. |
+| `src/core/learning/content/mdxSearch.ts` | React-free generic lookup over generated locale-aware search documents. |
+| `src/core/learning/content/llm-ai-engineering/*` | LLM AI Engineering domain package: tracks, references, local approval gate, and custom MDX component names. |
+| `scripts/learningContentMdx.ts` | Generic AST validator and Vite virtual search-document generator for every `src/content/learning/*/*.mdx` file. |
 | `src/core/learning/selectors.ts` | React-free catalog selectors. |
 | `src/core/learning/content/seed.ts` | Placeholder roadmap seed builder that produces typed catalog lesson entries and catalog-owned lesson text. |
 
 ## Content Ownership
 
-Learning Lab content should scale by domain package ownership, not by a rigid
-one-file-per-lesson rule. A small placeholder-heavy domain can remain a single
-content file. A growing or custom-heavy domain should move into a folder that
-owns its tracks, approval gates, sources, long-form lesson copy, extras, and
-assets.
+Authored Learning Lab lesson content follows one filesystem rule:
+
+```text
+one catalog lesson node = one locale-specific MDX file
+src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx
+```
+
+Catalog metadata may remain compact or placeholder-heavy by domain, but any
+lesson that adopts authored MDX uses this rule. A new Markdown-only domain adds
+catalog metadata and MDX files without changing shared discovery, validation,
+search, or lesson assembly. A domain adds an MDX component map only when it has
+custom visualization or stateful-interaction needs.
 
 Split files by volatility:
 
 - Track/course files when a domain has many chapters or roadmap groups.
-- Lesson files only when a lesson has long prose, many extras, custom
-  interaction payloads, or independent approval/source history.
+- Locale-specific MDX lesson files for metadata, prose, headings, links, quiz
+  data, searchable text, and structured visualization inputs.
 - Domain renderer files when UI treatment is genuinely domain-specific.
 - Deeper component folders only when an interaction has enough state, animation,
   or tests to justify independent ownership.
 
-Global shared types and renderers should describe reusable contracts. Domain
-packages should own their own source references, asset ids, approval gates,
-and custom renderer components so future domains do not inflate
-`src/lib/localization.ts`, `src/core/learning/types.ts`, or the shared lesson
-extra renderer. Do not add a registry layer until more than one domain needs
-keyed custom extra routing.
+Global shared types and renderers describe reusable contracts. Domain packages
+own source references, asset ids, approval gates, component names, and custom
+renderer components so future domains do not inflate shared lesson assembly or
+search. Component allowlisting and runtime component maps derive from the same
+domain-owned name contract; the composition root is a small typed map, not a
+plugin framework.
 
-Shared lesson extra rendering should stay intentionally generic: quiz behavior,
-default concept panels, frame/text helpers, and asset lookup. Domain-specific
-panels should be routed explicitly by domain/id and should not silently fall
-back to the generic design when custom coverage is missing.
+Shared authored rendering stays intentionally small: Markdown primitives, the
+lesson frame, and quiz behavior. Domain-specific panels are exposed through the
+domain's named MDX component map; shared lesson assembly has no legacy
+extra-kind dispatcher or implicit domain fallback.
+
+## Generic Learning Lab MDX Content Pipeline
+
+Learning Lab lesson authoring has one MDX path inside the existing React/Vite
+application. This is not a VitePress or Vue sub-application. Vite compiles
+local files matched by `src/content/learning/*/*.mdx`, and `LessonDetail` asks a
+generic registry for a descriptor keyed by domain, lesson, and requested
+locale. The React-free catalog continues to own routes, tracks, lesson status,
+domain fallback policy, and approval gating.
+
+`minimal-llm-project-skeleton` is the first migrated pilot. Its Vietnamese
+prose, links, command, headings, and keywords live in one `.vi.mdx` file.
+English UI intentionally falls back to that Vietnamese lesson until a real
+`.en.mdx` translation is added.
+The former `colab-coding-requirements` payload and renderer branch were removed
+after the pilot passed typecheck, tests, and production build.
+Both approved checkpoint quizzes are also migrated. Their authored questions
+live in Vietnamese MDX while a narrow `MdxQuiz` adapter reuses the shared quiz
+renderer; MDX page metadata preserves the former one-question-per-page flows
+and `LessonDetail` continues to own/reset quiz state.
+The data-pipeline overview is authored as nine Vietnamese MDX pages. Named
+`TrainingLifecycle` and `TransformerTranslationStep` adapters keep visualization
+code in React without exposing renderer ids to lesson authors.
+All five approved LLM lessons now have one Vietnamese MDX source and the former
+`extras.ts` catalog bridge has been removed. The roadmap uses named domain
+components such as `AiHierarchy`, `DomainComparison`, `TokenizationExample`,
+`NextTokenExercise`, and `ScaleComparison`; it no longer exports a legacy
+`LearningLessonExtra[]` payload or calls a general `MdxRoadmap` dispatcher. The
+renderer boundary materializes locale fallback without duplicating authored
+values or shipping raw source beside the compiled module.
+
+MDX authors use normal Markdown plus shared components and, when needed, the
+active domain's explicit component vocabulary. The AST contract rejects
+imports, re-exports, executable expressions, spread attributes, invalid page
+indexes, duplicate quiz ids/locales, and components outside the composed
+allowlist. Interactive components remain domain-owned React code.
+
+Lesson modules are discovered automatically from the
+`<domain-id>/<lesson-id>.<locale>.mdx` filename convention with one generic
+`import.meta.glob`; adding a lesson or later translation does not require a
+manual lesson/domain import. A generic Vite plugin scans the same files with
+the verified AST contract and emits a React-free virtual search module. Raw MDX
+is not shipped beside compiled MDX. Verification recursively checks every MDX
+under `src/content/learning`, so a misplaced nested file also fails the path
+contract. It rejects unknown domains, missing catalog lessons, metadata/path
+drift, unapproved content, unsafe syntax, page gaps, and component drift.
+Lesson-rail search keeps the existing grouping and status/practice filters, but
+migrated LLM lessons also contribute localized MDX body text, headings, and
+keywords. Search is case-insensitive and removes Vietnamese diacritics for
+matching. Content stays local and no hosted search service or runtime MDX
+compiler is used.
+
+LLM AI Engineering is the reference domain for this shared pipeline; no other
+domain has been migrated yet. All five approved LLM lessons use the MDX path. The Vietnamese-first roadmap
+stores one localized value per authored string and materializes the English UI
+fallback only at the renderer boundary. Its stateful visual components remain
+in the domain renderer; the 114 unapproved placeholder lessons remain on the
+React-free seeded catalog path.
+
+The roadmap's final three pages are ordinary Markdown rather than legacy extra
+objects: course outline, references, and next-step guidance. This also keeps the
+declared eleven-page contract explicit and prevents unsupported generic extras
+from becoming blank MDX pages. The former shared lesson-extra compatibility
+chain has been removed; LLM visuals are reached only through the domain-owned
+MDX adapter.
 
 ## UI Conventions
 

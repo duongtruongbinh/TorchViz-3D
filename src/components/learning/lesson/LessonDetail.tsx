@@ -1,13 +1,13 @@
 import { ArrowLeft, ArrowRight, Beaker, BookOpen, Calculator, Code2, type LucideIcon } from 'lucide-react';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
-import type { LearningLesson, LearningLessonExtra } from '../../../core/learning/types';
+import type { LearningLesson } from '../../../core/learning/types';
 import type { Language } from '../../../lib/localization';
 import { getStrings } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
 import PracticeSection from '../practice/PracticeSection';
 import { cx, getLearningLabTheme } from '../theme';
-import LessonExtras from './extras/LessonExtras';
-import type { QuizQuestionState } from './extras/QuizBlock';
+import type { QuizQuestionState } from './QuizBlock';
+import { getLearningMdxLesson } from '../learningMdxRegistry';
 
 type LessonDetailProps = {
   lesson: LearningLesson;
@@ -45,55 +45,16 @@ export default function LessonDetail({
     }));
   }, []);
 
-  const sectionPages = lesson.sections.flatMap((section) => {
+  const mdxLesson = getLearningMdxLesson({ domainId: lesson.domainId, language, lessonId: lesson.id, quizQuestionStates, themeClasses, onQuizQuestionStateChange: updateQuizQuestionState });
+  const sectionPages = mdxLesson ? mdxLesson.pages.map((page, pageIndex) => (
+    <SectionShell key={`${lesson.id}-mdx-${pageIndex}`} sectionDivider={sectionDivider}>{page}</SectionShell>
+  )) : lesson.sections.flatMap((section) => {
     const meta = getSectionMeta(section.kind, strings, language);
-    const sectionExtras = (lesson.extras ?? []).filter((extra) => extra.sectionRefId === section.refId);
     if (section.kind === 'theory') {
-      const motivationExtras = sectionExtras.filter(isMotivationExtra);
-      const remainingExtras = sectionExtras.filter((extra) => extra.kind !== 'motivation');
-      if (motivationExtras.length) {
-        const conceptExtras = remainingExtras.filter((extra) => extra.kind === 'conceptInteraction' || extra.kind === 'conceptPanel');
-        return [
-          <SectionShell key={`${section.kind}-${section.refId}-motivation`} sectionDivider={sectionDivider} className={cx('learning-lab-section-accent', themeClasses.sectionAccent.section)}>
-            <AccentSectionHeading label={motivationExtras[0].title[language] ?? motivationExtras[0].title.en} themeClasses={themeClasses} />
-            <LessonExtras domainId={lesson.domainId} extras={motivationExtras} language={language} themeClasses={themeClasses} className="grid gap-5" />
-          </SectionShell>,
-          ...conceptExtras.map((extra) => (
-            <SectionShell key={extra.id} sectionDivider={sectionDivider}>
-              <LessonExtras domainId={lesson.domainId} extras={[extra]} language={language} themeClasses={themeClasses} className="grid gap-5" />
-            </SectionShell>
-          )),
-          ...(lessonText.theory.length ? [
-            <SectionShell key={`${section.kind}-${section.refId}-theory`} sectionDivider={sectionDivider}>
-              <FullWidthTheoryCopy items={lessonText.theory} themeClasses={themeClasses} />
-            </SectionShell>,
-          ] : []),
-        ];
-      }
-      if (!lessonText.theory.length && sectionExtras.length) {
-        return getSectionExtraPages(sectionExtras).map(({ key, extras }) => (
-          <SectionShell
-            key={`${section.kind}-${section.refId}-${key}`}
-            sectionDivider={sectionDivider}
-            className={extras.every((extra) => extra.kind === 'quiz') ? 'pt-3 md:pt-4' : undefined}
-          >
-            <LessonExtras
-              domainId={lesson.domainId}
-              extras={extras}
-              language={language}
-              quizQuestionStates={quizQuestionStates}
-              themeClasses={themeClasses}
-              className={extras.every((extra) => extra.kind === 'quiz') ? 'grid gap-4' : undefined}
-              onQuizQuestionStateChange={updateQuizQuestionState}
-            />
-          </SectionShell>
-        ));
-      }
       return [
         <SectionShell key={`${section.kind}-${section.refId}`} sectionDivider={sectionDivider}>
           <SectionHeading icon={meta.icon} label={meta.label} themeClasses={themeClasses} />
           <FullWidthTheoryCopy items={lessonText.theory} themeClasses={themeClasses} className="mt-4" />
-          <LessonExtras domainId={lesson.domainId} extras={sectionExtras} language={language} themeClasses={themeClasses} />
         </SectionShell>,
       ];
     }
@@ -117,13 +78,9 @@ export default function LessonDetail({
     return [
       <SectionShell key={`${section.kind}-${section.refId}`} sectionDivider={sectionDivider}>
         <SectionHeading icon={meta.icon} label={meta.label} themeClasses={themeClasses} />
-        {sectionExtras.length ? (
-          <LessonExtras domainId={lesson.domainId} extras={sectionExtras} language={language} themeClasses={themeClasses} />
-        ) : (
-          <p className={cx('mt-4 border-l-2 py-1 pl-4 text-sm leading-6', themeClasses.mutedText, themeClasses.isLight ? 'border-[#205089]/20' : 'border-[#A8B8C8]/22')}>
-            {meta.placeholder}
-          </p>
-        )}
+        <p className={cx('mt-4 border-l-2 py-1 pl-4 text-sm leading-6', themeClasses.mutedText, themeClasses.isLight ? 'border-[#205089]/20' : 'border-[#A8B8C8]/22')}>
+          {meta.placeholder}
+        </p>
       </SectionShell>,
     ];
   });
@@ -204,30 +161,6 @@ function scrollLearningContentAreaToTop(element: HTMLElement) {
   scrollContainer?.scrollTo({ top: 0, behavior: 'auto' });
 }
 
-function isMotivationExtra(extra: LearningLessonExtra): extra is Extract<LearningLessonExtra, { kind: 'motivation' }> {
-  return extra.kind === 'motivation';
-}
-
-function getSectionExtraPages(extras: LearningLessonExtra[]): Array<{
-  key: string;
-  extras: LearningLessonExtra[];
-}> {
-  return extras.flatMap((extra) => {
-    if (extra.kind !== 'quiz' || extra.questions.length <= 1) {
-      return [{ key: extra.id, extras: [extra] }];
-    }
-
-    return extra.questions.map((question) => ({
-      key: `${extra.id}-${question.id}`,
-      extras: [{
-        ...extra,
-        id: `${extra.id}-${question.id}`,
-        questions: [question],
-      }],
-    }));
-  });
-}
-
 type LearningLabStrings = ReturnType<typeof getStrings>;
 type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
 
@@ -280,20 +213,6 @@ function SectionHeading({
         <Icon className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
         {label}
       </span>
-    </div>
-  );
-}
-
-function AccentSectionHeading({
-  label,
-  themeClasses,
-}: {
-  label: string;
-  themeClasses: LearningThemeClasses;
-}) {
-  return (
-    <div className={cx('mb-5 text-lg font-black uppercase leading-7 tracking-wide md:text-xl', themeClasses.sectionAccent.heading)}>
-      {label}
     </div>
   );
 }

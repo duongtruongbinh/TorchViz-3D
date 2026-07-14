@@ -3,6 +3,39 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-14 — Legacy lesson extras removed.** Removed the unused
+  `lesson/extras/` directory and the compatibility-only `LessonExtras` ->
+  `LessonExtraRenderer` -> `ConceptPanelBlock` chain after confirming that no
+  catalog lesson still declares `extras`. Moved the active quiz renderer to
+  `lesson/QuizBlock.tsx`, folded the lesson frame and localized-text helper into
+  their existing shared modules, and removed legacy extra assembly from
+  `LessonDetail`. MDX remains the authored-content path; non-MDX placeholder
+  theory/practice rendering is unchanged.
+- **2026-07-14 — Learning MDX runtime tree flattened.** Removed the shared
+  `src/components/learning/mdx/` directory, moved its two substantive modules
+  to `learningMdxComponents.tsx` and `learningMdxRegistry.tsx`, and absorbed the
+  eleven-line runtime domain map into the registry. This removes one source
+  file and the redundant `mdx/` directory without changing content discovery,
+  validation, locale fallback, search, or domain rendering. The active
+  Node/Vite validator remains under `scripts/` to keep build-only dependencies
+  outside browser-owned `src/` code.
+- **2026-07-14 — Learning Lab MDX convention generalized.** Replaced the
+  LLM-specific discovery/search/assembly path with the shared
+  `src/content/learning/<domain>/<lesson>.<locale>.mdx` convention.
+  `LessonDetail` and `LessonRail` no longer import or branch on LLM modules;
+  validation and generated search documents cover every Learning Lab MDX file.
+  LLM AI Engineering remains the only migrated reference domain with exactly
+  five approved Vietnamese files and a small optional component map. Replaced
+  `MdxRoadmap` with named domain components and moved LLM media ids out of the
+  shared lesson-extra layer.
+- **2026-07-14 — LLM MDX content pilot.** Added a build-time MDX authoring path
+  inside the existing React/Vite Learning Lab, migrated the Vietnamese-first
+  `minimal-llm-project-skeleton` requirements lesson, removed its duplicate
+  legacy extra/renderer branch, and extended lesson search to localized MDX
+  body text, headings, and keywords with Vietnamese-diacritic normalization.
+  Lesson modules were discovered by filename glob with an explicit Vietnamese
+  fallback; the later completion entry below records the final generated-search
+  boundary.
 - **2026-07-13 — LLM domain docs compacted.** Renamed the compact LLM domain
   plan/history record to
   [2026-07-13-learning-lab-llm-domain-compact](../docs/plans/2026-07-13-learning-lab-llm-domain-compact.md),
@@ -95,3 +128,28 @@ no `type` frontmatter required.)
   assets; moving Learning Lab display metadata through catalog/localization
   adapters; sharing Learning Lab theme tokens and exercise modal lifecycle;
   adding route smoke coverage; and documenting the root entrypoint convention.
+- 2026-07-14 — Hardened the Vietnamese-first LLM MDX checkpoint: all lesson
+  files now share one verified component contract, unapproved MDX ids are
+  rejected, and raw search discovery no longer couples `LessonRail` to the LLM
+  React render registry.
+- 2026-07-14 — Migrated the LLM component checkpoint quiz to Vietnamese MDX,
+  preserving its five-page flow and shared quiz state behavior while removing
+  the duplicate legacy payload.
+- 2026-07-14 — Migrated the six-page LLM data-pipeline checkpoint quiz to the
+  same MDX quiz adapter and removed its duplicate legacy payload.
+- 2026-07-14 — Migrated the nine-page LLM data-pipeline overview to MDX using
+  named adapters over the existing lifecycle and Transformer visualizations.
+- 2026-07-14 — Migrated the final eleven-page LLM roadmap to MDX and removed
+  the legacy `extras.ts` catalog bridge; retained an open compaction checkpoint
+  for duplicated raw-search/compiled roadmap payload and renderer id dispatch.
+- **2026-07-14 — Completed five-lesson LLM MDX pipeline.** Replaced eager raw
+  MDX search imports with AST-generated virtual search documents, added shared
+  deterministic validation for metadata/components/static expressions/pages,
+  compacted the roadmap to Vietnamese-only authored values with renderer-boundary
+  fallback, and verified all 99 tests plus production build. The Learning Lab
+  chunk decreased from 329.27 kB to 274.65 kB minified.
+- **2026-07-14 — Final LLM MDX compaction.** Removed two intermediate search
+  modules and the shared-renderer-to-LLM dependency, replaced three blank
+  roadmap pages with natural Markdown, reduced the roadmap to 428 lines, and
+  reduced the Learning Lab chunk again to 272.13 kB minified. All 99 tests and
+  the production build pass.

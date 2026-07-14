@@ -2,6 +2,8 @@ import { ChevronDown, PanelLeftClose, Search, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
 import type { LearningLesson, LearningTrack } from '../../../core/learning/types';
+import { normalizeLearningSearch } from '../../../core/learning/content/mdxContract';
+import { getLearningSearchDocument } from '../../../core/learning/content/mdxSearch';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getTrackText, getUnifiedLessonText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
@@ -36,7 +38,6 @@ export type LessonRailProps = {
 };
 
 const LESSON_RAIL_FILTERS: LessonRailFilter[] = ['all', 'ready', 'locked', 'practice'];
-
 export default function LessonRail({
   groups,
   collapsedTrackIds,
@@ -251,7 +252,7 @@ export function filterLessonRailGroups(
     query: string;
   },
 ): FilteredLearningLessonGroup[] {
-  const normalizedQuery = normalizeLessonSearch(query);
+  const normalizedQuery = normalizeLearningSearch(query);
   const isFiltered = normalizedQuery.length > 0 || filter !== 'all';
   return groups
     .map(({ track, lessons }) => ({
@@ -275,9 +276,6 @@ function lessonMatchesRailFilter(lesson: LearningLesson, filter: LessonRailFilte
 function lessonMatchesSearchQuery(lesson: LearningLesson, normalizedQuery: string, language: Language): boolean {
   if (!normalizedQuery) return true;
   const lessonText = getUnifiedLessonText(language, lesson);
-  return normalizeLessonSearch(`${lessonText.title} ${lesson.id}`).includes(normalizedQuery);
-}
-
-function normalizeLessonSearch(value: string): string {
-  return value.trim().toLocaleLowerCase();
+  const content = getLearningSearchDocument(lesson.domainId, lesson.id, language)?.text ?? '';
+  return normalizeLearningSearch(`${lessonText.title} ${lesson.id} ${content}`).includes(normalizedQuery);
 }

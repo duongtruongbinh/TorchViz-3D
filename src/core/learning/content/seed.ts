@@ -4,7 +4,6 @@ import type {
   LearningDomainStatus,
   LearningLocalizedText,
   LearningLesson,
-  LearningLessonExtra,
   LearningLessonSection,
   LearningLessonStatus,
   LearningTrack,
@@ -22,7 +21,6 @@ export type LearningLessonSeed = string | {
   id: string;
   title?: LearningLocalizedText;
   theory?: LearningLocalizedText[];
-  extras?: LearningLessonExtra[];
   status?: LearningLessonStatus;
   sections?: LearningLessonSection[];
 };
@@ -113,7 +111,6 @@ function buildPlaceholderLesson({
       kind,
       refId: kind === 'theory' ? lesson.id : `${lesson.id}-${kind}`,
     })),
-    ...(lesson.extras ? { extras: lesson.extras } : {}),
     practice: [],
   };
 }

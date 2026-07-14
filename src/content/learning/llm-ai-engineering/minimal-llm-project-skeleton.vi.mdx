@@ -1,0 +1,40 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'minimal-llm-project-skeleton',
+  locale: 'vi',
+  title: 'Yêu cầu chuẩn bị',
+  headings: ['Google Colab', 'Python', 'uv', 'VSCode'],
+  keywords: ['notebook', 'runtime', 'dependency', 'requirements', 'editor', 'GPU'],
+}
+
+<RequirementsGrid>
+  <RequirementCard icon="monitor" name="Google Colab" role="Môi trường học chính">
+    Mở notebook, chạy cell theo thứ tự, upload file khi cần và bật GPU ở các phần train nặng.
+
+    [Document](https://colab.research.google.com/) [Video](https://www.youtube.com/watch?v=RLYoEyIHL6A)
+  </RequirementCard>
+
+  <RequirementCard icon="code" name="Python" role="Runtime chính">
+    Biết chạy notebook/script, đọc lỗi, và dùng pip hoặc venv ở mức đơn giản. Colab đã có Python, local nên cài để làm project sau này.
+
+    [Document](https://docs.python.org/3/using/index.html) [Video](https://www.youtube.com/watch?v=YYXdXT2l-Gg)
+  </RequirementCard>
+
+  <RequirementCard icon="terminal" name="uv" role="Cài dependency nhanh">
+    Dùng trong Colab hoặc local để cài requirements nhanh hơn pip.
+
+    `pip install uv && uv pip install --system -r https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/refs/heads/main/requirements.txt`
+
+    [Document](https://docs.astral.sh/uv/getting-started/installation/) [Video](https://www.youtube.com/watch?v=AMdG7IjgSPM)
+  </RequirementCard>
+
+  <RequirementCard icon="wrench" name="VSCode" role="Editor cho project sau này">
+    Chuẩn bị để đọc code nhiều file, dùng terminal/Git và chuyển notebook thành GPT-mini project hoàn chỉnh.
+
+    [Document](https://code.visualstudio.com/docs/setup/setup-overview) [Video](https://learn.microsoft.com/en-us/shows/visual-studio-code/learn-visual-studio-code-in-7min-official-beginner-tutorial)
+  </RequirementCard>
+</RequirementsGrid>
+
+<LessonNote>
+  Đến phần GPT-mini, các notebook sẽ được gom thành project OOP: config, tokenizer/dataset, model, trainer, generator và checkpoint.
+</LessonNote>

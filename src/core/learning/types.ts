@@ -232,7 +232,6 @@ export type LearningLesson = {
     theory: LearningLocalizedText[];
   };
   sections: LearningLessonSection[];
-  extras?: LearningLessonExtra[];
   practice: LearningPracticeRef[];
 };
 
@@ -249,6 +248,10 @@ export type LearningDomain = {
   textKey: string;
   status: LearningDomainStatus;
   trackIds: string[];
+  mdx?: {
+    fallbackLocales: string[];
+    approvedLessonIds?: string[];
+  };
 };
 
 export type LearningRouteAlias = {

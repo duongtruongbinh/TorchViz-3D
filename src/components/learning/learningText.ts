@@ -2,6 +2,7 @@ import { learningCatalog } from '../../core/learning/content';
 import type {
   LearningDomain,
   LearningDomainId,
+  LearningLocalizedText,
   LearningLesson,
   LearningPracticeRef,
   LearningTrack,
@@ -17,6 +18,10 @@ type BasicText = {
   title: string;
   description: string;
 };
+
+export function getLearningLocalizedText(value: LearningLocalizedText, language: Language): string {
+  return value[language] ?? value.en;
+}
 
 export function getDomainText(language: Language, domain: LearningDomain): BasicText {
   const strings = getStrings(language).learningLab;

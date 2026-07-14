@@ -1,10 +1,10 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
-import type { LearningLessonExtra } from '../../../../core/learning/types';
-import { getStrings, type Language } from '../../../../lib/localization';
-import { scrollLearningLabElementIntoView } from '../scrolling';
-import { cx, getLearningLabTheme } from '../../theme';
-import { text } from './lessonExtraText';
+import type { LearningLessonExtra } from '../../../core/learning/types';
+import { getStrings, type Language } from '../../../lib/localization';
+import { getLearningLocalizedText as text } from '../learningText';
+import { cx, getLearningLabTheme } from '../theme';
+import { scrollLearningLabElementIntoView } from './scrolling';
 
 export default function QuizBlock({
   extra,

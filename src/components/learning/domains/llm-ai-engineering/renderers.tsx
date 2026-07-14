@@ -1,56 +1,24 @@
-import { Angry, ArrowDown, ArrowRight, Braces, CheckCircle2, CircleAlert, CircleDot, Code2, CornerDownLeft, Cpu, Database, Info, Monitor, MousePointer2, RotateCcw, Scissors, SlidersHorizontal, Sparkles, Square, Terminal, Type, type LucideIcon, Wrench, X } from 'lucide-react';
-import { Fragment, useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import { Angry, ArrowDown, ArrowRight, Braces, CheckCircle2, CircleAlert, CircleDot, CornerDownLeft, Cpu, Database, Info, Monitor, MousePointer2, RotateCcw, Scissors, SlidersHorizontal, Sparkles, Square, Type, type LucideIcon, Wrench, X } from 'lucide-react';
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { LearningLessonExtra, LearningTokenExample } from '../../../../core/learning/types';
 import { getStrings, type Language } from '../../../../lib/localization';
 import { cx, getLearningLabTheme } from '../../theme';
-import { getLearningAssetUrl } from '../../lesson/extras/assetRegistry';
-import ExtraFrame from '../../lesson/extras/ExtraFrame';
-import { text } from '../../lesson/extras/lessonExtraText';
+import { ExtraFrame } from '../../learningMdxComponents';
+import { getLearningLocalizedText as text } from '../../learningText';
 import { scrollLearningLabElementIntoView } from '../../lesson/scrolling';
 
-type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
-
-type DomainExtraProps<T extends LearningLessonExtra = LearningLessonExtra> = {
-  extra: T;
-  language: Language;
-  themeClasses: LearningThemeClasses;
+const LLM_LEARNING_ASSETS: Record<string, string> = {
+  'llm-from-scratch-roadmap.ai-hierarchy': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-ai-hierarchy.png', import.meta.url).href,
+  'llm-from-scratch-roadmap.next-token-loop': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-next-token-loop.png', import.meta.url).href,
+  'llm-from-scratch-roadmap.why-llms-popular-product': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-product.png', import.meta.url).href,
+  'llm-from-scratch-roadmap.why-llms-popular-technical': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-technical.png', import.meta.url).href,
 };
 
-const LLM_CUSTOM_CONCEPT_PANEL_IDS = new Set([
-  'colab-coding-requirements',
-  'tokenization-example',
-  'iris-scale-comparison-roadmap',
-  'llm-training-lifecycle',
-  'why-split-ai-fields',
-  'why-large',
-  'why-llms-are-popular-now',
-]);
-
-export function isLlmAiEngineeringCustomConceptPanel(
-  extra: LearningLessonExtra,
-): extra is Extract<LearningLessonExtra, { kind: 'conceptPanel' }> {
-  return extra.kind === 'conceptPanel' && (
-    LLM_CUSTOM_CONCEPT_PANEL_IDS.has(extra.id) || extra.id.startsWith('transformer-translation-step-')
-  );
+function getLlmLearningAssetUrl(assetId: string): string {
+  return LLM_LEARNING_ASSETS[assetId] ?? '';
 }
 
-export function renderLlmAiEngineeringExtra({ extra, language, themeClasses }: DomainExtraProps): ReactElement | null {
-  if (extra.kind === 'motivation') {
-    return <MotivationBlock extra={extra} language={language} themeClasses={themeClasses} />;
-  }
-
-  if (extra.kind === 'conceptInteraction') {
-    return <ConceptInteraction extra={extra} language={language} themeClasses={themeClasses} />;
-  }
-
-  if (isLlmAiEngineeringCustomConceptPanel(extra)) {
-    return <LlmConceptPanelBlock extra={extra} language={language} themeClasses={themeClasses} />;
-  }
-
-  return null;
-}
-
-function MotivationBlock({ extra, language, themeClasses }: {
+export function LlmAiHierarchy({ extra, language, themeClasses }: {
   extra: Extract<LearningLessonExtra, { kind: 'motivation' }>;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
@@ -70,7 +38,7 @@ function MotivationBlock({ extra, language, themeClasses }: {
       <div className="mt-5 grid gap-6">
         <figure className="flex min-w-0 items-center justify-center">
           <img
-            src={getLearningAssetUrl(extra.image)}
+            src={getLlmLearningAssetUrl(extra.image)}
             alt={text(extra.imageAlt, language)}
             className="aspect-[1672/941] w-full max-w-[42rem] object-contain"
             loading="lazy"
@@ -184,7 +152,7 @@ function HierarchyRow({ row, isActive, language, themeClasses, onActivate }: {
 }
 
 
-function ConceptInteraction({ extra, language, themeClasses }: {
+export function LlmConceptInteraction({ extra, language, themeClasses }: {
   extra: Extract<LearningLessonExtra, { kind: 'conceptInteraction' }>;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
@@ -428,7 +396,7 @@ function ConceptIntroGrid({ extra, noteText, language, themeClasses }: {
       <section className="grid min-h-[15rem] p-0">
         <figure className="flex min-h-full min-w-0 items-center justify-center overflow-hidden">
           <img
-            src={getLearningAssetUrl(extra.image)}
+            src={getLlmLearningAssetUrl(extra.image)}
             alt={text(extra.imageAlt, language)}
             className={cx('aspect-[1672/941] w-full max-w-[34rem] object-contain', themeClasses.radius.card)}
             loading="lazy"
@@ -644,7 +612,7 @@ function getTheoryTileClass(themeClasses: ReturnType<typeof getLearningLabTheme>
     themeClasses.isLight ? 'border-[#205089]/12 bg-[#F8FAFC]' : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/6',
   );
 }
-function LlmConceptPanelBlock({ extra, language, themeClasses }: {
+export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
   extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
@@ -677,26 +645,6 @@ function LlmConceptPanelBlock({ extra, language, themeClasses }: {
         <IrisScaleComparisonPanel extra={extra} language={language} themeClasses={themeClasses} />
       </ExtraFrame>
     );
-  }
-
-  if (extra.id === 'llm-training-lifecycle') {
-    return (
-      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
-        <LlmTrainingLifecyclePanel extra={extra} language={language} themeClasses={themeClasses} />
-      </ExtraFrame>
-    );
-  }
-
-  if (extra.id.startsWith('transformer-translation-step-')) {
-    return (
-      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
-        <TransformerTranslationStepPanel extra={extra} language={language} themeClasses={themeClasses} />
-      </ExtraFrame>
-    );
-  }
-
-  if (extra.id === 'colab-coding-requirements') {
-    return <ColabCodingRequirementsPanel extra={extra} language={language} themeClasses={themeClasses} />;
   }
 
   return (
@@ -763,7 +711,7 @@ function LlmConceptPanelBlock({ extra, language, themeClasses }: {
             </div>
             <figure className={cx('mx-auto w-full max-w-4xl overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
               <img
-                src={getLearningAssetUrl('llm-from-scratch-roadmap.why-llms-popular-product')}
+                src={getLlmLearningAssetUrl('llm-from-scratch-roadmap.why-llms-popular-product')}
                 alt="Ba lý do LLM dễ ứng dụng trong doanh nghiệp: dễ dùng, đa nhiệm và dễ tích hợp."
                 className="aspect-[1672/941] w-full object-contain"
                 loading="lazy"
@@ -792,7 +740,7 @@ function LlmConceptPanelBlock({ extra, language, themeClasses }: {
             </div>
             <figure className={cx('mx-auto w-full max-w-4xl overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/42')}>
               <img
-                src={getLearningAssetUrl('llm-from-scratch-roadmap.why-llms-popular-technical')}
+                src={getLlmLearningAssetUrl('llm-from-scratch-roadmap.why-llms-popular-technical')}
                 alt="Ba lý do kỹ thuật giúp AI hiện đại phát triển mạnh: Transformer, big data và GPU compute."
                 className="aspect-[1672/941] w-full object-contain"
                 loading="lazy"
@@ -940,15 +888,6 @@ function LlmConceptPanelBlock({ extra, language, themeClasses }: {
                 </div>
               ))}
             </div>
-          ) : extra.id === 'colab-coding-requirements' ? (
-            <div className={cx('mx-auto flex max-w-3xl gap-3 rounded-lg px-4 py-3 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
-              <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-[#D97706]" strokeWidth={2.1} aria-hidden="true" />
-              <div className="min-w-0">
-                {extra.bodyAfter.map((paragraph) => (
-                  <p key={text(paragraph, language)}>{text(paragraph, language)}</p>
-                ))}
-              </div>
-            </div>
           ) : (
             extra.bodyAfter.map((paragraph) => (
               <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
@@ -962,126 +901,7 @@ function LlmConceptPanelBlock({ extra, language, themeClasses }: {
   );
 }
 
-function ColabCodingRequirementsPanel({ extra, language, themeClasses }: {
-  extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
-  const highlights = extra.highlights ?? [];
-  const toolItems = highlights.slice(0, 4);
-  const summaryNotes = extra.bodyAfter?.map((paragraph) => text(paragraph, language)) ?? [];
-  const toolIcons = [Monitor, Code2, Terminal, Wrench];
-  const toolPalette = themeClasses.isLight
-    ? {
-        card: 'border-[#205089]/12 bg-white',
-        top: 'bg-[#F1F5F9]',
-        icon: 'border border-[#205089]/12 bg-white text-[#123B68]',
-        title: themeClasses.titleText,
-      }
-    : {
-        card: 'border-[#A8B8C8]/14 bg-[#121A24]/36',
-        top: 'bg-white/5',
-        icon: 'border border-white/10 bg-white/7 text-[#F2F6FA]',
-        title: themeClasses.titleText,
-      };
-
-  return (
-    <div className="grid gap-5 py-1">
-      {toolItems.length ? (
-        <section className="grid gap-3">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {toolItems.map((item, itemIndex) => {
-              const Icon = toolIcons[itemIndex] ?? Wrench;
-              const descriptionLines = splitRequirementLines(text(item.description, language));
-              const commandLine = descriptionLines.find((line) => line.includes('uv pip install'));
-              const plainLines = commandLine ? descriptionLines.filter((line) => line !== commandLine) : descriptionLines;
-              return (
-                <div
-                  key={text(item.shortName, language)}
-                  className={cx(
-                    'grid h-full min-h-[20rem] grid-rows-[8rem_minmax(0,1fr)] overflow-hidden rounded-lg border shadow-[inset_0_1px_0_rgba(255,255,255,0.54)] transition-[filter,opacity,box-shadow] duration-200',
-                    toolPalette.card,
-                  )}
-                >
-                  <div className={cx('grid h-32 place-items-center border-b', toolPalette.top, themeClasses.isLight ? 'border-black/5' : 'border-white/10')}>
-                    <div className={cx(
-                      'grid h-14 w-14 shrink-0 place-items-center rounded-xl shadow-sm',
-                      toolPalette.icon,
-                    )}>
-                      <Icon className="h-7 w-7" strokeWidth={2.1} aria-hidden="true" />
-                    </div>
-                  </div>
-
-                  <div className="grid content-start gap-3 p-4">
-                    <div className="min-w-0">
-                      <div className="grid gap-2">
-                        <div className={cx('text-base font-black leading-6', toolPalette.title)}>
-                          {text(item.shortName, language)}
-                        </div>
-                      </div>
-                      <p className={cx('mt-0.5 text-sm font-semibold leading-6', themeClasses.mutedText)}>{text(item.fullName, language)}</p>
-                    </div>
-
-                    <div className="grid gap-2">
-                      {plainLines.map((line) => (
-                        <p key={line} className={cx('text-sm leading-6', themeClasses.bodyText)}>{line}</p>
-                      ))}
-                      {commandLine ? (
-                        <code className={cx(
-                          'block overflow-x-auto rounded-lg px-3 py-2 text-xs leading-5',
-                          themeClasses.isLight ? 'bg-[#0B1220] text-[#E5EEF8]' : 'bg-black/30 text-[#E5EEF8]',
-                        )}>
-                          {commandLine}
-                        </code>
-                      ) : null}
-                    </div>
-
-                    {item.links?.length ? (
-                      <div className="flex flex-wrap gap-2">
-                        {item.links.map((link) => (
-                          <a
-                            key={link.href}
-                            href={link.href}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={cx(
-                              'inline-flex min-h-9 items-center rounded-lg border px-3 text-xs font-black leading-5 transition-colors',
-                              themeClasses.focusRing,
-                              themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC] text-[#123B68] hover:bg-[#EEF4FA]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7 text-[#F2F6FA] hover:bg-[#A8B8C8]/11',
-                            )}
-                          >
-                            {text(link.label, language)}
-                          </a>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      ) : null}
-
-      {summaryNotes.length ? (
-        <div className={cx('grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
-          {summaryNotes.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function splitRequirementLines(value: string): string[] {
-  return value
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-}
-
-function TransformerTranslationStepPanel({ extra, language, themeClasses }: {
+export function TransformerTranslationStepPanel({ extra, language, themeClasses }: {
   extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
@@ -1543,7 +1363,7 @@ function ScaleComparisonCard({
   );
 }
 
-function LlmTrainingLifecyclePanel({ extra, language, themeClasses }: {
+export function LlmTrainingLifecyclePanel({ extra, language, themeClasses }: {
   extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
