@@ -73,6 +73,16 @@ test('Learning Lab feedback scroll uses one shared helper', () => {
   );
 });
 
+test('Learning Home avoids fragment links that replace the HashRouter route', () => {
+  const domainCatalog = readSource('src/components/learning/shell/DomainCatalog.tsx');
+
+  assert.doesNotMatch(
+    domainCatalog,
+    /href=["']#/,
+    'in-page links must not replace the HashRouter fragment',
+  );
+});
+
 test('Learning Lab rail toggle and quiz labels use shared theme/localization surfaces', () => {
   const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
   const lessonRail = readSource('src/components/learning/lesson/LessonRail.tsx');

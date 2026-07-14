@@ -1,4 +1,4 @@
-import { Languages } from 'lucide-react';
+import { Languages, Menu } from 'lucide-react';
 import { getStrings, type Language } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import { cx, getLearningLabTheme } from './theme';
@@ -7,12 +7,14 @@ type LearningLabHeaderProps = {
   mode: 'path' | 'review';
   theme: 'dark' | 'light';
   onModeChange: (mode: 'path' | 'review') => void;
+  onOpenNavigation: () => void;
 };
 
 export default function LearningLabHeader({
   mode,
   theme,
   onModeChange,
+  onOpenNavigation,
 }: LearningLabHeaderProps) {
   const language = useStore((s) => s.language);
   const setLanguage = useStore((s) => s.setLanguage);
@@ -23,15 +25,24 @@ export default function LearningLabHeader({
 
   return (
     <header className={cx('sticky top-0 z-40 w-full border-b shadow-sm', themeClasses.header)}>
-      <div className="flex h-16 w-full items-center gap-4 px-5">
-        <div className={cx('flex h-10 overflow-hidden border p-1', themeClasses.radius.pill, themeClasses.segmented)}>
+      <div className="flex h-16 w-full items-center gap-2 px-3 sm:gap-4 sm:px-5">
+        <button
+          type="button"
+          onClick={onOpenNavigation}
+          className={cx('flex h-10 w-10 shrink-0 items-center justify-center lg:hidden', themeClasses.radius.icon, themeClasses.button.icon)}
+          title={text.openSidebar}
+          aria-label={text.openSidebar}
+        >
+          <Menu className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+        </button>
+        <div className={cx('flex h-10 min-w-0 overflow-hidden border p-1', themeClasses.radius.pill, themeClasses.segmented)}>
           {(['path', 'review'] as const).map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => onModeChange(item)}
               className={cx(
-                'px-4 text-sm',
+                'min-w-0 px-3 text-xs sm:px-4 sm:text-sm',
                 themeClasses.radius.pill,
                 themeClasses.button.segmented(mode === item),
               )}

@@ -20,9 +20,9 @@ export default function ReviewMode({ catalog, domainId, language, theme }: Revie
     : catalog.lessons.flatMap((lesson) => lesson.practice);
 
   return (
-    <section className="learning-lab-catalog grid gap-5 px-2">
-      <div>
-        <h2 className={cx('text-3xl font-black leading-tight', themeClasses.titleText)}>{strings.learningLab.reviewTitle}</h2>
+    <section className="learning-lab-catalog mx-auto grid w-full max-w-6xl gap-5 px-1 py-2 sm:px-2 sm:py-3">
+      <div className={cx('border p-5 sm:p-6', themeClasses.radius.panel, themeClasses.surface.card)}>
+        <h1 className={cx('text-2xl font-black leading-tight sm:text-3xl', themeClasses.titleText)}>{strings.learningLab.reviewTitle}</h1>
         <p className={cx('mt-2 max-w-2xl text-sm leading-6', themeClasses.bodyText)}>{strings.learningLab.reviewDescription}</p>
       </div>
       <PracticeSection practice={practice} theme={theme} language={language} />
