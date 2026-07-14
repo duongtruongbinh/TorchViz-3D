@@ -24,7 +24,7 @@ function node(opType: string): LayoutNode {
   };
 }
 
-test('builds deterministic MaxPool and AvgPool value exercises', () => {
+test('builds deterministic pooling, Linear, and ReLU value exercises', () => {
   const maxPool = buildValueExerciseModel('pool-value', node('MaxPool'));
   const avgPool = buildValueExerciseModel('pool-value', node('AvgPool2d'));
 
@@ -32,22 +32,16 @@ test('builds deterministic MaxPool and AvgPool value exercises', () => {
   assert.deepEqual(maxPool?.expectedAnswers, [5]);
   assert.equal(avgPool?.seed, 'pool-value:avg');
   assert.deepEqual(avgPool?.expectedAnswers, [5]);
-});
 
-test('builds deterministic Linear dot-product exercise', () => {
-  const model = buildValueExerciseModel('linear-value', node('Linear'));
+  const linear = buildValueExerciseModel('linear-value', node('Linear'));
+  assert.equal(linear?.seed, 'linear-value:dot');
+  assert.deepEqual(linear?.expectedAnswers, [4]);
+  assert.match(linear?.hintLines.join(' ') ?? '', /bias/);
 
-  assert.equal(model?.seed, 'linear-value:dot');
-  assert.deepEqual(model?.expectedAnswers, [4]);
-  assert.match(model?.hintLines.join(' ') ?? '', /bias/);
-});
-
-test('builds deterministic ReLU vector exercise', () => {
-  const model = buildValueExerciseModel('activation-value', node('ReLU'));
-
-  assert.equal(model?.seed, 'activation-value:relu');
-  assert.deepEqual(model?.inputValues, [-2, 0, 3, -0.5, 1]);
-  assert.deepEqual(model?.expectedAnswers, [0, 0, 3, 0, 1]);
+  const relu = buildValueExerciseModel('activation-value', node('ReLU'));
+  assert.equal(relu?.seed, 'activation-value:relu');
+  assert.deepEqual(relu?.inputValues, [-2, 0, 3, -0.5, 1]);
+  assert.deepEqual(relu?.expectedAnswers, [0, 0, 3, 0, 1]);
 });
 
 test('checks numeric answers per dimension with tolerance', () => {

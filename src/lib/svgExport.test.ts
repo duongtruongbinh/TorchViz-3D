@@ -31,17 +31,14 @@ function layout(nodes: LayoutNode[]): LayoutData {
   };
 }
 
-test('SVG export uses error color from layout nodes', () => {
+test('SVG export preserves error and collapsed-container layout colors', () => {
   const svg = generateSVG(layout([node({ error: 'bad shape' })]), {
     lightBackground: true,
     legend: false,
   });
 
   assert.match(svg, new RegExp(ERROR_COLOR.replace('#', '#')));
-});
-
-test('SVG export uses collapsed container layout color', () => {
-  const svg = generateSVG(layout([node({
+  const containerSvg = generateSVG(layout([node({
     id: 'container',
     name: 'container',
     op_type: 'Sequential',
@@ -54,5 +51,5 @@ test('SVG export uses collapsed container layout color', () => {
     legend: false,
   });
 
-  assert.match(svg, /#123456/i);
+  assert.match(containerSvg, /#123456/i);
 });

@@ -3,6 +3,15 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-14 — Project history, docs, and tests consolidated.** Compacted 19
+  superseded plan files into five surviving owner records, reducing
+  the pre-task history from 30 files/5,194 lines to 12 total files/2,892 lines
+  including the new cleanup record, while preserving decisions and absorbed
+  filenames. Synchronized AGENTS, README,
+  architecture, and wiki claims with the typed-TOC/locale-MDX Learning Lab.
+  Reorganized synchronous unit scenarios into labeled tables, reducing the
+  Node test report from 107 to 68 cases without removing behavior categories;
+  kept timing, Python subprocess, and MDX validator cases isolated.
 - **2026-07-14 — Learning Lab documentation normalized.** Renamed the active
   concept page from `learning-lab-refactor.md` to `learning-lab.md`, updated all
   repository backlinks, and kept “refactor” naming on historical plan files
@@ -59,11 +68,10 @@ no `type` frontmatter required.)
   Lesson modules were discovered by filename glob with an explicit Vietnamese
   fallback; the later completion entry below records the final generated-search
   boundary.
-- **2026-07-13 — LLM domain docs compacted.** Renamed the compact LLM domain
-  plan/history record to
-  [2026-07-13-learning-lab-llm-domain-compact](../docs/plans/2026-07-13-learning-lab-llm-domain-compact.md),
-  updated the approved boundary to nodes 1-5, and added a cleanup prompt for
-  reducing redundant branch code against `main`.
+- **2026-07-13 — LLM domain docs compacted.** Established the approved boundary
+  for nodes 1-5 and reduced redundant branch code against `main`. That pre-MDX
+  record is now absorbed into the current
+  [Learning Lab content migration](../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md).
 - **2026-07-05 — LLM data pipeline clarity.** Clarified the Learning Lab LLM
   data pipeline visual/copy so GPT logits, shifted training targets,
   cross-entropy over vocabulary, and generation-time decode are separated for

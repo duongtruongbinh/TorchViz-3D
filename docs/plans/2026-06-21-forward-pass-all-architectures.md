@@ -2,7 +2,7 @@
 title: Generalize the forward-pass animation to all architectures
 status: done
 created: 2026-06-21T00:00:00Z
-updated: 2026-06-21T18:00:00Z
+updated: 2026-07-14T13:14:00+07:00
 author: hienlong
 task: "Create the forward propagation (animated forward pass) for each architecture, not just LeNet/MNIST."
 supersedes: []
@@ -220,3 +220,20 @@ Write this file. (Done by creating it.) **Checkpoint: get approval before Phase 
   make it run under `node --test` (the suite globs `src/lib/*.test.ts`), added
   `.ts` extensions to `demoStops.ts`'s value imports, matching the rest of the
   testable chain. `npm test` 61/61 green; `npm run build` clean.
+
+# Compacted Follow-up History
+
+The following completed follow-ups are absorbed here because they refine the
+same forward-pass pipeline and no longer need separate planning surfaces:
+
+| Absorbed plan | Preserved decision and outcome |
+|---|---|
+| `2026-06-23-forward-pass-residual-remap.md` | Remap residual endpoints through expanded/collapsed descendants so skip edges stay attached to visible stops. Added regression coverage for expanded and collapsed residual graphs. |
+| `2026-06-23-forward-pass-block-persistence.md` | Keep already revealed blocks visible while playback advances instead of replacing the visible set at every stop. |
+| `2026-06-23-forward-pass-upsample-effect.md` | Add the Upsample operation panel and shape calculation without coupling the generic playback engine to one architecture. |
+| `2026-06-23-linear-predicted-class-label.md` | Move predicted-class output into the Linear effect where classification semantics belong. |
+| `2026-06-24-architecture-expand-collapse-all.md` | Add bulk expand/collapse controls while intentionally excluding top-level roots from collapsible ids. |
+
+These changes preserve the architecture-agnostic stop/edge model established
+by this plan. Their individual execution logs reported passing typecheck, tests,
+and production builds at the time of implementation.

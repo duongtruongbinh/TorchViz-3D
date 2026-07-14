@@ -52,9 +52,14 @@ test('AppShell lazy-loads Learning Lab instead of importing it into the landing 
   );
 });
 
-test('Learning Lab feedback scroll uses one shared helper', () => {
+test('Learning Lab shared infrastructure avoids duplicated navigation and UI logic', () => {
   const quizBlock = readSource('src/components/learning/lesson/QuizBlock.tsx');
   const domainRenderer = readSource('src/components/learning/domains/llm-ai-engineering/renderers.tsx');
+  const domainCatalog = readSource('src/components/learning/shell/DomainCatalog.tsx');
+  const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
+  const lessonRail = readSource('src/components/learning/lesson/LessonRail.tsx');
+  const theme = readSource('src/components/learning/theme.ts');
+  const localization = readSource('src/lib/localization.ts');
 
   assert.match(
     quizBlock,
@@ -71,39 +76,11 @@ test('Learning Lab feedback scroll uses one shared helper', () => {
     /function\s+scrollLearningLabElementIntoView/,
     'feedback scroll helper should not be duplicated across renderers',
   );
-});
-
-test('Learning Home avoids fragment links that replace the HashRouter route', () => {
-  const domainCatalog = readSource('src/components/learning/shell/DomainCatalog.tsx');
-
   assert.doesNotMatch(
     domainCatalog,
     /href=["']#/,
     'in-page links must not replace the HashRouter fragment',
   );
-});
-
-test('CV review and Workspace handoff derive from catalog exercise lessons', () => {
-  const reviewMode = readSource('src/components/learning/shell/ReviewMode.tsx');
-  const cvComponents = readSource('src/components/learning/domains/cv/mdxComponents.tsx');
-  const canvas = readSource('src/components/canvas/Canvas3D.tsx');
-
-  assert.match(reviewMode, /getReviewableLearningLessons\(catalog\)/);
-  assert.doesNotMatch(reviewMode, /conv2d-shape-exercise|pooling-value-exercise/);
-  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ShapeExercise['"]\)/);
-  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ValueExercise['"]\)/);
-  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ConvExercise['"]\)/);
-  assert.match(canvas, /resolveLearningExerciseLessonTarget/);
-  assert.doesNotMatch(`${reviewMode}\n${cvComponents}\n${canvas}`, /practiceId|[?&]practice=/);
-});
-
-test('Learning Lab rail toggle and quiz labels use shared theme/localization surfaces', () => {
-  const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
-  const lessonRail = readSource('src/components/learning/lesson/LessonRail.tsx');
-  const quizBlock = readSource('src/components/learning/lesson/QuizBlock.tsx');
-  const theme = readSource('src/components/learning/theme.ts');
-  const localization = readSource('src/lib/localization.ts');
-
   assert.match(
     theme,
     /railToggleButton:\s*cx\(/,
@@ -129,4 +106,18 @@ test('Learning Lab rail toggle and quiz labels use shared theme/localization sur
     /language === 'vi' \? '(?:Kiểm tra|Làm lại|Token chưa phân loại|Tất cả token đã được kéo vào nhóm\.|Lý thuyết cốt lõi)'/,
     'new Learning Lab controls should use localization or content text helpers instead of inline language checks',
   );
+});
+
+test('CV review and Workspace handoff derive from catalog exercise lessons', () => {
+  const reviewMode = readSource('src/components/learning/shell/ReviewMode.tsx');
+  const cvComponents = readSource('src/components/learning/domains/cv/mdxComponents.tsx');
+  const canvas = readSource('src/components/canvas/Canvas3D.tsx');
+
+  assert.match(reviewMode, /getReviewableLearningLessons\(catalog\)/);
+  assert.doesNotMatch(reviewMode, /conv2d-shape-exercise|pooling-value-exercise/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ShapeExercise['"]\)/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ValueExercise['"]\)/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ConvExercise['"]\)/);
+  assert.match(canvas, /resolveLearningExerciseLessonTarget/);
+  assert.doesNotMatch(`${reviewMode}\n${cvComponents}\n${canvas}`, /practiceId|[?&]practice=/);
 });

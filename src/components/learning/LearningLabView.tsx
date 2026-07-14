@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, ListTree, MessageSquareText, Network, PanelLeft, PanelLeftOpen, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { Home, ListTree, PanelLeft, PanelLeftOpen } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { learningCatalog } from '../../content/learning/index.ts';
 import {
@@ -13,6 +13,7 @@ import { resolveVisibleLearningLesson } from './lesson/visibleLesson';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';
+import { DOMAIN_ICONS } from './domainPresentation';
 import LessonDetail from './lesson/LessonDetail';
 import LessonRail, { filterLessonRailGroups, type LessonRailFilter, type LessonRailProps } from './lesson/LessonRail';
 import { getDomainText } from './learningText';
@@ -25,20 +26,6 @@ type LearningLabViewProps = {
 };
 
 const DOMAIN_IDS = new Set<LearningDomainId>(learningCatalog.domains.map((domain) => domain.id));
-const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
-  'programming-foundation': Code2,
-  'math-statistics-ai': Calculator,
-  fundamentals: BookOpen,
-  'deep-learning': BrainCircuit,
-  cv: Eye,
-  nlp: MessageSquareText,
-  'llm-ai-engineering': Cpu,
-  'mlops-llmops-production-systems': ServerCog,
-  'ai-system-design': Network,
-  'ai-ethics-safety-governance': ShieldCheck,
-  'reinforcement-learning': Route,
-  'robot-learning': Bot,
-};
 const futureHmiLogoUrl = new URL('../../../docs/assets/Future-HMIip.webp', import.meta.url).href;
 
 function isLearningDomainId(value: string | undefined): value is LearningDomainId {

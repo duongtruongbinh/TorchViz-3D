@@ -1,7 +1,7 @@
 ---
 title: Concepts
 type: Index
-updated: 2026-06-25
+updated: 2026-07-14
 ---
 
 # Concepts

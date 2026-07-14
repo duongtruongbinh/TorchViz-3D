@@ -17,19 +17,15 @@ import math
   assert.equal(countPythonPreambleLines(preamble), 6);
 });
 
-test('maps wrapped syntax errors on user line 1 and line 5 back to editor lines', () => {
+test('maps syntax, runtime, and wrapper lines back to editor lines', () => {
   const preambleLineCount = 6;
-
-  assert.equal(mapWrappedPythonLineToUserLine(7, preambleLineCount), 1);
-  assert.equal(mapWrappedPythonLineToUserLine(11, preambleLineCount), 5);
-});
-
-test('maps runtime errors inside forward back to the original user line', () => {
-  const preambleLineCount = 6;
-
-  assert.equal(mapWrappedPythonLineToUserLine(21, preambleLineCount), 15);
-});
-
-test('clamps wrapper/internal runtime errors to the first user line', () => {
-  assert.equal(mapWrappedPythonLineToUserLine(4, 6), 1);
+  const cases = [
+    { wrapped: 7, expected: 1, label: 'syntax line 1' },
+    { wrapped: 11, expected: 5, label: 'syntax line 5' },
+    { wrapped: 21, expected: 15, label: 'runtime line 15' },
+    { wrapped: 4, expected: 1, label: 'wrapper clamp' },
+  ];
+  for (const scenario of cases) {
+    assert.equal(mapWrappedPythonLineToUserLine(scenario.wrapped, preambleLineCount), scenario.expected, scenario.label);
+  }
 });

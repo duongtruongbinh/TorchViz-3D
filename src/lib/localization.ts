@@ -150,14 +150,6 @@ const localizedText = {
         vi: 'Giải thích bằng từ đơn giản trước, rồi mới đi vào công thức, code và chi tiết kỹ thuật khi thật sự cần.',
       },
       syllabusLabel: { en: 'Syllabus index', vi: 'Mục lục khóa học' },
-      syllabusTitle: {
-        en: 'Traverse the full Learning Lab catalog.',
-        vi: 'Duyệt toàn bộ catalog Learning Lab.',
-      },
-      syllabusBody: {
-        en: 'Scan every domain, preview its course tracks, and jump directly into the first lesson route.',
-        vi: 'Xem nhanh từng domain, các track chính, rồi mở thẳng lộ trình bài học đầu tiên.',
-      },
     },
     domainAvailable: { en: 'Available', vi: 'Sẵn sàng' },
     domainPlaceholder: { en: 'Placeholder', vi: 'Đang cập nhật' },

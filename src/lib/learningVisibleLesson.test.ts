@@ -16,7 +16,7 @@ function lesson(id: string): LearningLesson {
   };
 }
 
-test('keeps route lesson as detail while rail filter points at first visible lesson', () => {
+test('visible lesson policy preserves routes and falls back to the first domain lesson', () => {
   const route = lesson('route');
   const firstFiltered = lesson('filtered');
   const result = resolveVisibleLearningLesson({
@@ -30,11 +30,9 @@ test('keeps route lesson as detail while rail filter points at first visible les
   assert.equal(result.detailLesson?.id, 'route');
   assert.equal(result.railLesson?.id, 'filtered');
   assert.equal(result.shouldNavigateToDetailLesson, false);
-});
 
-test('uses first domain lesson when route has no lesson', () => {
   const first = lesson('first');
-  const result = resolveVisibleLearningLesson({
+  const fallback = resolveVisibleLearningLesson({
     routeSelectedLesson: null,
     firstFilteredLesson: null,
     filteredLessonIds: new Set(),
@@ -42,6 +40,6 @@ test('uses first domain lesson when route has no lesson', () => {
     firstDomainLesson: first,
   });
 
-  assert.equal(result.detailLesson?.id, 'first');
-  assert.equal(result.railLesson?.id, 'first');
+  assert.equal(fallback.detailLesson?.id, 'first');
+  assert.equal(fallback.railLesson?.id, 'first');
 });

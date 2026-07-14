@@ -5,6 +5,7 @@ import { learningCatalog } from '../../../content/learning/index.ts';
 import { getGroupedLearningLessonsForDomain } from '../../../core/learning/selectors';
 import type { LearningDomain, LearningDomainId } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
+import { DOMAIN_CARD_PALETTES, DOMAIN_ICONS } from '../domainPresentation';
 import { getDomainText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 
@@ -24,7 +25,6 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
     : 'bg-[#172232]/[0.72]';
   const titleTone = isLight ? 'text-[#132033]' : themeClasses.titleText;
   const bodyTone = isLight ? 'text-[#42546A]' : themeClasses.bodyText;
-  const labelTone = isLight ? 'text-[#245B8F]' : themeClasses.eyebrowText;
   const mutedTone = isLight ? 'text-[#6B7C91]' : themeClasses.mutedText;
   const syllabus = learningCatalog.domains.map((domain) => buildSyllabusItem(domain, language));
   const lessonCount = syllabus.reduce((total, item) => total + item.lessonCount, 0);
@@ -58,48 +58,23 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
           </section>
 
           <section className="mt-8" aria-labelledby="learning-home-syllabus-title">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <SectionLabel text={home.syllabusLabel} toneClass={labelTone} />
-                <h2 id="learning-home-syllabus-title" className={cx('mt-1 text-[clamp(1.55rem,2vw,2.25rem)] font-black leading-tight tracking-[-0.02em]', titleTone)}>
-                  {home.syllabusTitle}
-                </h2>
-              </div>
-              <p className={cx('max-w-xl text-sm leading-6 sm:text-right', mutedTone)}>{home.syllabusBody}</p>
-            </div>
+            <h2 id="learning-home-syllabus-title" className={cx('text-[clamp(1.55rem,2vw,2.25rem)] font-black leading-tight tracking-[-0.02em]', titleTone)}>
+              {home.syllabusLabel}
+            </h2>
 
-            <div className="mt-5 grid gap-4 xl:grid-cols-2">
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {syllabus.map((item, index) => (
-                  <button
-                    key={item.domain.id}
-                    type="button"
-                    onClick={() => onOpenDomain(item.domain.id)}
-                    className={cx(
-                      'group grid min-h-[190px] w-full grid-rows-[1fr_auto] border p-5 text-left transition-[border-color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(32,80,137,0.13)]',
-                      themeClasses.radius.card,
-                      themeClasses.focusRing,
-                      themeClasses.surface.interactiveCard,
-                    )}
-                  >
-                    <span className="min-w-0">
-                      <span className="flex items-start gap-3">
-                        <span className={cx('text-sm font-black leading-tight', mutedTone)}>
-                          {String(index + 1).padStart(2, '0')}
-                        </span>
-                        <span className={cx('min-w-0 flex-1 text-lg font-black leading-tight', titleTone)}>{item.title}</span>
-                        <span className={cx('px-2.5 py-0.5 text-[11px] font-black', themeClasses.radius.pill, themeClasses.statusPill(item.domain.status === 'placeholder'))}>
-                          {item.domain.status === 'placeholder' ? strings.domainPlaceholder : strings.domainAvailable}
-                        </span>
-                      </span>
-                      <span className={cx('mt-3 line-clamp-2 block text-sm leading-6', bodyTone)}>{item.description}</span>
-                    </span>
-                    <span className="mt-4 flex items-center justify-between gap-3 border-t border-[#205089]/10 pt-3">
-                      <span className="flex flex-wrap gap-2">
-                        <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
-                      </span>
-                      <ArrowRight className={cx('h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
-                    </span>
-                  </button>
+                <DomainCard
+                  key={item.domain.id}
+                  item={item}
+                  index={index}
+                  strings={strings}
+                  themeClasses={themeClasses}
+                  titleTone={titleTone}
+                  bodyTone={bodyTone}
+                  mutedTone={mutedTone}
+                  onOpen={() => onOpenDomain(item.domain.id)}
+                />
               ))}
             </div>
           </section>
@@ -109,19 +84,77 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
   );
 }
 
-function SectionLabel({ text, toneClass }: { text: string; toneClass: string }) {
-  return (
-    <div className={cx('text-base font-black uppercase tracking-wide sm:text-lg', toneClass)}>
-      {text}
-    </div>
-  );
-}
-
 function Metric({ text, toneClass }: { text: string; toneClass: string }) {
   return (
     <span className={cx('inline-flex items-center rounded-full bg-current/10 px-2.5 py-1 text-xs font-black', toneClass)}>
       {text}
     </span>
+  );
+}
+
+type SyllabusItem = ReturnType<typeof buildSyllabusItem>;
+type LearningStrings = ReturnType<typeof getStrings>['learningLab'];
+type ThemeClasses = ReturnType<typeof getLearningLabTheme>;
+
+function DomainCard({
+  item,
+  index,
+  strings,
+  themeClasses,
+  titleTone,
+  bodyTone,
+  mutedTone,
+  onOpen,
+}: {
+  item: SyllabusItem;
+  index: number;
+  strings: LearningStrings;
+  themeClasses: ThemeClasses;
+  titleTone: string;
+  bodyTone: string;
+  mutedTone: string;
+  onOpen: () => void;
+}) {
+  const DomainIcon = DOMAIN_ICONS[item.domain.id];
+  const palette = DOMAIN_CARD_PALETTES[item.domain.id];
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={cx(
+        'group grid min-h-[410px] w-full grid-rows-[150px_1fr] overflow-hidden border p-0 text-left transition-[border-color,box-shadow,transform] duration-150 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(32,80,137,0.15)]',
+        themeClasses.radius.card,
+        themeClasses.focusRing,
+        themeClasses.surface.interactiveCard,
+      )}
+    >
+      <span className={cx('relative grid place-items-center overflow-hidden border-b border-black/5', palette.visual)}>
+        <span className={cx('absolute -right-9 -top-12 h-32 w-32 rounded-full blur-2xl', palette.glow)} aria-hidden="true" />
+        <span className={cx('absolute -bottom-12 -left-8 h-28 w-28 rounded-full opacity-35', palette.glow)} aria-hidden="true" />
+        <span className={cx('absolute left-0 top-0 h-1.5 w-full', palette.accent)} aria-hidden="true" />
+        <span className="absolute left-4 top-4 text-xs font-black tabular-nums text-black/48">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        <span className={cx('relative grid h-16 w-16 place-items-center rounded-2xl shadow-[0_12px_24px_rgba(30,42,56,0.12)] transition-transform duration-200 group-hover:scale-105 [&>svg]:h-8 [&>svg]:w-8', palette.icon)} aria-hidden="true">
+          <DomainIcon strokeWidth={1.8} />
+        </span>
+      </span>
+
+      <span className="flex min-h-0 flex-col p-4 sm:p-5">
+        <span className="flex items-start justify-between gap-2">
+          <span className={cx('min-w-0 flex-1 text-lg font-black leading-tight', titleTone)}>{item.title}</span>
+          <span className={cx('shrink-0 px-2 py-0.5 text-[10px] font-black', themeClasses.radius.pill, themeClasses.statusPill(item.domain.status === 'placeholder'))}>
+            {item.domain.status === 'placeholder' ? strings.domainPlaceholder : strings.domainAvailable}
+          </span>
+        </span>
+        <span className={cx('mt-3 line-clamp-3 block text-sm leading-5', bodyTone)}>{item.description}</span>
+        <span className="mt-auto flex items-end justify-between gap-3 border-t border-[#205089]/10 pt-4">
+          <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
+          <ArrowRight className={cx('mb-1 h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
+        </span>
+      </span>
+    </button>
   );
 }
 

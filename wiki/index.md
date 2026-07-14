@@ -2,7 +2,7 @@
 title: TorchViz-3D Knowledge Bundle
 type: Index
 okf_version: "0.1"
-updated: 2026-06-21
+updated: 2026-07-14
 ---
 
 # TorchViz-3D — OKF Knowledge Bundle
@@ -36,7 +36,7 @@ an intermediate graph, which a pure layout engine turns into 3D geometry.
 | Concepts | [state-store](concepts/state-store.md) | The zustand store and built-in templates. |
 | Concepts | [rendering](concepts/rendering.md) | Canvas3D, the visual taxonomy, theme. |
 | Concepts | [learning-lab](concepts/learning-lab.md) | Active Landing/AppShell entry point plus domain-based Learning Lab. |
-| Concepts | [reinforcement-learning](concepts/reinforcement-learning.md) | Reinforcement Learning as a Learning Lab domain with RL practice fixtures. |
+| Concepts | [reinforcement-learning](concepts/reinforcement-learning.md) | Reinforcement Learning as a placeholder Learning Lab domain with preserved canonical and legacy routes. |
 | Concepts | [forward-pass](concepts/forward-pass.md) | The animated forward pass: stops, CIFAR-10 input, per-op effects, availability gate. |
 | Guides | [add-a-layer](guides/add-a-layer.md) | Playbook: add a new `torchstub` layer. |
 | Reference | [templates](reference/templates.md) | The 7 built-in models and their input shapes. |
@@ -49,7 +49,7 @@ The wiki **cites** the long-form prose docs rather than replacing them:
 - [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) — narrative architecture deep-dive.
 - [docs/TORCHSTUB.md](../docs/TORCHSTUB.md) — narrative torchstub-extension guide.
 - [docs/WORKFLOW.md](../docs/WORKFLOW.md) — the mandatory task workflow.
-- [docs/plans/](../docs/plans/) — the history of *why* changes were made.
+- [docs/plans/](../docs/plans/) — compacted decision and execution history.
 
 > Where this bundle and the prose docs disagree, **the code wins** — and this
 > bundle is authored against the current code (see [gotchas](reference/gotchas.md)
