@@ -1,10 +1,12 @@
-import type { LearningDomain, LearningLesson, LearningTrack } from '../types.ts';
-import { buildPlaceholderContent, type LearningChapterSeed } from './seed.ts';
+import type { LearningTableOfContents, LearningTocTrackSeed } from '../../../core/learning/types.ts';
 
-const chapters: LearningChapterSeed[] = [
+const chapters: LearningTocTrackSeed[] = [
   {
     id: 'linear-algebra',
-    textKey: 'linearAlgebra',
+    text: {
+      title: { en: "1.1 Linear Algebra", vi: "1.1 Linear Algebra" },
+      description: { en: "Vectors, matrices, ML operations, eigenvectors, PCA, and SVD.", vi: "Vector, ma trận, phép toán ML, eigenvector, PCA và SVD." },
+    },
     lessonIds: [
       'vectors-intuition',
       'vector-operations',
@@ -29,7 +31,10 @@ const chapters: LearningChapterSeed[] = [
   },
   {
     id: 'calculus',
-    textKey: 'calculus',
+    text: {
+      title: { en: "1.2 Calculus", vi: "1.2 Calculus" },
+      description: { en: "Derivatives, gradients, chain rule, computational graphs, and ML losses.", vi: "Đạo hàm, gradient, chain rule, computational graph và loss trong ML." },
+    },
     lessonIds: [
       'derivative-intuition',
       'derivative-rules',
@@ -53,7 +58,10 @@ const chapters: LearningChapterSeed[] = [
   },
   {
     id: 'probability-statistics',
-    textKey: 'probabilityStatistics',
+    text: {
+      title: { en: "1.3 Probability & Statistics", vi: "1.3 Probability & Statistics" },
+      description: { en: "Probability, Bayes, random variables, distributions, and statistical estimation.", vi: "Xác suất, Bayes, biến ngẫu nhiên, phân phối và estimation." },
+    },
     lessonIds: [
       'probability-basics',
       'joint-marginal-conditional',
@@ -78,7 +86,10 @@ const chapters: LearningChapterSeed[] = [
   },
   {
     id: 'optimization',
-    textKey: 'optimization',
+    text: {
+      title: { en: "1.4 Optimization", vi: "1.4 Optimization" },
+      description: { en: "Loss functions, gradient descent, optimizers, training challenges, and regularization.", vi: "Loss, gradient descent, optimizer, vấn đề khi train và regularization." },
+    },
     lessonIds: [
       'objective-loss-function',
       'convex-nonconvex-functions',
@@ -104,7 +115,10 @@ const chapters: LearningChapterSeed[] = [
   },
   {
     id: 'information-theory',
-    textKey: 'informationTheory',
+    text: {
+      title: { en: "1.5 Information Theory", vi: "1.5 Information Theory" },
+      description: { en: "Entropy, cross-entropy, KL divergence, mutual information, bits, and nats.", vi: "Entropy, cross-entropy, KL divergence, mutual information, bit và nat." },
+    },
     lessonIds: [
       'entropy-formula',
       'cross-entropy-loss',
@@ -115,14 +129,13 @@ const chapters: LearningChapterSeed[] = [
   },
 ];
 
-const mathStatisticsAiContent = buildPlaceholderContent({
-  domainId: 'math-statistics-ai',
-  domainTextKey: 'mathStatisticsAi',
-  domainStatus: 'active',
+export const learningTableOfContents = {
+  id: 'math-statistics-ai',
+  text: {
+    title: { en: "Math & Statistics", vi: "Math & Statistics" },
+    description: { en: "Learn the math that explains model behavior: vectors, matrices, gradients, probability, statistics, optimization, loss functions, entropy, and the intuition behind training signals.", vi: "Học phần toán giải thích hành vi model: vector, ma trận, gradient, xác suất, thống kê, tối ưu, loss function, entropy và trực giác phía sau tín hiệu training." },
+  },
+  status: 'active',
   chapters,
   sectionKinds: ['theory', 'calculation'],
-});
-
-export const mathStatisticsAiDomain: LearningDomain = mathStatisticsAiContent.domain;
-export const mathStatisticsAiTracks: LearningTrack[] = mathStatisticsAiContent.tracks;
-export const mathStatisticsAiLessons: LearningLesson[] = mathStatisticsAiContent.lessons;
+} satisfies LearningTableOfContents;

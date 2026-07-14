@@ -5,6 +5,9 @@ import {
   getExerciseById,
   getExercisesForNode,
 } from '../components/exercises/exerciseRegistry.ts';
+import { learningCatalog } from '../core/learning/content/index.ts';
+import { getReviewableLearningLessons } from '../core/learning/selectors.ts';
+import type { ExerciseId } from '../components/exercises/types.ts';
 
 function node(opType: string): LayoutNode {
   return {
@@ -56,4 +59,11 @@ test('registry returns shape exercises for BatchNorm and Attention nodes', () =>
 
 test('registry excludes nodes without matching exercises', () => {
   assert.deepEqual(getExercisesForNode(node('Dropout')).map((exercise) => exercise.id), []);
+});
+
+test('every reviewable Learning lesson points at a registered exercise surface', () => {
+  for (const lesson of getReviewableLearningLessons(learningCatalog)) {
+    assert.equal(lesson.entryPoints.length, 1);
+    assert.ok(getExerciseById(lesson.entryPoints[0].exerciseId as ExerciseId), `missing exercise ${lesson.entryPoints[0].exerciseId}`);
+  }
 });

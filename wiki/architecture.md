@@ -61,7 +61,7 @@ See [concepts/torchstub](concepts/torchstub.md) for the full mechanism.
 | Layout engine | [layout-engine](concepts/layout-engine.md) | `src/lib/layout.ts` |
 | App state + templates | [state-store](concepts/state-store.md) | `src/store/useStore.ts` |
 | 3D rendering + taxonomy | [rendering](concepts/rendering.md) | `src/components/Canvas3D.tsx`, `src/lib/visualKind.ts` |
-| Landing/Lab scaffold | [learning-lab-refactor](concepts/learning-lab-refactor.md) | `src/components/AppShell.tsx`, `src/components/landing/*`, `src/components/learning/*`, `src/core/learning/*` |
+| Landing/Lab scaffold | [learning-lab](concepts/learning-lab.md) | `src/components/AppShell.tsx`, `src/components/landing/*`, `src/components/learning/*`, `src/core/learning/*` |
 
 ## Key invariants
 
@@ -84,7 +84,7 @@ screen uses a bento live graph preview plus compact Workspace/Learning cards.
 Learning Lab uses a domain-first catalog for ML Foundations, CV, NLP,
 Reinforcement Learning, and Robot Learning placeholder. Reinforcement Learning
 is a Learning Lab domain, not a sibling top-level surface. Details live in
-[learning-lab-refactor](concepts/learning-lab-refactor.md).
+[learning-lab](concepts/learning-lab.md).
 
 ## Entrypoint convention
 

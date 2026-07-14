@@ -45,7 +45,7 @@ for the current domain-first Learning Lab catalog structure.
 
 - `docs/WORKFLOW.md` and `CLAUDE.md` define the required plan-before-edit
   workflow and branch naming rules.
-- `wiki/concepts/learning-lab-refactor.md` states that Learning Lab is the
+- `wiki/concepts/learning-lab.md` states that Learning Lab is the
   single learning container and that existing Workspace exercise entry points
   remain available unless a later approved plan changes them.
 - `src/components/canvas/Canvas3D.tsx` currently renders `DemoControls` plus
@@ -133,7 +133,7 @@ for the current domain-first Learning Lab catalog structure.
 ## Phase 4 - Docs and verification
 
 - Update this plan execution log with the files changed and verification result.
-- Update `wiki/concepts/learning-lab-refactor.md` to document that Workspace
+- Update `wiki/concepts/learning-lab.md` to document that Workspace
   Learning entries now route into Learning Lab and that Learning Lab renders
   theory, animation, and exercises inline rather than opening practice popups.
 - Run `npm run verify`.
@@ -235,7 +235,7 @@ for the current domain-first Learning Lab catalog structure.
   query state, initializes the selected lesson, highlights the target practice,
   and scrolls it into view.
 - 2026-06-26T17:06:07+07:00 - Updated
-  `wiki/concepts/learning-lab-refactor.md` to document Workspace-to-Learning
+  `wiki/concepts/learning-lab.md` to document Workspace-to-Learning
   routing and inline Learning Lab practice ownership.
 - 2026-06-26T17:06:07+07:00 - `npm run verify` passed: typecheck, 75 tests, and
   production build. Vite reported the existing large Three.js chunk warning.

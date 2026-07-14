@@ -14,6 +14,8 @@ export type LearningMdxComponent = ComponentType<any>;
 
 const LearningMdxThemeContext = createContext<LearningThemeClasses | null>(null);
 const LearningMdxLessonContext = createContext<{
+  domainId: string;
+  lessonId: string;
   language: Language;
   pageIndex: number;
   quizQuestionStates?: Record<string, QuizQuestionState>;
@@ -24,14 +26,16 @@ export function LearningMdxThemeProvider({ children, themeClasses }: { children:
   return <LearningMdxThemeContext.Provider value={themeClasses}>{children}</LearningMdxThemeContext.Provider>;
 }
 
-export function LearningMdxLessonProvider({ children, language, pageIndex, quizQuestionStates, onQuizQuestionStateChange }: {
+export function LearningMdxLessonProvider({ children, domainId, lessonId, language, pageIndex, quizQuestionStates, onQuizQuestionStateChange }: {
   children: ReactNode;
+  domainId: string;
+  lessonId: string;
   language: Language;
   pageIndex: number;
   quizQuestionStates?: Record<string, QuizQuestionState>;
   onQuizQuestionStateChange?: (questionId: string, state: QuizQuestionState) => void;
 }) {
-  return <LearningMdxLessonContext.Provider value={{ language, pageIndex, quizQuestionStates, onQuizQuestionStateChange }}>{children}</LearningMdxLessonContext.Provider>;
+  return <LearningMdxLessonContext.Provider value={{ domainId, lessonId, language, pageIndex, quizQuestionStates, onQuizQuestionStateChange }}>{children}</LearningMdxLessonContext.Provider>;
 }
 
 export function useLearningMdxTheme(): LearningThemeClasses {

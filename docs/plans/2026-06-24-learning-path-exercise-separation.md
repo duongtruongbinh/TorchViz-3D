@@ -104,7 +104,7 @@ for the Learning Lab scaffold and intended component map.
   phase displays practice references rather than moving or embedding the current
   demo exercise modals.
 - 2026-06-24T14:02:22+07:00 - Updated `docs/ARCHITECTURE.md`,
-  `wiki/concepts/learning-lab-refactor.md`, `wiki/concepts/index.md`, and
+  `wiki/concepts/learning-lab.md`, `wiki/concepts/index.md`, and
   `wiki/log.md` to reflect the active Learning Path boundary.
 - 2026-06-24T14:26:15+07:00 - Extended practice metadata with fixtures and
   switched practice cards from reference-only to interactive exercise launchers.

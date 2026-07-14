@@ -2,7 +2,7 @@ import React, { useEffect, useId, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import type { getStrings } from '../../lib/localization';
-import { useExerciseModalLifecycle } from '../exercises/useExerciseModalLifecycle';
+import { useExerciseModalLifecycle } from './useExerciseModalLifecycle';
 
 type DemoLabels = ReturnType<typeof getStrings>['canvas']['demo'];
 type CellStatus = 'idle' | 'correct' | 'wrong';
@@ -540,7 +540,7 @@ const KernelEditor: React.FC<{
   );
 };
 
-export const ConvExerciseModal: React.FC<{
+export const ConvExercise: React.FC<{
   isOpen: boolean;
   t: DemoLabels;
   displayMode?: 'modal' | 'inline';

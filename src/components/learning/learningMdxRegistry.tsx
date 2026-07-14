@@ -7,6 +7,7 @@ import {
 } from '../../core/learning/content/mdxContract';
 import type { LearningDomainId } from '../../core/learning/types';
 import type { Language } from '../../lib/localization';
+import { cvMdxComponents } from './domains/cv/mdxComponents';
 import { llmMdxComponents } from './domains/llm-ai-engineering/mdxComponents';
 import type { QuizQuestionState } from './lesson/QuizBlock';
 import {
@@ -18,6 +19,7 @@ import {
 } from './learningMdxComponents';
 
 const domainMdxComponents: Partial<Record<LearningDomainId, Record<string, LearningMdxComponent>>> = {
+  cv: cvMdxComponents,
   'llm-ai-engineering': llmMdxComponents,
 };
 
@@ -63,7 +65,7 @@ export function getLearningMdxLesson({ domainId, language, lessonId, quizQuestio
   const components = { ...sharedLearningMdxComponents, ...(domainMdxComponents[domainId] ?? {}) };
   const pages = Array.from({ length: lesson.pageCount }, (_, pageIndex) => (
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-${pageIndex}`} themeClasses={themeClasses}>
-      <LearningMdxLessonProvider language={language} pageIndex={pageIndex} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
+      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
         <div className="grid gap-5 py-1 [&_h2]:text-xl [&_h2]:font-black [&_h3]:text-base [&_h3]:font-black [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5 [&_li]:text-sm [&_li]:leading-6"><Content components={components} /></div>
       </LearningMdxLessonProvider>
     </LearningMdxThemeProvider>
@@ -80,11 +82,14 @@ function buildLessonRegistry(): Map<string, RegistryEntry> {
     if (!domain) throw new Error(`Unknown Learning Lab MDX domain: ${filePath}`);
     const lessonExists = learningCatalog.lessons.some((lesson) => lesson.domainId === domain.id && lesson.id === parsed.lessonId);
     if (!lessonExists) throw new Error(`Learning Lab MDX lesson is missing from the catalog: ${filePath}`);
-    if (domain.mdx?.approvedLessonIds && !domain.mdx.approvedLessonIds.includes(parsed.lessonId)) {
-      throw new Error(`Learning Lab MDX lesson is not approved: ${filePath}`);
-    }
+    const lesson = learningCatalog.lessons.find((item) => item.domainId === domain.id && item.id === parsed.lessonId);
+    if (lesson?.contentStatus !== 'published') throw new Error(`Learning Lab MDX lesson is not published: ${filePath}`);
     if (module.lessonMetadata.domainId !== parsed.domainId || module.lessonMetadata.id !== parsed.lessonId || module.lessonMetadata.locale !== parsed.locale) {
       throw new Error(`Learning Lab MDX metadata does not match its path: ${filePath}`);
+    }
+    const catalogTitle = (lesson.text?.title as Record<string, string> | undefined)?.[parsed.locale];
+    if (catalogTitle && module.lessonMetadata.title !== catalogTitle) {
+      throw new Error(`Learning Lab MDX title does not match the catalog: ${filePath}`);
     }
     const pageCount = module.lessonMetadata.pageCount ?? 1;
     if (!Number.isInteger(pageCount) || pageCount < 1) throw new Error(`Invalid Learning Lab MDX page count: ${filePath}`);

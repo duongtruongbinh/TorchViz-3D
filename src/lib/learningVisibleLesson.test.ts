@@ -9,7 +9,9 @@ function lesson(id: string): LearningLesson {
     domainId: 'cv',
     trackId: 'cnn-shape-value',
     status: 'available',
-    practice: [],
+    contentStatus: 'missing',
+    tags: [],
+    entryPoints: [],
     sections: [],
   };
 }

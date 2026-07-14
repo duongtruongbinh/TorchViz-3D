@@ -1,10 +1,9 @@
-import { ArrowLeft, ArrowRight, Beaker, BookOpen, Calculator, Code2, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Calculator, Code2, type LucideIcon } from 'lucide-react';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import type { LearningLesson } from '../../../core/learning/types';
 import type { Language } from '../../../lib/localization';
 import { getStrings } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
-import PracticeSection from '../practice/PracticeSection';
 import { cx, getLearningLabTheme } from '../theme';
 import type { QuizQuestionState } from './QuizBlock';
 import { getLearningMdxLesson } from '../learningMdxRegistry';
@@ -13,7 +12,6 @@ type LessonDetailProps = {
   lesson: LearningLesson;
   theme: 'dark' | 'light';
   language: Language;
-  selectedPracticeId?: string | null;
   hasNextLesson?: boolean;
   onSelectNextLesson?: () => void;
 };
@@ -22,7 +20,6 @@ export default function LessonDetail({
   lesson,
   theme,
   language,
-  selectedPracticeId = null,
   hasNextLesson = false,
   onSelectNextLesson,
 }: LessonDetailProps) {
@@ -55,22 +52,6 @@ export default function LessonDetail({
         <SectionShell key={`${section.kind}-${section.refId}`} sectionDivider={sectionDivider}>
           <SectionHeading icon={meta.icon} label={meta.label} themeClasses={themeClasses} />
           <FullWidthTheoryCopy items={lessonText.theory} themeClasses={themeClasses} className="mt-4" />
-        </SectionShell>,
-      ];
-    }
-
-    if (section.kind === 'practice') {
-      const practiceItem = lesson.practice.find((item) => item.id === section.refId);
-      if (!practiceItem) return [];
-      return [
-        <SectionShell key={`${section.kind}-${section.refId}`} sectionDivider={sectionDivider}>
-          <SectionHeading icon={meta.icon} label={meta.label} themeClasses={themeClasses} />
-          <PracticeSection
-            theme={theme}
-            language={language}
-            practice={[practiceItem]}
-            selectedPracticeId={selectedPracticeId}
-          />
         </SectionShell>,
       ];
     }
@@ -253,13 +234,6 @@ function getSectionMeta(kind: LearningLesson['sections'][number]['kind'], string
     return {
       icon: BookOpen,
       label: strings.learningLab.theory,
-      placeholder: '',
-    };
-  }
-  if (kind === 'practice') {
-    return {
-      icon: Beaker,
-      label: strings.learningLab.practice,
       placeholder: '',
     };
   }

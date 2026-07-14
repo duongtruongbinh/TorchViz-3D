@@ -83,6 +83,20 @@ test('Learning Home avoids fragment links that replace the HashRouter route', ()
   );
 });
 
+test('CV review and Workspace handoff derive from catalog exercise lessons', () => {
+  const reviewMode = readSource('src/components/learning/shell/ReviewMode.tsx');
+  const cvComponents = readSource('src/components/learning/domains/cv/mdxComponents.tsx');
+  const canvas = readSource('src/components/canvas/Canvas3D.tsx');
+
+  assert.match(reviewMode, /getReviewableLearningLessons\(catalog\)/);
+  assert.doesNotMatch(reviewMode, /conv2d-shape-exercise|pooling-value-exercise/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ShapeExercise['"]\)/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ValueExercise['"]\)/);
+  assert.match(cvComponents, /lazy\(\(\) => import\(['"]\.\.\/\.\.\/\.\.\/exercises\/ConvExercise['"]\)/);
+  assert.match(canvas, /resolveLearningExerciseLessonTarget/);
+  assert.doesNotMatch(`${reviewMode}\n${cvComponents}\n${canvas}`, /practiceId|[?&]practice=/);
+});
+
 test('Learning Lab rail toggle and quiz labels use shared theme/localization surfaces', () => {
   const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
   const lessonRail = readSource('src/components/learning/lesson/LessonRail.tsx');

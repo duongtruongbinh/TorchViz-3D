@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { learningCatalog } from '../core/learning/content/index.ts';
+import { learningCatalog, learningTableOfContents } from '../core/learning/content/index.ts';
 import {
   getLearningDomain,
   getLearningLessonsForTrack,
-  getLearningPracticeForDomain,
+  getReviewableLearningLessons,
   getLearningTrack,
+  resolveLearningExerciseLessonTarget,
   resolveLearningLessonRoute,
 } from '../core/learning/selectors.ts';
 import { getLearningLessonText, getStrings } from './localization.ts';
@@ -22,19 +23,47 @@ test('learning catalog exposes reinforcement learning as a Learning Lab domain',
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
 });
 
-test('learning catalog owns display text keys for domains and tracks', () => {
-  assert.ok(learningCatalog.domains.every((domain) => domain.textKey.length > 0));
-  assert.ok(learningCatalog.tracks.every((track) => track.textKey.length > 0));
-  assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.textKey, 'reinforcementLearning');
-  assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.textKey, 'rlFundamentals');
+test('typed table-of-contents materializes the complete catalog and content lifecycle', () => {
+  assert.equal(learningTableOfContents.length, 12);
+  assert.equal(learningCatalog.domains.length, 12);
+  assert.equal(learningCatalog.tracks.length, 81);
+  assert.equal(learningCatalog.lessons.length, 615);
+  assert.equal(learningCatalog.routeAliases?.length, 7);
+  assert.deepEqual(
+    Object.fromEntries(['available', 'next', 'locked'].map((status) => [
+      status,
+      learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
+    ])),
+    { available: 17, next: 2, locked: 596 },
+  );
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 9);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 606);
 });
 
-test('reinforcement learning roadmap keeps existing practice on canonical lessons', () => {
+test('typed TOCs own localized domain and track metadata directly', () => {
+  assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
+  assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
+  assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
+  assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.text.title.en, '1.1 RL Fundamentals');
+});
+
+test('catalog lesson text is canonical', () => {
+  const text = getLearningLessonText(getStrings('en').learningLab, {
+    id: 'shape-basics',
+    text: {
+      title: { en: 'Catalog title', vi: 'Tiêu đề catalog' },
+      theory: [{ en: 'Catalog theory', vi: 'Lý thuyết catalog' }],
+    },
+  }, 'en');
+  assert.equal(text.title, 'Catalog title');
+  assert.deepEqual(text.theory, ['Catalog theory']);
+});
+
+test('reinforcement learning roadmap keeps canonical lesson order', () => {
   const fundamentalsTrack = getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals');
   const valueTrack = getLearningTrack(learningCatalog, 'reinforcement-learning', 'value-based-methods');
   const fundamentalsLessons = fundamentalsTrack ? getLearningLessonsForTrack(learningCatalog, fundamentalsTrack) : [];
   const valueLessons = valueTrack ? getLearningLessonsForTrack(learningCatalog, valueTrack) : [];
-  const practice = getLearningPracticeForDomain(learningCatalog, 'reinforcement-learning');
 
   assert.deepEqual(fundamentalsLessons.slice(0, 4).map((lesson) => lesson.id), [
     'markov-decision-processes',
@@ -43,15 +72,6 @@ test('reinforcement learning roadmap keeps existing practice on canonical lesson
     'value-function',
   ]);
   assert.deepEqual(valueLessons.slice(0, 2).map((lesson) => lesson.id), ['q-learning', 'sarsa-on-policy-td']);
-  assert.deepEqual(
-    practice.map((item) => item.id),
-    [
-      'rl-mdp-components-gridworld',
-      'rl-bellman-q-table-value',
-      'rl-q-learning-gridworld-step',
-      'rl-sarsa-gridworld-step',
-    ],
-  );
 });
 
 test('learning route aliases resolve old RL and NLP ids to canonical roadmap lessons', () => {
@@ -88,12 +108,37 @@ test('learning catalog ids resolve and first-party lessons have display text', (
     }
   }
 
-  for (const lesson of learningCatalog.lessons) {
-    for (const section of lesson.sections.filter((item) => item.kind === 'practice')) {
-      assert.ok(
-        lesson.practice.some((practice) => practice.id === section.refId),
-        `practice section ${lesson.id}/${section.refId} has no matching practice ref`,
-      );
-    }
+});
+
+test('only LLM and tagged CV exercise lessons carry authored content', () => {
+  const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
+  assert.equal(missingLessons.length, 606);
+  for (const lesson of missingLessons) {
+    assert.deepEqual(lesson.text?.theory, []);
+    assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);
   }
+  const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 5);
+  assert.deepEqual(getReviewableLearningLessons(learningCatalog).map((lesson) => lesson.id), [
+    'conv2d-shape-exercise',
+    'conv2d-value-exercise',
+    'pooling-shape-exercise',
+    'pooling-value-exercise',
+  ]);
+});
+
+test('TorchViz exercise entry points resolve to canonical CV exercise lessons', () => {
+  assert.deepEqual(resolveLearningExerciseLessonTarget(learningCatalog, { exerciseId: 'shape-output', operation: 'Conv2d' }), {
+    domainId: 'cv', trackId: 'cnn-shape-value', lessonId: 'conv2d-shape-exercise',
+  });
+  assert.deepEqual(resolveLearningExerciseLessonTarget(learningCatalog, { exerciseId: 'conv-value', operation: 'Conv2d' }), {
+    domainId: 'cv', trackId: 'cnn-shape-value', lessonId: 'conv2d-value-exercise',
+  });
+  assert.deepEqual(resolveLearningExerciseLessonTarget(learningCatalog, { exerciseId: 'shape-output', operation: 'MaxPool2d' }), {
+    domainId: 'cv', trackId: 'cnn-shape-value', lessonId: 'pooling-shape-exercise',
+  });
+  assert.deepEqual(resolveLearningExerciseLessonTarget(learningCatalog, { exerciseId: 'pool-value', operation: 'AvgPool2d' }), {
+    domainId: 'cv', trackId: 'cnn-shape-value', lessonId: 'pooling-value-exercise',
+  });
+  assert.equal(resolveLearningExerciseLessonTarget(learningCatalog, { exerciseId: 'activation-value', operation: 'ReLU' }), null);
 });

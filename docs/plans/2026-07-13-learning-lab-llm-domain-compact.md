@@ -326,7 +326,7 @@ behavior for nodes 1-5.
   through extra rendering.
 - Updated component wiring tests so scroll-helper and quiz-label guards track
   the new `QuizBlock` boundary.
-- Updated `wiki/concepts/learning-lab-refactor.md` to describe the shared
+- Updated `wiki/concepts/learning-lab.md` to describe the shared
   extras/domain-renderer boundary.
 
 ## Verification

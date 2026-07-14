@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ArrowRight, BookOpen, Dumbbell, GraduationCap, LibraryBig, Network } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, LibraryBig, Network } from 'lucide-react';
 
 import { learningCatalog } from '../../../core/learning/content';
 import { getGroupedLearningLessonsForDomain } from '../../../core/learning/selectors';
@@ -28,7 +28,6 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
   const mutedTone = isLight ? 'text-[#6B7C91]' : themeClasses.mutedText;
   const syllabus = learningCatalog.domains.map((domain) => buildSyllabusItem(domain, language));
   const lessonCount = syllabus.reduce((total, item) => total + item.lessonCount, 0);
-  const practiceCount = syllabus.reduce((total, item) => total + item.practiceCount, 0);
 
   return (
     <div className={cx('-m-3 min-h-full w-[calc(100%+1.5rem)] sm:-m-4 sm:w-[calc(100%+2rem)]', pageTone)}>
@@ -45,10 +44,9 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
                 </h1>
               </div>
 
-              <div className="grid grid-cols-3 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] lg:grid-cols-1">
+              <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-white/12 bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] lg:grid-cols-1">
                 <CatalogMetric icon={<LibraryBig />} value={syllabus.length} label={strings.sidebarDomains} />
                 <CatalogMetric icon={<BookOpen />} value={lessonCount} label={strings.lessonCount(lessonCount)} hideValueInLabel />
-                <CatalogMetric icon={<Dumbbell />} value={practiceCount} label={strings.practiceCount(practiceCount)} hideValueInLabel />
               </div>
             </div>
           </section>
@@ -98,7 +96,6 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
                     <span className="mt-4 flex items-center justify-between gap-3 border-t border-[#205089]/10 pt-3">
                       <span className="flex flex-wrap gap-2">
                         <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
-                        <Metric text={strings.practiceCount(item.practiceCount)} toneClass={mutedTone} />
                       </span>
                       <ArrowRight className={cx('h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
                     </span>
@@ -144,7 +141,6 @@ function CatalogMetric({ icon, value, label, hideValueInLabel = false }: { icon:
 function buildSyllabusItem(domain: LearningDomain, language: Language) {
   const groupedLessons = getGroupedLearningLessonsForDomain(learningCatalog, domain.id);
   const lessons = groupedLessons.flatMap((group) => group.lessons);
-  const practiceCount = new Set(lessons.flatMap((lesson) => lesson.practice.map((practice) => practice.id))).size;
   const text = getDomainText(language, domain);
 
   return {
@@ -152,7 +148,6 @@ function buildSyllabusItem(domain: LearningDomain, language: Language) {
     title: text.title,
     description: text.description,
     lessonCount: lessons.length,
-    practiceCount,
   };
 }
 

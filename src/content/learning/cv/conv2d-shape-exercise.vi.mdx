@@ -1,0 +1,24 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'conv2d-shape-exercise',
+  locale: 'vi',
+  title: 'Bài tập output shape Conv2d',
+  headings: ['Đọc cấu hình Conv2d', 'Tự tính output shape'],
+  keywords: ['conv2d', 'output shape', 'kernel', 'stride', 'padding', 'NCHW'],
+  pageCount: 1,
+}
+
+## Đọc cấu hình Conv2d
+
+Input có shape `[1, 3, 32, 32]`. Layer dùng `16` output channels, kernel `3×3`, stride `2`, padding `1` và dilation `1`.
+
+## Tự tính output shape
+
+Điền đủ bốn chiều `[N, C, H, W]`. Phần gợi ý sẽ tách riêng từng thành phần của công thức không gian để bạn kiểm tra cách kernel, stride và padding tác động lên `H` và `W`.
+
+<CvExercise fixture={{
+  opType: 'Conv2d',
+  inputShape: [1, 3, 32, 32],
+  outputShape: [1, 16, 16, 16],
+  config: { kernel: 3, stride: 2, padding: 1, dilation: 1 },
+}} />

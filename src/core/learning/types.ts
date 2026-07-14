@@ -15,11 +15,14 @@ export type LearningDomainId =
 export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';
 export type LearningTrackStatus = 'available' | 'placeholder';
 export type LearningLessonStatus = 'available' | 'next' | 'locked';
-export type LearningPracticeApprovalStatus = 'approved' | 'unapproved' | 'unavailable';
+export type LearningContentStatus = 'missing' | 'draft' | 'published';
+export type LearningLessonTag = 'exercise';
+export type LearningExerciseOperationFamily = 'conv2d' | 'pool2d';
 
-export type LearningPracticeApproval = {
-  status: LearningPracticeApprovalStatus;
-  implementedBy?: string;
+export type LearningLessonEntryPoint = {
+  kind: 'torchviz-exercise';
+  exerciseId: string;
+  operationFamily: LearningExerciseOperationFamily;
 };
 
 export type LearningLocalizedText = {
@@ -29,59 +32,8 @@ export type LearningLocalizedText = {
 
 export type LearningAssetId = string;
 
-export type TensorExerciseId =
-  | 'conv-value'
-  | 'shape-output'
-  | 'attention-shape'
-  | 'pool-value'
-  | 'linear-value'
-  | 'activation-value';
-
-export type TensorPracticeKind = 'shape' | 'value' | 'review';
-
-export type ReinforcementExerciseId =
-  | 'rl-mdp-components'
-  | 'rl-bellman-value'
-  | 'rl-q-learning-gridworld'
-  | 'rl-sarsa-gridworld';
-
-export type ReinforcementPracticeKind = 'rl-shape' | 'rl-value' | 'gridworld';
-
-export type PracticeReuseStatus = 'metadata' | 'model-backed' | 'embedded';
-
-export type TensorPracticeRef = {
-  family: 'tensor';
-  id: string;
-  kind: TensorPracticeKind;
-  exerciseId: TensorExerciseId;
-  targetOperation: string;
-  approval?: LearningPracticeApproval;
-  reuseStatus: PracticeReuseStatus;
-};
-
-export type ReinforcementPracticeRef = {
-  family: 'reinforcement-learning';
-  id: string;
-  kind: ReinforcementPracticeKind;
-  exerciseId: ReinforcementExerciseId;
-  targetConcept: string;
-  approval?: LearningPracticeApproval;
-  reuseStatus: PracticeReuseStatus;
-};
-
-export type PlaceholderPracticeRef = {
-  family: 'placeholder';
-  id: string;
-  kind: 'placeholder';
-  targetConcept: string;
-  approval?: LearningPracticeApproval;
-  reuseStatus: 'metadata';
-};
-
-export type LearningPracticeRef = TensorPracticeRef | ReinforcementPracticeRef | PlaceholderPracticeRef;
-
 export type LearningLessonSection = {
-  kind: 'theory' | 'code' | 'practice' | 'calculation';
+  kind: 'theory' | 'code' | 'calculation';
   refId: string;
 };
 
@@ -225,6 +177,9 @@ export type LearningLesson = {
   domainId: LearningDomainId;
   trackId: string;
   status: LearningLessonStatus;
+  contentStatus: LearningContentStatus;
+  tags: LearningLessonTag[];
+  entryPoints: LearningLessonEntryPoint[];
   text?: {
     title: LearningLocalizedText;
     eyebrow?: LearningLocalizedText;
@@ -232,12 +187,49 @@ export type LearningLesson = {
     theory: LearningLocalizedText[];
   };
   sections: LearningLessonSection[];
-  practice: LearningPracticeRef[];
+};
+
+export type LearningTocLessonSeed = string | {
+  id: string;
+  title?: LearningLocalizedText;
+  status?: LearningLessonStatus;
+  contentStatus?: LearningContentStatus;
+  tags?: LearningLessonTag[];
+  entryPoints?: LearningLessonEntryPoint[];
+  sections?: LearningLessonSection[];
+};
+
+export type LearningTocTrackSeed = {
+  id: string;
+  text: {
+    title: LearningLocalizedText;
+    description: LearningLocalizedText;
+  };
+  lessonIds: LearningTocLessonSeed[];
+  status?: LearningTrackStatus;
+};
+
+export type LearningTableOfContents = {
+  id: LearningDomainId;
+  text: {
+    title: LearningLocalizedText;
+    description: LearningLocalizedText;
+  };
+  status: LearningDomainStatus;
+  fallbackLocales?: string[];
+  sectionKinds: LearningLessonSection['kind'][];
+  firstLessonStatus?: LearningLessonStatus;
+  defaultLessonStatus?: LearningLessonStatus;
+  chapters: LearningTocTrackSeed[];
+  routeAliases?: Omit<LearningRouteAlias, 'domainId'>[];
 };
 
 export type LearningTrack = {
   id: string;
-  textKey: string;
+  text: {
+    title: LearningLocalizedText;
+    description: LearningLocalizedText;
+  };
   domainId: LearningDomainId;
   lessonIds: string[];
   status: LearningTrackStatus;
@@ -245,12 +237,14 @@ export type LearningTrack = {
 
 export type LearningDomain = {
   id: LearningDomainId;
-  textKey: string;
+  text: {
+    title: LearningLocalizedText;
+    description: LearningLocalizedText;
+  };
   status: LearningDomainStatus;
   trackIds: string[];
   mdx?: {
     fallbackLocales: string[];
-    approvedLessonIds?: string[];
   };
 };
 

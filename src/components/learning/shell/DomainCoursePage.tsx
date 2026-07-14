@@ -31,9 +31,8 @@ export default function DomainCoursePage({
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
   const domainText = getDomainText(language, domain);
-  const practiceCount = new Set(lessons.flatMap((lesson) => lesson.practice.map((practice) => practice.id))).size;
   const lessonCount = lessons.length;
-  const copy = getCourseCopy(strings.coursePage, language, domain, domainText, tracks);
+  const copy = getCourseCopy(strings.coursePage, language, domainText, tracks);
   const learnItems = buildLearnItems(strings.coursePage, lessons, tracks, language);
   const courseSections = tracks.map((track) => ({
     track,
@@ -124,7 +123,7 @@ export default function DomainCoursePage({
           <div className="py-4 sm:py-5">
             <h2 className={cx('text-2xl font-black', themeClasses.titleText)}>{copy.courseContent}</h2>
             <p className={cx('mt-2 text-sm', themeClasses.mutedText)}>
-              {copy.courseSummary({ lessons: lessonCount, minutes: totalMinutes, practice: practiceCount })}
+              {copy.courseSummary({ lessons: lessonCount, minutes: totalMinutes })}
             </p>
             <div className={cx('mt-4 overflow-hidden border', themeClasses.radius.card, themeClasses.surface.card)}>
               {courseSections.map((section) => (
@@ -193,7 +192,6 @@ function CourseContentSection({
       <div className={isExpanded ? 'block' : 'hidden'}>
         {section.lessons.map((lesson) => {
           const lessonText = getUnifiedLessonText(language, lesson);
-          const practiceLabel = lesson.practice[0] ? getPracticeLabel(lesson.practice[0]) : null;
           return (
             <button
               key={lesson.id}
@@ -208,7 +206,6 @@ function CourseContentSection({
               <FileText className={cx('mt-0.5 h-4 w-4', themeClasses.mutedText)} strokeWidth={1.8} aria-hidden="true" />
               <span className="min-w-0">
                 <span className={cx('block truncate', themeClasses.bodyText)}>{lessonText.title}</span>
-                {practiceLabel ? <span className={cx('mt-1 block text-xs', themeClasses.mutedText)}>{practiceLabel}</span> : null}
               </span>
               <span className={cx('whitespace-nowrap', themeClasses.mutedText)}>{lessonText.duration}</span>
             </button>
@@ -226,19 +223,7 @@ function buildLearnItems(
   language: Language,
 ): string[] {
   const lessonTitles = lessons.map((lesson) => getUnifiedLessonText(language, lesson).title);
-  const concepts = lessons
-    .flatMap((lesson) => lesson.practice)
-    .map((practice) => {
-      if ('targetConcept' in practice) return practice.targetConcept;
-      if ('targetOperation' in practice) return practice.targetOperation;
-      return null;
-    })
-    .filter((item): item is string => Boolean(item));
-
-  const items = [
-    ...lessonTitles.map((title) => courseText.masterLesson(title)),
-    ...concepts,
-  ];
+  const items = lessonTitles.map((title) => courseText.masterLesson(title));
 
   if (!items.length) {
     return tracks.map((track) => {
@@ -255,33 +240,12 @@ function readMinutes(duration: string): number {
   return match ? Number(match[0]) : 0;
 }
 
-function getPracticeLabel(practice: LearningLesson['practice'][number]): string {
-  if ('targetConcept' in practice) return practice.targetConcept;
-  return practice.targetOperation;
-}
-
 function getCourseCopy(
   courseText: ReturnType<typeof getStrings>['learningLab']['coursePage'],
   language: Language,
-  domain: LearningDomain,
   domainText: { title: string; description: string },
   tracks: LearningTrack[],
 ) {
-  if (domain.id === 'reinforcement-learning') {
-    return {
-      title: courseText.reinforcementLearning.title,
-      subtitle: courseText.reinforcementLearning.subtitle,
-      updated: courseText.updated,
-      whatYouWillLearn: courseText.whatYouWillLearn,
-      courseContent: courseText.courseContent,
-      courseSummary: courseText.courseSummary,
-      requirementsTitle: courseText.reinforcementLearning.requirementsTitle,
-      requirements: courseText.reinforcementLearning.requirements,
-      descriptionTitle: courseText.reinforcementLearning.descriptionTitle,
-      description: courseText.reinforcementLearning.description,
-    };
-  }
-
   const trackNames = tracks.map((track) => getTrackText(language, track).title).filter(Boolean);
   const joinedTracks = formatList(trackNames, language);
 

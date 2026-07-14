@@ -3,6 +3,29 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-14 — Learning Lab documentation normalized.** Renamed the active
+  concept page from `learning-lab-refactor.md` to `learning-lab.md`, updated all
+  repository backlinks, and kept “refactor” naming on historical plan files
+  only. Consolidated the three branch-specific 2026-07-14 content/MDX/CV plans
+  into one compact final architecture and execution record without adding a
+  new documentation page.
+- **2026-07-14 — CV exercises restored as authored lessons.** Added four
+  Vietnamese CV exercise lessons for convolution/pooling shape and value work,
+  each with a canonical catalog node, an `exercise` tag, one MDX fixture, and a
+  lazy adapter over the shared exercise engines. Restored Path/Review switching
+  as a derived view over published tagged lessons and connected applicable
+  Workspace Forward Pass nodes to canonical Learning Lab URLs. No practice
+  subnode, practice query, parallel Review content list, or live-node transfer
+  was reintroduced.
+- **2026-07-14 — Learning Lab content ownership simplified.** Moved localized
+  domain, track, and lesson-node metadata into the twelve typed TOCs and reduced
+  `src/lib/localization.ts` to system/UI copy. Only the five published LLM MDX
+  lessons retain authored content; the other 606 nodes now use one shared
+  localized placeholder. Removed the Learning Lab practice registry, Review
+  mode, practice renderers/adapters, RL-only exercise components, and the
+  Workspace-to-Learning practice handoff while preserving catalog routes,
+  aliases, standalone Workspace exercises, LLM paging/quizzes, locale fallback,
+  and authored search.
 - **2026-07-14 — Legacy lesson extras removed.** Removed the unused
   `lesson/extras/` directory and the compatibility-only `LessonExtras` ->
   `LessonExtraRenderer` -> `ConceptPanelBlock` chain after confirming that no
@@ -53,11 +76,11 @@ no `type` frontmatter required.)
   approval gate, scoped asset ids, and direct domain renderer use instead of a
   premature custom renderer registry.
 - **2026-07-01 — LLM-from-scratch course content.** Updated the
-  [Learning Lab refactor](concepts/learning-lab-refactor.md) page to document
+  [Learning Lab](concepts/learning-lab.md) page to document
   the Vietnamese-first LLM AI Engineering course path and its theory -> hand
   calculation/quiz -> code teaching rhythm.
 - **2026-07-01 — LLM-from-scratch visuals and formulas.** Extended the
-  [Learning Lab refactor](concepts/learning-lab-refactor.md) page for the
+  [Learning Lab](concepts/learning-lab.md) page for the
   LLM-from-scratch course's planned React-free visual/formula metadata, concrete
   checkpoint exercises, and code-step contracts.
 - **2026-07-02 — LLM-from-scratch gist reference alignment.** Downloaded the
@@ -91,7 +114,7 @@ no `type` frontmatter required.)
   matcher names.
 - **2026-06-21 — Learning Lab scaffold docs.** Added a planned subsystem page for
   the scaffold-only Landing Page and Learning Lab refactor
-  ([wiki/concepts/learning-lab-refactor.md](concepts/learning-lab-refactor.md)),
+  ([wiki/concepts/learning-lab.md](concepts/learning-lab.md)),
   linked it from the wiki index and architecture pages, and added an embedded
   Codex init prompt derived from `CLAUDE.md`.
 - **2026-06-21 — Landing/AppShell MVP docs.** Updated the Learning Lab scaffold
@@ -99,7 +122,7 @@ no `type` frontmatter required.)
   behavior. Learning Lab, learning core helpers, and `uiStore` remain inert.
 - **2026-06-21 — Landing bento UI docs.** Folded the finalized Landing hero
   summary into the existing
-  [learning-lab-refactor](concepts/learning-lab-refactor.md) page instead of
+  [learning-lab](concepts/learning-lab.md) page instead of
   creating a separate Landing page. The docs now note the live graph preview,
   compact Workspace/Learning cards, anchor-based routes, and disabled Learning
   Lab state.
@@ -153,3 +176,11 @@ no `type` frontmatter required.)
   roadmap pages with natural Markdown, reduced the roadmap to 428 lines, and
   reduced the Learning Lab chunk again to 272.13 kB minified. All 99 tests and
   the production build pass.
+- **2026-07-14 — Typed Learning Lab table of contents.** Replaced the twelve
+  static domain catalog modules and seed assembly with one typed
+  `table-of-contents.ts` manifest per domain, kept the stable React-free catalog
+  export shared by Vite/runtime/Node, and moved all twelve live practice
+  descriptors into a validated registry. Added independent navigation/content
+  lifecycle state, retained five published Vietnamese LLM MDX lessons and 606
+  navigable placeholders, removed the duplicate LLM approval list and dead
+  references module, and preserved exact normalized catalog parity.

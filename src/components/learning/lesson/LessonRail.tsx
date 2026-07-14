@@ -9,7 +9,7 @@ import { getTrackText, getUnifiedLessonText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 import LessonNode from './LessonNode';
 
-export type LessonRailFilter = 'all' | 'ready' | 'locked' | 'practice';
+export type LessonRailFilter = 'all' | 'ready' | 'locked';
 
 export type FilteredLearningLessonGroup = {
   track: LearningTrack;
@@ -37,7 +37,7 @@ export type LessonRailProps = {
   onToggleTrack: (trackId: string) => void;
 };
 
-const LESSON_RAIL_FILTERS: LessonRailFilter[] = ['all', 'ready', 'locked', 'practice'];
+const LESSON_RAIL_FILTERS: LessonRailFilter[] = ['all', 'ready', 'locked'];
 export default function LessonRail({
   groups,
   collapsedTrackIds,
@@ -269,7 +269,6 @@ export function filterLessonRailGroups(
 function lessonMatchesRailFilter(lesson: LearningLesson, filter: LessonRailFilter): boolean {
   if (filter === 'ready') return lesson.status === 'available' || lesson.status === 'next';
   if (filter === 'locked') return lesson.status === 'locked';
-  if (filter === 'practice') return lesson.practice.length > 0;
   return true;
 }
 

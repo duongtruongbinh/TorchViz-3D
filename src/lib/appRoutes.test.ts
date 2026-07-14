@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 
 import {
   APP_ROUTES,
-  getHashRouterUrl,
   getLearningDomainPath,
-  getLearningPracticePath,
+  getHashRouterUrl,
+  getLearningLessonPath,
   getLearningTrackPath,
   getLegacyReinforcementLearningRedirectPath,
 } from './appRoutes.ts';
@@ -26,31 +26,16 @@ test('app route helpers build Learning Lab domain and track paths', () => {
     getLearningTrackPath('reinforcement-learning', 'tabular-control'),
     '/learning/reinforcement-learning/tabular-control',
   );
-});
-
-test('app route helpers build Learning Lab practice paths with lesson query state', () => {
   assert.equal(
-    getLearningPracticePath({
-      domainId: 'cv',
-      trackId: 'cnn-shape-value',
-      lessonId: 'conv2d-output',
-      practiceId: 'conv2d-value-window',
-    }),
-    '/learning/cv/cnn-shape-value?lesson=conv2d-output&practice=conv2d-value-window',
+    getLearningLessonPath('cv', 'cnn-shape-value', 'conv2d-shape-exercise'),
+    '/learning/cv/cnn-shape-value?lesson=conv2d-shape-exercise',
   );
 });
 
-test('app route helpers build HashRouter URLs for new-tab Learning Lab handoff', () => {
-  const path = getLearningPracticePath({
-    domainId: 'cv',
-    trackId: 'cnn-shape-value',
-    lessonId: 'conv2d-output',
-    practiceId: 'conv2d-value-window',
-  });
-
+test('HashRouter helper preserves the current host and opens a canonical lesson URL', () => {
   assert.equal(
-    getHashRouterUrl('https://example.test/torchviz/?debug=1#/workspace', path),
-    'https://example.test/torchviz/#/learning/cv/cnn-shape-value?lesson=conv2d-output&practice=conv2d-value-window',
+    getHashRouterUrl('https://example.com/torchviz/#/workspace', '/learning/cv/cnn-shape-value?lesson=conv2d-shape-exercise'),
+    'https://example.com/torchviz/#/learning/cv/cnn-shape-value?lesson=conv2d-shape-exercise',
   );
 });
 

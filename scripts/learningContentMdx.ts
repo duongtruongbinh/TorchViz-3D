@@ -14,6 +14,7 @@ const STRUCTURAL_KEYS = new Set([
   'id', 'kind', 'locale', 'domainId', 'sectionRefId', 'image', 'href', 'depth', 'mode',
   'interactionPlacement', 'categoryId', 'correctOrder', 'isCorrect', 'compact',
   'hideUnsortedLabel', 'page', 'pageCount', 'step', 'icon',
+  'opType', 'inputShape', 'outputShape', 'config', 'kernel', 'stride', 'padding', 'dilation',
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
 
@@ -85,6 +86,7 @@ export type LearningMdxInspection = {
   metadata: Record<string, unknown>;
   pageIndexes: number[];
   quizQuestionIds: string[];
+  cvExerciseFixtures: unknown[];
   searchText: string;
 };
 
@@ -99,6 +101,7 @@ export async function inspectLearningMdx(
   let metadata: Record<string, unknown> = {};
   const pageIndexes: number[] = [];
   const quizQuestionIds: string[] = [];
+  const cvExerciseFixtures: unknown[] = [];
   await compile(source, {
     remarkPlugins: [() => (tree: Node) => {
       walk(tree, (node) => {
@@ -120,6 +123,9 @@ export async function inspectLearningMdx(
             if (node.name === 'MdxQuiz' && attribute.name === 'questions') {
               const questions = staticValue(expression) as Array<{ id?: unknown }>;
               quizQuestionIds.push(...questions.map((question) => String(question.id ?? '')));
+            }
+            if (node.name === 'CvExercise' && attribute.name === 'fixture') {
+              cvExerciseFixtures.push(staticValue(expression));
             }
           }
         }
@@ -155,6 +161,7 @@ export async function inspectLearningMdx(
     metadata,
     pageIndexes,
     quizQuestionIds,
+    cvExerciseFixtures,
     searchText: [...new Set(searchParts.map((value) => value.trim()).filter(Boolean))].join(' '),
   };
 }
@@ -186,11 +193,9 @@ export async function validateLearningMdxFiles(
     documents.push(document);
   }
 
-  for (const domain of catalog.domains) {
-    for (const lessonId of domain.mdx?.approvedLessonIds ?? []) {
-      if (!documents.some((document) => document.domainId === domain.id && document.lessonId === lessonId)) {
-        throw new Error(`${domain.id}/${lessonId}: approved lesson has no locale-specific MDX file`);
-      }
+  for (const lesson of catalog.lessons.filter((item) => item.contentStatus === 'published')) {
+    if (!documents.some((document) => document.domainId === lesson.domainId && document.lessonId === lesson.id)) {
+      throw new Error(`${lesson.domainId}/${lesson.id}: published lesson has no locale-specific MDX file`);
     }
   }
   return documents;
@@ -207,11 +212,15 @@ export async function validateLearningMdxSource(
   if (!domain) throw new Error(`${filePath}: unknown Learning Lab domain ${parsed.domainId}`);
   const lesson = catalog.lessons.find((item) => item.domainId === parsed.domainId && item.id === parsed.lessonId);
   if (!lesson) throw new Error(`${filePath}: lesson does not exist in the catalog`);
-  if (domain.mdx?.approvedLessonIds && !domain.mdx.approvedLessonIds.includes(parsed.lessonId)) {
-    throw new Error(`${filePath}: lesson is not approved for MDX content`);
+  if (lesson.contentStatus !== 'published') {
+    throw new Error(`${filePath}: lesson is not published for MDX content`);
   }
   const inspection = await inspectLearningMdx(source, filePath, parsed.domainId);
   assertLearningMdxMetadata(inspection.metadata, parsed, filePath);
+  const catalogTitle = (lesson.text?.title as Record<string, string> | undefined)?.[parsed.locale];
+  if (catalogTitle && inspection.metadata.title !== catalogTitle) {
+    throw new Error(`${filePath}: metadata title does not match the catalog title for ${parsed.locale}`);
+  }
   const pageCount = Number(inspection.metadata.pageCount ?? 1);
   if (inspection.pageIndexes.length) {
     const expectedPages = Array.from({ length: pageCount }, (_, index) => index);
@@ -225,7 +234,35 @@ export async function validateLearningMdxSource(
       throw new Error(`${filePath}: quiz question ids must be unique and match pageCount`);
     }
   }
+  const isCvExerciseLesson = lesson.tags.includes('exercise') && lesson.domainId === 'cv';
+  if (isCvExerciseLesson) {
+    if (lesson.entryPoints.length !== 1 || inspection.cvExerciseFixtures.length !== 1) {
+      throw new Error(`${filePath}: CV exercise lessons require one catalog entry point and one CvExercise fixture`);
+    }
+    assertCvExerciseFixture(inspection.cvExerciseFixtures[0], lesson.entryPoints[0].operationFamily, filePath);
+  } else if (inspection.cvExerciseFixtures.length) {
+    throw new Error(`${filePath}: CvExercise is only allowed on tagged CV exercise lessons`);
+  }
   return { ...parsed, text: inspection.searchText };
+}
+
+function assertCvExerciseFixture(value: unknown, operationFamily: string, filePath: string): void {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${filePath}: CvExercise fixture must be an object`);
+  const fixture = value as Record<string, unknown>;
+  const opType = fixture.opType;
+  if (typeof opType !== 'string') throw new Error(`${filePath}: CvExercise fixture opType is required`);
+  for (const key of ['inputShape', 'outputShape'] as const) {
+    const shape = fixture[key];
+    if (!Array.isArray(shape) || shape.length !== 4 || shape.some((item) => typeof item !== 'number' || item <= 0)) {
+      throw new Error(`${filePath}: CvExercise fixture ${key} must be a positive NCHW shape`);
+    }
+  }
+  const actualFamily = /conv2d/i.test(opType)
+    ? 'conv2d'
+    : /maxpool(?:2d)?|avgpool(?:2d)?/i.test(opType)
+      ? 'pool2d'
+      : null;
+  if (actualFamily !== operationFamily) throw new Error(`${filePath}: CvExercise fixture operation does not match its catalog entry point`);
 }
 
 function assertLearningMdxMetadata(

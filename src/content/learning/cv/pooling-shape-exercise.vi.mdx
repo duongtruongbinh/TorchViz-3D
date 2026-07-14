@@ -1,0 +1,24 @@
+export const lessonMetadata = {
+  domainId: 'cv',
+  id: 'pooling-shape-exercise',
+  locale: 'vi',
+  title: 'Bài tập output shape Pooling',
+  headings: ['Pooling thay đổi kích thước thế nào', 'Tự tính output shape'],
+  keywords: ['pooling', 'maxpool2d', 'output shape', 'kernel', 'stride', 'NCHW'],
+  pageCount: 1,
+}
+
+## Pooling thay đổi kích thước thế nào
+
+Input có shape `[1, 16, 16, 16]`. `MaxPool2d` dùng kernel `2×2`, stride `2` và không padding. Số batch và channel được giữ nguyên, còn hai chiều không gian bị giảm.
+
+## Tự tính output shape
+
+Điền shape `[N, C, H, W]` sau pooling và dùng phần công thức để kiểm tra từng chiều không gian.
+
+<CvExercise fixture={{
+  opType: 'MaxPool2d',
+  inputShape: [1, 16, 16, 16],
+  outputShape: [1, 16, 8, 8],
+  config: { kernel: 2, stride: 2, padding: 0, dilation: 1 },
+}} />

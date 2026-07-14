@@ -288,7 +288,7 @@ logic is introduced.
   typecheck passed, 51 tests passed, and production build passed.
 - 2026-06-21 - Review expanded scope to include docs/wiki in this PR. Added
   README/architecture pointers, OKF concept page
-  `wiki/concepts/learning-lab-refactor.md`, wiki index links, wiki log entry,
+  `wiki/concepts/learning-lab.md`, wiki index links, wiki log entry,
   and an embedded Codex init prompt derived from `CLAUDE.md`. No `CODEX.md` file
   is added.
 - 2026-06-21 - Re-ran `npm run verify` after docs/wiki updates: typecheck

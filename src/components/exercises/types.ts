@@ -1,7 +1,12 @@
-import type { TensorExerciseId as ExerciseId } from '../../core/learning/types';
 import type { LayoutNode } from '../../lib/irTypes';
 
-export type { ExerciseId };
+export type ExerciseId =
+  | 'conv-value'
+  | 'shape-output'
+  | 'attention-shape'
+  | 'pool-value'
+  | 'linear-value'
+  | 'activation-value';
 
 export type ExerciseContext = {
   node: LayoutNode;

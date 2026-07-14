@@ -250,25 +250,23 @@ export const DemoControls: React.FC<{
   playing: boolean;
   dataUrl?: string;
   animationSpeed: number;
-  availableExercises?: ExerciseDefinition[];
   t: DemoLabels;
   onProgressChange: (progress: number) => void;
   onPlayingChange: (playing: boolean) => void;
   onAnimationSpeedChange: (speed: number) => void;
-  onPreviewExercise?: (id: ExerciseId, anchor: DOMRect) => void;
-  onSelectExercise?: (id: ExerciseId, anchor: DOMRect) => void;
+  availableExercises?: ExerciseDefinition[];
+  onSelectExercise?: (exerciseId: ExerciseId) => void;
 }> = React.memo(({
   stops,
   progress,
   playing,
   dataUrl,
   animationSpeed,
-  availableExercises = [],
   t,
   onProgressChange,
   onPlayingChange,
   onAnimationSpeedChange,
-  onPreviewExercise,
+  availableExercises = [],
   onSelectExercise,
 }) => {
   if (!stops.length) return null;
@@ -277,7 +275,6 @@ export const DemoControls: React.FC<{
   const segment = getSegmentState(stops, progress);
   const selectedIndex = segment.activeStopIndex < 0 ? 0 : segment.activeStopIndex + 1;
   const progressPct = maxProgress > 0 ? Math.round((progress / maxProgress) * 100) : 0;
-  const activeOperation = segment.activeStop?.label ?? t.input;
 
   const stepBy = (delta: number) => {
     onPlayingChange(false);
@@ -372,7 +369,7 @@ export const DemoControls: React.FC<{
           </div>
         </div>
 
-        <div className={availableExercises.length > 0 ? "grid grid-cols-[1fr_1.1fr] gap-2" : "grid grid-cols-1 gap-2"}>
+        <div className={availableExercises.length ? 'grid grid-cols-[1fr_1.1fr] gap-2' : 'grid grid-cols-1 gap-2'}>
           <div className="min-w-0 rounded-md border border-zinc-700/60 bg-zinc-950/55 p-1.5 flex flex-col justify-between">
             <span className="block px-0.5 pb-1 text-[9px] font-bold uppercase tracking-[0.18em] text-zinc-500">
               {t.step}
@@ -394,18 +391,9 @@ export const DemoControls: React.FC<{
               ))}
             </select>
           </div>
-
-          {availableExercises.length > 0 && (
-            <div className="min-w-0 rounded-md border border-zinc-700/60 bg-zinc-950/55 p-1.5 flex flex-col justify-between">
-              <ExerciseLauncher
-                exercises={availableExercises}
-                activeOperation={activeOperation}
-                t={t}
-                onPreviewExercise={(id, anchor) => onPreviewExercise?.(id, anchor)}
-                onSelectExercise={(id, anchor) => onSelectExercise?.(id, anchor)}
-              />
-            </div>
-          )}
+          {availableExercises.length && onSelectExercise ? (
+            <ExerciseLauncher exercises={availableExercises} t={t} onSelectExercise={onSelectExercise} />
+          ) : null}
         </div>
       </div>
     </div>

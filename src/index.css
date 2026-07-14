@@ -475,6 +475,41 @@ body {
   background-color: rgba(15, 23, 42, 0.28);
 }
 
+.learning-exercise-surface-light [class~="bg-zinc-950"] {
+  background-color: #f7fafc;
+}
+
+.learning-exercise-surface-light [class*="bg-zinc-950/95"] {
+  background-color: #e5edf5;
+}
+
+.learning-exercise-surface-light [class*="bg-zinc-950/80"],
+.learning-exercise-surface-light [class*="bg-zinc-950/70"],
+.learning-exercise-surface-light [class*="bg-zinc-950/65"] {
+  background-color: rgba(255, 255, 255, 0.82);
+}
+
+.learning-exercise-surface-light [class~="bg-zinc-900"],
+.learning-exercise-surface-light [class*="bg-zinc-900/75"],
+.learning-exercise-surface-light [class*="bg-zinc-900/70"],
+.learning-exercise-surface-light [class*="bg-zinc-900/40"],
+.learning-exercise-surface-light [class*="bg-zinc-900/30"] {
+  background-color: #edf3f8;
+}
+
+.learning-exercise-surface-light [class*="bg-black/20"],
+.learning-exercise-surface-light [class*="bg-black/10"] {
+  background-color: rgba(32, 80, 137, 0.06);
+}
+
+.learning-exercise-surface-light [class*="bg-white/10"] {
+  background-color: rgba(32, 80, 137, 0.14);
+}
+
+.learning-exercise-surface-light [class~="text-white"] {
+  color: #123b68;
+}
+
 .learning-lab-light .learning-lab-surface-elevated {
   border-color: var(--learning-lab-border-soft);
   background-color: var(--learning-lab-surface-elevated);
