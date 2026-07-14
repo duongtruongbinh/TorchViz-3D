@@ -37,28 +37,21 @@ test('registry exposes the existing Conv exercise by id', () => {
   assert.equal(exercise.id, 'conv-value');
 });
 
-test('registry returns Shape and value exercises for convolution nodes', () => {
-  assert.deepEqual(getExercisesForNode(node('Conv2d')).map((exercise) => exercise.id), ['shape-output', 'conv-value']);
-});
-
-test('registry returns Shape exercise for pool nodes', () => {
-  assert.deepEqual(getExercisesForNode(node('MaxPool')).map((exercise) => exercise.id), ['shape-output', 'pool-value']);
-  assert.deepEqual(getExercisesForNode(node('AvgPool2d')).map((exercise) => exercise.id), ['shape-output', 'pool-value']);
-  assert.deepEqual(getExercisesForNode(node('AdaptiveAvgPool')).map((exercise) => exercise.id), ['shape-output']);
-});
-
-test('registry returns value exercises for Linear and ReLU nodes', () => {
-  assert.deepEqual(getExercisesForNode(node('Linear')).map((exercise) => exercise.id), ['linear-value']);
-  assert.deepEqual(getExercisesForNode(node('ReLU')).map((exercise) => exercise.id), ['activation-value']);
-});
-
-test('registry returns shape exercises for BatchNorm and Attention nodes', () => {
-  assert.deepEqual(getExercisesForNode(node('BatchNorm')).map((exercise) => exercise.id), ['shape-output']);
-  assert.deepEqual(getExercisesForNode(node('MultiheadAttention')).map((exercise) => exercise.id), ['attention-shape']);
-});
-
-test('registry excludes nodes without matching exercises', () => {
-  assert.deepEqual(getExercisesForNode(node('Dropout')).map((exercise) => exercise.id), []);
+test('registry maps supported operation families to exercise ids', () => {
+  const cases: Array<[string, string[]]> = [
+    ['Conv2d', ['shape-output', 'conv-value']],
+    ['MaxPool', ['shape-output', 'pool-value']],
+    ['AvgPool2d', ['shape-output', 'pool-value']],
+    ['AdaptiveAvgPool', ['shape-output']],
+    ['Linear', ['linear-value']],
+    ['ReLU', ['activation-value']],
+    ['BatchNorm', ['shape-output']],
+    ['MultiheadAttention', ['attention-shape']],
+    ['Dropout', []],
+  ];
+  for (const [opType, expected] of cases) {
+    assert.deepEqual(getExercisesForNode(node(opType)).map((exercise) => exercise.id), expected, opType);
+  }
 });
 
 test('every reviewable Learning lesson points at a registered exercise surface', () => {

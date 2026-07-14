@@ -35,19 +35,16 @@ function node(overrides: Partial<LayoutNode> = {}): LayoutNode {
   };
 }
 
-test('keeps operation panel near the active node horizontally', () => {
+test('positions operation panels beside both early and later nodes', () => {
   const active = node();
   const position = getPanelPosition(active);
 
   assert.ok(position.x > active.x);
   assert.ok(position.x - active.x <= 16);
-});
+  const early = node({ x: 0 });
+  const earlyPosition = getPanelPosition(early);
 
-test('keeps early operation panels clear of compact controls', () => {
-  const active = node({ x: 0 });
-  const position = getPanelPosition(active);
-
-  assert.ok(position.x - active.x >= 22);
+  assert.ok(earlyPosition.x - early.x >= 22);
 });
 
 function stop(id: string, position: THREE.Vector3, op_type = 'ReLU'): DemoStop {
@@ -68,11 +65,8 @@ function segment(overrides: Partial<SegmentState>): SegmentState {
   };
 }
 
-test('does not create a data packet route before a stop is active', () => {
+test('omits data packet routes before activation or without a real edge', () => {
   assert.equal(getDataPacketRoute([], segment({}), []), null);
-});
-
-test('does not create a data packet route without a real graph edge', () => {
   // activeStopIndex: 1 represents routing from stop 0 to stop 1, which requires a real edge.
   const first = stop('conv', new THREE.Vector3(10, 0, 3));
   const second = stop('relu', new THREE.Vector3(20, 0, 3));
@@ -161,7 +155,7 @@ test('duplicates the data packet onto residual branches when Add is active', () 
   assert.equal(routes[1].position.y, 6);
 });
 
-test('getDemoInputPose positions input tile correctly in world space', () => {
+test('positions the input tile and supports its virtual first packet route', () => {
   const firstStop = stop('conv', new THREE.Vector3(10, 2, 4));
   firstStop.node.width = 4;
   firstStop.node.x = 10;
@@ -177,9 +171,6 @@ test('getDemoInputPose positions input tile correctly in world space', () => {
   assert.equal(pose.position.z, 4);
   // uses fixed rotation [0, PI/2, 0]
   assert.deepEqual(pose.rotation, [0, Math.PI / 2, 0]);
-});
-
-test('getDataPacketRoute supports virtual first route (input -> first block)', () => {
   const first = stop('conv', new THREE.Vector3(10, 0, 3));
   const inputPos = new THREE.Vector3(4, 0, 3);
   const route = getDataPacketRoute([first], segment({
@@ -201,14 +192,11 @@ test('getDataPacketRoute supports virtual first route (input -> first block)', (
 });
 
 
-test('getMatrixCenter returns the geometric center of a centered matrix visual', () => {
+test('matrix and patch helpers return centered visualization coordinates', () => {
   const center = getMatrixCenter([1.25, -0.5, 0.02]);
 
   assert.deepEqual(center.toArray().map((value) => Number(value.toFixed(3))), [1.25, -0.5, 0.14]);
-});
+  const patchCenter = getPatchCenter([0, 0.3, 0.02], 0.98);
 
-test('getPatchCenter returns pool/kernel patch center independent of patch size', () => {
-  const center = getPatchCenter([0, 0.3, 0.02], 0.98);
-
-  assert.deepEqual(center.toArray().map((value) => Number(value.toFixed(3))), [0, 0.3, 0.14]);
+  assert.deepEqual(patchCenter.toArray().map((value) => Number(value.toFixed(3))), [0, 0.3, 0.14]);
 });

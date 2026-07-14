@@ -31,8 +31,9 @@ MDX. Every RL lesson therefore renders the shared localized content-in-progress
 state.
 
 The former MDP, Bellman/Q-table, Q-Learning, SARSA, and GridWorld practice
-payloads and renderers have been removed. Learning Lab has no RL practice
-registry, Review mode, or Workspace practice handoff.
+payloads and renderers have been removed. RL has no practice registry,
+Review-eligible authored lesson, or Workspace handoff. Learning Lab's global
+Review mode still derives from published `exercise` lessons in other domains.
 
 ## Runtime Boundary
 

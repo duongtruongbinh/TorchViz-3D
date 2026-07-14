@@ -22,7 +22,7 @@ function node(overrides: Partial<LayoutNode>): LayoutNode {
   };
 }
 
-test('getRenderableNodeBox applies visual dimensions for leaves', () => {
+test('getRenderableNodeBox handles leaf visual scaling and authoritative containers', () => {
   const box = getRenderableNodeBox(node({ op_type: 'Linear' }));
 
   assert.equal(box.width, 1.6);
@@ -32,10 +32,8 @@ test('getRenderableNodeBox applies visual dimensions for leaves', () => {
   assert.equal(box.maxX, 10.8);
   assert.equal(box.minY, -4.5);
   assert.equal(box.maxY, 8.5);
-});
 
-test('getRenderableNodeBox keeps container dimensions authoritative', () => {
-  const box = getRenderableNodeBox(node({
+  const containerBox = getRenderableNodeBox(node({
     is_container: true,
     children: [],
     width: 8,
@@ -43,14 +41,14 @@ test('getRenderableNodeBox keeps container dimensions authoritative', () => {
     depth: 4,
   }));
 
-  assert.equal(box.width, 8);
-  assert.equal(box.height, 6);
-  assert.equal(box.depth, 4);
-  assert.equal(box.minX, 6);
-  assert.equal(box.maxX, 14);
+  assert.equal(containerBox.width, 8);
+  assert.equal(containerBox.height, 6);
+  assert.equal(containerBox.depth, 4);
+  assert.equal(containerBox.minX, 6);
+  assert.equal(containerBox.maxX, 14);
 });
 
-test('getLayoutWorldBounds includes renderable nodes and edge points', () => {
+test('world bounds include edge points and produce a snapped adaptive grid', () => {
   const layout: LayoutData = {
     nodes: [
       node({ id: 'a', x: 0, y: 0, z: 0, width: 2, height: 2, depth: 2, op_type: 'Conv' }),
@@ -75,9 +73,7 @@ test('getLayoutWorldBounds includes renderable nodes and edge points', () => {
   assert.equal(bounds.maxX, 10.4);
   assert.equal(bounds.maxY, 12);
   assert.equal(bounds.minZ, -9);
-});
 
-test('getAdaptiveGridSpec centers below bounds and snaps size', () => {
   const grid = getAdaptiveGridSpec({
     minX: -8,
     maxX: 31,

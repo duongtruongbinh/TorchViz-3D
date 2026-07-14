@@ -2,7 +2,7 @@
 title: Learning Lab Content Architecture Migration
 status: done
 created: 2026-07-14T08:02:31+07:00
-updated: 2026-07-14T11:56:59+07:00
+updated: 2026-07-14T13:14:00+07:00
 author: Nguyen Manh Khiem and Codex
 task: "replace duplicated Learning Lab catalog/content ownership with typed domain TOCs, locale MDX, authored CV exercises, derived Review mode, and canonical Workspace handoff"
 ---
@@ -332,3 +332,21 @@ handoff now derive from one catalog/MDX contract rather than parallel practice
 or localization payloads. The approved boundary-cleanup addendum additionally
 leaves `src/core/learning` as a one-way, React-free dependency containing only
 shared contracts, catalog materialization, selectors, and MDX helpers.
+
+# Absorbed Pre-MDX LLM History
+
+`2026-07-13-learning-lab-llm-domain-compact.md` is absorbed here. It had already
+compacted five smaller LLM lesson/copy/renderer plans and established the
+approved Vietnamese-first boundary for the first five LLM lessons. The durable
+decisions carried into this migration are:
+
+- teach in the rhythm theory -> hand calculation or quiz -> code;
+- keep domain-specific visual/stateful React components inside the LLM domain;
+- keep catalog/navigation data React-free;
+- approve lesson content explicitly instead of treating placeholder nodes as
+  authored material;
+- use the local LLM-from-scratch reference only for source-grounded paraphrase,
+  not copied prose.
+
+The typed-TOC and locale-MDX architecture in this document supersedes the old
+`tracks.ts`, extras payload, approval-list, and renderer-dispatch mechanics.

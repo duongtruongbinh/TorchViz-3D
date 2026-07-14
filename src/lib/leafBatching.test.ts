@@ -22,7 +22,7 @@ function leaf(id: string, overrides: Partial<LayoutNode> = {}): LayoutNode {
   };
 }
 
-test('batches visually identical ordinary leaves', () => {
+test('leaf batching groups ordinary leaves and isolates interactive/error leaves', () => {
   const result = partitionLeavesForInstancing(
     [leaf('a'), leaf('b'), leaf('c')],
     { highlightedNodeId: null, selectedNodeId: null, activeNodeId: null },
@@ -31,10 +31,8 @@ test('batches visually identical ordinary leaves', () => {
 
   assert.equal(result.batches.length, 1);
   assert.deepEqual(result.singles, []);
-});
 
-test('keeps error and interactive-state leaves out of instanced batches', () => {
-  const result = partitionLeavesForInstancing(
+  const mixed = partitionLeavesForInstancing(
     [
       leaf('a'),
       leaf('b'),
@@ -48,7 +46,7 @@ test('keeps error and interactive-state leaves out of instanced batches', () => 
     3,
   );
 
-  assert.equal(result.batches.length, 1);
-  assert.deepEqual(result.batches[0].map((node) => node.id), ['a', 'b', 'c']);
-  assert.deepEqual(result.singles.map((node) => node.id).sort(), ['active', 'error', 'highlighted', 'selected']);
+  assert.equal(mixed.batches.length, 1);
+  assert.deepEqual(mixed.batches[0].map((node) => node.id), ['a', 'b', 'c']);
+  assert.deepEqual(mixed.singles.map((node) => node.id).sort(), ['active', 'error', 'highlighted', 'selected']);
 });

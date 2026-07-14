@@ -59,6 +59,9 @@ Read [wiki/architecture.md](wiki/architecture.md) for the full pipeline, and the
 | `src/lib/constants.ts` | Non-op theme constants — container, edge, text, and UI colors. |
 | `src/store/useStore.ts` | zustand state + built-in templates. |
 | `src/components/canvas/Canvas3D.tsx` | React Three Fiber scene. |
+| `src/content/learning/*/table-of-contents.ts` | Typed Learning Lab navigation metadata. |
+| `src/content/learning/*/*.mdx` | Locale-authored Learning Lab lessons. |
+| `src/core/learning/*` | React-free catalog contracts, materialization, and selectors. |
 
 ## Gotchas
 
@@ -66,8 +69,8 @@ See [wiki/reference/gotchas.md](wiki/reference/gotchas.md). The big ones:
 `WRAPPER_LINE_OFFSET` in the worker is auto-derived from the injected preamble
 (`countPythonPreambleLines`), not hardcoded; the layout axis convention is
 intentionally swapped; op color lives in `visualKind.ts` (not `constants.ts`);
-module resolution is split between an importmap and Vite bundling. Desktop +
-online only.
+and Vite owns module resolution plus local Pyodide asset delivery. The Workspace
+is desktop-oriented; Landing and Learning Lab remain responsive.
 
 ## Common commands
 
@@ -75,11 +78,12 @@ online only.
 npm run dev      # local dev server (http://localhost:3000)
 npm test         # node --test on src/lib/*.test.ts
 npm run build    # production build to dist/
+npm run verify   # typecheck + tests + production build
 ```
 
 ## Documentation surfaces
 
 - `wiki/` — OKF knowledge bundle (structured, agent-readable). Start here.
 - `docs/ARCHITECTURE.md`, `docs/TORCHSTUB.md` — long-form prose deep-dives.
-- `docs/plans/` — the history of *why* changes were made.
+- `docs/plans/` — compacted history of *why* changes were made.
 - `docs/WORKFLOW.md` — the mandatory process above.

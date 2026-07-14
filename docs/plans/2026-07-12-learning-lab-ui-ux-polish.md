@@ -2,12 +2,12 @@
 title: Learning Lab UI/UX Review and Polish
 status: done
 created: 2026-07-12T23:25:00+07:00
-updated: 2026-07-12T23:59:00+07:00
+updated: 2026-07-14T13:14:00+07:00
 author: Codex
 task: "Review, standardize, and improve the Learning Lab website UI/UX across its main user flows."
 supersedes:
-  - docs/plans/2026-07-06-learning-home-module-descriptions.md
-  - docs/plans/2026-07-04-learning-lab-focus-highlight-only.md
+  - docs/plans/2026-06-21-learning-lab-refactor.md
+  - docs/plans/2026-06-21-landing-ui-iteration.md
 ---
 
 # Goal
@@ -20,11 +20,11 @@ desktop, tablet, and mobile widths.
 
 # Lineage
 
-This visual and interaction pass follows the latest Learning Lab home and lesson
-polish work:
+This visual and interaction pass follows the active Learning Lab and Landing
+foundations:
 
-- [2026-07-06-learning-home-module-descriptions](./2026-07-06-learning-home-module-descriptions.md)
-- [2026-07-04-learning-lab-focus-highlight-only](./2026-07-04-learning-lab-focus-highlight-only.md)
+- [2026-06-21-learning-lab-refactor](./2026-06-21-learning-lab-refactor.md)
+- [2026-06-21-landing-ui-iteration](./2026-06-21-landing-ui-iteration.md)
 
 It preserves the catalog/domain architecture documented by the earlier Learning
 Lab refactor plans and the conventions in
@@ -357,3 +357,21 @@ visual and discovery pass. Runtime work must wait for explicit user approval.
 - 2026-07-12T23:59:00+07:00 — Updated the existing Learning Lab wiki page with
   the desktop Home hero, live catalog metrics, value strip, and curriculum
   directory conventions. Desktop addendum marked done.
+
+# Compacted UI History
+
+The following completed UI plans are absorbed here because their durable
+decisions now form the single Learning Lab visual convention:
+
+| Absorbed plan | Preserved decision and outcome |
+|---|---|
+| `2026-06-26-learning-lab-design-palette.md` | Established the restrained blue-gray Learning Lab identity and semantic light/dark surface tokens. |
+| `2026-06-26-ui-conventions-and-icons.md` | Standardized radii, interaction states, and `lucide-react` icons across Landing, Workspace, and Learning Lab. |
+| `2026-07-02-learning-lab-scrollbar-search-cleanup.md` | Consolidated scrollbar styling, lesson search behavior, and compact rail controls. |
+| `2026-07-04-learning-home-syllabus.md` | Added the catalog-derived Home curriculum index and whole-card domain navigation. |
+| `2026-07-06-learning-home-module-descriptions.md` | Expanded domain descriptions and removed redundant track-count emphasis. |
+
+The later responsive shell, desktop Home pass, and portrait course-card update
+continue this same owner plan. Current UI rules live in
+`wiki/concepts/learning-lab.md`; historical metrics mentioning practice items
+describe the pre-MDX catalog and are not current runtime claims.

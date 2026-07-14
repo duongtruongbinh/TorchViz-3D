@@ -25,7 +25,7 @@ test('learning core remains independent from authored content and React UI', () 
   }
 });
 
-test('learning catalog exposes reinforcement learning as a Learning Lab domain', () => {
+test('typed catalog materializes domain metadata and content lifecycle counts', () => {
   const rlDomain = getLearningDomain(learningCatalog, 'reinforcement-learning');
   const robotDomain = getLearningDomain(learningCatalog, 'robot-learning');
 
@@ -34,9 +34,6 @@ test('learning catalog exposes reinforcement learning as a Learning Lab domain',
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
-});
-
-test('typed table-of-contents materializes the complete catalog and content lifecycle', () => {
   assert.equal(learningTableOfContents.length, 12);
   assert.equal(learningCatalog.domains.length, 12);
   assert.equal(learningCatalog.tracks.length, 81);
@@ -51,9 +48,6 @@ test('typed table-of-contents materializes the complete catalog and content life
   );
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 9);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 606);
-});
-
-test('typed TOCs own localized domain and track metadata directly', () => {
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
@@ -72,7 +66,7 @@ test('catalog lesson text is canonical', () => {
   assert.deepEqual(text.theory, ['Catalog theory']);
 });
 
-test('reinforcement learning roadmap keeps canonical lesson order', () => {
+test('reinforcement learning keeps canonical order and resolves legacy aliases', () => {
   const fundamentalsTrack = getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals');
   const valueTrack = getLearningTrack(learningCatalog, 'reinforcement-learning', 'value-based-methods');
   const fundamentalsLessons = fundamentalsTrack ? getLearningLessonsForTrack(learningCatalog, fundamentalsTrack) : [];
@@ -85,9 +79,6 @@ test('reinforcement learning roadmap keeps canonical lesson order', () => {
     'value-function',
   ]);
   assert.deepEqual(valueLessons.slice(0, 2).map((lesson) => lesson.id), ['q-learning', 'sarsa-on-policy-td']);
-});
-
-test('learning route aliases resolve old RL and NLP ids to canonical roadmap lessons', () => {
   const rlRoute = resolveLearningLessonRoute(learningCatalog, {
     domainId: 'reinforcement-learning',
     trackId: 'tabular-control',

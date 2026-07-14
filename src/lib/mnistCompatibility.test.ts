@@ -45,50 +45,39 @@ function reason(result: ForwardPassCompatibility): string | undefined {
   return undefined;
 }
 
-test('reports no-layout before any stops exist', () => {
-  assert.deepEqual(getForwardPassCompatibility(null), {
-    ok: false,
-    reason: 'no-layout',
-  });
-  assert.deepEqual(getForwardPassCompatibility([]), {
-    ok: false,
-    reason: 'no-layout',
-  });
+test('reports each unavailable forward-pass state', () => {
+  const cases: Array<{ label: string; result: ForwardPassCompatibility; expectedReason: string }> = [
+    { label: 'missing layout', result: getForwardPassCompatibility(null), expectedReason: 'no-layout' },
+    { label: 'empty stops', result: getForwardPassCompatibility([]), expectedReason: 'no-layout' },
+    { label: 'loading', result: getForwardPassCompatibility([stop()], { loading: true }), expectedReason: 'loading' },
+    {
+      label: 'no input-bearing leaf',
+      result: getForwardPassCompatibility([stop({ is_container: true, in_shape: [] })]),
+      expectedReason: 'no-stops',
+    },
+  ];
+  for (const scenario of cases) {
+    assert.equal(scenario.result.ok, false, scenario.label);
+    assert.equal(reason(scenario.result), scenario.expectedReason, scenario.label);
+  }
 });
 
-test('reports loading reason while the graph is computing', () => {
-  assert.deepEqual(getForwardPassCompatibility([stop()], { loading: true }), {
-    ok: false,
-    reason: 'loading',
-  });
-});
-
-test('reports no-stops when no leaf carries an input shape', () => {
-  const result = getForwardPassCompatibility([
-    stop({ is_container: true, in_shape: [] }),
-  ]);
-  assert.equal(result.ok, false);
-  assert.equal(reason(result), 'no-stops');
-});
-
-test('accepts MNIST/LeNet-style graph (1-channel, 10-class head)', () => {
-  assert.deepEqual(getForwardPassCompatibility([
-    stop(),
-    stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 10] }),
-  ]), { ok: true });
-});
-
-test('accepts 3-channel CIFAR-style input regardless of head size', () => {
-  // ResNet / ViT use [1,3,32,32]; AlexNet/VGG/MobileNet use 1000-class heads.
-  assert.deepEqual(getForwardPassCompatibility([
-    stop({ in_shape: [1, 3, 32, 32] }),
-    stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 1000] }),
-  ]), { ok: true });
-});
-
-test('accepts a segmentation graph with no Linear head (UNet)', () => {
-  assert.deepEqual(getForwardPassCompatibility([
-    stop({ in_shape: [1, 3, 128, 128] }),
-    stop({ id: 'out', op_type: 'Conv2d', out_shape: [1, 2, 128, 128] }),
-  ]), { ok: true });
+test('accepts classification and segmentation graph families', () => {
+  const graphFamilies = [
+    {
+      label: 'MNIST/LeNet',
+      stops: [stop(), stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 10] })],
+    },
+    {
+      label: 'CIFAR classifier',
+      stops: [stop({ in_shape: [1, 3, 32, 32] }), stop({ id: 'fc', op_type: 'Linear', out_shape: [1, 1000] })],
+    },
+    {
+      label: 'UNet segmentation',
+      stops: [stop({ in_shape: [1, 3, 128, 128] }), stop({ id: 'out', op_type: 'Conv2d', out_shape: [1, 2, 128, 128] })],
+    },
+  ];
+  for (const scenario of graphFamilies) {
+    assert.deepEqual(getForwardPassCompatibility(scenario.stops), { ok: true }, scenario.label);
+  }
 });

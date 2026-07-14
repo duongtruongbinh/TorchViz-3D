@@ -21,18 +21,15 @@ function node(opType: string, inShape: number[] = [], outShape: number[] = inSha
   };
 }
 
-test('builds BatchNorm shape exercise as passthrough over NCHW with channel hint', () => {
+test('builds deterministic BatchNorm and attention shape exercises', () => {
   const model = buildShapeExerciseModel(node('BatchNorm', [4, 16, 28, 28]));
 
   assert.deepEqual(model?.expectedShape, [4, 16, 28, 28]);
   assert.deepEqual(model?.configRows, ['num_features=16', 'keeps [N, C, H, W]']);
   assert.match(model?.hintLines?.join(' ') ?? '', /channel C/i);
-});
 
-test('builds simple attention shape exercise for QK^T and context', () => {
-  const model = buildShapeExerciseModel(node('MultiheadAttention'), 'attention-shape');
-
-  assert.deepEqual(model?.expectedShape, [2, 4, 10]);
-  assert.deepEqual(model?.configRows, ['Q=[2, 4, 8]', 'K=[2, 6, 8]', 'V=[2, 6, 10]']);
-  assert.match(model?.hintLines?.join(' ') ?? '', /score.*\[B, T, S\]/i);
+  const attention = buildShapeExerciseModel(node('MultiheadAttention'), 'attention-shape');
+  assert.deepEqual(attention?.expectedShape, [2, 4, 10]);
+  assert.deepEqual(attention?.configRows, ['Q=[2, 4, 8]', 'K=[2, 6, 8]', 'V=[2, 6, 10]']);
+  assert.match(attention?.hintLines?.join(' ') ?? '', /score.*\[B, T, S\]/i);
 });

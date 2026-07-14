@@ -1,8 +1,8 @@
 ---
 title: Learning Lab refactor scaffold
-status: approved
+status: done
 created: 2026-06-21T00:00:00Z
-updated: 2026-06-21T00:00:00+07:00
+updated: 2026-07-14T13:14:00+07:00
 author: nmkhiem
 task: "add a scaffold-only PR for the Landing Page and Learning Lab refactor plan"
 supersedes:
@@ -312,3 +312,25 @@ logic is introduced.
   kept Learning Lab disabled/coming soon.
 - 2026-06-21 - Re-ran `npm run verify`: typecheck passed, 55 tests passed, and
   production build passed.
+
+# Compacted Activation and Domain History
+
+The scaffold described at the start of this document became active through the
+following completed plans. They are absorbed here as one historical activation
+chain; the current runtime contract is documented in
+`wiki/concepts/learning-lab.md` and the 2026-07-14 content migration plan.
+
+| Absorbed plan | Preserved decision and outcome |
+|---|---|
+| `2026-06-24-learning-path-exercise-separation.md` | Activated Learning Lab as a full-screen Path/Review surface while keeping Workspace exercises as separate reusable engines. |
+| `2026-06-24-reinforcement-learning-track-ui.md` | Introduced Reinforcement Learning routes, roadmap UI, and deterministic exercise fixtures before RL was unified into the domain catalog. |
+| `2026-06-25-learning-lab-domain-refactor.md` | Unified RL and the wider curriculum under one domain-first catalog, canonical routes, selectors, and shared shell. |
+| `2026-06-26-learning-button-lab-navigation.md` | Connected Workspace learning affordances to canonical Learning Lab destinations while preserving HashRouter-safe navigation. |
+| `2026-06-28-learning-lab-course-pages.md` | Added shared domain course pages with outcomes, requirements, track accordions, and lesson navigation. |
+| `2026-06-29-ui-localization-hardcoded-text.md` | Moved shared UI copy into localization and removed duplicated hard-coded Landing/Learning strings. |
+| `2026-06-30-learning-lab-catalog-consistency-fixes.md` | Reconciled catalog ids, aliases, display text, practice references, and route resolution before the later typed-TOC/MDX migration. |
+
+Later architecture intentionally removed the legacy practice contract and moved
+catalog metadata to typed domain TOCs. Those superseding decisions live in
+`2026-07-14-approved-llm-lessons-mdx-migration.md`; this section records why the
+active domain-first shell and canonical route shape exist.

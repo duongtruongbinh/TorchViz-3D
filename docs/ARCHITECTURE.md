@@ -184,10 +184,9 @@ A single small zustand store holds: editor `code`, active template, `ir`, `colla
 
 ## Landing Page and Learning Lab
 
-The scaffold in
-[`docs/plans/2026-06-21-learning-lab-refactor.md`](plans/2026-06-21-learning-lab-refactor.md)
-added UI surfaces for the Landing/AppShell path plus placeholder files for
-Learning Lab work:
+The original scaffold history is compacted in
+[`docs/plans/2026-06-21-learning-lab-refactor.md`](plans/2026-06-21-learning-lab-refactor.md).
+Those surfaces are now active runtime behavior:
 
 - `src/components/AppShell.tsx`
 - `src/components/landing/*`
@@ -236,7 +235,9 @@ entrypoints in one dedicated change.
 Codex agents should use the repo orientation in `CLAUDE.md` as the source for
 the initial system prompt, then read the OKF page
 [`wiki/concepts/learning-lab.md`](../wiki/concepts/learning-lab.md)
-for the scaffold map.
+for the active file map and content ownership contract. The current migration
+record is
+[`docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md`](plans/2026-07-14-approved-llm-lessons-mdx-migration.md).
 
 ---
 

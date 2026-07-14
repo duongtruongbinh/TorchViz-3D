@@ -2,11 +2,11 @@
 title: Architecture Priority Refactors
 status: done
 created: 2026-07-02T08:34:34+07:00
-updated: 2026-07-02T08:49:37+07:00
+updated: 2026-07-14T13:14:00+07:00
 author: Codex
 task: "Implement the highest-leverage correctness and architecture refactors from the project architecture review."
 supersedes:
-  - docs/plans/2026-07-02-project-architecture-code-review.md
+  - docs/plans/2026-06-21-docs-sync-audit-fixes.md
 ---
 
 # Architecture Priority Refactors Implementation Plan
@@ -742,3 +742,20 @@ Execution Log. Set frontmatter `status` to `done` only after verification passes
   and lazy workspace route chunking. Ran `npm run verify`: typecheck passed,
   87 Node tests passed, and production build passed. Build still reports the
   known `three-vendor` chunk-size warning and empty `react-vendor` chunk.
+
+# Absorbed Architecture Review
+
+`2026-07-02-project-architecture-code-review.md` is absorbed into this
+implementation record. The review identified six priority boundaries that this
+plan then implemented or explicitly retained:
+
+- tuple-safe convolution/pooling shape math;
+- one visual-color source shared by Canvas and SVG export;
+- safe leaf instancing that excludes error/interactive nodes;
+- worker initialization/run timeout recovery;
+- route/detail selection that does not silently replace requested lessons;
+- lazy workspace loading to keep Landing and Learning bundles separated.
+
+Lower-priority observations remained documented in the architecture/wiki rather
+than becoming speculative framework work. The execution log above is the
+authoritative outcome and verification record for the review.

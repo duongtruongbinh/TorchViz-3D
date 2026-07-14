@@ -49,7 +49,8 @@ to draw the architecture, while staying light enough to run in a browser.
 
 - Node.js 20 or newer.
 - A desktop browser; the workspace is designed for screens at least 1024px wide.
-- Internet access on first load; Pyodide, Tailwind, and fonts are fetched from CDNs.
+- Internet access is optional for the app runtime; external lesson references
+  still require a connection when opened.
 
 ### Run
 
@@ -84,11 +85,5 @@ EditorPane -> zustand store -> WorkerService -> Pyodide worker + torchstub
 - [Extending torchstub](docs/TORCHSTUB.md) - add support for more PyTorch layers.
 - [Knowledge bundle](wiki/index.md) - structured subsystem docs, guides, and gotchas.
 - [Workflow](docs/WORKFLOW.md) - required contribution workflow and plan format.
-- [Learning Lab refactor plan](docs/plans/2026-06-21-learning-lab-refactor.md) - Landing/AppShell and guided learning surface history.
-
-## Current Scope
-
-* [Knowledge bundle (`wiki/`)](wiki/index.md) — the structured, agent-readable OKF bundle: per-subsystem concept pages, guides, and reference. **Start here** for a navigable map of the codebase.
-* [Architecture](docs/ARCHITECTURE.md) — data-flow pipeline, the `torchstub` shape-tracing core, the IR contract, and the layout engine.
-* [Extending torchstub](docs/TORCHSTUB.md) — how to add support for a new layer.
-* [Learning Lab refactor plan](docs/plans/2026-06-21-learning-lab-refactor.md) — Landing/AppShell entry point plus the active domain-based Learning Lab.
+- [Learning Lab](wiki/concepts/learning-lab.md) - active typed-TOC, locale-MDX, routing, Review, and exercise architecture.
+- [Learning Lab migration record](docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md) - current content-pipeline decisions and execution history.
