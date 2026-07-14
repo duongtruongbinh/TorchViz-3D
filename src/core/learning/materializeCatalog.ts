@@ -1,36 +1,9 @@
-import { learningTableOfContents as aiEthicsSafetyGovernanceToc } from '../../../content/learning/ai-ethics-safety-governance/table-of-contents.ts';
-import { learningTableOfContents as aiSystemDesignToc } from '../../../content/learning/ai-system-design/table-of-contents.ts';
-import { learningTableOfContents as cvToc } from '../../../content/learning/cv/table-of-contents.ts';
-import { learningTableOfContents as deepLearningToc } from '../../../content/learning/deep-learning/table-of-contents.ts';
-import { learningTableOfContents as fundamentalsToc } from '../../../content/learning/fundamentals/table-of-contents.ts';
-import { learningTableOfContents as llmAiEngineeringToc } from '../../../content/learning/llm-ai-engineering/table-of-contents.ts';
-import { learningTableOfContents as mathStatisticsAiToc } from '../../../content/learning/math-statistics-ai/table-of-contents.ts';
-import { learningTableOfContents as mlopsLlmopsProductionSystemsToc } from '../../../content/learning/mlops-llmops-production-systems/table-of-contents.ts';
-import { learningTableOfContents as nlpToc } from '../../../content/learning/nlp/table-of-contents.ts';
-import { learningTableOfContents as programmingFoundationToc } from '../../../content/learning/programming-foundation/table-of-contents.ts';
-import { learningTableOfContents as reinforcementLearningToc } from '../../../content/learning/reinforcement-learning/table-of-contents.ts';
-import { learningTableOfContents as robotLearningToc } from '../../../content/learning/robot-learning/table-of-contents.ts';
 import type {
   LearningCatalog,
   LearningLocalizedText,
   LearningTableOfContents,
   LearningTocLessonSeed,
-} from '../types.ts';
-
-export const learningTableOfContents = [
-  programmingFoundationToc,
-  mathStatisticsAiToc,
-  fundamentalsToc,
-  deepLearningToc,
-  cvToc,
-  nlpToc,
-  llmAiEngineeringToc,
-  mlopsLlmopsProductionSystemsToc,
-  aiSystemDesignToc,
-  reinforcementLearningToc,
-  aiEthicsSafetyGovernanceToc,
-  robotLearningToc,
-] satisfies LearningTableOfContents[];
+} from './types.ts';
 
 export function materializeLearningCatalog(tables: readonly LearningTableOfContents[]): LearningCatalog {
   const catalog: LearningCatalog = {
@@ -151,13 +124,3 @@ function toReadableTitle(id: string): string {
     .map((word) => TITLE_OVERRIDES[word.toLowerCase()] ?? word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
-
-export const learningCatalog: LearningCatalog = materializeLearningCatalog(learningTableOfContents);
-
-export type {
-  LearningCatalog,
-  LearningDomain,
-  LearningDomainId,
-  LearningLesson,
-  LearningTrack,
-} from '../types.ts';

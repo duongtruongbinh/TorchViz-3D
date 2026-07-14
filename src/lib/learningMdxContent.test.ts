@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { discoverLearningMdxFiles, inspectLearningMdx, validateLearningMdxFiles, validateLearningMdxSource } from '../../scripts/learningContentMdx.ts';
-import { learningCatalog } from '../core/learning/content/index.ts';
-import { getLearningMdxComponentNames, parseLearningMdxPath } from '../core/learning/content/mdxContract.ts';
-import { getAllowedLearningMdxComponentNames } from '../core/learning/content/mdxDomains.ts';
+import { learningCatalog } from '../content/learning/index.ts';
+import { getLearningMdxComponentNames, parseLearningMdxPath } from '../core/learning/mdxContract.ts';
+import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComponents.ts';
 import type { LearningCatalog } from '../core/learning/types.ts';
 
 const lessonFiles = discoverLearningMdxFiles('src/content/learning');
@@ -124,7 +124,7 @@ test('generic validation rejects unknown catalog nodes, metadata drift, and dupl
 test('shared lesson assembly and search contain no LLM-specific branch or import', () => {
   const detail = readFileSync('src/components/learning/lesson/LessonDetail.tsx', 'utf8');
   const rail = readFileSync('src/components/learning/lesson/LessonRail.tsx', 'utf8');
-  const contract = readFileSync('src/core/learning/content/mdxContract.ts', 'utf8');
+  const contract = readFileSync('src/core/learning/mdxContract.ts', 'utf8');
   const tooling = readFileSync('scripts/learningContentMdx.ts', 'utf8');
   for (const source of [detail, rail, contract, tooling]) {
     assert.doesNotMatch(source, /llm-ai-engineering|renderLlm|virtual:llm/);
@@ -133,6 +133,6 @@ test('shared lesson assembly and search contain no LLM-specific branch or import
 
 test('migrated MDX lessons no longer have duplicate legacy extras or pilot renderer code', () => {
   const renderer = readFileSync('src/components/learning/domains/llm-ai-engineering/renderers.tsx', 'utf8');
-  assert.equal(existsSync('src/core/learning/content/llm-ai-engineering/extras.ts'), false);
+  assert.equal(existsSync('src/content/learning/llm-ai-engineering/extras.ts'), false);
   assert.doesNotMatch(renderer, /colab-coding-requirements/);
 });

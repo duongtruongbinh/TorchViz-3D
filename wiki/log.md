@@ -184,3 +184,9 @@ no `type` frontmatter required.)
   lifecycle state, retained five published Vietnamese LLM MDX lessons and 606
   navigable placeholders, removed the duplicate LLM approval list and dead
   references module, and preserved exact normalized catalog parity.
+- **2026-07-14 — Learning core boundary cleanup.** Moved the concrete catalog
+  instance beside the twelve TOCs, kept pure materialization/contracts/selectors
+  in `src/core/learning`, and relocated Vite search, visible-lesson policy,
+  authored renderer DTOs, and MDX allowlists to their owning content/UI layers.
+  Added a regression test for the one-way React-free core boundary; all 107
+  tests and the production build pass.

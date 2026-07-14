@@ -1,6 +1,6 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
-import type { LearningLessonExtra } from '../../../core/learning/types';
+import type { LearningLessonExtra } from '../authoredTypes';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getLearningLocalizedText as text } from '../learningText';
 import { cx, getLearningLabTheme } from '../theme';

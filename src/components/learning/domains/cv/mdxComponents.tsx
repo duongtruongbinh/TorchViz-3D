@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react';
 import type { LayoutNode } from '../../../../lib/irTypes';
 import { getStrings } from '../../../../lib/localization';
-import { learningCatalog } from '../../../../core/learning/content';
-import { CV_MDX_COMPONENT_NAMES } from '../../../../core/learning/content/cv/mdxComponents';
+import { learningCatalog } from '../../../../content/learning/index.ts';
+import { CV_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
   useLearningMdxLesson,
   useLearningMdxTheme,

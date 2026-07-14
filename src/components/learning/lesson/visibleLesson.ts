@@ -1,4 +1,4 @@
-import type { LearningLesson } from './types.ts';
+import type { LearningLesson } from '../../../core/learning/types.ts';
 
 type ResolveVisibleLearningLessonArgs = {
   routeSelectedLesson: LearningLesson | null;

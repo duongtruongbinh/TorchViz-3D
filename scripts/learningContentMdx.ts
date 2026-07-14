@@ -6,8 +6,8 @@ import {
   parseLearningMdxPath,
   type LearningMdxMetadata,
   type LearningMdxSearchDocument,
-} from '../src/core/learning/content/mdxContract.ts';
-import { getAllowedLearningMdxComponentNames } from '../src/core/learning/content/mdxDomains.ts';
+} from '../src/core/learning/mdxContract.ts';
+import { getAllowedLearningMdxComponentNames } from '../src/content/learning/mdxComponents.ts';
 import type { LearningCatalog } from '../src/core/learning/types.ts';
 
 const STRUCTURAL_KEYS = new Set([

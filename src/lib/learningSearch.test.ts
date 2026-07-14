@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { inspectLearningMdx } from '../../scripts/learningContentMdx.ts';
-import { getLearningMdxLocaleCandidates, normalizeLearningSearch } from '../core/learning/content/mdxContract.ts';
+import { getLearningMdxLocaleCandidates, normalizeLearningSearch } from '../core/learning/mdxContract.ts';
 
 test('learning search is case, whitespace, and Vietnamese-diacritic insensitive', () => {
   assert.equal(normalizeLearningSearch('  YÊU CẦU Chuẩn Bị  '), 'yeu cau chuan bi');

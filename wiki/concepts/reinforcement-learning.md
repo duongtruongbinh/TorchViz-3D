@@ -50,7 +50,8 @@ LandingPage
 | Path | Responsibility |
 |---|---|
 | `src/content/learning/reinforcement-learning/table-of-contents.ts` | RL metadata, order, status, and route aliases. |
-| `src/core/learning/content/index.ts` | Stable React-free catalog materialization. |
+| `src/content/learning/index.ts` | Stable React-free catalog instance over all domain TOCs. |
+| `src/core/learning/materializeCatalog.ts` | Pure catalog materialization and validation. |
 | `src/core/learning/types.ts` | Shared React-free Learning Lab contracts. |
 | `src/core/learning/selectors.ts` | Pure catalog lookup helpers. |
 | `src/components/learning/LearningLabView.tsx` | Route-aware Learning Lab shell. |

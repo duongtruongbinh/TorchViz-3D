@@ -1,5 +1,5 @@
-import type { LearningLessonExtra } from '../../../../core/learning/types';
-import { LLM_MDX_COMPONENT_NAMES } from '../../../../core/learning/content/llm-ai-engineering/mdxComponents';
+import type { LearningLessonExtra } from '../../authoredTypes';
+import { LLM_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
   ExtraFrame,
   useLearningMdxLesson,

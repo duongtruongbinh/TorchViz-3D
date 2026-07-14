@@ -128,7 +128,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
       return;
     }
     let cancelled = false;
-    void import('../../core/learning/content').then(({ learningCatalog }) => {
+    void import('../../content/learning/index.ts').then(({ learningCatalog }) => {
       if (cancelled) return;
       const targets = new Map<ExerciseId, LearningExerciseLessonTarget>();
       for (const exercise of demo.availableExercises) {

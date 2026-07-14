@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { ArrowRight, BookOpen, GraduationCap, LibraryBig, Network } from 'lucide-react';
 
-import { learningCatalog } from '../../../core/learning/content';
+import { learningCatalog } from '../../../content/learning/index.ts';
 import { getGroupedLearningLessonsForDomain } from '../../../core/learning/selectors';
 import type { LearningDomain, LearningDomainId } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';

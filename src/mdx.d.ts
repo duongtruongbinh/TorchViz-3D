@@ -21,7 +21,7 @@ declare module '*.mdx' {
 }
 
 declare module 'virtual:learning-mdx-search-documents' {
-  import type { LearningMdxSearchDocument } from './core/learning/content/mdxContract';
+  import type { LearningMdxSearchDocument } from './core/learning/mdxContract';
 
   const documents: LearningMdxSearchDocument[];
   export default documents;

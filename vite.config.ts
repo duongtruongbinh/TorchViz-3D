@@ -6,7 +6,7 @@ import { defineConfig, type Plugin, type ResolvedConfig } from 'vite';
 import mdx from '@mdx-js/rollup';
 import react from '@vitejs/plugin-react';
 import { learningMdxSearchPlugin } from './scripts/learningContentMdx';
-import { learningCatalog } from './src/core/learning/content';
+import { learningCatalog } from './src/content/learning/index.ts';
 
 const require = createRequire(import.meta.url);
 const configDir = path.dirname(fileURLToPath(import.meta.url));

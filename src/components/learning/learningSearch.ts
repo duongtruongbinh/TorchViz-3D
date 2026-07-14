@@ -1,9 +1,9 @@
 import searchDocuments from 'virtual:learning-mdx-search-documents';
-import { learningCatalog } from './index.ts';
+import { learningCatalog } from '../../content/learning';
 import {
   getLearningMdxLocaleCandidates,
   type LearningMdxSearchDocument,
-} from './mdxContract.ts';
+} from '../../core/learning/mdxContract.ts';
 
 const searchDocumentsByLesson = new Map<string, Map<string, LearningMdxSearchDocument>>();
 

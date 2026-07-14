@@ -1,4 +1,4 @@
-import { learningCatalog } from '../../core/learning/content';
+import { learningCatalog } from '../../content/learning/index.ts';
 import type {
   LearningDomain,
   LearningDomainId,

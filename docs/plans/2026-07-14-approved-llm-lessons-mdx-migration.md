@@ -2,7 +2,7 @@
 title: Learning Lab Content Architecture Migration
 status: done
 created: 2026-07-14T08:02:31+07:00
-updated: 2026-07-14T11:42:47+07:00
+updated: 2026-07-14T11:56:59+07:00
 author: Nguyen Manh Khiem and Codex
 task: "replace duplicated Learning Lab catalog/content ownership with typed domain TOCs, locale MDX, authored CV exercises, derived Review mode, and canonical Workspace handoff"
 ---
@@ -92,8 +92,9 @@ Rules:
 ## Typed TOCs, not MDX catalog files
 
 Static catalog data uses one `table-of-contents.ts` per domain. It does not pass
-through the MDX compiler. `src/core/learning/content/index.ts` materializes the
-twelve manifests and exports the stable React-free `learningCatalog`.
+through the MDX compiler. `src/core/learning/materializeCatalog.ts` owns pure
+construction and validation, while `src/content/learning/index.ts` assembles
+the twelve manifests and exports the stable React-free `learningCatalog`.
 
 The catalog is a normal TypeScript module rather than a Vite virtual module.
 Browser runtime, selectors, scripts, and Node tests therefore consume the same
@@ -162,6 +163,8 @@ have active callers.
 
 ```text
 src/content/learning/
+  index.ts
+  mdxComponents.ts
   <12 domains>/
     table-of-contents.ts
   llm-ai-engineering/
@@ -173,17 +176,19 @@ src/content/learning/
     pooling-value-exercise.vi.mdx
 
 src/core/learning/
-  content/index.ts
-  content/mdxContract.ts
-  content/mdxDomains.ts
+  materializeCatalog.ts
+  mdxContract.ts
   selectors.ts
   types.ts
 
 src/components/learning/
+  authoredTypes.ts
   learningMdxComponents.tsx
   learningMdxRegistry.tsx
+  learningSearch.ts
   domains/llm-ai-engineering/*
   domains/cv/mdxComponents.tsx
+  lesson/visibleLesson.ts
   shell/ReviewMode.tsx
 
 src/components/exercises/
@@ -257,9 +262,73 @@ The exercise engines and Workspace catalog remain lazy. The active Learning Lab
 shell is light-only; CV exercise lesson backgrounds use a scoped light palette
 without changing Workspace modal styling.
 
+# Approved Addendum: Learning Core Boundary Cleanup
+
+Approved in conversation on 2026-07-14. This addendum continues the completed
+content migration in this existing compact plan; no separate plan document is
+created.
+
+## Goal
+
+Keep `src/core/learning` as the shared React-free domain boundary while making
+its dependency direction and ownership precise. Core must define contracts,
+pure catalog materialization, selectors, and shared MDX parsing helpers; it
+must not own authored content assembly, Vite runtime adapters, or view-specific
+selection policy.
+
+## Decisions
+
+- Move the twelve-TOC assembly and `learningCatalog` instance to
+  `src/content/learning/index.ts`; core must no longer import authored content.
+- Keep pure catalog construction and validation under
+  `src/core/learning/materializeCatalog.ts`.
+- Flatten the shared MDX parser/locale/search normalization contract to
+  `src/core/learning/mdxContract.ts`.
+- Place the React-free domain MDX component allowlist beside authored content
+  under `src/content/learning/mdxComponents.ts`.
+- Move the Vite virtual search-document adapter beside Learning UI runtime
+  consumers and move visible-lesson selection policy beside lesson UI.
+- Move authored quiz/LLM renderer DTOs out of the catalog contract and into a
+  shared Learning component type module.
+- Preserve all catalog counts, authored content, routes, Review derivation,
+  Workspace exercise handoff, MDX validation, lazy loading, and UI behavior.
+
+## Execution Phases
+
+1. Separate pure catalog materialization from the concrete content-owned
+   catalog instance.
+2. Relocate MDX contracts, allowlists, search adapter, visible-lesson policy,
+   and authored renderer DTOs to their owning layers.
+3. Update imports, tests, Vite configuration, and existing architecture/wiki
+   references; remove the obsolete `src/core/learning/content` tree.
+4. Run `npm run verify` and `git diff --check`, then record the final file map
+   and verification result in this plan and the existing Learning Lab wiki.
+
+## Out of Scope
+
+- No catalog metadata or MDX body changes.
+- No route, UI, exercise, search, or localization behavior changes.
+- No feature-folder rewrite and no new documentation page.
+
+## Addendum Execution Log
+
+- 2026-07-14 11:50 +07:00 — Addendum approved and execution started.
+- 2026-07-14 11:56 +07:00 — Moved concrete TOC assembly to
+  `src/content/learning/index.ts`, extracted pure catalog materialization, and
+  removed the obsolete `src/core/learning/content` tree.
+- 2026-07-14 11:56 +07:00 — Moved authored renderer DTOs, Vite search access,
+  visible-lesson policy, and MDX allowlists to their owning content/UI layers.
+  `src/core/learning` is now four React-free files totaling 483 lines.
+- 2026-07-14 11:56 +07:00 — Added a regression test enforcing that Learning
+  core does not import authored content or React UI. `npm run verify` passed
+  TypeScript, 107/107 tests, and the 2,498-module production build;
+  `git diff --check` passed.
+
 # Completion
 
 The requested architecture is implemented and documented. Runtime behavior,
 catalog validation, authored content, search, Review membership, and Workspace
 handoff now derive from one catalog/MDX contract rather than parallel practice
-or localization payloads.
+or localization payloads. The approved boundary-cleanup addendum additionally
+leaves `src/core/learning` as a one-way, React-free dependency containing only
+shared contracts, catalog materialization, selectors, and MDX helpers.

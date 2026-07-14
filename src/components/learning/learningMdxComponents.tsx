@@ -1,8 +1,8 @@
 import { Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
 import { createContext, useContext, type ComponentType, type ReactNode } from 'react';
-import type { LearningLessonExtra } from '../../core/learning/types';
+import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
-import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/content/mdxContract';
+import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
 import QuizBlock, { type QuizQuestionState } from './lesson/QuizBlock';
 import { cx, getLearningLabTheme } from './theme';
 

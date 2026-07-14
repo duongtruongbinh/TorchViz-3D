@@ -90,7 +90,8 @@ change.
 
 ```text
 typed domain TOCs
-  -> src/core/learning/content/index.ts
+  -> src/content/learning/index.ts
+  -> src/core/learning/materializeCatalog.ts
   -> React-free learningCatalog
   -> selectors, routes, course pages, lesson rail, lesson detail
 
@@ -136,10 +137,15 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
+| `src/content/learning/index.ts` | Concrete catalog assembly over the twelve domain TOCs. |
+| `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
-| `src/core/learning/content/index.ts` | Stable materialized catalog export over the twelve TOCs. |
-| `src/core/learning/content/mdxContract.ts` | React-free filename, metadata, locale, and search normalization contract. |
+| `src/core/learning/materializeCatalog.ts` | Pure catalog construction and invariant validation. |
+| `src/core/learning/mdxContract.ts` | React-free filename, metadata, locale, and search normalization contract. |
 | `src/core/learning/selectors.ts` | Pure catalog lookup helpers. |
+| `src/components/learning/authoredTypes.ts` | Quiz and LLM renderer DTOs used by authored MDX adapters. |
+| `src/components/learning/learningSearch.ts` | UI adapter over generated Vite search documents. |
+| `src/components/learning/lesson/visibleLesson.ts` | Rail/detail visible-lesson selection policy. |
 | `scripts/learningContentMdx.ts` | Node/Vite MDX validation and generated search documents. |
 
 ## UI Conventions

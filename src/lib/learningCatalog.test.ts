@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
-import { learningCatalog, learningTableOfContents } from '../core/learning/content/index.ts';
+import { learningCatalog, learningTableOfContents } from '../content/learning/index.ts';
 import {
   getLearningDomain,
   getLearningLessonsForTrack,
@@ -11,6 +12,18 @@ import {
   resolveLearningLessonRoute,
 } from '../core/learning/selectors.ts';
 import { getLearningLessonText, getStrings } from './localization.ts';
+
+test('learning core remains independent from authored content and React UI', () => {
+  for (const filePath of [
+    'src/core/learning/materializeCatalog.ts',
+    'src/core/learning/mdxContract.ts',
+    'src/core/learning/selectors.ts',
+    'src/core/learning/types.ts',
+  ]) {
+    const source = readFileSync(filePath, 'utf8');
+    assert.doesNotMatch(source, /(?:content|components)\/learning|from ['"]react['"]/);
+  }
+});
 
 test('learning catalog exposes reinforcement learning as a Learning Lab domain', () => {
   const rlDomain = getLearningDomain(learningCatalog, 'reinforcement-learning');

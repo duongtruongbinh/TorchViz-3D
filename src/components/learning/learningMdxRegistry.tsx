@@ -1,10 +1,10 @@
 import type { ComponentType, ReactElement } from 'react';
-import { learningCatalog } from '../../core/learning/content';
+import { learningCatalog } from '../../content/learning/index.ts';
 import {
   getLearningMdxLocaleCandidates,
   parseLearningMdxPath,
   type LearningMdxMetadata,
-} from '../../core/learning/content/mdxContract';
+} from '../../core/learning/mdxContract';
 import type { LearningDomainId } from '../../core/learning/types';
 import type { Language } from '../../lib/localization';
 import { cvMdxComponents } from './domains/cv/mdxComponents';

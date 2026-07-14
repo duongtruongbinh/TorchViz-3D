@@ -5,7 +5,7 @@ import {
   getExerciseById,
   getExercisesForNode,
 } from '../components/exercises/exerciseRegistry.ts';
-import { learningCatalog } from '../core/learning/content/index.ts';
+import { learningCatalog } from '../content/learning/index.ts';
 import { getReviewableLearningLessons } from '../core/learning/selectors.ts';
 import type { ExerciseId } from '../components/exercises/types.ts';
 

@@ -2,8 +2,8 @@ import { ChevronDown, PanelLeftClose, Search, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
 import type { LearningLesson, LearningTrack } from '../../../core/learning/types';
-import { normalizeLearningSearch } from '../../../core/learning/content/mdxContract';
-import { getLearningSearchDocument } from '../../../core/learning/content/mdxSearch';
+import { normalizeLearningSearch } from '../../../core/learning/mdxContract';
+import { getLearningSearchDocument } from '../learningSearch';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getTrackText, getUnifiedLessonText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';

@@ -1,6 +1,6 @@
 import { Angry, ArrowDown, ArrowRight, Braces, CheckCircle2, CircleAlert, CircleDot, CornerDownLeft, Cpu, Database, Info, Monitor, MousePointer2, RotateCcw, Scissors, SlidersHorizontal, Sparkles, Square, Type, type LucideIcon, Wrench, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
-import type { LearningLessonExtra, LearningTokenExample } from '../../../../core/learning/types';
+import type { LearningLessonExtra, LearningTokenExample } from '../../authoredTypes';
 import { getStrings, type Language } from '../../../../lib/localization';
 import { cx, getLearningLabTheme } from '../../theme';
 import { ExtraFrame } from '../../learningMdxComponents';

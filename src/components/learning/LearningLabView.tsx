@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { BookOpen, Bot, BrainCircuit, Calculator, Code2, Cpu, Eye, Home, ListTree, MessageSquareText, Network, PanelLeft, PanelLeftOpen, Route, ServerCog, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { learningCatalog } from '../../core/learning/content';
+import { learningCatalog } from '../../content/learning/index.ts';
 import {
   getFirstLearningLessonRoute,
   getGroupedLearningLessonsForDomain,
@@ -9,7 +9,7 @@ import {
   resolveLearningLessonRoute,
 } from '../../core/learning/selectors';
 import type { LearningDomainId } from '../../core/learning/types';
-import { resolveVisibleLearningLesson } from '../../core/learning/visibleLesson';
+import { resolveVisibleLearningLesson } from './lesson/visibleLesson';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
 import LearningLabHeader from './LearningLabHeader';

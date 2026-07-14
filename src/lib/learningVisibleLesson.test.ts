@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { LearningLesson } from '../core/learning/types.ts';
-import { resolveVisibleLearningLesson } from '../core/learning/visibleLesson.ts';
+import { resolveVisibleLearningLesson } from '../components/learning/lesson/visibleLesson.ts';
 
 function lesson(id: string): LearningLesson {
   return {
