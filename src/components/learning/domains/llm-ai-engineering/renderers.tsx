@@ -121,20 +121,52 @@ type LlmLossDerivationContent = {
   conclusion?: LearningLocalizedText;
 };
 
+const TRAINING_COMPONENT_ICONS: LucideIcon[] = [Braces, SlidersHorizontal, Database, CheckCircle2, Cpu];
+const TRAINING_COMPONENT_PALETTES = [
+  ['bg-[#AABBD8]', 'bg-[#EFF4FF] text-[#3C5680]'],
+  ['bg-[#B9CBE8]', 'bg-[#EEF5FF] text-[#315D91]'],
+  ['bg-[#A7C8CF]', 'bg-[#ECFBFD] text-[#32636C]'],
+  ['bg-[#B7D8C2]', 'bg-[#EDFFF3] text-[#3E7050]'],
+  ['bg-[#C3B8DF]', 'bg-[#F5F0FF] text-[#62518C]'],
+] as const;
+
+function TrainingComponentCard({ card, index, language, themeClasses, emphasisClass, focusPanel = false }: {
+  card: LlmTrainingComponentsContent['cards'][number];
+  index: number;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+  emphasisClass?: string;
+  focusPanel?: boolean;
+}) {
+  const Icon = TRAINING_COMPONENT_ICONS[index] ?? Cpu;
+  const [top, icon] = TRAINING_COMPONENT_PALETTES[index] ?? TRAINING_COMPONENT_PALETTES[0];
+
+  return (
+    <article className={cx(
+      focusPanel && 'learning-lab-focus-panel shadow-[inset_0_1px_0_rgba(255,255,255,0.54)]',
+      'grid min-h-[25.625rem] grid-rows-[150px_minmax(0,1fr)] overflow-hidden rounded-lg border',
+      emphasisClass && 'transition-[filter,opacity] duration-200',
+      emphasisClass,
+      themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36',
+    )}>
+      <div className={cx('grid place-items-center border-b border-black/5', themeClasses.isLight ? top : 'bg-[#263B5B]')}>
+        <div className={cx('grid h-16 w-16 place-items-center rounded-2xl border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)]', themeClasses.isLight ? icon : 'bg-[#172A43] text-[#BFD3F2]')}>
+          <Icon className="h-8 w-8" strokeWidth={1.8} aria-hidden="true" />
+        </div>
+      </div>
+      <div className="grid content-start gap-3 p-4">
+        <h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(card.title, language)}</h3>
+        <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(card.description, language)}</p>
+      </div>
+    </article>
+  );
+}
+
 export function LlmTrainingComponents({ content, language, themeClasses }: {
   content: LlmTrainingComponentsContent;
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
-  const icons: LucideIcon[] = [Braces, SlidersHorizontal, Database, CheckCircle2, Cpu];
-  const palettes = [
-    ['bg-[#AABBD8]', 'bg-[#EFF4FF] text-[#3C5680]'],
-    ['bg-[#B9CBE8]', 'bg-[#EEF5FF] text-[#315D91]'],
-    ['bg-[#A7C8CF]', 'bg-[#ECFBFD] text-[#32636C]'],
-    ['bg-[#B7D8C2]', 'bg-[#EDFFF3] text-[#3E7050]'],
-    ['bg-[#C3B8DF]', 'bg-[#F5F0FF] text-[#62518C]'],
-  ] as const;
-
   return (
     <section className="grid gap-4">
       <div className="grid gap-1">
@@ -142,23 +174,9 @@ export function LlmTrainingComponents({ content, language, themeClasses }: {
         <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.body, language)}</p>
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-        {content.cards.map((card, index) => {
-          const Icon = icons[index] ?? Cpu;
-          const [top, icon] = palettes[index] ?? palettes[0];
-          return (
-            <article key={text(card.title, language)} className={cx('learning-lab-focus-panel grid min-h-[25.625rem] grid-rows-[150px_minmax(0,1fr)] overflow-hidden rounded-lg border bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.54)]', themeClasses.isLight ? 'border-[#205089]/12' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
-              <div className={cx('grid place-items-center border-b border-black/5', themeClasses.isLight ? top : 'bg-[#263B5B]')}>
-                <div className={cx('grid h-16 w-16 place-items-center rounded-2xl border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)]', themeClasses.isLight ? icon : 'bg-[#172A43] text-[#BFD3F2]')}>
-                  <Icon className="h-8 w-8" strokeWidth={1.8} aria-hidden="true" />
-                </div>
-              </div>
-              <div className="grid content-start gap-3 p-4">
-                <h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(card.title, language)}</h3>
-                <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(card.description, language)}</p>
-              </div>
-            </article>
-          );
-        })}
+        {content.cards.map((card, index) => (
+          <TrainingComponentCard key={text(card.title, language)} card={card} index={index} language={language} themeClasses={themeClasses} focusPanel />
+        ))}
       </div>
     </section>
   );
@@ -170,15 +188,6 @@ export function LlmAcademiaIndustryComparison({ content, perspective, language, 
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
-  const icons: LucideIcon[] = [Braces, SlidersHorizontal, Database, CheckCircle2, Cpu];
-  const palettes = [
-    ['bg-[#AABBD8]', 'bg-[#EFF4FF] text-[#3C5680]'],
-    ['bg-[#B9CBE8]', 'bg-[#EEF5FF] text-[#315D91]'],
-    ['bg-[#A7C8CF]', 'bg-[#ECFBFD] text-[#32636C]'],
-    ['bg-[#B7D8C2]', 'bg-[#EDFFF3] text-[#3E7050]'],
-    ['bg-[#C3B8DF]', 'bg-[#F5F0FF] text-[#62518C]'],
-  ] as const;
-
   return (
     <section className="grid gap-4">
       <div className="grid gap-3 md:grid-cols-5">
@@ -197,21 +206,16 @@ export function LlmAcademiaIndustryComparison({ content, perspective, language, 
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {content.cards.map((card, index) => {
-          const Icon = icons[index] ?? Cpu;
-          const [top, icon] = palettes[index] ?? palettes[0];
           const isEmphasized = perspective === 'academia' ? index < 2 : index >= 2;
           return (
-            <article key={text(card.title, language)} className={cx('grid min-h-[25.625rem] grid-rows-[150px_minmax(0,1fr)] overflow-hidden rounded-lg border transition-[filter,opacity] duration-200', isEmphasized ? 'opacity-100 saturate-100' : 'opacity-45 saturate-[0.72]', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
-              <div className={cx('grid place-items-center border-b border-black/5', themeClasses.isLight ? top : 'bg-[#263B5B]')}>
-                <div className={cx('grid h-16 w-16 place-items-center rounded-2xl border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)]', themeClasses.isLight ? icon : 'bg-[#172A43] text-[#BFD3F2]')}>
-                  <Icon className="h-8 w-8" strokeWidth={1.8} aria-hidden="true" />
-                </div>
-              </div>
-              <div className="grid content-start gap-3 p-4">
-                <h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(card.title, language)}</h3>
-                <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(card.description, language)}</p>
-              </div>
-            </article>
+            <TrainingComponentCard
+              key={text(card.title, language)}
+              card={card}
+              index={index}
+              language={language}
+              themeClasses={themeClasses}
+              emphasisClass={isEmphasized ? 'opacity-100 saturate-100' : 'opacity-45 saturate-[0.72]'}
+            />
           );
         })}
       </div>
@@ -1393,7 +1397,7 @@ function TokenExampleGroup({ item, isActive, toneIndex, language, themeClasses, 
   onActivate: (label: string) => void;
 }) {
   const label = text(item.label, language);
-  const palette = getTokenExamplePalette(themeClasses, toneIndex);
+  const palette = getFocusCardPalette(themeClasses, toneIndex);
   const icons: LucideIcon[] = [Type, Scissors, CircleDot, CornerDownLeft, Braces];
   const Icon = icons[toneIndex % icons.length] ?? Type;
 
@@ -1433,7 +1437,7 @@ function TokenExampleGroup({ item, isActive, toneIndex, language, themeClasses, 
   );
 }
 
-function getTokenExamplePalette(themeClasses: ReturnType<typeof getLearningLabTheme>, toneIndex: number) {
+function getFocusCardPalette(themeClasses: ReturnType<typeof getLearningLabTheme>, toneIndex: number) {
   const palettes = themeClasses.isLight
     ? [
         {
@@ -2247,29 +2251,7 @@ function TrainingLifecycleCard({
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   const Icon = tone === 'pretrain' ? Database : Wrench;
-  const palette = tone === 'pretrain'
-    ? themeClasses.isLight
-      ? {
-          card: 'border-[#2563EB]/14 bg-white',
-          top: 'border-[#2563EB]/10 bg-[#EFF6FF]',
-          icon: 'border border-[#2563EB]/14 bg-white text-[#1D4ED8]',
-        }
-      : {
-          card: 'border-[#7FB0FF]/18 bg-[#121A24]/36',
-          top: 'border-[#7FB0FF]/14 bg-[#7FB0FF]/12',
-          icon: 'border border-[#7FB0FF]/18 bg-[#7FB0FF]/10 text-[#DCEAFF]',
-        }
-    : themeClasses.isLight
-      ? {
-          card: 'border-[#2FBF71]/16 bg-white',
-          top: 'border-[#2FBF71]/10 bg-[#ECFDF3]',
-          icon: 'border border-[#2FBF71]/16 bg-white text-[#1F6F48]',
-        }
-      : {
-          card: 'border-[#74D99F]/18 bg-[#121A24]/36',
-          top: 'border-[#74D99F]/14 bg-[#74D99F]/12',
-          icon: 'border border-[#74D99F]/18 bg-[#74D99F]/10 text-[#DDF7E8]',
-        };
+  const palette = getFocusCardPalette(themeClasses, tone === 'pretrain' ? 0 : 3);
 
   return (
     <div className={cx(
@@ -2367,42 +2349,7 @@ function LlmScaleFactorCard({
   themeClasses: ReturnType<typeof getLearningLabTheme>;
   onActivate: () => void;
 }) {
-  const palettes = themeClasses.isLight
-    ? [
-        {
-          card: 'border-[#2563EB]/14 bg-white',
-          top: 'border-[#2563EB]/10 bg-[#EFF6FF]',
-          icon: 'border border-[#2563EB]/14 bg-white text-[#1D4ED8]',
-        },
-        {
-          card: 'border-[#2FBF71]/16 bg-white',
-          top: 'border-[#2FBF71]/10 bg-[#ECFDF3]',
-          icon: 'border border-[#2FBF71]/16 bg-white text-[#1F6F48]',
-        },
-        {
-          card: 'border-[#F59E0B]/18 bg-white',
-          top: 'border-[#F59E0B]/12 bg-[#FFF7E6]',
-          icon: 'border border-[#F59E0B]/18 bg-white text-[#8A4F00]',
-        },
-      ]
-    : [
-        {
-          card: 'border-[#7FB0FF]/18 bg-[#121A24]/36',
-          top: 'border-[#7FB0FF]/14 bg-[#7FB0FF]/12',
-          icon: 'border border-[#7FB0FF]/18 bg-[#7FB0FF]/10 text-[#DCEAFF]',
-        },
-        {
-          card: 'border-[#74D99F]/18 bg-[#121A24]/36',
-          top: 'border-[#74D99F]/14 bg-[#74D99F]/12',
-          icon: 'border border-[#74D99F]/18 bg-[#74D99F]/10 text-[#DDF7E8]',
-        },
-        {
-          card: 'border-[#FBBF24]/20 bg-[#121A24]/36',
-          top: 'border-[#FBBF24]/14 bg-[#FBBF24]/12',
-          icon: 'border border-[#FBBF24]/20 bg-[#FBBF24]/10 text-[#FFE7AD]',
-        },
-      ];
-  const palette = palettes[toneIndex % palettes.length]!;
+  const palette = getFocusCardPalette(themeClasses, [0, 3, 2][toneIndex % 3]!);
 
   return (
     <div
