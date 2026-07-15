@@ -1,11 +1,12 @@
 ---
-title: Learning Lab Content Architecture Migration
+title: Learning Lab Content Architecture and LLM Course
 status: done
 created: 2026-07-14T08:02:31+07:00
 updated: 2026-07-15T00:00:00+07:00
 author: Nguyen Manh Khiem and Codex
 task: "replace duplicated Learning Lab catalog/content ownership with typed domain TOCs, locale MDX, authored CV exercises, derived Review mode, and canonical Workspace handoff"
-supersedes: []
+supersedes:
+  - docs/plans/2026-07-14-learning-home-course-card-grid.md
 ---
 
 # Goal
@@ -24,8 +25,9 @@ catalog instead of parallel practice payloads.
 
 # Lineage
 
-Genesis plan. It absorbs the earlier untracked LLM planning history and retains
-its Vietnamese-first content and renderer decisions for the first five lessons.
+This plan absorbs the earlier untracked LLM planning history and retains its
+Vietnamese-first content and renderer decisions for the first five lessons. Its
+course-card convention continues [Learning Home Course Card Grid](./2026-07-14-learning-home-course-card-grid.md).
 
 # Durable Decisions
 
@@ -59,6 +61,27 @@ fallback is declared per domain.
   and opens canonical HashRouter lesson URLs.
 - Exercise engines and the Workspace catalog remain lazy-loaded.
 
+## LLM Course and Visual Language
+
+- Preparation, tokenization, and system-component surfaces reuse the Learning
+  Home portrait-card convention: a 150px visual band, 410px minimum desktop
+  height, deterministic soft palettes, responsive grids, and readable neutral
+  bodies. Resting cards remain level; elevation is limited to hover or keyboard
+  focus.
+- The original Roadmap was split into focused lesson/quiz pairs covering the AI
+  landscape, LLM system components, language modeling, AR inference, output
+  projection/softmax, cross-entropy training, and scale/development. The first
+  Roadmap route id remains canonical.
+- Domain-scoped MDX renderers own code-native diagrams and interaction while
+  locale MDX owns lesson prose, examples, formulas, progressive focus, and quiz
+  payloads. KaTeX renders probability, chain-rule, projection, and loss math.
+- AR inference and output-head lessons use fixed-topology progressive diagrams.
+  The loss lesson combines an accessible autoplay sequence, manual controls,
+  hand calculation, a normalized probability distribution, a loss curve, and
+  the sequence-NLL derivation.
+- Quiz coverage follows taught concepts; distractors target nearby conceptual
+  confusions and correct-answer positions are not patterned.
+
 ## Removed Compatibility Layers
 
 The migration removed handwritten catalog assembly, static domain content
@@ -72,13 +95,12 @@ engines remain active.
 |---|---:|
 | Domains | 12 |
 | Tracks | 81 |
-| Lesson nodes | 615 |
-| Published lessons | 9 |
+| Lesson nodes | 627 |
+| Published lessons | 21 |
+| Published LLM lessons | 17 |
 | Shared placeholders | 606 |
-| Locale MDX files | 9 |
-| Route aliases | 7 |
 
-Published content comprises five `llm-ai-engineering` lessons and four CV
+Published content comprises seventeen `llm-ai-engineering` lessons and four CV
 exercise lessons. All other nodes use one shared localized in-progress state;
 no placeholder MDX is generated.
 
@@ -114,3 +136,16 @@ The completed migration passed:
 - 2026-07-15 — Compacted this plan by merging repeated architecture, final
   state, metrics, completion, and historical sections while preserving durable
   decisions, lineage, and verification evidence.
+- 2026-07-14 to 2026-07-15 — Aligned prerequisite and tokenization cards with
+  the Learning Home card family; added formula-led Language Modeling and AR
+  content with KaTeX; split the Roadmap into focused lesson/quiz pairs.
+- 2026-07-15 — Added progressive AR inference and output-head diagrams, then a
+  dedicated cross-entropy lesson with animation, manual calculation, loss curve,
+  and sequence-NLL derivation. Static metadata, page-index, component, formula,
+  and whitespace checks passed throughout these iterations.
+- 2026-07-15 — Audited all published LLM quizzes against taught concepts,
+  strengthened distractors, removed answer-position patterns, and confirmed
+  question counts match quiz metadata.
+- 2026-07-15 — Absorbed the durable decisions and outcomes from
+  `2026-07-14-llm-preparation-course-cards.md`, then removed that redundant
+  533-line plan. Repository-wide reference search and `git diff --check` passed.
