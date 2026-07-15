@@ -1,0 +1,88 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-next-token-loss-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Context dự đoán', 'One-hot target', 'Cross-entropy', 'Tính loss', 'Log-likelihood', 'Negative log-likelihood', 'Sequence loss'],
+  keywords: ['target', 'one-hot', 'cross-entropy', 'log-likelihood', 'negative log-likelihood'], pageCount: 7,
+}
+
+<MdxQuiz id="llm-next-token-loss-checkpoint-quiz" questions={[
+  {
+    id: 'shifted-target', title: 'Chọn context để dự đoán', prompt: 'Để dự đoán token “cat” trong câu “I saw a cat”, những token nào được dùng làm context?', mode: 'multi',
+    options: [
+      { id: 'i', label: 'I', isCorrect: true },
+      { id: 'cat', label: 'cat' },
+      { id: 'saw', label: 'saw', isCorrect: true },
+      { id: 'on', label: 'on' },
+      { id: 'a', label: 'a', isCorrect: true },
+    ],
+    success: 'Đúng. Model dùng toàn bộ context bên trái là “I saw a” để dự đoán token “cat”.',
+    error: 'Chưa đúng. Hãy chọn tất cả token đứng trước “cat”, không chọn chính target hoặc token nằm sau nó.',
+  },
+  {
+    id: 'one-hot-target', title: 'Target one-hot', prompt: 'Trong target one-hot tại một vị trí, giá trị 1 nằm ở đâu?', mode: 'single',
+    options: [
+      { id: 'largest-logit', label: 'Luôn ở vị trí có logit lớn nhất của model.' },
+      { id: 'last-context', label: 'Ở vị trí của token cuối cùng trong context.' },
+      { id: 'correct-token', label: 'Ở vị trí của token đúng tiếp theo trong vocabulary.', isCorrect: true },
+      { id: 'seen-tokens', label: 'Ở mọi token từng xuất hiện trong câu.' },
+    ],
+    success: 'Đúng. One-hot target đánh dấu đúng token cần dự đoán bằng 1; các vị trí khác bằng 0.',
+    error: 'Chưa đúng. Target đến từ training data, không phụ thuộc token model đang đoán cao nhất.',
+  },
+  {
+    id: 'loss-behavior', title: 'Cross-entropy loss', prompt: 'Điều gì xảy ra khi model tăng xác suất dành cho token target?', mode: 'single',
+    options: [
+      { id: 'higher', label: 'Loss tăng.' },
+      { id: 'lower', label: 'Loss giảm.', isCorrect: true },
+      { id: 'same', label: 'Loss không thay đổi.' },
+      { id: 'top-one-only', label: 'Loss chỉ giảm nếu target trở thành token top-1.' },
+    ],
+    success: 'Chính xác. Với L = -log p(target), xác suất của target càng cao thì loss càng thấp.',
+    error: 'Chưa đúng. Hãy nhìn vào công thức -log p(target).',
+  },
+  {
+    id: 'manual-loss', title: 'Tính loss bằng tay', prompt: 'Nếu p(token đúng | context) = 0.5 thì loss −ln(0.5) xấp xỉ bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'negative-0693', label: '−0.693' },
+      { id: '0500', label: '0.500' },
+      { id: '1386', label: '1.386' },
+      { id: '0693', label: '0.693', isCorrect: true },
+    ],
+    success: 'Đúng. −ln(0.5) ≈ 0.693.',
+    error: 'Chưa đúng. Thay 0.5 vào công thức L = −ln p(token đúng | context).',
+  },
+  {
+    id: 'why-log', title: 'Từ tích sang tổng', prompt: 'Vì sao ta lấy log của likelihood chuỗi?', mode: 'multi',
+    options: [
+      { id: 'normalize', label: 'Chuẩn hóa các xác suất để tổng bằng 1.' },
+      { id: 'product-to-sum', label: 'Biến tích các xác suất thành tổng các log.', isCorrect: true },
+      { id: 'stable', label: 'Giúp tính toán ổn định hơn khi nhân nhiều xác suất rất nhỏ.', isCorrect: true },
+      { id: 'increase-target', label: 'Làm xác suất của token đúng tự động tăng.' },
+      { id: 'same-optimum', label: 'Log đồng biến nên không làm thay đổi nghiệm tối ưu.', isCorrect: true },
+    ],
+    success: 'Đúng. Log giữ nguyên nghiệm tối ưu, đổi tích thành tổng và tránh underflow khi tính toán.',
+    error: 'Chưa đủ. Hãy xem lại bước chuyển likelihood sang log-likelihood.',
+  },
+  {
+    id: 'negative-sign', title: 'Negative log-likelihood', prompt: 'Dấu âm trong NLL có vai trò gì?', mode: 'single',
+    options: [
+      { id: 'reverse-objective', label: 'Biến bài toán tối thiểu hóa likelihood thành tối đa hóa likelihood.' },
+      { id: 'positive-logits', label: 'Bảo đảm mọi logit trước softmax đều dương.' },
+      { id: 'minimize', label: 'Biến bài toán tối đa hóa log-likelihood thành bài toán tối thiểu hóa loss.', isCorrect: true },
+      { id: 'normalize', label: 'Thực hiện bước chuẩn hóa softmax.' },
+    ],
+    success: 'Đúng. Tối đa hóa log-likelihood tương đương tối thiểu hóa negative log-likelihood.',
+    error: 'Chưa đúng. Dấu âm đổi hướng mục tiêu tối ưu từ maximize sang minimize.',
+  },
+  {
+    id: 'sequence-loss', title: 'Loss của sequence', prompt: 'Loss của một sequence thường được tổng hợp từ đâu?', mode: 'single',
+    options: [
+      { id: 'last-only', label: 'Chỉ loss của token cuối cùng <eos>.' },
+      { id: 'token-losses', label: 'Tổng hoặc trung bình loss của các token hợp lệ trong sequence.', isCorrect: true },
+      { id: 'largest-only', label: 'Chỉ loss lớn nhất trong sequence.' },
+      { id: 'product-losses', label: 'Tích trực tiếp loss của tất cả token trong sequence.' },
+    ],
+    success: 'Đúng. NLL thường được cộng hoặc lấy trung bình trên các vị trí token hợp lệ.',
+    error: 'Chưa đúng. Hãy xem công thức tổng theo i từ 1 đến L.',
+  },
+]} />

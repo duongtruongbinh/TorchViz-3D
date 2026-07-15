@@ -1,11 +1,11 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-component-checkpoint-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['AI hierarchy', 'Next-token prediction', 'Token', 'Scale của LLM', 'Pattern learning'],
-  keywords: ['AI', 'ML', 'DL', 'NLP', 'LLM', 'token', 'parameters', 'data', 'compute'], pageCount: 5,
+  headings: ['AI hierarchy', 'Chọn domain'],
+  keywords: ['AI', 'ML', 'DL', 'CV', 'NLP', 'LLM'], pageCount: 2,
 }
 
-<MdxQuiz id="llm-roadmap-checkpoint-quiz" questions={[
+<MdxQuiz id="ai-landscape-checkpoint-quiz" questions={[
   {
     id: 'ai-hierarchy-order', title: 'Sắp xếp thứ tự theo mức độ tổng quát', prompt: '', mode: 'order',
     options: [{ id: 'ml', label: 'ML' }, { id: 'llm', label: 'LLM' }, { id: 'ai', label: 'AI' }, { id: 'cv-nlp', label: 'CV / NLP' }, { id: 'dl', label: 'DL' }],
@@ -14,39 +14,14 @@ export const lessonMetadata = {
     error: 'Chưa đúng thứ tự. Hãy đi từ phạm vi rộng nhất tới phần chuyên biệt nhất.',
   },
   {
-    id: 'llm-learning-objective', title: 'Chọn một đáp án', prompt: 'LLM học bằng cách nào?', mode: 'single',
+    id: 'choose-problem-domain', title: 'Chọn domain phù hợp', prompt: 'Dự án nào có bài toán cốt lõi là mô hình hóa và sinh chuỗi token theo context?', mode: 'single',
     options: [
-      { id: 'next-token', label: 'Dự đoán token tiếp theo trong một chuỗi văn bản dựa trên dữ liệu đã thấy.', isCorrect: true },
-      { id: 'image-label', label: 'Gán nhãn thủ công từng ảnh rồi học nhận diện vật thể.' },
-      { id: 'rules-only', label: 'Lưu một bộ luật ngữ pháp cố định và áp dụng nguyên văn.' },
-      { id: 'one-shot-answer', label: 'Tạo toàn bộ câu trả lời trong một lượt duy nhất mà không dự đoán từng bước.' },
-    ], success: 'Chính xác. Next-token prediction là objective nền tảng của LLM.', error: 'Chưa đúng. Hãy nhớ LLM sinh câu trả lời bằng nhiều bước dự đoán token kế tiếp.',
-  },
-  {
-    id: 'valid-token-examples', title: 'Phân loại token', prompt: 'Kéo từng ví dụ vào đúng loại token', mode: 'categorize',
-    categories: [{ id: 'word', label: 'Một từ' }, { id: 'subword', label: 'Một phần của từ' }, { id: 'punctuation-whitespace', label: 'Dấu câu & khoảng trắng' }, { id: 'special-symbol', label: 'Ký hiệu đặc biệt' }],
-    options: [
-      { id: 'hello', label: 'hello', categoryId: 'word' }, { id: 'model', label: 'model', categoryId: 'word' },
-      { id: 'sub-ing', label: '##ing', categoryId: 'subword' }, { id: 'sub-tion', label: 'tion', categoryId: 'subword' },
-      { id: 'comma', label: ',', categoryId: 'punctuation-whitespace' }, { id: 'question-mark', label: '?', categoryId: 'punctuation-whitespace' },
-      { id: 'space', label: 'space', categoryId: 'punctuation-whitespace' }, { id: 'newline', label: '\n', categoryId: 'punctuation-whitespace' },
-      { id: 'bos', label: '<BOS>', categoryId: 'special-symbol' }, { id: 'eos', label: '<EOS>', categoryId: 'special-symbol' },
-    ], success: 'Đúng. Token có thể là từ, mảnh từ, dấu câu, khoảng trắng hoặc special token.', error: 'Chưa khớp. Hãy nhớ token là đơn vị văn bản/ký hiệu nhỏ đi vào model.',
-  },
-  {
-    id: 'why-large', title: 'Chọn tất cả ý đúng', prompt: 'Vì sao LLM được gọi là "Large"?', mode: 'multi',
-    options: [
-      { id: 'params', label: 'Số tham số rất lớn, từ hàng trăm triệu tới hàng nghìn tỷ.', isCorrect: true },
-      { id: 'data', label: 'Dữ liệu huấn luyện khổng lồ, có thể lên tới hàng trăm GB văn bản.', isCorrect: true },
-      { id: 'compute', label: 'Thời gian huấn luyện dài trên nhiều GPU.', isCorrect: true },
-      { id: 'always-correct', label: 'Vì model luôn trả lời đúng.' }, { id: 'only-long-output', label: 'Vì model chỉ tạo được câu trả lời rất dài.' },
-    ], success: 'Đúng rồi. Large nói về scale: parameters, data và compute.', error: 'Chưa đủ. Hãy chọn các lý do liên quan tới quy mô tham số, dữ liệu và compute.',
-  },
-  {
-    id: 'pattern-learning-fill', title: 'Chọn tất cả từ điền đúng', prompt: 'Điền vào chỗ trống: "Sau 1000 lần luyện tập, model đã ___ được pattern."', mode: 'multi',
-    options: [
-      { id: 'learned', label: 'học', isCorrect: true }, { id: 'noticed', label: 'nhận ra', isCorrect: true },
-      { id: 'memorized', label: 'ghi nhớ', isCorrect: true }, { id: 'deleted', label: 'xóa' }, { id: 'ignored', label: 'bỏ qua' },
-    ], success: 'Chuẩn. Cả "học", "nhận ra", và "ghi nhớ" đều diễn đạt được việc model bắt được pattern.', error: 'Chưa đúng. Các đáp án hợp lý phải nói rằng model đã bắt được pattern.',
+      { id: 'defect', label: 'Phát hiện lỗi sản phẩm từ ảnh camera trên dây chuyền.' },
+      { id: 'churn', label: 'Dự đoán khách hàng rời dịch vụ từ dữ liệu dạng bảng.' },
+      { id: 'rag', label: 'Xây dựng trợ lý hỏi đáp trên tài liệu nội bộ bằng RAG.', isCorrect: true },
+      { id: 'forecast', label: 'Dự báo lượng hàng bán ra theo chuỗi thời gian.' },
+    ],
+    success: 'Chính xác. RAG hỏi đáp trên tài liệu là một bài toán ngôn ngữ điển hình.',
+    error: 'Chưa đúng. Hãy tìm bài toán có đầu vào và đầu ra chủ yếu là ngôn ngữ.',
   },
 ]} />

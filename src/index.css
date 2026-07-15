@@ -753,7 +753,6 @@ body {
   padding-inline: 2px;
 }
 
-.learning-lab-focus-panel[data-active="true"],
 .learning-lab-focus-panel:hover,
 .learning-lab-focus-panel:focus-within {
   opacity: 1;
@@ -763,14 +762,6 @@ body {
     0 16px 34px rgba(18, 59, 104, 0.18),
     0 0 0 2px rgba(47, 111, 159, 0.34),
     inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-}
-
-.learning-lab-focus-group:has(.learning-lab-focus-panel:hover) .learning-lab-focus-panel[data-active="true"]:not(:hover),
-.learning-lab-focus-group:has(.learning-lab-focus-panel:focus-within) .learning-lab-focus-panel[data-active="true"]:not(:focus-within) {
-  opacity: 0.48;
-  filter: saturate(0.72);
-  transform: none;
-  box-shadow: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
