@@ -174,6 +174,14 @@ System copy, controls, empty states, filter labels, and language-toggle text
 belong in `src/lib/localization.ts`. Catalog metadata and lesson content follow
 the ownership boundary above.
 
+Lesson traversal uses keyboard arrows: Up/Down move between lessons, Left/Right
+move between section pages. The `LessonDetail` footer keeps the original section
+pager (`← Back` / `Next →`) and the green `Too easy!` complete-and-continue
+button; there are no on-screen lesson-arrow buttons. Quiz answers submit on
+Enter. Both arrow-key handlers and the Enter handler are guarded
+(`isTypingTarget` / `data-quiz`) so they never fire while typing in inputs, in
+quiz options, or during drag interactions.
+
 ## Invariants
 
 - `src/core/` remains React-free.

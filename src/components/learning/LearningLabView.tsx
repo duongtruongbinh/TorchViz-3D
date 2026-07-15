@@ -19,7 +19,7 @@ import LessonRail, { filterLessonRailGroups, type LessonRailFilter, type LessonR
 import { getDomainText } from './learningText';
 import DomainCatalog from './shell/DomainCatalog';
 import ReviewMode from './shell/ReviewMode';
-import { cx, getLearningLabTheme } from './theme';
+import { cx, getLearningLabTheme, isTypingTarget } from './theme';
 
 type LearningLabViewProps = {
   onBackToLanding: () => void;
@@ -94,6 +94,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   });
   const detailLessonIndex = selectedLesson ? lessonIndexById.get(selectedLesson.id) ?? -1 : -1;
   const nextLesson = detailLessonIndex >= 0 ? domainLessons[detailLessonIndex + 1] ?? null : null;
+  const previousLesson = detailLessonIndex > 0 ? domainLessons[detailLessonIndex - 1] ?? null : null;
 
   useEffect(() => {
     setCollapsedChapters(new Set(
@@ -185,6 +186,25 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
       navigate(`/learning/${targetLesson.domainId}/${targetLesson.trackId}?lesson=${lessonId}`);
     });
   }, [domainLessons, navigate, startLessonTransition]);
+
+  useEffect(() => {
+    if (!selectedLesson) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+      if (isTypingTarget(event.target)) return;
+      if (event.key === 'ArrowUp') {
+        if (!previousLesson) return;
+        event.preventDefault();
+        selectLesson(previousLesson.id);
+      } else {
+        if (!nextLesson) return;
+        event.preventDefault();
+        selectLesson(nextLesson.id);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [previousLesson, nextLesson, selectLesson, selectedLesson]);
   const clearLessonSearch = useCallback(() => setLessonSearchQuery(''), []);
   const openLessonRail = useCallback(() => setIsLessonRailOpen(true), []);
   const closeLessonRail = useCallback(() => setIsLessonRailOpen(false), []);

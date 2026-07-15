@@ -1,5 +1,5 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
-import { type DragEvent, useEffect, useRef, useState } from 'react';
+import { type DragEvent, type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react';
 import type { LearningLessonExtra } from '../authoredTypes';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getLearningLocalizedText as text } from '../learningText';
@@ -150,6 +150,13 @@ function QuizQuestion({
     onStateChange({ selectedIds, categoryAssignments, feedback: isCorrect ? 'correct' : 'incorrect' });
   };
 
+  const handleQuestionKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Enter') return;
+    if (!canCheck) return;
+    event.preventDefault();
+    checkAnswer();
+  };
+
   useEffect(() => {
     if (!feedback) return;
     const frameId = window.requestAnimationFrame(() => {
@@ -159,10 +166,13 @@ function QuizQuestion({
   }, [feedback]);
 
   return (
-    <div className={cx(
-      'py-1',
-      quizPalette.card,
-    )}>
+    <div
+      data-quiz
+      onKeyDown={handleQuestionKeyDown}
+      className={cx(
+        'py-1',
+        quizPalette.card,
+      )}>
       <div className="grid gap-2">
         <div className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.title)}>
           {text(question.title, language)}

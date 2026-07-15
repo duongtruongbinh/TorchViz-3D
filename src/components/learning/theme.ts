@@ -7,6 +7,15 @@ export function cx(...classes: Array<string | false | null | undefined>): string
   return classes.filter(Boolean).join(' ');
 }
 
+export function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  const tag = target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  if (target.closest('[data-quiz]')) return true;
+  return false;
+}
+
 export function getLearningLabTheme(theme: LearningLabTheme) {
   const isLight = theme === 'light';
   const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#517FCB]/30';
