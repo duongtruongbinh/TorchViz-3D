@@ -21,6 +21,13 @@ const expectedPageCounts: Record<string, number> = {
   'conv2d-value-exercise': 1,
   'pooling-shape-exercise': 1,
   'pooling-value-exercise': 1,
+  'vectors-intuition': 6,
+  'vector-operations': 6,
+  'dot-product': 6,
+  'vector-norms': 6,
+  'unit-vectors-normalization': 5,
+  'cosine-similarity': 5,
+  'orthogonality': 5,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'llm-learning-objective', 'valid-token-examples', 'why-large', 'pattern-learning-fill'],
@@ -28,11 +35,11 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
 };
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 9);
+  assert.equal(lessonFiles.length, 16);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 9);
+  assert.equal(documents.length, 16);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);

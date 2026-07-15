@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: 'math-statistics-ai',
+  id: 'dot-product',
+  locale: 'vi',
+  title: 'Tích vô hướng (Dot Product)',
+  headings: ['Định nghĩa Đại số', 'Định nghĩa Hình học', 'Ý nghĩa của Tích vô hướng', 'Ví dụ với PyTorch'],
+  keywords: ['dot product', 'scalar product', 'cosine', 'projection', 'pytorch'],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+  # Tích vô hướng (Dot Product)
+  
+  Nếu phép cộng và trừ là những thao tác cơ bản, thì **Tích vô hướng (Dot Product)** là "phép thuật" thực sự đằng sau hầu hết các mạng nơ-ron. 
+  Nó cho phép chúng ta đo lường mức độ "tương đồng" hoặc "căn chỉnh" giữa hai vector.
+</MdxPage>
+
+<MdxPage page={1}>
+  ## 1. Định nghĩa Đại số
+  
+  Cách tính đơn giản nhất: Nhân từng thành phần tương ứng của hai vector rồi cộng tất cả lại.
+  
+  ```
+  v . w = (v1 * w1) + (v2 * w2) + ... + (vn * wn)
+  ```
+  
+  **Ví dụ:** Nếu v = [1, 2] và w = [3, 4], thì:
+  v . w = (1 x 3) + (2 x 4) = 3 + 8 = 11.
+  
+  <LessonNote>
+    Kết quả của tích vô hướng là một **con số đơn lẻ (scalar)**, không phải là một vector. Đó là lý do nó được gọi là "tích vô hướng".
+  </LessonNote>
+</MdxPage>
+
+<MdxPage page={2}>
+  ## 2. Định nghĩa Hình học
+  
+  Tích vô hướng cũng có thể được tính bằng độ dài của hai vector và góc theta giữa chúng:
+  
+  ```
+  v . w = ||v|| ||w|| cos(theta)
+  ```
+  
+  Trong đó ||v|| là độ dài (norm) của vector. Công thức này cho thấy tích vô hướng phụ thuộc rất nhiều vào **góc** giữa hai vector.
+</MdxPage>
+
+<MdxPage page={3}>
+  ## 3. Ý nghĩa của kết quả
+  
+  Hãy nhìn vào giá trị của v . w:
+  
+  - **Số dương:** Hai vector chỉ về hướng tương đối giống nhau (góc theta < 90 độ).
+  - **Số không (0):** Hai vector hoàn toàn vuông góc (orthogonal). Chúng không có bất kỳ thành phần nào chung.
+  - **Số âm:** Hai vector chỉ về hướng ngược nhau (góc theta > 90 độ).
+  
+  **Trực giác:** Tích vô hướng đo lượng "hình chiếu" của vector này lên vector kia. Nếu bạn chiếu một đèn pin vuông góc với w, bóng của v trên w chính là biểu hiện của tích vô hướng.
+</MdxPage>
+
+<MdxPage page={4}>
+  ## Ứng dụng trong AI
+  
+  Trong một lớp Linear của mạng nơ-ron: output = W . x + b.
+  Phép toán cốt lõi ở đây là tích vô hướng giữa **vector trọng số (weight)** và **vector đầu vào (input)**.
+  
+  Nếu vector đầu vào x "khớp" với trọng số W (tức là có tích vô hướng lớn), nơ-ron sẽ được kích hoạt mạnh. Điều này giống như nơ-ron đang nói: *"Tôi tìm thấy pattern mà tôi đang theo dõi trong dữ liệu này!"*
+</MdxPage>
+
+<MdxPage page={5}>
+  ## Thực hành với PyTorch
+  
+  ```python
+  import torch
+
+  v = torch.tensor([1.0, 2.0])
+  w = torch.tensor([3.0, 4.0])
+
+  # Tính tích vô hướng
+  dot_product = torch.dot(v, w) 
+  print(dot_product) # tensor(11.)
+  ```
+  
+  <MdxQuiz 
+    question="Hai vector vuông góc với nhau sẽ có tích vô hướng bằng bao nhiêu?"
+    options={[
+      { text: "1", isCorrect: false, feedback: "Chỉ bằng 1 khi chúng là vector đơn vị và cùng hướng." },
+      { text: "0", isCorrect: true, feedback: "Chính xác! cos(90 độ) = 0, nên tích vô hướng bằng 0." },
+      { text: "-1", isCorrect: false, feedback: "Đây là trường hợp hai vector đơn vị ngược hướng nhau." },
+      { text: "Vô cùng", isCorrect: false, feedback: "Không thể nào." }
+    ]}
+  />
+</MdxPage>

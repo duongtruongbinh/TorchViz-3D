@@ -424,7 +424,7 @@ function TokenChip({
 
 type QuizPalette = ReturnType<typeof getQuizPalette>;
 
-function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabTheme>) {
+export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabTheme>) {
   if (!themeClasses.isLight) {
     return {
       card: '',

@@ -9,6 +9,7 @@ import type { LearningDomainId } from '../../core/learning/types';
 import type { Language } from '../../lib/localization';
 import { cvMdxComponents } from './domains/cv/mdxComponents';
 import { llmMdxComponents } from './domains/llm-ai-engineering/mdxComponents';
+import { mathStatisticsMdxComponents } from './domains/math-statistics-ai/mdxComponents';
 import type { QuizQuestionState } from './lesson/QuizBlock';
 import {
   LearningMdxLessonProvider,
@@ -21,6 +22,7 @@ import {
 const domainMdxComponents: Partial<Record<LearningDomainId, Record<string, LearningMdxComponent>>> = {
   cv: cvMdxComponents,
   'llm-ai-engineering': llmMdxComponents,
+  'math-statistics-ai': mathStatisticsMdxComponents,
 };
 
 type CompiledMdxComponent = ComponentType<{ components?: Record<string, LearningMdxComponent> }>;
