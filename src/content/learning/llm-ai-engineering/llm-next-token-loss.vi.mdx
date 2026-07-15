@@ -3,7 +3,7 @@ export const lessonMetadata = {
   id: 'llm-next-token-loss',
   locale: 'vi',
   title: 'Loss function khi training Language Model',
-  headings: ['Next-token loss animation', 'Tính loss bằng tay', 'Khai triển negative log-likelihood'],
+  headings: ['Next-token loss animation', 'Tính loss', 'Khai triển negative log-likelihood'],
   keywords: ['cross-entropy', 'target', 'one-hot', 'next-token loss', 'negative log-likelihood'],
   pageCount: 3,
 }
@@ -45,7 +45,7 @@ export const lessonMetadata = {
 
 <MdxPage page={1}>
   <LlmLossHandCalculation content={{
-    "title": { vi: "Tính loss bằng tay" },
+    "title": { vi: "Tính loss" },
     "lead": { vi: "Với context I saw a và target đúng là cat, cross-entropy tại vị trí này phụ thuộc vào xác suất có điều kiện p(cat | I saw a). Hãy thay đổi xác suất này để quan sát loss." },
     "conclusion": { vi: "Tổng xác suất luôn bằng 1. Vì vậy, khi model dồn nhiều xác suất vào các token sai, p(cat | I saw a) giảm và loss tăng. Khi xác suất của cat trong context này tiến gần 1, loss tiến gần 0." },
     "targetToken": "cat",
