@@ -155,6 +155,7 @@ function QuizQuestion({
     if (!canCheck) return;
     event.preventDefault();
     checkAnswer();
+    event.currentTarget.closest('article')?.focus({ preventScroll: true });
   };
 
   useEffect(() => {

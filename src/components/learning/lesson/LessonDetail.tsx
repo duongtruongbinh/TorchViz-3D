@@ -94,7 +94,7 @@ export default function LessonDetail({
   }, [canGoBack, canGoNext, sectionPages.length]);
 
   return (
-    <article ref={articleRef} className={cx('grid min-w-0 overflow-hidden border shadow-sm', themeClasses.radius.panel, themeClasses.surface.card)}>
+    <article ref={articleRef} tabIndex={-1} className={cx('grid min-w-0 overflow-hidden border shadow-sm focus:outline-none', themeClasses.radius.panel, themeClasses.surface.card)}>
       <header className={cx('border-b px-5 py-5 md:px-6', sectionDivider)}>
         <h2 className={cx('learning-lab-lesson-title text-2xl font-black leading-tight', themeClasses.lessonTitleText)}>{lessonText.title}</h2>
       </header>

@@ -180,7 +180,9 @@ pager (`← Back` / `Next →`) and the green `Too easy!` complete-and-continue
 button; there are no on-screen lesson-arrow buttons. Quiz answers submit on
 Enter. Both arrow-key handlers and the Enter handler are guarded
 (`isTypingTarget` / `data-quiz`) so they never fire while typing in inputs, in
-quiz options, or during drag interactions.
+quiz options, or during drag interactions. After Enter submits a quiz answer, focus
+returns to the lesson panel so the arrow keys resume navigating lessons and
+section pages.
 
 ## Invariants
 
