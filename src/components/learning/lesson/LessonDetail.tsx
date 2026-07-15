@@ -1,10 +1,10 @@
 import { ArrowLeft, ArrowRight, BookOpen, Calculator, Code2, type LucideIcon } from 'lucide-react';
-import { type ReactNode, useCallback, useEffect, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import type { LearningLesson } from '../../../core/learning/types';
 import type { Language } from '../../../lib/localization';
 import { getStrings } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
-import { cx, getLearningLabTheme } from '../theme';
+import { cx, getLearningLabTheme, isTypingTarget } from '../theme';
 import type { QuizQuestionState } from './QuizBlock';
 import { getLearningMdxLesson } from '../learningMdxRegistry';
 
@@ -29,6 +29,7 @@ export default function LessonDetail({
   const sectionDivider = themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12';
   const [sectionPageIndex, setSectionPageIndex] = useState(0);
   const [quizQuestionStates, setQuizQuestionStates] = useState<Record<string, QuizQuestionState>>({});
+  const articleRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     setSectionPageIndex(0);
@@ -71,8 +72,29 @@ export default function LessonDetail({
   const hasNextPage = currentSectionPageIndex < sectionPages.length - 1;
   const canCompleteLesson = !hasNextPage && hasNextLesson;
 
+  useEffect(() => {
+    if (sectionPages.length <= 1) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (isTypingTarget(event.target)) return;
+      if (event.key === 'ArrowLeft') {
+        if (!canGoBack) return;
+        event.preventDefault();
+        if (articleRef.current) scrollLearningContentAreaToTop(articleRef.current);
+        setSectionPageIndex((value) => Math.max(value - 1, 0));
+      } else {
+        if (!canGoNext) return;
+        event.preventDefault();
+        if (articleRef.current) scrollLearningContentAreaToTop(articleRef.current);
+        setSectionPageIndex((value) => Math.min(value + 1, sectionPages.length - 1));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [canGoBack, canGoNext, sectionPages.length]);
+
   return (
-    <article className={cx('grid min-w-0 overflow-hidden border shadow-sm', themeClasses.radius.panel, themeClasses.surface.card)}>
+    <article ref={articleRef} tabIndex={-1} className={cx('grid min-w-0 overflow-hidden border shadow-sm focus:outline-none', themeClasses.radius.panel, themeClasses.surface.card)}>
       <header className={cx('border-b px-5 py-5 md:px-6', sectionDivider)}>
         <h2 className={cx('learning-lab-lesson-title text-2xl font-black leading-tight', themeClasses.lessonTitleText)}>{lessonText.title}</h2>
       </header>
@@ -110,7 +132,6 @@ export default function LessonDetail({
               }}
               disabled={!canGoNext}
               className={getLessonPagerButtonClass(themeClasses, canGoNext)}
-              title={strings.learningLab.lessonNextSection}
               aria-label={strings.learningLab.lessonNextSection}
             >
               {strings.learningLab.lessonNextSection}
