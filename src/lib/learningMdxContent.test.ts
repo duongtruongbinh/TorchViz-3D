@@ -13,26 +13,44 @@ const publishedLessonIds = learningCatalog.lessons
   .map((lesson) => lesson.id);
 const expectedPageCounts: Record<string, number> = {
   'minimal-llm-project-skeleton': 1,
-  'llm-from-scratch-roadmap': 11,
-  'llm-component-checkpoint-quiz': 5,
+  'llm-from-scratch-roadmap': 2,
+  'llm-component-checkpoint-quiz': 2,
+  'llm-system-components': 3,
+  'llm-system-components-quiz': 3,
+  'language-modeling-next-token': 5,
+  'language-modeling-next-token-quiz': 5,
+  'ar-language-model-inference-pipeline': 6,
+  'ar-language-model-inference-pipeline-quiz': 5,
+  'llm-output-head-and-loss': 6,
+  'llm-output-head-and-loss-quiz': 4,
+  'llm-next-token-loss': 3,
+  'llm-next-token-loss-quiz': 7,
+  'llm-scale-and-development': 4,
+  'llm-scale-and-development-quiz': 3,
   'llm-data-pipeline-overview': 9,
-  'llm-data-pipeline-checkpoint-quiz': 6,
+  'llm-data-pipeline-checkpoint-quiz': 9,
   'conv2d-shape-exercise': 1,
   'conv2d-value-exercise': 1,
   'pooling-shape-exercise': 1,
   'pooling-value-exercise': 1,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
-  'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'llm-learning-objective', 'valid-token-examples', 'why-large', 'pattern-learning-fill'],
-  'llm-data-pipeline-checkpoint-quiz': ['pretraining-facts', 'finetuning-facts', 'training-stage-task-match', 'transformer-main-blocks', 'encoder-input-prep-order', 'why-position-embedding'],
+  'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain'],
+  'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
+  'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
+  'ar-language-model-inference-pipeline-quiz': ['ar-inference-order', 'sampling-role', 'corpus-vocabulary', 'output-vector-length', 'probability-sum'],
+  'llm-output-head-and-loss-quiz': ['context-vector-role', 'projection-shape', 'logits-properties', 'softmax-role'],
+  'llm-next-token-loss-quiz': ['shifted-target', 'one-hot-target', 'loss-behavior', 'manual-loss', 'why-log', 'negative-sign', 'sequence-loss'],
+  'llm-scale-and-development-quiz': ['why-large', 'scale-comparison', 'popularity-factors'],
+  'llm-data-pipeline-checkpoint-quiz': ['pretraining-facts', 'finetuning-facts', 'training-stage-task-match', 'transformer-main-blocks', 'encoder-input-prep-order', 'why-position-embedding', 'encoder-context', 'decoder-input-prep', 'decoder-generation-loop'],
 };
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 9);
+  assert.equal(lessonFiles.length, 21);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 9);
+  assert.equal(documents.length, 21);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);

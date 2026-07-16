@@ -55,17 +55,44 @@ export function RequirementsGrid({ children }: { children?: ReactNode }) {
 }
 
 const REQUIREMENT_ICONS: Record<string, LucideIcon> = { code: Code2, monitor: Monitor, terminal: Terminal, wrench: Wrench };
+const REQUIREMENT_CARD_PALETTES: Record<string, { lightTop: string; lightIcon: string; darkTop: string; darkIcon: string }> = {
+  monitor: {
+    lightTop: 'bg-[#AABBD8]',
+    lightIcon: 'bg-[#EFF4FF] text-[#3C5680]',
+    darkTop: 'bg-[#263B5B]',
+    darkIcon: 'bg-[#172A43] text-[#BFD3F2]',
+  },
+  code: {
+    lightTop: 'bg-[#B9CBE8]',
+    lightIcon: 'bg-[#EEF5FF] text-[#315D91]',
+    darkTop: 'bg-[#243B5B]',
+    darkIcon: 'bg-[#172A43] text-[#B9D8FF]',
+  },
+  terminal: {
+    lightTop: 'bg-[#A7C8CF]',
+    lightIcon: 'bg-[#ECFBFD] text-[#32636C]',
+    darkTop: 'bg-[#1F424B]',
+    darkIcon: 'bg-[#16333A] text-[#B5E5EC]',
+  },
+  wrench: {
+    lightTop: 'bg-[#C3B8DF]',
+    lightIcon: 'bg-[#F5F0FF] text-[#62518C]',
+    darkTop: 'bg-[#392E56]',
+    darkIcon: 'bg-[#2A2142] text-[#D7CCF5]',
+  },
+};
 
 export function RequirementCard({ children, icon = 'wrench', name, role }: { children?: ReactNode; icon?: string; name: string; role: string }) {
   const themeClasses = useLearningMdxTheme();
   const Icon = REQUIREMENT_ICONS[icon] ?? Wrench;
+  const visualPalette = REQUIREMENT_CARD_PALETTES[icon] ?? REQUIREMENT_CARD_PALETTES.wrench;
   const palette = themeClasses.isLight
-    ? { card: 'border-[#205089]/12 bg-white', top: 'bg-[#F1F5F9]', icon: 'border border-[#205089]/12 bg-white text-[#123B68]' }
-    : { card: 'border-[#A8B8C8]/14 bg-[#121A24]/36', top: 'bg-white/5', icon: 'border border-white/10 bg-white/7 text-[#F2F6FA]' };
+    ? { card: 'border-[#205089]/12 bg-white', top: visualPalette.lightTop, icon: `border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)] ${visualPalette.lightIcon}` }
+    : { card: 'border-[#A8B8C8]/14 bg-[#121A24]/36', top: visualPalette.darkTop, icon: `border border-white/10 shadow-[0_12px_24px_rgba(0,0,0,0.20)] ${visualPalette.darkIcon}` };
   return (
-    <section className={cx('grid h-full min-h-[20rem] grid-rows-[8rem_minmax(0,1fr)] overflow-hidden rounded-lg border shadow-[inset_0_1px_0_rgba(255,255,255,0.54)]', palette.card)}>
-      <div className={cx('grid h-32 place-items-center border-b', palette.top, themeClasses.isLight ? 'border-black/5' : 'border-white/10')}>
-        <div className={cx('grid h-14 w-14 place-items-center rounded-xl shadow-sm', palette.icon)}><Icon className="h-7 w-7" strokeWidth={2.1} aria-hidden="true" /></div>
+    <section className={cx('grid h-full min-h-[25.625rem] grid-rows-[150px_minmax(0,1fr)] overflow-hidden rounded-lg border shadow-[inset_0_1px_0_rgba(255,255,255,0.54)]', palette.card)}>
+      <div className={cx('grid place-items-center border-b', palette.top, themeClasses.isLight ? 'border-black/5' : 'border-white/10')}>
+        <div className={cx('grid h-16 w-16 place-items-center rounded-2xl', palette.icon)}><Icon className="h-8 w-8" strokeWidth={1.8} aria-hidden="true" /></div>
       </div>
       <div className="grid content-start gap-3 p-4">
         <div><h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{name}</h3><p className={cx('mt-0.5 text-sm font-semibold leading-6', themeClasses.mutedText)}>{role}</p></div>

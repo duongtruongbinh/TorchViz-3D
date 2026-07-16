@@ -1,0 +1,66 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'ar-language-model-inference-pipeline-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Inference order', 'Sampling', 'Corpus và vocabulary', 'Output vector', 'Probability distribution'],
+  keywords: ['tokenize', 'forward', 'probability', 'sample', 'detokenize', 'corpus', 'vocabulary'], pageCount: 5,
+}
+
+<MdxQuiz id="ar-language-model-inference-pipeline-checkpoint-quiz" questions={[
+  {
+    id: 'ar-inference-order', title: 'Sắp xếp pipeline', prompt: 'Sắp xếp các bước theo đúng thứ tự sinh một token mới.', mode: 'order',
+    options: [
+      { id: 'sample', label: 'Sample' },
+      { id: 'tokenize', label: 'Tokenize' },
+      { id: 'detokenize', label: 'Detokenize' },
+      { id: 'probabilities', label: 'Predict probabilities' },
+      { id: 'forward', label: 'Forward' },
+    ],
+    correctOrder: ['tokenize', 'forward', 'probabilities', 'sample', 'detokenize'],
+    success: 'Đúng. Text được tokenize, chạy forward, đổi thành xác suất, sample token rồi detokenize.',
+    error: 'Chưa đúng. Hãy lần theo dữ liệu từ text đầu vào đến token mới trong câu.',
+  },
+  {
+    id: 'sampling-role', title: 'Vai trò của sampling', prompt: 'Sampling làm gì trong pipeline?', mode: 'single',
+    options: [
+      { id: 'argmax-logit', label: 'Chọn logit lớn nhất trước khi các score được chuẩn hóa.' },
+      { id: 'choose', label: 'Chọn một token từ phân phối xác suất theo chiến lược decoding.', isCorrect: true },
+      { id: 'normalize', label: 'Chuẩn hóa logits thành phân phối xác suất trên vocabulary.' },
+      { id: 'text', label: 'Biến token đã chọn thành chuỗi text để hiển thị.' },
+    ],
+    success: 'Chính xác. Sampling quyết định token nào được lấy từ phân phối xác suất.',
+    error: 'Chưa đúng. Sampling xảy ra sau khi model đã tạo phân phối xác suất.',
+  },
+  {
+    id: 'corpus-vocabulary', title: 'Corpus và vocabulary', prompt: 'Mối quan hệ nào giữa corpus và vocabulary được trình bày trong bài?', mode: 'single',
+    options: [
+      { id: 'repeated-tokens', label: 'Vocabulary là corpus sau khi bỏ thứ tự các câu nhưng vẫn giữ mọi token lặp.' },
+      { id: 'reversed', label: 'Corpus là danh sách token duy nhất mà model có thể output.' },
+      { id: 'sentence-table', label: 'Vocabulary lưu các câu training cùng xác suất xuất hiện của chúng.' },
+      { id: 'unique-tokens', label: 'Corpus là tập văn bản huấn luyện; các token duy nhất được lấy ra để tạo vocabulary.', isCorrect: true },
+    ],
+    success: 'Đúng. Corpus chứa văn bản; vocabulary là tập token duy nhất được xây dựng từ dữ liệu đó.',
+    error: 'Chưa đúng. Hãy phân biệt tập văn bản dùng để train với danh sách token mà model biết.',
+  },
+  {
+    id: 'output-vector-length', title: 'Độ dài output vector', prompt: 'Nếu vocabulary có 50.000 token thì output vector cho vị trí tiếp theo có bao nhiêu phần tử?', mode: 'single',
+    options: [
+      { id: 'hidden-size', label: 'd phần tử, bằng kích thước context vector trước output head.' },
+      { id: 'per-context-token', label: '50.000 × số token trong context, vì mỗi vị trí cần một score cho mỗi token.' },
+      { id: 'vocab-size', label: '50.000 phần tử, mỗi phần tử ứng với một token.', isCorrect: true },
+      { id: 'decoded-size', label: 'Bằng số token còn lại sau khi áp dụng chiến lược decoding.' },
+    ],
+    success: 'Đúng. Output vector có một vị trí cho mỗi token trong vocabulary.',
+    error: 'Chưa đúng. Độ dài vector phụ thuộc vocabulary size, không phụ thuộc số câu trong corpus hay độ dài context.',
+  },
+  {
+    id: 'probability-sum', title: 'Sau softmax', prompt: 'Sau softmax, output vector có tính chất nào?', mode: 'single',
+    options: [
+      { id: 'distribution', label: 'Mỗi token nhận một xác suất và tổng mọi xác suất bằng 1.', isCorrect: true },
+      { id: 'top-k-only', label: 'Chỉ các token thuộc top-k có xác suất; các token khác bị xóa khỏi vector.' },
+      { id: 'divide-vocab', label: 'Vector giữ nguyên logits nhưng chia mỗi giá trị cho |V|.' },
+      { id: 'one-hot', label: 'Token có score cao nhất nhận xác suất 1, mọi token khác nhận 0.' },
+    ],
+    success: 'Đúng. Softmax tạo một phân phối xác suất trên toàn bộ vocabulary.',
+    error: 'Chưa đúng. Sau softmax, các giá trị phải là xác suất và cộng lại bằng 1.',
+  },
+]} />

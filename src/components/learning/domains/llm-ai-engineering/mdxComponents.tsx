@@ -8,8 +8,18 @@ import {
 } from '../../learningMdxComponents';
 import {
   LlmAiHierarchy,
+  LlmArInferencePipeline,
+  LlmAcademiaIndustryComparison,
+  LlmProbabilityDefinition,
+  LlmAutoregressiveDefinition,
   LlmConceptInteraction,
   LlmConceptPanelBlock,
+  LlmNextTokenLoss,
+  LlmLossHandCalculation,
+  LlmLossDerivation,
+  LlmOutputProjection,
+  LlmTrainingComponents,
+  LlmVocabularyOutputVector,
   LlmTrainingLifecyclePanel,
   TransformerTranslationStepPanel,
 } from './renderers';
@@ -56,6 +66,66 @@ function AiHierarchy({ content }: { content: RoadmapContent }) {
   return <LlmAiHierarchy extra={materializeRoadmapExtra(content, 'llm-roadmap-motivation', 'motivation')} language={language} themeClasses={themeClasses} />;
 }
 
+function TrainingComponents({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTrainingComponents content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function AcademiaIndustryComparison({ content, perspective }: { content: RoadmapContent; perspective: 'academia' | 'industry' }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmAcademiaIndustryComparison content={materializeVietnameseFallback(content) as never} perspective={perspective} language={language} themeClasses={themeClasses} />;
+}
+
+function ProbabilityDefinition({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmProbabilityDefinition content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function AutoregressiveDefinition({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmAutoregressiveDefinition content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function ArInferencePipeline({ content, step }: { content: RoadmapContent; step?: number }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmArInferencePipeline content={materializeVietnameseFallback(content) as never} step={step} language={language} themeClasses={themeClasses} />;
+}
+
+function VocabularyOutputVector({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmVocabularyOutputVector content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function OutputProjection({ content, focus }: { content: RoadmapContent; focus?: 'overview' | 'context-input' | 'context-vector' | 'linear' | 'logits' | 'distribution' }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmOutputProjection content={materializeVietnameseFallback(content) as never} focus={focus} language={language} themeClasses={themeClasses} />;
+}
+
+function NextTokenLoss({ content, position, animated }: { content: RoadmapContent; position?: number; animated?: boolean }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmNextTokenLoss content={materializeVietnameseFallback(content) as never} position={position} animated={animated} language={language} themeClasses={themeClasses} />;
+}
+
+function LossHandCalculation({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmLossHandCalculation content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function LossDerivation({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmLossDerivation content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
 function interactionComponent(id: string) {
   return function Interaction({ content }: { content: RoadmapContent }) {
     const themeClasses = useLearningMdxTheme();
@@ -84,6 +154,16 @@ export const llmMdxComponents = {
   TrainingLifecycle,
   TransformerTranslationStep,
   AiHierarchy,
+  AcademiaIndustryComparison,
+  LlmProbabilityDefinition: ProbabilityDefinition,
+  LlmAutoregressiveDefinition: AutoregressiveDefinition,
+  LlmArInferencePipeline: ArInferencePipeline,
+  LlmVocabularyOutputVector: VocabularyOutputVector,
+  LlmOutputProjection: OutputProjection,
+  LlmNextTokenLoss: NextTokenLoss,
+  LlmLossHandCalculation: LossHandCalculation,
+  LlmLossDerivation: LossDerivation,
+  LlmTrainingComponents: TrainingComponents,
   DomainComparison,
   LlmOverview,
   TokenizationExample,

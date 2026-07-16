@@ -1,8 +1,8 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-data-pipeline-checkpoint-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Pretraining', 'Fine-tuning', 'Training stages', 'Encoder và Decoder', 'Encoder input', 'Positional embedding'],
-  keywords: ['pretraining', 'fine-tuning', 'Transformer', 'encoder', 'decoder', 'token', 'embedding'], pageCount: 6,
+  headings: ['Pretraining', 'Fine-tuning', 'Training stages', 'Encoder và Decoder', 'Encoder input', 'Positional embedding', 'Encoder context', 'Decoder input', 'Sinh token'],
+  keywords: ['pretraining', 'fine-tuning', 'Transformer', 'encoder', 'decoder', 'token', 'embedding', 'context'], pageCount: 9,
 }
 
 <MdxQuiz id="llm-data-pipeline-checkpoint-quiz" questions={[
@@ -10,18 +10,19 @@ export const lessonMetadata = {
     id: 'pretraining-facts', title: 'Chọn các ý đúng về Pretraining', prompt: '', mode: 'multi',
     options: [
       { id: 'pretraining-initial-stage', label: 'Là giai đoạn ban đầu.', isCorrect: true },
-      { id: 'pretraining-large-data', label: 'Model học trên tập dữ liệu lớn và đa dạng.', isCorrect: true },
+      { id: 'pretraining-chat-only', label: 'Chỉ tối ưu cho format hội thoại có nhãn.' },
       { id: 'pretraining-broad-language', label: 'Giúp model hình thành hiểu biết rộng về ngôn ngữ.', isCorrect: true },
-      { id: 'pretraining-narrow-task', label: 'Chỉ học trên dữ liệu hẹp cho một tác vụ cụ thể.' },
+      { id: 'pretraining-large-data', label: 'Model học trên tập dữ liệu lớn và đa dạng.', isCorrect: true },
     ], success: 'Đúng. Pretraining là giai đoạn đầu, dùng dữ liệu lớn và đa dạng để tạo nền hiểu biết rộng.', error: 'Chưa đúng. Hãy nhớ pretraining là giai đoạn đầu và học trên dữ liệu lớn, đa dạng.',
   },
   {
     id: 'finetuning-facts', title: 'Chọn các ý đúng về Fine-tuning', prompt: '', mode: 'multi',
     options: [
-      { id: 'finetuning-from-pretrained', label: 'Dùng model đã pretrain làm nền tảng.', isCorrect: true },
+      { id: 'finetuning-reinitialize', label: 'Luôn khởi tạo lại toàn bộ trọng số từ đầu.' },
       { id: 'finetuning-narrow-data', label: 'Huấn luyện thêm trên dữ liệu hẹp hơn.', isCorrect: true },
       { id: 'finetuning-specific-purpose', label: 'Nhắm tới một tác vụ hoặc lĩnh vực cụ thể.', isCorrect: true },
-      { id: 'finetuning-first-stage', label: 'Là giai đoạn đầu tiên để model học ngôn ngữ từ đầu.' },
+      { id: 'finetuning-larger-corpus', label: 'Luôn cần corpus lớn và đa dạng hơn pretraining.' },
+      { id: 'finetuning-from-pretrained', label: 'Dùng model đã pretrain làm nền tảng.', isCorrect: true },
     ], success: 'Đúng. Fine-tuning lấy model đã pretrain rồi huấn luyện thêm cho mục tiêu hẹp hơn.', error: 'Chưa đúng. Fine-tuning không bắt đầu từ đầu; nó dùng model đã pretrain làm nền.',
   },
   {
@@ -37,10 +38,10 @@ export const lessonMetadata = {
   {
     id: 'transformer-main-blocks', title: 'Chọn một đáp án', prompt: 'Trong Transformer ban đầu dùng cho dịch ngôn ngữ, có mấy block chính và chúng dùng để làm gì?', mode: 'single',
     options: [
-      { id: 'encoder-decoder', label: 'Có 2 block chính: Encoder đọc câu gốc và biến nó thành dạng số để máy xử lý; Decoder dùng thông tin từ encoder để viết câu dịch từng token một.', isCorrect: true },
       { id: 'tokenizer-only', label: 'Có 1 block chính: Tokenizer đọc câu gốc và trực tiếp viết câu dịch hoàn chỉnh.' },
+      { id: 'encoder-decoder', label: 'Có 2 block chính: Encoder đọc câu gốc và biến nó thành dạng số để máy xử lý; Decoder dùng thông tin từ encoder để viết câu dịch từng token một.', isCorrect: true },
       { id: 'training-stages', label: 'Có 2 block chính: Pretraining học dữ liệu lớn và Fine-tuning học dữ liệu hẹp hơn.' },
-      { id: 'input-prep-blocks', label: 'Có 3 block chính: Token id, Embedding, và Positional embedding, mỗi block tự sinh ra một phần bản dịch.' },
+      { id: 'reversed-roles', label: 'Có 2 block chính: Encoder tạo câu dịch từng token; Decoder chỉ mã hóa câu nguồn.' },
     ], success: 'Đúng. Transformer dịch máy ban đầu có hai block chính: encoder đọc câu nguồn, decoder viết câu dịch từng token một.', error: 'Chưa đúng. Ở slide này, hai block chính cần nhớ là Encoder và Decoder.',
   },
   {
@@ -51,10 +52,37 @@ export const lessonMetadata = {
   {
     id: 'why-position-embedding', title: 'Chọn một đáp án', prompt: 'Vì sao cần positional embedding?', mode: 'single',
     options: [
+      { id: 'id-to-embedding', label: 'Để biến token ID thành token embedding.' },
+      { id: 'context-before-encoder', label: 'Để mỗi token biết toàn bộ context trước khi đi qua encoder.' },
+      { id: 'normalize-length', label: 'Để chuẩn hóa độ dài của mọi embedding.' },
       { id: 'position', label: 'Vì token embedding cho biết token là gì, nhưng chưa cho biết token đứng ở vị trí nào trong câu.', isCorrect: true },
-      { id: 'translate-directly', label: 'Vì positional embedding tự dịch câu nguồn sang câu đích.' },
-      { id: 'replace-tokenizer', label: 'Vì positional embedding thay thế tokenizer.' },
-      { id: 'remove-encoder', label: 'Vì positional embedding làm encoder không còn cần thiết.' },
     ], success: 'Đúng. Positional embedding bổ sung thông tin thứ tự/vị trí cho token embedding.', error: 'Chưa đúng. Token embedding nói về nội dung token; positional embedding thêm vị trí của token.',
+  },
+  {
+    id: 'encoder-context', title: 'Output của encoder', prompt: 'Sau khi encoder đọc toàn bộ câu nguồn, mỗi vector output chứa thông tin gì?', mode: 'single',
+    options: [
+      { id: 'input-only', label: 'Chỉ token embedding và positional embedding ban đầu của vị trí đó.' },
+      { id: 'single-summary', label: 'Cùng một vector duy nhất tóm tắt toàn câu cho mọi vị trí.' },
+      { id: 'contextualized', label: 'Thông tin về token tại vị trí đó cùng context từ các token khác trong câu.', isCorrect: true },
+      { id: 'next-token-distribution', label: 'Phân phối xác suất của token tiếp theo trong câu đích.' },
+    ], success: 'Đúng. Encoder tạo representation có ngữ cảnh cho từng vị trí.', error: 'Chưa đúng. Encoder không chỉ giữ token ID; nó kết hợp thông tin trong toàn bộ câu nguồn.',
+  },
+  {
+    id: 'decoder-input-prep', title: 'Chuẩn bị input cho decoder', prompt: 'Phần câu đích đã sinh được chuẩn bị thế nào trước khi vào decoder?', mode: 'single',
+    options: [
+      { id: 'same-pipeline', label: 'Tokenize → token IDs → token embeddings → cộng positional embeddings.', isCorrect: true },
+      { id: 'ids-only', label: 'Chỉ tokenize thành token IDs; decoder tự suy ra embedding và vị trí sau khi xử lý.' },
+      { id: 'encoder-output-only', label: 'Chỉ dùng output của encoder, không đưa phần câu đích đã sinh vào decoder.' },
+      { id: 'embedding-no-position', label: 'Dùng token embeddings nhưng bỏ positional embeddings vì decoder sinh tuần tự.' },
+    ], success: 'Đúng. Decoder cũng nhận biểu diễn số có cả nội dung token và vị trí.', error: 'Chưa đúng. Hãy xem lại bước chuẩn bị phần output đã có trước khi đưa vào decoder.',
+  },
+  {
+    id: 'decoder-generation-loop', title: 'Sinh token từng bước', prompt: 'Sau khi decoder dự đoán token tiếp theo, điều gì xảy ra?', mode: 'single',
+    options: [
+      { id: 'loss-only', label: 'Token mới chỉ được dùng để tính loss rồi bị bỏ khỏi câu đích.' },
+      { id: 'append', label: 'Token mới được ghép vào câu đích để làm prefix cho bước tiếp theo hoặc hoàn thành bản dịch.', isCorrect: true },
+      { id: 'regenerate-prefix', label: 'Decoder xóa prefix và sinh lại toàn bộ câu đích từ đầu.' },
+      { id: 'replace-source', label: 'Token mới được đưa ngược vào encoder để thay một token trong câu nguồn.' },
+    ], success: 'Đúng. Decoder sinh từng token; token mới được nối vào phần câu đã có.', error: 'Chưa đúng. Hãy lần theo hai slide cuối của ví dụ dịch.',
   },
 ]} />

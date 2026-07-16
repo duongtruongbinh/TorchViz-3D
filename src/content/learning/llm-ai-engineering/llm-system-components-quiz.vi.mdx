@@ -1,0 +1,52 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-system-components-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['5 thành phần', 'Academia', 'Industry'],
+  keywords: ['Architecture', 'Training', 'Data', 'Evaluation', 'Systems'], pageCount: 3,
+}
+
+<MdxQuiz id="llm-system-components-checkpoint-quiz" questions={[
+  {
+    id: 'classify-system-components', title: 'Phân loại thành phần', prompt: 'Kéo từng công việc vào đúng thành phần', mode: 'categorize',
+    categories: [
+      { id: 'architecture', label: 'Architecture' },
+      { id: 'training', label: 'Training / Loss' },
+      { id: 'data', label: 'Data' },
+      { id: 'evaluation', label: 'Evaluation' },
+      { id: 'systems', label: 'Systems' },
+    ],
+    options: [
+      { id: 'layers', label: 'Chọn số layer Transformer', categoryId: 'architecture' },
+      { id: 'objective', label: 'Thiết kế learning objective', categoryId: 'training' },
+      { id: 'cleaning', label: 'Làm sạch corpus', categoryId: 'data' },
+      { id: 'benchmark', label: 'Đo chất lượng trên benchmark', categoryId: 'evaluation' },
+      { id: 'distributed', label: 'Huấn luyện phân tán trên nhiều GPU', categoryId: 'systems' },
+    ],
+    success: 'Đúng. Năm nhóm cùng tạo nên một hệ thống LLM hoàn chỉnh.',
+    error: 'Chưa khớp. Hãy phân biệt thiết kế model, cách học, dữ liệu, cách đo và hạ tầng vận hành.',
+  },
+  {
+    id: 'academia-focus', title: 'Góc nhìn Academia', prompt: 'Khi nghiên cứu thay đổi cấu trúc model hoặc learning objective, các công việc này thuộc những trọng tâm nào thường được nhấn mạnh trong Academia?', mode: 'multi',
+    options: [
+      { id: 'evaluation', label: 'Evaluation' },
+      { id: 'architecture', label: 'Architecture', isCorrect: true },
+      { id: 'systems', label: 'Systems Design' },
+      { id: 'training', label: 'Training algorithm / loss', isCorrect: true },
+      { id: 'data', label: 'Data' },
+    ],
+    success: 'Đúng. Academia thường foreground Architecture và Training/Loss.',
+    error: 'Chưa đúng. Hãy nhớ hai card được nhấn sáng trên trang Academia.',
+  },
+  {
+    id: 'industry-focus', title: 'Góc nhìn Industry', prompt: 'Khi đưa model thành sản phẩm ổn định, ba nhóm nào thường chi phối phần lớn công việc ngoài lõi model?', mode: 'multi',
+    options: [
+      { id: 'evaluation', label: 'Evaluation', isCorrect: true },
+      { id: 'architecture', label: 'Architecture' },
+      { id: 'systems', label: 'Systems Design', isCorrect: true },
+      { id: 'training', label: 'Training algorithm / loss' },
+      { id: 'data', label: 'Data', isCorrect: true },
+    ],
+    success: 'Đúng. Data, Evaluation và Systems Design là trọng tâm vận hành được nhấn mạnh.',
+    error: 'Chưa đủ. Hãy nhớ ba card được nhấn sáng trên trang Industry.',
+  },
+]} />
