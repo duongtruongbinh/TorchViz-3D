@@ -1,0 +1,39 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-scale-and-development-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Scale của LLM', 'So sánh quy mô', 'Vì sao LLM phổ biến'],
+  keywords: ['parameters', 'data', 'compute', 'scale', 'Transformer', 'natural language interface'], pageCount: 3,
+}
+
+<MdxQuiz id="llm-scale-and-development-checkpoint-quiz" questions={[
+  {
+    id: 'why-large', title: 'Chọn tất cả ý đúng', prompt: 'Vì sao LLM được gọi là “Large”?', mode: 'multi',
+    options: [
+      { id: 'params', label: 'Số lượng tham số lớn.', isCorrect: true },
+      { id: 'unlimited-context', label: 'Độ dài context luôn không giới hạn.' },
+      { id: 'compute', label: 'Nhu cầu compute lớn.', isCorrect: true },
+      { id: 'only-long-output', label: 'Mỗi câu trả lời bắt buộc phải có rất nhiều token.' },
+      { id: 'data', label: 'Lượng dữ liệu huấn luyện lớn.', isCorrect: true },
+    ], success: 'Đúng rồi. Large nói về scale của parameters, data và compute.', error: 'Chưa đủ. Hãy chọn các lý do liên quan đến quy mô model và quá trình training.',
+  },
+  {
+    id: 'scale-comparison', title: 'So sánh quy mô', prompt: 'Thông điệp chính của ví dụ so sánh mô hình Iris với LLM là gì?', mode: 'single',
+    options: [
+      { id: 'always-better', label: 'Model càng nhiều tham số thì luôn tốt hơn cho mọi bài toán.' },
+      { id: 'input-length', label: 'LLM lớn chủ yếu vì input của nó dài hơn dữ liệu Iris.' },
+      { id: 'complexity', label: 'LLM cần quy mô lớn hơn nhiều để học ngôn ngữ, ngữ cảnh và tri thức phức tạp.', isCorrect: true },
+      { id: 'scale-only', label: 'Scale là khác biệt duy nhất; dữ liệu và mục tiêu học không còn quan trọng.' },
+    ], success: 'Đúng. Ví dụ cho thấy chênh lệch quy mô cần thiết giữa bài toán nhỏ và ngôn ngữ phức tạp.', error: 'Chưa đúng. So sánh này nói về mức scale cần thiết, không khẳng định model lớn luôn tốt hơn.',
+  },
+  {
+    id: 'popularity-factors', title: 'Vì sao LLM phổ biến?', prompt: 'Chọn các yếu tố được bài học dùng để giải thích sự phổ biến của LLM.', mode: 'multi',
+    options: [
+      { id: 'interface', label: 'Ngôn ngữ tự nhiên trở thành giao diện dễ dùng.', isCorrect: true },
+      { id: 'no-task-data', label: 'LLM không cần dữ liệu task-specific trong bất kỳ trường hợp nào.' },
+      { id: 'multitask', label: 'Một model có thể hỗ trợ nhiều tác vụ.', isCorrect: true },
+      { id: 'tooling', label: 'API và tooling giúp tích hợp, thử nghiệm nhanh.', isCorrect: true },
+      { id: 'no-evaluation', label: 'Scale loại bỏ nhu cầu evaluation và kiểm chứng.' },
+      { id: 'transformer-data-compute', label: 'Transformer, dữ liệu lớn và GPU/compute giúp scale khả thi.', isCorrect: true },
+    ], success: 'Đúng. Sự phổ biến đến từ cả trải nghiệm sử dụng, khả năng đa nhiệm và nền tảng kỹ thuật để scale.', error: 'Chưa đủ. Hãy xét cả giao diện sản phẩm lẫn Transformer, dữ liệu và compute.',
+  },
+]} />

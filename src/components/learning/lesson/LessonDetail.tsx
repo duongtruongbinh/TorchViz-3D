@@ -141,7 +141,6 @@ export default function LessonDetail({
               }}
               disabled={!canGoNext}
               className={getLessonPagerButtonClass(themeClasses, canGoNext)}
-              title={strings.learningLab.lessonNextSection}
               aria-label={strings.learningLab.lessonNextSection}
             >
               {strings.learningLab.lessonNextSection}

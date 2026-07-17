@@ -1,0 +1,104 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-next-token-loss',
+  locale: 'vi',
+  title: 'Loss function khi training Language Model',
+  headings: ['Next-token loss animation', 'Tính loss', 'Khai triển negative log-likelihood'],
+  keywords: ['cross-entropy', 'target', 'one-hot', 'next-token loss', 'negative log-likelihood'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}><LlmNextTokenLoss animated content={{
+  "title": { vi: "Cross-entropy loss được tính tại từng vị trí" },
+  "lead": { vi: "Trong training, model lần lượt dùng các token đứng trước để dự đoán token thật tiếp theo. Mỗi vị trí tạo ra một loss riêng." },
+  "targetHint": { vi: "Ta muốn model dự đoán token này" },
+  "predictionLabel": { vi: "Phân phối model dự đoán" },
+  "targetLabel": { vi: "Target one-hot" },
+  "optimizationLabel": { vi: "Tối thiểu hóa loss" },
+  "increaseLabel": { vi: "Tăng" },
+  "decreaseLabel": { vi: "Giảm" },
+  "sequence": ["I", "saw", "a", "cat", "on", "a", "mat", "<eos>"],
+  "vocabulary": ["I", "saw", "a", "cat", "on", "mat", "<eos>", "dog"],
+  "distributions": [
+    [0.22, 0.12, 0.18, 0.10, 0.08, 0.10, 0.08, 0.12],
+    [0.08, 0.30, 0.16, 0.10, 0.08, 0.08, 0.08, 0.12],
+    [0.06, 0.10, 0.32, 0.12, 0.10, 0.10, 0.08, 0.12],
+    [0.05, 0.08, 0.18, 0.28, 0.10, 0.09, 0.08, 0.14],
+    [0.05, 0.07, 0.18, 0.12, 0.30, 0.10, 0.08, 0.10],
+    [0.04, 0.06, 0.34, 0.10, 0.12, 0.12, 0.10, 0.12],
+    [0.04, 0.06, 0.16, 0.10, 0.10, 0.34, 0.10, 0.10],
+    [0.03, 0.05, 0.12, 0.08, 0.08, 0.14, 0.42, 0.08]
+  ],
+  "updatedDistributions": [
+    [0.42, 0.09, 0.13, 0.08, 0.06, 0.08, 0.06, 0.08],
+    [0.06, 0.48, 0.12, 0.08, 0.06, 0.06, 0.06, 0.08],
+    [0.04, 0.08, 0.50, 0.09, 0.07, 0.08, 0.06, 0.08],
+    [0.04, 0.06, 0.13, 0.46, 0.08, 0.07, 0.06, 0.10],
+    [0.04, 0.05, 0.13, 0.09, 0.48, 0.07, 0.06, 0.08],
+    [0.03, 0.05, 0.52, 0.08, 0.09, 0.09, 0.06, 0.08],
+    [0.03, 0.05, 0.12, 0.08, 0.08, 0.52, 0.06, 0.06],
+    [0.02, 0.04, 0.09, 0.06, 0.06, 0.10, 0.60, 0.03]
+  ],
+  "formula": "\\mathcal{L} = -\\log p(TARGET) \\rightarrow \\min",
+  "note": { vi: "Khi giảm loss tại vị trí hiện tại, model được khuyến khích tăng xác suất của token đúng và giảm xác suất của các token còn lại. Training lặp lại phép tính này cho mọi vị trí trong chuỗi." }
+}} /></MdxPage>
+
+<MdxPage page={1}>
+  <LlmLossHandCalculation content={{
+    "title": { vi: "Tính loss" },
+    "lead": { vi: "Với context I saw a và target đúng là cat, cross-entropy tại vị trí này phụ thuộc vào xác suất có điều kiện p(cat | I saw a). Hãy thay đổi xác suất này để quan sát loss." },
+    "conclusion": { vi: "Tổng xác suất luôn bằng 1. Vì vậy, khi model dồn nhiều xác suất vào các token sai, p(cat | I saw a) giảm và loss tăng. Khi xác suất của cat trong context này tiến gần 1, loss tiến gần 0." },
+    "targetToken": "cat",
+    "sentence": ["I", "saw", "a", "cat", "on", "a", "mat", "<eos>"],
+    "targetIndex": 3,
+    "otherTokens": [
+      { "token": "dog", "weight": 0.35 },
+      { "token": "mat", "weight": 0.30 },
+      { "token": "sofa", "weight": 0.20 },
+      { "token": "floor", "weight": 0.15 }
+    ]
+  }} />
+</MdxPage>
+
+<MdxPage page={2}>
+  <LlmLossDerivation content={{
+    "title": { vi: "Từ likelihood đến loss function" },
+    "steps": [
+      {
+        "label": { vi: "Bắt đầu từ một câu training cụ thể" },
+        "formula": "p(\\text{I saw a cat on a mat <eos>})",
+        "explanation": { vi: "Ta muốn model gán xác suất cao cho token đúng tại từng vị trí trong câu training." }
+      },
+      {
+        "label": { vi: "Khai triển trực tiếp bằng các token" },
+        "formula": "p(\\text{I})\\;p(\\text{saw} \\mid \\text{I})\\;p(\\text{a} \\mid \\text{I saw})\\;p(\\text{cat} \\mid \\text{I saw a})\\;\\cdots\\;p(\\text{<eos>} \\mid \\text{I saw a cat on a mat})",
+        "explanation": { vi: "Mỗi thừa số là xác suất của token đúng tiếp theo khi biết toàn bộ context nằm bên trái nó." }
+      },
+      {
+        "label": { vi: "Công thức Chain Rule tổng quát" },
+        "formula": "p_{\\theta}(x_{1:L}) = p_{\\theta}(x_1)\\;p_{\\theta}(x_2 \\mid x_1)\\;p_{\\theta}(x_3 \\mid x_{1:2})\\;\\cdots\\;p_{\\theta}(x_L \\mid x_{1:L-1})",
+        "explanation": { vi: "Xác suất của token đầu tiên nhân với xác suất token thứ hai khi biết token đầu, rồi token thứ ba khi biết hai token trước, và tiếp tục như vậy đến <eos>." }
+      },
+      {
+        "label": { vi: "Viết gọn bằng ký hiệu tích" },
+        "formula": "\\max_{\\theta}\\; p_{\\theta}(x_{1:L}) = \\max_{\\theta}\\; \\prod_{i=1}^{L} p_{\\theta}(x_i \\mid x_{<i})",
+        "explanation": { vi: "Ký hiệu tích ∏ viết gọn toàn bộ các xác suất có điều kiện trong dòng khai triển phía trên." }
+      },
+      {
+        "label": { vi: "Lấy log để biến tích thành tổng" },
+        "formula": "\\max_{\\theta}\\; \\log p_{\\theta}(x_{1:L}) = \\max_{\\theta}\\; \\sum_{i=1}^{L} \\log p_{\\theta}(x_i \\mid x_{<i})",
+        "explanation": { vi: "Log là hàm đồng biến nên không làm thay đổi nghiệm tối ưu; đồng thời log của một tích trở thành tổng các log. Nếu một xác suất bằng 0 thì toàn bộ tích cũng bằng 0; trong tính toán số, tích của nhiều xác suất rất nhỏ còn dễ bị underflow về 0. Làm việc trong log-space giúp phép tính ổn định hơn." }
+      },
+      {
+        "label": { vi: "Thêm dấu (-) để đổi maximize thành minimize" },
+        "formula": "\\min_{\\theta}\\; \\mathcal{L} = \\min_{\\theta}\\left(-\\sum_{i=1}^{L} \\log p_{\\theta}(x_i \\mid x_{<i})\\right)",
+        "explanation": { vi: "Tối đa hóa log-likelihood tương đương với tối thiểu hóa negative log-likelihood." }
+      },
+      {
+        "label": { vi: "Loss trung bình trên các token" },
+        "formula": "\\mathcal{L}_{\\mathrm{NLL}} = -\\frac{1}{L} \\sum_{i=1}^{L} \\log p_{\\theta}(x_i \\mid x_{<i})",
+        "explanation": { vi: "Trong thực tế, loss thường được lấy trung bình trên các token hợp lệ trong sequence hoặc batch." }
+      }
+    ]
+  }} />
+</MdxPage>

@@ -1,0 +1,220 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'language-modeling-next-token',
+  locale: 'vi',
+  title: 'Mô hình ngôn ngữ và dự đoán token tiếp theo',
+  headings: ['Large Language Model', 'Language Modeling', 'Tokenization', 'Autoregressive', 'Next-token exercise'],
+  keywords: ['LLM', 'language modeling', 'probability', 'tokenization', 'autoregressive', 'next-token'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+  <LlmOverview content={{
+    "title": { vi: "Large Language Model là gì?" },
+    "body": [
+      { vi: "Các mô hình ngôn ngữ lớn (Large Language Models - LLM), chẳng hạn như những mô hình đứng sau ChatGPT, là các mô hình mạng nơ-ron sâu được phát triển mạnh trong vài năm gần đây. Chúng mở ra một giai đoạn mới cho xử lý ngôn ngữ tự nhiên (NLP): thay vì chỉ làm tốt một vài bài toán hẹp, LLM có thể đọc, tạo, tóm tắt, dịch, trả lời câu hỏi, phân tích cảm xúc, trích xuất thông tin và hỗ trợ viết code trong cùng một giao diện ngôn ngữ tự nhiên." },
+      { vi: "Trước khi có LLM hiện đại, nhiều phương pháp NLP truyền thống rất hữu ích cho các tác vụ cụ thể như phân loại email rác, gán nhãn văn bản, hoặc nhận dạng những pattern đơn giản có thể mô tả bằng luật thủ công hay mô hình nhỏ hơn. Nhưng chúng thường kém linh hoạt hơn ở những tác vụ cần hiểu chỉ thị dài, dùng ngữ cảnh phức tạp, hoặc tạo ra văn bản mới mạch lạc. Ví dụ, việc viết một email hoàn chỉnh từ vài gạch đầu dòng là chuyện khá tự nhiên với LLM hiện nay, nhưng không hề đơn giản với nhiều thế hệ mô hình ngôn ngữ trước đó." },
+      { vi: "Khi nói LLM \"hiểu\" ngôn ngữ, ta cần hiểu theo nghĩa kỹ thuật: mô hình xử lý chuỗi token và tạo ra văn bản có vẻ mạch lạc, phù hợp với ngữ cảnh, chứ không có ý thức hay sự thấu hiểu giống con người. Khả năng này đến từ deep learning, lượng dữ liệu văn bản rất lớn, và quá trình huấn luyện giúp mô hình học được nhiều pattern về cú pháp, ngữ nghĩa, style viết và quan hệ giữa các ý trong câu." },
+      { vi: "Khi bạn đặt câu hỏi với ChatGPT, bản chất là bạn đưa cho mô hình một đoạn văn bản mở đầu. LLM đọc toàn bộ ngữ cảnh đã có, rồi dự đoán token tiếp theo nên xuất hiện là gì. Token có thể là một từ, một phần của từ, dấu câu, khoảng trắng, hoặc ký hiệu đặc biệt." }
+    ],
+    "note": { vi: "" },
+    "imageAlt": { vi: "Hình minh họa LLM nhận prompt, dự đoán token tiếp theo, rồi lặp lại để tạo câu trả lời. Hình ảnh sẽ được bổ sung sau." },
+    "image": "llm-from-scratch-roadmap.next-token-loop",
+    "prompt": { vi: "Tôi cảm thấy" },
+    "blankLabel": { vi: "chọn một đáp án" },
+    "labels": {
+      "chooseNextToken": { vi: "Thử chọn token tiếp theo" },
+      "emptySentence": { vi: "chọn từng từ" },
+      "removeLastWord": { vi: "Xóa từ vừa chọn" },
+      "reset": { vi: "Reset" }
+    },
+    "options": [
+      {
+        "label": { vi: "rất vui" },
+        "isCorrect": true,
+        "feedback": { vi: "Quá dễ hen. Về sau bạn sẽ thấy LLM không chỉ nối chữ theo bề mặt, mà còn học được nhiều pattern ngữ nghĩa từ rất nhiều ví dụ văn bản." }
+      },
+      {
+        "label": { vi: "chiếc bàn" },
+        "isCorrect": false,
+        "feedback": { vi: "Sao lại “chiếc bàn” được trời? Doesn't make any sense!!" }
+      },
+      {
+        "label": { vi: "17.3" },
+        "isCorrect": false,
+        "feedback": { vi: "Lựa chọn táo bạo đấy, đủ để tụi mình cảm thấy bất ngờ. Chọn lại đi." }
+      }
+    ],
+    "interactionPlacement": "none"
+  }} />
+</MdxPage>
+<MdxPage page={1}>
+  <LlmProbabilityDefinition content={{
+    "title": { vi: "Language Modeling là gì?" },
+    "definition": { vi: "Language Modeling: probability distribution over sequences of tokens/words." },
+    "formula": "p(x_1, \\ldots, x_L)",
+    "examples": [
+      { "formula": "P(\\text{Con}, \\text{mèo}, \\text{ăn}, \\text{cá}) = 0.02", "explanation": { vi: "Chuỗi tự nhiên và hợp lý nên có xác suất cao hơn." } },
+      { "formula": "P(\\text{Con}, \\text{mèo}, \\text{mèo}, \\text{ăn}, \\text{cá}) = 0.0001", "explanation": { vi: "Cú pháp bị lặp sai nên mô hình cho xác suất rất thấp." } },
+      { "formula": "P(\\text{Con}, \\text{cá}, \\text{ăn}, \\text{mèo}) = 0.001", "explanation": { vi: "Cấu trúc câu vẫn hợp lệ, nhưng ý nghĩa kém tự nhiên hơn." } }
+    ]
+  }} />
+</MdxPage>
+
+<MdxPage page={2}>
+  <TokenizationExample content={{
+    "title": { vi: "Ví dụ tokenization" },
+    "tokenExample": {
+      "title": { vi: "Ví dụ tokenization" },
+      "variants": [
+        {
+          "label": { vi: "Word tokens" },
+          "tokens": [
+            "I",
+            "love",
+            "tokenization",
+            "!"
+          ],
+          "description": { vi: "Cắt gần giống cách người đọc nhìn thấy từng từ và dấu câu." }
+        },
+        {
+          "label": { vi: "Sub-word tokens" },
+          "tokens": [
+            "I",
+            "love",
+            "token",
+            "ization",
+            "!"
+          ],
+          "description": { vi: "Từ dài hoặc từ lạ có thể bị bẻ thành các mảnh nhỏ hơn." }
+        }
+      ],
+      "specialCases": [
+        {
+          "label": { vi: "Dấu câu" },
+          "tokens": [
+            ",",
+            ".",
+            "?",
+            "!"
+          ],
+          "description": { vi: "Dấu câu thường được giữ thành token riêng để model học nhịp câu." }
+        },
+        {
+          "label": { vi: "Khoảng trắng" },
+          "tokens": [
+            "space",
+            "\\n"
+          ],
+          "description": { vi: "Một số tokenizer giữ khoảng trắng hoặc xuống dòng như tín hiệu riêng." }
+        },
+        {
+          "label": { vi: "Special tokens" },
+          "tokens": [
+            "<BOS>",
+            "<EOS>",
+            "<PAD>"
+          ],
+          "description": { vi: "Token điều khiển biên câu, kết thúc chuỗi, hoặc padding batch." }
+        }
+      ],
+      "notes": [
+        { vi: "Không có một cách chia token duy nhất đúng cho mọi model. BPE, WordPiece, SentencePiece, GPT tokenizer hay Llama tokenizer có thể cắt cùng một câu thành các dãy token khác nhau." }
+      ]
+    }
+  }} />
+</MdxPage>
+
+<MdxPage page={3}>
+  <LlmAutoregressiveDefinition content={{
+    "title": { vi: "Autoregressive (AR) language models là gì?" },
+    "leadSubject": { vi: "Autoregressive (AR) language models" },
+    "leadMiddle": { vi: " là các mô hình ngôn ngữ " },
+    "leadEmphasis": { vi: "dự đoán token tiếp theo dựa trên tất cả các token trước đó" },
+    "formula": "p(x_1, \\ldots, x_L) = p(x_1)p(x_2 \\mid x_1)p(x_3 \\mid x_2, x_1)\\ldots",
+    "exampleLead": { vi: "Giả sử:" },
+    "exampleSteps": [
+      "P(\\text{Tôi}) = 0.2",
+      "P(\\text{ăn} \\mid \\text{Tôi}) = 0.5",
+      "P(\\text{cơm} \\mid \\text{Tôi ăn}) = 0.8"
+    ],
+    "resultLead": { vi: "Thì:" },
+    "resultFormula": "P(\\text{Tôi ăn cơm}) = 0.2 \\times 0.5 \\times 0.8 = 0.08",
+    "note": { vi: "Đây không phải là xấp xỉ, mà là công thức chính xác đúng theo quy tắc xác suất Chain Rule." }
+  }} />
+</MdxPage>
+
+<MdxPage page={4}>
+  <NextTokenExercise content={{
+    "title": { vi: "Thử model dự đoán từng bước" },
+    "body": [],
+    "note": { vi: "" },
+    "imageAlt": { vi: "Hình minh họa LLM nhận prompt, dự đoán token tiếp theo, rồi lặp lại để tạo câu trả lời. Hình ảnh sẽ được bổ sung sau." },
+    "image": "llm-from-scratch-roadmap.next-token-loop",
+    "prompt": { vi: "Tôi cảm thấy" },
+    "blankLabel": { vi: "chọn một đáp án" },
+    "labels": {
+      "chooseNextToken": { vi: "Thử chọn token tiếp theo" },
+      "emptySentence": { vi: "chọn từng từ" },
+      "removeLastWord": { vi: "Xóa từ vừa chọn" },
+      "reset": { vi: "Reset" }
+    },
+    "options": [
+      {
+        "label": { vi: "rất vui" },
+        "isCorrect": true,
+        "feedback": { vi: "Quá dễ hen. Về sau bạn sẽ thấy LLM không chỉ nối chữ theo bề mặt, mà còn học được nhiều pattern ngữ nghĩa từ rất nhiều ví dụ văn bản." }
+      },
+      {
+        "label": { vi: "chiếc bàn" },
+        "isCorrect": false,
+        "feedback": { vi: "Sao lại “chiếc bàn” được trời? Doesn't make any sense!!" }
+      },
+      {
+        "label": { vi: "17.3" },
+        "isCorrect": false,
+        "feedback": { vi: "Lựa chọn táo bạo đấy, đủ để tụi mình cảm thấy bất ngờ. Chọn lại đi." }
+      }
+    ],
+    "interactionPlacement": "only",
+    "sentenceBuilder": {
+      "title": { vi: "Ghép thành một câu trả lời" },
+      "prompt": { vi: "Tôi cảm thấy" },
+      "targets": [
+        [
+          { vi: "rất" },
+          { vi: "vui" },
+          { vi: "vì" },
+          { vi: "hôm" },
+          { vi: "nay" },
+          { vi: "trời" },
+          { vi: "đẹp" }
+        ],
+        [
+          { vi: "admin" },
+          { vi: "rất" },
+          { vi: "đẹp" },
+          { vi: "trai" }
+        ]
+      ],
+      "choices": [
+        { vi: "rất" },
+        { vi: "chiếc" },
+        { vi: "vui" },
+        { vi: "admin" },
+        { vi: "17.3" },
+        { vi: "vì" },
+        { vi: "hôm" },
+        { vi: "bàn" },
+        { vi: "nay" },
+        { vi: "trời" },
+        { vi: "đẹp" },
+        { vi: "trai" },
+        { vi: "khá" },
+        { vi: "ổn" }
+      ],
+      "success": { vi: "Đúng rồi. Một câu trả lời dài cũng được tạo từ nhiều bước nhỏ như vậy. Đặc biệt nếu bạn chọn câu admin rất đẹp trai thì model này khá là có gu đấy." },
+      "error": { vi: "Sai nhịp rồi. Bấm hoàn tác hoặc làm lại, chứ câu này đang chuẩn bị đi du lịch hơi xa." }
+    }
+  }} />
+</MdxPage>
