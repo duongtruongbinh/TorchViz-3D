@@ -27,6 +27,7 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
     <button
       type="button"
       onClick={() => onSelect(lesson.id)}
+      data-lesson-id={lesson.id}
       className={cx(
         'group relative grid min-h-10 w-full grid-cols-[30px_minmax(0,1fr)] items-center gap-2.5 border px-1 py-1 text-left transition duration-200',
         themeClasses.radius.button,

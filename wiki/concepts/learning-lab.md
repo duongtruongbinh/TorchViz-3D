@@ -139,7 +139,7 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/learning/shell/ReviewMode.tsx` | Tag-derived quick-review catalog for published exercise lessons. |
 | `src/components/learning/shell/DomainCatalog.tsx` | Domain-first catalog entry surface. |
 | `src/components/learning/shell/DomainCoursePage.tsx` | Shared domain course overview and track accordions. |
-| `src/components/learning/lesson/LessonRail.tsx` | Searchable lesson rail, status filters, and chapter collapse. |
+| `src/components/learning/lesson/LessonRail.tsx` | Searchable lesson rail, status filters, chapter collapse, and automatic scroll-to-center on lesson navigation. |
 | `src/components/learning/lesson/LessonDetail.tsx` | Placeholder or compiled authored lesson rendering. |
 | `src/components/learning/lesson/QuizBlock.tsx` | Shared stateful quiz behavior used by MDX. |
 | `src/components/learning/learningMdxComponents.tsx` | Shared Markdown primitives, context, lesson frame, and quiz adapter. |
@@ -188,13 +188,21 @@ the ownership boundary above.
 
 Lesson traversal uses keyboard arrows: Up/Down move between lessons, Left/Right
 move between section pages. The `LessonDetail` footer keeps the original section
-pager (`← Back` / `Next →`) and the green `Too easy!` complete-and-continue
+pager (`← Back` / `Next →`) and the green `Too easy!` complete-and-advance
 button; there are no on-screen lesson-arrow buttons. Quiz answers submit on
 Enter. Both arrow-key handlers and the Enter handler are guarded
 (`isTypingTarget` / `data-quiz`) so they never fire while typing in inputs, in
 quiz options, or during drag interactions. After Enter submits a quiz answer, focus
 returns to the lesson panel so the arrow keys resume navigating lessons and
 section pages.
+
+The lesson rail automatically scrolls the selected lesson node into vertical
+center whenever the active lesson changes (via click, keyboard, or programmatic
+navigation). This uses `scrollIntoView({ block: 'center', behavior: 'smooth' })`
+on the button element identified by `data-lesson-id`. The effect is driven by the
+`selectedLesson.id` dependency in `LessonRail.tsx`, so it only fires when a
+different lesson is selected, and it safely handles cases where the target
+lesson node is not in the DOM (e.g., collapsed track or filtered out).
 
 ## Invariants
 
