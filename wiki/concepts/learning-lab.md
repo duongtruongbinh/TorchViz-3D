@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-15
+updated: 2026-07-17
 ---
 
 # Learning Lab
@@ -19,9 +19,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 81 tracks, and 627 lesson nodes. Twenty-one
-Vietnamese-first lessons have authored content: seventeen in `llm-ai-engineering`
-and four tagged exercise lessons in `cv`. The other 606 nodes are navigable
+The catalog contains 12 domains, 81 tracks, and 630 lesson nodes. Twenty-eight
+Vietnamese-first lessons have authored content: twenty-four in `llm-ai-engineering`
+and four tagged exercise lessons in `cv`. The other 602 nodes are navigable
 placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
 
@@ -42,8 +42,15 @@ The authored LLM lessons are:
 13. `llm-next-token-loss-quiz`
 14. `llm-scale-and-development`
 15. `llm-scale-and-development-quiz`
-16. `llm-data-pipeline-overview`
-17. `llm-data-pipeline-checkpoint-quiz`
+16. `tokenization-why-it-matters`
+17. `tokenization-why-it-matters-quiz`
+18. `tokenizer-regex-from-scratch`
+19. `tokenizer-regex-from-scratch-quiz`
+20. `tokenization-bpe-tiktoken`
+21. `tokenization-bpe-tiktoken-quiz`
+22. `tokenization-token-ids-vocabulary`
+23. `llm-data-pipeline-overview`
+24. `llm-data-pipeline-checkpoint-quiz`
 
 Their authored prose, paging data, quizzes, references, and structured visual
 inputs live in locale-specific MDX. LLM-specific visual and stateful components
@@ -83,9 +90,16 @@ src/lib/localization.ts
 src/content/learning/<domain-id>/table-of-contents.ts
   localized domain/track/node metadata, ordering, status, fallback, aliases
 
-src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx
+src/content/learning/<domain-id>/[<chapter>.<section>.<node>-]<lesson-id>.<locale>.mdx
   authored lesson body, metadata, pages, quizzes, links, and visual inputs
 ```
+
+The optional hierarchical numeric prefix keeps authored files in typed-TOC
+order without becoming part of the canonical lesson ID. The LLM course uses
+chapter-local names such as `1.1.6-language-modeling-next-token.vi.mdx` and
+`1.5.1-llm-data-pipeline-overview.vi.mdx`; other domains may continue using
+unprefixed filenames. Routes and `lessonMetadata.id` always use the lesson ID
+without this organizational prefix.
 
 Every navigable lesson has one TOC node. A locale-specific MDX file exists only
 when that locale has authored lesson content. File existence is not navigation
@@ -119,14 +133,14 @@ The Vite virtual module contains generated search documents only. This prevents
 catalog tests from depending on Vite and avoids a catalog-validation cycle.
 
 MDX validation is generic across `src/content/learning/*/*.mdx`. It derives
-identity from `<domain>/<lesson>.<locale>.mdx`, checks the file against the
+identity from `<domain>/[<numeric-prefix>-]<lesson>.<locale>.mdx`, checks the file against the
 catalog, rejects unpublished or unknown nodes, validates page and quiz ids, and
 rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 606
+published MDX. The shared placeholder body is not indexed, preventing 602
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -220,7 +234,7 @@ lesson node is not in the DOM (e.g., collapsed track or filtered out).
   there is no parallel review or practice content record.
 - Workspace exercise handoff resolves a React-free catalog entry point and opens
   the canonical lesson route without a practice query or duplicated fixture.
-- The seventeen LLM lessons retain their routes, paging, quiz state/reset, locale
+- The twenty-four LLM lessons retain their routes, paging, quiz state/reset, locale
   fallback, authored search text, and light/dark behavior.
 - Learning Lab changes must not reset Workspace editor/canvas state.
 

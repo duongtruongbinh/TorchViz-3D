@@ -22,7 +22,7 @@ test('authored search documents retain prose and remove implementation syntax', 
   assert.match(document, /Bật GPU khi train/);
   assert.doesNotMatch(document, /https:|RequirementCard|lessonMetadata|keywords|name=/);
 
-  const source = readFileSync('src/content/learning/llm-ai-engineering/llm-from-scratch-roadmap.vi.mdx', 'utf8');
+  const source = readFileSync('src/content/learning/llm-ai-engineering/1.1.2-llm-from-scratch-roadmap.vi.mdx', 'utf8');
   const { searchText } = await inspectLearningMdx(source, 'src/content/learning/llm-ai-engineering/roadmap.vi.mdx');
   assert.match(searchText, /Tokenization/);
   assert.doesNotMatch(searchText, /MdxRoadmap|sectionRefId|llm-roadmap-motivation/);

@@ -3,7 +3,7 @@ title: Architecture Priority Refactors
 status: done
 created: 2026-07-02T08:34:34+07:00
 updated: 2026-07-14T13:14:00+07:00
-author: Codex
+author: nmkhiem
 task: "Implement the highest-leverage correctness and architecture refactors from the project architecture review."
 supersedes:
   - docs/plans/2026-06-21-docs-sync-audit-fixes.md

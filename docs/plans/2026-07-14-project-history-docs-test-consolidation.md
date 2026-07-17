@@ -3,7 +3,7 @@ title: Project History, Docs, and Test Consolidation
 status: done
 created: 2026-07-14T13:08:00+07:00
 updated: 2026-07-14T13:16:15+07:00
-author: Codex
+author: dtbinh
 task: "Compact superseded plan history, synchronize active documentation, and reduce redundant test cases without reducing coverage."
 supersedes:
   - docs/plans/2026-07-02-architecture-priority-refactors.md

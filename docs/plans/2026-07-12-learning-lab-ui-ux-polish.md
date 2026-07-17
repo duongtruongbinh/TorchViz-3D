@@ -3,7 +3,7 @@ title: Learning Lab UI/UX Review and Polish
 status: done
 created: 2026-07-12T23:25:00+07:00
 updated: 2026-07-14T13:14:00+07:00
-author: Codex
+author: dtbinh
 task: "Review, standardize, and improve the Learning Lab website UI/UX across its main user flows."
 supersedes:
   - docs/plans/2026-06-21-learning-lab-refactor.md

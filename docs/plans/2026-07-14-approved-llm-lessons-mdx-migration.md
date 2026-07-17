@@ -2,8 +2,8 @@
 title: Learning Lab Content Architecture and LLM Course
 status: done
 created: 2026-07-14T08:02:31+07:00
-updated: 2026-07-15T00:00:00+07:00
-author: Nguyen Manh Khiem and Codex
+updated: 2026-07-17T20:10:00+07:00
+author: nmkhiem
 task: "replace duplicated Learning Lab catalog/content ownership with typed domain TOCs, locale MDX, authored CV exercises, derived Review mode, and canonical Workspace handoff"
 supersedes:
   - docs/plans/2026-07-14-learning-home-course-card-grid.md
@@ -81,6 +81,17 @@ fallback is declared per domain.
   the sequence-NLL derivation.
 - Quiz coverage follows taught concepts; distractors target nearby conceptual
   confusions and correct-answer positions are not patterned.
+- Authored MDX filenames may carry a chapter-local numeric prefix for filesystem
+  ordering. The parser strips that prefix before catalog validation, so lesson
+  IDs, metadata, routes, and typed-TOC ownership remain canonical.
+- Visible lesson numbering resets inside each chapter, while previous/next
+  traversal continues to use the domain-wide lesson order.
+- The tokenization sequence now teaches motivation, a six-page regex tokenizer
+  walkthrough and aligned quiz, BPE training/inference and limitations, then
+  token-ID/vocabulary encode/decode. The broad training-and-generation overview
+  belongs to chapter 1.5 rather than the tokenization chapter.
+- Static MDX props accept negative numeric literals only as unary minus applied
+  directly to a number; other unary and executable expressions remain rejected.
 
 ## Removed Compatibility Layers
 
@@ -95,14 +106,47 @@ engines remain active.
 |---|---:|
 | Domains | 12 |
 | Tracks | 81 |
-| Lesson nodes | 627 |
-| Published lessons | 21 |
-| Published LLM lessons | 17 |
-| Shared placeholders | 606 |
+| Lesson nodes | 630 |
+| Published lessons | 28 |
+| Published LLM lessons | 24 |
+| Shared placeholders | 602 |
 
-Published content comprises seventeen `llm-ai-engineering` lessons and four CV
+Published content comprises twenty-four `llm-ai-engineering` lessons and four CV
 exercise lessons. All other nodes use one shared localized in-progress state;
 no placeholder MDX is generated.
+
+# Compacted Tokenization Follow-up History
+
+The following short plans were executed on 2026-07-16 and 2026-07-17, then
+absorbed here so the content migration has one walkable owning history. Their
+repeated approval/checkpoint boilerplate was removed; the durable decisions,
+corrections, outcomes, and verification evidence remain below.
+
+| Absorbed history | Preserved decisions and outcome |
+|---|---|
+| MDX ordering and chapter placement | Added optional hierarchical filename prefixes without changing canonical identity; moved the training/generation overview pair from tokenization to chapter 1.5; separated domain-wide traversal indexes from chapter-local display indexes. Prefix parsing and catalog expectations received regression coverage. |
+| BPE lesson and quiz | Reworked the code-readability visual, taught initialization and merge-rank inference, split token-boundary and token-free material into dedicated pages, and replaced animation-recall questions with misconception-based application questions. The final four-page lesson and four-question quiz retain responsive, reduced-motion, light/dark, and static-MDX boundaries. |
+| Token IDs and vocabulary | Published the former placeholder as a focused two-page lesson. The retained visual explains vocabulary lookup and a connected text → tokenizer → IDs → AR model → selected ID → detokenizer → text round trip with one shared vocabulary; the rejected intermediate card sequence and superseded third model-contract page are not part of the final lesson. |
+| Regex tokenizer walkthrough | Published an original, self-contained six-page regex tokenizer lesson between the motivation quiz and BPE, added an input-to-token preview, separated reusable-function construction from full-text application, and added a five-question quiz aligned only to taught stages. No third-party sample passage or live Python dependency was introduced. |
+| Static negative literals | Corrected the MDX ESTree reader to use `UnaryExpression.argument`, retained the executable-expression prohibition, and added acceptance/rejection regression coverage. |
+
+The absorbed source plans were:
+`2026-07-16-llm-mdx-chapter-node-prefixes.md`,
+`2026-07-16-move-llm-pipeline-to-pretraining-generation.md`,
+`2026-07-16-reset-learning-node-numbers-per-chapter.md`,
+`2026-07-16-tokenizer-code-readability-polish.md`,
+`2026-07-16-deepen-bpe-tokenizer-quiz.md`,
+`2026-07-16-expand-bpe-theory-and-realign-quiz.md`,
+`2026-07-16-rebalance-bpe-quiz-distractors.md`,
+`2026-07-16-split-token-boundaries-and-token-free-pages.md`,
+`2026-07-16-token-ids-vocabulary-lesson.md`,
+`2026-07-17-learning-mdx-negative-literals.md`,
+`2026-07-17-simple-regex-tokenizer-lesson.md`,
+`2026-07-17-regex-tokenizer-input-token-diagram.md`,
+`2026-07-17-regex-tokenizer-final-pages-pacing.md`,
+`2026-07-17-regex-tokenizer-code-quiz.md`,
+`2026-07-17-token-id-ar-pipeline-connection.md`, and
+`2026-07-17-token-id-round-trip-chart-redesign.md`.
 
 # Verification
 
@@ -149,3 +193,12 @@ The completed migration passed:
 - 2026-07-15 — Absorbed the durable decisions and outcomes from
   `2026-07-14-llm-preparation-course-cards.md`, then removed that redundant
   533-line plan. Repository-wide reference search and `git diff --check` passed.
+- 2026-07-16 to 2026-07-17 — Published and refined the tokenization sequence,
+  added stable chapter-local MDX filename ordering and visible numbering, moved
+  the broad pipeline pair to chapter 1.5, and fixed negative numeric literal
+  validation. Focused catalog/MDX tests and typechecks passed throughout; the
+  completed regex lesson/quiz run passed 16 focused tests and typecheck.
+- 2026-07-17 — Compacted sixteen small tokenization follow-up plans into this
+  owning plan. Preserved their final decisions, corrections, outcomes, lineage
+  names, and verification evidence; removed superseded intermediate detail and
+  repeated workflow boilerplate.

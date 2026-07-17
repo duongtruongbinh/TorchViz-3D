@@ -1,0 +1,49 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-token-ids-vocabulary',
+  locale: 'vi',
+  title: 'Token IDs và vocabulary',
+  headings: ['Vocabulary là bảng ánh xạ', 'Encode và decode'],
+  keywords: ['token ID', 'vocabulary', 'encode', 'decode'],
+  pageCount: 2,
+}
+
+<MdxPage page={0}>
+
+## Vocabulary là bảng ánh xạ
+
+<TokenizerVocabularyLookup content={{
+  lead: { vi: 'Sau khi tokenizer được huấn luyện, vocabulary chứa toàn bộ token mà nó biết. Mỗi token được gán đúng một số nguyên gọi là token ID, để máy tính có thể tra cứu và xử lý token bằng tensor.' },
+  entries: [
+    { token: 'Tôi', id: 418, note: { vi: 'Token biểu diễn một từ.' } },
+    { token: ' học', id: 1024, note: { vi: 'Khoảng trắng có thể nằm bên trong token.' } },
+    { token: ' AI', id: 7912, note: { vi: 'Một chuỗi thường gặp có ID riêng.' } },
+    { token: '!', id: 13, note: { vi: 'Dấu câu cũng là token.' } },
+  ],
+  nonMeanings: [
+    { vi: 'Thứ hạng về mức độ quan trọng của token.' },
+    { vi: 'Tần suất token xuất hiện trong câu hiện tại.' },
+    { vi: 'Vị trí của token trong chuỗi đầu vào.' },
+    { vi: 'Một đại lượng thể hiện ý nghĩa hoặc độ giống nhau.' },
+  ],
+  takeaway: { vi: 'Token ID chỉ là một địa chỉ ổn định trong vocabulary. ID 7912 không “lớn hơn” hay “có nhiều ý nghĩa hơn” ID 418.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Encode và decode dùng cùng một vocabulary
+
+<TokenizerIdRoundTrip content={{
+  lead: { vi: 'Encode biến text thành dãy token ID để đưa vào model. Decode dùng đúng bảng ánh xạ đó theo chiều ngược lại để ghép token thành text. Hai thao tác phải thống nhất về tokenizer và vocabulary.' },
+  sourceText: 'Tôi học AI',
+  tokens: ['Tôi', ' học', ' AI'],
+  ids: [418, 1024, 7912],
+  modelLabel: { vi: 'AR Language Model' },
+  sampledToken: '!',
+  sampledTokenId: 13,
+  outputText: 'Tôi học AI!',
+}} />
+
+</MdxPage>

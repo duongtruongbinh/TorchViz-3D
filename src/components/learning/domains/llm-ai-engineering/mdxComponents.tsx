@@ -21,6 +21,15 @@ import {
   LlmTrainingComponents,
   LlmVocabularyOutputVector,
   LlmTrainingLifecyclePanel,
+  LlmTokenizerMemory,
+  LlmTokenizerCodeStructure,
+  LlmTokenizerBoundaryMismatch,
+  LlmTokenizerFreeDirection,
+  LlmTokenizerVocabularyLookup,
+  LlmTokenizerIdRoundTrip,
+  LlmTokenizerMergeTraining,
+  LlmTokenizerSequenceLength,
+  LlmTokenizerRegexWalkthrough,
   TransformerTranslationStepPanel,
 } from './renderers';
 
@@ -126,6 +135,60 @@ function LossDerivation({ content }: { content: RoadmapContent }) {
   return <LlmLossDerivation content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
 }
 
+function TokenizerMemory({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerMemory content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerCodeStructure({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerCodeStructure content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerBoundaryMismatch({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerBoundaryMismatch content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerFreeDirection({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerFreeDirection content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerVocabularyLookup({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerVocabularyLookup content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerIdRoundTrip({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerIdRoundTrip content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerMergeTraining({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerMergeTraining content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerSequenceLength({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerSequenceLength content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerRegexWalkthrough({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerRegexWalkthrough content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
 function interactionComponent(id: string) {
   return function Interaction({ content }: { content: RoadmapContent }) {
     const themeClasses = useLearningMdxTheme();
@@ -167,6 +230,15 @@ export const llmMdxComponents = {
   DomainComparison,
   LlmOverview,
   TokenizationExample,
+  TokenizerMemory,
+  TokenizerCodeStructure,
+  TokenizerBoundaryMismatch,
+  TokenizerFreeDirection,
+  TokenizerVocabularyLookup,
+  TokenizerIdRoundTrip,
+  TokenizerMergeTraining,
+  TokenizerSequenceLength,
+  TokenizerRegexWalkthrough,
   NextTokenExercise,
   ScaleFactors,
   ScaleComparison,
