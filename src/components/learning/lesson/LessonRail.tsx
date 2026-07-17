@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { ChevronDown, PanelLeftClose, Search, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
@@ -59,9 +60,18 @@ export default function LessonRail({
 }: LessonRailProps) {
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
+  const railRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!railRef.current) return;
+    const selectedEl = railRef.current.querySelector(`[data-lesson-id="${selectedLesson.id}"]`);
+    if (selectedEl) {
+      selectedEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }, [selectedLesson.id]);
 
   return (
-    <aside className="custom-scrollbar learning-lab-scrollbar flex max-h-full justify-center overflow-auto pr-1">
+    <aside ref={railRef} className="custom-scrollbar learning-lab-scrollbar flex max-h-full justify-center overflow-auto pr-1">
       <div className="grid w-full max-w-[280px] content-start gap-4">
         <div
           className={cx(
