@@ -39,9 +39,6 @@ export const lessonMetadata = {
   playgroundUrl: 'https://gpt-tokenizer.dev/',
 }} />
 
-### Khi tokenize văn bản mới
-
-Tokenizer lưu lại các phép merge cùng **thứ tự ưu tiên (merge rank)**. Khi gặp văn bản mới, nó bắt đầu từ các đơn vị nhỏ rồi áp dụng những merge đã học theo rank. Vì nhiều merge liên tiếp có thể tạo ra một token dài, kết quả thường trông giống như “ưu tiên token dài”; tuy nhiên BPE không đơn giản là luôn chọn chuỗi dài nhất có trong vocabulary.
 </MdxPage>
 
 <MdxPage page={1}>
@@ -73,7 +70,7 @@ Tokenizer lưu lại các phép merge cùng **thứ tự ưu tiên (merge rank)*
 
 <MdxPage page={2}>
 
-## Ranh giới token không phải ranh giới ý nghĩa
+## Đơn vị token không phải đơn vị ý nghĩa
 
 <TokenizerBoundaryMismatch content={{
   lead: { vi: 'BPE học ranh giới từ thống kê của corpus. Những ranh giới đó giúp nén văn bản, nhưng không bảo đảm trùng với cách con người hiểu một con số, khái niệm hay cấu trúc chương trình.' },
@@ -85,14 +82,6 @@ Tokenizer lưu lại các phép merge cùng **thứ tự ưu tiên (merge rank)*
       humanMeaning: { vi: 'Một số nguyên duy nhất với giá trị ba trăm hai mươi bảy.' },
       tokenizations: [['327'], ['32', '7'], ['3', '2', '7']],
       tokenizerMeaning: { vi: 'Cùng một số có thể tạo các dãy token ID khác nhau tùy vocabulary và merge rank.' },
-    },
-    {
-      id: 'code',
-      source: 'if ready: ↵ ␠␠␠␠run()',
-      humanLabel: { vi: 'Lập trình viên nhìn thấy' },
-      humanMeaning: { vi: 'Khoảng trắng đầu dòng xác định run() nằm bên trong khối if.' },
-      tokenizations: [['if', '␠ready', ':', '↵'], ['␠␠␠␠', 'run', '()']],
-      tokenizerMeaning: { vi: 'Whitespace, newline và ký tự cú pháp có thể bị nhóm theo thống kê thay vì vai trò logic.' },
     },
   ],
   takeaway: { vi: 'Token là đơn vị nén hữu ích, không phải đơn vị ý nghĩa được bảo đảm. Ranh giới thiếu ổn định có thể làm mô hình khó khái quát chữ số, phép toán và cấu trúc code.' },

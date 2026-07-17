@@ -25,7 +25,6 @@ export const LLM_MDX_COMPONENT_NAMES = [
   'TokenizerFreeDirection',
   'TokenizerVocabularyLookup',
   'TokenizerIdRoundTrip',
-  'TokenizerModelContract',
   'TokenizerMergeTraining',
   'TokenizerSequenceLength',
   'TokenizerRegexWalkthrough',

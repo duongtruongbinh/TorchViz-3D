@@ -133,14 +133,14 @@ The Vite virtual module contains generated search documents only. This prevents
 catalog tests from depending on Vite and avoids a catalog-validation cycle.
 
 MDX validation is generic across `src/content/learning/*/*.mdx`. It derives
-identity from `<domain>/<lesson>.<locale>.mdx`, checks the file against the
+identity from `<domain>/[<numeric-prefix>-]<lesson>.<locale>.mdx`, checks the file against the
 catalog, rejects unpublished or unknown nodes, validates page and quiz ids, and
 rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 606
+published MDX. The shared placeholder body is not indexed, preventing 602
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -234,7 +234,7 @@ lesson node is not in the DOM (e.g., collapsed track or filtered out).
   there is no parallel review or practice content record.
 - Workspace exercise handoff resolves a React-free catalog entry point and opens
   the canonical lesson route without a practice query or duplicated fixture.
-- The seventeen LLM lessons retain their routes, paging, quiz state/reset, locale
+- The twenty-four LLM lessons retain their routes, paging, quiz state/reset, locale
   fallback, authored search text, and light/dark behavior.
 - Learning Lab changes must not reset Workspace editor/canvas state.
 

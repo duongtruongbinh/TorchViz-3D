@@ -27,7 +27,6 @@ import {
   LlmTokenizerFreeDirection,
   LlmTokenizerVocabularyLookup,
   LlmTokenizerIdRoundTrip,
-  LlmTokenizerModelContract,
   LlmTokenizerMergeTraining,
   LlmTokenizerSequenceLength,
   LlmTokenizerRegexWalkthrough,
@@ -172,12 +171,6 @@ function TokenizerIdRoundTrip({ content }: { content: RoadmapContent }) {
   return <LlmTokenizerIdRoundTrip content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
 }
 
-function TokenizerModelContract({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerModelContract content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
 function TokenizerMergeTraining({ content }: { content: RoadmapContent }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
@@ -243,7 +236,6 @@ export const llmMdxComponents = {
   TokenizerFreeDirection,
   TokenizerVocabularyLookup,
   TokenizerIdRoundTrip,
-  TokenizerModelContract,
   TokenizerMergeTraining,
   TokenizerSequenceLength,
   TokenizerRegexWalkthrough,

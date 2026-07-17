@@ -550,18 +550,8 @@ body {
   animation: learning-lab-answer-reveal 720ms ease-out;
 }
 
-.learning-bpe-source-token {
-  animation: learning-bpe-source-token 2s ease-in-out 1 both;
-}
-
 .learning-bpe-merged-token {
   animation: learning-bpe-merged-token 1.6s ease-out infinite;
-}
-
-@keyframes learning-bpe-source-token {
-  0%, 15%, 100% { transform: translateY(0); box-shadow: none; }
-  45% { transform: translateY(-8px) scale(1.08); box-shadow: 0 0 0 4px rgba(112, 85, 26, 0.18); }
-  62% { transform: translateY(0) scale(1); box-shadow: none; }
 }
 
 @keyframes learning-bpe-merged-token {
@@ -872,7 +862,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .landing-clean-pulse,
   .landing-stage-kernel,
-  .learning-bpe-source-token,
   .learning-bpe-merged-token {
     animation: none;
   }
