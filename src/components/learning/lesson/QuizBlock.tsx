@@ -1,5 +1,24 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
-import { type DragEvent, type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react';
+import { type DragEvent, type KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { LearningLessonExtra } from '../authoredTypes';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getLearningLocalizedText as text } from '../learningText';
@@ -75,8 +94,7 @@ function QuizQuestion({
   const isCategorizeMode = question.mode === 'categorize';
   const quizPalette = getQuizPalette(themeClasses);
   const promptText = text(question.prompt, language);
-  const [draggedOrderIndex, setDraggedOrderIndex] = useState<number | null>(null);
-  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const feedbackRef = useRef<HTMLDivElement | null>(null);
   const { selectedIds, feedback } = state;
   const categoryAssignments = state.categoryAssignments ?? {};
@@ -104,28 +122,26 @@ function QuizQuestion({
     onStateChange({ selectedIds: nextSelectedIds, categoryAssignments, feedback: null });
   };
 
-  const moveOrderOption = (fromIndex: number, targetIndex: number) => {
-    if (targetIndex === fromIndex || targetIndex === fromIndex + 1) return;
-    const nextIds = [...orderIds];
-    const [movedId] = nextIds.splice(fromIndex, 1);
-    if (!movedId) return;
-    const adjustedTargetIndex = fromIndex < targetIndex ? targetIndex - 1 : targetIndex;
-    nextIds.splice(adjustedTargetIndex, 0, movedId);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    setActiveId(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = orderIds.indexOf(active.id as string);
+    const newIndex = orderIds.indexOf(over.id as string);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const nextIds = arrayMove(orderIds, oldIndex, newIndex);
     onStateChange({ selectedIds: nextIds, categoryAssignments, feedback: null });
-  };
-
-  const updateDropTargetIndex = (event: DragEvent<HTMLElement>, rowIndex: number) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    const rowBounds = event.currentTarget.getBoundingClientRect();
-    const isAfterRow = event.clientY > rowBounds.top + rowBounds.height / 2;
-    setDropTargetIndex(rowIndex + (isAfterRow ? 1 : 0));
-  };
-
-  const clearOrderDragState = () => {
-    setDraggedOrderIndex(null);
-    setDropTargetIndex(null);
-  };
+  }, [orderIds, categoryAssignments, onStateChange]);
 
   const reset = () => {
     onStateChange(emptyQuizQuestionState);
@@ -184,47 +200,44 @@ function QuizQuestion({
       </div>
 
       {isOrderMode ? (
-        <div className="mt-5 grid gap-1">
-          {orderIds.map((id, index) => {
-            const option = question.options.find((item) => item.id === id);
-            if (!option) return null;
-            return (
-              <div key={id} className="grid gap-1">
-                {dropTargetIndex === index && draggedOrderIndex !== null ? (
-                  <div className={cx('h-1 rounded-full', quizPalette.dropLine)} />
-                ) : null}
-                <div
-                  draggable
-                  onDragStart={(event) => {
-                    setDraggedOrderIndex(index);
-                    setDropTargetIndex(index);
-                    event.dataTransfer.effectAllowed = 'move';
-                    event.dataTransfer.setData('text/plain', String(index));
-                  }}
-                  onDragEnd={clearOrderDragState}
-                  onDragOver={(event) => updateDropTargetIndex(event, index)}
-                  onDrop={(event) => {
-                    event.preventDefault();
-                    const fromIndex = Number(event.dataTransfer.getData('text/plain'));
-                    if (Number.isNaN(fromIndex)) return;
-                    moveOrderOption(fromIndex, dropTargetIndex ?? index);
-                    clearOrderDragState();
-                  }}
-                  className={getQuizOrderRowClass(themeClasses, quizPalette, draggedOrderIndex === index)}
-                >
-                  <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-black tabular-nums', quizPalette.orderNumber)}>
-                    {index + 1}
-                  </span>
-                  <span className="min-w-0 flex-1">{text(option.label, language)}</span>
-                  <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
-                </div>
-                {dropTargetIndex === orderIds.length && index === orderIds.length - 1 && draggedOrderIndex !== null ? (
-                  <div className={cx('h-1 rounded-full', quizPalette.dropLine)} />
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={orderIds} strategy={verticalListSortingStrategy}>
+            <div className="mt-5 grid gap-1">
+              {orderIds.map((id) => {
+                const option = question.options.find((item) => item.id === id);
+                if (!option) return null;
+                return (
+                  <SortableOrderRow
+                    key={id}
+                    id={id}
+                    index={orderIds.indexOf(id)}
+                    label={text(option.label, language)}
+                    themeClasses={themeClasses}
+                    quizPalette={quizPalette}
+                  />
+                );
+              })}
+            </div>
+          </SortableContext>
+          <DragOverlay dropAnimation={null}>
+            {activeId ? (() => {
+              const activeOption = question.options.find((item) => item.id === activeId);
+              if (!activeOption) return null;
+              return (
+                <OrderRowOverlay
+                  index={orderIds.indexOf(activeId)}
+                  label={text(activeOption.label, language)}
+                  quizPalette={quizPalette}
+                />
+              );
+            })() : null}
+          </DragOverlay>
+        </DndContext>
       ) : isCategorizeMode ? (
         <CategorizeQuestion
           assignments={categoryAssignments}
@@ -298,6 +311,76 @@ function QuizQuestion({
           <p>{text(feedback === 'correct' ? question.success : question.error, language)}</p>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function SortableOrderRow({
+  id,
+  index,
+  label,
+  themeClasses,
+  quizPalette,
+}: {
+  id: string;
+  index: number;
+  label: string;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+  quizPalette: QuizPalette;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={getQuizOrderRowClass(themeClasses, quizPalette, isDragging)}
+      {...attributes}
+      {...listeners}
+    >
+      <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-black tabular-nums', quizPalette.orderNumber)}>
+        {index + 1}
+      </span>
+      <span className="min-w-0 flex-1">{label}</span>
+      <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
+    </div>
+  );
+}
+
+function OrderRowOverlay({
+  index,
+  label,
+  quizPalette,
+}: {
+  index: number;
+  label: string;
+  quizPalette: QuizPalette;
+}) {
+  return (
+    <div
+      className={cx(
+        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-xl',
+        quizPalette.orderRow,
+      )}
+      style={{ transform: 'scale(1.02)' }}
+    >
+      <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-black tabular-nums', quizPalette.orderNumber)}>
+        {index + 1}
+      </span>
+      <span className="min-w-0 flex-1">{label}</span>
+      <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
     </div>
   );
 }
