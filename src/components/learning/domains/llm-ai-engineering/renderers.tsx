@@ -293,6 +293,10 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
   const tokenIdsRef = useRef<HTMLDivElement | null>(null);
   const modelRef = useRef<HTMLDivElement | null>(null);
   const distributionRef = useRef<HTMLDivElement | null>(null);
+  const sampleRef = useRef<HTMLDivElement | null>(null);
+  const detokenizeRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLDivElement | null>(null);
   const [connectorPaths, setConnectorPaths] = useState<string[]>([]);
   const stageTone = (stage: number) => cx(
     'transition-[filter,opacity] duration-200',
@@ -302,31 +306,57 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const elements = [tokenizerRef.current, tokenIdsRef.current, modelRef.current, distributionRef.current];
+    const elements = [tokenizerRef.current, tokenIdsRef.current, modelRef.current, distributionRef.current, sampleRef.current, detokenizeRef.current, containerRef.current, inputRef.current];
     if (!canvas || elements.some((element) => !element)) return;
 
-    const [tokenizer, tokenIds, model, distribution] = elements as HTMLDivElement[];
+    const [tokenizer, tokenIds, model, distribution, _sample, detokenize, container, inputEl] = elements as HTMLDivElement[];
     const updateConnectors = () => {
       const canvasRect = canvas.getBoundingClientRect();
-      const anchor = (element: HTMLDivElement, side: 'left' | 'right') => {
-        const rect = element.getBoundingClientRect();
-        return {
-          x: (side === 'left' ? rect.left : rect.right) - canvasRect.left,
-          y: rect.top + rect.height / 2 - canvasRect.top,
-        };
+      /* Raw edge X positions across the flow */
+      const elEdge = (el: HTMLDivElement, side: 'left' | 'right') => {
+        const rect = el.getBoundingClientRect();
+        return (side === 'left' ? rect.left : rect.right) - canvasRect.left;
       };
-      const tokenizerOut = anchor(tokenizer, 'right');
-      const tokenIdsIn = anchor(tokenIds, 'left');
-      const tokenIdsOut = anchor(tokenIds, 'right');
-      const modelIn = anchor(model, 'left');
-      const modelOut = anchor(model, 'right');
-      const distributionIn = anchor(distribution, 'left');
-      const elbowX = tokenIdsOut.x + Math.max(28, (modelIn.x - tokenIdsOut.x) * 0.42);
+      const elCenterY = (el: HTMLDivElement) => {
+        const rect = el.getBoundingClientRect();
+        return rect.top + rect.height / 2 - canvasRect.top;
+      };
+      const elTop = (el: HTMLDivElement) => el.getBoundingClientRect().top - canvasRect.top;
+      const elBottom = (el: HTMLDivElement) => el.getBoundingClientRect().bottom - canvasRect.top;
+      const elCenterX = (el: HTMLDivElement) => {
+        const rect = el.getBoundingClientRect();
+        return rect.left + rect.width / 2 - canvasRect.left;
+      };
+
+      const tokenizerR = elEdge(tokenizer, 'right');
+      const tokenIdsL = elEdge(tokenIds, 'left');
+      const tokenIdsR = elEdge(tokenIds, 'right');
+      const modelL = elEdge(model, 'left');
+      const modelR = elEdge(model, 'right');
+      const modelCY = elCenterY(model);
+      const distributionL = elEdge(distribution, 'left');
+      const distributionB = elBottom(distribution);
+      const containerT = elTop(container);
+      const containerB = elBottom(container);
+      const containerCX = elCenterX(container);
+      const detokenizeCX = elCenterX(detokenize);
+      const inputCX = elCenterX(inputEl);
+      const inputB = elBottom(inputEl);
+
+      /* All horizontal connectors run at the common center Y */
+      const flowY = modelCY;
 
       setConnectorPaths([
-        `M ${tokenizerOut.x} ${tokenizerOut.y} H ${tokenIdsIn.x}`,
-        `M ${tokenIdsOut.x} ${tokenIdsOut.y} H ${elbowX} V ${modelIn.y} H ${modelIn.x}`,
-        `M ${modelOut.x} ${modelOut.y} H ${distributionIn.x}`,
+        /* 0: Tokenizer → Token IDs (straight horizontal) */
+        `M ${tokenizerR} ${flowY} H ${tokenIdsL}`,
+        /* 1: Token IDs → Model (straight horizontal) */
+        `M ${tokenIdsR} ${flowY} H ${modelL}`,
+        /* 2: Model → Distribution (straight horizontal) */
+        `M ${modelR} ${flowY} H ${distributionL}`,
+        /* 3: Distribution → Container (vertical down, center-aligned) */
+        `M ${containerCX} ${distributionB} V ${containerT}`,
+        /* 4: Autoregressive feedback loop: container bottom → input bottom */
+        `M ${detokenizeCX} ${containerB} Q ${(detokenizeCX + inputCX) / 2} ${containerB + 48}, ${inputCX} ${inputB}`,
       ]);
     };
 
@@ -355,31 +385,38 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
               <marker id="ar-pipeline-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
                 <path d="M 0 0 L 10 5 L 0 10 z" fill={themeClasses.isLight ? '#205089' : '#A8B8C8'} />
               </marker>
+              <marker id="ar-loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={themeClasses.isLight ? '#205089' : '#A8B8C8'} />
+              </marker>
             </defs>
-            {connectorPaths.map((path, index) => (
-              <path
-                key={path}
-                d={path}
-                fill="none"
-                stroke={themeClasses.isLight ? '#205089' : '#A8B8C8'}
-                strokeWidth="2"
-                markerEnd="url(#ar-pipeline-arrow)"
-                className={cx('transition-opacity duration-200', connectorTone(index))}
-              />
-            ))}
+            {connectorPaths.map((path, index) => {
+              const isLoop = index === connectorPaths.length - 1;
+              return (
+                <path
+                  key={path}
+                  d={path}
+                  fill="none"
+                  stroke={themeClasses.isLight ? '#205089' : '#A8B8C8'}
+                  strokeWidth={isLoop ? 1.5 : 2}
+                  strokeDasharray={isLoop ? '5 4' : 'none'}
+                  markerEnd={isLoop ? 'url(#ar-loop-arrow)' : 'url(#ar-pipeline-arrow)'}
+                  className={cx('transition-opacity duration-200', isLoop ? connectorTone(4) : connectorTone(index))}
+                />
+              );
+            })}
           </svg>
 
-          <div className={cx('absolute bottom-5 left-7 grid w-[13.5rem] justify-items-center gap-2', stageTone(0))}>
+          <div ref={inputRef} className={cx('absolute left-7 top-[16rem] grid w-[13.5rem] justify-items-center gap-2', stageTone(0))}>
             <ArrowDown className={cx('h-4 w-4 rotate-180', themeClasses.mutedText)} strokeWidth={1.6} aria-hidden="true" />
             <p className={cx('rounded-lg px-4 py-2 text-center text-base font-black', themeClasses.isLight ? 'bg-[#F3F6F9] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.inputText}</p>
             <div className={cx('text-xs font-semibold', themeClasses.mutedText)}>Câu đầu vào</div>
           </div>
 
-          <div className={cx('absolute left-5 top-[15.15rem] w-[13.5rem]', stageTone(0))}>
+          <div className={cx('absolute left-5 top-[8.6rem] w-[13.5rem]', stageTone(0))}>
             <div ref={tokenizerRef} className={cx('rounded-xl px-4 py-6 text-center text-lg font-black', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/55 text-[#F7DDF1]')}>Tokenizer</div>
           </div>
 
-          <div className={cx('absolute left-[18rem] top-[11.25rem] grid w-16 justify-items-center gap-2', stageTone(0))}>
+          <div className={cx('absolute left-[18rem] top-[5.75rem] grid w-16 justify-items-center gap-2', stageTone(0))}>
             <div className={cx('text-center text-[0.65rem] font-black uppercase tracking-wide', themeClasses.mutedText)}>Token IDs</div>
             <div ref={tokenIdsRef} className={cx('grid h-32 w-10 content-evenly justify-items-center rounded-lg', themeClasses.isLight ? 'bg-[#F4E5EF]' : 'bg-[#6C4B66]/55')}>
               {content.tokenIds.map((tokenId) => (
@@ -388,14 +425,14 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
             </div>
           </div>
 
-          <div ref={modelRef} className={cx('absolute left-[42%] top-[4.5rem] grid h-48 w-32 place-items-center rounded-xl px-4 py-5 text-center', stageTone(1), themeClasses.isLight ? 'bg-[#DDF2C7] text-[#29471E]' : 'bg-[#52723C]/55 text-[#E1F5D1]')}>
+          <div ref={modelRef} className={cx('absolute left-[42%] top-[5rem] grid h-48 w-32 place-items-center rounded-xl px-4 py-5 text-center', stageTone(1), themeClasses.isLight ? 'bg-[#DDF2C7] text-[#29471E]' : 'bg-[#52723C]/55 text-[#E1F5D1]')}>
             <div>
               <div className="text-base font-black">{text(content.modelLabel, language)}</div>
               <div className="mt-2 text-xs font-semibold leading-5">Forward</div>
             </div>
           </div>
 
-          <div ref={distributionRef} className={cx('absolute right-4 top-[4rem] grid w-[clamp(17rem,25%,24rem)] gap-3', stageTone(2))}>
+          <div ref={distributionRef} className={cx('absolute right-4 top-[6.3rem] grid w-[clamp(17rem,25%,24rem)] gap-3', stageTone(2))}>
             <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.mutedText)}>Next-token distribution</div>
             <div className="grid gap-2">
               {content.candidates.map((candidate) => (
@@ -414,17 +451,37 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
             <p className={cx('text-xs leading-5', themeClasses.bodyText)}>Phân phối xác suất cho token tiếp theo</p>
           </div>
 
-          <div className={cx('absolute right-[15rem] top-[20.5rem] grid justify-items-center gap-1', stageTone(3))}>
-            <div className={cx('text-[0.65rem] font-black uppercase tracking-wide', themeClasses.mutedText)}>Sample</div>
-            <span className={cx('rounded-lg px-4 py-2 text-base font-black', themeClasses.isLight ? 'bg-[#F4D8A4] text-[#674518]' : 'bg-[#8B6734]/45 text-[#FFE5B4]')}>{content.sampledToken}</span>
-            <span className={cx('min-w-8 rounded px-2 py-1 text-center text-xs font-black tabular-nums', themeClasses.isLight ? 'bg-[#D8D2C2] text-[#514B3F]' : 'bg-[#575247] text-[#F1EBDD]')}>{content.sampledTokenId}</span>
+          {/* Inference Pipeline: Sample + Detokenize container block */}
+          <div ref={containerRef} className={cx('absolute right-4 top-[18.5rem] w-[clamp(19rem,44%,30rem)] rounded-xl border-2 border-dashed p-4', stageTone(3), themeClasses.isLight ? 'border-[#205089]/25 bg-[#205089]/[0.035]' : 'border-[#A8B8C8]/25 bg-[#A8B8C8]/[0.04]')}>
+            <div className={cx('mb-3 text-[0.6rem] font-black uppercase tracking-widest', themeClasses.mutedText)}>
+              Inference Pipeline
+            </div>
+            <div className="grid grid-cols-[auto_2rem_1fr] items-center gap-3">
+              {/* Sample */}
+              <div ref={sampleRef} className={cx('grid justify-items-center gap-1', stageTone(3))}>
+                <div className={cx('text-[0.65rem] font-black uppercase tracking-wide', themeClasses.mutedText)}>Sample</div>
+                <span className={cx('rounded-lg px-4 py-2 text-base font-black', themeClasses.isLight ? 'bg-[#F4D8A4] text-[#674518]' : 'bg-[#8B6734]/45 text-[#FFE5B4]')}>{content.sampledToken}</span>
+                <span className={cx('min-w-8 rounded px-2 py-1 text-center text-xs font-black tabular-nums', themeClasses.isLight ? 'bg-[#D8D2C2] text-[#514B3F]' : 'bg-[#575247] text-[#F1EBDD]')}>{content.sampledTokenId}</span>
+              </div>
+
+              {/* Arrow */}
+              <ArrowRight className={cx('h-5 w-5 justify-self-center', stageTone(4), themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
+
+              {/* Detokenize */}
+              <div ref={detokenizeRef} className={cx('grid justify-items-center gap-2 text-center', stageTone(4))}>
+                <div className={cx('text-[0.65rem] font-black uppercase tracking-wide', themeClasses.mutedText)}>Detokenize</div>
+                <p className={cx('rounded-lg px-4 py-3 text-base font-black leading-6', themeClasses.isLight ? 'bg-[#E7EFF8] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.outputText}</p>
+              </div>
+            </div>
           </div>
 
-          <ArrowRight className={cx('absolute right-[12.5rem] top-[22.25rem] h-5 w-5', stageTone(4), themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
-
-          <div className={cx('absolute right-4 top-[20.5rem] grid w-44 justify-items-center gap-2 text-center', stageTone(4))}>
-            <div className={cx('text-[0.65rem] font-black uppercase tracking-wide', themeClasses.mutedText)}>Detokenize</div>
-            <p className={cx('rounded-lg px-4 py-3 text-base font-black leading-6', themeClasses.isLight ? 'bg-[#E7EFF8] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.outputText}</p>
+          {/* Autoregressive feedback loop label */}
+          <div className={cx('absolute bottom-2 left-[26%] flex items-center gap-2', stageTone(4))}>
+            <ArrowDown className={cx('h-3 w-3 rotate-90', themeClasses.mutedText)} strokeWidth={1.8} aria-hidden="true" />
+            <span className={cx('text-[0.5rem] font-black uppercase tracking-widest', themeClasses.mutedText)}>
+              Autoregressive loop
+            </span>
+            <ArrowDown className={cx('h-3 w-3 -rotate-90', themeClasses.mutedText)} strokeWidth={1.8} aria-hidden="true" />
           </div>
         </div>
       </div>
