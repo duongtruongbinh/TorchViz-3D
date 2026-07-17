@@ -18,7 +18,7 @@ const STRUCTURAL_KEYS = new Set([
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
 
-type Node = { type?: string; name?: string; value?: unknown; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; source?: Node };
+type Node = { type?: string; name?: string; value?: unknown; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; argument?: Node; operator?: string; source?: Node };
 
 function walk(node: Node | null | undefined, visit: (node: Node, parent?: Node) => void, parent?: Node): void {
   if (!node || typeof node !== 'object') return;
@@ -51,7 +51,7 @@ function assertStaticExpression(node: Node | null | undefined, label: string): v
     });
     return;
   }
-  if (node.type === 'UnaryExpression' && (node as Node & { operator?: string }).operator === '-' && node.expression?.type === 'Literal') return;
+  if (node.type === 'UnaryExpression' && node.operator === '-' && typeof node.argument?.value === 'number') return;
   throw new Error(`${label}: executable or unsupported MDX expression (${node.type ?? 'unknown'})`);
 }
 
@@ -78,7 +78,7 @@ function staticValue(node: Node | null | undefined): unknown {
   if (node.type === 'Literal') return node.value;
   if (node.type === 'ArrayExpression') return node.elements?.map(staticValue) ?? [];
   if (node.type === 'ObjectExpression') return Object.fromEntries((node.properties ?? []).map((property) => [propertyName(property.key)!, staticValue(property.value as Node)]));
-  if (node.type === 'UnaryExpression') return -Number(staticValue(node.expression));
+  if (node.type === 'UnaryExpression' && node.operator === '-') return -Number(staticValue(node.argument));
   return undefined;
 }
 

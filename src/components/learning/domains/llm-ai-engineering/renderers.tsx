@@ -92,10 +92,10 @@ type LlmTokenizerIdRoundTripContent = {
   sourceText: string;
   tokens: string[];
   ids: number[];
-  encodeLabel: LearningLocalizedText;
-  decodeLabel: LearningLocalizedText;
-  shapeLabel: LearningLocalizedText;
-  warning: LearningLocalizedText;
+  modelLabel: LearningLocalizedText;
+  sampledToken: string;
+  sampledTokenId: number;
+  outputText: string;
 };
 
 type LlmTokenizerModelContractContent = {
@@ -126,6 +126,23 @@ type LlmTokenizerSequenceLengthContent = {
   subwordCount: string;
   takeaway: LearningLocalizedText;
 };
+
+type LlmTokenizerRegexWalkthroughContent = {
+  lead: LearningLocalizedText;
+  diagram?: { inputText: string; outputLabel: LearningLocalizedText; tokens: string[] };
+  code: string[];
+  output: string[];
+  takeaway: LearningLocalizedText;
+};
+
+function renderTokenizerInlineCode(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
+  return value.split(/(`[^`]+`)/g).filter(Boolean).map((part, index) => {
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
+    }
+    return <span key={`${index}-${part}`}>{part}</span>;
+  });
+}
 
 type LlmProbabilityDefinitionContent = {
   title: LearningLocalizedText;
@@ -604,43 +621,137 @@ export function LlmTokenizerIdRoundTrip({ content, language, themeClasses }: {
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
-  const stages = [
-    { label: 'Text', values: [content.sourceText], tone: 'text' },
-    { label: 'Tokens', values: content.tokens, tone: 'token' },
-    { label: 'Token IDs', values: content.ids.map(String), tone: 'id' },
-  ];
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const inputTextRef = useRef<HTMLDivElement | null>(null);
+  const tokenizerRef = useRef<HTMLDivElement | null>(null);
+  const inputIdsRef = useRef<HTMLDivElement | null>(null);
+  const modelRef = useRef<HTMLDivElement | null>(null);
+  const outputIdRef = useRef<HTMLDivElement | null>(null);
+  const detokenizerRef = useRef<HTMLDivElement | null>(null);
+  const outputTextRef = useRef<HTMLDivElement | null>(null);
+  const vocabularyRef = useRef<HTMLDivElement | null>(null);
+  const [connectorPaths, setConnectorPaths] = useState<{ flow: string[]; vocabulary: string[] }>({ flow: [], vocabulary: [] });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const elements = [inputTextRef.current, tokenizerRef.current, inputIdsRef.current, modelRef.current, outputIdRef.current, detokenizerRef.current, outputTextRef.current, vocabularyRef.current];
+    if (!canvas || elements.some((element) => !element)) return;
+
+    const [inputText, tokenizer, inputIds, model, outputId, detokenizer, outputText, vocabulary] = elements as HTMLDivElement[];
+    const updateConnectors = () => {
+      const canvasRect = canvas.getBoundingClientRect();
+      const anchor = (element: HTMLDivElement, side: 'top' | 'right' | 'bottom' | 'left') => {
+        const rect = element.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2 - canvasRect.left;
+        const centerY = rect.top + rect.height / 2 - canvasRect.top;
+        if (side === 'top') return { x: centerX, y: rect.top - canvasRect.top };
+        if (side === 'right') return { x: rect.right - canvasRect.left, y: centerY };
+        if (side === 'bottom') return { x: centerX, y: rect.bottom - canvasRect.top };
+        return { x: rect.left - canvasRect.left, y: centerY };
+      };
+      const inputBottom = anchor(inputText, 'bottom');
+      const tokenizerTop = anchor(tokenizer, 'top');
+      const tokenizerRight = anchor(tokenizer, 'right');
+      const inputIdsLeft = anchor(inputIds, 'left');
+      const inputIdsRight = anchor(inputIds, 'right');
+      const modelLeft = anchor(model, 'left');
+      const modelRight = anchor(model, 'right');
+      const outputIdLeft = anchor(outputId, 'left');
+      const outputIdRight = anchor(outputId, 'right');
+      const detokenizerLeft = anchor(detokenizer, 'left');
+      const detokenizerBottom = anchor(detokenizer, 'bottom');
+      const outputTop = anchor(outputText, 'top');
+      const tokenizerBottom = anchor(tokenizer, 'bottom');
+      const vocabularyLeft = anchor(vocabulary, 'left');
+      const vocabularyRight = anchor(vocabulary, 'right');
+      const detokenizerVocabulary = anchor(detokenizer, 'bottom');
+      const tokenizerElbowY = tokenizerBottom.y + Math.max(28, (vocabularyLeft.y - tokenizerBottom.y) * 0.55);
+      const detokenizerElbowY = detokenizerVocabulary.y + Math.max(28, (vocabularyRight.y - detokenizerVocabulary.y) * 0.55);
+
+      setConnectorPaths({
+        flow: [
+          `M ${inputBottom.x} ${inputBottom.y} V ${tokenizerTop.y}`,
+          `M ${tokenizerRight.x} ${tokenizerRight.y} H ${inputIdsLeft.x}`,
+          `M ${inputIdsRight.x} ${inputIdsRight.y} H ${modelLeft.x}`,
+          `M ${modelRight.x} ${modelRight.y} H ${outputIdLeft.x}`,
+          `M ${outputIdRight.x} ${outputIdRight.y} H ${detokenizerLeft.x}`,
+          `M ${detokenizerBottom.x} ${detokenizerBottom.y} V ${outputTop.y}`,
+        ],
+        vocabulary: [
+          `M ${tokenizerBottom.x} ${tokenizerBottom.y} V ${tokenizerElbowY} H ${vocabularyLeft.x} V ${vocabularyLeft.y}`,
+          `M ${detokenizerVocabulary.x} ${detokenizerVocabulary.y} V ${detokenizerElbowY} H ${vocabularyRight.x} V ${vocabularyRight.y}`,
+        ],
+      });
+    };
+
+    const frameId = window.requestAnimationFrame(updateConnectors);
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateConnectors);
+    [canvas, ...elements].forEach((element) => element && observer?.observe(element));
+    window.addEventListener('resize', updateConnectors);
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      observer?.disconnect();
+      window.removeEventListener('resize', updateConnectors);
+    };
+  }, []);
+
   return (
     <section className="grid gap-4">
       <p className={cx('max-w-3xl text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className={cx('rounded-lg border p-4 md:p-5', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FBFD]' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
-        <div className="grid items-stretch gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]">
-          {stages.map((stage, stageIndex) => (
-            <Fragment key={stage.label}>
-              {stageIndex > 0 ? <div className="hidden items-center md:flex"><ArrowRight className={cx('h-5 w-5', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" /></div> : null}
-              <div className={cx('grid min-h-32 content-center gap-3 rounded-lg border p-4', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#0B1724]/38')}>
-                <span className={cx('text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>{stage.label}</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {stage.values.map((value, valueIndex) => (
-                    <code key={`${value}-${valueIndex}`} className={cx(
-                      'rounded-md px-2.5 py-1.5 text-sm font-black',
-                      stage.tone === 'id'
-                        ? (themeClasses.isLight ? 'bg-[#DDF4E8] text-[#176B45]' : 'bg-[#74D99F]/14 text-[#D2F5DF]')
-                        : (themeClasses.isLight ? 'bg-[#DCE8F4] text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]'),
-                    )}>{value}</code>
-                  ))}
-                </div>
-              </div>
-            </Fragment>
-          ))}
+      <div className="overflow-x-auto pb-2">
+        <div ref={canvasRef} className={cx('relative h-[30rem] w-full min-w-[66rem] overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-gradient-to-br from-[#FBFDFE] to-[#205089]/[0.035]' : 'border-[#A8B8C8]/16 bg-gradient-to-br from-[#121A24]/45 to-[#205089]/[0.08]')}>
+          <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+            <defs>
+              <marker id="token-round-trip-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={themeClasses.isLight ? '#205089' : '#A8B8C8'} />
+              </marker>
+            </defs>
+            {connectorPaths.flow.map((path) => <path key={path} d={path} fill="none" stroke={themeClasses.isLight ? '#205089' : '#A8B8C8'} strokeWidth="2" markerEnd="url(#token-round-trip-arrow)" />)}
+            {connectorPaths.vocabulary.map((path) => <path key={path} d={path} fill="none" stroke={themeClasses.isLight ? '#8D436F' : '#D58AB5'} strokeWidth="1.75" strokeDasharray="6 5" />)}
+          </svg>
+
+          <div ref={inputTextRef} className="absolute left-6 top-6 grid w-52 justify-items-center gap-2">
+            <span className={cx('text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>Input text</span>
+            <code className={cx('rounded-lg px-4 py-2 text-base font-black', themeClasses.isLight ? 'bg-[#F3F6F9] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.sourceText}</code>
+          </div>
+
+          <div ref={tokenizerRef} className={cx('absolute left-6 top-[10rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
+            <span className="text-base font-black">Tokenizer</span>
+            <div className="flex flex-wrap justify-center gap-1">{content.tokens.map((token, index) => <code key={`${token}-${index}`} className="rounded bg-white/45 px-1.5 py-0.5 text-xs font-black">{token}</code>)}</div>
+          </div>
+
+          <div className="absolute left-[18rem] top-[8rem] grid w-20 justify-items-center gap-2">
+            <span className={cx('text-center text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>Token IDs</span>
+            <div ref={inputIdsRef} className={cx('grid min-h-36 w-12 content-evenly justify-items-center rounded-lg py-2', themeClasses.isLight ? 'bg-[#F4E5EF]' : 'bg-[#6C4B66]/55')}>
+              {content.ids.map((id) => <span key={id} className={cx('grid h-8 w-8 place-items-center rounded-full text-[0.65rem] font-black tabular-nums', themeClasses.isLight ? 'bg-[#F6CFE4] text-[#713255] ring-1 ring-[#8D436F]' : 'bg-[#D58AB5] text-[#2E1728] ring-1 ring-[#F4C8E1]/60')}>{id}</span>)}
+            </div>
+          </div>
+
+          <div ref={modelRef} className={cx('absolute left-[42%] top-[7rem] grid h-40 w-36 place-items-center rounded-xl px-4 text-center', themeClasses.isLight ? 'bg-[#DDF2C7] text-[#29471E]' : 'bg-[#52723C]/60 text-[#E1F5D1]')}>
+            <div className="grid justify-items-center gap-2"><Cpu className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" /><span className="text-base font-black">{text(content.modelLabel, language)}</span><span className="text-xs font-semibold">Forward</span></div>
+          </div>
+
+          <div className="absolute right-[18rem] top-[8rem] grid w-20 justify-items-center gap-2">
+            <span className={cx('text-center text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>{language === 'vi' ? 'ID được chọn' : 'Selected ID'}</span>
+            <div ref={outputIdRef} className={cx('grid h-20 w-12 place-items-center rounded-lg', themeClasses.isLight ? 'bg-[#FFF0CF]' : 'bg-[#8B6734]/40')}><span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#F4D8A4] text-[#674518] ring-1 ring-[#C68A2E]' : 'bg-[#C49250] text-[#21170A] ring-1 ring-[#FFE5B4]/60')}>{content.sampledTokenId}</span></div>
+          </div>
+
+          <div ref={detokenizerRef} className={cx('absolute right-6 top-[10rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
+            <span className="text-base font-black">Detokenizer</span>
+            <code className="rounded bg-white/45 px-2 py-1 text-sm font-black">{content.sampledToken}</code>
+          </div>
+
+          <div ref={outputTextRef} className="absolute bottom-6 right-6 grid w-52 justify-items-center gap-2">
+            <code className={cx('rounded-lg px-4 py-2 text-base font-black', themeClasses.isLight ? 'bg-[#F3F6F9] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.outputText}</code>
+            <span className={cx('text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>Output text</span>
+          </div>
+
+          <div ref={vocabularyRef} className={cx('absolute bottom-6 left-1/2 grid w-60 -translate-x-1/2 justify-items-center gap-1 rounded-xl border px-4 py-3 text-center', themeClasses.isLight ? 'border-[#8D436F]/24 bg-[#FAEFF6] text-[#56314F]' : 'border-[#D58AB5]/24 bg-[#6C4B66]/30 text-[#F7DDF1]')}>
+            <Database className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
+            <span className="text-sm font-black">Shared Vocabulary</span>
+            <span className="text-xs font-semibold">token ↔ token ID</span>
+          </div>
         </div>
-        <div className="mt-4 grid gap-2 border-t border-current/10 pt-4 sm:grid-cols-2">
-          <div className={cx('flex items-center gap-2 text-sm font-semibold', themeClasses.bodyText)}><ArrowRight className={cx('h-4 w-4', themeClasses.accentText)} aria-hidden="true" />{text(content.encodeLabel, language)}</div>
-          <div className={cx('flex items-center gap-2 text-sm font-semibold', themeClasses.bodyText)}><RotateCcw className={cx('h-4 w-4', themeClasses.accentText)} aria-hidden="true" />{text(content.decodeLabel, language)}</div>
-        </div>
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <code className={cx('rounded-md px-3 py-2 text-sm font-black', themeClasses.isLight ? 'bg-[#EFF4FA] text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{text(content.shapeLabel, language)}</code>
-        <p className={cx('max-w-2xl text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.warning, language)}</p>
       </div>
     </section>
   );
@@ -729,6 +840,67 @@ export function LlmTokenizerSequenceLength({ content, language, themeClasses }: 
         </article>
       </div>
       <p className={cx('text-sm leading-7', themeClasses.bodyText)}>{text(content.takeaway, language)}</p>
+    </section>
+  );
+}
+
+export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }: {
+  content: LlmTokenizerRegexWalkthroughContent;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const punctuationTokens = new Set([',', '.', ':', ';', '?', '!', '"', '(', ')', '--']);
+  return (
+    <section className="grid gap-5">
+      <p className={cx('max-w-3xl text-base leading-7', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.lead, language), themeClasses)}</p>
+      {content.diagram ? (
+        <div className="overflow-x-auto pb-1">
+          <div className={cx('grid min-w-[54rem] justify-items-center gap-3 rounded-xl border px-6 py-5', themeClasses.isLight ? 'border-[#205089]/12 bg-gradient-to-b from-white to-[#F6FAFD]' : 'border-[#A8B8C8]/14 bg-gradient-to-b from-[#121A24]/46 to-[#0B1724]/28')}>
+            <div className="grid justify-items-center gap-2">
+              <span className={cx('text-xs font-black', themeClasses.mutedText)}>{language === 'vi' ? 'Văn bản đầu vào' : 'Input text'}</span>
+              <code className={cx('w-fit rounded-lg border px-4 py-2.5 text-sm font-bold shadow-sm', themeClasses.isLight ? 'border-[#205089]/18 bg-white text-[#172A43]' : 'border-[#A8B8C8]/20 bg-[#0B1724]/62 text-[#E5EEF8]')}>{content.diagram.inputText}</code>
+            </div>
+            <div className={cx('grid h-9 w-9 place-items-center rounded-full', themeClasses.isLight ? 'bg-[#E6F0F8] text-[#205089]' : 'bg-[#263B5B] text-[#CFE2F7]')} aria-hidden="true">
+              <ArrowDown className="h-5 w-5" strokeWidth={2} />
+            </div>
+            <div className="grid justify-items-center gap-2">
+              <span className={cx('text-xs font-black', themeClasses.mutedText)}>{text(content.diagram.outputLabel, language)}</span>
+              <div className="flex flex-nowrap justify-center gap-1.5">
+                {content.diagram.tokens.map((token, index) => {
+                  const isWhitespace = token === ' ';
+                  const isEmpty = token === '';
+                  const isPunctuation = punctuationTokens.has(token);
+                  return <code key={`${token}-${index}`} className={cx(
+                    'grid min-h-9 min-w-9 place-items-center rounded-md border px-2.5 py-1 text-sm font-bold shadow-sm',
+                    isWhitespace
+                      ? (themeClasses.isLight ? 'border-[#6B7F91]/20 bg-[#F1F4F6] text-[#607283]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/8 text-[#A8B8C8]')
+                      : isEmpty
+                      ? (themeClasses.isLight ? 'border-[#B5523A]/22 bg-[#FFF1ED] text-[#9A3F2B]' : 'border-[#F29A82]/20 bg-[#F29A82]/10 text-[#FFC3B4]')
+                      : isPunctuation
+                      ? (themeClasses.isLight ? 'border-[#C68A2E]/28 bg-[#FFF4DD] text-[#674518]' : 'border-[#F4D8A4]/22 bg-[#8B6734]/34 text-[#FFE5B4]')
+                      : (themeClasses.isLight ? 'border-[#205089]/16 bg-[#EDF5FB] text-[#173F69]' : 'border-[#7FB0FF]/18 bg-[#263B5B]/70 text-[#DCE8F4]'),
+                  )}>{isWhitespace ? '␠' : isEmpty ? "''" : token}</code>;
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      <div className="min-w-0 overflow-hidden rounded-xl bg-[#0B1220] shadow-[inset_0_0_0_1px_rgba(168,184,200,0.18)]">
+          <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#F29A82]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#F4D8A4]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#74D99F]" />
+            <span className="ml-2 text-[0.68rem] font-black uppercase tracking-[0.08em] text-[#A8B8C8]">Python</span>
+          </div>
+          <pre className="overflow-x-auto p-4 text-[0.82rem] leading-7 text-[#E8F1FA] md:p-5 md:text-sm"><code>{content.code.map((line, index) => <span key={`${index}-${line}`} className="block"><span className="mr-4 inline-block w-5 select-none text-right text-[#59708A]">{index + 1}</span>{line || ' '}</span>)}</code></pre>
+          <div className="border-y border-white/10 bg-white/[0.035] px-4 py-2.5 text-[0.68rem] font-black uppercase tracking-[0.08em] text-[#A8B8C8]">Output</div>
+          <pre className="min-w-0 overflow-x-auto whitespace-pre-wrap break-words p-4 text-xs leading-6 text-[#CFE2F7] md:p-5 md:text-[0.82rem]"><code>{content.output.join('\n')}</code></pre>
+      </div>
+      <div className={cx('flex gap-3 rounded-lg border px-4 py-3.5', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF6FC]' : 'border-[#7FB0FF]/18 bg-[#7FB0FF]/8')}>
+        <Info className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
+        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.takeaway, language), themeClasses)}</p>
+      </div>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-16
+updated: 2026-07-17
 ---
 
 # Learning Lab
@@ -19,9 +19,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 81 tracks, and 627 lesson nodes. Twenty-six
-Vietnamese-first lessons have authored content: twenty-two in `llm-ai-engineering`
-and four tagged exercise lessons in `cv`. The other 601 nodes are navigable
+The catalog contains 12 domains, 81 tracks, and 630 lesson nodes. Twenty-eight
+Vietnamese-first lessons have authored content: twenty-four in `llm-ai-engineering`
+and four tagged exercise lessons in `cv`. The other 602 nodes are navigable
 placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
 
@@ -44,11 +44,13 @@ The authored LLM lessons are:
 15. `llm-scale-and-development-quiz`
 16. `tokenization-why-it-matters`
 17. `tokenization-why-it-matters-quiz`
-18. `tokenization-bpe-tiktoken`
-19. `tokenization-bpe-tiktoken-quiz`
-20. `tokenization-token-ids-vocabulary`
-21. `llm-data-pipeline-overview`
-22. `llm-data-pipeline-checkpoint-quiz`
+18. `tokenizer-regex-from-scratch`
+19. `tokenizer-regex-from-scratch-quiz`
+20. `tokenization-bpe-tiktoken`
+21. `tokenization-bpe-tiktoken-quiz`
+22. `tokenization-token-ids-vocabulary`
+23. `llm-data-pipeline-overview`
+24. `llm-data-pipeline-checkpoint-quiz`
 
 Their authored prose, paging data, quizzes, references, and structured visual
 inputs live in locale-specific MDX. LLM-specific visual and stateful components

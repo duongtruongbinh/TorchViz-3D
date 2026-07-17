@@ -145,6 +145,20 @@ const chapters: LearningTocTrackSeed[] = [
         'published',
       ),
       lessonSeed(
+        'tokenizer-regex-from-scratch',
+        'Code: Build a simple regex tokenizer',
+        'Code: Xây tokenizer regex đơn giản',
+        undefined,
+        'published',
+      ),
+      lessonSeed(
+        'tokenizer-regex-from-scratch-quiz',
+        'Quiz',
+        'Quiz',
+        undefined,
+        'published',
+      ),
+      lessonSeed(
         'tokenization-bpe-tiktoken',
         'How tokenizer training works',
         'Huấn luyện tokenizer bằng BPE',

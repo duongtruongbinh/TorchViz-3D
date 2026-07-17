@@ -28,6 +28,7 @@ export const LLM_MDX_COMPONENT_NAMES = [
   'TokenizerModelContract',
   'TokenizerMergeTraining',
   'TokenizerSequenceLength',
+  'TokenizerRegexWalkthrough',
   'NextTokenExercise',
   'ScaleFactors',
   'ScaleComparison',

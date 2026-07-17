@@ -3,9 +3,9 @@ export const lessonMetadata = {
   id: 'tokenization-token-ids-vocabulary',
   locale: 'vi',
   title: 'Token IDs và vocabulary',
-  headings: ['Vocabulary là bảng ánh xạ', 'Encode và decode', 'Token ID đi vào model'],
-  keywords: ['token ID', 'vocabulary', 'encode', 'decode', 'embedding lookup', 'output logits', 'vocabulary size'],
-  pageCount: 3,
+  headings: ['Vocabulary là bảng ánh xạ', 'Encode và decode'],
+  keywords: ['token ID', 'vocabulary', 'encode', 'decode'],
+  pageCount: 2,
 }
 
 <MdxPage page={0}>
@@ -40,34 +40,10 @@ export const lessonMetadata = {
   sourceText: 'Tôi học AI',
   tokens: ['Tôi', ' học', ' AI'],
   ids: [418, 1024, 7912],
-  encodeLabel: { vi: 'Encode: text → tokens → token IDs' },
-  decodeLabel: { vi: 'Decode: token IDs → tokens → text' },
-  shapeLabel: { vi: 'input_ids.shape = [3]' },
-  warning: { vi: 'Nếu ID 7912 trỏ tới ` AI` trong tokenizer A nhưng trỏ tới token khác trong tokenizer B, cùng một tensor ID sẽ được đọc thành nội dung khác.' },
-}} />
-
-</MdxPage>
-
-<MdxPage page={2}>
-
-## Token ID là hợp đồng giữa tokenizer và model
-
-<TokenizerModelContract content={{
-  lead: { vi: 'Model không đọc trực tiếp chuỗi ký tự. Token ID được dùng như chỉ số để lấy một hàng trong embedding matrix. Ở đầu ra, mỗi ID lại tương ứng với đúng một vị trí logit trong vocabulary.' },
-  token: ' AI',
-  tokenId: 7912,
-  embeddingVector: [0.12, -0.34, 0.08, 0.51, -0.19],
-  vocabularySize: 50000,
-  embeddingSize: 768,
-  logits: [
-    { token: 'Tôi', id: 418, score: 1.3 },
-    { token: ' học', id: 1024, score: 2.1 },
-    { token: ' AI', id: 7912, score: 4.8 },
-    { token: '!', id: 13, score: 0.9 },
-  ],
-  embeddingNote: { vi: 'ID 7912 chọn hàng 7912 của E. Vector ở hàng này mới là biểu diễn số mà Transformer xử lý; bản thân số 7912 không chứa ý nghĩa.' },
-  outputNote: { vi: 'Output head tạo một score cho mỗi ID. Sau softmax, vị trí 7912 biểu diễn xác suất chọn lại token ` AI`.' },
-  warning: { vi: 'Đổi thứ tự hoặc kích thước vocabulary mà không đổi embedding/output weights sẽ phá vỡ ánh xạ tokenizer–model.' },
+  modelLabel: { vi: 'AR Language Model' },
+  sampledToken: '!',
+  sampledTokenId: 13,
+  outputText: 'Tôi học AI!',
 }} />
 
 </MdxPage>

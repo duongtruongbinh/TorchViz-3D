@@ -30,6 +30,7 @@ import {
   LlmTokenizerModelContract,
   LlmTokenizerMergeTraining,
   LlmTokenizerSequenceLength,
+  LlmTokenizerRegexWalkthrough,
   TransformerTranslationStepPanel,
 } from './renderers';
 
@@ -189,6 +190,12 @@ function TokenizerSequenceLength({ content }: { content: RoadmapContent }) {
   return <LlmTokenizerSequenceLength content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
 }
 
+function TokenizerRegexWalkthrough({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerRegexWalkthrough content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
 function interactionComponent(id: string) {
   return function Interaction({ content }: { content: RoadmapContent }) {
     const themeClasses = useLearningMdxTheme();
@@ -239,6 +246,7 @@ export const llmMdxComponents = {
   TokenizerModelContract,
   TokenizerMergeTraining,
   TokenizerSequenceLength,
+  TokenizerRegexWalkthrough,
   NextTokenExercise,
   ScaleFactors,
   ScaleComparison,
