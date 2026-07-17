@@ -1,0 +1,31 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-why-it-matters',
+  locale: 'vi',
+  title: 'Tại sao lại là Token mà không phải word?',
+  headings: ['Token linh hoạt hơn từ', 'Vì sao không tách theo từ?', 'Cân bằng hiệu quả và khả năng biểu đạt', 'Độ dài chuỗi'],
+  keywords: ['tokenizer', 'token', 'word-level tokenization', 'subword', 'lỗi chính tả', 'tiếng Thái'],
+  pageCount: 2,
+}
+
+<MdxPage page={0}>
+<TokenizerMemory content={{
+  cards: [
+    { id: 'flexible', cue: { vi: 'Linh hoạt' }, title: { vi: 'Token linh hoạt hơn từ' }, example: 'un · believ · able', description: { vi: 'Một token có thể là từ, mảnh từ, dấu câu hoặc chuỗi ký tự phổ biến.' } },
+    { id: 'robust', cue: { vi: 'Bao phủ' }, title: { vi: 'Vẫn đọc được cách viết lạ' }, example: 'token · zier', description: { vi: 'Tokenizer theo từ dễ thất bại khi gặp lỗi chính tả vì từ sai có thể không có trong vocabulary. Nó cũng không phù hợp với mọi ngôn ngữ: tiếng Thái không dùng khoảng trắng để tách từ. Chia nhỏ hơn giúp tokenizer vẫn biểu diễn được các trường hợp này.' } },
+    { id: 'efficient', cue: { vi: 'Hiệu quả' }, title: { vi: 'Chuỗi vừa đủ ngắn' }, example: '≈ 3–4 ký tự', description: { vi: 'Cả từ làm chuỗi ngắn, nhưng đổi lại vocabulary phải chứa rất nhiều từ và vẫn có thể bỏ sót từ mới hoặc lỗi chính tả. Từng ký tự thì bao phủ tốt nhưng làm chuỗi quá dài. Nhóm các chuỗi con phổ biến, thường khoảng 3–4 ký tự mỗi token, tạo điểm cân bằng cho sự đánh đổi này.' } },
+  ],
+}} />
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TokenizerSequenceLength content={{
+  characterTokens: ['t', 'o', 'k', 'e', 'n', 'i', 'z', 'e', 'r', '␠', 't', 'e', 'x', 't'],
+  subwordTokens: ['token', 'izer', '␠', 'text'],
+  characterCount: '14 tokens',
+  subwordCount: '4 tokens',
+  takeaway: { vi: 'Character-level làm dãy token dài hơn. Ở các chương sau, ta sẽ thấy attention của Transformer có chi phí tăng theo bình phương độ dài chuỗi, nên nếu số token tăng gấp đôi thì chi phí có thể tăng xấp xỉ gấp bốn. Subword giúp rút ngắn đầu vào mà vẫn giữ được các phần ký tự cần thiết.' },
+}} />
+
+</MdxPage>

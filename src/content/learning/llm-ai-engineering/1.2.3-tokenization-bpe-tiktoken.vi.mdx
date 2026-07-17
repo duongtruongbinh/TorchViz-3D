@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-bpe-tiktoken',
+  locale: 'vi',
+  title: 'Huấn luyện tokenizer bằng BPE',
+  headings: ['BPE merge tokens', 'Áp dụng merge khi tokenize', 'Tokenizer và code', 'Ranh giới token', 'Hướng token-free'],
+  keywords: ['BPE', 'tokenizer training', 'merge', 'merge rank', 'corpus', 'vocabulary', 'subword', 'byte-level', 'character-level'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## BPE học vocabulary như thế nào?
+
+1. **Khởi tạo:** Bắt đầu bằng việc coi mỗi ký tự là một token riêng biệt. Trong các tokenizer hiện đại như `tiktoken`, đơn vị nhỏ nhất thực tế thường là byte để có thể biểu diễn mọi văn bản.
+2. **Tìm cặp phổ biến:** Đếm các cặp token đứng cạnh nhau trong corpus và chọn cặp xuất hiện thường xuyên nhất.
+3. **Merge và lặp lại:** Gộp cặp đó thành một token mới, thêm nó vào vocabulary, rồi đếm lại trên dãy token vừa cập nhật. Quá trình tiếp tục cho đến khi đạt kích thước vocabulary mong muốn.
+
+<TokenizerMergeTraining content={{
+  example: 'tokenizer: text to token index',
+  merges: [
+    { sourceIndexes: [0, 1, 16, 17, 19, 20], result: 'to' },
+    { sourceIndexes: [0, 2, 19, 21], result: 'tok' },
+    { sourceIndexes: [0, 3, 19, 22], result: 'toke' },
+    { sourceIndexes: [0, 4, 19, 23], result: 'token' },
+    { sourceIndexes: [12, 13], result: 'ex' },
+    { sourceIndexes: [5, 6], result: 'iz' },
+    { sourceIndexes: [7, 8], result: 'er' },
+    { sourceIndexes: [5, 7], result: 'izer' },
+    { sourceIndexes: [11, 12], result: 'tex' },
+    { sourceIndexes: [11, 14], result: 'text' },
+    { sourceIndexes: [25, 26], result: 'in' },
+    { sourceIndexes: [27, 28], result: 'de' },
+    { sourceIndexes: [25, 27], result: 'inde' },
+    { sourceIndexes: [25, 29], result: 'index' },
+  ],
+  initialTokens: ['t', 'o', 'k', 'e', 'n', 'i', 'z', 'e', 'r', ':', '␠', 't', 'e', 'x', 't', '␠', 't', 'o', '␠', 't', 'o', 'k', 'e', 'n', '␠', 'i', 'n', 'd', 'e', 'x'],
+  result: { vi: 'Kết quả cuối cùng là một bảng từ vựng (vocabulary) nơi các từ phổ biến được gộp thành một token, còn các từ hiếm được chia nhỏ, tạo ra sự cân bằng tối ưu.' },
+  playgroundUrl: 'https://gpt-tokenizer.dev/',
+}} />
+
+### Khi tokenize văn bản mới
+
+Tokenizer lưu lại các phép merge cùng **thứ tự ưu tiên (merge rank)**. Khi gặp văn bản mới, nó bắt đầu từ các đơn vị nhỏ rồi áp dụng những merge đã học theo rank. Vì nhiều merge liên tiếp có thể tạo ra một token dài, kết quả thường trông giống như “ưu tiên token dài”; tuy nhiên BPE không đơn giản là luôn chọn chuỗi dài nhất có trong vocabulary.
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tokenizer phải đọc được code
+
+<TokenizerCodeStructure content={{
+  lead: { vi: 'Với code Python, khoảng trắng đầu dòng không chỉ để trình bày. Chúng xác định khối lệnh của if, for, def và class.' },
+  code: [
+    'def greet(name):',
+    '    if name:',
+    '        print("Hello", name)',
+    '    print("Done")',
+  ],
+  challenge: {
+    title: { vi: 'Thách thức' },
+    signals: ['space × ?', 'newline?'],
+    body: { vi: 'Tokenizer cũ có thể tách hoặc gộp khoảng trắng chưa tốt. Mô hình khó phân biệt phần thân của khối code với một dòng lệnh mới.' },
+  },
+  improvement: {
+    title: { vi: 'Cải tiến' },
+    signals: ['indent', 'newline ↵', 'ký tự đặc biệt'],
+    body: { vi: 'Tokenizer hiện đại nhận diện tốt hơn khoảng trắng, xuống dòng và ký tự trong mã nguồn, giúp giữ lại cấu trúc logic của chương trình.' },
+  },
+  takeaway: { vi: 'Cải tiến tokenizer là một phần quan trọng giúp các mô hình mới như GPT-4 xử lý code chính xác hơn, không chỉ xử lý ngôn ngữ tự nhiên.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Ranh giới token không phải ranh giới ý nghĩa
+
+<TokenizerBoundaryMismatch content={{
+  lead: { vi: 'BPE học ranh giới từ thống kê của corpus. Những ranh giới đó giúp nén văn bản, nhưng không bảo đảm trùng với cách con người hiểu một con số, khái niệm hay cấu trúc chương trình.' },
+  examples: [
+    {
+      id: 'number',
+      source: '327',
+      humanLabel: { vi: 'Con người nhìn thấy' },
+      humanMeaning: { vi: 'Một số nguyên duy nhất với giá trị ba trăm hai mươi bảy.' },
+      tokenizations: [['327'], ['32', '7'], ['3', '2', '7']],
+      tokenizerMeaning: { vi: 'Cùng một số có thể tạo các dãy token ID khác nhau tùy vocabulary và merge rank.' },
+    },
+    {
+      id: 'code',
+      source: 'if ready: ↵ ␠␠␠␠run()',
+      humanLabel: { vi: 'Lập trình viên nhìn thấy' },
+      humanMeaning: { vi: 'Khoảng trắng đầu dòng xác định run() nằm bên trong khối if.' },
+      tokenizations: [['if', '␠ready', ':', '↵'], ['␠␠␠␠', 'run', '()']],
+      tokenizerMeaning: { vi: 'Whitespace, newline và ký tự cú pháp có thể bị nhóm theo thống kê thay vì vai trò logic.' },
+    },
+  ],
+  takeaway: { vi: 'Token là đơn vị nén hữu ích, không phải đơn vị ý nghĩa được bảo đảm. Ranh giới thiếu ổn định có thể làm mô hình khó khái quát chữ số, phép toán và cấu trúc code.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Xu hướng: đọc trực tiếp byte hoặc ký tự
+
+<TokenizerFreeDirection content={{
+  lead: { vi: 'Một hướng nghiên cứu là bỏ vocabulary subword cố định và để mô hình học trực tiếp từ các đơn vị nền tảng. Cách tiếp cận này giảm giả định về ranh giới token, nhưng chuyển thêm công việc vào bên trong mô hình.' },
+  subword: {
+    title: { vi: 'Tokenizer subword' },
+    sequence: ['token', 'izer'],
+    strength: { vi: 'Dãy ngắn hơn, tận dụng tốt các chuỗi thường gặp.' },
+    constraint: { vi: 'Phụ thuộc vocabulary và ranh giới đã học từ corpus.' },
+  },
+  direct: {
+    title: { vi: 'Byte / character trực tiếp' },
+    sequence: ['t', 'o', 'k', 'e', 'n', 'i', 'z', 'e', 'r'],
+    strength: { vi: 'Không cần cố định ranh giới subword; linh hoạt với ngôn ngữ, cách viết và nhiễu.' },
+    constraint: { vi: 'Dãy dài hơn nhiều, làm tăng áp lực tính toán và học biểu diễn.' },
+  },
+  takeaway: { vi: 'Token-free không loại bỏ sự đánh đổi. Nó đổi một pipeline tokenizer có vocabulary cố định lấy một mô hình phải tự học đơn vị có ý nghĩa từ chuỗi dài hơn.' },
+}} />
+
+Đọc thêm: [ByT5 — byte-to-byte models](https://aclanthology.org/2022.tacl-1.17/) và [CANINE — tokenization-free encoder](https://aclanthology.org/2022.tacl-1.5/).
+
+</MdxPage>

@@ -44,10 +44,10 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 29, next: 2, locked: 596 },
+    { available: 30, next: 2, locked: 595 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 21);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 606);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 26);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 601);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
@@ -116,13 +116,13 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('only LLM and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 606);
+  assert.equal(missingLessons.length, 601);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);
   }
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
-  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 17);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 22);
   assert.deepEqual(getReviewableLearningLessons(learningCatalog).map((lesson) => lesson.id), [
     'conv2d-shape-exercise',
     'conv2d-value-exercise',

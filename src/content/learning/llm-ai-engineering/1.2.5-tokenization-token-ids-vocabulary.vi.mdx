@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-token-ids-vocabulary',
+  locale: 'vi',
+  title: 'Token IDs và vocabulary',
+  headings: ['Vocabulary là bảng ánh xạ', 'Encode và decode', 'Token ID đi vào model'],
+  keywords: ['token ID', 'vocabulary', 'encode', 'decode', 'embedding lookup', 'output logits', 'vocabulary size'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vocabulary là bảng ánh xạ
+
+<TokenizerVocabularyLookup content={{
+  lead: { vi: 'Sau khi tokenizer được huấn luyện, vocabulary chứa toàn bộ token mà nó biết. Mỗi token được gán đúng một số nguyên gọi là token ID, để máy tính có thể tra cứu và xử lý token bằng tensor.' },
+  entries: [
+    { token: 'Tôi', id: 418, note: { vi: 'Token biểu diễn một từ.' } },
+    { token: ' học', id: 1024, note: { vi: 'Khoảng trắng có thể nằm bên trong token.' } },
+    { token: ' AI', id: 7912, note: { vi: 'Một chuỗi thường gặp có ID riêng.' } },
+    { token: '!', id: 13, note: { vi: 'Dấu câu cũng là token.' } },
+  ],
+  nonMeanings: [
+    { vi: 'Thứ hạng về mức độ quan trọng của token.' },
+    { vi: 'Tần suất token xuất hiện trong câu hiện tại.' },
+    { vi: 'Vị trí của token trong chuỗi đầu vào.' },
+    { vi: 'Một đại lượng thể hiện ý nghĩa hoặc độ giống nhau.' },
+  ],
+  takeaway: { vi: 'Token ID chỉ là một địa chỉ ổn định trong vocabulary. ID 7912 không “lớn hơn” hay “có nhiều ý nghĩa hơn” ID 418.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Encode và decode dùng cùng một vocabulary
+
+<TokenizerIdRoundTrip content={{
+  lead: { vi: 'Encode biến text thành dãy token ID để đưa vào model. Decode dùng đúng bảng ánh xạ đó theo chiều ngược lại để ghép token thành text. Hai thao tác phải thống nhất về tokenizer và vocabulary.' },
+  sourceText: 'Tôi học AI',
+  tokens: ['Tôi', ' học', ' AI'],
+  ids: [418, 1024, 7912],
+  encodeLabel: { vi: 'Encode: text → tokens → token IDs' },
+  decodeLabel: { vi: 'Decode: token IDs → tokens → text' },
+  shapeLabel: { vi: 'input_ids.shape = [3]' },
+  warning: { vi: 'Nếu ID 7912 trỏ tới ` AI` trong tokenizer A nhưng trỏ tới token khác trong tokenizer B, cùng một tensor ID sẽ được đọc thành nội dung khác.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Token ID là hợp đồng giữa tokenizer và model
+
+<TokenizerModelContract content={{
+  lead: { vi: 'Model không đọc trực tiếp chuỗi ký tự. Token ID được dùng như chỉ số để lấy một hàng trong embedding matrix. Ở đầu ra, mỗi ID lại tương ứng với đúng một vị trí logit trong vocabulary.' },
+  token: ' AI',
+  tokenId: 7912,
+  embeddingVector: [0.12, -0.34, 0.08, 0.51, -0.19],
+  vocabularySize: 50000,
+  embeddingSize: 768,
+  logits: [
+    { token: 'Tôi', id: 418, score: 1.3 },
+    { token: ' học', id: 1024, score: 2.1 },
+    { token: ' AI', id: 7912, score: 4.8 },
+    { token: '!', id: 13, score: 0.9 },
+  ],
+  embeddingNote: { vi: 'ID 7912 chọn hàng 7912 của E. Vector ở hàng này mới là biểu diễn số mà Transformer xử lý; bản thân số 7912 không chứa ý nghĩa.' },
+  outputNote: { vi: 'Output head tạo một score cho mỗi ID. Sau softmax, vị trí 7912 biểu diễn xác suất chọn lại token ` AI`.' },
+  warning: { vi: 'Đổi thứ tự hoặc kích thước vocabulary mà không đổi embedding/output weights sẽ phá vỡ ánh xạ tokenizer–model.' },
+}} />
+
+</MdxPage>

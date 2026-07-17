@@ -29,6 +29,11 @@ const expectedPageCounts: Record<string, number> = {
   'llm-scale-and-development-quiz': 3,
   'llm-data-pipeline-overview': 9,
   'llm-data-pipeline-checkpoint-quiz': 9,
+  'tokenization-why-it-matters': 2,
+  'tokenization-why-it-matters-quiz': 4,
+  'tokenization-bpe-tiktoken': 4,
+  'tokenization-bpe-tiktoken-quiz': 4,
+  'tokenization-token-ids-vocabulary': 3,
   'conv2d-shape-exercise': 1,
   'conv2d-value-exercise': 1,
   'pooling-shape-exercise': 1,
@@ -43,14 +48,27 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
   'llm-next-token-loss-quiz': ['shifted-target', 'one-hot-target', 'loss-behavior', 'manual-loss', 'why-log', 'negative-sign', 'sequence-loss'],
   'llm-scale-and-development-quiz': ['why-large', 'scale-comparison', 'popularity-factors'],
   'llm-data-pipeline-checkpoint-quiz': ['pretraining-facts', 'finetuning-facts', 'training-stage-task-match', 'transformer-main-blocks', 'encoder-input-prep-order', 'why-position-embedding', 'encoder-context', 'decoder-input-prep', 'decoder-generation-loop'],
+  'tokenization-why-it-matters-quiz': ['word-level-limitations', 'two-extremes', 'subword-benefit', 'sequence-length-cost'],
+  'tokenization-bpe-tiktoken-quiz': ['bpe-initialization', 'bpe-training-loop', 'merge-rank-inference', 'tokenization-limitations'],
 };
 
+test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => {
+  assert.deepEqual(
+    parseLearningMdxPath('src/content/learning/llm-ai-engineering/1.1.6-language-modeling-next-token.vi.mdx'),
+    { domainId: 'llm-ai-engineering', lessonId: 'language-modeling-next-token', locale: 'vi' },
+  );
+  assert.deepEqual(
+    parseLearningMdxPath('src/content/learning/cv/conv2d-shape-exercise.vi.mdx'),
+    { domainId: 'cv', lessonId: 'conv2d-shape-exercise', locale: 'vi' },
+  );
+});
+
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 21);
+  assert.equal(lessonFiles.length, 26);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 21);
+  assert.equal(documents.length, 26);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);

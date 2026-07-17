@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-bpe-tiktoken-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Khởi tạo BPE', 'Cơ chế học merge', 'Áp dụng merge rank', 'Hạn chế của tokenization'],
+  keywords: ['BPE', 'merge', 'merge rank', 'token', 'vocabulary', 'code', 'indentation', 'number tokenization', 'token-free'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="tokenization-bpe-tiktoken-quiz" questions={[
+  {
+    id: 'bpe-initialization', title: 'Bước khởi tạo', prompt: 'Trước khi học bất kỳ phép merge nào, BPE biểu diễn từ `token` như thế nào trong minh hoạ của bài?', mode: 'single',
+    options: [
+      { id: 'word-boundary', label: '`[token]` — BPE dùng khoảng trắng để coi mỗi từ là một token ban đầu.' },
+      { id: 'frequent-subwords', label: '`[tok, en]` — BPE lấy sẵn các chuỗi con phổ biến trước vòng merge đầu tiên.' },
+      { id: 'characters', label: '`[t, o, k, e, n]` — mỗi ký tự là một token ban đầu.', isCorrect: true },
+      { id: 'corpus-word-id', label: 'Nếu `token` từng xuất hiện trong corpus, BPE gán ngay một token ID riêng cho cả từ.' },
+    ],
+    success: 'Đúng. BPE bắt đầu từ các đơn vị nhỏ nhất rồi mới học cách ghép chúng. Với tokenizer byte-level, các đơn vị nền tảng tương ứng là byte thay vì ký tự Unicode hoàn chỉnh.',
+    error: 'Việc một từ xuất hiện trong corpus không khiến nó tự động thành token. Các chuỗi như `tok` hay `token` chỉ xuất hiện sau khi BPE học và áp dụng các phép merge từ đơn vị nhỏ.',
+  },
+  {
+    id: 'bpe-training-loop', title: 'Cách BPE học', prompt: 'Ở mỗi vòng huấn luyện, thao tác nào mô tả đúng cơ chế BPE?', mode: 'single',
+    options: [
+      { id: 'whole-word-frequency', label: 'Đếm tần suất của cả từ và biến từ phổ biến nhất thành một token trong một bước.' },
+      { id: 'single-pass', label: 'Gộp đồng thời mọi cặp xuất hiện lặp lại một lần, sau đó giữ nguyên dãy mới.' },
+      { id: 'semantic-pair', label: 'Chọn cặp tạo thành chuỗi con có nghĩa rõ ràng nhất, dù cặp đó hiếm trong corpus.' },
+      { id: 'count-merge-repeat', label: 'Đếm các cặp liền kề, gộp cặp phổ biến nhất, thêm token mới vào vocabulary rồi đếm lại.', isCorrect: true },
+    ],
+    success: 'Đúng. Mỗi merge thay đổi dãy token, vì vậy tần suất cặp phải được xét lại trước vòng tiếp theo.',
+    error: 'BPE xét cặp token liền kề, không gộp nguyên cả từ trong một bước và không dựa vào ý nghĩa. Sau mỗi merge, dãy đã thay đổi nên thuật toán phải đếm lại cho vòng tiếp theo.',
+  },
+  {
+    id: 'merge-rank-inference', title: 'Tokenize văn bản mới', prompt: 'Khi áp dụng tokenizer BPE đã huấn luyện lên văn bản mới, phát biểu nào chính xác nhất?', mode: 'single',
+    options: [
+      { id: 'input-frequency', label: 'Tokenizer đếm lại tần suất cặp trong từng câu mới rồi tạo một merge tạm thời cho câu đó.' },
+      { id: 'ranked-merges', label: 'Tokenizer bắt đầu từ đơn vị nhỏ và áp dụng các merge đã học theo thứ tự ưu tiên; token dài chỉ hình thành khi chuỗi merge tương ứng được áp dụng.', isCorrect: true },
+      { id: 'greedy-longest', label: 'Tokenizer luôn tìm token dài nhất trong vocabulary và chọn nó, bất kể thứ tự các merge đã học.' },
+      { id: 'contextual-split', label: 'Cùng một chuỗi ký tự được tách khác nhau theo ý nghĩa của câu, dù merge rank không đổi.' },
+    ],
+    success: 'Đúng. Merge rank quyết định ưu tiên áp dụng. Nhiều merge liên tiếp thường tạo token dài, nhưng đó không phải một quy tắc greedy “luôn chọn dài nhất”.',
+    error: 'Hãy phân biệt huấn luyện với sử dụng: vocabulary và merge rank đã cố định. Tokenizer không đếm lại tần suất, không luôn lấy token dài nhất và không đổi cách tách theo ngữ nghĩa câu.',
+  },
+  {
+    id: 'tokenization-limitations', title: 'Chọn các ý đúng', prompt: 'Những ví dụ nào cho thấy ranh giới token học từ corpus không nhất thiết trùng với cách con người hiểu dữ liệu?', mode: 'multi',
+    options: [
+      { id: 'number-boundary', label: 'Số `327` có thể thành một token hoặc nhiều token khác nhau, dù con người vẫn hiểu đó là cùng một số.', isCorrect: true },
+      { id: 'code-whitespace', label: 'Khoảng trắng và xuống dòng trong Python mang ý nghĩa cú pháp nhưng có thể bị nhóm không phù hợp nếu tokenizer học chưa tốt từ code.', isCorrect: true },
+      { id: 'fixed-vocabulary', label: 'Vocabulary cố định phản ánh thống kê corpus, không bảo đảm mỗi token là một đơn vị ngữ nghĩa hoặc toán học.', isCorrect: true },
+      { id: 'perfect-semantics', label: 'Mỗi token BPE luôn tương ứng chính xác với một khái niệm mà con người có thể giải thích.' },
+    ],
+    success: 'Đúng. Đây là lý do có nghiên cứu cho mô hình đọc trực tiếp byte hoặc ký tự: giảm phụ thuộc vào ranh giới token cố định, dù phải xử lý chuỗi dài hơn.',
+    error: 'BPE học ranh giới từ tần suất trong corpus chứ không từ khái niệm. Hãy xét cả cách một số bị chia và vai trò đặc biệt của whitespace trong code.',
+  },
+]} />

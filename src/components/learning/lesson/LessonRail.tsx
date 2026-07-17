@@ -24,7 +24,7 @@ export type LessonRailProps = {
   completedLessonIds: Set<string>;
   isFiltered: boolean;
   language: Language;
-  lessonIndexById: Map<string, number>;
+  chapterLessonIndexById: Map<string, number>;
   searchQuery: string;
   selectedLesson: LearningLesson;
   selectedFilter: LessonRailFilter;
@@ -45,7 +45,7 @@ export default function LessonRail({
   completedLessonIds,
   isFiltered,
   language,
-  lessonIndexById,
+  chapterLessonIndexById,
   searchQuery,
   selectedLesson,
   selectedFilter,
@@ -184,7 +184,7 @@ export default function LessonRail({
               {!isCollapsed ? (
                 <div className="ml-5 grid gap-0">
                   {lessons.map((lesson, lessonIndex) => {
-                    const index = lessonIndexById.get(lesson.id) ?? lessonIndex;
+                    const index = chapterLessonIndexById.get(lesson.id) ?? lessonIndex;
                     const nextLesson = lessons[lessonIndex + 1] ?? null;
                     const isCompleted = completedLessonIds.has(lesson.id);
                     const isConnectorCompleted = isCompleted && Boolean(nextLesson && completedLessonIds.has(nextLesson.id));
