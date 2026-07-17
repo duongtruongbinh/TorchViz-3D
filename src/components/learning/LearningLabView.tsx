@@ -167,6 +167,17 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     if (window.matchMedia('(max-width: 1023px)').matches) setIsSidebarOpen(false);
   };
 
+  const toggleAllChapters = useCallback(() => {
+    const allTrackIds = groupedDomainLessons.map((group) => group.track.id);
+    setCollapsedChapters((current) => {
+      const allCollapsed = allTrackIds.every((id) => current.has(id));
+      if (allCollapsed) {
+        return new Set();
+      }
+      return new Set(allTrackIds);
+    });
+  }, [groupedDomainLessons]);
+
   const toggleChapter = useCallback((trackId: string) => {
     setCollapsedChapters((current) => {
       const next = new Set(current);
@@ -224,6 +235,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     onSelectFilter: setLessonRailFilter,
     onSelectLesson: selectLesson,
     onToggleTrack: toggleChapter,
+    onToggleAllTracks: toggleAllChapters,
   } satisfies Omit<LessonRailProps, 'isRailOpen' | 'onToggleRail'>) : null;
 
   return (

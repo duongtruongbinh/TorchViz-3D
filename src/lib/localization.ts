@@ -179,6 +179,8 @@ const localizedText = {
     lessonRailCloseLabel: { en: 'Hide table of contents', vi: 'Ẩn mục lục bài học' },
     clearLessonSearch: { en: 'Clear lesson search', vi: 'Xóa tìm kiếm bài học' },
     lessonFilterEmpty: { en: 'No lessons match this filter.', vi: 'Không có bài học khớp bộ lọc.' },
+    expandAllTracks: { en: 'Expand all chapters', vi: 'Mở rộng tất cả chương' },
+    collapseAllTracks: { en: 'Collapse all chapters', vi: 'Thu gọn tất cả chương' },
     coreIdea: { en: 'Core idea', vi: 'Lý thuyết cốt lõi' },
     quizCategorizeUnsorted: { en: 'Unsorted tokens', vi: 'Token chưa phân loại' },
     quizCategorizeComplete: { en: 'All tokens have been placed.', vi: 'Tất cả token đã được kéo vào nhóm.' },

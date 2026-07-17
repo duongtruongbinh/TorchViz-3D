@@ -1,4 +1,4 @@
-import { ChevronDown, PanelLeftClose, Search, X } from 'lucide-react';
+import { ChevronDown, ListCollapse, PanelLeftClose, Search, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
 import type { LearningLesson, LearningTrack } from '../../../core/learning/types';
@@ -35,6 +35,7 @@ export type LessonRailProps = {
   onSelectFilter: (filter: LessonRailFilter) => void;
   onSelectLesson: (lessonId: string) => void;
   onToggleTrack: (trackId: string) => void;
+  onToggleAllTracks?: () => void;
 };
 
 const LESSON_RAIL_FILTERS: LessonRailFilter[] = ['all', 'ready', 'locked'];
@@ -56,6 +57,7 @@ export default function LessonRail({
   onSelectFilter,
   onSelectLesson,
   onToggleTrack,
+  onToggleAllTracks,
 }: LessonRailProps) {
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
@@ -100,6 +102,17 @@ export default function LessonRail({
                 </button>
               ) : null}
             </div>
+            {onToggleAllTracks ? (
+              <button
+                type="button"
+                onClick={onToggleAllTracks}
+                className={themeClasses.rail.railToggleButton}
+                title={collapsedTrackIds.size === groups.length ? strings.expandAllTracks : strings.collapseAllTracks}
+                aria-label={collapsedTrackIds.size === groups.length ? strings.expandAllTracks : strings.collapseAllTracks}
+              >
+                <ListCollapse className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
+              </button>
+            ) : null}
             {onToggleRail ? (
               <button
                 type="button"
