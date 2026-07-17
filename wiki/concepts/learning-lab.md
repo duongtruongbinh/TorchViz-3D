@@ -194,7 +194,9 @@ Enter. Both arrow-key handlers and the Enter handler are guarded
 (`isTypingTarget` / `data-quiz`) so they never fire while typing in inputs, in
 quiz options, or during drag interactions. After Enter submits a quiz answer, focus
 returns to the lesson panel so the arrow keys resume navigating lessons and
-section pages.
+section pages. When the lesson panel is focused on the last section with a next
+lesson, pressing Enter again completes the lesson and continues (same as the
+green `Too easy!` button).
 
 ## Invariants
 
