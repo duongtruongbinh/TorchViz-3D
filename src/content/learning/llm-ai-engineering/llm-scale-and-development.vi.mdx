@@ -1,0 +1,110 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-scale-and-development',
+  locale: 'vi',
+  title: 'Quy mô và sự phát triển của LLM',
+  headings: ['Scale', 'Scale comparison', 'Vì sao LLM phổ biến', 'Nguồn tham khảo'],
+  keywords: ['parameters', 'data', 'compute', 'scale', 'Transformer'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+  <ScaleFactors content={{
+    "title": { vi: "Tại sao gọi là Large Language Model?" },
+    "emphasis": { vi: "Large" },
+    "body": [
+      { vi: "Chữ Large chủ yếu nói về quy mô: nhiều tham số hơn, nhiều dữ liệu hơn, và quá trình train tốn nhiều compute hơn." }
+    ],
+    "bodyAfter": [
+      { vi: "Quy mô lớn, nhưng kiến thức cơ bản đều giống nhau. Trong course này, mục tiêu là hiểu rõ từng cơ chế và tự build một phiên bản nhỏ GPT-mini." }
+    ],
+    "highlights": [
+      {
+        "shortName": { vi: "Params" },
+        "fullName": { vi: "Số tham số" },
+        "description": { vi: "GPT-2 có 117M tham số; các model hiện đại có thể lên tới hàng trăm tỷ hoặc hơn." }
+      },
+      {
+        "shortName": { vi: "Data" },
+        "fullName": { vi: "Dữ liệu" },
+        "description": { vi: "Training thường cần lượng văn bản rất lớn, từ hàng chục đến hàng trăm GB hoặc hơn." }
+      },
+      {
+        "shortName": { vi: "Compute" },
+        "fullName": { vi: "Thời gian train" },
+        "description": { vi: "Một model lớn có thể train nhiều ngày hoặc nhiều tuần trên cluster GPU." }
+      }
+    ]
+  }} />
+</MdxPage>
+
+<MdxPage page={1}>
+  <ScaleComparison content={{
+    "title": { vi: "Large đến mức nào?" },
+    "emphasis": { vi: "Large" },
+    "highlights": [
+      {
+        "shortName": { vi: "2" },
+        "fullName": { vi: "Mô hình Iris" },
+        "description": { vi: "Bài toán Iris có thể đạt độ chính xác cao với một mô hình rất nhỏ." }
+      },
+      {
+        "shortName": { vi: "~100,000,000,000+" },
+        "fullName": { vi: "LLM hiện đại" },
+        "description": { vi: "LLM cần quy mô lớn để học ngôn ngữ, ngữ cảnh và tri thức phức tạp." }
+      }
+    ]
+  }} />
+</MdxPage>
+
+<MdxPage page={2}>
+  <LlmPopularity content={{
+    "title": { vi: "Vì sao LLM phổ biến đến vậy?" },
+    "body": [
+      { vi: "LLM không chỉ mạnh hơn các model NLP cũ. Điểm làm chúng phổ biến là chúng biến rất nhiều bài toán khác nhau thành một giao diện quen thuộc: nhập ngôn ngữ tự nhiên, nhận lại câu trả lời, đoạn code, bản tóm tắt, hoặc dữ liệu đã được cấu trúc." }
+    ],
+    "bodyAfter": [
+      { vi: "Vì vậy LLM vừa là một hướng nghiên cứu model, vừa là một nền tảng sản phẩm. Người học cần hiểu cơ chế bên trong để biết khi nào model thật sự phù hợp, khi nào cần dữ liệu tốt hơn, và khi nào cần thiết kế hệ thống xung quanh model." }
+    ],
+    "highlights": [
+      {
+        "shortName": { vi: "Dễ dùng" },
+        "fullName": { vi: "Ngôn ngữ tự nhiên trở thành giao diện" },
+        "description": { vi: "Người dùng không cần biết cú pháp phức tạp. Họ có thể mô tả mục tiêu bằng lời, giống như đang trao đổi với một trợ lý." }
+      },
+      {
+        "shortName": { vi: "Đa nhiệm" },
+        "fullName": { vi: "Một model có thể làm nhiều việc" },
+        "description": { vi: "Cùng một nền tảng có thể chat, tóm tắt, dịch, phân tích cảm xúc, trích xuất thông tin, viết code, hoặc hỗ trợ tìm kiếm tri thức." }
+      },
+      {
+        "shortName": { vi: "Dễ tích hợp" },
+        "fullName": { vi: "API và tooling làm tốc độ thử nghiệm rất nhanh" },
+        "description": { vi: "Doanh nghiệp có thể bắt đầu bằng API, prompt, RAG, tool calling hoặc workflow agent trước khi nghĩ tới training model riêng." }
+      },
+      {
+        "shortName": { vi: "Transformer" },
+        "fullName": { vi: "Kiến trúc giúp học ngữ cảnh dài hiệu quả hơn" },
+        "description": { vi: "Transformer thay đổi cách model xử lý chuỗi: attention cho phép mỗi token đọc các token liên quan trong context, đồng thời dễ song song hóa hơn RNN/LSTM khi train trên dữ liệu lớn." }
+      },
+      {
+        "shortName": { vi: "Big data" },
+        "fullName": { vi: "Internet tạo ra nguồn text khổng lồ để pretrain" },
+        "description": { vi: "Web text, sách, code, tài liệu và dữ liệu hội thoại giúp model học nhiều pattern ngôn ngữ, kiến thức phổ thông, style viết và cấu trúc task khác nhau." }
+      },
+      {
+        "shortName": { vi: "GPU/Compute" },
+        "fullName": { vi: "Phần cứng làm scale trở nên khả thi" },
+        "description": { vi: "GPU/TPU và hạ tầng distributed training cho phép train model nhiều tham số trên batch lớn trong thời gian chấp nhận được, biến ý tưởng scale thành sản phẩm thực tế." }
+      }
+    ]
+  }} />
+</MdxPage>
+
+<MdxPage page={3}>
+## Nguồn tham khảo chính
+
+- [Repo: Building-LLMs-from-scratch](https://github.com/codewithdark-git/Building-LLMs-from-scratch)
+- [Sách: Build a Large Language Model (From Scratch), Sebastian Raschka](https://www.manning.com/books/build-a-large-language-model-from-scratch)
+- [Stanford CS229: Building Large Language Models (LLMs)](https://www.youtube.com/watch?v=9vM4p9NN0Ts)
+</MdxPage>

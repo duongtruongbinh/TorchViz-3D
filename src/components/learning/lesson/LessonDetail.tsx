@@ -34,6 +34,7 @@ export default function LessonDetail({
   useEffect(() => {
     setSectionPageIndex(0);
     setQuizQuestionStates({});
+    articleRef.current?.focus({ preventScroll: true });
   }, [lesson.id]);
 
   const updateQuizQuestionState = useCallback((questionId: string, state: QuizQuestionState) => {
@@ -94,7 +95,15 @@ export default function LessonDetail({
   }, [canGoBack, canGoNext, sectionPages.length]);
 
   return (
-    <article ref={articleRef} tabIndex={-1} className={cx('grid min-w-0 overflow-hidden border shadow-sm focus:outline-none', themeClasses.radius.panel, themeClasses.surface.card)}>
+    <article ref={articleRef} tabIndex={-1} className={cx('grid min-w-0 overflow-hidden border shadow-sm focus:outline-none', themeClasses.radius.panel, themeClasses.surface.card)}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' || !canCompleteLesson) return;
+        if (event.target !== event.currentTarget) return;
+        if (isTypingTarget(event.target)) return;
+        event.preventDefault();
+        onSelectNextLesson?.();
+      }}
+    >
       <header className={cx('border-b px-5 py-5 md:px-6', sectionDivider)}>
         <h2 className={cx('learning-lab-lesson-title text-2xl font-black leading-tight', themeClasses.lessonTitleText)}>{lessonText.title}</h2>
       </header>

@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-14
+updated: 2026-07-15
 ---
 
 # Learning Lab
@@ -19,8 +19,8 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 81 tracks, and 615 lesson nodes. Nine
-Vietnamese-first lessons have authored content: five in `llm-ai-engineering`
+The catalog contains 12 domains, 81 tracks, and 627 lesson nodes. Twenty-one
+Vietnamese-first lessons have authored content: seventeen in `llm-ai-engineering`
 and four tagged exercise lessons in `cv`. The other 606 nodes are navigable
 placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
@@ -30,8 +30,20 @@ The authored LLM lessons are:
 1. `minimal-llm-project-skeleton`
 2. `llm-from-scratch-roadmap`
 3. `llm-component-checkpoint-quiz`
-4. `llm-data-pipeline-overview`
-5. `llm-data-pipeline-checkpoint-quiz`
+4. `llm-system-components`
+5. `llm-system-components-quiz`
+6. `language-modeling-next-token`
+7. `language-modeling-next-token-quiz`
+8. `ar-language-model-inference-pipeline`
+9. `ar-language-model-inference-pipeline-quiz`
+10. `llm-output-head-and-loss`
+11. `llm-output-head-and-loss-quiz`
+12. `llm-next-token-loss`
+13. `llm-next-token-loss-quiz`
+14. `llm-scale-and-development`
+15. `llm-scale-and-development-quiz`
+16. `llm-data-pipeline-overview`
+17. `llm-data-pipeline-checkpoint-quiz`
 
 Their authored prose, paging data, quizzes, references, and structured visual
 inputs live in locale-specific MDX. LLM-specific visual and stateful components
@@ -182,7 +194,9 @@ Enter. Both arrow-key handlers and the Enter handler are guarded
 (`isTypingTarget` / `data-quiz`) so they never fire while typing in inputs, in
 quiz options, or during drag interactions. After Enter submits a quiz answer, focus
 returns to the lesson panel so the arrow keys resume navigating lessons and
-section pages.
+section pages. When the lesson panel is focused on the last section with a next
+lesson, pressing Enter again completes the lesson and continues (same as the
+green `Too easy!` button).
 
 ## Invariants
 
@@ -198,7 +212,7 @@ section pages.
   there is no parallel review or practice content record.
 - Workspace exercise handoff resolves a React-free catalog entry point and opens
   the canonical lesson route without a practice query or duplicated fixture.
-- The five LLM lessons retain their routes, paging, quiz state/reset, locale
+- The seventeen LLM lessons retain their routes, paging, quiz state/reset, locale
   fallback, authored search text, and light/dark behavior.
 - Learning Lab changes must not reset Workspace editor/canvas state.
 
