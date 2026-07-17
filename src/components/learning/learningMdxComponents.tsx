@@ -96,7 +96,11 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
       </div>
       <div className="grid content-start gap-3 p-4">
         <div><h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{name}</h3><p className={cx('mt-0.5 text-sm font-semibold leading-6', themeClasses.mutedText)}>{role}</p></div>
-        <div className={cx('grid gap-2 text-sm leading-6 [&_a]:font-black [&_a]:text-[#205089] [&_code]:block [&_code]:overflow-x-auto [&_code]:rounded-lg [&_code]:bg-[#0B1220] [&_code]:px-3 [&_code]:py-2 [&_code]:text-xs [&_code]:text-[#E5EEF8]', themeClasses.bodyText)}>{children}</div>
+        {/* `[&_p]:min-w-0` overrides the default `min-width: auto` of grid items
+            so `<p>` can shrink below the intrinsic width of long inline code (e.g. URLs).
+            `[&_code]:break-words` then lets that code wrap mid-word to fit the card.
+            Without both, a long URL forces the grid column — and the card — wider. */}
+        <div className={cx('grid gap-2 text-sm leading-6 [&_a]:font-black [&_a]:text-[#205089] [&_p]:min-w-0 [&_code]:block [&_code]:break-words [&_code]:rounded-lg [&_code]:bg-[#0B1220] [&_code]:px-3 [&_code]:py-2 [&_code]:text-xs [&_code]:text-[#E5EEF8]', themeClasses.bodyText)}>{children}</div>
       </div>
     </section>
   );
