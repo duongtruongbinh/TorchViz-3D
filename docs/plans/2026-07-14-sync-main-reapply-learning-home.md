@@ -3,7 +3,7 @@ title: Sync Main and Reapply Learning Home
 status: done
 created: 2026-07-14T12:55:00+07:00
 updated: 2026-07-14T12:58:34+07:00
-author: dtbinh
+author: duongtruongbinh
 task: "Pull the latest main refactor and preserve or reapply the approved Learning Home card changes."
 supersedes:
   - docs/plans/2026-07-14-learning-home-course-card-grid.md

@@ -13,7 +13,6 @@ import { collectDemoStopNodes } from '../mnist-demo/demoStops';
 import { useHoverHold, HoverPanelHtml } from './HoverPanels';
 import {
   ERROR_COLOR,
-  EDGE_COLOR_STD,
   EDGE_EDGES_OPAQUE,
   EDGE_EDGES_GLASS,
   TEXT_BASE_PROPS,
@@ -271,9 +270,6 @@ const ActivationBlock: React.FC<{ w: number; h: number; d: number; color: string
     <RoundedBox args={[w, h, d]} radius={0.01} smoothness={2}>
       <meshPhysicalMaterial color={color} metalness={0.1} roughness={0.2} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.4 : 0.15} transmission={0.2} thickness={0.5} />
     </RoundedBox>
-    <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
-      <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
-    </Edges>
   </group>
 ));
 
@@ -284,9 +280,6 @@ const DiamondBlock: React.FC<{ w: number; h: number; d: number; color: string; i
       <RoundedBox args={[w, h, d]} radius={0.02} smoothness={2}>
         <meshPhysicalMaterial color={color} metalness={0.05} roughness={0.5} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0} />
       </RoundedBox>
-      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
-        <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
-      </Edges>
       <group position={[w / 2 + 0.01, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
         <mesh>
           <boxGeometry args={[plusSize * 2, plusSize * 0.4, 0.02]} />
@@ -315,9 +308,6 @@ const AttentionBlock: React.FC<{ w: number; h: number; d: number; color: string;
           <meshBasicMaterial color="#ffffff" transparent opacity={0.25} />
         </mesh>
       ))}
-      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
-        <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
-      </Edges>
     </group>
   );
 });
@@ -338,9 +328,6 @@ const UpsampleBlock: React.FC<{ w: number; h: number; d: number; color: string; 
       <RoundedBox args={[w, h, d]} radius={0.015} smoothness={2}>
         <meshPhysicalMaterial color={color} metalness={0.05} roughness={0.5} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0} />
       </RoundedBox>
-      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
-        <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
-      </Edges>
       <group position={[w / 2 + 0.01, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
         <mesh geometry={geo} position={[0, arrowSize, 0]}>
           <meshBasicMaterial color="#ffffff" transparent opacity={0.6} side={THREE.DoubleSide} />
@@ -358,9 +345,6 @@ const TransformBlock: React.FC<{ w: number; h: number; d: number; color: string;
     <RoundedBox args={[w, h, d]} radius={0.005} smoothness={1}>
       <meshPhysicalMaterial color={color} metalness={0.05} roughness={0.5} emissive={hasError ? ERROR_COLOR : color} emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0} />
     </RoundedBox>
-    <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
-      <lineBasicMaterial transparent opacity={isActive ? 0.9 : 0.4} />
-    </Edges>
   </group>
 ));
 
@@ -387,9 +371,6 @@ export const KindShape: React.FC<{
           emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0.0}
         />
       </RoundedBox>
-      <Edges threshold={15} color={isActive ? '#ffffff' : hasError ? ERROR_COLOR : EDGE_COLOR_STD} scale={1.001} renderOrder={1}>
-        <lineBasicMaterial transparent opacity={isActive ? 0.9 : hasError ? 0.6 : 0.4} />
-      </Edges>
     </>
   );
 });

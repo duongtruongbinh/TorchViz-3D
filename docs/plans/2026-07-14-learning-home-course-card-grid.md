@@ -3,7 +3,7 @@ title: Learning Home Course Card Grid
 status: done
 created: 2026-07-14T00:00:00+07:00
 updated: 2026-07-14T12:54:00+07:00
-author: dtbinh
+author: duongtruongbinh
 task: "Rút gọn phần mục lục Learning Home và đổi catalog domain thành lưới thẻ dọc có nhận diện riêng."
 supersedes:
   - docs/plans/2026-07-12-learning-lab-ui-ux-polish.md

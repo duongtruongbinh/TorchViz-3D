@@ -2,7 +2,7 @@
 title: Forward-pass animation
 type: Subsystem
 source: src/components/mnist-demo/*, src/components/operation-effects/*, src/lib/mnistCompatibility.ts
-updated: 2026-06-21
+updated: 2026-07-19
 ---
 
 # Forward-pass animation
@@ -16,6 +16,11 @@ softmax…) for each stop. Play/pause/step/speed controls live in `DemoControls`
 
 It runs **entirely off the existing `LayoutData`** — it does no tensor math
 (consistent with [torchstub](torchstub.md)); the per-op effects are illustrative.
+Block-to-block routes reuse layout edges or synthesize face-to-face edges when a
+nested pair has no direct layout edge. The first moving data packet follows the
+same endpoint rule and stops at the first block's rendered input face, not its
+center. The input image has no persistent dashed connector, so that path only
+appears as data motion while the pass is progressing.
 
 ## Key files
 
