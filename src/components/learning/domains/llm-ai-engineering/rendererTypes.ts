@@ -1,4 +1,20 @@
 import type { LearningLocalizedText } from '../../../../core/learning/types';
+import type { Language } from '../../../../lib/localization';
+import type { getLearningLabTheme } from '../../theme';
+
+export type LlmRendererTheme = ReturnType<typeof getLearningLabTheme>;
+
+export type LlmContentRendererProps<TContent> = {
+  content: TContent;
+  language: Language;
+  themeClasses: LlmRendererTheme;
+};
+
+export type LlmExtraRendererProps<TExtra> = {
+  extra: TExtra;
+  language: Language;
+  themeClasses: LlmRendererTheme;
+};
 
 export type LlmTrainingComponentsContent = {
   title: LearningLocalizedText;

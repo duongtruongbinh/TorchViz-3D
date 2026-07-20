@@ -1,13 +1,17 @@
-import { ArrowDown, ArrowRight, ChevronLeft, ChevronRight, Pause, Play, RotateCcw } from 'lucide-react';
+import { ArrowDown, ArrowRight } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import type { Language } from '../../../../lib/localization';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
+import { DiagramConnectorLayer, getDiagramAnchor, observeDiagramLayout, ProbabilityCurveChart } from './diagramPrimitives';
+import { StepPlaybackControls } from './rendererPrimitives';
+import { getLlmRendererTheme } from './rendererTheme';
 import type {
   LlmArInferencePipelineContent,
   LlmAutoregressiveDefinitionContent,
+  LlmContentRendererProps,
   LlmLossDerivationContent,
   LlmLossHandCalculationContent,
   LlmNextTokenLossContent,
@@ -17,11 +21,7 @@ import type {
   LlmVocabularyOutputVectorContent,
 } from './rendererTypes';
 
-export function LlmProbabilityDefinition({ content, language, themeClasses }: {
-  content: LlmProbabilityDefinitionContent;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
+export function LlmProbabilityDefinition({ content, language, themeClasses }: LlmContentRendererProps<LlmProbabilityDefinitionContent>) {
   const renderedFormula = katex.renderToString(content.formula, { displayMode: true, throwOnError: false });
 
   return (
@@ -45,11 +45,7 @@ export function LlmProbabilityDefinition({ content, language, themeClasses }: {
   );
 }
 
-export function LlmAutoregressiveDefinition({ content, language, themeClasses }: {
-  content: LlmAutoregressiveDefinitionContent;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
+export function LlmAutoregressiveDefinition({ content, language, themeClasses }: LlmContentRendererProps<LlmAutoregressiveDefinitionContent>) {
   const renderedFormula = katex.renderToString(content.formula, { displayMode: true, throwOnError: false });
 
   return (
@@ -81,6 +77,7 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
+  const llmTheme = getLlmRendererTheme(themeClasses);
   const activeStep = Math.min(Math.max(step, 0), content.steps.length - 1);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const tokenizerRef = useRef<HTMLDivElement | null>(null);
@@ -106,63 +103,32 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
     const [tokenizer, tokenIds, model, distribution, _sample, detokenize, container, inputEl] = elements as HTMLDivElement[];
     const updateConnectors = () => {
       const canvasRect = canvas.getBoundingClientRect();
-      /* Raw edge X positions across the flow */
-      const elEdge = (el: HTMLDivElement, side: 'left' | 'right') => {
-        const rect = el.getBoundingClientRect();
-        return (side === 'left' ? rect.left : rect.right) - canvasRect.left;
-      };
-      const elCenterY = (el: HTMLDivElement) => {
-        const rect = el.getBoundingClientRect();
-        return rect.top + rect.height / 2 - canvasRect.top;
-      };
-      const elTop = (el: HTMLDivElement) => el.getBoundingClientRect().top - canvasRect.top;
-      const elBottom = (el: HTMLDivElement) => el.getBoundingClientRect().bottom - canvasRect.top;
-      const elCenterX = (el: HTMLDivElement) => {
-        const rect = el.getBoundingClientRect();
-        return rect.left + rect.width / 2 - canvasRect.left;
-      };
-
-      const tokenizerR = elEdge(tokenizer, 'right');
-      const tokenIdsL = elEdge(tokenIds, 'left');
-      const tokenIdsR = elEdge(tokenIds, 'right');
-      const modelL = elEdge(model, 'left');
-      const modelR = elEdge(model, 'right');
-      const modelCY = elCenterY(model);
-      const distributionL = elEdge(distribution, 'left');
-      const distributionB = elBottom(distribution);
-      const containerT = elTop(container);
-      const containerB = elBottom(container);
-      const containerCX = elCenterX(container);
-      const detokenizeCX = elCenterX(detokenize);
-      const inputCX = elCenterX(inputEl);
-      const inputB = elBottom(inputEl);
+      const tokenizerAnchor = getDiagramAnchor(tokenizer, canvasRect);
+      const tokenIdsAnchor = getDiagramAnchor(tokenIds, canvasRect);
+      const modelAnchor = getDiagramAnchor(model, canvasRect);
+      const distributionAnchor = getDiagramAnchor(distribution, canvasRect);
+      const containerAnchor = getDiagramAnchor(container, canvasRect);
+      const detokenizeAnchor = getDiagramAnchor(detokenize, canvasRect);
+      const inputAnchor = getDiagramAnchor(inputEl, canvasRect);
 
       /* All horizontal connectors run at the common center Y */
-      const flowY = modelCY;
+      const flowY = modelAnchor.centerY;
 
       setConnectorPaths([
         /* 0: Tokenizer → Token IDs (straight horizontal) */
-        `M ${tokenizerR} ${flowY} H ${tokenIdsL}`,
+        `M ${tokenizerAnchor.right} ${flowY} H ${tokenIdsAnchor.left}`,
         /* 1: Token IDs → Model (straight horizontal) */
-        `M ${tokenIdsR} ${flowY} H ${modelL}`,
+        `M ${tokenIdsAnchor.right} ${flowY} H ${modelAnchor.left}`,
         /* 2: Model → Distribution (straight horizontal) */
-        `M ${modelR} ${flowY} H ${distributionL}`,
+        `M ${modelAnchor.right} ${flowY} H ${distributionAnchor.left}`,
         /* 3: Distribution → Container (vertical down, center-aligned) */
-        `M ${containerCX} ${distributionB} V ${containerT}`,
+        `M ${containerAnchor.centerX} ${distributionAnchor.bottom} V ${containerAnchor.top}`,
         /* 4: Autoregressive feedback loop: container bottom → input bottom */
-        `M ${detokenizeCX} ${containerB} Q ${(detokenizeCX + inputCX) / 2} ${containerB + 48}, ${inputCX} ${inputB}`,
+        `M ${detokenizeAnchor.centerX} ${containerAnchor.bottom} Q ${(detokenizeAnchor.centerX + inputAnchor.centerX) / 2} ${containerAnchor.bottom + 48}, ${inputAnchor.centerX} ${inputAnchor.bottom}`,
       ]);
     };
 
-    const frameId = window.requestAnimationFrame(updateConnectors);
-    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateConnectors);
-    [canvas, ...elements].forEach((element) => element && observer?.observe(element));
-    window.addEventListener('resize', updateConnectors);
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      observer?.disconnect();
-      window.removeEventListener('resize', updateConnectors);
-    };
+    return observeDiagramLayout(canvas, elements as HTMLDivElement[], updateConnectors);
   }, []);
 
   return (
@@ -174,31 +140,14 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
 
       <div className="overflow-x-auto pb-2" aria-live="polite">
         <div ref={canvasRef} className="relative h-[30rem] w-full min-w-[64rem] overflow-hidden rounded-xl bg-gradient-to-br from-transparent to-[#205089]/[0.025]">
-          <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-            <defs>
-              <marker id="ar-pipeline-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill={themeClasses.isLight ? '#205089' : '#A8B8C8'} />
-              </marker>
-              <marker id="ar-loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill={themeClasses.isLight ? '#205089' : '#A8B8C8'} />
-              </marker>
-            </defs>
-            {connectorPaths.map((path, index) => {
+          <DiagramConnectorLayer
+            color={llmTheme.connector}
+            markerId="ar-pipeline-arrow"
+            paths={connectorPaths.map((d, index) => {
               const isLoop = index === connectorPaths.length - 1;
-              return (
-                <path
-                  key={path}
-                  d={path}
-                  fill="none"
-                  stroke={themeClasses.isLight ? '#205089' : '#A8B8C8'}
-                  strokeWidth={isLoop ? 1.5 : 2}
-                  strokeDasharray={isLoop ? '5 4' : 'none'}
-                  markerEnd={isLoop ? 'url(#ar-loop-arrow)' : 'url(#ar-pipeline-arrow)'}
-                  className={cx('transition-opacity duration-200', isLoop ? connectorTone(4) : connectorTone(index))}
-                />
-              );
+              return { className: cx('transition-opacity duration-200', isLoop ? connectorTone(4) : connectorTone(index)), d, strokeDasharray: isLoop ? '5 4' : undefined, strokeWidth: isLoop ? 1.5 : 2 };
             })}
-          </svg>
+          />
 
           <div ref={inputRef} className={cx('absolute left-7 top-[16rem] grid w-[13.5rem] justify-items-center gap-2', stageTone(0))}>
             <ArrowDown className={cx('h-4 w-4 rotate-180', themeClasses.mutedText)} strokeWidth={1.6} aria-hidden="true" />
@@ -283,11 +232,7 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
   );
 }
 
-export function LlmVocabularyOutputVector({ content, language, themeClasses }: {
-  content: LlmVocabularyOutputVectorContent;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
+export function LlmVocabularyOutputVector({ content, language, themeClasses }: LlmContentRendererProps<LlmVocabularyOutputVectorContent>) {
   return (
     <section className="grid gap-5">
       <div className="grid gap-2">
@@ -336,6 +281,7 @@ export function LlmOutputProjection({ content, focus = 'overview', language, the
   language: Language;
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
+  const llmTheme = getLlmRendererTheme(themeClasses);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const neuralNetworkRef = useRef<HTMLDivElement | null>(null);
   const contextVectorRef = useRef<HTMLDivElement | null>(null);
@@ -356,44 +302,26 @@ export function LlmOutputProjection({ content, focus = 'overview', language, the
     const [neuralNetwork, contextVector, linearLayer, logits, distribution] = elements as HTMLDivElement[];
     const updateConnectors = () => {
       const canvasRect = canvas.getBoundingClientRect();
-      const anchor = (element: HTMLDivElement, side: 'left' | 'right') => {
-        const rect = element.getBoundingClientRect();
-        return {
-          x: (side === 'left' ? rect.left : rect.right) - canvasRect.left,
-          y: rect.top + rect.height / 2 - canvasRect.top,
-        };
-      };
-      const networkOut = anchor(neuralNetwork, 'right');
-      const contextIn = anchor(contextVector, 'left');
-      const contextOut = anchor(contextVector, 'right');
-      const linearIn = anchor(linearLayer, 'left');
-      const linearOut = anchor(linearLayer, 'right');
-      const logitsIn = anchor(logits, 'left');
-      const logitsOut = anchor(logits, 'right');
-      const distributionIn = anchor(distribution, 'left');
-      const elbowX = contextOut.x + Math.max(28, (linearIn.x - contextOut.x) * 0.42);
+      const networkAnchor = getDiagramAnchor(neuralNetwork, canvasRect);
+      const contextAnchor = getDiagramAnchor(contextVector, canvasRect);
+      const linearAnchor = getDiagramAnchor(linearLayer, canvasRect);
+      const logitsAnchor = getDiagramAnchor(logits, canvasRect);
+      const distributionAnchor = getDiagramAnchor(distribution, canvasRect);
+      const elbowX = contextAnchor.right + Math.max(28, (linearAnchor.left - contextAnchor.right) * 0.42);
 
       setConnectorPaths([
-        `M ${networkOut.x} ${networkOut.y} H ${contextIn.x}`,
-        `M ${contextOut.x} ${contextOut.y} H ${elbowX} V ${linearIn.y} H ${linearIn.x}`,
-        `M ${linearOut.x} ${linearOut.y} H ${logitsIn.x}`,
-        `M ${logitsOut.x} ${logitsOut.y} H ${distributionIn.x}`,
+        `M ${networkAnchor.right} ${networkAnchor.centerY} H ${contextAnchor.left}`,
+        `M ${contextAnchor.right} ${contextAnchor.centerY} H ${elbowX} V ${linearAnchor.centerY} H ${linearAnchor.left}`,
+        `M ${linearAnchor.right} ${linearAnchor.centerY} H ${logitsAnchor.left}`,
+        `M ${logitsAnchor.right} ${logitsAnchor.centerY} H ${distributionAnchor.left}`,
       ]);
       setSoftmaxPosition({
-        x: logitsOut.x + (distributionIn.x - logitsOut.x) / 2,
-        y: logitsOut.y - 28,
+        x: logitsAnchor.right + (distributionAnchor.left - logitsAnchor.right) / 2,
+        y: logitsAnchor.centerY - 28,
       });
     };
 
-    const frameId = window.requestAnimationFrame(updateConnectors);
-    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateConnectors);
-    [canvas, ...elements].forEach((element) => element && observer?.observe(element));
-    window.addEventListener('resize', updateConnectors);
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      observer?.disconnect();
-      window.removeEventListener('resize', updateConnectors);
-    };
+    return observeDiagramLayout(canvas, elements as HTMLDivElement[], updateConnectors);
   }, []);
 
   return (
@@ -407,14 +335,11 @@ export function LlmOutputProjection({ content, focus = 'overview', language, the
       </div>
       <div className="overflow-x-auto pb-2">
         <div ref={canvasRef} className="relative h-[30rem] w-full min-w-[64rem] overflow-hidden rounded-xl bg-gradient-to-br from-transparent to-[#205089]/[0.025]">
-          <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-            <defs>
-              <marker id="projection-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill={themeClasses.isLight ? '#205089' : '#A8B8C8'} />
-              </marker>
-            </defs>
-            {connectorPaths.map((path, index) => <path key={index} d={path} fill="none" stroke={themeClasses.isLight ? '#205089' : '#A8B8C8'} strokeWidth="2" markerEnd="url(#projection-arrow)" className={cx('transition-opacity duration-200', isFocused(connectorFocuses[index]) ? 'opacity-100' : 'opacity-15')} />)}
-          </svg>
+          <DiagramConnectorLayer
+            color={llmTheme.connector}
+            markerId="projection-arrow"
+            paths={connectorPaths.map((d, index) => ({ className: cx('transition-opacity duration-200', isFocused(connectorFocuses[index]) ? 'opacity-100' : 'opacity-15'), d }))}
+          />
 
           <div className={cx('absolute left-5 top-[15.15rem] w-[13.5rem] transition-[filter,opacity] duration-200', focusTone('context-input', 'context-vector'))}>
             <div ref={neuralNetworkRef} className={cx('rounded-xl px-4 py-6 text-center text-lg font-black', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/55 text-[#F7DDF1]')}>Neural network</div>
@@ -538,15 +463,24 @@ export function LlmNextTokenLoss({ content, position = 0, animated = false, lang
           <div className={cx('text-sm font-black tabular-nums', themeClasses.mutedText)}>
             Token {activePosition + 1}/{content.sequence.length} · {isUpdatePhase ? (language === 'vi' ? 'Cập nhật' : 'Update') : (language === 'vi' ? 'Dự đoán' : 'Predict')}
           </div>
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={() => { setIsPlaying(false); setAnimationStep((current) => Math.max(0, current - 1)); }} disabled={animationStep === 0} className={cx('grid h-9 w-9 place-items-center rounded-lg disabled:opacity-30', themeClasses.isLight ? 'bg-[#EEF2F6] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')} aria-label={language === 'vi' ? 'Bước trước' : 'Previous step'}><ChevronLeft className="h-4 w-4" aria-hidden="true" /></button>
-            <button type="button" onClick={() => setIsPlaying((playing) => !playing)} disabled={!isPlaying && animationStep === totalAnimationSteps - 1} className={cx('flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-black disabled:opacity-30', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')}>
-              {isPlaying ? <Pause className="h-4 w-4" aria-hidden="true" /> : <Play className="h-4 w-4" aria-hidden="true" />}
-              {isPlaying ? (language === 'vi' ? 'Tạm dừng' : 'Pause') : (language === 'vi' ? 'Phát' : 'Play')}
-            </button>
-            <button type="button" onClick={() => { setIsPlaying(false); setAnimationStep((current) => Math.min(totalAnimationSteps - 1, current + 1)); }} disabled={animationStep === totalAnimationSteps - 1} className={cx('grid h-9 w-9 place-items-center rounded-lg disabled:opacity-30', themeClasses.isLight ? 'bg-[#EEF2F6] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')} aria-label={language === 'vi' ? 'Bước tiếp theo' : 'Next step'}><ChevronRight className="h-4 w-4" aria-hidden="true" /></button>
-            <button type="button" onClick={() => { setAnimationStep(0); setIsPlaying(true); }} className={cx('grid h-9 w-9 place-items-center rounded-lg', themeClasses.isLight ? 'bg-[#EEF2F6] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')} aria-label={language === 'vi' ? 'Phát lại' : 'Replay'}><RotateCcw className="h-4 w-4" aria-hidden="true" /></button>
-          </div>
+          <StepPlaybackControls
+            isPlaying={isPlaying}
+            labels={{
+              next: language === 'vi' ? 'Bước tiếp theo' : 'Next step',
+              pause: language === 'vi' ? 'Tạm dừng' : 'Pause',
+              play: language === 'vi' ? 'Phát' : 'Play',
+              previous: language === 'vi' ? 'Bước trước' : 'Previous step',
+              reset: language === 'vi' ? 'Phát lại' : 'Replay',
+            }}
+            nextDisabled={animationStep === totalAnimationSteps - 1}
+            onNext={() => { setIsPlaying(false); setAnimationStep((current) => Math.min(totalAnimationSteps - 1, current + 1)); }}
+            onPrevious={() => { setIsPlaying(false); setAnimationStep((current) => Math.max(0, current - 1)); }}
+            onReset={() => { setAnimationStep(0); setIsPlaying(true); }}
+            onTogglePlay={() => setIsPlaying((playing) => !playing)}
+            playDisabled={!isPlaying && animationStep === totalAnimationSteps - 1}
+            previousDisabled={animationStep === 0}
+            themeClasses={themeClasses}
+          />
         </div>
       ) : null}
       <div className={cx('grid justify-items-center rounded-xl px-5 pb-5 pt-20', themeClasses.isLight ? 'bg-[#F8FAFC]' : 'bg-[#121A24]/36')}>
@@ -620,11 +554,7 @@ export function LlmNextTokenLoss({ content, position = 0, animated = false, lang
   );
 }
 
-export function LlmLossHandCalculation({ content, language, themeClasses }: {
-  content: LlmLossHandCalculationContent;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
+export function LlmLossHandCalculation({ content, language, themeClasses }: LlmContentRendererProps<LlmLossHandCalculationContent>) {
   const [probability, setProbability] = useState(0.5);
   const loss = -Math.log(probability);
   const examples = [0.1, 0.5, 0.9];
@@ -649,9 +579,6 @@ export function LlmLossHandCalculation({ content, language, themeClasses }: {
     const y = 16 + (-Math.log(p) / maxCurveLoss) * 72;
     return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
   }).join(' ');
-  const pointX = 12 + probability * 82;
-  const pointY = 88 - (loss / maxCurveLoss) * 72;
-  const logPointY = 16 + (loss / maxCurveLoss) * 72;
 
   return (
     <section className="grid gap-5">
@@ -699,37 +626,8 @@ export function LlmLossHandCalculation({ content, language, themeClasses }: {
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <figure className="grid gap-2">
-              <div className={cx('text-sm font-black', themeClasses.titleText)}>Đường cong ln(p)</div>
-              <svg viewBox="0 0 100 100" className="h-52 w-full" role="img" aria-label="Đồ thị logarit tự nhiên theo xác suất của token đúng">
-                <path d="M 12 88 V 16 H 96" fill="none" stroke={themeClasses.isLight ? '#8A949E' : '#74859A'} strokeWidth="1" />
-                {[0, 1, 2, 3, 4].map((tick) => {
-                  const tickY = 16 + (tick / maxCurveLoss) * 72;
-                  return <g key={tick}><line x1="10" y1={tickY} x2="12" y2={tickY} stroke={themeClasses.isLight ? '#8A949E' : '#74859A'} strokeWidth="0.8" /><text x="8" y={tickY + 1.7} textAnchor="end" fontSize="4.5" fill={themeClasses.isLight ? '#59636E' : '#A8B8C8'}>{tick === 0 ? '0' : `−${tick}`}</text></g>;
-                })}
-                <path d={logCurvePath} fill="none" stroke={themeClasses.isLight ? '#8D436F' : '#D58AB5'} strokeWidth="2" />
-                <line x1={pointX} y1="16" x2={pointX} y2={logPointY} stroke={themeClasses.isLight ? '#5BAA12' : '#A8DB78'} strokeWidth="1" strokeDasharray="2 2" />
-                <circle cx={pointX} cy={logPointY} r="2.6" fill={themeClasses.isLight ? '#5BAA12' : '#A8DB78'} />
-                <text x="96" y="13" textAnchor="end" fontSize="5" fill={themeClasses.isLight ? '#59636E' : '#A8B8C8'}>p đúng → 1</text>
-                <text x="5" y="12" textAnchor="middle" fontSize="5" fill={themeClasses.isLight ? '#59636E' : '#A8B8C8'} transform="rotate(-90 5 12)">ln(p)</text>
-              </svg>
-            </figure>
-
-            <figure className="grid gap-2">
-              <div className={cx('text-sm font-black', themeClasses.titleText)}>Đường cong −ln(p)</div>
-              <svg viewBox="0 0 100 100" className="h-52 w-full" role="img" aria-label="Đồ thị loss âm logarit theo xác suất của token đúng">
-                <path d="M 12 10 V 88 H 96" fill="none" stroke={themeClasses.isLight ? '#8A949E' : '#74859A'} strokeWidth="1" />
-                {[0, 1, 2, 3, 4].map((tick) => {
-                  const tickY = 88 - (tick / maxCurveLoss) * 72;
-                  return <g key={tick}><line x1="10" y1={tickY} x2="12" y2={tickY} stroke={themeClasses.isLight ? '#8A949E' : '#74859A'} strokeWidth="0.8" /><text x="8" y={tickY + 1.7} textAnchor="end" fontSize="4.5" fill={themeClasses.isLight ? '#59636E' : '#A8B8C8'}>{tick}</text></g>;
-                })}
-                <path d={curvePath} fill="none" stroke={themeClasses.isLight ? '#205089' : '#A8B8C8'} strokeWidth="2" />
-                <line x1={pointX} y1={pointY} x2={pointX} y2="88" stroke={themeClasses.isLight ? '#5BAA12' : '#A8DB78'} strokeWidth="1" strokeDasharray="2 2" />
-                <circle cx={pointX} cy={pointY} r="2.6" fill={themeClasses.isLight ? '#5BAA12' : '#A8DB78'} />
-                <text x="96" y="96" textAnchor="end" fontSize="5" fill={themeClasses.isLight ? '#59636E' : '#A8B8C8'}>p đúng → 1</text>
-                <text x="5" y="12" textAnchor="middle" fontSize="5" fill={themeClasses.isLight ? '#59636E' : '#A8B8C8'} transform="rotate(-90 5 12)">loss</text>
-              </svg>
-            </figure>
+            <ProbabilityCurveChart ariaLabel="Đồ thị logarit tự nhiên theo xác suất của token đúng" curvePath={logCurvePath} maxValue={maxCurveLoss} mode="log" probability={probability} themeClasses={themeClasses} title="Đường cong ln(p)" value={loss} />
+            <ProbabilityCurveChart ariaLabel="Đồ thị loss âm logarit theo xác suất của token đúng" curvePath={curvePath} maxValue={maxCurveLoss} mode="loss" probability={probability} themeClasses={themeClasses} title="Đường cong −ln(p)" value={loss} />
           </div>
         </div>
 
@@ -751,11 +649,7 @@ export function LlmLossHandCalculation({ content, language, themeClasses }: {
   );
 }
 
-export function LlmLossDerivation({ content, language, themeClasses }: {
-  content: LlmLossDerivationContent;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
+export function LlmLossDerivation({ content, language, themeClasses }: LlmContentRendererProps<LlmLossDerivationContent>) {
   return (
     <section className="grid gap-5">
       <div className="grid gap-1">

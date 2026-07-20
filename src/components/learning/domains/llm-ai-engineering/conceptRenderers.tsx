@@ -8,6 +8,7 @@ import { getLearningLocalizedText as text } from '../../learningText';
 import { scrollLearningLabElementIntoView } from '../../lesson/scrolling';
 import type {
   LlmAcademiaIndustryComparisonContent,
+  LlmContentRendererProps,
   LlmTrainingComponentsContent,
 } from './rendererTypes';
 
@@ -63,11 +64,7 @@ function TrainingComponentCard({ card, index, language, themeClasses, emphasisCl
   );
 }
 
-export function LlmTrainingComponents({ content, language, themeClasses }: {
-  content: LlmTrainingComponentsContent;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
+export function LlmTrainingComponents({ content, language, themeClasses }: LlmContentRendererProps<LlmTrainingComponentsContent>) {
   return (
     <section className="grid gap-4">
       <div className="grid gap-1">
