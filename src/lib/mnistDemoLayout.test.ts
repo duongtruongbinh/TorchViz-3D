@@ -8,10 +8,12 @@ import {
   getPanelPosition,
   getDemoInputPose,
   getPatchCenter,
+  getVirtualInputRoutePoints,
   type DemoStop,
   type SegmentState,
 } from '../components/operation-effects/effectMath.ts';
 import type { LayoutEdge, LayoutNode } from './irTypes.ts';
+import { getRenderableNodeBox } from './renderBounds.ts';
 
 function node(overrides: Partial<LayoutNode> = {}): LayoutNode {
   return {
@@ -172,7 +174,11 @@ test('positions the input tile and supports its virtual first packet route', () 
   // uses fixed rotation [0, PI/2, 0]
   assert.deepEqual(pose.rotation, [0, Math.PI / 2, 0]);
   const first = stop('conv', new THREE.Vector3(10, 0, 3));
+  first.node.x = 10;
+  first.node.y = 0;
+  first.node.z = 3;
   const inputPos = new THREE.Vector3(4, 0, 3);
+  const virtualPoints = getVirtualInputRoutePoints([first], inputPos);
   const route = getDataPacketRoute([first], segment({
     inputPosition: inputPos,
     activeStopIndex: 0,
@@ -181,12 +187,16 @@ test('positions the input tile and supports its virtual first packet route', () 
   }), []);
 
   assert.ok(route);
+  const firstFaceX = getRenderableNodeBox(first.node).minX;
+  assert.deepEqual(virtualPoints.map(p => p.toArray()), [
+    [4, 0, 3],
+    [firstFaceX, first.node.y, first.node.z],
+  ]);
   assert.deepEqual(route.points.map(p => p.toArray()), [
     [4, 0, 3],
-    [10, 0, 3],
+    [firstFaceX, first.node.y, first.node.z],
   ]);
-  // Position is at midpoint (7, 0, 3)
-  assert.equal(route.position.x, 7);
+  assert.equal(route.position.x, (4 + firstFaceX) / 2);
   assert.equal(route.position.y, 0);
   assert.equal(route.position.z, 3);
 });

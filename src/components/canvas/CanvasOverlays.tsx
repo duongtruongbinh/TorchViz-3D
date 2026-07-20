@@ -8,10 +8,18 @@ type HeaderStrings = ReturnType<typeof getStrings>['header'];
 type HelpStrings = ReturnType<typeof getStrings>['help'];
 
 export const CanvasLoadingOverlay: React.FC<{ t: CanvasStrings }> = React.memo(({ t }) => (
-  <div className="absolute inset-0 flex items-center justify-center z-20 bg-zinc-950/70 backdrop-blur-sm transition-all duration-300">
-    <div className="flex flex-col items-center gap-5 p-8 bg-zinc-900/95 rounded-2xl border border-zinc-700/60 shadow-2xl">
+  <div
+    data-torchviz-canvas-loading
+    className="absolute inset-0 z-20 flex items-center justify-center"
+    role="status"
+    aria-live="polite"
+  >
+    <div className="flex flex-col items-center gap-5 rounded-2xl border border-zinc-700/60 bg-zinc-900/95 p-8 shadow-2xl shadow-black/40">
       <div className="relative">
-        <div className="w-11 h-11 border-2 border-zinc-600 border-t-blue-500 rounded-full animate-spin" />
+        <div
+          className="w-11 h-11 border-2 border-zinc-600 border-t-blue-500 rounded-full animate-spin"
+          aria-hidden="true"
+        />
       </div>
       <span className="text-zinc-200 font-mono text-sm tracking-wider animate-pulse">
         {t.runningTorchScript}

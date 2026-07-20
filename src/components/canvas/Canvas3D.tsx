@@ -25,10 +25,11 @@ import {
   getVectorizedLayoutEdges,
 } from '../../lib/canvasUtils';
 import type { AppError } from '../../lib/appError';
-import { getAdaptiveGridSpec, getLayoutWorldBounds } from '../../lib/renderBounds';
+import { getAdaptiveGridSpec, getFlowSafeGroundGridLinePositions, getLayoutWorldBounds } from '../../lib/renderBounds';
 import { resolveLearningExerciseLessonTarget, type LearningExerciseLessonTarget } from '../../core/learning/selectors';
 import { getHashRouterUrl, getLearningLessonPath } from '../../lib/appRoutes';
 import type { ExerciseId } from '../exercises/types';
+import { GRID_COLOR } from '../../lib/constants';
 
 export interface Canvas3DProps {
   layout: LayoutData | null;
@@ -48,6 +49,41 @@ export interface Canvas3DProps {
   resetViewDisabled?: boolean;
   demoModeEnabled?: boolean;
 }
+
+const GroundLineGrid: React.FC<{
+  size: number;
+  divisions: number;
+  position: [number, number, number];
+  flowMinZ: number;
+  flowMaxZ: number;
+}> = React.memo(({ size, divisions, position, flowMinZ, flowMaxZ }) => {
+  const geometry = useMemo(() => {
+    const nextGeometry = new THREE.BufferGeometry();
+    nextGeometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(getFlowSafeGroundGridLinePositions(
+        { size, divisions, center: position },
+        flowMinZ,
+        flowMaxZ,
+      ), 3),
+    );
+    return nextGeometry;
+  }, [divisions, flowMaxZ, flowMinZ, position, size]);
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  return (
+    <lineSegments geometry={geometry} position={position}>
+      <lineBasicMaterial
+        color={GRID_COLOR}
+        transparent
+        opacity={0.8}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </lineSegments>
+  );
+});
 
 const Canvas3D: React.FC<Canvas3DProps> = ({
   layout,
@@ -154,7 +190,13 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   }, [demo.setPlaying, learningExerciseTargets]);
 
   return (
-    <div ref={containerRef} data-tour="mnist-demo-flow" className="w-full h-full relative" style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}>
+    <div
+      ref={containerRef}
+      data-tour="mnist-demo-flow"
+      className="w-full h-full relative"
+      style={{ background: 'var(--canvas-bg, radial-gradient(circle at center, #18181b 0%, #09090b 100%))' }}
+      aria-busy={loading}
+    >
       {layout && demoModeEnabled && demo.compatibility.ok && (
         <DemoControls
           stops={demoStops}
@@ -256,10 +298,13 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
                 ))}
               </group>
             )}
-            {gridSpec && (
-              <gridHelper
-                args={[gridSpec.size, gridSpec.divisions, 0x3f3f46, 0x18181b]}
+            {gridSpec && worldBounds && (
+              <GroundLineGrid
+                size={gridSpec.size}
+                divisions={gridSpec.divisions}
                 position={gridSpec.center}
+                flowMinZ={worldBounds.minZ}
+                flowMaxZ={worldBounds.maxZ}
               />
             )}
           </>

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { LayoutEdge, LayoutNode } from '../../lib/irTypes';
 import { getEasedSegmentProgress } from '../../lib/mnistAnimation.ts';
 import { getVisualMeta } from '../../lib/visualKind.ts';
+import { getRenderableNodeBox } from '../../lib/renderBounds.ts';
 import {
   DEMO_INPUT_TILE_SIZE,
   DEMO_KERNEL_SIZE,
@@ -121,6 +122,16 @@ export function getDemoInputPosition(stops: DemoStop[]): THREE.Vector3 {
   return getDemoInputPose(stops).position;
 }
 
+export function getVirtualInputRoutePoints(stops: DemoStop[], inputPosition: THREE.Vector3): THREE.Vector3[] {
+  const first = stops[0]?.node;
+  if (!first) return [inputPosition.clone()];
+  const firstBox = getRenderableNodeBox(first);
+  return [
+    inputPosition.clone(),
+    new THREE.Vector3(firstBox.minX, first.y, first.z),
+  ];
+}
+
 export function getSegmentState(stops: DemoStop[], progress: number, precomputedInputPos?: THREE.Vector3): SegmentState {
   const inputPosition = precomputedInputPos || getDemoInputPosition(stops);
   const activeStopIndex = progress <= 0 ? -1 : Math.min(stops.length - 1, Math.ceil(progress) - 1);
@@ -209,8 +220,7 @@ function getMainDataPacketRoute(
 
   if (segment.activeStopIndex === 0) {
     // Virtual first route from input tile to the first block
-    const start = segment.inputPosition;
-    const end = segment.activeStop.position;
+    const [start, end] = getVirtualInputRoutePoints(stops, segment.inputPosition);
     const points = [start, end];
     const position = new THREE.Vector3().lerpVectors(start, end, easedProgress);
     return {
