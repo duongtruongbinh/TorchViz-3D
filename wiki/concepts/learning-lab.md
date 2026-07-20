@@ -19,8 +19,8 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 81 tracks, and 630 lesson nodes. Twenty-eight
-Vietnamese-first lessons have authored content: twenty-four in `llm-ai-engineering`
+The catalog contains 12 domains, 81 tracks, and 632 lesson nodes. Thirty
+Vietnamese-first lessons have authored content: twenty-six in `llm-ai-engineering`
 and four tagged exercise lessons in `cv`. The other 602 nodes are navigable
 placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
@@ -49,8 +49,10 @@ The authored LLM lessons are:
 20. `tokenization-bpe-tiktoken`
 21. `tokenization-bpe-tiktoken-quiz`
 22. `tokenization-token-ids-vocabulary`
-23. `llm-data-pipeline-overview`
-24. `llm-data-pipeline-checkpoint-quiz`
+23. `tokenization-token-ids-vocabulary-quiz`
+24. `tokenization-raw-text-to-token-ids`
+25. `llm-data-pipeline-overview`
+26. `llm-data-pipeline-checkpoint-quiz`
 
 Their authored prose, paging data, quizzes, references, and structured visual
 inputs live in locale-specific MDX. LLM-specific visual and stateful components
@@ -219,6 +221,13 @@ on the button element identified by `data-lesson-id`. The effect is driven by th
 `selectedLesson.id` dependency in `LessonRail.tsx`, so it only fires when a
 different lesson is selected, and it safely handles cases where the target
 lesson node is not in the DOM (e.g., collapsed track or filtered out).
+
+Lesson nodes use a stable type color in the rail: theory is blue, quiz is
+violet, and code is amber. The color is applied to the number marker and lesson
+title without adding a separate rail or stripe. Quiz classification follows the
+canonical lesson ID, while code classification uses the existing code ID/title
+convention; all other nodes are theory. Completed markers remain green, so
+progress continues to take precedence inside the marker.
 
 ## Invariants
 

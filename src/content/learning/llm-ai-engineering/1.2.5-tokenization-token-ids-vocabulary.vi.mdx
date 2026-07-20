@@ -3,40 +3,54 @@ export const lessonMetadata = {
   id: 'tokenization-token-ids-vocabulary',
   locale: 'vi',
   title: 'Token IDs và vocabulary',
-  headings: ['Vocabulary là bảng ánh xạ', 'Encode và decode'],
+  headings: ['Vocabulary là bảng ánh xạ', 'Token ID chỉ là địa chỉ', 'Từ text đến token ID và trở lại'],
   keywords: ['token ID', 'vocabulary', 'encode', 'decode'],
-  pageCount: 2,
+  pageCount: 3,
 }
 
 <MdxPage page={0}>
 
-## Vocabulary là bảng ánh xạ
-
 <TokenizerVocabularyLookup content={{
-  lead: { vi: 'Sau khi tokenizer được huấn luyện, vocabulary chứa toàn bộ token mà nó biết. Mỗi token được gán đúng một số nguyên gọi là token ID, để máy tính có thể tra cứu và xử lý token bằng tensor.' },
+  lead: { vi: 'Mỗi token trỏ đến đúng một token ID để máy tính có thể biểu diễn nó bằng số.' },
   entries: [
-    { token: 'Tôi', id: 418, note: { vi: 'Token biểu diễn một từ.' } },
-    { token: ' học', id: 1024, note: { vi: 'Khoảng trắng có thể nằm bên trong token.' } },
-    { token: ' AI', id: 7912, note: { vi: 'Một chuỗi thường gặp có ID riêng.' } },
-    { token: '!', id: 13, note: { vi: 'Dấu câu cũng là token.' } },
+    { token: '!', id: 13 },
+    { token: 'the', id: 262 },
+    { token: 'Tôi', id: 418 },
+    { token: ' hóa', id: 944 },
+    { token: ' học', id: 1024 },
+    { token: ' model', id: 3321 },
+    { token: ' AI', id: 7912 },
   ],
-  nonMeanings: [
-    { vi: 'Thứ hạng về mức độ quan trọng của token.' },
-    { vi: 'Tần suất token xuất hiện trong câu hiện tại.' },
-    { vi: 'Vị trí của token trong chuỗi đầu vào.' },
-    { vi: 'Một đại lượng thể hiện ý nghĩa hoặc độ giống nhau.' },
-  ],
-  takeaway: { vi: 'Token ID chỉ là một địa chỉ ổn định trong vocabulary. ID 7912 không “lớn hơn” hay “có nhiều ý nghĩa hơn” ID 418.' },
 }} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Encode và decode dùng cùng một vocabulary
+## Token ID chỉ là địa chỉ
+
+<TokenizerIdMisconceptions content={{
+  lead: { vi: 'Các token ID là nhãn số rời rạc. Khoảng cách hay thứ tự giữa các số không mang ý nghĩa.' },
+  entries: [
+    { token: 'Tôi', id: 418 },
+    { token: ' học', id: 1024 },
+    { token: ' AI', id: 7912 },
+  ],
+  nonMeanings: [
+    { vi: 'Quan trọng hơn' },
+    { vi: 'Xuất hiện nhiều hơn' },
+    { vi: 'Vị trí trong câu' },
+    { vi: 'Gần nghĩa hơn' },
+  ],
+  takeaway: { vi: '7912 > 418 chỉ đúng với con số; không nói rằng token “ AI” lớn hơn hay có nhiều ý nghĩa hơn token “Tôi”.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
 
 <TokenizerIdRoundTrip content={{
-  lead: { vi: 'Encode biến text thành dãy token ID để đưa vào model. Decode dùng đúng bảng ánh xạ đó theo chiều ngược lại để ghép token thành text. Hai thao tác phải thống nhất về tokenizer và vocabulary.' },
+  lead: { vi: 'Text đi qua tokenizer để trở thành dãy token ID cho model xử lý. Model dự đoán next token dưới dạng một token ID; token tương ứng sau đó được ghép vào input để tiếp tục vòng dự đoán.' },
   sourceText: 'Tôi học AI',
   tokens: ['Tôi', ' học', ' AI'],
   ids: [418, 1024, 7912],
