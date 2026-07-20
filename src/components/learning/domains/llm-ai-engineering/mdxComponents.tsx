@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import type { LearningLessonExtra } from '../../authoredTypes';
 import { LLM_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
@@ -35,6 +36,14 @@ import {
   LlmTokenizerRegexWalkthrough,
   TransformerTranslationStepPanel,
 } from './renderers';
+import type {
+  LlmAcademiaIndustryComparisonContent,
+  LlmArInferencePipelineContent,
+  LlmContentRendererProps,
+  LlmNextTokenLossContent,
+  LlmOutputProjectionContent,
+  LlmOutputProjectionFocus,
+} from './rendererTypes';
 
 const localized = (value: string) => ({ en: value, vi: value });
 
@@ -72,143 +81,66 @@ function materializeRoadmapExtra<T extends LearningLessonExtra['kind']>(content:
   return materializeVietnameseFallback({ ...content, kind, id, sectionRefId: 'llm-from-scratch-roadmap' }) as Extract<LearningLessonExtra, { kind: T }>;
 }
 
+function createContentRenderer<TContent>(Renderer: ComponentType<LlmContentRendererProps<TContent>>) {
+  return function ContentRenderer({ content }: { content: RoadmapContent }) {
+    const themeClasses = useLearningMdxTheme();
+    const { language } = useLearningMdxLesson();
+    const localizedContent = materializeVietnameseFallback(content) as TContent;
+    return <Renderer content={localizedContent} language={language} themeClasses={themeClasses} />;
+  };
+}
+
 function AiHierarchy({ content }: { content: RoadmapContent }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
   return <LlmAiHierarchy extra={materializeRoadmapExtra(content, 'llm-roadmap-motivation', 'motivation')} language={language} themeClasses={themeClasses} />;
 }
 
-function TrainingComponents({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTrainingComponents content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
+const TrainingComponents = createContentRenderer(LlmTrainingComponents);
 
 function AcademiaIndustryComparison({ content, perspective }: { content: RoadmapContent; perspective: 'academia' | 'industry' }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmAcademiaIndustryComparison content={materializeVietnameseFallback(content) as never} perspective={perspective} language={language} themeClasses={themeClasses} />;
+  return <LlmAcademiaIndustryComparison content={materializeVietnameseFallback(content) as LlmAcademiaIndustryComparisonContent} perspective={perspective} language={language} themeClasses={themeClasses} />;
 }
 
-function ProbabilityDefinition({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmProbabilityDefinition content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function AutoregressiveDefinition({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmAutoregressiveDefinition content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
+const ProbabilityDefinition = createContentRenderer(LlmProbabilityDefinition);
+const AutoregressiveDefinition = createContentRenderer(LlmAutoregressiveDefinition);
 
 function ArInferencePipeline({ content, step }: { content: RoadmapContent; step?: number }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmArInferencePipeline content={materializeVietnameseFallback(content) as never} step={step} language={language} themeClasses={themeClasses} />;
+  return <LlmArInferencePipeline content={materializeVietnameseFallback(content) as LlmArInferencePipelineContent} step={step} language={language} themeClasses={themeClasses} />;
 }
 
-function VocabularyOutputVector({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmVocabularyOutputVector content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
+const VocabularyOutputVector = createContentRenderer(LlmVocabularyOutputVector);
 
-function OutputProjection({ content, focus }: { content: RoadmapContent; focus?: 'overview' | 'context-input' | 'context-vector' | 'linear' | 'logits' | 'distribution' }) {
+function OutputProjection({ content, focus }: { content: RoadmapContent; focus?: LlmOutputProjectionFocus }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmOutputProjection content={materializeVietnameseFallback(content) as never} focus={focus} language={language} themeClasses={themeClasses} />;
+  return <LlmOutputProjection content={materializeVietnameseFallback(content) as LlmOutputProjectionContent} focus={focus} language={language} themeClasses={themeClasses} />;
 }
 
 function NextTokenLoss({ content, position, animated }: { content: RoadmapContent; position?: number; animated?: boolean }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmNextTokenLoss content={materializeVietnameseFallback(content) as never} position={position} animated={animated} language={language} themeClasses={themeClasses} />;
+  return <LlmNextTokenLoss content={materializeVietnameseFallback(content) as LlmNextTokenLossContent} position={position} animated={animated} language={language} themeClasses={themeClasses} />;
 }
 
-function LossHandCalculation({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmLossHandCalculation content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function LossDerivation({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmLossDerivation content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerMemory({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerMemory content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerCodeStructure({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerCodeStructure content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerBoundaryMismatch({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerBoundaryMismatch content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerFreeDirection({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerFreeDirection content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerVocabularyLookup({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerVocabularyLookup content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerIdMisconceptions({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerIdMisconceptions content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerCodeToIds({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerCodeToIds content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerOutputComparison({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerOutputComparison content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerIdRoundTrip({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerIdRoundTrip content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerMergeTraining({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerMergeTraining content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerSequenceLength({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerSequenceLength content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function TokenizerRegexWalkthrough({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTokenizerRegexWalkthrough content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
+const LossHandCalculation = createContentRenderer(LlmLossHandCalculation);
+const LossDerivation = createContentRenderer(LlmLossDerivation);
+const TokenizerMemory = createContentRenderer(LlmTokenizerMemory);
+const TokenizerCodeStructure = createContentRenderer(LlmTokenizerCodeStructure);
+const TokenizerBoundaryMismatch = createContentRenderer(LlmTokenizerBoundaryMismatch);
+const TokenizerFreeDirection = createContentRenderer(LlmTokenizerFreeDirection);
+const TokenizerVocabularyLookup = createContentRenderer(LlmTokenizerVocabularyLookup);
+const TokenizerIdMisconceptions = createContentRenderer(LlmTokenizerIdMisconceptions);
+const TokenizerCodeToIds = createContentRenderer(LlmTokenizerCodeToIds);
+const TokenizerOutputComparison = createContentRenderer(LlmTokenizerOutputComparison);
+const TokenizerIdRoundTrip = createContentRenderer(LlmTokenizerIdRoundTrip);
+const TokenizerMergeTraining = createContentRenderer(LlmTokenizerMergeTraining);
+const TokenizerSequenceLength = createContentRenderer(LlmTokenizerSequenceLength);
+const TokenizerRegexWalkthrough = createContentRenderer(LlmTokenizerRegexWalkthrough);
 
 function interactionComponent(id: string) {
   return function Interaction({ content }: { content: RoadmapContent }) {

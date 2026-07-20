@@ -6,6 +6,14 @@ function readSource(path: string): string {
   return readFileSync(path, 'utf8');
 }
 
+function readLlmRendererSources(): string {
+  return [
+    'conceptRenderers.tsx',
+    'languageModelRenderers.tsx',
+    'tokenizerRenderers.tsx',
+  ].map((fileName) => readSource(`src/components/learning/domains/llm-ai-engineering/${fileName}`)).join('\n');
+}
+
 test('workspace forwards selected node state into the canvas renderer', () => {
   const workspace = readSource('src/components/workspace/TorchVizWorkspace.tsx');
   const canvas = readSource('src/components/canvas/Canvas3D.tsx');
@@ -98,7 +106,7 @@ test('AppShell lazy-loads Learning Lab instead of importing it into the landing 
 
 test('Learning Lab shared infrastructure avoids duplicated navigation and UI logic', () => {
   const quizBlock = readSource('src/components/learning/lesson/QuizBlock.tsx');
-  const domainRenderer = readSource('src/components/learning/domains/llm-ai-engineering/renderers.tsx');
+  const domainRenderer = readLlmRendererSources();
   const domainCatalog = readSource('src/components/learning/shell/DomainCatalog.tsx');
   const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
   const lessonRail = readSource('src/components/learning/lesson/LessonRail.tsx');
