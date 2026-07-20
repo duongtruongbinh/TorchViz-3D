@@ -54,6 +54,7 @@ type StepPlaybackControlsProps = {
   onReset: () => void;
   onTogglePlay: () => void;
   playDisabled?: boolean;
+  presentation?: 'default' | 'loss-animation';
   previousDisabled: boolean;
   themeClasses: LlmRendererTheme;
 };
@@ -67,13 +68,16 @@ export function StepPlaybackControls({
   onReset,
   onTogglePlay,
   playDisabled = false,
+  presentation = 'default',
   previousDisabled,
   themeClasses,
 }: StepPlaybackControlsProps) {
   const llmTheme = getLlmRendererTheme(themeClasses);
+  const isLossAnimation = presentation === 'loss-animation';
   const iconButtonClass = cx(
-    'grid h-9 w-9 place-items-center rounded-lg disabled:cursor-not-allowed disabled:opacity-40',
-    themeClasses.focusRing,
+    'grid h-9 w-9 place-items-center rounded-lg',
+    isLossAnimation ? 'disabled:opacity-30' : 'disabled:cursor-not-allowed disabled:opacity-40',
+    !isLossAnimation && themeClasses.focusRing,
     llmTheme.playback.secondary,
   );
 
@@ -86,7 +90,12 @@ export function StepPlaybackControls({
         type="button"
         disabled={playDisabled}
         onClick={onTogglePlay}
-        className={cx('flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-black disabled:cursor-not-allowed disabled:opacity-40', themeClasses.focusRing, llmTheme.playback.primary)}
+        className={cx(
+          'flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-black',
+          isLossAnimation ? 'disabled:opacity-30' : 'disabled:cursor-not-allowed disabled:opacity-40',
+          !isLossAnimation && themeClasses.focusRing,
+          llmTheme.playback.primary,
+        )}
       >
         {isPlaying ? <Pause className="h-4 w-4" aria-hidden="true" /> : <Play className="h-4 w-4" aria-hidden="true" />}
         {isPlaying ? labels.pause : labels.play}

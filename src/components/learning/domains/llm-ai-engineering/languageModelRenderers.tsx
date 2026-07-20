@@ -478,6 +478,7 @@ export function LlmNextTokenLoss({ content, position = 0, animated = false, lang
             onReset={() => { setAnimationStep(0); setIsPlaying(true); }}
             onTogglePlay={() => setIsPlaying((playing) => !playing)}
             playDisabled={!isPlaying && animationStep === totalAnimationSteps - 1}
+            presentation="loss-animation"
             previousDisabled={animationStep === 0}
             themeClasses={themeClasses}
           />
