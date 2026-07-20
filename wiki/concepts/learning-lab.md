@@ -160,7 +160,9 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/learning/lesson/QuizBlock.tsx` | Shared stateful quiz behavior used by MDX. |
 | `src/components/learning/learningMdxComponents.tsx` | Shared Markdown primitives, context, lesson frame, and quiz adapter. |
 | `src/components/learning/learningMdxRegistry.tsx` | Generic compiled lesson lookup plus optional domain component maps. |
-| `src/components/learning/domains/llm-ai-engineering/*` | LLM-only custom MDX components and renderers. |
+| `src/components/learning/domains/llm-ai-engineering/mdxComponents.tsx` | Stable LLM MDX adapter and public component map. |
+| `src/components/learning/domains/llm-ai-engineering/*Renderers.tsx` | LLM-only tokenizer, language-model, and concept renderer families behind the stable `renderers.tsx` barrel. |
+| `src/components/learning/domains/llm-ai-engineering/rendererTypes.ts` | Domain-local authored-content shapes shared by the LLM renderer families. |
 | `src/components/learning/domains/cv/mdxComponents.tsx` | CV-only MDX adapter that lazy-loads shared exercise surfaces. |
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |

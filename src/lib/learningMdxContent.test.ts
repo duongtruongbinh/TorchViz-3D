@@ -184,7 +184,11 @@ test('shared lesson assembly and search contain no LLM-specific branch or import
 });
 
 test('migrated MDX lessons no longer have duplicate legacy extras or pilot renderer code', () => {
-  const renderer = readFileSync('src/components/learning/domains/llm-ai-engineering/renderers.tsx', 'utf8');
+  const renderer = [
+    'conceptRenderers.tsx',
+    'languageModelRenderers.tsx',
+    'tokenizerRenderers.tsx',
+  ].map((fileName) => readFileSync(`src/components/learning/domains/llm-ai-engineering/${fileName}`, 'utf8')).join('\n');
   assert.equal(existsSync('src/content/learning/llm-ai-engineering/extras.ts'), false);
   assert.doesNotMatch(renderer, /colab-coding-requirements/);
 });
