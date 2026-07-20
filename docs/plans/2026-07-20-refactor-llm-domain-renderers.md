@@ -2,7 +2,7 @@
 title: Refactor LLM Domain Renderers
 status: done
 created: 2026-07-20T00:00:00+07:00
-updated: 2026-07-20T00:30:00+07:00
+updated: 2026-07-21T01:20:00+07:00
 author: Codex
 task: "refactor the LLM domain renderer package into smaller cohesive internal modules without changing UI, behavior, content, or the MDX API"
 supersedes:
@@ -144,6 +144,57 @@ Tokenizer Walkthrough](./2026-07-20-token-id-vocabulary-visual-split.md).
   layout.
 - `npm run verify` and `git diff --check` pass.
 
+# Consolidated follow-up — renderer primitives and adapters
+
+This plan absorbs the completed 2026-07-21 LLM renderer-primitives follow-up.
+The follow-up continued the same internal refactor and did not change authored
+lesson content, public MDX names/props, catalog identity, routes, or allowlists.
+
+## Durable decisions
+
+- Use `LlmContentRendererProps<T>` and related aliases for repeated renderer
+  contracts; keep all LLM content shapes domain-local.
+- Materialize Vietnamese fallback and inject lesson/theme context through one
+  typed MDX content-renderer factory. Retain bespoke adapters only when they
+  accept additional authored props or `ExtraFrame` behavior.
+- Keep semantic token, ID, callout, connector, and playback colors inside the
+  LLM domain rather than expanding the shared Learning Lab theme.
+- Share presentation and infrastructure, not feature state machines or routing
+  policy: animation timers and diagram path formulas remain with their owning
+  renderers.
+- Use native SVG and existing dependencies. No React Flow, chart, animation, or
+  CSS library was added.
+- Preserve direct accessibility ownership for focus rings, labels, SVG roles,
+  keyboard controls, reduced motion, and live regions.
+
+## Final internal boundaries
+
+| File | Responsibility |
+|---|---|
+| `rendererTypes.ts` | Authored content shapes and common typed renderer props. |
+| `rendererTheme.ts` | Repeated semantic light/dark roles local to LLM visuals. |
+| `rendererPrimitives.tsx` | Token, token-ID, callout, and playback presentation. |
+| `diagramPrimitives.tsx` | Relative anchors, resize observation, SVG connectors, and probability curves. |
+| `mdxComponents.tsx` | Stable MDX map plus typed authored-content adapters. |
+
+## Outcome and checkpoints
+
+- Replaced eighteen repeated MDX wrappers with one typed factory and removed all
+  `as never` casts from the LLM package.
+- Consolidated repeated token/ID units and callouts, then unified the two
+  playback control surfaces while retaining their distinct state transitions.
+- Consolidated three diagram measurement/connector paths and the two loss-curve
+  renderers while preserving feature-local geometry formulas.
+- The requester approved the token/ID/callout checkpoint and directed execution
+  through playback and diagram phases; the request to commit the finished work
+  closed the final visual checkpoint.
+- The added abstractions increased the LLM package by 31 source lines relative
+  to the initial split, an accepted tradeoff for centralized contracts and
+  extensibility rather than a net line-count reduction.
+- Final `npm run verify` passed TypeScript, all 75 tests, generic MDX validation,
+  and a 2,532-module production build. `git diff --check` passed; the existing
+  large-chunk advisory remained informational.
+
 # Out of scope
 
 - Extracting primitives for CV or other Learning Lab domains.
@@ -178,3 +229,7 @@ Tokenizer Walkthrough](./2026-07-20-token-id-vocabulary-visual-split.md).
   observed production build completed with 2,529 transformed modules; the
   existing large-chunk advisory remained informational. `git diff --check`
   passed.
+- 2026-07-21 — Consolidated typed renderer props, eighteen MDX adapters,
+  semantic visual roles, repeated token/ID/callout/playback presentation, three
+  connector diagrams, and two probability curves. Completed visual checkpoints
+  and full verification, then absorbed the follow-up plan into this owning plan.
