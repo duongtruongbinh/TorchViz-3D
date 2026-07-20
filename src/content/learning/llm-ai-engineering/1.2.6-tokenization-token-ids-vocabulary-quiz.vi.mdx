@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-token-ids-vocabulary-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Vocabulary', 'Ý nghĩa của token ID', 'Luồng xử lý'],
+  keywords: ['token ID', 'vocabulary', 'tokenizer'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="tokenization-token-ids-vocabulary-quiz" questions={[
+  {
+    id: 'vocabulary-lookup', title: 'Vocabulary', prompt: 'Trong cùng một vocabulary, mối quan hệ nào giữa token và token ID là đúng?', mode: 'single',
+    options: [
+      { id: 'shared-by-meaning', label: 'Các token gần nghĩa luôn dùng chung một token ID.' },
+      { id: 'stable-pair', label: 'Mỗi token được gán một token ID cố định để có thể tra cứu theo hai chiều.', isCorrect: true },
+      { id: 'changes-by-position', label: 'Token ID thay đổi theo vị trí của token trong câu.' },
+      { id: 'frequency-rank', label: 'Token ID chính là thứ hạng tần suất của token trong câu hiện tại.' },
+    ],
+    success: 'Đúng. Vocabulary là bảng ánh xạ giữa token và token ID; cùng một bảng được dùng để tra cứu theo cả hai chiều.',
+    error: 'Token ID là nhãn cố định trong một vocabulary. Nó không thay đổi theo vị trí, tần suất trong câu hay độ gần nghĩa.',
+  },
+  {
+    id: 'token-id-meaning', title: 'Ý nghĩa của token ID', prompt: 'Token “ AI” có ID 7912 và token “Tôi” có ID 418. Có thể kết luận điều gì?', mode: 'single',
+    options: [
+      { id: 'more-important', label: 'Token “ AI” quan trọng hơn vì ID lớn hơn.' },
+      { id: 'later-position', label: 'Token “ AI” luôn đứng sau token “Tôi” trong mọi câu.' },
+      { id: 'more-semantic', label: 'Token “ AI” mang nhiều ý nghĩa hơn vì 7912 cách xa 418.' },
+      { id: 'different-labels', label: 'Đây chỉ là hai nhãn số khác nhau trong vocabulary; độ lớn của ID không cho biết các ý trên.', isCorrect: true },
+    ],
+    success: 'Đúng. So sánh số học giữa hai ID không cho biết độ quan trọng, vị trí, tần suất hay ý nghĩa của token.',
+    error: 'Hãy coi token ID như địa chỉ trong một bảng tra cứu. Độ lớn và khoảng cách giữa các địa chỉ không mô tả ý nghĩa của token.',
+  },
+  {
+    id: 'text-id-round-trip', title: 'Luồng xử lý', prompt: 'Luồng nào mô tả đúng cách text đi qua hệ thống ở mức high-level?', mode: 'single',
+    options: [
+      { id: 'text-ids-model-text', label: 'Text → tokenizer → token IDs → model → dự đoán next token → token ID → ghép token vào input.', isCorrect: true },
+      { id: 'text-model-vocabulary', label: 'Text → model đọc trực tiếp ký tự → model tự tạo vocabulary mới cho mỗi câu.' },
+      { id: 'ids-before-tokenizer', label: 'Text → token IDs → tokenizer → model → token.' },
+      { id: 'meaning-to-id', label: 'Text → đo ý nghĩa của từng từ → dùng độ lớn ý nghĩa làm token ID → model.' },
+    ],
+    success: 'Đúng. Tokenizer tạo dãy token ID cho model; token ID được dự đoán tiếp theo được ánh xạ về token rồi ghép vào input để vòng dự đoán tiếp tục.',
+    error: 'Tokenizer phải dùng vocabulary để chuyển text thành token IDs trước khi model xử lý. Token ID không được tính từ độ lớn ý nghĩa.',
+  },
+]} />

@@ -126,22 +126,6 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
         ? 'border-transparent bg-transparent hover:border-[#205089]/10 hover:bg-white/50 hover:text-[#123B68]'
         : 'border-transparent bg-transparent hover:border-[#A8B8C8]/10 hover:bg-[#A8B8C8]/10';
     },
-    lessonTitle: (tone: LearningRailLessonTone) => {
-      if (tone === 'selected') return isLight ? 'text-[#123F63]' : 'text-[#E2EAF1]';
-      if (tone === 'quiet') {
-        return isLight
-          ? 'text-[#526676] group-hover:text-[#254F70]'
-          : 'text-[#A8B4C0] group-hover:text-[#D8E3EC]';
-      }
-      if (tone === 'future') {
-        return isLight
-          ? 'text-[#526676] group-hover:text-[#173F5F]'
-          : 'text-[#B8C4CE] group-hover:text-[#F2F6FA]';
-      }
-      return isLight
-        ? 'text-[#385F7A] group-hover:text-[#173F5F]'
-        : 'text-[#CAD5DE] group-hover:text-[#F2F6FA]';
-    },
     lessonNumber: (tone: LearningRailLessonTone, isCompleted: boolean) => {
       if (isCompleted) {
         return tone === 'quiet'

@@ -1,0 +1,306 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-raw-text-to-token-ids',
+  locale: 'vi',
+  title: 'Code: Từ raw text đến token IDs',
+  headings: ['Ví dụ tiếng Anh với GPT-4o', 'Ví dụ tiếng Việt với GPT-4o', 'Ví dụ tiếng Việt với ViT5', 'So sánh tokenizer', 'Đọc thêm'],
+  keywords: ['Python', 'tiktoken', 'raw text', 'token', 'token ID', 'vocabulary'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<TokenizerCodeToIds content={{
+  lead: { vi: '`tiktoken` là thư viện tokenizer mã nguồn mở của OpenAI. README chính thức hướng dẫn cách chọn tokenizer tương ứng với một model trong OpenAI API. Hãy tìm repository, đọc README và điền hai phần còn thiếu trong code.' },
+  tokenizerName: 'GPT-4o · o200k_base',
+  tokenizerDescription: { vi: 'Encoding được tiktoken chọn cho GPT-4o' },
+  rawText: 'Hello, world!',
+  entries: [
+    { token: 'Hello', id: 13225 },
+    { token: ',', id: 11 },
+    { token: ' world', id: 2375 },
+    { token: '!', id: 0 },
+  ],
+  stages: [
+    {
+      id: 'load',
+      title: { vi: '1. Load tokenizer' },
+      code: [
+        '# Search "tiktoken OpenAI" and read the README.',
+        'import ...',
+        '',
+        '# Get the tokeniser corresponding to a specific model',
+        '# in the OpenAI API:',
+        'enc = ...("gpt-4o")',
+      ],
+      answerCode: [
+        '# Search "tiktoken OpenAI" and read the README.',
+        'import tiktoken',
+        '',
+        '# Get the tokeniser corresponding to a specific model',
+        '# in the OpenAI API:',
+        'enc = tiktoken.encoding_for_model("gpt-4o")',
+      ],
+    },
+    {
+      id: 'input',
+      title: { vi: '2. Chuẩn bị raw text' },
+      code: ['raw_text = "Hello, world!"'],
+    },
+    {
+      id: 'encode',
+      title: { vi: '3. Chuyển text thành token IDs' },
+      code: [
+        '# Search "How to count tokens with Tiktoken".',
+        'token_ids = ...',
+      ],
+      answerCode: [
+        '# Search "How to count tokens with Tiktoken".',
+        'token_ids = enc.encode(raw_text)',
+      ],
+    },
+    {
+      id: 'inspect',
+      title: { vi: '4. Kiểm tra kết quả' },
+      code: [
+        'tokens = [',
+        '    ...',
+        ']',
+        '',
+        'print(tokens)',
+        'print(token_ids)',
+      ],
+      answerCode: [
+        'tokens = [',
+        '    enc.decode_single_token_bytes(token_id)',
+        '    for token_id in token_ids',
+        ']',
+        '',
+        'print(tokens)',
+        'print(token_ids)',
+      ],
+      output: [
+        "[b'Hello', b',', b' world', b'!']",
+        '[13225, 11, 2375, 0]',
+      ],
+    },
+    {
+      id: 'count',
+      title: { vi: '5. Đếm số token' },
+      code: [
+        '# Search "How to count tokens with Tiktoken".',
+        'def ...(string: str, encoding_name: str) -> int:',
+        '    """Returns the number of tokens in a text string."""',
+        '    encoding = ...',
+        '    num_tokens = ...',
+        '    return ...',
+        '',
+        'print(...("Hello, world!", "o200k_base"))',
+      ],
+      answerCode: [
+        '# Search "How to count tokens with Tiktoken".',
+        'def num_tokens_from_string(string: str, encoding_name: str) -> int:',
+        '    """Returns the number of tokens in a text string."""',
+        '    encoding = tiktoken.get_encoding(encoding_name)',
+        '    num_tokens = len(encoding.encode(string))',
+        '    return num_tokens',
+        '',
+        'print(num_tokens_from_string("Hello, world!", "o200k_base"))',
+      ],
+      output: ['4'],
+    },
+  ],
+  takeaway: { vi: 'Phần khó nằm ở cách tokenizer chia text thành token. Khi token đã được xác định, token → ID chỉ là một lần tra cứu trong vocabulary.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TokenizerCodeToIds content={{
+  lead: { vi: 'Giữ nguyên tokenizer của GPT-4o nhưng thay input bằng một câu tiếng Việt. `o200k_base` giữ được nhiều cụm tiếng Việt hơn trong cùng một token, dù cách chia vẫn phụ thuộc vocabulary đã học.' },
+  tokenizerName: 'GPT-4o · o200k_base',
+  tokenizerDescription: { vi: 'Cùng tokenizer, input tiếng Việt' },
+  rawText: 'Tôi yêu tiếng Việt!',
+  entries: [
+    { token: 'T', id: 51 },
+    { token: 'ôi', id: 23865 },
+    { token: ' yêu', id: 67135 },
+    { token: ' tiếng', id: 84716 },
+    { token: ' Việt', id: 53904 },
+    { token: '!', id: 0 },
+  ],
+  stages: [
+    {
+      id: 'load',
+      title: { vi: '1. Load tokenizer' },
+      code: [
+        '# Search "tiktoken OpenAI" and read the README.',
+        'import ...',
+        '',
+        '# Get the tokeniser corresponding to a specific model',
+        '# in the OpenAI API:',
+        'enc = ...("gpt-4o")',
+      ],
+      answerCode: [
+        '# Search "tiktoken OpenAI" and read the README.',
+        'import tiktoken',
+        '',
+        '# Get the tokeniser corresponding to a specific model',
+        '# in the OpenAI API:',
+        'enc = tiktoken.encoding_for_model("gpt-4o")',
+      ],
+    },
+    {
+      id: 'input',
+      title: { vi: '2. Chuẩn bị raw text tiếng Việt' },
+      code: ['raw_text = "Tôi yêu tiếng Việt!"'],
+    },
+    {
+      id: 'encode',
+      title: { vi: '3. Chuyển text thành token IDs' },
+      code: [
+        '# Search "How to count tokens with Tiktoken".',
+        'token_ids = ...',
+      ],
+      answerCode: [
+        '# Search "How to count tokens with Tiktoken".',
+        'token_ids = enc.encode(raw_text)',
+      ],
+    },
+    {
+      id: 'inspect',
+      title: { vi: '4. Kiểm tra kết quả' },
+      code: [
+        'tokens = [',
+        '    ...',
+        ']',
+        '',
+        'print(tokens)',
+        'print(token_ids)',
+      ],
+      answerCode: [
+        'tokens = [',
+        '    enc.decode_single_token_bytes(token_id)',
+        '    for token_id in token_ids',
+        ']',
+        '',
+        'print(tokens)',
+        'print(token_ids)',
+      ],
+      output: [
+        "[b'T', b'\\xc3\\xb4i', b' y\\xc3\\xaau', b' ti\\xe1\\xba\\xbfng',",
+        " b' Vi\\xe1\\xbb\\x87t', b'!']",
+        '[51, 23865, 67135, 84716, 53904, 0]',
+      ],
+    },
+  ],
+  takeaway: { vi: 'Tokenizer của GPT-4o biểu diễn câu tiếng Việt này bằng 6 token. Page tiếp theo so sánh kết quả đó với một vocabulary được huấn luyện riêng cho tiếng Việt.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TokenizerCodeToIds content={{
+  lead: { vi: '`VietAI/vit5-base` là model text-to-text được huấn luyện cho tiếng Việt.' },
+  note: { vi: 'Thông thường có thể tải tokenizer bằng `AutoTokenizer` như hướng dẫn trên Hugging Face. Tuy nhiên, fast-tokenizer JSON trong repository ViT5 được tạo theo format thư viện cũ và không tương thích với một số phiên bản `transformers`/`tokenizers` mới, gây lỗi khi dựng `Unigram`. File SentencePiece gốc `spiece.model` vẫn hợp lệ, nên ví dụ này dùng `sentencepiece` để đọc trực tiếp file đó.' },
+  tokenizerName: 'VietAI/vit5-base',
+  tokenizerDescription: { vi: 'SentencePiece huấn luyện cho tiếng Việt' },
+  rawText: 'Tôi yêu tiếng Việt!',
+  entries: [
+    { token: '▁Tôi', id: 1556 },
+    { token: '▁yêu', id: 860 },
+    { token: '▁tiếng', id: 787 },
+    { token: '▁Việt', id: 506 },
+    { token: '!', id: 35993 },
+  ],
+  stages: [
+    {
+      id: 'load',
+      title: { vi: '1. Load tokenizer' },
+      code: [
+        'import sentencepiece as spm',
+        'from huggingface_hub import hf_hub_download',
+        '',
+        'model_path = hf_hub_download(',
+        '    repo_id="VietAI/vit5-base",',
+        '    filename="spiece.model",',
+        ')',
+        'tokenizer = spm.SentencePieceProcessor(',
+        '    model_file=model_path',
+        ')',
+      ],
+    },
+    {
+      id: 'input',
+      title: { vi: '2. Chuẩn bị raw text tiếng Việt' },
+      code: ['raw_text = "Tôi yêu tiếng Việt!"'],
+    },
+    {
+      id: 'encode',
+      title: { vi: '3. Chuyển text thành token IDs' },
+      code: [
+        'token_ids = tokenizer.encode(raw_text, out_type=int)',
+      ],
+    },
+    {
+      id: 'inspect',
+      title: { vi: '4. Kiểm tra kết quả' },
+      code: [
+        'tokens = tokenizer.encode(raw_text, out_type=str)',
+        '',
+        'print(tokens)',
+        'print(token_ids)',
+      ],
+      output: [
+        "['▁Tôi', '▁yêu', '▁tiếng', '▁Việt', '!']",
+        '[1556, 860, 787, 506, 35993]',
+      ],
+    },
+  ],
+  takeaway: { vi: 'Ký hiệu `▁` của SentencePiece đánh dấu khoảng trắng đứng trước token, thường cũng là ranh giới đầu từ. Câu này được biểu diễn bằng 5 token.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TokenizerOutputComparison content={{
+  lead: { vi: 'Cùng câu `Tôi yêu tiếng Việt!`, hai tokenizer tạo ranh giới token khác nhau vì chúng dùng vocabulary và dữ liệu huấn luyện khác nhau.' },
+  rawText: 'Tôi yêu tiếng Việt!',
+  examples: [
+    {
+      id: 'general',
+      name: 'GPT-4o · o200k_base',
+      description: { vi: 'Tokenizer được tiktoken chọn cho GPT-4o' },
+      tokens: ['T', 'ôi', ' yêu', ' tiếng', ' Việt', '!'],
+      ids: [51, 23865, 67135, 84716, 53904, 0],
+    },
+    {
+      id: 'vietnamese',
+      name: 'VietAI/vit5-base',
+      description: { vi: 'SentencePiece huấn luyện cho tiếng Việt' },
+      tokens: ['▁Tôi', '▁yêu', '▁tiếng', '▁Việt', '!'],
+      ids: [1556, 860, 787, 506, 35993],
+    },
+  ],
+  markerNote: { vi: 'Trong SentencePiece, ký hiệu `▁` đánh dấu khoảng trắng đứng trước token, thường cũng là ranh giới đầu từ.' },
+  takeaway: { vi: 'Trong ví dụ này, ViT5 biểu diễn câu bằng 5 token còn GPT-4o dùng 6 token. Đây là khác biệt trên một câu cụ thể, không có nghĩa một tokenizer luôn tốt hơn cho mọi dữ liệu và tác vụ.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<LessonNote>
+
+**Reference:** [**How to count tokens with Tiktoken**](https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken)
+
+- **Tài liệu đặt** `r50k_base`, `p50k_base`, `cl100k_base` và `o200k_base` cạnh nhau để so sánh cách chúng tách tiếng Anh, biểu thức số học và ký tự ngoài tiếng Anh.
+
+- **Ví dụ tiếng Nhật** `お誕生日おめでとう` cho thấy rất nhanh sự khác biệt: hai encoding cũ tạo 14 token, `cl100k_base` tạo 9 token và `o200k_base` tạo 8 token.
+
+</LessonNote>
+
+</MdxPage>

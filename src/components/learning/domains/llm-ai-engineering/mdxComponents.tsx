@@ -26,6 +26,9 @@ import {
   LlmTokenizerBoundaryMismatch,
   LlmTokenizerFreeDirection,
   LlmTokenizerVocabularyLookup,
+  LlmTokenizerIdMisconceptions,
+  LlmTokenizerCodeToIds,
+  LlmTokenizerOutputComparison,
   LlmTokenizerIdRoundTrip,
   LlmTokenizerMergeTraining,
   LlmTokenizerSequenceLength,
@@ -165,6 +168,24 @@ function TokenizerVocabularyLookup({ content }: { content: RoadmapContent }) {
   return <LlmTokenizerVocabularyLookup content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
 }
 
+function TokenizerIdMisconceptions({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerIdMisconceptions content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerCodeToIds({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerCodeToIds content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
+function TokenizerOutputComparison({ content }: { content: RoadmapContent }) {
+  const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  return <LlmTokenizerOutputComparison content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
+}
+
 function TokenizerIdRoundTrip({ content }: { content: RoadmapContent }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
@@ -235,6 +256,9 @@ export const llmMdxComponents = {
   TokenizerBoundaryMismatch,
   TokenizerFreeDirection,
   TokenizerVocabularyLookup,
+  TokenizerIdMisconceptions,
+  TokenizerCodeToIds,
+  TokenizerOutputComparison,
   TokenizerIdRoundTrip,
   TokenizerMergeTraining,
   TokenizerSequenceLength,

@@ -35,7 +35,9 @@ const expectedPageCounts: Record<string, number> = {
   'tokenizer-regex-from-scratch-quiz': 5,
   'tokenization-bpe-tiktoken': 4,
   'tokenization-bpe-tiktoken-quiz': 4,
-  'tokenization-token-ids-vocabulary': 2,
+  'tokenization-token-ids-vocabulary': 3,
+  'tokenization-raw-text-to-token-ids': 5,
+  'tokenization-token-ids-vocabulary-quiz': 3,
   'conv2d-shape-exercise': 1,
   'conv2d-value-exercise': 1,
   'pooling-shape-exercise': 1,
@@ -53,6 +55,7 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
   'tokenization-why-it-matters-quiz': ['word-level-limitations', 'two-extremes', 'subword-benefit', 'sequence-length-cost'],
   'tokenizer-regex-from-scratch-quiz': ['capturing-whitespace', 'punctuation-split-output', 'cleanup-comprehension', 'tokenize-function', 'regex-limitations'],
   'tokenization-bpe-tiktoken-quiz': ['bpe-initialization', 'bpe-training-loop', 'merge-rank-inference', 'tokenization-limitations'],
+  'tokenization-token-ids-vocabulary-quiz': ['vocabulary-lookup', 'token-id-meaning', 'text-id-round-trip'],
 };
 
 test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => {
@@ -67,11 +70,11 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 28);
+  assert.equal(lessonFiles.length, 30);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 28);
+  assert.equal(documents.length, 30);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
