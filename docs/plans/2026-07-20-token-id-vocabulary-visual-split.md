@@ -106,12 +106,11 @@ which established the typed-TOC and locale-MDX content boundary used here.
   `r50k_base`, `p50k_base`, `cl100k_base`, and `o200k_base` on English,
   arithmetic, and Japanese strings.
 - Mention that the Japanese example makes the effect of encoding choice easy to
-  scan, while clearly labeling the recipe as archived so old model/API details
-  are not presented as current guidance.
+  scan.
 - Update the MDX page-count contract, run focused validation and TypeScript,
   then commit the follow-up separately after approval.
 - 2026-07-20 — User approved the official Cookbook reference page;
   implementation started.
 - 2026-07-20 — Added the fifth-page reference note with the official Cookbook
-  link, encoding comparison summary, Japanese token counts, and archived-recipe
-  caveat. TypeScript, all 9 MDX contract tests, and `git diff --check` passed.
+  link, encoding comparison summary, and Japanese token counts. TypeScript, all
+  9 MDX contract tests, and `git diff --check` passed.

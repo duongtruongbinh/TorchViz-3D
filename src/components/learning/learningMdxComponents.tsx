@@ -108,7 +108,7 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
 
 export function LessonNote({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
-  return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>{children}</div>;
+  return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5', themeClasses.sectionAccent.note)}>{children}</div>;
 }
 
 export function ExtraFrame({ title, children, themeClasses, customTitle }: {
