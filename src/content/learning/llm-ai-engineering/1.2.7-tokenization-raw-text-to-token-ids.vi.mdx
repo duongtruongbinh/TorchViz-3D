@@ -3,9 +3,9 @@ export const lessonMetadata = {
   id: 'tokenization-raw-text-to-token-ids',
   locale: 'vi',
   title: 'Code: Từ raw text đến token IDs',
-  headings: ['Ví dụ tiếng Anh với GPT-4o', 'Ví dụ tiếng Việt với GPT-4o', 'Ví dụ tiếng Việt với ViT5', 'So sánh tokenizer'],
+  headings: ['Ví dụ tiếng Anh với GPT-4o', 'Ví dụ tiếng Việt với GPT-4o', 'Ví dụ tiếng Việt với ViT5', 'So sánh tokenizer', 'Đọc thêm'],
   keywords: ['Python', 'tiktoken', 'raw text', 'token', 'token ID', 'vocabulary'],
-  pageCount: 4,
+  pageCount: 5,
 }
 
 <MdxPage page={0}>
@@ -288,5 +288,21 @@ export const lessonMetadata = {
   markerNote: { vi: 'Trong SentencePiece, ký hiệu `▁` đánh dấu khoảng trắng đứng trước token, thường cũng là ranh giới đầu từ.' },
   takeaway: { vi: 'Trong ví dụ này, ViT5 biểu diễn câu bằng 5 token còn GPT-4o dùng 6 token. Đây là khác biệt trên một câu cụ thể, không có nghĩa một tokenizer luôn tốt hơn cho mọi dữ liệu và tác vụ.' },
 }} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<LessonNote>
+
+**Đọc thêm: How to count tokens with Tiktoken**
+
+Xem mục **Comparing encodings** trong [OpenAI Cookbook](https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken). Tài liệu đặt `r50k_base`, `p50k_base`, `cl100k_base` và `o200k_base` cạnh nhau để so sánh cách chúng tách tiếng Anh, biểu thức số học và ký tự ngoài tiếng Anh.
+
+Ví dụ tiếng Nhật `お誕生日おめでとう` cho thấy rất nhanh sự khác biệt: hai encoding cũ tạo 14 token, `cl100k_base` tạo 9 token và `o200k_base` tạo 8 token.
+
+Đây là một **archived recipe**. Hãy dùng nó để quan sát cách các encoding chia text, không dùng danh sách model/API cũ trong bài làm nguồn tham chiếu hiện hành.
+
+</LessonNote>
 
 </MdxPage>

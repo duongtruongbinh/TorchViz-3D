@@ -2,7 +2,7 @@
 title: Token IDs, Vocabulary, and Tokenizer Walkthrough
 status: done
 created: 2026-07-20T00:00:00+07:00
-updated: 2026-07-20T11:30:00+07:00
+updated: 2026-07-20T12:00:00+07:00
 author: Codex
 task: "visualize the Token IDs/vocabulary lesson, add its quiz and code walkthrough, and clarify lesson types in the rail"
 supersedes:
@@ -96,3 +96,22 @@ which established the typed-TOC and locale-MDX content boundary used here.
 - `git diff --check` passed.
 - Catalog regression confirms 41 available, 1 next, and 590 locked nodes; all
   30 published locale-MDX lessons passed contract validation.
+
+# Follow-up: official Cookbook reference page
+
+- Add a fifth and final page to the code node containing one concise external
+  reference card for OpenAI Cookbook's archived “How to count tokens with
+  Tiktoken” recipe.
+- Point readers to its “Comparing encodings” section, which compares
+  `r50k_base`, `p50k_base`, `cl100k_base`, and `o200k_base` on English,
+  arithmetic, and Japanese strings.
+- Mention that the Japanese example makes the effect of encoding choice easy to
+  scan, while clearly labeling the recipe as archived so old model/API details
+  are not presented as current guidance.
+- Update the MDX page-count contract, run focused validation and TypeScript,
+  then commit the follow-up separately after approval.
+- 2026-07-20 — User approved the official Cookbook reference page;
+  implementation started.
+- 2026-07-20 — Added the fifth-page reference note with the official Cookbook
+  link, encoding comparison summary, Japanese token counts, and archived-recipe
+  caveat. TypeScript, all 9 MDX contract tests, and `git diff --check` passed.

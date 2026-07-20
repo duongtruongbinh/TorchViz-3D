@@ -36,7 +36,7 @@ const expectedPageCounts: Record<string, number> = {
   'tokenization-bpe-tiktoken': 4,
   'tokenization-bpe-tiktoken-quiz': 4,
   'tokenization-token-ids-vocabulary': 3,
-  'tokenization-raw-text-to-token-ids': 4,
+  'tokenization-raw-text-to-token-ids': 5,
   'tokenization-token-ids-vocabulary-quiz': 3,
   'conv2d-shape-exercise': 1,
   'conv2d-value-exercise': 1,
