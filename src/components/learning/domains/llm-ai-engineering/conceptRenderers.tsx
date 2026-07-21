@@ -88,6 +88,7 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
   const intro = extra.body.map((paragraph) => text(paragraph, language));
   const conceptName = 'Artificial Intelligence (AI)';
   const [leadBeforeConcept, leadAfterConcept = ''] = intro[0]?.split(conceptName) ?? ['', ''];
+  const communicationHighlight = 'giúp việc giao tiếp dễ dàng hơn';
 
   return (
     <div className="overflow-hidden">
@@ -96,10 +97,38 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
           {leadBeforeConcept}<strong className={themeClasses.accentText}>Artificial Intelligence</strong>{language === 'vi' ? ' thành ' : ' into '}{leadAfterConcept.replace(/^\s*(và|and)\s*/i, '')}
         </p>
 
+        <div className="mt-6 grid items-center gap-6 lg:grid-cols-[minmax(0,0.68fr)_minmax(28rem,1.32fr)] lg:gap-8">
+          <div className={cx('grid gap-4 text-base leading-[1.625rem]', themeClasses.bodyText)}>
+            {intro.slice(1).map((paragraph) => {
+              const [beforeHighlight, afterHighlight] = paragraph.split(communicationHighlight);
+              return (
+                <p key={paragraph}>
+                  {beforeHighlight}
+                  {afterHighlight !== undefined && (
+                    <span className={cx('font-semibold', themeClasses.accentText)}>
+                      {communicationHighlight}
+                    </span>
+                  )}
+                  {afterHighlight}
+                </p>
+              );
+            })}
+          </div>
+
+          <figure className="flex min-w-0 items-center justify-center">
+            <img
+              src={getLlmLearningAssetUrl(extra.image)}
+              alt={text(extra.imageAlt, language)}
+              className="aspect-[1672/941] w-full object-contain"
+              loading="lazy"
+            />
+          </figure>
+        </div>
+
         <div
-          className={cx('mt-4 overflow-hidden rounded-xl', themeClasses.isLight ? 'bg-[#205089]/[0.055]' : 'bg-[#A8B8C8]/[0.065]')}
+          className={cx('mt-6 overflow-hidden rounded-xl', themeClasses.isLight ? 'bg-[#205089]/[0.055]' : 'bg-[#A8B8C8]/[0.065]')}
           role="img"
-          aria-label={text(extra.imageAlt, language)}
+          aria-label={extra.hierarchy ? text(extra.hierarchy.ariaLabel, language) : text(extra.imageAlt, language)}
         >
           <div className={cx(
             'flex min-h-20 items-end justify-between gap-4 px-5 py-4',
@@ -143,124 +172,7 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
             </div>
           </div>
         </div>
-
-        <div className={cx('mt-6 grid gap-3 border-t pt-5 text-sm leading-7', themeClasses.isLight ? 'border-[#205089]/12' : 'border-[#A8B8C8]/14', themeClasses.bodyText)}>
-          {intro.slice(1).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-        </div>
       </section>
-
-      <div className="mt-5 grid gap-6">
-        <figure className="flex min-w-0 items-center justify-center">
-          <img
-            src={getLlmLearningAssetUrl(extra.image)}
-            alt={text(extra.imageAlt, language)}
-            className="aspect-[1672/941] w-full max-w-[42rem] object-contain"
-            loading="lazy"
-          />
-        </figure>
-
-        {extra.hierarchy && (
-          <AiHierarchyFlow hierarchy={extra.hierarchy} language={language} themeClasses={themeClasses} />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
-  hierarchy: NonNullable<Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy']>;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
-  const leadingRows = hierarchy.rows.filter((row) => row.depth !== 'branch' && row.depth !== 'target');
-  const branchRows = hierarchy.rows.filter((row) => row.depth === 'branch');
-  const targetRows = hierarchy.rows.filter((row) => row.depth === 'target');
-  const [activeRowName, setActiveRowName] = useState(hierarchy.rows[0]?.shortName ?? '');
-
-  return (
-    <div className="learning-lab-focus-group mt-5 grid w-full gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
-      {leadingRows.map((row) => (
-        <HierarchyRow
-          key={row.shortName}
-          row={row}
-          isActive={activeRowName === row.shortName}
-          language={language}
-          themeClasses={themeClasses}
-          onActivate={setActiveRowName}
-        />
-      ))}
-
-      {branchRows.length ? (
-        <div className="grid gap-3 py-2">
-          {hierarchy.branchLabel && (
-            <div className={cx('text-sm font-semibold leading-6', themeClasses.mutedText)}>
-              {text(hierarchy.branchLabel, language)}
-            </div>
-          )}
-          <div className="grid gap-3 md:grid-cols-2">
-            {branchRows.map((row) => (
-              <HierarchyRow
-                key={row.shortName}
-                row={row}
-                isActive={activeRowName === row.shortName}
-                language={language}
-                themeClasses={themeClasses}
-                onActivate={setActiveRowName}
-              />
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      {targetRows.map((row) => (
-        <HierarchyRow
-          key={row.shortName}
-          row={row}
-          isActive={activeRowName === row.shortName}
-          language={language}
-          themeClasses={themeClasses}
-          onActivate={setActiveRowName}
-        />
-      ))}
-    </div>
-  );
-}
-
-function HierarchyRow({ row, isActive, language, themeClasses, onActivate }: {
-  row: NonNullable<Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy']>['rows'][number];
-  isActive: boolean;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-  onActivate: (shortName: string) => void;
-}) {
-  const isTarget = row.depth === 'target';
-  const rowTone = isTarget
-    ? themeClasses.isLight
-      ? 'bg-[#205089]/8 shadow-[inset_3px_0_0_rgba(32,80,137,0.78)] hover:bg-[#205089]/12'
-      : 'bg-[#A8B8C8]/10 shadow-[inset_3px_0_0_rgba(215,220,226,0.78)] hover:bg-[#A8B8C8]/14'
-    : themeClasses.isLight
-      ? 'bg-[#B8C8DA]/20 hover:bg-[#B8C8DA]/34'
-      : 'bg-[#A8B8C8]/6 hover:bg-[#A8B8C8]/10';
-
-  return (
-    <div
-      data-active={isActive ? 'true' : undefined}
-      onFocus={() => onActivate(row.shortName)}
-      onMouseEnter={() => onActivate(row.shortName)}
-      className={cx(
-        'learning-lab-focus-panel group grid gap-2 px-3 py-2 text-sm transition-[background-color,box-shadow,filter,opacity,transform] duration-200 sm:items-start',
-        themeClasses.radius.button,
-        rowTone,
-        row.compact ? 'sm:grid-cols-[3.75rem_minmax(0,1fr)]' : 'sm:grid-cols-[4.5rem_minmax(0,1fr)]',
-      )}
-    >
-      <div className={cx('font-black leading-6', isTarget ? themeClasses.accentText : themeClasses.titleText)}>
-        {row.shortName}
-      </div>
-      <div className="min-w-0">
-        <div className={cx('font-normal leading-6', themeClasses.titleText)}>{row.fullName}</div>
-        <p className={cx('mt-0.5 leading-6', themeClasses.bodyText)}>{text(row.description, language)}</p>
-      </div>
     </div>
   );
 }

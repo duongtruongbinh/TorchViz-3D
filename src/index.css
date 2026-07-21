@@ -541,6 +541,10 @@ body {
   color: var(--learning-lab-lesson-title);
 }
 
+.learning-lab-reading-content :where(p, li, blockquote) {
+  font-family: 'Be Vietnam Pro', Inter, system-ui, sans-serif;
+}
+
 .learning-lab-light .learning-lab-lesson-page-section {
   background-color: var(--learning-lab-surface-page);
   box-shadow: none;
