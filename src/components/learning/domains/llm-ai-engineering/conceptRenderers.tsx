@@ -67,10 +67,7 @@ function TrainingComponentCard({ card, index, language, themeClasses, emphasisCl
 export function LlmTrainingComponents({ content, language, themeClasses }: LlmContentRendererProps<LlmTrainingComponentsContent>) {
   return (
     <section className="grid gap-4">
-      <div className="grid gap-1">
-        <h2 className={cx('text-lg font-black leading-7', themeClasses.accentText)}>{text(content.title, language)}</h2>
-        <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.body, language)}</p>
-      </div>
+      <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.body, language)}</p>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {content.cards.map((card, index) => (
           <TrainingComponentCard key={text(card.title, language)} card={card} index={index} language={language} themeClasses={themeClasses} focusPanel />

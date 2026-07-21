@@ -543,6 +543,8 @@ body {
 
 .learning-lab-reading-content :where(p, li, blockquote) {
   font-family: 'Be Vietnam Pro', Inter, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.75rem;
 }
 
 .learning-lab-light .learning-lab-lesson-page-section {
