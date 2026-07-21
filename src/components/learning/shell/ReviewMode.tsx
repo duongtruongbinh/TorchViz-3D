@@ -26,7 +26,7 @@ export default function ReviewMode({ catalog, language, theme, onSelectLesson }:
           {strings.review}
         </div>
         <h1 className={cx('mt-3 text-2xl font-black leading-tight sm:text-3xl', themeClasses.titleText)}>{strings.reviewTitle}</h1>
-        <p className={cx('mt-2 max-w-2xl text-sm leading-6', themeClasses.bodyText)}>{strings.reviewDescription}</p>
+        <p className={cx('mt-2 w-full text-sm leading-6', themeClasses.bodyText)}>{strings.reviewDescription}</p>
       </header>
 
       {lessons.length ? (

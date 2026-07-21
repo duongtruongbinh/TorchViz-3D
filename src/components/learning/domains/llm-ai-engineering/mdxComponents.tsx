@@ -159,6 +159,7 @@ function panelComponent(id: string) {
 }
 
 const DomainComparison = panelComponent('why-split-ai-fields');
+const ScopeConvention = panelComponent('ai-scope-convention');
 const LlmOverview = interactionComponent('what-is-llm');
 const TokenizationExample = panelComponent('tokenization-example');
 const NextTokenExercise = interactionComponent('what-is-llm-interactions');
@@ -181,6 +182,7 @@ export const llmMdxComponents = {
   LlmLossDerivation: LossDerivation,
   LlmTrainingComponents: TrainingComponents,
   DomainComparison,
+  ScopeConvention,
   LlmOverview,
   TokenizationExample,
   TokenizerMemory,

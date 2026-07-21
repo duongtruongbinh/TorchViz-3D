@@ -554,6 +554,14 @@ body {
   animation: learning-lab-answer-reveal 720ms ease-out;
 }
 
+.learning-ai-scope-promote {
+  animation: learning-ai-scope-promote 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.learning-ai-scope-word {
+  animation: learning-ai-scope-word 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .learning-bpe-merged-token {
   animation: learning-bpe-merged-token 1.6s ease-out infinite;
 }
@@ -577,6 +585,32 @@ body {
 
   100% {
     box-shadow: 0 0 0 0 rgba(47, 111, 159, 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes learning-ai-scope-promote {
+  from {
+    opacity: 0.25;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes learning-ai-scope-word {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
     transform: translateY(0);
   }
 }
@@ -779,7 +813,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .learning-lab-focus-panel {
+  .learning-lab-focus-panel,
+  .learning-ai-scope-promote,
+  .learning-ai-scope-word {
+    animation: none;
     transition: none;
   }
 

@@ -7,6 +7,7 @@ export const LLM_MDX_COMPONENT_NAMES = [
   'TransformerTranslationStep',
   'AiHierarchy',
   'DomainComparison',
+  'ScopeConvention',
   'AcademiaIndustryComparison',
   'LlmProbabilityDefinition',
   'LlmAutoregressiveDefinition',
