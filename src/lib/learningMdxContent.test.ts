@@ -13,8 +13,8 @@ const publishedLessonIds = learningCatalog.lessons
   .map((lesson) => lesson.id);
 const expectedPageCounts: Record<string, number> = {
   'minimal-llm-project-skeleton': 1,
-  'llm-from-scratch-roadmap': 2,
-  'llm-component-checkpoint-quiz': 2,
+  'llm-from-scratch-roadmap': 3,
+  'llm-component-checkpoint-quiz': 3,
   'llm-system-components': 3,
   'llm-system-components-quiz': 3,
   'language-modeling-next-token': 5,
@@ -44,7 +44,7 @@ const expectedPageCounts: Record<string, number> = {
   'pooling-value-exercise': 1,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
-  'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain'],
+  'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
   'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
   'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
   'ar-language-model-inference-pipeline-quiz': ['ar-inference-order', 'sampling-role', 'corpus-vocabulary', 'output-vector-length', 'probability-sum'],
