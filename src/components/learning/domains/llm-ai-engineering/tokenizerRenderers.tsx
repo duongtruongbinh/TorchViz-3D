@@ -3,6 +3,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
 import { DiagramConnectorLayer, getDiagramAnchor, observeDiagramLayout } from './diagramPrimitives';
+import { CodeBlock } from '../../code/CodeBlock';
 import { LlmCallout, StepPlaybackControls, TokenChip, TokenIdBadge } from './rendererPrimitives';
 import { getLlmRendererTheme } from './rendererTheme';
 import type {
@@ -106,34 +107,18 @@ export function LlmTokenizerCodeStructure({ content, language, themeClasses }: L
       <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className={cx(
-          'overflow-hidden rounded-lg border',
-          themeClasses.isLight ? 'border-[#205089]/14 bg-[#10263E]' : 'border-[#A8B8C8]/18 bg-[#0B1724]',
-        )}>
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-[#D7E7F8]">
-            <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.08em]">
-              <Braces className="h-4 w-4 text-[#74D99F]" strokeWidth={1.8} aria-hidden="true" />
-              Python
-            </span>
+        <CodeBlock
+          code={content.code}
+          showLineNumbers
+          showWhitespace
+          themeClasses={themeClasses}
+          headerTrailing={
             <span className="flex items-center gap-1.5 text-xs font-semibold text-[#9EB4CA]">
               <CornerDownLeft className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
               {language === 'vi' ? 'Khoảng trắng là cấu trúc' : 'Whitespace is structure'}
             </span>
-          </div>
-          <pre className="overflow-x-auto p-4 text-[0.86rem] leading-7 text-[#E8F1FA] md:p-5 md:text-sm"><code>
-            {content.code.map((line, index) => {
-              const indentation = line.match(/^\s*/)?.[0].length ?? 0;
-              const source = line.trimStart();
-              return (
-                <span key={`${line}-${index}`} className="block whitespace-pre">
-                  <span className="mr-3 inline-block w-4 select-none text-right text-[#5E7891]">{index + 1}</span>
-                  {indentation > 0 ? <span className="text-[#74D99F]">{'→'.repeat(indentation / 4)} </span> : null}
-                  <span>{source}</span><span className="select-none text-[#5E7891]"> ↵</span>
-                </span>
-              );
-            })}
-          </code></pre>
-        </div>
+          }
+        />
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
           {comparisonItems.map(({ Icon, body, chip, signals, title, tone }) => (
@@ -436,13 +421,11 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
                 <div className={cx('grid min-h-40 place-items-center p-5 lg:border-r', themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12')}>
                   {renderVisual(stage)}
                 </div>
-                <div className="grid min-w-0 content-center bg-[#10253A] text-[#E7EEF6] dark:bg-[#08121D]">
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-2.5 text-[#DCE8F4]">
-                    <span className="flex items-center gap-2">
-                      <Braces className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                      <span className="text-[0.65rem] font-black uppercase tracking-[0.09em]">Python</span>
-                    </span>
-                    {stage.answerCode?.length ? (
+                <div className="grid min-w-0 content-center gap-3 p-4 lg:p-5">
+                  <CodeBlock
+                    code={(answerVisibility[stage.id] && stage.answerCode ? stage.answerCode : stage.code)}
+                    themeClasses={themeClasses}
+                    headerTrailing={stage.answerCode?.length ? (
                       <button
                         type="button"
                         className="rounded-md border border-white/15 bg-white/[0.08] px-2.5 py-1 text-[0.68rem] font-black text-[#DCE8F4] transition-colors hover:bg-white/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9CC7EF]"
@@ -454,19 +437,10 @@ export function LlmTokenizerCodeToIds({ content, language, themeClasses }: LlmCo
                       >
                         {answerVisibility[stage.id] ? (language === 'vi' ? 'Ẩn đáp án' : 'Hide answer') : (language === 'vi' ? 'Hiện đáp án' : 'Show answer')}
                       </button>
-                    ) : null}
-                  </div>
-                  <pre className="overflow-x-auto px-4 py-4 text-[0.78rem] leading-5"><code>{(answerVisibility[stage.id] && stage.answerCode ? stage.answerCode : stage.code).map((line, lineIndex, lines) => (
-                    <Fragment key={`${stage.id}-${lineIndex}`}>
-                      <span className={line.trimStart().startsWith('#') ? 'text-[#86D99D]' : undefined}>{line || ' '}</span>
-                      {lineIndex < lines.length - 1 ? '\n' : null}
-                    </Fragment>
-                  ))}</code></pre>
+                    ) : undefined}
+                  />
                   {stage.output?.length ? (
-                    <div className="border-t border-white/10 bg-black/20 px-4 py-3">
-                      <span className="mb-2 block text-[0.65rem] font-black uppercase tracking-[0.1em] text-[#8EABC5]">Output</span>
-                      <pre className="overflow-x-auto text-[0.76rem] leading-5 text-[#B9E6C8]"><code>{stage.output.join('\n')}</code></pre>
-                    </div>
+                    <CodeBlock variant="output" code={stage.output.join('\n')} copyable={false} themeClasses={themeClasses} />
                   ) : null}
                 </div>
               </div>
@@ -721,16 +695,9 @@ export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }
           </div>
         </div>
       ) : null}
-      <div className="min-w-0 overflow-hidden rounded-xl bg-[#0B1220] shadow-[inset_0_0_0_1px_rgba(168,184,200,0.18)]">
-          <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#F29A82]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#F4D8A4]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#74D99F]" />
-            <span className="ml-2 text-[0.68rem] font-black uppercase tracking-[0.08em] text-[#A8B8C8]">Python</span>
-          </div>
-          <pre className="overflow-x-auto p-4 text-[0.82rem] leading-7 text-[#E8F1FA] md:p-5 md:text-sm"><code>{content.code.map((line, index) => <span key={`${index}-${line}`} className="block"><span className="mr-4 inline-block w-5 select-none text-right text-[#59708A]">{index + 1}</span>{line || ' '}</span>)}</code></pre>
-          <div className="border-y border-white/10 bg-white/[0.035] px-4 py-2.5 text-[0.68rem] font-black uppercase tracking-[0.08em] text-[#A8B8C8]">Output</div>
-          <pre className="min-w-0 overflow-x-auto whitespace-pre-wrap break-words p-4 text-xs leading-6 text-[#CFE2F7] md:p-5 md:text-[0.82rem]"><code>{content.output.join('\n')}</code></pre>
+      <div className="grid gap-3">
+        <CodeBlock code={content.code} showLineNumbers themeClasses={themeClasses} />
+        <CodeBlock variant="output" code={content.output.join('\n')} copyable={false} themeClasses={themeClasses} />
       </div>
       <LlmCallout icon={Info} themeClasses={themeClasses}>
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.takeaway, language), themeClasses)}</p>
