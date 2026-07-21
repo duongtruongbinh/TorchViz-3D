@@ -109,7 +109,7 @@ export default function LessonDetail({
       </header>
 
       <div
-        className={cx('grid min-w-0 overflow-visible', themeClasses.lessonPageViewport)}
+        className={cx('learning-lab-reading-content grid min-w-0 overflow-visible', themeClasses.lessonPageViewport)}
       >
         {sectionPages[currentSectionPageIndex] ?? null}
       </div>
@@ -187,7 +187,7 @@ function FullWidthTheoryCopy({
   return (
     <div className={cx('grid w-full gap-3', className)}>
       {items.map((item) => (
-        <p key={item} className={cx('text-sm leading-7', themeClasses.bodyText)}>{item}</p>
+        <p key={item} className={cx('text-base leading-[1.625rem]', themeClasses.bodyText)}>{item}</p>
       ))}
     </div>
   );

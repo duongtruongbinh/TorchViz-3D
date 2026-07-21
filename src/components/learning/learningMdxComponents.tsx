@@ -129,7 +129,7 @@ export function ExtraFrame({ title, children, themeClasses, customTitle }: {
 
 function MdxParagraph({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
-  return <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{children}</p>;
+  return <p className={cx('text-base leading-[1.625rem]', themeClasses.bodyText)}>{children}</p>;
 }
 
 function MdxLink({ children, href }: { children?: ReactNode; href?: string }) {

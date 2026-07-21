@@ -1,4 +1,4 @@
-import { Angry, ArrowDown, ArrowRight, Braces, CheckCircle2, CircleAlert, CircleDot, CornerDownLeft, Cpu, Database, Info, MousePointer2, RotateCcw, Scissors, SlidersHorizontal, Sparkles, Type, type LucideIcon, Wrench, X } from 'lucide-react';
+import { Angry, ArrowDown, ArrowLeft, ArrowRight, Braces, CheckCircle2, ChevronRight, CircleAlert, CircleDot, CornerDownLeft, Cpu, Database, Info, MousePointer2, RotateCcw, Scissors, SlidersHorizontal, Sparkles, Type, type LucideIcon, Wrench, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { LearningLessonExtra, LearningTokenExample } from '../../authoredTypes';
 import { getStrings, type Language } from '../../../../lib/localization';
@@ -67,10 +67,7 @@ function TrainingComponentCard({ card, index, language, themeClasses, emphasisCl
 export function LlmTrainingComponents({ content, language, themeClasses }: LlmContentRendererProps<LlmTrainingComponentsContent>) {
   return (
     <section className="grid gap-4">
-      <div className="grid gap-1">
-        <h2 className={cx('text-lg font-black leading-7', themeClasses.accentText)}>{text(content.title, language)}</h2>
-        <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.body, language)}</p>
-      </div>
+      <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.body, language)}</p>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {content.cards.map((card, index) => (
           <TrainingComponentCard key={text(card.title, language)} card={card} index={index} language={language} themeClasses={themeClasses} focusPanel />
@@ -86,129 +83,141 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   const intro = extra.body.map((paragraph) => text(paragraph, language));
+  const conceptName = 'Artificial Intelligence (AI)';
+  const [leadBeforeConcept, leadAfterConcept = ''] = intro[0]?.split(conceptName) ?? ['', ''];
+  const communicationHighlight = 'giúp việc giao tiếp dễ dàng hơn';
+  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
+  const selectedRow = extra.hierarchy?.rows.find((candidate) => candidate.shortName === selectedKeyword);
+  const aiRow = extra.hierarchy?.rows.find((candidate) => candidate.shortName === 'AI');
+  const activeRow = selectedRow ?? aiRow;
+
+  useEffect(() => {
+    if (!selectedKeyword) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedKeyword(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedKeyword]);
 
   return (
     <div className="overflow-hidden">
-      <div className="grid w-full gap-3">
-        {intro.map((paragraph) => (
-          <p key={paragraph} className={cx('text-sm leading-7', themeClasses.bodyText)}>
-            {paragraph}
-          </p>
-        ))}
-      </div>
+      <section className="w-full" aria-label={language === 'vi' ? 'Phạm vi các lĩnh vực AI' : 'Scope of AI fields'}>
+        <p className={cx('text-base font-semibold leading-8 [text-wrap:pretty] sm:text-lg', themeClasses.titleText)}>
+          {leadBeforeConcept}<strong className={themeClasses.accentText}>Artificial Intelligence</strong>{language === 'vi' ? ' thành ' : ' into '}{leadAfterConcept.replace(/^\s*(và|and)\s*/i, '')}
+        </p>
 
-      <div className="mt-5 grid gap-6">
-        <figure className="flex min-w-0 items-center justify-center">
-          <img
-            src={getLlmLearningAssetUrl(extra.image)}
-            alt={text(extra.imageAlt, language)}
-            className="aspect-[1672/941] w-full max-w-[42rem] object-contain"
-            loading="lazy"
-          />
-        </figure>
+        <div className="mt-6 grid items-center gap-6 lg:grid-cols-[minmax(0,0.68fr)_minmax(28rem,1.32fr)] lg:gap-8">
+          <div className={cx('grid gap-4 text-base leading-[1.625rem]', themeClasses.bodyText)}>
+            {intro.slice(1).map((paragraph) => {
+              const [beforeHighlight, afterHighlight] = paragraph.split(communicationHighlight);
+              return (
+                <p key={paragraph}>
+                  {beforeHighlight}
+                  {afterHighlight !== undefined && (
+                    <span className={cx('font-semibold', themeClasses.accentText)}>
+                      {communicationHighlight}
+                    </span>
+                  )}
+                  {afterHighlight}
+                </p>
+              );
+            })}
+          </div>
 
-        {extra.hierarchy && (
-          <AiHierarchyFlow hierarchy={extra.hierarchy} language={language} themeClasses={themeClasses} />
-        )}
-      </div>
-    </div>
-  );
-}
+          <figure className="flex min-w-0 items-center justify-center">
+            <img
+              src={getLlmLearningAssetUrl(extra.image)}
+              alt={text(extra.imageAlt, language)}
+              className="aspect-[1672/941] w-full object-contain"
+              loading="lazy"
+            />
+          </figure>
+        </div>
 
-function AiHierarchyFlow({ hierarchy, language, themeClasses }: {
-  hierarchy: NonNullable<Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy']>;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-}) {
-  const leadingRows = hierarchy.rows.filter((row) => row.depth !== 'branch' && row.depth !== 'target');
-  const branchRows = hierarchy.rows.filter((row) => row.depth === 'branch');
-  const targetRows = hierarchy.rows.filter((row) => row.depth === 'target');
-  const [activeRowName, setActiveRowName] = useState(hierarchy.rows[0]?.shortName ?? '');
+        <div
+          className={cx('relative mt-6 overflow-hidden rounded-xl', themeClasses.isLight ? 'bg-[#205089]/[0.055]' : 'bg-[#A8B8C8]/[0.065]')}
+          role="group"
+          aria-label={extra.hierarchy ? text(extra.hierarchy.ariaLabel, language) : text(extra.imageAlt, language)}
+        >
+          <button
+            type="button"
+            aria-pressed={Boolean(selectedRow)}
+            aria-label={selectedRow ? (language === 'vi' ? 'Nhấn lần nữa để quay lại sơ đồ tổng quan' : 'Click again to return to the overview') : undefined}
+            title={selectedRow ? (language === 'vi' ? 'Nhấn lần nữa để quay lại' : 'Click again to go back') : undefined}
+            onClick={() => setSelectedKeyword((current) => current ? null : 'AI')}
+            className={cx(
+              'flex min-h-20 w-full items-end justify-between gap-4 px-5 py-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70',
+              themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]',
+            )}>
+            <span key={activeRow?.shortName ?? 'AI'} className="learning-ai-scope-promote flex items-center gap-3 text-[2.75rem] font-black leading-none tracking-[-0.04em]">
+              {selectedRow
+                ? <ArrowLeft className="h-6 w-6 shrink-0" strokeWidth={2.4} aria-hidden="true" />
+                : <ChevronRight className="h-6 w-6 shrink-0 opacity-80" strokeWidth={2.4} aria-hidden="true" />}
+              {activeRow?.shortName ?? 'AI'}
+            </span>
+            <span key={activeRow?.fullName ?? 'Artificial Intelligence'} className="learning-ai-scope-promote flex items-center justify-end gap-3 pb-1 text-right text-xs font-bold sm:text-sm">
+              <span className="opacity-80">{activeRow?.fullName ?? 'Artificial Intelligence'}</span>
+            </span>
+          </button>
 
-  return (
-    <div className="learning-lab-focus-group mt-5 grid w-full gap-3" aria-label={text(hierarchy.ariaLabel, language)}>
-      {leadingRows.map((row) => (
-        <HierarchyRow
-          key={row.shortName}
-          row={row}
-          isActive={activeRowName === row.shortName}
-          language={language}
-          themeClasses={themeClasses}
-          onActivate={setActiveRowName}
-        />
-      ))}
+          {selectedRow ? (
+            <div key={selectedRow.shortName} className="grid min-h-[14.5rem] content-center px-6 py-8 sm:px-10">
+              <p className={cx('w-full text-lg leading-8', themeClasses.bodyText)} aria-live="polite">
+                {text(selectedRow.description, language).split(/(\s+)/).map((word, index) => (
+                  <span
+                    key={`${word}-${index}`}
+                    className="learning-ai-scope-word"
+                    style={{ animationDelay: `${120 + index * 28}ms` }}
+                  >
+                    {word}
+                  </span>
+                ))}
+              </p>
+            </div>
+          ) : (
+            <div className="p-3 sm:p-4">
+              <div className={cx('mx-auto w-[90%] overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#7395B6]/16' : 'bg-[#496F98]/18')}>
+              <button type="button" onClick={() => setSelectedKeyword('ML')} className={cx('flex min-h-11 w-full items-center justify-between gap-3 px-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', themeClasses.isLight ? 'bg-[#7395B6] text-neutral-100' : 'bg-[#496F98] text-neutral-200')}>
+                <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-75" strokeWidth={2.4} aria-hidden="true" />ML</span>
+                <span className="text-xs font-bold opacity-75">Machine Learning</span>
+              </button>
 
-      {branchRows.length ? (
-        <div className="grid gap-3 py-2">
-          {hierarchy.branchLabel && (
-            <div className={cx('text-sm font-semibold leading-6', themeClasses.mutedText)}>
-              {text(hierarchy.branchLabel, language)}
+              <div className="p-2.5 sm:p-3">
+                <div className={cx('mx-auto w-[84%] overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#9DB3C9]/24' : 'bg-[#344C68]/26')}>
+                  <button type="button" onClick={() => setSelectedKeyword('DL')} className={cx('flex min-h-11 w-full items-center justify-between gap-3 px-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', themeClasses.isLight ? 'bg-[#9DB3C9] text-neutral-100' : 'bg-[#344C68] text-neutral-200')}>
+                    <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-75" strokeWidth={2.4} aria-hidden="true" />DL</span>
+                    <span className="text-xs font-bold opacity-75">Deep Learning</span>
+                  </button>
+
+                  <div className="flex gap-2 p-2.5 sm:p-3">
+                    <div className={cx('min-w-0 flex-1 overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#C8D6E4]/38' : 'bg-[#293C52]/44')}>
+                      <button type="button" onClick={() => setSelectedKeyword('CV')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', themeClasses.isLight ? 'bg-[#C8D6E4] text-[#173F5F]' : 'bg-[#293C52] text-[#F2F6FA]')}>
+                        <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-70" strokeWidth={2.4} aria-hidden="true" />CV</span>
+                      </button>
+                    </div>
+                    <div className={cx('min-w-0 flex-1 overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#C8D6E4]/38' : 'bg-[#293C52]/44')}>
+                      <button type="button" onClick={() => setSelectedKeyword('NLP')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70', themeClasses.isLight ? 'bg-[#C8D6E4] text-[#173F5F]' : 'bg-[#293C52] text-[#F2F6FA]')}>
+                        <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-70" strokeWidth={2.4} aria-hidden="true" />NLP</span>
+                        <span className="hidden text-xs font-bold opacity-70 sm:inline">Language</span>
+                      </button>
+                      <div className="p-2">
+                        <div className={cx('overflow-hidden rounded-md', themeClasses.isLight ? 'bg-[#D97706]/12' : 'bg-[#F6C453]/12')}>
+                          <button type="button" onClick={() => setSelectedKeyword('LLM')} className={cx('flex min-h-11 w-full items-center justify-between gap-2 px-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80', themeClasses.isLight ? 'bg-[#D97706] text-white' : 'bg-[#F6C453] text-[#332006]')}>
+                            <span className="flex items-center gap-2 font-black"><ChevronRight className="h-4 w-4 opacity-80" strokeWidth={2.4} aria-hidden="true" />LLM</span>
+                            <span className="hidden text-xs font-bold opacity-70 sm:inline">{language === 'vi' ? 'Trọng tâm' : 'Our focus'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
             </div>
           )}
-          <div className="grid gap-3 md:grid-cols-2">
-            {branchRows.map((row) => (
-              <HierarchyRow
-                key={row.shortName}
-                row={row}
-                isActive={activeRowName === row.shortName}
-                language={language}
-                themeClasses={themeClasses}
-                onActivate={setActiveRowName}
-              />
-            ))}
-          </div>
         </div>
-      ) : null}
-
-      {targetRows.map((row) => (
-        <HierarchyRow
-          key={row.shortName}
-          row={row}
-          isActive={activeRowName === row.shortName}
-          language={language}
-          themeClasses={themeClasses}
-          onActivate={setActiveRowName}
-        />
-      ))}
-    </div>
-  );
-}
-
-function HierarchyRow({ row, isActive, language, themeClasses, onActivate }: {
-  row: NonNullable<Extract<LearningLessonExtra, { kind: 'motivation' }>['hierarchy']>['rows'][number];
-  isActive: boolean;
-  language: Language;
-  themeClasses: ReturnType<typeof getLearningLabTheme>;
-  onActivate: (shortName: string) => void;
-}) {
-  const isTarget = row.depth === 'target';
-  const rowTone = isTarget
-    ? themeClasses.isLight
-      ? 'bg-[#205089]/8 shadow-[inset_3px_0_0_rgba(32,80,137,0.78)] hover:bg-[#205089]/12'
-      : 'bg-[#A8B8C8]/10 shadow-[inset_3px_0_0_rgba(215,220,226,0.78)] hover:bg-[#A8B8C8]/14'
-    : themeClasses.isLight
-      ? 'bg-[#B8C8DA]/20 hover:bg-[#B8C8DA]/34'
-      : 'bg-[#A8B8C8]/6 hover:bg-[#A8B8C8]/10';
-
-  return (
-    <div
-      data-active={isActive ? 'true' : undefined}
-      onFocus={() => onActivate(row.shortName)}
-      onMouseEnter={() => onActivate(row.shortName)}
-      className={cx(
-        'learning-lab-focus-panel group grid gap-2 px-3 py-2 text-sm transition-[background-color,box-shadow,filter,opacity,transform] duration-200 sm:items-start',
-        themeClasses.radius.button,
-        rowTone,
-        row.compact ? 'sm:grid-cols-[3.75rem_minmax(0,1fr)]' : 'sm:grid-cols-[4.5rem_minmax(0,1fr)]',
-      )}
-    >
-      <div className={cx('font-black leading-6', isTarget ? themeClasses.accentText : themeClasses.titleText)}>
-        {row.shortName}
-      </div>
-      <div className="min-w-0">
-        <div className={cx('font-normal leading-6', themeClasses.titleText)}>{row.fullName}</div>
-        <p className={cx('mt-0.5 leading-6', themeClasses.bodyText)}>{text(row.description, language)}</p>
-      </div>
+      </section>
     </div>
   );
 }
@@ -521,7 +530,7 @@ export function TokenExampleBlock({ example, language, themeClasses, hideTitle =
 
       <div className="mt-7 grid gap-2">
         {example.notes.map((note) => (
-          <div key={text(note, language)} className={cx('mx-auto flex max-w-3xl gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
+          <div key={text(note, language)} className={cx('flex w-full gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
             <CircleAlert className="mt-1 h-4 w-4 shrink-0 text-[#D97706]" strokeWidth={2.1} aria-hidden="true" />
             <p className="text-justify">{text(note, language)}</p>
           </div>
@@ -709,6 +718,14 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
     );
   }
 
+  if (extra.id === 'ai-scope-convention') {
+    return (
+      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
+        <ScopeConventionPanel extra={extra} language={language} themeClasses={themeClasses} />
+      </ExtraFrame>
+    );
+  }
+
   return (
     <ExtraFrame
       title={panelTitle}
@@ -788,32 +805,60 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
         ) : null}
 
         {extra.comparisonTable && (
-          <div className={cx('overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/32')}>
-            <div className={cx('hidden grid-cols-[7rem_repeat(3,minmax(0,1fr))] border-b text-xs font-black uppercase tracking-wide md:grid', themeClasses.isLight ? 'border-[#205089]/10 bg-[#EEF4FA] text-[#123B68]/72' : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/62')}>
-              {extra.comparisonTable.columns.map((column) => (
-                <div key={text(column, language)} className="px-3 py-3">
-                  {text(column, language)}
-                </div>
-              ))}
-            </div>
-            <div className="grid">
+          <div className="grid gap-2">
+            <div className="grid gap-2">
               {extra.comparisonTable.rows.map((row, rowIndex) => (
                 <div
                   key={text(row.label, language)}
                   className={cx(
-                    'grid gap-3 px-3 py-4 md:grid-cols-[7rem_repeat(3,minmax(0,1fr))] md:gap-0',
-                    rowIndex > 0 && (themeClasses.isLight ? 'border-t border-[#205089]/10' : 'border-t border-[#A8B8C8]/12'),
+                    'grid overflow-hidden rounded-lg md:grid-cols-[7rem_minmax(0,1fr)]',
+                    themeClasses.isLight
+                      ? rowIndex === 0
+                        ? 'bg-[#E8F0F7]'
+                        : rowIndex === 1
+                          ? 'bg-[#E8F2EF]'
+                          : 'bg-[#FFF1DE]'
+                      : rowIndex === 0
+                        ? 'bg-[#496F98]/18'
+                        : rowIndex === 1
+                          ? 'bg-[#4F7D70]/18'
+                          : 'bg-[#D97706]/16',
                   )}
                 >
-                  <div className={cx('text-base font-black leading-6 md:text-sm', themeClasses.accentText)}>{text(row.label, language)}</div>
-                  {row.cells.map((cell, cellIndex) => (
-                    <div key={`${text(row.label, language)}-${cellIndex}`} className="min-w-0 md:px-3">
-                      <div className={cx('mb-1 text-[11px] font-black uppercase tracking-wide md:hidden', themeClasses.mutedText)}>
-                        {text(extra.comparisonTable?.columns[cellIndex + 1] ?? row.label, language)}
-                      </div>
-                      <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(cell, language)}</p>
-                    </div>
-                  ))}
+                  <div
+                    className={cx(
+                      'flex min-h-16 items-center px-4 py-3 text-2xl font-black tracking-[-0.03em] text-white md:min-h-full',
+                      rowIndex === 0 ? 'bg-[#2F6F9F]' : rowIndex === 1 ? 'bg-[#477C6C]' : 'bg-[#D97706]',
+                    )}
+                  >
+                    {text(row.label, language)}
+                  </div>
+                  <div className="grid md:grid-cols-3">
+                    {row.cells.map((cell, cellIndex) => {
+                      const bulletItems = text(cell, language)
+                        .split(/[,;]\s*/)
+                        .map((item) => item.trim().replace(/\.$/, ''))
+                        .map((item) => item ? `${item[0].toLocaleUpperCase(language)}${item.slice(1)}` : item)
+                        .filter(Boolean);
+
+                      return (
+                        <div
+                          key={`${text(row.label, language)}-${cellIndex}`}
+                          className={cx(
+                            'min-w-0 px-4 py-3',
+                            cellIndex > 0 && (themeClasses.isLight ? 'border-t border-black/8 md:border-l md:border-t-0' : 'border-t border-white/10 md:border-l md:border-t-0'),
+                          )}
+                        >
+                          <div className={cx('mb-1 text-xs font-black leading-4', themeClasses.isLight ? 'text-[#254F70]' : 'text-[#D7EAFE]')}>
+                            {text(extra.comparisonTable?.columns[cellIndex + 1] ?? row.label, language)}
+                          </div>
+                          <ul className={cx('grid list-disc pl-4 text-sm leading-5 marker:text-current/55', themeClasses.bodyText)}>
+                            {bulletItems.map((item) => <li key={item}>{item}</li>)}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               ))}
             </div>
@@ -903,7 +948,7 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
 
         {extra.bodyAfter && (
           extra.id === 'why-split-ai-fields' ? (
-            <div className="mx-auto grid max-w-3xl gap-2">
+            <div className="grid w-full gap-2">
               {extra.bodyAfter.map((paragraph) => (
                 <div key={text(paragraph, language)} className={cx('flex gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>
                   <CircleAlert className="mt-1 h-4 w-4 shrink-0 text-[#D97706]" strokeWidth={2.1} aria-hidden="true" />
@@ -1250,6 +1295,92 @@ function DiagramFlowItem({
   return (
     <div className="flex min-w-0 justify-center">
       {children}
+    </div>
+  );
+}
+
+function ScopeConventionPanel({ extra, language, themeClasses }: {
+  extra: Extract<LearningLessonExtra, { kind: 'conceptPanel' }>;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const historyRows = extra.highlights?.slice(0, 2) ?? [];
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid gap-2">
+        {extra.body?.slice(0, 1).map((paragraph, index) => {
+          const lines = text(paragraph, language).split('\n').filter(Boolean);
+          if (lines.length > 1) {
+            return (
+              <div key={text(paragraph, language)} className={cx('grid gap-1.5', themeClasses.bodyText)}>
+                <p className="text-base leading-7">{lines[0]}</p>
+                <ul className="grid list-disc gap-1 pl-5 text-sm font-semibold leading-6 marker:text-current/55">
+                  {lines.slice(1).map((line) => <li key={line}>{line}</li>)}
+                </ul>
+              </div>
+            );
+          }
+          return <p key={text(paragraph, language)} className={cx(index === 0 ? 'text-base font-semibold leading-7' : 'text-sm leading-7', themeClasses.bodyText)}>{lines[0]}</p>;
+        })}
+      </div>
+
+      <div className="grid gap-2">
+        {historyRows.map((item, index) => {
+          const descriptionLines = text(item.description, language).split('\n').filter(Boolean);
+          return (
+            <section
+              key={text(item.shortName, language)}
+              className={cx(
+                'grid overflow-hidden rounded-lg md:grid-cols-[6rem_minmax(0,1fr)]',
+                themeClasses.isLight ? (index === 0 ? 'bg-[#EEF4FA]' : 'bg-[#F0F4F2]') : 'bg-[#121A24]/38',
+              )}
+            >
+              <div className={cx('flex items-center px-4 py-3 text-2xl font-black text-white', index === 0 ? 'bg-[#2F6F9F]' : 'bg-[#477C6C]')}>
+                {text(item.shortName, language)}
+              </div>
+              <div className="grid gap-2 px-4 py-3 md:grid-cols-[minmax(12rem,0.36fr)_minmax(0,1fr)] md:gap-5">
+                <p className={cx('text-sm font-normal leading-6', themeClasses.titleText)}>{text(item.fullName, language)}</p>
+                <ul className={cx('grid list-disc gap-0.5 pl-4 text-sm leading-5 marker:text-current/50', themeClasses.bodyText)}>
+                  {descriptionLines.map((line) => <li key={line}>{line}</li>)}
+                </ul>
+              </div>
+            </section>
+          );
+        })}
+      </div>
+
+      {extra.body?.slice(1).map((paragraph) => (
+        <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
+          {text(paragraph, language)}
+        </p>
+      ))}
+
+      <div className="grid items-stretch gap-2 md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)_2rem_minmax(0,1fr)]">
+        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#DCE8F4] text-[#173F5F]' : 'bg-[#496F98]/28 text-[#DCE8F4]')}>
+          <span className="text-xs font-bold opacity-70">{language === 'vi' ? 'DOMAIN DỮ LIỆU' : 'DATA DOMAIN'}</span>
+          <strong className="text-xl font-black">CV / NLP</strong>
+          <span className="text-xs leading-5 opacity-75">{language === 'vi' ? 'Hình ảnh · video · ngôn ngữ' : 'Images · video · language'}</span>
+        </div>
+        <div className={cx('grid h-8 place-items-center self-center text-2xl font-light md:h-auto', themeClasses.mutedText)} aria-hidden="true">+</div>
+        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#E4ECE8] text-[#315F53]' : 'bg-[#4F7D70]/26 text-[#D7EEE7]')}>
+          <span className="text-xs font-bold opacity-70">{language === 'vi' ? 'NHÓM PHƯƠNG PHÁP' : 'METHOD FAMILY'}</span>
+          <strong className="text-xl font-black">ML / DL</strong>
+          <span className="text-xs leading-5 opacity-75">{language === 'vi' ? 'Thuật toán · neural networks' : 'Algorithms · neural networks'}</span>
+        </div>
+        <div className={cx('grid h-8 place-items-center self-center text-2xl font-light md:h-auto', themeClasses.mutedText)} aria-hidden="true">=</div>
+        <div className={cx('grid content-center gap-1 rounded-lg px-4 py-3 text-white', themeClasses.isLight ? 'bg-[#205089]' : 'bg-[#496F98]')}>
+          <span className="text-xs font-bold opacity-70">{language === 'vi' ? 'CÁCH ĐỌC TRONG KHÓA HỌC' : 'COURSE CONVENTION'}</span>
+          <strong className="text-xl font-black">AI application</strong>
+          <span className="text-xs leading-5 opacity-75">{language === 'vi' ? 'Phương pháp AI trong một domain' : 'AI methods within a domain'}</span>
+        </div>
+      </div>
+
+      {extra.bodyAfter?.map((paragraph) => (
+        <p key={text(paragraph, language)} className={cx('w-full text-sm font-semibold leading-6', themeClasses.accentText)}>
+          {text(paragraph, language)}
+        </p>
+      ))}
     </div>
   );
 }

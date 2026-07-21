@@ -17,12 +17,11 @@ export type LlmExtraRendererProps<TExtra> = {
 };
 
 export type LlmTrainingComponentsContent = {
-  title: LearningLocalizedText;
   body: LearningLocalizedText;
   cards: Array<{ title: LearningLocalizedText; description: LearningLocalizedText }>;
 };
 
-export type LlmAcademiaIndustryComparisonContent = Omit<LlmTrainingComponentsContent, 'title' | 'body'> & {
+export type LlmAcademiaIndustryComparisonContent = Omit<LlmTrainingComponentsContent, 'body'> & {
   academia: LearningLocalizedText;
   industry: LearningLocalizedText;
 };

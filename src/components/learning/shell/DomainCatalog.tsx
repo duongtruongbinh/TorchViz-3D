@@ -39,7 +39,7 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
             <div className="relative grid gap-7 px-5 py-7 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:items-center lg:px-10 lg:py-9 xl:gap-12 xl:px-12">
               <div>
                 <div className="text-sm font-black uppercase tracking-[0.16em] text-[#9DD7F5]">{home.projectLabel}</div>
-                <h1 className="mt-3 max-w-4xl text-[clamp(2rem,3.2vw,3.75rem)] font-black leading-[1.02] tracking-[-0.035em] text-white">
+                <h1 className="mt-3 w-full text-[clamp(2rem,3.2vw,3.75rem)] font-black leading-[1.02] tracking-[-0.035em] text-white">
                   {home.simpleTitle}
                 </h1>
               </div>

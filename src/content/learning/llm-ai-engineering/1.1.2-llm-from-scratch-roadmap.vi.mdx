@@ -3,9 +3,9 @@ export const lessonMetadata = {
   id: 'llm-from-scratch-roadmap',
   locale: 'vi',
   title: 'Bức tranh tổng quan về AI',
-  headings: ['Tổng quan AI', 'Vì sao cần chia domain'],
+  headings: ['Tổng quan AI', 'Vì sao cần chia domain', 'Quy ước về phạm vi'],
   keywords: ['AI', 'ML', 'DL', 'CV', 'NLP', 'LLM'],
-  pageCount: 2,
+  pageCount: 3,
 }
 
 <MdxPage page={0}>
@@ -15,7 +15,8 @@ export const lessonMetadata = {
     "imageAlt": { vi: "Sơ đồ tổng quan các lĩnh vực AI từ phạm vi rộng đến chuyên biệt." },
     "body": [
       { vi: "Trước khi bàn về các mô hình ngôn ngữ lớn, hãy cùng phân tách Artificial Intelligence (AI) và các lĩnh vực thành phần của nó theo phạm vi từ lớn đến nhỏ." },
-      { vi: "Hãy tưởng tượng đây là những vòng tròn lồng vào nhau: vòng ngoài cùng rộng nhất, càng vào trong càng hẹp và càng chuyên biệt." }
+      { vi: "AI hiện nay có thể áp dụng vào tất cả các lĩnh vực trong đời sống. Do đó sẽ có một số thuật ngữ sinh ra để ''narrow down'' các lĩnh vực này lại, giúp việc giao tiếp dễ dàng hơn." },
+      { vi: "Theo đó, ở hình minh họa bên cạnh, AI là vòng ngoài cùng rộng nhất, càng vào trong các thuật ngữ dùng để chỉ các lĩnh vực càng hẹp và chuyên biệt." }
     ],
     "hierarchy": {
       "ariaLabel": { vi: "AI hierarchy flow" },
@@ -24,39 +25,39 @@ export const lessonMetadata = {
         {
           "shortName": "AI",
           "fullName": "Artificial Intelligence",
-          "description": { vi: "Vòng ngoài cùng, chứa mọi cách làm cho máy có hành vi thông minh." },
+          "description": { vi: "Artificial Intelligence (AI) là khái niệm rộng nhất, bao gồm mọi phương pháp giúp máy thực hiện những nhiệm vụ vốn cần đến trí thông minh của con người: học hỏi, suy luận, nhận biết, giao tiếp hay ra quyết định. Một điểm dễ gây nhầm lẫn là tên gọi AI Engineer không bao quát đồng đều toàn bộ phạm vi này. Trong thực tế tuyển dụng, vai trò đó thường được hiểu là xây dựng các hệ thống làm việc chủ yếu với dữ liệu phi cấu trúc, đặc biệt là hình ảnh trong Computer Vision và ngôn ngữ trong NLP." },
           "depth": "widest"
         },
         {
           "shortName": "ML",
           "fullName": "Machine Learning",
-          "description": { vi: "Bên trong AI, nơi máy học từ dữ liệu thay vì làm theo luật cố định." },
+          "description": { vi: "Machine Learning (ML) là một nhánh của AI, trong đó máy học quy luật từ dữ liệu thay vì chỉ làm theo những luật được viết sẵn. Phạm vi ML không chỉ có hình ảnh hay văn bản mà còn bao gồm dữ liệu dạng bảng (tabular data), chuỗi thời gian (time series), dữ liệu giao dịch và nhiều dạng dữ liệu có cấu trúc khác. Vì vậy, Data Analyst, Data Scientist và ML Engineer đều thường xuyên làm việc với nhóm dữ liệu này, dù mức độ phân tích, xây dựng mô hình và triển khai hệ thống của mỗi vai trò sẽ khác nhau." },
           "depth": "middle"
         },
         {
           "shortName": "DL",
           "fullName": "Deep Learning",
-          "description": { vi: "Bên trong ML, dùng nhiều lớp xử lý để học các pattern phức tạp hơn." },
+          "description": { vi: "Deep Learning (DL) là một nhóm phương pháp bên trong Machine Learning, sử dụng mạng neural nhiều lớp để tự học các biểu diễn và pattern phức tạp từ dữ liệu. DL đặc biệt hiệu quả khi dữ liệu có quy mô lớn và khó mô tả bằng các đặc trưng thủ công, chẳng hạn hình ảnh, âm thanh hoặc văn bản. Đổi lại, các mô hình này thường cần nhiều dữ liệu, năng lực tính toán và công sức tối ưu hơn so với những mô hình ML truyền thống." },
           "depth": "middle"
         },
         {
           "shortName": "CV",
           "fullName": "Computer Vision",
-          "description": { vi: "Xử lý hình ảnh." },
+          "description": { vi: "Computer Vision (CV) tập trung giúp máy thu nhận và hiểu thông tin từ hình ảnh hoặc video. Các bài toán phổ biến gồm phân loại ảnh, phát hiện và phân đoạn vật thể, nhận diện khuôn mặt, đọc tài liệu, kiểm tra lỗi sản phẩm và phân tích ảnh y tế. Dữ liệu đầu vào thường là pixel, nhưng đầu ra cần được chuyển thành thông tin có ý nghĩa để con người hoặc một hệ thống khác có thể sử dụng." },
           "depth": "branch",
           "compact": true
         },
         {
           "shortName": "NLP",
           "fullName": "Natural Language Processing",
-          "description": { vi: "Xử lý ngôn ngữ." },
+          "description": { vi: "Natural Language Processing (NLP) tập trung giúp máy xử lý, hiểu và tạo ra ngôn ngữ của con người dưới dạng văn bản hoặc lời nói. Lĩnh vực này bao gồm phân loại văn bản, tìm kiếm, dịch máy, tóm tắt, hỏi đáp, nhận dạng giọng nói và sinh nội dung. Vì ngôn ngữ phụ thuộc mạnh vào ngữ cảnh và thường chứa nhiều cách diễn đạt mơ hồ, NLP là một trong những nhánh phức tạp và phát triển nhanh của AI." },
           "depth": "branch",
           "compact": true
         },
         {
           "shortName": "LLM",
           "fullName": "Large Language Model",
-          "description": { vi: "Nằm sâu hơn bên trong NLP, đây là phần chúng ta sẽ tập trung giải thích." },
+          "description": { vi: "Large Language Model (LLM) là các mô hình ngôn ngữ có quy mô lớn, được huấn luyện trên lượng dữ liệu văn bản rất lớn để học cách dự đoán và tạo chuỗi token theo ngữ cảnh. LLM là nền tảng của chatbot, trợ lý lập trình, hệ thống hỏi đáp, tóm tắt và nhiều ứng dụng Generative AI hiện nay. Trong khóa học này, đây là trọng tâm chính: từ cách văn bản được token hóa, mô hình được huấn luyện cho đến cách xây dựng một hệ thống LLM hoàn chỉnh." },
           "depth": "target"
         }
       ]
@@ -107,5 +108,30 @@ export const lessonMetadata = {
         }
       ]
     }
+  }} />
+</MdxPage>
+
+<MdxPage page={2}>
+  <ScopeConvention content={{
+    "title": { vi: "Một quy ước để cùng hiểu đúng" },
+    "body": [
+      { vi: "Sơ đồ AI vừa rồi là một quy ước phổ biến, đơn giản hóa phạm vi để phục vụ việc học và giao tiếp.\nComputer Vision và Natural Language Processing không xuất hiện sau Deep Learning.\nKhông phải mọi bài toán trong hai lĩnh vực này đều cần sử dụng neural networks." },
+      { vi: "Trong phần còn lại của khóa học, khi đặt CV và NLP dưới AI hoặc DL, chúng ta ngầm hiểu rằng đang nói về việc ứng dụng các thuật toán Machine Learning và Deep Learning vào dữ liệu hình ảnh hoặc ngôn ngữ. Quy ước này giúp người viết và reader mặc định đang nói trong cùng một context." }
+    ],
+    "highlights": [
+      {
+        "shortName": { vi: "CV" },
+        "fullName": { vi: "Computer Vision có trước làn sóng Deep Learning" },
+        "description": { vi: "Xử lý ảnh truyền thống: lọc ảnh, phát hiện biên, thresholding và morphology.\nĐặc trưng thủ công: SIFT, SURF, HOG và các phương pháp dựa trên hình học.\nDeep Learning mở rộng khả năng học đặc trưng trực tiếp từ dữ liệu, nhưng không xóa bỏ những phương pháp trước đó." }
+      },
+      {
+        "shortName": { vi: "NLP" },
+        "fullName": { vi: "NLP cũng có một lịch sử dài trước LLM" },
+        "description": { vi: "Phương pháp dựa trên luật: regex, từ điển, grammar và các hệ thống chuyên gia.\nPhương pháp thống kê: n-gram, TF-IDF, Hidden Markov Model và mô hình tuyến tính.\nNeural networks và Transformer là các lớp phương pháp mới hơn trong một lĩnh vực vốn đã tồn tại từ lâu." }
+      }
+    ],
+    "bodyAfter": [
+      { vi: "Từ đây trở đi, hãy đọc sơ đồ như một quy ước giao tiếp: domain cho biết loại dữ liệu và bài toán; ML/DL cho biết nhóm phương pháp; LLM là một họ mô hình chuyên biệt trong NLP. Mục tiêu là để chúng ta mặc định đang on the same page, không phải tạo ra một taxonomy tuyệt đối cho toàn bộ lịch sử AI." }
+    ]
   }} />
 </MdxPage>

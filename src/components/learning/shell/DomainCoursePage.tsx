@@ -51,11 +51,11 @@ export default function DomainCoursePage({
               <div
                 role="heading"
                 aria-level={1}
-                className="max-w-4xl text-[1.65rem] font-black leading-tight text-[#F2F6FA]/82 sm:text-[2rem] lg:text-[2.25rem]"
+                className="text-[1.65rem] font-black leading-tight text-[#F2F6FA]/82 sm:text-[2rem] lg:text-[2.25rem]"
               >
                 {copy.title}
               </div>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-[#F2F6FA]/82 sm:text-lg">
+              <p className="mt-4 w-full text-base leading-7 text-[#F2F6FA]/82 sm:text-lg">
                 {copy.subtitle}
               </p>
 

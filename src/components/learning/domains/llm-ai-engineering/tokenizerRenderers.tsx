@@ -304,7 +304,7 @@ export function LlmTokenizerVocabularyLookup({ content, language, themeClasses }
 export function LlmTokenizerIdMisconceptions({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerIdMisconceptionsContent>) {
   return (
     <section className="grid gap-5">
-      <p className={cx('mx-auto max-w-3xl text-center text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
+      <p className={cx('w-full text-center text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
       <div className={cx('relative mx-auto grid w-full max-w-4xl gap-5 overflow-hidden rounded-2xl border p-5 sm:p-7', themeClasses.isLight ? 'border-[#E07A5F]/20 bg-[#FFF9F6]' : 'border-[#F29A82]/18 bg-[#F29A82]/6')}>
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
           {content.entries.map((entry, index) => (
@@ -331,7 +331,7 @@ export function LlmTokenizerIdMisconceptions({ content, language, themeClasses }
           ))}
         </div>
       </div>
-      <LlmCallout className="mx-auto max-w-3xl" icon={CircleAlert} themeClasses={themeClasses}>
+      <LlmCallout className="w-full" icon={CircleAlert} themeClasses={themeClasses}>
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.takeaway, language)}</p>
       </LlmCallout>
     </section>
