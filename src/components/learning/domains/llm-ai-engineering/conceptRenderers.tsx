@@ -86,16 +86,68 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   const intro = extra.body.map((paragraph) => text(paragraph, language));
+  const conceptName = 'Artificial Intelligence (AI)';
+  const [leadBeforeConcept, leadAfterConcept = ''] = intro[0]?.split(conceptName) ?? ['', ''];
 
   return (
     <div className="overflow-hidden">
-      <div className="grid w-full gap-3">
-        {intro.map((paragraph) => (
-          <p key={paragraph} className={cx('text-sm leading-7', themeClasses.bodyText)}>
-            {paragraph}
-          </p>
-        ))}
-      </div>
+      <section className="w-full" aria-label={language === 'vi' ? 'Phạm vi các lĩnh vực AI' : 'Scope of AI fields'}>
+        <p className={cx('text-base font-semibold leading-8 [text-wrap:pretty] sm:text-lg', themeClasses.titleText)}>
+          {leadBeforeConcept}<strong className={themeClasses.accentText}>Artificial Intelligence</strong>{language === 'vi' ? ' thành ' : ' into '}{leadAfterConcept.replace(/^\s*(và|and)\s*/i, '')}
+        </p>
+
+        <div
+          className={cx('mt-4 overflow-hidden rounded-xl', themeClasses.isLight ? 'bg-[#205089]/[0.055]' : 'bg-[#A8B8C8]/[0.065]')}
+          role="img"
+          aria-label={text(extra.imageAlt, language)}
+        >
+          <div className={cx(
+            'flex min-h-20 items-end justify-between gap-4 px-5 py-4',
+            themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]',
+          )}>
+            <span className="text-[2.75rem] font-black leading-none tracking-[-0.04em]">AI</span>
+            <span className="pb-1 text-right text-xs font-bold opacity-80 sm:text-sm">Artificial Intelligence</span>
+          </div>
+
+          <div className="p-3 sm:p-4">
+            <div className={cx('mx-auto w-[90%] overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#7F9DBB]/16' : 'bg-[#496F98]/18')}>
+              <div className={cx('flex min-h-11 items-center justify-between gap-3 px-4', themeClasses.isLight ? 'bg-[#7F9DBB] text-[#07192B]' : 'bg-[#496F98] text-[#F2F6FA]')}>
+                <span className="font-black">ML</span>
+                <span className="text-xs font-bold opacity-75">Machine Learning</span>
+              </div>
+
+              <div className="p-2.5 sm:p-3">
+                <div className={cx('mx-auto w-[84%] overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#A9BCD0]/24' : 'bg-[#344C68]/26')}>
+                  <div className={cx('flex min-h-11 items-center justify-between gap-3 px-4', themeClasses.isLight ? 'bg-[#A9BCD0] text-[#102D4A]' : 'bg-[#344C68] text-[#F2F6FA]')}>
+                    <span className="font-black">DL</span>
+                    <span className="text-xs font-bold opacity-75">Deep Learning</span>
+                  </div>
+
+                  <div className="flex gap-2 p-2.5 sm:p-3">
+                    <div className={cx('flex min-h-11 min-w-0 flex-1 items-center rounded-lg px-3 font-black', themeClasses.isLight ? 'bg-[#C8D6E4] text-[#173F5F]' : 'bg-[#293C52] text-[#F2F6FA]')}>CV</div>
+                    <div className={cx('min-w-0 flex-1 overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#C8D6E4]/38' : 'bg-[#293C52]/44')}>
+                      <div className={cx('flex min-h-11 items-center justify-between gap-2 px-3', themeClasses.isLight ? 'bg-[#C8D6E4] text-[#173F5F]' : 'bg-[#293C52] text-[#F2F6FA]')}>
+                        <span className="font-black">NLP</span>
+                        <span className="hidden text-xs font-bold opacity-70 sm:inline">Language</span>
+                      </div>
+                      <div className="p-2">
+                        <div className={cx('flex min-h-10 items-center justify-between gap-2 rounded-md px-3', themeClasses.isLight ? 'bg-[#D97706] text-white' : 'bg-[#F6C453] text-[#332006]')}>
+                          <span className="font-black">LLM</span>
+                          <span className="hidden text-xs font-bold opacity-70 sm:inline">{language === 'vi' ? 'Trọng tâm' : 'Our focus'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={cx('mt-6 grid gap-3 border-t pt-5 text-sm leading-7', themeClasses.isLight ? 'border-[#205089]/12' : 'border-[#A8B8C8]/14', themeClasses.bodyText)}>
+          {intro.slice(1).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+        </div>
+      </section>
 
       <div className="mt-5 grid gap-6">
         <figure className="flex min-w-0 items-center justify-center">
