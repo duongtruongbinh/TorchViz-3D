@@ -65,7 +65,6 @@ export const lessonMetadata = {
 <MdxPage page={1}>
 
 <LlmBenchmarkLikelihood content={{
-  "compact": true,
   "lead": { vi: "Perplexity đo khả năng dự đoán token. Academic benchmark bổ sung các câu hỏi có đáp án để kiểm tra kiến thức và reasoning cụ thể hơn." },
   "benchmark": {
     "name": "MMLU",
@@ -74,18 +73,16 @@ export const lessonMetadata = {
   "labels": {
     "question": { vi: "Đọc câu hỏi" },
     "likelihood": { vi: "Chấm likelihood từng đáp án" },
-    "result": { vi: "Chọn score cao nhất" },
-    "highest": { vi: "Likelihood cao nhất" }
+    "result": { vi: "Chọn score cao nhất" }
   },
   "question": { vi: "Bào quan nào tạo ra phần lớn ATP trong tế bào?" },
   "answers": [
-    { "id": "A", "text": { vi: "Nhân tế bào" }, "score": 0.08, "correct": false },
-    { "id": "B", "text": { vi: "Ribosome" }, "score": 0.12, "correct": false },
-    { "id": "C", "text": { vi: "Ty thể" }, "score": 0.72, "correct": true },
-    { "id": "D", "text": { vi: "Màng tế bào" }, "score": 0.08, "correct": false }
+    { "id": "A", "text": { vi: "Nhân tế bào" }, "score": 0.08 },
+    { "id": "B", "text": { vi: "Ribosome" }, "score": 0.12 },
+    { "id": "C", "text": { vi: "Ty thể" }, "score": 0.72 },
+    { "id": "D", "text": { vi: "Màng tế bào" }, "score": 0.08 }
   ],
   "formula": "\\hat a=\\arg\\max_{a\\in\\{A,B,C,D\\}}\\log p(a\\mid\\text{context})",
-  "method": { vi: "Evaluator giữ nguyên context, chấm likelihood của từng đáp án rồi chọn score cao nhất. Không cần yêu cầu model sinh tự do một chữ cái và parse lại output." },
   "contamination": {
     "title": { vi: "Cẩn thận với test contamination" },
     "body": { vi: "Nếu câu hỏi hoặc lời giải đã xuất hiện trong training corpus, score cao có thể đến từ ghi nhớ thay vì generalization." }
@@ -93,7 +90,6 @@ export const lessonMetadata = {
 }} />
 
 <LlmPostTrainingEvaluation content={{
-  "compact": true,
   "lead": { vi: "Sau alignment, response mở còn cần được đánh giá theo instruction following và preference của con người." },
   "methods": [
     {

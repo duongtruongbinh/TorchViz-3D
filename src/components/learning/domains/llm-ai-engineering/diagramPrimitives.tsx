@@ -77,7 +77,6 @@ export function DiagramConnectorLayer({
 
 export function ProbabilityCurveChart({
   ariaLabel,
-  axisLabel,
   curvePath,
   maxValue,
   mode,
@@ -87,7 +86,6 @@ export function ProbabilityCurveChart({
   value,
 }: {
   ariaLabel: string;
-  axisLabel?: string;
   curvePath: string;
   maxValue: number;
   mode: 'log' | 'loss';
@@ -116,21 +114,20 @@ export function ProbabilityCurveChart({
         <line x1={pointX} y1={mode === 'log' ? '16' : pointY} x2={pointX} y2={mode === 'log' ? pointY : '88'} stroke={pointColor} strokeWidth="1" strokeDasharray="2 2" />
         <circle cx={pointX} cy={pointY} r="2.6" fill={pointColor} />
         <text x="96" y={mode === 'log' ? '13' : '96'} textAnchor="end" fontSize="5" fill={labelColor}>p đúng → 1</text>
-        <text x="5" y="12" textAnchor="middle" fontSize="5" fill={labelColor} transform="rotate(-90 5 12)">{axisLabel ?? (mode === 'log' ? 'ln(p)' : 'loss')}</text>
+        <text x="5" y="12" textAnchor="middle" fontSize="5" fill={labelColor} transform="rotate(-90 5 12)">{mode === 'log' ? 'ln(p)' : 'loss'}</text>
       </svg>
     </figure>
   );
 }
 
-export function ProbabilitySignComparisonChart({ activeMode, probability, themeClasses }: {
+export function ProbabilitySignComparisonChart({ activeMode, probability }: {
   activeMode: 'log' | 'loss';
   probability: number;
-  themeClasses: LlmRendererTheme;
 }) {
-  const axisColor = themeClasses.isLight ? '#8A949E' : '#74859A';
-  const labelColor = themeClasses.isLight ? '#59636E' : '#A8B8C8';
-  const logColor = themeClasses.isLight ? '#8D436F' : '#D58AB5';
-  const lossColor = themeClasses.isLight ? '#205089' : '#A8B8C8';
+  const axisColor = '#8A949E';
+  const labelColor = '#59636E';
+  const logColor = '#8D436F';
+  const lossColor = '#205089';
   const maxMagnitude = -Math.log(0.01);
   const magnitude = -Math.log(probability);
   const pointX = 12 + probability * 82;
@@ -171,16 +168,15 @@ export function ProbabilitySignComparisonChart({ activeMode, probability, themeC
   );
 }
 
-export function ExponentComparisonChart({ length, product, themeClasses }: {
+export function ExponentComparisonChart({ length, product }: {
   length: number;
   product: number;
-  themeClasses: LlmRendererTheme;
 }) {
-  const axisColor = themeClasses.isLight ? '#8A949E' : '#74859A';
-  const labelColor = themeClasses.isLight ? '#59636E' : '#A8B8C8';
-  const normalizedColor = themeClasses.isLight ? '#8D436F' : '#D58AB5';
-  const perplexityColor = themeClasses.isLight ? '#205089' : '#A8B8C8';
-  const pointColor = themeClasses.isLight ? '#5BAA12' : '#A8DB78';
+  const axisColor = '#8A949E';
+  const labelColor = '#59636E';
+  const normalizedColor = '#8D436F';
+  const perplexityColor = '#205089';
+  const pointColor = '#5BAA12';
   const minProduct = 0.05;
   const minValue = 0.4;
   const maxValue = Math.max(2.2, Math.pow(minProduct, -1 / length));

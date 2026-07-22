@@ -347,18 +347,18 @@ const TOKENIZER_CONTEXT_ICONS = {
 export function LlmTokenizerContextAmbiguity({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerContextAmbiguityContent>) {
   return (
     <section className="grid gap-3">
-      <div className={cx('grid gap-4 rounded-2xl border p-4 sm:p-6', themeClasses.isLight ? 'border-[#205089]/12 bg-[#F8FAFC]' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
+      <div className="grid gap-4 rounded-2xl border border-[#205089]/12 bg-[#F8FAFC] p-4 sm:p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           {content.examples.map((example) => {
             const Icon = TOKENIZER_CONTEXT_ICONS[example.id];
             const accent = example.id === 'road'
-              ? themeClasses.isLight ? 'text-[#245E8D]' : 'text-[#B8DEFA]'
-              : themeClasses.isLight ? 'text-[#73551D]' : 'text-[#F4DDAF]';
+              ? 'text-[#245E8D]'
+              : 'text-[#73551D]';
             return (
               <article key={example.id} className="grid justify-items-center gap-2 text-center">
                 <Icon className={cx('h-6 w-6', accent)} strokeWidth={1.7} aria-hidden="true" />
                 <p className={cx('text-base font-bold leading-7 sm:text-lg', themeClasses.titleText)}>
-                  “{example.before}<mark className={cx('rounded px-1 font-black', themeClasses.isLight ? 'bg-[#DCE8F4] text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{content.token}</mark>{example.after}”
+                  “{example.before}<mark className="rounded bg-[#DCE8F4] px-1 font-black text-[#205089]">{content.token}</mark>{example.after}”
                 </p>
                 <span className={cx('text-sm font-black', accent)}>{text(example.meaning, language)}</span>
                 <ArrowDown className={cx('mt-1 h-5 w-5', themeClasses.mutedText)} strokeWidth={1.7} aria-hidden="true" />
@@ -369,8 +369,8 @@ export function LlmTokenizerContextAmbiguity({ content, language, themeClasses }
                       <span key={`${example.id}-${tokenId}-${index}`} className={cx(
                         'grid h-8 min-w-9 place-items-center rounded-md px-2 text-xs font-black tabular-nums',
                         isTarget
-                          ? themeClasses.isLight ? 'bg-[#2F78B7] text-white shadow-sm' : 'bg-[#77BDF2] text-[#172A43]'
-                          : themeClasses.isLight ? 'bg-white text-[#64748B] ring-1 ring-[#205089]/10' : 'bg-[#263B5B] text-[#A8B8C8] ring-1 ring-white/8',
+                          ? 'bg-[#2F78B7] text-white shadow-sm'
+                          : 'bg-white text-[#64748B] ring-1 ring-[#205089]/10',
                       )}>{tokenId}</span>
                     );
                   })}

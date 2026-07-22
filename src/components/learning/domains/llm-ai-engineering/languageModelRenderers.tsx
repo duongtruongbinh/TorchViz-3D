@@ -29,25 +29,25 @@ import type {
 
 export function LlmHuggingFaceBenchmarks({ content, language, themeClasses }: LlmContentRendererProps<LlmHuggingFaceBenchmarksContent>) {
   const pointPresentation = {
-    discover: { Icon: Search, color: themeClasses.isLight ? 'bg-[#FFF4C7] text-[#8A5A00]' : 'bg-[#FFD21E]/12 text-[#FFD21E]' },
-    inspect: { Icon: Database, color: themeClasses.isLight ? 'bg-[#E7F0FA] text-[#205F99]' : 'bg-[#A8B8C8]/12 text-[#BFD3F2]' },
-    compare: { Icon: BarChart3, color: themeClasses.isLight ? 'bg-[#EAF5E2] text-[#397B0A]' : 'bg-[#A8DB78]/10 text-[#A8DB78]' },
+    discover: { Icon: Search, color: 'bg-[#FFF4C7] text-[#8A5A00]' },
+    inspect: { Icon: Database, color: 'bg-[#E7F0FA] text-[#205F99]' },
+    compare: { Icon: BarChart3, color: 'bg-[#EAF5E2] text-[#397B0A]' },
   } satisfies Record<LlmHuggingFaceBenchmarksContent['points'][number]['id'], { Icon: LucideIcon; color: string }>;
   const resourcePresentation = {
-    helm: { Icon: BarChart3, mark: 'H', color: themeClasses.isLight ? 'bg-[#E7F0FA] text-[#205F99]' : 'bg-[#8FC8FF]/12 text-[#8FC8FF]' },
-    'open-llm-leaderboard': { Icon: Trophy, mark: 'HF', color: themeClasses.isLight ? 'bg-[#FFF4C7] text-[#8A5A00]' : 'bg-[#FFD21E]/12 text-[#FFD86B]' },
-  } satisfies Record<LlmHuggingFaceBenchmarksContent['resources'][number]['id'], { Icon: LucideIcon; mark: string; color: string }>;
+    helm: { Icon: BarChart3, color: 'bg-[#E7F0FA] text-[#205F99]' },
+    'open-llm-leaderboard': { Icon: Trophy, color: 'bg-[#FFF4C7] text-[#8A5A00]' },
+  } satisfies Record<LlmHuggingFaceBenchmarksContent['resources'][number]['id'], { Icon: LucideIcon; color: string }>;
 
   return (
     <section className="grid gap-5">
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>
         {text(content.lead.before, language)}{' '}
-        <span className={cx('rounded px-1.5 py-0.5 font-black', themeClasses.isLight ? 'bg-[#FFF0A8] text-[#5C4200]' : 'bg-[#FFD21E]/16 text-[#FFD86B]')}>{text(content.lead.highlight, language)}</span>.
+        <span className="rounded bg-[#FFF0A8] px-1.5 py-0.5 font-black text-[#5C4200]">{text(content.lead.highlight, language)}</span>.
       </p>
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.brief, language)}</p>
 
-      <div className={cx('grid overflow-hidden rounded-xl border lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]', themeClasses.isLight ? 'border-[#205089]/12' : 'border-[#A8B8C8]/14')}>
-        <div className={cx('grid content-center gap-3 p-5', themeClasses.isLight ? 'border-[#205089]/12 bg-[#FFF9E8]' : 'bg-[#FFD21E]/6')}>
+      <div className="grid overflow-hidden rounded-xl border border-[#205089]/12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="grid content-center gap-3 border-[#205089]/12 bg-[#FFF9E8] p-5">
           {content.points.map((point) => {
             const { Icon, color } = pointPresentation[point.id];
             return <div key={point.id} className="grid grid-cols-[40px_minmax(0,1fr)] items-start gap-3">
@@ -58,11 +58,11 @@ export function LlmHuggingFaceBenchmarks({ content, language, themeClasses }: Ll
               </span>
             </div>;
           })}
-          <a href={content.cta.href} target="_blank" rel="noreferrer" className={cx('mt-2 inline-flex w-fit items-center gap-2 rounded-lg px-4 py-2 text-sm font-black', themeClasses.focusRing, themeClasses.isLight ? 'bg-[#FFD21E] text-[#3B2A00]' : 'bg-[#FFD21E] text-[#121A24]')}>
+          <a href={content.cta.href} target="_blank" rel="noreferrer" className={cx('mt-2 inline-flex w-fit items-center gap-2 rounded-lg bg-[#FFD21E] px-4 py-2 text-sm font-black text-[#3B2A00]', themeClasses.focusRing)}>
             {text(content.cta.label, language)}<ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
         </div>
-        <div className={cx('grid min-h-[19rem] place-items-center overflow-hidden p-4', themeClasses.isLight ? 'border-t border-[#205089]/10 bg-[#F8FAFC] lg:border-l lg:border-t-0' : 'border-t border-[#A8B8C8]/12 bg-[#121A24]/36 lg:border-l lg:border-t-0')}>
+        <div className="grid min-h-[19rem] place-items-center overflow-hidden border-t border-[#205089]/10 bg-[#F8FAFC] p-4 lg:border-l lg:border-t-0">
           <img src={content.image.src} alt={text(content.image.alt, language)} loading="lazy" className="h-full max-h-[24rem] w-full object-contain" />
         </div>
       </div>
@@ -71,11 +71,11 @@ export function LlmHuggingFaceBenchmarks({ content, language, themeClasses }: Ll
         <p className={cx('text-sm font-black', themeClasses.titleText)}>{text(content.resourcesLabel, language)}</p>
         <div className="grid gap-3 md:grid-cols-2">
           {content.resources.map((resource) => {
-            const { Icon, mark, color } = resourcePresentation[resource.id];
-            return <article key={resource.id} className={cx('grid min-h-44 grid-rows-[auto_1fr_auto] gap-3 rounded-xl border p-4', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
+            const { Icon, color } = resourcePresentation[resource.id];
+            return <article key={resource.id} className="grid min-h-44 grid-rows-[auto_1fr_auto] gap-3 rounded-xl border border-[#205089]/12 bg-white p-4">
               <div className="flex items-center gap-3">
                 <span className={cx('grid h-10 min-w-10 place-items-center rounded-xl px-2', color)}>
-                  <span className="sr-only">{mark}</span><Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
+                  <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
                 </span>
                 <h3 className={cx('text-base font-black', themeClasses.titleText)}>{resource.name}</h3>
               </div>
@@ -97,29 +97,29 @@ export function LlmPerplexitySequenceExample({ content, language, themeClasses }
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.brief, language)}</p>
       <div className="grid gap-2 sm:grid-cols-2">
         {content.contrast.map((item) => (
-          <div key={item.bestValue} className={cx('grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#F8FAFC]' : 'bg-[#121A24]/36')}>
+          <div key={item.bestValue} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-[#F8FAFC] px-4 py-3">
             <div><p className={cx('text-sm font-black', themeClasses.titleText)}>{text(item.label, language)}</p><p className={cx('text-xs font-semibold', themeClasses.mutedText)}>{text(item.role, language)}</p></div>
-            <code className={cx('rounded-md px-2 py-1 text-sm font-black', themeClasses.isLight ? 'bg-white text-[#205F99]' : 'bg-[#263B5B]/60 text-[#DCE8F4]')}>{item.bestValue}</code>
+            <code className="rounded-md bg-white px-2 py-1 text-sm font-black text-[#205F99]">{item.bestValue}</code>
           </div>
         ))}
       </div>
       <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.note, language)}</p>
-      <div className={cx('overflow-x-auto rounded-xl border px-5 py-5 text-center text-xl font-semibold sm:text-2xl', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]' : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]')} dangerouslySetInnerHTML={{ __html: katex.renderToString(content.formula, { displayMode: true, throwOnError: false }) }} />
+      <div className="overflow-x-auto rounded-xl border border-[#205089]/14 bg-[#EFF4FA] px-5 py-5 text-center text-xl font-semibold text-[#123B68] sm:text-2xl" dangerouslySetInnerHTML={{ __html: katex.renderToString(content.formula, { displayMode: true, throwOnError: false }) }} />
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.transition, language)}</p>
-      <div className={cx('overflow-x-auto rounded-xl border px-5 py-5 text-xl font-semibold sm:text-2xl', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]' : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]')}>
+      <div className="overflow-x-auto rounded-xl border border-[#205089]/14 bg-[#EFF4FA] px-5 py-5 text-xl font-semibold text-[#123B68] sm:text-2xl">
         <div className="mx-auto flex w-max min-w-full items-center justify-center">
           <span className="shrink-0" dangerouslySetInnerHTML={{ __html: katex.renderToString(content.walkthroughFormula.left, { throwOnError: false }) }} />
           <span className="shrink-0 opacity-25" dangerouslySetInnerHTML={{ __html: katex.renderToString(content.walkthroughFormula.mutedMiddle, { throwOnError: false }) }} />
           <span className="shrink-0" dangerouslySetInnerHTML={{ __html: katex.renderToString(content.walkthroughFormula.right, { throwOnError: false }) }} />
         </div>
       </div>
-      <div className={cx('grid gap-4 rounded-xl border px-4 py-4 sm:px-5', themeClasses.isLight ? 'border-[#205089]/12 bg-[#F8FAFC]' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
+      <div className="grid gap-4 rounded-xl border border-[#205089]/12 bg-[#F8FAFC] px-4 py-4 sm:px-5">
         <p className={cx('text-sm font-black', themeClasses.accentText)}>{text(content.label, language)}</p>
         <div className="flex flex-wrap items-center gap-2">
           {content.tokens.map((token, index) => (
             <Fragment key={`${token}-${index}`}>
               {index > 0 ? <ArrowRight className={cx('h-4 w-4 shrink-0', themeClasses.mutedText)} strokeWidth={1.8} aria-hidden="true" /> : null}
-              <code className={cx('rounded-lg px-3 py-2 text-base font-black', themeClasses.isLight ? 'bg-white text-[#205F99]' : 'bg-[#263B5B]/60 text-[#DCE8F4]')}>{token}</code>
+              <code className="rounded-lg bg-white px-3 py-2 text-base font-black text-[#205F99]">{token}</code>
             </Fragment>
           ))}
         </div>
@@ -133,7 +133,6 @@ export function LlmPerplexityInterpretation({ content, language, themeClasses }:
   const initialPreset = content.calculator.presets[0];
   const makeRows = (preset: typeof initialPreset) => preset.candidates.map((candidate, index) => ({ ...candidate, id: `${preset.id}-${index}` }));
   const [activePresetId, setActivePresetId] = useState(initialPreset.id);
-  const [prompt, setPrompt] = useState(initialPreset.prompt);
   const [rows, setRows] = useState(() => makeRows(initialPreset));
   const [groundTruthId, setGroundTruthId] = useState(`${initialPreset.id}-${initialPreset.groundTruthIndex}`);
   const groundTruthProbability = rows.find((row) => row.id === groundTruthId)?.probability ?? 0;
@@ -142,7 +141,6 @@ export function LlmPerplexityInterpretation({ content, language, themeClasses }:
 
   const applyPreset = (preset: typeof initialPreset) => {
     setActivePresetId(preset.id);
-    setPrompt(preset.prompt);
     setRows(makeRows(preset));
     setGroundTruthId(`${preset.id}-${preset.groundTruthIndex}`);
   };
@@ -183,53 +181,53 @@ export function LlmPerplexityInterpretation({ content, language, themeClasses }:
   return (
     <section className="grid gap-5">
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className={cx('overflow-x-auto rounded-lg px-4 py-3 text-base font-semibold', themeClasses.isLight ? 'bg-[#EFF4FA] text-[#123B68]' : 'bg-[#263B5B]/45 text-[#DCE8F4]')} dangerouslySetInnerHTML={{ __html: katex.renderToString(pplFormula, { displayMode: true, throwOnError: false }) }} />
+      <div className="overflow-x-auto rounded-lg bg-[#EFF4FA] px-4 py-3 text-base font-semibold text-[#123B68]" dangerouslySetInnerHTML={{ __html: katex.renderToString(pplFormula, { displayMode: true, throwOnError: false }) }} />
 
       <div className="grid gap-3 sm:grid-cols-2">
         {content.calculator.presets.map((preset) => (
-          <button key={preset.id} type="button" onClick={() => applyPreset(preset)} className={cx('grid gap-4 rounded-xl border px-5 py-4 text-left transition-colors', themeClasses.focusRing, activePresetId === preset.id ? (themeClasses.isLight ? 'border-[#205F99] bg-[#EFF4FA]' : 'border-[#A8B8C8] bg-[#263B5B]/55') : (themeClasses.isLight ? 'border-[#205089]/12 bg-[#F8FAFC]' : 'border-[#A8B8C8]/14 bg-[#121A24]/36'))}>
+          <button key={preset.id} type="button" onClick={() => applyPreset(preset)} className={cx('grid gap-4 rounded-xl border px-5 py-4 text-left transition-colors', themeClasses.focusRing, activePresetId === preset.id ? 'border-[#205F99] bg-[#EFF4FA]' : 'border-[#205089]/12 bg-[#F8FAFC]')}>
             <span className={cx('text-xl font-black', themeClasses.accentText)}>{text(preset.label, language)}</span>
             <span className="flex flex-wrap gap-2">
-              {preset.candidates.map((candidate) => <span key={candidate.token} className={cx('rounded-lg px-3 py-2 text-sm font-black', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#121A24]/45 text-[#DCE8F4]')}>{candidate.token}<span className={cx('ml-2 text-xs', themeClasses.mutedText)}>{candidate.probability}%</span></span>)}
+              {preset.candidates.map((candidate) => <span key={candidate.token} className="rounded-lg bg-white px-3 py-2 text-sm font-black text-[#205089]">{candidate.token}<span className={cx('ml-2 text-xs', themeClasses.mutedText)}>{candidate.probability}%</span></span>)}
             </span>
           </button>
         ))}
       </div>
 
-      <div className={cx('grid gap-4 rounded-xl border px-5 py-5', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC]' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
+      <div className="grid gap-4 rounded-xl border border-[#205089]/14 bg-[#F8FAFC] px-5 py-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div><p className={cx('text-sm font-black', themeClasses.titleText)}>{text(content.calculator.title, language)}</p>{prompt ? <p className={cx('mt-1 text-sm font-semibold', themeClasses.bodyText)}>“{prompt}”</p> : null}</div>
-          <div className={cx('rounded-lg px-4 py-2 text-right', themeClasses.isLight ? 'bg-[#DCEEFF]' : 'bg-[#263B5B]')}><span className={cx('block text-xs font-bold', themeClasses.mutedText)}>Perplexity</span><span className={cx('text-2xl font-black tabular-nums', themeClasses.accentText)}>{Number.isFinite(ppl) ? ppl.toFixed(2) : '∞'}</span></div>
+          <p className={cx('text-sm font-black', themeClasses.titleText)}>{text(content.calculator.title, language)}</p>
+          <div className="rounded-lg bg-[#DCEEFF] px-4 py-2 text-right"><span className={cx('block text-xs font-bold', themeClasses.mutedText)}>Perplexity</span><span className={cx('text-2xl font-black tabular-nums', themeClasses.accentText)}>{Number.isFinite(ppl) ? ppl.toFixed(2) : '∞'}</span></div>
         </div>
         <div className="grid gap-3">
           {rows.map((row) => {
             const isGroundTruth = row.id === groundTruthId;
-            return <div key={row.id} className={cx('grid gap-3 rounded-lg border px-3 py-3 sm:grid-cols-[auto_minmax(7rem,0.45fr)_minmax(10rem,1fr)_4.5rem_auto] sm:items-center', isGroundTruth ? (themeClasses.isLight ? 'border-[#5BAA12]/35 bg-[#F5FAEF]' : 'border-[#A8DB78]/25 bg-[#A8DB78]/8') : (themeClasses.isLight ? 'border-[#205089]/10 bg-white' : 'border-[#A8B8C8]/12 bg-[#121A24]/45'))}>
+            return <div key={row.id} className={cx('grid gap-3 rounded-lg border px-3 py-3 sm:grid-cols-[auto_minmax(7rem,0.45fr)_minmax(10rem,1fr)_4.5rem_auto] sm:items-center', isGroundTruth ? 'border-[#5BAA12]/35 bg-[#F5FAEF]' : 'border-[#205089]/10 bg-white')}>
               <input type="radio" name="ppl-ground-truth" checked={isGroundTruth} onChange={() => { setActivePresetId('custom'); setGroundTruthId(row.id); }} aria-label={`${text(content.calculator.groundTruthLabel, language)}: ${row.token}`} className="h-4 w-4 accent-[#5BAA12]" />
-              <input value={row.token} onChange={(event) => { setActivePresetId('custom'); setRows((current) => current.map((item) => item.id === row.id ? { ...item, token: event.target.value } : item)); }} className={cx('min-w-0 rounded-md border px-2 py-1.5 text-sm font-bold outline-none', themeClasses.focusRing, themeClasses.isLight ? 'border-[#205089]/15 bg-white text-[#123B68]' : 'border-[#A8B8C8]/18 bg-[#121A24] text-[#E5EEF8]')} aria-label="Tên token" />
+              <input value={row.token} onChange={(event) => { setActivePresetId('custom'); setRows((current) => current.map((item) => item.id === row.id ? { ...item, token: event.target.value } : item)); }} className={cx('min-w-0 rounded-md border border-[#205089]/15 bg-white px-2 py-1.5 text-sm font-bold text-[#123B68] outline-none', themeClasses.focusRing)} aria-label="Tên token" />
               <input type="range" min="0" max="100" step="1" value={row.probability} onChange={(event) => updateProbability(row.id, Number(event.target.value))} className="w-full accent-[#5BAA12]" aria-label={`Xác suất của token ${row.token}`} />
-              <span className={cx('text-right text-sm font-black tabular-nums', isGroundTruth ? (themeClasses.isLight ? 'text-[#397B0A]' : 'text-[#A8DB78]') : themeClasses.titleText)}>{row.probability.toFixed(1)}%</span>
+              <span className={cx('text-right text-sm font-black tabular-nums', isGroundTruth ? 'text-[#397B0A]' : themeClasses.titleText)}>{row.probability.toFixed(1)}%</span>
               <button type="button" onClick={() => removeToken(row.id)} disabled={rows.length <= 2} className={cx('grid h-8 w-8 place-items-center rounded-md disabled:cursor-not-allowed disabled:opacity-25', themeClasses.focusRing, themeClasses.mutedText)} aria-label={`Xóa token ${row.token}`}><Minus className="h-4 w-4" aria-hidden="true" /></button>
-              {isGroundTruth ? <span className={cx('col-span-full text-xs font-black sm:col-start-2', themeClasses.isLight ? 'text-[#397B0A]' : 'text-[#A8DB78]')}>{text(content.calculator.groundTruthLabel, language)}</span> : null}
+              {isGroundTruth ? <span className="col-span-full text-xs font-black text-[#397B0A] sm:col-start-2">{text(content.calculator.groundTruthLabel, language)}</span> : null}
             </div>;
           })}
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <button type="button" onClick={addToken} disabled={rows.length >= 8} className={cx('inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-black disabled:opacity-30', themeClasses.focusRing, themeClasses.isLight ? 'border-[#205089]/15 bg-white text-[#205089]' : 'border-[#A8B8C8]/18 text-[#DCE8F4]')}><Plus className="h-4 w-4" aria-hidden="true" />{text(content.calculator.addTokenLabel, language)}</button>
+          <button type="button" onClick={addToken} disabled={rows.length >= 8} className={cx('inline-flex items-center gap-2 rounded-lg border border-[#205089]/15 bg-white px-3 py-2 text-xs font-black text-[#205089] disabled:opacity-30', themeClasses.focusRing)}><Plus className="h-4 w-4" aria-hidden="true" />{text(content.calculator.addTokenLabel, language)}</button>
           <span className={cx('text-xs font-black', themeClasses.mutedText)}>{text(content.calculator.totalLabel, language)}: {rows.reduce((sum, row) => sum + row.probability, 0).toFixed(1)}%</span>
         </div>
       </div>
 
-      <div className={cx('grid gap-4 rounded-xl border px-5 py-5', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
+      <div className="grid gap-4 rounded-xl border border-[#205089]/12 bg-white px-5 py-5">
         <div className="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
-          <div className={cx('grid gap-1 rounded-lg px-4 py-3 text-center', themeClasses.isLight ? 'bg-[#F1F5F9]' : 'bg-[#263B5B]/35')}>
+          <div className="grid gap-1 rounded-lg bg-[#F1F5F9] px-4 py-3 text-center">
             <span className={cx('text-xs font-black tracking-[0.12em]', themeClasses.mutedText)}>{content.trend.startYear}</span>
             <span className={cx('text-2xl font-black tabular-nums', themeClasses.titleText)}>{content.trend.startValue}</span>
           </div>
           <ArrowRight className={cx('mx-auto h-5 w-5 rotate-90 sm:rotate-0', themeClasses.mutedText)} aria-hidden="true" />
-          <div className={cx('grid gap-1 rounded-lg px-4 py-3 text-center', themeClasses.isLight ? 'bg-[#EAF5E2]' : 'bg-[#A8DB78]/8')}>
+          <div className="grid gap-1 rounded-lg bg-[#EAF5E2] px-4 py-3 text-center">
             <span className={cx('text-xs font-black tracking-[0.12em]', themeClasses.mutedText)}>{content.trend.endYear}</span>
-            <span className={cx('text-2xl font-black tabular-nums', themeClasses.isLight ? 'text-[#397B0A]' : 'text-[#A8DB78]')}>{content.trend.endValue}</span>
+            <span className="text-2xl font-black tabular-nums text-[#397B0A]">{content.trend.endValue}</span>
           </div>
         </div>
         <p className={cx('text-center text-sm leading-6', themeClasses.bodyText)}>
@@ -250,9 +248,9 @@ export function LlmPerplexityGoodRange({ content, language, themeClasses }: LlmC
     evaluation: { Icon: FileSearch, top: 'bg-[#E9E0F2]', icon: 'bg-white text-[#69468A]' },
   } satisfies Record<'data' | 'tokenizer' | 'language' | 'evaluation', { Icon: LucideIcon; top: string; icon: string }>;
   const rangeTone = {
-    strong: themeClasses.isLight ? 'border-[#5BAA12]/25 bg-[#F5FAEF]' : 'border-[#A8DB78]/20 bg-[#A8DB78]/8',
-    acceptable: themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF4FA]' : 'border-[#A8B8C8]/18 bg-[#263B5B]/35',
-    warning: themeClasses.isLight ? 'border-[#C98A1A]/25 bg-[#FFF8E8]' : 'border-[#E8B85D]/20 bg-[#E8B85D]/8',
+    strong: 'border-[#5BAA12]/25 bg-[#F5FAEF]',
+    acceptable: 'border-[#205089]/14 bg-[#EFF4FA]',
+    warning: 'border-[#C98A1A]/25 bg-[#FFF8E8]',
   } as const;
 
   if (content.view === 'factors') return (
@@ -262,9 +260,9 @@ export function LlmPerplexityGoodRange({ content, language, themeClasses }: LlmC
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {content.factors.map((factor) => {
           const { Icon, icon, top } = factorPresentation[factor.id];
-          return <article key={factor.id} className={cx('grid min-h-[21rem] grid-rows-[120px_minmax(0,1fr)] overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
-            <div className={cx('grid place-items-center border-b border-black/5', themeClasses.isLight ? top : 'bg-[#263B5B]')}>
-              <div className={cx('grid h-16 w-16 place-items-center rounded-2xl border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)]', themeClasses.isLight ? icon : 'bg-[#172A43] text-[#BFD3F2]')}>
+          return <article key={factor.id} className="grid min-h-[21rem] grid-rows-[120px_minmax(0,1fr)] overflow-hidden rounded-lg border border-[#205089]/12 bg-white">
+            <div className={cx('grid place-items-center border-b border-black/5', top)}>
+              <div className={cx('grid h-16 w-16 place-items-center rounded-2xl border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)]', icon)}>
                 <Icon className="h-8 w-8" strokeWidth={1.8} aria-hidden="true" />
               </div>
             </div>
@@ -276,16 +274,16 @@ export function LlmPerplexityGoodRange({ content, language, themeClasses }: LlmC
         })}
       </div>
 
-      <div className={cx('grid gap-4 rounded-xl border-l-4 px-5 py-4', themeClasses.isLight ? 'border-[#C98A1A] bg-[#FFF8E8]' : 'border-[#E8B85D] bg-[#E8B85D]/8')}>
+      <div className="grid gap-4 rounded-xl border-l-4 border-[#C98A1A] bg-[#FFF8E8] px-5 py-4">
         <p className={cx('text-sm font-black', themeClasses.titleText)}>{text(content.reasoningExample.title, language)}</p>
         <div className="grid gap-2 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-          <div className={cx('rounded-lg px-3 py-2 text-sm font-bold', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/45')}>{text(content.reasoningExample.facts[0], language)}</div>
+          <div className="rounded-lg bg-white px-3 py-2 text-sm font-bold">{text(content.reasoningExample.facts[0], language)}</div>
           <ArrowRight className={cx('hidden h-4 w-4 sm:block', themeClasses.mutedText)} aria-hidden="true" />
-          <div className={cx('rounded-lg px-3 py-2 text-sm font-bold', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/45')}>{text(content.reasoningExample.facts[1], language)}</div>
+          <div className="rounded-lg bg-white px-3 py-2 text-sm font-bold">{text(content.reasoningExample.facts[1], language)}</div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className={cx('text-sm font-semibold', themeClasses.bodyText)}>{text(content.reasoningExample.question, language)}</span>
-          <span className={cx('rounded-full px-3 py-1 text-xs font-black', themeClasses.isLight ? 'bg-[#F5E4BA] text-[#81570B]' : 'bg-[#E8B85D]/15 text-[#E8B85D]')}>{text(content.reasoningExample.answer, language)}</span>
+          <span className="rounded-full bg-[#F5E4BA] px-3 py-1 text-xs font-black text-[#81570B]">{text(content.reasoningExample.answer, language)}</span>
         </div>
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.reasoningExample.explanation, language)}</p>
       </div>
@@ -309,7 +307,7 @@ export function LlmPerplexityGoodRange({ content, language, themeClasses }: LlmC
         </div>
       </div>
 
-      <div className={cx('rounded-xl border-l-4 px-5 py-4', themeClasses.isLight ? 'border-[#205F99] bg-[#EFF4FA]' : 'border-[#A8B8C8] bg-[#263B5B]/35')}>
+      <div className="rounded-xl border-l-4 border-[#205F99] bg-[#EFF4FA] px-5 py-4">
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.takeaway, language)}</p>
       </div>
 
@@ -321,101 +319,35 @@ export function LlmPerplexityGoodRange({ content, language, themeClasses }: LlmC
 
 export function LlmBenchmarkLikelihood({ content, language, themeClasses }: LlmContentRendererProps<LlmBenchmarkLikelihoodContent>) {
   const selected = content.answers.reduce((best, answer) => answer.score > best.score ? answer : best, content.answers[0]);
-  const stepNumberClass = themeClasses.isLight ? 'bg-[#205F99] text-white' : 'bg-[#A8B8C8] text-[#121A24]';
 
-  if (content.compact) return (
+  return (
     <section className="grid gap-4">
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
       <div className="flex items-start gap-3">
-        <span className={cx('shrink-0 rounded-lg px-3 py-2 text-base font-black', stepNumberClass)}>{content.benchmark.name}</span>
+        <span className="shrink-0 rounded-lg bg-[#205F99] px-3 py-2 text-base font-black text-white">{content.benchmark.name}</span>
         <p className={cx('pt-1 text-sm leading-6', themeClasses.bodyText)}>{text(content.benchmark.description, language)}</p>
       </div>
       <div className="grid gap-2 lg:grid-cols-[1fr_auto_1fr_auto_1fr] lg:items-stretch">
-        <article className={cx('grid content-start gap-2 rounded-xl border px-4 py-3', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF4FA]' : 'border-[#A8B8C8]/18 bg-[#263B5B]/35')}>
+        <article className="grid content-start gap-2 rounded-xl border border-[#205089]/14 bg-[#EFF4FA] px-4 py-3">
           <span className={cx('text-xs font-black', themeClasses.accentText)}>1 · {text(content.labels.question, language)}</span>
           <p className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{text(content.question, language)}</p>
         </article>
         <ArrowRight className={cx('mx-auto hidden h-5 w-5 self-center lg:block', themeClasses.mutedText)} aria-hidden="true" />
-        <article className={cx('grid content-start gap-2 rounded-xl border px-4 py-3', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
+        <article className="grid content-start gap-2 rounded-xl border border-[#205089]/12 bg-white px-4 py-3">
           <span className={cx('text-xs font-black', themeClasses.accentText)}>2 · {text(content.labels.likelihood, language)}</span>
           <div className={cx('overflow-x-auto text-center text-sm font-semibold', themeClasses.accentText)} dangerouslySetInnerHTML={{ __html: katex.renderToString(content.formula, { throwOnError: false }) }} />
         </article>
         <ArrowRight className={cx('mx-auto hidden h-5 w-5 self-center lg:block', themeClasses.mutedText)} aria-hidden="true" />
-        <article className={cx('grid content-start gap-2 rounded-xl border px-4 py-3', themeClasses.isLight ? 'border-[#5BAA12]/35 bg-[#F5FAEF]' : 'border-[#A8DB78]/25 bg-[#A8DB78]/8')}>
-          <span className={cx('text-xs font-black', themeClasses.isLight ? 'text-[#397B0A]' : 'text-[#A8DB78]')}>3 · {text(content.labels.result, language)}</span>
+        <article className="grid content-start gap-2 rounded-xl border border-[#5BAA12]/35 bg-[#F5FAEF] px-4 py-3">
+          <span className="text-xs font-black text-[#397B0A]">3 · {text(content.labels.result, language)}</span>
           <div className="flex items-end justify-between gap-3">
             <p className={cx('text-base font-black', themeClasses.titleText)}>{selected.id}. {text(selected.text, language)}</p>
-            <span className={cx('text-xl font-black tabular-nums', themeClasses.isLight ? 'text-[#397B0A]' : 'text-[#A8DB78]')}>{selected.score.toFixed(2)}</span>
+            <span className="text-xl font-black tabular-nums text-[#397B0A]">{selected.score.toFixed(2)}</span>
           </div>
         </article>
       </div>
-      <div className={cx('rounded-xl border-l-4 px-4 py-3', themeClasses.isLight ? 'border-[#C98A1A] bg-[#FFF8E8]' : 'border-[#E8B85D] bg-[#E8B85D]/8')}>
+      <div className="rounded-xl border-l-4 border-[#C98A1A] bg-[#FFF8E8] px-4 py-3">
         <p className={cx('text-sm leading-6', themeClasses.bodyText)}><strong>{text(content.contamination.title, language)}:</strong> {text(content.contamination.body, language)}</p>
-      </div>
-    </section>
-  );
-
-  return (
-    <section className="grid gap-5">
-      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-
-      <div className="flex items-start gap-3">
-        <span className={cx('shrink-0 rounded-lg px-3 py-2 text-base font-black', stepNumberClass)}>{content.benchmark.name}</span>
-        <p className={cx('pt-1 text-sm leading-6', themeClasses.bodyText)}>{text(content.benchmark.description, language)}</p>
-      </div>
-
-      <div className="grid gap-2">
-        <article className={cx('grid gap-3 rounded-xl border px-5 py-4', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF4FA]' : 'border-[#A8B8C8]/18 bg-[#263B5B]/35')}>
-          <div className="flex items-center gap-3">
-            <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-black', stepNumberClass)}>1</span>
-            <h3 className={cx('text-sm font-black', themeClasses.accentText)}>{text(content.labels.question, language)}</h3>
-          </div>
-          <p className={cx('text-lg font-black leading-7', themeClasses.titleText)}>{text(content.question, language)}</p>
-        </article>
-
-        <ArrowDown className={cx('mx-auto h-5 w-5', themeClasses.mutedText)} aria-hidden="true" />
-
-        <article className={cx('grid gap-4 rounded-xl border px-5 py-4', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-black', stepNumberClass)}>2</span>
-              <h3 className={cx('text-sm font-black', themeClasses.titleText)}>{text(content.labels.likelihood, language)}</h3>
-            </div>
-            <div className={cx('overflow-x-auto text-sm font-semibold', themeClasses.accentText)} dangerouslySetInnerHTML={{ __html: katex.renderToString(content.formula, { throwOnError: false }) }} />
-          </div>
-          <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.method, language)}</p>
-          <div className="grid gap-2 sm:grid-cols-2">
-          {content.answers.map((answer) => {
-            const isSelected = answer.id === selected.id;
-            return <div key={answer.id} className={cx('grid gap-2 rounded-lg border px-4 py-3', isSelected ? (themeClasses.isLight ? 'border-[#5BAA12]/35 bg-[#F5FAEF]' : 'border-[#A8DB78]/25 bg-[#A8DB78]/8') : (themeClasses.isLight ? 'border-[#205089]/10 bg-[#F8FAFC]' : 'border-[#A8B8C8]/12 bg-[#263B5B]/25'))}>
-              <div className="flex items-center justify-between gap-3">
-                <span className={cx('text-sm font-black', themeClasses.titleText)}>{answer.id}. {text(answer.text, language)}</span>
-                <span className={cx('text-sm font-black tabular-nums', isSelected ? (themeClasses.isLight ? 'text-[#397B0A]' : 'text-[#A8DB78]') : themeClasses.mutedText)}>{answer.score.toFixed(2)}</span>
-              </div>
-              <span className={cx('h-2 overflow-hidden rounded-full', themeClasses.isLight ? 'bg-[#E2E8F0]' : 'bg-[#263B5B]')}><span className={cx('block h-full rounded-full', isSelected ? 'bg-[#5BAA12]' : 'bg-[#8FA6BF]')} style={{ width: `${answer.score * 100}%` }} /></span>
-            </div>;
-          })}
-          </div>
-        </article>
-
-        <ArrowDown className={cx('mx-auto h-5 w-5', themeClasses.mutedText)} aria-hidden="true" />
-
-        <article className={cx('flex flex-wrap items-center gap-4 rounded-xl border px-5 py-4', themeClasses.isLight ? 'border-[#5BAA12]/35 bg-[#F5FAEF]' : 'border-[#A8DB78]/25 bg-[#A8DB78]/8')}>
-          <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-black', stepNumberClass)}>3</span>
-          <div className="min-w-0 flex-1">
-            <h3 className={cx('text-sm font-black', themeClasses.isLight ? 'text-[#397B0A]' : 'text-[#A8DB78]')}>{text(content.labels.result, language)}</h3>
-            <p className={cx('mt-1 text-lg font-black leading-7', themeClasses.titleText)}>{selected.id}. {text(selected.text, language)}</p>
-          </div>
-          <div className="text-right">
-            <p className={cx('text-xs font-bold', themeClasses.mutedText)}>{text(content.labels.highest, language)}</p>
-            <p className={cx('text-2xl font-black tabular-nums', themeClasses.isLight ? 'text-[#397B0A]' : 'text-[#A8DB78]')}>{selected.score.toFixed(2)}</p>
-          </div>
-        </article>
-      </div>
-
-      <div className={cx('grid gap-2 rounded-xl border-l-4 px-5 py-4', themeClasses.isLight ? 'border-[#C98A1A] bg-[#FFF8E8]' : 'border-[#E8B85D] bg-[#E8B85D]/8')}>
-        <p className={cx('text-sm font-black', themeClasses.titleText)}>{text(content.contamination.title, language)}</p>
-        <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.contamination.body, language)}</p>
       </div>
     </section>
   );
@@ -427,40 +359,19 @@ export function LlmPostTrainingEvaluation({ content, language, themeClasses }: L
     judge: { Icon: Bot, top: 'bg-[#DCEEE8]', icon: 'bg-white text-[#2E6B5D]' },
   } satisfies Record<LlmPostTrainingEvaluationContent['methods'][number]['id'], { Icon: LucideIcon; top: string; icon: string }>;
 
-  if (content.compact) return (
+  return (
     <section className="grid gap-4">
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
       <div className="grid gap-3 sm:grid-cols-2">{content.methods.map((method) => {
         const { Icon, icon, top } = methodPresentation[method.id];
-        return <article key={method.id} className={cx('grid min-h-[10rem] grid-cols-[76px_minmax(0,1fr)] overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
-          <div className={cx('grid place-items-center border-r border-black/5', themeClasses.isLight ? top : 'bg-[#263B5B]')}>
-            <div className={cx('grid h-11 w-11 place-items-center rounded-xl border border-black/5 shadow-[0_8px_18px_rgba(30,42,56,0.10)]', themeClasses.isLight ? icon : 'bg-[#172A43] text-[#BFD3F2]')}>
+        return <article key={method.id} className="grid min-h-[10rem] grid-cols-[76px_minmax(0,1fr)] overflow-hidden rounded-lg border border-[#205089]/12 bg-white">
+          <div className={cx('grid place-items-center border-r border-black/5', top)}>
+            <div className={cx('grid h-11 w-11 place-items-center rounded-xl border border-black/5 shadow-[0_8px_18px_rgba(30,42,56,0.10)]', icon)}>
               <Icon className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" />
             </div>
           </div>
           <div className="grid content-start gap-2 p-4">
             <h3 className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{text(method.title, language)}</h3>
-            <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(method.description, language)}</p>
-          </div>
-        </article>;
-      })}</div>
-      <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.next, language)}</p>
-    </section>
-  );
-
-  return (
-    <section className="grid gap-5">
-      <div className={cx('rounded-xl border-l-4 px-5 py-4', themeClasses.isLight ? 'border-[#205F99] bg-[#EFF4FA]' : 'border-[#A8B8C8] bg-[#263B5B]/35')}><p className={cx('text-base font-semibold leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p></div>
-      <div className="grid gap-3 sm:grid-cols-2">{content.methods.map((method) => {
-        const { Icon, icon, top } = methodPresentation[method.id];
-        return <article key={method.id} className={cx('grid min-h-[18rem] grid-rows-[120px_minmax(0,1fr)] overflow-hidden rounded-lg border', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36')}>
-          <div className={cx('grid place-items-center border-b border-black/5', themeClasses.isLight ? top : 'bg-[#263B5B]')}>
-            <div className={cx('grid h-16 w-16 place-items-center rounded-2xl border border-black/5 shadow-[0_12px_24px_rgba(30,42,56,0.12)]', themeClasses.isLight ? icon : 'bg-[#172A43] text-[#BFD3F2]')}>
-              <Icon className="h-8 w-8" strokeWidth={1.8} aria-hidden="true" />
-            </div>
-          </div>
-          <div className="grid content-start gap-3 p-4">
-            <h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(method.title, language)}</h3>
             <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(method.description, language)}</p>
           </div>
         </article>;
@@ -1128,20 +1039,20 @@ export function LlmLossDerivation({ content, language, themeClasses }: LlmConten
           return (
           <Fragment key={step.formula}>
             {step.transitionBefore ? (
-              <p className={cx('border-t pt-5 text-sm font-semibold leading-6', themeClasses.bodyText, themeClasses.isLight ? 'border-[#DCE8F4]' : 'border-[#263B5B]')}>
+              <p className={cx('border-t border-[#DCE8F4] pt-5 text-sm font-semibold leading-6', themeClasses.bodyText)}>
                 {renderInlineMath(text(step.transitionBefore, language))}
               </p>
             ) : null}
-            <div className={cx('grid gap-3 rounded-xl px-5 py-4', themeClasses.isLight ? 'bg-[#F8FAFC]' : 'bg-[#121A24]/36')}>
+            <div className="grid gap-3 rounded-xl bg-[#F8FAFC] px-5 py-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#DCE8F4] text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{index + 1}</span>
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#DCE8F4] text-xs font-black text-[#205089]">{index + 1}</span>
                   <span className={cx('text-sm font-black', themeClasses.titleText)}>{text(step.label, language)}</span>
                 </div>
                 {hasSignToggle ? (
-                  <button type="button" role="switch" aria-checked={showNegativeSign} onClick={() => setShowNegativeSign((current) => !current)} className={cx('flex items-center gap-2 rounded-lg px-2 py-1 text-xs font-black', themeClasses.focusRing, themeClasses.isLight ? 'text-[#205089]' : 'text-[#DCE8F4]')}>
+                  <button type="button" role="switch" aria-checked={showNegativeSign} onClick={() => setShowNegativeSign((current) => !current)} className={cx('flex items-center gap-2 rounded-lg px-2 py-1 text-xs font-black text-[#205089]', themeClasses.focusRing)}>
                     <span>{text(step.toggleLabel!, language)}</span>
-                    <span className={cx('relative h-5 w-9 overflow-hidden rounded-full transition-colors', showNegativeSign ? 'bg-[#2F78B7]' : themeClasses.isLight ? 'bg-[#CBD5E1]' : 'bg-[#3A4B5F]')}>
+                    <span className={cx('relative h-5 w-9 overflow-hidden rounded-full transition-colors', showNegativeSign ? 'bg-[#2F78B7]' : 'bg-[#CBD5E1]')}>
                       <span className={cx('absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform', showNegativeSign ? 'translate-x-4' : 'translate-x-0')} />
                     </span>
                   </button>
@@ -1158,7 +1069,7 @@ export function LlmLossDerivation({ content, language, themeClasses }: LlmConten
                 <div className="grid gap-3">
                   <div className="grid gap-2 sm:grid-cols-2">
                     {step.lengthNormalizationExample.rows.map((row) => (
-                      <div key={row.productFormula} className={cx('grid gap-2 rounded-lg px-3 py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#263B5B]/45')}>
+                      <div key={row.productFormula} className="grid gap-2 rounded-lg bg-white px-3 py-3">
                         <span className={cx('text-sm font-black', themeClasses.accentText)}>{text(row.label, language)}</span>
                         <span className={cx('overflow-x-auto text-center text-base font-semibold', themeClasses.titleText)} dangerouslySetInnerHTML={{ __html: katex.renderToString(row.productFormula, { throwOnError: false }) }} />
                       </div>
@@ -1169,7 +1080,7 @@ export function LlmLossDerivation({ content, language, themeClasses }: LlmConten
                   <div className={cx('overflow-x-auto py-1 text-center text-lg font-semibold', themeClasses.titleText)} dangerouslySetInnerHTML={{ __html: katex.renderToString(step.lengthNormalizationExample.normalizationFormula, { displayMode: true, throwOnError: false }) }} />
                   <div className="grid gap-2 sm:grid-cols-2">
                     {step.lengthNormalizationExample.rows.map((row) => (
-                      <div key={row.normalizedFormula} className={cx('grid gap-2 rounded-lg px-3 py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#263B5B]/45')}>
+                      <div key={row.normalizedFormula} className="grid gap-2 rounded-lg bg-white px-3 py-3">
                         <span className={cx('text-sm font-black', themeClasses.accentText)}>{text(row.label, language)}</span>
                         <span className={cx('overflow-x-auto text-center text-base font-semibold', themeClasses.titleText)} dangerouslySetInnerHTML={{ __html: katex.renderToString(row.normalizedFormula, { throwOnError: false }) }} />
                       </div>
@@ -1182,7 +1093,7 @@ export function LlmLossDerivation({ content, language, themeClasses }: LlmConten
                   <div className="grid gap-3">
                     <div className="flex items-center justify-between gap-3 text-sm font-black">
                       <span className={themeClasses.titleText}>Tích xác suất</span>
-                      <span className={cx('flex items-baseline gap-1', themeClasses.isLight ? 'text-[#5BAA12]' : 'text-[#A8DB78]')}><span dangerouslySetInnerHTML={{ __html: katex.renderToString('\\prod_i p_i=', { throwOnError: false }) }} />{productProbability.toFixed(2)}</span>
+                      <span className="flex items-baseline gap-1 text-[#5BAA12]"><span dangerouslySetInnerHTML={{ __html: katex.renderToString('\\prod_i p_i=', { throwOnError: false }) }} />{productProbability.toFixed(2)}</span>
                     </div>
                     <input type="range" min="0.05" max="1" step="0.01" value={productProbability} onChange={(event) => setProductProbability(Number(event.target.value))} className="w-full accent-[#5BAA12]" aria-label="Tích xác suất dùng để so sánh số mũ một trên L và âm một trên L" />
                     <div className={cx('flex justify-between text-xs font-semibold', themeClasses.mutedText)}><span>0.05</span><span>0.50</span><span>1.00</span></div>
@@ -1191,7 +1102,7 @@ export function LlmLossDerivation({ content, language, themeClasses }: LlmConten
                       <span className={cx('flex items-baseline gap-1', themeClasses.accentText)}><span dangerouslySetInnerHTML={{ __html: katex.renderToString('(\\prod_i p_i)^{-1/L}=', { throwOnError: false }) }} />{Math.pow(productProbability, -1 / step.exponentComparison.length).toFixed(3)}</span>
                     </div>
                   </div>
-                  <ExponentComparisonChart length={step.exponentComparison.length} product={productProbability} themeClasses={themeClasses} />
+                  <ExponentComparisonChart length={step.exponentComparison.length} product={productProbability} />
                 </div>
               ) : null}
               {hasSignToggle ? (
@@ -1199,7 +1110,7 @@ export function LlmLossDerivation({ content, language, themeClasses }: LlmConten
                   <div className="grid gap-3">
                     <div className="flex items-center justify-between gap-3 text-sm font-black">
                       <span className={themeClasses.titleText}>Xác suất token đúng</span>
-                      <span className={themeClasses.isLight ? 'text-[#5BAA12]' : 'text-[#A8DB78]'}>p = {demoProbability.toFixed(2)}</span>
+                      <span className="text-[#5BAA12]">p = {demoProbability.toFixed(2)}</span>
                     </div>
                     <input type="range" min="0.01" max="0.99" step="0.01" value={demoProbability} onChange={(event) => setDemoProbability(Number(event.target.value))} className="w-full accent-[#5BAA12]" aria-label="Xác suất token đúng trong đồ thị loss" />
                     <div className={cx('flex justify-between text-xs font-semibold', themeClasses.mutedText)}><span>0.01</span><span>0.50</span><span>0.99</span></div>
@@ -1207,16 +1118,16 @@ export function LlmLossDerivation({ content, language, themeClasses }: LlmConten
                       <span className={cx('transition-opacity', showNegativeSign ? 'opacity-100' : 'opacity-20')}>−</span>ln({demoProbability.toFixed(2)}) = {(showNegativeSign ? demoMagnitude : -demoMagnitude).toFixed(3)}
                     </div>
                   </div>
-                  <ProbabilitySignComparisonChart activeMode={showNegativeSign ? 'loss' : 'log'} probability={demoProbability} themeClasses={themeClasses} />
+                  <ProbabilitySignComparisonChart activeMode={showNegativeSign ? 'loss' : 'log'} probability={demoProbability} />
                 </div>
               ) : null}
               {step.explanation ? <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{renderInlineMath(text(step.explanation, language))}</p> : null}
             </div>
             {step.formulaCheckpointAfter ? (
-              <div className={cx('overflow-x-auto rounded-xl border px-5 py-4 text-lg font-semibold sm:text-xl', themeClasses.isLight ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]' : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]')}>
+              <div className="overflow-x-auto rounded-xl border border-[#205089]/14 bg-[#EFF4FA] px-5 py-4 text-lg font-semibold text-[#123B68] sm:text-xl">
                 <div className="mx-auto flex w-max min-w-full items-center justify-center">
                   <span className="shrink-0 opacity-25" dangerouslySetInnerHTML={{ __html: katex.renderToString(step.formulaCheckpointAfter.before, { throwOnError: false }) }} />
-                  <span className={cx('mx-1 shrink-0 rounded-md px-2 py-1', themeClasses.isLight ? 'bg-[#DCEEFF] text-[#205F99]' : 'bg-[#263B5B] text-[#DCE8F4]')} dangerouslySetInnerHTML={{ __html: katex.renderToString(step.formulaCheckpointAfter.focus, { throwOnError: false }) }} />
+                  <span className="mx-1 shrink-0 rounded-md bg-[#DCEEFF] px-2 py-1 text-[#205F99]" dangerouslySetInnerHTML={{ __html: katex.renderToString(step.formulaCheckpointAfter.focus, { throwOnError: false }) }} />
                   <span className="shrink-0 opacity-25" dangerouslySetInnerHTML={{ __html: katex.renderToString(step.formulaCheckpointAfter.after, { throwOnError: false }) }} />
                 </div>
               </div>

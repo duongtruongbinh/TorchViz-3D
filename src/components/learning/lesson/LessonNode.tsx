@@ -18,14 +18,12 @@ type LessonNodeProps = {
   onSelect: (lessonId: string) => void;
 };
 
-type LessonNodeKind = 'theory' | 'quiz' | 'code';
-
 function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, isSelected, isTrackActive, language, theme, onSelect }: LessonNodeProps) {
   const lessonText = getUnifiedLessonText(language, lesson);
   const themeClasses = getLearningLabTheme(theme);
   const tone = getLessonTone({ isCompleted, isSelected, isTrackActive });
-  const lessonKind = getLessonNodeKind(lesson, lessonText.title);
-  const isDimmedQuiz = lessonKind === 'quiz' && !isCompleted && !isSelected;
+  const isQuiz = lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-');
+  const isDimmedQuiz = isQuiz && !isCompleted && !isSelected;
 
   return (
     <button
@@ -46,16 +44,16 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
         <span
           className={cx(
             'relative z-10 flex h-7 w-7 items-center justify-center text-xs font-black',
-            !isSelected && (isCompleted || lessonKind !== 'quiz') ? 'rounded-full border' : undefined,
-            isSelected && (isCompleted || lessonKind !== 'quiz') ? 'learning-lab-lesson-node-current' : undefined,
+            !isSelected && (isCompleted || !isQuiz) ? 'rounded-full border' : undefined,
+            isSelected && (isCompleted || !isQuiz) ? 'learning-lab-lesson-node-current' : undefined,
             themeClasses.rail.lessonNumber(tone, isCompleted),
-            !isCompleted && lessonKind !== 'quiz' ? getLessonNumberStyle(themeClasses.isLight, isSelected) : undefined,
-            !isCompleted && lessonKind === 'quiz' ? getQuizIconStyle(themeClasses.isLight, isSelected) : undefined,
+            !isCompleted && !isQuiz ? getLessonNumberStyle(themeClasses.isLight, isSelected) : undefined,
+            !isCompleted && isQuiz ? getQuizIconStyle(themeClasses.isLight, isSelected) : undefined,
           )}
         >
           {isCompleted ? (
             <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
-          ) : lessonKind === 'quiz' ? (
+          ) : isQuiz ? (
             <CircleHelp className={cx('h-6 w-6', isDimmedQuiz ? 'learning-lab-muted transition-opacity group-hover:opacity-100' : undefined)} strokeWidth={2} aria-hidden="true" />
           ) : index + 1}
         </span>
@@ -71,12 +69,6 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
       </span>
     </button>
   );
-}
-
-function getLessonNodeKind(lesson: LearningLesson, localizedTitle: string): LessonNodeKind {
-  if (lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-')) return 'quiz';
-  if (lesson.id.includes('-code') || /^code\s*:/i.test(localizedTitle)) return 'code';
-  return 'theory';
 }
 
 function getLessonNumberStyle(isLight: boolean, isSelected: boolean): string {

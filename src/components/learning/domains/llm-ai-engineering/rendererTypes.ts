@@ -194,7 +194,6 @@ export type LlmPerplexityInterpretationContent = {
     presets: Array<{
       id: string;
       label: LearningLocalizedText;
-      prompt?: string;
       groundTruthIndex: number;
       candidates: Array<{ token: string; probability: number }>;
     }>;
@@ -238,24 +237,20 @@ export type LlmPerplexityGoodRangeContent = {
 };
 
 export type LlmBenchmarkLikelihoodContent = {
-  compact?: boolean;
   lead: LearningLocalizedText;
   benchmark: { name: string; description: LearningLocalizedText };
   labels: {
     question: LearningLocalizedText;
     likelihood: LearningLocalizedText;
     result: LearningLocalizedText;
-    highest: LearningLocalizedText;
   };
   question: LearningLocalizedText;
   answers: Array<{
     id: string;
     text: LearningLocalizedText;
     score: number;
-    correct: boolean;
   }>;
   formula: string;
-  method: LearningLocalizedText;
   contamination: { title: LearningLocalizedText; body: LearningLocalizedText };
 };
 
@@ -286,7 +281,6 @@ export type LlmHuggingFaceBenchmarksContent = {
 };
 
 export type LlmPostTrainingEvaluationContent = {
-  compact?: boolean;
   lead: LearningLocalizedText;
   methods: Array<{
     id: 'human' | 'judge';
