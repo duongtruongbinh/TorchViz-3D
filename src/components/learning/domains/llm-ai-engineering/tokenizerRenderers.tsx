@@ -306,15 +306,15 @@ export function LlmTokenizerIdMisconceptions({ content, language, themeClasses }
     <section className="grid gap-5">
       <p className={cx('w-full text-center text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
       <div className={cx('relative mx-auto grid w-full max-w-4xl gap-5 overflow-hidden rounded-2xl border p-5 sm:p-7', themeClasses.isLight ? 'border-[#E07A5F]/20 bg-[#FFF9F6]' : 'border-[#F29A82]/18 bg-[#F29A82]/6')}>
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
+        <div className="flex flex-wrap items-start justify-center gap-3 sm:gap-5">
           {content.entries.map((entry, index) => (
-            <Fragment key={`${entry.token}-${entry.id}`}>
-              {index > 0 ? <span className={cx('text-xl font-black', themeClasses.mutedText)}>&lt;</span> : null}
-              <div className="grid justify-items-center gap-2">
+            <div key={`${entry.token}-${entry.id}`} className="grid justify-items-center gap-2">
+              <div className="flex items-center gap-2">
+                {index > 0 ? <span className={cx('text-xl font-black', themeClasses.mutedText)}>&lt;</span> : null}
                 <span className={cx('grid h-14 min-w-20 place-items-center rounded-xl px-3 text-lg font-black tabular-nums', themeClasses.isLight ? 'bg-[#FFF0CF] text-[#674518] ring-1 ring-[#C68A2E]/35' : 'bg-[#8B6734]/40 text-[#FFE5B4] ring-1 ring-[#FFE5B4]/20')}>{entry.id}</span>
-                <code className={cx('rounded-md px-2 py-1 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{entry.token}</code>
               </div>
-            </Fragment>
+              <code className={cx('rounded-md px-2 py-1 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{entry.token}</code>
+            </div>
           ))}
         </div>
         <div className="flex items-center justify-center gap-3" aria-hidden="true">
