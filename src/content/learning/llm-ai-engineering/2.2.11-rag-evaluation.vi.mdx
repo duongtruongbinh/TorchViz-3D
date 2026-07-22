@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'rag-evaluation',
+  locale: 'vi',
+  title: 'Đánh giá hệ thống RAG',
+  headings: ['Tách retrieval và generation', 'Các tiêu chí chính', 'Debug theo pipeline'],
+  keywords: ['RAG evaluation', 'context precision', 'context recall', 'faithfulness', 'answer relevance'],
+}
+
+## Tách retrieval và generation
+
+RAG có ít nhất hai nguồn lỗi: retriever có thể lấy sai tài liệu, hoặc generator có thể dùng sai context đã lấy được. Nếu chỉ chấm answer cuối, ta khó biết cần sửa embedding, chunking, reranking, prompt hay model.
+
+## Các tiêu chí chính
+
+- **Context recall:** các evidence cần thiết có được truy xuất không?
+- **Context precision:** phần context được lấy có thực sự liên quan không?
+- **Faithfulness:** answer có được hỗ trợ bởi context không?
+- **Answer relevance:** response có giải quyết đúng câu hỏi không?
+- **Citation quality:** citation có trỏ đúng đoạn chứa evidence không?
+
+RAGAS và các framework tương tự có thể tự động hóa một phần phép đo bằng model judge, nhưng vẫn cần sample human review để hiệu chuẩn.
+
+## Debug theo pipeline
+
+Hãy lưu query, retrieved chunks, score, reranked order, prompt cuối và response. Khi một test fail, phân loại lỗi theo stage trước khi thay đổi hệ thống. Evaluation dataset cũng nên có câu hỏi không đủ evidence để kiểm tra model có từ chối đúng lúc hay không.

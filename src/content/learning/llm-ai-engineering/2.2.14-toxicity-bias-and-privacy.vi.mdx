@@ -1,0 +1,22 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'toxicity-bias-and-privacy',
+  locale: 'vi',
+  title: 'Toxicity, bias và privacy',
+  headings: ['Toxicity', 'Bias', 'Privacy và data leakage'],
+  keywords: ['toxicity', 'bias', 'privacy', 'data leakage', 'PII'],
+}
+
+## Toxicity
+
+Toxicity evaluation kiểm tra model có tạo nội dung xúc phạm, đe dọa hoặc gây hại không. Dataset cần bao phủ nhiều ngôn ngữ, cách nói gián tiếp và context hợp lệ như phân tích hoặc trích dẫn, nếu không classifier có thể chặn quá mức.
+
+## Bias
+
+Bias có thể xuất hiện khi model đưa ra nhận định hoặc chất lượng phục vụ khác nhau theo giới tính, sắc tộc, tôn giáo, vùng miền hoặc nhóm xã hội. Evaluation nên dùng prompt đối sánh: chỉ thay thuộc tính nhóm trong khi giữ các yếu tố khác ổn định, sau đó so sánh quyết định và cách diễn đạt.
+
+Không nên rút kết luận từ một ví dụ đơn lẻ. Cần nhìn phân phối kết quả, error rate theo subgroup và hậu quả trong use case thật.
+
+## Privacy và data leakage
+
+Model hoặc application có thể tiết lộ PII, secret, nội dung prompt hệ thống hoặc dữ liệu từ người dùng khác. Test privacy nên bao gồm extraction attempt, indirect request, tool output và dữ liệu truy xuất. Trong production, cần kết hợp redaction, access control, retention policy và audit log thay vì chỉ dựa vào model từ chối.

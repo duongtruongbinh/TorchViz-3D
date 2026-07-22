@@ -1,0 +1,22 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'production-regression-evals',
+  locale: 'vi',
+  title: 'Regression evaluation trong production',
+  headings: ['Từ failure thành test', 'Version mọi thành phần', 'Offline và online'],
+  keywords: ['regression evaluation', 'production', 'versioning', 'monitoring', 'release gate'],
+}
+
+## Từ failure thành test
+
+Mỗi lỗi quan trọng được phát hiện trong development, red teaming hoặc production nên trở thành một test case có thể chạy lại. Bộ regression eval bảo đảm thay đổi mới không làm sống lại lỗi cũ trong khi cải thiện một metric khác.
+
+Test suite nên tách smoke tests chạy nhanh, core use-case tests, safety tests và một tập lớn chạy theo lịch. Critical failure có thể trở thành release gate thay vì chỉ đóng góp vào average score.
+
+## Version mọi thành phần
+
+Kết quả eval chỉ có ý nghĩa khi ta biết phiên bản model, system prompt, retrieval index, tool, policy, dataset và judge. Cùng một model nhưng prompt hoặc context khác nhau có thể tạo hành vi hoàn toàn khác.
+
+## Offline và online
+
+Offline eval nhanh, tái lập và phù hợp để so sánh trước release. Online monitoring phản ánh traffic thật nhưng bị ảnh hưởng bởi user mix và rủi ro exposure. Hai nguồn cần nối với nhau: production failure bổ sung vào offline dataset, còn offline regression bảo vệ release tiếp theo.

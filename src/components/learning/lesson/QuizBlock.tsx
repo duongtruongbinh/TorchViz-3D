@@ -190,14 +190,9 @@ function QuizQuestion({
         'py-1',
         quizPalette.card,
       )}>
-      <div className="grid gap-2">
-        <div className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.title)}>
-          {text(question.title, language)}
-        </div>
-        {promptText ? (
-          <p className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderInlineCode(promptText, themeClasses)}</p>
-        ) : null}
-      </div>
+      {promptText ? (
+        <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderInlineCode(promptText, themeClasses)}</p>
+      ) : null}
 
       {isOrderMode ? (
         <DndContext
@@ -386,8 +381,10 @@ function OrderRowOverlay({
 }
 
 function renderInlineCode(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
-  return value.split(/(`[^`]+`)/g).filter(Boolean).map((part, index) => {
-    if (part.startsWith('`') && part.endsWith('`')) {
+  return value.split(/(`[^`]+`|“[^”]+”)/g).filter(Boolean).map((part, index) => {
+    const isBacktickCode = part.startsWith('`') && part.endsWith('`');
+    const isQuotedCode = part.startsWith('“') && part.endsWith('”');
+    if (isBacktickCode || isQuotedCode) {
       return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
     }
     return <span key={`${index}-${part}`}>{part}</span>;
@@ -531,8 +528,7 @@ function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabTheme>) {
   if (!themeClasses.isLight) {
     return {
       card: '',
-      title: themeClasses.titleText,
-      prompt: themeClasses.titleText,
+      prompt: themeClasses.accentText,
       orderNumber: 'border-[#D7DCE2]/18 bg-[#D7DCE2] text-[#121A24]',
       dragIcon: 'text-[#D7EAFE]/76',
       optionSelected: 'border-[#A8B8C8]/28 bg-[#D7DCE2] text-[#121A24]',
@@ -560,8 +556,7 @@ function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabTheme>) {
 
   return {
     card: '',
-    title: 'text-[#254F70]',
-    prompt: 'text-[#102F4A]',
+    prompt: 'text-[#2F78B7]',
     orderNumber: 'border-[#2F6B55]/18 bg-[#DDEFE7] text-[#1F5A46]',
     dragIcon: 'text-[#385F7A]',
     optionSelected: 'border-[#2F6B55]/22 bg-[#EEF7F2] text-[#1F5A46] shadow-[0_6px_16px_rgba(47,107,85,0.08)]',
@@ -579,8 +574,8 @@ function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabTheme>) {
     categoryTitle: 'text-[#1F5A46]',
     tokenChip: 'border-[#2F6B55]/14 bg-[#EEF7F2] text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)]',
     tokenChipIncorrect: 'border-[#C45151]/48 bg-[#FBECEC] text-[#8C3333] shadow-[0_4px_12px_rgba(196,81,81,0.08)]',
-    checkButton: 'border border-[#CBD5E1] bg-[#E2E8F0] text-[#0F172A] shadow-[0_8px_18px_rgba(15,23,42,0.10)] hover:bg-[#CBD5E1]',
-    disabledButton: 'bg-[#B8C8DA]/12 text-[#030509]/24 shadow-none',
+    checkButton: 'border border-[#CBD5E1] bg-[#E2E8F0] text-[#172A43] shadow-[0_8px_18px_rgba(15,23,42,0.10)] hover:bg-[#CBD5E1]',
+    disabledButton: 'bg-[#B8C8DA]/12 text-[#64748B]/40 shadow-none',
     resetButton: 'bg-[#2F6B55]/8 text-[#1F5A46] hover:bg-[#2F6B55]/12',
     feedbackCorrect: 'border-[#1F6F48]/18 bg-[#E8F7EE] text-[#1F6F48]',
     feedbackIncorrect: 'border-[#8C3333]/18 bg-[#FBECEC] text-[#8C3333]',

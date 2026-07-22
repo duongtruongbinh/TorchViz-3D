@@ -1,14 +1,16 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-17
+updated: 2026-07-23
 ---
 
 # Learning Lab
 
 This page documents the active Landing Page and Learning Lab architecture. The
 current content migration and catalog decisions are recorded in
-[docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md).
+[docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md),
+with the current LLM lesson state in
+[docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md](../../docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md).
 
 ## Status
 
@@ -19,9 +21,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 81 tracks, and 632 lesson nodes. Thirty
-Vietnamese-first lessons have authored content: twenty-six in `llm-ai-engineering`
-and four tagged exercise lessons in `cv`. The other 602 nodes are navigable
+The catalog contains 12 domains, 82 tracks, and 652 lesson nodes. Fifty-three
+Vietnamese-first lessons have authored content: forty-nine in `llm-ai-engineering`
+and four tagged exercise lessons in `cv`. The other 599 nodes are navigable
 placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
 
@@ -53,6 +55,29 @@ The authored LLM lessons are:
 24. `tokenization-raw-text-to-token-ids`
 25. `llm-data-pipeline-overview`
 26. `llm-data-pipeline-checkpoint-quiz`
+27. `loss-perplexity-hand-calculation`
+28. `benchmark-likelihood-quiz`
+29. `evaluation-beyond-perplexity`
+30. `llm-evaluation-foundations`
+31. `evaluation-dataset-design`
+32. `deterministic-and-reference-metrics`
+33. `human-evaluation-rubrics`
+34. `inter-rater-agreement`
+35. `pointwise-and-pairwise-evaluation`
+36. `llm-as-a-judge`
+37. `llm-judge-biases`
+38. `benchmark-selection-and-contamination`
+39. `hallucination-and-factuality-evaluation`
+40. `rag-evaluation`
+41. `llm-safety-foundations`
+42. `refusal-calibration`
+43. `toxicity-bias-and-privacy`
+44. `jailbreak-and-prompt-injection`
+45. `guardrails-for-llm-applications`
+46. `llm-red-teaming`
+47. `production-regression-evals`
+48. `evaluation-ab-testing`
+49. `evaluation-harness-code`
 
 Their authored prose, paging data, quizzes, references, and structured visual
 inputs live in locale-specific MDX. LLM-specific visual and stateful components
@@ -142,7 +167,7 @@ outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 602
+published MDX. The shared placeholder body is not indexed, preventing 599
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -186,6 +211,9 @@ and Vietnamese-diacritic-insensitive.
 Learning Lab visual primitives live in `src/components/learning/theme.ts`.
 Controls should use `getLearningLabTheme(theme)` and the semantic theme helpers
 instead of adding unrelated colors, radii, hover states, or focus styles.
+The active Learning Lab runtime is locked to light mode. The shared theme
+contract remains in place for existing components, but new lesson-only visuals
+should not add unreachable dark variants.
 
 `LearningLabView` keeps a shallow left sidebar: Home followed by top-level
 domains. Track and lesson structure belongs in the main course/lesson surface.
@@ -227,12 +255,11 @@ on the button element identified by `data-lesson-id`. The effect is driven by th
 different lesson is selected, and it safely handles cases where the target
 lesson node is not in the DOM (e.g., collapsed track or filtered out).
 
-Lesson nodes use a stable type color in the rail: theory is blue, quiz is
-violet, and code is amber. The color is applied to the number marker and lesson
-title without adding a separate rail or stripe. Quiz classification follows the
-canonical lesson ID, while code classification uses the existing code ID/title
-convention; all other nodes are theory. Completed markers remain green, so
-progress continues to take precedence inside the marker.
+Unfinished lesson nodes use one blue marker/title treatment. Theory and Code
+nodes retain chapter-local numbering; Quiz nodes are excluded from visible
+numbering and use a dimmed question icon that regains emphasis on hover or
+selection. Selected rows use a solid blue surface, while completed markers
+remain green so progress continues to take precedence.
 
 ## Invariants
 
@@ -248,8 +275,9 @@ progress continues to take precedence inside the marker.
   there is no parallel review or practice content record.
 - Workspace exercise handoff resolves a React-free catalog entry point and opens
   the canonical lesson route without a practice query or duplicated fixture.
-- The twenty-four LLM lessons retain their routes, paging, quiz state/reset, locale
-  fallback, authored search text, and light/dark behavior.
+- The forty-nine authored LLM lessons retain their routes, paging, quiz
+  state/reset, locale fallback, authored search text, and light-only runtime
+  behavior.
 - Learning Lab changes must not reset Workspace editor/canvas state.
 
 ## Related Pages

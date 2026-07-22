@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'inter-rater-agreement',
+  locale: 'vi',
+  title: 'Độ đồng thuận giữa người chấm',
+  headings: ['Vì sao cần agreement?', 'Observed và chance agreement', 'Cải thiện độ nhất quán'],
+  keywords: ['inter-rater agreement', 'Cohen kappa', 'Fleiss kappa', 'Krippendorff alpha', 'annotator'],
+}
+
+## Vì sao cần agreement?
+
+Điểm human evaluation không tự động trở thành ground truth. Nếu hai annotator hiểu rubric khác nhau, cùng một response có thể nhận hai kết quả trái ngược. Inter-rater agreement đo mức độ nhất quán giữa người chấm và giúp phát hiện rubric còn mơ hồ.
+
+## Observed và chance agreement
+
+Tỷ lệ hai người chọn cùng nhãn là observed agreement. Tuy nhiên, một phần đồng thuận có thể xuất hiện do ngẫu nhiên, đặc biệt khi số nhãn ít hoặc một nhãn chiếm đa số. Cohen’s kappa điều chỉnh chance agreement cho hai người chấm; Fleiss’ kappa mở rộng cho nhiều người; Krippendorff’s alpha linh hoạt hơn với nhiều loại thang đo và dữ liệu thiếu.
+
+Không có một ngưỡng duy nhất phù hợp cho mọi dự án. Agreement thấp nên được xem là tín hiệu cần đọc lại các disagreement case, không chỉ là một con số cần “đẩy lên”.
+
+## Cải thiện độ nhất quán
+
+- Viết lại tiêu chí bằng ví dụ pass/fail cụ thể.
+- Tổ chức calibration round trước khi chấm chính thức.
+- Tách các tiêu chí đang bị gộp vào cùng một câu hỏi.
+- Cho phép annotator ghi chú case thiếu context.
+- Dùng domain expert cho các lỗi cần kiến thức chuyên môn.

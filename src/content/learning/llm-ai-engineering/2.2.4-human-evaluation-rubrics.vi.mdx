@@ -1,0 +1,28 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'human-evaluation-rubrics',
+  locale: 'vi',
+  title: 'Human evaluation và rubric',
+  headings: ['Khi nào cần con người?', 'Thiết kế rubric', 'Quy trình chấm'],
+  keywords: ['human evaluation', 'rubric', 'annotator', 'helpfulness', 'coherence'],
+}
+
+## Khi nào cần con người?
+
+Human evaluation đặc biệt quan trọng với các tiêu chí khó quy thành công thức cố định: response có hữu ích không, có tự nhiên không, có giải thích đúng trình độ không, hoặc có phù hợp với ngữ cảnh sử dụng không. Con người cũng giúp phát hiện những lỗi mà automatic metric chưa được thiết kế để nhìn thấy.
+
+## Thiết kế rubric
+
+Rubric phải mô tả tiêu chí bằng hành vi quan sát được. Thay vì chỉ ghi “chất lượng tốt”, hãy tách thành các câu hỏi cụ thể:
+
+- Nội dung có đúng và đáng tin không?
+- Response có giải quyết nhu cầu chính không?
+- Câu trả lời có mạch lạc, dễ đọc và không tự mâu thuẫn không?
+- Model có làm theo instruction và format yêu cầu không?
+- Có lỗi safety hoặc privacy nghiêm trọng không?
+
+Mỗi thang điểm cần có mô tả rõ cho các mức thấp, trung bình và cao. Nếu một lỗi là critical, nên dùng cờ pass/fail riêng thay vì để nó bị trung bình hóa trong tổng điểm.
+
+## Quy trình chấm
+
+Annotator cần được cung cấp cùng context, guideline và ví dụ mẫu. Nên chạy một vòng calibration nhỏ trước khi chấm toàn bộ dataset, thu lại lý do cho các case khó và cho phép đánh dấu “không đủ thông tin”. Human evaluation có chi phí cao, vì vậy thường được dùng trên một sample đại diện hoặc các case mà automatic checks chưa quyết định được.

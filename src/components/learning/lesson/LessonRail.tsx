@@ -94,7 +94,7 @@ export default function LessonRail({
                 type="search"
                 value={searchQuery}
                 onChange={(event) => onSearchChange(event.target.value)}
-                className="learning-lab-rail-search-input min-w-0 flex-1 bg-transparent text-sm font-bold outline-none placeholder:text-current placeholder:opacity-50"
+                className="learning-lab-rail-search-input min-w-0 flex-1 bg-transparent text-sm font-bold outline-none placeholder:text-current"
                 placeholder={strings.lessonSearchPlaceholder}
                 aria-label={strings.lessonSearchPlaceholder}
               />
@@ -219,7 +219,7 @@ type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
 function getRailFilterButtonClass(themeClasses: LearningThemeClasses, isActive: boolean): string {
   return cx(
     'flex h-8 min-w-0 flex-1 items-center justify-center px-2 text-[11px] font-black transition-colors',
-    isActive ? 'learning-lab-rail-filter-button-active' : 'learning-lab-rail-filter-button-idle',
+    isActive ? 'learning-lab-rail-filter-button-active' : 'learning-lab-muted learning-lab-rail-filter-button-idle',
     themeClasses.radius.button,
     themeClasses.focusRing,
     isActive
@@ -227,7 +227,7 @@ function getRailFilterButtonClass(themeClasses: LearningThemeClasses, isActive: 
         ? 'border border-[#2F6F9F]/18 bg-[#D7E8F5] text-[#255E88] shadow-[inset_0_0_0_1px_rgba(47,111,159,0.10)]'
         : 'bg-[#D7DCE2] text-[#121A24] shadow-[0_5px_14px_rgba(0,0,0,0.18)]'
       : themeClasses.isLight
-        ? 'text-[#123B68]/58 hover:bg-white/58 hover:text-[#123B68]'
+        ? 'text-[#123B68] hover:bg-white/58 hover:text-[#123B68] focus-visible:text-[#123B68]'
         : 'text-[#F2F6FA]/54 hover:bg-[#A8B8C8]/10 hover:text-[#F2F6FA]',
   );
 }

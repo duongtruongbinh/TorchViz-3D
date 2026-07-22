@@ -3,9 +3,9 @@ export const lessonMetadata = {
   id: 'tokenization-token-ids-vocabulary',
   locale: 'vi',
   title: 'Token IDs và vocabulary',
-  headings: ['Vocabulary là bảng ánh xạ', 'Token ID chỉ là địa chỉ', 'Từ text đến token ID và trở lại'],
-  keywords: ['token ID', 'vocabulary', 'encode', 'decode'],
-  pageCount: 3,
+  headings: ['Vocabulary là bảng ánh xạ', 'Token ID chỉ là địa chỉ', 'Hai ngữ cảnh, cùng một token ID', 'Từ text đến token ID và trở lại'],
+  keywords: ['token ID', 'vocabulary', 'ngữ nghĩa', 'ngữ cảnh', 'Transformer', 'encode', 'decode'],
+  pageCount: 4,
 }
 
 <MdxPage page={0}>
@@ -48,6 +48,35 @@ export const lessonMetadata = {
 </MdxPage>
 
 <MdxPage page={2}>
+
+## Hai ngữ cảnh, cùng một token ID
+
+<TokenizerContextAmbiguity content={{
+  token: 'đường',
+  examples: [
+    {
+      id: 'road',
+      before: 'Con ',
+      after: ' ven sông rất yên tĩnh.',
+      meaning: { vi: 'Lối đi' },
+      tokenIds: [418, 2048, 944, 613, 72],
+      highlightedTokenIndex: 1,
+    },
+    {
+      id: 'sugar',
+      before: 'Cốc cà phê này cần thêm ',
+      after: '.',
+      meaning: { vi: 'Chất tạo ngọt' },
+      tokenIds: [731, 502, 91, 630, 2048, 13],
+      highlightedTokenIndex: 4,
+    },
+  ],
+  explanation: { vi: 'Ở bước này, token ID chỉ xác định token trong vocabulary nên cả hai từ “đường” đều mang ID 2048. Token ID chưa thể phân biệt nghĩa; về sau, Transformer mới học cách dùng các từ xung quanh để hiểu “đường” theo từng ngữ cảnh.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
 
 <TokenizerIdRoundTrip content={{
   lead: { vi: 'Text đi qua tokenizer để trở thành dãy token ID cho model xử lý. Model dự đoán next token dưới dạng một token ID; token tương ứng sau đó được ghép vào input để tiếp tục vòng dự đoán.' },

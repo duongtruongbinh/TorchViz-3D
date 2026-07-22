@@ -1,0 +1,22 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'jailbreak-and-prompt-injection',
+  locale: 'vi',
+  title: 'Jailbreak và prompt injection',
+  headings: ['Jailbreak', 'Prompt injection', 'Indirect injection'],
+  keywords: ['jailbreak', 'prompt injection', 'indirect prompt injection', 'attack', 'tool use'],
+}
+
+## Jailbreak
+
+Jailbreak là nhóm kỹ thuật prompt nhằm khiến model bỏ qua ràng buộc safety hoặc refusal behavior. Nó thường nhắm trực tiếp vào hành vi của model bằng role-play, obfuscation, encoding hoặc chuỗi instruction được thiết kế đối kháng.
+
+## Prompt injection
+
+Prompt injection nhắm vào logic của ứng dụng. Nội dung không đáng tin yêu cầu model bỏ qua instruction của developer, tiết lộ dữ liệu hoặc gọi tool ngoài ý muốn. Khác với jailbreak, mục tiêu thường không chỉ là tạo nội dung bị cấm mà là chiếm quyền điều khiển workflow.
+
+## Indirect injection
+
+Indirect prompt injection nằm trong website, email, document hoặc dữ liệu mà hệ thống truy xuất. Khi nội dung này được ghép vào context, model có thể coi instruction của attacker như instruction hợp lệ. Rủi ro tăng mạnh khi model có quyền đọc dữ liệu riêng hoặc thực hiện hành động.
+
+Evaluation cần kiểm tra cả direct và indirect injection, nhiều cách paraphrase, nhiều ngôn ngữ và chuỗi tấn công qua nhiều lượt hội thoại. Mitigation phải dựa trên phân tách trust boundary và giới hạn quyền, không chỉ dựa vào một câu “hãy bỏ qua instruction độc hại”.

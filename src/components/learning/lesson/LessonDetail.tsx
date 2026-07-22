@@ -238,7 +238,7 @@ function getLessonPagerButtonClass(themeClasses: LearningThemeClasses, isEnabled
         ? 'bg-[#B8C8DA]/58 text-[#123B68] hover:bg-[#DCE6F1]'
         : 'bg-[#A8B8C8]/12 text-[#F2F6FA] hover:bg-[#A8B8C8]/20'
       : themeClasses.isLight
-        ? 'bg-[#B8C8DA]/12 text-[#030509]/20'
+        ? 'bg-[#B8C8DA]/12 text-[#64748B]/36'
         : 'bg-[#A8B8C8]/4 text-[#F2F6FA]/20',
   );
 }

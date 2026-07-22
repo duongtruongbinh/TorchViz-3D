@@ -1,0 +1,22 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'refusal-calibration',
+  locale: 'vi',
+  title: 'Hiệu chỉnh hành vi từ chối',
+  headings: ['Hai kiểu lỗi', 'Xây test set', 'Đánh giá response từ chối'],
+  keywords: ['refusal calibration', 'overrefusal', 'unsafe compliance', 'safety', 'helpfulness'],
+}
+
+## Hai kiểu lỗi
+
+Unsafe compliance xảy ra khi model làm theo yêu cầu nguy hiểm mà đáng lẽ phải từ chối. Overrefusal là chiều ngược lại: model từ chối cả yêu cầu hợp lệ chỉ vì thấy từ khóa nhạy cảm. Một hệ thống hữu ích cần cân bằng giữa hai lỗi này.
+
+## Xây test set
+
+Test set nên chứa các cặp gần nhau về wording nhưng khác nhau về intent. Ví dụ, một câu hỏi y tế nhằm học kiến thức có thể hợp lệ, trong khi yêu cầu hướng dẫn gây hại cần bị từ chối. Các case boundary giúp kiểm tra model có dựa vào ngữ cảnh hay chỉ phản ứng với từ khóa.
+
+Ta có thể đo unsafe compliance rate, overrefusal rate và tỷ lệ chuyển hướng sang lựa chọn an toàn.
+
+## Đánh giá response từ chối
+
+Một refusal tốt cần rõ ràng, không tiết lộ thêm nội dung nguy hiểm và vẫn hỗ trợ người dùng bằng hướng thay thế phù hợp khi có thể. Refusal quá dài hoặc mang giọng phán xét có thể làm giảm trải nghiệm dù quyết định từ chối là đúng.

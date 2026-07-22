@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAlert, CornerDownLeft, Cpu, Database, Info, Scissors, SlidersHorizontal, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAlert, Coffee, CornerDownLeft, Cpu, Database, Info, Route, Scissors, SlidersHorizontal, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
@@ -11,6 +11,7 @@ import type {
   LlmTokenizerBoundaryMismatchContent,
   LlmTokenizerCodeStructureContent,
   LlmTokenizerCodeToIdsContent,
+  LlmTokenizerContextAmbiguityContent,
   LlmTokenizerFreeDirectionContent,
   LlmTokenizerIdMisconceptionsContent,
   LlmTokenizerIdRoundTripContent,
@@ -333,6 +334,56 @@ export function LlmTokenizerIdMisconceptions({ content, language, themeClasses }
       </div>
       <LlmCallout className="w-full" icon={CircleAlert} themeClasses={themeClasses}>
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.takeaway, language)}</p>
+      </LlmCallout>
+    </section>
+  );
+}
+
+const TOKENIZER_CONTEXT_ICONS = {
+  road: Route,
+  sugar: Coffee,
+} satisfies Record<LlmTokenizerContextAmbiguityContent['examples'][number]['id'], LucideIcon>;
+
+export function LlmTokenizerContextAmbiguity({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerContextAmbiguityContent>) {
+  return (
+    <section className="grid gap-3">
+      <div className="grid gap-4 rounded-2xl border border-[#205089]/12 bg-[#F8FAFC] p-4 sm:p-6">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {content.examples.map((example) => {
+            const Icon = TOKENIZER_CONTEXT_ICONS[example.id];
+            const accent = example.id === 'road'
+              ? 'text-[#245E8D]'
+              : 'text-[#73551D]';
+            return (
+              <article key={example.id} className="grid justify-items-center gap-2 text-center">
+                <Icon className={cx('h-6 w-6', accent)} strokeWidth={1.7} aria-hidden="true" />
+                <p className={cx('text-base font-bold leading-7 sm:text-lg', themeClasses.titleText)}>
+                  “{example.before}<mark className="rounded bg-[#DCE8F4] px-1 font-black text-[#205089]">{content.token}</mark>{example.after}”
+                </p>
+                <span className={cx('text-sm font-black', accent)}>{text(example.meaning, language)}</span>
+                <ArrowDown className={cx('mt-1 h-5 w-5', themeClasses.mutedText)} strokeWidth={1.7} aria-hidden="true" />
+                <div className="flex flex-wrap justify-center gap-1.5" aria-label={language === 'vi' ? 'Dãy token ID' : 'Token ID sequence'}>
+                  {example.tokenIds.map((tokenId, index) => {
+                    const isTarget = index === example.highlightedTokenIndex;
+                    return (
+                      <span key={`${example.id}-${tokenId}-${index}`} className={cx(
+                        'grid h-8 min-w-9 place-items-center rounded-md px-2 text-xs font-black tabular-nums',
+                        isTarget
+                          ? 'bg-[#2F78B7] text-white shadow-sm'
+                          : 'bg-white text-[#64748B] ring-1 ring-[#205089]/10',
+                      )}>{tokenId}</span>
+                    );
+                  })}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+      </div>
+
+      <LlmCallout className="w-full border-l-[3px]" icon={Info} themeClasses={themeClasses} tone="accent">
+        <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.explanation, language)}</p>
       </LlmCallout>
     </section>
   );
