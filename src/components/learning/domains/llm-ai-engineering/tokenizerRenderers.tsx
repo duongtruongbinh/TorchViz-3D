@@ -306,15 +306,15 @@ export function LlmTokenizerIdMisconceptions({ content, language, themeClasses }
     <section className="grid gap-5">
       <p className={cx('w-full text-center text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
       <div className={cx('relative mx-auto grid w-full max-w-4xl gap-5 overflow-hidden rounded-2xl border p-5 sm:p-7', themeClasses.isLight ? 'border-[#E07A5F]/20 bg-[#FFF9F6]' : 'border-[#F29A82]/18 bg-[#F29A82]/6')}>
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
+        <div className="flex flex-wrap items-start justify-center gap-3 sm:gap-5">
           {content.entries.map((entry, index) => (
-            <Fragment key={`${entry.token}-${entry.id}`}>
-              {index > 0 ? <span className={cx('text-xl font-black', themeClasses.mutedText)}>&lt;</span> : null}
-              <div className="grid justify-items-center gap-2">
+            <div key={`${entry.token}-${entry.id}`} className="grid justify-items-center gap-2">
+              <div className="flex items-center gap-2">
+                {index > 0 ? <span className={cx('text-xl font-black', themeClasses.mutedText)}>&lt;</span> : null}
                 <span className={cx('grid h-14 min-w-20 place-items-center rounded-xl px-3 text-lg font-black tabular-nums', themeClasses.isLight ? 'bg-[#FFF0CF] text-[#674518] ring-1 ring-[#C68A2E]/35' : 'bg-[#8B6734]/40 text-[#FFE5B4] ring-1 ring-[#FFE5B4]/20')}>{entry.id}</span>
-                <code className={cx('rounded-md px-2 py-1 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{entry.token}</code>
               </div>
-            </Fragment>
+              <code className={cx('rounded-md px-2 py-1 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{entry.token}</code>
+            </div>
           ))}
         </div>
         <div className="flex items-center justify-center gap-3" aria-hidden="true">
@@ -539,21 +539,21 @@ export function LlmTokenizerIdRoundTrip({ content, language, themeClasses }: Llm
       const detokenizerAnchor = getDiagramAnchor(detokenizer, canvasRect);
       const outputAnchor = getDiagramAnchor(outputText, canvasRect);
       const vocabularyAnchor = getDiagramAnchor(vocabulary, canvasRect);
-      const tokenizerElbowY = tokenizerAnchor.bottom + Math.max(28, (vocabularyAnchor.centerY - tokenizerAnchor.bottom) * 0.55);
-      const detokenizerElbowY = detokenizerAnchor.bottom + Math.max(28, (vocabularyAnchor.centerY - detokenizerAnchor.bottom) * 0.55);
+      /* All horizontal connectors run at the common center Y */
+      const flowY = modelAnchor.centerY;
 
       setConnectorPaths({
         flow: [
           `M ${inputAnchor.centerX} ${inputAnchor.bottom} V ${tokenizerAnchor.top}`,
-          `M ${tokenizerAnchor.right} ${tokenizerAnchor.centerY} H ${inputIdsAnchor.left}`,
-          `M ${inputIdsAnchor.right} ${inputIdsAnchor.centerY} H ${modelAnchor.left}`,
-          `M ${modelAnchor.right} ${modelAnchor.centerY} H ${outputIdAnchor.left}`,
-          `M ${outputIdAnchor.right} ${outputIdAnchor.centerY} H ${detokenizerAnchor.left}`,
+          `M ${tokenizerAnchor.right} ${flowY} H ${inputIdsAnchor.left}`,
+          `M ${inputIdsAnchor.right} ${flowY} H ${modelAnchor.left}`,
+          `M ${modelAnchor.right} ${flowY} H ${outputIdAnchor.left}`,
+          `M ${outputIdAnchor.right} ${flowY} H ${detokenizerAnchor.left}`,
           `M ${detokenizerAnchor.centerX} ${detokenizerAnchor.bottom} V ${outputAnchor.top}`,
         ],
         vocabulary: [
-          `M ${tokenizerAnchor.centerX} ${tokenizerAnchor.bottom} V ${tokenizerElbowY} H ${vocabularyAnchor.left} V ${vocabularyAnchor.centerY}`,
-          `M ${detokenizerAnchor.centerX} ${detokenizerAnchor.bottom} V ${detokenizerElbowY} H ${vocabularyAnchor.right} V ${vocabularyAnchor.centerY}`,
+          `M ${tokenizerAnchor.centerX} ${tokenizerAnchor.bottom} L ${vocabularyAnchor.centerX} ${vocabularyAnchor.centerY}`,
+          `M ${detokenizerAnchor.centerX} ${detokenizerAnchor.bottom} L ${vocabularyAnchor.centerX} ${vocabularyAnchor.centerY}`,
         ],
       });
     };
@@ -580,12 +580,12 @@ export function LlmTokenizerIdRoundTrip({ content, language, themeClasses }: Llm
             <code className={cx('rounded-lg px-4 py-2 text-base font-black', themeClasses.isLight ? 'bg-[#F3F6F9] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.sourceText}</code>
           </div>
 
-          <div ref={tokenizerRef} className={cx('absolute left-6 top-[10rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
+          <div ref={tokenizerRef} className={cx('absolute left-6 top-[9.125rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
             <span className="text-base font-black">Tokenizer</span>
             <div className="flex flex-wrap justify-center gap-1">{content.tokens.map((token, index) => <code key={`${token}-${index}`} className="rounded bg-white/45 px-1.5 py-0.5 text-xs font-black">{token}</code>)}</div>
           </div>
 
-          <div className="absolute left-[18rem] top-[8rem] grid w-20 justify-items-center gap-2">
+          <div className="absolute left-[18rem] top-[6.2rem] grid w-20 justify-items-center gap-2">
             <span className={cx('text-center text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>Token IDs</span>
             <div ref={inputIdsRef} className={cx('grid min-h-36 w-12 content-evenly justify-items-center rounded-lg py-2', themeClasses.isLight ? 'bg-[#F4E5EF]' : 'bg-[#6C4B66]/55')}>
               {content.ids.map((id) => <span key={id} className={cx('grid h-8 w-8 place-items-center rounded-full text-[0.65rem] font-black tabular-nums', themeClasses.isLight ? 'bg-[#F6CFE4] text-[#713255] ring-1 ring-[#8D436F]' : 'bg-[#D58AB5] text-[#2E1728] ring-1 ring-[#F4C8E1]/60')}>{id}</span>)}
@@ -596,12 +596,12 @@ export function LlmTokenizerIdRoundTrip({ content, language, themeClasses }: Llm
             <div className="grid justify-items-center gap-2"><Cpu className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" /><span className="text-base font-black">{text(content.modelLabel, language)}</span><span className="text-xs font-semibold">Forward</span></div>
           </div>
 
-          <div className="absolute right-[18rem] top-[8rem] grid w-20 justify-items-center gap-2">
+          <div className="absolute right-[18rem] top-[7.0rem] grid w-20 justify-items-center gap-2">
             <span className={cx('text-center text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>{language === 'vi' ? 'ID được chọn' : 'Selected ID'}</span>
             <div ref={outputIdRef} className={cx('grid h-20 w-12 place-items-center rounded-lg', themeClasses.isLight ? 'bg-[#FFF0CF]' : 'bg-[#8B6734]/40')}><span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#F4D8A4] text-[#674518] ring-1 ring-[#C68A2E]' : 'bg-[#C49250] text-[#21170A] ring-1 ring-[#FFE5B4]/60')}>{content.sampledTokenId}</span></div>
           </div>
 
-          <div ref={detokenizerRef} className={cx('absolute right-6 top-[10rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
+          <div ref={detokenizerRef} className={cx('absolute right-6 top-[8.875rem] grid w-52 justify-items-center gap-2 rounded-xl px-4 py-5', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/65 text-[#F7DDF1]')}>
             <span className="text-base font-black">Detokenizer</span>
             <code className="rounded bg-white/45 px-2 py-1 text-sm font-black">{content.sampledToken}</code>
           </div>
@@ -611,7 +611,7 @@ export function LlmTokenizerIdRoundTrip({ content, language, themeClasses }: Llm
             <span className={cx('text-[0.68rem] font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>Output text</span>
           </div>
 
-          <div ref={vocabularyRef} className={cx('absolute bottom-6 left-1/2 grid w-60 -translate-x-1/2 justify-items-center gap-1 rounded-xl border px-4 py-3 text-center', themeClasses.isLight ? 'border-[#8D436F]/24 bg-[#FAEFF6] text-[#56314F]' : 'border-[#D58AB5]/24 bg-[#6C4B66]/30 text-[#F7DDF1]')}>
+          <div ref={vocabularyRef} className={cx('absolute top-[18.25rem] left-1/2 grid w-60 -translate-x-1/2 justify-items-center gap-1 rounded-xl border px-4 py-3 text-center', themeClasses.isLight ? 'border-[#8D436F]/24 bg-[#FAEFF6] text-[#56314F]' : 'border-[#D58AB5]/24 bg-[#6C4B66]/30 text-[#F7DDF1]')}>
             <Database className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-sm font-black">Shared Vocabulary</span>
             <span className="text-xs font-semibold">token ↔ token ID</span>
