@@ -149,17 +149,17 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
             })}
           />
 
-          <div ref={inputRef} className={cx('absolute left-7 top-[16rem] grid w-[13.5rem] justify-items-center gap-2', stageTone(0))}>
+          <div ref={inputRef} className={cx('absolute left-7 top-[12.5rem] grid w-[13.5rem] justify-items-center gap-2', stageTone(0))}>
             <ArrowDown className={cx('h-4 w-4 rotate-180', themeClasses.mutedText)} strokeWidth={1.6} aria-hidden="true" />
             <p className={cx('rounded-lg px-4 py-2 text-center text-base font-black', themeClasses.isLight ? 'bg-[#F3F6F9] text-[#263B5B]' : 'bg-[#263B5B] text-[#E5EEF8]')}>{content.inputText}</p>
             <div className={cx('text-xs font-semibold', themeClasses.mutedText)}>Câu đầu vào</div>
           </div>
 
-          <div className={cx('absolute left-5 top-[8.6rem] w-[13.5rem]', stageTone(0))}>
+          <div className={cx('absolute left-5 top-[7.25rem] w-[13.5rem]', stageTone(0))}>
             <div ref={tokenizerRef} className={cx('rounded-xl px-4 py-6 text-center text-lg font-black', themeClasses.isLight ? 'bg-[#EBD9E8] text-[#56314F]' : 'bg-[#6C4B66]/55 text-[#F7DDF1]')}>Tokenizer</div>
           </div>
 
-          <div className={cx('absolute left-[18rem] top-[5.75rem] grid w-16 justify-items-center gap-2', stageTone(0))}>
+          <div className={cx('absolute left-[18rem] top-[4rem] grid w-16 justify-items-center gap-2', stageTone(0))}>
             <div className={cx('text-center text-[0.65rem] font-black uppercase tracking-wide', themeClasses.mutedText)}>Token IDs</div>
             <div ref={tokenIdsRef} className={cx('grid h-32 w-10 content-evenly justify-items-center rounded-lg', themeClasses.isLight ? 'bg-[#F4E5EF]' : 'bg-[#6C4B66]/55')}>
               {content.tokenIds.map((tokenId) => (
@@ -168,14 +168,14 @@ export function LlmArInferencePipeline({ content, step = 0, language, themeClass
             </div>
           </div>
 
-          <div ref={modelRef} className={cx('absolute left-[42%] top-[5rem] grid h-48 w-32 place-items-center rounded-xl px-4 py-5 text-center', stageTone(1), themeClasses.isLight ? 'bg-[#DDF2C7] text-[#29471E]' : 'bg-[#52723C]/55 text-[#E1F5D1]')}>
+          <div ref={modelRef} className={cx('absolute left-[42%] top-[3.25rem] grid h-48 w-32 place-items-center rounded-xl px-4 py-5 text-center', stageTone(1), themeClasses.isLight ? 'bg-[#DDF2C7] text-[#29471E]' : 'bg-[#52723C]/55 text-[#E1F5D1]')}>
             <div>
               <div className="text-base font-black">{text(content.modelLabel, language)}</div>
               <div className="mt-2 text-xs font-semibold leading-5">Forward</div>
             </div>
           </div>
 
-          <div ref={distributionRef} className={cx('absolute right-4 top-[6.3rem] grid w-[clamp(17rem,25%,24rem)] gap-3', stageTone(2))}>
+          <div ref={distributionRef} className={cx('absolute right-4 top-[4.75rem] grid w-[clamp(17rem,25%,24rem)] gap-3', stageTone(2))}>
             <div className={cx('text-xs font-black uppercase tracking-wide', themeClasses.mutedText)}>Next-token distribution</div>
             <div className="grid gap-2">
               {content.candidates.map((candidate) => (
