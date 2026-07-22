@@ -98,7 +98,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 32);
+  assert.equal(documents.length, 53);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
