@@ -1,0 +1,24 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'deterministic-and-reference-metrics',
+  locale: 'vi',
+  title: 'Deterministic checks và reference metrics',
+  headings: ['Deterministic checks', 'Reference-based metrics', 'Giới hạn'],
+  keywords: ['exact match', 'accuracy', 'F1', 'BLEU', 'ROUGE', 'deterministic checks'],
+}
+
+## Deterministic checks
+
+Deterministic checks phù hợp khi output có cấu trúc hoặc có điều kiện rõ ràng. Ta có thể kiểm tra JSON có parse được không, field bắt buộc có tồn tại không, citation có đúng format không, code có chạy qua unit test không, hoặc response có chứa chuỗi bị cấm hay không.
+
+Các check này nhanh, rẻ và dễ chạy lại. Chúng rất hữu ích cho regression test, nhưng chỉ đo đúng quy tắc đã được viết ra.
+
+## Reference-based metrics
+
+Khi có reference answer, ta có thể dùng exact match, accuracy, precision, recall hoặc F1. Với translation và summarization, BLEU và ROUGE đo mức độ overlap giữa output và reference. Semantic similarity dùng embedding để so sánh gần nghĩa thay vì chỉ so khớp từ.
+
+## Giới hạn
+
+Output khác reference không đồng nghĩa với output sai. Một câu trả lời đúng có thể dùng cách diễn đạt hoàn toàn khác, còn một output có overlap cao vẫn có thể chứa fact sai. Vì vậy, metric cần phù hợp với task và thường phải kết hợp với rubric, human evaluation hoặc model judge.
+
+Không nên tối ưu một con số đơn lẻ mà không đọc các failure case phía sau nó.

@@ -134,6 +134,10 @@ function MdxParagraph({ children }: { children?: ReactNode }) {
 
 function MdxLink({ children, href }: { children?: ReactNode; href?: string }) {
   const themeClasses = useLearningMdxTheme();
+  const isNumericCitation = typeof children === 'string' && /^\[\d+\]$/.test(children.trim());
+  if (isNumericCitation) {
+    return <a href={href} target="_blank" rel="noreferrer" className={cx('underline-offset-2 transition-colors hover:underline', themeClasses.focusRing, themeClasses.isLight ? 'text-[#2F78B7]' : 'text-[#9CC7EF]')}>{children}</a>;
+  }
   return <a href={href} target="_blank" rel="noreferrer" className={cx('inline-flex min-h-9 items-center rounded-lg border px-3 text-xs font-black leading-5 transition-colors', themeClasses.focusRing, themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC] text-[#123B68] hover:bg-[#EEF4FA]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7 text-[#F2F6FA] hover:bg-[#A8B8C8]/11')}>{children}</a>;
 }
 

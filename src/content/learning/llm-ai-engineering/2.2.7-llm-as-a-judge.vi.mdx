@@ -1,0 +1,24 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-as-a-judge',
+  locale: 'vi',
+  title: 'LLM-as-a-Judge',
+  headings: ['Judge model làm gì?', 'Thiết kế judge prompt', 'Không phải ground truth'],
+  keywords: ['LLM-as-a-Judge', 'judge model', 'rubric', 'MT-Bench', 'evaluation'],
+}
+
+## Judge model làm gì?
+
+LLM-as-a-Judge dùng một model để chấm response của model khác. Judge có thể trả về score, nhãn pass/fail, lựa chọn pairwise và rationale. Cách này rẻ và dễ scale hơn human evaluation, đồng thời linh hoạt hơn các rule cố định với câu hỏi mở.
+
+## Thiết kế judge prompt
+
+Judge cần nhận đủ input, response, reference hoặc evidence nếu có, cùng rubric rõ ràng. Prompt nên yêu cầu chấm từng tiêu chí trước khi đưa ra kết luận cuối. Với pairwise evaluation, cần đảo vị trí hai response và có lựa chọn hòa.
+
+Một quy trình tốt thường lưu cả score lẫn rationale để debug, nhưng không nên mặc định rationale dài đồng nghĩa với quyết định đúng.
+
+## Không phải ground truth
+
+Judge model vẫn có thể sai fact, bị ảnh hưởng bởi wording, ưu ái response dài hoặc thiên vị output giống phong cách của chính nó. Vì vậy, cần hiệu chuẩn judge bằng một tập đã được con người chấm, đo agreement và định kỳ đọc lại disagreement case.
+
+LLM judge phù hợp để mở rộng evaluation, không thay thế hoàn toàn human review cho các quyết định rủi ro cao.

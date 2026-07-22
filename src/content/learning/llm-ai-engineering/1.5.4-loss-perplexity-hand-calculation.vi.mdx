@@ -1,0 +1,232 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'loss-perplexity-hand-calculation',
+  locale: 'vi',
+  title: 'Perplexity và đánh giá LLM',
+  headings: ['Perplexity trong pre-training', 'Cách đọc Perplexity', 'PPL phụ thuộc vào điều gì?', 'Có PPL bao nhiêu là tốt?'],
+  keywords: ['perplexity', 'validation loss', 'MMLU', 'likelihood', 'test contamination', 'human evaluation', 'LLM-as-a-Judge'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<LlmPerplexitySequenceExample content={{
+  "brief": { vi: "Trong pre-training, model được tối ưu bằng Negative Log-Likelihood/cross-entropy loss để học dự đoán token tiếp theo. Khi evaluation, ta thường chuyển average Negative Log-Likelihood sang một metric khác là Perplexity." },
+  "contrast": [
+    { "label": { vi: "Negative Log-Likelihood" }, "role": { vi: "Training loss" }, "bestValue": "Best = 0" },
+    { "label": { vi: "Perplexity" }, "role": { vi: "Evaluation metric" }, "bestValue": "Best = 1" }
+  ],
+  "note": { vi: "Dễ thấy do best case của Perplexity = 1, nên mục đích được thiết kế của nó không phải để làm hàm loss mới mà dùng để làm metric đánh giá được suy ra từ average Negative Log-Likelihood. Vì sao thang đo này hữu ích cho evaluation sẽ được làm rõ ở phần sau." },
+  "formula": "\\operatorname{PPL}(x_{1:L})=\\exp\\left(\\frac{\\operatorname{Negative\\ Log-Likelihood}(x_{1:L})}{L}\\right)=\\prod_{i=1}^{L}p(x_i\\mid x_{1:i-1})^{-1/L}",
+  "transition": { vi: "Công thức đầy đủ có nhiều thành phần. Bây giờ ta bắt đầu từ một câu cụ thể và giải thích lần lượt từng bước." },
+  "walkthroughFormula": {
+    "left": "\\operatorname{PPL}(x_{1:L})=",
+    "mutedMiddle": "\\exp\\left(\\frac{\\operatorname{Negative\\ Log-Likelihood}(x_{1:L})}{L}\\right)",
+    "right": "=\\prod_{i=1}^{L}p(x_i\\mid x_{1:i-1})^{-1/L}"
+  },
+  "label": { vi: "Ví dụ:" },
+  "tokens": ["Tôi", "thích", "học", "AI"],
+  "takeaway": { vi: "Giả sử tokenizer tách câu thành bốn token. Ta sẽ đi từ chuỗi này đến một giá trị Perplexity duy nhất." }
+}} />
+
+<LlmLossDerivation content={{
+  "steps": [
+    {
+      "label": { vi: "Chuỗi và vị trí" },
+      "formula": "x_{1:4}=(x_1,x_2,x_3,x_4)=(\\text{Tôi},\\text{thích},\\text{học},\\text{AI})",
+      "explanation": { vi: "\\(x_{1:4}\\) là toàn bộ chuỗi; \\(L=4\\) là số token được chấm; \\(x_i\\) là token đúng tại vị trí \\(i\\); \\(x_{1:i-1}\\) là context nằm bên trái token đó." }
+    },
+    {
+      "label": { vi: "Xác suất của token đúng" },
+      "formula": "p(x_i \\mid x_{1:i-1})",
+      "formulaCheckpointAfter": {
+        "before": "\\operatorname{PPL}(x_{1:L})=\\exp\\left(\\frac{\\operatorname{Negative\\ Log-Likelihood}(x_{1:L})}{L}\\right)=\\prod_{i=1}^{L}",
+        "focus": "p(x_i\\mid x_{1:i-1})",
+        "after": "^{-1/L}"
+      },
+      "explanation": { vi: "Model nhìn các token bên trái và tạo một phân phối xác suất cho token tiếp theo. Khi chấm câu, ta xem model đã gán bao nhiêu xác suất cho token thực sự xuất hiện ở vị trí đó, tức \\(x_i\\)." }
+    },
+    {
+      "label": { vi: "Thế số xác suất" },
+      "formula": "\\begin{aligned}p(\\text{Tôi})&=0.40\\\\p(\\text{thích}\\mid\\text{Tôi})&=0.60\\\\p(\\text{học}\\mid\\text{Tôi thích})&=0.72\\\\p(\\text{AI}\\mid\\text{Tôi thích học})&=0.50\\end{aligned}"
+    },
+    {
+      "label": { vi: "Tích và chuẩn hóa độ dài" },
+      "formula": "\\prod_{i=1}^{L}p_i",
+      "formulaCheckpointAfter": {
+        "before": "\\operatorname{PPL}(x_{1:L})=\\exp\\left(\\frac{\\operatorname{Negative\\ Log-Likelihood}(x_{1:L})}{L}\\right)=",
+        "focus": "\\prod_{i=1}^{L}",
+        "after": "p(x_i\\mid x_{1:i-1})^{-1/L}"
+      },
+      "lengthNormalizationExample": {
+        "rows": [
+          {
+            "label": { vi: "2 token" },
+            "productFormula": "0.5^2=0.25",
+            "normalizedFormula": "(0.5^2)^{1/2}=0.5"
+          },
+          {
+            "label": { vi: "4 token" },
+            "productFormula": "0.5^4=0.0625",
+            "normalizedFormula": "(0.5^4)^{1/4}=0.5"
+          }
+        ],
+        "limitation": { vi: "Tích thô nhỏ dần khi chuỗi dài hơn, ngay cả khi xác suất ở mỗi token không đổi. Vậy thì sẽ có phần không công bằng khi token dài hơn sẽ luôn tệ hơn. Cách giải quyết là dùng geometric mean:" },
+        "normalizationFormula": "\\left(\\prod_{i=1}^{L}p_i\\right)^{1/L}"
+      }
+    },
+    {
+      "label": { vi: "Lấy nghịch đảo để được Perplexity" },
+      "formula": "\\operatorname{PPL}(x_{1:L})=\\left(\\prod_{i=1}^{L}p_i\\right)^{-1/L}",
+      "formulaCheckpointAfter": {
+        "before": "\\operatorname{PPL}(x_{1:L})=\\exp\\left(\\frac{\\operatorname{Negative\\ Log-Likelihood}(x_{1:L})}{L}\\right)=\\prod_{i=1}^{L}p(x_i\\mid x_{1:i-1})",
+        "focus": "^{-1/L}",
+        "after": ""
+      },
+      "exponentComparison": { "length": 4 },
+      "explanation": { vi: "Geometric mean ở bước trước nằm trong khoảng \\((0,1]\\). Phép nghịch đảo chuyển khoảng này thành \\(\\operatorname{PPL}\\in[1,+\\infty)\\): xác suất điển hình bằng \\(1\\) cho Perplexity tốt nhất là \\(1\\); khi xác suất tiến về \\(0\\), Perplexity tăng dần tới \\(+\\infty\\)." }
+    },
+    {
+      "label": { vi: "Tách số mũ −1/L" },
+      "formula": "-\\frac{1}{L}=(-1)\\times\\frac{1}{L}",
+      "transitionBefore": { vi: "Đến đây, ta đã tính xong Perplexity trực tiếp từ xác suất. Vì sao cùng đại lượng này cũng bằng \\(\\exp(\\operatorname{Negative\\ Log-Likelihood}/L)\\)?" },
+      "explanation": { vi: "Hai phần đã xuất hiện ở trên: \\(-1\\) lấy nghịch đảo, còn \\(1/L\\) chuẩn hóa theo độ dài chuỗi." }
+    },
+    {
+      "label": { vi: "Lấy log và tách tích thành tổng" },
+      "formula": "\\ln\\operatorname{PPL}=-\\frac{1}{L}\\ln\\left(\\prod_{i=1}^{L}p_i\\right)=-\\frac{1}{L}\\sum_{i=1}^{L}\\ln p_i",
+      "explanation": { vi: "Log đưa số mũ xuống phía trước và biến tích xác suất thành tổng log-probability. Dấu \\(-\\) và hệ số \\(1/L\\) đều được giữ nguyên từ số mũ ban đầu." }
+    },
+    {
+      "label": { vi: "Nhận ra Negative Log-Likelihood" },
+      "formula": "\\mathcal{L}(x_{1:L})=-\\sum_{i=1}^{L}\\ln p(x_i \\mid x_{1:i-1})",
+      "formulaBeforeSign": "\\mathcal{L}(x_{1:L})=",
+      "formulaAfterSign": "\\sum_{i=1}^{L}\\ln p(x_i \\mid x_{1:i-1})",
+      "explanation": { vi: "Vì log-probability luôn \\(\\leq0\\), dấu \\(-\\) có sẵn từ số mũ đổi tổng này thành loss không âm: loss tiến về \\(0\\) khi xác suất token đúng tiến về \\(1\\), và tiến tới \\(+\\infty\\) khi xác suất tiến về \\(0\\)." },
+      "toggleLabel": { vi: "Dấu −" }
+    },
+    {
+      "label": { vi: "Tính average sequence loss" },
+      "formula": "\\begin{aligned}\\mathcal{L}(x_{1:4})&=-[\\ln 0.40+\\ln 0.60+\\ln 0.72+\\ln 0.50]\\approx2.449\\\\\\frac{\\mathcal{L}}{L}&\\approx\\frac{2.449}{4}=0.612\\end{aligned}",
+      "explanation": { vi: "Tổng Negative Log-Likelihood của chuỗi là \\(2.449\\) nats; chia cho bốn token thu được average Negative Log-Likelihood \\(0.612\\) nats trên mỗi token." }
+    },
+    {
+      "label": { vi: "Đổi average loss thành Perplexity" },
+      "formula": "\\operatorname{PPL}(x_{1:4})=\\exp\\left(\\frac{\\mathcal{L}}{L}\\right)=\\exp(0.612)\\approx1.84",
+      "explanation": { vi: "Hàm \\(\\exp\\) đảo phép \\(\\ln\\), nên con đường qua average loss cho đúng kết quả như con đường qua tích xác suất." }
+    }
+  ]
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Perplexity đo "độ bất ngờ"
+
+<LlmPerplexityInterpretation content={{
+  "lead": { vi: "“Bất ngờ” là mức độ model không đoán trước được token ground truth trong validation data. Perplexity có thể được đọc gần đúng như số lựa chọn ngang nhau mà model đang phân vân giữa chúng tại mỗi bước. Nghĩa là, trong trường hợp đặc biệt khi các token đều có xác suất bằng nhau:" },
+  "calculator": {
+    "title": { vi: "PPL tại một vị trí" },
+    "groundTruthLabel": { vi: "Token ground truth" },
+    "totalLabel": { vi: "Tổng xác suất" },
+    "addTokenLabel": { vi: "Thêm token" },
+    "presets": [
+      {
+        "id": "ppl-2",
+        "label": { vi: "PPL = 2" },
+        "groundTruthIndex": 0,
+        "candidates": [{ "token": "học", "probability": 50 }, { "token": "chơi", "probability": 50 }]
+      },
+      {
+        "id": "ppl-4",
+        "label": { vi: "PPL = 4" },
+        "groundTruthIndex": 0,
+        "candidates": [{ "token": "AI", "probability": 25 }, { "token": "ML", "probability": 25 }, { "token": "NLP", "probability": 25 }, { "token": "CV", "probability": 25 }]
+      }
+    ]
+  },
+  "trend": {
+    "startYear": "2017",
+    "startValue": "≈ 70 token",
+    "endYear": "2023",
+    "endValue": "< 10 token",
+    "explanation": { vi: "Trong cùng dataset, tokenizer và cách tính, xu hướng PPL giảm từ khoảng 70 xuống dưới 10 cho thấy các model đời sau dự đoán token ground truth chính xác và tự tin hơn, từ đó tạo văn bản tự nhiên hơn." },
+    "reference": { "label": "[1]", "href": "https://www.youtube.com/watch?v=9vM4p9NN0Ts&t=1245s" }
+  }
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## PPL phụ thuộc vào điều gì?
+
+<LlmPerplexityGoodRange content={{
+  "view": "factors",
+  "lead": { vi: "Giá trị PPL phụ thuộc vào cách dữ liệu được tạo và cách phép đánh giá được thiết lập." },
+  "factors": [
+    {
+      "id": "data",
+      "title": { vi: "Loại dữ liệu" },
+      "description": { vi: "Văn bản đơn giản thường có PPL thấp hơn mã nguồn hoặc dữ liệu đa ngôn ngữ." }
+    },
+    {
+      "id": "tokenizer",
+      "title": { vi: "Tokenizer" },
+      "description": { vi: "Cùng một model nhưng tokenizer khác có thể chia văn bản thành các token khác nhau và cho PPL khác nhau." }
+    },
+    {
+      "id": "language",
+      "title": { vi: "Ngôn ngữ" },
+      "description": { vi: "Tiếng Anh, tiếng Việt và tiếng Trung có cấu trúc cũng như mức độ được đại diện trong training data khác nhau." }
+    },
+    {
+      "id": "evaluation",
+      "title": { vi: "Tập đánh giá" },
+      "description": { vi: "Cùng một model có thể đạt PPL khác nhau trên Wikipedia và trên các bài báo chuyên ngành." }
+    }
+  ],
+  "reasoningExample": {
+    "title": { vi: "Perplexity thấp không đồng nghĩa reasoning tốt" },
+    "facts": [{ vi: "Alice cao hơn Bob" }, { vi: "Bob cao hơn Carol" }],
+    "question": { vi: "Ai cao nhất?" },
+    "answer": { vi: "Đáp án đúng: Alice" },
+    "explanation": { vi: "Một model có thể dự đoán ngôn ngữ rất tự nhiên nhưng vẫn mắc lỗi logic. Model khác có Perplexity cao hơn một chút vẫn có thể giải đúng nếu được huấn luyện thêm bằng dữ liệu reasoning, chain-of-thought hoặc reinforcement learning." }
+  }
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Có PPL bao nhiêu là "tốt"?
+
+<LlmPerplexityGoodRange content={{
+  "view": "ranges",
+  "lead": { vi: "Không có một ngưỡng PPL tốt dùng chung cho mọi model và mọi bài toán. Các khoảng dưới đây chỉ giúp hình dung, không phải tiêu chuẩn cố định." },
+  "ranges": [
+    {
+      "range": "5–15",
+      "label": { vi: "Thường rất tốt" },
+      "description": { vi: "Có thể được xem là rất tốt trên nhiều tập văn bản tự nhiên." },
+      "tone": "strong"
+    },
+    {
+      "range": "20–40",
+      "label": { vi: "Có thể chấp nhận" },
+      "description": { vi: "Vẫn có thể phù hợp tùy bài toán, ngôn ngữ và dữ liệu được chấm." },
+      "tone": "acceptable"
+    },
+    {
+      "range": "Hàng trăm",
+      "label": { vi: "Cần kiểm tra" },
+      "description": { vi: "Thường cho thấy model còn yếu hoặc dữ liệu đánh giá không phù hợp với model." },
+      "tone": "warning"
+    }
+  ],
+  "takeaway": { vi: "PPL chỉ có ý nghĩa khi so sánh các model trên cùng tập dữ liệu, cùng tokenizer và cùng cách tính. Hai con số từ những điều kiện đánh giá khác nhau thường không thể so sánh trực tiếp." },
+  "currentRole": { vi: "Do có nhiều hạn chế, đặc biệt là phụ thuộc vào dataset, tokenizer và cách tính, Perplexity chủ yếu được dùng để theo dõi quá trình phát triển model trong một setup cố định. Academic evaluation sử dụng thêm các benchmark theo từng năng lực cụ thể." }
+}} />
+
+</MdxPage>

@@ -19,9 +19,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 81 tracks, and 632 lesson nodes. Thirty
-Vietnamese-first lessons have authored content: twenty-six in `llm-ai-engineering`
-and four tagged exercise lessons in `cv`. The other 602 nodes are navigable
+The catalog contains 12 domains, 82 tracks, and 652 lesson nodes. Fifty-one
+Vietnamese-first lessons have authored content: forty-seven in `llm-ai-engineering`
+and four tagged exercise lessons in `cv`. The other 601 nodes are navigable
 placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
 
@@ -53,6 +53,27 @@ The authored LLM lessons are:
 24. `tokenization-raw-text-to-token-ids`
 25. `llm-data-pipeline-overview`
 26. `llm-data-pipeline-checkpoint-quiz`
+27. `loss-perplexity-hand-calculation`
+28. `llm-evaluation-foundations`
+29. `evaluation-dataset-design`
+30. `deterministic-and-reference-metrics`
+31. `human-evaluation-rubrics`
+32. `inter-rater-agreement`
+33. `pointwise-and-pairwise-evaluation`
+34. `llm-as-a-judge`
+35. `llm-judge-biases`
+36. `benchmark-selection-and-contamination`
+37. `hallucination-and-factuality-evaluation`
+38. `rag-evaluation`
+39. `llm-safety-foundations`
+40. `refusal-calibration`
+41. `toxicity-bias-and-privacy`
+42. `jailbreak-and-prompt-injection`
+43. `guardrails-for-llm-applications`
+44. `llm-red-teaming`
+45. `production-regression-evals`
+46. `evaluation-ab-testing`
+47. `evaluation-harness-code`
 
 Their authored prose, paging data, quizzes, references, and structured visual
 inputs live in locale-specific MDX. LLM-specific visual and stateful components

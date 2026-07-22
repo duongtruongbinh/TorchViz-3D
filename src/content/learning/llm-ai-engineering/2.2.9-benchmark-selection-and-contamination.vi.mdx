@@ -1,0 +1,28 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'benchmark-selection-and-contamination',
+  locale: 'vi',
+  title: 'Chọn benchmark và contamination',
+  headings: ['Benchmark đo scenario nào?', 'Contamination', 'Đọc score đúng cách'],
+  keywords: ['benchmark', 'contamination', 'MMLU', 'SWE-bench', 'generalization'],
+}
+
+## Benchmark đo scenario nào?
+
+Benchmark chuẩn hóa giúp so sánh model trên cùng một tập task. MMLU kiểm tra kiến thức và reasoning qua nhiều môn; SWE-bench đánh giá khả năng xử lý issue trong repository; các safety benchmark tập trung vào harmful request hoặc refusal behavior.
+
+Tên benchmark không quan trọng bằng scenario, metric và dữ liệu mà nó đại diện. Một benchmark tổng quát không thể chứng minh model phù hợp với workflow nội bộ của một tổ chức.
+
+## Contamination
+
+Benchmark contamination xảy ra khi câu hỏi hoặc đáp án test đã xuất hiện trong training data, tài liệu fine-tuning hoặc prompt development. Khi đó, điểm cao có thể đến từ ghi nhớ. Contamination cũng có thể xảy ra gián tiếp qua các bản paraphrase hoặc solution được đăng công khai.
+
+## Đọc score đúng cách
+
+- Xem nhiều benchmark và nhiều nhóm task thay vì một leaderboard tổng.
+- Kiểm tra thời điểm phát hành dữ liệu so với training cutoff.
+- Dùng private test set sát use case khi có thể.
+- Báo cáo confidence interval và số lượng sample.
+- Đọc failure case, không chỉ đọc average score.
+
+Benchmark là bằng chứng tham khảo, không phải giấy phép deployment.

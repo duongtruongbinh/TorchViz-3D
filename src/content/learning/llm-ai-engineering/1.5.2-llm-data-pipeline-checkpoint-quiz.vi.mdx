@@ -7,7 +7,7 @@ export const lessonMetadata = {
 
 <MdxQuiz id="llm-data-pipeline-checkpoint-quiz" questions={[
   {
-    id: 'pretraining-facts', title: 'Chọn các ý đúng về Pretraining', prompt: '', mode: 'multi',
+    id: 'pretraining-facts', title: 'Chọn các ý đúng về Pretraining', prompt: 'Những nhận định nào đúng về Pretraining?', mode: 'multi',
     options: [
       { id: 'pretraining-initial-stage', label: 'Là giai đoạn ban đầu.', isCorrect: true },
       { id: 'pretraining-chat-only', label: 'Chỉ tối ưu cho format hội thoại có nhãn.' },
@@ -16,7 +16,7 @@ export const lessonMetadata = {
     ], success: 'Đúng. Pretraining là giai đoạn đầu, dùng dữ liệu lớn và đa dạng để tạo nền hiểu biết rộng.', error: 'Chưa đúng. Hãy nhớ pretraining là giai đoạn đầu và học trên dữ liệu lớn, đa dạng.',
   },
   {
-    id: 'finetuning-facts', title: 'Chọn các ý đúng về Fine-tuning', prompt: '', mode: 'multi',
+    id: 'finetuning-facts', title: 'Chọn các ý đúng về Fine-tuning', prompt: 'Những nhận định nào đúng về Fine-tuning?', mode: 'multi',
     options: [
       { id: 'finetuning-reinitialize', label: 'Luôn khởi tạo lại toàn bộ trọng số từ đầu.' },
       { id: 'finetuning-narrow-data', label: 'Huấn luyện thêm trên dữ liệu hẹp hơn.', isCorrect: true },
@@ -26,7 +26,7 @@ export const lessonMetadata = {
     ], success: 'Đúng. Fine-tuning lấy model đã pretrain rồi huấn luyện thêm cho mục tiêu hẹp hơn.', error: 'Chưa đúng. Fine-tuning không bắt đầu từ đầu; nó dùng model đã pretrain làm nền.',
   },
   {
-    id: 'training-stage-task-match', title: 'Kéo từng ví dụ vào đúng giai đoạn tương ứng.', prompt: '', mode: 'categorize', hideUnsortedLabel: true,
+    id: 'training-stage-task-match', title: 'Kéo từng ví dụ vào đúng giai đoạn tương ứng.', prompt: 'Mỗi ví dụ thuộc Pretraining hay Fine-tuning?', mode: 'categorize', hideUnsortedLabel: true,
     completeLabel: 'Tất cả ví dụ đã được kéo vào nhóm.', categories: [{ id: 'pretraining', label: 'Pretraining' }, { id: 'fine-tuning', label: 'Fine-tuning' }],
     options: [
       { id: 'pretraining-large-corpus', label: 'Học từ một corpus lớn gồm nhiều loại văn bản.', categoryId: 'pretraining' },

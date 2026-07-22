@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-red-teaming',
+  locale: 'vi',
+  title: 'Red teaming hệ thống LLM',
+  headings: ['Một workflow đối kháng', 'Triage và mitigation', 'Kiểm thử liên tục'],
+  keywords: ['red teaming', 'threat model', 'adversarial test', 'triage', 'mitigation'],
+}
+
+## Một workflow đối kháng
+
+Red teaming là quy trình kiểm thử đối kháng nhằm tìm lỗi và hành vi rủi ro trước khi triển khai rộng. Workflow thường đi qua các bước:
+
+1. Xác định phạm vi hệ thống, tài sản và threat model.
+2. Thiết kế các test scenario ưu tiên theo mức rủi ro.
+3. Chạy test trên model hoặc application thật.
+4. Triage lỗi theo mức độ nghiêm trọng và khả năng tái hiện.
+5. Thêm mitigation rồi chạy lại test cũ và test mới.
+
+## Triage và mitigation
+
+Mỗi finding nên lưu prompt, context, output, tool trace, cấu hình và hậu quả có thể xảy ra. Mitigation có thể nằm ở system prompt, policy, guardrail, permission, data curation hoặc model training. Không nên mặc định mọi lỗi đều được sửa bằng prompt.
+
+## Kiểm thử liên tục
+
+Red teaming không chứng minh hệ thống an toàn tuyệt đối. Hành vi người dùng, dữ liệu, model và tool đều thay đổi. Những failure case đã xác nhận cần trở thành regression tests, còn monitoring production giúp phát hiện nhóm attack mới để bổ sung vào bộ eval.

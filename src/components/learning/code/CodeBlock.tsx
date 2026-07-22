@@ -11,7 +11,7 @@
 // whitespace lesson), a header trailing slot (answer toggle, callouts), and a
 // copy button. No `language` prop — only Python is bundled.
 
-import { Braces, Check, Copy, Terminal } from 'lucide-react';
+import { Check, Copy, Terminal } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { highlightPython, type PythonTokens } from './pythonHighlighter';
 import { cx } from '../theme';
@@ -133,19 +133,24 @@ export function CodeBlock({
   // Output is never tokenized; pass '' so the hook never highlights plain text.
   const tokens = usePythonTokens(isOutput ? '' : source);
   const showCopy = copyable ?? !isOutput;
-  const Icon = isOutput ? Terminal : Braces;
 
   return (
     <div className="overflow-hidden rounded-lg border border-white/12 bg-[#0B1220] shadow-[inset_0_0_0_1px_rgba(168,184,200,0.10)]">
       <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-2.5">
-        <span className="flex items-center gap-2 text-[0.68rem] font-black uppercase tracking-[0.09em] text-[#A8B8C8]">
-          <Icon
-            className={cx('h-4 w-4', isOutput ? 'text-[#9CC7EF]' : 'text-[#74D99F]')}
-            strokeWidth={1.8}
-            aria-hidden="true"
-          />
-          {isOutput ? 'Output' : label}
-        </span>
+        {isOutput ? (
+          <span className="flex items-center gap-2 text-[0.68rem] font-black uppercase tracking-[0.09em] text-[#A8B8C8]">
+            <Terminal className="h-4 w-4 text-[#9CC7EF]" strokeWidth={1.8} aria-hidden="true" />
+            Output
+          </span>
+        ) : (
+          <span className="flex items-center" aria-label={`${label} code window`}>
+            <span className="flex items-center gap-1.5" aria-hidden="true">
+              <span className="h-2 w-2 rounded-full bg-[#D86B72]" />
+              <span className="h-2 w-2 rounded-full bg-[#CDA24F]" />
+              <span className="h-2 w-2 rounded-full bg-[#63A57A]" />
+            </span>
+          </span>
+        )}
         <span className="flex items-center gap-2">
           {headerTrailing}
           {showCopy ? <CopyButton source={source} themeClasses={themeClasses} /> : null}

@@ -86,6 +86,19 @@ export type LlmTokenizerIdMisconceptionsContent = {
   takeaway: LearningLocalizedText;
 };
 
+export type LlmTokenizerContextAmbiguityContent = {
+  token: string;
+  examples: Array<{
+    id: 'road' | 'sugar';
+    before: string;
+    after: string;
+    meaning: LearningLocalizedText;
+    tokenIds: number[];
+    highlightedTokenIndex: number;
+  }>;
+  explanation: LearningLocalizedText;
+};
+
 export type LlmTokenizerCodeToIdsContent = {
   lead: LearningLocalizedText;
   note?: LearningLocalizedText;
@@ -157,6 +170,130 @@ export type LlmProbabilityDefinitionContent = {
   definition: LearningLocalizedText;
   formula: string;
   examples: Array<{ formula: string; explanation: LearningLocalizedText }>;
+};
+
+export type LlmPerplexitySequenceExampleContent = {
+  brief: LearningLocalizedText;
+  contrast: Array<{ label: LearningLocalizedText; role: LearningLocalizedText; bestValue: string }>;
+  note: LearningLocalizedText;
+  formula: string;
+  transition: LearningLocalizedText;
+  walkthroughFormula: { left: string; mutedMiddle: string; right: string };
+  label: LearningLocalizedText;
+  tokens: string[];
+  takeaway: LearningLocalizedText;
+};
+
+export type LlmPerplexityInterpretationContent = {
+  lead: LearningLocalizedText;
+  calculator: {
+    title: LearningLocalizedText;
+    groundTruthLabel: LearningLocalizedText;
+    totalLabel: LearningLocalizedText;
+    addTokenLabel: LearningLocalizedText;
+    presets: Array<{
+      id: string;
+      label: LearningLocalizedText;
+      prompt?: string;
+      groundTruthIndex: number;
+      candidates: Array<{ token: string; probability: number }>;
+    }>;
+  };
+  trend: {
+    startYear: string;
+    startValue: string;
+    endYear: string;
+    endValue: string;
+    explanation: LearningLocalizedText;
+    reference: { label: string; href: string };
+  };
+};
+
+export type LlmPerplexityGoodRangeContent = {
+  view: 'factors';
+  lead: LearningLocalizedText;
+  factors: Array<{
+    id: 'data' | 'tokenizer' | 'language' | 'evaluation';
+    title: LearningLocalizedText;
+    description: LearningLocalizedText;
+  }>;
+  reasoningExample: {
+    title: LearningLocalizedText;
+    facts: [LearningLocalizedText, LearningLocalizedText];
+    question: LearningLocalizedText;
+    answer: LearningLocalizedText;
+    explanation: LearningLocalizedText;
+  };
+} | {
+  view: 'ranges';
+  lead: LearningLocalizedText;
+  ranges: Array<{
+    range: string;
+    label: LearningLocalizedText;
+    description: LearningLocalizedText;
+    tone: 'strong' | 'acceptable' | 'warning';
+  }>;
+  takeaway: LearningLocalizedText;
+  currentRole: LearningLocalizedText;
+};
+
+export type LlmBenchmarkLikelihoodContent = {
+  compact?: boolean;
+  lead: LearningLocalizedText;
+  benchmark: { name: string; description: LearningLocalizedText };
+  labels: {
+    question: LearningLocalizedText;
+    likelihood: LearningLocalizedText;
+    result: LearningLocalizedText;
+    highest: LearningLocalizedText;
+  };
+  question: LearningLocalizedText;
+  answers: Array<{
+    id: string;
+    text: LearningLocalizedText;
+    score: number;
+    correct: boolean;
+  }>;
+  formula: string;
+  method: LearningLocalizedText;
+  contamination: { title: LearningLocalizedText; body: LearningLocalizedText };
+};
+
+export type LlmHuggingFaceBenchmarksContent = {
+  lead: {
+    before: LearningLocalizedText;
+    highlight: LearningLocalizedText;
+  };
+  brief: LearningLocalizedText;
+  points: Array<{
+    id: 'discover' | 'inspect' | 'compare';
+    title: LearningLocalizedText;
+    description: LearningLocalizedText;
+  }>;
+  image: {
+    src: string;
+    alt: LearningLocalizedText;
+  };
+  cta: { label: LearningLocalizedText; href: string };
+  resourcesLabel: LearningLocalizedText;
+  resources: Array<{
+    id: 'helm' | 'open-llm-leaderboard';
+    name: string;
+    description: LearningLocalizedText;
+    ctaLabel: LearningLocalizedText;
+    href: string;
+  }>;
+};
+
+export type LlmPostTrainingEvaluationContent = {
+  compact?: boolean;
+  lead: LearningLocalizedText;
+  methods: Array<{
+    id: 'human' | 'judge';
+    title: LearningLocalizedText;
+    description: LearningLocalizedText;
+  }>;
+  next: LearningLocalizedText;
 };
 
 export type LlmAutoregressiveDefinitionContent = {
@@ -235,8 +372,23 @@ export type LlmLossHandCalculationContent = {
 };
 
 export type LlmLossDerivationContent = {
-  title: LearningLocalizedText;
+  title?: LearningLocalizedText;
   lead?: LearningLocalizedText;
-  steps: Array<{ label: LearningLocalizedText; formula: string; explanation: LearningLocalizedText }>;
+  steps: Array<{
+    label: LearningLocalizedText;
+    formula: string;
+    transitionBefore?: LearningLocalizedText;
+    formulaCheckpointAfter?: { before: string; focus: string; after: string };
+    exponentComparison?: { length: number };
+    explanation?: LearningLocalizedText;
+    formulaBeforeSign?: string;
+    formulaAfterSign?: string;
+    toggleLabel?: LearningLocalizedText;
+    lengthNormalizationExample?: {
+      rows: Array<{ label: LearningLocalizedText; productFormula: string; normalizedFormula: string }>;
+      limitation: LearningLocalizedText;
+      normalizationFormula: string;
+    };
+  }>;
   conclusion?: LearningLocalizedText;
 };

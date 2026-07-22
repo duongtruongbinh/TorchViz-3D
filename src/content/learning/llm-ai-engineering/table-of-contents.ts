@@ -291,8 +291,24 @@ const chapters: LearningTocTrackSeed[] = [
       ),
       lessonSeed(
         'loss-perplexity-hand-calculation',
-        'Loss and perplexity calculation',
-        'Tính loss và perplexity',
+        'Perplexity and LLM evaluation',
+        'Perplexity và đánh giá LLM',
+        'available',
+        'published',
+      ),
+      lessonSeed(
+        'benchmark-likelihood-quiz',
+        'Benchmark and likelihood quiz',
+        'Quiz',
+        'available',
+        'published',
+      ),
+      lessonSeed(
+        'evaluation-beyond-perplexity',
+        'Beyond Perplexity',
+        'Beyond Perplexity',
+        'available',
+        'published',
       ),
       lessonSeed(
         'training-loop-and-generation-code',
@@ -349,9 +365,38 @@ const chapters: LearningTocTrackSeed[] = [
     ],
   },
   {
+    id: 'llm-evaluation',
+    text: {
+      title: { en: "2.2 LLM Evaluation & Safety", vi: "2.2 LLM Evaluation & Safety" },
+      description: { en: "Evaluation design, human and model judges, factuality, safety failure modes, guardrails, red teaming, and production regression testing.", vi: "Thiết kế evaluation, human và model judge, factuality, safety failure mode, guardrail, red teaming và regression test trong production." },
+    },
+    lessonIds: [
+      lessonSeed('llm-evaluation-foundations', 'Why LLM evaluation is difficult', 'Vì sao đánh giá LLM khó?', 'available', 'published'),
+      lessonSeed('evaluation-dataset-design', 'Evaluation dataset design', 'Thiết kế evaluation dataset', 'available', 'published'),
+      lessonSeed('deterministic-and-reference-metrics', 'Deterministic and reference metrics', 'Deterministic checks và reference metrics', 'available', 'published'),
+      lessonSeed('human-evaluation-rubrics', 'Human evaluation and rubrics', 'Human evaluation và rubric', 'available', 'published'),
+      lessonSeed('inter-rater-agreement', 'Inter-rater agreement', 'Độ đồng thuận giữa người chấm', 'available', 'published'),
+      lessonSeed('pointwise-and-pairwise-evaluation', 'Pointwise and pairwise evaluation', 'Pointwise và pairwise evaluation', 'available', 'published'),
+      lessonSeed('llm-as-a-judge', 'LLM as a judge', 'LLM-as-a-Judge', 'available', 'published'),
+      lessonSeed('llm-judge-biases', 'Biases of LLM judges', 'Các bias của LLM judge', 'available', 'published'),
+      lessonSeed('benchmark-selection-and-contamination', 'Benchmark selection and contamination', 'Chọn benchmark và contamination', 'available', 'published'),
+      lessonSeed('hallucination-and-factuality-evaluation', 'Hallucination and factuality evaluation', 'Đánh giá hallucination và factuality', 'available', 'published'),
+      lessonSeed('rag-evaluation', 'RAG evaluation', 'Đánh giá hệ thống RAG', 'available', 'published'),
+      lessonSeed('llm-safety-foundations', 'LLM safety foundations', 'Nền tảng LLM safety', 'available', 'published'),
+      lessonSeed('refusal-calibration', 'Refusal calibration', 'Hiệu chỉnh hành vi từ chối', 'available', 'published'),
+      lessonSeed('toxicity-bias-and-privacy', 'Toxicity, bias, and privacy', 'Toxicity, bias và privacy', 'available', 'published'),
+      lessonSeed('jailbreak-and-prompt-injection', 'Jailbreak and prompt injection', 'Jailbreak và prompt injection', 'available', 'published'),
+      lessonSeed('guardrails-for-llm-applications', 'Guardrails for LLM applications', 'Guardrails cho ứng dụng LLM', 'available', 'published'),
+      lessonSeed('llm-red-teaming', 'Red teaming LLM systems', 'Red teaming hệ thống LLM', 'available', 'published'),
+      lessonSeed('production-regression-evals', 'Production regression evaluations', 'Regression evaluation trong production', 'available', 'published'),
+      lessonSeed('evaluation-ab-testing', 'Evaluation with A/B testing', 'A/B testing cho hệ thống LLM', 'available', 'published'),
+      lessonSeed('evaluation-harness-code', 'Code: Build an evaluation harness', 'Code: Xây evaluation harness', 'available', 'published'),
+    ],
+  },
+  {
     id: 'production-prompt-engineering',
     text: {
-      title: { en: "2.2 Prompt Engineering", vi: "2.2 Prompt Engineering" },
+      title: { en: "2.3 Prompt Engineering", vi: "2.3 Prompt Engineering" },
       description: { en: "Prompt anatomy, prompting techniques, production constraints, injection defense, and prompt tools.", vi: "Cấu trúc prompt, kỹ thuật prompting, ràng buộc production, chống prompt injection và tooling." },
     },
     lessonIds: [
@@ -384,7 +429,7 @@ const chapters: LearningTocTrackSeed[] = [
   {
     id: 'working-with-ai-apis',
     text: {
-      title: { en: "2.3 Working with AI APIs", vi: "2.3 Working with AI APIs" },
+      title: { en: "2.4 Working with AI APIs", vi: "2.4 Working with AI APIs" },
       description: { en: "OpenAI, Anthropic, Gemini, Mistral, LLaMA, Ollama, and provider-specific API patterns.", vi: "OpenAI, Anthropic, Gemini, Mistral, LLaMA, Ollama và pattern API theo provider." },
     },
     lessonIds: [
@@ -425,7 +470,7 @@ const chapters: LearningTocTrackSeed[] = [
   {
     id: 'api-integration-patterns',
     text: {
-      title: { en: "2.4 API Integration Patterns", vi: "2.4 API Integration Patterns" },
+      title: { en: "2.5 API Integration Patterns", vi: "2.5 API Integration Patterns" },
       description: { en: "Token limits, streaming, retries, queues, cost controls, caching, async work, and fallbacks.", vi: "Token limit, streaming, retry, queue, kiểm soát cost, cache, async work và fallback." },
     },
     lessonIds: [
@@ -452,7 +497,7 @@ const chapters: LearningTocTrackSeed[] = [
   {
     id: 'secure-api-integration',
     text: {
-      title: { en: "2.5 Secure API Integration", vi: "2.5 Secure API Integration" },
+      title: { en: "2.6 Secure API Integration", vi: "2.6 Secure API Integration" },
       description: { en: "API key safety, backend proxies, per-user rate limits, key rotation, logging, and monitoring.", vi: "Bảo vệ API key, backend proxy, rate limit theo user, key rotation, logging và monitoring." },
     },
     lessonIds: [
@@ -470,7 +515,7 @@ export const learningTableOfContents = {
   id: 'llm-ai-engineering',
   text: {
     title: { en: "LLMs", vi: "LLMs" },
-    description: { en: "Study LLMs from internals to product use: token data, causal attention, GPT blocks, logits, generation, fine-tuning, alignment, prompt engineering, API integration, streaming, cost, and security patterns.", vi: "Học LLM từ internals đến sản phẩm: dữ liệu token, causal attention, GPT block, logits, generation, fine-tuning, alignment, prompt engineering, tích hợp API, streaming, cost và security pattern." },
+    description: { en: "Study LLMs from internals to product use: token data, causal attention, GPT blocks, logits, generation, fine-tuning, alignment, evaluation, safety, prompt engineering, API integration, streaming, cost, and security patterns.", vi: "Học LLM từ internals đến sản phẩm: dữ liệu token, causal attention, GPT block, logits, generation, fine-tuning, alignment, evaluation, safety, prompt engineering, tích hợp API, streaming, cost và security pattern." },
   },
   status: 'active',
   fallbackLocales: ['vi'],

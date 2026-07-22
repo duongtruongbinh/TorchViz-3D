@@ -11,7 +11,12 @@ import {
   LlmAiHierarchy,
   LlmArInferencePipeline,
   LlmAcademiaIndustryComparison,
+  LlmBenchmarkLikelihood,
+  LlmHuggingFaceBenchmarks,
   LlmProbabilityDefinition,
+  LlmPerplexityGoodRange,
+  LlmPerplexityInterpretation,
+  LlmPerplexitySequenceExample,
   LlmAutoregressiveDefinition,
   LlmConceptInteraction,
   LlmConceptPanelBlock,
@@ -19,6 +24,7 @@ import {
   LlmLossHandCalculation,
   LlmLossDerivation,
   LlmOutputProjection,
+  LlmPostTrainingEvaluation,
   LlmTrainingComponents,
   LlmVocabularyOutputVector,
   LlmTrainingLifecyclePanel,
@@ -28,6 +34,7 @@ import {
   LlmTokenizerFreeDirection,
   LlmTokenizerVocabularyLookup,
   LlmTokenizerIdMisconceptions,
+  LlmTokenizerContextAmbiguity,
   LlmTokenizerCodeToIds,
   LlmTokenizerOutputComparison,
   LlmTokenizerIdRoundTrip,
@@ -97,6 +104,8 @@ function AiHierarchy({ content }: { content: RoadmapContent }) {
 }
 
 const TrainingComponents = createContentRenderer(LlmTrainingComponents);
+const BenchmarkLikelihood = createContentRenderer(LlmBenchmarkLikelihood);
+const HuggingFaceBenchmarks = createContentRenderer(LlmHuggingFaceBenchmarks);
 
 function AcademiaIndustryComparison({ content, perspective }: { content: RoadmapContent; perspective: 'academia' | 'industry' }) {
   const themeClasses = useLearningMdxTheme();
@@ -105,6 +114,10 @@ function AcademiaIndustryComparison({ content, perspective }: { content: Roadmap
 }
 
 const ProbabilityDefinition = createContentRenderer(LlmProbabilityDefinition);
+const PerplexityGoodRange = createContentRenderer(LlmPerplexityGoodRange);
+const PerplexityInterpretation = createContentRenderer(LlmPerplexityInterpretation);
+const PerplexitySequenceExample = createContentRenderer(LlmPerplexitySequenceExample);
+const PostTrainingEvaluation = createContentRenderer(LlmPostTrainingEvaluation);
 const AutoregressiveDefinition = createContentRenderer(LlmAutoregressiveDefinition);
 
 function ArInferencePipeline({ content, step }: { content: RoadmapContent; step?: number }) {
@@ -135,6 +148,7 @@ const TokenizerBoundaryMismatch = createContentRenderer(LlmTokenizerBoundaryMism
 const TokenizerFreeDirection = createContentRenderer(LlmTokenizerFreeDirection);
 const TokenizerVocabularyLookup = createContentRenderer(LlmTokenizerVocabularyLookup);
 const TokenizerIdMisconceptions = createContentRenderer(LlmTokenizerIdMisconceptions);
+const TokenizerContextAmbiguity = createContentRenderer(LlmTokenizerContextAmbiguity);
 const TokenizerCodeToIds = createContentRenderer(LlmTokenizerCodeToIds);
 const TokenizerOutputComparison = createContentRenderer(LlmTokenizerOutputComparison);
 const TokenizerIdRoundTrip = createContentRenderer(LlmTokenizerIdRoundTrip);
@@ -172,7 +186,13 @@ export const llmMdxComponents = {
   TransformerTranslationStep,
   AiHierarchy,
   AcademiaIndustryComparison,
+  LlmBenchmarkLikelihood: BenchmarkLikelihood,
+  LlmHuggingFaceBenchmarks: HuggingFaceBenchmarks,
   LlmProbabilityDefinition: ProbabilityDefinition,
+  LlmPerplexityGoodRange: PerplexityGoodRange,
+  LlmPerplexityInterpretation: PerplexityInterpretation,
+  LlmPerplexitySequenceExample: PerplexitySequenceExample,
+  LlmPostTrainingEvaluation: PostTrainingEvaluation,
   LlmAutoregressiveDefinition: AutoregressiveDefinition,
   LlmArInferencePipeline: ArInferencePipeline,
   LlmVocabularyOutputVector: VocabularyOutputVector,
@@ -191,6 +211,7 @@ export const llmMdxComponents = {
   TokenizerFreeDirection,
   TokenizerVocabularyLookup,
   TokenizerIdMisconceptions,
+  TokenizerContextAmbiguity,
   TokenizerCodeToIds,
   TokenizerOutputComparison,
   TokenizerIdRoundTrip,

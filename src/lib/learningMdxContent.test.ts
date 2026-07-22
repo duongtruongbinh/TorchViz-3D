@@ -29,15 +29,38 @@ const expectedPageCounts: Record<string, number> = {
   'llm-scale-and-development-quiz': 3,
   'llm-data-pipeline-overview': 9,
   'llm-data-pipeline-checkpoint-quiz': 9,
+  'loss-perplexity-hand-calculation': 4,
+  'benchmark-likelihood-quiz': 8,
+  'evaluation-beyond-perplexity': 2,
   'tokenization-why-it-matters': 2,
   'tokenization-why-it-matters-quiz': 4,
   'tokenizer-regex-from-scratch': 6,
   'tokenizer-regex-from-scratch-quiz': 5,
   'tokenization-bpe-tiktoken': 4,
   'tokenization-bpe-tiktoken-quiz': 4,
-  'tokenization-token-ids-vocabulary': 3,
+  'tokenization-token-ids-vocabulary': 4,
   'tokenization-raw-text-to-token-ids': 5,
-  'tokenization-token-ids-vocabulary-quiz': 3,
+  'tokenization-token-ids-vocabulary-quiz': 4,
+  'llm-evaluation-foundations': 1,
+  'evaluation-dataset-design': 1,
+  'deterministic-and-reference-metrics': 1,
+  'human-evaluation-rubrics': 1,
+  'inter-rater-agreement': 1,
+  'pointwise-and-pairwise-evaluation': 1,
+  'llm-as-a-judge': 1,
+  'llm-judge-biases': 1,
+  'benchmark-selection-and-contamination': 1,
+  'hallucination-and-factuality-evaluation': 1,
+  'rag-evaluation': 1,
+  'llm-safety-foundations': 1,
+  'refusal-calibration': 1,
+  'toxicity-bias-and-privacy': 1,
+  'jailbreak-and-prompt-injection': 1,
+  'guardrails-for-llm-applications': 1,
+  'llm-red-teaming': 1,
+  'production-regression-evals': 1,
+  'evaluation-ab-testing': 1,
+  'evaluation-harness-code': 1,
   'conv2d-shape-exercise': 1,
   'conv2d-value-exercise': 1,
   'pooling-shape-exercise': 1,
@@ -55,7 +78,8 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
   'tokenization-why-it-matters-quiz': ['word-level-limitations', 'two-extremes', 'subword-benefit', 'sequence-length-cost'],
   'tokenizer-regex-from-scratch-quiz': ['capturing-whitespace', 'punctuation-split-output', 'cleanup-comprehension', 'tokenize-function', 'regex-limitations'],
   'tokenization-bpe-tiktoken-quiz': ['bpe-initialization', 'bpe-training-loop', 'merge-rank-inference', 'tokenization-limitations'],
-  'tokenization-token-ids-vocabulary-quiz': ['vocabulary-lookup', 'token-id-meaning', 'text-id-round-trip'],
+  'tokenization-token-ids-vocabulary-quiz': ['vocabulary-lookup', 'token-id-meaning', 'token-id-context', 'text-id-round-trip'],
+  'benchmark-likelihood-quiz': ['nll-and-ppl', 'ground-truth-probability', 'length-normalization', 'interpret-ppl-four', 'ppl-dependencies', 'valid-ppl-comparison', 'ppl-versus-reasoning', 'ppl-current-role'],
 };
 
 test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => {
@@ -70,11 +94,11 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 30);
+  assert.equal(lessonFiles.length, 53);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 30);
+  assert.equal(documents.length, 32);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);

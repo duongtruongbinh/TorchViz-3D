@@ -79,7 +79,15 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   }, [groupedDomainLessons]);
   const domainLessonIndexById = useMemo(() => new Map(domainLessons.map((lesson, index) => [lesson.id, index])), [domainLessons]);
   const chapterLessonIndexById = useMemo(() => new Map(
-    groupedDomainLessons.flatMap((group) => group.lessons.map((lesson, index) => [lesson.id, index] as const)),
+    groupedDomainLessons.flatMap((group) => {
+      let numberedLessonIndex = 0;
+      return group.lessons.flatMap((lesson) => {
+        if (lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-')) return [];
+        const entry = [lesson.id, numberedLessonIndex] as const;
+        numberedLessonIndex += 1;
+        return [entry];
+      });
+    }),
   ), [groupedDomainLessons]);
   const routeSelectedLesson = resolvedRoute?.lesson ?? null;
   const firstFilteredLesson = filteredGroupedDomainLessons[0]?.lessons[0] ?? null;

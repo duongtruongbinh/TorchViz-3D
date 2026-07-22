@@ -537,12 +537,30 @@ body {
   box-shadow: none;
 }
 
+.learning-lab {
+  --learning-lab-muted-opacity: 0.5;
+  font-family: 'Be Vietnam Pro', Inter, system-ui, sans-serif;
+}
+
+.learning-lab .learning-lab-muted {
+  opacity: var(--learning-lab-muted-opacity);
+}
+
+.learning-lab .group:hover .learning-lab-muted,
+.learning-lab .learning-lab-muted:hover,
+.learning-lab .learning-lab-muted:focus-visible {
+  opacity: 1;
+}
+
+.learning-lab .learning-lab-rail-search-input::placeholder {
+  opacity: var(--learning-lab-muted-opacity);
+}
+
 .learning-lab .learning-lab-lesson-title {
   color: var(--learning-lab-lesson-title);
 }
 
 .learning-lab-reading-content :where(p, li, blockquote) {
-  font-family: 'Be Vietnam Pro', Inter, system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.75rem;
 }
@@ -681,7 +699,7 @@ body {
 
 .learning-lab-light [class*="text-zinc-100"],
 .learning-lab-light [class*="text-zinc-200"] {
-  color: #0f172a;
+  color: #172a43;
 }
 
 .learning-domain-title-cv {
@@ -762,7 +780,7 @@ body {
 .learning-lab-light textarea {
   border-color: rgba(148, 163, 184, 0.65);
   background: #ffffff;
-  color: #0f172a;
+  color: #334155;
 }
 
 .learning-lab-light .learning-lab-rail-search-input {
@@ -772,22 +790,24 @@ body {
   color: inherit;
 }
 
-.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-active {
+.learning-lab-light .learning-lab-catalog aside .learning-lab-rail-filter-button-active {
   border-color: rgba(47, 111, 159, 0.18);
   background-color: #d7e8f5;
   box-shadow: inset 0 0 0 1px rgba(47, 111, 159, 0.1);
   color: #255e88;
 }
 
-.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-idle {
+.learning-lab-light .learning-lab-catalog aside .learning-lab-rail-filter-button-idle {
   background-color: transparent;
   box-shadow: none;
-  color: rgba(18, 59, 104, 0.58);
+  color: #123b68;
 }
 
-.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-idle:hover {
+.learning-lab-light .learning-lab-catalog aside .learning-lab-rail-filter-button-idle:hover,
+.learning-lab-light .learning-lab-catalog aside .learning-lab-rail-filter-button-idle:focus-visible {
   background-color: rgba(255, 255, 255, 0.58);
   color: #123b68;
+  opacity: 1;
 }
 
 .learning-lab-focus-panel {

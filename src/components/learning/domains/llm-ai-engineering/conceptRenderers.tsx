@@ -362,7 +362,7 @@ export function LlmConceptInteraction({ extra, language, themeClasses }: {
             </div>
           )}
 
-          <div className={cx('grid w-full grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-transparent text-[#030509]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
+          <div className={cx('grid w-full grid-cols-[1fr_auto] items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold leading-8 md:text-lg', themeClasses.isLight ? 'bg-transparent text-[#334155]' : 'bg-[#121A24]/42 text-[#F2F6FA]')}>
             <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
               <span>{text(sentenceBuilder.prompt, language)}</span>
               {selectedWords.length ? (

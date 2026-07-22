@@ -1,0 +1,24 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'pointwise-and-pairwise-evaluation',
+  locale: 'vi',
+  title: 'Pointwise và pairwise evaluation',
+  headings: ['Pointwise', 'Pairwise', 'Chọn phương pháp'],
+  keywords: ['pointwise evaluation', 'pairwise evaluation', 'preference', 'ranking', 'rubric'],
+}
+
+## Pointwise
+
+Pointwise evaluation chấm từng response độc lập theo rubric hoặc thang điểm. Cách này phù hợp khi ta cần biết một output có đạt ngưỡng chất lượng tối thiểu hay không, hoặc cần theo dõi từng tiêu chí như correctness, helpfulness và safety.
+
+Điểm yếu là evaluator phải giữ thang điểm ổn định qua nhiều response. Một điểm 4/5 của người này có thể không tương đương 4/5 của người khác.
+
+## Pairwise
+
+Pairwise evaluation đưa hai response cho cùng một prompt và yêu cầu chọn A tốt hơn, B tốt hơn hoặc hòa. So sánh trực tiếp thường dễ hơn việc gán điểm tuyệt đối, đặc biệt khi đánh giá hai model, hai prompt hoặc hai phiên bản hệ thống.
+
+Kết quả pairwise có thể được tổng hợp thành win rate hoặc ranking. Tuy nhiên, thứ tự hiển thị A/B cần được đảo ngẫu nhiên để giảm position bias.
+
+## Chọn phương pháp
+
+Dùng pointwise khi cần kiểm tra tiêu chuẩn tuyệt đối và phân tích lỗi theo rubric. Dùng pairwise khi cần chọn phiên bản tốt hơn. Trong production evaluation, hai phương pháp thường bổ sung cho nhau: một model có thể thắng đối thủ nhưng vẫn không đạt ngưỡng safety bắt buộc.

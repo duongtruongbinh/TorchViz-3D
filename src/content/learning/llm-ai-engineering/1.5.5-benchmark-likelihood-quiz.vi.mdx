@@ -1,0 +1,108 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'benchmark-likelihood-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['NLL và Perplexity', 'Xác suất token đúng', 'Chuẩn hóa độ dài', 'Cách đọc PPL', 'Các yếu tố ảnh hưởng', 'So sánh PPL', 'PPL và reasoning', 'Vai trò hiện nay của PPL'],
+  keywords: ['perplexity', 'negative log-likelihood', 'geometric mean', 'token probability', 'reasoning'],
+  pageCount: 8,
+}
+
+<MdxQuiz id="benchmark-likelihood-quiz" questions={[
+  {
+    id: 'nll-and-ppl', title: 'NLL và Perplexity',
+    prompt: 'Nhận định nào mô tả đúng mối quan hệ giữa Negative Log-Likelihood và Perplexity?', mode: 'single',
+    options: [
+      { id: 'same-loss', label: 'Cả hai đều là training loss và được model tối ưu trực tiếp.' },
+      { id: 'derived-metric', label: 'Negative Log-Likelihood là training loss; Perplexity là evaluation metric bằng exp của average Negative Log-Likelihood.', isCorrect: true },
+      { id: 'ppl-before-nll', label: 'Perplexity được tối ưu trực tiếp trước, sau đó mới suy ra Negative Log-Likelihood.' },
+      { id: 'unrelated', label: 'Hai đại lượng không liên hệ vì một đại lượng dùng xác suất còn đại lượng kia dùng log.' },
+    ],
+    success: 'Đúng. Perplexity được suy ra bằng cách lấy exp của average Negative Log-Likelihood.',
+    error: 'Hãy phân biệt vai trò: Negative Log-Likelihood là loss được tối ưu, còn Perplexity là metric được suy ra bằng hàm exp.',
+  },
+  {
+    id: 'ground-truth-probability', title: 'Xác suất token đúng',
+    prompt: 'Trong công thức PPL, p(xᵢ | x₁:ᵢ₋₁) là đại lượng nào?', mode: 'single',
+    options: [
+      { id: 'whole-sequence', label: 'Xác suất của toàn bộ chuỗi sau khi đã nhân mọi vị trí.' },
+      { id: 'highest-token', label: 'Xác suất của token có score cao nhất, dù token đó có xuất hiện thật hay không.' },
+      { id: 'all-wrong-tokens', label: 'Tổng xác suất của mọi token không phải ground truth.' },
+      { id: 'correct-next-token', label: 'Xác suất model gán cho token ground truth xᵢ khi nhìn context nằm bên trái.', isCorrect: true },
+    ],
+    success: 'Đúng. Ở mỗi vị trí, evaluator chỉ lấy xác suất model gán cho token thực sự xuất hiện.',
+    error: 'Model tạo cả phân phối, nhưng phép tính PPL tại vị trí i dùng xác suất của token ground truth xᵢ.',
+  },
+  {
+    id: 'length-normalization', title: 'Chuẩn hóa độ dài',
+    prompt: 'Vì sao công thức dùng số mũ 1/L, tương đương lấy geometric mean?', mode: 'single',
+    options: [
+      { id: 'fair-length', label: 'Vì tích xác suất thô nhỏ dần khi chuỗi dài hơn; geometric mean đưa kết quả về mức xác suất điển hình trên mỗi token.', isCorrect: true },
+      { id: 'normalize-vocabulary', label: 'Để mọi tokenizer có cùng vocabulary size trước khi so sánh.' },
+      { id: 'remove-low-probability', label: 'Để loại khỏi phép tính các token có xác suất thấp.' },
+      { id: 'sum-to-one', label: 'Để tổng xác suất của các token trong câu luôn bằng 1.' },
+    ],
+    success: 'Đúng. Chuẩn hóa theo L tránh việc chuỗi dài tự động có tích xác suất nhỏ hơn dù chất lượng dự đoán mỗi token như nhau.',
+    error: 'Hãy so 0.5² với 0.5⁴: tích thô khác nhau, nhưng lấy căn theo số token đều trả về 0.5.',
+  },
+  {
+    id: 'interpret-ppl-four', title: 'Cách đọc PPL',
+    prompt: 'Trong trường hợp đặc biệt các lựa chọn có xác suất bằng nhau, PPL = 4 có thể được đọc gần đúng như thế nào?', mode: 'single',
+    options: [
+      { id: 'probability-four', label: 'Token ground truth nhận xác suất 4.' },
+      { id: 'four-equal-options', label: 'Model đang phân vân giữa khoảng 4 lựa chọn ngang nhau, nên token ground truth có xác suất khoảng 25%.', isCorrect: true },
+      { id: 'four-errors', label: 'Model chắc chắn dự đoán sai đúng 4 token trong mỗi câu.' },
+      { id: 'vocabulary-four', label: 'Vocabulary của model chỉ có 4 token.' },
+    ],
+    success: 'Đúng. Trong trường hợp equal-probability, xác suất điển hình 0.25 có nghịch đảo bằng 4.',
+    error: 'PPL không đếm số lỗi hay vocabulary size. Đây là cách diễn giải gần đúng từ nghịch đảo của xác suất điển hình.',
+  },
+  {
+    id: 'ppl-dependencies', title: 'Các yếu tố ảnh hưởng',
+    prompt: 'Vì sao cùng một model có thể nhận các giá trị PPL khác nhau?', mode: 'single',
+    options: [
+      { id: 'parameters-only', label: 'Chỉ vì số lượng parameters của model thay đổi trong lúc evaluation.' },
+      { id: 'sampling-seed', label: 'Chỉ vì random seed của bước sampling khác nhau.' },
+      { id: 'tokenizer-independent', label: 'Do loại dữ liệu và ngôn ngữ, nhưng tokenizer và evaluation set không ảnh hưởng.' },
+      { id: 'full-setup', label: 'Loại dữ liệu, tokenizer, ngôn ngữ và evaluation set đều có thể làm giá trị PPL thay đổi.', isCorrect: true },
+    ],
+    success: 'Đúng. PPL là kết quả của cả model lẫn setup đánh giá, không phải một thuộc tính độc lập với dữ liệu và tokenizer.',
+    error: 'Hãy xem lại bốn course card: loại dữ liệu, tokenizer, ngôn ngữ và tập đánh giá đều ảnh hưởng.',
+  },
+  {
+    id: 'valid-ppl-comparison', title: 'So sánh PPL',
+    prompt: 'Cách so sánh PPL nào đáng tin cậy nhất?', mode: 'single',
+    options: [
+      { id: 'same-setup', label: 'So sánh các model trên cùng evaluation set, cùng tokenizer và cùng cách tính.', isCorrect: true },
+      { id: 'same-parameters', label: 'So sánh hai báo cáo dùng dữ liệu khác nhau miễn model có cùng số parameters.' },
+      { id: 'fixed-threshold', label: 'Dùng PPL < 40 làm ngưỡng tốt bắt buộc cho mọi ngôn ngữ và bài toán.' },
+      { id: 'same-vocab-size', label: 'So sánh hai tokenizer khác nhau miễn vocabulary của chúng có cùng kích thước.' },
+    ],
+    success: 'Đúng. Không có ngưỡng tốt dùng chung; PPL có ý nghĩa so sánh khi setup đánh giá được giữ nhất quán.',
+    error: 'Các khoảng PPL chỉ có tính minh họa. Khác dataset, tokenizer hoặc cách tính thì hai con số khó so sánh trực tiếp.',
+  },
+  {
+    id: 'ppl-versus-reasoning', title: 'PPL và reasoning',
+    prompt: 'Một model có PPL thấp nhưng trả lời sai bài suy luận Alice cao hơn Bob, Bob cao hơn Carol. Điều này cho thấy gì?', mode: 'single',
+    options: [
+      { id: 'ppl-not-language', label: 'PPL không liên quan đến khả năng dự đoán token.' },
+      { id: 'certain-contamination', label: 'Model chắc chắn đã gặp test contamination.' },
+      { id: 'language-not-reasoning', label: 'Dự đoán ngôn ngữ tốt không tự động bảo đảm model reasoning tốt.', isCorrect: true },
+      { id: 'reasoning-raises-ppl', label: 'Huấn luyện reasoning luôn làm PPL tăng và model yếu đi.' },
+    ],
+    success: 'Đúng. Model có thể tạo ngôn ngữ tự nhiên nhưng vẫn mắc lỗi logic; PPL không thay thế evaluation reasoning.',
+    error: 'PPL đo khả năng dự đoán token trên dữ liệu được chấm, không trực tiếp bảo đảm suy luận nhiều bước.',
+  },
+  {
+    id: 'ppl-current-role', title: 'Vai trò hiện nay của PPL',
+    prompt: 'Nhận định nào phù hợp với xu hướng và vai trò hiện nay của Perplexity được trình bày trong bài?', mode: 'single',
+    options: [
+      { id: 'always-comparable', label: 'Có thể so sánh trực tiếp mọi số PPL từ năm 2017 và 2023 dù dataset hoặc tokenizer khác nhau.' },
+      { id: 'trend-and-development', label: 'Trong cùng setup, PPL giảm từ khoảng 70 xuống dưới 10 cho thấy model dự đoán token ground truth chính xác và tự tin hơn; PPL hữu ích trong development, còn academic evaluation dùng thêm benchmark theo năng lực.', isCorrect: true },
+      { id: 'only-academic', label: 'Perplexity hiện chủ yếu dùng để xếp hạng academic benchmark và không còn ích lợi trong development.' },
+      { id: 'proves-reasoning', label: 'PPL dưới 10 tự động chứng minh model reasoning tốt và đã alignment đúng.' },
+    ],
+    success: 'Đúng. Trong cùng setup, PPL thấp hơn thể hiện khả năng dự đoán token ground truth tốt hơn và vẫn hữu ích khi phát triển model.',
+    error: 'Hãy gắn xu hướng PPL với khả năng dự đoán token trong cùng setup và phân biệt vai trò development với benchmark theo năng lực.',
+  },
+]} />
