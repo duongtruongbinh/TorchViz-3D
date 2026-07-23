@@ -1,0 +1,168 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'classification-and-instruction-finetune-code', locale: 'vi',
+  title: 'Code instruction fine-tuning',
+  headings: ['Contract', 'Collate', 'Response mask', 'Masked loss', 'Smoke test'],
+  keywords: ['PyTorch', 'instruction fine-tuning code', 'collate', 'response masking', 'ignore_index'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Contract của instruction batch
+
+**Mục tiêu:** Viết collate + masked LM loss chạy độc lập cho instruction SFT.
+
+Mỗi ví dụ toy đã có `ids` gồm prompt, response, EOS và `response_start` là chỉ số token response đầu tiên. Collate trả:
+
+- `inputs: (B,T)` integer;
+- `targets: (B,T)`, prompt/padding dùng `-100`;
+- model trả logits `(B,T,V)`.
+
+```python
+import torch
+from torch import nn
+import torch.nn.functional as F
+```
+
+<LessonNote>Production pipeline phải format text và tokenize bằng đúng template/tokenizer của checkpoint trước bước này.</LessonNote>
+
+**Takeaway:** Response boundary là metadata cần được giữ qua tokenization.
+
+</MdxPage>
+<MdxPage page={1}>
+
+## Pad rồi shift một lần
+
+```python
+# State trace trước response mask:
+# sample 0 (len=5): input [1, 2, 5, 6], target [2, 5, 6, 9]
+# sample 1 (len=3): input [3, 5, 9, 0], target [5, 9, -100, -100]
+```
+
+Input/target đều dài `max_len-1`. EOS phải được thêm trước khi pad.
+Mask dùng độ dài gốc của từng sample thay vì `targets == pad_id`, nên EOS thật vẫn được giữ nếu tokenizer dùng chung một ID cho EOS và PAD.
+
+<LessonNote>**Lỗi thường gặp:** shift từng sample sau khi đã bỏ EOS; model không còn target kết thúc response.</LessonNote>
+
+**Takeaway:** Tạo sequence hoàn chỉnh → pad → shift.
+
+</MdxPage>
+<MdxPage page={2}>
+
+## Collate instruction
+
+```python
+def collate_instruction(examples, pad_id=0):
+    if not examples or any(len(item["ids"]) < 2 for item in examples):
+        raise ValueError("each batch needs non-empty examples with at least two IDs")
+    if any(
+        not 0 <= item["response_start"] < len(item["ids"])
+        for item in examples
+    ):
+        raise ValueError("response_start must index a token in each sequence")
+    max_len = max(len(item["ids"]) for item in examples)
+    rows = [
+        item["ids"] + [pad_id] * (max_len - len(item["ids"]))
+        for item in examples
+    ]
+    batch = torch.tensor(rows, dtype=torch.long)
+    inputs = batch[:, :-1]
+    targets = batch[:, 1:].clone()
+    for row, item in enumerate(examples):
+        targets[row, len(item["ids"]) - 1:] = -100
+        prompt_target_count = max(item["response_start"] - 1, 0)
+        targets[row, :prompt_target_count] = -100
+    return inputs, targets
+```
+
+Target position j dự đoán token `ids[j+1]`; vì vậy prompt mask kết thúc tại `response_start-1`.
+
+<LessonNote>**Lỗi thường gặp:** dùng `response_start` vị trí trong text character thay vì vị trí token.</LessonNote>
+
+**Takeaway:** Mask target, không mask input; model vẫn nhìn toàn bộ prompt.
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Loss giữ nguyên contract LM
+
+```python
+def masked_lm_loss(logits, targets):
+    if logits.ndim != 3 or logits.shape[:2] != targets.shape:
+        raise ValueError("logits/targets must be (B,T,V)/(B,T)")
+    if not torch.any(targets != -100):
+        raise ValueError("batch has no valid response targets")
+    return F.cross_entropy(
+        logits.flatten(0, 1),
+        targets.flatten(),
+        ignore_index=-100,
+    )
+
+logits = model(input_ids)
+loss = masked_lm_loss(logits, targets)
+```
+
+Cross-entropy bỏ mọi target `-100` khỏi numerator và denominator. Attention vẫn causal và output vẫn vocabulary logits.
+
+```python
+assert logits.shape[:2] == targets.shape
+assert torch.isfinite(loss)
+```
+
+<LessonNote>**Production:** theo dõi valid-token count; batch toàn `-100` không cung cấp training signal.</LessonNote>
+
+**Takeaway:** SFT thay target mask, không thay công thức language-model loss.
+
+</MdxPage>
+<MdxPage page={4}>
+
+## Smoke test độc lập
+
+```python
+class TinyLM(nn.Module):
+    def __init__(self, vocab_size=10, d_model=8):
+        super().__init__()
+        self.emb = nn.Embedding(vocab_size, d_model)
+        self.head = nn.Linear(d_model, vocab_size)
+    def forward(self, ids):
+        return self.head(self.emb(ids))
+
+examples = [
+    {"ids": [1, 2, 5, 6, 9], "response_start": 2},
+    {"ids": [3, 5, 9], "response_start": 1},
+]
+input_ids, targets = collate_instruction(examples, pad_id=0)
+model = TinyLM()
+logits = model(input_ids)
+loss = masked_lm_loss(logits, targets)
+
+assert input_ids.shape == targets.shape == (2, 4)
+assert (targets != -100).sum().item() == 5
+assert logits.shape == (2, 4, 10)
+assert torch.isfinite(loss)
+
+same_eos_pad = [
+    {"ids": [1, 2, 0], "response_start": 2},
+    {"ids": [3, 0], "response_start": 1},
+]
+_, same_targets = collate_instruction(same_eos_pad, pad_id=0)
+assert same_targets.tolist() == [[-100, 0], [0, -100]]
+
+try:
+    masked_lm_loss(
+        torch.zeros(1, 1, 10),
+        torch.full((1, 1), -100, dtype=torch.long),
+    )
+except ValueError:
+    pass
+else:
+    raise AssertionError("all-ignored target batch must fail")
+
+print(targets)
+```
+
+Expected targets: hàng đầu `[-100,5,6,9]`; hàng hai `[5,9,-100,-100]`.
+
+<LessonNote>**Takeaway:** Assertions kiểm tra alignment, EOS/PAD dùng chung ID và all-ignored error path; generation trên prompt chưa thấy mới kiểm tra hành vi instruction following.</LessonNote>
+
+</MdxPage>

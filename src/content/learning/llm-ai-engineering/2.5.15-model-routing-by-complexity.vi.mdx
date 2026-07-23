@@ -1,0 +1,54 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "model-routing-by-complexity", locale: "vi",
+ title: "Model routing theo capability và risk", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["model-routing-by-complexity","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Routing chỉ theo prompt length bỏ task risk/capability. Policy phải dựa eval và có sticky/versioned decision.
+
+**Input:** Task class, required tools/schema/media, risk, SLO, budget và breaker/quota state.
+
+**Output:** Provider/model route hoặc explicit no-safe-route.
+
+**Data/type/shape:** Feature object → policy rule/model score → route record; adapter output normalize.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+FAQ low-risk đi fast model nếu eval pass; refund recommendation đi high-quality route nhưng action vẫn cần approval. Same conversation giữ sticky route trừ failover compatible.
+
+| Stage | FAQ low-risk | Refund recommendation |
+|---|---|---|
+| Hard capability | Text + citation | Schema + evidence + approval handoff |
+| Trust/privacy | Tenant policy pass | Tenant policy pass |
+| Health/quota | Candidate breaker closed, reservation fits | Candidate breaker closed, reservation fits |
+| Eval gate | Fast route đạt quality/safety threshold | High-quality route đạt stricter threshold |
+| Route record | `policy-v7`, sticky conversation | `policy-v7`, sticky conversation |
+| Side effect | Không có | Backend/human approval; model không tự refund |
+
+Nếu không candidate nào qua mọi hard gate, router trả `no_safe_route`; nó không âm thầm bỏ schema, privacy hay approval để tăng availability.
+
+<LessonNote>Cost/latency chỉ xếp hạng các route đã đạt capability, policy và eval gates. Fallback là route riêng cần conformance và canary evidence.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Model tự chọn provider không guardrail.
+- Fallback sang model thiếu schema/tool.
+- Route từng turn làm behavior drift.
+
+**Kết nối:** Cache tránh lặp lại requests thật sự equivalent.
+
+</MdxPage>

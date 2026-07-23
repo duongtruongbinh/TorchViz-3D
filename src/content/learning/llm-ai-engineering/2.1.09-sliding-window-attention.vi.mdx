@@ -1,0 +1,84 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "sliding-window-attention",
+  locale: "vi",
+  title: "Sliding-window attention",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["sliding-window-attention","LLM","production","K+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Local window giới hạn mỗi token chỉ attend một vùng gần, giảm work/cache truy cập nhưng thay đổi receptive field và khả năng dùng dependency xa.
+
+**Input:** Sequence, causal mask và window size `W`.
+
+**Output:** Attention mask cục bộ cùng receptive field tích lũy qua layers.
+
+**Data/type/shape:** Dense logical mask `(T,T)` chỉ cho tối đa `W` key trước mỗi query; optimized kernel có thể không materialize mask.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Với `W=4`, token ở vị trí 7 trực tiếp nhìn vị trí 4–7. Sau hai layer, thông tin có thể lan xa hơn một cửa sổ, nhưng không đồng nghĩa mọi dependency xa đều được giữ nguyên.
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Nhầm architectural window với việc truncate HTTP request.
+- Quên global/sink tokens nếu kiến trúc cần chúng.
+- Đánh giá chỉ trên short-context benchmark.
+
+~~~ts
+import assert from "node:assert/strict";
+
+function causalSlidingMask(length: number, window: number): boolean[][] {
+  if (!Number.isInteger(length) || length <= 0) {
+    throw new Error("length must be a positive integer");
+  }
+  if (!Number.isInteger(window) || window <= 0) {
+    throw new Error("window must be a positive integer");
+  }
+  return Array.from({ length }, (_, query) =>
+    Array.from({ length }, (_, key) =>
+      key <= query && key >= Math.max(0, query - window + 1)
+    )
+  );
+}
+
+function earliestReachable(position: number, window: number, layers: number): number {
+  if (position < 0 || window <= 0 || layers <= 0) {
+    throw new Error("invalid receptive-field arguments");
+  }
+  return Math.max(0, position - layers * (window - 1));
+}
+
+const mask = causalSlidingMask(8, 4);
+assert.deepEqual(
+  mask[7].flatMap((allowed, key) => allowed ? [key] : []),
+  [4, 5, 6, 7],
+);
+assert.equal(earliestReachable(7, 4, 2), 1);
+assert.throws(() => causalSlidingMask(8, 0), /positive integer/);
+~~~
+
+<LessonNote>Code tạo mask causal-local thật và kiểm tra receptive field. Kernel tối ưu có thể tránh materialize `(T,T)`, nhưng phải giữ cùng tập key được phép.</LessonNote>
+
+**Kết nối:** Scaling laws đặt các tối ưu kiến trúc vào bài toán phân bổ compute và data.
+
+</MdxPage>

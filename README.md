@@ -86,4 +86,5 @@ EditorPane -> zustand store -> WorkerService -> Pyodide worker + torchstub
 - [Knowledge bundle](wiki/index.md) - structured subsystem docs, guides, and gotchas.
 - [Workflow](docs/WORKFLOW.md) - required contribution workflow and plan format.
 - [Learning Lab](wiki/concepts/learning-lab.md) - active typed-TOC, locale-MDX, routing, Review, and exercise architecture.
-- [Learning Lab migration record](docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md) - current content-pipeline decisions and execution history.
+- [Learning Lab architecture & migration record](docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md) - content-pipeline migration record.
+- [Learning Lab 200-node LLM course record](docs/plans/2026-07-23-remediate-llm-domain-learning-flow.md) - complete LLM course structure and execution evidence.

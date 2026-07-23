@@ -1,0 +1,54 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "api-key-rotation", locale: "vi",
+ title: "API key rotation không downtime", headings: ["Threat boundary và contract","Worked security path","Failure/incident handling"],
+ keywords: ["api-key-rotation","API security","secrets"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Threat boundary và contract
+
+Secret phải revocable và rotate được. Rotation cần overlap/cutover/rollback để tránh outage và tránh giữ key cũ vô hạn.
+
+**Input:** Old/new key references, deployment set, health checks và revocation authority.
+
+**Output:** All traffic dùng new key, old key revoked, audit hoàn chỉnh.
+
+**Data/type/shape:** Secret version state `created→staged→active→revoked`; application chỉ đọc active reference.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked security path
+
+Tạo key B quyền tối thiểu, stage secret manager, canary health call, roll traffic, verify zero use key A, revoke A. Nếu canary fail, rollback reference trước revoke.
+
+| Routine rotation | Confirmed compromise |
+|---|---|
+| Cho phép overlap ngắn, có deadline | Rút ngắn/bỏ overlap; containment ưu tiên |
+| Canary B rồi roll dần | Stage emergency credential hoặc chuyển degraded mode |
+| Verify A usage về zero | Rapid revoke A, kể cả có thể giảm availability |
+| Revoke A và audit | Verify propagation/cache/jobs, hunt unauthorized usage |
+| Đóng change record | Mở incident, xác định exposure/impact và follow-up |
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure/incident handling
+
+**Pitfalls:**
+
+- Revoke old trước deploy new.
+- Log cả hai key khi debug 401.
+- Không tìm downstream jobs dùng key cũ.
+- Dùng routine overlap cho key đã xác nhận bị compromise.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html).</LessonNote>
+
+Monitoring tối thiểu gồm usage theo key version (không log value), 401/403 rate, old-version usage sau cutover và access audit. Alert có owner/runbook; incident artifacts có access hẹp, retention hữu hạn và deletion audit.
+
+**Kết nối:** Quiz cuối kiểm tra redaction, monitoring và incident decisions.
+
+</MdxPage>

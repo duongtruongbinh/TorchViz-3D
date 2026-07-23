@@ -1,0 +1,60 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "no-frontend-api-keys-quiz", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "frontend secret", "trust boundary"], pageCount: 4,
+}
+
+<MdxQuiz id="no-frontend-api-keys-quiz" questions={[
+  {
+    "id": "no-frontend-api-keys-quiz-q1", "title": "Tình huống 1",
+    "prompt": "Một biến `VITE_PROVIDER_KEY` chỉ tồn tại lúc build. Nhận định nào đúng?",
+    "mode": "single",
+    "options": [
+      { "id": "no-frontend-api-keys-quiz-q1-a", "label": "An toàn vì không còn file `.env`" },
+      { "id": "no-frontend-api-keys-quiz-q1-b", "label": "An toàn nếu minify" },
+      { "id": "no-frontend-api-keys-quiz-q1-correct", "label": "Vẫn là public data vì giá trị được nhúng vào browser bundle", "isCorrect": true },
+      { "id": "no-frontend-api-keys-quiz-q1-c", "label": "Chỉ extension của tác giả xem được" }
+    ],
+    "success": "Đúng. Build-time substitution không tạo server trust boundary; browser nhận được giá trị thì người dùng có thể trích xuất.",
+    "error": "Chưa đúng. Minify, obfuscate hay xóa `.env` không thu hồi secret đã được ship tới client."
+  },
+  {
+    "id": "no-frontend-api-keys-quiz-q2", "title": "Tình huống 2",
+    "prompt": "Frontend nên dùng credential nào để yêu cầu LLM feature?",
+    "mode": "single",
+    "options": [
+      { "id": "no-frontend-api-keys-quiz-q2-correct", "label": "Short-lived app session gửi tới backend có policy enforcement", "isCorrect": true },
+      { "id": "no-frontend-api-keys-quiz-q2-a", "label": "Provider key base64" },
+      { "id": "no-frontend-api-keys-quiz-q2-b", "label": "Secret trong system prompt" },
+      { "id": "no-frontend-api-keys-quiz-q2-c", "label": "Master key trong localStorage" }
+    ],
+    "success": "Đúng. Browser chứng minh app identity/session; backend mới giữ provider credential và áp authorization/quota.",
+    "error": "Chưa đúng. Provider credential ở bất kỳ dạng nào trong browser đều vượt trust boundary."
+  },
+  {
+    "id": "no-frontend-api-keys-quiz-q3", "title": "Tình huống 3",
+    "prompt": "Mobile app obfuscate provider key trong native binary. Điều gì vẫn đúng?",
+    "mode": "single",
+    "options": [
+      { "id": "no-frontend-api-keys-quiz-q3-a", "label": "Native binary là secret manager" },
+      { "id": "no-frontend-api-keys-quiz-q3-b", "label": "Obfuscation cấp per-user authorization" },
+      { "id": "no-frontend-api-keys-quiz-q3-c", "label": "Store review bảo vệ key" },
+      { "id": "no-frontend-api-keys-quiz-q3-correct", "label": "Attacker kiểm soát client có thể trích key; cần backend boundary", "isCorrect": true }
+    ],
+    "success": "Đúng. Web và native client đều là môi trường do người dùng kiểm soát.",
+    "error": "Chưa đúng. Độ khó reverse engineering chỉ trì hoãn lộ key, không thay đổi trust model."
+  },
+  {
+    "id": "no-frontend-api-keys-quiz-q4", "title": "Tình huống 4",
+    "prompt": "Build scan phát hiện chuỗi giống provider key. Pipeline nên làm gì?",
+    "mode": "single",
+    "options": [
+      { "id": "no-frontend-api-keys-quiz-q4-a", "label": "Deploy rồi theo dõi cost" },
+      { "id": "no-frontend-api-keys-quiz-q4-correct", "label": "Block release, xác minh exposure và rotate/revoke nếu key thật", "isCorrect": true },
+      { "id": "no-frontend-api-keys-quiz-q4-b", "label": "Đổi tên biến" },
+      { "id": "no-frontend-api-keys-quiz-q4-c", "label": "Nén bundle mạnh hơn" }
+    ],
+    "success": "Đúng. Exposure có thể xảy ra trước deploy; key thật cần incident branch chứ không chỉ sửa source.",
+    "error": "Chưa đúng. Xóa dấu vết mới không thu hồi credential đã có thể bị lộ."
+  }
+]} />

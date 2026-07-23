@@ -3,26 +3,58 @@ export const lessonMetadata = {
   id: 'benchmark-selection-and-contamination',
   locale: 'vi',
   title: 'Chọn benchmark và contamination',
-  headings: ['Benchmark đo scenario nào?', 'Contamination', 'Đọc score đúng cách'],
-  keywords: ['benchmark', 'contamination', 'MMLU', 'SWE-bench', 'generalization'],
+  headings: ['Benchmark là measurement contract', 'Contamination paths', 'Worked selection', 'Pitfall và handoff'],
+  keywords: ['benchmark', 'contamination', 'holdout', 'generalization', 'protocol'],
+  pageCount: 4,
 }
 
-## Benchmark đo scenario nào?
+<MdxPage page={0}>
 
-Benchmark chuẩn hóa giúp so sánh model trên cùng một tập task. MMLU kiểm tra kiến thức và reasoning qua nhiều môn; SWE-bench đánh giá khả năng xử lý issue trong repository; các safety benchmark tập trung vào harmful request hoặc refusal behavior.
+## Benchmark là measurement contract
 
-Tên benchmark không quan trọng bằng scenario, metric và dữ liệu mà nó đại diện. Một benchmark tổng quát không thể chứng minh model phù hợp với workflow nội bộ của một tổ chức.
+Input là benchmark version, task subset, prompt protocol, model/config và seed. Output là per-case result, slice score và uncertainty. Không so hai score nếu tokenizer, prompt, tool access hoặc scoring protocol khác mà không ghi rõ.
 
-## Contamination
+Benchmark công khai trả lời “model làm gì trên contract này”, không tự chứng minh fit cho workflow nội bộ.
 
-Benchmark contamination xảy ra khi câu hỏi hoặc đáp án test đã xuất hiện trong training data, tài liệu fine-tuning hoặc prompt development. Khi đó, điểm cao có thể đến từ ghi nhớ. Contamination cũng có thể xảy ra gián tiếp qua các bản paraphrase hoặc solution được đăng công khai.
+</MdxPage>
 
-## Đọc score đúng cách
+<MdxPage page={1}>
 
-- Xem nhiều benchmark và nhiều nhóm task thay vì một leaderboard tổng.
-- Kiểm tra thời điểm phát hành dữ liệu so với training cutoff.
-- Dùng private test set sát use case khi có thể.
-- Báo cáo confidence interval và số lượng sample.
-- Đọc failure case, không chỉ đọc average score.
+## Contamination paths
 
-Benchmark là bằng chứng tham khảo, không phải giấy phép deployment.
+Leakage có thể đi qua pretraining/fine-tuning data, public solutions, prompt examples hoặc việc team xem test answers khi tối ưu. Một test set đã tham gia model/prompt selection không còn là final holdout.
+
+Giữ provenance theo case, tìm exact/near duplicate khi có dữ liệu và báo cáo nghi ngờ thay vì tuyên bố “không contamination” nếu không thể kiểm chứng.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Worked selection
+
+Use case là hỏi đáp tài liệu nội bộ có citation. Team chấm ba candidate:
+
+| Candidate | Scenario fit | Leakage risk | Quyết định |
+|---|---:|---:|---|
+| General knowledge public set | thấp | cao | chỉ dùng smoke |
+| Public RAG set | vừa | vừa | diagnostic |
+| Private, versioned RAG holdout | cao | thấp | release evidence |
+
+Không chọn tập chỉ vì candidate model đang có score cao nhất trên đó.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Pitfall và handoff
+
+- Báo sample count, confidence interval và failure slices.
+- Không chọn best run rồi bỏ các run khác.
+- Version benchmark, harness và judge.
+- Kết hợp public comparability với private use-case evidence.
+
+Với RAG, tách hai tầng: retrieval đo gold evidence có xuất hiện trong top-k/context hay không (`context recall`), còn generation đo từng claim có bám retrieved evidence và trả lời đúng intent hay không. Case không đủ evidence phải abstain; trace chỉ giữ case ID, chunk ID/hash, score và snippet đã redacted theo retention policy.
+
+Quiz kế tiếp kiểm tra selection/contamination; bài sau tính factuality theo claim rồi áp dụng vào RAG.
+
+</MdxPage>

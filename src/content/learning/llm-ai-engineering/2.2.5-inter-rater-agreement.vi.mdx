@@ -3,24 +3,67 @@ export const lessonMetadata = {
   id: 'inter-rater-agreement',
   locale: 'vi',
   title: 'Độ đồng thuận giữa người chấm',
-  headings: ['Vì sao cần agreement?', 'Observed và chance agreement', 'Cải thiện độ nhất quán'],
-  keywords: ['inter-rater agreement', 'Cohen kappa', 'Fleiss kappa', 'Krippendorff alpha', 'annotator'],
+  headings: ['Confusion table', 'Tính observed/chance agreement', 'Tính Cohen kappa', 'Đọc kết quả'],
+  keywords: ['inter-rater agreement', 'Cohen kappa', 'chance agreement', 'annotator'],
+  pageCount: 4,
 }
 
-## Vì sao cần agreement?
+<MdxPage page={0}>
 
-Điểm human evaluation không tự động trở thành ground truth. Nếu hai annotator hiểu rubric khác nhau, cùng một response có thể nhận hai kết quả trái ngược. Inter-rater agreement đo mức độ nhất quán giữa người chấm và giúp phát hiện rubric còn mơ hồ.
+## Confusion table
 
-## Observed và chance agreement
+Hai annotator chấm 10 case bằng `pass/fail`:
 
-Tỷ lệ hai người chọn cùng nhãn là observed agreement. Tuy nhiên, một phần đồng thuận có thể xuất hiện do ngẫu nhiên, đặc biệt khi số nhãn ít hoặc một nhãn chiếm đa số. Cohen’s kappa điều chỉnh chance agreement cho hai người chấm; Fleiss’ kappa mở rộng cho nhiều người; Krippendorff’s alpha linh hoạt hơn với nhiều loại thang đo và dữ liệu thiếu.
+| | B pass | B fail |
+|---|---:|---:|
+| A pass | 5 | 1 |
+| A fail | 1 | 3 |
 
-Không có một ngưỡng duy nhất phù hợp cho mọi dự án. Agreement thấp nên được xem là tín hiệu cần đọc lại các disagreement case, không chỉ là một con số cần “đẩy lên”.
+Observed agreement dùng đường chéo: `(5+3)/10=0.8`.
 
-## Cải thiện độ nhất quán
+</MdxPage>
 
-- Viết lại tiêu chí bằng ví dụ pass/fail cụ thể.
-- Tổ chức calibration round trước khi chấm chính thức.
-- Tách các tiêu chí đang bị gộp vào cùng một câu hỏi.
-- Cho phép annotator ghi chú case thiếu context.
-- Dùng domain expert cho các lỗi cần kiến thức chuyên môn.
+<MdxPage page={1}>
+
+## Tính observed/chance agreement
+
+A chọn pass `6/10`, fail `4/10`; B cũng chọn pass `6/10`, fail `4/10`. Chance agreement:
+
+`p_e = 0.6×0.6 + 0.4×0.4 = 0.52`.
+
+Điều chỉnh chance quan trọng khi một nhãn chiếm đa số: observed agreement cao có thể xuất hiện chỉ vì cả hai gần như luôn chọn nhãn đó.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tính Cohen kappa
+
+`κ = (p_o - p_e)/(1-p_e) = (0.8-0.52)/(1-0.52) = 0.5833`.
+
+```python
+def cohen_kappa(observed: float, expected: float) -> float:
+    if not 0 <= observed <= 1 or not 0 <= expected < 1:
+        raise ValueError('agreements must satisfy 0<=observed<=1 and 0<=expected<1')
+    return (observed - expected) / (1 - expected)
+
+assert abs(cohen_kappa(0.8, 0.52) - 7 / 12) < 1e-12
+try:
+    cohen_kappa(0.8, 1.0)
+except ValueError:
+    pass
+else:
+    raise AssertionError('expected agreement of one makes kappa undefined')
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đọc kết quả
+
+Không có một ngưỡng universal cho mọi risk/task. Đọc disagreement cases, prevalence và agreement theo slice; viết lại anchor, calibration lại hoặc dùng domain expert. Kappa không nói annotator đúng, chỉ nói họ nhất quán hơn chance.
+
+Bài sau tính pairwise win/tie; judge code dùng cùng rubric và calibration artifact.
+
+</MdxPage>

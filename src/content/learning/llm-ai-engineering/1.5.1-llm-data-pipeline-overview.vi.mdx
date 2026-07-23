@@ -1,60 +1,86 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-data-pipeline-overview', locale: 'vi', title: 'Tổng quan quy trình huấn luyện và sinh token',
-  headings: ['Pretraining và Fine-tuning', 'Transformer', 'Encoder input', 'Encoder context', 'Decoder input', 'Sinh token', 'Hoàn thành bản dịch'],
-  keywords: ['pretraining', 'fine-tuning', 'Transformer', 'encoder', 'decoder', 'token id', 'embedding', 'positional embedding'], pageCount: 9,
+  headings: ['Corpus split', 'Windows và batches', 'GPT logits', 'Loss và update', 'Validation và generation'],
+  keywords: ['pretraining pipeline', 'decoder-only GPT', 'token batch', 'next-token loss', 'checkpoint'], pageCount: 5,
 }
 
 <MdxPage page={0}>
-  <TrainingLifecycle
-    title="Quy trình chung để tạo LLM"
-    body={['Một LLM thường được tạo qua hai giai đoạn lớn.']}
-    highlights={[
-      { shortName: 'Pretraining', fullName: 'Pretraining', description: 'Giai đoạn ban đầu, khi model học trên tập dữ liệu lớn và đa dạng để hình thành hiểu biết rộng về ngôn ngữ.' },
-      { shortName: 'Fine-tuning', fullName: 'Fine-tuning', description: 'Dùng model đã pretrain làm nền tảng, rồi huấn luyện thêm trên dữ liệu hẹp hơn cho một tác vụ hoặc lĩnh vực cụ thể.' },
-    ]}
-  />
+
+## 1. Tách corpus trước khi tạo cửa sổ
+
+**Mục tiêu:** Nhìn toàn bộ pipeline decoder-only từ raw corpus đến checkpoint và token mới.
+
+Chia raw text thành train/validation trước, tốt nhất theo tài liệu hoặc nguồn. Sau đó mỗi split mới được tokenize và tạo sliding windows.
+
+Nếu tạo windows trước rồi random split, hai cửa sổ overlap gần giống nhau có thể rơi vào train và validation.
+
+<LessonNote>**Takeaway:** Split boundary phải đứng trước bước sinh mẫu để validation thực sự chưa được model tối ưu.</LessonNote>
+
 </MdxPage>
 
 <MdxPage page={1}>
-  <TransformerTranslationStep step={1} title="Bước 1:" links={[{ label: 'Paper: Attention Is All You Need', href: 'https://arxiv.org/abs/1706.03762' }]} body={[
-    'Tất cả đều dựa trên Transformer, kiến trúc được giới thiệu trong bài báo năm 2017 "Attention Is All You Need".',
-    'Transformer ban đầu được dùng để dịch ngôn ngữ và có hai khối chính:',
-    'Encoder: đọc câu gốc và biến nó thành dạng số để máy có thể xử lý.',
-    'Decoder: dùng thông tin từ encoder để viết câu dịch, từng token một.',
-  ]} />
+
+## 2. Token windows trở thành batches
+
+Tokenizer tạo một chuỗi IDs. Dataset lấy từng đoạn `T+1` token, tạo input/target dài T rồi DataLoader gom thành:
+
+- `input_ids: (B,T)`;
+- `target_ids: (B,T)`;
+- invariant `input_ids[:,1:] == target_ids[:,:-1]`.
+
+`stride` điều khiển overlap; batch size B điều khiển số sequence chạy song song.
+
+<LessonNote>**Lỗi thường gặp:** gọi mỗi window là một batch. Window là sample; DataLoader mới tạo batch.</LessonNote>
+
+**Takeaway:** Data pipeline kết thúc ở integer IDs; GPT tự thực hiện embedding.
+
 </MdxPage>
 
 <MdxPage page={2}>
-  <TransformerTranslationStep step={2} title="Bước 2: Chuẩn bị input cho encoder" body={[
-    'Câu nguồn không đi thẳng vào mạng nơ-ron dưới dạng chữ.',
-    '- Nó sẽ được tách thành các token.',
-    '- Mỗi token được quy đổi thành một con số tương ứng gọi là token id.',
-    '- Một con số đơn lẻ không thể đại diện đủ cho ý nghĩa của token, nên token id sẽ được biến đổi thành một vector gọi là token embedding. Lúc này model mới biết input có những thông tin gì, tuy nhiên chưa phân biệt được các token đang đứng ở vị trí nào trong câu.',
-    '- Positional embedding được cộng thêm để encoder biết cả nội dung lẫn vị trí của từng token.',
-  ]} />
+
+## 3. GPT tạo logits cho mọi vị trí
+
+Decoder-only GPT biến `(B,T)` thành logits `(B,T,V)`. Causal mask bảo đảm logits tại vị trí t chỉ dùng token `≤t`.
+
+Trong training, mọi T vị trí đóng góp target nên một forward tạo `B×T` bài toán phân loại vocabulary. Trong generation, chỉ `logits[:,-1,:]` được dùng.
+
+<LessonNote>**Lỗi thường gặp:** softmax toàn tensor rồi đưa vào cross-entropy. PyTorch loss nhận raw logits để tính ổn định hơn.</LessonNote>
+
+**Takeaway:** Cùng logits contract phục vụ cả loss khi train và chọn token khi inference.
+
 </MdxPage>
 
 <MdxPage page={3}>
-  <TransformerTranslationStep step={3} title="Bước 3: Encoder đọc toàn bộ câu nguồn" body={['Encoder có quyền nhìn toàn bộ câu nguồn "Anh trai vượt ngàn chông gai" để tạo representation có ngữ cảnh cho từng vị trí.']} />
+
+## 4. Loss, backward và optimizer
+
+Flatten logits `(B,T,V) → (B×T,V)` và targets `(B,T) → (B×T)`. Cross-entropy là mean negative log-likelihood của ground-truth tokens.
+
+Một update:
+
+```text
+zero_grad → forward → loss → backward → clip (nếu dùng) → optimizer.step
+```
+
+<LessonNote>**Lỗi thường gặp:** quên `zero_grad`, làm gradient cộng dồn ngoài ý muốn giữa các batch.</LessonNote>
+
+**Takeaway:** Loss scalar tổng hợp B×T quyết định gradient cho mọi parameter trainable.
+
 </MdxPage>
 
 <MdxPage page={4}>
-  <TransformerTranslationStep step={4} title="Bước 4: Encoder trả embedding vector cho decoder" body={['Đến bước này, encoder đã tạo ra chuỗi embedding vector cho câu nguồn. Mỗi vector không chỉ mang thông tin mã hóa về một token, mà còn chứa ngữ cảnh từ các token khác trong câu. Decoder sẽ dùng chuỗi vector này để hiểu câu nguồn và tạo bản dịch từng token một.']} />
-</MdxPage>
 
-<MdxPage page={5}>
-  <TransformerTranslationStep step={5} title="Bước 5: Decoder nhận câu đã dịch một phần" body={['Ở giai đoạn cuối của ví dụ, decoder đã có "披荆斩棘的__" và cần điền token/từ tiếp theo.']} />
-</MdxPage>
+## 5. Validation, checkpoint và generation
 
-<MdxPage page={6}>
-  <TransformerTranslationStep step={6} title="Bước 6: Chuẩn bị input cho decoder" body={['Phần output đã có cũng đi qua cùng kiểu chuẩn bị: tách token, đổi thành token ids, tra embedding và cộng positional embedding trước khi vào decoder.']} />
-</MdxPage>
+Định kỳ chuyển `model.eval()`, dùng `torch.no_grad()` để tính validation loss rồi trở lại `model.train()`. Lưu model, optimizer và step khi validation tốt hơn hoặc theo lịch phục hồi.
 
-<MdxPage page={7}>
-  <TransformerTranslationStep step={7} title="Bước 7: Decoder sinh từng từ" body={['Decoder dùng context từ encoder và phần câu đích đã có để dự đoán từ tiếp theo. Trong ví dụ này, từ cần sinh là "哥哥".']} />
-</MdxPage>
+Sau training, generation lặp:
 
-<MdxPage page={8}>
-  <TransformerTranslationStep step={8} title="Bước 8: Hoàn thành bản dịch" body={['Sau khi token mới được sinh và ghép vào câu, bản dịch trở thành "披荆斩棘的哥哥".']} />
+`prefix → last-token logits → decoding strategy → append token`.
+
+<LessonNote>**Lỗi thường gặp:** đánh giá validation với dropout còn bật hoặc chọn checkpoint bằng test set.</LessonNote>
+
+**Takeaway:** Training, validation và generation dùng chung model nhưng khác state, gradient policy và cách đọc logits.
+
 </MdxPage>

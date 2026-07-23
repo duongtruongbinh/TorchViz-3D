@@ -8,7 +8,7 @@ import {
   type LearningMdxSearchDocument,
 } from '../src/core/learning/mdxContract.ts';
 import { getAllowedLearningMdxComponentNames } from '../src/content/learning/mdxComponents.ts';
-import type { LearningCatalog } from '../src/core/learning/types.ts';
+import type { LearningCatalog, LearningLesson } from '../src/core/learning/types.ts';
 
 const STRUCTURAL_KEYS = new Set([
   'id', 'kind', 'locale', 'domainId', 'sectionRefId', 'image', 'href', 'depth', 'mode',
@@ -18,7 +18,32 @@ const STRUCTURAL_KEYS = new Set([
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
 
-type Node = { type?: string; name?: string; value?: unknown; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; argument?: Node; operator?: string; source?: Node };
+type Node = {
+  type?: string;
+  name?: string;
+  value?: unknown;
+  children?: Node[];
+  attributes?: Node[];
+  data?: { estree?: Node };
+  body?: Node[];
+  declarations?: Node[];
+  id?: Node;
+  init?: Node;
+  key?: Node;
+  computed?: boolean;
+  properties?: Node[];
+  elements?: Array<Node | null>;
+  expression?: Node;
+  argument?: Node;
+  operator?: string;
+  source?: Node;
+};
+
+type QuizComponentInspection = {
+  id: unknown;
+  questions: unknown;
+  hasQuestionsAttribute: boolean;
+};
 
 function walk(node: Node | null | undefined, visit: (node: Node, parent?: Node) => void, parent?: Node): void {
   if (!node || typeof node !== 'object') return;
@@ -82,10 +107,24 @@ function staticValue(node: Node | null | undefined): unknown {
   return undefined;
 }
 
+function attributeExpression(attribute: Node): Node | undefined {
+  return attribute.value && typeof attribute.value === 'object'
+    ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
+    : undefined;
+}
+
+function attributeStaticValue(attribute: Node): unknown {
+  if (typeof attribute.value === 'string') return attribute.value;
+  if (attribute.value === null || attribute.value === true) return true;
+  const expression = attributeExpression(attribute);
+  return expression ? staticValue(expression) : undefined;
+}
+
 export type LearningMdxInspection = {
   metadata: Record<string, unknown>;
   pageIndexes: number[];
-  quizQuestionIds: string[];
+  quizComponents: QuizComponentInspection[];
+  quizQuestions: unknown[];
   cvExerciseFixtures: unknown[];
   searchText: string;
 };
@@ -100,7 +139,7 @@ export async function inspectLearningMdx(
   let metadataExports = 0;
   let metadata: Record<string, unknown> = {};
   const pageIndexes: number[] = [];
-  const quizQuestionIds: string[] = [];
+  const quizComponents: QuizComponentInspection[] = [];
   const cvExerciseFixtures: unknown[] = [];
   await compile(source, {
     remarkPlugins: [() => (tree: Node) => {
@@ -110,23 +149,33 @@ export async function inspectLearningMdx(
           if (!node.name || !allowedComponents.has(node.name)) {
             throw new Error(`${filePath}: unexpected MDX component ${node.name ?? '<fragment>'}`);
           }
+          let quizId: unknown;
+          let quizQuestions: unknown;
+          let hasQuestionsAttribute = false;
           for (const attribute of node.attributes ?? []) {
             if (attribute.type === 'mdxJsxExpressionAttribute') throw new Error(`${filePath}: spread attributes are not allowed`);
             if (typeof attribute.value === 'string' && !STRUCTURAL_KEYS.has(attribute.name ?? '')) searchParts.push(attribute.value);
-            const expression = attribute.value && typeof attribute.value === 'object'
-              ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
-              : undefined;
-            if (!expression) continue;
-            assertStaticExpression(expression, filePath);
-            stringsFromExpression(expression, searchParts, attribute.name);
-            if (node.name === 'MdxPage' && attribute.name === 'page') pageIndexes.push(Number(staticValue(expression)));
-            if (node.name === 'MdxQuiz' && attribute.name === 'questions') {
-              const questions = staticValue(expression) as Array<{ id?: unknown }>;
-              quizQuestionIds.push(...questions.map((question) => String(question.id ?? '')));
+            const expression = attributeExpression(attribute);
+            if (expression) {
+              assertStaticExpression(expression, filePath);
+              stringsFromExpression(expression, searchParts, attribute.name);
             }
-            if (node.name === 'CvExercise' && attribute.name === 'fixture') {
+            if (node.name === 'MdxPage' && attribute.name === 'page' && expression) {
+              pageIndexes.push(Number(staticValue(expression)));
+            }
+            if (node.name === 'MdxQuiz') {
+              if (attribute.name === 'id') quizId = attributeStaticValue(attribute);
+              if (attribute.name === 'questions') {
+                hasQuestionsAttribute = true;
+                quizQuestions = expression ? staticValue(expression) : attributeStaticValue(attribute);
+              }
+            }
+            if (node.name === 'CvExercise' && attribute.name === 'fixture' && expression) {
               cvExerciseFixtures.push(staticValue(expression));
             }
+          }
+          if (node.name === 'MdxQuiz') {
+            quizComponents.push({ id: quizId, questions: quizQuestions, hasQuestionsAttribute });
           }
         }
         if (node.type !== 'mdxjsEsm') return;
@@ -157,10 +206,14 @@ export async function inspectLearningMdx(
     }],
   });
   if (metadataExports !== 1) throw new Error(`${filePath}: expected exactly one lessonMetadata export`);
+  const quizQuestions = quizComponents.length === 1 && Array.isArray(quizComponents[0].questions)
+    ? quizComponents[0].questions
+    : [];
   return {
     metadata,
     pageIndexes,
-    quizQuestionIds,
+    quizComponents,
+    quizQuestions,
     cvExerciseFixtures,
     searchText: [...new Set(searchParts.map((value) => value.trim()).filter(Boolean))].join(' '),
   };
@@ -201,6 +254,11 @@ export async function validateLearningMdxFiles(
   return documents;
 }
 
+export function isCatalogQuizLesson(lesson: LearningLesson): boolean {
+  const title = lesson.text?.title;
+  return title?.en === 'Quiz' || title?.vi === 'Quiz';
+}
+
 export async function validateLearningMdxSource(
   source: string,
   filePath: string,
@@ -226,13 +284,13 @@ export async function validateLearningMdxSource(
     const expectedPages = Array.from({ length: pageCount }, (_, index) => index);
     if (JSON.stringify(inspection.pageIndexes) !== JSON.stringify(expectedPages)) throw new Error(`${filePath}: invalid or missing MDX page indexes`);
   }
-  if (pageCount > 1 && !inspection.pageIndexes.length && !inspection.quizQuestionIds.length) {
+  const isQuizLesson = isCatalogQuizLesson(lesson);
+  if (isQuizLesson) {
+    assertQuizLesson(inspection, pageCount, filePath);
+  } else if (inspection.quizComponents.length) {
+    throw new Error(`${filePath}: non-quiz lessons cannot include MdxQuiz`);
+  } else if (pageCount > 1 && !inspection.pageIndexes.length) {
     throw new Error(`${filePath}: multi-page lessons require explicit MdxPage indexes or one quiz question per page`);
-  }
-  if (inspection.quizQuestionIds.length) {
-    if (inspection.quizQuestionIds.some((id) => !id) || inspection.quizQuestionIds.length !== pageCount || new Set(inspection.quizQuestionIds).size !== pageCount) {
-      throw new Error(`${filePath}: quiz question ids must be unique and match pageCount`);
-    }
   }
   const isCvExerciseLesson = lesson.tags.includes('exercise') && lesson.domainId === 'cv';
   if (isCvExerciseLesson) {
@@ -244,6 +302,111 @@ export async function validateLearningMdxSource(
     throw new Error(`${filePath}: CvExercise is only allowed on tagged CV exercise lessons`);
   }
   return { ...parsed, text: inspection.searchText };
+}
+
+function assertQuizLesson(
+  inspection: LearningMdxInspection,
+  pageCount: number,
+  filePath: string,
+): void {
+  if (inspection.metadata.title !== 'Quiz') {
+    throw new Error(`${filePath}: quiz lesson metadata title must be Quiz`);
+  }
+  if (inspection.quizComponents.length !== 1) {
+    throw new Error(`${filePath}: quiz lessons require exactly one MdxQuiz component`);
+  }
+  const quiz = inspection.quizComponents[0];
+  if (typeof quiz.id !== 'string' || !quiz.id.trim()) {
+    throw new Error(`${filePath}: quiz lessons require a non-empty MdxQuiz id`);
+  }
+  if (!quiz.hasQuestionsAttribute) {
+    throw new Error(`${filePath}: quiz lessons require a static questions array`);
+  }
+  if (!Array.isArray(quiz.questions)) {
+    throw new Error(`${filePath}: quiz questions must be a static array`);
+  }
+  if (quiz.questions.length === 0) {
+    throw new Error(`${filePath}: quiz lessons require a non-empty questions array`);
+  }
+  if (quiz.questions.length !== pageCount) {
+    throw new Error(`${filePath}: quiz question ids must be unique and match pageCount`);
+  }
+  assertQuizQuestions(quiz.questions, filePath);
+}
+
+function requireTrimmedString(
+  value: unknown,
+  filePath: string,
+  label: string,
+): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`${filePath}: ${label}`);
+  }
+  return value.trim();
+}
+
+function assertQuizQuestions(values: readonly unknown[], filePath: string): void {
+  if (values.length < 4 || values.length > 5) {
+    throw new Error(`${filePath}: quiz lessons require 4 or 5 questions`);
+  }
+  const lessonQuestionIds = new Set<string>();
+  const lessonOptionIds = new Set<string>();
+  for (const value of values) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      throw new Error(`${filePath}: quiz questions must be objects`);
+    }
+    const question = value as Record<string, unknown>;
+    const questionId = requireTrimmedString(
+      question.id,
+      filePath,
+      `quiz question ${String(question.id ?? '<unknown>')} requires string id`,
+    );
+    if (lessonQuestionIds.has(questionId)) {
+      throw new Error(`${filePath}: quiz question ids must be unique and match pageCount`);
+    }
+    lessonQuestionIds.add(questionId);
+    for (const key of ['title', 'prompt', 'mode', 'success', 'error'] as const) {
+      requireTrimmedString(
+        question[key],
+        filePath,
+        `quiz question ${questionId} requires string ${key}`,
+      );
+    }
+    if (question.mode !== 'single') {
+      throw new Error(`${filePath}: quiz question ${questionId} must use single-choice mode`);
+    }
+    if (!Array.isArray(question.options) || question.options.length < 2) {
+      throw new Error(`${filePath}: quiz question ${questionId} requires options`);
+    }
+    let correctOptions = 0;
+    for (const optionValue of question.options) {
+      if (!optionValue || typeof optionValue !== 'object' || Array.isArray(optionValue)) {
+        throw new Error(`${filePath}: quiz question ${questionId} options must be objects`);
+      }
+      const option = optionValue as Record<string, unknown>;
+      const optionId = requireTrimmedString(
+        option.id,
+        filePath,
+        `quiz question ${questionId} options require string id and label`,
+      );
+      requireTrimmedString(
+        option.label,
+        filePath,
+        `quiz question ${questionId} options require string id and label`,
+      );
+      if (lessonOptionIds.has(optionId)) {
+        throw new Error(`${filePath}: quiz option ids must be unique within the lesson`);
+      }
+      lessonOptionIds.add(optionId);
+      if (option.isCorrect !== undefined && typeof option.isCorrect !== 'boolean') {
+        throw new Error(`${filePath}: quiz question ${questionId} option isCorrect must be boolean`);
+      }
+      if (option.isCorrect === true) correctOptions += 1;
+    }
+    if (correctOptions !== 1) {
+      throw new Error(`${filePath}: quiz question ${questionId} requires exactly one correct option`);
+    }
+  }
 }
 
 function assertCvExerciseFixture(value: unknown, operationFamily: string, filePath: string): void {

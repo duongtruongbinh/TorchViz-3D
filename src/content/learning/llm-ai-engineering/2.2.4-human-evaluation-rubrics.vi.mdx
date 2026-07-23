@@ -3,26 +3,54 @@ export const lessonMetadata = {
   id: 'human-evaluation-rubrics',
   locale: 'vi',
   title: 'Human evaluation và rubric',
-  headings: ['Khi nào cần con người?', 'Thiết kế rubric', 'Quy trình chấm'],
-  keywords: ['human evaluation', 'rubric', 'annotator', 'helpfulness', 'coherence'],
+  headings: ['Khi nào cần con người?', 'Rubric contract', 'Worked scoring trace', 'Pitfall và handoff'],
+  keywords: ['human evaluation', 'rubric', 'annotator', 'calibration', 'critical gate'],
+  pageCount: 4,
 }
+
+<MdxPage page={0}>
 
 ## Khi nào cần con người?
 
-Human evaluation đặc biệt quan trọng với các tiêu chí khó quy thành công thức cố định: response có hữu ích không, có tự nhiên không, có giải thích đúng trình độ không, hoặc có phù hợp với ngữ cảnh sử dụng không. Con người cũng giúp phát hiện những lỗi mà automatic metric chưa được thiết kế để nhìn thấy.
+Con người cần thiết khi tiêu chí phụ thuộc ngữ cảnh như helpfulness, mức giải thích phù hợp hoặc safety boundary. Input là cùng `EvalCase`, response và evidence mà mọi annotator được phép thấy; output là criterion scores, critical flags và lý do ngắn dựa trên evidence.
 
-## Thiết kế rubric
+Không dùng human label như “ground truth tuyệt đối”: label cũng có uncertainty và cần agreement/calibration.
 
-Rubric phải mô tả tiêu chí bằng hành vi quan sát được. Thay vì chỉ ghi “chất lượng tốt”, hãy tách thành các câu hỏi cụ thể:
+</MdxPage>
 
-- Nội dung có đúng và đáng tin không?
-- Response có giải quyết nhu cầu chính không?
-- Câu trả lời có mạch lạc, dễ đọc và không tự mâu thuẫn không?
-- Model có làm theo instruction và format yêu cầu không?
-- Có lỗi safety hoặc privacy nghiêm trọng không?
+<MdxPage page={1}>
 
-Mỗi thang điểm cần có mô tả rõ cho các mức thấp, trung bình và cao. Nếu một lỗi là critical, nên dùng cờ pass/fail riêng thay vì để nó bị trung bình hóa trong tổng điểm.
+## Rubric contract
 
-## Quy trình chấm
+Mỗi criterion phải có anchor quan sát được. Ví dụ correctness `0..4`:
 
-Annotator cần được cung cấp cùng context, guideline và ví dụ mẫu. Nên chạy một vòng calibration nhỏ trước khi chấm toàn bộ dataset, thu lại lý do cho các case khó và cho phép đánh dấu “không đủ thông tin”. Human evaluation có chi phí cao, vì vậy thường được dùng trên một sample đại diện hoặc các case mà automatic checks chưa quyết định được.
+- `0`: không giải quyết task hoặc bịa phần cốt lõi.
+- `2`: ý chính đúng nhưng có claim quan trọng thiếu evidence.
+- `4`: mọi claim quan trọng được evidence hỗ trợ.
+
+Privacy leak là `critical_fail: true`, không phải chỉ trừ một điểm style. Annotator có thể trả `insufficient_evidence` thay vì đoán.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Worked scoring trace
+
+Response A đúng ba fact, sai một con số chính và trình bày rõ. Theo rubric: correctness `2`, helpfulness `3`, critical fail `false`. Response B trả đúng nhưng lộ PII: correctness `4`, helpfulness `3`, critical fail `true`; decision vẫn là `block`.
+
+Trước batch lớn, hai annotator chấm cùng 20 case. Disagreement được dùng để sửa anchor, không bị xóa bằng cách chỉ lấy average.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Pitfall và handoff
+
+- Ẩn tên model và hoán đổi A/B khi pairwise.
+- Không để độ dài hay style thay correctness.
+- Version rubric và calibration set.
+- Đo agreement theo language/risk slice và escalate case rủi ro cao.
+
+Quiz kế tiếp kiểm tra rubric; hai bài sau tính agreement và pairwise result.
+
+</MdxPage>

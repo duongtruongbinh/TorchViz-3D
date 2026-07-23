@@ -1,0 +1,58 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'zero-shot-prompting',
+  locale: 'vi',
+  title: 'Zero-shot với contract tối thiểu',
+  headings: ['Baseline trước complexity', 'Một contract hoàn chỉnh', 'Khi nào thêm examples'],
+  keywords: ['zero-shot', 'prompt contract', 'baseline', 'evaluation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Baseline trước complexity
+
+Zero-shot là baseline không chứa demonstration. Nó rẻ, dễ debug và cho biết model + contract hiện tại làm được gì trước khi context bị trộn thêm examples.
+
+**Input:** task, input data, labels/output schema và acceptance criteria.
+
+**Output:** domain value đã validate hoặc một nhánh `refusal | incomplete | invalid`.
+
+**Giới hạn:** zero-shot không có nghĩa là “một câu mơ hồ”. Prompt vẫn phải nêu task, field/label hợp lệ, giới hạn và cách xử lý khi thiếu bằng chứng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Một contract hoàn chỉnh
+
+Ticket fixture `Đơn A17 chưa tới` cần được phân loại thành một trong `billing | delivery | other`.
+
+- **Instruction:** chọn đúng một label dựa trên nội dung ticket.
+- **Data:** ticket nằm trong field riêng và luôn được coi là untrusted.
+- **Output:** `{"category": "...", "confidence": 0..1}`; không có extra field.
+- **Invalid path:** label ngoài enum, thiếu field hoặc confidence ngoài bound bị parser từ chối.
+- **Acceptance:** đo exact label accuracy, schema-valid rate và failures theo slice trên tập held-out.
+
+<LessonNote>Không yêu cầu model in hidden chain-of-thought. Nếu task cần audit, yêu cầu evidence ID hoặc field tính toán cụ thể mà verifier độc lập có thể kiểm tra.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khi nào thêm examples
+
+Chỉ thêm one/few-shot khi eval chỉ ra một decision boundary lặp lại mà instruction rõ hơn vẫn chưa giải quyết. Example phải dùng cùng schema production, có provenance, không lấy từ test set và được version cùng prompt.
+
+Release gate so sánh zero-shot baseline với candidate few-shot trên cùng fixtures và config:
+
+| Kiểm tra | Zero-shot | Few-shot candidate |
+|---|---:|---:|
+| Schema-valid rate | đo | phải không regression |
+| Accuracy theo failure slice | baseline | phải cải thiện slice mục tiêu |
+| Input tokens/latency | baseline | ghi phần tăng thêm |
+| Safety/overrefusal | baseline | phải qua guardrail |
+
+Một output đẹp không đủ làm evidence; một average chung cũng có thể che failure ở label hiếm.
+
+</MdxPage>

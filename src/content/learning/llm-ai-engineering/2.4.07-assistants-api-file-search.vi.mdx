@@ -1,0 +1,54 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "assistants-api-file-search", locale: "vi",
+  title: "File Search trên Responses API; migrate từ Assistants", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["assistants-api-file-search","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Assistants API đã deprecated ngày 2025-08-26 và sunset 2026-08-26. Route cũ được giữ để dạy migration sang Responses/File Search.
+
+**Input:** Authorized files/vector store, query và retrieval/tool configuration.
+
+**Output:** Response items với file-search evidence/citations hoặc retrieval error.
+
+**Data/type/shape:** File bytes → uploaded file → indexed store → search results → grounded response; mỗi resource có lifecycle/delete policy.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Thay Assistant/Thread/Run bằng application state hoặc Responses primitives, attach File Search tool, map citations về file IDs và xóa store theo retention. Không tạo Assistant mới.
+
+| Bước migration | Artifact và invariant |
+|---|---|
+| Inventory | Liệt kê Assistant/Thread/Run, file, vector store, owner và retention |
+| Dual-read fixture | Cùng query/evidence phải map về citation file ID đã authorize |
+| New write path | Responses + File Search; application sở hữu conversation state |
+| Canary | Theo dõi quality, latency, missing citation và resource leak |
+| Cutover | Dừng tạo Assistant mới; drain traffic cũ |
+| Cleanup | Xóa resource theo retention và xác nhận deletion/audit |
+
+<LessonNote>OpenAI công bố Assistants API sunset ngày 2026-08-26. Migration phải hoàn tất và resource lifecycle phải được kiểm chứng trước mốc đó; đừng chỉ đổi tên SDK call.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Dạy Assistants như target architecture.
+- Upload file mà không tenant scope/delete lifecycle.
+- Trả answer nhưng bỏ citations/retrieval failure.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/migrate-to-responses). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Batch xử lý nhiều independent requests không cần interactive latency.
+
+</MdxPage>

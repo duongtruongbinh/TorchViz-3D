@@ -3,6 +3,14 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-24 — LLM domain learning flow remediated and compacted.** Preserved all 177
+  canonical routes, added the 23 approved adjacent-theory Quiz routes, and
+  published the complete 200-node flow with 778 pages, 65 Quizzes, and 293
+  questions. Hardened MdxQuiz validation against empty/split payloads, unified code-fence
+  syntax/execution verification for all 31 code lessons, consolidated test suites by
+  removing redundant snapshots and order checks, absorbed five superseded predecessor plans into
+  [Remediate the LLM Domain Learning Flow](../docs/plans/2026-07-23-remediate-llm-domain-learning-flow.md), and synchronized repository documentation and architecture metrics.
+
 - **2026-07-14 — RequirementCard code-wrap fix.** Long inline code (e.g. a URL in a
   bash command) in `RequirementCard` no longer forces the card wider than its
   siblings. Two CSS changes in `learningMdxComponents.tsx`:

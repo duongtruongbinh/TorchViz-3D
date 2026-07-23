@@ -3,23 +3,105 @@ export const lessonMetadata = {
   id: 'guardrails-for-llm-applications',
   locale: 'vi',
   title: 'Guardrails cho ứng dụng LLM',
-  headings: ['Guardrail nằm ở đâu?', 'Các lớp kiểm soát', 'Đánh giá guardrail'],
-  keywords: ['guardrails', 'input validation', 'output validation', 'tool permissions', 'policy'],
+  headings: ['Layered contract', 'Schema và trust', 'Authorization', 'Deterministic implementation', 'Failure tests'],
+  keywords: ['guardrails', 'input validation', 'authorization', 'least privilege', 'fail closed'],
+  pageCount: 5,
 }
 
-## Guardrail nằm ở đâu?
+<MdxPage page={0}>
 
-Guardrail là các cơ chế bao quanh model ở tầng ứng dụng hoặc hệ thống. Nó có thể kiểm tra input, output, dữ liệu truy xuất, quyền gọi tool và trạng thái workflow. Guardrail không thay thế model alignment; nó thêm các điểm kiểm soát mà developer có thể quan sát và cấu hình.
+## Layered contract
 
-## Các lớp kiểm soát
+Guardrail nằm quanh model: request limits, source/trust labels, output parser, backend authorization, confirmation, monitoring. Model output là proposal; guardrail trả `allow|deny|review` cùng reason code có thể audit.
 
-- Validate schema, độ dài và loại input.
-- Phát hiện PII, secret hoặc nhóm nội dung rủi ro.
-- Tách instruction đáng tin khỏi dữ liệu không đáng tin.
-- Giới hạn tool theo least privilege và yêu cầu xác nhận cho hành động quan trọng.
-- Kiểm tra output trước khi hiển thị hoặc thực thi.
-- Ghi log quyết định để điều tra và bổ sung regression test.
+Không một input classifier hay keyword rule nào thay được authorization.
 
-## Đánh giá guardrail
+</MdxPage>
 
-Guardrail cần được chấm cả recall lẫn false positive. Chặn được nhiều attack nhưng làm hỏng phần lớn yêu cầu hợp lệ không phải là một hệ thống tốt. Test nên đo attack success rate, overblocking rate, latency, cost và khả năng attacker đổi wording để vượt qua rule.
+<MdxPage page={1}>
+
+## Schema và trust
+
+Request context giữ `actor_id` phía server. Tool proposal chỉ gồm tool name và typed arguments. Retrieved document/user input luôn là untrusted data; không được phép truyền role/permissions.
+
+Reject unknown fields, empty identifiers và oversized inputs trước provider call để giảm ambiguity/cost.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Authorization
+
+Policy example:
+
+- `read_order`: user chỉ đọc order thuộc chính họ.
+- `refund_order`: cần role `support` và explicit confirmation.
+- unknown tool: deny.
+
+Confirmation state phải đến từ UI/backend và gắn với actor + order; model không được tự đặt `confirmed: true` trong proposal. Authorization chạy lại ngay trước execution để tránh stale state/TOCTOU.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Deterministic implementation
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Decision:
+    allowed: bool
+    reason: str
+
+def authorize(
+    actor_id: str,
+    roles: set[str],
+    proposal: dict,
+    owners: dict[str, str],
+    confirmed_refunds: set[tuple[str, str]],
+) -> Decision:
+    if not isinstance(proposal, dict) or set(proposal) != {'tool', 'arguments'}:
+        return Decision(False, 'invalid_schema')
+    if not isinstance(proposal['tool'], str) or not isinstance(proposal['arguments'], dict):
+        return Decision(False, 'invalid_schema')
+    tool, args = proposal['tool'], proposal['arguments']
+    if tool not in {'read_order', 'refund_order'}:
+        return Decision(False, 'unknown_tool')
+    if set(args) != {'order_id'} or not isinstance(args.get('order_id'), str) or not args['order_id']:
+        return Decision(False, 'invalid_arguments')
+    order_id = args['order_id']
+    if owners.get(order_id) != actor_id:
+        return Decision(False, 'not_owner')
+    if tool == 'refund_order' and 'support' not in roles:
+        return Decision(False, 'insufficient_role')
+    if tool == 'refund_order' and (actor_id, order_id) not in confirmed_refunds:
+        return Decision(False, 'confirmation_required')
+    return Decision(True, 'authorized')
+
+owners = {'o-1': 'u-1'}
+read = {'tool': 'read_order', 'arguments': {'order_id': 'o-1'}}
+refund = {'tool': 'refund_order', 'arguments': {'order_id': 'o-1'}}
+assert authorize('u-1', set(), read, owners, set()).allowed
+assert authorize('u-1', set(), refund, owners, set()).reason == 'insufficient_role'
+assert authorize('u-1', {'support'}, refund, owners, set()).reason == 'confirmation_required'
+assert authorize('u-1', {'support'}, refund, owners, {('u-1', 'o-1')}).allowed
+assert authorize('u-2', {'support'}, read, owners, set()).reason == 'not_owner'
+unknown = {'tool': 'upload_secret', 'arguments': {'order_id': 'o-1'}}
+assert authorize('u-1', {'support'}, unknown, owners, set()).reason == 'unknown_tool'
+assert authorize('u-1', set(), [], owners, set()).reason == 'invalid_schema'
+```
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Failure tests
+
+Test malformed schema, missing ownership, stale/deleted order, duplicate execution, timeout/cancellation và replay. Refund còn cần idempotency key và confirmation state trước side effect. Log reason code/case ID, không log credential hay raw PII.
+
+Trước red-team Quiz, đóng băng rules of engagement: asset và trust boundary trong scope, actor/capability được phép thử, môi trường cô lập, stop condition và owner. Mỗi finding giữ stable ID, severity, evidence đã redacted, control owner, status, retention/access; mitigation phải đặt ở enforcement boundary. Finding đã xác nhận cùng các biến thể trở thành regression cases, không phải payload để thử tùy ý trên production.
+
+Application Quiz kế tiếp chuyển red-team findings thành regression cases.
+
+</MdxPage>

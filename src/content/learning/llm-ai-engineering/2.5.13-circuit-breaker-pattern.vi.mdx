@@ -1,0 +1,78 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "circuit-breaker-pattern", locale: "vi",
+ title: "Circuit breaker cho provider", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["circuit-breaker-pattern","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Breaker ngăn gọi liên tục một dependency đang hỏng và cho phép probe recovery có kiểm soát.
+
+**Input:** Rolling failures/successes, clock và thresholds.
+
+**Output:** State `closed|open|half_open` cùng allow/deny decision.
+
+**Data/type/shape:** Events cập nhật state machine; open timeout dẫn tới limited half-open probes.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+5/5 transient failures mở breaker 30 s; requests fail fast/reroute. Sau 30 s chỉ một probe; success đóng, failure mở lại.
+
+~~~ts
+import assert from "node:assert/strict";
+type Breaker = {
+  state: "closed" | "open" | "half_open";
+  failures: number; openedAt?: number; probeInFlight: boolean;
+};
+function recordFailure(breaker: Breaker, now: number, threshold = 5): Breaker {
+  if (breaker.state === "half_open") {
+    return { state: "open", failures: threshold, openedAt: now, probeInFlight: false };
+  }
+  const failures = breaker.failures + 1;
+  return failures >= threshold
+    ? { state: "open", failures, openedAt: now, probeInFlight: false }
+    : { ...breaker, failures };
+}
+function allow(breaker: Breaker, now: number, resetMs = 30_000): [boolean, Breaker] {
+  if (breaker.state === "closed") return [true, breaker];
+  if (breaker.state === "open" && now - (breaker.openedAt ?? now) >= resetMs) {
+    return [true, { ...breaker, state: "half_open", probeInFlight: true }];
+  }
+  if (breaker.state === "half_open" && !breaker.probeInFlight) {
+    return [true, { ...breaker, probeInFlight: true }];
+  }
+  return [false, breaker];
+}
+
+let breaker: Breaker = { state: "closed", failures: 0, probeInFlight: false };
+for (let i = 0; i < 5; i += 1) breaker = recordFailure(breaker, 1_000);
+assert.equal(breaker.state, "open");
+assert.equal(allow(breaker, 20_000)[0], false);
+const [probeAllowed, probing] = allow(breaker, 31_000);
+assert.equal(probeAllowed, true);
+assert.equal(probing.state, "half_open");
+assert.equal(allow(probing, 31_001)[0], false);
+~~~
+<LessonNote>Chỉ dependency/transient failures ảnh hưởng breaker; validation/policy denial không phải outage. Half-open probes phải giới hạn và fallback cũng cần health gate riêng.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Đếm user validation error như outage.
+- Mọi instance có breaker không phối hợp.
+- Fallback cũng đang open nhưng vẫn route.
+
+**Kết nối:** Usage observability phân biệt failure, cost và user impact.
+
+</MdxPage>

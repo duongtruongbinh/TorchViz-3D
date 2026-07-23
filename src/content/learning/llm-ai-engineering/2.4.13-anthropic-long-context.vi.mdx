@@ -1,0 +1,71 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "anthropic-long-context", locale: "vi",
+  title: "Long-context budgeting với Anthropic", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["anthropic-long-context","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Context lớn không loại bỏ token cost, lost-in-the-middle, tool-schema bloat hay output reserve. Limit/capability phải tra model catalog hiện hành.
+
+**Input:** Messages, tools, documents, cache policy và model capability.
+
+**Output:** Budgeted request hoặc retrieve/compact/reject decision.
+
+**Data/type/shape:** Components được token-count trước; history/tool results có thể được compact theo provenance.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Nếu tools chiếm 20%, history 50% và documents 40% budget input thì request đã vượt 10% trước output reserve. Giải pháp là tool search/retrieval/compaction, không silent truncation.
+
+~~~ts
+import assert from "node:assert/strict";
+type Budget = {
+  limit: number; outputReserve: number; tools: number; history: number; documents: number;
+};
+function decide(parts: Budget) {
+  const inputLimit = parts.limit - parts.outputReserve;
+  const requestedInput = parts.tools + parts.history + parts.documents;
+  const overflow = requestedInput - inputLimit;
+  return {
+    inputLimit,
+    requestedInput,
+    overflow: Math.max(0, overflow),
+    decision: overflow > 0 ? "retrieve_or_compact" : "dispatch",
+  } as const;
+}
+
+const decision = decide({
+  limit: 10_000, outputReserve: 1_000,
+  tools: 2_000, history: 5_000, documents: 4_000,
+});
+assert.deepEqual(decision, {
+  inputLimit: 9_000, requestedInput: 11_000,
+  overflow: 2_000, decision: "retrieve_or_compact",
+});
+~~~
+<LessonNote>Context limit phải lấy từ capability hiện hành. Fit về token không bảo đảm evidence được chú ý; retrieval/eval vẫn cần thiết.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Hard-code một context number.
+- Cho rằng fit nghĩa recall tốt.
+- Bỏ cache retention/data policy.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://platform.claude.com/docs/en/build-with-claude/context-windows). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Vision dùng content blocks cho media.
+
+</MdxPage>

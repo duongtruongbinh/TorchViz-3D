@@ -3,28 +3,72 @@ export const lessonMetadata = {
   id: 'llm-evaluation-foundations',
   locale: 'vi',
   title: 'Vì sao đánh giá LLM khó?',
-  headings: ['Từ benchmark đến use case', 'Output mở', 'Đánh giá nhiều chiều'],
-  keywords: ['LLM evaluation', 'open-ended output', 'benchmark', 'use case', 'quality'],
+  headings: ['Từ use case đến eval contract', 'Typed case và result', 'Worked decision', 'Pitfall và handoff'],
+  keywords: ['LLM evaluation', 'EvalCase', 'EvalResult', 'release gate', 'use case'],
+  pageCount: 4,
 }
 
-## Từ benchmark đến use case
+<MdxPage page={0}>
 
-Một nghiên cứu trên 3 triệu review của 90 ứng dụng AI đã chọn ra khoảng 20.000 candidate reviews có dấu hiệu liên quan đến hallucination [[1]](https://www.nature.com/articles/s41598-025-15416-8). Những lỗi này không chỉ nằm trong benchmark hoặc paper; chúng xuất hiện trực tiếp trong trải nghiệm của người dùng thật.
+## Từ use case đến eval contract
 
-Một LLM vì thế có thể trả lời rất lưu loát và đạt điểm cao trên leaderboard nhưng vẫn chưa đủ đáng tin để triển khai. Evaluation không chỉ hỏi model có “giỏi” hay không. Ta cần hỏi model có phù hợp với use case cụ thể, có đáng tin trong điều kiện sử dụng thật và có gây ra rủi ro nghiêm trọng hay không.
+Một LLM có thể trả lời trôi chảy nhưng sai fact, bỏ instruction hoặc tạo hành động nguy hiểm. Vì output mở có nhiều cách diễn đạt đúng, evaluation không thể chỉ so chuỗi hoặc dùng một benchmark tổng quát.
 
-## Output mở
+- **Input:** use case, traffic/risk slices, candidate system và policy.
+- **Output:** per-case result, aggregate metrics và một decision như `pass`, `review` hoặc `block`.
+- **State:** `EvalSpec -> EvalCase[] -> Response -> EvalResult[] -> ReleaseDecision`.
 
-Khác với classification, nhiều tác vụ sinh ngôn ngữ không có duy nhất một đáp án đúng. Hai câu trả lời có thể dùng từ khác nhau nhưng đều chính xác; ngược lại, một câu trả lời nghe tự nhiên vẫn có thể sai fact hoặc không làm đúng instruction. So khớp từng từ vì thế chỉ phản ánh một phần chất lượng.
+</MdxPage>
 
-## Đánh giá nhiều chiều
+<MdxPage page={1}>
 
-Một response thường cần được nhìn qua nhiều tiêu chí cùng lúc:
+## Typed case và result
 
-- **Correctness:** nội dung có đúng không?
-- **Instruction following:** model có làm đúng yêu cầu không?
-- **Factuality:** các khẳng định có được hỗ trợ bởi dữ liệu hoặc nguồn đáng tin không?
-- **Helpfulness và coherence:** câu trả lời có hữu ích, mạch lạc và đúng trọng tâm không?
-- **Safety:** response có tạo ra rủi ro cho người dùng hoặc hệ thống không?
+```python
+from dataclasses import dataclass
 
-Không có một metric duy nhất bao phủ tất cả các chiều này. Một evaluation tốt thường kết hợp dataset sát use case, kiểm tra tự động, human evaluation và các bài test safety.
+@dataclass(frozen=True)
+class EvalCase:
+    id: str
+    input: str
+    expected_behavior: str
+    must_include: tuple[str, ...]
+    rubric_version: str
+    slice: str
+    risk: str
+
+@dataclass(frozen=True)
+class EvalResult:
+    case_id: str
+    passed: bool
+    reasons: tuple[str, ...]
+```
+
+Case ID, expected behavior và rubric version phải ổn định; `slice` cho phép đọc failure theo nhóm traffic/risk thay vì chỉ nhìn average. Result giữ lý do có thể kiểm tra, không yêu cầu hay lưu hidden chain-of-thought.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Worked decision
+
+Với ba case support: hai case thường pass, một case authorization critical fail. Average pass rate là `2/3`, nhưng release vẫn `block` vì critical invariant có precedence. Đây là lý do metric vector phải gồm correctness, instruction following, factuality, helpfulness và safety thay vì một score duy nhất.
+
+Một case không đủ evidence phải có expected behavior “abstain”; nếu loại nó khỏi dataset, team không đo được hallucination calibration.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Pitfall và handoff
+
+- Không dùng demo đẹp hoặc leaderboard như bằng chứng deployment duy nhất.
+- Không trung bình hóa critical failure.
+- Dataset phải bao phủ case thường, edge case, adversarial/risk case và case cần abstain; mỗi case giữ expected behavior, rubric cùng slice.
+- Final holdout không được dùng để chọn prompt/model. Mọi thay đổi case hoặc nhãn tạo dataset version mới với provenance có thể audit.
+- Version dataset, model, prompt, retrieval, tools, evaluator và threshold.
+- Giữ per-case artifact đã redacted để replay; không log PII/secret vô điều kiện.
+
+Quiz kế tiếp kiểm tra contract này; sau đó ta tính deterministic metric và thiết kế dataset ứng dụng.
+
+</MdxPage>

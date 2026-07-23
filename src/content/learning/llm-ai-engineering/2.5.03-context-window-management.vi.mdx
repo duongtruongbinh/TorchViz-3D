@@ -1,0 +1,54 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "context-window-management", locale: "vi",
+ title: "Context-window management", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["context-window-management","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Backend nhiều user cần một allocator deterministic thay vì prompt string nối ad hoc.
+
+**Input:** Typed sections với min/max/priority và total capacity.
+
+**Output:** Allocation map cùng overflow reasons.
+
+**Data/type/shape:** Mỗi section nhận token budget; allocator trừ output/tool reserves trước rồi phân bổ phần còn lại.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+Allocator cấp fixed 500 system, 800 output, sau đó user 400 và chia 2.300 còn lại cho history/retrieval theo policy. Assertion bảo tổng không vượt 4.000.
+
+| Section | Min/fixed | Allocation | Vì sao |
+|---|---:|---:|---|
+| System policy | 500 | 500 | Mandatory, versioned |
+| Output reserve | 800 | 800 | Trừ trước dispatch |
+| Current user | 400 | 400 | Không silent-truncate |
+| History | 0 | 1.200 | Recent/priority policy |
+| Retrieval | 0 | 1.100 | Evidence theo score/provenance |
+| **Tổng** |  | **4.000** | Không vượt capacity |
+
+Nếu system + user + output/tool reserves đã vượt 4.000, kết quả là typed `mandatory_overflow`, không phải cắt policy. Mọi retry chạy allocator lại vì tool result/history có thể tăng.
+
+<LessonNote>Allocator chỉ nhận context đã authorize cho đúng tenant. Token efficiency không cho phép trộn history, retrieval hoặc cache qua trust boundary.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Budget khác nhau giữa retry attempts.
+- Không include tool result growth.
+- Trộn tenant contexts.
+
+**Kết nối:** Conversation summaries giảm history nhưng là state có loss.
+
+</MdxPage>

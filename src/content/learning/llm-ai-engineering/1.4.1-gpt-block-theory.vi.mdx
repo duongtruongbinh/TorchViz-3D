@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'gpt-block-theory', locale: 'vi',
+  title: 'Lý thuyết GPT block',
+  headings: ['Decoder-only flow', 'Layer normalization', 'Feed-forward GELU', 'Residual stream', 'Block dataflow'],
+  keywords: ['GPT block', 'layer normalization', 'GELU', 'residual connection'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Decoder-only transformer
+
+**Mục tiêu:** Theo dõi activation `(B,T,C)` qua một GPT block và giải thích vai trò của từng sublayer.
+
+GPT nhận token embedding cộng position embedding, đi qua nhiều transformer block, một layer norm cuối và linear output head. Mỗi block gồm causal self-attention và feed-forward network.
+
+Không có encoder memory riêng; causal mask bảo đảm mỗi vị trí chỉ dùng prefix.
+
+<LessonNote>**Lỗi thường gặp:** gọi “decoder-only” là model chỉ chạy khi inference. Decoder-only là kiểu kiến trúc; cùng block được dùng khi train và generation.</LessonNote>
+
+**Takeaway:** GPT lặp một contract hidden cố định rồi chỉ đổi chiều ở output head.
+
+</MdxPage>
+<MdxPage page={1}>
+
+## Layer normalization
+
+LayerNorm chuẩn hóa các feature của từng token, không trộn các phần tử batch hay vị trí. Scale và shift học được giúp model điều chỉnh lại phân phối sau chuẩn hóa.
+
+GPT nhỏ trong khóa học dùng pre-norm: norm chạy trước attention/MLP. Cách này tạo đường residual trực tiếp cho gradient.
+
+<LessonNote>**Lỗi thường gặp:** chuẩn hóa qua T và làm token ảnh hưởng thống kê của nhau. LayerNorm ở đây chạy trên C.</LessonNote>
+
+**Takeaway:** LayerNorm ổn định feature scale nhưng giữ nguyên `(B,T,C)`.
+
+</MdxPage>
+<MdxPage page={2}>
+
+## Feed-forward với GELU
+
+MLP áp dụng độc lập trên từng token: `C → 4C → C`. GELU là activation trơn, giữ một phần giá trị âm thay vì cắt hoàn toàn như ReLU.
+
+Hai linear dùng chung weights cho mọi vị trí; MLP không trộn token, chỉ trộn feature. Attention mới trộn thông tin theo sequence.
+
+<LessonNote>**Lỗi thường gặp:** nghĩ MLP tạo context giữa các token. Nó hoạt động độc lập trên từng hàng hidden.</LessonNote>
+
+**Takeaway:** Attention trộn theo T; MLP biến đổi theo C.
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Residual stream
+
+Shortcut cộng input với output của attention và MLP:
+
+`x = x + attention(norm(x))`
+
+`x = x + mlp(norm(x))`
+
+Đường truyền trực tiếp này giúp gradient đi qua mạng sâu ổn định hơn.
+
+Sublayer phải trả đúng `(B,T,C)` để phép cộng hợp lệ. Dropout có thể chạy trên sublayer output trước khi cộng.
+
+<LessonNote>**Lỗi thường gặp:** cộng logits `(B,T,V)` vào hidden `(B,T,C)`. Output head nằm sau toàn bộ block, ngoài residual stream.</LessonNote>
+
+**Takeaway:** Residual connection khóa shape công khai của mọi GPT block.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Dòng dữ liệu của một pre-norm block
+
+Một block hoàn chỉnh:
+
+```text
+x
+├─ LayerNorm → causal MHA → dropout ─┐
+└─────────────────────────────────────+ → x_attn
+  x_attn
+  ├─ LayerNorm → Linear → GELU → Linear → dropout ─┐
+  └─────────────────────────────────────────────────+ → output
+```
+
+Mọi điểm trước/sau dấu cộng có shape `(B,T,C)`. Lặp L block không thay activation shape nhưng mỗi block có bộ parameter riêng.
+
+<LessonNote>**Lỗi thường gặp:** dùng cùng một instance block L lần khi muốn L bộ trọng số. `ModuleList([Block(...) for _ in range(L)])` tạo các instance độc lập.</LessonNote>
+
+**Takeaway:** GPT sâu lên bằng cách lặp contract, không bằng cách tăng chiều ở mỗi block.
+
+</MdxPage>

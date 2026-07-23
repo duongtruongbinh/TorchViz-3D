@@ -1,0 +1,46 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "system-prompt", locale: "vi",
+  title: "System instruction và trust boundary", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["system-prompt","prompt engineering","T"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+System/developer instruction đặt mục tiêu và policy ổn định cho ứng dụng, nhưng vẫn chỉ là input cho model chứ không phải cơ chế authorization.
+
+**Input:** Policy đã version hóa, capability cho phép và dữ liệu cấu hình tin cậy.
+
+**Output:** Instruction ở authority phù hợp cùng acceptance criteria rõ ràng.
+
+**Data/type/shape:** Structured policy object trở thành message/top-level instruction; user data không được nối vào vùng trusted.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked example và contract
+
+Trợ lý support được phép đọc trạng thái đơn hàng nhưng không tự hoàn tiền. System instruction mô tả nhiệm vụ; backend authorization mới thật sự chặn tool `refund` khi user không đủ quyền.
+
+<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production pitfalls và handoff
+
+**Sai lầm thường gặp:**
+
+- Nhúng secret vào system prompt.
+- Tin rằng chữ “không được” thay được access control.
+- Trộn dữ liệu user vào instruction trusted.
+
+
+
+**Kết nối:** Bài sau đặt user request vào vùng dữ liệu không tin cậy.
+
+</MdxPage>
+

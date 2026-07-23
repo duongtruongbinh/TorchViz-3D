@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-bpe-tiktoken',
+  locale: 'vi',
+  title: 'Huấn luyện tokenizer bằng BPE',
+  headings: ['Học merge rules', 'Tokenize khi inference', 'Byte fallback và whitespace', 'Vocabulary-size trade-off'],
+  keywords: ['BPE', 'merge rule', 'merge rank', 'byte fallback', 'whitespace', 'vocabulary size', 'subword'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## BPE học merge rules từ corpus
+
+BPE không bắt đầu bằng cách “tách từ dài thành từ ngắn”. Nó bắt đầu từ các đơn vị nền tảng nhỏ, rồi **gộp** cặp liền kề xuất hiện thường xuyên.
+
+<TokenizerMergeTraining content={{
+  example: 'AI AI',
+  merges: [
+    { sourceIndexes: [0, 1, 3, 4], result: 'AI' },
+    { sourceIndexes: [2, 3], result: ' AI' },
+  ],
+  initialTokens: ['A', 'I', '␠', 'A', 'I'],
+  result: { vi: 'Sau mỗi vòng, BPE thêm token mới vào vocabulary và đếm lại trên dãy đã thay đổi. Số vòng hoặc vocabulary-size budget quyết định khi nào dừng.' },
+  playgroundUrl: 'https://gpt-tokenizer.dev/',
+}} />
+
+<LessonNote>Tokenizer playground là công cụ minh họa bên thứ ba, không phải nguồn chuẩn cho merge contract. Không dán prompt, PII hoặc dữ liệu nội bộ; dùng tokenizer/version đã pin trong project để xác nhận token IDs.</LessonNote>
+
+<LessonNote>**Lỗi thường gặp:** chọn cặp “có nghĩa nhất”. BPE cổ điển chọn theo thống kê tần suất, không hỏi con người cặp đó có mang nghĩa hay không.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Inference chỉ áp dụng rules đã học
+
+Sau training, tokenizer lưu vocabulary và thứ tự ưu tiên của merges. Với input mới:
+
+1. biểu diễn text bằng các đơn vị nền tảng;
+2. tìm các cặp khớp merge đã học;
+3. áp dụng theo merge rank;
+4. dừng khi không còn merge hợp lệ.
+
+Với rules của trang trước, `A I ␠ A I` trở thành `AI ␠ AI`, rồi có thể thành `AI | " AI"`.
+
+Tokenizer **không** đếm lại tần suất trên từng prompt, không học merge tạm thời và không đơn giản chọn token dài nhất trong vocabulary.
+
+<LessonNote>**Lỗi thường gặp:** đồng nhất BPE inference với greedy longest-match. Một token dài chỉ hình thành khi chuỗi merge cần thiết tồn tại với đúng thứ tự ưu tiên.</LessonNote>
+
+**Handoff:** Nếu không merge được một chuỗi lạ, tokenizer cần đơn vị nền tảng vẫn biểu diễn được nó.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Byte fallback giữ khả năng biểu diễn
+
+Byte-level BPE dùng 256 giá trị byte làm nền tảng. Một ký tự Unicode có thể gồm nhiều byte, nhưng chuỗi byte của nó luôn có thể được biểu diễn rồi ghép lại khi decode.
+
+Trong running example, whitespace trước `AI` có thể tham gia merge thành token `" AI"`. Vì vậy hai chuỗi nhìn giống nhau nhưng khác whitespace có thể tạo token IDs khác nhau.
+
+```text
+"AI"  -> token bắt đầu ngay tại A
+" AI" -> token có cả khoảng trắng phía trước
+```
+
+<LessonNote>**Lỗi thường gặp:** mọi BPE đều không có `UNK`. Điều đúng hơn là tokenizer có byte coverage đầy đủ thường không cần UNK cho text hợp lệ; contract cụ thể vẫn phải được kiểm tra.</LessonNote>
+
+**Handoff:** Merge nhiều chuỗi hơn rút ngắn input, nhưng mỗi token mới cũng chiếm một hàng vocabulary.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Vocabulary size là một trade-off
+
+| Vocabulary nhỏ | Vocabulary lớn |
+|---|---|
+| nhiều byte/subword ngắn | nhiều cụm phổ biến thành một token |
+| sequence thường dài hơn | sequence thường ngắn hơn |
+| embedding/output matrices nhỏ hơn | embedding/output matrices lớn hơn |
+| token hiếm được tái sử dụng từ mảnh nhỏ | nhiều hàng hiếm có thể khó học |
+
+Trong `"Linh builds AI. Linh tests AI."`, một vocabulary có thể giữ `Linh` và ` AI` nguyên vẹn nhưng chia `builds` thành `build | s`. Vocabulary khác có thể tạo ranh giới khác; không ranh giới nào tự động là “đúng nghĩa”.
+
+<LessonNote>**Lỗi thường gặp:** gọi vocabulary thu được là “tối ưu” mà không nêu mục tiêu. Nó chỉ là kết quả của corpus, thuật toán, normalization và vocabulary-size budget đã chọn.</LessonNote>
+
+**Handoff:** Dù token được tạo bằng regex hay BPE, model vẫn cần một ánh xạ ổn định từ token sang integer ID.
+
+</MdxPage>

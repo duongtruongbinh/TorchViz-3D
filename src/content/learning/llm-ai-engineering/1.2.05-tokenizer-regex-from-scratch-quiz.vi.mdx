@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenizer-regex-from-scratch-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Capturing group', 'Dấu câu', 'Cleanup', 'Contract', 'Giới hạn'],
+  keywords: ['quiz', 'regex', 're.split', 'whitespace', 'punctuation', 'tokenizer'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="tokenizer-regex-from-scratch-quiz" questions={[
+  {
+    id: 'capturing-whitespace', title: 'Capturing group', prompt: 'Trong `re.split(r"(\\s)", text)`, cặp ngoặc quanh `\\s` có tác dụng gì?', mode: 'single',
+    options: [
+      { id: 'keep-separator', label: 'Giữ whitespace khớp pattern như phần tử riêng trong output.', isCorrect: true },
+      { id: 'delete-space', label: 'Xóa whitespace trước khi thực hiện split.' },
+      { id: 'punctuation', label: 'Tự động tách mọi punctuation.' },
+      { id: 'encode', label: 'Chuyển từng phần thành token ID.' },
+    ],
+    success: 'Đúng. Capturing group làm separator xuất hiện trong danh sách để ta quyết định giữ hay bỏ ở bước sau.',
+    error: 'Dòng này chỉ split; chưa cleanup, tách punctuation khác hay gán ID.',
+  },
+  {
+    id: 'punctuation-split-output', title: 'Tách dấu câu', prompt: 'Sau `re.split(r"([.]|\\s)", "AI.")`, output có đặc điểm nào?', mode: 'single',
+    options: [
+      { id: 'dot-and-empty', label: 'Dấu chấm được giữ riêng và chuỗi rỗng có thể xuất hiện cạnh separator.', isCorrect: true },
+      { id: 'dot-deleted', label: 'Dấu chấm bị xóa hoàn toàn.' },
+      { id: 'one-token', label: 'Kết quả luôn chỉ có token `"AI."`.' },
+      { id: 'all-punctuation', label: 'Mọi loại punctuation đều được tách dù pattern chỉ chứa dấu chấm.' },
+    ],
+    success: 'Đúng. Capturing split giữ dấu chấm và có thể tạo phần tử rỗng ở biên.',
+    error: 'Hãy đọc đúng pattern: nó chỉ biết dấu chấm và whitespace, chưa làm cleanup.',
+  },
+  {
+    id: 'cleanup-comprehension', title: 'Cleanup', prompt: '`[part.strip() for part in parts if part.strip()]` làm gì?', mode: 'single',
+    options: [
+      { id: 'strip-filter', label: 'Bỏ whitespace quanh phần tử và loại phần tử rỗng/only-whitespace.', isCorrect: true },
+      { id: 'sort', label: 'Sắp xếp token và loại token trùng.' },
+      { id: 'merge', label: 'Học BPE merge từ corpus.' },
+      { id: 'ids', label: 'Gán ID theo thứ tự xuất hiện.' },
+    ],
+    success: 'Đúng. Điều kiện lọc phần tử không còn nội dung; biểu thức đầu trả phần đã strip.',
+    error: 'List comprehension này chưa sắp xếp, học merge hay tạo vocabulary.',
+  },
+  {
+    id: 'tokenize-function', title: 'Input/output contract', prompt: 'Contract đúng của hàm `tokenize` trong bài là gì?', mode: 'single',
+    options: [
+      { id: 'string-list', label: '`str -> list[str]` theo thứ tự xuất hiện.', isCorrect: true },
+      { id: 'string-tensor', label: '`str -> Tensor[B,T,C]`.' },
+      { id: 'ids-text', label: '`list[int] -> str`.' },
+      { id: 'vocab-embedding', label: '`vocabulary -> nn.Embedding`.' },
+    ],
+    success: 'Đúng. Hàm chỉ tạo token strings; IDs và embeddings thuộc các bước sau.',
+    error: 'Theo dõi đúng output được in: đó là danh sách token strings.',
+  },
+  {
+    id: 'regex-limitations', title: 'Giới hạn của tokenizer toy', prompt: 'Vì sao regex tokenizer này chưa đủ cho production?', mode: 'single',
+    options: [
+      { id: 'learning-fallback', label: 'Nó không tự học merge/vocabulary và không có fallback ổn định cho mọi byte đầu vào.', isCorrect: true },
+      { id: 'no-python', label: 'Python không thể xử lý Unicode.' },
+      { id: 'already-bpe', label: 'Regex đã học BPE nên chỉ thiếu embedding layer.' },
+      { id: 'needs-model-first', label: 'Phải chạy GPT trước rồi tokenizer mới biết cách split.' },
+    ],
+    success: 'Đúng. Pattern viết tay minh họa split, nhưng không thay thế tokenizer được huấn luyện và cố định.',
+    error: 'Phân biệt quy tắc regex do người viết với merge/vocabulary học từ corpus.',
+  },
+]} />

@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "scaling-laws",
+  locale: "vi",
+  title: "Scaling laws và compute-optimal training",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["scaling-laws","LLM","production","T+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Scaling laws giúp ước lượng xu hướng loss theo model, data và compute, nhưng là fitted empirical relationships chứ không phải định luật bất biến.
+
+**Input:** Các run nhỏ với parameter count, training tokens, compute và validation loss.
+
+**Output:** Đường fitted và quyết định phân bổ budget để kiểm chứng ở scale tiếp theo.
+
+**Data/type/shape:** Nhiều run thành bảng `(run, N, D, C, loss)` rồi fit scalar coefficients/exponents.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Nếu compute xấp xỉ `C≈6ND`, giữ `C` cố định nghĩa tăng `N` phải giảm `D`. Chinchilla cho thấy trong regime nghiên cứu của họ, tăng model và tokens cân bằng hơn các model lớn nhưng undertrained trước đó; không nên copy một token/parameter ratio như hằng số.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type ScaleRun = {
+  id: string;
+  parametersB: number;
+  tokensB: number;
+  validationLoss: number;
+};
+
+function computeProxy(run: ScaleRun): number {
+  if (
+    !run.id
+    || run.parametersB <= 0
+    || run.tokensB <= 0
+    || !Number.isFinite(run.validationLoss)
+  ) {
+    throw new Error("invalid scaling run");
+  }
+  return 6 * run.parametersB * run.tokensB;
+}
+
+function bestMeasuredRun(runs: ScaleRun[]): ScaleRun {
+  if (runs.length === 0) throw new Error("at least one measured run is required");
+  return runs.reduce((best, run) =>
+    run.validationLoss < best.validationLoss ? run : best
+  );
+}
+
+const runs: ScaleRun[] = [
+  { id: "wide-undertrained", parametersB: 4, tokensB: 5, validationLoss: 2.42 },
+  { id: "balanced", parametersB: 2, tokensB: 10, validationLoss: 2.31 },
+  { id: "small-data-rich", parametersB: 1, tokensB: 20, validationLoss: 2.36 },
+];
+assert.deepEqual(runs.map(computeProxy), [120, 120, 120]);
+assert.equal(bestMeasuredRun(runs).id, "balanced");
+assert.throws(() => bestMeasuredRun([]), /at least one/);
+~~~
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Ngoại suy xa ngoài range đã fit.
+- Dùng benchmark score thay loss trơn mà không kiểm tra variance.
+- Bỏ inference demand, data quality và hardware efficiency.
+
+
+**Kết nối:** Quiz sau kiểm tra position, attention efficiency và scaling decisions.
+
+</MdxPage>

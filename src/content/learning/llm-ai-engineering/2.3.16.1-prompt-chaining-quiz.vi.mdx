@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'prompt-chaining-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Typed stages', 'Fail fast', 'Retry', 'Cancellation', 'Observability'],
+  keywords: ['quiz', 'prompt chaining', 'typed pipeline', 'reliability'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="prompt-chaining-quiz" questions={[
+  {
+    id: 'prompt-chaining-quiz-q1',
+    title: 'Typed stages',
+    prompt: 'Boundary tốt nhất giữa stage extract và stage decide là gì?',
+    mode: 'single',
+    options: [
+      { id: 'raw-prose', label: 'Một đoạn prose tùy ý không schema' },
+      { id: 'typed-artifact', label: 'Một `TicketFacts` đã runtime-validate với version/provenance', isCorrect: true },
+      { id: 'hidden-thoughts', label: 'Toàn bộ hidden chain-of-thought' },
+      { id: 'shared-secret', label: 'API key dùng chung giữa stages' },
+    ],
+    success: 'Đúng. Typed artifact làm stage kế độc lập, test được và từ chối input sai.',
+    error: 'Chưa đúng. Boundary phải có schema mà code có thể kiểm tra.',
+  },
+  {
+    id: 'prompt-chaining-quiz-q2',
+    title: 'Fail fast',
+    prompt: 'Stage extract không tìm được `orderId` bắt buộc. Pipeline nên làm gì?',
+    mode: 'single',
+    options: [
+      { id: 'guess', label: 'Đoán một ID rồi gọi tool' },
+      { id: 'continue-empty', label: 'Chạy mọi stage với string rỗng' },
+      { id: 'stop-typed-error', label: 'Dừng trước privileged call và trả lỗi có stage/correlation ID', isCorrect: true },
+      { id: 'log-ticket', label: 'Log toàn bộ raw ticket rồi coi là success' },
+    ],
+    success: 'Đúng. Fail fast giữ dữ liệu sai không lan qua boundary tiếp theo.',
+    error: 'Chưa đúng. Missing required field là trạng thái lỗi, không phải quyền để đoán.',
+  },
+  {
+    id: 'prompt-chaining-quiz-q3',
+    title: 'Retry',
+    prompt: 'Stage compose gặp timeout tạm thời sau khi extract và decide đã thành công. Retry an toàn nhất?',
+    mode: 'single',
+    options: [
+      { id: 'retry-failed-stage', label: 'Retry bounded chỉ stage compose với cùng immutable inputs/idempotency context', isCorrect: true },
+      { id: 'retry-all', label: 'Luôn chạy lại toàn chain và mọi side effect' },
+      { id: 'infinite', label: 'Retry vô hạn không deadline' },
+      { id: 'change-input', label: 'Tự sửa decision giữa các lần retry' },
+    ],
+    success: 'Đúng. Stage-local bounded retry giảm cost và tránh lặp side effect.',
+    error: 'Chưa đúng. Retry phải biết stage, deadline và tính idempotent.',
+  },
+  {
+    id: 'prompt-chaining-quiz-q4',
+    title: 'Cancellation',
+    prompt: 'Client hủy request trong khi stage 2 đang chạy. Contract đúng?',
+    mode: 'single',
+    options: [
+      { id: 'ignore', label: 'Bỏ qua cancellation và chạy đến hết' },
+      { id: 'new-deadline', label: 'Tự kéo dài deadline' },
+      { id: 'finish-write', label: 'Vẫn thực hiện mọi write tool' },
+      { id: 'propagate', label: 'Propagate cancellation/deadline tới model, tool và stage sau; không khởi tạo việc mới', isCorrect: true },
+    ],
+    success: 'Đúng. Cancellation là contract end-to-end, không chỉ cờ ở API edge.',
+    error: 'Chưa đúng. Mọi stage phải tôn trọng deadline và dừng khởi tạo side effect mới.',
+  },
+  {
+    id: 'prompt-chaining-quiz-q5',
+    title: 'Observability',
+    prompt: 'Trace nào đủ debug chain mà giảm rủi ro dữ liệu?',
+    mode: 'single',
+    options: [
+      { id: 'raw-everything', label: 'Raw prompts, responses, PII và credentials' },
+      { id: 'typed-metadata', label: 'Correlation ID, stage, artifact/schema versions, timing, status và redacted error code', isCorrect: true },
+      { id: 'no-stage', label: 'Một log “failed” không ghi stage' },
+      { id: 'hidden-cot', label: 'Hidden chain-of-thought của mỗi call' },
+    ],
+    success: 'Đúng. Metadata có cấu trúc nối được failure mà không cần sao chép payload nhạy cảm.',
+    error: 'Chưa đúng. Quan sát pipeline bằng version/status/timing; không log raw secrets, PII hay hidden reasoning.',
+  },
+]} />

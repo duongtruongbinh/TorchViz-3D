@@ -3,22 +3,68 @@ export const lessonMetadata = {
   id: 'deterministic-and-reference-metrics',
   locale: 'vi',
   title: 'Deterministic checks và reference metrics',
-  headings: ['Deterministic checks', 'Reference-based metrics', 'Giới hạn'],
-  keywords: ['exact match', 'accuracy', 'F1', 'BLEU', 'ROUGE', 'deterministic checks'],
+  headings: ['Contract và normalization', 'Tính precision/recall/F1', 'Deterministic implementation', 'Invariants và handoff'],
+  keywords: ['exact match', 'precision', 'recall', 'F1', 'deterministic checks'],
+  pageCount: 4,
 }
 
-## Deterministic checks
+<MdxPage page={0}>
 
-Deterministic checks phù hợp khi output có cấu trúc hoặc có điều kiện rõ ràng. Ta có thể kiểm tra JSON có parse được không, field bắt buộc có tồn tại không, citation có đúng format không, code có chạy qua unit test không, hoặc response có chứa chuỗi bị cấm hay không.
+## Contract và normalization
 
-Các check này nhanh, rẻ và dễ chạy lại. Chúng rất hữu ích cho regression test, nhưng chỉ đo đúng quy tắc đã được viết ra.
+Exact match chỉ có nghĩa sau một normalization đã version: Unicode/case/whitespace/punctuation có được đổi hay không. Structured output nên parse và validate schema trước khi chấm semantics; parse failure là result riêng, không phải empty answer.
 
-## Reference-based metrics
+Với token/set labels, lưu `prediction` và `reference` thành collections rõ ràng để tính `TP`, `FP`, `FN`.
 
-Khi có reference answer, ta có thể dùng exact match, accuracy, precision, recall hoặc F1. Với translation và summarization, BLEU và ROUGE đo mức độ overlap giữa output và reference. Semantic similarity dùng embedding để so sánh gần nghĩa thay vì chỉ so khớp từ.
+</MdxPage>
 
-## Giới hạn
+<MdxPage page={1}>
 
-Output khác reference không đồng nghĩa với output sai. Một câu trả lời đúng có thể dùng cách diễn đạt hoàn toàn khác, còn một output có overlap cao vẫn có thể chứa fact sai. Vì vậy, metric cần phù hợp với task và thường phải kết hợp với rubric, human evaluation hoặc model judge.
+## Tính precision/recall/F1
 
-Không nên tối ưu một con số đơn lẻ mà không đọc các failure case phía sau nó.
+Reference facts `{a,b,c,d}`, prediction `{a,b,x}`:
+
+- `TP=2` (`a,b`), `FP=1` (`x`), `FN=2` (`c,d`).
+- precision `=2/(2+1)=2/3`.
+- recall `=2/(2+2)=1/2`.
+- F1 `=2PR/(P+R)=4/7≈0.5714`.
+
+Nếu cả prediction và reference rỗng, policy phải định nghĩa score; không chia `0/0` im lặng.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Deterministic implementation
+
+```python
+def set_prf(prediction: set[str], reference: set[str]) -> tuple[float, float, float]:
+    tp = len(prediction & reference)
+    fp = len(prediction - reference)
+    fn = len(reference - prediction)
+    precision = tp / (tp + fp) if tp + fp else 1.0
+    recall = tp / (tp + fn) if tp + fn else 1.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    return precision, recall, f1
+
+p, r, f1 = set_prf({'a', 'b', 'x'}, {'a', 'b', 'c', 'd'})
+assert abs(p - 2 / 3) < 1e-12
+assert abs(r - 1 / 2) < 1e-12
+assert abs(f1 - 4 / 7) < 1e-12
+assert set_prf(set(), {'a'}) == (1.0, 0.0, 0.0)
+assert set_prf(set(), set()) == (1.0, 1.0, 1.0)
+```
+
+Fixture này chọn convention `both-empty = 1`; production spec phải ghi rõ convention này để hai harness không chấm khác nhau.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Invariants và handoff
+
+Assert score nằm trong `[0,1]`, normalization không thay nghĩa và fixture cố định cho edge cases. Overlap cao vẫn có thể chứa claim sai; metric deterministic phải đi cùng rubric/judge khi output mở.
+
+Application Quiz kế tiếp kiểm tra dataset design trước khi chuyển sang human rubric.
+
+</MdxPage>

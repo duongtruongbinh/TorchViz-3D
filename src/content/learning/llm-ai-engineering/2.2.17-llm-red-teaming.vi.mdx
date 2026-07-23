@@ -2,25 +2,67 @@ export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-red-teaming',
   locale: 'vi',
-  title: 'Red teaming hệ thống LLM',
-  headings: ['Một workflow đối kháng', 'Triage và mitigation', 'Kiểm thử liên tục'],
-  keywords: ['red teaming', 'threat model', 'adversarial test', 'triage', 'mitigation'],
+  title: 'Quiz',
+  headings: ['Scope', 'Safe artifact', 'Mitigation', 'Regression'],
+  keywords: ['quiz', 'red teaming', 'threat model', 'regression'],
+  pageCount: 4,
 }
 
-## Một workflow đối kháng
-
-Red teaming là quy trình kiểm thử đối kháng nhằm tìm lỗi và hành vi rủi ro trước khi triển khai rộng. Workflow thường đi qua các bước:
-
-1. Xác định phạm vi hệ thống, tài sản và threat model.
-2. Thiết kế các test scenario ưu tiên theo mức rủi ro.
-3. Chạy test trên model hoặc application thật.
-4. Triage lỗi theo mức độ nghiêm trọng và khả năng tái hiện.
-5. Thêm mitigation rồi chạy lại test cũ và test mới.
-
-## Triage và mitigation
-
-Mỗi finding nên lưu prompt, context, output, tool trace, cấu hình và hậu quả có thể xảy ra. Mitigation có thể nằm ở system prompt, policy, guardrail, permission, data curation hoặc model training. Không nên mặc định mọi lỗi đều được sửa bằng prompt.
-
-## Kiểm thử liên tục
-
-Red teaming không chứng minh hệ thống an toàn tuyệt đối. Hành vi người dùng, dữ liệu, model và tool đều thay đổi. Những failure case đã xác nhận cần trở thành regression tests, còn monitoring production giúp phát hiện nhóm attack mới để bổ sung vào bộ eval.
+<MdxQuiz id="llm-red-teaming" questions={[
+  {
+    id: 'llm-red-teaming-q1',
+    title: 'Scope',
+    prompt: 'Trước khi tạo attack prompts, red team cần chốt điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'llm-red-teaming-q1-a', label: 'Một danh sách prompt ngẫu nhiên không gắn hệ thống' },
+      { id: 'llm-red-teaming-q1-b', label: 'Asset, trust boundary, attacker capability, impact và rules of engagement', isCorrect: true },
+      { id: 'llm-red-teaming-q1-c', label: 'Chỉ model rank trên leaderboard' },
+      { id: 'llm-red-teaming-q1-d', label: 'Chỉ tone của chatbot' },
+    ],
+    success: 'Đúng. Scope và threat model quyết định test nào có ý nghĩa và an toàn.',
+    error: 'Chưa đúng. Attack corpus không gắn asset/impact khó triage và ưu tiên.',
+  },
+  {
+    id: 'llm-red-teaming-q2',
+    title: 'Safe artifact',
+    prompt: 'Finding chứa PII và exploit payload. Artifact nên được xử lý thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'llm-red-teaming-q2-a', label: 'Đăng raw trace lên channel công khai' },
+      { id: 'llm-red-teaming-q2-b', label: 'Sao chép vào mọi log để không thất lạc' },
+      { id: 'llm-red-teaming-q2-c', label: 'Bỏ stable finding ID' },
+      { id: 'llm-red-teaming-q2-d', label: 'Redact/minimize, mã hóa, giới hạn access và đặt retention theo severity', isCorrect: true },
+    ],
+    success: 'Đúng. Red-team evidence vẫn phải tuân theo privacy và access policy.',
+    error: 'Chưa đúng. Raw payload/PII không nên được nhân bản vô điều kiện.',
+  },
+  {
+    id: 'llm-red-teaming-q3',
+    title: 'Mitigation',
+    prompt: 'Indirect injection gọi tool vượt quyền. Mitigation ưu tiên nằm ở đâu?',
+    mode: 'single',
+    options: [
+      { id: 'llm-red-teaming-q3-a', label: 'Backend authorization, least privilege và confirmation cho action quan trọng', isCorrect: true },
+      { id: 'llm-red-teaming-q3-b', label: 'Chỉ thêm một câu cảnh báo vào prompt' },
+      { id: 'llm-red-teaming-q3-c', label: 'Chỉ giảm temperature' },
+      { id: 'llm-red-teaming-q3-d', label: 'Đổi tên tool nhưng giữ quyền cũ' },
+    ],
+    success: 'Đúng. Enforcement boundary phải nằm ngoài model.',
+    error: 'Chưa đúng. Prompt-only mitigation không chặn tool execution vượt quyền.',
+  },
+  {
+    id: 'llm-red-teaming-q4',
+    title: 'Regression',
+    prompt: 'Sau khi finding được fix, bước nào chứng minh mitigation bền hơn một demo?',
+    mode: 'single',
+    options: [
+      { id: 'llm-red-teaming-q4-a', label: 'Đóng finding ngay sau một response pass' },
+      { id: 'llm-red-teaming-q4-b', label: 'Xóa attack để không ai thấy' },
+      { id: 'llm-red-teaming-q4-c', label: 'Thêm case gốc và biến thể vào regression suite rồi replay mỗi release', isCorrect: true },
+      { id: 'llm-red-teaming-q4-d', label: 'Chỉ theo dõi average quality' },
+    ],
+    success: 'Đúng. Regression suite biến finding thành invariant có thể chạy lại.',
+    error: 'Chưa đúng. Một manual pass không bảo vệ các release sau.',
+  },
+]} />

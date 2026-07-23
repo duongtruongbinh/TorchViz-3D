@@ -1,0 +1,36 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'instruction-data-quality-quiz', locale: 'vi',
+  title: 'Quiz',
+  headings: ['Format', 'Response masking', 'Padding', 'Data split', 'Evaluation'],
+  keywords: ['quiz', 'instruction data', 'masking', 'padding', 'evaluation'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="instruction-data-quality-quiz" questions={[
+  { id: 'format', title: 'Format', prompt: 'Điều quan trọng nhất khi format instruction dataset là gì?', mode: 'single', options: [
+    { id: 'random', label: 'Mỗi mẫu dùng format ngẫu nhiên' },
+    { id: 'consistent', label: 'Train và inference dùng template nhất quán', isCorrect: true },
+    { id: 'remove-input', label: 'Luôn bỏ phần input' }, { id: 'same-length', label: 'Response phải có cùng độ dài' },
+  ], success: 'Đúng. Template nhất quán giúp model nhận biết vai trò từng phần.', error: 'Train và inference cần cùng quy ước instruction, input và response.' },
+  { id: 'response-mask', title: 'Response masking', prompt: 'Vì sao có thể mask loss trên phần instruction?', mode: 'single', options: [
+    { id: 'learn-response', label: 'Để model chỉ học sinh response', isCorrect: true },
+    { id: 'smaller-vocab', label: 'Để vocabulary nhỏ hơn' }, { id: 'remove-causal', label: 'Để bỏ causal mask' },
+    { id: 'longer-sequence', label: 'Để tăng sequence length' },
+  ], success: 'Đúng. Instruction là context; response là phần cần tối ưu.', error: 'Mask loss không thay đổi vocabulary, causal mask hay sequence length.' },
+  { id: 'padding', title: 'EOS và padding', prompt: 'Tokenizer dùng cùng ID cho EOS và PAD. Cách tạo target mask nào giữ được tín hiệu kết thúc response?', mode: 'single', options: [
+    { id: 'zero', label: 'Đổi mọi target có ID đó thành `-100`, kể cả EOS thật.' },
+    { id: 'one', label: 'Giữ EOS thật theo độ dài từng sample; chỉ đặt `-100` cho các vị trí padding được thêm sau sequence.', isCorrect: true },
+    { id: 'minus-one', label: 'Bỏ EOS khỏi mọi sample rồi train theo độ dài cố định.' },
+    { id: 'minus-hundred', label: 'Mask input IDs thay vì target IDs để model không nhìn prompt.' },
+  ], success: 'Đúng. Ý nghĩa đến từ vị trí/độ dài: EOS thật là target cần học, còn phần pad thêm sau sequence mới bị bỏ khỏi loss.', error: 'Không thể phân biệt EOS và PAD chỉ bằng so sánh ID khi chúng dùng chung giá trị; hãy mask theo chiều dài sample trước padding.' },
+  { id: 'split', title: 'Data split', prompt: 'Cách chia dữ liệu nào giảm leakage tốt hơn?', mode: 'single', options: [
+    { id: 'paraphrase-across', label: 'Chia các bản paraphrase của cùng câu hỏi sang mọi split' },
+    { id: 'group-first', label: 'Tách theo nhóm nguồn/nhiệm vụ trước khi tạo biến thể', isCorrect: true },
+    { id: 'all-train', label: 'Dùng toàn bộ data để train' }, { id: 'shuffle-token', label: 'Shuffle token rồi chia' },
+  ], success: 'Đúng. Các mẫu gần trùng nên nằm trong cùng một split.', error: 'Tách theo nhóm trước giúp validation phản ánh generalization thay vì ghi nhớ paraphrase.' },
+  { id: 'evaluation', title: 'Evaluation', prompt: 'Loss validation thấp có đủ kết luận model làm theo instruction tốt không?', mode: 'single', options: [
+    { id: 'always', label: 'Có, luôn đủ' },
+    { id: 'task-checks', label: 'Không; cần kiểm tra response và tiêu chí task', isCorrect: true },
+    { id: 'train-loss', label: 'Chỉ cần train loss' }, { id: 'large-model', label: 'Chỉ cần model lớn' },
+  ], success: 'Đúng. Generation mở cần đánh giá theo hành vi mong muốn.', error: 'Cần kiểm tra thêm correctness, format và mức tuân thủ instruction.' },
+]} />

@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'prompt-negative-instructions',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Delimiter boundary', 'Positive constraint', 'Example contract', 'Invalid output'],
+  keywords: ['quiz', 'instruction', 'output constraints', 'validation'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="prompt-negative-instructions" questions={[
+  {
+    id: 'prompt-negative-instructions-q1',
+    title: 'Delimiter boundary',
+    prompt: 'Delimiter XML quanh ticket bảo đảm điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'prompt-negative-instructions-q1-a', label: 'Vô hiệu hóa mọi injection' },
+      { id: 'prompt-negative-instructions-q1-b', label: 'Mã hóa PII và secret' },
+      { id: 'prompt-negative-instructions-q1-correct', label: 'Giúp phân vùng/parse nhưng không tạo security sandbox', isCorrect: true },
+      { id: 'prompt-negative-instructions-q1-c', label: 'Cấp authorization cho tool' },
+    ],
+    success: 'Đúng. Delimiter làm cấu trúc rõ hơn; runtime controls vẫn phải enforce quyền và validate output.',
+    error: 'Chưa đúng. Markup không thay thế trust boundary trong application.',
+  },
+  {
+    id: 'prompt-negative-instructions-q2',
+    title: 'Positive constraint',
+    prompt: 'Thay câu “đừng dài dòng” bằng instruction nào dễ kiểm chứng hơn?',
+    mode: 'single',
+    options: [
+      { id: 'prompt-negative-instructions-q2-correct', label: 'Trả đúng schema; `summary` tối đa 40 từ và không có extra field', isCorrect: true },
+      { id: 'prompt-negative-instructions-q2-a', label: 'Không được viết xấu' },
+      { id: 'prompt-negative-instructions-q2-b', label: 'Cố gắng ngắn hết mức' },
+      { id: 'prompt-negative-instructions-q2-c', label: 'Hãy biết điều người dùng muốn' },
+    ],
+    success: 'Đúng. Positive, measurable constraints mô tả output được phép và có validator rõ.',
+    error: 'Chưa đúng. Chọn instruction có bound và pass/fail condition cụ thể.',
+  },
+  {
+    id: 'prompt-negative-instructions-q3',
+    title: 'Example contract',
+    prompt: 'Schema bắt buộc `{category, confidence}` nhưng demonstration thiếu `confidence`. Xử lý nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'teach-missing', label: 'Giữ lại vì model tự điền lúc production' },
+      { id: 'optional-secretly', label: 'Coi field là optional nhưng không đổi schema' },
+      { id: 'ignore-parser', label: 'Bỏ parser để example pass' },
+      { id: 'reject-or-fix', label: 'Reject hoặc sửa/version example để nó thỏa cùng schema production', isCorrect: true },
+    ],
+    success: 'Đúng. Demonstration sai contract dạy chính format mà application sẽ từ chối.',
+    error: 'Chưa đúng. Examples và parser phải dùng cùng một versioned output contract.',
+  },
+  {
+    id: 'prompt-negative-instructions-q4',
+    title: 'Invalid output',
+    prompt: 'Parser gặp extra field ngoài schema. Response nên đi theo nhánh nào?',
+    mode: 'single',
+    options: [
+      { id: 'prompt-negative-instructions-q4-a', label: 'Success vì JSON parse được' },
+      { id: 'prompt-negative-instructions-q4-correct', label: 'Typed validation error; retry/fallback chỉ theo policy có giới hạn', isCorrect: true },
+      { id: 'prompt-negative-instructions-q4-b', label: 'Ghi raw response chứa PII rồi cast sang type' },
+      { id: 'prompt-negative-instructions-q4-c', label: 'Retry vô hạn cùng output' },
+    ],
+    success: 'Đúng. Strict validation ngăn schema drift âm thầm; error handling phải bounded.',
+    error: 'Chưa đúng. JSON syntactically valid không đồng nghĩa domain object hợp lệ.',
+  },
+]} />

@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'clear-instruction-format-boundaries',
+  locale: 'vi',
+  title: 'Instruction, data và format boundaries',
+  headings: ['Tách authority khỏi data', 'Positive measurable constraints', 'Defense vẫn nằm ngoài prompt'],
+  keywords: ['instruction boundary', 'delimiter', 'positive constraints', 'validation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Tách authority khỏi data
+
+Một request dễ audit có ba vùng riêng:
+
+1. **Trusted instruction:** task/policy do ứng dụng version và kiểm soát.
+2. **Untrusted data:** user/retrieved text cùng provenance/taint.
+3. **Output contract:** schema và các nhánh success/refusal/error.
+
+Structured messages, JSON serialization hoặc delimiter giúp model nhận ra các vùng, nhưng không làm dữ liệu trở nên đáng tin. Chuỗi giống closing tag vẫn là data; serializer phải escape đúng và application giữ nguyên provenance.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Positive measurable constraints
+
+Negative instruction như “đừng dài dòng” chỉ nói điều không muốn và khó chấm. Thay bằng contract dương, có giới hạn:
+
+- “Trả đúng một JSON object theo schema.”
+- “`category` thuộc `billing | delivery | other`.”
+- “`summary` tối đa 40 từ.”
+- “Không có extra property; nếu thiếu bằng chứng, trả nhánh `incomplete`.”
+
+Acceptance criteria nối trực tiếp với parser: required fields, enum, bounds, maximum length và error branch. Không yêu cầu “giải thích toàn bộ suy nghĩ”; nếu cần audit, yêu cầu evidence IDs hoặc calculation fields xác định trước.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Defense vẫn nằm ngoài prompt
+
+Delimiter không phải security sandbox. Một design production vẫn cần:
+
+- schema validation trước/sau model;
+- server-side ownership và tool allowlist;
+- least-privilege credentials cùng confirmation cho action phá hủy;
+- output screening và bounded retry;
+- redacted logs chỉ chứa version, error code và correlation ID.
+
+Không nội suy user text vào template code bằng string concatenation tùy ý, không thăng cấp retrieved text thành system instruction và không log raw PII/secret để debug.
+
+**Kết nối:** Bài sau đồng bộ examples với output constraints.
+
+</MdxPage>

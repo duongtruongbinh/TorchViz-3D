@@ -1,0 +1,90 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "redis-per-user-rate-limits", locale: "vi",
+ title: "Rate limit theo user với Redis", headings: ["Threat boundary và contract","Worked security path","Failure/incident handling"],
+ keywords: ["redis-per-user-rate-limits","API security","secrets"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Threat boundary và contract
+
+Counter local bị bypass qua nhiều instances. Redis cho shared atomic decision theo tenant/user/model và hỗ trợ fixed/sliding/token-bucket choices.
+
+**Input:** Privacy-safe subject key, cost units, limit/window và atomic clock/state.
+
+**Output:** Allow với remaining/reset hoặc deny với app-computed `retryAfterMs`; đây không phải lời hứa về universal provider header.
+
+**Data/type/shape:** Request identity → scoped Redis key; atomic script/command đọc-cập nhật-expire một lần.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked security path
+
+Token bucket capacity 10, refill 1/s. User tốn 4 còn 6; sau 3 giây có 9; request cost 10 bị deny. Dùng scoped keyed pseudonym/HMAC của internal ID, không dùng email hay plain hash.
+
+~~~ts
+import assert from "node:assert/strict";
+type Bucket = { tokens: number; updatedAtMs: number };
+type Config = { capacity: number; refillPerSecond: number };
+type Decision =
+  | { kind: "allow"; remaining: number; next: Bucket }
+  | { kind: "deny"; remaining: number; retryAfterMs: number; next: Bucket };
+
+function consume(
+  bucket: Bucket,
+  nowMs: number,
+  cost: number,
+  config: Config,
+): Decision {
+  if (cost <= 0 || nowMs < bucket.updatedAtMs) throw new Error("invalid_input");
+  const elapsedSeconds = (nowMs - bucket.updatedAtMs) / 1_000;
+  const refilled = Math.min(
+    config.capacity,
+    bucket.tokens + elapsedSeconds * config.refillPerSecond,
+  );
+  const refreshed = { tokens: refilled, updatedAtMs: nowMs };
+  if (refilled < cost) {
+    const missing = cost - refilled;
+    return {
+      kind: "deny",
+      remaining: Math.floor(refilled),
+      retryAfterMs: Math.ceil((missing / config.refillPerSecond) * 1_000),
+      next: refreshed,
+    };
+  }
+  const next = { tokens: refilled - cost, updatedAtMs: nowMs };
+  return { kind: "allow", remaining: Math.floor(next.tokens), next };
+}
+
+const config = { capacity: 10, refillPerSecond: 1 };
+const denied = consume({ tokens: 6, updatedAtMs: 0 }, 3_000, 10, config);
+assert.deepEqual(denied, {
+  kind: "deny", remaining: 9, retryAfterMs: 1_000,
+  next: { tokens: 9, updatedAtMs: 3_000 },
+});
+assert.deepEqual(
+  consume({ tokens: 6, updatedAtMs: 0 }, 3_000, 4, config),
+  { kind: "allow", remaining: 5, next: { tokens: 5, updatedAtMs: 3_000 } },
+);
+~~~
+<LessonNote>Toàn bộ read-refill-decide-write + TTL phải chạy atomic trong Redis script/function. Client-side read rồi write riêng sẽ oversubscribe dưới concurrency.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure/incident handling
+
+**Pitfalls:**
+
+- INCR rồi EXPIRE không atomic.
+- Chỉ limit theo IP gây shared-NAT/noisy neighbor.
+- Redis fail thì allow vô hạn không policy.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://redis.io/docs/latest/develop/use-cases/rate-limiter/).</LessonNote>
+
+**Kết nối:** Key rotation xử lý credential exposure và routine lifecycle.
+
+</MdxPage>

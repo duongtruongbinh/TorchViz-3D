@@ -1,0 +1,96 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "kv-cache-inference",
+  locale: "vi",
+  title: "KV cache trong inference",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["kv-cache-inference","LLM","production","K+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Không cache, decoder sẽ tính lại key/value của toàn bộ prefix ở mỗi token mới. KV cache đổi compute lặp lại thành memory tăng theo sequence length.
+
+**Input:** Hidden state mới cùng K/V đã lưu theo layer.
+
+**Output:** K/V được append và attention output cho token decode hiện tại.
+
+**Data/type/shape:** Một cache thường có dạng `(layers, 2, B, H_kv, T, D_head)`; `T` tăng một sau mỗi decode step.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Với 32 layer, `B=1`, 8 KV heads, `D_head=128`, `T=4.096`, fp16: bytes là `32×2×1×8×4.096×128×2 = 512 MiB`. GQA giảm `H_kv`, không giảm số query heads.
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Nhầm query heads với KV heads khi tính cache.
+- Quên nhân hai tensor K và V.
+- Giữ cache của request đã cancel hoặc trộn cache giữa users.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type KvShape = {
+  layers: number;
+  batch: number;
+  kvHeads: number;
+  tokens: number;
+  headDim: number;
+  bytesPerValue: number;
+};
+
+function kvCacheBytes(shape: KvShape): number {
+  for (const [name, value] of Object.entries(shape)) {
+    if (!Number.isInteger(value) || value <= 0) {
+      throw new Error(`${name} must be a positive integer`);
+    }
+  }
+  return shape.layers * 2 * shape.batch * shape.kvHeads
+    * shape.tokens * shape.headDim * shape.bytesPerValue;
+}
+
+const bytes = kvCacheBytes({
+  layers: 32,
+  batch: 1,
+  kvHeads: 8,
+  tokens: 4_096,
+  headDim: 128,
+  bytesPerValue: 2,
+});
+assert.equal(bytes, 512 * 1024 * 1024);
+assert.equal(bytes / (1024 ** 2), 512);
+assert.throws(
+  () => kvCacheBytes({
+    layers: 32,
+    batch: 1,
+    kvHeads: 0,
+    tokens: 4_096,
+    headDim: 128,
+    bytesPerValue: 2,
+  }),
+  /positive integer/,
+);
+~~~
+
+<LessonNote>Phép tính dùng đúng `H_kv`, nhân cả K lẫn V và từ chối dimension không hợp lệ; lifecycle thực tế còn phải giải phóng cache khi request hoàn tất hoặc bị cancel.</LessonNote>
+
+**Kết nối:** Ngoài cache, tokenizer throughput và token distribution cũng quyết định chi phí ở quy mô corpus.
+
+</MdxPage>

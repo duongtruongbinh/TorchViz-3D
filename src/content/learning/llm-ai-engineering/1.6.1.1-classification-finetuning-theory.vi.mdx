@@ -1,0 +1,81 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'classification-finetuning-theory',
+  locale: 'vi',
+  title: 'Lý thuyết classification fine-tuning',
+  headings: ['Contract', 'Dataset', 'Classification head', 'Freeze và evaluation'],
+  keywords: ['classification fine-tuning', 'classification head', 'padding', 'accuracy', 'freeze'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Từ language model đến bộ phân loại
+
+**Mục tiêu:** Phân biệt output contract của classification fine-tuning với next-token pretraining.
+
+Pretraining trả logits `(B,T,V)`: một distribution vocabulary tại mọi vị trí. Bài toán `K` class chỉ cần logits `(B,K)` và một label integer `(B,)` cho mỗi văn bản.
+
+Ví dụ spam detection có `K=2`; model không sinh từ “spam”, mà so hai class logits.
+
+<LessonNote>**Lỗi thường gặp:** dùng output head `V` rồi coi hai token vocabulary là hai class. Classification head độc lập làm contract rõ và không phụ thuộc cách tokenizer biểu diễn nhãn.</LessonNote>
+
+**Takeaway:** Đổi objective đồng nghĩa đổi output contract, không chỉ đổi dataset.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Dataset, split và padding
+
+Mỗi mẫu gồm `text` và `label`. Hãy tách train/validation/test theo nguồn hoặc nhóm gần trùng trước khi tokenization để giảm leakage.
+
+Collate pad theo sequence dài nhất trong batch, tạo:
+
+- `input_ids: (B,T_max)`;
+- `attention_mask: (B,T_max)`;
+- `labels: (B,)`.
+
+`attention_mask` nói vị trí nào là nội dung. Nó không thay thế target label.
+
+<LessonNote>**Lỗi thường gặp:** cho paraphrase của cùng email vào cả train và test. Accuracy khi đó đo ghi nhớ gần trùng hơn là generalization.</LessonNote>
+
+**Takeaway:** Split policy là một phần của model contract, không phải thao tác housekeeping.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chọn representation và classification head
+
+Ta lấy hidden state ở token cuối có nội dung:
+
+`h_i = X[i, length_i-1, :] ∈ R^C`, rồi `z_i = h_i W + b ∈ R^K`.
+
+Với right padding, `last_content_index = attention_mask.sum(1)-1`. Chọn `x[:, -1]` sẽ lấy PAD cho sample ngắn.
+
+Một lựa chọn khác là token phân loại riêng hoặc pooling, nhưng training/inference phải dùng cùng quy ước.
+
+<LessonNote>**Lỗi thường gặp:** softmax logits trước `F.cross_entropy`. Hàm này nhận raw logits và tự thực hiện log-softmax ổn định số.</LessonNote>
+
+**Takeaway:** Vị trí đại diện và head phải được định nghĩa rõ như một phần của kiến trúc.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Train head, block cuối hay toàn model?
+
+Train head rẻ và là baseline tốt. Unfreeze block cuối cho phép representation thích nghi hơn; full fine-tuning linh hoạt nhất nhưng cần nhiều memory cho gradient và optimizer state.
+
+Theo dõi cả loss và accuracy:
+
+- loss nhạy với độ tự tin và dùng để tối ưu;
+- accuracy dễ đọc nhưng không khả vi;
+- confusion matrix hữu ích khi class mất cân bằng.
+
+<LessonNote>**Lỗi thường gặp:** chọn checkpoint có train accuracy cao nhất. Hãy chọn bằng validation metric rồi báo cáo test đúng một lần.</LessonNote>
+
+**Takeaway:** Mức unfreeze là trade-off giữa compute, khả năng thích nghi và nguy cơ overfit.
+
+</MdxPage>

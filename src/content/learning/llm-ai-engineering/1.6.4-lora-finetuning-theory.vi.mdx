@@ -1,0 +1,81 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'lora-finetuning-theory',
+  locale: 'vi',
+  title: 'Lý thuyết fine-tuning với LoRA',
+  headings: ['Full vs PEFT', 'Low-rank update', 'Parameter count', 'Placement và merge'],
+  keywords: ['LoRA', 'parameter-efficient fine-tuning', 'low-rank adaptation', 'rank', 'alpha'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần parameter-efficient fine-tuning?
+
+**Mục tiêu:** Giải thích LoRA tiết kiệm parameter trainable ở đâu và không tiết kiệm điều gì một cách tự động.
+
+Full fine-tuning cập nhật mọi trọng số và cần lưu gradient cùng optimizer state cho toàn model. PEFT đóng băng backbone và chỉ học một phần nhỏ tham số bổ sung.
+
+LoRA giữ nguyên ma trận pretrained `W` và học một update hạng thấp.
+
+<LessonNote>**Lỗi thường gặp:** “ít parameter trainable” đồng nghĩa inference luôn nhanh hơn. Nếu adapter chưa merge, forward còn thêm hai phép nhân nhỏ; lợi ích chính là training/storage.</LessonNote>
+
+**Takeaway:** LoRA thay cách biểu diễn update, không thay objective của task.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Xấp xỉ update bằng hai ma trận nhỏ
+
+Với linear `y=xWᵀ`, full fine-tuning học update `ΔW` cùng shape với `W`. LoRA dùng:
+
+`ΔW ≈ BA`, với `A ∈ R^(r×d_in)` và `B ∈ R^(d_out×r)`.
+
+Forward:
+
+`y = xWᵀ + (α/r)xAᵀBᵀ`.
+
+Rank `r` nhỏ hơn nhiều so với `d_in,d_out`.
+
+<LessonNote>**Lỗi thường gặp:** nhân A/B sai thứ tự. Hãy kiểm tra `x: (...,d_in) → (...,r) → (...,d_out)`.</LessonNote>
+
+**Takeaway:** Rank r là bottleneck của update, không phải chiều hidden mới của model.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tính số parameter trainable
+
+Linear gốc có `d_out × d_in` trọng số. LoRA thêm:
+
+`r·d_in + d_out·r = r(d_in+d_out)`.
+
+Với `d_in=d_out=768`, full matrix có `589,824` parameter. LoRA rank 8 có:
+
+`8(768+768) = 12,288`,
+
+khoảng `2.08%` số trọng số của matrix gốc.
+
+<LessonNote>**Lỗi thường gặp:** tính `r²`. Hai adapter matrices vẫn nối rank với input và output dimensions.</LessonNote>
+
+**Takeaway:** Tiết kiệm tăng mạnh khi rank nhỏ so với chiều linear.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chọn layer, khởi tạo và merge
+
+LoRA thường gắn vào Q/K/V/output projections và/hoặc MLP linear layers. Khởi tạo một matrix bằng 0 giúp adapter ban đầu tạo update 0, nên model bắt đầu đúng như checkpoint gốc.
+
+Sau training, có thể giữ adapter tách riêng hoặc merge:
+
+`W_merged = W + (α/r)BA`.
+
+<LessonNote>**Lỗi thường gặp:** quên đóng băng `W`; khi đó bạn đang vừa full fine-tune vừa train adapter và mất phần lớn lợi ích memory.</LessonNote>
+
+**Takeaway:** Placement, rank và alpha là hyperparameter; validation quyết định cấu hình phù hợp.
+
+</MdxPage>

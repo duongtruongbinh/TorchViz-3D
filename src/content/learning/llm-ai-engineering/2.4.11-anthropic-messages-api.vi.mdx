@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "anthropic-messages-api", locale: "vi",
+  title: "Anthropic Messages API", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["anthropic-messages-api","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Messages là stateless request contract với content blocks và stop reasons. Common adapter phải giữ khác biệt thay vì giả định OpenAI shape.
+
+**Input:** Top-level model/max tokens/system config và alternating messages/content blocks.
+
+**Output:** Message content blocks, stop reason và usage.
+
+**Data/type/shape:** History là list user/assistant; response content là ordered union của các block được capability contract cho phép. Hidden reasoning không được request hoặc log như telemetry.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Một call trả text block và `end_turn`; adapter normalize text nhưng vẫn giữ raw stop reason. Multi-turn gửi lại history server đã xác thực.
+
+~~~ts
+import assert from "node:assert/strict";
+type Block =
+  | { type: "text"; text: string }
+  | { type: "tool_use"; id: string; name: string; input: unknown };
+type MessageResponse = {
+  content: Block[];
+  stop_reason: string | null;
+  usage: { input_tokens: number; output_tokens: number };
+};
+type Normalized = {
+  blocks: Block[];
+  providerStopReason: string | null;
+  usage: { inputTokens: number; outputTokens: number };
+};
+
+function normalize(response: MessageResponse): Normalized {
+  if (response.content.length === 0) throw new Error("empty_content");
+  return {
+    blocks: response.content,
+    providerStopReason: response.stop_reason,
+    usage: {
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+    },
+  };
+}
+
+const result = normalize({
+  content: [{ type: "text", text: "Đơn A17 đang vận chuyển." }],
+  stop_reason: "end_turn",
+  usage: { input_tokens: 18, output_tokens: 9 },
+});
+assert.equal(result.blocks[0].type, "text");
+assert.equal(result.providerStopReason, "end_turn");
+assert.deepEqual(result.usage, { inputTokens: 18, outputTokens: 9 });
+~~~
+<LessonNote>Adapter giữ provider stop reason bên cạnh internal status thay vì ép mọi trường hợp thành success. Đây là fixture tĩnh, không phải provider call.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Đọc content như một string duy nhất.
+- Cho client giả assistant turns.
+- Bỏ max_tokens/stop reason.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://platform.claude.com/docs/en/api/messages). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** System placement là provider-specific contract.
+
+</MdxPage>

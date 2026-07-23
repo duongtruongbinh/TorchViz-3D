@@ -1,0 +1,51 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "transformer-at-scale",
+  locale: "vi",
+  title: "Transformer ở quy mô lớn",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["transformer-at-scale","LLM","production","T"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Khi model lớn lên, công thức attention không đổi nhưng bottleneck chuyển sang parameter memory, activation memory, communication và scheduling. Người xây hệ thống cần biết chi phí nằm ở prefill, decode hay training trước khi chọn tối ưu.
+
+**Input:** Cấu hình decoder gồm số layer, hidden size, sequence length, batch và dtype.
+
+**Output:** Bản đồ chi phí cho parameter, activation, attention, prefill và decode.
+
+**Data/type/shape:** Token IDs `(B,T)` vẫn thành hidden states `(B,T,C)`, nhưng mỗi layer tạo activation và giao tiếp trên nhiều device; decode chỉ thêm một vị trí trong khi prefill xử lý cả prefix.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Với `B=2`, `T=1.024`, `C=4.096`, một hidden-state tensor fp16 có `2×1.024×4.096×2 = 16 MiB`. Đây mới là một tensor của một layer; training còn cần lưu activation cho backward. Trong decode, `T_new=1` nhưng model phải đọc weights và KV cache ở mọi layer.
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Chỉ đếm parameter mà bỏ activation, optimizer state và KV cache.
+- Gọi mọi chậm trễ là compute-bound dù decode thường bị memory-bandwidth chi phối.
+- Suy từ một GPU benchmark sang cluster mà bỏ communication.
+
+
+**Kết nối:** Bài kế tiếp biến context window thành một ngân sách hữu hạn thay vì một con số marketing.
+
+</MdxPage>
+

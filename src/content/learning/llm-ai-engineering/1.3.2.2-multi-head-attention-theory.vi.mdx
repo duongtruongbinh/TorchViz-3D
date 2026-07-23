@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'multi-head-attention-theory',
+  locale: 'vi',
+  title: 'Lý thuyết multi-head attention',
+  headings: ['Mục tiêu', 'Tách head', 'Ghép head', 'Dropout và tham số'],
+  keywords: ['multi-head attention', 'head dimension', 'concat', 'output projection', 'dropout'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Một attention map chưa đủ
+
+**Mục tiêu:** Giải thích vì sao GPT chạy nhiều attention head song song nhưng vẫn giữ contract `(B,T,C) → (B,T,C)`.
+
+Một head tạo một cách trộn value. Nhiều head cho model nhiều không gian biểu diễn: một head có thể chú ý quan hệ gần, head khác theo dấu tham chiếu xa. Đây là khả năng học được, không phải vai trò được gán cứng.
+
+<LessonNote>**Lỗi thường gặp:** gọi mỗi head là một “chuyên gia ngữ pháp” cố định. Ta chỉ có thể quan sát pattern sau training; kiến trúc không bảo đảm nhãn ngữ nghĩa.</LessonNote>
+
+**Takeaway:** Multi-head tăng số góc nhìn, không thay đổi chiều output công khai của block.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tách chiều model thành head
+
+Với `X: (B,T,C)`, chiếu Q/K/V rồi reshape:
+
+`(B,T,C) → (B,T,H,D) → (B,H,T,D)`, với `D=C/H`.
+
+Điều kiện bắt buộc là `C % H == 0`. Ví dụ `C=12`, `H=3` cho `D=4`. Mỗi head tạo score `(B,T,T)` riêng, nên toàn bộ score có shape `(B,H,T,T)`.
+
+<LessonNote>**Lỗi thường gặp:** chia chiều sequence `T` cho số head. Head chia feature `C`; mọi head vẫn nhìn cùng số vị trí `T`.</LessonNote>
+
+**Takeaway:** Viết rõ `(B,H,T,D)` giúp đặt transpose và softmax đúng chiều.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Ghép context và output projection
+
+Sau `weights @ V`, context có shape `(B,H,T,D)`. Ta transpose về `(B,T,H,D)`, ghép `H×D=C`, rồi dùng output projection:
+
+`Concat(head_1,...,head_H) @ W_O ∈ R^(B×T×C)`.
+
+`W_O` cho phép các feature từ head khác nhau tương tác trước khi đi vào residual stream.
+
+<LessonNote>**Lỗi thường gặp:** cộng các head rồi mong nhận lại `C`. Nếu mỗi head có `D=C/H`, phép cộng chỉ trả chiều `D`; concat mới khôi phục `C`.</LessonNote>
+
+**Takeaway:** Split và concat là hai phép biến đổi hình dạng đối xứng.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Dropout và parameter count
+
+Bỏ bias, Q/K/V và output projection đều là ma trận `C×C`, nên tổng gần `4C²` parameter. Tăng số head khi `C` cố định không tự làm tăng số parameter chiếu; nó thay cách tổ chức tensor.
+
+Attention dropout thường áp lên weights sau softmax; residual dropout có thể áp lên output projection. Dropout chỉ hoạt động trong `model.train()` và tắt ở `model.eval()`.
+
+<LessonNote>**Lỗi thường gặp:** dùng dropout để che vị trí tương lai. Causal mask là ràng buộc thông tin; dropout là regularization ngẫu nhiên.</LessonNote>
+
+**Takeaway:** Mask quyết định token nào được phép nhìn; dropout quyết định một phần kết nối hợp lệ nào tạm thời bị bỏ trong training.
+
+</MdxPage>

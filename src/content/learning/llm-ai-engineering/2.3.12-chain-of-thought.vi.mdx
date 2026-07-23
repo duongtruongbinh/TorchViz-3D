@@ -1,0 +1,101 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'chain-of-thought',
+  locale: 'vi',
+  title: 'Lập luận có thể kiểm chứng, không yêu cầu hidden CoT',
+  headings: ['Thiết kế observable artifact', 'Verifier độc lập', 'Production gate'],
+  keywords: ['verifiable reasoning', 'evidence', 'calculation', 'hidden chain-of-thought'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Thiết kế observable artifact
+
+Một số task cần intermediate artifacts để kiểm tra, nhưng hidden chain-of-thought không phải output contract cần ép model tiết lộ hoặc lưu.
+
+**Input:** problem, dữ kiện có provenance và policy version.
+
+**Output:** kết luận ngắn cùng các field cần kiểm chứng, ví dụ `{eligible, refundAmount, policyClause, evidenceIds}`.
+
+Verifier phải tính lại invariant từ source data. Một lời giải thích trôi chảy hoặc model tự tuyên bố “đã kiểm tra” không phải bằng chứng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Verifier độc lập
+
+Ticket có `paid=120`, `fee=20`, policy cap `100`. Verifier tính `min(max(120 − 20, 0), 100) = 100` và kiểm tra clause/evidence; nó không nhận hay lưu độc thoại nội bộ.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type RefundClaim = {
+  eligible: boolean;
+  refundAmount: number;
+  policyClause: "refund.cap.v3";
+  evidenceIds: string[];
+};
+
+function verifyRefund(
+  paid: number,
+  fee: number,
+  cap: number,
+  claim: RefundClaim,
+): { verified: true; amount: number } {
+  if (![paid, fee, cap].every((value) => Number.isFinite(value) && value >= 0)) {
+    throw new Error("invalid_refund_inputs");
+  }
+  const expected = Math.min(Math.max(paid - fee, 0), cap);
+  if (claim.eligible !== (expected > 0)) throw new Error("eligibility_mismatch");
+  if (claim.refundAmount !== expected) throw new Error("refund_amount_mismatch");
+  if (claim.policyClause !== "refund.cap.v3") throw new Error("policy_clause_mismatch");
+  const requiredEvidence = ["payment:A17", "fee:A17"];
+  if (!requiredEvidence.every((id) => claim.evidenceIds.includes(id))) {
+    throw new Error("evidence_missing");
+  }
+  return { verified: true, amount: expected };
+}
+
+const verified = verifyRefund(120, 20, 100, {
+  eligible: true,
+  refundAmount: 100,
+  policyClause: "refund.cap.v3",
+  evidenceIds: ["payment:A17", "fee:A17"],
+});
+assert.deepEqual(verified, { verified: true, amount: 100 });
+assert.throws(
+  () => verifyRefund(120, 20, 100, {
+    eligible: true,
+    refundAmount: 120,
+    policyClause: "refund.cap.v3",
+    evidenceIds: ["payment:A17", "fee:A17"],
+  }),
+  /refund_amount_mismatch/,
+);
+assert.throws(
+  () => verifyRefund(120, 20, 100, {
+    eligible: true,
+    refundAmount: 100,
+    policyClause: "refund.cap.v3",
+    evidenceIds: ["payment:A17"],
+  }),
+  /evidence_missing/,
+);
+~~~
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production gate
+
+- Schema hóa đúng fields mà downstream verifier cần; không yêu cầu “in toàn bộ suy nghĩ”.
+- Pin policy/data version và kiểm tra evidence ownership/freshness trước privileged action.
+- Phân biệt model proposal với verified decision; verifier failure chặn action.
+- Log claim fields tối thiểu, artifact versions và error code đã redaction. Không log rationale tự do, PII, secret hoặc hidden chain-of-thought.
+
+**Kết nối:** Self-consistency dùng nhiều candidates nhưng mỗi candidate vẫn phải normalize và verify.
+
+</MdxPage>

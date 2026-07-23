@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'finetuning-objectives-theory-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Chọn objective', 'Classification contract', 'Instruction contract', 'PEFT boundary', 'Decision matrix'],
+  keywords: ['quiz', 'fine-tuning objective', 'classification', 'instruction tuning', 'LoRA', 'PEFT'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="finetuning-objectives-theory-quiz" questions={[
+  {
+    id: 'choose-objective-from-output', title: 'Chọn objective', prompt: 'Sản phẩm chỉ cần trả một trong ba nhãn `billing`, `technical`, `other` cho mỗi ticket. Objective nào khớp nhất?', mode: 'single',
+    options: [
+      { id: 'open-generation', label: 'Instruction SFT sinh một đoạn văn mở dù sản phẩm chỉ tiêu thụ nhãn.' },
+      { id: 'classification', label: 'Classification fine-tuning với `K=3` class logits và một integer label mỗi mẫu.', isCorrect: true },
+      { id: 'pretrain-new', label: 'Pretrain language model từ đầu mà không dùng labels.' },
+      { id: 'retrieval-only', label: 'Document embedding mà không có decision head.' },
+    ],
+    success: 'Đúng. Output product là một lựa chọn hữu hạn, nên classification tạo contract và metric trực tiếp.',
+    error: 'Bắt đầu từ output cần trả. Ba nhãn hữu hạn không cần một chuỗi generation mở.',
+  },
+  {
+    id: 'classification-loss-contract', title: 'Classification contract', prompt: 'Với batch B và K classes, cặp output/label nào đúng?', mode: 'single',
+    options: [
+      { id: 'btv-bt', label: 'Logits `(B,T,V)` và labels `(B,T)` bắt buộc.' },
+      { id: 'bk-b', label: 'Class logits `(B,K)` và integer labels `(B,)`.', isCorrect: true },
+      { id: 'bc-text', label: 'Hidden `(B,C)` và labels dạng raw text đưa thẳng vào loss.' },
+      { id: 'scalar-token', label: 'Một scalar chung cho cả batch và một token ID.' },
+    ],
+    success: 'Đúng. Classification head chiếu representation mỗi sample sang K logits; cross-entropy nhận một class index mỗi sample.',
+    error: 'Đừng giữ language-model vocabulary contract khi product cần K classes.',
+  },
+  {
+    id: 'instruction-loss-mask-contract', title: 'Instruction contract', prompt: 'Trong response-only instruction SFT, cách mask nào đúng?', mode: 'single',
+    options: [
+      { id: 'mask-input', label: 'Xóa instruction khỏi input để model không nhìn prompt.' },
+      { id: 'mask-response', label: 'Mask toàn bộ response targets và chỉ chấm prompt.' },
+      { id: 'mask-prompt-targets', label: 'Giữ prompt trong input nhưng đặt prompt/padding targets thành ignore value; vẫn chấm response và EOS thật.', isCorrect: true },
+      { id: 'class-head', label: 'Đổi output head thành K classes cho mọi response token.' },
+    ],
+    success: 'Đúng. Prompt là context cần nhìn; loss mask chỉ quyết định vị trí nào đóng góp gradient.',
+    error: 'Phân biệt attention/input với target loss. Model vẫn cần prompt để sinh response.',
+  },
+  {
+    id: 'peft-savings-boundary', title: 'PEFT tiết kiệm gì?', prompt: 'Phát biểu nào đúng về LoRA/PEFT?', mode: 'single',
+    options: [
+      { id: 'no-backbone-forward', label: 'Backbone không còn chạy forward.' },
+      { id: 'always-faster', label: 'Inference luôn nhanh hơn bất kể adapter có merge hay không.' },
+      { id: 'smaller-vocab', label: 'Vocabulary tự động nhỏ lại.' },
+      { id: 'fewer-trainable-states', label: 'Ít parameter trainable hơn nên giảm gradient/optimizer state; backbone vẫn tham gia forward.', isCorrect: true },
+    ],
+    success: 'Đúng. PEFT nén update được học, không tự loại backbone, đổi objective hay bảo đảm latency thấp hơn.',
+    error: 'Hãy tách trainable-state memory khỏi forward compute và total model parameters.',
+  },
+  {
+    id: 'objective-first-decision', title: 'Thứ tự quyết định', prompt: 'Quy trình nào hợp lý trước khi chọn full fine-tuning, head-only hay LoRA?', mode: 'single',
+    options: [
+      { id: 'optimizer-first', label: 'Chọn optimizer trước rồi mới quyết định output sản phẩm.' },
+      { id: 'rank-first', label: 'Chọn LoRA rank theo cảm tính rồi mới xem dataset.' },
+      { id: 'contract-first', label: 'Khóa output, label/targets, loss và evaluation; sau đó chọn parameter strategy theo data/compute/validation.', isCorrect: true },
+      { id: 'largest-first', label: 'Luôn unfreeze toàn model vì nhiều trainable parameters luôn tốt hơn.' },
+    ],
+    success: 'Đúng. Objective/data/metric phải nhất quán trước; mức fine-tune là trade-off triển khai tiếp theo.',
+    error: 'Parameter strategy không sửa được một task contract sai. Hãy xác định điều model phải trả và cách đo trước.',
+  },
+]} />

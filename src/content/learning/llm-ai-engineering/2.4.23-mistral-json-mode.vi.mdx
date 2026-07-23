@@ -1,0 +1,64 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "mistral-json-mode", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "Mistral", "provider adapter"], pageCount: 4,
+}
+
+<MdxQuiz id="mistral-json-mode" questions={[
+  {
+    "id": "mistral-json-mode-q1",
+    "title": "Tình huống 1",
+    "prompt": "Cách mô tả endpoint Mistral nào tránh gây hiểu lầm?",
+    "mode": "single",
+    "options": [
+      { "id": "mistral-json-mode-q1-correct", "label": "Chat Completions trong bề mặt tài liệu Conversations hiện hành", "isCorrect": true },
+      { "id": "mistral-json-mode-q1-a", "label": "Mọi provider đều có endpoint `/conversations` giống nhau" },
+      { "id": "mistral-json-mode-q1-b", "label": "OpenAI Responses là tên endpoint Mistral" },
+      { "id": "mistral-json-mode-q1-c", "label": "Model catalog chính là request endpoint" }
+    ],
+    "success": "Đúng. Tên bề mặt tài liệu không nên bị biến thành một universal endpoint contract.",
+    "error": "Chưa đúng. Adapter phải bám endpoint/SDK chính thức của provider, không suy diễn từ tên mục tài liệu."
+  },
+  {
+    "id": "mistral-json-mode-q2",
+    "title": "Tình huống 2",
+    "prompt": "Khi chọn model từ catalog, dữ liệu nào phải được kiểm tra ở thời điểm triển khai?",
+    "mode": "single",
+    "options": [
+      { "id": "mistral-json-mode-q2-a", "label": "Chỉ độ dài tên model" },
+      { "id": "mistral-json-mode-q2-b", "label": "Màu logo provider" },
+      { "id": "mistral-json-mode-q2-correct", "label": "Capability, limit, lifecycle và availability của model/version", "isCorrect": true },
+      { "id": "mistral-json-mode-q2-c", "label": "Thứ tự model trong UI" }
+    ],
+    "success": "Đúng. Alias, limit và capability là dữ liệu biến động, không phải hằng số chung của course.",
+    "error": "Chưa đúng. Chọn model cần capability matrix được kiểm tra lại, không dựa vào tên hoặc thứ tự hiển thị."
+  },
+  {
+    "id": "mistral-json-mode-q3",
+    "title": "Tình huống 3",
+    "prompt": "Provider trả finish reason chưa có trong internal union. Adapter nên làm gì?",
+    "mode": "single",
+    "options": [
+      { "id": "mistral-json-mode-q3-a", "label": "Im lặng map thành completed" },
+      { "id": "mistral-json-mode-q3-b", "label": "Bỏ cả response" },
+      { "id": "mistral-json-mode-q3-c", "label": "Ghi raw prompt để điều tra" },
+      { "id": "mistral-json-mode-q3-correct", "label": "Giữ raw enum đã redacted, map thành unknown và phát telemetry", "isCorrect": true }
+    ],
+    "success": "Đúng. Unknown mapping phải quan sát được nhưng không được giả là terminal success.",
+    "error": "Chưa đúng. Silent coercion che giấu provider drift; raw sensitive payload cũng không phải telemetry an toàn."
+  },
+  {
+    "id": "mistral-json-mode-q4",
+    "title": "Tình huống 4",
+    "prompt": "Mục tiêu của provider adapter là gì?",
+    "mode": "single",
+    "options": [
+      { "id": "mistral-json-mode-q4-a", "label": "Làm mọi provider có đúng cùng capability" },
+      { "id": "mistral-json-mode-q4-correct", "label": "Map phần được hỗ trợ và từ chối rõ capability không có", "isCorrect": true },
+      { "id": "mistral-json-mode-q4-b", "label": "Bỏ usage để response ngắn hơn" },
+      { "id": "mistral-json-mode-q4-c", "label": "Cho business code đoán wire format" }
+    ],
+    "success": "Đúng. Normalization không được bịa capability; unsupported path cần lỗi typed trước dispatch.",
+    "error": "Chưa đúng. Compatibility là mapping có giới hạn, không phải lời hứa mọi feature giống nhau."
+  }
+]} />

@@ -1,0 +1,64 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "chat-completions-api-quiz", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "Responses API", "Chat Completions", "adapter"], pageCount: 4,
+}
+
+<MdxQuiz id="chat-completions-api-quiz" questions={[
+  {
+    "id": "chat-completions-api-quiz-q1",
+    "title": "Tình huống 1",
+    "prompt": "Một service mới cần text, tool call và refusal nhưng business code không nên phụ thuộc wire format. Thiết kế nào phù hợp?",
+    "mode": "single",
+    "options": [
+      { "id": "chat-completions-api-quiz-q1-a", "label": "Trả thẳng object provider cho mọi caller" },
+      { "id": "chat-completions-api-quiz-q1-correct", "label": "Map từng provider vào discriminated union nội bộ", "isCorrect": true },
+      { "id": "chat-completions-api-quiz-q1-b", "label": "Chỉ đọc chuỗi text đầu tiên" },
+      { "id": "chat-completions-api-quiz-q1-c", "label": "Ép mọi kết quả thành HTTP 200" }
+    ],
+    "success": "Đúng. Union nội bộ giữ được text, tool proposal, refusal, usage và lỗi mà không làm rò wire contract vào domain.",
+    "error": "Chưa đúng. Đọc một field hoặc chuyển tiếp object provider sẽ làm mất trạng thái hoặc khóa business code vào một API."
+  },
+  {
+    "id": "chat-completions-api-quiz-q2",
+    "title": "Tình huống 2",
+    "prompt": "Khi migrate một luồng đang chạy từ Chat Completions sang Responses, lựa chọn nào an toàn nhất?",
+    "mode": "single",
+    "options": [
+      { "id": "chat-completions-api-quiz-q2-a", "label": "Đổi endpoint và giả định response shape giống hệt" },
+      { "id": "chat-completions-api-quiz-q2-b", "label": "Xóa adapter cũ trước khi có regression test" },
+      { "id": "chat-completions-api-quiz-q2-c", "label": "Hard-code model alias mới vào domain" },
+      { "id": "chat-completions-api-quiz-q2-correct", "label": "Snapshot normalized contract, chạy hai adapter trên fixture rồi canary", "isCorrect": true }
+    ],
+    "success": "Đúng. So sánh normalized result trước khi canary tách thay đổi wire format khỏi thay đổi hành vi sản phẩm.",
+    "error": "Chưa đúng. Migration endpoint không chứng minh các item, refusal, usage và lỗi vẫn được map tương đương."
+  },
+  {
+    "id": "chat-completions-api-quiz-q3",
+    "title": "Tình huống 3",
+    "prompt": "Response có một tool proposal và không có text. Adapter nên trả gì?",
+    "mode": "single",
+    "options": [
+      { "id": "chat-completions-api-quiz-q3-correct", "label": "Nhánh tool_call với call ID, name và arguments chưa được tin cậy", "isCorrect": true },
+      { "id": "chat-completions-api-quiz-q3-a", "label": "Lỗi empty_output" },
+      { "id": "chat-completions-api-quiz-q3-b", "label": "Chuỗi arguments làm final answer" },
+      { "id": "chat-completions-api-quiz-q3-c", "label": "Tự chạy tool ngay trong adapter" }
+    ],
+    "success": "Đúng. Tool proposal là một trạng thái hợp lệ; application còn phải validate, authorize và execute.",
+    "error": "Chưa đúng. Thiếu text không phải lỗi nếu provider trả tool item hợp lệ, và adapter không có quyền tự thực thi."
+  },
+  {
+    "id": "chat-completions-api-quiz-q4",
+    "title": "Tình huống 4",
+    "prompt": "Thông tin nào phải là quyết định tường minh khi tạo request mới?",
+    "mode": "single",
+    "options": [
+      { "id": "chat-completions-api-quiz-q4-a", "label": "Màu của nút gửi" },
+      { "id": "chat-completions-api-quiz-q4-b", "label": "Tên biến local của SDK" },
+      { "id": "chat-completions-api-quiz-q4-correct", "label": "Model/capability, timeout-cancel và chính sách lưu state", "isCorrect": true },
+      { "id": "chat-completions-api-quiz-q4-c", "label": "Thứ tự key trong JSON" }
+    ],
+    "success": "Đúng. Đây là các quyết định ảnh hưởng capability, lifecycle, privacy và deadline của request.",
+    "error": "Chưa đúng. Chi tiết cú pháp local không thay thế quyết định model, deadline và retention/state."
+  }
+]} />

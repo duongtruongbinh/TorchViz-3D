@@ -1,0 +1,187 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'gpt-module-code', locale: 'vi',
+  title: 'Code module GPT',
+  headings: ['Contract và MLP', 'TransformerBlock', 'GPTModel', 'Forward pass', 'Smoke test'],
+  keywords: ['PyTorch', 'GPTModel', 'TransformerBlock', 'forward'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Feed-forward
+
+**Mục tiêu:** Ghép một GPT decoder-only chạy độc lập từ PyTorch modules và kiểm tra shape/weight tying.
+
+Chạy các code block theo thứ tự. Input là token IDs `(B,T)` với `T≤context_length`; output là logits `(B,T,V)`.
+
+```python
+import torch
+from torch import nn
+
+class FeedForward(nn.Module):
+    def __init__(self, d_model):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(d_model, 4 * d_model, bias=False),
+            nn.GELU(),
+            nn.Linear(4 * d_model, d_model, bias=False),
+        )
+    def forward(self, x):
+        return self.net(x)
+```
+
+<LessonNote>`nn.MultiheadAttention` được dùng để giữ bài GPT tập trung vào assembly; chapter trước đã cài attention từ đầu.</LessonNote>
+
+**Takeaway:** MLP giữ `(B,T,C)` để residual addition hợp lệ.
+
+</MdxPage>
+<MdxPage page={1}>
+
+## Transformer block
+
+```python
+class TransformerBlock(nn.Module):
+    def __init__(self, d_model, n_heads, dropout):
+        super().__init__()
+        self.norm1 = nn.LayerNorm(d_model)
+        self.attn = nn.MultiheadAttention(
+            d_model, n_heads, dropout=dropout, bias=False, batch_first=True
+        )
+        self.norm2 = nn.LayerNorm(d_model)
+        self.ff = FeedForward(d_model)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        T = x.size(1)
+        mask = torch.triu(
+            torch.ones(T, T, device=x.device, dtype=torch.bool), 1
+        )
+        h = self.norm1(x)
+        attn_out, _ = self.attn(
+            h, h, h, attn_mask=mask, need_weights=False
+        )
+        x = x + self.dropout(attn_out)
+        x = x + self.dropout(self.ff(self.norm2(x)))
+        return x
+```
+
+<LessonNote>**Lỗi thường gặp:** bỏ causal mask vì đang dùng module built-in. `MultiheadAttention` không tự biết đây là GPT.</LessonNote>
+
+**Takeaway:** Pre-norm block có hai residual additions và giữ nguyên shape.
+
+</MdxPage>
+<MdxPage page={2}>
+
+## Khởi tạo GPTModel
+
+```python
+class GPTModel(nn.Module):
+    def __init__(self, vocab_size, context_length, d_model,
+                 n_heads, n_layers, dropout=0.0, tie_weights=True):
+        super().__init__()
+        if min(vocab_size, context_length, d_model, n_heads, n_layers) <= 0:
+            raise ValueError("all model dimensions must be positive")
+        if d_model % n_heads:
+            raise ValueError("d_model must be divisible by n_heads")
+        self.context_length = context_length
+        self.token_emb = nn.Embedding(vocab_size, d_model)
+        self.pos_emb = nn.Embedding(context_length, d_model)
+        self.blocks = nn.ModuleList([
+            TransformerBlock(d_model, n_heads, dropout)
+            for _ in range(n_layers)
+        ])
+        self.final_norm = nn.LayerNorm(d_model)
+        self.output_head = nn.Linear(d_model, vocab_size, bias=False)
+        if tie_weights:
+            self.output_head.weight = self.token_emb.weight
+
+    def forward(self, token_ids):
+        if token_ids.ndim != 2:
+            raise ValueError("token_ids must have shape (B,T)")
+        if token_ids.dtype != torch.long:
+            raise TypeError("token_ids must use torch.long")
+        B, T = token_ids.shape
+        if T == 0:
+            raise ValueError("sequence must contain at least one token")
+        if T > self.context_length:
+            raise ValueError("sequence exceeds context_length")
+        positions = torch.arange(T, device=token_ids.device)
+        x = self.token_emb(token_ids) + self.pos_emb(positions)
+        assert x.shape[:2] == (B, T)
+        for block in self.blocks:
+            x = block(x)
+        x = self.final_norm(x)
+        return self.output_head(x)
+```
+
+Mỗi block là một instance riêng. Weight tying tái sử dụng đúng `Parameter` của
+token embedding. `forward` nằm trong cùng definition nên ba code cell đầu có
+thể chạy tuần tự mà không cần chép một method thụt lề vào class bằng tay.
+
+<LessonNote>**Lỗi thường gặp:** tạo list Python thường; `ModuleList` mới đăng ký parameter của các block.</LessonNote>
+
+**Takeaway:** Config quyết định V, context, C, H và L tại một nơi.
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Forward pass và activation shapes
+
+| Bước | Input | Output | Invariant |
+|---|---|---|---|
+| Validate | token IDs `(B,T)` | cùng tensor | `dtype=torch.long`, `0<T≤context_length` |
+| Token lookup | `(B,T)` | `(B,T,C)` | mỗi ID nằm trong vocabulary |
+| Position lookup | positions `(T,)` | `(T,C)` | broadcast qua batch B |
+| Decoder blocks | `(B,T,C)` | `(B,T,C)` | causal mask và residual giữ shape |
+| Output head | `(B,T,C)` | logits `(B,T,V)` | không softmax trước cross-entropy |
+
+Positions `(T,)` broadcast qua B sau lookup `(T,C)`. Các nhánh lỗi chặn sai rank,
+dtype, sequence rỗng và context overflow trước khi attention chạy.
+
+<LessonNote>**Lỗi thường gặp:** tạo positions dài `context_length` thay vì T, làm phép cộng không khớp sequence hiện tại.</LessonNote>
+
+**Takeaway:** Chỉ output head đổi chiều cuối từ C sang V.
+
+</MdxPage>
+<MdxPage page={4}>
+
+## Smoke test
+
+```python
+torch.manual_seed(0)
+vocab_size = 100
+model = GPTModel(
+    vocab_size=vocab_size,
+    context_length=16,
+    d_model=32,
+    n_heads=4,
+    n_layers=2,
+    dropout=0.1,
+    tie_weights=True,
+)
+
+ids = torch.randint(0, vocab_size, (2, 8), dtype=torch.long)
+logits = model(ids)
+assert logits.shape == (2, 8, vocab_size)
+assert model.output_head.weight is model.token_emb.weight
+assert sum(p.numel() for p in model.parameters()) == 28_608
+assert all(block(ids.new_zeros(2, 8, 32, dtype=torch.float)).shape
+           == (2, 8, 32) for block in model.blocks)
+
+try:
+    model(torch.zeros(1, 17, dtype=torch.long))
+except ValueError:
+    pass
+else:
+    raise AssertionError("overlong sequence must fail")
+
+print(logits.shape)  # torch.Size([2, 8, 100])
+```
+
+Model chưa train vẫn sinh logits đúng shape, nhưng token lấy từ chúng chưa mang ngôn ngữ có nghĩa.
+
+<LessonNote>**Production:** code và bảng tính đều dùng linear không bias, nên exact count `28,608` khớp. Production còn cần initialization policy, optimizer groups, checkpoint, mixed precision và kernel attention tối ưu.</LessonNote>
+
+**Takeaway:** Shape đúng là điều kiện cần; loss giảm trên data độc lập mới chứng minh model học.
+
+</MdxPage>

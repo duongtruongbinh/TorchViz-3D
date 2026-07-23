@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'lora-finetuning-theory-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['LoRA boundary', 'Low-rank shape', 'Parameter count', 'Initialization', 'Freeze và merge'],
+  keywords: ['quiz', 'LoRA', 'low-rank adaptation', 'rank', 'alpha', 'merge'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="lora-finetuning-theory-quiz" questions={[
+  {
+    id: 'lora-update-boundary', title: 'LoRA thay đổi gì?', prompt: 'LoRA áp vào linear pretrained `W`. Mô tả nào đúng?', mode: 'single',
+    options: [
+      { id: 'replace-objective', label: 'LoRA thay next-token loss bằng một objective riêng.' },
+      { id: 'delete-base', label: 'LoRA xóa W rồi train matrix rank r làm toàn bộ layer.' },
+      { id: 'frozen-base-plus-update', label: 'Giữ W đóng băng và học update hạng thấp cộng vào output.', isCorrect: true },
+      { id: 'skip-forward', label: 'LoRA bỏ qua backbone trong forward.' },
+    ],
+    success: 'Đúng. LoRA thay cách biểu diễn update parameter; task objective và linear output contract không đổi.',
+    error: 'Base branch vẫn chạy. Adapter tạo một update cộng thêm chứ không thay objective hay xóa checkpoint.',
+  },
+  {
+    id: 'lora-shape-path', title: 'Đường shape', prompt: 'Với `x: (...,d_in)`, `A: (r,d_in)` và `B: (d_out,r)`, đường shape đúng là gì?', mode: 'single',
+    options: [
+      { id: 'input-rank-output', label: '`(...,d_in) → (...,r) → (...,d_out)`.', isCorrect: true },
+      { id: 'input-output-rank', label: '`(...,d_in) → (...,d_out) → (...,r)` rồi trả rank.' },
+      { id: 'rank-first', label: '`(...,r) → (...,d_in) → (...,d_out)` dù input có d_in.' },
+      { id: 'vocab-axis', label: '`(...,d_in) → (...,V)` vì LoRA luôn tạo logits.' },
+    ],
+    success: 'Đúng. `xAᵀ` đi qua bottleneck r, sau đó nhân `Bᵀ` để trở lại d_out.',
+    error: 'Kiểm tra inner dimensions của từng phép nhân: d_in phải co với A, rồi r co với B.',
+  },
+  {
+    id: 'lora-parameter-count', title: 'Parameter trainable', prompt: 'Một linear có `d_in=16`, `d_out=12`, LoRA rank `r=2`. Adapter có bao nhiêu parameter trainable?', mode: 'single',
+    options: [
+      { id: 'rank-square', label: '`r² = 4`.' },
+      { id: 'full-matrix', label: '`16×12 = 192`.' },
+      { id: 'sum-times-rank', label: '`r(d_in+d_out)=2(16+12)=56`.', isCorrect: true },
+      { id: 'dimensions-only', label: '`16+12=28`.' },
+    ],
+    success: 'Đúng. A có `2×16`, B có `12×2`; tổng là 56.',
+    error: 'Adapter nối rank với cả input lẫn output, nên cần cộng numel của A và B.',
+  },
+  {
+    id: 'zero-initial-update', title: 'Khởi tạo adapter', prompt: 'Muốn wrapper tạo đúng output của base layer trước training, cách khởi tạo nào phù hợp?', mode: 'single',
+    options: [
+      { id: 'zero-b', label: 'Khởi tạo B bằng 0 và A bằng giá trị nhỏ/ngẫu nhiên, để `BA=0` ban đầu.', isCorrect: true },
+      { id: 'random-both-large', label: 'Khởi tạo cả A/B rất lớn để adapter lấn át checkpoint.' },
+      { id: 'zero-base', label: 'Đặt W pretrained về 0.' },
+      { id: 'remove-scale', label: 'Đặt rank bằng 0 rồi vẫn chia `alpha/rank`.' },
+    ],
+    success: 'Đúng. B bằng 0 khóa update ban đầu bằng 0 trong khi A đã có đường để gradient làm adapter bắt đầu học.',
+    error: 'Mục tiêu là `adapter(x)=0` ban đầu mà vẫn giữ W pretrained và rank hợp lệ.',
+  },
+  {
+    id: 'freeze-and-merge-contract', title: 'Freeze và merge', prompt: 'Sau training, cách merge nào giữ đúng forward contract?', mode: 'single',
+    options: [
+      { id: 'merge-base-only', label: '`W_merged = W`, bỏ adapter đã học.' },
+      { id: 'merge-update', label: '`W_merged = W + (alpha/r)BA`, sau đó không cộng adapter lần thứ hai.', isCorrect: true },
+      { id: 'merge-rank', label: 'Đổi output dimension thành r.' },
+      { id: 'train-base-too', label: 'Bắt buộc unfreeze W trong lúc LoRA để merge hợp lệ.' },
+    ],
+    success: 'Đúng. Merge hấp thụ đúng scaled update vào W; cộng adapter thêm lần nữa sẽ double-count.',
+    error: 'Hãy viết lại hai nhánh forward thành một ma trận duy nhất và giữ output dimension d_out.',
+  },
+]} />

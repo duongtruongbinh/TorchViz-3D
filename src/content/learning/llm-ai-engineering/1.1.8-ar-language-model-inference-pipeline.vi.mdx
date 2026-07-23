@@ -14,8 +14,8 @@ export const lessonMetadata = {
   "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
   "steps": [
     { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa IDs (B,T) qua model để tạo logits chưa chuẩn hóa; lấy logits vị trí cuối có shape (B,V)." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Áp softmax/decoding policy lên logits (B,V) để mỗi token nhận xác suất và tổng bằng 1." } },
     { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
     { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
   ],
@@ -41,8 +41,8 @@ export const lessonMetadata = {
   "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
   "steps": [
     { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa IDs (B,T) qua model để tạo logits chưa chuẩn hóa; lấy logits vị trí cuối có shape (B,V)." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Áp softmax/decoding policy lên logits (B,V) để mỗi token nhận xác suất và tổng bằng 1." } },
     { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
     { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
   ],
@@ -68,8 +68,8 @@ export const lessonMetadata = {
   "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
   "steps": [
     { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa IDs (B,T) qua model để tạo logits chưa chuẩn hóa; lấy logits vị trí cuối có shape (B,V)." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Áp softmax/decoding policy lên logits (B,V) để mỗi token nhận xác suất và tổng bằng 1." } },
     { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
     { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
   ],
@@ -95,8 +95,8 @@ export const lessonMetadata = {
   "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
   "steps": [
     { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa IDs (B,T) qua model để tạo logits chưa chuẩn hóa; lấy logits vị trí cuối có shape (B,V)." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Áp softmax/decoding policy lên logits (B,V) để mỗi token nhận xác suất và tổng bằng 1." } },
     { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
     { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
   ],
@@ -122,8 +122,8 @@ export const lessonMetadata = {
   "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
   "steps": [
     { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa IDs (B,T) qua model để tạo logits chưa chuẩn hóa; lấy logits vị trí cuối có shape (B,V)." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Áp softmax/decoding policy lên logits (B,V) để mỗi token nhận xác suất và tổng bằng 1." } },
     { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
     { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
   ],
@@ -145,7 +145,7 @@ export const lessonMetadata = {
 
 <MdxPage page={5}>
   <LlmVocabularyOutputVector content={{
-    "lead": { vi: "Ở mỗi bước dự đoán, model tạo một output vector có độ dài bằng số token trong vocabulary." },
+    "lead": { vi: "Khi inference, model có thể trả logits (B,T,V), nhưng chỉ lát cắt vị trí cuối (B,V) được dùng để chọn token kế tiếp. Vector đó có độ dài bằng số token trong vocabulary." },
     "corpusDefinition": { vi: "Corpus là tập hợp các văn bản được thu thập để huấn luyện model. Từ corpus, chúng ta lấy ra các unique token để tạo thành vocabulary." },
     "corpusLabel": { vi: "Tập văn bản dùng để học và xây dựng bộ token." },
     "vocabularyLabel": { vi: "Danh sách các token duy nhất mà tokenizer và model biết." },

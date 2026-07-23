@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "llm-positional-encodings",
+  locale: "vi",
+  title: "Positional encoding cho LLM",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["llm-positional-encodings","LLM","production","T+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Attention thuần không biết thứ tự. Cách đưa vị trí vào model ảnh hưởng khả năng học quan hệ tương đối, chi phí và hành vi ngoài độ dài đã train.
+
+**Input:** Query/key hoặc hidden state cùng chỉ số vị trí.
+
+**Output:** Biểu diễn đã mang thông tin vị trí trước khi tính attention.
+
+**Data/type/shape:** Learned absolute embedding cộng `(T,C)` vào hidden states; RoPE quay từng cặp chiều của Q/K nhưng giữ nguyên shape.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Với một cặp `(x₀,x₁)=(1,0)` và góc `θ=π/2`, phép quay cho `(0,1)`. Hai vị trí dùng góc khác nhau nên dot product mang thông tin khoảng cách tương đối. Shape vẫn `(B,H,T,D_head)`.
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Cho rằng tăng config context tự động tạo extrapolation tốt.
+- Áp dụng position scaling mà không regression-evaluate short và long context.
+- Nhầm positional encoding với attention mask.
+
+
+**Kết nối:** FlashAttention giữ toán học attention nhưng đổi cách dữ liệu đi qua GPU memory.
+
+</MdxPage>

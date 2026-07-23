@@ -1,0 +1,117 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'react-prompting',
+  locale: 'vi',
+  title: 'Vòng lặp tool use theo mẫu ReAct',
+  headings: ['Proposal không phải execution', 'Authorize rồi mới execute', 'Production gate'],
+  keywords: ['ReAct', 'tool use', 'authorization', 'state machine'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Proposal không phải execution
+
+Model không tự thực thi business action. Nó tạo structured proposal; application parse, authorize, execute rồi trả typed result vào loop có giới hạn.
+
+**State:** `model_proposal → validated_proposal → authorized_call → tool_result | error → final_response`.
+
+Mỗi call có ID, exact schema, deadline và step count. Natural-language text như `Action: refund()` không được `eval` và không tự trở thành tool call.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Authorize rồi mới execute
+
+~~~ts
+import assert from "node:assert/strict";
+
+type ToolProposal = { callId: string; tool: string; args: unknown };
+type ToolResult = {
+  kind: "tool_result";
+  callId: string;
+  value: { orderId: string; status: string };
+};
+type AuthContext = {
+  allowedTools: ReadonlySet<string>;
+  ownedOrders: ReadonlySet<string>;
+  maxSteps: number;
+};
+
+const orderStatus: Readonly<Record<string, string>> = { A17: "late" };
+
+function executeProposal(
+  proposal: ToolProposal,
+  context: AuthContext,
+  step: number,
+): ToolResult {
+  if (!Number.isInteger(step) || step < 1 || step > context.maxSteps) {
+    throw new Error("tool_loop_limit");
+  }
+  if (!/^call-[a-z0-9]+$/.test(proposal.callId)) throw new Error("invalid_call_id");
+  if (!context.allowedTools.has(proposal.tool)) throw new Error("tool_not_allowed");
+  if (proposal.tool !== "lookup_order") throw new Error("unsupported_tool");
+  if (!proposal.args || typeof proposal.args !== "object" || Array.isArray(proposal.args)) {
+    throw new Error("invalid_tool_args");
+  }
+  const args = proposal.args as Record<string, unknown>;
+  if (Object.keys(args).length !== 1 || typeof args.orderId !== "string") {
+    throw new Error("invalid_tool_args");
+  }
+  if (!context.ownedOrders.has(args.orderId)) throw new Error("order_not_owned");
+  const status = orderStatus[args.orderId];
+  if (!status) throw new Error("order_not_found");
+  return {
+    kind: "tool_result",
+    callId: proposal.callId,
+    value: { orderId: args.orderId, status },
+  };
+}
+
+const context: AuthContext = {
+  allowedTools: new Set(["lookup_order"]),
+  ownedOrders: new Set(["A17"]),
+  maxSteps: 3,
+};
+assert.deepEqual(
+  executeProposal(
+    { callId: "call-a1", tool: "lookup_order", args: { orderId: "A17" } },
+    context,
+    1,
+  ),
+  {
+    kind: "tool_result",
+    callId: "call-a1",
+    value: { orderId: "A17", status: "late" },
+  },
+);
+assert.throws(
+  () => executeProposal({ callId: "call-a2", tool: "refund_order", args: { orderId: "A17" } }, context, 2),
+  /tool_not_allowed/,
+);
+assert.throws(
+  () => executeProposal({ callId: "call-a3", tool: "lookup_order", args: { orderId: "A18" } }, context, 2),
+  /order_not_owned/,
+);
+assert.throws(
+  () => executeProposal({ callId: "call-a4", tool: "lookup_order", args: { orderId: "A17" } }, context, 4),
+  /tool_loop_limit/,
+);
+~~~
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production gate
+
+- Tool schemas nhỏ, strict và versioned; reject extra args.
+- Authorization dùng authenticated identity và fresh server state, không dùng model rationale.
+- Read/write tools tách riêng; destructive action cần idempotency key và confirmation phù hợp.
+- Propagate timeout/cancellation, cap steps và không retry side effect mù.
+- Audit call ID, tool/version, status và redacted IDs; không log raw secret, PII hoặc hidden chain-of-thought.
+
+**Kết nối:** Quiz phân biệt verifiable artifacts, voting, bounded search và tool execution.
+
+</MdxPage>

@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'multi-head-attention-theory-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Nhiều head', 'Tách head', 'Score shape', 'Ghép head', 'Dropout và parameter'],
+  keywords: ['quiz', 'multi-head attention', 'head dimension', 'concat', 'output projection', 'dropout'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="multi-head-attention-theory-quiz" questions={[
+  {
+    id: 'learned-head-perspectives', title: 'Vai trò của nhiều head', prompt: 'Phát biểu nào mô tả đúng lợi ích của multi-head attention?', mode: 'single',
+    options: [
+      { id: 'fixed-grammar-heads', label: 'Kiến trúc gán cứng mỗi head cho một quy tắc ngữ pháp.' },
+      { id: 'learned-subspaces', label: 'Các head học nhiều không gian biểu diễn song song, nhưng vai trò ngữ nghĩa của từng head không được bảo đảm trước.', isCorrect: true },
+      { id: 'unlimited-memory', label: 'Nhiều head làm context window trở nên vô hạn.' },
+      { id: 'remove-causality', label: 'Nhiều head cho phép GPT bỏ causal mask.' },
+    ],
+    success: 'Đúng. Các head có thể học pattern khác nhau, nhưng kiến trúc không gắn nhãn “ngữ pháp” hay “tham chiếu” cố định.',
+    error: 'Multi-head tăng các không gian attention học được; nó không xóa context limit, causal mask hay gán vai trò cứng.',
+  },
+  {
+    id: 'head-split-contract', title: 'Tách chiều head', prompt: 'Với `X: (B,T,12)` và `H=3`, shape sau khi tách/transponse đúng là gì?', mode: 'single',
+    options: [
+      { id: 'bt34', label: '`(B,T,3,4)` là shape cuối dùng trực tiếp cho score mà không transpose.' },
+      { id: 'b3t4', label: '`(B,3,T,4)`, vì `D=C/H=4`.', isCorrect: true },
+      { id: 'b4t3', label: '`(B,4,T,3)` vì head dimension bằng số head.' },
+      { id: 'b3t12', label: '`(B,3,T,12)` vì mỗi head giữ toàn bộ C.' },
+    ],
+    success: 'Đúng. Feature axis 12 được chia thành `H=3` phần, mỗi phần `D=4`; sequence `T` vẫn nguyên.',
+    error: 'Head chia feature `C`, không chia sequence hoặc vocabulary. Kiểm tra `H×D=C`.',
+  },
+  {
+    id: 'multi-head-score-shape', title: 'Score shape', prompt: 'Q và K đã có shape `(B,H,T,D)`. Tensor score `Q @ K.transpose(-2,-1)` có shape nào?', mode: 'single',
+    options: [
+      { id: 'bhtt', label: '`(B,H,T,T)`', isCorrect: true },
+      { id: 'bhtd', label: '`(B,H,T,D)`' },
+      { id: 'btd', label: '`(B,T,D)`' },
+      { id: 'btv', label: '`(B,T,V)`' },
+    ],
+    success: 'Đúng. `D` bị co lại; mỗi head có một score giữa mọi query/key position.',
+    error: 'Viết phép nhân cho mỗi batch/head: `(T,D) @ (D,T) = (T,T)`.',
+  },
+  {
+    id: 'concat-before-output-projection', title: 'Ghép các head', prompt: 'Context có shape `(B,H,T,D)` với `H×D=C`. Bước nào trả về residual contract `(B,T,C)`?', mode: 'single',
+    options: [
+      { id: 'sum-heads', label: 'Cộng các head để được `(B,T,D)` rồi coi D là C.' },
+      { id: 'flatten-all', label: 'Flatten cả B, H và T thành một vector.' },
+      { id: 'concat-project', label: 'Transpose thành `(B,T,H,D)`, concat `H×D`, rồi áp output projection.', isCorrect: true },
+      { id: 'vocab-project', label: 'Chiếu từng head thẳng sang vocabulary trước khi concat.' },
+    ],
+    success: 'Đúng. Concat khôi phục `C`; output projection trộn feature từ các head trước residual addition.',
+    error: 'Cộng head chỉ còn D feature. Cần concat `H×D=C`, sau đó projection giữ contract `(B,T,C)`.',
+  },
+  {
+    id: 'head-count-and-parameters', title: 'Head count và parameter', prompt: 'Giữ `C` cố định, tăng số head từ 4 lên 8 nhưng vẫn dùng Q/K/V/output projections `C×C`. Điều gì đúng?', mode: 'single',
+    options: [
+      { id: 'double-projection-params', label: 'Projection parameters chắc chắn tăng gấp đôi.' },
+      { id: 'same-projection-params', label: 'Tổng projection parameters gần `4C²` không đổi; mỗi head có D nhỏ hơn.', isCorrect: true },
+      { id: 'dropout-mask', label: 'Attention dropout thay luôn causal mask.' },
+      { id: 'output-doubles', label: 'Output public đổi từ C thành 2C.' },
+    ],
+    success: 'Đúng. Head count tổ chức lại cùng tổng feature dimension; causal mask, dropout và output shape vẫn có vai trò riêng.',
+    error: 'Khi C cố định, bốn ma trận projection vẫn cùng shape. Chỉ cách chia C thành H×D thay đổi.',
+  },
+]} />

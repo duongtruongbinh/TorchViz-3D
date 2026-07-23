@@ -1,0 +1,87 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "gemini-multimodal-inputs", locale: "vi",
+  title: "Gemini multimodal inputs", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["gemini-multimodal-inputs","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Text, image, audio, video và file có upload/reference/cost khác nhau nhưng phải normalize về typed parts.
+
+**Input:** Validated media parts và task instruction.
+
+**Output:** Interaction result plus media provenance/usage.
+
+**Data/type/shape:** One logical input → ordered content parts; upload may create resource ID with expiry/lifecycle.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Video support clip được upload theo policy, question là text part, output schema là damage segments. App xóa resource theo retention và không tin timestamp nếu parse fail.
+
+~~~ts
+import assert from "node:assert/strict";
+type Resource = {
+  id: string; tenant: string; state: "active" | "deleted"; expiresAt: number;
+};
+type Part =
+  | { kind: "text"; text: string }
+  | { kind: "file"; resourceId: string; mime: string };
+
+function buildParts(
+  instruction: string,
+  resource: Resource,
+  tenant: string,
+  now: number,
+): Part[] {
+  if (resource.tenant !== tenant) throw new Error("forbidden_resource");
+  if (resource.state !== "active" || resource.expiresAt <= now) {
+    throw new Error("resource_unavailable");
+  }
+  return [
+    { kind: "file", resourceId: resource.id, mime: "video/mp4" },
+    { kind: "text", text: instruction },
+  ];
+}
+
+const parts = buildParts(
+  "Liệt kê khoảng thời gian kiện hàng bị va đập.",
+  { id: "file_17", tenant: "t-a", state: "active", expiresAt: 2_000 },
+  "t-a",
+  1_000,
+);
+assert.deepEqual(parts.map(part => part.kind), ["file", "text"]);
+assert.throws(
+  () => buildParts(
+    "inspect",
+    { id: "file_17", tenant: "t-a", state: "active", expiresAt: 2_000 },
+    "t-b",
+    1_000,
+  ),
+  /forbidden_resource/,
+);
+~~~
+<LessonNote>Upload ID là capability-scoped resource, không phải public URL. Production phải theo dõi processing/expiry/delete state và bảo toàn thứ tự parts.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Nhúng file lớn inline không budget.
+- Mất order giữa parts.
+- Không xóa uploaded resource.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://ai.google.dev/gemini-api/docs/vision). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Search grounding thêm external evidence.
+
+</MdxPage>

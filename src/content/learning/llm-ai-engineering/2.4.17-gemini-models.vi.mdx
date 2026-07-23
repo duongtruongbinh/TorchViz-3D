@@ -1,0 +1,51 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "gemini-models", locale: "vi",
+  title: "Gemini Interactions API và model catalog", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["gemini-models","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Từ 06-2026, Interactions API là interface GA được khuyến nghị cho project mới; `generateContent` vẫn supported legacy. Route model trở thành migration/capability lesson.
+
+**Input:** Common request, selected capability và configurable Gemini model ID.
+
+**Output:** Interaction/result normalized cùng state/storage policy; Interactions lưu request theo mặc định, nên `store=false` phải được đặt khi retention policy không cho phép lưu.
+
+**Data/type/shape:** Internal messages/media/tools map sang Interactions input; legacy adapter giữ generateContent path khi cần.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+New service dùng Interactions và optional `previous_interaction_id`; migration ghi rõ state/storage. Existing `generateContent` service không bị gọi deprecated nếu docs vẫn support.
+
+| Data policy | Request decision | Application state |
+|---|---|---|
+| Không cho provider retention | Gửi `store=false`; không dùng provider state chain | History đã authorize do backend sở hữu |
+| Cho phép state có thời hạn | Ghi retention/region/access owner trước khi dùng stored interaction | Lưu interaction ID có tenant scope và expiry |
+| Chưa review | Không dispatch stored request | Trả typed `storage_policy_required` |
+
+<LessonNote>Đừng hiểu thiếu field `store` là “không lưu”: default hiện hành là lưu. Capability, model và retention phải được kiểm tra tại thời điểm triển khai.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Dạy generateContent như default mới.
+- Hard-code model/context table.
+- Bỏ `store` và vô tình nhận default storage khi policy yêu cầu không lưu.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://ai.google.dev/gemini-api/docs/interactions-overview). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Multimodal inputs dùng cùng Interactions contract.
+
+</MdxPage>

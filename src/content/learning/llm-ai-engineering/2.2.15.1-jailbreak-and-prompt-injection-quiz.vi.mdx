@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'jailbreak-and-prompt-injection-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Trust boundary', 'Indirect injection', 'Tool call', 'Defense'],
+  keywords: ['quiz', 'prompt injection', 'jailbreak', 'authorization'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="jailbreak-and-prompt-injection-quiz" questions={[
+  {
+    id: 'jailbreak-and-prompt-injection-quiz-q1',
+    title: 'Trust boundary',
+    prompt: 'Tài liệu truy xuất chứa “bỏ qua developer instruction”. App phải phân loại chuỗi đó thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'jailbreak-and-prompt-injection-quiz-q1-a', label: 'Dữ liệu không đáng tin, không được nâng thành instruction', isCorrect: true },
+      { id: 'jailbreak-and-prompt-injection-quiz-q1-b', label: 'System instruction mới vì nằm trong context' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q1-c', label: 'Admin approval vì document đã được index' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q1-d', label: 'Tool result nên tự động thực thi' },
+    ],
+    success: 'Đúng. Nguồn dữ liệu không thay đổi authority chỉ vì được đưa vào context.',
+    error: 'Chưa đúng. Retrieved content vẫn nằm ngoài trusted instruction boundary.',
+  },
+  {
+    id: 'jailbreak-and-prompt-injection-quiz-q2',
+    title: 'Indirect injection',
+    prompt: 'Email được agent đọc chứa lệnh gửi secret sang URL ngoài. Control quyết định cuối cùng là gì?',
+    mode: 'single',
+    options: [
+      { id: 'jailbreak-and-prompt-injection-quiz-q2-a', label: 'Yêu cầu model hứa không làm sai' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q2-b', label: 'Giảm temperature về 0' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q2-c', label: 'Backend authorization và allowlist cho action/recipient', isCorrect: true },
+      { id: 'jailbreak-and-prompt-injection-quiz-q2-d', label: 'Lặp system prompt nhiều lần' },
+    ],
+    success: 'Đúng. Action phải qua policy enforcement ngoài model.',
+    error: 'Chưa đúng. Prompt và sampling không phải authorization control.',
+  },
+  {
+    id: 'jailbreak-and-prompt-injection-quiz-q3',
+    title: 'Tool call',
+    prompt: 'Model tạo tool arguments hợp schema nhưng vượt quyền user. App nên làm gì?',
+    mode: 'single',
+    options: [
+      { id: 'jailbreak-and-prompt-injection-quiz-q3-a', label: 'Execute vì JSON đã valid' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q3-b', label: 'Retry cùng arguments đến khi thành công' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q3-c', label: 'Log toàn bộ credential rồi execute' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q3-d', label: 'Reject trước execution bằng auth context phía server', isCorrect: true },
+    ],
+    success: 'Đúng. Schema validation và authorization là hai kiểm tra khác nhau.',
+    error: 'Chưa đúng. Structured output không chứng minh quyền thực hiện action.',
+  },
+  {
+    id: 'jailbreak-and-prompt-injection-quiz-q4',
+    title: 'Defense',
+    prompt: 'Chiến lược nào bền vững hơn trước paraphrase attack?',
+    mode: 'single',
+    options: [
+      { id: 'jailbreak-and-prompt-injection-quiz-q4-a', label: 'Block đúng một câu “ignore previous instructions”' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q4-b', label: 'Tách trust, least privilege, validation, confirmation và regression tests', isCorrect: true },
+      { id: 'jailbreak-and-prompt-injection-quiz-q4-c', label: 'Viết system prompt bằng chữ in hoa' },
+      { id: 'jailbreak-and-prompt-injection-quiz-q4-d', label: 'Không ghi lại decision outcome nào' },
+    ],
+    success: 'Đúng. Defense in depth giảm phụ thuộc vào một pattern ngôn ngữ.',
+    error: 'Chưa đúng. Keyword rule đơn lẻ rất dễ bị paraphrase.',
+  },
+]} />

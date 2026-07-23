@@ -1,0 +1,145 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-data-pipeline',
+  locale: 'vi',
+  title: 'Token embedding và positional embedding',
+  headings: ['Trainable token lookup', 'Lookup không tạo one-hot', 'Absolute và relative position', 'Cộng hai embedding', 'Shape audit'],
+  keywords: ['nn.Embedding', 'token embedding', 'positional embedding', 'absolute position', 'relative position', 'tensor shape'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## `nn.Embedding` là trainable lookup table
+
+Với vocabulary size `V=6` và embedding dimension `C=3`:
+
+```python
+import torch
+from torch import nn
+
+token_embedding = nn.Embedding(
+    num_embeddings=6,
+    embedding_dim=3,
+)
+
+assert token_embedding.weight.shape == (6, 3)
+assert token_embedding.weight.requires_grad
+```
+
+Mỗi hàng `(C,)` là vector của một token ID. Các giá trị được khởi tạo rồi cập nhật bằng gradient trong training.
+
+<LessonNote>**Lỗi thường gặp:** nghĩ token ID lớn hơn chọn vector “lớn hơn”. ID chỉ chọn hàng; các giá trị ở mỗi hàng được học độc lập.</LessonNote>
+
+**Handoff:** Batch `(B,T)` dùng tất cả IDs làm indices trong một lần lookup.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Lookup giữ B, T và thêm C
+
+```python
+input_ids = torch.tensor([
+    [2, 3, 1],
+    [1, 0, 5],
+], dtype=torch.long)
+
+token_vectors = token_embedding(input_ids)
+
+assert input_ids.shape == (2, 3)
+assert token_vectors.shape == (2, 3, 3)
+assert torch.equal(token_vectors[0, 0], token_embedding.weight[2])
+```
+
+Shape contract:
+
+```text
+(B,T) integer IDs -> (B,T,C) dense vectors
+```
+
+Về toán học, lookup tương đương one-hot nhân weight matrix, nhưng implementation dùng indexing; không tạo tensor one-hot `(B,T,V)` không cần thiết.
+
+<LessonNote>**Lỗi thường gặp:** truyền float IDs. `nn.Embedding` cần integer indices, thường là `torch.long`.</LessonNote>
+
+**Handoff:** Cùng token ID luôn lấy cùng token vector, nên vector đó chưa nói token xuất hiện ở vị trí nào.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Thêm positional information
+
+Token embedding trả lời **“token nào?”**, không trả lời **“ở vị trí nào?”**. Self-attention tự thân không mang thứ tự token, nên model cần positional information.
+
+Hai họ phổ biến:
+
+- **Absolute:** gán vector cho position `0,1,...,T-1`;
+- **Relative:** biểu diễn quan hệ/khoảng cách giữa các vị trí.
+
+GPT-style learned absolute embeddings có thể được tạo:
+
+```python
+position_embedding = nn.Embedding(
+    num_embeddings=3,
+    embedding_dim=3,
+)
+positions = torch.arange(3)
+position_vectors = position_embedding(positions)
+
+assert position_vectors.shape == (3, 3)
+```
+
+<LessonNote>**Lỗi thường gặp:** tạo positions theo `B`. Position chạy dọc sequence axis `T` và thường dùng chung cho các rows trong batch.</LessonNote>
+
+**Handoff:** Token và position vectors phải có cùng chiều cuối C để cộng.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Cộng, không concat
+
+```python
+x = token_vectors + position_vectors
+
+assert token_vectors.shape == (2, 3, 3)
+assert position_vectors.shape == (3, 3)
+assert x.shape == (2, 3, 3)
+```
+
+PyTorch broadcast `(T,C)` qua batch dimension để position `t` được cộng vào mọi row tại cùng vị trí `t`.
+
+Hai tensor phải thống nhất `T` và `C`. Phép cộng giữ model dimension `C`; concat sẽ tạo `(B,T,2C)` và phá contract của các lớp chờ `C`.
+
+<LessonNote>**Lỗi thường gặp:** cộng token vectors `(B,T,C)` với position table toàn bộ `(context_length,C)` khi `T < context_length`. Hãy slice/lookup đúng `0..T-1`.</LessonNote>
+
+**Handoff:** `x` là output cuối của data pipeline và input số cho các model layers tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Shape audit từ text đến model input
+
+| Stage | Output | Shape/type |
+|---|---|---|
+| Tokenize | token strings | `list[str]` |
+| Encode + boundary | token IDs | `list[int]`, `N=9` |
+| Sliding-window Dataset | một `(input,target)` | `(T,), (T,)` |
+| DataLoader | `input_ids`, `target_ids` | `(B,T)=(2,3)` |
+| Token lookup | `token_vectors` | `(B,T,C)=(2,3,3)` |
+| Absolute position lookup | `position_vectors` | `(T,C)=(3,3)` |
+| Addition | `x` | `(B,T,C)=(2,3,3)` |
+
+```python
+assert token_embedding.weight.shape == (6, 3)
+assert input_ids.shape == target_ids.shape == (2, 3)
+assert x.shape == (2, 3, 3)
+```
+
+Vocabulary size `V=6` nằm trong embedding weight, không trở thành chiều cuối của `x`. Output logits `(B,T,V)` chỉ xuất hiện ở đầu ra model, không phải tại input embedding.
+
+<LessonNote>**Takeaway:** `raw text → tokens → IDs → windows → batches → token + position embeddings → (B,T,C)` là toàn bộ data-input contract của chương.</LessonNote>
+
+</MdxPage>

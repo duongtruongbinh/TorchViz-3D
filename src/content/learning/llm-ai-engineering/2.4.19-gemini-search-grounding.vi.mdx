@@ -1,0 +1,52 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "gemini-search-grounding", locale: "vi",
+  title: "Grounding với Google Search", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["gemini-search-grounding","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Grounding có thể cung cấp current evidence và metadata nhưng model synthesis vẫn cần citation mapping và unsupported-combination handling.
+
+**Input:** Query, current search tool config và safety/data policy.
+
+**Output:** Answer plus grounding metadata/citations or no-grounding state.
+
+**Data/type/shape:** Tool execution produces evidence chunks; adapter maps cited spans/URLs into internal sources.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Câu hỏi shipping regulation trả hai sources. UI chỉ gắn citation nếu metadata map được; nếu tool không chạy, answer không được dán nhãn grounded.
+
+| Provider evidence | Internal state | UI/automation |
+|---|---|---|
+| Có grounding metadata và cited span map được | `grounded` + normalized sources | Hiển thị citation cạnh claim tương ứng |
+| Tool chạy nhưng metadata thiếu/không map được | `grounding_incomplete` | Không bịa URL từ prose; yêu cầu kiểm chứng |
+| Tool không chạy hoặc capability không hỗ trợ | `ungrounded` | Gắn nhãn rõ; không tự động hóa high-impact decision |
+| Retrieved page chứa instruction | Evidence không tin cậy | Tách data khỏi system/tool authority |
+
+<LessonNote>Grounding metadata là provenance, không bảo đảm nguồn đúng hoặc an toàn. Domain vẫn cần freshness, source-quality và claim-support checks.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Bịa citation từ URL trong prose.
+- Bỏ unsupported model/tool combination.
+- Tin retrieved page là safe instruction.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://ai.google.dev/gemini-api/docs/google-search). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Context caching giảm cost cho prefix lặp.
+
+</MdxPage>

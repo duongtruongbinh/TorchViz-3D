@@ -1,0 +1,78 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "chat-completions-api", locale: "vi",
+  title: "Responses API và lộ trình từ Chat Completions", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["chat-completions-api","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Responses là primitive được khuyến nghị cho dự án OpenAI mới; Chat Completions vẫn là compatibility/migration path. Học cả hai qua một domain adapter tránh khóa business logic vào wire format.
+
+**Input:** Typed support request, configurable model ID, timeout và server-side credential.
+
+**Output:** Normalized text/tool/refusal/usage result.
+
+**Data/type/shape:** Responses trả danh sách typed output items; Chat Completions trả choices/messages. Adapter quy về một discriminated union nội bộ.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Một request `input='Đơn A17 ở đâu?'` cho output text. Migration đổi `messages` sang `input`, đọc `output_text`/items thay `choices[0].message`, và quyết định state/store rõ ràng.
+
+~~~ts
+import assert from "node:assert/strict";
+type Usage = { inputTokens: number; outputTokens: number };
+type Result =
+  | { kind: "text"; text: string; usage: Usage }
+  | { kind: "tool_call"; callId: string; name: string; arguments: string; usage: Usage }
+  | { kind: "refusal"; reason: string; usage: Usage };
+type OutputItem =
+  | { type: "output_text"; text: string }
+  | { type: "function_call"; call_id: string; name: string; arguments: string }
+  | { type: "refusal"; refusal: string };
+
+function normalize(items: OutputItem[], usage: Usage): Result {
+  const item = items[0];
+  if (!item) throw new Error("missing_output_item");
+  if (item.type === "output_text") return { kind: "text", text: item.text, usage };
+  if (item.type === "refusal") return { kind: "refusal", reason: item.refusal, usage };
+  return {
+    kind: "tool_call", callId: item.call_id, name: item.name,
+    arguments: item.arguments, usage,
+  };
+}
+
+const result = normalize(
+  [{ type: "function_call", call_id: "call_17", name: "lookup_order",
+     arguments: '{"orderId":"A17"}' }],
+  { inputTokens: 24, outputTokens: 9 },
+);
+assert.deepEqual(result, {
+  kind: "tool_call", callId: "call_17", name: "lookup_order",
+  arguments: '{"orderId":"A17"}', usage: { inputTokens: 24, outputTokens: 9 },
+});
+~~~
+<LessonNote>Đây là adapter trace cục bộ, không phải network call. Production vẫn cần server credential, explicit storage/state policy, timeout/cancel và mapping đầy đủ các output item.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Dùng Chat Completions như mặc định mới mà không nêu migration.
+- Hard-code model alias.
+- Đọc text nhưng bỏ refusal/tool/error items.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/migrate-to-responses). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Function calling mở rộng union từ text sang tool proposal.
+
+</MdxPage>

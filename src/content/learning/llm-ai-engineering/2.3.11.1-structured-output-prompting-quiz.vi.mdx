@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'structured-output-prompting-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Mức bảo đảm', 'Schema validation', 'Refusal', 'Type safety', 'Schema privacy'],
+  keywords: ['quiz', 'structured output', 'JSON mode', 'JSON Schema'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="structured-output-prompting-quiz" questions={[
+  {
+    id: 'structured-output-prompting-quiz-q1',
+    title: 'Mức bảo đảm',
+    prompt: 'Phát biểu nào phân biệt đúng prompt-only JSON, JSON mode và schema-constrained output?',
+    mode: 'single',
+    options: [
+      { id: 'same', label: 'Cả ba luôn bảo đảm cùng domain schema' },
+      { id: 'layers', label: 'Prompt là hướng dẫn; JSON mode nhắm cú pháp JSON; schema constraint thêm required/type/enum trong phần được hỗ trợ', isCorrect: true },
+      { id: 'json-auth', label: 'JSON mode thực thi authorization' },
+      { id: 'schema-truth', label: 'Schema chứng minh dữ liệu đúng sự thật' },
+    ],
+    success: 'Đúng. Mỗi lớp có guarantee khác nhau; semantic truth và permissions vẫn cần kiểm tra riêng.',
+    error: 'Chưa đúng. Tách syntactic validity, schema adherence và business correctness.',
+  },
+  {
+    id: 'structured-output-prompting-quiz-q2',
+    title: 'Schema validation',
+    prompt: '`{"category":"ship","confidence":1.2}` là JSON hợp lệ. Vì sao vẫn bị reject?',
+    mode: 'single',
+    options: [
+      { id: 'spacing', label: 'Vì không có xuống dòng' },
+      { id: 'quotes', label: 'Vì JSON dùng dấu ngoặc kép' },
+      { id: 'enum-bounds', label: '`category` sai enum và `confidence` vượt bound 0..1', isCorrect: true },
+      { id: 'too-short', label: 'Vì response quá ngắn' },
+    ],
+    success: 'Đúng. Parse JSON thành công chưa đủ để thỏa domain schema.',
+    error: 'Chưa đúng. Kiểm tra enum và numeric bounds sau cú pháp.',
+  },
+  {
+    id: 'structured-output-prompting-quiz-q3',
+    title: 'Refusal',
+    prompt: 'Model từ chối hợp lệ hoặc response bị cắt giữa chừng. Parser contract nên làm gì?',
+    mode: 'single',
+    options: [
+      { id: 'explicit-union', label: 'Biểu diễn success/refusal/incomplete/invalid thành các nhánh typed riêng', isCorrect: true },
+      { id: 'fake-empty', label: 'Biến tất cả thành object rỗng coi như success' },
+      { id: 'infinite-retry', label: 'Retry vô hạn không xét nguyên nhân' },
+      { id: 'cast-any', label: 'Cast mọi string thành domain type' },
+    ],
+    success: 'Đúng. Nhánh explicit giúp caller quyết định retry, fallback hay dừng một cách có kiểm soát.',
+    error: 'Chưa đúng. Refusal và incomplete không phải object success thiếu field.',
+  },
+  {
+    id: 'structured-output-prompting-quiz-q4',
+    title: 'Type safety',
+    prompt: 'TypeScript `as TicketDecision` ngay sau `JSON.parse` có tạo runtime guarantee không?',
+    mode: 'single',
+    options: [
+      { id: 'yes', label: 'Có, compiler sửa mọi field lúc runtime' },
+      { id: 'only-prod', label: 'Có, nhưng chỉ trong production build' },
+      { id: 'model-checks', label: 'Có, vì model đã thấy schema' },
+      { id: 'no-validator', label: 'Không; cần runtime validator trước khi trả domain type', isCorrect: true },
+    ],
+    success: 'Đúng. Type assertion bị xóa lúc runtime và không kiểm tra dữ liệu bên ngoài.',
+    error: 'Chưa đúng. Static type không validate string do model hoặc network trả về.',
+  },
+  {
+    id: 'structured-output-prompting-quiz-q5',
+    title: 'Schema privacy',
+    prompt: 'Schema description được lưu/cache bởi một dịch vụ bên ngoài. Nội dung nào nên tránh?',
+    mode: 'single',
+    options: [
+      { id: 'generic-field', label: 'Tên field domain chung' },
+      { id: 'sensitive-values', label: 'Secret, PII thật hoặc policy nội bộ không cần thiết', isCorrect: true },
+      { id: 'enum', label: 'Enum nghiệp vụ không nhạy cảm' },
+      { id: 'bounds', label: 'Numeric bounds công khai' },
+    ],
+    success: 'Đúng. Schema là artifact có thể được lưu; mô tả chỉ nên chứa thông tin tối thiểu cần cho contract.',
+    error: 'Chưa đúng. Không đưa dữ liệu nhạy cảm vào metadata/schema chỉ vì nó không nằm trong user field.',
+  },
+]} />

@@ -1,20 +1,19 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-scale-and-development-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Scale của LLM', 'So sánh quy mô', 'Vì sao LLM phổ biến'],
-  keywords: ['parameters', 'data', 'compute', 'scale', 'Transformer', 'natural language interface'], pageCount: 3,
+  headings: ['Scale của LLM', 'So sánh quy mô', 'Giao diện sản phẩm', 'Model phù hợp', 'Scale và evaluation'],
+  keywords: ['parameters', 'data', 'compute', 'scale', 'Transformer', 'natural language interface'], pageCount: 5,
 }
 
 <MdxQuiz id="llm-scale-and-development-checkpoint-quiz" questions={[
   {
-    id: 'why-large', title: 'Chọn tất cả ý đúng', prompt: 'Vì sao LLM được gọi là “Large”?', mode: 'multi',
+    id: 'why-large', title: 'Scale kéo theo chi phí', prompt: 'Team tăng số parameter và lượng training data của language model. Hệ quả nào phù hợp nhất với chữ “Large” trong bài?', mode: 'single',
     options: [
-      { id: 'params', label: 'Số lượng tham số lớn.', isCorrect: true },
-      { id: 'unlimited-context', label: 'Độ dài context luôn không giới hạn.' },
-      { id: 'compute', label: 'Nhu cầu compute lớn.', isCorrect: true },
-      { id: 'only-long-output', label: 'Mỗi câu trả lời bắt buộc phải có rất nhiều token.' },
-      { id: 'data', label: 'Lượng dữ liệu huấn luyện lớn.', isCorrect: true },
-    ], success: 'Đúng rồi. Large nói về scale của parameters, data và compute.', error: 'Chưa đủ. Hãy chọn các lý do liên quan đến quy mô model và quá trình training.',
+      { id: 'params', label: 'Memory và compute training thường tăng; pipeline dữ liệu cũng phải xử lý corpus lớn hơn.', isCorrect: true },
+      { id: 'unlimited-context', label: 'Context tự động trở nên không giới hạn.' },
+      { id: 'compute', label: 'Mọi response bắt buộc dài hơn dù prompt giống nhau.' },
+      { id: 'only-long-output', label: 'Evaluation và kiểm chứng không còn cần thiết.' },
+    ], success: 'Đúng. “Large” mô tả scale của parameter, data và compute; nó không hứa context vô hạn hay chất lượng tự động.', error: 'Hãy nối scale với tài nguyên phải lưu/tính và dữ liệu phải xử lý, không với độ dài output hay việc bỏ evaluation.',
   },
   {
     id: 'scale-comparison', title: 'So sánh quy mô', prompt: 'Thông điệp chính của ví dụ so sánh mô hình Iris với LLM là gì?', mode: 'single',
@@ -26,14 +25,34 @@ export const lessonMetadata = {
     ], success: 'Đúng. Ví dụ cho thấy chênh lệch quy mô cần thiết giữa bài toán nhỏ và ngôn ngữ phức tạp.', error: 'Chưa đúng. So sánh này nói về mức scale cần thiết, không khẳng định model lớn luôn tốt hơn.',
   },
   {
-    id: 'popularity-factors', title: 'Vì sao LLM phổ biến?', prompt: 'Chọn các yếu tố được bài học dùng để giải thích sự phổ biến của LLM.', mode: 'multi',
+    id: 'popularity-factors', title: 'Giao diện sản phẩm', prompt: 'Vì sao một team có thể thử tóm tắt, trích xuất và hỏi đáp bằng cùng một nền tảng LLM nhanh hơn nhiều pipeline NLP hẹp?', mode: 'single',
     options: [
-      { id: 'interface', label: 'Ngôn ngữ tự nhiên trở thành giao diện dễ dùng.', isCorrect: true },
-      { id: 'no-task-data', label: 'LLM không cần dữ liệu task-specific trong bất kỳ trường hợp nào.' },
-      { id: 'multitask', label: 'Một model có thể hỗ trợ nhiều tác vụ.', isCorrect: true },
-      { id: 'tooling', label: 'API và tooling giúp tích hợp, thử nghiệm nhanh.', isCorrect: true },
-      { id: 'no-evaluation', label: 'Scale loại bỏ nhu cầu evaluation và kiểm chứng.' },
-      { id: 'transformer-data-compute', label: 'Transformer, dữ liệu lớn và GPU/compute giúp scale khả thi.', isCorrect: true },
-    ], success: 'Đúng. Sự phổ biến đến từ cả trải nghiệm sử dụng, khả năng đa nhiệm và nền tảng kỹ thuật để scale.', error: 'Chưa đủ. Hãy xét cả giao diện sản phẩm lẫn Transformer, dữ liệu và compute.',
+      { id: 'interface', label: 'Ngôn ngữ tự nhiên là giao diện chung, model hỗ trợ nhiều task, còn API/tooling rút ngắn vòng thử nghiệm.', isCorrect: true },
+      { id: 'no-task-data', label: 'LLM không bao giờ cần dữ liệu task-specific hoặc evaluation.' },
+      { id: 'multitask', label: 'Mọi task dùng chính xác cùng prompt và metric.' },
+      { id: 'tooling', label: 'Scale bảo đảm response luôn đúng nên không cần hệ thống xung quanh.' },
+    ], success: 'Đúng. Giao diện ngôn ngữ, khả năng đa nhiệm và tooling tạo tốc độ thử nghiệm; từng task vẫn cần contract và evaluation riêng.', error: 'Lợi ích là một giao diện/model có thể khởi động nhiều task nhanh, không phải lời hứa mọi task giống nhau hoặc luôn đúng.',
+  },
+  {
+    id: 'small-model-fit', title: 'Chọn model phù hợp', prompt: 'Một thiết bị edge chỉ cần phân loại ba loại lỗi từ vài feature số, có latency và memory rất chặt. Quyết định nào hợp lý?', mode: 'single',
+    options: [
+      { id: 'largest-default', label: 'Luôn chọn LLM lớn nhất vì nhiều parameter luôn tốt hơn.' },
+      { id: 'fit-small-model', label: 'Đặt một model nhỏ làm baseline vì task hẹp và ràng buộc deployment; chỉ tăng scale nếu evaluation chứng minh cần.', isCorrect: true },
+      { id: 'ignore-latency', label: 'Bỏ qua latency vì scale chỉ ảnh hưởng training.' },
+      { id: 'remove-metric', label: 'Không cần metric nếu model nhỏ.' },
+    ],
+    success: 'Đúng. Scale là trade-off, không phải mục tiêu tự thân; task contract và ràng buộc hệ thống quyết định baseline.',
+    error: 'Ví dụ Iris trong bài cho thấy bài toán nhỏ có thể phù hợp với model nhỏ. Hãy dùng evaluation để biện minh cho việc tăng scale.',
+  },
+  {
+    id: 'scale-does-not-replace-evaluation', title: 'Scale và evaluation', prompt: 'Một model lớn hơn tạo câu trả lời trôi chảy hơn nhưng hay bịa nguồn. Bước tiếp theo nên là gì?', mode: 'single',
+    options: [
+      { id: 'trust-fluency', label: 'Release vì văn phong tốt chứng minh factuality.' },
+      { id: 'add-parameters-only', label: 'Chỉ tiếp tục tăng parameter mà không đo lỗi.' },
+      { id: 'task-evaluation', label: 'Xây evaluation cho factuality/citation và cải thiện data hoặc hệ thống theo lỗi quan sát được.', isCorrect: true },
+      { id: 'disable-sources', label: 'Ẩn nguồn để người dùng không thấy hallucination.' },
+    ],
+    success: 'Đúng. Model scale lớn vẫn cần evaluation và systems quanh model; độ trôi chảy không phải bằng chứng về tính đúng.',
+    error: 'Scale không loại bỏ hallucination hay nhu cầu kiểm chứng. Hãy đo đúng tiêu chí sản phẩm rồi sửa theo bằng chứng.',
   },
 ]} />

@@ -1,0 +1,78 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'finetuning-objectives-theory', locale: 'vi',
+  title: 'Lý thuyết objective fine-tuning',
+  headings: ['Mục tiêu', 'Classification objective', 'Instruction objective', 'Full và PEFT', 'Decision matrix'],
+  keywords: ['fine-tuning', 'classification', 'instruction tuning', 'LoRA'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Hai mục tiêu phổ biến
+
+**Mục tiêu:** Chọn đúng data/output/loss/evaluation contract trước khi quyết định fine-tune bao nhiêu parameter.
+
+Classification fine-tuning biến LLM thành bộ dự đoán nhãn hẹp, ví dụ spam/không spam. Instruction fine-tuning giữ khả năng sinh chuỗi và dạy model trả lời theo cặp instruction-response.
+
+Cả hai bắt đầu từ checkpoint pretrained; fine-tuning không khởi tạo lại hiểu biết ngôn ngữ từ đầu.
+
+<LessonNote>**Lỗi thường gặp:** chọn phương pháp theo tên phổ biến thay vì output product cần trả.</LessonNote>
+
+**Takeaway:** Bắt đầu từ task contract, không bắt đầu từ optimizer.
+
+</MdxPage>
+<MdxPage page={1}>
+
+## Classification objective
+
+Thay output head bằng số class và thường lấy representation ở token cuối có nội dung. Cross-entropy so logits class với nhãn duy nhất của mỗi mẫu. Metric như accuracy bổ sung cho loss.
+
+Contract là `input_ids (B,T) → class logits (B,K)`. Dataset cần label hữu hạn và split chống near-duplicate leakage.
+
+<LessonNote>**Takeaway:** Classification tối ưu một quyết định class cho mỗi sample.</LessonNote>
+
+</MdxPage>
+<MdxPage page={2}>
+
+## Instruction objective
+
+Prompt và response được nối thành một chuỗi. Vẫn dùng next-token cross-entropy, nhưng thường mask token của phần instruction để loss tập trung vào response mong muốn. Padding cũng phải bị bỏ qua.
+
+Contract vẫn là LM logits `(B,T,V)`. Template, special tokens và response boundary trở thành một phần của data interface.
+
+<LessonNote>**Lỗi thường gặp:** mask instruction khỏi input. Model cần nhìn prompt; chỉ target loss của prompt bị bỏ.</LessonNote>
+
+**Takeaway:** Instruction SFT tối ưu nhiều response tokens cho mỗi sample.
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Full fine-tuning và PEFT
+
+Chỉ train head rẻ nhưng hạn chế khả năng thích nghi. Unfreeze các block cuối hoặc toàn model linh hoạt hơn nhưng tốn bộ nhớ. LoRA đóng băng trọng số gốc và học các ma trận hạng thấp, giảm số parameter trainable.
+
+Ít parameter trainable giảm gradient/optimizer state, nhưng forward vẫn chạy backbone. Quantization, activation checkpointing và distributed training là các trục tối ưu khác.
+
+<LessonNote>**Lỗi thường gặp:** so số trainable parameters với total parameters mà không nói rõ memory nào được tiết kiệm.</LessonNote>
+
+**Takeaway:** PEFT nén update; nó không tự làm model nhỏ hơn.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Decision matrix trước khi code
+
+| Câu hỏi | Classification | Instruction SFT |
+|---|---|---|
+| Output | một trong K classes | chuỗi token mở |
+| Label | integer `(B,)` | shifted targets `(B,T)` |
+| Loss | class CE | token CE + mask |
+| Metric | accuracy/F1 | task rubric + generation checks |
+| Baseline rẻ | head-only | LoRA trên LM |
+
+Sau khi chọn objective, mới quyết định full/partial/LoRA dựa vào data, compute và validation.
+
+<LessonNote>**Takeaway:** Objective, data format và metric phải nhất quán; parameter strategy là quyết định tiếp theo.</LessonNote>
+
+</MdxPage>

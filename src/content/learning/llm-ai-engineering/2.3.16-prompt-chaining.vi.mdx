@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'prompt-chaining',
+  locale: 'vi',
+  title: 'Prompt chaining với typed stages',
+  headings: ['Tách pipeline theo contract', 'Failure semantics', 'Production gate'],
+  keywords: ['prompt chaining', 'typed stages', 'retry', 'cancellation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Tách pipeline theo contract
+
+Tách `extract → decide → compose` giúp test và thay thế từng stage, nhưng tạo thêm latency và failure points.
+
+**Input/output graph:** `TicketText → TicketFacts → Decision → Reply`.
+
+Mỗi arrow là runtime validation boundary. Artifact cần schema version, provenance và correlation ID; raw prose không được giả làm domain type. Stage decide tải policy/business state hiện tại thay vì tin mọi field model extract.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Failure semantics
+
+Với ticket A17:
+
+1. Extract tạo `{orderId: "A17", intent: "delay"}`.
+2. Decide xác minh ownership/state và tạo `{action: "apologize"}`.
+3. Compose tạo reply theo locale/style contract.
+
+Nếu thiếu `orderId`, pipeline dừng ở `extract.validation_error` trước tool call. Nếu compose timeout, có thể retry **chỉ compose** với cùng immutable inputs; không cần chạy lại decide hoặc side effect đã thành công.
+
+| Failure | Hành vi |
+|---|---|
+| Invalid stage output | Fail fast; không gọi stage sau |
+| Transient timeout | Bounded retry nếu stage idempotent và còn deadline |
+| Cancellation | Propagate tới model/tool; không khởi tạo việc mới |
+| Permanent policy denial | Không retry; trả domain error |
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production gate
+
+- Đặt deadline tổng và per-stage; budget token/cost cho toàn chain.
+- Retry theo error class, chỉ stage thất bại; side effect dùng idempotency key.
+- Propagate cancellation và correlation ID xuyên suốt.
+- Trace stage, artifact/schema version, timing, retry count và redacted error code.
+- Không truyền secret/PII không cần thiết giữa stages và không log raw payload hoặc hidden chain-of-thought.
+
+Chain phức tạp chỉ đáng giữ khi eval chứng minh decomposition cải thiện quality/reliability đủ bù latency/cost.
+
+</MdxPage>

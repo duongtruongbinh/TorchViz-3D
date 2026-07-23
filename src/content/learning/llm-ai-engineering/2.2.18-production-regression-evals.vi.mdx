@@ -3,20 +3,50 @@ export const lessonMetadata = {
   id: 'production-regression-evals',
   locale: 'vi',
   title: 'Regression evaluation trong production',
-  headings: ['Từ failure thành test', 'Version mọi thành phần', 'Offline và online'],
-  keywords: ['regression evaluation', 'production', 'versioning', 'monitoring', 'release gate'],
+  headings: ['Từ failure thành invariant', 'Versioned run contract', 'Worked release gate', 'Pitfall và handoff'],
+  keywords: ['regression evaluation', 'release gate', 'versioning', 'monitoring', 'CI'],
+  pageCount: 4,
 }
 
-## Từ failure thành test
+<MdxPage page={0}>
 
-Mỗi lỗi quan trọng được phát hiện trong development, red teaming hoặc production nên trở thành một test case có thể chạy lại. Bộ regression eval bảo đảm thay đổi mới không làm sống lại lỗi cũ trong khi cải thiện một metric khác.
+## Từ failure thành invariant
 
-Test suite nên tách smoke tests chạy nhanh, core use-case tests, safety tests và một tập lớn chạy theo lịch. Critical failure có thể trở thành release gate thay vì chỉ đóng góp vào average score.
+Một failure đã triage cần stable case ID, sanitized input, expected invariant, severity và owner. State chuyển từ `observed -> reproduced -> fixed -> regression case -> monitored`; không đóng incident chỉ vì một demo pass.
 
-## Version mọi thành phần
+Suite nên tách smoke, core task, safety/authorization và scheduled deep eval. Critical invariant là gate riêng.
 
-Kết quả eval chỉ có ý nghĩa khi ta biết phiên bản model, system prompt, retrieval index, tool, policy, dataset và judge. Cùng một model nhưng prompt hoặc context khác nhau có thể tạo hành vi hoàn toàn khác.
+</MdxPage>
 
-## Offline và online
+<MdxPage page={1}>
 
-Offline eval nhanh, tái lập và phù hợp để so sánh trước release. Online monitoring phản ánh traffic thật nhưng bị ảnh hưởng bởi user mix và rủi ro exposure. Hai nguồn cần nối với nhau: production failure bổ sung vào offline dataset, còn offline regression bảo vệ release tiếp theo.
+## Versioned run contract
+
+Input run gồm dataset hash, model snapshot/declared provider version, prompt, retrieval index, tools, policy, evaluator, thresholds và code revision. Output gồm per-case result, aggregate slices, artifacts và `pass|review|block`.
+
+Provider alias có thể thay đổi; lưu response/request IDs và ngày chạy, nhưng không ghi raw secret/PII.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Worked release gate
+
+Baseline: task pass `90/100`, authorization `20/20`. Candidate: task `92/100`, authorization `19/20`. Dù task tăng 2 điểm phần trăm, candidate bị `block` vì must-pass case fail.
+
+Gate phải in case ID, invariant và owner; không chỉ `score below threshold`. Khi evaluator thay đổi, chạy lại baseline và candidate bằng cùng version trước khi so.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Pitfall và handoff
+
+- Không dùng production traffic thô làm test set trước redaction/consent.
+- Không so run khác evaluator/protocol như thể cùng thước đo.
+- Theo dõi slice, uncertainty, latency/cost và critical counts.
+- Nối confirmed online failure vào offline suite; dùng offline gate trước exposure.
+
+Quiz kế tiếp kiểm tra lifecycle; A/B calculation đo effect/guardrail và harness code thực thi gate.
+
+</MdxPage>

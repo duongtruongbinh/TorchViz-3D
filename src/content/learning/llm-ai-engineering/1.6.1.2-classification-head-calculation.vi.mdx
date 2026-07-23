@@ -1,0 +1,87 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'classification-head-calculation',
+  locale: 'vi',
+  title: 'Tính classification head và loss',
+  headings: ['Last token', 'Head shape', 'Cross-entropy', 'Accuracy'],
+  keywords: ['classification calculation', 'last content token', 'cross-entropy', 'accuracy', 'tensor shape'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Chọn token cuối có nội dung
+
+**Mục tiêu:** Tính từ padded batch đến class loss và accuracy bằng một ví dụ hai mẫu.
+
+```text
+input_ids      = [[8, 4, 2, 0],
+                  [5, 7, 0, 0]]
+attention_mask = [[1, 1, 1, 0],
+                  [1, 1, 0, 0]]
+```
+
+Tổng mask là `[3,2]`, nên chỉ số cuối có nội dung là `[2,1]`. Nếu hidden có shape `(2,4,C)`, ta lấy `hidden[0,2]` và `hidden[1,1]`, kết quả `(2,C)`.
+
+<LessonNote>**Lỗi thường gặp:** dùng chỉ số `[3,3]` cho cả batch vì T=4. Cả hai vị trí đó đều là PAD.</LessonNote>
+
+**Takeaway:** Sequence length thực của từng sample đến từ mask, không từ chiều tensor đã pad.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tính logits của head
+
+Cho `C=2`, `K=2`, hidden đã chọn:
+
+`H = [[2,1],[0,2]]`, `W = [[1,-1],[0,1]]`, `b = [0,0]`.
+
+Với quy ước `logits = H @ W`, ta được:
+
+`Z = [[2,-1],[0,2]]`,
+
+shape `(B,K)=(2,2)`.
+
+<LessonNote>**Lỗi thường gặp:** mong head trả `(B,T,K)`. Ta đã chọn một representation cho mỗi sample trước khi chiếu.</LessonNote>
+
+**Takeaway:** Classification head thay chiều feature C bằng số class K.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cross-entropy cho hai label
+
+Giả sử labels là `[0,1]`. Sample đầu có logits `[2,-1]`, xác suất class 0:
+
+`p_0 = e²/(e²+e⁻¹) ≈ 0.953`, nên `-log(p_0) ≈ 0.049`.
+
+Sample hai có logits `[0,2]`, xác suất class 1 khoảng `0.881`, NLL khoảng `0.127`. Batch loss trung bình:
+
+`(0.049 + 0.127) / 2 ≈ 0.088`.
+
+<LessonNote>**Lỗi thường gặp:** tính log của logit đúng. NLL dùng log của **xác suất** sau normalization, dù code nhận raw logits.</LessonNote>
+
+**Takeaway:** Cross-entropy phạt model theo xác suất gán cho class ground truth.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Accuracy và shape audit
+
+Argmax hai hàng là `[0,1]`, khớp labels `[0,1]`, nên accuracy là `2/2=100%`.
+
+```python
+assert logits.shape == (2, 2)
+predictions = logits.argmax(dim=-1)
+accuracy = (predictions == labels).float().mean()
+assert accuracy.item() == 1.0
+```
+
+Loss thấp và accuracy cao trên hai mẫu toy không nói gì về generalization. Trên dữ liệu thật, tính tổng số dự đoán đúng trên toàn split thay vì trung bình các batch accuracy không cùng kích thước.
+
+<LessonNote>**Takeaway:** Loss dùng để cập nhật gradient; accuracy dùng để diễn giải quyết định class.</LessonNote>
+
+</MdxPage>

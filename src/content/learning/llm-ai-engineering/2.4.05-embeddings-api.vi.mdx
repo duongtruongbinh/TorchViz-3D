@@ -1,0 +1,66 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "embeddings-api", locale: "vi",
+  title: "Embeddings API và vector contract", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["embeddings-api","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Embeddings phục vụ retrieval/similarity, không phải text generation. Index và query phải dùng compatible model/dimension/normalization policy.
+
+**Input:** Danh sách strings hoặc token arrays theo provider contract.
+
+**Output:** Matrix vectors `(N,D)` cùng usage/model metadata.
+
+**Data/type/shape:** `N` inputs → `N` vectors; dimension `D` cố định cho model/config và phải assert trước upsert.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Hai documents tạo `(2,3)` trong fixture: `[1,0,0]` và `[0.8,0.2,0]`. Query `[1,0,0]` có cosine cao hơn với document đầu. Đổi dimension cần reindex, không append vào index cũ.
+
+~~~ts
+import assert from "node:assert/strict";
+type Vector = number[];
+function cosine(a: Vector, b: Vector): number {
+  if (a.length === 0 || a.length !== b.length) throw new Error("dimension_mismatch");
+  const dot = a.reduce((sum, value, i) => sum + value * b[i], 0);
+  const normA = Math.sqrt(a.reduce((sum, value) => sum + value * value, 0));
+  const normB = Math.sqrt(b.reduce((sum, value) => sum + value * value, 0));
+  if (normA === 0 || normB === 0) throw new Error("zero_vector");
+  return dot / (normA * normB);
+}
+
+const documents: Vector[] = [[1, 0, 0], [0.8, 0.2, 0]];
+const query: Vector = [1, 0, 0];
+assert.equal(documents.length, 2);        // N = 2
+assert.ok(documents.every(v => v.length === 3)); // D = 3
+const scores = documents.map(vector => cosine(query, vector));
+assert.equal(scores[0], 1);
+assert.ok(scores[0] > scores[1]);
+assert.throws(() => cosine(query, [1, 0]), /dimension_mismatch/);
+~~~
+<LessonNote>Index metadata phải pin embedding model/version và dimension. Thay model hoặc dimension cần index/reindex riêng, không trộn vectors vào cùng collection.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Trộn embedding models trong một index.
+- Dùng dot product khi normalization policy không rõ.
+- Log raw document cùng vector metadata.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/embeddings). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Vision bổ sung media parts vào request contract.
+
+</MdxPage>

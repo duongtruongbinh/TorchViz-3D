@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'text-embeddings-overview-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Raw text', 'Phạm vi embedding', 'Vocabulary và dimension', 'Pipeline shape', 'Chọn representation'],
+  keywords: ['quiz', 'raw text', 'token embedding', 'sentence embedding', 'document embedding', 'dense vector'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="text-embeddings-overview-quiz" questions={[
+  {
+    id: 'raw-text-needs-contract', title: 'Raw text chưa phải tensor', prompt: 'Vì sao không thể đưa trực tiếp chuỗi `"Linh builds AI."` vào phép nhân ma trận của neural network?', mode: 'single',
+    options: [
+      { id: 'unicode-semantic', label: 'Vì Unicode chỉ hỗ trợ tiếng Anh.' },
+      { id: 'numeric-shape', label: 'Vì phép toán cần tensor số có dtype và shape xác định; raw string chưa cung cấp contract đó.', isCorrect: true },
+      { id: 'one-vector', label: 'Vì mọi câu bắt buộc được đổi thành đúng một scalar.' },
+      { id: 'fixed-words', label: 'Vì neural network chỉ nhận các từ có đúng bốn ký tự.' },
+    ],
+    success: 'Đúng. Tokenization tạo đơn vị/ID, rồi embedding lookup tạo tensor số có feature dimension cố định.',
+    error: 'Vấn đề là data contract của phép toán tensor, không phải ngôn ngữ hay độ dài từ.',
+  },
+  {
+    id: 'embedding-scope-contract', title: 'Phạm vi embedding', prompt: 'GPT cần giữ một vector cho mỗi vị trí để dự đoán token tiếp theo. Biểu diễn nào phù hợp?', mode: 'single',
+    options: [
+      { id: 'document-single', label: 'Một document embedding duy nhất cho toàn batch.' },
+      { id: 'sentence-single', label: 'Một sentence embedding duy nhất cho mỗi câu.' },
+      { id: 'token-sequence', label: 'Token embeddings giữ sequence axis `T`, một vector tại mỗi vị trí.', isCorrect: true },
+      { id: 'unicode-distance', label: 'Mã Unicode vì khoảng cách giữa mã đã biểu diễn độ gần nghĩa.' },
+    ],
+    success: 'Đúng. Input GPT cần contract `(B,T,C)`; sentence/document embedding nén một phạm vi lớn hơn và giải quyết bài toán khác.',
+    error: 'Hãy chọn biểu diễn vẫn giữ riêng từng vị trí token thay vì nén cả câu hoặc tài liệu.',
+  },
+  {
+    id: 'vocabulary-versus-dimension', title: 'Vocabulary và dimension', prompt: 'Bảng embedding có `V=6` và `C=3`. Mô tả nào đúng?', mode: 'single',
+    options: [
+      { id: 'six-rows-three-features', label: 'Có 6 hàng có thể tra, mỗi hàng là vector 3 feature.', isCorrect: true },
+      { id: 'three-rows-six-features', label: 'Có 3 token, mỗi token bắt buộc có 6 feature.' },
+      { id: 'same-axis', label: '`V` và `C` phải luôn bằng nhau.' },
+      { id: 'sequence-axis', label: '`C=3` nghĩa mọi input có đúng 3 token.' },
+    ],
+    success: 'Đúng. `V` đếm địa chỉ token; `C` là số feature trong vector ở mỗi địa chỉ.',
+    error: 'Đừng trộn vocabulary axis với feature hoặc sequence axis: bảng có shape `(V,C)`.',
+  },
+  {
+    id: 'raw-to-model-pipeline', title: 'Pipeline shape', prompt: 'Chuỗi chuyển đổi nào giữ đúng contract từ văn bản đến input GPT?', mode: 'single',
+    options: [
+      { id: 'text-direct-vector', label: 'raw text → logits `(B,T,V)` → token IDs.' },
+      { id: 'embed-before-id', label: 'raw text → embeddings → vocabulary → token IDs.' },
+      { id: 'single-document', label: 'raw text → một document vector → `(B,T)` IDs.' },
+      { id: 'tokens-ids-batch-embeddings', label: 'raw text → tokens → token IDs → batch `(B,T)` → embeddings `(B,T,C)`.', isCorrect: true },
+    ],
+    success: 'Đúng. Mỗi mũi tên đổi một contract rõ ràng; lookup chỉ xảy ra sau khi tokenizer tạo IDs.',
+    error: 'Embedding lookup cần integer IDs, còn GPT nhận feature vectors. Hãy đặt hai bước đó đúng thứ tự.',
+  },
+  {
+    id: 'retrieval-representation-choice', title: 'Chọn representation', prompt: 'Sản phẩm cần tìm tài liệu gần nghĩa với một query bằng một vector cho mỗi tài liệu. Scope nào phù hợp nhất?', mode: 'single',
+    options: [
+      { id: 'token-for-document', label: 'Token embedding riêng lẻ, rồi bỏ mọi token còn lại.' },
+      { id: 'document-vector', label: 'Document embedding, vì contract cần một biểu diễn tổng hợp cho mỗi tài liệu.', isCorrect: true },
+      { id: 'raw-codepoints', label: 'Danh sách Unicode code points vì chúng đã mã hóa nghĩa.' },
+      { id: 'vocab-row', label: 'Một hàng vocabulary ngẫu nhiên cho mỗi tài liệu.' },
+    ],
+    success: 'Đúng. Retrieval theo tài liệu cần một vector tổng hợp; đây là scope khác với sequence token embeddings dùng làm input GPT.',
+    error: 'Hãy khớp số vector đầu ra với đơn vị cần so sánh: một vector cho mỗi tài liệu.',
+  },
+]} />

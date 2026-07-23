@@ -1,0 +1,108 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-special-tokens',
+  locale: 'vi',
+  title: 'Special tokens',
+  headings: ['Các vai trò khác nhau', 'Document boundary', 'UNK và byte fallback', 'PAD khi batching'],
+  keywords: ['special token', 'BOS', 'EOS', 'PAD', 'UNK', 'endoftext', 'byte fallback'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Special tokens mang tín hiệu do pipeline quy ước
+
+| Token | Vai trò điển hình |
+|---|---|
+| `BOS` | đánh dấu bắt đầu sequence |
+| `EOS` | đánh dấu sequence đã kết thúc |
+| `PAD` | lấp vị trí trống để các sequence có cùng chiều dài trong batch |
+| `UNK` | thay nội dung không biểu diễn được bằng vocabulary/fallback |
+| `<\|endoftext\|>` | phân cách hai tài liệu độc lập trong GPT-style corpus |
+
+Tên và ID cụ thể phải được tokenizer, model config và data pipeline thống nhất. Chuỗi ký tự chỉ trở thành special token khi tokenizer nhận nó theo contract đó.
+
+<LessonNote>**Lỗi thường gặp:** tự chọn một ID “còn trống”. ID đó có thể đã trỏ đến token thường trong checkpoint.</LessonNote>
+
+**Handoff:** Running example cần một document boundary trước khi tạo windows.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chèn boundary giữa hai tài liệu
+
+Hai tài liệu độc lập:
+
+```text
+"Linh builds AI."
+"Linh tests AI."
+```
+
+Được nối thành:
+
+```text
+Linh builds AI. <|endoftext|> Linh tests AI.
+```
+
+Thêm special token vào cuối toy vocabulary:
+
+```python
+vocab["<|endoftext|>"] = 5
+ids = [2, 3, 1, 0, 5, 2, 4, 1, 0]
+
+assert len(vocab) == 6
+assert ids[4] == vocab["<|endoftext|>"]
+```
+
+Boundary là một token dữ liệu có nghĩa: model có thể học rằng tài liệu A kết thúc trước khi tài liệu B bắt đầu.
+
+<LessonNote>**Lỗi thường gặp:** xóa boundary như padding. Boundary thuộc corpus; padding chỉ là phần lấp để gom batch.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khi nào cần UNK?
+
+Word-level tokenizer có thể gặp token không có trong vocabulary:
+
+```text
+known words + "newword" -> UNK
+```
+
+Byte-level BPE có thể tách `"newword"` thành subword hoặc bytes nền tảng, nên thường không cần thay toàn bộ chuỗi bằng `UNK`.
+
+Hai thiết kế đều có trade-off:
+
+- `UNK` giữ sequence ngắn nhưng làm mất bề mặt text;
+- fallback giữ thông tin nhưng có thể tạo nhiều token hơn.
+
+<LessonNote>**Lỗi thường gặp:** suy ra fallback chỉ từ tên “BPE”. Hãy kiểm tra tokenizer cụ thể có byte coverage, UNK policy và allowed-special policy nào.</LessonNote>
+
+**Handoff:** PAD giải quyết vấn đề khác: các sequence đã encode có độ dài khác nhau.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## PAD chỉ phục vụ căn chỉnh batch
+
+Giả sử hai sequence có độ dài 3 và 4:
+
+```text
+ids       = [[BOS, 2, EOS, PAD],
+             [BOS, 2,   3, EOS]]
+valid     = [[  1, 1,   1,   0],
+             [  1, 1,   1,   1]]
+```
+
+`PAD` vẫn có một ID và một hàng embedding. Mask/length metadata cho pipeline biết vị trí nào chỉ là phần lấp, để chúng không được xem như nội dung thật hoặc target cần học.
+
+Với pretraining windows có cùng `T`, ta thường không cần PAD trong chính batch đó. PAD quan trọng khi batching sequence có độ dài biến thiên.
+
+<LessonNote>**Lỗi thường gặp:** dùng EOS làm PAD rồi mask mọi EOS. Cách đó có thể xóa cả tín hiệu kết thúc thật; pipeline phải phân biệt EOS nội dung với các vị trí lấp thêm.</LessonNote>
+
+**Handoff:** Corpus IDs đã có boundary và sẵn sàng được cắt thành các training windows cùng chiều dài.
+
+</MdxPage>

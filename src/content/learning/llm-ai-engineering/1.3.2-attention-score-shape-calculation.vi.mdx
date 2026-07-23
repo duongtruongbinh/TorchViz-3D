@@ -1,0 +1,84 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'attention-score-shape-calculation', locale: 'vi',
+  title: 'Tính score và shape attention',
+  headings: ['Shape QKV', 'Scaled score', 'Causal softmax', 'Context vector', 'Batch shape audit'],
+  keywords: ['attention score', 'tensor shape', 'softmax', 'context vector'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Theo dõi shape
+
+**Mục tiêu:** Tính một attention row bằng tay và kiểm tra shape ở dạng batched.
+
+Với `X: (B,T,C)` và `Wq,Wk,Wv: (C,D)`, ta có `Q,K,V: (B,T,D)`. Ví dụ `B=2, T=6, C=3, D=2` tạo ba tensor `(2,6,2)`.
+
+Cho query `q=[1,1]` và ba keys `k₀=[1,0]`, `k₁=[0,2]`, `k₂=[1,1]`.
+
+<LessonNote>**Takeaway:** Một query `(D,)` chấm điểm T keys `(T,D)` để tạo một row `(T,)`.</LessonNote>
+
+</MdxPage>
+<MdxPage page={1}>
+
+## Dot product và scaling
+
+Dot products là `[1,2,2]`. Với `D=2`, chia `sqrt(2)≈1.414` cho scaled scores xấp xỉ `[0.707,1.414,1.414]`.
+
+Ở dạng tensor, `(B,T,D) @ (B,D,T)` cho score `(B,T,T)`.
+
+<LessonNote>**Lỗi thường gặp:** chia cho T hoặc C. Công thức chia cho `sqrt(D)` của mỗi head.</LessonNote>
+
+**Takeaway:** Scaling không đổi shape hay thứ hạng, chỉ điều chỉnh độ lớn logits.
+
+</MdxPage>
+<MdxPage page={2}>
+
+## Mask rồi softmax
+
+Giả sử query ở vị trí 1, key vị trí 2 là tương lai:
+
+`[0.707,1.414,1.414] → [0.707,1.414,-inf]`.
+
+Trừ max rồi exponentiate cho `[0.493,1,0]`. Chia tổng `1.493` được weights `[0.330,0.670,0]`.
+
+<LessonNote>**Kiểm tra:** weights không âm, tổng xấp xỉ 1 và vị trí tương lai bằng 0.</LessonNote>
+
+**Takeaway:** Causal softmax chỉ chuẩn hóa trên keys hợp lệ.
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Tạo context vector
+
+Với `v₀=[1,0]`, `v₁=[0,2]`, `v₂=[1,1]`, context là:
+
+`0.330[1,0] + 0.670[0,2] + 0[1,1] = [0.330,1.340]`.
+
+<LessonNote>**Lỗi thường gặp:** dùng keys trong tổng cuối. Keys giúp tính weights; context trộn values.</LessonNote>
+
+**Takeaway:** Một row biến T value vectors thành một context vector `(D,)`.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Shape audit cho toàn batch
+
+| Bước | Shape |
+|---|---:|
+| `Q,K,V` | `(2,6,2)` |
+| `Q @ Kᵀ` | `(2,6,6)` |
+| causal mask | `(6,6)` broadcast qua B |
+| weights | `(2,6,6)` |
+| `weights @ V` | `(2,6,2)` |
+
+```python
+assert scores.shape == weights.shape == (2, 6, 6)
+assert context.shape == (2, 6, 2)
+assert torch.allclose(weights.sum(-1), torch.ones(2, 6))
+```
+
+<LessonNote>**Takeaway:** Attention giữ batch, sequence và value dimension; chỉ nội dung vector thay đổi.</LessonNote>
+
+</MdxPage>

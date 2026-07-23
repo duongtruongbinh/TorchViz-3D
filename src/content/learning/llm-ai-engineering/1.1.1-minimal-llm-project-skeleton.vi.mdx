@@ -21,9 +21,12 @@ export const lessonMetadata = {
   </RequirementCard>
 
   <RequirementCard icon="terminal" name="uv" role="Cài dependency nhanh">
-    Dùng trong Colab hoặc local để cài requirements nhanh hơn pip.
+    Dùng trong Colab hoặc local với dependency versions đã khóa trong project.
 
-    `pip install uv && uv pip install --system -r https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/refs/heads/main/requirements.txt`
+    `uv sync --frozen`
+
+    Không cài thẳng `requirements.txt` từ một branch mutable. Nếu học từ repo ngoài,
+    checkout một tag/commit đã kiểm tra rồi dùng lockfile đi kèm.
 
     [Document](https://docs.astral.sh/uv/getting-started/installation/) [Video](https://www.youtube.com/watch?v=AMdG7IjgSPM)
   </RequirementCard>

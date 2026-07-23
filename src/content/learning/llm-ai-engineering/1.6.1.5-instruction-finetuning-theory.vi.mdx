@@ -1,0 +1,101 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'instruction-finetuning-theory',
+  locale: 'vi',
+  title: 'Lý thuyết instruction fine-tuning',
+  headings: ['Objective', 'Template', 'Batching', 'Response mask', 'Evaluation'],
+  keywords: ['instruction fine-tuning', 'prompt template', 'padding', 'response masking', 'ignore_index'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## SFT vẫn là next-token prediction
+
+**Mục tiêu:** Giải thích điều gì thay đổi và điều gì giữ nguyên khi chuyển từ pretraining sang supervised instruction fine-tuning (SFT).
+
+SFT dùng các cặp instruction-response có nhãn. Model vẫn trả logits `(B,T,V)` và tối ưu next-token cross-entropy. Khác biệt nằm ở dữ liệu được format và vị trí được phép đóng góp vào loss.
+
+<LessonNote>**Lỗi thường gặp:** nghĩ instruction tuning cần một “instruction head” mới. Output vẫn là vocabulary logits; target vẫn là token kế tiếp.</LessonNote>
+
+**Takeaway:** SFT giữ language-model objective nhưng thay distribution dữ liệu và loss mask.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Template là một phần của contract
+
+Một mẫu có thể được format:
+
+```text
+### Instruction:
+Phân loại cảm xúc.
+
+### Input:
+Sản phẩm dùng rất tốt.
+
+### Response:
+tích cực
+```
+
+Train và inference phải dùng cùng marker, thứ tự trường và quy ước khoảng trắng/special token.
+
+<LessonNote>**Lỗi thường gặp:** train với template Alpaca nhưng inference chỉ gửi raw instruction. Model nhận distribution prefix khác với lúc học.</LessonNote>
+
+**Takeaway:** Lưu template cùng tokenizer và checkpoint.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Dynamic padding và shifted targets
+
+Collate tokenize từng chuỗi đầy đủ, thêm EOS, pad tới chiều dài lớn nhất trong batch rồi tạo:
+
+- `inputs = ids[:-1]`;
+- `targets = ids[1:]`.
+
+Cả hai có shape `(B,T)`. Padding input dùng `pad_id`; padding target đổi thành `ignore_index=-100` để không tạo gradient.
+
+<LessonNote>**Lỗi thường gặp:** thay cả EOS thật đầu tiên bằng `-100`. Model cần học khi nào kết thúc response; chỉ padding thừa mới bị bỏ.</LessonNote>
+
+**Takeaway:** EOS là target có nghĩa; PAD chỉ là cơ chế căn batch.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Response masking tập trung loss
+
+Instruction là context model cần đọc nhưng không nhất thiết là text cần học tái tạo. Ta có thể đặt target trước `response_start` thành `-100`.
+
+`L = -(1/|M|) Σ_(t∈M) log p(y_t | x_≤t)`,
+
+với `M` là các vị trí response hợp lệ.
+
+<LessonNote>**Lỗi thường gặp:** mask input IDs thay vì target IDs. Model vẫn phải nhìn prompt; chỉ loss ở prompt bị bỏ.</LessonNote>
+
+**Takeaway:** Attention mask kiểm soát token được nhìn; loss mask kiểm soát token được chấm.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Evaluation phải kiểm tra hành vi
+
+Validation loss hữu ích để theo dõi optimization nhưng chưa đủ cho response mở. Evaluation nên kiểm tra:
+
+- correctness theo task;
+- tuân thủ format;
+- instruction following;
+- hallucination hoặc vi phạm ràng buộc;
+- chất lượng trên nhóm prompt chưa thấy.
+
+Tách dữ liệu theo nguồn/task trước khi tạo paraphrase để tránh leakage.
+
+<LessonNote>**Lỗi thường gặp:** chấm response bằng exact match khi có nhiều diễn đạt đúng. Metric phải khớp loại output.</LessonNote>
+
+**Takeaway:** Đánh giá SFT là đánh giá hành vi sinh, không chỉ một scalar loss.
+
+</MdxPage>

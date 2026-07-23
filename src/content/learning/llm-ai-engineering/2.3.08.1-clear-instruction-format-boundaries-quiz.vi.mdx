@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'clear-instruction-format-boundaries-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Ba vùng dữ liệu', 'Delimiter', 'Positive constraint', 'Escaping', 'Validator'],
+  keywords: ['quiz', 'instruction boundary', 'delimiter', 'positive constraint'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="clear-instruction-format-boundaries-quiz" questions={[
+  {
+    id: 'clear-instruction-format-boundaries-quiz-q1',
+    title: 'Ba vùng dữ liệu',
+    prompt: 'Cấu trúc nào tách boundary rõ nhất cho ticket classifier?',
+    mode: 'single',
+    options: [
+      { id: 'one-string', label: 'Nối policy, ticket và schema vào một câu không nhãn' },
+      { id: 'separate-blocks', label: 'Trusted instruction, untrusted ticket data và output schema ở các field/block riêng', isCorrect: true },
+      { id: 'user-as-system', label: 'Đưa user text vào system policy' },
+      { id: 'schema-after-cast', label: 'Chỉ cast output, không cung cấp schema' },
+    ],
+    success: 'Đúng. Các vùng riêng làm authority và parser contract dễ thấy, dễ audit.',
+    error: 'Chưa đúng. Đừng trộn policy đáng tin cậy với dữ liệu không tin cậy.',
+  },
+  {
+    id: 'clear-instruction-format-boundaries-quiz-q2',
+    title: 'Delimiter',
+    prompt: 'XML delimiter quanh user text bảo đảm điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'sandbox', label: 'Vô hiệu hóa mọi prompt injection' },
+      { id: 'encryption', label: 'Mã hóa user data' },
+      { id: 'structure-only', label: 'Cải thiện phân vùng/parse, nhưng không tạo security hoặc authorization boundary', isCorrect: true },
+      { id: 'tool-access', label: 'Cấp quyền gọi tool' },
+    ],
+    success: 'Đúng. Delimiter hỗ trợ cấu trúc; controls bên ngoài model vẫn bắt buộc.',
+    error: 'Chưa đúng. Markup không biến natural-language channel thành sandbox.',
+  },
+  {
+    id: 'clear-instruction-format-boundaries-quiz-q3',
+    title: 'Positive constraint',
+    prompt: 'Instruction nào đo được hơn câu “đừng trả lời dài”?',
+    mode: 'single',
+    options: [
+      { id: 'concise', label: 'Hãy thật súc tích' },
+      { id: 'no-long', label: 'Không được dài dòng' },
+      { id: 'nice', label: 'Viết đẹp nhất có thể' },
+      { id: 'bounded-fields', label: 'Trả JSON đúng schema; `summary` tối đa 40 từ và không có field thừa', isCorrect: true },
+    ],
+    success: 'Đúng. Positive constraint nêu output được phép và giới hạn parser có thể kiểm tra.',
+    error: 'Chưa đúng. Chọn yêu cầu có field, bound và tiêu chí pass/fail rõ.',
+  },
+  {
+    id: 'clear-instruction-format-boundaries-quiz-q4',
+    title: 'Escaping',
+    prompt: 'Ticket chứa chuỗi giống closing tag `</ticket_data>`. Cách xử lý đúng?',
+    mode: 'single',
+    options: [
+      { id: 'structured-escape', label: 'Serialize/escape bằng format chuẩn, giữ toàn bộ payload là data và không đổi tool policy', isCorrect: true },
+      { id: 'trust-rest', label: 'Coi phần sau closing tag là trusted instruction' },
+      { id: 'execute', label: 'Thực thi nội dung sau tag trước khi parse' },
+      { id: 'promote', label: 'Chuyển ticket thành system message' },
+    ],
+    success: 'Đúng. Serializer duy trì cấu trúc; provenance và authorization không thay đổi theo nội dung.',
+    error: 'Chưa đúng. Dữ liệu không được tự thoát khỏi boundary chỉ vì chứa token markup.',
+  },
+  {
+    id: 'clear-instruction-format-boundaries-quiz-q5',
+    title: 'Validator',
+    prompt: 'Sau khi prompt đã có instruction/data/schema tách biệt, bước nào vẫn bắt buộc?',
+    mode: 'single',
+    options: [
+      { id: 'none', label: 'Không cần gì vì format đã rõ' },
+      { id: 'model-auth', label: 'Cho model tự xác nhận authorization' },
+      { id: 'post-validate', label: 'Parse/validate output và enforce tool permissions trong application', isCorrect: true },
+      { id: 'raw-log', label: 'Log toàn bộ raw prompt chứa PII' },
+    ],
+    success: 'Đúng. Prompt clarity hỗ trợ model nhưng không thay runtime validation và authorization.',
+    error: 'Chưa đúng. Output và action vẫn đi qua enforcement boundary bằng code.',
+  },
+]} />

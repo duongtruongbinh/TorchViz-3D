@@ -1,0 +1,114 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "prompt-versioning-changelogs", locale: "vi",
+  title: "Versioning và changelog cho prompt", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["prompt-versioning-changelogs","prompt engineering","T+K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Prompt là production artifact. Không thể reproduce hoặc rollback nếu chỉ sửa string trực tiếp.
+
+**Input:** Template, variables/schema, model config, eval dataset/version và change rationale.
+
+**Output:** Immutable version, release label, metrics và rollback target.
+
+**Data/type/shape:** Prompt text thành versioned record; runtime log chỉ cần version/hash và redacted metadata.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked example và contract
+
+`support-v12` đổi refund wording, có parent `support-v11`, schema `support-v4`,
+model config `fast-v3` và eval suite `policy-set-7`. Chỉ sau khi offline gate
+pass mới gắn rollout `canary:5`; rollback chuyển label về immutable parent thay
+vì sửa lại nội dung v12.
+
+<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production pitfalls và handoff
+
+**Sai lầm thường gặp:**
+
+- Tên `final-v2-new`.
+- Version prompt nhưng không version schema/model.
+- Log toàn prompt có PII để tìm version.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type PromptManifest = {
+  id: string;
+  parentId: string;
+  templateHash: string;
+  schemaVersion: string;
+  modelConfigVersion: string;
+  evalSuiteVersion: string;
+  change: string;
+  canaryPercent: number;
+};
+
+function publishPrompt(
+  manifest: PromptManifest,
+  knownIds: ReadonlySet<string>,
+): Readonly<PromptManifest> {
+  if (!/^support-v[1-9][0-9]*$/.test(manifest.id)) throw new Error("invalid_version_id");
+  if (knownIds.has(manifest.id)) throw new Error("duplicate_version");
+  if (!knownIds.has(manifest.parentId)) throw new Error("unknown_parent");
+  for (const value of [
+    manifest.templateHash,
+    manifest.schemaVersion,
+    manifest.modelConfigVersion,
+    manifest.evalSuiteVersion,
+    manifest.change,
+  ]) {
+    if (!value.trim()) throw new Error("incomplete_manifest");
+  }
+  if (manifest.canaryPercent < 0 || manifest.canaryPercent > 100) {
+    throw new Error("invalid_canary_percent");
+  }
+  return Object.freeze({ ...manifest });
+}
+
+const result = publishPrompt({
+  id: "support-v12",
+  parentId: "support-v11",
+  templateHash: "sha256:9c41",
+  schemaVersion: "support-v4",
+  modelConfigVersion: "fast-v3",
+  evalSuiteVersion: "policy-set-7",
+  change: "clarify refund wording",
+  canaryPercent: 5,
+}, new Set(["support-v11"]));
+
+assert.equal(result.id, "support-v12");
+assert.equal(result.parentId, "support-v11");
+assert.equal(Object.isFrozen(result), true);
+assert.throws(
+  () => publishPrompt({
+    ...result,
+    id: "support-v13",
+    parentId: "missing",
+  }, new Set(["support-v11"])),
+  /unknown_parent/,
+);
+assert.throws(
+  () => publishPrompt({ ...result, id: "support-v11" }, new Set(["support-v11"])),
+  /duplicate_version/,
+);
+~~~
+
+<LessonNote>Runtime log chỉ cần version/hash, experiment ID và redacted
+dimensions; không copy prompt hay ticket. Registry production cần atomic label
+switch, audit actor, optimistic concurrency và rollback target đã eval.</LessonNote>
+
+**Kết nối:** A/B testing so sánh versions trên metrics và guardrails.
+
+</MdxPage>

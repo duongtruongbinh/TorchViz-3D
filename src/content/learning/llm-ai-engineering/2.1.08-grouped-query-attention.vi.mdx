@@ -1,0 +1,76 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "grouped-query-attention",
+  locale: "vi",
+  title: "Grouped-query attention",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["grouped-query-attention","LLM","production","C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+MHA cho mỗi query head một K/V head; MQA dùng chung một K/V head; GQA chọn điểm giữa để giảm cache và bandwidth mà giữ nhiều nhóm K/V.
+
+**Input:** Số query heads, KV heads, head dimension, layers, sequence và dtype.
+
+**Output:** Tỉ lệ cache/bandwidth cùng mapping query-head → KV-group.
+
+**Data/type/shape:** Q có `(B,H_q,T,D)`, K/V có `(B,H_kv,T,D)` với `H_q` chia hết cho `H_kv`.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Nếu `H_q=32`, `H_kv=8`, mỗi KV head phục vụ 4 query heads. So với MHA 32 KV heads, phần KV cache giảm `32/8 = 4×`; so với MQA một head, nó vẫn lớn hơn 8×.
+
+~~~ts
+import assert from "node:assert/strict";
+
+function gqaLayout(queryHeads: number, kvHeads: number) {
+  if (
+    !Number.isInteger(queryHeads)
+    || !Number.isInteger(kvHeads)
+    || queryHeads <= 0
+    || kvHeads <= 0
+    || queryHeads % kvHeads !== 0
+  ) {
+    throw new Error("queryHeads must be divisible by positive kvHeads");
+  }
+  return {
+    queriesPerKvHead: queryHeads / kvHeads,
+    cacheReductionVsMha: queryHeads / kvHeads,
+  };
+}
+
+assert.deepEqual(gqaLayout(32, 8), {
+  queriesPerKvHead: 4,
+  cacheReductionVsMha: 4,
+});
+assert.throws(() => gqaLayout(30, 8), /divisible/);
+~~~
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Giảm KV heads sau training như một thay đổi vô hại.
+- Cho `H_q` không chia hết `H_kv` mà không có mapping rõ ràng.
+- Khẳng định chất lượng giống hệt cho mọi model/task.
+
+
+**Kết nối:** Sliding-window attention giảm phạm vi key mà mỗi query được nhìn thấy.
+
+</MdxPage>

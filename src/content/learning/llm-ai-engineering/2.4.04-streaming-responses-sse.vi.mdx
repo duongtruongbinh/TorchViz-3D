@@ -1,0 +1,78 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "streaming-responses-sse", locale: "vi",
+  title: "Streaming response qua SSE", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["streaming-responses-sse","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+SSE giảm time-to-first-content nhưng client phải tích lũy event đúng type và chỉ commit artifact khi terminal event hợp lệ.
+
+**Input:** HTTP stream với timeout/AbortSignal.
+
+**Output:** Normalized `text_delta|tool_delta|error|completed` events.
+
+**Data/type/shape:** Byte chunks → UTF-8 lines → SSE events → accumulated text/tool JSON; partial chunk không phải JSON hoàn chỉnh.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Hai deltas `Xin` và ` chào` chỉ thành `Xin chào` sau accumulation. Nếu `error` đến trước `completed`, UI giữ partial text là provisional và không chạy tool.
+
+~~~ts
+import assert from "node:assert/strict";
+type Event =
+  | { type: "text_delta"; text: string }
+  | { type: "error"; code: string }
+  | { type: "completed" };
+type State = { status: "streaming" | "completed" | "failed"; text: string };
+
+function mapProviderEvent(raw: string): Event {
+  const value = JSON.parse(raw) as { type: string; delta?: string; error?: string };
+  if (value.type === "response.output_text.delta" && typeof value.delta === "string") {
+    return { type: "text_delta", text: value.delta };
+  }
+  if (value.type === "response.completed") return { type: "completed" };
+  if (value.type === "error") return { type: "error", code: value.error ?? "unknown" };
+  throw new Error(`unknown_event:${value.type}`);
+}
+
+function reduce(state: State, event: Event): State {
+  if (state.status !== "streaming") throw new Error("event_after_terminal");
+  if (event.type === "text_delta") return { ...state, text: state.text + event.text };
+  if (event.type === "error") return { ...state, status: "failed" };
+  return { ...state, status: "completed" };
+}
+
+const frames = [
+  '{"type":"response.output_text.delta","delta":"Xin"}',
+  '{"type":"response.output_text.delta","delta":" chào"}',
+  '{"type":"response.completed"}',
+];
+const final = frames.map(mapProviderEvent).reduce(reduce, { status: "streaming", text: "" });
+assert.deepEqual(final, { status: "completed", text: "Xin chào" });
+~~~
+<LessonNote>Network parser phải dùng streaming `TextDecoder`, giữ lại UTF-8/SSE frame chưa hoàn chỉnh, propagate AbortSignal và không commit partial text trước terminal validation.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Parse mỗi network chunk như một event hoàn chỉnh.
+- Render unsanitized Markdown mỗi ký tự.
+- Không cancel upstream khi user rời trang.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/streaming-responses). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Embeddings đổi text batch thành vector batch.
+
+</MdxPage>

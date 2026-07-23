@@ -3,20 +3,57 @@ export const lessonMetadata = {
   id: 'llm-safety-foundations',
   locale: 'vi',
   title: 'Nền tảng LLM safety',
-  headings: ['Safety là thuộc tính của hệ thống', 'Threat model', 'Defense in depth'],
-  keywords: ['LLM safety', 'threat model', 'risk', 'alignment', 'defense in depth'],
+  headings: ['Safety là thuộc tính hệ thống', 'Threat model contract', 'Worked control trace', 'Pitfall và handoff'],
+  keywords: ['LLM safety', 'threat model', 'least privilege', 'defense in depth', 'calibration'],
+  pageCount: 4,
 }
 
-## Safety là thuộc tính của hệ thống
+<MdxPage page={0}>
 
-Một model đã alignment vẫn không đồng nghĩa với một ứng dụng an toàn. Rủi ro còn phụ thuộc vào system prompt, dữ liệu truy xuất, tool được cấp quyền, cách lưu log, UI, user và môi trường triển khai. Vì vậy, safety evaluation phải nhìn cả model lẫn application.
+## Safety là thuộc tính hệ thống
 
-## Threat model
+Model, prompt, retrieved data, tools, identity, UI, logging và policy cùng tạo ra behavior. Input của safety analysis là asset, actor, trust boundaries và capabilities; output là risk scenarios, preventive/detective controls và residual risk decision.
 
-Threat model mô tả ai có thể tương tác với hệ thống, họ muốn đạt mục tiêu gì, dữ liệu và tool nào có giá trị, cùng hậu quả khi hệ thống thất bại. Một chatbot công khai, trợ lý nội bộ và agent có quyền gửi email cần các test safety khác nhau.
+State cần theo dõi: `request -> classified intent -> authorized capability -> proposed action -> validated action -> outcome`.
 
-Các nhóm rủi ro phổ biến gồm harmful content, misinformation, privacy leakage, bias, prompt injection, unsafe tool use và denial of service do cost hoặc context exhaustion.
+</MdxPage>
 
-## Defense in depth
+<MdxPage page={1}>
 
-Không có một lớp kiểm duyệt duy nhất giải quyết mọi rủi ro. Safety thường kết hợp policy, model alignment, input/output checks, least privilege cho tool, guardrails, monitoring, human approval và red teaming. Evaluation phải được chạy lại sau mỗi thay đổi vì mitigation có thể tạo regression hoặc overrefusal.
+## Threat model contract
+
+Một scenario có dạng `(actor, entry point, untrusted data, target asset, attempted capability, impact)`. Ví dụ: document bên ngoài chứa indirect injection; agent đọc document; target là email nội bộ; attempted capability là gửi dữ liệu ra domain ngoài.
+
+Threat model phải nêu assumption và owner. “Prompt injection” không đủ nếu chưa biết tool nào có quyền và hậu quả là gì.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Worked control trace
+
+Agent chỉ cần đọc trạng thái đơn hàng:
+
+1. Browser gửi order ID cùng authenticated session, không gửi provider key.
+2. Backend suy ra actor từ session đã xác minh rồi kiểm tra ownership; không tin `actor_id` do client tự khai.
+3. Model được cấp tool read-only với schema hẹp.
+4. Backend kiểm tra authorization lại khi tool call tới.
+5. Log chỉ case ID, decision, latency; PII được redacted.
+
+Nếu model đề xuất refund, backend trả `forbidden`; prompt không thể nâng quyền.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Pitfall và handoff
+
+- Dùng least privilege, allowlist, confirmation và timeout/cancel.
+- Đo unsafe compliance cùng overrefusal theo slice.
+- Với toxicity/bias, dùng matched pairs chỉ đổi một group attribute, rồi báo unsafe/overrefusal rate theo subgroup; không suy kết luận từ aggregate đơn lẻ.
+- Không đưa secret vào model input hoặc raw log.
+- Replay safety eval sau thay đổi model, prompt, data, tool hay policy.
+
+Quiz kế tiếp kiểm tra threat/control contract; refusal calculation đo hai phía của calibration.
+
+</MdxPage>

@@ -1,0 +1,80 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "ollama-local-llama", locale: "vi",
+  title: "Local inference với Ollama", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["ollama-local-llama","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Local inference đổi cloud credential thành local process/model lifecycle, nhưng vẫn cần timeout, cancellation, model discovery và resource isolation.
+
+**Input:** Local base URL, discovered model ID và typed request.
+
+**Output:** Stream/non-stream result or connection/model/resource error.
+
+**Data/type/shape:** HTTP request tới localhost mặc định; model list/discovery xác nhận ID trước call.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Test fixture mock `/api/tags` trả model `support-local`; adapter reject config không tồn tại. Streaming accumulates events và aborts sau deadline; không tuyên bố mock là call thật.
+
+~~~ts
+import assert from "node:assert/strict";
+type LocalEvent =
+  | { type: "text_delta"; text: string }
+  | { type: "completed" }
+  | { type: "error"; code: string };
+type LocalResult =
+  | { status: "completed"; text: string }
+  | { status: "failed"; text: string; code: string }
+  | { status: "canceled"; text: string };
+
+function selectModel(discovered: string[], configured: string): string {
+  if (!discovered.includes(configured)) throw new Error("model_not_found");
+  return configured;
+}
+function consume(events: LocalEvent[], canceled = false): LocalResult {
+  let text = "";
+  if (canceled) return { status: "canceled", text };
+  for (const event of events) {
+    if (event.type === "text_delta") text += event.text;
+    if (event.type === "error") return { status: "failed", text, code: event.code };
+    if (event.type === "completed") return { status: "completed", text };
+  }
+  return { status: "failed", text, code: "missing_terminal_event" };
+}
+
+assert.equal(selectModel(["support-local"], "support-local"), "support-local");
+assert.throws(() => selectModel(["support-local"], "missing"), /model_not_found/);
+assert.deepEqual(consume([
+  { type: "text_delta", text: "A17: " },
+  { type: "text_delta", text: "in_transit" },
+  { type: "completed" },
+]), { status: "completed", text: "A17: in_transit" });
+assert.deepEqual(consume([], true), { status: "canceled", text: "" });
+~~~
+<LessonNote>Fixture không gọi localhost thật. Network adapter phải propagate AbortSignal, giới hạn connection/body/concurrency và không xem local process là trusted multi-tenant boundary mặc định.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Assume localhost luôn trusted/multi-tenant safe.
+- Hard-code model chưa pull.
+- Không cap RAM/GPU concurrency.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://docs.ollama.com/api/introduction). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Quiz kiểm tra model/runtime/license/PEFT decisions.
+
+</MdxPage>

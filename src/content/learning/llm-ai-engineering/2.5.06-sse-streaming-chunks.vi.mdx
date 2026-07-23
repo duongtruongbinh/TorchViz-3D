@@ -1,0 +1,79 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "sse-streaming-chunks", locale: "vi",
+ title: "Chuẩn hóa SSE chunks giữa providers", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["sse-streaming-chunks","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+UI không nên hiểu mọi event name của từng provider. Backend adapter chuyển chúng thành internal event union ổn định.
+
+**Input:** Provider-specific SSE events.
+
+**Output:** `start|text_delta|tool_delta|usage|error|completed` events với request ID.
+
+**Data/type/shape:** Bytes → provider events → normalized discriminated union; order và terminal state được bảo toàn.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+OpenAI text delta và Anthropic content-block delta cùng thành `{type:'text_delta',text}`; unknown event được telemetry nhưng không crash stream.
+
+~~~ts
+import assert from "node:assert/strict";
+type InternalEvent =
+  | { type: "start"; requestId: string }
+  | { type: "text_delta"; requestId: string; text: string }
+  | { type: "tool_delta"; requestId: string; callId: string; json: string }
+  | { type: "usage"; requestId: string; inputTokens: number; outputTokens: number }
+  | { type: "error"; requestId: string; code: string }
+  | { type: "completed"; requestId: string };
+
+function mapEvent(provider: "openai" | "anthropic", raw: Record<string, unknown>): InternalEvent | null {
+  const requestId = String(raw.requestId);
+  if (provider === "openai" && raw.type === "response.output_text.delta") {
+    return { type: "text_delta", requestId, text: String(raw.delta) };
+  }
+  if (provider === "anthropic" && raw.type === "content_block_delta" && raw.kind === "text") {
+    return { type: "text_delta", requestId, text: String(raw.text) };
+  }
+  if (raw.type === "completed") return { type: "completed", requestId };
+  return null; // emit low-cardinality unknown-event telemetry outside payload
+}
+
+assert.deepEqual(
+  mapEvent("openai", {
+    type: "response.output_text.delta", requestId: "req-17", delta: "Xin",
+  }),
+  { type: "text_delta", requestId: "req-17", text: "Xin" },
+);
+assert.deepEqual(
+  mapEvent("anthropic", {
+    type: "content_block_delta", kind: "text", requestId: "req-17", text: " chào",
+  }),
+  { type: "text_delta", requestId: "req-17", text: " chào" },
+);
+assert.equal(mapEvent("openai", { type: "future_event", requestId: "req-17" }), null);
+~~~
+<LessonNote>Streaming parser phải giữ UTF-8/SSE frame chưa hoàn chỉnh, event order và AbortSignal. Unknown event telemetry không chứa raw chunk/prompt.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Forward raw provider JSON ra browser.
+- Mất event IDs/order.
+- Gửi `completed` trước usage/final validation.
+
+**Kết nối:** Partial-response handler quyết định artifact nào provisional.
+
+</MdxPage>

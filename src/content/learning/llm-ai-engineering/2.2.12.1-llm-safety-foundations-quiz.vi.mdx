@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-safety-foundations-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['System safety', 'Threat model', 'Least privilege', 'Calibration'],
+  keywords: ['quiz', 'LLM safety', 'threat model', 'least privilege'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="llm-safety-foundations-quiz" questions={[
+  {
+    id: 'llm-safety-foundations-quiz-q1',
+    title: 'System safety',
+    prompt: 'Một aligned model được nối với tool gửi email. Điều gì còn phải đánh giá?',
+    mode: 'single',
+    options: [
+      { id: 'llm-safety-foundations-quiz-q1-a', label: 'Chỉ benchmark safety của base model' },
+      { id: 'llm-safety-foundations-quiz-q1-b', label: 'Authorization, dữ liệu, tool scope, confirmation, logging và model behavior', isCorrect: true },
+      { id: 'llm-safety-foundations-quiz-q1-c', label: 'Chỉ độ dài system prompt' },
+      { id: 'llm-safety-foundations-quiz-q1-d', label: 'Chỉ màu của nút gửi' },
+    ],
+    success: 'Đúng. Safety là thuộc tính của toàn hệ thống.',
+    error: 'Chưa đúng. Model alignment không thay thế application controls.',
+  },
+  {
+    id: 'llm-safety-foundations-quiz-q2',
+    title: 'Threat model',
+    prompt: 'Threat model hữu ích nhất phải nối attacker với yếu tố nào?',
+    mode: 'single',
+    options: [
+      { id: 'llm-safety-foundations-quiz-q2-a', label: 'Danh sách tính từ mô tả model' },
+      { id: 'llm-safety-foundations-quiz-q2-b', label: 'Một leaderboard tổng quát' },
+      { id: 'llm-safety-foundations-quiz-q2-c', label: 'Chỉ temperature mặc định' },
+      { id: 'llm-safety-foundations-quiz-q2-d', label: 'Asset, trust boundary, capability và hậu quả cụ thể', isCorrect: true },
+    ],
+    success: 'Đúng. Threat model phải chỉ ra đường tấn công và impact.',
+    error: 'Chưa đúng. Danh sách rủi ro không gắn asset/boundary chưa đủ để thiết kế test.',
+  },
+  {
+    id: 'llm-safety-foundations-quiz-q3',
+    title: 'Least privilege',
+    prompt: 'Agent chỉ cần đọc trạng thái đơn hàng. Tool contract an toàn nhất?',
+    mode: 'single',
+    options: [
+      { id: 'llm-safety-foundations-quiz-q3-a', label: 'Tool read-only, scope theo user và backend kiểm tra authorization', isCorrect: true },
+      { id: 'llm-safety-foundations-quiz-q3-b', label: 'Cấp admin token để tránh lỗi permission' },
+      { id: 'llm-safety-foundations-quiz-q3-c', label: 'Cho model tự quyết định user có quyền hay không' },
+      { id: 'llm-safety-foundations-quiz-q3-d', label: 'Dùng chung credential của nhân viên vận hành' },
+    ],
+    success: 'Đúng. Least privilege và backend authorization giới hạn impact.',
+    error: 'Chưa đúng. Prompt không phải enforcement boundary.',
+  },
+  {
+    id: 'llm-safety-foundations-quiz-q4',
+    title: 'Calibration',
+    prompt: 'Mitigation giảm unsafe compliance nhưng tăng overrefusal mạnh. Bước đúng là gì?',
+    mode: 'single',
+    options: [
+      { id: 'llm-safety-foundations-quiz-q4-a', label: 'Bỏ qua overrefusal vì safety luôn thắng mọi use case' },
+      { id: 'llm-safety-foundations-quiz-q4-b', label: 'Xóa benign boundary cases' },
+      { id: 'llm-safety-foundations-quiz-q4-c', label: 'Đo cả hai error rate theo slice và điều chỉnh policy/threshold', isCorrect: true },
+      { id: 'llm-safety-foundations-quiz-q4-d', label: 'Chỉ xem một average chung' },
+    ],
+    success: 'Đúng. Safety cần calibration giữa unsafe compliance và overrefusal.',
+    error: 'Chưa đúng. Mitigation gây regression hữu ích phải được đo và sửa.',
+  },
+]} />

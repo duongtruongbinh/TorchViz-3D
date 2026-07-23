@@ -2,21 +2,67 @@ export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'toxicity-bias-and-privacy',
   locale: 'vi',
-  title: 'Toxicity, bias và privacy',
-  headings: ['Toxicity', 'Bias', 'Privacy và data leakage'],
-  keywords: ['toxicity', 'bias', 'privacy', 'data leakage', 'PII'],
+  title: 'Quiz',
+  headings: ['Matched pairs', 'Subgroup rates', 'Privacy', 'Overrefusal'],
+  keywords: ['quiz', 'toxicity', 'bias', 'privacy', 'overrefusal'],
+  pageCount: 4,
 }
 
-## Toxicity
-
-Toxicity evaluation kiểm tra model có tạo nội dung xúc phạm, đe dọa hoặc gây hại không. Dataset cần bao phủ nhiều ngôn ngữ, cách nói gián tiếp và context hợp lệ như phân tích hoặc trích dẫn, nếu không classifier có thể chặn quá mức.
-
-## Bias
-
-Bias có thể xuất hiện khi model đưa ra nhận định hoặc chất lượng phục vụ khác nhau theo giới tính, sắc tộc, tôn giáo, vùng miền hoặc nhóm xã hội. Evaluation nên dùng prompt đối sánh: chỉ thay thuộc tính nhóm trong khi giữ các yếu tố khác ổn định, sau đó so sánh quyết định và cách diễn đạt.
-
-Không nên rút kết luận từ một ví dụ đơn lẻ. Cần nhìn phân phối kết quả, error rate theo subgroup và hậu quả trong use case thật.
-
-## Privacy và data leakage
-
-Model hoặc application có thể tiết lộ PII, secret, nội dung prompt hệ thống hoặc dữ liệu từ người dùng khác. Test privacy nên bao gồm extraction attempt, indirect request, tool output và dữ liệu truy xuất. Trong production, cần kết hợp redaction, access control, retention policy và audit log thay vì chỉ dựa vào model từ chối.
+<MdxQuiz id="toxicity-bias-and-privacy" questions={[
+  {
+    id: 'toxicity-bias-and-privacy-q1',
+    title: 'Matched pairs',
+    prompt: 'Muốn đo bias theo nhóm, thiết kế case nào có signal rõ nhất?',
+    mode: 'single',
+    options: [
+      { id: 'toxicity-bias-and-privacy-q1-a', label: 'Mỗi nhóm nhận một task và độ khó khác nhau' },
+      { id: 'toxicity-bias-and-privacy-q1-b', label: 'Một prompt duy nhất cho một nhóm' },
+      { id: 'toxicity-bias-and-privacy-q1-c', label: 'Matched pairs chỉ thay thuộc tính nhóm, giữ task và qualification như nhau', isCorrect: true },
+      { id: 'toxicity-bias-and-privacy-q1-d', label: 'So sánh chỉ độ dài response' },
+    ],
+    success: 'Đúng. Matched pairs cô lập biến cần đánh giá.',
+    error: 'Chưa đúng. Confound về task/độ khó làm chênh lệch khó diễn giải.',
+  },
+  {
+    id: 'toxicity-bias-and-privacy-q2',
+    title: 'Subgroup rates',
+    prompt: 'Global unsafe rate thấp nhưng một language slice cao gấp nhiều lần. Kết luận đúng?',
+    mode: 'single',
+    options: [
+      { id: 'toxicity-bias-and-privacy-q2-a', label: 'Global average đang che subgroup failure; cần gate/mitigation theo slice', isCorrect: true },
+      { id: 'toxicity-bias-and-privacy-q2-b', label: 'Bỏ qua vì global rate thấp' },
+      { id: 'toxicity-bias-and-privacy-q2-c', label: 'Xóa language slice khỏi traffic report' },
+      { id: 'toxicity-bias-and-privacy-q2-d', label: 'Gộp thêm sample nhóm khác để làm rate nhỏ đi' },
+    ],
+    success: 'Đúng. Safety/fairness phải được đọc theo nhóm deployment quan trọng.',
+    error: 'Chưa đúng. Aggregate metric có thể che impact tập trung.',
+  },
+  {
+    id: 'toxicity-bias-and-privacy-q3',
+    title: 'Privacy',
+    prompt: 'Test extraction khiến model lặp lại secret từ tool output. Control quan trọng nhất?',
+    mode: 'single',
+    options: [
+      { id: 'toxicity-bias-and-privacy-q3-a', label: 'Đưa secret vào context rồi dặn model không nhắc lại' },
+      { id: 'toxicity-bias-and-privacy-q3-b', label: 'Base64 secret trước khi gửi model' },
+      { id: 'toxicity-bias-and-privacy-q3-c', label: 'Log secret để tiện debug' },
+      { id: 'toxicity-bias-and-privacy-q3-d', label: 'Không đưa secret vào model context; scope tool, redact output và kiểm soát access', isCorrect: true },
+    ],
+    success: 'Đúng. Data minimization và access control mạnh hơn lời nhắc trong prompt.',
+    error: 'Chưa đúng. Model input không phải secret store.',
+  },
+  {
+    id: 'toxicity-bias-and-privacy-q4',
+    title: 'Overrefusal',
+    prompt: 'Classifier chặn cả yêu cầu phân tích học thuật có từ nhạy cảm. Metric nào phải theo dõi cùng unsafe compliance?',
+    mode: 'single',
+    options: [
+      { id: 'toxicity-bias-and-privacy-q4-a', label: 'Chỉ số token trung bình' },
+      { id: 'toxicity-bias-and-privacy-q4-b', label: 'Overrefusal/false-positive rate trên benign boundary cases', isCorrect: true },
+      { id: 'toxicity-bias-and-privacy-q4-c', label: 'Kích thước font' },
+      { id: 'toxicity-bias-and-privacy-q4-d', label: 'Cache hit rate' },
+    ],
+    success: 'Đúng. Calibration cần cả false negative lẫn false positive.',
+    error: 'Chưa đúng. Chỉ đo attack blocking sẽ bỏ qua helpfulness regression.',
+  },
+]} />

@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'token-counting-hand-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['T+1 chunk', 'Shift', 'Window count', 'Batch shape', 'Leakage'],
+  keywords: ['quiz', 'context length', 'shifted target', 'stride', 'batch shape', 'data leakage'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="token-counting-hand-quiz" questions={[
+  {
+    id: 'source-chunk-length', title: 'T+1 chunk', prompt: 'Muốn tạo input và target đều dài T=4, source chunk tối thiểu cần bao nhiêu token liên tiếp?', mode: 'single',
+    options: [
+      { id: 'five', label: '5', isCorrect: true },
+      { id: 'four', label: '4' },
+      { id: 'eight', label: '8' },
+      { id: 'batch', label: 'B+T' },
+    ],
+    success: 'Đúng. Token thứ năm cung cấp next-token target cho vị trí input cuối.',
+    error: 'Target là slice bắt đầu muộn hơn một token nhưng vẫn phải dài T.',
+  },
+  {
+    id: 'shifted-target', title: 'Shifted target', prompt: 'Với chunk `[2,3,1,0]`, cặp dài T=3 đúng là gì?', mode: 'single',
+    options: [
+      { id: 'correct', label: '[2,3,1] → [3,1,0]', isCorrect: true },
+      { id: 'same', label: '[2,3,1] → [2,3,1]' },
+      { id: 'reverse', label: '[3,1,0] → [2,3,1]' },
+      { id: 'skip', label: '[2,3,0] → [3,1,0]' },
+    ],
+    success: 'Đúng. Target là cùng chunk được dịch sang phải một vị trí.',
+    error: 'Kiểm tra invariant `input[1:] == target[:-1]`.',
+  },
+  {
+    id: 'sliding-window-count', title: 'Đếm windows', prompt: 'N=9, T=3, stride=2 và `range(0,N-T,stride)`. Có bao nhiêu sample hợp lệ?', mode: 'single',
+    options: [
+      { id: 'three', label: '3, tại starts 0, 2, 4.', isCorrect: true },
+      { id: 'window-count-four', label: '4, tại starts 0, 2, 4, 6.' },
+      { id: 'two', label: '2, vì 9/3=3 rồi bỏ sample cuối.' },
+      { id: 'six', label: '6, vì N-T=6.' },
+    ],
+    success: 'Đúng. Start 6 thiếu token bên phải để target vẫn dài T.',
+    error: 'Liệt kê các giá trị thật sự sinh bởi range; stop 6 không được lấy.',
+  },
+  {
+    id: 'batch-shape-memory', title: 'Batch shape', prompt: 'DataLoader gom B=2 samples, mỗi sample dài T=3. Phát biểu nào đúng?', mode: 'single',
+    options: [
+      { id: 'shape-memory', label: 'Input có shape (2,3); tăng B thường tăng memory nhưng không đổi T.', isCorrect: true },
+      { id: 'transpose', label: 'Input bắt buộc có shape (3,2) và tăng B làm T lớn hơn.' },
+      { id: 'embedding', label: 'DataLoader tự biến output thành (2,3,C).' },
+      { id: 'shift', label: 'DataLoader tự tạo target shift dù Dataset chỉ trả input.' },
+    ],
+    success: 'Đúng. DataLoader thêm batch axis; Dataset vẫn sở hữu sample/target contract.',
+    error: 'Phân biệt vai trò của Dataset, DataLoader và embedding layer.',
+  },
+  {
+    id: 'overlap-leakage', title: 'Data leakage', prompt: 'Cách nào tránh overlapping windows rò qua train/validation?', mode: 'single',
+    options: [
+      { id: 'split-first', label: 'Split documents/text trước, rồi tạo windows riêng trong mỗi split.', isCorrect: true },
+      { id: 'windows-first', label: 'Tạo mọi windows, random split chúng, rồi bật shuffle.' },
+      { id: 'larger-stride', label: 'Chỉ cần stride lớn hơn 1, không cần split trước.' },
+      { id: 'same-loader', label: 'Dùng cùng một DataLoader cho cả train và validation.' },
+    ],
+    success: 'Đúng. Split trước ngăn hai split nhận các windows chia sẻ token nguồn.',
+    error: 'Shuffle không loại overlap đã tồn tại giữa các windows.',
+  },
+]} />

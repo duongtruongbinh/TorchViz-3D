@@ -1,0 +1,53 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "mistral-models", locale: "vi",
+  title: "Mistral Chat Completions và model catalog", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["mistral-models","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Mistral hiện tài liệu hóa Chat Completions trong bề mặt Conversations. “Conversations” là tên khu vực tài liệu, không phải một universal endpoint mà adapter được phép tự suy ra.
+
+**Input:** Required capabilities: text, tools, schema, vision, context và deployment region.
+
+**Output:** Selected model/API config with dated evidence.
+
+**Data/type/shape:** Capability requirements become a matrix lookup; runtime request uses configurable model ID.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Service cần tool+structured output. Query current catalog/docs, run conformance fixtures, rồi pin config externally; `latest` chỉ dùng nếu rollout policy chấp nhận drift.
+
+| Gate | Evidence cần lưu |
+|---|---|
+| Endpoint/SDK | Official request surface và version đã kiểm tra |
+| Capability | Tool, schema, vision, streaming theo model cụ thể |
+| Operations | Region, quota, lifecycle và error/usage fields |
+| Conformance | Text/refusal/tool/stop-reason fixtures đã normalize đúng |
+| Rollout | Pinned model/config hoặc canary policy cho alias biến động |
+
+<LessonNote>Adapter chỉ dispatch khi mọi hard capability có bằng chứng. Model list, limits và alias phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Copy model list vào lesson như timeless.
+- Dùng alias latest không canary.
+- Assume every model supports every field.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://docs.mistral.ai/studio-api/conversations/function-calling). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Function calling kiểm tra Mistral-specific shapes.
+
+</MdxPage>

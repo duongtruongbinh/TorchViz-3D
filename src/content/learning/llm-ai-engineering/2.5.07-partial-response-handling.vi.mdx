@@ -1,0 +1,52 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "partial-response-handling", locale: "vi",
+ title: "Xử lý partial response", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["partial-response-handling","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Text/tool arguments trước terminal event có thể thiếu UTF-8, JSON hoặc moderation result.
+
+**Input:** Normalized stream và AbortSignal.
+
+**Output:** Provisional buffer, terminal committed result hoặc typed cancellation/error.
+
+**Data/type/shape:** State machine `idle→streaming→completed|failed|canceled`; chỉ completed commit domain object.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+Tool args tới ba fragments; parser chỉ chạy sau `tool_completed`. Disconnect trước terminal event giữ UI preview nhưng database lưu failure/canceled, không lưu command.
+
+| Current state | Event | Next state | Commit rule |
+|---|---|---|---|
+| `idle` | `start` | `streaming` | Chưa commit |
+| `streaming` | `text_delta`/`tool_delta` | `streaming` | Chỉ cập nhật provisional buffer |
+| `streaming` | `completed` + validation pass | `completed` | Commit một lần |
+| `streaming` | `error` | `failed` | Không commit partial artifact |
+| `streaming` | Abort/disconnect | `canceled` | Không execute partial tool |
+| terminal | bất kỳ event mới | invalid transition | Reject + telemetry |
+
+<LessonNote>Socket close không đồng nghĩa success. Retry side-effecting flow chỉ sau reconciliation bằng call record/idempotency key.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Execute partial tool JSON.
+- Mark success on socket close.
+- Retry stream làm duplicate side effect.
+
+**Kết nối:** Client rendering dùng state machine này.
+
+</MdxPage>

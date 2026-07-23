@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "truncation-strategies", locale: "vi",
+ title: "Truncation strategies có chủ đích", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["truncation-strategies","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Silent truncation có thể xóa question, policy hoặc tool schema. Strategy phải dựa priority và provenance.
+
+**Input:** Ordered context segments với priority, minimum retention và token count.
+
+**Output:** Retained context hoặc explicit cannot-fit error.
+
+**Data/type/shape:** Ragged segments → selected segments trong budget; provenance/ordering vẫn được giữ.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+Budget 1.000: policy 300 bắt buộc, user 200 bắt buộc, evidence ba chunks 250 mỗi. Chỉ giữ hai chunks tốt nhất để tổng 1.000; không cắt giữa JSON schema.
+
+~~~ts
+import assert from "node:assert/strict";
+type Segment = {
+  id: string; tokens: number; mandatory: boolean; score: number;
+  source: string; order: number;
+};
+function select(segments: Segment[], budget: number) {
+  const mandatory = segments.filter(segment => segment.mandatory);
+  let used = mandatory.reduce((sum, segment) => sum + segment.tokens, 0);
+  if (used > budget) throw new Error("mandatory_overflow");
+  const retained = [...mandatory];
+  for (const segment of segments
+    .filter(segment => !segment.mandatory)
+    .sort((a, b) => b.score - a.score || a.order - b.order)) {
+    if (used + segment.tokens <= budget) {
+      retained.push(segment);
+      used += segment.tokens;
+    }
+  }
+  retained.sort((a, b) => a.order - b.order);
+  const retainedIds = new Set(retained.map(segment => segment.id));
+  return {
+    retained: retained.map(({ id, source }) => ({ id, source })),
+    omitted: segments.filter(segment => !retainedIds.has(segment.id)).map(segment => segment.id),
+    used,
+  };
+}
+
+const result = select([
+  { id: "policy", tokens: 300, mandatory: true, score: 0, source: "policy-v4", order: 0 },
+  { id: "user", tokens: 200, mandatory: true, score: 0, source: "turn-17", order: 4 },
+  { id: "e1", tokens: 250, mandatory: false, score: 3, source: "doc-a", order: 1 },
+  { id: "e2", tokens: 250, mandatory: false, score: 2, source: "doc-b", order: 2 },
+  { id: "e3", tokens: 250, mandatory: false, score: 1, source: "doc-c", order: 3 },
+], 1_000);
+assert.equal(result.used, 1_000);
+assert.deepEqual(result.omitted, ["e3"]);
+assert.deepEqual(result.retained.map(item => item.id), ["policy", "e1", "e2", "user"]);
+~~~
+<LessonNote>Selector giữ nguyên segment và provenance; nó không cắt giữa schema hay evidence chunk. UI/log phải biết phần nào bị loại.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Tail-cut toàn request.
+- Cắt system/security instructions.
+- Không báo evidence bị loại.
+
+**Kết nối:** Context manager tự động hóa allocation này.
+
+</MdxPage>

@@ -1,0 +1,76 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'next-token-pretraining-theory', locale: 'vi',
+  title: 'Lý thuyết pretraining next-token',
+  headings: ['Shifted targets', 'NLL và cross-entropy', 'Token averaging', 'Train và validation', 'Optimization loop'],
+  keywords: ['pretraining', 'next-token', 'cross-entropy', 'validation loss'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Học bằng nhãn có sẵn trong văn bản
+
+**Mục tiêu:** Nối shifted targets với NLL/cross-entropy, split policy và optimizer loop.
+
+Pretraining không cần người gán nhãn thủ công. Với chuỗi token `[x₁,x₂,…,xT]`, input là `[x₁,…,xT₋₁]` và target là `[x₂,…,xT]`. Mỗi vị trí học dự đoán token đứng ngay sau context.
+
+Một window T token tạo T target labels, không chỉ một label cuối.
+
+<LessonNote>**Lỗi thường gặp:** dùng input làm target không shift; model khi đó chỉ học sao chép token hiện tại.</LessonNote>
+
+**Takeaway:** Văn bản tự cung cấp nhãn bằng phép dịch một vị trí.
+
+</MdxPage>
+<MdxPage page={1}>
+
+## NLL và cross-entropy
+
+Model trả logits `(B,T,V)`. Ta flatten thành `(B×T,V)`, flatten target thành `(B×T)`, rồi dùng cross-entropy. Loss là negative log-probability trung bình của các token đúng.
+
+Tại vị trí i, nếu model gán ground-truth token xác suất `p_i`, contribution là `-log(p_i)`. Xác suất đúng càng gần 1, contribution càng gần 0.
+
+<LessonNote>**Lỗi thường gặp:** lấy log xác suất của token argmax. Loss luôn lấy token ground truth, dù argmax đúng hay sai.</LessonNote>
+
+**Takeaway:** Cross-entropy trên integer targets là cách hiệu quả để tính mean NLL.
+
+</MdxPage>
+<MdxPage page={2}>
+
+## Trung bình đúng theo số token
+
+Nếu batch có padding/ignore targets, mẫu có độ dài khác nhau đóng góp số token khác nhau. Metric toàn split nên cộng total NLL và chia tổng valid token, không lấy trung bình đơn giản của batch means có kích thước khác nhau.
+
+Perplexity là `exp(mean NLL)` khi dùng natural log.
+
+<LessonNote>**Lỗi thường gặp:** average mọi batch loss ngang nhau, khiến batch cuối nhỏ có trọng số quá lớn.</LessonNote>
+
+**Takeaway:** Denominator của LM loss là số target token hợp lệ.
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Train loss và validation loss
+
+Train loss cho biết model khớp dữ liệu được tối ưu đến đâu. Validation loss đo trên documents không dùng để cập nhật trọng số, giúp phát hiện overfitting.
+
+Tách split trước sliding windows. Khi evaluate, dùng `model.eval()` và `torch.no_grad()`; sau đó gọi `model.train()` để bật lại dropout.
+
+<LessonNote>**Lỗi thường gặp:** validation loss giảm vì window overlap với train, không vì model generalize.</LessonNote>
+
+**Takeaway:** Split integrity quan trọng như công thức loss.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Một bước tối ưu
+
+Chu trình cơ bản là `zero_grad → forward → loss → backward → optimizer.step`. AdamW thường được dùng vì tách weight decay khỏi cập nhật gradient. Theo dõi loss theo số token/iteration giúp so sánh các lần chạy nhất quán hơn.
+
+Gradient clipping có thể chạy sau `backward` và trước `step`. Scheduler, checkpoint và evaluation cadence là policy quanh core update, không thay objective.
+
+<LessonNote>**Lỗi thường gặp:** gọi `optimizer.step()` trong `no_grad` validation loop.</LessonNote>
+
+**Takeaway:** Chỉ training batches tạo gradient và cập nhật parameter.
+
+</MdxPage>

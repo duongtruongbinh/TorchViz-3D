@@ -1,0 +1,95 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "tokenization-at-scale",
+  locale: "vi",
+  title: "Tokenization ở quy mô lớn",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["tokenization-at-scale","LLM","production","T+K"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Tokenizer đúng trên một câu vẫn có thể thành bottleneck khi xử lý hàng tỷ byte, nhiều ngôn ngữ và nhiều worker. Tokenizer cũng là một phần của model contract, không thể đổi tùy ý sau pretraining.
+
+**Input:** Các byte text đã chuẩn hóa cùng tokenizer/version cố định.
+
+**Output:** Token IDs, offsets, document boundaries và thống kê token/byte.
+
+**Data/type/shape:** Chuỗi độ dài ký tự khác nhau thành các vector ID ragged; batching chỉ xảy ra sau padding/windowing.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Hai tài liệu đều 1.000 byte nhưng lần lượt tạo 250 và 600 token. Với giá/compute theo token, tài liệu thứ hai tốn 2,4 lần dù cùng dung lượng lưu trữ. Audit phải phân tầng theo ngôn ngữ và source, không chỉ dùng trung bình toàn corpus.
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Train và inference dùng khác normalization hoặc tokenizer revision.
+- Ghép document mà mất boundary/EOS.
+- Chỉ đo documents/second thay vì bytes, tokens và tail latency.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type TokenizerManifest = {
+  version: string;
+  normalizationHash: string;
+  boundaryTokenId: number;
+};
+type SegmentStat = { language: string; bytes: number; tokens: number };
+
+function assertManifest(value: TokenizerManifest): void {
+  if (!value.version || !/^[a-f0-9]{8,64}$/.test(value.normalizationHash)) {
+    throw new Error("tokenizer manifest is not reproducible");
+  }
+  if (!Number.isInteger(value.boundaryTokenId) || value.boundaryTokenId < 0) {
+    throw new Error("boundaryTokenId must be a non-negative integer");
+  }
+}
+
+function tokensPerKib(stat: SegmentStat): number {
+  if (!stat.language || stat.bytes <= 0 || stat.tokens < 0) {
+    throw new Error("invalid segment statistic");
+  }
+  return stat.tokens * 1024 / stat.bytes;
+}
+
+assertManifest({
+  version: "support-tokenizer-v3",
+  normalizationHash: "a1b2c3d4",
+  boundaryTokenId: 2,
+});
+const compact = tokensPerKib({ language: "en", bytes: 1_000, tokens: 250 });
+const expanded = tokensPerKib({ language: "vi", bytes: 1_000, tokens: 600 });
+assert.equal(expanded / compact, 2.4);
+assert.throws(
+  () => assertManifest({
+    version: "v3",
+    normalizationHash: "",
+    boundaryTokenId: 2,
+  }),
+  /not reproducible/,
+);
+~~~
+
+<LessonNote>Production handoff lưu manifest/version/hash và thống kê đã tổng hợp theo source/language; không cần log raw document để phát hiện expansion bất thường.</LessonNote>
+
+**Kết nối:** Quiz kế tiếp kiểm tra các quyết định scale, context, KV cache và tokenization.
+
+</MdxPage>

@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "rlhf",
+  locale: "vi",
+  title: "RLHF: từ preference đến policy",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["rlhf","LLM","production","T+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+SFT học bắt chước response; RLHF thêm preference signal để tối ưu hành vi mà reference answers đơn lẻ khó mô tả.
+
+**Input:** Prompt, response pairs hoặc rankings, policy/reference model và reward signal.
+
+**Output:** Policy đã cập nhật cùng evaluation về helpfulness, safety, regressions và reward hacking.
+
+**Data/type/shape:** Mỗi preference example thường chứa `(prompt, chosen, rejected)`; reward model ánh xạ sequence thành scalar, còn policy update tác động distribution token.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Cho reward helpfulness `+2`, safety `+1`, KL penalty `0,5×2`: objective toy là `2+1−1=2`. Tăng reward nhưng bỏ KL/control có thể đẩy policy ra khỏi vùng ngôn ngữ ổn định.
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Xem annotator preference là ground truth khách quan.
+- Tối ưu reward proxy mà không eval hành vi ngoài distribution.
+- Bỏ versioning của policy, reward model và data.
+
+
+**Kết nối:** Constitutional AI thay đổi cách tạo feedback và làm rõ các nguyên tắc governance.
+
+</MdxPage>

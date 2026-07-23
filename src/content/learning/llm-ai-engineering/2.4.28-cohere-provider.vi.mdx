@@ -1,0 +1,53 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "cohere-provider", locale: "vi",
+  title: "Cohere provider capability delta", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["cohere-provider","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Cohere Chat V2, embeddings/rerank, tools và structured outputs phải được map theo capability thật thay vì provider wrapper chung chung.
+
+**Input:** Common task plus selected Cohere capability/model config.
+
+**Output:** Normalized chat/tool/schema/embedding result.
+
+**Data/type/shape:** Chat V2 content/tool calls and response_format map into internal union; rerank returns scored document indices.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Retrieval pipeline dùng embeddings/index rồi rerank candidates; generation chỉ nhận top evidence. Structured tool output dùng current V2 controls và validator.
+
+| Capability | Wire output cần giữ | Conformance check |
+|---|---|---|
+| Chat V2 | Ordered content, finish reason, usage | Text/refusal/terminal mapping |
+| Tool use | Call ID, name, untrusted arguments | Schema + authorization + result loop |
+| Structured output | Provider control + local validation | Required/enum/additional fields |
+| Embeddings | `(N,D)`, model/revision, usage | Count/dimension before upsert |
+| Rerank | Candidate index + relevance score | Index bounds và stable document mapping |
+
+<LessonNote>Rerank không tạo embedding và JSON syntax không tự bảo đảm schema. Chỉ bật capability đã được official docs và fixture của exact API version xác nhận.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Trộn V1 và V2 parameters.
+- Gọi rerank là embedding.
+- Assume JSON mode equals schema.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://docs.cohere.com/v2/docs/structured-outputs). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** NIM minh họa compatible inference cộng management surface.
+
+</MdxPage>

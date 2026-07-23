@@ -1,0 +1,101 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'instruction-batch-mask-calculation',
+  locale: 'vi',
+  title: 'Tính instruction batch và response mask',
+  headings: ['Token sequences', 'Shift', 'Padding mask', 'Response mask'],
+  keywords: ['instruction batch calculation', 'shifted targets', 'padding', 'response mask', '-100'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Hai mẫu có độ dài khác nhau
+
+**Mục tiêu:** Tự dựng input/target batch và xác định chính xác vị trí `-100`.
+
+Giả sử token IDs đã gồm prompt, response và EOS:
+
+```text
+sample A = [10, 11, 20, 21, 99]
+sample B = [12, 20, 99]
+```
+
+`20` là token bắt đầu response, `99` là EOS, `0` là PAD. Pad về độ dài 5:
+
+```text
+A = [10, 11, 20, 21, 99]
+B = [12, 20, 99,  0,  0]
+```
+
+<LessonNote>**Lỗi thường gặp:** pad trước khi thêm EOS. Khi đó sample ngắn có thể không có target kết thúc thật.</LessonNote>
+
+**Takeaway:** Thêm EOS vào sequence có nghĩa trước, pad batch sau.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Dịch target đúng một vị trí
+
+Tạo input bằng cách bỏ token cuối, target bằng cách bỏ token đầu:
+
+```text
+inputs  A = [10, 11, 20, 21]
+targets A = [11, 20, 21, 99]
+
+inputs  B = [12, 20, 99,  0]
+targets B = [20, 99,  0,  0]
+```
+
+Cả hai tensor có shape `(B,T)=(2,4)`.
+
+<LessonNote>**Kiểm tra:** trước masking, `inputs[:,1:] == targets[:,:-1]` trên phần không pad.</LessonNote>
+
+**Takeaway:** Target alignment được tạo trước response/padding mask.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Bỏ padding khỏi loss
+
+Thay PAD trong target bằng `-100`:
+
+```text
+targets A = [11, 20, 21,  99]
+targets B = [20, 99, -100, -100]
+```
+
+EOS `99` đầu tiên của mỗi sample được giữ vì model cần học điểm kết thúc. `F.cross_entropy(..., ignore_index=-100)` bỏ hai vị trí padding của sample B khỏi trung bình loss.
+
+<LessonNote>**Lỗi thường gặp:** thay mọi `99` bằng `-100` khi EOS cũng được dùng làm pad token. Phải phân biệt EOS có nghĩa với các bản sao dùng để căn hàng.</LessonNote>
+
+**Takeaway:** `-100` là nhãn sentinel cho loss, không phải token ID đưa vào embedding.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Mask cả phần prompt
+
+Nếu response bắt đầu tại token `20`, target trước response bị bỏ:
+
+```text
+targets A = [-100, 20, 21,  99]
+targets B = [   20, 99, -100, -100]
+```
+
+Sample A có ba vị trí được chấm; sample B có hai. Flatten cho cross-entropy:
+
+- logits: `(2,4,V) → (8,V)`;
+- targets: `(2,4) → (8,)`;
+- chỉ 5 target khác `-100` đóng góp.
+
+```python
+assert (targets != -100).sum().item() == 5
+```
+
+<LessonNote>**Takeaway:** Response masking thay tập vị trí được tối ưu, không thay causal attention hay shape logits.</LessonNote>
+
+</MdxPage>

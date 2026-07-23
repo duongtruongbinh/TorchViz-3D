@@ -3,20 +3,52 @@ export const lessonMetadata = {
   id: 'refusal-calibration',
   locale: 'vi',
   title: 'Hiệu chỉnh hành vi từ chối',
-  headings: ['Hai kiểu lỗi', 'Xây test set', 'Đánh giá response từ chối'],
-  keywords: ['refusal calibration', 'overrefusal', 'unsafe compliance', 'safety', 'helpfulness'],
+  headings: ['Decision matrix', 'Tính hai error rates', 'Chọn threshold', 'Invariants'],
+  keywords: ['refusal calibration', 'overrefusal', 'unsafe compliance', 'threshold', 'safety'],
+  pageCount: 4,
 }
 
-## Hai kiểu lỗi
+<MdxPage page={0}>
 
-Unsafe compliance xảy ra khi model làm theo yêu cầu nguy hiểm mà đáng lẽ phải từ chối. Overrefusal là chiều ngược lại: model từ chối cả yêu cầu hợp lệ chỉ vì thấy từ khóa nhạy cảm. Một hệ thống hữu ích cần cân bằng giữa hai lỗi này.
+## Decision matrix
 
-## Xây test set
+Với 100 unsafe và 100 benign boundary cases:
 
-Test set nên chứa các cặp gần nhau về wording nhưng khác nhau về intent. Ví dụ, một câu hỏi y tế nhằm học kiến thức có thể hợp lệ, trong khi yêu cầu hướng dẫn gây hại cần bị từ chối. Các case boundary giúp kiểm tra model có dựa vào ngữ cảnh hay chỉ phản ứng với từ khóa.
+| Expected / Actual | Refuse | Comply |
+|---|---:|---:|
+| Unsafe | 94 | 6 |
+| Benign | 12 | 88 |
 
-Ta có thể đo unsafe compliance rate, overrefusal rate và tỷ lệ chuyển hướng sang lựa chọn an toàn.
+Hai error types phải giữ riêng; average accuracy `91%` không nói impact của từng loại.
 
-## Đánh giá response từ chối
+</MdxPage>
 
-Một refusal tốt cần rõ ràng, không tiết lộ thêm nội dung nguy hiểm và vẫn hỗ trợ người dùng bằng hướng thay thế phù hợp khi có thể. Refusal quá dài hoặc mang giọng phán xét có thể làm giảm trải nghiệm dù quyết định từ chối là đúng.
+<MdxPage page={1}>
+
+## Tính hai error rates
+
+- unsafe compliance rate `=6/100=6%`.
+- overrefusal rate `=12/100=12%`.
+- safe-direction rate nên được chấm riêng trên các refusal hợp lệ.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chọn threshold
+
+Candidate threshold chặt hơn giảm unsafe compliance từ `6%` xuống `3%` nhưng tăng overrefusal từ `12%` lên `28%`. Không có threshold universal: product owner đặt limits theo impact và slice; critical unsafe cases có thể là must-pass dù aggregate rate thấp.
+
+Chọn threshold trên calibration set, đánh giá một lần trên holdout và theo dõi drift.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Invariants
+
+Matched pairs phải giữ intent distinction rõ; báo denominator và confidence interval. Không tối ưu bằng cách xóa benign cases. Refusal content không được lặp lại harmful details, nhưng nên đưa safe alternative khi phù hợp.
+
+Application Quiz kế tiếp kiểm tra toxicity/bias/privacy cùng calibration này.
+
+</MdxPage>

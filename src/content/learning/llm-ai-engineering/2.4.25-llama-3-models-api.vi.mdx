@@ -1,0 +1,57 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "llama-3-models-api", locale: "vi",
+  title: "Llama: model card, license và serving contract", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["llama-3-models-api","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Llama là model family/weights; Ollama, NIM, Together hoặc self-hosted server quyết định wire API và operational behavior.
+
+**Input:** Exact model card/version/license plus chosen serving runtime.
+
+**Output:** Deployment manifest and normalized inference contract.
+
+**Data/type/shape:** Same logical model may expose Chat Completions, Responses or runtime-native fields; tokenizer/template must match weights.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Manifest lưu weight revision, tokenizer, chat template, quantization và runtime version. Đổi host mà không conformance-test tool roles/stop tokens có thể đổi output.
+
+~~~json
+{
+  "weights": { "family": "llama", "revision": "pinned-revision", "quantization": "artifact-specific" },
+  "tokenizer": { "revision": "same-as-weights", "chatTemplate": "pinned-template-v2" },
+  "license": { "documentVersion": "reviewed-version", "approvedUseCase": "support-read-only" },
+  "runtime": { "name": "chosen-server", "version": "pinned-version" },
+  "contract": { "streamEvents": "internal-v1", "toolCalls": "conformance-tested", "stopMapping": "tested" }
+}
+~~~
+
+Conformance gate chạy cùng text/tool/stop fixtures trên artifact cũ và mới. Chỉ promote nếu normalized result, safety gates và latency SLO đều đạt.
+
+<LessonNote>Manifest cố ý không hard-code một model alias đang biến động. Điền exact identifiers từ model card, license và runtime ở thời điểm release.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Nói “Llama API” như một endpoint universal.
+- Trộn tokenizer/template khác revision.
+- Bỏ license attribution/use restrictions.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://www.llama.com/docs/model-cards-and-prompt-formats/). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Ollama local lesson triển khai một runtime contract.
+
+</MdxPage>

@@ -1,0 +1,74 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "exponential-backoff-jitter", locale: "vi",
+ title: "Exponential backoff với jitter", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["exponential-backoff-jitter","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Immediate retries khuếch đại outage và tranh quota. Retry chỉ dành lỗi transient trong deadline/idempotency budget.
+
+**Input:** Attempt, base/cap, optional provider-specific retry delay/header, error class, idempotency và AbortSignal.
+
+**Output:** Next delay hoặc terminal failure.
+
+**Data/type/shape:** Attempt scalar → bounded delay; full jitter sample trong `[0,min(cap,base×2^attempt)]`.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+Base 200 ms, cap 5 s, attempt 3 cho max 1.600 ms; full jitter chọn trong 0–1.600. Nếu provider có retry delay được tài liệu hóa nhưng lớn hơn remaining deadline thì fail sớm.
+
+~~~ts
+import assert from "node:assert/strict";
+type RetryInput = {
+  attempt: number; baseMs: number; capMs: number;
+  providerDelayMs?: number; remainingMs: number;
+  transient: boolean; idempotent: boolean; sample: number;
+};
+type RetryDecision =
+  | { kind: "retry"; delayMs: number }
+  | { kind: "stop"; reason: string };
+
+function nextRetry(input: RetryInput): RetryDecision {
+  if (!input.transient) return { kind: "stop", reason: "permanent_error" };
+  if (!input.idempotent) return { kind: "stop", reason: "unsafe_replay" };
+  if (input.sample < 0 || input.sample > 1) throw new Error("invalid_sample");
+  const ceiling = Math.min(input.capMs, input.baseMs * 2 ** input.attempt);
+  const jittered = Math.floor(ceiling * input.sample);
+  const delayMs = Math.max(jittered, input.providerDelayMs ?? 0);
+  if (delayMs >= input.remainingMs) return { kind: "stop", reason: "deadline" };
+  return { kind: "retry", delayMs };
+}
+
+assert.deepEqual(nextRetry({
+  attempt: 3, baseMs: 200, capMs: 5_000,
+  remainingMs: 2_000, transient: true, idempotent: true, sample: 0.5,
+}), { kind: "retry", delayMs: 800 });
+assert.deepEqual(nextRetry({
+  attempt: 3, baseMs: 200, capMs: 5_000, providerDelayMs: 2_500,
+  remainingMs: 2_000, transient: true, idempotent: true, sample: 0.5,
+}), { kind: "stop", reason: "deadline" });
+~~~
+<LessonNote>`Retry-After` không phải universal contract. Chỉ parse header/field provider đã tài liệu hóa; nếu thiếu, dùng local bounded policy và vẫn tôn trọng deadline/cancel.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Retry 4xx permanent.
+- Không jitter làm thundering herd.
+- Retry side effect không idempotency key.
+
+**Kết nối:** Quota manager phối hợp retry với global budgets.
+
+</MdxPage>

@@ -1,0 +1,80 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "mistral-function-calling", locale: "vi",
+  title: "Function calling với Mistral", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["mistral-function-calling","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Mistral vẫn theo vòng developer defines → model proposes → developer executes → tool result → final answer, với current request/response syntax riêng.
+
+**Input:** Tool schemas/messages và authenticated context.
+
+**Output:** Model-proposed tool calls, application-executed results và final response; proposal không phải kết quả đã chạy.
+
+**Data/type/shape:** Assistant tool call contains ID/function/arguments; tool message references call ID.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Payment fixture có `retrieve_status(transaction_id)`. Model arguments parse JSON, validator rejects unknown ID, function runs locally, tool result returns before next completion.
+
+~~~ts
+import assert from "node:assert/strict";
+type Proposal = { id: string; name: string; arguments: string };
+type ToolMessage = { role: "tool"; tool_call_id: string; content: string };
+
+function executeProposal(call: Proposal, allowedTransactions: Set<string>): ToolMessage {
+  if (call.name !== "retrieve_status") throw new Error("unknown_tool");
+  let input: unknown;
+  try { input = JSON.parse(call.arguments); }
+  catch { throw new Error("invalid_arguments"); }
+  const transactionId = (input as { transaction_id?: unknown })?.transaction_id;
+  if (typeof transactionId !== "string") throw new Error("invalid_arguments");
+  if (!allowedTransactions.has(transactionId)) throw new Error("forbidden");
+  return {
+    role: "tool",
+    tool_call_id: call.id,
+    content: '{"status":"settled"}',
+  };
+}
+
+const message = executeProposal(
+  { id: "call_9", name: "retrieve_status", arguments: '{"transaction_id":"tx-9"}' },
+  new Set(["tx-9"]),
+);
+assert.deepEqual(message, {
+  role: "tool", tool_call_id: "call_9", content: '{"status":"settled"}',
+});
+assert.throws(
+  () => executeProposal(
+    { id: "call_10", name: "retrieve_status", arguments: '{"transaction_id":"tx-x"}' },
+    new Set(["tx-9"]),
+  ),
+  /forbidden/,
+);
+~~~
+<LessonNote>Application phải cap successive calls, authorize mỗi proposal và dùng đúng syntax SDK/version hiện hành. Tool result quay lại bằng call ID ban đầu.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Cho model chạy function trực tiếp.
+- Không loop successive calls có cap.
+- Copy V1/V2 SDK syntax lẫn nhau.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://docs.mistral.ai/studio-api/conversations/function-calling). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Quiz kiểm tra JSON/schema/tool differences.
+
+</MdxPage>

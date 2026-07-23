@@ -1,0 +1,60 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "perceived-latency", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "partial response", "stream state"], pageCount: 4,
+}
+
+<MdxQuiz id="perceived-latency" questions={[
+  {
+    "id": "perceived-latency-q1", "title": "Tình huống 1",
+    "prompt": "Stream đã có text delta nhưng chưa có terminal event. UI nên gắn trạng thái nào?",
+    "mode": "single",
+    "options": [
+      { "id": "perceived-latency-q1-a", "label": "completed" },
+      { "id": "perceived-latency-q1-correct", "label": "streaming với preview provisional", "isCorrect": true },
+      { "id": "perceived-latency-q1-b", "label": "failed" },
+      { "id": "perceived-latency-q1-c", "label": "committed" }
+    ],
+    "success": "Đúng. Delta cải thiện cảm nhận nhưng chưa chứng minh response hoàn tất hay hợp lệ.",
+    "error": "Chưa đúng. Chỉ terminal success sau validation mới được commit như kết quả hoàn chỉnh."
+  },
+  {
+    "id": "perceived-latency-q2", "title": "Tình huống 2",
+    "prompt": "Client disconnect sau ba tool-argument fragments, trước `tool_done`. Hành vi nào an toàn?",
+    "mode": "single",
+    "options": [
+      { "id": "perceived-latency-q2-a", "label": "Parse ba fragment và chạy tool" },
+      { "id": "perceived-latency-q2-b", "label": "Đoán phần JSON còn thiếu" },
+      { "id": "perceived-latency-q2-c", "label": "Lưu command như completed" },
+      { "id": "perceived-latency-q2-correct", "label": "Cancel, không execute, lưu terminal `canceled`/`failed`", "isCorrect": true }
+    ],
+    "success": "Đúng. Tool arguments chỉ được validate sau boundary hoàn chỉnh; partial bytes không phải command.",
+    "error": "Chưa đúng. Thực thi fragment có thể tạo side effect từ dữ liệu chưa hoàn chỉnh."
+  },
+  {
+    "id": "perceived-latency-q3", "title": "Tình huống 3",
+    "prompt": "Stream nhận `error` sau một đoạn text. Database nên lưu gì?",
+    "mode": "single",
+    "options": [
+      { "id": "perceived-latency-q3-correct", "label": "Typed failed state; partial text chỉ là diagnostic/preview theo retention policy", "isCorrect": true },
+      { "id": "perceived-latency-q3-a", "label": "Completed answer vì người dùng đã thấy text" },
+      { "id": "perceived-latency-q3-b", "label": "Tool result thành công" },
+      { "id": "perceived-latency-q3-c", "label": "Raw chunks vô thời hạn" }
+    ],
+    "success": "Đúng. User-visible preview và committed domain result là hai trạng thái khác nhau.",
+    "error": "Chưa đúng. Partial output không được nâng thành completed và cũng không nên được lưu vô điều kiện."
+  },
+  {
+    "id": "perceived-latency-q4", "title": "Tình huống 4",
+    "prompt": "Metric nào tách cảm nhận bắt đầu phản hồi khỏi thời gian hoàn tất?",
+    "mode": "single",
+    "options": [
+      { "id": "perceived-latency-q4-a", "label": "Cache key length" },
+      { "id": "perceived-latency-q4-b", "label": "Prompt character count" },
+      { "id": "perceived-latency-q4-correct", "label": "Time-to-first-event và time-to-terminal", "isCorrect": true },
+      { "id": "perceived-latency-q4-c", "label": "Số CSS rules" }
+    ],
+    "success": "Đúng. Hai mốc đo riêng cho biết stream bắt đầu nhanh nhưng có thể hoàn tất chậm hoặc lỗi.",
+    "error": "Chưa đúng. Metric latency cần gắn vào state transition có thể quan sát."
+  }
+]} />

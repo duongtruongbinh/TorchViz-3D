@@ -3,22 +3,88 @@ export const lessonMetadata = {
   id: 'evaluation-ab-testing',
   locale: 'vi',
   title: 'A/B testing cho hệ thống LLM',
-  headings: ['Khi offline eval chưa đủ', 'Thiết kế thử nghiệm', 'Đọc kết quả'],
-  keywords: ['A/B testing', 'online evaluation', 'randomization', 'guardrail metric', 'user feedback'],
+  headings: ['Experiment contract', 'Tính effect', 'Guardrail decision', 'Invariants'],
+  keywords: ['A/B testing', 'effect size', 'randomization', 'guardrail metric', 'exposure'],
+  pageCount: 4,
 }
 
-## Khi offline eval chưa đủ
+<MdxPage page={0}>
 
-Offline eval không đo đầy đủ cách người dùng thật tương tác với sản phẩm. A/B testing so sánh hai phiên bản trên traffic được chia ngẫu nhiên để đo tác động tới completion rate, user preference, retention, escalation hoặc thời gian hoàn thành task.
+## Experiment contract
 
-## Thiết kế thử nghiệm
+Chỉ chạy online sau offline safety gate. Pre-register unit randomization, eligible population, primary metric, guardrail metrics, sample/time budget và stop rule. Input là immutable candidate versions; output là exposure counts, outcomes, incidents và decision.
 
-Chỉ nên thay đổi một nhóm yếu tố có thể giải thích được. Cần xác định primary metric, guardrail metrics, sample size, thời gian chạy và điều kiện dừng trước khi xem kết quả. Các nhóm user quan trọng nên được kiểm tra cân bằng giữa A và B.
+Không log raw prompt/response mặc định; dùng consent, minimization và retention policy.
 
-Với LLM, phải log model/prompt version, latency, token cost và safety incidents. Một phiên bản tăng engagement nhưng tăng harmful response hoặc chi phí vượt ngưỡng không thể được xem là thắng.
+</MdxPage>
 
-## Đọc kết quả
+<MdxPage page={1}>
 
-Statistical significance không tự động đồng nghĩa với practical significance. Hãy xem effect size, confidence interval và kết quả theo subgroup. User feedback định tính và failure trace giúp giải thích tại sao một metric thay đổi.
+## Tính effect
 
-A/B test chỉ nên chạy sau khi phiên bản mới đã vượt qua offline safety gate.
+A: `420/1000=42%` task completion. B: `460/1000=46%`.
+
+- absolute lift `=46%-42%=4` percentage points.
+- relative lift `=(0.46-0.42)/0.42≈9.52%`.
+- standard error xấp xỉ `sqrt(0.42×0.58/1000 + 0.46×0.54/1000)≈0.02218`.
+- 95% normal-approximation interval cho lift là `0.04±1.96×0.02218≈[-0.0035,0.0835]`.
+
+Hai cách biểu diễn lift trả lời hai câu khác nhau. Interval còn chứa `0`, nên sample này chưa đủ để khẳng định effect dương; luôn báo denominator và uncertainty, không chỉ relative lift.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Guardrail decision
+
+Giả sử safety incident A `1/1000`, B `8/1000`, trong khi policy limit là `<=2/1000`. B không được rollout dù task completion tăng. Decision là `block`, sau đó triage/redact confirmed failures và đưa chúng vào offline suite.
+
+```python
+from math import sqrt
+
+def normal_diff_interval(
+    successes_a: int,
+    total_a: int,
+    successes_b: int,
+    total_b: int,
+) -> tuple[float, float, float]:
+    if total_a <= 0 or total_b <= 0:
+        raise ValueError('sample sizes must be positive')
+    if not 0 <= successes_a <= total_a or not 0 <= successes_b <= total_b:
+        raise ValueError('success counts must lie inside sample sizes')
+    rate_a = successes_a / total_a
+    rate_b = successes_b / total_b
+    lift = rate_b - rate_a
+    standard_error = sqrt(
+        rate_a * (1 - rate_a) / total_a
+        + rate_b * (1 - rate_b) / total_b
+    )
+    margin = 1.96 * standard_error
+    return lift, lift - margin, lift + margin
+
+completion_lift, lower, upper = normal_diff_interval(420, 1000, 460, 1000)
+incident_rate_b = 8 / 1000
+assert abs(completion_lift - 0.04) < 1e-12
+assert abs(lower - (-0.00347490)) < 1e-7
+assert abs(upper - 0.08347490) < 1e-7
+assert lower < 0 < upper
+assert incident_rate_b > 2 / 1000
+try:
+    normal_diff_interval(0, 0, 1, 10)
+except ValueError:
+    pass
+else:
+    raise AssertionError('empty experiment arm must fail')
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Invariants
+
+Randomization assignment phải ổn định, exposure không double-count, analysis không peek để dừng tùy ý. Đọc effect theo subgroup và practical impact; statistical significance không tự tạo product significance.
+
+Harness code kế tiếp biến offline gate thành deterministic artifact trước online exposure.
+
+</MdxPage>

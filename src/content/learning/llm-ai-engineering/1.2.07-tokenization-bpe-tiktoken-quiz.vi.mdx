@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-bpe-tiktoken-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Training', 'Inference', 'Byte fallback', 'Vocabulary size'],
+  keywords: ['quiz', 'BPE', 'merge rank', 'byte fallback', 'vocabulary'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="tokenization-bpe-tiktoken-quiz" questions={[
+  {
+    id: 'bpe-training-loop', title: 'Training BPE', prompt: 'Một vòng BPE training thực hiện thao tác nào?', mode: 'single',
+    options: [
+      { id: 'count-merge-repeat', label: 'Đếm cặp liền kề, merge cặp được chọn, thêm token mới rồi đếm lại.', isCorrect: true },
+      { id: 'semantic', label: 'Chọn chuỗi con có ý nghĩa nhất theo từ điển.' },
+      { id: 'whole-word', label: 'Biến mọi word trong corpus thành token chỉ trong một vòng.' },
+      { id: 'embedding', label: 'Tối ưu embedding vectors rồi suy ra ranh giới token.' },
+    ],
+    success: 'Đúng. Mỗi merge làm thay đổi dãy, nên thống kê cặp cho vòng sau cũng thay đổi.',
+    error: 'BPE training thao tác trên cặp token liền kề, không dựa vào embedding hay ý nghĩa.',
+  },
+  {
+    id: 'merge-rank-inference', title: 'Inference', prompt: 'Tokenizer BPE đã huấn luyện xử lý prompt mới như thế nào?', mode: 'single',
+    options: [
+      { id: 'fixed-ranks', label: 'Bắt đầu từ đơn vị nền tảng và áp dụng các merge đã học theo rank.', isCorrect: true },
+      { id: 'retrain', label: 'Đếm lại prompt rồi học vocabulary riêng cho prompt đó.' },
+      { id: 'longest-only', label: 'Luôn chọn token dài nhất trong vocabulary, bỏ qua merge rank.' },
+      { id: 'semantic-context', label: 'Đổi ranh giới theo nghĩa câu dù rules giữ nguyên.' },
+    ],
+    success: 'Đúng. Vocabulary và merge ranks đã cố định tại inference.',
+    error: 'Phân biệt training với inference: prompt mới không tạo merge rules mới.',
+  },
+  {
+    id: 'byte-fallback', title: 'Byte fallback', prompt: 'Tokenizer byte-level gặp một chuỗi Unicode chưa từng xuất hiện nguyên vẹn trong training. Điều gì hợp lý nhất?', mode: 'single',
+    options: [
+      { id: 'bytes', label: 'Biểu diễn bằng các byte/subword nhỏ hơn rồi decode lại cùng chuỗi byte.', isCorrect: true },
+      { id: 'drop', label: 'Xóa chuỗi khỏi input.' },
+      { id: 'new-id', label: 'Tạo ngẫu nhiên token ID mới ngoài vocabulary cố định.' },
+      { id: 'always-unk', label: 'Mọi BPE bắt buộc thay toàn bộ chuỗi bằng UNK.' },
+    ],
+    success: 'Đúng. Byte coverage đầy đủ cho phép fallback mà không phải sửa vocabulary.',
+    error: 'Vocabulary không được mở rộng ngẫu nhiên khi inference; hãy xét các đơn vị byte nền tảng.',
+  },
+  {
+    id: 'vocabulary-size-tradeoff', title: 'Vocabulary size', prompt: 'Tăng vocabulary-size budget thường tạo trade-off nào?', mode: 'single',
+    options: [
+      { id: 'matrix-vs-length', label: 'Có thể rút ngắn sequence nhưng làm embedding/output matrices có nhiều hàng hơn.', isCorrect: true },
+      { id: 'free-win', label: 'Luôn giảm cả model size lẫn sequence length.' },
+      { id: 'ids-semantic', label: 'Làm độ lớn token ID phản ánh ý nghĩa tốt hơn.' },
+      { id: 'no-rules', label: 'Loại bỏ nhu cầu lưu merge rules.' },
+    ],
+    success: 'Đúng. Vocabulary size ảnh hưởng cả số hàng tham số V và số vị trí token T.',
+    error: 'Không có lựa chọn miễn phí: thêm token types làm bảng tham số lớn hơn.',
+  },
+]} />

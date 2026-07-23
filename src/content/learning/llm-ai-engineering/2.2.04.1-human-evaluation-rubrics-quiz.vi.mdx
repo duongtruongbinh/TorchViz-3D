@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'human-evaluation-rubrics-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Observable anchor', 'Critical criterion', 'Calibration', 'Blind review'],
+  keywords: ['quiz', 'rubric', 'human evaluation', 'calibration'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="human-evaluation-rubrics-quiz" questions={[
+  {
+    id: 'human-evaluation-rubrics-quiz-q1',
+    title: 'Observable anchor',
+    prompt: 'Mô tả nào là anchor tốt nhất cho correctness = 2/4?',
+    mode: 'single',
+    options: [
+      { id: 'human-evaluation-rubrics-quiz-q1-a', label: 'Ý chính đúng nhưng có ít nhất một claim quan trọng không được evidence hỗ trợ', isCorrect: true },
+      { id: 'human-evaluation-rubrics-quiz-q1-b', label: 'Câu trả lời khá ổn' },
+      { id: 'human-evaluation-rubrics-quiz-q1-c', label: 'Câu trả lời dài khoảng hai đoạn' },
+      { id: 'human-evaluation-rubrics-quiz-q1-d', label: 'Annotator không thích giọng văn' },
+    ],
+    success: 'Đúng. Anchor phải mô tả hành vi quan sát được.',
+    error: 'Chưa đúng. Rubric mơ hồ hoặc dựa vào cảm giác làm giảm agreement.',
+  },
+  {
+    id: 'human-evaluation-rubrics-quiz-q2',
+    title: 'Critical criterion',
+    prompt: 'Một privacy leak nghiêm trọng nên được biểu diễn thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'human-evaluation-rubrics-quiz-q2-a', label: 'Trừ một điểm style trong tổng điểm' },
+      { id: 'human-evaluation-rubrics-quiz-q2-b', label: 'Chỉ ghi chú tự do nếu annotator nhớ' },
+      { id: 'human-evaluation-rubrics-quiz-q2-c', label: 'Một cờ critical pass/fail riêng, không bị average che lấp', isCorrect: true },
+      { id: 'human-evaluation-rubrics-quiz-q2-d', label: 'Bỏ qua nếu response hữu ích' },
+    ],
+    success: 'Đúng. Critical safety/privacy criterion cần gate riêng.',
+    error: 'Chưa đúng. Lỗi nghiêm trọng không nên bị trung bình hóa.',
+  },
+  {
+    id: 'human-evaluation-rubrics-quiz-q3',
+    title: 'Calibration',
+    prompt: 'Hai annotator hiểu “helpful” khác nhau trước batch lớn. Bước tiếp theo tốt nhất?',
+    mode: 'single',
+    options: [
+      { id: 'human-evaluation-rubrics-quiz-q3-a', label: 'Chấm toàn bộ rồi lấy trung bình' },
+      { id: 'human-evaluation-rubrics-quiz-q3-b', label: 'Loại ngẫu nhiên một annotator' },
+      { id: 'human-evaluation-rubrics-quiz-q3-c', label: 'Không cho annotator xem rubric để tránh bias' },
+      { id: 'human-evaluation-rubrics-quiz-q3-d', label: 'Chấm chung sample nhỏ, thảo luận disagreement và sửa anchor', isCorrect: true },
+    ],
+    success: 'Đúng. Calibration trước batch lớn giúp thống nhất cách áp dụng rubric.',
+    error: 'Chưa đúng. Chờ đến cuối mới phát hiện disagreement sẽ rất tốn chi phí.',
+  },
+  {
+    id: 'human-evaluation-rubrics-quiz-q4',
+    title: 'Blind review',
+    prompt: 'Khi so sánh hai model, biện pháp nào giảm brand và position bias?',
+    mode: 'single',
+    options: [
+      { id: 'human-evaluation-rubrics-quiz-q4-a', label: 'Đặt model mạnh hơn ở vị trí A và hiện tên đầy đủ' },
+      { id: 'human-evaluation-rubrics-quiz-q4-b', label: 'Ẩn tên model và hoán đổi thứ tự A/B', isCorrect: true },
+      { id: 'human-evaluation-rubrics-quiz-q4-c', label: 'Luôn đặt response dài hơn trước' },
+      { id: 'human-evaluation-rubrics-quiz-q4-d', label: 'Chỉ chấm một thứ tự để tiết kiệm thời gian' },
+    ],
+    success: 'Đúng. Blind review và order swap tạo tín hiệu để đo bias.',
+    error: 'Chưa đúng. Tên model và thứ tự cố định có thể ảnh hưởng quyết định.',
+  },
+]} />

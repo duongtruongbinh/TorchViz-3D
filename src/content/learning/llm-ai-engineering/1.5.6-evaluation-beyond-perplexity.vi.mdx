@@ -3,107 +3,78 @@ export const lessonMetadata = {
   id: 'evaluation-beyond-perplexity',
   locale: 'vi',
   title: 'Beyond Perplexity',
-  headings: ['Tìm benchmark trên Hugging Face', 'Beyond Perplexity'],
-  keywords: ['MMLU', 'likelihood', 'test contamination', 'human evaluation', 'LLM-as-a-Judge'],
-  pageCount: 2,
+  headings: ['PPL boundary', 'Capability benchmark', 'Contamination', 'Open-response evaluation'],
+  keywords: ['perplexity', 'capability benchmark', 'test contamination', 'human evaluation', 'LLM-as-a-Judge'],
+  pageCount: 4,
 }
 
 <MdxPage page={0}>
 
-<LlmHuggingFaceBenchmarks content={{
-  "lead": {
-    "before": { vi: "Bạn có thể đánh giá model trên nhiều benchmark công khai phù hợp với năng lực muốn đo. Một nơi thuận tiện để bắt đầu tìm kiếm là" },
-    "highlight": { vi: "Hugging Face Hub" }
-  },
-  "brief": { vi: "Hugging Face là nền tảng cộng tác cho cộng đồng machine learning, nơi tập hợp model, dataset và ứng dụng. Trên Hub, benchmark có thể được xuất bản dưới dạng dataset repo, kèm mô tả task, evaluation results và leaderboard để bạn khám phá trước khi chọn phép đánh giá phù hợp." },
-  "points": [
-    {
-      "id": "discover",
-      "title": { vi: "Tìm benchmark" },
-      "description": { vi: "Khám phá các benchmark công khai theo task hoặc năng lực bạn muốn đo." }
-    },
-    {
-      "id": "inspect",
-      "title": { vi: "Đọc dataset repo" },
-      "description": { vi: "Kiểm tra mô tả, task, split và cách benchmark định nghĩa evaluation." }
-    },
-    {
-      "id": "compare",
-      "title": { vi: "Xem evaluation results" },
-      "description": { vi: "Theo dõi score của các model và leaderboard được tổng hợp trên Hub." }
-    }
-  ],
-  "image": {
-    "src": "https://huggingface.co/huggingface/documentation-images/resolve/main/evaluation-results/benchmark-preview.png",
-    "alt": { vi: "Giao diện Benchmark Dataset và leaderboard trên Hugging Face Hub" }
-  },
-  "cta": {
-    "label": { vi: "Khám phá benchmark trên Hugging Face" },
-    "href": "https://huggingface.co/docs/hub/eval-results#benchmark-datasets"
-  },
-  "resourcesLabel": { vi: "Hai lựa chọn phổ biến được giới thiệu trong video" },
-  "resources": [
-    {
-      "id": "helm",
-      "name": "HELM",
-      "description": { vi: "Framework của Stanford CRFM để so sánh model trên nhiều kịch bản và metric theo một quy trình minh bạch, có thể tái lập." },
-      "ctaLabel": { vi: "Mở HELM" },
-      "href": "https://crfm.stanford.edu/helm/"
-    },
-    {
-      "id": "open-llm-leaderboard",
-      "name": "Hugging Face Open LLM Leaderboard",
-      "description": { vi: "Leaderboard để khám phá và đối chiếu kết quả evaluation của các open LLM trên một tập benchmark chung." },
-      "ctaLabel": { vi: "Mở leaderboard" },
-      "href": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard"
-    }
-  ]
-}} />
+## Perplexity trả lời một câu hỏi hẹp
+
+**Mục tiêu:** Chọn loại evaluation phù hợp thay vì dùng một scalar cho mọi năng lực.
+
+Perplexity đo model gán xác suất cho ground-truth tokens tốt đến đâu trên một corpus và tokenizer cụ thể. Nó hữu ích để theo dõi language-model training trong cùng setup.
+
+PPL thấp không tự bảo đảm model giải toán, làm theo instruction, trích nguồn đúng hay từ chối nội dung nguy hiểm.
+
+<LessonNote>**Lỗi thường gặp:** so PPL từ hai tokenizer/dataset khác nhau như cùng một thước đo tuyệt đối.</LessonNote>
+
+**Takeaway:** Metric chỉ có ý nghĩa khi câu hỏi đánh giá và protocol được ghi rõ.
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-<LlmBenchmarkLikelihood content={{
-  "lead": { vi: "Perplexity đo khả năng dự đoán token. Academic benchmark bổ sung các câu hỏi có đáp án để kiểm tra kiến thức và reasoning cụ thể hơn." },
-  "benchmark": {
-    "name": "MMLU",
-    "description": { vi: "Một benchmark multiple-choice gồm nhiều lĩnh vực như toán, khoa học, luật và lịch sử." }
-  },
-  "labels": {
-    "question": { vi: "Đọc câu hỏi" },
-    "likelihood": { vi: "Chấm likelihood từng đáp án" },
-    "result": { vi: "Chọn score cao nhất" }
-  },
-  "question": { vi: "Bào quan nào tạo ra phần lớn ATP trong tế bào?" },
-  "answers": [
-    { "id": "A", "text": { vi: "Nhân tế bào" }, "score": 0.08 },
-    { "id": "B", "text": { vi: "Ribosome" }, "score": 0.12 },
-    { "id": "C", "text": { vi: "Ty thể" }, "score": 0.72 },
-    { "id": "D", "text": { vi: "Màng tế bào" }, "score": 0.08 }
-  ],
-  "formula": "\\hat a=\\arg\\max_{a\\in\\{A,B,C,D\\}}\\log p(a\\mid\\text{context})",
-  "contamination": {
-    "title": { vi: "Cẩn thận với test contamination" },
-    "body": { vi: "Nếu câu hỏi hoặc lời giải đã xuất hiện trong training corpus, score cao có thể đến từ ghi nhớ thay vì generalization." }
-  }
-}} />
+## Capability benchmark chấm một năng lực cụ thể
 
-<LlmPostTrainingEvaluation content={{
-  "lead": { vi: "Sau alignment, response mở còn cần được đánh giá theo instruction following và preference của con người." },
-  "methods": [
-    {
-      "id": "human",
-      "title": { vi: "Human evaluation" },
-      "description": { vi: "Con người chấm hoặc so sánh response theo tiêu chí đã định. Cách này gần với judgment của người dùng nhưng chậm và tốn chi phí." }
-    },
-    {
-      "id": "judge",
-      "title": { vi: "LLM-as-a-Judge" },
-      "description": { vi: "Dùng một model mạnh hơn để chấm pointwise hoặc pairwise ở quy mô lớn hơn. Kết quả vẫn cần được kiểm tra vì judge có thể mang bias." }
-    }
-  ],
-  "next": { vi: "Các cách xây evaluation dataset, viết rubric, dùng LLM judge và kiểm soát bias sẽ được học riêng trong chương 2.2 · LLM Evaluation & Safety." }
-}} />
+Benchmark multiple-choice như MMLU cung cấp câu hỏi, các đáp án và ground truth. Model có thể được chấm bằng likelihood:
+
+`a_hat = argmax_a log p(a | context)`.
+
+Một score cao nói model làm tốt protocol đó trên các subject được chọn; nó không tự đại diện mọi task hoặc chất lượng hội thoại.
+
+Khi chọn benchmark, đọc task definition, split, prompt format, metric và license thay vì chỉ nhìn leaderboard.
+
+<LessonNote>**Lỗi thường gặp:** thay prompt format nhưng vẫn so score với báo cáo dùng protocol khác.</LessonNote>
+
+**Takeaway:** Benchmark đáng tin khi input, scoring và aggregation có thể tái lập.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Test contamination làm score khó diễn giải
+
+Nếu câu hỏi hoặc lời giải benchmark đã xuất hiện trong training corpus, score cao có thể đến từ ghi nhớ. Rủi ro tăng với benchmark công khai lâu năm và dữ liệu web lớn.
+
+Các kiểm tra thực tế gồm:
+
+- tìm near-duplicate giữa corpus và test;
+- giữ private/rotating test set;
+- báo cáo thời điểm data cutoff;
+- tạo biến thể kiểm tra khả năng chuyển giao, không chỉ recall.
+
+<LessonNote>**Lỗi thường gặp:** kết luận contamination chỉ từ một câu trả lời đúng. Cần bằng chứng về overlap hoặc pattern bất thường.</LessonNote>
+
+**Takeaway:** Score phải đi cùng provenance của data và protocol chống leakage.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Response mở cần rubric và nhiều tín hiệu
+
+Sau instruction tuning, response có thể có nhiều cách viết đúng. Evaluation cần rubric cho correctness, relevance, format, safety và citation khi phù hợp.
+
+- Human evaluation gần judgment người dùng nhưng chậm và tốn chi phí.
+- LLM-as-a-Judge mở rộng quy mô nhưng có position/style/self-preference bias.
+- Deterministic checks tốt cho format, schema và đáp án có cấu trúc.
+
+Kết hợp các tín hiệu và audit sample bất đồng. Chapter 2.2 đi sâu vào rubric, agreement, judge bias và regression eval.
+
+<LessonNote>**Lỗi thường gặp:** dùng một judge prompt như ground truth tuyệt đối mà không calibrate với human labels.</LessonNote>
+
+**Takeaway:** Evaluation tốt là một hệ thống bằng chứng, không phải một metric duy nhất.
 
 </MdxPage>

@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'benchmark-selection-and-contamination-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Use-case fit', 'Contamination', 'Private set', 'Score report'],
+  keywords: ['quiz', 'benchmark', 'contamination', 'private test set'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="benchmark-selection-and-contamination-quiz" questions={[
+  {
+    id: 'benchmark-selection-and-contamination-quiz-q1',
+    title: 'Use-case fit',
+    prompt: 'Chọn benchmark cho trợ lý hỏi đáp tài liệu nội bộ. Tiêu chí đầu tiên là gì?',
+    mode: 'single',
+    options: [
+      { id: 'benchmark-selection-and-contamination-quiz-q1-a', label: 'Benchmark nào phổ biến nhất trên mạng' },
+      { id: 'benchmark-selection-and-contamination-quiz-q1-b', label: 'Benchmark nào có tên dài nhất' },
+      { id: 'benchmark-selection-and-contamination-quiz-q1-c', label: 'Scenario, evidence contract và failure mode có giống use case không', isCorrect: true },
+      { id: 'benchmark-selection-and-contamination-quiz-q1-d', label: 'Benchmark nơi model hiện tại đã có score cao nhất' },
+    ],
+    success: 'Đúng. Benchmark chỉ hữu ích khi đại diện cho quyết định và rủi ro cần đo.',
+    error: 'Chưa đúng. Popularity hoặc score sẵn có không chứng minh use-case fit.',
+  },
+  {
+    id: 'benchmark-selection-and-contamination-quiz-q2',
+    title: 'Contamination',
+    prompt: 'Team đã dùng test answers để chỉnh prompt. Tập đó còn phù hợp làm final holdout không?',
+    mode: 'single',
+    options: [
+      { id: 'benchmark-selection-and-contamination-quiz-q2-a', label: 'Không; nó đã tham gia development loop và cần được tách khỏi holdout mới', isCorrect: true },
+      { id: 'benchmark-selection-and-contamination-quiz-q2-b', label: 'Có vì model weights không đổi' },
+      { id: 'benchmark-selection-and-contamination-quiz-q2-c', label: 'Có nếu repository là private' },
+      { id: 'benchmark-selection-and-contamination-quiz-q2-d', label: 'Có nếu xóa lịch sử chat' },
+    ],
+    success: 'Đúng. Prompt tuning trên test answers cũng tạo contamination.',
+    error: 'Chưa đúng. Leakage không chỉ đến từ model training.',
+  },
+  {
+    id: 'benchmark-selection-and-contamination-quiz-q3',
+    title: 'Private set',
+    prompt: 'Vai trò tốt nhất của private use-case set là gì?',
+    mode: 'single',
+    options: [
+      { id: 'benchmark-selection-and-contamination-quiz-q3-a', label: 'Giấu mọi failure khỏi reviewer' },
+      { id: 'benchmark-selection-and-contamination-quiz-q3-b', label: 'Loại bỏ hoàn toàn benchmark công khai' },
+      { id: 'benchmark-selection-and-contamination-quiz-q3-c', label: 'Chỉ dùng để fine-tune rồi tiếp tục chấm trên chính tập đó' },
+      { id: 'benchmark-selection-and-contamination-quiz-q3-d', label: 'Đo workflow thật và failure mode riêng mà benchmark công khai không bao phủ', isCorrect: true },
+    ],
+    success: 'Đúng. Private set bổ sung bằng chứng sát deployment.',
+    error: 'Chưa đúng. Private set cần được giữ làm evaluation evidence, không phải self-score sau training.',
+  },
+  {
+    id: 'benchmark-selection-and-contamination-quiz-q4',
+    title: 'Score report',
+    prompt: 'Báo cáo benchmark nào đáng tin hơn?',
+    mode: 'single',
+    options: [
+      { id: 'benchmark-selection-and-contamination-quiz-q4-a', label: 'Một số duy nhất không ghi version' },
+      { id: 'benchmark-selection-and-contamination-quiz-q4-b', label: 'Score kèm protocol, sample count, uncertainty, version và failure slices', isCorrect: true },
+      { id: 'benchmark-selection-and-contamination-quiz-q4-c', label: 'Chỉ best run trong nhiều lần thử' },
+      { id: 'benchmark-selection-and-contamination-quiz-q4-d', label: 'Score làm tròn nhưng không công bố dataset' },
+    ],
+    success: 'Đúng. Protocol và uncertainty quyết định cách diễn giải score.',
+    error: 'Chưa đúng. Một con số thiếu provenance không đủ làm deployment evidence.',
+  },
+]} />

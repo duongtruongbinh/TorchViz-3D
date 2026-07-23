@@ -7,17 +7,15 @@ export const lessonMetadata = {
 
 <MdxQuiz id="ar-language-model-inference-pipeline-checkpoint-quiz" questions={[
   {
-    id: 'ar-inference-order', title: 'Sắp xếp pipeline', prompt: 'Sắp xếp các bước theo đúng thứ tự sinh một token mới.', mode: 'order',
+    id: 'ar-inference-order', title: 'Pipeline sinh token', prompt: 'Một implementation đang sample trực tiếp từ raw logits rồi mới gọi softmax. Sửa thứ tự nào tạo đúng một token mới?', mode: 'single',
     options: [
-      { id: 'sample', label: 'Sample' },
-      { id: 'tokenize', label: 'Tokenize' },
-      { id: 'detokenize', label: 'Detokenize' },
-      { id: 'probabilities', label: 'Predict probabilities' },
-      { id: 'forward', label: 'Forward' },
+      { id: 'sample', label: 'Tokenize → sample logits → forward → softmax → detokenize.' },
+      { id: 'tokenize', label: 'Tokenize → forward tạo logits → softmax thành xác suất → sample → detokenize.', isCorrect: true },
+      { id: 'detokenize', label: 'Detokenize prompt → softmax text → forward → sample.' },
+      { id: 'probabilities', label: 'Forward raw text → sample mọi vị trí → tokenize output.' },
     ],
-    correctOrder: ['tokenize', 'forward', 'probabilities', 'sample', 'detokenize'],
-    success: 'Đúng. Text được tokenize, chạy forward, đổi thành xác suất, sample token rồi detokenize.',
-    error: 'Chưa đúng. Hãy lần theo dữ liệu từ text đầu vào đến token mới trong câu.',
+    success: 'Đúng. Model forward trả logits; softmax/decoding biến logits cuối thành phân phối hợp lệ trước khi chọn token và giải mã.',
+    error: 'Hãy theo dõi type của dữ liệu: text → IDs → logits → probabilities → token ID → text.',
   },
   {
     id: 'sampling-role', title: 'Vai trò của sampling', prompt: 'Sampling làm gì trong pipeline?', mode: 'single',

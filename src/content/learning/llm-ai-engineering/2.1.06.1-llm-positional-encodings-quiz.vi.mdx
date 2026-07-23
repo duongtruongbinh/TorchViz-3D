@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-positional-encodings-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Thiếu thứ tự', 'RoPE shape', 'Khoảng cách tương đối', 'Context extension', 'Mask và vị trí'],
+  keywords: ['quiz', 'positional encoding', 'RoPE', 'context'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="llm-positional-encodings-quiz" questions={[
+  {
+    id: 'llm-positional-encodings-quiz-q1',
+    title: 'Thiếu thứ tự',
+    prompt: 'Nếu không có positional signal, self-attention thuần thiếu thông tin cốt lõi nào?',
+    mode: 'single',
+    options: [
+      { id: 'token-order', label: 'Thứ tự và vị trí tương đối của token', isCorrect: true },
+      { id: 'vocabulary-size', label: 'Số token trong vocabulary' },
+      { id: 'dtype-size', label: 'Số byte của dtype' },
+      { id: 'batch-count', label: 'Số sample trong batch' },
+    ],
+    success: 'Đúng. Attention trên nội dung cần positional signal để phân biệt các hoán vị token.',
+    error: 'Chưa đúng. Câu hỏi nhắm đến thông tin bị mất khi chỉ xét các vector nội dung.',
+  },
+  {
+    id: 'llm-positional-encodings-quiz-q2',
+    title: 'RoPE shape',
+    prompt: 'Áp dụng RoPE lên Q/K có tác động nào?',
+    mode: 'single',
+    options: [
+      { id: 'replace-mask', label: 'Thay thế causal mask' },
+      { id: 'remove-heads', label: 'Loại bỏ attention heads' },
+      { id: 'rotate-keep-shape', label: 'Quay từng cặp chiều theo vị trí nhưng giữ nguyên tensor shape', isCorrect: true },
+      { id: 'change-vocab', label: 'Đổi token IDs trong vocabulary' },
+    ],
+    success: 'Đúng. RoPE đổi giá trị Q/K theo vị trí, không đổi shape `(B,H,T,D_head)`.',
+    error: 'Chưa đúng. Tách phép biến đổi giá trị Q/K khỏi mask và tokenizer.',
+  },
+  {
+    id: 'llm-positional-encodings-quiz-q3',
+    title: 'Khoảng cách tương đối',
+    prompt: 'Trong RoPE, vì sao dot product giữa query và key có thể mang thông tin khoảng cách tương đối?',
+    mode: 'single',
+    options: [
+      { id: 'same-angle', label: 'Mọi vị trí dùng đúng cùng một góc' },
+      { id: 'relative-rotation', label: 'Góc quay kết hợp theo chênh lệch vị trí khi tính dot product', isCorrect: true },
+      { id: 'kv-deleted', label: 'Key và value bị xóa sau mỗi bước' },
+      { id: 'softmax-disabled', label: 'Softmax bị vô hiệu hóa' },
+    ],
+    success: 'Đúng. Quan hệ giữa hai phép quay phụ thuộc vào chênh lệch vị trí.',
+    error: 'Chưa đúng. Hãy xét quan hệ giữa góc của hai vị trí, không chỉ góc tuyệt đối.',
+  },
+  {
+    id: 'llm-positional-encodings-quiz-q4',
+    title: 'Context extension',
+    prompt: 'Chỉ tăng `max_position_embeddings` khi serve một checkpoint cũ có đảm bảo long-context tốt không?',
+    mode: 'single',
+    options: [
+      { id: 'always', label: 'Có, config tự tạo năng lực extrapolation' },
+      { id: 'only-memory', label: 'Có, miễn GPU còn đủ memory' },
+      { id: 'tokenizer-fixes', label: 'Có, tokenizer tự hiệu chỉnh vị trí' },
+      { id: 'must-evaluate', label: 'Không; cần phương pháp extension phù hợp và regression eval ở cả context ngắn lẫn dài', isCorrect: true },
+    ],
+    success: 'Đúng. Capacity cấu hình không phải bằng chứng chất lượng ngoài regime đã train.',
+    error: 'Chưa đúng. Khả năng nhận input dài và chất lượng sử dụng input dài là hai contract khác nhau.',
+  },
+  {
+    id: 'llm-positional-encodings-quiz-q5',
+    title: 'Mask và vị trí',
+    prompt: 'Phát biểu nào phân biệt đúng positional encoding và causal mask?',
+    mode: 'single',
+    options: [
+      { id: 'position-versus-access', label: 'Positional encoding biểu diễn vị trí; causal mask giới hạn token nào được phép nhìn thấy', isCorrect: true },
+      { id: 'same-operation', label: 'Hai khái niệm là cùng một phép toán' },
+      { id: 'mask-changes-vocab', label: 'Causal mask thay đổi vocabulary' },
+      { id: 'position-authorizes', label: 'Positional encoding thực thi authorization cho tool' },
+    ],
+    success: 'Đúng. Một cơ chế mang thông tin vị trí, cơ chế kia áp đặt visibility trong attention.',
+    error: 'Chưa đúng. Hãy tách nội dung tensor biểu diễn vị trí khỏi ràng buộc truy cập attention.',
+  },
+]} />

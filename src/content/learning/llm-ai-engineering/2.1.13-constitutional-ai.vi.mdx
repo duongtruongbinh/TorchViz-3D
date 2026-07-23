@@ -1,0 +1,72 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'constitutional-ai',
+  locale: 'vi',
+  title: 'Constitutional AI và preference learning',
+  headings: ['Constitution là một artifact quản trị', 'Critique và revision', 'DPO học trực tiếp từ preference pair', 'Production gate'],
+  keywords: ['constitutional AI', 'RLAIF', 'DPO', 'preference learning', 'governance'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Constitution là một artifact quản trị
+
+Constitutional AI dùng một tập nguyên tắc có phiên bản để hướng dẫn **critique → revision** và có thể tạo AI feedback. Cách này giảm nhu cầu human label ở một số stage, nhưng không biến lựa chọn giá trị thành khách quan và không thay thế human governance.
+
+**Input:** prompt, response ban đầu, `constitution_version` và procedure critique/revision.
+
+**Output:** response đã sửa, preference record hoặc policy update, kèm provenance về nguyên tắc và evaluator đã dùng.
+
+**Contract dữ liệu:** một record có thể đi qua các trạng thái `draft → critique → revision → preference`. Constitution phải có owner, lịch sử thay đổi, phạm vi áp dụng và bộ eval tương ứng.
+
+<LessonNote>Không đưa secret, PII hoặc policy nội bộ không cần thiết vào prompt critique. Lưu mã nguyên tắc và kết quả kiểm tra thay vì log nguyên văn dữ liệu nhạy cảm.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Critique và revision
+
+Giả sử draft chứa số thẻ thanh toán. Nguyên tắc `privacy.no_payment_data` kích hoạt:
+
+1. Critique chỉ ra loại vi phạm và vị trí cần sửa, không lặp lại giá trị nhạy cảm.
+2. Revision loại dữ liệu, giữ phần trả lời an toàn còn hữu ích.
+3. Validator độc lập kiểm tra output; model không tự cấp quyền release cho chính mình.
+4. Audit event lưu `principle_id`, version, kết quả validator và hash/correlation ID đã redacted.
+
+AI feedback có thể mở rộng dữ liệu nhanh, nhưng lỗi của evaluator cũng có thể được khuếch đại. Cần sampling human audit, red-team theo slice và theo dõi cả unsafe compliance lẫn overrefusal.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## DPO học trực tiếp từ preference pair
+
+Direct Preference Optimization (DPO) nhận record `(prompt, chosen, rejected)`. Với cùng prompt, nó tăng **log-ratio tương đối** của `chosen` so với `rejected`, so với một reference policy cố định. Hệ số `β` điều khiển mức phạt khi policy rời reference.
+
+Một trace toy:
+
+- policy hiện tại: `log p(chosen) - log p(rejected) = 0,3`;
+- reference: chênh lệch tương ứng `0,1`;
+- preference margin trước sigmoid là `β × (0,3 - 0,1)`.
+
+Nếu `β=2`, margin bằng `0,4`. DPO tối ưu pair này **không cần train reward model riêng**, nhưng vẫn cần preference data sạch, reference checkpoint đúng phiên bản và eval ngoài training distribution. Nó không tự chứng minh chosen là an toàn hay đúng sự thật.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Production gate
+
+Chọn pipeline dựa trên artifact và control cần có:
+
+- **RLHF với reward model:** hữu ích khi cần một reward có thể chấm nhiều sample, nhưng phải kiểm tra reward hacking và policy optimization.
+- **Constitutional AI/RLAIF:** hữu ích để mở rộng critique/feedback theo nguyên tắc, nhưng phải audit constitution và evaluator bias.
+- **DPO:** gọn hơn khi đã có preference pairs chất lượng; vẫn cần reference, `β`, data lineage và regression suite.
+
+Release chỉ được thông qua khi version của policy/reference, constitution hoặc reward model, preference dataset, config và eval report đều được khóa. Rollback dùng artifact ID bất biến, không dùng nhãn `latest`.
+
+**Nguồn gốc khái niệm:** [Constitutional AI](https://arxiv.org/abs/2212.08073) và [Direct Preference Optimization](https://arxiv.org/abs/2305.18290).
+
+</MdxPage>

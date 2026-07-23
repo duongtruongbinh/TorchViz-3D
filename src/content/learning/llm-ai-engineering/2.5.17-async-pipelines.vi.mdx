@@ -1,0 +1,79 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "async-pipelines", locale: "vi",
+ title: "Async LLM pipelines", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["async-pipelines","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Batch/media/long tasks không nên giữ HTTP request mở. Job state phải idempotent và replay-safe.
+
+**Input:** Authenticated job spec, idempotency key, deadline và callback policy.
+
+**Output:** Job ID rồi terminal result/error/canceled.
+
+**Data/type/shape:** Internal state `accepted→queued→running→completed|failed|canceled`; provider status được giữ riêng và map rõ. Retries không tạo duplicate job.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+POST trả 202/job-7; worker lease call provider; webhook duplicate được dedupe; result persisted trước notification; expired job vào dead-letter.
+
+~~~ts
+import assert from "node:assert/strict";
+type Status = "accepted" | "queued" | "running" | "completed" | "failed" | "canceled";
+type Job = {
+  id: string; idempotencyKey: string; status: Status;
+  seenDeliveries: Set<string>; resultPersisted: boolean;
+};
+const allowed: Record<Status, Status[]> = {
+  accepted: ["queued", "canceled"],
+  queued: ["running", "canceled", "failed"],
+  running: ["completed", "failed", "canceled"],
+  completed: [], failed: [], canceled: [],
+};
+function transition(job: Job, next: Status): Job {
+  if (!allowed[job.status].includes(next)) throw new Error("invalid_transition");
+  if (next === "completed" && !job.resultPersisted) throw new Error("result_not_persisted");
+  return { ...job, status: next };
+}
+function receiveDelivery(job: Job, deliveryId: string): Job {
+  if (job.seenDeliveries.has(deliveryId)) return job;
+  return { ...job, seenDeliveries: new Set(job.seenDeliveries).add(deliveryId) };
+}
+
+let job: Job = {
+  id: "job-7", idempotencyKey: "tenant-a:create-report:17",
+  status: "accepted", seenDeliveries: new Set(), resultPersisted: false,
+};
+job = transition(job, "queued");
+job = transition(job, "running");
+job = receiveDelivery(job, "delivery-9");
+job = receiveDelivery(job, "delivery-9");
+assert.equal(job.seenDeliveries.size, 1);
+assert.throws(() => transition(job, "completed"), /result_not_persisted/);
+job = transition({ ...job, resultPersisted: true }, "completed");
+assert.equal(job.status, "completed");
+~~~
+<LessonNote>Verify webhook signature/authenticity trước reducer; atomic lease/state update trong shared store. Notify chỉ sau khi result đã persist, và terminal state không bị event muộn ghi đè.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Không atomic state transition.
+- Trust webhook không verify.
+- Retry tạo hai side effects.
+
+**Kết nối:** Quiz cuối chọn retry, breaker, routing, cache và fallback đúng.
+
+</MdxPage>

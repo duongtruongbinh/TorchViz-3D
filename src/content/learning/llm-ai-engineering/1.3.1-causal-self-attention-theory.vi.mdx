@@ -1,0 +1,77 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'causal-self-attention-theory', locale: 'vi',
+  title: 'Lý thuyết causal self-attention',
+  headings: ['Vì sao cần attention', 'Query Key Value', 'Scaled attention', 'Causal mask', 'Multi-head'],
+  keywords: ['self-attention', 'query', 'key', 'value', 'causal mask', 'multi-head'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần attention?
+
+**Mục tiêu:** Giải thích causal self-attention từ dependency đến output `(B,T,D)`.
+
+Nén cả chuỗi dài vào một hidden state khiến mô hình tuần tự dễ làm mất thông tin xa. Self-attention cho mỗi token chấm điểm trực tiếp các token được phép nhìn và trộn chúng theo mức liên quan.
+
+Đổi lại, score matrix có `T×T` phần tử cho mỗi head; tăng gấp đôi T có thể làm phần score tăng gần bốn lần.
+
+<LessonNote>**Lỗi thường gặp:** attention “nhớ vô hạn”. Nó chỉ truy cập token trong context window và vẫn chịu chi phí bộ nhớ.</LessonNote>
+
+**Takeaway:** Attention rút ngắn đường dependency nhưng không loại bỏ giới hạn context.
+
+</MdxPage>
+<MdxPage page={1}>
+
+## Query, Key và Value
+
+Từ input `X`, ba phép chiếu học được tạo `Q=XWq`, `K=XWk`, `V=XWv`. Query mô tả token đang tìm gì; key mô tả token khác cung cấp gì; value là nội dung được tổng hợp.
+
+Với `X: (B,T,C)` và ba weight `(C,D)`, Q/K/V đều có shape `(B,T,D)`.
+
+<LessonNote>**Lỗi thường gặp:** dùng value để tạo score. Score đến từ Q và K; V chỉ được trộn sau softmax.</LessonNote>
+
+**Takeaway:** Q/K quyết định “nhìn đâu”; V quyết định “lấy nội dung gì”.
+
+</MdxPage>
+<MdxPage page={2}>
+
+## Scaled dot-product attention
+
+Score giữa mọi cặp token là `QKᵀ`. Chia cho căn bậc hai của chiều key giúp logits không quá lớn, sau đó softmax biến mỗi hàng thành phân phối trọng số:
+
+`Attention(Q,K,V) = softmax(QKᵀ / sqrt(d_k)) V`
+
+Score có shape `(B,T,T)` và softmax chạy trên chiều key cuối cùng. Mỗi hàng tổng bằng 1.
+
+<LessonNote>**Lỗi thường gặp:** softmax theo chiều query, khiến từng query không có distribution hợp lệ trên keys.</LessonNote>
+
+**Takeaway:** Scaling giữ softmax khỏi bão hòa khi d_k lớn.
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Không nhìn thấy tương lai
+
+Trong language model autoregressive, token ở vị trí `t` chỉ được dùng các vị trí `≤ t`. Causal mask đặt score của vị trí tương lai thành âm vô cùng trước softmax, nên trọng số của chúng bằng 0.
+
+Ví dụ query thứ ba có thể nhìn keys `0,1,2` nhưng không nhìn `3..T-1`. Mask là ràng buộc thông tin, giống nhau trong train và generation.
+
+<LessonNote>**Lỗi thường gặp:** mask sau softmax mà không chuẩn hóa lại. Khi đó tổng trọng số còn lại nhỏ hơn 1.</LessonNote>
+
+**Takeaway:** Đặt `-inf` trước softmax tạo xác suất 0 cho tương lai.
+
+</MdxPage>
+<MdxPage page={4}>
+
+## Dropout trước khi sang multi-head
+
+Trong training, dropout có thể áp lên attention weights hợp lệ sau softmax. Nó ngẫu nhiên bỏ một phần đường kết nối để regularize; causal mask vẫn được giữ nguyên.
+
+`model.eval()` tắt dropout để cùng input tạo cùng output. Multi-head ở node kế tiếp chạy quy trình này song song trên nhiều phần của chiều model.
+
+<LessonNote>**Lỗi thường gặp:** dùng dropout thay causal mask. Dropout ngẫu nhiên và chỉ dùng khi train; mask tương lai là invariant bắt buộc.</LessonNote>
+
+**Takeaway:** Mask bảo vệ causality; dropout giảm overfitting.
+
+</MdxPage>

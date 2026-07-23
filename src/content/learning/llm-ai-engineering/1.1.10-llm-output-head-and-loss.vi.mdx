@@ -3,17 +3,17 @@ export const lessonMetadata = {
   id: 'llm-output-head-and-loss',
   locale: 'vi',
   title: 'Output head của Language Model',
-  headings: ['Pipeline tổng quát', 'Input embeddings', 'Context vector', 'Linear projection', 'Logits', 'Softmax'],
-  keywords: ['context vector', 'linear layer', 'logits', 'softmax'],
+  headings: ['Pipeline tổng quát', 'Input embeddings', 'Last hidden state', 'Linear projection', 'Logits', 'Softmax'],
+  keywords: ['last hidden state', 'linear layer', 'logits', 'softmax'],
   pageCount: 6,
 }
 
 <MdxPage page={0}>
   <LlmOutputProjection focus="overview" content={{
-    "title": { vi: "Từ context vector đến xác suất token" },
-    "lead": { vi: "Với các kiến trúc mô hình khác nhau, pipeline tổng quát thường diễn ra như sau:" },
+    "title": { vi: "Từ last hidden state đến xác suất token" },
+    "lead": { vi: "Trong training, output head chiếu mọi hidden state (B,T,d) thành logits (B,T,V). Sơ đồ này phóng to last hidden state h của inference để tạo đúng vector token kế tiếp (B,V):" },
     "stages": [
-      { "label": { vi: "Context vector" }, "formula": "h \\in \\mathbb{R}^{d}" },
+      { "label": { vi: "Last hidden state" }, "formula": "h \\in \\mathbb{R}^{d}" },
       { "label": { vi: "Linear layer" }, "formula": "z = Wh + b", "description": { vi: "Chiếu từ kích thước d sang vocabulary size." } },
       { "label": { vi: "Logits" }, "formula": "z \\in \\mathbb{R}^{|V|}", "description": { vi: "Mỗi token nhận một score chưa chuẩn hóa." } },
       { "label": { vi: "Softmax" }, "formula": "p = \\operatorname{softmax}(z)", "description": { vi: "Chuyển logits thành phân phối xác suất." } }
@@ -32,7 +32,7 @@ export const lessonMetadata = {
     "title": { vi: "Bước 1: Đưa context vào neural network" },
     "lead": { vi: "Đưa embedding của các từ đứng trước trong context vào neural network. Mục tiêu sẽ dự đoán từ tiếp theo." },
     "stages": [
-      { "label": { vi: "Context vector" }, "formula": "h \\in \\mathbb{R}^{d}" },
+      { "label": { vi: "Last hidden state" }, "formula": "h \\in \\mathbb{R}^{d}" },
       { "label": { vi: "Linear layer" }, "formula": "z = Wh + b", "description": { vi: "Chiếu từ kích thước d sang vocabulary size." } },
       { "label": { vi: "Logits" }, "formula": "z \\in \\mathbb{R}^{|V|}", "description": { vi: "Mỗi token nhận một score chưa chuẩn hóa." } },
       { "label": { vi: "Softmax" }, "formula": "p = \\operatorname{softmax}(z)", "description": { vi: "Chuyển logits thành phân phối xác suất." } }
@@ -48,10 +48,10 @@ export const lessonMetadata = {
 
 <MdxPage page={2}>
   <LlmOutputProjection focus="context-vector" content={{
-    "title": { vi: "Bước 2: Tạo context vector" },
-    "lead": { vi: "Neural network biến đổi biểu diễn của từng token để token đó mang thông tin từ các token đứng trước. Vector ở vị trí cuối cùng được chọn làm context vector h để dự đoán token tiếp theo." },
+    "title": { vi: "Bước 2: Chọn last hidden state" },
+    "lead": { vi: "Neural network biến đổi biểu diễn của từng token để token đó mang thông tin từ prefix. Khi inference, vector ở vị trí cuối được gọi là last hidden state h và dùng để dự đoán token tiếp theo; đây không phải “context vector” là weighted-value sum trong attention." },
     "stages": [
-      { "label": { vi: "Context vector" }, "formula": "h \\in \\mathbb{R}^{d}" },
+      { "label": { vi: "Last hidden state" }, "formula": "h \\in \\mathbb{R}^{d}" },
       { "label": { vi: "Linear layer" }, "formula": "z = Wh + b", "description": { vi: "Chiếu từ kích thước d sang vocabulary size." } },
       { "label": { vi: "Logits" }, "formula": "z \\in \\mathbb{R}^{|V|}", "description": { vi: "Mỗi token nhận một score chưa chuẩn hóa." } },
       { "label": { vi: "Softmax" }, "formula": "p = \\operatorname{softmax}(z)", "description": { vi: "Chuyển logits thành phân phối xác suất." } }
@@ -70,7 +70,7 @@ export const lessonMetadata = {
     "title": { vi: "Bước 3: Chiếu sang vocabulary size" },
     "lead": { vi: "Đưa context vector h qua linear layer để chiếu từ kích thước d sang vocabulary size |V|." },
     "stages": [
-      { "label": { vi: "Context vector" }, "formula": "h \\in \\mathbb{R}^{d}" },
+      { "label": { vi: "Last hidden state" }, "formula": "h \\in \\mathbb{R}^{d}" },
       { "label": { vi: "Linear layer" }, "formula": "z = Wh + b", "description": { vi: "Chiếu từ kích thước d sang vocabulary size." } },
       { "label": { vi: "Logits" }, "formula": "z \\in \\mathbb{R}^{|V|}", "description": { vi: "Mỗi token nhận một score chưa chuẩn hóa." } },
       { "label": { vi: "Softmax" }, "formula": "p = \\operatorname{softmax}(z)", "description": { vi: "Chuyển logits thành phân phối xác suất." } }
@@ -90,7 +90,7 @@ export const lessonMetadata = {
     "lead": { vi: "Linear layer tạo ra vector logits có |V| phần tử; mỗi token trong vocabulary nhận một score chưa chuẩn hóa. Mỗi logit là một số thực bất kỳ, có thể âm, dương hoặc bằng 0, nên vector được ký hiệu là" },
     "leadFormula": "z \\in \\mathbb{R}^{|V|}",
     "stages": [
-      { "label": { vi: "Context vector" }, "formula": "h \\in \\mathbb{R}^{d}" },
+      { "label": { vi: "Last hidden state" }, "formula": "h \\in \\mathbb{R}^{d}" },
       { "label": { vi: "Linear layer" }, "formula": "z = Wh + b", "description": { vi: "Chiếu từ kích thước d sang vocabulary size." } },
       { "label": { vi: "Logits" }, "formula": "z \\in \\mathbb{R}^{|V|}", "description": { vi: "Mỗi token nhận một score chưa chuẩn hóa." } },
       { "label": { vi: "Softmax" }, "formula": "p = \\operatorname{softmax}(z)", "description": { vi: "Chuyển logits thành phân phối xác suất." } }
@@ -109,7 +109,7 @@ export const lessonMetadata = {
     "title": { vi: "Bước 5: Tạo phân phối xác suất token tiếp theo" },
     "lead": { vi: "Softmax chuyển logits thành phân phối xác suất cho token tiếp theo; tổng xác suất của mọi token bằng 1." },
     "stages": [
-      { "label": { vi: "Context vector" }, "formula": "h \\in \\mathbb{R}^{d}" },
+      { "label": { vi: "Last hidden state" }, "formula": "h \\in \\mathbb{R}^{d}" },
       { "label": { vi: "Linear layer" }, "formula": "z = Wh + b", "description": { vi: "Chiếu từ kích thước d sang vocabulary size." } },
       { "label": { vi: "Logits" }, "formula": "z \\in \\mathbb{R}^{|V|}", "description": { vi: "Mỗi token nhận một score chưa chuẩn hóa." } },
       { "label": { vi: "Softmax" }, "formula": "p = \\operatorname{softmax}(z)", "description": { vi: "Chuyển logits thành phân phối xác suất." } }

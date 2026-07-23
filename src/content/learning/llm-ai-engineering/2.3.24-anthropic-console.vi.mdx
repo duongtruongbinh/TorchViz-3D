@@ -1,0 +1,111 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "anthropic-console", locale: "vi",
+  title: "Thí nghiệm tái lập trong Anthropic Console", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["anthropic-console","prompt engineering","K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+So sánh provider chỉ có ý nghĩa khi task, fixtures, schema và metric giống nhau; UI controls và message contract có thể khác.
+
+**Input:** Cùng support fixtures, acceptance criteria và dated provider configuration.
+
+**Output:** Exported request/artifact cùng capability delta và eval results.
+
+**Data/type/shape:** Common experiment spec được adapter thành Anthropic Messages/system/content blocks; output normalize về domain type.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked example và contract
+
+Chạy cùng fixture IDs, parser, schema và metric như lab OpenAI. Adapter ghi
+system placement, Messages roles/content blocks và output budget riêng. Chỉ so
+sánh normalized task result; không tuyên bố provider tốt hơn từ một prompt hoặc
+một output không cân bằng.
+
+<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production pitfalls và handoff
+
+**Sai lầm thường gặp:**
+
+- So model khác capability bằng prompt khác nhau.
+- Không lưu system placement/max tokens.
+- Đưa PII thật vào console.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type ExperimentSpec = {
+  id: string;
+  promptVersion: string;
+  modelId: string;
+  schemaVersion: string;
+  evalSuiteVersion: string;
+  checkedOn: string;
+  fixtureIds: readonly string[];
+  maxOutputTokens: number;
+};
+
+function toAnthropicExperiment(spec: ExperimentSpec) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(spec.checkedOn)) throw new Error("invalid_date");
+  if (spec.fixtureIds.length === 0) throw new Error("empty_fixture_set");
+  if (!Number.isInteger(spec.maxOutputTokens) || spec.maxOutputTokens <= 0) {
+    throw new Error("invalid_output_budget");
+  }
+  return {
+    provider: "anthropic" as const,
+    apiSurface: "Messages API",
+    experimentId: spec.id,
+    promptVersion: spec.promptVersion,
+    modelId: spec.modelId,
+    schemaVersion: spec.schemaVersion,
+    evalSuiteVersion: spec.evalSuiteVersion,
+    checkedOn: spec.checkedOn,
+    requestShape: {
+      systemFrom: spec.promptVersion,
+      userMessageFixtureIds: [...spec.fixtureIds],
+      expectedContent: "ordered content blocks",
+      maxTokens: spec.maxOutputTokens,
+    },
+  };
+}
+
+const spec: ExperimentSpec = {
+  id: "support-exp-17",
+  promptVersion: "support-v12",
+  modelId: "configured-model-id",
+  schemaVersion: "support-v4",
+  evalSuiteVersion: "policy-set-7",
+  checkedOn: "2026-07-23",
+  fixtureIds: ["ticket-01", "ticket-02", "ticket-03"],
+  maxOutputTokens: 300,
+};
+const result = toAnthropicExperiment(spec);
+assert.equal(result.apiSurface, "Messages API");
+assert.equal(result.requestShape.systemFrom, "support-v12");
+assert.equal(result.requestShape.expectedContent, "ordered content blocks");
+assert.equal("apiKey" in result, false);
+assert.throws(
+  () => toAnthropicExperiment({ ...spec, fixtureIds: [] }),
+  /empty_fixture_set/,
+);
+~~~
+
+<LessonNote>Đây là manifest cục bộ, không phải provider call. Nguồn official
+kiểm tra 2026-07-23: [develop tests](https://platform.claude.com/docs/en/test-and-evaluate/develop-tests)
+và [Messages API](https://platform.claude.com/docs/en/api/messages).
+Model, controls và console behavior phải kiểm tra lại tại thời điểm chạy.</LessonNote>
+
+**Kết nối:** Quiz kế tiếp kiểm tra version, privacy, observability và common
+experiment manifest trước khi track API biến chúng thành integration code.
+
+</MdxPage>

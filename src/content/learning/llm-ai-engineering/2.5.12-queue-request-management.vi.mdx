@@ -1,0 +1,53 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "queue-request-management", locale: "vi",
+ title: "Queue và backpressure", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["queue-request-management","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Queue hấp thụ burst có giới hạn; queue vô hạn chỉ chuyển outage thành latency/memory catastrophe.
+
+**Input:** Job priority, tenant, deadline, cost estimate và idempotency key.
+
+**Output:** Admitted queued job, immediate rejection hoặc canceled state.
+
+**Data/type/shape:** Request → bounded priority queue → worker lease → terminal result/dead-letter.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+Queue cap 100, per-tenant cap 10. User đã có 10 jobs nhận typed admission rejection cùng optional app retry hint dù global còn chỗ; expired job bị drop trước provider call.
+
+| Gate theo thứ tự | Condition | Result |
+|---|---|---|
+| Auth/policy | Tenant không được phép chạy job | Reject, không enqueue |
+| Idempotency | Key đã có job | Trả existing job ID |
+| Deadline | Không đủ thời gian chờ + chạy | Reject/expire |
+| Per-tenant cap | Đã có 10 pending/running | Backpressure tenant đó |
+| Global cap | Queue đã có 100 | Reject hoặc route theo policy |
+| Worker lease | Job hợp lệ, chưa expired | Atomic lease rồi dispatch |
+| Completion | Persist result trước ack/notify | Terminal state replay-safe |
+
+<LessonNote>Fair scheduling cần tenant scope; FIFO toàn cục dễ tạo noisy neighbor. Retry hint là app policy, không được trình bày như provider-universal header.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- FIFO duy nhất gây noisy-neighbor.
+- Không deadline/cancel.
+- Ack trước persist result.
+
+**Kết nối:** Circuit breaker phản ứng với provider failure rate.
+
+</MdxPage>

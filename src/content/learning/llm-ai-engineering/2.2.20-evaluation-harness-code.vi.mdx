@@ -3,29 +3,129 @@ export const lessonMetadata = {
   id: 'evaluation-harness-code',
   locale: 'vi',
   title: 'Code: Xây evaluation harness',
-  headings: ['Input và output contract', 'Evaluation loop', 'Artifact cần lưu'],
-  keywords: ['evaluation harness', 'Python', 'JSONL', 'runner', 'report'],
+  headings: ['Typed contracts', 'Deterministic runner', 'Release gate', 'Complete implementation', 'Operational handoff'],
+  keywords: ['evaluation harness', 'Python', 'EvalCase', 'release gate', 'assertions'],
+  pageCount: 5,
 }
 
-## Input và output contract
+<MdxPage page={0}>
 
-Một evaluation harness tối thiểu đọc dataset có cấu trúc, gọi system under test, chạy evaluator và ghi kết quả. Mỗi case nên có `id`, `input`, optional `reference`, `metadata` và rubric. Output cần lưu response cùng toàn bộ thông tin để tái hiện lần chạy.
+## Typed contracts
 
-## Evaluation loop
+`EvalCase` giữ stable ID, input, required terms và `critical`. `EvalResult` giữ pass/fail, response hoặc error reason. Harness không nuốt provider/parser exception thành empty response; error là result có thể gate.
 
-Luồng cơ bản gồm:
+Dataset IDs phải unique và version/hash nằm trong run manifest.
 
-1. Load và validate dataset.
-2. Chạy model với concurrency và retry được kiểm soát.
-3. Áp dụng deterministic checks trước.
-4. Chạy reference metric hoặc judge khi phù hợp.
-5. Tổng hợp kết quả theo task, độ khó và risk group.
-6. So sánh với baseline và đánh dấu regression.
+</MdxPage>
 
-Harness cần cache response để tránh gọi lại model khi chỉ thay evaluator. Judge prompt, metric config và threshold cũng phải được version như production code.
+<MdxPage page={1}>
 
-## Artifact cần lưu
+## Deterministic runner
 
-Không chỉ lưu average score. Mỗi run nên tạo per-case result, aggregate report, failure samples, model/prompt version, timestamp, latency và token usage. CI có thể fail khi critical test thất bại hoặc metric giảm quá ngưỡng; các case còn lại được đưa vào report để human review.
+Runner nhận dependency `system_under_test` thay vì gọi provider hard-code. Test dùng fixture deterministic. Production adapter có timeout, bounded retry cho lỗi transient, cancellation và concurrency cap; không retry policy/auth/schema errors mù quáng.
 
-Ở giai đoạn thiết kế sau, lesson này sẽ bổ sung code block và interaction nhưng vẫn giữ contract nội dung trên làm nguồn authored canonical.
+Artifact giữ case/config IDs và redacted output; cache key phải bao gồm mọi behavioral input.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Release gate
+
+Gate fail nếu:
+
+- bất kỳ critical case fail/error;
+- pass rate dưới threshold đã khai báo;
+- result count khác case count.
+
+Aggregate không được che duplicate/missing case. Threshold change là config version mới.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Complete implementation
+
+```python
+from dataclasses import dataclass
+from typing import Callable
+
+@dataclass(frozen=True)
+class EvalCase:
+    id: str
+    prompt: str
+    required_terms: tuple[str, ...]
+    critical: bool = False
+
+@dataclass(frozen=True)
+class EvalResult:
+    case_id: str
+    passed: bool
+    reason: str
+
+def run_eval(cases: list[EvalCase], system: Callable[[str], str]) -> list[EvalResult]:
+    if not cases:
+        raise ValueError('cases must be non-empty')
+    ids = [case.id for case in cases]
+    if len(ids) != len(set(ids)):
+        raise ValueError('case ids must be unique')
+    results: list[EvalResult] = []
+    for case in cases:
+        try:
+            response = system(case.prompt)
+            if not isinstance(response, str):
+                raise TypeError('system response must be str')
+            missing = [term for term in case.required_terms if term not in response]
+            results.append(EvalResult(case.id, not missing, 'ok' if not missing else f'missing:{missing}'))
+        except Exception as error:
+            results.append(EvalResult(case.id, False, f'error:{type(error).__name__}'))
+    return results
+
+def release_allowed(cases: list[EvalCase], results: list[EvalResult], minimum_pass_rate: float) -> bool:
+    if not cases or not 0 <= minimum_pass_rate <= 1 or len(cases) != len(results):
+        raise ValueError('invalid gate inputs')
+    by_id = {result.case_id: result for result in results}
+    if len(by_id) != len(results) or set(by_id) != {case.id for case in cases}:
+        raise ValueError('result ids must uniquely match cases')
+    if any(case.critical and not by_id[case.id].passed for case in cases):
+        return False
+    return sum(result.passed for result in results) / len(results) >= minimum_pass_rate
+
+cases = [
+    EvalCase('normal', 'status?', ('delivered',)),
+    EvalCase('auth', 'refund?', ('denied',), critical=True),
+]
+fixture = {'status?': 'delivered', 'refund?': 'denied: confirmation required'}
+results = run_eval(cases, fixture.__getitem__)
+assert [result.passed for result in results] == [True, True]
+assert release_allowed(cases, results, 1.0)
+
+broken = run_eval(cases, lambda prompt: 'delivered' if prompt == 'status?' else 'approved')
+assert not release_allowed(cases, broken, 0.5)
+try:
+    run_eval([cases[0], cases[0]], fixture.__getitem__)
+except ValueError as error:
+    assert 'unique' in str(error)
+else:
+    raise AssertionError('duplicate ids must fail')
+for invalid_cases, invalid_results in [
+    ([], []),
+    (cases, [results[0], results[0]]),
+]:
+    try:
+        release_allowed(invalid_cases, invalid_results, 1.0)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('empty or duplicate result sets must fail')
+```
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Operational handoff
+
+Production version ghi run manifest, per-case JSONL và aggregate report atomically; validate artifact trước publish. Dùng idempotency/run ID, cleanup task khi cancel và bounded queue. Không lưu secret/PII hoặc hidden reasoning. CI chỉ nhận pass/fail cùng artifact link; human review xử lý `review`/uncertain cases.
+
+</MdxPage>

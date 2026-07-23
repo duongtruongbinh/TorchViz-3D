@@ -1,0 +1,72 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'assistant-turn-history',
+  locale: 'vi',
+  title: 'Assistant history và state nhiều lượt',
+  headings: ['History không phải database', 'Tính budget nhiều lượt', 'Production gate'],
+  keywords: ['assistant history', 'conversation state', 'token budget', 'authority'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## History không phải database
+
+History giúp continuity nhưng cũng mang output cũ, lỗi cũ và token cost sang lượt mới. App cần biết state nào authoritative.
+
+**Input:** turn user/assistant đã được server chấp nhận, tool results được redaction và business state hiện tại tải từ nguồn có thẩm quyền.
+
+**Output:** history tối thiểu, đúng thứ tự, không giả mạo role và nằm trong context budget.
+
+Client không được tự gửi một assistant turn giả để thay policy. Order status trong transcript chỉ là snapshot; backend phải tải trạng thái hiện tại trước action.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tính budget nhiều lượt
+
+Ba turn dùng 180, 220 và 260 token; system dùng 300 và output reserve 400. Tổng đã cam kết là `1.360` token. Với capacity 2.048, còn 688 token cho context mới.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type HistoryBudget = { used: number; remaining: number };
+
+function historyBudget(
+  turnTokens: readonly number[],
+  systemTokens: number,
+  outputReserve: number,
+  capacity: number,
+): HistoryBudget {
+  const values = [...turnTokens, systemTokens, outputReserve, capacity];
+  if (values.some((value) => !Number.isInteger(value) || value < 0) || capacity === 0) {
+    throw new Error("invalid_token_budget");
+  }
+  const used = turnTokens.reduce((sum, value) => sum + value, 0) + systemTokens + outputReserve;
+  if (used > capacity) throw new Error("context_budget_exceeded");
+  return { used, remaining: capacity - used };
+}
+
+const budget = historyBudget([180, 220, 260], 300, 400, 2_048);
+assert.deepEqual(budget, { used: 1_360, remaining: 688 });
+assert.throws(() => historyBudget([900], 300, 400, 1_000), /context_budget_exceeded/);
+assert.throws(() => historyBudget([180, -1], 300, 400, 2_048), /invalid_token_budget/);
+~~~
+
+<LessonNote>Token estimate phải dùng đúng tokenizer revision của model. Sau khi cắt/summarize history, chạy lại counter thay vì tin phép ước lượng cũ.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production gate
+
+- Xác thực role/order của turn ở server; không tin mảng messages do client tùy ý dựng.
+- Đặt TTL và redaction policy cho tool results; summary không trở thành nguồn sự thật nghiệp vụ.
+- Reserve output trước, rồi mới phân bổ history/retrieval và xác định chiến lược truncate.
+- Log token counts, version và trạng thái lỗi; không log raw conversation, PII, secret hoặc hidden reasoning.
+
+**Kết nối:** Quiz kiểm tra role, authority và state.
+
+</MdxPage>

@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'production-regression-evals-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Failure to test', 'Versioning', 'Gate', 'Online handoff'],
+  keywords: ['quiz', 'regression eval', 'release gate', 'versioning'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="production-regression-evals-quiz" questions={[
+  {
+    id: 'production-regression-evals-quiz-q1',
+    title: 'Failure to test',
+    prompt: 'Production incident đã được xác nhận và redacted. Hành động nào bảo vệ release sau?',
+    mode: 'single',
+    options: [
+      { id: 'production-regression-evals-quiz-q1-a', label: 'Chỉ nhắc team ghi nhớ trong cuộc họp' },
+      { id: 'production-regression-evals-quiz-q1-b', label: 'Xóa dấu vết để report sạch hơn' },
+      { id: 'production-regression-evals-quiz-q1-c', label: 'Chuyển thành deterministic EvalCase có expected invariant và owner', isCorrect: true },
+      { id: 'production-regression-evals-quiz-q1-d', label: 'Gộp incident vào average mà không giữ case' },
+    ],
+    success: 'Đúng. Failure đã xác nhận phải trở thành test replayable.',
+    error: 'Chưa đúng. Knowledge không được mã hóa thành test sẽ dễ tái phát.',
+  },
+  {
+    id: 'production-regression-evals-quiz-q2',
+    title: 'Versioning',
+    prompt: 'Model không đổi nhưng retrieval index đổi. Có cần một eval run mới không?',
+    mode: 'single',
+    options: [
+      { id: 'production-regression-evals-quiz-q2-a', label: 'Có; index là một phần của behavior contract và phải được version', isCorrect: true },
+      { id: 'production-regression-evals-quiz-q2-b', label: 'Không vì model ID giống nhau' },
+      { id: 'production-regression-evals-quiz-q2-c', label: 'Không nếu system prompt chưa đổi' },
+      { id: 'production-regression-evals-quiz-q2-d', label: 'Chỉ cần chờ user report' },
+    ],
+    success: 'Đúng. Model, prompt, data, tools và policy cùng quyết định behavior.',
+    error: 'Chưa đúng. Retrieval change có thể tạo regression dù weights giữ nguyên.',
+  },
+  {
+    id: 'production-regression-evals-quiz-q3',
+    title: 'Gate',
+    prompt: 'Release candidate tăng task score 2% nhưng vi phạm một must-pass authorization case. Gate nên trả gì?',
+    mode: 'single',
+    options: [
+      { id: 'production-regression-evals-quiz-q3-a', label: 'Pass vì task score tăng' },
+      { id: 'production-regression-evals-quiz-q3-b', label: 'Randomize quyết định để tránh bias' },
+      { id: 'production-regression-evals-quiz-q3-c', label: 'Ẩn case khỏi dashboard' },
+      { id: 'production-regression-evals-quiz-q3-d', label: 'Fail release và ghi rõ invariant bị vi phạm', isCorrect: true },
+    ],
+    success: 'Đúng. Must-pass invariant có precedence hơn aggregate gain.',
+    error: 'Chưa đúng. Release gate phải phản ánh mức nghiêm trọng, không chỉ average.',
+  },
+  {
+    id: 'production-regression-evals-quiz-q4',
+    title: 'Online handoff',
+    prompt: 'Tín hiệu production nào nên quay lại offline suite?',
+    mode: 'single',
+    options: [
+      { id: 'production-regression-evals-quiz-q4-a', label: 'Toàn bộ prompt chứa PII chưa kiểm tra' },
+      { id: 'production-regression-evals-quiz-q4-b', label: 'Failure đã triage, redacted và có expected behavior rõ', isCorrect: true },
+      { id: 'production-regression-evals-quiz-q4-c', label: 'Một nhận xét không có trace hay reproduction' },
+      { id: 'production-regression-evals-quiz-q4-d', label: 'Chỉ các response tốt nhất' },
+    ],
+    success: 'Đúng. Confirmed, sanitized failures nối monitoring với regression suite.',
+    error: 'Chưa đúng. Dữ liệu thô hoặc chưa triage vừa rủi ro vừa khó tái hiện.',
+  },
+]} />

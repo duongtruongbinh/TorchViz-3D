@@ -1,0 +1,133 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-raw-text-to-token-ids',
+  locale: 'vi',
+  title: 'Worked example: Từ raw text đến token IDs',
+  headings: ['Tokenize', 'Encode', 'Decode', 'tiktoken', 'Tensor ID'],
+  keywords: ['worked example', 'raw text', 'token', 'token ID', 'encode', 'decode', 'tiktoken', 'PyTorch'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## 1. Raw text → tokens
+
+```python
+import re
+
+def tokenize(text: str) -> list[str]:
+    parts = re.split(r'([,.:;?_!"()]|--|\s)', text)
+    return [part.strip() for part in parts if part.strip()]
+
+raw_text = "Linh builds AI. Linh tests AI."
+tokens = tokenize(raw_text)
+
+assert tokens == [
+    "Linh", "builds", "AI", ".",
+    "Linh", "tests", "AI", ".",
+]
+```
+
+**Input:** một `str`.  
+**Output:** tám token strings có thứ tự.
+
+Hai tài liệu hiện đang bị nối như một dòng liên tục. Bài special tokens tiếp theo sẽ chèn một boundary có ý nghĩa giữa chúng.
+
+<LessonNote>**Lỗi thường gặp:** đếm ký tự rồi gọi đó là sequence length. `T` ở đây là số token sau đúng tokenizer, không phải số ký tự raw.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 2. Tokens → token IDs
+
+```python
+vocab = {".": 0, "AI": 1, "Linh": 2, "builds": 3, "tests": 4}
+token_ids = [vocab[token] for token in tokens]
+
+assert token_ids == [2, 3, 1, 0, 2, 4, 1, 0]
+assert len(token_ids) == len(tokens) == 8
+```
+
+Lookup giữ nguyên số phần tử: `T=8` tokens trở thành `T=8` integer IDs. Vocabulary size hiện là `V=5`.
+
+<LessonNote>**Lỗi thường gặp:** dùng ID từ ví dụ này với tokenizer khác. Mapping trên chỉ thuộc toy vocabulary đã khai báo.</LessonNote>
+
+**Handoff:** Trước khi chuyển sang tensor, kiểm tra inverse mapping.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 3. Token IDs → text đã chuẩn hóa
+
+```python
+id_to_token = {token_id: token for token, token_id in vocab.items()}
+
+def decode(token_ids: list[int]) -> str:
+    pieces = [id_to_token[token_id] for token_id in token_ids]
+    return " ".join(pieces).replace(" .", ".")
+
+decoded = decode(token_ids)
+assert decoded == raw_text
+```
+
+Round trip xác nhận encode/decode dùng cùng vocabulary và không đảo order. Với tokenizer có normalization, target hợp lý có thể là normalized text thay vì từng byte của input gốc.
+
+<LessonNote>**Lỗi thường gặp:** chỉ test `encode` rồi không test `decode`. Một inverse mapping sai vẫn có thể tạo IDs có dtype/shape đúng nhưng không khôi phục được text.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 4. So với một BPE tokenizer thật
+
+`tiktoken` đóng gói encoding data trong package. Sau khi package đã được cài, ví dụ dùng encoding có tên cố định thay vì ánh xạ từ model name có thể thay đổi:
+
+```python
+import tiktoken
+
+encoding = tiktoken.get_encoding("cl100k_base")
+text = "Linh builds AI."
+
+production_ids = encoding.encode(text)
+assert all(isinstance(token_id, int) for token_id in production_ids)
+assert encoding.decode(production_ids) == text
+
+print(production_ids)
+print([encoding.decode_single_token_bytes(i) for i in production_ids])
+```
+
+Numeric IDs và ranh giới token của `cl100k_base` khác toy vocabulary; chúng chỉ có ý nghĩa với đúng named encoding này. Không cần Internet sau khi package/encoding đã có trong environment.
+
+<LessonNote>Pin `tiktoken` trong lockfile và ghi lại package version + named encoding trong artifact. Không coi một ID hoặc boundary quan sát hôm nay là contract chung cho provider/tokenizer khác.</LessonNote>
+
+<LessonNote>**Lỗi thường gặp:** so sánh độ lớn ID giữa toy tokenizer và `cl100k_base`. Hai bảng địa chỉ độc lập không có cùng hệ quy chiếu.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 5. Token IDs → integer tensor
+
+```python
+import torch
+
+input_ids = torch.tensor([token_ids], dtype=torch.long)
+
+assert input_ids.shape == (1, 8)
+assert input_ids.dtype == torch.long
+```
+
+Tensor hiện có shape `(B,T)=(1,8)`. Nó vẫn chứa **indices**, chưa có feature dimension `C`.
+
+| Stage | Giá trị | Type/shape |
+|---|---|---|
+| Raw text | `"Linh builds AI. Linh tests AI."` | `str` |
+| Tokens | 8 token strings | `list[str]` |
+| IDs | `[2,3,1,0,2,4,1,0]` | `list[int]` |
+| Tensor IDs | cùng tám IDs | `(1,8)`, `torch.long` |
+
+<LessonNote>**Handoff:** Hai tài liệu độc lập cần một boundary token trước khi ta tạo training windows.</LessonNote>
+
+</MdxPage>

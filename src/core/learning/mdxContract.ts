@@ -36,12 +36,6 @@ export function parseLearningMdxPath(filePath: string): LearningMdxPath | null {
   } : null;
 }
 
-export function getLearningMdxComponentNames(source: string): string[] {
-  return [...new Set(
-    [...source.matchAll(/(?<!['"])<\/?([A-Z][A-Za-z0-9]*)\b/g)].map((match) => match[1]),
-  )];
-}
-
 export function getLearningMdxLocaleCandidates(
   requestedLocale: string,
   fallbackLocales: readonly string[] = [],

@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'zero-shot-prompting-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Baseline', 'Output contract', 'Error path', 'Evaluation', 'Khi thêm example'],
+  keywords: ['quiz', 'zero-shot', 'prompt contract', 'evaluation'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="zero-shot-prompting-quiz" questions={[
+  {
+    id: 'zero-shot-prompting-quiz-q1',
+    title: 'Baseline',
+    prompt: 'Vì sao nên thử zero-shot trước khi thêm nhiều demonstrations cho một task có contract rõ?',
+    mode: 'single',
+    options: [
+      { id: 'longest', label: 'Để prompt luôn dài nhất' },
+      { id: 'measurable-baseline', label: 'Để có baseline rẻ, dễ debug và đo phần lỗi thật sự cần examples', isCorrect: true },
+      { id: 'no-eval', label: 'Để không cần eval set' },
+      { id: 'guarantee', label: 'Vì zero-shot luôn chính xác hơn few-shot' },
+    ],
+    success: 'Đúng. Baseline cho biết complexity bổ sung có mang lại lợi ích đo được hay không.',
+    error: 'Chưa đúng. Mục tiêu là cô lập giá trị của demonstrations bằng evidence.',
+  },
+  {
+    id: 'zero-shot-prompting-quiz-q2',
+    title: 'Output contract',
+    prompt: 'Prompt zero-shot phân loại ticket cần nêu tối thiểu điều gì để output kiểm chứng được?',
+    mode: 'single',
+    options: [
+      { id: 'task-label-schema', label: 'Task, labels hợp lệ, output schema và acceptance criteria', isCorrect: true },
+      { id: 'persona-only', label: 'Chỉ một persona sáng tạo' },
+      { id: 'temperature-only', label: 'Chỉ temperature' },
+      { id: 'hidden-reasoning', label: 'Yêu cầu in toàn bộ suy nghĩ nội bộ' },
+    ],
+    success: 'Đúng. Contract rõ biến response thành dữ liệu parser/rubric có thể kiểm tra.',
+    error: 'Chưa đúng. Hãy chọn các trường định nghĩa input, output và tiêu chí pass/fail.',
+  },
+  {
+    id: 'zero-shot-prompting-quiz-q3',
+    title: 'Error path',
+    prompt: 'Model trả label `shipping` trong khi enum chỉ cho `billing|delivery|other`. Application nên làm gì?',
+    mode: 'single',
+    options: [
+      { id: 'cast', label: 'Cast mù sang domain type' },
+      { id: 'store', label: 'Lưu làm label mới mà không version schema' },
+      { id: 'typed-error', label: 'Trả validation error/refusal branch có kiểm soát; không cho dữ liệu sai đi tiếp', isCorrect: true },
+      { id: 'guess', label: 'Đoán label gần nhất mà không ghi nhận' },
+    ],
+    success: 'Đúng. Invalid output phải là một nhánh trạng thái rõ, không bị che bằng type cast.',
+    error: 'Chưa đúng. Parser và schema là enforcement boundary của output.',
+  },
+  {
+    id: 'zero-shot-prompting-quiz-q4',
+    title: 'Evaluation',
+    prompt: 'Evidence nào đủ hơn một output “trông đẹp” để đánh giá zero-shot baseline?',
+    mode: 'single',
+    options: [
+      { id: 'one-demo', label: 'Một prompt do tác giả tự chọn' },
+      { id: 'largest-output', label: 'Response dài nhất' },
+      { id: 'model-opinion', label: 'Model tự tuyên bố đã đúng' },
+      { id: 'held-out-slices', label: 'Held-out fixtures theo failure slice, parser success và task metrics', isCorrect: true },
+    ],
+    success: 'Đúng. Eval có slice và metric cho biết baseline hỏng ở đâu.',
+    error: 'Chưa đúng. Cần tập dữ liệu độc lập và tiêu chí đo trước khi kết luận.',
+  },
+  {
+    id: 'zero-shot-prompting-quiz-q5',
+    title: 'Khi thêm example',
+    prompt: 'Khi nào chuyển từ zero-shot sang few-shot là quyết định có cơ sở nhất?',
+    mode: 'single',
+    options: [
+      { id: 'measured-boundary-errors', label: 'Khi eval cho thấy boundary cases lặp lại và examples đại diện cải thiện chúng trên held-out set', isCorrect: true },
+      { id: 'always', label: 'Ngay lập tức, trước khi có baseline' },
+      { id: 'token-budget-full', label: 'Khi muốn dùng hết context window' },
+      { id: 'test-leak', label: 'Khi có thể copy test answers vào prompt' },
+    ],
+    success: 'Đúng. Demonstrations nên giải quyết failure đã đo và phải được kiểm tra ngoài examples.',
+    error: 'Chưa đúng. Thêm complexity chỉ khi có failure evidence và regression evidence.',
+  },
+]} />

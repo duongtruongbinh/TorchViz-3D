@@ -3,9 +3,9 @@ export const lessonMetadata = {
   id: 'benchmark-likelihood-quiz',
   locale: 'vi',
   title: 'Quiz',
-  headings: ['NLL và Perplexity', 'Xác suất token đúng', 'Chuẩn hóa độ dài', 'Cách đọc PPL', 'Các yếu tố ảnh hưởng', 'So sánh PPL', 'PPL và reasoning', 'Vai trò hiện nay của PPL'],
+  headings: ['NLL và Perplexity', 'Xác suất token đúng', 'Chuẩn hóa độ dài', 'Cách đọc PPL', 'Các yếu tố ảnh hưởng'],
   keywords: ['perplexity', 'negative log-likelihood', 'geometric mean', 'token probability', 'reasoning'],
-  pageCount: 8,
+  pageCount: 5,
 }
 
 <MdxQuiz id="benchmark-likelihood-quiz" questions={[
@@ -68,41 +68,5 @@ export const lessonMetadata = {
     ],
     success: 'Đúng. PPL là kết quả của cả model lẫn setup đánh giá, không phải một thuộc tính độc lập với dữ liệu và tokenizer.',
     error: 'Hãy xem lại bốn course card: loại dữ liệu, tokenizer, ngôn ngữ và tập đánh giá đều ảnh hưởng.',
-  },
-  {
-    id: 'valid-ppl-comparison', title: 'So sánh PPL',
-    prompt: 'Cách so sánh PPL nào đáng tin cậy nhất?', mode: 'single',
-    options: [
-      { id: 'same-setup', label: 'So sánh các model trên cùng evaluation set, cùng tokenizer và cùng cách tính.', isCorrect: true },
-      { id: 'same-parameters', label: 'So sánh hai báo cáo dùng dữ liệu khác nhau miễn model có cùng số parameters.' },
-      { id: 'fixed-threshold', label: 'Dùng PPL < 40 làm ngưỡng tốt bắt buộc cho mọi ngôn ngữ và bài toán.' },
-      { id: 'same-vocab-size', label: 'So sánh hai tokenizer khác nhau miễn vocabulary của chúng có cùng kích thước.' },
-    ],
-    success: 'Đúng. Không có ngưỡng tốt dùng chung; PPL có ý nghĩa so sánh khi setup đánh giá được giữ nhất quán.',
-    error: 'Các khoảng PPL chỉ có tính minh họa. Khác dataset, tokenizer hoặc cách tính thì hai con số khó so sánh trực tiếp.',
-  },
-  {
-    id: 'ppl-versus-reasoning', title: 'PPL và reasoning',
-    prompt: 'Một model có PPL thấp nhưng trả lời sai bài suy luận Alice cao hơn Bob, Bob cao hơn Carol. Điều này cho thấy gì?', mode: 'single',
-    options: [
-      { id: 'ppl-not-language', label: 'PPL không liên quan đến khả năng dự đoán token.' },
-      { id: 'certain-contamination', label: 'Model chắc chắn đã gặp test contamination.' },
-      { id: 'language-not-reasoning', label: 'Dự đoán ngôn ngữ tốt không tự động bảo đảm model reasoning tốt.', isCorrect: true },
-      { id: 'reasoning-raises-ppl', label: 'Huấn luyện reasoning luôn làm PPL tăng và model yếu đi.' },
-    ],
-    success: 'Đúng. Model có thể tạo ngôn ngữ tự nhiên nhưng vẫn mắc lỗi logic; PPL không thay thế evaluation reasoning.',
-    error: 'PPL đo khả năng dự đoán token trên dữ liệu được chấm, không trực tiếp bảo đảm suy luận nhiều bước.',
-  },
-  {
-    id: 'ppl-current-role', title: 'Vai trò hiện nay của PPL',
-    prompt: 'Nhận định nào phù hợp với xu hướng và vai trò hiện nay của Perplexity được trình bày trong bài?', mode: 'single',
-    options: [
-      { id: 'always-comparable', label: 'Có thể so sánh trực tiếp mọi số PPL từ năm 2017 và 2023 dù dataset hoặc tokenizer khác nhau.' },
-      { id: 'trend-and-development', label: 'Trong cùng setup, PPL giảm từ khoảng 70 xuống dưới 10 cho thấy model dự đoán token ground truth chính xác và tự tin hơn; PPL hữu ích trong development, còn academic evaluation dùng thêm benchmark theo năng lực.', isCorrect: true },
-      { id: 'only-academic', label: 'Perplexity hiện chủ yếu dùng để xếp hạng academic benchmark và không còn ích lợi trong development.' },
-      { id: 'proves-reasoning', label: 'PPL dưới 10 tự động chứng minh model reasoning tốt và đã alignment đúng.' },
-    ],
-    success: 'Đúng. Trong cùng setup, PPL thấp hơn thể hiện khả năng dự đoán token ground truth tốt hơn và vẫn hữu ích khi phát triển model.',
-    error: 'Hãy gắn xu hướng PPL với khả năng dự đoán token trong cùng setup và phân biệt vai trò development với benchmark theo năng lực.',
   },
 ]} />

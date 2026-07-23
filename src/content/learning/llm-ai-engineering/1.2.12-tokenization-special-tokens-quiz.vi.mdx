@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-special-tokens-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Document boundary', 'EOS và PAD', 'UNK fallback', 'Special-token contract'],
+  keywords: ['quiz', 'BOS', 'EOS', 'PAD', 'UNK', 'endoftext', 'byte fallback'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="tokenization-special-tokens-quiz" questions={[
+  {
+    id: 'document-boundary', title: 'Document boundary', prompt: 'Hai bài báo không liên quan được nối trong pretraining corpus. Token nào phù hợp nhất giữa chúng?', mode: 'single',
+    options: [
+      { id: 'endoftext', label: '`<|endoftext|>` hoặc boundary token đã khai báo cho checkpoint.', isCorrect: true },
+      { id: 'pad', label: 'PAD, vì mọi ranh giới tài liệu chỉ là phần lấp.' },
+      { id: 'unk', label: 'UNK, vì bài báo thứ hai chưa được đọc.' },
+      { id: 'random', label: 'Một integer ID ngẫu nhiên chưa kiểm tra vocabulary.' },
+    ],
+    success: 'Đúng. Boundary token là tín hiệu dữ liệu về điểm kết thúc/chuyển tài liệu.',
+    error: 'Phân biệt document boundary có nghĩa với padding chỉ dùng để căn shape.',
+  },
+  {
+    id: 'eos-versus-pad', title: 'EOS và PAD', prompt: 'Một sequence có EOS thật rồi được pad cho đủ batch length. Vị trí nào phải được giữ như nội dung?', mode: 'single',
+    options: [
+      { id: 'real-eos', label: 'EOS thật đầu tiên; chỉ các vị trí lấp thêm mới bị đánh dấu invalid.', isCorrect: true },
+      { id: 'all-eos', label: 'Xóa mọi EOS vì EOS luôn là padding.' },
+      { id: 'all-pad-content', label: 'Coi mọi PAD là target nội dung.' },
+      { id: 'bos-pad', label: 'Thay BOS bằng PAD để cân chiều dài.' },
+    ],
+    success: 'Đúng. EOS thật mang tín hiệu kết thúc; padding metadata chỉ loại các vị trí lấp.',
+    error: 'EOS và PAD có vai trò khác nhau dù một số hệ thống có thể dùng chung ID.',
+  },
+  {
+    id: 'unk-or-byte-fallback', title: 'UNK hay fallback', prompt: 'Byte-level tokenizer có coverage đầy đủ gặp một từ mới. Hành vi nào hợp lý?', mode: 'single',
+    options: [
+      { id: 'fallback', label: 'Tách thành các subword/byte nhỏ hơn đã có trong vocabulary.', isCorrect: true },
+      { id: 'new-id', label: 'Tạo ID mới ngoài embedding matrix.' },
+      { id: 'drop', label: 'Xóa từ mới.' },
+      { id: 'always-unk', label: 'Bắt buộc thay bằng UNK dù mọi byte đều biểu diễn được.' },
+    ],
+    success: 'Đúng. Byte fallback giữ khả năng round trip mà không đổi vocabulary tại inference.',
+    error: 'Hãy xét các đơn vị byte nền tảng đã được bao phủ.',
+  },
+  {
+    id: 'special-token-contract', title: 'Contract', prompt: 'Model config dùng EOS ID 5 nhưng tokenizer mới dùng ID 5 cho token thường. Điều gì xảy ra?', mode: 'single',
+    options: [
+      { id: 'mismatch', label: 'Contract bị hỏng: cùng ID được hai phía diễn giải khác nhau.', isCorrect: true },
+      { id: 'auto-fix', label: 'Embedding layer tự nhận ra tên EOS và sửa mapping.' },
+      { id: 'id-semantic', label: 'ID 5 luôn có nghĩa EOS ở mọi vocabulary.' },
+      { id: 'no-effect', label: 'Special-token IDs không bao giờ đi vào model.' },
+    ],
+    success: 'Đúng. Tokenizer, model config và pipeline phải chia sẻ đúng IDs.',
+    error: 'Integer ID không có ý nghĩa toàn cục; ý nghĩa đến từ vocabulary/config đi kèm.',
+  },
+]} />

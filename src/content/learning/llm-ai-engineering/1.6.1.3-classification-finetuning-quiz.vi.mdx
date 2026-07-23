@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'classification-finetuning-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Output contract', 'Last token', 'Loss', 'Freeze', 'Evaluation'],
+  keywords: ['quiz', 'classification fine-tuning', 'classification head', 'accuracy', 'data leakage'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="classification-finetuning-quiz" questions={[
+  {
+    id: 'classification-output-contract', title: 'Output contract', prompt: 'Bài toán K class với batch B cần logits cuối có shape nào?', mode: 'single',
+    options: [
+      { id: 'bk', label: '(B,K)', isCorrect: true },
+      { id: 'btv', label: '(B,T,V)' },
+      { id: 'bt', label: '(B,T)' },
+      { id: 'bc', label: '(B,C) bắt buộc là output cuối' },
+    ],
+    success: 'Đúng. Mỗi sample cần K class logits.',
+    error: 'Hidden `(B,C)` còn phải qua classification head; `(B,T,V)` là contract language modeling.',
+  },
+  {
+    id: 'last-content-position', title: 'Chọn representation', prompt: 'Với right padding, cách lấy token cuối có nội dung nào đúng?', mode: 'single',
+    options: [
+      { id: 'mask-sum', label: 'Dùng `attention_mask.sum(1)-1` làm chỉ số cho từng sample', isCorrect: true },
+      { id: 'last-column', label: 'Luôn lấy `hidden[:, -1, :]`' },
+      { id: 'first-pad', label: 'Lấy vị trí PAD đầu tiên' },
+      { id: 'mean-label', label: 'Dùng giá trị label làm chỉ số token' },
+    ],
+    success: 'Đúng. Tổng mask cho sequence length thật của mỗi hàng.',
+    error: 'Sample ngắn có PAD ở cột cuối; một chỉ số chung sẽ chọn sai representation.',
+  },
+  {
+    id: 'raw-logits-loss', title: 'Cross-entropy', prompt: 'Input đúng cho `F.cross_entropy` trong classification là gì?', mode: 'single',
+    options: [
+      { id: 'raw-and-labels', label: 'Raw logits `(B,K)` và integer labels `(B,)`', isCorrect: true },
+      { id: 'softmax-and-text', label: 'Xác suất đã softmax và chuỗi label dạng text' },
+      { id: 'ids-and-mask', label: 'Token IDs và attention mask' },
+      { id: 'argmax-only', label: 'Class argmax vì loss chỉ cần quyết định cuối' },
+    ],
+    success: 'Đúng. Cross-entropy tự áp dụng log-softmax ổn định số.',
+    error: 'Không argmax trước loss vì argmax không khả vi; không cần softmax thủ công.',
+  },
+  {
+    id: 'freeze-tradeoff', title: 'Mức fine-tune', prompt: 'Baseline rẻ nhất về số parameter trainable là gì?', mode: 'single',
+    options: [
+      { id: 'head-only', label: 'Đóng băng backbone và chỉ train classification head', isCorrect: true },
+      { id: 'all-blocks', label: 'Unfreeze toàn bộ model' },
+      { id: 'new-pretraining', label: 'Khởi tạo lại và pretrain từ đầu' },
+      { id: 'duplicate-vocab', label: 'Nhân đôi vocabulary' },
+    ],
+    success: 'Đúng. Head-only là baseline rẻ nhưng khả năng thích nghi hạn chế hơn.',
+    error: 'Hãy phân biệt số parameter có trong model với số parameter được cập nhật.',
+  },
+  {
+    id: 'classification-evaluation-split', title: 'Evaluation', prompt: 'Quy trình nào giảm nguy cơ báo cáo quá lạc quan?', mode: 'single',
+    options: [
+      { id: 'group-split', label: 'Nhóm mẫu gần trùng trước khi split, chọn checkpoint bằng validation, báo cáo test cuối', isCorrect: true },
+      { id: 'test-selection', label: 'Chọn epoch tốt nhất trực tiếp trên test set' },
+      { id: 'duplicate-splits', label: 'Rải paraphrase của cùng mẫu vào mọi split' },
+      { id: 'train-only', label: 'Chỉ báo cáo train accuracy' },
+    ],
+    success: 'Đúng. Validation phục vụ lựa chọn; test giữ vai trò ước lượng cuối trên dữ liệu chưa dùng.',
+    error: 'Dùng test để chọn checkpoint hoặc để mẫu gần trùng qua split gây leakage.',
+  },
+]} />

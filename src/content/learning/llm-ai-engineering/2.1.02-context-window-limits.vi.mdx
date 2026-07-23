@@ -1,0 +1,95 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "context-window-limits",
+  locale: "vi",
+  title: "Giới hạn context window",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["context-window-limits","LLM","production","C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Một request hợp lệ phải chừa chỗ cho system instruction, history, retrieval, tool schema và output. Chạm giới hạn kỹ thuật chưa có nghĩa model còn truy xuất chính xác hoặc request còn kinh tế.
+
+**Input:** Context capacity và số token của từng phần request.
+
+**Output:** Ngân sách input khả dụng cùng quyết định reject, retrieve, compact hoặc truncate.
+
+**Data/type/shape:** Các đoạn text trở thành số token rồi cộng thành một scalar budget; output reserve bị trừ trước khi gửi request.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Capacity giả định 8.192 token, output reserve 1.024, system 400, tools 600 và user 800. History cộng retrieval chỉ còn `8.192−1.024−400−600−800 = 5.368` token. Nếu history dùng 4.000 thì retrieval tối đa 1.368, không phải 2.392.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type ContextParts = {
+  capacity: number;
+  outputReserve: number;
+  system: number;
+  tools: number;
+  user: number;
+};
+
+function remainingInputBudget(parts: ContextParts): number {
+  for (const [name, value] of Object.entries(parts)) {
+    if (!Number.isInteger(value) || value < 0) {
+      throw new Error(`${name} must be a non-negative integer`);
+    }
+  }
+  const remaining = parts.capacity
+    - parts.outputReserve
+    - parts.system
+    - parts.tools
+    - parts.user;
+  if (remaining < 0) throw new Error("fixed request parts exceed capacity");
+  return remaining;
+}
+
+assert.equal(remainingInputBudget({
+  capacity: 8_192,
+  outputReserve: 1_024,
+  system: 400,
+  tools: 600,
+  user: 800,
+}), 5_368);
+assert.throws(
+  () => remainingInputBudget({
+    capacity: 1_000,
+    outputReserve: 400,
+    system: 300,
+    tools: 200,
+    user: 200,
+  }),
+  /exceed capacity/,
+);
+~~~
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Dùng toàn bộ capacity cho input rồi để response bị cắt.
+- Silent tail truncation làm mất câu hỏi hoặc schema.
+- Đồng nhất advertised limit với effective recall ở mọi vị trí.
+
+
+**Kết nối:** Context dài làm KV cache tăng tuyến tính; bài sau tính chính xác phần memory này.
+
+</MdxPage>

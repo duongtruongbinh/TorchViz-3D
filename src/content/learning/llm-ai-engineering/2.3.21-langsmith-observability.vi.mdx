@@ -1,0 +1,102 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "langsmith-observability", locale: "vi",
+  title: "Observability cho prompt và workflow", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["langsmith-observability","prompt engineering","T+K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Trace/span giúp nối prompt version, model call, tool và eval feedback, nhưng auto-capture input/output tạo privacy risk.
+
+**Input:** Correlation ID, prompt/model versions, timing, token/cost, status và redacted attributes.
+
+**Output:** Trace hierarchy có sampling/retention/access policy.
+
+**Data/type/shape:** Một request thành root trace; model/tool/parser thành spans. Payload nhạy cảm được hash/classify/drop trước exporter.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked example và contract
+
+Trace ghi `promptVersion=v12`, `modelClass=fast`, `tokensIn=420`, `status=validation_error`; không ghi ticket text. LangSmith hoặc PromptLayer chỉ là backend cho contract này.
+
+<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production pitfalls và handoff
+
+**Sai lầm thường gặp:**
+
+- Bật capture mọi prompt/response mặc định.
+- Dùng user email làm trace ID.
+- Không version redaction policy.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type SafeTrace = {
+  correlationId: string;
+  promptVersion: string;
+  modelClass: string;
+  tokensIn: number;
+  status: "ok" | "validation_error" | "provider_error";
+  tenantPseudonym: string;
+};
+
+function buildSafeTrace(input: Record<string, unknown>): SafeTrace {
+  for (const forbidden of ["prompt", "response", "email", "apiKey", "secret"]) {
+    if (forbidden in input) throw new Error(`sensitive_attribute:${forbidden}`);
+  }
+  const required = [
+    "correlationId", "promptVersion", "modelClass", "status", "tenantPseudonym",
+  ] as const;
+  for (const key of required) {
+    if (typeof input[key] !== "string" || !(input[key] as string).trim()) {
+      throw new Error(`invalid_attribute:${key}`);
+    }
+  }
+  if (!Number.isInteger(input.tokensIn) || (input.tokensIn as number) < 0) {
+    throw new Error("invalid_attribute:tokensIn");
+  }
+  if (!["ok", "validation_error", "provider_error"].includes(input.status as string)) {
+    throw new Error("invalid_attribute:status");
+  }
+  return input as SafeTrace;
+}
+
+const result = buildSafeTrace({
+  correlationId: "req-017",
+  promptVersion: "support-v12",
+  modelClass: "fast",
+  tokensIn: 420,
+  status: "validation_error",
+  tenantPseudonym: "tenant-hmac-91",
+});
+assert.equal(result.promptVersion, "support-v12");
+assert.deepEqual(Object.keys(result).sort(), [
+  "correlationId", "modelClass", "promptVersion",
+  "status", "tenantPseudonym", "tokensIn",
+]);
+assert.throws(
+  () => buildSafeTrace({ ...result, prompt: "raw ticket" }),
+  /sensitive_attribute:prompt/,
+);
+~~~
+
+<LessonNote>LangSmith mô hình hóa trace thành các runs/spans và cho phép gắn
+metadata; tracing có thể thu input/output nên redaction/sampling phải xảy ra
+trước exporter. Nguồn official kiểm tra 2026-07-23:
+[observability concepts](https://docs.langchain.com/langsmith/observability-concepts)
+và [data storage/privacy](https://docs.langchain.com/langsmith/data-storage-and-privacy).
+Retention, access và region phải kiểm tra lại cho deployment cụ thể.</LessonNote>
+
+**Kết nối:** Hai console labs materialize cùng experiment manifest trước Quiz.
+
+</MdxPage>

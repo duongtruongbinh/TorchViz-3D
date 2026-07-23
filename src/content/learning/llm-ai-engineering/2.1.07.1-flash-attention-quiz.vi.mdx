@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'flash-attention-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['IO bottleneck', 'Exactness', 'Logical shape', 'Kernel contract', 'So sánh đúng'],
+  keywords: ['quiz', 'FlashAttention', 'IO-aware', 'HBM'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="flash-attention-quiz" questions={[
+  {
+    id: 'flash-attention-quiz-q1',
+    title: 'IO bottleneck',
+    prompt: 'FlashAttention chủ yếu giảm chi phí nào so với cách materialize toàn bộ score matrix?',
+    mode: 'single',
+    options: [
+      { id: 'vocabulary', label: 'Kích thước vocabulary' },
+      { id: 'hbm-traffic', label: 'Lượt đọc/ghi giữa HBM và bộ nhớ nhanh hơn nhờ tiling', isCorrect: true },
+      { id: 'layer-count', label: 'Số transformer layer' },
+      { id: 'training-data', label: 'Số sample trong training set' },
+    ],
+    success: 'Đúng. Thuật toán IO-aware tránh nhiều lần materialize và truy cập score matrix trong HBM.',
+    error: 'Chưa đúng. Từ khóa cần xét là data movement, không phải thay đổi model architecture.',
+  },
+  {
+    id: 'flash-attention-quiz-q2',
+    title: 'Exactness',
+    prompt: 'Phát biểu nào mô tả đúng output của FlashAttention?',
+    mode: 'single',
+    options: [
+      { id: 'sparse-approximation', label: 'Một sparse approximation luôn bỏ token xa' },
+      { id: 'no-softmax', label: 'Attention không còn softmax' },
+      { id: 'exact-with-rounding', label: 'Exact dense attention trong sai khác số học cho phép', isCorrect: true },
+      { id: 'fewer-kv-heads', label: 'Luôn giảm số KV heads' },
+    ],
+    success: 'Đúng. Tiling và online softmax đổi lịch tính, không đổi bài toán dense attention.',
+    error: 'Chưa đúng. Đừng nhầm tối ưu IO với sparse attention hoặc GQA.',
+  },
+  {
+    id: 'flash-attention-quiz-q3',
+    title: 'Logical shape',
+    prompt: 'Với `B=1`, `H=32`, `T=4.096`, score matrix fp16 nếu materialize có kích thước xấp xỉ bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'one-gib', label: '1 GiB', isCorrect: true },
+      { id: 'sixteen-mib', label: '16 MiB' },
+      { id: 'thirty-two-gib', label: '32 GiB' },
+      { id: 'four-kib', label: '4 KiB' },
+    ],
+    success: 'Đúng. `1 × 32 × 4.096² × 2 byte = 1 GiB`.',
+    error: 'Chưa đúng. Bình phương sequence length rồi nhân số head và 2 byte mỗi phần tử.',
+  },
+  {
+    id: 'flash-attention-quiz-q4',
+    title: 'Kernel contract',
+    prompt: 'Trước khi thay kernel attention trong production, kiểm tra nào quan trọng nhất?',
+    mode: 'single',
+    options: [
+      { id: 'name-only', label: 'Tên kernel có chứa chữ flash' },
+      { id: 'parameter-count', label: 'Parameter count có tự giảm không' },
+      { id: 'logo', label: 'Logo của GPU vendor' },
+      { id: 'mask-dropout-dtype-shape', label: 'Hỗ trợ mask, dropout, dtype, hardware và shape đang dùng', isCorrect: true },
+    ],
+    success: 'Đúng. Kernel chỉ thay thế an toàn khi các semantic và runtime contract tương thích.',
+    error: 'Chưa đúng. Speedup không có ý nghĩa nếu kernel không giữ đúng mask/dropout hoặc không hỗ trợ shape.',
+  },
+  {
+    id: 'flash-attention-quiz-q5',
+    title: 'So sánh đúng',
+    prompt: 'Benchmark nào cho bằng chứng hữu ích nhất về lợi ích của FlashAttention?',
+    mode: 'single',
+    options: [
+      { id: 'same-workload', label: 'So end-to-end latency/memory trên cùng model, dtype, mask, batch và sequence distribution', isCorrect: true },
+      { id: 'different-everything', label: 'So hai model và hai GPU khác nhau' },
+      { id: 'flops-only', label: 'Chỉ so FLOPs lý thuyết' },
+      { id: 'short-only', label: 'Chỉ đo một sequence cực ngắn rồi ngoại suy mọi workload' },
+    ],
+    success: 'Đúng. Giữ workload contract cố định mới cô lập được tác động của kernel.',
+    error: 'Chưa đúng. Cần kiểm soát các biến khác và đo đúng distribution production.',
+  },
+]} />

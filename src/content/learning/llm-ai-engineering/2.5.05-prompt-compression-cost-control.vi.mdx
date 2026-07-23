@@ -1,0 +1,60 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "prompt-compression-cost-control", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "context window", "allocator"], pageCount: 4,
+}
+
+<MdxQuiz id="prompt-compression-cost-control" questions={[
+  {
+    "id": "prompt-compression-cost-control-q1", "title": "Tình huống 1",
+    "prompt": "Context limit là 4.000; output reserve 700, system 500, user 300 và tool reserve 500. Còn bao nhiêu token cho history/retrieval?",
+    "mode": "single",
+    "options": [
+      { "id": "prompt-compression-cost-control-q1-a", "label": "3.500" },
+      { "id": "prompt-compression-cost-control-q1-b", "label": "2.500" },
+      { "id": "prompt-compression-cost-control-q1-correct", "label": "2.000", "isCorrect": true },
+      { "id": "prompt-compression-cost-control-q1-c", "label": "4.000" }
+    ],
+    "success": "Đúng. Variable budget = 4.000 − (700 + 500 + 300 + 500) = 2.000.",
+    "error": "Chưa đúng. Phải trừ mọi mandatory reserve trước khi phân bổ phần context biến đổi."
+  },
+  {
+    "id": "prompt-compression-cost-control-q2", "title": "Tình huống 2",
+    "prompt": "Tool result làm request tăng sau lần tính budget đầu tiên. Invariant nào đúng?",
+    "mode": "single",
+    "options": [
+      { "id": "prompt-compression-cost-control-q2-correct", "label": "Tính lại toàn request envelope trước mỗi dispatch", "isCorrect": true },
+      { "id": "prompt-compression-cost-control-q2-a", "label": "Dùng budget của attempt đầu mãi mãi" },
+      { "id": "prompt-compression-cost-control-q2-b", "label": "Không reserve output" },
+      { "id": "prompt-compression-cost-control-q2-c", "label": "Chỉ đếm user turn cuối" }
+    ],
+    "success": "Đúng. History và tool results thay đổi request; allocator phải được chạy lại trên payload thực tế.",
+    "error": "Chưa đúng. Budget cũ có thể cho phép request mới vượt context hoặc xóa nhầm phần bắt buộc."
+  },
+  {
+    "id": "prompt-compression-cost-control-q3", "title": "Tình huống 3",
+    "prompt": "Hai tenant có cùng câu hỏi. Allocator được phép làm gì?",
+    "mode": "single",
+    "options": [
+      { "id": "prompt-compression-cost-control-q3-a", "label": "Dùng history tenant A cho tenant B nếu tiết kiệm token" },
+      { "id": "prompt-compression-cost-control-q3-b", "label": "Gộp retrieval của hai tenant" },
+      { "id": "prompt-compression-cost-control-q3-c", "label": "Log raw context để so sánh" },
+      { "id": "prompt-compression-cost-control-q3-correct", "label": "Phân bổ độc lập trên context đã được authorize cho từng tenant", "isCorrect": true }
+    ],
+    "success": "Đúng. Context budgeting không được làm yếu tenant isolation hoặc authorization.",
+    "error": "Chưa đúng. Token efficiency không cho phép trộn dữ liệu qua trust boundary."
+  },
+  {
+    "id": "prompt-compression-cost-control-q4", "title": "Tình huống 4",
+    "prompt": "Khi mandatory sections đã vượt context limit, allocator nên trả gì?",
+    "mode": "single",
+    "options": [
+      { "id": "prompt-compression-cost-control-q4-a", "label": "Âm thầm cắt system policy" },
+      { "id": "prompt-compression-cost-control-q4-correct", "label": "Typed overflow reason và không dispatch", "isCorrect": true },
+      { "id": "prompt-compression-cost-control-q4-b", "label": "Gửi rồi chờ provider cắt" },
+      { "id": "prompt-compression-cost-control-q4-c", "label": "Giảm reported token count" }
+    ],
+    "success": "Đúng. Mandatory overflow là admission failure cần hiển thị và xử lý rõ.",
+    "error": "Chưa đúng. Cắt policy hoặc giao truncation cho provider làm request không còn đúng contract."
+  }
+]} />

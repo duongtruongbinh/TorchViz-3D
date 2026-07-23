@@ -1,0 +1,108 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'few-shot-examples',
+  locale: 'vi',
+  title: 'Few-shot examples có chủ đích',
+  headings: ['Examples truyền decision boundary', 'Chọn theo coverage và budget', 'Production gate'],
+  keywords: ['few-shot', 'example selection', 'token budget', 'data leakage'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Examples truyền decision boundary
+
+Examples có thể truyền format và boundary tốt hơn mô tả dài, nhưng làm tăng token cost và có thể đưa bias hoặc leakage vào prompt.
+
+**Input:** failure clusters từ eval, candidate examples có split/provenance, token count và output đúng schema version hiện tại.
+
+**Output:** một tập nhỏ demonstrations bao phủ cluster ưu tiên trong budget.
+
+Không chọn chỉ theo độ giống bề mặt. Hai examples gần như trùng nhau có thể tốn budget mà không mở rộng decision boundary.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chọn theo coverage và budget
+
+Fixture dưới chọn một example rẻ nhất cho mỗi failure cluster, cấm test leakage và tính cả 40 token framing. Với budget 240, `delivery=90` và `billing=110` vừa đủ.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type Example = {
+  id: string;
+  cluster: string;
+  tokens: number;
+  split: "train" | "validation" | "test";
+  schemaVersion: string;
+};
+
+function selectExamples(
+  candidates: readonly Example[],
+  requiredClusters: readonly string[],
+  maxTokens: number,
+  schemaVersion: string,
+  framingTokens = 40,
+): { ids: string[]; totalTokens: number } {
+  if (!Number.isInteger(maxTokens) || maxTokens <= framingTokens) {
+    throw new Error("invalid_example_budget");
+  }
+  if (new Set(requiredClusters).size !== requiredClusters.length) {
+    throw new Error("duplicate_failure_cluster");
+  }
+
+  const ids: string[] = [];
+  let totalTokens = framingTokens;
+  for (const cluster of requiredClusters) {
+    const eligible = candidates
+      .filter((item) =>
+        item.cluster === cluster &&
+        item.split !== "test" &&
+        item.schemaVersion === schemaVersion &&
+        Number.isInteger(item.tokens) &&
+        item.tokens > 0
+      )
+      .sort((a, b) => a.tokens - b.tokens || a.id.localeCompare(b.id));
+    const selected = eligible[0];
+    if (!selected) throw new Error(`missing_cluster:${cluster}`);
+    totalTokens += selected.tokens;
+    if (totalTokens > maxTokens) throw new Error("example_budget_exceeded");
+    ids.push(selected.id);
+  }
+  return { ids, totalTokens };
+}
+
+const examples: Example[] = [
+  { id: "delivery-1", cluster: "ambiguous_delivery", tokens: 90, split: "train", schemaVersion: "v3" },
+  { id: "billing-test", cluster: "billing_refund", tokens: 60, split: "test", schemaVersion: "v3" },
+  { id: "billing-1", cluster: "billing_refund", tokens: 110, split: "validation", schemaVersion: "v3" },
+  { id: "billing-old", cluster: "billing_refund", tokens: 70, split: "train", schemaVersion: "v2" },
+];
+assert.deepEqual(
+  selectExamples(examples, ["ambiguous_delivery", "billing_refund"], 240, "v3"),
+  { ids: ["delivery-1", "billing-1"], totalTokens: 240 },
+);
+assert.throws(
+  () => selectExamples(examples, ["ambiguous_delivery", "billing_refund"], 239, "v3"),
+  /example_budget_exceeded/,
+);
+assert.throws(() => selectExamples(examples, ["unknown"], 240, "v3"), /missing_cluster/);
+~~~
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production gate
+
+- Version example set cùng prompt, schema và tokenizer dùng để đếm token.
+- Tách training/selection data khỏi held-out evaluation; không báo score trên examples đã đưa vào prompt.
+- Kiểm tra label balance, contradictory examples và drift khi schema đổi.
+- So với zero-shot bằng quality theo slice, token/latency và safety guardrails.
+- Log example IDs/version, không log raw sample chứa PII hoặc hidden reasoning.
+
+**Kết nối:** Quiz yêu cầu chọn zero/one/few-shot theo evidence.
+
+</MdxPage>

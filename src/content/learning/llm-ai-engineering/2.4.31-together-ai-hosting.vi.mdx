@@ -1,0 +1,54 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "together-ai-hosting", locale: "vi",
+  title: "Together AI hosting patterns", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["together-ai-hosting","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Together offers serverless/dedicated and batch surfaces across many models; model capabilities and capacity mode are separate decisions.
+
+**Input:** Latency/throughput/privacy/capability requirements and current model catalog.
+
+**Output:** Endpoint/model mode plus quota/cost/quality evidence.
+
+**Data/type/shape:** Common Chat/Batch request maps to serverless or dedicated endpoint; batch results reconcile by custom ID.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Interactive support uses serverless/dedicated based SLO; nightly classification uses Batch if model supported. Canary verifies tool/schema before routing production.
+
+| Workload | Candidate surface | Gate trước rollout |
+|---|---|---|
+| Interactive support | Serverless hoặc dedicated | Model capability, p95/p99, quota, privacy |
+| Predictable sustained load | Dedicated candidate | Capacity/cold-start/failure drill và cost |
+| Nightly independent jobs | Batch nếu exact model hỗ trợ | Unique custom ID, deadline, reconcile missing/error |
+| Stateful/tool workflow | Không mặc định chuyển sang Batch | State/idempotency/tool conformance riêng |
+
+Canary gửi cùng redacted fixture vào route cũ và candidate, so normalized text/tool/schema state, quality gates và latency. Fail bất kỳ hard gate nào thì không tăng traffic.
+
+<LessonNote>Catalog model và hosting mode là hai quyết định. Không suy từ việc model xuất hiện trong catalog rằng nó hỗ trợ Batch, tools hoặc mọi region.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Assume every catalog model supports batch/tools.
+- Use batch for stateful chat.
+- Ignore dedicated capacity/cold behavior.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://docs.together.ai/docs/inference/batch/overview). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Replicate changes abstraction from chat calls to prediction lifecycle.
+
+</MdxPage>

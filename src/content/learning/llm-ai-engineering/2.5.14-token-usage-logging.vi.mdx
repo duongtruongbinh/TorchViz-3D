@@ -1,0 +1,75 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "token-usage-logging", locale: "vi",
+ title: "Token usage và cost observability an toàn", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["token-usage-logging","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Pattern và contract
+
+Cost control cần usage, nhưng raw prompt/response/identity không nên được log mặc định.
+
+**Input:** Provider usage, estimate, model/version, scoped keyed pseudonym, status và latency.
+
+**Output:** Aggregated metrics/traces với retention/access policy.
+
+**Data/type/shape:** Request payload bị drop/redact; numeric usage events aggregate theo dimensions có cardinality kiểm soát.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked scenario
+
+Log `{modelClass:'fast',inputTokens:420,outputTokens:80,status:'completed',subject:'...'}`; không log ticket. Alert trên cost/subject và estimate delta.
+
+~~~ts
+import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
+
+function pseudonym(secret: string, scope: string, internalId: string): string {
+  return createHmac("sha256", secret)
+    .update(`${scope}\0${internalId}`)
+    .digest("hex")
+    .slice(0, 24);
+}
+
+const event = {
+  schemaVersion: 2,
+  keyVersion: "observability-key-v3",
+  subject: pseudonym("fixture-secret-only", "support-api", "internal-user-17"),
+  modelClass: "fast",
+  status: "completed",
+  inputTokens: 420,
+  outputTokens: 80,
+  estimatedInputTokens: 400,
+  latencyMs: 730,
+};
+assert.equal(event.inputTokens - event.estimatedInputTokens, 20);
+assert.equal(event.subject.length, 24);
+assert.equal(JSON.stringify(event).includes("internal-user-17"), false);
+assert.deepEqual(
+  Object.keys(event).filter(key => ["prompt", "response", "apiKey", "email"].includes(key)),
+  [],
+);
+~~~
+<LessonNote>Plain SHA-256 của email/user ID entropy thấp vẫn dò và liên kết được. HMAC key ở secret manager, có scope/key version/rotation; log có access, sampling và retention policy.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Failure modes và handoff
+
+**Pitfalls:**
+
+- Log API key hoặc raw prompt.
+- Dùng email/plain hash làm metric label.
+- Tin estimated tokens thay billed usage.
+
+Alert nên dựa trên error/denial/cost/latency rate theo baseline và dẫn tới runbook; không tự động bật raw-payload logging khi có incident.
+
+**Kết nối:** Routing dùng quality/risk/cost evidence từ observability.
+
+</MdxPage>

@@ -1,0 +1,104 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "prompt-ab-testing", locale: "vi",
+  title: "A/B testing prompt trong production", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["prompt-ab-testing","prompt engineering","C+K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Offline eval không phản ánh hết traffic thật; A/B test đo tác động nhưng cần randomization, guardrails và sample đủ.
+
+**Input:** Hai immutable variants, eligible population, primary metric và safety/cost guardrails.
+
+**Output:** Estimate effect cùng uncertainty và quyết định ship/rollback.
+
+**Data/type/shape:** User/session được gán ổn định A/B; events nối bằng experiment ID nhưng payload nhạy cảm được redaction.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked example và contract
+
+A có 800/1.000 resolved, B có 830/1.000: uplift 3 điểm phần trăm. Normal
+approximation cho CI 95% là khoảng `[-0,004; 0,064]`, vẫn cắt 0. Đồng thời
+escalation tăng từ 4% lên 6%, vượt guardrail delta 1 điểm phần trăm. Kết quả là
+rollback B, không phải ship vì nhìn thấy uplift dương.
+
+<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production pitfalls và handoff
+
+**Sai lầm thường gặp:**
+
+- Randomize theo request làm user đổi variant giữa turns.
+- Peek liên tục rồi dừng khi có lợi.
+- Chỉ tối ưu click mà bỏ safety.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type AbResult = {
+  effect: number;
+  standardError: number;
+  ci95: [number, number];
+  escalationDelta: number;
+};
+
+type Variant = { id: string; systemPrompt: string; userTemplate: string };
+
+function evaluateRollout(
+  variantA: Variant,
+  variantB: Variant,
+  stats: AbResult,
+  maxEscalationDelta: number,
+) {
+  if (!variantA.id || !variantB.id || variantA.id === variantB.id) {
+    throw new Error("distinct_variants_required");
+  }
+  const decision = stats.escalationDelta > maxEscalationDelta
+    ? "rollback_guardrail"
+    : stats.ci95[0] > 0 ? "eligible_to_ship" : "keep_collecting";
+  return {
+    activeVariant: decision === "eligible_to_ship" ? variantB.id : variantA.id,
+    decision,
+  };
+}
+
+const variantA = { id: "v1.0", systemPrompt: "You are helpful.", userTemplate: "{query}" };
+const variantB = { id: "v1.1", systemPrompt: "You are helpful and concise.", userTemplate: "{query}" };
+
+const result = evaluateRollout(
+  variantA,
+  variantB,
+  { effect: 0.03, standardError: 0.0174, ci95: [-0.004, 0.064], escalationDelta: 0.02 },
+  0.01,
+);
+assert.deepEqual(result, {
+  activeVariant: "v1.0",
+  decision: "rollback_guardrail",
+});
+assert.throws(
+  () => evaluateRollout(
+    variantA,
+    variantA,
+    { effect: 0, standardError: 0, ci95: [0, 0], escalationDelta: 0 },
+    0.01,
+  ),
+  /distinct_variants_required/,
+);
+~~~
+
+<LessonNote>CI dùng normal approximation để dạy trace, không thay power analysis
+hoặc sequential-testing plan. Production phải randomize ổn định theo unit đã
+khai báo, khóa analysis window và fail closed khi safety/cost guardrail xấu đi.</LessonNote>
+
+**Kết nối:** Prompt injection defense đặt prompt trong hệ thống control nhiều lớp.
+
+</MdxPage>

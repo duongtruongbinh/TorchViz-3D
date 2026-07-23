@@ -1,0 +1,114 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "prompt-compression", locale: "vi",
+  title: "Prompt compression có kiểm chứng", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["prompt-compression","prompt engineering","C+K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Context lặp lại làm tăng cost/latency. Compression chỉ có giá trị nếu giữ đủ policy, evidence và output quality.
+
+**Input:** Prompt sections, token counts, importance policy và regression set.
+
+**Output:** Prompt ngắn hơn cùng measured quality delta và rollback version.
+
+**Data/type/shape:** Nhiều đoạn text thành retained/extracted/summary blocks; token scalar giảm nhưng semantic loss phải đo.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked example và contract
+
+Prompt 2.000 token gồm policy 700, history 900, examples 400. Giữ nguyên
+policy, summarize history còn 300 và giảm examples còn 200:
+
+| Section | Trước | Sau | Quy tắc |
+|---|---:|---:|---|
+| Policy | 700 | 700 | Protected, không được rút gọn |
+| History | 900 | 300 | Summary có provenance |
+| Examples | 400 | 200 | Giữ các edge case đại diện |
+| **Tổng** | **2.000** | **1.200** | **Giảm 40%** |
+
+Saving chỉ là candidate metric. Regression set vẫn phải kiểm tra ticket nhiều
+lượt, exception clauses, grounded evidence và output schema.
+
+<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production pitfalls và handoff
+
+**Sai lầm thường gặp:**
+
+- Cắt system/tool schema.
+- Đo token saving mà không đo task success.
+- Dùng model summary làm authoritative record.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type PromptSection = {
+  name: "policy" | "history" | "examples";
+  beforeTokens: number;
+  afterTokens: number;
+  protected: boolean;
+};
+
+function planCompression(sections: readonly PromptSection[]) {
+  if (sections.length === 0) throw new Error("empty_prompt");
+  for (const section of sections) {
+    if (!Number.isInteger(section.beforeTokens) || !Number.isInteger(section.afterTokens)) {
+      throw new Error("token_count_must_be_integer");
+    }
+    if (section.beforeTokens < 0 || section.afterTokens < 0 ||
+        section.afterTokens > section.beforeTokens) {
+      throw new Error("invalid_token_budget");
+    }
+    if (section.protected && section.afterTokens !== section.beforeTokens) {
+      throw new Error(`protected_section_changed:${section.name}`);
+    }
+  }
+  const beforeTokens = sections.reduce((sum, item) => sum + item.beforeTokens, 0);
+  const afterTokens = sections.reduce((sum, item) => sum + item.afterTokens, 0);
+  if (beforeTokens === 0 || afterTokens >= beforeTokens) {
+    throw new Error("compression_did_not_reduce_budget");
+  }
+  return {
+    beforeTokens,
+    afterTokens,
+    savedTokens: beforeTokens - afterTokens,
+    savingRate: (beforeTokens - afterTokens) / beforeTokens,
+  };
+}
+
+const result = planCompression([
+  { name: "policy", beforeTokens: 700, afterTokens: 700, protected: true },
+  { name: "history", beforeTokens: 900, afterTokens: 300, protected: false },
+  { name: "examples", beforeTokens: 400, afterTokens: 200, protected: false },
+]);
+assert.deepEqual(result, {
+  beforeTokens: 2_000,
+  afterTokens: 1_200,
+  savedTokens: 800,
+  savingRate: 0.4,
+});
+assert.throws(
+  () => planCompression([
+    { name: "policy", beforeTokens: 700, afterTokens: 600, protected: true },
+  ]),
+  /protected_section_changed/,
+);
+~~~
+
+<LessonNote>Fixture chỉ kiểm tra budget và protected sections. Production còn
+phải version summary, giữ source IDs, đặt deadline/cancellation cho summarizer,
+và rollback nếu regression quality hoặc safety vượt ngưỡng.</LessonNote>
+
+**Kết nối:** Versioning gắn prompt artifact với model, schema và eval.
+
+</MdxPage>

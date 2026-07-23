@@ -3,20 +3,72 @@ export const lessonMetadata = {
   id: 'hallucination-and-factuality-evaluation',
   locale: 'vi',
   title: 'Đánh giá hallucination và factuality',
-  headings: ['Hallucination là gì?', 'Tách claim để kiểm tra', 'Không biết thì phải nói không biết'],
-  keywords: ['hallucination', 'factuality', 'claim verification', 'citation', 'abstention'],
+  headings: ['Claim contract', 'Tính support rate', 'Severity-weighted score', 'Invariants'],
+  keywords: ['hallucination', 'factuality', 'claim verification', 'support rate', 'abstention'],
+  pageCount: 4,
 }
 
-## Hallucination là gì?
+<MdxPage page={0}>
 
-Hallucination là khi model tạo ra thông tin không được hỗ trợ bởi evidence hoặc không đúng với thế giới, dù câu trả lời có thể rất trôi chảy. Trong hệ thống dùng tài liệu, một response cũng bị xem là hallucinated khi khẳng định điều không có trong context được cung cấp.
+## Claim contract
 
-## Tách claim để kiểm tra
+Tách response thành atomic claims. Mỗi claim có `{text, evidence_ids, supported, severity}`. Evidence scope phải được khai báo: retrieved context, reference database hoặc nguồn đã xác minh. Citation format đúng không tự chứng minh claim được hỗ trợ.
 
-Đánh giá factuality nên tách response thành các claim có thể kiểm chứng. Mỗi claim được so với reference, nguồn truy xuất hoặc công cụ đáng tin. Ta có thể đo tỷ lệ claim được hỗ trợ, số lỗi nghiêm trọng, chất lượng citation và mức độ model diễn đạt chắc chắn vượt quá evidence.
+Case không có evidence cần expected `abstain`; đo overconfidence riêng.
 
-Các case cần ưu tiên gồm số liệu, tên riêng, ngày tháng, citation, hướng dẫn y tế/pháp lý và những hành động có hậu quả cao.
+</MdxPage>
 
-## Không biết thì phải nói không biết
+<MdxPage page={1}>
 
-Model an toàn không chỉ trả lời đúng; nó còn biết abstain khi thiếu evidence. Evaluation nên có câu hỏi không thể trả lời từ context và kiểm tra model có thừa nhận giới hạn hay bịa ra đáp án. Tuy nhiên, từ chối quá nhiều cũng làm giảm helpfulness, nên factuality luôn liên quan đến refusal calibration.
+## Tính support rate
+
+Response có bốn claims; ba claims supported, một unsupported:
+
+`support_rate = 3/4 = 0.75`, `unsupported_rate = 1/4 = 0.25`.
+
+Không tính câu chào hoặc style fragment thành claim để làm denominator lớn giả tạo. Claim splitter và annotation policy phải được version.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Severity-weighted score
+
+Gán weight: low `1`, high `4`. Ba supported claims có tổng weight `6`; unsupported high-severity claim weight `4`:
+
+`weighted_support = 6/(6+4)=0.6`.
+
+```python
+def weighted_support(weights: list[int], supported: list[bool]) -> float:
+    if not weights or len(weights) != len(supported):
+        raise ValueError('weights and labels must be non-empty and aligned')
+    if any(isinstance(weight, bool) or not isinstance(weight, int) or weight <= 0 for weight in weights):
+        raise ValueError('weights must be positive integers')
+    if any(not isinstance(label, bool) for label in supported):
+        raise TypeError('supported labels must be booleans')
+    return sum(weight for weight, ok in zip(weights, supported) if ok) / sum(weights)
+
+weights = [2, 2, 2, 4]
+supported = [True, True, True, False]
+score = weighted_support(weights, supported)
+assert score == 0.6
+assert 0.0 <= score <= 1.0
+try:
+    weighted_support([2, 4], [True])
+except ValueError:
+    pass
+else:
+    raise AssertionError('misaligned claim labels must fail')
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Invariants
+
+Không để unsupported critical claim bị average che lấp; thêm critical count/gate. Giữ claim-to-evidence mapping, nhưng redact private content trong artifact. Đo factuality cùng answer relevance và abstention để tránh “luôn từ chối” đạt score giả.
+
+Application Quiz kế tiếp dùng các signal này để phân biệt retrieval và generation failure trong RAG.
+
+</MdxPage>

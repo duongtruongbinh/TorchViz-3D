@@ -3,22 +3,67 @@ export const lessonMetadata = {
   id: 'pointwise-and-pairwise-evaluation',
   locale: 'vi',
   title: 'Pointwise và pairwise evaluation',
-  headings: ['Pointwise', 'Pairwise', 'Chọn phương pháp'],
-  keywords: ['pointwise evaluation', 'pairwise evaluation', 'preference', 'ranking', 'rubric'],
+  headings: ['Hai contracts', 'Pairwise matrix', 'Tính win rate', 'Invariants'],
+  keywords: ['pointwise evaluation', 'pairwise evaluation', 'win rate', 'tie', 'position bias'],
+  pageCount: 4,
 }
 
-## Pointwise
+<MdxPage page={0}>
 
-Pointwise evaluation chấm từng response độc lập theo rubric hoặc thang điểm. Cách này phù hợp khi ta cần biết một output có đạt ngưỡng chất lượng tối thiểu hay không, hoặc cần theo dõi từng tiêu chí như correctness, helpfulness và safety.
+## Hai contracts
 
-Điểm yếu là evaluator phải giữ thang điểm ổn định qua nhiều response. Một điểm 4/5 của người này có thể không tương đương 4/5 của người khác.
+Pointwise tạo `{criterion_scores, critical_flags}` cho từng response và phù hợp với absolute gate. Pairwise tạo `A|B|tie` cho cùng case và phù hợp chọn candidate. Một model có thể thắng pairwise nhưng vẫn fail absolute safety gate.
 
-## Pairwise
+Pairwise input phải ẩn model identity, chuẩn hóa format và cho phép tie.
 
-Pairwise evaluation đưa hai response cho cùng một prompt và yêu cầu chọn A tốt hơn, B tốt hơn hoặc hòa. So sánh trực tiếp thường dễ hơn việc gán điểm tuyệt đối, đặc biệt khi đánh giá hai model, hai prompt hoặc hai phiên bản hệ thống.
+</MdxPage>
 
-Kết quả pairwise có thể được tổng hợp thành win rate hoặc ranking. Tuy nhiên, thứ tự hiển thị A/B cần được đảo ngẫu nhiên để giảm position bias.
+<MdxPage page={1}>
 
-## Chọn phương pháp
+## Pairwise matrix
 
-Dùng pointwise khi cần kiểm tra tiêu chuẩn tuyệt đối và phân tích lỗi theo rubric. Dùng pairwise khi cần chọn phiên bản tốt hơn. Trong production evaluation, hai phương pháp thường bổ sung cho nhau: một model có thể thắng đối thủ nhưng vẫn không đạt ngưỡng safety bắt buộc.
+Trên 20 case: candidate thắng 10, baseline thắng 6, tie 4. Với half-tie convention:
+
+`candidate_score = (10 + 0.5×4)/20 = 0.60`.
+
+Strict win rate không tính tie là `10/(10+6)=0.625`; báo rõ convention thay vì trộn hai số.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tính win rate
+
+```python
+def pairwise_score(wins: int, losses: int, ties: int) -> float:
+    counts = (wins, losses, ties)
+    if any(isinstance(count, bool) or not isinstance(count, int) for count in counts):
+        raise TypeError('counts must be integers')
+    if min(wins, losses, ties) < 0 or wins + losses + ties == 0:
+        raise ValueError('counts must be non-negative and non-empty')
+    return (wins + 0.5 * ties) / (wins + losses + ties)
+
+assert pairwise_score(10, 6, 4) == 0.6
+assert pairwise_score(0, 0, 2) == 0.5
+for invalid in [(0, 0, 0), (1, -1, 0)]:
+    try:
+        pairwise_score(*invalid)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('invalid counts must fail')
+```
+
+Chạy cả order `candidate=A` và `candidate=B`; một winner đổi theo vị trí là disagreement signal.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Invariants
+
+Mỗi case phải có đúng một outcome, counts cộng thành sample size và results giữ case ID/order assignment. Báo score theo slice và confidence interval; không dùng pairwise win để bỏ qua must-pass pointwise criteria.
+
+Bài sau hiện thực judge adapter; Quiz tiếp theo kiểm tra các bias đã dạy.
+
+</MdxPage>

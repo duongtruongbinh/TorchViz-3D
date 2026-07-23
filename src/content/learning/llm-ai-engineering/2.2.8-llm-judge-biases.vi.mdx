@@ -2,28 +2,67 @@ export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-judge-biases',
   locale: 'vi',
-  title: 'Các bias của LLM judge',
-  headings: ['Position bias', 'Verbosity và self-enhancement bias', 'Giảm bias'],
-  keywords: ['position bias', 'verbosity bias', 'self-enhancement bias', 'LLM judge', 'calibration'],
+  title: 'Quiz',
+  headings: ['Position bias', 'Verbosity bias', 'Calibration', 'Escalation'],
+  keywords: ['quiz', 'position bias', 'verbosity bias', 'LLM judge'],
+  pageCount: 4,
 }
 
-## Position bias
-
-Position bias xảy ra khi judge ưu ái response ở vị trí A hoặc B không dựa trên chất lượng. Cách kiểm tra đơn giản là chạy lại cùng một cặp response sau khi đổi vị trí. Nếu kết luận thay đổi thường xuyên, judge chưa ổn định.
-
-## Verbosity và self-enhancement bias
-
-Verbosity bias khiến response dài, nhiều bullet hoặc nghe “đầy đủ” được chấm cao dù không chính xác hơn. Self-enhancement bias xuất hiện khi judge ưu ái output có phong cách hoặc phân phối giống chính model family của nó.
-
-Judge còn có thể bị ảnh hưởng bởi tên model, format, citation giả hoặc một lỗi nhỏ nằm cạnh nhiều câu đúng.
-
-## Giảm bias
-
-- Ẩn danh model và chuẩn hóa format response.
-- Đảo thứ tự A/B và kiểm tra consistency.
-- Yêu cầu judge trích evidence cho từng tiêu chí.
-- Dùng nhiều judge hoặc nhiều lần chạy cho case quan trọng.
-- So sánh định kỳ với human labels.
-- Tách correctness khỏi style và độ dài.
-
-Bias không thể được loại bỏ hoàn toàn chỉ bằng prompt. Nó cần được đo như một phần của chính evaluation system.
+<MdxQuiz id="llm-judge-biases" questions={[
+  {
+    id: 'llm-judge-biases-q1',
+    title: 'Position bias',
+    prompt: 'Judge chọn A, nhưng sau khi swap cùng hai response lại chọn A mới. Tín hiệu này chỉ ra gì?',
+    mode: 'single',
+    options: [
+      { id: 'llm-judge-biases-q1-a', label: 'Judge hoàn toàn nhất quán' },
+      { id: 'llm-judge-biases-q1-b', label: 'Judge có position bias và kết luận pairwise chưa ổn định', isCorrect: true },
+      { id: 'llm-judge-biases-q1-c', label: 'Reference answer chắc chắn sai' },
+      { id: 'llm-judge-biases-q1-d', label: 'Latency của model tăng' },
+    ],
+    success: 'Đúng. Winner bám vị trí thay vì response là dấu hiệu position bias.',
+    error: 'Chưa đúng. Hãy theo dõi identity của response qua phép hoán đổi.',
+  },
+  {
+    id: 'llm-judge-biases-q2',
+    title: 'Verbosity bias',
+    prompt: 'Response dài được ưu tiên dù chứa cùng fact và thêm một claim sai. Control nào phù hợp nhất?',
+    mode: 'single',
+    options: [
+      { id: 'llm-judge-biases-q2-a', label: 'Cộng điểm theo số token' },
+      { id: 'llm-judge-biases-q2-b', label: 'Loại response ngắn khỏi dataset' },
+      { id: 'llm-judge-biases-q2-c', label: 'Chỉ lặp lại cùng prompt một lần' },
+      { id: 'llm-judge-biases-q2-d', label: 'Tách correctness khỏi style/coverage và yêu cầu evidence theo criterion', isCorrect: true },
+    ],
+    success: 'Đúng. Criteria độc lập ngăn độ dài che lỗi correctness.',
+    error: 'Chưa đúng. Reward độ dài sẽ làm bias mạnh hơn.',
+  },
+  {
+    id: 'llm-judge-biases-q3',
+    title: 'Calibration',
+    prompt: 'Judge agreement với human label giảm mạnh trên tiếng Việt. Hành động đúng?',
+    mode: 'single',
+    options: [
+      { id: 'llm-judge-biases-q3-a', label: 'Hiệu chuẩn theo language slice, đọc disagreement và điều chỉnh protocol', isCorrect: true },
+      { id: 'llm-judge-biases-q3-b', label: 'Bỏ qua vì global average vẫn cao' },
+      { id: 'llm-judge-biases-q3-c', label: 'Xóa toàn bộ case tiếng Việt' },
+      { id: 'llm-judge-biases-q3-d', label: 'Dùng chính judge tạo ground truth mới' },
+    ],
+    success: 'Đúng. Calibration phải được kiểm tra trên slice deployment.',
+    error: 'Chưa đúng. Global average có thể che failure của một nhóm quan trọng.',
+  },
+  {
+    id: 'llm-judge-biases-q4',
+    title: 'Escalation',
+    prompt: 'Case safety rủi ro cao có judge score sát threshold và các judge không đồng ý. Nên làm gì?',
+    mode: 'single',
+    options: [
+      { id: 'llm-judge-biases-q4-a', label: 'Chọn ngẫu nhiên một judge' },
+      { id: 'llm-judge-biases-q4-b', label: 'Lấy average rồi xóa trace' },
+      { id: 'llm-judge-biases-q4-c', label: 'Escalate sang human review với evidence và disagreement trace', isCorrect: true },
+      { id: 'llm-judge-biases-q4-d', label: 'Auto-pass để giảm latency' },
+    ],
+    success: 'Đúng. Uncertainty ở case rủi ro cao cần escalation có provenance.',
+    error: 'Chưa đúng. Tự động hóa không nên che uncertainty ở quyết định quan trọng.',
+  },
+]} />

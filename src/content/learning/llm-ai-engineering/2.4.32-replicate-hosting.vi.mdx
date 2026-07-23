@@ -1,0 +1,79 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "replicate-hosting", locale: "vi",
+  title: "Replicate prediction lifecycle", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["replicate-hosting","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Replicate models expose versioned predictions with sync/async, polling, SSE or webhooks. Integration is a job lifecycle, not always one chat response.
+
+**Input:** Model owner/name/version or deployment, typed input, deadline and webhook policy.
+
+**Output:** Prediction state `starting|processing|succeeded|failed|canceled` plus expiring outputs.
+
+**Data/type/shape:** Create returns prediction ID/URLs; later events/polls transition a state machine. Terminal output may contain protected file URLs.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Async image/text job stores ID, verifies signed webhook, handles duplicate delivery idempotently and persists required output before provider expiry. Cancel maps to terminal state.
+
+~~~ts
+import assert from "node:assert/strict";
+type ProviderStatus = "starting" | "processing" | "succeeded" | "failed" | "canceled";
+type InternalStatus = "accepted" | "running" | "completed" | "failed" | "canceled";
+type Job = { id: string; status: InternalStatus; seenDeliveries: Set<string> };
+
+function mapStatus(status: ProviderStatus): InternalStatus {
+  if (status === "starting") return "accepted";
+  if (status === "processing") return "running";
+  if (status === "succeeded") return "completed";
+  return status;
+}
+function applyWebhook(
+  job: Job,
+  deliveryId: string,
+  providerStatus: ProviderStatus,
+): Job {
+  if (job.seenDeliveries.has(deliveryId)) return job;
+  const seenDeliveries = new Set(job.seenDeliveries).add(deliveryId);
+  const status = mapStatus(providerStatus);
+  if (["completed", "failed", "canceled"].includes(job.status) && status !== job.status) {
+    throw new Error("transition_after_terminal");
+  }
+  return { ...job, status, seenDeliveries };
+}
+
+let job: Job = { id: "pred_17", status: "accepted", seenDeliveries: new Set() };
+job = applyWebhook(job, "delivery-1", "processing");
+job = applyWebhook(job, "delivery-2", "succeeded");
+job = applyWebhook(job, "delivery-2", "succeeded"); // duplicate is idempotent
+assert.equal(job.status, "completed");
+assert.equal(job.seenDeliveries.size, 2);
+assert.throws(() => applyWebhook(job, "delivery-3", "failed"), /transition_after_terminal/);
+~~~
+<LessonNote>Verify webhook authenticity trước reducer. Persist protected/expiring output theo policy trước khi acknowledge, và giữ provider status riêng để audit mapping.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Poll without backoff/deadline.
+- Trust unsigned/unvalidated webhook.
+- Forget model version or output expiry.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [prediction lifecycle](https://replicate.com/docs/topics/predictions/create-a-prediction), [webhook delivery/idempotency](https://replicate.com/docs/topics/webhooks/receive-webhook) và [signature verification](https://replicate.com/docs/topics/webhooks/verify-webhook/). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Track sau dùng các provider adapters trong multi-user production control loops.
+
+</MdxPage>

@@ -1,0 +1,75 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "anthropic-system-prompts", locale: "vi",
+  title: "System instruction trong Anthropic Messages", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["anthropic-system-prompts","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Cùng khái niệm instruction authority có wire placement khác provider/version. Code phải bám current SDK docs, không copy message shape mù.
+
+**Input:** Trusted system instruction và user/assistant history.
+
+**Output:** Valid Messages request giữ system policy ngoài untrusted user data.
+
+**Data/type/shape:** Provider adapter map internal `instructions` sang field/content placement được docs hiện hành hỗ trợ.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Internal request có `{instructions, messages}`; Anthropic adapter đặt instructions đúng current contract, OpenAI adapter có mapping riêng. Unit test snapshot từng adapter.
+
+~~~ts
+import assert from "node:assert/strict";
+type InternalRequest = {
+  instructions: string;
+  messages: Array<{ role: "user" | "assistant"; content: string }>;
+};
+type AnthropicRequest = {
+  system: string;
+  messages: InternalRequest["messages"];
+};
+
+function toAnthropic(request: InternalRequest): AnthropicRequest {
+  if (!request.instructions.trim()) throw new Error("missing_instructions");
+  if (request.messages.length === 0) throw new Error("missing_messages");
+  return {
+    system: request.instructions,
+    messages: request.messages.map(message => ({ ...message })),
+  };
+}
+
+const wire = toAnthropic({
+  instructions: "Chỉ đọc trạng thái đơn; không thay đổi dữ liệu.",
+  messages: [{ role: "user", content: "Kiểm tra A17" }],
+});
+assert.deepEqual(wire, {
+  system: "Chỉ đọc trạng thái đơn; không thay đổi dữ liệu.",
+  messages: [{ role: "user", content: "Kiểm tra A17" }],
+});
+assert.equal(wire.messages.some(message => message.content.includes("Chỉ đọc")), false);
+~~~
+<LessonNote>System instruction định hướng model nhưng không phải authorization boundary. Backend vẫn kiểm tra identity, ownership và tool policy độc lập.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Đặt system content vào user string.
+- Giả định mọi provider có cùng roles.
+- Không test migration khi SDK đổi.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://platform.claude.com/docs/en/api/messages). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Long context vẫn cần budget và evidence retrieval.
+
+</MdxPage>

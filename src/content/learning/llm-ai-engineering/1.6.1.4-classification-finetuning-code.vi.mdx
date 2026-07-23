@@ -1,0 +1,168 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'classification-finetuning-code',
+  locale: 'vi',
+  title: 'Code classification fine-tuning',
+  headings: ['Contract', 'Backbone', 'Head', 'Training step', 'Smoke test'],
+  keywords: ['PyTorch', 'classification fine-tuning code', 'classification head', 'attention mask', 'assertion'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Input/output contract
+
+**Mục tiêu:** Viết một classifier toy nhưng chạy độc lập và giữ cùng contract với LLM classifier thực tế.
+
+- `input_ids: (B,T)` integer;
+- `attention_mask: (B,T)` với 1 cho nội dung;
+- `labels: (B,)`;
+- output `logits: (B,K)`.
+
+Ta dùng embedding + MLP nhỏ làm backbone để smoke test không cần checkpoint lớn. Trong dự án thật, thay backbone bằng GPT đã pretrain.
+
+<LessonNote>Code này minh họa wiring và shape, không phải kiến trúc đủ mạnh cho phân loại ngôn ngữ thực tế.</LessonNote>
+
+**Takeaway:** Toy backbone cho phép kiểm thử head, mask và loss độc lập với chi phí LLM.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Backbone giữ hidden theo token
+
+```python
+import torch
+from torch import nn
+
+class TinyBackbone(nn.Module):
+    def __init__(self, vocab_size, d_model):
+        super().__init__()
+        self.token_emb = nn.Embedding(vocab_size, d_model)
+        self.mlp = nn.Sequential(
+            nn.Linear(d_model, d_model),
+            nn.GELU(),
+        )
+
+    def forward(self, input_ids):
+        return self.mlp(self.token_emb(input_ids))
+```
+
+Contract: `(B,T) → (B,T,C)`.
+
+<LessonNote>**Production:** GPT backbone còn có positional embedding và causal transformer blocks; head code phía sau không cần biết chi tiết đó.</LessonNote>
+
+**Takeaway:** Giữ boundary `(B,T,C)` giúp thay backbone mà không đổi classifier.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chọn token cuối và chiếu sang class
+
+```python
+class TextClassifier(nn.Module):
+    def __init__(self, backbone, d_model, num_classes):
+        super().__init__()
+        self.backbone = backbone
+        self.head = nn.Linear(d_model, num_classes)
+
+    def forward(self, input_ids, attention_mask):
+        if input_ids.ndim != 2 or attention_mask.shape != input_ids.shape:
+            raise ValueError("input_ids and attention_mask must both be (B,T)")
+        if attention_mask.device != input_ids.device:
+            raise ValueError("attention_mask must be on input_ids.device")
+        binary_mask = attention_mask.to(dtype=torch.long)
+        if not torch.all((binary_mask == 0) | (binary_mask == 1)):
+            raise ValueError("attention_mask must contain only 0 or 1")
+        if torch.any(binary_mask[:, 1:] > binary_mask[:, :-1]):
+            raise ValueError("this classifier requires right padding")
+
+        hidden = self.backbone(input_ids)
+        B = input_ids.size(0)
+        valid_count = binary_mask.sum(dim=1)
+        if torch.any(valid_count == 0):
+            raise ValueError("every sample needs at least one content token")
+        last_index = (valid_count - 1).to(device=hidden.device)
+        batch_index = torch.arange(B, device=hidden.device)
+        last_hidden = hidden[batch_index, last_index]
+        return self.head(last_hidden)
+```
+
+<LessonNote>**Lỗi thường gặp:** `last_index` phải ở cùng device với tensor khi chạy GPU; batch smoke test CPU che khuất lỗi device này.</LessonNote>
+
+**Takeaway:** Mask quyết định vị trí đọc; head quyết định số class.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Một training step
+
+```python
+import torch.nn.functional as F
+
+model.train()
+optimizer.zero_grad()
+logits = model(input_ids, attention_mask)
+loss = F.cross_entropy(logits, labels)
+loss.backward()
+optimizer.step()
+
+assert logits.shape == (input_ids.size(0), num_classes)
+assert torch.isfinite(loss)
+```
+
+Để train head-only:
+
+```python
+for parameter in model.backbone.parameters():
+    parameter.requires_grad = False
+```
+
+<LessonNote>**Production:** theo dõi validation loss/accuracy, class imbalance, gradient clipping và checkpoint; một batch không đủ đánh giá.</LessonNote>
+
+**Takeaway:** Freeze policy được thể hiện bằng `requires_grad`, không bằng việc bỏ backbone khỏi forward.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Smoke test độc lập
+
+```python
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+torch.manual_seed(7)
+vocab_size, d_model, num_classes = 20, 8, 2
+model = TextClassifier(
+    TinyBackbone(vocab_size, d_model),
+    d_model,
+    num_classes,
+)
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-2)
+
+input_ids = torch.tensor([[3, 4, 5, 0], [8, 9, 0, 0]])
+attention_mask = torch.tensor([[1, 1, 1, 0], [1, 1, 0, 0]])
+labels = torch.tensor([1, 0])
+
+logits = model(input_ids, attention_mask)
+loss = F.cross_entropy(logits, labels)
+assert logits.shape == (2, 2)
+assert loss.ndim == 0 and torch.isfinite(loss)
+
+try:
+    model(input_ids[:1], torch.zeros_like(attention_mask[:1]))
+except ValueError:
+    pass
+else:
+    raise AssertionError("all-zero attention mask must fail")
+
+print(logits.shape)  # torch.Size([2, 2])
+```
+
+<LessonNote>**Takeaway:** Smoke test xác nhận shape, device-safe indexing và empty-mask error path; benchmark trên split độc lập mới xác nhận chất lượng.</LessonNote>
+
+</MdxPage>

@@ -1,0 +1,84 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'gpt-parameter-shape-calculation', locale: 'vi',
+  title: 'Tính parameter và shape của GPT',
+  headings: ['Activation shapes', 'Attention parameters', 'MLP parameters', 'Vocabulary và weight tying', 'Exact small GPT'],
+  keywords: ['GPT', 'parameter count', 'tensor shape', 'weight tying'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Shape xuyên suốt model
+
+**Mục tiêu:** Tính cả activation shape và parameter total của một GPT nhỏ, rồi kiểm tra tác động của weight tying.
+
+Với IDs `(B,T)`, token và position embedding tạo `(B,T,C)`. Các block giữ nguyên shape này. Output head chiếu chiều cuối từ `C` sang vocabulary `V`, tạo logits `(B,T,V)`.
+
+Ví dụ `B=2,T=8,C=32,V=100`: hidden là `(2,8,32)`, logits là `(2,8,100)`.
+
+<LessonNote>**Takeaway:** B và T ảnh hưởng activation memory; không làm đổi số parameter.</LessonNote>
+
+</MdxPage>
+<MdxPage page={1}>
+
+## Parameter của attention
+
+Bỏ qua bias, bốn phép chiếu Q, K, V và output đều có ma trận `C×C`, tổng khoảng `4C²` parameter. Số head thay đổi cách chia tensor nhưng không làm đổi tổng này.
+
+Với `C=32`, attention có `4×32²=4,096` weights.
+
+<LessonNote>**Lỗi thường gặp:** nhân thêm số head. Khi C cố định, các head chia cùng tổng chiều projection.</LessonNote>
+
+**Takeaway:** Parameter attention phụ thuộc C², không phụ thuộc B/T.
+
+</MdxPage>
+<MdxPage page={2}>
+
+## Parameter của MLP
+
+Hai linear `C→4C` và `4C→C` có khoảng `8C²` parameter. Vì vậy MLP thường chứa nhiều parameter hơn attention trong một GPT block.
+
+Với `C=32`, MLP có `8×32²=8,192` weights. Hai LayerNorm trong block thêm `4C=128` parameter gamma/beta.
+
+<LessonNote>**Takeaway:** Bỏ bias để tính tay rõ; code phải dùng cùng giả định khi assert.</LessonNote>
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Vocabulary matrix và weight tying
+
+Token embedding có `V×C` parameter; output head `C×V` cũng có kích thước tương đương. Weight tying dùng cùng một ma trận cho hai vai trò, giảm gần `V×C` parameter. Đây là lý do phép đếm thô có thể lớn hơn con số được công bố.
+
+Position embedding thêm `context_length×C`. Final LayerNorm thêm `2C`.
+
+<LessonNote>**Lỗi thường gặp:** nói tied head “không có parameter”. Nó dùng parameter của token embedding, chỉ không sở hữu một matrix riêng.</LessonNote>
+
+**Takeaway:** Luôn ghi rõ tied/untied khi so parameter counts.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Exact total của GPT toy
+
+Chọn `V=100`, `context=16`, `C=32`, `L=2`, linear không bias:
+
+| Thành phần | Parameter |
+|---|---:|
+| token embedding | `100×32 = 3,200` |
+| position embedding | `16×32 = 512` |
+| một block | `4,096 + 8,192 + 128 = 12,416` |
+| hai block | `24,832` |
+| final LayerNorm | `64` |
+| output head untied | `3,200` |
+
+Untied total là `31,808`; tied total là `28,608`.
+
+```python
+assert 3200 + 512 + 2 * 12416 + 64 + 3200 == 31808
+assert 31808 - 3200 == 28608
+```
+
+<LessonNote>**Takeaway:** Một bảng thành phần giúp tìm chênh lệch do bias, norm, position embedding hoặc weight tying.</LessonNote>
+
+</MdxPage>

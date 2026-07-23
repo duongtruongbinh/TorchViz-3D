@@ -1,0 +1,81 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "json-mode-structured-outputs", locale: "vi",
+  title: "Structured Outputs so với JSON mode", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["json-mode-structured-outputs","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+JSON mode bảo đảm cú pháp JSON, còn Structured Outputs hướng tới schema adherence. Cả hai vẫn cần xử lý refusal, incomplete và transport error.
+
+**Input:** Supported JSON Schema cùng task data.
+
+**Output:** Typed object hoặc explicit refusal/validation error.
+
+**Data/type/shape:** Text/output item thành object; required/enum/bounds/additionalProperties được kiểm tra.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+`{"category":"ship"}` là JSON hợp lệ nhưng sai enum. Parser phải reject; schema-constrained output tránh nhiều lỗi nhưng không biến business authorization thành model responsibility.
+
+~~~ts
+import assert from "node:assert/strict";
+type Ticket = { category: "delivery" | "refund"; urgent: boolean };
+type Parsed =
+  | { kind: "value"; value: Ticket }
+  | { kind: "refusal"; reason: string }
+  | { kind: "incomplete" }
+  | { kind: "invalid"; reason: string };
+
+function parseOutput(
+  wire: { status: "completed" | "incomplete"; text?: string; refusal?: string },
+): Parsed {
+  if (wire.refusal) return { kind: "refusal", reason: wire.refusal };
+  if (wire.status === "incomplete") return { kind: "incomplete" };
+  let value: unknown;
+  try { value = JSON.parse(wire.text ?? ""); }
+  catch { return { kind: "invalid", reason: "invalid_json" }; }
+  if (
+    typeof value !== "object" || value === null ||
+    Object.keys(value).sort().join(",") !== "category,urgent" ||
+    !["delivery", "refund"].includes(String((value as Ticket).category)) ||
+    typeof (value as Ticket).urgent !== "boolean"
+  ) return { kind: "invalid", reason: "schema_mismatch" };
+  return { kind: "value", value: value as Ticket };
+}
+
+assert.deepEqual(
+  parseOutput({ status: "completed", text: '{"category":"delivery","urgent":false}' }),
+  { kind: "value", value: { category: "delivery", urgent: false } },
+);
+assert.deepEqual(
+  parseOutput({ status: "completed", text: '{"category":"ship","urgent":false}' }),
+  { kind: "invalid", reason: "schema_mismatch" },
+);
+assert.equal(parseOutput({ status: "incomplete" }).kind, "incomplete");
+~~~
+<LessonNote>Schema adherence không thay business authorization. Production phải giữ refusal/incomplete thành nhánh riêng, validate lại tại boundary và không retry lỗi validation vô hạn.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Cast JSON trực tiếp sang type.
+- Không xử lý output bị cắt.
+- Dùng schema feature provider không hỗ trợ.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/structured-outputs). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Streaming đưa các output items về theo thời gian.
+
+</MdxPage>

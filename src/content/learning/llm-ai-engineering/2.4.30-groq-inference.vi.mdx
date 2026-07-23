@@ -1,0 +1,53 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "groq-inference", locale: "vi",
+  title: "Groq inference và compatibility gaps", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["groq-inference","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Capability và common contract
+
+Groq exposes an OpenAI-compatible Responses surface focused on fast inference, but official docs list unsupported fields; adapter must capability-check.
+
+**Input:** Request restricted to supported fields/model.
+
+**Output:** Normalized result plus detailed latency/queue metrics when enabled.
+
+**Data/type/shape:** Compatible JSON maps to internal result; unsupported state/store/truncation fields fail before dispatch.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Worked fixture
+
+Adapter feature matrix rejects `previous_response_id` if unsupported and records prompt/queue/completion time separately. Latency claim comes from measured fixture distribution, not slogan.
+
+| Request field/capability | Adapter action |
+|---|---|
+| Field nằm trong exact supported matrix | Map và snapshot wire request |
+| `previous_response_id`/state không được hỗ trợ | Typed `unsupported_capability` trước dispatch |
+| Storage/truncation policy không map được | Không silently drop; reject hoặc chọn route khác |
+| Provider timing metadata | Normalize `queueMs`, `promptMs`, `generationMs` riêng |
+| Unknown response enum | Giữ redacted raw enum + internal `unknown`, phát telemetry |
+
+<LessonNote>Latency claim phải đến từ distribution trên workload và concurrency mục tiêu. Một warm request không tách được queue, prompt processing và generation time.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production delta và handoff
+
+**Pitfalls:**
+
+- Send unsupported fields silently.
+- Compare one warm request.
+- Confuse throughput, queue time and generation time.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://console.groq.com/docs/responses-api). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Together compares serverless, dedicated and batch hosting.
+
+</MdxPage>

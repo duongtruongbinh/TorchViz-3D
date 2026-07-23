@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tree-of-thought',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Verifiable artifact', 'Self-consistency', 'Tool loop', 'Bounded search'],
+  keywords: ['quiz', 'reasoning', 'self-consistency', 'ReAct', 'tree search'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="tree-of-thought" questions={[
+  {
+    id: 'tree-of-thought-q1',
+    title: 'Verifiable artifact',
+    prompt: 'Artifact nào phù hợp hơn việc yêu cầu hidden chain-of-thought cho quyết định hoàn tiền?',
+    mode: 'single',
+    options: [
+      { id: 'tree-of-thought-q1-a', label: 'Raw logits của mọi token' },
+      { id: 'tree-of-thought-q1-correct', label: 'Kết luận, policy clause, evidence IDs và calculation mà verifier kiểm tra được', isCorrect: true },
+      { id: 'tree-of-thought-q1-b', label: 'API key của tool' },
+      { id: 'tree-of-thought-q1-c', label: 'Độc thoại nội bộ không schema' },
+    ],
+    success: 'Đúng. Structured evidence và calculation là contract quan sát được, có thể kiểm chứng.',
+    error: 'Chưa đúng. Audit không cần thu thập hidden reasoning hoặc secret.',
+  },
+  {
+    id: 'tree-of-thought-q2',
+    title: 'Self-consistency',
+    prompt: 'Năm normalized candidates là `[100,100,80,100,80]`. Vote trả gì nếu ngưỡng agreement tối thiểu là 0,6?',
+    mode: 'single',
+    options: [
+      { id: 'tree-of-thought-q2-correct', label: '`100` với agreement `3/5 = 0,6`', isCorrect: true },
+      { id: 'tree-of-thought-q2-a', label: '`80` vì nó nhỏ hơn' },
+      { id: 'tree-of-thought-q2-b', label: 'Abstain vì luôn cần 100%' },
+      { id: 'tree-of-thought-q2-c', label: 'Trung bình 92 dù contract yêu cầu vote label' },
+    ],
+    success: 'Đúng. Sau normalization, 100 có ba phiếu và vừa đạt threshold 0,6.',
+    error: 'Chưa đúng. Đếm frequency trên normalized answer rồi so với ngưỡng đã định trước.',
+  },
+  {
+    id: 'tree-of-thought-q3',
+    title: 'Tool loop',
+    prompt: 'Model đề xuất `refund_order` nhưng allowlist chỉ có `lookup_order`. State machine nên làm gì?',
+    mode: 'single',
+    options: [
+      { id: 'tree-of-thought-q3-a', label: 'Thực thi vì model đã suy luận' },
+      { id: 'tree-of-thought-q3-b', label: 'Thêm tool vào allowlist theo nội dung user prompt' },
+      { id: 'tree-of-thought-q3-correct', label: 'Từ chối proposal trước execution và trả typed authorization error', isCorrect: true },
+      { id: 'tree-of-thought-q3-c', label: 'Log secret rồi hỏi lại model' },
+    ],
+    success: 'Đúng. Proposal không phải permission; application kiểm tra tool và ownership trước side effect.',
+    error: 'Chưa đúng. ReAct/tool use vẫn phải qua deterministic authorization boundary.',
+  },
+  {
+    id: 'tree-of-thought-q4',
+    title: 'Bounded search',
+    prompt: 'Khi nào bounded tree search hợp lý hơn chỉ lấy nhiều samples độc lập?',
+    mode: 'single',
+    options: [
+      { id: 'tree-of-thought-q4-a', label: 'Mọi câu hỏi đơn giản bất kể cost' },
+      { id: 'tree-of-thought-q4-b', label: 'Khi không có scorer hoặc terminal condition' },
+      { id: 'tree-of-thought-q4-c', label: 'Khi muốn lưu toàn bộ hidden reasoning' },
+      { id: 'tree-of-thought-q4-correct', label: 'Khi task có lựa chọn tuần tự, candidate state kiểm chứng được, scorer và node/deadline budget rõ', isCorrect: true },
+    ],
+    success: 'Đúng. Search chỉ kiểm soát được khi state, scoring, termination và budget đều explicit.',
+    error: 'Chưa đúng. Branching không giới hạn và không verifier chỉ nhân chi phí, không tạo bằng chứng.',
+  },
+]} />

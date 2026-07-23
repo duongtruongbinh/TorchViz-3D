@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'structured-output-prompting',
+  locale: 'vi',
+  title: 'Structured output: prompt, JSON mode và schema',
+  headings: ['Ba mức bảo đảm', 'Typed lifecycle', 'Production gate'],
+  keywords: ['structured output', 'JSON mode', 'JSON Schema', 'runtime validation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Ba mức bảo đảm
+
+Máy cần typed output, nhưng ba cơ chế thường bị đánh đồng:
+
+| Cơ chế | Bảo đảm chính | Không tự bảo đảm |
+|---|---|---|
+| Prompt yêu cầu JSON | Chỉ là natural-language instruction | JSON hợp lệ hoặc đúng schema |
+| JSON mode | Output có cú pháp JSON trong contract của API | required fields, enum, bounds, truth |
+| Schema-constrained output | Bám phần schema được provider hỗ trợ | business correctness, authorization, factuality |
+
+Capability và subset schema thay đổi theo provider/model/API version; kiểm tra tài liệu tại ngày tích hợp và pin artifact đã thử nghiệm.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Typed lifecycle
+
+Response đi qua một state machine, không đi thẳng từ string sang type assertion:
+
+1. `complete` + payload: parse rồi runtime-validate required/type/enum/bounds/extra properties.
+2. `refusal`: map thành nhánh domain rõ; không giả làm object rỗng.
+3. `incomplete`: ghi reason như max output/cancel; retry chỉ khi policy cho phép và còn deadline.
+4. `invalid`: giữ error code/schema version để đo; không cast mù.
+
+Ví dụ `{"category":"ship"}` là JSON hợp lệ nhưng sai enum `billing | delivery | other`. Schema adherence cũng không chứng minh category đúng với ticket; task eval vẫn bắt buộc.
+
+<LessonNote>Nếu cần evidence, schema hóa `evidenceIds` hoặc calculation fields. Không yêu cầu hay lưu hidden chain-of-thought.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production gate
+
+- Pin schema version cùng prompt/model config và kiểm tra provider support.
+- Test success, refusal, incomplete, invalid JSON, missing/extra field, enum và numeric bounds.
+- Đặt bounded retry theo error class; không retry vô hạn cùng payload.
+- Không đưa secret, PII thật hoặc policy nội bộ không cần thiết vào schema name/description có thể được cache.
+- Log response branch, validator error và artifact versions; raw payload chỉ theo policy redaction/retention tối thiểu.
+
+**Kết nối:** Reasoning lessons dùng artifact có thể kiểm chứng thay vì thu thập hidden thoughts.
+
+</MdxPage>

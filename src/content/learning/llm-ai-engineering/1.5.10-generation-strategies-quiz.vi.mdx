@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'generation-strategies-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Last logits', 'Greedy', 'Temperature', 'Top-k', 'Context crop'],
+  keywords: ['quiz', 'generation', 'greedy', 'temperature', 'top-k'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="generation-strategies-quiz" questions={[
+  {
+    id: 'select-last-position', title: 'Logits nào được dùng?', prompt: 'Model trả logits `(B,T,V)` trong một vòng generation. Tensor nào dùng để chọn token tiếp theo?', mode: 'single',
+    options: [
+      { id: 'last-position', label: '`logits[:, -1, :]` có shape `(B,V)`', isCorrect: true },
+      { id: 'first-position', label: '`logits[:, 0, :]` vì token đầu chứa toàn bộ câu' },
+      { id: 'all-argmax', label: 'Argmax toàn bộ `(B,T,V)` rồi nối T token' },
+      { id: 'mean-vocab', label: 'Trung bình theo vocabulary để được `(B,T)`' },
+    ],
+    success: 'Đúng. Vị trí cuối dự đoán token ngay sau prefix hiện tại.',
+    error: 'Các vị trí trước tương ứng với target trước; generation mỗi vòng chỉ nối dự đoán của vị trí cuối.',
+  },
+  {
+    id: 'greedy-property', title: 'Greedy decoding', prompt: 'Phát biểu nào đúng về greedy decoding?', mode: 'single',
+    options: [
+      { id: 'local-argmax', label: 'Chọn argmax ở từng bước; xác định nhưng không bảo đảm chuỗi toàn cục tốt nhất', isCorrect: true },
+      { id: 'uniform', label: 'Chọn đều mọi token trong vocabulary' },
+      { id: 'global-search', label: 'Luôn tìm được chuỗi có joint probability lớn nhất' },
+      { id: 'needs-temperature', label: 'Bắt buộc dùng temperature > 1' },
+    ],
+    success: 'Đúng. Greedy tối ưu lựa chọn cục bộ từng bước và dễ kiểm thử.',
+    error: 'Argmax từng bước không phải tìm kiếm toàn bộ cây sequence.',
+  },
+  {
+    id: 'temperature-direction', title: 'Temperature', prompt: 'Điều gì thường xảy ra khi giảm temperature từ 1 xuống 0.5?', mode: 'single',
+    options: [
+      { id: 'sharper', label: 'Phân phối sắc hơn; token logit cao nhận nhiều xác suất hơn', isCorrect: true },
+      { id: 'flatter', label: 'Phân phối phẳng hơn và gần uniform hơn' },
+      { id: 'rank-change', label: 'Thứ hạng logits luôn bị đảo ngược' },
+      { id: 'vocab-shrink', label: 'Vocabulary tự giảm còn một nửa' },
+    ],
+    success: 'Đúng. Chia cho số nhỏ làm khoảng cách logit lớn hơn trước softmax.',
+    error: 'Temperature scale logits; nó không đổi vocabulary hay thường xuyên đổi thứ hạng.',
+  },
+  {
+    id: 'top-k-renormalize', title: 'Top-k', prompt: 'Sau khi giữ top-3 logits, bước đúng tiếp theo là gì?', mode: 'single',
+    options: [
+      { id: 'mask-softmax', label: 'Đặt logits còn lại thành `-inf`, softmax lại rồi sample', isCorrect: true },
+      { id: 'keep-old-probs', label: 'Giữ nguyên ba xác suất cũ dù tổng nhỏ hơn 1' },
+      { id: 'zero-before-rank', label: 'Đặt mọi logit âm thành 0 trước khi xếp hạng' },
+      { id: 'argmin', label: 'Sample từ ba logit thấp nhất để tăng đa dạng' },
+    ],
+    success: 'Đúng. Mask trước softmax tạo distribution hợp lệ chỉ trên top-k.',
+    error: 'Top-k phải loại tail ở không gian logits và chuẩn hóa lại.',
+  },
+  {
+    id: 'crop-context-not-output', title: 'Context cropping', prompt: 'Khi chuỗi dài hơn context length, cách xử lý nào đúng?', mode: 'single',
+    options: [
+      { id: 'crop-model-input', label: 'Chỉ crop input của forward về C token cuối; vẫn giữ toàn bộ sequence output', isCorrect: true },
+      { id: 'delete-output', label: 'Xóa prefix khỏi sequence trả về mỗi vòng' },
+      { id: 'expand-position', label: 'Bỏ qua giới hạn position embedding và truyền toàn bộ chuỗi' },
+      { id: 'reset-generation', label: 'Khởi động lại generation từ token cuối' },
+    ],
+    success: 'Đúng. Context của model và sequence tích lũy là hai tensor có vai trò khác nhau.',
+    error: 'Cropping phục vụ contract của model, không có nghĩa người dùng mất các token đã sinh.',
+  },
+]} />

@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'generation-sampling-calculation',
+  locale: 'vi',
+  title: 'Tính temperature và top-k',
+  headings: ['Logits', 'Temperature', 'Top-k', 'Shape audit'],
+  keywords: ['temperature calculation', 'top-k', 'softmax', 'sampling probability', 'logits'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Từ logits đến xác suất
+
+**Mục tiêu:** Tính bằng tay tác động của temperature và top-k trên vocabulary bốn token.
+
+Giả sử token `[A,B,C,D]` có logits:
+
+`z = [2, 1, 0, -1]`.
+
+Với `τ=1`, các giá trị mũ xấp xỉ `[7.389, 2.718, 1, 0.368]`. Tổng là `11.475`, nên:
+
+`p ≈ [0.644, 0.237, 0.087, 0.032]`.
+
+<LessonNote>**Lỗi thường gặp:** coi logits là xác suất. Logits có thể âm và không cần tổng bằng 1.</LessonNote>
+
+**Takeaway:** Softmax vừa exponentiate vừa chuẩn hóa toàn bộ vocabulary.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Temperature thấp làm phân phối sắc hơn
+
+Với `τ=0.5`, logits được chia cho 0.5:
+
+`z/τ = [4, 2, 0, -2]`.
+
+Softmax xấp xỉ `[0.865, 0.117, 0.016, 0.002]`. Token A tăng từ `64.4%` lên `86.5%`.
+
+Với `τ=2`, logits thành `[1,0.5,0,-0.5]`, cho phân phối phẳng hơn, xấp xỉ `[0.455,0.276,0.167,0.102]`.
+
+<LessonNote>**Lỗi thường gặp:** nghĩ temperature thấp tăng mọi logit. Điều quan trọng là khoảng cách tương đối sau phép chia và softmax.</LessonNote>
+
+**Takeaway:** Temperature không đổi thứ hạng logits; nó đổi mức tự tin của phân phối.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Top-k loại tail rồi chuẩn hóa lại
+
+Với `k=2`, ta giữ logits của A và B:
+
+`z' = [2, 1, -∞, -∞]`.
+
+Softmax trên hai lựa chọn còn lại:
+
+`p' = [e²/(e²+e¹), e¹/(e²+e¹), 0, 0] ≈ [0.731, 0.269, 0, 0]`.
+
+Token C và D không còn cơ hội được lấy, dù xác suất ban đầu khác 0.
+
+<LessonNote>**Lỗi thường gặp:** giữ xác suất A/B cũ `[0.644,0.237]`; tổng chỉ là `0.881`. Sau lọc phải softmax lại.</LessonNote>
+
+**Takeaway:** Top-k là mask trên logits, không phải cắt xác suất mà bỏ qua renormalization.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Shape audit cho một batch
+
+Với logits cuối có shape `(B,V)=(3,4)`:
+
+1. `topk(values, indices)` trả hai tensor `(3,2)`;
+2. threshold thấp nhất mỗi hàng có shape `(3,1)`;
+3. mask broadcast về `(3,4)`;
+4. softmax giữ `(3,4)`;
+5. `multinomial(..., num_samples=1)` trả `(3,1)`.
+
+```python
+probs = torch.softmax(filtered_logits / temperature, dim=-1)
+assert probs.shape == (3, 4)
+assert torch.allclose(probs.sum(-1), torch.ones(3))
+```
+
+<LessonNote>**Takeaway:** Mọi sample có distribution riêng trên chiều cuối; không chuẩn hóa qua batch.</LessonNote>
+
+</MdxPage>

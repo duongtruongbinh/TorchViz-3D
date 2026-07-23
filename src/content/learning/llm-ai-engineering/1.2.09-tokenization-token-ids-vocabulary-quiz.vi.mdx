@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-token-ids-vocabulary-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Vocabulary', 'Encode', 'Decode', 'Ý nghĩa của ID'],
+  keywords: ['quiz', 'vocabulary', 'encode', 'decode', 'token ID'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="tokenization-token-ids-vocabulary-quiz" questions={[
+  {
+    id: 'vocabulary-lookup', title: 'Vocabulary cố định', prompt: 'Training dùng `"AI" -> 1`. Validation gặp token `"AI"`. Pipeline đúng làm gì?', mode: 'single',
+    options: [
+      { id: 'same-id', label: 'Dùng lại ID 1 từ training vocabulary.', isCorrect: true },
+      { id: 'new-vocab', label: 'Dựng validation vocabulary và gán ID mới.' },
+      { id: 'position', label: 'Dùng vị trí của `"AI"` trong câu làm ID.' },
+      { id: 'embedding-value', label: 'Dùng giá trị đầu tiên của embedding làm ID.' },
+    ],
+    success: 'Đúng. Mọi split phải dùng cùng tokenizer/vocabulary đã cố định.',
+    error: 'Nếu validation tự gán ID, model sẽ tra sai hàng embedding.',
+  },
+  {
+    id: 'encode-contract', title: 'Encode', prompt: 'Với mapping `Linh→2, builds→3, AI→1, .→0`, `encode("Linh builds AI.")` trả gì?', mode: 'single',
+    options: [
+      { id: 'correct', label: '[2, 3, 1, 0]', isCorrect: true },
+      { id: 'sorted', label: '[0, 1, 2, 3]' },
+      { id: 'positions', label: '[0, 1, 2, 3]' },
+      { id: 'vector', label: 'Một dense vector có bốn số thực.' },
+    ],
+    success: 'Đúng. Encode giữ thứ tự token xuất hiện rồi lookup từng ID.',
+    error: 'Không sắp xếp input IDs; hãy đi theo token order của câu.',
+  },
+  {
+    id: 'decode-contract', title: 'Decode', prompt: '`decode([2,3,1,0])` cần thực hiện bước nào trước?', mode: 'single',
+    options: [
+      { id: 'inverse-lookup', label: 'Tra từng ID qua bảng ID→token theo đúng thứ tự.', isCorrect: true },
+      { id: 'sort-ids', label: 'Sắp xếp IDs từ nhỏ đến lớn.' },
+      { id: 'embedding', label: 'Tính embedding rồi lấy số lớn nhất.' },
+      { id: 'new-merges', label: 'Huấn luyện BPE lại từ dãy IDs.' },
+    ],
+    success: 'Đúng. Decode là inverse lookup rồi áp dụng quy tắc ghép text.',
+    error: 'Decode không thay đổi order hoặc huấn luyện lại tokenizer.',
+  },
+  {
+    id: 'token-id-meaning', title: 'ID và embedding', prompt: 'Token `"tests"` có ID 4 còn `"AI"` có ID 1. Kết luận nào hợp lệ?', mode: 'single',
+    options: [
+      { id: 'labels-only', label: 'Đó là hai địa chỉ khác nhau trong vocabulary; độ lớn không nói lên ý nghĩa.', isCorrect: true },
+      { id: 'more-important', label: '`tests` quan trọng gấp bốn lần `AI`.' },
+      { id: 'closer-position', label: '`tests` luôn đứng ở vị trí thứ tư.' },
+      { id: 'already-vector', label: '4 và 1 chính là hai token embeddings.' },
+    ],
+    success: 'Đúng. IDs chỉ chọn hàng; embedding vectors ở các hàng được học độc lập.',
+    error: 'Phân biệt integer index với dense vector và sequence position.',
+  },
+]} />

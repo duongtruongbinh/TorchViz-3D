@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "flash-attention",
+  locale: "vi",
+  title: "FlashAttention và IO-aware attention",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["flash-attention","LLM","production","T+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần kiến thức này?
+
+Materialize ma trận attention lớn gây nhiều lượt đọc/ghi HBM. FlashAttention dùng tiling và online softmax để giảm IO trong khi vẫn tính exact attention.
+
+**Input:** Q, K, V theo các block vừa SRAM.
+
+**Output:** Attention output tương đương thuật toán exact trong sai số số học cho phép.
+
+**Data/type/shape:** Logical score vẫn `(B,H,T,T)` nhưng implementation không cần lưu toàn bộ tensor đó trong HBM.
+
+<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trace bằng tay
+
+Một score matrix fp16 với `B=1`, `H=32`, `T=4.096` cần `1×32×4.096²×2 = 1 GiB` nếu materialize. Tiling tránh giữ toàn bộ 1 GiB này cùng lúc; nó không biến độ phức tạp dense attention thành tuyến tính.
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Production và bước tiếp
+
+**Sai lầm production thường gặp:**
+
+- Gọi FlashAttention là sparse attention.
+- Suy memory saving thành cùng mức speedup trên mọi GPU/shape.
+- Bỏ mask, dropout hoặc kernel-support constraints khi so sánh.
+
+
+**Kết nối:** GQA giảm số KV heads, một trục khác với giảm IO của FlashAttention.
+
+</MdxPage>

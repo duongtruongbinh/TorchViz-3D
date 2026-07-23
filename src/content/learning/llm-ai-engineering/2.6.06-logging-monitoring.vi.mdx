@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "logging-monitoring", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4", "Tình huống 5"],
+  keywords: ["quiz", "API security", "monitoring", "incident"], pageCount: 5,
+}
+
+<MdxQuiz id="logging-monitoring" questions={[
+  {
+    "id": "logging-monitoring-q1", "title": "Tình huống 1",
+    "prompt": "Proxy log cần liên kết request theo tenant mà không ghi user ID thô. Identifier nào phù hợp?",
+    "mode": "single",
+    "options": [
+      { "id": "logging-monitoring-q1-a", "label": "SHA-256 trực tiếp của email" },
+      { "id": "logging-monitoring-q1-correct", "label": "Pseudonym HMAC có scope, key version và rotation policy", "isCorrect": true },
+      { "id": "logging-monitoring-q1-b", "label": "Email plaintext làm metric label" },
+      { "id": "logging-monitoring-q1-c", "label": "Provider API key rút gọn" }
+    ],
+    "success": "Đúng. Keyed scoped pseudonym giảm dictionary/linkability risk và cho phép rotation có kiểm soát.",
+    "error": "Chưa đúng. Hash identifier entropy thấp vẫn dễ dò và liên kết; secret cũng không bao giờ là correlation label."
+  },
+  {
+    "id": "logging-monitoring-q2", "title": "Tình huống 2",
+    "prompt": "Log schema mặc định nào cân bằng điều tra và privacy?",
+    "mode": "single",
+    "options": [
+      { "id": "logging-monitoring-q2-a", "label": "Raw prompt/response và tool arguments" },
+      { "id": "logging-monitoring-q2-b", "label": "Full request headers" },
+      { "id": "logging-monitoring-q2-c", "label": "User email làm high-cardinality metric" },
+      { "id": "logging-monitoring-q2-correct", "label": "Correlation ID, scoped pseudonym, route/status, latency và normalized usage", "isCorrect": true }
+    ],
+    "success": "Đúng. Metadata tối thiểu hỗ trợ SLO/cost/debug mà không thu thập nội dung nhạy cảm mặc định.",
+    "error": "Chưa đúng. Nội dung và identifier thô chỉ được thu thập theo policy hẹp, có consent/access/retention."
+  },
+  {
+    "id": "logging-monitoring-q3", "title": "Tình huống 3",
+    "prompt": "Tỷ lệ `policy_denied` tăng 8 lần trong 10 phút. Hành vi monitoring nào đúng?",
+    "mode": "single",
+    "options": [
+      { "id": "logging-monitoring-q3-correct", "label": "Alert theo baseline/SLO, phân loại abuse hay regression và mở incident nếu cần", "isCorrect": true },
+      { "id": "logging-monitoring-q3-a", "label": "Tự fail-open proxy" },
+      { "id": "logging-monitoring-q3-b", "label": "Log thêm mọi raw prompt vô thời hạn" },
+      { "id": "logging-monitoring-q3-c", "label": "Xóa counter để dashboard xanh" }
+    ],
+    "success": "Đúng. Alert phải dẫn tới triage/escalation; không được tự hạ security control.",
+    "error": "Chưa đúng. Monitoring không trao quyền fail-open hoặc mở rộng thu thập nhạy cảm."
+  },
+  {
+    "id": "logging-monitoring-q4", "title": "Tình huống 4",
+    "prompt": "Key bị xác nhận compromise trong khi rotation routine đang canary. Nhánh nào ưu tiên?",
+    "mode": "single",
+    "options": [
+      { "id": "logging-monitoring-q4-a", "label": "Giữ overlap đến hết lịch thường" },
+      { "id": "logging-monitoring-q4-b", "label": "Gửi key cũ cho frontend dự phòng" },
+      { "id": "logging-monitoring-q4-correct", "label": "Rapid revoke, chuyển degraded mode, xác minh propagation và incident-audit", "isCorrect": true },
+      { "id": "logging-monitoring-q4-c", "label": "Chỉ đổi tên secret version" }
+    ],
+    "success": "Đúng. Confirmed compromise rút ngắn overlap; containment quan trọng hơn zero-downtime routine.",
+    "error": "Chưa đúng. Canary bình thường không đủ khi attacker có thể tiếp tục dùng credential."
+  },
+  {
+    "id": "logging-monitoring-q5", "title": "Tình huống 5",
+    "prompt": "Retention policy cho diagnostic payload nên có đặc tính nào?",
+    "mode": "single",
+    "options": [
+      { "id": "logging-monitoring-q5-a", "label": "Giữ vô hạn vì có thể hữu ích" },
+      { "id": "logging-monitoring-q5-correct", "label": "Mục đích rõ, access hẹp, thời hạn ngắn và xóa/audit kiểm chứng được", "isCorrect": true },
+      { "id": "logging-monitoring-q5-b", "label": "Public cho toàn công ty" },
+      { "id": "logging-monitoring-q5-c", "label": "Dùng làm metric labels" }
+    ],
+    "success": "Đúng. Retention là security/privacy control có owner, expiry và kiểm chứng.",
+    "error": "Chưa đúng. Giá trị điều tra tiềm năng không biện minh cho lưu dữ liệu nhạy cảm vô hạn."
+  }
+]} />
