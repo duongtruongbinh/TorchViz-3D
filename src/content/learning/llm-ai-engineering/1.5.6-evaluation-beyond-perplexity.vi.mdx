@@ -10,71 +10,70 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Perplexity trả lời một câu hỏi hẹp
-
-**Mục tiêu:** Chọn loại evaluation phù hợp thay vì dùng một scalar cho mọi năng lực.
-
-Perplexity đo model gán xác suất cho ground-truth tokens tốt đến đâu trên một corpus và tokenizer cụ thể. Nó hữu ích để theo dõi language-model training trong cùng setup.
-
-PPL thấp không tự bảo đảm model giải toán, làm theo instruction, trích nguồn đúng hay từ chối nội dung nguy hiểm.
-
-<LessonNote>**Lỗi thường gặp:** so PPL từ hai tokenizer/dataset khác nhau như cùng một thước đo tuyệt đối.</LessonNote>
-
-**Takeaway:** Metric chỉ có ý nghĩa khi câu hỏi đánh giá và protocol được ghi rõ.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Perplexity hữu ích cho một câu hỏi hẹp; các capability khác cần evidence khác.'},
+  comparisons: [
+    {title: 'PPL trả lời được', shape: 'ground-truth token likelihood', detail: {vi: 'Model gán xác suất tốt đến đâu trên cùng corpus, tokenizer và scoring setup.'}},
+    {title: 'PPL không tự trả lời', shape: 'capability / behavior', detail: {vi: 'Giải toán, instruction following, citation và safe refusal.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Metric chỉ có ý nghĩa khi câu hỏi đánh giá và protocol được ghi rõ.'},
+  misconception: {vi: 'Không so PPL từ hai tokenizer hoặc dataset khác nhau như một thước đo tuyệt đối.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Capability benchmark chấm một năng lực cụ thể
-
-Benchmark multiple-choice như MMLU cung cấp câu hỏi, các đáp án và ground truth. Model có thể được chấm bằng likelihood:
-
-`a_hat = argmax_a log p(a | context)`.
-
-Một score cao nói model làm tốt protocol đó trên các subject được chọn; nó không tự đại diện mọi task hoặc chất lượng hội thoại.
-
-Khi chọn benchmark, đọc task definition, split, prompt format, metric và license thay vì chỉ nhìn leaderboard.
-
-<LessonNote>**Lỗi thường gặp:** thay prompt format nhưng vẫn so score với báo cáo dùng protocol khác.</LessonNote>
-
-**Takeaway:** Benchmark đáng tin khi input, scoring và aggregation có thể tái lập.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Capability benchmark chỉ đáng tin khi task và scoring protocol có thể tái lập.'},
+  steps: [
+    {label: {vi: 'Task definition'}, shape: 'questions + options', detail: {vi: 'Nêu đúng năng lực và subjects được chấm.'}},
+    {label: {vi: 'Split + prompt'}, shape: 'fixed inputs', detail: {vi: 'Giữ prompt format đúng protocol.'}},
+    {label: {vi: 'Likelihood scoring'}, shape: 'argmax log p(a|context)', detail: {vi: 'So các answer candidates với ground truth.'}},
+    {label: {vi: 'Aggregate + report'}, shape: 'metric + license', detail: {vi: 'Không suy rộng score sang mọi task.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Khi chọn benchmark, đọc task definition, split, prompt format, metric và license thay vì chỉ nhìn leaderboard.'},
+  misconception: {vi: 'Không thay prompt format rồi so trực tiếp với báo cáo dùng protocol khác.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Test contamination làm score khó diễn giải
-
-Nếu câu hỏi hoặc lời giải benchmark đã xuất hiện trong training corpus, score cao có thể đến từ ghi nhớ. Rủi ro tăng với benchmark công khai lâu năm và dữ liệu web lớn.
-
-Các kiểm tra thực tế gồm:
-
-- tìm near-duplicate giữa corpus và test;
-- giữ private/rotating test set;
-- báo cáo thời điểm data cutoff;
-- tạo biến thể kiểm tra khả năng chuyển giao, không chỉ recall.
-
-<LessonNote>**Lỗi thường gặp:** kết luận contamination chỉ từ một câu trả lời đúng. Cần bằng chứng về overlap hoặc pattern bất thường.</LessonNote>
-
-**Takeaway:** Score phải đi cùng provenance của data và protocol chống leakage.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Nếu benchmark hoặc lời giải xuất hiện trong training corpus, score cao có thể phản ánh ghi nhớ thay vì transfer.'},
+  steps: [
+    {label: {vi: 'Near-duplicate search'}, shape: 'corpus ↔ test', detail: {vi: 'Tìm overlap trực tiếp hoặc gần giống.'}},
+    {label: {vi: 'Private / rotating set'}, shape: 'less exposed tests', detail: {vi: 'Giảm rủi ro benchmark công khai lâu năm.'}},
+    {label: {vi: 'Data provenance'}, shape: 'cutoff + sources', detail: {vi: 'Báo cáo thời điểm và nguồn dữ liệu.'}},
+    {label: {vi: 'Transfer variants'}, shape: 'not recall only', detail: {vi: 'Đổi bề mặt để kiểm tra khả năng chuyển giao.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Score phải đi cùng provenance của data và protocol chống leakage.'},
+  misconception: {vi: 'Không kết luận contamination chỉ từ một câu trả lời đúng; cần bằng chứng overlap hoặc pattern bất thường.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Response mở cần rubric và nhiều tín hiệu
-
-Sau instruction tuning, response có thể có nhiều cách viết đúng. Evaluation cần rubric cho correctness, relevance, format, safety và citation khi phù hợp.
-
-- Human evaluation gần judgment người dùng nhưng chậm và tốn chi phí.
-- LLM-as-a-Judge mở rộng quy mô nhưng có position/style/self-preference bias.
-- Deterministic checks tốt cho format, schema và đáp án có cấu trúc.
-
-Kết hợp các tín hiệu và audit sample bất đồng. Chapter 2.2 đi sâu vào rubric, agreement, judge bias và regression eval.
-
-<LessonNote>**Lỗi thường gặp:** dùng một judge prompt như ground truth tuyệt đối mà không calibrate với human labels.</LessonNote>
-
-**Takeaway:** Evaluation tốt là một hệ thống bằng chứng, không phải một metric duy nhất.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Open responses có nhiều cách viết đúng nên cần rubric và phối hợp nhiều nguồn evidence.'},
+  steps: [
+    {label: {vi: 'Human evaluation'}, shape: 'user-like judgment', detail: {vi: 'Gần người dùng nhưng chậm và tốn chi phí.'}},
+    {label: {vi: 'LLM-as-a-Judge'}, shape: 'scalable rubric', detail: {vi: 'Có position, style và self-preference bias.'}},
+    {label: {vi: 'Deterministic checks'}, shape: 'format / schema', detail: {vi: 'Mạnh với output có cấu trúc.'}},
+    {label: {vi: 'Disagreement audit'}, shape: 'sample review', detail: {vi: 'Calibrate signals bằng labels đáng tin.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Evaluation tốt là một hệ thống bằng chứng, không phải một metric duy nhất; rubric có thể gồm correctness, relevance, format, safety và citation.'},
+  misconception: {vi: 'Không dùng một judge prompt như ground truth tuyệt đối mà chưa calibrate với human labels.'},
+}} />
 
 </MdxPage>

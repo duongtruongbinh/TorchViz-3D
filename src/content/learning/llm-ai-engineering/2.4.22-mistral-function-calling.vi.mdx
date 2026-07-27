@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Mistral vẫn theo vòng developer defines → model proposes → developer executes → tool result → final answer, với current request/response syntax riêng."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Tool schemas/messages và authenticated context."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Model-proposed tool calls, application-executed results và final response; proposal không phải kết quả đã chạy."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Assistant tool call contains ID/function/arguments; tool message references call ID."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Mistral vẫn theo vòng developer defines → model proposes → developer executes → tool result → final answer, với current request/response syntax riêng.
 
@@ -20,7 +26,7 @@ Mistral vẫn theo vòng developer defines → model proposes → developer exec
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Worked fixture" contract="typed input → validated output" pitfall="Giữ explicit error path, timeout/cancellation và provider-specific invariant." takeaway="Fixture materialize contract thành artifact deterministic có thể test.">
 
 Payment fixture có `retrieve_status(transaction_id)`. Model arguments parse JSON, validator rejects unknown ID, function runs locally, tool result returns before next completion.
 
@@ -61,11 +67,19 @@ assert.throws(
 ~~~
 <LessonNote>Application phải cap successive calls, authorize mỗi proposal và dùng đúng syntax SDK/version hiện hành. Tool result quay lại bằng call ID ban đầu.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Function calling với Mistral"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Cho model chạy function trực tiếp."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Không loop successive calls có cap."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Copy V1/V2 SDK syntax lẫn nhau."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

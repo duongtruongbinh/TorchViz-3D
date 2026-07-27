@@ -10,29 +10,46 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Hai contracts
-
-Pointwise tạo `{criterion_scores, critical_flags}` cho từng response và phù hợp với absolute gate. Pairwise tạo `A|B|tie` cho cùng case và phù hợp chọn candidate. Một model có thể thắng pairwise nhưng vẫn fail absolute safety gate.
-
-Pairwise input phải ẩn model identity, chuẩn hóa format và cho phép tie.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Pointwise và pairwise trả lời hai câu hỏi khác nhau nên không thay thế nhau.'},
+  comparisons: [
+    {title: 'Pointwise', shape: 'scores + critical flags', detail: {vi: 'Chấm từng response theo absolute gate.'}},
+    {title: 'Pairwise', shape: 'A / B / tie', detail: {vi: 'So hai candidates trên cùng case để chọn preference.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Model có thể thắng pairwise nhưng vẫn fail absolute safety gate.'},
+  misconception: {vi: 'Pairwise phải ẩn identity, chuẩn hóa format và cho phép tie.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Pairwise matrix
-
-Trên 20 case: candidate thắng 10, baseline thắng 6, tie 4. Với half-tie convention:
-
-`candidate_score = (10 + 0.5×4)/20 = 0.60`.
-
-Strict win rate không tính tie là `10/(10+6)=0.625`; báo rõ convention thay vì trộn hai số.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked pairwise result cho 20 cases với half-tie convention.'},
+  steps: [
+    {label: {vi: 'Wins'}, shape: '10', detail: {vi: 'Candidate được chọn.'}},
+    {label: {vi: 'Losses'}, shape: '6', detail: {vi: 'Baseline được chọn.'}},
+    {label: {vi: 'Ties'}, shape: '4 × 0.5', detail: {vi: 'Mỗi tie đóng góp nửa điểm.'}},
+    {label: {vi: 'Candidate score'}, shape: '(10+2)/20=0.60', detail: {vi: 'Strict win rate riêng là 10/(10+6)=0.625.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Báo rõ convention; không trộn half-tie score với strict win rate.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Tính win rate
+<CodeLessonFrame
+  title="Tính pairwise score"
+  contract="non-negative integer wins/losses/ties với tổng > 0"
+  output="10 wins, 6 losses, 4 ties → 0.6"
+  pitfall="Chạy cả candidate=A và candidate=B để phát hiện position bias."
+  takeaway="Winner đổi theo vị trí là disagreement signal."
+>
 
 ```python
 def pairwise_score(wins: int, losses: int, ties: int) -> float:
@@ -56,14 +73,23 @@ for invalid in [(0, 0, 0), (1, -1, 0)]:
 
 Chạy cả order `candidate=A` và `candidate=B`; một winner đổi theo vị trí là disagreement signal.
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Invariants
-
-Mỗi case phải có đúng một outcome, counts cộng thành sample size và results giữ case ID/order assignment. Báo score theo slice và confidence interval; không dùng pairwise win để bỏ qua must-pass pointwise criteria.
-
-Bài sau hiện thực judge adapter; Quiz tiếp theo kiểm tra các bias đã dạy.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Pairwise handoff phải giữ sample accounting và order assignment cho từng case.'},
+  steps: [
+    {label: {vi: 'One outcome'}, shape: 'A / B / tie', detail: {vi: 'Mỗi case có đúng một kết quả.'}},
+    {label: {vi: 'Count audit'}, shape: 'wins+losses+ties=N', detail: {vi: 'Không thiếu hoặc nhân đôi samples.'}},
+    {label: {vi: 'Artifact'}, shape: 'case ID + order', detail: {vi: 'Có thể replay position assignment.'}},
+    {label: {vi: 'Report'}, shape: 'slice + confidence interval', detail: {vi: 'Không bỏ must-pass pointwise criteria.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài sau hiện thực judge adapter trên cùng rubric và calibration artifacts.'},
+}} />
 
 </MdxPage>

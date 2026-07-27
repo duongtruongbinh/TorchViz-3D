@@ -6,7 +6,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Media validation, cost và privacy xảy ra trước vision model call.'},steps:[
+  {label:{vi:'Upload'},shape:'bytes / file ref / governed URL',detail:{vi:'Validate ownership, size, pixels và MIME.'}},
+  {label:{vi:'Request'},shape:'text + media parts',detail:{vi:'Dùng configurable capability, không tên model cũ.'}},
+  {label:{vi:'Result'},shape:'text | structured evidence',detail:{vi:'Kèm media usage metadata.'}},
+  {label:{vi:'Decision'},shape:'human / policy gate',detail:{vi:'Vision output không phải authorization.'}},
+],code:[],takeaway:{vi:'Media parts vẫn là untrusted input có lifecycle riêng.'}}} />
 
 Vision là capability của model/API hiện hành, không nên gắn curriculum vào tên GPT-4V cũ. Media validation, cost và privacy xảy ra trước model call.
 
@@ -20,7 +25,12 @@ Vision là capability của model/API hiện hành, không nên gắn curriculum
 
 <MdxPage page={1}>
 
-## Worked fixture
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Ảnh kiện hàng đi qua năm boundary trước khi có thể ảnh hưởng refund.'},steps:[
+  {label:{vi:'Upload'},shape:'tenant + byte/pixel limits',detail:{vi:'Kiểm tra trước decode.'}},
+  {label:{vi:'Media'},shape:'magic-byte MIME allowlist',detail:{vi:'Không tin extension/header.'}},
+  {label:{vi:'Provider'},shape:'authorized bytes/ref',detail:{vi:'Không tạo public URL mặc định.'}},
+  {label:{vi:'Output'},shape:'schema + human review',detail:{vi:'Không tự refund.'}},
+],code:[],takeaway:{vi:'Retention xóa upload/provider resource và audit deletion.'}}} />
 
 Support app nhận ảnh kiện hàng, kiểm tra MIME, size, tenant ownership rồi gửi part cùng câu hỏi. Output `{damage:true}` vẫn cần human review trước refund.
 
@@ -38,7 +48,11 @@ Support app nhận ảnh kiện hàng, kiểm tra MIME, size, tenant ownership r
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Vision gate chặn network và evidence risks ở đúng boundary.'},steps:[
+  {label:{vi:'URL policy'},shape:'deny arbitrary fetch',detail:{vi:'Ngăn SSRF/data leak.'}},
+  {label:{vi:'Evidence'},shape:'uncertain observation',detail:{vi:'Không coi OCR/vision là fact chắc chắn.'}},
+  {label:{vi:'Capability'},shape:'dated model config',detail:{vi:'Không hard-code alias/context cost.'}},
+],code:[],takeaway:{vi:'File Search tiếp theo quản lý file/vector-store lifecycle.'}}} />
 
 **Pitfalls:**
 

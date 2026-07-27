@@ -10,23 +10,32 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Thiết kế observable artifact
-
-Một số task cần intermediate artifacts để kiểm tra, nhưng hidden chain-of-thought không phải output contract cần ép model tiết lộ hoặc lưu.
-
-**Input:** problem, dữ kiện có provenance và policy version.
-
-**Output:** kết luận ngắn cùng các field cần kiểm chứng, ví dụ `{eligible, refundAmount, policyClause, evidenceIds}`.
-
-Verifier phải tính lại invariant từ source data. Một lời giải thích trôi chảy hoặc model tự tuyên bố “đã kiểm tra” không phải bằng chứng.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Task cần kiểm tra nên xuất observable artifacts, không ép model tiết lộ hoặc lưu hidden chain-of-thought.'},
+  steps: [
+    {label: {vi: 'Problem input'}, shape: 'facts + provenance + policy version', detail: {vi: 'Nguồn dữ liệu có thể truy vết.'}},
+    {label: {vi: 'Model proposal'}, shape: '{eligible, refundAmount, policyClause, evidenceIds}', detail: {vi: 'Kết luận ngắn cùng fields cần verifier.'}},
+    {label: {vi: 'Independent verifier'}, shape: 'recompute invariants', detail: {vi: 'Tính lại từ source data.'}},
+    {label: {vi: 'Decision'}, shape: 'verified / blocked', detail: {vi: 'Lời giải thích trôi chảy hoặc “đã kiểm tra” không phải evidence.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output contract chỉ chứa artifacts downstream có thể kiểm chứng.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Verifier độc lập
+<CodeLessonFrame
+  title="Verifier độc lập"
+  contract="source amounts + typed claim → recomputed amount + clause/evidence checks"
+  output="min(max(120−20,0),100)=100"
+  pitfall="Model proposal 120 hoặc thiếu evidence phải fail trước privileged action."
+  takeaway="Verifier không nhận hoặc lưu độc thoại nội bộ; nó kiểm tra observable invariants."
+>
 
-Ticket có `paid=120`, `fee=20`, policy cap `100`. Verifier tính `min(max(120 − 20, 0), 100) = 100` và kiểm tra clause/evidence; nó không nhận hay lưu độc thoại nội bộ.
+Ticket có `paid=120`, `fee=20`, policy cap `100`.
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -85,17 +94,23 @@ assert.throws(
 );
 ~~~
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production gate
-
-- Schema hóa đúng fields mà downstream verifier cần; không yêu cầu “in toàn bộ suy nghĩ”.
-- Pin policy/data version và kiểm tra evidence ownership/freshness trước privileged action.
-- Phân biệt model proposal với verified decision; verifier failure chặn action.
-- Log claim fields tối thiểu, artifact versions và error code đã redaction. Không log rationale tự do, PII, secret hoặc hidden chain-of-thought.
-
-**Kết nối:** Self-consistency dùng nhiều candidates nhưng mỗi candidate vẫn phải normalize và verify.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production gate giữ reasoning observable, versioned và tối thiểu.'},
+  steps: [
+    {label: {vi: 'Schema fields'}, shape: 'verifier-required only', detail: {vi: 'Không yêu cầu “toàn bộ suy nghĩ”.'}},
+    {label: {vi: 'Pin context'}, shape: 'policy + data version', detail: {vi: 'Kiểm tra evidence ownership/freshness.'}},
+    {label: {vi: 'Separate states'}, shape: 'proposal ≠ verified decision', detail: {vi: 'Verifier failure chặn action.'}},
+    {label: {vi: 'Minimal telemetry'}, shape: 'claims + versions + redacted error', detail: {vi: 'Không rationale tự do, PII, secret hay hidden CoT.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Self-consistency dùng nhiều candidates nhưng từng candidate vẫn phải normalize và verify.'},
+}} />
 
 </MdxPage>

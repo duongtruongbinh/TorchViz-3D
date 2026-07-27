@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Threat boundary và contract
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Proxy là policy enforcement point, không chỉ relay. Nó chịu trách nhiệm authn/authz, schema/size limits, allowed models/tools, timeout và redacted errors."}, steps: [
+    {label: {vi: "Input"}, shape: "untrusted input", detail: {vi: "Authenticated app request và server-side provider adapter."}},
+    {label: {vi: "Output"}, shape: "server-enforced contract", detail: {vi: "Normalized safe response hoặc typed app error."}},
+    {label: {vi: "Boundary"}, shape: "server-enforced contract", detail: {vi: "Untrusted HTTP JSON → validated domain command → provider request → validated result; secret không đi ngược về client."}},
+  ], code: [], takeaway: {vi: "Authority và secret luôn ở server-side boundary."},
+}} />
 
 Proxy là policy enforcement point, không chỉ relay. Nó chịu trách nhiệm authn/authz, schema/size limits, allowed models/tools, timeout và redacted errors.
 
@@ -20,7 +26,7 @@ Proxy là policy enforcement point, không chỉ relay. Nó chịu trách nhiệ
 
 <MdxPage page={1}>
 
-## Worked security path
+<CodeLessonFrame title="Worked security path" contract="untrusted request + authenticated server state → enforced result" pitfall="Không log secret/PII, không fail open và không đặt authority ở client hoặc model." takeaway="Security fixture kiểm tra cả allowed path và denied/error path.">
 
 User chỉ được `lookup_order`; proxy verify tenant/order ownership, cap input 8 KB, reserve budget, call with AbortSignal, sanitize Markdown và map provider error thành correlation ID.
 
@@ -68,11 +74,19 @@ assert.equal(enforce({ ...base, modelClass: "provider-admin" }).status, 422);
 ~~~
 <LessonNote>Proxy chỉ trả typed app error + correlation ID; không forward provider headers/body/stack. Provider timeout, malformed output và AbortSignal cũng phải có negative-path tests.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure/incident handling
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Backend proxy an toàn cho LLM"}, steps: [
+    {label: {vi: "Control 1"}, shape: "deny | allow | rotate", detail: {vi: "Generic /proxy?url= SSRF endpoint."}},
+    {label: {vi: "Control 2"}, shape: "deny | allow | rotate", detail: {vi: "Forward provider headers/errors nguyên xi."}},
+    {label: {vi: "Control 3"}, shape: "deny | allow | rotate", detail: {vi: "Log raw body hoặc key."}},
+  ], code: [], takeaway: {vi: "Enforcement fail closed và audit chỉ giữ redacted identifiers."},
+}} />
 
 **Pitfalls:**
 

@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Llama là model family/weights; Ollama, NIM, Together hoặc self-hosted server quyết định wire API và operational behavior."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Exact model card/version/license plus chosen serving runtime."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Deployment manifest and normalized inference contract."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Same logical model may expose Chat Completions, Responses or runtime-native fields; tokenizer/template must match weights."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Llama là model family/weights; Ollama, NIM, Together hoặc self-hosted server quyết định wire API và operational behavior.
 
@@ -20,7 +26,7 @@ Llama là model family/weights; Ollama, NIM, Together hoặc self-hosted server 
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Worked fixture" contract="typed input → validated output" pitfall="Giữ explicit error path, timeout/cancellation và provider-specific invariant." takeaway="Fixture materialize contract thành artifact deterministic có thể test.">
 
 Manifest lưu weight revision, tokenizer, chat template, quantization và runtime version. Đổi host mà không conformance-test tool roles/stop tokens có thể đổi output.
 
@@ -38,11 +44,19 @@ Conformance gate chạy cùng text/tool/stop fixtures trên artifact cũ và m�
 
 <LessonNote>Manifest cố ý không hard-code một model alias đang biến động. Điền exact identifiers từ model card, license và runtime ở thời điểm release.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Llama: model card, license và serving contract"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Nói “Llama API” như một endpoint universal."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Trộn tokenizer/template khác revision."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Bỏ license attribution/use restrictions."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

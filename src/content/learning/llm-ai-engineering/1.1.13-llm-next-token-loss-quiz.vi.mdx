@@ -1,8 +1,8 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-next-token-loss-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Context dự đoán', 'One-hot target', 'Tính loss', 'Log-space', 'Sequence loss'],
-  keywords: ['target', 'one-hot', 'cross-entropy', 'log-likelihood', 'negative log-likelihood'], pageCount: 5,
+  headings: ['Context dự đoán', 'One-hot target', 'Log-space', 'Sequence loss'],
+  keywords: ['target', 'one-hot', 'cross-entropy', 'log-likelihood', 'negative log-likelihood'], pageCount: 4,
 }
 
 <MdxQuiz id="llm-next-token-loss-checkpoint-quiz" questions={[
@@ -27,17 +27,6 @@ export const lessonMetadata = {
     ],
     success: 'Đúng. One-hot target đánh dấu đúng token cần dự đoán bằng 1; các vị trí khác bằng 0.',
     error: 'Chưa đúng. Target đến từ training data, không phụ thuộc token model đang đoán cao nhất.',
-  },
-  {
-    id: 'manual-loss', title: 'Tính loss', prompt: 'Nếu p(token đúng | context) = 0.5 thì loss −ln(0.5) xấp xỉ bao nhiêu?', mode: 'single',
-    options: [
-      { id: 'negative-0693', label: '−0.693' },
-      { id: '0500', label: '0.500' },
-      { id: '1386', label: '1.386' },
-      { id: '0693', label: '0.693', isCorrect: true },
-    ],
-    success: 'Đúng. −ln(0.5) ≈ 0.693.',
-    error: 'Chưa đúng. Thay 0.5 vào công thức L = −ln p(token đúng | context).',
   },
   {
     id: 'why-log', title: 'Từ tích sang tổng', prompt: 'Lý do nào mô tả đúng nhất việc tối ưu log-likelihood thay cho tích trực tiếp nhiều xác suất?', mode: 'single',

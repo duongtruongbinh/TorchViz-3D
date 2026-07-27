@@ -10,17 +10,30 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Typed judge boundary
-
-Judge adapter nhận `case`, `candidate response`, optional `reference/evidence`, rubric version. Nó trả `JudgeResult`; provider text không đi thẳng vào aggregate. Stable case/run IDs được giữ ngoài prompt.
-
-Judge rationale chỉ là concise evidence artifact, không phải hidden chain-of-thought hay ground truth.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Typed judge boundary ngăn provider text đi thẳng vào aggregate metrics.'},
+  steps: [
+    {label: {vi: 'Inputs'}, shape: 'case + candidate + optional evidence', detail: {vi: 'Gắn rubric version; stable case/run IDs ở ngoài prompt.'}},
+    {label: {vi: 'Judge call'}, shape: 'provider text', detail: {vi: 'Untrusted output cần parse.'}},
+    {label: {vi: 'Adapter'}, shape: 'schema + semantic validation', detail: {vi: 'Chuyển thành typed JudgeResult.'}},
+    {label: {vi: 'Aggregate'}, shape: 'validated results only', detail: {vi: 'Concise evidence không phải hidden chain-of-thought hay ground truth.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Judge là evaluator có error contract, không phải nguồn chân lý.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Prompt và output schema
+<CodeLessonFrame
+  title="Prompt và output schema"
+  contract="judge prompt → exact JSON object"
+  output="score 0..4 + pass/fail/review + non-empty evidence"
+  pitfall="Schema kiểm tra structure; rubric mới kiểm tra semantics."
+  takeaway="Pairwise protocol phải ẩn identity, swap order và cho phép tie."
+>
 
 Yêu cầu JSON với đúng:
 
@@ -28,23 +41,38 @@ Yêu cầu JSON với đúng:
 {"score": 0, "verdict": "pass|fail|review", "evidence": ["criterion: observation"]}
 ```
 
-Schema/parser kiểm tra structure; rubric kiểm tra semantics. Pairwise protocol phải ẩn identity, swap order và cho phép tie.
+Schema/parser kiểm tra structure; rubric kiểm tra semantics.
+
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Parser/error contract
-
-Malformed JSON, score ngoài `0..4`, verdict lạ hoặc evidence rỗng đều là `judge_error`, không tự đổi thành fail/pass. Caller có bounded retry cho lỗi transient/schema, sau đó human review hoặc deterministic fallback theo risk.
-
-Không log raw response nếu chứa PII; giữ redacted evidence cùng provider request ID khi policy cho phép.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Judge error là trạng thái riêng; không được tự chuyển malformed output thành pass hoặc fail.'},
+  steps: [
+    {label: {vi: 'Detect'}, shape: 'JSON / range / verdict / evidence', detail: {vi: 'Bất kỳ contract violation nào cũng thành judge_error.'}},
+    {label: {vi: 'Retry'}, shape: 'bounded transient/schema retry', detail: {vi: 'Không lặp vô hạn.'}},
+    {label: {vi: 'Escalate'}, shape: 'human review / deterministic fallback', detail: {vi: 'Chọn theo risk.'}},
+    {label: {vi: 'Artifact'}, shape: 'redacted evidence + request ID', detail: {vi: 'Không log raw response chứa PII.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Error handling là một phần của evaluator contract.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Deterministic adapter
+<CodeLessonFrame
+  title="Deterministic judge adapter"
+  contract="raw JSON string → strict JudgeResult"
+  output="score integer, known verdict, non-empty evidence tuple"
+  pitfall="Boolean không được chấp nhận như integer score dù Python coi bool là int subclass."
+  takeaway="Parser fail closed với object shape, field set, type và range không hợp lệ."
+>
 
 ```python
 from dataclasses import dataclass
@@ -94,12 +122,23 @@ for invalid in [
         raise AssertionError('invalid judge shape/type must fail closed')
 ```
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={4}>
 
-## Calibration handoff
-
-Đo agreement với human label đã version theo từng language/risk slice; đọc disagreement và đặt escalation rule trước khi mở rộng. Application Quiz kế tiếp kiểm tra position bias, verbosity bias và calibration. Lời giải thích dài của judge không bao giờ được ghi đè evidence còn thiếu hoặc một critical rule.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Calibration quyết định nơi judge đủ tin cậy và nơi phải chuyển sang human review.'},
+  steps: [
+    {label: {vi: 'Version labels'}, shape: 'human calibration set', detail: {vi: 'Giữ rubric và label provenance.'}},
+    {label: {vi: 'Measure agreement'}, shape: 'language × risk slices', detail: {vi: 'Không chỉ nhìn aggregate.'}},
+    {label: {vi: 'Inspect disagreement'}, shape: 'bias + rubric ambiguity', detail: {vi: 'Tìm position và verbosity effects.'}},
+    {label: {vi: 'Set escalation'}, shape: 'review rules', detail: {vi: 'Khóa trước khi mở rộng judge traffic.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Judge explanation dài không được ghi đè evidence thiếu hoặc critical rule.'},
+}} />
 
 </MdxPage>

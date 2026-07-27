@@ -1,16 +1,16 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-component-checkpoint-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Phạm vi bài toán', 'Chọn domain', 'Bằng chứng dự án', 'Quy ước taxonomy', 'Điểm bắt đầu'],
-  keywords: ['AI', 'ML', 'DL', 'CV', 'NLP', 'LLM'], pageCount: 5,
+  headings: ['Phạm vi bài toán', 'Chọn domain', 'Bằng chứng dự án', 'Điểm bắt đầu'],
+  keywords: ['AI', 'ML', 'DL', 'CV', 'NLP', 'LLM'], pageCount: 4,
 }
 
 <MdxQuiz id="ai-landscape-checkpoint-quiz" questions={[
   {
-    id: 'ai-hierarchy-order', title: 'Thu hẹp phạm vi bài toán', prompt: 'Team cần xây trợ lý RAG hỏi đáp trên tài liệu nội bộ. Nhãn nào mô tả phạm vi chuyên biệt nhất mà không gọi mọi thứ chung chung là “AI”?', mode: 'single',
+    id: 'ai-hierarchy-order', title: 'Thu hẹp phạm vi bài toán', prompt: 'Team cần xây trợ lý Chatbot hỏi đáp trên tài liệu nội bộ. Nhãn nào mô tả phạm vi chuyên biệt nhất mà không gọi mọi thứ chung chung là “AI”?', mode: 'single',
     options: [
       { id: 'ml', label: 'ML nói chung, vì mọi hệ thống học từ dữ liệu đều giống nhau.' },
-      { id: 'llm', label: 'LLM trong NLP, vì input/output chính là ngôn ngữ và hệ thống dùng mô hình ngôn ngữ.', isCorrect: true },
+      { id: 'llm', label: 'LLM trong NLP, vì input/output chính là ngôn ngữ.', isCorrect: true },
       { id: 'ai', label: 'AI, vì nhãn rộng nhất luôn cung cấp nhiều thông tin nhất.' },
       { id: 'cv-nlp', label: 'Computer Vision, vì tài liệu có thể chứa ký tự.' },
     ],
@@ -22,7 +22,7 @@ export const lessonMetadata = {
     options: [
       { id: 'defect', label: 'Phát hiện lỗi sản phẩm từ ảnh camera trên dây chuyền.' },
       { id: 'churn', label: 'Dự đoán khách hàng rời dịch vụ từ dữ liệu dạng bảng.' },
-      { id: 'rag', label: 'Xây dựng trợ lý hỏi đáp trên tài liệu nội bộ bằng RAG.', isCorrect: true },
+      { id: 'rag', label: 'Xây dựng trợ lý chatbot hỏi đáp trên tài liệu nội bộ.', isCorrect: true },
       { id: 'forecast', label: 'Dự báo lượng hàng bán ra theo chuỗi thời gian.' },
     ],
     success: 'Chính xác. RAG hỏi đáp trên tài liệu là một bài toán ngôn ngữ điển hình.',
@@ -31,24 +31,13 @@ export const lessonMetadata = {
   {
     id: 'role-domain-convention', title: 'Bằng chứng dự án', prompt: 'Khi ứng tuyển vị trí LLM Engineer cho sản phẩm hỏi đáp, bằng chứng nào làm rõ mức độ phù hợp nhất?', mode: 'single',
     options: [
-      { id: 'ai-unstructured-ds-structured', label: 'Một CV chỉ ghi “đã làm AI” nhưng không nói input, metric hay vai trò.' },
-      { id: 'ai-structured-ds-unstructured', label: 'Một project dự báo time series tốt nhưng không giải thích kỹ năng chuyển giao.' },
-      { id: 'same-unstructured-domain', label: 'Một project RAG nêu rõ dữ liệu, retrieval, evaluation và cách phục vụ request.', isCorrect: true },
-      { id: 'same-structured-domain', label: 'Một danh sách thật dài tên model nhưng không có quyết định hay kết quả.' },
+      { id: 'ai-unstructured-ds-structured', label: 'Một CV ghi “đã làm AI” cho nội bộ công ty.' },
+      { id: 'ai-structured-ds-unstructured', label: 'Một project dự báo time series với độ chính xác 99%.' },
+      { id: 'same-unstructured-domain', label: 'Một project RAG nêu rõ dữ liệu, retrieval, evaluation và các tool sử dụng.', isCorrect: true },
+      { id: 'same-structured-domain', label: 'Một danh sách tên model SOTA hiện tại giúp team business lựa chọn sử dụng.' },
     ],
     success: 'Đúng. Project cùng domain và có contract dữ liệu, evaluation, systems tạo bằng chứng cụ thể hơn một nhãn role chung.',
     error: 'Tên công nghệ không tự chứng minh năng lực. Hãy chọn bằng chứng nối đúng bài toán ngôn ngữ với dữ liệu, cách đo và hệ thống chạy.',
-  },
-  {
-    id: 'taxonomy-is-a-convention', title: 'Quy ước taxonomy', prompt: 'Sơ đồ đặt CV và NLP dưới Deep Learning nên được đọc như thế nào?', mode: 'single',
-    options: [
-      { id: 'history-proof', label: 'Như bằng chứng rằng CV và NLP chỉ xuất hiện sau deep learning.' },
-      { id: 'all-neural', label: 'Như quy tắc mọi bài toán CV/NLP đều bắt buộc dùng neural network.' },
-      { id: 'communication-convention', label: 'Như quy ước giao tiếp cho phạm vi khóa học; CV/NLP còn có nhiều phương pháp có trước deep learning.', isCorrect: true },
-      { id: 'role-boundary', label: 'Như ranh giới cứng khiến một người không thể làm việc cross-domain.' },
-    ],
-    success: 'Đúng. Sơ đồ giúp thống nhất phạm vi đang nói, không viết lại lịch sử lĩnh vực hay cấm các phương pháp truyền thống.',
-    error: 'Khóa học nói rõ đây là quy ước đơn giản hóa. Regex, HMM, xử lý ảnh cổ điển và nhiều phương pháp khác có trước deep learning.',
   },
   {
     id: 'start-from-problem-contract', title: 'Bắt đầu một project', prompt: 'Trước khi chọn model cho một project mới, câu hỏi nào nên được trả lời trước?', mode: 'single',

@@ -6,41 +6,50 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-System/developer instruction đặt mục tiêu và policy ổn định cho ứng dụng, nhưng vẫn chỉ là input cho model chứ không phải cơ chế authorization.
-
-**Input:** Policy đã version hóa, capability cho phép và dữ liệu cấu hình tin cậy.
-
-**Output:** Instruction ở authority phù hợp cùng acceptance criteria rõ ràng.
-
-**Data/type/shape:** Structured policy object trở thành message/top-level instruction; user data không được nối vào vùng trusted.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'System/developer instruction đặt mục tiêu và policy ổn định nhưng vẫn là model input, không phải authorization.'},
+  steps: [
+    {label: {vi: 'Trusted policy'}, shape: 'versioned policy + allowed capabilities', detail: {vi: 'Đến từ application configuration.'}},
+    {label: {vi: 'System instruction'}, shape: 'authority-appropriate message', detail: {vi: 'Mô tả mục tiêu và acceptance criteria.'}},
+    {label: {vi: 'User data'}, shape: 'untrusted content', detail: {vi: 'Không nối vào vùng instruction trusted.'}},
+    {label: {vi: 'Model behavior'}, shape: 'proposal / response', detail: {vi: 'Backend vẫn kiểm tra quyền khi action được đề xuất.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Structured policy trở thành instruction; enforcement vẫn thuộc application boundary.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Worked example và contract
-
-Trợ lý support được phép đọc trạng thái đơn hàng nhưng không tự hoàn tiền. System instruction mô tả nhiệm vụ; backend authorization mới thật sự chặn tool `refund` khi user không đủ quyền.
-
-<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Worked contract cho trợ lý support: prompt định hướng hành vi, backend khóa capability.'},
+  steps: [
+    {label: {vi: 'System goal'}, shape: 'support order status', detail: {vi: 'Cho phép trợ lý hỗ trợ đọc trạng thái.'}},
+    {label: {vi: 'Model proposal'}, shape: 'read_order / refund', detail: {vi: 'Output chỉ là đề xuất có cấu trúc.'}},
+    {label: {vi: 'Backend authorization'}, shape: 'actor × capability', detail: {vi: 'Chặn refund khi user không đủ quyền.'}},
+    {label: {vi: 'Audit artifact'}, shape: 'verifiable result only', detail: {vi: 'Không yêu cầu hoặc lưu hidden chain-of-thought.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Câu “không được refund” trong prompt không thay access control.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production pitfalls và handoff
-
-**Sai lầm thường gặp:**
-
-- Nhúng secret vào system prompt.
-- Tin rằng chữ “không được” thay được access control.
-- Trộn dữ liệu user vào instruction trusted.
-
-
-
-**Kết nối:** Bài sau đặt user request vào vùng dữ liệu không tin cậy.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production handoff bảo vệ trust boundary quanh system instruction.'},
+  steps: [
+    {label: {vi: 'No secrets'}, shape: 'prompt is not a vault', detail: {vi: 'Không nhúng credential hoặc private key.'}},
+    {label: {vi: 'Real enforcement'}, shape: 'backend access control', detail: {vi: 'Không dựa vào chữ “không được”.'}},
+    {label: {vi: 'Separate data'}, shape: 'trusted instruction ≠ user content', detail: {vi: 'Giữ provenance và authority rõ ràng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài sau đặt user request vào vùng dữ liệu không tin cậy.'},
+}} />
 
 </MdxPage>
-

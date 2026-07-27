@@ -6,7 +6,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Route Assistants cũ được dùng để dạy migration sang Responses + File Search.'},steps:[
+  {label:{vi:'Files'},shape:'authorized bytes',detail:{vi:'Tenant scope và retention.'}},
+  {label:{vi:'Index'},shape:'uploaded file → vector store',detail:{vi:'Theo dõi lifecycle/delete.'}},
+  {label:{vi:'Search'},shape:'query → evidence + citations',detail:{vi:'Giữ retrieval error.'}},
+  {label:{vi:'Response'},shape:'grounded items',detail:{vi:'Application sở hữu conversation state.'}},
+],code:[],takeaway:{vi:'Không tạo Assistant mới; migrate resource lifecycle, không chỉ SDK call.'}}} />
 
 Assistants API đã deprecated ngày 2025-08-26 và sunset 2026-08-26. Route cũ được giữ để dạy migration sang Responses/File Search.
 
@@ -20,7 +25,12 @@ Assistants API đã deprecated ngày 2025-08-26 và sunset 2026-08-26. Route cũ
 
 <MdxPage page={1}>
 
-## Worked fixture
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Migration là một lifecycle có dual-read, canary, cutover và cleanup.'},steps:[
+  {label:{vi:'Inventory'},shape:'Assistant/Thread/Run + owner',detail:{vi:'Liệt kê file/store/retention.'}},
+  {label:{vi:'Dual read'},shape:'same query → authorized citation IDs',detail:{vi:'So evidence mapping.'}},
+  {label:{vi:'Canary / cutover'},shape:'quality + latency + leaks',detail:{vi:'Dừng new writes, drain traffic.'}},
+  {label:{vi:'Cleanup'},shape:'delete + audit proof',detail:{vi:'Xác nhận resource deletion.'}},
+],code:[],takeaway:{vi:'Responses + File Search là new write path.'}}} />
 
 Thay Assistant/Thread/Run bằng application state hoặc Responses primitives, attach File Search tool, map citations về file IDs và xóa store theo retention. Không tạo Assistant mới.
 
@@ -39,7 +49,11 @@ Thay Assistant/Thread/Run bằng application state hoặc Responses primitives, 
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view:'audit',lead:{vi:'File Search production phải giữ citation và resource ownership end to end.'},steps:[
+  {label:{vi:'Architecture'},shape:'Responses target',detail:{vi:'Không dạy Assistants như đích mới.'}},
+  {label:{vi:'Scope'},shape:'tenant file/store',detail:{vi:'Có delete lifecycle.'}},
+  {label:{vi:'Result'},shape:'answer + citations | retrieval error',detail:{vi:'Không nuốt failure.'}},
+],code:[],takeaway:{vi:'Batch tiếp theo xử lý independent offline requests.'}}} />
 
 **Pitfalls:**
 

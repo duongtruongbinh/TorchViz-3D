@@ -10,47 +10,65 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Khi nào cần con người?
-
-Con người cần thiết khi tiêu chí phụ thuộc ngữ cảnh như helpfulness, mức giải thích phù hợp hoặc safety boundary. Input là cùng `EvalCase`, response và evidence mà mọi annotator được phép thấy; output là criterion scores, critical flags và lý do ngắn dựa trên evidence.
-
-Không dùng human label như “ground truth tuyệt đối”: label cũng có uncertainty và cần agreement/calibration.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Human evaluation cần thiết khi tiêu chí phụ thuộc ngữ cảnh như helpfulness, mức giải thích hoặc safety boundary.'},
+  steps: [
+    {label: {vi: 'Shared input'}, shape: 'EvalCase + response + allowed evidence', detail: {vi: 'Mọi annotator nhìn cùng artifact.'}},
+    {label: {vi: 'Apply rubric'}, shape: 'observable criteria', detail: {vi: 'Chấm theo anchor thay vì cảm giác chung.'}},
+    {label: {vi: 'Record result'}, shape: 'scores + critical flags + reasons', detail: {vi: 'Lý do ngắn dựa trên evidence.'}},
+    {label: {vi: 'Calibrate'}, shape: 'agreement + uncertainty', detail: {vi: 'Human label không phải ground truth tuyệt đối.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Contextual judgment vẫn cần contract và calibration.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Rubric contract
-
-Mỗi criterion phải có anchor quan sát được. Ví dụ correctness `0..4`:
-
-- `0`: không giải quyết task hoặc bịa phần cốt lõi.
-- `2`: ý chính đúng nhưng có claim quan trọng thiếu evidence.
-- `4`: mọi claim quan trọng được evidence hỗ trợ.
-
-Privacy leak là `critical_fail: true`, không phải chỉ trừ một điểm style. Annotator có thể trả `insufficient_evidence` thay vì đoán.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Rubric anchor biến correctness 0–4 thành các trạng thái quan sát được.'},
+  comparisons: [
+    {title: '0', shape: 'task fail / core fabrication', detail: {vi: 'Không giải quyết task hoặc bịa phần cốt lõi.'}},
+    {title: '2', shape: 'main idea right · evidence gap', detail: {vi: 'Ý chính đúng nhưng claim quan trọng thiếu evidence.'}},
+    {title: '4', shape: 'all key claims supported', detail: {vi: 'Mọi claim quan trọng được evidence hỗ trợ.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Privacy leak là critical_fail, không chỉ là một điểm style; thiếu evidence thì trả insufficient_evidence.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Worked scoring trace
-
-Response A đúng ba fact, sai một con số chính và trình bày rõ. Theo rubric: correctness `2`, helpfulness `3`, critical fail `false`. Response B trả đúng nhưng lộ PII: correctness `4`, helpfulness `3`, critical fail `true`; decision vẫn là `block`.
-
-Trước batch lớn, hai annotator chấm cùng 20 case. Disagreement được dùng để sửa anchor, không bị xóa bằng cách chỉ lấy average.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Worked trace cho thấy critical flag có precedence trước score cao.'},
+  comparisons: [
+    {title: 'Response A', shape: 'correctness 2 · helpfulness 3', detail: {vi: 'Ba fact đúng, một số chính sai; critical=false.'}},
+    {title: 'Response B', shape: 'correctness 4 · helpfulness 3', detail: {vi: 'Nội dung đúng nhưng lộ PII; critical=true → block.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Trước batch lớn, hai annotator chấm cùng 20 case; disagreement dùng để sửa anchor, không bị average che đi.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Pitfall và handoff
-
-- Ẩn tên model và hoán đổi A/B khi pairwise.
-- Không để độ dài hay style thay correctness.
-- Version rubric và calibration set.
-- Đo agreement theo language/risk slice và escalate case rủi ro cao.
-
-Quiz kế tiếp kiểm tra rubric; hai bài sau tính agreement và pairwise result.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Human-eval handoff giảm bias và giữ rubric có thể tái lập.'},
+  steps: [
+    {label: {vi: 'Blind identity'}, shape: 'hide model names', detail: {vi: 'Hoán đổi A/B trong pairwise.'}},
+    {label: {vi: 'Criterion isolation'}, shape: 'style ≠ correctness', detail: {vi: 'Không để độ dài hoặc văn phong thay evidence.'}},
+    {label: {vi: 'Version artifacts'}, shape: 'rubric + calibration set', detail: {vi: 'Mọi thay đổi anchor có lineage.'}},
+    {label: {vi: 'Slice agreement'}, shape: 'language + risk', detail: {vi: 'Escalate case rủi ro cao.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài sau định lượng agreement thay vì giả định annotators nhất quán.'},
+}} />
 
 </MdxPage>

@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Silent truncation có thể xóa question, policy hoặc tool schema. Strategy phải dựa priority và provenance."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Ordered context segments với priority, minimum retention và token count."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Retained context hoặc explicit cannot-fit error."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Ragged segments → selected segments trong budget; provenance/ordering vẫn được giữ."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Silent truncation có thể xóa question, policy hoặc tool schema. Strategy phải dựa priority và provenance.
 
@@ -20,7 +26,7 @@ Silent truncation có thể xóa question, policy hoặc tool schema. Strategy p
 
 <MdxPage page={1}>
 
-## Worked scenario
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
 
 Budget 1.000: policy 300 bắt buộc, user 200 bắt buộc, evidence ba chunks 250 mỗi. Chỉ giữ hai chunks tốt nhất để tổng 1.000; không cắt giữa JSON schema.
 
@@ -65,11 +71,19 @@ assert.deepEqual(result.retained.map(item => item.id), ["policy", "e1", "e2", "u
 ~~~
 <LessonNote>Selector giữ nguyên segment và provenance; nó không cắt giữa schema hay evidence chunk. UI/log phải biết phần nào bị loại.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Truncation strategies có chủ đích"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Tail-cut toàn request."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Cắt system/security instructions."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Không báo evidence bị loại."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

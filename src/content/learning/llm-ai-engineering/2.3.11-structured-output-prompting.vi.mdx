@@ -10,47 +10,50 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Ba mức bảo đảm
-
-Máy cần typed output, nhưng ba cơ chế thường bị đánh đồng:
-
-| Cơ chế | Bảo đảm chính | Không tự bảo đảm |
-|---|---|---|
-| Prompt yêu cầu JSON | Chỉ là natural-language instruction | JSON hợp lệ hoặc đúng schema |
-| JSON mode | Output có cú pháp JSON trong contract của API | required fields, enum, bounds, truth |
-| Schema-constrained output | Bám phần schema được provider hỗ trợ | business correctness, authorization, factuality |
-
-Capability và subset schema thay đổi theo provider/model/API version; kiểm tra tài liệu tại ngày tích hợp và pin artifact đã thử nghiệm.
+<PromptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Ba cơ chế structured output cung cấp ba mức bảo đảm khác nhau.'},
+  comparisons: [
+    {title: 'Prompt yêu cầu JSON', shape: 'natural-language instruction', detail: {vi: 'Không tự bảo đảm JSON hợp lệ hoặc đúng schema.'}},
+    {title: 'JSON mode', shape: 'valid JSON syntax', detail: {vi: 'Không tự bảo đảm fields, enum, bounds hoặc truth.'}},
+    {title: 'Schema-constrained', shape: 'provider-supported schema subset', detail: {vi: 'Không tự bảo đảm business correctness, authorization hay factuality.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Pin provider/model/API artifact đã thử nghiệm vì capability và schema subset có thể thay đổi.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Typed lifecycle
-
-Response đi qua một state machine, không đi thẳng từ string sang type assertion:
-
-1. `complete` + payload: parse rồi runtime-validate required/type/enum/bounds/extra properties.
-2. `refusal`: map thành nhánh domain rõ; không giả làm object rỗng.
-3. `incomplete`: ghi reason như max output/cancel; retry chỉ khi policy cho phép và còn deadline.
-4. `invalid`: giữ error code/schema version để đo; không cast mù.
-
-Ví dụ `{"category":"ship"}` là JSON hợp lệ nhưng sai enum `billing | delivery | other`. Schema adherence cũng không chứng minh category đúng với ticket; task eval vẫn bắt buộc.
-
-<LessonNote>Nếu cần evidence, schema hóa `evidenceIds` hoặc calculation fields. Không yêu cầu hay lưu hidden chain-of-thought.</LessonNote>
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Typed lifecycle là state machine; response không đi thẳng từ string sang type assertion.'},
+  steps: [
+    {label: {vi: 'Complete'}, shape: 'parse + runtime validate', detail: {vi: 'Required/type/enum/bounds/extra properties.'}},
+    {label: {vi: 'Refusal'}, shape: 'explicit domain branch', detail: {vi: 'Không giả làm object rỗng.'}},
+    {label: {vi: 'Incomplete'}, shape: 'reason + bounded retry policy', detail: {vi: 'Ví dụ max output hoặc cancel.'}},
+    {label: {vi: 'Invalid'}, shape: 'error code + schema version', detail: {vi: 'JSON hợp lệ vẫn có thể sai enum; task eval vẫn bắt buộc.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Nếu cần audit, schema hóa evidenceIds hoặc calculation fields—not hidden chain-of-thought.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production gate
-
-- Pin schema version cùng prompt/model config và kiểm tra provider support.
-- Test success, refusal, incomplete, invalid JSON, missing/extra field, enum và numeric bounds.
-- Đặt bounded retry theo error class; không retry vô hạn cùng payload.
-- Không đưa secret, PII thật hoặc policy nội bộ không cần thiết vào schema name/description có thể được cache.
-- Log response branch, validator error và artifact versions; raw payload chỉ theo policy redaction/retention tối thiểu.
-
-**Kết nối:** Reasoning lessons dùng artifact có thể kiểm chứng thay vì thu thập hidden thoughts.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Structured-output gate kiểm tra capability, branch coverage, retries và data minimization.'},
+  steps: [
+    {label: {vi: 'Pin artifacts'}, shape: 'schema + prompt + model config', detail: {vi: 'Xác nhận provider support.'}},
+    {label: {vi: 'Test matrix'}, shape: 'success · refusal · incomplete · invalid', detail: {vi: 'Bao gồm missing/extra, enum và numeric bounds.'}},
+    {label: {vi: 'Retry policy'}, shape: 'bounded by error class', detail: {vi: 'Không retry vô hạn cùng payload.'}},
+    {label: {vi: 'Telemetry'}, shape: 'branch + validator error + versions', detail: {vi: 'Không secret/PII trong schema descriptions; raw payload theo redaction/retention.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Reasoning lessons kế tiếp dùng artifact kiểm chứng được thay vì thu thập hidden thoughts.'},
+}} />
 
 </MdxPage>

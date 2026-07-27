@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Summary giảm tokens nhưng không được thay raw authoritative history hoặc business records."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Verified prior turns, unresolved facts và summary version."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Compact summary plus provenance/coverage metadata."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Many turns → structured {facts,openQuestions,lastTurnId}; raw history lưu riêng theo retention."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Summary giảm tokens nhưng không được thay raw authoritative history hoặc business records.
 
@@ -20,7 +26,12 @@ Summary giảm tokens nhưng không được thay raw authoritative history ho�
 
 <MdxPage page={1}>
 
-## Worked scenario
+<TrainingConceptVisual content={{
+  view: 'position', lead: {vi: "Summary giữ orderId=A17, status=pending, user asks ETA; khi status đổi, backend refresh field từ database. Contradiction test fail nếu summary nói delivered."}, comparisons: [
+    {title: "Provenance", shape: "before ↔ after", detail: {vi: "lastTurnId=turn-17  · Turn tồn tại và cùng tenant"}},
+    {title: "Version", shape: "before ↔ after", detail: {vi: "summarySchema=v3  · Reader hỗ trợ v3"}},
+  ], code: [], takeaway: {vi: "Giữ budget/state invariant qua từng bước."},
+}} />
 
 Summary giữ `orderId=A17`, `status=pending`, `user asks ETA`; khi status đổi, backend refresh field từ database. Contradiction test fail nếu summary nói delivered.
 
@@ -40,7 +51,13 @@ Summary chỉ giữ facts có source, open questions và coverage boundary. Tool
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Conversation summarization có provenance"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Dùng summary làm source of truth."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Summarize tool errors thành facts."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Không version/rebuild summary."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

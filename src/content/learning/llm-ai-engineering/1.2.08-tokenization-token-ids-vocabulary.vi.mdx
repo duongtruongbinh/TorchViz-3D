@@ -10,27 +10,30 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Xây vocabulary từ training tokens
-
-Tokenizer toy tạo:
-
-```text
-["Linh", "builds", "AI", ".", "Linh", "tests", "AI", "."]
-```
-
-Ta lấy các token duy nhất, sắp xếp để ví dụ có tính lặp lại, rồi gán ID:
-
-```python
-tokens = ["Linh", "builds", "AI", ".", "Linh", "tests", "AI", "."]
-base_vocab = {
-    token: token_id
-    for token_id, token in enumerate(sorted(set(tokens)))
-}
-
-assert base_vocab == {
-    ".": 0, "AI": 1, "Linh": 2, "builds": 3, "tests": 4
-}
-```
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Từ token list của training corpus, lấy các token duy nhất, sắp xếp để ví dụ có tính lặp lại, rồi gán một integer ID cho mỗi token.'},
+  diagram: {
+    inputText: '[\"Linh\", \"builds\", \"AI\", \".\", \"Linh\", \"tests\", \"AI\", \".\"]',
+    outputLabel: {vi: 'Vocabulary cố định'},
+    tokens: ['.:0', 'AI:1', 'Linh:2', 'builds:3', 'tests:4'],
+  },
+  code: [
+    'tokens = [\"Linh\", \"builds\", \"AI\", \".\",',
+    '          \"Linh\", \"tests\", \"AI\", \".\"]',
+    '',
+    'base_vocab = {',
+    '    token: token_id',
+    '    for token_id, token in enumerate(sorted(set(tokens)))',
+    '}',
+    '',
+    'assert base_vocab == {',
+    '    \".\": 0, \"AI\": 1, \"Linh\": 2,',
+    '    \"builds\": 3, \"tests\": 4',
+    '}',
+  ],
+  output: ['{\".\": 0, \"AI\": 1, \"Linh\": 2, \"builds\": 3, \"tests\": 4}'],
+  takeaway: {vi: 'Mapping này thuộc training vocabulary và phải được cố định trước khi encode validation, test hoặc input mới.'},
+}} />
 
 <LessonNote>**Lỗi thường gặp:** dựng vocabulary riêng cho validation/test. Dữ liệu mới phải dùng đúng mapping đã cố định từ training; nếu không, cùng ID sẽ đổi nghĩa.</LessonNote>
 
@@ -64,24 +67,33 @@ assert base_vocab == {
 
 <MdxPage page={2}>
 
-## Contract của encode và decode
-
-```python
-id_to_token = {token_id: token for token, token_id in base_vocab.items()}
-
-def encode(text: str) -> list[int]:
-    return [base_vocab[token] for token in tokenize(text)]
-
-def decode(token_ids: list[int]) -> str:
-    tokens = [id_to_token[token_id] for token_id in token_ids]
-    return " ".join(tokens).replace(" .", ".")
-
-ids = encode("Linh builds AI.")
-assert ids == [2, 3, 1, 0]
-assert decode(ids) == "Linh builds AI."
-```
-
-`encode` có thể thất bại nếu token không nằm trong vocabulary toy. `decode` có thể thất bại nếu ID không tồn tại. Special token hoặc byte fallback sẽ xử lý các trường hợp này theo contract của tokenizer production.
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Encode dùng token -> ID; decode dùng inverse mapping ID -> token. Cả hai chiều phải dùng cùng một vocabulary.'},
+  diagram: {
+    inputText: '\"Linh builds AI.\"',
+    outputLabel: {vi: 'Round trip qua cùng vocabulary'},
+    tokens: ['text', '→', '[2, 3, 1, 0]', '→', 'text'],
+  },
+  code: [
+    'id_to_token = {',
+    '    token_id: token',
+    '    for token, token_id in base_vocab.items()',
+    '}',
+    '',
+    'def encode(text: str) -> list[int]:',
+    '    return [base_vocab[token] for token in tokenize(text)]',
+    '',
+    'def decode(token_ids: list[int]) -> str:',
+    '    tokens = [id_to_token[token_id] for token_id in token_ids]',
+    '    return \" \".join(tokens).replace(\" .\", \".\")',
+    '',
+    'ids = encode(\"Linh builds AI.\")',
+    'assert ids == [2, 3, 1, 0]',
+    'assert decode(ids) == \"Linh builds AI.\"',
+  ],
+  output: ['ids = [2, 3, 1, 0]', 'decoded = \"Linh builds AI.\"'],
+  takeaway: {vi: 'Encode có thể thất bại với token ngoài toy vocabulary; decode có thể thất bại với ID không tồn tại. Tokenizer production xử lý theo special-token hoặc byte-fallback contract riêng.'},
+}} />
 
 <LessonNote>**Lỗi thường gặp:** yêu cầu `decode(encode(text))` giữ mọi whitespace byte-for-byte dù tokenizer toy đã normalization. Contract ở đây round trip về text đã chuẩn hóa.</LessonNote>
 

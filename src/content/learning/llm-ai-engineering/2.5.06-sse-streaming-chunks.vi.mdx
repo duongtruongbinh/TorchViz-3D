@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "UI không nên hiểu mọi event name của từng provider. Backend adapter chuyển chúng thành internal event union ổn định."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Provider-specific SSE events."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "start|text_delta|tool_delta|usage|error|completed events với request ID."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Bytes → provider events → normalized discriminated union; order và terminal state được bảo toàn."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 UI không nên hiểu mọi event name của từng provider. Backend adapter chuyển chúng thành internal event union ổn định.
 
@@ -20,7 +26,7 @@ UI không nên hiểu mọi event name của từng provider. Backend adapter ch
 
 <MdxPage page={1}>
 
-## Worked scenario
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
 
 OpenAI text delta và Anthropic content-block delta cùng thành `{type:'text_delta',text}`; unknown event được telemetry nhưng không crash stream.
 
@@ -62,11 +68,19 @@ assert.equal(mapEvent("openai", { type: "future_event", requestId: "req-17" }), 
 ~~~
 <LessonNote>Streaming parser phải giữ UTF-8/SSE frame chưa hoàn chỉnh, event order và AbortSignal. Unknown event telemetry không chứa raw chunk/prompt.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Chuẩn hóa SSE chunks giữa providers"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Forward raw provider JSON ra browser."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Mất event IDs/order."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Gửi completed trước usage/final validation."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

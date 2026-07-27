@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Per-token DOM update gây jank; raw Markdown/HTML có thể tạo injection. UX cần batching, cancel và accessible status."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Normalized events từ app backend, không provider credential."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Sanitized incremental view và terminal controls."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Deltas tích vào buffer; render theo frame/batch. Tool/status events dùng components riêng."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Per-token DOM update gây jank; raw Markdown/HTML có thể tạo injection. UX cần batching, cancel và accessible status.
 
@@ -20,7 +26,7 @@ Per-token DOM update gây jank; raw Markdown/HTML có thể tạo injection. UX 
 
 <MdxPage page={1}>
 
-## Worked scenario
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
 
 Client buffer flush mỗi animation frame, `aria-live` cập nhật có kiểm soát, prefers-reduced-motion tắt cursor animation. Cancel gọi app endpoint để abort upstream.
 
@@ -69,11 +75,19 @@ assert.throws(() => reduce(state, { type: "text_delta", text: "late" }), /event_
 ~~~
 <LessonNote>Batch DOM updates theo frame/timer và render Markdown bằng sanitizer/allowlist; ví dụ escape text không thay thế full Markdown sanitizer. Cancel phải abort app backend/upstream.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Rendering stream an toàn trên client"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Đặt provider key trong browser."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Render raw HTML."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Không hiển thị canceled/partial state."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

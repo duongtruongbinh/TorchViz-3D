@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Threat boundary và contract
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Secret phải revocable và rotate được. Rotation cần overlap/cutover/rollback để tránh outage và tránh giữ key cũ vô hạn."}, steps: [
+    {label: {vi: "Input"}, shape: "untrusted input", detail: {vi: "Old/new key references, deployment set, health checks và revocation authority."}},
+    {label: {vi: "Output"}, shape: "server-enforced contract", detail: {vi: "All traffic dùng new key, old key revoked, audit hoàn chỉnh."}},
+    {label: {vi: "Boundary"}, shape: "server-enforced contract", detail: {vi: "Secret version state created→staged→active→revoked; application chỉ đọc active reference."}},
+  ], code: [], takeaway: {vi: "Authority và secret luôn ở server-side boundary."},
+}} />
 
 Secret phải revocable và rotate được. Rotation cần overlap/cutover/rollback để tránh outage và tránh giữ key cũ vô hạn.
 
@@ -20,7 +26,14 @@ Secret phải revocable và rotate được. Rotation cần overlap/cutover/roll
 
 <MdxPage page={1}>
 
-## Worked security path
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Tạo key B quyền tối thiểu, stage secret manager, canary health call, roll traffic, verify zero use key A, revoke A. Nếu canary fail, rollback reference trước revoke."}, steps: [
+    {label: {vi: "Cho phép overlap ngắn, có deadline"}, shape: "verify then act", detail: {vi: "Rút ngắn/bỏ overlap; containment ưu tiên  ·"}},
+    {label: {vi: "Canary B rồi roll dần"}, shape: "verify then act", detail: {vi: "Stage emergency credential hoặc chuyển degraded mode  ·"}},
+    {label: {vi: "Verify A usage về zero"}, shape: "verify then act", detail: {vi: "Rapid revoke A, kể cả có thể giảm availability  ·"}},
+    {label: {vi: "Revoke A và audit"}, shape: "verify then act", detail: {vi: "Verify propagation/cache/jobs, hunt unauthorized usage  ·"}},
+  ], code: [], takeaway: {vi: "Authority và secret luôn ở server-side boundary."},
+}} />
 
 Tạo key B quyền tối thiểu, stage secret manager, canary health call, roll traffic, verify zero use key A, revoke A. Nếu canary fail, rollback reference trước revoke.
 
@@ -36,7 +49,14 @@ Tạo key B quyền tối thiểu, stage secret manager, canary health call, rol
 
 <MdxPage page={2}>
 
-## Failure/incident handling
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Monitoring tối thiểu gồm usage theo key version (không log value), 401/403 rate, old-version usage sau cutover và access audit. Alert có owner/runbook; incident artifacts có access hẹp, retention hữu hạn và deletion audit."}, steps: [
+    {label: {vi: "Control 1"}, shape: "deny | allow | rotate", detail: {vi: "Revoke old trước deploy new."}},
+    {label: {vi: "Control 2"}, shape: "deny | allow | rotate", detail: {vi: "Log cả hai key khi debug 401."}},
+    {label: {vi: "Control 3"}, shape: "deny | allow | rotate", detail: {vi: "Không tìm downstream jobs dùng key cũ."}},
+    {label: {vi: "Control 4"}, shape: "deny | allow | rotate", detail: {vi: "Dùng routine overlap cho key đã xác nhận bị compromise."}},
+  ], code: [], takeaway: {vi: "Enforcement fail closed và audit chỉ giữ redacted identifiers."},
+}} />
 
 **Pitfalls:**
 

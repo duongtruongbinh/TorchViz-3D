@@ -10,17 +10,22 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao model không nhận raw text trực tiếp?
-
-Máy tính có thể lưu chuỗi `"Linh builds AI."`, nhưng các phép toán của neural network cần tensor số có shape xác định. Chuỗi ký tự thô chưa cung cấp:
-
-- các đơn vị rời rạc để model tra cứu;
-- một dtype số cho phép nhân ma trận;
-- một chiều feature cố định cho từng vị trí.
-
-Vì vậy pipeline phải biến text thành các chỉ số nguyên, rồi biến mỗi chỉ số thành một vector số thực.
-
-<LessonNote>**Lỗi thường gặp:** đổi ký tự sang mã Unicode rồi coi đó là embedding. Mã ký tự vẫn chỉ là nhãn rời rạc; khoảng cách giữa các mã không biểu diễn độ gần nghĩa.</LessonNote>
+<RawTextModelInput content={{
+  lead: {vi: 'Neural network không thao tác trực tiếp trên chữ. Để có thể hiểu được, ta cần thực hiện chuyển đổi về dạng tensor số có dtype và shape xác định.'},
+  rawText: '"Linh builds AI."',
+  tokenIds: [17, 42, 9, 3],
+  embeddingRows: [
+    ['0.12', '−0.31', '0.80'],
+    ['−0.44', '0.67', '0.15'],
+    ['0.73', '0.08', '−0.22'],
+    ['0.19', '−0.51', '0.46'],
+  ],
+  rawTextNote: {vi: 'Máy tính lưu được chuỗi này, nhưng chuỗi chưa có numeric dtype hoặc feature shape.'},
+  tokenIdsNote: {vi: 'Tokenizer biến các đơn vị text thành chỉ số nguyên để tra trong bảng embedding.'},
+  embeddingNote: {vi: 'Mỗi ID được thay bằng một vector cùng chiều C; các vector ghép thành tensor (T, C).'},
+  modelNote: {vi: 'Tensor có dtype số và shape cố định, nên neural network có thể thực hiện phép nhân ma trận.'},
+  unicodeWarning: {vi: 'Mã Unicode vẫn chỉ là nhãn ký tự, không phải embedding. Khoảng cách giữa các mã không biểu diễn độ gần nghĩa.'},
+}} />
 
 **Handoff:** Trước khi tạo vector, ta phải quyết định text sẽ được chia thành những đơn vị nào.
 
@@ -28,17 +33,16 @@ Vì vậy pipeline phải biến text thành các chỉ số nguyên, rồi bi�
 
 <MdxPage page={1}>
 
-## Embedding có thể đại diện cho nhiều phạm vi
-
-| Loại | Một vector đại diện cho | Ví dụ sử dụng |
-|---|---|---|
-| **Token embedding** | một token tại đầu vào của language model | GPT xử lý chuỗi token |
-| **Sentence embedding** | toàn bộ một câu | tìm câu tương tự |
-| **Document embedding** | một đoạn hoặc tài liệu | retrieval trong hệ thống RAG |
-
-Chương này xây **token embedding**: mỗi vị trí token cần một vector để đi vào GPT. Sentence/document embedding nén cả đoạn thành một vector và giải quyết một contract khác.
-
-<LessonNote>**Lỗi thường gặp:** nghĩ rằng một sentence embedding giữ riêng vector cho từng token. Nó thường là một biểu diễn tổng hợp của cả câu, không có sequence axis `T` như input GPT trong chương này.</LessonNote>
+<EmbeddingScopeComparison content={{
+  lead: {vi: 'Cùng gọi là embedding, nhưng một vector có thể đại diện cho những phạm vi khác nhau. Phạm vi quyết định shape và cách dùng.'},
+  scopes: [
+    {id: 'token', title: {vi: 'Token embedding'}, unit: {vi: 'một token tại một vị trí'}, useCase: {vi: 'GPT giữ toàn bộ sequence để dự đoán token tiếp theo.'}, output: '(T, C)'},
+    {id: 'sentence', title: {vi: 'Sentence embedding'}, unit: {vi: 'toàn bộ một câu'}, useCase: {vi: 'Dùng một vector tổng hợp để tìm câu tương tự.'}, output: '(C)'},
+    {id: 'document', title: {vi: 'Document embedding'}, unit: {vi: 'một đoạn hoặc tài liệu'}, useCase: {vi: 'Dùng một vector tổng hợp cho retrieval trong RAG.'}, output: '(C)'},
+  ],
+  focus: {vi: 'Trọng tâm của chương là token embedding: mỗi vị trí token cần một vector riêng để đi vào GPT.'},
+  misconception: {vi: 'Sentence embedding thường là biểu diễn tổng hợp của cả câu; nó không giữ sequence axis T như input GPT trong chương này.'},
+}} />
 
 **Handoff:** Ta sẽ giữ từng vị trí token, vì GPT cần dự đoán token tiếp theo tại nhiều vị trí.
 
@@ -46,19 +50,17 @@ Chương này xây **token embedding**: mỗi vị trí token cần một vector
 
 <MdxPage page={2}>
 
-## Dense vector có chiều cố định
-
-Một embedding là vector dense gồm nhiều số thực:
-
-```text
-token "AI" -> [0.20, -0.40, 0.70]
-```
-
-Ví dụ trên có embedding dimension `C=3`. Model thật thường dùng `C` lớn hơn, nhưng mọi token trong cùng bảng embedding phải dùng cùng một `C` để có thể gom thành tensor.
-
-`Dense` nghĩa là ta lưu trực tiếp `C` giá trị học được, thay vì một vector one-hot dài bằng toàn bộ vocabulary.
-
-<LessonNote>**Lỗi thường gặp:** cho rằng embedding dimension phải bằng vocabulary size. Vocabulary size `V` đếm số hàng có thể tra; embedding dimension `C` là số feature trong mỗi hàng.</LessonNote>
+<EmbeddingDimension content={{
+  token: 'AI',
+  vector: ['0.20', '−0.40', '0.70'],
+  dimensionLabel: 'C = 3 features',
+  vocabularyRows: 'V hàng',
+  lead: {vi: 'Embedding lookup thay token ID bằng một vector dense có chiều cố định. Mọi token trong cùng bảng dùng chung số feature C.'},
+  denseMeaning: {vi: 'trong bảng embedding; mỗi ID chọn đúng một hàng.'},
+  rowMeaning: {vi: 'ID của token chọn một hàng.'},
+  dimensionMeaning: {vi: 'Ba giá trị số thực tạo thành một vector; model thật thường dùng C lớn hơn.'},
+  misconception: {vi: 'Vocabulary size V đếm số hàng có thể tra. Embedding dimension C đếm số feature trong mỗi hàng; V không cần bằng C.'},
+}} />
 
 **Handoff:** Trước khi tra một trong `V` hàng, tokenizer phải tạo token và token ID.
 
@@ -66,30 +68,25 @@ Ví dụ trên có embedding dimension `C=3`. Model thật thường dùng `C` l
 
 <MdxPage page={3}>
 
-## Bản đồ từ hai tài liệu đến input GPT
-
-Running example của chương:
-
-```text
-Document A: "Linh builds AI."
-Document B: "Linh tests AI."
-```
-
-Ta sẽ đi qua chuỗi biến đổi:
-
-```text
-raw text
--> tokens
--> token IDs
--> input/target windows
--> batches (B,T)
--> token embeddings + positional embeddings
--> model input (B,T,C)
-```
-
-Ở ví dụ tính tay cuối chương, ta dùng `V=6`, `B=2`, `T=3`, `C=3`. Các số nhỏ giúp kiểm tra từng bước; chúng không phải cấu hình GPT production.
-
-<LessonNote>**Lỗi thường gặp:** nhảy thẳng từ text sang `(B,T,C)`. Mỗi mũi tên có một contract riêng; bỏ qua một bước thường dẫn đến nhầm token, ID, vector hoặc shape.</LessonNote>
+<TextToTensorRoadmap content={{
+  lead: {vi: 'Hai tài liệu “Linh builds AI.” và “Linh tests AI.” sẽ đi qua bảy contract theo đúng thứ tự trước khi trở thành input GPT.'},
+  steps: [
+    {id: 'text', label: {vi: 'Raw text'}, contract: 'str'},
+    {id: 'tokens', label: {vi: 'Tokens'}, contract: 'list[str]'},
+    {id: 'ids', label: {vi: 'Token IDs'}, contract: 'list[int]'},
+    {id: 'windows', label: {vi: 'Input / target'}, contract: 'T tokens'},
+    {id: 'batches', label: {vi: 'Batches'}, contract: '(B, T)'},
+    {id: 'embeddings', label: {vi: 'Token + position'}, contract: '(B, T, C)'},
+    {id: 'input', label: {vi: 'Model input'}, contract: '(B, T, C)'},
+  ],
+  constants: [
+    {symbol: 'V', value: '6', meaning: {vi: 'vocabulary rows'}},
+    {symbol: 'B', value: '2', meaning: {vi: 'sequences mỗi batch'}},
+    {symbol: 'T', value: '3', meaning: {vi: 'tokens mỗi sequence'}},
+    {symbol: 'C', value: '3', meaning: {vi: 'features mỗi token'}},
+  ],
+  takeaway: {vi: 'Không nhảy thẳng từ text sang (B,T,C): mỗi mũi tên đổi một contract riêng và sẽ được kiểm tra ở các lesson tiếp theo.'},
+}} />
 
 **Handoff:** Bước đầu tiên là chọn ranh giới token phù hợp.
 

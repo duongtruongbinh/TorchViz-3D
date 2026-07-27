@@ -8,7 +8,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Chiếu QKV
+<CodeLessonFrame
+  title="Khóa contract và chiếu QKV"
+  contract="(B,T,C) → (B,T,3C)"
+  output="head_dim = C / H · C % H == 0"
+  takeaway="Constructor khóa invariant C % H == 0 trước forward."
+>
 
 **Mục tiêu:** Cài đặt `CausalMultiHeadAttention: (B,T,C) → (B,T,C)` có mask, dropout và smoke test.
 
@@ -32,12 +37,18 @@ class CausalMultiHeadAttention(nn.Module):
 
 Một linear chung tạo `(B,T,3C)`. Production thường cache mask và dùng kernel fused.
 
-<LessonNote>**Takeaway:** Constructor khóa invariant `C % H == 0` trước forward.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={1}>
 
-## Tách chiều head
+<CodeLessonFrame
+  title="Tách feature thành head axis"
+  contract="(B,T,C) → (B,H,T,D)"
+  output="D = C / H"
+  pitfall="Không view trực tiếp tensor không contiguous sau transpose; khi ghép hãy dùng reshape hoặc contiguous().view."
+  takeaway="Head axis được chèn giữa batch và sequence."
+>
 
 ```python
 def split_heads(t, n_heads):
@@ -49,14 +60,18 @@ Shape đổi từ `(B,T,C)` thành `(B,H,T,D)`, với `D=C/H`.
 
 Sau transpose, dùng `reshape` hoặc `contiguous().view` khi ghép để tôn trọng memory layout.
 
-<LessonNote>**Lỗi thường gặp:** view trực tiếp tensor không contiguous sau transpose.</LessonNote>
-
-**Takeaway:** Head axis được chèn giữa batch và sequence.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={2}>
 
-## Score, mask, softmax
+<CodeLessonFrame
+  title="Attention core: score, mask, softmax"
+  contract="(B,H,T,D) → (B,H,T,D)"
+  output="mask (T,T) broadcasts over (B,H,T,T)"
+  pitfall="Mask phải được tạo trên cùng device với activation; không tạo mask CPU khi q nằm trên GPU."
+  takeaway="Mask trước softmax; dropout sau softmax."
+>
 
 ```python
 scores = q @ k.transpose(-2, -1) / (q.size(-1) ** 0.5)
@@ -73,14 +88,17 @@ context = weights @ v
 
 Mask `(T,T)` broadcast qua `(B,H,T,T)`. Softmax chạy trên key positions.
 
-<LessonNote>**Lỗi thường gặp:** tạo mask trên CPU khi activation ở GPU.</LessonNote>
-
-**Takeaway:** Mask trước softmax; dropout sau softmax.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={3}>
 
-## Ghép các head
+<CodeLessonFrame
+  title="Ghép head và output projection"
+  contract="(B,H,T,D) → (B,T,C)"
+  output="H × D = C"
+  takeaway="Concat khôi phục C; projection hoàn tất attention sublayer."
+>
 
 ```python
 context = context.transpose(1, 2).contiguous()
@@ -92,12 +110,17 @@ output = self.out_proj(context)
 
 Output projection trộn feature giữa các head và giữ `(B,T,C)`.
 
-<LessonNote>**Takeaway:** Concat khôi phục C; projection hoàn tất attention sublayer.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={4}>
 
-## Module hoàn chỉnh và smoke test
+<CodeLessonFrame
+  title="Module hoàn chỉnh và smoke test"
+  contract="CausalMultiHeadAttention: (B,T,C) → (B,T,C)"
+  output="torch.Size([2, 16, 128]) · parameters = 4 × 128²"
+  takeaway="Smoke test xác nhận output shape, parameter count, causality và constructor error path thay vì chỉ kiểm tra happy path."
+>
 
 ```python
 import torch
@@ -162,6 +185,6 @@ else:
 print(y.shape)  # torch.Size([2, 16, 128])
 ```
 
-<LessonNote>**Takeaway:** Smoke test xác nhận output shape, parameter count, causality và constructor error path thay vì chỉ kiểm tra happy path.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>

@@ -1,15 +1,17 @@
 // Reusable, theme-aware code surface for Learning Lab lessons.
 //
-// - `variant="code"` (default): Python source highlighted via the shared Shiki
-//   singleton (always github-dark tokens on an always-dark surface, see plan
-//   Decision 5). Tokens render as colored spans; we never inject Shiki HTML or
-//   mutate token content.
+// - `variant="code"` (default): Python source is highlighted via the shared
+//   Shiki singleton (always github-dark tokens on an always-dark surface, see
+//   plan Decision 5). Other languages render verbatim on the same code surface.
+//   Tokens render as colored spans; we never inject Shiki HTML or mutate token
+//   content.
 // - `variant="output"`: plain monospaced text, visually distinct from code, not
 //   tokenized.
 //
 // Extras are opt-in: line numbers, separate whitespace gutters (only for the
 // whitespace lesson), a header trailing slot (answer toggle, callouts), and a
-// copy button. No `language` prop — only Python is bundled.
+// copy button. The language hint controls whether the bundled Python grammar is
+// used; it does not load additional grammars.
 
 import { Check, Copy, Terminal } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -18,9 +20,11 @@ import { cx } from '../theme';
 import type { LearningThemeClasses } from '../learningMdxComponents';
 
 export interface CodeBlockProps {
-  /** Python source. A string[] is joined with `\n` (one entry per line). */
+  /** Source text. A string[] is joined with `\n` (one entry per line). */
   code: string | string[];
-  /** Header label for the code variant. Ignored for `output`. */
+  /** Authored language hint. Only `python`/`py` currently enable highlighting. */
+  language?: string;
+  /** Accessible header label for the code variant. Ignored for `output`. */
   label?: string;
   /** `code` = highlighted Python; `output` = plain monospaced text. */
   variant?: 'code' | 'output';
@@ -40,11 +44,15 @@ export interface CodeBlockProps {
 }
 
 /** Resolve Python tokens for `source`, dropping stale results on unmount/change. */
-function usePythonTokens(source: string): PythonTokens | null {
+function usePythonTokens(source: string, enabled: boolean): PythonTokens | null {
   const [lines, setLines] = useState<PythonTokens | null>(null);
   const sourceRef = useRef(source);
   sourceRef.current = source;
   useEffect(() => {
+    if (!enabled) {
+      setLines(null);
+      return;
+    }
     let cancelled = false;
     highlightPython(source)
       .then((result) => {
@@ -59,7 +67,7 @@ function usePythonTokens(source: string): PythonTokens | null {
     return () => {
       cancelled = true;
     };
-  }, [source]);
+  }, [enabled, source]);
   return lines;
 }
 
@@ -119,7 +127,8 @@ function renderLine(lineTokens: PythonTokens[number] | undefined, fallback: stri
 
 export function CodeBlock({
   code,
-  label = 'Python',
+  language = 'python',
+  label,
   variant = 'code',
   showLineNumbers = false,
   showWhitespace = false,
@@ -128,10 +137,12 @@ export function CodeBlock({
   themeClasses,
 }: CodeBlockProps) {
   const isOutput = variant === 'output';
+  const normalizedLanguage = language.trim().toLowerCase();
+  const isPython = normalizedLanguage === 'python' || normalizedLanguage === 'py';
+  const resolvedLabel = label ?? language;
   const source = Array.isArray(code) ? code.join('\n') : String(code ?? '');
   const rawLines = source.split('\n');
-  // Output is never tokenized; pass '' so the hook never highlights plain text.
-  const tokens = usePythonTokens(isOutput ? '' : source);
+  const tokens = usePythonTokens(source, !isOutput && isPython);
   const showCopy = copyable ?? !isOutput;
 
   return (
@@ -143,7 +154,7 @@ export function CodeBlock({
             Output
           </span>
         ) : (
-          <span className="flex items-center" aria-label={`${label} code window`}>
+          <span className="flex items-center" aria-label={`${resolvedLabel} code window`}>
             <span className="flex items-center gap-1.5" aria-hidden="true">
               <span className="h-2 w-2 rounded-full bg-[#D86B72]" />
               <span className="h-2 w-2 rounded-full bg-[#CDA24F]" />

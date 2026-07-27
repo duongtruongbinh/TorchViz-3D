@@ -10,29 +10,47 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Claim contract
-
-Tách response thành atomic claims. Mỗi claim có `{text, evidence_ids, supported, severity}`. Evidence scope phải được khai báo: retrieved context, reference database hoặc nguồn đã xác minh. Citation format đúng không tự chứng minh claim được hỗ trợ.
-
-Case không có evidence cần expected `abstain`; đo overconfidence riêng.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Factuality evaluation tách response thành atomic claims và nối từng claim với evidence scope rõ ràng.'},
+  steps: [
+    {label: {vi: 'Split claims'}, shape: 'response → atomic statements', detail: {vi: 'Không tính greeting/style fragment như fact.'}},
+    {label: {vi: 'Attach evidence'}, shape: 'evidence_ids', detail: {vi: 'Scope là retrieved context, database hoặc verified source.'}},
+    {label: {vi: 'Label support'}, shape: 'supported + severity', detail: {vi: 'Citation format đúng chưa đủ chứng minh support.'}},
+    {label: {vi: 'No evidence'}, shape: 'expected abstain', detail: {vi: 'Đo overconfidence riêng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Claim-to-evidence mapping là đơn vị đánh giá, không phải vẻ ngoài của citation.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Tính support rate
-
-Response có bốn claims; ba claims supported, một unsupported:
-
-`support_rate = 3/4 = 0.75`, `unsupported_rate = 1/4 = 0.25`.
-
-Không tính câu chào hoặc style fragment thành claim để làm denominator lớn giả tạo. Claim splitter và annotation policy phải được version.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked support rate cho response có bốn atomic claims.'},
+  steps: [
+    {label: {vi: 'Supported'}, shape: '3 claims', detail: {vi: 'Có evidence hợp lệ trong scope.'}},
+    {label: {vi: 'Unsupported'}, shape: '1 claim', detail: {vi: 'Không có evidence hỗ trợ.'}},
+    {label: {vi: 'Support rate'}, shape: '3/4 = 0.75', detail: {vi: 'Tỷ lệ claim được hỗ trợ.'}},
+    {label: {vi: 'Unsupported rate'}, shape: '1/4 = 0.25', detail: {vi: 'Tỷ lệ claim hallucinated/unsupported.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Version claim splitter và annotation policy; không làm denominator lớn giả bằng style fragments.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Severity-weighted score
+<CodeLessonFrame
+  title="Severity-weighted support"
+  contract="positive integer weights aligned với boolean support labels"
+  output="supported weight 6 / total weight 10 = 0.6"
+  pitfall="Unsupported high-severity claim không nên bị nhiều low-severity claims che lấp."
+  takeaway="Weighting đưa impact của từng claim vào factuality score."
+>
 
 Gán weight: low `1`, high `4`. Ba supported claims có tổng weight `6`; unsupported high-severity claim weight `4`:
 
@@ -61,14 +79,23 @@ else:
     raise AssertionError('misaligned claim labels must fail')
 ```
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Invariants
-
-Không để unsupported critical claim bị average che lấp; thêm critical count/gate. Giữ claim-to-evidence mapping, nhưng redact private content trong artifact. Đo factuality cùng answer relevance và abstention để tránh “luôn từ chối” đạt score giả.
-
-Application Quiz kế tiếp dùng các signal này để phân biệt retrieval và generation failure trong RAG.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Factuality handoff phải ngăn critical failure và “always abstain” bị aggregate score che khuất.'},
+  steps: [
+    {label: {vi: 'Critical gate'}, shape: 'unsupported critical count', detail: {vi: 'Không chỉ dùng weighted average.'}},
+    {label: {vi: 'Evidence artifact'}, shape: 'claim mapping + redaction', detail: {vi: 'Giữ provenance nhưng bảo vệ private content.'}},
+    {label: {vi: 'Relevance'}, shape: 'answer addresses intent', detail: {vi: 'Supported nhưng lạc đề vẫn fail use case.'}},
+    {label: {vi: 'Abstention calibration'}, shape: 'needed vs overrefusal', detail: {vi: 'Không cho “luôn từ chối” đạt score giả.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'RAG evaluation cần tách retrieval failure khỏi generation faithfulness.'},
+}} />
 
 </MdxPage>

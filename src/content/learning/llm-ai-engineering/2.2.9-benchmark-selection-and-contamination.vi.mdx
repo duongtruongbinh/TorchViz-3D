@@ -10,51 +10,66 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Benchmark là measurement contract
-
-Input là benchmark version, task subset, prompt protocol, model/config và seed. Output là per-case result, slice score và uncertainty. Không so hai score nếu tokenizer, prompt, tool access hoặc scoring protocol khác mà không ghi rõ.
-
-Benchmark công khai trả lời “model làm gì trên contract này”, không tự chứng minh fit cho workflow nội bộ.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Benchmark là measurement contract, không phải bằng chứng tự động cho workflow nội bộ.'},
+  steps: [
+    {label: {vi: 'Version inputs'}, shape: 'benchmark + subset + prompt + seed', detail: {vi: 'Khóa model/config và tool access.'}},
+    {label: {vi: 'Run protocol'}, shape: 'same tokenizer + scoring', detail: {vi: 'Chỉ so score khi contract tương thích.'}},
+    {label: {vi: 'Per-case results'}, shape: 'slice outcomes', detail: {vi: 'Giữ failure evidence.'}},
+    {label: {vi: 'Report'}, shape: 'score + uncertainty', detail: {vi: 'Nêu rõ protocol differences.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Public benchmark đo model trên contract đó; use-case fit cần evidence riêng.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Contamination paths
-
-Leakage có thể đi qua pretraining/fine-tuning data, public solutions, prompt examples hoặc việc team xem test answers khi tối ưu. Một test set đã tham gia model/prompt selection không còn là final holdout.
-
-Giữ provenance theo case, tìm exact/near duplicate khi có dữ liệu và báo cáo nghi ngờ thay vì tuyên bố “không contamination” nếu không thể kiểm chứng.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Contamination có thể đi vào qua data, examples hoặc chính quy trình model selection.'},
+  steps: [
+    {label: {vi: 'Training path'}, shape: 'pretrain / fine-tune data', detail: {vi: 'Benchmark cases hoặc near duplicates xuất hiện trong corpus.'}},
+    {label: {vi: 'Public path'}, shape: 'solutions + prompt examples', detail: {vi: 'Đáp án có thể được model hoặc team nhìn thấy.'}},
+    {label: {vi: 'Selection path'}, shape: 'test answers guide tuning', detail: {vi: 'Set đã dùng chọn model/prompt không còn là final holdout.'}},
+    {label: {vi: 'Audit'}, shape: 'provenance + exact/near dedup', detail: {vi: 'Báo nghi ngờ nếu không thể kiểm chứng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Không tuyên bố “không contamination” khi evidence không đủ.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Worked selection
-
-Use case là hỏi đáp tài liệu nội bộ có citation. Team chấm ba candidate:
-
-| Candidate | Scenario fit | Leakage risk | Quyết định |
-|---|---:|---:|---|
-| General knowledge public set | thấp | cao | chỉ dùng smoke |
-| Public RAG set | vừa | vừa | diagnostic |
-| Private, versioned RAG holdout | cao | thấp | release evidence |
-
-Không chọn tập chỉ vì candidate model đang có score cao nhất trên đó.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Worked selection cho use case hỏi đáp tài liệu nội bộ có citation.'},
+  comparisons: [
+    {title: 'General public set', shape: 'fit thấp · leakage cao', detail: {vi: 'Chỉ dùng smoke test.'}},
+    {title: 'Public RAG set', shape: 'fit vừa · leakage vừa', detail: {vi: 'Dùng cho diagnostic.'}},
+    {title: 'Private versioned holdout', shape: 'fit cao · leakage thấp', detail: {vi: 'Dùng làm release evidence.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Không chọn benchmark chỉ vì candidate model đã có score cao nhất trên đó.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Pitfall và handoff
-
-- Báo sample count, confidence interval và failure slices.
-- Không chọn best run rồi bỏ các run khác.
-- Version benchmark, harness và judge.
-- Kết hợp public comparability với private use-case evidence.
-
-Với RAG, tách hai tầng: retrieval đo gold evidence có xuất hiện trong top-k/context hay không (`context recall`), còn generation đo từng claim có bám retrieved evidence và trả lời đúng intent hay không. Case không đủ evidence phải abstain; trace chỉ giữ case ID, chunk ID/hash, score và snippet đã redacted theo retention policy.
-
-Quiz kế tiếp kiểm tra selection/contamination; bài sau tính factuality theo claim rồi áp dụng vào RAG.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Benchmark handoff kết hợp public comparability với private use-case evidence và uncertainty.'},
+  comparisons: [
+    {title: 'Retrieval layer', shape: 'context recall', detail: {vi: 'Gold evidence có xuất hiện trong top-k/context không?'}},
+    {title: 'Generation layer', shape: 'claim faithfulness + intent', detail: {vi: 'Answer có bám evidence và trả lời đúng intent không?'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Báo sample count, confidence interval, failure slices và mọi runs; version benchmark, harness và judge.'},
+  misconception: {vi: 'Case thiếu evidence phải abstain; trace chỉ giữ IDs/hashes, scores và redacted snippets theo retention policy.'},
+}} />
 
 </MdxPage>

@@ -6,7 +6,10 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view: 'position', lead: {vi: 'Domain adapter giữ business logic độc lập với wire format.'}, comparisons: [
+  {title: 'Responses', shape: 'typed output items', detail: {vi: 'Primitive khuyến nghị cho dự án OpenAI mới.'}},
+  {title: 'Chat Completions', shape: 'choices / messages', detail: {vi: 'Compatibility và migration path.'}},
+], code: [], takeaway: {vi: 'Cả hai normalize về text | tool_call | refusal | usage.'}}} />
 
 Responses là primitive được khuyến nghị cho dự án OpenAI mới; Chat Completions vẫn là compatibility/migration path. Học cả hai qua một domain adapter tránh khóa business logic vào wire format.
 
@@ -20,7 +23,7 @@ Responses là primitive được khuyến nghị cho dự án OpenAI mới; Chat
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Normalize provider output" contract="OutputItem[] + Usage → domain Result" output="function_call → {kind:'tool_call', callId, name, arguments, usage}" pitfall="Không giả định item đầu luôn là text hoặc bỏ refusal/tool/error items." takeaway="Adapter biến provider wire shape thành discriminated union nội bộ.">
 
 Một request `input='Đơn A17 ở đâu?'` cho output text. Migration đổi `messages` sang `input`, đọc `output_text`/items thay `choices[0].message`, và quyết định state/store rõ ràng.
 
@@ -59,11 +62,17 @@ assert.deepEqual(result, {
 ~~~
 <LessonNote>Đây là adapter trace cục bộ, không phải network call. Production vẫn cần server credential, explicit storage/state policy, timeout/cancel và mapping đầy đủ các output item.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view: 'audit', lead: {vi: 'Migration gate kiểm tra capability và error branches trước khi đổi API surface.'}, steps: [
+  {label: {vi: 'Configure'}, shape: 'server credential + model ID', detail: {vi: 'Không hard-code alias.'}},
+  {label: {vi: 'Map'}, shape: 'all output item kinds', detail: {vi: 'Giữ text, tool, refusal, usage và error.'}},
+  {label: {vi: 'Control'}, shape: 'timeout + cancel + state policy', detail: {vi: 'Storage/state phải explicit.'}},
+], code: [], takeaway: {vi: 'Function calling tiếp theo mở rộng union từ text sang tool proposal.'}}} />
 
 **Pitfalls:**
 

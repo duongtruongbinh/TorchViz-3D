@@ -10,41 +10,63 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Layered contract
-
-Guardrail nằm quanh model: request limits, source/trust labels, output parser, backend authorization, confirmation, monitoring. Model output là proposal; guardrail trả `allow|deny|review` cùng reason code có thể audit.
-
-Không một input classifier hay keyword rule nào thay được authorization.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Guardrail bao quanh model bằng nhiều enforcement layers và trả decision có thể audit.'},
+  steps: [
+    {label: {vi: 'Request boundary'}, shape: 'limits + trust labels', detail: {vi: 'Phân loại source trước provider call.'}},
+    {label: {vi: 'Model output'}, shape: 'proposal only', detail: {vi: 'Parse typed output, không execute trực tiếp.'}},
+    {label: {vi: 'Backend gate'}, shape: 'authorization + confirmation', detail: {vi: 'Kiểm tra capability theo actor và state.'}},
+    {label: {vi: 'Decision'}, shape: 'allow / deny / review + reason', detail: {vi: 'Monitoring và audit dùng reason code.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Input classifier hoặc keyword rule không thể thay authorization.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Schema và trust
-
-Request context giữ `actor_id` phía server. Tool proposal chỉ gồm tool name và typed arguments. Retrieved document/user input luôn là untrusted data; không được phép truyền role/permissions.
-
-Reject unknown fields, empty identifiers và oversized inputs trước provider call để giảm ambiguity/cost.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Schema boundary giữ identity và permissions ở server, không để untrusted content truyền quyền.'},
+  comparisons: [
+    {title: 'Server context', shape: 'verified actor_id + roles', detail: {vi: 'Nguồn duy nhất cho identity/permissions.'}},
+    {title: 'Tool proposal', shape: 'name + typed arguments', detail: {vi: 'Không chứa role hoặc confirmation tự khai.'}},
+    {title: 'Untrusted content', shape: 'user + retrieved data', detail: {vi: 'Chỉ là data dù nằm trong context.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Reject unknown fields, empty IDs và oversized inputs trước provider call.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Authorization
-
-Policy example:
-
-- `read_order`: user chỉ đọc order thuộc chính họ.
-- `refund_order`: cần role `support` và explicit confirmation.
-- unknown tool: deny.
-
-Confirmation state phải đến từ UI/backend và gắn với actor + order; model không được tự đặt `confirmed: true` trong proposal. Authorization chạy lại ngay trước execution để tránh stale state/TOCTOU.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Authorization policy ánh xạ tool proposal sang quyền thực tế ngay trước execution.'},
+  steps: [
+    {label: {vi: 'read_order'}, shape: 'owner only', detail: {vi: 'Actor chỉ đọc order thuộc chính họ.'}},
+    {label: {vi: 'refund_order'}, shape: 'support role + confirmation', detail: {vi: 'Confirmation gắn actor + order từ UI/backend.'}},
+    {label: {vi: 'unknown tool'}, shape: 'deny', detail: {vi: 'Fail closed theo allowlist.'}},
+    {label: {vi: 'Reauthorize'}, shape: 'immediately before side effect', detail: {vi: 'Tránh stale state và TOCTOU.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Model không được tự đặt confirmed=true trong proposal.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Deterministic implementation
+<CodeLessonFrame
+  title="Deterministic authorization"
+  contract="server actor/roles + strict proposal + ownership + confirmation → Decision"
+  output="authorized hoặc stable deny reason code"
+  pitfall="Unknown schema/tool và missing ownership phải fail closed."
+  takeaway="Implementation khóa schema, owner, role và confirmation trước execution."
+>
 
 ```python
 from dataclasses import dataclass
@@ -92,16 +114,23 @@ assert authorize('u-1', {'support'}, unknown, owners, set()).reason == 'unknown_
 assert authorize('u-1', set(), [], owners, set()).reason == 'invalid_schema'
 ```
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={4}>
 
-## Failure tests
-
-Test malformed schema, missing ownership, stale/deleted order, duplicate execution, timeout/cancellation và replay. Refund còn cần idempotency key và confirmation state trước side effect. Log reason code/case ID, không log credential hay raw PII.
-
-Trước red-team Quiz, đóng băng rules of engagement: asset và trust boundary trong scope, actor/capability được phép thử, môi trường cô lập, stop condition và owner. Mỗi finding giữ stable ID, severity, evidence đã redacted, control owner, status, retention/access; mitigation phải đặt ở enforcement boundary. Finding đã xác nhận cùng các biến thể trở thành regression cases, không phải payload để thử tùy ý trên production.
-
-Application Quiz kế tiếp chuyển red-team findings thành regression cases.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Failure suite kiểm tra authorization lifecycle và biến red-team findings thành regression cases an toàn.'},
+  steps: [
+    {label: {vi: 'Execution failures'}, shape: 'schema · ownership · stale · duplicate · timeout', detail: {vi: 'Refund thêm idempotency key và confirmation.'}},
+    {label: {vi: 'Rules of engagement'}, shape: 'scope + isolated env + stop condition', detail: {vi: 'Khóa actor/capability và owner trước test.'}},
+    {label: {vi: 'Finding artifact'}, shape: 'stable ID + severity + redacted evidence', detail: {vi: 'Gắn control owner, status, retention/access.'}},
+    {label: {vi: 'Regression'}, shape: 'confirmed finding + variants', detail: {vi: 'Mitigation ở enforcement boundary, không thử tùy ý trên production.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Log reason code/case ID; không log credential hoặc raw PII.'},
+}} />
 
 </MdxPage>

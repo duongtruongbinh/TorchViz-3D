@@ -10,67 +10,66 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Generation là một vòng lặp autoregressive
-
-**Mục tiêu:** Mô tả chính xác cách GPT biến một prefix thành nhiều token mới.
-
-Với `input_ids: (B,T)`, model trả logits `(B,T,V)`. Chỉ logits tại vị trí cuối `logits[:, -1, :]` có shape `(B,V)` được dùng để chọn token kế tiếp. Token mới `(B,1)` được nối vào chuỗi và toàn bộ quá trình lặp lại.
-
-`x_(t+1) ~ p(· | x_≤t)`.
-
-<LessonNote>**Lỗi thường gặp:** lấy argmax ở mọi vị trí rồi nối cả tensor. Những vị trí cũ dự đoán target trong training; generation mỗi vòng chỉ cần distribution cuối.</LessonNote>
-
-**Takeaway:** Một forward tạo một token mới cho mỗi sample, không tạo sẵn toàn bộ câu.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Generation lặp cùng một autoregressive step để biến prefix thành nhiều token mới.'},
+  steps: [
+    {label: {vi: 'Current IDs'}, shape: '(B,T)', detail: {vi: 'Prefix cộng các token đã sinh.'}},
+    {label: {vi: 'Model forward'}, shape: '(B,T,V)', detail: {vi: 'Logits cho mọi vị trí hiện có.'}},
+    {label: {vi: 'Last distribution'}, shape: 'logits[:,-1,:] · (B,V)', detail: {vi: 'Chọn đúng một next-token distribution.'}},
+    {label: {vi: 'Append token'}, shape: '(B,1) → (B,T+1)', detail: {vi: 'Lặp cho token kế tiếp.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Một forward tạo một token mới cho mỗi sample, không tạo sẵn toàn bộ câu: x_(t+1) ~ p(·|x_≤t).'},
+  misconception: {vi: 'Không argmax ở mọi vị trí rồi nối cả tensor; generation mỗi vòng chỉ đọc distribution cuối.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Greedy decoding và sampling
-
-Greedy chọn token có logit lớn nhất. Với cùng model và prefix, kết quả là xác định và dễ kiểm thử, nhưng có thể rơi vào câu lặp hoặc lựa chọn cục bộ kém.
-
-Sampling biến logits thành xác suất rồi dùng `torch.multinomial`. Token xác suất thấp vẫn có cơ hội được chọn, nên output đa dạng hơn nhưng không còn hoàn toàn xác định nếu không cố định random seed.
-
-<LessonNote>**Lỗi thường gặp:** gọi sampling là “chọn ngẫu nhiên đều”. Sampling theo phân phối model; token logit cao vẫn có xác suất lớn hơn.</LessonNote>
-
-**Takeaway:** Greedy tối đa hóa lựa chọn từng bước; sampling khám phá các lựa chọn theo xác suất.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Greedy và sampling chia sẻ input logits nhưng dùng hai quy tắc chọn token khác nhau.'},
+  comparisons: [
+    {title: 'Greedy', shape: 'argmax(logits)', detail: {vi: 'Xác định, dễ kiểm thử, nhưng có thể rơi vào lặp hoặc lựa chọn cục bộ kém.'}},
+    {title: 'Sampling', shape: 'multinomial(probs)', detail: {vi: 'Đa dạng hơn; không hoàn toàn xác định nếu không cố định random seed.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Greedy tối đa hóa lựa chọn từng bước; sampling khám phá các lựa chọn theo xác suất model.'},
+  misconception: {vi: 'Sampling không phải chọn ngẫu nhiên đều; token logit cao vẫn có xác suất lớn hơn.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Temperature và top-k điều khiển phân phối
-
-Temperature chia logits trước softmax:
-
-`p_i(τ) = softmax(z_i / τ)`.
-
-`τ<1` làm distribution sắc hơn; `τ>1` làm phẳng hơn. `top_k=k` chỉ giữ k logits cao nhất, đặt phần còn lại thành `-inf`, rồi softmax lại để tổng xác suất vẫn bằng 1.
-
-Hai kỹ thuật có vai trò khác nhau: temperature đổi độ tương phản trong nhóm còn top-k loại hẳn tail.
-
-<LessonNote>**Lỗi thường gặp:** đặt `temperature=0` rồi chia logits. Greedy phải là một nhánh riêng để tránh chia cho 0.</LessonNote>
-
-**Takeaway:** Lọc top-k trước, scale theo temperature, rồi softmax và sample.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Temperature và top-k cùng điều khiển distribution nhưng thay đổi hai thuộc tính khác nhau.'},
+  comparisons: [
+    {title: 'Temperature τ', shape: 'softmax(z/τ)', detail: {vi: 'τ<1 làm sắc hơn; τ>1 làm phẳng hơn nhưng giữ thứ hạng logits.'}},
+    {title: 'Top-k', shape: 'keep k · tail→−inf', detail: {vi: 'Loại hẳn tail rồi softmax lại để tổng xác suất bằng 1.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Lọc top-k trước, scale theo temperature, rồi softmax và sample.'},
+  misconception: {vi: 'temperature=0 phải đi nhánh greedy riêng; không chia logits cho 0.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Context cropping và điều kiện dừng
-
-Nếu model hỗ trợ `context_length=T_max`, mỗi vòng chỉ truyền `ids[:, -T_max:]`. Chuỗi output vẫn giữ toàn bộ token đã sinh; chỉ input của forward bị crop.
-
-Generation dừng khi:
-
-- đã sinh `max_new_tokens`;
-- hoặc mọi sample đã phát token `eos_id`.
-
-Trong batch thực tế, sample đã kết thúc cần được giữ ổn định trong khi sample khác tiếp tục.
-
-<LessonNote>**Lỗi thường gặp:** crop luôn tensor output và làm mất prefix trả về cho người dùng. Hãy tách “context đưa vào model” khỏi “sequence tích lũy”.</LessonNote>
-
-**Takeaway:** `context_length` giới hạn trí nhớ của một forward; EOS và token budget giới hạn thời gian chạy vòng lặp.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Generation tách sequence tích lũy khỏi context được đưa vào mỗi forward.'},
+  comparisons: [
+    {title: 'Model context', shape: 'ids[:,-T_max:]', detail: {vi: 'Chỉ giữ tối đa context_length tokens cho forward hiện tại.'}},
+    {title: 'Accumulated output', shape: '(B,T+generated)', detail: {vi: 'Giữ toàn bộ prefix và token đã sinh để trả người dùng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'context_length giới hạn trí nhớ một forward; max_new_tokens hoặc eos_id giới hạn vòng lặp. Sample đã kết thúc phải ổn định khi sample khác tiếp tục.'},
+  misconception: {vi: 'Không crop luôn output sequence rồi làm mất prefix; chỉ crop model context.'},
+}} />
 
 </MdxPage>

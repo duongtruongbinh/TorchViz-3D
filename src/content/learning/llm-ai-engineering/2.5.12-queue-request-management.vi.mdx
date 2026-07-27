@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Queue hấp thụ burst có giới hạn; queue vô hạn chỉ chuyển outage thành latency/memory catastrophe."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Job priority, tenant, deadline, cost estimate và idempotency key."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Admitted queued job, immediate rejection hoặc canceled state."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Request → bounded priority queue → worker lease → terminal result/dead-letter."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Queue hấp thụ burst có giới hạn; queue vô hạn chỉ chuyển outage thành latency/memory catastrophe.
 
@@ -20,7 +26,12 @@ Queue hấp thụ burst có giới hạn; queue vô hạn chỉ chuyển outage 
 
 <MdxPage page={1}>
 
-## Worked scenario
+<TrainingConceptVisual content={{
+  view: 'position', lead: {vi: "Queue cap 100, per-tenant cap 10. User đã có 10 jobs nhận typed admission rejection cùng optional app retry hint dù global còn chỗ; expired job bị drop trước provider call."}, comparisons: [
+    {title: "Auth/policy", shape: "before ↔ after", detail: {vi: "Tenant không được phép chạy job  · Reject, không enqueue"}},
+    {title: "Idempotency", shape: "before ↔ after", detail: {vi: "Key đã có job  · Trả existing job ID"}},
+  ], code: [], takeaway: {vi: "Giữ budget/state invariant qua từng bước."},
+}} />
 
 Queue cap 100, per-tenant cap 10. User đã có 10 jobs nhận typed admission rejection cùng optional app retry hint dù global còn chỗ; expired job bị drop trước provider call.
 
@@ -40,7 +51,13 @@ Queue cap 100, per-tenant cap 10. User đã có 10 jobs nhận typed admission r
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Queue và backpressure"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "FIFO duy nhất gây noisy-neighbor."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Không deadline/cancel."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Ack trước persist result."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

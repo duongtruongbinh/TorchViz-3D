@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-24
+updated: 2026-07-27
 ---
 
 # Learning Lab
@@ -21,17 +21,17 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 82 tracks, and 696 lesson nodes. Two
-hundred and four Vietnamese-first lessons have authored content: all 200 nodes
+The catalog contains 12 domains, 82 tracks, and 699 lesson nodes. Two
+hundred and seven Vietnamese-first lessons have authored content: all 203 nodes
 in `llm-ai-engineering` and four tagged exercise lessons in `cv`. The other
 492 nodes are navigable placeholders and render one shared localized “content
 in progress” message. They do not carry legacy theory or practice payloads.
 
-The LLM course is published atomically at 200/200 canonical routes:
+The LLM course is published atomically at 203/203 canonical routes:
 
 | Track | Nodes | Pages | Quiz nodes | Quiz questions |
 |---|---:|---:|---:|---:|
-| `1.1 llm-from-scratch-orientation` | 15 | 65 | 7 | 34 |
+| `1.1 llm-from-scratch-orientation` | 18 | 75 | 8 | 38 |
 | `1.2 text-data-and-tokenization` | 18 | 81 | 8 | 36 |
 | `1.3 attention-and-transformers-from-scratch` | 6 | 29 | 2 | 10 |
 | `1.4 gpt-model-from-scratch` | 4 | 20 | 1 | 5 |
@@ -43,10 +43,10 @@ The LLM course is published atomically at 200/200 canonical routes:
 | `2.4 working-with-ai-apis` | 33 | 104 | 5 | 20 |
 | `2.5 api-integration-patterns` | 18 | 57 | 3 | 12 |
 | `2.6 secure-api-integration` | 7 | 24 | 2 | 9 |
-| **Total** | **200** | **778** | **65** | **293** |
+| **Total** | **203** | **788** | **66** | **297** |
 
-The target role audit classifies those nodes as 46 theory, 65 Quiz, 36
-calculation, 31 code, 21 production-pattern, and one deliberately retained
+The target role audit classifies those nodes as 46 theory, 66 Quiz, 36
+calculation, 31 code, 23 production-pattern, and one deliberately retained
 hybrid. The exact order, role assignment, theory prerequisite, assessed
 objective, and allowed prerequisites live in the test-only audit manifest
 `src/lib/learningLlmFlow.test.ts`; runtime ownership remains the typed TOC and
@@ -60,8 +60,10 @@ single-choice questions, place one question on each page, have exactly one
 correct option, and use unique stable question/option IDs with explanatory
 success and error feedback.
 
-The remediation preserves all 177 pre-existing canonical LLM routes and adds
-exactly 23 adjacent-theory Quiz routes. Five existing evaluation/safety routes
+The initial remediation preserved all 177 pre-existing canonical LLM routes and
+added 23 adjacent-theory Quiz routes. A later Chapter 1.1 bridge added three
+routes for training data, common pretraining datasets, and their Quiz. Five
+existing evaluation/safety routes
 are intentionally reused as application Quizzes instead of creating parallel
 practice payloads. Provider, streaming, retry, cost, secret, and lifecycle
 lessons map provider-specific wire formats into explicit internal contracts;
@@ -80,6 +82,11 @@ Authored prose, paging data, quizzes, references, and structured visual inputs
 remain in locale-specific MDX. LLM-specific visual and stateful components
 remain React code under the LLM domain package. English UI currently falls back
 to the Vietnamese lesson source until an English MDX file is authored.
+
+Chapter 1.1 presents the AI landscape on two explicit axes: method families
+(`AI -> ML -> DL`) and application domains (`CV`, `NLP`), with LLM highlighted
+as the course focus at the DL/language intersection. The map is a learning
+convention rather than an absolute historical taxonomy.
 
 Chapter 1.2 retains one running text-to-tensor sequence:
 
@@ -175,6 +182,11 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
+The shared MDX pipeline enables GFM tables and maps fenced code through the
+Learning Lab `CodeBlock`. Python/`py` fences use the bundled Python highlighter;
+other languages remain verbatim on the same code surface. Tables use shared
+accessible markup and horizontal overflow on narrow screens.
+
 Search indexes catalog metadata for all nodes and authored body text only for
 published MDX. The shared placeholder body is not indexed, preventing 492
 missing nodes from overwhelming authored results. Matching is case-insensitive
@@ -228,6 +240,11 @@ should not add unreachable dark variants.
 domains. Track and lesson structure belongs in the main course/lesson surface.
 Desktop keeps persistent navigation; compact layouts use dismissible drawers
 for the domain sidebar and lesson table of contents.
+
+The shell is bounded to `100dvh`, propagates `min-h-0` through its flex chain,
+and keeps lesson content as the sole vertical scroll owner. Short viewports
+therefore retain the content scrollbar without changing Workspace's global
+overflow contract.
 
 Learning Home uses one concise curriculum heading followed by a responsive
 portrait-card grid. Each domain card reuses the shared Lucide domain icon and a

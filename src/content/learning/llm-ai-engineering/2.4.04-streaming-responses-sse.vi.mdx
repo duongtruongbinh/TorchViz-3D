@@ -6,7 +6,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view: 'audit', lead: {vi: 'Streaming giảm time-to-first-content nhưng partial bytes chưa phải committed artifact.'}, steps: [
+  {label: {vi: 'Network'}, shape: 'byte chunks', detail: {vi: 'Dùng streaming TextDecoder.'}},
+  {label: {vi: 'Frame'}, shape: 'UTF-8 lines → SSE events', detail: {vi: 'Giữ frame chưa hoàn chỉnh.'}},
+  {label: {vi: 'Reduce'}, shape: 'text_delta | tool_delta | error', detail: {vi: 'Tích lũy theo event type.'}},
+  {label: {vi: 'Commit'}, shape: 'completed terminal event', detail: {vi: 'Chỉ commit sau terminal validation.'}},
+], code: [], takeaway: {vi: 'Timeout và AbortSignal phải đi xuyên toàn lifecycle.'}}} />
 
 SSE giảm time-to-first-content nhưng client phải tích lũy event đúng type và chỉ commit artifact khi terminal event hợp lệ.
 
@@ -20,7 +25,7 @@ SSE giảm time-to-first-content nhưng client phải tích lũy event đúng ty
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Reduce SSE event stream" contract="provider frames → terminal State" output="'Xin' + ' chào' + completed → 'Xin chào'" pitfall="Partial text vẫn provisional; error trước completed không được chạy tool." takeaway="Map provider event rồi reduce bằng state machine có terminal guard.">
 
 Hai deltas `Xin` và ` chào` chỉ thành `Xin chào` sau accumulation. Nếu `error` đến trước `completed`, UI giữ partial text là provisional và không chạy tool.
 
@@ -59,11 +64,17 @@ assert.deepEqual(final, { status: "completed", text: "Xin chào" });
 ~~~
 <LessonNote>Network parser phải dùng streaming `TextDecoder`, giữ lại UTF-8/SSE frame chưa hoàn chỉnh, propagate AbortSignal và không commit partial text trước terminal validation.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view: 'audit', lead: {vi: 'UI và upstream stream cùng tuân theo cancellation và terminal state.'}, steps: [
+  {label: {vi: 'Decode'}, shape: 'buffer incomplete frames', detail: {vi: 'Không parse mỗi network chunk như event hoàn chỉnh.'}},
+  {label: {vi: 'Render'}, shape: 'batched safe text', detail: {vi: 'Không render unsanitized Markdown mỗi ký tự.'}},
+  {label: {vi: 'Cancel'}, shape: 'UI → AbortSignal → provider', detail: {vi: 'User rời trang phải dừng upstream.'}},
+], code: [], takeaway: {vi: 'Embeddings tiếp theo đổi text batch thành vector batch.'}}} />
 
 **Pitfalls:**
 

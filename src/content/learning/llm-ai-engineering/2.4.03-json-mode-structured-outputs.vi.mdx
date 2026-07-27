@@ -6,7 +6,10 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view: 'position', lead: {vi: 'JSON syntax và schema adherence là hai contract khác nhau.'}, comparisons: [
+  {title: 'JSON mode', shape: 'valid JSON syntax', detail: {vi: 'Object vẫn có thể sai enum, required hoặc bounds.'}},
+  {title: 'Structured Outputs', shape: 'supported JSON Schema', detail: {vi: 'Tăng schema adherence nhưng vẫn có refusal/incomplete/transport error.'}},
+], code: [], takeaway: {vi: 'Boundary trả typed object hoặc explicit refusal/validation error.'}}} />
 
 JSON mode bảo đảm cú pháp JSON, còn Structured Outputs hướng tới schema adherence. Cả hai vẫn cần xử lý refusal, incomplete và transport error.
 
@@ -20,7 +23,7 @@ JSON mode bảo đảm cú pháp JSON, còn Structured Outputs hướng tới sc
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Parse structured output" contract="wire status/text/refusal → value | refusal | incomplete | invalid" output="'ship' enum → schema_mismatch" pitfall="Không cast JSON trực tiếp sang type hoặc biến incomplete thành value." takeaway="Validate lại required, enum, bounds và additionalProperties tại application boundary.">
 
 `{"category":"ship"}` là JSON hợp lệ nhưng sai enum. Parser phải reject; schema-constrained output tránh nhiều lỗi nhưng không biến business authorization thành model responsibility.
 
@@ -62,11 +65,17 @@ assert.equal(parseOutput({ status: "incomplete" }).kind, "incomplete");
 ~~~
 <LessonNote>Schema adherence không thay business authorization. Production phải giữ refusal/incomplete thành nhánh riêng, validate lại tại boundary và không retry lỗi validation vô hạn.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view: 'audit', lead: {vi: 'Production parser fail closed trên mọi trạng thái ngoài typed value hợp lệ.'}, steps: [
+  {label: {vi: 'Capability check'}, shape: 'model × schema features', detail: {vi: 'Không dùng feature provider/model chưa hỗ trợ.'}},
+  {label: {vi: 'Parse'}, shape: 'JSON → unknown', detail: {vi: 'Không cast thẳng.'}},
+  {label: {vi: 'Branch'}, shape: 'value | refusal | incomplete | error', detail: {vi: 'Không retry validation error vô hạn.'}},
+], code: [], takeaway: {vi: 'Streaming tiếp theo đưa các output items về theo thời gian.'}}} />
 
 **Pitfalls:**
 

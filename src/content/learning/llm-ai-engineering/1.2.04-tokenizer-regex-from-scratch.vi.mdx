@@ -102,30 +102,31 @@ export const lessonMetadata = {
 
 <MdxPage page={4}>
 
-## Áp dụng cùng quy tắc cho corpus
-
-```python
-import re
-
-def tokenize(text: str) -> list[str]:
-    parts = re.split(r'([,.:;?_!"()]|--|\s)', text)
-    return [part.strip() for part in parts if part.strip()]
-
-paragraph = (
-    "At dawn, Linh opened the workshop. "
-    'The robot flashed: "Package ready!"--twice.'
-)
-
-paragraph_tokens = tokenize(paragraph)
-assert paragraph_tokens[:6] == [
-    "At", "dawn", ",", "Linh", "opened", "the"
-]
-assert '"' in paragraph_tokens
-assert "--" in paragraph_tokens
-assert all(token.strip() == token and token for token in paragraph_tokens)
-```
-
-Input vẫn là `str`; output luôn là `list[str]`. Hàm regex này giúp nhìn rõ ranh giới, nhưng không tự học vocabulary hoặc merge rules và không có byte fallback.
+<TokenizerRegexWalkthrough content={{
+  lead: {vi: 'Áp dụng cùng một hàm cho đoạn mới để kiểm tra contract str -> list[str], thứ tự token và các dấu câu đã chọn.'},
+  code: [
+    'import re',
+    '',
+    'def tokenize(text: str) -> list[str]:',
+    "    parts = re.split(r'([,.:;?_!\\\"()]|--|\\\\s)', text)",
+    '    return [part.strip() for part in parts if part.strip()]',
+    '',
+    'paragraph = (',
+    '    "At dawn, Linh opened the workshop. "',
+    "    'The robot flashed: \\\"Package ready!\\\"--twice.'",
+    ')',
+    '',
+    'paragraph_tokens = tokenize(paragraph)',
+    'assert paragraph_tokens[:6] == [',
+    '    "At", "dawn", ",", "Linh", "opened", "the"',
+    ']',
+    "assert '\\\"' in paragraph_tokens",
+    'assert "--" in paragraph_tokens',
+    'assert all(token.strip() == token and token for token in paragraph_tokens)',
+  ],
+  output: [],
+  takeaway: {vi: 'Input vẫn là str; output luôn là list[str]. Regex làm rõ ranh giới, nhưng không tự học vocabulary hay merge rules và không có byte fallback.'},
+}} />
 
 <LessonNote>**Lỗi thường gặp:** dựng vocabulary từ đúng câu đang muốn encode rồi gọi đó là tokenizer production. Vocabulary phải được học/cố định từ training corpus trước khi dùng cho dữ liệu mới.</LessonNote>
 

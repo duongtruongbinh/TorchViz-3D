@@ -10,92 +10,67 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Hai mẫu có độ dài khác nhau
-
-**Mục tiêu:** Tự dựng input/target batch và xác định chính xác vị trí `-100`.
-
-Giả sử token IDs đã gồm prompt, response và EOS:
-
-```text
-sample A = [10, 11, 20, 21, 99]
-sample B = [12, 20, 99]
-```
-
-`20` là token bắt đầu response, `99` là EOS, `0` là PAD. Pad về độ dài 5:
-
-```text
-A = [10, 11, 20, 21, 99]
-B = [12, 20, 99,  0,  0]
-```
-
-<LessonNote>**Lỗi thường gặp:** pad trước khi thêm EOS. Khi đó sample ngắn có thể không có target kết thúc thật.</LessonNote>
-
-**Takeaway:** Thêm EOS vào sequence có nghĩa trước, pad batch sau.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Worked example dựng batch hai mẫu và xác định chính xác vị trí −100.'},
+  steps: [
+    {label: {vi: 'Sample A'}, shape: '[10,11,20,21,99]', detail: {vi: 'Response bắt đầu ở 20; 99 là EOS.'}},
+    {label: {vi: 'Sample B'}, shape: '[12,20,99]', detail: {vi: 'Sequence ngắn hơn nhưng đã có EOS.'}},
+    {label: {vi: 'Pad to 5'}, shape: '[12,20,99,0,0]', detail: {vi: '0 là PAD; A giữ nguyên.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Thêm EOS vào sequence có nghĩa trước, pad batch sau.'},
+  misconception: {vi: 'Pad trước EOS có thể làm sample ngắn mất target kết thúc thật.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Dịch target đúng một vị trí
-
-Tạo input bằng cách bỏ token cuối, target bằng cách bỏ token đầu:
-
-```text
-inputs  A = [10, 11, 20, 21]
-targets A = [11, 20, 21, 99]
-
-inputs  B = [12, 20, 99,  0]
-targets B = [20, 99,  0,  0]
-```
-
-Cả hai tensor có shape `(B,T)=(2,4)`.
-
-<LessonNote>**Kiểm tra:** trước masking, `inputs[:,1:] == targets[:,:-1]` trên phần không pad.</LessonNote>
-
-**Takeaway:** Target alignment được tạo trước response/padding mask.
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Target alignment được tạo trước response mask và padding mask.'},
+  steps: [
+    {label: {vi: 'Drop last'}, shape: 'inputs A [10,11,20,21]', detail: {vi: 'inputs B [12,20,99,0].'}},
+    {label: {vi: 'Drop first'}, shape: 'targets A [11,20,21,99]', detail: {vi: 'targets B [20,99,0,0].'}},
+    {label: {vi: 'Batch shape'}, shape: '(B,T) = (2,4)', detail: {vi: 'Mỗi target nằm sau input tương ứng đúng một vị trí.'}},
+  ],
+  code: ['inputs[:,1:] == targets[:,:-1]  # trên phần không pad'],
+  takeaway: {vi: 'Shift đúng một lần trước mọi masking.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Bỏ padding khỏi loss
-
-Thay PAD trong target bằng `-100`:
-
-```text
-targets A = [11, 20, 21,  99]
-targets B = [20, 99, -100, -100]
-```
-
-EOS `99` đầu tiên của mỗi sample được giữ vì model cần học điểm kết thúc. `F.cross_entropy(..., ignore_index=-100)` bỏ hai vị trí padding của sample B khỏi trung bình loss.
-
-<LessonNote>**Lỗi thường gặp:** thay mọi `99` bằng `-100` khi EOS cũng được dùng làm pad token. Phải phân biệt EOS có nghĩa với các bản sao dùng để căn hàng.</LessonNote>
-
-**Takeaway:** `-100` là nhãn sentinel cho loss, không phải token ID đưa vào embedding.
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Padding target đổi thành sentinel −100; EOS thật vẫn là target cần học.'},
+  steps: [
+    {label: {vi: 'A targets'}, shape: '[11,20,21,99]', detail: {vi: 'Không có padding target.'}},
+    {label: {vi: 'B targets'}, shape: '[20,99,−100,−100]', detail: {vi: 'Hai vị trí padding bị bỏ khỏi loss.'}},
+    {label: {vi: 'Cross-entropy'}, shape: 'ignore_index=−100', detail: {vi: 'Bỏ sentinel khỏi numerator và denominator.'}},
+  ],
+  code: [],
+  takeaway: {vi: '−100 là nhãn sentinel cho loss, không phải token ID đưa vào embedding.'},
+  misconception: {vi: 'Nếu EOS và PAD dùng chung ID, phải phân biệt EOS có nghĩa với bản sao để căn hàng.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Mask cả phần prompt
-
-Nếu response bắt đầu tại token `20`, target trước response bị bỏ:
-
-```text
-targets A = [-100, 20, 21,  99]
-targets B = [   20, 99, -100, -100]
-```
-
-Sample A có ba vị trí được chấm; sample B có hai. Flatten cho cross-entropy:
-
-- logits: `(2,4,V) → (8,V)`;
-- targets: `(2,4) → (8,)`;
-- chỉ 5 target khác `-100` đóng góp.
-
-```python
-assert (targets != -100).sum().item() == 5
-```
-
-<LessonNote>**Takeaway:** Response masking thay tập vị trí được tối ưu, không thay causal attention hay shape logits.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Response masking thay tập vị trí được tối ưu, không thay causal attention hay shape logits.'},
+  steps: [
+    {label: {vi: 'Masked A'}, shape: '[−100,20,21,99]', detail: {vi: 'Ba response targets được chấm.'}},
+    {label: {vi: 'Masked B'}, shape: '[20,99,−100,−100]', detail: {vi: 'Hai response targets được chấm.'}},
+    {label: {vi: 'Flatten logits'}, shape: '(2,4,V) → (8,V)', detail: {vi: 'Giữ vocabulary axis.'}},
+    {label: {vi: 'Flatten targets'}, shape: '(2,4) → (8,)', detail: {vi: 'Chỉ 5 target khác −100 đóng góp.'}},
+  ],
+  code: ['assert (targets != -100).sum().item() == 5'],
+  takeaway: {vi: 'Prompt vẫn ở input; target mask chỉ chọn năm vị trí cho loss.'},
+}} />
 
 </MdxPage>

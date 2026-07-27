@@ -10,43 +10,67 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Từ failure thành invariant
-
-Một failure đã triage cần stable case ID, sanitized input, expected invariant, severity và owner. State chuyển từ `observed -> reproduced -> fixed -> regression case -> monitored`; không đóng incident chỉ vì một demo pass.
-
-Suite nên tách smoke, core task, safety/authorization và scheduled deep eval. Critical invariant là gate riêng.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Một production failure chỉ hoàn tất khi trở thành invariant được replay và monitoring.'},
+  steps: [
+    {label: {vi: 'Observed'}, shape: 'stable ID + sanitized input', detail: {vi: 'Gắn severity và owner.'}},
+    {label: {vi: 'Reproduced → fixed'}, shape: 'expected invariant', detail: {vi: 'Xác nhận root behavior và mitigation.'}},
+    {label: {vi: 'Regression case'}, shape: 'versioned suite', detail: {vi: 'Tách smoke, core task và safety/authorization.'}},
+    {label: {vi: 'Monitored'}, shape: 'scheduled deep eval', detail: {vi: 'Critical invariant giữ gate riêng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Một demo pass không đủ để đóng incident.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Versioned run contract
-
-Input run gồm dataset hash, model snapshot/declared provider version, prompt, retrieval index, tools, policy, evaluator, thresholds và code revision. Output gồm per-case result, aggregate slices, artifacts và `pass|review|block`.
-
-Provider alias có thể thay đổi; lưu response/request IDs và ngày chạy, nhưng không ghi raw secret/PII.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Versioned run contract khóa mọi behavioral dependency trước khi so kết quả.'},
+  steps: [
+    {label: {vi: 'Data + system'}, shape: 'dataset hash + model snapshot + prompt', detail: {vi: 'Provider alias phải có declared version/date.'}},
+    {label: {vi: 'Runtime dependencies'}, shape: 'retrieval + tools + policy', detail: {vi: 'Ghi đúng cấu hình được evaluate.'}},
+    {label: {vi: 'Measurement'}, shape: 'evaluator + thresholds + code revision', detail: {vi: 'Thước đo cũng được version.'}},
+    {label: {vi: 'Outputs'}, shape: 'per-case + slices + artifacts + decision', detail: {vi: 'pass/review/block với request IDs, không raw secret/PII.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Run khác evaluator/protocol không phải cùng một thước đo.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Worked release gate
-
-Baseline: task pass `90/100`, authorization `20/20`. Candidate: task `92/100`, authorization `19/20`. Dù task tăng 2 điểm phần trăm, candidate bị `block` vì must-pass case fail.
-
-Gate phải in case ID, invariant và owner; không chỉ `score below threshold`. Khi evaluator thay đổi, chạy lại baseline và candidate bằng cùng version trước khi so.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Worked release gate: task improvement không được ghi đè authorization regression.'},
+  comparisons: [
+    {title: 'Baseline', shape: 'task 90/100 · auth 20/20', detail: {vi: 'Đạt critical authorization suite.'}},
+    {title: 'Candidate', shape: 'task 92/100 · auth 19/20', detail: {vi: 'Tăng 2 điểm task nhưng fail một must-pass case.'}},
+    {title: 'Decision', shape: 'block', detail: {vi: 'In case ID, invariant và owner—not chỉ score below threshold.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Nếu evaluator đổi, chạy lại baseline và candidate bằng cùng version trước khi so.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Pitfall và handoff
-
-- Không dùng production traffic thô làm test set trước redaction/consent.
-- Không so run khác evaluator/protocol như thể cùng thước đo.
-- Theo dõi slice, uncertainty, latency/cost và critical counts.
-- Nối confirmed online failure vào offline suite; dùng offline gate trước exposure.
-
-Quiz kế tiếp kiểm tra lifecycle; A/B calculation đo effect/guardrail và harness code thực thi gate.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Regression handoff nối online failures với offline gate mà vẫn bảo vệ dữ liệu production.'},
+  steps: [
+    {label: {vi: 'Sanitize traffic'}, shape: 'redaction + consent', detail: {vi: 'Không dùng raw production data trực tiếp.'}},
+    {label: {vi: 'Comparable runs'}, shape: 'same evaluator/protocol', detail: {vi: 'Giữ measurement contract.'}},
+    {label: {vi: 'Report vector'}, shape: 'slices + uncertainty + latency/cost + critical', detail: {vi: 'Không chỉ một aggregate.'}},
+    {label: {vi: 'Close loop'}, shape: 'online failure → offline suite → gate', detail: {vi: 'Gate trước exposure tiếp theo.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'A/B lesson kế tiếp đo effect cùng guardrail trước rollout.'},
+}} />
 
 </MdxPage>

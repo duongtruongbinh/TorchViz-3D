@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Text, image, audio, video và file có upload/reference/cost khác nhau nhưng phải normalize về typed parts."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Validated media parts và task instruction."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Interaction result plus media provenance/usage."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "One logical input → ordered content parts; upload may create resource ID with expiry/lifecycle."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Text, image, audio, video và file có upload/reference/cost khác nhau nhưng phải normalize về typed parts.
 
@@ -20,7 +26,7 @@ Text, image, audio, video và file có upload/reference/cost khác nhau nhưng p
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Worked fixture" contract="typed input → validated output" pitfall="Giữ explicit error path, timeout/cancellation và provider-specific invariant." takeaway="Fixture materialize contract thành artifact deterministic có thể test.">
 
 Video support clip được upload theo policy, question là text part, output schema là damage segments. App xóa resource theo retention và không tin timestamp nếu parse fail.
 
@@ -68,11 +74,19 @@ assert.throws(
 ~~~
 <LessonNote>Upload ID là capability-scoped resource, không phải public URL. Production phải theo dõi processing/expiry/delete state và bảo toàn thứ tự parts.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Gemini multimodal inputs"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Nhúng file lớn inline không budget."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Mất order giữa parts."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Không xóa uploaded resource."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

@@ -10,42 +10,51 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-Khi model lớn lên, công thức attention không đổi nhưng bottleneck chuyển sang parameter memory, activation memory, communication và scheduling. Người xây hệ thống cần biết chi phí nằm ở prefill, decode hay training trước khi chọn tối ưu.
-
-**Input:** Cấu hình decoder gồm số layer, hidden size, sequence length, batch và dtype.
-
-**Output:** Bản đồ chi phí cho parameter, activation, attention, prefill và decode.
-
-**Data/type/shape:** Token IDs `(B,T)` vẫn thành hidden states `(B,T,C)`, nhưng mỗi layer tạo activation và giao tiếp trên nhiều device; decode chỉ thêm một vị trí trong khi prefill xử lý cả prefix.
-
-<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Ở quy mô lớn, công thức attention không đổi; bottleneck chuyển sang memory, communication và scheduling.'},
+  steps: [
+    {label: {vi: 'Decoder config'}, shape: 'layers · C · T · B · dtype', detail: {vi: 'Đầu vào để lập bản đồ chi phí.'}},
+    {label: {vi: 'Token hidden'}, shape: '(B,T) → (B,T,C)', detail: {vi: 'Invariant kiến trúc vẫn giữ nguyên.'}},
+    {label: {vi: 'Training'}, shape: 'parameters + activations + communication', detail: {vi: 'Mỗi layer tạo state cho backward và giao tiếp nhiều device.'}},
+    {label: {vi: 'Inference'}, shape: 'prefill T · decode 1', detail: {vi: 'Prefill xử lý cả prefix; decode thêm một vị trí.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Xác định chi phí nằm ở training, prefill hay decode trước khi chọn tối ưu.'},
+  misconception: {vi: 'Tách invariant kiến trúc khỏi con số model hoặc provider có thể thay đổi.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Trace bằng tay
-
-Với `B=2`, `T=1.024`, `C=4.096`, một hidden-state tensor fp16 có `2×1.024×4.096×2 = 16 MiB`. Đây mới là một tensor của một layer; training còn cần lưu activation cho backward. Trong decode, `T_new=1` nhưng model phải đọc weights và KV cache ở mọi layer.
-
-**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked example tính memory của đúng một hidden-state tensor fp16.'},
+  steps: [
+    {label: {vi: 'Elements'}, shape: 'B×T×C = 2×1,024×4,096', detail: {vi: 'Một tensor tại một layer.'}},
+    {label: {vi: 'Dtype'}, shape: 'fp16 = 2 bytes', detail: {vi: 'Nhân bytes trên mỗi phần tử.'}},
+    {label: {vi: 'Memory'}, shape: '16 MiB', detail: {vi: 'Training còn lưu thêm activations cho backward.'}},
+    {label: {vi: 'Decode contrast'}, shape: 'T_new=1', detail: {vi: 'Vẫn phải đọc weights và KV cache ở mọi layer.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Viết đại lượng và đơn vị trước, thay số sau, rồi audit type/shape và giới hạn.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production và bước tiếp
-
-**Sai lầm production thường gặp:**
-
-- Chỉ đếm parameter mà bỏ activation, optimizer state và KV cache.
-- Gọi mọi chậm trễ là compute-bound dù decode thường bị memory-bandwidth chi phối.
-- Suy từ một GPU benchmark sang cluster mà bỏ communication.
-
-
-**Kết nối:** Bài kế tiếp biến context window thành một ngân sách hữu hạn thay vì một con số marketing.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production audit phải gom đủ state và phân loại bottleneck trước khi suy từ benchmark.'},
+  steps: [
+    {label: {vi: 'Memory inventory'}, shape: 'params + activations + optimizer + KV', detail: {vi: 'Không chỉ đếm parameter.'}},
+    {label: {vi: 'Bottleneck'}, shape: 'compute vs bandwidth', detail: {vi: 'Decode thường bị memory bandwidth chi phối.'}},
+    {label: {vi: 'System scale'}, shape: '1 GPU → cluster', detail: {vi: 'Thêm communication vào mô hình chi phí.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài kế tiếp biến context window thành một ngân sách hữu hạn thay vì con số marketing.'},
+}} />
 
 </MdxPage>
-

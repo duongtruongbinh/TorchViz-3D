@@ -1,0 +1,118 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-training-data',
+  locale: 'vi',
+  title: 'Data: Từ web thô đến training token',
+  headings: ['Nguồn dữ liệu web', 'Một trang web thô', 'Lọc dữ liệu', 'Cân bằng và hoàn thiện', 'Quy mô và thách thức'],
+  keywords: ['training data', 'Common Crawl', 'data filtering', 'domain balancing', 'data quality', 'copyright'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Training data là một mixture được tuyển chọn, không phải bản sao sạch và đầy đủ của “toàn bộ Internet”.'},
+  comparisons: [
+    {title: 'Nguồn thô', shape: 'web · code · sách · bài báo', detail: {vi: 'Common Crawl giúp bắt đầu ở quy mô lớn: hơn 300 tỷ trang qua nhiều năm, hơn 10 PiB; một crawl thường hơn 2 tỷ trang.'}},
+    {title: 'Training corpus', shape: 'selected + cleaned + balanced', detail: {vi: 'Dataset còn cần lọc navigation, quảng cáo, spam, lặp, lỗi encoding và nội dung không phù hợp.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Common Crawl cung cấp nguyên liệu thô, không cung cấp sẵn training dataset chất lượng cao.'},
+  misconception: {vi: '“Crawl được” không đồng nghĩa “dùng để train được”.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Một document web thô"
+  contract="WARC/HTML → text extraction → normalization → filtering → deduplication → tokens"
+  output="Nội dung hữu ích tách khỏi script, navigation, quảng cáo và boilerplate"
+  pitfall="Xóa HTML tags không tự loại navigation, spam hoặc nội dung lặp."
+  takeaway="Pipeline phải trích text và gắn metadata trước khi quyết định giữ hay loại document."
+>
+
+```html
+<!doctype html><html><head>
+<title>Best AI tools!!!</title>
+<script>window.ads={track:true};</script>
+<style>.popup{position:fixed}</style>
+</head><body>
+<nav>Home | Deals | Login | Subscribe</nav>
+<div class="popup">ACCEPT ALL COOKIES</div>
+<article>
+  <h1>Best AI tools</h1>
+  <p>AI can help your team...</p>
+  <p>Related: <a href="/cheap-loans">click here</a></p>
+</article>
+<footer>Copyright 2012–2026 · Terms · Ads</footer>
+</body></html>
+```
+
+Con người phải tìm đoạn nội dung hữu ích giữa HTML, JavaScript, menu, quảng cáo và boilerplate. Máy tính cũng không tự biết phần nào là kiến thức cần học: trước hết pipeline phải trích text, chuẩn hóa và gắn metadata; sau đó mới quyết định giữ hay loại document.
+
+```text
+WARC/HTML → text extraction → normalization → filtering → deduplication → tokens
+```
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Bốn lớp lọc biến web thô thành corpus có thể sử dụng, mỗi lớp có tín hiệu và failure mode riêng.'},
+  steps: [
+    {label: {vi: 'Rule filtering'}, shape: 'length · language · density', detail: {vi: 'Loại document rõ ràng chất lượng thấp bằng rule rẻ ở quy mô lớn.'}},
+    {label: {vi: 'Deduplication'}, shape: 'hash · MinHash · n-gram', detail: {vi: 'Loại exact/near duplicates để giảm học lặp và leakage.'}},
+    {label: {vi: 'Model filtering'}, shape: 'quality classifier', detail: {vi: 'Chấm chất lượng từ positive/negative references.'}},
+    {label: {vi: 'Safety / policy'}, shape: 'PII · malware · toxicity', detail: {vi: 'Loại hoặc gắn nhãn theo policy dataset.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Lọc quá ít giữ noise; lọc quá mạnh mất diversity và khuếch đại bias của bộ lọc.'},
+  misconception: {vi: 'Wikipedia có thể là positive reference, không phải định nghĩa tuyệt đối của chất lượng.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Domain mixture quyết định model được nhìn thấy điều gì, thay vì phản chiếu nguyên tỷ lệ dữ liệu có sẵn trên web.'},
+  steps: [
+    {label: {vi: 'Filtered sources'}, shape: 'web · code · sách · khoa học · hội thoại', detail: {vi: 'Corpus đã qua quality và policy filters.'}},
+    {label: {vi: 'Domain labels'}, shape: 'source + license + time + filter version', detail: {vi: 'Giữ provenance để truy vết và version.'}},
+    {label: {vi: 'Mixture weights'}, shape: 'domain + language balance', detail: {vi: 'Tránh một domain lấn át và ngôn ngữ ít tài nguyên bị lép vế.'}},
+    {label: {vi: 'Shuffled token stream'}, shape: 'evaluation-gated recipe', detail: {vi: 'Có thể tăng dữ liệu chất lượng cao ở cuối với learning rate thấp hơn, nhưng phải kiểm chứng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Mixture là quyết định thiết kế cần evaluation, không phải công thức cố định.'},
+  misconception: {vi: 'Code hoặc dữ liệu có cấu trúc có thể hỗ trợ reasoning nhưng không tự bảo đảm model biết suy luận.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Hàng nghìn tỷ token khuếch đại chi phí của mọi rule sai và không xóa các bài toán governance.'},
+  steps: [
+    {label: {vi: 'Scale'}, shape: '15T+ tokens', detail: {vi: 'Llama 3 công bố hơn 15T token; FineWeb khoảng 15–18.5T sau làm sạch và deduplicate.'}},
+    {label: {vi: 'Rights + safety'}, shape: 'license · consent · deletion · PII · bias', detail: {vi: 'Nguồn dữ liệu phải đáp ứng policy và khả năng truy vết.'}},
+    {label: {vi: 'Quality + leakage'}, shape: 'domains · languages · benchmarks', detail: {vi: 'Thiếu dữ liệu tốt và contamination vẫn tồn tại.'}},
+    {label: {vi: 'Continuous recipe'}, shape: 'source → extract → filter → dedup → balance → version → evaluate', detail: {vi: 'Storage, processing và evaluation lặp lại cho từng mixture.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Data engineering cho LLM là quá trình chọn và đánh giá liên tục, không phải tải Internet rồi tokenize.'},
+  misconception: {vi: 'Quy mô lớn không tự trả lời cách cân bằng domain, dùng synthetic data hay xây multimodal corpus.'},
+}} />
+
+Nguồn đọc thêm: [Common Crawl](https://commoncrawl.org/about), [FineWeb](https://huggingface.co/datasets/HuggingFaceFW/fineweb), [DataComp-LM](https://arxiv.org/abs/2406.11794), [Meta Llama 3](https://ai.meta.com/blog/meta-llama-3/).
+
+</MdxPage>

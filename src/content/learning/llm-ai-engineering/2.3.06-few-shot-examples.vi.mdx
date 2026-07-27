@@ -10,21 +10,30 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Examples truyền decision boundary
-
-Examples có thể truyền format và boundary tốt hơn mô tả dài, nhưng làm tăng token cost và có thể đưa bias hoặc leakage vào prompt.
-
-**Input:** failure clusters từ eval, candidate examples có split/provenance, token count và output đúng schema version hiện tại.
-
-**Output:** một tập nhỏ demonstrations bao phủ cluster ưu tiên trong budget.
-
-Không chọn chỉ theo độ giống bề mặt. Hai examples gần như trùng nhau có thể tốn budget mà không mở rộng decision boundary.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Few-shot examples nên truyền decision boundaries, không chỉ giống input hiện tại về bề mặt.'},
+  steps: [
+    {label: {vi: 'Eval failures'}, shape: 'priority clusters', detail: {vi: 'Bắt đầu từ lỗi lặp lại.'}},
+    {label: {vi: 'Candidate pool'}, shape: 'split + provenance + tokens + schema', detail: {vi: 'Loại test leakage và schema cũ.'}},
+    {label: {vi: 'Coverage selection'}, shape: 'one boundary per cluster', detail: {vi: 'Tránh examples gần như trùng nhau.'}},
+    {label: {vi: 'Budgeted set'}, shape: 'small demonstrations', detail: {vi: 'Cân format signal với token cost và bias.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output là tập nhỏ examples bao phủ cluster ưu tiên trong budget.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Chọn theo coverage và budget
+<CodeLessonFrame
+  title="Chọn examples theo coverage và budget"
+  contract="required clusters + eligible examples + schema version + token budget"
+  output="delivery-1 + billing-1 = 240 tokens gồm 40 framing"
+  pitfall="Không dùng test examples hoặc schema version cũ dù chúng rẻ hơn."
+  takeaway="Chọn candidate rẻ nhất cho mỗi failure cluster rồi fail nếu vượt budget."
+>
 
 Fixture dưới chọn một example rẻ nhất cho mỗi failure cluster, cấm test leakage và tính cả 40 token framing. Với budget 240, `delivery=90` và `billing=110` vừa đủ.
 
@@ -91,18 +100,23 @@ assert.throws(
 assert.throws(() => selectExamples(examples, ["unknown"], 240, "v3"), /missing_cluster/);
 ~~~
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production gate
-
-- Version example set cùng prompt, schema và tokenizer dùng để đếm token.
-- Tách training/selection data khỏi held-out evaluation; không báo score trên examples đã đưa vào prompt.
-- Kiểm tra label balance, contradictory examples và drift khi schema đổi.
-- So với zero-shot bằng quality theo slice, token/latency và safety guardrails.
-- Log example IDs/version, không log raw sample chứa PII hoặc hidden reasoning.
-
-**Kết nối:** Quiz yêu cầu chọn zero/one/few-shot theo evidence.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Few-shot production gate khóa provenance, budget và fair comparison với zero-shot.'},
+  steps: [
+    {label: {vi: 'Version'}, shape: 'examples + prompt + schema + tokenizer', detail: {vi: 'Token count phải tái lập được.'}},
+    {label: {vi: 'Separate data'}, shape: 'selection ≠ held-out eval', detail: {vi: 'Không chấm trên examples đã đưa vào prompt.'}},
+    {label: {vi: 'Audit set'}, shape: 'balance + contradictions + schema drift', detail: {vi: 'Phát hiện bias và stale outputs.'}},
+    {label: {vi: 'Gate'}, shape: 'slice quality + tokens/latency + safety', detail: {vi: 'Log IDs/version, không raw PII hay hidden reasoning.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Quiz tiếp theo chọn zero/one/few-shot theo evidence.'},
+}} />
 
 </MdxPage>

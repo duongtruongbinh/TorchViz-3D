@@ -10,45 +10,64 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Decision matrix
-
-Với 100 unsafe và 100 benign boundary cases:
-
-| Expected / Actual | Refuse | Comply |
-|---|---:|---:|
-| Unsafe | 94 | 6 |
-| Benign | 12 | 88 |
-
-Hai error types phải giữ riêng; average accuracy `91%` không nói impact của từng loại.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Decision matrix giữ riêng hai failure directions mà average accuracy 91% che khuất.'},
+  comparisons: [
+    {title: 'Unsafe cases', shape: '94 refuse · 6 comply', detail: {vi: '6 unsafe compliances trên denominator 100.'}},
+    {title: 'Benign boundary', shape: '12 refuse · 88 comply', detail: {vi: '12 overrefusals trên denominator 100.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Hai error types có impact khác nhau nên không được gộp thành một accuracy.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Tính hai error rates
-
-- unsafe compliance rate `=6/100=6%`.
-- overrefusal rate `=12/100=12%`.
-- safe-direction rate nên được chấm riêng trên các refusal hợp lệ.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Calibration report cần hai rates và chất lượng hướng dẫn an toàn.'},
+  comparisons: [
+    {title: 'Unsafe compliance', shape: '6/100 = 6%', detail: {vi: 'Unsafe request vẫn được đáp ứng.'}},
+    {title: 'Overrefusal', shape: '12/100 = 12%', detail: {vi: 'Benign boundary request bị từ chối.'}},
+    {title: 'Safe direction', shape: 'score valid refusals separately', detail: {vi: 'Refusal hợp lệ có đưa alternative phù hợp không?'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Luôn báo denominator cho từng population.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Chọn threshold
-
-Candidate threshold chặt hơn giảm unsafe compliance từ `6%` xuống `3%` nhưng tăng overrefusal từ `12%` lên `28%`. Không có threshold universal: product owner đặt limits theo impact và slice; critical unsafe cases có thể là must-pass dù aggregate rate thấp.
-
-Chọn threshold trên calibration set, đánh giá một lần trên holdout và theo dõi drift.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Threshold chặt hơn đổi safety risk lấy helpfulness regression; không có một mức universal.'},
+  comparisons: [
+    {title: 'Current threshold', shape: 'unsafe 6% · overrefusal 12%', detail: {vi: 'Điểm xuất phát trên calibration set.'}},
+    {title: 'Tighter threshold', shape: 'unsafe 3% · overrefusal 28%', detail: {vi: 'Giảm unsafe compliance nhưng tăng mạnh false positives.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Product owner đặt limits theo impact/slice; chọn trên calibration, đánh giá một lần trên holdout và theo dõi drift.'},
+  misconception: {vi: 'Critical unsafe case vẫn có thể là must-pass dù aggregate rate thấp.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Invariants
-
-Matched pairs phải giữ intent distinction rõ; báo denominator và confidence interval. Không tối ưu bằng cách xóa benign cases. Refusal content không được lặp lại harmful details, nhưng nên đưa safe alternative khi phù hợp.
-
-Application Quiz kế tiếp kiểm tra toxicity/bias/privacy cùng calibration này.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Calibration invariants ngăn dataset manipulation và refusal chất lượng thấp.'},
+  steps: [
+    {label: {vi: 'Matched pairs'}, shape: 'clear intent distinction', detail: {vi: 'Chỉ đổi yếu tố cần kiểm tra.'}},
+    {label: {vi: 'Statistical report'}, shape: 'denominator + confidence interval', detail: {vi: 'Không chỉ báo point estimate.'}},
+    {label: {vi: 'Dataset integrity'}, shape: 'keep benign cases', detail: {vi: 'Không giảm overrefusal bằng cách xóa denominator.'}},
+    {label: {vi: 'Refusal content'}, shape: 'no harmful replay + safe alternative', detail: {vi: 'Giữ response hữu ích khi phù hợp.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Quiz kế tiếp áp dụng calibration vào toxicity, bias và privacy.'},
+}} />
 
 </MdxPage>

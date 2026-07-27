@@ -10,23 +10,20 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Contract trước khi viết code
-
-Với `ids`, `max_length=T` và `stride`, Dataset phải trả:
-
-```text
-x: (T,), torch.long
-y: (T,), torch.long
-x[1:] == y[:-1]
-```
-
-DataLoader gom các sample thành:
-
-```text
-x_batch, y_batch: (B,T)
-```
-
-Tokenizer/vocabulary đã được cố định ở các bài trước. Lesson này không dựng vocabulary mới từ validation data.
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Khóa contract trước khi viết class: Dataset tạo shifted pairs shape (T,), còn DataLoader chỉ gom chúng thành (B,T).'},
+  code: [
+    '# Dataset output',
+    'x: (T,), torch.long',
+    'y: (T,), torch.long',
+    'x[1:] == y[:-1]',
+    '',
+    '# DataLoader output',
+    'x_batch, y_batch: (B,T)',
+  ],
+  output: ['Dataset: one shifted pair', 'DataLoader: collated batch of pairs'],
+  takeaway: {vi: 'Tokenizer/vocabulary đã được cố định ở bài trước; không dựng vocabulary mới từ validation data.'},
+}} />
 
 <LessonNote>**Lỗi thường gặp:** để DataLoader chịu trách nhiệm shift target. DataLoader chỉ collate các cặp mà Dataset trả về.</LessonNote>
 
@@ -36,28 +33,35 @@ Tokenizer/vocabulary đã được cố định ở các bài trước. Lesson n
 
 <MdxPage page={1}>
 
-## Dataset sliding-window tối thiểu
-
-```python
-import torch
-from torch.utils.data import Dataset, DataLoader
-
-class GPTDatasetV1(Dataset):
-    def __init__(self, ids, max_length, stride):
-        self.inputs = []
-        self.targets = []
-
-        for start in range(0, len(ids) - max_length, stride):
-            chunk = ids[start:start + max_length + 1]
-            self.inputs.append(torch.tensor(chunk[:-1], dtype=torch.long))
-            self.targets.append(torch.tensor(chunk[1:], dtype=torch.long))
-
-    def __len__(self):
-        return len(self.inputs)
-
-    def __getitem__(self, index):
-        return self.inputs[index], self.targets[index]
-```
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Dataset materialize từng chunk T+1 rồi lấy hai slice lệch nhau một token.'},
+  code: [
+    'import torch',
+    'from torch.utils.data import Dataset, DataLoader',
+    '',
+    'class GPTDatasetV1(Dataset):',
+    '    def __init__(self, ids, max_length, stride):',
+    '        self.inputs = []',
+    '        self.targets = []',
+    '',
+    '        for start in range(0, len(ids) - max_length, stride):',
+    '            chunk = ids[start:start + max_length + 1]',
+    '            self.inputs.append(',
+    '                torch.tensor(chunk[:-1], dtype=torch.long)',
+    '            )',
+    '            self.targets.append(',
+    '                torch.tensor(chunk[1:], dtype=torch.long)',
+    '            )',
+    '',
+    '    def __len__(self):',
+    '        return len(self.inputs)',
+    '',
+    '    def __getitem__(self, index):',
+    '        return self.inputs[index], self.targets[index]',
+  ],
+  output: ['ids → chunks of T+1 → (input[T], target[T])'],
+  takeaway: {vi: 'Source slice phải đi đến start+T+1 để cả chunk[:-1] và chunk[1:] cùng dài T.'},
+}} />
 
 <LessonNote>**Lỗi thường gặp:** slice source chỉ đến `start+T`; khi đó `chunk[1:]` chỉ dài `T-1`.</LessonNote>
 
@@ -67,26 +71,27 @@ class GPTDatasetV1(Dataset):
 
 <MdxPage page={2}>
 
-## Tạo Dataset từ running IDs
-
-```python
-ids = [2, 3, 1, 0, 5, 2, 4, 1, 0]
-
-dataset = GPTDatasetV1(
-    ids,
-    max_length=3,
-    stride=2,
-)
-
-assert len(dataset) == 3
-
-x0, y0 = dataset[0]
-assert x0.tolist() == [2, 3, 1]
-assert y0.tolist() == [3, 1, 0]
-assert torch.equal(x0[1:], y0[:-1])
-```
-
-Trong training thật, `ids` phải đến từ train split đã tách trước. Validation split dùng cùng tokenizer nhưng một `GPTDatasetV1` riêng.
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Dùng lại đúng running IDs, T=3 và stride=2 để smoke-test số sample, giá trị và shift invariant.'},
+  code: [
+    'ids = [2, 3, 1, 0, 5, 2, 4, 1, 0]',
+    '',
+    'dataset = GPTDatasetV1(',
+    '    ids,',
+    '    max_length=3,',
+    '    stride=2,',
+    ')',
+    '',
+    'assert len(dataset) == 3',
+    '',
+    'x0, y0 = dataset[0]',
+    'assert x0.tolist() == [2, 3, 1]',
+    'assert y0.tolist() == [3, 1, 0]',
+    'assert torch.equal(x0[1:], y0[:-1])',
+  ],
+  output: ['len(dataset) = 3', 'x0 = [2,3,1]', 'y0 = [3,1,0]'],
+  takeaway: {vi: 'Trong training thật, IDs phải đến từ train split đã tách trước; validation dùng cùng tokenizer nhưng Dataset riêng.'},
+}} />
 
 <LessonNote>**Lỗi thường gặp:** encode train/validation bằng hai vocabularies khác nhau. Cùng integer ID khi đó không còn trỏ cùng token.</LessonNote>
 
@@ -94,25 +99,24 @@ Trong training thật, `ids` phải đến từ train split đã tách trước.
 
 <MdxPage page={3}>
 
-## DataLoader gom sample thành batch
-
-```python
-loader = DataLoader(
-    dataset,
-    batch_size=2,
-    shuffle=False,
-    drop_last=False,
-)
-
-input_ids, target_ids = next(iter(loader))
-
-assert input_ids.shape == target_ids.shape == (2, 3)
-assert input_ids.dtype == target_ids.dtype == torch.long
-```
-
-`shuffle=False` làm smoke test deterministic. Khi training, `shuffle=True` đổi thứ tự samples nhưng không thay token order bên trong mỗi sample.
-
-Batch size nhỏ dùng ít memory hơn; batch size lớn xử lý nhiều windows song song hơn. Đây là hyperparameter của DataLoader/training, không phải vocabulary hay context length.
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'DataLoader collate hai sample thành batch, không thay đổi token order bên trong mỗi row.'},
+  code: [
+    'loader = DataLoader(',
+    '    dataset,',
+    '    batch_size=2,',
+    '    shuffle=False,',
+    '    drop_last=False,',
+    ')',
+    '',
+    'input_ids, target_ids = next(iter(loader))',
+    '',
+    'assert input_ids.shape == target_ids.shape == (2, 3)',
+    'assert input_ids.dtype == target_ids.dtype == torch.long',
+  ],
+  output: ['input_ids.shape = target_ids.shape = (2,3)', 'dtype = torch.long'],
+  takeaway: {vi: 'shuffle=False giữ smoke test deterministic; shuffle=True khi train chỉ đổi thứ tự samples. Batch size là hyperparameter training, không phải V hay T.'},
+}} />
 
 <LessonNote>**Lỗi thường gặp:** shuffle token positions trong mỗi row. Next-token target chỉ hợp lệ khi sequence order được giữ nguyên.</LessonNote>
 
@@ -120,30 +124,28 @@ Batch size nhỏ dùng ít memory hơn; batch size lớn xử lý nhiều window
 
 <MdxPage page={4}>
 
-## Smoke test giá trị và shape
-
-```python
-expected_x = torch.tensor([
-    [2, 3, 1],
-    [1, 0, 5],
-])
-expected_y = torch.tensor([
-    [3, 1, 0],
-    [0, 5, 2],
-])
-
-assert torch.equal(input_ids, expected_x)
-assert torch.equal(target_ids, expected_y)
-assert torch.equal(input_ids[:, 1:], target_ids[:, :-1])
-
-print(input_ids.shape)  # torch.Size([2, 3])
-```
-
-Ba invariants trước khi train:
-
-1. input và target cùng `(B,T)`;
-2. target dịch đúng một token;
-3. dtype là integer index (`torch.long`).
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Smoke test cuối khóa ba invariants trước khi train: shape, one-token shift và integer dtype.'},
+  code: [
+    'expected_x = torch.tensor([',
+    '    [2, 3, 1],',
+    '    [1, 0, 5],',
+    '])',
+    'expected_y = torch.tensor([',
+    '    [3, 1, 0],',
+    '    [0, 5, 2],',
+    '])',
+    '',
+    'assert torch.equal(input_ids, expected_x)',
+    'assert torch.equal(target_ids, expected_y)',
+    'assert torch.equal(input_ids[:, 1:], target_ids[:, :-1])',
+    'assert input_ids.dtype == target_ids.dtype == torch.long',
+    '',
+    'print(input_ids.shape)',
+  ],
+  output: ['torch.Size([2, 3])'],
+  takeaway: {vi: 'input/target cùng (B,T), target dịch đúng một token và cả hai chứa integer indices torch.long.'},
+}} />
 
 <LessonNote>**Handoff:** Batch IDs đã sẵn sàng tra bảng token embedding và thêm positional information.</LessonNote>
 

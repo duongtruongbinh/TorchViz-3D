@@ -7,80 +7,84 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## 1. Tách corpus trước khi tạo cửa sổ
-
-**Mục tiêu:** Nhìn toàn bộ pipeline decoder-only từ raw corpus đến checkpoint và token mới.
-
-Chia raw text thành train/validation trước, tốt nhất theo tài liệu hoặc nguồn. Sau đó mỗi split mới được tokenize và tạo sliding windows.
-
-Nếu tạo windows trước rồi random split, hai cửa sổ overlap gần giống nhau có thể rơi vào train và validation.
-
-<LessonNote>**Takeaway:** Split boundary phải đứng trước bước sinh mẫu để validation thực sự chưa được model tối ưu.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Bắt đầu pipeline bằng split boundary ở cấp tài liệu hoặc nguồn, trước mọi bước tạo overlapping samples.'},
+  steps: [
+    {label: {vi: 'Raw corpus'}, shape: 'documents / sources', detail: {vi: 'Dữ liệu chưa tạo windows.'}},
+    {label: {vi: 'Train / validation split'}, shape: 'disjoint sources', detail: {vi: 'Validation chưa được model tối ưu.'}},
+    {label: {vi: 'Tokenize each split'}, shape: 'integer IDs', detail: {vi: 'Dùng cùng tokenizer đã cố định.'}},
+    {label: {vi: 'Create windows'}, shape: 'separate samples', detail: {vi: 'Không có overlap xuyên split.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Split boundary phải đứng trước bước sinh mẫu; tạo windows rồi random split có thể đưa context gần như giống nhau vào cả train và validation.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## 2. Token windows trở thành batches
-
-Tokenizer tạo một chuỗi IDs. Dataset lấy từng đoạn `T+1` token, tạo input/target dài T rồi DataLoader gom thành:
-
-- `input_ids: (B,T)`;
-- `target_ids: (B,T)`;
-- invariant `input_ids[:,1:] == target_ids[:,:-1]`.
-
-`stride` điều khiển overlap; batch size B điều khiển số sequence chạy song song.
-
-<LessonNote>**Lỗi thường gặp:** gọi mỗi window là một batch. Window là sample; DataLoader mới tạo batch.</LessonNote>
-
-**Takeaway:** Data pipeline kết thúc ở integer IDs; GPT tự thực hiện embedding.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Tokenizer tạo IDs; Dataset biến đoạn T+1 thành shifted pair; DataLoader mới gom nhiều samples thành batch.'},
+  steps: [
+    {label: {vi: 'ID sequence'}, shape: 'list[int]', detail: {vi: 'Tokenizer output.'}},
+    {label: {vi: 'Window'}, shape: 'T+1 IDs', detail: {vi: 'Stride điều khiển overlap.'}},
+    {label: {vi: 'Shifted sample'}, shape: 'x(T,), y(T,)', detail: {vi: 'x[1:] == y[:-1].'}},
+    {label: {vi: 'DataLoader batch'}, shape: 'x,y · (B,T)', detail: {vi: 'B samples chạy song song.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Data pipeline kết thúc ở integer IDs; GPT tự lookup embeddings. Window là sample, DataLoader mới tạo batch.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## 3. GPT tạo logits cho mọi vị trí
-
-Decoder-only GPT biến `(B,T)` thành logits `(B,T,V)`. Causal mask bảo đảm logits tại vị trí t chỉ dùng token `≤t`.
-
-Trong training, mọi T vị trí đóng góp target nên một forward tạo `B×T` bài toán phân loại vocabulary. Trong generation, chỉ `logits[:,-1,:]` được dùng.
-
-<LessonNote>**Lỗi thường gặp:** softmax toàn tensor rồi đưa vào cross-entropy. PyTorch loss nhận raw logits để tính ổn định hơn.</LessonNote>
-
-**Takeaway:** Cùng logits contract phục vụ cả loss khi train và chọn token khi inference.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Decoder-only GPT biến IDs (B,T) thành raw logits (B,T,V); causal mask bảo đảm vị trí t chỉ dùng prefix ≤t.'},
+  comparisons: [
+    {title: 'Training', shape: 'B×T targets', detail: {vi: 'Mọi T vị trí đóng góp vào cross-entropy trong một forward.'}},
+    {title: 'Generation', shape: 'logits[:,-1,:] · (B,V)', detail: {vi: 'Mỗi vòng chỉ đọc distribution ở vị trí cuối.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Cùng logits contract phục vụ loss khi training và chọn token khi inference.'},
+  misconception: {vi: 'Không softmax toàn tensor trước cross-entropy; PyTorch loss nhận raw logits để tính ổn định hơn.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## 4. Loss, backward và optimizer
-
-Flatten logits `(B,T,V) → (B×T,V)` và targets `(B,T) → (B×T)`. Cross-entropy là mean negative log-likelihood của ground-truth tokens.
-
-Một update:
-
-```text
-zero_grad → forward → loss → backward → clip (nếu dùng) → optimizer.step
-```
-
-<LessonNote>**Lỗi thường gặp:** quên `zero_grad`, làm gradient cộng dồn ngoài ý muốn giữa các batch.</LessonNote>
-
-**Takeaway:** Loss scalar tổng hợp B×T quyết định gradient cho mọi parameter trainable.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Flatten B×T prediction problems, tính một loss scalar rồi thực hiện update theo đúng thứ tự.'},
+  steps: [
+    {label: {vi: 'zero_grad + forward'}, shape: '(B,T) → (B,T,V)', detail: {vi: 'Xóa gradient cũ rồi tạo logits.'}},
+    {label: {vi: 'Cross-entropy'}, shape: '(B×T,V) + (B×T)', detail: {vi: 'Mean NLL của ground-truth tokens.'}},
+    {label: {vi: 'backward + clip'}, shape: 'loss scalar → grads', detail: {vi: 'Clip sau backward nếu dùng.'}},
+    {label: {vi: 'optimizer.step'}, shape: 'update parameters', detail: {vi: 'Áp gradient lên weights trainable.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Loss scalar tổng hợp B×T quyết định gradient cho mọi parameter trainable.'},
+  misconception: {vi: 'Không quên zero_grad; nếu không, gradient cộng dồn ngoài ý muốn giữa các batches.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={4}>
 
-## 5. Validation, checkpoint và generation
-
-Định kỳ chuyển `model.eval()`, dùng `torch.no_grad()` để tính validation loss rồi trở lại `model.train()`. Lưu model, optimizer và step khi validation tốt hơn hoặc theo lịch phục hồi.
-
-Sau training, generation lặp:
-
-`prefix → last-token logits → decoding strategy → append token`.
-
-<LessonNote>**Lỗi thường gặp:** đánh giá validation với dropout còn bật hoặc chọn checkpoint bằng test set.</LessonNote>
-
-**Takeaway:** Training, validation và generation dùng chung model nhưng khác state, gradient policy và cách đọc logits.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Training, validation và generation dùng chung model nhưng khác state, gradient policy và cách đọc logits.'},
+  comparisons: [
+    {title: 'Validation + checkpoint', shape: 'eval · no_grad', detail: {vi: 'Tính validation loss, lưu model/optimizer/step khi tốt hơn hoặc theo recovery schedule.'}},
+    {title: 'Generation', shape: 'autoregressive loop', detail: {vi: 'prefix → last-token logits → decoding → append token.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Sau validation phải phục hồi model.train(); checkpoint được chọn bằng validation, không bằng test set.'},
+  misconception: {vi: 'Không đánh giá validation với dropout còn bật và không dùng test set để chọn checkpoint.'},
+}} />
 
 </MdxPage>

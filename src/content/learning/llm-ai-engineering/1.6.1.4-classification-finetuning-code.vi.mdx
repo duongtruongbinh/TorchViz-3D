@@ -10,7 +10,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Input/output contract
+<CodeLessonFrame
+  title="Input/output contract"
+  contract="input_ids (B,T) + attention_mask (B,T) + labels (B,) → logits (B,K)"
+  output="Toy backbone giữ cùng boundary với LLM classifier thật"
+  pitfall="Toy backbone chỉ kiểm thử wiring và shape, không đại diện chất lượng phân loại ngôn ngữ."
+  takeaway="Tách smoke test của head, mask và loss khỏi chi phí checkpoint lớn."
+>
 
 **Mục tiêu:** Viết một classifier toy nhưng chạy độc lập và giữ cùng contract với LLM classifier thực tế.
 
@@ -21,15 +27,18 @@ export const lessonMetadata = {
 
 Ta dùng embedding + MLP nhỏ làm backbone để smoke test không cần checkpoint lớn. Trong dự án thật, thay backbone bằng GPT đã pretrain.
 
-<LessonNote>Code này minh họa wiring và shape, không phải kiến trúc đủ mạnh cho phân loại ngôn ngữ thực tế.</LessonNote>
-
-**Takeaway:** Toy backbone cho phép kiểm thử head, mask và loss độc lập với chi phí LLM.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Backbone giữ hidden theo token
+<CodeLessonFrame
+  title="Backbone giữ hidden theo token"
+  contract="input IDs (B,T) → token hidden (B,T,C)"
+  output="TinyBackbone dùng embedding + MLP"
+  takeaway="Giữ boundary (B,T,C) để thay backbone mà không đổi classifier."
+>
 
 ```python
 import torch
@@ -52,13 +61,19 @@ Contract: `(B,T) → (B,T,C)`.
 
 <LessonNote>**Production:** GPT backbone còn có positional embedding và causal transformer blocks; head code phía sau không cần biết chi tiết đó.</LessonNote>
 
-**Takeaway:** Giữ boundary `(B,T,C)` giúp thay backbone mà không đổi classifier.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Chọn token cuối và chiếu sang class
+<CodeLessonFrame
+  title="Chọn token cuối và chiếu sang class"
+  contract="hidden (B,T,C) + right-padding mask → last hidden (B,C) → logits (B,K)"
+  output="Device-safe gather theo valid_count − 1"
+  pitfall="CPU smoke test có thể che lỗi last_index khác device với hidden khi chạy GPU."
+  takeaway="Mask quyết định vị trí đọc; head quyết định số class."
+>
 
 ```python
 class TextClassifier(nn.Module):
@@ -89,15 +104,19 @@ class TextClassifier(nn.Module):
         return self.head(last_hidden)
 ```
 
-<LessonNote>**Lỗi thường gặp:** `last_index` phải ở cùng device với tensor khi chạy GPU; batch smoke test CPU che khuất lỗi device này.</LessonNote>
-
-**Takeaway:** Mask quyết định vị trí đọc; head quyết định số class.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Một training step
+<CodeLessonFrame
+  title="Một training step"
+  contract="logits (B,K) + labels (B,) → scalar CE → optimizer step"
+  output="requires_grad điều khiển head-only policy"
+  pitfall="Freeze backbone không có nghĩa bỏ backbone khỏi forward."
+  takeaway="Freeze policy được biểu diễn bằng requires_grad."
+>
 
 ```python
 import torch.nn.functional as F
@@ -122,13 +141,18 @@ for parameter in model.backbone.parameters():
 
 <LessonNote>**Production:** theo dõi validation loss/accuracy, class imbalance, gradient clipping và checkpoint; một batch không đủ đánh giá.</LessonNote>
 
-**Takeaway:** Freeze policy được thể hiện bằng `requires_grad`, không bằng việc bỏ backbone khỏi forward.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={4}>
 
-## Smoke test độc lập
+<CodeLessonFrame
+  title="Smoke test độc lập"
+  contract="shape + finite loss + empty-mask error path"
+  output="torch.Size([2, 2])"
+  takeaway="Smoke test khóa contract; benchmark trên split độc lập mới xác nhận chất lượng."
+>
 
 ```python
 import torch
@@ -163,6 +187,6 @@ else:
 print(logits.shape)  # torch.Size([2, 2])
 ```
 
-<LessonNote>**Takeaway:** Smoke test xác nhận shape, device-safe indexing và empty-mask error path; benchmark trên split độc lập mới xác nhận chất lượng.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>

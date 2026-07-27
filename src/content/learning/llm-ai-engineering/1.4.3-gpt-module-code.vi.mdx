@@ -8,7 +8,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Feed-forward
+<CodeLessonFrame
+  title="Feed-forward contract"
+  contract="(B,T,C) → (B,T,C)"
+  output="Linear C→4C · GELU · Linear 4C→C"
+  takeaway="MLP giữ (B,T,C) để residual addition hợp lệ."
+>
 
 **Mục tiêu:** Ghép một GPT decoder-only chạy độc lập từ PyTorch modules và kiểm tra shape/weight tying.
 
@@ -32,12 +37,18 @@ class FeedForward(nn.Module):
 
 <LessonNote>`nn.MultiheadAttention` được dùng để giữ bài GPT tập trung vào assembly; chapter trước đã cài attention từ đầu.</LessonNote>
 
-**Takeaway:** MLP giữ `(B,T,C)` để residual addition hợp lệ.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={1}>
 
-## Transformer block
+<CodeLessonFrame
+  title="Pre-norm TransformerBlock"
+  contract="(B,T,C) → (B,T,C)"
+  output="two residual additions"
+  pitfall="nn.MultiheadAttention không tự biết đây là GPT; vẫn phải truyền causal attention mask."
+  takeaway="Pre-norm block có hai residual additions và giữ nguyên shape."
+>
 
 ```python
 class TransformerBlock(nn.Module):
@@ -65,14 +76,18 @@ class TransformerBlock(nn.Module):
         return x
 ```
 
-<LessonNote>**Lỗi thường gặp:** bỏ causal mask vì đang dùng module built-in. `MultiheadAttention` không tự biết đây là GPT.</LessonNote>
-
-**Takeaway:** Pre-norm block có hai residual additions và giữ nguyên shape.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={2}>
 
-## Khởi tạo GPTModel
+<CodeLessonFrame
+  title="Khởi tạo GPTModel"
+  contract="config V · context · C · H · L"
+  output="ModuleList registers L independent blocks"
+  pitfall="Không dùng Python list thường cho blocks; ModuleList mới đăng ký parameter của từng instance."
+  takeaway="Config quyết định V, context, C, H và L tại một nơi."
+>
 
 ```python
 class GPTModel(nn.Module):
@@ -118,34 +133,35 @@ Mỗi block là một instance riêng. Weight tying tái sử dụng đúng `Par
 token embedding. `forward` nằm trong cùng definition nên ba code cell đầu có
 thể chạy tuần tự mà không cần chép một method thụt lề vào class bằng tay.
 
-<LessonNote>**Lỗi thường gặp:** tạo list Python thường; `ModuleList` mới đăng ký parameter của các block.</LessonNote>
-
-**Takeaway:** Config quyết định V, context, C, H và L tại một nơi.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={3}>
 
-## Forward pass và activation shapes
-
-| Bước | Input | Output | Invariant |
-|---|---|---|---|
-| Validate | token IDs `(B,T)` | cùng tensor | `dtype=torch.long`, `0<T≤context_length` |
-| Token lookup | `(B,T)` | `(B,T,C)` | mỗi ID nằm trong vocabulary |
-| Position lookup | positions `(T,)` | `(T,C)` | broadcast qua batch B |
-| Decoder blocks | `(B,T,C)` | `(B,T,C)` | causal mask và residual giữ shape |
-| Output head | `(B,T,C)` | logits `(B,T,V)` | không softmax trước cross-entropy |
-
-Positions `(T,)` broadcast qua B sau lookup `(T,C)`. Các nhánh lỗi chặn sai rank,
-dtype, sequence rỗng và context overflow trước khi attention chạy.
-
-<LessonNote>**Lỗi thường gặp:** tạo positions dài `context_length` thay vì T, làm phép cộng không khớp sequence hiện tại.</LessonNote>
-
-**Takeaway:** Chỉ output head đổi chiều cuối từ C sang V.
+<GptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Forward pass kiểm tra input trước attention rồi theo dõi shape đến vocabulary logits.'},
+  steps: [
+    {label: {vi: 'Validate IDs'}, shape: '(B,T) · torch.long', detail: {vi: '0<T≤context_length và rank=2.'}},
+    {label: {vi: 'Token + position'}, shape: '(B,T,C)', detail: {vi: 'Positions (T,) lookup thành (T,C) và broadcast qua B.'}},
+    {label: {vi: 'Decoder blocks'}, shape: '(B,T,C)', detail: {vi: 'Causal mask và residual giữ shape.'}},
+    {label: {vi: 'Output head'}, shape: '(B,T,V)', detail: {vi: 'Không softmax trước cross-entropy.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Chỉ output head đổi chiều cuối từ C sang V; error branches chặn rank, dtype, empty sequence và context overflow trước attention.'},
+  misconception: {vi: 'Không tạo positions dài context_length khi sequence hiện tại chỉ dài T; lookup đúng positions 0..T−1.'},
+}} />
 
 </MdxPage>
 <MdxPage page={4}>
 
-## Smoke test
+<CodeLessonFrame
+  title="Smoke test GPTModel"
+  contract="(2,8) IDs → (2,8,100) logits"
+  output="torch.Size([2, 8, 100]) · tied parameters = 28,608"
+  pitfall="Shape đúng mới là điều kiện cần; model chưa train vẫn chưa tạo token mang ngôn ngữ có nghĩa."
+  takeaway="Loss giảm trên dữ liệu độc lập mới chứng minh model học."
+>
 
 ```python
 torch.manual_seed(0)
@@ -182,6 +198,6 @@ Model chưa train vẫn sinh logits đúng shape, nhưng token lấy từ chúng
 
 <LessonNote>**Production:** code và bảng tính đều dùng linear không bias, nên exact count `28,608` khớp. Production còn cần initialization policy, optimizer groups, checkpoint, mixed precision và kernel attention tối ưu.</LessonNote>
 
-**Takeaway:** Shape đúng là điều kiện cần; loss giảm trên data độc lập mới chứng minh model học.
+</CodeLessonFrame>
 
 </MdxPage>

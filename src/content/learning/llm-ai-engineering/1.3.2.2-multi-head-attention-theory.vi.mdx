@@ -10,60 +10,69 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Một attention map chưa đủ
-
-**Mục tiêu:** Giải thích vì sao GPT chạy nhiều attention head song song nhưng vẫn giữ contract `(B,T,C) → (B,T,C)`.
-
-Một head tạo một cách trộn value. Nhiều head cho model nhiều không gian biểu diễn: một head có thể chú ý quan hệ gần, head khác theo dấu tham chiếu xa. Đây là khả năng học được, không phải vai trò được gán cứng.
-
-<LessonNote>**Lỗi thường gặp:** gọi mỗi head là một “chuyên gia ngữ pháp” cố định. Ta chỉ có thể quan sát pattern sau training; kiến trúc không bảo đảm nhãn ngữ nghĩa.</LessonNote>
-
-**Takeaway:** Multi-head tăng số góc nhìn, không thay đổi chiều output công khai của block.
+<AttentionConceptVisual content={{
+  view: 'batch',
+  lead: {vi: 'GPT chạy nhiều attention head song song để học nhiều cách trộn Value nhưng vẫn giữ public contract (B,T,C) → (B,T,C).'},
+  steps: [
+    {label: {vi: 'Shared input'}, shape: '(B,T,C)', detail: {vi: 'Cùng token sequence đi vào mọi head.'}},
+    {label: {vi: 'Parallel heads'}, shape: 'H × (B,T,D)', detail: {vi: 'Mỗi head học một không gian biểu diễn.'}},
+    {label: {vi: 'Public output'}, shape: '(B,T,C)', detail: {vi: 'Các head được ghép lại trước residual stream.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Multi-head tăng số góc nhìn, không thay đổi chiều output công khai của block.'},
+  misconception: {vi: 'Không gán cứng mỗi head thành “chuyên gia ngữ pháp”; chỉ có thể quan sát pattern sau training, kiến trúc không bảo đảm nhãn ngữ nghĩa.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Tách chiều model thành head
-
-Với `X: (B,T,C)`, chiếu Q/K/V rồi reshape:
-
-`(B,T,C) → (B,T,H,D) → (B,H,T,D)`, với `D=C/H`.
-
-Điều kiện bắt buộc là `C % H == 0`. Ví dụ `C=12`, `H=3` cho `D=4`. Mỗi head tạo score `(B,T,T)` riêng, nên toàn bộ score có shape `(B,H,T,T)`.
-
-<LessonNote>**Lỗi thường gặp:** chia chiều sequence `T` cho số head. Head chia feature `C`; mọi head vẫn nhìn cùng số vị trí `T`.</LessonNote>
-
-**Takeaway:** Viết rõ `(B,H,T,D)` giúp đặt transpose và softmax đúng chiều.
+<AttentionConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Head axis chia feature dimension C, không chia sequence T. Điều kiện bắt buộc là C % H == 0.'},
+  steps: [
+    {label: {vi: 'Projected Q/K/V'}, shape: '(B,T,C)', detail: {vi: 'Ví dụ C=12, H=3.'}},
+    {label: {vi: 'Reshape'}, shape: '(B,T,H,D)', detail: {vi: 'D=C/H=4.'}},
+    {label: {vi: 'Transpose'}, shape: '(B,H,T,D)', detail: {vi: 'Đặt head trước sequence.'}},
+    {label: {vi: 'Per-head scores'}, shape: '(B,H,T,T)', detail: {vi: 'Mọi head vẫn nhìn cùng T vị trí.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Viết rõ (B,H,T,D) giúp đặt transpose và softmax đúng chiều.'},
+  misconception: {vi: 'Không chia T cho số head; head chia feature C, còn sequence length giữ nguyên.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Ghép context và output projection
-
-Sau `weights @ V`, context có shape `(B,H,T,D)`. Ta transpose về `(B,T,H,D)`, ghép `H×D=C`, rồi dùng output projection:
-
-`Concat(head_1,...,head_H) @ W_O ∈ R^(B×T×C)`.
-
-`W_O` cho phép các feature từ head khác nhau tương tác trước khi đi vào residual stream.
-
-<LessonNote>**Lỗi thường gặp:** cộng các head rồi mong nhận lại `C`. Nếu mỗi head có `D=C/H`, phép cộng chỉ trả chiều `D`; concat mới khôi phục `C`.</LessonNote>
-
-**Takeaway:** Split và concat là hai phép biến đổi hình dạng đối xứng.
+<AttentionConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Sau weights @ V, transpose và concat đảo ngược phép split trước khi output projection trộn feature giữa các head.'},
+  steps: [
+    {label: {vi: 'Per-head context'}, shape: '(B,H,T,D)', detail: {vi: 'Mỗi head trả D features.'}},
+    {label: {vi: 'Transpose'}, shape: '(B,T,H,D)', detail: {vi: 'Đưa sequence trở lại trước head.'}},
+    {label: {vi: 'Concat H×D'}, shape: '(B,T,C)', detail: {vi: 'Khôi phục C vì H×D=C.'}},
+    {label: {vi: 'Output projection'}, shape: '@ W_O → (B,T,C)', detail: {vi: 'Trộn feature giữa các head.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Split và concat là hai phép biến đổi shape đối xứng; W_O hoàn tất attention trước residual stream.'},
+  misconception: {vi: 'Không cộng các head để mong nhận C; cộng chỉ trả D, còn concat mới khôi phục C.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Dropout và parameter count
-
-Bỏ bias, Q/K/V và output projection đều là ma trận `C×C`, nên tổng gần `4C²` parameter. Tăng số head khi `C` cố định không tự làm tăng số parameter chiếu; nó thay cách tổ chức tensor.
-
-Attention dropout thường áp lên weights sau softmax; residual dropout có thể áp lên output projection. Dropout chỉ hoạt động trong `model.train()` và tắt ở `model.eval()`.
-
-<LessonNote>**Lỗi thường gặp:** dùng dropout để che vị trí tương lai. Causal mask là ràng buộc thông tin; dropout là regularization ngẫu nhiên.</LessonNote>
-
-**Takeaway:** Mask quyết định token nào được phép nhìn; dropout quyết định một phần kết nối hợp lệ nào tạm thời bị bỏ trong training.
+<AttentionConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Với C cố định và bỏ bias, Q/K/V cùng output projection là bốn ma trận C×C, tổng gần 4C² parameters.'},
+  comparisons: [
+    {title: 'Causal mask', shape: 'information invariant', detail: {vi: 'Quyết định token nào được phép nhìn trong train và eval.'}},
+    {title: 'Dropout', shape: 'train-only regularization', detail: {vi: 'Bỏ ngẫu nhiên một phần weights hợp lệ hoặc output; model.eval() tắt dropout.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tăng số head khi C cố định không tự tăng số parameter chiếu; nó đổi cách tổ chức tensor.'},
+  misconception: {vi: 'Không dùng dropout để che tương lai; causal mask là ràng buộc thông tin bắt buộc.'},
+}} />
 
 </MdxPage>

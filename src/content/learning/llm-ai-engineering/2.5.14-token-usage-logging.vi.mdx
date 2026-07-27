@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Cost control cần usage, nhưng raw prompt/response/identity không nên được log mặc định."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Provider usage, estimate, model/version, scoped keyed pseudonym, status và latency."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Aggregated metrics/traces với retention/access policy."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Request payload bị drop/redact; numeric usage events aggregate theo dimensions có cardinality kiểm soát."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Cost control cần usage, nhưng raw prompt/response/identity không nên được log mặc định.
 
@@ -20,7 +26,7 @@ Cost control cần usage, nhưng raw prompt/response/identity không nên đư�
 
 <MdxPage page={1}>
 
-## Worked scenario
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
 
 Log `{modelClass:'fast',inputTokens:420,outputTokens:80,status:'completed',subject:'...'}`; không log ticket. Alert trên cost/subject và estimate delta.
 
@@ -56,11 +62,19 @@ assert.deepEqual(
 ~~~
 <LessonNote>Plain SHA-256 của email/user ID entropy thấp vẫn dò và liên kết được. HMAC key ở secret manager, có scope/key version/rotation; log có access, sampling và retention policy.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Alert nên dựa trên error/denial/cost/latency rate theo baseline và dẫn tới runbook; không tự động bật raw-payload logging khi có incident."}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Log API key hoặc raw prompt."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Dùng email/plain hash làm metric label."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Tin estimated tokens thay billed usage."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

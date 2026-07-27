@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Together offers serverless/dedicated and batch surfaces across many models; model capabilities and capacity mode are separate decisions."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Latency/throughput/privacy/capability requirements and current model catalog."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Endpoint/model mode plus quota/cost/quality evidence."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Common Chat/Batch request maps to serverless or dedicated endpoint; batch results reconcile by custom ID."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Together offers serverless/dedicated and batch surfaces across many models; model capabilities and capacity mode are separate decisions.
 
@@ -20,7 +26,12 @@ Together offers serverless/dedicated and batch surfaces across many models; mode
 
 <MdxPage page={1}>
 
-## Worked fixture
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "Interactive support uses serverless/dedicated based SLO; nightly classification uses Batch if model supported. Canary verifies tool/schema before routing production."}, comparisons: [
+    {title: "Interactive support", shape: "worked contract", detail: {vi: "Serverless hoặc dedicated  · Model capability, p95/p99, quota, privacy"}},
+    {title: "Predictable sustained load", shape: "worked contract", detail: {vi: "Dedicated candidate  · Capacity/cold-start/failure drill và cost"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
 
 Interactive support uses serverless/dedicated based SLO; nightly classification uses Batch if model supported. Canary verifies tool/schema before routing production.
 
@@ -39,7 +50,13 @@ Canary gửi cùng redacted fixture vào route cũ và candidate, so normalized 
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Together AI hosting patterns"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Assume every catalog model supports batch/tools."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Use batch for stateful chat."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Ignore dedicated capacity/cold behavior."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

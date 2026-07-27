@@ -6,48 +6,46 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-Context lặp lại làm tăng cost/latency. Compression chỉ có giá trị nếu giữ đủ policy, evidence và output quality.
-
-**Input:** Prompt sections, token counts, importance policy và regression set.
-
-**Output:** Prompt ngắn hơn cùng measured quality delta và rollback version.
-
-**Data/type/shape:** Nhiều đoạn text thành retained/extracted/summary blocks; token scalar giảm nhưng semantic loss phải đo.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Context lặp lại làm tăng cost/latency; compression chỉ có giá trị nếu giữ đủ policy, evidence và output quality.'},
+  steps: [
+    {label: {vi: 'Inventory'}, shape: 'prompt sections + token counts', detail: {vi: 'Phân loại retained, extracted và summary blocks.'}},
+    {label: {vi: 'Protect'}, shape: 'importance policy', detail: {vi: 'Khóa policy, evidence và schema không được làm mất.'}},
+    {label: {vi: 'Compress'}, shape: 'before tokens → after tokens', detail: {vi: 'Token scalar giảm nhưng semantic loss chưa được phép giả định.'}},
+    {label: {vi: 'Regression gate'}, shape: 'quality delta + rollback version', detail: {vi: 'Chỉ phát hành khi task success và safety còn trong ngưỡng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output là prompt ngắn hơn kèm measured quality delta và rollback version.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Worked example và contract
-
-Prompt 2.000 token gồm policy 700, history 900, examples 400. Giữ nguyên
-policy, summarize history còn 300 và giảm examples còn 200:
-
-| Section | Trước | Sau | Quy tắc |
-|---|---:|---:|---|
-| Policy | 700 | 700 | Protected, không được rút gọn |
-| History | 900 | 300 | Summary có provenance |
-| Examples | 400 | 200 | Giữ các edge case đại diện |
-| **Tổng** | **2.000** | **1.200** | **Giảm 40%** |
-
-Saving chỉ là candidate metric. Regression set vẫn phải kiểm tra ticket nhiều
-lượt, exception clauses, grounded evidence và output schema.
-
-<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Prompt 2.000 token giữ nguyên policy, tóm tắt history và chọn lại examples để còn 1.200 token.'},
+  code: [],
+  comparisons: [
+    {title: 'Trước compression', shape: '2.000 tokens', detail: {vi: 'Policy 700 + history 900 + examples 400.'}},
+    {title: 'Sau compression', shape: '1.200 tokens (−40%)', detail: {vi: 'Policy 700 protected; history 300 có provenance; examples 200 giữ edge cases đại diện.'}},
+  ],
+  takeaway: {vi: 'Saving chỉ là candidate metric; regression set vẫn kiểm tra multi-turn ticket, exception clauses, grounded evidence và output schema.'},
+  misconception: {vi: 'Output/log chỉ chứa artifact kiểm chứng được; không yêu cầu hoặc lưu hidden chain-of-thought.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production pitfalls và handoff
-
-**Sai lầm thường gặp:**
-
-- Cắt system/tool schema.
-- Đo token saving mà không đo task success.
-- Dùng model summary làm authoritative record.
+<CodeLessonFrame
+  title="Compression contract và production gate"
+  contract="PromptSection[] → token saving + protected-section invariants"
+  output="2.000 → 1.200 tokens; saved=800; savingRate=0.4"
+  pitfall="Không cắt system/tool schema, không chỉ đo token saving và không dùng model summary làm authoritative record."
+  takeaway="Protected sections bất biến; summary có provenance, deadline/cancellation và rollback theo regression quality/safety."
+>
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -109,6 +107,8 @@ assert.throws(
 phải version summary, giữ source IDs, đặt deadline/cancellation cho summarizer,
 và rollback nếu regression quality hoặc safety vượt ngưỡng.</LessonNote>
 
-**Kết nối:** Versioning gắn prompt artifact với model, schema và eval.
+Versioning gắn prompt artifact với model, schema và eval.
+
+</CodeLessonFrame>
 
 </MdxPage>

@@ -6,7 +6,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Messages là stateless contract với ordered content blocks.'},steps:[
+  {label:{vi:'Config'},shape:'model + max_tokens + system',detail:{vi:'Top-level fields.'}},
+  {label:{vi:'History'},shape:'user ↔ assistant',detail:{vi:'Server xác thực.'}},
+  {label:{vi:'Blocks'},shape:'text | tool_use',detail:{vi:'Ordered union.'}},
+  {label:{vi:'Normalize'},shape:'blocks + stop + usage',detail:{vi:'Giữ provider semantics.'}},
+],code:[],takeaway:{vi:'Không giả định OpenAI wire shape.'}}} />
 
 Messages là stateless request contract với content blocks và stop reasons. Common adapter phải giữ khác biệt thay vì giả định OpenAI shape.
 
@@ -20,7 +25,7 @@ Messages là stateless request contract với content blocks và stop reasons. C
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Normalize Messages response" contract="blocks + stop_reason + usage → Normalized" output="text + end_turn → typed blocks + stop reason" pitfall="Không ép content thành string hoặc nhận assistant turn giả." takeaway="History đến từ server state; stop reason điều khiển flow.">
 
 Một call trả text block và `end_turn`; adapter normalize text nhưng vẫn giữ raw stop reason. Multi-turn gửi lại history server đã xác thực.
 
@@ -63,11 +68,17 @@ assert.deepEqual(result.usage, { inputTokens: 18, outputTokens: 9 });
 ~~~
 <LessonNote>Adapter giữ provider stop reason bên cạnh internal status thay vì ép mọi trường hợp thành success. Đây là fixture tĩnh, không phải provider call.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Adapter dispatch theo block type và terminal semantics.'},steps:[
+  {label:{vi:'Blocks'},shape:'ordered union',detail:{vi:'Không đọc như string.'}},
+  {label:{vi:'History'},shape:'trusted state',detail:{vi:'Không tin client turns.'}},
+  {label:{vi:'Terminal'},shape:'max_tokens + stop reason',detail:{vi:'Không bỏ signal.'}},
+],code:[],takeaway:{vi:'System placement tiếp theo là provider-specific.'}}} />
 
 **Pitfalls:**
 

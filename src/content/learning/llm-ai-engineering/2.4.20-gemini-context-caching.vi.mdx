@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Caching giảm xử lý/cost cho prefix ổn định và được tái sử dụng; implicit và explicit behavior phụ thuộc API/model."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Stable prefix, reuse count, TTL và model/version."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Cache reference/hit metadata hoặc normal request fallback."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Large prefix stored/cached once then referenced; invalidation key gồm model, content, schema và policy version."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Caching giảm xử lý/cost cho prefix ổn định và được tái sử dụng; implicit và explicit behavior phụ thuộc API/model.
 
@@ -20,7 +26,7 @@ Caching giảm xử lý/cost cho prefix ổn định và được tái sử dụ
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Worked fixture" contract="typed input → validated output" pitfall="Giữ explicit error path, timeout/cancellation và provider-specific invariant." takeaway="Fixture materialize contract thành artifact deterministic có thể test.">
 
 Prefix 20k token dùng 10 lần; explicit-cache setup chỉ đáng giá nếu supported và savings vượt create/storage overhead. Update policy v13 phải tạo key mới.
 
@@ -60,11 +66,19 @@ assert.equal(new Set(cacheKeyParts).size, 5);
 ~~~
 <LessonNote>Đơn vị ở đây là cost-weighted token units để minh họa break-even, không phải giá provider. Dùng pricing/capability hiện hành và scope cache theo tenant/policy.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Gemini context caching"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Tái dùng cache qua tenant."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Cache prompt có PII quá TTL cần thiết."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Giả định hit hoặc pricing cố định."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

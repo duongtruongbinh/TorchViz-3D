@@ -8,7 +8,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Contract của instruction batch
+<CodeLessonFrame
+  title="Contract của instruction batch"
+  contract="tokenized examples + response_start → inputs (B,T) + masked targets (B,T)"
+  output="model logits (B,T,V)"
+  pitfall="Production phải dùng đúng template và tokenizer của checkpoint trước collate."
+  takeaway="Response boundary là metadata cần giữ qua tokenization."
+>
 
 **Mục tiêu:** Viết collate + masked LM loss chạy độc lập cho instruction SFT.
 
@@ -24,14 +30,18 @@ from torch import nn
 import torch.nn.functional as F
 ```
 
-<LessonNote>Production pipeline phải format text và tokenize bằng đúng template/tokenizer của checkpoint trước bước này.</LessonNote>
-
-**Takeaway:** Response boundary là metadata cần được giữ qua tokenization.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={1}>
 
-## Pad rồi shift một lần
+<CodeLessonFrame
+  title="Pad rồi shift một lần"
+  contract="complete sequence → pad → shift"
+  output="input và target cùng dài max_len − 1"
+  pitfall="Shift sau khi bỏ EOS làm mất target kết thúc response."
+  takeaway="Dùng độ dài gốc để giữ EOS thật khi EOS và PAD dùng chung ID."
+>
 
 ```python
 # State trace trước response mask:
@@ -42,14 +52,18 @@ import torch.nn.functional as F
 Input/target đều dài `max_len-1`. EOS phải được thêm trước khi pad.
 Mask dùng độ dài gốc của từng sample thay vì `targets == pad_id`, nên EOS thật vẫn được giữ nếu tokenizer dùng chung một ID cho EOS và PAD.
 
-<LessonNote>**Lỗi thường gặp:** shift từng sample sau khi đã bỏ EOS; model không còn target kết thúc response.</LessonNote>
-
-**Takeaway:** Tạo sequence hoàn chỉnh → pad → shift.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={2}>
 
-## Collate instruction
+<CodeLessonFrame
+  title="Collate instruction"
+  contract="ids + token response_start → input/target tensors"
+  output="prompt và padding targets mang −100"
+  pitfall="response_start phải là token index, không phải character index."
+  takeaway="Mask target, không mask input; model vẫn nhìn toàn bộ prompt."
+>
 
 ```python
 def collate_instruction(examples, pad_id=0):
@@ -77,14 +91,18 @@ def collate_instruction(examples, pad_id=0):
 
 Target position j dự đoán token `ids[j+1]`; vì vậy prompt mask kết thúc tại `response_start-1`.
 
-<LessonNote>**Lỗi thường gặp:** dùng `response_start` vị trí trong text character thay vì vị trí token.</LessonNote>
-
-**Takeaway:** Mask target, không mask input; model vẫn nhìn toàn bộ prompt.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={3}>
 
-## Loss giữ nguyên contract LM
+<CodeLessonFrame
+  title="Loss giữ nguyên contract LM"
+  contract="logits (B,T,V) + targets (B,T) → scalar masked CE"
+  output="−100 bị bỏ khỏi numerator và denominator"
+  pitfall="Batch toàn −100 không có training signal và phải fail rõ ràng."
+  takeaway="SFT thay target mask, không thay công thức language-model loss."
+>
 
 ```python
 def masked_lm_loss(logits, targets):
@@ -111,12 +129,17 @@ assert torch.isfinite(loss)
 
 <LessonNote>**Production:** theo dõi valid-token count; batch toàn `-100` không cung cấp training signal.</LessonNote>
 
-**Takeaway:** SFT thay target mask, không thay công thức language-model loss.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={4}>
 
-## Smoke test độc lập
+<CodeLessonFrame
+  title="Smoke test độc lập"
+  contract="alignment + EOS/PAD shared ID + all-ignored error path"
+  output="targets = [[−100,5,6,9],[5,9,−100,−100]]"
+  takeaway="Assertions khóa batch contract; generation trên prompt chưa thấy mới kiểm tra instruction following."
+>
 
 ```python
 class TinyLM(nn.Module):
@@ -163,6 +186,6 @@ print(targets)
 
 Expected targets: hàng đầu `[-100,5,6,9]`; hàng hai `[5,9,-100,-100]`.
 
-<LessonNote>**Takeaway:** Assertions kiểm tra alignment, EOS/PAD dùng chung ID và all-ignored error path; generation trên prompt chưa thấy mới kiểm tra hành vi instruction following.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>

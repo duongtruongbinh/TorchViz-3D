@@ -10,23 +10,30 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-Một request hợp lệ phải chừa chỗ cho system instruction, history, retrieval, tool schema và output. Chạm giới hạn kỹ thuật chưa có nghĩa model còn truy xuất chính xác hoặc request còn kinh tế.
-
-**Input:** Context capacity và số token của từng phần request.
-
-**Output:** Ngân sách input khả dụng cùng quyết định reject, retrieve, compact hoặc truncate.
-
-**Data/type/shape:** Các đoạn text trở thành số token rồi cộng thành một scalar budget; output reserve bị trừ trước khi gửi request.
-
-<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Context window là ngân sách hữu hạn cho toàn request, không chỉ cho user text.'},
+  steps: [
+    {label: {vi: 'Capacity'}, shape: 'scalar token budget', detail: {vi: 'Giới hạn kỹ thuật của request.'}},
+    {label: {vi: 'Reserve output'}, shape: 'capacity − output', detail: {vi: 'Chừa chỗ trước khi gửi.'}},
+    {label: {vi: 'Fixed input'}, shape: 'system + tools + user', detail: {vi: 'Các phần bắt buộc cùng tiêu ngân sách.'}},
+    {label: {vi: 'Variable input'}, shape: 'history + retrieval', detail: {vi: 'Phần còn lại quyết định reject, retrieve, compact hoặc truncate.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Chạm advertised limit không bảo đảm recall chính xác hoặc request còn kinh tế.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Trace bằng tay
+<CodeLessonFrame
+  title="Trace ngân sách context"
+  contract="capacity − output reserve − system − tools − user"
+  output="5,368 tokens cho history + retrieval"
+  pitfall="Nếu history dùng 4,000, retrieval chỉ còn 1,368—not 2,392."
+  takeaway="Trừ output reserve và fixed request parts trước khi phân bổ phần biến đổi."
+>
 
 Capacity giả định 8.192 token, output reserve 1.024, system 400, tools 600 và user 800. History cộng retrieval chỉ còn `8.192−1.024−400−600−800 = 5.368` token. Nếu history dùng 4.000 thì retrieval tối đa 1.368, không phải 2.392.
 
@@ -77,19 +84,22 @@ assert.throws(
 
 **Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production và bước tiếp
-
-**Sai lầm production thường gặp:**
-
-- Dùng toàn bộ capacity cho input rồi để response bị cắt.
-- Silent tail truncation làm mất câu hỏi hoặc schema.
-- Đồng nhất advertised limit với effective recall ở mọi vị trí.
-
-
-**Kết nối:** Context dài làm KV cache tăng tuyến tính; bài sau tính chính xác phần memory này.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production policy phải bảo vệ output và dữ liệu quan trọng trước khi request chạm capacity.'},
+  steps: [
+    {label: {vi: 'Reserve response'}, shape: 'output tokens', detail: {vi: 'Không dùng toàn bộ capacity cho input.'}},
+    {label: {vi: 'Explicit truncation'}, shape: 'priority-aware', detail: {vi: 'Không silent-drop câu hỏi hoặc tool schema ở tail.'}},
+    {label: {vi: 'Recall evaluation'}, shape: 'position × length', detail: {vi: 'Advertised limit không đồng nghĩa effective recall mọi vị trí.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Context dài làm KV cache tăng tuyến tính; bài sau tính chính xác phần memory này.'},
+}} />
 
 </MdxPage>

@@ -10,19 +10,31 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Proposal không phải execution
-
-Model không tự thực thi business action. Nó tạo structured proposal; application parse, authorize, execute rồi trả typed result vào loop có giới hạn.
-
-**State:** `model_proposal → validated_proposal → authorized_call → tool_result | error → final_response`.
-
-Mỗi call có ID, exact schema, deadline và step count. Natural-language text như `Action: refund()` không được `eval` và không tự trở thành tool call.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Model chỉ tạo structured proposal; application mới parse, authorize, execute và trả typed result vào loop có giới hạn.'},
+  steps: [
+    {label: {vi: 'Model proposal'}, shape: '{callId, tool, args}', detail: {vi: 'Natural-language text như Action: refund() không phải executable call.'}},
+    {label: {vi: 'Validate'}, shape: 'exact schema', detail: {vi: 'Reject unknown tool, extra args và call ID sai.'}},
+    {label: {vi: 'Authorize'}, shape: 'identity + fresh server state', detail: {vi: 'Quyền không đến từ model rationale.'}},
+    {label: {vi: 'Execute loop'}, shape: 'tool_result | error → final_response', detail: {vi: 'Deadline và step count chặn loop vô hạn.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Proposal và execution là hai trust boundary khác nhau.'},
+  misconception: {vi: 'Không eval text do model sinh và không cho structured proposal tự vượt qua authorization.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Authorize rồi mới execute
+<CodeLessonFrame
+  title="Authorize rồi mới execute"
+  contract="ToolProposal + AuthContext + step → typed ToolResult"
+  output="lookup_order(A17) → {orderId: 'A17', status: 'late'}"
+  pitfall="Tool ngoài allowlist, order không thuộc user hoặc step vượt maxSteps đều phải fail trước execution."
+  takeaway="Validate schema và authorize bằng server state trước khi gọi tool."
+>
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -100,18 +112,23 @@ assert.throws(
 );
 ~~~
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production gate
-
-- Tool schemas nhỏ, strict và versioned; reject extra args.
-- Authorization dùng authenticated identity và fresh server state, không dùng model rationale.
-- Read/write tools tách riêng; destructive action cần idempotency key và confirmation phù hợp.
-- Propagate timeout/cancellation, cap steps và không retry side effect mù.
-- Audit call ID, tool/version, status và redacted IDs; không log raw secret, PII hoặc hidden chain-of-thought.
-
-**Kết nối:** Quiz phân biệt verifiable artifacts, voting, bounded search và tool execution.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production gate kiểm soát từng lần chuyển từ model proposal sang privileged tool execution.'},
+  steps: [
+    {label: {vi: 'Schema boundary'}, shape: 'small + strict + versioned', detail: {vi: 'Reject extra args; tách read tools và write tools.'}},
+    {label: {vi: 'Authorization boundary'}, shape: 'authenticated identity + fresh state', detail: {vi: 'Destructive action cần confirmation phù hợp.'}},
+    {label: {vi: 'Execution boundary'}, shape: 'timeout + cancellation + idempotency', detail: {vi: 'Cap steps và không retry side effect mù.'}},
+    {label: {vi: 'Audit boundary'}, shape: 'call ID + tool/version + status', detail: {vi: 'Chỉ log redacted IDs; không raw secret, PII hoặc hidden chain-of-thought.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Quiz tiếp theo phân biệt verifiable artifact, voting, bounded search và tool execution.'},
+}} />
 
 </MdxPage>

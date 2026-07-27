@@ -9,6 +9,7 @@ import { scrollLearningLabElementIntoView } from '../../lesson/scrolling';
 import type {
   LlmAcademiaIndustryComparisonContent,
   LlmContentRendererProps,
+  LlmPretrainingDatasetCardsContent,
   LlmTrainingComponentsContent,
 } from './rendererTypes';
 
@@ -73,6 +74,58 @@ export function LlmTrainingComponents({ content, language, themeClasses }: LlmCo
           <TrainingComponentCard key={text(card.title, language)} card={card} index={index} language={language} themeClasses={themeClasses} focusPanel />
         ))}
       </div>
+    </section>
+  );
+}
+
+const PRETRAINING_DATASET_STYLES = {
+  c4: ['bg-[#DCE8F4]', 'text-[#205089]', Database],
+  pile: ['bg-[#E8E0F2]', 'text-[#69468A]', Braces],
+  dolma: ['bg-[#DCEEE8]', 'text-[#2E6B5D]', SlidersHorizontal],
+  fineweb: ['bg-[#F4E8C8]', 'text-[#70551A]', Sparkles],
+} satisfies Record<LlmPretrainingDatasetCardsContent['datasets'][number]['id'], [string, string, LucideIcon]>;
+
+export function LlmPretrainingDatasetCards({ content, language, themeClasses }: LlmContentRendererProps<LlmPretrainingDatasetCardsContent>) {
+  return (
+    <section className="grid gap-4">
+      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
+      <div className="grid gap-3 md:grid-cols-2">
+        {content.datasets.map((dataset) => {
+          const [topClass, accentClass, Icon] = PRETRAINING_DATASET_STYLES[dataset.id];
+          return (
+            <article
+              key={dataset.id}
+              className={cx(
+                'grid min-h-[18rem] grid-rows-[7.5rem_minmax(0,1fr)] overflow-hidden rounded-lg border',
+                themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36',
+              )}
+            >
+              <div className={cx('flex items-center justify-between gap-4 border-b border-black/5 px-5', themeClasses.isLight ? topClass : 'bg-[#263B5B]')}>
+                <div>
+                  <p className={cx('text-xs font-bold', themeClasses.isLight ? accentClass : 'text-[#BFD3F2]')}>{text(dataset.category, language)}</p>
+                  <h3 className={cx('mt-1 text-2xl font-black tracking-[-0.02em]', themeClasses.titleText)}>{dataset.name}</h3>
+                </div>
+                <div className={cx('grid h-12 w-12 shrink-0 place-items-center rounded-xl', themeClasses.isLight ? `bg-white ${accentClass}` : 'bg-[#172A43] text-[#BFD3F2]')}>
+                  <Icon className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" />
+                </div>
+              </div>
+              <div className="grid content-start gap-3 p-5">
+                <p className={cx('font-mono text-lg font-black', themeClasses.accentText)}>{dataset.scale}</p>
+                <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(dataset.brief, language)}</p>
+                <a
+                  href={dataset.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={cx('mt-auto inline-flex w-fit items-center gap-1 text-sm font-bold underline decoration-1 underline-offset-4', themeClasses.accentText)}
+                >
+                  Dataset / paper <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <p className={cx('text-sm leading-6', themeClasses.mutedText)}>{text(content.note, language)}</p>
     </section>
   );
 }
@@ -719,11 +772,14 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
   }
 
   if (extra.id === 'ai-scope-convention') {
-    return (
-      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
-        <ScopeConventionPanel extra={extra} language={language} themeClasses={themeClasses} />
-      </ExtraFrame>
+    const scopeConvention = (
+      <ScopeConventionPanel extra={extra} language={language} themeClasses={themeClasses} />
     );
+    return panelTitle ? (
+      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
+        {scopeConvention}
+      </ExtraFrame>
+    ) : scopeConvention;
   }
 
   return (
@@ -1311,12 +1367,20 @@ function ScopeConventionPanel({ extra, language, themeClasses }: {
       <div className="grid gap-2">
         {extra.body?.slice(0, 1).map((paragraph, index) => {
           const lines = text(paragraph, language).split('\n').filter(Boolean);
-          if (lines.length > 1) {
+          if (lines.length > 0) {
             return (
-              <div key={text(paragraph, language)} className={cx('grid gap-1.5', themeClasses.bodyText)}>
-                <p className="text-base leading-7">{lines[0]}</p>
-                <ul className="grid list-disc gap-1 pl-5 text-sm font-semibold leading-6 marker:text-current/55">
-                  {lines.slice(1).map((line) => <li key={line}>{line}</li>)}
+              <div key={text(paragraph, language)} className={cx('grid gap-2 rounded-lg border px-3 py-3', themeClasses.isLight ? 'border-[#D97706]/18 bg-[#FFF7ED]' : 'border-[#F59E0B]/20 bg-[#3A2613]/40')}>
+                <div className={cx('flex items-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.isLight ? 'text-[#A54F00]' : 'text-[#FBC77D]')}>
+                  <CircleAlert className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                  <span>{language === 'vi' ? 'Đừng đọc sơ đồ như lịch sử tuyệt đối' : 'Do not read the diagram as absolute history'}</span>
+                </div>
+                <ul className="grid gap-2">
+                  {lines.map((line) => (
+                    <li key={line} className={cx('flex gap-2 text-sm font-semibold leading-6', themeClasses.bodyText)}>
+                      <CheckCircle2 className={cx('mt-1 h-4 w-4 shrink-0', themeClasses.isLight ? 'text-[#D97706]' : 'text-[#F59E0B]')} strokeWidth={2.1} aria-hidden="true" />
+                      <span>{line}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             );
@@ -1325,30 +1389,34 @@ function ScopeConventionPanel({ extra, language, themeClasses }: {
         })}
       </div>
 
-      <div className="grid gap-2">
-        {historyRows.map((item, index) => {
-          const descriptionLines = text(item.description, language).split('\n').filter(Boolean);
-          return (
-            <section
-              key={text(item.shortName, language)}
-              className={cx(
-                'grid overflow-hidden rounded-lg md:grid-cols-[6rem_minmax(0,1fr)]',
-                themeClasses.isLight ? (index === 0 ? 'bg-[#EEF4FA]' : 'bg-[#F0F4F2]') : 'bg-[#121A24]/38',
-              )}
-            >
-              <div className={cx('flex items-center px-4 py-3 text-2xl font-black text-white', index === 0 ? 'bg-[#2F6F9F]' : 'bg-[#477C6C]')}>
-                {text(item.shortName, language)}
-              </div>
-              <div className="grid gap-2 px-4 py-3 md:grid-cols-[minmax(12rem,0.36fr)_minmax(0,1fr)] md:gap-5">
-                <p className={cx('text-sm font-normal leading-6', themeClasses.titleText)}>{text(item.fullName, language)}</p>
-                <ul className={cx('grid list-disc gap-0.5 pl-4 text-sm leading-5 marker:text-current/50', themeClasses.bodyText)}>
-                  {descriptionLines.map((line) => <li key={line}>{line}</li>)}
-                </ul>
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      {historyRows.length > 0 ? (
+        <div className="grid gap-2">
+          {historyRows.map((item, index) => {
+            const descriptionLines = text(item.description, language).split('\n').filter(Boolean);
+            const bulletLines = descriptionLines.slice(0, 2);
+            const closingLine = descriptionLines[2];
+            return (
+              <section
+                key={text(item.shortName, language)}
+                className={cx(
+                  'grid overflow-hidden rounded-lg md:grid-cols-[6rem_minmax(0,1fr)]',
+                  themeClasses.isLight ? (index === 0 ? 'bg-[#EEF4FA]' : 'bg-[#F0F4F2]') : 'bg-[#121A24]/38',
+                )}
+              >
+                <div className={cx('flex items-center px-4 py-3 text-2xl font-black text-white', index === 0 ? 'bg-[#2F6F9F]' : 'bg-[#477C6C]')}>
+                  {text(item.shortName, language)}
+                </div>
+                <div className="grid gap-2 px-4 py-3">
+                  <ul className={cx('grid list-disc gap-0.5 pl-4 text-sm leading-5 marker:text-current/50', themeClasses.bodyText)}>
+                    {bulletLines.map((line) => <li key={line}>{line}</li>)}
+                  </ul>
+                  {closingLine ? <p className={cx('text-sm leading-5', themeClasses.bodyText)}>{closingLine}</p> : null}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      ) : null}
 
       {extra.body?.slice(1).map((paragraph) => (
         <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>

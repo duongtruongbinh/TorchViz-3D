@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Threat boundary và contract
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Counter local bị bypass qua nhiều instances. Redis cho shared atomic decision theo tenant/user/model và hỗ trợ fixed/sliding/token-bucket choices."}, steps: [
+    {label: {vi: "Input"}, shape: "untrusted input", detail: {vi: "Privacy-safe subject key, cost units, limit/window và atomic clock/state."}},
+    {label: {vi: "Output"}, shape: "server-enforced contract", detail: {vi: "Allow với remaining/reset hoặc deny với app-computed retryAfterMs; đây không phải lời hứa về universal provider header."}},
+    {label: {vi: "Boundary"}, shape: "server-enforced contract", detail: {vi: "Request identity → scoped Redis key; atomic script/command đọc-cập nhật-expire một lần."}},
+  ], code: [], takeaway: {vi: "Authority và secret luôn ở server-side boundary."},
+}} />
 
 Counter local bị bypass qua nhiều instances. Redis cho shared atomic decision theo tenant/user/model và hỗ trợ fixed/sliding/token-bucket choices.
 
@@ -20,7 +26,7 @@ Counter local bị bypass qua nhiều instances. Redis cho shared atomic decisio
 
 <MdxPage page={1}>
 
-## Worked security path
+<CodeLessonFrame title="Worked security path" contract="untrusted request + authenticated server state → enforced result" pitfall="Không log secret/PII, không fail open và không đặt authority ở client hoặc model." takeaway="Security fixture kiểm tra cả allowed path và denied/error path.">
 
 Token bucket capacity 10, refill 1/s. User tốn 4 còn 6; sau 3 giây có 9; request cost 10 bị deny. Dùng scoped keyed pseudonym/HMAC của internal ID, không dùng email hay plain hash.
 
@@ -71,11 +77,19 @@ assert.deepEqual(
 ~~~
 <LessonNote>Toàn bộ read-refill-decide-write + TTL phải chạy atomic trong Redis script/function. Client-side read rồi write riêng sẽ oversubscribe dưới concurrency.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure/incident handling
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Rate limit theo user với Redis"}, steps: [
+    {label: {vi: "Control 1"}, shape: "deny | allow | rotate", detail: {vi: "INCR rồi EXPIRE không atomic."}},
+    {label: {vi: "Control 2"}, shape: "deny | allow | rotate", detail: {vi: "Chỉ limit theo IP gây shared-NAT/noisy neighbor."}},
+    {label: {vi: "Control 3"}, shape: "deny | allow | rotate", detail: {vi: "Redis fail thì allow vô hạn không policy."}},
+  ], code: [], takeaway: {vi: "Enforcement fail closed và audit chỉ giữ redacted identifiers."},
+}} />
 
 **Pitfalls:**
 

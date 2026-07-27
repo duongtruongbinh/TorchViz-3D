@@ -8,7 +8,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Training step
+<CodeLessonFrame
+  title="Training step"
+  contract="(B,T) IDs → scalar loss → parameter update"
+  output="zero_grad → forward → CE → backward → clip → step"
+  pitfall="Không argmax logits trước loss; argmax không khả vi và loại bỏ thông tin confidence."
+  takeaway="Training step là nơi duy nhất bật gradient và cập nhật parameter."
+>
 
 **Mục tiêu:** Viết training/evaluation/checkpoint loop cho contract logits `(B,T,V)` và targets `(B,T)`.
 
@@ -33,14 +39,17 @@ def train_step(model, optimizer, input_ids, target_ids):
     return loss.detach()
 ```
 
-<LessonNote>**Lỗi thường gặp:** argmax logits trước loss. Argmax không khả vi và bỏ thông tin confidence.</LessonNote>
-
-**Takeaway:** Training step là nơi duy nhất bật gradient và cập nhật parameter.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={1}>
 
-## Evaluation không tạo gradient
+<CodeLessonFrame
+  title="Token-weighted evaluation"
+  contract="eval · no_grad · total NLL / total tokens"
+  output="returns mean NLL as float"
+  takeaway="Evaluation đổi state và gradient policy, không đổi objective."
+>
 
 ```python
 @torch.no_grad()
@@ -71,12 +80,17 @@ def evaluate_loss(model, batches):
 
 Token-weighted average xử lý batch cuối nhỏ đúng hơn mean của batch means. `train_step` tự bật lại training mode.
 
-<LessonNote>**Takeaway:** Evaluation đổi state và gradient policy, không đổi objective.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={2}>
 
-## Lưu và phục hồi checkpoint
+<CodeLessonFrame
+  title="Lưu và phục hồi training checkpoint"
+  contract="model + optimizer + step + val_loss"
+  output="load returns restored step and validation loss"
+  takeaway="Model-only checkpoint phục vụ inference; training checkpoint cần trạng thái optimizer và policy."
+>
 
 ```python
 def save_checkpoint(path, model, optimizer, step, val_loss):
@@ -101,12 +115,18 @@ Lưu optimizer và step cho phép tiếp tục training, không chỉ dùng mode
 
 <LessonNote>**Production:** lưu tokenizer/config, random states và scheduler state nếu cần resume bit-for-bit.</LessonNote>
 
-**Takeaway:** Model-only checkpoint phục vụ inference; training checkpoint cần trạng thái optimizer/policy.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={3}>
 
-## Epoch loop tối thiểu
+<CodeLessonFrame
+  title="Epoch loop và best checkpoint"
+  contract="train epoch → validation → compare best"
+  output="save best.pt only when val_loss improves"
+  pitfall="Không lưu last checkpoint rồi gọi là best nếu chưa so validation metric."
+  takeaway="Outer loop điều phối evaluation/checkpoint; core gradient logic vẫn ở train_step."
+>
 
 ```python
 step = 0
@@ -126,14 +146,18 @@ for epoch in range(num_epochs):
 
 Chọn checkpoint bằng validation, không bằng test. Generation strategies nằm ở cụm node kế tiếp để training code giữ một chủ đề.
 
-<LessonNote>**Lỗi thường gặp:** lưu “last” nhưng gọi là “best” mà không so validation metric.</LessonNote>
-
-**Takeaway:** Outer loop điều phối evaluation/checkpoint; core gradient logic vẫn ở `train_step`.
+</CodeLessonFrame>
 
 </MdxPage>
 <MdxPage page={4}>
 
-## Smoke test với TinyLM
+<CodeLessonFrame
+  title="Smoke test training và checkpoint"
+  contract="finite loss · valid logits · exact restore · error path"
+  output="before/after loss are finite floats"
+  pitfall="Một optimizer step không bảo đảm loss giảm với mọi seed hoặc learning rate; smoke test chỉ khóa contract."
+  takeaway="Test code path tách biệt với tiêu chí convergence trên một training run thật."
+>
 
 ```python
 class TinyLM(nn.Module):
@@ -182,6 +206,6 @@ print(round(before, 3), round(after, 3))
 
 Một step không bảo đảm loss luôn giảm với mọi seed/lr, nên smoke test chỉ assert contract và giá trị hữu hạn.
 
-<LessonNote>**Takeaway:** Test code path tách biệt với tiêu chí convergence trên một training run thật.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>

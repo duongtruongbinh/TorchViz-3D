@@ -10,19 +10,30 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Examples phải thỏa parser
-
-Example chỉ hữu ích khi output của nó tuân cùng contract mà production parser chấp nhận. Nếu schema bắt buộc `category` và `confidence`, demonstration thiếu `confidence` phải bị reject hoặc migrate, không được dạy model một format chết.
-
-**Input:** versioned schema, positive/negative fixtures và refusal/incomplete policy.
-
-**Output:** một discriminated union đã validate; missing/extra field, enum sai hoặc bound sai trở thành typed error.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Demonstration chỉ hợp lệ khi output thỏa đúng production parser contract.'},
+  steps: [
+    {label: {vi: 'Versioned schema'}, shape: 'required fields + enums + bounds', detail: {vi: 'Ví dụ cần cả category và confidence.'}},
+    {label: {vi: 'Candidate examples'}, shape: 'positive + negative fixtures', detail: {vi: 'Kèm refusal/incomplete policy.'}},
+    {label: {vi: 'Run parser'}, shape: 'same production validator', detail: {vi: 'Thiếu/extra field, enum hoặc bound sai thành typed error.'}},
+    {label: {vi: 'Publish set'}, shape: 'validated discriminated union', detail: {vi: 'Reject hoặc migrate format cũ.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Không dùng example để dạy model một format mà parser production sẽ từ chối.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Parser có các nhánh rõ
+<CodeLessonFrame
+  title="Parser có các nhánh rõ"
+  contract="raw JSON → decision | refusal | incomplete hoặc typed error"
+  output="exact keys, known enum và confidence trong [0,1]"
+  pitfall="Type assertion không thay runtime validation; extra field chứa dữ liệu nhạy cảm phải bị reject."
+  takeaway="Mỗi branch có shape và error semantics riêng để retry/fallback đúng nguyên nhân."
+>
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -94,18 +105,23 @@ assert.throws(
 );
 ~~~
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production gate
-
-- Run chính parser trên mọi candidate example trong CI.
-- Version schema và examples cùng nhau; migrate hoặc xóa artifact cũ khi field đổi.
-- Phân biệt refusal, incomplete và invalid để retry/fallback đúng nguyên nhân, có giới hạn.
-- Không dùng `as DomainType` thay runtime validation.
-- Log branch/error code và schema version; không log raw output chứa PII, secret hoặc hidden chain-of-thought.
-
-**Kết nối:** Quiz kiểm tra positive constraints, boundaries và validation.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production gate giữ examples và parser đồng bộ qua CI và versioning.'},
+  steps: [
+    {label: {vi: 'CI parse'}, shape: 'all candidate examples', detail: {vi: 'Dùng chính production parser.'}},
+    {label: {vi: 'Version/migrate'}, shape: 'schema + examples', detail: {vi: 'Xóa hoặc migrate artifact khi field đổi.'}},
+    {label: {vi: 'Branch handling'}, shape: 'refusal ≠ incomplete ≠ invalid', detail: {vi: 'Bounded retry/fallback theo nguyên nhân.'}},
+    {label: {vi: 'Safe telemetry'}, shape: 'branch + error + schema version', detail: {vi: 'Không raw PII, secret hoặc hidden reasoning.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Quiz tiếp theo kiểm tra positive constraints, boundaries và validation.'},
+}} />
 
 </MdxPage>

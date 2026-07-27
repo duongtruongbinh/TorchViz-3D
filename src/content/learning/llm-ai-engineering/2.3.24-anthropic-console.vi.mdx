@@ -6,40 +6,33 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-So sánh provider chỉ có ý nghĩa khi task, fixtures, schema và metric giống nhau; UI controls và message contract có thể khác.
-
-**Input:** Cùng support fixtures, acceptance criteria và dated provider configuration.
-
-**Output:** Exported request/artifact cùng capability delta và eval results.
-
-**Data/type/shape:** Common experiment spec được adapter thành Anthropic Messages/system/content blocks; output normalize về domain type.
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: 'So sánh provider chỉ có ý nghĩa khi task, fixtures, schema và metric giống nhau.'},
+  comparisons: [
+    {title: 'Common experiment', shape: 'fixtures + criteria + dated config', detail: {vi: 'Giữ cùng task contract và normalized domain output.'}},
+    {title: 'Anthropic adapter', shape: 'system + Messages + content blocks', detail: {vi: 'UI controls và wire contract có thể khác mà không đổi bài toán.'}},
+  ], code: [], takeaway: {vi: 'Output gồm exported request, capability delta và eval results.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Worked example và contract
-
-Chạy cùng fixture IDs, parser, schema và metric như lab OpenAI. Adapter ghi
-system placement, Messages roles/content blocks và output budget riêng. Chỉ so
-sánh normalized task result; không tuyên bố provider tốt hơn từ một prompt hoặc
-một output không cân bằng.
-
-<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Adapter Anthropic phải giữ nguyên common experiment contract của lab trước.'},
+  steps: [
+    {label: {vi: 'Reuse'}, shape: 'same fixture IDs + parser + schema', detail: {vi: 'Không đổi prompt task để ưu ái provider.'}},
+    {label: {vi: 'Adapt'}, shape: 'system placement + roles/content blocks', detail: {vi: 'Ghi output budget theo Messages API.'}},
+    {label: {vi: 'Normalize'}, shape: 'provider response → domain type', detail: {vi: 'So sánh cùng task result.'}},
+    {label: {vi: 'Evaluate'}, shape: 'same metric + guardrails', detail: {vi: 'Không kết luận từ một output hoặc lưu hidden chain-of-thought.'}},
+  ], code: [], takeaway: {vi: 'Provider comparison cần balanced inputs và normalized outputs.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production pitfalls và handoff
-
-**Sai lầm thường gặp:**
-
-- So model khác capability bằng prompt khác nhau.
-- Không lưu system placement/max tokens.
-- Đưa PII thật vào console.
+<CodeLessonFrame title="Materialize Anthropic experiment" contract="ExperimentSpec → reproducible Messages request shape" output="support-exp-17 · ordered content blocks · maxTokens=300" pitfall="Không đổi prompt giữa providers, bỏ system placement/output budget hoặc đưa PII thật vào console." takeaway="Cùng manifest, fixtures và metric; capability/controls phải được kiểm tra lại tại ngày chạy.">
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -107,5 +100,7 @@ Model, controls và console behavior phải kiểm tra lại tại thời điể
 
 **Kết nối:** Quiz kế tiếp kiểm tra version, privacy, observability và common
 experiment manifest trước khi track API biến chúng thành integration code.
+
+</CodeLessonFrame>
 
 </MdxPage>

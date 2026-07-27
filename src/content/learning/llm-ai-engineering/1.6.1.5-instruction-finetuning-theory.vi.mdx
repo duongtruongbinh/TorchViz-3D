@@ -10,92 +10,85 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## SFT vẫn là next-token prediction
-
-**Mục tiêu:** Giải thích điều gì thay đổi và điều gì giữ nguyên khi chuyển từ pretraining sang supervised instruction fine-tuning (SFT).
-
-SFT dùng các cặp instruction-response có nhãn. Model vẫn trả logits `(B,T,V)` và tối ưu next-token cross-entropy. Khác biệt nằm ở dữ liệu được format và vị trí được phép đóng góp vào loss.
-
-<LessonNote>**Lỗi thường gặp:** nghĩ instruction tuning cần một “instruction head” mới. Output vẫn là vocabulary logits; target vẫn là token kế tiếp.</LessonNote>
-
-**Takeaway:** SFT giữ language-model objective nhưng thay distribution dữ liệu và loss mask.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'SFT giữ language-model objective nhưng thay distribution dữ liệu và tập vị trí đóng góp vào loss.'},
+  comparisons: [
+    {title: 'Giữ nguyên', shape: 'logits (B,T,V) · next-token CE', detail: {vi: 'Output vẫn là vocabulary logits; target vẫn là token kế tiếp.'}},
+    {title: 'Thay đổi', shape: 'instruction-response + loss mask', detail: {vi: 'Dữ liệu có nhãn được format và loss tập trung vào response.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Chuyển sang SFT không cần một “instruction head” mới.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Template là một phần của contract
-
-Một mẫu có thể được format:
-
-```text
-### Instruction:
-Phân loại cảm xúc.
-
-### Input:
-Sản phẩm dùng rất tốt.
-
-### Response:
-tích cực
-```
-
-Train và inference phải dùng cùng marker, thứ tự trường và quy ước khoảng trắng/special token.
-
-<LessonNote>**Lỗi thường gặp:** train với template Alpaca nhưng inference chỉ gửi raw instruction. Model nhận distribution prefix khác với lúc học.</LessonNote>
-
-**Takeaway:** Lưu template cùng tokenizer và checkpoint.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Template là data contract phải được giữ giống nhau giữa train và inference.'},
+  steps: [
+    {label: {vi: 'Instruction'}, shape: '### Instruction:', detail: {vi: 'Phân loại cảm xúc.'}},
+    {label: {vi: 'Input'}, shape: '### Input:', detail: {vi: 'Sản phẩm dùng rất tốt.'}},
+    {label: {vi: 'Response'}, shape: '### Response:', detail: {vi: 'tích cực'}},
+    {label: {vi: 'Persist contract'}, shape: 'template + tokenizer + checkpoint', detail: {vi: 'Giữ marker, thứ tự trường, khoảng trắng và special token.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Lưu template cùng tokenizer và checkpoint.'},
+  misconception: {vi: 'Train bằng template nhưng inference chỉ gửi raw instruction tạo prefix distribution khác lúc học.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Dynamic padding và shifted targets
-
-Collate tokenize từng chuỗi đầy đủ, thêm EOS, pad tới chiều dài lớn nhất trong batch rồi tạo:
-
-- `inputs = ids[:-1]`;
-- `targets = ids[1:]`.
-
-Cả hai có shape `(B,T)`. Padding input dùng `pad_id`; padding target đổi thành `ignore_index=-100` để không tạo gradient.
-
-<LessonNote>**Lỗi thường gặp:** thay cả EOS thật đầu tiên bằng `-100`. Model cần học khi nào kết thúc response; chỉ padding thừa mới bị bỏ.</LessonNote>
-
-**Takeaway:** EOS là target có nghĩa; PAD chỉ là cơ chế căn batch.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Dynamic padding tạo batch thẳng hàng mà vẫn giữ EOS như một target có nghĩa.'},
+  steps: [
+    {label: {vi: 'Tokenize full text'}, shape: 'prompt + response', detail: {vi: 'Xử lý từng sequence hoàn chỉnh.'}},
+    {label: {vi: 'Append EOS'}, shape: '… + eos_id', detail: {vi: 'Model cần học khi nào response kết thúc.'}},
+    {label: {vi: 'Pad batch'}, shape: 'to max length', detail: {vi: 'Input padding dùng pad_id.'}},
+    {label: {vi: 'Shift targets'}, shape: 'ids[:-1] / ids[1:] · (B,T)', detail: {vi: 'Chỉ padding target đổi thành ignore_index=−100.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'EOS là target có nghĩa; PAD chỉ là cơ chế căn batch.'},
+  misconception: {vi: 'Không thay EOS thật đầu tiên bằng −100.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Response masking tập trung loss
-
-Instruction là context model cần đọc nhưng không nhất thiết là text cần học tái tạo. Ta có thể đặt target trước `response_start` thành `-100`.
-
-`L = -(1/|M|) Σ_(t∈M) log p(y_t | x_≤t)`,
-
-với `M` là các vị trí response hợp lệ.
-
-<LessonNote>**Lỗi thường gặp:** mask input IDs thay vì target IDs. Model vẫn phải nhìn prompt; chỉ loss ở prompt bị bỏ.</LessonNote>
-
-**Takeaway:** Attention mask kiểm soát token được nhìn; loss mask kiểm soát token được chấm.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Response masking giữ instruction làm context nhưng chỉ chấm các response targets hợp lệ.'},
+  comparisons: [
+    {title: 'Attention mask', shape: 'token nào được nhìn', detail: {vi: 'Prompt vẫn hiện diện trong input và causal context.'}},
+    {title: 'Loss mask', shape: 'target nào được chấm', detail: {vi: 'Target trước response_start và padding dùng −100.'}},
+  ],
+  code: ['L = −(1/|M|) Σ_(t∈M) log p(y_t | x_≤t)'],
+  takeaway: {vi: 'M là tập vị trí response hợp lệ đóng góp vào objective.'},
+  misconception: {vi: 'Mask target IDs, không mask input IDs.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={4}>
 
-## Evaluation phải kiểm tra hành vi
-
-Validation loss hữu ích để theo dõi optimization nhưng chưa đủ cho response mở. Evaluation nên kiểm tra:
-
-- correctness theo task;
-- tuân thủ format;
-- instruction following;
-- hallucination hoặc vi phạm ràng buộc;
-- chất lượng trên nhóm prompt chưa thấy.
-
-Tách dữ liệu theo nguồn/task trước khi tạo paraphrase để tránh leakage.
-
-<LessonNote>**Lỗi thường gặp:** chấm response bằng exact match khi có nhiều diễn đạt đúng. Metric phải khớp loại output.</LessonNote>
-
-**Takeaway:** Đánh giá SFT là đánh giá hành vi sinh, không chỉ một scalar loss.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Đánh giá SFT là đánh giá hành vi sinh; validation loss chỉ theo dõi optimization.'},
+  steps: [
+    {label: {vi: 'Task correctness'}, shape: 'rubric', detail: {vi: 'Câu trả lời có đúng yêu cầu không?'}},
+    {label: {vi: 'Format + following'}, shape: 'constraints', detail: {vi: 'Có tuân thủ format và instruction không?'}},
+    {label: {vi: 'Failure checks'}, shape: 'hallucination / violations', detail: {vi: 'Kiểm tra lỗi quan trọng theo task.'}},
+    {label: {vi: 'Unseen prompts'}, shape: 'source/task split', detail: {vi: 'Tách trước paraphrase để giảm leakage.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Metric phải khớp loại output, nhất là khi nhiều diễn đạt đều đúng.'},
+  misconception: {vi: 'Exact match không đủ cho mọi response mở.'},
+}} />
 
 </MdxPage>

@@ -10,21 +10,31 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vote chỉ sau normalization
-
-Nhiều samples có thể giảm lỗi ngẫu nhiên nếu có answer extractor và verifier phù hợp, nhưng tăng cost và không sửa lỗi tương quan.
-
-**Input:** cùng task/policy version, fixed sampling config, số candidates `K`, normalizer và minimum agreement.
-
-**Output:** normalized candidate set, winner/agreement hoặc explicit abstain.
-
-Không vote trên raw prose: `"100"`, `"100.00"` và `100` cần về cùng domain value. Agreement là tỷ lệ phiếu trong sample set, không phải calibrated probability.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Nhiều samples chỉ giảm lỗi ngẫu nhiên khi mọi candidate đi qua cùng normalizer và verifier; cách này tăng cost và không sửa lỗi tương quan.'},
+  steps: [
+    {label: {vi: 'Fixed request'}, shape: 'task + policy version + sampling config', detail: {vi: 'Khóa cùng input và số candidates K.'}},
+    {label: {vi: 'Normalize'}, shape: '"100" | "100.00" | 100 → 100', detail: {vi: 'Raw prose phải về cùng domain value trước khi đếm.'}},
+    {label: {vi: 'Vote'}, shape: 'counts / K', detail: {vi: 'Agreement là tỷ lệ phiếu trong sample set, không phải calibrated probability.'}},
+    {label: {vi: 'Gate'}, shape: 'winner | explicit abstain', detail: {vi: 'Tie, low agreement hoặc verifier fail đều không được tự động chấp nhận.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output contract gồm normalized candidates, winner/agreement hoặc explicit abstain.'},
+  misconception: {vi: 'Không vote trực tiếp trên raw prose và không coi agreement là xác suất model đúng.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Deterministic vote và abstain
+<CodeLessonFrame
+  title="Deterministic vote và abstain"
+  contract="candidates + minimumAgreement → winner | abstain"
+  output="[100, 100, 80, 100, 80] → winner 100, votes=3, agreement=0.6"
+  pitfall="Tie, agreement dưới ngưỡng, candidate sai định dạng và empty input phải có error path rõ ràng."
+  takeaway="Normalize trước, sort ổn định và abstain thay vì bịa winner khi evidence chưa đủ."
+>
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -81,21 +91,22 @@ assert.throws(() => voteAmounts([], 0.6), /empty_candidates/);
 assert.throws(() => voteAmounts(["100 VND"], 0.6), /invalid_candidate/);
 ~~~
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Từ sampling đến bounded search
-
-Independent sampling phù hợp khi cần nhiều cách giải cùng một trạng thái rồi vote. Bounded tree search chỉ đáng thử khi task có:
-
-- lựa chọn **tuần tự** tạo candidate states kiểm chứng được;
-- branching factor và `maxNodes`/deadline hữu hạn;
-- scorer độc lập, terminal condition và tie/abstain rule;
-- cache/dedup để không mở lại cùng state.
-
-Không có các contract này, “tree” chỉ nhân số model calls và tạo selection bias. Dù dùng vote hay search, candidate cuối vẫn phải qua verifier; cap cost/deadline và không log hidden reasoning.
-
-**Kết nối:** ReAct chuyển model proposal thành một tool loop có authorization.
+<PromptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Chọn independent sampling hay bounded search theo cấu trúc task, không theo tên kỹ thuật.'},
+  comparisons: [
+    {title: 'Independent sampling', shape: 'same state → K candidates → vote', detail: {vi: 'Phù hợp khi cần nhiều cách giải cho cùng một trạng thái rồi normalize, verify và vote.'}},
+    {title: 'Bounded tree search', shape: 'state → choices → verified states', detail: {vi: 'Chỉ phù hợp khi lựa chọn tuần tự, branching factor hữu hạn và candidate states kiểm chứng được.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Search cần maxNodes/deadline, scorer độc lập, terminal condition, tie/abstain rule và cache/dedup.'},
+  misconception: {vi: 'Không có các contract này, “tree” chỉ nhân model calls và selection bias. Candidate cuối vẫn phải qua verifier; không log hidden reasoning. Tiếp theo, ReAct thêm authorization vào tool loop.'},
+}} />
 
 </MdxPage>

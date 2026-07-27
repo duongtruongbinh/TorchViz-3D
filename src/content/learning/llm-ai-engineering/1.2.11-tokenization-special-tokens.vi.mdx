@@ -10,19 +10,18 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Special tokens mang tín hiệu do pipeline quy ước
-
-| Token | Vai trò điển hình |
-|---|---|
-| `BOS` | đánh dấu bắt đầu sequence |
-| `EOS` | đánh dấu sequence đã kết thúc |
-| `PAD` | lấp vị trí trống để các sequence có cùng chiều dài trong batch |
-| `UNK` | thay nội dung không biểu diễn được bằng vocabulary/fallback |
-| `<\|endoftext\|>` | phân cách hai tài liệu độc lập trong GPT-style corpus |
-
-Tên và ID cụ thể phải được tokenizer, model config và data pipeline thống nhất. Chuỗi ký tự chỉ trở thành special token khi tokenizer nhận nó theo contract đó.
-
-<LessonNote>**Lỗi thường gặp:** tự chọn một ID “còn trống”. ID đó có thể đã trỏ đến token thường trong checkpoint.</LessonNote>
+<SpecialTokenRoles content={{
+  lead: {vi: 'Special token mang tín hiệu do pipeline quy ước; mỗi token giải quyết một vai trò khác nhau.'},
+  tokens: [
+    {id: 'bos', token: 'BOS', title: 'Begin', role: {vi: 'Đánh dấu bắt đầu sequence.'}},
+    {id: 'eos', token: 'EOS', title: 'End', role: {vi: 'Đánh dấu sequence đã kết thúc.'}},
+    {id: 'pad', token: 'PAD', title: 'Padding', role: {vi: 'Lấp vị trí trống để các sequence có cùng chiều dài.'}},
+    {id: 'unk', token: 'UNK', title: 'Unknown', role: {vi: 'Thay nội dung không biểu diễn được bằng vocabulary hoặc fallback.'}},
+    {id: 'boundary', token: '<|endoftext|>', title: 'Boundary', role: {vi: 'Phân cách hai tài liệu độc lập trong GPT-style corpus.'}},
+  ],
+  contract: {vi: 'Tên và ID cụ thể phải được tokenizer, model config và data pipeline thống nhất. Chuỗi ký tự chỉ trở thành special token khi tokenizer nhận nó theo contract đó.'},
+  misconception: {vi: 'Không tự chọn một ID “còn trống”: ID đó có thể đã trỏ đến token thường trong checkpoint.'},
+}} />
 
 **Handoff:** Running example cần một document boundary trước khi tạo windows.
 
@@ -30,32 +29,23 @@ Tên và ID cụ thể phải được tokenizer, model config và data pipeline
 
 <MdxPage page={1}>
 
-## Chèn boundary giữa hai tài liệu
-
-Hai tài liệu độc lập:
-
-```text
-"Linh builds AI."
-"Linh tests AI."
-```
-
-Được nối thành:
-
-```text
-Linh builds AI. <|endoftext|> Linh tests AI.
-```
-
-Thêm special token vào cuối toy vocabulary:
-
-```python
-vocab["<|endoftext|>"] = 5
-ids = [2, 3, 1, 0, 5, 2, 4, 1, 0]
-
-assert len(vocab) == 6
-assert ids[4] == vocab["<|endoftext|>"]
-```
-
-Boundary là một token dữ liệu có nghĩa: model có thể học rằng tài liệu A kết thúc trước khi tài liệu B bắt đầu.
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Chèn một boundary token giữa hai tài liệu trước khi cắt training windows; boundary trở thành một vị trí dữ liệu có nghĩa.'},
+  diagram: {
+    inputText: 'Document A + Document B',
+    outputLabel: {vi: 'Corpus có document boundary'},
+    tokens: ['Linh', 'builds', 'AI', '.', '<|endoftext|>', 'Linh', 'tests', 'AI', '.'],
+  },
+  code: [
+    'vocab[\"<|endoftext|>\"] = 5',
+    'ids = [2, 3, 1, 0, 5, 2, 4, 1, 0]',
+    '',
+    'assert len(vocab) == 6',
+    'assert ids[4] == vocab[\"<|endoftext|>\"]',
+  ],
+  output: ['V = 6', 'boundary index = 4 · boundary ID = 5'],
+  takeaway: {vi: 'Model có thể học rằng Document A kết thúc trước khi Document B bắt đầu vì boundary nằm trực tiếp trong corpus IDs.'},
+}} />
 
 <LessonNote>**Lỗi thường gặp:** xóa boundary như padding. Boundary thuộc corpus; padding chỉ là phần lấp để gom batch.</LessonNote>
 
@@ -63,22 +53,15 @@ Boundary là một token dữ liệu có nghĩa: model có thể học rằng t�
 
 <MdxPage page={2}>
 
-## Khi nào cần UNK?
-
-Word-level tokenizer có thể gặp token không có trong vocabulary:
-
-```text
-known words + "newword" -> UNK
-```
-
-Byte-level BPE có thể tách `"newword"` thành subword hoặc bytes nền tảng, nên thường không cần thay toàn bộ chuỗi bằng `UNK`.
-
-Hai thiết kế đều có trade-off:
-
-- `UNK` giữ sequence ngắn nhưng làm mất bề mặt text;
-- fallback giữ thông tin nhưng có thể tạo nhiều token hơn.
-
-<LessonNote>**Lỗi thường gặp:** suy ra fallback chỉ từ tên “BPE”. Hãy kiểm tra tokenizer cụ thể có byte coverage, UNK policy và allowed-special policy nào.</LessonNote>
+<TokenFallbackComparison content={{
+  lead: {vi: 'Khi gặp “newword” ngoài vocabulary, tokenizer có thể thay toàn bộ bằng UNK hoặc đi xuống các đơn vị subword/byte nền tảng.'},
+  examples: [
+    {source: 'known words + \"newword\"', tokens: ['known', 'words', 'UNK'], explanation: {vi: 'UNK giữ sequence ngắn nhưng làm mất bề mặt text của từ mới.'}},
+    {source: 'known words + \"newword\"', tokens: ['known', 'words', 'new', 'word'], explanation: {vi: 'Fallback giữ thông tin bề mặt nhưng có thể tạo nhiều token hơn.'}},
+  ],
+  fallback: {vi: 'Byte-level BPE có thể biểu diễn chuỗi mới bằng subword hoặc bytes nền tảng thay vì thay toàn bộ bằng UNK.'},
+  misconception: {vi: 'Không suy ra fallback chỉ từ tên “BPE”; cần kiểm tra byte coverage, UNK policy và allowed-special policy của tokenizer cụ thể.'},
+}} />
 
 **Handoff:** PAD giải quyết vấn đề khác: các sequence đã encode có độ dài khác nhau.
 
@@ -86,22 +69,17 @@ Hai thiết kế đều có trade-off:
 
 <MdxPage page={3}>
 
-## PAD chỉ phục vụ căn chỉnh batch
-
-Giả sử hai sequence có độ dài 3 và 4:
-
-```text
-ids       = [[BOS, 2, EOS, PAD],
-             [BOS, 2,   3, EOS]]
-valid     = [[  1, 1,   1,   0],
-             [  1, 1,   1,   1]]
-```
-
-`PAD` vẫn có một ID và một hàng embedding. Mask/length metadata cho pipeline biết vị trí nào chỉ là phần lấp, để chúng không được xem như nội dung thật hoặc target cần học.
-
-Với pretraining windows có cùng `T`, ta thường không cần PAD trong chính batch đó. PAD quan trọng khi batching sequence có độ dài biến thiên.
-
-<LessonNote>**Lỗi thường gặp:** dùng EOS làm PAD rồi mask mọi EOS. Cách đó có thể xóa cả tín hiệu kết thúc thật; pipeline phải phân biệt EOS nội dung với các vị trí lấp thêm.</LessonNote>
+<PaddingMask content={{
+  lead: {vi: 'PAD căn các sequence có độ dài khác nhau về cùng T; valid mask đánh dấu vị trí nội dung và vị trí chỉ được lấp thêm.'},
+  rows: [
+    {label: 'sequence 1', tokens: ['BOS', '2', 'EOS', 'PAD'], valid: [1, 1, 1, 0]},
+    {label: 'sequence 2', tokens: ['BOS', '2', '3', 'EOS'], valid: [1, 1, 1, 1]},
+  ],
+  padMeaning: {vi: 'vẫn có một ID và một hàng embedding để tensor giữ shape chữ nhật.'},
+  maskMeaning: {vi: 'cho pipeline biết vị trí nào không phải nội dung thật hoặc target cần học.'},
+  windowNote: {vi: 'Pretraining windows đã có cùng T thường không cần PAD trong chính batch đó; PAD quan trọng khi batching sequence có độ dài biến thiên.'},
+  misconception: {vi: 'Không dùng EOS làm PAD rồi mask mọi EOS: cách đó có thể xóa tín hiệu kết thúc thật. Pipeline phải phân biệt EOS nội dung với vị trí lấp thêm.'},
+}} />
 
 **Handoff:** Corpus IDs đã có boundary và sẵn sàng được cắt thành các training windows cùng chiều dài.
 

@@ -3,6 +3,13 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-27 — Learning Lab polish records compacted.** Folded four short
+  implementation plans into the active
+  [Learning Lab](concepts/learning-lab.md) reference: GFM tables, language-aware
+  fenced code, short-viewport scroll containment, and the two-axis AI landscape
+  convention. Updated the published LLM totals to 203 routes and removed the
+  redundant plan files.
+
 - **2026-07-24 — LLM domain learning flow remediated and compacted.** Preserved all 177
   canonical routes, added the 23 approved adjacent-theory Quiz routes, and
   published the complete 200-node flow with 778 pages, 65 Quizzes, and 293

@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Ollama là runtime; model weights có license, quantization, memory và capability riêng. Chọn model phải bắt đầu từ deployment constraints."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Hardware memory, license policy, quality eval và required tools/schema/vision."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Model artifact/config cùng acceptance benchmark."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Weights quantized thay storage/memory và numerical behavior; API output contract vẫn cần conformance test."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Ollama là runtime; model weights có license, quantization, memory và capability riêng. Chọn model phải bắt đầu từ deployment constraints.
 
@@ -20,7 +26,12 @@ Ollama là runtime; model weights có license, quantization, memory và capabili
 
 <MdxPage page={1}>
 
-## Worked fixture
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "Hai quantizations cùng family lần lượt fit 6 GB và 10 GB. Chọn bản nhỏ chỉ khi latency/quality fixtures pass; license/model card được lưu cùng deployment record."}, comparisons: [
+    {title: "License/use case", shape: "worked contract", detail: {vi: "pass  · fail"}},
+    {title: "Required tools/schema", shape: "worked contract", detail: {vi: "pass  · pass"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
 
 Hai quantizations cùng family lần lượt fit 6 GB và 10 GB. Chọn bản nhỏ chỉ khi latency/quality fixtures pass; license/model card được lưu cùng deployment record.
 
@@ -38,7 +49,13 @@ Hai quantizations cùng family lần lượt fit 6 GB và 10 GB. Chọn bản nh
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Chọn model mở cho Ollama"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Gọi mọi model Ollama là Llama."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Bỏ license/redistribution terms."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "So quantization chỉ bằng file size."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

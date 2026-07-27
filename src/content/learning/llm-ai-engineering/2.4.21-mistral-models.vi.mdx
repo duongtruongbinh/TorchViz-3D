@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Mistral hiện tài liệu hóa Chat Completions trong bề mặt Conversations. “Conversations” là tên khu vực tài liệu, không phải một universal endpoint mà adapter được phép tự suy ra."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Required capabilities: text, tools, schema, vision, context và deployment region."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Selected model/API config with dated evidence."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Capability requirements become a matrix lookup; runtime request uses configurable model ID."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Mistral hiện tài liệu hóa Chat Completions trong bề mặt Conversations. “Conversations” là tên khu vực tài liệu, không phải một universal endpoint mà adapter được phép tự suy ra.
 
@@ -20,7 +26,12 @@ Mistral hiện tài liệu hóa Chat Completions trong bề mặt Conversations.
 
 <MdxPage page={1}>
 
-## Worked fixture
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "Service cần tool+structured output. Query current catalog/docs, run conformance fixtures, rồi pin config externally; latest chỉ dùng nếu rollout policy chấp nhận drift."}, comparisons: [
+    {title: "Endpoint/SDK", shape: "worked contract", detail: {vi: "Official request surface và version đã kiểm tra  ·"}},
+    {title: "Capability", shape: "worked contract", detail: {vi: "Tool, schema, vision, streaming theo model cụ thể  ·"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
 
 Service cần tool+structured output. Query current catalog/docs, run conformance fixtures, rồi pin config externally; `latest` chỉ dùng nếu rollout policy chấp nhận drift.
 
@@ -38,7 +49,13 @@ Service cần tool+structured output. Query current catalog/docs, run conformanc
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Mistral Chat Completions và model catalog"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Copy model list vào lesson như timeless."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Dùng alias latest không canary."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Assume every model supports every field."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

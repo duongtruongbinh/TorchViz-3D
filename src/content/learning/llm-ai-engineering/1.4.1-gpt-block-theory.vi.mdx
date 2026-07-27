@@ -8,84 +8,84 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Decoder-only transformer
-
-**Mục tiêu:** Theo dõi activation `(B,T,C)` qua một GPT block và giải thích vai trò của từng sublayer.
-
-GPT nhận token embedding cộng position embedding, đi qua nhiều transformer block, một layer norm cuối và linear output head. Mỗi block gồm causal self-attention và feed-forward network.
-
-Không có encoder memory riêng; causal mask bảo đảm mỗi vị trí chỉ dùng prefix.
-
-<LessonNote>**Lỗi thường gặp:** gọi “decoder-only” là model chỉ chạy khi inference. Decoder-only là kiểu kiến trúc; cùng block được dùng khi train và generation.</LessonNote>
-
-**Takeaway:** GPT lặp một contract hidden cố định rồi chỉ đổi chiều ở output head.
+<GptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Theo dõi activation (B,T,C) qua decoder-only GPT từ embedding input đến vocabulary logits.'},
+  steps: [
+    {label: {vi: 'Token + position'}, shape: '(B,T,C)', detail: {vi: 'Input số có content và thứ tự.'}},
+    {label: {vi: 'L transformer blocks'}, shape: '(B,T,C)', detail: {vi: 'Mỗi block gồm causal attention và feed-forward.'}},
+    {label: {vi: 'Final LayerNorm'}, shape: '(B,T,C)', detail: {vi: 'Chuẩn hóa hidden cuối.'}},
+    {label: {vi: 'Output head'}, shape: '(B,T,V)', detail: {vi: 'Chỉ bước này đổi C sang vocabulary V.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'GPT lặp một hidden contract cố định; không có encoder memory riêng và causal mask bảo đảm mỗi vị trí chỉ dùng prefix.'},
+  misconception: {vi: '“Decoder-only” là kiểu kiến trúc dùng trong cả training và generation, không có nghĩa model chỉ chạy khi inference.'},
+}} />
 
 </MdxPage>
 <MdxPage page={1}>
 
-## Layer normalization
-
-LayerNorm chuẩn hóa các feature của từng token, không trộn các phần tử batch hay vị trí. Scale và shift học được giúp model điều chỉnh lại phân phối sau chuẩn hóa.
-
-GPT nhỏ trong khóa học dùng pre-norm: norm chạy trước attention/MLP. Cách này tạo đường residual trực tiếp cho gradient.
-
-<LessonNote>**Lỗi thường gặp:** chuẩn hóa qua T và làm token ảnh hưởng thống kê của nhau. LayerNorm ở đây chạy trên C.</LessonNote>
-
-**Takeaway:** LayerNorm ổn định feature scale nhưng giữ nguyên `(B,T,C)`.
+<GptConceptVisual content={{
+  view: 'batch',
+  lead: {vi: 'LayerNorm chuẩn hóa feature C của từng token độc lập và giữ nguyên activation shape.'},
+  steps: [
+    {label: {vi: 'Một token row'}, shape: '(C,)', detail: {vi: 'Không trộn batch B hoặc sequence T.'}},
+    {label: {vi: 'Normalize + affine'}, shape: 'γ, β · (C,)', detail: {vi: 'Scale và shift được học.'}},
+    {label: {vi: 'Pre-norm output'}, shape: '(B,T,C)', detail: {vi: 'Norm chạy trước attention hoặc MLP.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Pre-norm tạo đường residual trực tiếp cho gradient và ổn định feature scale mà không đổi (B,T,C).'},
+  misconception: {vi: 'Không chuẩn hóa qua T; LayerNorm ở đây chạy trên C để token không ảnh hưởng thống kê của nhau.'},
+}} />
 
 </MdxPage>
 <MdxPage page={2}>
 
-## Feed-forward với GELU
-
-MLP áp dụng độc lập trên từng token: `C → 4C → C`. GELU là activation trơn, giữ một phần giá trị âm thay vì cắt hoàn toàn như ReLU.
-
-Hai linear dùng chung weights cho mọi vị trí; MLP không trộn token, chỉ trộn feature. Attention mới trộn thông tin theo sequence.
-
-<LessonNote>**Lỗi thường gặp:** nghĩ MLP tạo context giữa các token. Nó hoạt động độc lập trên từng hàng hidden.</LessonNote>
-
-**Takeaway:** Attention trộn theo T; MLP biến đổi theo C.
+<GptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Attention và MLP cùng giữ (B,T,C) nhưng biến đổi activation theo hai trục khác nhau.'},
+  comparisons: [
+    {title: 'Causal attention', shape: 'mix along T', detail: {vi: 'Trộn thông tin giữa các token được phép nhìn.'}},
+    {title: 'Feed-forward + GELU', shape: 'C → 4C → C', detail: {vi: 'Áp dụng độc lập trên từng token và chỉ trộn feature.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Hai linear của MLP dùng chung weights cho mọi vị trí; GELU giữ một phần giá trị âm thay vì cắt hoàn toàn như ReLU.'},
+  misconception: {vi: 'MLP không tự tạo context giữa token; nó hoạt động độc lập trên từng hàng hidden.'},
+}} />
 
 </MdxPage>
 <MdxPage page={3}>
 
-## Residual stream
-
-Shortcut cộng input với output của attention và MLP:
-
-`x = x + attention(norm(x))`
-
-`x = x + mlp(norm(x))`
-
-Đường truyền trực tiếp này giúp gradient đi qua mạng sâu ổn định hơn.
-
-Sublayer phải trả đúng `(B,T,C)` để phép cộng hợp lệ. Dropout có thể chạy trên sublayer output trước khi cộng.
-
-<LessonNote>**Lỗi thường gặp:** cộng logits `(B,T,V)` vào hidden `(B,T,C)`. Output head nằm sau toàn bộ block, ngoài residual stream.</LessonNote>
-
-**Takeaway:** Residual connection khóa shape công khai của mọi GPT block.
+<GptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Residual stream cộng sublayer output về đúng hidden input và tạo đường truyền trực tiếp qua block sâu.'},
+  steps: [
+    {label: {vi: 'Attention branch'}, shape: 'attention(norm(x))', detail: {vi: 'Trả đúng (B,T,C).'}},
+    {label: {vi: 'Residual add'}, shape: 'x + branch', detail: {vi: 'Có thể dropout branch trước khi cộng.'}},
+    {label: {vi: 'MLP branch'}, shape: 'mlp(norm(x))', detail: {vi: 'Tiếp tục trả (B,T,C).'}},
+    {label: {vi: 'Block output'}, shape: '(B,T,C)', detail: {vi: 'Shape công khai của block không đổi.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Residual connection khóa public shape của mọi GPT block và giúp gradient đi qua mạng sâu ổn định hơn.'},
+  misconception: {vi: 'Không cộng logits (B,T,V) vào hidden (B,T,C); output head nằm sau toàn bộ blocks, ngoài residual stream.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={4}>
 
-## Dòng dữ liệu của một pre-norm block
-
-Một block hoàn chỉnh:
-
-```text
-x
-├─ LayerNorm → causal MHA → dropout ─┐
-└─────────────────────────────────────+ → x_attn
-  x_attn
-  ├─ LayerNorm → Linear → GELU → Linear → dropout ─┐
-  └─────────────────────────────────────────────────+ → output
-```
-
-Mọi điểm trước/sau dấu cộng có shape `(B,T,C)`. Lặp L block không thay activation shape nhưng mỗi block có bộ parameter riêng.
-
-<LessonNote>**Lỗi thường gặp:** dùng cùng một instance block L lần khi muốn L bộ trọng số. `ModuleList([Block(...) for _ in range(L)])` tạo các instance độc lập.</LessonNote>
-
-**Takeaway:** GPT sâu lên bằng cách lặp contract, không bằng cách tăng chiều ở mỗi block.
+<GptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Một pre-norm block gồm hai residual branches nối tiếp; mọi điểm trước và sau phép cộng đều có shape (B,T,C).'},
+  steps: [
+    {label: {vi: 'Attention pre-norm'}, shape: 'LN → causal MHA → dropout', detail: {vi: 'Cộng về x để tạo x_attn.'}},
+    {label: {vi: 'x_attn'}, shape: '(B,T,C)', detail: {vi: 'Residual stream sau attention.'}},
+    {label: {vi: 'MLP pre-norm'}, shape: 'LN → Linear → GELU → Linear', detail: {vi: 'Dropout rồi cộng về x_attn.'}},
+    {label: {vi: 'Block output'}, shape: '(B,T,C)', detail: {vi: 'Sẵn sàng đi vào block kế tiếp.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'GPT sâu lên bằng cách lặp cùng contract, không tăng chiều ở mỗi block; mỗi block có bộ parameter riêng.'},
+  misconception: {vi: 'Không dùng cùng một block instance L lần nếu cần L bộ weights; ModuleList([Block(...) for _ in range(L)]) tạo các instance độc lập.'},
+}} />
 
 </MdxPage>

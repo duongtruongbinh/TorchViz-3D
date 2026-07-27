@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Groq exposes an OpenAI-compatible Responses surface focused on fast inference, but official docs list unsupported fields; adapter must capability-check."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Request restricted to supported fields/model."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Normalized result plus detailed latency/queue metrics when enabled."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Compatible JSON maps to internal result; unsupported state/store/truncation fields fail before dispatch."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Groq exposes an OpenAI-compatible Responses surface focused on fast inference, but official docs list unsupported fields; adapter must capability-check.
 
@@ -20,7 +26,12 @@ Groq exposes an OpenAI-compatible Responses surface focused on fast inference, b
 
 <MdxPage page={1}>
 
-## Worked fixture
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "Adapter feature matrix rejects previous_response_id if unsupported and records prompt/queue/completion time separately. Latency claim comes from measured fixture distribution, not slogan."}, comparisons: [
+    {title: "Field nằm trong exact supported matrix", shape: "worked contract", detail: {vi: "Map và snapshot wire request  ·"}},
+    {title: "previous_response_id/state không được hỗ trợ", shape: "worked contract", detail: {vi: "Typed unsupported_capability trước dispatch  ·"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
 
 Adapter feature matrix rejects `previous_response_id` if unsupported and records prompt/queue/completion time separately. Latency claim comes from measured fixture distribution, not slogan.
 
@@ -38,7 +49,13 @@ Adapter feature matrix rejects `previous_response_id` if unsupported and records
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Groq inference và compatibility gaps"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Send unsupported fields silently."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Compare one warm request."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Confuse throughput, queue time and generation time."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

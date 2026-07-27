@@ -10,41 +10,62 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Typed contracts
-
-`EvalCase` giữ stable ID, input, required terms và `critical`. `EvalResult` giữ pass/fail, response hoặc error reason. Harness không nuốt provider/parser exception thành empty response; error là result có thể gate.
-
-Dataset IDs phải unique và version/hash nằm trong run manifest.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Typed harness giữ case identity và biến mọi provider/parser error thành result có thể gate.'},
+  comparisons: [
+    {title: 'EvalCase', shape: 'stable ID + prompt + required terms + critical', detail: {vi: 'Dataset IDs unique; version/hash nằm trong run manifest.'}},
+    {title: 'EvalResult', shape: 'case ID + passed + reason', detail: {vi: 'Error không bị nuốt thành empty response.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Typed boundary giúp aggregate không mất provenance.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Deterministic runner
-
-Runner nhận dependency `system_under_test` thay vì gọi provider hard-code. Test dùng fixture deterministic. Production adapter có timeout, bounded retry cho lỗi transient, cancellation và concurrency cap; không retry policy/auth/schema errors mù quáng.
-
-Artifact giữ case/config IDs và redacted output; cache key phải bao gồm mọi behavioral input.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Dependency-injected runner tách deterministic test fixture khỏi production provider adapter.'},
+  steps: [
+    {label: {vi: 'Cases'}, shape: 'versioned inputs', detail: {vi: 'Stable IDs và config IDs.'}},
+    {label: {vi: 'System dependency'}, shape: 'fixture / provider adapter', detail: {vi: 'Không hard-code provider trong core runner.'}},
+    {label: {vi: 'Operational controls'}, shape: 'timeout + bounded retry + cancel + concurrency', detail: {vi: 'Không retry policy/auth/schema errors mù quáng.'}},
+    {label: {vi: 'Artifacts/cache'}, shape: 'redacted output + full behavioral key', detail: {vi: 'Cache key bao gồm mọi input ảnh hưởng behavior.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Runner logic tái lập được; production adapter chịu trách nhiệm resilience.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Release gate
-
-Gate fail nếu:
-
-- bất kỳ critical case fail/error;
-- pass rate dưới threshold đã khai báo;
-- result count khác case count.
-
-Aggregate không được che duplicate/missing case. Threshold change là config version mới.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Release gate kiểm tra critical precedence, threshold và result accounting.'},
+  steps: [
+    {label: {vi: 'Critical cases'}, shape: 'any fail/error → block', detail: {vi: 'Không bị aggregate che.'}},
+    {label: {vi: 'Pass rate'}, shape: '≥ declared threshold', detail: {vi: 'Threshold thuộc versioned config.'}},
+    {label: {vi: 'Count match'}, shape: '|results| = |cases|', detail: {vi: 'Phát hiện missing result.'}},
+    {label: {vi: 'ID match'}, shape: 'unique result IDs = case IDs', detail: {vi: 'Phát hiện duplicate hoặc foreign result.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Threshold change tạo config version mới.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Complete implementation
+<CodeLessonFrame
+  title="Complete evaluation harness"
+  contract="unique cases → typed results → critical-aware release decision"
+  output="deterministic fixture passes; broken authorization case blocks"
+  pitfall="Empty, duplicate hoặc mismatched case/result sets phải fail rõ ràng."
+  takeaway="Implementation giữ error reason, exact ID accounting và critical precedence."
+>
 
 ```python
 from dataclasses import dataclass
@@ -120,12 +141,23 @@ for invalid_cases, invalid_results in [
         raise AssertionError('empty or duplicate result sets must fail')
 ```
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={4}>
 
-## Operational handoff
-
-Production version ghi run manifest, per-case JSONL và aggregate report atomically; validate artifact trước publish. Dùng idempotency/run ID, cleanup task khi cancel và bounded queue. Không lưu secret/PII hoặc hidden reasoning. CI chỉ nhận pass/fail cùng artifact link; human review xử lý `review`/uncertain cases.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Operational handoff xuất artifact atomically và giữ CI output tối thiểu.'},
+  steps: [
+    {label: {vi: 'Write run'}, shape: 'manifest + per-case JSONL + aggregate', detail: {vi: 'Validate trước publish.'}},
+    {label: {vi: 'Lifecycle'}, shape: 'idempotency/run ID + cleanup + bounded queue', detail: {vi: 'Cancel không để orphan work.'}},
+    {label: {vi: 'Privacy'}, shape: 'no secret/PII/hidden reasoning', detail: {vi: 'Artifacts được redacted.'}},
+    {label: {vi: 'Consumers'}, shape: 'CI pass/fail + link · human review uncertain', detail: {vi: 'Review xử lý review/uncertain cases.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Artifact là source of truth; CI không cần nhúng toàn bộ sensitive trace.'},
+}} />
 
 </MdxPage>

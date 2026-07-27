@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Provider quota và per-user app limit là hai lớp khác nhau. Router cần RPM/TPM/concurrency headroom theo provider/model."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Current reservations/usage, request estimated tokens và provider headers."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Admit, delay, queue, reroute hoặc reject."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Multi-dimensional counters, không một scalar QPS; reservation được release/reconcile khi terminal."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Provider quota và per-user app limit là hai lớp khác nhau. Router cần RPM/TPM/concurrency headroom theo provider/model.
 
@@ -20,7 +26,7 @@ Provider quota và per-user app limit là hai lớp khác nhau. Router cần RPM
 
 <MdxPage page={1}>
 
-## Worked scenario
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
 
 Provider còn 10 RPM nhưng chỉ 2.000 TPM; request 3.000 token không được admit dù RPM đủ. Reservation tránh hai workers cùng tiêu headroom.
 
@@ -65,11 +71,19 @@ assert.deepEqual(
 ~~~
 <LessonNote>Trong nhiều workers, reserve/release/reconcile phải atomic ở shared store. Provider headers là provider-specific evidence; local reservations vẫn cần khi header thiếu.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Quản lý provider quota"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Chỉ track request count."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Không reconcile failed calls."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Dùng local counter sau load balancer."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

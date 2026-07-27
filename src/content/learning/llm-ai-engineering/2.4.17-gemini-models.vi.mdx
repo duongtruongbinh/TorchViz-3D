@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Từ 06-2026, Interactions API là interface GA được khuyến nghị cho project mới; generateContent vẫn supported legacy. Route model trở thành migration/capability lesson."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Common request, selected capability và configurable Gemini model ID."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Interaction/result normalized cùng state/storage policy; Interactions lưu request theo mặc định, nên store=false phải được đặt khi retention policy không cho phép lưu."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Internal messages/media/tools map sang Interactions input; legacy adapter giữ generateContent path khi cần."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Từ 06-2026, Interactions API là interface GA được khuyến nghị cho project mới; `generateContent` vẫn supported legacy. Route model trở thành migration/capability lesson.
 
@@ -20,7 +26,12 @@ Từ 06-2026, Interactions API là interface GA được khuyến nghị cho pro
 
 <MdxPage page={1}>
 
-## Worked fixture
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "New service dùng Interactions và optional previous_interaction_id; migration ghi rõ state/storage. Existing generateContent service không bị gọi deprecated nếu docs vẫn support."}, comparisons: [
+    {title: "Không cho provider retention", shape: "worked contract", detail: {vi: "Gửi store=false; không dùng provider state chain  · History đã authorize do backend sở hữu"}},
+    {title: "Cho phép state có thời hạn", shape: "worked contract", detail: {vi: "Ghi retention/region/access owner trước khi dùng stored interaction  · Lưu interaction ID có tenant scope và expiry"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
 
 New service dùng Interactions và optional `previous_interaction_id`; migration ghi rõ state/storage. Existing `generateContent` service không bị gọi deprecated nếu docs vẫn support.
 
@@ -36,7 +47,13 @@ New service dùng Interactions và optional `previous_interaction_id`; migration
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Gemini Interactions API và model catalog"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Dạy generateContent như default mới."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Hard-code model/context table."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Bỏ store và vô tình nhận default storage khi policy yêu cầu không lưu."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

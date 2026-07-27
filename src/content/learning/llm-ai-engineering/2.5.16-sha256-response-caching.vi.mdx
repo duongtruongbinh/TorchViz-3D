@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Hash chỉ hữu ích nếu canonical key chứa mọi yếu tố ảnh hưởng output và tenant/privacy scope."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Provider/model revision, prompt version, normalized input, schema/params, tenant scope."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Cache key plus value/TTL or miss."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Canonical JSON bytes → SHA-256 digest; output stored với policy/version metadata."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Hash chỉ hữu ích nếu canonical key chứa mọi yếu tố ảnh hưởng output và tenant/privacy scope.
 
@@ -20,7 +26,7 @@ Hash chỉ hữu ích nếu canonical key chứa mọi yếu tố ảnh hưởng
 
 <MdxPage page={1}>
 
-## Worked scenario
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
 
 Hai JSON khác key order canonicalize giống nhau. Key gồm tenant, model, temperature, schema hash; đổi prompt v13 tạo miss. Không cache sensitive/non-deterministic response nếu policy cấm.
 
@@ -55,11 +61,19 @@ assert.notEqual(cacheKey(a), cacheKey({ ...a, tenantScope: "tenant-b" }));
 ~~~
 <LessonNote>Key phải chứa mọi output-affecting field và tenant/policy scope. Không cache sensitive, stochastic, error/refusal hoặc side-effecting response nếu policy không cho phép.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "SHA-256 response caching đúng scope"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Hash raw JSON không canonicalize."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Bỏ tenant/model/schema khỏi key."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Cache error/refusal quá lâu."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

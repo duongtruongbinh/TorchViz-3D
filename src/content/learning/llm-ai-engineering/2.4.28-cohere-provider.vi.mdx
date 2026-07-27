@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Cohere Chat V2, embeddings/rerank, tools và structured outputs phải được map theo capability thật thay vì provider wrapper chung chung."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Common task plus selected Cohere capability/model config."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Normalized chat/tool/schema/embedding result."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Chat V2 content/tool calls and response_format map into internal union; rerank returns scored document indices."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Cohere Chat V2, embeddings/rerank, tools và structured outputs phải được map theo capability thật thay vì provider wrapper chung chung.
 
@@ -20,7 +26,12 @@ Cohere Chat V2, embeddings/rerank, tools và structured outputs phải được 
 
 <MdxPage page={1}>
 
-## Worked fixture
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "Retrieval pipeline dùng embeddings/index rồi rerank candidates; generation chỉ nhận top evidence. Structured tool output dùng current V2 controls và validator."}, comparisons: [
+    {title: "Chat V2", shape: "worked contract", detail: {vi: "Ordered content, finish reason, usage  · Text/refusal/terminal mapping"}},
+    {title: "Tool use", shape: "worked contract", detail: {vi: "Call ID, name, untrusted arguments  · Schema + authorization + result loop"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
 
 Retrieval pipeline dùng embeddings/index rồi rerank candidates; generation chỉ nhận top evidence. Structured tool output dùng current V2 controls và validator.
 
@@ -38,7 +49,13 @@ Retrieval pipeline dùng embeddings/index rồi rerank candidates; generation ch
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Cohere provider capability delta"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Trộn V1 và V2 parameters."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Gọi rerank là embedding."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Assume JSON mode equals schema."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

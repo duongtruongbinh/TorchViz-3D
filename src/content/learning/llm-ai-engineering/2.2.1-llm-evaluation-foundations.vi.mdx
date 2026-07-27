@@ -10,19 +10,30 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Từ use case đến eval contract
-
-Một LLM có thể trả lời trôi chảy nhưng sai fact, bỏ instruction hoặc tạo hành động nguy hiểm. Vì output mở có nhiều cách diễn đạt đúng, evaluation không thể chỉ so chuỗi hoặc dùng một benchmark tổng quát.
-
-- **Input:** use case, traffic/risk slices, candidate system và policy.
-- **Output:** per-case result, aggregate metrics và một decision như `pass`, `review` hoặc `block`.
-- **State:** `EvalSpec -> EvalCase[] -> Response -> EvalResult[] -> ReleaseDecision`.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Evaluation bắt đầu từ use case và risk slices, không từ một benchmark tổng quát hay một prompt duy nhất.'},
+  steps: [
+    {label: {vi: 'EvalSpec'}, shape: 'use case + policy + slices', detail: {vi: 'Bao phủ wording variants giữ nguyên ý định.'}},
+    {label: {vi: 'EvalCase[]'}, shape: 'expected behavior', detail: {vi: 'Output mở có thể có nhiều cách diễn đạt đúng.'}},
+    {label: {vi: 'Response → EvalResult[]'}, shape: 'per-case evidence', detail: {vi: 'Đo factuality, instruction following, helpfulness và safety.'}},
+    {label: {vi: 'ReleaseDecision'}, shape: 'pass / review / block', detail: {vi: 'Kết hợp aggregate metrics với critical invariants.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Một response trôi chảy vẫn có thể sai fact, bỏ instruction hoặc tạo hành động nguy hiểm.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Typed case và result
+<CodeLessonFrame
+  title="Typed case và result"
+  contract="stable EvalCase → auditable EvalResult"
+  output="case ID, pass/fail và concise reasons"
+  pitfall="Không lưu hoặc yêu cầu hidden chain-of-thought."
+  takeaway="Slice cho phép đọc failure theo traffic/risk thay vì chỉ nhìn average."
+>
 
 ```python
 from dataclasses import dataclass
@@ -46,29 +57,40 @@ class EvalResult:
 
 Case ID, expected behavior và rubric version phải ổn định; `slice` cho phép đọc failure theo nhóm traffic/risk thay vì chỉ nhìn average. Result giữ lý do có thể kiểm tra, không yêu cầu hay lưu hidden chain-of-thought.
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Worked decision
-
-Với ba case support: hai case thường pass, một case authorization critical fail. Average pass rate là `2/3`, nhưng release vẫn `block` vì critical invariant có precedence. Đây là lý do metric vector phải gồm correctness, instruction following, factuality, helpfulness và safety thay vì một score duy nhất.
-
-Một case không đủ evidence phải có expected behavior “abstain”; nếu loại nó khỏi dataset, team không đo được hallucination calibration.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked decision: average pass rate không được che một authorization critical failure.'},
+  steps: [
+    {label: {vi: 'Normal cases'}, shape: '2 pass', detail: {vi: 'Hai support requests thông thường đạt rubric.'}},
+    {label: {vi: 'Critical case'}, shape: '1 authorization fail', detail: {vi: 'Critical invariant có precedence.'}},
+    {label: {vi: 'Aggregate'}, shape: '2/3 pass rate', detail: {vi: 'Average vẫn được báo nhưng không quyết định một mình.'}},
+    {label: {vi: 'Release'}, shape: 'block', detail: {vi: 'Metric vector giữ correctness, following, factuality, helpfulness và safety.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Case thiếu evidence phải mong đợi abstain để đo hallucination calibration.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Pitfall và handoff
-
-- Không dùng demo đẹp hoặc leaderboard như bằng chứng deployment duy nhất.
-- Không trung bình hóa critical failure.
-- Dataset phải bao phủ case thường, edge case, adversarial/risk case và case cần abstain; mỗi case giữ expected behavior, rubric cùng slice.
-- Final holdout không được dùng để chọn prompt/model. Mọi thay đổi case hoặc nhãn tạo dataset version mới với provenance có thể audit.
-- Version dataset, model, prompt, retrieval, tools, evaluator và threshold.
-- Giữ per-case artifact đã redacted để replay; không log PII/secret vô điều kiện.
-
-Quiz kế tiếp kiểm tra contract này; sau đó ta tính deterministic metric và thiết kế dataset ứng dụng.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Handoff biến eval thành artifact có thể replay, version và audit.'},
+  steps: [
+    {label: {vi: 'Coverage'}, shape: 'normal + edge + adversarial + abstain', detail: {vi: 'Thêm prompt variants giữ nguyên nghĩa.'}},
+    {label: {vi: 'Holdout policy'}, shape: 'selection ≠ final test', detail: {vi: 'Không dùng final holdout để chọn prompt/model.'}},
+    {label: {vi: 'Version lineage'}, shape: 'data + model + prompt + tools + judge', detail: {vi: 'Thay case/label tạo dataset version mới.'}},
+    {label: {vi: 'Replay artifacts'}, shape: 'redacted per-case results', detail: {vi: 'Không log PII/secret vô điều kiện.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Demo đẹp hoặc leaderboard không phải deployment evidence; critical failure không được trung bình hóa.'},
+}} />
 
 </MdxPage>

@@ -6,40 +6,35 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-Console hữu ích để khám phá nhưng một lần chạy thủ công không phải evidence production.
-
-**Input:** Prompt version, model capability, schema, parameters và eval fixtures.
-
-**Output:** Saved/exported configuration cùng code có thể chạy lại và kết quả được đưa vào eval.
-
-**Data/type/shape:** UI settings phải được materialize thành request fields; model alias/capability được kiểm tra tại ngày chạy.
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Console hữu ích để khám phá, nhưng một lần chạy thủ công không phải production evidence.'},
+  steps: [
+    {label: {vi: 'Pin inputs'}, shape: 'prompt + model + schema versions', detail: {vi: 'Ghi parameters, fixture IDs và ngày kiểm tra capability.'}},
+    {label: {vi: 'Explore'}, shape: 'Playground run', detail: {vi: 'Không paste API key hoặc dữ liệu production nhạy cảm.'}},
+    {label: {vi: 'Materialize'}, shape: 'UI controls → request fields', detail: {vi: 'Export cấu hình và code có thể chạy lại.'}},
+    {label: {vi: 'Evaluate'}, shape: 'fixtures → acceptance metric', detail: {vi: 'Kết quả đi vào eval harness, không chọn một output đẹp.'}},
+  ], code: [], takeaway: {vi: 'Artifact bàn giao là saved configuration dựng lại được request.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Worked example và contract
-
-Chạy ba fixture ID cố định, lưu prompt/model/schema versions, ngày kiểm tra và
-acceptance metric. Console chỉ là nơi thử; artifact chuyển giao là manifest có
-thể dựng lại request và nối vào eval harness. Không copy API key hoặc kết luận
-từ một output đẹp.
-
-<LessonNote>Chỉ đưa artifact có thể kiểm chứng vào output/log; không yêu cầu hoặc lưu hidden chain-of-thought.</LessonNote>
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Ba fixture cố định tạo một experiment có thể chạy lại ngoài console.'},
+  steps: [
+    {label: {vi: 'Fixtures'}, shape: 'ticket-01 · 02 · 03', detail: {vi: 'Cùng input IDs cho mọi lần chạy.'}},
+    {label: {vi: 'Manifest'}, shape: 'prompt/model/schema + checkedOn', detail: {vi: 'Ghi acceptance metric và output budget.'}},
+    {label: {vi: 'Request adapter'}, shape: 'manifest → Responses request', detail: {vi: 'Materialize controls thành code.'}},
+    {label: {vi: 'Eval'}, shape: 'normalized results', detail: {vi: 'Không copy key, raw ticket hoặc hidden chain-of-thought.'}},
+  ], code: [], takeaway: {vi: 'Console là nơi thử; manifest và eval result mới là evidence.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production pitfalls và handoff
-
-**Sai lầm thường gặp:**
-
-- Quên temperature/tool/schema khi chuyển sang code.
-- Dùng alias biến động như fixture vĩnh viễn.
-- Paste dữ liệu production nhạy cảm vào console.
+<CodeLessonFrame title="Materialize OpenAI experiment" contract="ExperimentSpec → reproducible Responses request shape" output="support-exp-17 · 3 fixtures · maxOutputTokens=300" pitfall="Không bỏ sót control, pin alias biến động như fixture vĩnh viễn hoặc paste dữ liệu nhạy cảm." takeaway="Manifest có ngày kiểm tra và không chứa API key; capability phải được kiểm tra lại khi chạy.">
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -106,6 +101,8 @@ kiểm tra 2026-07-23: [prompt engineering](https://developers.openai.com/api/do
 và [working with evals](https://developers.openai.com/api/docs/guides/evals).
 Model, controls và console behavior phải kiểm tra lại tại thời điểm chạy.</LessonNote>
 
-**Kết nối:** Anthropic Console chạy cùng experiment contract để thấy khác biệt provider.
+Anthropic Console tiếp theo chạy cùng experiment contract để thấy khác biệt provider.
+
+</CodeLessonFrame>
 
 </MdxPage>

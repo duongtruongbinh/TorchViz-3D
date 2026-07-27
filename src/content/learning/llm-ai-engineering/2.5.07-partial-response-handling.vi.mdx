@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Text/tool arguments trước terminal event có thể thiếu UTF-8, JSON hoặc moderation result."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Normalized stream và AbortSignal."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Provisional buffer, terminal committed result hoặc typed cancellation/error."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "State machine idle→streaming→completed|failed|canceled; chỉ completed commit domain object."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Text/tool arguments trước terminal event có thể thiếu UTF-8, JSON hoặc moderation result.
 
@@ -20,7 +26,12 @@ Text/tool arguments trước terminal event có thể thiếu UTF-8, JSON hoặc
 
 <MdxPage page={1}>
 
-## Worked scenario
+<TrainingConceptVisual content={{
+  view: 'position', lead: {vi: "Tool args tới ba fragments; parser chỉ chạy sau tool_completed. Disconnect trước terminal event giữ UI preview nhưng database lưu failure/canceled, không lưu command."}, comparisons: [
+    {title: "idle", shape: "before ↔ after", detail: {vi: "start  · streaming"}},
+    {title: "streaming", shape: "before ↔ after", detail: {vi: "text_delta/tool_delta  · streaming"}},
+  ], code: [], takeaway: {vi: "Giữ budget/state invariant qua từng bước."},
+}} />
 
 Tool args tới ba fragments; parser chỉ chạy sau `tool_completed`. Disconnect trước terminal event giữ UI preview nhưng database lưu failure/canceled, không lưu command.
 
@@ -39,7 +50,13 @@ Tool args tới ba fragments; parser chỉ chạy sau `tool_completed`. Disconne
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Xử lý partial response"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Execute partial tool JSON."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Mark success on socket close."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Retry stream làm duplicate side effect."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

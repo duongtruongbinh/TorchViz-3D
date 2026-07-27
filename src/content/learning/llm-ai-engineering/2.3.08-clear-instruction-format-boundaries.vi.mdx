@@ -10,47 +10,50 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Tách authority khỏi data
-
-Một request dễ audit có ba vùng riêng:
-
-1. **Trusted instruction:** task/policy do ứng dụng version và kiểm soát.
-2. **Untrusted data:** user/retrieved text cùng provenance/taint.
-3. **Output contract:** schema và các nhánh success/refusal/error.
-
-Structured messages, JSON serialization hoặc delimiter giúp model nhận ra các vùng, nhưng không làm dữ liệu trở nên đáng tin. Chuỗi giống closing tag vẫn là data; serializer phải escape đúng và application giữ nguyên provenance.
+<PromptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Request dễ audit tách ba vùng authority, data và output contract.'},
+  comparisons: [
+    {title: 'Trusted instruction', shape: 'versioned task + policy', detail: {vi: 'Do application kiểm soát.'}},
+    {title: 'Untrusted data', shape: 'user/retrieved + provenance', detail: {vi: 'Không được thăng cấp authority.'}},
+    {title: 'Output contract', shape: 'schema + success/refusal/error', detail: {vi: 'Cho parser và verifier.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Structured messages, JSON và delimiter giúp nhận vùng nhưng không biến data thành trusted; serializer phải escape đúng.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Positive measurable constraints
-
-Negative instruction như “đừng dài dòng” chỉ nói điều không muốn và khó chấm. Thay bằng contract dương, có giới hạn:
-
-- “Trả đúng một JSON object theo schema.”
-- “`category` thuộc `billing | delivery | other`.”
-- “`summary` tối đa 40 từ.”
-- “Không có extra property; nếu thiếu bằng chứng, trả nhánh `incomplete`.”
-
-Acceptance criteria nối trực tiếp với parser: required fields, enum, bounds, maximum length và error branch. Không yêu cầu “giải thích toàn bộ suy nghĩ”; nếu cần audit, yêu cầu evidence IDs hoặc calculation fields xác định trước.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Positive constraints biến mong muốn mơ hồ thành acceptance criteria có thể parse.'},
+  steps: [
+    {label: {vi: 'Structure'}, shape: 'one JSON object', detail: {vi: 'Đúng schema, không extra properties.'}},
+    {label: {vi: 'Enum'}, shape: 'billing / delivery / other', detail: {vi: 'Category thuộc tập đóng.'}},
+    {label: {vi: 'Bound'}, shape: 'summary ≤ 40 words', detail: {vi: 'Giới hạn đo được thay cho “đừng dài dòng”.'}},
+    {label: {vi: 'Error branch'}, shape: 'missing evidence → incomplete', detail: {vi: 'Không ép model đoán.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Nếu cần audit, yêu cầu evidence IDs hoặc calculation fields—not toàn bộ suy nghĩ.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Defense vẫn nằm ngoài prompt
-
-Delimiter không phải security sandbox. Một design production vẫn cần:
-
-- schema validation trước/sau model;
-- server-side ownership và tool allowlist;
-- least-privilege credentials cùng confirmation cho action phá hủy;
-- output screening và bounded retry;
-- redacted logs chỉ chứa version, error code và correlation ID.
-
-Không nội suy user text vào template code bằng string concatenation tùy ý, không thăng cấp retrieved text thành system instruction và không log raw PII/secret để debug.
-
-**Kết nối:** Bài sau đồng bộ examples với output constraints.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Delimiter không phải sandbox; defense vẫn nằm tại application enforcement boundaries.'},
+  steps: [
+    {label: {vi: 'Validate'}, shape: 'schema before + after model', detail: {vi: 'Reject malformed input/output.'}},
+    {label: {vi: 'Authorize'}, shape: 'ownership + tool allowlist', detail: {vi: 'Least privilege và confirmation cho destructive actions.'}},
+    {label: {vi: 'Operate'}, shape: 'screening + bounded retry', detail: {vi: 'Không string-concatenate user text vào code template.'}},
+    {label: {vi: 'Log safely'}, shape: 'version + error + correlation ID', detail: {vi: 'Không raw PII/secret; không nâng retrieved text thành system instruction.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài sau đồng bộ examples với output constraints.'},
+}} />
 
 </MdxPage>

@@ -10,39 +10,47 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-Không cache, decoder sẽ tính lại key/value của toàn bộ prefix ở mỗi token mới. KV cache đổi compute lặp lại thành memory tăng theo sequence length.
-
-**Input:** Hidden state mới cùng K/V đã lưu theo layer.
-
-**Output:** K/V được append và attention output cho token decode hiện tại.
-
-**Data/type/shape:** Một cache thường có dạng `(layers, 2, B, H_kv, T, D_head)`; `T` tăng một sau mỗi decode step.
-
-<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'KV cache đổi việc tính lại toàn bộ prefix thành memory tăng tuyến tính theo sequence length.'},
+  steps: [
+    {label: {vi: 'New hidden'}, shape: 'one decode position', detail: {vi: 'Input mới của step hiện tại.'}},
+    {label: {vi: 'Project K/V'}, shape: '(B,H_kv,1,D_head)', detail: {vi: 'Chỉ tính key/value cho token mới.'}},
+    {label: {vi: 'Append cache'}, shape: '(layers,2,B,H_kv,T,D_head)', detail: {vi: 'T tăng một sau mỗi decode step.'}},
+    {label: {vi: 'Attend'}, shape: 'new Q × cached K/V', detail: {vi: 'Trả attention output cho token hiện tại.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'KV cache giảm compute lặp lại nhưng chuyển chi phí sang memory và bandwidth.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Trace bằng tay
-
-Với 32 layer, `B=1`, 8 KV heads, `D_head=128`, `T=4.096`, fp16: bytes là `32×2×1×8×4.096×128×2 = 512 MiB`. GQA giảm `H_kv`, không giảm số query heads.
-
-**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked example tính cache cho 32 layers, batch 1, 8 KV heads và 4,096 tokens.'},
+  steps: [
+    {label: {vi: 'K và V'}, shape: '×2', detail: {vi: 'Hai tensor cache riêng.'}},
+    {label: {vi: 'Elements'}, shape: '32×2×1×8×4,096×128', detail: {vi: 'layers × K/V × B × H_kv × T × D_head.'}},
+    {label: {vi: 'fp16'}, shape: '×2 bytes', detail: {vi: 'Dtype quyết định bytes mỗi value.'}},
+    {label: {vi: 'Total'}, shape: '512 MiB', detail: {vi: 'GQA giảm H_kv, không giảm query heads.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Viết đúng dimension và đơn vị trước khi thay số.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production và bước tiếp
-
-**Sai lầm production thường gặp:**
-
-- Nhầm query heads với KV heads khi tính cache.
-- Quên nhân hai tensor K và V.
-- Giữ cache của request đã cancel hoặc trộn cache giữa users.
+<CodeLessonFrame
+  title="Production audit cho KV cache"
+  contract="positive dimensions → bytes = layers×2×B×H_kv×T×D_head×dtype"
+  output="512 MiB cho cấu hình mẫu"
+  pitfall="Không nhầm query heads với KV heads, quên K/V factor, hoặc giữ cache sau cancel."
+  takeaway="Cache lifecycle phải giải phóng khi request hoàn tất và cô lập giữa users."
+>
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -89,8 +97,8 @@ assert.throws(
 );
 ~~~
 
-<LessonNote>Phép tính dùng đúng `H_kv`, nhân cả K lẫn V và từ chối dimension không hợp lệ; lifecycle thực tế còn phải giải phóng cache khi request hoàn tất hoặc bị cancel.</LessonNote>
-
 **Kết nối:** Ngoài cache, tokenizer throughput và token distribution cũng quyết định chi phí ở quy mô corpus.
+
+</CodeLessonFrame>
 
 </MdxPage>

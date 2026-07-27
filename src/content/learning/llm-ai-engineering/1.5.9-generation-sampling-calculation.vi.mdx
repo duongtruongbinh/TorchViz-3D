@@ -10,80 +10,74 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Từ logits đến xác suất
-
-**Mục tiêu:** Tính bằng tay tác động của temperature và top-k trên vocabulary bốn token.
-
-Giả sử token `[A,B,C,D]` có logits:
-
-`z = [2, 1, 0, -1]`.
-
-Với `τ=1`, các giá trị mũ xấp xỉ `[7.389, 2.718, 1, 0.368]`. Tổng là `11.475`, nên:
-
-`p ≈ [0.644, 0.237, 0.087, 0.032]`.
-
-<LessonNote>**Lỗi thường gặp:** coi logits là xác suất. Logits có thể âm và không cần tổng bằng 1.</LessonNote>
-
-**Takeaway:** Softmax vừa exponentiate vừa chuẩn hóa toàn bộ vocabulary.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Tính softmax cho vocabulary [A,B,C,D] từ logits z=[2,1,0,−1] tại τ=1.'},
+  steps: [
+    {label: {vi: 'Raw logits'}, shape: '[2,1,0,−1]', detail: {vi: 'Có thể âm và không cần tổng bằng 1.'}},
+    {label: {vi: 'Exponentiate'}, shape: '[7.389,2.718,1,0.368]', detail: {vi: 'Mọi giá trị trở thành dương.'}},
+    {label: {vi: 'Normalize'}, shape: 'sum = 11.475', detail: {vi: 'Chia từng giá trị cho tổng.'}},
+    {label: {vi: 'Probabilities'}, shape: '[.644,.237,.087,.032]', detail: {vi: 'Tổng xấp xỉ 1.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Softmax vừa exponentiate vừa chuẩn hóa toàn bộ vocabulary.'},
+  misconception: {vi: 'Không coi logits là xác suất; logits có thể âm và không cần tổng bằng 1.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Temperature thấp làm phân phối sắc hơn
-
-Với `τ=0.5`, logits được chia cho 0.5:
-
-`z/τ = [4, 2, 0, -2]`.
-
-Softmax xấp xỉ `[0.865, 0.117, 0.016, 0.002]`. Token A tăng từ `64.4%` lên `86.5%`.
-
-Với `τ=2`, logits thành `[1,0.5,0,-0.5]`, cho phân phối phẳng hơn, xấp xỉ `[0.455,0.276,0.167,0.102]`.
-
-<LessonNote>**Lỗi thường gặp:** nghĩ temperature thấp tăng mọi logit. Điều quan trọng là khoảng cách tương đối sau phép chia và softmax.</LessonNote>
-
-**Takeaway:** Temperature không đổi thứ hạng logits; nó đổi mức tự tin của phân phối.
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'So cùng logits dưới ba temperature để thấy độ sắc thay đổi nhưng thứ hạng giữ nguyên.'},
+  comparisons: [
+    {title: 'τ = 0.5', shape: '[.865,.117,.016,.002]', detail: {vi: 'z/τ=[4,2,0,−2]; token A tăng lên 86.5%.'}},
+    {title: 'τ = 2', shape: '[.455,.276,.167,.102]', detail: {vi: 'z/τ=[1,.5,0,−.5]; distribution phẳng hơn.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tại τ=1, token A là 64.4%. Temperature không đổi thứ hạng logits; nó đổi mức tự tin.'},
+  misconception: {vi: 'Temperature thấp không đơn giản “tăng mọi logit”; khoảng cách tương đối sau phép chia và softmax mới quyết định distribution.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Top-k loại tail rồi chuẩn hóa lại
-
-Với `k=2`, ta giữ logits của A và B:
-
-`z' = [2, 1, -∞, -∞]`.
-
-Softmax trên hai lựa chọn còn lại:
-
-`p' = [e²/(e²+e¹), e¹/(e²+e¹), 0, 0] ≈ [0.731, 0.269, 0, 0]`.
-
-Token C và D không còn cơ hội được lấy, dù xác suất ban đầu khác 0.
-
-<LessonNote>**Lỗi thường gặp:** giữ xác suất A/B cũ `[0.644,0.237]`; tổng chỉ là `0.881`. Sau lọc phải softmax lại.</LessonNote>
-
-**Takeaway:** Top-k là mask trên logits, không phải cắt xác suất mà bỏ qua renormalization.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Top-k=2 giữ hai logits cao nhất, mask tail bằng −inf rồi chạy softmax lại.'},
+  steps: [
+    {label: {vi: 'Original logits'}, shape: '[2,1,0,−1]', detail: {vi: 'A,B,C,D đều còn support.'}},
+    {label: {vi: 'Top-2 mask'}, shape: '[2,1,−inf,−inf]', detail: {vi: 'C và D bị loại.'}},
+    {label: {vi: 'Renormalize'}, shape: 'e² + e¹', detail: {vi: 'Chỉ chuẩn hóa trên A và B.'}},
+    {label: {vi: 'New probabilities'}, shape: '[.731,.269,0,0]', detail: {vi: 'Tổng bằng 1.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Top-k là mask trên logits; C và D không còn cơ hội được lấy.'},
+  misconception: {vi: 'Không giữ probabilities A/B cũ [.644,.237] vì tổng chỉ .881; phải softmax lại sau lọc.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Shape audit cho một batch
-
-Với logits cuối có shape `(B,V)=(3,4)`:
-
-1. `topk(values, indices)` trả hai tensor `(3,2)`;
-2. threshold thấp nhất mỗi hàng có shape `(3,1)`;
-3. mask broadcast về `(3,4)`;
-4. softmax giữ `(3,4)`;
-5. `multinomial(..., num_samples=1)` trả `(3,1)`.
-
-```python
-probs = torch.softmax(filtered_logits / temperature, dim=-1)
-assert probs.shape == (3, 4)
-assert torch.allclose(probs.sum(-1), torch.ones(3))
-```
-
-<LessonNote>**Takeaway:** Mọi sample có distribution riêng trên chiều cuối; không chuẩn hóa qua batch.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Audit top-k và sampling trên batch logits cuối shape (B,V)=(3,4).'},
+  steps: [
+    {label: {vi: 'topk values/indices'}, shape: '(3,2)', detail: {vi: 'Hai candidates mỗi sample.'}},
+    {label: {vi: 'Row threshold'}, shape: '(3,1)', detail: {vi: 'Ngưỡng riêng từng hàng.'}},
+    {label: {vi: 'Mask + softmax'}, shape: '(3,4)', detail: {vi: 'Broadcast mask, chuẩn hóa trên V.'}},
+    {label: {vi: 'multinomial'}, shape: '(3,1)', detail: {vi: 'Một next token ID mỗi sample.'}},
+  ],
+  code: [
+    'probs = torch.softmax(filtered_logits / temperature, dim=-1)',
+    'assert probs.shape == (3, 4)',
+    'assert torch.allclose(probs.sum(-1), torch.ones(3))',
+  ],
+  output: ['3 independent distributions · each row sums to 1'],
+  takeaway: {vi: 'Mỗi sample có distribution riêng trên chiều cuối V; không chuẩn hóa qua batch.'},
+}} />
 
 </MdxPage>

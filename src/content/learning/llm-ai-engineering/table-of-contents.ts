@@ -32,6 +32,17 @@ const chapters: LearningTocTrackSeed[] = [
       ),
       quizSeed('llm-system-components-quiz'),
       lessonSeed(
+        'llm-training-data',
+        'Data: From the open web to training tokens',
+        'Data: Từ web thô đến training token',
+      ),
+      lessonSeed(
+        'common-pretraining-datasets',
+        'Common open pretraining datasets',
+        'Các pretraining dataset phổ biến',
+      ),
+      quizSeed('llm-training-data-quiz'),
+      lessonSeed(
         'language-modeling-next-token',
         'Language modeling and next-token prediction',
         'Mô hình ngôn ngữ và dự đoán token tiếp theo',
@@ -501,7 +512,7 @@ function lessonSeed(
   id: string,
   titleEn: string,
   titleVi: string,
-): LearningTocLessonSeed {
+): Exclude<LearningTocLessonSeed, string> {
   return {
     id,
     title: { en: titleEn, vi: titleVi },
@@ -511,5 +522,8 @@ function lessonSeed(
 }
 
 function quizSeed(id: string): LearningTocLessonSeed {
-  return lessonSeed(id, 'Quiz', 'Quiz');
+  return {
+    ...lessonSeed(id, 'Quiz', 'Quiz'),
+    tags: ['quiz'],
+  };
 }

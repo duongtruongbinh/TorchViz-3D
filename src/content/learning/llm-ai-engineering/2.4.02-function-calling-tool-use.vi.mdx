@@ -6,7 +6,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view: 'audit', lead: {vi: 'Model đề xuất tool call; application sở hữu execution.'}, steps: [
+  {label: {vi: 'Proposal'}, shape: '{id,name,arguments}', detail: {vi: 'Arguments là untrusted data.'}},
+  {label: {vi: 'Validate'}, shape: 'strict JSON Schema', detail: {vi: 'Reject unknown tool và extra property.'}},
+  {label: {vi: 'Authorize'}, shape: 'identity + ownership', detail: {vi: 'Kiểm tra fresh server state.'}},
+  {label: {vi: 'Execute / return'}, shape: 'tool_result | tool_error', detail: {vi: 'Giữ call ID để nối đúng vòng.'}},
+], code: [], takeaway: {vi: 'Validation, authorization và execution nằm ngoài model.'}}} />
 
 Model chỉ đề xuất tool name/arguments; application mới sở hữu validation, authorization và execution.
 
@@ -20,7 +25,7 @@ Model chỉ đề xuất tool name/arguments; application mới sở hữu valid
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Validate và authorize tool proposal" contract="Call + ownedOrders → ToolResult" output="lookup_order(A17) → in_transit" pitfall="Unknown tool, invalid JSON, extra field và order không thuộc user đều trả typed error." takeaway="Không eval arguments; chỉ execute sau schema và ownership check.">
 
 `lookup_order({orderId:'A17'})` pass schema nhưng chỉ chạy sau ownership check. Unknown tool, extra property hoặc sai enum trả structured error; không dùng `eval`.
 
@@ -67,11 +72,17 @@ assert.equal(
 ~~~
 <LessonNote>Loop production còn phải cap số bước/call song song, dùng idempotency cho side effect và trả tool result bằng đúng call ID. Arguments luôn là dữ liệu không tin cậy.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view: 'audit', lead: {vi: 'Tool loop cần enforcement boundary riêng cho mỗi proposal.'}, steps: [
+  {label: {vi: 'Schema'}, shape: 'exact args', detail: {vi: 'Không tin arguments chỉ vì schema đã khai báo cho model.'}},
+  {label: {vi: 'Privilege'}, shape: 'least privilege', detail: {vi: 'Model không tự thực thi action.'}},
+  {label: {vi: 'Bounds'}, shape: 'max steps + parallel cap', detail: {vi: 'Side effect dùng idempotency.'}},
+], code: [], takeaway: {vi: 'Structured Outputs tiếp theo áp schema cho response không phải tool.'}}} />
 
 **Pitfalls:**
 

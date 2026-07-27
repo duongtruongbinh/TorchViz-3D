@@ -10,34 +10,47 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Confusion table
-
-Hai annotator chấm 10 case bằng `pass/fail`:
-
-| | B pass | B fail |
-|---|---:|---:|
-| A pass | 5 | 1 |
-| A fail | 1 | 3 |
-
-Observed agreement dùng đường chéo: `(5+3)/10=0.8`.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Confusion matrix của hai annotator cho 10 case tạo observed agreement từ đường chéo.'},
+  steps: [
+    {label: {vi: 'A pass / B pass'}, shape: '5', detail: {vi: 'Agreement trên pass.'}},
+    {label: {vi: 'Disagreements'}, shape: '1 + 1', detail: {vi: 'Hai ô ngoài đường chéo.'}},
+    {label: {vi: 'A fail / B fail'}, shape: '3', detail: {vi: 'Agreement trên fail.'}},
+    {label: {vi: 'Observed'}, shape: '(5+3)/10 = 0.8', detail: {vi: 'Tám trong mười case đồng thuận.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Observed agreement chưa điều chỉnh đồng thuận do chance.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Tính observed/chance agreement
-
-A chọn pass `6/10`, fail `4/10`; B cũng chọn pass `6/10`, fail `4/10`. Chance agreement:
-
-`p_e = 0.6×0.6 + 0.4×0.4 = 0.52`.
-
-Điều chỉnh chance quan trọng khi một nhãn chiếm đa số: observed agreement cao có thể xuất hiện chỉ vì cả hai gần như luôn chọn nhãn đó.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Chance agreement dùng marginal label rates của từng annotator.'},
+  steps: [
+    {label: {vi: 'A marginals'}, shape: 'pass 0.6 · fail 0.4', detail: {vi: 'A chọn 6 pass và 4 fail.'}},
+    {label: {vi: 'B marginals'}, shape: 'pass 0.6 · fail 0.4', detail: {vi: 'B có cùng prevalence.'}},
+    {label: {vi: 'Chance pass'}, shape: '0.6×0.6', detail: {vi: 'Xác suất cả hai chọn pass do marginals.'}},
+    {label: {vi: 'Expected'}, shape: 'p_e=0.36+0.16=0.52', detail: {vi: 'Cộng chance agreement của hai labels.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Khi một label chiếm đa số, observed agreement có thể cao chỉ vì prevalence.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Tính Cohen kappa
+<CodeLessonFrame
+  title="Tính Cohen kappa"
+  contract="observed p_o và expected p_e<1 → κ=(p_o−p_e)/(1−p_e)"
+  output="κ=(0.8−0.52)/(1−0.52)=0.5833"
+  pitfall="p_e=1 làm denominator bằng 0 và kappa không xác định."
+  takeaway="Kappa đo agreement vượt chance, không đo annotator có đúng hay không."
+>
 
 `κ = (p_o - p_e)/(1-p_e) = (0.8-0.52)/(1-0.52) = 0.5833`.
 
@@ -56,14 +69,23 @@ else:
     raise AssertionError('expected agreement of one makes kappa undefined')
 ```
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Đọc kết quả
-
-Không có một ngưỡng universal cho mọi risk/task. Đọc disagreement cases, prevalence và agreement theo slice; viết lại anchor, calibration lại hoặc dùng domain expert. Kappa không nói annotator đúng, chỉ nói họ nhất quán hơn chance.
-
-Bài sau tính pairwise win/tie; judge code dùng cùng rubric và calibration artifact.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Đọc kappa cùng disagreement cases, prevalence và deployment slices—not một ngưỡng universal.'},
+  steps: [
+    {label: {vi: 'Inspect cases'}, shape: 'where raters disagree', detail: {vi: 'Tìm anchor mơ hồ.'}},
+    {label: {vi: 'Check prevalence'}, shape: 'label distribution', detail: {vi: 'Giải thích chance agreement.'}},
+    {label: {vi: 'Slice agreement'}, shape: 'language / risk / task', detail: {vi: 'Average có thể che nhóm yếu.'}},
+    {label: {vi: 'Intervene'}, shape: 'rewrite · recalibrate · expert', detail: {vi: 'Sửa process trước batch tiếp theo.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài sau chuyển từ agreement sang pairwise win/tie.'},
+}} />
 
 </MdxPage>

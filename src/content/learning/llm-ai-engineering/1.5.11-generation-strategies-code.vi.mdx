@@ -10,7 +10,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Contract của hàm generation
+<CodeLessonFrame
+  title="Generation function contract"
+  contract="idx (B,T) → output (B,T+N)"
+  output="greedy · sampling · top-k · per-sample EOS"
+  takeaway="Kiểm tra shape ở biên hàm trước khi thêm chiến lược decoding."
+>
 
 **Mục tiêu:** Viết một hàm nhận `idx: (B,T)` và trả `(B,T+N)` mà không giả định model cụ thể.
 
@@ -23,13 +28,19 @@ Model phải nhận IDs `(B,T_context)` và trả logits `(B,T_context,V)`. Hàm
 
 <LessonNote>Đây là code minh họa rõ contract và theo dõi EOS riêng từng sample; production còn cần KV cache, cancellation và giới hạn thời gian.</LessonNote>
 
-**Takeaway:** Kiểm tra shape ở biên hàm trước khi thêm chiến lược decoding.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Lọc top-k an toàn
+<CodeLessonFrame
+  title="Lọc top-k theo từng sample"
+  contract="logits (B,V) → filtered logits (B,V)"
+  output="threshold shape = (B,1)"
+  pitfall="Không lấy threshold scalar từ sample đầu rồi áp cho cả batch; mỗi hàng có ngưỡng top-k riêng."
+  takeaway="Filter không đổi shape; nó đổi support của distribution bằng −inf."
+>
 
 ```python
 import torch
@@ -48,15 +59,19 @@ def top_k_filter(logits, top_k):
 
 Input/output đều có shape `(B,V)`. Dùng `min` để `top_k` không vượt vocabulary.
 
-<LessonNote>**Lỗi thường gặp:** lấy threshold scalar từ sample đầu và áp cho cả batch. Mỗi hàng có ngưỡng top-k riêng `(B,1)`.</LessonNote>
-
-**Takeaway:** Filter không đổi shape; nó đổi support của distribution bằng `-inf`.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Chọn đúng một token
+<CodeLessonFrame
+  title="Chọn đúng một next token"
+  contract="logits (B,V) → integer IDs (B,1)"
+  output="greedy argmax or normalized multinomial"
+  pitfall="Filter logits trước softmax; không softmax rồi top-k mà bỏ qua renormalization."
+  takeaway="Greedy và sampling chia sẻ output contract nhưng cần hai nhánh số học khác nhau."
+>
 
 ```python
 def choose_next(logits, temperature=0.0, top_k=None):
@@ -72,15 +87,18 @@ def choose_next(logits, temperature=0.0, top_k=None):
 
 Output luôn là integer IDs `(B,1)`.
 
-<LessonNote>**Lỗi thường gặp:** dùng softmax trước top-k rồi không chuẩn hóa lại. Hãy filter logits trước softmax.</LessonNote>
-
-**Takeaway:** Greedy và sampling chia sẻ output contract nhưng cần hai nhánh số học khác nhau.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Vòng lặp autoregressive
+<CodeLessonFrame
+  title="Vòng lặp autoregressive"
+  contract="crop context → forward → choose → append"
+  output="restores original model.training state in finally"
+  takeaway="Crop context trước forward, nối token vào sequence đầy đủ sau khi chọn."
+>
 
 ```python
 @torch.no_grad()
@@ -128,13 +146,19 @@ def generate(model, idx, max_new_tokens, context_size,
 
 <LessonNote>**Production:** `finally` phục hồi mode kể cả khi model lỗi; hàng đã kết thúc được giữ ở EOS trong lúc hàng khác tiếp tục. KV cache/cancellation vẫn là bước production tiếp theo.</LessonNote>
 
-**Takeaway:** Crop context trước forward, nối token vào sequence đầy đủ sau khi chọn.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={4}>
 
-## Chương trình smoke test độc lập
+<CodeLessonFrame
+  title="Smoke test generation control flow"
+  contract="output · mode restore · staggered EOS · invalid input"
+  output="tensor([[0, 1, 2, 3, 4]])"
+  pitfall="Toy model chỉ kiểm tra control flow; chất lượng ngôn ngữ cần một GPT đã train."
+  takeaway="Test bao phủ output, mode restoration, EOS khác thời điểm và invalid-input path thay vì chỉ happy path."
+>
 
 ```python
 import torch
@@ -185,6 +209,6 @@ print(output)  # tensor([[0, 1, 2, 3, 4]])
 
 Toy model chỉ kiểm tra control flow; chất lượng ngôn ngữ cần một GPT đã train.
 
-<LessonNote>**Takeaway:** Test xác định bao phủ output, mode restoration, EOS khác thời điểm và invalid-input path thay vì chỉ một happy path.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>

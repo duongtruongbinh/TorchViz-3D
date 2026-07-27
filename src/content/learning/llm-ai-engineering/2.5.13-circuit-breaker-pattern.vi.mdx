@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Breaker ngăn gọi liên tục một dependency đang hỏng và cho phép probe recovery có kiểm soát."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Rolling failures/successes, clock và thresholds."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "State closed|open|half_open cùng allow/deny decision."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Events cập nhật state machine; open timeout dẫn tới limited half-open probes."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Breaker ngăn gọi liên tục một dependency đang hỏng và cho phép probe recovery có kiểm soát.
 
@@ -20,7 +26,7 @@ Breaker ngăn gọi liên tục một dependency đang hỏng và cho phép prob
 
 <MdxPage page={1}>
 
-## Worked scenario
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
 
 5/5 transient failures mở breaker 30 s; requests fail fast/reroute. Sau 30 s chỉ một probe; success đóng, failure mở lại.
 
@@ -61,11 +67,19 @@ assert.equal(allow(probing, 31_001)[0], false);
 ~~~
 <LessonNote>Chỉ dependency/transient failures ảnh hưởng breaker; validation/policy denial không phải outage. Half-open probes phải giới hạn và fallback cũng cần health gate riêng.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Circuit breaker cho provider"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Đếm user validation error như outage."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Mọi instance có breaker không phối hợp."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Fallback cũng đang open nhưng vẫn route."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

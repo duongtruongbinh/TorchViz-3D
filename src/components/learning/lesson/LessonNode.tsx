@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Check, CircleHelp } from 'lucide-react';
+import { isQuizLearningLesson } from '../../../core/learning/selectors';
 import type { LearningLesson } from '../../../core/learning/types';
 import type { Language } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
@@ -22,7 +23,7 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
   const lessonText = getUnifiedLessonText(language, lesson);
   const themeClasses = getLearningLabTheme(theme);
   const tone = getLessonTone({ isCompleted, isSelected, isTrackActive });
-  const isQuiz = lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-');
+  const isQuiz = isQuizLearningLesson(lesson);
   const isDimmedQuiz = isQuiz && !isCompleted && !isSelected;
 
   return (

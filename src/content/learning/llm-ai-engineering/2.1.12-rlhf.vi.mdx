@@ -10,41 +10,50 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-SFT học bắt chước response; RLHF thêm preference signal để tối ưu hành vi mà reference answers đơn lẻ khó mô tả.
-
-**Input:** Prompt, response pairs hoặc rankings, policy/reference model và reward signal.
-
-**Output:** Policy đã cập nhật cùng evaluation về helpfulness, safety, regressions và reward hacking.
-
-**Data/type/shape:** Mỗi preference example thường chứa `(prompt, chosen, rejected)`; reward model ánh xạ sequence thành scalar, còn policy update tác động distribution token.
-
-<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'RLHF thêm preference signal để tối ưu hành vi mà một reference answer đơn lẻ khó mô tả.'},
+  steps: [
+    {label: {vi: 'Preference data'}, shape: '(prompt, chosen, rejected)', detail: {vi: 'Response pairs hoặc rankings từ annotators.'}},
+    {label: {vi: 'Reward signal'}, shape: 'sequence → scalar', detail: {vi: 'Reward model hoặc feedback chấm response.'}},
+    {label: {vi: 'Policy update'}, shape: 'token distribution', detail: {vi: 'Tối ưu policy trong kiểm soát so với reference.'}},
+    {label: {vi: 'Behavior eval'}, shape: 'helpfulness + safety + regressions', detail: {vi: 'Theo dõi cả reward hacking ngoài training distribution.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'SFT học bắt chước response; RLHF tối ưu preference trên hành vi.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Trace bằng tay
-
-Cho reward helpfulness `+2`, safety `+1`, KL penalty `0,5×2`: objective toy là `2+1−1=2`. Tăng reward nhưng bỏ KL/control có thể đẩy policy ra khỏi vùng ngôn ngữ ổn định.
-
-**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Toy objective cân reward mong muốn với penalty giữ policy gần vùng ổn định.'},
+  steps: [
+    {label: {vi: 'Helpfulness'}, shape: '+2', detail: {vi: 'Reward cho hành vi hữu ích.'}},
+    {label: {vi: 'Safety'}, shape: '+1', detail: {vi: 'Reward cho hành vi an toàn.'}},
+    {label: {vi: 'KL control'}, shape: '−0.5×2 = −1', detail: {vi: 'Phạt policy rời reference quá xa.'}},
+    {label: {vi: 'Objective'}, shape: '2+1−1 = 2', detail: {vi: 'Scalar toy để tối ưu.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tăng reward mà bỏ KL/control có thể đẩy policy ra khỏi vùng ngôn ngữ ổn định.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production và bước tiếp
-
-**Sai lầm production thường gặp:**
-
-- Xem annotator preference là ground truth khách quan.
-- Tối ưu reward proxy mà không eval hành vi ngoài distribution.
-- Bỏ versioning của policy, reward model và data.
-
-
-**Kết nối:** Constitutional AI thay đổi cách tạo feedback và làm rõ các nguyên tắc governance.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production RLHF cần governance cho cả preference data, reward proxy và model artifacts.'},
+  steps: [
+    {label: {vi: 'Annotator context'}, shape: 'subjective preference', detail: {vi: 'Không coi preference là ground truth khách quan.'}},
+    {label: {vi: 'Proxy audit'}, shape: 'reward vs behavior', detail: {vi: 'Evaluate ngoài distribution để phát hiện reward hacking.'}},
+    {label: {vi: 'Version lineage'}, shape: 'policy + reward model + data', detail: {vi: 'Khóa artifact versions cho release và rollback.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Constitutional AI ở bài sau thay đổi cách tạo feedback và làm rõ nguyên tắc governance.'},
+}} />
 
 </MdxPage>

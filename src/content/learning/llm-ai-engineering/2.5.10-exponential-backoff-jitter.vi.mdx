@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Immediate retries khuếch đại outage và tranh quota. Retry chỉ dành lỗi transient trong deadline/idempotency budget."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Attempt, base/cap, optional provider-specific retry delay/header, error class, idempotency và AbortSignal."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Next delay hoặc terminal failure."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Attempt scalar → bounded delay; full jitter sample trong [0,min(cap,base×2^attempt)]."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Immediate retries khuếch đại outage và tranh quota. Retry chỉ dành lỗi transient trong deadline/idempotency budget.
 
@@ -20,7 +26,7 @@ Immediate retries khuếch đại outage và tranh quota. Retry chỉ dành lỗ
 
 <MdxPage page={1}>
 
-## Worked scenario
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
 
 Base 200 ms, cap 5 s, attempt 3 cho max 1.600 ms; full jitter chọn trong 0–1.600. Nếu provider có retry delay được tài liệu hóa nhưng lớn hơn remaining deadline thì fail sớm.
 
@@ -57,11 +63,19 @@ assert.deepEqual(nextRetry({
 ~~~
 <LessonNote>`Retry-After` không phải universal contract. Chỉ parse header/field provider đã tài liệu hóa; nếu thiếu, dùng local bounded policy và vẫn tôn trọng deadline/cancel.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Exponential backoff với jitter"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Retry 4xx permanent."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Không jitter làm thundering herd."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Retry side effect không idempotency key."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Pattern và contract
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Routing chỉ theo prompt length bỏ task risk/capability. Policy phải dựa eval và có sticky/versioned decision."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Task class, required tools/schema/media, risk, SLO, budget và breaker/quota state."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Provider/model route hoặc explicit no-safe-route."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Feature object → policy rule/model score → route record; adapter output normalize."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
 
 Routing chỉ theo prompt length bỏ task risk/capability. Policy phải dựa eval và có sticky/versioned decision.
 
@@ -20,7 +26,12 @@ Routing chỉ theo prompt length bỏ task risk/capability. Policy phải dựa 
 
 <MdxPage page={1}>
 
-## Worked scenario
+<TrainingConceptVisual content={{
+  view: 'position', lead: {vi: "FAQ low-risk đi fast model nếu eval pass; refund recommendation đi high-quality route nhưng action vẫn cần approval. Same conversation giữ sticky route trừ failover compatible."}, comparisons: [
+    {title: "Hard capability", shape: "before ↔ after", detail: {vi: "Text + citation  · Schema + evidence + approval handoff"}},
+    {title: "Trust/privacy", shape: "before ↔ after", detail: {vi: "Tenant policy pass  · Tenant policy pass"}},
+  ], code: [], takeaway: {vi: "Giữ budget/state invariant qua từng bước."},
+}} />
 
 FAQ low-risk đi fast model nếu eval pass; refund recommendation đi high-quality route nhưng action vẫn cần approval. Same conversation giữ sticky route trừ failover compatible.
 
@@ -41,7 +52,13 @@ Nếu không candidate nào qua mọi hard gate, router trả `no_safe_route`; n
 
 <MdxPage page={2}>
 
-## Failure modes và handoff
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Model routing theo capability và risk"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Model tự chọn provider không guardrail."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Fallback sang model thiếu schema/tool."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Route từng turn làm behavior drift."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
 
 **Pitfalls:**
 

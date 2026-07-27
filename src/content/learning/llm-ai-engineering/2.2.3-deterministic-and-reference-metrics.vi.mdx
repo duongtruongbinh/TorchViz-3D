@@ -10,32 +10,47 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Contract và normalization
-
-Exact match chỉ có nghĩa sau một normalization đã version: Unicode/case/whitespace/punctuation có được đổi hay không. Structured output nên parse và validate schema trước khi chấm semantics; parse failure là result riêng, không phải empty answer.
-
-Với token/set labels, lưu `prediction` và `reference` thành collections rõ ràng để tính `TP`, `FP`, `FN`.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Deterministic metric chỉ có nghĩa khi normalization và parsing contract đã được version.'},
+  steps: [
+    {label: {vi: 'Raw output'}, shape: 'text / structured', detail: {vi: 'Giữ parse failure như result riêng.'}},
+    {label: {vi: 'Normalize'}, shape: 'Unicode · case · whitespace · punctuation', detail: {vi: 'Khai báo chính xác phép biến đổi.'}},
+    {label: {vi: 'Validate'}, shape: 'schema before semantics', detail: {vi: 'Không coi malformed output là empty answer.'}},
+    {label: {vi: 'Compare'}, shape: 'prediction vs reference', detail: {vi: 'Collections rõ ràng để tính TP, FP, FN.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Exact match không tồn tại độc lập với normalization policy.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Tính precision/recall/F1
-
-Reference facts `{a,b,c,d}`, prediction `{a,b,x}`:
-
-- `TP=2` (`a,b`), `FP=1` (`x`), `FN=2` (`c,d`).
-- precision `=2/(2+1)=2/3`.
-- recall `=2/(2+2)=1/2`.
-- F1 `=2PR/(P+R)=4/7≈0.5714`.
-
-Nếu cả prediction và reference rỗng, policy phải định nghĩa score; không chia `0/0` im lặng.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked example từ hai tập facts đến precision, recall và F1.'},
+  steps: [
+    {label: {vi: 'Sets'}, shape: 'ref {a,b,c,d} · pred {a,b,x}', detail: {vi: 'TP=2, FP=1, FN=2.'}},
+    {label: {vi: 'Precision'}, shape: '2/(2+1)=2/3', detail: {vi: 'Bao nhiêu prediction là đúng.'}},
+    {label: {vi: 'Recall'}, shape: '2/(2+2)=1/2', detail: {vi: 'Bao nhiêu reference được tìm thấy.'}},
+    {label: {vi: 'F1'}, shape: '2PR/(P+R)=4/7≈0.5714', detail: {vi: 'Harmonic mean của precision và recall.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Both-empty cần policy rõ ràng; không chia 0/0 im lặng.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Deterministic implementation
+<CodeLessonFrame
+  title="Deterministic implementation"
+  contract="prediction set + reference set → precision, recall, F1 trong [0,1]"
+  output="2/3, 1/2, 4/7 cho fixture"
+  pitfall="Both-empty convention phải giống nhau giữa mọi harness."
+  takeaway="Fixture này chọn both-empty = 1 và khóa edge cases bằng assertions."
+>
 
 ```python
 def set_prf(prediction: set[str], reference: set[str]) -> tuple[float, float, float]:
@@ -57,14 +72,23 @@ assert set_prf(set(), set()) == (1.0, 1.0, 1.0)
 
 Fixture này chọn convention `both-empty = 1`; production spec phải ghi rõ convention này để hai harness không chấm khác nhau.
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Invariants và handoff
-
-Assert score nằm trong `[0,1]`, normalization không thay nghĩa và fixture cố định cho edge cases. Overlap cao vẫn có thể chứa claim sai; metric deterministic phải đi cùng rubric/judge khi output mở.
-
-Application Quiz kế tiếp kiểm tra dataset design trước khi chuyển sang human rubric.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Metric handoff phải khóa numeric range, semantic normalization và edge-case fixtures.'},
+  steps: [
+    {label: {vi: 'Range'}, shape: '0 ≤ score ≤ 1', detail: {vi: 'Fail nếu metric vượt contract.'}},
+    {label: {vi: 'Meaning'}, shape: 'normalization preserves semantics', detail: {vi: 'Không sửa nội dung cần chấm.'}},
+    {label: {vi: 'Edge fixtures'}, shape: 'empty / partial / exact', detail: {vi: 'Giữ convention tái lập được.'}},
+    {label: {vi: 'Open output'}, shape: 'metric + rubric/judge', detail: {vi: 'Overlap cao vẫn có thể chứa claim sai.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Deterministic checks là một signal trong eval vector, không phải toàn bộ đánh giá output mở.'},
+}} />
 
 </MdxPage>

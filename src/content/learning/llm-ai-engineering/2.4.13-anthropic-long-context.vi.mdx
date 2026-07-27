@@ -6,7 +6,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view:'batch',lead:{vi:'Context lớn vẫn có component budgets và output reserve.'},steps:[
+  {label:{vi:'Tools'},shape:'schema tokens',detail:{vi:'Tránh bloat.'}},
+  {label:{vi:'History'},shape:'message tokens',detail:{vi:'Compact có provenance.'}},
+  {label:{vi:'Documents'},shape:'evidence tokens',detail:{vi:'Retrieve chọn lọc.'}},
+  {label:{vi:'Reserve'},shape:'output tokens',detail:{vi:'Trừ trước dispatch.'}},
+],code:[],takeaway:{vi:'Quyết định dispatch, compact/retrieve hoặc reject.'}}} />
 
 Context lớn không loại bỏ token cost, lost-in-the-middle, tool-schema bloat hay output reserve. Limit/capability phải tra model catalog hiện hành.
 
@@ -20,7 +25,7 @@ Context lớn không loại bỏ token cost, lost-in-the-middle, tool-schema blo
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Long-context budget gate" contract="limit − reserve versus requested input" output="9.000 available; 11.000 requested → overflow 2.000" pitfall="Không silent truncate hoặc coi fit là recall tốt." takeaway="Overflow dẫn tới retrieve_or_compact.">
 
 Nếu tools chiếm 20%, history 50% và documents 40% budget input thì request đã vượt 10% trước output reserve. Giải pháp là tool search/retrieval/compaction, không silent truncation.
 
@@ -52,11 +57,17 @@ assert.deepEqual(decision, {
 ~~~
 <LessonNote>Context limit phải lấy từ capability hiện hành. Fit về token không bảo đảm evidence được chú ý; retrieval/eval vẫn cần thiết.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Long-context gate kiểm soát capacity, quality và lifecycle.'},steps:[
+  {label:{vi:'Capability'},shape:'dated catalog',detail:{vi:'Không hard-code limit.'}},
+  {label:{vi:'Recall'},shape:'position eval',detail:{vi:'Fit không bảo đảm quality.'}},
+  {label:{vi:'Cache'},shape:'tenant + TTL + deletion',detail:{vi:'Giữ data policy.'}},
+],code:[],takeaway:{vi:'Vision tiếp theo dùng media blocks.'}}} />
 
 **Pitfalls:**
 

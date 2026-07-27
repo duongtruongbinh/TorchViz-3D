@@ -10,21 +10,30 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## History không phải database
-
-History giúp continuity nhưng cũng mang output cũ, lỗi cũ và token cost sang lượt mới. App cần biết state nào authoritative.
-
-**Input:** turn user/assistant đã được server chấp nhận, tool results được redaction và business state hiện tại tải từ nguồn có thẩm quyền.
-
-**Output:** history tối thiểu, đúng thứ tự, không giả mạo role và nằm trong context budget.
-
-Client không được tự gửi một assistant turn giả để thay policy. Order status trong transcript chỉ là snapshot; backend phải tải trạng thái hiện tại trước action.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'History giữ continuity nhưng không phải database hay nguồn authority cho business state.'},
+  steps: [
+    {label: {vi: 'Accepted turns'}, shape: 'server-verified user/assistant order', detail: {vi: 'Client không được giả assistant role.'}},
+    {label: {vi: 'Tool results'}, shape: 'redacted + TTL', detail: {vi: 'Không mang dữ liệu nhạy cảm vô hạn.'}},
+    {label: {vi: 'Current state'}, shape: 'authoritative backend source', detail: {vi: 'Transcript order status chỉ là snapshot.'}},
+    {label: {vi: 'Minimal history'}, shape: 'ordered + within budget', detail: {vi: 'Chỉ giữ context cần thiết cho lượt mới.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tải lại business state trước action; output cũ và lỗi cũ không tự trở thành sự thật.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Tính budget nhiều lượt
+<CodeLessonFrame
+  title="Tính budget nhiều lượt"
+  contract="turn tokens + system + output reserve ≤ context capacity"
+  output="used 1,360 · remaining 688 trong capacity 2,048"
+  pitfall="Sau truncate/summarize phải đếm lại bằng đúng tokenizer revision."
+  takeaway="Reserve output trước rồi mới phân bổ history và context mới."
+>
 
 Ba turn dùng 180, 220 và 260 token; system dùng 300 và output reserve 400. Tổng đã cam kết là `1.360` token. Với capacity 2.048, còn 688 token cho context mới.
 
@@ -56,17 +65,23 @@ assert.throws(() => historyBudget([180, -1], 300, 400, 2_048), /invalid_token_bu
 
 <LessonNote>Token estimate phải dùng đúng tokenizer revision của model. Sau khi cắt/summarize history, chạy lại counter thay vì tin phép ước lượng cũ.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production gate
-
-- Xác thực role/order của turn ở server; không tin mảng messages do client tùy ý dựng.
-- Đặt TTL và redaction policy cho tool results; summary không trở thành nguồn sự thật nghiệp vụ.
-- Reserve output trước, rồi mới phân bổ history/retrieval và xác định chiến lược truncate.
-- Log token counts, version và trạng thái lỗi; không log raw conversation, PII, secret hoặc hidden reasoning.
-
-**Kết nối:** Quiz kiểm tra role, authority và state.
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production gate bảo vệ role, authority, budget và privacy của multi-turn state.'},
+  steps: [
+    {label: {vi: 'Verify turns'}, shape: 'server role/order', detail: {vi: 'Không tin client messages array.'}},
+    {label: {vi: 'Expire data'}, shape: 'TTL + redaction', detail: {vi: 'Summary không trở thành business source of truth.'}},
+    {label: {vi: 'Budget'}, shape: 'reserve → allocate → truncate', detail: {vi: 'Đếm lại sau mọi thay đổi.'}},
+    {label: {vi: 'Minimal logs'}, shape: 'counts + versions + errors', detail: {vi: 'Không raw conversation, PII, secret hay hidden reasoning.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Quiz tiếp theo kiểm tra role, authority và state.'},
+}} />
 
 </MdxPage>

@@ -6,7 +6,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Batch đổi interactive latency lấy offline throughput và quota economics.'},steps:[
+  {label:{vi:'JSONL inputs'},shape:'N rows + unique custom_id',detail:{vi:'Independent requests.'}},
+  {label:{vi:'Batch job'},shape:'provider lifecycle',detail:{vi:'Poll/cancel có deadline.'}},
+  {label:{vi:'Outputs'},shape:'unordered success + error',detail:{vi:'Không giữ input order.'}},
+  {label:{vi:'Reconcile'},shape:'custom_id join',detail:{vi:'Xử lý partial/missing output.'}},
+],code:[],takeaway:{vi:'Batch phù hợp workload offline có deadline rộng.'}}} />
 
 Batch phù hợp workload offline, độc lập và có deadline rộng; nó đổi latency để lấy throughput/quota economics.
 
@@ -20,7 +25,7 @@ Batch phù hợp workload offline, độc lập và có deadline rộng; nó đ�
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Reconcile unordered batch" contract="input IDs + unordered outputs → ordered result rows" output="t3,t1 + error t2 → t1,t2,t3" pitfall="Không zip theo dòng; duplicate, unknown và missing ID cần explicit error." takeaway="custom_id là correlation key, không chứa raw identity hoặc sensitive payload.">
 
 Ba tickets `t1,t2,t3`; output về `t3,t1` và error `t2`. Join bằng `custom_id`, không zip theo dòng. Poll có backoff, deadline và cancel.
 
@@ -59,11 +64,17 @@ assert.throws(
 ~~~
 <LessonNote>Batch job có provider lifecycle riêng; poll/cancel phải có deadline. `custom_id` là correlation key, không chứa raw user identity hay sensitive payload.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Batch production cần idempotent submission và deterministic reconciliation.'},steps:[
+  {label:{vi:'Workload gate'},shape:'offline only',detail:{vi:'Không dùng cho chat interactive.'}},
+  {label:{vi:'Identity'},shape:'stable custom_id mapping',detail:{vi:'Không giả định output order.'}},
+  {label:{vi:'Recovery'},shape:'partial failure + retry policy',detail:{vi:'Lưu mapping/idempotency.'}},
+],code:[],takeaway:{vi:'Token counting tiếp theo quyết định request budget.'}}} />
 
 **Pitfalls:**
 

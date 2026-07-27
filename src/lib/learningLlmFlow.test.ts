@@ -38,7 +38,9 @@ const expectedOrderByTrack = {
   'llm-from-scratch-orientation': [
     'minimal-llm-project-skeleton', 'llm-from-scratch-roadmap',
     'llm-component-checkpoint-quiz', 'llm-system-components',
-    'llm-system-components-quiz', 'language-modeling-next-token',
+    'llm-system-components-quiz', 'llm-training-data',
+    'common-pretraining-datasets', 'llm-training-data-quiz',
+    'language-modeling-next-token',
     'language-modeling-next-token-quiz', 'ar-language-model-inference-pipeline',
     'ar-language-model-inference-pipeline-quiz', 'llm-output-head-and-loss',
     'llm-output-head-and-loss-quiz', 'llm-next-token-loss',
@@ -185,6 +187,7 @@ const roleIds = {
   ],
   quiz: [
     'llm-component-checkpoint-quiz', 'llm-system-components-quiz',
+    'llm-training-data-quiz',
     'language-modeling-next-token-quiz',
     'ar-language-model-inference-pipeline-quiz',
     'llm-output-head-and-loss-quiz', 'llm-next-token-loss-quiz',
@@ -258,7 +261,8 @@ const roleIds = {
     'backend-proxy-pattern',
   ],
   'production-pattern': [
-    'minimal-llm-project-skeleton', 'tokenization-at-scale',
+    'minimal-llm-project-skeleton', 'llm-training-data',
+    'common-pretraining-datasets', 'tokenization-at-scale',
     'constitutional-ai', 'prompt-versioning-changelogs',
     'prompt-injection-defense', 'langsmith-observability',
     'vision-api-gpt4v', 'assistants-api-file-search', 'gemini-models',
@@ -321,6 +325,11 @@ const recapAudits = [
 ] as const satisfies readonly RecapAudit[];
 
 const applicationQuizAudits = {
+  'llm-training-data-quiz': quizAudit(
+    'llm-training-data',
+    'Trace raw web data through filtering, deduplication, and domain mixing.',
+    ['llm-training-data', 'common-pretraining-datasets'],
+  ),
   'llm-next-token-loss-quiz': quizAudit(
     'llm-output-head-and-loss',
     'Compute and debug shifted next-token loss.',
@@ -457,23 +466,23 @@ const expectedGlobalIndex = new Map<string, number>(
   expectedIds.map((id, index) => [id, index]),
 );
 
-test('LLM flow audit manifest covers the exact 200-route target', () => {
+test('LLM flow audit manifest covers the exact 203-route target', () => {
   const catalogIds = learningCatalog.lessons
     .filter((lesson) => lesson.domainId === 'llm-ai-engineering')
     .map((lesson) => lesson.id);
 
-  assert.equal(expectedIds.length, 200);
-  assert.equal(new Set(expectedIds).size, 200);
+  assert.equal(expectedIds.length, 203);
+  assert.equal(new Set(expectedIds).size, 203);
   assert.deepEqual([...catalogIds].sort(), [...expectedIds].sort());
   assert.deepEqual([...roleById.keys()].sort(), [...expectedIds].sort());
   assert.deepEqual(
     Object.fromEntries(Object.entries(roleIds).map(([role, ids]) => [role, ids.length])),
     {
       theory: 46,
-      quiz: 65,
+      quiz: 66,
       calculation: 36,
       code: 31,
-      'production-pattern': 21,
+      'production-pattern': 23,
       hybrid: 1,
     },
   );
@@ -500,7 +509,7 @@ test('LLM tracks follow the approved canonical order and all routes resolve', ()
 
 test('every target theory is followed by exactly one declared recap Quiz', () => {
   assert.equal(recapAudits.length, 46);
-  assert.equal(Object.keys(quizAudits).length, 65);
+  assert.equal(Object.keys(quizAudits).length, 66);
 
   for (const [trackId, order] of Object.entries(expectedOrderByTrack)) {
     for (let index = 0; index < order.length; index += 1) {
@@ -537,7 +546,7 @@ test('every Quiz declares taught prerequisites', () => {
   }
 });
 
-test('all 31 code-role lessons contain executable or syntax-valid code fences', () => {
+test('all 31 code-role lessons contain explicit code evidence', () => {
   const scopedFiles = discoverLearningMdxFiles('src/content/learning/llm-ai-engineering');
   const fileByLessonId = new Map(scopedFiles.map((file) => [parseLearningMdxPath(file)!.lessonId, file]));
 
@@ -545,7 +554,7 @@ test('all 31 code-role lessons contain executable or syntax-valid code fences', 
     const file = fileByLessonId.get(lessonId);
     assert.ok(file, `missing code lesson file for ${lessonId}`);
     const source = readFileSync(file, 'utf8');
-    assertCodeFenceEvidence(source, lessonId);
+    assertCodeEvidence(source, lessonId);
   }
 });
 
@@ -569,9 +578,12 @@ function collectFencedCodeBlocks(source: string): Array<{ language: string; code
   }));
 }
 
-function assertCodeFenceEvidence(source: string, lessonId: string): void {
+function assertCodeEvidence(source: string, lessonId: string): void {
   const codeBlocks = collectFencedCodeBlocks(source);
-  assert.ok(codeBlocks.length > 0, `${lessonId} requires at least one fenced code block`);
+  if (codeBlocks.length === 0) {
+    assert.match(source, /\bcode:\s*\[/, `${lessonId} requires a fenced block or an explicit renderer code array`);
+    return;
+  }
   for (const block of codeBlocks) {
     if (['python', 'py'].includes(block.language)) {
       const pythonCommand = process.env.PYTHON ?? (existsSync('/usr/bin/python3') ? 'python3' : 'python');

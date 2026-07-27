@@ -6,7 +6,11 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view:'batch',lead:{vi:'Embeddings đổi N inputs thành matrix (N,D); index và query phải cùng model/dimension/normalization.'},steps:[
+  {label:{vi:'Texts'},shape:'N strings',detail:{vi:'Batch theo provider contract.'}},
+  {label:{vi:'Embed'},shape:'model + config',detail:{vi:'Pin version và normalization.'}},
+  {label:{vi:'Vectors'},shape:'(N,D)',detail:{vi:'Assert D trước upsert.'}},
+],code:[],takeaway:{vi:'Embedding phục vụ retrieval/similarity, không phải generation.'}}} />
 
 Embeddings phục vụ retrieval/similarity, không phải text generation. Index và query phải dùng compatible model/dimension/normalization policy.
 
@@ -20,7 +24,7 @@ Embeddings phục vụ retrieval/similarity, không phải text generation. Inde
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Vector shape và cosine" contract="query[D] × documents[N,D] → scores[N]" output="query [1,0,0] → score doc0=1 > doc1" pitfall="Dimension mismatch và zero vector phải fail; đổi D cần reindex." takeaway="Index metadata pin model/version, dimension và normalization policy.">
 
 Hai documents tạo `(2,3)` trong fixture: `[1,0,0]` và `[0.8,0.2,0]`. Query `[1,0,0]` có cosine cao hơn với document đầu. Đổi dimension cần reindex, không append vào index cũ.
 
@@ -47,11 +51,17 @@ assert.throws(() => cosine(query, [1, 0]), /dimension_mismatch/);
 ~~~
 <LessonNote>Index metadata phải pin embedding model/version và dimension. Thay model hoặc dimension cần index/reindex riêng, không trộn vectors vào cùng collection.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Vector index là một typed collection, không phải túi vectors tùy ý.'},steps:[
+  {label:{vi:'Compatibility'},shape:'same model + D',detail:{vi:'Không trộn embedding models.'}},
+  {label:{vi:'Scoring'},shape:'declared normalization',detail:{vi:'Không dùng dot product khi policy mơ hồ.'}},
+  {label:{vi:'Telemetry'},shape:'redacted metadata',detail:{vi:'Không log raw document.'}},
+],code:[],takeaway:{vi:'Vision tiếp theo bổ sung media parts vào request.'}}} />
 
 **Pitfalls:**
 

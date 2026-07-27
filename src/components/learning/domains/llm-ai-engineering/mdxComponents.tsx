@@ -2,7 +2,6 @@ import type { ComponentType } from 'react';
 import type { LearningLessonExtra } from '../../authoredTypes';
 import { LLM_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
-  ExtraFrame,
   useLearningMdxLesson,
   useLearningMdxTheme,
   type LearningMdxComponent,
@@ -11,8 +10,6 @@ import {
   LlmAiHierarchy,
   LlmArInferencePipeline,
   LlmAcademiaIndustryComparison,
-  LlmBenchmarkLikelihood,
-  LlmHuggingFaceBenchmarks,
   LlmProbabilityDefinition,
   LlmPerplexityGoodRange,
   LlmPerplexityInterpretation,
@@ -24,24 +21,30 @@ import {
   LlmLossHandCalculation,
   LlmLossDerivation,
   LlmOutputProjection,
-  LlmPostTrainingEvaluation,
+  LlmPretrainingDatasetCards,
   LlmTrainingComponents,
   LlmVocabularyOutputVector,
-  LlmTrainingLifecyclePanel,
+  LlmEmbeddingDimension,
+  LlmEmbeddingPipelineVisual,
+  LlmEmbeddingScopeComparison,
+  LlmRawTextModelInput,
+  LlmPaddingMask,
+  LlmSpecialTokenRoles,
+  LlmSlidingWindowWorkedExample,
+  LlmTextToTensorRoadmap,
   LlmTokenizerMemory,
-  LlmTokenizerCodeStructure,
-  LlmTokenizerBoundaryMismatch,
-  LlmTokenizerFreeDirection,
+  LlmTokenizerContract,
+  LlmTokenizerGranularity,
   LlmTokenizerVocabularyLookup,
   LlmTokenizerIdMisconceptions,
-  LlmTokenizerContextAmbiguity,
-  LlmTokenizerCodeToIds,
-  LlmTokenizerOutputComparison,
-  LlmTokenizerIdRoundTrip,
+  LlmTokenIdTensorShape,
+  LlmBpeFallback,
+  LlmBpeInferenceFlow,
   LlmTokenizerMergeTraining,
   LlmTokenizerSequenceLength,
   LlmTokenizerRegexWalkthrough,
-  TransformerTranslationStepPanel,
+  LlmVocabularyTradeoff,
+  CodeLessonFrame,
 } from './renderers';
 import type {
   LlmAcademiaIndustryComparisonContent,
@@ -51,28 +54,6 @@ import type {
   LlmOutputProjectionContent,
   LlmOutputProjectionFocus,
 } from './rendererTypes';
-
-const localized = (value: string) => ({ en: value, vi: value });
-
-function authoredPanel(id: string, title: string, body: string[], links?: Array<{ label: string; href: string }>, highlights?: Array<{ shortName: string; fullName: string; description: string }>): Extract<LearningLessonExtra, { kind: 'conceptPanel' }> {
-  return {
-    kind: 'conceptPanel', id, sectionRefId: 'llm-data-pipeline-overview', title: localized(title),
-    body: body.map(localized), links: links?.map((link) => ({ label: localized(link.label), href: link.href })),
-    highlights: highlights?.map((item) => ({ shortName: localized(item.shortName), fullName: localized(item.fullName), description: localized(item.description) })),
-  };
-}
-
-function TrainingLifecycle({ body, highlights, title }: { body: string[]; highlights: Array<{ shortName: string; fullName: string; description: string }>; title: string }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <ExtraFrame title={title} themeClasses={themeClasses}><LlmTrainingLifecyclePanel extra={authoredPanel('llm-training-lifecycle', title, body, undefined, highlights)} language={language} themeClasses={themeClasses} /></ExtraFrame>;
-}
-
-function TransformerTranslationStep({ body, links, step, title }: { body: string[]; links?: Array<{ label: string; href: string }>; step: number; title: string }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <ExtraFrame title={title} themeClasses={themeClasses}><TransformerTranslationStepPanel extra={authoredPanel(`transformer-translation-step-${step}`, title, body, links)} language={language} themeClasses={themeClasses} /></ExtraFrame>;
-}
 
 function materializeVietnameseFallback(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(materializeVietnameseFallback);
@@ -104,8 +85,6 @@ function AiHierarchy({ content }: { content: RoadmapContent }) {
 }
 
 const TrainingComponents = createContentRenderer(LlmTrainingComponents);
-const BenchmarkLikelihood = createContentRenderer(LlmBenchmarkLikelihood);
-const HuggingFaceBenchmarks = createContentRenderer(LlmHuggingFaceBenchmarks);
 
 function AcademiaIndustryComparison({ content, perspective }: { content: RoadmapContent; perspective: 'academia' | 'industry' }) {
   const themeClasses = useLearningMdxTheme();
@@ -117,7 +96,6 @@ const ProbabilityDefinition = createContentRenderer(LlmProbabilityDefinition);
 const PerplexityGoodRange = createContentRenderer(LlmPerplexityGoodRange);
 const PerplexityInterpretation = createContentRenderer(LlmPerplexityInterpretation);
 const PerplexitySequenceExample = createContentRenderer(LlmPerplexitySequenceExample);
-const PostTrainingEvaluation = createContentRenderer(LlmPostTrainingEvaluation);
 const AutoregressiveDefinition = createContentRenderer(LlmAutoregressiveDefinition);
 
 function ArInferencePipeline({ content, step }: { content: RoadmapContent; step?: number }) {
@@ -142,19 +120,34 @@ function NextTokenLoss({ content, position, animated }: { content: RoadmapConten
 
 const LossHandCalculation = createContentRenderer(LlmLossHandCalculation);
 const LossDerivation = createContentRenderer(LlmLossDerivation);
+const EmbeddingDimension = createContentRenderer(LlmEmbeddingDimension);
+const EmbeddingPipelineVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
+const AttentionConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
+const GptConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
+const TrainingConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
+const EvaluationConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
+const PromptConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
+const EmbeddingScopeComparison = createContentRenderer(LlmEmbeddingScopeComparison);
+const PretrainingDatasetCards = createContentRenderer(LlmPretrainingDatasetCards);
+const RawTextModelInput = createContentRenderer(LlmRawTextModelInput);
+const PaddingMask = createContentRenderer(LlmPaddingMask);
+const SpecialTokenRoles = createContentRenderer(LlmSpecialTokenRoles);
+const SlidingWindowWorkedExample = createContentRenderer(LlmSlidingWindowWorkedExample);
+const TextToTensorRoadmap = createContentRenderer(LlmTextToTensorRoadmap);
+const TokenizerContract = createContentRenderer(LlmTokenizerContract);
+const TokenizerGranularity = createContentRenderer(LlmTokenizerGranularity);
 const TokenizerMemory = createContentRenderer(LlmTokenizerMemory);
-const TokenizerCodeStructure = createContentRenderer(LlmTokenizerCodeStructure);
-const TokenizerBoundaryMismatch = createContentRenderer(LlmTokenizerBoundaryMismatch);
-const TokenizerFreeDirection = createContentRenderer(LlmTokenizerFreeDirection);
 const TokenizerVocabularyLookup = createContentRenderer(LlmTokenizerVocabularyLookup);
 const TokenizerIdMisconceptions = createContentRenderer(LlmTokenizerIdMisconceptions);
-const TokenizerContextAmbiguity = createContentRenderer(LlmTokenizerContextAmbiguity);
-const TokenizerCodeToIds = createContentRenderer(LlmTokenizerCodeToIds);
-const TokenizerOutputComparison = createContentRenderer(LlmTokenizerOutputComparison);
-const TokenizerIdRoundTrip = createContentRenderer(LlmTokenizerIdRoundTrip);
+const TokenIdTensorShape = createContentRenderer(LlmTokenIdTensorShape);
+const BpeFallback = createContentRenderer(LlmBpeFallback);
+const BpeInferenceFlow = createContentRenderer(LlmBpeInferenceFlow);
 const TokenizerMergeTraining = createContentRenderer(LlmTokenizerMergeTraining);
 const TokenizerSequenceLength = createContentRenderer(LlmTokenizerSequenceLength);
+const TokenizerCodeWalkthrough = createContentRenderer(LlmTokenizerRegexWalkthrough);
+const TokenFallbackComparison = createContentRenderer(LlmBpeFallback);
 const TokenizerRegexWalkthrough = createContentRenderer(LlmTokenizerRegexWalkthrough);
+const VocabularyTradeoff = createContentRenderer(LlmVocabularyTradeoff);
 
 function interactionComponent(id: string) {
   return function Interaction({ content }: { content: RoadmapContent }) {
@@ -182,17 +175,12 @@ const ScaleComparison = panelComponent('iris-scale-comparison-roadmap');
 const LlmPopularity = panelComponent('why-llms-are-popular-now');
 
 export const llmMdxComponents = {
-  TrainingLifecycle,
-  TransformerTranslationStep,
   AiHierarchy,
   AcademiaIndustryComparison,
-  LlmBenchmarkLikelihood: BenchmarkLikelihood,
-  LlmHuggingFaceBenchmarks: HuggingFaceBenchmarks,
   LlmProbabilityDefinition: ProbabilityDefinition,
   LlmPerplexityGoodRange: PerplexityGoodRange,
   LlmPerplexityInterpretation: PerplexityInterpretation,
   LlmPerplexitySequenceExample: PerplexitySequenceExample,
-  LlmPostTrainingEvaluation: PostTrainingEvaluation,
   LlmAutoregressiveDefinition: AutoregressiveDefinition,
   LlmArInferencePipeline: ArInferencePipeline,
   LlmVocabularyOutputVector: VocabularyOutputVector,
@@ -201,23 +189,39 @@ export const llmMdxComponents = {
   LlmLossHandCalculation: LossHandCalculation,
   LlmLossDerivation: LossDerivation,
   LlmTrainingComponents: TrainingComponents,
+  EmbeddingDimension,
+  EmbeddingPipelineVisual,
+  AttentionConceptVisual,
+  GptConceptVisual,
+  TrainingConceptVisual,
+  EvaluationConceptVisual,
+  PromptConceptVisual,
+  EmbeddingScopeComparison,
+  PretrainingDatasetCards,
+  RawTextModelInput,
+  PaddingMask,
+  SpecialTokenRoles,
+  SlidingWindowWorkedExample,
+  TextToTensorRoadmap,
+  TokenizerContract,
+  TokenizerGranularity,
   DomainComparison,
   ScopeConvention,
   LlmOverview,
   TokenizationExample,
   TokenizerMemory,
-  TokenizerCodeStructure,
-  TokenizerBoundaryMismatch,
-  TokenizerFreeDirection,
   TokenizerVocabularyLookup,
   TokenizerIdMisconceptions,
-  TokenizerContextAmbiguity,
-  TokenizerCodeToIds,
-  TokenizerOutputComparison,
-  TokenizerIdRoundTrip,
+  TokenIdTensorShape,
+  BpeFallback,
+  BpeInferenceFlow,
   TokenizerMergeTraining,
   TokenizerSequenceLength,
+  TokenizerCodeWalkthrough,
+  TokenFallbackComparison,
   TokenizerRegexWalkthrough,
+  VocabularyTradeoff,
+  CodeLessonFrame,
   NextTokenExercise,
   ScaleFactors,
   ScaleComparison,

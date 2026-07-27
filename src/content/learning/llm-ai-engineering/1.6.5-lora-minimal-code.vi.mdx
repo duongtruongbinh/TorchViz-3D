@@ -10,21 +10,31 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Contract của LoRA linear
+<CodeLessonFrame
+  title="Contract của LoRA linear"
+  contract="(...,d_in) → base + adapter → (...,d_out)"
+  output="Cùng output ban đầu; chỉ A/B trainable"
+  pitfall="Implementation giáo dục chưa quản lý target modules, quantization hoặc merge/unmerge."
+  takeaway="LoRA là một nhánh cộng thêm, không thay contract của linear."
+>
 
 **Mục tiêu:** Bọc một `nn.Linear(d_in,d_out)` sao cho base weight bị đóng băng, output shape không đổi và chỉ A/B trainable.
 
 Input có shape `(...,d_in)`; cả base branch và LoRA branch trả `(...,d_out)`. Adapter ban đầu phải tạo update 0 để wrapper khớp layer gốc trước training.
 
-<LessonNote>Đây là implementation giáo dục. Thư viện PEFT thực tế còn quản lý target modules, adapter state, quantization và merge/unmerge an toàn.</LessonNote>
-
-**Takeaway:** LoRA là một nhánh cộng thêm, không thay contract của linear.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Hai ma trận hạng thấp
+<CodeLessonFrame
+  title="Hai ma trận hạng thấp"
+  contract="d_in → rank → d_out"
+  output="B=0 làm adapter update ban đầu bằng 0"
+  pitfall="Khởi tạo cả A và B bằng 0 có thể chặn đường gradient hữu ích ban đầu."
+  takeaway="Shape của adapter đi d_in → rank → d_out."
+>
 
 ```python
 import torch
@@ -51,15 +61,19 @@ class LoRAAdapter(nn.Module):
 
 `B=0` làm update ban đầu bằng 0.
 
-<LessonNote>**Lỗi thường gặp:** khởi tạo cả A và B bằng 0. Khi đó gradient ban đầu có thể không tạo đường học hữu ích cho cả hai matrix.</LessonNote>
-
-**Takeaway:** Shape đi `d_in → rank → d_out`.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Bọc linear pretrained
+<CodeLessonFrame
+  title="Bọc linear pretrained"
+  contract="existing nn.Linear + LoRAAdapter → same output shape"
+  output="base(x) + lora(x)"
+  pitfall="Không tạo linear mới rồi làm mất pretrained weights."
+  takeaway="Base branch bất biến; adapter branch học task-specific update."
+>
 
 ```python
 class LinearWithLoRA(nn.Module):
@@ -79,15 +93,18 @@ class LinearWithLoRA(nn.Module):
         return self.linear(x) + self.lora(x)
 ```
 
-<LessonNote>**Lỗi thường gặp:** tạo một `nn.Linear` mới rồi làm mất pretrained weights. Wrapper phải giữ đúng layer gốc.</LessonNote>
-
-**Takeaway:** Base branch bất biến; adapter branch học task-specific update.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Kiểm tra parameter trainable
+<CodeLessonFrame
+  title="Kiểm tra parameter trainable"
+  contract="requires_grad audit → count A/B only"
+  output="rank 2, 16→12: 2×(16+12)=56"
+  takeaway="Công thức r(d_in+d_out) phải khớp numel() trong code."
+>
 
 ```python
 def count_trainable(module):
@@ -107,13 +124,18 @@ assert count_trainable(layer) == 2 * (16 + 12)
 
 <LessonNote>**Production:** optimizer chỉ nên nhận parameter có `requires_grad=True`; log cả tổng và trainable count trước training.</LessonNote>
 
-**Takeaway:** Công thức `r(d_in+d_out)` phải khớp `numel()` trong code.
+</CodeLessonFrame>
 
 </MdxPage>
 
 <MdxPage page={4}>
 
-## Smoke test độc lập
+<CodeLessonFrame
+  title="Smoke test độc lập"
+  contract="same initial output + correct shape + frozen base + rank validation"
+  output="count_trainable(wrapped) = 14"
+  takeaway="Smoke test khóa các invariant trước khi dùng adapter trong training."
+>
 
 ```python
 import torch
@@ -155,6 +177,6 @@ print(count_trainable(wrapped))  # 14
 
 Sau một optimizer step, adapter output có thể khác 0 trong khi base weight vẫn giữ nguyên.
 
-<LessonNote>**Takeaway:** Invariant gồm cùng output ban đầu, đúng shape, base không có gradient và rank lỗi bị từ chối trước khi chia `alpha/rank`.</LessonNote>
+</CodeLessonFrame>
 
 </MdxPage>

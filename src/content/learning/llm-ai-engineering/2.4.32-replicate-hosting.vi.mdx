@@ -6,7 +6,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Replicate models expose versioned predictions with sync/async, polling, SSE or webhooks. Integration is a job lifecycle, not always one chat response."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Model owner/name/version or deployment, typed input, deadline and webhook policy."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Prediction state starting|processing|succeeded|failed|canceled plus expiring outputs."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Create returns prediction ID/URLs; later events/polls transition a state machine. Terminal output may contain protected file URLs."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
 
 Replicate models expose versioned predictions with sync/async, polling, SSE or webhooks. Integration is a job lifecycle, not always one chat response.
 
@@ -20,7 +26,7 @@ Replicate models expose versioned predictions with sync/async, polling, SSE or w
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Worked fixture" contract="typed input → validated output" pitfall="Giữ explicit error path, timeout/cancellation và provider-specific invariant." takeaway="Fixture materialize contract thành artifact deterministic có thể test.">
 
 Async image/text job stores ID, verifies signed webhook, handles duplicate delivery idempotently and persists required output before provider expiry. Cancel maps to terminal state.
 
@@ -60,11 +66,19 @@ assert.throws(() => applyWebhook(job, "delivery-3", "failed"), /transition_after
 ~~~
 <LessonNote>Verify webhook authenticity trước reducer. Persist protected/expiring output theo policy trước khi acknowledge, và giữ provider status riêng để audit mapping.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Replicate prediction lifecycle"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Poll without backoff/deadline."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Trust unsigned/unvalidated webhook."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Forget model version or output expiry."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
 
 **Pitfalls:**
 

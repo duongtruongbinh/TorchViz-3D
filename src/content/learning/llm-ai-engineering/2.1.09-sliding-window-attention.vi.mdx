@@ -10,39 +10,47 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-Local window giới hạn mỗi token chỉ attend một vùng gần, giảm work/cache truy cập nhưng thay đổi receptive field và khả năng dùng dependency xa.
-
-**Input:** Sequence, causal mask và window size `W`.
-
-**Output:** Attention mask cục bộ cùng receptive field tích lũy qua layers.
-
-**Data/type/shape:** Dense logical mask `(T,T)` chỉ cho tối đa `W` key trước mỗi query; optimized kernel có thể không materialize mask.
-
-<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Sliding window giảm key được đọc ở mỗi query nhưng đồng thời thay đổi receptive field của model.'},
+  steps: [
+    {label: {vi: 'Sequence + causal mask'}, shape: 'T positions', detail: {vi: 'Query chỉ được nhìn quá khứ và chính nó.'}},
+    {label: {vi: 'Apply window'}, shape: 'W keys / query', detail: {vi: 'Giữ tối đa W vị trí gần nhất.'}},
+    {label: {vi: 'Local attention'}, shape: 'logical mask (T,T)', detail: {vi: 'Kernel tối ưu có thể không materialize mask.'}},
+    {label: {vi: 'Stack layers'}, shape: 'larger receptive field', detail: {vi: 'Thông tin lan xa dần qua nhiều layers.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Giảm work/cache access đi kèm trade-off dependency xa.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Trace bằng tay
-
-Với `W=4`, token ở vị trí 7 trực tiếp nhìn vị trí 4–7. Sau hai layer, thông tin có thể lan xa hơn một cửa sổ, nhưng không đồng nghĩa mọi dependency xa đều được giữ nguyên.
-
-**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked trace cho token ở vị trí 7 với window W=4.'},
+  steps: [
+    {label: {vi: 'Current query'}, shape: 'position 7', detail: {vi: 'Causal: không nhìn tương lai.'}},
+    {label: {vi: 'One layer'}, shape: 'keys 4–7', detail: {vi: 'Bốn vị trí được attend trực tiếp.'}},
+    {label: {vi: 'Two layers'}, shape: 'earliest ≈ 1', detail: {vi: 'Thông tin có thể lan xa thêm qua intermediate tokens.'}},
+    {label: {vi: 'Interpretation'}, shape: 'expanded ≠ full', detail: {vi: 'Không bảo đảm mọi dependency xa được giữ nguyên.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Receptive field tích lũy qua layer nhưng mỗi attention operation vẫn local.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production và bước tiếp
-
-**Sai lầm production thường gặp:**
-
-- Nhầm architectural window với việc truncate HTTP request.
-- Quên global/sink tokens nếu kiến trúc cần chúng.
-- Đánh giá chỉ trên short-context benchmark.
+<CodeLessonFrame
+  title="Production audit cho sliding window"
+  contract="length + positive window → causal-local mask; layers → earliest reachable"
+  output="query 7 sees [4,5,6,7]; two-layer earliest reachable = 1"
+  pitfall="Architectural window không phải HTTP truncation; phải giữ global/sink tokens nếu kiến trúc yêu cầu."
+  takeaway="Kernel có thể tránh materialize (T,T) nhưng phải giữ đúng tập key được phép."
+>
 
 ~~~ts
 import assert from "node:assert/strict";
@@ -80,5 +88,7 @@ assert.throws(() => causalSlidingMask(8, 0), /positive integer/);
 <LessonNote>Code tạo mask causal-local thật và kiểm tra receptive field. Kernel tối ưu có thể tránh materialize `(T,T)`, nhưng phải giữ cùng tập key được phép.</LessonNote>
 
 **Kết nối:** Scaling laws đặt các tối ưu kiến trúc vào bài toán phân bổ compute và data.
+
+</CodeLessonFrame>
 
 </MdxPage>

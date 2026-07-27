@@ -1,89 +1,108 @@
 export const lessonMetadata = {
-  domainId: "llm-ai-engineering",
-  id: "scaling-laws",
-  locale: "vi",
-  title: "Scaling laws và compute-optimal training",
-  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
-  keywords: ["scaling-laws","LLM","production","T+C"],
-  pageCount: 3,
+  domainId: 'llm-ai-engineering',
+  id: 'scaling-laws',
+  locale: 'vi',
+  title: 'Scaling laws và compute-optimal training',
+  headings: ['Ba trục mở rộng', 'Khả năng dự báo', 'Scaling recipe', 'Chinchilla', 'The Bitter Lesson'],
+  keywords: ['scaling laws', 'compute-optimal', 'Chinchilla', 'parameters', 'training tokens', 'test loss'],
+  pageCount: 5,
 }
 
 <MdxPage page={0}>
 
-## Vì sao cần kiến thức này?
-
-Scaling laws giúp ước lượng xu hướng loss theo model, data và compute, nhưng là fitted empirical relationships chứ không phải định luật bất biến.
-
-**Input:** Các run nhỏ với parameter count, training tokens, compute và validation loss.
-
-**Output:** Đường fitted và quyết định phân bổ budget để kiểm chứng ở scale tiếp theo.
-
-**Data/type/shape:** Nhiều run thành bảng `(run, N, D, C, loss)` rồi fit scalar coefficients/exponents.
-
-<LessonNote>Luôn tách invariant kiến trúc khỏi con số model/provider có thể thay đổi.</LessonNote>
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Held-out loss thường cải thiện ổn định khi model, data và compute được mở rộng hợp lý cùng nhau.'},
+  comparisons: [
+    {title: 'Model N', shape: 'trainable parameters', detail: {vi: 'Quy mô biểu diễn model có thể học.'}},
+    {title: 'Data D', shape: 'training tokens', detail: {vi: 'Số token và độ đa dạng model được nhìn thấy.'}},
+    {title: 'Compute C', shape: 'training FLOPs', detail: {vi: 'Ngân sách phép tính để biến N và D thành một run hoàn chỉnh.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Ba trục phải được cân bằng; chỉ tăng parameter có thể tạo model lớn nhưng undertrained.'},
+  misconception: {vi: 'Scaling trend không có nghĩa LLM không thể overfit hoặc benchmark contamination không còn quan trọng.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Trace bằng tay
-
-Nếu compute xấp xỉ `C≈6ND`, giữ `C` cố định nghĩa tăng `N` phải giảm `D`. Chinchilla cho thấy trong regime nghiên cứu của họ, tăng model và tokens cân bằng hơn các model lớn nhưng undertrained trước đó; không nên copy một token/parameter ratio như hằng số.
-
-~~~ts
-import assert from "node:assert/strict";
-
-type ScaleRun = {
-  id: string;
-  parametersB: number;
-  tokensB: number;
-  validationLoss: number;
-};
-
-function computeProxy(run: ScaleRun): number {
-  if (
-    !run.id
-    || run.parametersB <= 0
-    || run.tokensB <= 0
-    || !Number.isFinite(run.validationLoss)
-  ) {
-    throw new Error("invalid scaling run");
-  }
-  return 6 * run.parametersB * run.tokensB;
-}
-
-function bestMeasuredRun(runs: ScaleRun[]): ScaleRun {
-  if (runs.length === 0) throw new Error("at least one measured run is required");
-  return runs.reduce((best, run) =>
-    run.validationLoss < best.validationLoss ? run : best
-  );
-}
-
-const runs: ScaleRun[] = [
-  { id: "wide-undertrained", parametersB: 4, tokensB: 5, validationLoss: 2.42 },
-  { id: "balanced", parametersB: 2, tokensB: 10, validationLoss: 2.31 },
-  { id: "small-data-rich", parametersB: 1, tokensB: 20, validationLoss: 2.36 },
-];
-assert.deepEqual(runs.map(computeProxy), [120, 120, 120]);
-assert.equal(bestMeasuredRun(runs).id, "balanced");
-assert.throws(() => bestMeasuredRun([]), /at least one/);
-~~~
-
-**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Scaling law biến nhiều run nhỏ thành dự báo thực nghiệm cho budget lớn hơn.'},
+  steps: [
+    {label: {vi: 'Run small scales'}, shape: 'N / D / C grid', detail: {vi: 'Thu validation hoặc test loss nhất quán.'}},
+    {label: {vi: 'Fit power law'}, shape: 'L(x)≈L∞+A·x^(−α)', detail: {vi: 'Trên log axes, phần loss giảm gần một đường thẳng.'}},
+    {label: {vi: 'Extrapolate'}, shape: 'slope ≈ −α', detail: {vi: 'Ước lượng loss ở budget lớn hơn trong regime đã đo.'}},
+    {label: {vi: 'Validate'}, shape: 'intermediate run', detail: {vi: 'Kiểm tra prediction trước full-scale commitment.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Đường fit là dự báo trong regime đã đo, không phải bảo đảm kéo dài vô hạn.'},
+}} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production và bước tiếp
+<CodeLessonFrame
+  title="Scaling recipe"
+  contract="controlled small runs → fitted curve → budget choice → intermediate validation"
+  output="ScaleRun ghi N, D, compute FLOPs và validation loss"
+  pitfall="Đổi mạnh data mixture, tokenizer, optimizer, context length hoặc architecture có thể buộc fit lại."
+  takeaway="Các run nhỏ tạo dữ liệu cho scaling recipe, không chỉ chọn một winner."
+>
 
-**Sai lầm production thường gặp:**
+1. Huấn luyện nhiều model nhỏ ở các mức `N`, `D` và `C`.
+2. Giữ tokenizer, data recipe, architecture family và evaluation protocol đủ nhất quán.
+3. Fit scaling curve cho validation/test loss.
+4. Chọn cấu hình hứa hẹn nhất dưới budget.
+5. Chạy model trung gian trước final run.
 
-- Ngoại suy xa ngoài range đã fit.
-- Dùng benchmark score thay loss trơn mà không kiểm tra variance.
-- Bỏ inference demand, data quality và hardware efficiency.
+```ts
+type ScaleRun = {
+  parameters: number;
+  trainingTokens: number;
+  computeFlops: number;
+  validationLoss: number;
+};
+```
 
+</CodeLessonFrame>
 
-**Kết nối:** Quiz sau kiểm tra position, attention efficiency và scaling decisions.
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Compute-optimal training phân bổ budget cố định giữa parameter N và training tokens D.'},
+  steps: [
+    {label: {vi: 'Compute budget'}, shape: 'C≈6ND', detail: {vi: 'Nếu C cố định, tăng N buộc giảm D và ngược lại.'}},
+    {label: {vi: 'Chinchilla regime'}, shape: 'N và D tăng gần cùng tỷ lệ', detail: {vi: 'Nhiều model trước đó quá lớn nhưng thiếu training tokens.'}},
+    {label: {vi: 'Memory rule'}, shape: '1B params → ~20B tokens', detail: {vi: '20:1 là cách nhớ kết quả, không phải hằng số.'}},
+    {label: {vi: 'Serving-aware choice'}, shape: '~100–150 tokens/param', detail: {vi: 'Có thể train lâu hơn để serving model nhỏ hơn, tùy workload.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Chọn tỷ lệ bằng tổng chi phí training + inference và evaluation, không copy một con số cho mọi model.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'The Bitter Lesson ưu tiên phương pháp tổng quát có thể tận dụng thêm compute và experience trong dài hạn.'},
+  steps: [
+    {label: {vi: 'Scalable method'}, shape: 'general learning', detail: {vi: 'Không phụ thuộc quá nhiều vào rule thủ công.'}},
+    {label: {vi: 'Data system'}, shape: 'quality + mixture', detail: {vi: 'Một block tốt không cứu được data pipeline kém.'}},
+    {label: {vi: 'Evaluation'}, shape: 'capability + regressions', detail: {vi: 'Xác nhận scale tạo đúng năng lực.'}},
+    {label: {vi: 'Infrastructure'}, shape: 'stable + reproducible run', detail: {vi: 'Biến budget lý thuyết thành training thực tế.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Scaling laws nối model size, training tokens và compute thành một bài toán chung; không nói architecture không quan trọng.'},
+}} />
+
+Nguồn đọc thêm: [Scaling Laws for Neural Language Models](https://arxiv.org/abs/2001.08361), [Training Compute-Optimal Large Language Models](https://arxiv.org/abs/2203.15556), [The Bitter Lesson](http://www.incompleteideas.net/IncIdeas/BitterLesson.html).
 
 </MdxPage>

@@ -29,19 +29,16 @@ Một token có thể là cả từ, mảnh từ, dấu câu, khoảng trắng �
 
 <MdxPage page={1}>
 
-## Ba mức chia text
-
-Với chuỗi `builders`:
-
-| Cách chia | Tokens | Đánh đổi chính |
-|---|---|---|
-| Word-level | `["builders"]` | chuỗi ngắn, nhưng từ mới dễ ngoài vocabulary |
-| Character-level | `["b","u","i","l","d","e","r","s"]` | bao phủ tốt, nhưng chuỗi dài |
-| Subword | `["build","ers"]` | tái sử dụng mảnh phổ biến và giữ chuỗi vừa phải |
-
-Dấu câu và whitespace cũng cần quy tắc. Trong `" AI."`, tokenizer production có thể gắn khoảng trắng vào token `" AI"` thay vì xóa nó.
-
-<LessonNote>**Lỗi thường gặp:** luôn dùng `text.split()`. Cách này làm mất thông tin về whitespace và để dấu câu dính vào từ.</LessonNote>
+<TokenizerGranularity content={{
+  source: 'builders',
+  approaches: [
+    {id: 'word', title: 'Word-level', tokens: ['builders'], strength: {vi: 'Tạo sequence ngắn khi từ đã có trong vocabulary.'}, cost: {vi: 'Từ mới dễ nằm ngoài vocabulary.'}},
+    {id: 'character', title: 'Character-level', tokens: ['b', 'u', 'i', 'l', 'd', 'e', 'r', 's'], strength: {vi: 'Bao phủ được cách viết mới bằng đơn vị nhỏ.'}, cost: {vi: 'Sequence dài hơn nhiều.'}},
+    {id: 'subword', title: 'Subword', tokens: ['build', 'ers'], strength: {vi: 'Tái sử dụng mảnh phổ biến và giữ sequence vừa phải.'}, cost: {vi: 'Ranh giới phụ thuộc vocabulary và merge rules.'}},
+  ],
+  whitespaceNote: {vi: 'Dấu câu và whitespace cũng cần quy tắc. Trong “ AI.”, tokenizer production có thể gắn khoảng trắng vào token “ AI” thay vì xóa nó.'},
+  misconception: {vi: 'Không mặc định dùng text.split(): cách đó làm mất thông tin whitespace và để dấu câu dính vào từ.'},
+}} />
 
 **Handoff:** Bài regex tiếp theo sẽ cho thấy rõ từng quyết định split và cleanup.
 
@@ -67,18 +64,17 @@ Dấu câu và whitespace cũng cần quy tắc. Trong `" AI."`, tokenizer produ
 
 <MdxPage page={3}>
 
-## Tokenizer là một phần của model contract
-
-Tokenizer quyết định:
-
-- vocabulary size `V`;
-- token ID của từng token và special token;
-- sequence length `T` của mỗi input;
-- quy tắc `encode` và `decode`.
-
-Hai tokenizer có thể tạo hai dãy ID khác nhau cho cùng text. Vì vậy token IDs chỉ hợp lệ với đúng vocabulary/checkpoint đi kèm.
-
-<LessonNote>**Lỗi thường gặp:** thay tokenizer nhưng giữ nguyên model weights. ID `2` có thể trỏ đến token khác, nên model sẽ tra sai hàng embedding ngay từ đầu.</LessonNote>
+<TokenizerContract content={{
+  lead: {vi: 'Tokenizer không chỉ cắt text. Nó khóa bốn quyết định mà checkpoint và data pipeline phải dùng thống nhất.'},
+  decisions: [
+    {id: 'vocabulary', title: {vi: 'Vocabulary size'}, value: 'V', meaning: {vi: 'Số token có thể tra trong embedding và output table.'}},
+    {id: 'ids', title: {vi: 'Token IDs'}, value: 'token ↔ ID', meaning: {vi: 'Mapping ổn định cho token thường và special token.'}},
+    {id: 'length', title: {vi: 'Sequence length'}, value: 'T', meaning: {vi: 'Số vị trí sinh ra cho mỗi input sau encode.'}},
+    {id: 'roundtrip', title: {vi: 'Encode / decode'}, value: 'text ↔ IDs', meaning: {vi: 'Quy tắc biến đổi hai chiều theo đúng normalization.'}},
+  ],
+  checkpoint: {vi: 'Hai tokenizer có thể tạo hai dãy ID khác nhau cho cùng text; token IDs chỉ hợp lệ với đúng vocabulary và checkpoint đi kèm.'},
+  misconception: {vi: 'Không thay tokenizer nhưng giữ nguyên model weights: ID 2 có thể trỏ đến token khác và làm model tra sai hàng embedding ngay từ đầu.'},
+}} />
 
 **Handoff:** Trước khi dùng tokenizer production, ta xây một tokenizer regex nhỏ để nhìn thấy contract raw text → tokens.
 

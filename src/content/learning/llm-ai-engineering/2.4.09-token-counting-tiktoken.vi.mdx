@@ -6,7 +6,12 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Capability và common contract
+<PromptConceptVisual content={{view:'batch',lead:{vi:'Preflight estimate và billed usage có vai trò khác nhau.'},steps:[
+  {label:{vi:'Text'},shape:'tokenizer estimate',detail:{vi:'Pin model/tokenizer.'}},
+  {label:{vi:'Envelope'},shape:'tools + media + framing',detail:{vi:'Đếm toàn request.'}},
+  {label:{vi:'Reserve'},shape:'output budget',detail:{vi:'Giữ chỗ trước dispatch.'}},
+  {label:{vi:'Reconcile'},shape:'estimate ↔ usage',detail:{vi:'Calibrate bằng delta.'}},
+],code:[],takeaway:{vi:'Local count không phải exact billing.'}}} />
 
 Tokenizer local chỉ ước lượng phần text mà nó biết; message framing, tools, media và provider accounting có thể thêm tokens.
 
@@ -20,7 +25,7 @@ Tokenizer local chỉ ước lượng phần text mà nó biết; message framin
 
 <MdxPage page={1}>
 
-## Worked fixture
+<CodeLessonFrame title="Request envelope budget" contract="component estimates + limit → fits" output="700+250+50+500 = 1.500 ≤ 2.000" pitfall="Không quên tools/reserve hoặc dùng magic constant vĩnh viễn." takeaway="Provider usage là authoritative cho accounting.">
 
 Text 700, tools 250, framing estimate 50, output reserve 500 tạo budget 1.500. Sau call provider báo input 1.040; record delta 40 để calibrate estimator, không sửa bằng magic constant vĩnh viễn.
 
@@ -53,11 +58,17 @@ assert.equal(providerUsage.inputTokens + providerUsage.outputTokens, 1_160);
 ~~~
 <LessonNote>Local count là estimate để admission; provider usage là authoritative cho request đã chạy. Lưu model/tokenizer/request-envelope version khi theo dõi delta.</LessonNote>
 
+</CodeLessonFrame>
+
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Production delta và handoff
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Admission control dùng estimate; accounting dùng provider usage.'},steps:[
+  {label:{vi:'Version'},shape:'correct tokenizer',detail:{vi:'Không dùng sai model.'}},
+  {label:{vi:'Coverage'},shape:'tools + reserve',detail:{vi:'Không chỉ đếm text.'}},
+  {label:{vi:'Account'},shape:'authoritative usage',detail:{vi:'Reconcile delta.'}},
+],code:[],takeaway:{vi:'Quiz tiếp theo kiểm tra usage và quota.'}}} />
 
 **Pitfalls:**
 
