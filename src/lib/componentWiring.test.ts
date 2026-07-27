@@ -6,6 +6,14 @@ function readSource(path: string): string {
   return readFileSync(path, 'utf8');
 }
 
+function readLlmRendererSources(): string {
+  return [
+    'conceptRenderers.tsx',
+    'languageModelRenderers.tsx',
+    'tokenizerRenderers.tsx',
+  ].map((fileName) => readSource(`src/components/learning/domains/llm-ai-engineering/${fileName}`)).join('\n');
+}
+
 test('workspace forwards selected node state into the canvas renderer', () => {
   const workspace = readSource('src/components/workspace/TorchVizWorkspace.tsx');
   const canvas = readSource('src/components/canvas/Canvas3D.tsx');
@@ -32,6 +40,50 @@ test('workspace forwards selected node state into the canvas renderer', () => {
   );
 });
 
+test('canvas loading feedback stays transparent over the persistent scene', () => {
+  const canvas = readSource('src/components/canvas/Canvas3D.tsx');
+  const overlays = readSource('src/components/canvas/CanvasOverlays.tsx');
+  const loadingOverlay = overlays.slice(
+    overlays.indexOf('export const CanvasLoadingOverlay'),
+    overlays.indexOf('export const CanvasErrorOverlay'),
+  );
+
+  assert.match(canvas, /aria-busy=\{loading\}/, 'Canvas3D should expose its busy state');
+  assert.match(loadingOverlay, /data-torchviz-canvas-loading/);
+  assert.doesNotMatch(
+    loadingOverlay,
+    /bg-zinc-950\/70|backdrop-blur/,
+    'loading must not dim or backdrop-filter the full canvas surface',
+  );
+});
+
+test('canvas backgrounds and leaf outlines cannot masquerade as flow connectors', () => {
+  const canvas = readSource('src/components/canvas/Canvas3D.tsx');
+  const sceneBlocks = readSource('src/components/canvas/SceneBlocks.tsx');
+  const leafRendering = sceneBlocks.slice(
+    sceneBlocks.indexOf('const ActivationBlock'),
+    sceneBlocks.indexOf('function sameNodeRenderFields'),
+  );
+
+  assert.match(canvas, /<GroundLineGrid/);
+  assert.doesNotMatch(canvas, /<gridHelper/);
+  assert.doesNotMatch(leafRendering, /LeafFaceOutline|<lineSegments|<Line/);
+  assert.doesNotMatch(
+    leafRendering,
+    /<Edges/,
+    'leaf blocks should rely on solid shading instead of supplemental outlines',
+  );
+});
+
+test('forward pass input uses a moving packet without a persistent dashed connector', () => {
+  const demo = readSource('src/components/mnist-demo/MnistFlowDemo.tsx');
+
+  assert.match(demo, /const packetRoutes = getDataPacketRoutes/);
+  assert.match(demo, /<DataPacket key=/);
+  assert.doesNotMatch(demo, /VirtualInputRoute|getVirtualInputRoutePoints/);
+  assert.doesNotMatch(demo, /\bdashed\b/);
+});
+
 test('AppShell lazy-loads Learning Lab instead of importing it into the landing bundle', () => {
   const appShell = readSource('src/components/AppShell.tsx');
 
@@ -54,7 +106,7 @@ test('AppShell lazy-loads Learning Lab instead of importing it into the landing 
 
 test('Learning Lab shared infrastructure avoids duplicated navigation and UI logic', () => {
   const quizBlock = readSource('src/components/learning/lesson/QuizBlock.tsx');
-  const domainRenderer = readSource('src/components/learning/domains/llm-ai-engineering/renderers.tsx');
+  const domainRenderer = readLlmRendererSources();
   const domainCatalog = readSource('src/components/learning/shell/DomainCatalog.tsx');
   const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
   const lessonRail = readSource('src/components/learning/lesson/LessonRail.tsx');

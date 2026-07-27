@@ -3,7 +3,7 @@ title: Landing UI Iteration
 status: done
 created: 2026-06-21T17:02:32+07:00
 updated: 2026-06-21T21:55:00+07:00
-author: Codex
+author: nmkhiem
 task: "consolidated Landing Page visual iteration plan and execution history"
 supersedes:
   - docs/plans/2026-06-21-learning-lab-refactor.md

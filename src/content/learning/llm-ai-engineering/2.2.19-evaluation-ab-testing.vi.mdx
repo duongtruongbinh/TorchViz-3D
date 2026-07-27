@@ -1,0 +1,24 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'evaluation-ab-testing',
+  locale: 'vi',
+  title: 'A/B testing cho hệ thống LLM',
+  headings: ['Khi offline eval chưa đủ', 'Thiết kế thử nghiệm', 'Đọc kết quả'],
+  keywords: ['A/B testing', 'online evaluation', 'randomization', 'guardrail metric', 'user feedback'],
+}
+
+## Khi offline eval chưa đủ
+
+Offline eval không đo đầy đủ cách người dùng thật tương tác với sản phẩm. A/B testing so sánh hai phiên bản trên traffic được chia ngẫu nhiên để đo tác động tới completion rate, user preference, retention, escalation hoặc thời gian hoàn thành task.
+
+## Thiết kế thử nghiệm
+
+Chỉ nên thay đổi một nhóm yếu tố có thể giải thích được. Cần xác định primary metric, guardrail metrics, sample size, thời gian chạy và điều kiện dừng trước khi xem kết quả. Các nhóm user quan trọng nên được kiểm tra cân bằng giữa A và B.
+
+Với LLM, phải log model/prompt version, latency, token cost và safety incidents. Một phiên bản tăng engagement nhưng tăng harmful response hoặc chi phí vượt ngưỡng không thể được xem là thắng.
+
+## Đọc kết quả
+
+Statistical significance không tự động đồng nghĩa với practical significance. Hãy xem effect size, confidence interval và kết quả theo subgroup. User feedback định tính và failure trace giúp giải thích tại sao một metric thay đổi.
+
+A/B test chỉ nên chạy sau khi phiên bản mới đã vượt qua offline safety gate.

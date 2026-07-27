@@ -1,0 +1,38 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-component-checkpoint-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['AI hierarchy', 'Chọn domain', 'Role và loại dữ liệu'],
+  keywords: ['AI', 'ML', 'DL', 'CV', 'NLP', 'LLM'], pageCount: 3,
+}
+
+<MdxQuiz id="ai-landscape-checkpoint-quiz" questions={[
+  {
+    id: 'ai-hierarchy-order', title: 'Sắp xếp các thuật ngữ', prompt: 'Theo quy ước của khóa học, hãy sắp xếp từ phạm vi rộng nhất đến chuyên biệt nhất.', mode: 'order',
+    options: [{ id: 'ml', label: 'ML' }, { id: 'llm', label: 'LLM' }, { id: 'ai', label: 'AI' }, { id: 'cv-nlp', label: 'CV / NLP' }, { id: 'dl', label: 'DL' }],
+    correctOrder: ['ai', 'ml', 'dl', 'cv-nlp', 'llm'],
+    success: 'Đúng. AI bao quát nhất; tiếp theo là ML, DL, các domain CV/NLP và cuối cùng là LLM trong NLP.',
+    error: 'Chưa đúng. Hãy bắt đầu từ AI và thu hẹp dần phạm vi.',
+  },
+  {
+    id: 'choose-problem-domain', title: 'Chọn domain phù hợp', prompt: 'Dự án nào có đầu vào và đầu ra chủ yếu là ngôn ngữ?', mode: 'single',
+    options: [
+      { id: 'defect', label: 'Phát hiện lỗi sản phẩm từ ảnh camera trên dây chuyền.' },
+      { id: 'churn', label: 'Dự đoán khách hàng rời dịch vụ từ dữ liệu dạng bảng.' },
+      { id: 'rag', label: 'Xây dựng trợ lý hỏi đáp trên tài liệu nội bộ bằng RAG.', isCorrect: true },
+      { id: 'forecast', label: 'Dự báo lượng hàng bán ra theo chuỗi thời gian.' },
+    ],
+    success: 'Chính xác. RAG hỏi đáp trên tài liệu là một bài toán ngôn ngữ điển hình.',
+    error: 'Chưa đúng. Hãy tìm bài toán có đầu vào và đầu ra chủ yếu là ngôn ngữ.',
+  },
+  {
+    id: 'role-domain-convention', title: 'Role và loại dữ liệu', prompt: 'Trong ngữ cảnh tuyển dụng, cách hiểu nào thường gặp nhất?', mode: 'single',
+    options: [
+      { id: 'ai-unstructured-ds-structured', label: 'AI Engineer thường nghiêng về CV/NLP và dữ liệu phi cấu trúc; Data Scientist thường nghiêng về tabular data, time series và ML truyền thống.', isCorrect: true },
+      { id: 'ai-structured-ds-unstructured', label: 'AI Engineer thường nghiêng về tabular data; Data Scientist thường nghiêng về dữ liệu hình ảnh và ngôn ngữ.' },
+      { id: 'same-unstructured-domain', label: 'Cả hai role chủ yếu gắn với CV/NLP và dữ liệu phi cấu trúc.' },
+      { id: 'same-structured-domain', label: 'Cả hai role chủ yếu gắn với tabular data và time series.' },
+    ],
+    success: 'Đúng. Tên role gợi ra xu hướng về domain và loại dữ liệu. Tuy nhiên, điều đó không có nghĩa một người không thể làm việc cross-domain; việc ghi rõ title trên CV hoặc JD chủ yếu giúp thu hẹp phạm vi và tạo cách hiểu chung khi giao tiếp.',
+    error: 'Chưa đúng. Hãy phân biệt dữ liệu phi cấu trúc với tabular data và time series.',
+  },
+]} />

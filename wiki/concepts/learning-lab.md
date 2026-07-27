@@ -1,14 +1,16 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-15
+updated: 2026-07-23
 ---
 
 # Learning Lab
 
 This page documents the active Landing Page and Learning Lab architecture. The
 current content migration and catalog decisions are recorded in
-[docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md).
+[docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md),
+with the current LLM lesson state in
+[docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md](../../docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md).
 
 ## Status
 
@@ -19,9 +21,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 81 tracks, and 627 lesson nodes. Twenty-one
-Vietnamese-first lessons have authored content: seventeen in `llm-ai-engineering`
-and four tagged exercise lessons in `cv`. The other 606 nodes are navigable
+The catalog contains 12 domains, 82 tracks, and 652 lesson nodes. Fifty-three
+Vietnamese-first lessons have authored content: forty-nine in `llm-ai-engineering`
+and four tagged exercise lessons in `cv`. The other 599 nodes are navigable
 placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
 
@@ -42,8 +44,40 @@ The authored LLM lessons are:
 13. `llm-next-token-loss-quiz`
 14. `llm-scale-and-development`
 15. `llm-scale-and-development-quiz`
-16. `llm-data-pipeline-overview`
-17. `llm-data-pipeline-checkpoint-quiz`
+16. `tokenization-why-it-matters`
+17. `tokenization-why-it-matters-quiz`
+18. `tokenizer-regex-from-scratch`
+19. `tokenizer-regex-from-scratch-quiz`
+20. `tokenization-bpe-tiktoken`
+21. `tokenization-bpe-tiktoken-quiz`
+22. `tokenization-token-ids-vocabulary`
+23. `tokenization-token-ids-vocabulary-quiz`
+24. `tokenization-raw-text-to-token-ids`
+25. `llm-data-pipeline-overview`
+26. `llm-data-pipeline-checkpoint-quiz`
+27. `loss-perplexity-hand-calculation`
+28. `benchmark-likelihood-quiz`
+29. `evaluation-beyond-perplexity`
+30. `llm-evaluation-foundations`
+31. `evaluation-dataset-design`
+32. `deterministic-and-reference-metrics`
+33. `human-evaluation-rubrics`
+34. `inter-rater-agreement`
+35. `pointwise-and-pairwise-evaluation`
+36. `llm-as-a-judge`
+37. `llm-judge-biases`
+38. `benchmark-selection-and-contamination`
+39. `hallucination-and-factuality-evaluation`
+40. `rag-evaluation`
+41. `llm-safety-foundations`
+42. `refusal-calibration`
+43. `toxicity-bias-and-privacy`
+44. `jailbreak-and-prompt-injection`
+45. `guardrails-for-llm-applications`
+46. `llm-red-teaming`
+47. `production-regression-evals`
+48. `evaluation-ab-testing`
+49. `evaluation-harness-code`
 
 Their authored prose, paging data, quizzes, references, and structured visual
 inputs live in locale-specific MDX. LLM-specific visual and stateful components
@@ -83,9 +117,16 @@ src/lib/localization.ts
 src/content/learning/<domain-id>/table-of-contents.ts
   localized domain/track/node metadata, ordering, status, fallback, aliases
 
-src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx
+src/content/learning/<domain-id>/[<chapter>.<section>.<node>-]<lesson-id>.<locale>.mdx
   authored lesson body, metadata, pages, quizzes, links, and visual inputs
 ```
+
+The optional hierarchical numeric prefix keeps authored files in typed-TOC
+order without becoming part of the canonical lesson ID. The LLM course uses
+chapter-local names such as `1.1.6-language-modeling-next-token.vi.mdx` and
+`1.5.1-llm-data-pipeline-overview.vi.mdx`; other domains may continue using
+unprefixed filenames. Routes and `lessonMetadata.id` always use the lesson ID
+without this organizational prefix.
 
 Every navigable lesson has one TOC node. A locale-specific MDX file exists only
 when that locale has authored lesson content. File existence is not navigation
@@ -119,14 +160,14 @@ The Vite virtual module contains generated search documents only. This prevents
 catalog tests from depending on Vite and avoids a catalog-validation cycle.
 
 MDX validation is generic across `src/content/learning/*/*.mdx`. It derives
-identity from `<domain>/<lesson>.<locale>.mdx`, checks the file against the
+identity from `<domain>/[<numeric-prefix>-]<lesson>.<locale>.mdx`, checks the file against the
 catalog, rejects unpublished or unknown nodes, validates page and quiz ids, and
 rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 606
+published MDX. The shared placeholder body is not indexed, preventing 599
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -139,12 +180,17 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/learning/shell/ReviewMode.tsx` | Tag-derived quick-review catalog for published exercise lessons. |
 | `src/components/learning/shell/DomainCatalog.tsx` | Domain-first catalog entry surface. |
 | `src/components/learning/shell/DomainCoursePage.tsx` | Shared domain course overview and track accordions. |
-| `src/components/learning/lesson/LessonRail.tsx` | Searchable lesson rail, status filters, and chapter collapse. |
+| `src/components/learning/lesson/LessonRail.tsx` | Searchable lesson rail, status filters, chapter collapse, and automatic scroll-to-center on lesson navigation. |
 | `src/components/learning/lesson/LessonDetail.tsx` | Placeholder or compiled authored lesson rendering. |
 | `src/components/learning/lesson/QuizBlock.tsx` | Shared stateful quiz behavior used by MDX. |
 | `src/components/learning/learningMdxComponents.tsx` | Shared Markdown primitives, context, lesson frame, and quiz adapter. |
 | `src/components/learning/learningMdxRegistry.tsx` | Generic compiled lesson lookup plus optional domain component maps. |
-| `src/components/learning/domains/llm-ai-engineering/*` | LLM-only custom MDX components and renderers. |
+| `src/components/learning/domains/llm-ai-engineering/mdxComponents.tsx` | Stable LLM MDX adapter and public component map. |
+| `src/components/learning/domains/llm-ai-engineering/*Renderers.tsx` | LLM-only tokenizer, language-model, and concept renderer families behind the stable `renderers.tsx` barrel. |
+| `src/components/learning/domains/llm-ai-engineering/rendererTypes.ts` | Domain-local authored-content shapes shared by the LLM renderer families. |
+| `src/components/learning/domains/llm-ai-engineering/rendererTheme.ts` | Semantic light/dark tokens shared by repeated LLM visual roles. |
+| `src/components/learning/domains/llm-ai-engineering/rendererPrimitives.tsx` | Typed token, ID, callout, and playback primitives used by LLM renderers. |
+| `src/components/learning/domains/llm-ai-engineering/diagramPrimitives.tsx` | Shared DOM measurement, connector SVG, and probability-curve infrastructure for LLM diagrams. |
 | `src/components/learning/domains/cv/mdxComponents.tsx` | CV-only MDX adapter that lazy-loads shared exercise surfaces. |
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
@@ -165,6 +211,9 @@ and Vietnamese-diacritic-insensitive.
 Learning Lab visual primitives live in `src/components/learning/theme.ts`.
 Controls should use `getLearningLabTheme(theme)` and the semantic theme helpers
 instead of adding unrelated colors, radii, hover states, or focus styles.
+The active Learning Lab runtime is locked to light mode. The shared theme
+contract remains in place for existing components, but new lesson-only visuals
+should not add unreachable dark variants.
 
 `LearningLabView` keeps a shallow left sidebar: Home followed by top-level
 domains. Track and lesson structure belongs in the main course/lesson surface.
@@ -188,7 +237,7 @@ the ownership boundary above.
 
 Lesson traversal uses keyboard arrows: Up/Down move between lessons, Left/Right
 move between section pages. The `LessonDetail` footer keeps the original section
-pager (`← Back` / `Next →`) and the green `Too easy!` complete-and-continue
+pager (`← Back` / `Next →`) and the green `Too easy!` complete-and-advance
 button; there are no on-screen lesson-arrow buttons. Quiz answers submit on
 Enter. Both arrow-key handlers and the Enter handler are guarded
 (`isTypingTarget` / `data-quiz`) so they never fire while typing in inputs, in
@@ -197,6 +246,20 @@ returns to the lesson panel so the arrow keys resume navigating lessons and
 section pages. When the lesson panel is focused on the last section with a next
 lesson, pressing Enter again completes the lesson and continues (same as the
 green `Too easy!` button).
+
+The lesson rail automatically scrolls the selected lesson node into vertical
+center whenever the active lesson changes (via click, keyboard, or programmatic
+navigation). This uses `scrollIntoView({ block: 'center', behavior: 'smooth' })`
+on the button element identified by `data-lesson-id`. The effect is driven by the
+`selectedLesson.id` dependency in `LessonRail.tsx`, so it only fires when a
+different lesson is selected, and it safely handles cases where the target
+lesson node is not in the DOM (e.g., collapsed track or filtered out).
+
+Unfinished lesson nodes use one blue marker/title treatment. Theory and Code
+nodes retain chapter-local numbering; Quiz nodes are excluded from visible
+numbering and use a dimmed question icon that regains emphasis on hover or
+selection. Selected rows use a solid blue surface, while completed markers
+remain green so progress continues to take precedence.
 
 ## Invariants
 
@@ -212,8 +275,9 @@ green `Too easy!` button).
   there is no parallel review or practice content record.
 - Workspace exercise handoff resolves a React-free catalog entry point and opens
   the canonical lesson route without a practice query or duplicated fixture.
-- The seventeen LLM lessons retain their routes, paging, quiz state/reset, locale
-  fallback, authored search text, and light/dark behavior.
+- The forty-nine authored LLM lessons retain their routes, paging, quiz
+  state/reset, locale fallback, authored search text, and light-only runtime
+  behavior.
 - Learning Lab changes must not reset Workspace editor/canvas state.
 
 ## Related Pages

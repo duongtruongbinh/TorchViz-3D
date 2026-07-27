@@ -537,8 +537,32 @@ body {
   box-shadow: none;
 }
 
+.learning-lab {
+  --learning-lab-muted-opacity: 0.5;
+  font-family: 'Be Vietnam Pro', Inter, system-ui, sans-serif;
+}
+
+.learning-lab .learning-lab-muted {
+  opacity: var(--learning-lab-muted-opacity);
+}
+
+.learning-lab .group:hover .learning-lab-muted,
+.learning-lab .learning-lab-muted:hover,
+.learning-lab .learning-lab-muted:focus-visible {
+  opacity: 1;
+}
+
+.learning-lab .learning-lab-rail-search-input::placeholder {
+  opacity: var(--learning-lab-muted-opacity);
+}
+
 .learning-lab .learning-lab-lesson-title {
   color: var(--learning-lab-lesson-title);
+}
+
+.learning-lab-reading-content :where(p, li, blockquote) {
+  font-size: 1rem;
+  line-height: 1.75rem;
 }
 
 .learning-lab-light .learning-lab-lesson-page-section {
@@ -548,6 +572,24 @@ body {
 
 .learning-lab-answer-reveal {
   animation: learning-lab-answer-reveal 720ms ease-out;
+}
+
+.learning-ai-scope-promote {
+  animation: learning-ai-scope-promote 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.learning-ai-scope-word {
+  animation: learning-ai-scope-word 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.learning-bpe-merged-token {
+  animation: learning-bpe-merged-token 1.6s ease-out infinite;
+}
+
+@keyframes learning-bpe-merged-token {
+  0%, 40% { transform: translateY(0) scale(0.84); box-shadow: 0 0 0 0 rgba(32, 80, 137, 0); }
+  68% { transform: translateY(-6px) scale(1.12); box-shadow: 0 0 0 5px rgba(32, 80, 137, 0.18); }
+  100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 0 rgba(32, 80, 137, 0); }
 }
 
 @keyframes learning-lab-answer-reveal {
@@ -563,6 +605,32 @@ body {
 
   100% {
     box-shadow: 0 0 0 0 rgba(47, 111, 159, 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes learning-ai-scope-promote {
+  from {
+    opacity: 0.25;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes learning-ai-scope-word {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
     transform: translateY(0);
   }
 }
@@ -631,7 +699,7 @@ body {
 
 .learning-lab-light [class*="text-zinc-100"],
 .learning-lab-light [class*="text-zinc-200"] {
-  color: #0f172a;
+  color: #172a43;
 }
 
 .learning-domain-title-cv {
@@ -712,7 +780,7 @@ body {
 .learning-lab-light textarea {
   border-color: rgba(148, 163, 184, 0.65);
   background: #ffffff;
-  color: #0f172a;
+  color: #334155;
 }
 
 .learning-lab-light .learning-lab-rail-search-input {
@@ -722,22 +790,24 @@ body {
   color: inherit;
 }
 
-.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-active {
+.learning-lab-light .learning-lab-catalog aside .learning-lab-rail-filter-button-active {
   border-color: rgba(47, 111, 159, 0.18);
   background-color: #d7e8f5;
   box-shadow: inset 0 0 0 1px rgba(47, 111, 159, 0.1);
   color: #255e88;
 }
 
-.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-idle {
+.learning-lab-light .learning-lab-catalog aside .learning-lab-rail-filter-button-idle {
   background-color: transparent;
   box-shadow: none;
-  color: rgba(18, 59, 104, 0.58);
+  color: #123b68;
 }
 
-.learning-lab-light .learning-lab-catalog > aside .learning-lab-rail-filter-button-idle:hover {
+.learning-lab-light .learning-lab-catalog aside .learning-lab-rail-filter-button-idle:hover,
+.learning-lab-light .learning-lab-catalog aside .learning-lab-rail-filter-button-idle:focus-visible {
   background-color: rgba(255, 255, 255, 0.58);
   color: #123b68;
+  opacity: 1;
 }
 
 .learning-lab-focus-panel {
@@ -765,7 +835,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .learning-lab-focus-panel {
+  .learning-lab-focus-panel,
+  .learning-ai-scope-promote,
+  .learning-ai-scope-word {
+    animation: none;
     transition: none;
   }
 
@@ -851,7 +924,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .landing-clean-pulse,
-  .landing-stage-kernel {
+  .landing-stage-kernel,
+  .learning-bpe-merged-token {
     animation: none;
   }
 }

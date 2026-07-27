@@ -96,7 +96,11 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
       </div>
       <div className="grid content-start gap-3 p-4">
         <div><h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{name}</h3><p className={cx('mt-0.5 text-sm font-semibold leading-6', themeClasses.mutedText)}>{role}</p></div>
-        <div className={cx('grid gap-2 text-sm leading-6 [&_a]:font-black [&_a]:text-[#205089] [&_code]:block [&_code]:overflow-x-auto [&_code]:rounded-lg [&_code]:bg-[#0B1220] [&_code]:px-3 [&_code]:py-2 [&_code]:text-xs [&_code]:text-[#E5EEF8]', themeClasses.bodyText)}>{children}</div>
+        {/* `[&_p]:min-w-0` overrides the default `min-width: auto` of grid items
+            so `<p>` can shrink below the intrinsic width of long inline code (e.g. URLs).
+            `[&_code]:break-words` then lets that code wrap mid-word to fit the card.
+            Without both, a long URL forces the grid column — and the card — wider. */}
+        <div className={cx('grid gap-2 text-sm leading-6 [&_a]:font-black [&_a]:text-[#205089] [&_p]:min-w-0 [&_code]:block [&_code]:break-words [&_code]:rounded-lg [&_code]:bg-[#0B1220] [&_code]:px-3 [&_code]:py-2 [&_code]:text-xs [&_code]:text-[#E5EEF8]', themeClasses.bodyText)}>{children}</div>
       </div>
     </section>
   );
@@ -104,7 +108,7 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
 
 export function LessonNote({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
-  return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6', themeClasses.sectionAccent.note)}>{children}</div>;
+  return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5', themeClasses.sectionAccent.note)}>{children}</div>;
 }
 
 export function ExtraFrame({ title, children, themeClasses, customTitle }: {
@@ -125,11 +129,15 @@ export function ExtraFrame({ title, children, themeClasses, customTitle }: {
 
 function MdxParagraph({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
-  return <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{children}</p>;
+  return <p className={cx('text-base leading-[1.625rem]', themeClasses.bodyText)}>{children}</p>;
 }
 
 function MdxLink({ children, href }: { children?: ReactNode; href?: string }) {
   const themeClasses = useLearningMdxTheme();
+  const isNumericCitation = typeof children === 'string' && /^\[\d+\]$/.test(children.trim());
+  if (isNumericCitation) {
+    return <a href={href} target="_blank" rel="noreferrer" className={cx('underline-offset-2 transition-colors hover:underline', themeClasses.focusRing, themeClasses.isLight ? 'text-[#2F78B7]' : 'text-[#9CC7EF]')}>{children}</a>;
+  }
   return <a href={href} target="_blank" rel="noreferrer" className={cx('inline-flex min-h-9 items-center rounded-lg border px-3 text-xs font-black leading-5 transition-colors', themeClasses.focusRing, themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC] text-[#123B68] hover:bg-[#EEF4FA]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7 text-[#F2F6FA] hover:bg-[#A8B8C8]/11')}>{children}</a>;
 }
 

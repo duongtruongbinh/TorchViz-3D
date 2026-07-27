@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-why-it-matters-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Token và word', 'Bao phủ văn bản', 'Cân bằng độ dài', 'Chi phí sequence length'],
+  keywords: ['token', 'word', 'vocabulary', 'lỗi chính tả', 'tiếng Thái'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="tokenization-why-it-matters-quiz" questions={[
+  {
+    id: 'word-level-limitations', title: 'Chọn các ý đúng', prompt: 'Vì sao không nên chỉ dùng cả từ làm token?', mode: 'multi',
+    options: [
+      { id: 'typo-missing', label: 'Một từ viết sai có thể không có trong vocabulary.', isCorrect: true },
+      { id: 'thai-spacing', label: 'Không phải mọi ngôn ngữ đều dùng khoảng trắng để tách từ.', isCorrect: true },
+      { id: 'all-words-covered', label: 'Vocabulary theo từ luôn bao phủ mọi từ mới.' },
+      { id: 'short-is-enough', label: 'Chỉ cần chuỗi ngắn, vocabulary lớn không phải vấn đề.' },
+    ],
+    success: 'Đúng. Token theo cả từ gặp khó với lỗi chính tả, từ mới và ngôn ngữ không tách từ bằng khoảng trắng.',
+    error: 'Hãy nhớ hai vấn đề chính: vocabulary không bao phủ mọi cách viết và khoảng trắng không phải quy tắc chung cho mọi ngôn ngữ.',
+  },
+  {
+    id: 'two-extremes', title: 'Chọn một đáp án', prompt: 'Mô tả nào đúng nhất về sự đánh đổi khi tách token?', mode: 'single',
+    options: [
+      { id: 'characters', label: 'Từng ký tự bao phủ tốt nhưng làm chuỗi dài; cả từ làm chuỗi ngắn nhưng cần vocabulary lớn.', isCorrect: true },
+      { id: 'words', label: 'Cả từ vừa bao phủ mọi lỗi chính tả vừa có vocabulary nhỏ.' },
+      { id: 'same', label: 'Từng ký tự và cả từ luôn tạo cùng số token.' },
+      { id: 'shorter-better', label: 'Chuỗi càng ngắn thì tokenizer càng tốt, không có đánh đổi.' },
+    ],
+    success: 'Đúng. Tokenizer cần cân bằng giữa độ dài chuỗi và khả năng bao phủ văn bản.',
+    error: 'Hãy so sánh hai đánh đổi: ký tự làm chuỗi dài, còn cả từ làm vocabulary lớn và kém linh hoạt.',
+  },
+  {
+    id: 'subword-benefit', title: 'Chọn một đáp án', prompt: 'Token dạng chuỗi con mang lại lợi ích gì?', mode: 'single',
+    options: [
+      { id: 'balance', label: 'Giữ chuỗi ở độ dài hợp lý, đồng thời vẫn ghép được từ mới hoặc cách viết lạ.', isCorrect: true },
+      { id: 'whole-words-only', label: 'Bắt buộc mọi token phải là một từ hoàn chỉnh.' },
+      { id: 'remove-vocabulary', label: 'Không còn cần vocabulary.' },
+      { id: 'one-token-all', label: 'Mọi câu luôn chỉ cần một token.' },
+    ],
+    success: 'Đúng. Chuỗi con là điểm cân bằng: linh hoạt hơn word-level nhưng không dài như character-level.',
+    error: 'Hãy nhớ: tokenizer dùng chuỗi con để cân bằng độ dài đầu vào với khả năng biểu đạt.',
+  },
+  {
+    id: 'sequence-length-cost', title: 'Chọn một đáp án', prompt: 'Nếu số token tăng gấp đôi, chi phí attention của Transformer có thể thay đổi thế nào?', mode: 'single',
+    options: [
+      { id: 'four-times', label: 'Có thể tăng xấp xỉ gấp bốn vì chi phí tăng theo O(n²).', isCorrect: true },
+      { id: 'same', label: 'Giữ nguyên vì attention không phụ thuộc độ dài chuỗi.' },
+      { id: 'half', label: 'Giảm một nửa vì token ngắn hơn.' },
+      { id: 'one-extra', label: 'Chỉ tăng thêm đúng một phép tính.' },
+    ],
+    success: 'Đúng. Đây là lý do chuỗi token quá dài trở nên đắt đỏ về mặt tính toán.',
+    error: 'Hãy nhớ: attention tăng theo bình phương độ dài chuỗi, O(n²).',
+  },
+]} />

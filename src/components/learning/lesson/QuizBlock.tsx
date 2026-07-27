@@ -1,5 +1,24 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
-import { type DragEvent, type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react';
+import { type DragEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { LearningLessonExtra } from '../authoredTypes';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getLearningLocalizedText as text } from '../learningText';
@@ -75,8 +94,7 @@ function QuizQuestion({
   const isCategorizeMode = question.mode === 'categorize';
   const quizPalette = getQuizPalette(themeClasses);
   const promptText = text(question.prompt, language);
-  const [draggedOrderIndex, setDraggedOrderIndex] = useState<number | null>(null);
-  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const feedbackRef = useRef<HTMLDivElement | null>(null);
   const { selectedIds, feedback } = state;
   const categoryAssignments = state.categoryAssignments ?? {};
@@ -104,28 +122,26 @@ function QuizQuestion({
     onStateChange({ selectedIds: nextSelectedIds, categoryAssignments, feedback: null });
   };
 
-  const moveOrderOption = (fromIndex: number, targetIndex: number) => {
-    if (targetIndex === fromIndex || targetIndex === fromIndex + 1) return;
-    const nextIds = [...orderIds];
-    const [movedId] = nextIds.splice(fromIndex, 1);
-    if (!movedId) return;
-    const adjustedTargetIndex = fromIndex < targetIndex ? targetIndex - 1 : targetIndex;
-    nextIds.splice(adjustedTargetIndex, 0, movedId);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    setActiveId(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = orderIds.indexOf(active.id as string);
+    const newIndex = orderIds.indexOf(over.id as string);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const nextIds = arrayMove(orderIds, oldIndex, newIndex);
     onStateChange({ selectedIds: nextIds, categoryAssignments, feedback: null });
-  };
-
-  const updateDropTargetIndex = (event: DragEvent<HTMLElement>, rowIndex: number) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    const rowBounds = event.currentTarget.getBoundingClientRect();
-    const isAfterRow = event.clientY > rowBounds.top + rowBounds.height / 2;
-    setDropTargetIndex(rowIndex + (isAfterRow ? 1 : 0));
-  };
-
-  const clearOrderDragState = () => {
-    setDraggedOrderIndex(null);
-    setDropTargetIndex(null);
-  };
+  }, [orderIds, categoryAssignments, onStateChange]);
 
   const reset = () => {
     onStateChange(emptyQuizQuestionState);
@@ -174,57 +190,49 @@ function QuizQuestion({
         'py-1',
         quizPalette.card,
       )}>
-      <div className="grid gap-2">
-        <div className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.title)}>
-          {text(question.title, language)}
-        </div>
-        {promptText ? (
-          <p className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{promptText}</p>
-        ) : null}
-      </div>
+      {promptText ? (
+        <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderInlineCode(promptText, themeClasses)}</p>
+      ) : null}
 
       {isOrderMode ? (
-        <div className="mt-5 grid gap-1">
-          {orderIds.map((id, index) => {
-            const option = question.options.find((item) => item.id === id);
-            if (!option) return null;
-            return (
-              <div key={id} className="grid gap-1">
-                {dropTargetIndex === index && draggedOrderIndex !== null ? (
-                  <div className={cx('h-1 rounded-full', quizPalette.dropLine)} />
-                ) : null}
-                <div
-                  draggable
-                  onDragStart={(event) => {
-                    setDraggedOrderIndex(index);
-                    setDropTargetIndex(index);
-                    event.dataTransfer.effectAllowed = 'move';
-                    event.dataTransfer.setData('text/plain', String(index));
-                  }}
-                  onDragEnd={clearOrderDragState}
-                  onDragOver={(event) => updateDropTargetIndex(event, index)}
-                  onDrop={(event) => {
-                    event.preventDefault();
-                    const fromIndex = Number(event.dataTransfer.getData('text/plain'));
-                    if (Number.isNaN(fromIndex)) return;
-                    moveOrderOption(fromIndex, dropTargetIndex ?? index);
-                    clearOrderDragState();
-                  }}
-                  className={getQuizOrderRowClass(themeClasses, quizPalette, draggedOrderIndex === index)}
-                >
-                  <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-black tabular-nums', quizPalette.orderNumber)}>
-                    {index + 1}
-                  </span>
-                  <span className="min-w-0 flex-1">{text(option.label, language)}</span>
-                  <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
-                </div>
-                {dropTargetIndex === orderIds.length && index === orderIds.length - 1 && draggedOrderIndex !== null ? (
-                  <div className={cx('h-1 rounded-full', quizPalette.dropLine)} />
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={orderIds} strategy={verticalListSortingStrategy}>
+            <div className="mt-5 grid gap-1">
+              {orderIds.map((id) => {
+                const option = question.options.find((item) => item.id === id);
+                if (!option) return null;
+                return (
+                  <SortableOrderRow
+                    key={id}
+                    id={id}
+                    index={orderIds.indexOf(id)}
+                    label={text(option.label, language)}
+                    themeClasses={themeClasses}
+                    quizPalette={quizPalette}
+                  />
+                );
+              })}
+            </div>
+          </SortableContext>
+          <DragOverlay dropAnimation={null}>
+            {activeId ? (() => {
+              const activeOption = question.options.find((item) => item.id === activeId);
+              if (!activeOption) return null;
+              return (
+                <OrderRowOverlay
+                  index={orderIds.indexOf(activeId)}
+                  label={text(activeOption.label, language)}
+                  quizPalette={quizPalette}
+                />
+              );
+            })() : null}
+          </DragOverlay>
+        </DndContext>
       ) : isCategorizeMode ? (
         <CategorizeQuestion
           assignments={categoryAssignments}
@@ -255,7 +263,7 @@ function QuizQuestion({
                     <Circle className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
                   )}
                 </span>
-                <span>{text(option.label, language)}</span>
+                <span>{renderInlineCode(text(option.label, language), themeClasses)}</span>
               </button>
             );
           })}
@@ -295,11 +303,92 @@ function QuizQuestion({
           role="status"
         >
           {feedback === 'correct' ? <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" /> : <XCircle className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />}
-          <p>{text(feedback === 'correct' ? question.success : question.error, language)}</p>
+          <p>{renderInlineCode(text(feedback === 'correct' ? question.success : question.error, language), themeClasses)}</p>
         </div>
       ) : null}
     </div>
   );
+}
+
+function SortableOrderRow({
+  id,
+  index,
+  label,
+  themeClasses,
+  quizPalette,
+}: {
+  id: string;
+  index: number;
+  label: string;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+  quizPalette: QuizPalette;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={getQuizOrderRowClass(themeClasses, quizPalette, isDragging)}
+      {...attributes}
+      {...listeners}
+    >
+      <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-black tabular-nums', quizPalette.orderNumber)}>
+        {index + 1}
+      </span>
+      <span className="min-w-0 flex-1">{label}</span>
+      <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
+    </div>
+  );
+}
+
+function OrderRowOverlay({
+  index,
+  label,
+  quizPalette,
+}: {
+  index: number;
+  label: string;
+  quizPalette: QuizPalette;
+}) {
+  return (
+    <div
+      className={cx(
+        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-xl',
+        quizPalette.orderRow,
+      )}
+      style={{ transform: 'scale(1.02)' }}
+    >
+      <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-black tabular-nums', quizPalette.orderNumber)}>
+        {index + 1}
+      </span>
+      <span className="min-w-0 flex-1">{label}</span>
+      <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
+    </div>
+  );
+}
+
+function renderInlineCode(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
+  return value.split(/(`[^`]+`|“[^”]+”)/g).filter(Boolean).map((part, index) => {
+    const isBacktickCode = part.startsWith('`') && part.endsWith('`');
+    const isQuotedCode = part.startsWith('“') && part.endsWith('”');
+    if (isBacktickCode || isQuotedCode) {
+      return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
+    }
+    return <span key={`${index}-${part}`}>{part}</span>;
+  });
 }
 
 function CategorizeQuestion({
@@ -439,8 +528,7 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
   if (!themeClasses.isLight) {
     return {
       card: '',
-      title: themeClasses.titleText,
-      prompt: themeClasses.titleText,
+      prompt: themeClasses.accentText,
       orderNumber: 'border-[#D7DCE2]/18 bg-[#D7DCE2] text-[#121A24]',
       dragIcon: 'text-[#D7EAFE]/76',
       optionSelected: 'border-[#A8B8C8]/28 bg-[#D7DCE2] text-[#121A24]',
@@ -468,8 +556,7 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
 
   return {
     card: '',
-    title: 'text-[#254F70]',
-    prompt: 'text-[#102F4A]',
+    prompt: 'text-[#2F78B7]',
     orderNumber: 'border-[#2F6B55]/18 bg-[#DDEFE7] text-[#1F5A46]',
     dragIcon: 'text-[#385F7A]',
     optionSelected: 'border-[#2F6B55]/22 bg-[#EEF7F2] text-[#1F5A46] shadow-[0_6px_16px_rgba(47,107,85,0.08)]',
@@ -487,8 +574,8 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
     categoryTitle: 'text-[#1F5A46]',
     tokenChip: 'border-[#2F6B55]/14 bg-[#EEF7F2] text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)]',
     tokenChipIncorrect: 'border-[#C45151]/48 bg-[#FBECEC] text-[#8C3333] shadow-[0_4px_12px_rgba(196,81,81,0.08)]',
-    checkButton: 'border border-[#CBD5E1] bg-[#E2E8F0] text-[#0F172A] shadow-[0_8px_18px_rgba(15,23,42,0.10)] hover:bg-[#CBD5E1]',
-    disabledButton: 'bg-[#B8C8DA]/12 text-[#030509]/24 shadow-none',
+    checkButton: 'border border-[#CBD5E1] bg-[#E2E8F0] text-[#172A43] shadow-[0_8px_18px_rgba(15,23,42,0.10)] hover:bg-[#CBD5E1]',
+    disabledButton: 'bg-[#B8C8DA]/12 text-[#64748B]/40 shadow-none',
     resetButton: 'bg-[#2F6B55]/8 text-[#1F5A46] hover:bg-[#2F6B55]/12',
     feedbackCorrect: 'border-[#1F6F48]/18 bg-[#E8F7EE] text-[#1F6F48]',
     feedbackIncorrect: 'border-[#8C3333]/18 bg-[#FBECEC] text-[#8C3333]',

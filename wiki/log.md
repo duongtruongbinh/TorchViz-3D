@@ -3,6 +3,14 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-07-14 — RequirementCard code-wrap fix.** Long inline code (e.g. a URL in a
+  bash command) in `RequirementCard` no longer forces the card wider than its
+  siblings. Two CSS changes in `learningMdxComponents.tsx`:
+  `[&_p]:min-w-0` overrides the grid item `min-width: auto` so `<p>` can shrink
+  below its content's intrinsic width, and `[&_code]:break-words` replaces
+  `overflow-x-auto` so text wraps mid-word/URL to fit the card. A code comment
+  in the component explains the rationale.
+
 - **2026-07-14 — Project history, docs, and tests consolidated.** Compacted 19
   superseded plan files into five surviving owner records, reducing
   the pre-task history from 30 files/5,194 lines to 12 total files/2,892 lines

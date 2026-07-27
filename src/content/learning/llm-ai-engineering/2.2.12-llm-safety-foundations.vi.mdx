@@ -1,0 +1,22 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-safety-foundations',
+  locale: 'vi',
+  title: 'Nền tảng LLM safety',
+  headings: ['Safety là thuộc tính của hệ thống', 'Threat model', 'Defense in depth'],
+  keywords: ['LLM safety', 'threat model', 'risk', 'alignment', 'defense in depth'],
+}
+
+## Safety là thuộc tính của hệ thống
+
+Một model đã alignment vẫn không đồng nghĩa với một ứng dụng an toàn. Rủi ro còn phụ thuộc vào system prompt, dữ liệu truy xuất, tool được cấp quyền, cách lưu log, UI, user và môi trường triển khai. Vì vậy, safety evaluation phải nhìn cả model lẫn application.
+
+## Threat model
+
+Threat model mô tả ai có thể tương tác với hệ thống, họ muốn đạt mục tiêu gì, dữ liệu và tool nào có giá trị, cùng hậu quả khi hệ thống thất bại. Một chatbot công khai, trợ lý nội bộ và agent có quyền gửi email cần các test safety khác nhau.
+
+Các nhóm rủi ro phổ biến gồm harmful content, misinformation, privacy leakage, bias, prompt injection, unsafe tool use và denial of service do cost hoặc context exhaustion.
+
+## Defense in depth
+
+Không có một lớp kiểm duyệt duy nhất giải quyết mọi rủi ro. Safety thường kết hợp policy, model alignment, input/output checks, least privilege cho tool, guardrails, monitoring, human approval và red teaming. Evaluation phải được chạy lại sau mỗi thay đổi vì mitigation có thể tạo regression hoặc overrefusal.

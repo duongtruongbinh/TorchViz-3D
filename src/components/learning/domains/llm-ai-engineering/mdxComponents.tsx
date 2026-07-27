@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import type { LearningLessonExtra } from '../../authoredTypes';
 import { LLM_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
@@ -10,7 +11,12 @@ import {
   LlmAiHierarchy,
   LlmArInferencePipeline,
   LlmAcademiaIndustryComparison,
+  LlmBenchmarkLikelihood,
+  LlmHuggingFaceBenchmarks,
   LlmProbabilityDefinition,
+  LlmPerplexityGoodRange,
+  LlmPerplexityInterpretation,
+  LlmPerplexitySequenceExample,
   LlmAutoregressiveDefinition,
   LlmConceptInteraction,
   LlmConceptPanelBlock,
@@ -18,11 +24,33 @@ import {
   LlmLossHandCalculation,
   LlmLossDerivation,
   LlmOutputProjection,
+  LlmPostTrainingEvaluation,
   LlmTrainingComponents,
   LlmVocabularyOutputVector,
   LlmTrainingLifecyclePanel,
+  LlmTokenizerMemory,
+  LlmTokenizerCodeStructure,
+  LlmTokenizerBoundaryMismatch,
+  LlmTokenizerFreeDirection,
+  LlmTokenizerVocabularyLookup,
+  LlmTokenizerIdMisconceptions,
+  LlmTokenizerContextAmbiguity,
+  LlmTokenizerCodeToIds,
+  LlmTokenizerOutputComparison,
+  LlmTokenizerIdRoundTrip,
+  LlmTokenizerMergeTraining,
+  LlmTokenizerSequenceLength,
+  LlmTokenizerRegexWalkthrough,
   TransformerTranslationStepPanel,
 } from './renderers';
+import type {
+  LlmAcademiaIndustryComparisonContent,
+  LlmArInferencePipelineContent,
+  LlmContentRendererProps,
+  LlmNextTokenLossContent,
+  LlmOutputProjectionContent,
+  LlmOutputProjectionFocus,
+} from './rendererTypes';
 
 const localized = (value: string) => ({ en: value, vi: value });
 
@@ -60,71 +88,73 @@ function materializeRoadmapExtra<T extends LearningLessonExtra['kind']>(content:
   return materializeVietnameseFallback({ ...content, kind, id, sectionRefId: 'llm-from-scratch-roadmap' }) as Extract<LearningLessonExtra, { kind: T }>;
 }
 
+function createContentRenderer<TContent>(Renderer: ComponentType<LlmContentRendererProps<TContent>>) {
+  return function ContentRenderer({ content }: { content: RoadmapContent }) {
+    const themeClasses = useLearningMdxTheme();
+    const { language } = useLearningMdxLesson();
+    const localizedContent = materializeVietnameseFallback(content) as TContent;
+    return <Renderer content={localizedContent} language={language} themeClasses={themeClasses} />;
+  };
+}
+
 function AiHierarchy({ content }: { content: RoadmapContent }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
   return <LlmAiHierarchy extra={materializeRoadmapExtra(content, 'llm-roadmap-motivation', 'motivation')} language={language} themeClasses={themeClasses} />;
 }
 
-function TrainingComponents({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmTrainingComponents content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
+const TrainingComponents = createContentRenderer(LlmTrainingComponents);
+const BenchmarkLikelihood = createContentRenderer(LlmBenchmarkLikelihood);
+const HuggingFaceBenchmarks = createContentRenderer(LlmHuggingFaceBenchmarks);
 
 function AcademiaIndustryComparison({ content, perspective }: { content: RoadmapContent; perspective: 'academia' | 'industry' }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmAcademiaIndustryComparison content={materializeVietnameseFallback(content) as never} perspective={perspective} language={language} themeClasses={themeClasses} />;
+  return <LlmAcademiaIndustryComparison content={materializeVietnameseFallback(content) as LlmAcademiaIndustryComparisonContent} perspective={perspective} language={language} themeClasses={themeClasses} />;
 }
 
-function ProbabilityDefinition({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmProbabilityDefinition content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function AutoregressiveDefinition({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmAutoregressiveDefinition content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
+const ProbabilityDefinition = createContentRenderer(LlmProbabilityDefinition);
+const PerplexityGoodRange = createContentRenderer(LlmPerplexityGoodRange);
+const PerplexityInterpretation = createContentRenderer(LlmPerplexityInterpretation);
+const PerplexitySequenceExample = createContentRenderer(LlmPerplexitySequenceExample);
+const PostTrainingEvaluation = createContentRenderer(LlmPostTrainingEvaluation);
+const AutoregressiveDefinition = createContentRenderer(LlmAutoregressiveDefinition);
 
 function ArInferencePipeline({ content, step }: { content: RoadmapContent; step?: number }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmArInferencePipeline content={materializeVietnameseFallback(content) as never} step={step} language={language} themeClasses={themeClasses} />;
+  return <LlmArInferencePipeline content={materializeVietnameseFallback(content) as LlmArInferencePipelineContent} step={step} language={language} themeClasses={themeClasses} />;
 }
 
-function VocabularyOutputVector({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmVocabularyOutputVector content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
+const VocabularyOutputVector = createContentRenderer(LlmVocabularyOutputVector);
 
-function OutputProjection({ content, focus }: { content: RoadmapContent; focus?: 'overview' | 'context-input' | 'context-vector' | 'linear' | 'logits' | 'distribution' }) {
+function OutputProjection({ content, focus }: { content: RoadmapContent; focus?: LlmOutputProjectionFocus }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmOutputProjection content={materializeVietnameseFallback(content) as never} focus={focus} language={language} themeClasses={themeClasses} />;
+  return <LlmOutputProjection content={materializeVietnameseFallback(content) as LlmOutputProjectionContent} focus={focus} language={language} themeClasses={themeClasses} />;
 }
 
 function NextTokenLoss({ content, position, animated }: { content: RoadmapContent; position?: number; animated?: boolean }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmNextTokenLoss content={materializeVietnameseFallback(content) as never} position={position} animated={animated} language={language} themeClasses={themeClasses} />;
+  return <LlmNextTokenLoss content={materializeVietnameseFallback(content) as LlmNextTokenLossContent} position={position} animated={animated} language={language} themeClasses={themeClasses} />;
 }
 
-function LossHandCalculation({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmLossHandCalculation content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
-
-function LossDerivation({ content }: { content: RoadmapContent }) {
-  const themeClasses = useLearningMdxTheme();
-  const { language } = useLearningMdxLesson();
-  return <LlmLossDerivation content={materializeVietnameseFallback(content) as never} language={language} themeClasses={themeClasses} />;
-}
+const LossHandCalculation = createContentRenderer(LlmLossHandCalculation);
+const LossDerivation = createContentRenderer(LlmLossDerivation);
+const TokenizerMemory = createContentRenderer(LlmTokenizerMemory);
+const TokenizerCodeStructure = createContentRenderer(LlmTokenizerCodeStructure);
+const TokenizerBoundaryMismatch = createContentRenderer(LlmTokenizerBoundaryMismatch);
+const TokenizerFreeDirection = createContentRenderer(LlmTokenizerFreeDirection);
+const TokenizerVocabularyLookup = createContentRenderer(LlmTokenizerVocabularyLookup);
+const TokenizerIdMisconceptions = createContentRenderer(LlmTokenizerIdMisconceptions);
+const TokenizerContextAmbiguity = createContentRenderer(LlmTokenizerContextAmbiguity);
+const TokenizerCodeToIds = createContentRenderer(LlmTokenizerCodeToIds);
+const TokenizerOutputComparison = createContentRenderer(LlmTokenizerOutputComparison);
+const TokenizerIdRoundTrip = createContentRenderer(LlmTokenizerIdRoundTrip);
+const TokenizerMergeTraining = createContentRenderer(LlmTokenizerMergeTraining);
+const TokenizerSequenceLength = createContentRenderer(LlmTokenizerSequenceLength);
+const TokenizerRegexWalkthrough = createContentRenderer(LlmTokenizerRegexWalkthrough);
 
 function interactionComponent(id: string) {
   return function Interaction({ content }: { content: RoadmapContent }) {
@@ -143,6 +173,7 @@ function panelComponent(id: string) {
 }
 
 const DomainComparison = panelComponent('why-split-ai-fields');
+const ScopeConvention = panelComponent('ai-scope-convention');
 const LlmOverview = interactionComponent('what-is-llm');
 const TokenizationExample = panelComponent('tokenization-example');
 const NextTokenExercise = interactionComponent('what-is-llm-interactions');
@@ -155,7 +186,13 @@ export const llmMdxComponents = {
   TransformerTranslationStep,
   AiHierarchy,
   AcademiaIndustryComparison,
+  LlmBenchmarkLikelihood: BenchmarkLikelihood,
+  LlmHuggingFaceBenchmarks: HuggingFaceBenchmarks,
   LlmProbabilityDefinition: ProbabilityDefinition,
+  LlmPerplexityGoodRange: PerplexityGoodRange,
+  LlmPerplexityInterpretation: PerplexityInterpretation,
+  LlmPerplexitySequenceExample: PerplexitySequenceExample,
+  LlmPostTrainingEvaluation: PostTrainingEvaluation,
   LlmAutoregressiveDefinition: AutoregressiveDefinition,
   LlmArInferencePipeline: ArInferencePipeline,
   LlmVocabularyOutputVector: VocabularyOutputVector,
@@ -165,8 +202,22 @@ export const llmMdxComponents = {
   LlmLossDerivation: LossDerivation,
   LlmTrainingComponents: TrainingComponents,
   DomainComparison,
+  ScopeConvention,
   LlmOverview,
   TokenizationExample,
+  TokenizerMemory,
+  TokenizerCodeStructure,
+  TokenizerBoundaryMismatch,
+  TokenizerFreeDirection,
+  TokenizerVocabularyLookup,
+  TokenizerIdMisconceptions,
+  TokenizerContextAmbiguity,
+  TokenizerCodeToIds,
+  TokenizerOutputComparison,
+  TokenizerIdRoundTrip,
+  TokenizerMergeTraining,
+  TokenizerSequenceLength,
+  TokenizerRegexWalkthrough,
   NextTokenExercise,
   ScaleFactors,
   ScaleComparison,

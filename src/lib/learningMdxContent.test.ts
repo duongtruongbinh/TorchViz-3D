@@ -13,8 +13,8 @@ const publishedLessonIds = learningCatalog.lessons
   .map((lesson) => lesson.id);
 const expectedPageCounts: Record<string, number> = {
   'minimal-llm-project-skeleton': 1,
-  'llm-from-scratch-roadmap': 2,
-  'llm-component-checkpoint-quiz': 2,
+  'llm-from-scratch-roadmap': 3,
+  'llm-component-checkpoint-quiz': 3,
   'llm-system-components': 3,
   'llm-system-components-quiz': 3,
   'language-modeling-next-token': 5,
@@ -29,6 +29,38 @@ const expectedPageCounts: Record<string, number> = {
   'llm-scale-and-development-quiz': 3,
   'llm-data-pipeline-overview': 9,
   'llm-data-pipeline-checkpoint-quiz': 9,
+  'loss-perplexity-hand-calculation': 4,
+  'benchmark-likelihood-quiz': 8,
+  'evaluation-beyond-perplexity': 2,
+  'tokenization-why-it-matters': 2,
+  'tokenization-why-it-matters-quiz': 4,
+  'tokenizer-regex-from-scratch': 6,
+  'tokenizer-regex-from-scratch-quiz': 5,
+  'tokenization-bpe-tiktoken': 4,
+  'tokenization-bpe-tiktoken-quiz': 4,
+  'tokenization-token-ids-vocabulary': 4,
+  'tokenization-raw-text-to-token-ids': 5,
+  'tokenization-token-ids-vocabulary-quiz': 4,
+  'llm-evaluation-foundations': 1,
+  'evaluation-dataset-design': 1,
+  'deterministic-and-reference-metrics': 1,
+  'human-evaluation-rubrics': 1,
+  'inter-rater-agreement': 1,
+  'pointwise-and-pairwise-evaluation': 1,
+  'llm-as-a-judge': 1,
+  'llm-judge-biases': 1,
+  'benchmark-selection-and-contamination': 1,
+  'hallucination-and-factuality-evaluation': 1,
+  'rag-evaluation': 1,
+  'llm-safety-foundations': 1,
+  'refusal-calibration': 1,
+  'toxicity-bias-and-privacy': 1,
+  'jailbreak-and-prompt-injection': 1,
+  'guardrails-for-llm-applications': 1,
+  'llm-red-teaming': 1,
+  'production-regression-evals': 1,
+  'evaluation-ab-testing': 1,
+  'evaluation-harness-code': 1,
   'conv2d-shape-exercise': 1,
   'conv2d-value-exercise': 1,
   'pooling-shape-exercise': 1,
@@ -42,7 +74,7 @@ const expectedPageCounts: Record<string, number> = {
   'orthogonality': 5,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
-  'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain'],
+  'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
   'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
   'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
   'ar-language-model-inference-pipeline-quiz': ['ar-inference-order', 'sampling-role', 'corpus-vocabulary', 'output-vector-length', 'probability-sum'],
@@ -50,14 +82,30 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
   'llm-next-token-loss-quiz': ['shifted-target', 'one-hot-target', 'loss-behavior', 'manual-loss', 'why-log', 'negative-sign', 'sequence-loss'],
   'llm-scale-and-development-quiz': ['why-large', 'scale-comparison', 'popularity-factors'],
   'llm-data-pipeline-checkpoint-quiz': ['pretraining-facts', 'finetuning-facts', 'training-stage-task-match', 'transformer-main-blocks', 'encoder-input-prep-order', 'why-position-embedding', 'encoder-context', 'decoder-input-prep', 'decoder-generation-loop'],
+  'tokenization-why-it-matters-quiz': ['word-level-limitations', 'two-extremes', 'subword-benefit', 'sequence-length-cost'],
+  'tokenizer-regex-from-scratch-quiz': ['capturing-whitespace', 'punctuation-split-output', 'cleanup-comprehension', 'tokenize-function', 'regex-limitations'],
+  'tokenization-bpe-tiktoken-quiz': ['bpe-initialization', 'bpe-training-loop', 'merge-rank-inference', 'tokenization-limitations'],
+  'tokenization-token-ids-vocabulary-quiz': ['vocabulary-lookup', 'token-id-meaning', 'token-id-context', 'text-id-round-trip'],
+  'benchmark-likelihood-quiz': ['nll-and-ppl', 'ground-truth-probability', 'length-normalization', 'interpret-ppl-four', 'ppl-dependencies', 'valid-ppl-comparison', 'ppl-versus-reasoning', 'ppl-current-role'],
 };
 
+test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => {
+  assert.deepEqual(
+    parseLearningMdxPath('src/content/learning/llm-ai-engineering/1.1.6-language-modeling-next-token.vi.mdx'),
+    { domainId: 'llm-ai-engineering', lessonId: 'language-modeling-next-token', locale: 'vi' },
+  );
+  assert.deepEqual(
+    parseLearningMdxPath('src/content/learning/cv/conv2d-shape-exercise.vi.mdx'),
+    { domainId: 'cv', lessonId: 'conv2d-shape-exercise', locale: 'vi' },
+  );
+});
+
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 28);
+  assert.equal(lessonFiles.length, 53);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 28);
+  assert.equal(documents.length, 53);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
@@ -84,6 +132,16 @@ test('generic MDX contract rejects imports, executable expressions, and unknown 
   await assert.rejects(() => inspectLearningMdx(`import X from './x'\n\nexport const lessonMetadata = ${metadata}\n\n<X />`, 'fixture.mdx', 'cv'), /imports|unexpected|parse import/i);
   await assert.rejects(() => inspectLearningMdx("export const lessonMetadata = { domainId: 'cv', id: 'x', locale: 'vi', title: run(), headings: ['x'], keywords: ['x'] }", 'fixture.mdx', 'cv'), /executable|unsupported/i);
   await assert.rejects(() => inspectLearningMdx(`export const lessonMetadata = ${metadata};\n\n<Unknown />`, 'fixture.mdx', 'cv'), /unexpected MDX component/i);
+});
+
+test('generic MDX contract accepts negative numeric literals but rejects other unary expressions', async () => {
+  const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'x', headings: ['x'], keywords: ['x'] }";
+  const inspection = await inspectLearningMdx(`export const lessonMetadata = ${metadata}\n\n<MdxPage page={-1} />`, 'fixture.mdx', 'cv');
+  assert.deepEqual(inspection.pageIndexes, [-1]);
+  await assert.rejects(
+    () => inspectLearningMdx(`export const lessonMetadata = { domainId: 'cv', id: 'x', locale: 'vi', title: +1, headings: ['x'], keywords: ['x'] }`, 'fixture.mdx', 'cv'),
+    /executable|unsupported/i,
+  );
 });
 
 test('a Markdown-only CV lesson uses the generic contract without invoking its optional adapter', async () => {
@@ -157,7 +215,11 @@ test('shared lesson assembly and search contain no LLM-specific branch or import
 });
 
 test('migrated MDX lessons no longer have duplicate legacy extras or pilot renderer code', () => {
-  const renderer = readFileSync('src/components/learning/domains/llm-ai-engineering/renderers.tsx', 'utf8');
+  const renderer = [
+    'conceptRenderers.tsx',
+    'languageModelRenderers.tsx',
+    'tokenizerRenderers.tsx',
+  ].map((fileName) => readFileSync(`src/components/learning/domains/llm-ai-engineering/${fileName}`, 'utf8')).join('\n');
   assert.equal(existsSync('src/content/learning/llm-ai-engineering/extras.ts'), false);
   assert.doesNotMatch(renderer, /colab-coding-requirements/);
 });

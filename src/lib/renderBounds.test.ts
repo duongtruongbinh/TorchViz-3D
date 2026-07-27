@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getAdaptiveGridSpec, getLayoutWorldBounds, getRenderableNodeBox } from './renderBounds.ts';
+import {
+  getAdaptiveGridSpec,
+  getFlowSafeGroundGridLinePositions,
+  getLayoutWorldBounds,
+  getRenderableNodeBox,
+} from './renderBounds.ts';
 import type { LayoutData, LayoutNode } from './irTypes.ts';
 
 function node(overrides: Partial<LayoutNode>): LayoutNode {
@@ -83,7 +88,42 @@ test('world bounds include edge points and produce a snapped adaptive grid', () 
     maxZ: 9,
   });
 
-  assert.deepEqual(grid.center, [11.5, -4.35, -1.5]);
+  assert.deepEqual(grid.center, [11.5, -4.35, -0.5]);
   assert.equal(grid.size, 80);
   assert.equal(grid.divisions, 40);
+});
+
+test('adaptive grid phases the model flow axis between grid lines', () => {
+  const grid = getAdaptiveGridSpec({
+    minX: 0,
+    maxX: 24,
+    minY: -4,
+    maxY: 4,
+    minZ: -5,
+    maxZ: 5,
+  });
+  const cellSize = grid.size / grid.divisions;
+  const flowAxisOffsetInCells = Math.abs((0 - grid.center[2]) / cellSize);
+
+  assert.equal(flowAxisOffsetInCells, 0.5);
+});
+
+test('ground grid preserves visible cross-lines and clears longitudinal lines from the model corridor', () => {
+  const positions = getFlowSafeGroundGridLinePositions(
+    { size: 4, divisions: 2, center: [0, -1, 0] },
+    -0.5,
+    0.5,
+    0,
+  );
+  const segments = Array.from({ length: positions.length / 6 }, (_, index) =>
+    Array.from(positions.slice(index * 6, index * 6 + 6)),
+  );
+
+  assert.deepEqual(segments, [
+    [-2, 0, -2, -2, 0, 2],
+    [-2, 0, -2, 2, 0, -2],
+    [0, 0, -2, 0, 0, 2],
+    [2, 0, -2, 2, 0, 2],
+    [-2, 0, 2, 2, 0, 2],
+  ]);
 });

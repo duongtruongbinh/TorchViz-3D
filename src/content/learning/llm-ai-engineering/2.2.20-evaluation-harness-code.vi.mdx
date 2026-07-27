@@ -1,0 +1,31 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'evaluation-harness-code',
+  locale: 'vi',
+  title: 'Code: Xây evaluation harness',
+  headings: ['Input và output contract', 'Evaluation loop', 'Artifact cần lưu'],
+  keywords: ['evaluation harness', 'Python', 'JSONL', 'runner', 'report'],
+}
+
+## Input và output contract
+
+Một evaluation harness tối thiểu đọc dataset có cấu trúc, gọi system under test, chạy evaluator và ghi kết quả. Mỗi case nên có `id`, `input`, optional `reference`, `metadata` và rubric. Output cần lưu response cùng toàn bộ thông tin để tái hiện lần chạy.
+
+## Evaluation loop
+
+Luồng cơ bản gồm:
+
+1. Load và validate dataset.
+2. Chạy model với concurrency và retry được kiểm soát.
+3. Áp dụng deterministic checks trước.
+4. Chạy reference metric hoặc judge khi phù hợp.
+5. Tổng hợp kết quả theo task, độ khó và risk group.
+6. So sánh với baseline và đánh dấu regression.
+
+Harness cần cache response để tránh gọi lại model khi chỉ thay evaluator. Judge prompt, metric config và threshold cũng phải được version như production code.
+
+## Artifact cần lưu
+
+Không chỉ lưu average score. Mỗi run nên tạo per-case result, aggregate report, failure samples, model/prompt version, timestamp, latency và token usage. CI có thể fail khi critical test thất bại hoặc metric giảm quá ngưỡng; các case còn lại được đưa vào report để human review.
+
+Ở giai đoạn thiết kế sau, lesson này sẽ bổ sung code block và interaction nhưng vẫn giữ contract nội dung trên làm nguồn authored canonical.

@@ -1,0 +1,30 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'evaluation-dataset-design',
+  locale: 'vi',
+  title: 'Thiết kế evaluation dataset',
+  headings: ['Bắt đầu từ use case', 'Một test case cần gì?', 'Coverage và leakage'],
+  keywords: ['evaluation dataset', 'test case', 'rubric', 'coverage', 'data leakage'],
+}
+
+## Bắt đầu từ use case
+
+Evaluation dataset nên đại diện cho những gì người dùng thật sẽ làm, không chỉ cho những gì dễ chấm điểm. Trước khi thu thập dữ liệu, hãy xác định rõ user, task, điều kiện sử dụng, lỗi nào có thể chấp nhận và lỗi nào phải được xem là nghiêm trọng.
+
+Ví dụ, một trợ lý học tập cần test khả năng giải thích đúng trình độ, trong khi một hệ thống hỏi đáp tài liệu cần ưu tiên factuality, citation và khả năng từ chối khi tài liệu không chứa đáp án.
+
+## Một test case cần gì?
+
+Một test case hữu ích thường gồm:
+
+- Input hoặc conversation context.
+- Expected behavior, reference answer hoặc các fact bắt buộc.
+- Rubric và tiêu chí pass/fail.
+- Metadata như task, độ khó, ngôn ngữ và nhóm rủi ro.
+- Phiên bản prompt, model, dữ liệu truy xuất và cấu hình chạy.
+
+Reference answer không nhất thiết là một đoạn văn duy nhất. Với output mở, ta có thể lưu danh sách fact cần có, điều kiện cấm, hoặc nhiều cách trả lời được chấp nhận.
+
+## Coverage và leakage
+
+Dataset cần bao phủ normal cases, edge cases và adversarial cases. Các nhóm quan trọng nên được tách rõ để biết model đang tiến bộ ở đâu và regression ở đâu. Đồng thời, phải kiểm tra khả năng benchmark hoặc test set đã xuất hiện trong training data; nếu có leakage, điểm số có thể phản ánh khả năng ghi nhớ thay vì khả năng tổng quát hóa.

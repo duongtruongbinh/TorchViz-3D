@@ -1,0 +1,169 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenizer-regex-from-scratch',
+  locale: 'vi',
+  title: 'Code: Xây tokenizer regex đơn giản',
+  headings: ['Tạo văn bản mẫu', 'Tách theo khoảng trắng', 'Tách thêm dấu câu', 'Làm sạch token', 'Đóng gói hàm tokenizer', 'Tokenize toàn bộ văn bản'],
+  keywords: ['Python', 'regex', 're.split', 'whitespace', 'punctuation', 'tokenizer', 'preprocessing'],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Bắt đầu với một paragraph tự viết
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Ta tạo văn bản ngay trong Python để ví dụ hoàn toàn tự chứa. Trước khi tokenize, hãy kiểm tra số ký tự và đọc một đoạn đầu của dữ liệu.' },
+  code: [
+    'raw_text = (',
+    '    "At dawn, Linh opened the workshop window. "',
+    "    'The robot paused, then flashed: \"Package ready!\"--twice. '",
+    '    "She laughed, signed the screen, and carried the box inside--"',
+    '    "careful not to wake the sleeping cat."',
+    ')',
+    '',
+    'print("Total number of characters:", len(raw_text))',
+    'print(raw_text[:99])',
+  ],
+  output: [
+    'Total number of characters: 196',
+    'At dawn, Linh opened the workshop window. The robot paused, then flashed: "Package ready!"--twice. ',
+  ],
+  takeaway: { vi: 'Tokenizer nhận một chuỗi ký tự thô. Ở bước này ta chưa xác định chuỗi sẽ được chia thành các token như thế nào.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tách theo whitespace
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Bắt đầu bằng quy tắc đơn giản nhất: dùng `re.split` với một capturing group để tách tại whitespace và giữ lại chính ký tự phân cách trong kết quả.' },
+  diagram: {
+    inputText: 'The robot paused, then flashed: "Package ready!"--twice.',
+    outputLabel: { vi: 'Kết quả split theo whitespace' },
+    tokens: ['The', ' ', 'robot', ' ', 'paused,', ' ', 'then', ' ', 'flashed:', ' ', '"Package', ' ', 'ready!"--twice.'],
+  },
+  code: [
+    'import re',
+    '',
+    'text = \'The robot paused, then flashed: "Package ready!"--twice.\'',
+    'result = re.split(r"(\\s)", text)',
+    '',
+    'print(result)',
+  ],
+  output: [
+    "['The', ' ', 'robot', ' ', 'paused,', ' ', 'then', ' ', 'flashed:', ' ', '\"Package', ' ', 'ready!\"--twice.']",
+  ],
+  takeaway: { vi: 'Whitespace đã giúp tách các từ, nhưng dấu phẩy và dấu chấm vẫn dính vào từ. Vì vậy đây chưa phải kết quả tokenization mong muốn.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tách thêm dấu phẩy và dấu chấm
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Ta mở rộng regular expression để dấu phẩy và dấu chấm trở thành token riêng. Các lựa chọn trong capturing group được nối bằng toán tử `|`.' },
+  diagram: {
+    inputText: 'The robot paused, then flashed: "Package ready!"--twice.',
+    outputLabel: { vi: 'Kết quả split thêm dấu phẩy và dấu chấm' },
+    tokens: ['The', ' ', 'robot', ' ', 'paused', ',', '', ' ', 'then', ' ', 'flashed:', ' ', '"Package', ' ', 'ready!"--twice', '.', ''],
+  },
+  code: [
+    'result = re.split(r"([,.]|\\s)", text)',
+    '',
+    'print(result)',
+  ],
+  output: [
+    "['The', ' ', 'robot', ' ', 'paused', ',', '', ' ', 'then', ' ', 'flashed:', ' ', '\"Package', ' ', 'ready!\"--twice', '.', '']",
+  ],
+  takeaway: { vi: 'Dấu câu đã được tách đúng, nhưng `re.split` tạo thêm các chuỗi rỗng ở cạnh dấu câu. Ta cần một bước làm sạch.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Loại chuỗi rỗng và hỗ trợ nhiều dấu câu
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Dùng `strip()` để bỏ whitespace quanh mỗi phần tử và chỉ giữ phần tử còn nội dung. Đồng thời, pattern được mở rộng để nhận thêm dấu hỏi, dấu ngoặc kép, dấu hai chấm và `--`.' },
+  diagram: {
+    inputText: 'The robot paused, then flashed: "Package ready!"--twice.',
+    outputLabel: { vi: 'Kết quả sau khi làm sạch và tách dấu câu' },
+    tokens: ['The', 'robot', 'paused', ',', 'then', 'flashed', ':', '"', 'Package', 'ready', '!', '"', '--', 'twice', '.'],
+  },
+  code: [
+    'text = \'The robot paused, then flashed: "Package ready!"--twice.\'',
+    '',
+    'result = re.split(r\'([,.:;?_!"()]|--|\\s)\', text)',
+    'result = [item.strip() for item in result if item.strip()]',
+    '',
+    'print(result)',
+  ],
+  output: [
+    "['The', 'robot', 'paused', ',', 'then', 'flashed', ':', '\"', 'Package', 'ready', '!', '\"', '--', 'twice', '.']",
+  ],
+  takeaway: { vi: 'Kết quả giờ chỉ còn các token có nội dung; dấu câu và `--` được giữ như những token riêng.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Đóng gói thành hàm tokenizer
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Gom hai bước split và làm sạch vào hàm `tokenize(text)`. Từ đây, ta có thể áp dụng cùng một quy tắc cho bất kỳ chuỗi đầu vào nào mà không lặp lại code.' },
+  diagram: {
+    inputText: 'The robot paused, then flashed: "Package ready!"--twice.',
+    outputLabel: { vi: 'Hàm tokenize(text) trả về' },
+    tokens: ['The', 'robot', 'paused', ',', 'then', 'flashed', ':', '"', 'Package', 'ready', '!', '"', '--', 'twice', '.'],
+  },
+  code: [
+    'def tokenize(text):',
+    '    result = re.split(',
+    '        r\'([,.:;?_!"()]|--|\\s)\',',
+    '        text,',
+    '    )',
+    '    return [',
+    '        item.strip()',
+    '        for item in result',
+    '        if item.strip()',
+    '    ]',
+    '',
+    'text = \'The robot paused, then flashed: "Package ready!"--twice.\'',
+    'tokens = tokenize(text)',
+    'print(tokens)',
+  ],
+  output: [
+    "['The', 'robot', 'paused', ',', 'then', 'flashed', ':', '\"', 'Package', 'ready', '!', '\"', '--', 'twice', '.']",
+  ],
+  takeaway: { vi: 'Hàm `tokenize` giữ một pipeline nhất quán: nhận text, split bằng regex, loại phần tử rỗng rồi trả về danh sách token.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Áp dụng lên toàn bộ paragraph
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Bây giờ chỉ cần truyền `raw_text` vào hàm vừa tạo. Ta xem 30 token đầu tiên để kiểm tra nhanh, sau đó đếm toàn bộ kết quả.' },
+  code: [
+    'tokens = tokenize(raw_text)',
+    '',
+    'print(tokens[:30])',
+    'print("Total number of tokens:", len(tokens))',
+  ],
+  output: [
+    "['At', 'dawn', ',', 'Linh', 'opened', 'the', 'workshop', 'window', '.', 'The', 'robot', 'paused', ',', 'then', 'flashed', ':', '\"', 'Package', 'ready', '!', '\"', '--', 'twice', '.', 'She', 'laughed', ',', 'signed', 'the', 'screen']",
+    'Total number of tokens: 45',
+  ],
+  takeaway: { vi: 'Tokenizer thủ công này minh hoạ rõ cơ chế tách chuỗi, nhưng quy tắc regex không tự học từ corpus, không tạo vocabulary tối ưu và khó bao phủ mọi ngôn ngữ. Bài tiếp theo dùng BPE để học các đơn vị subword từ dữ liệu.' },
+}} />
+
+</MdxPage>

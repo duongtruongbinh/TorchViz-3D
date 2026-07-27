@@ -1,0 +1,29 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-judge-biases',
+  locale: 'vi',
+  title: 'Các bias của LLM judge',
+  headings: ['Position bias', 'Verbosity và self-enhancement bias', 'Giảm bias'],
+  keywords: ['position bias', 'verbosity bias', 'self-enhancement bias', 'LLM judge', 'calibration'],
+}
+
+## Position bias
+
+Position bias xảy ra khi judge ưu ái response ở vị trí A hoặc B không dựa trên chất lượng. Cách kiểm tra đơn giản là chạy lại cùng một cặp response sau khi đổi vị trí. Nếu kết luận thay đổi thường xuyên, judge chưa ổn định.
+
+## Verbosity và self-enhancement bias
+
+Verbosity bias khiến response dài, nhiều bullet hoặc nghe “đầy đủ” được chấm cao dù không chính xác hơn. Self-enhancement bias xuất hiện khi judge ưu ái output có phong cách hoặc phân phối giống chính model family của nó.
+
+Judge còn có thể bị ảnh hưởng bởi tên model, format, citation giả hoặc một lỗi nhỏ nằm cạnh nhiều câu đúng.
+
+## Giảm bias
+
+- Ẩn danh model và chuẩn hóa format response.
+- Đảo thứ tự A/B và kiểm tra consistency.
+- Yêu cầu judge trích evidence cho từng tiêu chí.
+- Dùng nhiều judge hoặc nhiều lần chạy cho case quan trọng.
+- So sánh định kỳ với human labels.
+- Tách correctness khỏi style và độ dài.
+
+Bias không thể được loại bỏ hoàn toàn chỉ bằng prompt. Nó cần được đo như một phần của chính evaluation system.

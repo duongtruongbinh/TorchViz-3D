@@ -3,7 +3,7 @@ title: README showcase refresh
 status: done
 created: 2026-06-21T18:55:45+07:00
 updated: 2026-06-21T19:05:00+07:00
-author: Codex
+author: duongtruongbinh
 task: "refresh README so GitHub readers quickly understand the website, features, UI flow, and architecture with a real screenshot and Mermaid diagram"
 supersedes:
   - docs/plans/2026-06-21-docs-sync-audit-fixes.md

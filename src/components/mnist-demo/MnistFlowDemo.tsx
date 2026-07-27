@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Billboard, Line, Text } from '@react-three/drei';
+import { Billboard, Text } from '@react-three/drei';
 import { Pause, Play, SkipBack, SkipForward } from 'lucide-react';
 import * as THREE from 'three';
 import { clamp01, getEasedSegmentProgress } from '../../lib/mnistAnimation';
@@ -169,20 +169,6 @@ const DataPacket: React.FC<{
   );
 });
 
-const VirtualInputRoute: React.FC<{ points: THREE.Vector3[] }> = React.memo(({ points }) => (
-  <Line
-    points={points}
-    color="#7dd3fc"
-    lineWidth={1.5}
-    dashed
-    dashScale={1.4}
-    dashSize={0.32}
-    gapSize={0.18}
-    transparent
-    opacity={0.78}
-  />
-));
-
 export const DataFlowDemo: React.FC<{
   stops: DemoStop[];
   edges: LayoutEdge[];
@@ -200,10 +186,6 @@ export const DataFlowDemo: React.FC<{
   const operationActive = !!segment.activeStop && hasOperationDemo(segment.activeStop.node.op_type);
   const packetRoutes = getDataPacketRoutes(stops, segment, edges);
   const easedOperationProgress = getEasedSegmentProgress(segment.segmentProgress);
-  const virtualInputRoutePoints = useMemo(
-    () => [inputPose.position, stops[0].position],
-    [inputPose.position, stops],
-  );
 
   return (
     <group>
@@ -215,7 +197,6 @@ export const DataFlowDemo: React.FC<{
         size={inputPose.size}
         label={t.input}
       />
-      <VirtualInputRoute points={virtualInputRoutePoints} />
       {packetRoutes.map((route, index) => (
         <DataPacket key={`${route.kind}-${index}`} route={route} />
       ))}

@@ -77,7 +77,18 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const domainLessons = useMemo(() => {
     return groupedDomainLessons.flatMap((group) => group.lessons);
   }, [groupedDomainLessons]);
-  const lessonIndexById = useMemo(() => new Map(domainLessons.map((lesson, index) => [lesson.id, index])), [domainLessons]);
+  const domainLessonIndexById = useMemo(() => new Map(domainLessons.map((lesson, index) => [lesson.id, index])), [domainLessons]);
+  const chapterLessonIndexById = useMemo(() => new Map(
+    groupedDomainLessons.flatMap((group) => {
+      let numberedLessonIndex = 0;
+      return group.lessons.flatMap((lesson) => {
+        if (lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-')) return [];
+        const entry = [lesson.id, numberedLessonIndex] as const;
+        numberedLessonIndex += 1;
+        return [entry];
+      });
+    }),
+  ), [groupedDomainLessons]);
   const routeSelectedLesson = resolvedRoute?.lesson ?? null;
   const firstFilteredLesson = filteredGroupedDomainLessons[0]?.lessons[0] ?? null;
   const filteredLessonIds = useMemo(() => new Set(filteredGroupedDomainLessons.flatMap((group) => group.lessons.map((lesson) => lesson.id))), [filteredGroupedDomainLessons]);
@@ -92,7 +103,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     isLessonRailFiltered,
     firstDomainLesson: domainLessons[0] ?? null,
   });
-  const detailLessonIndex = selectedLesson ? lessonIndexById.get(selectedLesson.id) ?? -1 : -1;
+  const detailLessonIndex = selectedLesson ? domainLessonIndexById.get(selectedLesson.id) ?? -1 : -1;
   const nextLesson = detailLessonIndex >= 0 ? domainLessons[detailLessonIndex + 1] ?? null : null;
   const previousLesson = detailLessonIndex > 0 ? domainLessons[detailLessonIndex - 1] ?? null : null;
 
@@ -214,7 +225,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     completedLessonIds,
     isFiltered: isLessonRailFiltered,
     language,
-    lessonIndexById,
+    chapterLessonIndexById,
     searchQuery: lessonSearchQuery,
     selectedFilter: lessonRailFilter,
     selectedLesson: railSelectedLesson,

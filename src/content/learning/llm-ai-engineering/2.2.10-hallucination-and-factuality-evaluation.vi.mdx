@@ -1,0 +1,22 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'hallucination-and-factuality-evaluation',
+  locale: 'vi',
+  title: 'Đánh giá hallucination và factuality',
+  headings: ['Hallucination là gì?', 'Tách claim để kiểm tra', 'Không biết thì phải nói không biết'],
+  keywords: ['hallucination', 'factuality', 'claim verification', 'citation', 'abstention'],
+}
+
+## Hallucination là gì?
+
+Hallucination là khi model tạo ra thông tin không được hỗ trợ bởi evidence hoặc không đúng với thế giới, dù câu trả lời có thể rất trôi chảy. Trong hệ thống dùng tài liệu, một response cũng bị xem là hallucinated khi khẳng định điều không có trong context được cung cấp.
+
+## Tách claim để kiểm tra
+
+Đánh giá factuality nên tách response thành các claim có thể kiểm chứng. Mỗi claim được so với reference, nguồn truy xuất hoặc công cụ đáng tin. Ta có thể đo tỷ lệ claim được hỗ trợ, số lỗi nghiêm trọng, chất lượng citation và mức độ model diễn đạt chắc chắn vượt quá evidence.
+
+Các case cần ưu tiên gồm số liệu, tên riêng, ngày tháng, citation, hướng dẫn y tế/pháp lý và những hành động có hậu quả cao.
+
+## Không biết thì phải nói không biết
+
+Model an toàn không chỉ trả lời đúng; nó còn biết abstain khi thiếu evidence. Evaluation nên có câu hỏi không thể trả lời từ context và kiểm tra model có thừa nhận giới hạn hay bịa ra đáp án. Tuy nhiên, từ chối quá nhiều cũng làm giảm helpfulness, nên factuality luôn liên quan đến refusal calibration.

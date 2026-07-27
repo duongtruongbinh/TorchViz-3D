@@ -52,6 +52,7 @@ export const EDGE_COLOR_STD = '#52525b';
 export const EDGE_COLOR_RESIDUAL = '#a1a1aa';
 export const EDGE_EDGES_OPAQUE = '#94a3b8';
 export const EDGE_EDGES_GLASS = '#bae6fd';
+export const GRID_COLOR = '#18181b';
 
 /** Collapsed container colors (distinct, no gray). */
 export function getCollapsedContainerColor(opType: string): string {

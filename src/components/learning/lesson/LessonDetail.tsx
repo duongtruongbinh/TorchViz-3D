@@ -109,7 +109,7 @@ export default function LessonDetail({
       </header>
 
       <div
-        className={cx('grid min-w-0 overflow-visible', themeClasses.lessonPageViewport)}
+        className={cx('learning-lab-reading-content grid min-w-0 overflow-visible', themeClasses.lessonPageViewport)}
       >
         {sectionPages[currentSectionPageIndex] ?? null}
       </div>
@@ -187,7 +187,7 @@ function FullWidthTheoryCopy({
   return (
     <div className={cx('grid w-full gap-3', className)}>
       {items.map((item) => (
-        <p key={item} className={cx('text-sm leading-7', themeClasses.bodyText)}>{item}</p>
+        <p key={item} className={cx('text-base leading-[1.625rem]', themeClasses.bodyText)}>{item}</p>
       ))}
     </div>
   );
@@ -238,7 +238,7 @@ function getLessonPagerButtonClass(themeClasses: LearningThemeClasses, isEnabled
         ? 'bg-[#B8C8DA]/58 text-[#123B68] hover:bg-[#DCE6F1]'
         : 'bg-[#A8B8C8]/12 text-[#F2F6FA] hover:bg-[#A8B8C8]/20'
       : themeClasses.isLight
-        ? 'bg-[#B8C8DA]/12 text-[#030509]/20'
+        ? 'bg-[#B8C8DA]/12 text-[#64748B]/36'
         : 'bg-[#A8B8C8]/4 text-[#F2F6FA]/20',
   );
 }

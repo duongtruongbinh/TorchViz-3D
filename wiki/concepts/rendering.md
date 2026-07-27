@@ -2,7 +2,7 @@
 title: Rendering
 type: Subsystem
 source: src/components/canvas/Canvas3D.tsx, src/lib/visualKind.ts, src/lib/constants.ts
-updated: 2026-06-26
+updated: 2026-07-19
 ---
 
 # Rendering
@@ -25,6 +25,20 @@ orders).
 
 Hover/selection write back to the store (`highlightNodeId`, `selectedNodeId`),
 keeping the editor, Inspector, and canvas in sync.
+
+The R3F scene remains mounted while a model is visualized or re-visualized. The
+loading state is a compact status card positioned inside the canvas; its full-size
+positioning layer stays transparent and does not backdrop-filter the WebGL surface.
+This keeps an existing graph visible during reruns and avoids visually dimming the
+rest of the Workspace during the longer first Pyodide initialization.
+
+The ground reference keeps a visible line grid while reserving a Z corridor around the
+model. Cross-flow lines remain across the canvas, while longitudinal lines stop outside
+the model corridor so perspective projection cannot turn them into apparent connectors.
+
+Leaf blocks rely on their solid geometry, physical material, lighting, and active-state
+emissive treatment for depth. They do not add a wireframe or face outline, avoiding both
+conspicuous borders and depth-axis segments that can look like trailing connectors.
 
 ## Visual taxonomy (`visualKind.ts`)
 
