@@ -1,4 +1,4 @@
-import { AlignJustify, ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAlert, Coffee, CornerDownLeft, Cpu, Database, FileText, Hash, Info, Layers3, ListOrdered, RefreshCw, Route, Scissors, SlidersHorizontal, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
+import { AlignJustify, ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAlert, Coffee, CornerDownLeft, Cpu, Database, FileText, Hash, Info, ListOrdered, RefreshCw, Route, Scissors, Search, SlidersHorizontal, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
@@ -10,14 +10,11 @@ import type {
   LlmBpeFallbackContent,
   LlmBpeInferenceFlowContent,
   LlmContentRendererProps,
-  LlmEmbeddingDimensionContent,
   LlmEmbeddingPipelineVisualContent,
-  LlmEmbeddingScopeComparisonContent,
   LlmRawTextModelInputContent,
   LlmPaddingMaskContent,
   LlmSpecialTokenRolesContent,
   LlmSlidingWindowWorkedExampleContent,
-  LlmTextToTensorRoadmapContent,
   LlmTokenIdTensorShapeContent,
   LlmTokenizerBoundaryMismatchContent,
   LlmTokenizerCodeStructureContent,
@@ -41,24 +38,39 @@ export function LlmRawTextModelInput({ content, language, themeClasses }: LlmCon
   const stageClass = themeClasses.isLight
     ? 'border-[#CAD6E3] bg-white'
     : 'border-[#A8B8C8]/20 bg-[#121A24]/42';
-  const codeClass = themeClasses.isLight
-    ? 'bg-[#E8EEF5] text-[#123B68]'
-    : 'bg-[#263B5B] text-[#DCE8F4]';
-
-  const Connector = ({ label }: { label: string }) => (
-    <div className="flex shrink-0 flex-col items-center justify-center gap-1 py-1 text-center md:w-20 md:py-0">
-      <span className={cx('text-[11px] font-bold leading-4', themeClasses.mutedText)}>{label}</span>
-      <ArrowDown className={cx('h-5 w-5 md:hidden', themeClasses.accentText)} aria-hidden="true" />
-      <ArrowRight className={cx('hidden h-5 w-5 md:block', themeClasses.accentText)} aria-hidden="true" />
-    </div>
-  );
+  const correspondencePalettes = themeClasses.isLight
+    ? [
+        'bg-[#FBE7D6] text-[#8A4617]',
+        'bg-[#DCE8F4] text-[#205089]',
+        'bg-[#DCEEE8] text-[#2E6B5D]',
+        'bg-[#F4E8C8] text-[#70551A]',
+      ]
+    : [
+        'bg-[#5A351E] text-[#FFD5B5]',
+        'bg-[#263B5B] text-[#BFD3F2]',
+        'bg-[#21483F] text-[#BFE6D7]',
+        'bg-[#594821] text-[#F4E8C8]',
+      ];
+  const rawTokens = content.rawText
+    .replace(/^"|"$/g, '')
+    .match(/[\p{L}\p{N}]+|[^\s\p{L}\p{N}]/gu) ?? [content.rawText];
 
   return (
     <section className="grid gap-4 py-1">
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
 
-      <div className={cx('overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#CAD6E3] bg-[#F5F8FB]' : 'border-[#A8B8C8]/20 bg-[#0E1620]/60')}>
-        <div className="flex flex-col items-stretch p-3 md:flex-row md:items-stretch md:p-4">
+      <div className="grid items-center gap-3 lg:grid-cols-[12rem_4.5rem_minmax(0,1fr)] lg:gap-0">
+        <LlmTransformerArchitectureOverview focus="input-embedding" themeClasses={themeClasses} />
+
+        <div className="grid justify-items-center lg:hidden" aria-hidden="true">
+          <ArrowDown className={cx('h-7 w-7', themeClasses.accentText)} strokeWidth={1.8} />
+        </div>
+        <svg viewBox="0 0 72 220" className="hidden h-[15rem] w-full overflow-visible lg:block" aria-hidden="true">
+          <path d="M0 82 L72 18 M0 138 L72 202" fill="none" stroke={themeClasses.isLight ? '#3F8B59' : '#8CC9A0'} strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+
+        <div className="min-w-0">
+          <div className="flex flex-col items-stretch gap-3 xl:flex-row xl:items-stretch">
           <div className={cx('flex min-w-0 flex-1 flex-col justify-between gap-4 rounded-lg border p-4', stageClass)}>
             <div className="flex items-center justify-between gap-3">
               <span className={cx('flex items-center gap-2 text-sm font-black', themeClasses.titleText)}>
@@ -66,11 +78,21 @@ export function LlmRawTextModelInput({ content, language, themeClasses }: LlmCon
               </span>
               <span className={cx('rounded-full px-2 py-1 font-mono text-[11px] font-bold', themeClasses.isLight ? 'bg-[#FBE7D6] text-[#8A4617]' : 'bg-[#5A351E] text-[#FFD5B5]')}>string</span>
             </div>
-            <code className={cx('block overflow-x-auto rounded-md px-3 py-3 text-sm font-black', codeClass)}>{content.rawText}</code>
+            <div className="flex min-h-11 flex-wrap items-center gap-1.5 py-2 font-mono text-sm font-black">
+              {rawTokens.map((token, index) => (
+                <code key={`${token}-${index}`} className={cx('rounded px-2 py-1', correspondencePalettes[index % correspondencePalettes.length])}>
+                  {token}
+                </code>
+              ))}
+            </div>
             <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.rawTextNote, language)}</p>
           </div>
 
-          <Connector label="Tokenizer" />
+          <div className="flex shrink-0 flex-col items-center justify-center gap-1 py-1 text-center xl:w-20 xl:py-0">
+            <span className={cx('text-[11px] font-bold leading-4', themeClasses.mutedText)}>Tokenizer</span>
+            <ArrowDown className={cx('h-5 w-5 xl:hidden', themeClasses.accentText)} aria-hidden="true" />
+            <ArrowRight className={cx('hidden h-5 w-5 xl:block', themeClasses.accentText)} aria-hidden="true" />
+          </div>
 
           <div className={cx('flex min-w-0 flex-1 flex-col justify-between gap-4 rounded-lg border p-4', stageClass)}>
             <div className="flex items-center justify-between gap-3">
@@ -79,11 +101,21 @@ export function LlmRawTextModelInput({ content, language, themeClasses }: LlmCon
               </span>
               <span className={cx('rounded-full px-2 py-1 font-mono text-[11px] font-bold', themeClasses.isLight ? 'bg-[#DCE8F4] text-[#205089]' : 'bg-[#263B5B] text-[#BFD3F2]')}>integer</span>
             </div>
-            <code className={cx('block overflow-x-auto rounded-md px-3 py-3 text-sm font-black', codeClass)}>[{content.tokenIds.join(', ')}]</code>
+            <div className="flex min-h-11 flex-wrap items-center gap-1.5 py-2 font-mono text-sm font-black">
+              {content.tokenIds.map((tokenId, index) => (
+                <code key={`${tokenId}-${index}`} className={cx('rounded px-2 py-1', correspondencePalettes[index % correspondencePalettes.length])}>
+                  {tokenId}
+                </code>
+              ))}
+            </div>
             <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.tokenIdsNote, language)}</p>
           </div>
 
-          <Connector label="Embedding lookup" />
+          <div className="flex shrink-0 flex-col items-center justify-center gap-1 py-1 text-center xl:w-20 xl:py-0">
+            <span className={cx('text-[11px] font-bold leading-4', themeClasses.mutedText)}>Embedding lookup</span>
+            <ArrowDown className={cx('h-5 w-5 xl:hidden', themeClasses.accentText)} aria-hidden="true" />
+            <ArrowRight className={cx('hidden h-5 w-5 xl:block', themeClasses.accentText)} aria-hidden="true" />
+          </div>
 
           <div className={cx('flex min-w-0 flex-[1.15] flex-col justify-between gap-4 rounded-lg border p-4', stageClass)}>
             <div className="flex items-center justify-between gap-3">
@@ -92,13 +124,16 @@ export function LlmRawTextModelInput({ content, language, themeClasses }: LlmCon
               </span>
               <span className={cx('rounded-full px-2 py-1 font-mono text-[11px] font-bold', themeClasses.isLight ? 'bg-[#DCEEE8] text-[#2E6B5D]' : 'bg-[#21483F] text-[#BFE6D7]')}>float · (T, C)</span>
             </div>
-            <div className={cx('grid gap-1 rounded-md p-2 font-mono text-xs font-bold', codeClass)}>
+            <div className="grid gap-1 py-2 font-mono text-xs font-bold">
               {content.embeddingRows.map((row, index) => (
-                <div key={`${index}-${row.join('-')}`} className="grid grid-cols-3 gap-1 text-center">
+                <div
+                  key={`${index}-${row.join('-')}`}
+                  className={cx('grid grid-cols-3 gap-1 rounded px-1 py-0.5 text-center', correspondencePalettes[index % correspondencePalettes.length])}
+                >
                   {row.map((value, columnIndex) => (
                     <span
                       key={`${columnIndex}-${value}`}
-                      className={cx('rounded px-1 py-1', themeClasses.isLight ? 'bg-white/55' : 'bg-black/10')}
+                      className={cx('rounded px-1 py-1', themeClasses.isLight ? 'bg-white/35' : 'bg-black/10')}
                     >
                       {value}
                     </span>
@@ -109,190 +144,121 @@ export function LlmRawTextModelInput({ content, language, themeClasses }: LlmCon
             <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.embeddingNote, language)}</p>
           </div>
         </div>
-
-        <div className={cx('flex items-start gap-3 border-t px-4 py-3', themeClasses.isLight ? 'border-[#BFD9CD] bg-[#EAF5F0]' : 'border-[#315C50] bg-[#17332D]')}>
-          <CheckCircle2 className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.isLight ? 'text-[#23715F]' : 'text-[#8DD8C2]')} aria-hidden="true" />
-          <p className={cx('text-sm font-semibold leading-6', themeClasses.isLight ? 'text-[#24584D]' : 'text-[#CBEDE2]')}>
-            <strong>Model-ready:</strong> {text(content.modelNote, language)}
-          </p>
         </div>
-      </div>
-
-      <LlmCallout
-        icon={CircleAlert}
-        tone="accent"
-        themeClasses={themeClasses}
-        className={themeClasses.isLight ? 'border-[#E8CAA5] bg-[#FFF4E8] text-[#744019]' : 'border-[#6D4A2A] bg-[#3D2A1B] text-[#FFDDBD]'}
-      >
-        <strong>Lưu ý:</strong> {text(content.unicodeWarning, language)}
-      </LlmCallout>
-    </section>
-  );
-}
-
-const EMBEDDING_SCOPE_ICONS = {
-  token: Type,
-  sentence: AlignJustify,
-  document: FileText,
-} satisfies Record<LlmEmbeddingScopeComparisonContent['scopes'][number]['id'], LucideIcon>;
-
-export function LlmEmbeddingScopeComparison({ content, language, themeClasses }: LlmContentRendererProps<LlmEmbeddingScopeComparisonContent>) {
-  return (
-    <section className="grid gap-4">
-      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className="grid overflow-hidden rounded-xl border md:grid-cols-3">
-        {content.scopes.map((scope, index) => {
-          const Icon = EMBEDDING_SCOPE_ICONS[scope.id];
-          const isFocus = scope.id === 'token';
-          return (
-            <article
-              key={scope.id}
-              className={cx(
-                'grid min-w-0 content-start gap-4 px-4 py-5',
-                index > 0 && (themeClasses.isLight ? 'border-t border-[#CAD6E3] md:border-l md:border-t-0' : 'border-t border-[#A8B8C8]/18 md:border-l md:border-t-0'),
-                isFocus
-                  ? (themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/55')
-                  : (themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/36'),
-              )}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className={cx(
-                  'grid h-10 w-10 shrink-0 place-items-center rounded-lg',
-                  isFocus
-                    ? (themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')
-                    : (themeClasses.isLight ? 'bg-[#E8EEF5] text-[#52667A]' : 'bg-[#263B5B] text-[#DCE8F4]'),
-                )}>
-                  <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
-                </div>
-                <code className={cx('rounded-md px-2 py-1 text-xs font-black', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>
-                  {scope.output}
-                </code>
-              </div>
-              <div className="grid gap-2">
-                <h2 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(scope.title, language)}</h2>
-                <p className={cx('text-sm leading-6', themeClasses.bodyText)}>
-                  <strong>{language === 'vi' ? 'Một vector cho:' : 'One vector for:'}</strong> {text(scope.unit, language)}
-                </p>
-                <p className={cx('text-sm leading-6', themeClasses.mutedText)}>{text(scope.useCase, language)}</p>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-      <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#EAF5F0] text-[#24584D]' : 'bg-[#17332D] text-[#CBEDE2]')}>
-        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.9} aria-hidden="true" />
-        <p className="text-sm font-semibold leading-6">{text(content.focus, language)}</p>
-      </div>
-      <LlmCallout icon={CircleAlert} tone="accent" themeClasses={themeClasses}>
-        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.misconception, language)}</p>
-      </LlmCallout>
-    </section>
-  );
-}
-
-export function LlmEmbeddingDimension({ content, language, themeClasses }: LlmContentRendererProps<LlmEmbeddingDimensionContent>) {
-  return (
-    <section className="grid gap-5">
-      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className={cx('grid min-w-0 gap-5 rounded-xl px-4 py-5 sm:px-6 md:grid-cols-[minmax(0,0.72fr)_auto_minmax(0,1.28fr)] md:items-center', themeClasses.isLight ? 'bg-[#F5F8FB]' : 'bg-[#0E1620]/62')}>
-        <div className="grid min-w-0 justify-items-center gap-2 text-center">
-          <span className={cx('text-xs font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>{language === 'vi' ? 'Token' : 'Token'}</span>
-          <TokenChip className="max-w-full break-words rounded-lg px-4 py-3 text-lg font-black" themeClasses={themeClasses}>{content.token}</TokenChip>
-          <span className={cx('text-xs leading-5', themeClasses.bodyText)}>{text(content.rowMeaning, language)}</span>
-        </div>
-        <ArrowDown className={cx('mx-auto h-5 w-5 md:hidden', themeClasses.accentText)} aria-hidden="true" />
-        <ArrowRight className={cx('hidden h-6 w-6 md:block', themeClasses.accentText)} aria-hidden="true" />
-        <div className="grid min-w-0 gap-3">
-          <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
-            <span className={cx('font-mono text-2xl font-light', themeClasses.mutedText)}>[</span>
-            {content.vector.map((value, index) => (
-              <code
-                key={`${value}-${index}`}
-                className={cx('grid h-12 min-w-14 place-items-center rounded-lg px-2 text-sm font-black', themeClasses.isLight ? 'bg-white text-[#123B68] ring-1 ring-[#CAD6E3]' : 'bg-[#263B5B] text-[#DCE8F4] ring-1 ring-[#A8B8C8]/20')}
-              >
-                {value}
-              </code>
-            ))}
-            <span className={cx('font-mono text-2xl font-light', themeClasses.mutedText)}>]</span>
-          </div>
-          <div className={cx('flex items-center gap-2 text-xs font-black', themeClasses.accentText)}>
-            <span className="h-px flex-1 bg-current/35" aria-hidden="true" />
-            <span>{content.dimensionLabel}</span>
-            <span className="h-px flex-1 bg-current/35" aria-hidden="true" />
-          </div>
-          <p className={cx('text-center text-sm leading-6', themeClasses.bodyText)}>{text(content.dimensionMeaning, language)}</p>
-        </div>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/45')}>
-          <Database className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
-          <p className={cx('text-sm leading-6', themeClasses.bodyText)}>
-            <strong>{content.vocabularyRows}</strong> {text(content.denseMeaning, language)}
-          </p>
-        </div>
-        <LlmCallout icon={CircleAlert} tone="accent" themeClasses={themeClasses}>
-          <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.misconception, language)}</p>
-        </LlmCallout>
       </div>
     </section>
   );
 }
 
-const TEXT_TO_TENSOR_STEP_ICONS: Record<LlmTextToTensorRoadmapContent['steps'][number]['id'], LucideIcon> = {
-  text: Type,
-  tokens: Scissors,
-  ids: Braces,
-  windows: Layers3,
-  batches: Database,
-  embeddings: Sparkles,
-  input: Cpu,
-};
+export function LlmTransformerArchitectureOverview({ focus, themeClasses }: {
+  focus?: 'encoder-decoder' | 'input-embedding';
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const focusArchitectureBlocks = focus === 'encoder-decoder';
+  const stroke = themeClasses.isLight ? '#3F8B59' : '#8CC9A0';
+  const textColor = themeClasses.isLight ? '#327047' : '#D5F1DE';
+  const blockFill = themeClasses.isLight ? '#F8F1D8' : '#3A392A';
+  const attentionFill = themeClasses.isLight ? '#F3DDF0' : '#493448';
+  const embeddingFill = themeClasses.isLight ? '#F3DDF0' : '#493448';
+  const outputFill = themeClasses.isLight ? '#E0EAF8' : '#263B5B';
+  const frameFill = themeClasses.isLight ? '#F2FAF3' : '#173025';
 
-export function LlmTextToTensorRoadmap({ content, language, themeClasses }: LlmContentRendererProps<LlmTextToTensorRoadmapContent>) {
+  if (focus === 'input-embedding') {
+    return (
+      <figure className="mx-auto w-full max-w-[15rem]">
+        <svg viewBox="0 0 240 230" role="img" aria-labelledby="transformer-input-embedding-title" className="block h-auto w-full">
+          <title id="transformer-input-embedding-title">Bước từ Inputs đến Input Embedding</title>
+          <defs>
+            <marker id="transformer-input-arrow" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto">
+              <path d="M0,0 L10,5 L0,10 Z" fill={stroke} />
+            </marker>
+          </defs>
+          <g fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" markerEnd="url(#transformer-input-arrow)">
+            <path d="M120 208 V170" />
+            <path d="M120 82 V32" />
+          </g>
+          <rect x="30" y="82" width="180" height="88" rx="12" fill={embeddingFill} stroke={stroke} strokeWidth="3" />
+          <g fill={textColor} fontFamily="ui-sans-serif, system-ui" fontWeight="700" textAnchor="middle">
+            <text x="120" y="225" fontSize="20">Inputs</text>
+            <text x="120" y="119" fontSize="19">Input</text>
+            <text x="120" y="145" fontSize="19">Embedding</text>
+          </g>
+        </svg>
+      </figure>
+    );
+  }
+
   return (
-    <section className="grid gap-5">
-      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className="grid gap-2 md:grid-cols-[repeat(7,minmax(0,1fr))] md:gap-0">
-        {content.steps.map((step, index) => {
-          const Icon = TEXT_TO_TENSOR_STEP_ICONS[step.id];
-          return (
-            <Fragment key={step.id}>
-              <article className={cx(
-                'grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-3 rounded-lg px-3 py-3 md:grid-cols-1 md:justify-items-center md:gap-2 md:rounded-none md:px-2 md:text-center',
-                index === 0 && 'md:rounded-l-lg',
-                index === content.steps.length - 1 && 'md:rounded-r-lg',
-                themeClasses.isLight
-                  ? (index % 2 === 0 ? 'bg-[#EDF5FB]' : 'bg-[#F5F8FB]')
-                  : (index % 2 === 0 ? 'bg-[#263B5B]/55' : 'bg-[#121A24]/48'),
-              )}>
-                <span className={cx('grid h-10 w-10 shrink-0 place-items-center rounded-lg', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#172A43] text-[#BFD3F2]')}>
-                  <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
-                </span>
-                <span className="min-w-0">
-                  <span className={cx('block text-sm font-black leading-5', themeClasses.titleText)}>{text(step.label, language)}</span>
-                  <code className={cx('mt-1 block break-words text-[11px] font-bold leading-4', themeClasses.mutedText)}>{step.contract}</code>
-                </span>
-              </article>
-              {index < content.steps.length - 1 ? (
-                <ArrowDown className={cx('mx-auto h-4 w-4 md:hidden', themeClasses.accentText)} aria-hidden="true" />
-              ) : null}
-            </Fragment>
-          );
-        })}
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {content.constants.map((constant) => (
-          <div key={constant.symbol} className={cx('flex min-w-0 flex-1 basis-32 items-center gap-2 rounded-lg px-3 py-2', themeClasses.isLight ? 'bg-[#E8EEF5]' : 'bg-[#263B5B]')}>
-            <code className={cx('shrink-0 text-sm font-black', themeClasses.accentText)}>{constant.symbol}={constant.value}</code>
-            <span className={cx('min-w-0 text-xs leading-5', themeClasses.bodyText)}>{text(constant.meaning, language)}</span>
-          </div>
+    <figure className="mx-auto w-full max-w-[48rem]">
+      <svg viewBox="0 0 760 970" role="img" aria-labelledby="transformer-architecture-title" className="block h-auto w-full">
+        <title id="transformer-architecture-title">Kiến trúc Transformer encoder-decoder từ input embedding đến output probabilities</title>
+        <defs>
+          <marker id="transformer-arrow" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill={stroke} />
+          </marker>
+          <marker id="transformer-residual-arrow" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill={stroke} />
+          </marker>
+        </defs>
+        <g transform="translate(0 18) scale(1 1.05)">
+        <g fill={focusArchitectureBlocks ? (themeClasses.isLight ? '#E7F0FA' : '#263B5B') : frameFill} fillOpacity={focusArchitectureBlocks ? 0.96 : 0.72} stroke={focusArchitectureBlocks ? (themeClasses.isLight ? '#205089' : '#BFD3F2') : stroke} strokeWidth={focusArchitectureBlocks ? 5 : 3}>
+          <rect x="85" y="230" width="240" height="410" rx="18" />
+          <rect x="435" y="160" width="240" height="480" rx="18" />
+        </g>
+        <g fill="none" stroke={stroke} strokeWidth="2.65" strokeLinecap="round" strokeLinejoin="round" markerEnd="url(#transformer-arrow)">
+          <path d="M205 842 V780" opacity={focusArchitectureBlocks ? 0.18 : 1} /><path d="M205 720 V699" opacity={focusArchitectureBlocks ? 0.18 : 1} /><path d="M205 661 V600" /><path d="M205 545 V510" /><path d="M205 465 V415" /><path d="M205 360 V335" />
+          <path d="M555 842 V780" opacity={focusArchitectureBlocks ? 0.18 : 1} /><path d="M555 720 V699" opacity={focusArchitectureBlocks ? 0.18 : 1} /><path d="M555 661 V600" /><path d="M555 545 V510" /><path d="M555 465 V440" /><path d="M555 385 V350" /><path d="M555 305 V280" /><path d="M555 235 V220" /><path d="M555 175 V125" opacity={focusArchitectureBlocks ? 0.18 : 1} /><path d="M555 85 V75" opacity={focusArchitectureBlocks ? 0.18 : 1} /><path d="M555 35 V22" opacity={focusArchitectureBlocks ? 0.18 : 1} />
+          <path d="M290 312 H345 Q360 312 360 327 V397 Q360 412 375 412 H470" />
+        </g>
+        <g fill="none" stroke={stroke} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.88" markerEnd="url(#transformer-residual-arrow)">
+          <path d="M205 620 H103 V487 H120" /><path d="M205 450 H103 V312 H120" />
+          <path d="M555 620 H657 V487 H640" /><path d="M555 450 H657 V327 H640" /><path d="M555 290 H657 V197 H640" />
+        </g>
+        <g fontFamily="ui-sans-serif, system-ui" fontWeight="700" textAnchor="middle" fill={textColor}>
+          <text x="205" y="885" fontSize="20" opacity={focusArchitectureBlocks ? 0.18 : 1}>Inputs</text>
+          <text x="555" y="885" fontSize="20" opacity={focusArchitectureBlocks ? 0.18 : 1}>Outputs (shifted right)</text>
+          <text x="205" y="215" fontSize={focusArchitectureBlocks ? 22 : 18}>{focusArchitectureBlocks ? 'Encoder' : 'N × blocks'}</text>
+          <text x={focusArchitectureBlocks ? 445 : 490} y="151" fontSize={focusArchitectureBlocks ? 20 : 18}>{focusArchitectureBlocks ? 'Decoder' : 'N × blocks'}</text>
+          <text x="555" y="12" fontSize="22" opacity={focusArchitectureBlocks ? 0.18 : 1}>Output Probabilities</text>
+        </g>
+
+        {[
+          { x: 120, y: 720, w: 170, h: 70, fill: embeddingFill, lines: ['Input', 'Embedding'] },
+          { x: 120, y: 545, w: 170, h: 55, fill: attentionFill, lines: ['Multi-Head', 'Attention'] },
+          { x: 120, y: 465, w: 170, h: 45, fill: blockFill, lines: ['Add & Norm'] },
+          { x: 120, y: 360, w: 170, h: 55, fill: blockFill, lines: ['Feed Forward'] },
+          { x: 120, y: 290, w: 170, h: 45, fill: blockFill, lines: ['Add & Norm'] },
+          { x: 470, y: 720, w: 170, h: 70, fill: embeddingFill, lines: ['Output', 'Embedding'] },
+          { x: 470, y: 535, w: 170, h: 55, fill: attentionFill, lines: ['Masked Multi-Head', 'Attention'] },
+          { x: 470, y: 465, w: 170, h: 45, fill: blockFill, lines: ['Add & Norm'] },
+          { x: 470, y: 385, w: 170, h: 55, fill: attentionFill, lines: ['Multi-Head', 'Attention'] },
+          { x: 470, y: 305, w: 170, h: 45, fill: blockFill, lines: ['Add & Norm'] },
+          { x: 470, y: 235, w: 170, h: 45, fill: blockFill, lines: ['Feed Forward'] },
+          { x: 470, y: 175, w: 170, h: 45, fill: blockFill, lines: ['Add & Norm'] },
+          { x: 470, y: 85, w: 170, h: 40, fill: outputFill, lines: ['Linear'] },
+          { x: 470, y: 35, w: 170, h: 40, fill: attentionFill, lines: ['Softmax'] },
+        ].map((block) => (
+          <g key={`${block.x}-${block.y}-${block.lines.join('-')}`} opacity={focusArchitectureBlocks && (block.y === 720 || block.y < 160) ? 0.18 : 1}>
+            <rect x={block.x} y={block.y} width={block.w} height={block.h} rx="10" fill={block.fill} stroke={stroke} strokeWidth="3" />
+            <text x={block.x + block.w / 2} y={block.y + block.h / 2 - (block.lines.length - 1) * 11} textAnchor="middle" dominantBaseline="middle" fill={textColor} fontFamily="ui-sans-serif, system-ui" fontSize="18" fontWeight="700">
+              {block.lines.map((line, index) => <tspan key={line} x={block.x + block.w / 2} dy={index === 0 ? 0 : 22}>{line}</tspan>)}
+            </text>
+          </g>
         ))}
-      </div>
-      <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#EAF5F0] text-[#24584D]' : 'bg-[#17332D] text-[#CBEDE2]')}>
-        <Route className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.9} aria-hidden="true" />
-        <p className="text-sm font-semibold leading-6">{text(content.takeaway, language)}</p>
-      </div>
-    </section>
+
+        <g fill="none" stroke={stroke} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" opacity={focusArchitectureBlocks ? 0.18 : 1}>
+          <circle cx="205" cy="680" r="18" fill={themeClasses.isLight ? '#FFFFFF' : '#121A24'} /><path d="M195 680 H215 M205 670 V690" />
+          <circle cx="555" cy="680" r="18" fill={themeClasses.isLight ? '#FFFFFF' : '#121A24'} /><path d="M545 680 H565 M555 670 V690" />
+          <path d="M187 680 C145 680 120 690 95 710" />
+          <path d="M573 680 C615 680 640 690 665 710" />
+        </g>
+        <g fill={textColor} fontFamily="ui-sans-serif, system-ui" fontWeight="700" fontSize="17" opacity={focusArchitectureBlocks ? 0.18 : 1}>
+          <text x="20" y="700">Positional</text><text x="20" y="722">Encoding</text>
+          <text x="650" y="700">Positional</text><text x="650" y="722">Encoding</text>
+        </g>
+        </g>
+      </svg>
+    </figure>
   );
 }
 
@@ -1319,7 +1285,22 @@ export function LlmSlidingWindowWorkedExample({ content, language, themeClasses 
 }
 
 export function LlmEmbeddingPipelineVisual({ content, language, themeClasses }: LlmContentRendererProps<LlmEmbeddingPipelineVisualContent>) {
-  const stepFlow = content.steps?.length ? (
+  const hasSingleComparison = content.comparisons?.length === 1;
+  const [activeMixtureStep, setActiveMixtureStep] = useState(0);
+  const filterBarPalettes = themeClasses.isLight
+    ? [
+        'bg-[#3679A8] text-white',
+        'bg-[#477C6C] text-white',
+        'bg-[#75629C] text-white',
+        'bg-[#B66D32] text-white',
+      ]
+    : [
+        'bg-[#6E9CC0] text-[#101923]',
+        'bg-[#76A99B] text-[#101923]',
+        'bg-[#9D8BC2] text-[#101923]',
+        'bg-[#D39867] text-[#101923]',
+      ];
+  const defaultStepFlow = content.steps?.length ? (
     <div className={cx('grid gap-2', content.steps.length > 3 ? 'lg:grid-cols-4 lg:gap-0' : 'md:grid-cols-[repeat(3,minmax(0,1fr))] md:gap-0')}>
       {content.steps.map((step, index) => (
         <Fragment key={`${step.shape}-${index}`}>
@@ -1338,22 +1319,271 @@ export function LlmEmbeddingPipelineVisual({ content, language, themeClasses }: 
       ))}
     </div>
   ) : null;
+  const filterStepFlow = content.layout === 'filter-pipeline' && content.steps?.length ? (
+    <div className={cx('overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
+      <div className={cx('flex items-center justify-between gap-3 px-4 py-3 sm:px-5', themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/55')}>
+        <span className={cx('text-xs font-black uppercase tracking-[0.08em]', themeClasses.mutedText)}>
+          {language === 'vi' ? 'Đầu vào minh họa' : 'Example input'}
+        </span>
+        <strong className={cx('text-lg font-black tabular-nums', themeClasses.titleText)}>
+          {content.steps[0]?.beforeCount ?? 100} document
+        </strong>
+      </div>
+      <ol className="grid">
+        {content.steps.map((step, index) => {
+          const initialCount = content.steps?.[0]?.beforeCount ?? 100;
+          const beforeCount = step.beforeCount ?? initialCount;
+          const afterCount = step.afterCount ?? beforeCount;
+          const removedCount = beforeCount - afterCount;
+          const remainingPercent = Math.max(24, Math.min(100, (afterCount / initialCount) * 100));
+          return (
+            <li
+              key={`${step.shape}-${index}`}
+              className={cx(
+                'grid min-w-0 gap-4 px-4 py-4 sm:px-5 lg:grid-cols-[minmax(16rem,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-6',
+                index > 0 && (themeClasses.isLight ? 'border-t border-[#205089]/10' : 'border-t border-[#A8B8C8]/12'),
+              )}
+            >
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between gap-3 text-xs font-bold">
+                  <span className={themeClasses.mutedText}>{language === 'vi' ? `Sau bước ${index + 1}` : `After step ${index + 1}`}</span>
+                  <span className={themeClasses.isLight ? 'text-[#A54F00]' : 'text-[#FBC77D]'}>
+                    {removedCount > 0 ? `−${removedCount} document` : null}
+                  </span>
+                </div>
+                <div className={cx('h-11 overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#E8EEF5]' : 'bg-[#172A43]')}>
+                  <div
+                    className={cx('flex h-full items-center justify-end rounded-lg px-3 transition-[width] duration-500', filterBarPalettes[index % filterBarPalettes.length])}
+                    style={{ width: `${remainingPercent}%` }}
+                  >
+                    <strong className="whitespace-nowrap text-sm font-black tabular-nums">{afterCount} còn lại</strong>
+                  </div>
+                </div>
+              </div>
+              <div className="grid min-w-0 gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <strong className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(step.label, language)}</strong>
+                  {step.shape.split(' · ').map((signal) => (
+                    <code key={signal} className={cx('rounded-full px-2 py-0.5 text-[0.68rem] font-semibold', themeClasses.isLight ? 'bg-[#EDF5FB] text-[#205089]' : 'bg-[#263B5B]/70 text-[#DCE8F4]')}>
+                      {signal}
+                    </code>
+                  ))}
+                </div>
+                <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(step.detail, language)}</p>
+                {step.examples?.length ? (
+                  <ul className={cx('grid list-disc gap-1 pl-5 text-sm font-semibold leading-5 marker:opacity-45', themeClasses.isLight ? 'text-[#52667A]' : 'text-[#BFD3F2]')}>
+                    {step.examples.map((example) => <li key={text(example, language)}>{text(example, language)}</li>)}
+                  </ul>
+                ) : null}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <div className={cx('flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-5', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')}>
+        <span className="text-xs font-black uppercase tracking-[0.08em]">{language === 'vi' ? 'Corpus minh họa' : 'Example corpus'}</span>
+        <strong className="text-lg font-black tabular-nums">{content.steps.at(-1)?.afterCount ?? 50} document</strong>
+      </div>
+    </div>
+  ) : null;
+  const mixtureBoard = content.layout === 'mixture-board' && content.steps && content.steps.length >= 4 ? (
+    <div className={cx('overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
+      <div className={cx('px-4 py-3 text-xs font-black uppercase tracking-[0.08em]', themeClasses.isLight ? 'bg-[#EDF5FB] text-[#52667A]' : 'bg-[#263B5B]/55 text-[#BFD3F2]')}>
+        {language === 'vi' ? 'Từ corpus đã lọc đến dữ liệu training' : 'From filtered corpus to training stream'}
+      </div>
+      <ol className={cx(
+        "relative before:absolute before:bottom-10 before:left-[2.125rem] before:top-10 before:w-px before:content-[''] sm:before:left-[2.375rem]",
+        themeClasses.isLight ? 'before:bg-[#205089]/18' : 'before:bg-[#A8B8C8]/22',
+      )}>
+        {content.steps.map((step, index) => {
+          const StepIcon = [Database, FileText, SlidersHorizontal, RefreshCw][index] ?? Database;
+          const isActive = index === activeMixtureStep;
+          return (
+            <li
+              key={`${step.shape}-${index}`}
+              tabIndex={0}
+              aria-current={isActive ? 'step' : undefined}
+              onMouseEnter={() => setActiveMixtureStep(index)}
+              onFocus={() => setActiveMixtureStep(index)}
+              className={cx(
+                'relative grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] gap-3 px-4 py-4 transition-[background-color,opacity] duration-200 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-4 sm:px-5',
+                themeClasses.focusRing,
+                isActive ? 'opacity-100' : 'opacity-40',
+                index > 0 && (themeClasses.isLight ? 'border-t border-[#205089]/10' : 'border-t border-[#A8B8C8]/12'),
+                isActive && (themeClasses.isLight ? 'bg-[#F2F6FA]' : 'bg-[#263B5B]/24'),
+              )}
+            >
+              <span className={cx(
+                'relative z-10 grid h-9 w-9 place-items-center rounded-full text-sm font-black',
+                isActive
+                  ? (themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')
+                  : (themeClasses.isLight ? 'bg-[#E8EEF5] text-[#205089]' : 'bg-[#172A43] text-[#BFD3F2]'),
+              )}>
+                {index + 1}
+              </span>
+              <div className="grid min-w-0 gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StepIcon className={cx('h-4 w-4', themeClasses.accentText)} strokeWidth={1.9} aria-hidden="true" />
+                  <strong className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(step.label, language)}</strong>
+                </div>
+                <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(step.detail, language)}</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {step.shape.split(/\s*[·+]\s*/).map((item, itemIndex) => (
+                    <code key={item} className={cx(
+                      'rounded-full px-4 py-2 text-base font-bold',
+                      themeClasses.isLight
+                        ? ['bg-[#DCE8F4] text-[#205089]', 'bg-[#DCEEE8] text-[#356A5C]', 'bg-[#EAE3F5] text-[#62518C]', 'bg-[#F8E4D3] text-[#9A5726]', 'bg-[#F2E3EA] text-[#8A4964]'][itemIndex % 5]
+                        : ['bg-[#263B5B] text-[#DCE8F4]', 'bg-[#24443C] text-[#CBEDE2]', 'bg-[#392E56] text-[#D7CCF5]', 'bg-[#4A321F] text-[#FFDDBD]', 'bg-[#472D3A] text-[#F4CADB]'][itemIndex % 5],
+                    )}>
+                      {item}
+                    </code>
+                  ))}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  ) : null;
+  const scaleDashboard = content.layout === 'scale-dashboard' && content.steps?.length ? (
+    <div className="grid gap-3">
+      <section className={cx('grid gap-4 rounded-xl px-5 py-5 sm:grid-cols-[minmax(10rem,0.42fr)_minmax(0,0.58fr)] sm:items-center', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')}>
+        <div>
+          <span className="block text-[0.68rem] font-black uppercase tracking-[0.12em] opacity-65">{language === 'vi' ? 'Quy mô training data' : 'Training-data scale'}</span>
+          <strong className="mt-1 block text-4xl font-black leading-none sm:text-5xl">{content.steps[0].shape}</strong>
+        </div>
+        <div>
+          <strong className="text-base font-black">{text(content.steps[0].label, language)}</strong>
+          <p className="mt-1 text-sm font-semibold leading-6 opacity-85">{text(content.steps[0].detail, language)}</p>
+        </div>
+      </section>
+      {content.scaleNote ? (
+        <p className={cx('border-l-2 px-4 py-1 text-sm font-semibold leading-6', themeClasses.isLight ? 'border-[#205089]/35 text-[#52667A]' : 'border-[#A8B8C8]/35 text-[#BFD3F2]')}>
+          {text(content.scaleNote, language)}
+        </p>
+      ) : null}
+    </div>
+  ) : null;
+
+  const scaleRisks = content.layout === 'scale-risks' && content.steps && content.steps.length >= 2 ? (
+    <div className="grid gap-3">
+      <div className="grid gap-3 md:grid-cols-2">
+        {[content.steps[0], content.steps[1]].map((step, index) => (
+          <section
+            key={step.shape}
+            className={cx(
+              'grid content-start gap-3 rounded-xl border bg-transparent px-4 py-4',
+              themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/16',
+            )}
+          >
+            <div className="flex items-center gap-2">
+              {index === 0
+                ? <CircleAlert className={cx('h-5 w-5', themeClasses.isLight ? 'text-[#A54F00]' : 'text-[#FBC77D]')} strokeWidth={1.9} aria-hidden="true" />
+                : <Search className={cx('h-5 w-5', themeClasses.isLight ? 'text-[#62518C]' : 'text-[#D7CCF5]')} strokeWidth={1.9} aria-hidden="true" />}
+              <strong className={cx('text-base font-black', themeClasses.titleText)}>{text(step.label, language)}</strong>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              {step.shape.split(' · ').map((risk, riskIndex) => (
+                <code key={risk} className={cx(
+                  'rounded-full px-3 py-1.5 text-sm font-bold',
+                  themeClasses.isLight
+                    ? ['bg-[#DCE8F4] text-[#205089]', 'bg-[#DCEEE8] text-[#356A5C]', 'bg-[#EAE3F5] text-[#62518C]', 'bg-[#F8E4D3] text-[#9A5726]', 'bg-[#F2E3EA] text-[#8A4964]'][riskIndex % 5]
+                    : ['bg-[#263B5B] text-[#DCE8F4]', 'bg-[#24443C] text-[#CBEDE2]', 'bg-[#392E56] text-[#D7CCF5]', 'bg-[#4A321F] text-[#FFDDBD]', 'bg-[#472D3A] text-[#F4CADB]'][riskIndex % 5],
+                )}>
+                  {risk}
+                </code>
+              ))}
+            </div>
+            <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(step.detail, language)}</p>
+          </section>
+        ))}
+      </div>
+    </div>
+  ) : null;
+  const continuousCycle = content.layout === 'continuous-cycle' && content.steps?.length ? (
+    <section className={cx('overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
+      <div className={cx('flex items-center gap-3 px-4 py-4 sm:px-5', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')}>
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15">
+          <RefreshCw className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
+        </span>
+        <div>
+          <span className="block text-[0.68rem] font-black uppercase tracking-[0.1em] opacity-65">{language === 'vi' ? 'Không phải pipeline chạy một lần' : 'Not a one-time pipeline'}</span>
+          <strong className="text-lg font-black">{text(content.steps[0].label, language)}</strong>
+        </div>
+      </div>
+      <div className="grid gap-4 px-4 py-5 sm:px-5">
+        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
+          {content.steps[0].shape.split(' → ').map((stage, index, stages) => (
+            <li
+              key={stage}
+              className={cx(
+                'relative grid min-h-24 content-center justify-items-center gap-2 rounded-xl px-3 py-3 text-center',
+                index === stages.length - 1
+                  ? (themeClasses.isLight ? 'bg-[#EAF5F0] text-[#24584D]' : 'bg-[#17332D] text-[#CBEDE2]')
+                  : (themeClasses.isLight ? 'bg-[#EDF5FB] text-[#205089]' : 'bg-[#263B5B]/65 text-[#DCE8F4]'),
+              )}
+            >
+              <span className={cx('grid h-7 w-7 place-items-center rounded-full text-xs font-black text-current', themeClasses.isLight ? 'bg-white/60' : 'bg-black/15')}>{index + 1}</span>
+              <strong className="text-sm font-black">{stage}</strong>
+              {index < stages.length - 1 ? <ArrowRight className="absolute -right-3 top-1/2 z-10 hidden h-4 w-4 -translate-y-1/2 opacity-45 lg:block" strokeWidth={2.2} aria-hidden="true" /> : null}
+            </li>
+          ))}
+        </ol>
+        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.steps[0].detail, language)}</p>
+      </div>
+    </section>
+  ) : null;
+  const stepFlow = scaleDashboard ?? scaleRisks ?? continuousCycle ?? mixtureBoard ?? filterStepFlow ?? defaultStepFlow;
   const comparison = content.comparisons?.length ? (
-    <div className="grid overflow-hidden rounded-xl border md:grid-cols-2">
+    <div className={cx('grid overflow-hidden rounded-xl border', !hasSingleComparison && 'md:grid-cols-2')}>
       {content.comparisons.map((item, index) => (
         <article key={item.title} className={cx(
           'grid min-w-0 content-start gap-3 p-5',
           index > 0 && (themeClasses.isLight ? 'border-t border-[#CAD6E3] md:border-l md:border-t-0' : 'border-t border-[#A8B8C8]/18 md:border-l md:border-t-0'),
-          index === 0 ? (themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/55') : (themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/36'),
+          hasSingleComparison || index > 0
+            ? (themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/36')
+            : (themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/55'),
         )}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className={cx('text-base font-black', themeClasses.titleText)}>{item.title}</h2>
-            <code className={cx('rounded-full px-2.5 py-1 text-xs font-black', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{item.shape}</code>
+            {item.href ? (
+              <a
+                className={cx(
+                  'rounded-full px-2.5 py-1 text-xs font-semibold underline decoration-current/40 underline-offset-2 transition-colors hover:decoration-current',
+                  themeClasses.focusRing,
+                  themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]',
+                )}
+                href={item.href}
+                rel="noreferrer"
+                target="_blank"
+              >
+                {item.shape}
+              </a>
+            ) : (
+              <code className={cx('rounded-full px-2.5 py-1 text-xs font-black', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{item.shape}</code>
+            )}
           </div>
           <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(item.detail, language)}</p>
         </article>
       ))}
     </div>
+  ) : null;
+  const takeawayPanel = content.takeaway ? (
+    <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#EAF5F0] text-[#24584D]' : 'bg-[#17332D] text-[#CBEDE2]')}>
+      {content.view === 'audit' ? <Route className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" /> : <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" />}
+      <p className="text-sm font-semibold leading-6">{text(content.takeaway, language)}</p>
+    </div>
+  ) : null;
+  const misconceptionPanel = content.misconception ? (
+    <LlmCallout
+      className={content.layout === 'scale-risks' ? '!bg-transparent' : undefined}
+      icon={CircleAlert}
+      tone="accent"
+      themeClasses={themeClasses}
+    >
+      <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.misconception, language)}</p>
+    </LlmCallout>
   ) : null;
   return (
     <section className="grid gap-5">
@@ -1365,15 +1595,17 @@ export function LlmEmbeddingPipelineVisual({ content, language, themeClasses }: 
           {content.output?.length ? <CodeBlock variant="output" code={content.output.join('\n')} copyable={false} themeClasses={themeClasses} /> : null}
         </div>
       ) : null}
-      <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#EAF5F0] text-[#24584D]' : 'bg-[#17332D] text-[#CBEDE2]')}>
-        {content.view === 'audit' ? <Route className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" /> : <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" />}
-        <p className="text-sm font-semibold leading-6">{text(content.takeaway, language)}</p>
-      </div>
-      {content.misconception ? (
-        <LlmCallout icon={CircleAlert} tone="accent" themeClasses={themeClasses}>
-          <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.misconception, language)}</p>
-        </LlmCallout>
-      ) : null}
+      {(content.layout === 'filter-pipeline' || content.layout === 'mixture-board' || content.layout === 'scale-dashboard' || content.layout === 'scale-risks') && takeawayPanel && misconceptionPanel ? (
+        <div className="grid items-stretch gap-3 md:grid-cols-2">
+          {takeawayPanel}
+          {misconceptionPanel}
+        </div>
+      ) : (
+        <>
+          {takeawayPanel}
+          {misconceptionPanel}
+        </>
+      )}
     </section>
   );
 }

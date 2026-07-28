@@ -1,8 +1,8 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'ar-language-model-inference-pipeline-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Inference order', 'Sampling', 'Corpus và vocabulary', 'Output vector', 'Probability distribution'],
-  keywords: ['tokenize', 'forward', 'probability', 'sample', 'detokenize', 'corpus', 'vocabulary'], pageCount: 5,
+  headings: ['Inference order', 'Sampling', 'Corpus và vocabulary', 'Output vector', 'Logits'],
+  keywords: ['tokenize', 'forward', 'logits', 'probability', 'sample', 'detokenize', 'corpus', 'vocabulary'], pageCount: 5,
 }
 
 <MdxQuiz id="ar-language-model-inference-pipeline-checkpoint-quiz" questions={[
@@ -51,14 +51,14 @@ export const lessonMetadata = {
     error: 'Chưa đúng. Độ dài vector phụ thuộc vocabulary size, không phụ thuộc số câu trong corpus hay độ dài context.',
   },
   {
-    id: 'probability-sum', title: 'Sau softmax', prompt: 'Sau softmax, output vector có tính chất nào?', mode: 'single',
+    id: 'logits-vs-probabilities', title: 'Logits', prompt: 'Điểm khác nhau đúng giữa logits và probabilities trong pipeline là gì?', mode: 'single',
     options: [
-      { id: 'distribution', label: 'Mỗi token nhận một xác suất và tổng mọi xác suất bằng 1.', isCorrect: true },
-      { id: 'top-k-only', label: 'Chỉ các token thuộc top-k có xác suất; các token khác bị xóa khỏi vector.' },
-      { id: 'divide-vocab', label: 'Vector giữ nguyên logits nhưng chia mỗi giá trị cho |V|.' },
-      { id: 'one-hot', label: 'Token có score cao nhất nhận xác suất 1, mọi token khác nhận 0.' },
+      { id: 'normalized', label: 'Logits là các score chưa chuẩn hóa; sau softmax chúng trở thành probabilities có tổng bằng 1.', isCorrect: true },
+      { id: 'same-values', label: 'Logits và probabilities là cùng một vector; softmax chỉ đổi tên các phần tử.' },
+      { id: 'selected-token', label: 'Logits chỉ chứa token đã được chọn, còn probabilities chứa toàn bộ input.' },
+      { id: 'logits-text', label: 'Logits là text đầu ra, còn probabilities là token IDs của input.' },
     ],
-    success: 'Đúng. Softmax tạo một phân phối xác suất trên toàn bộ vocabulary.',
-    error: 'Chưa đúng. Sau softmax, các giá trị phải là xác suất và cộng lại bằng 1.',
+    success: 'Đúng. Forward tạo logits; softmax chuẩn hóa chúng thành phân phối xác suất.',
+    error: 'Hãy nhìn lại thứ tự: forward → logits → softmax → probabilities.',
   },
 ]} />

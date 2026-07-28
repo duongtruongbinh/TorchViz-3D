@@ -24,14 +24,12 @@ import {
   LlmPretrainingDatasetCards,
   LlmTrainingComponents,
   LlmVocabularyOutputVector,
-  LlmEmbeddingDimension,
   LlmEmbeddingPipelineVisual,
-  LlmEmbeddingScopeComparison,
   LlmRawTextModelInput,
   LlmPaddingMask,
   LlmSpecialTokenRoles,
   LlmSlidingWindowWorkedExample,
-  LlmTextToTensorRoadmap,
+  LlmTransformerArchitectureOverview,
   LlmTokenizerMemory,
   LlmTokenizerContract,
   LlmTokenizerGranularity,
@@ -98,10 +96,10 @@ const PerplexityInterpretation = createContentRenderer(LlmPerplexityInterpretati
 const PerplexitySequenceExample = createContentRenderer(LlmPerplexitySequenceExample);
 const AutoregressiveDefinition = createContentRenderer(LlmAutoregressiveDefinition);
 
-function ArInferencePipeline({ content, step }: { content: RoadmapContent; step?: number }) {
+function ArInferencePipeline({ content, step, training }: { content: RoadmapContent; step?: number; training?: boolean }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
-  return <LlmArInferencePipeline content={materializeVietnameseFallback(content) as LlmArInferencePipelineContent} step={step} language={language} themeClasses={themeClasses} />;
+  return <LlmArInferencePipeline content={materializeVietnameseFallback(content) as LlmArInferencePipelineContent} step={step} training={training} language={language} themeClasses={themeClasses} />;
 }
 
 const VocabularyOutputVector = createContentRenderer(LlmVocabularyOutputVector);
@@ -120,20 +118,17 @@ function NextTokenLoss({ content, position, animated }: { content: RoadmapConten
 
 const LossHandCalculation = createContentRenderer(LlmLossHandCalculation);
 const LossDerivation = createContentRenderer(LlmLossDerivation);
-const EmbeddingDimension = createContentRenderer(LlmEmbeddingDimension);
 const EmbeddingPipelineVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
 const AttentionConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
 const GptConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
 const TrainingConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
 const EvaluationConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
 const PromptConceptVisual = createContentRenderer(LlmEmbeddingPipelineVisual);
-const EmbeddingScopeComparison = createContentRenderer(LlmEmbeddingScopeComparison);
 const PretrainingDatasetCards = createContentRenderer(LlmPretrainingDatasetCards);
 const RawTextModelInput = createContentRenderer(LlmRawTextModelInput);
 const PaddingMask = createContentRenderer(LlmPaddingMask);
 const SpecialTokenRoles = createContentRenderer(LlmSpecialTokenRoles);
 const SlidingWindowWorkedExample = createContentRenderer(LlmSlidingWindowWorkedExample);
-const TextToTensorRoadmap = createContentRenderer(LlmTextToTensorRoadmap);
 const TokenizerContract = createContentRenderer(LlmTokenizerContract);
 const TokenizerGranularity = createContentRenderer(LlmTokenizerGranularity);
 const TokenizerMemory = createContentRenderer(LlmTokenizerMemory);
@@ -174,6 +169,10 @@ const ScaleFactors = panelComponent('why-large');
 const ScaleComparison = panelComponent('iris-scale-comparison-roadmap');
 const LlmPopularity = panelComponent('why-llms-are-popular-now');
 
+function TransformerArchitectureOverview({ focus }: { focus?: 'encoder-decoder' | 'input-embedding' }) {
+  return <LlmTransformerArchitectureOverview focus={focus} themeClasses={useLearningMdxTheme()} />;
+}
+
 export const llmMdxComponents = {
   AiHierarchy,
   AcademiaIndustryComparison,
@@ -189,20 +188,18 @@ export const llmMdxComponents = {
   LlmLossHandCalculation: LossHandCalculation,
   LlmLossDerivation: LossDerivation,
   LlmTrainingComponents: TrainingComponents,
-  EmbeddingDimension,
   EmbeddingPipelineVisual,
   AttentionConceptVisual,
   GptConceptVisual,
   TrainingConceptVisual,
   EvaluationConceptVisual,
   PromptConceptVisual,
-  EmbeddingScopeComparison,
   PretrainingDatasetCards,
   RawTextModelInput,
   PaddingMask,
   SpecialTokenRoles,
   SlidingWindowWorkedExample,
-  TextToTensorRoadmap,
+  TransformerArchitectureOverview,
   TokenizerContract,
   TokenizerGranularity,
   DomainComparison,

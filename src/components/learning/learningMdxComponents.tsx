@@ -51,8 +51,21 @@ export function useLearningMdxLesson() {
   return lessonContext;
 }
 
-export function RequirementsGrid({ children }: { children?: ReactNode }) {
-  return <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{children}</div>;
+const REQUIREMENTS_OVERVIEW_IMAGE = new URL(
+  '../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-minimal-llm-project-requirements.png',
+  import.meta.url,
+).href;
+
+export function RequirementsGrid() {
+  return (
+    <figure className="mx-auto w-full max-w-[1300px]">
+      <img
+        src={REQUIREMENTS_OVERVIEW_IMAGE}
+        alt="Tổng quan bốn công cụ cần chuẩn bị: Google Colab, Python, uv và VSCode"
+        className="block h-auto w-full object-contain"
+      />
+    </figure>
+  );
 }
 
 const REQUIREMENT_ICONS: Record<string, LucideIcon> = { code: Code2, monitor: Monitor, terminal: Terminal, wrench: Wrench };
@@ -101,7 +114,7 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
             so `<p>` can shrink below the intrinsic width of long inline code (e.g. URLs).
             `[&_code]:break-words` then lets that code wrap mid-word to fit the card.
             Without both, a long URL forces the grid column — and the card — wider. */}
-        <div className={cx('grid gap-2 text-sm leading-6 [&_a]:font-black [&_a]:text-[#205089] [&_p]:min-w-0 [&_code]:block [&_code]:break-words [&_code]:rounded-lg [&_code]:bg-[#0B1220] [&_code]:px-3 [&_code]:py-2 [&_code]:text-xs [&_code]:text-[#E5EEF8]', themeClasses.bodyText)}>{children}</div>
+        <div className={cx('grid gap-2 text-sm leading-6 [&_a]:text-[#205089] [&_p]:min-w-0 [&_code]:block [&_code]:break-words [&_code]:rounded-lg [&_code]:bg-[#0B1220] [&_code]:px-3 [&_code]:py-2 [&_code]:text-xs [&_code]:text-[#E5EEF8]', themeClasses.bodyText)}>{children}</div>
       </div>
     </section>
   );
@@ -139,7 +152,7 @@ function MdxLink({ children, href }: { children?: ReactNode; href?: string }) {
   if (isNumericCitation) {
     return <a href={href} target="_blank" rel="noreferrer" className={cx('underline-offset-2 transition-colors hover:underline', themeClasses.focusRing, themeClasses.isLight ? 'text-[#2F78B7]' : 'text-[#9CC7EF]')}>{children}</a>;
   }
-  return <a href={href} target="_blank" rel="noreferrer" className={cx('inline-flex min-h-9 items-center rounded-lg border px-3 text-xs font-black leading-5 transition-colors', themeClasses.focusRing, themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC] text-[#123B68] hover:bg-[#EEF4FA]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7 text-[#F2F6FA] hover:bg-[#A8B8C8]/11')}>{children}</a>;
+  return <a href={href} target="_blank" rel="noreferrer" className={cx('inline-flex min-h-9 items-center rounded-lg border px-3 font-sans text-xs font-bold leading-5 transition-colors', themeClasses.focusRing, themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC] text-[#123B68] hover:bg-[#EEF4FA]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7 text-[#F2F6FA] hover:bg-[#A8B8C8]/11')}>{children}</a>;
 }
 
 type MdxCodeElementProps = {
@@ -157,12 +170,21 @@ function readMdxCodeText(value: ReactNode): string {
 function MdxCodeBlock({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
   const codeElement = isValidElement<MdxCodeElementProps>(children) ? children : null;
-  const language = codeElement?.props.className?.match(/(?:^|\s)language-([^\s]+)/)?.[1] ?? 'text';
+  const authoredLanguage = codeElement?.props.className?.match(/(?:^|\s)language-([^\s]+)/)?.[1] ?? 'text';
+  const [language, highlightedLineSpec] = authoredLanguage.split('-highlight-');
+  const highlightedLines = highlightedLineSpec
+    ? highlightedLineSpec.split(',').flatMap((part) => {
+        const [start, end = start] = part.split('-').map(Number);
+        return Number.isInteger(start) && Number.isInteger(end) && end >= start
+          ? Array.from({ length: end - start + 1 }, (_, index) => start + index)
+          : [];
+      })
+    : [];
   // MDX appends one structural newline inside fenced code. Removing only that
   // terminator avoids rendering an extra blank row while preserving authored
   // whitespace within the fence.
   const code = readMdxCodeText(codeElement?.props.children ?? children).replace(/\n$/, '');
-  return <CodeBlock code={code} language={language} themeClasses={themeClasses} />;
+  return <CodeBlock code={code} language={language} highlightedLines={highlightedLines} themeClasses={themeClasses} />;
 }
 
 type MdxTableElementProps = {

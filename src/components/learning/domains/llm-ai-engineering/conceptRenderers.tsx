@@ -16,6 +16,7 @@ import type {
 const LLM_LEARNING_ASSETS: Record<string, string> = {
   'llm-from-scratch-roadmap.ai-hierarchy': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-ai-hierarchy.png', import.meta.url).href,
   'llm-from-scratch-roadmap.next-token-loop': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-next-token-loop.png', import.meta.url).href,
+  'llm-from-scratch-roadmap.tokenization-example': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-tokenization-example.png', import.meta.url).href,
   'llm-from-scratch-roadmap.why-llms-popular-product': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-product.png', import.meta.url).href,
   'llm-from-scratch-roadmap.why-llms-popular-technical': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-technical.png', import.meta.url).href,
 };
@@ -157,7 +158,7 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
     <div className="overflow-hidden">
       <section className="w-full" aria-label={language === 'vi' ? 'Phạm vi các lĩnh vực AI' : 'Scope of AI fields'}>
         <p className={cx('text-base font-semibold leading-8 [text-wrap:pretty] sm:text-lg', themeClasses.titleText)}>
-          {leadBeforeConcept}<strong className={themeClasses.accentText}>Artificial Intelligence</strong>{language === 'vi' ? ' thành ' : ' into '}{leadAfterConcept.replace(/^\s*(và|and)\s*/i, '')}
+          {leadBeforeConcept}<strong className={themeClasses.accentText}>{conceptName}</strong>{language === 'vi' ? ' thành ' : ' into '}{leadAfterConcept.replace(/^\s*(và|and)\s*/i, '')}
         </p>
 
         <div className="mt-6 grid items-center gap-6 lg:grid-cols-[minmax(0,0.68fr)_minmax(28rem,1.32fr)] lg:gap-8">
@@ -1370,18 +1371,13 @@ function ScopeConventionPanel({ extra, language, themeClasses }: {
           if (lines.length > 0) {
             return (
               <div key={text(paragraph, language)} className={cx('grid gap-2 rounded-lg border px-3 py-3', themeClasses.isLight ? 'border-[#D97706]/18 bg-[#FFF7ED]' : 'border-[#F59E0B]/20 bg-[#3A2613]/40')}>
-                <div className={cx('flex items-center gap-2 text-xs font-black uppercase tracking-wide', themeClasses.isLight ? 'text-[#A54F00]' : 'text-[#FBC77D]')}>
-                  <CircleAlert className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-                  <span>{language === 'vi' ? 'Đừng đọc sơ đồ như lịch sử tuyệt đối' : 'Do not read the diagram as absolute history'}</span>
-                </div>
-                <ul className="grid gap-2">
+                <ol className={cx('grid list-decimal gap-2 pl-5 marker:font-bold', themeClasses.bodyText)}>
                   {lines.map((line) => (
-                    <li key={line} className={cx('flex gap-2 text-sm font-semibold leading-6', themeClasses.bodyText)}>
-                      <CheckCircle2 className={cx('mt-1 h-4 w-4 shrink-0', themeClasses.isLight ? 'text-[#D97706]' : 'text-[#F59E0B]')} strokeWidth={2.1} aria-hidden="true" />
-                      <span>{line}</span>
+                    <li key={line} className="pl-1 text-sm font-semibold leading-6">
+                      {line}
                     </li>
                   ))}
-                </ul>
+                </ol>
               </div>
             );
           }
@@ -1465,11 +1461,16 @@ function TokenizationExamplePanel({ extra, language, themeClasses }: {
       <p className={cx('text-base font-black leading-6', themeClasses.accentText)}>
         {language === 'vi' ? 'Ví dụ về Tokenization' : 'Tokenization example'}
       </p>
+      <img
+        src={getLlmLearningAssetUrl('llm-from-scratch-roadmap.tokenization-example')}
+        alt={language === 'vi'
+          ? 'Minh họa năm dạng token: từ, mảnh từ, dấu câu, khoảng trắng và token đặc biệt'
+          : 'Five token types: words, subwords, punctuation, whitespace, and special tokens'}
+        className="mx-auto block h-auto w-full max-w-[1300px] object-contain"
+      />
       <p className={cx('text-sm leading-6', themeClasses.bodyText)}>
         {language === 'vi' ? 'Qua chương sau chúng ta sẽ quay lại thảo luận kỹ hơn về Tokenization.' : 'We will return to tokenization in more detail in the next chapter.'}
       </p>
-
-      <TokenExampleBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} hideTitle />
     </div>
   );
 }

@@ -36,12 +36,7 @@ const chapters: LearningTocTrackSeed[] = [
         'Data: From the open web to training tokens',
         'Data: Từ web thô đến training token',
       ),
-      lessonSeed(
-        'common-pretraining-datasets',
-        'Common open pretraining datasets',
-        'Các pretraining dataset phổ biến',
-      ),
-      quizSeed('llm-training-data-quiz'),
+      quizSeed('llm-training-data-review-quiz'),
       lessonSeed(
         'language-modeling-next-token',
         'Language modeling and next-token prediction',
@@ -54,12 +49,6 @@ const chapters: LearningTocTrackSeed[] = [
         'Quy trình sinh token của AR Language Model',
       ),
       quizSeed('ar-language-model-inference-pipeline-quiz'),
-      lessonSeed(
-        'llm-output-head-and-loss',
-        'Language model output head',
-        'Output head của Language Model',
-      ),
-      quizSeed('llm-output-head-and-loss-quiz'),
       lessonSeed(
         'llm-next-token-loss',
         'Next-token loss during language-model training',

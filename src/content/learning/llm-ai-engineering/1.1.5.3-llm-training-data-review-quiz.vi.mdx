@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-training-data-review-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Web thô', 'Lọc và loại trùng', 'Mixture weights', 'Data mixture', 'So sánh quy mô'],
+  keywords: ['quiz', 'training data', 'filtering', 'deduplication', 'mixture weights', 'dataset versioning'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="llm-training-data-review-quiz" questions={[
+  {
+    id: 'raw-web-document',
+    title: 'Web thô',
+    prompt: 'Team vừa tải một document HTML từ web. Cách xử lý nào hợp lý nhất trước khi quyết định đưa document đó vào training corpus?',
+    mode: 'single',
+    options: [
+      { id: 'strip-tags-only', label: 'Xóa toàn bộ HTML tags rồi giữ document, vì phần còn lại đều là nội dung hữu ích.' },
+      { id: 'needs-extraction', label: 'Trích text, chuẩn hóa, gắn metadata rồi dùng các bộ lọc để quyết định giữ hay loại.', isCorrect: true },
+      { id: 'tokenize-first', label: 'Tokenize toàn bộ HTML trước, sau đó lọc trực tiếp trên token IDs.' },
+      { id: 'cheap-rules-only', label: 'Chỉ kiểm tra độ dài và ngôn ngữ; nếu đạt thì bỏ qua các bước lọc còn lại.' },
+    ],
+    success: 'Đúng. Pipeline phải trích text, chuẩn hóa và gắn metadata trước khi quyết định giữ hay loại document.',
+    error: 'Hãy nhớ ví dụ document HTML: text chính chỉ là một phần nhỏ giữa nhiều nội dung không cần cho training.',
+  },
+  {
+    id: 'deduplication-example',
+    title: 'Lọc và loại trùng',
+    prompt: 'Một bài viết xuất hiện ở nhiều URL với một vài thay đổi nhỏ. Pipeline nên xử lý trường hợp này ở lớp nào?',
+    mode: 'single',
+    options: [
+      { id: 'rule-filtering', label: 'Rule filtering, cùng nhóm với kiểm tra độ dài và ngôn ngữ.' },
+      { id: 'deduplication', label: 'Deduplication, vì đây là các document giống hoặc gần giống nhau.', isCorrect: true },
+      { id: 'model-filtering', label: 'Model filtering, vì mọi nội dung đăng lại đều có chất lượng thấp.' },
+      { id: 'safety-policy', label: 'Safety/policy, vì nhiều URL đồng nghĩa document chứa thông tin cá nhân.' },
+    ],
+    success: 'Đúng. Deduplication loại bản sao giống hệt hoặc gần giống để giảm việc model học lặp.',
+    error: 'Trường hợp này không phải lỗi ngôn ngữ hay cân bằng domain; vấn đề là nội dung bị lặp.',
+  },
+  {
+    id: 'mixture-labels-to-weights',
+    title: 'Mixture weights',
+    prompt: 'Vì sao pipeline cần gắn source, license, time và filter version cho từng document trước khi chọn mixture weights?',
+    mode: 'single',
+    options: [
+      { id: 'raw-proportion', label: 'Để giữ nguyên tỷ lệ dữ liệu có sẵn trên web khi lấy mẫu.' },
+      { id: 'trace-and-sample', label: 'Để truy vết nguồn và quyết định tỷ lệ lấy mẫu theo domain hoặc ngôn ngữ.', isCorrect: true },
+      { id: 'shuffle-first', label: 'Để shuffle document trước khi pipeline biết chúng thuộc nguồn nào.' },
+      { id: 'drop-minority', label: 'Để loại toàn bộ domain hoặc ngôn ngữ có ít document hơn.' },
+    ],
+    success: 'Đúng. Nhãn vừa hỗ trợ truy vết, vừa cung cấp thông tin để cân bằng các nguồn trong mixture.',
+    error: 'Mixture weights dựa trên việc pipeline biết mỗi document thuộc nguồn, domain hoặc ngôn ngữ nào.',
+  },
+  {
+    id: 'pile-mixture',
+    title: 'Data mixture',
+    prompt: 'Team cần một ví dụ về pretraining corpus trộn nhiều domain như web, code, paper, sách và hội thoại. Dataset nào trong bài phù hợp nhất?',
+    mode: 'single',
+    options: [
+      { id: 'c4', label: 'C4, một clean web corpus được tạo từ Common Crawl.' },
+      { id: 'pile', label: 'The Pile, một mixture được tạo từ 22 nguồn.', isCorrect: true },
+      { id: 'fineweb', label: 'FineWeb, một web-scale filtered corpus từ Common Crawl.' },
+      { id: 'dolma', label: 'Dolma, một open research corpus có pipeline mở.' },
+    ],
+    success: 'Đúng. Điểm nổi bật của The Pile là mixture gồm 22 nguồn thuộc nhiều domain cùng datasheet mô tả corpus.',
+    error: 'Hãy đối chiếu category của từng dataset: The Pile được giới thiệu trực tiếp là một 22-source mixture.',
+  },
+  {
+    id: 'dataset-scale-comparison',
+    title: 'So sánh quy mô',
+    prompt: 'Vì sao không nên dùng riêng token count để kết luận dataset nào “lớn hơn tuyệt đối”?',
+    mode: 'single',
+    options: [
+      { id: 'tokenizer-version', label: 'Vì token count còn phụ thuộc tokenizer và phiên bản cụ thể của dataset.', isCorrect: true },
+      { id: 'storage-only', label: 'Vì token count chỉ đo dung lượng file theo GiB.' },
+      { id: 'same-count', label: 'Vì mọi pretraining dataset cuối cùng đều có cùng số token.' },
+      { id: 'domain-only', label: 'Vì token count chỉ được tính cho domain code.' },
+    ],
+    success: 'Đúng. Các con số phù hợp để hiểu bậc quy mô, nhưng tokenizer và dataset version có thể làm token count thay đổi.',
+    error: 'Hãy nhớ note cuối page dataset: token count phụ thuộc tokenizer và phiên bản dataset.',
+  },
+]} />

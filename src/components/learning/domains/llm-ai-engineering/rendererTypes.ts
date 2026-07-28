@@ -29,44 +29,6 @@ export type LlmRawTextModelInputContent = {
   rawTextNote: LearningLocalizedText;
   tokenIdsNote: LearningLocalizedText;
   embeddingNote: LearningLocalizedText;
-  modelNote: LearningLocalizedText;
-  unicodeWarning: LearningLocalizedText;
-};
-
-export type LlmEmbeddingScopeComparisonContent = {
-  lead: LearningLocalizedText;
-  scopes: Array<{
-    id: 'token' | 'sentence' | 'document';
-    title: LearningLocalizedText;
-    unit: LearningLocalizedText;
-    useCase: LearningLocalizedText;
-    output: string;
-  }>;
-  focus: LearningLocalizedText;
-  misconception: LearningLocalizedText;
-};
-
-export type LlmEmbeddingDimensionContent = {
-  token: string;
-  vector: string[];
-  dimensionLabel: string;
-  vocabularyRows: string;
-  lead: LearningLocalizedText;
-  denseMeaning: LearningLocalizedText;
-  rowMeaning: LearningLocalizedText;
-  dimensionMeaning: LearningLocalizedText;
-  misconception: LearningLocalizedText;
-};
-
-export type LlmTextToTensorRoadmapContent = {
-  lead: LearningLocalizedText;
-  steps: Array<{
-    id: 'text' | 'tokens' | 'ids' | 'windows' | 'batches' | 'embeddings' | 'input';
-    label: LearningLocalizedText;
-    contract: string;
-  }>;
-  constants: Array<{ symbol: string; value: string; meaning: LearningLocalizedText }>;
-  takeaway: LearningLocalizedText;
 };
 
 export type LlmPretrainingDatasetCardsContent = {
@@ -320,20 +282,26 @@ export type LlmSlidingWindowWorkedExampleContent =
 
 export type LlmEmbeddingPipelineVisualContent = {
   view: 'lookup' | 'batch' | 'position' | 'addition' | 'audit';
+  layout?: 'filter-pipeline' | 'mixture-board' | 'scale-dashboard' | 'scale-risks' | 'continuous-cycle';
   lead: LearningLocalizedText;
+  scaleNote?: LearningLocalizedText;
   code: string[];
   output?: string[];
   steps?: Array<{
     label: LearningLocalizedText;
     shape: string;
     detail: LearningLocalizedText;
+    examples?: LearningLocalizedText[];
+    beforeCount?: number;
+    afterCount?: number;
   }>;
   comparisons?: Array<{
     title: string;
     shape: string;
+    href?: string;
     detail: LearningLocalizedText;
   }>;
-  takeaway: LearningLocalizedText;
+  takeaway?: LearningLocalizedText;
   misconception?: LearningLocalizedText;
 };
 

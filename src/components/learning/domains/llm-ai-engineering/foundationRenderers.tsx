@@ -1,11 +1,12 @@
-import { CheckCircle2, CircleAlert, Code2, Terminal } from 'lucide-react';
+import { ArrowRight, CheckCircle2, CircleAlert, Code2, Terminal } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { cx } from '../../theme';
 import { useLearningMdxTheme } from '../../learningMdxComponents';
 
-export function CodeLessonFrame({ children, contract, output, pitfall, takeaway, title }: {
+export function CodeLessonFrame({ children, contract, nextStep, output, pitfall, takeaway, title }: {
   children?: ReactNode;
-  contract: string;
+  contract?: string;
+  nextStep?: string;
   output?: string;
   pitfall?: string;
   takeaway: string;
@@ -21,7 +22,9 @@ export function CodeLessonFrame({ children, contract, output, pitfall, takeaway,
           </span>
           <h2 className={cx('min-w-0 text-base font-black leading-6 [text-wrap:balance]', themeClasses.titleText)}>{title}</h2>
         </div>
-        <code className={cx('w-fit max-w-full break-words rounded-md px-2.5 py-1.5 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#123B68]' : 'bg-[#172A43] text-[#DCE8F4]')}>{contract}</code>
+        {contract ? (
+          <code className={cx('w-fit max-w-full break-words rounded-md px-2.5 py-1.5 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#123B68]' : 'bg-[#172A43] text-[#DCE8F4]')}>{contract}</code>
+        ) : null}
       </header>
 
       <div className={cx('grid min-w-0 gap-4 [&>p]:max-w-[72ch]', themeClasses.bodyText)}>
@@ -39,6 +42,13 @@ export function CodeLessonFrame({ children, contract, output, pitfall, takeaway,
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.9} aria-hidden="true" />
         <p className="text-sm font-semibold leading-6">{takeaway}</p>
       </div>
+
+      {nextStep ? (
+        <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#EDF5FB] text-[#254F70]' : 'bg-[#263B5B]/55 text-[#DCE8F4]')}>
+          <ArrowRight className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.9} aria-hidden="true" />
+          <p className="text-sm font-semibold leading-6">{nextStep}</p>
+        </div>
+      ) : null}
 
       {pitfall ? (
         <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#FFF4E8] text-[#744019]' : 'bg-[#3D2A1B] text-[#FFDDBD]')}>

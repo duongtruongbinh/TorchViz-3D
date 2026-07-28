@@ -30,6 +30,8 @@ export interface CodeBlockProps {
   variant?: 'code' | 'output';
   /** Show a 1-based line-number gutter. */
   showLineNumbers?: boolean;
+  /** 1-based source lines that should receive a visual focus highlight. */
+  highlightedLines?: number[];
   /**
    * Show whitespace marker gutters (indentation `→` + line-end `↵`). Intended
    * only for the whitespace lesson. The markers live in their own gutters; the
@@ -131,6 +133,7 @@ export function CodeBlock({
   label,
   variant = 'code',
   showLineNumbers = false,
+  highlightedLines = [],
   showWhitespace = false,
   headerTrailing,
   copyable,
@@ -144,6 +147,7 @@ export function CodeBlock({
   const rawLines = source.split('\n');
   const tokens = usePythonTokens(source, !isOutput && isPython);
   const showCopy = copyable ?? !isOutput;
+  const highlightedLineSet = new Set(highlightedLines);
 
   return (
     <div className="overflow-hidden rounded-lg border border-white/12 bg-[#0B1220] shadow-[inset_0_0_0_1px_rgba(168,184,200,0.10)]">
@@ -175,8 +179,15 @@ export function CodeBlock({
             : rawLines.map((rawLine, index) => {
                 const indentation = showWhitespace ? rawLine.match(/^\s*/)?.[0].length ?? 0 : 0;
                 const arrows = indentation > 0 ? '→'.repeat(Math.floor(indentation / 4)) : '';
+                const isHighlighted = highlightedLineSet.has(index + 1);
                 return (
-                  <span key={`${index}-${rawLine}`} className="block whitespace-pre font-mono text-[0.82rem] md:text-sm">
+                  <span
+                    key={`${index}-${rawLine}`}
+                    className={cx(
+                      'block whitespace-pre font-mono text-[0.82rem] md:text-sm',
+                      isHighlighted && '-mx-4 border-l-2 border-[#F2C94C] bg-[#4A3A12] px-[calc(1rem-2px)] text-[#FFF4C2] md:-mx-5 md:px-[calc(1.25rem-2px)]',
+                    )}
+                  >
                     {showLineNumbers ? (
                       <span className="mr-3 inline-block w-6 shrink-0 select-none text-right text-[#59708A]">{index + 1}</span>
                     ) : null}
