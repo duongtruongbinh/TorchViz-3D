@@ -16,6 +16,10 @@ const llmLessonIds = new Set(
     .filter((lesson) => lesson.domainId === 'llm-ai-engineering')
     .map((lesson) => lesson.id),
 );
+const lessonPageCaps = new Map([
+  ['ar-language-model-inference-pipeline', 7],
+  ['llm-training-data', 7],
+]);
 
 test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => {
   assert.deepEqual(
@@ -41,7 +45,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     assert.equal(inspection.metadata.id, parsed.lessonId);
     assert.equal(inspection.metadata.locale, parsed.locale);
     const pageCount = Number(inspection.metadata.pageCount ?? 1);
-    const maxPageCount = parsed.lessonId === 'ar-language-model-inference-pipeline' ? 7 : 6;
+    const maxPageCount = lessonPageCaps.get(parsed.lessonId) ?? 6;
     assert.ok(pageCount >= 1 && pageCount <= maxPageCount, `${parsed.lessonId} pageCount out of bounds: ${pageCount}`);
     if (pageCount > 1 && inspection.quizComponents.length === 0) {
       assert.deepEqual(inspection.pageIndexes, Array.from({ length: pageCount }, (_, index) => index));
@@ -166,7 +170,7 @@ test('all LLM tracks enforce focused pages and local media contracts', async () 
     assert.ok(parsed);
     const inspection = await inspectLearningMdx(source, file, parsed.domainId);
     const pageCount = Number(inspection.metadata.pageCount ?? 1);
-    const maxPageCount = parsed.lessonId === 'ar-language-model-inference-pipeline' ? 7 : 6;
+    const maxPageCount = lessonPageCaps.get(parsed.lessonId) ?? 6;
     assert.ok(pageCount <= maxPageCount, `${parsed.lessonId} exceeds its ${maxPageCount}-page lesson cap`);
     assert.doesNotMatch(source, /(?:"src"\s*:|src=)\s*["']https?:\/\//i, `${parsed.lessonId} uses a remote image`);
   }

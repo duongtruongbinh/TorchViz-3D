@@ -79,53 +79,40 @@ export function LlmTrainingComponents({ content, language, themeClasses }: LlmCo
   );
 }
 
-const PRETRAINING_DATASET_STYLES = {
-  c4: ['bg-[#DCE8F4]', 'text-[#205089]', Database],
-  pile: ['bg-[#E8E0F2]', 'text-[#69468A]', Braces],
-  dolma: ['bg-[#DCEEE8]', 'text-[#2E6B5D]', SlidersHorizontal],
-  fineweb: ['bg-[#F4E8C8]', 'text-[#70551A]', Sparkles],
-} satisfies Record<LlmPretrainingDatasetCardsContent['datasets'][number]['id'], [string, string, LucideIcon]>;
+const DATASET_EVOLUTION_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-training-data-dataset-evolution.png',
+  import.meta.url,
+).href;
 
 export function LlmPretrainingDatasetCards({ content, language, themeClasses }: LlmContentRendererProps<LlmPretrainingDatasetCardsContent>) {
   return (
     <section className="grid gap-4">
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className="grid gap-3 md:grid-cols-2">
-        {content.datasets.map((dataset) => {
-          const [topClass, accentClass, Icon] = PRETRAINING_DATASET_STYLES[dataset.id];
-          return (
-            <article
-              key={dataset.id}
-              className={cx(
-                'grid min-h-[18rem] grid-rows-[7.5rem_minmax(0,1fr)] overflow-hidden rounded-lg border',
-                themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/14 bg-[#121A24]/36',
-              )}
+      <ul className={cx('grid list-disc gap-3 pl-5 text-base leading-7', themeClasses.bodyText)}>
+        {content.datasets.map((dataset) => (
+          <li key={dataset.id}>
+            <a
+              href={dataset.href}
+              target="_blank"
+              rel="noreferrer"
+              className={cx('font-black underline decoration-1 underline-offset-4', themeClasses.accentText)}
             >
-              <div className={cx('flex items-center justify-between gap-4 border-b border-black/5 px-5', themeClasses.isLight ? topClass : 'bg-[#263B5B]')}>
-                <div>
-                  <p className={cx('text-xs font-bold', themeClasses.isLight ? accentClass : 'text-[#BFD3F2]')}>{text(dataset.category, language)}</p>
-                  <h3 className={cx('mt-1 text-2xl font-black tracking-[-0.02em]', themeClasses.titleText)}>{dataset.name}</h3>
-                </div>
-                <div className={cx('grid h-12 w-12 shrink-0 place-items-center rounded-xl', themeClasses.isLight ? `bg-white ${accentClass}` : 'bg-[#172A43] text-[#BFD3F2]')}>
-                  <Icon className="h-6 w-6" strokeWidth={1.8} aria-hidden="true" />
-                </div>
-              </div>
-              <div className="grid content-start gap-3 p-5">
-                <p className={cx('font-mono text-lg font-black', themeClasses.accentText)}>{dataset.scale}</p>
-                <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(dataset.brief, language)}</p>
-                <a
-                  href={dataset.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={cx('mt-auto inline-flex w-fit items-center gap-1 text-sm font-bold underline decoration-1 underline-offset-4', themeClasses.accentText)}
-                >
-                  Dataset / paper <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </a>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+              {dataset.name}
+            </a>
+            {' — '}
+            <strong>{dataset.scale}.</strong> {text(dataset.brief, language)}
+          </li>
+        ))}
+      </ul>
+      {content.image === 'dataset-evolution' ? (
+        <figure className="mx-auto w-full">
+          <img
+            src={DATASET_EVOLUTION_IMAGE}
+            alt="Sự phát triển từ web corpus đã làm sạch đến các pretraining dataset quy mô hàng nghìn tỷ token"
+            className="block h-auto w-full object-contain"
+          />
+        </figure>
+      ) : null}
       <p className={cx('text-sm leading-6', themeClasses.mutedText)}>{text(content.note, language)}</p>
     </section>
   );

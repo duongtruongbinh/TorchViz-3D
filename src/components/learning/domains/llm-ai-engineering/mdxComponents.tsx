@@ -30,18 +30,15 @@ import {
   LlmSpecialTokenRoles,
   LlmSlidingWindowWorkedExample,
   LlmTransformerArchitectureOverview,
-  LlmTokenizerMemory,
   LlmTokenizerContract,
   LlmTokenizerGranularity,
   LlmTokenizerVocabularyLookup,
   LlmTokenizerIdMisconceptions,
   LlmTokenIdTensorShape,
   LlmBpeFallback,
-  LlmBpeInferenceFlow,
   LlmTokenizerMergeTraining,
   LlmTokenizerSequenceLength,
   LlmTokenizerRegexWalkthrough,
-  LlmVocabularyTradeoff,
   CodeLessonFrame,
 } from './renderers';
 import type {
@@ -131,18 +128,14 @@ const SpecialTokenRoles = createContentRenderer(LlmSpecialTokenRoles);
 const SlidingWindowWorkedExample = createContentRenderer(LlmSlidingWindowWorkedExample);
 const TokenizerContract = createContentRenderer(LlmTokenizerContract);
 const TokenizerGranularity = createContentRenderer(LlmTokenizerGranularity);
-const TokenizerMemory = createContentRenderer(LlmTokenizerMemory);
 const TokenizerVocabularyLookup = createContentRenderer(LlmTokenizerVocabularyLookup);
 const TokenizerIdMisconceptions = createContentRenderer(LlmTokenizerIdMisconceptions);
 const TokenIdTensorShape = createContentRenderer(LlmTokenIdTensorShape);
-const BpeFallback = createContentRenderer(LlmBpeFallback);
-const BpeInferenceFlow = createContentRenderer(LlmBpeInferenceFlow);
 const TokenizerMergeTraining = createContentRenderer(LlmTokenizerMergeTraining);
 const TokenizerSequenceLength = createContentRenderer(LlmTokenizerSequenceLength);
 const TokenizerCodeWalkthrough = createContentRenderer(LlmTokenizerRegexWalkthrough);
 const TokenFallbackComparison = createContentRenderer(LlmBpeFallback);
 const TokenizerRegexWalkthrough = createContentRenderer(LlmTokenizerRegexWalkthrough);
-const VocabularyTradeoff = createContentRenderer(LlmVocabularyTradeoff);
 
 function interactionComponent(id: string) {
   return function Interaction({ content }: { content: RoadmapContent }) {
@@ -173,6 +166,50 @@ function TransformerArchitectureOverview({ focus }: { focus?: 'encoder-decoder' 
   return <LlmTransformerArchitectureOverview focus={focus} themeClasses={useLearningMdxTheme()} />;
 }
 
+const TOKENIZATION_WORD_LIMIT_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-tokenization-word-limit-subword.png',
+  import.meta.url,
+).href;
+const TOKENIZER_CHECKPOINT_MATCH_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/03-tokenizer-checkpoint-match.png',
+  import.meta.url,
+).href;
+const BPE_TRAINING_INFERENCE_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/04-bpe-training-inference.png',
+  import.meta.url,
+).href;
+const SPECIAL_TOKENS_OVERVIEW_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/05-special-tokens-bos-eos-pad.png',
+  import.meta.url,
+).href;
+
+function TokenizerConceptVisual({ view }: { view: 'word-limit' | 'checkpoint-match' | 'bpe-training-inference' | 'special-tokens' }) {
+  const isCheckpointMatch = view === 'checkpoint-match';
+  const isBpeTrainingInference = view === 'bpe-training-inference';
+  const isSpecialTokens = view === 'special-tokens';
+  return (
+    <figure className="mx-auto w-full">
+      <img
+        src={isSpecialTokens
+          ? SPECIAL_TOKENS_OVERVIEW_IMAGE
+          : isBpeTrainingInference
+            ? BPE_TRAINING_INFERENCE_IMAGE
+            : isCheckpointMatch
+              ? TOKENIZER_CHECKPOINT_MATCH_IMAGE
+              : TOKENIZATION_WORD_LIMIT_IMAGE}
+        alt={isSpecialTokens
+          ? 'Ba special token BOS, EOS và PAD lần lượt đánh dấu bắt đầu, kết thúc và vị trí lấp thêm'
+          : isBpeTrainingInference
+            ? 'Tokenizer học vocabulary và quy tắc gộp trong training, sau đó dùng lại chúng để xử lý input mới'
+            : isCheckpointMatch
+              ? 'Tokenizer và model weights phải dùng cùng mapping token ID'
+              : 'Word-level cần một mục cho từng cách viết, trong khi subword tái sử dụng các mảnh nhỏ đã biết'}
+        className="block h-auto w-full object-contain"
+      />
+    </figure>
+  );
+}
+
 export const llmMdxComponents = {
   AiHierarchy,
   AcademiaIndustryComparison,
@@ -200,24 +237,21 @@ export const llmMdxComponents = {
   SpecialTokenRoles,
   SlidingWindowWorkedExample,
   TransformerArchitectureOverview,
+  TokenizerConceptVisual,
   TokenizerContract,
   TokenizerGranularity,
   DomainComparison,
   ScopeConvention,
   LlmOverview,
   TokenizationExample,
-  TokenizerMemory,
   TokenizerVocabularyLookup,
   TokenizerIdMisconceptions,
   TokenIdTensorShape,
-  BpeFallback,
-  BpeInferenceFlow,
   TokenizerMergeTraining,
   TokenizerSequenceLength,
   TokenizerCodeWalkthrough,
   TokenFallbackComparison,
   TokenizerRegexWalkthrough,
-  VocabularyTradeoff,
   CodeLessonFrame,
   NextTokenExercise,
   ScaleFactors,

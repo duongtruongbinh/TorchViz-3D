@@ -1,4 +1,4 @@
-import { Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
+import { AlertTriangle, Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
 import { createContext, isValidElement, useContext, type CSSProperties, type ComponentType, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
@@ -120,9 +120,22 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
   );
 }
 
-export function LessonNote({ children }: { children?: ReactNode }) {
+export function LessonNote({ children, variant = 'note' }: { children?: ReactNode; variant?: 'note' | 'warning' }) {
   const themeClasses = useLearningMdxTheme();
-  return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5', themeClasses.sectionAccent.note)}>{children}</div>;
+  const isWarning = variant === 'warning';
+  return (
+    <div className={cx(
+      'mt-5 flex gap-3 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
+      isWarning
+        ? themeClasses.isLight
+          ? 'border border-[#D29A22]/24 bg-[#FFF8E8] text-[#744F08]'
+          : 'border border-[#E3B64B]/20 bg-[#594821]/20 text-[#F6D982]'
+        : themeClasses.sectionAccent.note,
+    )}>
+      {isWarning ? <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /> : null}
+      <div className="grid min-w-0 gap-2">{children}</div>
+    </div>
+  );
 }
 
 export function ExtraFrame({ title, children, themeClasses, customTitle }: {

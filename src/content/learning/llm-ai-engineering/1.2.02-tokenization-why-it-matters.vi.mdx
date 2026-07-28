@@ -3,39 +3,25 @@ export const lessonMetadata = {
   id: 'tokenization-why-it-matters',
   locale: 'vi',
   title: 'Tại sao dùng token thay vì chỉ dùng word?',
-  headings: ['Token là đơn vị của tokenizer', 'Ba mức chia text', 'Vocabulary và sequence length', 'Tokenizer là model contract'],
+  headings: ['Hạn chế của word-level tokenization', 'Ba mức chia text', 'Tokenizer đi cùng model pretrained'],
   keywords: ['tokenizer', 'token', 'word-level', 'character-level', 'subword', 'vocabulary', 'sequence length'],
-  pageCount: 4,
+  pageCount: 3,
 }
 
 <MdxPage page={0}>
 
-## Token là đơn vị do tokenizer quyết định
+## Vì sao không chỉ dùng nguyên word?
 
-**Input:** một chuỗi raw text.  
-**Output:** một danh sách token có thứ tự.
+Nếu dùng nguyên word làm token, vocabulary phải có sẵn từng từ và từng cách viết. Từ mới, tên riêng, biến thể như `builder` và `builders`, hoặc lỗi chính tả như `buidler` dễ trở thành những mục hoàn toàn khác. Subword giải quyết vấn đề này bằng cách tái sử dụng các mảnh nhỏ đã biết thay vì yêu cầu vocabulary chứa trước mọi word.
 
-Một token có thể là cả từ, mảnh từ, dấu câu, khoảng trắng đi kèm hoặc một đơn vị byte. Token không đồng nghĩa với “word”.
-
-<TokenizerMemory content={{
-  cards: [
-    { id: 'flexible', cue: { vi: 'Đơn vị' }, title: { vi: 'Token không chỉ là word' }, example: 'Linh · builds · AI · .', description: { vi: 'Tokenizer có thể giữ từ phổ biến thành một token và tách dấu câu thành token riêng.' } },
-    { id: 'robust', cue: { vi: 'Bao phủ' }, title: { vi: 'Đọc được cách viết mới' }, example: 'build · er · s', description: { vi: 'Subword hoặc byte fallback giúp biểu diễn chuỗi chưa từng xuất hiện nguyên vẹn trong vocabulary.' } },
-    { id: 'efficient', cue: { vi: 'Cân bằng' }, title: { vi: 'Không chia quá thô hoặc quá vụn' }, example: 'word ↔ subword ↔ char', description: { vi: 'Đơn vị lớn làm vocabulary phình ra; đơn vị quá nhỏ làm sequence dài.' } },
-  ],
-}} />
+<TokenizerConceptVisual view="word-limit" />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
 <TokenizerGranularity content={{
-  source: 'builders',
-  approaches: [
-    {id: 'word', title: 'Word-level', tokens: ['builders'], strength: {vi: 'Tạo sequence ngắn khi từ đã có trong vocabulary.'}, cost: {vi: 'Từ mới dễ nằm ngoài vocabulary.'}},
-    {id: 'character', title: 'Character-level', tokens: ['b', 'u', 'i', 'l', 'd', 'e', 'r', 's'], strength: {vi: 'Bao phủ được cách viết mới bằng đơn vị nhỏ.'}, cost: {vi: 'Sequence dài hơn nhiều.'}},
-    {id: 'subword', title: 'Subword', tokens: ['build', 'ers'], strength: {vi: 'Tái sử dụng mảnh phổ biến và giữ sequence vừa phải.'}, cost: {vi: 'Ranh giới phụ thuộc vocabulary và merge rules.'}},
-  ],
+  lead: {vi: 'Subword tạo điểm cân bằng: linh hoạt hơn word-level khi gặp cách viết mới, nhưng không làm sequence dài như character-level.'},
   whitespaceNote: {vi: 'Dấu câu và whitespace cũng cần quy tắc. Trong “ AI.”, tokenizer production có thể gắn khoảng trắng vào token “ AI” thay vì xóa nó.'},
   misconception: {vi: 'Không mặc định dùng text.split(): cách đó làm mất thông tin whitespace và để dấu câu dính vào từ.'},
 }} />
@@ -46,36 +32,8 @@ Một token có thể là cả từ, mảnh từ, dấu câu, khoảng trắng �
 
 <MdxPage page={2}>
 
-## Vocabulary size và sequence length đổi chỗ cho nhau
+Model pretrained thường đi kèm tokenizer đã được dùng trong quá trình pretraining. Khi fine-tune hoặc inference, ta thường dùng lại tokenizer đó thay vì train tokenizer mới. Nếu đổi tokenizer nhưng giữ nguyên model weights, cùng một ID có thể trỏ đến token khác và model sẽ lấy sai hàng embedding.
 
-<TokenizerSequenceLength content={{
-  characterTokens: ['b', 'u', 'i', 'l', 'd', 'e', 'r', 's', '␠', 'A', 'I'],
-  subwordTokens: ['build', 'ers', '␠', 'AI'],
-  characterCount: '11 tokens',
-  subwordCount: '4 tokens',
-  takeaway: { vi: 'Character-level cần vocabulary nền tảng nhỏ nhưng tạo nhiều vị trí hơn. Subword thêm các chuỗi thường gặp vào vocabulary để rút ngắn sequence. Không có lựa chọn luôn tốt nhất cho mọi corpus.' },
-}} />
-
-<LessonNote>**Lỗi thường gặp:** vocabulary càng lớn luôn càng tốt. Bảng embedding/output sẽ lớn hơn, trong khi các token hiếm có thể được học kém.</LessonNote>
-
-**Handoff:** BPE sẽ học điểm cân bằng này từ thống kê corpus thay vì viết tay mọi token.
-
-</MdxPage>
-
-<MdxPage page={3}>
-
-<TokenizerContract content={{
-  lead: {vi: 'Tokenizer không chỉ cắt text. Nó khóa bốn quyết định mà checkpoint và data pipeline phải dùng thống nhất.'},
-  decisions: [
-    {id: 'vocabulary', title: {vi: 'Vocabulary size'}, value: 'V', meaning: {vi: 'Số token có thể tra trong embedding và output table.'}},
-    {id: 'ids', title: {vi: 'Token IDs'}, value: 'token ↔ ID', meaning: {vi: 'Mapping ổn định cho token thường và special token.'}},
-    {id: 'length', title: {vi: 'Sequence length'}, value: 'T', meaning: {vi: 'Số vị trí sinh ra cho mỗi input sau encode.'}},
-    {id: 'roundtrip', title: {vi: 'Encode / decode'}, value: 'text ↔ IDs', meaning: {vi: 'Quy tắc biến đổi hai chiều theo đúng normalization.'}},
-  ],
-  checkpoint: {vi: 'Hai tokenizer có thể tạo hai dãy ID khác nhau cho cùng text; token IDs chỉ hợp lệ với đúng vocabulary và checkpoint đi kèm.'},
-  misconception: {vi: 'Không thay tokenizer nhưng giữ nguyên model weights: ID 2 có thể trỏ đến token khác và làm model tra sai hàng embedding ngay từ đầu.'},
-}} />
-
-**Handoff:** Trước khi dùng tokenizer production, ta xây một tokenizer regex nhỏ để nhìn thấy contract raw text → tokens.
+<TokenizerConceptVisual view="checkpoint-match" />
 
 </MdxPage>

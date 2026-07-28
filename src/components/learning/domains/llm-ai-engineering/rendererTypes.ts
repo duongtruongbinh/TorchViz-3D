@@ -33,11 +33,11 @@ export type LlmRawTextModelInputContent = {
 
 export type LlmPretrainingDatasetCardsContent = {
   lead: LearningLocalizedText;
+  image?: 'dataset-evolution';
   datasets: Array<{
     id: 'c4' | 'pile' | 'dolma' | 'fineweb';
     name: string;
     scale: string;
-    category: LearningLocalizedText;
     brief: LearningLocalizedText;
     href: string;
   }>;
@@ -49,25 +49,8 @@ export type LlmAcademiaIndustryComparisonContent = Omit<LlmTrainingComponentsCon
   industry: LearningLocalizedText;
 };
 
-export type LlmTokenizerMemoryContent = {
-  cards: Array<{
-    id: 'flexible' | 'robust' | 'efficient';
-    cue: LearningLocalizedText;
-    title: LearningLocalizedText;
-    description: LearningLocalizedText;
-    example: string;
-  }>;
-};
-
 export type LlmTokenizerGranularityContent = {
-  source: string;
-  approaches: Array<{
-    id: 'word' | 'character' | 'subword';
-    title: string;
-    tokens: string[];
-    strength: LearningLocalizedText;
-    cost: LearningLocalizedText;
-  }>;
+  lead: LearningLocalizedText;
   whitespaceNote: LearningLocalizedText;
   misconception: LearningLocalizedText;
 };
@@ -282,7 +265,8 @@ export type LlmSlidingWindowWorkedExampleContent =
 
 export type LlmEmbeddingPipelineVisualContent = {
   view: 'lookup' | 'batch' | 'position' | 'addition' | 'audit';
-  layout?: 'filter-pipeline' | 'mixture-board' | 'scale-dashboard' | 'scale-risks' | 'continuous-cycle';
+  layout?: 'filter-pipeline' | 'mixture-board' | 'scale-dashboard' | 'scale-risks';
+  image?: 'common-crawl-pipeline' | 'filtering-pipeline' | 'scale-risks';
   lead: LearningLocalizedText;
   scaleNote?: LearningLocalizedText;
   code: string[];
@@ -313,19 +297,6 @@ export type LlmTokenizerMergeTrainingContent = {
   playgroundUrl: string;
 };
 
-export type LlmBpeInferenceFlowContent = {
-  lead: LearningLocalizedText;
-  stages: Array<{
-    id: 'units' | 'match' | 'rank' | 'stop';
-    title: LearningLocalizedText;
-    detail: LearningLocalizedText;
-  }>;
-  before: string[];
-  after: string[];
-  rule: LearningLocalizedText;
-  misconception: LearningLocalizedText;
-};
-
 export type LlmBpeFallbackContent = {
   lead: LearningLocalizedText;
   examples: Array<{
@@ -334,23 +305,6 @@ export type LlmBpeFallbackContent = {
     explanation: LearningLocalizedText;
   }>;
   fallback: LearningLocalizedText;
-  misconception: LearningLocalizedText;
-};
-
-export type LlmVocabularyTradeoffContent = {
-  lead: LearningLocalizedText;
-  sides: Array<{
-    id: 'small' | 'large';
-    title: LearningLocalizedText;
-    sequence: LearningLocalizedText;
-    matrix: LearningLocalizedText;
-    learning: LearningLocalizedText;
-  }>;
-  example: {
-    source: string;
-    tokenizations: string[][];
-  };
-  takeaway: LearningLocalizedText;
   misconception: LearningLocalizedText;
 };
 

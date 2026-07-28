@@ -3,89 +3,54 @@ export const lessonMetadata = {
   id: 'tokenization-bpe-tiktoken',
   locale: 'vi',
   title: 'Huấn luyện tokenizer bằng BPE',
-  headings: ['Học merge rules', 'Tokenize khi inference', 'Byte fallback và whitespace', 'Vocabulary-size trade-off'],
-  keywords: ['BPE', 'merge rule', 'merge rank', 'byte fallback', 'whitespace', 'vocabulary size', 'subword'],
-  pageCount: 4,
+  headings: ['Học cách gộp token', 'Dùng tokenizer sau training', 'Special tokens'],
+  keywords: ['BPE', 'merge rule', 'inference', 'special token', 'BOS', 'EOS', 'PAD', 'subword'],
+  pageCount: 3,
 }
 
 <MdxPage page={0}>
 
-## BPE học merge rules từ corpus
+## BPE học cách gộp token từ corpus
 
 BPE không bắt đầu bằng cách “tách từ dài thành từ ngắn”. Nó bắt đầu từ các đơn vị nền tảng nhỏ, rồi **gộp** cặp liền kề xuất hiện thường xuyên.
 
 <TokenizerMergeTraining content={{
-  example: 'AI AI',
+  example: 'learn learner learning',
   merges: [
-    { sourceIndexes: [0, 1, 3, 4], result: 'AI' },
-    { sourceIndexes: [2, 3], result: ' AI' },
+    { sourceIndexes: [0, 1, 6, 7, 14, 15], result: 'le' },
+    { sourceIndexes: [0, 2, 6, 8, 14, 16], result: 'lea' },
+    { sourceIndexes: [0, 3, 6, 9, 14, 17], result: 'lear' },
+    { sourceIndexes: [0, 4, 6, 10, 14, 18], result: 'learn' },
   ],
-  initialTokens: ['A', 'I', '␠', 'A', 'I'],
-  result: { vi: 'Sau mỗi vòng, BPE thêm token mới vào vocabulary và đếm lại trên dãy đã thay đổi. Số vòng hoặc vocabulary-size budget quyết định khi nào dừng.' },
+  initialTokens: ['l', 'e', 'a', 'r', 'n', '␠', 'l', 'e', 'a', 'r', 'n', 'e', 'r', '␠', 'l', 'e', 'a', 'r', 'n', 'i', 'n', 'g'],
+  result: { vi: 'Sau mỗi vòng, BPE thêm phần vừa gộp vào vocabulary rồi tiếp tục tìm các cặp thường xuất hiện cạnh nhau.' },
   playgroundUrl: 'https://gpt-tokenizer.dev/',
 }} />
 
-<LessonNote>Tokenizer playground là công cụ minh họa bên thứ ba, không phải nguồn chuẩn cho merge contract. Không dán prompt, PII hoặc dữ liệu nội bộ; dùng tokenizer/version đã pin trong project để xác nhận token IDs.</LessonNote>
-
-<LessonNote>**Lỗi thường gặp:** chọn cặp “có nghĩa nhất”. BPE cổ điển chọn theo thống kê tần suất, không hỏi con người cặp đó có mang nghĩa hay không.</LessonNote>
+<LessonNote variant="warning">**Lưu ý:** BPE cổ điển chọn theo thống kê tần suất, không hỏi con người cặp đó có mang nghĩa hay không.</LessonNote>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-<BpeInferenceFlow content={{
-  lead: {vi: 'Sau training, inference chỉ dùng vocabulary và thứ tự ưu tiên của các merge đã học.'},
-  stages: [
-    {id: 'units', title: {vi: 'Đơn vị nền tảng'}, detail: {vi: 'Biểu diễn input bằng các đơn vị nhỏ ban đầu.'}},
-    {id: 'match', title: {vi: 'Tìm cặp khớp'}, detail: {vi: 'Chỉ xét các merge rule đã lưu.'}},
-    {id: 'rank', title: {vi: 'Áp dụng merge rank'}, detail: {vi: 'Ưu tiên rule theo đúng thứ tự đã học.'}},
-    {id: 'stop', title: {vi: 'Dừng'}, detail: {vi: 'Kết thúc khi không còn merge hợp lệ.'}},
-  ],
-  before: ['A', 'I', '␠', 'A', 'I'],
-  after: ['AI', ' AI'],
-  rule: {vi: 'rules đã học'},
-  misconception: {vi: 'BPE inference không đếm lại tần suất trên prompt, không học merge tạm thời và không đơn giản chọn token dài nhất trong vocabulary.'},
-}} />
+## Dùng tokenizer sau training
 
-**Handoff:** Nếu không merge được một chuỗi lạ, tokenizer cần đơn vị nền tảng vẫn biểu diễn được nó.
+Sau khi được huấn luyện, tokenizer dùng lại **vocabulary** và các quy tắc gộp đã học để chia input mới. Tokenizer không học lại từ từng câu input.
+
+Ví dụ, tokenizer đã học được token `learn` từ corpus có thể dùng lại token đó khi gặp input mới như `learning helps learners`.
+
+<TokenizerConceptVisual view="bpe-training-inference" />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-<BpeFallback content={{
-  lead: {vi: 'Byte-level BPE dùng 256 giá trị byte làm nền tảng. Ký tự Unicode có thể gồm nhiều byte, nhưng chuỗi byte vẫn có thể được biểu diễn và ghép lại khi decode.'},
-  examples: [
-    {source: '\"AI\"', tokens: ['AI'], explanation: {vi: 'Token bắt đầu ngay tại ký tự A.'}},
-    {source: '\" AI\"', tokens: [' AI'], explanation: {vi: 'Whitespace phía trước tham gia merge và tạo một token khác.'}},
-  ],
-  fallback: {vi: 'Khi không có merge dài phù hợp, tokenizer vẫn có thể đi xuống các đơn vị byte nền tảng thay vì mất bề mặt text.'},
-  misconception: {vi: 'Không suy ra mọi BPE đều không có UNK. Tokenizer có byte coverage đầy đủ thường không cần UNK cho text hợp lệ; contract cụ thể vẫn phải được kiểm tra.'},
-}} />
+## Special tokens
 
-**Handoff:** Merge nhiều chuỗi hơn rút ngắn input, nhưng mỗi token mới cũng chiếm một hàng vocabulary.
+Ngoài các token được tạo từ text, vocabulary còn có thể dành sẵn một số special token để truyền tín hiệu về cấu trúc của sequence.
 
-</MdxPage>
+<TokenizerConceptVisual view="special-tokens" />
 
-<MdxPage page={3}>
-
-<VocabularyTradeoff content={{
-  lead: {vi: 'Vocabulary-size budget đổi trực tiếp độ dài sequence lấy kích thước embedding/output matrices.'},
-  sides: [
-    {id: 'small', title: {vi: 'Vocabulary nhỏ'}, sequence: {vi: 'Nhiều byte hoặc subword ngắn; sequence thường dài hơn.'}, matrix: {vi: 'Ít hàng hơn nên matrices nhỏ hơn.'}, learning: {vi: 'Token hiếm được tái sử dụng từ các mảnh nhỏ.'}},
-    {id: 'large', title: {vi: 'Vocabulary lớn'}, sequence: {vi: 'Nhiều cụm phổ biến thành một token; sequence thường ngắn hơn.'}, matrix: {vi: 'Nhiều hàng hơn nên matrices lớn hơn.'}, learning: {vi: 'Nhiều hàng hiếm có thể khó học.'}},
-  ],
-  example: {
-    source: '\"Linh builds AI. Linh tests AI.\"',
-    tokenizations: [
-      ['Linh', 'build', 's', ' AI', '.', 'Linh', 'tests', ' AI', '.'],
-      ['Linh', 'builds', ' AI', '.', 'Linh', 'tests', ' AI', '.'],
-    ],
-  },
-  takeaway: {vi: 'Ranh giới là kết quả của corpus, thuật toán, normalization và budget; không ranh giới nào tự động là “đúng nghĩa”.'},
-  misconception: {vi: 'Không gọi vocabulary là “tối ưu” nếu chưa nêu mục tiêu đánh đổi giữa sequence length, matrix size và chất lượng học token.'},
-}} />
-
-**Handoff:** Dù token được tạo bằng regex hay BPE, model vẫn cần một ánh xạ ổn định từ token sang integer ID.
+Special token được khai báo trước và có ID riêng trong vocabulary. Chúng không phải là những từ mà BPE tình cờ gộp được từ câu input.
 
 </MdxPage>

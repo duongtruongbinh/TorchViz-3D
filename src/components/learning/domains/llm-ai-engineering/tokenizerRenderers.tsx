@@ -1,4 +1,4 @@
-import { AlignJustify, ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAlert, Coffee, CornerDownLeft, Cpu, Database, FileText, Hash, Info, ListOrdered, RefreshCw, Route, Scissors, Search, SlidersHorizontal, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
+import { AlignJustify, ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAlert, Coffee, CornerDownLeft, Cpu, Database, FileText, Hash, Info, ListOrdered, RefreshCw, Route, Scissors, SlidersHorizontal, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
@@ -8,7 +8,6 @@ import { LlmCallout, StepPlaybackControls, TokenChip, TokenIdBadge } from './ren
 import { getLlmRendererTheme } from './rendererTheme';
 import type {
   LlmBpeFallbackContent,
-  LlmBpeInferenceFlowContent,
   LlmContentRendererProps,
   LlmEmbeddingPipelineVisualContent,
   LlmRawTextModelInputContent,
@@ -25,13 +24,11 @@ import type {
   LlmTokenizerIdRoundTripContent,
   LlmTokenizerContractContent,
   LlmTokenizerGranularityContent,
-  LlmTokenizerMemoryContent,
   LlmTokenizerMergeTrainingContent,
   LlmTokenizerOutputComparisonContent,
   LlmTokenizerRegexWalkthroughContent,
   LlmTokenizerSequenceLengthContent,
   LlmTokenizerVocabularyLookupContent,
-  LlmVocabularyTradeoffContent,
 } from './rendererTypes';
 
 export function LlmRawTextModelInput({ content, language, themeClasses }: LlmContentRendererProps<LlmRawTextModelInputContent>) {
@@ -271,100 +268,28 @@ function renderTokenizerInlineCode(value: string, themeClasses: ReturnType<typeo
   });
 }
 
-const TOKENIZER_MEMORY_ICONS = {
-  flexible: Scissors,
-  robust: Sparkles,
-  efficient: SlidersHorizontal,
-} satisfies Record<LlmTokenizerMemoryContent['cards'][number]['id'], LucideIcon>;
-
 const TOKEN_CHIP_PALETTES = [
   ['bg-[#DCE8F4] text-[#205089]', 'bg-[#263B5B] text-[#BFD3F2]'],
   ['bg-[#DCEEE8] text-[#2E6B5D]', 'bg-[#21483F] text-[#BFE6D7]'],
   ['bg-[#F4E8C8] text-[#70551A]', 'bg-[#594821] text-[#F4E8C8]'],
 ] as const;
 
-export function LlmTokenizerMemory({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerMemoryContent>) {
-  return (
-    <section className="grid gap-3 py-1 md:grid-cols-3">
-      {content.cards.map((card) => {
-        const Icon = TOKENIZER_MEMORY_ICONS[card.id];
-        const tokens = card.example.split(' · ');
-        const [top, icon] = {
-          flexible: themeClasses.isLight ? ['bg-[#DCE8F4]', 'bg-white text-[#205089]'] : ['bg-[#263B5B]', 'bg-[#172A43] text-[#BFD3F2]'],
-          robust: themeClasses.isLight ? ['bg-[#DCEEE8]', 'bg-white text-[#2E6B5D]'] : ['bg-[#21483F]', 'bg-[#122D29] text-[#BFE6D7]'],
-          efficient: themeClasses.isLight ? ['bg-[#F4E8C8]', 'bg-white text-[#70551A]'] : ['bg-[#594821]', 'bg-[#2C2412] text-[#F4E8C8]'],
-        }[card.id];
-        return (
-          <article key={card.id} className={cx(
-            'grid min-h-[24rem] grid-rows-[132px_minmax(0,1fr)] overflow-hidden rounded-lg border',
-            themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8B8C8]/16 bg-[#121A24]/36',
-          )}>
-            <div className={cx('grid place-items-center border-b border-black/5', top)}>
-              <div className={cx('grid h-16 w-16 place-items-center rounded-2xl shadow-[0_10px_24px_rgba(32,80,137,0.10)]', icon)}>
-                <Icon className="h-8 w-8" strokeWidth={1.8} aria-hidden="true" />
-              </div>
-            </div>
-            <div className="grid content-start gap-3 p-4">
-              <p className={cx('text-xs font-black uppercase tracking-[0.08em]', themeClasses.accentText)}>{text(card.cue, language)}</p>
-              <h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(card.title, language)}</h3>
-              <div className="flex flex-wrap gap-1.5">
-                {tokens.map((token, index) => {
-                  const palette = TOKEN_CHIP_PALETTES[index % TOKEN_CHIP_PALETTES.length] ?? TOKEN_CHIP_PALETTES[0];
-                  return <code key={`${token}-${index}`} className={cx('rounded-md px-2.5 py-1.5 text-sm font-black', themeClasses.isLight ? palette[0] : palette[1])}>{token}</code>;
-                })}
-              </div>
-              <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(card.description, language)}</p>
-            </div>
-          </article>
-        );
-      })}
-    </section>
-  );
-}
+const TOKENIZER_GRANULARITY_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/02-tokenization-granularity-comparison.png',
+  import.meta.url,
+).href;
 
 export function LlmTokenizerGranularity({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerGranularityContent>) {
   return (
     <section className="grid gap-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className={cx('text-sm font-black', themeClasses.mutedText)}>{language === 'vi' ? 'Cùng một chuỗi:' : 'Same string:'}</span>
-        <code className={cx('rounded-lg px-3 py-2 text-base font-black', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{content.source}</code>
-      </div>
-      <div className="grid overflow-hidden rounded-xl border lg:grid-cols-3">
-        {content.approaches.map((approach, index) => (
-          <article
-            key={approach.id}
-            className={cx(
-              'grid min-w-0 content-start gap-4 p-4',
-              index > 0 && (themeClasses.isLight ? 'border-t border-[#CAD6E3] lg:border-l lg:border-t-0' : 'border-t border-[#A8B8C8]/18 lg:border-l lg:border-t-0'),
-              approach.id === 'subword'
-                ? (themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/55')
-                : (themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/36'),
-            )}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <h2 className={cx('text-base font-black', themeClasses.titleText)}>{approach.title}</h2>
-              <span className={cx('rounded-full px-2.5 py-1 text-xs font-black tabular-nums', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#172A43] text-[#BFD3F2]')}>
-                {approach.tokens.length} tokens
-              </span>
-            </div>
-            <div className="flex min-w-0 flex-wrap gap-1.5">
-              {approach.tokens.map((token, tokenIndex) => (
-                <TokenChip key={`${token}-${tokenIndex}`} className="min-w-0 rounded-md px-2 py-1 text-xs font-black" themeClasses={themeClasses}>{token}</TokenChip>
-              ))}
-            </div>
-            <dl className="grid gap-2 text-sm leading-6">
-              <div>
-                <dt className={cx('font-black', themeClasses.accentText)}>{language === 'vi' ? 'Điểm mạnh' : 'Strength'}</dt>
-                <dd className={themeClasses.bodyText}>{text(approach.strength, language)}</dd>
-              </div>
-              <div>
-                <dt className={cx('font-black', themeClasses.mutedText)}>{language === 'vi' ? 'Đánh đổi' : 'Trade-off'}</dt>
-                <dd className={themeClasses.bodyText}>{text(approach.cost, language)}</dd>
-              </div>
-            </dl>
-          </article>
-        ))}
-      </div>
+      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
+      <figure className="mx-auto w-full">
+        <img
+          src={TOKENIZER_GRANULARITY_IMAGE}
+          alt="So sánh cách word-level, character-level và subword chia cùng một chuỗi"
+          className="block h-auto w-full object-contain"
+        />
+      </figure>
       <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#F5F8FB]' : 'bg-[#121A24]/48')}>
         <Type className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.accentText)} strokeWidth={1.8} aria-hidden="true" />
         <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{text(content.whitespaceNote, language)}</p>
@@ -1284,6 +1209,19 @@ export function LlmSlidingWindowWorkedExample({ content, language, themeClasses 
   );
 }
 
+const COMMON_CRAWL_PIPELINE_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-training-data-common-crawl-pipeline.png',
+  import.meta.url,
+).href;
+const FILTERING_PIPELINE_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-training-data-filtering-pipeline.png',
+  import.meta.url,
+).href;
+const SCALE_RISKS_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-training-data-scale-risks.png',
+  import.meta.url,
+).href;
+
 export function LlmEmbeddingPipelineVisual({ content, language, themeClasses }: LlmContentRendererProps<LlmEmbeddingPipelineVisualContent>) {
   const hasSingleComparison = content.comparisons?.length === 1;
   const [activeMixtureStep, setActiveMixtureStep] = useState(0);
@@ -1466,75 +1404,7 @@ export function LlmEmbeddingPipelineVisual({ content, language, themeClasses }: 
     </div>
   ) : null;
 
-  const scaleRisks = content.layout === 'scale-risks' && content.steps && content.steps.length >= 2 ? (
-    <div className="grid gap-3">
-      <div className="grid gap-3 md:grid-cols-2">
-        {[content.steps[0], content.steps[1]].map((step, index) => (
-          <section
-            key={step.shape}
-            className={cx(
-              'grid content-start gap-3 rounded-xl border bg-transparent px-4 py-4',
-              themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/16',
-            )}
-          >
-            <div className="flex items-center gap-2">
-              {index === 0
-                ? <CircleAlert className={cx('h-5 w-5', themeClasses.isLight ? 'text-[#A54F00]' : 'text-[#FBC77D]')} strokeWidth={1.9} aria-hidden="true" />
-                : <Search className={cx('h-5 w-5', themeClasses.isLight ? 'text-[#62518C]' : 'text-[#D7CCF5]')} strokeWidth={1.9} aria-hidden="true" />}
-              <strong className={cx('text-base font-black', themeClasses.titleText)}>{text(step.label, language)}</strong>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2">
-              {step.shape.split(' · ').map((risk, riskIndex) => (
-                <code key={risk} className={cx(
-                  'rounded-full px-3 py-1.5 text-sm font-bold',
-                  themeClasses.isLight
-                    ? ['bg-[#DCE8F4] text-[#205089]', 'bg-[#DCEEE8] text-[#356A5C]', 'bg-[#EAE3F5] text-[#62518C]', 'bg-[#F8E4D3] text-[#9A5726]', 'bg-[#F2E3EA] text-[#8A4964]'][riskIndex % 5]
-                    : ['bg-[#263B5B] text-[#DCE8F4]', 'bg-[#24443C] text-[#CBEDE2]', 'bg-[#392E56] text-[#D7CCF5]', 'bg-[#4A321F] text-[#FFDDBD]', 'bg-[#472D3A] text-[#F4CADB]'][riskIndex % 5],
-                )}>
-                  {risk}
-                </code>
-              ))}
-            </div>
-            <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(step.detail, language)}</p>
-          </section>
-        ))}
-      </div>
-    </div>
-  ) : null;
-  const continuousCycle = content.layout === 'continuous-cycle' && content.steps?.length ? (
-    <section className={cx('overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/16 bg-[#121A24]/36')}>
-      <div className={cx('flex items-center gap-3 px-4 py-4 sm:px-5', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')}>
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15">
-          <RefreshCw className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
-        </span>
-        <div>
-          <span className="block text-[0.68rem] font-black uppercase tracking-[0.1em] opacity-65">{language === 'vi' ? 'Không phải pipeline chạy một lần' : 'Not a one-time pipeline'}</span>
-          <strong className="text-lg font-black">{text(content.steps[0].label, language)}</strong>
-        </div>
-      </div>
-      <div className="grid gap-4 px-4 py-5 sm:px-5">
-        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
-          {content.steps[0].shape.split(' → ').map((stage, index, stages) => (
-            <li
-              key={stage}
-              className={cx(
-                'relative grid min-h-24 content-center justify-items-center gap-2 rounded-xl px-3 py-3 text-center',
-                index === stages.length - 1
-                  ? (themeClasses.isLight ? 'bg-[#EAF5F0] text-[#24584D]' : 'bg-[#17332D] text-[#CBEDE2]')
-                  : (themeClasses.isLight ? 'bg-[#EDF5FB] text-[#205089]' : 'bg-[#263B5B]/65 text-[#DCE8F4]'),
-              )}
-            >
-              <span className={cx('grid h-7 w-7 place-items-center rounded-full text-xs font-black text-current', themeClasses.isLight ? 'bg-white/60' : 'bg-black/15')}>{index + 1}</span>
-              <strong className="text-sm font-black">{stage}</strong>
-              {index < stages.length - 1 ? <ArrowRight className="absolute -right-3 top-1/2 z-10 hidden h-4 w-4 -translate-y-1/2 opacity-45 lg:block" strokeWidth={2.2} aria-hidden="true" /> : null}
-            </li>
-          ))}
-        </ol>
-        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.steps[0].detail, language)}</p>
-      </div>
-    </section>
-  ) : null;
-  const stepFlow = scaleDashboard ?? scaleRisks ?? continuousCycle ?? mixtureBoard ?? filterStepFlow ?? defaultStepFlow;
+  const stepFlow = scaleDashboard ?? mixtureBoard ?? filterStepFlow ?? defaultStepFlow;
   const comparison = content.comparisons?.length ? (
     <div className={cx('grid overflow-hidden rounded-xl border', !hasSingleComparison && 'md:grid-cols-2')}>
       {content.comparisons.map((item, index) => (
@@ -1588,7 +1458,50 @@ export function LlmEmbeddingPipelineVisual({ content, language, themeClasses }: 
   return (
     <section className="grid gap-5">
       <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      {content.view === 'position' ? comparison : stepFlow}
+      {content.image === 'filtering-pipeline' ? (
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <figure className="mx-auto w-full max-w-[32rem]">
+            <img
+              src={FILTERING_PIPELINE_IMAGE}
+              alt="Bốn lớp lọc dữ liệu gồm rule filtering, deduplication, model filtering và safety policy"
+              className="block h-auto w-full object-contain"
+            />
+          </figure>
+          <div className="grid content-start gap-5">
+            {content.steps?.map((step, index) => (
+              <section key={`${step.shape}-${index}`} className="grid gap-2">
+                <h2 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{text(step.label, language)}</h2>
+                <p className={cx('text-sm font-semibold leading-5', themeClasses.mutedText)}>{step.shape}</p>
+                <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(step.detail, language)}</p>
+                {step.examples?.length ? (
+                  <ul className={cx('grid list-disc gap-1 pl-5 text-base leading-7', themeClasses.bodyText)}>
+                    {step.examples.map((example, exampleIndex) => (
+                      <li key={`${index}-${exampleIndex}`}>{text(example, language)}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </section>
+            ))}
+          </div>
+        </div>
+      ) : content.image === 'scale-risks' ? (
+        <figure className="mx-auto w-full">
+          <img
+            src={SCALE_RISKS_IMAGE}
+            alt="Các thách thức về quyền sử dụng, an toàn, chất lượng dữ liệu và benchmark leakage"
+            className="block h-auto w-full object-contain"
+          />
+        </figure>
+      ) : content.view === 'position' ? comparison : stepFlow}
+      {content.image === 'common-crawl-pipeline' ? (
+        <figure className="mx-auto w-full">
+          <img
+            src={COMMON_CRAWL_PIPELINE_IMAGE}
+            alt="Common Crawl đi qua dữ liệu web lộn xộn và các bước làm sạch để tạo thành training corpus"
+            className="block h-auto w-full object-contain"
+          />
+        </figure>
+      ) : null}
       {content.code.length > 0 ? (
         <div className="grid gap-3">
           <CodeBlock code={content.code} showLineNumbers themeClasses={themeClasses} />
@@ -1606,64 +1519,6 @@ export function LlmEmbeddingPipelineVisual({ content, language, themeClasses }: 
           {misconceptionPanel}
         </>
       )}
-    </section>
-  );
-}
-
-const BPE_INFERENCE_ICONS = {
-  units: Type,
-  match: Scissors,
-  rank: ListOrdered,
-  stop: CheckCircle2,
-} satisfies Record<LlmBpeInferenceFlowContent['stages'][number]['id'], LucideIcon>;
-
-export function LlmBpeInferenceFlow({ content, language, themeClasses }: LlmContentRendererProps<LlmBpeInferenceFlowContent>) {
-  const renderTokens = (tokens: string[]) => (
-    <div className="flex min-w-0 flex-wrap justify-center gap-1.5">
-      {tokens.map((token, index) => (
-        <TokenChip key={`${token}-${index}`} className="rounded-md px-2.5 py-1.5 text-sm font-black" themeClasses={themeClasses}>{token === '␠' ? 'space' : token}</TokenChip>
-      ))}
-    </div>
-  );
-  return (
-    <section className="grid gap-5">
-      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className="grid gap-2 md:grid-cols-4 md:gap-0">
-        {content.stages.map((stage, index) => {
-          const Icon = BPE_INFERENCE_ICONS[stage.id];
-          return (
-            <Fragment key={stage.id}>
-              <article className={cx(
-                'grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-3 rounded-lg px-3 py-3 md:grid-cols-1 md:justify-items-center md:gap-2 md:rounded-none md:px-4 md:py-4 md:text-center',
-                index === 0 && 'md:rounded-l-lg',
-                index === content.stages.length - 1 && 'md:rounded-r-lg',
-                themeClasses.isLight ? (index % 2 === 0 ? 'bg-[#EDF5FB]' : 'bg-[#F5F8FB]') : (index % 2 === 0 ? 'bg-[#263B5B]/55' : 'bg-[#121A24]/48'),
-              )}>
-                <span className={cx('grid h-10 w-10 place-items-center rounded-lg', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#172A43] text-[#BFD3F2]')}>
-                  <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{text(stage.title, language)}</h2>
-                  <p className={cx('mt-1 text-xs leading-5', themeClasses.bodyText)}>{text(stage.detail, language)}</p>
-                </div>
-              </article>
-              {index < content.stages.length - 1 ? <ArrowDown className={cx('mx-auto h-4 w-4 md:hidden', themeClasses.accentText)} aria-hidden="true" /> : null}
-            </Fragment>
-          );
-        })}
-      </div>
-      <div className={cx('grid items-center gap-3 rounded-xl px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]', themeClasses.isLight ? 'bg-[#F5F8FB]' : 'bg-[#0E1620]/62')}>
-        {renderTokens(content.before)}
-        <div className="grid justify-items-center gap-1">
-          <span className={cx('text-xs font-black', themeClasses.mutedText)}>{text(content.rule, language)}</span>
-          <ArrowDown className={cx('h-5 w-5 md:hidden', themeClasses.accentText)} aria-hidden="true" />
-          <ArrowRight className={cx('hidden h-5 w-5 md:block', themeClasses.accentText)} aria-hidden="true" />
-        </div>
-        {renderTokens(content.after)}
-      </div>
-      <LlmCallout icon={CircleAlert} tone="accent" themeClasses={themeClasses}>
-        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.misconception, language)}</p>
-      </LlmCallout>
     </section>
   );
 }
@@ -1693,52 +1548,6 @@ export function LlmBpeFallback({ content, language, themeClasses }: LlmContentRe
       <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#EAF5F0] text-[#24584D]' : 'bg-[#17332D] text-[#CBEDE2]')}>
         <Sparkles className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" />
         <p className="text-sm font-semibold leading-6">{text(content.fallback, language)}</p>
-      </div>
-      <LlmCallout icon={CircleAlert} tone="accent" themeClasses={themeClasses}>
-        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.misconception, language)}</p>
-      </LlmCallout>
-    </section>
-  );
-}
-
-export function LlmVocabularyTradeoff({ content, language, themeClasses }: LlmContentRendererProps<LlmVocabularyTradeoffContent>) {
-  return (
-    <section className="grid gap-4">
-      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
-      <div className="grid overflow-hidden rounded-xl border md:grid-cols-2">
-        {content.sides.map((side, index) => (
-          <article
-            key={side.id}
-            className={cx(
-              'grid content-start gap-4 p-5',
-              index > 0 && (themeClasses.isLight ? 'border-t border-[#CAD6E3] md:border-l md:border-t-0' : 'border-t border-[#A8B8C8]/18 md:border-l md:border-t-0'),
-              side.id === 'small'
-                ? (themeClasses.isLight ? 'bg-[#FFF9ED]' : 'bg-[#594821]/20')
-                : (themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/55'),
-            )}
-          >
-            <h2 className={cx('text-base font-black', themeClasses.titleText)}>{text(side.title, language)}</h2>
-            <dl className="grid gap-3 text-sm leading-6">
-              <div><dt className={cx('font-black', themeClasses.accentText)}>Sequence</dt><dd className={themeClasses.bodyText}>{text(side.sequence, language)}</dd></div>
-              <div><dt className={cx('font-black', themeClasses.accentText)}>Embedding / output</dt><dd className={themeClasses.bodyText}>{text(side.matrix, language)}</dd></div>
-              <div><dt className={cx('font-black', themeClasses.accentText)}>{language === 'vi' ? 'Học token' : 'Token learning'}</dt><dd className={themeClasses.bodyText}>{text(side.learning, language)}</dd></div>
-            </dl>
-          </article>
-        ))}
-      </div>
-      <div className={cx('grid gap-3 rounded-xl px-4 py-4', themeClasses.isLight ? 'bg-[#F5F8FB]' : 'bg-[#121A24]/48')}>
-        <code className={cx('min-w-0 break-words text-sm font-black', themeClasses.titleText)}>{content.example.source}</code>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {content.example.tokenizations.map((tokens, rowIndex) => (
-            <div key={rowIndex} className="flex min-w-0 flex-wrap gap-1.5">
-              {tokens.map((token, tokenIndex) => <TokenChip key={`${token}-${tokenIndex}`} className="rounded-md px-2 py-1 text-xs font-black" themeClasses={themeClasses}>{token}</TokenChip>)}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className={cx('flex items-start gap-3 rounded-lg px-4 py-3', themeClasses.isLight ? 'bg-[#EAF5F0] text-[#24584D]' : 'bg-[#17332D] text-[#CBEDE2]')}>
-        <SlidersHorizontal className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-        <p className="text-sm font-semibold leading-6">{text(content.takeaway, language)}</p>
       </div>
       <LlmCallout icon={CircleAlert} tone="accent" themeClasses={themeClasses}>
         <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{text(content.misconception, language)}</p>
@@ -1784,6 +1593,27 @@ export function LlmTokenizerSequenceLength({ content, language, themeClasses }: 
 
 export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerRegexWalkthroughContent>) {
   const punctuationTokens = new Set([',', '.', ':', ';', '?', '!', '"', '(', ')', '--']);
+  const wordPalettes = themeClasses.isLight
+    ? [
+        'border-[#3679A8]/30 bg-[#DCE8F4] text-[#174A73]',
+        'border-[#477C6C]/30 bg-[#DCEEE8] text-[#285F51]',
+        'border-[#75629C]/30 bg-[#E8E0F2] text-[#59447C]',
+        'border-[#B66D32]/30 bg-[#FBE7D6] text-[#86491C]',
+        'border-[#A45D78]/30 bg-[#F2E3EA] text-[#7A3E58]',
+      ]
+    : [
+        'border-[#6E9CC0]/28 bg-[#263B5B] text-[#DCE8F4]',
+        'border-[#76A99B]/28 bg-[#21483F] text-[#CBEDE2]',
+        'border-[#9D8BC2]/28 bg-[#392E56] text-[#E8DFF5]',
+        'border-[#D39867]/28 bg-[#5A351E] text-[#FFDDBD]',
+        'border-[#C986A0]/28 bg-[#472D3A] text-[#F4CADB]',
+      ];
+  const wordColorIndexes = new Map<string, number>();
+  content.diagram?.tokens.forEach((token) => {
+    if (token !== ' ' && token !== '' && !punctuationTokens.has(token) && !wordColorIndexes.has(token)) {
+      wordColorIndexes.set(token, wordColorIndexes.size % wordPalettes.length);
+    }
+  });
   return (
     <section className="grid gap-5">
       <p className={cx('w-full text-base leading-7', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.lead, language), themeClasses)}</p>
@@ -1812,8 +1642,8 @@ export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }
                       ? (themeClasses.isLight ? 'border-[#B5523A]/22 bg-[#FFF1ED] text-[#9A3F2B]' : 'border-[#F29A82]/20 bg-[#F29A82]/10 text-[#FFC3B4]')
                       : isPunctuation
                       ? (themeClasses.isLight ? 'border-[#C68A2E]/28 bg-[#FFF4DD] text-[#674518]' : 'border-[#F4D8A4]/22 bg-[#8B6734]/34 text-[#FFE5B4]')
-                      : (themeClasses.isLight ? 'border-[#205089]/16 bg-[#EDF5FB] text-[#173F69]' : 'border-[#7FB0FF]/18 bg-[#263B5B]/70 text-[#DCE8F4]'),
-                  )}>{isWhitespace ? '␠' : isEmpty ? "''" : token}</code>;
+                      : wordPalettes[wordColorIndexes.get(token) ?? 0],
+                  )}>{isWhitespace ? '__' : isEmpty ? "''" : token}</code>;
                 })}
               </div>
             </div>

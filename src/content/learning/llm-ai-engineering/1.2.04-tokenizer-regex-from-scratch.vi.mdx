@@ -3,17 +3,17 @@ export const lessonMetadata = {
   id: 'tokenizer-regex-from-scratch',
   locale: 'vi',
   title: 'Code: Xây tokenizer regex đơn giản',
-  headings: ['Raw string', 'Whitespace', 'Dấu câu', 'Hàm tokenize', 'Áp dụng cho corpus'],
+  headings: ['Chuỗi ban đầu', 'Tách theo khoảng trắng', 'Tách dấu câu', 'Viết thành hàm', 'Thử với đoạn văn mới'],
   keywords: ['Python', 'regex', 're.split', 'whitespace', 'punctuation', 'tokenizer'],
   pageCount: 5,
 }
 
 <MdxPage page={0}>
 
-## Bắt đầu từ đúng raw string
+## Bắt đầu từ chuỗi ban đầu
 
 <TokenizerRegexWalkthrough content={{
-  lead: { vi: 'Running example gồm hai tài liệu độc lập. Ở bước này input chỉ là chuỗi ký tự; chưa có token, ID hay tensor.' },
+  lead: { vi: 'Ta bắt đầu với một chuỗi văn bản chưa được chia nhỏ. Lúc này toàn bộ câu vẫn là một giá trị duy nhất.' },
   diagram: {
     inputText: 'Linh builds AI. Linh tests AI.',
     outputLabel: { vi: 'Một raw string chưa được chia' },
@@ -26,17 +26,17 @@ export const lessonMetadata = {
     'print(len(raw_text))',
   ],
   output: ['str', '30'],
-  takeaway: { vi: 'Contract hiện tại là str -> str. Ta sẽ chuyển nó thành str -> list[str] bằng các quy tắc nhìn thấy được.' },
+  takeaway: { vi: 'Dữ liệu hiện vẫn là một chuỗi. Bước tiếp theo là chia chuỗi này thành nhiều phần nhỏ.' },
 }} />
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Tách theo whitespace nhưng chưa xóa dấu vết
+## Tách theo khoảng trắng
 
 <TokenizerRegexWalkthrough content={{
-  lead: { vi: 'Capturing group `(\\s)` khiến `re.split` giữ các separator whitespace trong output. Nhờ vậy ta nhìn thấy chính xác thông tin nào sẽ bị bỏ ở bước cleanup.' },
+  lead: { vi: '`re.split` dùng `(\\s)` để tách câu tại khoảng trắng và vẫn giữ các khoảng trắng trong kết quả. Nhờ đó ta nhìn rõ phần nào sẽ được bỏ ở bước sau.' },
   diagram: {
     inputText: 'Linh builds AI. Linh tests AI.',
     outputLabel: { vi: 'Split theo whitespace' },
@@ -49,17 +49,17 @@ export const lessonMetadata = {
     'print(parts)',
   ],
   output: ["['Linh', ' ', 'builds', ' ', 'AI.', ' ', 'Linh', ' ', 'tests', ' ', 'AI.']"],
-  takeaway: { vi: 'Whitespace đã tạo ranh giới, nhưng dấu chấm vẫn dính vào `AI.`. Tokenizer cần một quyết định riêng cho punctuation.' },
+  takeaway: { vi: 'Các từ đã được tách theo khoảng trắng, nhưng dấu chấm vẫn còn dính vào `AI.`. Ta cần tách dấu câu riêng.' },
 }} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Tách punctuation thành token riêng
+## Tách dấu câu thành token riêng
 
 <TokenizerRegexWalkthrough content={{
-  lead: { vi: 'Thêm dấu chấm vào capturing group. `re.split` giữ dấu chấm, đồng thời có thể sinh chuỗi rỗng ở cạnh separator.' },
+  lead: { vi: 'Ta thêm dấu chấm vào quy tắc tách. Dấu chấm được giữ lại thành một phần riêng, nhưng kết quả có thể xuất hiện thêm khoảng trắng và chuỗi rỗng.' },
   diagram: {
     inputText: 'Linh builds AI. Linh tests AI.',
     outputLabel: { vi: 'Split theo whitespace hoặc dấu chấm' },
@@ -70,17 +70,17 @@ export const lessonMetadata = {
     'print(parts)',
   ],
   output: ["['Linh', ' ', 'builds', ' ', 'AI', '.', '', ' ', 'Linh', ' ', 'tests', ' ', 'AI', '.', '']"],
-  takeaway: { vi: 'Dấu chấm giờ là token có thể giữ lại. Chuỗi rỗng và whitespace vẫn cần được xử lý có chủ đích.' },
+  takeaway: { vi: 'Dấu chấm đã được tách riêng. Bước tiếp theo là bỏ khoảng trắng và chuỗi rỗng không cần thiết.' },
 }} />
 
 </MdxPage>
 
 <MdxPage page={3}>
 
-## Đóng gói split và cleanup
+## Viết thành hàm `tokenize`
 
 <TokenizerRegexWalkthrough content={{
-  lead: { vi: 'Tokenizer toy này dùng whitespace làm ranh giới rồi bỏ separator; tokenizer production có thể giữ whitespace bằng cách gắn nó vào token kế tiếp.' },
+  lead: { vi: 'Ta gom các bước trên vào hàm `tokenize`: tách từ và dấu câu, sau đó bỏ khoảng trắng cùng chuỗi rỗng.' },
   diagram: {
     inputText: 'Linh builds AI. Linh tests AI.',
     outputLabel: { vi: 'tokenize(text) trả về' },
@@ -95,7 +95,7 @@ export const lessonMetadata = {
     'print(tokens)',
   ],
   output: ["['Linh', 'builds', 'AI', '.', 'Linh', 'tests', 'AI', '.']"],
-  takeaway: { vi: 'Contract đã thành str -> list[str]. Hàm giữ thứ tự từ và punctuation, nhưng chủ động loại whitespace khỏi output toy.' },
+  takeaway: { vi: 'Kết quả là một danh sách token theo đúng thứ tự xuất hiện trong câu. Trong ví dụ này, dấu câu được giữ lại còn khoảng trắng được bỏ đi.' },
 }} />
 
 </MdxPage>
@@ -103,12 +103,12 @@ export const lessonMetadata = {
 <MdxPage page={4}>
 
 <TokenizerRegexWalkthrough content={{
-  lead: {vi: 'Áp dụng cùng một hàm cho đoạn mới để kiểm tra contract str -> list[str], thứ tự token và các dấu câu đã chọn.'},
+  lead: {vi: 'Cuối cùng, ta dùng lại hàm `tokenize` với một đoạn văn mới để kiểm tra xem từ và dấu câu có được tách đúng thứ tự hay không.'},
   code: [
     'import re',
     '',
     'def tokenize(text: str) -> list[str]:',
-    "    parts = re.split(r'([,.:;?_!\\\"()]|--|\\\\s)', text)",
+    "    parts = re.split(r'([,.:;?_!\\\"()]|--|\\s)', text)",
     '    return [part.strip() for part in parts if part.strip()]',
     '',
     'paragraph = (',
@@ -117,6 +117,8 @@ export const lessonMetadata = {
     ')',
     '',
     'paragraph_tokens = tokenize(paragraph)',
+    'print(paragraph_tokens)',
+    '',
     'assert paragraph_tokens[:6] == [',
     '    "At", "dawn", ",", "Linh", "opened", "the"',
     ']',
@@ -124,12 +126,10 @@ export const lessonMetadata = {
     'assert "--" in paragraph_tokens',
     'assert all(token.strip() == token and token for token in paragraph_tokens)',
   ],
-  output: [],
-  takeaway: {vi: 'Input vẫn là str; output luôn là list[str]. Regex làm rõ ranh giới, nhưng không tự học vocabulary hay merge rules và không có byte fallback.'},
+  output: ["['At', 'dawn', ',', 'Linh', 'opened', 'the', 'workshop', '.', 'The', 'robot', 'flashed', ':', '\"', 'Package', 'ready', '!', '\"', '--', 'twice', '.']"],
+  takeaway: {vi: 'Hàm regex này nhận một chuỗi và tách nó thành danh sách token theo các quy tắc viết tay. Hàm chưa tạo token ID và cũng không tự học cách tách subword từ dữ liệu.'},
 }} />
 
-<LessonNote>**Lỗi thường gặp:** dựng vocabulary từ đúng câu đang muốn encode rồi gọi đó là tokenizer production. Vocabulary phải được học/cố định từ training corpus trước khi dùng cho dữ liệu mới.</LessonNote>
-
-**Handoff:** BPE sẽ học các đơn vị subword từ tần suất corpus thay vì phụ thuộc hoàn toàn vào pattern viết tay.
+**Handoff:** BPE sẽ học cách chia subword từ dữ liệu thay vì chỉ dựa vào các quy tắc do chúng ta viết trước.
 
 </MdxPage>

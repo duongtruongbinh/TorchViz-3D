@@ -3,21 +3,26 @@ export const lessonMetadata = {
   id: 'llm-training-data',
   locale: 'vi',
   title: 'Data: Từ web thô đến training token',
-  headings: ['Nguồn dữ liệu web và document thô', 'Lọc dữ liệu', 'Cân bằng và hoàn thiện', 'Quy mô và dataset tiêu biểu', 'Thách thức ở quy mô lớn', 'Quy trình kiểm soát liên tục'],
+  headings: ['Nguồn dữ liệu web', 'Một document web thô', 'Lọc dữ liệu', 'Cân bằng và hoàn thiện', 'Quy mô training data', 'Các pretraining dataset tiêu biểu', 'Thách thức ở quy mô lớn'],
   keywords: ['training data', 'Common Crawl', 'data filtering', 'domain balancing', 'data quality', 'copyright'],
-  pageCount: 6,
+  pageCount: 7,
 }
 
 <MdxPage page={0}>
 
 <TrainingConceptVisual content={{
   view: 'position',
-  lead: {vi: 'Training data của LLM thường được kết hợp từ nhiều nguồn như web, code, sách và bài báo. Dữ liệu thô phải được trích xuất, lọc, loại nội dung trùng lặp và cân bằng theo mục tiêu huấn luyện.'},
+  image: 'common-crawl-pipeline',
+  lead: {vi: 'Training data của LLM thường được kết hợp từ nhiều nguồn như web, code, sách và bài báo.'},
   comparisons: [
     {title: 'Common Crawl', shape: 'Nguồn: Common Crawl', href: 'https://commoncrawl.org/about', detail: {vi: 'Common Crawl là kho dữ liệu web mở được thu thập qua nhiều năm; mỗi đợt crawl thường chứa hơn 2 tỷ trang. Tuy nhiên, dữ liệu vẫn gồm HTML, navigation, quảng cáo, spam, nội dung lặp, lỗi encoding và tài liệu không phù hợp. Vì vậy, Common Crawl chỉ là nguồn nguyên liệu quy mô lớn: team còn phải trích text, lọc, deduplicate và cân bằng dữ liệu trước khi tạo training corpus.'}},
   ],
   code: [],
 }} />
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 <CodeLessonFrame
   title="Một document web thô"
@@ -119,17 +124,18 @@ export const lessonMetadata = {
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 <TrainingConceptVisual content={{
   view: 'audit',
   layout: 'filter-pipeline',
-  lead: {vi: 'Ví dụ giả định dưới đây bắt đầu với 100 document web thô để minh họa dữ liệu giảm qua bốn lớp lọc. Các con số chỉ giúp theo dõi pipeline, không phải tỷ lệ chuẩn cho mọi dataset.'},
+  image: 'filtering-pipeline',
+  lead: {vi: 'Dữ liệu web thường đi qua nhiều lớp lọc. Mỗi lớp xử lý một nhóm vấn đề khác nhau trước khi document được giữ lại cho training corpus.'},
   steps: [
-    {label: {vi: 'Rule filtering'}, shape: 'length · language · density', detail: {vi: 'Loại document rõ ràng chất lượng thấp bằng rule đơn giản ở quy mô lớn.'}, examples: [{vi: 'Quá ngắn'}, {vi: 'Sai ngôn ngữ'}, {vi: 'Không có thông tin cần thiết'}, {vi: 'Gần như chỉ có navigation'}], beforeCount: 100, afterCount: 82},
-    {label: {vi: 'Deduplication'}, shape: 'hash · MinHash · n-gram', detail: {vi: 'Loại exact/near duplicates để giảm học lặp và leakage.'}, examples: [{vi: 'Bản sao giống hệt'}, {vi: 'Nội dung gần giống một document đã có'}, {vi: 'Cùng bài viết xuất hiện ở nhiều URL'}], beforeCount: 82, afterCount: 68},
-    {label: {vi: 'Model filtering'}, shape: 'quality classifier', detail: {vi: 'Chấm chất lượng từ positive/negative references.'}, examples: [{vi: 'Nội dung rời rạc hoặc khó đọc'}, {vi: 'Trang có dấu hiệu spam'}, {vi: 'Chất lượng thấp theo classifier'}], beforeCount: 68, afterCount: 54},
-    {label: {vi: 'Safety / policy'}, shape: 'PII · malware · toxicity', detail: {vi: 'Loại hoặc gắn nhãn theo policy dataset.'}, examples: [{vi: 'Chứa thông tin nhận dạng cá nhân'}, {vi: 'Chứa mã độc'}, {vi: 'Vi phạm policy của dataset'}], beforeCount: 54, afterCount: 50},
+    {label: {vi: 'Rule filtering'}, shape: 'length · language · density', detail: {vi: 'Loại document rõ ràng chất lượng thấp bằng rule đơn giản ở quy mô lớn.'}, examples: [{vi: 'Quá ngắn'}, {vi: 'Sai ngôn ngữ'}, {vi: 'Không có thông tin cần thiết'}, {vi: 'Gần như chỉ có navigation'}]},
+    {label: {vi: 'Deduplication'}, shape: 'hash · MinHash · n-gram', detail: {vi: 'Loại exact/near duplicates để giảm học lặp và leakage.'}, examples: [{vi: 'Bản sao giống hệt'}, {vi: 'Nội dung gần giống một document đã có'}, {vi: 'Cùng bài viết xuất hiện ở nhiều URL'}]},
+    {label: {vi: 'Model filtering'}, shape: 'quality classifier', detail: {vi: 'Chấm chất lượng từ positive/negative references.'}, examples: [{vi: 'Nội dung rời rạc hoặc khó đọc'}, {vi: 'Trang có dấu hiệu spam'}, {vi: 'Chất lượng thấp theo classifier'}]},
+    {label: {vi: 'Safety / policy'}, shape: 'PII · malware · toxicity', detail: {vi: 'Loại hoặc gắn nhãn theo policy dataset.'}, examples: [{vi: 'Chứa thông tin nhận dạng cá nhân'}, {vi: 'Chứa mã độc'}, {vi: 'Vi phạm policy của dataset'}]},
   ],
   code: [],
   takeaway: {vi: 'Lọc quá ít giữ noise; lọc quá mạnh mất diversity và khuếch đại bias của bộ lọc.'},
@@ -138,7 +144,7 @@ export const lessonMetadata = {
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 <TrainingConceptVisual content={{
   view: 'audit',
@@ -155,7 +161,7 @@ export const lessonMetadata = {
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 <TrainingConceptVisual content={{
   view: 'audit',
@@ -168,39 +174,40 @@ export const lessonMetadata = {
   code: [],
 }} />
 
+</MdxPage>
+
+<MdxPage page={5}>
+
 <PretrainingDatasetCards content={{
-  lead: {vi: 'Bốn dataset dưới đây cho thấy pretraining data đã phát triển từ một web corpus được làm sạch thành những corpus hàng nghìn tỷ token với pipeline và data mixture được tài liệu hóa kỹ hơn.'},
+  lead: {vi: 'Cách xây dựng pretraining dataset đã thay đổi theo thời gian. Dataset ngày càng lớn hơn, kết hợp nhiều nguồn hơn và mô tả rõ hơn cách dữ liệu được xử lý.'},
+  image: 'dataset-evolution',
   datasets: [
     {
       id: 'c4',
       name: 'C4',
       scale: '≈156 tỷ token · 806,87 GiB',
-      category: {vi: 'Clean web corpus'},
-      brief: {vi: 'Google tạo Colossal Clean Crawled Corpus từ một snapshot Common Crawl cho nghiên cứu T5. C4 là ví dụ sớm có ảnh hưởng lớn về việc biến web text thô thành corpus tiếng Anh đã lọc.'},
+      brief: {vi: 'Dữ liệu tiếng Anh lấy từ Common Crawl và được lọc để huấn luyện T5.'},
       href: 'https://www.tensorflow.org/datasets/catalog/c4',
     },
     {
       id: 'pile',
       name: 'The Pile',
       scale: '≈280 tỷ token · 825 GiB',
-      category: {vi: '22-source mixture'},
-      brief: {vi: 'EleutherAI trộn 22 nguồn gồm web, code, paper, sách và hội thoại. Điểm nổi bật là data mixture đa domain cùng datasheet mô tả nguồn và giới hạn của corpus.'},
+      brief: {vi: 'Kết hợp 22 nguồn dữ liệu, gồm web, code, bài báo khoa học, sách và hội thoại.'},
       href: 'https://arxiv.org/abs/2101.00027',
     },
     {
       id: 'dolma',
       name: 'Dolma',
       scale: '3K tỷ token',
-      category: {vi: 'Open research corpus'},
-      brief: {vi: 'AI2 xây corpus tiếng Anh từ web, paper khoa học, code, sách public-domain, social media và encyclopedia, đồng thời mở pipeline để nghiên cứu data curation có thể tái lập.'},
+      brief: {vi: 'Corpus tiếng Anh mở, kết hợp nhiều nguồn và công khai quy trình xử lý dữ liệu.'},
       href: 'https://arxiv.org/abs/2402.00159',
     },
     {
       id: 'fineweb',
       name: 'FineWeb',
       scale: '15K tỷ token',
-      category: {vi: 'Web-scale filtered corpus'},
-      brief: {vi: 'Hugging Face xử lý 96 snapshot Common Crawl bằng extraction, deduplication và nhiều lớp filter. Các ablation cho thấy lựa chọn data pipeline có thể ảnh hưởng rõ đến chất lượng model.'},
+      brief: {vi: 'Dữ liệu từ 96 đợt Common Crawl, đã được trích xuất text, loại nội dung trùng lặp và lọc qua nhiều bước.'},
       href: 'https://arxiv.org/abs/2406.17557',
     },
   ],
@@ -209,35 +216,15 @@ export const lessonMetadata = {
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={6}>
 
 <TrainingConceptVisual content={{
   view: 'audit',
   layout: 'scale-risks',
+  image: 'scale-risks',
   lead: {vi: 'Quy mô lớn cũng không đồng nghĩa dữ liệu tự động tốt hơn. Thực tế, team vẫn gặp nhiều vấn đề về quyền sử dụng dữ liệu, an toàn, chất lượng, leakage và khả năng truy vết nguồn.'},
-  steps: [
-    {label: {vi: 'Rights + safety'}, shape: 'license · consent · deletion · PII · bias', detail: {vi: 'Nguồn dữ liệu phải đáp ứng policy và khả năng truy vết.'}},
-    {label: {vi: 'Quality + leakage'}, shape: 'domains · languages · benchmarks', detail: {vi: 'Dù corpus rất lớn, một số domain hoặc ngôn ngữ vẫn có ít dữ liệu chất lượng. Ngoài ra, dữ liệu benchmark có thể vô tình lọt vào training corpus, khiến kết quả evaluation không còn phản ánh đúng khả năng của model.'}},
-  ],
   code: [],
   misconception: {vi: 'Có nhiều dữ liệu hơn không tự giúp team quyết định mỗi domain nên chiếm bao nhiêu, có nên bổ sung dữ liệu do model tạo hay không, hoặc nên kết hợp text với hình ảnh như thế nào. Team vẫn phải kiểm chứng từng quyết định bằng evaluation.'},
 }} />
-
-</MdxPage>
-
-<MdxPage page={5}>
-
-<TrainingConceptVisual content={{
-  view: 'audit',
-  layout: 'continuous-cycle',
-  lead: {vi: 'Các vấn đề dữ liệu không được giải quyết dứt điểm sau một lần chạy pipeline. Mỗi thay đổi ở nguồn dữ liệu, bộ lọc hoặc mixture đều tạo ra một phiên bản dataset mới cần được đánh giá lại.'},
-  steps: [
-    {label: {vi: 'Lặp lại toàn bộ pipeline'}, shape: 'Nguồn → Trích xuất → Lọc → Loại trùng → Cân bằng → Tạo phiên bản → Đánh giá', detail: {vi: 'Nếu kết quả evaluation chưa đạt hoặc dữ liệu đầu vào thay đổi, team quay lại bước phù hợp, cập nhật pipeline và tạo phiên bản tiếp theo.'}},
-  ],
-  code: [],
-  takeaway: {vi: 'Data engineering cho LLM là quá trình chọn và đánh giá liên tục, không phải tải Internet rồi tokenize.'},
-}} />
-
-Nguồn đọc thêm: [Common Crawl](https://commoncrawl.org/about), [FineWeb](https://huggingface.co/datasets/HuggingFaceFW/fineweb), [DataComp-LM](https://arxiv.org/abs/2406.11794), [Meta Llama 3](https://ai.meta.com/blog/meta-llama-3/).
 
 </MdxPage>
