@@ -1651,12 +1651,14 @@ export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }
         </div>
       ) : null}
       <div className="grid gap-3">
-        <CodeBlock code={content.code} showLineNumbers themeClasses={themeClasses} />
+        <CodeBlock code={content.code} dimmedLineCount={content.dimmedLineCount} showLineNumbers themeClasses={themeClasses} />
         {content.output.length > 0 ? <CodeBlock variant="output" code={content.output.join('\n')} copyable={false} themeClasses={themeClasses} /> : null}
       </div>
-      <LlmCallout icon={Info} themeClasses={themeClasses}>
-        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.takeaway, language), themeClasses)}</p>
-      </LlmCallout>
+      {content.takeaway ? (
+        <LlmCallout icon={Info} themeClasses={themeClasses}>
+          <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{renderTokenizerInlineCode(text(content.takeaway, language), themeClasses)}</p>
+        </LlmCallout>
+      ) : null}
     </section>
   );
 }

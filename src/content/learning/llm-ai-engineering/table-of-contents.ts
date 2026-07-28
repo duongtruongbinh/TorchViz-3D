@@ -95,6 +95,11 @@ const chapters: LearningTocTrackSeed[] = [
       ),
       quizSeed('tokenization-bpe-tiktoken-quiz'),
       lessonSeed(
+        'bpe-code-example',
+        'Code: Train a minimal BPE tokenizer',
+        'Code: Huấn luyện BPE đơn giản',
+      ),
+      lessonSeed(
         'tokenization-token-ids-vocabulary',
         'Token IDs and vocabulary',
         'Token IDs và vocabulary',

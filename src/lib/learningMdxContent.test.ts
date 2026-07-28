@@ -162,7 +162,7 @@ test('all LLM tracks enforce focused pages and local media contracts', async () 
     const parsed = parseLearningMdxPath(file);
     return parsed?.domainId === 'llm-ai-engineering' && llmLessonIds.has(parsed.lessonId);
   });
-  assert.equal(scopedFiles.length, 200);
+  assert.equal(scopedFiles.length, 201);
 
   for (const file of scopedFiles) {
     const source = readFileSync(file, 'utf8');

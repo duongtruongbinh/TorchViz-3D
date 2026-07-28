@@ -3,9 +3,9 @@ export const lessonMetadata = {
   id: 'tokenization-bpe-tiktoken-quiz',
   locale: 'vi',
   title: 'Quiz',
-  headings: ['BPE chọn cặp', 'Sau training', 'Special token', 'Tokenizer đi kèm model'],
+  headings: ['BPE chọn cặp', 'Sau training', 'Special token', 'Tokenizer đi kèm model', 'Chọn special tokens'],
   keywords: ['quiz', 'BPE', 'inference', 'special token', 'tokenizer'],
-  pageCount: 4,
+  pageCount: 5,
 }
 
 <MdxQuiz id="tokenization-bpe-tiktoken-quiz" questions={[
@@ -52,5 +52,16 @@ export const lessonMetadata = {
     ],
     success: 'Đúng. Model và tokenizer phải thống nhất vocabulary, token ID và special token.',
     error: 'Tokenizer không thể được đổi tùy ý vì model đã học theo mapping token ID của tokenizer đi kèm.',
+  },
+  {
+    id: 'identify-special-tokens', title: 'Chọn special tokens', prompt: 'Nhóm nào dưới đây chỉ gồm các special token đã được giới thiệu trong bài?', mode: 'single',
+    options: [
+      { id: 'bos-eos-pad', label: '`BOS`, `EOS`, `PAD`', isCorrect: true },
+      { id: 'bos-learn-pad', label: '`BOS`, `learn`, `PAD`' },
+      { id: 'learn-learner-learning', label: '`learn`, `learner`, `learning`' },
+      { id: 'eos-text-token', label: '`EOS`, `text`, `token`' },
+    ],
+    success: 'Đúng. BOS, EOS và PAD đều mang tín hiệu về cấu trúc của sequence.',
+    error: '`learn`, `learner`, `learning`, `text` và `token` là nội dung text thông thường, không phải special token trong ví dụ.',
   },
 ]} />

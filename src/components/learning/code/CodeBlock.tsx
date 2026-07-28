@@ -32,6 +32,8 @@ export interface CodeBlockProps {
   showLineNumbers?: boolean;
   /** 1-based source lines that should receive a visual focus highlight. */
   highlightedLines?: number[];
+  /** Number of leading source lines rendered as previously introduced code. */
+  dimmedLineCount?: number;
   /**
    * Show whitespace marker gutters (indentation `→` + line-end `↵`). Intended
    * only for the whitespace lesson. The markers live in their own gutters; the
@@ -134,6 +136,7 @@ export function CodeBlock({
   variant = 'code',
   showLineNumbers = false,
   highlightedLines = [],
+  dimmedLineCount = 0,
   showWhitespace = false,
   headerTrailing,
   copyable,
@@ -180,11 +183,13 @@ export function CodeBlock({
                 const indentation = showWhitespace ? rawLine.match(/^\s*/)?.[0].length ?? 0 : 0;
                 const arrows = indentation > 0 ? '→'.repeat(Math.floor(indentation / 4)) : '';
                 const isHighlighted = highlightedLineSet.has(index + 1);
+                const isDimmed = index < dimmedLineCount;
                 return (
                   <span
                     key={`${index}-${rawLine}`}
                     className={cx(
                       'block whitespace-pre font-mono text-[0.82rem] md:text-sm',
+                      isDimmed && 'opacity-[0.32]',
                       isHighlighted && '-mx-4 border-l-2 border-[#F2C94C] bg-[#4A3A12] px-[calc(1rem-2px)] text-[#FFF4C2] md:-mx-5 md:px-[calc(1.25rem-2px)]',
                     )}
                   >

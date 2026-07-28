@@ -51,6 +51,7 @@ const expectedOrderByTrack = {
     'tokenization-why-it-matters', 'tokenization-why-it-matters-quiz',
     'tokenizer-regex-from-scratch', 'tokenizer-regex-from-scratch-quiz',
     'tokenization-bpe-tiktoken', 'tokenization-bpe-tiktoken-quiz',
+    'bpe-code-example',
     'tokenization-token-ids-vocabulary',
     'tokenization-token-ids-vocabulary-quiz',
     'tokenization-raw-text-to-token-ids', 'tokenization-special-tokens',
@@ -242,7 +243,8 @@ const roleIds = {
     'sha256-response-caching', 'redis-per-user-rate-limits',
   ],
   code: [
-    'tokenizer-regex-from-scratch', 'tokenizer-and-dataloader-code',
+    'tokenizer-regex-from-scratch', 'bpe-code-example',
+    'tokenizer-and-dataloader-code',
     'multi-head-attention-code', 'gpt-module-code',
     'training-loop-and-generation-code', 'generation-strategies-code',
     'classification-finetuning-code',
@@ -463,13 +465,13 @@ const expectedGlobalIndex = new Map<string, number>(
   expectedIds.map((id, index) => [id, index]),
 );
 
-test('LLM flow audit manifest covers the exact 200-route target', () => {
+test('LLM flow audit manifest covers the exact 201-route target', () => {
   const catalogIds = learningCatalog.lessons
     .filter((lesson) => lesson.domainId === 'llm-ai-engineering')
     .map((lesson) => lesson.id);
 
-  assert.equal(expectedIds.length, 200);
-  assert.equal(new Set(expectedIds).size, 200);
+  assert.equal(expectedIds.length, 201);
+  assert.equal(new Set(expectedIds).size, 201);
   assert.deepEqual([...catalogIds].sort(), [...expectedIds].sort());
   assert.deepEqual([...roleById.keys()].sort(), [...expectedIds].sort());
   assert.deepEqual(
@@ -478,7 +480,7 @@ test('LLM flow audit manifest covers the exact 200-route target', () => {
       theory: 45,
       quiz: 65,
       calculation: 36,
-      code: 31,
+      code: 32,
       'production-pattern': 22,
       hybrid: 1,
     },
@@ -543,7 +545,7 @@ test('every Quiz declares taught prerequisites', () => {
   }
 });
 
-test('all 31 code-role lessons contain explicit code evidence', () => {
+test('all 32 code-role lessons contain explicit code evidence', () => {
   const scopedFiles = discoverLearningMdxFiles('src/content/learning/llm-ai-engineering');
   const fileByLessonId = new Map(scopedFiles.map((file) => [parseLearningMdxPath(file)!.lessonId, file]));
 

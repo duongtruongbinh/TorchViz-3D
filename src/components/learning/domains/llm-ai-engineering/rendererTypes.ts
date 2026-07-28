@@ -320,8 +320,9 @@ export type LlmTokenizerRegexWalkthroughContent = {
   lead: LearningLocalizedText;
   diagram?: { inputText: string; outputLabel: LearningLocalizedText; tokens: string[] };
   code: string[];
+  dimmedLineCount?: number;
   output: string[];
-  takeaway: LearningLocalizedText;
+  takeaway?: LearningLocalizedText;
 };
 
 export type LlmProbabilityDefinitionContent = {

@@ -1,0 +1,261 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'bpe-code-example',
+  locale: 'vi',
+  title: 'Code: Huấn luyện BPE đơn giản',
+  headings: ['Chuẩn bị corpus', 'Tạo BPE tokenizer', 'Cấu hình và train BPE', 'Xem vocabulary', 'Encode và decode'],
+  keywords: ['BPE', 'Python', 'Hugging Face', 'tokenizers', 'BpeTrainer'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Bước 1: Chuẩn bị corpus
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Cài thư viện bằng `pip install tokenizers`. Sau đó import các thành phần cần dùng và tạo một corpus nhỏ gồm nhiều biến thể của từ `learn`.'},
+  diagram: {
+    inputText: '3 câu training',
+    outputLabel: {vi: 'Các phần lặp lại nhiều lần'},
+    tokens: ['learn', 'learner', 'learning', 'learns'],
+  },
+  code: [
+    'from tokenizers import Tokenizer',
+    'from tokenizers.decoders import BPEDecoder',
+    'from tokenizers.models import BPE',
+    'from tokenizers.pre_tokenizers import Whitespace',
+    'from tokenizers.trainers import BpeTrainer',
+    '',
+    'corpus = [',
+    '    "learn learner learning",',
+    '    "learn learning",',
+    '    "learner learns",',
+    ']',
+    '',
+    'print("Số câu:", len(corpus))',
+    'print("Câu đầu:", corpus[0])',
+  ],
+  output: [
+    'Số câu: 3',
+    'Câu đầu: learn learner learning',
+  ],
+  takeaway: {vi: 'BPE học từ thống kê trong corpus. Việc lặp lại `learn` giúp ví dụ nhỏ này có đủ tín hiệu để học mảnh token `learn`.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bước 2: Tạo BPE tokenizer
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Trước khi train, ta tạo tokenizer và gắn hai thành phần xử lý text: pre-tokenizer dùng trước khi BPE chạy và decoder dùng khi ghép token trở lại.'},
+  diagram: {
+    inputText: 'Tokenizer',
+    outputLabel: {vi: 'Ba thành phần chính'},
+    tokens: ['BPE', 'Whitespace', 'BPEDecoder'],
+  },
+  code: [
+    'from tokenizers import Tokenizer',
+    'from tokenizers.decoders import BPEDecoder',
+    'from tokenizers.models import BPE',
+    'from tokenizers.pre_tokenizers import Whitespace',
+    'from tokenizers.trainers import BpeTrainer',
+    '',
+    'corpus = [',
+    '    "learn learner learning",',
+    '    "learn learning",',
+    '    "learner learns",',
+    ']',
+    '',
+    'print("Số câu:", len(corpus))',
+    'print("Câu đầu:", corpus[0])',
+    '',
+    'tokenizer = Tokenizer(BPE(unk_token="[UNK]"))',
+    'tokenizer.pre_tokenizer = Whitespace()',
+    'tokenizer.decoder = BPEDecoder(suffix="</w>")',
+  ],
+  dimmedLineCount: 14,
+  output: [],
+}} />
+
+- `Tokenizer(BPE(unk_token="[UNK]"))`: tạo một tokenizer mới, chọn BPE làm thuật toán học token và dùng `[UNK]` cho nội dung không có trong vocabulary.
+- `Whitespace()`: tách `learner learning` thành hai từ `learner` và `learning` trước khi BPE học các mảnh nhỏ hơn.
+- `BPEDecoder(suffix="</w>")`: khi decode, bỏ dấu `</w>` ở cuối từ và khôi phục khoảng cách trước từ tiếp theo. `</w>` chỉ là dấu đánh dấu, không phải ký tự whitespace thật.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Bước 3: Cấu hình và train BPE
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: '`BpeTrainer` chứa các giới hạn và quy ước training. Sau khi cấu hình xong, ta truyền cả corpus và trainer vào tokenizer để bắt đầu học vocabulary.'},
+  diagram: {
+    inputText: 'BpeTrainer',
+    outputLabel: {vi: 'Thiết lập cho quá trình training'},
+    tokens: ['V = 20', 'min = 2', '</w>', 'special tokens'],
+  },
+  code: [
+    'from tokenizers import Tokenizer',
+    'from tokenizers.decoders import BPEDecoder',
+    'from tokenizers.models import BPE',
+    'from tokenizers.pre_tokenizers import Whitespace',
+    'from tokenizers.trainers import BpeTrainer',
+    '',
+    'corpus = [',
+    '    "learn learner learning",',
+    '    "learn learning",',
+    '    "learner learns",',
+    ']',
+    '',
+    'print("Số câu:", len(corpus))',
+    'print("Câu đầu:", corpus[0])',
+    '',
+    'tokenizer = Tokenizer(BPE(unk_token="[UNK]"))',
+    'tokenizer.pre_tokenizer = Whitespace()',
+    'tokenizer.decoder = BPEDecoder(suffix="</w>")',
+    '',
+    'trainer = BpeTrainer(',
+    '    vocab_size=20,',
+    '    min_frequency=2,',
+    '    end_of_word_suffix="</w>",',
+    '    special_tokens=["[UNK]", "[PAD]", "[BOS]", "[EOS]"],',
+    ')',
+    '',
+    'tokenizer.train_from_iterator(corpus, trainer=trainer)',
+  ],
+  dimmedLineCount: 18,
+  output: [],
+}} />
+
+- `BpeTrainer(...)`: chứa các thiết lập sẽ được dùng trong lúc huấn luyện tokenizer.
+- `vocab_size=20`: đặt số lượng token tối đa mà vocabulary có thể chứa là 20.
+- `min_frequency=2`: một cặp phải xuất hiện ít nhất hai lần mới được cân nhắc để gộp.
+- `end_of_word_suffix="</w>"`: trong lúc chuẩn bị dữ liệu để train BPE, gắn `</w>` vào đơn vị cuối của mỗi từ. Ví dụ: `learner` bắt đầu thành `l e a r n e r</w>`.
+- `special_tokens=[...]`: thêm sẵn `[UNK]`, `[PAD]`, `[BOS]` và `[EOS]` vào vocabulary.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Bước 4: Xem vocabulary
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Sau khi training hoàn tất, ta lấy vocabulary đã học và in một số token tiêu biểu cùng ID của chúng.'},
+  diagram: {
+    inputText: 'corpus + BpeTrainer',
+    outputLabel: {vi: 'Vocabulary sau training'},
+    tokens: ['[UNK]', '[PAD]', '[BOS]', '[EOS]', 'learn', '...'],
+  },
+  code: [
+    'from tokenizers import Tokenizer',
+    'from tokenizers.decoders import BPEDecoder',
+    'from tokenizers.models import BPE',
+    'from tokenizers.pre_tokenizers import Whitespace',
+    'from tokenizers.trainers import BpeTrainer',
+    '',
+    'corpus = [',
+    '    "learn learner learning",',
+    '    "learn learning",',
+    '    "learner learns",',
+    ']',
+    '',
+    'print("Số câu:", len(corpus))',
+    'print("Câu đầu:", corpus[0])',
+    '',
+    'tokenizer = Tokenizer(BPE(unk_token="[UNK]"))',
+    'tokenizer.pre_tokenizer = Whitespace()',
+    'tokenizer.decoder = BPEDecoder(suffix="</w>")',
+    '',
+    'trainer = BpeTrainer(',
+    '    vocab_size=20,',
+    '    min_frequency=2,',
+    '    end_of_word_suffix="</w>",',
+    '    special_tokens=["[UNK]", "[PAD]", "[BOS]", "[EOS]"],',
+    ')',
+    '',
+    'tokenizer.train_from_iterator(corpus, trainer=trainer)',
+    '',
+    'vocab = tokenizer.get_vocab()',
+    '',
+    'print("Vocab size:", tokenizer.get_vocab_size())',
+    'print({',
+    '    token: vocab[token]',
+    '    for token in ["[UNK]", "[PAD]", "[BOS]", "[EOS]", "learn"]',
+    '})',
+  ],
+  dimmedLineCount: 28,
+  output: [
+    'Vocab size: 20',
+    "{'[UNK]': 0, '[PAD]': 1, '[BOS]': 2, '[EOS]': 3, 'learn': 19}",
+  ],
+  takeaway: {vi: 'Bốn special token được thêm vào vocabulary ngay từ đầu. Sau khi train, BPE cũng đã học `learn` thành một token riêng có ID `19`.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Bước 5: Encode và decode
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Cuối cùng, ta dùng chính tokenizer vừa train để chia một câu mới thành token, đổi token thành ID rồi decode các ID trở lại thành text.'},
+  diagram: {
+    inputText: 'learner learning',
+    outputLabel: {vi: 'Tokens sau khi encode'},
+    tokens: ['learn', 'e', 'r</w>', 'learn', 'i', 'n', 'g</w>'],
+  },
+  code: [
+    'from tokenizers import Tokenizer',
+    'from tokenizers.decoders import BPEDecoder',
+    'from tokenizers.models import BPE',
+    'from tokenizers.pre_tokenizers import Whitespace',
+    'from tokenizers.trainers import BpeTrainer',
+    '',
+    'corpus = [',
+    '    "learn learner learning",',
+    '    "learn learning",',
+    '    "learner learns",',
+    ']',
+    '',
+    'print("Số câu:", len(corpus))',
+    'print("Câu đầu:", corpus[0])',
+    '',
+    'tokenizer = Tokenizer(BPE(unk_token="[UNK]"))',
+    'tokenizer.pre_tokenizer = Whitespace()',
+    'tokenizer.decoder = BPEDecoder(suffix="</w>")',
+    '',
+    'trainer = BpeTrainer(',
+    '    vocab_size=20,',
+    '    min_frequency=2,',
+    '    end_of_word_suffix="</w>",',
+    '    special_tokens=["[UNK]", "[PAD]", "[BOS]", "[EOS]"],',
+    ')',
+    '',
+    'tokenizer.train_from_iterator(corpus, trainer=trainer)',
+    '',
+    'vocab = tokenizer.get_vocab()',
+    '',
+    'print("Vocab size:", tokenizer.get_vocab_size())',
+    'print({',
+    '    token: vocab[token]',
+    '    for token in ["[UNK]", "[PAD]", "[BOS]", "[EOS]", "learn"]',
+    '})',
+    '',
+    'encoded = tokenizer.encode("learner learning")',
+    '',
+    'print("Tokens:", encoded.tokens)',
+    'print("IDs:", encoded.ids)',
+    'print("Decoded:", tokenizer.decode(encoded.ids))',
+  ],
+  dimmedLineCount: 36,
+  output: [
+    "Tokens: ['learn', 'e', 'r</w>', 'learn', 'i', 'n', 'g</w>']",
+    'IDs: [19, 5, 14, 19, 7, 9, 13]',
+    'Decoded: learner learning',
+  ],
+  takeaway: {vi: '`learner` được chia thành `learn + e + r</w>`, còn `learning` thành `learn + i + n + g</w>`. Mỗi token được tra thành một ID; decoder dùng các ID và dấu `</w>` để ghép lại đúng câu ban đầu.'},
+}} />
+
+</MdxPage>
