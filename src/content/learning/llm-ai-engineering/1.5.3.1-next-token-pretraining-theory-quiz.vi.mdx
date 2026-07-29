@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'next-token-pretraining-theory-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Shifted targets', 'Cross-entropy contract', 'Token-weighted metric', 'Validation split', 'Optimization loop'],
+  keywords: ['quiz', 'pretraining', 'next-token', 'cross-entropy', 'validation loss', 'optimizer'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="next-token-pretraining-theory-quiz" questions={[
+  {
+    id: 'shifted-window-targets', title: 'Shifted targets', prompt: 'Một window có IDs `[11, 14, 9, 3]`. Cặp input/target nào huấn luyện next-token prediction đúng?', mode: 'single',
+    options: [
+      { id: 'same-sequence', label: 'Input `[11,14,9,3]`; target `[11,14,9,3]`.' },
+      { id: 'reverse-sequence', label: 'Input `[3,9,14]`; target `[9,14,11]`.' },
+      { id: 'shift-one', label: 'Input `[11,14,9]`; target `[14,9,3]`.', isCorrect: true },
+      { id: 'last-only', label: 'Input `[11]`; target `[3]`, bỏ hai vị trí giữa.' },
+    ],
+    success: 'Đúng. Dịch một vị trí tạo một target kế tiếp cho mỗi input position thay vì dạy model sao chép.',
+    error: 'Hãy đặt target ở vị trí t bằng token xuất hiện ngay sau input position t.',
+  },
+  {
+    id: 'lm-cross-entropy-shapes', title: 'Cross-entropy contract', prompt: 'Model trả logits `(B,T,V)` và targets `(B,T)`. Cách gọi loss nào đúng?', mode: 'single',
+    options: [
+      { id: 'argmax-first', label: 'Argmax logits thành `(B,T)` rồi đưa vào cross-entropy.' },
+      { id: 'flatten-contract', label: 'Flatten logits thành `(B×T,V)`, targets thành `(B×T)` và dùng raw logits.', isCorrect: true },
+      { id: 'softmax-target', label: 'Softmax integer targets trước khi tính loss.' },
+      { id: 'last-position-only', label: 'Luôn bỏ mọi vị trí trừ token cuối của mỗi window.' },
+    ],
+    success: 'Đúng. Cross-entropy nhận raw class logits và integer target cho từng token position.',
+    error: 'Argmax không khả vi, còn softmax thủ công là không cần thiết. Giữ vocabulary axis V làm class axis.',
+  },
+  {
+    id: 'token-weighted-validation-loss', title: 'Trung bình theo token', prompt: 'Batch A có 100 valid tokens với total NLL 200; batch B có 20 valid tokens với total NLL 60. Mean NLL toàn split là bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'mean-batches', label: '`(2 + 3)/2 = 2.5`, vì mọi batch có trọng số bằng nhau.' },
+      { id: 'sum-nll-only', label: '`200 + 60 = 260`.' },
+      { id: 'divide-valid-tokens', label: '`(200+60)/(100+20) ≈ 2.167`.', isCorrect: true },
+      { id: 'divide-batch-count', label: '`260/2 = 130`.' },
+    ],
+    success: 'Đúng. Numerator là total NLL và denominator là tổng valid tokens; batch nhỏ không được có trọng số ngang batch lớn.',
+    error: 'Hãy cộng cả NLL lẫn số token trước khi chia, thay vì average hai batch means.',
+  },
+  {
+    id: 'split-before-windows', title: 'Validation không leakage', prompt: 'Cách chuẩn bị train/validation nào đáng tin cậy nhất?', mode: 'single',
+    options: [
+      { id: 'window-then-random', label: 'Tạo mọi overlapping window rồi random split, để các prefix gần trùng nằm ở cả hai tập.' },
+      { id: 'validation-updates', label: 'Dùng validation loss để `optimizer.step()`.' },
+      { id: 'train-mode-eval', label: 'Giữ dropout bật và gradient khi validation để giống training.' },
+      { id: 'document-split-first', label: 'Split documents trước khi tạo windows; evaluate bằng `eval()` và `no_grad()`.', isCorrect: true },
+    ],
+    success: 'Đúng. Split trước windows giảm near-duplicate leakage; evaluation không cập nhật parameter và tắt dropout.',
+    error: 'Overlapping windows qua split làm validation quá lạc quan. Validation phải độc lập và không tạo gradient.',
+  },
+  {
+    id: 'optimization-step-order', title: 'Optimization loop', prompt: 'Thứ tự nào đúng cho một training step cơ bản?', mode: 'single',
+    options: [
+      { id: 'correct-order', label: '`zero_grad → forward → loss → backward → clip (nếu dùng) → optimizer.step`.', isCorrect: true },
+      { id: 'step-before-loss', label: '`optimizer.step → forward → zero_grad → loss`.' },
+      { id: 'no-grad-train', label: '`no_grad → loss → backward → optimizer.step`.' },
+      { id: 'validation-step', label: '`eval → optimizer.step → backward` trên validation batch.' },
+    ],
+    success: 'Đúng. Gradient được xóa, tạo từ loss, có thể clip, rồi optimizer mới cập nhật parameter.',
+    error: 'Optimizer cần gradient từ `backward`; validation không được gọi `step()`.',
+  },
+]} />

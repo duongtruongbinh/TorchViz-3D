@@ -1,0 +1,64 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "rate-limits-quotas", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "AI API", "request contract"], pageCount: 4,
+}
+
+<MdxQuiz id="rate-limits-quotas" questions={[
+  {
+    "id": "rate-limits-quotas-q1",
+    "title": "Tình huống 1",
+    "prompt": "JSON parse được nhưng field `status` nằm ngoài enum của ứng dụng. Bước nào phải chặn dữ liệu?",
+    "mode": "single",
+    "options": [
+      { "id": "rate-limits-quotas-q1-a", "label": "SSE delimiter" },
+      { "id": "rate-limits-quotas-q1-correct", "label": "Schema validation sau parse, kể cả khi đã bật JSON mode", "isCorrect": true },
+      { "id": "rate-limits-quotas-q1-b", "label": "Token counter" },
+      { "id": "rate-limits-quotas-q1-c", "label": "Temperature" }
+    ],
+    "success": "Đúng. Valid JSON chỉ đảm bảo cú pháp; schema/domain validation mới bảo vệ enum và invariant.",
+    "error": "Chưa đúng. Parse thành công không chứng minh payload đúng schema hay an toàn để ghi vào domain."
+  },
+  {
+    "id": "rate-limits-quotas-q2",
+    "title": "Tình huống 2",
+    "prompt": "Batch output về khác input order. Cách reconciliation nào không phụ thuộc thứ tự?",
+    "mode": "single",
+    "options": [
+      { "id": "rate-limits-quotas-q2-a", "label": "Zip theo dòng" },
+      { "id": "rate-limits-quotas-q2-b", "label": "Sort theo output text" },
+      { "id": "rate-limits-quotas-q2-c", "label": "Join theo model alias" },
+      { "id": "rate-limits-quotas-q2-correct", "label": "Join bằng `custom_id` duy nhất và kiểm tra missing/duplicate", "isCorrect": true }
+    ],
+    "success": "Đúng. Stable ID cho phép phát hiện output thiếu, lặp hoặc ngoài tập input.",
+    "error": "Chưa đúng. Thứ tự và nội dung output không phải khóa ổn định để reconciliation."
+  },
+  {
+    "id": "rate-limits-quotas-q3",
+    "title": "Tình huống 3",
+    "prompt": "Local estimate là 1.000 token nhưng provider usage trả 1.040. Record nào đúng?",
+    "mode": "single",
+    "options": [
+      { "id": "rate-limits-quotas-q3-correct", "label": "Giữ estimate và authoritative provider usage ở hai field, rồi theo dõi delta", "isCorrect": true },
+      { "id": "rate-limits-quotas-q3-a", "label": "Ghi đè provider usage bằng estimate" },
+      { "id": "rate-limits-quotas-q3-b", "label": "Bỏ cả hai vì không bằng nhau" },
+      { "id": "rate-limits-quotas-q3-c", "label": "Tính lại output thành input" }
+    ],
+    "success": "Đúng. Estimate phục vụ admission; provider usage phục vụ reconciliation và hiệu chỉnh estimator.",
+    "error": "Chưa đúng. Hai số có mục đích khác nhau và không nên bị trộn thành một giá trị mơ hồ."
+  },
+  {
+    "id": "rate-limits-quotas-q4",
+    "title": "Tình huống 4",
+    "prompt": "Một request cần reserve 1.200 input và 400 output token nhưng quota còn 1.400. Admission nên làm gì?",
+    "mode": "single",
+    "options": [
+      { "id": "rate-limits-quotas-q4-a", "label": "Gửi vì input riêng lẻ còn vừa" },
+      { "id": "rate-limits-quotas-q4-b", "label": "Tăng concurrency để hoàn tất sớm" },
+      { "id": "rate-limits-quotas-q4-correct", "label": "Không dispatch; tổng reservation 1.600 vượt quota 1.400", "isCorrect": true },
+      { "id": "rate-limits-quotas-q4-c", "label": "Giảm số usage được log" }
+    ],
+    "success": "Đúng. Admission phải tính toàn request envelope trước provider call, không chỉ input hiện có.",
+    "error": "Chưa đúng. Gửi request vượt reservation tạo lỗi có thể dự đoán và làm quota contention tệ hơn."
+  }
+]} />

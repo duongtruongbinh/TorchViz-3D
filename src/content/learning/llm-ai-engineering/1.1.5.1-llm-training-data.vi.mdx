@@ -1,0 +1,239 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-training-data',
+  locale: 'vi',
+  title: 'Data: Từ web thô đến training token',
+  headings: ['Nguồn dữ liệu', 'Ví dụ - Một document web thô', 'Các bước xử lý cơ bản', 'Bổ sung metadata và cân bằng dữ liệu', 'Quy mô training data', 'Các pretraining dataset tiêu biểu', 'Thách thức ở quy mô lớn'],
+  keywords: ['training data', 'Common Crawl', 'data filtering', 'domain balancing', 'data quality', 'copyright'],
+  pageCount: 7,
+}
+
+<MdxPage page={0}>
+
+## Nguồn dữ liệu
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  image: 'common-crawl-pipeline',
+  lead: {vi: 'Training data của LLM thường được kết hợp từ nhiều nguồn như web, code, sách và bài báo.'},
+  comparisons: [
+    {title: 'Common Crawl', shape: 'Nguồn: Common Crawl', href: 'https://commoncrawl.org/about', detail: {vi: 'Common Crawl là kho dữ liệu web mở được thu thập qua nhiều năm; mỗi đợt crawl thường chứa hơn 2 tỷ trang. Tuy nhiên, dữ liệu vẫn gồm HTML, navigation, quảng cáo, spam, nội dung lặp, lỗi encoding và tài liệu không phù hợp. Vì vậy, Common Crawl chỉ là nguồn nguyên liệu quy mô lớn: team còn phải trích text, lọc, deduplicate và cân bằng dữ liệu trước khi tạo training corpus.'}},
+  ],
+  code: [],
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Ví dụ - Một document web thô
+
+Nhìn vào các mẫu HTML bên dưới, chúng ta thấy rằng dữ liệu từ Internet có rất nhiều thông tin nhiễu đòi hỏi sự chọn lọc kỹ lưỡng.
+
+<CodeLessonFrame
+  takeaway="Con người phải tìm đoạn nội dung hữu ích giữa HTML, JavaScript, menu, quảng cáo và boilerplate. Máy tính cũng không tự biết phần nào là kiến thức cần học."
+  nextStep="Trước hết, pipeline phải trích text, chuẩn hóa và gắn metadata; sau đó mới quyết định giữ hay loại document."
+>
+
+```html
+<!doctype html>
+<html>
+<head>
+  <title>Best AI tools!!!</title>
+  <script>window.ads={track:true};</script>
+  <style>.popup{position:fixed}</style>
+</head>
+<body>
+  <nav>Home | Deals | Login | Subscribe</nav>
+  <div class="popup">ACCEPT ALL COOKIES</div>
+  <article>
+    <h1>Best AI tools</h1>
+    <p>AI can help your team...</p>
+    <p>Related: <a href="/cheap-loans">click here</a></p>
+  </article>
+  <footer>Copyright 2012–2026 · Terms · Ads</footer>
+</body>
+</html>
+```
+
+**1. Script, style và giao diện trang — không phải nội dung bài viết**
+
+```html-highlight-5-6,9-10
+<!doctype html>
+<html>
+<head>
+  <title>Best AI tools!!!</title>
+  <script>window.ads={track:true};</script>
+  <style>.popup{position:fixed}</style>
+</head>
+<body>
+  <nav>Home | Deals | Login | Subscribe</nav>
+  <div class="popup">ACCEPT ALL COOKIES</div>
+  <article>
+    <h1>Best AI tools</h1>
+    <p>AI can help your team...</p>
+    <p>Related: <a href="/cheap-loans">click here</a></p>
+  </article>
+  <footer>Copyright 2012–2026 · Terms · Ads</footer>
+</body>
+</html>
+```
+
+**2. Text chính — phần có thể hữu ích cho training**
+
+```html-highlight-11-13
+<!doctype html>
+<html>
+<head>
+  <title>Best AI tools!!!</title>
+  <script>window.ads={track:true};</script>
+  <style>.popup{position:fixed}</style>
+</head>
+<body>
+  <nav>Home | Deals | Login | Subscribe</nav>
+  <div class="popup">ACCEPT ALL COOKIES</div>
+  <article>
+    <h1>Best AI tools</h1>
+    <p>AI can help your team...</p>
+    <p>Related: <a href="/cheap-loans">click here</a></p>
+  </article>
+  <footer>Copyright 2012–2026 · Terms · Ads</footer>
+</body>
+</html>
+```
+
+**3. Quảng cáo và boilerplate — text vẫn đọc được nhưng nên loại**
+
+```html-highlight-14,16
+<!doctype html>
+<html>
+<head>
+  <title>Best AI tools!!!</title>
+  <script>window.ads={track:true};</script>
+  <style>.popup{position:fixed}</style>
+</head>
+<body>
+  <nav>Home | Deals | Login | Subscribe</nav>
+  <div class="popup">ACCEPT ALL COOKIES</div>
+  <article>
+    <h1>Best AI tools</h1>
+    <p>AI can help your team...</p>
+    <p>Related: <a href="/cheap-loans">click here</a></p>
+  </article>
+  <footer>Copyright 2012–2026 · Terms · Ads</footer>
+</body>
+</html>
+```
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Các bước xử lý cơ bản
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  layout: 'filter-pipeline',
+  image: 'filtering-pipeline',
+  lead: {vi: 'Dữ liệu web thường đi qua nhiều lớp lọc. Mỗi lớp xử lý một nhóm vấn đề khác nhau trước khi document được giữ lại cho training corpus.'},
+  steps: [
+    {label: {vi: 'Rule filtering'}, shape: 'length · language · density', detail: {vi: 'Loại document rõ ràng chất lượng thấp bằng rule đơn giản ở quy mô lớn.'}, examples: [{vi: 'Quá ngắn'}, {vi: 'Sai ngôn ngữ'}, {vi: 'Không có thông tin cần thiết'}, {vi: 'Gần như chỉ có navigation'}]},
+    {label: {vi: 'Deduplication'}, shape: 'hash · MinHash · n-gram', detail: {vi: 'Loại exact/near duplicates để giảm học lặp và leakage.'}, examples: [{vi: 'Bản sao giống hệt'}, {vi: 'Nội dung gần giống một document đã có'}, {vi: 'Cùng bài viết xuất hiện ở nhiều URL'}]},
+    {label: {vi: 'Model filtering'}, shape: 'quality classifier', detail: {vi: 'Chấm chất lượng từ positive/negative references.'}, examples: [{vi: 'Nội dung rời rạc hoặc khó đọc'}, {vi: 'Trang có dấu hiệu spam'}, {vi: 'Chất lượng thấp theo classifier'}]},
+    {label: {vi: 'Safety / policy'}, shape: 'PII · malware · toxicity', detail: {vi: 'Loại hoặc gắn nhãn theo policy dataset.'}, examples: [{vi: 'Chứa thông tin nhận dạng cá nhân'}, {vi: 'Chứa mã độc'}, {vi: 'Vi phạm policy của dataset'}]},
+  ],
+  code: [],
+  takeaway: {vi: 'Lọc quá ít giữ noise; lọc quá mạnh mất diversity và khuếch đại bias của bộ lọc.'},
+  misconception: {vi: 'Bộ lọc có thể dùng các bài Wikipedia làm mẫu nội dung chất lượng tốt. Nhưng điều đó không có nghĩa mọi bài giống Wikipedia đều tốt, hoặc nội dung khác Wikipedia đều kém.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Bổ sung metadata và cân bằng dữ liệu
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  layout: 'mixture-board',
+  lead: {vi: 'Sau khi lọc từng nguồn, team chưa thể đưa tất cả document vào training ngay. Pipeline còn phải biết mỗi document đến từ đâu, quyết định lấy bao nhiêu dữ liệu từ từng domain và ngôn ngữ, rồi chuẩn bị các document đã chọn thành dữ liệu đầu vào cho quá trình training.'},
+  steps: [
+    {label: {vi: 'Tập hợp nguồn đã lọc'}, shape: 'web · code · sách · khoa học · hội thoại', detail: {vi: 'Đầu vào của bước này là các document đã vượt qua quality và policy filters ở trang trước.'}},
+    {label: {vi: 'Gắn nhãn cho từng document'}, shape: 'source + license + time + filter version', detail: {vi: 'Các nhãn ghi lại document đến từ đâu và đã qua phiên bản bộ lọc nào để pipeline có thể truy vết.'}},
+    {label: {vi: 'Chọn mixture weights'}, shape: 'domain + language balance', detail: {vi: 'Dựa trên các nhãn đó, team quyết định tỷ lệ lấy mẫu để một domain không lấn át và ngôn ngữ ít tài nguyên không bị lép vế.'}},
+    {label: {vi: 'Tạo dữ liệu đầu vào cho training'}, shape: 'lấy mẫu · đảo thứ tự · chuyển thành token', detail: {vi: 'Pipeline lấy document theo tỷ lệ ở bước 3, đảo thứ tự để các nguồn được xen kẽ, rồi chuyển nội dung thành token. Kết quả là các chuỗi token được đưa vào model trong lúc training.'}},
+  ],
+  code: [],
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  layout: 'scale-dashboard',
+  lead: {vi: 'Quy mô training data là tổng lượng token được chuẩn bị để model học trong quá trình training.'},
+  scaleNote: {vi: 'Chính vì lượng dữ liệu lớn như vậy, một lỗi lọc nhỏ có thể lặp lại trên rất nhiều document, khiến chất lượng giảm và chi phí xử lý lại tăng.'},
+  steps: [
+    {label: {vi: 'Scale'}, shape: 'Hơn 15K tỷ token', detail: {vi: 'Llama 3 công bố hơn 15K tỷ token; FineWeb có khoảng 15K–18,5K tỷ token sau khi làm sạch và loại nội dung trùng lặp.'}},
+  ],
+  code: [],
+}} />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+<PretrainingDatasetCards content={{
+  lead: {vi: 'Cách xây dựng pretraining dataset đã thay đổi theo thời gian. Dataset ngày càng lớn hơn, kết hợp nhiều nguồn hơn và mô tả rõ hơn cách dữ liệu được xử lý.'},
+  image: 'dataset-evolution',
+  datasets: [
+    {
+      id: 'c4',
+      name: 'C4',
+      scale: '≈156 tỷ token · 806,87 GiB',
+      brief: {vi: 'Dữ liệu tiếng Anh lấy từ Common Crawl và được lọc để huấn luyện T5.'},
+      href: 'https://www.tensorflow.org/datasets/catalog/c4',
+    },
+    {
+      id: 'pile',
+      name: 'The Pile',
+      scale: '≈280 tỷ token · 825 GiB',
+      brief: {vi: 'Kết hợp 22 nguồn dữ liệu, gồm web, code, bài báo khoa học, sách và hội thoại.'},
+      href: 'https://arxiv.org/abs/2101.00027',
+    },
+    {
+      id: 'dolma',
+      name: 'Dolma',
+      scale: '3K tỷ token',
+      brief: {vi: 'Corpus tiếng Anh mở, kết hợp nhiều nguồn và công khai quy trình xử lý dữ liệu.'},
+      href: 'https://arxiv.org/abs/2402.00159',
+    },
+    {
+      id: 'fineweb',
+      name: 'FineWeb',
+      scale: '15K tỷ token',
+      brief: {vi: 'Dữ liệu từ 96 đợt Common Crawl, đã được trích xuất text, loại nội dung trùng lặp và lọc qua nhiều bước.'},
+      href: 'https://arxiv.org/abs/2406.17557',
+    },
+  ],
+  note: {vi: 'Token count phụ thuộc tokenizer và phiên bản dataset, nên các con số trên phù hợp để hiểu bậc quy mô hơn là so sánh tuyệt đối.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  layout: 'scale-risks',
+  image: 'scale-risks',
+  lead: {vi: 'Quy mô lớn cũng không đồng nghĩa dữ liệu tự động tốt hơn. Thực tế, team vẫn gặp nhiều vấn đề về quyền sử dụng dữ liệu, an toàn, chất lượng, leakage và khả năng truy vết nguồn.'},
+  code: [],
+  misconception: {vi: 'Có nhiều dữ liệu hơn không tự giúp team quyết định mỗi domain nên chiếm bao nhiêu, có nên bổ sung dữ liệu do model tạo hay không, hoặc nên kết hợp text với hình ảnh như thế nào. Team vẫn phải kiểm chứng từng quyết định bằng evaluation.'},
+}} />
+
+</MdxPage>

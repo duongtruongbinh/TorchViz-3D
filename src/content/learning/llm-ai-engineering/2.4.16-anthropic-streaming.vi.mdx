@@ -1,0 +1,64 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "anthropic-streaming", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "Anthropic Messages", "content blocks"], pageCount: 4,
+}
+
+<MdxQuiz id="anthropic-streaming" questions={[
+  {
+    "id": "anthropic-streaming-q1",
+    "title": "Tình huống 1",
+    "prompt": "Anthropic Messages response chứa text block rồi tool-use block. Adapter nên biểu diễn thế nào?",
+    "mode": "single",
+    "options": [
+      { "id": "anthropic-streaming-q1-a", "label": "Nối cả hai thành một string" },
+      { "id": "anthropic-streaming-q1-b", "label": "Chỉ giữ block đầu" },
+      { "id": "anthropic-streaming-q1-correct", "label": "Giữ ordered typed blocks và map từng block vào union nội bộ", "isCorrect": true },
+      { "id": "anthropic-streaming-q1-c", "label": "Tự chạy tool trong parser" }
+    ],
+    "success": "Đúng. Thứ tự và loại block là một phần của contract; flatten thành text làm mất tool proposal.",
+    "error": "Chưa đúng. Content không phải một chuỗi duy nhất và parser không được tự cấp quyền thực thi."
+  },
+  {
+    "id": "anthropic-streaming-q2",
+    "title": "Tình huống 2",
+    "prompt": "System instruction trong Messages request thuộc vị trí nào?",
+    "mode": "single",
+    "options": [
+      { "id": "anthropic-streaming-q2-correct", "label": "Field system cấp request, tách khỏi history user/assistant", "isCorrect": true },
+      { "id": "anthropic-streaming-q2-a", "label": "Một assistant turn giả" },
+      { "id": "anthropic-streaming-q2-b", "label": "Tool result đầu tiên" },
+      { "id": "anthropic-streaming-q2-c", "label": "HTTP error header" }
+    ],
+    "success": "Đúng. Adapter phải giữ system instruction tách khỏi ordered conversational history.",
+    "error": "Chưa đúng. Nhét system thành conversation turn làm sai provider contract và khó audit trust boundary."
+  },
+  {
+    "id": "anthropic-streaming-q3",
+    "title": "Tình huống 3",
+    "prompt": "Provider trả `stop_reason` cùng usage. Normalization nào giữ đủ nghĩa?",
+    "mode": "single",
+    "options": [
+      { "id": "anthropic-streaming-q3-a", "label": "Bỏ stop reason nếu đã có text" },
+      { "id": "anthropic-streaming-q3-b", "label": "Đổi mọi stop reason thành success" },
+      { "id": "anthropic-streaming-q3-c", "label": "Suy billed usage từ độ dài string" },
+      { "id": "anthropic-streaming-q3-correct", "label": "Giữ provider stop reason và usage, đồng thời map sang trạng thái nội bộ riêng", "isCorrect": true }
+    ],
+    "success": "Đúng. Wire metadata và normalized state phục vụ hai mục đích; giữ cả hai giúp audit mapping.",
+    "error": "Chưa đúng. Text hiện diện không chứng minh response hoàn tất, và local estimate không thay provider usage."
+  },
+  {
+    "id": "anthropic-streaming-q4",
+    "title": "Tình huống 4",
+    "prompt": "Ứng dụng xử lý block liên quan thinking như thế nào?",
+    "mode": "single",
+    "options": [
+      { "id": "anthropic-streaming-q4-a", "label": "Yêu cầu hidden reasoning để debug" },
+      { "id": "anthropic-streaming-q4-correct", "label": "Chỉ xử lý capability được tài liệu hóa; không yêu cầu hay log hidden reasoning", "isCorrect": true },
+      { "id": "anthropic-streaming-q4-b", "label": "Lưu mọi block vô thời hạn" },
+      { "id": "anthropic-streaming-q4-c", "label": "Dùng block làm authorization proof" }
+    ],
+    "success": "Đúng. Hidden reasoning không phải telemetry, bằng chứng cấp quyền hay dữ liệu cần lưu mặc định.",
+    "error": "Chưa đúng. Debug và authorization phải dựa trên input/output, tool trace và kiểm tra có thể quan sát."
+  }
+]} />

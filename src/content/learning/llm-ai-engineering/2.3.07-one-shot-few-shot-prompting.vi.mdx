@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'one-shot-few-shot-prompting',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Bắt đầu zero-shot', 'Tính token', 'Chọn examples', 'Leakage và version'],
+  keywords: ['quiz', 'zero-shot', 'one-shot', 'few-shot'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="one-shot-few-shot-prompting" questions={[
+  {
+    id: 'one-shot-few-shot-prompting-q1',
+    title: 'Bắt đầu zero-shot',
+    prompt: 'Task có labels/schema rõ nhưng chưa có baseline. Thiết kế đầu tiên hợp lý nhất?',
+    mode: 'single',
+    options: [
+      { id: 'one-shot-few-shot-prompting-q1-a', label: 'Copy toàn bộ test set vào prompt' },
+      { id: 'one-shot-few-shot-prompting-q1-correct', label: 'Chạy zero-shot trên eval set trước, rồi thêm examples cho failure clusters đo được', isCorrect: true },
+      { id: 'one-shot-few-shot-prompting-q1-b', label: 'Thêm nhiều examples nhất có thể' },
+      { id: 'one-shot-few-shot-prompting-q1-c', label: 'Bỏ parser để output linh hoạt' },
+    ],
+    success: 'Đúng. Baseline giúp đo giá trị thực của examples thay vì mặc định prompt dài hơn là tốt hơn.',
+    error: 'Chưa đúng. Bắt đầu bằng contract tối thiểu và evidence trước khi tăng complexity.',
+  },
+  {
+    id: 'one-shot-few-shot-prompting-q2',
+    title: 'Tính token',
+    prompt: 'Ba examples dùng 90, 110, 100 token và framing overhead 40. Chúng thêm bao nhiêu token mỗi request?',
+    mode: 'single',
+    options: [
+      { id: 'one-shot-few-shot-prompting-q2-correct', label: '340 token', isCorrect: true },
+      { id: 'one-shot-few-shot-prompting-q2-a', label: '300 token' },
+      { id: 'one-shot-few-shot-prompting-q2-b', label: '240 token' },
+      { id: 'one-shot-few-shot-prompting-q2-c', label: '440 token' },
+    ],
+    success: 'Đúng. `90 + 110 + 100 + 40 = 340` token cho mỗi request.',
+    error: 'Chưa đúng. Cộng cả content của examples lẫn framing overhead.',
+  },
+  {
+    id: 'one-shot-few-shot-prompting-q3',
+    title: 'Chọn examples',
+    prompt: 'Budget chỉ đủ hai examples, eval failures tập trung ở `ambiguous_delivery` và `billing_refund`. Chọn tập nào?',
+    mode: 'single',
+    options: [
+      { id: 'similar-billing', label: 'Hai examples billing gần như giống nhau' },
+      { id: 'easy-only', label: 'Hai cases dễ đã pass ở zero-shot' },
+      { id: 'cover-clusters', label: 'Một example đại diện hợp lệ cho mỗi failure cluster, cùng schema production', isCorrect: true },
+      { id: 'longest', label: 'Hai examples dài nhất bất kể label' },
+    ],
+    success: 'Đúng. Coverage của lỗi đã đo quan trọng hơn số lượng hoặc độ giống nhau.',
+    error: 'Chưa đúng. Dùng budget để bao phủ các decision boundary đang gây lỗi.',
+  },
+  {
+    id: 'one-shot-few-shot-prompting-q4',
+    title: 'Leakage và version',
+    prompt: 'Practice nào làm kết quả few-shot không còn đáng tin?',
+    mode: 'single',
+    options: [
+      { id: 'version-schema', label: 'Version schema cùng example set' },
+      { id: 'held-out', label: 'Đánh giá trên held-out fixtures' },
+      { id: 'provenance', label: 'Ghi provenance và cluster của example' },
+      { id: 'test-in-prompt', label: 'Dùng chính test examples làm demonstrations rồi báo score trên chúng', isCorrect: true },
+    ],
+    success: 'Đúng. Leakage biến evaluation thành ghi nhớ examples và thổi phồng chất lượng.',
+    error: 'Chưa đúng. Examples trong prompt phải tách khỏi tập dùng để ước lượng generalization.',
+  },
+]} />

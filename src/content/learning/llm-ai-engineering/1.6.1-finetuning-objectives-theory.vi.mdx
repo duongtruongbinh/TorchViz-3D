@@ -1,0 +1,87 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'finetuning-objectives-theory', locale: 'vi',
+  title: 'Lý thuyết objective fine-tuning',
+  headings: ['Mục tiêu', 'Classification objective', 'Instruction objective', 'Full và PEFT', 'Decision matrix'],
+  keywords: ['fine-tuning', 'classification', 'instruction tuning', 'LoRA'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Chọn data, output, loss và evaluation contract trước khi quyết định fine-tune bao nhiêu parameter.'},
+  comparisons: [
+    {title: 'Classification', shape: 'text → 1 trong K class', detail: {vi: 'Biến checkpoint pretrained thành bộ dự đoán nhãn hẹp, ví dụ spam/không spam.'}},
+    {title: 'Instruction SFT', shape: 'instruction → response tokens', detail: {vi: 'Giữ khả năng sinh chuỗi và học trả lời theo cặp instruction-response.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Cả hai tiếp tục từ checkpoint pretrained. Bắt đầu từ task contract, không bắt đầu từ optimizer.'},
+  misconception: {vi: 'Không chọn phương pháp chỉ vì tên phổ biến; output sản phẩm cần trả mới quyết định objective.'},
+}} />
+
+</MdxPage>
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Classification tối ưu đúng một quyết định class cho mỗi sample.'},
+  steps: [
+    {label: {vi: 'Input IDs'}, shape: '(B,T)', detail: {vi: 'Dataset có label hữu hạn và split chống near-duplicate leakage.'}},
+    {label: {vi: 'Representation'}, shape: '(B,C)', detail: {vi: 'Thường đọc token cuối có nội dung.'}},
+    {label: {vi: 'Class head'}, shape: '(B,K)', detail: {vi: 'Head trả một logit cho mỗi class.'}},
+    {label: {vi: 'Objective'}, shape: 'CE + accuracy', detail: {vi: 'Cross-entropy so logits với một nhãn; accuracy bổ sung cho loss.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Contract: input_ids (B,T) → class logits (B,K).'},
+}} />
+
+</MdxPage>
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Instruction SFT tối ưu nhiều response tokens cho mỗi sample nhưng vẫn giữ LM objective.'},
+  steps: [
+    {label: {vi: 'Ghép sequence'}, shape: 'prompt + response', detail: {vi: 'Template, special tokens và response boundary thuộc data interface.'}},
+    {label: {vi: 'LM forward'}, shape: '(B,T,V)', detail: {vi: 'Output vẫn là vocabulary logits tại mỗi vị trí.'}},
+    {label: {vi: 'Target mask'}, shape: 'prompt/PAD → −100', detail: {vi: 'Loss chỉ tập trung vào response hợp lệ.'}},
+    {label: {vi: 'Token CE'}, shape: 'next-token', detail: {vi: 'Tối ưu các target response sau khi shift.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Model vẫn nhìn prompt; chỉ target loss của prompt bị bỏ.'},
+  misconception: {vi: 'Không mask instruction khỏi input, vì prompt là context cần thiết để sinh response.'},
+}} />
+
+</MdxPage>
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Mức thích nghi tăng cùng chi phí gradient và optimizer state; forward vẫn chạy backbone.'},
+  comparisons: [
+    {title: 'Head-only', shape: 'ít trainable nhất', detail: {vi: 'Rẻ, là baseline tốt nhưng hạn chế khả năng thích nghi.'}},
+    {title: 'Partial / full', shape: 'unfreeze block → all', detail: {vi: 'Linh hoạt hơn nhưng cần nhiều memory hơn.'}},
+    {title: 'LoRA', shape: 'frozen W + low-rank update', detail: {vi: 'Giảm parameter trainable bằng các ma trận hạng thấp.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'PEFT nén update; nó không tự làm model nhỏ hơn. Quantization, checkpointing và distributed training là các trục khác.'},
+  misconception: {vi: 'Khi so trainable với total parameters, phải nói rõ gradient/optimizer memory nào được tiết kiệm.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Decision matrix khóa objective trước khi chọn full, partial hay LoRA.'},
+  comparisons: [
+    {title: 'Classification', shape: '(B,K) · label (B,)', detail: {vi: 'Một trong K classes · class CE · accuracy/F1 · baseline head-only.'}},
+    {title: 'Instruction SFT', shape: '(B,T,V) · target (B,T)', detail: {vi: 'Chuỗi token mở · token CE + mask · task rubric + generation checks · baseline LoRA.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Objective, data format và metric phải nhất quán; parameter strategy là quyết định tiếp theo dựa vào data, compute và validation.'},
+}} />
+
+</MdxPage>

@@ -1,0 +1,98 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "anthropic-vision-support", locale: "vi",
+  title: "Vision content blocks với Anthropic", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["anthropic-vision-support","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Provider-specific media blocks phải map về common multimodal contract và giữ source/ownership metadata."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Validated text/image/document parts."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Typed content blocks hoặc media/validation error."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Media source plus MIME/data/reference thành content block; normalized result vẫn giữ provenance."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
+
+Provider-specific media blocks phải map về common multimodal contract và giữ source/ownership metadata.
+
+**Input:** Validated text/image/document parts.
+
+**Output:** Typed content blocks hoặc media/validation error.
+
+**Data/type/shape:** Media source plus MIME/data/reference thành content block; normalized result vẫn giữ provenance.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked fixture" contract="typed input → validated output" pitfall="Giữ explicit error path, timeout/cancellation và provider-specific invariant." takeaway="Fixture materialize contract thành artifact deterministic có thể test.">
+
+Ảnh hóa đơn được validate dưới tenant, encode/reference theo SDK, rồi request extraction schema. Output amount phải cross-check currency/total trước automation.
+
+~~~ts
+import assert from "node:assert/strict";
+type Upload = {
+  owner: string; mime: "image/jpeg" | "image/png"; bytes: Uint8Array;
+};
+type ImageBlock = {
+  type: "image";
+  source: { type: "base64"; media_type: Upload["mime"]; data: string };
+};
+
+function toImageBlock(upload: Upload, subject: string): ImageBlock {
+  if (upload.owner !== subject) throw new Error("forbidden_media");
+  if (upload.bytes.byteLength === 0 || upload.bytes.byteLength > 5_000_000) {
+    throw new Error("invalid_media_size");
+  }
+  return {
+    type: "image",
+    source: {
+      type: "base64",
+      media_type: upload.mime,
+      data: Buffer.from(upload.bytes).toString("base64"),
+    },
+  };
+}
+
+const block = toImageBlock(
+  { owner: "tenant-a", mime: "image/png", bytes: new Uint8Array([137, 80, 78, 71]) },
+  "tenant-a",
+);
+assert.equal(block.source.media_type, "image/png");
+assert.equal(block.source.data, "iVBORw==");
+assert.throws(
+  () => toImageBlock(
+    { owner: "tenant-a", mime: "image/png", bytes: new Uint8Array([1]) },
+    "tenant-b",
+  ),
+  /forbidden_media/,
+);
+~~~
+<LessonNote>Fixture minh họa ownership/byte boundary. Production còn phải kiểm tra magic bytes, dimensions, malware policy và xóa media theo retention.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Vision content blocks với Anthropic"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Gửi arbitrary URL."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Không cap bytes/pages."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Dùng OCR output để tự động trả tiền."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
+
+**Pitfalls:**
+
+- Gửi arbitrary URL.
+- Không cap bytes/pages.
+- Dùng OCR output để tự động trả tiền.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://platform.claude.com/docs/en/build-with-claude/vision). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Tool use nối content blocks với application actions.
+
+</MdxPage>

@@ -1,0 +1,83 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "token-counting-tiktoken", locale: "vi",
+  title: "Token counting cho request envelope", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["token-counting-tiktoken","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{view:'batch',lead:{vi:'Preflight estimate và billed usage có vai trò khác nhau.'},steps:[
+  {label:{vi:'Text'},shape:'tokenizer estimate',detail:{vi:'Pin model/tokenizer.'}},
+  {label:{vi:'Envelope'},shape:'tools + media + framing',detail:{vi:'Đếm toàn request.'}},
+  {label:{vi:'Reserve'},shape:'output budget',detail:{vi:'Giữ chỗ trước dispatch.'}},
+  {label:{vi:'Reconcile'},shape:'estimate ↔ usage',detail:{vi:'Calibrate bằng delta.'}},
+],code:[],takeaway:{vi:'Local count không phải exact billing.'}}} />
+
+Tokenizer local chỉ ước lượng phần text mà nó biết; message framing, tools, media và provider accounting có thể thêm tokens.
+
+**Input:** Model/tokenizer version, messages, tool schemas, media metadata và output reserve.
+
+**Output:** Preflight estimate cùng billed usage reconciliation.
+
+**Data/type/shape:** Structured request → estimated scalar counts by component; provider response → authoritative usage fields.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Request envelope budget" contract="component estimates + limit → fits" output="700+250+50+500 = 1.500 ≤ 2.000" pitfall="Không quên tools/reserve hoặc dùng magic constant vĩnh viễn." takeaway="Provider usage là authoritative cho accounting.">
+
+Text 700, tools 250, framing estimate 50, output reserve 500 tạo budget 1.500. Sau call provider báo input 1.040; record delta 40 để calibrate estimator, không sửa bằng magic constant vĩnh viễn.
+
+~~~ts
+import assert from "node:assert/strict";
+type Estimate = { text: number; tools: number; framing: number; outputReserve: number };
+function requestEnvelope(parts: Estimate, contextLimit: number) {
+  const inputEstimate = parts.text + parts.tools + parts.framing;
+  const reservedTotal = inputEstimate + parts.outputReserve;
+  return {
+    inputEstimate,
+    outputReserve: parts.outputReserve,
+    reservedTotal,
+    fits: reservedTotal <= contextLimit,
+  };
+}
+
+const preflight = requestEnvelope(
+  { text: 700, tools: 250, framing: 50, outputReserve: 500 },
+  2_000,
+);
+assert.deepEqual(preflight, {
+  inputEstimate: 1_000, outputReserve: 500, reservedTotal: 1_500, fits: true,
+});
+
+const providerUsage = { inputTokens: 1_040, outputTokens: 120 };
+const estimateDelta = providerUsage.inputTokens - preflight.inputEstimate;
+assert.equal(estimateDelta, 40);
+assert.equal(providerUsage.inputTokens + providerUsage.outputTokens, 1_160);
+~~~
+<LessonNote>Local count là estimate để admission; provider usage là authoritative cho request đã chạy. Lưu model/tokenizer/request-envelope version khi theo dõi delta.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Admission control dùng estimate; accounting dùng provider usage.'},steps:[
+  {label:{vi:'Version'},shape:'correct tokenizer',detail:{vi:'Không dùng sai model.'}},
+  {label:{vi:'Coverage'},shape:'tools + reserve',detail:{vi:'Không chỉ đếm text.'}},
+  {label:{vi:'Account'},shape:'authoritative usage',detail:{vi:'Reconcile delta.'}},
+],code:[],takeaway:{vi:'Quiz tiếp theo kiểm tra usage và quota.'}}} />
+
+**Pitfalls:**
+
+- Dùng tokenizer sai model.
+- Quên tools/output reserve.
+- Tuyên bố local estimate là billing exact.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/counting-tokens). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Quiz kiểm tra capability, batch, usage và quota decisions.
+
+</MdxPage>

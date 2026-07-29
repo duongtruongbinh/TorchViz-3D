@@ -1,0 +1,214 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'generation-strategies-code',
+  locale: 'vi',
+  title: 'Code generation strategies',
+  headings: ['Contract', 'Filter logits', 'One step', 'Loop', 'Smoke test'],
+  keywords: ['PyTorch', 'generation code', 'temperature', 'top-k', 'greedy decoding'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<CodeLessonFrame
+  title="Generation function contract"
+  contract="idx (B,T) → output (B,T+N)"
+  output="greedy · sampling · top-k · per-sample EOS"
+  takeaway="Kiểm tra shape ở biên hàm trước khi thêm chiến lược decoding."
+>
+
+**Mục tiêu:** Viết một hàm nhận `idx: (B,T)` và trả `(B,T+N)` mà không giả định model cụ thể.
+
+Model phải nhận IDs `(B,T_context)` và trả logits `(B,T_context,V)`. Hàm hỗ trợ:
+
+- `temperature=0.0`: greedy;
+- `temperature>0`: sampling;
+- `top_k`: lọc vocabulary trước sampling;
+- `eos_id`: dừng sớm khi mọi sample kết thúc.
+
+<LessonNote>Đây là code minh họa rõ contract và theo dõi EOS riêng từng sample; production còn cần KV cache, cancellation và giới hạn thời gian.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Lọc top-k theo từng sample"
+  contract="logits (B,V) → filtered logits (B,V)"
+  output="threshold shape = (B,1)"
+  pitfall="Không lấy threshold scalar từ sample đầu rồi áp cho cả batch; mỗi hàng có ngưỡng top-k riêng."
+  takeaway="Filter không đổi shape; nó đổi support của distribution bằng −inf."
+>
+
+```python
+import torch
+
+def top_k_filter(logits, top_k):
+    if logits.ndim != 2 or logits.size(-1) == 0:
+        raise ValueError("logits must have shape (B,V) with V > 0")
+    if top_k is None:
+        return logits
+    if not isinstance(top_k, int) or top_k <= 0:
+        raise ValueError("top_k must be a positive integer")
+    k = min(top_k, logits.size(-1))
+    threshold = torch.topk(logits, k).values[:, -1:]
+    return logits.masked_fill(logits < threshold, -torch.inf)
+```
+
+Input/output đều có shape `(B,V)`. Dùng `min` để `top_k` không vượt vocabulary.
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame
+  title="Chọn đúng một next token"
+  contract="logits (B,V) → integer IDs (B,1)"
+  output="greedy argmax or normalized multinomial"
+  pitfall="Filter logits trước softmax; không softmax rồi top-k mà bỏ qua renormalization."
+  takeaway="Greedy và sampling chia sẻ output contract nhưng cần hai nhánh số học khác nhau."
+>
+
+```python
+def choose_next(logits, temperature=0.0, top_k=None):
+    if temperature == 0.0:
+        return logits.argmax(dim=-1, keepdim=True)
+    if temperature < 0 or not torch.isfinite(torch.tensor(temperature)):
+        raise ValueError("temperature must be finite and non-negative")
+    filtered = top_k_filter(logits, top_k)
+    probs = torch.softmax(filtered / temperature, dim=-1)
+    assert torch.allclose(probs.sum(-1), torch.ones_like(probs[:, 0]))
+    return torch.multinomial(probs, num_samples=1)
+```
+
+Output luôn là integer IDs `(B,1)`.
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<CodeLessonFrame
+  title="Vòng lặp autoregressive"
+  contract="crop context → forward → choose → append"
+  output="restores original model.training state in finally"
+  takeaway="Crop context trước forward, nối token vào sequence đầy đủ sau khi chọn."
+>
+
+```python
+@torch.no_grad()
+def generate(model, idx, max_new_tokens, context_size,
+             temperature=0.0, top_k=None, eos_id=None):
+    if idx.ndim != 2 or idx.dtype != torch.long or idx.size(1) == 0:
+        raise ValueError("idx must be non-empty torch.long (B,T)")
+    if context_size <= 0 or max_new_tokens < 0:
+        raise ValueError("context_size must be positive and max_new_tokens non-negative")
+
+    was_training = model.training
+    finished = torch.zeros(idx.size(0), dtype=torch.bool, device=idx.device)
+    model.eval()
+    try:
+        for _ in range(max_new_tokens):
+            context = idx[:, -context_size:]
+            logits = model(context)
+            if (
+                logits.ndim != 3
+                or logits.shape[:2] != context.shape
+                or logits.size(-1) == 0
+                or logits.device != idx.device
+            ):
+                raise ValueError("model must return logits (B,T,V) on idx.device")
+            if eos_id is not None and not 0 <= eos_id < logits.size(-1):
+                raise ValueError("eos_id must be inside the vocabulary")
+
+            next_id = choose_next(
+                logits[:, -1, :], temperature, top_k
+            )
+            if eos_id is not None:
+                eos_fill = torch.full_like(next_id, eos_id)
+                next_id = torch.where(
+                    finished.unsqueeze(1), eos_fill, next_id
+                )
+                finished |= next_id.squeeze(1).eq(eos_id)
+
+            idx = torch.cat((idx, next_id), dim=1)
+            if eos_id is not None and finished.all():
+                break
+        return idx
+    finally:
+        model.train(was_training)
+```
+
+<LessonNote>**Production:** `finally` phục hồi mode kể cả khi model lỗi; hàng đã kết thúc được giữ ở EOS trong lúc hàng khác tiếp tục. KV cache/cancellation vẫn là bước production tiếp theo.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<CodeLessonFrame
+  title="Smoke test generation control flow"
+  contract="output · mode restore · staggered EOS · invalid input"
+  output="tensor([[0, 1, 2, 3, 4]])"
+  pitfall="Toy model chỉ kiểm tra control flow; chất lượng ngôn ngữ cần một GPT đã train."
+  takeaway="Test bao phủ output, mode restoration, EOS khác thời điểm và invalid-input path thay vì chỉ happy path."
+>
+
+```python
+import torch
+from torch import nn
+
+class ToyNextTokenModel(nn.Module):
+    def __init__(self, vocab_size=5):
+        super().__init__()
+        self.vocab_size = vocab_size
+
+    def forward(self, ids):
+        B, T = ids.shape
+        logits = torch.zeros(B, T, self.vocab_size)
+        next_ids = (ids + 1) % self.vocab_size
+        logits.scatter_(-1, next_ids.unsqueeze(-1), 10.0)
+        return logits
+
+model = ToyNextTokenModel()
+prompt = torch.tensor([[0, 1]])
+model.train()
+output = generate(model, prompt, max_new_tokens=3, context_size=4)
+
+assert output.shape == (1, 5)
+assert output.tolist() == [[0, 1, 2, 3, 4]]
+assert model.training
+
+batched = generate(
+    model,
+    torch.tensor([[0], [3]]),
+    max_new_tokens=4,
+    context_size=4,
+    eos_id=4,
+)
+assert batched.tolist() == [
+    [0, 1, 2, 3, 4],
+    [3, 4, 4, 4, 4],
+]
+
+try:
+    top_k_filter(torch.zeros(1, 5), top_k=0)
+except ValueError:
+    pass
+else:
+    raise AssertionError("top_k=0 must fail")
+
+print(output)  # tensor([[0, 1, 2, 3, 4]])
+```
+
+Toy model chỉ kiểm tra control flow; chất lượng ngôn ngữ cần một GPT đã train.
+
+</CodeLessonFrame>
+
+</MdxPage>

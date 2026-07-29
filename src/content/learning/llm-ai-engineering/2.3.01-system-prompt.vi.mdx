@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "system-prompt", locale: "vi",
+  title: "System instruction và trust boundary", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["system-prompt","prompt engineering","T"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'System/developer instruction đặt mục tiêu và policy ổn định nhưng vẫn là model input, không phải authorization.'},
+  steps: [
+    {label: {vi: 'Trusted policy'}, shape: 'versioned policy + allowed capabilities', detail: {vi: 'Đến từ application configuration.'}},
+    {label: {vi: 'System instruction'}, shape: 'authority-appropriate message', detail: {vi: 'Mô tả mục tiêu và acceptance criteria.'}},
+    {label: {vi: 'User data'}, shape: 'untrusted content', detail: {vi: 'Không nối vào vùng instruction trusted.'}},
+    {label: {vi: 'Model behavior'}, shape: 'proposal / response', detail: {vi: 'Backend vẫn kiểm tra quyền khi action được đề xuất.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Structured policy trở thành instruction; enforcement vẫn thuộc application boundary.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Worked contract cho trợ lý support: prompt định hướng hành vi, backend khóa capability.'},
+  steps: [
+    {label: {vi: 'System goal'}, shape: 'support order status', detail: {vi: 'Cho phép trợ lý hỗ trợ đọc trạng thái.'}},
+    {label: {vi: 'Model proposal'}, shape: 'read_order / refund', detail: {vi: 'Output chỉ là đề xuất có cấu trúc.'}},
+    {label: {vi: 'Backend authorization'}, shape: 'actor × capability', detail: {vi: 'Chặn refund khi user không đủ quyền.'}},
+    {label: {vi: 'Audit artifact'}, shape: 'verifiable result only', detail: {vi: 'Không yêu cầu hoặc lưu hidden chain-of-thought.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Câu “không được refund” trong prompt không thay access control.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production handoff bảo vệ trust boundary quanh system instruction.'},
+  steps: [
+    {label: {vi: 'No secrets'}, shape: 'prompt is not a vault', detail: {vi: 'Không nhúng credential hoặc private key.'}},
+    {label: {vi: 'Real enforcement'}, shape: 'backend access control', detail: {vi: 'Không dựa vào chữ “không được”.'}},
+    {label: {vi: 'Separate data'}, shape: 'trusted instruction ≠ user content', detail: {vi: 'Giữ provenance và authority rõ ràng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài sau đặt user request vào vùng dữ liệu không tin cậy.'},
+}} />
+
+</MdxPage>

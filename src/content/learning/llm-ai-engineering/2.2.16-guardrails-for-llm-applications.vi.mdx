@@ -3,23 +3,134 @@ export const lessonMetadata = {
   id: 'guardrails-for-llm-applications',
   locale: 'vi',
   title: 'Guardrails cho ứng dụng LLM',
-  headings: ['Guardrail nằm ở đâu?', 'Các lớp kiểm soát', 'Đánh giá guardrail'],
-  keywords: ['guardrails', 'input validation', 'output validation', 'tool permissions', 'policy'],
+  headings: ['Layered contract', 'Schema và trust', 'Authorization', 'Deterministic implementation', 'Failure tests'],
+  keywords: ['guardrails', 'input validation', 'authorization', 'least privilege', 'fail closed'],
+  pageCount: 5,
 }
 
-## Guardrail nằm ở đâu?
+<MdxPage page={0}>
 
-Guardrail là các cơ chế bao quanh model ở tầng ứng dụng hoặc hệ thống. Nó có thể kiểm tra input, output, dữ liệu truy xuất, quyền gọi tool và trạng thái workflow. Guardrail không thay thế model alignment; nó thêm các điểm kiểm soát mà developer có thể quan sát và cấu hình.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Guardrail bao quanh model bằng nhiều enforcement layers và trả decision có thể audit.'},
+  steps: [
+    {label: {vi: 'Request boundary'}, shape: 'limits + trust labels', detail: {vi: 'Phân loại source trước provider call.'}},
+    {label: {vi: 'Model output'}, shape: 'proposal only', detail: {vi: 'Parse typed output, không execute trực tiếp.'}},
+    {label: {vi: 'Backend gate'}, shape: 'authorization + confirmation', detail: {vi: 'Kiểm tra capability theo actor và state.'}},
+    {label: {vi: 'Decision'}, shape: 'allow / deny / review + reason', detail: {vi: 'Monitoring và audit dùng reason code.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Input classifier hoặc keyword rule không thể thay authorization.'},
+}} />
 
-## Các lớp kiểm soát
+</MdxPage>
 
-- Validate schema, độ dài và loại input.
-- Phát hiện PII, secret hoặc nhóm nội dung rủi ro.
-- Tách instruction đáng tin khỏi dữ liệu không đáng tin.
-- Giới hạn tool theo least privilege và yêu cầu xác nhận cho hành động quan trọng.
-- Kiểm tra output trước khi hiển thị hoặc thực thi.
-- Ghi log quyết định để điều tra và bổ sung regression test.
+<MdxPage page={1}>
 
-## Đánh giá guardrail
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Schema boundary giữ identity và permissions ở server, không để untrusted content truyền quyền.'},
+  comparisons: [
+    {title: 'Server context', shape: 'verified actor_id + roles', detail: {vi: 'Nguồn duy nhất cho identity/permissions.'}},
+    {title: 'Tool proposal', shape: 'name + typed arguments', detail: {vi: 'Không chứa role hoặc confirmation tự khai.'}},
+    {title: 'Untrusted content', shape: 'user + retrieved data', detail: {vi: 'Chỉ là data dù nằm trong context.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Reject unknown fields, empty IDs và oversized inputs trước provider call.'},
+}} />
 
-Guardrail cần được chấm cả recall lẫn false positive. Chặn được nhiều attack nhưng làm hỏng phần lớn yêu cầu hợp lệ không phải là một hệ thống tốt. Test nên đo attack success rate, overblocking rate, latency, cost và khả năng attacker đổi wording để vượt qua rule.
+</MdxPage>
+
+<MdxPage page={2}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Authorization policy ánh xạ tool proposal sang quyền thực tế ngay trước execution.'},
+  steps: [
+    {label: {vi: 'read_order'}, shape: 'owner only', detail: {vi: 'Actor chỉ đọc order thuộc chính họ.'}},
+    {label: {vi: 'refund_order'}, shape: 'support role + confirmation', detail: {vi: 'Confirmation gắn actor + order từ UI/backend.'}},
+    {label: {vi: 'unknown tool'}, shape: 'deny', detail: {vi: 'Fail closed theo allowlist.'}},
+    {label: {vi: 'Reauthorize'}, shape: 'immediately before side effect', detail: {vi: 'Tránh stale state và TOCTOU.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Model không được tự đặt confirmed=true trong proposal.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<CodeLessonFrame
+  title="Deterministic authorization"
+  contract="server actor/roles + strict proposal + ownership + confirmation → Decision"
+  output="authorized hoặc stable deny reason code"
+  pitfall="Unknown schema/tool và missing ownership phải fail closed."
+  takeaway="Implementation khóa schema, owner, role và confirmation trước execution."
+>
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Decision:
+    allowed: bool
+    reason: str
+
+def authorize(
+    actor_id: str,
+    roles: set[str],
+    proposal: dict,
+    owners: dict[str, str],
+    confirmed_refunds: set[tuple[str, str]],
+) -> Decision:
+    if not isinstance(proposal, dict) or set(proposal) != {'tool', 'arguments'}:
+        return Decision(False, 'invalid_schema')
+    if not isinstance(proposal['tool'], str) or not isinstance(proposal['arguments'], dict):
+        return Decision(False, 'invalid_schema')
+    tool, args = proposal['tool'], proposal['arguments']
+    if tool not in {'read_order', 'refund_order'}:
+        return Decision(False, 'unknown_tool')
+    if set(args) != {'order_id'} or not isinstance(args.get('order_id'), str) or not args['order_id']:
+        return Decision(False, 'invalid_arguments')
+    order_id = args['order_id']
+    if owners.get(order_id) != actor_id:
+        return Decision(False, 'not_owner')
+    if tool == 'refund_order' and 'support' not in roles:
+        return Decision(False, 'insufficient_role')
+    if tool == 'refund_order' and (actor_id, order_id) not in confirmed_refunds:
+        return Decision(False, 'confirmation_required')
+    return Decision(True, 'authorized')
+
+owners = {'o-1': 'u-1'}
+read = {'tool': 'read_order', 'arguments': {'order_id': 'o-1'}}
+refund = {'tool': 'refund_order', 'arguments': {'order_id': 'o-1'}}
+assert authorize('u-1', set(), read, owners, set()).allowed
+assert authorize('u-1', set(), refund, owners, set()).reason == 'insufficient_role'
+assert authorize('u-1', {'support'}, refund, owners, set()).reason == 'confirmation_required'
+assert authorize('u-1', {'support'}, refund, owners, {('u-1', 'o-1')}).allowed
+assert authorize('u-2', {'support'}, read, owners, set()).reason == 'not_owner'
+unknown = {'tool': 'upload_secret', 'arguments': {'order_id': 'o-1'}}
+assert authorize('u-1', {'support'}, unknown, owners, set()).reason == 'unknown_tool'
+assert authorize('u-1', set(), [], owners, set()).reason == 'invalid_schema'
+```
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Failure suite kiểm tra authorization lifecycle và biến red-team findings thành regression cases an toàn.'},
+  steps: [
+    {label: {vi: 'Execution failures'}, shape: 'schema · ownership · stale · duplicate · timeout', detail: {vi: 'Refund thêm idempotency key và confirmation.'}},
+    {label: {vi: 'Rules of engagement'}, shape: 'scope + isolated env + stop condition', detail: {vi: 'Khóa actor/capability và owner trước test.'}},
+    {label: {vi: 'Finding artifact'}, shape: 'stable ID + severity + redacted evidence', detail: {vi: 'Gắn control owner, status, retention/access.'}},
+    {label: {vi: 'Regression'}, shape: 'confirmed finding + variants', detail: {vi: 'Mitigation ở enforcement boundary, không thử tùy ý trên production.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Log reason code/case ID; không log credential hoặc raw PII.'},
+}} />
+
+</MdxPage>

@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenizer-regex-from-scratch-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Tách dấu chấm', 'Bỏ phần không cần thiết', 'Dùng với câu mới', 'Hàm chưa làm gì'],
+  keywords: ['quiz', 'regex', 're.split', 'whitespace', 'punctuation', 'tokenizer'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="tokenizer-regex-from-scratch-quiz" questions={[
+  {
+    id: 'punctuation-split-output', title: 'Tách dấu chấm', prompt: 'Ở page 3, chuỗi `"AI."` được tách thành những phần nào?', mode: 'single',
+    options: [
+      { id: 'dot-and-empty', label: '`"AI"` và `"."` là hai phần riêng.', isCorrect: true },
+      { id: 'dot-deleted', label: 'Chỉ còn `"AI"` vì dấu chấm bị xóa.' },
+      { id: 'one-token', label: 'Vẫn là một phần duy nhất: `"AI."`.' },
+      { id: 'all-punctuation', label: '`"A"`, `"I"` và `"."` là ba phần riêng.' },
+    ],
+    success: 'Đúng. Dấu chấm được giữ lại nhưng tách khỏi từ `AI`.',
+    error: 'Hãy nhìn lại page 3: `AI` và dấu chấm nằm trong hai ô riêng.',
+  },
+  {
+    id: 'cleanup-comprehension', title: 'Bỏ phần không cần thiết', prompt: 'Khi hoàn thiện hàm `tokenize`, phần nào được bỏ khỏi kết quả?', mode: 'single',
+    options: [
+      { id: 'strip-filter', label: 'Khoảng trắng và chuỗi rỗng.', isCorrect: true },
+      { id: 'sort', label: 'Các từ xuất hiện nhiều lần.' },
+      { id: 'merge', label: 'Tất cả dấu câu.' },
+      { id: 'ids', label: 'Từ cuối cùng trong câu.' },
+    ],
+    success: 'Đúng. Từ và dấu câu được giữ lại; khoảng trắng và chuỗi rỗng được bỏ đi.',
+    error: 'Hãy so sánh page 3 và page 4: khoảng trắng cùng chuỗi rỗng không còn xuất hiện.',
+  },
+  {
+    id: 'reuse-tokenizer', title: 'Dùng với câu mới', prompt: 'Vì sao bài học thử hàm `tokenize` với một đoạn văn mới ở page cuối?', mode: 'single',
+    options: [
+      { id: 'check-new-text', label: 'Để kiểm tra hàm vẫn tách từ và dấu câu đúng thứ tự với input khác.', isCorrect: true },
+      { id: 'train-model', label: 'Để huấn luyện Language Model.' },
+      { id: 'create-embedding', label: 'Để biến mỗi token thành embedding.' },
+      { id: 'translate-text', label: 'Để dịch đoạn văn sang tiếng Việt.' },
+    ],
+    success: 'Đúng. Ta dùng input khác để kiểm tra hàm có tiếp tục làm đúng điều đã thiết kế hay không.',
+    error: 'Ở page cuối, hàm vẫn chỉ tách đoạn văn thành các token theo đúng thứ tự.',
+  },
+  {
+    id: 'regex-limitations', title: 'Hàm chưa làm gì', prompt: 'Sau khi chạy hàm `tokenize` trong bài, bước nào vẫn chưa được thực hiện?', mode: 'single',
+    options: [
+      { id: 'learning-fallback', label: 'Đổi các token thành token ID.', isCorrect: true },
+      { id: 'no-python', label: 'Tách từ khỏi dấu chấm.' },
+      { id: 'already-bpe', label: 'Giữ các token theo đúng thứ tự.' },
+      { id: 'needs-model-first', label: 'Bỏ khoảng trắng và chuỗi rỗng.' },
+    ],
+    success: 'Đúng. Kết quả hiện vẫn là các token dạng chữ; việc đổi chúng thành ID thuộc bước sau.',
+    error: 'Ba việc còn lại đều đã xuất hiện trong kết quả của lesson. Hàm chưa đổi token dạng chữ thành các con số.',
+  },
+]} />

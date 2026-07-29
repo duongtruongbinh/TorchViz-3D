@@ -1,0 +1,122 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'few-shot-examples',
+  locale: 'vi',
+  title: 'Few-shot examples có chủ đích',
+  headings: ['Examples truyền decision boundary', 'Chọn theo coverage và budget', 'Production gate'],
+  keywords: ['few-shot', 'example selection', 'token budget', 'data leakage'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Few-shot examples nên truyền decision boundaries, không chỉ giống input hiện tại về bề mặt.'},
+  steps: [
+    {label: {vi: 'Eval failures'}, shape: 'priority clusters', detail: {vi: 'Bắt đầu từ lỗi lặp lại.'}},
+    {label: {vi: 'Candidate pool'}, shape: 'split + provenance + tokens + schema', detail: {vi: 'Loại test leakage và schema cũ.'}},
+    {label: {vi: 'Coverage selection'}, shape: 'one boundary per cluster', detail: {vi: 'Tránh examples gần như trùng nhau.'}},
+    {label: {vi: 'Budgeted set'}, shape: 'small demonstrations', detail: {vi: 'Cân format signal với token cost và bias.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output là tập nhỏ examples bao phủ cluster ưu tiên trong budget.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Chọn examples theo coverage và budget"
+  contract="required clusters + eligible examples + schema version + token budget"
+  output="delivery-1 + billing-1 = 240 tokens gồm 40 framing"
+  pitfall="Không dùng test examples hoặc schema version cũ dù chúng rẻ hơn."
+  takeaway="Chọn candidate rẻ nhất cho mỗi failure cluster rồi fail nếu vượt budget."
+>
+
+Fixture dưới chọn một example rẻ nhất cho mỗi failure cluster, cấm test leakage và tính cả 40 token framing. Với budget 240, `delivery=90` và `billing=110` vừa đủ.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type Example = {
+  id: string;
+  cluster: string;
+  tokens: number;
+  split: "train" | "validation" | "test";
+  schemaVersion: string;
+};
+
+function selectExamples(
+  candidates: readonly Example[],
+  requiredClusters: readonly string[],
+  maxTokens: number,
+  schemaVersion: string,
+  framingTokens = 40,
+): { ids: string[]; totalTokens: number } {
+  if (!Number.isInteger(maxTokens) || maxTokens <= framingTokens) {
+    throw new Error("invalid_example_budget");
+  }
+  if (new Set(requiredClusters).size !== requiredClusters.length) {
+    throw new Error("duplicate_failure_cluster");
+  }
+
+  const ids: string[] = [];
+  let totalTokens = framingTokens;
+  for (const cluster of requiredClusters) {
+    const eligible = candidates
+      .filter((item) =>
+        item.cluster === cluster &&
+        item.split !== "test" &&
+        item.schemaVersion === schemaVersion &&
+        Number.isInteger(item.tokens) &&
+        item.tokens > 0
+      )
+      .sort((a, b) => a.tokens - b.tokens || a.id.localeCompare(b.id));
+    const selected = eligible[0];
+    if (!selected) throw new Error(`missing_cluster:${cluster}`);
+    totalTokens += selected.tokens;
+    if (totalTokens > maxTokens) throw new Error("example_budget_exceeded");
+    ids.push(selected.id);
+  }
+  return { ids, totalTokens };
+}
+
+const examples: Example[] = [
+  { id: "delivery-1", cluster: "ambiguous_delivery", tokens: 90, split: "train", schemaVersion: "v3" },
+  { id: "billing-test", cluster: "billing_refund", tokens: 60, split: "test", schemaVersion: "v3" },
+  { id: "billing-1", cluster: "billing_refund", tokens: 110, split: "validation", schemaVersion: "v3" },
+  { id: "billing-old", cluster: "billing_refund", tokens: 70, split: "train", schemaVersion: "v2" },
+];
+assert.deepEqual(
+  selectExamples(examples, ["ambiguous_delivery", "billing_refund"], 240, "v3"),
+  { ids: ["delivery-1", "billing-1"], totalTokens: 240 },
+);
+assert.throws(
+  () => selectExamples(examples, ["ambiguous_delivery", "billing_refund"], 239, "v3"),
+  /example_budget_exceeded/,
+);
+assert.throws(() => selectExamples(examples, ["unknown"], 240, "v3"), /missing_cluster/);
+~~~
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Few-shot production gate khóa provenance, budget và fair comparison với zero-shot.'},
+  steps: [
+    {label: {vi: 'Version'}, shape: 'examples + prompt + schema + tokenizer', detail: {vi: 'Token count phải tái lập được.'}},
+    {label: {vi: 'Separate data'}, shape: 'selection ≠ held-out eval', detail: {vi: 'Không chấm trên examples đã đưa vào prompt.'}},
+    {label: {vi: 'Audit set'}, shape: 'balance + contradictions + schema drift', detail: {vi: 'Phát hiện bias và stale outputs.'}},
+    {label: {vi: 'Gate'}, shape: 'slice quality + tokens/latency + safety', detail: {vi: 'Log IDs/version, không raw PII hay hidden reasoning.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Quiz tiếp theo chọn zero/one/few-shot theo evidence.'},
+}} />
+
+</MdxPage>

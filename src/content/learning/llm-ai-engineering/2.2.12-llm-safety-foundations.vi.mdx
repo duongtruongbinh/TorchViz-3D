@@ -3,20 +3,75 @@ export const lessonMetadata = {
   id: 'llm-safety-foundations',
   locale: 'vi',
   title: 'Nền tảng LLM safety',
-  headings: ['Safety là thuộc tính của hệ thống', 'Threat model', 'Defense in depth'],
-  keywords: ['LLM safety', 'threat model', 'risk', 'alignment', 'defense in depth'],
+  headings: ['Safety là thuộc tính hệ thống', 'Threat model contract', 'Worked control trace', 'Pitfall và handoff'],
+  keywords: ['LLM safety', 'threat model', 'least privilege', 'defense in depth', 'calibration'],
+  pageCount: 4,
 }
 
-## Safety là thuộc tính của hệ thống
+<MdxPage page={0}>
 
-Một model đã alignment vẫn không đồng nghĩa với một ứng dụng an toàn. Rủi ro còn phụ thuộc vào system prompt, dữ liệu truy xuất, tool được cấp quyền, cách lưu log, UI, user và môi trường triển khai. Vì vậy, safety evaluation phải nhìn cả model lẫn application.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Safety là thuộc tính của toàn hệ thống: model, data, tools, identity, UI, logging và policy.'},
+  steps: [
+    {label: {vi: 'Request'}, shape: 'asset + actor + trust boundaries', detail: {vi: 'Xác định input của safety analysis.'}},
+    {label: {vi: 'Classify intent'}, shape: 'risk scenario', detail: {vi: 'Nối intent với attempted capability và impact.'}},
+    {label: {vi: 'Authorize capability'}, shape: 'least privilege', detail: {vi: 'Chỉ cấp quyền cần thiết.'}},
+    {label: {vi: 'Validate action → outcome'}, shape: 'controls + residual risk', detail: {vi: 'Backend kiểm tra trước execution và ghi decision.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output của safety analysis là scenarios, preventive/detective controls và residual-risk decision.'},
+}} />
 
-## Threat model
+</MdxPage>
 
-Threat model mô tả ai có thể tương tác với hệ thống, họ muốn đạt mục tiêu gì, dữ liệu và tool nào có giá trị, cùng hậu quả khi hệ thống thất bại. Một chatbot công khai, trợ lý nội bộ và agent có quyền gửi email cần các test safety khác nhau.
+<MdxPage page={1}>
 
-Các nhóm rủi ro phổ biến gồm harmful content, misinformation, privacy leakage, bias, prompt injection, unsafe tool use và denial of service do cost hoặc context exhaustion.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Threat scenario phải nối adversarial input với capability và impact cụ thể.'},
+  steps: [
+    {label: {vi: 'Actor + entry'}, shape: 'who / where', detail: {vi: 'Ai đưa dữ liệu vào qua điểm nào.'}},
+    {label: {vi: 'Untrusted data'}, shape: 'external document', detail: {vi: 'Ví dụ indirect injection trong tài liệu.'}},
+    {label: {vi: 'Target + capability'}, shape: 'internal email · external send', detail: {vi: 'Asset nào và action nào bị nhắm tới.'}},
+    {label: {vi: 'Impact + owner'}, shape: 'exfiltration risk', detail: {vi: 'Ghi assumption, hậu quả và người chịu trách nhiệm.'}},
+  ],
+  code: [],
+  takeaway: {vi: '“Prompt injection” chưa đủ nếu chưa biết tool có quyền gì và hậu quả ra sao.'},
+}} />
 
-## Defense in depth
+</MdxPage>
 
-Không có một lớp kiểm duyệt duy nhất giải quyết mọi rủi ro. Safety thường kết hợp policy, model alignment, input/output checks, least privilege cho tool, guardrails, monitoring, human approval và red teaming. Evaluation phải được chạy lại sau mỗi thay đổi vì mitigation có thể tạo regression hoặc overrefusal.
+<MdxPage page={2}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Worked control trace cho agent chỉ được đọc trạng thái đơn hàng.'},
+  steps: [
+    {label: {vi: 'Browser'}, shape: 'order ID + authenticated session', detail: {vi: 'Không gửi provider key.'}},
+    {label: {vi: 'Backend identity'}, shape: 'verified actor + ownership', detail: {vi: 'Không tin actor_id do client tự khai.'}},
+    {label: {vi: 'Model capability'}, shape: 'narrow read-only tool', detail: {vi: 'Schema giới hạn đúng task.'}},
+    {label: {vi: 'Execution gate'}, shape: 'reauthorize + redacted log', detail: {vi: 'Refund proposal trả forbidden; prompt không thể nâng quyền.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Authorization được kiểm tra tại backend khi action tới, không giao cho model.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Safety handoff kết hợp preventive controls, calibration metrics và regression replay.'},
+  steps: [
+    {label: {vi: 'Prevent'}, shape: 'least privilege + allowlist + confirmation', detail: {vi: 'Thêm timeout và cancel.'}},
+    {label: {vi: 'Measure'}, shape: 'unsafe compliance + overrefusal', detail: {vi: 'Báo theo subgroup bằng matched pairs.'}},
+    {label: {vi: 'Minimize data'}, shape: 'no secrets in input/logs', detail: {vi: 'Redact artifacts.'}},
+    {label: {vi: 'Replay'}, shape: 'model / prompt / data / tool / policy changes', detail: {vi: 'Chạy lại safety suite sau mọi behavioral change.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Không suy safety từ aggregate đơn lẻ; bài sau tính hai phía của refusal calibration.'},
+}} />
+
+</MdxPage>

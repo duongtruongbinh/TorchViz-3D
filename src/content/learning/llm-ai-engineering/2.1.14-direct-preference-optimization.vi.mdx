@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'direct-preference-optimization',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['DPO record', 'Reward proxy', 'Constitution governance', 'Chọn pipeline'],
+  keywords: ['quiz', 'RLHF', 'constitutional AI', 'DPO', 'preference'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="direct-preference-optimization" questions={[
+  {
+    id: 'direct-preference-optimization-q1',
+    title: 'DPO record',
+    prompt: 'Dataset row nào có contract tối thiểu phù hợp trực tiếp cho DPO?',
+    mode: 'single',
+    options: [
+      { id: 'direct-preference-optimization-q1-a', label: 'Một prompt không có response' },
+      { id: 'direct-preference-optimization-q1-b', label: 'Một scalar latency và GPU ID' },
+      { id: 'direct-preference-optimization-q1-correct', label: '`prompt`, `chosen`, `rejected` cùng provenance/version', isCorrect: true },
+      { id: 'direct-preference-optimization-q1-c', label: 'Chỉ KV cache của chosen response' },
+    ],
+    success: 'Đúng. DPO cần cặp response được so sánh trong cùng ngữ cảnh; provenance giúp audit preference.',
+    error: 'Chưa đúng. Hãy chọn record giữ được cả hai phía của preference và nguồn gốc của label.',
+  },
+  {
+    id: 'direct-preference-optimization-q2',
+    title: 'Reward proxy',
+    prompt: 'Reward-model score tăng liên tục nhưng blinded human eval ngoài distribution giảm. Release decision nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'direct-preference-optimization-q2-correct', label: 'Chặn release và điều tra reward hacking/proxy misalignment theo slice', isCorrect: true },
+      { id: 'direct-preference-optimization-q2-a', label: 'Release vì reward là ground truth' },
+      { id: 'direct-preference-optimization-q2-b', label: 'Chỉ đổi tokenizer rồi bỏ human eval' },
+      { id: 'direct-preference-optimization-q2-c', label: 'Tăng learning rate cho đến khi human eval tự phục hồi' },
+    ],
+    success: 'Đúng. Reward là proxy; regression trên target behavior phải chặn rollout.',
+    error: 'Chưa đúng. Không được dùng training proxy để phủ quyết bằng chứng evaluation độc lập.',
+  },
+  {
+    id: 'direct-preference-optimization-q3',
+    title: 'Constitution governance',
+    prompt: 'Vì sao constitution vẫn phải có human owner, versioning và audit?',
+    mode: 'single',
+    options: [
+      { id: 'direct-preference-optimization-q3-a', label: 'Vì constitution chỉ lưu dtype' },
+      { id: 'direct-preference-optimization-q3-b', label: 'Vì AI feedback luôn trung lập nên chỉ cần ký tên' },
+      { id: 'direct-preference-optimization-q3-c', label: 'Vì model tự đảm bảo mọi luật ở mọi quốc gia' },
+      { id: 'direct-preference-optimization-q3-correct', label: 'Vì nguyên tắc chứa lựa chọn giá trị, có thể thiếu/xung đột và evaluator có thể khuếch đại lỗi', isCorrect: true },
+    ],
+    success: 'Đúng. Constitution và evaluator là artifact chính sách có failure mode, không phải nguồn chân lý tự động.',
+    error: 'Chưa đúng. Hãy xét ai chịu trách nhiệm khi nguyên tắc thiếu, xung đột hoặc gây overrefusal.',
+  },
+  {
+    id: 'direct-preference-optimization-q4',
+    title: 'Chọn pipeline',
+    prompt: 'Team đã có preference pairs chất lượng, muốn tránh train reward model riêng và có reference checkpoint cùng regression suite. Thử nghiệm hợp lý nhất?',
+    mode: 'single',
+    options: [
+      { id: 'direct-preference-optimization-q4-a', label: 'Chỉ tăng temperature khi serve' },
+      { id: 'direct-preference-optimization-q4-correct', label: 'DPO với `β`, data/reference versioning và eval gate được ghi rõ', isCorrect: true },
+      { id: 'direct-preference-optimization-q4-b', label: 'Xóa rejected responses để giảm storage' },
+      { id: 'direct-preference-optimization-q4-c', label: 'Đổi context window rồi coi đó là preference optimization' },
+    ],
+    success: 'Đúng. DPO phù hợp với artifact đã có, nhưng vẫn cần reference, hyperparameter và bằng chứng regression.',
+    error: 'Chưa đúng. Chọn pipeline theo input contract và control, không theo một mẹo decoding không liên quan.',
+  },
+]} />

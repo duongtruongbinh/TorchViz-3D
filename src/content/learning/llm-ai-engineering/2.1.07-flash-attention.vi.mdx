@@ -1,0 +1,60 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "flash-attention",
+  locale: "vi",
+  title: "FlashAttention và IO-aware attention",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["flash-attention","LLM","production","T+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'FlashAttention giảm HBM I/O bằng tiling và online softmax nhưng vẫn tính dense exact attention.'},
+  steps: [
+    {label: {vi: 'Block Q/K/V'}, shape: 'tiles fit SRAM', detail: {vi: 'Đọc từng block thay vì materialize toàn score tensor.'}},
+    {label: {vi: 'Block scores'}, shape: 'logical (B,H,T,T)', detail: {vi: 'Toán học dense attention không đổi.'}},
+    {label: {vi: 'Online softmax'}, shape: 'running max + sum', detail: {vi: 'Kết hợp các tiles ổn định số.'}},
+    {label: {vi: 'Attention output'}, shape: 'same contract', detail: {vi: 'Tương đương exact algorithm trong sai số cho phép.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Implementation tránh lưu toàn bộ score tensor trong HBM.'},
+  misconception: {vi: 'FlashAttention không phải sparse attention.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked example cho thấy score tensor riêng đã đạt 1 GiB nếu materialize.'},
+  steps: [
+    {label: {vi: 'Score shape'}, shape: 'B×H×T×T', detail: {vi: '1×32×4,096² elements.'}},
+    {label: {vi: 'fp16'}, shape: '×2 bytes', detail: {vi: 'Mỗi score chiếm hai byte.'}},
+    {label: {vi: 'Materialized total'}, shape: '1 GiB', detail: {vi: 'Chưa tính Q/K/V và output.'}},
+    {label: {vi: 'Tiled execution'}, shape: 'small working set', detail: {vi: 'Không giữ toàn bộ 1 GiB cùng lúc.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tiling giảm memory traffic; nó không biến dense attention từ bậc hai thành tuyến tính.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Production comparison phải tách memory saving khỏi speedup thực tế.'},
+  comparisons: [
+    {title: 'Math contract', shape: 'dense exact attention', detail: {vi: 'Giữ mask và dropout semantics được kernel hỗ trợ.'}},
+    {title: 'Hardware result', shape: 'GPU × dtype × shape', detail: {vi: 'Speedup phụ thuộc kernel support và workload.'}},
+    {title: 'Next axis: GQA', shape: 'fewer KV heads', detail: {vi: 'Giảm cache/bandwidth theo cách khác với giảm I/O bằng tiling.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Benchmark đúng kernel constraints trên shape production.'},
+}} />
+
+</MdxPage>

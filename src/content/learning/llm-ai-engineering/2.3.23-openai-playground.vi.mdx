@@ -1,0 +1,108 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "openai-playground", locale: "vi",
+  title: "Thí nghiệm tái lập trong OpenAI Playground", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["openai-playground","prompt engineering","K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Console hữu ích để khám phá, nhưng một lần chạy thủ công không phải production evidence.'},
+  steps: [
+    {label: {vi: 'Pin inputs'}, shape: 'prompt + model + schema versions', detail: {vi: 'Ghi parameters, fixture IDs và ngày kiểm tra capability.'}},
+    {label: {vi: 'Explore'}, shape: 'Playground run', detail: {vi: 'Không paste API key hoặc dữ liệu production nhạy cảm.'}},
+    {label: {vi: 'Materialize'}, shape: 'UI controls → request fields', detail: {vi: 'Export cấu hình và code có thể chạy lại.'}},
+    {label: {vi: 'Evaluate'}, shape: 'fixtures → acceptance metric', detail: {vi: 'Kết quả đi vào eval harness, không chọn một output đẹp.'}},
+  ], code: [], takeaway: {vi: 'Artifact bàn giao là saved configuration dựng lại được request.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Ba fixture cố định tạo một experiment có thể chạy lại ngoài console.'},
+  steps: [
+    {label: {vi: 'Fixtures'}, shape: 'ticket-01 · 02 · 03', detail: {vi: 'Cùng input IDs cho mọi lần chạy.'}},
+    {label: {vi: 'Manifest'}, shape: 'prompt/model/schema + checkedOn', detail: {vi: 'Ghi acceptance metric và output budget.'}},
+    {label: {vi: 'Request adapter'}, shape: 'manifest → Responses request', detail: {vi: 'Materialize controls thành code.'}},
+    {label: {vi: 'Eval'}, shape: 'normalized results', detail: {vi: 'Không copy key, raw ticket hoặc hidden chain-of-thought.'}},
+  ], code: [], takeaway: {vi: 'Console là nơi thử; manifest và eval result mới là evidence.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame title="Materialize OpenAI experiment" contract="ExperimentSpec → reproducible Responses request shape" output="support-exp-17 · 3 fixtures · maxOutputTokens=300" pitfall="Không bỏ sót control, pin alias biến động như fixture vĩnh viễn hoặc paste dữ liệu nhạy cảm." takeaway="Manifest có ngày kiểm tra và không chứa API key; capability phải được kiểm tra lại khi chạy.">
+
+~~~ts
+import assert from "node:assert/strict";
+
+type ExperimentSpec = {
+  id: string;
+  promptVersion: string;
+  modelId: string;
+  schemaVersion: string;
+  evalSuiteVersion: string;
+  checkedOn: string;
+  fixtureIds: readonly string[];
+  maxOutputTokens: number;
+};
+
+function toOpenAIExperiment(spec: ExperimentSpec) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(spec.checkedOn)) throw new Error("invalid_date");
+  if (spec.fixtureIds.length === 0) throw new Error("empty_fixture_set");
+  if (!Number.isInteger(spec.maxOutputTokens) || spec.maxOutputTokens <= 0) {
+    throw new Error("invalid_output_budget");
+  }
+  return {
+    provider: "openai" as const,
+    apiSurface: "Responses API",
+    experimentId: spec.id,
+    promptVersion: spec.promptVersion,
+    modelId: spec.modelId,
+    schemaVersion: spec.schemaVersion,
+    evalSuiteVersion: spec.evalSuiteVersion,
+    checkedOn: spec.checkedOn,
+    requestShape: {
+      instructionsFrom: spec.promptVersion,
+      inputFixtureIds: [...spec.fixtureIds],
+      structuredOutputSchema: spec.schemaVersion,
+      maxOutputTokens: spec.maxOutputTokens,
+    },
+  };
+}
+
+const spec: ExperimentSpec = {
+  id: "support-exp-17",
+  promptVersion: "support-v12",
+  modelId: "configured-model-id",
+  schemaVersion: "support-v4",
+  evalSuiteVersion: "policy-set-7",
+  checkedOn: "2026-07-23",
+  fixtureIds: ["ticket-01", "ticket-02", "ticket-03"],
+  maxOutputTokens: 300,
+};
+const result = toOpenAIExperiment(spec);
+assert.equal(result.apiSurface, "Responses API");
+assert.deepEqual(result.requestShape.inputFixtureIds, [
+  "ticket-01", "ticket-02", "ticket-03",
+]);
+assert.equal("apiKey" in result, false);
+assert.throws(
+  () => toOpenAIExperiment({ ...spec, fixtureIds: [] }),
+  /empty_fixture_set/,
+);
+~~~
+
+<LessonNote>Đây là manifest cục bộ, không phải provider call. Nguồn official
+kiểm tra 2026-07-23: [prompt engineering](https://developers.openai.com/api/docs/guides/prompt-engineering)
+và [working with evals](https://developers.openai.com/api/docs/guides/evals).
+Model, controls và console behavior phải kiểm tra lại tại thời điểm chạy.</LessonNote>
+
+Anthropic Console tiếp theo chạy cùng experiment contract để thấy khác biệt provider.
+
+</CodeLessonFrame>
+
+</MdxPage>

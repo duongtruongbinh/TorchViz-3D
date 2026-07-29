@@ -1,0 +1,96 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'attention-score-shape-calculation', locale: 'vi',
+  title: 'Tính score và shape attention',
+  headings: ['Shape QKV', 'Scaled score', 'Causal softmax', 'Context vector', 'Batch shape audit'],
+  keywords: ['attention score', 'tensor shape', 'softmax', 'context vector'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<AttentionConceptVisual content={{
+  view: 'batch',
+  lead: {vi: 'Worked example tính một attention row bằng tay rồi đối chiếu với shape batched B=2, T=6, C=3, D=2.'},
+  steps: [
+    {label: {vi: 'Input'}, shape: 'X · (B,T,C)', detail: {vi: '(2,6,3) token features.'}},
+    {label: {vi: 'Q/K/V projections'}, shape: 'W · (C,D)', detail: {vi: 'Ba weight matrices đều có shape (3,2).'}},
+    {label: {vi: 'Projected tensors'}, shape: 'Q,K,V · (B,T,D)', detail: {vi: 'Cả ba output có shape (2,6,2).'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Một query q=[1,1] shape (D,) chấm điểm ba keys [1,0], [0,2], [1,1] shape (T,D) để tạo một row (T,).'},
+}} />
+
+</MdxPage>
+<MdxPage page={1}>
+
+<AttentionConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Tính dot product trước, sau đó chia mọi score cho √D của head.'},
+  steps: [
+    {label: {vi: 'Dot products'}, shape: '[1, 2, 2]', detail: {vi: 'q·k₀=1, q·k₁=2, q·k₂=2.'}},
+    {label: {vi: 'Scale'}, shape: '÷√2 ≈ ÷1.414', detail: {vi: 'D=2 là chiều key của head.'}},
+    {label: {vi: 'Scaled scores'}, shape: '[0.707, 1.414, 1.414]', detail: {vi: 'Thứ hạng giữ nguyên, độ lớn logits giảm.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Ở dạng batch, (B,T,D) @ (B,D,T) tạo score (B,T,T).'},
+  misconception: {vi: 'Không chia cho T hoặc C; công thức chia cho √D của từng head.'},
+}} />
+
+</MdxPage>
+<MdxPage page={2}>
+
+<AttentionConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Query ở vị trí 1 không được nhìn key vị trí 2, nên mask trước rồi mới softmax.'},
+  steps: [
+    {label: {vi: 'Scaled scores'}, shape: '[0.707,1.414,1.414]', detail: {vi: 'Ba logits trước mask.'}},
+    {label: {vi: 'Causal mask'}, shape: '[0.707,1.414,−inf]', detail: {vi: 'Key tương lai bị loại.'}},
+    {label: {vi: 'exp after max'}, shape: '[0.493,1,0]', detail: {vi: 'Tổng các giá trị hợp lệ là 1.493.'}},
+    {label: {vi: 'Weights'}, shape: '[0.330,0.670,0]', detail: {vi: 'Không âm, tổng xấp xỉ 1.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Causal softmax chỉ chuẩn hóa trên keys hợp lệ; vị trí tương lai nhận đúng weight 0.'},
+}} />
+
+</MdxPage>
+<MdxPage page={3}>
+
+<AttentionConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Dùng weights để lấy tổng có trọng số của Values; Keys không tham gia tổng cuối.'},
+  steps: [
+    {label: {vi: 'v₀ contribution'}, shape: '0.330 × [1,0]', detail: {vi: 'Đóng góp [0.330,0].'}},
+    {label: {vi: 'v₁ contribution'}, shape: '0.670 × [0,2]', detail: {vi: 'Đóng góp [0,1.340].'}},
+    {label: {vi: 'v₂ contribution'}, shape: '0 × [1,1]', detail: {vi: 'Future key nên đóng góp [0,0].'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Context = [0.330,1.340]. Một attention row biến T value vectors thành một vector (D,).'},
+  misconception: {vi: 'Không dùng Keys trong tổng cuối; Keys chỉ giúp tính weights, Context trộn Values.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<AttentionConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Audit shape toàn batch từ projected tensors đến context output.'},
+  steps: [
+    {label: {vi: 'Q, K, V'}, shape: '(2,6,2)', detail: {vi: 'B=2, T=6, D=2.'}},
+    {label: {vi: 'Scores + weights'}, shape: '(2,6,6)', detail: {vi: 'Mask (6,6) broadcast qua B.'}},
+    {label: {vi: 'weights @ V'}, shape: '(2,6,2)', detail: {vi: 'Giữ batch, sequence và value dimension.'}},
+    {label: {vi: 'Row invariant'}, shape: 'weights.sum(−1)=1', detail: {vi: 'Mỗi query có distribution trên keys.'}},
+  ],
+  code: [
+    'assert scores.shape == weights.shape == (2, 6, 6)',
+    'assert context.shape == (2, 6, 2)',
+    'assert torch.allclose(',
+    '    weights.sum(-1),',
+    '    torch.ones(2, 6),',
+    ')',
+  ],
+  output: ['scores/weights: (2,6,6)', 'context: (2,6,2)', 'row sums: 1'],
+  takeaway: {vi: 'Attention giữ batch, sequence và value dimension; chỉ nội dung vector thay đổi.'},
+}} />
+
+</MdxPage>

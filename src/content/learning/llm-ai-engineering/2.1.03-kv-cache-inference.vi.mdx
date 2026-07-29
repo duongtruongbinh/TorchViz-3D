@@ -1,0 +1,104 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "kv-cache-inference",
+  locale: "vi",
+  title: "KV cache trong inference",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["kv-cache-inference","LLM","production","K+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'KV cache đổi việc tính lại toàn bộ prefix thành memory tăng tuyến tính theo sequence length.'},
+  steps: [
+    {label: {vi: 'New hidden'}, shape: 'one decode position', detail: {vi: 'Input mới của step hiện tại.'}},
+    {label: {vi: 'Project K/V'}, shape: '(B,H_kv,1,D_head)', detail: {vi: 'Chỉ tính key/value cho token mới.'}},
+    {label: {vi: 'Append cache'}, shape: '(layers,2,B,H_kv,T,D_head)', detail: {vi: 'T tăng một sau mỗi decode step.'}},
+    {label: {vi: 'Attend'}, shape: 'new Q × cached K/V', detail: {vi: 'Trả attention output cho token hiện tại.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'KV cache giảm compute lặp lại nhưng chuyển chi phí sang memory và bandwidth.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked example tính cache cho 32 layers, batch 1, 8 KV heads và 4,096 tokens.'},
+  steps: [
+    {label: {vi: 'K và V'}, shape: '×2', detail: {vi: 'Hai tensor cache riêng.'}},
+    {label: {vi: 'Elements'}, shape: '32×2×1×8×4,096×128', detail: {vi: 'layers × K/V × B × H_kv × T × D_head.'}},
+    {label: {vi: 'fp16'}, shape: '×2 bytes', detail: {vi: 'Dtype quyết định bytes mỗi value.'}},
+    {label: {vi: 'Total'}, shape: '512 MiB', detail: {vi: 'GQA giảm H_kv, không giảm query heads.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Viết đúng dimension và đơn vị trước khi thay số.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame
+  title="Production audit cho KV cache"
+  contract="positive dimensions → bytes = layers×2×B×H_kv×T×D_head×dtype"
+  output="512 MiB cho cấu hình mẫu"
+  pitfall="Không nhầm query heads với KV heads, quên K/V factor, hoặc giữ cache sau cancel."
+  takeaway="Cache lifecycle phải giải phóng khi request hoàn tất và cô lập giữa users."
+>
+
+~~~ts
+import assert from "node:assert/strict";
+
+type KvShape = {
+  layers: number;
+  batch: number;
+  kvHeads: number;
+  tokens: number;
+  headDim: number;
+  bytesPerValue: number;
+};
+
+function kvCacheBytes(shape: KvShape): number {
+  for (const [name, value] of Object.entries(shape)) {
+    if (!Number.isInteger(value) || value <= 0) {
+      throw new Error(`${name} must be a positive integer`);
+    }
+  }
+  return shape.layers * 2 * shape.batch * shape.kvHeads
+    * shape.tokens * shape.headDim * shape.bytesPerValue;
+}
+
+const bytes = kvCacheBytes({
+  layers: 32,
+  batch: 1,
+  kvHeads: 8,
+  tokens: 4_096,
+  headDim: 128,
+  bytesPerValue: 2,
+});
+assert.equal(bytes, 512 * 1024 * 1024);
+assert.equal(bytes / (1024 ** 2), 512);
+assert.throws(
+  () => kvCacheBytes({
+    layers: 32,
+    batch: 1,
+    kvHeads: 0,
+    tokens: 4_096,
+    headDim: 128,
+    bytesPerValue: 2,
+  }),
+  /positive integer/,
+);
+~~~
+
+**Kết nối:** Ngoài cache, tokenizer throughput và token distribution cũng quyết định chi phí ở quy mô corpus.
+
+</CodeLessonFrame>
+
+</MdxPage>

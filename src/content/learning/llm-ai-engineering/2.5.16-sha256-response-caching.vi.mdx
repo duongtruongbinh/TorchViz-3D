@@ -1,0 +1,86 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "sha256-response-caching", locale: "vi",
+ title: "SHA-256 response caching đúng scope", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["sha256-response-caching","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Hash chỉ hữu ích nếu canonical key chứa mọi yếu tố ảnh hưởng output và tenant/privacy scope."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Provider/model revision, prompt version, normalized input, schema/params, tenant scope."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Cache key plus value/TTL or miss."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Canonical JSON bytes → SHA-256 digest; output stored với policy/version metadata."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
+
+Hash chỉ hữu ích nếu canonical key chứa mọi yếu tố ảnh hưởng output và tenant/privacy scope.
+
+**Input:** Provider/model revision, prompt version, normalized input, schema/params, tenant scope.
+
+**Output:** Cache key plus value/TTL or miss.
+
+**Data/type/shape:** Canonical JSON bytes → SHA-256 digest; output stored với policy/version metadata.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
+
+Hai JSON khác key order canonicalize giống nhau. Key gồm tenant, model, temperature, schema hash; đổi prompt v13 tạo miss. Không cache sensitive/non-deterministic response nếu policy cấm.
+
+~~~ts
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+
+function canonicalize(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalize).join(",")}]`;
+  const object = value as Record<string, unknown>;
+  return `{${Object.keys(object).sort()
+    .map(key => `${JSON.stringify(key)}:${canonicalize(object[key])}`)
+    .join(",")}}`;
+}
+function cacheKey(value: unknown): string {
+  return createHash("sha256").update(canonicalize(value)).digest("hex");
+}
+
+const a = {
+  tenantScope: "tenant-a", modelRevision: "model-r4", promptVersion: 12,
+  input: { orderId: "A17", locale: "vi" }, schemaHash: "schema-3", temperature: 0,
+};
+const b = {
+  temperature: 0, schemaHash: "schema-3",
+  input: { locale: "vi", orderId: "A17" },
+  promptVersion: 12, modelRevision: "model-r4", tenantScope: "tenant-a",
+};
+assert.equal(cacheKey(a), cacheKey(b));
+assert.notEqual(cacheKey(a), cacheKey({ ...a, promptVersion: 13 }));
+assert.notEqual(cacheKey(a), cacheKey({ ...a, tenantScope: "tenant-b" }));
+~~~
+<LessonNote>Key phải chứa mọi output-affecting field và tenant/policy scope. Không cache sensitive, stochastic, error/refusal hoặc side-effecting response nếu policy không cho phép.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "SHA-256 response caching đúng scope"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Hash raw JSON không canonicalize."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Bỏ tenant/model/schema khỏi key."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Cache error/refusal quá lâu."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
+
+**Pitfalls:**
+
+- Hash raw JSON không canonicalize.
+- Bỏ tenant/model/schema khỏi key.
+- Cache error/refusal quá lâu.
+
+**Kết nối:** Async pipeline quản lý công việc dài và webhook.
+
+</MdxPage>

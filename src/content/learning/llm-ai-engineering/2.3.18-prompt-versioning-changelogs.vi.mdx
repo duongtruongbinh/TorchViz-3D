@@ -1,0 +1,110 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "prompt-versioning-changelogs", locale: "vi",
+  title: "Versioning và changelog cho prompt", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["prompt-versioning-changelogs","prompt engineering","T+K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Prompt là production artifact; sửa string trực tiếp làm mất khả năng reproduce và rollback.'},
+  steps: [
+    {label: {vi: 'Author'}, shape: 'template + variable schema', detail: {vi: 'Gắn model config, eval dataset/version và change rationale.'}},
+    {label: {vi: 'Publish'}, shape: 'immutable version + hash', detail: {vi: 'Không ghi đè artifact cũ.'}},
+    {label: {vi: 'Release'}, shape: 'label → version', detail: {vi: 'Chỉ chuyển label sau eval gate.'}},
+    {label: {vi: 'Observe / rollback'}, shape: 'metrics → immutable parent', detail: {vi: 'Log version/hash và redacted metadata, không raw prompt.'}},
+  ], code: [], takeaway: {vi: 'Output cần immutable version, release label, metrics và rollback target.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: 'Một release nối prompt, schema, model config và eval suite thành manifest có thể truy vết.'},
+  comparisons: [
+    {title: 'support-v11', shape: 'immutable parent', detail: {vi: 'Rollback target đã eval và vẫn giữ nguyên nội dung.'}},
+    {title: 'support-v12', shape: 'schema v4 · model fast-v3 · policy-set-7', detail: {vi: 'Đổi refund wording; chỉ nhận label canary:5 sau offline gate.'}},
+  ], code: [], takeaway: {vi: 'Rollback chuyển release label về parent, không sửa lại v12.'},
+  misconception: {vi: 'Chỉ log artifact kiểm chứng được; không lưu hidden chain-of-thought.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame title="Publish immutable prompt manifest" contract="manifest + known IDs → frozen version" output="support-v12 → parent support-v11 · canary 5%" pitfall="Tránh tên mơ hồ, version prompt đơn lẻ và log raw prompt có PII." takeaway="Registry cần atomic label switch, audit actor, optimistic concurrency và rollback target đã eval.">
+
+~~~ts
+import assert from "node:assert/strict";
+
+type PromptManifest = {
+  id: string;
+  parentId: string;
+  templateHash: string;
+  schemaVersion: string;
+  modelConfigVersion: string;
+  evalSuiteVersion: string;
+  change: string;
+  canaryPercent: number;
+};
+
+function publishPrompt(
+  manifest: PromptManifest,
+  knownIds: ReadonlySet<string>,
+): Readonly<PromptManifest> {
+  if (!/^support-v[1-9][0-9]*$/.test(manifest.id)) throw new Error("invalid_version_id");
+  if (knownIds.has(manifest.id)) throw new Error("duplicate_version");
+  if (!knownIds.has(manifest.parentId)) throw new Error("unknown_parent");
+  for (const value of [
+    manifest.templateHash,
+    manifest.schemaVersion,
+    manifest.modelConfigVersion,
+    manifest.evalSuiteVersion,
+    manifest.change,
+  ]) {
+    if (!value.trim()) throw new Error("incomplete_manifest");
+  }
+  if (manifest.canaryPercent < 0 || manifest.canaryPercent > 100) {
+    throw new Error("invalid_canary_percent");
+  }
+  return Object.freeze({ ...manifest });
+}
+
+const result = publishPrompt({
+  id: "support-v12",
+  parentId: "support-v11",
+  templateHash: "sha256:9c41",
+  schemaVersion: "support-v4",
+  modelConfigVersion: "fast-v3",
+  evalSuiteVersion: "policy-set-7",
+  change: "clarify refund wording",
+  canaryPercent: 5,
+}, new Set(["support-v11"]));
+
+assert.equal(result.id, "support-v12");
+assert.equal(result.parentId, "support-v11");
+assert.equal(Object.isFrozen(result), true);
+assert.throws(
+  () => publishPrompt({
+    ...result,
+    id: "support-v13",
+    parentId: "missing",
+  }, new Set(["support-v11"])),
+  /unknown_parent/,
+);
+assert.throws(
+  () => publishPrompt({ ...result, id: "support-v11" }, new Set(["support-v11"])),
+  /duplicate_version/,
+);
+~~~
+
+<LessonNote>Runtime log chỉ cần version/hash, experiment ID và redacted
+dimensions; không copy prompt hay ticket. Registry production cần atomic label
+switch, audit actor, optimistic concurrency và rollback target đã eval.</LessonNote>
+
+A/B testing tiếp theo so sánh các version trên metrics và guardrails.
+
+</CodeLessonFrame>
+
+</MdxPage>

@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'examples-output-constraints',
+  locale: 'vi',
+  title: 'Examples và output constraints',
+  headings: ['Examples phải thỏa parser', 'Parser có các nhánh rõ', 'Production gate'],
+  keywords: ['examples', 'output parser', 'refusal', 'validation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Demonstration chỉ hợp lệ khi output thỏa đúng production parser contract.'},
+  steps: [
+    {label: {vi: 'Versioned schema'}, shape: 'required fields + enums + bounds', detail: {vi: 'Ví dụ cần cả category và confidence.'}},
+    {label: {vi: 'Candidate examples'}, shape: 'positive + negative fixtures', detail: {vi: 'Kèm refusal/incomplete policy.'}},
+    {label: {vi: 'Run parser'}, shape: 'same production validator', detail: {vi: 'Thiếu/extra field, enum hoặc bound sai thành typed error.'}},
+    {label: {vi: 'Publish set'}, shape: 'validated discriminated union', detail: {vi: 'Reject hoặc migrate format cũ.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Không dùng example để dạy model một format mà parser production sẽ từ chối.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Parser có các nhánh rõ"
+  contract="raw JSON → decision | refusal | incomplete hoặc typed error"
+  output="exact keys, known enum và confidence trong [0,1]"
+  pitfall="Type assertion không thay runtime validation; extra field chứa dữ liệu nhạy cảm phải bị reject."
+  takeaway="Mỗi branch có shape và error semantics riêng để retry/fallback đúng nguyên nhân."
+>
+
+~~~ts
+import assert from "node:assert/strict";
+
+type Category = "billing" | "delivery" | "other";
+type TicketOutput =
+  | { kind: "decision"; category: Category; confidence: number }
+  | { kind: "refusal"; code: "policy" }
+  | { kind: "incomplete"; code: "max_output" };
+
+function hasExactKeys(record: Record<string, unknown>, keys: readonly string[]): boolean {
+  return Object.keys(record).sort().join(",") === [...keys].sort().join(",");
+}
+
+function parseTicketOutput(raw: string): TicketOutput {
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    throw new Error("invalid_json");
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("invalid_output_shape");
+  }
+  const record = value as Record<string, unknown>;
+  if (record.kind === "decision") {
+    if (!hasExactKeys(record, ["kind", "category", "confidence"])) {
+      throw new Error("decision_fields_mismatch");
+    }
+    const categories: readonly unknown[] = ["billing", "delivery", "other"];
+    if (!categories.includes(record.category)) throw new Error("invalid_category");
+    if (typeof record.confidence !== "number" || record.confidence < 0 || record.confidence > 1) {
+      throw new Error("invalid_confidence");
+    }
+    return {
+      kind: "decision",
+      category: record.category as Category,
+      confidence: record.confidence,
+    };
+  }
+  if (record.kind === "refusal" && hasExactKeys(record, ["kind", "code"]) && record.code === "policy") {
+    return { kind: "refusal", code: "policy" };
+  }
+  if (record.kind === "incomplete" && hasExactKeys(record, ["kind", "code"]) && record.code === "max_output") {
+    return { kind: "incomplete", code: "max_output" };
+  }
+  throw new Error("unknown_output_branch");
+}
+
+assert.deepEqual(
+  parseTicketOutput('{"kind":"decision","category":"delivery","confidence":0.9}'),
+  { kind: "decision", category: "delivery", confidence: 0.9 },
+);
+assert.deepEqual(
+  parseTicketOutput('{"kind":"refusal","code":"policy"}'),
+  { kind: "refusal", code: "policy" },
+);
+assert.throws(
+  () => parseTicketOutput('{"kind":"decision","category":"delivery"}'),
+  /decision_fields_mismatch/,
+);
+assert.throws(
+  () => parseTicketOutput('{"kind":"decision","category":"ship","confidence":0.9}'),
+  /invalid_category/,
+);
+assert.throws(
+  () => parseTicketOutput('{"kind":"decision","category":"delivery","confidence":0.9,"rawTicket":"secret"}'),
+  /decision_fields_mismatch/,
+);
+~~~
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production gate giữ examples và parser đồng bộ qua CI và versioning.'},
+  steps: [
+    {label: {vi: 'CI parse'}, shape: 'all candidate examples', detail: {vi: 'Dùng chính production parser.'}},
+    {label: {vi: 'Version/migrate'}, shape: 'schema + examples', detail: {vi: 'Xóa hoặc migrate artifact khi field đổi.'}},
+    {label: {vi: 'Branch handling'}, shape: 'refusal ≠ incomplete ≠ invalid', detail: {vi: 'Bounded retry/fallback theo nguyên nhân.'}},
+    {label: {vi: 'Safe telemetry'}, shape: 'branch + error + schema version', detail: {vi: 'Không raw PII, secret hoặc hidden reasoning.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Quiz tiếp theo kiểm tra positive constraints, boundaries và validation.'},
+}} />
+
+</MdxPage>

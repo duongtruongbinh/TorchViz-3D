@@ -1,0 +1,157 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-raw-text-to-token-ids',
+  locale: 'vi',
+  title: 'Worked example: Từ raw text đến token IDs',
+  headings: ['Tokenize', 'Encode', 'Decode', 'tiktoken', 'Tensor ID'],
+  keywords: ['worked example', 'raw text', 'token', 'token ID', 'encode', 'decode', 'tiktoken', 'PyTorch'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Bước 1 giữ contract đơn giản: một raw string đi vào, tám token strings có thứ tự đi ra.'},
+  diagram: {
+    inputText: 'Linh builds AI. Linh tests AI.',
+    outputLabel: {vi: 'T = 8 tokens'},
+    tokens: ['Linh', 'builds', 'AI', '.', 'Linh', 'tests', 'AI', '.'],
+  },
+  code: [
+    'import re',
+    '',
+    'def tokenize(text: str) -> list[str]:',
+    "    parts = re.split(r'([,.:;?_!\\\"()]|--|\\\\s)', text)",
+    '    return [part.strip() for part in parts if part.strip()]',
+    '',
+    'raw_text = \"Linh builds AI. Linh tests AI.\"',
+    'tokens = tokenize(raw_text)',
+    '',
+    'assert tokens == [',
+    '    \"Linh\", \"builds\", \"AI\", \".\",',
+    '    \"Linh\", \"tests\", \"AI\", \".\",',
+    ']',
+  ],
+  output: ['[\"Linh\", \"builds\", \"AI\", \".\", \"Linh\", \"tests\", \"AI\", \".\"]'],
+  takeaway: {vi: 'Hai tài liệu hiện vẫn nối như một dòng. Lesson special tokens tiếp theo sẽ chèn boundary có ý nghĩa giữa chúng.'},
+}} />
+
+<LessonNote>**Lỗi thường gặp:** đếm ký tự rồi gọi đó là sequence length. `T` ở đây là số token sau đúng tokenizer, không phải số ký tự raw.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Bước 2 tra từng token trong cùng vocabulary. Lookup đổi kiểu dữ liệu nhưng giữ nguyên số vị trí T.'},
+  diagram: {
+    inputText: '8 token strings',
+    outputLabel: {vi: 'T = 8 integer IDs'},
+    tokens: ['2', '3', '1', '0', '2', '4', '1', '0'],
+  },
+  code: [
+    'vocab = {',
+    '    \".\": 0, \"AI\": 1, \"Linh\": 2,',
+    '    \"builds\": 3, \"tests\": 4',
+    '}',
+    'token_ids = [vocab[token] for token in tokens]',
+    '',
+    'assert token_ids == [2, 3, 1, 0, 2, 4, 1, 0]',
+    'assert len(token_ids) == len(tokens) == 8',
+  ],
+  output: ['token_ids = [2, 3, 1, 0, 2, 4, 1, 0]', 'V = 5 · T = 8'],
+  takeaway: {vi: 'T=8 tokens trở thành T=8 integer IDs; vocabulary hiện có V=5 hàng.'},
+}} />
+
+<LessonNote>**Lỗi thường gặp:** dùng ID từ ví dụ này với tokenizer khác. Mapping trên chỉ thuộc toy vocabulary đã khai báo.</LessonNote>
+
+**Handoff:** Trước khi chuyển sang tensor, kiểm tra inverse mapping.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Bước 3 dùng inverse mapping để kiểm tra decode. Round trip phải giữ đúng vocabulary và thứ tự token.'},
+  diagram: {
+    inputText: '[2, 3, 1, 0, 2, 4, 1, 0]',
+    outputLabel: {vi: 'Text đã chuẩn hóa'},
+    tokens: ['Linh', 'builds', 'AI', '.', 'Linh', 'tests', 'AI', '.'],
+  },
+  code: [
+    'id_to_token = {',
+    '    token_id: token',
+    '    for token, token_id in vocab.items()',
+    '}',
+    '',
+    'def decode(token_ids: list[int]) -> str:',
+    '    pieces = [id_to_token[token_id] for token_id in token_ids]',
+    '    return \" \".join(pieces).replace(\" .\", \".\")',
+    '',
+    'decoded = decode(token_ids)',
+    'assert decoded == raw_text',
+  ],
+  output: ['decoded = \"Linh builds AI. Linh tests AI.\"'],
+  takeaway: {vi: 'Nếu tokenizer có normalization, target round trip hợp lý có thể là normalized text thay vì từng byte của input gốc.'},
+}} />
+
+<LessonNote>**Lỗi thường gặp:** chỉ test `encode` rồi không test `decode`. Một inverse mapping sai vẫn có thể tạo IDs có dtype/shape đúng nhưng không khôi phục được text.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Bước 4 thay toy mapping bằng named BPE encoding đã pin. Kiểm tra type và round trip thay vì ghi cứng numeric IDs có thể bị dùng sai contract.'},
+  diagram: {
+    inputText: '\"Linh builds AI.\"',
+    outputLabel: {vi: 'cl100k_base encode / decode'},
+    tokens: ['text', '→', 'integer IDs', '→', 'text'],
+  },
+  code: [
+    'import tiktoken',
+    '',
+    'encoding = tiktoken.get_encoding(\"cl100k_base\")',
+    'text = \"Linh builds AI.\"',
+    '',
+    'production_ids = encoding.encode(text)',
+    'assert all(isinstance(token_id, int) for token_id in production_ids)',
+    'assert encoding.decode(production_ids) == text',
+    '',
+    'print(production_ids)',
+    'print([',
+    '    encoding.decode_single_token_bytes(token_id)',
+    '    for token_id in production_ids',
+    '])',
+  ],
+  output: [],
+  takeaway: {vi: 'Numeric IDs và ranh giới của cl100k_base chỉ có ý nghĩa với đúng named encoding này; package/encoding đã có trong environment thì không cần Internet.'},
+}} />
+
+<LessonNote>Pin `tiktoken` trong lockfile và ghi lại package version + named encoding trong artifact. Không coi một ID hoặc boundary quan sát hôm nay là contract chung cho provider/tokenizer khác.</LessonNote>
+
+<LessonNote>**Lỗi thường gặp:** so sánh độ lớn ID giữa toy tokenizer và `cl100k_base`. Hai bảng địa chỉ độc lập không có cùng hệ quy chiếu.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<TokenIdTensorShape content={{
+  lead: {vi: 'Bước 5 thêm batch axis và tạo integer tensor. Tensor vẫn chứa indices; feature dimension C chỉ xuất hiện sau embedding lookup.'},
+  ids: [2, 3, 1, 0, 2, 4, 1, 0],
+  batchSize: 1,
+  sequenceLength: 8,
+  dtype: 'torch.long',
+  stages: [
+    {label: {vi: 'Raw text'}, value: '\"Linh builds AI. Linh tests AI.\"', contract: 'str'},
+    {label: {vi: 'Tokens'}, value: '8 token strings', contract: 'list[str]'},
+    {label: {vi: 'IDs'}, value: '[2,3,1,0,2,4,1,0]', contract: 'list[int]'},
+    {label: {vi: 'Tensor IDs'}, value: 'same 8 IDs', contract: '(1,8) · torch.long'},
+  ],
+  takeaway: {vi: 'Shape hiện tại là (B,T)=(1,8). Mỗi ô vẫn là một integer index vào vocabulary.'},
+  misconception: {vi: 'Không gọi tensor ID là embedding: nó chưa có feature dimension C và các giá trị ID không mang khoảng cách ngữ nghĩa.'},
+}} />
+
+<LessonNote>**Handoff:** Hai tài liệu độc lập cần một boundary token trước khi ta tạo training windows.</LessonNote>
+
+</MdxPage>

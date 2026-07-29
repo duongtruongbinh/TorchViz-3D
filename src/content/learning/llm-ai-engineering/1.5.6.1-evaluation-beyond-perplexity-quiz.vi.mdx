@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'evaluation-beyond-perplexity-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Giới hạn của perplexity', 'Benchmark protocol', 'Contamination', 'Response mở', 'Judge calibration'],
+  keywords: ['quiz', 'perplexity', 'benchmark', 'contamination', 'human evaluation', 'LLM-as-a-Judge'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="evaluation-beyond-perplexity-quiz" questions={[
+  {
+    id: 'perplexity-question-boundary', title: 'Perplexity trả lời gì?', prompt: 'Model B có perplexity thấp hơn A trên cùng corpus/tokenizer. Kết luận nào được phép?', mode: 'single',
+    options: [
+      { id: 'all-capabilities', label: 'B chắc chắn làm toán, trích nguồn và từ chối nội dung nguy hiểm tốt hơn.' },
+      { id: 'same-protocol-likelihood', label: 'B gán xác suất tốt hơn cho ground-truth tokens theo đúng protocol đó; các năng lực khác cần evaluation riêng.', isCorrect: true },
+      { id: 'different-tokenizers', label: 'Kết quả cho phép so trực tiếp với mọi model dùng tokenizer khác.' },
+      { id: 'production-ready', label: 'B đã sẵn sàng production mà không cần test task.' },
+    ],
+    success: 'Đúng. Perplexity đo likelihood trên một setup xác định; nó không tự chứng minh mọi capability hay safety property.',
+    error: 'Hãy giới hạn kết luận vào metric, corpus và tokenizer đã dùng. Một scalar không thay thế task evaluation.',
+  },
+  {
+    id: 'benchmark-protocol-change', title: 'Benchmark protocol', prompt: 'Team đổi prompt format và cách aggregate score của một benchmark công khai. Muốn so với báo cáo cũ, họ nên làm gì?', mode: 'single',
+    options: [
+      { id: 'same-number', label: 'So trực tiếp vì benchmark name giống nhau là đủ.' },
+      { id: 'hide-prompt', label: 'Không ghi prompt để leaderboard ngắn hơn.' },
+      { id: 'document-rerun', label: 'Ghi rõ protocol mới và chạy baseline theo cùng input/scoring/aggregation trước khi so.', isCorrect: true },
+      { id: 'use-train-score', label: 'Thay benchmark score bằng train loss.' },
+    ],
+    success: 'Đúng. Score chỉ so được khi task definition, prompt, scoring và aggregation tương thích hoặc baseline được chạy lại.',
+    error: 'Tên benchmark không khóa toàn bộ protocol. Thay prompt/scoring có thể thay câu hỏi mà score thực sự trả lời.',
+  },
+  {
+    id: 'contamination-evidence', title: 'Test contamination', prompt: 'Biện pháp nào giảm rủi ro score cao do ghi nhớ benchmark?', mode: 'single',
+    options: [
+      { id: 'private-rotating-set', label: 'Dùng private/rotating test set, kiểm tra near-duplicate và lưu provenance/data cutoff.', isCorrect: true },
+      { id: 'public-repeat', label: 'Đưa toàn bộ lời giải test vào training rồi chạy lại nhiều lần.' },
+      { id: 'one-correct-answer', label: 'Kết luận contamination chỉ vì model trả lời đúng một câu.' },
+      { id: 'remove-provenance', label: 'Bỏ thông tin dataset để người đọc không thấy overlap.' },
+    ],
+    success: 'Đúng. Overlap checks, test set được bảo vệ và provenance giúp phân biệt transfer với memorization.',
+    error: 'Một câu đúng chưa phải bằng chứng contamination; cần kiểm soát overlap và nguồn gốc dữ liệu có hệ thống.',
+  },
+  {
+    id: 'open-response-evidence', title: 'Response mở', prompt: 'Sản phẩm tóm tắt cần đúng ý, đúng format và không bịa citation. Evaluation nào phù hợp nhất?', mode: 'single',
+    options: [
+      { id: 'ppl-only', label: 'Chỉ dùng perplexity trên pretraining corpus.' },
+      { id: 'length-only', label: 'Chỉ đếm số token của response.' },
+      { id: 'one-judge', label: 'Dùng một judge prompt chưa calibrate làm ground truth tuyệt đối.' },
+      { id: 'combined-signals', label: 'Kết hợp schema/citation checks, rubric cho correctness và sample human audit.', isCorrect: true },
+    ],
+    success: 'Đúng. Mỗi tín hiệu kiểm tra một failure mode; response mở cần rubric và audit thay vì một metric thay thế tất cả.',
+    error: 'Task có nhiều tiêu chí độc lập. Hãy dùng deterministic checks khi có thể và judgment có rubric cho phần mở.',
+  },
+  {
+    id: 'judge-calibration-disagreement', title: 'Judge calibration', prompt: 'LLM judge và human reviewers bất đồng thường xuyên trên một nhóm response. Bước nào đúng?', mode: 'single',
+    options: [
+      { id: 'trust-judge', label: 'Luôn tin judge vì model chấm nhanh hơn.' },
+      { id: 'drop-disagreement', label: 'Xóa mọi sample bất đồng khỏi dataset.' },
+      { id: 'audit-calibrate', label: 'Audit sample bất đồng, kiểm tra position/style bias và calibrate rubric/judge với human labels.', isCorrect: true },
+      { id: 'reverse-label', label: 'Đảo toàn bộ label của judge mà không điều tra.' },
+    ],
+    success: 'Đúng. Bất đồng là tín hiệu để tìm bias hoặc rubric mơ hồ; judge phải được calibrate, không được coi là ground truth tuyệt đối.',
+    error: 'Tốc độ không bảo đảm độ đúng. Hãy dùng human labels và audit bất đồng để biết judge sai ở đâu.',
+  },
+]} />

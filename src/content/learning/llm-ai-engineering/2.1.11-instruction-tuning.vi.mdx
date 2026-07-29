@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'instruction-tuning',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['RoPE rollout', 'FlashAttention rollout', 'GQA sizing', 'Scaling-law decision', 'Sliding-window reach'],
+  keywords: ['quiz', 'RoPE', 'FlashAttention', 'GQA', 'scaling law', 'sliding window'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="instruction-tuning" questions={[
+  {
+    id: 'instruction-tuning-q1',
+    title: 'RoPE rollout',
+    prompt: 'Team tăng context bằng position scaling. Release check nào trực tiếp kiểm tra rủi ro của thay đổi này?',
+    mode: 'single',
+    options: [
+      { id: 'instruction-tuning-q1-a', label: 'Chỉ xác nhận tensor shape vẫn là `(B,H,T,D)`' },
+      { id: 'instruction-tuning-q1-correct', label: 'Regression-evaluate cả context ngắn và dài trên cùng checkpoint/config đã version', isCorrect: true },
+      { id: 'instruction-tuning-q1-b', label: 'Bỏ causal mask vì RoPE đã mang vị trí' },
+      { id: 'instruction-tuning-q1-c', label: 'Đổi tokenizer để tạo thêm vị trí' },
+    ],
+    success: 'Đúng. Shape đúng chưa chứng minh chất lượng extrapolation; phải đo cả regime cũ và mới.',
+    error: 'Chưa đúng. Position scaling có thể giữ shape nhưng thay hành vi, nên cần regression eval theo độ dài.',
+  },
+  {
+    id: 'instruction-tuning-q2',
+    title: 'FlashAttention rollout',
+    prompt: 'Sau khi đổi sang FlashAttention, output lệch mạnh chỉ khi bật dropout. Bước điều tra ưu tiên?',
+    mode: 'single',
+    options: [
+      { id: 'instruction-tuning-q2-a', label: 'Kết luận exact attention luôn phải cho bitwise-identical output' },
+      { id: 'instruction-tuning-q2-b', label: 'Giảm vocabulary size' },
+      { id: 'instruction-tuning-q2-correct', label: 'Kiểm tra kernel contract, dropout mode/seed và tolerance số học trên cùng input', isCorrect: true },
+      { id: 'instruction-tuning-q2-c', label: 'Tăng số KV heads để che sai lệch' },
+    ],
+    success: 'Đúng. Tối ưu IO phải giữ semantic contract; dropout và numerical tolerance cần được so trong điều kiện tương đương.',
+    error: 'Chưa đúng. Cô lập khác biệt kernel/config trước khi quy lỗi cho kiến trúc hay dữ liệu.',
+  },
+  {
+    id: 'instruction-tuning-q3',
+    title: 'GQA sizing',
+    prompt: 'Cùng layer, head dimension và sequence length, đổi từ MHA `Hq=32, Hkv=32` sang GQA `Hq=32, Hkv=8`. Phần KV cache theo head giảm xấp xỉ bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'instruction-tuning-q3-a', label: 'Hai lần' },
+      { id: 'instruction-tuning-q3-b', label: 'Tám lần' },
+      { id: 'instruction-tuning-q3-c', label: 'Không giảm vì query heads không đổi' },
+      { id: 'instruction-tuning-q3-correct', label: 'Bốn lần, vì `32 / 8 = 4`', isCorrect: true },
+    ],
+    success: 'Đúng. Cache lưu K/V theo `Hkv`, không theo toàn bộ `Hq`.',
+    error: 'Chưa đúng. Giữ các chiều khác cố định và lấy tỷ số số KV heads cũ/mới.',
+  },
+  {
+    id: 'instruction-tuning-q4',
+    title: 'Scaling-law decision',
+    prompt: 'Ba pilot run nhỏ cùng compute proxy nhưng khác cân bằng model/data. Cách dùng scaling law đáng tin cậy nhất?',
+    mode: 'single',
+    options: [
+      { id: 'instruction-tuning-q4-correct', label: 'Fit và validate trong regime/domain liên quan, ghi assumptions rồi chọn cấu hình theo loss lẫn constraint', isCorrect: true },
+      { id: 'instruction-tuning-q4-a', label: 'Coi exponent từ paper là hằng số cho mọi data mixture' },
+      { id: 'instruction-tuning-q4-b', label: 'Chạy duy nhất model lớn nhất và bỏ data quality' },
+      { id: 'instruction-tuning-q4-c', label: 'Ngoại suy vô hạn từ một điểm đo' },
+    ],
+    success: 'Đúng. Scaling law là mô hình thực nghiệm trong một regime, không phải định luật miễn kiểm chứng.',
+    error: 'Chưa đúng. Cần nhiều run có kiểm soát, validation và assumptions rõ ràng.',
+  },
+  {
+    id: 'instruction-tuning-q5',
+    title: 'Sliding-window reach',
+    prompt: 'Mỗi layer causal sliding-window chỉ nhìn tối đa 4 vị trí gồm cả token hiện tại. Muốn token cuối phụ thuộc trực tiếp vào mọi token trong sequence dài 32 ở một layer, thay đổi nào cần thiết?',
+    mode: 'single',
+    options: [
+      { id: 'instruction-tuning-q5-a', label: 'Giảm window còn 2' },
+      { id: 'instruction-tuning-q5-b', label: 'Chỉ bật FlashAttention nhưng giữ mask cũ' },
+      { id: 'instruction-tuning-q5-correct', label: 'Mở rộng/globalize attention pattern hoặc thêm cơ chế truyền thông tin đủ xa; window 4 một layer không đủ', isCorrect: true },
+      { id: 'instruction-tuning-q5-c', label: 'Đổi tokenizer revision mà không đổi attention mask' },
+    ],
+    success: 'Đúng. Kernel nhanh hơn không đổi receptive field logic; mask/window quyết định kết nối trực tiếp.',
+    error: 'Chưa đúng. Phân biệt implementation của attention với graph visibility do mask tạo ra.',
+  },
+]} />

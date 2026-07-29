@@ -3,26 +3,73 @@ export const lessonMetadata = {
   id: 'benchmark-selection-and-contamination',
   locale: 'vi',
   title: 'Chọn benchmark và contamination',
-  headings: ['Benchmark đo scenario nào?', 'Contamination', 'Đọc score đúng cách'],
-  keywords: ['benchmark', 'contamination', 'MMLU', 'SWE-bench', 'generalization'],
+  headings: ['Benchmark là measurement contract', 'Contamination paths', 'Worked selection', 'Pitfall và handoff'],
+  keywords: ['benchmark', 'contamination', 'holdout', 'generalization', 'protocol'],
+  pageCount: 4,
 }
 
-## Benchmark đo scenario nào?
+<MdxPage page={0}>
 
-Benchmark chuẩn hóa giúp so sánh model trên cùng một tập task. MMLU kiểm tra kiến thức và reasoning qua nhiều môn; SWE-bench đánh giá khả năng xử lý issue trong repository; các safety benchmark tập trung vào harmful request hoặc refusal behavior.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Benchmark là measurement contract, không phải bằng chứng tự động cho workflow nội bộ.'},
+  steps: [
+    {label: {vi: 'Version inputs'}, shape: 'benchmark + subset + prompt + seed', detail: {vi: 'Khóa model/config và tool access.'}},
+    {label: {vi: 'Run protocol'}, shape: 'same tokenizer + scoring', detail: {vi: 'Chỉ so score khi contract tương thích.'}},
+    {label: {vi: 'Per-case results'}, shape: 'slice outcomes', detail: {vi: 'Giữ failure evidence.'}},
+    {label: {vi: 'Report'}, shape: 'score + uncertainty', detail: {vi: 'Nêu rõ protocol differences.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Public benchmark đo model trên contract đó; use-case fit cần evidence riêng.'},
+}} />
 
-Tên benchmark không quan trọng bằng scenario, metric và dữ liệu mà nó đại diện. Một benchmark tổng quát không thể chứng minh model phù hợp với workflow nội bộ của một tổ chức.
+</MdxPage>
 
-## Contamination
+<MdxPage page={1}>
 
-Benchmark contamination xảy ra khi câu hỏi hoặc đáp án test đã xuất hiện trong training data, tài liệu fine-tuning hoặc prompt development. Khi đó, điểm cao có thể đến từ ghi nhớ. Contamination cũng có thể xảy ra gián tiếp qua các bản paraphrase hoặc solution được đăng công khai.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Contamination có thể đi vào qua data, examples hoặc chính quy trình model selection.'},
+  steps: [
+    {label: {vi: 'Training path'}, shape: 'pretrain / fine-tune data', detail: {vi: 'Benchmark cases hoặc near duplicates xuất hiện trong corpus.'}},
+    {label: {vi: 'Public path'}, shape: 'solutions + prompt examples', detail: {vi: 'Đáp án có thể được model hoặc team nhìn thấy.'}},
+    {label: {vi: 'Selection path'}, shape: 'test answers guide tuning', detail: {vi: 'Set đã dùng chọn model/prompt không còn là final holdout.'}},
+    {label: {vi: 'Audit'}, shape: 'provenance + exact/near dedup', detail: {vi: 'Báo nghi ngờ nếu không thể kiểm chứng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Không tuyên bố “không contamination” khi evidence không đủ.'},
+}} />
 
-## Đọc score đúng cách
+</MdxPage>
 
-- Xem nhiều benchmark và nhiều nhóm task thay vì một leaderboard tổng.
-- Kiểm tra thời điểm phát hành dữ liệu so với training cutoff.
-- Dùng private test set sát use case khi có thể.
-- Báo cáo confidence interval và số lượng sample.
-- Đọc failure case, không chỉ đọc average score.
+<MdxPage page={2}>
 
-Benchmark là bằng chứng tham khảo, không phải giấy phép deployment.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Worked selection cho use case hỏi đáp tài liệu nội bộ có citation.'},
+  comparisons: [
+    {title: 'General public set', shape: 'fit thấp · leakage cao', detail: {vi: 'Chỉ dùng smoke test.'}},
+    {title: 'Public RAG set', shape: 'fit vừa · leakage vừa', detail: {vi: 'Dùng cho diagnostic.'}},
+    {title: 'Private versioned holdout', shape: 'fit cao · leakage thấp', detail: {vi: 'Dùng làm release evidence.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Không chọn benchmark chỉ vì candidate model đã có score cao nhất trên đó.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Benchmark handoff kết hợp public comparability với private use-case evidence và uncertainty.'},
+  comparisons: [
+    {title: 'Retrieval layer', shape: 'context recall', detail: {vi: 'Gold evidence có xuất hiện trong top-k/context không?'}},
+    {title: 'Generation layer', shape: 'claim faithfulness + intent', detail: {vi: 'Answer có bám evidence và trả lời đúng intent không?'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Báo sample count, confidence interval, failure slices và mọi runs; version benchmark, harness và judge.'},
+  misconception: {vi: 'Case thiếu evidence phải abstain; trace chỉ giữ IDs/hashes, scores và redacted snippets theo retention policy.'},
+}} />
+
+</MdxPage>

@@ -1,0 +1,81 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'constitutional-ai',
+  locale: 'vi',
+  title: 'Constitutional AI và preference learning',
+  headings: ['Constitution là một artifact quản trị', 'Critique và revision', 'DPO học trực tiếp từ preference pair', 'Production gate'],
+  keywords: ['constitutional AI', 'RLAIF', 'DPO', 'preference learning', 'governance'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Constitution là artifact quản trị có version, owner, phạm vi áp dụng và eval tương ứng.'},
+  steps: [
+    {label: {vi: 'Draft'}, shape: 'prompt + initial response', detail: {vi: 'Gắn constitution_version và procedure.'}},
+    {label: {vi: 'Critique'}, shape: 'principle IDs', detail: {vi: 'Áp dụng nguyên tắc mà không log lại secret/PII.'}},
+    {label: {vi: 'Revision'}, shape: 'corrected response', detail: {vi: 'Sửa output theo critique.'}},
+    {label: {vi: 'Preference / update'}, shape: 'provenance attached', detail: {vi: 'Lưu evaluator, version và kết quả kiểm tra.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'AI feedback có thể giảm human labels ở một số stage nhưng không thay thế human governance.'},
+  misconception: {vi: 'Lưu mã nguyên tắc và kết quả đã redacted, không đưa policy nội bộ hoặc dữ liệu nhạy cảm không cần thiết vào prompt.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Trace nguyên tắc privacy.no_payment_data qua critique, revision và release gate.'},
+  steps: [
+    {label: {vi: 'Detect'}, shape: 'violation type + location', detail: {vi: 'Không lặp lại số thẻ nhạy cảm trong critique.'}},
+    {label: {vi: 'Revise'}, shape: 'remove data · preserve utility', detail: {vi: 'Giữ phần trả lời an toàn còn hữu ích.'}},
+    {label: {vi: 'Validate'}, shape: 'independent checker', detail: {vi: 'Model không tự cấp quyền release cho chính mình.'}},
+    {label: {vi: 'Audit'}, shape: 'principle ID + version + redacted hash', detail: {vi: 'Lưu kết quả validator và correlation ID.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Sampling human audit và red-team theo slice phải theo dõi cả unsafe compliance lẫn overrefusal.'},
+  misconception: {vi: 'AI feedback mở rộng nhanh nhưng cũng có thể khuếch đại lỗi evaluator.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'DPO tăng log-ratio tương đối của chosen so với rejected, đối chiếu với reference policy cố định.'},
+  steps: [
+    {label: {vi: 'Preference pair'}, shape: '(prompt, chosen, rejected)', detail: {vi: 'Cùng một prompt cho hai responses.'}},
+    {label: {vi: 'Policy gap'}, shape: 'log p(c)−log p(r)=0.3', detail: {vi: 'Chênh lệch của policy hiện tại.'}},
+    {label: {vi: 'Reference gap'}, shape: '0.1', detail: {vi: 'Chênh lệch tại checkpoint reference đúng version.'}},
+    {label: {vi: 'DPO margin'}, shape: 'β(0.3−0.1)=0.4 khi β=2', detail: {vi: 'Không cần train reward model riêng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'DPO vẫn cần preference data sạch và evaluation ngoài training distribution.'},
+  misconception: {vi: 'Chosen được ưu tiên không tự chứng minh response an toàn hay đúng sự thật.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Chọn alignment pipeline theo artifact và control cần quản trị, rồi khóa toàn bộ lineage trước release.'},
+  comparisons: [
+    {title: 'RLHF + reward model', shape: 'scalar reward', detail: {vi: 'Chấm nhiều samples; audit reward hacking và policy optimization.'}},
+    {title: 'Constitutional AI / RLAIF', shape: 'principles + evaluator', detail: {vi: 'Mở rộng critique/feedback; audit constitution và evaluator bias.'}},
+    {title: 'DPO', shape: 'preference pairs + reference', detail: {vi: 'Pipeline gọn hơn; vẫn cần β, data lineage và regression suite.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Release khóa policy/reference, constitution hoặc reward model, dataset, config và eval report; rollback bằng immutable artifact ID, không dùng latest.'},
+}} />
+
+**Nguồn gốc khái niệm:** [Constitutional AI](https://arxiv.org/abs/2212.08073) và [Direct Preference Optimization](https://arxiv.org/abs/2305.18290).
+
+</MdxPage>

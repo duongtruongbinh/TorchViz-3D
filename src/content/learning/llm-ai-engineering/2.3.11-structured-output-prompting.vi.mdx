@@ -1,0 +1,59 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'structured-output-prompting',
+  locale: 'vi',
+  title: 'Structured output: prompt, JSON mode và schema',
+  headings: ['Ba mức bảo đảm', 'Typed lifecycle', 'Production gate'],
+  keywords: ['structured output', 'JSON mode', 'JSON Schema', 'runtime validation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Ba cơ chế structured output cung cấp ba mức bảo đảm khác nhau.'},
+  comparisons: [
+    {title: 'Prompt yêu cầu JSON', shape: 'natural-language instruction', detail: {vi: 'Không tự bảo đảm JSON hợp lệ hoặc đúng schema.'}},
+    {title: 'JSON mode', shape: 'valid JSON syntax', detail: {vi: 'Không tự bảo đảm fields, enum, bounds hoặc truth.'}},
+    {title: 'Schema-constrained', shape: 'provider-supported schema subset', detail: {vi: 'Không tự bảo đảm business correctness, authorization hay factuality.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Pin provider/model/API artifact đã thử nghiệm vì capability và schema subset có thể thay đổi.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Typed lifecycle là state machine; response không đi thẳng từ string sang type assertion.'},
+  steps: [
+    {label: {vi: 'Complete'}, shape: 'parse + runtime validate', detail: {vi: 'Required/type/enum/bounds/extra properties.'}},
+    {label: {vi: 'Refusal'}, shape: 'explicit domain branch', detail: {vi: 'Không giả làm object rỗng.'}},
+    {label: {vi: 'Incomplete'}, shape: 'reason + bounded retry policy', detail: {vi: 'Ví dụ max output hoặc cancel.'}},
+    {label: {vi: 'Invalid'}, shape: 'error code + schema version', detail: {vi: 'JSON hợp lệ vẫn có thể sai enum; task eval vẫn bắt buộc.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Nếu cần audit, schema hóa evidenceIds hoặc calculation fields—not hidden chain-of-thought.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Structured-output gate kiểm tra capability, branch coverage, retries và data minimization.'},
+  steps: [
+    {label: {vi: 'Pin artifacts'}, shape: 'schema + prompt + model config', detail: {vi: 'Xác nhận provider support.'}},
+    {label: {vi: 'Test matrix'}, shape: 'success · refusal · incomplete · invalid', detail: {vi: 'Bao gồm missing/extra, enum và numeric bounds.'}},
+    {label: {vi: 'Retry policy'}, shape: 'bounded by error class', detail: {vi: 'Không retry vô hạn cùng payload.'}},
+    {label: {vi: 'Telemetry'}, shape: 'branch + validator error + versions', detail: {vi: 'Không secret/PII trong schema descriptions; raw payload theo redaction/retention.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Reasoning lessons kế tiếp dùng artifact kiểm chứng được thay vì thu thập hidden thoughts.'},
+}} />
+
+</MdxPage>

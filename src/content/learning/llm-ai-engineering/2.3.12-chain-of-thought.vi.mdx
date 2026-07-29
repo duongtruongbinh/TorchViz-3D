@@ -1,0 +1,116 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'chain-of-thought',
+  locale: 'vi',
+  title: 'Lập luận có thể kiểm chứng, không yêu cầu hidden CoT',
+  headings: ['Thiết kế observable artifact', 'Verifier độc lập', 'Production gate'],
+  keywords: ['verifiable reasoning', 'evidence', 'calculation', 'hidden chain-of-thought'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Task cần kiểm tra nên xuất observable artifacts, không ép model tiết lộ hoặc lưu hidden chain-of-thought.'},
+  steps: [
+    {label: {vi: 'Problem input'}, shape: 'facts + provenance + policy version', detail: {vi: 'Nguồn dữ liệu có thể truy vết.'}},
+    {label: {vi: 'Model proposal'}, shape: '{eligible, refundAmount, policyClause, evidenceIds}', detail: {vi: 'Kết luận ngắn cùng fields cần verifier.'}},
+    {label: {vi: 'Independent verifier'}, shape: 'recompute invariants', detail: {vi: 'Tính lại từ source data.'}},
+    {label: {vi: 'Decision'}, shape: 'verified / blocked', detail: {vi: 'Lời giải thích trôi chảy hoặc “đã kiểm tra” không phải evidence.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output contract chỉ chứa artifacts downstream có thể kiểm chứng.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Verifier độc lập"
+  contract="source amounts + typed claim → recomputed amount + clause/evidence checks"
+  output="min(max(120−20,0),100)=100"
+  pitfall="Model proposal 120 hoặc thiếu evidence phải fail trước privileged action."
+  takeaway="Verifier không nhận hoặc lưu độc thoại nội bộ; nó kiểm tra observable invariants."
+>
+
+Ticket có `paid=120`, `fee=20`, policy cap `100`.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type RefundClaim = {
+  eligible: boolean;
+  refundAmount: number;
+  policyClause: "refund.cap.v3";
+  evidenceIds: string[];
+};
+
+function verifyRefund(
+  paid: number,
+  fee: number,
+  cap: number,
+  claim: RefundClaim,
+): { verified: true; amount: number } {
+  if (![paid, fee, cap].every((value) => Number.isFinite(value) && value >= 0)) {
+    throw new Error("invalid_refund_inputs");
+  }
+  const expected = Math.min(Math.max(paid - fee, 0), cap);
+  if (claim.eligible !== (expected > 0)) throw new Error("eligibility_mismatch");
+  if (claim.refundAmount !== expected) throw new Error("refund_amount_mismatch");
+  if (claim.policyClause !== "refund.cap.v3") throw new Error("policy_clause_mismatch");
+  const requiredEvidence = ["payment:A17", "fee:A17"];
+  if (!requiredEvidence.every((id) => claim.evidenceIds.includes(id))) {
+    throw new Error("evidence_missing");
+  }
+  return { verified: true, amount: expected };
+}
+
+const verified = verifyRefund(120, 20, 100, {
+  eligible: true,
+  refundAmount: 100,
+  policyClause: "refund.cap.v3",
+  evidenceIds: ["payment:A17", "fee:A17"],
+});
+assert.deepEqual(verified, { verified: true, amount: 100 });
+assert.throws(
+  () => verifyRefund(120, 20, 100, {
+    eligible: true,
+    refundAmount: 120,
+    policyClause: "refund.cap.v3",
+    evidenceIds: ["payment:A17", "fee:A17"],
+  }),
+  /refund_amount_mismatch/,
+);
+assert.throws(
+  () => verifyRefund(120, 20, 100, {
+    eligible: true,
+    refundAmount: 100,
+    policyClause: "refund.cap.v3",
+    evidenceIds: ["payment:A17"],
+  }),
+  /evidence_missing/,
+);
+~~~
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production gate giữ reasoning observable, versioned và tối thiểu.'},
+  steps: [
+    {label: {vi: 'Schema fields'}, shape: 'verifier-required only', detail: {vi: 'Không yêu cầu “toàn bộ suy nghĩ”.'}},
+    {label: {vi: 'Pin context'}, shape: 'policy + data version', detail: {vi: 'Kiểm tra evidence ownership/freshness.'}},
+    {label: {vi: 'Separate states'}, shape: 'proposal ≠ verified decision', detail: {vi: 'Verifier failure chặn action.'}},
+    {label: {vi: 'Minimal telemetry'}, shape: 'claims + versions + redacted error', detail: {vi: 'Không rationale tự do, PII, secret hay hidden CoT.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Self-consistency dùng nhiều candidates nhưng từng candidate vẫn phải normalize và verify.'},
+}} />
+
+</MdxPage>

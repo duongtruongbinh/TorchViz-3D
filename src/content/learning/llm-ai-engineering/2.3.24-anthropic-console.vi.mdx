@@ -1,0 +1,106 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "anthropic-console", locale: "vi",
+  title: "Thí nghiệm tái lập trong Anthropic Console", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["anthropic-console","prompt engineering","K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: 'So sánh provider chỉ có ý nghĩa khi task, fixtures, schema và metric giống nhau.'},
+  comparisons: [
+    {title: 'Common experiment', shape: 'fixtures + criteria + dated config', detail: {vi: 'Giữ cùng task contract và normalized domain output.'}},
+    {title: 'Anthropic adapter', shape: 'system + Messages + content blocks', detail: {vi: 'UI controls và wire contract có thể khác mà không đổi bài toán.'}},
+  ], code: [], takeaway: {vi: 'Output gồm exported request, capability delta và eval results.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Adapter Anthropic phải giữ nguyên common experiment contract của lab trước.'},
+  steps: [
+    {label: {vi: 'Reuse'}, shape: 'same fixture IDs + parser + schema', detail: {vi: 'Không đổi prompt task để ưu ái provider.'}},
+    {label: {vi: 'Adapt'}, shape: 'system placement + roles/content blocks', detail: {vi: 'Ghi output budget theo Messages API.'}},
+    {label: {vi: 'Normalize'}, shape: 'provider response → domain type', detail: {vi: 'So sánh cùng task result.'}},
+    {label: {vi: 'Evaluate'}, shape: 'same metric + guardrails', detail: {vi: 'Không kết luận từ một output hoặc lưu hidden chain-of-thought.'}},
+  ], code: [], takeaway: {vi: 'Provider comparison cần balanced inputs và normalized outputs.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame title="Materialize Anthropic experiment" contract="ExperimentSpec → reproducible Messages request shape" output="support-exp-17 · ordered content blocks · maxTokens=300" pitfall="Không đổi prompt giữa providers, bỏ system placement/output budget hoặc đưa PII thật vào console." takeaway="Cùng manifest, fixtures và metric; capability/controls phải được kiểm tra lại tại ngày chạy.">
+
+~~~ts
+import assert from "node:assert/strict";
+
+type ExperimentSpec = {
+  id: string;
+  promptVersion: string;
+  modelId: string;
+  schemaVersion: string;
+  evalSuiteVersion: string;
+  checkedOn: string;
+  fixtureIds: readonly string[];
+  maxOutputTokens: number;
+};
+
+function toAnthropicExperiment(spec: ExperimentSpec) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(spec.checkedOn)) throw new Error("invalid_date");
+  if (spec.fixtureIds.length === 0) throw new Error("empty_fixture_set");
+  if (!Number.isInteger(spec.maxOutputTokens) || spec.maxOutputTokens <= 0) {
+    throw new Error("invalid_output_budget");
+  }
+  return {
+    provider: "anthropic" as const,
+    apiSurface: "Messages API",
+    experimentId: spec.id,
+    promptVersion: spec.promptVersion,
+    modelId: spec.modelId,
+    schemaVersion: spec.schemaVersion,
+    evalSuiteVersion: spec.evalSuiteVersion,
+    checkedOn: spec.checkedOn,
+    requestShape: {
+      systemFrom: spec.promptVersion,
+      userMessageFixtureIds: [...spec.fixtureIds],
+      expectedContent: "ordered content blocks",
+      maxTokens: spec.maxOutputTokens,
+    },
+  };
+}
+
+const spec: ExperimentSpec = {
+  id: "support-exp-17",
+  promptVersion: "support-v12",
+  modelId: "configured-model-id",
+  schemaVersion: "support-v4",
+  evalSuiteVersion: "policy-set-7",
+  checkedOn: "2026-07-23",
+  fixtureIds: ["ticket-01", "ticket-02", "ticket-03"],
+  maxOutputTokens: 300,
+};
+const result = toAnthropicExperiment(spec);
+assert.equal(result.apiSurface, "Messages API");
+assert.equal(result.requestShape.systemFrom, "support-v12");
+assert.equal(result.requestShape.expectedContent, "ordered content blocks");
+assert.equal("apiKey" in result, false);
+assert.throws(
+  () => toAnthropicExperiment({ ...spec, fixtureIds: [] }),
+  /empty_fixture_set/,
+);
+~~~
+
+<LessonNote>Đây là manifest cục bộ, không phải provider call. Nguồn official
+kiểm tra 2026-07-23: [develop tests](https://platform.claude.com/docs/en/test-and-evaluate/develop-tests)
+và [Messages API](https://platform.claude.com/docs/en/api/messages).
+Model, controls và console behavior phải kiểm tra lại tại thời điểm chạy.</LessonNote>
+
+**Kết nối:** Quiz kế tiếp kiểm tra version, privacy, observability và common
+experiment manifest trước khi track API biến chúng thành integration code.
+
+</CodeLessonFrame>
+
+</MdxPage>

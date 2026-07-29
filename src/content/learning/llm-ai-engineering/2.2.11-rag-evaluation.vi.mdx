@@ -2,25 +2,67 @@ export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'rag-evaluation',
   locale: 'vi',
-  title: 'Đánh giá hệ thống RAG',
-  headings: ['Tách retrieval và generation', 'Các tiêu chí chính', 'Debug theo pipeline'],
-  keywords: ['RAG evaluation', 'context precision', 'context recall', 'faithfulness', 'answer relevance'],
+  title: 'Quiz',
+  headings: ['Retrieval failure', 'Generation failure', 'Abstention', 'Safe trace'],
+  keywords: ['quiz', 'RAG evaluation', 'faithfulness', 'retrieval'],
+  pageCount: 4,
 }
 
-## Tách retrieval và generation
-
-RAG có ít nhất hai nguồn lỗi: retriever có thể lấy sai tài liệu, hoặc generator có thể dùng sai context đã lấy được. Nếu chỉ chấm answer cuối, ta khó biết cần sửa embedding, chunking, reranking, prompt hay model.
-
-## Các tiêu chí chính
-
-- **Context recall:** các evidence cần thiết có được truy xuất không?
-- **Context precision:** phần context được lấy có thực sự liên quan không?
-- **Faithfulness:** answer có được hỗ trợ bởi context không?
-- **Answer relevance:** response có giải quyết đúng câu hỏi không?
-- **Citation quality:** citation có trỏ đúng đoạn chứa evidence không?
-
-RAGAS và các framework tương tự có thể tự động hóa một phần phép đo bằng model judge, nhưng vẫn cần sample human review để hiệu chuẩn.
-
-## Debug theo pipeline
-
-Hãy lưu query, retrieved chunks, score, reranked order, prompt cuối và response. Khi một test fail, phân loại lỗi theo stage trước khi thay đổi hệ thống. Evaluation dataset cũng nên có câu hỏi không đủ evidence để kiểm tra model có từ chối đúng lúc hay không.
+<MdxQuiz id="rag-evaluation" questions={[
+  {
+    id: 'rag-evaluation-q1',
+    title: 'Retrieval failure',
+    prompt: 'Gold evidence không xuất hiện trong top-k, nhưng generator trả lời sai. Stage nào cần debug trước?',
+    mode: 'single',
+    options: [
+      { id: 'rag-evaluation-q1-a', label: 'Retriever/chunking/reranking vì context recall đã fail', isCorrect: true },
+      { id: 'rag-evaluation-q1-b', label: 'Chỉ giọng văn của generator' },
+      { id: 'rag-evaluation-q1-c', label: 'Màu hiển thị citation' },
+      { id: 'rag-evaluation-q1-d', label: 'Luôn tăng temperature' },
+    ],
+    success: 'Đúng. Generator không thể dùng evidence mà retriever không cung cấp.',
+    error: 'Chưa đúng. Phải tách failure theo pipeline stage.',
+  },
+  {
+    id: 'rag-evaluation-q2',
+    title: 'Generation failure',
+    prompt: 'Gold evidence có trong top-k nhưng answer thêm claim không được chunk nào hỗ trợ. Metric nào bắt lỗi trực tiếp?',
+    mode: 'single',
+    options: [
+      { id: 'rag-evaluation-q2-a', label: 'Chỉ context recall' },
+      { id: 'rag-evaluation-q2-b', label: 'Time to first token' },
+      { id: 'rag-evaluation-q2-c', label: 'Claim-level faithfulness đối với retrieved evidence', isCorrect: true },
+      { id: 'rag-evaluation-q2-d', label: 'Số token của answer' },
+    ],
+    success: 'Đúng. Evidence đã được truy xuất; lỗi nằm ở claim không grounded.',
+    error: 'Chưa đúng. Retrieval recall không chấm cách generator dùng context.',
+  },
+  {
+    id: 'rag-evaluation-q3',
+    title: 'Abstention',
+    prompt: 'Không chunk nào chứa đáp án. Expected behavior phù hợp nhất?',
+    mode: 'single',
+    options: [
+      { id: 'rag-evaluation-q3-a', label: 'Đoán từ kiến thức ngoài context' },
+      { id: 'rag-evaluation-q3-b', label: 'Trỏ citation vào chunk đầu tiên' },
+      { id: 'rag-evaluation-q3-c', label: 'Bỏ case khỏi eval' },
+      { id: 'rag-evaluation-q3-d', label: 'Nêu không đủ evidence và không tạo citation giả', isCorrect: true },
+    ],
+    success: 'Đúng. Unanswerable cases đo calibration và hallucination.',
+    error: 'Chưa đúng. RAG contract phải quy định hành vi khi evidence thiếu.',
+  },
+  {
+    id: 'rag-evaluation-q4',
+    title: 'Safe trace',
+    prompt: 'Artifact debug nào vừa hữu ích vừa giảm privacy risk?',
+    mode: 'single',
+    options: [
+      { id: 'rag-evaluation-q4-a', label: 'Log toàn bộ query, PII, secret và documents vô thời hạn' },
+      { id: 'rag-evaluation-q4-b', label: 'Case ID, chunk IDs/hashes, scores, decision và redacted snippets theo retention policy', isCorrect: true },
+      { id: 'rag-evaluation-q4-c', label: 'Không lưu bất kỳ stage outcome nào' },
+      { id: 'rag-evaluation-q4-d', label: 'Đăng raw trace lên dashboard công khai' },
+    ],
+    success: 'Đúng. Trace cần đủ provenance nhưng phải redacted và có retention control.',
+    error: 'Chưa đúng. Raw unconditional logging có thể biến evaluation thành privacy incident.',
+  },
+]} />

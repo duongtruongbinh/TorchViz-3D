@@ -1,0 +1,70 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "nvidia-nim", locale: "vi",
+  title: "NVIDIA NIM inference và management contract", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["nvidia-nim","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "NIM LLM cung cấp OpenAI-compatible inference qua vLLM cùng health/readiness/metrics management endpoints; compatibility không bảo đảm mọi upstream feature."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Deployed NIM endpoint, discovered model ID và required capability."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Inference result plus readiness/metrics/compatibility evidence."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "/v1/models discovers IDs; inference and management routes remain separate."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
+
+NIM LLM cung cấp OpenAI-compatible inference qua vLLM cùng health/readiness/metrics management endpoints; compatibility không bảo đảm mọi upstream feature.
+
+**Input:** Deployed NIM endpoint, discovered model ID và required capability.
+
+**Output:** Inference result plus readiness/metrics/compatibility evidence.
+
+**Data/type/shape:** `/v1/models` discovers IDs; inference and management routes remain separate.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "Orchestrator waits readiness 200 before traffic, queries model ID, runs schema/tool conformance test, and scrapes latency/queue metrics. Unsupported Batch/admin path is not assumed."}, comparisons: [
+    {title: "Process liveness", shape: "worked contract", detail: {vi: "Container/process còn chạy  · Chưa đủ để nhận request"}},
+    {title: "Readiness", shape: "worked contract", detail: {vi: "Model/runtime sẵn sàng phục vụ  · Mới được thêm vào pool"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
+
+Orchestrator waits readiness 200 before traffic, queries model ID, runs schema/tool conformance test, and scrapes latency/queue metrics. Unsupported Batch/admin path is not assumed.
+
+| Probe | Ý nghĩa | Traffic decision |
+|---|---|---|
+| Process liveness | Container/process còn chạy | Chưa đủ để nhận request |
+| Readiness | Model/runtime sẵn sàng phục vụ | Mới được thêm vào pool |
+| `/v1/models` | Exact inference model ID | Reject config không tồn tại |
+| Text/tool/schema fixture | Phần compatibility thực sự hỗ trợ | Chỉ advertise capability đã pass |
+| Queue/latency/error metrics | Capacity health | Scale, drain hoặc circuit-break |
+
+<LessonNote>Inference endpoints và management/readiness endpoints là hai bề mặt riêng. “OpenAI-compatible” không hứa Batch, admin hoặc mọi field upstream.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "NVIDIA NIM inference và management contract"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Gửi traffic khi only liveness pass."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Assume OpenAI-compatible means full parity."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Hard-code container/model profile."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
+
+**Pitfalls:**
+
+- Gửi traffic khi only liveness pass.
+- Assume OpenAI-compatible means full parity.
+- Hard-code container/model profile.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Groq demonstrates a hosted compatible surface with explicit gaps.
+
+</MdxPage>

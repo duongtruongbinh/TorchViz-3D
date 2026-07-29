@@ -202,10 +202,10 @@ inspector workspace through the active TorchViz-3D card.
 The Learning Lab is reachable from Landing as the single learning container.
 It uses a domain-first flow backed by twelve typed, React-free domain TOCs and a
 stable catalog export in `src/content/learning/index.ts`, constructed and
-validated by pure helpers in `src/core/learning/*`. The catalog has 632 navigable
-nodes, including four canonical CV exercise lessons. Twenty-six
+validated by pure helpers in `src/core/learning/*`. The catalog has 696 navigable
+nodes, including four canonical CV exercise lessons. Two hundred
 Vietnamese-first LLM lessons and four Vietnamese-first CV exercise lessons have
-authored MDX; the other 602 nodes use one shared localized placeholder. TOCs own
+authored MDX; the other 492 nodes use one shared localized placeholder. TOCs own
 localized navigation metadata, locale MDX owns authored lesson content, and
 `src/lib/localization.ts` owns system/UI copy. Learning Lab has no practice
 registry or practice subnodes. Review mode is derived from published lessons

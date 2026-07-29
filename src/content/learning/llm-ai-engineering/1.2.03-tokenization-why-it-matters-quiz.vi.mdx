@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-why-it-matters-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Ranh giới token', 'Tokenizer contract', 'Chọn đơn vị token', 'Vocabulary và sequence'],
+  keywords: ['quiz', 'tokenizer', 'token', 'subword', 'vocabulary', 'sequence length'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="tokenization-why-it-matters-quiz" questions={[
+  {
+    id: 'token-boundary-policy', title: 'Ranh giới token', prompt: 'Team dùng `text.split()` cho chuỗi `"Linh builds AI."`. Rủi ro nào đúng nhất?', mode: 'single',
+    options: [
+      { id: 'token', label: 'Whitespace bị xóa và dấu chấm còn dính vào `AI.`, nên policy không tách được các tín hiệu này có chủ đích.', isCorrect: true },
+      { id: 'sentence', label: 'Mọi ký tự tự động trở thành một token riêng.' },
+      { id: 'document', label: 'Vocabulary size chắc chắn bằng số từ trong câu.' },
+      { id: 'unicode', label: 'Token IDs tự động tương thích với mọi checkpoint.' },
+    ],
+    success: 'Đúng. `split()` chỉ nhìn whitespace; tokenizer cần policy rõ cho punctuation, whitespace và fallback.',
+    error: 'Hãy so output của `text.split()` với raw string: separator bị bỏ, còn punctuation vẫn gắn vào từ.',
+  },
+  {
+    id: 'tokenizer-checkpoint-contract', title: 'Tokenizer contract', prompt: 'Một model đã train với tokenizer A. Điều gì xảy ra nếu inference dùng tokenizer B có vocabulary khác nhưng giữ nguyên weights?', mode: 'single',
+    options: [
+      { id: 'needs-numeric-tensor', label: 'Không có vấn đề vì độ lớn ID tự mang ngữ nghĩa chung.' },
+      { id: 'english-only', label: 'ID có thể trỏ sang token/hàng embedding khác, nên input contract bị phá vỡ.', isCorrect: true },
+      { id: 'must-one-hot', label: 'Model tự học lại mapping mới trong lần forward đầu tiên.' },
+      { id: 'id-is-vector', label: 'Chỉ sequence length đổi; token identity luôn giữ nguyên.' },
+    ],
+    success: 'Đúng. Token ID là địa chỉ cục bộ của một vocabulary; checkpoint và tokenizer phải được version cùng nhau.',
+    error: 'ID không có ngữ nghĩa phổ quát. Cùng số nguyên có thể tra một token hoàn toàn khác trong vocabulary B.',
+  },
+  {
+    id: 'subword-choice', title: 'Chọn đơn vị token', prompt: 'Corpus có nhiều biến thể như `build`, `builder`, `builders` và từ mới. Lựa chọn nào cân bằng nhất?', mode: 'single',
+    options: [
+      { id: 'subword', label: 'Học các subword phổ biến như `build`, `er`, `s` và giữ fallback nhỏ hơn.', isCorrect: true },
+      { id: 'whole-word-only', label: 'Tạo một token riêng cho mọi từ có thể xuất hiện trong tương lai.' },
+      { id: 'sentence-id', label: 'Gán một token ID duy nhất cho toàn bộ corpus.' },
+      { id: 'drop-unknown', label: 'Xóa mọi chuỗi không có trong vocabulary.' },
+    ],
+    success: 'Đúng. Subword tái sử dụng mảnh phổ biến mà vẫn có thể ghép chuỗi mới.',
+    error: 'Hãy chọn phương án vừa kiểm soát vocabulary vừa giữ khả năng biểu diễn từ mới.',
+  },
+  {
+    id: 'vocabulary-sequence-tradeoff', title: 'Vocabulary và sequence', prompt: 'Phát biểu nào mô tả đúng trade-off của tokenization?', mode: 'single',
+    options: [
+      { id: 'tradeoff', label: 'Đơn vị lớn thường rút ngắn sequence nhưng làm vocabulary lớn; đơn vị nhỏ làm điều ngược lại.', isCorrect: true },
+      { id: 'large-always', label: 'Vocabulary lớn luôn giảm cả memory của model lẫn sequence length.' },
+      { id: 'same-length', label: 'Word-, subword- và character-level luôn tạo cùng số token.' },
+      { id: 'ids-semantic', label: 'Vocabulary lớn làm độ lớn của token ID mang nhiều ngữ nghĩa hơn.' },
+    ],
+    success: 'Đúng. Tokenizer phân bổ ngân sách giữa số loại token V và số vị trí T.',
+    error: 'So sánh số hàng vocabulary với số token cần để biểu diễn cùng một text.',
+  },
+]} />

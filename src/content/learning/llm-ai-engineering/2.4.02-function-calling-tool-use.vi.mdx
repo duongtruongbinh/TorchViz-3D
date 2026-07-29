@@ -1,0 +1,97 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "function-calling-tool-use", locale: "vi",
+  title: "Function calling và tool-use contract", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["function-calling-tool-use","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{view: 'audit', lead: {vi: 'Model đề xuất tool call; application sở hữu execution.'}, steps: [
+  {label: {vi: 'Proposal'}, shape: '{id,name,arguments}', detail: {vi: 'Arguments là untrusted data.'}},
+  {label: {vi: 'Validate'}, shape: 'strict JSON Schema', detail: {vi: 'Reject unknown tool và extra property.'}},
+  {label: {vi: 'Authorize'}, shape: 'identity + ownership', detail: {vi: 'Kiểm tra fresh server state.'}},
+  {label: {vi: 'Execute / return'}, shape: 'tool_result | tool_error', detail: {vi: 'Giữ call ID để nối đúng vòng.'}},
+], code: [], takeaway: {vi: 'Validation, authorization và execution nằm ngoài model.'}}} />
+
+Model chỉ đề xuất tool name/arguments; application mới sở hữu validation, authorization và execution.
+
+**Input:** Tool JSON Schemas, authenticated user intent và model response items.
+
+**Output:** Validated tool result hoặc typed rejection rồi final model response.
+
+**Data/type/shape:** Tool call `{id,name,arguments}` parse thành domain command; result giữ call ID để nối đúng vòng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Validate và authorize tool proposal" contract="Call + ownedOrders → ToolResult" output="lookup_order(A17) → in_transit" pitfall="Unknown tool, invalid JSON, extra field và order không thuộc user đều trả typed error." takeaway="Không eval arguments; chỉ execute sau schema và ownership check.">
+
+`lookup_order({orderId:'A17'})` pass schema nhưng chỉ chạy sau ownership check. Unknown tool, extra property hoặc sai enum trả structured error; không dùng `eval`.
+
+~~~ts
+import assert from "node:assert/strict";
+type Call = { id: string; name: string; arguments: string };
+type ToolResult =
+  | { type: "tool_result"; callId: string; output: { status: string } }
+  | { type: "tool_error"; callId: string; code: string };
+
+function execute(call: Call, ownedOrders: Set<string>): ToolResult {
+  if (call.name !== "lookup_order") {
+    return { type: "tool_error", callId: call.id, code: "unknown_tool" };
+  }
+  let raw: unknown;
+  try { raw = JSON.parse(call.arguments); }
+  catch { return { type: "tool_error", callId: call.id, code: "invalid_json" }; }
+  if (
+    typeof raw !== "object" || raw === null ||
+    Object.keys(raw).length !== 1 ||
+    typeof (raw as { orderId?: unknown }).orderId !== "string"
+  ) {
+    return { type: "tool_error", callId: call.id, code: "invalid_arguments" };
+  }
+  const orderId = (raw as { orderId: string }).orderId;
+  if (!ownedOrders.has(orderId)) {
+    return { type: "tool_error", callId: call.id, code: "forbidden" };
+  }
+  return { type: "tool_result", callId: call.id, output: { status: "in_transit" } };
+}
+
+const allowed = execute(
+  { id: "call_17", name: "lookup_order", arguments: '{"orderId":"A17"}' },
+  new Set(["A17"]),
+);
+assert.deepEqual(allowed, {
+  type: "tool_result", callId: "call_17", output: { status: "in_transit" },
+});
+assert.equal(
+  execute({ id: "call_18", name: "lookup_order", arguments: '{"orderId":"B9"}' },
+          new Set(["A17"])).type,
+  "tool_error",
+);
+~~~
+<LessonNote>Loop production còn phải cap số bước/call song song, dùng idempotency cho side effect và trả tool result bằng đúng call ID. Arguments luôn là dữ liệu không tin cậy.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{view: 'audit', lead: {vi: 'Tool loop cần enforcement boundary riêng cho mỗi proposal.'}, steps: [
+  {label: {vi: 'Schema'}, shape: 'exact args', detail: {vi: 'Không tin arguments chỉ vì schema đã khai báo cho model.'}},
+  {label: {vi: 'Privilege'}, shape: 'least privilege', detail: {vi: 'Model không tự thực thi action.'}},
+  {label: {vi: 'Bounds'}, shape: 'max steps + parallel cap', detail: {vi: 'Side effect dùng idempotency.'}},
+], code: [], takeaway: {vi: 'Structured Outputs tiếp theo áp schema cho response không phải tool.'}}} />
+
+**Pitfalls:**
+
+- Tin arguments vì schema đã khai báo.
+- Cho model tự thực thi privileged action.
+- Không cap parallel calls/steps.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/function-calling). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Structured Outputs áp schema cho response không phải tool.
+
+</MdxPage>

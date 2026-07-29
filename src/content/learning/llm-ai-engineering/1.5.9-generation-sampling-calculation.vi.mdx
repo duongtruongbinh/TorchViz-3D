@@ -1,0 +1,83 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'generation-sampling-calculation',
+  locale: 'vi',
+  title: 'Tính temperature và top-k',
+  headings: ['Logits', 'Temperature', 'Top-k', 'Shape audit'],
+  keywords: ['temperature calculation', 'top-k', 'softmax', 'sampling probability', 'logits'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Tính softmax cho vocabulary [A,B,C,D] từ logits z=[2,1,0,−1] tại τ=1.'},
+  steps: [
+    {label: {vi: 'Raw logits'}, shape: '[2,1,0,−1]', detail: {vi: 'Có thể âm và không cần tổng bằng 1.'}},
+    {label: {vi: 'Exponentiate'}, shape: '[7.389,2.718,1,0.368]', detail: {vi: 'Mọi giá trị trở thành dương.'}},
+    {label: {vi: 'Normalize'}, shape: 'sum = 11.475', detail: {vi: 'Chia từng giá trị cho tổng.'}},
+    {label: {vi: 'Probabilities'}, shape: '[.644,.237,.087,.032]', detail: {vi: 'Tổng xấp xỉ 1.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Softmax vừa exponentiate vừa chuẩn hóa toàn bộ vocabulary.'},
+  misconception: {vi: 'Không coi logits là xác suất; logits có thể âm và không cần tổng bằng 1.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'So cùng logits dưới ba temperature để thấy độ sắc thay đổi nhưng thứ hạng giữ nguyên.'},
+  comparisons: [
+    {title: 'τ = 0.5', shape: '[.865,.117,.016,.002]', detail: {vi: 'z/τ=[4,2,0,−2]; token A tăng lên 86.5%.'}},
+    {title: 'τ = 2', shape: '[.455,.276,.167,.102]', detail: {vi: 'z/τ=[1,.5,0,−.5]; distribution phẳng hơn.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tại τ=1, token A là 64.4%. Temperature không đổi thứ hạng logits; nó đổi mức tự tin.'},
+  misconception: {vi: 'Temperature thấp không đơn giản “tăng mọi logit”; khoảng cách tương đối sau phép chia và softmax mới quyết định distribution.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Top-k=2 giữ hai logits cao nhất, mask tail bằng −inf rồi chạy softmax lại.'},
+  steps: [
+    {label: {vi: 'Original logits'}, shape: '[2,1,0,−1]', detail: {vi: 'A,B,C,D đều còn support.'}},
+    {label: {vi: 'Top-2 mask'}, shape: '[2,1,−inf,−inf]', detail: {vi: 'C và D bị loại.'}},
+    {label: {vi: 'Renormalize'}, shape: 'e² + e¹', detail: {vi: 'Chỉ chuẩn hóa trên A và B.'}},
+    {label: {vi: 'New probabilities'}, shape: '[.731,.269,0,0]', detail: {vi: 'Tổng bằng 1.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Top-k là mask trên logits; C và D không còn cơ hội được lấy.'},
+  misconception: {vi: 'Không giữ probabilities A/B cũ [.644,.237] vì tổng chỉ .881; phải softmax lại sau lọc.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Audit top-k và sampling trên batch logits cuối shape (B,V)=(3,4).'},
+  steps: [
+    {label: {vi: 'topk values/indices'}, shape: '(3,2)', detail: {vi: 'Hai candidates mỗi sample.'}},
+    {label: {vi: 'Row threshold'}, shape: '(3,1)', detail: {vi: 'Ngưỡng riêng từng hàng.'}},
+    {label: {vi: 'Mask + softmax'}, shape: '(3,4)', detail: {vi: 'Broadcast mask, chuẩn hóa trên V.'}},
+    {label: {vi: 'multinomial'}, shape: '(3,1)', detail: {vi: 'Một next token ID mỗi sample.'}},
+  ],
+  code: [
+    'probs = torch.softmax(filtered_logits / temperature, dim=-1)',
+    'assert probs.shape == (3, 4)',
+    'assert torch.allclose(probs.sum(-1), torch.ones(3))',
+  ],
+  output: ['3 independent distributions · each row sums to 1'],
+  takeaway: {vi: 'Mỗi sample có distribution riêng trên chiều cuối V; không chuẩn hóa qua batch.'},
+}} />
+
+</MdxPage>

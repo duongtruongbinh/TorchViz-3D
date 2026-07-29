@@ -1,16 +1,16 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-23
+updated: 2026-07-27
 ---
 
 # Learning Lab
 
 This page documents the active Landing Page and Learning Lab architecture. The
-current content migration and catalog decisions are recorded in
+content migration and catalog decisions are recorded in
 [docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md),
-with the current LLM lesson state in
-[docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md](../../docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md).
+with the current 200-node LLM lesson state and execution evidence in
+[docs/plans/2026-07-23-remediate-llm-domain-learning-flow.md](../../docs/plans/2026-07-23-remediate-llm-domain-learning-flow.md).
 
 ## Status
 
@@ -21,68 +21,84 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 82 tracks, and 652 lesson nodes. Fifty-three
-Vietnamese-first lessons have authored content: forty-nine in `llm-ai-engineering`
-and four tagged exercise lessons in `cv`. The other 599 nodes are navigable
-placeholders and render one shared localized “content in progress” message.
-They do not carry legacy theory or practice payloads.
+The catalog contains 12 domains, 82 tracks, and 699 lesson nodes. Two
+hundred and seven Vietnamese-first lessons have authored content: all 203 nodes
+in `llm-ai-engineering` and four tagged exercise lessons in `cv`. The other
+492 nodes are navigable placeholders and render one shared localized “content
+in progress” message. They do not carry legacy theory or practice payloads.
 
-The authored LLM lessons are:
+The LLM course is published atomically at 203/203 canonical routes:
 
-1. `minimal-llm-project-skeleton`
-2. `llm-from-scratch-roadmap`
-3. `llm-component-checkpoint-quiz`
-4. `llm-system-components`
-5. `llm-system-components-quiz`
-6. `language-modeling-next-token`
-7. `language-modeling-next-token-quiz`
-8. `ar-language-model-inference-pipeline`
-9. `ar-language-model-inference-pipeline-quiz`
-10. `llm-output-head-and-loss`
-11. `llm-output-head-and-loss-quiz`
-12. `llm-next-token-loss`
-13. `llm-next-token-loss-quiz`
-14. `llm-scale-and-development`
-15. `llm-scale-and-development-quiz`
-16. `tokenization-why-it-matters`
-17. `tokenization-why-it-matters-quiz`
-18. `tokenizer-regex-from-scratch`
-19. `tokenizer-regex-from-scratch-quiz`
-20. `tokenization-bpe-tiktoken`
-21. `tokenization-bpe-tiktoken-quiz`
-22. `tokenization-token-ids-vocabulary`
-23. `tokenization-token-ids-vocabulary-quiz`
-24. `tokenization-raw-text-to-token-ids`
-25. `llm-data-pipeline-overview`
-26. `llm-data-pipeline-checkpoint-quiz`
-27. `loss-perplexity-hand-calculation`
-28. `benchmark-likelihood-quiz`
-29. `evaluation-beyond-perplexity`
-30. `llm-evaluation-foundations`
-31. `evaluation-dataset-design`
-32. `deterministic-and-reference-metrics`
-33. `human-evaluation-rubrics`
-34. `inter-rater-agreement`
-35. `pointwise-and-pairwise-evaluation`
-36. `llm-as-a-judge`
-37. `llm-judge-biases`
-38. `benchmark-selection-and-contamination`
-39. `hallucination-and-factuality-evaluation`
-40. `rag-evaluation`
-41. `llm-safety-foundations`
-42. `refusal-calibration`
-43. `toxicity-bias-and-privacy`
-44. `jailbreak-and-prompt-injection`
-45. `guardrails-for-llm-applications`
-46. `llm-red-teaming`
-47. `production-regression-evals`
-48. `evaluation-ab-testing`
-49. `evaluation-harness-code`
+| Track | Nodes | Pages | Quiz nodes | Quiz questions |
+|---|---:|---:|---:|---:|
+| `1.1 llm-from-scratch-orientation` | 18 | 75 | 8 | 38 |
+| `1.2 text-data-and-tokenization` | 18 | 81 | 8 | 36 |
+| `1.3 attention-and-transformers-from-scratch` | 6 | 29 | 2 | 10 |
+| `1.4 gpt-model-from-scratch` | 4 | 20 | 1 | 5 |
+| `1.5 pretraining-and-generation` | 13 | 61 | 5 | 25 |
+| `1.6 finetuning-and-alignment` | 13 | 61 | 4 | 20 |
+| `2.1 llm-fundamentals` | 18 | 67 | 7 | 33 |
+| `2.2 llm-evaluation` | 26 | 107 | 11 | 44 |
+| `2.3 production-prompt-engineering` | 29 | 102 | 10 | 45 |
+| `2.4 working-with-ai-apis` | 33 | 104 | 5 | 20 |
+| `2.5 api-integration-patterns` | 18 | 57 | 3 | 12 |
+| `2.6 secure-api-integration` | 7 | 24 | 2 | 9 |
+| **Total** | **203** | **788** | **66** | **297** |
 
-Their authored prose, paging data, quizzes, references, and structured visual
-inputs live in locale-specific MDX. LLM-specific visual and stateful components
+The target role audit classifies those nodes as 46 theory, 66 Quiz, 36
+calculation, 31 code, 23 production-pattern, and one deliberately retained
+hybrid. The exact order, role assignment, theory prerequisite, assessed
+objective, and allowed prerequisites live in the test-only audit manifest
+`src/lib/learningLlmFlow.test.ts`; runtime ownership remains the typed TOC and
+locale MDX.
+
+Every target theory node is followed immediately by exactly one recap Quiz.
+No two target theory nodes are adjacent. Application flow then proceeds through
+calculation or code, an application Quiz when it adds useful evidence, and a
+production handoff. All Quiz nodes display `Quiz`, contain four or five
+single-choice questions, place one question on each page, have exactly one
+correct option, and use unique stable question/option IDs with explanatory
+success and error feedback.
+
+The initial remediation preserved all 177 pre-existing canonical LLM routes and
+added 23 adjacent-theory Quiz routes. A later Chapter 1.1 bridge added three
+routes for training data, common pretraining datasets, and their Quiz. Five
+existing evaluation/safety routes
+are intentionally reused as application Quizzes instead of creating parallel
+practice payloads. Provider, streaming, retry, cost, secret, and lifecycle
+lessons map provider-specific wire formats into explicit internal contracts;
+current provider claims carry official-source verification dates and avoid
+treating volatile aliases, limits, prices, or quotas as timeless facts.
+
+All authored calculations state their inputs, units, intermediate values,
+outputs, and invariants. Code lessons use self-contained deterministic examples
+with imports, definitions, assertions, error paths, and the relevant
+timeout/cancellation/retry/cleanup behavior. Prompt and evaluation lessons do
+not request or persist hidden chain-of-thought, and production examples avoid
+unconditional logging of prompts, responses, identity, credentials, tool
+payloads, or PII.
+
+Authored prose, paging data, quizzes, references, and structured visual inputs
+remain in locale-specific MDX. LLM-specific visual and stateful components
 remain React code under the LLM domain package. English UI currently falls back
 to the Vietnamese lesson source until an English MDX file is authored.
+
+Chapter 1.1 presents the AI landscape on two explicit axes: method families
+(`AI -> ML -> DL`) and application domains (`CV`, `NLP`), with LLM highlighted
+as the course focus at the DL/language intersection. The map is a learning
+convention rather than an absolute historical taxonomy.
+
+Chapter 1.2 retains one running text-to-tensor sequence:
+
+```text
+raw text -> tokens -> token IDs -> special-token boundaries
+-> input/target windows -> batches (B,T)
+-> token embeddings + positional embeddings -> model input (B,T,C)
+```
+
+Its checkpoints assess token boundaries, special-token roles,
+window/batch/leakage reasoning, and embedding/position shape contracts before
+the course introduces attention mechanics.
 
 The authored CV exercise lessons are:
 
@@ -166,8 +182,13 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
+The shared MDX pipeline enables GFM tables and maps fenced code through the
+Learning Lab `CodeBlock`. Python/`py` fences use the bundled Python highlighter;
+other languages remain verbatim on the same code surface. Tables use shared
+accessible markup and horizontal overflow on narrow screens.
+
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 599
+published MDX. The shared placeholder body is not indexed, preventing 492
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -219,6 +240,11 @@ should not add unreachable dark variants.
 domains. Track and lesson structure belongs in the main course/lesson surface.
 Desktop keeps persistent navigation; compact layouts use dismissible drawers
 for the domain sidebar and lesson table of contents.
+
+The shell is bounded to `100dvh`, propagates `min-h-0` through its flex chain,
+and keeps lesson content as the sole vertical scroll owner. Short viewports
+therefore retain the content scrollbar without changing Workspace's global
+overflow contract.
 
 Learning Home uses one concise curriculum heading followed by a responsive
 portrait-card grid. Each domain card reuses the shared Lucide domain icon and a
@@ -275,7 +301,7 @@ remain green so progress continues to take precedence.
   there is no parallel review or practice content record.
 - Workspace exercise handoff resolves a React-free catalog entry point and opens
   the canonical lesson route without a practice query or duplicated fixture.
-- The forty-nine authored LLM lessons retain their routes, paging, quiz
+- All 200 authored LLM lessons retain canonical routing, paging, quiz
   state/reset, locale fallback, authored search text, and light-only runtime
   behavior.
 - Learning Lab changes must not reset Workspace editor/canvas state.

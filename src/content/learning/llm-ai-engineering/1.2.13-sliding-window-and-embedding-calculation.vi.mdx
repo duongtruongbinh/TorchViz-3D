@@ -1,0 +1,106 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'sliding-window-and-embedding-calculation',
+  locale: 'vi',
+  title: 'Tính sliding window và batch shape',
+  headings: ['T+1 token chunk', 'Shifted targets', 'Stride và overlap', 'Batch shape', 'Data leakage'],
+  keywords: ['sliding window', 'context length', 'stride', 'shifted target', 'batch', 'data leakage'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<SlidingWindowWorkedExample content={{
+  view: 'chunk',
+  lead: {vi: 'Một sample có input và target cùng dài T cần lấy T+1 corpus tokens để target cuối còn một token ở bên phải.'},
+  corpus: [2, 3, 1, 0, 5, 2, 4, 1, 0],
+  chunk: [2, 3, 1, 0],
+  contextLength: 3,
+  stride: 2,
+  inputContract: {vi: 'Input của bước: corpus IDs dài N=9.'},
+  outputContract: {vi: 'Output mỗi sample: hai dãy integer cùng shape (T,).'},
+  misconception: {vi: 'Không lấy đúng T corpus tokens rồi cố tạo T targets; target cuối cần thêm một token bên phải.'},
+}} />
+
+**Handoff:** Hai slice lệch nhau đúng một vị trí.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<SlidingWindowWorkedExample content={{
+  view: 'shift',
+  lead: {vi: 'Input lấy ba token đầu của chunk; target lấy ba token cuối. Hai slice lệch nhau đúng một vị trí.'},
+  input: [2, 3, 1],
+  target: [3, 1, 0],
+  invariant: 'assert input[1:] == target[:-1]',
+  misconception: {vi: 'Không copy input thành target; khi đó model chỉ bị yêu cầu lặp token hiện tại thay vì dự đoán token kế tiếp.'},
+}} />
+
+**Handoff:** `stride` quyết định điểm bắt đầu của sample tiếp theo, không thay đổi quy tắc shift này.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<SlidingWindowWorkedExample content={{
+  view: 'stride',
+  lead: {vi: 'Stride quyết định khoảng cách giữa các start position; quy tắc input/target shift vẫn giữ nguyên.'},
+  corpusLength: 9,
+  contextLength: 3,
+  stride: 2,
+  starts: [0, 2, 4],
+  samples: [
+    {input: [2, 3, 1], target: [3, 1, 0]},
+    {input: [1, 0, 5], target: [0, 5, 2]},
+    {input: [5, 2, 4], target: [2, 4, 1]},
+  ],
+  invalidStart: 6,
+  explanation: {vi: 'stride=1 tạo nhiều overlap hơn; stride=T làm input windows không overlap. Target slice vượt corpus tại'},
+  misconception: {vi: 'Không dùng N/T để đếm windows; số sample phụ thuộc cả token target bổ sung và stride.'},
+}} />
+
+**Handoff:** Dataset trả từng cặp `(T,)`; DataLoader mới gom chúng thành batch.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<SlidingWindowWorkedExample content={{
+  view: 'batch',
+  lead: {vi: 'Dataset trả từng cặp shape (T,); DataLoader gom hai sample đầu và thêm batch dimension B.'},
+  inputs: [[2, 3, 1], [1, 0, 5]],
+  targets: [[3, 1, 0], [0, 5, 2]],
+  batchSize: 2,
+  contextLength: 3,
+  explanation: {vi: 'B lớn hơn cho nhiều sample chạy song song nhưng dùng nhiều activation memory hơn. B không đổi T, và DataLoader không tự tạo shifted targets.'},
+  misconception: {vi: 'Convention của khóa học là (B,T), batch trước và sequence sau; không đảo thành (T,B).'},
+}} />
+
+**Handoff:** Trước khi viết Dataset, phải đặt train/validation boundary đúng chỗ.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<SlidingWindowWorkedExample content={{
+  view: 'leakage',
+  lead: {vi: 'Đặt train/validation boundary ở cấp tài liệu trước khi tạo overlapping windows.'},
+  wrong: [
+    {vi: 'Toàn bộ corpus'},
+    {vi: 'Tạo overlapping windows'},
+    {vi: 'Random split windows'},
+  ],
+  right: [
+    {vi: 'Documents'},
+    {vi: 'Train/validation split'},
+    {vi: 'Encode mỗi split bằng cùng tokenizer'},
+    {vi: 'Tạo windows riêng trong từng split'},
+  ],
+  explanation: {vi: 'Hai windows gần nhau có thể chia sẻ phần lớn token. Document boundary có thể nằm trong một split, nhưng training window không được cắt xuyên sang validation corpus.'},
+  misconception: {vi: 'Shuffle sau khi tạo windows chỉ đổi thứ tự; nó không xóa token overlap giữa training và validation.'},
+}} />
+
+**Handoff:** Quiz kiểm tra các contract trước khi ta viết `Dataset` và `DataLoader`.
+
+</MdxPage>

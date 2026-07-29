@@ -1,0 +1,104 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "tokenization-at-scale",
+  locale: "vi",
+  title: "Tokenization ở quy mô lớn",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["tokenization-at-scale","LLM","production","T+K"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Tokenizer là model contract và có thể trở thành bottleneck khi corpus tăng lên hàng tỷ byte.'},
+  steps: [
+    {label: {vi: 'Normalized bytes'}, shape: 'ragged documents', detail: {vi: 'Giữ normalization và tokenizer version cố định.'}},
+    {label: {vi: 'Tokenize'}, shape: 'bytes → token IDs', detail: {vi: 'Xử lý nhiều ngôn ngữ và nhiều workers.'}},
+    {label: {vi: 'Preserve metadata'}, shape: 'offsets + boundaries', detail: {vi: 'Không làm mất document boundary.'}},
+    {label: {vi: 'Window / batch'}, shape: 'ragged → padded tensors', detail: {vi: 'Batching chỉ xảy ra sau padding hoặc windowing.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output cần IDs, offsets, boundaries và thống kê token/byte—not chỉ danh sách token.'},
+  misconception: {vi: 'Tokenizer không thể đổi tùy ý sau pretraining.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Cùng số byte không có nghĩa cùng chi phí tokenization hoặc inference.'},
+  comparisons: [
+    {title: 'Document A', shape: '1,000 bytes → 250 tokens', detail: {vi: '0.25 token trên byte.'}},
+    {title: 'Document B', shape: '1,000 bytes → 600 tokens', detail: {vi: 'Tốn 600/250 = 2.4× compute hoặc giá theo token.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Audit token expansion theo ngôn ngữ và source, không chỉ dùng trung bình toàn corpus.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame
+  title="Production contract cho tokenizer"
+  contract="manifest cố định + segment statistics theo source/language"
+  output="version/hash/boundary ID và tokens-per-KiB"
+  pitfall="Không đổi normalization/revision, mất boundary/EOS, hoặc chỉ đo documents/second."
+  takeaway="Handoff cần manifest tái lập được và thống kê tổng hợp, không cần log raw document."
+>
+
+~~~ts
+import assert from "node:assert/strict";
+
+type TokenizerManifest = {
+  version: string;
+  normalizationHash: string;
+  boundaryTokenId: number;
+};
+type SegmentStat = { language: string; bytes: number; tokens: number };
+
+function assertManifest(value: TokenizerManifest): void {
+  if (!value.version || !/^[a-f0-9]{8,64}$/.test(value.normalizationHash)) {
+    throw new Error("tokenizer manifest is not reproducible");
+  }
+  if (!Number.isInteger(value.boundaryTokenId) || value.boundaryTokenId < 0) {
+    throw new Error("boundaryTokenId must be a non-negative integer");
+  }
+}
+
+function tokensPerKib(stat: SegmentStat): number {
+  if (!stat.language || stat.bytes <= 0 || stat.tokens < 0) {
+    throw new Error("invalid segment statistic");
+  }
+  return stat.tokens * 1024 / stat.bytes;
+}
+
+assertManifest({
+  version: "support-tokenizer-v3",
+  normalizationHash: "a1b2c3d4",
+  boundaryTokenId: 2,
+});
+const compact = tokensPerKib({ language: "en", bytes: 1_000, tokens: 250 });
+const expanded = tokensPerKib({ language: "vi", bytes: 1_000, tokens: 600 });
+assert.equal(expanded / compact, 2.4);
+assert.throws(
+  () => assertManifest({
+    version: "v3",
+    normalizationHash: "",
+    boundaryTokenId: 2,
+  }),
+  /not reproducible/,
+);
+~~~
+
+<LessonNote>Production handoff lưu manifest/version/hash và thống kê đã tổng hợp theo source/language; không cần log raw document để phát hiện expansion bất thường.</LessonNote>
+
+**Kết nối:** Quiz kế tiếp kiểm tra các quyết định scale, context, KV cache và tokenization.
+
+</CodeLessonFrame>
+
+</MdxPage>

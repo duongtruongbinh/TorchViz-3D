@@ -1,0 +1,84 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'classification-head-calculation',
+  locale: 'vi',
+  title: 'Tính classification head và loss',
+  headings: ['Last token', 'Head shape', 'Cross-entropy', 'Accuracy'],
+  keywords: ['classification calculation', 'last content token', 'cross-entropy', 'accuracy', 'tensor shape'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Worked example: từ padded batch hai mẫu đến representation cuối có shape (2,C).'},
+  steps: [
+    {label: {vi: 'Padded IDs'}, shape: '[[8,4,2,0],[5,7,0,0]]', detail: {vi: 'Batch có T=4 nhưng độ dài thật khác nhau.'}},
+    {label: {vi: 'Attention mask'}, shape: '[[1,1,1,0],[1,1,0,0]]', detail: {vi: 'Tổng mỗi hàng là [3,2].'}},
+    {label: {vi: 'Last indices'}, shape: '[3,2]−1 = [2,1]', detail: {vi: 'Mỗi sample có một vị trí đọc riêng.'}},
+    {label: {vi: 'Gather hidden'}, shape: '(2,4,C) → (2,C)', detail: {vi: 'Lấy hidden[0,2] và hidden[1,1].'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Sequence length thật đến từ mask, không từ chiều tensor đã pad.'},
+  misconception: {vi: 'Chỉ số [3,3] đọc PAD ở cả hai sample.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Classification head thay chiều feature C bằng số class K sau khi đã chọn một representation cho mỗi sample.'},
+  steps: [
+    {label: {vi: 'Selected hidden H'}, shape: '[[2,1],[0,2]] · (2,2)', detail: {vi: 'B=2 và C=2.'}},
+    {label: {vi: 'Head weights W'}, shape: '[[1,−1],[0,1]] · (2,2)', detail: {vi: 'K=2; bias b=[0,0].'}},
+    {label: {vi: 'Matrix product'}, shape: 'Z = H @ W + b', detail: {vi: 'Chiếu từng sample độc lập.'}},
+    {label: {vi: 'Class logits Z'}, shape: '[[2,−1],[0,2]] · (B,K)', detail: {vi: 'Kết quả có shape (2,2).'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Head trả (B,K), không phải (B,T,K), vì trục token đã được gather.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Với labels [0,1], tính NLL riêng cho từng hàng rồi lấy trung bình batch.'},
+  steps: [
+    {label: {vi: 'Sample 1'}, shape: 'logits [2,−1]', detail: {vi: 'p(class 0)=e²/(e²+e⁻¹)≈0.953.'}},
+    {label: {vi: 'NLL 1'}, shape: '−log(0.953)≈0.049', detail: {vi: 'Ground truth là class 0.'}},
+    {label: {vi: 'Sample 2'}, shape: 'logits [0,2]', detail: {vi: 'p(class 1)≈0.881; NLL≈0.127.'}},
+    {label: {vi: 'Batch mean'}, shape: '(0.049+0.127)/2≈0.088', detail: {vi: 'Cross-entropy phạt theo xác suất của class đúng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Code nhận raw logits, nhưng NLL là log của xác suất sau normalization.'},
+  misconception: {vi: 'Không lấy log trực tiếp của logit đúng.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Shape audit và accuracy khép lại worked example, nhưng chưa nói gì về generalization.'},
+  steps: [
+    {label: {vi: 'Logits'}, shape: '(2,2)', detail: {vi: 'Mỗi hàng có hai class logits.'}},
+    {label: {vi: 'Argmax'}, shape: '[0,1]', detail: {vi: 'Khớp labels [0,1].'}},
+    {label: {vi: 'Accuracy'}, shape: '2/2 = 100%', detail: {vi: 'Loss dùng cho gradient; accuracy diễn giải quyết định.'}},
+    {label: {vi: 'Full split'}, shape: 'total correct / total samples', detail: {vi: 'Không lấy mean các batch accuracy có kích thước khác nhau.'}},
+  ],
+  code: [
+    'assert logits.shape == (2, 2)',
+    'predictions = logits.argmax(dim=-1)',
+    'accuracy = (predictions == labels).float().mean()',
+    'assert accuracy.item() == 1.0',
+  ],
+  takeaway: {vi: 'Toy batch khóa shape và phép tính; split độc lập mới đo generalization.'},
+}} />
+
+</MdxPage>

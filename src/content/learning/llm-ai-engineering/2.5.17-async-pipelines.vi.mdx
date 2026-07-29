@@ -1,0 +1,93 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "async-pipelines", locale: "vi",
+ title: "Async LLM pipelines", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["async-pipelines","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Batch/media/long tasks không nên giữ HTTP request mở. Job state phải idempotent và replay-safe."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Authenticated job spec, idempotency key, deadline và callback policy."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Job ID rồi terminal result/error/canceled."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Internal state accepted→queued→running→completed|failed|canceled; provider status được giữ riêng và map rõ. Retries không tạo duplicate job."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
+
+Batch/media/long tasks không nên giữ HTTP request mở. Job state phải idempotent và replay-safe.
+
+**Input:** Authenticated job spec, idempotency key, deadline và callback policy.
+
+**Output:** Job ID rồi terminal result/error/canceled.
+
+**Data/type/shape:** Internal state `accepted→queued→running→completed|failed|canceled`; provider status được giữ riêng và map rõ. Retries không tạo duplicate job.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
+
+POST trả 202/job-7; worker lease call provider; webhook duplicate được dedupe; result persisted trước notification; expired job vào dead-letter.
+
+~~~ts
+import assert from "node:assert/strict";
+type Status = "accepted" | "queued" | "running" | "completed" | "failed" | "canceled";
+type Job = {
+  id: string; idempotencyKey: string; status: Status;
+  seenDeliveries: Set<string>; resultPersisted: boolean;
+};
+const allowed: Record<Status, Status[]> = {
+  accepted: ["queued", "canceled"],
+  queued: ["running", "canceled", "failed"],
+  running: ["completed", "failed", "canceled"],
+  completed: [], failed: [], canceled: [],
+};
+function transition(job: Job, next: Status): Job {
+  if (!allowed[job.status].includes(next)) throw new Error("invalid_transition");
+  if (next === "completed" && !job.resultPersisted) throw new Error("result_not_persisted");
+  return { ...job, status: next };
+}
+function receiveDelivery(job: Job, deliveryId: string): Job {
+  if (job.seenDeliveries.has(deliveryId)) return job;
+  return { ...job, seenDeliveries: new Set(job.seenDeliveries).add(deliveryId) };
+}
+
+let job: Job = {
+  id: "job-7", idempotencyKey: "tenant-a:create-report:17",
+  status: "accepted", seenDeliveries: new Set(), resultPersisted: false,
+};
+job = transition(job, "queued");
+job = transition(job, "running");
+job = receiveDelivery(job, "delivery-9");
+job = receiveDelivery(job, "delivery-9");
+assert.equal(job.seenDeliveries.size, 1);
+assert.throws(() => transition(job, "completed"), /result_not_persisted/);
+job = transition({ ...job, resultPersisted: true }, "completed");
+assert.equal(job.status, "completed");
+~~~
+<LessonNote>Verify webhook signature/authenticity trước reducer; atomic lease/state update trong shared store. Notify chỉ sau khi result đã persist, và terminal state không bị event muộn ghi đè.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Async LLM pipelines"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Không atomic state transition."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Trust webhook không verify."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Retry tạo hai side effects."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
+
+**Pitfalls:**
+
+- Không atomic state transition.
+- Trust webhook không verify.
+- Retry tạo hai side effects.
+
+**Kết nối:** Quiz cuối chọn retry, breaker, routing, cache và fallback đúng.
+
+</MdxPage>

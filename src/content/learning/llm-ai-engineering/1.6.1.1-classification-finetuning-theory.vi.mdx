@@ -1,0 +1,78 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'classification-finetuning-theory',
+  locale: 'vi',
+  title: 'Lý thuyết classification fine-tuning',
+  headings: ['Contract', 'Dataset', 'Classification head', 'Freeze và evaluation'],
+  keywords: ['classification fine-tuning', 'classification head', 'padding', 'accuracy', 'freeze'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Đổi từ next-token prediction sang classification đồng nghĩa đổi output contract, không chỉ đổi dataset.'},
+  comparisons: [
+    {title: 'Pretraining', shape: '(B,T,V)', detail: {vi: 'Một vocabulary distribution tại mọi vị trí.'}},
+    {title: 'K-class classification', shape: '(B,K) + label (B,)', detail: {vi: 'Một quyết định class cho mỗi văn bản; spam detection dùng K=2 class logits.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Classification head độc lập với cách tokenizer biểu diễn tên nhãn.'},
+  misconception: {vi: 'Không dùng output head V rồi coi hai vocabulary tokens là hai class.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Split policy và batch contract cùng quyết định liệu accuracy có đo generalization hay near-duplicate leakage.'},
+  steps: [
+    {label: {vi: 'Source samples'}, shape: 'text + label', detail: {vi: 'Nhóm nguồn hoặc mẫu gần trùng trước.'}},
+    {label: {vi: 'Split'}, shape: 'train / validation / test', detail: {vi: 'Tách trước tokenization để giảm leakage.'}},
+    {label: {vi: 'Dynamic pad'}, shape: 'T_max', detail: {vi: 'Pad tới sequence dài nhất trong batch.'}},
+    {label: {vi: 'Batch contract'}, shape: '(B,T_max) · (B,)', detail: {vi: 'input_ids, attention_mask và labels.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Attention mask đánh dấu nội dung; nó không thay thế target label.'},
+  misconception: {vi: 'Paraphrase của cùng email ở cả train và test làm accuracy đo ghi nhớ gần trùng.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Vị trí đại diện và classification head là một phần rõ ràng của kiến trúc.'},
+  steps: [
+    {label: {vi: 'Token hidden'}, shape: 'X · (B,T,C)', detail: {vi: 'Backbone giữ representation theo vị trí.'}},
+    {label: {vi: 'Last content index'}, shape: 'mask.sum(1)−1', detail: {vi: 'Right padding cần chỉ số riêng cho từng sample.'}},
+    {label: {vi: 'Selected hidden'}, shape: 'hᵢ ∈ R^C', detail: {vi: 'Có thể thay bằng token riêng hoặc pooling nếu train/inference nhất quán.'}},
+    {label: {vi: 'Class projection'}, shape: 'zᵢ=hᵢW+b ∈ R^K', detail: {vi: 'Đưa raw logits thẳng vào cross-entropy.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Chọn x[:,-1] sẽ đọc PAD của sample ngắn.'},
+  misconception: {vi: 'Không softmax trước F.cross_entropy; hàm nhận raw logits và tự log-softmax ổn định số.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Mức unfreeze cân bằng compute, khả năng thích nghi và nguy cơ overfit.'},
+  comparisons: [
+    {title: 'Head-only', shape: 'rẻ nhất', detail: {vi: 'Baseline tốt, backbone giữ nguyên.'}},
+    {title: 'Last blocks', shape: 'thích nghi vừa', detail: {vi: 'Representation thay đổi với memory trung gian.'}},
+    {title: 'Full model', shape: 'linh hoạt nhất', detail: {vi: 'Cần gradient và optimizer state cho toàn model.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Loss đo confidence để tối ưu; accuracy dễ đọc; confusion matrix giúp khi class mất cân bằng.'},
+  misconception: {vi: 'Chọn checkpoint bằng validation metric, rồi báo cáo test đúng một lần—not train accuracy cao nhất.'},
+}} />
+
+</MdxPage>

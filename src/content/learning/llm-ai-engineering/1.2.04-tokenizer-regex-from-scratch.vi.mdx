@@ -1,0 +1,135 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenizer-regex-from-scratch',
+  locale: 'vi',
+  title: 'Code: Xây tokenizer regex đơn giản',
+  headings: ['Chuỗi ban đầu', 'Tách theo khoảng trắng', 'Tách dấu câu', 'Viết thành hàm', 'Thử với đoạn văn mới'],
+  keywords: ['Python', 'regex', 're.split', 'whitespace', 'punctuation', 'tokenizer'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Bắt đầu từ chuỗi ban đầu
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Ta bắt đầu với một chuỗi văn bản chưa được chia nhỏ. Lúc này toàn bộ câu vẫn là một giá trị duy nhất.' },
+  diagram: {
+    inputText: 'Linh builds AI. Linh tests AI.',
+    outputLabel: { vi: 'Một raw string chưa được chia' },
+    tokens: ['Linh builds AI. Linh tests AI.'],
+  },
+  code: [
+    'raw_text = "Linh builds AI. Linh tests AI."',
+    '',
+    'print(type(raw_text).__name__)',
+    'print(len(raw_text))',
+  ],
+  output: ['str', '30'],
+  takeaway: { vi: 'Dữ liệu hiện vẫn là một chuỗi. Bước tiếp theo là chia chuỗi này thành nhiều phần nhỏ.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tách theo khoảng trắng
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: '`re.split` dùng `(\\s)` để tách câu tại khoảng trắng và vẫn giữ các khoảng trắng trong kết quả. Nhờ đó ta nhìn rõ phần nào sẽ được bỏ ở bước sau.' },
+  diagram: {
+    inputText: 'Linh builds AI. Linh tests AI.',
+    outputLabel: { vi: 'Split theo whitespace' },
+    tokens: ['Linh', ' ', 'builds', ' ', 'AI.', ' ', 'Linh', ' ', 'tests', ' ', 'AI.'],
+  },
+  code: [
+    'import re',
+    '',
+    'parts = re.split(r"(\\s)", raw_text)',
+    'print(parts)',
+  ],
+  output: ["['Linh', ' ', 'builds', ' ', 'AI.', ' ', 'Linh', ' ', 'tests', ' ', 'AI.']"],
+  takeaway: { vi: 'Các từ đã được tách theo khoảng trắng, nhưng dấu chấm vẫn còn dính vào `AI.`. Ta cần tách dấu câu riêng.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tách dấu câu thành token riêng
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Ta thêm dấu chấm vào quy tắc tách. Dấu chấm được giữ lại thành một phần riêng, nhưng kết quả có thể xuất hiện thêm khoảng trắng và chuỗi rỗng.' },
+  diagram: {
+    inputText: 'Linh builds AI. Linh tests AI.',
+    outputLabel: { vi: 'Split theo whitespace hoặc dấu chấm' },
+    tokens: ['Linh', ' ', 'builds', ' ', 'AI', '.', '', ' ', 'Linh', ' ', 'tests', ' ', 'AI', '.', ''],
+  },
+  code: [
+    'parts = re.split(r"([.]|\\s)", raw_text)',
+    'print(parts)',
+  ],
+  output: ["['Linh', ' ', 'builds', ' ', 'AI', '.', '', ' ', 'Linh', ' ', 'tests', ' ', 'AI', '.', '']"],
+  takeaway: { vi: 'Dấu chấm đã được tách riêng. Bước tiếp theo là bỏ khoảng trắng và chuỗi rỗng không cần thiết.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Viết thành hàm `tokenize`
+
+<TokenizerRegexWalkthrough content={{
+  lead: { vi: 'Ta gom các bước trên vào hàm `tokenize`: tách từ và dấu câu, sau đó bỏ khoảng trắng cùng chuỗi rỗng.' },
+  diagram: {
+    inputText: 'Linh builds AI. Linh tests AI.',
+    outputLabel: { vi: 'tokenize(text) trả về' },
+    tokens: ['Linh', 'builds', 'AI', '.', 'Linh', 'tests', 'AI', '.'],
+  },
+  code: [
+    'def tokenize(text: str) -> list[str]:',
+    '    parts = re.split(r"([,.:;?_!\\\"()]|--|\\s)", text)',
+    '    return [part.strip() for part in parts if part.strip()]',
+    '',
+    'tokens = tokenize(raw_text)',
+    'print(tokens)',
+  ],
+  output: ["['Linh', 'builds', 'AI', '.', 'Linh', 'tests', 'AI', '.']"],
+  takeaway: { vi: 'Kết quả là một danh sách token theo đúng thứ tự xuất hiện trong câu. Trong ví dụ này, dấu câu được giữ lại còn khoảng trắng được bỏ đi.' },
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<TokenizerRegexWalkthrough content={{
+  lead: {vi: 'Cuối cùng, ta dùng lại hàm `tokenize` với một đoạn văn mới để kiểm tra xem từ và dấu câu có được tách đúng thứ tự hay không.'},
+  code: [
+    'import re',
+    '',
+    'def tokenize(text: str) -> list[str]:',
+    "    parts = re.split(r'([,.:;?_!\\\"()]|--|\\s)', text)",
+    '    return [part.strip() for part in parts if part.strip()]',
+    '',
+    'paragraph = (',
+    '    "At dawn, Linh opened the workshop. "',
+    "    'The robot flashed: \\\"Package ready!\\\"--twice.'",
+    ')',
+    '',
+    'paragraph_tokens = tokenize(paragraph)',
+    'print(paragraph_tokens)',
+    '',
+    'assert paragraph_tokens[:6] == [',
+    '    "At", "dawn", ",", "Linh", "opened", "the"',
+    ']',
+    "assert '\\\"' in paragraph_tokens",
+    'assert "--" in paragraph_tokens',
+    'assert all(token.strip() == token and token for token in paragraph_tokens)',
+  ],
+  output: ["['At', 'dawn', ',', 'Linh', 'opened', 'the', 'workshop', '.', 'The', 'robot', 'flashed', ':', '\"', 'Package', 'ready', '!', '\"', '--', 'twice', '.']"],
+  takeaway: {vi: 'Hàm regex này nhận một chuỗi và tách nó thành danh sách token theo các quy tắc viết tay. Hàm chưa tạo token ID và cũng không tự học cách tách subword từ dữ liệu.'},
+}} />
+
+**Handoff:** BPE sẽ học cách chia subword từ dữ liệu thay vì chỉ dựa vào các quy tắc do chúng ta viết trước.
+
+</MdxPage>

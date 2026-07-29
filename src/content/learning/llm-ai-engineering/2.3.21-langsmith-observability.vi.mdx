@@ -1,0 +1,100 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "langsmith-observability", locale: "vi",
+  title: "Observability cho prompt và workflow", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["langsmith-observability","prompt engineering","T+K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: 'Trace nối prompt, model, tool và eval feedback nhưng auto-capture input/output tạo privacy risk.'},
+  steps: [
+    {label: {vi: 'Root trace'}, shape: 'correlation ID', detail: {vi: 'Một request, không dùng email làm ID.'}},
+    {label: {vi: 'Spans'}, shape: 'model | tool | parser', detail: {vi: 'Gắn version, timing, token/cost và status.'}},
+    {label: {vi: 'Redaction gate'}, shape: 'hash | classify | drop', detail: {vi: 'Xử lý payload nhạy cảm trước exporter.'}},
+    {label: {vi: 'Trace store'}, shape: 'sampling + retention + access', detail: {vi: 'Policy được version theo deployment.'}},
+  ], code: [], takeaway: {vi: 'Output là trace hierarchy hữu ích mà không mặc định sao chép payload.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<EvaluationConceptVisual content={{
+  view: 'position', lead: {vi: 'Observability contract độc lập với backend tracing cụ thể.'},
+  comparisons: [
+    {title: 'Được ghi', shape: 'v12 · fast · 420 tokens · validation_error', detail: {vi: 'Version, class, count, timing, status và pseudonymous dimensions.'}},
+    {title: 'Bị loại', shape: 'ticket text · response · email · secret', detail: {vi: 'LangSmith hoặc PromptLayer không thay đổi redaction boundary.'}},
+  ], code: [], takeaway: {vi: 'Chỉ xuất artifact kiểm chứng được; không raw payload hoặc hidden chain-of-thought.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame title="Safe trace contract" contract="redacted attributes → typed SafeTrace" output="req-017 · support-v12 · 420 tokens · validation_error" pitfall="Không auto-capture prompt/response, dùng email làm trace ID hoặc bỏ version redaction policy." takeaway="Redaction và sampling xảy ra trước exporter; retention/access/region phải được kiểm tra theo deployment.">
+
+~~~ts
+import assert from "node:assert/strict";
+
+type SafeTrace = {
+  correlationId: string;
+  promptVersion: string;
+  modelClass: string;
+  tokensIn: number;
+  status: "ok" | "validation_error" | "provider_error";
+  tenantPseudonym: string;
+};
+
+function buildSafeTrace(input: Record<string, unknown>): SafeTrace {
+  for (const forbidden of ["prompt", "response", "email", "apiKey", "secret"]) {
+    if (forbidden in input) throw new Error(`sensitive_attribute:${forbidden}`);
+  }
+  const required = [
+    "correlationId", "promptVersion", "modelClass", "status", "tenantPseudonym",
+  ] as const;
+  for (const key of required) {
+    if (typeof input[key] !== "string" || !(input[key] as string).trim()) {
+      throw new Error(`invalid_attribute:${key}`);
+    }
+  }
+  if (!Number.isInteger(input.tokensIn) || (input.tokensIn as number) < 0) {
+    throw new Error("invalid_attribute:tokensIn");
+  }
+  if (!["ok", "validation_error", "provider_error"].includes(input.status as string)) {
+    throw new Error("invalid_attribute:status");
+  }
+  return input as SafeTrace;
+}
+
+const result = buildSafeTrace({
+  correlationId: "req-017",
+  promptVersion: "support-v12",
+  modelClass: "fast",
+  tokensIn: 420,
+  status: "validation_error",
+  tenantPseudonym: "tenant-hmac-91",
+});
+assert.equal(result.promptVersion, "support-v12");
+assert.deepEqual(Object.keys(result).sort(), [
+  "correlationId", "modelClass", "promptVersion",
+  "status", "tenantPseudonym", "tokensIn",
+]);
+assert.throws(
+  () => buildSafeTrace({ ...result, prompt: "raw ticket" }),
+  /sensitive_attribute:prompt/,
+);
+~~~
+
+<LessonNote>LangSmith mô hình hóa trace thành các runs/spans và cho phép gắn
+metadata; tracing có thể thu input/output nên redaction/sampling phải xảy ra
+trước exporter. Nguồn official kiểm tra 2026-07-23:
+[observability concepts](https://docs.langchain.com/langsmith/observability-concepts)
+và [data storage/privacy](https://docs.langchain.com/langsmith/data-storage-and-privacy).
+Retention, access và region phải kiểm tra lại cho deployment cụ thể.</LessonNote>
+
+Hai console labs tiếp theo materialize cùng experiment manifest trước Quiz.
+
+</CodeLessonFrame>
+
+</MdxPage>

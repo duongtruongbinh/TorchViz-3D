@@ -6,6 +6,7 @@ import {
   getFirstLearningLessonRoute,
   getGroupedLearningLessonsForDomain,
   getLearningDomain,
+  isQuizLearningLesson,
   resolveLearningLessonRoute,
 } from '../../core/learning/selectors';
 import type { LearningDomainId } from '../../core/learning/types';
@@ -82,7 +83,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     groupedDomainLessons.flatMap((group) => {
       let numberedLessonIndex = 0;
       return group.lessons.flatMap((lesson) => {
-        if (lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-')) return [];
+        if (isQuizLearningLesson(lesson)) return [];
         const entry = [lesson.id, numberedLessonIndex] as const;
         numberedLessonIndex += 1;
         return [entry];
@@ -239,7 +240,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   return (
     <main
-      className={`learning-lab min-h-screen w-full overflow-hidden lg:grid lg:transition-[grid-template-columns] lg:duration-300 ${
+      className={`learning-lab h-dvh min-h-0 w-full overflow-hidden lg:grid lg:transition-[grid-template-columns] lg:duration-300 ${
         isSidebarOpen ? 'lg:grid-cols-[300px_minmax(0,1fr)]' : 'lg:grid-cols-[72px_minmax(0,1fr)]'
       } ${themeClasses.page}`}
     >
@@ -252,7 +253,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
         />
       ) : null}
       <aside className={cx(
-        'fixed inset-y-0 left-0 z-[60] flex min-h-screen w-[min(320px,calc(100vw-3rem))] flex-col overflow-visible border-r shadow-xl transition-transform duration-300 lg:relative lg:z-50 lg:w-auto lg:translate-x-0 lg:shadow-sm',
+        'fixed inset-y-0 left-0 z-[60] flex min-h-0 w-[min(320px,calc(100vw-3rem))] flex-col overflow-visible border-r shadow-xl transition-transform duration-300 lg:relative lg:z-50 lg:h-full lg:w-auto lg:translate-x-0 lg:shadow-sm',
         isSidebarOpen ? 'visible translate-x-0' : 'invisible -translate-x-full lg:visible lg:translate-x-0',
         themeClasses.sidebar,
       )}>
@@ -375,7 +376,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
       </aside>
 
-      <div className="flex min-h-screen min-w-0 flex-col">
+      <div className="flex h-full min-h-0 min-w-0 flex-col">
         <LearningLabHeader
           mode={mode}
           theme={theme}

@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-pretraining',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Decode bottleneck', 'Context budget', 'KV-cache growth', 'Tokenizer contract'],
+  keywords: ['quiz', 'LLM', 'prefill', 'decode', 'KV cache', 'tokenizer'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="llm-pretraining" questions={[
+  {
+    id: 'llm-pretraining-q1',
+    title: 'Decode bottleneck',
+    prompt: 'Một service có TTFT tốt nhưng thời gian mỗi output token cao; profiler cho thấy arithmetic units rảnh trong khi memory bandwidth gần bão hòa. Chẩn đoán phù hợp nhất?',
+    mode: 'single',
+    options: [
+      { id: 'llm-pretraining-q1-a', label: 'Tokenizer đang train lại trên toàn corpus ở mỗi token' },
+      { id: 'llm-pretraining-q1-b', label: 'Decode đang materialize gradient của pretraining' },
+      { id: 'llm-pretraining-q1-correct', label: 'Mỗi bước decode phải đọc weights và KV cache nên workload đang memory-bound', isCorrect: true },
+      { id: 'llm-pretraining-q1-c', label: 'Prefill chắc chắn chiếm toàn bộ latency' },
+    ],
+    success: 'Đúng. Dấu hiệu bandwidth bão hòa cùng compute nhàn rỗi khớp với decode memory-bound.',
+    error: 'Chưa đúng. Hãy nối số đo profiler với dữ liệu phải đọc ở từng bước decode, thay vì suy từ tên phase.',
+  },
+  {
+    id: 'llm-pretraining-q2',
+    title: 'Context budget',
+    prompt: 'Model có capacity 8.192 token, reserve output 1.024 và system + tool schema + user prompt dùng 1.800. History cùng retrieval được phép dùng tối đa bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'llm-pretraining-q2-a', label: '7.168 token' },
+      { id: 'llm-pretraining-q2-correct', label: '5.368 token', isCorrect: true },
+      { id: 'llm-pretraining-q2-b', label: '6.392 token' },
+      { id: 'llm-pretraining-q2-c', label: '8.192 token' },
+    ],
+    success: 'Đúng. `8.192 − 1.024 − 1.800 = 5.368` token; reserve output phải được trừ trước khi nhồi context.',
+    error: 'Chưa đúng. Tính capacity trừ cả fixed input và output reserve; không coi advertised window là toàn bộ input budget.',
+  },
+  {
+    id: 'llm-pretraining-q3',
+    title: 'KV-cache growth',
+    prompt: 'Giữ nguyên batch, layer, số KV head, head dimension và dtype; sequence length tăng từ 2.048 lên 4.096. KV cache thay đổi thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'llm-pretraining-q3-a', label: 'Không đổi vì weights không đổi' },
+      { id: 'llm-pretraining-q3-b', label: 'Tăng bốn lần vì attention score là bậc hai' },
+      { id: 'llm-pretraining-q3-c', label: 'Giảm một nửa vì cache được tái sử dụng' },
+      { id: 'llm-pretraining-q3-correct', label: 'Tăng xấp xỉ hai lần vì cache lưu K/V theo từng vị trí', isCorrect: true },
+    ],
+    success: 'Đúng. KV cache tuyến tính theo số vị trí khi các chiều khác cố định; đừng nhầm nó với score matrix bậc hai.',
+    error: 'Chưa đúng. Viết công thức cache theo `T`; score matrix và KV cache có scaling khác nhau.',
+  },
+  {
+    id: 'llm-pretraining-q4',
+    title: 'Tokenizer contract',
+    prompt: 'Checkpoint được train với tokenizer revision A nhưng service vô tình deploy revision B. Release gate đúng nhất là gì?',
+    mode: 'single',
+    options: [
+      { id: 'llm-pretraining-q4-correct', label: 'Chặn release nếu tokenizer ID/revision, vocabulary hoặc special-token mapping không khớp manifest của checkpoint', isCorrect: true },
+      { id: 'llm-pretraining-q4-a', label: 'Cho model tự suy ra mapping mới từ vài request' },
+      { id: 'llm-pretraining-q4-b', label: 'Chỉ kiểm tra syntax highlighting của prompt' },
+      { id: 'llm-pretraining-q4-c', label: 'Xóa KV cache để hai tokenizer tự đồng bộ' },
+    ],
+    success: 'Đúng. Tokenizer là một phần của model contract; cùng text thành ID khác có thể làm hỏng toàn bộ đường dữ liệu.',
+    error: 'Chưa đúng. Cần kiểm tra artifact identity và special-token mapping trước khi request tới model.',
+  },
+]} />

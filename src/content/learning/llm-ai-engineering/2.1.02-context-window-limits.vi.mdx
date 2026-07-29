@@ -1,0 +1,105 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "context-window-limits",
+  locale: "vi",
+  title: "Giới hạn context window",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["context-window-limits","LLM","production","C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Context window là ngân sách hữu hạn cho toàn request, không chỉ cho user text.'},
+  steps: [
+    {label: {vi: 'Capacity'}, shape: 'scalar token budget', detail: {vi: 'Giới hạn kỹ thuật của request.'}},
+    {label: {vi: 'Reserve output'}, shape: 'capacity − output', detail: {vi: 'Chừa chỗ trước khi gửi.'}},
+    {label: {vi: 'Fixed input'}, shape: 'system + tools + user', detail: {vi: 'Các phần bắt buộc cùng tiêu ngân sách.'}},
+    {label: {vi: 'Variable input'}, shape: 'history + retrieval', detail: {vi: 'Phần còn lại quyết định reject, retrieve, compact hoặc truncate.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Chạm advertised limit không bảo đảm recall chính xác hoặc request còn kinh tế.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Trace ngân sách context"
+  contract="capacity − output reserve − system − tools − user"
+  output="5,368 tokens cho history + retrieval"
+  pitfall="Nếu history dùng 4,000, retrieval chỉ còn 1,368—not 2,392."
+  takeaway="Trừ output reserve và fixed request parts trước khi phân bổ phần biến đổi."
+>
+
+Capacity giả định 8.192 token, output reserve 1.024, system 400, tools 600 và user 800. History cộng retrieval chỉ còn `8.192−1.024−400−600−800 = 5.368` token. Nếu history dùng 4.000 thì retrieval tối đa 1.368, không phải 2.392.
+
+~~~ts
+import assert from "node:assert/strict";
+
+type ContextParts = {
+  capacity: number;
+  outputReserve: number;
+  system: number;
+  tools: number;
+  user: number;
+};
+
+function remainingInputBudget(parts: ContextParts): number {
+  for (const [name, value] of Object.entries(parts)) {
+    if (!Number.isInteger(value) || value < 0) {
+      throw new Error(`${name} must be a non-negative integer`);
+    }
+  }
+  const remaining = parts.capacity
+    - parts.outputReserve
+    - parts.system
+    - parts.tools
+    - parts.user;
+  if (remaining < 0) throw new Error("fixed request parts exceed capacity");
+  return remaining;
+}
+
+assert.equal(remainingInputBudget({
+  capacity: 8_192,
+  outputReserve: 1_024,
+  system: 400,
+  tools: 600,
+  user: 800,
+}), 5_368);
+assert.throws(
+  () => remainingInputBudget({
+    capacity: 1_000,
+    outputReserve: 400,
+    system: 300,
+    tools: 200,
+    user: 200,
+  }),
+  /exceed capacity/,
+);
+~~~
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production policy phải bảo vệ output và dữ liệu quan trọng trước khi request chạm capacity.'},
+  steps: [
+    {label: {vi: 'Reserve response'}, shape: 'output tokens', detail: {vi: 'Không dùng toàn bộ capacity cho input.'}},
+    {label: {vi: 'Explicit truncation'}, shape: 'priority-aware', detail: {vi: 'Không silent-drop câu hỏi hoặc tool schema ở tail.'}},
+    {label: {vi: 'Recall evaluation'}, shape: 'position × length', detail: {vi: 'Advertised limit không đồng nghĩa effective recall mọi vị trí.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Context dài làm KV cache tăng tuyến tính; bài sau tính chính xác phần memory này.'},
+}} />
+
+</MdxPage>

@@ -1,0 +1,70 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "ollama-open-source-models", locale: "vi",
+  title: "Chọn model mở cho Ollama", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["ollama-open-source-models","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Ollama là runtime; model weights có license, quantization, memory và capability riêng. Chọn model phải bắt đầu từ deployment constraints."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Hardware memory, license policy, quality eval và required tools/schema/vision."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Model artifact/config cùng acceptance benchmark."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Weights quantized thay storage/memory và numerical behavior; API output contract vẫn cần conformance test."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
+
+Ollama là runtime; model weights có license, quantization, memory và capability riêng. Chọn model phải bắt đầu từ deployment constraints.
+
+**Input:** Hardware memory, license policy, quality eval và required tools/schema/vision.
+
+**Output:** Model artifact/config cùng acceptance benchmark.
+
+**Data/type/shape:** Weights quantized thay storage/memory và numerical behavior; API output contract vẫn cần conformance test.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "Hai quantizations cùng family lần lượt fit 6 GB và 10 GB. Chọn bản nhỏ chỉ khi latency/quality fixtures pass; license/model card được lưu cùng deployment record."}, comparisons: [
+    {title: "License/use case", shape: "worked contract", detail: {vi: "pass  · fail"}},
+    {title: "Required tools/schema", shape: "worked contract", detail: {vi: "pass  · pass"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
+
+Hai quantizations cùng family lần lượt fit 6 GB và 10 GB. Chọn bản nhỏ chỉ khi latency/quality fixtures pass; license/model card được lưu cùng deployment record.
+
+| Gate theo thứ tự | Candidate A | Candidate B | Quyết định |
+|---|---:|---:|---|
+| License/use case | pass | fail | Loại B trước benchmark |
+| Required tools/schema | pass | pass | Giữ A |
+| Peak memory trên target | 6 GB | — | Chạy load/concurrency test |
+| Quality support set | đạt gate | — | Giữ evidence theo artifact |
+| p95 latency | đạt SLO | — | Pin exact artifact/config |
+
+<LessonNote>File size không bằng peak runtime memory. Quantization có thể đổi quality và numerical behavior; phải đánh giá đúng artifact trên hardware mục tiêu.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Chọn model mở cho Ollama"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Gọi mọi model Ollama là Llama."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Bỏ license/redistribution terms."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "So quantization chỉ bằng file size."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
+
+**Pitfalls:**
+
+- Gọi mọi model Ollama là Llama.
+- Bỏ license/redistribution terms.
+- So quantization chỉ bằng file size.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://docs.ollama.com/models). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Llama lesson tách model family khỏi serving API.
+
+</MdxPage>

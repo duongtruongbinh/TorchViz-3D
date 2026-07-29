@@ -1,0 +1,101 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "backend-proxy-pattern", locale: "vi",
+ title: "Backend proxy an toàn cho LLM", headings: ["Threat boundary và contract","Worked security path","Failure/incident handling"],
+ keywords: ["backend-proxy-pattern","API security","secrets"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Proxy là policy enforcement point, không chỉ relay. Nó chịu trách nhiệm authn/authz, schema/size limits, allowed models/tools, timeout và redacted errors."}, steps: [
+    {label: {vi: "Input"}, shape: "untrusted input", detail: {vi: "Authenticated app request và server-side provider adapter."}},
+    {label: {vi: "Output"}, shape: "server-enforced contract", detail: {vi: "Normalized safe response hoặc typed app error."}},
+    {label: {vi: "Boundary"}, shape: "server-enforced contract", detail: {vi: "Untrusted HTTP JSON → validated domain command → provider request → validated result; secret không đi ngược về client."}},
+  ], code: [], takeaway: {vi: "Authority và secret luôn ở server-side boundary."},
+}} />
+
+Proxy là policy enforcement point, không chỉ relay. Nó chịu trách nhiệm authn/authz, schema/size limits, allowed models/tools, timeout và redacted errors.
+
+**Input:** Authenticated app request và server-side provider adapter.
+
+**Output:** Normalized safe response hoặc typed app error.
+
+**Data/type/shape:** Untrusted HTTP JSON → validated domain command → provider request → validated result; secret không đi ngược về client.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked security path" contract="untrusted request + authenticated server state → enforced result" pitfall="Không log secret/PII, không fail open và không đặt authority ở client hoặc model." takeaway="Security fixture kiểm tra cả allowed path và denied/error path.">
+
+User chỉ được `lookup_order`; proxy verify tenant/order ownership, cap input 8 KB, reserve budget, call with AbortSignal, sanitize Markdown và map provider error thành correlation ID.
+
+~~~ts
+import assert from "node:assert/strict";
+type Request = {
+  authenticated: boolean;
+  subject: string;
+  ownsOrder: boolean;
+  payloadBytes: number;
+  modelClass: string;
+};
+type Decision =
+  | { kind: "accepted"; correlationId: string }
+  | { kind: "rejected"; status: 401 | 403 | 413 | 422; code: string; correlationId: string };
+
+function enforce(request: Request): Decision {
+  const correlationId = "req_fixture_17";
+  if (!request.authenticated || !request.subject) {
+    return { kind: "rejected", status: 401, code: "unauthenticated", correlationId };
+  }
+  if (!request.ownsOrder) {
+    return { kind: "rejected", status: 403, code: "forbidden", correlationId };
+  }
+  if (request.payloadBytes <= 0 || request.payloadBytes > 8_192) {
+    return { kind: "rejected", status: 413, code: "payload_too_large", correlationId };
+  }
+  if (!["fast", "quality"].includes(request.modelClass)) {
+    return { kind: "rejected", status: 422, code: "unsupported_model_class", correlationId };
+  }
+  return { kind: "accepted", correlationId };
+}
+
+const base: Request = {
+  authenticated: true, subject: "scoped-pseudonym",
+  ownsOrder: true, payloadBytes: 512, modelClass: "fast",
+};
+assert.deepEqual(enforce(base), {
+  kind: "accepted", correlationId: "req_fixture_17",
+});
+assert.equal(enforce({ ...base, authenticated: false }).status, 401);
+assert.equal(enforce({ ...base, ownsOrder: false }).status, 403);
+assert.equal(enforce({ ...base, payloadBytes: 8_193 }).status, 413);
+assert.equal(enforce({ ...base, modelClass: "provider-admin" }).status, 422);
+~~~
+<LessonNote>Proxy chỉ trả typed app error + correlation ID; không forward provider headers/body/stack. Provider timeout, malformed output và AbortSignal cũng phải có negative-path tests.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Backend proxy an toàn cho LLM"}, steps: [
+    {label: {vi: "Control 1"}, shape: "deny | allow | rotate", detail: {vi: "Generic /proxy?url= SSRF endpoint."}},
+    {label: {vi: "Control 2"}, shape: "deny | allow | rotate", detail: {vi: "Forward provider headers/errors nguyên xi."}},
+    {label: {vi: "Control 3"}, shape: "deny | allow | rotate", detail: {vi: "Log raw body hoặc key."}},
+  ], code: [], takeaway: {vi: "Enforcement fail closed và audit chỉ giữ redacted identifiers."},
+}} />
+
+**Pitfalls:**
+
+- Generic `/proxy?url=` SSRF endpoint.
+- Forward provider headers/errors nguyên xi.
+- Log raw body hoặc key.
+
+<LessonNote>Không bao giờ log credential, raw prompt/response hoặc identifier nhạy cảm một cách vô điều kiện.</LessonNote>
+
+**Kết nối:** Per-user limiter chặn abuse/cost trước provider.
+
+</MdxPage>

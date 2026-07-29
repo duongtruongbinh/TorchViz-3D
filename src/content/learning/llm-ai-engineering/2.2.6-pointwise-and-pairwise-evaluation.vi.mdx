@@ -3,22 +3,93 @@ export const lessonMetadata = {
   id: 'pointwise-and-pairwise-evaluation',
   locale: 'vi',
   title: 'Pointwise và pairwise evaluation',
-  headings: ['Pointwise', 'Pairwise', 'Chọn phương pháp'],
-  keywords: ['pointwise evaluation', 'pairwise evaluation', 'preference', 'ranking', 'rubric'],
+  headings: ['Hai contracts', 'Pairwise matrix', 'Tính win rate', 'Invariants'],
+  keywords: ['pointwise evaluation', 'pairwise evaluation', 'win rate', 'tie', 'position bias'],
+  pageCount: 4,
 }
 
-## Pointwise
+<MdxPage page={0}>
 
-Pointwise evaluation chấm từng response độc lập theo rubric hoặc thang điểm. Cách này phù hợp khi ta cần biết một output có đạt ngưỡng chất lượng tối thiểu hay không, hoặc cần theo dõi từng tiêu chí như correctness, helpfulness và safety.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Pointwise và pairwise trả lời hai câu hỏi khác nhau nên không thay thế nhau.'},
+  comparisons: [
+    {title: 'Pointwise', shape: 'scores + critical flags', detail: {vi: 'Chấm từng response theo absolute gate.'}},
+    {title: 'Pairwise', shape: 'A / B / tie', detail: {vi: 'So hai candidates trên cùng case để chọn preference.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Model có thể thắng pairwise nhưng vẫn fail absolute safety gate.'},
+  misconception: {vi: 'Pairwise phải ẩn identity, chuẩn hóa format và cho phép tie.'},
+}} />
 
-Điểm yếu là evaluator phải giữ thang điểm ổn định qua nhiều response. Một điểm 4/5 của người này có thể không tương đương 4/5 của người khác.
+</MdxPage>
 
-## Pairwise
+<MdxPage page={1}>
 
-Pairwise evaluation đưa hai response cho cùng một prompt và yêu cầu chọn A tốt hơn, B tốt hơn hoặc hòa. So sánh trực tiếp thường dễ hơn việc gán điểm tuyệt đối, đặc biệt khi đánh giá hai model, hai prompt hoặc hai phiên bản hệ thống.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked pairwise result cho 20 cases với half-tie convention.'},
+  steps: [
+    {label: {vi: 'Wins'}, shape: '10', detail: {vi: 'Candidate được chọn.'}},
+    {label: {vi: 'Losses'}, shape: '6', detail: {vi: 'Baseline được chọn.'}},
+    {label: {vi: 'Ties'}, shape: '4 × 0.5', detail: {vi: 'Mỗi tie đóng góp nửa điểm.'}},
+    {label: {vi: 'Candidate score'}, shape: '(10+2)/20=0.60', detail: {vi: 'Strict win rate riêng là 10/(10+6)=0.625.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Báo rõ convention; không trộn half-tie score với strict win rate.'},
+}} />
 
-Kết quả pairwise có thể được tổng hợp thành win rate hoặc ranking. Tuy nhiên, thứ tự hiển thị A/B cần được đảo ngẫu nhiên để giảm position bias.
+</MdxPage>
 
-## Chọn phương pháp
+<MdxPage page={2}>
 
-Dùng pointwise khi cần kiểm tra tiêu chuẩn tuyệt đối và phân tích lỗi theo rubric. Dùng pairwise khi cần chọn phiên bản tốt hơn. Trong production evaluation, hai phương pháp thường bổ sung cho nhau: một model có thể thắng đối thủ nhưng vẫn không đạt ngưỡng safety bắt buộc.
+<CodeLessonFrame
+  title="Tính pairwise score"
+  contract="non-negative integer wins/losses/ties với tổng > 0"
+  output="10 wins, 6 losses, 4 ties → 0.6"
+  pitfall="Chạy cả candidate=A và candidate=B để phát hiện position bias."
+  takeaway="Winner đổi theo vị trí là disagreement signal."
+>
+
+```python
+def pairwise_score(wins: int, losses: int, ties: int) -> float:
+    counts = (wins, losses, ties)
+    if any(isinstance(count, bool) or not isinstance(count, int) for count in counts):
+        raise TypeError('counts must be integers')
+    if min(wins, losses, ties) < 0 or wins + losses + ties == 0:
+        raise ValueError('counts must be non-negative and non-empty')
+    return (wins + 0.5 * ties) / (wins + losses + ties)
+
+assert pairwise_score(10, 6, 4) == 0.6
+assert pairwise_score(0, 0, 2) == 0.5
+for invalid in [(0, 0, 0), (1, -1, 0)]:
+    try:
+        pairwise_score(*invalid)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('invalid counts must fail')
+```
+
+Chạy cả order `candidate=A` và `candidate=B`; một winner đổi theo vị trí là disagreement signal.
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Pairwise handoff phải giữ sample accounting và order assignment cho từng case.'},
+  steps: [
+    {label: {vi: 'One outcome'}, shape: 'A / B / tie', detail: {vi: 'Mỗi case có đúng một kết quả.'}},
+    {label: {vi: 'Count audit'}, shape: 'wins+losses+ties=N', detail: {vi: 'Không thiếu hoặc nhân đôi samples.'}},
+    {label: {vi: 'Artifact'}, shape: 'case ID + order', detail: {vi: 'Có thể replay position assignment.'}},
+    {label: {vi: 'Report'}, shape: 'slice + confidence interval', detail: {vi: 'Không bỏ must-pass pointwise criteria.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài sau hiện thực judge adapter trên cùng rubric và calibration artifacts.'},
+}} />
+
+</MdxPage>

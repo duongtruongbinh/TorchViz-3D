@@ -1,0 +1,71 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "no-frontend-api-keys", locale: "vi",
+ title: "Không đặt provider API key ở frontend", headings: ["Threat boundary và contract","Worked security path","Failure/incident handling"],
+ keywords: ["no-frontend-api-keys","API security","secrets"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Mọi secret được gửi tới browser đều có thể bị xem qua bundle, source map, devtools, extension hoặc network. Obfuscation không đổi trust boundary."}, steps: [
+    {label: {vi: "Input"}, shape: "untrusted input", detail: {vi: "Browser app session và user request; không có provider credential."}},
+    {label: {vi: "Output"}, shape: "server-enforced contract", detail: {vi: "Authenticated call tới application backend."}},
+    {label: {vi: "Boundary"}, shape: "server-enforced contract", detail: {vi: "Browser chỉ giữ short-lived app session; backend map user/tenant sang server-side provider credential/policy."}},
+  ], code: [], takeaway: {vi: "Authority và secret luôn ở server-side boundary."},
+}} />
+
+Mọi secret được gửi tới browser đều có thể bị xem qua bundle, source map, devtools, extension hoặc network. Obfuscation không đổi trust boundary.
+
+**Input:** Browser app session và user request; không có provider credential.
+
+**Output:** Authenticated call tới application backend.
+
+**Data/type/shape:** Browser chỉ giữ short-lived app session; backend map user/tenant sang server-side provider credential/policy.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Frontend POST /api/assist với CSRF/session protection. Backend xác thực user, enforce quota rồi gọi provider. Build artifact được search để bảo đảm không có sk-/provider environment value."}, steps: [
+    {label: {vi: "Source/config scan"}, shape: "verify then act", detail: {vi: "Không có provider credential hoặc public env binding  ·"}},
+    {label: {vi: "Built bundle/source map scan"}, shape: "verify then act", detail: {vi: "Không có secret value/pattern sau substitution  ·"}},
+    {label: {vi: "Browser network trace"}, shape: "verify then act", detail: {vi: "Chỉ gọi application backend bằng app session  ·"}},
+    {label: {vi: "Backend trace"}, shape: "verify then act", detail: {vi: "Provider credential resolve server-side; không quay về response/log"}},
+  ], code: [], takeaway: {vi: "Authority và secret luôn ở server-side boundary."},
+}} />
+
+Frontend POST `/api/assist` với CSRF/session protection. Backend xác thực user, enforce quota rồi gọi provider. Build artifact được search để bảo đảm không có `sk-`/provider environment value.
+
+| Checkpoint | Pass condition |
+|---|---|
+| Source/config scan | Không có provider credential hoặc public env binding |
+| Built bundle/source map scan | Không có secret value/pattern sau substitution |
+| Browser network trace | Chỉ gọi application backend bằng app session |
+| Backend trace | Provider credential resolve server-side; không quay về response/log |
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit', lead: {vi: "Nếu scan phát hiện key thật, block release chưa đủ: đánh giá exposure, revoke/rotate, kiểm tra usage bất thường và ghi incident timeline. Xóa chuỗi khỏi source không thu hồi credential đã lộ."}, steps: [
+    {label: {vi: "Control 1"}, shape: "deny | allow | rotate", detail: {vi: "Prefix key bằng VITE_/NEXT_PUBLIC_."}},
+    {label: {vi: "Control 2"}, shape: "deny | allow | rotate", detail: {vi: "Đặt key trong mobile/web bundle rồi obfuscate."}},
+    {label: {vi: "Control 3"}, shape: "deny | allow | rotate", detail: {vi: "Cho browser gọi provider proxy mở không auth."}},
+  ], code: [], takeaway: {vi: "Enforcement fail closed và audit chỉ giữ redacted identifiers."},
+}} />
+
+**Pitfalls:**
+
+- Prefix key bằng `VITE_`/`NEXT_PUBLIC_`.
+- Đặt key trong mobile/web bundle rồi obfuscate.
+- Cho browser gọi provider proxy mở không auth.
+
+<LessonNote>Không bao giờ log credential, raw prompt/response hoặc identifier nhạy cảm một cách vô điều kiện.</LessonNote>
+
+Nếu scan phát hiện key thật, block release chưa đủ: đánh giá exposure, revoke/rotate, kiểm tra usage bất thường và ghi incident timeline. Xóa chuỗi khỏi source không thu hồi credential đã lộ.
+
+**Kết nối:** Secret lifecycle khác giữa local `.env` và production secret manager.
+
+</MdxPage>

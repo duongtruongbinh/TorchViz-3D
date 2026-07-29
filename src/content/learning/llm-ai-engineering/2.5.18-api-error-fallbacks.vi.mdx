@@ -1,0 +1,60 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "api-error-fallbacks", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "model routing", "fallback"], pageCount: 4,
+}
+
+<MdxQuiz id="api-error-fallbacks" questions={[
+  {
+    "id": "api-error-fallbacks-q1", "title": "Tình huống 1",
+    "prompt": "Request cần vision và schema-constrained output. Router nên làm gì trước khi so latency?",
+    "mode": "single",
+    "options": [
+      { "id": "api-error-fallbacks-q1-correct", "label": "Lọc model/provider không đáp ứng cả hai capability", "isCorrect": true },
+      { "id": "api-error-fallbacks-q1-a", "label": "Chọn model rẻ nhất rồi hy vọng" },
+      { "id": "api-error-fallbacks-q1-b", "label": "Bỏ schema khỏi request" },
+      { "id": "api-error-fallbacks-q1-c", "label": "Retry cùng request vô hạn" }
+    ],
+    "success": "Đúng. Capability là hard constraint; cost/latency chỉ xếp hạng candidates còn hợp lệ.",
+    "error": "Chưa đúng. Fallback làm mất capability có thể tạo output nhanh nhưng sai contract."
+  },
+  {
+    "id": "api-error-fallbacks-q2", "title": "Tình huống 2",
+    "prompt": "Primary timeout sau khi một non-idempotent tool có thể đã chạy. Fallback nào an toàn?",
+    "mode": "single",
+    "options": [
+      { "id": "api-error-fallbacks-q2-a", "label": "Gửi ngay sang provider khác với call ID mới" },
+      { "id": "api-error-fallbacks-q2-b", "label": "Chạy tool lần hai để chắc chắn" },
+      { "id": "api-error-fallbacks-q2-correct", "label": "Reconcile bằng idempotency/call record trước khi retry hoặc fallback", "isCorrect": true },
+      { "id": "api-error-fallbacks-q2-c", "label": "Đánh dấu completed không kiểm tra" }
+    ],
+    "success": "Đúng. Unknown side-effect outcome phải được reconciliation trước khi có thể phát lại.",
+    "error": "Chưa đúng. Blind fallback có thể nhân đôi side effect dù model response trước bị mất."
+  },
+  {
+    "id": "api-error-fallbacks-q3", "title": "Tình huống 3",
+    "prompt": "Router không tìm được candidate đạt policy privacy của tenant. Kết quả đúng?",
+    "mode": "single",
+    "options": [
+      { "id": "api-error-fallbacks-q3-a", "label": "Dùng provider bất kỳ vì availability" },
+      { "id": "api-error-fallbacks-q3-b", "label": "Ẩn policy khỏi log" },
+      { "id": "api-error-fallbacks-q3-c", "label": "Gửi dữ liệu đã raw-log" },
+      { "id": "api-error-fallbacks-q3-correct", "label": "Typed no_route/policy_denied và không dispatch", "isCorrect": true }
+    ],
+    "success": "Đúng. Fallback không được vượt trust, residency hoặc retention boundary.",
+    "error": "Chưa đúng. Availability không trao quyền nới lỏng policy của tenant."
+  },
+  {
+    "id": "api-error-fallbacks-q4", "title": "Tình huống 4",
+    "prompt": "Điều gì chứng minh fallback route có thể phát hành?",
+    "mode": "single",
+    "options": [
+      { "id": "api-error-fallbacks-q4-a", "label": "Cùng tham số temperature" },
+      { "id": "api-error-fallbacks-q4-correct", "label": "Eval theo route/capability/risk và canary dưới SLO", "isCorrect": true },
+      { "id": "api-error-fallbacks-q4-b", "label": "Tên model dài hơn" },
+      { "id": "api-error-fallbacks-q4-c", "label": "Không có telemetry" }
+    ],
+    "success": "Đúng. Fallback là một release path riêng cần quality, safety và operational evidence.",
+    "error": "Chưa đúng. Parameter tương tự không chứng minh hành vi, safety hay reliability tương đương."
+  }
+]} />

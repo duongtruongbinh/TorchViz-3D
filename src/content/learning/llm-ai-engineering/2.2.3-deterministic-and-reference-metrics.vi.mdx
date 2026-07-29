@@ -3,22 +3,92 @@ export const lessonMetadata = {
   id: 'deterministic-and-reference-metrics',
   locale: 'vi',
   title: 'Deterministic checks và reference metrics',
-  headings: ['Deterministic checks', 'Reference-based metrics', 'Giới hạn'],
-  keywords: ['exact match', 'accuracy', 'F1', 'BLEU', 'ROUGE', 'deterministic checks'],
+  headings: ['Contract và normalization', 'Tính precision/recall/F1', 'Deterministic implementation', 'Invariants và handoff'],
+  keywords: ['exact match', 'precision', 'recall', 'F1', 'deterministic checks'],
+  pageCount: 4,
 }
 
-## Deterministic checks
+<MdxPage page={0}>
 
-Deterministic checks phù hợp khi output có cấu trúc hoặc có điều kiện rõ ràng. Ta có thể kiểm tra JSON có parse được không, field bắt buộc có tồn tại không, citation có đúng format không, code có chạy qua unit test không, hoặc response có chứa chuỗi bị cấm hay không.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Deterministic metric chỉ có nghĩa khi normalization và parsing contract đã được version.'},
+  steps: [
+    {label: {vi: 'Raw output'}, shape: 'text / structured', detail: {vi: 'Giữ parse failure như result riêng.'}},
+    {label: {vi: 'Normalize'}, shape: 'Unicode · case · whitespace · punctuation', detail: {vi: 'Khai báo chính xác phép biến đổi.'}},
+    {label: {vi: 'Validate'}, shape: 'schema before semantics', detail: {vi: 'Không coi malformed output là empty answer.'}},
+    {label: {vi: 'Compare'}, shape: 'prediction vs reference', detail: {vi: 'Collections rõ ràng để tính TP, FP, FN.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Exact match không tồn tại độc lập với normalization policy.'},
+}} />
 
-Các check này nhanh, rẻ và dễ chạy lại. Chúng rất hữu ích cho regression test, nhưng chỉ đo đúng quy tắc đã được viết ra.
+</MdxPage>
 
-## Reference-based metrics
+<MdxPage page={1}>
 
-Khi có reference answer, ta có thể dùng exact match, accuracy, precision, recall hoặc F1. Với translation và summarization, BLEU và ROUGE đo mức độ overlap giữa output và reference. Semantic similarity dùng embedding để so sánh gần nghĩa thay vì chỉ so khớp từ.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked example từ hai tập facts đến precision, recall và F1.'},
+  steps: [
+    {label: {vi: 'Sets'}, shape: 'ref {a,b,c,d} · pred {a,b,x}', detail: {vi: 'TP=2, FP=1, FN=2.'}},
+    {label: {vi: 'Precision'}, shape: '2/(2+1)=2/3', detail: {vi: 'Bao nhiêu prediction là đúng.'}},
+    {label: {vi: 'Recall'}, shape: '2/(2+2)=1/2', detail: {vi: 'Bao nhiêu reference được tìm thấy.'}},
+    {label: {vi: 'F1'}, shape: '2PR/(P+R)=4/7≈0.5714', detail: {vi: 'Harmonic mean của precision và recall.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Both-empty cần policy rõ ràng; không chia 0/0 im lặng.'},
+}} />
 
-## Giới hạn
+</MdxPage>
 
-Output khác reference không đồng nghĩa với output sai. Một câu trả lời đúng có thể dùng cách diễn đạt hoàn toàn khác, còn một output có overlap cao vẫn có thể chứa fact sai. Vì vậy, metric cần phù hợp với task và thường phải kết hợp với rubric, human evaluation hoặc model judge.
+<MdxPage page={2}>
 
-Không nên tối ưu một con số đơn lẻ mà không đọc các failure case phía sau nó.
+<CodeLessonFrame
+  title="Deterministic implementation"
+  contract="prediction set + reference set → precision, recall, F1 trong [0,1]"
+  output="2/3, 1/2, 4/7 cho fixture"
+  pitfall="Both-empty convention phải giống nhau giữa mọi harness."
+  takeaway="Fixture này chọn both-empty = 1 và khóa edge cases bằng assertions."
+>
+
+```python
+def set_prf(prediction: set[str], reference: set[str]) -> tuple[float, float, float]:
+    tp = len(prediction & reference)
+    fp = len(prediction - reference)
+    fn = len(reference - prediction)
+    precision = tp / (tp + fp) if tp + fp else 1.0
+    recall = tp / (tp + fn) if tp + fn else 1.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    return precision, recall, f1
+
+p, r, f1 = set_prf({'a', 'b', 'x'}, {'a', 'b', 'c', 'd'})
+assert abs(p - 2 / 3) < 1e-12
+assert abs(r - 1 / 2) < 1e-12
+assert abs(f1 - 4 / 7) < 1e-12
+assert set_prf(set(), {'a'}) == (1.0, 0.0, 0.0)
+assert set_prf(set(), set()) == (1.0, 1.0, 1.0)
+```
+
+Fixture này chọn convention `both-empty = 1`; production spec phải ghi rõ convention này để hai harness không chấm khác nhau.
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Metric handoff phải khóa numeric range, semantic normalization và edge-case fixtures.'},
+  steps: [
+    {label: {vi: 'Range'}, shape: '0 ≤ score ≤ 1', detail: {vi: 'Fail nếu metric vượt contract.'}},
+    {label: {vi: 'Meaning'}, shape: 'normalization preserves semantics', detail: {vi: 'Không sửa nội dung cần chấm.'}},
+    {label: {vi: 'Edge fixtures'}, shape: 'empty / partial / exact', detail: {vi: 'Giữ convention tái lập được.'}},
+    {label: {vi: 'Open output'}, shape: 'metric + rubric/judge', detail: {vi: 'Overlap cao vẫn có thể chứa claim sai.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Deterministic checks là một signal trong eval vector, không phải toàn bộ đánh giá output mở.'},
+}} />
+
+</MdxPage>

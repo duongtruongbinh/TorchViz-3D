@@ -1,0 +1,59 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "rlhf",
+  locale: "vi",
+  title: "RLHF: từ preference đến policy",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["rlhf","LLM","production","T+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'RLHF thêm preference signal để tối ưu hành vi mà một reference answer đơn lẻ khó mô tả.'},
+  steps: [
+    {label: {vi: 'Preference data'}, shape: '(prompt, chosen, rejected)', detail: {vi: 'Response pairs hoặc rankings từ annotators.'}},
+    {label: {vi: 'Reward signal'}, shape: 'sequence → scalar', detail: {vi: 'Reward model hoặc feedback chấm response.'}},
+    {label: {vi: 'Policy update'}, shape: 'token distribution', detail: {vi: 'Tối ưu policy trong kiểm soát so với reference.'}},
+    {label: {vi: 'Behavior eval'}, shape: 'helpfulness + safety + regressions', detail: {vi: 'Theo dõi cả reward hacking ngoài training distribution.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'SFT học bắt chước response; RLHF tối ưu preference trên hành vi.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Toy objective cân reward mong muốn với penalty giữ policy gần vùng ổn định.'},
+  steps: [
+    {label: {vi: 'Helpfulness'}, shape: '+2', detail: {vi: 'Reward cho hành vi hữu ích.'}},
+    {label: {vi: 'Safety'}, shape: '+1', detail: {vi: 'Reward cho hành vi an toàn.'}},
+    {label: {vi: 'KL control'}, shape: '−0.5×2 = −1', detail: {vi: 'Phạt policy rời reference quá xa.'}},
+    {label: {vi: 'Objective'}, shape: '2+1−1 = 2', detail: {vi: 'Scalar toy để tối ưu.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tăng reward mà bỏ KL/control có thể đẩy policy ra khỏi vùng ngôn ngữ ổn định.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Production RLHF cần governance cho cả preference data, reward proxy và model artifacts.'},
+  steps: [
+    {label: {vi: 'Annotator context'}, shape: 'subjective preference', detail: {vi: 'Không coi preference là ground truth khách quan.'}},
+    {label: {vi: 'Proxy audit'}, shape: 'reward vs behavior', detail: {vi: 'Evaluate ngoài distribution để phát hiện reward hacking.'}},
+    {label: {vi: 'Version lineage'}, shape: 'policy + reward model + data', detail: {vi: 'Khóa artifact versions cho release và rollback.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Constitutional AI ở bài sau thay đổi cách tạo feedback và làm rõ nguyên tắc governance.'},
+}} />
+
+</MdxPage>

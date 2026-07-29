@@ -3,20 +3,71 @@ export const lessonMetadata = {
   id: 'refusal-calibration',
   locale: 'vi',
   title: 'Hiệu chỉnh hành vi từ chối',
-  headings: ['Hai kiểu lỗi', 'Xây test set', 'Đánh giá response từ chối'],
-  keywords: ['refusal calibration', 'overrefusal', 'unsafe compliance', 'safety', 'helpfulness'],
+  headings: ['Decision matrix', 'Tính hai error rates', 'Chọn threshold', 'Invariants'],
+  keywords: ['refusal calibration', 'overrefusal', 'unsafe compliance', 'threshold', 'safety'],
+  pageCount: 4,
 }
 
-## Hai kiểu lỗi
+<MdxPage page={0}>
 
-Unsafe compliance xảy ra khi model làm theo yêu cầu nguy hiểm mà đáng lẽ phải từ chối. Overrefusal là chiều ngược lại: model từ chối cả yêu cầu hợp lệ chỉ vì thấy từ khóa nhạy cảm. Một hệ thống hữu ích cần cân bằng giữa hai lỗi này.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Decision matrix giữ riêng hai failure directions mà average accuracy 91% che khuất.'},
+  comparisons: [
+    {title: 'Unsafe cases', shape: '94 refuse · 6 comply', detail: {vi: '6 unsafe compliances trên denominator 100.'}},
+    {title: 'Benign boundary', shape: '12 refuse · 88 comply', detail: {vi: '12 overrefusals trên denominator 100.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Hai error types có impact khác nhau nên không được gộp thành một accuracy.'},
+}} />
 
-## Xây test set
+</MdxPage>
 
-Test set nên chứa các cặp gần nhau về wording nhưng khác nhau về intent. Ví dụ, một câu hỏi y tế nhằm học kiến thức có thể hợp lệ, trong khi yêu cầu hướng dẫn gây hại cần bị từ chối. Các case boundary giúp kiểm tra model có dựa vào ngữ cảnh hay chỉ phản ứng với từ khóa.
+<MdxPage page={1}>
 
-Ta có thể đo unsafe compliance rate, overrefusal rate và tỷ lệ chuyển hướng sang lựa chọn an toàn.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Calibration report cần hai rates và chất lượng hướng dẫn an toàn.'},
+  comparisons: [
+    {title: 'Unsafe compliance', shape: '6/100 = 6%', detail: {vi: 'Unsafe request vẫn được đáp ứng.'}},
+    {title: 'Overrefusal', shape: '12/100 = 12%', detail: {vi: 'Benign boundary request bị từ chối.'}},
+    {title: 'Safe direction', shape: 'score valid refusals separately', detail: {vi: 'Refusal hợp lệ có đưa alternative phù hợp không?'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Luôn báo denominator cho từng population.'},
+}} />
 
-## Đánh giá response từ chối
+</MdxPage>
 
-Một refusal tốt cần rõ ràng, không tiết lộ thêm nội dung nguy hiểm và vẫn hỗ trợ người dùng bằng hướng thay thế phù hợp khi có thể. Refusal quá dài hoặc mang giọng phán xét có thể làm giảm trải nghiệm dù quyết định từ chối là đúng.
+<MdxPage page={2}>
+
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Threshold chặt hơn đổi safety risk lấy helpfulness regression; không có một mức universal.'},
+  comparisons: [
+    {title: 'Current threshold', shape: 'unsafe 6% · overrefusal 12%', detail: {vi: 'Điểm xuất phát trên calibration set.'}},
+    {title: 'Tighter threshold', shape: 'unsafe 3% · overrefusal 28%', detail: {vi: 'Giảm unsafe compliance nhưng tăng mạnh false positives.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Product owner đặt limits theo impact/slice; chọn trên calibration, đánh giá một lần trên holdout và theo dõi drift.'},
+  misconception: {vi: 'Critical unsafe case vẫn có thể là must-pass dù aggregate rate thấp.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Calibration invariants ngăn dataset manipulation và refusal chất lượng thấp.'},
+  steps: [
+    {label: {vi: 'Matched pairs'}, shape: 'clear intent distinction', detail: {vi: 'Chỉ đổi yếu tố cần kiểm tra.'}},
+    {label: {vi: 'Statistical report'}, shape: 'denominator + confidence interval', detail: {vi: 'Không chỉ báo point estimate.'}},
+    {label: {vi: 'Dataset integrity'}, shape: 'keep benign cases', detail: {vi: 'Không giảm overrefusal bằng cách xóa denominator.'}},
+    {label: {vi: 'Refusal content'}, shape: 'no harmful replay + safe alternative', detail: {vi: 'Giữ response hữu ích khi phù hợp.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Quiz kế tiếp áp dụng calibration vào toxicity, bias và privacy.'},
+}} />
+
+</MdxPage>

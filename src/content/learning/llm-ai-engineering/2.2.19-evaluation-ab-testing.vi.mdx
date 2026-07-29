@@ -3,22 +3,112 @@ export const lessonMetadata = {
   id: 'evaluation-ab-testing',
   locale: 'vi',
   title: 'A/B testing cho hệ thống LLM',
-  headings: ['Khi offline eval chưa đủ', 'Thiết kế thử nghiệm', 'Đọc kết quả'],
-  keywords: ['A/B testing', 'online evaluation', 'randomization', 'guardrail metric', 'user feedback'],
+  headings: ['Experiment contract', 'Tính effect', 'Guardrail decision', 'Invariants'],
+  keywords: ['A/B testing', 'effect size', 'randomization', 'guardrail metric', 'exposure'],
+  pageCount: 4,
 }
 
-## Khi offline eval chưa đủ
+<MdxPage page={0}>
 
-Offline eval không đo đầy đủ cách người dùng thật tương tác với sản phẩm. A/B testing so sánh hai phiên bản trên traffic được chia ngẫu nhiên để đo tác động tới completion rate, user preference, retention, escalation hoặc thời gian hoàn thành task.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Online experiment chỉ bắt đầu sau offline safety gate và một contract được pre-register.'},
+  steps: [
+    {label: {vi: 'Eligibility'}, shape: 'population + randomization unit', detail: {vi: 'Assignment ổn định.'}},
+    {label: {vi: 'Metrics'}, shape: 'primary + guardrails', detail: {vi: 'Định nghĩa trước khi xem outcomes.'}},
+    {label: {vi: 'Budget'}, shape: 'sample/time + stop rule', detail: {vi: 'Không peek và dừng tùy ý.'}},
+    {label: {vi: 'Artifacts'}, shape: 'versions + exposures + outcomes + incidents', detail: {vi: 'Consent, minimization và retention; không raw logs mặc định.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Candidate versions phải immutable trong experiment.'},
+}} />
 
-## Thiết kế thử nghiệm
+</MdxPage>
 
-Chỉ nên thay đổi một nhóm yếu tố có thể giải thích được. Cần xác định primary metric, guardrail metrics, sample size, thời gian chạy và điều kiện dừng trước khi xem kết quả. Các nhóm user quan trọng nên được kiểm tra cân bằng giữa A và B.
+<MdxPage page={1}>
 
-Với LLM, phải log model/prompt version, latency, token cost và safety incidents. Một phiên bản tăng engagement nhưng tăng harmful response hoặc chi phí vượt ngưỡng không thể được xem là thắng.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked effect calculation cho A=420/1000 và B=460/1000.'},
+  steps: [
+    {label: {vi: 'Rates'}, shape: 'A 42% · B 46%', detail: {vi: 'Cùng denominator 1,000 mỗi arm.'}},
+    {label: {vi: 'Absolute lift'}, shape: '46%−42%=4 pp', detail: {vi: 'Chênh lệch percentage points.'}},
+    {label: {vi: 'Relative lift'}, shape: '(0.46−0.42)/0.42≈9.52%', detail: {vi: 'Tăng tương đối so với A.'}},
+    {label: {vi: '95% interval'}, shape: '0.04±1.96×0.02218≈[−0.0035,0.0835]', detail: {vi: 'Còn chứa 0 nên chưa đủ khẳng định effect dương.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Báo denominator và uncertainty, không chỉ relative lift.'},
+}} />
 
-## Đọc kết quả
+</MdxPage>
 
-Statistical significance không tự động đồng nghĩa với practical significance. Hãy xem effect size, confidence interval và kết quả theo subgroup. User feedback định tính và failure trace giúp giải thích tại sao một metric thay đổi.
+<MdxPage page={2}>
 
-A/B test chỉ nên chạy sau khi phiên bản mới đã vượt qua offline safety gate.
+<CodeLessonFrame
+  title="Guardrail decision"
+  contract="completion effect + uncertainty + incident rate ≤ policy limit"
+  output="B incident 8/1000 > 2/1000 → block"
+  pitfall="Task completion tăng không được ghi đè safety guardrail."
+  takeaway="Triage/redact confirmed failures rồi đưa chúng vào offline regression suite."
+>
+
+Giả sử safety incident A `1/1000`, B `8/1000`, trong khi policy limit là `<=2/1000`. B không được rollout dù task completion tăng.
+
+```python
+from math import sqrt
+
+def normal_diff_interval(
+    successes_a: int,
+    total_a: int,
+    successes_b: int,
+    total_b: int,
+) -> tuple[float, float, float]:
+    if total_a <= 0 or total_b <= 0:
+        raise ValueError('sample sizes must be positive')
+    if not 0 <= successes_a <= total_a or not 0 <= successes_b <= total_b:
+        raise ValueError('success counts must lie inside sample sizes')
+    rate_a = successes_a / total_a
+    rate_b = successes_b / total_b
+    lift = rate_b - rate_a
+    standard_error = sqrt(
+        rate_a * (1 - rate_a) / total_a
+        + rate_b * (1 - rate_b) / total_b
+    )
+    margin = 1.96 * standard_error
+    return lift, lift - margin, lift + margin
+
+completion_lift, lower, upper = normal_diff_interval(420, 1000, 460, 1000)
+incident_rate_b = 8 / 1000
+assert abs(completion_lift - 0.04) < 1e-12
+assert abs(lower - (-0.00347490)) < 1e-7
+assert abs(upper - 0.08347490) < 1e-7
+assert lower < 0 < upper
+assert incident_rate_b > 2 / 1000
+try:
+    normal_diff_interval(0, 0, 1, 10)
+except ValueError:
+    pass
+else:
+    raise AssertionError('empty experiment arm must fail')
+```
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Experiment invariants bảo vệ causal interpretation và product decision.'},
+  steps: [
+    {label: {vi: 'Stable assignment'}, shape: 'same unit → same arm', detail: {vi: 'Không đổi variant giữa experiment.'}},
+    {label: {vi: 'Exposure accounting'}, shape: 'no double count', detail: {vi: 'Denominator đúng.'}},
+    {label: {vi: 'Analysis discipline'}, shape: 'pre-registered stop', detail: {vi: 'Không peek để dừng tùy ý.'}},
+    {label: {vi: 'Decision context'}, shape: 'subgroups + practical impact', detail: {vi: 'Statistical significance không tự tạo product significance.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Harness code kế tiếp tạo deterministic offline artifact trước online exposure.'},
+}} />
+
+</MdxPage>

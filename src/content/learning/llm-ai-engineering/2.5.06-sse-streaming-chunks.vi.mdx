@@ -1,0 +1,93 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "sse-streaming-chunks", locale: "vi",
+ title: "Chuẩn hóa SSE chunks giữa providers", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["sse-streaming-chunks","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "UI không nên hiểu mọi event name của từng provider. Backend adapter chuyển chúng thành internal event union ổn định."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Provider-specific SSE events."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "start|text_delta|tool_delta|usage|error|completed events với request ID."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Bytes → provider events → normalized discriminated union; order và terminal state được bảo toàn."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
+
+UI không nên hiểu mọi event name của từng provider. Backend adapter chuyển chúng thành internal event union ổn định.
+
+**Input:** Provider-specific SSE events.
+
+**Output:** `start|text_delta|tool_delta|usage|error|completed` events với request ID.
+
+**Data/type/shape:** Bytes → provider events → normalized discriminated union; order và terminal state được bảo toàn.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
+
+OpenAI text delta và Anthropic content-block delta cùng thành `{type:'text_delta',text}`; unknown event được telemetry nhưng không crash stream.
+
+~~~ts
+import assert from "node:assert/strict";
+type InternalEvent =
+  | { type: "start"; requestId: string }
+  | { type: "text_delta"; requestId: string; text: string }
+  | { type: "tool_delta"; requestId: string; callId: string; json: string }
+  | { type: "usage"; requestId: string; inputTokens: number; outputTokens: number }
+  | { type: "error"; requestId: string; code: string }
+  | { type: "completed"; requestId: string };
+
+function mapEvent(provider: "openai" | "anthropic", raw: Record<string, unknown>): InternalEvent | null {
+  const requestId = String(raw.requestId);
+  if (provider === "openai" && raw.type === "response.output_text.delta") {
+    return { type: "text_delta", requestId, text: String(raw.delta) };
+  }
+  if (provider === "anthropic" && raw.type === "content_block_delta" && raw.kind === "text") {
+    return { type: "text_delta", requestId, text: String(raw.text) };
+  }
+  if (raw.type === "completed") return { type: "completed", requestId };
+  return null; // emit low-cardinality unknown-event telemetry outside payload
+}
+
+assert.deepEqual(
+  mapEvent("openai", {
+    type: "response.output_text.delta", requestId: "req-17", delta: "Xin",
+  }),
+  { type: "text_delta", requestId: "req-17", text: "Xin" },
+);
+assert.deepEqual(
+  mapEvent("anthropic", {
+    type: "content_block_delta", kind: "text", requestId: "req-17", text: " chào",
+  }),
+  { type: "text_delta", requestId: "req-17", text: " chào" },
+);
+assert.equal(mapEvent("openai", { type: "future_event", requestId: "req-17" }), null);
+~~~
+<LessonNote>Streaming parser phải giữ UTF-8/SSE frame chưa hoàn chỉnh, event order và AbortSignal. Unknown event telemetry không chứa raw chunk/prompt.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Chuẩn hóa SSE chunks giữa providers"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Forward raw provider JSON ra browser."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Mất event IDs/order."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Gửi completed trước usage/final validation."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
+
+**Pitfalls:**
+
+- Forward raw provider JSON ra browser.
+- Mất event IDs/order.
+- Gửi `completed` trước usage/final validation.
+
+**Kết nối:** Partial-response handler quyết định artifact nào provisional.
+
+</MdxPage>

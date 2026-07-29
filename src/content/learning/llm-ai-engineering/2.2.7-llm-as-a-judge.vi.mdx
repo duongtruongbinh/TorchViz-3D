@@ -3,22 +3,142 @@ export const lessonMetadata = {
   id: 'llm-as-a-judge',
   locale: 'vi',
   title: 'LLM-as-a-Judge',
-  headings: ['Judge model làm gì?', 'Thiết kế judge prompt', 'Không phải ground truth'],
-  keywords: ['LLM-as-a-Judge', 'judge model', 'rubric', 'MT-Bench', 'evaluation'],
+  headings: ['Typed judge boundary', 'Prompt và output schema', 'Parser/error contract', 'Deterministic adapter', 'Calibration handoff'],
+  keywords: ['LLM-as-a-Judge', 'judge adapter', 'JSON parser', 'rubric', 'calibration'],
+  pageCount: 5,
 }
 
-## Judge model làm gì?
+<MdxPage page={0}>
 
-LLM-as-a-Judge dùng một model để chấm response của model khác. Judge có thể trả về score, nhãn pass/fail, lựa chọn pairwise và rationale. Cách này rẻ và dễ scale hơn human evaluation, đồng thời linh hoạt hơn các rule cố định với câu hỏi mở.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Typed judge boundary ngăn provider text đi thẳng vào aggregate metrics.'},
+  steps: [
+    {label: {vi: 'Inputs'}, shape: 'case + candidate + optional evidence', detail: {vi: 'Gắn rubric version; stable case/run IDs ở ngoài prompt.'}},
+    {label: {vi: 'Judge call'}, shape: 'provider text', detail: {vi: 'Untrusted output cần parse.'}},
+    {label: {vi: 'Adapter'}, shape: 'schema + semantic validation', detail: {vi: 'Chuyển thành typed JudgeResult.'}},
+    {label: {vi: 'Aggregate'}, shape: 'validated results only', detail: {vi: 'Concise evidence không phải hidden chain-of-thought hay ground truth.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Judge là evaluator có error contract, không phải nguồn chân lý.'},
+}} />
 
-## Thiết kế judge prompt
+</MdxPage>
 
-Judge cần nhận đủ input, response, reference hoặc evidence nếu có, cùng rubric rõ ràng. Prompt nên yêu cầu chấm từng tiêu chí trước khi đưa ra kết luận cuối. Với pairwise evaluation, cần đảo vị trí hai response và có lựa chọn hòa.
+<MdxPage page={1}>
 
-Một quy trình tốt thường lưu cả score lẫn rationale để debug, nhưng không nên mặc định rationale dài đồng nghĩa với quyết định đúng.
+<CodeLessonFrame
+  title="Prompt và output schema"
+  contract="judge prompt → exact JSON object"
+  output="score 0..4 + pass/fail/review + non-empty evidence"
+  pitfall="Schema kiểm tra structure; rubric mới kiểm tra semantics."
+  takeaway="Pairwise protocol phải ẩn identity, swap order và cho phép tie."
+>
 
-## Không phải ground truth
+Yêu cầu JSON với đúng:
 
-Judge model vẫn có thể sai fact, bị ảnh hưởng bởi wording, ưu ái response dài hoặc thiên vị output giống phong cách của chính nó. Vì vậy, cần hiệu chuẩn judge bằng một tập đã được con người chấm, đo agreement và định kỳ đọc lại disagreement case.
+```json
+{"score": 0, "verdict": "pass|fail|review", "evidence": ["criterion: observation"]}
+```
 
-LLM judge phù hợp để mở rộng evaluation, không thay thế hoàn toàn human review cho các quyết định rủi ro cao.
+Schema/parser kiểm tra structure; rubric kiểm tra semantics.
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Judge error là trạng thái riêng; không được tự chuyển malformed output thành pass hoặc fail.'},
+  steps: [
+    {label: {vi: 'Detect'}, shape: 'JSON / range / verdict / evidence', detail: {vi: 'Bất kỳ contract violation nào cũng thành judge_error.'}},
+    {label: {vi: 'Retry'}, shape: 'bounded transient/schema retry', detail: {vi: 'Không lặp vô hạn.'}},
+    {label: {vi: 'Escalate'}, shape: 'human review / deterministic fallback', detail: {vi: 'Chọn theo risk.'}},
+    {label: {vi: 'Artifact'}, shape: 'redacted evidence + request ID', detail: {vi: 'Không log raw response chứa PII.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Error handling là một phần của evaluator contract.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<CodeLessonFrame
+  title="Deterministic judge adapter"
+  contract="raw JSON string → strict JudgeResult"
+  output="score integer, known verdict, non-empty evidence tuple"
+  pitfall="Boolean không được chấp nhận như integer score dù Python coi bool là int subclass."
+  takeaway="Parser fail closed với object shape, field set, type và range không hợp lệ."
+>
+
+```python
+from dataclasses import dataclass
+import json
+
+@dataclass(frozen=True)
+class JudgeResult:
+    score: int
+    verdict: str
+    evidence: tuple[str, ...]
+
+def parse_judge(raw: str) -> JudgeResult:
+    value = json.loads(raw)
+    if not isinstance(value, dict):
+        raise ValueError('judge output must be an object')
+    if set(value) != {'score', 'verdict', 'evidence'}:
+        raise ValueError('unexpected judge fields')
+    score = value['score']
+    if isinstance(score, bool) or not isinstance(score, int) or not 0 <= score <= 4:
+        raise ValueError('score must be an integer in [0,4]')
+    verdict = value['verdict']
+    if not isinstance(verdict, str) or verdict not in {'pass', 'fail', 'review'}:
+        raise ValueError('invalid verdict')
+    evidence = value['evidence']
+    if not isinstance(evidence, list) or not evidence or not all(isinstance(x, str) and x.strip() for x in evidence):
+        raise ValueError('evidence must be a non-empty string list')
+    return JudgeResult(score, verdict, tuple(evidence))
+
+raw = '{"score":3,"verdict":"pass","evidence":["correctness: supported"]}'
+assert parse_judge(raw) == JudgeResult(3, 'pass', ('correctness: supported',))
+try:
+    parse_judge('{"score":9,"verdict":"pass","evidence":["x"]}')
+except ValueError as error:
+    assert 'score' in str(error)
+else:
+    raise AssertionError('invalid score must fail closed')
+for invalid in [
+    '[]',
+    '{"score":true,"verdict":"pass","evidence":["x"]}',
+    '{"score":3,"verdict":[],"evidence":["x"]}',
+]:
+    try:
+        parse_judge(invalid)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('invalid judge shape/type must fail closed')
+```
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Calibration quyết định nơi judge đủ tin cậy và nơi phải chuyển sang human review.'},
+  steps: [
+    {label: {vi: 'Version labels'}, shape: 'human calibration set', detail: {vi: 'Giữ rubric và label provenance.'}},
+    {label: {vi: 'Measure agreement'}, shape: 'language × risk slices', detail: {vi: 'Không chỉ nhìn aggregate.'}},
+    {label: {vi: 'Inspect disagreement'}, shape: 'bias + rubric ambiguity', detail: {vi: 'Tìm position và verbosity effects.'}},
+    {label: {vi: 'Set escalation'}, shape: 'review rules', detail: {vi: 'Khóa trước khi mở rộng judge traffic.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Judge explanation dài không được ghi đè evidence thiếu hoặc critical rule.'},
+}} />
+
+</MdxPage>

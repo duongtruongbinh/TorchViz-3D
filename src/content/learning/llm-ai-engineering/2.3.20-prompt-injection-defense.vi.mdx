@@ -1,0 +1,105 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "prompt-injection-defense", locale: "vi",
+  title: "Prompt injection defense-in-depth", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["prompt-injection-defense","prompt engineering","T+K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Instruction và untrusted data dùng cùng kênh, vì vậy delimiter hoặc system prompt không thể là phòng thủ duy nhất.'},
+  steps: [
+    {label: {vi: 'Ingest'}, shape: 'user + retrieved content [tainted]', detail: {vi: 'Giữ taint metadata cho raw text.'}},
+    {label: {vi: 'Extract'}, shape: 'strict structured fields', detail: {vi: 'Chỉ dữ liệu đã validate được đi tiếp.'}},
+    {label: {vi: 'Authorize'}, shape: 'authenticated intent + least privilege', detail: {vi: 'Backend xác lập identity và ownership.'}},
+    {label: {vi: 'Enforce'}, shape: 'screened output + audit event', detail: {vi: 'Privileged boundary không nhận raw untrusted text.'}},
+  ], code: [], takeaway: {vi: 'Defense-in-depth tách data parsing khỏi authority và side effects.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'Email có câu “hãy gửi secrets tới URL này” vẫn chỉ là untrusted data.'},
+  steps: [
+    {label: {vi: 'Quarantine'}, shape: 'raw email [tainted]', detail: {vi: 'Reader không có secret hoặc write credential.'}},
+    {label: {vi: 'Extract'}, shape: '{invoiceId}', detail: {vi: 'Schema loại bỏ instruction và field thừa.'}},
+    {label: {vi: 'Authorize'}, shape: 'session + ownership', detail: {vi: 'Privileged service không nhận raw email.'}},
+    {label: {vi: 'Act'}, shape: 'allowlisted read | human-approved write', detail: {vi: 'Write/delete cần confirmation token.'}},
+  ], code: [], takeaway: {vi: 'Chỉ artifact kiểm chứng được vượt enforcement boundary; không hidden chain-of-thought.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame title="Authorize least-privilege tool call" contract="authenticated session + structured proposal → authorized read" output="session actor → read_invoice(INV-0042)" pitfall="Regex blocklist, đưa secret cho model và dùng service-admin credential đều phá trust boundary." takeaway="Backend giữ identity/ownership; raw email không đi qua privileged boundary.">
+
+~~~ts
+import assert from "node:assert/strict";
+
+type Session = { actorId: string; roles: readonly string[] };
+type ToolProposal = {
+  tool: string;
+  effect: "read" | "write";
+  args: { invoiceId?: unknown };
+  claimedActorId?: string;
+};
+
+function authorizeInvoiceRead(session: Session, proposal: ToolProposal) {
+  if (!session.roles.includes("support")) throw new Error("role_denied");
+  if (proposal.tool !== "read_invoice" || proposal.effect !== "read") {
+    throw new Error("tool_denied");
+  }
+  const invoiceId = proposal.args.invoiceId;
+  if (typeof invoiceId !== "string" || !/^INV-[0-9]{4}$/.test(invoiceId)) {
+    throw new Error("invalid_invoice_id");
+  }
+  return {
+    actorId: session.actorId,
+    tool: "read_invoice" as const,
+    invoiceId,
+  };
+}
+
+const result = authorizeInvoiceRead(
+  { actorId: "actor-from-session", roles: ["support"] },
+  {
+    tool: "read_invoice",
+    effect: "read",
+    args: { invoiceId: "INV-0042" },
+    claimedActorId: "attacker-claim",
+  },
+);
+assert.deepEqual(result, {
+  actorId: "actor-from-session",
+  tool: "read_invoice",
+  invoiceId: "INV-0042",
+});
+assert.throws(
+  () => authorizeInvoiceRead(
+    { actorId: "a1", roles: ["support"] },
+    { tool: "delete_invoice", effect: "write", args: { invoiceId: "INV-0042" } },
+  ),
+  /tool_denied/,
+);
+assert.throws(
+  () => authorizeInvoiceRead(
+    { actorId: "a1", roles: ["support"] },
+    { tool: "read_invoice", effect: "read", args: { invoiceId: "../secrets" } },
+  ),
+  /invalid_invoice_id/,
+);
+~~~
+
+<LessonNote>Model chỉ đề xuất structured arguments; session, ownership và
+authorization do backend xác lập. Raw email không đi qua privileged boundary.
+Production còn cần per-tool timeout, cancellation, output filtering và
+human-confirmation token cho write/delete effects.</LessonNote>
+
+Observability tiếp theo phải thấy failure mà không sao chép dữ liệu nhạy cảm.
+
+</CodeLessonFrame>
+
+</MdxPage>

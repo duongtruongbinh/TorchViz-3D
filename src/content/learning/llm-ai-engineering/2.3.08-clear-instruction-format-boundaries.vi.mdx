@@ -1,0 +1,59 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'clear-instruction-format-boundaries',
+  locale: 'vi',
+  title: 'Instruction, data và format boundaries',
+  headings: ['Tách authority khỏi data', 'Positive measurable constraints', 'Defense vẫn nằm ngoài prompt'],
+  keywords: ['instruction boundary', 'delimiter', 'positive constraints', 'validation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Request dễ audit tách ba vùng authority, data và output contract.'},
+  comparisons: [
+    {title: 'Trusted instruction', shape: 'versioned task + policy', detail: {vi: 'Do application kiểm soát.'}},
+    {title: 'Untrusted data', shape: 'user/retrieved + provenance', detail: {vi: 'Không được thăng cấp authority.'}},
+    {title: 'Output contract', shape: 'schema + success/refusal/error', detail: {vi: 'Cho parser và verifier.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Structured messages, JSON và delimiter giúp nhận vùng nhưng không biến data thành trusted; serializer phải escape đúng.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Positive constraints biến mong muốn mơ hồ thành acceptance criteria có thể parse.'},
+  steps: [
+    {label: {vi: 'Structure'}, shape: 'one JSON object', detail: {vi: 'Đúng schema, không extra properties.'}},
+    {label: {vi: 'Enum'}, shape: 'billing / delivery / other', detail: {vi: 'Category thuộc tập đóng.'}},
+    {label: {vi: 'Bound'}, shape: 'summary ≤ 40 words', detail: {vi: 'Giới hạn đo được thay cho “đừng dài dòng”.'}},
+    {label: {vi: 'Error branch'}, shape: 'missing evidence → incomplete', detail: {vi: 'Không ép model đoán.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Nếu cần audit, yêu cầu evidence IDs hoặc calculation fields—not toàn bộ suy nghĩ.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Delimiter không phải sandbox; defense vẫn nằm tại application enforcement boundaries.'},
+  steps: [
+    {label: {vi: 'Validate'}, shape: 'schema before + after model', detail: {vi: 'Reject malformed input/output.'}},
+    {label: {vi: 'Authorize'}, shape: 'ownership + tool allowlist', detail: {vi: 'Least privilege và confirmation cho destructive actions.'}},
+    {label: {vi: 'Operate'}, shape: 'screening + bounded retry', detail: {vi: 'Không string-concatenate user text vào code template.'}},
+    {label: {vi: 'Log safely'}, shape: 'version + error + correlation ID', detail: {vi: 'Không raw PII/secret; không nâng retrieved text thành system instruction.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài sau đồng bộ examples với output constraints.'},
+}} />
+
+</MdxPage>

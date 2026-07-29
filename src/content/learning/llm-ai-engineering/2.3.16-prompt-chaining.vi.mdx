@@ -1,0 +1,59 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'prompt-chaining',
+  locale: 'vi',
+  title: 'Prompt chaining với typed stages',
+  headings: ['Tách pipeline theo contract', 'Failure semantics', 'Production gate'],
+  keywords: ['prompt chaining', 'typed stages', 'retry', 'cancellation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Tách extract → decide → compose giúp test và thay thế từng stage, nhưng mỗi stage thêm latency và failure point.'},
+  steps: [
+    {label: {vi: 'Extract'}, shape: 'TicketText → TicketFacts', detail: {vi: 'Parse sang artifact có schema version, provenance và correlation ID.'}},
+    {label: {vi: 'Decide'}, shape: 'TicketFacts + fresh policy → Decision', detail: {vi: 'Xác minh business state thay vì tin mọi field model extract.'}},
+    {label: {vi: 'Compose'}, shape: 'Decision → Reply', detail: {vi: 'Chỉ trình bày decision đã được kiểm tra.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Mỗi arrow là runtime validation boundary; raw prose không được giả làm domain type.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Failure phải dừng hoặc retry tại đúng stage, không chạy lại cả chain một cách mù quáng.'},
+  steps: [
+    {label: {vi: 'Extract A17'}, shape: '{orderId:"A17", intent:"delay"}', detail: {vi: 'Thiếu orderId → extract.validation_error; dừng trước tool call.'}},
+    {label: {vi: 'Decide'}, shape: '{action:"apologize"}', detail: {vi: 'Xác minh ownership/state; policy denial là permanent error, không retry.'}},
+    {label: {vi: 'Compose'}, shape: 'locale + style contract', detail: {vi: 'Timeout tạm thời chỉ retry compose với immutable inputs nếu còn deadline.'}},
+    {label: {vi: 'Cancellation'}, shape: 'propagate downstream', detail: {vi: 'Không khởi tạo việc mới sau khi request bị hủy.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Invalid output fail fast; transient retry chỉ áp dụng cho stage idempotent và side effect đã thành công không được chạy lại.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Chain chỉ đáng giữ khi eval chứng minh decomposition cải thiện quality/reliability đủ bù latency và cost.'},
+  steps: [
+    {label: {vi: 'Budget'}, shape: 'total + per-stage deadline', detail: {vi: 'Giới hạn token/cost cho toàn chain.'}},
+    {label: {vi: 'Recovery'}, shape: 'error class → bounded retry', detail: {vi: 'Chỉ retry stage thất bại; side effect dùng idempotency key.'}},
+    {label: {vi: 'Propagation'}, shape: 'cancellation + correlation ID', detail: {vi: 'Giữ cùng request identity xuyên suốt.'}},
+    {label: {vi: 'Trace'}, shape: 'stage + schema version + timing + retries', detail: {vi: 'Redact error; không truyền/log secret, PII, raw payload hay hidden chain-of-thought.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Production chain là typed, bounded và observable end to end.'},
+}} />
+
+</MdxPage>

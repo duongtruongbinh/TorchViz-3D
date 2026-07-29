@@ -1,0 +1,78 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'lora-finetuning-theory',
+  locale: 'vi',
+  title: 'Lý thuyết fine-tuning với LoRA',
+  headings: ['Full vs PEFT', 'Low-rank update', 'Parameter count', 'Placement và merge'],
+  keywords: ['LoRA', 'parameter-efficient fine-tuning', 'low-rank adaptation', 'rank', 'alpha'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'LoRA thay cách biểu diễn update, không thay objective của task.'},
+  comparisons: [
+    {title: 'Full fine-tuning', shape: 'update all W', detail: {vi: 'Lưu gradient và optimizer state cho toàn model.'}},
+    {title: 'LoRA / PEFT', shape: 'frozen W + low-rank ΔW', detail: {vi: 'Chỉ học một phần nhỏ parameter bổ sung; lợi ích chính là training và storage.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Ít trainable parameters không tự động làm inference nhanh hơn; adapter chưa merge còn thêm hai phép nhân nhỏ.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Low-rank path giữ nguyên input/output dimensions nhưng ép update đi qua bottleneck r.'},
+  steps: [
+    {label: {vi: 'Input x'}, shape: '(...,d_in)', detail: {vi: 'Linear contract ban đầu.'}},
+    {label: {vi: 'Project with A'}, shape: 'A ∈ R^(r×d_in) → (...,r)', detail: {vi: 'Rank r nhỏ hơn nhiều d_in và d_out.'}},
+    {label: {vi: 'Expand with B'}, shape: 'B ∈ R^(d_out×r) → (...,d_out)', detail: {vi: 'ΔW≈BA.'}},
+    {label: {vi: 'Add base branch'}, shape: 'y=xWᵀ+(α/r)xAᵀBᵀ', detail: {vi: 'Output shape không đổi.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Rank r là bottleneck của update, không phải chiều hidden mới của model.'},
+  misconception: {vi: 'Kiểm tra thứ tự shape: d_in → r → d_out để tránh nhân A/B ngược.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked example đếm trainable parameters của một linear 768→768 với rank 8.'},
+  steps: [
+    {label: {vi: 'Full matrix'}, shape: '768×768 = 589,824', detail: {vi: 'Số trọng số của W gốc.'}},
+    {label: {vi: 'Adapter A'}, shape: '8×768', detail: {vi: 'Nối input dimension với rank.'}},
+    {label: {vi: 'Adapter B'}, shape: '768×8', detail: {vi: 'Nối rank với output dimension.'}},
+    {label: {vi: 'LoRA total'}, shape: '8(768+768)=12,288 ≈ 2.08%', detail: {vi: 'Tỷ lệ so với matrix gốc.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tiết kiệm tăng mạnh khi rank nhỏ so với chiều linear.'},
+  misconception: {vi: 'Không tính r²; hai matrices vẫn nối rank với input và output dimensions.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Placement, initialization và merge tạo vòng đời đầy đủ của LoRA adapter.'},
+  steps: [
+    {label: {vi: 'Place adapters'}, shape: 'Q/K/V/O và/hoặc MLP', detail: {vi: 'Chọn target linear layers.'}},
+    {label: {vi: 'Initialize'}, shape: 'one matrix = 0', detail: {vi: 'Update ban đầu bằng 0 nên khớp checkpoint gốc.'}},
+    {label: {vi: 'Train'}, shape: 'freeze W · learn A/B', detail: {vi: 'Giữ lợi ích gradient và optimizer memory.'}},
+    {label: {vi: 'Keep or merge'}, shape: 'W_merged=W+(α/r)BA', detail: {vi: 'Lưu adapter riêng hoặc gộp sau training.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Placement, rank và alpha là hyperparameter; validation quyết định cấu hình.'},
+  misconception: {vi: 'Quên đóng băng W biến quy trình thành vừa full fine-tune vừa train adapter.'},
+}} />
+
+</MdxPage>

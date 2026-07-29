@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'llm-evaluation-foundations-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Eval contract', 'Case không đủ evidence', 'Aggregate score', 'Release gate'],
+  keywords: ['quiz', 'evaluation contract', 'EvalCase', 'release gate'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="llm-evaluation-foundations-quiz" questions={[
+  {
+    id: 'llm-evaluation-foundations-quiz-q1',
+    title: 'Eval contract',
+    prompt: 'Team muốn biết model có phù hợp cho chatbot hỗ trợ đơn hàng hay không. Eval spec nào hữu ích nhất?',
+    mode: 'single',
+    options: [
+      { id: 'llm-evaluation-foundations-quiz-q1-a', label: 'Chỉ lấy điểm trung bình trên một leaderboard tổng quát' },
+      { id: 'llm-evaluation-foundations-quiz-q1-b', label: 'Dataset sát traffic, rubric theo task/risk, metric và ngưỡng quyết định đã version', isCorrect: true },
+      { id: 'llm-evaluation-foundations-quiz-q1-c', label: 'Chỉ chấm response có trôi chảy hay không' },
+      { id: 'llm-evaluation-foundations-quiz-q1-d', label: 'Chọn vài demo đẹp do chính team viết' },
+    ],
+    success: 'Đúng. Evaluation phải gắn input, expected behavior, metric và decision rule với use case.',
+    error: 'Chưa đúng. Một score chung hoặc vài demo không tạo được bằng chứng cho quyết định deployment.',
+  },
+  {
+    id: 'llm-evaluation-foundations-quiz-q2',
+    title: 'Case không đủ evidence',
+    prompt: 'Một câu hỏi không thể trả lời từ tài liệu được cấp. Expected behavior nên là gì?',
+    mode: 'single',
+    options: [
+      { id: 'llm-evaluation-foundations-quiz-q2-a', label: 'Đoán đáp án hợp lý nhất để tăng answer rate' },
+      { id: 'llm-evaluation-foundations-quiz-q2-b', label: 'Chép đoạn gần nhất dù không liên quan' },
+      { id: 'llm-evaluation-foundations-quiz-q2-c', label: 'Loại case khỏi dataset vì không có reference dài' },
+      { id: 'llm-evaluation-foundations-quiz-q2-d', label: 'Nói thiếu evidence và không bịa câu trả lời', isCorrect: true },
+    ],
+    success: 'Đúng. Abstention là expected behavior có thể kiểm tra được.',
+    error: 'Chưa đúng. Eval cần giữ case thiếu evidence để đo hallucination và calibration.',
+  },
+  {
+    id: 'llm-evaluation-foundations-quiz-q3',
+    title: 'Aggregate score',
+    prompt: 'Average score tăng nhưng critical safety case chuyển từ pass sang fail. Kết luận đúng là gì?',
+    mode: 'single',
+    options: [
+      { id: 'llm-evaluation-foundations-quiz-q3-a', label: 'Không release; critical invariant phải là gate riêng', isCorrect: true },
+      { id: 'llm-evaluation-foundations-quiz-q3-b', label: 'Release vì average đã tăng' },
+      { id: 'llm-evaluation-foundations-quiz-q3-c', label: 'Bỏ critical case khỏi báo cáo để giảm variance' },
+      { id: 'llm-evaluation-foundations-quiz-q3-d', label: 'Đặt weight của safety bằng 0 vì ít sample' },
+    ],
+    success: 'Đúng. Critical failure không được trung bình hóa với các cải thiện khác.',
+    error: 'Chưa đúng. Decision rule phải bảo toàn critical invariant trước aggregate metric.',
+  },
+  {
+    id: 'llm-evaluation-foundations-quiz-q4',
+    title: 'Release gate',
+    prompt: 'Artifact tối thiểu nào giúp tái hiện một eval run?',
+    mode: 'single',
+    options: [
+      { id: 'llm-evaluation-foundations-quiz-q4-a', label: 'Chỉ một average score trong slide' },
+      { id: 'llm-evaluation-foundations-quiz-q4-b', label: 'Screenshot một response tốt' },
+      { id: 'llm-evaluation-foundations-quiz-q4-c', label: 'Per-case result cùng dataset, model, prompt, evaluator và config version', isCorrect: true },
+      { id: 'llm-evaluation-foundations-quiz-q4-d', label: 'Chỉ tên model do provider hiển thị' },
+    ],
+    success: 'Đúng. Reproducibility cần per-case evidence và toàn bộ versioned inputs.',
+    error: 'Chưa đúng. Average hoặc screenshot không đủ để replay và debug.',
+  },
+]} />

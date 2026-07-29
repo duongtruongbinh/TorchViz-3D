@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'system-prompt-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Vai trò instruction', 'Authorization', 'Trust boundary', 'Dữ liệu nhạy cảm', 'Reasoning artifact'],
+  keywords: ['quiz', 'system prompt', 'trust boundary', 'authorization'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="system-prompt-quiz" questions={[
+  {
+    id: 'system-prompt-quiz-q1',
+    title: 'Vai trò instruction',
+    prompt: 'System instruction phù hợp nhất để chứa thông tin nào?',
+    mode: 'single',
+    options: [
+      { id: 'stable-task-policy', label: 'Nhiệm vụ, policy ổn định và acceptance criteria do ứng dụng kiểm soát', isCorrect: true },
+      { id: 'raw-user-data', label: 'Mọi raw user data được nối không validate' },
+      { id: 'api-key', label: 'API key để model gọi tool trực tiếp' },
+      { id: 'database', label: 'Toàn bộ database làm nguồn sự thật' },
+    ],
+    success: 'Đúng. System instruction mô tả contract đáng tin cậy của ứng dụng.',
+    error: 'Chưa đúng. Chọn nội dung ổn định, có owner và thuộc vùng cấu hình tin cậy.',
+  },
+  {
+    id: 'system-prompt-quiz-q2',
+    title: 'Authorization',
+    prompt: 'System prompt ghi “chỉ đọc đơn hàng” có đủ để ngăn model gọi tool hoàn tiền không?',
+    mode: 'single',
+    options: [
+      { id: 'temperature', label: 'Đủ nếu temperature bằng 0' },
+      { id: 'backend-enforcement', label: 'Không; backend phải allowlist tool và kiểm tra authorization', isCorrect: true },
+      { id: 'uppercase', label: 'Đủ nếu viết policy bằng chữ in hoa' },
+      { id: 'longer-prompt', label: 'Đủ nếu prompt dài hơn user input' },
+    ],
+    success: 'Đúng. Prompt hướng dẫn model; privileged boundary phải được thực thi trong code.',
+    error: 'Chưa đúng. Natural-language instruction không phải access-control mechanism.',
+  },
+  {
+    id: 'system-prompt-quiz-q3',
+    title: 'Trust boundary',
+    prompt: 'Cách đặt retrieved text không tin cậy nào giữ boundary rõ nhất?',
+    mode: 'single',
+    options: [
+      { id: 'merge-policy', label: 'Nối nó vào giữa policy như instruction cùng authority' },
+      { id: 'promote', label: 'Đổi mọi câu trong tài liệu thành system rule' },
+      { id: 'mark-as-data', label: 'Đặt trong field/content block dữ liệu riêng và giữ tool controls bên ngoài model', isCorrect: true },
+      { id: 'hide-source', label: 'Xóa provenance để model không bị phân tâm' },
+    ],
+    success: 'Đúng. Cấu trúc rõ giúp audit, còn enforcement vẫn nằm ở application.',
+    error: 'Chưa đúng. Dữ liệu không tin cậy không được thăng cấp thành instruction đáng tin cậy.',
+  },
+  {
+    id: 'system-prompt-quiz-q4',
+    title: 'Dữ liệu nhạy cảm',
+    prompt: 'Team muốn model “ghi nhớ” credential bằng cách đặt secret vào system prompt. Quyết định đúng?',
+    mode: 'single',
+    options: [
+      { id: 'base64', label: 'Được nếu mã hóa base64' },
+      { id: 'hidden-ui', label: 'Được nếu UI không hiển thị system prompt' },
+      { id: 'rotate-yearly', label: 'Được nếu đổi secret mỗi năm' },
+      { id: 'keep-server-side', label: 'Không; giữ credential server-side và cấp tool capability tối thiểu', isCorrect: true },
+    ],
+    success: 'Đúng. Model không cần thấy secret để ứng dụng thực hiện một tool call có kiểm soát.',
+    error: 'Chưa đúng. “Ẩn” trong prompt không tạo secret boundary.',
+  },
+  {
+    id: 'system-prompt-quiz-q5',
+    title: 'Reasoning artifact',
+    prompt: 'Output contract nào hỗ trợ audit mà không yêu cầu hidden chain-of-thought?',
+    mode: 'single',
+    options: [
+      { id: 'verifiable-fields', label: 'Kết luận ngắn cùng evidence IDs, calculation hoặc validator results cần thiết', isCorrect: true },
+      { id: 'all-thoughts', label: 'Toàn bộ độc thoại nội bộ từng token' },
+      { id: 'raw-logits', label: 'Raw logits của mọi layer' },
+      { id: 'private-data', label: 'Raw PII đã dùng trong suy luận' },
+    ],
+    success: 'Đúng. Artifact có cấu trúc mới là contract kiểm chứng được.',
+    error: 'Chưa đúng. Audit cần evidence và checks, không cần thu thập suy nghĩ nội bộ.',
+  },
+]} />

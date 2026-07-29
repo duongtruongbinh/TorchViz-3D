@@ -1,0 +1,85 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "grouped-query-attention",
+  locale: "vi",
+  title: "Grouped-query attention",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["grouped-query-attention","LLM","production","C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'GQA chọn điểm giữa MHA và MQA để giảm KV cache/bandwidth nhưng vẫn giữ nhiều KV groups.'},
+  comparisons: [
+    {title: 'MHA', shape: 'H_q = H_kv', detail: {vi: 'Mỗi query head có một K/V head.'}},
+    {title: 'GQA', shape: '1 < H_kv < H_q', detail: {vi: 'Một KV head phục vụ một nhóm query heads.'}},
+    {title: 'MQA', shape: 'H_kv = 1', detail: {vi: 'Mọi query heads dùng chung một K/V head.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Q có (B,H_q,T,D); K/V có (B,H_kv,T,D), với H_q chia hết cho H_kv.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Trace mapping GQA"
+  contract="positive H_q divisible by H_kv → query heads per KV group"
+  output="32 query heads / 8 KV heads = 4 queries mỗi group, cache giảm 4× so với MHA"
+  pitfall="Không cho H_q không chia hết H_kv nếu chưa định nghĩa mapping khác."
+  takeaway="GQA giảm KV heads; số query heads vẫn giữ nguyên."
+>
+
+Nếu `H_q=32`, `H_kv=8`, mỗi KV head phục vụ 4 query heads. So với MHA 32 KV heads, phần KV cache giảm `32/8 = 4×`; so với MQA một head, nó vẫn lớn hơn 8×.
+
+~~~ts
+import assert from "node:assert/strict";
+
+function gqaLayout(queryHeads: number, kvHeads: number) {
+  if (
+    !Number.isInteger(queryHeads)
+    || !Number.isInteger(kvHeads)
+    || queryHeads <= 0
+    || kvHeads <= 0
+    || queryHeads % kvHeads !== 0
+  ) {
+    throw new Error("queryHeads must be divisible by positive kvHeads");
+  }
+  return {
+    queriesPerKvHead: queryHeads / kvHeads,
+    cacheReductionVsMha: queryHeads / kvHeads,
+  };
+}
+
+assert.deepEqual(gqaLayout(32, 8), {
+  queriesPerKvHead: 4,
+  cacheReductionVsMha: 4,
+});
+assert.throws(() => gqaLayout(30, 8), /divisible/);
+~~~
+
+**Cách tự kiểm tra:** viết các đại lượng và đơn vị trước, thay số sau, rồi kiểm tra output có đúng type/shape và giới hạn hay không.
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'KV-head layout là lựa chọn kiến trúc cần được train và evaluate, không phải knob serving vô hại.'},
+  steps: [
+    {label: {vi: 'Architecture lock'}, shape: 'H_q / H_kv', detail: {vi: 'Không tự ý giảm KV heads sau training.'}},
+    {label: {vi: 'Mapping audit'}, shape: 'H_q % H_kv = 0', detail: {vi: 'Mỗi query head phải có KV group rõ ràng.'}},
+    {label: {vi: 'Quality eval'}, shape: 'model × task', detail: {vi: 'Không khẳng định chất lượng giống hệt cho mọi workload.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài kế tiếp giảm phạm vi key mỗi query được nhìn thấy thay vì giảm số KV heads.'},
+}} />
+
+</MdxPage>

@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-embedding-input-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Embedding weight', 'Lookup shape', 'Integer IDs', 'Positional information', 'Final shape'],
+  keywords: ['quiz', 'nn.Embedding', 'embedding weight', 'token IDs', 'positional embedding', 'tensor shape'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="tokenization-embedding-input-quiz" questions={[
+  {
+    id: 'embedding-weight-shape', title: 'Embedding weight', prompt: '`nn.Embedding(V=6, C=3)` có weight shape nào?', mode: 'single',
+    options: [
+      { id: 'vc', label: '(6,3): một hàng C chiều cho mỗi token ID.', isCorrect: true },
+      { id: 'cv', label: '(3,6): một token cho mỗi feature.' },
+      { id: 'btc', label: '(B,T,C).' },
+      { id: 'btv', label: '(B,T,V).' },
+    ],
+    success: 'Đúng. V đếm số hàng tra cứu; C là số giá trị trong mỗi hàng.',
+    error: 'Phân biệt parameter-table shape `(V,C)` với activation shape theo batch.',
+  },
+  {
+    id: 'embedding-output-shape', title: 'Lookup shape', prompt: 'Input IDs có shape `(8,32)` và `C=128`. Token embedding output có shape nào?', mode: 'single',
+    options: [
+      { id: 'lookup-btc', label: '(8,32,128)', isCorrect: true },
+      { id: 'bc', label: '(8,128)' },
+      { id: 'lookup-tc', label: '(32,128)' },
+      { id: 'lookup-btv', label: '(8,32,V)' },
+    ],
+    success: 'Đúng. Lookup giữ B và T, rồi thêm feature dimension C.',
+    error: 'Embedding không bỏ batch/sequence axis và chưa tạo vocabulary logits.',
+  },
+  {
+    id: 'embedding-index-dtype', title: 'Integer indices', prompt: 'Cách dùng nào đúng cho `nn.Embedding`?', mode: 'single',
+    options: [
+      { id: 'long-index', label: 'Truyền token IDs `torch.long` để index trực tiếp các hàng.', isCorrect: true },
+      { id: 'float-id', label: 'Truyền float IDs vì embeddings là số thực.' },
+      { id: 'manual-one-hot', label: 'Bắt buộc tạo one-hot `(B,T,V)` trong implementation.' },
+      { id: 'raw-text', label: 'Truyền raw strings trực tiếp vào layer.' },
+    ],
+    success: 'Đúng. Output là float vectors, nhưng input của lookup là integer indices.',
+    error: 'Phân biệt dtype của indices với dtype của embedding weights/output.',
+  },
+  {
+    id: 'position-role-and-addition', title: 'Positional information', prompt: 'Token vectors `(B,T,C)` và absolute position vectors `(T,C)` nên được kết hợp thế nào?', mode: 'single',
+    options: [
+      { id: 'add', label: 'Cộng sau khi bảo đảm cùng T và C; broadcast position vectors qua B.', isCorrect: true },
+      { id: 'concat', label: 'Luôn concat thành `(B,T,2C)` mà không đổi model.' },
+      { id: 'batch-positions', label: 'Tạo positions `0..B-1` vì position chạy theo batch.' },
+      { id: 'id-sum', label: 'Cộng position index trực tiếp vào token ID trước lookup.' },
+    ],
+    success: 'Đúng. Addition giữ model dimension C và thêm tín hiệu vị trí tại từng sequence position.',
+    error: 'Position chạy theo T; hai vector C chiều được cộng, không đổi token IDs.',
+  },
+  {
+    id: 'full-pipeline-shape', title: 'Final model input', prompt: 'V=6, B=2, T=3, C=3. Shape cuối sau token + position embeddings là gì?', mode: 'single',
+    options: [
+      { id: 'final-btc', label: '(2,3,3)', isCorrect: true },
+      { id: 'final-btv', label: '(2,3,6)' },
+      { id: 'final-vc', label: '(6,3)' },
+      { id: 'final-tc', label: '(3,3) vì batch bị bỏ.' },
+    ],
+    success: 'Đúng. Model input giữ B,T và dùng C làm feature dimension.',
+    error: 'V chỉ nằm trong parameter table; position vectors được broadcast chứ không xóa B.',
+  },
+]} />

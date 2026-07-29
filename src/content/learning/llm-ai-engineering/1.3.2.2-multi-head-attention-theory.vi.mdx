@@ -1,0 +1,78 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'multi-head-attention-theory',
+  locale: 'vi',
+  title: 'Lý thuyết multi-head attention',
+  headings: ['Mục tiêu', 'Tách head', 'Ghép head', 'Dropout và tham số'],
+  keywords: ['multi-head attention', 'head dimension', 'concat', 'output projection', 'dropout'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<AttentionConceptVisual content={{
+  view: 'batch',
+  lead: {vi: 'GPT chạy nhiều attention head song song để học nhiều cách trộn Value nhưng vẫn giữ public contract (B,T,C) → (B,T,C).'},
+  steps: [
+    {label: {vi: 'Shared input'}, shape: '(B,T,C)', detail: {vi: 'Cùng token sequence đi vào mọi head.'}},
+    {label: {vi: 'Parallel heads'}, shape: 'H × (B,T,D)', detail: {vi: 'Mỗi head học một không gian biểu diễn.'}},
+    {label: {vi: 'Public output'}, shape: '(B,T,C)', detail: {vi: 'Các head được ghép lại trước residual stream.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Multi-head tăng số góc nhìn, không thay đổi chiều output công khai của block.'},
+  misconception: {vi: 'Không gán cứng mỗi head thành “chuyên gia ngữ pháp”; chỉ có thể quan sát pattern sau training, kiến trúc không bảo đảm nhãn ngữ nghĩa.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<AttentionConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Head axis chia feature dimension C, không chia sequence T. Điều kiện bắt buộc là C % H == 0.'},
+  steps: [
+    {label: {vi: 'Projected Q/K/V'}, shape: '(B,T,C)', detail: {vi: 'Ví dụ C=12, H=3.'}},
+    {label: {vi: 'Reshape'}, shape: '(B,T,H,D)', detail: {vi: 'D=C/H=4.'}},
+    {label: {vi: 'Transpose'}, shape: '(B,H,T,D)', detail: {vi: 'Đặt head trước sequence.'}},
+    {label: {vi: 'Per-head scores'}, shape: '(B,H,T,T)', detail: {vi: 'Mọi head vẫn nhìn cùng T vị trí.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Viết rõ (B,H,T,D) giúp đặt transpose và softmax đúng chiều.'},
+  misconception: {vi: 'Không chia T cho số head; head chia feature C, còn sequence length giữ nguyên.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<AttentionConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Sau weights @ V, transpose và concat đảo ngược phép split trước khi output projection trộn feature giữa các head.'},
+  steps: [
+    {label: {vi: 'Per-head context'}, shape: '(B,H,T,D)', detail: {vi: 'Mỗi head trả D features.'}},
+    {label: {vi: 'Transpose'}, shape: '(B,T,H,D)', detail: {vi: 'Đưa sequence trở lại trước head.'}},
+    {label: {vi: 'Concat H×D'}, shape: '(B,T,C)', detail: {vi: 'Khôi phục C vì H×D=C.'}},
+    {label: {vi: 'Output projection'}, shape: '@ W_O → (B,T,C)', detail: {vi: 'Trộn feature giữa các head.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Split và concat là hai phép biến đổi shape đối xứng; W_O hoàn tất attention trước residual stream.'},
+  misconception: {vi: 'Không cộng các head để mong nhận C; cộng chỉ trả D, còn concat mới khôi phục C.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<AttentionConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Với C cố định và bỏ bias, Q/K/V cùng output projection là bốn ma trận C×C, tổng gần 4C² parameters.'},
+  comparisons: [
+    {title: 'Causal mask', shape: 'information invariant', detail: {vi: 'Quyết định token nào được phép nhìn trong train và eval.'}},
+    {title: 'Dropout', shape: 'train-only regularization', detail: {vi: 'Bỏ ngẫu nhiên một phần weights hợp lệ hoặc output; model.eval() tắt dropout.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Tăng số head khi C cố định không tự tăng số parameter chiếu; nó đổi cách tổ chức tensor.'},
+  misconception: {vi: 'Không dùng dropout để che tương lai; causal mask là ràng buộc thông tin bắt buộc.'},
+}} />
+
+</MdxPage>

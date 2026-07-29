@@ -1,0 +1,90 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "count-tokens-before-sending", locale: "vi",
+ title: "Đếm token trước khi gửi request", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["count-tokens-before-sending","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Preflight budget ngăn request chắc chắn overflow và cho phép chọn model/provider trước khi tiêu quota."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Messages, tools, retrieval, output reserve và model-specific estimator."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Breakdown token estimate cùng allow|compact|route|reject decision."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Structured request → scalar counts per component → total và remaining budget."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
+
+Preflight budget ngăn request chắc chắn overflow và cho phép chọn model/provider trước khi tiêu quota.
+
+**Input:** Messages, tools, retrieval, output reserve và model-specific estimator.
+
+**Output:** Breakdown token estimate cùng `allow|compact|route|reject` decision.
+
+**Data/type/shape:** Structured request → scalar counts per component → total và remaining budget.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
+
+Capacity 8.000, system 400, history 2.500, retrieval 2.000, tools 600, user 500, output reserve 1.200: tổng 7.200, headroom 800. Billed usage sau call được so với estimate để calibrate.
+
+~~~ts
+import assert from "node:assert/strict";
+type Components = {
+  system: number; history: number; retrieval: number;
+  tools: number; user: number; outputReserve: number;
+};
+function preflight(capacity: number, parts: Components) {
+  const entries = Object.entries(parts) as Array<[keyof Components, number]>;
+  if (entries.some(([, value]) => value < 0)) throw new Error("negative_count");
+  const reservedTotal = entries.reduce((sum, [, value]) => sum + value, 0);
+  const headroom = capacity - reservedTotal;
+  return {
+    reservedTotal,
+    headroom,
+    decision: headroom >= 0 ? "allow" : "compact_or_route",
+  } as const;
+}
+
+const result = preflight(8_000, {
+  system: 400, history: 2_500, retrieval: 2_000,
+  tools: 600, user: 500, outputReserve: 1_200,
+});
+assert.deepEqual(result, {
+  reservedTotal: 7_200, headroom: 800, decision: "allow",
+});
+assert.equal(
+  preflight(7_000, {
+    system: 400, history: 2_500, retrieval: 2_000,
+    tools: 600, user: 500, outputReserve: 1_200,
+  }).decision,
+  "compact_or_route",
+);
+~~~
+<LessonNote>Estimator phải pin model/tokenizer/request-envelope version. Provider usage sau call được lưu riêng để reconciliation, không dùng estimate như invoice.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Đếm token trước khi gửi request"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Chỉ đếm user text."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Không reserve output."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Dùng estimate làm invoice exact."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
+
+**Pitfalls:**
+
+- Chỉ đếm user text.
+- Không reserve output.
+- Dùng estimate làm invoice exact.
+
+**Kết nối:** Truncation chọn phần nào được giữ khi budget không đủ.
+
+</MdxPage>

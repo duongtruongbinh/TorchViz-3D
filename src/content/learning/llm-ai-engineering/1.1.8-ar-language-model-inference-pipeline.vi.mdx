@@ -3,52 +3,37 @@ export const lessonMetadata = {
   id: 'ar-language-model-inference-pipeline',
   locale: 'vi',
   title: 'Quy trình sinh token của AR Language Model',
-  headings: ['Tokenize', 'Forward', 'Predict probabilities', 'Sample', 'Detokenize', 'Vocabulary output vector'],
+  headings: ['Corpus, vocabulary và output', 'Tokenize', 'Forward', 'Logits', 'Predict probabilities', 'Sample và Detokenize', 'Training song song'],
   keywords: ['tokenize', 'forward', 'probability', 'sample', 'detokenize', 'vocabulary', 'softmax'],
-  pageCount: 6,
+  pageCount: 7,
 }
 
 <MdxPage page={0}>
-  <LlmArInferencePipeline step={0} content={{
-  "title": { vi: "AR Language Model sinh token như thế nào?" },
-  "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
-  "steps": [
-    { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
-    { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
-  ],
-  "inputText": "She likely prefers",
-  "tokens": ["She", "likely", "prefers"],
-  "tokenIds": [1, 2, 3],
-  "modelLabel": { vi: "AR Language Model" },
-  "candidates": [
-    { "token": "dogs", "tokenId": 5, "probability": 0.55 },
-    { "token": "cats", "tokenId": 6, "probability": 0.22 },
-    { "token": "books", "tokenId": 7, "probability": 0.13 },
-    { "token": "music", "tokenId": 8, "probability": 0.10 }
-  ],
-  "sampledToken": "dogs",
-  "sampledTokenId": 5,
-  "outputText": "She likely prefers dogs"
-}} />
+  <LlmVocabularyOutputVector content={{
+    "lead": { vi: "" },
+    "corpusDefinition": { vi: "Corpus là tập hợp các văn bản được thu thập để huấn luyện model." },
+    "corpusLabel": { vi: "" },
+    "vocabularyLabel": { vi: "Vocabulary là danh sách các token mà tokenizer và model có thể xử lý." },
+    "vectorLabel": { vi: "Output là một vector xác suất: mỗi vị trí ứng với một token trong vocabulary, và token có xác suất cao hơn có nhiều khả năng được chọn hơn." },
+    "entries": [],
+    "note": { vi: "" }
+  }} />
 </MdxPage>
 
 <MdxPage page={1}>
-  <LlmArInferencePipeline step={1} content={{
+  <LlmArInferencePipeline step={0} content={{
   "title": { vi: "AR Language Model sinh token như thế nào?" },
-  "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
+  "body": { vi: "AR (autoregressive) nghĩa là model sinh từng token một. Mỗi token vừa sinh được nối vào câu và trở thành context cho bước tiếp theo." },
   "steps": [
-    { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
-    { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
+    { "label": { vi: "Tokenize" }, "description": { vi: "Chia text thành các token, rồi đổi mỗi token thành một ID số." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa dãy ID qua model. Model chấm điểm từng token có thể xuất hiện tiếp theo; các điểm chưa chuẩn hóa này gọi là logits." } },
+    { "label": { vi: "Logits" }, "description": { vi: "Model trả một vector điểm cho mỗi vị trí trong input. Mỗi vector có một số cho từng token trong vocabulary; khi sinh token tiếp theo, ta chỉ dùng vector ở vị trí cuối." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Dùng softmax để đổi logits ở vị trí cuối thành xác suất. Mỗi token trong vocabulary nhận một xác suất và tổng bằng 1." } },
+    { "label": { vi: "Sample và Detokenize" }, "description": { vi: "Chọn một token từ phân phối xác suất, đổi token ID đó trở lại thành text, nối vào câu hiện tại rồi lặp lại quy trình." } }
   ],
-  "inputText": "She likely prefers",
-  "tokens": ["She", "likely", "prefers"],
-  "tokenIds": [1, 2, 3],
+  "inputText": "She likely prefers the",
+  "tokens": ["She", "likely", "prefers", "the"],
+  "tokenIds": [1, 2, 3, 4],
   "modelLabel": { vi: "AR Language Model" },
   "candidates": [
     { "token": "dogs", "tokenId": 5, "probability": 0.55 },
@@ -58,24 +43,24 @@ export const lessonMetadata = {
   ],
   "sampledToken": "dogs",
   "sampledTokenId": 5,
-  "outputText": "She likely prefers dogs"
+  "outputText": "She likely prefers the dogs"
 }} />
 </MdxPage>
 
 <MdxPage page={2}>
-  <LlmArInferencePipeline step={2} content={{
+  <LlmArInferencePipeline step={1} content={{
   "title": { vi: "AR Language Model sinh token như thế nào?" },
-  "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
+  "body": { vi: "AR (autoregressive) nghĩa là model sinh từng token một. Mỗi token vừa sinh được nối vào câu và trở thành context cho bước tiếp theo." },
   "steps": [
-    { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
-    { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
+    { "label": { vi: "Tokenize" }, "description": { vi: "Chia text thành các token, rồi đổi mỗi token thành một ID số." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa dãy ID qua model. Model chấm điểm từng token có thể xuất hiện tiếp theo; các điểm chưa chuẩn hóa này gọi là logits." } },
+    { "label": { vi: "Logits" }, "description": { vi: "Model trả một vector điểm cho mỗi vị trí trong input. Mỗi vector có một số cho từng token trong vocabulary; khi sinh token tiếp theo, ta chỉ dùng vector ở vị trí cuối." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Dùng softmax để đổi logits ở vị trí cuối thành xác suất. Mỗi token trong vocabulary nhận một xác suất và tổng bằng 1." } },
+    { "label": { vi: "Sample và Detokenize" }, "description": { vi: "Chọn một token từ phân phối xác suất, đổi token ID đó trở lại thành text, nối vào câu hiện tại rồi lặp lại quy trình." } }
   ],
-  "inputText": "She likely prefers",
-  "tokens": ["She", "likely", "prefers"],
-  "tokenIds": [1, 2, 3],
+  "inputText": "She likely prefers the",
+  "tokens": ["She", "likely", "prefers", "the"],
+  "tokenIds": [1, 2, 3, 4],
   "modelLabel": { vi: "AR Language Model" },
   "candidates": [
     { "token": "dogs", "tokenId": 5, "probability": 0.55 },
@@ -85,24 +70,24 @@ export const lessonMetadata = {
   ],
   "sampledToken": "dogs",
   "sampledTokenId": 5,
-  "outputText": "She likely prefers dogs"
+  "outputText": "She likely prefers the dogs"
 }} />
 </MdxPage>
 
 <MdxPage page={3}>
-  <LlmArInferencePipeline step={3} content={{
+  <LlmArInferencePipeline step={2} content={{
   "title": { vi: "AR Language Model sinh token như thế nào?" },
-  "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
+  "body": { vi: "AR (autoregressive) nghĩa là model sinh từng token một. Mỗi token vừa sinh được nối vào câu và trở thành context cho bước tiếp theo." },
   "steps": [
-    { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
-    { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
+    { "label": { vi: "Tokenize" }, "description": { vi: "Chia text thành các token, rồi đổi mỗi token thành một ID số." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa dãy ID qua model. Model chấm điểm từng token có thể xuất hiện tiếp theo; các điểm chưa chuẩn hóa này gọi là logits." } },
+    { "label": { vi: "Logits" }, "description": { vi: "Model trả một vector điểm cho mỗi vị trí trong input. Mỗi vector có một số cho từng token trong vocabulary; khi sinh token tiếp theo, ta chỉ dùng vector ở vị trí cuối." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Dùng softmax để đổi logits ở vị trí cuối thành xác suất. Mỗi token trong vocabulary nhận một xác suất và tổng bằng 1." } },
+    { "label": { vi: "Sample và Detokenize" }, "description": { vi: "Chọn một token từ phân phối xác suất, đổi token ID đó trở lại thành text, nối vào câu hiện tại rồi lặp lại quy trình." } }
   ],
-  "inputText": "She likely prefers",
-  "tokens": ["She", "likely", "prefers"],
-  "tokenIds": [1, 2, 3],
+  "inputText": "She likely prefers the",
+  "tokens": ["She", "likely", "prefers", "the"],
+  "tokenIds": [1, 2, 3, 4],
   "modelLabel": { vi: "AR Language Model" },
   "candidates": [
     { "token": "dogs", "tokenId": 5, "probability": 0.55 },
@@ -112,24 +97,24 @@ export const lessonMetadata = {
   ],
   "sampledToken": "dogs",
   "sampledTokenId": 5,
-  "outputText": "She likely prefers dogs"
+  "outputText": "She likely prefers the dogs"
 }} />
 </MdxPage>
 
 <MdxPage page={4}>
-  <LlmArInferencePipeline step={4} content={{
+  <LlmArInferencePipeline step={3} content={{
   "title": { vi: "AR Language Model sinh token như thế nào?" },
-  "body": { vi: "Thông thường sẽ có 5 bước cơ bản để một AR Language Model sinh ra token tiếp theo." },
+  "body": { vi: "AR (autoregressive) nghĩa là model sinh từng token một. Mỗi token vừa sinh được nối vào câu và trở thành context cho bước tiếp theo." },
   "steps": [
-    { "label": { vi: "Tokenize" }, "description": { vi: "Tách text thành token và ánh xạ mỗi token sang một token ID." } },
-    { "label": { vi: "Forward" }, "description": { vi: "Đưa các token ID hiện có qua model để tính phân phối xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Predict probabilities" }, "description": { vi: "Mỗi token trong vocabulary nhận một xác suất cho vị trí tiếp theo." } },
-    { "label": { vi: "Sample" }, "description": { vi: "Chọn một token từ phân phối xác suất theo chiến lược decoding." } },
-    { "label": { vi: "Detokenize" }, "description": { vi: "Chuyển token được chọn về text và nối nó vào câu đang có." } }
+    { "label": { vi: "Tokenize" }, "description": { vi: "Chia text thành các token, rồi đổi mỗi token thành một ID số." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa dãy ID qua model. Model chấm điểm từng token có thể xuất hiện tiếp theo; các điểm chưa chuẩn hóa này gọi là logits." } },
+    { "label": { vi: "Logits" }, "description": { vi: "Model trả một vector điểm cho mỗi vị trí trong input. Mỗi vector có một số cho từng token trong vocabulary; khi sinh token tiếp theo, ta chỉ dùng vector ở vị trí cuối." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Dùng softmax để đổi logits ở vị trí cuối thành xác suất. Mỗi token trong vocabulary nhận một xác suất và tổng bằng 1." } },
+    { "label": { vi: "Sample và Detokenize" }, "description": { vi: "Chọn một token từ phân phối xác suất, đổi token ID đó trở lại thành text, nối vào câu hiện tại rồi lặp lại quy trình." } }
   ],
-  "inputText": "She likely prefers",
-  "tokens": ["She", "likely", "prefers"],
-  "tokenIds": [1, 2, 3],
+  "inputText": "She likely prefers the",
+  "tokens": ["She", "likely", "prefers", "the"],
+  "tokenIds": [1, 2, 3, 4],
   "modelLabel": { vi: "AR Language Model" },
   "candidates": [
     { "token": "dogs", "tokenId": 5, "probability": 0.55 },
@@ -139,27 +124,60 @@ export const lessonMetadata = {
   ],
   "sampledToken": "dogs",
   "sampledTokenId": 5,
-  "outputText": "She likely prefers dogs"
+  "outputText": "She likely prefers the dogs"
 }} />
 </MdxPage>
 
 <MdxPage page={5}>
-  <LlmVocabularyOutputVector content={{
-    "lead": { vi: "Ở mỗi bước dự đoán, model tạo một output vector có độ dài bằng số token trong vocabulary." },
-    "corpusDefinition": { vi: "Corpus là tập hợp các văn bản được thu thập để huấn luyện model. Từ corpus, chúng ta lấy ra các unique token để tạo thành vocabulary." },
-    "corpusLabel": { vi: "Tập văn bản dùng để học và xây dựng bộ token." },
-    "vocabularyLabel": { vi: "Danh sách các token duy nhất mà tokenizer và model biết." },
-    "vectorLabel": { vi: "Mỗi vị trí ứng với đúng một token trong vocabulary." },
-    "entries": [
-      { "token": "She", "tokenId": 1, "probability": 0.04 },
-      { "token": "likely", "tokenId": 2, "probability": 0.05 },
-      { "token": "prefers", "tokenId": 3, "probability": 0.03 },
-      { "token": "the", "tokenId": 4, "probability": 0.06 },
-      { "token": "dogs", "tokenId": 5, "probability": 0.55 },
-      { "token": "cats", "tokenId": 6, "probability": 0.12 },
-      { "token": "books", "tokenId": 7, "probability": 0.09 },
-      { "token": "music", "tokenId": 8, "probability": 0.06 }
-    ],
-    "note": { vi: "Model thực tế thường có vocabulary gồm hàng chục nghìn token; sau softmax, mỗi token đều nhận một xác suất và tổng các xác suất bằng 1." }
-  }} />
+  <LlmArInferencePipeline step={4} content={{
+  "title": { vi: "AR Language Model sinh token như thế nào?" },
+  "body": { vi: "AR (autoregressive) nghĩa là model sinh từng token một. Mỗi token vừa sinh được nối vào câu và trở thành context cho bước tiếp theo." },
+  "steps": [
+    { "label": { vi: "Tokenize" }, "description": { vi: "Chia text thành các token, rồi đổi mỗi token thành một ID số." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa dãy ID qua model. Model chấm điểm từng token có thể xuất hiện tiếp theo; các điểm chưa chuẩn hóa này gọi là logits." } },
+    { "label": { vi: "Logits" }, "description": { vi: "Model trả một vector điểm cho mỗi vị trí trong input. Mỗi vector có một số cho từng token trong vocabulary; khi sinh token tiếp theo, ta chỉ dùng vector ở vị trí cuối." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Dùng softmax để đổi logits ở vị trí cuối thành xác suất. Mỗi token trong vocabulary nhận một xác suất và tổng bằng 1." } },
+    { "label": { vi: "Sample và Detokenize" }, "description": { vi: "Chọn một token từ phân phối xác suất, đổi token ID đó trở lại thành text, nối vào câu hiện tại rồi lặp lại quy trình." } }
+  ],
+  "inputText": "She likely prefers the",
+  "tokens": ["She", "likely", "prefers", "the"],
+  "tokenIds": [1, 2, 3, 4],
+  "modelLabel": { vi: "AR Language Model" },
+  "candidates": [
+    { "token": "dogs", "tokenId": 5, "probability": 0.55 },
+    { "token": "cats", "tokenId": 6, "probability": 0.22 },
+    { "token": "books", "tokenId": 7, "probability": 0.13 },
+    { "token": "music", "tokenId": 8, "probability": 0.10 }
+  ],
+  "sampledToken": "dogs",
+  "sampledTokenId": 5,
+  "outputText": "She likely prefers the dogs"
+}} />
+</MdxPage>
+
+<MdxPage page={6}>
+  <LlmArInferencePipeline step={2} training content={{
+  "title": { vi: "AR Language Model sinh token như thế nào?" },
+  "body": { vi: "AR (autoregressive) nghĩa là model sinh từng token một. Mỗi token vừa sinh được nối vào câu và trở thành context cho bước tiếp theo." },
+  "steps": [
+    { "label": { vi: "Tokenize" }, "description": { vi: "Chia text thành các token, rồi đổi mỗi token thành một ID số." } },
+    { "label": { vi: "Forward" }, "description": { vi: "Đưa dãy ID qua model. Model chấm điểm từng token có thể xuất hiện tiếp theo; các điểm chưa chuẩn hóa này gọi là logits." } },
+    { "label": { vi: "Logits" }, "description": { vi: "Model trả một vector điểm cho mỗi vị trí trong input. Mỗi vector có một số cho từng token trong vocabulary; khi sinh token tiếp theo, ta chỉ dùng vector ở vị trí cuối." } },
+    { "label": { vi: "Predict probabilities" }, "description": { vi: "Dùng softmax để đổi logits ở vị trí cuối thành xác suất. Mỗi token trong vocabulary nhận một xác suất và tổng bằng 1." } },
+    { "label": { vi: "Sample và Detokenize" }, "description": { vi: "Chọn một token từ phân phối xác suất, đổi token ID đó trở lại thành text, nối vào câu hiện tại rồi lặp lại quy trình." } }
+  ],
+  "inputText": "She likely prefers the",
+  "tokens": ["She", "likely", "prefers", "the"],
+  "tokenIds": [1, 2, 3, 4],
+  "modelLabel": { vi: "AR Language Model" },
+  "candidates": [
+    { "token": "dogs", "tokenId": 5, "probability": 0.55 },
+    { "token": "cats", "tokenId": 6, "probability": 0.22 },
+    { "token": "books", "tokenId": 7, "probability": 0.13 },
+    { "token": "music", "tokenId": 8, "probability": 0.10 }
+  ],
+  "sampledToken": "dogs",
+  "sampledTokenId": 5,
+  "outputText": "She likely prefers the dogs"
+}} />
 </MdxPage>

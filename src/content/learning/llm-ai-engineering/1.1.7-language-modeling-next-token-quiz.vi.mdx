@@ -34,14 +34,13 @@ export const lessonMetadata = {
     ], success: 'Chính xác. Model autoregressive lặp lại bước dự đoán token kế tiếp.', error: 'Chưa đúng. Hãy nhớ cách model sinh câu trả lời từng token một.',
   },
   {
-    id: 'valid-token-examples', title: 'Phân loại token', prompt: 'Kéo từng ví dụ vào đúng loại token', mode: 'categorize',
-    categories: [{ id: 'word', label: 'Một từ' }, { id: 'subword', label: 'Một phần của từ' }, { id: 'punctuation-whitespace', label: 'Dấu câu & khoảng trắng' }, { id: 'special-symbol', label: 'Ký hiệu đặc biệt' }],
+    id: 'valid-token-examples', title: 'Tokenizer khác nhau', prompt: 'Hai tokenizer cắt cùng chuỗi `"I love tokenization!"` thành các dãy token khác nhau. Kết luận nào đúng?', mode: 'single',
     options: [
-      { id: 'hello', label: 'hello', categoryId: 'word' }, { id: 'model', label: 'model', categoryId: 'word' },
-      { id: 'sub-ing', label: '##ing', categoryId: 'subword' }, { id: 'sub-tion', label: 'tion', categoryId: 'subword' },
-      { id: 'comma', label: ',', categoryId: 'punctuation-whitespace' }, { id: 'newline', label: '\n', categoryId: 'punctuation-whitespace' },
-      { id: 'bos', label: '<BOS>', categoryId: 'special-symbol' }, { id: 'eos', label: '<EOS>', categoryId: 'special-symbol' },
-    ], success: 'Đúng. Token có thể là từ, mảnh từ, dấu câu, khoảng trắng hoặc special token.', error: 'Chưa khớp. Hãy nhớ token là đơn vị văn bản hoặc ký hiệu nhỏ đi vào model.',
+      { id: 'hello', label: 'Một tokenizer chắc chắn sai vì mọi model phải có cùng ranh giới token.' },
+      { id: 'sub-ing', label: 'Điều này hợp lệ: token có thể là từ, subword, dấu câu, khoảng trắng hoặc ký hiệu đặc biệt tùy tokenizer.', isCorrect: true },
+      { id: 'comma', label: 'Hai dãy buộc phải có cùng token IDs dù vocabulary khác nhau.' },
+      { id: 'bos', label: 'Chỉ tokenizer tạo ít token hơn mới có thể dùng cho language model.' },
+    ], success: 'Đúng. Token là đơn vị do tokenizer định nghĩa; cùng text có thể có segmentation và IDs khác nhau, miễn encode/decode dùng cùng contract.', error: 'Không có một cách chia token duy nhất cho mọi model. Hãy phân biệt raw text với quy tắc/vocabulary của tokenizer.',
   },
   {
     id: 'chain-rule-result', title: 'Tính xác suất chuỗi', prompt: 'Nếu P(Tôi)=0.2, P(ăn|Tôi)=0.5 và P(cơm|Tôi ăn)=0.8 thì P(Tôi ăn cơm) bằng bao nhiêu?', mode: 'single',

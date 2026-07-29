@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'attention-mechanism-checkpoint-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Dependency', 'QKV', 'Score shape', 'Causal mask', 'Dropout'],
+  keywords: ['quiz', 'self-attention', 'QKV', 'causal mask', 'dropout'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="attention-mechanism-checkpoint-quiz" questions={[
+  {
+    id: 'direct-token-dependency', title: 'Vì sao dùng attention?', prompt: 'Ưu điểm cốt lõi của self-attention khi mô hình hóa dependency xa là gì?', mode: 'single',
+    options: [
+      { id: 'one-hidden-state', label: 'Nén mọi token vào đúng một hidden state cố định' },
+      { id: 'direct-access', label: 'Mỗi query có thể chấm điểm trực tiếp các token được phép nhìn thấy', isCorrect: true },
+      { id: 'remove-order', label: 'Tự động bỏ nhu cầu biểu diễn vị trí trong mọi kiến trúc' },
+      { id: 'constant-memory', label: 'Luôn dùng bộ nhớ không đổi khi sequence dài hơn' },
+    ],
+    success: 'Đúng. Attention tạo đường tương tác trực tiếp giữa query và các key thay vì bắt thông tin đi tuần tự qua nhiều bước.',
+    error: 'Hãy phân biệt đường truyền dependency với chi phí: self-attention truy cập trực tiếp nhưng ma trận score vẫn tăng theo T².',
+  },
+  {
+    id: 'qkv-role-contract', title: 'Vai trò Q, K, V', prompt: 'Mô tả nào đúng nhất?', mode: 'single',
+    options: [
+      { id: 'correct-roles', label: 'Query nêu nhu cầu, key dùng để so khớp, value mang nội dung được tổng hợp', isCorrect: true },
+      { id: 'value-score', label: 'Value tạo score; query chỉ dùng sau softmax' },
+      { id: 'same-parameter', label: 'Q, K, V bắt buộc là cùng một tensor và cùng trọng số' },
+      { id: 'key-output', label: 'Key là output cuối cùng của attention' },
+    ],
+    success: 'Đúng. Score đến từ query-key; context là tổng có trọng số của value.',
+    error: 'Theo dõi hai giai đoạn: QKᵀ tạo trọng số, rồi trọng số nhân V để tạo context.',
+  },
+  {
+    id: 'attention-score-shape', title: 'Shape của score', prompt: 'Trong causal self-attention một head, Q và K có shape `(B,T,D)`. `Q @ K.transpose(-2,-1)` có shape nào?', mode: 'single',
+    options: [
+      { id: 'bhtd', label: '(B,T,D)' },
+      { id: 'bhtt', label: '(B,T,T)', isCorrect: true },
+      { id: 'bdtt', label: '(B,D,T,T)' },
+      { id: 'btv', label: '(B,T,V)' },
+    ],
+    success: 'Đúng. Chiều D bị co lại; hai chiều T lần lượt biểu diễn query position và key position của một head.',
+    error: 'Viết phép nhân `(T,D) @ (D,T)` cho một batch/head trước.',
+  },
+  {
+    id: 'mask-before-softmax', title: 'Causal mask', prompt: 'Vì sao score tương lai phải được đặt thành `-inf` trước softmax?', mode: 'single',
+    options: [
+      { id: 'zero-probability', label: 'Để xác suất của vị trí tương lai bằng 0 sau softmax', isCorrect: true },
+      { id: 'zero-value', label: 'Để xóa value vector khỏi tham số model' },
+      { id: 'normalize-query', label: 'Để chuẩn hóa độ dài query' },
+      { id: 'increase-context', label: 'Để model nhìn được context dài hơn' },
+    ],
+    success: 'Đúng. `exp(-inf)=0`, nên vị trí bị mask không đóng góp vào context.',
+    error: 'Mask điều khiển phân phối attention, không xóa tham số hay thay đổi context length.',
+  },
+  {
+    id: 'dropout-vs-causal-mask', title: 'Dropout và causal mask', prompt: 'Khi chuyển model từ `train()` sang `eval()`, điều gì phải xảy ra với attention?', mode: 'single',
+    options: [
+      { id: 'dropout-off-mask-on', label: 'Dropout tắt nhưng causal mask vẫn chặn vị trí tương lai.', isCorrect: true },
+      { id: 'both-off', label: 'Cả dropout và causal mask đều tắt.' },
+      { id: 'dropout-on-mask-off', label: 'Dropout vẫn ngẫu nhiên còn causal mask tắt.' },
+      { id: 'future-random', label: 'Vị trí tương lai được nhìn ngẫu nhiên để tăng đa dạng.' },
+    ],
+    success: 'Đúng. Dropout là regularization phụ thuộc mode; causal mask là invariant thông tin bắt buộc ở cả train lẫn inference.',
+    error: 'Đừng dùng dropout thay mask. `eval()` chỉ tắt nhiễu dropout, không cấp quyền nhìn target tương lai.',
+  },
+]} />

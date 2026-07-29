@@ -1,0 +1,100 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "client-stream-rendering", locale: "vi",
+ title: "Rendering stream an toàn trên client", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["client-stream-rendering","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Per-token DOM update gây jank; raw Markdown/HTML có thể tạo injection. UX cần batching, cancel và accessible status."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Normalized events từ app backend, không provider credential."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Sanitized incremental view và terminal controls."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Deltas tích vào buffer; render theo frame/batch. Tool/status events dùng components riêng."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
+
+Per-token DOM update gây jank; raw Markdown/HTML có thể tạo injection. UX cần batching, cancel và accessible status.
+
+**Input:** Normalized events từ app backend, không provider credential.
+
+**Output:** Sanitized incremental view và terminal controls.
+
+**Data/type/shape:** Deltas tích vào buffer; render theo frame/batch. Tool/status events dùng components riêng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked scenario" contract="typed input → deterministic state/output" pitfall="Giữ timeout, cancellation, bounded retry và explicit failure state theo fixture." takeaway="Implementation bảo toàn contract và production invariant của lesson.">
+
+Client buffer flush mỗi animation frame, `aria-live` cập nhật có kiểm soát, prefers-reduced-motion tắt cursor animation. Cancel gọi app endpoint để abort upstream.
+
+~~~ts
+import assert from "node:assert/strict";
+type Event =
+  | { type: "text_delta"; text: string }
+  | { type: "completed" }
+  | { type: "error"; code: string }
+  | { type: "canceled" };
+type ViewState = {
+  status: "streaming" | "completed" | "failed" | "canceled";
+  pendingText: string;
+  renderedText: string;
+};
+
+function reduce(state: ViewState, event: Event): ViewState {
+  if (state.status !== "streaming") throw new Error("event_after_terminal");
+  if (event.type === "text_delta") {
+    return { ...state, pendingText: state.pendingText + event.text };
+  }
+  if (event.type === "completed") {
+    return {
+      status: "completed", pendingText: "",
+      renderedText: state.renderedText + state.pendingText,
+    };
+  }
+  if (event.type === "canceled") return { ...state, status: "canceled" };
+  return { ...state, status: "failed" };
+}
+
+function escapeText(value: string): string {
+  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+let state: ViewState = {
+  status: "streaming", pendingText: "", renderedText: "",
+};
+state = reduce(state, { type: "text_delta", text: "<img src=x onerror=alert(1)>" });
+assert.equal(
+  escapeText(state.pendingText),
+  "&lt;img src=x onerror=alert(1)&gt;",
+);
+state = reduce(state, { type: "completed" });
+assert.equal(state.status, "completed");
+assert.throws(() => reduce(state, { type: "text_delta", text: "late" }), /event_after_terminal/);
+~~~
+<LessonNote>Batch DOM updates theo frame/timer và render Markdown bằng sanitizer/allowlist; ví dụ escape text không thay thế full Markdown sanitizer. Cancel phải abort app backend/upstream.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Rendering stream an toàn trên client"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Đặt provider key trong browser."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Render raw HTML."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Không hiển thị canceled/partial state."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
+
+**Pitfalls:**
+
+- Đặt provider key trong browser.
+- Render raw HTML.
+- Không hiển thị canceled/partial state.
+
+**Kết nối:** Quiz đo perceived latency và correctness của streaming UX.
+
+</MdxPage>

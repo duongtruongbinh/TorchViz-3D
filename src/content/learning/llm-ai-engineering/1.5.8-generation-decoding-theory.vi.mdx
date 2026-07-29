@@ -1,0 +1,75 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'generation-decoding-theory',
+  locale: 'vi',
+  title: 'Lý thuyết generation và decoding',
+  headings: ['Autoregressive loop', 'Greedy và sampling', 'Temperature và top-k', 'Context và EOS'],
+  keywords: ['generation', 'greedy decoding', 'temperature', 'top-k', 'EOS', 'context length'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Generation lặp cùng một autoregressive step để biến prefix thành nhiều token mới.'},
+  steps: [
+    {label: {vi: 'Current IDs'}, shape: '(B,T)', detail: {vi: 'Prefix cộng các token đã sinh.'}},
+    {label: {vi: 'Model forward'}, shape: '(B,T,V)', detail: {vi: 'Logits cho mọi vị trí hiện có.'}},
+    {label: {vi: 'Last distribution'}, shape: 'logits[:,-1,:] · (B,V)', detail: {vi: 'Chọn đúng một next-token distribution.'}},
+    {label: {vi: 'Append token'}, shape: '(B,1) → (B,T+1)', detail: {vi: 'Lặp cho token kế tiếp.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Một forward tạo một token mới cho mỗi sample, không tạo sẵn toàn bộ câu: x_(t+1) ~ p(·|x_≤t).'},
+  misconception: {vi: 'Không argmax ở mọi vị trí rồi nối cả tensor; generation mỗi vòng chỉ đọc distribution cuối.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Greedy và sampling chia sẻ input logits nhưng dùng hai quy tắc chọn token khác nhau.'},
+  comparisons: [
+    {title: 'Greedy', shape: 'argmax(logits)', detail: {vi: 'Xác định, dễ kiểm thử, nhưng có thể rơi vào lặp hoặc lựa chọn cục bộ kém.'}},
+    {title: 'Sampling', shape: 'multinomial(probs)', detail: {vi: 'Đa dạng hơn; không hoàn toàn xác định nếu không cố định random seed.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Greedy tối đa hóa lựa chọn từng bước; sampling khám phá các lựa chọn theo xác suất model.'},
+  misconception: {vi: 'Sampling không phải chọn ngẫu nhiên đều; token logit cao vẫn có xác suất lớn hơn.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Temperature và top-k cùng điều khiển distribution nhưng thay đổi hai thuộc tính khác nhau.'},
+  comparisons: [
+    {title: 'Temperature τ', shape: 'softmax(z/τ)', detail: {vi: 'τ<1 làm sắc hơn; τ>1 làm phẳng hơn nhưng giữ thứ hạng logits.'}},
+    {title: 'Top-k', shape: 'keep k · tail→−inf', detail: {vi: 'Loại hẳn tail rồi softmax lại để tổng xác suất bằng 1.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Lọc top-k trước, scale theo temperature, rồi softmax và sample.'},
+  misconception: {vi: 'temperature=0 phải đi nhánh greedy riêng; không chia logits cho 0.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Generation tách sequence tích lũy khỏi context được đưa vào mỗi forward.'},
+  comparisons: [
+    {title: 'Model context', shape: 'ids[:,-T_max:]', detail: {vi: 'Chỉ giữ tối đa context_length tokens cho forward hiện tại.'}},
+    {title: 'Accumulated output', shape: '(B,T+generated)', detail: {vi: 'Giữ toàn bộ prefix và token đã sinh để trả người dùng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'context_length giới hạn trí nhớ một forward; max_new_tokens hoặc eos_id giới hạn vòng lặp. Sample đã kết thúc phải ổn định khi sample khác tiếp tục.'},
+  misconception: {vi: 'Không crop luôn output sequence rồi làm mất prefix; chỉ crop model context.'},
+}} />
+
+</MdxPage>

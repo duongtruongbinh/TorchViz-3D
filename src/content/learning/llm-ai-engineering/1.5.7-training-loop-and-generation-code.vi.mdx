@@ -1,0 +1,211 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'training-loop-and-generation-code', locale: 'vi',
+  title: 'Code training loop và checkpoint',
+  headings: ['Training step', 'Evaluation', 'Checkpoint', 'Epoch loop', 'Smoke test'],
+  keywords: ['PyTorch training loop', 'validation loss', 'checkpoint', 'gradient clipping', 'resume'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<CodeLessonFrame
+  title="Training step"
+  contract="(B,T) IDs → scalar loss → parameter update"
+  output="zero_grad → forward → CE → backward → clip → step"
+  pitfall="Không argmax logits trước loss; argmax không khả vi và loại bỏ thông tin confidence."
+  takeaway="Training step là nơi duy nhất bật gradient và cập nhật parameter."
+>
+
+**Mục tiêu:** Viết training/evaluation/checkpoint loop cho contract logits `(B,T,V)` và targets `(B,T)`.
+
+```python
+import torch
+from torch import nn
+import torch.nn.functional as F
+
+def train_step(model, optimizer, input_ids, target_ids):
+    if input_ids.ndim != 2 or target_ids.shape != input_ids.shape:
+        raise ValueError("input_ids and target_ids must both be (B,T)")
+    model.train()
+    optimizer.zero_grad()
+    logits = model(input_ids)
+    assert logits.shape[:2] == target_ids.shape
+    loss = F.cross_entropy(
+        logits.flatten(0, 1), target_ids.flatten()
+    )
+    loss.backward()
+    nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+    optimizer.step()
+    return loss.detach()
+```
+
+</CodeLessonFrame>
+
+</MdxPage>
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Token-weighted evaluation"
+  contract="eval · no_grad · total NLL / total tokens"
+  output="returns mean NLL as float"
+  takeaway="Evaluation đổi state và gradient policy, không đổi objective."
+>
+
+```python
+@torch.no_grad()
+def evaluate_loss(model, batches):
+    was_training = model.training
+    model.eval()
+    total_nll, total_tokens = 0.0, 0
+    try:
+        for input_ids, target_ids in batches:
+            if input_ids.ndim != 2 or target_ids.shape != input_ids.shape:
+                raise ValueError("evaluation batches must contain matching (B,T) tensors")
+            logits = model(input_ids)
+            if logits.shape[:2] != target_ids.shape:
+                raise ValueError("model logits must match target batch/sequence axes")
+            nll = F.cross_entropy(
+                logits.flatten(0, 1),
+                target_ids.flatten(),
+                reduction="sum",
+            )
+            total_nll += nll.item()
+            total_tokens += target_ids.numel()
+        if total_tokens == 0:
+            raise ValueError("evaluation requires at least one target token")
+        return total_nll / total_tokens
+    finally:
+        model.train(was_training)
+```
+
+Token-weighted average xử lý batch cuối nhỏ đúng hơn mean của batch means. `train_step` tự bật lại training mode.
+
+</CodeLessonFrame>
+
+</MdxPage>
+<MdxPage page={2}>
+
+<CodeLessonFrame
+  title="Lưu và phục hồi training checkpoint"
+  contract="model + optimizer + step + val_loss"
+  output="load returns restored step and validation loss"
+  takeaway="Model-only checkpoint phục vụ inference; training checkpoint cần trạng thái optimizer và policy."
+>
+
+```python
+def save_checkpoint(path, model, optimizer, step, val_loss):
+    torch.save({
+        "model": model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+        "step": step,
+        "val_loss": val_loss,
+    }, path)
+
+def load_checkpoint(path, model, optimizer):
+    state = torch.load(path, map_location="cpu", weights_only=True)
+    required = {"model", "optimizer", "step", "val_loss"}
+    if not isinstance(state, dict) or not required.issubset(state):
+        raise ValueError("checkpoint is missing required training state")
+    model.load_state_dict(state["model"])
+    optimizer.load_state_dict(state["optimizer"])
+    return state["step"], state["val_loss"]
+```
+
+Lưu optimizer và step cho phép tiếp tục training, không chỉ dùng model để inference.
+
+<LessonNote>**Production:** lưu tokenizer/config, random states và scheduler state nếu cần resume bit-for-bit.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+<MdxPage page={3}>
+
+<CodeLessonFrame
+  title="Epoch loop và best checkpoint"
+  contract="train epoch → validation → compare best"
+  output="save best.pt only when val_loss improves"
+  pitfall="Không lưu last checkpoint rồi gọi là best nếu chưa so validation metric."
+  takeaway="Outer loop điều phối evaluation/checkpoint; core gradient logic vẫn ở train_step."
+>
+
+```python
+step = 0
+best_val = float("inf")
+for epoch in range(num_epochs):
+    for input_ids, target_ids in train_batches:
+        loss = train_step(model, optimizer, input_ids, target_ids)
+        step += 1
+
+    val_loss = evaluate_loss(model, val_batches)
+    if val_loss < best_val:
+        best_val = val_loss
+        save_checkpoint(
+            "best.pt", model, optimizer, step, val_loss
+        )
+```
+
+Chọn checkpoint bằng validation, không bằng test. Generation strategies nằm ở cụm node kế tiếp để training code giữ một chủ đề.
+
+</CodeLessonFrame>
+
+</MdxPage>
+<MdxPage page={4}>
+
+<CodeLessonFrame
+  title="Smoke test training và checkpoint"
+  contract="finite loss · valid logits · exact restore · error path"
+  output="before/after loss are finite floats"
+  pitfall="Một optimizer step không bảo đảm loss giảm với mọi seed hoặc learning rate; smoke test chỉ khóa contract."
+  takeaway="Test code path tách biệt với tiêu chí convergence trên một training run thật."
+>
+
+```python
+class TinyLM(nn.Module):
+    def __init__(self, vocab_size=11, d_model=8):
+        super().__init__()
+        self.emb = nn.Embedding(vocab_size, d_model)
+        self.head = nn.Linear(d_model, vocab_size)
+    def forward(self, ids):
+        return self.head(self.emb(ids))
+
+model = TinyLM()
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-2)
+x = torch.tensor([[1, 2, 3], [4, 5, 6]])
+y = torch.tensor([[2, 3, 4], [5, 6, 7]])
+
+before = evaluate_loss(model, [(x, y)])
+loss = train_step(model, optimizer, x, y)
+after = evaluate_loss(model, [(x, y)])
+
+assert loss.ndim == 0 and torch.isfinite(loss)
+assert isinstance(before, float) and isinstance(after, float)
+assert model(x).shape == (2, 3, 11)
+
+from tempfile import TemporaryDirectory
+with TemporaryDirectory() as directory:
+    checkpoint_path = f"{directory}/checkpoint.pt"
+    save_checkpoint(checkpoint_path, model, optimizer, step=7, val_loss=after)
+    restored_model = TinyLM()
+    restored_optimizer = torch.optim.AdamW(restored_model.parameters(), lr=1e-2)
+    restored_step, restored_val = load_checkpoint(
+        checkpoint_path, restored_model, restored_optimizer
+    )
+    assert restored_step == 7 and restored_val == after
+    for expected, actual in zip(model.parameters(), restored_model.parameters()):
+        assert torch.equal(expected.detach().cpu(), actual.detach().cpu())
+
+try:
+    evaluate_loss(model, [])
+except ValueError:
+    pass
+else:
+    raise AssertionError("empty validation input must fail")
+
+print(round(before, 3), round(after, 3))
+```
+
+Một step không bảo đảm loss luôn giảm với mọi seed/lr, nên smoke test chỉ assert contract và giá trị hữu hạn.
+
+</CodeLessonFrame>
+
+</MdxPage>

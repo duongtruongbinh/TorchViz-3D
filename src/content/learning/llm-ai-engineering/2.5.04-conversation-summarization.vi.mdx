@@ -1,0 +1,70 @@
+export const lessonMetadata = {
+ domainId: "llm-ai-engineering", id: "conversation-summarization", locale: "vi",
+ title: "Conversation summarization có provenance", headings: ["Pattern và contract","Worked scenario","Failure modes và handoff"],
+ keywords: ["conversation-summarization","API integration","production"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'batch', lead: {vi: "Summary giảm tokens nhưng không được thay raw authoritative history hoặc business records."}, steps: [
+    {label: {vi: "Input"}, shape: "request budget", detail: {vi: "Verified prior turns, unresolved facts và summary version."}},
+    {label: {vi: "Output"}, shape: "bounded contract", detail: {vi: "Compact summary plus provenance/coverage metadata."}},
+    {label: {vi: "Invariant"}, shape: "bounded contract", detail: {vi: "Many turns → structured {facts,openQuestions,lastTurnId}; raw history lưu riêng theo retention."}},
+  ], code: [], takeaway: {vi: "Request chỉ đi tiếp khi budget và invariant hợp lệ."},
+}} />
+
+Summary giảm tokens nhưng không được thay raw authoritative history hoặc business records.
+
+**Input:** Verified prior turns, unresolved facts và summary version.
+
+**Output:** Compact summary plus provenance/coverage metadata.
+
+**Data/type/shape:** Many turns → structured `{facts,openQuestions,lastTurnId}`; raw history lưu riêng theo retention.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'position', lead: {vi: "Summary giữ orderId=A17, status=pending, user asks ETA; khi status đổi, backend refresh field từ database. Contradiction test fail nếu summary nói delivered."}, comparisons: [
+    {title: "Provenance", shape: "before ↔ after", detail: {vi: "lastTurnId=turn-17  · Turn tồn tại và cùng tenant"}},
+    {title: "Version", shape: "before ↔ after", detail: {vi: "summarySchema=v3  · Reader hỗ trợ v3"}},
+  ], code: [], takeaway: {vi: "Giữ budget/state invariant qua từng bước."},
+}} />
+
+Summary giữ `orderId=A17`, `status=pending`, `user asks ETA`; khi status đổi, backend refresh field từ database. Contradiction test fail nếu summary nói delivered.
+
+| Check | Summary fixture | Authoritative comparison | Action |
+|---|---|---|---|
+| Provenance | `lastTurnId=turn-17` | Turn tồn tại và cùng tenant | Pass |
+| Version | `summarySchema=v3` | Reader hỗ trợ v3 | Pass |
+| Stable fact | `orderId=A17` | Ownership vẫn hợp lệ | Pass |
+| Mutable fact | `status=pending` | Database=`in_transit` | Refresh, không tin summary |
+| Contradiction | Summary=`delivered` | Database=`in_transit` | Reject/rebuild summary |
+
+Summary chỉ giữ facts có source, open questions và coverage boundary. Tool error không được viết lại thành business fact.
+
+<LessonNote>Raw authorized history và business database có retention/access policy riêng. Summary là lossy derived state, có version và rebuild path.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit', lead: {vi: "Conversation summarization có provenance"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforcement boundary", detail: {vi: "Dùng summary làm source of truth."}},
+    {label: {vi: "Gate 2"}, shape: "enforcement boundary", detail: {vi: "Summarize tool errors thành facts."}},
+    {label: {vi: "Gate 3"}, shape: "enforcement boundary", detail: {vi: "Không version/rebuild summary."}},
+  ], code: [], takeaway: {vi: "Fail closed và giữ state observable."},
+}} />
+
+**Pitfalls:**
+
+- Dùng summary làm source of truth.
+- Summarize tool errors thành facts.
+- Không version/rebuild summary.
+
+**Kết nối:** Quiz kiểm tra budget, truncation và lossy state.
+
+</MdxPage>

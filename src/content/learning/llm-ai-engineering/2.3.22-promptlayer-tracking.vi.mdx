@@ -1,0 +1,116 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "promptlayer-tracking", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1","Tình huống 2","Tình huống 3","Tình huống 4"],
+  keywords: ["quiz", "prompt engineering", "promptlayer-tracking"], pageCount: 4,
+}
+
+<MdxQuiz id="promptlayer-tracking" questions={[
+  {
+    "id": "promptlayer-tracking-q1",
+    "title": "Tình huống 1",
+    "prompt": "Attribute nào an toàn hơn cho trace support?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "promptlayer-tracking-q1-correct",
+        "label": "Prompt version, token count, status và redacted tenant ID",
+        "isCorrect": true
+      },
+      {
+        "id": "promptlayer-tracking-q1-a",
+        "label": "Toàn bộ ticket và API key"
+      },
+      {
+        "id": "promptlayer-tracking-q1-b",
+        "label": "Raw user email"
+      },
+      {
+        "id": "promptlayer-tracking-q1-c",
+        "label": "Hidden CoT"
+      }
+    ],
+    "success": "Đúng. Prompt version, token count, status và redacted tenant ID.",
+    "error": "Chưa đúng. Trace cần đủ version/status để chẩn đoán nhưng không được biến raw ticket, identity, credential hay hidden reasoning thành telemetry."
+  },
+  {
+    "id": "promptlayer-tracking-q2",
+    "title": "Tình huống 2",
+    "prompt": "Traffic lớn và payload nhạy cảm nên làm gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "promptlayer-tracking-q2-correct",
+        "label": "Dùng sampling, redaction và access/retention policy trước exporter",
+        "isCorrect": true
+      },
+      {
+        "id": "promptlayer-tracking-q2-a",
+        "label": "Log mọi thứ vô hạn"
+      },
+      {
+        "id": "promptlayer-tracking-q2-b",
+        "label": "Tắt correlation ID"
+      },
+      {
+        "id": "promptlayer-tracking-q2-c",
+        "label": "Đặt secret trong tag"
+      }
+    ],
+    "success": "Đúng. Dùng sampling, redaction và access/retention policy trước exporter.",
+    "error": "Chưa đúng. Sampling không thay redaction; cả hai phải đứng trước exporter và đi cùng access/retention policy."
+  },
+  {
+    "id": "promptlayer-tracking-q3",
+    "title": "Tình huống 3",
+    "prompt": "Muốn nối regression với prompt production cần ghi gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "promptlayer-tracking-q3-correct",
+        "label": "Immutable prompt/model/schema/eval versions",
+        "isCorrect": true
+      },
+      {
+        "id": "promptlayer-tracking-q3-a",
+        "label": "Tên file final"
+      },
+      {
+        "id": "promptlayer-tracking-q3-b",
+        "label": "Chỉ timestamp UI"
+      },
+      {
+        "id": "promptlayer-tracking-q3-c",
+        "label": "Nội dung key"
+      }
+    ],
+    "success": "Đúng. Immutable prompt/model/schema/eval versions.",
+    "error": "Chưa đúng. Timestamp hoặc tên file không đủ tái lập; manifest phải khóa prompt, model config, schema và eval suite."
+  },
+  {
+    "id": "promptlayer-tracking-q4",
+    "title": "Tình huống 4",
+    "prompt": "Sau hai console labs, artifact nào cho phép so sánh OpenAI và Anthropic mà không đồng nhất provider controls?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "promptlayer-tracking-q4-correct",
+        "label": "Một experiment manifest chung khóa fixture, metric, schema và ngày kiểm tra; mỗi adapter giữ request fields riêng",
+        "isCorrect": true
+      },
+      {
+        "id": "promptlayer-tracking-q4-a",
+        "label": "Chỉ giữ screenshot output đẹp nhất của mỗi console"
+      },
+      {
+        "id": "promptlayer-tracking-q4-b",
+        "label": "Ép cả hai provider dùng cùng wire fields"
+      },
+      {
+        "id": "promptlayer-tracking-q4-c",
+        "label": "Copy API key và raw ticket vào artifact để dễ chạy lại"
+      }
+    ],
+    "success": "Đúng. Common manifest giữ experiment comparable; provider adapter vẫn bảo toàn system/message/output contracts riêng.",
+    "error": "Chưa đúng. Reproducibility đến từ immutable manifest và fixtures, không từ screenshot, shared wire format hay credential/raw data."
+  }
+]} />

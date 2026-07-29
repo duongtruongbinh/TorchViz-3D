@@ -1,0 +1,100 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "prompt-ab-testing", locale: "vi",
+  title: "A/B testing prompt trong production", headings: ["Vì sao cần kiến thức này?","Worked example và contract","Production pitfalls và handoff"],
+  keywords: ["prompt-ab-testing","prompt engineering","C+K"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: 'A/B test đo tác động trên traffic thật nhưng chỉ đáng tin khi assignment ổn định và guardrail được khóa trước.'},
+  steps: [
+    {label: {vi: 'Eligibility'}, shape: 'population + unit', detail: {vi: 'Chọn user hoặc session làm randomization unit.'}},
+    {label: {vi: 'Assign'}, shape: 'unit → immutable A | B', detail: {vi: 'Một unit không đổi variant giữa turns.'}},
+    {label: {vi: 'Measure'}, shape: 'primary metric + uncertainty', detail: {vi: 'Events nối bằng experiment ID; payload nhạy cảm được redact.'}},
+    {label: {vi: 'Decide'}, shape: 'ship | collect | rollback', detail: {vi: 'Safety/cost guardrail có quyền phủ quyết uplift.'}},
+  ], code: [], takeaway: {vi: 'Output là effect estimate cùng uncertainty và quyết định có guardrail.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<EvaluationConceptVisual content={{
+  view: 'position', lead: {vi: 'Uplift dương chưa đủ để ship khi uncertainty còn cắt 0 và safety guardrail xấu đi.'},
+  comparisons: [
+    {title: 'Variant A', shape: '800/1.000 · escalation 4%', detail: {vi: 'Control tiếp tục active.'}},
+    {title: 'Variant B', shape: '830/1.000 · escalation 6%', detail: {vi: 'Uplift +3 pp; CI95% [−0,4; 6,4] pp nhưng escalation delta +2 pp vượt ngưỡng +1 pp.'}},
+  ], code: [], takeaway: {vi: 'Quyết định là rollback B, không ship chỉ vì point estimate dương.'},
+  misconception: {vi: 'Không log hidden chain-of-thought hoặc payload nhạy cảm để giải thích experiment.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame title="A/B rollout gate" contract="immutable variants + effect/CI + guardrail → decision" output="CI cắt 0, escalation +2 pp > +1 pp → rollback_guardrail" pitfall="Không randomize theo request, peek tùy ý hoặc tối ưu primary metric mà bỏ safety." takeaway="Khóa unit, analysis window và fail closed khi safety/cost guardrail xấu đi.">
+
+~~~ts
+import assert from "node:assert/strict";
+
+type AbResult = {
+  effect: number;
+  standardError: number;
+  ci95: [number, number];
+  escalationDelta: number;
+};
+
+type Variant = { id: string; systemPrompt: string; userTemplate: string };
+
+function evaluateRollout(
+  variantA: Variant,
+  variantB: Variant,
+  stats: AbResult,
+  maxEscalationDelta: number,
+) {
+  if (!variantA.id || !variantB.id || variantA.id === variantB.id) {
+    throw new Error("distinct_variants_required");
+  }
+  const decision = stats.escalationDelta > maxEscalationDelta
+    ? "rollback_guardrail"
+    : stats.ci95[0] > 0 ? "eligible_to_ship" : "keep_collecting";
+  return {
+    activeVariant: decision === "eligible_to_ship" ? variantB.id : variantA.id,
+    decision,
+  };
+}
+
+const variantA = { id: "v1.0", systemPrompt: "You are helpful.", userTemplate: "{query}" };
+const variantB = { id: "v1.1", systemPrompt: "You are helpful and concise.", userTemplate: "{query}" };
+
+const result = evaluateRollout(
+  variantA,
+  variantB,
+  { effect: 0.03, standardError: 0.0174, ci95: [-0.004, 0.064], escalationDelta: 0.02 },
+  0.01,
+);
+assert.deepEqual(result, {
+  activeVariant: "v1.0",
+  decision: "rollback_guardrail",
+});
+assert.throws(
+  () => evaluateRollout(
+    variantA,
+    variantA,
+    { effect: 0, standardError: 0, ci95: [0, 0], escalationDelta: 0 },
+    0.01,
+  ),
+  /distinct_variants_required/,
+);
+~~~
+
+<LessonNote>CI dùng normal approximation để dạy trace, không thay power analysis
+hoặc sequential-testing plan. Production phải randomize ổn định theo unit đã
+khai báo, khóa analysis window và fail closed khi safety/cost guardrail xấu đi.</LessonNote>
+
+Prompt injection defense tiếp theo đặt prompt trong hệ thống control nhiều lớp.
+
+</CodeLessonFrame>
+
+</MdxPage>

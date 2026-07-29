@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'next-token-pretraining-theory', locale: 'vi',
+  title: 'Lý thuyết pretraining next-token',
+  headings: ['Shifted targets', 'NLL và cross-entropy', 'Token averaging', 'Train và validation', 'Optimization loop'],
+  keywords: ['pretraining', 'next-token', 'cross-entropy', 'validation loss'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Pretraining lấy nhãn trực tiếp từ văn bản bằng cách dịch target sang trái một vị trí.'},
+  steps: [
+    {label: {vi: 'Token sequence'}, shape: '[x₁,x₂,…,xT+1]', detail: {vi: 'Không cần người gán nhãn thủ công.'}},
+    {label: {vi: 'Input'}, shape: '[x₁,…,xT]', detail: {vi: 'Context tokens.'}},
+    {label: {vi: 'Target'}, shape: '[x₂,…,xT+1]', detail: {vi: 'Token kế tiếp ở mỗi vị trí.'}},
+    {label: {vi: 'Training labels'}, shape: 'T targets/window', detail: {vi: 'Không chỉ chấm label cuối.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Văn bản tự cung cấp nhãn bằng phép dịch một vị trí.'},
+  misconception: {vi: 'Không dùng input làm target không shift; model khi đó chỉ học sao chép token hiện tại.'},
+}} />
+
+</MdxPage>
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Cross-entropy flatten batch/sequence positions và lấy negative log-probability của đúng ground-truth token.'},
+  steps: [
+    {label: {vi: 'Logits'}, shape: '(B,T,V) → (B×T,V)', detail: {vi: 'Một vocabulary row cho mỗi target position.'}},
+    {label: {vi: 'Targets'}, shape: '(B,T) → (B×T)', detail: {vi: 'Integer ground-truth IDs.'}},
+    {label: {vi: 'Per-token NLL'}, shape: '−log(p_i)', detail: {vi: 'p_i là xác suất của token đúng.'}},
+    {label: {vi: 'Mean loss'}, shape: 'scalar', detail: {vi: 'Trung bình các valid target positions.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Cross-entropy trên integer targets là cách hiệu quả để tính mean NLL; p_i càng gần 1 thì contribution càng gần 0.'},
+  misconception: {vi: 'Không lấy log probability của argmax; loss luôn chấm ground-truth token dù argmax đúng hay sai.'},
+}} />
+
+</MdxPage>
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Khi batches có số valid targets khác nhau, aggregation phải weighted theo token count.'},
+  comparisons: [
+    {title: 'Sai: mean of batch means', shape: 'Σ batch_mean / batches', detail: {vi: 'Batch cuối nhỏ có thể nhận trọng số quá lớn.'}},
+    {title: 'Đúng: token-weighted', shape: 'total NLL / valid tokens', detail: {vi: 'Mỗi target token hợp lệ có cùng trọng số.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Denominator của LM loss là số target token hợp lệ; Perplexity = exp(mean NLL) khi dùng natural log.'},
+}} />
+
+</MdxPage>
+<MdxPage page={3}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Train và validation dùng cùng objective nhưng khác data ownership và gradient policy.'},
+  comparisons: [
+    {title: 'Train loss', shape: 'train · gradients on', detail: {vi: 'Đo mức khớp với dữ liệu đang được tối ưu.'}},
+    {title: 'Validation loss', shape: 'eval · no_grad', detail: {vi: 'Đo documents không dùng cập nhật weights để phát hiện overfitting.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Split integrity quan trọng như công thức loss: tách documents trước sliding windows và phục hồi model.train() sau evaluation.'},
+  misconception: {vi: 'Validation loss có thể giảm giả nếu windows overlap với train; đó không chứng minh generalization.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Một optimizer update có core order cố định; scheduler, checkpoint và evaluation cadence là policy bên ngoài objective.'},
+  steps: [
+    {label: {vi: 'zero_grad + forward'}, shape: 'batch → logits', detail: {vi: 'Xóa grads cũ và chạy model.'}},
+    {label: {vi: 'loss + backward'}, shape: 'scalar → gradients', detail: {vi: 'Cross-entropy tạo gradient.'}},
+    {label: {vi: 'optional clipping'}, shape: 'clip grad norm', detail: {vi: 'Chạy sau backward, trước step.'}},
+    {label: {vi: 'optimizer.step'}, shape: 'update weights', detail: {vi: 'AdamW tách weight decay khỏi gradient update.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Chỉ training batches tạo gradient và cập nhật parameter; theo dõi loss theo token/iteration để so runs nhất quán.'},
+  misconception: {vi: 'Không gọi optimizer.step() trong no_grad validation loop.'},
+}} />
+
+</MdxPage>

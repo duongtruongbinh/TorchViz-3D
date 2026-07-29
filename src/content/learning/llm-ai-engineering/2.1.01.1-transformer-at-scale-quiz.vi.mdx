@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'transformer-at-scale-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Bản đồ bộ nhớ', 'Prefill và decode', 'Training state', 'Benchmark cluster', 'Chọn phép đo'],
+  keywords: ['quiz', 'transformer', 'prefill', 'decode', 'memory'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="transformer-at-scale-quiz" questions={[
+  {
+    id: 'transformer-at-scale-quiz-q1',
+    title: 'Bản đồ bộ nhớ',
+    prompt: 'Một hidden-state tensor có `B=2`, `T=1.024`, `C=4.096`, dtype fp16. Kích thước của riêng tensor này là bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'eight-mib', label: '8 MiB' },
+      { id: 'sixteen-mib', label: '16 MiB', isCorrect: true },
+      { id: 'thirty-two-mib', label: '32 MiB' },
+      { id: 'one-gib', label: '1 GiB' },
+    ],
+    success: 'Đúng. `2 × 1.024 × 4.096 × 2 byte = 16 MiB`.',
+    error: 'Chưa đúng. Hãy nhân đủ batch, sequence, hidden size và 2 byte của fp16.',
+  },
+  {
+    id: 'transformer-at-scale-quiz-q2',
+    title: 'Prefill và decode',
+    prompt: 'Vì sao decode từng token có thể bị giới hạn bởi memory bandwidth dù chỉ có một vị trí mới?',
+    mode: 'single',
+    options: [
+      { id: 'tokenizer-corpus', label: 'Tokenizer phải đọc lại toàn bộ corpus' },
+      { id: 'training-gradients', label: 'Decode luôn lưu gradient cho backward' },
+      { id: 'weights-and-cache', label: 'Mỗi bước vẫn phải đọc weights và KV cache qua các layer', isCorrect: true },
+      { id: 'quadratic-output', label: 'Output vocabulary luôn tăng theo bình phương' },
+    ],
+    success: 'Đúng. Lượng tính toán cho token mới nhỏ không loại bỏ lưu lượng đọc weights và KV cache.',
+    error: 'Chưa đúng. Phân biệt số FLOPs của token mới với lượng dữ liệu phải đọc ở mỗi bước.',
+  },
+  {
+    id: 'transformer-at-scale-quiz-q3',
+    title: 'Training state',
+    prompt: 'Dự toán chỉ cộng parameter memory cho một lượt training đầy đủ đang bỏ sót nhóm chi phí nào?',
+    mode: 'single',
+    options: [
+      { id: 'only-tokenizer', label: 'Chỉ vocabulary của tokenizer' },
+      { id: 'only-output-text', label: 'Chỉ chuỗi output sau decode' },
+      { id: 'browser-cache', label: 'Browser cache của giao diện' },
+      { id: 'activations-gradients-optimizer', label: 'Activations, gradients và optimizer states', isCorrect: true },
+    ],
+    success: 'Đúng. Training cần nhiều state ngoài bản thân weights, và activation còn phụ thuộc batch/sequence.',
+    error: 'Chưa đúng. Hãy liệt kê các tensor phải tồn tại để thực hiện backward và optimizer step.',
+  },
+  {
+    id: 'transformer-at-scale-quiz-q4',
+    title: 'Benchmark cluster',
+    prompt: 'Một kernel nhanh hơn 20% trên một GPU. Kết luận production nào là hợp lệ nhất?',
+    mode: 'single',
+    options: [
+      { id: 'measure-end-to-end', label: 'Đo lại end-to-end với communication, batching và shape thực tế', isCorrect: true },
+      { id: 'guaranteed-cluster', label: 'Cluster chắc chắn nhanh hơn đúng 20%' },
+      { id: 'ignore-network', label: 'Có thể bỏ qua network vì attention không giao tiếp' },
+      { id: 'same-all-shapes', label: 'Speedup không phụ thuộc sequence length hay hardware' },
+    ],
+    success: 'Đúng. Kernel benchmark không bao hàm scheduling và communication của workload production.',
+    error: 'Chưa đúng. Không thể ngoại suy trực tiếp microbenchmark một GPU sang toàn hệ thống.',
+  },
+  {
+    id: 'transformer-at-scale-quiz-q5',
+    title: 'Chọn phép đo',
+    prompt: 'Ứng dụng chat có prompt dài và sinh câu trả lời ngắn. Cặp số đo nào tách đúng hai phase cần tối ưu?',
+    mode: 'single',
+    options: [
+      { id: 'accuracy-only', label: 'Chỉ validation accuracy' },
+      { id: 'ttft-tpot', label: 'Time-to-first-token cho prefill và time-per-output-token cho decode', isCorrect: true },
+      { id: 'parameter-only', label: 'Chỉ tổng số parameter' },
+      { id: 'file-size-only', label: 'Chỉ kích thước checkpoint trên đĩa' },
+    ],
+    success: 'Đúng. TTFT và thời gian mỗi output token giúp quan sát riêng prefill và decode.',
+    error: 'Chưa đúng. Cần một metric cho xử lý prefix và một metric cho vòng lặp sinh token.',
+  },
+]} />

@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-bpe-tiktoken',
+  locale: 'vi',
+  title: 'Huấn luyện tokenizer bằng BPE',
+  headings: ['Học cách gộp token', 'Dùng tokenizer sau training', 'Special tokens'],
+  keywords: ['BPE', 'merge rule', 'inference', 'special token', 'BOS', 'EOS', 'PAD', 'subword'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## BPE học cách gộp token từ corpus
+
+BPE không bắt đầu bằng cách “tách từ dài thành từ ngắn”. Nó bắt đầu từ các đơn vị nền tảng nhỏ, rồi **gộp** cặp liền kề xuất hiện thường xuyên.
+
+<TokenizerMergeTraining content={{
+  example: 'learn learner learning',
+  merges: [
+    { sourceIndexes: [0, 1, 6, 7, 14, 15], result: 'le' },
+    { sourceIndexes: [0, 2, 6, 8, 14, 16], result: 'lea' },
+    { sourceIndexes: [0, 3, 6, 9, 14, 17], result: 'lear' },
+    { sourceIndexes: [0, 4, 6, 10, 14, 18], result: 'learn' },
+  ],
+  initialTokens: ['l', 'e', 'a', 'r', 'n', '␠', 'l', 'e', 'a', 'r', 'n', 'e', 'r', '␠', 'l', 'e', 'a', 'r', 'n', 'i', 'n', 'g'],
+  result: { vi: 'Sau mỗi vòng, BPE thêm phần vừa gộp vào vocabulary rồi tiếp tục tìm các cặp thường xuất hiện cạnh nhau.' },
+  playgroundUrl: 'https://gpt-tokenizer.dev/',
+}} />
+
+<LessonNote variant="warning">**Lưu ý:** BPE cổ điển chọn theo thống kê tần suất, không hỏi con người cặp đó có mang nghĩa hay không.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Dùng tokenizer sau training
+
+Sau khi được huấn luyện, tokenizer dùng lại **vocabulary** và các quy tắc gộp đã học để chia input mới. Tokenizer không học lại từ từng câu input.
+
+Ví dụ, tokenizer đã học được token `learn` từ corpus có thể dùng lại token đó khi gặp input mới như `learning helps learners`.
+
+<TokenizerConceptVisual view="bpe-training-inference" />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Special tokens
+
+Ngoài các token được tạo từ text, vocabulary còn có thể dành sẵn một số special token để truyền tín hiệu về cấu trúc của sequence.
+
+<TokenizerConceptVisual view="special-tokens" />
+
+Special token được khai báo trước và có ID riêng trong vocabulary. Chúng không phải là những từ mà BPE tình cờ gộp được từ câu input.
+
+</MdxPage>

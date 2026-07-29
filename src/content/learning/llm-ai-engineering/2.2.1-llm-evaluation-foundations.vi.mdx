@@ -3,28 +3,94 @@ export const lessonMetadata = {
   id: 'llm-evaluation-foundations',
   locale: 'vi',
   title: 'Vì sao đánh giá LLM khó?',
-  headings: ['Từ benchmark đến use case', 'Output mở', 'Đánh giá nhiều chiều'],
-  keywords: ['LLM evaluation', 'open-ended output', 'benchmark', 'use case', 'quality'],
+  headings: ['Từ use case đến eval contract', 'Typed case và result', 'Worked decision', 'Pitfall và handoff'],
+  keywords: ['LLM evaluation', 'EvalCase', 'EvalResult', 'release gate', 'use case'],
+  pageCount: 4,
 }
 
-## Từ benchmark đến use case
+<MdxPage page={0}>
 
-Một nghiên cứu trên 3 triệu review của 90 ứng dụng AI đã chọn ra khoảng 20.000 candidate reviews có dấu hiệu liên quan đến hallucination [[1]](https://www.nature.com/articles/s41598-025-15416-8). Những lỗi này không chỉ nằm trong benchmark hoặc paper; chúng xuất hiện trực tiếp trong trải nghiệm của người dùng thật.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Evaluation bắt đầu từ use case và risk slices, không từ một benchmark tổng quát hay một prompt duy nhất.'},
+  steps: [
+    {label: {vi: 'EvalSpec'}, shape: 'use case + policy + slices', detail: {vi: 'Bao phủ wording variants giữ nguyên ý định.'}},
+    {label: {vi: 'EvalCase[]'}, shape: 'expected behavior', detail: {vi: 'Output mở có thể có nhiều cách diễn đạt đúng.'}},
+    {label: {vi: 'Response → EvalResult[]'}, shape: 'per-case evidence', detail: {vi: 'Đo factuality, instruction following, helpfulness và safety.'}},
+    {label: {vi: 'ReleaseDecision'}, shape: 'pass / review / block', detail: {vi: 'Kết hợp aggregate metrics với critical invariants.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Một response trôi chảy vẫn có thể sai fact, bỏ instruction hoặc tạo hành động nguy hiểm.'},
+}} />
 
-Một LLM vì thế có thể trả lời rất lưu loát và đạt điểm cao trên leaderboard nhưng vẫn chưa đủ đáng tin để triển khai. Evaluation không chỉ hỏi model có “giỏi” hay không. Ta cần hỏi model có phù hợp với use case cụ thể, có đáng tin trong điều kiện sử dụng thật và có gây ra rủi ro nghiêm trọng hay không.
+</MdxPage>
 
-## Output mở
+<MdxPage page={1}>
 
-Khác với classification, nhiều tác vụ sinh ngôn ngữ không có duy nhất một đáp án đúng. Hai câu trả lời có thể dùng từ khác nhau nhưng đều chính xác; ngược lại, một câu trả lời nghe tự nhiên vẫn có thể sai fact hoặc không làm đúng instruction. So khớp từng từ vì thế chỉ phản ánh một phần chất lượng.
+<CodeLessonFrame
+  title="Typed case và result"
+  contract="stable EvalCase → auditable EvalResult"
+  output="case ID, pass/fail và concise reasons"
+  pitfall="Không lưu hoặc yêu cầu hidden chain-of-thought."
+  takeaway="Slice cho phép đọc failure theo traffic/risk thay vì chỉ nhìn average."
+>
 
-## Đánh giá nhiều chiều
+```python
+from dataclasses import dataclass
 
-Một response thường cần được nhìn qua nhiều tiêu chí cùng lúc:
+@dataclass(frozen=True)
+class EvalCase:
+    id: str
+    input: str
+    expected_behavior: str
+    must_include: tuple[str, ...]
+    rubric_version: str
+    slice: str
+    risk: str
 
-- **Correctness:** nội dung có đúng không?
-- **Instruction following:** model có làm đúng yêu cầu không?
-- **Factuality:** các khẳng định có được hỗ trợ bởi dữ liệu hoặc nguồn đáng tin không?
-- **Helpfulness và coherence:** câu trả lời có hữu ích, mạch lạc và đúng trọng tâm không?
-- **Safety:** response có tạo ra rủi ro cho người dùng hoặc hệ thống không?
+@dataclass(frozen=True)
+class EvalResult:
+    case_id: str
+    passed: bool
+    reasons: tuple[str, ...]
+```
 
-Không có một metric duy nhất bao phủ tất cả các chiều này. Một evaluation tốt thường kết hợp dataset sát use case, kiểm tra tự động, human evaluation và các bài test safety.
+Case ID, expected behavior và rubric version phải ổn định; `slice` cho phép đọc failure theo nhóm traffic/risk thay vì chỉ nhìn average. Result giữ lý do có thể kiểm tra, không yêu cầu hay lưu hidden chain-of-thought.
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked decision: average pass rate không được che một authorization critical failure.'},
+  steps: [
+    {label: {vi: 'Normal cases'}, shape: '2 pass', detail: {vi: 'Hai support requests thông thường đạt rubric.'}},
+    {label: {vi: 'Critical case'}, shape: '1 authorization fail', detail: {vi: 'Critical invariant có precedence.'}},
+    {label: {vi: 'Aggregate'}, shape: '2/3 pass rate', detail: {vi: 'Average vẫn được báo nhưng không quyết định một mình.'}},
+    {label: {vi: 'Release'}, shape: 'block', detail: {vi: 'Metric vector giữ correctness, following, factuality, helpfulness và safety.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Case thiếu evidence phải mong đợi abstain để đo hallucination calibration.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Handoff biến eval thành artifact có thể replay, version và audit.'},
+  steps: [
+    {label: {vi: 'Coverage'}, shape: 'normal + edge + adversarial + abstain', detail: {vi: 'Thêm prompt variants giữ nguyên nghĩa.'}},
+    {label: {vi: 'Holdout policy'}, shape: 'selection ≠ final test', detail: {vi: 'Không dùng final holdout để chọn prompt/model.'}},
+    {label: {vi: 'Version lineage'}, shape: 'data + model + prompt + tools + judge', detail: {vi: 'Thay case/label tạo dataset version mới.'}},
+    {label: {vi: 'Replay artifacts'}, shape: 'redacted per-case results', detail: {vi: 'Không log PII/secret vô điều kiện.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Demo đẹp hoặc leaderboard không phải deployment evidence; critical failure không được trung bình hóa.'},
+}} />
+
+</MdxPage>

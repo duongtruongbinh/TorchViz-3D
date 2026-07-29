@@ -1,0 +1,91 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'gpt-parameter-shape-calculation', locale: 'vi',
+  title: 'Tính parameter và shape của GPT',
+  headings: ['Activation shapes', 'Attention parameters', 'MLP parameters', 'Vocabulary và weight tying', 'Exact small GPT'],
+  keywords: ['GPT', 'parameter count', 'tensor shape', 'weight tying'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<GptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Theo dõi activation shape và parameter total của GPT toy với B=2, T=8, C=32, V=100.'},
+  steps: [
+    {label: {vi: 'Token IDs'}, shape: '(B,T) = (2,8)', detail: {vi: 'Integer indices.'}},
+    {label: {vi: 'Token + position'}, shape: '(B,T,C) = (2,8,32)', detail: {vi: 'Model hidden.'}},
+    {label: {vi: 'L blocks'}, shape: '(2,8,32)', detail: {vi: 'Mỗi block giữ shape.'}},
+    {label: {vi: 'Output head'}, shape: '(B,T,V) = (2,8,100)', detail: {vi: 'Chiếu C sang vocabulary V.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'B và T ảnh hưởng activation memory nhưng không làm thay đổi số parameter.'},
+}} />
+
+</MdxPage>
+<MdxPage page={1}>
+
+<GptConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Bỏ bias, attention có bốn ma trận projection C×C: Q, K, V và output.'},
+  steps: [
+    {label: {vi: 'Q/K/V projections'}, shape: '3 × C²', detail: {vi: 'Ba phép chiếu từ C sang C.'}},
+    {label: {vi: 'Output projection'}, shape: '1 × C²', detail: {vi: 'Trộn feature sau concat.'}},
+    {label: {vi: 'C = 32'}, shape: '4 × 32² = 4,096', detail: {vi: 'Không phụ thuộc B hoặc T.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Parameter attention phụ thuộc C²; số head chỉ đổi cách chia cùng tổng projection dimension.'},
+  misconception: {vi: 'Không nhân thêm số head khi C cố định; các head chia cùng tổng chiều projection.'},
+}} />
+
+</MdxPage>
+<MdxPage page={2}>
+
+<GptConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'MLP mở rộng feature từ C lên 4C rồi thu về C; hai LayerNorm thêm gamma và beta.'},
+  steps: [
+    {label: {vi: 'Expansion linear'}, shape: 'C × 4C = 4C²', detail: {vi: 'C → 4C.'}},
+    {label: {vi: 'Projection linear'}, shape: '4C × C = 4C²', detail: {vi: '4C → C.'}},
+    {label: {vi: 'C = 32'}, shape: '8,192 + 128', detail: {vi: '8C² MLP weights + 4C norm parameters.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'MLP thường nhiều parameter hơn attention trong một block. Bỏ bias để tính tay rõ và code phải dùng cùng giả định.'},
+}} />
+
+</MdxPage>
+<MdxPage page={3}>
+
+<GptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Token embedding V×C và output head C×V có cùng số phần tử; weight tying quyết định chúng dùng chung hay sở hữu hai matrices.'},
+  comparisons: [
+    {title: 'Untied', shape: '2 × V×C', detail: {vi: 'Embedding và output head sở hữu hai parameter matrices riêng.'}},
+    {title: 'Tied', shape: '1 × V×C', detail: {vi: 'Output head tái sử dụng đúng matrix của token embedding.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Position embedding thêm context_length×C; final LayerNorm thêm 2C. Luôn ghi rõ tied hoặc untied khi so counts.'},
+  misconception: {vi: 'Tied head vẫn dùng parameter của token embedding; nó chỉ không sở hữu một matrix riêng.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<GptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Cộng từng thành phần của GPT toy V=100, context=16, C=32, L=2, linear không bias.'},
+  steps: [
+    {label: {vi: 'Embeddings'}, shape: '3,200 + 512', detail: {vi: 'Token V×C và position context×C.'}},
+    {label: {vi: 'Two blocks'}, shape: '2 × 12,416 = 24,832', detail: {vi: 'Mỗi block gồm attention, MLP và norms.'}},
+    {label: {vi: 'Final norm'}, shape: '64', detail: {vi: 'Gamma và beta, 2C.'}},
+    {label: {vi: 'Output head'}, shape: '3,200 or shared', detail: {vi: 'Có riêng khi untied, tái sử dụng khi tied.'}},
+  ],
+  code: [
+    'assert 3200 + 512 + 2 * 12416 + 64 + 3200 == 31808',
+    'assert 31808 - 3200 == 28608',
+  ],
+  output: ['untied total = 31,808', 'tied total = 28,608'],
+  takeaway: {vi: 'Đếm theo từng thành phần giúp tìm chênh lệch do bias, norm, position embedding hoặc weight tying.'},
+}} />
+
+</MdxPage>

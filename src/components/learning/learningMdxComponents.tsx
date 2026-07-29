@@ -1,8 +1,9 @@
-import { Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
-import { createContext, useContext, type ComponentType, type ReactNode } from 'react';
+import { AlertTriangle, Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
+import { createContext, isValidElement, useContext, type CSSProperties, type ComponentType, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
+import { CodeBlock } from './code/CodeBlock';
 import QuizBlock, { type QuizQuestionState } from './lesson/QuizBlock';
 import { cx, getLearningLabTheme } from './theme';
 
@@ -50,8 +51,21 @@ export function useLearningMdxLesson() {
   return lessonContext;
 }
 
-export function RequirementsGrid({ children }: { children?: ReactNode }) {
-  return <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{children}</div>;
+const REQUIREMENTS_OVERVIEW_IMAGE = new URL(
+  '../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-minimal-llm-project-requirements.png',
+  import.meta.url,
+).href;
+
+export function RequirementsGrid() {
+  return (
+    <figure className="mx-auto w-full max-w-[1300px]">
+      <img
+        src={REQUIREMENTS_OVERVIEW_IMAGE}
+        alt="Tổng quan bốn công cụ cần chuẩn bị: Google Colab, Python, uv và VSCode"
+        className="block h-auto w-full object-contain"
+      />
+    </figure>
+  );
 }
 
 const REQUIREMENT_ICONS: Record<string, LucideIcon> = { code: Code2, monitor: Monitor, terminal: Terminal, wrench: Wrench };
@@ -100,15 +114,28 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
             so `<p>` can shrink below the intrinsic width of long inline code (e.g. URLs).
             `[&_code]:break-words` then lets that code wrap mid-word to fit the card.
             Without both, a long URL forces the grid column — and the card — wider. */}
-        <div className={cx('grid gap-2 text-sm leading-6 [&_a]:font-black [&_a]:text-[#205089] [&_p]:min-w-0 [&_code]:block [&_code]:break-words [&_code]:rounded-lg [&_code]:bg-[#0B1220] [&_code]:px-3 [&_code]:py-2 [&_code]:text-xs [&_code]:text-[#E5EEF8]', themeClasses.bodyText)}>{children}</div>
+        <div className={cx('grid gap-2 text-sm leading-6 [&_a]:text-[#205089] [&_p]:min-w-0 [&_code]:block [&_code]:break-words [&_code]:rounded-lg [&_code]:bg-[#0B1220] [&_code]:px-3 [&_code]:py-2 [&_code]:text-xs [&_code]:text-[#E5EEF8]', themeClasses.bodyText)}>{children}</div>
       </div>
     </section>
   );
 }
 
-export function LessonNote({ children }: { children?: ReactNode }) {
+export function LessonNote({ children, variant = 'note' }: { children?: ReactNode; variant?: 'note' | 'warning' }) {
   const themeClasses = useLearningMdxTheme();
-  return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5', themeClasses.sectionAccent.note)}>{children}</div>;
+  const isWarning = variant === 'warning';
+  return (
+    <div className={cx(
+      'mt-5 flex gap-3 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
+      isWarning
+        ? themeClasses.isLight
+          ? 'border border-[#D29A22]/24 bg-[#FFF8E8] text-[#744F08]'
+          : 'border border-[#E3B64B]/20 bg-[#594821]/20 text-[#F6D982]'
+        : themeClasses.sectionAccent.note,
+    )}>
+      {isWarning ? <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /> : null}
+      <div className="grid min-w-0 gap-2">{children}</div>
+    </div>
+  );
 }
 
 export function ExtraFrame({ title, children, themeClasses, customTitle }: {
@@ -138,7 +165,92 @@ function MdxLink({ children, href }: { children?: ReactNode; href?: string }) {
   if (isNumericCitation) {
     return <a href={href} target="_blank" rel="noreferrer" className={cx('underline-offset-2 transition-colors hover:underline', themeClasses.focusRing, themeClasses.isLight ? 'text-[#2F78B7]' : 'text-[#9CC7EF]')}>{children}</a>;
   }
-  return <a href={href} target="_blank" rel="noreferrer" className={cx('inline-flex min-h-9 items-center rounded-lg border px-3 text-xs font-black leading-5 transition-colors', themeClasses.focusRing, themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC] text-[#123B68] hover:bg-[#EEF4FA]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7 text-[#F2F6FA] hover:bg-[#A8B8C8]/11')}>{children}</a>;
+  return <a href={href} target="_blank" rel="noreferrer" className={cx('inline-flex min-h-9 items-center rounded-lg border px-3 font-sans text-xs font-bold leading-5 transition-colors', themeClasses.focusRing, themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC] text-[#123B68] hover:bg-[#EEF4FA]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/7 text-[#F2F6FA] hover:bg-[#A8B8C8]/11')}>{children}</a>;
+}
+
+type MdxCodeElementProps = {
+  children?: ReactNode;
+  className?: string;
+};
+
+function readMdxCodeText(value: ReactNode): string {
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (Array.isArray(value)) return value.map(readMdxCodeText).join('');
+  if (isValidElement<MdxCodeElementProps>(value)) return readMdxCodeText(value.props.children);
+  return '';
+}
+
+function MdxCodeBlock({ children }: { children?: ReactNode }) {
+  const themeClasses = useLearningMdxTheme();
+  const codeElement = isValidElement<MdxCodeElementProps>(children) ? children : null;
+  const authoredLanguage = codeElement?.props.className?.match(/(?:^|\s)language-([^\s]+)/)?.[1] ?? 'text';
+  const [language, highlightedLineSpec] = authoredLanguage.split('-highlight-');
+  const highlightedLines = highlightedLineSpec
+    ? highlightedLineSpec.split(',').flatMap((part) => {
+        const [start, end = start] = part.split('-').map(Number);
+        return Number.isInteger(start) && Number.isInteger(end) && end >= start
+          ? Array.from({ length: end - start + 1 }, (_, index) => start + index)
+          : [];
+      })
+    : [];
+  // MDX appends one structural newline inside fenced code. Removing only that
+  // terminator avoids rendering an extra blank row while preserving authored
+  // whitespace within the fence.
+  const code = readMdxCodeText(codeElement?.props.children ?? children).replace(/\n$/, '');
+  return <CodeBlock code={code} language={language} highlightedLines={highlightedLines} themeClasses={themeClasses} />;
+}
+
+type MdxTableElementProps = {
+  children?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+};
+
+type MdxTableCellProps = MdxTableElementProps & {
+  align?: 'char' | 'center' | 'justify' | 'left' | 'right';
+  colSpan?: number;
+  rowSpan?: number;
+};
+
+function MdxTable({ children, className, ...props }: MdxTableElementProps) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <div className={cx('my-1 overflow-x-auto rounded-lg border shadow-sm', themeClasses.isLight ? 'border-[#205089]/12 bg-white/80' : 'border-[#A8B8C8]/14 bg-[#101923]/70')}>
+      <table {...props} className={cx('min-w-full border-separate border-spacing-0 text-left text-sm leading-6', themeClasses.bodyText, className)}>
+        {children}
+      </table>
+    </div>
+  );
+}
+
+function MdxTableHead({ children, className, ...props }: MdxTableElementProps) {
+  const themeClasses = useLearningMdxTheme();
+  return <thead {...props} className={cx(themeClasses.isLight ? 'bg-[#EDF4FA] text-[#123B68]' : 'bg-[#1A2636] text-[#F2F6FA]', className)}>{children}</thead>;
+}
+
+function MdxTableRow({ children, className, ...props }: MdxTableElementProps) {
+  const themeClasses = useLearningMdxTheme();
+  return <tr {...props} className={cx(themeClasses.isLight ? '[&>*]:border-[#205089]/12' : '[&>*]:border-[#A8B8C8]/14', className)}>{children}</tr>;
+}
+
+function MdxTableHeaderCell({ children, className, ...props }: MdxTableCellProps) {
+  return <th {...props} className={cx('border-b px-3 py-2 text-xs font-black uppercase leading-5 tracking-wide align-top first:pl-4 last:pr-4', className)}>{children}</th>;
+}
+
+function MdxTableCell({ children, className, ...props }: MdxTableCellProps) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <td
+      {...props}
+      className={cx(
+        'border-b px-3 py-3 align-top text-sm leading-6 first:pl-4 last:pr-4 [&_code]:break-words [&_code]:rounded [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.88em] [&_code]:font-semibold',
+        themeClasses.isLight ? '[&_code]:bg-[#E8EEF5] [&_code]:text-[#123B68]' : '[&_code]:bg-[#263B5B] [&_code]:text-[#DCE8F4]',
+        className,
+      )}
+    >
+      {children}
+    </td>
+  );
 }
 
 type AuthoredQuizQuestion = Omit<Extract<LearningLessonExtra, { kind: 'quiz' }>['questions'][number], 'title' | 'prompt' | 'options' | 'categories' | 'success' | 'error' | 'completeLabel'> & {
@@ -186,5 +298,11 @@ const sharedAuthoredMdxComponents = {
 export const sharedLearningMdxComponents = {
   a: MdxLink,
   p: MdxParagraph,
+  pre: MdxCodeBlock,
+  table: MdxTable,
+  thead: MdxTableHead,
+  tr: MdxTableRow,
+  th: MdxTableHeaderCell,
+  td: MdxTableCell,
   ...sharedAuthoredMdxComponents,
 };

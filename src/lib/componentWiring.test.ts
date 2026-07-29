@@ -160,6 +160,29 @@ test('Learning Lab shared infrastructure avoids duplicated navigation and UI log
   );
 });
 
+test('Learning Lab fenced MDX code uses the shared language-aware code surface', () => {
+  const mdxComponents = readSource('src/components/learning/learningMdxComponents.tsx');
+  const codeBlock = readSource('src/components/learning/code/CodeBlock.tsx');
+
+  assert.match(mdxComponents, /pre:\s*MdxCodeBlock/);
+  assert.match(mdxComponents, /language-\(\[\^\\s\]\+\)/);
+  assert.match(mdxComponents, /<CodeBlock code=\{code\} language=\{language\}/);
+  assert.match(codeBlock, /normalizedLanguage === 'python' \|\| normalizedLanguage === 'py'/);
+  assert.match(codeBlock, /usePythonTokens\(source, !isOutput && isPython\)/);
+});
+
+test('Learning Lab keeps lesson scrolling bounded to the dynamic viewport', () => {
+  const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
+
+  assert.match(learningLabView, /learning-lab h-dvh min-h-0 w-full overflow-hidden/);
+  assert.match(learningLabView, /<div className="flex h-full min-h-0 min-w-0 flex-col">/);
+  assert.match(
+    learningLabView,
+    /learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden/,
+  );
+  assert.doesNotMatch(learningLabView, /flex min-h-screen min-w-0 flex-col/);
+});
+
 test('CV review and Workspace handoff derive from catalog exercise lessons', () => {
   const reviewMode = readSource('src/components/learning/shell/ReviewMode.tsx');
   const cvComponents = readSource('src/components/learning/domains/cv/mdxComponents.tsx');

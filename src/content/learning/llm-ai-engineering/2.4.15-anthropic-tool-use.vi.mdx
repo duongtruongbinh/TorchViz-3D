@@ -1,0 +1,99 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "anthropic-tool-use", locale: "vi",
+  title: "Tool use với Anthropic", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["anthropic-tool-use","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "tool_use/tool_result biểu diễn vòng call; client tools chạy trong application, server tools có execution boundary khác."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Tool schemas, tool choice policy và authenticated state."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Validated tool results hoặc final text blocks."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Tool-use block có ID/name/input; result block phải tham chiếu đúng ID và biểu diễn error rõ."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
+
+`tool_use`/`tool_result` biểu diễn vòng call; client tools chạy trong application, server tools có execution boundary khác.
+
+**Input:** Tool schemas, tool choice policy và authenticated state.
+
+**Output:** Validated tool results hoặc final text blocks.
+
+**Data/type/shape:** Tool-use block có ID/name/input; result block phải tham chiếu đúng ID và biểu diễn error rõ.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked fixture" contract="typed input → validated output" pitfall="Giữ explicit error path, timeout/cancellation và provider-specific invariant." takeaway="Fixture materialize contract thành artifact deterministic có thể test.">
+
+Claude trả tool_use `lookup_order`; app validate schema/ownership, chạy read-only function, gửi tool_result. Fine-grained streamed args phải buffer và parse guard.
+
+~~~ts
+import assert from "node:assert/strict";
+type ToolUse = { id: string; name: string; inputFragments: string[] };
+type ToolResultBlock = {
+  type: "tool_result"; tool_use_id: string; content: string; is_error: boolean;
+};
+
+function runClientTool(call: ToolUse, ownedOrders: Set<string>): ToolResultBlock {
+  const error = (code: string): ToolResultBlock => ({
+    type: "tool_result", tool_use_id: call.id,
+    content: JSON.stringify({ error: code }), is_error: true,
+  });
+  if (call.name !== "lookup_order") return error("unknown_tool");
+  let input: unknown;
+  try { input = JSON.parse(call.inputFragments.join("")); }
+  catch { return error("invalid_json"); }
+  const orderId = (input as { orderId?: unknown })?.orderId;
+  if (typeof orderId !== "string" || !ownedOrders.has(orderId)) return error("forbidden");
+  return {
+    type: "tool_result", tool_use_id: call.id,
+    content: '{"status":"in_transit"}', is_error: false,
+  };
+}
+
+const result = runClientTool({
+  id: "toolu_17", name: "lookup_order",
+  inputFragments: ['{"order', 'Id":"A17"}'],
+}, new Set(["A17"]));
+assert.deepEqual(result, {
+  type: "tool_result", tool_use_id: "toolu_17",
+  content: '{"status":"in_transit"}', is_error: false,
+});
+assert.equal(
+  runClientTool(
+    { id: "toolu_18", name: "lookup_order", inputFragments: ['{"orderId":'] },
+    new Set(["A17"]),
+  ).is_error,
+  true,
+);
+~~~
+<LessonNote>Chỉ parse sau khi tool-use block hoàn tất. Application phải cap vòng/calls, authorize từng action và dùng idempotency cho side effect.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Tool use với Anthropic"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Nhầm server tool với client tool."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Không trả is_error/structured failure."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Thực thi partial streamed JSON."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
+
+**Pitfalls:**
+
+- Nhầm server tool với client tool.
+- Không trả is_error/structured failure.
+- Thực thi partial streamed JSON.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://platform.claude.com/docs/en/docs/agents-and-tools/tool-use/overview). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Quiz kiểm tra Messages/content blocks/tool streaming.
+
+</MdxPage>

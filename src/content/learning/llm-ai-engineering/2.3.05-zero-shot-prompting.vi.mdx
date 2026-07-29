@@ -1,0 +1,59 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'zero-shot-prompting',
+  locale: 'vi',
+  title: 'Zero-shot với contract tối thiểu',
+  headings: ['Baseline trước complexity', 'Một contract hoàn chỉnh', 'Khi nào thêm examples'],
+  keywords: ['zero-shot', 'prompt contract', 'baseline', 'evaluation'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Zero-shot là baseline không demonstration nhưng vẫn cần một contract đầy đủ.'},
+  steps: [
+    {label: {vi: 'Task + data'}, shape: 'explicit intent + untrusted input', detail: {vi: 'Không dùng một câu mơ hồ.'}},
+    {label: {vi: 'Output schema'}, shape: 'valid labels / fields / bounds', detail: {vi: 'Nêu format có thể parse.'}},
+    {label: {vi: 'Failure paths'}, shape: 'refusal / incomplete / invalid', detail: {vi: 'Quy định khi thiếu evidence hoặc output sai.'}},
+    {label: {vi: 'Acceptance'}, shape: 'held-out metrics', detail: {vi: 'Đo baseline trước khi thêm examples.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Zero-shot rẻ và dễ debug, giúp biết model + contract hiện tại thực sự làm được gì.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Worked zero-shot contract phân loại ticket “Đơn A17 chưa tới”.'},
+  steps: [
+    {label: {vi: 'Instruction'}, shape: 'choose one label', detail: {vi: 'billing | delivery | other.'}},
+    {label: {vi: 'Data'}, shape: 'ticket field · untrusted', detail: {vi: 'Tách khỏi instruction.'}},
+    {label: {vi: 'Output'}, shape: '{category, confidence 0..1}', detail: {vi: 'Không extra fields; parser reject enum/bounds lỗi.'}},
+    {label: {vi: 'Evaluate'}, shape: 'accuracy + schema-valid + slices', detail: {vi: 'Dùng held-out fixtures.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Nếu cần audit, yêu cầu evidence ID hoặc calculation field kiểm chứng được—not hidden chain-of-thought.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Chỉ thêm examples khi eval chỉ ra decision boundary lặp lại mà instruction rõ hơn chưa sửa được.'},
+  comparisons: [
+    {title: 'Zero-shot baseline', shape: 'schema · slice accuracy · tokens · safety', detail: {vi: 'Đo trên cùng fixtures/config.'}},
+    {title: 'Few-shot candidate', shape: 'no schema/safety regression', detail: {vi: 'Phải cải thiện slice mục tiêu và báo token/latency tăng thêm.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Examples dùng schema production, có provenance, không lấy test set và được version cùng prompt.'},
+  misconception: {vi: 'Output đẹp hoặc average chung không đủ evidence; label hiếm có thể vẫn fail.'},
+}} />
+
+</MdxPage>

@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-token-ids-vocabulary',
+  locale: 'vi',
+  title: 'Token IDs và vocabulary',
+  headings: ['Xây vocabulary', 'Tra token thành ID', 'Encode và decode', 'ID không phải embedding'],
+  keywords: ['token ID', 'vocabulary', 'encode', 'decode', 'integer index', 'embedding'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Từ token list của training corpus, lấy các token duy nhất, sắp xếp để ví dụ có tính lặp lại, rồi gán một integer ID cho mỗi token.'},
+  diagram: {
+    inputText: '[\"Linh\", \"builds\", \"AI\", \".\", \"Linh\", \"tests\", \"AI\", \".\"]',
+    outputLabel: {vi: 'Vocabulary cố định'},
+    tokens: ['.:0', 'AI:1', 'Linh:2', 'builds:3', 'tests:4'],
+  },
+  code: [
+    'tokens = [\"Linh\", \"builds\", \"AI\", \".\",',
+    '          \"Linh\", \"tests\", \"AI\", \".\"]',
+    '',
+    'base_vocab = {',
+    '    token: token_id',
+    '    for token_id, token in enumerate(sorted(set(tokens)))',
+    '}',
+    '',
+    'assert base_vocab == {',
+    '    \".\": 0, \"AI\": 1, \"Linh\": 2,',
+    '    \"builds\": 3, \"tests\": 4',
+    '}',
+  ],
+  output: ['{\".\": 0, \"AI\": 1, \"Linh\": 2, \"builds\": 3, \"tests\": 4}'],
+  takeaway: {vi: 'Mapping này thuộc training vocabulary và phải được cố định trước khi encode validation, test hoặc input mới.'},
+}} />
+
+<LessonNote>**Lỗi thường gặp:** dựng vocabulary riêng cho validation/test. Dữ liệu mới phải dùng đúng mapping đã cố định từ training; nếu không, cùng ID sẽ đổi nghĩa.</LessonNote>
+
+**Handoff:** Vocabulary là bảng dùng để tra cả hai chiều.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Token → ID chỉ là lookup
+
+<TokenizerVocabularyLookup content={{
+  lead: { vi: 'Mỗi token trong vocabulary trỏ đến đúng một integer ID. Thứ tự này là quy ước ổn định của tokenizer toy, không phải thước đo ý nghĩa.' },
+  entries: [
+    { token: '.', id: 0 },
+    { token: 'AI', id: 1 },
+    { token: 'Linh', id: 2 },
+    { token: 'builds', id: 3 },
+    { token: 'tests', id: 4 },
+  ],
+}} />
+
+**Input:** `list[str]` gồm `T` tokens.  
+**Output:** `list[int]` gồm đúng `T` token IDs.
+
+<LessonNote>**Lỗi thường gặp:** coi ID là vị trí của token trong câu. ID chọn một mục trong vocabulary; sequence position là một trục khác.</LessonNote>
+
+**Handoff:** Đóng gói lookup hai chiều thành `encode` và `decode`.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TokenizerCodeWalkthrough content={{
+  lead: {vi: 'Encode dùng token -> ID; decode dùng inverse mapping ID -> token. Cả hai chiều phải dùng cùng một vocabulary.'},
+  diagram: {
+    inputText: '\"Linh builds AI.\"',
+    outputLabel: {vi: 'Round trip qua cùng vocabulary'},
+    tokens: ['text', '→', '[2, 3, 1, 0]', '→', 'text'],
+  },
+  code: [
+    'id_to_token = {',
+    '    token_id: token',
+    '    for token, token_id in base_vocab.items()',
+    '}',
+    '',
+    'def encode(text: str) -> list[int]:',
+    '    return [base_vocab[token] for token in tokenize(text)]',
+    '',
+    'def decode(token_ids: list[int]) -> str:',
+    '    tokens = [id_to_token[token_id] for token_id in token_ids]',
+    '    return \" \".join(tokens).replace(\" .\", \".\")',
+    '',
+    'ids = encode(\"Linh builds AI.\")',
+    'assert ids == [2, 3, 1, 0]',
+    'assert decode(ids) == \"Linh builds AI.\"',
+  ],
+  output: ['ids = [2, 3, 1, 0]', 'decoded = \"Linh builds AI.\"'],
+  takeaway: {vi: 'Encode có thể thất bại với token ngoài toy vocabulary; decode có thể thất bại với ID không tồn tại. Tokenizer production xử lý theo special-token hoặc byte-fallback contract riêng.'},
+}} />
+
+<LessonNote>**Lỗi thường gặp:** yêu cầu `decode(encode(text))` giữ mọi whitespace byte-for-byte dù tokenizer toy đã normalization. Contract ở đây round trip về text đã chuẩn hóa.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Token ID chưa phải embedding
+
+<TokenizerIdMisconceptions content={{
+  lead: { vi: 'ID là nhãn số rời rạc dùng làm index. So sánh số học giữa IDs không mô tả độ gần nghĩa, tần suất hoặc độ quan trọng.' },
+  entries: [
+    { token: 'AI', id: 1 },
+    { token: 'Linh', id: 2 },
+    { token: 'tests', id: 4 },
+  ],
+  nonMeanings: [
+    { vi: 'ID lớn hơn = quan trọng hơn' },
+    { vi: 'Hai ID gần nhau = gần nghĩa' },
+    { vi: 'ID = vị trí trong câu' },
+    { vi: 'ID đã là dense vector' },
+  ],
+  takeaway: { vi: 'Token ID chỉ chọn một hàng trong bảng embedding. Vector số thực ở hàng đó mới là token embedding được học.' },
+}} />
+
+```python
+import torch
+
+token_ids = torch.tensor([[2, 3, 1, 0]], dtype=torch.long)
+assert token_ids.shape == (1, 4)
+```
+
+**Handoff:** Bài worked example sẽ theo dõi cả corpus qua `encode`/`decode`, rồi so với một tokenizer BPE thật.
+
+</MdxPage>

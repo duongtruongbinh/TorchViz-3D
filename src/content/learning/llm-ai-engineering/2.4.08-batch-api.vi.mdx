@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "batch-api", locale: "vi",
+  title: "Batch API và reconciliation", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["batch-api","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Batch đổi interactive latency lấy offline throughput và quota economics.'},steps:[
+  {label:{vi:'JSONL inputs'},shape:'N rows + unique custom_id',detail:{vi:'Independent requests.'}},
+  {label:{vi:'Batch job'},shape:'provider lifecycle',detail:{vi:'Poll/cancel có deadline.'}},
+  {label:{vi:'Outputs'},shape:'unordered success + error',detail:{vi:'Không giữ input order.'}},
+  {label:{vi:'Reconcile'},shape:'custom_id join',detail:{vi:'Xử lý partial/missing output.'}},
+],code:[],takeaway:{vi:'Batch phù hợp workload offline có deadline rộng.'}}} />
+
+Batch phù hợp workload offline, độc lập và có deadline rộng; nó đổi latency để lấy throughput/quota economics.
+
+**Input:** JSONL requests với unique `custom_id` và một model/capability được hỗ trợ.
+
+**Output:** Unordered success/error lines được reconcile theo `custom_id`.
+
+**Data/type/shape:** `N` inputs → một batch job → hai output streams success/error; order output không phải order input.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Reconcile unordered batch" contract="input IDs + unordered outputs → ordered result rows" output="t3,t1 + error t2 → t1,t2,t3" pitfall="Không zip theo dòng; duplicate, unknown và missing ID cần explicit error." takeaway="custom_id là correlation key, không chứa raw identity hoặc sensitive payload.">
+
+Ba tickets `t1,t2,t3`; output về `t3,t1` và error `t2`. Join bằng `custom_id`, không zip theo dòng. Poll có backoff, deadline và cancel.
+
+~~~ts
+import assert from "node:assert/strict";
+type Output =
+  | { customId: string; kind: "success"; text: string }
+  | { customId: string; kind: "error"; code: string };
+
+function reconcile(inputIds: string[], outputs: Output[]) {
+  if (new Set(inputIds).size !== inputIds.length) throw new Error("duplicate_input_id");
+  const byId = new Map<string, Output>();
+  for (const output of outputs) {
+    if (!inputIds.includes(output.customId)) throw new Error("unknown_output_id");
+    if (byId.has(output.customId)) throw new Error("duplicate_output_id");
+    byId.set(output.customId, output);
+  }
+  return inputIds.map(customId => byId.get(customId) ??
+    ({ customId, kind: "error", code: "missing_output" } as const));
+}
+
+const rows = reconcile(["t1", "t2", "t3"], [
+  { customId: "t3", kind: "success", text: "resolved" },
+  { customId: "t1", kind: "success", text: "in_transit" },
+  { customId: "t2", kind: "error", code: "invalid_request" },
+]);
+assert.deepEqual(rows.map(row => row.customId), ["t1", "t2", "t3"]);
+assert.equal(rows[1].kind, "error");
+assert.throws(
+  () => reconcile(["t1"], [
+    { customId: "t1", kind: "success", text: "a" },
+    { customId: "t1", kind: "success", text: "b" },
+  ]),
+  /duplicate_output_id/,
+);
+~~~
+<LessonNote>Batch job có provider lifecycle riêng; poll/cancel phải có deadline. `custom_id` là correlation key, không chứa raw user identity hay sensitive payload.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Batch production cần idempotent submission và deterministic reconciliation.'},steps:[
+  {label:{vi:'Workload gate'},shape:'offline only',detail:{vi:'Không dùng cho chat interactive.'}},
+  {label:{vi:'Identity'},shape:'stable custom_id mapping',detail:{vi:'Không giả định output order.'}},
+  {label:{vi:'Recovery'},shape:'partial failure + retry policy',detail:{vi:'Lưu mapping/idempotency.'}},
+],code:[],takeaway:{vi:'Token counting tiếp theo quyết định request budget.'}}} />
+
+**Pitfalls:**
+
+- Dùng batch cho chat interactive.
+- Giả định output giữ order.
+- Không lưu mapping/idempotency hoặc xử lý partial failure.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/batch). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Token counting quyết định request có vào online hay batch budget.
+
+</MdxPage>

@@ -1,88 +1,54 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-data-pipeline-checkpoint-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Pretraining', 'Fine-tuning', 'Training stages', 'Encoder và Decoder', 'Encoder input', 'Positional embedding', 'Encoder context', 'Decoder input', 'Sinh token'],
-  keywords: ['pretraining', 'fine-tuning', 'Transformer', 'encoder', 'decoder', 'token', 'embedding', 'context'], pageCount: 9,
+  headings: ['Corpus split', 'Window batch', 'GPT logits', 'Training update', 'Generation loop'],
+  keywords: ['pretraining', 'decoder-only GPT', 'sliding window', 'next-token loss', 'generation'], pageCount: 5,
 }
 
 <MdxQuiz id="llm-data-pipeline-checkpoint-quiz" questions={[
   {
-    id: 'pretraining-facts', title: 'Chọn các ý đúng về Pretraining', prompt: 'Những nhận định nào đúng về Pretraining?', mode: 'multi',
+    id: 'pretraining-facts', title: 'Corpus split', prompt: 'Vì sao nên tách raw documents thành train/validation trước khi tạo sliding windows?', mode: 'single',
     options: [
-      { id: 'pretraining-initial-stage', label: 'Là giai đoạn ban đầu.', isCorrect: true },
-      { id: 'pretraining-chat-only', label: 'Chỉ tối ưu cho format hội thoại có nhãn.' },
-      { id: 'pretraining-broad-language', label: 'Giúp model hình thành hiểu biết rộng về ngôn ngữ.', isCorrect: true },
-      { id: 'pretraining-large-data', label: 'Model học trên tập dữ liệu lớn và đa dạng.', isCorrect: true },
-    ], success: 'Đúng. Pretraining là giai đoạn đầu, dùng dữ liệu lớn và đa dạng để tạo nền hiểu biết rộng.', error: 'Chưa đúng. Hãy nhớ pretraining là giai đoạn đầu và học trên dữ liệu lớn, đa dạng.',
+      { id: 'avoid-window-leakage', label: 'Để các windows overlap gần giống nhau không rơi vào hai split', isCorrect: true },
+      { id: 'smaller-vocab', label: 'Để validation dùng vocabulary nhỏ hơn train' },
+      { id: 'remove-target', label: 'Để validation không cần shifted targets' },
+      { id: 'enable-attention', label: 'Để causal attention hoạt động' },
+    ], success: 'Đúng. Split document trước ngăn các đoạn overlap rò qua validation.', error: 'Vấn đề nằm ở leakage giữa các mẫu gần trùng, không ở vocabulary hay causal mask.',
   },
   {
-    id: 'finetuning-facts', title: 'Chọn các ý đúng về Fine-tuning', prompt: 'Những nhận định nào đúng về Fine-tuning?', mode: 'multi',
+    id: 'finetuning-facts', title: 'Window và batch', prompt: 'Mô tả nào đúng về sample và batch?', mode: 'single',
     options: [
-      { id: 'finetuning-reinitialize', label: 'Luôn khởi tạo lại toàn bộ trọng số từ đầu.' },
-      { id: 'finetuning-narrow-data', label: 'Huấn luyện thêm trên dữ liệu hẹp hơn.', isCorrect: true },
-      { id: 'finetuning-specific-purpose', label: 'Nhắm tới một tác vụ hoặc lĩnh vực cụ thể.', isCorrect: true },
-      { id: 'finetuning-larger-corpus', label: 'Luôn cần corpus lớn và đa dạng hơn pretraining.' },
-      { id: 'finetuning-from-pretrained', label: 'Dùng model đã pretrain làm nền tảng.', isCorrect: true },
-    ], success: 'Đúng. Fine-tuning lấy model đã pretrain rồi huấn luyện thêm cho mục tiêu hẹp hơn.', error: 'Chưa đúng. Fine-tuning không bắt đầu từ đầu; nó dùng model đã pretrain làm nền.',
+      { id: 'dataset-loader-contract', label: 'Dataset tạo từng cặp `(T),(T)`; DataLoader gom thành `(B,T),(B,T)`', isCorrect: true },
+      { id: 'window-is-batch', label: 'Mỗi sliding window đã là một batch hoàn chỉnh' },
+      { id: 'loader-shifts', label: 'Dataset trả text; DataLoader tự tạo shifted targets' },
+      { id: 'batch-vocab', label: 'Batch size quyết định vocabulary size' },
+    ], success: 'Đúng. Window là sample; batching là trách nhiệm riêng của DataLoader.', error: 'Theo dõi nơi shift được tạo và nơi batch dimension được thêm.',
   },
   {
-    id: 'training-stage-task-match', title: 'Kéo từng ví dụ vào đúng giai đoạn tương ứng.', prompt: 'Mỗi ví dụ thuộc Pretraining hay Fine-tuning?', mode: 'categorize', hideUnsortedLabel: true,
-    completeLabel: 'Tất cả ví dụ đã được kéo vào nhóm.', categories: [{ id: 'pretraining', label: 'Pretraining' }, { id: 'fine-tuning', label: 'Fine-tuning' }],
+    id: 'training-stage-task-match', title: 'GPT logits', prompt: 'Input IDs `(B,T)` qua GPT với vocabulary V tạo output nào?', mode: 'single',
     options: [
-      { id: 'pretraining-large-corpus', label: 'Học từ một corpus lớn gồm nhiều loại văn bản.', categoryId: 'pretraining' },
-      { id: 'pretraining-general-language', label: 'Học các pattern ngôn ngữ chung.', categoryId: 'pretraining' },
-      { id: 'finetuning-chat-format', label: 'Huấn luyện thêm để trả lời theo format chat.', categoryId: 'fine-tuning' },
-      { id: 'finetuning-domain-support', label: 'Huấn luyện thêm cho dữ liệu customer support.', categoryId: 'fine-tuning' },
-    ], success: 'Đúng. Pretraining tạo nền rộng; fine-tuning điều chỉnh nền đó cho task hoặc lĩnh vực cụ thể.', error: 'Chưa đúng. Ví dụ dữ liệu lớn, đa dạng thuộc pretraining; ví dụ huấn luyện thêm cho mục tiêu hẹp thuộc fine-tuning.',
+      { id: 'btv-logits', label: 'Raw logits `(B,T,V)`; mọi train position có next-token target', isCorrect: true },
+      { id: 'btoken', label: 'Một token ID `(B,)` cho cả sequence' },
+      { id: 'btc-final', label: 'Hidden `(B,T,C)` là output cuối đã chuẩn hóa thành xác suất' },
+      { id: 'loss-only', label: 'Một scalar loss dù chưa truyền targets' },
+    ], success: 'Đúng. Output head thay chiều C bằng V tại mọi vị trí.', error: 'Phân biệt hidden states, vocabulary logits và loss cần targets.',
   },
   {
-    id: 'transformer-main-blocks', title: 'Chọn một đáp án', prompt: 'Trong Transformer ban đầu dùng cho dịch ngôn ngữ, có mấy block chính và chúng dùng để làm gì?', mode: 'single',
+    id: 'transformer-main-blocks', title: 'Training update', prompt: 'Thứ tự nào đúng cho một optimizer update?', mode: 'single',
     options: [
-      { id: 'tokenizer-only', label: 'Có 1 block chính: Tokenizer đọc câu gốc và trực tiếp viết câu dịch hoàn chỉnh.' },
-      { id: 'encoder-decoder', label: 'Có 2 block chính: Encoder đọc câu gốc và biến nó thành dạng số để máy xử lý; Decoder dùng thông tin từ encoder để viết câu dịch từng token một.', isCorrect: true },
-      { id: 'training-stages', label: 'Có 2 block chính: Pretraining học dữ liệu lớn và Fine-tuning học dữ liệu hẹp hơn.' },
-      { id: 'reversed-roles', label: 'Có 2 block chính: Encoder tạo câu dịch từng token; Decoder chỉ mã hóa câu nguồn.' },
-    ], success: 'Đúng. Transformer dịch máy ban đầu có hai block chính: encoder đọc câu nguồn, decoder viết câu dịch từng token một.', error: 'Chưa đúng. Ở slide này, hai block chính cần nhớ là Encoder và Decoder.',
+      { id: 'correct-update', label: 'zero_grad → forward → loss → backward → optimizer.step', isCorrect: true },
+      { id: 'step-first', label: 'optimizer.step → forward → backward → zero_grad' },
+      { id: 'argmax-backward', label: 'forward → argmax → backward trên token ID' },
+      { id: 'validation-update', label: 'model.eval → no_grad → optimizer.step' },
+    ], success: 'Đúng. Gradient được tạo sau loss và dùng ở optimizer.step.', error: 'Optimizer cần gradient từ backward; zero_grad phải xử lý accumulation có chủ đích.',
   },
   {
-    id: 'encoder-input-prep-order', title: 'Sắp xếp thứ tự', prompt: 'Sắp xếp pipeline chuẩn bị input cho encoder', mode: 'order',
-    options: [{ id: 'token-embedding', label: 'Token id -> token embedding' }, { id: 'tokenize', label: 'Tách câu thành token' }, { id: 'positional-embedding', label: 'Cộng positional embedding' }, { id: 'token-id', label: 'Token -> token id' }],
-    correctOrder: ['tokenize', 'token-id', 'token-embedding', 'positional-embedding'], success: 'Đúng. Text phải thành token, token id, token embedding, rồi mới thêm thông tin vị trí.', error: 'Chưa đúng thứ tự. Hãy đi từ chữ người đọc được sang vector mà encoder xử lý.',
-  },
-  {
-    id: 'why-position-embedding', title: 'Chọn một đáp án', prompt: 'Vì sao cần positional embedding?', mode: 'single',
+    id: 'encoder-input-prep-order', title: 'Generation loop', prompt: 'Sau khi chọn token mới từ last-position logits, điều gì xảy ra?', mode: 'single',
     options: [
-      { id: 'id-to-embedding', label: 'Để biến token ID thành token embedding.' },
-      { id: 'context-before-encoder', label: 'Để mỗi token biết toàn bộ context trước khi đi qua encoder.' },
-      { id: 'normalize-length', label: 'Để chuẩn hóa độ dài của mọi embedding.' },
-      { id: 'position', label: 'Vì token embedding cho biết token là gì, nhưng chưa cho biết token đứng ở vị trí nào trong câu.', isCorrect: true },
-    ], success: 'Đúng. Positional embedding bổ sung thông tin thứ tự/vị trí cho token embedding.', error: 'Chưa đúng. Token embedding nói về nội dung token; positional embedding thêm vị trí của token.',
-  },
-  {
-    id: 'encoder-context', title: 'Output của encoder', prompt: 'Sau khi encoder đọc toàn bộ câu nguồn, mỗi vector output chứa thông tin gì?', mode: 'single',
-    options: [
-      { id: 'input-only', label: 'Chỉ token embedding và positional embedding ban đầu của vị trí đó.' },
-      { id: 'single-summary', label: 'Cùng một vector duy nhất tóm tắt toàn câu cho mọi vị trí.' },
-      { id: 'contextualized', label: 'Thông tin về token tại vị trí đó cùng context từ các token khác trong câu.', isCorrect: true },
-      { id: 'next-token-distribution', label: 'Phân phối xác suất của token tiếp theo trong câu đích.' },
-    ], success: 'Đúng. Encoder tạo representation có ngữ cảnh cho từng vị trí.', error: 'Chưa đúng. Encoder không chỉ giữ token ID; nó kết hợp thông tin trong toàn bộ câu nguồn.',
-  },
-  {
-    id: 'decoder-input-prep', title: 'Chuẩn bị input cho decoder', prompt: 'Phần câu đích đã sinh được chuẩn bị thế nào trước khi vào decoder?', mode: 'single',
-    options: [
-      { id: 'same-pipeline', label: 'Tokenize → token IDs → token embeddings → cộng positional embeddings.', isCorrect: true },
-      { id: 'ids-only', label: 'Chỉ tokenize thành token IDs; decoder tự suy ra embedding và vị trí sau khi xử lý.' },
-      { id: 'encoder-output-only', label: 'Chỉ dùng output của encoder, không đưa phần câu đích đã sinh vào decoder.' },
-      { id: 'embedding-no-position', label: 'Dùng token embeddings nhưng bỏ positional embeddings vì decoder sinh tuần tự.' },
-    ], success: 'Đúng. Decoder cũng nhận biểu diễn số có cả nội dung token và vị trí.', error: 'Chưa đúng. Hãy xem lại bước chuẩn bị phần output đã có trước khi đưa vào decoder.',
-  },
-  {
-    id: 'decoder-generation-loop', title: 'Sinh token từng bước', prompt: 'Sau khi decoder dự đoán token tiếp theo, điều gì xảy ra?', mode: 'single',
-    options: [
-      { id: 'loss-only', label: 'Token mới chỉ được dùng để tính loss rồi bị bỏ khỏi câu đích.' },
+      { id: 'generation-loss-only', label: 'Token mới chỉ được dùng để tính loss rồi bị bỏ khỏi câu đích.' },
       { id: 'append', label: 'Token mới được ghép vào câu đích để làm prefix cho bước tiếp theo hoặc hoàn thành bản dịch.', isCorrect: true },
       { id: 'regenerate-prefix', label: 'Decoder xóa prefix và sinh lại toàn bộ câu đích từ đầu.' },
       { id: 'replace-source', label: 'Token mới được đưa ngược vào encoder để thay một token trong câu nguồn.' },
-    ], success: 'Đúng. Decoder sinh từng token; token mới được nối vào phần câu đã có.', error: 'Chưa đúng. Hãy lần theo hai slide cuối của ví dụ dịch.',
+    ], success: 'Đúng. Autoregressive generation nối token rồi chạy vòng tiếp theo.', error: 'Token mới trở thành một phần của prefix; nó không bị bỏ hay thay input cũ.',
   },
 ]} />

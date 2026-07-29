@@ -26,7 +26,7 @@ export const lessonMetadata = {
   },
   "label": { vi: "Ví dụ:" },
   "tokens": ["Tôi", "thích", "học", "AI"],
-  "takeaway": { vi: "Giả sử tokenizer tách câu thành bốn token. Ta sẽ đi từ chuỗi này đến một giá trị Perplexity duy nhất." }
+  "takeaway": { vi: "Giả sử tokenizer tách câu thành bốn token và protocol có BOS ngầm làm context cho token đầu. Ta sẽ đi từ bốn target token được chấm đến một giá trị Perplexity duy nhất." }
 }} />
 
 <LlmLossDerivation content={{
@@ -34,7 +34,7 @@ export const lessonMetadata = {
     {
       "label": { vi: "Chuỗi và vị trí" },
       "formula": "x_{1:4}=(x_1,x_2,x_3,x_4)=(\\text{Tôi},\\text{thích},\\text{học},\\text{AI})",
-      "explanation": { vi: "\\(x_{1:4}\\) là toàn bộ chuỗi; \\(L=4\\) là số token được chấm; \\(x_i\\) là token đúng tại vị trí \\(i\\); \\(x_{1:i-1}\\) là context nằm bên trái token đó." }
+      "explanation": { vi: "\\(x_{1:4}\\) là toàn bộ chuỗi; \\(L=4\\) là số target token được chấm; \\(x_i\\) là token đúng tại vị trí \\(i\\); \\(x_{1:i-1}\\) là context nằm bên trái. Với \\(i=1\\), ví dụ quy ước một BOS ngầm; implementation shifted-window khác phải dùng đúng denominator của các vị trí thật sự được chấm." }
     },
     {
       "label": { vi: "Xác suất của token đúng" },
@@ -147,12 +147,12 @@ export const lessonMetadata = {
     ]
   },
   "trend": {
-    "startYear": "2017",
-    "startValue": "≈ 70 token",
-    "endYear": "2023",
-    "endValue": "< 10 token",
-    "explanation": { vi: "Trong cùng dataset, tokenizer và cách tính, xu hướng PPL giảm từ khoảng 70 xuống dưới 10 cho thấy các model đời sau dự đoán token ground truth chính xác và tự tin hơn, từ đó tạo văn bản tự nhiên hơn." },
-    "reference": { "label": "[1]", "href": "https://www.youtube.com/watch?v=9vM4p9NN0Ts&t=1245s" }
+    "startYear": "Baseline A",
+    "startValue": "PPL = 20",
+    "endYear": "Candidate B",
+    "endValue": "PPL = 16",
+    "explanation": { vi: "Chỉ khi cùng dataset, tokenizer, context policy và token-weighted scoring protocol, Candidate B mới có PPL thấp hơn baseline 20%. Ví dụ này không phải một ngưỡng chất lượng chung." },
+    "reference": { "label": "Protocol note", "href": "https://huggingface.co/docs/transformers/perplexity" }
   }
 }} />
 
@@ -192,7 +192,7 @@ export const lessonMetadata = {
     "facts": [{ vi: "Alice cao hơn Bob" }, { vi: "Bob cao hơn Carol" }],
     "question": { vi: "Ai cao nhất?" },
     "answer": { vi: "Đáp án đúng: Alice" },
-    "explanation": { vi: "Một model có thể dự đoán ngôn ngữ rất tự nhiên nhưng vẫn mắc lỗi logic. Model khác có Perplexity cao hơn một chút vẫn có thể giải đúng nếu được huấn luyện thêm bằng dữ liệu reasoning, chain-of-thought hoặc reinforcement learning." }
+    "explanation": { vi: "Một model có thể dự đoán ngôn ngữ rất tự nhiên nhưng vẫn mắc lỗi logic. Model khác có Perplexity cao hơn một chút vẫn có thể giải đúng nhờ dữ liệu lời giải được kiểm chứng hoặc reinforcement learning. Evaluation chỉ cần chấm đáp án/hành vi quan sát được; không yêu cầu hay lưu hidden chain-of-thought." }
   }
 }} />
 
@@ -208,20 +208,20 @@ export const lessonMetadata = {
   "ranges": [
     {
       "range": "5–15",
-      "label": { vi: "Thường rất tốt" },
-      "description": { vi: "Có thể được xem là rất tốt trên nhiều tập văn bản tự nhiên." },
+      "label": { vi: "Một ví dụ PPL thấp" },
+      "description": { vi: "Chỉ được gọi là tốt nếu thấp hơn baseline trong cùng dataset, tokenizer và scoring protocol." },
       "tone": "strong"
     },
     {
       "range": "20–40",
-      "label": { vi: "Có thể chấp nhận" },
-      "description": { vi: "Vẫn có thể phù hợp tùy bài toán, ngôn ngữ và dữ liệu được chấm." },
+      "label": { vi: "Chưa thể kết luận độc lập" },
+      "description": { vi: "Có thể tốt hoặc kém tùy corpus, tokenizer, domain và baseline cùng protocol." },
       "tone": "acceptable"
     },
     {
       "range": "Hàng trăm",
       "label": { vi: "Cần kiểm tra" },
-      "description": { vi: "Thường cho thấy model còn yếu hoặc dữ liệu đánh giá không phù hợp với model." },
+      "description": { vi: "Kiểm tra model quality, tokenizer mismatch, data shift và denominator trước khi kết luận." },
       "tone": "warning"
     }
   ],

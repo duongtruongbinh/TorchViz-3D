@@ -1,0 +1,88 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'causal-self-attention-theory', locale: 'vi',
+  title: 'Lý thuyết causal self-attention',
+  headings: ['Vì sao cần attention', 'Query Key Value', 'Scaled attention', 'Causal mask', 'Multi-head'],
+  keywords: ['self-attention', 'query', 'key', 'value', 'causal mask', 'multi-head'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<AttentionConceptVisual content={{
+  view: 'batch',
+  lead: {vi: 'Causal self-attention cho mỗi token chấm điểm trực tiếp các token được phép nhìn, thay vì nén cả chuỗi vào một hidden state.'},
+  steps: [
+    {label: {vi: 'Query token'}, shape: '1 position', detail: {vi: 'Token đang cần tìm thông tin.'}},
+    {label: {vi: 'Allowed context'}, shape: '≤ t', detail: {vi: 'Chỉ các token trong context window và không ở tương lai.'}},
+    {label: {vi: 'Mixed output'}, shape: '(B,T,D)', detail: {vi: 'Trộn nội dung theo mức liên quan.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Attention rút ngắn đường dependency nhưng score matrix vẫn có T×T phần tử mỗi head; tăng gấp đôi T có thể làm phần score gần bốn lần.'},
+  misconception: {vi: 'Attention không “nhớ vô hạn”; nó chỉ truy cập token trong context window và vẫn chịu chi phí bộ nhớ.'},
+}} />
+
+</MdxPage>
+<MdxPage page={1}>
+
+<AttentionConceptVisual content={{
+  view: 'batch',
+  lead: {vi: 'Ba phép chiếu học được từ cùng input X tạo Query, Key và Value với cùng shape (B,T,D).'},
+  steps: [
+    {label: {vi: 'Query'}, shape: 'Q = XWq', detail: {vi: 'Token hiện tại đang tìm gì.'}},
+    {label: {vi: 'Key'}, shape: 'K = XWk', detail: {vi: 'Token khác cung cấp gì để được chấm điểm.'}},
+    {label: {vi: 'Value'}, shape: 'V = XWv', detail: {vi: 'Nội dung được trộn sau softmax.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Q/K quyết định “nhìn đâu”; V quyết định “lấy nội dung gì”. Với X:(B,T,C), weights:(C,D), cả ba output là (B,T,D).'},
+  misconception: {vi: 'Không dùng Value để tạo score; score đến từ Q và K, Value chỉ được trộn sau softmax.'},
+}} />
+
+</MdxPage>
+<MdxPage page={2}>
+
+<AttentionConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Scaled dot-product attention biến pairwise scores thành một phân phối trên keys rồi dùng phân phối đó để trộn Values.'},
+  steps: [
+    {label: {vi: 'Pairwise scores'}, shape: 'QKᵀ · (B,T,T)', detail: {vi: 'Mỗi query chấm điểm mọi key.'}},
+    {label: {vi: 'Scale + softmax'}, shape: '/√d_k → Σ=1', detail: {vi: 'Softmax chạy trên key dimension cuối cùng.'}},
+    {label: {vi: 'Mix values'}, shape: 'weights @ V', detail: {vi: 'Trả context cho từng query.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Attention(Q,K,V) = softmax(QKᵀ / √d_k)V; scaling giữ softmax khỏi bão hòa khi d_k lớn.'},
+  misconception: {vi: 'Không softmax theo query dimension; mỗi query cần một distribution hợp lệ trên các keys.'},
+}} />
+
+</MdxPage>
+<MdxPage page={3}>
+
+<AttentionConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Causal mask bảo đảm token ở vị trí t chỉ dùng keys ở vị trí ≤t trong cả training và generation.'},
+  steps: [
+    {label: {vi: 'Raw scores'}, shape: '(B,T,T)', detail: {vi: 'Có cả vị trí quá khứ và tương lai.'}},
+    {label: {vi: 'Future positions'}, shape: 'key > t', detail: {vi: 'Đặt score thành −inf.'}},
+    {label: {vi: 'Softmax'}, shape: 'future weight = 0', detail: {vi: 'Chỉ chuẩn hóa trên keys hợp lệ.'}},
+    {label: {vi: 'Causal context'}, shape: 'keys 0..t', detail: {vi: 'Không rò rỉ token tương lai.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Ví dụ query thứ ba nhìn keys 0,1,2 nhưng không nhìn 3..T−1. −inf trước softmax tạo xác suất 0 cho tương lai.'},
+  misconception: {vi: 'Không mask sau softmax mà bỏ qua chuẩn hóa lại; khi đó tổng trọng số còn lại nhỏ hơn 1.'},
+}} />
+
+</MdxPage>
+<MdxPage page={4}>
+
+<AttentionConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Causal mask và dropout cùng tác động lên attention nhưng có hai trách nhiệm khác nhau.'},
+  comparisons: [
+    {title: 'Causal mask', shape: 'train + eval', detail: {vi: 'Ràng buộc bắt buộc: vị trí tương lai luôn có weight 0.'}},
+    {title: 'Attention dropout', shape: 'train only', detail: {vi: 'Ngẫu nhiên bỏ một phần kết nối hợp lệ để regularize; model.eval() tắt dropout.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Mask bảo vệ causality; dropout giảm overfitting. Multi-head chạy quy trình này song song trên nhiều phần của chiều model.'},
+  misconception: {vi: 'Không dùng dropout thay causal mask; dropout là ngẫu nhiên và chỉ hoạt động khi training.'},
+}} />
+
+</MdxPage>

@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'gpt-block-checkpoint-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Decoder-only', 'LayerNorm', 'Residual', 'Activation shape', 'Pre-norm dataflow'],
+  keywords: ['quiz', 'GPT', 'LayerNorm', 'residual', 'pre-norm', 'activation shape'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="gpt-block-checkpoint-quiz" questions={[
+  {
+    id: 'decoder-only-causality', title: 'Decoder-only GPT', prompt: 'Đặc điểm nào làm GPT phù hợp với next-token prediction?', mode: 'single',
+    options: [
+      { id: 'causal-blocks', label: 'Các block dùng causal self-attention để mỗi vị trí chỉ phụ thuộc prefix', isCorrect: true },
+      { id: 'bidirectional-label', label: 'Mỗi vị trí luôn nhìn cả token tương lai khi train' },
+      { id: 'encoder-memory', label: 'Mỗi block bắt buộc nhận memory từ một encoder riêng' },
+      { id: 'class-logits', label: 'Output head chỉ tạo một logit cho cả chuỗi' },
+    ],
+    success: 'Đúng. Causal mask làm objective train khớp với điều kiện có sẵn khi generation.',
+    error: 'GPT trong chương này là decoder-only: không có encoder memory và không được nhìn target tương lai.',
+  },
+  {
+    id: 'layernorm-axis', title: 'LayerNorm', prompt: 'Với activation `(B,T,C)`, LayerNorm của GPT chuẩn hóa theo chiều nào?', mode: 'single',
+    options: [
+      { id: 'feature-axis', label: 'C feature của từng token, độc lập theo batch và vị trí', isCorrect: true },
+      { id: 'batch-axis', label: 'Toàn bộ batch B thành một thống kê chung' },
+      { id: 'sequence-axis', label: 'Toàn bộ T token thành một giá trị duy nhất' },
+      { id: 'vocab-axis', label: 'Vì LayerNorm hoạt động trên vocab_size' },
+    ],
+    success: 'Đúng. Mỗi vector token được chuẩn hóa trên chiều feature.',
+    error: 'LayerNorm không trộn thống kê giữa sample hay vị trí như cách bạn đang giả định.',
+  },
+  {
+    id: 'residual-shape-contract', title: 'Residual connection', prompt: 'Điều kiện shape nào cần đúng cho `x = x + sublayer(norm(x))`?', mode: 'single',
+    options: [
+      { id: 'same-shape', label: 'Sublayer phải trả cùng shape `(B,T,C)` như x', isCorrect: true },
+      { id: 'vocab-shape', label: 'Sublayer phải trả `(B,T,V)`' },
+      { id: 'scalar-shape', label: 'Sublayer phải trả một scalar loss' },
+      { id: 'batch-only', label: 'Chỉ cần cùng batch B; T và C có thể khác' },
+    ],
+    success: 'Đúng. Phép cộng theo phần tử yêu cầu cùng shape và giữ residual stream ổn định.',
+    error: 'Residual addition không tự chiếu hay broadcast tùy ý qua sequence/feature.',
+  },
+  {
+    id: 'gpt-logit-shape', title: 'Activation shape', prompt: 'IDs có shape `(2,8)`, `d_model=32`, `vocab_size=100`. Logits cuối GPT có shape nào?', mode: 'single',
+    options: [
+      { id: 'hidden', label: '(2,8,32)' },
+      { id: 'logits', label: '(2,8,100)', isCorrect: true },
+      { id: 'class', label: '(2,100)' },
+      { id: 'ids', label: '(2,8)' },
+    ],
+    success: 'Đúng. Output head chiếu từng hidden vector từ C=32 sang V=100.',
+    error: 'Đừng dừng ở hidden state: output head thay chiều cuối C bằng vocabulary V.',
+  },
+  {
+    id: 'pre-norm-dataflow', title: 'Pre-norm dataflow', prompt: 'Dòng dữ liệu nào đúng cho nhánh attention của GPT block pre-norm trong bài?', mode: 'single',
+    options: [
+      { id: 'reuse-vc', label: '`x + dropout(attention(LayerNorm(x)))`', isCorrect: true },
+      { id: 'remove-position', label: '`LayerNorm(x + logits)` với logits `(B,T,V)`.' },
+      { id: 'tie-blocks', label: '`attention(x)` rồi bỏ residual stream.' },
+      { id: 'change-logits', label: '`softmax(x)` trước LayerNorm và MLP.' },
+    ],
+    success: 'Đúng. Pre-norm chuẩn hóa trước sublayer; dropout áp lên sublayer output rồi residual cộng lại tensor `(B,T,C)`.',
+    error: 'Output head/logits nằm sau toàn bộ blocks. Trong block, LayerNorm → causal attention → dropout phải trả cùng shape để cộng residual.',
+  },
+]} />

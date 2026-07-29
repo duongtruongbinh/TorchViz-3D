@@ -1,0 +1,93 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "gemini-context-caching", locale: "vi",
+  title: "Gemini context caching", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["gemini-context-caching","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Caching giảm xử lý/cost cho prefix ổn định và được tái sử dụng; implicit và explicit behavior phụ thuộc API/model."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Stable prefix, reuse count, TTL và model/version."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Cache reference/hit metadata hoặc normal request fallback."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Large prefix stored/cached once then referenced; invalidation key gồm model, content, schema và policy version."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
+
+Caching giảm xử lý/cost cho prefix ổn định và được tái sử dụng; implicit và explicit behavior phụ thuộc API/model.
+
+**Input:** Stable prefix, reuse count, TTL và model/version.
+
+**Output:** Cache reference/hit metadata hoặc normal request fallback.
+
+**Data/type/shape:** Large prefix stored/cached once then referenced; invalidation key gồm model, content, schema và policy version.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame title="Worked fixture" contract="typed input → validated output" pitfall="Giữ explicit error path, timeout/cancellation và provider-specific invariant." takeaway="Fixture materialize contract thành artifact deterministic có thể test.">
+
+Prefix 20k token dùng 10 lần; explicit-cache setup chỉ đáng giá nếu supported và savings vượt create/storage overhead. Update policy v13 phải tạo key mới.
+
+~~~ts
+import assert from "node:assert/strict";
+type CacheEconomics = {
+  uncachedPerUse: number;
+  cachedPerUse: number;
+  createAndStorage: number;
+  reuseCount: number;
+};
+function compare(cost: CacheEconomics) {
+  const withoutCache = cost.uncachedPerUse * cost.reuseCount;
+  const withCache = cost.createAndStorage + cost.cachedPerUse * cost.reuseCount;
+  return {
+    withoutCache,
+    withCache,
+    savings: withoutCache - withCache,
+    useCache: withCache < withoutCache,
+  };
+}
+
+const economics = compare({
+  uncachedPerUse: 20_000,
+  cachedPerUse: 2_000,
+  createAndStorage: 25_000,
+  reuseCount: 10,
+});
+assert.deepEqual(economics, {
+  withoutCache: 200_000,
+  withCache: 45_000,
+  savings: 155_000,
+  useCache: true,
+});
+const cacheKeyParts = ["tenant-a", "model-revision", "prefix-hash", "schema-v2", "policy-v13"];
+assert.equal(new Set(cacheKeyParts).size, 5);
+~~~
+<LessonNote>Đơn vị ở đây là cost-weighted token units để minh họa break-even, không phải giá provider. Dùng pricing/capability hiện hành và scope cache theo tenant/policy.</LessonNote>
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Gemini context caching"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Tái dùng cache qua tenant."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Cache prompt có PII quá TTL cần thiết."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Giả định hit hoặc pricing cố định."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
+
+**Pitfalls:**
+
+- Tái dùng cache qua tenant.
+- Cache prompt có PII quá TTL cần thiết.
+- Giả định hit hoặc pricing cố định.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://ai.google.dev/gemini-api/docs/caching). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Mistral lessons áp common contract lên Chat Completions trong bề mặt tài liệu Conversations hiện hành.
+
+</MdxPage>

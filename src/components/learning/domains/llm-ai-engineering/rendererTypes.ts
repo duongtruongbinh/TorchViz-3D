@@ -21,19 +21,50 @@ export type LlmTrainingComponentsContent = {
   cards: Array<{ title: LearningLocalizedText; description: LearningLocalizedText }>;
 };
 
+export type LlmRawTextModelInputContent = {
+  lead: LearningLocalizedText;
+  rawText: string;
+  tokenIds: number[];
+  embeddingRows: string[][];
+  rawTextNote: LearningLocalizedText;
+  tokenIdsNote: LearningLocalizedText;
+  embeddingNote: LearningLocalizedText;
+};
+
+export type LlmPretrainingDatasetCardsContent = {
+  lead: LearningLocalizedText;
+  image?: 'dataset-evolution';
+  datasets: Array<{
+    id: 'c4' | 'pile' | 'dolma' | 'fineweb';
+    name: string;
+    scale: string;
+    brief: LearningLocalizedText;
+    href: string;
+  }>;
+  note: LearningLocalizedText;
+};
+
 export type LlmAcademiaIndustryComparisonContent = Omit<LlmTrainingComponentsContent, 'body'> & {
   academia: LearningLocalizedText;
   industry: LearningLocalizedText;
 };
 
-export type LlmTokenizerMemoryContent = {
-  cards: Array<{
-    id: 'flexible' | 'robust' | 'efficient';
-    cue: LearningLocalizedText;
+export type LlmTokenizerGranularityContent = {
+  lead: LearningLocalizedText;
+  whitespaceNote: LearningLocalizedText;
+  misconception: LearningLocalizedText;
+};
+
+export type LlmTokenizerContractContent = {
+  lead: LearningLocalizedText;
+  decisions: Array<{
+    id: 'vocabulary' | 'ids' | 'length' | 'roundtrip';
     title: LearningLocalizedText;
-    description: LearningLocalizedText;
-    example: string;
+    value: string;
+    meaning: LearningLocalizedText;
   }>;
+  checkpoint: LearningLocalizedText;
+  misconception: LearningLocalizedText;
 };
 
 export type LlmTokenizerCodeStructureContent = {
@@ -141,12 +172,140 @@ export type LlmTokenizerIdRoundTripContent = {
   outputText: string;
 };
 
+export type LlmTokenIdTensorShapeContent = {
+  lead: LearningLocalizedText;
+  ids: number[];
+  batchSize: number;
+  sequenceLength: number;
+  dtype: string;
+  stages: Array<{
+    label: LearningLocalizedText;
+    value: string;
+    contract: string;
+  }>;
+  takeaway: LearningLocalizedText;
+  misconception: LearningLocalizedText;
+};
+
+export type LlmSpecialTokenRolesContent = {
+  lead: LearningLocalizedText;
+  tokens: Array<{
+    id: 'bos' | 'eos' | 'pad' | 'unk' | 'boundary';
+    token: string;
+    title: string;
+    role: LearningLocalizedText;
+  }>;
+  contract: LearningLocalizedText;
+  misconception: LearningLocalizedText;
+};
+
+export type LlmPaddingMaskContent = {
+  lead: LearningLocalizedText;
+  rows: Array<{
+    label: string;
+    tokens: string[];
+    valid: number[];
+  }>;
+  padMeaning: LearningLocalizedText;
+  maskMeaning: LearningLocalizedText;
+  windowNote: LearningLocalizedText;
+  misconception: LearningLocalizedText;
+};
+
+export type LlmSlidingWindowWorkedExampleContent =
+  | {
+      view: 'chunk';
+      lead: LearningLocalizedText;
+      corpus: number[];
+      chunk: number[];
+      contextLength: number;
+      stride: number;
+      inputContract: LearningLocalizedText;
+      outputContract: LearningLocalizedText;
+      misconception: LearningLocalizedText;
+    }
+  | {
+      view: 'shift';
+      lead: LearningLocalizedText;
+      input: number[];
+      target: number[];
+      invariant: string;
+      misconception: LearningLocalizedText;
+    }
+  | {
+      view: 'stride';
+      lead: LearningLocalizedText;
+      corpusLength: number;
+      contextLength: number;
+      stride: number;
+      starts: number[];
+      samples: Array<{ input: number[]; target: number[] }>;
+      invalidStart: number;
+      explanation: LearningLocalizedText;
+      misconception: LearningLocalizedText;
+    }
+  | {
+      view: 'batch';
+      lead: LearningLocalizedText;
+      inputs: number[][];
+      targets: number[][];
+      batchSize: number;
+      contextLength: number;
+      explanation: LearningLocalizedText;
+      misconception: LearningLocalizedText;
+    }
+  | {
+      view: 'leakage';
+      lead: LearningLocalizedText;
+      wrong: LearningLocalizedText[];
+      right: LearningLocalizedText[];
+      explanation: LearningLocalizedText;
+      misconception: LearningLocalizedText;
+    };
+
+export type LlmEmbeddingPipelineVisualContent = {
+  view: 'lookup' | 'batch' | 'position' | 'addition' | 'audit';
+  layout?: 'filter-pipeline' | 'mixture-board' | 'scale-dashboard' | 'scale-risks';
+  image?: 'common-crawl-pipeline' | 'filtering-pipeline' | 'scale-risks';
+  lead: LearningLocalizedText;
+  scaleNote?: LearningLocalizedText;
+  code: string[];
+  output?: string[];
+  steps?: Array<{
+    label: LearningLocalizedText;
+    shape: string;
+    detail: LearningLocalizedText;
+    examples?: LearningLocalizedText[];
+    beforeCount?: number;
+    afterCount?: number;
+  }>;
+  comparisons?: Array<{
+    title: string;
+    shape: string;
+    href?: string;
+    detail: LearningLocalizedText;
+  }>;
+  takeaway?: LearningLocalizedText;
+  misconception?: LearningLocalizedText;
+};
+
 export type LlmTokenizerMergeTrainingContent = {
   example: string;
   merges: Array<{ sourceIndexes: number[]; result: string }>;
   initialTokens: string[];
   result: LearningLocalizedText;
   playgroundUrl: string;
+};
+
+export type LlmBpeFallbackContent = {
+  lead: LearningLocalizedText;
+  examples: Array<{
+    source: string;
+    tokens: string[];
+    explanation: LearningLocalizedText;
+  }>;
+  fallback: LearningLocalizedText;
+  misconception: LearningLocalizedText;
 };
 
 export type LlmTokenizerSequenceLengthContent = {
@@ -161,8 +320,9 @@ export type LlmTokenizerRegexWalkthroughContent = {
   lead: LearningLocalizedText;
   diagram?: { inputText: string; outputLabel: LearningLocalizedText; tokens: string[] };
   code: string[];
+  dimmedLineCount?: number;
   output: string[];
-  takeaway: LearningLocalizedText;
+  takeaway?: LearningLocalizedText;
 };
 
 export type LlmProbabilityDefinitionContent = {

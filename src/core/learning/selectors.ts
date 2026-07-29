@@ -12,6 +12,12 @@ export type LearningExerciseLessonTarget = {
   lessonId: string;
 };
 
+export function isQuizLearningLesson(lesson: LearningLesson): boolean {
+  return lesson.tags.includes('quiz')
+    || lesson.id.endsWith('-quiz')
+    || lesson.id.includes('-quiz-');
+}
+
 export function getReviewableLearningLessons(catalog: LearningCatalog): LearningLesson[] {
   return catalog.lessons.filter((lesson) => (
     lesson.contentStatus === 'published' && lesson.tags.includes('exercise')

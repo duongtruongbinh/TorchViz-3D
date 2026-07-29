@@ -366,7 +366,7 @@ function OrderRowOverlay({
   return (
     <div
       className={cx(
-        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-xl',
+        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-normal leading-6 shadow-xl',
         quizPalette.orderRow,
       )}
       style={{ transform: 'scale(1.02)' }}
@@ -385,7 +385,7 @@ function renderInlineCode(value: string, themeClasses: ReturnType<typeof getLear
     const isBacktickCode = part.startsWith('`') && part.endsWith('`');
     const isQuotedCode = part.startsWith('“') && part.endsWith('”');
     if (isBacktickCode || isQuotedCode) {
-      return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
+      return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-medium', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
     }
     return <span key={`${index}-${part}`}>{part}</span>;
   });
@@ -513,7 +513,7 @@ function TokenChip({
         event.dataTransfer.setData('text/plain', optionId);
       }}
       className={cx(
-        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-sm font-black leading-6 shadow-sm active:cursor-grabbing',
+        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-sm font-normal leading-6 shadow-sm active:cursor-grabbing',
         isIncorrect ? quizPalette.tokenChipIncorrect : quizPalette.tokenChip,
       )}
     >
@@ -584,7 +584,7 @@ function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabTheme>) {
 
 function getQuizOptionClass(quizPalette: QuizPalette, isDisabled: boolean, isSelected: boolean): string {
   return cx(
-    'inline-flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm font-black leading-6 transition-colors disabled:cursor-not-allowed disabled:opacity-45',
+    'inline-flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm font-normal leading-6 transition-colors disabled:cursor-not-allowed disabled:opacity-45',
     isSelected
       ? quizPalette.optionSelected
       : isDisabled
@@ -595,7 +595,7 @@ function getQuizOptionClass(quizPalette: QuizPalette, isDisabled: boolean, isSel
 
 function getQuizOrderRowClass(themeClasses: ReturnType<typeof getLearningLabTheme>, quizPalette: QuizPalette, isDragging: boolean): string {
   return cx(
-    'flex min-h-12 cursor-grab items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-sm transition-colors active:cursor-grabbing',
+    'flex min-h-12 cursor-grab items-center gap-3 rounded-lg border px-3 py-2 text-sm font-normal leading-6 shadow-sm transition-colors active:cursor-grabbing',
     themeClasses.focusRing,
     quizPalette.orderRow,
     isDragging && quizPalette.orderRowDragging,

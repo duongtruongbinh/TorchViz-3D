@@ -2,29 +2,67 @@ export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'evaluation-dataset-design',
   locale: 'vi',
-  title: 'Thiết kế evaluation dataset',
-  headings: ['Bắt đầu từ use case', 'Một test case cần gì?', 'Coverage và leakage'],
-  keywords: ['evaluation dataset', 'test case', 'rubric', 'coverage', 'data leakage'],
+  title: 'Quiz',
+  headings: ['Case schema', 'Coverage', 'Isolation', 'Versioning'],
+  keywords: ['quiz', 'evaluation dataset', 'EvalCase', 'coverage'],
+  pageCount: 4,
 }
 
-## Bắt đầu từ use case
-
-Evaluation dataset nên đại diện cho những gì người dùng thật sẽ làm, không chỉ cho những gì dễ chấm điểm. Trước khi thu thập dữ liệu, hãy xác định rõ user, task, điều kiện sử dụng, lỗi nào có thể chấp nhận và lỗi nào phải được xem là nghiêm trọng.
-
-Ví dụ, một trợ lý học tập cần test khả năng giải thích đúng trình độ, trong khi một hệ thống hỏi đáp tài liệu cần ưu tiên factuality, citation và khả năng từ chối khi tài liệu không chứa đáp án.
-
-## Một test case cần gì?
-
-Một test case hữu ích thường gồm:
-
-- Input hoặc conversation context.
-- Expected behavior, reference answer hoặc các fact bắt buộc.
-- Rubric và tiêu chí pass/fail.
-- Metadata như task, độ khó, ngôn ngữ và nhóm rủi ro.
-- Phiên bản prompt, model, dữ liệu truy xuất và cấu hình chạy.
-
-Reference answer không nhất thiết là một đoạn văn duy nhất. Với output mở, ta có thể lưu danh sách fact cần có, điều kiện cấm, hoặc nhiều cách trả lời được chấp nhận.
-
-## Coverage và leakage
-
-Dataset cần bao phủ normal cases, edge cases và adversarial cases. Các nhóm quan trọng nên được tách rõ để biết model đang tiến bộ ở đâu và regression ở đâu. Đồng thời, phải kiểm tra khả năng benchmark hoặc test set đã xuất hiện trong training data; nếu có leakage, điểm số có thể phản ánh khả năng ghi nhớ thay vì khả năng tổng quát hóa.
+<MdxQuiz id="evaluation-dataset-design" questions={[
+  {
+    id: 'evaluation-dataset-design-q1',
+    title: 'Case schema',
+    prompt: 'Trường nào làm một EvalCase có thể chấm và debug được?',
+    mode: 'single',
+    options: [
+      { id: 'evaluation-dataset-design-q1-a', label: 'Chỉ input text không có expected behavior' },
+      { id: 'evaluation-dataset-design-q1-b', label: 'Chỉ average score của run trước' },
+      { id: 'evaluation-dataset-design-q1-c', label: 'Stable ID, input, expected behavior, rubric và slice metadata', isCorrect: true },
+      { id: 'evaluation-dataset-design-q1-d', label: 'Một screenshot không có version' },
+    ],
+    success: 'Đúng. Case cần identity, input, oracle/rubric và metadata để replay.',
+    error: 'Chưa đúng. Thiếu expected behavior hoặc stable ID sẽ làm case khó chấm và truy vết.',
+  },
+  {
+    id: 'evaluation-dataset-design-q2',
+    title: 'Coverage',
+    prompt: 'Dataset chỉ chứa happy path từ một ngôn ngữ. Cải tiến nào có giá trị nhất?',
+    mode: 'single',
+    options: [
+      { id: 'evaluation-dataset-design-q2-a', label: 'Thêm normal, edge, adversarial và risk slices theo traffic thật', isCorrect: true },
+      { id: 'evaluation-dataset-design-q2-b', label: 'Nhân bản cùng happy path nhiều lần' },
+      { id: 'evaluation-dataset-design-q2-c', label: 'Làm prompt hiện tại dài hơn nhưng giữ cùng scenario' },
+      { id: 'evaluation-dataset-design-q2-d', label: 'Chỉ shuffle thứ tự case' },
+    ],
+    success: 'Đúng. Coverage phải phản ánh phân phối và failure mode cần quyết định.',
+    error: 'Chưa đúng. Nhiều bản sao của cùng scenario không mở rộng coverage.',
+  },
+  {
+    id: 'evaluation-dataset-design-q3',
+    title: 'Isolation',
+    prompt: 'Case nào phải nằm trong holdout tách khỏi prompt-development loop?',
+    mode: 'single',
+    options: [
+      { id: 'evaluation-dataset-design-q3-a', label: 'Các case đang dùng hằng ngày để sửa prompt' },
+      { id: 'evaluation-dataset-design-q3-b', label: 'Các sample đã đưa vào fine-tuning' },
+      { id: 'evaluation-dataset-design-q3-c', label: 'Demo đã chọn vì model trả lời tốt' },
+      { id: 'evaluation-dataset-design-q3-d', label: 'Final release-gate cases dùng để ước lượng generalization', isCorrect: true },
+    ],
+    success: 'Đúng. Holdout phải chưa tham gia lựa chọn prompt/model.',
+    error: 'Chưa đúng. Case đã dùng để tối ưu không còn là final holdout độc lập.',
+  },
+  {
+    id: 'evaluation-dataset-design-q4',
+    title: 'Versioning',
+    prompt: 'Một case thay expected fact sau khi policy đổi. Cách lưu đúng?',
+    mode: 'single',
+    options: [
+      { id: 'evaluation-dataset-design-q4-a', label: 'Ghi đè im lặng để lịch sử score vẫn đẹp' },
+      { id: 'evaluation-dataset-design-q4-b', label: 'Tạo version mới và giữ provenance/migration note', isCorrect: true },
+      { id: 'evaluation-dataset-design-q4-c', label: 'Giữ cùng nội dung hash nhưng đổi nghĩa' },
+      { id: 'evaluation-dataset-design-q4-d', label: 'Xóa mọi run dùng policy cũ' },
+    ],
+    success: 'Đúng. Dataset và oracle là versioned inputs của eval.',
+    error: 'Chưa đúng. Ghi đè im lặng làm mất khả năng so sánh và tái hiện.',
+  },
+]} />

@@ -1,0 +1,82 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'rlhf-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Preference record', 'Reward model', 'KL control', 'Proxy failure', 'Versioned evaluation'],
+  keywords: ['quiz', 'RLHF', 'preference', 'reward model', 'KL'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="rlhf-quiz" questions={[
+  {
+    id: 'rlhf-quiz-q1',
+    title: 'Preference record',
+    prompt: 'Record nào giữ được signal so sánh cần thiết cho preference learning?',
+    mode: 'single',
+    options: [
+      { id: 'prompt-only', label: 'Chỉ `prompt`' },
+      { id: 'latency-only', label: 'Chỉ latency scalar' },
+      { id: 'pair', label: '`prompt`, `chosen`, `rejected` cùng provenance của label', isCorrect: true },
+      { id: 'cache-only', label: 'Chỉ KV cache' },
+    ],
+    success: 'Đúng. Pair và provenance cho biết lựa chọn nào được ưu tiên và dữ liệu đến từ đâu.',
+    error: 'Chưa đúng. Một sample phải giữ cả hai response được so sánh và ngữ cảnh của preference.',
+  },
+  {
+    id: 'rlhf-quiz-q2',
+    title: 'Reward model',
+    prompt: 'Trong pipeline RLHF điển hình, reward model làm gì?',
+    mode: 'single',
+    options: [
+      { id: 'tokenize', label: 'Định nghĩa vocabulary mới' },
+      { id: 'score-sequence', label: 'Ánh xạ response trong ngữ cảnh prompt thành một score proxy cho preference', isCorrect: true },
+      { id: 'authorize-tools', label: 'Thực thi authorization cho mọi tool call' },
+      { id: 'store-kv', label: 'Nén KV cache khi decode' },
+    ],
+    success: 'Đúng. Reward model cung cấp proxy scalar cho bước tối ưu policy.',
+    error: 'Chưa đúng. Reward model không thay tokenizer hay application authorization.',
+  },
+  {
+    id: 'rlhf-quiz-q3',
+    title: 'KL control',
+    prompt: 'Trong objective toy `helpfulness + safety − β·KL`, KL penalty có vai trò gì?',
+    mode: 'single',
+    options: [
+      { id: 'increase-context', label: 'Tăng context window' },
+      { id: 'remove-preferences', label: 'Xóa preference data' },
+      { id: 'guarantee-safety', label: 'Đảm bảo tuyệt đối mọi safety policy' },
+      { id: 'limit-drift', label: 'Hạn chế policy trôi quá xa reference distribution', isCorrect: true },
+    ],
+    success: 'Đúng. KL là một control cho độ lệch policy, không phải chứng minh safety.',
+    error: 'Chưa đúng. Hãy xét điều bị trừ khi policy khác reference quá nhiều.',
+  },
+  {
+    id: 'rlhf-quiz-q4',
+    title: 'Proxy failure',
+    prompt: 'Training reward tăng nhưng human eval trên slice ngoài distribution giảm. Giải thích hợp lý nhất?',
+    mode: 'single',
+    options: [
+      { id: 'proxy-misalignment', label: 'Policy đang khai thác reward proxy hoặc reward không generalize', isCorrect: true },
+      { id: 'automatic-success', label: 'Đây là bằng chứng alignment đã hoàn tất' },
+      { id: 'flash-bug', label: 'FlashAttention chắc chắn sai' },
+      { id: 'token-count', label: 'Vocabulary chắc chắn quá nhỏ' },
+    ],
+    success: 'Đúng. Tối ưu proxy có thể cải thiện score mà làm xấu hành vi mục tiêu.',
+    error: 'Chưa đúng. Reward metric và chất lượng ngoài distribution không phải cùng một đại lượng.',
+  },
+  {
+    id: 'rlhf-quiz-q5',
+    title: 'Versioned evaluation',
+    prompt: 'Artifact nào cần được gắn phiên bản để một RLHF run có thể audit và rollback?',
+    mode: 'single',
+    options: [
+      { id: 'policy-only', label: 'Chỉ policy cuối cùng' },
+      { id: 'full-lineage', label: 'Policy/reference, reward model, preference data, config và eval suite', isCorrect: true },
+      { id: 'ui-theme', label: 'Chỉ giao diện dashboard' },
+      { id: 'latest-label', label: 'Chỉ nhãn `latest` có thể thay đổi' },
+    ],
+    success: 'Đúng. Lineage đầy đủ nối hành vi với model, dữ liệu, cấu hình và bằng chứng eval.',
+    error: 'Chưa đúng. Versioning chỉ policy không đủ tái hiện signal và quyết định release.',
+  },
+]} />

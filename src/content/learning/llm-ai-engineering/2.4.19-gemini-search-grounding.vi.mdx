@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "gemini-search-grounding", locale: "vi",
+  title: "Grounding với Google Search", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["gemini-search-grounding","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Grounding có thể cung cấp current evidence và metadata nhưng model synthesis vẫn cần citation mapping và unsupported-combination handling."}, steps: [
+    {label: {vi: "Input"}, shape: "request", detail: {vi: "Query, current search tool config và safety/data policy."}},
+    {label: {vi: "Output"}, shape: "normalized artifact", detail: {vi: "Answer plus grounding metadata/citations or no-grounding state."}},
+    {label: {vi: "Contract"}, shape: "normalized artifact", detail: {vi: "Tool execution produces evidence chunks; adapter maps cited spans/URLs into internal sources."}},
+  ], code: [], takeaway: {vi: "Wire format được normalize trước khi đi vào business logic."},
+}} />
+
+Grounding có thể cung cấp current evidence và metadata nhưng model synthesis vẫn cần citation mapping và unsupported-combination handling.
+
+**Input:** Query, current search tool config và safety/data policy.
+
+**Output:** Answer plus grounding metadata/citations or no-grounding state.
+
+**Data/type/shape:** Tool execution produces evidence chunks; adapter maps cited spans/URLs into internal sources.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{
+  view: 'position', lead: {vi: "Câu hỏi shipping regulation trả hai sources. UI chỉ gắn citation nếu metadata map được; nếu tool không chạy, answer không được dán nhãn grounded."}, comparisons: [
+    {title: "Có grounding metadata và cited span map được", shape: "worked contract", detail: {vi: "grounded + normalized sources  · Hiển thị citation cạnh claim tương ứng"}},
+    {title: "Tool chạy nhưng metadata thiếu/không map được", shape: "worked contract", detail: {vi: "grounding_incomplete  · Không bịa URL từ prose; yêu cầu kiểm chứng"}},
+  ], code: [], takeaway: {vi: "So sánh theo cùng domain contract và invariant."},
+}} />
+
+Câu hỏi shipping regulation trả hai sources. UI chỉ gắn citation nếu metadata map được; nếu tool không chạy, answer không được dán nhãn grounded.
+
+| Provider evidence | Internal state | UI/automation |
+|---|---|---|
+| Có grounding metadata và cited span map được | `grounded` + normalized sources | Hiển thị citation cạnh claim tương ứng |
+| Tool chạy nhưng metadata thiếu/không map được | `grounding_incomplete` | Không bịa URL từ prose; yêu cầu kiểm chứng |
+| Tool không chạy hoặc capability không hỗ trợ | `ungrounded` | Gắn nhãn rõ; không tự động hóa high-impact decision |
+| Retrieved page chứa instruction | Evidence không tin cậy | Tách data khỏi system/tool authority |
+
+<LessonNote>Grounding metadata là provenance, không bảo đảm nguồn đúng hoặc an toàn. Domain vẫn cần freshness, source-quality và claim-support checks.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'audit', lead: {vi: "Grounding với Google Search"}, steps: [
+    {label: {vi: "Gate 1"}, shape: "enforce", detail: {vi: "Bịa citation từ URL trong prose."}},
+    {label: {vi: "Gate 2"}, shape: "enforce", detail: {vi: "Bỏ unsupported model/tool combination."}},
+    {label: {vi: "Gate 3"}, shape: "enforce", detail: {vi: "Tin retrieved page là safe instruction."}},
+  ], code: [], takeaway: {vi: "Production gate fail closed và giữ provider delta rõ ràng."},
+}} />
+
+**Pitfalls:**
+
+- Bịa citation từ URL trong prose.
+- Bỏ unsupported model/tool combination.
+- Tin retrieved page là safe instruction.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://ai.google.dev/gemini-api/docs/google-search). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** Context caching giảm cost cho prefix lặp.
+
+</MdxPage>

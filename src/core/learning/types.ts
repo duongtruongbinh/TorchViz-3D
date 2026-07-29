@@ -16,7 +16,7 @@ export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';
 export type LearningTrackStatus = 'available' | 'placeholder';
 export type LearningLessonStatus = 'available' | 'next' | 'locked';
 export type LearningContentStatus = 'missing' | 'draft' | 'published';
-export type LearningLessonTag = 'exercise';
+export type LearningLessonTag = 'exercise' | 'quiz';
 export type LearningExerciseOperationFamily = 'conv2d' | 'pool2d';
 
 export type LearningLessonEntryPoint = {

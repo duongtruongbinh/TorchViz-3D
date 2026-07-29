@@ -1,0 +1,112 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'self-consistency',
+  locale: 'vi',
+  title: 'Multi-sample verification và self-consistency',
+  headings: ['Vote chỉ sau normalization', 'Deterministic vote và abstain', 'Từ sampling đến bounded search'],
+  keywords: ['self-consistency', 'voting', 'abstain', 'bounded search'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Nhiều samples chỉ giảm lỗi ngẫu nhiên khi mọi candidate đi qua cùng normalizer và verifier; cách này tăng cost và không sửa lỗi tương quan.'},
+  steps: [
+    {label: {vi: 'Fixed request'}, shape: 'task + policy version + sampling config', detail: {vi: 'Khóa cùng input và số candidates K.'}},
+    {label: {vi: 'Normalize'}, shape: '"100" | "100.00" | 100 → 100', detail: {vi: 'Raw prose phải về cùng domain value trước khi đếm.'}},
+    {label: {vi: 'Vote'}, shape: 'counts / K', detail: {vi: 'Agreement là tỷ lệ phiếu trong sample set, không phải calibrated probability.'}},
+    {label: {vi: 'Gate'}, shape: 'winner | explicit abstain', detail: {vi: 'Tie, low agreement hoặc verifier fail đều không được tự động chấp nhận.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Output contract gồm normalized candidates, winner/agreement hoặc explicit abstain.'},
+  misconception: {vi: 'Không vote trực tiếp trên raw prose và không coi agreement là xác suất model đúng.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Deterministic vote và abstain"
+  contract="candidates + minimumAgreement → winner | abstain"
+  output="[100, 100, 80, 100, 80] → winner 100, votes=3, agreement=0.6"
+  pitfall="Tie, agreement dưới ngưỡng, candidate sai định dạng và empty input phải có error path rõ ràng."
+  takeaway="Normalize trước, sort ổn định và abstain thay vì bịa winner khi evidence chưa đủ."
+>
+
+~~~ts
+import assert from "node:assert/strict";
+
+type VoteResult =
+  | { kind: "winner"; value: number; votes: number; agreement: number }
+  | { kind: "abstain"; reason: "tie" | "low_agreement" };
+
+function normalizeAmount(value: string | number): number {
+  const text = String(value).trim();
+  if (!/^[0-9]+(?:\.[0-9]+)?$/.test(text)) throw new Error("invalid_candidate");
+  const amount = Number(text);
+  if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount < 0) {
+    throw new Error("invalid_candidate");
+  }
+  return amount;
+}
+
+function voteAmounts(
+  candidates: readonly (string | number)[],
+  minimumAgreement: number,
+): VoteResult {
+  if (candidates.length === 0) throw new Error("empty_candidates");
+  if (!(minimumAgreement > 0.5 && minimumAgreement <= 1)) {
+    throw new Error("invalid_agreement_threshold");
+  }
+  const counts = new Map<number, number>();
+  for (const raw of candidates) {
+    const value = normalizeAmount(raw);
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0]);
+  if (ranked.length > 1 && ranked[0][1] === ranked[1][1]) {
+    return { kind: "abstain", reason: "tie" };
+  }
+  const [value, votes] = ranked[0];
+  const agreement = votes / candidates.length;
+  if (agreement < minimumAgreement) return { kind: "abstain", reason: "low_agreement" };
+  return { kind: "winner", value, votes, agreement };
+}
+
+assert.deepEqual(voteAmounts([100, "100.00", 80, "100", 80], 0.6), {
+  kind: "winner",
+  value: 100,
+  votes: 3,
+  agreement: 0.6,
+});
+assert.deepEqual(voteAmounts([100, 80], 0.6), { kind: "abstain", reason: "tie" });
+assert.deepEqual(voteAmounts([100, 100, 80, 60], 0.6), {
+  kind: "abstain",
+  reason: "low_agreement",
+});
+assert.throws(() => voteAmounts([], 0.6), /empty_candidates/);
+assert.throws(() => voteAmounts(["100 VND"], 0.6), /invalid_candidate/);
+~~~
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Chọn independent sampling hay bounded search theo cấu trúc task, không theo tên kỹ thuật.'},
+  comparisons: [
+    {title: 'Independent sampling', shape: 'same state → K candidates → vote', detail: {vi: 'Phù hợp khi cần nhiều cách giải cho cùng một trạng thái rồi normalize, verify và vote.'}},
+    {title: 'Bounded tree search', shape: 'state → choices → verified states', detail: {vi: 'Chỉ phù hợp khi lựa chọn tuần tự, branching factor hữu hạn và candidate states kiểm chứng được.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Search cần maxNodes/deadline, scorer độc lập, terminal condition, tie/abstain rule và cache/dedup.'},
+  misconception: {vi: 'Không có các contract này, “tree” chỉ nhân model calls và selection bias. Candidate cuối vẫn phải qua verifier; không log hidden reasoning. Tiếp theo, ReAct thêm authorization vào tool loop.'},
+}} />
+
+</MdxPage>

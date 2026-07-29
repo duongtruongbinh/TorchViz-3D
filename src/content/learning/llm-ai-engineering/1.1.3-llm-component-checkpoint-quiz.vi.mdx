@@ -1,38 +1,53 @@
 export const lessonMetadata = {
   domainId: 'llm-ai-engineering',
   id: 'llm-component-checkpoint-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['AI hierarchy', 'Chọn domain', 'Role và loại dữ liệu'],
-  keywords: ['AI', 'ML', 'DL', 'CV', 'NLP', 'LLM'], pageCount: 3,
+  headings: ['Phạm vi bài toán', 'Chọn domain', 'Bằng chứng dự án', 'Điểm bắt đầu'],
+  keywords: ['AI', 'ML', 'DL', 'CV', 'NLP', 'LLM'], pageCount: 4,
 }
 
 <MdxQuiz id="ai-landscape-checkpoint-quiz" questions={[
   {
-    id: 'ai-hierarchy-order', title: 'Sắp xếp các thuật ngữ', prompt: 'Theo quy ước của khóa học, hãy sắp xếp từ phạm vi rộng nhất đến chuyên biệt nhất.', mode: 'order',
-    options: [{ id: 'ml', label: 'ML' }, { id: 'llm', label: 'LLM' }, { id: 'ai', label: 'AI' }, { id: 'cv-nlp', label: 'CV / NLP' }, { id: 'dl', label: 'DL' }],
-    correctOrder: ['ai', 'ml', 'dl', 'cv-nlp', 'llm'],
-    success: 'Đúng. AI bao quát nhất; tiếp theo là ML, DL, các domain CV/NLP và cuối cùng là LLM trong NLP.',
-    error: 'Chưa đúng. Hãy bắt đầu từ AI và thu hẹp dần phạm vi.',
+    id: 'ai-hierarchy-order', title: 'Thu hẹp phạm vi bài toán', prompt: 'Team cần xây trợ lý Chatbot hỏi đáp trên tài liệu nội bộ. Nhãn nào mô tả phạm vi chuyên biệt nhất mà không gọi mọi thứ chung chung là “AI”?', mode: 'single',
+    options: [
+      { id: 'ml', label: 'ML nói chung, vì mọi hệ thống học từ dữ liệu đều giống nhau.' },
+      { id: 'llm', label: 'LLM trong NLP, vì input/output chính là ngôn ngữ.', isCorrect: true },
+      { id: 'ai', label: 'AI, vì nhãn rộng nhất luôn cung cấp nhiều thông tin nhất.' },
+      { id: 'cv-nlp', label: 'Computer Vision, vì tài liệu có thể chứa ký tự.' },
+    ],
+    success: 'Đúng. LLM trong NLP mô tả đúng loại dữ liệu, model và hệ thống cần xây; nhãn hẹp giúp chọn kỹ năng và cách đánh giá phù hợp.',
+    error: 'Hãy bắt đầu từ input/output của sản phẩm. Hỏi đáp tài liệu là bài toán ngôn ngữ và dùng LLM, không phải computer vision chỉ vì dữ liệu có ký tự.',
   },
   {
     id: 'choose-problem-domain', title: 'Chọn domain phù hợp', prompt: 'Dự án nào có đầu vào và đầu ra chủ yếu là ngôn ngữ?', mode: 'single',
     options: [
       { id: 'defect', label: 'Phát hiện lỗi sản phẩm từ ảnh camera trên dây chuyền.' },
       { id: 'churn', label: 'Dự đoán khách hàng rời dịch vụ từ dữ liệu dạng bảng.' },
-      { id: 'rag', label: 'Xây dựng trợ lý hỏi đáp trên tài liệu nội bộ bằng RAG.', isCorrect: true },
+      { id: 'rag', label: 'Xây dựng trợ lý chatbot hỏi đáp trên tài liệu nội bộ.', isCorrect: true },
       { id: 'forecast', label: 'Dự báo lượng hàng bán ra theo chuỗi thời gian.' },
     ],
     success: 'Chính xác. RAG hỏi đáp trên tài liệu là một bài toán ngôn ngữ điển hình.',
     error: 'Chưa đúng. Hãy tìm bài toán có đầu vào và đầu ra chủ yếu là ngôn ngữ.',
   },
   {
-    id: 'role-domain-convention', title: 'Role và loại dữ liệu', prompt: 'Trong ngữ cảnh tuyển dụng, cách hiểu nào thường gặp nhất?', mode: 'single',
+    id: 'role-domain-convention', title: 'Bằng chứng dự án', prompt: 'Khi ứng tuyển vị trí AI Engineer cho sản phẩm chatbot hỏi đáp, bằng chứng nào làm rõ mức độ phù hợp nhất?', mode: 'single',
     options: [
-      { id: 'ai-unstructured-ds-structured', label: 'AI Engineer thường nghiêng về CV/NLP và dữ liệu phi cấu trúc; Data Scientist thường nghiêng về tabular data, time series và ML truyền thống.', isCorrect: true },
-      { id: 'ai-structured-ds-unstructured', label: 'AI Engineer thường nghiêng về tabular data; Data Scientist thường nghiêng về dữ liệu hình ảnh và ngôn ngữ.' },
-      { id: 'same-unstructured-domain', label: 'Cả hai role chủ yếu gắn với CV/NLP và dữ liệu phi cấu trúc.' },
-      { id: 'same-structured-domain', label: 'Cả hai role chủ yếu gắn với tabular data và time series.' },
+      { id: 'ai-unstructured-ds-structured', label: 'Một CV ghi "đã làm AI" cho nội bộ công ty.' },
+      { id: 'ai-structured-ds-unstructured', label: 'Một project dự báo time series với độ chính xác 99%.' },
+      { id: 'same-unstructured-domain', label: 'Một project RAG nêu rõ dữ liệu, retrieval, evaluation và các tool sử dụng.', isCorrect: true },
+      { id: 'same-structured-domain', label: 'Một danh sách tên model SOTA hiện tại giúp team business lựa chọn sử dụng.' },
     ],
-    success: 'Đúng. Tên role gợi ra xu hướng về domain và loại dữ liệu. Tuy nhiên, điều đó không có nghĩa một người không thể làm việc cross-domain; việc ghi rõ title trên CV hoặc JD chủ yếu giúp thu hẹp phạm vi và tạo cách hiểu chung khi giao tiếp.',
-    error: 'Chưa đúng. Hãy phân biệt dữ liệu phi cấu trúc với tabular data và time series.',
+    success: 'Đúng. Project cùng domain và có contract dữ liệu, evaluation, systems tạo bằng chứng cụ thể hơn một nhãn role chung.',
+    error: 'Tên công nghệ không tự chứng minh năng lực. Hãy chọn bằng chứng nối đúng bài toán ngôn ngữ với dữ liệu, cách đo và hệ thống chạy.',
+  },
+  {
+    id: 'start-from-problem-contract', title: 'Bắt đầu một project', prompt: 'Trước khi chọn model cho một project mới, câu hỏi nào nên được trả lời trước?', mode: 'single',
+    options: [
+      { id: 'largest-model', label: 'Model nào có nhiều parameter nhất?' },
+      { id: 'problem-contract', label: 'Input, output, tiêu chí đánh giá và ràng buộc vận hành của bài toán là gì?', isCorrect: true },
+      { id: 'popular-title', label: 'Tên role nào đang phổ biến nhất trên mạng?' },
+      { id: 'single-taxonomy', label: 'Taxonomy nào là đúng tuyệt đối cho mọi tổ chức?' },
+    ],
+    success: 'Đúng. Contract bài toán quyết định domain, dữ liệu, metric và công cụ; model là một quyết định sau đó.',
+    error: 'Một model lớn hoặc nhãn role không thay thế được việc xác định input, output, metric và ràng buộc của sản phẩm.',
   },
 ]} />

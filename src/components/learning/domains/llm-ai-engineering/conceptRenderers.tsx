@@ -9,12 +9,14 @@ import { scrollLearningLabElementIntoView } from '../../lesson/scrolling';
 import type {
   LlmAcademiaIndustryComparisonContent,
   LlmContentRendererProps,
+  LlmPretrainingDatasetCardsContent,
   LlmTrainingComponentsContent,
 } from './rendererTypes';
 
 const LLM_LEARNING_ASSETS: Record<string, string> = {
   'llm-from-scratch-roadmap.ai-hierarchy': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-ai-hierarchy.png', import.meta.url).href,
   'llm-from-scratch-roadmap.next-token-loop': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-next-token-loop.png', import.meta.url).href,
+  'llm-from-scratch-roadmap.tokenization-example': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-tokenization-example.png', import.meta.url).href,
   'llm-from-scratch-roadmap.why-llms-popular-product': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-product.png', import.meta.url).href,
   'llm-from-scratch-roadmap.why-llms-popular-technical': new URL('../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-from-scratch-roadmap-why-llms-popular-technical.png', import.meta.url).href,
 };
@@ -77,6 +79,45 @@ export function LlmTrainingComponents({ content, language, themeClasses }: LlmCo
   );
 }
 
+const DATASET_EVOLUTION_IMAGE = new URL(
+  '../../../../assets/learning/llm-ai-engineering/llm-from-scratch/roadmap/01-llm-training-data-dataset-evolution.png',
+  import.meta.url,
+).href;
+
+export function LlmPretrainingDatasetCards({ content, language, themeClasses }: LlmContentRendererProps<LlmPretrainingDatasetCardsContent>) {
+  return (
+    <section className="grid gap-4">
+      <p className={cx('text-base leading-7', themeClasses.bodyText)}>{text(content.lead, language)}</p>
+      <ul className={cx('grid list-disc gap-3 pl-5 text-base leading-7', themeClasses.bodyText)}>
+        {content.datasets.map((dataset) => (
+          <li key={dataset.id}>
+            <a
+              href={dataset.href}
+              target="_blank"
+              rel="noreferrer"
+              className={cx('font-black underline decoration-1 underline-offset-4', themeClasses.accentText)}
+            >
+              {dataset.name}
+            </a>
+            {' — '}
+            <strong>{dataset.scale}.</strong> {text(dataset.brief, language)}
+          </li>
+        ))}
+      </ul>
+      {content.image === 'dataset-evolution' ? (
+        <figure className="mx-auto w-full">
+          <img
+            src={DATASET_EVOLUTION_IMAGE}
+            alt="Sự phát triển từ web corpus đã làm sạch đến các pretraining dataset quy mô hàng nghìn tỷ token"
+            className="block h-auto w-full object-contain"
+          />
+        </figure>
+      ) : null}
+      <p className={cx('text-sm leading-6', themeClasses.mutedText)}>{text(content.note, language)}</p>
+    </section>
+  );
+}
+
 export function LlmAiHierarchy({ extra, language, themeClasses }: {
   extra: Extract<LearningLessonExtra, { kind: 'motivation' }>;
   language: Language;
@@ -104,7 +145,7 @@ export function LlmAiHierarchy({ extra, language, themeClasses }: {
     <div className="overflow-hidden">
       <section className="w-full" aria-label={language === 'vi' ? 'Phạm vi các lĩnh vực AI' : 'Scope of AI fields'}>
         <p className={cx('text-base font-semibold leading-8 [text-wrap:pretty] sm:text-lg', themeClasses.titleText)}>
-          {leadBeforeConcept}<strong className={themeClasses.accentText}>Artificial Intelligence</strong>{language === 'vi' ? ' thành ' : ' into '}{leadAfterConcept.replace(/^\s*(và|and)\s*/i, '')}
+          {leadBeforeConcept}<strong className={themeClasses.accentText}>{conceptName}</strong>{language === 'vi' ? ' thành ' : ' into '}{leadAfterConcept.replace(/^\s*(và|and)\s*/i, '')}
         </p>
 
         <div className="mt-6 grid items-center gap-6 lg:grid-cols-[minmax(0,0.68fr)_minmax(28rem,1.32fr)] lg:gap-8">
@@ -719,11 +760,14 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
   }
 
   if (extra.id === 'ai-scope-convention') {
-    return (
-      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
-        <ScopeConventionPanel extra={extra} language={language} themeClasses={themeClasses} />
-      </ExtraFrame>
+    const scopeConvention = (
+      <ScopeConventionPanel extra={extra} language={language} themeClasses={themeClasses} />
     );
+    return panelTitle ? (
+      <ExtraFrame title={panelTitle} themeClasses={themeClasses}>
+        {scopeConvention}
+      </ExtraFrame>
+    ) : scopeConvention;
   }
 
   return (
@@ -1311,13 +1355,16 @@ function ScopeConventionPanel({ extra, language, themeClasses }: {
       <div className="grid gap-2">
         {extra.body?.slice(0, 1).map((paragraph, index) => {
           const lines = text(paragraph, language).split('\n').filter(Boolean);
-          if (lines.length > 1) {
+          if (lines.length > 0) {
             return (
-              <div key={text(paragraph, language)} className={cx('grid gap-1.5', themeClasses.bodyText)}>
-                <p className="text-base leading-7">{lines[0]}</p>
-                <ul className="grid list-disc gap-1 pl-5 text-sm font-semibold leading-6 marker:text-current/55">
-                  {lines.slice(1).map((line) => <li key={line}>{line}</li>)}
-                </ul>
+              <div key={text(paragraph, language)} className={cx('grid gap-2 rounded-lg border px-3 py-3', themeClasses.isLight ? 'border-[#D97706]/18 bg-[#FFF7ED]' : 'border-[#F59E0B]/20 bg-[#3A2613]/40')}>
+                <ol className={cx('grid list-decimal gap-2 pl-5 marker:font-bold', themeClasses.bodyText)}>
+                  {lines.map((line) => (
+                    <li key={line} className="pl-1 text-sm font-semibold leading-6">
+                      {line}
+                    </li>
+                  ))}
+                </ol>
               </div>
             );
           }
@@ -1325,30 +1372,34 @@ function ScopeConventionPanel({ extra, language, themeClasses }: {
         })}
       </div>
 
-      <div className="grid gap-2">
-        {historyRows.map((item, index) => {
-          const descriptionLines = text(item.description, language).split('\n').filter(Boolean);
-          return (
-            <section
-              key={text(item.shortName, language)}
-              className={cx(
-                'grid overflow-hidden rounded-lg md:grid-cols-[6rem_minmax(0,1fr)]',
-                themeClasses.isLight ? (index === 0 ? 'bg-[#EEF4FA]' : 'bg-[#F0F4F2]') : 'bg-[#121A24]/38',
-              )}
-            >
-              <div className={cx('flex items-center px-4 py-3 text-2xl font-black text-white', index === 0 ? 'bg-[#2F6F9F]' : 'bg-[#477C6C]')}>
-                {text(item.shortName, language)}
-              </div>
-              <div className="grid gap-2 px-4 py-3 md:grid-cols-[minmax(12rem,0.36fr)_minmax(0,1fr)] md:gap-5">
-                <p className={cx('text-sm font-normal leading-6', themeClasses.titleText)}>{text(item.fullName, language)}</p>
-                <ul className={cx('grid list-disc gap-0.5 pl-4 text-sm leading-5 marker:text-current/50', themeClasses.bodyText)}>
-                  {descriptionLines.map((line) => <li key={line}>{line}</li>)}
-                </ul>
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      {historyRows.length > 0 ? (
+        <div className="grid gap-2">
+          {historyRows.map((item, index) => {
+            const descriptionLines = text(item.description, language).split('\n').filter(Boolean);
+            const bulletLines = descriptionLines.slice(0, 2);
+            const closingLine = descriptionLines[2];
+            return (
+              <section
+                key={text(item.shortName, language)}
+                className={cx(
+                  'grid overflow-hidden rounded-lg md:grid-cols-[6rem_minmax(0,1fr)]',
+                  themeClasses.isLight ? (index === 0 ? 'bg-[#EEF4FA]' : 'bg-[#F0F4F2]') : 'bg-[#121A24]/38',
+                )}
+              >
+                <div className={cx('flex items-center px-4 py-3 text-2xl font-black text-white', index === 0 ? 'bg-[#2F6F9F]' : 'bg-[#477C6C]')}>
+                  {text(item.shortName, language)}
+                </div>
+                <div className="grid gap-2 px-4 py-3">
+                  <ul className={cx('grid list-disc gap-0.5 pl-4 text-sm leading-5 marker:text-current/50', themeClasses.bodyText)}>
+                    {bulletLines.map((line) => <li key={line}>{line}</li>)}
+                  </ul>
+                  {closingLine ? <p className={cx('text-sm leading-5', themeClasses.bodyText)}>{closingLine}</p> : null}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      ) : null}
 
       {extra.body?.slice(1).map((paragraph) => (
         <p key={text(paragraph, language)} className={cx('text-sm leading-7', themeClasses.bodyText)}>
@@ -1397,11 +1448,16 @@ function TokenizationExamplePanel({ extra, language, themeClasses }: {
       <p className={cx('text-base font-black leading-6', themeClasses.accentText)}>
         {language === 'vi' ? 'Ví dụ về Tokenization' : 'Tokenization example'}
       </p>
+      <img
+        src={getLlmLearningAssetUrl('llm-from-scratch-roadmap.tokenization-example')}
+        alt={language === 'vi'
+          ? 'Minh họa năm dạng token: từ, mảnh từ, dấu câu, khoảng trắng và token đặc biệt'
+          : 'Five token types: words, subwords, punctuation, whitespace, and special tokens'}
+        className="mx-auto block h-auto w-full max-w-[1300px] object-contain"
+      />
       <p className={cx('text-sm leading-6', themeClasses.bodyText)}>
         {language === 'vi' ? 'Qua chương sau chúng ta sẽ quay lại thảo luận kỹ hơn về Tokenization.' : 'We will return to tokenization in more detail in the next chapter.'}
       </p>
-
-      <TokenExampleBlock example={extra.tokenExample} language={language} themeClasses={themeClasses} hideTitle />
     </div>
   );
 }

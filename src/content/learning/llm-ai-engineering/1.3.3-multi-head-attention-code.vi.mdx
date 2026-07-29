@@ -1,0 +1,190 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering', id: 'multi-head-attention-code', locale: 'vi',
+  title: 'Code multi-head attention',
+  headings: ['Contract', 'Split heads', 'Attention core', 'Merge heads', 'Standalone module'],
+  keywords: ['PyTorch', 'multi-head attention', 'causal mask', 'QKV'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<CodeLessonFrame
+  title="Khóa contract và chiếu QKV"
+  contract="(B,T,C) → (B,T,3C)"
+  output="head_dim = C / H · C % H == 0"
+  takeaway="Constructor khóa invariant C % H == 0 trước forward."
+>
+
+**Mục tiêu:** Cài đặt `CausalMultiHeadAttention: (B,T,C) → (B,T,C)` có mask, dropout và smoke test.
+
+```python
+import torch
+from torch import nn
+
+class CausalMultiHeadAttention(nn.Module):
+    def __init__(self, d_model, n_heads, dropout=0.0):
+        super().__init__()
+        if d_model <= 0 or n_heads <= 0:
+            raise ValueError("d_model and n_heads must be positive")
+        if d_model % n_heads:
+            raise ValueError("d_model must be divisible by n_heads")
+        self.n_heads = n_heads
+        self.head_dim = d_model // n_heads
+        self.qkv = nn.Linear(d_model, 3 * d_model, bias=False)
+        self.out_proj = nn.Linear(d_model, d_model, bias=False)
+        self.dropout = nn.Dropout(dropout)
+```
+
+Một linear chung tạo `(B,T,3C)`. Production thường cache mask và dùng kernel fused.
+
+</CodeLessonFrame>
+
+</MdxPage>
+<MdxPage page={1}>
+
+<CodeLessonFrame
+  title="Tách feature thành head axis"
+  contract="(B,T,C) → (B,H,T,D)"
+  output="D = C / H"
+  pitfall="Không view trực tiếp tensor không contiguous sau transpose; khi ghép hãy dùng reshape hoặc contiguous().view."
+  takeaway="Head axis được chèn giữa batch và sequence."
+>
+
+```python
+def split_heads(t, n_heads):
+    B, T, C = t.shape
+    return t.view(B, T, n_heads, C // n_heads).transpose(1, 2)
+```
+
+Shape đổi từ `(B,T,C)` thành `(B,H,T,D)`, với `D=C/H`.
+
+Sau transpose, dùng `reshape` hoặc `contiguous().view` khi ghép để tôn trọng memory layout.
+
+</CodeLessonFrame>
+
+</MdxPage>
+<MdxPage page={2}>
+
+<CodeLessonFrame
+  title="Attention core: score, mask, softmax"
+  contract="(B,H,T,D) → (B,H,T,D)"
+  output="mask (T,T) broadcasts over (B,H,T,T)"
+  pitfall="Mask phải được tạo trên cùng device với activation; không tạo mask CPU khi q nằm trên GPU."
+  takeaway="Mask trước softmax; dropout sau softmax."
+>
+
+```python
+scores = q @ k.transpose(-2, -1) / (q.size(-1) ** 0.5)
+T = q.size(-2)
+mask = torch.triu(
+    torch.ones(T, T, device=q.device, dtype=torch.bool),
+    diagonal=1,
+)
+scores = scores.masked_fill(mask, -torch.inf)
+weights = torch.softmax(scores, dim=-1)
+weights = self.dropout(weights)
+context = weights @ v
+```
+
+Mask `(T,T)` broadcast qua `(B,H,T,T)`. Softmax chạy trên key positions.
+
+</CodeLessonFrame>
+
+</MdxPage>
+<MdxPage page={3}>
+
+<CodeLessonFrame
+  title="Ghép head và output projection"
+  contract="(B,H,T,D) → (B,T,C)"
+  output="H × D = C"
+  takeaway="Concat khôi phục C; projection hoàn tất attention sublayer."
+>
+
+```python
+context = context.transpose(1, 2).contiguous()
+context = context.view(B, T, C)
+output = self.out_proj(context)
+```
+
+`contiguous()` cần thiết trước `view` vì phép transpose thay đổi stride bộ nhớ.
+
+Output projection trộn feature giữa các head và giữ `(B,T,C)`.
+
+</CodeLessonFrame>
+
+</MdxPage>
+<MdxPage page={4}>
+
+<CodeLessonFrame
+  title="Module hoàn chỉnh và smoke test"
+  contract="CausalMultiHeadAttention: (B,T,C) → (B,T,C)"
+  output="torch.Size([2, 16, 128]) · parameters = 4 × 128²"
+  takeaway="Smoke test xác nhận output shape, parameter count, causality và constructor error path thay vì chỉ kiểm tra happy path."
+>
+
+```python
+import torch
+from torch import nn
+
+class CausalMultiHeadAttention(nn.Module):
+    def __init__(self, d_model, n_heads, dropout=0.0):
+        super().__init__()
+        if d_model <= 0 or n_heads <= 0:
+            raise ValueError("d_model and n_heads must be positive")
+        if d_model % n_heads:
+            raise ValueError("d_model must be divisible by n_heads")
+        self.n_heads = n_heads
+        self.head_dim = d_model // n_heads
+        self.qkv = nn.Linear(d_model, 3 * d_model, bias=False)
+        self.out_proj = nn.Linear(d_model, d_model, bias=False)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        if x.ndim != 3:
+            raise ValueError("x must have shape (B,T,C)")
+        B, T, C = x.shape
+        if T == 0 or C != self.n_heads * self.head_dim:
+            raise ValueError("x has an invalid sequence or feature shape")
+        q, k, v = self.qkv(x).chunk(3, dim=-1)
+        def split(t):
+            return t.view(B, T, self.n_heads, self.head_dim).transpose(1, 2)
+        q, k, v = map(split, (q, k, v))
+        scores = q @ k.transpose(-2, -1) / (self.head_dim ** 0.5)
+        mask = torch.triu(
+            torch.ones(T, T, device=x.device, dtype=torch.bool), 1
+        )
+        weights = torch.softmax(
+            scores.masked_fill(mask, -torch.inf), dim=-1
+        )
+        context = self.dropout(weights) @ v
+        context = context.transpose(1, 2).contiguous().view(B, T, C)
+        return self.out_proj(context)
+
+attention = CausalMultiHeadAttention(128, 8, dropout=0.0)
+x = torch.randn(2, 16, 128)
+y = attention(x)
+assert y.shape == x.shape
+assert sum(p.numel() for p in attention.parameters()) == 4 * 128 * 128
+
+attention.eval()
+x_changed = x.clone()
+x_changed[:, -1, :] += 100.0
+assert torch.allclose(
+    attention(x)[:, :-1],
+    attention(x_changed)[:, :-1],
+    atol=1e-5,
+)
+
+try:
+    CausalMultiHeadAttention(10, 3)
+except ValueError:
+    pass
+else:
+    raise AssertionError("invalid head split must fail")
+
+print(y.shape)  # torch.Size([2, 16, 128])
+```
+
+</CodeLessonFrame>
+
+</MdxPage>

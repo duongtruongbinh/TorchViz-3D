@@ -3,20 +3,99 @@ export const lessonMetadata = {
   id: 'hallucination-and-factuality-evaluation',
   locale: 'vi',
   title: 'Đánh giá hallucination và factuality',
-  headings: ['Hallucination là gì?', 'Tách claim để kiểm tra', 'Không biết thì phải nói không biết'],
-  keywords: ['hallucination', 'factuality', 'claim verification', 'citation', 'abstention'],
+  headings: ['Claim contract', 'Tính support rate', 'Severity-weighted score', 'Invariants'],
+  keywords: ['hallucination', 'factuality', 'claim verification', 'support rate', 'abstention'],
+  pageCount: 4,
 }
 
-## Hallucination là gì?
+<MdxPage page={0}>
 
-Hallucination là khi model tạo ra thông tin không được hỗ trợ bởi evidence hoặc không đúng với thế giới, dù câu trả lời có thể rất trôi chảy. Trong hệ thống dùng tài liệu, một response cũng bị xem là hallucinated khi khẳng định điều không có trong context được cung cấp.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Factuality evaluation tách response thành atomic claims và nối từng claim với evidence scope rõ ràng.'},
+  steps: [
+    {label: {vi: 'Split claims'}, shape: 'response → atomic statements', detail: {vi: 'Không tính greeting/style fragment như fact.'}},
+    {label: {vi: 'Attach evidence'}, shape: 'evidence_ids', detail: {vi: 'Scope là retrieved context, database hoặc verified source.'}},
+    {label: {vi: 'Label support'}, shape: 'supported + severity', detail: {vi: 'Citation format đúng chưa đủ chứng minh support.'}},
+    {label: {vi: 'No evidence'}, shape: 'expected abstain', detail: {vi: 'Đo overconfidence riêng.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Claim-to-evidence mapping là đơn vị đánh giá, không phải vẻ ngoài của citation.'},
+}} />
 
-## Tách claim để kiểm tra
+</MdxPage>
 
-Đánh giá factuality nên tách response thành các claim có thể kiểm chứng. Mỗi claim được so với reference, nguồn truy xuất hoặc công cụ đáng tin. Ta có thể đo tỷ lệ claim được hỗ trợ, số lỗi nghiêm trọng, chất lượng citation và mức độ model diễn đạt chắc chắn vượt quá evidence.
+<MdxPage page={1}>
 
-Các case cần ưu tiên gồm số liệu, tên riêng, ngày tháng, citation, hướng dẫn y tế/pháp lý và những hành động có hậu quả cao.
+<EvaluationConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked support rate cho response có bốn atomic claims.'},
+  steps: [
+    {label: {vi: 'Supported'}, shape: '3 claims', detail: {vi: 'Có evidence hợp lệ trong scope.'}},
+    {label: {vi: 'Unsupported'}, shape: '1 claim', detail: {vi: 'Không có evidence hỗ trợ.'}},
+    {label: {vi: 'Support rate'}, shape: '3/4 = 0.75', detail: {vi: 'Tỷ lệ claim được hỗ trợ.'}},
+    {label: {vi: 'Unsupported rate'}, shape: '1/4 = 0.25', detail: {vi: 'Tỷ lệ claim hallucinated/unsupported.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Version claim splitter và annotation policy; không làm denominator lớn giả bằng style fragments.'},
+}} />
 
-## Không biết thì phải nói không biết
+</MdxPage>
 
-Model an toàn không chỉ trả lời đúng; nó còn biết abstain khi thiếu evidence. Evaluation nên có câu hỏi không thể trả lời từ context và kiểm tra model có thừa nhận giới hạn hay bịa ra đáp án. Tuy nhiên, từ chối quá nhiều cũng làm giảm helpfulness, nên factuality luôn liên quan đến refusal calibration.
+<MdxPage page={2}>
+
+<CodeLessonFrame
+  title="Severity-weighted support"
+  contract="positive integer weights aligned với boolean support labels"
+  output="supported weight 6 / total weight 10 = 0.6"
+  pitfall="Unsupported high-severity claim không nên bị nhiều low-severity claims che lấp."
+  takeaway="Weighting đưa impact của từng claim vào factuality score."
+>
+
+Gán weight: low `1`, high `4`. Ba supported claims có tổng weight `6`; unsupported high-severity claim weight `4`:
+
+`weighted_support = 6/(6+4)=0.6`.
+
+```python
+def weighted_support(weights: list[int], supported: list[bool]) -> float:
+    if not weights or len(weights) != len(supported):
+        raise ValueError('weights and labels must be non-empty and aligned')
+    if any(isinstance(weight, bool) or not isinstance(weight, int) or weight <= 0 for weight in weights):
+        raise ValueError('weights must be positive integers')
+    if any(not isinstance(label, bool) for label in supported):
+        raise TypeError('supported labels must be booleans')
+    return sum(weight for weight, ok in zip(weights, supported) if ok) / sum(weights)
+
+weights = [2, 2, 2, 4]
+supported = [True, True, True, False]
+score = weighted_support(weights, supported)
+assert score == 0.6
+assert 0.0 <= score <= 1.0
+try:
+    weighted_support([2, 4], [True])
+except ValueError:
+    pass
+else:
+    raise AssertionError('misaligned claim labels must fail')
+```
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Factuality handoff phải ngăn critical failure và “always abstain” bị aggregate score che khuất.'},
+  steps: [
+    {label: {vi: 'Critical gate'}, shape: 'unsupported critical count', detail: {vi: 'Không chỉ dùng weighted average.'}},
+    {label: {vi: 'Evidence artifact'}, shape: 'claim mapping + redaction', detail: {vi: 'Giữ provenance nhưng bảo vệ private content.'}},
+    {label: {vi: 'Relevance'}, shape: 'answer addresses intent', detail: {vi: 'Supported nhưng lạc đề vẫn fail use case.'}},
+    {label: {vi: 'Abstention calibration'}, shape: 'needed vs overrefusal', detail: {vi: 'Không cho “luôn từ chối” đạt score giả.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'RAG evaluation cần tách retrieval failure khỏi generation faithfulness.'},
+}} />
+
+</MdxPage>

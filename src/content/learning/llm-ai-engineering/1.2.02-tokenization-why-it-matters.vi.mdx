@@ -1,0 +1,39 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'tokenization-why-it-matters',
+  locale: 'vi',
+  title: 'Tại sao dùng token thay vì chỉ dùng word?',
+  headings: ['Hạn chế của word-level tokenization', 'Ba mức chia text', 'Tokenizer đi cùng model pretrained'],
+  keywords: ['tokenizer', 'token', 'word-level', 'character-level', 'subword', 'vocabulary', 'sequence length'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao không chỉ dùng nguyên word?
+
+Nếu dùng nguyên word làm token, vocabulary phải có sẵn từng từ và từng cách viết. Từ mới, tên riêng, biến thể như `builder` và `builders`, hoặc lỗi chính tả như `buidler` dễ trở thành những mục hoàn toàn khác. Subword giải quyết vấn đề này bằng cách tái sử dụng các mảnh nhỏ đã biết thay vì yêu cầu vocabulary chứa trước mọi word.
+
+<TokenizerConceptVisual view="word-limit" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TokenizerGranularity content={{
+  lead: {vi: 'Subword tạo điểm cân bằng: linh hoạt hơn word-level khi gặp cách viết mới, nhưng không làm sequence dài như character-level.'},
+  whitespaceNote: {vi: 'Dấu câu và whitespace cũng cần quy tắc. Trong “ AI.”, tokenizer production có thể gắn khoảng trắng vào token “ AI” thay vì xóa nó.'},
+  misconception: {vi: 'Không mặc định dùng text.split(): cách đó làm mất thông tin whitespace và để dấu câu dính vào từ.'},
+}} />
+
+**Handoff:** Bài regex tiếp theo sẽ cho thấy rõ từng quyết định split và cleanup.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Model pretrained thường đi kèm tokenizer đã được dùng trong quá trình pretraining. Khi fine-tune hoặc inference, ta thường dùng lại tokenizer đó thay vì train tokenizer mới. Nếu đổi tokenizer nhưng giữ nguyên model weights, cùng một ID có thể trỏ đến token khác và model sẽ lấy sai hàng embedding.
+
+<TokenizerConceptVisual view="checkpoint-match" />
+
+</MdxPage>

@@ -1,0 +1,48 @@
+export const lessonMetadata = {
+  domainId: 'llm-ai-engineering',
+  id: 'text-embeddings-overview',
+  locale: 'vi',
+  title: 'Từ raw text đến embeddings',
+  headings: ['Tổng quan kiến trúc Transformer', 'Encoder và Decoder', 'Vì sao raw text chưa phải model input'],
+  keywords: ['raw text', 'embedding', 'token embedding', 'sentence embedding', 'document embedding', 'dense vector'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+Chúng ta hãy cùng nhìn tổng quan toàn bộ kiến trúc Transformer.
+
+<TransformerArchitectureOverview />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Trong sơ đồ này, chúng ta sẽ có hai khối chính: Encoder xử lý input, còn Decoder tạo output.
+
+<TransformerArchitectureOverview focus="encoder-decoder" />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+Chúng ta bắt đầu với bước Inputs → Embedding.
+
+<RawTextModelInput content={{
+  lead: {vi: 'Neural network không thao tác trực tiếp trên chữ. Để có thể hiểu được, ta cần thực hiện chuyển đổi về dạng tensor số có dtype và shape xác định.'},
+  rawText: '"Linh builds AI."',
+  tokenIds: [17, 42, 9, 3],
+  embeddingRows: [
+    ['0.12', '−0.31', '0.80'],
+    ['−0.44', '0.67', '0.15'],
+    ['0.73', '0.08', '−0.22'],
+    ['0.19', '−0.51', '0.46'],
+  ],
+  rawTextNote: {vi: 'Máy tính lưu được chuỗi này, nhưng chuỗi chưa có numeric dtype hoặc feature shape.'},
+  tokenIdsNote: {vi: 'Tokenizer biến các đơn vị text thành chỉ số nguyên để tra trong bảng embedding.'},
+  embeddingNote: {vi: 'Mỗi token ID được thay bằng một vector gồm C số. Nếu input có T token, T vector này tạo thành tensor có shape (T, C). Với ví dụ này, shape là (4, 3). C=3 chỉ dùng để minh họa; model thực tế chọn một C cố định như 128, 256 hoặc 512 tùy thiết kế.'},
+}} />
+
+Từ đây, chúng ta sẽ lần lượt giải thích và triển khai chi tiết từng bước trong quy trình này.
+
+</MdxPage>

@@ -3,29 +3,161 @@ export const lessonMetadata = {
   id: 'evaluation-harness-code',
   locale: 'vi',
   title: 'Code: Xây evaluation harness',
-  headings: ['Input và output contract', 'Evaluation loop', 'Artifact cần lưu'],
-  keywords: ['evaluation harness', 'Python', 'JSONL', 'runner', 'report'],
+  headings: ['Typed contracts', 'Deterministic runner', 'Release gate', 'Complete implementation', 'Operational handoff'],
+  keywords: ['evaluation harness', 'Python', 'EvalCase', 'release gate', 'assertions'],
+  pageCount: 5,
 }
 
-## Input và output contract
+<MdxPage page={0}>
 
-Một evaluation harness tối thiểu đọc dataset có cấu trúc, gọi system under test, chạy evaluator và ghi kết quả. Mỗi case nên có `id`, `input`, optional `reference`, `metadata` và rubric. Output cần lưu response cùng toàn bộ thông tin để tái hiện lần chạy.
+<EvaluationConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Typed harness giữ case identity và biến mọi provider/parser error thành result có thể gate.'},
+  comparisons: [
+    {title: 'EvalCase', shape: 'stable ID + prompt + required terms + critical', detail: {vi: 'Dataset IDs unique; version/hash nằm trong run manifest.'}},
+    {title: 'EvalResult', shape: 'case ID + passed + reason', detail: {vi: 'Error không bị nuốt thành empty response.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Typed boundary giúp aggregate không mất provenance.'},
+}} />
 
-## Evaluation loop
+</MdxPage>
 
-Luồng cơ bản gồm:
+<MdxPage page={1}>
 
-1. Load và validate dataset.
-2. Chạy model với concurrency và retry được kiểm soát.
-3. Áp dụng deterministic checks trước.
-4. Chạy reference metric hoặc judge khi phù hợp.
-5. Tổng hợp kết quả theo task, độ khó và risk group.
-6. So sánh với baseline và đánh dấu regression.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Dependency-injected runner tách deterministic test fixture khỏi production provider adapter.'},
+  steps: [
+    {label: {vi: 'Cases'}, shape: 'versioned inputs', detail: {vi: 'Stable IDs và config IDs.'}},
+    {label: {vi: 'System dependency'}, shape: 'fixture / provider adapter', detail: {vi: 'Không hard-code provider trong core runner.'}},
+    {label: {vi: 'Operational controls'}, shape: 'timeout + bounded retry + cancel + concurrency', detail: {vi: 'Không retry policy/auth/schema errors mù quáng.'}},
+    {label: {vi: 'Artifacts/cache'}, shape: 'redacted output + full behavioral key', detail: {vi: 'Cache key bao gồm mọi input ảnh hưởng behavior.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Runner logic tái lập được; production adapter chịu trách nhiệm resilience.'},
+}} />
 
-Harness cần cache response để tránh gọi lại model khi chỉ thay evaluator. Judge prompt, metric config và threshold cũng phải được version như production code.
+</MdxPage>
 
-## Artifact cần lưu
+<MdxPage page={2}>
 
-Không chỉ lưu average score. Mỗi run nên tạo per-case result, aggregate report, failure samples, model/prompt version, timestamp, latency và token usage. CI có thể fail khi critical test thất bại hoặc metric giảm quá ngưỡng; các case còn lại được đưa vào report để human review.
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Release gate kiểm tra critical precedence, threshold và result accounting.'},
+  steps: [
+    {label: {vi: 'Critical cases'}, shape: 'any fail/error → block', detail: {vi: 'Không bị aggregate che.'}},
+    {label: {vi: 'Pass rate'}, shape: '≥ declared threshold', detail: {vi: 'Threshold thuộc versioned config.'}},
+    {label: {vi: 'Count match'}, shape: '|results| = |cases|', detail: {vi: 'Phát hiện missing result.'}},
+    {label: {vi: 'ID match'}, shape: 'unique result IDs = case IDs', detail: {vi: 'Phát hiện duplicate hoặc foreign result.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Threshold change tạo config version mới.'},
+}} />
 
-Ở giai đoạn thiết kế sau, lesson này sẽ bổ sung code block và interaction nhưng vẫn giữ contract nội dung trên làm nguồn authored canonical.
+</MdxPage>
+
+<MdxPage page={3}>
+
+<CodeLessonFrame
+  title="Complete evaluation harness"
+  contract="unique cases → typed results → critical-aware release decision"
+  output="deterministic fixture passes; broken authorization case blocks"
+  pitfall="Empty, duplicate hoặc mismatched case/result sets phải fail rõ ràng."
+  takeaway="Implementation giữ error reason, exact ID accounting và critical precedence."
+>
+
+```python
+from dataclasses import dataclass
+from typing import Callable
+
+@dataclass(frozen=True)
+class EvalCase:
+    id: str
+    prompt: str
+    required_terms: tuple[str, ...]
+    critical: bool = False
+
+@dataclass(frozen=True)
+class EvalResult:
+    case_id: str
+    passed: bool
+    reason: str
+
+def run_eval(cases: list[EvalCase], system: Callable[[str], str]) -> list[EvalResult]:
+    if not cases:
+        raise ValueError('cases must be non-empty')
+    ids = [case.id for case in cases]
+    if len(ids) != len(set(ids)):
+        raise ValueError('case ids must be unique')
+    results: list[EvalResult] = []
+    for case in cases:
+        try:
+            response = system(case.prompt)
+            if not isinstance(response, str):
+                raise TypeError('system response must be str')
+            missing = [term for term in case.required_terms if term not in response]
+            results.append(EvalResult(case.id, not missing, 'ok' if not missing else f'missing:{missing}'))
+        except Exception as error:
+            results.append(EvalResult(case.id, False, f'error:{type(error).__name__}'))
+    return results
+
+def release_allowed(cases: list[EvalCase], results: list[EvalResult], minimum_pass_rate: float) -> bool:
+    if not cases or not 0 <= minimum_pass_rate <= 1 or len(cases) != len(results):
+        raise ValueError('invalid gate inputs')
+    by_id = {result.case_id: result for result in results}
+    if len(by_id) != len(results) or set(by_id) != {case.id for case in cases}:
+        raise ValueError('result ids must uniquely match cases')
+    if any(case.critical and not by_id[case.id].passed for case in cases):
+        return False
+    return sum(result.passed for result in results) / len(results) >= minimum_pass_rate
+
+cases = [
+    EvalCase('normal', 'status?', ('delivered',)),
+    EvalCase('auth', 'refund?', ('denied',), critical=True),
+]
+fixture = {'status?': 'delivered', 'refund?': 'denied: confirmation required'}
+results = run_eval(cases, fixture.__getitem__)
+assert [result.passed for result in results] == [True, True]
+assert release_allowed(cases, results, 1.0)
+
+broken = run_eval(cases, lambda prompt: 'delivered' if prompt == 'status?' else 'approved')
+assert not release_allowed(cases, broken, 0.5)
+try:
+    run_eval([cases[0], cases[0]], fixture.__getitem__)
+except ValueError as error:
+    assert 'unique' in str(error)
+else:
+    raise AssertionError('duplicate ids must fail')
+for invalid_cases, invalid_results in [
+    ([], []),
+    (cases, [results[0], results[0]]),
+]:
+    try:
+        release_allowed(invalid_cases, invalid_results, 1.0)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('empty or duplicate result sets must fail')
+```
+
+</CodeLessonFrame>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+<EvaluationConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Operational handoff xuất artifact atomically và giữ CI output tối thiểu.'},
+  steps: [
+    {label: {vi: 'Write run'}, shape: 'manifest + per-case JSONL + aggregate', detail: {vi: 'Validate trước publish.'}},
+    {label: {vi: 'Lifecycle'}, shape: 'idempotency/run ID + cleanup + bounded queue', detail: {vi: 'Cancel không để orphan work.'}},
+    {label: {vi: 'Privacy'}, shape: 'no secret/PII/hidden reasoning', detail: {vi: 'Artifacts được redacted.'}},
+    {label: {vi: 'Consumers'}, shape: 'CI pass/fail + link · human review uncertain', detail: {vi: 'Review xử lý review/uncertain cases.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Artifact là source of truth; CI không cần nhúng toàn bộ sensitive trace.'},
+}} />
+
+</MdxPage>

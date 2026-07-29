@@ -1,0 +1,58 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "llm-positional-encodings",
+  locale: "vi",
+  title: "Positional encoding cho LLM",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["llm-positional-encodings","LLM","production","T+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'position',
+  lead: {vi: 'Attention thuần không biết thứ tự; positional encoding thêm vị trí mà vẫn giữ tensor contract của model.'},
+  comparisons: [
+    {title: 'Learned absolute', shape: '(T,C) + hidden', detail: {vi: 'Cộng position embedding vào hidden states.'}},
+    {title: 'RoPE', shape: 'rotate Q/K pairs', detail: {vi: 'Quay từng cặp chiều của query/key và giữ nguyên shape.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Lựa chọn encoding ảnh hưởng quan hệ tương đối, chi phí và hành vi ngoài độ dài train.'},
+  misconception: {vi: 'Positional encoding khác attention mask: một bên mã hóa vị trí, một bên giới hạn token được nhìn.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked example RoPE quay một cặp chiều nhưng không thay shape attention.'},
+  steps: [
+    {label: {vi: 'Input pair'}, shape: '(x₀,x₁)=(1,0)', detail: {vi: 'Hai chiều liền nhau của Q hoặc K.'}},
+    {label: {vi: 'Position angle'}, shape: 'θ=π/2', detail: {vi: 'Vị trí khác nhau dùng góc khác nhau.'}},
+    {label: {vi: 'Rotate'}, shape: '(1,0) → (0,1)', detail: {vi: 'Dot product mang thông tin khoảng cách tương đối.'}},
+    {label: {vi: 'Tensor contract'}, shape: '(B,H,T,D_head)', detail: {vi: 'Shape trước và sau vẫn giống nhau.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Audit cả giá trị biến đổi và invariant shape.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Mở rộng context cần evaluation chứ không chỉ sửa một con số config.'},
+  steps: [
+    {label: {vi: 'Change config'}, shape: 'context / position scaling', detail: {vi: 'Không tự bảo đảm extrapolation.'}},
+    {label: {vi: 'Short-context eval'}, shape: 'regression suite', detail: {vi: 'Kiểm tra năng lực cũ không giảm.'}},
+    {label: {vi: 'Long-context eval'}, shape: 'length × position', detail: {vi: 'Đo hành vi thật ngoài độ dài train.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Bài kế tiếp giữ toán học attention nhưng đổi cách dữ liệu đi qua GPU memory.'},
+}} />
+
+</MdxPage>

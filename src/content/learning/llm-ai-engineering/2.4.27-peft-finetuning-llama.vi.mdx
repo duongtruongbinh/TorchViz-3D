@@ -1,0 +1,64 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "peft-finetuning-llama", locale: "vi",
+  title: "Quiz", headings: ["Tình huống 1", "Tình huống 2", "Tình huống 3", "Tình huống 4"],
+  keywords: ["quiz", "Ollama", "open models", "LoRA"], pageCount: 4,
+}
+
+<MdxQuiz id="peft-finetuning-llama" questions={[
+  {
+    "id": "peft-finetuning-llama-q1",
+    "title": "Tình huống 1",
+    "prompt": "Một model vừa RAM nhưng license cấm use case của sản phẩm. Quyết định đúng?",
+    "mode": "single",
+    "options": [
+      { "id": "peft-finetuning-llama-q1-a", "label": "Deploy vì file tải được" },
+      { "id": "peft-finetuning-llama-q1-correct", "label": "Loại model khỏi shortlist trước benchmark", "isCorrect": true },
+      { "id": "peft-finetuning-llama-q1-b", "label": "Đổi tên model trong manifest" },
+      { "id": "peft-finetuning-llama-q1-c", "label": "Chỉ giảm temperature" }
+    ],
+    "success": "Đúng. License là hard constraint; benchmark tốt không cấp quyền sử dụng.",
+    "error": "Chưa đúng. Khả năng tải/chạy weights không thay thế điều khoản license."
+  },
+  {
+    "id": "peft-finetuning-llama-q2",
+    "title": "Tình huống 2",
+    "prompt": "Quantization mạnh hơn làm model nhỏ hơn nhưng quality trên support set giảm. Bước tiếp theo?",
+    "mode": "single",
+    "options": [
+      { "id": "peft-finetuning-llama-q2-a", "label": "Giả định benchmark công khai đủ" },
+      { "id": "peft-finetuning-llama-q2-b", "label": "Tăng context để che quality loss" },
+      { "id": "peft-finetuning-llama-q2-c", "label": "Bỏ ghi quantization khỏi manifest" },
+      { "id": "peft-finetuning-llama-q2-correct", "label": "So sánh quality-latency-memory trên eval riêng rồi chọn artifact", "isCorrect": true }
+    ],
+    "success": "Đúng. Quantization là trade-off phải được đo trên workload và hardware mục tiêu.",
+    "error": "Chưa đúng. Memory nhỏ hơn không tự bảo đảm quality hoặc latency phù hợp."
+  },
+  {
+    "id": "peft-finetuning-llama-q3",
+    "title": "Tình huống 3",
+    "prompt": "Một artifact LoRA sẽ được phục vụ local. Manifest tối thiểu cần liên kết gì?",
+    "mode": "single",
+    "options": [
+      { "id": "peft-finetuning-llama-q3-correct", "label": "Base model/version, adapter/version, prompt format, tokenizer và license", "isCorrect": true },
+      { "id": "peft-finetuning-llama-q3-a", "label": "Chỉ tên file adapter" },
+      { "id": "peft-finetuning-llama-q3-b", "label": "Chỉ rank LoRA" },
+      { "id": "peft-finetuning-llama-q3-c", "label": "Chỉ endpoint local" }
+    ],
+    "success": "Đúng. Adapter không độc lập; sai base/tokenizer/template có thể làm artifact chạy nhưng cho output sai.",
+    "error": "Chưa đúng. Một filename không đủ tái lập quan hệ giữa weights, tokenizer, template và quyền sử dụng."
+  },
+  {
+    "id": "peft-finetuning-llama-q4",
+    "title": "Tình huống 4",
+    "prompt": "Trước khi chọn model cho Ollama, thứ tự lọc nào hợp lý?",
+    "mode": "single",
+    "options": [
+      { "id": "peft-finetuning-llama-q4-a", "label": "Popularity → tên đẹp → tải về" },
+      { "id": "peft-finetuning-llama-q4-b", "label": "Temperature → top-p → license" },
+      { "id": "peft-finetuning-llama-q4-correct", "label": "License/capability → memory/runtime fit → quality/latency eval", "isCorrect": true },
+      { "id": "peft-finetuning-llama-q4-c", "label": "Context quảng cáo → bỏ smoke test" }
+    ],
+    "success": "Đúng. Hard constraints đi trước benchmark tốn tài nguyên; eval cuối cùng xác nhận trade-off.",
+    "error": "Chưa đúng. Popularity và generation knobs không thay hard constraints về quyền, capability và runtime."
+  }
+]} />

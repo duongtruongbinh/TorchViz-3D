@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering", id: "vision-api-gpt4v", locale: "vi",
+  title: "Multimodal inputs: vision", headings: ["Capability và common contract","Worked fixture","Production delta và handoff"],
+  keywords: ["vision-api-gpt4v","AI API","provider contract"], pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Media validation, cost và privacy xảy ra trước vision model call.'},steps:[
+  {label:{vi:'Upload'},shape:'bytes / file ref / governed URL',detail:{vi:'Validate ownership, size, pixels và MIME.'}},
+  {label:{vi:'Request'},shape:'text + media parts',detail:{vi:'Dùng configurable capability, không tên model cũ.'}},
+  {label:{vi:'Result'},shape:'text | structured evidence',detail:{vi:'Kèm media usage metadata.'}},
+  {label:{vi:'Decision'},shape:'human / policy gate',detail:{vi:'Vision output không phải authorization.'}},
+],code:[],takeaway:{vi:'Media parts vẫn là untrusted input có lifecycle riêng.'}}} />
+
+Vision là capability của model/API hiện hành, không nên gắn curriculum vào tên GPT-4V cũ. Media validation, cost và privacy xảy ra trước model call.
+
+**Input:** Text plus validated image bytes/file reference/URL policy.
+
+**Output:** Text hoặc structured result cùng media usage metadata.
+
+**Data/type/shape:** Một message/input có nhiều content parts; image dimensions/bytes không biến thành public remote image trong lesson.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Ảnh kiện hàng đi qua năm boundary trước khi có thể ảnh hưởng refund.'},steps:[
+  {label:{vi:'Upload'},shape:'tenant + byte/pixel limits',detail:{vi:'Kiểm tra trước decode.'}},
+  {label:{vi:'Media'},shape:'magic-byte MIME allowlist',detail:{vi:'Không tin extension/header.'}},
+  {label:{vi:'Provider'},shape:'authorized bytes/ref',detail:{vi:'Không tạo public URL mặc định.'}},
+  {label:{vi:'Output'},shape:'schema + human review',detail:{vi:'Không tự refund.'}},
+],code:[],takeaway:{vi:'Retention xóa upload/provider resource và audit deletion.'}}} />
+
+Support app nhận ảnh kiện hàng, kiểm tra MIME, size, tenant ownership rồi gửi part cùng câu hỏi. Output `{damage:true}` vẫn cần human review trước refund.
+
+| Boundary | Rule bắt buộc |
+|---|---|
+| Upload | Xác thực tenant/ownership; giới hạn byte và pixel trước decode |
+| Media | Allowlist MIME theo magic bytes, không chỉ extension hay header |
+| Provider | Gửi bytes/file reference đã authorize; không tạo public URL mặc định |
+| Output | Validate schema; human review trước refund hoặc side effect |
+| Retention | Xóa upload/provider resource theo policy và audit deletion |
+
+<LessonNote>Vision output là evidence không chắc chắn, không phải authorization. EXIF, OCR text và URL do user cung cấp đều là dữ liệu không tin cậy.</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<PromptConceptVisual content={{view:'audit',lead:{vi:'Vision gate chặn network và evidence risks ở đúng boundary.'},steps:[
+  {label:{vi:'URL policy'},shape:'deny arbitrary fetch',detail:{vi:'Ngăn SSRF/data leak.'}},
+  {label:{vi:'Evidence'},shape:'uncertain observation',detail:{vi:'Không coi OCR/vision là fact chắc chắn.'}},
+  {label:{vi:'Capability'},shape:'dated model config',detail:{vi:'Không hard-code alias/context cost.'}},
+],code:[],takeaway:{vi:'File Search tiếp theo quản lý file/vector-store lifecycle.'}}} />
+
+**Pitfalls:**
+
+- Cho model fetch URL tùy ý gây SSRF/data leak.
+- Tin OCR/vision output như fact chắc chắn.
+- Hard-code model alias hoặc context cost.
+
+<LessonNote>Nguồn official kiểm tra 2026-07-23: [tài liệu hiện hành](https://developers.openai.com/api/docs/guides/images-vision). Model, limit, price và capability phải được kiểm tra lại tại thời điểm triển khai.</LessonNote>
+
+**Kết nối:** File Search quản lý file/vector-store lifecycle.
+
+</MdxPage>

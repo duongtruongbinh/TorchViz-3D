@@ -1,0 +1,94 @@
+export const lessonMetadata = {
+  domainId: "llm-ai-engineering",
+  id: "sliding-window-attention",
+  locale: "vi",
+  title: "Sliding-window attention",
+  headings: ["Vì sao cần kiến thức này?","Trace bằng tay","Production và bước tiếp"],
+  keywords: ["sliding-window-attention","LLM","production","K+C"],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+<TrainingConceptVisual content={{
+  view: 'audit',
+  lead: {vi: 'Sliding window giảm key được đọc ở mỗi query nhưng đồng thời thay đổi receptive field của model.'},
+  steps: [
+    {label: {vi: 'Sequence + causal mask'}, shape: 'T positions', detail: {vi: 'Query chỉ được nhìn quá khứ và chính nó.'}},
+    {label: {vi: 'Apply window'}, shape: 'W keys / query', detail: {vi: 'Giữ tối đa W vị trí gần nhất.'}},
+    {label: {vi: 'Local attention'}, shape: 'logical mask (T,T)', detail: {vi: 'Kernel tối ưu có thể không materialize mask.'}},
+    {label: {vi: 'Stack layers'}, shape: 'larger receptive field', detail: {vi: 'Thông tin lan xa dần qua nhiều layers.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Giảm work/cache access đi kèm trade-off dependency xa.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+<TrainingConceptVisual content={{
+  view: 'addition',
+  lead: {vi: 'Worked trace cho token ở vị trí 7 với window W=4.'},
+  steps: [
+    {label: {vi: 'Current query'}, shape: 'position 7', detail: {vi: 'Causal: không nhìn tương lai.'}},
+    {label: {vi: 'One layer'}, shape: 'keys 4–7', detail: {vi: 'Bốn vị trí được attend trực tiếp.'}},
+    {label: {vi: 'Two layers'}, shape: 'earliest ≈ 1', detail: {vi: 'Thông tin có thể lan xa thêm qua intermediate tokens.'}},
+    {label: {vi: 'Interpretation'}, shape: 'expanded ≠ full', detail: {vi: 'Không bảo đảm mọi dependency xa được giữ nguyên.'}},
+  ],
+  code: [],
+  takeaway: {vi: 'Receptive field tích lũy qua layer nhưng mỗi attention operation vẫn local.'},
+}} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+<CodeLessonFrame
+  title="Production audit cho sliding window"
+  contract="length + positive window → causal-local mask; layers → earliest reachable"
+  output="query 7 sees [4,5,6,7]; two-layer earliest reachable = 1"
+  pitfall="Architectural window không phải HTTP truncation; phải giữ global/sink tokens nếu kiến trúc yêu cầu."
+  takeaway="Kernel có thể tránh materialize (T,T) nhưng phải giữ đúng tập key được phép."
+>
+
+~~~ts
+import assert from "node:assert/strict";
+
+function causalSlidingMask(length: number, window: number): boolean[][] {
+  if (!Number.isInteger(length) || length <= 0) {
+    throw new Error("length must be a positive integer");
+  }
+  if (!Number.isInteger(window) || window <= 0) {
+    throw new Error("window must be a positive integer");
+  }
+  return Array.from({ length }, (_, query) =>
+    Array.from({ length }, (_, key) =>
+      key <= query && key >= Math.max(0, query - window + 1)
+    )
+  );
+}
+
+function earliestReachable(position: number, window: number, layers: number): number {
+  if (position < 0 || window <= 0 || layers <= 0) {
+    throw new Error("invalid receptive-field arguments");
+  }
+  return Math.max(0, position - layers * (window - 1));
+}
+
+const mask = causalSlidingMask(8, 4);
+assert.deepEqual(
+  mask[7].flatMap((allowed, key) => allowed ? [key] : []),
+  [4, 5, 6, 7],
+);
+assert.equal(earliestReachable(7, 4, 2), 1);
+assert.throws(() => causalSlidingMask(8, 0), /positive integer/);
+~~~
+
+<LessonNote>Code tạo mask causal-local thật và kiểm tra receptive field. Kernel tối ưu có thể tránh materialize `(T,T)`, nhưng phải giữ cùng tập key được phép.</LessonNote>
+
+**Kết nối:** Scaling laws đặt các tối ưu kiến trúc vào bài toán phân bổ compute và data.
+
+</CodeLessonFrame>
+
+</MdxPage>
