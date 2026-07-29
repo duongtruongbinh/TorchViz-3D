@@ -20,12 +20,10 @@ export const lessonMetadata = {
   
   Độ tương đồng Cosine là tích vô hướng của hai vector sau khi cả hai đã được **chuẩn hóa** về độ dài 1.
   
-  ```
-  similarity = cos(theta) = (v . w) / (||v||_2 * ||w||_2)
-  ```
+  <BlockMath formula="\text{similarity} = \cos\theta = \frac{\mathbf{v} \cdot \mathbf{w}}{\|\mathbf{v}\|_2 \, \|\mathbf{w}\|_2}" />
   
-  Nếu hai vector v và w đã được chuẩn hóa trước đó, công thức đơn giản chỉ còn là:
-  similarity = v . w.
+  Nếu hai vector <InlineMath formula="\mathbf{v}" /> và <InlineMath formula="\mathbf{w}" /> đã được chuẩn hóa trước đó, công thức đơn giản chỉ còn là:
+  <InlineMath formula="\text{similarity} = \mathbf{v} \cdot \mathbf{w}" />.
 </MdxPage>
 
 <MdxPage page={2}>
@@ -33,9 +31,9 @@ export const lessonMetadata = {
   
   Kết quả của Cosine Similarity luôn nằm trong khoảng từ **-1 đến 1**:
   
-  - **1.0:** Hai vector trùng hướng hoàn toàn (theta = 0 độ). Nội dung cực kỳ tương đồng.
-  - **0.0:** Hai vector vuông góc (theta = 90 độ). Hai nội dung không có liên quan gì đến nhau.
-  - **-1.0:** Hai vector đối ngược hoàn toàn (theta = 180 độ). Nội dung trái ngược nhau.
+  - **1.0:** Hai vector trùng hướng hoàn toàn (<InlineMath formula="\theta = 0^\circ" />). Nội dung cực kỳ tương đồng.
+  - **0.0:** Hai vector vuông góc (<InlineMath formula="\theta = 90^\circ" />). Hai nội dung không có liên quan gì đến nhau.
+  - **-1.0:** Hai vector đối ngược hoàn toàn (<InlineMath formula="\theta = 180^\circ" />). Nội dung trái ngược nhau.
   
   <LessonNote>
     Trong hầu hết các bài toán NLP (như dùng Sentence-BERT), các vector embedding thường nằm trong một không gian mà các giá trị cosine thường từ 0 đến 1.

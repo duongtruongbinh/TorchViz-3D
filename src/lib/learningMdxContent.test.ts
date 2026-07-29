@@ -101,11 +101,11 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 53);
+  assert.equal(lessonFiles.length, 60);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 53);
+  assert.equal(documents.length, 60);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
@@ -159,7 +159,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,

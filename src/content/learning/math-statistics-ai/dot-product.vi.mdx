@@ -20,12 +20,10 @@ export const lessonMetadata = {
   
   Cách tính đơn giản nhất: Nhân từng thành phần tương ứng của hai vector rồi cộng tất cả lại.
   
-  ```
-  v . w = (v1 * w1) + (v2 * w2) + ... + (vn * wn)
-  ```
+  <BlockMath formula="\mathbf{v} \cdot \mathbf{w} = v_1 w_1 + v_2 w_2 + \dots + v_n w_n" />
   
-  **Ví dụ:** Nếu v = [1, 2] và w = [3, 4], thì:
-  v . w = (1 x 3) + (2 x 4) = 3 + 8 = 11.
+  **Ví dụ:** Nếu <InlineMath formula="\mathbf{v} = [1, 2]" /> và <InlineMath formula="\mathbf{w} = [3, 4]" />, thì:
+  <InlineMath formula="\mathbf{v} \cdot \mathbf{w} = (1 \times 3) + (2 \times 4) = 3 + 8 = 11" />.
   
   <LessonNote>
     Kết quả của tích vô hướng là một **con số đơn lẻ (scalar)**, không phải là một vector. Đó là lý do nó được gọi là "tích vô hướng".
@@ -37,32 +35,30 @@ export const lessonMetadata = {
   
   Tích vô hướng cũng có thể được tính bằng độ dài của hai vector và góc theta giữa chúng:
   
-  ```
-  v . w = ||v|| ||w|| cos(theta)
-  ```
+  <BlockMath formula="\mathbf{v} \cdot \mathbf{w} = \|\mathbf{v}\|_2 \, \|\mathbf{w}\|_2 \, \cos\theta" />
   
-  Trong đó ||v|| là độ dài (norm) của vector. Công thức này cho thấy tích vô hướng phụ thuộc rất nhiều vào **góc** giữa hai vector.
+  Trong đó <InlineMath formula="\|\mathbf{v}\|_2" /> là độ dài (norm) của vector. Công thức này cho thấy tích vô hướng phụ thuộc rất nhiều vào **góc** giữa hai vector.
 </MdxPage>
 
 <MdxPage page={3}>
   ## 3. Ý nghĩa của kết quả
   
-  Hãy nhìn vào giá trị của v . w:
+  Hãy nhìn vào giá trị của <InlineMath formula="\mathbf{v} \cdot \mathbf{w}" />:
   
-  - **Số dương:** Hai vector chỉ về hướng tương đối giống nhau (góc theta < 90 độ).
+  - **Số dương:** Hai vector chỉ về hướng tương đối giống nhau (góc <InlineMath formula="\theta < 90^\circ" />).
   - **Số không (0):** Hai vector hoàn toàn vuông góc (orthogonal). Chúng không có bất kỳ thành phần nào chung.
-  - **Số âm:** Hai vector chỉ về hướng ngược nhau (góc theta > 90 độ).
+  - **Số âm:** Hai vector chỉ về hướng ngược nhau (góc <InlineMath formula="\theta > 90^\circ" />).
   
-  **Trực giác:** Tích vô hướng đo lượng "hình chiếu" của vector này lên vector kia. Nếu bạn chiếu một đèn pin vuông góc với w, bóng của v trên w chính là biểu hiện của tích vô hướng.
+  **Trực giác:** Tích vô hướng đo lượng "hình chiếu" của vector này lên vector kia. Nếu bạn chiếu một đèn pin vuông góc với <InlineMath formula="\mathbf{w}" />, bóng của <InlineMath formula="\mathbf{v}" /> trên <InlineMath formula="\mathbf{w}" /> chính là biểu hiện của tích vô hướng.
 </MdxPage>
 
 <MdxPage page={4}>
   ## Ứng dụng trong AI
   
-  Trong một lớp Linear của mạng nơ-ron: output = W . x + b.
+  Trong một lớp Linear của mạng nơ-ron: <InlineMath formula="\text{output} = \mathbf{W} \mathbf{x} + \mathbf{b}" />.
   Phép toán cốt lõi ở đây là tích vô hướng giữa **vector trọng số (weight)** và **vector đầu vào (input)**.
   
-  Nếu vector đầu vào x "khớp" với trọng số W (tức là có tích vô hướng lớn), nơ-ron sẽ được kích hoạt mạnh. Điều này giống như nơ-ron đang nói: *"Tôi tìm thấy pattern mà tôi đang theo dõi trong dữ liệu này!"*
+  Nếu vector đầu vào <InlineMath formula="\mathbf{x}" /> "khớp" với trọng số <InlineMath formula="\mathbf{W}" /> (tức là có tích vô hướng lớn), nơ-ron sẽ được kích hoạt mạnh. Điều này giống như nơ-ron đang nói: *"Tôi tìm thấy pattern mà tôi đang theo dõi trong dữ liệu này!"*
 </MdxPage>
 
 <MdxPage page={5}>

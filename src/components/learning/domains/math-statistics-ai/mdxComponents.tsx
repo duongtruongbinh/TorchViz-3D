@@ -34,7 +34,7 @@ function MathQuiz({ question, options }: { question: string; options: MathQuizOp
 
   return (
     <div className={cx('py-1', quizPalette.card)}>
-      <div className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.title)}>{question}</div>
+      <div className={cx('text-base font-normal leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{question}</div>
 
       <div className="mt-5 grid gap-2">
         {options.map((option, index) => {

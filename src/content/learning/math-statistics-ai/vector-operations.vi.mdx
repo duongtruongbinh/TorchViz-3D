@@ -20,46 +20,40 @@ export const lessonMetadata = {
   
   Về mặt **đại số**, cộng hai vector đơn giản là cộng các thành phần tương ứng của chúng:
   
-  ```
-  [a, b] + [c, d] = [a + c, b + d]
-  ```
+  <BlockMath formula="\begin{bmatrix}a\\b\end{bmatrix} + \begin{bmatrix}c\\d\end{bmatrix} = \begin{bmatrix}a+c\\b+d\end{bmatrix}" />
   
   Về mặt **hình học**, hãy dùng quy tắc "nối đuôi" (tip-to-tail):
   Đặt đuôi của vector w vào đầu của vector v. Vector tổng v + w là mũi tên đi từ điểm bắt đầu của v đến điểm kết thúc của w.
   
   <LessonNote>
-    Phép cộng vector có tính chất giao hoán: v + w = w + v.
+    Phép cộng vector có tính chất giao hoán: <InlineMath formula="\mathbf{v} + \mathbf{w} = \mathbf{w} + \mathbf{v}" />.
   </LessonNote>
 </MdxPage>
 
 <MdxPage page={2}>
   ## 2. Trừ Vector (Vector Subtraction)
   
-  Trừ hai vector thực chất là cộng với vector đối: v - w = v + (-w).
+  Trừ hai vector thực chất là cộng với vector đối: <InlineMath formula="\mathbf{v} - \mathbf{w} = \mathbf{v} + (-\mathbf{w})" />.
   
   Về mặt **đại số**:
   
-  ```
-  [a, b] - [c, d] = [a - c, b - d]
-  ```
+  <BlockMath formula="\begin{bmatrix}a\\b\end{bmatrix} - \begin{bmatrix}c\\d\end{bmatrix} = \begin{bmatrix}a-c\\b-d\end{bmatrix}" />
   
-  Về mặt **hình học**, v - w là vector đi **từ đầu của w đến đầu của v**. 
+  Về mặt **hình học**, <InlineMath formula="\mathbf{v} - \mathbf{w}" /> là vector đi **từ đầu của <InlineMath formula="\mathbf{w}" /> đến đầu của <InlineMath formula="\mathbf{v}" />**. 
   Đây là cách chúng ta tính khoảng cách và hướng giữa hai điểm trong không gian.
 </MdxPage>
 
 <MdxPage page={3}>
   ## 3. Nhân với một số (Scalar Multiplication)
   
-  Khi bạn nhân một vector với một số thực c (gọi là một *scalar*), bạn đang thay đổi độ dài của nó:
+  Khi bạn nhân một vector với một số thực <InlineMath formula="c" /> (gọi là một *scalar*), bạn đang thay đổi độ dài của nó:
   
-  ```
-  c * [a, b] = [c*a, c*b]
-  ```
+  <BlockMath formula="c \cdot \begin{bmatrix}a\\b\end{bmatrix} = \begin{bmatrix}c\cdot a\\c\cdot b\end{bmatrix}" />
   
   **Các trường hợp đặc biệt:**
-  - Nếu c > 1: Vector dài ra (stretch).
-  - Nếu 0 < c < 1: Vector ngắn lại (shrink).
-  - Nếu c < 0: Vector bị đảo ngược hướng.
+  - Nếu <InlineMath formula="c > 1" />: Vector dài ra (stretch).
+  - Nếu <InlineMath formula="0 < c < 1" />: Vector ngắn lại (shrink).
+  - Nếu <InlineMath formula="c < 0" />: Vector bị đảo ngược hướng.
 </MdxPage>
 
 <MdxPage page={4}>

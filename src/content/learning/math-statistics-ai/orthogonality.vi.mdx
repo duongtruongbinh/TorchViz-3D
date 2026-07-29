@@ -11,22 +11,20 @@ export const lessonMetadata = {
 <MdxPage page={0}>
   # Tính Vuông góc (Orthogonality)
   
-  Trong ngôn ngữ thông thường, chúng ta gọi hai đường thẳng là **vuông góc** nếu chúng tạo với nhau một góc 90 độ. 
+  Trong ngôn ngữ thông thường, chúng ta gọi hai đường thẳng là **vuông góc** nếu chúng tạo với nhau một góc <InlineMath formula="90^\circ" />. 
   Trong đại số tuyến tính, khái niệm này được tổng quát hóa thành **Orthogonality**.
 </MdxPage>
 
 <MdxPage page={1}>
   ## 1. Điều kiện toán học
   
-  Hai vector v và w được gọi là **orthogonal (vuông góc)** nếu và chỉ nếu tích vô hướng của chúng bằng 0:
+  Hai vector <InlineMath formula="\mathbf{v}" /> và <InlineMath formula="\mathbf{w}" /> được gọi là **orthogonal (vuông góc)** nếu và chỉ nếu tích vô hướng của chúng bằng 0:
   
-  ```
-  v . w = 0
-  ```
+  <BlockMath formula="\mathbf{v} \cdot \mathbf{w} = 0" />
   
   **Tại sao lại là 0?** 
-  Hãy nhớ lại công thức: v . w = ||v|| ||w|| cos(theta).
-  Vì cos(90 độ) = 0, nên tích vô hướng sẽ bằng 0 bất kể độ dài của hai vector là bao nhiêu.
+  Hãy nhớ lại công thức: <InlineMath formula="\mathbf{v} \cdot \mathbf{w} = \|\mathbf{v}\| \|\mathbf{w}\| \cos\theta" />.
+  Vì <InlineMath formula="\cos(90^\circ) = 0" />, nên tích vô hướng sẽ bằng 0 bất kể độ dài của hai vector là bao nhiêu.
 </MdxPage>
 
 <MdxPage page={2}>
@@ -36,7 +34,7 @@ export const lessonMetadata = {
   
   Nếu hai vector vuông góc, điều đó có nghĩa là sự thay đổi dọc theo hướng của vector này **không ảnh hưởng gì** đến vị trí dọc theo hướng của vector kia.
   
-  Hãy nghĩ về hệ tọa độ X, Y, Z. Trục X vuông góc với trục Y và Z. Vì vậy, khi bạn di chuyển theo trục X, tọa độ Y và Z của bạn không hề thay đổi. Điều này cho phép chúng ta phân tích các vấn đề phức tạp bằng cách chia nhỏ chúng thành các thành phần độc lập.
+  Hãy nghĩ về hệ tọa độ <InlineMath formula="X, Y, Z" />. Trục <InlineMath formula="X" /> vuông góc với trục <InlineMath formula="Y" /> và <InlineMath formula="Z" />. Vì vậy, khi bạn di chuyển theo trục <InlineMath formula="X" />, tọa độ <InlineMath formula="Y" /> và <InlineMath formula="Z" /> của bạn không hề thay đổi. Điều này cho phép chúng ta phân tích các vấn đề phức tạp bằng cách chia nhỏ chúng thành các thành phần độc lập.
 </MdxPage>
 
 <MdxPage page={3}>

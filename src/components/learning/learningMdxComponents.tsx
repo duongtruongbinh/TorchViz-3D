@@ -1,4 +1,6 @@
 import { Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import { createContext, useContext, type ComponentType, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
@@ -175,12 +177,36 @@ export function MdxPage({ children, page }: { children?: ReactNode; page: number
   return useLearningMdxLesson().pageIndex === page ? <>{children}</> : null;
 }
 
+function InlineMath({ formula }: { formula: string }) {
+  const themeClasses = useLearningMdxTheme();
+  const html = katex.renderToString(formula, { displayMode: false, throwOnError: false });
+  return <span className={cx('px-0.5', themeClasses.bodyText)} dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+function BlockMath({ formula }: { formula: string }) {
+  const themeClasses = useLearningMdxTheme();
+  const html = katex.renderToString(formula, { displayMode: true, throwOnError: false });
+  return (
+    <div
+      className={cx(
+        'my-4 overflow-x-auto rounded-lg border px-5 py-4 text-center text-lg font-semibold sm:text-xl',
+        themeClasses.isLight
+          ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]'
+          : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]',
+      )}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
 const sharedAuthoredMdxComponents = {
   LessonNote,
   MdxQuiz,
   MdxPage,
   RequirementCard,
   RequirementsGrid,
+  InlineMath,
+  BlockMath,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
 
 export const sharedLearningMdxComponents = {

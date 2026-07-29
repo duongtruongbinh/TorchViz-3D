@@ -4,6 +4,8 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'MdxPage',
   'RequirementCard',
   'RequirementsGrid',
+  'InlineMath',
+  'BlockMath',
 ] as const;
 
 export type LearningMdxMetadata = {

@@ -17,13 +17,11 @@ export const lessonMetadata = {
 </MdxPage>
 
 <MdxPage page={1}>
-  ## 1. Chuẩn L2 (Euclidean Norm)
+  ## 1. Chuẩn <InlineMath formula="L_2" /> (Euclidean Norm)
   
   Đây là loại chuẩn phổ biến nhất, chính là khoảng cách "đường chim bay" từ gốc tọa độ đến điểm cuối của vector.
   
-  ```
-  ||v||_2 = sqrt(v1^2 + v2^2 + ... + vn^2)
-  ```
+  <BlockMath formula="\|\mathbf{v}\|_2 = \sqrt{v_1^2 + v_2^2 + \dots + v_n^2}" />
   
   **Trực giác:** Chính là định lý Pythagoras mở rộng cho nhiều chiều.
   
@@ -33,25 +31,21 @@ export const lessonMetadata = {
 </MdxPage>
 
 <MdxPage page={2}>
-  ## 2. Chuẩn L1 (Manhattan Norm)
+  ## 2. Chuẩn <InlineMath formula="L_1" /> (Manhattan Norm)
   
   Thay vì đi đường chéo, chuẩn L1 tính tổng giá trị tuyệt đối của các thành phần. 
   
-  ```
-  ||v||_1 = |v1| + |v2| + ... + |vn|
-  ```
+  <BlockMath formula="\|\mathbf{v}\|_1 = |v_1| + |v_2| + \dots + |v_n|" />
   
   **Trực giác:** Hãy tưởng tượng bạn đang đi trong một thành phố với các con đường hình ô bàn cờ (như Manhattan). Bạn không thể đi xuyên qua các tòa nhà, bạn phải đi theo các trục tọa độ.
 </MdxPage>
 
 <MdxPage page={3}>
-  ## 3. Chuẩn Max (L-infinity Norm)
+  ## 3. Chuẩn Max (<InlineMath formula="L_\infty" /> Norm)
   
   Chuẩn này chỉ quan tâm đến thành phần **lớn nhất** (xét về giá trị tuyệt đối) trong vector.
   
-  ```
-  ||v||_inf = max(|v1|, |v2|, ..., |vn|)
-  ```
+  <BlockMath formula="\|\mathbf{v}\|_\infty = \max\{|v_1|, |v_2|, \dots, |v_n|\}" />
   
   **Trực giác:** "Độ lớn" của vector được quyết định bởi thành phần mạnh nhất của nó.
 </MdxPage>
@@ -61,9 +55,9 @@ export const lessonMetadata = {
   
   Tại sao chúng ta cần nhiều loại chuẩn khác nhau?
   
-  - **L2 Regularization (Weight Decay):** Dùng chuẩn L2 để ép các trọng số của model nhỏ lại, giúp tránh overfitting.
-  - **L1 Regularization (Lasso):** Dùng chuẩn L1 để ép một số trọng số về **đúng bằng 0**. Điều này tạo ra các model "thưa" (sparse), giúp ta chọn ra những feature quan trọng nhất.
-  - **Đo lường sai số:** MSE (Mean Squared Error) liên quan đến L2, trong khi MAE (Mean Absolute Error) liên quan đến L1.
+  - **<InlineMath formula="L_2" /> Regularization (Weight Decay):** Dùng chuẩn <InlineMath formula="L_2" /> để ép các trọng số của model nhỏ lại, giúp tránh overfitting.
+  - **<InlineMath formula="L_1" /> Regularization (Lasso):** Dùng chuẩn <InlineMath formula="L_1" /> để ép một số trọng số về **đúng bằng 0**. Điều này tạo ra các model "thưa" (sparse), giúp ta chọn ra những feature quan trọng nhất.
+  - **Đo lường sai số:** MSE (Mean Squared Error) liên quan đến <InlineMath formula="L_2" />, trong khi MAE (Mean Absolute Error) liên quan đến <InlineMath formula="L_1" />.
 </MdxPage>
 
 <MdxPage page={5}>
