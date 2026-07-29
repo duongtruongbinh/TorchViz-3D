@@ -3,12 +3,14 @@ export const lessonMetadata = {
   id: 'llm-training-data',
   locale: 'vi',
   title: 'Data: Từ web thô đến training token',
-  headings: ['Nguồn dữ liệu web', 'Một document web thô', 'Lọc dữ liệu', 'Cân bằng và hoàn thiện', 'Quy mô training data', 'Các pretraining dataset tiêu biểu', 'Thách thức ở quy mô lớn'],
+  headings: ['Nguồn dữ liệu', 'Ví dụ - Một document web thô', 'Các bước xử lý cơ bản', 'Bổ sung metadata và cân bằng dữ liệu', 'Quy mô training data', 'Các pretraining dataset tiêu biểu', 'Thách thức ở quy mô lớn'],
   keywords: ['training data', 'Common Crawl', 'data filtering', 'domain balancing', 'data quality', 'copyright'],
   pageCount: 7,
 }
 
 <MdxPage page={0}>
+
+## Nguồn dữ liệu
 
 <TrainingConceptVisual content={{
   view: 'position',
@@ -24,8 +26,11 @@ export const lessonMetadata = {
 
 <MdxPage page={1}>
 
+## Ví dụ - Một document web thô
+
+Nhìn vào các mẫu HTML bên dưới, chúng ta thấy rằng dữ liệu từ Internet có rất nhiều thông tin nhiễu đòi hỏi sự chọn lọc kỹ lưỡng.
+
 <CodeLessonFrame
-  title="Một document web thô"
   takeaway="Con người phải tìm đoạn nội dung hữu ích giữa HTML, JavaScript, menu, quảng cáo và boilerplate. Máy tính cũng không tự biết phần nào là kiến thức cần học."
   nextStep="Trước hết, pipeline phải trích text, chuẩn hóa và gắn metadata; sau đó mới quyết định giữ hay loại document."
 >
@@ -126,6 +131,8 @@ export const lessonMetadata = {
 
 <MdxPage page={2}>
 
+## Các bước xử lý cơ bản
+
 <TrainingConceptVisual content={{
   view: 'audit',
   layout: 'filter-pipeline',
@@ -145,6 +152,8 @@ export const lessonMetadata = {
 </MdxPage>
 
 <MdxPage page={3}>
+
+## Bổ sung metadata và cân bằng dữ liệu
 
 <TrainingConceptVisual content={{
   view: 'audit',

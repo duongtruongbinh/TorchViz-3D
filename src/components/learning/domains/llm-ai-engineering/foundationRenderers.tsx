@@ -10,22 +10,26 @@ export function CodeLessonFrame({ children, contract, nextStep, output, pitfall,
   output?: string;
   pitfall?: string;
   takeaway: string;
-  title: string;
+  title?: string;
 }) {
   const themeClasses = useLearningMdxTheme();
   return (
     <section className="grid min-w-0 gap-5">
-      <header className={cx('flex min-w-0 flex-col gap-3 rounded-lg px-4 py-4 sm:flex-row sm:items-center sm:justify-between', themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/55')}>
-        <div className="flex min-w-0 items-center gap-3">
-          <span className={cx('grid h-10 w-10 shrink-0 place-items-center rounded-lg', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')}>
-            <Code2 className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
-          </span>
-          <h2 className={cx('min-w-0 text-base font-black leading-6 [text-wrap:balance]', themeClasses.titleText)}>{title}</h2>
-        </div>
-        {contract ? (
-          <code className={cx('w-fit max-w-full break-words rounded-md px-2.5 py-1.5 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#123B68]' : 'bg-[#172A43] text-[#DCE8F4]')}>{contract}</code>
-        ) : null}
-      </header>
+      {title || contract ? (
+        <header className={cx('flex min-w-0 flex-col gap-3 rounded-lg px-4 py-4 sm:flex-row sm:items-center sm:justify-between', themeClasses.isLight ? 'bg-[#EDF5FB]' : 'bg-[#263B5B]/55')}>
+          {title ? (
+            <div className="flex min-w-0 items-center gap-3">
+              <span className={cx('grid h-10 w-10 shrink-0 place-items-center rounded-lg', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8B8C8] text-[#121A24]')}>
+                <Code2 className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
+              </span>
+              <h2 className={cx('min-w-0 text-base font-black leading-6 [text-wrap:balance]', themeClasses.titleText)}>{title}</h2>
+            </div>
+          ) : null}
+          {contract ? (
+            <code className={cx('w-fit max-w-full break-words rounded-md px-2.5 py-1.5 text-xs font-black', themeClasses.isLight ? 'bg-white text-[#123B68]' : 'bg-[#172A43] text-[#DCE8F4]')}>{contract}</code>
+          ) : null}
+        </header>
+      ) : null}
 
       <div className={cx('grid min-w-0 gap-4 [&>p]:max-w-[72ch]', themeClasses.bodyText)}>
         {children}
