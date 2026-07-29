@@ -1,0 +1,142 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch12-exercises",
+  "locale": "vi",
+  "title": "12.6 Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Ứng dụng"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học không giám sát",
+    "bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Bài toán này liên quan đến thuật toán phân cụm _K_-means.
+
+   - (a) Chứng minh (12.18).
+
+   - (b) Dựa trên đẳng thức này, hãy lập luận rằng thuật toán phân cụm _K_-means—Thuật toán 12.2—làm giảm mục tiêu (12.17) ở mỗi lần lặp.
+
+2. Giả sử ta có bốn quan sát và tính được ma trận độ bất tương đồng như sau.
+
+Chẳng hạn, độ bất tương đồng giữa quan sát thứ nhất và thứ hai là 0,3; giữa quan sát thứ hai và thứ tư là 0,8.
+
+- (a) Dựa trên ma trận này, hãy phác thảo dendrogram thu được khi phân cụm phân cấp bốn quan sát bằng liên kết đầy đủ. Trên hình, cần chỉ rõ độ cao của mỗi lần hợp nhất và quan sát tương ứng với từng lá.
+
+- (b) Lặp lại (a), lần này dùng phân cụm liên kết đơn.
+
+- (c) Giả sử cắt dendrogram trong (a) để thu được hai cụm. Mỗi cụm gồm những quan sát nào?
+
+- (d) Giả sử cắt dendrogram trong (b) để thu được hai cụm. Mỗi cụm gồm những quan sát nào?
+
+   - (e) Chương này đã nói rằng tại mỗi lần hợp nhất trên dendrogram, vị trí hai cụm được hợp nhất có thể đổi chỗ mà không làm thay đổi ý nghĩa. Hãy vẽ một dendrogram tương đương với dendrogram trong (a), trong đó vị trí ít nhất hai lá thay đổi nhưng ý nghĩa vẫn giữ nguyên.
+
+3. Trong bài này, bạn sẽ thực hiện thủ công phân cụm _K_-means với _K_ = 2 trên một ví dụ nhỏ có _n_ = 6 quan sát và _p_ = 2 đặc trưng. Các quan sát như sau.
+
+<MdxCode language="table" code={"|Quan sát|_X_1|_X_2|\n|---|---|---|\n|1|1|4|\n|2|1|3|\n|3|0|4|\n|4|5|1|\n|5|6|2|\n|6|4|0|"} />
+
+   - (a) Vẽ các quan sát.
+
+   - (b) Gán ngẫu nhiên một nhãn cụm cho mỗi quan sát. Bạn có thể dùng hàm `np.random.choice()`. Hãy báo cáo nhãn cụm của từng quan sát.
+
+   - (c) Tính tâm của mỗi cụm.
+
+   - (d) Gán mỗi quan sát cho tâm gần nhất theo khoảng cách Euclid. Hãy báo cáo nhãn cụm của từng quan sát.
+
+   - (e) Lặp lại (c) và (d) cho đến khi kết quả không còn thay đổi.
+
+   - (f) Trên biểu đồ trong (a), tô màu các quan sát theo nhãn cụm thu được.
+
+4. Giả sử với một bộ dữ liệu cụ thể, ta thực hiện phân cụm phân cấp bằng liên kết đơn và liên kết đầy đủ, thu được hai dendrogram.
+
+   - (a) Tại một điểm trên dendrogram liên kết đơn, hai cụm _\{_ 1 _,_ 2 _,_ 3 _\}_ và _\{_ 4 _,_ 5 _\}_ hợp nhất. Trên dendrogram liên kết đầy đủ, hai cụm này cũng hợp nhất tại một điểm. Lần hợp nhất nào nằm cao hơn trên cây, chúng có cùng độ cao, hay chưa đủ thông tin để kết luận?
+
+   - (b) Tại một điểm trên dendrogram liên kết đơn, hai cụm _\{_ 5 _\}_ và _\{_ 6 _\}_ hợp nhất. Trên dendrogram liên kết đầy đủ, hai cụm này cũng hợp nhất tại một điểm. Lần hợp nhất nào nằm cao hơn, chúng có cùng độ cao, hay chưa đủ thông tin để kết luận?
+
+5. Hãy mô tả bằng lời kết quả bạn kỳ vọng nếu phân cụm _K_-means tám người mua trong Hình 12.16 dựa trên lượng tất và máy tính họ mua với _K_ = 2. Đưa ra ba câu trả lời tương ứng ba cách co giãn biến trong hình và giải thích.
+
+6. Trong Phần 12.2.2, ta đã thấy các vector tải và điểm số thành phần chính cung cấp một xấp xỉ cho ma trận theo nghĩa của (12.5). Cụ thể, các vector này giải bài toán tối ưu (12.6).
+
+Bây giờ, giả sử đã biết _M_ vector điểm số _zim, m_ = 1 _, . . . , M_. Dùng (12.6), hãy giải thích rằng mỗi vector trong _M_ vector tải đầu tiên _φjm, m_ = 1 _, . . . , M_ có thể thu được bằng cách thực hiện _p_ hồi quy tuyến tính bình phương tối thiểu riêng biệt. Trong mỗi hồi quy, các vector điểm số thành phần chính là biến dự báo và một đặc trưng của ma trận dữ liệu là biến đáp ứng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Ứng dụng
+
+7. Trong chương này, ta đã dùng khoảng cách dựa trên tương quan và khoảng cách Euclid làm thước đo bất tương đồng cho phân cụm phân cấp. Hai thước đo này gần như tương đương: nếu mỗi quan sát đã được định tâm để có trung bình bằng 0 và độ lệch chuẩn bằng 1, đồng thời _rij_ là tương quan giữa quan sát thứ _i_ và thứ _j_, thì đại lượng 1 _− rij_ tỷ lệ với bình phương khoảng cách Euclid giữa hai quan sát.
+
+Hãy chứng minh tính tỷ lệ này trên dữ liệu `USArrests`.
+
+_Gợi ý: Có thể tính khoảng cách Euclid bằng hàm_ `pairwise_distances()` _thuộc mô-đun_ `sklearn.metrics` _, còn tương quan theo cặp_ `pairwise_` _có thể tính bằng hàm_ `np.corrcoef()` _._
+
+<MdxCode language="text" code={"distances()"} />
+
+8. Phần 12.2.3 đã đưa ra công thức tính PVE trong Phương trình 12.10. Ta cũng thấy có thể lấy PVE qua thuộc tính `explained_variance_ratio_` của một bộ ước lượng `PCA()` đã khớp.
+
+Trên dữ liệu `USArrests`, hãy tính PVE theo hai cách:
+
+- (a) Dùng đầu ra `explained_variance_ratio_` của bộ ước lượng `PCA()` đã khớp như trong Phần 12.2.3.
+
+- (b) Áp dụng trực tiếp Phương trình 12.10. Các tải được lưu trong thuộc tính `components_` của bộ ước lượng `PCA()`. Dùng các tải đó trong Phương trình 12.10 để tính PVE.
+
+Hai cách phải cho cùng kết quả.
+
+_Gợi ý: (a) và (b) chỉ cho cùng kết quả nếu dùng cùng dữ liệu. Chẳng hạn, nếu ở (a) bạn thực hiện_ `PCA()` _trên các biến đã định tâm và co giãn, bạn cũng phải định tâm và co giãn biến trước khi áp dụng Phương trình 12.10 trong (b)._
+
+9. Xét dữ liệu `USArrests`. Bây giờ ta sẽ phân cụm phân cấp các bang.
+
+   - (a) Phân cụm các bang bằng phân cụm phân cấp với liên kết đầy đủ và khoảng cách Euclid.
+
+   - (b) Cắt dendrogram tại độ cao tạo ra ba cụm riêng biệt. Những bang nào thuộc từng cụm?
+
+   - (c) Phân cụm phân cấp các bang bằng liên kết đầy đủ và khoảng cách Euclid _sau khi co giãn các biến về độ lệch chuẩn bằng 1_.
+
+   - (d) Co giãn biến tác động thế nào đến kết quả phân cụm? Theo bạn, có nên co giãn các biến trước khi tính độ bất tương đồng giữa các quan sát không? Hãy giải thích.
+
+10. Trong bài này, bạn sẽ sinh dữ liệu mô phỏng rồi thực hiện PCA và phân cụm _K_-means.
+
+   - (a) Sinh một bộ dữ liệu mô phỏng có 20 quan sát trong mỗi lớp của ba lớp—tổng cộng 60 quan sát—và 50 biến. _Gợi ý: Có nhiều hàm trong_ `Python` _để sinh dữ liệu. Một ví dụ là phương thức_ `normal()` _của hàm_ `random()` _trong_ `numpy` _; phương thức_ `uniform()` _là một lựa chọn khác. Hãy thêm độ dịch trung bình vào quan sát của từng lớp để tạo ba lớp phân biệt._
+
+   - (b) Thực hiện PCA trên 60 quan sát rồi vẽ hai vector điểm số đầu tiên. Dùng màu khác nhau cho quan sát thuộc từng lớp. Nếu ba lớp có vẻ tách biệt trên biểu đồ, hãy tiếp tục phần (c). Nếu không, quay lại (a) và điều chỉnh mô phỏng để tăng độ tách biệt. Không tiếp tục đến (c) cho đến khi ba lớp thể hiện ít nhất một mức tách biệt trên hai vector điểm số đầu.
+
+   - (c) Phân cụm _K_-means các quan sát với _K_ = 3. Các cụm thu được so với nhãn lớp thật tốt đến mức nào?
+
+      - _Gợi ý: Có thể dùng hàm_ `pd.crosstab()` _trong_ `Python` _để so sánh nhãn lớp thật với nhãn do phân cụm tạo ra. Hãy cẩn thận khi diễn giải: K-means đánh số cụm tùy ý, nên không thể chỉ kiểm tra hai loại nhãn có giống hệt nhau hay không._
+
+   - (d) Thực hiện phân cụm _K_-means với _K_ = 2 và mô tả kết quả.
+
+   - (e) Thực hiện phân cụm _K_-means với _K_ = 4 và mô tả kết quả.
+
+   - (f) Thực hiện phân cụm _K_-means với _K_ = 3 trên hai vector điểm số thành phần chính đầu tiên thay vì dữ liệu thô. Tức là phân cụm trên ma trận 60 _×_ 2 có cột thứ nhất là vector điểm số thứ nhất và cột thứ hai là vector điểm số thứ hai. Nhận xét kết quả.
+
+   - (g) Dùng bộ ước lượng `StandardScaler()` để phân cụm _K_-means với _K_ = 3 trên dữ liệu _sau khi co giãn từng biến về độ lệch chuẩn bằng 1_. Kết quả so với (b) thế nào? Hãy giải thích.
+
+11. Viết một hàm `Python` thực hiện hoàn thiện ma trận như Thuật toán 12.1 và phần triển khai trong Phần 12.5.2. Ở mỗi lần lặp, hàm cần theo dõi sai số tương đối và số lần lặp. Tiếp tục lặp đến khi sai số tương đối đủ nhỏ hoặc đạt số lần lặp tối đa—hãy đặt giá trị mặc định cho giới hạn này. Ngoài ra, cần có tùy chọn in tiến trình của mỗi lần lặp.
+
+Kiểm thử hàm trên dữ liệu `Boston`. Trước tiên, chuẩn hóa các đặc trưng về trung bình bằng 0 và độ lệch chuẩn bằng 1 bằng hàm `StandardScaler()`. Thực hiện thí nghiệm trong đó bạn bỏ ngẫu nhiên một số quan sát tăng dần và lồng nhau, từ 5% đến 30% theo bước 5%. Áp dụng Thuật toán 12.1 với _M_ = 1 _,_ 2 _, . . . ,_ 8. Biểu diễn sai số xấp xỉ theo tỷ lệ quan sát bị thiếu và giá trị _M_, lấy trung bình qua 10 lần lặp thí nghiệm.
+
+12. Trong Phần 12.5.2, Thuật toán 12.1 được triển khai bằng hàm `svd()` thuộc mô-đun `np.linalg`. Tuy nhiên, dựa trên mối liên hệ giữa `svd()` và bộ ước lượng `PCA()` đã nêu trong bài lab, ta cũng có thể triển khai thuật toán bằng `PCA()`.
+
+Viết một hàm triển khai Thuật toán 12.1 dùng `PCA()` thay cho `svd()`.
+
+13. Trên website của sách, `www.statlearning.com`, có bộ dữ liệu biểu hiện gen `Ch12Ex13.csv` gồm 40 mẫu mô với phép đo trên 1.000 gen. 20 mẫu đầu đến từ bệnh nhân khỏe mạnh, 20 mẫu sau thuộc nhóm mắc bệnh.
+
+   - (a) Tải dữ liệu bằng `pd.read_csv()`. Bạn cần chọn `header = None`.
+
+   - (b) Áp dụng phân cụm phân cấp cho các mẫu bằng khoảng cách dựa trên tương quan và vẽ dendrogram. Các gen có tách mẫu thành hai nhóm không? Kết quả có phụ thuộc loại liên kết được dùng không?
+
+   - (c) Cộng tác viên muốn biết những gen nào khác biệt nhiều nhất giữa hai nhóm. Hãy đề xuất một cách trả lời và áp dụng tại đây.
+
+</MdxPage>

@@ -1,0 +1,136 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-exercises",
+  "locale": "en",
+  "title": "11.9 Exercises",
+  "headings": [
+    "Conceptual",
+    "Applied"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Survival Analysis and Censored Data",
+    "Exercises"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Conceptual
+
+1. For each example, state whether or not the censoring mechanism is independent. Justify your answer.
+
+   - (a) In a study of disease relapse, due to a careless research scientist, all patients whose phone numbers begin with the number “2” are lost to follow up.
+
+   - (b) In a study of longevity, a formatting error causes all patient ages that exceed 99 years to be lost (i.e. we know that those patients are more than 99 years old, but we do not know their exact ages).
+
+   - (c) Hospital A conducts a study of longevity. However, very sick patients tend to be transferred to Hospital B, and are lost to follow up.
+
+   - (d) In a study of unemployment duration, the people who find work earlier are less motivated to stay in touch with study investigators, and therefore are more likely to be lost to follow up.
+
+   - (e) In a study of pregnancy duration, women who deliver their babies pre-term are more likely to do so away from their usual hospital, and thus are more likely to be censored, relative to women who deliver full-term babies.
+
+   - (f) A researcher wishes to model the number of years of education of the residents of a small town. Residents who enroll in college out of town are more likely to be lost to follow up, and are also more likely to attend graduate school, relative to those who attend college in town.
+
+   - (g) Researchers conduct a study of disease-free survival (i.e. time until disease relapse following treatment). Patients who have not relapsed within five years are considered to be cured, and thus their survival time is censored at five years.
+
+   - (h) We wish to model the failure time for some electrical component. This component can be manufactured in Iowa or in Pittsburgh, with no difference in quality. The Iowa factory opened five years ago, and so components manufactured in Iowa are censored at five years. The Pittsburgh factory opened two years ago, so those components are censored at two years.
+
+   - (i) We wish to model the failure time of an electrical component made in two different factories, one of which opened before the other. We have reason to believe that the components manufactured in the factory that opened earlier are of higher quality.
+
+2. We conduct a study with _n_ = 4 participants who have just purchased cell phones, in order to model the time until phone replacement. The first participant replaces her phone after 1.2 years. The second participant still has not replaced her phone at the end of the two-year study period. The third participant changes her phone number and is lost to follow up (but has not yet replaced her phone) 1.5 years into the study. The fourth participant replaces her phone after 0.2 years.
+
+For each of the four participants ( _i_ = 1 _, . . . ,_ 4), answer the following questions using the notation introduced in Section 11.1:
+
+   - (a) Is the participant’s cell phone replacement time censored?
+
+   - (b) Is the value of _ci_ known, and if so, then what is it?
+
+   - (c) Is the value of _ti_ known, and if so, then what is it?
+
+   - (d) Is the value of _yi_ known, and if so, then what is it?
+
+   - (e) Is the value of _δi_ known, and if so, then what is it?
+
+3. For the example in Exercise 2, report the values of _K_ , _d_ 1 _, . . . , dK_ , _r_ 1 _, . . . , rK_ , and _q_ 1 _, . . . , qK_ , where this notation was defined in Section 11.3.
+
+4. This problem makes use of the Kaplan-Meier survival curve displayed in Figure 11.9. The raw data that went into plotting this survival curve is given in Table 11.4. The covariate column of that table is not needed for this problem.
+
+   - (a) What is the estimated probability of survival past 50 days?
+
+<MdxCode language="table" code={"|Observation (_Y_ )|Censoring Indicator|(_δ_)|Covariate|(_X_)|\n|---|---|---|---|---|\n|26.5||1||0.1|\n|37.2||1||11|\n|57.3||1||-0.3|\n|90.8||0||2.8|\n|20.2||0||1.8|\n|89.8||0||0.4|"} />
+
+**TABLE 11.4.** _Data used in Exercise 4._
+
+- (b) Write out an analytical expression for the estimated survival function. For instance, your answer might be something along the lines of
+
+(The previous equation is for illustration only: it is not the correct answer!)
+
+5. Sketch the survival function given by the equation
+
+Your answer should look something like Figure 11.9.
+
+**FIGURE 11.9.** _A Kaplan-Meier survival curve used in Exercise 4._
+
+6. This problem makes use of the data displayed in Figure 11.1. In completing this problem, you can refer to the observation times as _y_ 1 _, . . . , y_ 4. The ordering of these observation times can be seen from Figure 11.1; their exact values are not required.
+
+   - (a) Report the values of _δ_ 1 _, . . . , δ_ 4, _K_ , _d_ 1 _, . . . , dK_ , _r_ 1 _, . . . , rK_ , and _q_ 1 _, . . . , qK_ . The relevant notation is defined in Sections 11.1 and 11.3.
+
+- (b) Sketch the Kaplan-Meier survival curve corresponding to this data set. (You do not need to use any software to do this — you can sketch it by hand using the results obtained in (a).)
+
+- (c) Based on the survival curve estimated in (b), what is the probability that the event occurs within 200 days? What is the probability that the event does not occur within 310 days?
+
+- (d) Write out an expression for the estimated survival curve from (b).
+
+7. In this problem, we will derive (11.5) and (11.6), which are needed for the construction of the log-rank test statistic (11.8). Recall the notation in Table 11.1.
+
+   - (a) Assume that there is no difference between the survival functions of the two groups. Then we can think of _q_ 1 _k_ as the number of failures if we draw _r_ 1 _k_ observations, without replacement, from a risk set of _rk_ observations that contains a total of _qk_ failures. Argue that _q_ 1 _k_ follows a _hypergeometric distribution_ . Write the hyper-
+
+   - parameters of this distribution in terms of _r_ 1 _k_ , _rk_ , and _qk_ .
+
+      - geometric distribution
+
+   - (b) Given your previous answer, and the properties of the hypergeometric distribution, what are the mean and variance of _q_ 1 _k_ ? Compare your answer to (11.5) and (11.6).
+
+8. Recall that the survival function _S_ ( _t_ ), the hazard function _h_ ( _t_ ), and the density function _f_ ( _t_ ) are defined in (11.2), (11.9), and (11.11), respectively. Furthermore, define _F_ ( _t_ ) = 1 _− S_ ( _t_ ). Show that the following relationships hold:
+
+9. In this exercise, we will explore the consequences of assuming that the survival times follow an exponential distribution.
+
+   - (a) Suppose that a survival time follows an Exp( _λ_ ) distribution, so that its density function is _f_ ( _t_ ) = _λ_ exp( _−λt_ ). Using the relationships provided in Exercise 8, show that _S_ ( _t_ ) = exp( _−λt_ ).
+
+   - (b) Now suppose that each of _n_ independent survival times follows an Exp( _λ_ ) distribution. Write out an expression for the likelihood function (11.13).
+
+   - (c) Show that the maximum likelihood estimator for _λ_ is
+
+- (d) Use your answer to (c) to derive an estimator of the mean survival time.
+
+_Hint: For (d), recall that the mean of an_ Exp( _λ_ ) _random variable is_ 1 _/λ._
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Applied
+
+10. This exercise focuses on the brain tumor data, which is included in the `ISLP` library.
+
+   - (a) Plot the Kaplan-Meier survival curve with _±_ 1 standard error bands, using the `KaplanMeierFitter()` estimator in the `lifelines` package.
+
+   - (b) Draw a bootstrap sample of size _n_ = 88 from the pairs ( _yi, δi_ ), and compute the resulting Kaplan-Meier survival curve. Repeat this process _B_ = 200 times. Use the results to obtain an estimate of the standard error of the Kaplan-Meier survival curve at each timepoint. Compare this to the standard errors obtained in (a).
+
+   - (c) Fit a Cox proportional hazards model that uses all of the predictors to predict survival. Summarize the main findings.
+
+   - (d) Stratify the data by the value of `ki` . (Since only one observation has `ki==40` , you can group that observation together with the observations that have `ki==60` .) Plot Kaplan-Meier survival curves for each of the five strata, adjusted for the other predictors.
+
+11. This exercise makes use of the data in Table 11.4.
+
+   - (a) Create two groups of observations. In Group 1, _X &lt;_ 2, whereas in Group 2, _X ≥_ 2. Plot the Kaplan-Meier survival curves corresponding to the two groups. Be sure to label the curves so that it is clear which curve corresponds to which group. By eye, does there appear to be a difference between the two groups’ survival curves?
+
+   - (b) Fit Cox’s proportional hazards model, using the group indicator as a covariate. What is the estimated coefficient? Write a sentence providing the interpretation of this coefficient, in terms of the hazard or the instantaneous probability of the event. Is there evidence that the true coefficient value is non-zero?
+
+   - (c) Recall from Section 11.5.2 that in the case of a single binary covariate, the log-rank test statistic should be identical to the score statistic for the Cox model. Conduct a log-rank test to determine whether there is a difference between the survival curves for the two groups. How does the _p_ -value for the log-rank test statistic compare to the _p_ -value for the score statistic for the Cox model from (b)?
+
+</MdxPage>

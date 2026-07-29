@@ -1,0 +1,29 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch12-unsupervised-learning-challenge",
+  "locale": "vi",
+  "title": "12.1 Thách thức của học không giám sát",
+  "headings": [
+    "Thách thức của học không giám sát"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học không giám sát",
+    "thách thức"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Thách thức của học không giám sát
+
+Học có giám sát là một lĩnh vực đã được hiểu khá rõ. Nếu đã đọc các chương trước, đến đây bạn hẳn đã nắm vững học có giám sát. Chẳng hạn, khi được yêu cầu dự đoán một kết quả nhị phân từ một bộ dữ liệu, bạn có trong tay một tập hợp công cụ rất phát triển—hồi quy logistic, phân tích biệt thức tuyến tính, cây phân loại, máy vector hỗ trợ và nhiều phương pháp khác—cùng cách đánh giá rõ ràng chất lượng của kết quả thu được, chẳng hạn xác thực chéo hay xác thực trên một tập kiểm tra độc lập.
+
+Ngược lại, học không giám sát thường khó hơn nhiều. Việc phân tích có xu hướng chủ quan hơn và không có một mục tiêu đơn giản như dự đoán biến đáp ứng. Học không giám sát thường được thực hiện như một phần của _phân tích dữ liệu khám phá_. Hơn nữa, kết quả của các phương pháp không giám sát khó đánh giá vì không tồn tại một cơ chế được chấp nhận rộng rãi để thực hiện xác thực chéo hoặc kiểm chứng trên một bộ dữ liệu độc lập. Lý do của sự khác biệt này rất đơn giản. Khi khớp một mô hình dự đoán bằng kỹ thuật có giám sát, ta có thể _kiểm tra công việc_ bằng cách xem mô hình dự đoán biến đáp ứng _Y_ tốt đến mức nào trên các quan sát không được dùng để khớp mô hình. Trong học không giám sát, không có cách kiểm tra tương tự vì ta không biết đáp án thật—bản thân bài toán là không giám sát.
+
+Các kỹ thuật học không giám sát ngày càng quan trọng trong nhiều lĩnh vực. Một nhà nghiên cứu ung thư có thể đo mức biểu hiện gen của 100 bệnh nhân ung thư vú, sau đó tìm các nhóm con trong những mẫu ung thư hoặc trong các gen để hiểu rõ hơn về căn bệnh. Một trang mua sắm trực tuyến có thể nhận diện các nhóm người mua có lịch sử duyệt và mua hàng tương tự, cũng như những mặt hàng đặc biệt thu hút từng nhóm. Khi đó, mỗi người mua có thể được ưu tiên hiển thị những mặt hàng mà họ nhiều khả năng quan tâm, dựa trên lịch sử mua hàng của những người tương tự. Một công cụ tìm kiếm có thể lựa chọn kết quả hiển thị cho một cá nhân dựa trên lịch sử nhấp chuột của những người có kiểu tìm kiếm tương tự. Những nhiệm vụ học thống kê này và rất nhiều nhiệm vụ khác có thể được thực hiện bằng các kỹ thuật học không giám sát.
+
+</MdxPage>

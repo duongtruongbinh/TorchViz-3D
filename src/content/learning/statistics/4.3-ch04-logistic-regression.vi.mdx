@@ -1,0 +1,139 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-logistic-regression",
+  "locale": "vi",
+  "title": "4.3 Hồi quy logistic",
+  "headings": [
+    "Hồi quy logistic",
+    "4.3.2 Ước lượng các hệ số hồi quy",
+    "4.3.3 Đưa ra dự đoán",
+    "4.3.4 Hồi quy logistic đa biến",
+    "4.3.5 Hồi quy logistic đa thức"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "phân loại",
+    "hồi quy logistic"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Hồi quy logistic
+
+Hãy xét lại tập dữ liệu `Default`, trong đó biến đáp ứng `default` thuộc một trong hai loại, `Yes` hoặc `No`. Thay vì mô hình hóa trực tiếp biến đáp ứng _Y_ này, hồi quy logistic mô hình hóa _xác suất_ để _Y_ thuộc một loại cụ thể.
+
+Với dữ liệu `Default`, hồi quy logistic mô hình hóa xác suất vỡ nợ. Chẳng hạn, xác suất vỡ nợ khi biết `balance` có thể được viết là
+
+Các giá trị Pr( `default` = `Yes` _|_ `balance` ), được viết tắt là _p_ ( `balance` ), sẽ nằm trong khoảng từ 0 đến 1. Khi đó, với mỗi giá trị cho trước của `balance`, ta có thể đưa ra dự đoán cho `default`. Ví dụ, ta có thể dự đoán default = Yes
+
+với các số dư thấp, giờ đây ta dự đoán xác suất vỡ nợ gần bằng nhưng không bao giờ nhỏ hơn không. Tương tự, với số dư cao, ta dự đoán xác suất vỡ nợ gần bằng nhưng không bao giờ lớn hơn một. Hàm logistic luôn tạo ra một đường cong _hình chữ S_ như vậy, nên bất kể giá trị của _X_, ta đều thu được dự đoán hợp lý. Ta cũng thấy mô hình logistic nắm bắt miền xác suất tốt hơn mô hình hồi quy tuyến tính ở biểu đồ bên trái. Xác suất khớp trung bình trong cả hai trường hợp là 0.0333 (lấy trung bình trên dữ liệu huấn luyện), bằng đúng tỷ lệ người vỡ nợ tổng thể trong tập dữ liệu.
+
+Sau một vài phép biến đổi (4.2), ta thu được
+
+Đại lượng _p_ ( _X_ ) _/_ [1 _− p_ ( _X_ )] được gọi là _odds_ (tỷ số chênh), và có thể nhận mọi giá trị từ 0 đến _∞_. Odds gần 0 và _∞_ lần lượt biểu thị xác suất vỡ nợ rất thấp và rất cao. Chẳng hạn, trung bình cứ 5 người có odds bằng 1 _/_ 4 thì có 1 người vỡ nợ, vì _p_ ( _X_ ) = 0 _._ 2 hàm ý odds bằng 1 _−_ 0 _._ 02 _._ 2^(= 1)^(_/_4. Tương tự, trung bình chín trong mười người có) odds bằng 9 sẽ vỡ nợ, vì _p_ ( _X_ ) = 0 _._ 9 hàm ý odds bằng 1 _−_ 0 _._ 09 _._ 9^(=9.) Trong đua ngựa, odds theo truyền thống được dùng thay cho xác suất vì chúng liên hệ tự nhiên hơn với chiến lược đặt cược đúng.
+
+Lấy logarithm hai vế của (4.3), ta thu được
+
+Vế trái được gọi là _log odds_ hay _logit_. Ta thấy mô hình hồi quy logistic (4.2) có logit tuyến tính theo _X_.
+
+Nhắc lại từ Chương 3 rằng trong mô hình hồi quy tuyến tính, _β_ 1 cho biết mức thay đổi trung bình của _Y_ gắn với việc _X_ tăng một đơn vị. Ngược lại, trong mô hình hồi quy logistic, tăng _X_ một đơn vị làm log odds thay đổi _β_ 1 (4.4). Tương đương, nó nhân odds với _e_^(_β_1) (4.3). Tuy nhiên, vì quan hệ giữa _p_ ( _X_ ) và _X_ trong (4.2) không phải đường thẳng, _β_ 1 _không_ tương ứng với mức thay đổi của _p_ ( _X_ ) khi _X_ tăng một đơn vị. Mức thay đổi của _p_ ( _X_ ) do _X_ thay đổi một đơn vị phụ thuộc vào giá trị hiện tại của _X_. Nhưng bất kể giá trị của _X_, nếu _β_ 1 dương thì việc tăng _X_ gắn với _p_ ( _X_ ) tăng, còn nếu _β_ 1 âm thì việc tăng _X_ gắn với _p_ ( _X_ ) giảm. Việc _p_ ( _X_ ) không có quan hệ đường thẳng với _X_, cũng như tốc độ thay đổi của _p_ ( _X_ ) trên mỗi đơn vị thay đổi của _X_ phụ thuộc vào giá trị hiện tại của _X_, còn có thể thấy khi quan sát ô bên phải của Hình 4.2.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 4.3.2 Ước lượng các hệ số hồi quy
+
+Các hệ số _β_ 0 và _β_ 1 trong (4.2) chưa biết và phải được ước lượng từ dữ liệu huấn luyện sẵn có. Trong Chương 3, chúng ta dùng phương pháp bình phương tối thiểu để ước lượng các hệ số hồi quy tuyến tính chưa biết. Dù có thể dùng bình phương tối thiểu (phi tuyến) để khớp mô hình (4.4), phương pháp tổng quát hơn là _hợp lý cực đại_ (maximum likelihood) được ưu tiên vì có các tính chất thống kê tốt hơn. Trực giác cơ bản của việc dùng hợp lý cực đại
+
+để khớp mô hình hồi quy logistic như sau: ta tìm các ước lượng cho _β_ 0 và _β_ 1 sao cho xác suất vỡ nợ dự đoán _p_ ˆ( _xi_ ) của mỗi người theo (4.2) gần nhất có thể với trạng thái vỡ nợ quan sát được của người đó. Nói cách khác, ta cố tìm _β_^(ˆ) 0 và _β_^(ˆ) 1 sao cho khi thế các ước lượng này vào mô hình _p_ ( _X_ ) trong (4.2), kết quả gần một đối với mọi người đã vỡ nợ và gần không đối với mọi người không vỡ nợ. Trực giác này có thể được hình thức hóa bằng một phương trình toán học gọi là _hàm hợp lý_ (likelihood function):
+
+Các ước lượng _β_^(ˆ) 0 và _β_^(ˆ) 1 được chọn để _cực đại hóa_ hàm hợp lý này. Hợp lý cực đại là một phương pháp rất tổng quát dùng để khớp nhiều mô hình phi tuyến được xét xuyên suốt cuốn sách. Trong bối cảnh hồi quy tuyến tính, phương pháp bình phương tối thiểu thực ra là một trường hợp đặc biệt của hợp lý cực đại. Các chi tiết toán học của hợp lý cực đại nằm ngoài phạm vi cuốn sách. Tuy nhiên, nhìn chung hồi quy logistic và các mô hình khác có thể dễ dàng được khớp bằng phần mềm thống kê như `R`, nên ta không cần bận tâm đến chi tiết của thủ tục khớp bằng hợp lý cực đại.
+
+Bảng 4.1 trình bày các ước lượng hệ số và thông tin liên quan thu được khi khớp mô hình hồi quy logistic trên dữ liệu `Default` để dự đoán xác suất `default` = `Yes` bằng `balance`. Ta thấy _β_^(ˆ) 1 = 0 _._ 0055; điều này cho biết `balance` tăng gắn với xác suất `default` tăng. Chính xác hơn, `balance` tăng một đơn vị gắn với log odds của `default` tăng 0 _._ 0055 đơn vị.
+
+Nhiều khía cạnh trong kết quả hồi quy logistic ở Bảng 4.1 tương tự kết quả hồi quy tuyến tính ở Chương 3. Chẳng hạn, ta có thể đo độ chính xác của các ước lượng hệ số bằng cách tính sai số chuẩn. Thống kê _z_ trong Bảng 4.1 có vai trò giống thống kê _t_ trong kết quả hồi quy tuyến tính, ví dụ ở Bảng 3.1 trang 77. Cụ thể, thống kê _z_ gắn với _β_ 1 bằng _β_^(ˆ) 1 _/_ SE( _β_^(ˆ) 1), nên giá trị tuyệt đối lớn của thống kê _z_ là bằng chứng chống lại giả thuyết không _H_ 0 : _β_ 1 = 0. Giả thuyết không này hàm ý _p_ ( _X_ ) = 1+ _e_^(_β_) _e_^(0)^(_β_0: nói) cách khác, xác suất `default` không phụ thuộc vào `balance`. Vì giá trị _p_ gắn với `balance` trong Bảng 4.1 rất nhỏ, ta có thể bác bỏ _H_ 0. Nói cách khác, ta kết luận thực sự có mối liên hệ giữa `balance` và xác suất `default`. Hệ số chặn ước lượng trong Bảng 4.1 thường không phải điều được quan tâm; mục đích chính của nó là điều chỉnh xác suất khớp trung bình theo tỷ lệ giá trị một trong dữ liệu (ở đây là tỷ lệ vỡ nợ tổng thể).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 4.3.3 Đưa ra dự đoán
+
+Sau khi ước lượng các hệ số, ta có thể tính xác suất `default` cho bất kỳ số dư thẻ tín dụng nào. Chẳng hạn, dùng các ước lượng hệ số trong Bảng 4.1, ta dự đoán xác suất vỡ nợ
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _z_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|_−_10.6513|0.3612|_−_29.5|_&lt;_0.0001|\n|`balance`|0.0055|0.0002|24.9|_&lt;_0.0001|"} />
+
+**BẢNG 4.1.** _Với dữ liệu_ `Default` _, các hệ số ước lượng của mô hình hồi quy logistic dự đoán xác suất_ `default` _bằng_ `balance` _. Khi_ `balance` _tăng một đơn vị, log odds của_ `default` _tăng_ 0 _._ 0055 _đơn vị._
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _z_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|_−_3.5041|0.0707|_−_49.55|_&lt;_0.0001|\n|`student[Yes]`|0.4049|0.1150|3.52|0.0004|"} />
+
+**BẢNG 4.2.** _Với dữ liệu_ `Default` _, các hệ số ước lượng của mô hình hồi quy logistic dự đoán xác suất_ `default` _bằng trạng thái sinh viên. Trạng thái sinh viên được mã hóa thành biến giả nhận giá trị_ 1 _với sinh viên và_ 0 _với người không phải sinh viên, và được biểu diễn bằng biến_ `student[Yes]` _trong bảng._
+
+cho một người có `balance` bằng $1 _,_ 000 là
+
+nhỏ hơn 1 %. Ngược lại, xác suất vỡ nợ dự đoán cho một người có số dư $2 _,_ 000 cao hơn nhiều, bằng 0 _._ 586 hay 58 _._ 6 %.
+
+Ta có thể sử dụng biến dự báo định tính trong mô hình hồi quy logistic bằng cách tiếp cận biến giả ở Mục 3.3.1. Ví dụ, tập dữ liệu `Default` chứa biến định tính `student`. Để khớp một mô hình dùng trạng thái sinh viên làm biến dự báo, ta chỉ cần tạo một biến giả nhận giá trị 1 với sinh viên và 0 với người không phải sinh viên. Mô hình hồi quy logistic thu được khi dự đoán xác suất vỡ nợ từ trạng thái sinh viên được trình bày ở Bảng 4.2. Hệ số gắn với biến giả là dương và giá trị _p_ tương ứng có ý nghĩa thống kê. Điều này cho thấy sinh viên có xu hướng mang xác suất vỡ nợ cao hơn người không phải sinh viên:
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 4.3.4 Hồi quy logistic đa biến
+
+Bây giờ ta xét bài toán dự đoán biến đáp ứng nhị phân bằng nhiều biến dự báo. Tương tự việc mở rộng từ hồi quy tuyến tính đơn sang hồi quy tuyến tính đa biến ở Chương 3, ta có thể tổng quát hóa (4.4) như sau:
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _z_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|_−_10.8690|0.4923|_−_22.08|_&lt;_0.0001|\n|`balance`|0.0057|0.0002|24.74|_&lt;_0.0001|\n|`income`|0.0030|0.0082|0.37|0.7115|\n|`student[Yes]`|_−_0.6468|0.2362|_−_2.74|0.0062|"} />
+
+**BẢNG 4.3.** _Với dữ liệu_ `Default` _, các hệ số ước lượng của mô hình hồi quy logistic dự đoán xác suất_ `default` _bằng_ `balance` _,_ `income` _và trạng thái sinh viên. Trạng thái sinh viên được mã hóa bằng biến giả_ `student[Yes]` _, nhận giá trị_ 1 _với sinh viên và_ 0 _với người không phải sinh viên. Khi khớp mô hình này,_ `income` _được đo bằng nghìn đô la._
+
+Giống như ở Mục 4.3.2, ta dùng phương pháp hợp lý cực đại để ước lượng _β_ 0 _, β_ 1 _, . . . , βp_.
+
+Bảng 4.3 trình bày các ước lượng hệ số cho mô hình hồi quy logistic dùng `balance`, `income` (tính bằng nghìn đô la) và trạng thái `student` để dự đoán xác suất `default`. Ở đây có một kết quả đáng ngạc nhiên. Các giá trị _p_ gắn với `balance` và biến giả cho trạng thái `student` đều rất nhỏ, cho thấy mỗi biến đều liên hệ với xác suất `default`. Tuy nhiên, hệ số của biến giả là âm, tức sinh viên ít có khả năng vỡ nợ hơn người không phải sinh viên. Trái lại, hệ số của biến giả trong Bảng 4.2 là dương. Làm sao trạng thái sinh viên lại gắn với xác suất vỡ nợ _tăng_ trong Bảng 4.2 nhưng _giảm_ trong Bảng 4.3? Ô bên trái của Hình 4.3 minh họa bằng đồ thị nghịch lý bề ngoài này. Các đường liền màu cam và xanh lần lượt cho thấy tỷ lệ vỡ nợ trung bình của sinh viên và người không phải sinh viên theo số dư thẻ tín dụng. Hệ số âm của `student` trong hồi quy logistic đa biến cho biết rằng _với một giá trị cố định của_ `balance` _và_ `income`, một sinh viên ít có khả năng vỡ nợ hơn người không phải sinh viên. Thật vậy, từ ô bên trái Hình 4.3, ta thấy tỷ lệ vỡ nợ của sinh viên bằng hoặc thấp hơn tỷ lệ của người không phải sinh viên tại mọi giá trị `balance`. Nhưng các đường đứt nét ngang gần đáy biểu đồ, thể hiện tỷ lệ vỡ nợ của sinh viên và người không phải sinh viên khi lấy trung bình trên mọi giá trị `balance` và `income`, lại gợi ý hiệu ứng ngược lại: tỷ lệ vỡ nợ tổng thể của sinh viên cao hơn người không phải sinh viên. Do đó, `student` có hệ số dương trong kết quả hồi quy logistic một biến ở Bảng 4.2.
+
+Ô bên phải của Hình 4.3 giải thích sự khác biệt này. Hai biến `student` và `balance` có tương quan. Sinh viên có xu hướng mang mức nợ cao hơn, và điều đó lại gắn với xác suất vỡ nợ cao hơn. Nói cách khác, sinh viên dễ có số dư thẻ tín dụng lớn hơn; như ta biết từ ô bên trái của Hình 4.3, số dư lớn thường đi cùng tỷ lệ vỡ nợ cao. Vì vậy, dù một sinh viên có số dư thẻ tín dụng cho trước thường có xác suất vỡ nợ thấp hơn một người không phải sinh viên có cùng số dư, việc sinh viên nói chung có số dư thẻ tín dụng cao hơn khiến tỷ lệ vỡ nợ tổng thể của sinh viên cao hơn. Đây là điểm phân biệt quan trọng đối với một công ty thẻ tín dụng đang quyết định nên cấp tín dụng cho ai. Một sinh viên rủi ro hơn người không phải sinh viên nếu không có thông tin về
+
+**HÌNH 4.3.** _Nhiễu (confounding) trong dữ liệu_ `Default` _._ Trái: _Tỷ lệ vỡ nợ được trình bày cho sinh viên (cam) và người không phải sinh viên (xanh). Các đường liền thể hiện tỷ lệ vỡ nợ theo_ `balance` _, còn các đường đứt nét ngang thể hiện tỷ lệ vỡ nợ tổng thể._ Phải: _Biểu đồ hộp của_ `balance` _cho sinh viên (cam) và người không phải sinh viên (xanh)._
+
+số dư thẻ tín dụng của người đó. Tuy nhiên, sinh viên ấy lại ít rủi ro hơn một người không phải sinh viên _có cùng số dư thẻ tín dụng_!
+
+Ví dụ đơn giản này minh họa những nguy cơ và sự tinh tế khi thực hiện hồi quy chỉ với một biến dự báo trong khi các biến khác cũng có thể liên quan. Tương tự bối cảnh hồi quy tuyến tính, kết quả thu được với một biến dự báo có thể rất khác kết quả thu được với nhiều biến dự báo, đặc biệt khi các biến dự báo có tương quan. Nhìn chung, hiện tượng trong Hình 4.3 được gọi là _nhiễu_ (confounding).
+
+Thay các ước lượng hệ số hồi quy ở Bảng 4.3 vào (4.7), ta có thể đưa ra dự đoán. Ví dụ, một sinh viên có số dư thẻ tín dụng $1 _,_ 500 và thu nhập $40 _,_ 000 có xác suất vỡ nợ ước lượng là
+
+Một người không phải sinh viên có cùng số dư và thu nhập có xác suất vỡ nợ ước lượng là
+
+(Ở đây ta nhân ước lượng hệ số `income` trong Bảng 4.3 với 40 thay vì 40.000, vì trong bảng đó mô hình được khớp với `income` đo theo đơn vị $1 _,_ 000.)
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 4.3.5 Hồi quy logistic đa thức
+
+Đôi khi ta muốn phân loại một biến đáp ứng có nhiều hơn hai lớp. Chẳng hạn, ở Mục 4.2 ta có ba loại tình trạng bệnh lý trong phòng cấp cứu: `stroke`, `drug overdose`, `epileptic seizure`. Tuy nhiên, cách tiếp cận hồi quy logistic được xét trong mục này chỉ cho phép biến đáp ứng có _K_ = 2 lớp.
+
+Ta có thể mở rộng hồi quy logistic hai lớp sang bối cảnh _K &gt;_ 2 lớp. Phần mở rộng này đôi khi được gọi là _hồi quy logistic đa thức_ (multinomial logistic regression). Để làm vậy, trước hết ta chọn một lớp đa thức làm _mốc_ (baseline); không mất tính tổng quát, ta chọn lớp thứ _K_ cho vai trò này. Sau đó ta thay mô hình (4.7) bằng mô hình hồi quy
+
+với _k_ = 1 _, . . . , K −_ 1, và
+
+Không khó để chứng minh rằng với _k_ = 1 _, . . . , K −_ 1,
+
+Lưu ý (4.12) khá giống (4.6). Phương trình 4.12 cho thấy một lần nữa log odds giữa bất kỳ cặp lớp nào cũng tuyến tính theo các đặc trưng.
+
+Trong (4.10)–(4.12), quyết định chọn lớp thứ _K_ làm mốc không quan trọng. Ví dụ, khi phân loại các lượt khám cấp cứu thành `stroke`, `drug overdose` và `epileptic seizure`, giả sử ta khớp hai mô hình hồi quy logistic đa thức: một mô hình dùng `stroke` làm mốc, mô hình kia dùng `drug overdose` làm mốc. Các ước lượng hệ số sẽ khác nhau giữa hai mô hình đã khớp do lựa chọn mốc khác nhau, nhưng các giá trị khớp (dự đoán), log odds giữa mọi cặp lớp và các đầu ra quan trọng khác của mô hình vẫn giữ nguyên.
+
+Dẫu vậy, phải thận trọng khi diễn giải các hệ số trong mô hình hồi quy logistic đa thức vì chúng phụ thuộc vào lựa chọn mốc. Chẳng hạn, nếu đặt `epileptic seizure` làm mốc, ta có thể diễn giải _β_ stroke0 là log odds của `stroke` so với `epileptic seizure` khi _x_ 1 = _· · ·_ = _xp_ = 0. Hơn nữa, khi _Xj_ tăng một đơn vị, log odds của `stroke` so với `epileptic seizure` tăng _β_ stroke _j_. Nói cách khác, nếu _Xj_ tăng một đơn vị thì
+
+tăng _e_^(_β_stroke)^(_j_).
+
+Bây giờ ta trình bày ngắn gọn một cách mã hóa thay thế cho hồi quy logistic đa thức, gọi là mã hóa _softmax_. Mã hóa softmax tương đương với cách mã hóa vừa mô tả ở chỗ các giá trị khớp, log odds giữa mọi cặp lớp và các đầu ra quan trọng khác của mô hình đều giữ nguyên bất kể cách mã hóa. Nhưng mã hóa softmax được dùng rộng rãi trong một số lĩnh vực của tài liệu học máy (và sẽ xuất hiện lại ở Chương 10), nên ta cần biết về nó. Trong mã hóa softmax, thay vì chọn một lớp mốc, ta đối xử đối xứng với cả _K_ lớp và giả sử với _k_ = 1 _, . . . , K_,
+
+Do đó, thay vì ước lượng hệ số cho _K −_ 1 lớp, ta thực sự ước lượng hệ số cho cả _K_ lớp. Từ (4.13), không khó để thấy tỷ số log odds giữa lớp thứ _k_ và lớp thứ _k_^(_′_) bằng
+
+</MdxPage>

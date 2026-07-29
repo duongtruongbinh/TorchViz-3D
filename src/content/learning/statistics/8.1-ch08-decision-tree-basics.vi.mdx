@@ -1,0 +1,203 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch08-decision-tree-basics",
+  "locale": "vi",
+  "title": "8.1 Nền tảng của cây quyết định",
+  "headings": [
+    "Kiến thức cơ bản về cây quyết định",
+    "8.1.1 Cây hồi quy",
+    "8.1.2 Cây phân loại",
+    "8.1.3 Cây so với mô hình tuyến tính",
+    "8.1.4 Ưu và nhược điểm của cây"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phương pháp dựa trên cây",
+    "Kiến thức cơ bản về cây quyết định"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Kiến thức cơ bản về cây quyết định
+
+Cây quyết định có thể áp dụng cho cả bài toán hồi quy lẫn phân loại. Trước tiên ta xét bài toán hồi quy, rồi chuyển sang phân loại.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 8.1.1 Cây hồi quy
+
+Để tạo động lực cho _cây hồi quy_, ta bắt đầu bằng một ví dụ đơn giản.
+
+**HÌNH 8.1.** _Với dữ liệu_ `Hitters`, _một cây hồi quy dự đoán log tiền lương của cầu thủ bóng chày dựa trên số năm anh ta thi đấu ở giải nhà nghề và số cú đánh trúng trong năm trước. Tại một nút trong, nhãn (có dạng Xj &lt; tk) chỉ nhánh bên trái phát sinh từ lần chia đó, còn nhánh bên phải tương ứng với Xj ≥ tk. Chẳng hạn, lần chia ở đỉnh cây tạo ra hai nhánh lớn. Nhánh trái tương ứng với_ `Years<4.5`, _còn nhánh phải tương ứng với_ `Years>=4.5`_. Cây có hai nút trong và ba nút cuối, hay lá. Con số trong mỗi lá là trung bình biến đáp ứng của các quan sát rơi vào lá đó._
+
+Dự đoán tiền lương cầu thủ bóng chày bằng cây hồi quy
+
+Ta dùng bộ dữ liệu `Hitters` để dự đoán `Salary` của một cầu thủ bóng chày dựa trên `Years` (số năm thi đấu ở giải nhà nghề) và `Hits` (số cú đánh trúng trong năm trước). Đầu tiên, ta loại các quan sát thiếu giá trị `Salary` và biến đổi log `Salary` để phân phối của nó có dạng chuông điển hình hơn. (Nhắc lại rằng `Salary` được đo bằng nghìn đô la.)
+
+Hình 8.1 cho thấy một cây hồi quy được khớp với dữ liệu này. Cây gồm một chuỗi quy tắc chia, bắt đầu từ đỉnh. Lần chia trên cùng gán các quan sát có `Years<4.5` vào nhánh trái.^(1) Tiền lương dự đoán cho các cầu thủ này bằng trung bình biến đáp ứng của những cầu thủ có `Years<4.5` trong bộ dữ liệu. Với nhóm này, log tiền lương trung bình là 5 _._ 107, nên ta dự đoán _e_^(5)^(_._107) nghìn đô la, tức $165.174. Các cầu thủ có `Years>=4.5` được gán vào nhánh phải, rồi nhóm đó tiếp tục được chia theo `Hits`. Nhìn chung, cây phân tầng hay phân đoạn các cầu thủ thành ba vùng trong không gian biến dự báo: những người thi đấu từ bốn năm trở xuống; những người thi đấu từ năm năm trở lên và có ít hơn 118 cú đánh trúng trong năm trước; và những người thi đấu từ năm năm trở lên, có ít nhất 118 cú đánh trúng trong năm trước. Ba vùng này có thể viết là _R_ 1 =\{X _|_ `Years<4.5` \}, _R_ 2 =\{X _|_ `Years>=4.5`, `Hits<117.5` _\}_ và _R_ 3 =\{X _|_ `Years>=4.5`, `Hits>=117.5` \}. Hình 8.2 minh họa
+
+> 1 Cả `Years` và `Hits` đều là số nguyên trong dữ liệu; hàm dùng để khớp cây gắn nhãn các điểm chia tại trung điểm giữa hai giá trị kề nhau.
+
+**HÌNH 8.2.** _Phép phân hoạch ba vùng cho bộ dữ liệu_ `Hitters` _từ cây hồi quy trong Hình 8.1._
+
+các vùng theo `Years` và `Hits`. Tiền lương dự đoán cho ba nhóm lần lượt là $1.000 _×e_^(5)^(_._107) =$165.174, $1.000 _×e_^(5)^(_._999) =$402.834 và $1.000 _×e_^(6)^(_._740) =$845.346.
+
+Theo phép ẩn dụ _cây_, các vùng _R_ 1, _R_ 2 và _R_ 3 được gọi là _nút cuối_ hoặc _lá_ của cây. Như trong Hình 8.1, cây quyết định thường được vẽ _lộn ngược_, theo nghĩa các lá nằm dưới đáy cây. Các điểm dọc theo cây nơi không gian biến dự báo được chia gọi là _nút trong_. Trong Hình 8.1, hai nút trong được ghi bằng `Years<4.5` và `Hits<117.5`. Các đoạn cây nối các nút được gọi là _nhánh_.
+
+Ta có thể diễn giải cây hồi quy trong Hình 8.1 như sau: `Years` là yếu tố quan trọng nhất khi xác định `Salary`, và cầu thủ ít kinh nghiệm có tiền lương thấp hơn người nhiều kinh nghiệm. Với điều kiện một cầu thủ ít kinh nghiệm, số cú đánh trúng trong năm trước dường như ít ảnh hưởng đến tiền lương. Nhưng trong số những người thi đấu ở giải nhà nghề từ năm năm trở lên, số cú đánh trúng trong năm trước có ảnh hưởng đến tiền lương, và người có nhiều cú đánh trúng hơn thường có tiền lương cao hơn. Cây hồi quy trong Hình 8.1 có thể là một sự đơn giản hóa quá mức quan hệ thực giữa `Hits`, `Years` và `Salary`. Tuy nhiên, nó có những ưu điểm so với các kiểu mô hình hồi quy khác (như đã thấy ở Chương 3 và 6): dễ diễn giải hơn và có cách biểu diễn đồ họa trực quan.
+
+Dự đoán bằng cách phân tầng không gian đặc trưng
+
+Bây giờ ta thảo luận quá trình xây dựng cây hồi quy. Đại thể gồm hai bước.
+
+1. Chia không gian biến dự báo — tức tập các giá trị có thể của _X_ 1 _, X_ 2 _, . . . , Xp_ — thành _J_ vùng phân biệt và không chồng lấp, _R_ 1 _, R_ 2 _, . . . , RJ_.
+
+2. Với mọi quan sát rơi vào vùng _Rj_, đưa ra cùng một dự đoán, đơn giản là trung bình các giá trị biến đáp ứng của các quan sát huấn luyện trong _Rj_.
+
+Chẳng hạn, giả sử trong Bước 1 ta thu được hai vùng _R_ 1 và _R_ 2, trung bình biến đáp ứng của các quan sát huấn luyện ở vùng thứ nhất là 10, còn ở vùng thứ hai là 20. Khi đó, với quan sát _X_ = _x_, nếu _x ∈ R_ 1 ta dự đoán 10, và nếu _x ∈ R_ 2 ta dự đoán 20.
+
+Bây giờ ta trình bày chi tiết hơn Bước 1. Làm thế nào xây dựng các vùng _R_ 1 _, . . . , RJ_? Về lý thuyết, các vùng có thể có hình dạng bất kỳ. Tuy nhiên, để đơn giản và giúp mô hình dự đoán dễ diễn giải, ta chọn chia không gian biến dự báo thành các hình chữ nhật nhiều chiều, hay các _hộp_. Mục tiêu là tìm các hộp _R_ 1 _, . . . , RJ_ làm cực tiểu RSS, cho bởi
+
+trong đó _y_ ˆ _Rj_ là trung bình biến đáp ứng của các quan sát huấn luyện trong hộp thứ _j_. Tiếc rằng xét mọi cách phân hoạch có thể của không gian đặc trưng thành _J_ hộp là bất khả thi về mặt tính toán. Vì vậy, ta dùng cách tiếp cận _từ trên xuống_ và _tham lam_, gọi là _chia nhị phân đệ quy_. Cách tiếp cận đệ quy là _từ trên xuống_ vì bắt đầu ở đỉnh cây (khi mọi quan sát thuộc một vùng duy nhất), rồi liên tiếp chia không gian biến dự báo; mỗi lần chia được biểu diễn bằng hai nhánh mới ở phía dưới cây. Nó là _tham lam_ vì tại mỗi bước xây dựng cây, ta chọn lần chia _tốt nhất_ ngay tại bước đó, thay vì nhìn trước và chọn một lần chia có thể dẫn đến cây tốt hơn ở bước tương lai.
+
+Để thực hiện chia nhị phân đệ quy, đầu tiên ta chọn biến dự báo _Xj_ và điểm cắt _s_ sao cho việc chia không gian biến dự báo thành các vùng _\{X|Xj &lt; s\}_ và _\{X|Xj ≥ s\}_ tạo ra mức giảm RSS lớn nhất có thể. (Ký hiệu _\{X|Xj &lt; s\}_ nghĩa là _vùng trong không gian biến dự báo nơi Xj nhận giá trị nhỏ hơn s_.) Tức ta xét mọi biến dự báo _X_ 1 _, . . . , Xp_ và mọi giá trị điểm cắt _s_ có thể cho từng biến dự báo, rồi chọn biến dự báo và điểm cắt sao cho cây thu được có RSS thấp nhất. Chi tiết hơn, với mọi _j_ và _s_, ta định nghĩa cặp nửa mặt phẳng
+
+và tìm giá trị _j_ và _s_ làm cực tiểu phương trình
+
+trong đó _y_ ˆ _R_ 1 là trung bình biến đáp ứng của các quan sát huấn luyện trong _R_ 1(_j, s_), còn _y_ ˆ _R_ 2 là trung bình biến đáp ứng của các quan sát huấn luyện trong _R_ 2(_j, s_). Có thể tìm khá nhanh các giá trị _j_ và _s_ làm cực tiểu (8.3), nhất là khi số đặc trưng _p_ không quá lớn.
+
+Tiếp theo, ta lặp quy trình, tìm biến dự báo và điểm cắt tốt nhất để tiếp tục chia dữ liệu sao cho cực tiểu hóa RSS trong
+
+**HÌNH 8.3.** Trên trái: _Một cách phân hoạch không gian đặc trưng hai chiều không thể thu được từ chia nhị phân đệ quy._ Trên phải: _Đầu ra của chia nhị phân đệ quy trên một ví dụ hai chiều._ Dưới trái: _Cây tương ứng với cách phân hoạch trong ô trên bên phải._ Dưới phải: _Biểu đồ phối cảnh của bề mặt dự đoán tương ứng với cây đó._
+
+từng vùng thu được. Tuy nhiên lần này, thay vì chia toàn bộ không gian biến dự báo, ta chia một trong hai vùng đã xác định trước đó. Giờ ta có ba vùng. Ta lại tìm cách tiếp tục chia một trong ba vùng để cực tiểu hóa RSS. Quá trình tiếp diễn cho đến khi đạt một tiêu chí dừng; chẳng hạn, ta có thể tiếp tục cho đến khi không vùng nào chứa quá năm quan sát.
+
+Sau khi tạo các vùng _R_ 1 _, . . . , RJ_, ta dự đoán biến đáp ứng cho một quan sát kiểm tra bằng trung bình các quan sát huấn luyện trong vùng chứa quan sát kiểm tra đó.
+
+Một ví dụ năm vùng của cách làm này được trình bày trong Hình 8.3.
+
+Cắt tỉa cây
+
+Quá trình trên có thể cho dự đoán tốt trên tập huấn luyện, nhưng dễ quá khớp dữ liệu, dẫn đến hiệu năng kém trên tập kiểm tra. Nguyên nhân là cây thu được có thể quá phức tạp. Một cây nhỏ hơn
+
+với ít lần chia hơn (tức ít vùng _R_ 1 _, . . . , RJ_ hơn) có thể có phương sai thấp hơn và dễ diễn giải hơn, đổi lại độ chệch tăng đôi chút. Một phương án là chỉ phát triển cây khi mức giảm RSS do mỗi lần chia vượt một ngưỡng (cao) nào đó. Chiến lược này cho cây nhỏ hơn nhưng quá thiển cận, vì một lần chia tưởng chừng vô ích ở phần đầu cây có thể được theo sau bởi một lần chia rất tốt — tức dẫn đến mức giảm RSS lớn về sau.
+
+Vì vậy, một chiến lược tốt hơn là phát triển một cây rất lớn _T_ 0, rồi _cắt tỉa_ để thu được một _cây con_. Làm thế nào xác định cách cắt tỉa tốt nhất? Theo trực giác, mục tiêu là chọn cây con cho tỷ lệ sai số kiểm tra thấp nhất. Với một cây con, ta có thể ước lượng sai số kiểm tra bằng xác thực chéo hoặc phương pháp tập xác thực. Tuy nhiên, ước lượng sai số xác thực chéo cho mọi cây con có thể quá cồng kềnh vì số cây con có thể có là cực lớn. Thay vào đó, ta cần một cách chọn ra một tập nhỏ cây con để xem xét.
+
+_Cắt tỉa độ phức tạp chi phí_ (cost complexity pruning) — còn gọi là _cắt tỉa liên kết yếu nhất_ — cho phép làm điều đó. Thay vì xét mọi cây con có thể có, ta xét một chuỗi cây được lập chỉ mục bằng tham số tinh chỉnh không âm _α_. Với mỗi giá trị _α_ có một cây con _T ⊂ T_ 0 sao cho
+
+nhỏ nhất có thể. Ở đây _|T |_ chỉ số nút cuối của cây _T_, _Rm_ là hình chữ nhật (tức tập con của không gian biến dự báo) tương ứng với nút cuối thứ _m_, còn _y_ ˆ _Rm_ là biến đáp ứng dự đoán gắn với _Rm_ — tức trung bình các quan sát huấn luyện trong _Rm_. Tham số tinh chỉnh _α_ kiểm soát sự đánh đổi giữa độ phức tạp của cây con và độ khớp với dữ liệu huấn luyện. Khi _α_ = 0, cây con _T_ đơn giản bằng _T_ 0 vì khi đó (8.4) chỉ đo sai số huấn luyện. Tuy nhiên, khi _α_ tăng, cây có nhiều nút cuối sẽ phải trả giá, nên đại lượng (8.4) có xu hướng đạt cực tiểu ở một cây con nhỏ hơn. Phương trình 8.4 gợi nhớ lasso (6.7) trong Chương 6, nơi một dạng thức tương tự được dùng để kiểm soát độ phức tạp của mô hình tuyến tính.
+
+Khi tăng _α_ từ không trong (8.4), các nhánh được cắt khỏi cây theo cách lồng nhau và có thể dự đoán, nên dễ dàng thu được toàn bộ chuỗi cây con theo _α_. Ta có thể chọn giá trị _α_ bằng tập xác thực hoặc xác thực chéo. Sau đó quay lại toàn bộ bộ dữ liệu và thu cây con tương ứng với _α_. Quy trình được tóm tắt trong Thuật toán 8.1.
+
+Hình 8.4 và 8.5 trình bày kết quả khớp và cắt tỉa cây hồi quy trên dữ liệu `Hitters`, dùng chín đặc trưng. Đầu tiên, ta chia ngẫu nhiên bộ dữ liệu làm đôi, tạo 132 quan sát trong tập huấn luyện và 131 quan sát trong tập kiểm tra. Sau đó ta xây dựng cây hồi quy lớn trên dữ liệu huấn luyện và thay đổi _α_ trong (8.4) để tạo các cây con có số nút cuối khác nhau. Cuối cùng, ta thực hiện xác thực chéo sáu fold để ước lượng MSE qua xác thực chéo của các cây theo
+
+**Thuật toán 8.1** _Xây dựng cây hồi quy_
+
+1. Dùng chia nhị phân đệ quy để phát triển một cây lớn trên dữ liệu huấn luyện, chỉ dừng khi mỗi nút cuối có ít hơn một số quan sát tối thiểu nào đó.
+
+2. Áp dụng cắt tỉa độ phức tạp chi phí cho cây lớn để thu được một chuỗi cây con tốt nhất theo _α_.
+
+3. Dùng xác thực chéo K-fold để chọn _α_. Tức chia các quan sát huấn luyện thành _K_ fold. Với mỗi _k_ = 1 _, . . . , K_:
+
+   - (a) Lặp lại Bước 1 và 2 trên tất cả trừ fold thứ _k_ của dữ liệu huấn luyện.
+
+   - (b) Đánh giá sai số dự đoán bình phương trung bình trên dữ liệu trong fold thứ _k_ được bỏ ra theo _α_.
+
+   - Lấy trung bình kết quả cho từng giá trị _α_, rồi chọn _α_ làm cực tiểu sai số trung bình.
+
+4. Trả về cây con từ Bước 2 tương ứng với giá trị _α_ đã chọn.
+
+_α_. (Ta chọn xác thực chéo sáu fold vì 132 chia hết cho sáu.) Cây hồi quy chưa cắt tỉa được trình bày trong Hình 8.4. Đường màu xanh lá trong Hình 8.5 biểu diễn sai số CV theo số lá,^(2) còn đường màu cam chỉ sai số kiểm tra. Các thanh sai số chuẩn quanh sai số ước lượng cũng được hiển thị. Để tham chiếu, đường cong sai số huấn luyện được vẽ màu đen. Sai số CV là một xấp xỉ hợp lý của sai số kiểm tra: sai số CV đạt cực tiểu ở cây ba nút, trong khi sai số kiểm tra cũng giảm tại cây ba nút (dù đạt giá trị thấp nhất ở cây mười nút). Cây đã cắt tỉa chứa ba nút cuối được trình bày trong Hình 8.1.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 8.1.2 Cây phân loại
+
+_Cây phân loại_ rất giống cây hồi quy, ngoại trừ nó được dùng để dự đoán biến đáp ứng định tính thay vì định lượng. Nhắc lại rằng với cây hồi quy, biến đáp ứng dự đoán cho một quan sát bằng trung bình biến đáp ứng của các quan sát huấn luyện thuộc cùng nút cuối. Ngược lại, với cây phân loại, ta dự đoán mỗi quan sát thuộc _lớp xuất hiện phổ biến nhất_ trong số các quan sát huấn luyện ở vùng chứa nó. Khi diễn giải kết quả cây phân loại, ta thường không chỉ quan tâm dự đoán lớp tương ứng với một vùng nút cuối cụ thể, mà còn quan tâm đến _tỷ lệ lớp_ trong số các quan sát huấn luyện rơi vào vùng đó.
+
+Nhiệm vụ phát triển cây phân loại khá giống nhiệm vụ phát triển cây hồi quy. Tương tự bối cảnh hồi quy, ta dùng chia nhị phân đệ quy để phát triển cây phân loại. Tuy nhiên, trong bối cảnh phân loại, không thể dùng RSS làm tiêu chí cho các lần chia nhị phân. Một lựa chọn tự nhiên thay RSS là _tỷ lệ sai số phân loại_. Vì ta dự định gán một quan sát trong vùng cụ thể vào _lớp xuất hiện phổ biến nhất_ của các quan sát huấn luyện trong vùng đó, tỷ lệ sai số phân loại đơn giản là tỷ lệ quan sát huấn luyện trong vùng không thuộc lớp phổ biến nhất:
+
+> 2 Dù sai số CV được tính theo _α_, sẽ thuận tiện hơn khi hiển thị kết quả theo _|T |_, số lá; cách này dựa trên quan hệ giữa _α_ và _|T |_ trong cây ban đầu được phát triển bằng toàn bộ dữ liệu huấn luyện.
+
+**HÌNH 8.4.** _Phân tích cây hồi quy cho dữ liệu_ `Hitters`_. Hình trình bày cây chưa cắt tỉa thu được từ cách chia tham lam từ trên xuống trên dữ liệu huấn luyện._
+
+Ở đây _p_ ˆ _mk_ biểu thị tỷ lệ quan sát huấn luyện trong vùng thứ _m_ thuộc lớp thứ _k_. Tuy nhiên, sai số phân loại hóa ra không đủ nhạy để phát triển cây; trong thực tế, hai thước đo khác được ưu tiên hơn.
+
+_Chỉ số Gini_ được định nghĩa bởi
+
+Chỉ số Gini
+
+là thước đo tổng phương sai trên _K_ lớp. Dễ thấy chỉ số Gini nhận giá trị nhỏ nếu mọi _p_ ˆ _mk_ gần không hoặc một. Vì vậy, chỉ số Gini được gọi là thước đo
+
+**HÌNH 8.5.** _Phân tích cây hồi quy cho dữ liệu_ `Hitters`_. MSE huấn luyện, xác thực chéo và kiểm tra được trình bày theo số nút cuối trong cây đã cắt tỉa. Các dải sai số chuẩn được hiển thị. Sai số xác thực chéo nhỏ nhất xảy ra ở cây có kích thước ba._
+
+_độ thuần của nút_ — giá trị nhỏ cho biết một nút chủ yếu chứa quan sát từ một lớp duy nhất.
+
+Một lựa chọn khác thay chỉ số Gini là _entropy_, cho bởi
+
+Vì 0 _≤ p_ ˆ _mk ≤_ 1, suy ra 0 _≤−p_ ˆ _mk_ log ˆ _pmk_. Có thể chứng minh entropy nhận giá trị gần không nếu mọi _p_ ˆ _mk_ đều gần không hoặc một. Do đó, giống chỉ số Gini, entropy nhận giá trị nhỏ nếu nút thứ _m_ thuần. Thực tế, chỉ số Gini và entropy khá giống nhau về mặt số học.
+
+Khi xây dựng cây phân loại, chỉ số Gini hoặc entropy thường được dùng để đánh giá chất lượng một lần chia cụ thể, vì hai phương pháp này nhạy với độ thuần của nút hơn tỷ lệ sai số phân loại. Có thể dùng bất kỳ phương pháp nào trong ba phương pháp khi _cắt tỉa_ cây, nhưng nên dùng tỷ lệ sai số phân loại nếu mục tiêu là độ chính xác dự đoán của cây cuối đã cắt tỉa.
+
+Hình 8.6 trình bày một ví dụ trên bộ dữ liệu `Heart`. Dữ liệu chứa kết quả nhị phân `HD` cho 303 bệnh nhân nhập viện vì đau ngực. Giá trị kết quả `Yes` chỉ sự hiện diện của bệnh tim dựa trên xét nghiệm chụp mạch, còn `No` nghĩa là không có bệnh tim. Có 13 biến dự báo, gồm `Age`, `Sex`, `Chol` (phép đo cholesterol), cùng các phép đo chức năng tim và phổi khác. Xác thực chéo tạo ra một cây có sáu nút cuối.
+
+Trong thảo luận đến đây, ta giả sử các biến dự báo nhận giá trị liên tục. Tuy nhiên, vẫn có thể xây dựng cây quyết định khi có biến dự báo định tính. Chẳng hạn, trong dữ liệu `Heart`, một số biến dự báo như `Sex`, `Thal` (xét nghiệm gắng sức Thallium),
+
+**HÌNH 8.6.** Dữ liệu `Heart`_. Trên: Cây chưa cắt tỉa._ Dưới trái: _Sai số xác thực chéo, huấn luyện và kiểm tra cho các kích thước khác nhau của cây đã cắt tỉa._ Dưới phải: _Cây đã cắt tỉa tương ứng với sai số xác thực chéo nhỏ nhất._
+
+và `ChestPain` là biến định tính. Vì vậy, một lần chia trên một trong các biến này tương ứng với việc gán một số giá trị định tính vào một nhánh và các giá trị còn lại vào nhánh kia. Trong Hình 8.6, một số nút trong tương ứng với việc chia biến định tính. Chẳng hạn, nút trong trên cùng tương ứng với việc chia `Thal`. Dòng chữ `Thal:a` cho biết nhánh trái đi ra từ nút đó gồm các quan sát có giá trị đầu tiên của biến `Thal` (bình thường), còn nút phải gồm những quan sát còn lại (khuyết tật cố định hoặc có thể đảo ngược). Dòng chữ `ChestPain:bc` nằm thấp hơn hai lần chia ở bên trái cho biết nhánh trái đi ra từ nút đó gồm các quan sát có giá trị thứ hai và thứ ba của biến `ChestPain`, trong đó các giá trị có thể là đau thắt ngực điển hình, đau thắt ngực không điển hình, đau không do đau thắt ngực và không triệu chứng.
+
+Hình 8.6 có một đặc điểm đáng ngạc nhiên: một số lần chia tạo hai nút cuối có _cùng giá trị dự đoán_. Chẳng hạn, xét lần chia `RestECG<1` gần phía dưới bên phải của cây chưa cắt tỉa. Bất kể giá trị `RestECG`, biến đáp ứng `Yes` đều được dự đoán cho các quan
+
+sát đó. Vậy tại sao còn thực hiện lần chia? Vì nó làm tăng _độ thuần của nút_. Cụ thể, cả 9 quan sát tương ứng với lá bên phải đều có biến đáp ứng `Yes`, còn 7 _/_ 11 quan sát tương ứng với lá bên trái có biến đáp ứng `Yes`. Tại sao độ thuần của nút quan trọng? Giả sử ta có một quan sát kiểm tra thuộc vùng cho bởi lá bên phải. Khi đó ta có thể khá chắc chắn biến đáp ứng của nó là `Yes`. Ngược lại, nếu một quan sát kiểm tra thuộc vùng cho bởi lá bên trái, biến đáp ứng có lẽ là `Yes`, nhưng ta kém chắc chắn hơn nhiều. Dù lần chia `RestECG<1` không làm giảm sai số phân loại, nó cải thiện chỉ số Gini và entropy, vốn nhạy hơn với độ thuần của nút.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 8.1.3 Cây so với mô hình tuyến tính
+
+Cây hồi quy và phân loại có tính chất rất khác các phương pháp cổ điển hơn cho hồi quy và phân loại được trình bày trong Chương 3 và 4. Cụ thể, hồi quy tuyến tính giả sử mô hình có dạng
+
+trong khi cây hồi quy giả sử mô hình có dạng
+
+trong đó _R_ 1 _, . . . , RM_ biểu thị một cách phân hoạch không gian đặc trưng như trong Hình 8.3. Mô hình nào tốt hơn? Điều đó phụ thuộc vào bài toán. Nếu quan hệ giữa đặc trưng và biến đáp ứng được xấp xỉ tốt bằng một mô hình tuyến tính như (8.8), thì một phương pháp như hồi quy tuyến tính có thể hoạt động tốt và vượt qua cây hồi quy không khai thác cấu trúc tuyến tính này. Nếu thay vào đó quan hệ giữa đặc trưng và biến đáp ứng rất phi tuyến và phức tạp như mô hình (8.9), cây quyết định có thể vượt qua các phương pháp cổ điển. Hình 8.7 trình bày một ví dụ minh họa. Có thể đánh giá hiệu năng tương đối của phương pháp dựa trên cây và phương pháp cổ điển bằng cách ước lượng sai số kiểm tra qua xác thực chéo hoặc phương pháp tập xác thực (Chương 5).
+
+Tất nhiên, ngoài sai số kiểm tra, còn có thể xét những yếu tố khác khi chọn phương pháp học thống kê; chẳng hạn trong một số bối cảnh, dự đoán bằng cây có thể được ưu tiên vì dễ diễn giải và trực quan hóa.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 8.1.4 Ưu và nhược điểm của cây
+
+Cây quyết định cho hồi quy và phân loại có một số ưu điểm so với các phương pháp cổ điển hơn trong Chương 3 và 4:
+
+- L Cây rất dễ giải thích cho mọi người. Thực tế, chúng còn dễ giải thích hơn hồi quy tuyến tính!
+
+**HÌNH 8.7.** Hàng trên: _Một ví dụ phân loại hai chiều, trong đó biên quyết định thực là tuyến tính và được biểu diễn bằng các vùng tô màu. Một phương pháp cổ điển giả sử biên tuyến tính (trái) sẽ vượt qua cây quyết định thực hiện các lần chia song song với trục (phải)._ Hàng dưới: _Ở đây biên quyết định thực là phi tuyến. Mô hình tuyến tính không thể nắm bắt biên quyết định thực (trái), còn cây quyết định làm được (phải)._
+
+- L Một số người cho rằng cây quyết định mô phỏng cách ra quyết định của con người sát hơn các phương pháp hồi quy và phân loại trong những chương trước.
+
+- L Cây có thể biểu diễn bằng đồ thị và dễ diễn giải ngay cả với người không chuyên (đặc biệt khi cây nhỏ).
+
+- L Cây dễ dàng xử lý biến dự báo định tính mà không cần tạo biến giả.
+
+- M Tiếc rằng cây nhìn chung không có độ chính xác dự đoán ngang với một số phương pháp hồi quy và phân loại khác trong sách.
+
+- M Ngoài ra, cây có thể rất kém vững. Nói cách khác, một thay đổi nhỏ trong dữ liệu có thể gây ra thay đổi lớn ở cây ước lượng cuối cùng.
+
+Tuy nhiên, bằng cách tổng hợp nhiều cây quyết định qua các phương pháp như _bagging_, _rừng ngẫu nhiên_ và _boosting_, ta có thể cải thiện đáng kể hiệu năng dự đoán của cây. Các khái niệm này được giới thiệu trong mục tiếp theo.
+
+8.2 Bagging, rừng ngẫu nhiên, boosting và cây hồi quy cộng tính Bayes
+
+</MdxPage>

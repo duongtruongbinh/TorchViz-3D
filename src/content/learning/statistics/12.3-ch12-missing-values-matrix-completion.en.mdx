@@ -1,0 +1,111 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch12-missing-values-matrix-completion",
+  "locale": "en",
+  "title": "12.3 Missing Values and Matrix Completion",
+  "headings": [
+    "Missing Values and Matrix Completion"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Unsupervised Learning",
+    "Missing Values and Matrix Completion"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Missing Values and Matrix Completion
+
+Often datasets have missing values, which can be a nuisance. For example, suppose that we wish to analyze the `USArrests` data, and discover that 20 of the 200 values have been randomly corrupted and marked as missing. Unfortunately, the statistical learning methods that we have seen in this book cannot handle missing values. How should we proceed?
+
+We could remove the rows that contain missing observations and perform our data analysis on the complete rows. But this seems wasteful, and depending on the fraction missing, unrealistic. Alternatively, if _xij_ is missing, then we could replace it by the mean of the _j_ th column (using the non-missing entries to compute the mean). Although this is a common and convenient strategy, often we can do better by exploiting the correlation between the variables.
+
+In this section we show how principal components can be used to _impute_ impute the missing values, through a process known as _matrix completion_ . The completed matrix can then be used in a statistical learning method, such matrix as linear regression or LDA.
+
+This approach for imputing missing data is appropriate if the missingness is random. For example, it is suitable if a patient’s weight is missing because missing at the battery of the electronic scale was flat at the time of his exam. By random contrast, if the weight is missing because the patient was too heavy to climb on the scale, then this is not missing at random; the missingness is
+
+informative, and the approach described here for handling missing data is not suitable.
+
+Sometimes data is missing by necessity. For example, if we form a matrix of the ratings (on a scale from 1 to 5) that _n_ customers have given to the entire Netflix catalog of _p_ movies, then most of the matrix will be missing, since no customer will have seen and rated more than a tiny fraction of the catalog. If we can impute the missing values well, then we will have an idea of what each customer will think of movies they have not yet seen. Hence matrix completion can be used to power _recommender systems_ .
+
+##### Principal Components with Missing Values
+
+In Section 12.2.2, we showed that the first _M_ principal component score and loading vectors provide the “best” approximation to the data matrix **X** , in the sense of (12.6). Suppose that some of the observations _xij_ are missing. We now show how one can both impute the missing values and solve the principal component problem at the same time. We return to a modified form of the optimization problem (12.6),
+
+where _O_ is the set of all _observed_ pairs of indices ( _i, j_ ), a subset of the possible _n × p_ pairs.
+
+Once we solve this problem:
+
+- ˆ
+
+- • we can estimate a missing observation _xij_ using _xij_ =^(�)^(_M_) _m_ =1^(_a_ˆ)^(_im_ˆ)^(_bjm_,) where _a_ ˆ _im_ and^(ˆ) _bjm_ are the ( _i, m_ ) and ( _j, m_ ) elements, respectively, of the matrices **A**^(ˆ) and **B**^(ˆ) that solve (12.12); and
+
+- we can (approximately) recover the _M_ principal component scores and loadings, as we did when the data were complete.
+
+It turns out that solving (12.12) exactly is difficult, unlike in the case of complete data: the eigen decomposition no longer applies. But the simple iterative approach in Algorithm 12.1, which is demonstrated in Section 12.5.2, typically provides a good solution.^(56)
+
+We illustrate Algorithm 12.1 on the `USArrests` data. There are _p_ = 4 variables and _n_ = 50 observations (states). We first standardized the data so each variable has mean zero and standard deviation one. We then randomly selected 20 of the 50 states, and then for each of these we randomly set one of the four variables to be missing. Thus, 10% of the elements of the data matrix were missing. We applied Algorithm 12.1 with _M_ = 1 principal component. Figure 12.5 shows that the recovery of the missing elements
+
+> 5This algorithm is referred to as “Hard-Impute” in Mazumder, Hastie, and Tibshirani (2010) “Spectral regularization algorithms for learning large incomplete matrices”, published in _Journal of Machine Learning Research_ , pages 2287–2322.
+
+> 6Each iteration of Step 2 of this algorithm decreases the objective (12.14). However, the algorithm is not guaranteed to achieve the global optimum of (12.12).
+
+**Algorithm 12.1** _Iterative Algorithm_ _for Matrix Completion_
+
+1. Create a complete data matrix **X**^(˜) of dimension _n × p_ of which the ( _i, j_ ) element equals
+
+where _x_ ¯ _j_ is the average of the observed values for the _j_ th variable in the incomplete data matrix **X** . Here, _O_ indexes the observations that are observed in **X** .
+
+2. Repeat steps (a)–(c) until the objective (12.14) fails to decrease: (a) Solve
+
+by computing the principal components of **X**^(˜) .
+
+(b) For each element ( _i, j_ ) _∈O/_ , set _x_ ˜ _ij ←_^(�)^(_M_) _m_ =1^(_a_ˆ)^(_im_ˆ)^(_bjm_.) (c) Compute the objective
+
+˜ 3. Return the estimated missing entries _xij,_ ( _i, j_ ) _∈O/_ .
+
+is pretty accurate. Over 100 random runs of this experiment, the average correlation between the true and imputed values of the missing elements is 0.63, with a standard deviation of 0.11. Is this good performance? To answer this question, we can compare this correlation to what we would have gotten if we had estimated these 20 values using the _complete_ data — that is, if we had simply computed _x_ ˆ _ij_ = _zi_ 1 _φj_ 1, where _zi_ 1 and _φj_ 1 are elements of the first principal component score and loading vectors of the complete data.^(7) Using the complete data in this way results in an average correlation of 0.79 between the true and estimated values for these 20 elements, with a standard deviation of 0.08. Thus, our imputation method does worse than the method that uses all of the data (0 _._ 63 _±_ 0 _._ 11 versus 0 _._ 79 _±_ 0 _._ 08), but its performance is still pretty good. (And of course, the method that uses all of the data cannot be applied in a real-world setting with missing data.)
+
+Figure 12.6 further indicates that Algorithm 12.1 performs fairly well on this dataset.
+
+> 7This is an unattainable gold standard, in the sense that with missing data, we of course cannot compute the principal components of the complete data.
+
+**FIGURE 12.5.** _Missing value imputation on the_ `USArrests` _data. Twenty values (10% of the total number of matrix elements) were artificially set to be missing, and then imputed via Algorithm 12.1 with M_ = 1 _. The figure displays the true value xij and the imputed value x_ ˆ _ij for all twenty missing values. For each of the twenty missing values, the color indicates the variable, and the label indicates the state. The correlation between the true and imputed values is around_ 0 _._ 63 _._
+
+We close with a few observations:
+
+- The `USArrests` data has only four variables, which is on the low end for methods like Algorithm 12.1 to work well. For this reason, for this demonstration we randomly set at most one variable per state to be missing, and only used _M_ = 1 principal component.
+
+- In general, in order to apply Algorithm 12.1, we must select _M_ , the number of principal components to use for the imputation. One approach is to randomly leave out a few additional elements from the matrix, and select _M_ based on how well those known values are recovered. This is closely related to the validation-set approach seen in Chapter 5.
+
+##### Recommender Systems
+
+Digital streaming services like Netflix and Amazon use data about the content that a customer has viewed in the past, as well as data from other customers, to suggest other content for the customer. As a concrete example, some years back, Netflix had customers rate each movie that they had seen with a score from 1–5. This resulted in a very big _n × p_ matrix for which the ( _i, j_ ) element is the rating given by the _i_ th customer to the
+
+**FIGURE 12.6.** _As described in the text, in each of 100 trials, we left out 20 elements of the_ `USArrests` _dataset. In each trial, we applied Algorithm 12.1 with M_ = 1 _to impute the missing elements and compute the principal components._ Left: _For each of the 50 states, the imputed first principal component scores (averaged over 100 trials, and displayed with a standard deviation bar) are plotted against the first principal component scores computed using all the data._ Right: _The imputed principal component loadings (averaged over 100 trials, and displayed with a standard deviation bar) are plotted against the true principal component loadings._
+
+_j_ th movie. One specific early example of this matrix had _n_ = 480 _,_ 189 customers and _p_ = 17 _,_ 770 movies. However, on average each customer had seen around 200 movies, so 99% of the matrix had missing elements. Table 12.2 illustrates the setup.
+
+In order to suggest a movie that a particular customer might like, Netflix needed a way to impute the missing values of this data matrix. The key idea is as follows: the set of movies that the _i_ th customer has seen will overlap with those that other customers have seen. Furthermore, some of those other customers will have similar movie preferences to the _i_ th customer. Thus, it should be possible to use similar customers’ ratings of movies that the _i_ th customer has not seen to predict whether the _i_ th customer will like those movies.
+
+More concretely, by applying Algorithm 12.1, we can predict the _i_ th cusˆ tomer’s rating for the _j_ th movie using _xij_ =^(�)^(_M_) _m_ =1^(_a_ˆ)^(_im_ˆ)^(_bjm_.Furthermore,) we can interpret the _M_ components in terms of “cliques” and “genres”:
+
+- ˆ
+
+- • _aim_ represents the strength with which the _i_ th user belongs to the _m_ th clique, where a _clique_ is a group of customers that enjoys movies of the _m_ th genre;
+
+- ^(ˆ) _bjm_ represents the strength with which the _j_ th movie belongs to the _m_ th _genre_ .
+
+Examples of genres include Romance, Western, and Action.
+
+Principal component models similar to Algorithm 12.1 are at the heart of many recommender systems. Although the data matrices involved are
+
+**TABLE 12.2.** _Excerpt of the Netflix movie rating data. The movies are rated from 1 (worst) to 5 (best). The symbol • represents a missing value: a movie that was not rated by the corresponding customer._
+
+typically massive, algorithms have been developed that can exploit the high level of missingness in order to perform efficient computations.
+
+</MdxPage>

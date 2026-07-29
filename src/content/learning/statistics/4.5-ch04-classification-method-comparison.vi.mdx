@@ -1,0 +1,94 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-classification-method-comparison",
+  "locale": "vi",
+  "title": "4.5 So sánh các phương pháp phân loại",
+  "headings": [
+    "4.5.1 So sánh giải tích",
+    "4.5.2 So sánh thực nghiệm"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "phân loại",
+    "so sánh phương pháp phân loại"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## 4.5.1 So sánh giải tích
+
+Bây giờ ta thực hiện so sánh _giải tích_ (hay toán học) giữa LDA, QDA, naive Bayes và hồi quy logistic. Ta xét các phương pháp trong bối cảnh có _K_ lớp, sao cho một quan sát được gán vào lớp làm cực đại Pr( _Y_ = _k|X_ = _x_ ). Tương đương, ta có thể đặt _K_ làm lớp _mốc_ và gán quan sát vào lớp làm cực đại
+
+với _k_ = 1 _, . . . , K_. Việc khảo sát dạng cụ thể của (4.31) cho từng phương pháp giúp ta hiểu rõ điểm giống và khác nhau.
+
+Trước hết, với LDA, ta có thể dùng định lý Bayes (4.15) cùng giả định rằng các biến dự báo trong mỗi lớp được lấy từ mật độ chuẩn đa biến (4.23) với trung bình riêng theo lớp và hiệp phương sai chung
+
+Khảo sát (4.32), (4.33) và (4.34) cho ta các nhận xét sau về LDA, QDA và naive Bayes:
+
+- LDA là trường hợp đặc biệt của QDA với _ckjl_ = 0 cho mọi _j_ = 1 _, . . . , p_, _l_ = 1 _, . . . , p_ và _k_ = 1 _, . . . , K_. (Dĩ nhiên điều này không bất ngờ vì LDA đơn giản là phiên bản QDA bị ràng buộc với **Σ** 1 = _· · ·_ = **Σ** _K_ = **Σ**.)
+
+- Mọi bộ phân loại có biên quyết định tuyến tính đều là trường hợp đặc biệt của naive Bayes với _gkj_ ( _xj_ ) = _bkjxj_. Cụ thể, điều này có nghĩa LDA là trường hợp đặc biệt của naive Bayes! Điều này hoàn toàn không hiển nhiên từ phần mô tả LDA và naive Bayes trước đó, vì hai phương pháp đưa ra những giả định rất khác: LDA giả định các đặc trưng phân phối chuẩn với ma trận hiệp phương sai nội lớp chung, còn naive Bayes giả định các đặc trưng độc lập.
+
+- Nếu mô hình hóa _fkj_ ( _xj_ ) trong bộ phân loại naive Bayes bằng phân phối Gaussian một chiều _N_ ( _µkj, σj_^(2), ta thu được)^(_gkj_()^(_xj_) =) _bkjxj_ với _bkj_ = ( _µkj −µKj_ ) _/σj_^(2. Trong trường hợp này, naive Bayes thực ra) là trường hợp đặc biệt của LDA khi **Σ** bị ràng buộc thành ma trận đường chéo với phần tử đường chéo thứ _j_ bằng _σj_^(2.)
+
+- Cả QDA lẫn naive Bayes đều không phải trường hợp đặc biệt của phương pháp kia. Naive Bayes có thể tạo phép khớp linh hoạt hơn vì có thể chọn _gkj_ ( _xj_ ) tùy ý. Tuy nhiên, nó bị giới hạn ở phép khớp thuần _cộng_, theo nghĩa trong (4.34), một hàm của _xj_ được _cộng_ với một hàm của _xl_, với _j_ = _l_; các số hạng này không bao giờ được nhân. Ngược lại, QDA chứa các số hạng nhân dạng _ckjlxjxl_. Vì vậy, QDA có khả năng chính xác hơn trong những bối cảnh mà tương tác giữa các biến dự báo có vai trò quan trọng để phân biệt các lớp.
+
+Không phương pháp nào luôn vượt trội hơn các phương pháp còn lại: trong mỗi bối cảnh, lựa chọn phụ thuộc vào phân phối thật của các biến dự báo trong từng lớp thuộc _K_ lớp cùng những yếu tố khác như giá trị _n_ và _p_. Yếu tố sau liên hệ với sự đánh đổi độ chệch–phương sai.
+
+Hồi quy logistic liên hệ thế nào với câu chuyện này? Nhắc lại từ (4.12), hồi quy logistic đa thức có dạng
+
+Dạng này giống hệt dạng tuyến tính của LDA (4.32): trong cả hai trường hợp, Pr( _Y_ = _k|X_ = _x_ ) log � Pr( _Y_ = _K|X_ = _x_ ) � là hàm tuyến tính của các biến dự báo. Trong LDA, các hệ số của hàm tuyến tính này là hàm của các ước lượng _πk_, _πK_, _µk_, _µK_ và **Σ**, thu được bằng cách giả định _X_ 1 _, . . . , Xp_ tuân theo phân phối chuẩn trong mỗi lớp. Ngược lại, trong hồi quy logistic, các hệ số được chọn để cực đại hóa hàm hợp lý (4.5). Vì vậy, ta kỳ vọng LDA vượt hồi quy logistic khi giả định chuẩn (xấp xỉ) đúng, và kỳ vọng hồi quy logistic hoạt động tốt hơn khi giả định đó không đúng.
+
+Cuối cùng, ta bàn ngắn gọn về _K láng giềng gần nhất_ (KNN), được giới thiệu ở Chương 2. Nhắc lại rằng KNN có cách tiếp cận hoàn toàn khác các bộ phân loại trong chương này. Để dự đoán cho quan sát _X_ = _x_, phương pháp xác định những quan sát huấn luyện gần _x_ nhất. Sau đó _X_ được gán vào lớp chiếm đa số trong các quan sát này. Vì vậy, KNN là phương pháp hoàn toàn phi tham số: không đưa ra giả định nào về hình dạng biên quyết định. Ta có các nhận xét sau:
+
+- Vì KNN hoàn toàn phi tham số, ta kỳ vọng nó vượt LDA và hồi quy logistic khi biên quyết định rất phi tuyến, với điều kiện _n_ rất lớn và _p_ nhỏ.
+
+- Để phân loại chính xác, KNN cần _rất nhiều_ quan sát so với số biến dự báo — tức _n_ lớn hơn _p_ nhiều. Điều này liên quan đến tính phi tham số của KNN: nó có xu hướng giảm độ chệch nhưng phải chịu phương sai lớn.
+
+- Khi biên quyết định phi tuyến nhưng _n_ chỉ ở mức vừa phải hoặc _p_ không quá nhỏ, QDA có thể được ưu tiên hơn KNN. Lý do là QDA tạo được biên quyết định phi tuyến trong khi vẫn tận dụng dạng tham số, nên cần kích thước mẫu nhỏ hơn KNN để phân loại chính xác.
+
+- Không giống hồi quy logistic, KNN không cho ta biết biến dự báo nào quan trọng: ta không thu được bảng hệ số như Bảng 4.3.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 4.5.2 So sánh thực nghiệm
+
+Bây giờ ta so sánh hiệu năng _thực nghiệm_ (thực tế) của hồi quy logistic, LDA, QDA, naive Bayes và KNN. Ta sinh dữ liệu từ sáu kịch bản khác nhau, mỗi kịch bản là một bài toán phân loại nhị phân (hai lớp). Trong ba kịch bản, biên quyết định Bayes là tuyến tính; ở các kịch bản còn lại, nó là phi tuyến. Với mỗi kịch bản, ta tạo 100 tập dữ liệu huấn luyện ngẫu nhiên. Trên từng tập, ta khớp mỗi phương pháp rồi tính tỷ lệ lỗi kiểm tra trên một tập kiểm tra lớn. Kết quả cho các kịch bản tuyến tính nằm trong Hình 4.11, còn kết quả phi tuyến trong Hình 4.12. KNN yêu cầu chọn _K_, số láng giềng (không nên nhầm với số lớp ở các mục trước). Ta thực hiện KNN với hai giá trị _K_: _K_ = 1 và một giá trị _K_ được chọn tự động bằng _xác thực chéo_, sẽ được bàn kỹ hơn ở Chương 5. Ta áp dụng naive Bayes với giả định mật độ Gaussian một chiều cho các đặc trưng trong từng lớp (và dĩ nhiên giả định các đặc trưng độc lập — đặc điểm cốt lõi của naive Bayes).
+
+Trong mỗi kịch bản trong sáu kịch bản, có _p_ = 2 biến dự báo định lượng. Các kịch bản:
+
+**HÌNH 4.11.** _Biểu đồ hộp của tỷ lệ lỗi kiểm tra trong từng kịch bản tuyến tính được mô tả ở nội dung chính._
+
+_Kịch bản 1:_ Có 20 quan sát huấn luyện trong mỗi lớp thuộc hai lớp. Các quan sát trong từng lớp là biến ngẫu nhiên chuẩn không tương quan với trung bình khác nhau theo lớp. Ô trái Hình 4.11 cho thấy LDA hoạt động tốt như kỳ vọng vì đây chính là mô hình LDA giả định. Hồi quy logistic cũng hoạt động khá tốt vì nó giả định biên quyết định tuyến tính. KNN hoạt động kém do phải trả giá về phương sai mà không được bù bằng giảm độ chệch. QDA cũng kém hơn LDA vì khớp một bộ phân loại linh hoạt hơn mức cần thiết. Naive Bayes tốt hơn QDA đôi chút vì giả định các biến dự báo độc lập của nó là đúng.
+
+_Kịch bản 2:_ Chi tiết giống Kịch bản 1, ngoại trừ trong mỗi lớp, hai biến dự báo có tương quan _−_ 0 _._ 5. Ô giữa Hình 4.11 cho thấy hiệu năng của phần lớn phương pháp giống kịch bản trước. Ngoại lệ đáng chú ý là naive Bayes, hoạt động rất kém vì giả định các biến dự báo độc lập bị vi phạm.
+
+_Kịch bản 3:_ Giống kịch bản trước, các biến dự báo trong mỗi lớp có tương quan âm đáng kể. Tuy nhiên, lần này ta sinh _X_ 1 và _X_ 2 từ _phân phối t_, với 50 quan sát mỗi lớp. _Phân phối t_ có hình dạng tương tự phân phối chuẩn nhưng có xu hướng sinh nhiều điểm cực đoan hơn — tức nhiều điểm xa trung bình. Trong bối cảnh này, biên quyết định vẫn tuyến tính nên phù hợp với khuôn khổ hồi quy logistic. Thiết lập vi phạm giả định LDA vì các quan sát không được lấy từ phân phối chuẩn. Ô phải Hình 4.11 cho thấy hồi quy logistic vượt LDA, dù cả hai đều tốt hơn các phương pháp khác. Cụ thể, kết quả QDA suy giảm đáng kể do tính không chuẩn. Naive Bayes hoạt động rất kém vì giả định độc lập bị vi phạm.
+
+_Kịch bản 4:_ Dữ liệu được sinh từ phân phối chuẩn, với tương quan 0 _._ 5 giữa các biến dự báo trong lớp thứ nhất và _−_ 0 _._ 5 trong lớp thứ hai. Thiết lập này phù hợp với giả định QDA và tạo ra biên quyết định bậc hai. Ô trái Hình 4.12 cho thấy QDA vượt mọi
+
+**HÌNH 4.12.** _Biểu đồ hộp của tỷ lệ lỗi kiểm tra trong từng kịch bản phi tuyến được mô tả ở nội dung chính._
+
+phương pháp khác. Giả định biến dự báo độc lập của naive Bayes bị vi phạm nên phương pháp này hoạt động kém.
+
+_Kịch bản 5:_ Dữ liệu được sinh từ phân phối chuẩn với các biến dự báo không tương quan. Sau đó biến đáp ứng được lấy mẫu từ hàm logistic áp dụng lên một hàm phi tuyến phức tạp của các biến dự báo. Ô giữa Hình 4.12 cho thấy QDA và naive Bayes đều nhỉnh hơn các phương pháp tuyến tính, còn KNN-CV linh hoạt hơn nhiều cho kết quả tốt nhất. Nhưng KNN với _K_ = 1 lại cho kết quả tệ nhất. Điều này nhấn mạnh rằng ngay cả khi dữ liệu có quan hệ phi tuyến phức tạp, một phương pháp phi tham số như KNN vẫn có thể hoạt động kém nếu mức độ trơn không được chọn đúng.
+
+_Kịch bản 6:_ Các quan sát được sinh từ phân phối chuẩn với ma trận hiệp phương sai đường chéo khác nhau cho mỗi lớp. Tuy nhiên, kích thước mẫu _rất_ nhỏ: chỉ _n_ = 6 trong mỗi lớp. Naive Bayes hoạt động rất tốt vì các giả định được đáp ứng. LDA và hồi quy logistic hoạt động kém vì biên quyết định thật là phi tuyến do các ma trận hiệp phương sai không bằng nhau. QDA kém hơn naive Bayes đôi chút vì với kích thước mẫu rất nhỏ, nó chịu phương sai quá lớn khi ước lượng tương quan giữa các biến dự báo trong mỗi lớp. Hiệu năng KNN cũng bị ảnh hưởng bởi kích thước mẫu rất nhỏ.
+
+Sáu ví dụ này cho thấy không có phương pháp nào thống trị các phương pháp khác trong mọi tình huống. Khi biên quyết định thật là tuyến tính, LDA và hồi quy logistic thường hoạt động tốt. Khi biên có mức phi tuyến vừa phải, QDA hoặc naive Bayes có thể cho kết quả tốt hơn. Cuối cùng, với biên quyết định phức tạp hơn nhiều, phương pháp phi tham số như KNN có thể vượt trội. Nhưng phải chọn cẩn thận mức độ trơn của phương pháp phi tham số. Trong chương tiếp theo, ta xem xét một số cách chọn đúng mức độ trơn và nói chung là chọn phương pháp tổng thể tốt nhất.
+
+Cuối cùng, nhắc lại từ Chương 3 rằng trong bối cảnh hồi quy, ta có thể xử lý quan hệ phi tuyến giữa biến dự báo và biến đáp ứng bằng cách hồi quy trên các phép biến đổi của biến dự báo. Cách tiếp cận tương tự có thể dùng trong phân loại. Chẳng hạn, ta có thể
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|73.60|5.13|14.34|0.00|\n|`workingday`|1.27|1.78|0.71|0.48|\n|`temp`|157.21|10.26|15.32|0.00|\n|`weathersit[cloudy/misty]`|-12.89|1.96|-6.56|0.00|\n|`weathersit[light rain/snow]`|-66.49|2.97|-22.43|0.00|\n|`weathersit[heavy rain/snow]`|-109.75|76.67|-1.43|0.15|"} />
+
+**BẢNG 4.10.** _Kết quả của mô hình tuyến tính bình phương tối thiểu được khớp để dự đoán_ `bikers` _trong dữ liệu_ `Bikeshare` _. Các biến dự báo_ `mnth` _và_ `hr` _được lược khỏi bảng do giới hạn không gian và có thể xem trong Hình 4.13. Với biến định tính_ `weathersit` _, mức mốc tương ứng với trời quang._
+
+tạo một phiên bản hồi quy logistic linh hoạt hơn bằng cách đưa _X_^(2), _X_^(3), thậm chí _X_^(4) vào làm biến dự báo. Điều này có thể cải thiện hoặc không cải thiện hiệu năng hồi quy logistic, tùy việc tăng phương sai do độ linh hoạt bổ sung có được bù bởi phần giảm độ chệch đủ lớn hay không. Ta có thể làm tương tự với LDA. Nếu thêm mọi số hạng bậc hai và tích chéo khả dĩ vào LDA, dạng mô hình sẽ giống QDA dù các ước lượng tham số khác nhau. Cách này cho phép ta dịch chuyển đến một điểm nào đó giữa mô hình LDA và QDA.
+
+</MdxPage>

@@ -1,0 +1,179 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch02-exercises",
+  "locale": "vi",
+  "title": "2.4 Bài tập",
+  "headings": [
+    "Lý thuyết"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Học thống kê",
+    "Bài tập"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Với mỗi phần từ (a) đến (d), hãy cho biết nhìn chung ta kỳ vọng hiệu năng của phương pháp học thống kê linh hoạt tốt hơn hay kém hơn phương pháp kém linh hoạt. Giải thích câu trả lời.
+
+   - (a) Cỡ mẫu _n_ cực lớn, còn số biến dự báo _p_ nhỏ.
+
+   - (b) Số biến dự báo _p_ cực lớn, còn số quan sát _n_ nhỏ.
+
+   - (c) Quan hệ giữa biến dự báo và biến đáp ứng rất phi tuyến.
+
+   - (d) Phương sai của sai số, tức _σ_^(2) = Var(_ϵ_), cực cao.
+
+2. Giải thích mỗi kịch bản là bài toán phân loại hay hồi quy, và cho biết ta quan tâm nhất đến suy luận hay dự đoán. Cuối cùng, đưa ra _n_ và _p_.
+
+   - (a) Ta thu thập một tập dữ liệu về 500 công ty hàng đầu tại Hoa Kỳ. Với mỗi công ty, ta ghi lại lợi nhuận, số nhân viên, ngành và tiền lương CEO. Ta muốn hiểu các yếu tố nào ảnh hưởng đến tiền lương CEO.
+
+   - (b) Ta đang cân nhắc tung ra một sản phẩm mới và muốn biết nó sẽ _thành công_ hay _thất bại_. Ta thu thập dữ liệu của 20 sản phẩm tương tự từng được tung ra. Với mỗi sản phẩm, ta ghi lại nó thành công hay thất bại, giá bán, ngân sách tiếp thị, giá của đối thủ và mười biến khác.
+
+   - (c) Ta muốn dự đoán phần trăm thay đổi tỷ giá USD/Euro theo các thay đổi hàng tuần của thị trường chứng khoán thế giới. Vì vậy, ta thu thập dữ liệu hàng tuần trong toàn bộ năm 2012. Với mỗi tuần, ta ghi lại phần trăm thay đổi USD/Euro, phần trăm thay đổi thị trường Hoa Kỳ, Anh và Đức.
+
+3. Bây giờ ta xem lại phép phân rã độ chệch–phương sai.
+
+   - (a) Trên một biểu đồ duy nhất, hãy phác họa các đường cong điển hình của bình phương độ chệch, phương sai, sai số huấn luyện, sai số kiểm tra và sai số Bayes (hay sai số không thể giảm) khi chuyển từ phương pháp học thống kê kém linh hoạt sang linh hoạt hơn. Trục _x_ biểu diễn mức linh hoạt của phương pháp, còn trục _y_ biểu diễn giá trị từng đường cong. Cần có năm đường và phải gắn nhãn mỗi đường.
+
+   - (b) Giải thích tại sao mỗi đường trong năm đường có hình dạng như ở phần (a).
+
+4. Bây giờ hãy nghĩ đến một số ứng dụng thực tế của học thống kê.
+
+   - (a) Mô tả ba ứng dụng thực tế nơi _phân loại_ có thể hữu ích. Mô tả biến đáp ứng và biến dự báo. Mục tiêu của mỗi ứng dụng là suy luận hay dự đoán? Giải thích câu trả lời.
+
+   - (b) Mô tả ba ứng dụng thực tế nơi _hồi quy_ có thể hữu ích. Mô tả biến đáp ứng và biến dự báo. Mục tiêu của mỗi ứng dụng là suy luận hay dự đoán? Giải thích câu trả lời.
+
+   - (c) Mô tả ba ứng dụng thực tế nơi _phân tích cụm_ có thể hữu ích.
+
+5. Ưu và nhược điểm của phương pháp rất linh hoạt (so với kém linh hoạt) trong hồi quy hoặc phân loại là gì? Trong hoàn cảnh nào nên ưu tiên phương pháp linh hoạt hơn? Khi nào nên ưu tiên phương pháp kém linh hoạt?
+
+6. Mô tả khác biệt giữa phương pháp học thống kê tham số và phi tham số. Ưu điểm của phương pháp tham số trong hồi quy hoặc phân loại (so với phi tham số) là gì? Nhược điểm là gì?
+
+7. Bảng dưới cung cấp một tập dữ liệu huấn luyện chứa sáu quan sát, ba biến dự báo và một biến đáp ứng định tính.
+
+<MdxCode language="table" code={"|Quan sát|_X_1|_X_2|_X_3|_Y_|\n|---|---|---|---|---|\n|1|0|3|0|Đỏ|\n|2|2|0|0|Đỏ|\n|3|0|1|3|Đỏ|\n|4|0|1|2|Xanh lá|\n|5|_−_1|0|1|Xanh lá|\n|6|1|1|1|Đỏ|"} />
+
+Giả sử ta muốn dùng bộ dữ liệu này để dự đoán _Y_ khi _X_ 1 = _X_ 2 = _X_ 3 = 0 bằng _K_ láng giềng gần nhất.
+
+- (a) Tính khoảng cách Euclid giữa từng quan sát và điểm kiểm tra _X_ 1 = _X_ 2 = _X_ 3 = 0.
+
+- (b) Dự đoán với _K_ = 1 là gì? Tại sao?
+
+- (c) Dự đoán với _K_ = 3 là gì? Tại sao?
+
+- (d) Nếu biên quyết định Bayes trong bài toán rất phi tuyến, ta kỳ vọng giá trị _K_ _tốt nhất_ là lớn hay nhỏ? Tại sao?
+
+_Thực hành_
+
+8. Bài tập này liên quan đến bộ dữ liệu `College`, có trong tệp `College.csv` trên website cuốn sách. Nó chứa một số biến của 777 trường đại học và cao đẳng khác nhau tại Hoa Kỳ:
+
+   - `Private`: Chỉ báo công lập/tư thục
+
+   - `Apps`: Số đơn đăng ký nhận được
+
+   - `Accept`: Số ứng viên được chấp nhận
+
+   - `Enroll`: Số sinh viên mới nhập học
+
+   - `Top10perc`: Sinh viên mới thuộc top 10% lớp trung học
+
+   - `Top25perc`: Sinh viên mới thuộc top 25% lớp trung học
+
+   - `F.Undergrad`: Số sinh viên đại học toàn thời gian
+
+   - `P.Undergrad`: Số sinh viên đại học bán thời gian
+
+   - `Outstate`: Học phí ngoài bang
+
+   - `Room.Board`: Chi phí phòng ở và ăn uống
+
+   - `Books`: Chi phí sách ước tính
+
+   - `Personal`: Chi tiêu cá nhân ước tính
+
+   - `PhD`: Tỷ lệ giảng viên có bằng tiến sĩ
+
+   - `Terminal`: Tỷ lệ giảng viên có bằng cấp cuối
+
+   - `S.F.Ratio`: Tỷ lệ sinh viên/giảng viên
+
+   - `perc.alumni`: Tỷ lệ cựu sinh viên quyên góp
+
+   - `Expend`: Chi tiêu giảng dạy trên mỗi sinh viên
+
+   - `Grad.Rate`: Tỷ lệ tốt nghiệp
+
+Trước khi đọc dữ liệu vào `Python`, có thể xem dữ liệu trong Excel hoặc trình soạn thảo văn bản.
+
+- (a) Dùng hàm `pd.read_csv()` để đọc dữ liệu vào `Python`. Gọi dữ liệu đã nạp là `college`. Đảm bảo đã đặt thư mục về đúng vị trí dữ liệu.
+
+- (b) Xem dữ liệu dùng trong notebook bằng cách tạo và chạy một ô mới chỉ chứa code `college`. Bạn sẽ thấy cột đầu chỉ là tên mỗi trường, nằm trong một cột có tên như `Unnamed: 0`. Ta không thực sự muốn `pandas` coi cột này là dữ liệu, nhưng có thể cần những tên này về sau. Hãy thử các lệnh sau và xem các dataframe thu được:
+
+<MdxCode language="text" code={"college2=pd.read_csv('College.csv',index_col=0)\ncollege3=college.rename({'Unnamed:0':'College'},\naxis=1)\ncollege3=college3.set_index('College')"} />
+
+Thao tác này dùng cột đầu của tệp làm `index` cho dataframe. Nghĩa là `pandas` gán cho mỗi hàng một tên tương ứng với trường đại học thích hợp. Giờ bạn sẽ thấy cột dữ liệu đầu tiên là `Private`. Lưu ý tên các trường xuất hiện ở bên trái bảng. Ở trên, ta cũng giới thiệu một đối tượng Python mới: _dictionary_, được xác định bằng các cặp `(key, value)`. Giữ phiên bản dữ liệu đã chỉnh sửa bằng:
+
+<MdxCode language="text" code={"college=college3"} />
+
+- (c) Dùng phương thức `describe()` để tạo bản tóm tắt bằng số của các biến trong bộ dữ liệu.
+
+- (d) Dùng hàm `pd.plotting.scatter_matrix()` để tạo ma trận scatterplot của các cột đầu `[Top10perc, Apps, Enroll]`. Nhắc lại rằng có thể tham chiếu danh sách cột `C` của dataframe `A` bằng `A[C]`.
+
+- (e) Dùng phương thức `boxplot()` của `college` để tạo các boxplot đặt cạnh nhau của `Outstate` theo `Private`.
+
+- (f) Tạo một biến định tính mới tên `Elite` bằng cách _chia khoảng_ biến `Top10perc` thành hai nhóm, dựa trên việc tỷ lệ sinh viên thuộc top 10% lớp trung học có vượt 50% hay không.
+
+<MdxCode language="text" code={"college['Elite']=pd.cut(college['Top10perc'],\n[0,0.5,1],\nlabels=['No','Yes'])"} />
+
+Dùng phương thức `value_counts()` của `college['Elite']` để xem có bao nhiêu trường tinh hoa. Cuối cùng, dùng lại phương thức `boxplot()` để tạo boxplot đặt cạnh nhau của `Outstate` theo `Elite`.
+
+   - (g) Dùng phương thức `plot.hist()` của `college` để tạo một số histogram với số bin khác nhau cho vài biến định lượng. Lệnh `plt.subplots(2, 2)` có thể hữu ích: nó chia cửa sổ biểu đồ thành bốn vùng để vẽ đồng thời bốn biểu đồ. Có thể đổi các đối số để chia màn hình theo những cách khác.
+
+   - (h) Tiếp tục khảo sát dữ liệu và đưa ra một bản tóm tắt ngắn về những gì bạn khám phá.
+
+9. Bài tập này sử dụng bộ dữ liệu `Auto` đã nghiên cứu trong bài thực hành. Đảm bảo đã loại các giá trị thiếu.
+
+   - (a) Biến dự báo nào là định lượng và biến nào là định tính?
+
+   - (b) _Khoảng giá trị_ của mỗi biến dự báo định lượng là gì? Có thể trả lời bằng phương thức `min()` và `max()` trong `numpy`.
+
+   - (c) Trung bình và độ lệch chuẩn của mỗi biến dự báo định lượng là gì?
+
+- `.min()`
+
+- `.max()`
+
+   - (d) Bây giờ loại các quan sát thứ 10 đến 85. Khoảng giá trị, trung bình và độ lệch chuẩn của mỗi biến dự báo trong tập con còn lại là gì?
+
+   - (e) Dùng toàn bộ bộ dữ liệu để khảo sát trực quan các biến dự báo bằng scatterplot hoặc công cụ tự chọn. Tạo một số biểu đồ làm nổi bật quan hệ giữa các biến dự báo. Nhận xét phát hiện.
+
+   - (f) Giả sử ta muốn dự đoán mức tiêu thụ nhiên liệu (`mpg`) từ các biến khác. Biểu đồ có gợi ý biến nào khác hữu ích để dự đoán `mpg` không? Giải thích câu trả lời.
+
+10. Bài tập này sử dụng bộ dữ liệu nhà ở `Boston`.
+
+   - (a) Đầu tiên, nạp bộ dữ liệu `Boston`, một phần của thư viện `ISLP`.
+
+   - (b) Bộ dữ liệu có bao nhiêu hàng? Bao nhiêu cột? Hàng và cột biểu thị điều gì?
+
+   - (c) Tạo một số scatterplot từng cặp của các biến dự báo (cột) trong bộ dữ liệu. Mô tả phát hiện.
+
+   - (d) Có biến dự báo nào liên hệ với tỷ lệ tội phạm bình quân đầu người không? Nếu có, giải thích quan hệ.
+
+   - (e) Có vùng ngoại ô Boston nào có vẻ có tỷ lệ tội phạm đặc biệt cao không? Thuế suất? Tỷ lệ học sinh–giáo viên? Nhận xét khoảng giá trị của mỗi biến dự báo.
+
+   - (f) Có bao nhiêu vùng ngoại ô trong bộ dữ liệu giáp sông Charles?
+
+   - (g) Tỷ lệ học sinh–giáo viên trung vị của các thị trấn trong bộ dữ liệu là bao nhiêu?
+
+   - (h) Vùng ngoại ô Boston nào có giá trị trung vị của nhà do chủ sở hữu sử dụng thấp nhất? Giá trị các biến dự báo khác của vùng đó là gì và so với khoảng giá trị tổng thể của các biến đó như thế nào? Nhận xét phát hiện.
+
+   - (i) Trong bộ dữ liệu này, có bao nhiêu vùng ngoại ô trung bình có hơn bảy phòng trên mỗi căn nhà? Hơn tám phòng? Nhận xét các vùng ngoại ô trung bình có hơn tám phòng trên mỗi căn nhà.
+
+</MdxPage>

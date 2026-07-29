@@ -1,0 +1,185 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-survival-regression-models",
+  "locale": "vi",
+  "title": "11.5 Mô hình hồi quy với biến đáp ứng sống còn",
+  "headings": [
+    "Mô hình hồi quy với biến đáp ứng sống còn",
+    "11.5.1 Hàm nguy cơ",
+    "11.5.2 Nguy cơ tỷ lệ",
+    "11.5.3 Ví dụ: Dữ liệu ung thư não",
+    "11.5.4 Ví dụ: Dữ liệu công bố"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Mô hình hồi quy với biến đáp ứng sống còn"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Mô hình hồi quy với biến đáp ứng sống còn
+
+Bây giờ ta xét bài toán khớp một mô hình hồi quy cho dữ liệu sống còn. Như trong Mục 11.1, các quan sát có dạng (_Y, δ_), trong đó _Y_ = min(_T, C_) là thời gian sống còn (có thể bị kiểm duyệt), và _δ_ là biến chỉ báo bằng 1 nếu _T ≤ C_. Ngoài ra, _X ∈_ R^(_p_) là một vector gồm _p_ đặc trưng. Ta muốn dự đoán thời gian sống còn thực _T_.
+
+Vì đại lượng quan sát _Y_ dương và có thể có đuôi phải dài, ta có thể nghĩ đến việc khớp hồi quy tuyến tính log(_Y_) theo _X_. Nhưng như người đọc hẳn đã đoán, kiểm duyệt lại gây ra vấn đề vì đại lượng ta thực sự muốn dự đoán là _T_ chứ không phải _Y_. Để khắc phục khó khăn này, ta sử dụng một cách xây dựng tuần tự, tương tự cách xây dựng đường cong sống còn Kaplan–Meier ở Mục 11.3 và kiểm định log-rank ở Mục 11.4.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 11.5.1 Hàm nguy cơ
+
+_Hàm nguy cơ_ (hazard function) hay _tỷ suất nguy cơ_ — còn gọi là _cường độ tử vong_ — được định nghĩa chính thức là
+
+> 6 Một cách khác là ước lượng _p_-value bằng phép hoán vị, sử dụng các ý tưởng sẽ được trình bày ở Mục 13.5. Phân phối hoán vị được tạo bằng cách tráo ngẫu nhiên nhãn của các quan sát giữa hai nhóm.
+
+trong đó _T_ là thời gian sống còn (không quan sát được). Đây là tỷ suất tử vong tại khoảnh khắc ngay sau thời điểm _t_, với điều kiện đã sống qua thời điểm đó.^(7) Trong (11.9), ta lấy giới hạn khi ∆ _t_ tiến đến không, nên có thể xem ∆ _t_ là một số cực kỳ nhỏ. Vì vậy, diễn đạt ít hình thức hơn, (11.9) suy ra rằng
+
+với một ∆ _t_ nhỏ tùy ý.
+
+Tại sao ta cần quan tâm đến hàm nguy cơ? Thứ nhất, nó liên hệ chặt chẽ với đường cong sống còn (11.2), như ta sẽ thấy ngay sau đây. Thứ hai, một phương pháp quan trọng để mô hình hóa dữ liệu sống còn theo các hiệp biến phụ thuộc rất nhiều vào hàm nguy cơ; ta sẽ giới thiệu phương pháp này — mô hình nguy cơ tỷ lệ Cox — ở Mục 11.5.2.
+
+Bây giờ ta xem xét kỹ hơn hàm nguy cơ _h_(_t_). Nhắc lại rằng với hai biến cố _A_ và _B_, xác suất của _A_ với điều kiện _B_ có thể được biểu diễn là Pr(_A | B_) = Pr(_A ∩ B_) _/_ Pr(_B_), tức xác suất cả _A_ và _B_ cùng xảy ra chia cho xác suất _B_ xảy ra. Ngoài ra, nhắc lại từ (11.2) rằng _S_(_t_) = Pr(_T &gt; t_). Do đó,
+
+là _hàm mật độ xác suất_ gắn với _T_, tức tốc độ tử vong tức thời tại thời điểm _t_. Dấu bằng thứ hai trong (11.10) sử dụng thực tế rằng nếu _t &lt; T ≤ t_ + ∆ _t_ thì nhất thiết _T &gt; t_.
+
+Phương trình 11.10 cho thấy mối liên hệ giữa hàm nguy cơ _h_(_t_), hàm sống còn _S_(_t_) và hàm mật độ xác suất _f_(_t_). Thực chất, đây là ba cách tương đương^(8) để mô tả phân phối của _T_.
+
+Hàm hợp lý gắn với quan sát thứ _i_ là
+
+Trực giác phía sau (11.12) như sau: nếu _Y_ = _yi_ và quan sát thứ _i_ không bị kiểm duyệt, hàm hợp lý là xác suất tử vong trong một khoảng rất nhỏ quanh thời điểm _yi_. Nếu quan sát thứ _i_ bị kiểm duyệt, hàm hợp lý
+
+> 7 Vì có ∆ _t_ ở mẫu số của (11.9), hàm nguy cơ là một tỷ suất tử vong chứ không phải xác suất tử vong. Tuy nhiên, giá trị _h_(_t_) cao hơn trực tiếp tương ứng với xác suất tử vong cao hơn, cũng như giá trị cao hơn của hàm mật độ xác suất tương ứng với những kết quả có khả năng xảy ra hơn đối với một biến ngẫu nhiên. Thực tế, _h_(_t_) là hàm mật độ xác suất của _T_ với điều kiện _T &gt; t_.
+
+> 8 Xem Bài tập 8.
+
+là xác suất sống ít nhất đến thời điểm _yi_. Giả sử _n_ quan sát độc lập, hàm hợp lý của dữ liệu có dạng
+
+trong đó dấu bằng thứ hai suy ra từ (11.10).
+
+Giờ ta xét bài toán mô hình hóa thời gian sống còn. Nếu giả sử thời gian sống còn tuân theo phân phối mũ, tức hàm mật độ xác suất của thời gian sống còn _T_ có dạng _f_(_t_) = _λ_ exp(_−λt_), thì việc ước lượng tham số _λ_ bằng cách cực đại hóa hàm hợp lý trong (11.13) khá đơn giản.^(9) Một phương án khác là giả sử các thời gian sống còn được lấy từ một họ phân phối linh hoạt hơn, chẳng hạn họ Gamma hoặc Weibull. Cũng có thể mô hình hóa thời gian sống còn theo cách phi tham số, như đã làm ở Mục 11.3 bằng ước lượng Kaplan–Meier.
+
+Tuy nhiên, điều ta thực sự muốn làm là mô hình hóa thời gian sống còn _theo các hiệp biến_. Để làm vậy, sẽ thuận tiện hơn nếu làm việc trực tiếp với hàm nguy cơ thay vì hàm mật độ xác suất.^(10) Một cách tiếp cận là giả định một dạng hàm cho hàm nguy cơ _h_(_t|xi_), chẳng hạn _h_(_t|xi_) = exp � _β_ 0 +^(�)^(_p_) _j_ =1^(_βjxij_) �, trong đó hàm mũ đảm bảo hàm nguy cơ không âm. Lưu ý rằng hàm nguy cơ mũ có tính chất đặc biệt là không biến đổi theo thời gian.^(11) Khi biết _h_(_t|xi_), ta có thể tính _S_(_t|xi_). Thay các phương trình này vào (11.13), ta có thể cực đại hóa hàm hợp lý để ước lượng tham số _β_ = (_β_ 0 _, β_ 1 _, . . . , βp_)^(_T_). Tuy nhiên, cách tiếp cận này khá hạn chế vì đòi hỏi một giả định rất nghiêm ngặt về dạng của hàm nguy cơ _h_(_t|xi_). Trong mục tiếp theo, ta sẽ xét một phương pháp linh hoạt hơn nhiều.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 11.5.2 Nguy cơ tỷ lệ
+
+Giả định nguy cơ tỷ lệ
+
+_Giả định nguy cơ tỷ lệ_ phát biểu rằng
+
+trong đó _h_ 0(_t_) _≥_ 0 là một hàm chưa được xác định, gọi là _nguy cơ nền_ (baseline hazard). Đây là hàm nguy cơ của một cá thể có các đặc trưng _xi_ 1 = _· · ·_ = _xip_ = 0. Tên gọi “nguy cơ tỷ lệ” xuất phát từ thực tế rằng hàm nguy cơ của một cá thể có vector đặc trưng _xi_ là một hàm chưa biết
+
+> 9 Xem Bài tập 9.
+
+> 10 Do mối liên hệ chặt chẽ giữa hàm nguy cơ _h_(_t_) và hàm mật độ _f_(_t_) được khảo sát trong Bài tập 8, việc đặt giả định về dạng của hàm nguy cơ có liên quan mật thiết đến việc đặt giả định về dạng của hàm mật độ như trong đoạn trước.
+
+> 11 Ký hiệu _h_(_t|xi_) cho biết giờ ta đang xét hàm nguy cơ của quan sát thứ _i_ với điều kiện đã biết các giá trị hiệp biến _xi_.
+
+**HÌNH 11.4.** Trên: _Trong một ví dụ đơn giản với p_ = 1 _và hiệp biến nhị phân xi ∈\{_ 0 _,_ 1 _\}, hình biểu diễn log-nguy cơ và hàm sống còn dưới mô hình_ (11.14) _(màu xanh lá cho xi_ = 0 _và màu đen cho xi_ = 1 _). Do giả định nguy cơ tỷ lệ_ (11.14), _hai hàm log-nguy cơ khác nhau một hằng số và các hàm sống còn không cắt nhau._ Dưới: _Ta vẫn có một hiệp biến nhị phân xi ∈\{_ 0 _,_ 1 _\}. Tuy nhiên, giả định nguy cơ tỷ lệ_ (11.14) _không thỏa mãn. Các hàm log-nguy cơ cắt nhau, và các hàm sống còn cũng vậy._
+
+_p p h_ 0(_t_) nhân với hệ số exp �� _j_ =1^(_xijβj_) �. Đại lượng exp �� _j_ =1^(_xijβj_) � được gọi là _nguy cơ tương đối_ của vector đặc trưng _xi_ = (_xi_ 1 _, . . . , xip_)^(_T_), so với vector đặc trưng _xi_ = (0 _, . . . ,_ 0)^(_T_).
+
+Việc hàm nguy cơ nền _h_ 0(_t_) trong (11.14) không được xác định có ý nghĩa gì? Về cơ bản, ta không đặt giả định nào về dạng hàm của nó. Ta cho phép xác suất tử vong tức thời tại thời điểm _t_, với điều kiện cá thể đã sống ít nhất đến _t_, nhận một dạng bất kỳ. Điều này giúp hàm nguy cơ rất linh hoạt và có thể mô hình hóa nhiều kiểu quan hệ giữa các hiệp biến và thời gian sống còn. Giả định duy nhất là khi _xij_ tăng một đơn vị thì _h_(_t|xi_) tăng theo hệ số exp(_βj_).
+
+Hình 11.4 minh họa giả định nguy cơ tỷ lệ (11.14) trong bối cảnh đơn giản chỉ có một hiệp biến nhị phân _xi ∈\{_ 0 _,_ 1 _\}_ (nên _p_ = 1). Ở hàng trên, giả định nguy cơ tỷ lệ (11.14) được thỏa mãn. Vì vậy, các hàm nguy cơ của hai nhóm là bội số cố định của nhau, nên trên thang log, khoảng cách giữa chúng là hằng số. Hơn nữa, các đường cong sống còn không bao giờ cắt nhau và khoảng cách giữa chúng thực tế có xu hướng tăng (lúc đầu) theo thời gian. Ngược lại, ở hàng dưới, (11.14) không thỏa mãn. Ta thấy các hàm log-nguy cơ của hai nhóm cắt nhau, và các đường cong sống còn cũng vậy.
+
+##### Mô hình nguy cơ tỷ lệ Cox
+
+Do dạng của _h_ 0(_t_) trong giả định nguy cơ tỷ lệ (11.14) chưa biết, ta không thể đơn giản thay _h_(_t|xi_) vào hàm hợp lý (11.13) rồi ước lượng _β_ = (_β_ 1 _, . . . , βp_)^(_T_) bằng cực đại hóa hợp lý. Điểm đặc biệt của _mô hình nguy cơ tỷ lệ Cox_ nằm ở chỗ ta thực sự có thể ước lượng _β mà không cần xác định dạng của h_ 0(_t_).
+
+Để làm được điều này, ta sử dụng cùng lô-gic “tuần tự theo thời gian” đã dùng để suy ra đường cong sống còn Kaplan–Meier và kiểm định log-rank. Để đơn giản, giả sử không có trường hợp trùng nhau giữa các thời điểm hỏng hay tử vong: tức mỗi lần hỏng xảy ra tại một thời điểm riêng biệt. Giả sử _δi_ = 1, nghĩa là quan sát thứ _i_ không bị kiểm duyệt và do đó _yi_ là thời điểm hỏng của nó. Khi đó hàm nguy cơ của quan sát thứ _i_ tại thời điểm _yi_ là _h_(_yi|xi_) = _h_ 0(_yi_) exp �� _pj_ =1^(_xijβj_) �, và tổng nguy cơ tại thời điểm _yi_ của các quan sát có nguy cơ^(12) là
+
+Do đó, xác suất quan sát thứ _i_ là quan sát hỏng tại thời điểm _yi_ (thay vì một quan sát khác trong tập nguy cơ) là
+
+Lưu ý rằng hàm nguy cơ nền chưa xác định _h_ 0(_yi_) bị triệt tiêu khỏi
+
+cả tử số và mẫu số!
+
+_Hàm hợp lý từng phần_ (partial likelihood) đơn giản là tích các xác suất này trên tất cả các quan sát không bị kiểm duyệt,
+
+Điều cốt yếu là hàm hợp lý từng phần vẫn hợp lệ bất kể giá trị thực của _h_ 0(_t_), nhờ đó mô hình rất linh hoạt và vững.^(13)
+
+Để ước lượng _β_, ta chỉ cần cực đại hóa hàm hợp lý từng phần (11.16) theo _β_. Tương tự hồi quy logistic ở Chương 4, không có nghiệm dạng đóng nên cần các thuật toán lặp.
+
+Ngoài việc ước lượng _β_, ta còn có thể thu được những đầu ra mô hình khác từng gặp trong hồi quy bình phương tối thiểu ở Chương 3 và hồi quy logistic ở Chương 4. Ví dụ, ta có thể thu được các _p_-value tương ứng
+
+> 12 Nhắc lại rằng các quan sát “có nguy cơ” tại thời điểm _yi_ là những quan sát vẫn còn nguy cơ hỏng, tức chưa hỏng hoặc chưa bị kiểm duyệt trước thời điểm _yi_.
+
+> 13 Nhìn chung, hàm hợp lý từng phần được dùng khi khó tính hàm hợp lý đầy đủ cho tất cả tham số. Thay vào đó, ta chỉ tính hàm hợp lý cho các tham số quan tâm chính: trong trường hợp này là _β_ 1 _, . . . , βp_. Có thể chứng minh rằng việc cực đại hóa (11.16) cho ước lượng tốt của các tham số này.
+
+với những giả thuyết không cụ thể (chẳng hạn _H_ 0 : _βj_ = 0), cũng như khoảng tin cậy cho các hệ số.
+
+##### Mối liên hệ với kiểm định log-rank
+
+Giả sử ta chỉ có một biến dự báo (_p_ = 1), và giả sử nó là biến nhị phân, tức _xi ∈\{_ 0 _,_ 1 _\}_. Để xác định liệu thời gian sống còn của các quan sát trong nhóm _\{i_ : _xi_ = 0 _\}_ có khác các quan sát trong nhóm _\{i_ : _xi_ = 1 _\}_ hay không, ta có thể xét hai cách:
+
+_Cách 1:_ Khớp mô hình nguy cơ tỷ lệ Cox và kiểm định giả thuyết không _H_ 0 : _β_ = 0. (Vì _p_ = 1 nên _β_ là một vô hướng.)
+
+_Cách 2:_ Thực hiện kiểm định log-rank để so sánh hai nhóm, như trong Mục 11.4.
+
+##### Nên chọn cách nào?
+
+Thực tế, hai cách này có liên hệ chặt chẽ. Cụ thể, khi dùng Cách 1, có nhiều phương pháp để kiểm định _H_ 0. Một phương pháp được gọi là kiểm định score. Với một hiệp biến nhị phân duy nhất, kiểm định score cho _H_ 0 : _β_ = 0 trong mô hình nguy cơ tỷ lệ Cox hóa ra hoàn toàn bằng kiểm định log-rank. Nói cách khác, chọn Cách 1 hay Cách 2 đều cho kết quả như nhau!
+
+##### Một số chi tiết bổ sung
+
+Phần thảo luận về mô hình nguy cơ tỷ lệ Cox đã lược qua một vài điểm tinh tế:
+
+- Không có hệ số chặn trong (11.14) cũng như các phương trình sau đó, vì hệ số chặn có thể được hấp thụ vào nguy cơ nền _h_ 0(_t_).
+
+- Ta đã giả sử không có thời điểm hỏng trùng nhau. Khi có các trường hợp trùng, dạng chính xác của hàm hợp lý từng phần (11.16) phức tạp hơn đôi chút và phải dùng một số phép xấp xỉ tính toán.
+
+- (11.16) được gọi là hàm hợp lý _từng phần_ vì nó không hoàn toàn là một hàm hợp lý. Nghĩa là nó không tương ứng chính xác với xác suất của dữ liệu dưới giả định (11.14). Tuy nhiên, đây là một xấp xỉ rất tốt.
+
+- Ta mới chỉ tập trung vào ước lượng các hệ số _β_ = (_β_ 1 _, . . . , βp_)^(_T_). Tuy nhiên, đôi khi ta còn muốn ước lượng nguy cơ nền _h_ 0(_t_), chẳng hạn để ước lượng đường cong sống còn _S_(_t|x_) cho một cá thể có vector đặc trưng _x_. Các chi tiết vượt quá phạm vi cuốn sách này. Việc ước lượng _h_ 0(_t_) được triển khai trong package `lifelines` của `Python`, nội dung ta sẽ thấy ở Mục 11.8.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 11.5.3 Ví dụ: Dữ liệu ung thư não
+
+Bảng 11.2 cho thấy kết quả khớp mô hình nguy cơ tỷ lệ với dữ liệu `BrainCancer`, vốn được mô tả lần đầu ở Mục 11.3. Cột hệ số hiển thị _β_^(ˆ) _j_. Chẳng hạn, kết quả cho biết nguy cơ ước lượng của một bệnh nhân nam lớn hơn _e_^(0)^(_._18) = 1 _._ 2 lần so với một bệnh nhân nữ: nói cách khác, khi giữ cố định mọi đặc trưng khác, tại bất kỳ thời điểm nào nam có khả năng tử vong cao gấp 1,2 lần nữ. Tuy nhiên, _p_-value là 0 _._ 61, cho thấy khác biệt này giữa nam và nữ không có ý nghĩa thống kê.
+
+Một ví dụ khác, ta cũng thấy mỗi lần chỉ số Karnofsky tăng một đơn vị tương ứng với hệ số nhân exp(_−_ 0 _._ 05) = 0 _._ 95 đối với khả năng tử vong tức thời. Nói cách khác, chỉ số Karnofsky càng cao thì khả năng tử vong tại một thời điểm bất kỳ càng thấp. Hiệu ứng này có ý nghĩa thống kê cao, với _p_-value bằng 0 _._ 0027.
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _z_|Giá trị _p_|\n|---|---|---|---|---|\n|`sex[Male]`|0.18|0.36|0.51|0.61|\n|`diagnosis[LG Glioma]`|0.92|0.64|1.43|0.15|\n|`diagnosis[HG Glioma]`|2.15|0.45|4.78|0.00|\n|`diagnosis[Other]`|0.89|0.66|1.35|0.18|\n|`loc[Supratentorial]`|0.44|0.70|0.63|0.53|\n|`ki`|-0.05|0.02|-3.00|_&lt;_0.01|\n|`gtv`|0.03|0.02|1.54|0.12|\n|`stereo[SRT]`|0.18|0.60|0.30|0.77|"} />
+
+**BẢNG 11.2.** _Kết quả khớp mô hình nguy cơ tỷ lệ Cox với dữ liệu_ `BrainCancer`, _được mô tả lần đầu ở Mục 11.3. Biến_ `diagnosis` _là biến định tính có bốn mức: u màng não, u thần kinh đệm độ thấp, u thần kinh đệm độ cao hoặc loại khác. Các biến_ `sex`, `loc` _và_ `stereo` _là biến nhị phân._
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 11.5.4 Ví dụ: Dữ liệu công bố
+
+Tiếp theo, ta xét bộ dữ liệu `Publication` về thời gian đến khi công bố các bài báo trình bày kết quả thử nghiệm lâm sàng được Viện Tim, Phổi và Máu Quốc gia tài trợ.^(14) Với 244 thử nghiệm, thời gian tính bằng tháng cho đến khi công bố được ghi lại. Trong số 244 thử nghiệm, chỉ 156 thử nghiệm được công bố trong thời gian nghiên cứu; các nghiên cứu còn lại bị kiểm duyệt. Các hiệp biến gồm thử nghiệm có tập trung vào một tiêu chí lâm sàng hay không (`clinend`), thử nghiệm có nhiều trung tâm hay không (`multi`), cơ chế tài trợ trong Viện Y tế Quốc gia (`mech`), cỡ mẫu thử nghiệm (`sampsize`), ngân sách (`budget`), mức độ ảnh hưởng (`impact`, liên quan đến số lượt trích dẫn), và thử nghiệm có cho kết quả dương tính (có ý nghĩa thống kê) hay không (`posres`). Hiệp biến cuối đặc biệt thú vị vì một số nghiên cứu cho rằng các thử nghiệm cho kết quả dương tính có tỷ lệ được công bố cao hơn.
+
+> 14 Bộ dữ liệu này được mô tả trong bài báo: Gordon và cộng sự (2013), Publication of trials funded by the National Heart, Lung, and Blood Institute. New England Journal of Medicine, 369(20):1926–1934.
+
+**HÌNH 11.5.** _Đường cong sống còn cho thời gian đến khi công bố trong dữ liệu_ `Publication` _mô tả ở Mục 11.5.4, phân tầng theo việc nghiên cứu có cho kết quả dương tính hay không._
+
+Hình 11.5 cho thấy các đường cong Kaplan–Meier của thời gian đến khi công bố, được phân tầng theo việc nghiên cứu có cho kết quả dương tính hay không. Ta thấy một ít bằng chứng rằng thời gian đến khi công bố ngắn hơn với các nghiên cứu có kết quả dương tính. Tuy nhiên, kiểm định log-rank cho _p_-value không mấy ấn tượng là 0 _._ 36.
+
+Bây giờ ta thực hiện một phân tích kỹ hơn, sử dụng tất cả biến dự báo sẵn có. Kết quả khớp mô hình nguy cơ tỷ lệ Cox bằng tất cả đặc trưng sẵn có được trình bày trong Bảng 11.3. Ta thấy rằng tại bất kỳ thời điểm nào, khi giữ cố định mọi hiệp biến khác, khả năng được công bố của một nghiên cứu có kết quả dương tính cao gấp _e_^(0)^(_._55) = 1 _._ 74 lần khả năng được công bố của một nghiên cứu có kết quả âm tính. _p_-value rất nhỏ gắn với `posres` trong Bảng 11.3 cho biết kết quả này có ý nghĩa thống kê cao. Điều này đáng chú ý, nhất là khi trước đó ta thấy kiểm định log-rank so sánh thời gian đến khi công bố giữa các nghiên cứu có kết quả dương tính và âm tính cho _p_-value bằng 0 _._ 36. Làm thế nào giải thích sự khác biệt này? Nguyên nhân là kiểm định log-rank không xét bất kỳ hiệp biến nào khác, trong khi kết quả ở Bảng 11.3 dựa trên mô hình Cox sử dụng tất cả hiệp biến sẵn có. Nói cách khác, sau khi điều chỉnh theo mọi hiệp biến khác, việc nghiên cứu có cho kết quả dương tính hay không dự báo rất tốt thời gian đến khi công bố.
+
+Để hiểu sâu hơn kết quả này, trong Hình 11.6 ta trình bày các ước lượng đường cong sống còn gắn với kết quả dương tính và âm tính, sau khi điều chỉnh theo các biến dự báo khác. Để tạo các đường cong sống còn này, ta đã ước lượng nguy cơ nền _h_ 0(_t_). Ta cũng cần chọn những giá trị đại diện cho các biến dự báo khác; ta dùng giá trị trung bình cho từng biến dự báo, ngoại trừ biến dự báo phân loại `mech`, nơi ta dùng nhóm phổ biến nhất (`R01`). Sau khi điều chỉnh theo các biến dự báo khác, ta thấy một khác biệt rõ ràng giữa đường cong sống còn của các nghiên cứu có kết quả dương tính và âm tính.
+
+Bảng 11.3 còn đem lại những hiểu biết thú vị khác. Ví dụ, tại một thời điểm bất kỳ, nghiên cứu có tiêu chí lâm sàng có khả năng được công bố cao hơn nghiên cứu có tiêu chí phi lâm sàng. Cơ chế
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _z_|Giá trị _p_|\n|---|---|---|---|---|\n|`posres[Yes]`|0.55|0.18|3.02|0.00|\n|`multi[Yes]`|0.15|0.31|0.47|0.64|\n|`clinend[Yes]`|0.51|0.27|1.89|0.06|\n|`mech[K01]`|1.05|1.06|1.00|0.32|\n|`mech[K23]`|-0.48|1.05|-0.45|0.65|\n|`mech[P01]`|-0.31|0.78|-0.40|0.69|\n|`mech[P50]`|0.60|1.06|0.57|0.57|\n|`mech[R01]`|0.10|0.32|0.30|0.76|\n|`mech[R18]`|1.05|1.05|0.99|0.32|\n|`mech[R21]`|-0.05|1.06|-0.04|0.97|\n|`mech[R24,K24]`|0.81|1.05|0.77|0.44|\n|`mech[R42]`|-14.78|3414.38|-0.00|1.00|\n|`mech[R44]`|-0.57|0.77|-0.73|0.46|\n|`mech[RC2]`|-14.92|2243.60|-0.01|0.99|\n|`mech[U01]`|-0.22|0.32|-0.70|0.48|\n|`mech[U54]`|0.47|1.07|0.44|0.66|\n|`sampsize`|0.00|0.00|0.19|0.85|\n|`budget`|0.00|0.00|1.67|0.09|\n|`impact`|0.06|0.01|8.23|0.00|"} />
+
+**BẢNG 11.3.** _Kết quả khớp mô hình nguy cơ tỷ lệ Cox với dữ liệu_ `Publication`, _sử dụng tất cả đặc trưng sẵn có. Các đặc trưng_ `posres`, `multi` _và_ `clinend` _là biến nhị phân. Đặc trưng_ `mech` _là biến định tính có 14 mức; biến được mã hóa sao cho mức nền là_ `Contract`.
+
+tài trợ dường như không có liên hệ có ý nghĩa thống kê với thời gian đến khi công bố.
+
+</MdxPage>

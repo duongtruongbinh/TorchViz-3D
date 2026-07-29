@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch08-exercises",
+  "locale": "en",
+  "title": "8.4 Exercises",
+  "headings": [
+    "Conceptual",
+    "Applied"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Tree-Based Methods",
+    "Exercises"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Conceptual
+
+1. Draw an example (of your own invention) of a partition of twodimensional feature space that could result from recursive binary splitting. Your example should contain at least six regions. Draw a decision tree corresponding to this partition. Be sure to label all aspects of your figures, including the regions _R_ 1 _, R_ 2 _, . . ._ , the cutpoints _t_ 1 _, t_ 2 _, . . ._ , and so forth.
+
+_Hint: Your result should look something like Figures 8.1 and 8.2._
+
+2. It is mentioned in Section 8.2.3 that boosting using depth-one trees (or _stumps_ ) leads to an _additive_ model: that is, a model of the form
+
+Explain why this is the case. You can begin with (8.12) in Algorithm 8.2.
+
+3. Consider the Gini index, classification error, and entropy in a simple classification setting with two classes. Create a single plot that displays each of these quantities as a function of _p_ ˆ _m_ 1. The _x_ -axis should display _p_ ˆ _m_ 1, ranging from 0 to 1, and the _y_ -axis should display the value of the Gini index, classification error, and entropy.
+
+   - ˆ ˆ
+
+   - _Hint: In a setting with two classes, pm_ 1 = 1 _− pm_ 2 _. You could make this plot by hand, but it will be much easier to make in_ `R` _._
+
+4. This question relates to the plots in Figure 8.14.
+
+**FIGURE 8.14.** Left _: A partition of the predictor space corresponding to Exercise 4a._ Right _: A tree corresponding to Exercise 4b._
+
+   - (a) Sketch the tree corresponding to the partition of the predictor space illustrated in the left-hand panel of Figure 8.14. The numbers inside the boxes indicate the mean of _Y_ within each region.
+
+   - (b) Create a diagram similar to the left-hand panel of Figure 8.14, using the tree illustrated in the right-hand panel of the same figure. You should divide up the predictor space into the correct regions, and indicate the mean for each region.
+
+5. Suppose we produce ten bootstrapped samples from a data set containing red and green classes. We then apply a classification tree to each bootstrapped sample and, for a specific value of _X_ , produce 10 estimates of _P_ (Class is Red _|X_ ):
+
+0 _._ 1 _,_ 0 _._ 15 _,_ 0 _._ 2 _,_ 0 _._ 2 _,_ 0 _._ 55 _,_ 0 _._ 6 _,_ 0 _._ 6 _,_ 0 _._ 65 _,_ 0 _._ 7 _,_ and 0 _._ 75 _._
+
+There are two common ways to combine these results together into a single class prediction. One is the majority vote approach discussed in this chapter. The second approach is to classify based on the average probability. In this example, what is the final classification under each of these two approaches?
+
+6. Provide a detailed explanation of the algorithm that is used to fit a regression tree.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Applied
+
+7. In Section 8.3.3, we applied random forests to the `Boston` data using `max_features = 6` and using `n_estimators = 100` and `n_estimators = 500` . Create a plot displaying the test error resulting from random forests on this data set for a more comprehensive range of values for `max_features` and `n_estimators` . You can model your plot after Figure 8.10. Describe the results obtained.
+
+8. In the lab, a classification tree was applied to the `Carseats` data set after converting `Sales` into a qualitative response variable. Now we will seek to predict `Sales` using regression trees and related approaches, treating the response as a quantitative variable.
+
+   - (a) Split the data set into a training set and a test set.
+
+   - (b) Fit a regression tree to the training set. Plot the tree, and interpret the results. What test MSE do you obtain?
+
+   - (c) Use cross-validation in order to determine the optimal level of tree complexity. Does pruning the tree improve the test MSE?
+
+   - (d) Use the bagging approach in order to analyze this data. What test MSE do you obtain? Use the `feature_importance_` values to determine which variables are most important.
+
+   - (e) Use random forests to analyze this data. What test MSE do you obtain? Use the `feature_importance_` values to determine which variables are most important. Describe the effect of _m_ , the number of variables considered at each split, on the error rate obtained.
+
+   - (f) Now analyze the data using BART, and report your results.
+
+9. This problem involves the `OJ` data set which is part of the `ISLP` package.
+
+   - (a) Create a training set containing a random sample of 800 observations, and a test set containing the remaining observations.
+
+   - (b) Fit a tree to the training data, with `Purchase` as the response and the other variables as predictors. What is the training error rate?
+
+   - (c) Create a plot of the tree, and interpret the results. How many terminal nodes does the tree have?
+
+   - (d) Use the `export_tree()` function to produce a text summary of the fitted tree. Pick one of the terminal nodes, and interpret the information displayed.
+
+   - (e) Predict the response on the test data, and produce a confusion matrix comparing the test labels to the predicted test labels. What is the test error rate?
+
+   - (f) Use cross-validation on the training set in order to determine the optimal tree size.
+
+   - (g) Produce a plot with tree size on the _x_ -axis and cross-validated classification error rate on the _y_ -axis.
+
+   - (h) Which tree size corresponds to the lowest cross-validated classification error rate?
+
+   - (i) Produce a pruned tree corresponding to the optimal tree size obtained using cross-validation. If cross-validation does not lead to selection of a pruned tree, then create a pruned tree with five terminal nodes.
+
+   - (j) Compare the training error rates between the pruned and unpruned trees. Which is higher?
+
+   - (k) Compare the test error rates between the pruned and unpruned trees. Which is higher?
+
+10. We now use boosting to predict `Salary` in the `Hitters` data set.
+
+   - (a) Remove the observations for whom the salary information is unknown, and then log-transform the salaries.
+
+   - (b) Create a training set consisting of the first 200 observations, and a test set consisting of the remaining observations.
+
+   - (c) Perform boosting on the training set with 1,000 trees for a range of values of the shrinkage parameter _λ_ . Produce a plot with different shrinkage values on the _x_ -axis and the corresponding training set MSE on the _y_ -axis.
+
+   - (d) Produce a plot with different shrinkage values on the _x_ -axis and the corresponding test set MSE on the _y_ -axis.
+
+   - (e) Compare the test MSE of boosting to the test MSE that results from applying two of the regression approaches seen in Chapters 3 and 6.
+
+   - (f) Which variables appear to be the most important predictors in the boosted model?
+
+   - (g) Now apply bagging to the training set. What is the test set MSE for this approach?
+
+11. This question uses the `Caravan` data set.
+
+   - (a) Create a training set consisting of the first 1,000 observations, and a test set consisting of the remaining observations.
+
+   - (b) Fit a boosting model to the training set with `Purchase` as the response and the other variables as predictors. Use 1,000 trees, and a shrinkage value of 0 _._ 01. Which predictors appear to be the most important?
+
+   - (c) Use the boosting model to predict the response on the test data. Predict that a person will make a purchase if the estimated probability of purchase is greater than 20 %. Form a confusion matrix. What fraction of the people predicted to make a purchase do in fact make one? How does this compare with the results obtained from applying KNN or logistic regression to this data set?
+
+12. Apply boosting, bagging, random forests, and BART to a data set of your choice. Be sure to fit the models on a training set and to evaluate their performance on a test set. How accurate are the results compared to simple methods like linear or logistic regression? Which of these approaches yields the best performance?
+
+</MdxPage>

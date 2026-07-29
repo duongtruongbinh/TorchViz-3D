@@ -1,0 +1,129 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch13-hypothesis-testing-review",
+  "locale": "vi",
+  "title": "13.1 Ôn nhanh về kiểm định giả thuyết",
+  "headings": [
+    "Ôn nhanh về kiểm định giả thuyết",
+    "13.1.1 Kiểm định một giả thuyết",
+    "13.1.2 Sai lầm loại I và loại II"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "kiểm định nhiều giả thuyết",
+    "ôn nhanh về kiểm định giả thuyết"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Ôn nhanh về kiểm định giả thuyết
+
+Kiểm định giả thuyết cung cấp một khuôn khổ thống kê chặt chẽ để trả lời các câu hỏi đơn giản dạng “có hoặc không” về dữ liệu, chẳng hạn:
+
+1. Hệ số thật _βj_ trong hồi quy tuyến tính của _Y_ theo _X_ 1 _, . . . , Xp_ có bằng không không?^(2)
+
+2. Huyết áp kỳ vọng của chuột thí nghiệm trong nhóm đối chứng và nhóm điều trị có khác nhau không?^(3)
+
+Mục 13.1.1 ôn ngắn gọn các bước của kiểm định giả thuyết. Mục 13.1.2 bàn về những kiểu sai lầm, hay sai số, có thể xảy ra khi kiểm định giả thuyết.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 13.1.1 Kiểm định một giả thuyết
+
+Một kiểm định giả thuyết thường gồm bốn bước. Trước hết, ta xác định giả thuyết không và giả thuyết đối. Tiếp theo, ta xây dựng thống kê kiểm định tóm tắt độ mạnh của bằng chứng chống lại giả thuyết không. Sau đó, ta tính giá trị _p_ định lượng xác suất thu được
+
+> 1Dữ liệu microarray từng được xem là “dữ liệu lớn”, dù theo tiêu chuẩn ngày nay tên gọi này có vẻ khiêm tốn: một tập dữ liệu microarray có thể, và thường đã, được lưu trong bảng tính Microsoft Excel!
+
+> 2Kiểm định giả thuyết này đã được bàn ở trang 76 của Chương 3.
+
+> 3“Nhóm điều trị” là tập chuột nhận can thiệp thí nghiệm, còn “nhóm đối chứng” là những con không nhận can thiệp.
+
+một giá trị thống kê kiểm định tương đương hoặc cực đoan hơn khi giả thuyết không đúng. Cuối cùng, dựa trên giá trị _p_, ta quyết định có bác bỏ giả thuyết không hay không. Bây giờ ta lần lượt bàn ngắn gọn từng bước.
+
+##### Bước 1: Xác định giả thuyết không và giả thuyết đối
+
+Trong kiểm định giả thuyết, ta chia thế giới thành hai khả năng: _giả thuyết không_ và _giả thuyết đối_. Giả thuyết không, ký hiệu _H_ 0, là trạng thái niềm tin mặc định về thế giới.^(4) Chẳng hạn, giả thuyết không tương ứng với hai câu hỏi nêu trước đó trong chương là:
+
+1. Hệ số thật _βj_ trong hồi quy tuyến tính của _Y_ theo _X_ 1 _, . . . , Xp_ bằng không.
+
+2. Không có khác biệt giữa huyết áp kỳ vọng của chuột trong nhóm đối chứng và nhóm điều trị.
+
+Theo cách xây dựng, giả thuyết không thường không thú vị: nó hoàn toàn có thể đúng, nhưng ta có thể hy vọng dữ liệu cho thấy điều ngược lại.
+
+Giả thuyết đối, ký hiệu _Ha_, biểu diễn điều gì đó khác biệt và ngoài dự kiến: chẳng hạn, huyết áp kỳ vọng của chuột trong hai nhóm _có_ khác nhau. Thông thường, giả thuyết đối chỉ phát biểu rằng giả thuyết không không đúng: nếu giả thuyết không nói rằng _A và B không khác nhau_, thì giả thuyết đối nói rằng _A và B có khác nhau_.
+
+Điều quan trọng là _H_ 0 và _Ha_ được xử lý bất đối xứng. _H_ 0 được xem là trạng thái mặc định, còn ta tập trung dùng dữ liệu để bác bỏ _H_ 0. Nếu bác bỏ _H_ 0, ta có bằng chứng ủng hộ _Ha_. Có thể xem việc bác bỏ _H_ 0 là tạo ra một _khám phá_ từ dữ liệu: ta phát hiện _H_ 0 không đúng. Ngược lại, nếu không bác bỏ được _H_ 0, kết luận sẽ mơ hồ hơn: ta không biết nguyên nhân là cỡ mẫu quá nhỏ (khi đó kiểm định lại _H_ 0 trên tập dữ liệu lớn hơn hoặc chất lượng cao hơn có thể dẫn đến bác bỏ) hay vì _H_ 0 thực sự đúng.
+
+Bước 2: Xây dựng thống kê kiểm định
+
+Tiếp theo, ta muốn dùng dữ liệu để tìm bằng chứng ủng hộ hoặc chống lại giả thuyết không. Để làm vậy, ta phải tính một _thống kê kiểm định_, ký hiệu _T_, tóm tắt mức độ dữ liệu phù hợp với _H_ 0. Cách xây dựng _T_ phụ thuộc vào bản chất của giả thuyết không đang được kiểm định.
+
+Để cụ thể hóa, gọi _x_^(_t_) 1^(_, . . . , xt_) _nt_ là các phép đo huyết áp của _nt_ con chuột trong nhóm điều trị, và _x_^(_c_) 1^(_, . . . , xc_) _nc_ là các phép đo huyết áp của _nc_ con chuột trong nhóm đối chứng; đồng thời _µt_ = E( _X_^(_t_) ), _µc_ = E( _X_^(_c_) ). Để kiểm định _H_ 0 : _µt_ = _µc_, ta dùng _thống kê t hai mẫu_,^(5) được định nghĩa là
+
+thống kê _t_ hai mẫu
+
+> 4 _H_ 0 được đọc là “H naught” hoặc “H zero”.
+
+**HÌNH 13.1.** _Hàm mật độ của phân phối N_ (0 _,_ 1) _, với đường thẳng đứng biểu thị giá trị_ 2 _._ 33 _. Có 1% diện tích dưới đường cong nằm bên phải đường thẳng đứng, nên xác suất quan sát một giá trị N_ (0 _,_ 1) _lớn hơn_ 2 _._ 33 _hoặc nhỏ hơn −_ 2 _._ 33 _chỉ là 2%. Vì vậy, nếu thống kê kiểm định có phân phối không N_ (0 _,_ 1) _, thì giá trị quan sát T_ = 2 _._ 33 _dẫn đến giá trị p bằng 0,02._
+
+trong đó _µ_ ˆ _t_ = _n_ 1 _t_ � _ni_ =1 _t_^(_x_) _i_^(_t_,)^(_µ_ˆ)^(_c_=) _n_ 1 _c_ � _ni_ =1 _c_^(_x_) _i_^(_c_,và)
+
+là bộ ước lượng độ lệch chuẩn gộp của hai mẫu.^(6) Ở đây, _s_^(2) _t_ và _s_ 2 _c_ lần lượt là các bộ ước lượng không chệch của phương sai huyết áp trong nhóm điều trị và nhóm đối chứng. Giá trị tuyệt đối lớn của _T_ cung cấp bằng chứng chống lại _H_ 0 : _µt_ = _µc_, và do đó ủng hộ _Ha_ : _µt_ = _µc_.
+
+Bước 3: Tính giá trị _p_
+
+Trong mục trước, ta lưu ý rằng giá trị tuyệt đối lớn của thống kê _t_ hai mẫu cung cấp bằng chứng chống lại _H_ 0. Điều này đặt ra câu hỏi: _lớn đến mức nào mới là lớn?_ Nói cách khác, một giá trị cụ thể của thống kê kiểm định cung cấp bao nhiêu bằng chứng chống lại _H_ 0?
+
+Khái niệm _giá trị p_ cho phép ta hình thức hóa và trả lời câu hỏi này. Giá trị _p_ được định nghĩa là xác suất quan sát một thống kê kiểm định bằng hoặc cực đoan hơn giá trị đã quan sát, _với giả định H_ 0 _thực sự đúng_. Vì vậy, giá trị _p_ nhỏ cung cấp bằng chứng _chống lại H_ 0.
+
+> 5Thống kê _t_ có tên như vậy vì dưới _H_ 0, nó tuân theo phân phối _t_.
+
+> 6Lưu ý rằng (13.2) giả định nhóm đối chứng và nhóm điều trị có phương sai bằng nhau. Nếu không có giả định này, (13.2) sẽ có dạng hơi khác.
+
+Để cụ thể hóa, giả sử thống kê kiểm định trong (13.1) có _T_ = 2 _._ 33. Ta có thể hỏi: nếu _H_ 0 thực sự đúng, xác suất quan sát giá trị _T_ lớn như vậy là bao nhiêu? Dưới _H_ 0, phân phối của _T_ trong (13.1) xấp xỉ phân phối _N_ (0 _,_ 1),^(7) tức phân phối chuẩn có trung bình 0 và phương sai 1. Phân phối này được minh họa trong Hình 13.1. Phần lớn, 98%, của phân phối _N_ (0 _,_ 1) nằm giữa _−_ 2 _._ 33 và 2 _._ 33. Điều này nghĩa là dưới _H_ 0, ta chỉ kỳ vọng thấy giá trị _|T |_ lớn như vậy trong 2% số lần. Do đó, giá trị _p_ tương ứng với _T_ = 2 _._ 33 là 0 _._ 02.
+
+Phân phối của thống kê kiểm định dưới _H_ 0, còn gọi là _phân phối không_ của thống kê kiểm định, phụ thuộc vào loại giả thuyết không đang được kiểm định và loại thống kê kiểm định được dùng. Nhìn chung, phần lớn thống kê kiểm định thông dụng tuân theo một phân phối thống kê quen thuộc dưới giả thuyết không, chẳng hạn phân phối chuẩn, phân phối _t_, phân phối _χ_^(2) hoặc phân phối _F_, miễn là cỡ mẫu đủ lớn và một số giả định khác được thỏa mãn. Thông thường, hàm `R` dùng để tính thống kê kiểm định sẽ tận dụng phân phối không này để xuất giá trị _p_. Trong Mục 13.5, ta sẽ thấy một cách ước lượng phân phối không của thống kê kiểm định bằng tái lấy mẫu; trong nhiều bối cảnh hiện đại, đây là lựa chọn rất hấp dẫn vì tận dụng máy tính nhanh để tránh những giả định có thể gây vấn đề về dữ liệu.
+
+Giá trị _p_ có lẽ là một trong những khái niệm được dùng nhiều nhất và cũng bị lạm dụng nhiều nhất trong thống kê. Đôi khi người ta nói giá trị _p_ là xác suất _H_ 0 đúng, tức xác suất giả thuyết không là thật. Điều này không đúng! Cách diễn giải đúng duy nhất là: giá trị _p_ là tỷ lệ số lần ta kỳ vọng thấy một giá trị thống kê kiểm định cực đoan như vậy^(8) nếu lặp lại thí nghiệm rất nhiều lần, _với điều kiện H_ 0 _đúng_.
+
+Ở Bước 2, ta tính thống kê kiểm định và lưu ý rằng giá trị tuyệt đối lớn cung cấp bằng chứng chống lại _H_ 0. Ở Bước 3, thống kê kiểm định được chuyển thành giá trị _p_, trong đó giá trị _p_ nhỏ cung cấp bằng chứng chống lại _H_ 0. Vậy việc chuyển thống kê ở Bước 2 thành giá trị _p_ ở Bước 3 đem lại điều gì? Giả sử một nhà phân tích thực hiện kiểm định thống kê và báo cáo _T_ = 17 _._ 3. Đây có phải bằng chứng mạnh chống lại _H_ 0 không? Không thể biết nếu thiếu thông tin; cụ thể, ta cần biết
+
+7Chính xác hơn, nếu giả định các quan sát được rút từ phân phối chuẩn thì _T_ tuân theo phân phối _t_ với _nt_ + _nc −_ 2 bậc tự do. Khi _nt_ + _nc −_ 2 lớn hơn khoảng 40, phân phối này được xấp xỉ rất tốt bởi _N_ (0 _,_ 1). Trong Mục 13.5, ta sẽ thấy một cách khác, thường hấp dẫn hơn, để xấp xỉ phân phối không của _T_ mà không cần đặt giả định nghiêm ngặt về dữ liệu. 8Giá trị _p một phía_ là xác suất thấy giá trị thống kê kiểm định cực đoan như vậy, chẳng hạn xác suất thấy thống kê lớn hơn hoặc bằng _T_ = 2 _._ 33. Giá trị _p hai phía_ là xác suất thấy giá trị tuyệt đối của thống kê kiểm định cực đoan như vậy, chẳng hạn xác suất thấy thống kê lớn hơn hoặc bằng 2 _._ 33 hay nhỏ hơn hoặc bằng _−_ 2 _._ 33. Khuyến nghị mặc định là báo cáo giá trị _p_ hai phía thay vì một phía, trừ khi có lý do khoa học rõ ràng và thuyết phục để chỉ quan tâm một hướng của thống kê kiểm định.
+
+<MdxCode language="table" code={"|||**Sự thật** _H_0|**Sự thật** _Ha_|\n|---|---|---|---|\n|**Quyết định**|Bác bỏ _H_0|Sai lầm loại I|Đúng|\n||Không bác bỏ _H_0|Đúng|Sai lầm loại II|"} />
+
+**BẢNG 13.1.** _Tóm tắt các tình huống có thể xảy ra khi kiểm định giả thuyết không H_ 0 _. Sai lầm loại I còn gọi là dương tính giả, còn sai lầm loại II là âm tính giả._
+
+giá trị thống kê kiểm định nào được kỳ vọng dưới _H_ 0. Đó chính xác là thông tin giá trị _p_ cung cấp. Nói cách khác, giá trị _p_ cho phép biến đổi thống kê kiểm định, vốn được đo trên một thang tùy ý và khó diễn giải, thành một số từ 0 đến 1 dễ diễn giải hơn.
+
+##### Bước 4: Quyết định có bác bỏ giả thuyết không hay không
+
+Sau khi tính giá trị _p_ tương ứng với _H_ 0, ta còn phải quyết định có bác bỏ _H_ 0 hay không. (Ta thường không nói “chấp nhận” _H_ 0 mà nói “không bác bỏ được” _H_ 0.) Giá trị _p_ nhỏ cho biết một thống kê lớn như vậy khó xảy ra dưới _H_ 0, do đó cung cấp bằng chứng chống lại _H_ 0. Nếu giá trị _p_ đủ nhỏ, ta sẽ muốn bác bỏ _H_ 0 và tạo ra một “khám phá”. Nhưng nhỏ đến mức nào mới đủ để bác bỏ _H_ 0?
+
+Câu trả lời phụ thuộc nhiều vào góc nhìn của người đánh giá, cụ thể là nhà phân tích dữ liệu. Giá trị _p_ càng nhỏ, bằng chứng chống lại _H_ 0 càng mạnh. Trong một số lĩnh vực, người ta thường bác bỏ _H_ 0 nếu giá trị _p_ dưới 0 _._ 05; điều này nghĩa là nếu _H_ 0 đúng, ta kỳ vọng thấy giá trị _p_ nhỏ như vậy không quá 5% số lần.^(9) Tuy nhiên, những lĩnh vực khác đòi hỏi mức bằng chứng cao hơn nhiều: chẳng hạn trong một số nhánh vật lý, người ta thường chỉ bác bỏ _H_ 0 khi giá trị _p_ dưới 10^(_−_9)!
+
+Trong ví dụ ở Hình 13.1, nếu dùng ngưỡng 0 _._ 05 làm điểm cắt để bác bỏ giả thuyết không, ta sẽ bác bỏ nó. Ngược lại, nếu dùng ngưỡng 0 _._ 01, ta sẽ không bác bỏ được giả thuyết không. Các ý tưởng này được hình thức hóa trong mục tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 13.1.2 Sai lầm loại I và loại II
+
+Nếu giả thuyết không đúng, ta gọi đó là _giả thuyết không đúng_; nếu không, đó là _giả thuyết không sai_. Chẳng hạn, nếu kiểm định _H_ 0 : _µt_ = _µc_ như trong Mục 13.1.1 và trung bình huyết áp _tổng thể_ của chuột trong nhóm điều trị thực sự không khác nhóm đối chứng, thì _H_ 0 đúng; nếu không, nó sai. Dĩ nhiên, ta không biết trước _H_ 0 đúng hay sai; đó là lý do cần thực hiện kiểm định giả thuyết.
+
+> 9Dù ngưỡng 0 _._ 05 để bác bỏ _H_ 0 rất phổ biến trong một số lĩnh vực khoa học, ta không nên tuân theo lựa chọn tùy ý này một cách mù quáng. Hơn nữa, nhà phân tích thường nên báo cáo chính giá trị _p_, thay vì chỉ cho biết nó có vượt một ngưỡng cụ thể hay không.
+
+Bảng 13.1 tóm tắt các tình huống có thể xảy ra khi kiểm định giả thuyết không _H_ 0.^(10) Sau khi thực hiện kiểm định, ta biết mình nằm ở _hàng_ nào của bảng, dựa trên việc có bác bỏ _H_ 0 hay không; tuy nhiên, không thể biết mình ở _cột_ nào. Nếu bác bỏ _H_ 0 khi _H_ 0 sai, tức _Ha_ đúng, hoặc không bác bỏ _H_ 0 khi nó đúng, ta đi đến kết quả chính xác. Nhưng nếu bác bỏ nhầm _H_ 0 khi nó thực sự đúng, ta đã phạm _sai lầm loại I_. _Tỷ lệ sai lầm loại I_ được định nghĩa là xác suất phạm sai lầm loại I khi _H_ 0 đúng, tức xác suất bác bỏ sai _H_ 0. Ngược lại, nếu không bác bỏ _H_ 0 khi nó thực sự sai, ta đã phạm _sai lầm loại II_. _Power_ của kiểm định được định nghĩa là xác suất không phạm sai lầm loại II khi _Ha_ đúng, tức xác suất bác bỏ đúng _H_ 0.
+
+Lý tưởng nhất là cả tỷ lệ sai lầm loại I lẫn loại II đều nhỏ. Nhưng trong thực tế, điều này khó đạt được. Thường có một sự đánh đổi: ta có thể giảm sai lầm loại I bằng cách chỉ bác bỏ _H_ 0 khi khá chắc chắn nó không đúng, nhưng điều đó làm tăng sai lầm loại II. Ngược lại, ta có thể giảm sai lầm loại II bằng cách bác bỏ _H_ 0 ngay cả khi chỉ có bằng chứng vừa phải rằng nó không đúng, nhưng cách này làm sai lầm loại I tăng. Trong thực tế, sai lầm loại I thường được xem là “nghiêm trọng” hơn loại II vì nó đồng nghĩa công bố một phát hiện khoa học không chính xác. Do đó, khi kiểm định giả thuyết, ta thường yêu cầu tỷ lệ sai lầm loại I thấp, chẳng hạn không quá _α_ = 0 _._ 05, đồng thời cố giảm sai lầm loại II hoặc tương đương là tăng power.
+
+Có một quan hệ trực tiếp giữa ngưỡng giá trị _p_ khiến ta bác bỏ _H_ 0 và tỷ lệ sai lầm loại I. Bằng cách chỉ bác bỏ _H_ 0 khi giá trị _p_ nhỏ hơn _α_, ta bảo đảm tỷ lệ sai lầm loại I nhỏ hơn hoặc bằng _α_.
+
+</MdxPage>

@@ -6,7 +6,7 @@ import { getStrings } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
 import { cx, getLearningLabTheme, isTypingTarget } from '../theme';
 import type { QuizQuestionState } from './QuizBlock';
-import { getLearningMdxLesson } from '../learningMdxRegistry';
+import { useCompiledLearningMdxLesson } from '../learningMdxRegistry';
 
 type LessonDetailProps = {
   lesson: LearningLesson;
@@ -44,8 +44,20 @@ export default function LessonDetail({
     }));
   }, []);
 
-  const mdxLesson = getLearningMdxLesson({ domainId: lesson.domainId, language, lessonId: lesson.id, quizQuestionStates, themeClasses, onQuizQuestionStateChange: updateQuizQuestionState });
-  const sectionPages = mdxLesson ? mdxLesson.pages.map((page, pageIndex) => (
+  const compiledMdx = useCompiledLearningMdxLesson({ domainId: lesson.domainId, language, lessonId: lesson.id, quizQuestionStates, themeClasses, onQuizQuestionStateChange: updateQuizQuestionState });
+  const mdxLesson = compiledMdx.lesson;
+  const authoredStatePage = compiledMdx.status === 'loading' || compiledMdx.status === 'error'
+    ? [
+        <SectionShell key={`${lesson.id}-${compiledMdx.status}`} sectionDivider={sectionDivider}>
+          <p className={cx('text-sm font-semibold leading-6', compiledMdx.status === 'error' ? 'text-[#B54747]' : themeClasses.mutedText)}>
+            {compiledMdx.status === 'loading'
+              ? strings.learningLab.lessonContentLoading
+              : strings.learningLab.lessonContentLoadError}
+          </p>
+        </SectionShell>,
+      ]
+    : null;
+  const sectionPages = authoredStatePage ?? (mdxLesson ? mdxLesson.pages.map((page, pageIndex) => (
     <SectionShell key={`${lesson.id}-mdx-${pageIndex}`} sectionDivider={sectionDivider}>{page}</SectionShell>
   )) : lesson.sections.flatMap((section) => {
     const meta = getSectionMeta(section.kind, strings, language);
@@ -66,7 +78,7 @@ export default function LessonDetail({
         </p>
       </SectionShell>,
     ];
-  });
+  }));
   const currentSectionPageIndex = Math.min(sectionPageIndex, Math.max(sectionPages.length - 1, 0));
   const canGoBack = currentSectionPageIndex > 0;
   const canGoNext = currentSectionPageIndex < sectionPages.length - 1;

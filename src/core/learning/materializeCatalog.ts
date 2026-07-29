@@ -12,7 +12,12 @@ export function materializeLearningCatalog(tables: readonly LearningTableOfConte
       text: table.text,
       status: table.status,
       trackIds: table.chapters.map((chapter) => chapter.id),
-      ...(table.fallbackLocales ? { mdx: { fallbackLocales: table.fallbackLocales } } : {}),
+      ...(table.fallbackLocales || table.searchTextMode ? {
+        mdx: {
+          fallbackLocales: table.fallbackLocales ?? [],
+          searchTextMode: table.searchTextMode ?? 'full',
+        },
+      } : {}),
     })),
     tracks: tables.flatMap((table) => table.chapters.map((chapter) => ({
       id: chapter.id,

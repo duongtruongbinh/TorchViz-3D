@@ -1,0 +1,129 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch13-hypothesis-testing-review",
+  "locale": "en",
+  "title": "13.1 A Quick Review of Hypothesis Testing",
+  "headings": [
+    "A Quick Review of Hypothesis Testing",
+    "13.1.1 Testing a Hypothesis",
+    "13.1.2 Type I and Type II Errors"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Multiple Testing",
+    "A Quick Review of Hypothesis Testing"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## A Quick Review of Hypothesis Testing
+
+Hypothesis tests provide a rigorous statistical framework for answering simple “yes-or-no” questions about data, such as the following:
+
+1. Is the true coefficient _βj_ in a linear regression of _Y_ onto _X_ 1 _, . . . , Xp_ equal to zero?^(2)
+
+2. Is there a difference in the expected blood pressure of laboratory mice in the control group and laboratory mice in the treatment group?^(3)
+
+In Section 13.1.1, we briefly review the steps involved in hypothesis testing. Section 13.1.2 discusses the different types of mistakes, or errors, that can occur in hypothesis testing.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 13.1.1 Testing a Hypothesis
+
+Conducting a hypothesis test typically proceeds in four steps. First, we define the null and alternative hypotheses. Next, we construct a test statistic that summarizes the strength of evidence against the null hypothesis. We then compute a _p_ -value that quantifies the probability of having obtained
+
+> 1Microarray data was viewed as “big data” at the time, although by today’s standards, this label seems quaint: a microarray dataset can be (and typically was) stored in a Microsoft Excel spreadsheet!
+
+> 2This hypothesis test was discussed on page 76 of Chapter 3.
+
+> 3The “treatment group” refers to the set of mice that receive an experimental treatment, and the “control group” refers to those that do not.
+
+a comparable or more extreme value of the test statistic under the null hypothesis. Finally, based on the _p_ -value, we decide whether to reject the null hypothesis. We now briefly discuss each of these steps in turn.
+
+##### Step 1: Define the Null and Alternative Hypotheses
+
+In hypothesis testing, we divide the world into two possibilities: the _null hypothesis_ and the _alternative hypothesis_ . The null hypothesis, denoted _H_ 0, null is the default state of belief about the world.^(4) For instance, null hypotheses associated with the two questions posed earlier in this chapter are as follows:
+
+1. The true coefficient _βj_ in a linear regression of _Y_ onto _X_ 1 _, . . . , Xp_ equals zero.
+
+2. There is no difference between the expected blood pressure of mice in the control and treatment groups.
+
+The null hypothesis is boring by construction: it may well be true, but we might hope that our data will tell us otherwise.
+
+The alternative hypothesis, denoted _Ha_ , represents something different and unexpected: for instance, that there _is_ a difference between the expected blood pressure of the mice in the two groups. Typically, the alternative hypothesis simply posits that the null hypothesis does not hold: if the null hypothesis states that _there is no difference between A and B_ , then the alternative hypothesis states that _there is a difference between A and B_ .
+
+It is important to note that the treatment of _H_ 0 and _Ha_ is asymmetric. _H_ 0 is treated as the default state of the world, and we focus on using data to reject _H_ 0. If we reject _H_ 0, then this provides evidence in favor of _Ha_ . We can think of rejecting _H_ 0 as making a _discovery_ about our data: namely, we are discovering that _H_ 0 does not hold! By contrast, if we fail to reject _H_ 0, then our findings are more nebulous: we will not know whether we failed to reject _H_ 0 because our sample size was too small (in which case testing _H_ 0 again on a larger or higher-quality dataset might lead to rejection), or whether we failed to reject _H_ 0 because _H_ 0 really holds.
+
+Step 2: Construct the Test Statistic
+
+Next, we wish to use our data in order to find evidence for or against the null hypothesis. In order to do this, we must compute a _test statistic_ , test statistic denoted _T_ , which summarizes the extent to which our data are consistent with _H_ 0. The way in which we construct _T_ depends on the nature of the null hypothesis that we are testing.
+
+To make things concrete, let _x_^(_t_) 1^(_, . . . , xt_) _nt_^(denotethebloodpressuremea-) surements for the _nt_ mice in the treatment group, and let _x_^(_c_) 1^(_, . . . , xc_) _nc_^(denote) the blood pressure measurements for the _nc_ mice in the control group, and _µt_ = E( _X_^(_t_) ), _µc_ = E( _X_^(_c_) ). To test _H_ 0 : _µt_ = _µc_ , we make use of a _two-sample t-statistic_ ,^(5) defined as
+
+two-sample _t_ -statistic
+
+> 4 _H_ 0 is pronounced “H naught” or “H zero”.
+
+**FIGURE 13.1.** _The density function for the N_ (0 _,_ 1) _distribution, with the vertical line indicating a value of_ 2 _._ 33 _. 1% of the area under the curve falls to the right of the vertical line, so there is only a 2% chance of observing a N_ (0 _,_ 1) _value that is greater than_ 2 _._ 33 _or less than −_ 2 _._ 33 _. Therefore, if a test statistic has a N_ (0 _,_ 1) _null distribution, then an observed test statistic of T_ = 2 _._ 33 _leads to a p-value of 0.02._
+
+where _µ_ ˆ _t_ = _n_ 1 _t_ � _ni_ =1 _t_^(_x_) _i_^(_t_,)^(_µ_ˆ)^(_c_=) _n_ 1 _c_ � _ni_ =1 _c_^(_x_) _i_^(_c_,and)
+
+is an estimator of the pooled standard deviation of the two samples.^(6) Here, _s_^(2) _t_^(and)^(_s_2) _c_^(areunbiasedestimatorsofthevarianceofthebloodpressurein) the treatment and control groups, respectively. A large (absolute) value of _T_ provides evidence against _H_ 0 : _µt_ = _µc_ , and hence evidence in support of _Ha_ : _µt_ = _µc_ .
+
+Step 3: Compute the _p_ -Value
+
+In the previous section, we noted that a large (absolute) value of a twosample _t_ -statistic provides evidence against _H_ 0. This begs the question: _how large is large?_ In other words, how much evidence against _H_ 0 is provided by a given value of the test statistic?
+
+The notion of a _p-value_ provides us with a way to formalize as well as _p_ -value answer this question. The _p_ -value is defined as the probability of observing a test statistic equal to or more extreme than the observed statistic, _under the assumption that H_ 0 _is in fact true_ . Therefore, a small _p_ -value provides evidence _against H_ 0.
+
+> 5The _t_ -statistic derives its name from the fact that, under _H_ 0, it follows a _t_ - distribution.
+
+> 6Note that (13.2) assumes that the control and treatment groups have equal variance. Without this assumption, (13.2) would take a slightly different form.
+
+To make this concrete, suppose that _T_ = 2 _._ 33 for the test statistic in (13.1). Then, we can ask: what is the probability of having observed such a large value of _T_ , if indeed _H_ 0 holds? It turns out that under _H_ 0, the distribution of _T_ in (13.1) follows approximately a _N_ (0 _,_ 1) distribution^(7) — that is, a normal distribution with mean 0 and variance 1. This distribution is displayed in Figure 13.1. We see that the vast majority — 98% — of the _N_ (0 _,_ 1) distribution falls between _−_ 2 _._ 33 and 2 _._ 33. This means that under _H_ 0, we would expect to see such a large value of _|T |_ only 2% of the time. Therefore, the _p_ -value corresponding to _T_ = 2 _._ 33 is 0 _._ 02.
+
+The distribution of the test statistic under _H_ 0 (also known as the test statistic’s _null distribution_ ) will depend on the details of what type of null null hypothesis is being tested, and what type of test statistic is used. In general, most commonly-used test statistics follow a well-known statistical distribution under the null hypothesis — such as a normal distribution, a _t_ -distribution, a _χ_^(2) -distribution, or an _F_ -distribution — provided that the sample size is sufficiently large and that some other assumptions hold. Typically, the `R` function that is used to compute a test statistic will make use of this null distribution in order to output a _p_ -value. In Section 13.5, we will see an approach to estimate the null distribution of a test statistic using re-sampling; in many contemporary settings, this is a very attractive option, as it exploits the availability of fast computers in order to avoid having to make potentially problematic assumptions about the data.
+
+The _p_ -value is perhaps one of the most used and abused notions in all of statistics. In particular, it is sometimes said that the _p_ -value is the probability that _H_ 0 holds, i.e., that the null hypothesis is true. This is not correct! The one and only correct interpretation of the _p_ -value is as the fraction of the time that we would expect to see such an extreme value of the test statistic^(8) if we repeated the experiment many many times, _provided H_ 0 _holds_ .
+
+In Step 2 we computed a test statistic, and noted that a large (absolute) value of the test statistic provides evidence against _H_ 0. In Step 3 the test statistic was converted to a _p_ -value, with small _p_ -values providing evidence against _H_ 0. What, then, did we accomplish by converting the test statistic from Step 2 into a _p_ -value in Step 3? To answer this question, suppose a data analyst conducts a statistical test, and reports a test statistic of _T_ = 17 _._ 3. Does this provide strong evidence against _H_ 0? It’s impossible to know, without more information: in particular, we would need to know
+
+7More precisely, assuming that the observations are drawn from a normal distribution, then _T_ follows a _t_ -distribution with _nt_ + _nc −_ 2 degrees of freedom. Provided that _nt_ + _nc −_ 2 is larger than around 40, this is very well-approximated by a _N_ (0 _,_ 1) distribution. In Section 13.5, we will see an alternative and often more attractive way to approximate the null distribution of _T_ , which avoids making stringent assumptions about the data. 8A _one-sided p_ -value is the probability of seeing such an extreme value of the test statistic; e.g. the probability of seeing a test statistic greater than or equal to _T_ = 2 _._ 33. A _two-sided p_ -value is the probability of seeing such an extreme value of the _absolute_ test statistic; e.g. the probability of seeing a test statistic greater than or equal to 2 _._ 33 or less than or equal to _−_ 2 _._ 33. The default recommendation is to report a two-sided _p_ -value rather than a one-sided _p_ -value, unless there is a clear and compelling reason that only one direction of the test statistic is of scientific interest.
+
+<MdxCode language="table" code={"|||**Tru** _H_0|**th** _Ha_|\n|---|---|---|---|\n|**Dii**|Reject _H_0|Type I Error|Correct|\n|**ecson**|Do Not Reject _H_0|Correct|Type II Error|"} />
+
+**TABLE 13.1.** _A summary of the possible scenarios associated with testing the null hypothesis H_ 0 _. Type I errors are also known as false positives, and Type II errors as false negatives._
+
+what value of the test statistic should be expected, under _H_ 0. This is exactly what a _p_ -value gives us. In other words, a _p_ -value allows us to transform our test statistic, which is measured on some arbitrary and uninterpretable scale, into a number between 0 and 1 that can be more easily interpreted.
+
+##### Step 4: Decide Whether to Reject the Null Hypothesis
+
+Once we have computed a _p_ -value corresponding to _H_ 0, it remains for us to decide whether or not to reject _H_ 0. (We do not usually talk about “accepting” _H_ 0: instead, we talk about “failing to reject” _H_ 0.) A small _p_ - value indicates that such a large value of the test statistic is unlikely to occur under _H_ 0, and thereby provides evidence against _H_ 0. If the _p_ -value is sufficiently small, then we will want to reject _H_ 0 (and, therefore, make a “discovery”). But how small is small enough to reject _H_ 0?
+
+It turns out that the answer to this question is very much in the eyes of the beholder, or more specifically, the data analyst. The smaller the _p_ - value, the stronger the evidence against _H_ 0. In some fields, it is typical to reject _H_ 0 if the _p_ -value is below 0 _._ 05; this means that, if _H_ 0 holds, we would expect to see such a small _p_ -value no more than 5% of the time.^(9) However, in other fields, a much higher burden of proof is required: for example, in some areas of physics, it is typical to reject _H_ 0 only if the _p_ -value is below 10^(_−_9) !
+
+In the example displayed in Figure 13.1, if we use a threshold of 0 _._ 05 as our cut-off for rejecting the null hypothesis, then we will reject the null. By contrast, if we use a threshold of 0 _._ 01, then we will fail to reject the null. These ideas are formalized in the next section.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 13.1.2 Type I and Type II Errors
+
+If the null hypothesis holds, then we say that it is a _true null hypothesis_ ; true null otherwise, it is a _false null hypothesis_ . For instance, if we test _H_ 0 : _µt_ = _µc_ hypothesis as in Section 13.1.1, and there is indeed no difference in the _population_ false null mean blood pressure for mice in the treatment group and mice in the hypothesis control group, then _H_ 0 is true; otherwise, it is false. Of course, we do not know _a priori_ whether _H_ 0 is true or whether it is false: this is why we need to conduct a hypothesis test!
+
+> 9Though a threshold of 0 _._ 05 to reject _H_ 0 is ubiquitous in some areas of science, we advise against blind adherence to this arbitrary choice. Furthermore, a data analyst should typically report the _p_ -value itself, rather than just whether or not it exceeds a specified threshold value.
+
+Table 13.1 summarizes the possible scenarios associated with testing the null hypothesis _H_ 0.^(10) Once the hypothesis test is performed, the _row_ of the table is known (based on whether or not we have rejected _H_ 0); however, it is impossible for us to know which _column_ we are in. If we reject _H_ 0 when _H_ 0 is false (i.e., when _Ha_ is true), or if we do not reject _H_ 0 when it is true, then we arrived at the correct result. However, if we erroneously reject _H_ 0 when _H_ 0 is in fact true, then we have committed a _Type I error_ . The _Type I_ Type I error _error rate_ is defined as the probability of making a Type I error given that Type I error _H_ 0 holds, i.e., the probability of incorrectly rejecting _H_ 0. Alternatively, if rate we do not reject _H_ 0 when _H_ 0 is in fact false, then we have committed a _Type II error_ . The _power_ of the hypothesis test is defined as the probability Type II of not making a Type II error given that _Ha_ holds, i.e., the probability of error correctly rejecting _H_ 0. power
+
+Ideally we would like both the Type I and Type II error rates to be small. But in practice, this is hard to achieve! There typically is a trade-off: we can make the Type I error small by only rejecting _H_ 0 if we are quite sure that it doesn’t hold; however, this will result in an increase in the Type II error. Alternatively, we can make the Type II error small by rejecting _H_ 0 in the presence of even modest evidence that it does not hold, but this will cause the Type I error to be large. In practice, we typically view Type I errors as more “serious” than Type II errors, because the former involves declaring a scientific finding that is not correct. Hence, when we perform hypothesis testing, we typically require a low Type I error rate — e.g., at most _α_ = 0 _._ 05 — while trying to make the Type II error small (or, equivalently, the power large).
+
+It turns out that there is a direct correspondence between the _p_ -value threshold that causes us to reject _H_ 0, and the Type I error rate. By only rejecting _H_ 0 when the _p_ -value is below _α_ , we ensure that the Type I error rate will be less than or equal to _α_ .
+
+</MdxPage>

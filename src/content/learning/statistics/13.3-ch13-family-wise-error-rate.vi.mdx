@@ -1,0 +1,146 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch13-family-wise-error-rate",
+  "locale": "vi",
+  "title": "13.3 Tỷ lệ sai số theo họ",
+  "headings": [
+    "Tỷ lệ sai số theo họ",
+    "13.3.1 Tỷ lệ sai số theo họ là gì?",
+    "13.3.2 Các phương pháp kiểm soát tỷ lệ sai số theo họ",
+    "13.3.3 Sự đánh đổi giữa FWER và power"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "kiểm định nhiều giả thuyết",
+    "tỷ lệ sai số theo họ"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Tỷ lệ sai số theo họ
+
+Trong các mục tiếp theo, ta bàn về kiểm định nhiều giả thuyết đồng thời kiểm soát xác suất phạm ít nhất một sai lầm loại I.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 13.3.1 Tỷ lệ sai số theo họ là gì?
+
+Nhớ lại rằng tỷ lệ sai lầm loại I là xác suất bác bỏ _H_ 0 khi _H_ 0 đúng. _Tỷ lệ sai số theo họ_ (FWER) khái quát khái niệm này cho bối cảnh có _m_ giả thuyết không, _H_ 01 _, . . . , H_ 0 _m_, và được định nghĩa là xác suất phạm _ít nhất một_ sai lầm loại I. Để phát biểu chính thức hơn, xét Bảng 13.2 tóm tắt các kết quả có thể xảy ra khi thực hiện _m_ kiểm định giả thuyết. Ở đây, _V_ là số sai lầm loại I, còn gọi là dương tính giả hay khám phá giả; _S_ là số dương tính thật; _U_ là số âm tính thật; và _W_ là số sai lầm loại II, còn gọi là âm tính giả. Khi đó, tỷ lệ sai số theo họ được cho bởi
+
+Chiến lược bác bỏ mọi giả thuyết không có giá trị _p_ nhỏ hơn _α_, tức kiểm soát sai lầm loại I của từng giả thuyết ở mức _α_, dẫn đến FWER bằng
+
+Theo xác suất cơ bản, nếu hai biến cố _A_ và _B_ độc lập thì Pr( _A ∩ B_ ) = Pr( _A_ ) Pr( _B_ ). Vì vậy, nếu bổ sung các giả định khá mạnh rằng _m_ kiểm định độc lập và cả _m_ giả thuyết không đều đúng, thì
+
+**HÌNH 13.2.** _Tỷ lệ sai số theo họ theo số giả thuyết được kiểm định (hiển thị trên thang log), với ba giá trị α: α_ = 0 _._ 05 _(cam), α_ = 0 _._ 01 _(xanh dương) và α_ = 0 _._ 001 _(tím). Đường đứt nét biểu thị_ 0 _._ 05 _. Chẳng hạn, để kiểm soát FWER ở mức_ 0 _._ 05 _khi kiểm định m_ = 50 _giả thuyết không, ta phải kiểm soát sai lầm loại I của từng giả thuyết ở mức α_ = 0 _._ 001 _._
+
+Do đó, nếu chỉ kiểm định một giả thuyết không thì FWER( _α_ ) = 1 _−_ (1 _− α_ )^(1) = _α_, nên tỷ lệ sai lầm loại I bằng FWER. Tuy nhiên, nếu thực hiện _m_ = 100 kiểm định độc lập thì FWER( _α_ ) = 1 _−_ (1 _− α_ )^(100). Chẳng hạn, chọn _α_ = 0 _._ 05 dẫn đến FWER bằng 1 _−_ (1 _−_ 0 _._ 05)^(100) = 0 _._ 994. Nói cách khác, gần như chắc chắn ta sẽ phạm ít nhất một sai lầm loại I.
+
+Hình 13.2 biểu diễn (13.5) với nhiều giá trị của _m_, số giả thuyết, và _α_, sai lầm loại I. Đặt _α_ = 0 _._ 05 tạo FWER cao ngay cả khi _m_ vừa phải. Với _α_ = 0 _._ 01, ta chỉ có thể kiểm định tối đa năm giả thuyết không trước khi FWER vượt 0 _._ 05. Chỉ với giá trị rất nhỏ như _α_ = 0 _._ 001, ta mới bảo đảm được FWER nhỏ, ít nhất khi _m_ có kích thước vừa phải.
+
+Bây giờ ta quay lại ngắn gọn ví dụ trong Mục 13.1.1, nơi kiểm định một giả thuyết không dạng _H_ 0 : _µt_ = _µc_ bằng thống kê _t_ hai mẫu. Nhớ lại từ Hình 13.1 rằng để bảo đảm sai lầm loại I không vượt 0 _._ 02, ta quyết định có bác bỏ _H_ 0 hay không bằng điểm cắt 2 _._ 33, tức bác bỏ _H_ 0 nếu _|T | ≥_ 2 _._ 33. Nếu muốn kiểm định 10 giả thuyết không bằng thống kê _t_ hai mẫu thay vì chỉ một thì sao? Trong Mục 13.3.2, ta sẽ thấy có thể bảo đảm FWER không vượt 0 _._ 02 bằng cách chỉ bác bỏ giả thuyết không có giá trị _p_ dưới 0 _._ 002. Điều này tương ứng với điểm cắt nghiêm ngặt hơn nhiều là 3 _._ 09, tức chỉ bác bỏ _H_ 0 _j_ nếu thống kê _|Tj| ≥_ 3 _._ 09, với _j_ = 1 _, . . . ,_ 10. Nói cách khác, kiểm soát FWER ở mức _α_ đặt ra ngưỡng bằng chứng để bác bỏ một giả thuyết không cao hơn nhiều so với chỉ kiểm soát sai lầm loại I của từng giả thuyết ở mức _α_.
+
+<MdxCode language="table" code={"|Nhà quản lý|Trung bình, ¯_x_|Độ lệch chuẩn, _s_|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|Một|3.0|7.4|2.86|0.006|\n|Hai|-0.1|6.9|-0.10|0.918|\n|Ba|2.8|7.5|2.62|0.012|\n|Bốn|0.5|6.7|0.53|0.601|\n|Năm|0.3|6.8|0.31|0.756|"} />
+
+**BẢNG 13.3.** _Hai cột đầu tương ứng với trung bình mẫu và độ lệch chuẩn mẫu của tỷ suất sinh lợi vượt trội theo phần trăm trong n_ = 50 _tháng đối với năm nhà quản lý đầu tiên trong tập dữ liệu_ `Fund` _. Hai cột cuối cung cấp thống kê t (_^(_√_) _n · X/S_^(¯) _) và giá trị p tương ứng để kiểm định H_ 0 _j_ : _µj_ = 0 _, tức giả thuyết không rằng tỷ suất sinh lợi trung bình tổng thể của nhà quản lý quỹ phòng hộ thứ j bằng không._
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 13.3.2 Các phương pháp kiểm soát tỷ lệ sai số theo họ
+
+Trong mục này, ta khảo sát ngắn gọn một số phương pháp kiểm soát FWER. Ta minh họa các phương pháp trên tập dữ liệu `Fund`, ghi lại tỷ suất sinh lợi vượt trội hằng tháng theo phần trăm của 2.000 nhà quản lý quỹ trong _n_ = 50 tháng.^(13) Bảng 13.3 cung cấp các thống kê tóm tắt liên quan cho năm nhà quản lý đầu tiên.
+
+Trước hết, ta trình bày phương pháp Bonferroni và quy trình step-down của Holm. Đây là các cách kiểm soát FWER rất tổng quát, có thể áp dụng bất cứ khi nào đã tính _m_ giá trị _p_, bất kể dạng giả thuyết không, lựa chọn thống kê kiểm định hay tính phụ thuộc hoặc độc lập của các giá trị _p_. Sau đó, ta bàn ngắn gọn phương pháp Tukey và Scheffé để minh họa rằng trong một số tình huống, cách kiểm soát FWER chuyên biệt hơn có thể phù hợp hơn.
+
+##### Phương pháp Bonferroni
+
+Như mục trước, giả sử ta muốn kiểm định _H_ 01 _, . . . , H_ 0 _m_. Gọi _Aj_ là biến cố phạm sai lầm loại I đối với giả thuyết không thứ _j_, với _j_ = 1 _, . . . , m_. Khi đó
+
+Trong (13.6), bất đẳng thức xuất phát từ việc với hai biến cố bất kỳ _A_ và _B_, Pr( _A ∪ B_ ) _≤_ Pr( _A_ ) + Pr( _B_ ), bất kể _A_ và _B_ có độc lập hay không. _Phương pháp Bonferroni_, hay _hiệu chỉnh Bonferroni_, đặt ngưỡng bác bỏ mỗi kiểm định là _α/m_, sao cho Pr( _Aj_ ) _≤ α/m_. Phương trình 13.6 suy ra rằng
+
+> 13Tỷ suất sinh lợi vượt trội là phần sinh lợi nhà quản lý quỹ đạt được ngoài tỷ suất sinh lợi chung của thị trường. Vì vậy, nếu thị trường tăng 5% trong một giai đoạn và nhà quản lý đạt tỷ suất sinh lợi 7%, thì _tỷ suất sinh lợi vượt trội_ là 7% _−_ 5% = 2%.
+
+nên quy trình này kiểm soát FWER ở mức _α_. Chẳng hạn, để kiểm soát FWER ở mức 0 _._ 1 khi kiểm định _m_ = 100 giả thuyết không, quy trình Bonferroni yêu cầu kiểm soát sai lầm loại I của từng giả thuyết ở mức 0 _._ 1 _/_ 100 = 0 _._ 001, tức bác bỏ mọi giả thuyết không có giá trị _p_ dưới 0 _._ 001.
+
+Bây giờ xét tập dữ liệu `Fund` trong Bảng 13.3. Nếu kiểm soát sai lầm loại I ở mức _α_ = 0 _._ 05 riêng cho từng nhà quản lý quỹ, ta kết luận nhà quản lý thứ nhất và thứ ba có tỷ suất sinh lợi vượt trội khác không một cách có ý nghĩa; nói cách khác, ta bác bỏ _H_ 01 : _µ_ 1 = 0 và _H_ 03 : _µ_ 3 = 0. Tuy nhiên, như đã bàn, quy trình này không tính đến việc ta kiểm định nhiều giả thuyết nên dẫn đến FWER lớn hơn 0 _._ 05. Nếu muốn kiểm soát FWER ở mức 0 _._ 05 bằng hiệu chỉnh Bonferroni, ta phải kiểm soát sai lầm loại I của từng nhà quản lý ở mức _α/m_ = 0 _._ 05 _/_ 5 = 0 _._ 01. Do đó, ta chỉ bác bỏ giả thuyết không của nhà quản lý thứ nhất vì giá trị _p_ của mọi nhà quản lý khác đều vượt 0 _._ 01. Hiệu chỉnh Bonferroni giúp ta yên tâm rằng mình không bác bỏ sai quá nhiều giả thuyết không, nhưng phải trả giá: ta bác bỏ ít giả thuyết nên thường phạm khá nhiều sai lầm loại II.
+
+Hiệu chỉnh Bonferroni là hiệu chỉnh cho tính bội nổi tiếng và phổ biến nhất trong thống kê. Tính phổ biến phần lớn đến từ việc nó rất dễ hiểu, dễ triển khai và kiểm soát thành công sai lầm loại I bất kể _m_ kiểm định giả thuyết có độc lập hay không. Tuy nhiên, như sẽ thấy, đây thường không phải phương pháp có power cao nhất hay tốt nhất để hiệu chỉnh kiểm định nhiều giả thuyết. Cụ thể, Bonferroni có thể khá bảo thủ theo nghĩa FWER thật thường thấp hơn đáng kể FWER danh nghĩa hay mục tiêu; điều này xuất phát từ bất đẳng thức trong (13.6). Ngược lại, một quy trình ít bảo thủ hơn có thể kiểm soát FWER trong khi bác bỏ nhiều giả thuyết không hơn, do đó phạm ít sai lầm loại II hơn.
+
+##### Quy trình step-down của Holm
+
+_Phương pháp Holm_, còn gọi là quy trình step-down của Holm hay phương pháp Holm–Bonferroni, là một lựa chọn thay thế cho Bonferroni. Phương pháp Holm kiểm soát FWER nhưng ít bảo thủ hơn Bonferroni vì bác bỏ nhiều giả thuyết không hơn, thường dẫn đến ít sai lầm loại II hơn và do đó power lớn hơn. Quy trình được tóm tắt trong Thuật toán 13.1. Chứng minh rằng phương pháp kiểm soát FWER tương tự, nhưng phức tạp hơn đôi chút, so với lập luận trong (13.6) dành cho Bonferroni. Đáng lưu ý là trong quy trình Holm, ngưỡng dùng để bác bỏ từng giả thuyết không, _p_ ( _L_ ) ở Bước 5, thực sự phụ thuộc vào giá trị của _toàn bộ m_ giá trị _p_. (Xem định nghĩa _L_ trong (13.7).) Điều này khác Bonferroni: để kiểm soát FWER ở mức _α_, Bonferroni bác bỏ mọi giả thuyết không có giá trị _p_ dưới _α/m_, bất kể các giá trị _p_ khác. Phương pháp Holm không giả định _m_ kiểm định độc lập và luôn có power cao hơn Bonferroni; nó sẽ
+
+**Thuật toán 13.1** _Quy trình step-down của Holm để kiểm soát FWER_
+
+1. Chỉ định _α_, mức cần kiểm soát FWER.
+
+2. Tính các giá trị _p_, _p_ 1 _, . . . , pm_, cho _m_ giả thuyết không _H_ 01 _, . . . , H_ 0 _m_.
+
+3. Sắp xếp _m_ giá trị _p_ sao cho _p_ (1) _≤ p_ (2) _≤· · · ≤ p_ ( _m_ ).
+
+4. Định nghĩa
+
+5. Bác bỏ mọi giả thuyết không _H_ 0 _j_ có _pj &lt; p_ ( _L_ ).
+
+luôn bác bỏ ít nhất nhiều bằng Bonferroni, vì vậy luôn nên được ưu tiên.
+
+Bây giờ áp dụng phương pháp Holm cho năm nhà quản lý quỹ đầu tiên trong tập `Fund` ở Bảng 13.3, đồng thời kiểm soát FWER ở mức 0 _._ 05. Các giá trị _p_ đã sắp xếp là _p_ (1) = 0 _._ 006 _, p_ (2) = 0 _._ 012 _, p_ (3) = 0 _._ 601 _, p_ (4) = 0 _._ 756 và _p_ (5) = 0 _._ 918. Quy trình Holm bác bỏ hai giả thuyết không đầu tiên vì _p_ (1) = 0 _._ 006 _&lt;_ 0 _._ 05 _/_ (5 + 1 _−_ 1) = 0 _._ 01 và _p_ (2) = 0 _._ 012 _&lt;_ 0 _._ 05 _/_ (5 + 1 _−_ 2) = 0 _._ 0125, nhưng _p_ (3) = 0 _._ 601 _&gt;_ 0 _._ 05 _/_ (5 + 1 _−_ 3) = 0 _._ 0167, suy ra _L_ = 3. Trong bối cảnh này, Holm có power cao hơn Bonferroni: Holm bác bỏ giả thuyết không của nhà quản lý thứ nhất và thứ ba, còn Bonferroni chỉ bác bỏ giả thuyết của người thứ nhất.
+
+Hình 13.3 minh họa Bonferroni và Holm trên ba tập dữ liệu mô phỏng trong bối cảnh _m_ = 10 kiểm định, trong đó _m_ 0 = 2 giả thuyết không là đúng. Mỗi ô biểu diễn mười giá trị _p_ tương ứng đã sắp xếp từ nhỏ đến lớn trên thang log. Tám điểm đỏ là các giả thuyết không sai, còn hai điểm đen là các giả thuyết không đúng. Ta muốn kiểm soát FWER ở mức 0 _._ 05. Bonferroni yêu cầu bác bỏ mọi giả thuyết không có giá trị _p_ dưới 0 _._ 005, biểu diễn bằng đường ngang màu đen. Holm yêu cầu bác bỏ mọi giả thuyết nằm dưới đường xanh dương. Đường xanh dương luôn nằm trên đường đen nên Holm luôn bác bỏ nhiều kiểm định hơn Bonferroni; vùng giữa hai đường tương ứng với các giả thuyết chỉ bị Holm bác bỏ. Ở ô trái, cả Bonferroni và Holm đều bác bỏ thành công bảy trong tám giả thuyết không sai. Ở ô giữa, Holm bác bỏ cả tám còn Bonferroni không bác bỏ được một. Ở ô phải, Bonferroni chỉ bác bỏ ba giả thuyết không sai trong khi Holm bác bỏ cả tám. Cả hai phương pháp đều không phạm sai lầm loại I trong các ví dụ này.
+
+Hai trường hợp đặc biệt: phương pháp Tukey và Scheffé
+
+Phương pháp Bonferroni và Holm có thể dùng trong gần như mọi bối cảnh cần kiểm soát FWER cho _m_ giả thuyết không: chúng
+
+**HÌNH 13.3.** _Trong mỗi ô, với một lần mô phỏng riêng, các giá trị p đã sắp xếp của m_ = 10 _kiểm định giả thuyết không được hiển thị. Các giá trị p tương ứng với m_ 0 = 2 _giả thuyết không đúng có màu đen, còn lại có màu đỏ. Khi kiểm soát FWER ở mức_ 0 _._ 05 _, Bonferroni bác bỏ mọi giả thuyết không nằm dưới đường đen, còn Holm bác bỏ mọi giả thuyết nằm dưới đường xanh dương. Vùng giữa hai đường biểu thị các giả thuyết bị Holm bác bỏ nhưng Bonferroni không bác bỏ. Ở ô giữa, Holm bác bỏ nhiều hơn Bonferroni một giả thuyết không. Ở ô phải, Holm bác bỏ nhiều hơn năm giả thuyết._
+
+không đặt giả định về bản chất giả thuyết không, loại thống kê kiểm định hay tính phụ thuộc hoặc độc lập của các giá trị _p_. Tuy nhiên, trong một số bối cảnh rất cụ thể, ta có thể đạt power cao hơn bằng cách kiểm soát FWER với phương pháp được thiết kế sát nhiệm vụ. Tukey và Scheffé là hai ví dụ.
+
+Bảng 13.3 cho thấy trong tập `Fund`, Nhà quản lý Một và Hai có chênh lệch lớn nhất về tỷ suất sinh lợi trung bình mẫu. Phát hiện này có thể thúc đẩy ta kiểm định _H_ 0 : _µ_ 1 = _µ_ 2, trong đó _µj_ là tỷ suất sinh lợi trung bình tổng thể của nhà quản lý thứ _j_. Kiểm định _t_ hai mẫu (13.1) cho _H_ 0 tạo giá trị _p_ bằng 0 _._ 0349, gợi ý bằng chứng vừa phải chống lại _H_ 0. Tuy nhiên, giá trị _p_ này gây hiểu lầm vì ta chỉ quyết định so sánh Nhà quản lý Một và Hai sau khi xem tỷ suất sinh lợi của cả năm người; về bản chất, điều này tương đương thực hiện _m_ = 5 _×_ (5 _−_ 1) _/_ 2 = 10 kiểm định và chọn kiểm định có giá trị _p_ nhỏ nhất. Do đó, để kiểm soát FWER ở mức 0 _._ 05, ta nên hiệu chỉnh Bonferroni cho _m_ = 10 kiểm định và chỉ bác bỏ giả thuyết không có giá trị _p_ dưới 0 _._ 005. Khi làm vậy, ta không thể bác bỏ giả thuyết rằng Nhà quản lý Một và Hai có hiệu năng giống nhau.
+
+Tuy nhiên, trong bối cảnh này, hiệu chỉnh Bonferroni hơi quá nghiêm ngặt vì không xét việc _m_ = 10 kiểm định đều có liên hệ phần nào: chẳng hạn Nhà quản lý Hai và Năm có tỷ suất sinh lợi trung bình tương tự, Hai và Bốn cũng vậy; điều này bảo đảm tỷ suất sinh lợi trung bình của Bốn và Năm tương tự nhau. Nói cách khác, _m_ giá trị _p_ của _m_ phép so sánh từng cặp _không_ độc lập. Vì vậy, phải có cách kiểm soát FWER
+
+**HÌNH 13.4.** _Trong mỗi ô, với một lần mô phỏng riêng, các giá trị p đã sắp xếp của m_ = 15 _kiểm định được hiển thị, tương ứng với các kiểm định từng cặp về tính bằng nhau của G_ = 6 _trung bình. Có m_ 0 = 10 _giả thuyết không đúng được hiển thị bằng màu đen, còn lại màu đỏ. Khi kiểm soát FWER ở mức_ 0 _._ 05 _, Bonferroni bác bỏ mọi giả thuyết không nằm dưới đường đen, còn Tukey bác bỏ mọi giả thuyết dưới đường xanh dương. Vì vậy, Tukey có power nhỉnh hơn Bonferroni. Kiểm soát sai lầm loại I_ mà không _hiệu chỉnh cho kiểm định nhiều giả thuyết sẽ bác bỏ mọi giả thuyết nằm dưới đường xanh lá._
+
+ít bảo thủ hơn. Đây chính là ý tưởng của _phương pháp Tukey_: khi thực hiện _m_ = _G_ ( _G −_ 1) _/_ 2 so sánh từng cặp của _G_ trung bình, phương pháp cho phép kiểm soát FWER ở mức _α_ trong khi bác bỏ mọi giả thuyết không có giá trị _p_ dưới _αT_, với một _αT &gt; α/m_ nào đó.
+
+Hình 13.4 minh họa Tukey trên ba tập dữ liệu mô phỏng trong bối cảnh _G_ = 6 trung bình, với _µ_ 1 = _µ_ 2 = _µ_ 3 = _µ_ 4 = _µ_ 5 = _µ_ 6. Do đó, trong _m_ = _G_ ( _G −_ 1) _/_ 2 = 15 giả thuyết không dạng _H_ 0 : _µj_ = _µk_, có mười giả thuyết đúng và năm giả thuyết sai. Trong mỗi ô, giả thuyết không đúng có màu đen, còn giả thuyết sai có màu đỏ. Các đường ngang cho thấy Tukey luôn tạo ít nhất nhiều lượt bác bỏ bằng Bonferroni. Ở ô trái, Tukey bác bỏ đúng nhiều hơn Bonferroni hai giả thuyết không.
+
+Bây giờ, giả sử ta xem lại dữ liệu trong Bảng 13.3 và nhận thấy Nhà quản lý Một, Ba có tỷ suất sinh lợi trung bình cao hơn Hai, Bốn và Năm. Điều này có thể thúc đẩy ta kiểm định giả thuyết không
+
+(Nhớ rằng _µj_ là tỷ suất sinh lợi trung bình tổng thể của nhà quản lý quỹ phòng hộ thứ _j_.) Ta có thể kiểm định (13.8) bằng một biến thể của kiểm định _t_ hai mẫu trong (13.1), dẫn đến giá trị _p_ bằng 0 _._ 004. Điều này gợi ý bằng chứng mạnh về khác biệt giữa Nhà quản lý Một, Ba so với Hai, Bốn và Năm. Tuy nhiên, có một vấn đề: ta chỉ quyết định kiểm định giả thuyết không trong (13.8) sau khi xem dữ liệu ở Bảng 13.3. Theo một nghĩa nào đó, ta đã thực hiện kiểm định nhiều giả thuyết. Trong bối cảnh này, dùng Bonferroni để kiểm soát FWER ở mức _α_
+
+sẽ yêu cầu ngưỡng giá trị _p_ bằng _α/m_, với giá trị _m_ cực lớn.^(14)
+
+_Phương pháp Scheffé_ được thiết kế chính xác cho bối cảnh này. Nó cho phép tính một giá trị _αS_ sao cho việc bác bỏ giả thuyết không _H_ 0 trong (13.8) khi giá trị _p_ dưới _αS_ sẽ kiểm soát sai lầm loại I ở mức _α_. Với ví dụ `Fund`, để kiểm soát sai lầm loại I ở mức _α_ = 0 _._ 05, ta phải đặt _αS_ = 0 _._ 002. Vì vậy, ta không thể bác bỏ _H_ 0 trong (13.8), dù giá trị _p_ = 0 _._ 004 có vẻ rất nhỏ. Một ưu điểm quan trọng của Scheffé là có thể dùng cùng ngưỡng _αS_ = 0 _._ 002 để so sánh từng cặp với mọi cách chia các nhà quản lý thành hai nhóm: chẳng hạn, ta cũng có thể kiểm định _H_ 0 : 3^(1()^(_µ_1 +)^(_µ_2 +)^(_µ_3) =)^(1) 2^(()^(_µ_4 +)^(_µ_5)) và _H_ 0 :^(1) 4^(()^(_µ_1 +)^(_µ_2 +)^(_µ_3 +)^(_µ_4)=)^(_µ_5 bằng cùng ngưỡng 0)^(_._002,) mà không cần hiệu chỉnh thêm cho kiểm định nhiều giả thuyết.
+
+Tóm lại, Holm và Bonferroni là các cách hiệu chỉnh kiểm định nhiều giả thuyết rất tổng quát, áp dụng được trong mọi hoàn cảnh. Tuy nhiên, trong một số trường hợp đặc biệt, có thể dùng quy trình hiệu chỉnh có power cao hơn để kiểm soát FWER đồng thời đạt power lớn hơn, tức phạm ít sai lầm loại II hơn, so với Holm hoặc Bonferroni. Mục này đã minh họa hai ví dụ như vậy.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 13.3.3 Sự đánh đổi giữa FWER và power
+
+Nhìn chung, có sự đánh đổi giữa ngưỡng FWER được chọn và _power_ để bác bỏ các giả thuyết không. Nhớ rằng power được định nghĩa là số giả thuyết không sai mà ta bác bỏ chia cho tổng số giả thuyết không sai, tức _S/_ ( _m − m_ 0) theo ký hiệu của Bảng 13.2. Hình 13.5 minh họa kết quả mô phỏng với _m_ giả thuyết không, trong đó 90% đúng và 10% còn lại sai; power được biểu diễn theo FWER. Trong mô phỏng cụ thể này, khi _m_ = 10, FWER bằng 0 _._ 05 tương ứng với power khoảng 60%. Tuy nhiên, khi _m_ tăng, power giảm. Với _m_ = 500, power dưới 0 _._ 2 tại FWER 0 _._ 05, nên ta chỉ bác bỏ thành công 20% giả thuyết không sai.
+
+Hình 13.5 cho thấy việc kiểm soát FWER là hợp lý khi _m_ nhỏ, như 5 hoặc 10. Tuy nhiên, với _m_ = 100 hoặc _m_ = 1 _,_ 000, cố kiểm soát FWER sẽ khiến việc bác bỏ bất kỳ giả thuyết không sai nào gần như bất khả thi. Nói cách khác, power sẽ cực thấp.
+
+Tại sao lại như vậy? Theo ký hiệu trong Bảng 13.2, FWER được định nghĩa là Pr( _V ≥_ 1) (13.3). Nói cách khác, kiểm soát FWER ở mức _α_ bảo đảm nhà phân tích _rất khó_ bác bỏ bất kỳ giả thuyết không đúng nào, với xác suất không quá _α_, tức rất khó có dương tính giả. Để đáp ứng bảo đảm này khi _m_ lớn, nhà phân tích có thể buộc phải bác bỏ rất ít giả thuyết không, thậm chí không bác bỏ giả thuyết nào, vì nếu _R_ = 0 thì _V_ = 0; xem Bảng 13.2.
+
+> 14Thực tế, việc tính giá trị “đúng” của _m_ khá phức tạp về kỹ thuật và nằm ngoài phạm vi cuốn sách.
+
+**HÌNH 13.5.** _Trong mô phỏng có 90% trong số m giả thuyết không là đúng, power (tỷ lệ giả thuyết không sai được bác bỏ thành công) được biểu diễn theo tỷ lệ sai số theo họ. Các đường cong tương ứng với m_ = 10 (cam) _, m_ = 100 (xanh dương) _và m_ = 500 (tím) _. Khi m tăng, power giảm. Đường đứt nét thẳng đứng biểu thị FWER bằng_ 0 _._ 05 _._
+
+Điều này không thú vị về mặt khoa học và thường dẫn đến power rất thấp như trong Hình 13.5.
+
+Trong thực tế, khi _m_ lớn, ta có thể sẵn sàng chấp nhận một vài dương tính giả để đổi lấy nhiều khám phá hơn, tức bác bỏ nhiều giả thuyết không hơn. Đây là động lực của tỷ lệ khám phá giả, nội dung được trình bày tiếp theo.
+
+</MdxPage>

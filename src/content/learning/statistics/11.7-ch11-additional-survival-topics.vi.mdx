@@ -1,0 +1,83 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-additional-survival-topics",
+  "locale": "vi",
+  "title": "11.7 Các chủ đề bổ sung",
+  "headings": [
+    "11.7.1 Diện tích dưới đường cong cho phân tích sống còn",
+    "11.7.2 Lựa chọn thang thời gian",
+    "11.7.3 Hiệp biến phụ thuộc thời gian",
+    "11.7.4 Kiểm tra giả định nguy cơ tỷ lệ",
+    "11.7.5 Cây sống còn"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Các chủ đề bổ sung"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## 11.7.1 Diện tích dưới đường cong cho phân tích sống còn
+
+Trong Chương 4, ta đã giới thiệu diện tích dưới đường cong ROC — thường gọi là “AUC” — như một cách định lượng hiệu năng của bộ phân loại hai lớp. Định nghĩa _điểm số_ của quan sát thứ _i_ là ước lượng Pr(_Y_ = 1 _|X_ = _xi_) từ bộ phân loại. Nếu xét mọi cặp gồm một quan sát thuộc Lớp 1 và một quan sát thuộc Lớp 2, AUC chính là tỷ lệ các cặp mà điểm của quan sát thuộc Lớp 1 lớn hơn điểm của quan sát thuộc Lớp 2.
+
+Điều này gợi ý một cách khái quát hóa khái niệm AUC sang phân tích sống còn. Ta tính điểm nguy cơ ước lượng, _ηi_ = _β_^(ˆ) 1 _xi_ 1 + _· · ·_ + _β_^(ˆ) _pxip_, với ˆ ˆ _i_ = 1 _, . . . , n_, bằng các hệ số mô hình Cox. Nếu _ηi′ &gt; ηi_, mô hình dự đoán quan sát thứ _i_^(_′_) có nguy cơ lớn hơn quan sát thứ _i_, và do đó thời gian sống còn _ti_ sẽ _lớn hơn_ _ti′_. Vì vậy, ta có thể nghĩ đến việc khái quát hóa AUC bằng cách tính tỷ lệ quan sát thỏa _ti &gt; ti′_ và _ηi′ &gt; ηi_. Tuy nhiên, việc này không đơn giản như vậy, vì nhắc lại rằng ta không quan sát _t_ 1 _, . . . , tn_; thay vào đó ta quan sát
+
+**HÌNH 11.8.** _Với dữ liệu_ `Publication` _được giới thiệu ở Mục 11.5.4, ta dùng các hệ số ước lượng trên tập huấn luyện để tính ba nhóm “nguy cơ” trên tập kiểm tra. Các đường cong sống còn thu được tách biệt rõ ràng._
+
+các thời gian (có thể bị kiểm duyệt) _y_ 1 _, . . . , yn_, cùng các chỉ báo kiểm duyệt _δ_ 1 _, . . . , δn_.
+
+Do đó, _chỉ số tương hợp Harrell_ (Harrell’s concordance index, hay _C-index_) tính tỷ lệ các cặp quan sát thỏa _ηi′ &gt; ηi_ và _yi &gt; yi′_:
+
+trong đó biến chỉ báo _I_(ˆ _ηi′ &gt; ηi_) bằng một nếu _ηi′ &gt; ηi_ và bằng không trong trường hợp ngược lại. Tử số và mẫu số được nhân với chỉ báo trạng thái _δi′_ vì nếu quan sát thứ _i_^(_′_) không bị kiểm duyệt (tức _δi′_ = 1), thì _yi &gt; yi′_ suy ra _ti &gt; ti′_. Ngược lại, nếu _δi′_ = 0, thì _yi &gt; yi′_ không suy ra _ti &gt; ti′_.
+
+Ta khớp mô hình nguy cơ tỷ lệ Cox trên tập huấn luyện của dữ liệu `Publication` và tính _C_-index trên tập kiểm tra. Kết quả là _C_ = 0 _._ 733. Nói một cách gần đúng, với hai bài báo ngẫu nhiên từ tập kiểm tra, mô hình có thể dự đoán bài nào được công bố trước với độ chính xác 73,3%.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 11.7.2 Lựa chọn thang thời gian
+
+Trong các ví dụ đã xét đến đây trong chương, cách định nghĩa _thời gian_ khá rõ ràng. Ví dụ, trong bài toán `Publication`, _thời điểm không_ của mỗi bài báo được định nghĩa là thời điểm theo lịch khi nghiên cứu kết thúc, còn thời gian hỏng được định nghĩa là số tháng trôi qua từ lúc nghiên cứu kết thúc đến khi bài báo được công bố.
+
+Tuy nhiên, trong những bối cảnh khác, định nghĩa thời điểm không và thời gian hỏng có thể tinh tế hơn. Chẳng hạn, khi xem xét mối liên hệ giữa các yếu tố nguy cơ và sự xuất hiện bệnh trong một nghiên cứu dịch tễ học, ta có thể dùng tuổi của bệnh nhân để định nghĩa thời gian, sao cho thời điểm không là ngày sinh của bệnh nhân. Với lựa chọn này, không thể đo mối liên hệ giữa tuổi và khả năng sống còn; tuy nhiên, phân tích cũng không cần điều chỉnh theo tuổi. Khi xem xét các hiệp biến gắn với sống còn không bệnh (tức
+
+khoảng thời gian từ khi điều trị đến lúc bệnh tái phát), ta có thể dùng ngày điều trị làm thời điểm không.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 11.7.3 Hiệp biến phụ thuộc thời gian
+
+Một tính năng mạnh của mô hình nguy cơ tỷ lệ là khả năng xử lý _hiệp biến phụ thuộc thời gian_, tức các biến dự báo có giá trị thay đổi theo thời gian. Ví dụ, giả sử ta đo huyết áp bệnh nhân mỗi tuần trong suốt một nghiên cứu y khoa. Khi đó, có thể xem huyết áp của quan sát thứ _i_ không phải là _xi_, mà là _xi_(_t_) tại thời điểm _t_.
+
+Vì hàm hợp lý từng phần trong (11.16) được xây dựng tuần tự theo thời gian, việc xử lý hiệp biến phụ thuộc thời gian khá đơn giản. Cụ thể, ta chỉ cần lần lượt thay _xij_ và _xi′j_ trong (11.16) bằng _xij_(_yi_) và _xi′j_(_yi_); đây là các giá trị hiện tại của biến dự báo tại thời điểm _yi_. Ngược lại, hiệp biến phụ thuộc thời gian sẽ gây khó khăn lớn hơn nhiều trong một cách tiếp cận tham số truyền thống như (11.13).
+
+Một ví dụ về hiệp biến phụ thuộc thời gian xuất hiện trong phân tích dữ liệu của Chương trình Ghép tim Stanford. Những bệnh nhân cần ghép tim được đưa vào danh sách chờ. Một số bệnh nhân được ghép tim, nhưng những người khác tử vong khi vẫn còn trong danh sách chờ. Mục tiêu chính của phân tích là xác định liệu ghép tim có liên hệ với thời gian sống còn dài hơn hay không.
+
+Một cách tiếp cận ngây thơ sẽ dùng một hiệp biến cố định để biểu thị trạng thái ghép tim: tức _xi_ = 1 nếu bệnh nhân thứ _i_ từng được ghép tim và _xi_ = 0 trong trường hợp ngược lại. Nhưng cách này bỏ qua thực tế rằng bệnh nhân phải sống đủ lâu mới có thể được ghép tim, nên tính trung bình thì những bệnh nhân khỏe mạnh hơn được ghép tim. Có thể giải quyết vấn đề này bằng hiệp biến ghép tim phụ thuộc thời gian: _xi_(_t_) = 1 nếu bệnh nhân đã được ghép tim tính đến thời điểm _t_, và _xi_(_t_) = 0 trong trường hợp ngược lại.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 11.7.4 Kiểm tra giả định nguy cơ tỷ lệ
+
+Ta đã thấy mô hình nguy cơ tỷ lệ Cox dựa trên giả định nguy cơ tỷ lệ (11.14). Dù kết quả từ mô hình Cox thường khá vững trước các vi phạm giả định này, ta vẫn nên kiểm tra xem nó có thỏa mãn hay không. Với một đặc trưng định tính, ta có thể vẽ hàm log-nguy cơ cho mỗi mức của đặc trưng. Nếu (11.14) thỏa mãn, các hàm log-nguy cơ chỉ khác nhau một hằng số, như trong ô phía trên bên trái của Hình 11.4. Với đặc trưng định lượng, ta có thể dùng cách tương tự bằng cách phân tầng đặc trưng.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 11.7.5 Cây sống còn
+
+Trong Chương 8, ta đã thảo luận các quy trình học linh hoạt và thích nghi như cây, rừng ngẫu nhiên và boosting, áp dụng trong cả bài toán hồi quy lẫn phân loại. Hầu hết các phương pháp này có thể được khái quát sang bối cảnh phân tích sống còn. Ví dụ, _cây sống còn_ là một biến thể của cây phân loại và hồi quy, sử dụng tiêu chí chia tách làm cực đại hóa khác biệt giữa các đường cong sống còn trong những nút con thu được. Sau đó có thể dùng cây sống còn để tạo rừng sống còn ngẫu nhiên.
+
+</MdxPage>

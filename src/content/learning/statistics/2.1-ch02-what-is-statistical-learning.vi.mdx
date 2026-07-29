@@ -1,0 +1,206 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch02-what-is-statistical-learning",
+  "locale": "vi",
+  "title": "2.1 Học thống kê là gì?",
+  "headings": [
+    "Học thống kê là gì?",
+    "2.1.1 Tại sao cần ước lượng f?",
+    "2.1.2 Ước lượng f như thế nào?",
+    "2.1.3 Đánh đổi giữa độ chính xác dự đoán và khả năng diễn giải mô hình",
+    "2.1.4 Học có giám sát so với học không giám sát",
+    "2.1.5 Bài toán hồi quy so với phân loại"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Học thống kê",
+    "Học thống kê là gì?"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Học thống kê là gì?
+
+Để tạo động lực cho việc nghiên cứu học thống kê, ta bắt đầu bằng một ví dụ đơn giản. Giả sử ta là các chuyên gia tư vấn thống kê được một khách hàng thuê để khảo sát mối liên hệ giữa quảng cáo và doanh số của một sản phẩm cụ thể. Bộ dữ liệu `Advertising` gồm `sales` của sản phẩm đó tại 200 thị trường khác nhau, cùng ngân sách quảng cáo sản phẩm ở mỗi thị trường trên ba phương tiện: `TV`, `radio` và `newspaper`. Dữ liệu được trình bày trong Hình 2.1. Khách hàng không thể trực tiếp làm tăng doanh số sản phẩm, nhưng có thể kiểm soát chi tiêu quảng cáo trên từng phương tiện. Vì vậy, nếu xác định có mối liên hệ giữa quảng cáo và doanh số, ta có thể hướng dẫn khách hàng điều chỉnh ngân sách quảng cáo, qua đó gián tiếp làm tăng doanh số. Nói cách khác, mục tiêu là phát triển một mô hình chính xác có thể dự đoán doanh số dựa trên ngân sách của ba phương tiện.
+
+Trong bối cảnh này, ngân sách quảng cáo là _biến đầu vào_, còn `sales` là _biến đầu ra_. Biến đầu vào thường được ký hiệu bằng _X_ với chỉ số dưới để phân biệt. Chẳng hạn, _X_ 1 có thể là ngân sách `TV`, _X_ 2 là ngân sách `radio`, còn _X_ 3 là ngân sách `newspaper`. Biến đầu vào có nhiều tên gọi như _biến dự báo_, _biến độc lập_, _đặc trưng_, hoặc đôi khi chỉ là _biến_. Biến đầu ra — ở đây là `sales` — thường được gọi là _biến đáp ứng_ hoặc _biến phụ thuộc_, và thường ký hiệu là _Y_. Trong suốt cuốn sách, ta sẽ dùng các thuật ngữ này thay thế lẫn nhau.
+
+Tổng quát hơn, giả sử ta quan sát biến đáp ứng định lượng _Y_ và _p_ biến dự báo khác nhau, _X_ 1 _, X_ 2 _, . . . , Xp_. Ta giả sử có một quan hệ nào đó giữa _Y_ và _X_ = (_X_ 1 _, X_ 2 _, . . . , Xp_), có thể viết dưới dạng rất tổng quát
+
+**HÌNH 2.1.** _Bộ dữ liệu_ `Advertising`_. Biểu đồ trình bày_ `sales`_, tính bằng nghìn đơn vị, theo ngân sách_ `TV`, `radio` _và_ `newspaper`_, tính bằng nghìn đô la, tại_ 200 _thị trường khác nhau. Trong mỗi biểu đồ, ta vẽ phép khớp bình phương tối thiểu đơn của_ `sales` _theo biến đó, như mô tả trong Chương 3. Nói cách khác, mỗi đường màu xanh dương biểu diễn một mô hình đơn giản có thể dùng để dự đoán_ `sales` _lần lượt bằng_ `TV`, `radio` _và_ `newspaper`_._
+
+Ở đây _f_ là một hàm cố định nhưng chưa biết của _X_ 1 _, . . . , Xp_, còn _ϵ_ là một _sai số_ ngẫu nhiên, độc lập với _X_ và có trung bình bằng không. Trong dạng thức này, _f_ biểu thị thông tin _có hệ thống_ mà _X_ cung cấp về _Y_.
+
+**HÌNH 2.2.** _Bộ dữ liệu_ `Income`_._ Trái: _Các chấm đỏ là giá trị quan sát của_ `income` _(nghìn đô la) và_ `years of education` _của_ 30 _cá thể._ Phải: _Đường màu xanh dương biểu diễn quan hệ thực bên dưới giữa_ `income` _và_ `years of education`_, nhìn chung chưa biết (nhưng trong trường hợp này biết được vì dữ liệu được mô phỏng). Các đường màu đen biểu diễn sai số gắn với từng quan sát. Lưu ý một số sai số dương (nếu quan sát nằm trên đường màu xanh) và một số sai số âm (nếu quan sát nằm dưới đường màu xanh). Nhìn chung, các sai số này có trung bình xấp xỉ không._
+
+Một ví dụ khác là ô bên trái của Hình 2.2, biểu đồ `income` theo `years of education` của 30 cá thể trong bộ dữ liệu `Income`. Biểu đồ gợi ý rằng có thể dự đoán `income` bằng `years of education`. Tuy nhiên, hàm _f_ nối biến đầu vào với
+
+biến đầu ra nhìn chung chưa biết. Trong tình huống này, phải ước lượng _f_ từ các điểm quan sát. Vì `Income` là bộ dữ liệu mô phỏng, ta biết _f_ và biểu diễn nó bằng đường màu xanh ở ô bên phải Hình 2.2. Các đường thẳng đứng biểu diễn sai số _ϵ_. Ta lưu ý một số trong 30 quan sát nằm trên đường xanh, số khác nằm dưới; nhìn chung sai số có trung bình xấp xỉ không.
+
+Tổng quát, hàm _f_ có thể liên quan nhiều hơn một biến đầu vào. Trong Hình 2.3, ta vẽ `income` theo `years of education` và `seniority`. Ở đây _f_ là một bề mặt hai chiều phải được ước lượng từ dữ liệu quan sát.
+
+Về bản chất, học thống kê chỉ một tập các phương pháp ước lượng _f_. Trong chương này, ta phác thảo một số khái niệm lý thuyết chủ chốt phát sinh khi ước lượng _f_, cùng các công cụ đánh giá những ước lượng thu được.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 2.1.1 Tại sao cần ước lượng f?
+
+Có hai lý do chính khiến ta muốn ước lượng _f_: _dự đoán_ và _suy luận_. Ta lần lượt thảo luận từng lý do.
+
+##### Dự đoán
+
+Trong nhiều tình huống, một tập đầu vào _X_ có sẵn nhưng không dễ thu được đầu ra _Y_. Vì sai số có trung bình bằng không, ta có thể dự đoán _Y_ bằng
+
+trong đó _f_^(ˆ) biểu thị ước lượng của ta cho _f_, còn _Y_^(ˆ) biểu thị dự đoán thu được cho _Y_. Trong bối cảnh này, _f_^(ˆ) thường được xem là một _hộp đen_, theo nghĩa ta thường không quan tâm dạng chính xác của _f_^(ˆ), miễn là nó cho dự đoán chính xác về _Y_.
+
+Ví dụ, giả sử _X_ 1 _, . . . , Xp_ là các đặc điểm trong mẫu máu bệnh nhân có thể dễ dàng đo tại phòng thí nghiệm, còn _Y_ là biến mã hóa nguy cơ bệnh nhân gặp phản ứng bất lợi nghiêm trọng với một loại thuốc. Việc dùng _X_ để dự đoán _Y_ là hợp lý, vì khi đó ta có thể tránh dùng thuốc cho các bệnh nhân có nguy cơ phản ứng bất lợi cao — tức bệnh nhân có ước lượng _Y_ cao.
+
+Độ chính xác của _Y_^(ˆ) khi dự đoán _Y_ phụ thuộc vào hai đại lượng, gọi là _sai số có thể giảm_ và _sai số không thể giảm_. Nhìn chung, _f_^(ˆ) sẽ không phải một ước lượng hoàn hảo của _f_, và sự thiếu chính xác này tạo ra sai số. Sai số đó _có thể giảm_ vì ta có thể cải thiện độ chính xác của _f_^(ˆ) bằng cách dùng kỹ thuật học thống kê thích hợp nhất để ước lượng _f_. Tuy nhiên, ngay cả khi có thể tạo một ước lượng hoàn hảo cho _f_, sao cho biến đáp ứng ước lượng có dạng _Y_^(ˆ) = _f_(_X_), dự đoán vẫn có sai số! Lý do là _Y_ còn là một hàm của _ϵ_, mà theo định nghĩa không thể dự đoán từ _X_. Vì thế, độ biến thiên gắn với _ϵ_ cũng ảnh hưởng đến độ chính xác dự đoán. Đây được gọi là sai số _không thể giảm_, vì bất kể ước lượng _f_ tốt đến đâu, ta không thể giảm sai số do _ϵ_ tạo ra.
+
+Tại sao sai số không thể giảm lớn hơn không? Đại lượng _ϵ_ có thể chứa các biến chưa đo nhưng hữu ích để dự đoán _Y_: vì ta không
+
+**HÌNH 2.3.** _Biểu đồ trình bày_ `income` _theo_ `years of education` _và_ `seniority` _trong bộ dữ liệu_ `Income`_. Bề mặt màu xanh dương biểu diễn quan hệ thực bên dưới giữa_ `income`, `years of education` _và_ `seniority`_, biết được vì dữ liệu được mô phỏng. Các chấm đỏ chỉ giá trị quan sát của những đại lượng này ở_ 30 _cá thể._
+
+đo chúng, _f_ không thể dùng chúng để dự đoán. _ϵ_ cũng có thể chứa độ biến thiên không đo được. Chẳng hạn, nguy cơ phản ứng bất lợi của cùng một bệnh nhân có thể thay đổi theo ngày, tùy thuộc vào biến thiên trong quá trình sản xuất thuốc hoặc tình trạng sức khỏe chung của bệnh nhân ngày hôm đó.
+
+Xét một ước lượng _f_^(ˆ) và tập biến dự báo _X_, tạo dự đoán _Y_^(ˆ) = _f_^(ˆ)(_X_). Tạm giả sử cả _f_^(ˆ) và _X_ đều cố định, nên toàn bộ độ biến thiên đến từ _ϵ_. Khi đó dễ chứng minh rằng
+
+trong đó E(_Y − Y_^(ˆ))^(2) biểu thị trung bình, hay _kỳ vọng_, của bình phương chênh lệch giữa giá trị dự đoán và giá trị thực của _Y_, còn Var(_ϵ_) biểu thị _phương sai_ gắn với sai số _ϵ_.
+
+Cuốn sách tập trung vào các kỹ thuật ước lượng _f_ nhằm cực tiểu hóa sai số có thể giảm. Cần ghi nhớ sai số không thể giảm sẽ luôn đặt ra một giới hạn trên cho độ chính xác dự đoán _Y_. Trong thực tế, giới hạn này hầu như luôn chưa biết.
+
+Suy luận
+
+Ta thường muốn hiểu mối liên hệ giữa _Y_ và _X_ 1 _, . . . , Xp_. Khi đó ta muốn ước lượng _f_, nhưng mục tiêu không nhất thiết là dự đoán _Y_. Giờ không thể xem _f_^(ˆ) là hộp đen vì cần biết dạng chính xác của nó. Trong bối cảnh này, ta có thể muốn trả lời các câu hỏi sau:
+
+- _Những biến dự báo nào có liên hệ với biến đáp ứng?_ Thông thường chỉ một tỷ lệ nhỏ biến dự báo sẵn có có liên hệ đáng kể với _Y_. Việc xác định một vài biến dự báo _quan trọng_ trong một tập lớn các biến khả dĩ có thể cực kỳ hữu ích tùy ứng dụng.
+
+- _Quan hệ giữa biến đáp ứng và từng biến dự báo là gì?_ Một số biến dự báo có thể có quan hệ dương với _Y_, theo nghĩa giá trị biến dự báo lớn hơn gắn với giá trị _Y_ lớn hơn. Những biến khác có thể có quan hệ ngược lại. Tùy độ phức tạp của _f_, quan hệ giữa biến đáp ứng và một biến dự báo cụ thể cũng có thể phụ thuộc vào giá trị của các biến dự báo khác.
+
+- _Có thể tóm tắt đầy đủ quan hệ giữa Y và từng biến dự báo bằng một phương trình tuyến tính hay quan hệ phức tạp hơn?_ Trong lịch sử, hầu hết phương pháp ước lượng _f_ đều có dạng tuyến tính. Trong một số tình huống, giả định này hợp lý hoặc thậm chí đáng mong muốn. Nhưng quan hệ thực thường phức tạp hơn; khi đó mô hình tuyến tính có thể không biểu diễn chính xác quan hệ giữa biến đầu vào và đầu ra.
+
+Trong sách, ta sẽ thấy nhiều ví dụ thuộc bối cảnh dự đoán, suy luận hoặc kết hợp cả hai.
+
+Chẳng hạn, xét một công ty muốn thực hiện chiến dịch tiếp thị trực tiếp. Mục tiêu là xác định những người có khả năng phản hồi tích cực với thư quảng cáo dựa trên quan sát các biến nhân khẩu học của từng người. Ở đây, các biến nhân khẩu học đóng vai trò biến dự báo, còn phản hồi với chiến dịch tiếp thị (tích cực hoặc tiêu cực) là kết quả. Công ty không quan tâm việc hiểu sâu quan hệ giữa từng biến dự báo và biến đáp ứng; thay vào đó, họ chỉ muốn dự đoán chính xác biến đáp ứng bằng các biến dự báo. Đây là ví dụ về mô hình hóa để dự đoán.
+
+Ngược lại, xét dữ liệu `Advertising` trong Hình 2.1. Ta có thể muốn trả lời các câu hỏi như:
+
+- _Phương tiện nào có liên hệ với doanh số?_
+
+- _Phương tiện nào làm doanh số tăng nhiều nhất?_ hoặc
+
+- _Một mức tăng cụ thể trong quảng cáo TV gắn với mức tăng doanh số bao nhiêu?_
+
+Tình huống này thuộc khuôn khổ suy luận. Một ví dụ khác là mô hình hóa nhãn hiệu sản phẩm mà khách hàng có thể mua dựa trên các biến như giá, vị trí cửa hàng, mức chiết khấu, giá của đối thủ, v.v. Trong tình huống này, ta có thể quan tâm nhất đến mối liên hệ giữa từng biến và xác suất mua. Chẳng hạn, _giá sản phẩm có liên hệ với doanh số đến mức nào?_ Đây là ví dụ về mô hình hóa để suy luận.
+
+Cuối cùng, một số mô hình hóa có thể phục vụ cả dự đoán lẫn suy luận. Ví dụ trong bối cảnh bất động sản, ta có thể tìm quan hệ giữa giá trị
+
+nhà và các đầu vào như tỷ lệ tội phạm, quy hoạch, khoảng cách tới sông, chất lượng không khí, trường học, mức thu nhập của cộng đồng, kích thước nhà, v.v. Ta có thể quan tâm mối liên hệ giữa từng biến đầu vào và giá nhà — chẳng hạn, _một căn nhà nhìn ra sông sẽ đáng giá thêm bao nhiêu?_ Đây là bài toán suy luận. Một phương án khác là chỉ quan tâm dự đoán giá trị ngôi nhà từ các đặc điểm: _căn nhà này đang được định giá thấp hay cao?_ Đây là bài toán dự đoán.
+
+Tùy mục tiêu cuối cùng là dự đoán, suy luận hay kết hợp cả hai, các phương pháp ước lượng _f_ khác nhau có thể phù hợp. Ví dụ, _mô hình tuyến tính_ cho phép suy luận tương đối đơn giản và dễ diễn giải, nhưng dự đoán có thể không chính xác bằng một số cách khác. Ngược lại, những phương pháp rất phi tuyến được thảo luận ở các chương sau có thể cho dự đoán _Y_ khá chính xác, đổi lại mô hình khó diễn giải hơn và việc suy luận khó khăn hơn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 2.1.2 Ước lượng f như thế nào?
+
+Trong suốt cuốn sách, ta khảo sát nhiều cách tuyến tính và phi tuyến để ước lượng _f_. Dù vậy, các phương pháp nhìn chung có một số đặc điểm chung. Mục này tổng quan những đặc điểm đó. Ta luôn giả sử đã quan sát một tập _n_ điểm dữ liệu khác nhau. Chẳng hạn trong Hình 2.2, ta quan sát _n_ = 30 điểm. Các quan sát này gọi là _dữ liệu huấn luyện_ vì ta sẽ dùng chúng để huấn luyện, hay dạy, phương pháp cách ước lượng _f_. Gọi _xij_ là giá trị biến dự báo, hay đầu vào, thứ _j_ của quan sát _i_, trong đó _i_ = 1 _,_ 2 _, . . . , n_ và _j_ = 1 _,_ 2 _, . . . , p_. Tương ứng, gọi _yi_ là biến đáp ứng của quan sát thứ _i_. Khi đó dữ liệu huấn luyện gồm _\{_(_x_ 1 _, y_ 1) _,_ (_x_ 2 _, y_ 2) _, . . . ,_ (_xn, yn_) _\}_, trong đó _xi_ = (_xi_ 1 _, xi_ 2 _, . . . , xip_)^(_T_).
+
+Mục tiêu là áp dụng một phương pháp học thống kê cho dữ liệu huấn luyện để ước lượng hàm chưa biết _f_. Nói cách khác, ta muốn tìm một hàm _f_^(ˆ) sao cho _Y ≈ f_^(ˆ)(_X_) với mọi quan sát (_X, Y_). Đại thể, hầu hết phương pháp học thống kê cho bài toán này có thể được mô tả là _tham số_ hoặc _phi tham số_. Ta thảo luận ngắn gọn hai kiểu tiếp cận.
+
+##### Phương pháp tham số
+
+Phương pháp tham số dùng một cách tiếp cận dựa trên mô hình gồm hai bước.
+
+1. Đầu tiên, ta đặt giả định về dạng hàm hay hình dạng của _f_. Ví dụ, một giả định rất đơn giản là _f_ tuyến tính theo _X_:
+
+Đây là _mô hình tuyến tính_, sẽ được thảo luận kỹ trong Chương 3. Khi đã giả sử _f_ tuyến tính, bài toán ước lượng _f_ được đơn giản hóa đáng kể. Thay vì phải ước lượng một hàm _p_ chiều hoàn toàn tùy ý _f_(_X_), ta chỉ cần ước lượng _p_ + 1 hệ số _β_ 0 _, β_ 1 _, . . . , βp_.
+
+**HÌNH 2.4.** _Một mô hình tuyến tính được khớp bằng bình phương tối thiểu với dữ liệu_ `Income` _từ Hình 2.3. Các quan sát được vẽ màu đỏ, còn mặt phẳng màu vàng chỉ phép khớp bình phương tối thiểu với dữ liệu._
+
+2. Sau khi chọn mô hình, ta cần một quy trình dùng dữ liệu huấn luyện để _khớp_ hay _huấn luyện_ mô hình. Với mô hình tuyến tính
+
+(2.4), ta cần ước lượng các tham số _β_ 0 _, β_ 1 _, . . . , βp_. Tức ta muốn tìm các giá trị tham số sao cho
+
+   - huấn luyện
+
+Cách phổ biến nhất để khớp mô hình (2.4) được gọi là _bình phương tối thiểu (thông thường)_, sẽ thảo luận trong Chương 3. Tuy nhiên, bình phương tối thiểu chỉ là một trong nhiều cách khớp mô hình tuyến tính. Trong Chương 6, ta thảo luận các cách khác để ước lượng tham số trong (2.4).
+
+Cách tiếp cận dựa trên mô hình vừa mô tả gọi là _tham số_; nó quy bài toán ước lượng _f_ về ước lượng một tập tham số. Giả sử một dạng tham số cho _f_ đơn giản hóa bài toán vì nhìn chung ước lượng một tập tham số, như _β_ 0 _, β_ 1 _, . . . , βp_ trong mô hình tuyến tính (2.4), dễ hơn nhiều so với khớp một hàm hoàn toàn tùy ý _f_. Nhược điểm tiềm tàng là mô hình được chọn thường không khớp dạng thực chưa biết của _f_. Nếu mô hình chọn khác quá xa _f_ thực, ước lượng sẽ kém. Ta có thể cố xử lý vấn đề bằng cách chọn các mô hình _linh hoạt_ có thể khớp nhiều dạng hàm khác nhau của _f_. Nhưng nhìn chung, khớp mô hình linh hoạt hơn đòi hỏi ước lượng nhiều tham số hơn. Các mô hình phức tạp hơn này có thể dẫn đến hiện tượng _quá khớp_ dữ liệu, về bản chất là bám quá sát sai số hay _nhiễu_. Các vấn đề này được thảo luận xuyên suốt cuốn sách.
+
+Hình 2.4 cho thấy ví dụ áp dụng cách tiếp cận tham số cho dữ liệu `Income` từ Hình 2.3. Ta khớp mô hình tuyến tính có dạng
+
+income _≈ β_ 0 + _β_ 1 _×_ education + _β_ 2 _×_ seniority_._
+
+**HÌNH 2.5.** _Một thin-plate spline trơn được khớp với dữ liệu_ `Income` _từ Hình 2.3 được vẽ màu vàng; các quan sát được vẽ màu đỏ. Spline được thảo luận trong Chương 7._
+
+Vì đã giả sử quan hệ tuyến tính giữa biến đáp ứng và hai biến dự báo, toàn bộ bài toán khớp được rút gọn thành ước lượng _β_ 0, _β_ 1 và _β_ 2 bằng hồi quy tuyến tính bình phương tối thiểu. So sánh Hình 2.3 với Hình 2.4, ta thấy phép khớp tuyến tính trong Hình 2.4 chưa hoàn toàn đúng: _f_ thực có một độ cong mà phép khớp tuyến tính không nắm bắt. Tuy nhiên, phép khớp vẫn nắm bắt khá hợp lý quan hệ dương giữa `years of education` và `income`, cũng như quan hệ dương yếu hơn giữa `seniority` và `income`. Với số quan sát nhỏ như vậy, có thể đây là điều tốt nhất ta làm được.
+
+##### Phương pháp phi tham số
+
+Phương pháp phi tham số không đặt giả định tường minh về dạng hàm của _f_. Thay vào đó, chúng tìm ước lượng _f_ gần các điểm dữ liệu nhất có thể nhưng không quá thô hay dao động. Các cách này có một ưu điểm lớn so với phương pháp tham số: khi tránh giả định một dạng hàm cụ thể cho _f_, chúng có khả năng khớp chính xác một miền hình dạng rộng hơn của _f_. Mọi cách tiếp cận tham số đều tiềm ẩn khả năng dạng hàm dùng để ước lượng _f_ rất khác _f_ thực, khiến mô hình thu được không khớp tốt dữ liệu. Ngược lại, cách tiếp cận phi tham số hoàn toàn tránh nguy cơ này vì về cơ bản không đặt giả định về dạng _f_. Nhưng chúng có một nhược điểm lớn: vì không quy bài toán ước lượng _f_ về một số ít tham số, cần rất nhiều quan sát (nhiều hơn đáng kể so với phương pháp tham số) để thu được ước lượng chính xác cho _f_.
+
+Một ví dụ về cách phi tham số để khớp dữ liệu `Income` được trình bày trong Hình 2.5. Một _thin-plate spline_ được dùng để ước lượng _f_. Cách này không áp đặt bất kỳ mô hình định trước nào lên _f_. Thay vào đó, nó cố
+
+**HÌNH 2.6.** _Một thin-plate spline thô được khớp với dữ liệu_ `Income` _từ Hình 2.3. Phép khớp này có sai số bằng không trên dữ liệu huấn luyện._
+
+tạo một ước lượng _f_ gần dữ liệu quan sát nhất có thể, với điều kiện phép khớp — tức bề mặt màu vàng trong Hình 2.5 — phải _trơn_. Trong trường hợp này, phép khớp phi tham số tạo một ước lượng _f_ thực trong Hình 2.3 chính xác đáng kể. Để khớp thin-plate spline, người phân tích dữ liệu phải chọn mức độ trơn. Hình 2.6 trình bày cùng phép khớp thin-plate spline với mức độ trơn thấp hơn, cho phép phép khớp thô hơn. Ước lượng thu được khớp dữ liệu quan sát hoàn hảo! Tuy nhiên, spline trong Hình 2.6 biến thiên nhiều hơn hẳn hàm thực _f_ trong Hình 2.3. Đây là ví dụ về quá khớp dữ liệu đã thảo luận trước đó. Tình huống này không mong muốn vì phép khớp thu được sẽ không ước lượng chính xác biến đáp ứng cho các quan sát mới không thuộc tập dữ liệu huấn luyện gốc. Ta thảo luận phương pháp chọn mức độ trơn _đúng_ trong Chương 5. Spline được thảo luận trong Chương 7.
+
+Như đã thấy, phương pháp tham số và phi tham số trong học thống kê đều có ưu và nhược điểm. Ta khảo sát cả hai loại xuyên suốt cuốn sách.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 2.1.3 Đánh đổi giữa độ chính xác dự đoán và khả năng diễn giải mô hình
+
+Trong nhiều phương pháp được xem xét trong sách, một số kém linh hoạt hay hạn chế hơn, theo nghĩa chúng chỉ có thể tạo một miền hình dạng tương đối nhỏ để ước lượng _f_. Chẳng hạn, hồi quy tuyến tính tương đối kém linh hoạt vì chỉ có thể tạo các hàm tuyến tính như các đường trong Hình 2.1 hoặc mặt phẳng trong Hình 2.4. Những phương pháp khác như thin-plate spline trong Hình 2.5 và 2.6 linh hoạt hơn đáng kể vì có thể tạo một miền hình dạng rộng hơn nhiều để ước lượng _f_.
+
+**HÌNH 2.7.** _Biểu diễn sự đánh đổi giữa tính linh hoạt và khả năng diễn giải của các phương pháp học thống kê khác nhau. Nhìn chung, tính linh hoạt của phương pháp càng tăng thì khả năng diễn giải càng giảm._
+
+Một câu hỏi hợp lý là: _tại sao ta lại chọn một phương pháp hạn chế hơn thay vì phương pháp rất linh hoạt?_ Có vài lý do để ưu tiên mô hình hạn chế hơn. Nếu chủ yếu quan tâm suy luận, mô hình hạn chế dễ diễn giải hơn nhiều. Chẳng hạn, khi mục tiêu là suy luận, mô hình tuyến tính có thể là lựa chọn tốt vì dễ hiểu quan hệ giữa _Y_ và _X_ 1 _, X_ 2 _, . . . , Xp_. Ngược lại, các phương pháp rất linh hoạt như spline được thảo luận trong Chương 7 và biểu diễn trong Hình 2.5, 2.6, hay boosting trong Chương 8 có thể tạo các ước lượng _f_ phức tạp đến mức khó hiểu từng biến dự báo có liên hệ với biến đáp ứng như thế nào.
+
+Hình 2.7 minh họa sự đánh đổi giữa tính linh hoạt và khả năng diễn giải của một số phương pháp trong sách. Hồi quy tuyến tính bình phương tối thiểu ở Chương 3 tương đối kém linh hoạt nhưng khá dễ diễn giải. _Lasso_ ở Chương 6 dựa trên mô hình tuyến tính (2.4), nhưng dùng một quy trình khớp khác để ước lượng các hệ số _β_ 0 _, β_ 1 _, . . . , βp_. Quy trình mới hạn chế hơn khi ước lượng hệ số và đặt một số hệ số bằng chính xác không. Vì vậy, theo nghĩa này lasso kém linh hoạt hơn hồi quy tuyến tính. Nó cũng dễ diễn giải hơn vì trong mô hình cuối, biến đáp ứng chỉ liên hệ với một tập con nhỏ biến dự báo — những biến có hệ số ước lượng khác không. _Mô hình cộng tính tổng quát_ (GAM) ở Chương 7 mở rộng mô hình tuyến tính (2.4) để cho phép một số quan hệ phi tuyến. Do đó, GAM linh hoạt hơn hồi quy tuyến tính. Chúng cũng hơi khó diễn giải hơn vì quan hệ giữa từng biến dự báo và biến đáp ứng giờ được mô hình hóa bằng một đường cong. Cuối cùng, các phương pháp hoàn toàn phi tuyến như _bagging_, _boosting_, _máy vector hỗ trợ_ với kernel phi tuyến và _mạng nơ-ron_ (học sâu), được thảo luận trong Chương 8, 9 và 10, là những phương pháp rất linh hoạt nhưng khó diễn giải hơn.
+
+Ta đã xác lập rằng khi mục tiêu là suy luận, dùng các phương pháp học thống kê đơn giản và tương đối kém linh hoạt có lợi thế rõ ràng. Tuy nhiên, trong một số bối cảnh ta chỉ quan tâm dự đoán, còn khả năng diễn giải mô hình dự đoán không quan trọng. Chẳng hạn, nếu muốn phát triển thuật toán dự đoán giá cổ phiếu, yêu cầu duy nhất là thuật toán dự đoán chính xác — khả năng diễn giải không phải mối quan tâm. Trong bối cảnh này, ta có thể kỳ vọng dùng mô hình linh hoạt nhất sẵn có sẽ là tốt nhất. Đáng ngạc nhiên là không phải lúc nào cũng vậy! Ta thường thu được dự đoán chính xác hơn bằng phương pháp kém linh hoạt hơn. Hiện tượng ban đầu có vẻ phản trực giác này liên quan đến khả năng quá khớp của các phương pháp rất linh hoạt. Ta đã thấy một ví dụ quá khớp trong Hình 2.6. Khái niệm rất quan trọng này sẽ được thảo luận thêm ở Mục 2.2 và xuyên suốt cuốn sách.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 2.1.4 Học có giám sát so với học không giám sát
+
+Hầu hết bài toán học thống kê thuộc một trong hai nhóm: _học có giám sát_ hoặc _học không giám sát_. Những ví dụ đã thảo luận trong chương đến đây đều thuộc học có giám sát. Với mỗi quan sát biến dự báo _xi_, _i_ = 1 _, . . . , n_, có một phép đo biến đáp ứng _yi_ tương ứng. Ta muốn khớp một mô hình liên hệ biến đáp ứng với các biến dự báo nhằm dự đoán chính xác biến đáp ứng của quan sát tương lai (dự đoán) hoặc hiểu rõ hơn quan hệ giữa biến đáp ứng và biến dự báo (suy luận). Nhiều phương pháp học thống kê cổ điển như hồi quy tuyến tính, _hồi quy logistic_ (Chương 4), cũng như các phương pháp hiện đại hơn như GAM, boosting và máy vector hỗ trợ, hoạt động trong bối cảnh học có giám sát. Phần lớn cuốn sách dành cho bối cảnh này.
+
+Ngược lại, học không giám sát mô tả tình huống khó hơn đôi chút, nơi với mỗi quan sát _i_ = 1 _, . . . , n_, ta quan sát vector phép đo _xi_ nhưng không có biến đáp ứng _yi_ tương ứng. Không thể khớp mô hình hồi quy tuyến tính vì không có biến đáp ứng để dự đoán. Theo một nghĩa nào đó, ta đang làm việc trong bóng tối; tình huống được gọi là _không giám sát_ vì thiếu biến đáp ứng giám sát phân tích. Có thể thực hiện kiểu phân tích thống kê nào? Ta có thể tìm hiểu quan hệ giữa các biến hoặc giữa các quan sát. Một công cụ học thống kê dùng trong bối cảnh này là _phân tích cụm_, hay phân cụm. Mục tiêu của phân tích cụm là xác định từ _x_ 1 _, . . . , xn_ liệu các quan sát có rơi vào những nhóm tương đối riêng biệt hay không. Ví dụ, trong nghiên cứu phân khúc thị trường, ta có thể quan sát nhiều đặc điểm (biến) của khách hàng tiềm năng như mã bưu chính, thu nhập gia đình và thói quen mua sắm. Ta có thể tin rằng khách hàng thuộc các nhóm khác nhau, như người chi tiêu nhiều và ít. Nếu có thông tin về kiểu chi tiêu của từng khách hàng, ta có thể thực hiện phân tích có giám sát. Nhưng thông tin này không có — tức ta không biết mỗi khách hàng tiềm năng có chi tiêu nhiều hay không. Trong bối cảnh này, ta có thể phân cụm khách hàng dựa trên các biến đo được để xác định
+
+**HÌNH 2.8.** _Một bộ dữ liệu phân cụm gồm ba nhóm. Mỗi nhóm được biểu diễn bằng một ký hiệu có màu khác nhau._ Trái: _Ba nhóm tách biệt rõ ràng. Trong bối cảnh này, phương pháp phân cụm có thể xác định thành công ba nhóm._ Phải: _Các nhóm chồng lấp phần nào. Giờ bài toán phân cụm khó hơn._
+
+các nhóm khách hàng tiềm năng riêng biệt. Việc xác định những nhóm này có thể hữu ích vì chúng có thể khác nhau về một thuộc tính quan tâm như thói quen chi tiêu.
+
+Hình 2.8 minh họa đơn giản bài toán phân cụm. Ta vẽ 150 quan sát có phép đo trên hai biến _X_ 1 và _X_ 2. Mỗi quan sát tương ứng với một trong ba nhóm riêng biệt. Để minh họa, ta vẽ thành viên mỗi nhóm bằng màu và ký hiệu khác nhau. Nhưng trong thực tế, tư cách thành viên nhóm chưa biết và mục tiêu là xác định mỗi quan sát thuộc nhóm nào. Trong ô bên trái của Hình 2.8, đây là nhiệm vụ khá dễ vì các nhóm tách biệt rõ. Ngược lại, ô bên phải minh họa bối cảnh khó hơn khi các nhóm chồng lấp phần nào. Không thể kỳ vọng một phương pháp phân cụm gán mọi điểm chồng lấp vào đúng nhóm (xanh dương, xanh lá hoặc cam).
+
+Trong các ví dụ ở Hình 2.8 chỉ có hai biến, nên có thể quan sát trực tiếp scatterplot để xác định cụm. Nhưng trong thực tế, ta thường gặp bộ dữ liệu chứa nhiều hơn hai biến. Khi đó không dễ vẽ các quan sát. Chẳng hạn, nếu bộ dữ liệu có _p_ biến, có thể tạo _p_(_p −_ 1) _/_ 2 scatterplot riêng, và quan sát trực quan đơn giản không phải cách khả thi để xác định cụm. Vì vậy, các phương pháp phân cụm tự động rất quan trọng. Ta thảo luận phân cụm và các phương pháp học không giám sát khác trong Chương 12.
+
+Nhiều bài toán tự nhiên thuộc khuôn khổ học có giám sát hoặc không giám sát. Tuy nhiên, đôi khi việc xem một phân tích là có giám sát hay không giám sát không rõ ràng. Chẳng hạn, giả sử có tập _n_ quan sát. Với _m_ quan sát, trong đó _m &lt; n_, ta có cả phép đo biến dự báo và một
+
+phép đo biến đáp ứng. Với _n − m_ quan sát còn lại, ta có phép đo biến dự báo nhưng không có biến đáp ứng. Tình huống này có thể phát sinh khi biến dự báo tương đối rẻ để đo, còn biến đáp ứng tương ứng tốn kém hơn nhiều để thu thập. Đây gọi là bài toán _học bán giám sát_. Trong bối cảnh này, ta muốn dùng phương pháp học thống kê có thể kết hợp cả _m_ quan sát có phép đo biến đáp ứng và _n − m_ quan sát không có. Dù đây là chủ đề thú vị, nó nằm ngoài phạm vi cuốn sách.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 2.1.5 Bài toán hồi quy so với phân loại
+
+Biến có thể được mô tả là _định lượng_ hoặc _định tính_ (còn gọi là _phân loại_). Biến định lượng nhận giá trị số. Ví dụ gồm tuổi, chiều cao hoặc thu nhập của một người, giá trị căn nhà và giá cổ phiếu. Ngược lại, biến định tính nhận giá trị thuộc một trong _K_ _lớp_ hay nhóm khác nhau. Ví dụ gồm tình trạng hôn nhân (đã kết hôn hay chưa), nhãn hiệu sản phẩm đã mua (A, B hoặc C), một người có vỡ nợ hay không (có hoặc không), hay chẩn đoán ung thư (bạch cầu cấp dòng tủy, bạch cầu cấp dòng lympho hoặc không mắc bệnh bạch cầu). Ta thường gọi bài toán có biến đáp ứng định lượng là bài toán _hồi quy_, còn bài toán có biến đáp ứng định tính là bài toán _phân loại_. Tuy nhiên, sự phân biệt không phải lúc nào cũng rạch ròi. Hồi quy tuyến tính bình phương tối thiểu (Chương 3) được dùng với biến đáp ứng định lượng, còn hồi quy logistic (Chương 4) thường dùng với biến đáp ứng định tính (hai lớp hay _nhị phân_). Vì vậy, bất chấp tên gọi, hồi quy logistic là một phương pháp phân loại. Nhưng vì nó ước lượng xác suất lớp, cũng có thể xem nó là một phương pháp hồi quy. Một số phương pháp thống kê như _K_ láng giềng gần nhất (Chương 2 và 4) và boosting (Chương 8) có thể dùng với cả biến đáp ứng định lượng lẫn định tính.
+
+Ta thường chọn phương pháp học thống kê dựa trên biến đáp ứng là định lượng hay định tính; tức có thể dùng hồi quy tuyến tính khi định lượng và hồi quy logistic khi định tính. Tuy nhiên, việc _biến dự báo_ là định tính hay định lượng nhìn chung ít quan trọng hơn. Hầu hết phương pháp học thống kê trong sách có thể áp dụng bất kể kiểu biến dự báo, miễn là mọi biến dự báo định tính được _mã hóa_ đúng trước khi phân tích. Nội dung này được thảo luận trong Chương 3.
+
+</MdxPage>

@@ -1,0 +1,216 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch08-tree-ensemble-methods",
+  "locale": "en",
+  "title": "8.2 Bagging, Random Forests, Boosting, and Bayesian Additive Regression Trees",
+  "headings": [
+    "Bagging, Random Forests, Boosting, and Bayesian Additive Regression Trees",
+    "8.2.1 Bagging",
+    "8.2.2 Random Forests",
+    "8.2.3 Boosting",
+    "8.2.4 Bayesian Additive Regression Trees",
+    "8.2.5 Summary of Tree Ensemble Methods"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Tree-Based Methods",
+    "Bagging, Random Forests, Boosting, and Bayesian Additive Regression Trees"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Bagging, Random Forests, Boosting, and Bayesian Additive Regression Trees
+
+An _ensemble_ method is an approach that combines many simple “building ensemble block” models in order to obtain a single and potentially very powerful model. These simple building block models are sometimes known as _weak learners_ , since they may lead to mediocre predictions on their own.
+
+We will now discuss bagging, random forests, boosting, and Bayesian additive regression trees. These are ensemble methods for which the simple building block is a regression or a classification tree.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 8.2.1 Bagging
+
+The bootstrap, introduced in Chapter 5, is an extremely powerful idea. It is used in many situations in which it is hard or even impossible to directly compute the standard deviation of a quantity of interest. We see here that the bootstrap can be used in a completely different context, in order to improve statistical learning methods such as decision trees.
+
+The decision trees discussed in Section 8.1 suffer from _high variance_ . This means that if we split the training data into two parts at random, and fit a decision tree to both halves, the results that we get could be quite different. In contrast, a procedure with _low variance_ will yield similar results if applied repeatedly to distinct data sets; linear regression tends to have low variance, if the ratio of _n_ to _p_ is moderately large. _Bootstrap aggregation_ , or _bagging_ , is a general-purpose procedure for reducing the bagging variance of a statistical learning method; we introduce it here because it is particularly useful and frequently used in the context of decision trees.
+
+Recall that given a set of _n_ independent observations _Z_ 1 _, . . . , Zn_ , each with variance _σ_^(2) , the variance of the mean _Z_^(¯) of the observations is given by _σ_^(2) _/n_ . In other words, _averaging a set of observations reduces variance_ . Hence a natural way to reduce the variance and increase the test set accuracy of a statistical learning method is to take many training sets from the population, build a separate prediction model using each training set, and _f_ ˆ^(1) ( _x_ )average _, f_ ˆ^(2) ( _x_ ) _, . . . ,_ the resulting _f_ ˆ^(_B_) ( _x_ ) usingpredictions. _B_ separateIn trainingother words,sets, weandcouldaveragecalculatethem in order to obtain a single low-variance statistical learning model, given by
+
+Of course, this is not practical because we generally do not have access to multiple training sets. Instead, we can bootstrap, by taking repeated samples from the (single) training data set. In this approach we generate _B_ different bootstrapped training data sets. We then train our method on the _b_ th bootstrapped training set in order to get _f_^(ˆ)^(_∗b_) ( _x_ ), and finally average all the predictions, to obtain
+
+**FIGURE 8.8.** _Bagging and random forest results for the_ `Heart` _data. The test error (black and orange) is shown as a function of B, the number of bootstrapped training sets used. Random forests were applied with m_ =^(_√_) _p. The dashed line indicates the test error resulting from a single classification tree. The green and blue traces show the OOB error, which in this case is — by chance — considerably lower._
+
+This is called bagging.
+
+While bagging can improve predictions for many regression methods, it is particularly useful for decision trees. To apply bagging to regression trees, we simply construct _B_ regression trees using _B_ bootstrapped training sets, and average the resulting predictions. These trees are grown deep, and are not pruned. Hence each individual tree has high variance, but low bias. Averaging these _B_ trees reduces the variance. Bagging has been demonstrated to give impressive improvements in accuracy by combining together hundreds or even thousands of trees into a single procedure.
+
+Thus far, we have described the bagging procedure in the regression context, to predict a quantitative outcome _Y_ . How can bagging be extended to a classification problem where _Y_ is qualitative? In that situation, there are a few possible approaches, but the simplest is as follows. For a given test observation, we can record the class predicted by each of the _B_ trees, and take a _majority vote_ : the overall prediction is the most commonly occurring majority class among the _B_ predictions.
+
+Figure 8.8 shows the results from bagging trees on the `Heart` data. The test error rate is shown as a function of _B_ , the number of trees constructed using bootstrapped training data sets. We see that the bagging test error rate is slightly lower in this case than the test error rate obtained from a single tree. The number of trees _B_ is not a critical parameter with bagging; using a very large value of _B_ will not lead to overfitting. In practice we
+
+use a value of _B_ sufficiently large that the error has settled down. Using _B_ = 100 is sufficient to achieve good performance in this example.
+
+##### _Out-of-Bag_ Error Estimation
+
+It turns out that there is a very straightforward way to estimate the test error of a bagged model, without the need to perform cross-validation or the validation set approach. Recall that the key to bagging is that trees are repeatedly fit to bootstrapped subsets of the observations. One can show that on average, each bagged tree makes use of around two-thirds of the observations.^(3) The remaining one-third of the observations not used to fit a given bagged tree are referred to as the _out-of-bag_ (OOB) observations. We out-of-bag can predict the response for the _i_ th observation using each of the trees in which that observation was OOB. This will yield around _B/_ 3 predictions for the _i_ th observation. In order to obtain a single prediction for the _i_ th observation, we can average these predicted responses (if regression is the goal) or can take a majority vote (if classification is the goal). This leads to a single OOB prediction for the _i_ th observation. An OOB prediction can be obtained in this way for each of the _n_ observations, from which the overall OOB MSE (for a regression problem) or classification error (for a classification problem) can be computed. The resulting OOB error is a valid estimate of the test error for the bagged model, since the response for each observation is predicted using only the trees that were not fit using that observation. Figure 8.8 displays the OOB error on the `Heart` data. It can be shown that with _B_ sufficiently large, OOB error is virtually equivalent to leave-one-out cross-validation error. The OOB approach for estimating the test error is particularly convenient when performing bagging on large data sets for which cross-validation would be computationally onerous.
+
+##### Variable Importance Measures
+
+As we have discussed, bagging typically results in improved accuracy over prediction using a single tree. Unfortunately, however, it can be difficult to interpret the resulting model. Recall that one of the advantages of decision trees is the attractive and easily interpreted diagram that results, such as the one displayed in Figure 8.1. However, when we bag a large number of trees, it is no longer possible to represent the resulting statistical learning procedure using a single tree, and it is no longer clear which variables are most important to the procedure. Thus, bagging improves prediction accuracy at the expense of interpretability.
+
+Although the collection of bagged trees is much more difficult to interpret than a single tree, one can obtain an overall summary of the importance of each predictor using the RSS (for bagging regression trees) or the Gini index (for bagging classification trees). In the case of bagging regression trees, we can record the total amount that the RSS (8.1) is decreased due to splits over a given predictor, averaged over all _B_ trees. A large value indicates an important predictor. Similarly, in the context of bagging classification
+
+> 3This relates to Exercise 2 of Chapter 5.
+
+**FIGURE 8.9.** _A variable importance plot for the_ `Heart` _data. Variable importance is computed using the mean decrease in Gini index, and expressed relative to the maximum._
+
+trees, we can add up the total amount that the Gini index (8.6) is decreased by splits over a given predictor, averaged over all _B_ trees.
+
+A graphical representation of the _variable importances_ in the `Heart` data variable is shown in Figure 8.9. We see the mean decrease in Gini index for each variable, relative to the largest. The variables with the largest mean decrease in Gini index are `Thal` , `Ca` , and `ChestPain` .
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 8.2.2 Random Forests
+
+_Random forests_ provide an improvement over bagged trees by way of a random small tweak that _decorrelates_ the trees. As in bagging, we build a number forest of decision trees on bootstrapped training samples. But when building these decision trees, each time a split in a tree is considered, _a random sample of m predictors_ is chosen as split candidates from the full set of _p_ predictors. The split is allowed to use only one of those _m_ predictors. A fresh sample of _m_ predictors is taken at each split, and typically we choose _m ≈_^(_√_) _p_ ~~—~~ that is, the number of predictors considered at each split is approximately equal to the square root of the total number of predictors (4 out of the 13 for the `Heart` data).
+
+In other words, in building a random forest, at each split in the tree, the algorithm is _not even allowed to consider_ a majority of the available predictors. This may sound crazy, but it has a clever rationale. Suppose that there is one very strong predictor in the data set, along with a number of other moderately strong predictors. Then in the collection of bagged trees, most or all of the trees will use this strong predictor in the top split. Consequently, all of the bagged trees will look quite similar to each other.
+
+Hence the predictions from the bagged trees will be highly correlated. Unfortunately, averaging many highly correlated quantities does not lead to as large of a reduction in variance as averaging many uncorrelated quantities. In particular, this means that bagging will not lead to a substantial reduction in variance over a single tree in this setting.
+
+Random forests overcome this problem by forcing each split to consider only a subset of the predictors. Therefore, on average ( _p − m_ ) _/p_ of the splits will not even consider the strong predictor, and so other predictors will have more of a chance. We can think of this process as _decorrelating_ the trees, thereby making the average of the resulting trees less variable and hence more reliable.
+
+The main difference between bagging and random forests is the choice of predictor subset size _m_ . For instance, if a random forest is built using _m_ = _p_ , then this amounts simply to bagging. On the `Heart` data, random forests using _m_ =^(_√_) _p_ leads to a reduction in both test error and OOB error over bagging (Figure 8.8).
+
+Using a small value of _m_ in building a random forest will typically be helpful when we have a large number of correlated predictors. We applied random forests to a high-dimensional biological data set consisting of expression measurements of 4,718 genes measured on tissue samples from 349 patients. There are around 20,000 genes in humans, and individual genes have different levels of activity, or expression, in particular cells, tissues, and biological conditions. In this data set, each of the patient samples has a qualitative label with 15 different levels: either normal or 1 of 14 different types of cancer. Our goal was to use random forests to predict cancer type based on the 500 genes that have the largest variance in the training set. We randomly divided the observations into a training and a test set, and applied random forests to the training set for three different values of the number of splitting variables _m_ . The results are shown in Figure 8.10. The error rate of a single tree is 45 _._ 7 %, and the null rate is 75 _._ 4 %.^(4) We see that using 400 trees is sufficient to give good performance, and that the choice _m_ =^(_√_) _p_ gave a small improvement in test error over bagging ( _m_ = _p_ ) in this example. As with bagging, random forests will not overfit if we increase _B_ , so in practice we use a value of _B_ sufficiently large for the error rate to have settled down.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 8.2.3 Boosting
+
+We now discuss _boosting_ , yet another approach for improving the predic- boosting tions resulting from a decision tree. Like bagging, boosting is a general approach that can be applied to many statistical learning methods for regression or classification. Here we restrict our discussion of boosting to the context of decision trees.
+
+Recall that bagging involves creating multiple copies of the original training data set using the bootstrap, fitting a separate decision tree to each copy, and then combining all of the trees in order to create a single predic-
+
+> 4The null rate results from simply classifying each observation to the dominant class overall, which is in this case the normal class.
+
+**FIGURE 8.10.** _Results from random forests for the 15-class gene expression data set with p_ = 500 _predictors. The test error is displayed as a function of the number of trees. Each colored line corresponds to a different value of m, the number of predictors available for splitting at each interior tree node. Random forests (m &lt; p) lead to a slight improvement over bagging (m_ = _p). A single classification tree has an error rate of 45.7 %._
+
+tive model. Notably, each tree is built on a bootstrap data set, independent of the other trees. Boosting works in a similar way, except that the trees are grown _sequentially_ : each tree is grown using information from previously grown trees. Boosting does not involve bootstrap sampling; instead each tree is fit on a modified version of the original data set.
+
+Consider first the regression setting. Like bagging, boosting involves combining a large number of decision trees, _f_^(ˆ1) _, . . . , f_^(ˆ)^(_B_) . Boosting is described in Algorithm 8.2.
+
+What is the idea behind this procedure? Unlike fitting a single large decision tree to the data, which amounts to _fitting the data hard_ and potentially overfitting, the boosting approach instead _learns slowly_ . Given the current model, we fit a decision tree to the residuals from the model. That is, we fit a tree using the current residuals, rather than the outcome _Y_ , as the response. We then add this new decision tree into the fitted function in order to update the residuals. Each of these trees can be rather small, with just a few terminal nodes, determined by the parameter _d_ in the algorithm. By fitting small trees to the residuals, we slowly improve _f_^(ˆ) in areas where it does not perform well. The shrinkage parameter _λ_ slows the process down even further, allowing more and different shaped trees to attack the residuals. In general, statistical learning approaches that _learn slowly_ tend to perform well. Note that in boosting, unlike in bagging, the construction of each tree depends strongly on the trees that have already been grown.
+
+We have just described the process of boosting regression trees. Boosting classification trees proceeds in a similar but slightly more complex way, and the details are omitted here.
+
+**Algorithm 8.2** _Boosting_ _for Regression Trees_
+
+1. Set _f_^(ˆ) ( _x_ ) = 0 and _ri_ = _yi_ for all _i_ in the training set.
+
+2. For _b_ = 1 _,_ 2 _, . . . , B_ , repeat:
+
+   - (a) Fit a tree _f_^(ˆ)^(_b_) with _d_ splits ( _d_ + 1 terminal nodes) to the training data ( _X, r_ ).
+
+   - (b) Update _f_^(ˆ) by adding in a shrunken version of the new tree:
+
+- (c) Update the residuals,
+
+3. Output the boosted model,
+
+Boosting has three tuning parameters:
+
+1. The number of trees _B_ . Unlike bagging and random forests, boosting can overfit if _B_ is too large, although this overfitting tends to occur slowly if at all. We use cross-validation to select _B_ .
+
+2. The shrinkage parameter _λ_ , a small positive number. This controls the rate at which boosting learns. Typical values are 0 _._ 01 or 0 _._ 001, and the right choice can depend on the problem. Very small _λ_ can require using a very large value of _B_ in order to achieve good performance.
+
+3. The number _d_ of splits in each tree, which controls the complexity of the boosted ensemble. Often _d_ = 1 works well, in which case each tree is a _stump_ , consisting of a single split. In this case, the boosted ensemble is fitting an additive model, since each term involves only a stump single variable. More generally _d_ is the _interaction depth_ , and controls interaction
+
+the interaction order of the boosted model, since _d_ splits can involve depth at most _d_ variables.
+
+In Figure 8.11, we applied boosting to the 15-class cancer gene expression data set, in order to develop a classifier that can distinguish the normal class from the 14 cancer classes. We display the test error as a function of the total number of trees and the interaction depth _d_ . We see that simple stumps with an interaction depth of one perform well if enough of them are included. This model outperforms the depth-two model, and both outperform a random forest. This highlights one difference between boosting and random forests: in boosting, because the growth of a particular tree takes into account the other trees that have already been grown, smaller
+
+**FIGURE 8.11.** _Results from performing boosting and random forests on the 15-class gene expression data set in order to predict_ cancer _versus_ normal _. The test error is displayed as a function of the number of trees. For the two boosted models, λ_ = 0 _._ 01 _. Depth-1 trees slightly outperform depth-2 trees, and both outperform the random forest, although the standard errors are around 0.02, making none of these differences significant. The test error rate for a single tree is 24 %._
+
+trees are typically sufficient. Using smaller trees can aid in interpretability as well; for instance, using stumps leads to an additive model.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 8.2.4 Bayesian Additive Regression Trees
+
+Finally, we discuss _Bayesian additive regression trees_ (BART), another en- Bayesian semble method that uses decision trees as its building blocks. For simplicity, additive we present BART for regression (as opposed to classification). regression
+
+Recall that bagging and random forests make predictions from an average of regression trees, each of which is built using a random sample of data and/or predictors. Each tree is built separately from the others. By contrast, boosting uses a weighted sum of trees, each of which is constructed by fitting a tree to the residual of the current fit. Thus, each new tree attempts to capture signal that is not yet accounted for by the current set of trees. BART is related to both approaches: each tree is constructed in a random manner as in bagging and random forests, and each tree tries to capture signal not yet accounted for by the current model, as in boosting. The main novelty in BART is the way in which new trees are generated.
+
+Before we introduce the BART algorithm, we define some notation. We let _K_ denote the number of regression trees, and _B_ the number of iterations for which the BART algorithm will be run. The notation _f_^(ˆ) _k_^(_b_()^(_x_)represents) the prediction at _x_ for the _k_ th regression tree used in the _b_ th iteration. At the end of each iteration, the _K_ trees from that iteration will be summed, i.e. _f_^(ˆ)^(_b_) ( _x_ ) =^(�)^(_K_) _k_ =1^(_f_ˆ)^(_b_) _k_^(()^(_x_)for)^(_b_= 1)^(_, . . . , B_.) In the first iteration of the BART algorithm, all trees are initialized to have a single root node, with _f_^(ˆ) _k_^(1()^(_x_) =) _nK_ 1 � _ni_ =1^(_yi_, the mean of the response)
+
+(c): Possibility #2 for _f_^(ˆ) _k_^(_b_()^(_X_)) (d): Possibility #3 for _f_^(ˆ) _k_^(_b_()^(_X_))
+
+**FIGURE 8.12.** _A schematic of perturbed trees from the BART algorithm._ (a): _The kth tree at the_ ( _b −_ 1) _st iteration, f_^(ˆ) _k_^(_b−_1) ( _X_ ) _, is displayed. Panels (b)–(d) display three of many possibilities for f_^(ˆ) _k_^(_b_()^(_X_))^(_, given the form off_ˆ)^(_b_) _k_^(_−_1) ( _X_ ) _._ (b): _One possibility is that f_^(ˆ) _k_^(_b_()^(_X_))^(_hasthesamestructureasf_ˆ)^(_b_) _k_^(_−_1) ( _X_ ) _, but with different predictions at the terminal nodes._ (c): _Another possibility is that f_^(ˆ) _k_^(_b_()^(_X_))^(_results_) _from pruning f_^(ˆ) _k_^(_b−_1) ( _X_ ) _._ (d): _Alternatively, f_^(ˆ) _k_^(_b_()^(_X_))^(_mayhavemoreterminalnodes_) _than f_^(ˆ) _k_^(_b−_1) ( _X_ ) _._
+
+values divided by the total number of trees. Thus, _f_^(ˆ1) ( _x_ ) =^(�)^(_K_) _k_ =1^(_f_ˆ 1) _k_^(()^(_x_)=) _n_ 1 � _ni_ =1^(_yi_.)
+
+In subsequent iterations, BART updates each of the _K_ trees, one at a time. In the _b_ th iteration, to update the _k_ th tree, we subtract from each response value the predictions from all but the _k_ th tree, in order to obtain a _partial residual_
+
+for the _i_ th observation, _i_ = 1 _, . . . , n_ . Rather than fitting a fresh tree to this partial residual, BART randomly chooses a perturbation to the tree from theones that improve the fit to the partial residual. There are two componentsprevious iteration ( _f_^(ˆ) _k_^(_b−_1) ) from a set of possible perturbations, favoring to this perturbation:
+
+1. We may change the structure of the tree by adding or pruning branches.
+
+2. We may change the prediction in each terminal node of the tree.
+
+Figure 8.12 illustrates examples of possible perturbations to a tree. The output of BART is a collection of prediction models,
+
+**Algorithm 8.3** _Bayesian Additive Regression Trees_
+
+i. For _i_ = 1 _, . . . , n_ , compute the current partial residual
+
+ii. Fit a new tree, _f_^(ˆ) _k_^(_b_()^(_x_),to)^(_ri_,byrandomlyperturbingthe) _k_ th tree from the previous iteration, _f_^(ˆ) _k_^(_b−_1) ( _x_ ). Perturbations that improve the fit are favored. (b) Compute _f_^(ˆ)^(_b_) ( _x_ ) =^(�)^(_K_) _k_ =1^(_f_ˆ)^(_b_) _k_^(()^(_x_).)
+
+4. Compute the mean after _L_ burn-in samples,
+
+We typically throw away the first few of these prediction models, since models obtained in the earlier iterations — known as the _burn-in_ period burn-in — tend not to provide very good results. We can let _L_ denote the number of burn-in iterations; for instance, we might take _L_ = 200. Then, to obtain a single prediction, we simply take the average after the burn-in iterations, _f_^(ˆ) ( _x_ ) = _B−_ 1 _L_ � _Bb_ = _L_ +1^(_f_ˆ)^(_b_()^(_x_).However,itisalsopossibletocom-) pute _f_ ˆ^(_L_+1) (quantities _x_ ) _, . . . , f_ ˆ^(_B_) (other _x_ ) providethan athemeasureaverage:of foruncertaintyinstance,inthethepercentilesfinal predic-of tion. The overall BART procedure is summarized in Algorithm 8.3.
+
+A key element of the BART approach is that in Step 3(a)ii., we do _not_ fit a fresh tree to the current partial residual: instead, we try to improve the fit to the current partial residual by slightly modifying the tree obtained in the previous iteration (see Figure 8.12). Roughly speaking, this guards against overfitting since it limits how “hard” we fit the data in each iteration. Furthermore, the individual trees are typically quite small. We limit the tree size in order to avoid overfitting the data, which would be more likely to occur if we grew very large trees.
+
+Figure 8.13 shows the result of applying BART to the `Heart` data, using _K_ = 200 trees, as the number of iterations is increased to 10 _,_ 000. During the initial iterations, the test and training errors jump around a bit. After this initial burn-in period, the error rates settle down. We note that there is only a small difference between the training error and the test error, indicating that the tree perturbation process largely avoids overfitting.
+
+**FIGURE 8.13.** _BART and boosting results for the_ `Heart` _data. Both training and test errors are displayed. After a burn-in period of_ 100 _iterations (shown in gray), the error rates for BART settle down. Boosting begins to overfit after a few hundred iterations._
+
+The training and test errors for boosting are also displayed in Figure 8.13. We see that the test error for boosting approaches that of BART, but then begins to increase as the number of iterations increases. Furthermore, the training error for boosting decreases as the number of iterations increases, indicating that boosting has overfit the data.
+
+Though the details are outside of the scope of this book, it turns out that the BART method can be viewed as a _Bayesian_ approach to fitting an ensemble of trees: each time we randomly perturb a tree in order to fit the residuals, we are in fact drawing a new tree from a _posterior_ distribution. (Of course, this Bayesian connection is the motivation for BART’s name.) Furthermore, Algorithm 8.3 can be viewed as a _Markov chain Monte Carlo_ Markov algorithm for fitting the BART model. chain
+
+chain Monte Carlo
+
+When we apply BART, we must select the number of trees _K_ , the number of iterations _B_ , and the number of burn-in iterations _L_ . We typically choose large values for _B_ and _K_ , and a moderate value for _L_ : for instance, _K_ = 200, _B_ = 1 _,_ 000, and _L_ = 100 is a reasonable choice. BART has been shown to have very impressive out-of-box performance — that is, it performs well with minimal tuning.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 8.2.5 Summary of Tree Ensemble Methods
+
+Trees are an attractive choice of weak learner for an ensemble method for a number of reasons, including their flexibility and ability to handle
+
+predictors of mixed types (i.e. qualitative as well as quantitative). We have now seen four approaches for fitting an ensemble of trees: bagging, random forests, boosting, and BART.
+
+- In _bagging_ , the trees are grown independently on random samples of the observations. Consequently, the trees tend to be quite similar to each other. Thus, bagging can get caught in local optima and can fail to thoroughly explore the model space.
+
+- In _random forests_ , the trees are once again grown independently on random samples of the observations. However, each split on each tree is performed using a random subset of the features, thereby decorrelating the trees, and leading to a more thorough exploration of model space relative to bagging.
+
+- In _boosting_ , we only use the original data, and do not draw any random samples. The trees are grown successively, using a “slow” learning approach: each new tree is fit to the signal that is left over from the earlier trees, and shrunken down before it is used.
+
+- In _BART_ , we once again only make use of the original data, and we grow the trees successively. However, each tree is perturbed in order to avoid local minima and achieve a more thorough exploration of the model space.
+
+</MdxPage>

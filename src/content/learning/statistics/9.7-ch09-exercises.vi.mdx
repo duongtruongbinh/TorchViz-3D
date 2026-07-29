@@ -1,0 +1,138 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-exercises",
+  "locale": "vi",
+  "title": "9.7 Bài tập",
+  "headings": [
+    "Bài tập",
+    "Ứng dụng"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Máy vector hỗ trợ",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Bài tập
+
+_Lý thuyết_
+
+1. Bài này liên quan đến các siêu phẳng trong hai chiều.
+
+   - (a) Phác họa siêu phẳng 1 + 3 _X_ 1 _− X_ 2 = 0. Chỉ ra tập điểm thỏa 1 + 3 _X_ 1 _− X_ 2 _&gt;_ 0, cũng như tập điểm thỏa 1 + 3 _X_ 1 _− X_ 2 _&lt;_ 0.
+
+   - (b) Trên cùng biểu đồ, phác họa siêu phẳng _−_ 2 + _X_ 1 + 2 _X_ 2 = 0. Chỉ ra tập điểm thỏa _−_ 2 + _X_ 1 + 2 _X_ 2 _&gt;_ 0, cũng như tập điểm thỏa _−_ 2 + _X_ 1 + 2 _X_ 2 _&lt;_ 0.
+
+2. Ta đã thấy trong _p_ = 2 chiều, một biên quyết định tuyến tính có dạng _β_ 0 + _β_ 1 _X_ 1 + _β_ 2 _X_ 2 = 0. Bây giờ ta khảo sát một biên quyết định phi tuyến.
+
+   - (a) Phác họa đường cong
+
+- (b) Trên bản phác họa, chỉ ra tập điểm thỏa
+
+cũng như tập điểm thỏa
+
+- (c) Giả sử một bộ phân loại gán quan sát vào lớp màu xanh nếu
+
+và vào lớp màu đỏ nếu không. Quan sát (0 _,_ 0) được phân vào lớp nào? ( _−_ 1 _,_ 1)? (2 _,_ 2)? (3 _,_ 8)?
+
+- (d) Hãy lập luận rằng dù biên quyết định trong (c) không tuyến tính theo _X_ 1 và _X_ 2, nó tuyến tính theo _X_ 1, _X_ 1^(2,)^(_X_2,và) _X_ 2^(2.)
+
+3. Ở đây ta khảo sát bộ phân loại biên cực đại trên một bộ dữ liệu đơn giản.
+
+   - (a) Cho _n_ = 7 quan sát trong _p_ = 2 chiều. Mỗi quan sát có một nhãn lớp tương ứng.
+
+<MdxCode language="table" code={"|Obs.|_X_1|_X_2|_Y_|\n|---|---|---|---|\n|1|3|4|Red|\n|2|2|2|Red|\n|3|4|4|Red|\n|4|1|4|Red|\n|5|2|1|Blue|\n|6|4|3|Blue|\n|7|4|1|Blue|"} />
+
+Phác họa các quan sát.
+
+- (b) Phác họa siêu phẳng phân tách tối ưu và cho phương trình của siêu phẳng này (dạng (9.1)).
+
+- (c) Mô tả quy tắc phân loại của bộ phân loại biên cực đại. Quy tắc nên có dạng: “Phân vào Đỏ nếu _β_ 0 + _β_ 1 _X_ 1 + _β_ 2 _X_ 2 _&gt;_ 0, nếu không thì phân vào Xanh.” Hãy cho các giá trị _β_ 0, _β_ 1 và _β_ 2.
+
+- (d) Trên bản phác họa, chỉ ra biên của siêu phẳng biên cực đại.
+
+- (e) Chỉ ra các vector hỗ trợ của bộ phân loại biên cực đại.
+
+- (f) Hãy lập luận rằng việc dịch chuyển nhẹ quan sát thứ bảy sẽ không ảnh hưởng đến siêu phẳng biên cực đại.
+
+- (g) Phác họa một siêu phẳng _không phải_ siêu phẳng phân tách tối ưu và cho phương trình của nó.
+
+- (h) Vẽ thêm một quan sát trên biểu đồ sao cho hai lớp không còn có thể phân tách bằng siêu phẳng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Ứng dụng
+
+4. Sinh một bộ dữ liệu hai lớp mô phỏng có 100 quan sát và hai đặc trưng, trong đó có sự phân tách nhìn thấy được nhưng phi tuyến giữa hai lớp. Chứng minh rằng trong bối cảnh này, máy vector hỗ trợ với kernel đa thức (bậc lớn hơn 1) hoặc kernel xuyên tâm hoạt động tốt hơn bộ phân loại vector hỗ trợ trên dữ liệu huấn luyện. Kỹ thuật nào hoạt động tốt nhất trên dữ liệu kiểm tra? Hãy vẽ biểu đồ và báo cáo tỷ lệ lỗi huấn luyện, kiểm tra để củng cố các khẳng định.
+
+5. Ta đã thấy có thể khớp SVM với kernel phi tuyến để phân loại bằng biên quyết định phi tuyến. Bây giờ ta sẽ thấy cũng có thể thu được biên quyết định phi tuyến bằng hồi quy logistic dùng các phép biến đổi phi tuyến của đặc trưng.
+
+- (a) Sinh một bộ dữ liệu với _n_ = 500 và _p_ = 2 sao cho các quan sát thuộc hai lớp có biên quyết định bậc hai giữa chúng. Ví dụ, có thể làm như sau:
+
+<MdxCode language="text" code={"rng=np.random.default_rng(5)\nx1=rng.uniform(size=500)-0.5\nx2=rng.uniform(size=500)-0.5\ny=x1**2-x2**2>0"} />
+
+   - (b) Vẽ các quan sát, tô màu theo nhãn lớp. Biểu đồ cần hiển thị _X_ 1 trên trục _x_ và _X_ 2 trên trục _y_.
+
+   - (c) Khớp mô hình hồi quy logistic với dữ liệu, dùng _X_ 1 và _X_ 2 làm biến dự báo.
+
+   - (d) Áp dụng mô hình này lên _dữ liệu huấn luyện_ để thu được nhãn lớp dự đoán cho mỗi quan sát huấn luyện. Vẽ các quan sát, tô màu theo nhãn lớp _dự đoán_. Biên quyết định phải là tuyến tính.
+
+   - (e) Bây giờ khớp mô hình hồi quy logistic với dữ liệu bằng các hàm phi tuyến của _X_ 1 và _X_ 2 làm biến dự báo (ví dụ _X_ 1^(2,)^(_X_1)^(_×X_2, log()^(_X_2),) v.v.).
+
+   - (f) Áp dụng mô hình này lên _dữ liệu huấn luyện_ để thu được nhãn lớp dự đoán cho mỗi quan sát huấn luyện. Vẽ các quan sát, tô màu theo nhãn lớp _dự đoán_. Biên quyết định phải rõ ràng là phi tuyến. Nếu không, hãy lặp (a)–(e) cho đến khi có một ví dụ mà các nhãn lớp dự đoán rõ ràng là phi tuyến.
+
+   - (g) Khớp bộ phân loại vector hỗ trợ với dữ liệu bằng _X_ 1 và _X_ 2 làm biến dự báo. Thu được dự đoán lớp cho từng quan sát huấn luyện. Vẽ các quan sát, tô màu theo _nhãn lớp dự đoán_.
+
+   - (h) Khớp SVM với dữ liệu bằng kernel phi tuyến. Thu được dự đoán lớp cho từng quan sát huấn luyện. Vẽ các quan sát, tô màu theo _nhãn lớp dự đoán_.
+
+   - (i) Nhận xét về kết quả.
+
+6. Cuối Mục 9.6.1 có khẳng định rằng khi dữ liệu vừa đủ để phân tách tuyến tính, bộ phân loại vector hỗ trợ với `C` nhỏ—phân loại sai một vài quan sát huấn luyện—có thể hoạt động tốt hơn trên dữ liệu kiểm tra so với bộ phân loại có `C` rất lớn và không phân loại sai quan sát huấn luyện nào. Bây giờ bạn sẽ khảo sát khẳng định này.
+
+   - (a) Sinh dữ liệu hai lớp với _p_ = 2 sao cho các lớp vừa đủ để phân tách tuyến tính.
+
+   - (b) Tính tỷ lệ lỗi xác thực chéo cho các bộ phân loại vector hỗ trợ trên một dải giá trị `C`. Với mỗi `C`, có bao nhiêu quan sát huấn luyện bị phân loại sai, và điều này liên quan thế nào đến sai số xác thực chéo thu được?
+
+   - (c) Sinh một tập dữ liệu kiểm tra thích hợp và tính sai số kiểm tra tương ứng với từng giá trị `C`. Giá trị `C` nào tạo ít lỗi kiểm tra nhất, và nó so với các giá trị `C` tạo ít lỗi huấn luyện nhất và ít lỗi xác thực chéo nhất ra sao?
+
+   - (d) Thảo luận kết quả.
+
+7. Trong bài này, bạn sẽ dùng các cách tiếp cận vector hỗ trợ để dự đoán một chiếc xe có mức tiêu thụ nhiên liệu cao hay thấp dựa trên bộ dữ liệu `Auto`.
+
+   - (a) Tạo biến nhị phân nhận 1 với xe có quãng đường trên mỗi đơn vị nhiên liệu cao hơn trung vị, và 0 với xe có giá trị thấp hơn trung vị.
+
+   - (b) Khớp bộ phân loại vector hỗ trợ với dữ liệu bằng nhiều giá trị `C` để dự đoán mức tiêu thụ nhiên liệu của xe là cao hay thấp. Báo cáo sai số xác thực chéo ứng với các giá trị khác nhau của tham số. Nhận xét kết quả. Lưu ý bạn cần khớp bộ phân loại không dùng biến quãng đường trên mỗi đơn vị nhiên liệu để có kết quả hợp lý.
+
+   - (c) Lặp lại (b), lần này dùng SVM với kernel cơ sở xuyên tâm và đa thức, với các giá trị khác nhau của `gamma`, `degree` và `C`. Nhận xét kết quả.
+
+   - (d) Tạo một số biểu đồ để củng cố các khẳng định trong (b) và (c).
+
+_Gợi ý: Trong bài thực hành, ta dùng hàm_ `plot_svm()` _cho các SVM đã khớp. Khi p &gt;_ 2_, bạn có thể dùng đối số từ khóa_ `features` _để tạo các biểu đồ hiển thị từng cặp biến._
+
+8. Bài này liên quan đến bộ dữ liệu `OJ` thuộc gói `ISLP`.
+
+   - (a) Tạo tập huấn luyện gồm một mẫu ngẫu nhiên 800 quan sát và tập kiểm tra gồm các quan sát còn lại.
+
+   - (b) Khớp bộ phân loại vector hỗ trợ với dữ liệu huấn luyện bằng `C = 0.01`, dùng `Purchase` làm biến đáp ứng và các biến còn lại làm biến dự báo. Có bao nhiêu điểm hỗ trợ?
+
+   - (c) Tỷ lệ lỗi huấn luyện và kiểm tra là bao nhiêu?
+
+   - (d) Dùng xác thực chéo để chọn `C` tối ưu. Xét các giá trị trong khoảng 0 _._ 01 đến 10.
+
+   - (e) Tính tỷ lệ lỗi huấn luyện và kiểm tra bằng giá trị `C` mới.
+
+   - (f) Lặp các phần (b) đến (e) bằng máy vector hỗ trợ với kernel xuyên tâm. Dùng giá trị mặc định cho `gamma`.
+
+   - (g) Lặp các phần (b) đến (e) bằng máy vector hỗ trợ với kernel đa thức. Đặt `degree = 2`.
+
+   - (h) Nhìn chung, cách tiếp cận nào có vẻ cho kết quả tốt nhất trên dữ liệu này?
+
+</MdxPage>

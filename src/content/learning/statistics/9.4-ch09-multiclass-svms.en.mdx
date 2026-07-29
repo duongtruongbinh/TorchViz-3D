@@ -1,0 +1,43 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-multiclass-svms",
+  "locale": "en",
+  "title": "9.4 SVMs with More than Two Classes",
+  "headings": [
+    "SVMs with More than Two Classes",
+    "9.4.1 One-Versus-One Classification",
+    "9.4.2 One-Versus-All Classification"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Support Vector Machines",
+    "SVMs with More than Two Classes"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## SVMs with More than Two Classes
+
+So far, our discussion has been limited to the case of binary classification: that is, classification in the two-class setting. How can we extend SVMs to the more general case where we have some arbitrary number of classes? It turns out that the concept of separating hyperplanes upon which SVMs are based does not lend itself naturally to more than two classes. Though a number of proposals for extending SVMs to the _K_ -class case have been made, the two most popular are the _one-versus-one_ and _one-versus-all_ approaches. We briefly discuss those two approaches here.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 9.4.1 One-Versus-One Classification
+
+Suppose that we would like to perform classification using SVMs, and there are _K &gt;_ 2 classes. A _one-versus-one_ or _all-pairs_ approach constructs � _K_ 2 � one-versusSVMs, each of which compares a pair of classes. For example, one such one SVM might compare the _k_ th class, coded as +1, to the _k_^(_′_) th class, coded as _−_ 1. We classify a test observation using each of the � _K_ 2 � classifiers, and we tally the number of times that the test observation is assigned to each of the _K_ classes. The final classification is performed by assigning the test observation to the class to which it was most frequently assigned in these � _K_ 2 � pairwise classifications.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 9.4.2 One-Versus-All Classification
+
+The _one-versus-all_ approach (also referred to as _one-versus-rest_ ) is an al- one-versusternative procedure for applying SVMs in the case of _K &gt;_ 2 classes. We all fit _K_ SVMs, each time comparing one of the _K_ classes to the remaining one-versus- _K −_ 1 classes. Let _β_ 0 _k, β_ 1 _k, . . . , βpk_ denote the parameters that result from rest fitting an SVM comparing the _k_ th class (coded as +1) to the others (coded as _−_ 1). Let _x_^(_∗_) denote a test observation. We assign the observation to the class for which _β_ 0 _k_ + _β_ 1 _kx_^(_∗_) 1^(+)^(_β_2)^(_kx∗_) 2^(+)^(_· · ·_+)^(_βpkx∗_) _p_^(is largest, as this amounts) to a high level of confidence that the test observation belongs to the _k_ th class rather than to any of the other classes.
+
+</MdxPage>

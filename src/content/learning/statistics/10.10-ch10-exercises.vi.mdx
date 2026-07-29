@@ -1,0 +1,86 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-exercises",
+  "locale": "vi",
+  "title": "10.10 Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Thực hành"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Xét một mạng nơ-ron có hai tầng ẩn: _p_ = 4 nút đầu vào, 2 nút ở tầng ẩn thứ nhất, 3 nút ở tầng ẩn thứ hai và một đầu ra duy nhất.
+
+   - (a) Vẽ mạng tương tự Hình 10.1 hoặc 10.4.
+
+   - (b) Viết biểu thức cho _f_ ( _X_ ), giả sử dùng các hàm kích hoạt ReLU. Hãy viết tường minh nhất có thể!
+
+   - (c) Bây giờ thế một số giá trị cho các hệ số và viết ra giá trị của _f_ ( _X_ ).
+
+   - (d) Có bao nhiêu tham số?
+
+2. Xét hàm _softmax_ trong (10.13) (xem thêm (4.13) trang 145) dùng để mô hình hóa xác suất đa thức.
+
+   - (a) Trong (10.13), chứng minh rằng nếu cộng một hằng số _c_ vào từng _zℓ_ thì xác suất không đổi.
+
+   - (b) Trong (4.13), chứng minh rằng nếu cộng các hằng số _cj, j_ = 0 _,_ 1 _, . . . , p_ vào từng hệ số tương ứng của mỗi lớp thì dự đoán tại mọi điểm mới _x_ không đổi.
+
+Điều này cho thấy hàm softmax bị _tham số hóa dư_. Tuy nhiên, điều chuẩn và SGD thường ràng buộc các nghiệm nên việc tham số hóa này không gây vấn đề.
+
+3. Chứng minh log-hợp lý đa thức âm (10.14) tương đương với logarithm âm của biểu thức hợp lý (4.5) khi có _M_ = 2 lớp.
+
+4. Xét một CNN nhận các ảnh thang xám 32 _×_ 32 và có một tầng tích chập duy nhất với ba bộ lọc tích chập 5 _×_ 5 (không đệm biên).
+
+   - (a) Vẽ phác thảo tầng đầu vào và tầng ẩn thứ nhất tương tự Hình 10.8.
+
+   - (b) Mô hình này có bao nhiêu tham số?
+
+   - (c) Giải thích cách xem mô hình này như một mạng nơ-ron truyền thẳng thông thường với từng pixel làm đầu vào và có các ràng buộc lên trọng số ở các nút ẩn. Những ràng buộc đó là gì?
+
+   - (d) Nếu không có ràng buộc thì mạng nơ-ron truyền thẳng thông thường ở (c) sẽ có bao nhiêu trọng số?
+
+5. Trong Bảng 10.2 trang 426, ta thấy thứ tự của ba phương pháp theo sai số tuyệt đối trung bình khác với thứ tự theo _R_^(2) trên tập kiểm tra. Vì sao?
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thực hành
+
+6. Xét hàm đơn giản _R_ ( _β_ ) = sin( _β_ ) + _β/_ 10.
+
+   - (a) Vẽ đồ thị hàm này trên miền _β ∈_ [ _−_ 6 _,_ 6].
+
+   - (b) Đạo hàm của hàm này là gì?
+
+   - (c) Với _β_^(0) = 2 _._ 3, chạy gradient descent để tìm một cực tiểu cục bộ của _R_ ( _β_ ) bằng tốc độ học _ρ_ = 0 _._ 1. Hiển thị từng _β_^(0) _, β_^(1) _, . . ._ trên đồ thị cùng đáp án cuối cùng.
+
+   - (d) Lặp lại với _β_^(0) = 1 _._ 4.
+
+7. Khớp một mạng nơ-ron cho dữ liệu `Default`. Dùng một tầng ẩn duy nhất gồm 10 nút và điều chuẩn dropout. Tham khảo Lab 10.9.1–10.9.2. So sánh hiệu năng phân loại của mô hình với hồi quy logistic tuyến tính.
+
+8. Từ bộ sưu tập ảnh cá nhân, chọn 10 ảnh động vật (như chó, mèo, chim, vật nuôi trong trang trại, v.v.). Nếu chủ thể không chiếm một phần hợp lý của ảnh, hãy cắt ảnh. Sau đó dùng một CNN phân loại ảnh đã huấn luyện trước như trong Lab 10.9.4 để dự đoán lớp của từng ảnh và báo cáo xác suất của năm lớp được dự đoán cao nhất cho mỗi ảnh.
+
+9. Khớp mô hình tự hồi quy độ trễ 5 cho dữ liệu `NYSE` như mô tả trong phần nội dung và Lab 10.9.6. Khớp lại mô hình với một biến nhân tố 12 mức biểu diễn tháng. Biến nhân tố này có cải thiện hiệu năng mô hình không?
+
+10. Trong Mục 10.9.6, chúng ta đã trình bày cách khớp mô hình AR tuyến tính cho dữ liệu `NYSE` bằng hàm `LinearRegression()`. Tuy nhiên, ta cũng đề cập rằng có thể “trải phẳng” các chuỗi ngắn được tạo cho mô hình RNN để khớp một mô hình AR tuyến tính. Hãy dùng cách thứ hai để khớp mô hình AR tuyến tính cho dữ liệu `NYSE`. So sánh _R_^(2) kiểm tra của mô hình này với mô hình AR tuyến tính đã khớp trong bài lab. Ưu điểm/nhược điểm của mỗi cách là gì?
+
+11. Lặp lại bài tập trước, nhưng lần này khớp mô hình AR phi tuyến bằng cách “trải phẳng” các chuỗi ngắn được tạo cho mô hình RNN.
+
+12. Xét RNN được khớp cho dữ liệu `NYSE` ở Mục 10.9.6. Sửa mã để cho phép đưa biến `day_of_week` vào rồi khớp RNN. Tính _R_^(2) kiểm tra.
+
+13. Lặp lại phân tích trong Lab 10.9.5 trên dữ liệu `IMDb` bằng một mạng nơ-ron có cấu trúc tương tự. Chúng ta đã dùng 16 nút ẩn ở mỗi tầng trong hai tầng ẩn. Hãy khảo sát ảnh hưởng của việc tăng lên 32 và 64 nút mỗi tầng, khi có và không có điều chuẩn dropout 30%.
+
+</MdxPage>

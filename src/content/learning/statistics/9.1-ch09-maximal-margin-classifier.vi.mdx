@@ -1,0 +1,130 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-maximal-margin-classifier",
+  "locale": "vi",
+  "title": "9.1 Bộ phân loại biên cực đại",
+  "headings": [
+    "Bộ phân loại biên cực đại",
+    "9.1.1 Siêu phẳng là gì?",
+    "9.1.2 Phân loại bằng siêu phẳng phân tách",
+    "9.1.3 Bộ phân loại biên cực đại",
+    "9.1.4 Xây dựng bộ phân loại biên cực đại",
+    "9.1.5 Trường hợp không thể phân tách"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Máy vector hỗ trợ",
+    "Bộ phân loại biên cực đại"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Bộ phân loại biên cực đại
+
+Trong phần này, ta định nghĩa siêu phẳng và giới thiệu khái niệm siêu phẳng phân tách tối ưu.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 9.1.1 Siêu phẳng là gì?
+
+Trong không gian _p_ chiều, một _siêu phẳng_ (hyperplane) là một không gian con affine phẳng có số chiều _p −_ 1.^(1) Ví dụ, trong hai chiều, siêu phẳng là một không gian con phẳng một chiều—nói cách khác là một đường thẳng. Trong ba chiều, siêu phẳng là một không gian con phẳng hai chiều—tức một mặt phẳng. Trong không gian _p &gt;_ 3 chiều, siêu phẳng có thể khó hình dung, nhưng khái niệm không gian con phẳng ( _p −_ 1) chiều vẫn được áp dụng.
+
+Định nghĩa toán học của siêu phẳng khá đơn giản. Trong hai chiều, siêu phẳng được định nghĩa bởi phương trình
+
+với các tham số _β_ 0 _, β_ 1 và _β_ 2. Khi nói (9.1) “định nghĩa” siêu phẳng, ta muốn nói rằng mọi _X_ = ( _X_ 1 _, X_ 2)^(_T_) thỏa mãn (9.1) đều là một điểm trên siêu phẳng. Lưu ý rằng (9.1) đơn giản là phương trình của đường thẳng, vì trong hai chiều siêu phẳng chính là đường thẳng.
+
+Phương trình 9.1 dễ dàng mở rộng sang bối cảnh _p_ chiều:
+
+nó định nghĩa một siêu phẳng trong không gian _p_ chiều, theo nghĩa rằng nếu một điểm _X_ = ( _X_ 1 _, X_ 2 _, . . . , Xp_ )^(_T_) trong không gian _p_ chiều (tức một vector độ dài _p_) thỏa mãn (9.2), thì _X_ nằm trên siêu phẳng.
+
+Bây giờ, giả sử _X_ không thỏa mãn (9.2), mà thay vào đó
+
+Điều này cho biết _X_ nằm ở một phía của siêu phẳng. Mặt khác, nếu
+
+thì _X_ nằm ở phía bên kia. Vì vậy, ta có thể xem siêu phẳng là vật chia không gian _p_ chiều thành hai nửa. Có thể dễ dàng xác định một điểm nằm phía nào bằng cách tính dấu của vế trái (9.2). Một siêu phẳng trong không gian hai chiều được thể hiện ở Hình 9.1.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 9.1.2 Phân loại bằng siêu phẳng phân tách
+
+Bây giờ giả sử ta có ma trận dữ liệu _n × p_ **X** gồm _n_ quan sát huấn luyện trong không gian _p_ chiều,
+
+và các quan sát này thuộc hai lớp—tức _y_ 1 _, . . . , yn ∈ \{−_ 1 _,_ 1 _\}_, trong đó _−_ 1 biểu diễn một lớp và 1 biểu diễn lớp kia. Ta cũng có một
+
+> 1Từ _affine_ cho biết không gian con không nhất thiết đi qua gốc tọa độ.
+
+**HÌNH 9.1.** _Siêu phẳng_ 1 + 2 _X_ 1 + 3 _X_ 2 = 0 _được thể hiện. Vùng màu xanh là tập điểm thỏa_ 1 + 2 _X_ 1 + 3 _X_ 2 _&gt;_ 0_, còn vùng màu tím là tập điểm thỏa_ 1 + 2 _X_ 1 + 3 _X_ 2 _&lt;_ 0_._
+
+quan sát kiểm tra, là một vector _p_ chiều gồm các đặc trưng quan sát được _x_^(_∗_) = � _x∗_ 1 _. . . x_^(_∗_) _p_ � _T_. Mục tiêu của ta là xây dựng một bộ phân loại dựa trên dữ liệu huấn luyện, có thể phân loại đúng quan sát kiểm tra bằng các phép đo đặc trưng của nó. Ta đã thấy nhiều cách tiếp cận cho nhiệm vụ này, như phân tích biệt thức tuyến tính và hồi quy logistic trong Chương 4, hay cây phân loại, bagging và boosting trong Chương 8. Bây giờ ta sẽ xem một cách tiếp cận mới dựa trên khái niệm _siêu phẳng phân tách_.
+
+Giả sử có thể xây dựng một siêu phẳng phân tách hoàn hảo các quan sát huấn luyện theo nhãn lớp. Ba ví dụ về _siêu phẳng phân tách_ như vậy được thể hiện ở biểu đồ bên trái của Hình 9.2. Ta có thể gán _yi_ = 1 cho các quan sát thuộc lớp màu xanh và _yi_ = _−_ 1 cho lớp màu tím. Khi đó, một siêu phẳng phân tách có tính chất
+
+Tương đương, siêu phẳng phân tách có tính chất
+
+với mọi _i_ = 1 _, . . . , n_.
+
+Nếu tồn tại siêu phẳng phân tách, ta có thể dùng nó để xây dựng một bộ phân loại rất tự nhiên: quan sát kiểm tra được gán lớp tùy theo nó nằm phía nào của siêu phẳng. Biểu đồ bên phải của Hình 9.2 minh họa bộ phân loại này. Cụ thể, ta phân loại quan sát kiểm tra _x_^(_∗_) dựa trên dấu của _f_ ( _x_^(_∗_) ) = _β_ 0+ _β_ 1 _x_^(_∗_) 1^(+)^(_β_2)^(_x∗_) 2^(+)^(_· · ·_+)^(_βpx∗_) _p_^(. Nếu)^(_f_()^(_x∗_) dương,) ta gán quan sát kiểm tra vào lớp 1; nếu _f_ ( _x_^(_∗_) ) âm, ta gán nó vào lớp _−_ 1. Ta cũng có thể sử dụng _độ lớn_ của _f_ ( _x_^(_∗_) ). Nếu
+
+**HÌNH 9.2.** Trái: _Có hai lớp quan sát màu xanh và tím, mỗi quan sát có phép đo trên hai biến. Ba trong số nhiều siêu phẳng phân tách khả dĩ được vẽ màu đen._ Phải: _Một siêu phẳng phân tách được vẽ màu đen. Lưới xanh và tím biểu thị quy tắc quyết định của bộ phân loại dựa trên siêu phẳng này: quan sát kiểm tra thuộc phần màu xanh của lưới sẽ được gán vào lớp xanh, còn quan sát thuộc phần màu tím sẽ được gán vào lớp tím._
+
+_f_ ( _x_^(_∗_) ) cách xa không, điều đó có nghĩa _x_^(_∗_) nằm xa siêu phẳng, nên ta có thể tin tưởng vào việc gán lớp cho _x_^(_∗_). Ngược lại, nếu _f_ ( _x_^(_∗_) ) gần không, thì _x_^(_∗_) nằm gần siêu phẳng và ta kém chắc chắn hơn về lớp được gán. Không có gì đáng ngạc nhiên khi, như Hình 9.2 cho thấy, bộ phân loại dựa trên siêu phẳng phân tách tạo ra biên quyết định tuyến tính.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 9.1.3 Bộ phân loại biên cực đại
+
+Nói chung, nếu dữ liệu có thể được phân tách hoàn hảo bằng một siêu phẳng thì thực ra sẽ tồn tại vô số siêu phẳng như vậy. Lý do là một siêu phẳng phân tách thường có thể dịch chuyển rất nhỏ lên hoặc xuống, hay xoay một chút, mà không chạm vào bất kỳ quan sát nào. Ba siêu phẳng phân tách khả dĩ được thể hiện ở biểu đồ bên trái của Hình 9.2. Để xây dựng bộ phân loại dựa trên siêu phẳng phân tách, ta cần một cách hợp lý để quyết định dùng siêu phẳng nào trong vô số lựa chọn.
+
+Một lựa chọn tự nhiên là _siêu phẳng biên cực đại_ (còn gọi là _siêu phẳng phân tách tối ưu_), tức siêu phẳng phân tách xa các quan sát huấn luyện nhất. Ta có thể tính khoảng cách vuông góc từ từng quan sát huấn luyện tới một siêu phẳng phân tách cho trước; khoảng cách nhỏ nhất trong số đó là khoảng cách tối thiểu từ các quan sát tới siêu phẳng và được gọi là _biên_ (margin). Siêu phẳng biên cực đại là siêu phẳng phân tách có biên lớn nhất—tức có khoảng cách tối thiểu tới quan sát huấn luyện lớn nhất. Sau đó, ta có thể phân loại quan sát kiểm tra dựa trên phía mà nó nằm so với siêu phẳng biên cực đại. Cách này được gọi là
+
+**HÌNH 9.3.** _Có hai lớp quan sát màu xanh và tím. Siêu phẳng biên cực đại được vẽ bằng đường liền. Biên là khoảng cách từ đường liền tới một trong hai đường nét đứt. Hai điểm xanh và một điểm tím nằm trên các đường nét đứt là các vector hỗ trợ; khoảng cách từ các điểm này đến siêu phẳng được biểu thị bằng mũi tên. Lưới tím và xanh biểu thị quy tắc quyết định của bộ phân loại dựa trên siêu phẳng phân tách này._
+
+_bộ phân loại biên cực đại_. Ta hy vọng bộ phân loại có biên lớn trên dữ liệu huấn luyện cũng sẽ có biên lớn trên dữ liệu kiểm tra, nhờ đó phân loại đúng các quan sát kiểm tra. Mặc dù bộ phân loại biên cực đại thường thành công, nó cũng có thể dẫn đến quá khớp khi _p_ lớn.
+
+Nếu _β_ 0 _, β_ 1 _, . . . , βp_ là các hệ số của siêu phẳng biên cực đại, thì bộ phân loại biên cực đại phân loại quan sát kiểm tra _x_^(_∗_) dựa trên dấu của _f_ ( _x_^(_∗_) ) = _β_ 0 + _β_ 1 _x_^(_∗_) 1^(+)^(_β_2)^(_x∗_) 2^(+)^(_· · ·_+)^(_βpx∗_) _p_^( .)
+
+Hình 9.3 thể hiện siêu phẳng biên cực đại trên bộ dữ liệu của Hình 9.2. So sánh biểu đồ bên phải của Hình 9.2 với Hình 9.3, ta thấy siêu phẳng biên cực đại trong Hình 9.3 thực sự tạo khoảng cách tối thiểu lớn hơn giữa các quan sát và siêu phẳng phân tách—tức biên lớn hơn. Theo một nghĩa nào đó, siêu phẳng biên cực đại là đường giữa của “dải” rộng nhất có thể chèn giữa hai lớp.
+
+Quan sát Hình 9.3, ta thấy ba quan sát huấn luyện cách đều siêu phẳng biên cực đại và nằm trên các đường nét đứt biểu thị độ rộng biên. Ba quan sát này được gọi là _vector hỗ trợ_ (support vector), vì chúng là các vector trong không gian _p_ chiều (trong Hình 9.3, _p_ = 2) và “hỗ trợ” siêu phẳng biên cực đại theo nghĩa rằng nếu những điểm này dịch chuyển nhẹ thì siêu phẳng cũng dịch chuyển. Điều thú vị là siêu phẳng biên cực đại phụ thuộc trực tiếp vào các vector hỗ trợ, nhưng không phụ thuộc vào các quan sát khác: việc dịch chuyển bất kỳ quan sát nào khác sẽ không ảnh hưởng đến siêu phẳng phân tách, miễn là quan sát không
+
+vượt qua ranh giới do biên đặt ra. Việc siêu phẳng biên cực đại chỉ phụ thuộc trực tiếp vào một tập con nhỏ các quan sát là một tính chất quan trọng sẽ xuất hiện lại khi ta thảo luận bộ phân loại vector hỗ trợ và máy vector hỗ trợ ở phần sau của chương.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 9.1.4 Xây dựng bộ phân loại biên cực đại
+
+Bây giờ ta xét việc xây dựng siêu phẳng biên cực đại dựa trên tập _n_ quan sát huấn luyện _x_ 1 _, . . . , xn ∈_ R^(_p_) và các nhãn lớp tương ứng _y_ 1 _, . . . , yn ∈\{−_ 1 _,_ 1 _\}_. Tóm lại, siêu phẳng biên cực đại là nghiệm của bài toán tối ưu
+
+Bài toán tối ưu (9.9)–(9.11) thực ra đơn giản hơn vẻ ngoài. Trước hết, ràng buộc trong (9.11)
+
+bảo đảm mỗi quan sát nằm đúng phía của siêu phẳng, miễn là _M_ dương. (Thực ra, để mỗi quan sát nằm đúng phía, ta chỉ cần _yi_ ( _β_ 0 + _β_ 1 _xi_ 1 + _β_ 2 _xi_ 2 + _· · ·_ + _βpxip_ ) _&gt;_ 0; vì vậy ràng buộc trong (9.11) thực chất yêu cầu mỗi quan sát nằm đúng phía với một khoảng đệm, miễn là _M_ dương.)
+
+Thứ hai, lưu ý rằng (9.10) không thực sự là ràng buộc lên siêu phẳng, vì nếu _β_ 0 + _β_ 1 _xi_ 1 + _β_ 2 _xi_ 2 + _· · ·_ + _βpxip_ = 0 định nghĩa một siêu phẳng, thì _k_ ( _β_ 0 + _β_ 1 _xi_ 1 + _β_ 2 _xi_ 2 + _· · ·_ + _βpxip_ ) = 0 cũng định nghĩa cùng siêu phẳng với mọi _k_ = 0. Tuy nhiên, (9.10) làm (9.11) có ý nghĩa; có thể chứng minh rằng với ràng buộc này, khoảng cách vuông góc từ quan sát thứ _i_ đến siêu phẳng là
+
+Do đó, các ràng buộc (9.10) và (9.11) bảo đảm mỗi quan sát nằm đúng phía của siêu phẳng và cách siêu phẳng ít nhất _M_. Vì vậy, _M_ biểu diễn biên của siêu phẳng, và bài toán tối ưu chọn _β_ 0 _, β_ 1 _, . . . , βp_ để cực đại _M_. Đây chính xác là định nghĩa của siêu phẳng biên cực đại! Bài toán (9.9)–(9.11) có thể được giải hiệu quả, nhưng chi tiết tối ưu nằm ngoài phạm vi cuốn sách.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 9.1.5 Trường hợp không thể phân tách
+
+Bộ phân loại biên cực đại là một cách phân loại rất tự nhiên _nếu tồn tại siêu phẳng phân tách_. Tuy nhiên, như đã gợi ý, trong nhiều trường hợp không tồn tại siêu phẳng phân tách và do đó không có bộ
+
+**HÌNH 9.4.** _Có hai lớp quan sát màu xanh và tím. Trong trường hợp này, hai lớp không thể được phân tách bằng một siêu phẳng, nên không thể dùng bộ phân loại biên cực đại._
+
+phân loại biên cực đại. Khi đó, bài toán tối ưu (9.9)–(9.11) không có nghiệm với _M &gt;_ 0. Hình 9.4 minh họa một ví dụ. Trong trường hợp này, ta không thể phân tách hai lớp một cách _chính xác_. Tuy nhiên, như sẽ thấy ở phần tiếp theo, ta có thể mở rộng khái niệm siêu phẳng phân tách để phát triển một siêu phẳng _gần như_ phân tách được các lớp, bằng cái gọi là _biên mềm_ (soft margin). Dạng tổng quát hóa của bộ phân loại biên cực đại cho trường hợp không thể phân tách được gọi là _bộ phân loại vector hỗ trợ_.
+
+</MdxPage>

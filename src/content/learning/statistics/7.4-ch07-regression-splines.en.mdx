@@ -1,0 +1,130 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-regression-splines",
+  "locale": "en",
+  "title": "7.4 Regression Splines",
+  "headings": [
+    "Regression Splines",
+    "7.4.1 Piecewise Polynomials",
+    "7.4.2 Constraints and Splines",
+    "7.4.3 The Spline Basis Representation",
+    "7.4.4 Choosing the Number and Locations of the Knots",
+    "7.4.5 Comparison to Polynomial Regression"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Moving Beyond Linearity",
+    "Regression Splines"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Regression Splines
+
+Now we discuss a flexible class of basis functions that extends upon the polynomial regression and piecewise constant regression approaches that we have just seen.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 7.4.1 Piecewise Polynomials
+
+Instead of fitting a high-degree polynomial over the entire range of _X_ , _piecewise polynomial regression_ involves fitting separate low-degree polynomials piecewise over different regions of _X_ . For example, a piecewise cubic polynomial polynomial works by fitting a cubic regression model of the form regression
+
+where the coefficients _β_ 0, _β_ 1, _β_ 2, and _β_ 3 differ in different parts of the range of _X_ . The points where the coefficients change are called _knots_ .
+
+For example, a piecewise cubic with no knots is just a standard cubic polynomial, as in (7.1) with _d_ = 3. A piecewise cubic polynomial with a single knot at a point _c_ takes the form
+
+In other words, we fit two different polynomial functions to the data, one on the subset of the observations with _xi &lt; c_ , and one on the subset of the observations with _xi ≥ c_ . The first polynomial function has coefficients
+
+**FIGURE 7.3.** _Various piecewise polynomials are fit to a subset of the_ `Wage` _data, with a knot at_ `age=50` _._ Top Left: _The cubic polynomials are unconstrained._ Top Right: _The cubic polynomials are constrained to be continuous at_ `age=50` _._ Bottom Left: _The cubic polynomials are constrained to be continuous, and to have continuous first and second derivatives._ Bottom Right: _A linear spline is shown, which is constrained to be continuous._
+
+_β_ 01 _, β_ 11 _, β_ 21 _,_ and _β_ 31, and the second has coefficients _β_ 02 _, β_ 12 _, β_ 22 _,_ and _β_ 32. Each of these polynomial functions can be fit using least squares applied to simple functions of the original predictor.
+
+Using more knots leads to a more flexible piecewise polynomial. In general, if we place _K_ different knots throughout the range of _X_ , then we will end up fitting _K_ + 1 different cubic polynomials. Note that we do not need to use a cubic polynomial. For example, we can instead fit piecewise linear functions. In fact, our piecewise constant functions of Section 7.2 are piecewise polynomials of degree 0!
+
+The top left panel of Figure 7.3 shows a piecewise cubic polynomial fit to a subset of the `Wage` data, with a single knot at `age=50` . We immediately see a problem: the function is discontinuous and looks ridiculous! Since each polynomial has four parameters, we are using a total of eight _degrees of freedom_ in fitting this piecewise polynomial model.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 7.4.2 Constraints and Splines
+
+The top left panel of Figure 7.3 looks wrong because the fitted curve is just too flexible. To remedy this problem, we can fit a piecewise polynomial under the _constraint_ that the fitted curve must be continuous. In other words, there cannot be a jump when `age=50` . The top right plot in Figure 7.3 shows the resulting fit. This looks better than the top left plot, but the V- shaped join looks unnatural.
+
+In the lower left plot, we have added two additional constraints: now both the first and second _derivatives_ of the piecewise polynomials are continuous derivative at `age=50` . In other words, we are requiring that the piecewise polynomial be not only continuous when `age=50` , but also very _smooth_ . Each constraint that we impose on the piecewise cubic polynomials effectively frees up one degree of freedom, by reducing the complexity of the resulting piecewise polynomial fit. So in the top left plot, we are using eight degrees of freedom, but in the bottom left plot we imposed three constraints (continuity, continuity of the first derivative, and continuity of the second derivative) and so are left with five degrees of freedom. The curve in the bottom left plot is called a _cubic spline_ .^(3) In general, a cubic spline with _K_ knots uses cubic spline a total of 4 + _K_ degrees of freedom.
+
+In Figure 7.3, the lower right plot is a _linear spline_ , which is continuous linear spline at `age=50` . The general definition of a degree- _d_ spline is that it is a piecewise degree- _d_ polynomial, with continuity in derivatives up to degree _d −_ 1 at each knot. Therefore, a linear spline is obtained by fitting a line in each region of the predictor space defined by the knots, requiring continuity at each knot.
+
+In Figure 7.3, there is a single knot at `age=50` . Of course, we could add more knots, and impose continuity at each.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 7.4.3 The Spline Basis Representation
+
+The regression splines that we just saw in the previous section may have seemed somewhat complex: how can we fit a piecewise degree- _d_ polynomial under the constraint that it (and possibly its first _d −_ 1 derivatives) be continuous? It turns out that we can use the basis model (7.7) to represent a regression spline. A cubic spline with _K_ knots can be modeled as
+
+for an appropriate choice of basis functions _b_ 1 _, b_ 2 _, . . . , bK_ +3. The model (7.9) can then be fit using least squares.
+
+Just as there were several ways to represent polynomials, there are also many equivalent ways to represent cubic splines using different choices of basis functions in (7.9). The most direct way to represent a cubic spline using (7.9) is to start off with a basis for a cubic polynomial—namely, _x, x_^(2) _,_ and _x_^(3) —and then add one _truncated power basis_ function per knot. truncated
+
+> power basis
+
+> 3Cubic splines are popular because most human eyes cannot detect the discontinuity at the knots.
+
+**FIGURE 7.4.** _A cubic spline and a natural cubic spline, with three knots, fit to a subset of the_ `Wage` _data. The dashed lines denote the knot locations._
+
+A truncated power basis function is defined as
+
+where _ξ_ is the knot. One can show that adding a term of the form _β_ 4 _h_ ( _x, ξ_ ) to the model (7.8) for a cubic polynomial will lead to a discontinuity in only the third derivative at _ξ_ ; the function will remain continuous, with continuous first and second derivatives, at each of the knots.
+
+In other words, in order to fit a cubic spline to a data set with _K_ knots, we perform least squares regression with an intercept and 3 + _K_ predictors, of the form _X, X_^(2) _, X_^(3) _, h_ ( _X, ξ_ 1) _, h_ ( _X, ξ_ 2) _, . . . , h_ ( _X, ξK_ ), where _ξ_ 1 _, . . . , ξK_ are the knots. This amounts to estimating a total of _K_ + 4 regression coefficients; for this reason, fitting a cubic spline with _K_ knots uses _K_ +4 degrees of freedom.
+
+Unfortunately, splines can have high variance at the outer range of the predictors—that is, when _X_ takes on either a very small or very large value. Figure 7.4 shows a fit to the `Wage` data with three knots. We see that the confidence bands in the boundary region appear fairly wild. A _natural spline_ is a regression spline with additional _boundary constraints_ : the natural function is required to be linear at the boundary (in the region where _X_ is spline smaller than the smallest knot, or larger than the largest knot). This additional constraint means that natural splines generally produce more stable estimates at the boundaries. In Figure 7.4, a natural cubic spline is also displayed as a red line. Note that the corresponding confidence intervals are narrower.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 7.4.4 Choosing the Number and Locations of the Knots
+
+When we fit a spline, where should we place the knots? The regression spline is most flexible in regions that contain a lot of knots, because in those regions the polynomial coefficients can change rapidly. Hence, one
+
+###### **Natural Cubic Spline**
+
+**FIGURE 7.5.** _A natural cubic spline function with four degrees of freedom is fit to the_ `Wage` _data._ Left: _A spline is fit to_ `wage` _(in thousands of dollars) as a function of_ `age` _._ Right: _Logistic regression is used to model the binary event_ `wage>250` _as a function of_ `age` _. The fitted posterior probability of_ `wage` _exceeding_ $250 _,_ 000 _is shown. The dashed lines denote the knot locations._
+
+option is to place more knots in places where we feel the function might vary most rapidly, and to place fewer knots where it seems more stable. While this option can work well, in practice it is common to place knots in a uniform fashion. One way to do this is to specify the desired degrees of freedom, and then have the software automatically place the corresponding number of knots at uniform quantiles of the data.
+
+Figure 7.5 shows an example on the `Wage` data. As in Figure 7.4, we have fit a natural cubic spline with three knots, except this time the knot locations were chosen automatically as the 25th, 50th, and 75th percentiles of `age` . This was specified by requesting four degrees of freedom. The argument by which four degrees of freedom leads to three interior knots is somewhat technical.^(4)
+
+How many knots should we use, or equivalently how many degrees of freedom should our spline contain? One option is to try out different numbers of knots and see which produces the best looking curve. A somewhat more objective approach is to use cross-validation, as discussed in Chapters 5 and 6. With this method, we remove a portion of the data (say 10 %), fit a spline with a certain number of knots to the remaining data, and then use the spline to make predictions for the held-out portion. We repeat this process multiple times until each observation has been left out once, and
+
+> 4There are actually five knots, including the two boundary knots. A cubic spline with five knots has nine degrees of freedom. But natural cubic splines have two additional _natural_ constraints at each boundary to enforce linearity, resulting in 9 _−_ 4 = 5 degrees of freedom. Since this includes a constant, which is absorbed in the intercept, we count it as four degrees of freedom.
+
+**FIGURE 7.6.** _Ten-fold cross-validated mean squared errors for selecting the degrees of freedom when fitting splines to the_ `Wage` _data. The response is_ `wage` _and the predictor_ `age` _._ Left: _A natural cubic spline._ Right: _A cubic spline._
+
+then compute the overall cross-validated RSS. This procedure can be repeated for different numbers of knots _K_ . Then the value of _K_ giving the smallest RSS is chosen.
+
+Figure 7.6 shows ten-fold cross-validated mean squared errors for splines with various degrees of freedom fit to the `Wage` data. The left-hand panel corresponds to a natural cubic spline and the right-hand panel to a cubic spline. The two methods produce almost identical results, with clear evidence that a one-degree fit (a linear regression) is not adequate. Both curves flatten out quickly, and it seems that three degrees of freedom for the natural spline and four degrees of freedom for the cubic spline are quite adequate.
+
+In Section 7.7 we fit additive spline models simultaneously on several variables at a time. This could potentially require the selection of degrees of freedom for each variable. In cases like this we typically adopt a more pragmatic approach and set the degrees of freedom to a fixed number, say four, for all terms.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 7.4.5 Comparison to Polynomial Regression
+
+Figure 7.7 compares a natural cubic spline with 15 degrees of freedom to a degree-15 polynomial on the `Wage` data set. The extra flexibility in the polynomial produces undesirable results at the boundaries, while the natural cubic spline still provides a reasonable fit to the data. Regression splines often give superior results to polynomial regression. This is because unlike polynomials, which must use a high degree (exponent in the highest monomial term, e.g. _X_^(15) ) to produce flexible fits, splines introduce flexibility by increasing the number of knots but keeping the degree fixed. Generally, this approach produces more stable estimates. Splines also allow us to place more knots, and hence flexibility, over regions where the function _f_ seems to be changing rapidly, and fewer knots where _f_ appears more stable.
+
+**FIGURE 7.7.** _On the_ `Wage` _data set, a natural cubic spline with 15 degrees of freedom is compared to a degree-_ 15 _polynomial. Polynomials can show wild behavior, especially near the tails._
+
+</MdxPage>

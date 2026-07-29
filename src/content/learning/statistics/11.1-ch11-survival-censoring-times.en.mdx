@@ -1,0 +1,33 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-survival-censoring-times",
+  "locale": "en",
+  "title": "11.1 Survival and Censoring Times",
+  "headings": [
+    "Survival and Censoring Times"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Survival Analysis and Censored Data",
+    "Survival and Censoring Times"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Survival and Censoring Times
+
+For each individual, we suppose that there is a true _survival time_ , _T_ , as well survival time as a true _censoring time_ , _C_ . (The survival time is also known as the _failure_ censoring _time_ or the _event time_ .) The survival time represents the time at which the time event of interest occurs: for instance, the time at which the patient dies, failure time or the customer cancels his or her subscription. By contrast, the censoring event time time is the time at which censoring occurs: for example, the time at which the patient drops out of the study or the study ends.
+
+We observe either the survival time _T_ or else the censoring time _C_ . Specifically, we observe the random variable
+
+In other words, if the event occurs before censoring (i.e. _T &lt; C_ ) then we observe the true survival time _T_ ; however, if censoring occurs before the event ( _T &gt; C_ ) then we observe the censoring time. We also observe a status indicator,
+
+Thus, _δ_ = 1 if we observe the true survival time, and _δ_ = 0 if we instead observe the censoring time.
+
+Now, suppose we observe _n_ ( _Y, δ_ ) pairs, which we denote as ( _y_ 1 _, δ_ 1) _, . . . ,_ ( _yn, δn_ ). Figure 11.1 displays an example from a (fictitious) medical study in which we observe _n_ = 4 patients for a 365-day follow-up period. For patients 1 and 3, we observe the time to event (such as death or disease relapse) _T_ = _ti_ . Patient 2 was alive when the study ended, and patient 4 dropped out of the study, or was “lost to follow-up”; for these patients we observe _C_ = _ci_ . Therefore, _y_ 1 = _t_ 1, _y_ 3 = _t_ 3, _y_ 2 = _c_ 2, _y_ 4 = _c_ 4, _δ_ 1 = _δ_ 3 = 1, and _δ_ 2 = _δ_ 4 = 0.
+
+</MdxPage>

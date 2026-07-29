@@ -1,0 +1,252 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-survival-analysis-lab",
+  "locale": "en",
+  "title": "11.8 Lab: Survival Analysis",
+  "headings": [
+    "Lab: Survival Analysis",
+    "11.8.1 Brain Cancer Data",
+    "11.8.2 Publication Data",
+    "11.8.3 Call Center Data"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Survival Analysis and Censored Data",
+    "Lab: Survival Analysis"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Lab: Survival Analysis
+
+In this lab, we perform survival analyses on three separate data sets. In Section 11.8.1 we analyze the `BrainCancer` data that was first described in Section 11.3. In Section 11.8.2, we examine the `Publication` data from Section 11.5.4. Finally, Section 11.8.3 explores a simulated call-center data set.
+
+We begin by importing some of our libraries at this top level. This makes the code more readable, as scanning the first few lines of the notebook tell us what libraries are used in this notebook.
+
+<MdxCode language="text" code={"In [1]:frommatplotlib.pyplotimportsubplots\nimportnumpyasnp\nimportpandasaspd\nfromISLP.modelsimportModelSpecasMS\nfromISLPimportload_data"} />
+
+We also collect the new imports needed for this lab.
+
+<MdxCode language="text" code={"In [2]:fromlifelinesimport\\\n(KaplanMeierFitter ,\nCoxPHFitter)\nfromlifelines.statisticsimport\\\n(logrank_test ,\nmultivariate_logrank_test)\nfromISLP.survivalimportsim_time"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 11.8.1 Brain Cancer Data
+
+We begin with the `BrainCancer` data set, contained in the `ISLP` package.
+
+<MdxCode language="text" code={"In [3]:BrainCancer=load_data('BrainCancer')\nBrainCancer.columns"} />
+
+<MdxCode language="text" code={"Out[3]:Index(['sex','diagnosis','loc','ki','gtv','stereo',\n'status','time'],\ndtype='object')"} />
+
+The rows index the 88 patients, while the 8 columns contain the predictors and outcome variables. We first briefly examine the data.
+
+<MdxCode language="text" code={"In [4]:BrainCancer['sex'].value_counts()"} />
+
+<MdxCode language="text" code={"Out[4]:Female45\nMale43\nName:sex,dtype:int64"} />
+
+<MdxCode language="text" code={"In [5]:BrainCancer['diagnosis'].value_counts()"} />
+
+<MdxCode language="text" code={"Out[5]:Meningioma42\nHGglioma22\nOther14\nLGglioma9\nName:diagnosis,dtype:int64"} />
+
+<MdxCode language="text" code={"In [6]:BrainCancer['status'].value_counts()"} />
+
+<MdxCode language="text" code={"Out[6]:053\n135\nName:status,dtype:int64"} />
+
+Before beginning an analysis, it is important to know how the `status` variable has been coded. Most software uses the convention that a `status` of 1 indicates an uncensored observation (often death), and a `status` of 0 indicates a censored observation. But some scientists might use the opposite coding. For the `BrainCancer` data set 35 patients died before the end of the study, so we are using the conventional coding.
+
+To begin the analysis, we re-create the Kaplan-Meier survival curve shown in Figure 11.2. The main package we will use for survival analysis is `lifelines` . The variable `time` corresponds to _yi_ , the time to the _i_ th `lifelines` event (either censoring or death). The first argument to `km.fit` is the event time, and the second argument is the censoring variable, with a 1 indicating an observed failure time. The `plot()` method produces a survival curve `.plot()` with pointwise confidence intervals. By default, these are 90% confidence intervals, but this can be changed by setting the `alpha` argument to one minus the desired confidence level.
+
+<MdxCode language="text" code={"In [7]:fig,ax=subplots(figsize=(8,8))\nkm=KaplanMeierFitter()\nkm_brain=km.fit(BrainCancer['time'],BrainCancer['status'])\nkm_brain.plot(label='KaplanMeierestimate',ax=ax)"} />
+
+Next we create Kaplan-Meier survival curves that are stratified by `sex` , in order to reproduce Figure 11.3. We do this using the `groupby()` method of `.groupby()` a dataframe. This method returns a generator that can be iterated over in the `for` loop. In this case, the items in the `for` loop are 2-tuples representing the groups: the first entry is the value of the grouping column `sex` while the second value is the dataframe consisting of all rows in the dataframe matching that value of `sex` . We will want to use this data below in the logrank test, hence we store this information in the dictionary `by_sex` . Finally, we have also used the notion of _string interpolation_ to automatically label string the different lines in the plot. String interpolation is a powerful technique interpolation to format strings — `Python` has many ways to facilitate such operations.
+
+<MdxCode language="text" code={"In [8]:fig,ax=subplots(figsize=(8,8))\nby_sex={}\nforsex,dfinBrainCancer.groupby('sex'):\nby_sex[sex]=df\nkm_sex=km.fit(df['time'],df['status'])\nkm_sex.plot(label='Sex=%s'%sex,ax=ax)"} />
+
+As discussed in Section 11.4, we can perform a log-rank test to compare the survival of males to females. We use the `logrank_test()` function from `logrank_`
+
+<MdxCode language="text" code={"test()"} />
+
+the `lifelines.statistics` module. The first two arguments are the event times, with the second denoting the corresponding (optional) censoring indicators.
+
+<MdxCode language="text" code={"In [9]:logrank_test(by_sex['Male']['time'],\nby_sex['Female']['time'],\nby_sex['Male']['status'],\nby_sex['Female']['status'])"} />
+
+<MdxCode language="text" code={"Out[9]:t_0-1\nnull_distributionchisquared\ndegrees_of_freedom1\ntest_namelogrank_test\ntest_statisticp-log2(p)\n1.440.232.12"} />
+
+The resulting _p_ -value is 0 _._ 23, indicating no evidence of a difference in survival between the two sexes.
+
+Next, we use the `CoxPHFitter()` estimator from `lifelines` to fit Cox `CoxPHFitter()` proportional hazards models. To begin, we consider a model that uses `sex` as the only predictor.
+
+<MdxCode language="text" code={"In [10]:coxph=CoxPHFitter#shorthand\nsex_df=BrainCancer[['time','status','sex']]\nmodel_df=MS(['time','status','sex'],\nintercept=False).fit_transform(sex_df)\ncox_fit=coxph().fit(model_df,\n'time',\n'status')\ncox_fit.summary[['coef','se(coef)','p']]"} />
+
+<MdxCode language="text" code={"Out[10]:"} />
+
+<MdxCode language="text" code={"coefse(coef)p\ncovariate\nsex[Male]0.4076670.3420040.233263"} />
+
+The first argument to `fit` should be a data frame containing at least the event time (the second argument `time` in this case), as well as an optional censoring variable (the argument `status` in this case). Note also that the Cox model does not include an intercept, which is why we used the `intercept=False` argument to `ModelSpec` above. The `summary()` method delivers many columns; we chose to abbreviate its output here. It is possible to obtain the likelihood ratio test comparing this model to the one with no features as follows:
+
+<MdxCode language="text" code={"In [11]:cox_fit.log_likelihood_ratio_test()"} />
+
+<MdxCode language="text" code={"Out[11]:null_distributionchisquared\ndegrees_freedom1\ntest_namelog-likelihoodratiotest\ntest_statisticp-log2(p)\n1.440.232.12"} />
+
+Regardless of which test we use, we see that there is no clear evidence for a difference in survival between males and females. As we learned in this chapter, the score test from the Cox model is exactly equal to the log rank test statistic!
+
+Now we fit a model that makes use of additional predictors. We first note that one of our `diagnosis` values is missing, hence we drop that observation before continuing.
+
+<MdxCode language="text" code={"In [12]:cleaned=BrainCancer.dropna()\nall_MS=MS(cleaned.columns,intercept=False)\nall_df=all_MS.fit_transform(cleaned)\nfit_all=coxph().fit(all_df,\n'time',\n'status')\nfit_all.summary[['coef','se(coef)','p']]"} />
+
+<MdxCode language="text" code={"Out[12]:"} />
+
+<MdxCode language="table" code={"|`covariate` `sex[Male]`|`coef` `0.183748`|`se(coef)` `0.360358`|`p` `0.610119`|\n|---|---|---|---|\n|`diagnosis[LG glioma]`|`-1.239541`|`0.579557`|`0.032454`|\n|`diagnosis[Meningioma]`|`-2.154566`|`0.450524`|`0.000002`|\n|`diagnosis[Other]`|`-1.268870`|`0.617672`|`0.039949`|\n|`loc[Supratentorial]`|`0.441195`|`0.703669`|`0.530664`|\n|`ki`|`-0.054955`|`0.018314`|`0.002693`|\n|`gtv`|`0.034293`|`0.022333`|`0.124660`|\n|`stereo[SRT]`|`0.177778`|`0.601578`|`0.767597`|"} />
+
+The `diagnosis` variable has been coded so that the baseline corresponds to HG glioma. The results indicate that the risk associated with HG glioma is more than eight times (i.e. _e_^(2)^(_._15) = 8 _._ 62) the risk associated with meningioma. In other words, after adjusting for the other predictors, patients with HG glioma have much worse survival compared to those with meningioma. In addition, larger values of the Karnofsky index, `ki` , are associated with lower risk, i.e. longer survival.
+
+Finally, we plot estimated survival curves for each diagnosis category, adjusting for the other predictors. To make these plots, we set the values of the other predictors equal to the mean for quantitative variables and equal to the mode for categorical. To do this, we use the `apply()` method across rows (i.e. `axis=0` ) with a function `representative` that checks if a column is categorical or not.
+
+<MdxCode language="text" code={"In [13]:levels=cleaned['diagnosis'].unique()\ndefrepresentative(series):\nifhasattr(series.dtype,'categories'):\nreturnpd.Series.mode(series)\nelse:\nreturnseries.mean()\nmodal_data=cleaned.apply(representative ,axis=0)"} />
+
+We make four copies of the column means and assign the `diagnosis` column to be the four different diagnoses. **`In [14]:`** `modal_df = pd.DataFrame( [modal_data.iloc[0] for _ in range(len(levels))]) modal_df['diagnosis'] = levels modal_df`
+
+<MdxCode language="text" code={"Out[14]:"} />
+
+<MdxCode language="table" code={"|`sex`|`diagnosis`|`loc`|`ki`|`gtv`|`stereo`|`...`|\n|---|---|---|---|---|---|---|\n|`Female`|`Meningioma`|`Supratentorial`|`80.920`|`8.687`|`SRT`|`...`|\n|`Female`|`HG glioma`|`Supratentorial`|`80.920`|`8.687`|`SRT`|`...`|\n|`Female`|`LG glioma`|`Supratentorial`|`80.920`|`8.687`|`SRT`|`...`|\n|`Female`|`Other`|`Supratentorial`|`80.920`|`8.687`|`SRT`|`...`|"} />
+
+We then construct the model matrix based on the model specification `all_MS` used to fit the model, and name the rows according to the levels of `diagnosis` .
+
+<MdxCode language="text" code={"In [15]:modal_X=all_MS.transform(modal_df)\nmodal_X.index=levels\nmodal_X"} />
+
+We can use the `predict_survival_function()` method to obtain the esti- `.predict_` mated survival function.
+
+<MdxCode language="text" code={"survival_\nfunction()"} />
+
+<MdxCode language="text" code={"In [16]:predicted_survival=fit_all.predict_survival_function(modal_X)\npredicted_survival"} />
+
+<MdxCode language="table" code={"|**`Out[16]:`**|`M`|`eningioma` |`HG glioma`|`LG glioma`|`Other`|\n|---|---|---|---|---|---|\n||`0.070`|`0.998`|`0.982`|`0.995`|`0.995`|\n||`1.180`|`0.998`|`0.982`|`0.995`|`0.995`|\n||`1.410`|`0.996`|`0.963`|`0.989`|`0.990`|\n||`1.540`|`0.996`|`0.963`|`0.989`|`0.990`|\n||`...` `67.380`|`...` `0.689`|`...` `0.040`|`...` `0.394`|`...` `0.405`|\n||`73.740`|`0.689`|`0.040`|`0.394`|`0.405`|\n||`78.750`|`0.689`|`0.040`|`0.394`|`0.405`|\n||`82.560`|`0.689`|`0.040`|`0.394`|`0.405`|\n||`85 rows `|`× 4 columns`||||"} />
+
+This returns a data frame, whose plot methods yields the different survival curves. To avoid clutter in the plots, we do not display confidence intervals.
+
+<MdxCode language="text" code={"In [17]:fig,ax=subplots(figsize=(8,8))\npredicted_survival.plot(ax=ax);"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 11.8.2 Publication Data
+
+The `Publication` data presented in Section 11.5.4 can be found in the `ISLP` package. We first reproduce Figure 11.5 by plotting the Kaplan-Meier curves stratified on the `posres` variable, which records whether the study had a positive or negative result.
+
+<MdxCode language="text" code={"In [18]:fig,ax=subplots(figsize=(8,8))\nPublication=load_data('Publication')\nby_result={}\nforresult,dfinPublication.groupby('posres'):\nby_result[result]=df\nkm_result=km.fit(df['time'],df['status'])\nkm_result.plot(label='Result=%d'%result,ax=ax)"} />
+
+As discussed previously, the _p_ -values from fitting Cox’s proportional hazards model to the `posres` variable are quite large, providing no evidence of a difference in time-to-publication between studies with positive versus negative results.
+
+<MdxCode language="text" code={"In [19]:posres_df=MS(['posres',\n'time',\n'status'],\nintercept=False).fit_transform(Publication)\nposres_fit=coxph().fit(posres_df,\n'time',\n'status')\nposres_fit.summary[['coef','se(coef)','p']]"} />
+
+<MdxCode language="text" code={"Out[19]:coefse(coef)p\ncovariate\nposres0.1480760.1616250.359578"} />
+
+However, the results change dramatically when we include other predictors in the model. Here we exclude the funding mechanism variable.
+
+<MdxCode language="text" code={"In [20]:model=MS(Publication.columns.drop('mech'),\nintercept=False)\ncoxph().fit(model.fit_transform(Publication),\n'time',\n'status').summary[['coef','se(coef)','p']]"} />
+
+<MdxCode language="table" code={"|**`Out[20]:`**||`coef`|`se(coef)`|`p`|\n|---|---|---|---|---|\n||`covariate`||||\n||`posres`|`0.570774`|`0.175960`|`1.179606e-03`|\n||`multi`|`-0.040863`|`0.251194`|`8.707727e-01`|\n||`clinend`|`0.546180`|`0.262001`|`3.710099e-02`|\n||`sampsize`|`0.000005`|`0.000015`|`7.506978e-01`|\n||`budget`|`0.004386`|`0.002464`|`7.511276e-02`|\n||`impact`|`0.058318`|`0.006676`|`2.426779e-18`|"} />
+
+We see that there are a number of statistically significant variables, including whether the trial focused on a clinical endpoint, the impact of the study, and whether the study had positive or negative results.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 11.8.3 Call Center Data
+
+In this section, we will simulate survival data using the relationship between cumulative hazard and the survival function explored in Exercise 8. Our simulated data will represent the observed wait times (in seconds) for 2,000 customers who have phoned a call center. In this context, censoring occurs if a customer hangs up before his or her call is answered.
+
+There are three covariates: `Operators` (the number of call center operators available at the time of the call, which can range from 5 to 15), `Center` (either A, B, or C), and `Time` of day (Morning, Afternoon, or Evening). We generate data for these covariates so that all possibilities are equally likely: for instance, morning, afternoon and evening calls are equally likely, and any number of operators from 5 to 15 is equally likely.
+
+<MdxCode language="text" code={"In [21]:rng=np.random.default_rng(10)\nN=2000\nOperators=rng.choice(np.arange(5,16),\nN,\nreplace=True)"} />
+
+<MdxCode language="text" code={"Center=rng.choice(['A','B','C'],\nN,\nreplace=True)\nTime=rng.choice(['Morn.','After.','Even.'],\nN,\nreplace=True)\nD=pd.DataFrame({'Operators':Operators,\n'Center':pd.Categorical(Center),\n'Time':pd.Categorical(Time)})"} />
+
+We then build a model matrix (omitting the intercept)
+
+<MdxCode language="text" code={"In [22]:model=MS(['Operators',\n'Center',\n'Time'],\nintercept=False)\nX=model.fit_transform(D)"} />
+
+It is worthwhile to take a peek at the model matrix `X` , so that we can be sure that we understand how the variables have been coded. By default, the levels of categorical variables are sorted and, as usual, the first column of the one-hot encoding of the variable is dropped.
+
+<MdxCode language="text" code={"In [23]:X[:5]"} />
+
+<MdxCode language="table" code={"|**`Out[23]:`**|`Operators`|`Center[B]`|`Center[C]`|`Time[Even.]`|`Time[Morn.]`|\n|---|---|---|---|---|---|\n|`0`|`13`|`0.0`|`1.0`|`0.0`|`0.0`|\n|`1`|`15`|`0.0`|`0.0`|`1.0`|`0.0`|\n|`2`|`7`|`1.0`|`0.0`|`0.0`|`1.0`|\n|`3`|`7`|`0.0`|`1.0`|`0.0`|`1.0`|\n|`4`|`13`|`0.0`|`1.0`|`1.0`|`0.0`|"} />
+
+Next, we specify the coefficients and the hazard function.
+
+<MdxCode language="text" code={"In [24]:true_beta=np.array([0.04,-0.3,0,0.2,-0.2])\ntrue_linpred=X.dot(true_beta)\nhazard=lambdat:1e-5*t"} />
+
+Here, we have set the coefficient associated with `Operators` to equal 0 _._ 04; in other words, each additional operator leads to a _e_^(0)^(_._04) = 1 _._ 041-fold increase in the “risk” that the call will be answered, given the `Center` and `Time` covariates. This makes sense: the greater the number of operators at hand, the shorter the wait time! The coefficient associated with `Center == B` is _−_ 0 _._ 3, and `Center == A` is treated as the baseline. This means that the risk of a call being answered at Center B is 0.74 times the risk that it will be answered at Center A; in other words, the wait times are a bit longer at Center B.
+
+Recall from Section 2.3.7 the use of `lambda` for creating short functions on the fly. We use the function `sim_time()` from the `ISLP.survival` pack- `sim_time()` age. This function uses the relationship between the survival function and cumulative hazard _S_ ( _t_ ) = exp( _−H_ ( _t_ )) and the specific form of the cumulative hazard function in the Cox model to simulate data based on values of the linear predictor `true_linpred` and the cumulative hazard. We need to provide the cumulative hazard function, which we do here.
+
+<MdxCode language="text" code={"In [25]:cum_hazard=lambdat:1e-5*t**2/2"} />
+
+We are now ready to generate data under the Cox proportional hazards model. We truncate the maximum time to 1000 seconds to keep simulated wait times reasonable. The function `sim_time()` takes a linear predictor, a cumulative hazard function and a random number generator.
+
+<MdxCode language="text" code={"In [26]:W=np.array([sim_time(l,cum_hazard,rng)\nforlintrue_linpred])\nD['Waittime']=np.clip(W,0,1000)"} />
+
+We now simulate our censoring variable, for which we assume 90% of calls were answered ( `Failed==1` ) before the customer hung up ( `Failed==0` ).
+
+<MdxCode language="text" code={"In [27]:D['Failed']=rng.choice([1,0],\nN,\np=[0.9,0.1])\nD[:5]"} />
+
+<MdxCode language="table" code={"|**`Out[27]:`**||`Operators `|`Center`|`Time`|`Wait time`|`Failed`|\n|---|---|---|---|---|---|---|\n||`0`|`13`|`C`|`After.`|`525.064979`|`1`|\n||`1`|`15`|`A`|`Even.`|`254.677835`|`1`|\n||`2`|`7`|`B`|`Morn.`|`487.739224`|`1`|\n||`3`|`7`|`C`|`Morn.`|`308.580292`|`1`|\n||`4`|`13`|`C`|`Even.`|`154.174608`|`1`|"} />
+
+<MdxCode language="text" code={"In [28]:D['Failed'].mean()"} />
+
+<MdxCode language="text" code={"Out[28]:0.8985"} />
+
+We now plot Kaplan-Meier survival curves. First, we stratify by `Center` .
+
+<MdxCode language="text" code={"In [29]:fig,ax=subplots(figsize=(8,8))\nby_center={}\nforcenter,dfinD.groupby('Center'):\nby_center[center]=df\nkm_center=km.fit(df['Waittime'],df['Failed'])\nkm_center.plot(label='Center=%s'%center,ax=ax)\nax.set_title(\"ProbabilityofStillBeingonHold\")"} />
+
+Next, we stratify by `Time` .
+
+<MdxCode language="text" code={"In [30]:fig,ax=subplots(figsize=(8,8))\nby_time={}\nfortime,dfinD.groupby('Time'):\nby_time[time]=df\nkm_time=km.fit(df['Waittime'],df['Failed'])\nkm_time.plot(label='Time=%s'%time,ax=ax)\nax.set_title(\"ProbabilityofStillBeingonHold\")"} />
+
+It seems that calls at Call Center B take longer to be answered than calls at Centers A and C. Similarly, it appears that wait times are longest in the morning and shortest in the evening hours. We can use a log-rank test to determine whether these differences are statistically significant using the function `multivariate_logrank_test()` .
+
+<MdxCode language="text" code={"In [31]:multivariate_logrank_test(D['Waittime'],\nD['Center'],\nD['Failed'])"} />
+
+<MdxCode language="text" code={"Out[31]:"} />
+
+<MdxCode language="text" code={"t_0-1\nnull_distributionchisquared\ndegrees_of_freedom2\ntest_namemultivariate_logrank_test\ntest_statisticp-log2(p)\n20.30<0.00514.65"} />
+
+Next, we consider the effect of `Time` .
+
+<MdxCode language="text" code={"In [32]:multivariate_logrank_test(D['Waittime'],\nD['Time'],\nD['Failed'])"} />
+
+<MdxCode language="text" code={"Out[32]:"} />
+
+<MdxCode language="text" code={"t_0-1\nnull_distributionchisquared\ndegrees_of_freedom2\ntest_namemultivariate_logrank_test\ntest_statisticp-log2(p)\n49.90<0.00535.99"} />
+
+As in the case of a categorical variable with 2 levels, these results are similar to the likelihood ratio test from the Cox proportional hazards model. First, we look at the results for `Center` .
+
+<MdxCode language="text" code={"In [33]:X=MS(['Waittime',\n'Failed',\n'Center'],\nintercept=False).fit_transform(D)\nF=coxph().fit(X,'Waittime','Failed')\nF.log_likelihood_ratio_test()"} />
+
+<MdxCode language="text" code={"Out[33]:null_distributionchisquared\ndegrees_freedom2\ntest_namelog-likelihoodratiotest\ntest_statisticp-log2(p)\n20.58<0.00514.85"} />
+
+Next, we look at the results for `Time` .
+
+<MdxCode language="text" code={"In [34]:X=MS(['Waittime',\n'Failed',\n'Time'],\nintercept=False).fit_transform(D)\nF=coxph().fit(X,'Waittime','Failed')\nF.log_likelihood_ratio_test()"} />
+
+<MdxCode language="text" code={"Out[34]:null_distributionchisquared\ndegrees_freedom2\ntest_namelog-likelihoodratiotest\ntest_statisticp-log2(p)\n48.12<0.00534.71"} />
+
+We find that differences between centers are highly significant, as are differences between times of day. Finally, we fit Cox’s proportional hazards model to the data.
+
+<MdxCode language="table" code={"|**`In [35]:`** `X = MS(D.columns,`|\n|---|\n|`intercept=False).fit_transform(D)`|\n|`fit_queuing = coxph().fit(`|\n|`X,`|\n|`'Wait time',`|\n|`'Failed')`|\n|`fit_queuing.summary[['coef', 'se(coef)', 'p']]`|"} />
+
+<MdxCode language="table" code={"|**`Out[35]:`**||`coef`|`se(coef)`|`p`|\n|---|---|---|---|---|\n||`covariate`||||\n||`Operators`|`0.043934`|`0.007520`|`5.143677e-09`|\n||`Center[B]`|`-0.236059`|`0.058113`|`4.864734e-05`|\n||`Center[C]`|`0.012231`|`0.057518`|`8.316083e-01`|\n||`Time[Even.]`|`0.268845`|`0.057797`|`3.294914e-06`|\n||`Time[Morn.]`|`-0.148215`|`0.057334`|`9.734378e-03`|"} />
+
+The _p_ -values for Center B and evening time are very small. It is also clear that the hazard — that is, the instantaneous risk that a call will be answered — increases with the number of operators. Since we generated the data ourselves, we know that the true coefficients for `Operators` , `Center = B` , `Center = C` , `Time = Even.` and `Time = Morn.` are 0 _._ 04, _−_ 0 _._ 3, 0, 0 _._ 2, and _−_ 0 _._ 2, respectively. The coefficient estimates from the fitted Cox model are fairly accurate.
+
+</MdxPage>

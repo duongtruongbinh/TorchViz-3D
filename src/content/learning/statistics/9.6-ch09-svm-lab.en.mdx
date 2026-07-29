@@ -1,0 +1,256 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-svm-lab",
+  "locale": "en",
+  "title": "9.6 Lab: Support Vector Machines",
+  "headings": [
+    "Lab: Support Vector Machines",
+    "9.6.1 Support Vector Classifier",
+    "9.6.2 Support Vector Machine",
+    "9.6.3 ROC Curves",
+    "9.6.4 SVM with Multiple Classes",
+    "9.6.5 Application to Gene Expression Data"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Support Vector Machines",
+    "Lab: Support Vector Machines"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Lab: Support Vector Machines
+
+In this lab, we use the `sklearn.svm` library to demonstrate the support vector classifier and the support vector machine. We import some of our usual libraries.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nfrommatplotlib.pyplotimportsubplots,cm\nimportsklearn.model_selectionasskm\nfromISLPimportload_data,confusion_table"} />
+
+We also collect the new imports needed for this lab.
+
+<MdxCode language="text" code={"In [2]:fromsklearn.svmimportSVC\nfromISLP.svmimportplotasplot_svm\nfromsklearn.metricsimportRocCurveDisplay"} />
+
+We will use the function `RocCurveDisplay.from_estimator()` to produce `RocCurve` several ROC plots, using a shorthand `roc_curve` .
+
+<MdxCode language="text" code={"Display.from_\nestimator()"} />
+
+<MdxCode language="text" code={"In [3]:roc_curve=RocCurveDisplay.from_estimator#shorthand"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 9.6.1 Support Vector Classifier
+
+We now use the `SupportVectorClassifier()` function (abbreviated `SVC()` ) `SupportVector` from `sklearn` to fit the support vector classifier for a given value of the `Classifier()` parameter `C` . The `C` argument allows us to specify the cost of a violation to the margin. When the `cost` argument is small, then the margins will be wide and many support vectors will be on the margin or will violate the margin. When the `C` argument is large, then the margins will be narrow and there will be few support vectors on the margin or violating the margin.
+
+Here we demonstrate the use of `SVC()` on a two-dimensional example, so that we can plot the resulting decision boundary. We begin by generating the observations, which belong to two classes, and checking whether the classes are linearly separable.
+
+<MdxCode language="text" code={"In [4]:rng=np.random.default_rng(1)\nX=rng.standard_normal((50,2))\ny=np.array([-1]*25+[1]*25)\nX[y==1]+=1\nfig,ax=subplots(figsize=(8,8))\nax.scatter(X[:,0],\nX[:,1],\nc=y,\ncmap=cm.coolwarm);"} />
+
+They are not. We now fit the classifier.
+
+<MdxCode language="text" code={"In [5]:svm_linear=SVC(C=10,kernel='linear')\nsvm_linear.fit(X,y)"} />
+
+<MdxCode language="text" code={"Out[5]:SVC(C=10,kernel='linear')"} />
+
+The support vector classifier with two features can be visualized by plotting values of its _decision function_ . We have included a function for this in decision the `ISLP` package (inspired by a similar example in the `sklearn` docs). function
+
+<MdxCode language="text" code={"In [6]:fig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_linear,\nax=ax)"} />
+
+The decision boundary between the two classes is linear (because we used the argument `kernel='linear'` ). The support vectors are marked with `+` and the remaining observations are plotted as circles. What if we instead used a smaller value of the cost parameter?
+
+<MdxCode language="text" code={"In [7]:svm_linear_small=SVC(C=0.1,kernel='linear')\nsvm_linear_small.fit(X,y)\nfig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_linear_small ,\nax=ax)"} />
+
+With a smaller value of the cost parameter, we obtain a larger number of support vectors, because the margin is now wider. For linear kernels, we can extract the coefficients of the linear decision boundary as follows:
+
+<MdxCode language="text" code={"In [8]:svm_linear.coef_"} />
+
+<MdxCode language="text" code={"Out[8]:array([[1.173,0.7734]])"} />
+
+Since the support vector machine is an estimator in `sklearn` , we can use the usual machinery to tune it.
+
+<MdxCode language="text" code={"In [9]:kfold=skm.KFold(5,\nrandom_state=0,\nshuffle=True)\ngrid=skm.GridSearchCV(svm_linear,\n{'C':[0.001,0.01,0.1,1,5,10,100]},\nrefit=True,\ncv=kfold,\nscoring='accuracy')\ngrid.fit(X,y)\ngrid.best_params_"} />
+
+<MdxCode language="text" code={"Out[9]:{'C':1}"} />
+
+We can easily access the cross-validation errors for each of these models in `grid.cv_results_` . This prints out a lot of detail, so we extract the accuracy results only.
+
+<MdxCode language="text" code={"In [10]:grid.cv_results_[('mean_test_score')]"} />
+
+<MdxCode language="text" code={"Out[10]:array([0.46,0.46,0.72,0.74,0.74,0.74,0.74])"} />
+
+We see that `C=1` results in the highest cross-validation accuracy of 0.74, though the accuracy is the same for several values of `C` . The classifier `grid.best_estimator_` can be used to predict the class label on a set of test observations. Let’s generate a test data set.
+
+<MdxCode language="text" code={"In [11]:X_test=rng.standard_normal((20,2))\ny_test=np.array([-1]*10+[1]*10)\nX_test[y_test==1]+=1"} />
+
+Now we predict the class labels of these test observations. Here we use the best model selected by cross-validation in order to make the predictions.
+
+<MdxCode language="text" code={"In [12]:best_=grid.best_estimator_\ny_test_hat=best_.predict(X_test)\nconfusion_table(y_test_hat ,y_test)"} />
+
+<MdxCode language="text" code={"Out[12]:Truth-11\nPredicted\n-184\n126"} />
+
+Thus, with this value of `C` , 70% of the test observations are correctly classified. What if we had instead used `C=0.001` ?
+
+<MdxCode language="text" code={"In [13]:svm_=SVC(C=0.001,\nkernel='linear').fit(X,y)\ny_test_hat=svm_.predict(X_test)\nconfusion_table(y_test_hat ,y_test)"} />
+
+<MdxCode language="text" code={"Out[13]:Truth-11\nPredicted\n-120\n1810"} />
+
+In this case 60% of test observations are correctly classified. We now consider a situation in which the two classes are linearly separable. Then we can find an optimal separating hyperplane using the `SVC()` estimator. We first further separate the two classes in our simulated data so that they are linearly separable:
+
+<MdxCode language="text" code={"In [14]:X[y==1]+=1.9;\nfig,ax=subplots(figsize=(8,8))\nax.scatter(X[:,0],X[:,1],c=y,cmap=cm.coolwarm);"} />
+
+Now the observations are just barely linearly separable.
+
+<MdxCode language="text" code={"In [15]:svm_=SVC(C=1e5,kernel='linear').fit(X,y)\ny_hat=svm_.predict(X)\nconfusion_table(y_hat,y)"} />
+
+<MdxCode language="text" code={"Out[15]:Truth-11\nPredicted\n-1250\n1025"} />
+
+We fit the support vector classifier and plot the resulting hyperplane, using a very large value of `C` so that no observations are misclassified.
+
+<MdxCode language="text" code={"In [16]:fig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_,\nax=ax)"} />
+
+Indeed no training errors were made and only three support vectors were used. In fact, the large value of `C` also means that these three support points are _on the margin_ , and define it. One may wonder how good the classifier could be on test data that depends on only three data points! We now try a smaller value of `C` .
+
+<MdxCode language="text" code={"In [17]:svm_=SVC(C=0.1,kernel='linear').fit(X,y)\ny_hat=svm_.predict(X)\nconfusion_table(y_hat,y)"} />
+
+<MdxCode language="text" code={"Out[17]:Truth-11\nPredicted\n-1250\n1025"} />
+
+Using `C=0.1` , we again do not misclassify any training observations, but we also obtain a much wider margin and make use of twelve support vectors. These jointly define the orientation of the decision boundary, and since there are more of them, it is more stable. It seems possible that this model will perform better on test data than the model with `C=1e5` (and indeed, a simple experiment with a large test set would bear this out).
+
+<MdxCode language="text" code={"In [18]:fig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_,\nax=ax)"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 9.6.2 Support Vector Machine
+
+In order to fit an SVM using a non-linear kernel, we once again use the `SVC()` estimator. However, now we use a different value of the parameter `kernel` . To fit an SVM with a polynomial kernel we use `kernel="poly"` , and to fit an SVM with a radial kernel we use `kernel="rbf"` . In the former case we also use the `degree` argument to specify a degree for the polynomial kernel (this is _d_ in (9.22)), and in the latter case we use `gamma` to specify a value of _γ_ for the radial basis kernel (9.24).
+
+We first generate some data with a non-linear class boundary, as follows:
+
+<MdxCode language="text" code={"In [19]:X=rng.standard_normal((200,2))\nX[:100]+=2\nX[100:150]-=2\ny=np.array([1]*150+[2]*50)"} />
+
+Plotting the data makes it clear that the class boundary is indeed nonlinear.
+
+<MdxCode language="text" code={"In [20]:fig,ax=subplots(figsize=(8,8))\nax.scatter(X[:,0],\nX[:,1],\nc=y,\ncmap=cm.coolwarm)"} />
+
+<MdxCode language="text" code={"Out[20]:<matplotlib.collections.PathCollectionat0x7faa9ba52eb0 >"} />
+
+The data is randomly split into training and testing groups. We then fit the training data using the `SVC()` estimator with a radial kernel and _γ_ = 1:
+
+<MdxCode language="text" code={"In [21]:(X_train,\nX_test,\ny_train,\ny_test)=skm.train_test_split(X,\ny,\ntest_size=0.5,\nrandom_state=0)\nsvm_rbf=SVC(kernel=\"rbf\",gamma=1,C=1)\nsvm_rbf.fit(X_train,y_train)"} />
+
+The plot shows that the resulting SVM has a decidedly non-linear boundary.
+
+<MdxCode language="text" code={"In [22]:fig,ax=subplots(figsize=(8,8))\nplot_svm(X_train,\ny_train,\nsvm_rbf,\nax=ax)"} />
+
+We can see from the figure that there are a fair number of training errors in this SVM fit. If we increase the value of `C` , we can reduce the number of training errors. However, this comes at the price of a more irregular decision boundary that seems to be at risk of overfitting the data.
+
+<MdxCode language="text" code={"In [23]:svm_rbf=SVC(kernel=\"rbf\",gamma=1,C=1e5)\nsvm_rbf.fit(X_train,y_train)\nfig,ax=subplots(figsize=(8,8))\nplot_svm(X_train,\ny_train,\nsvm_rbf,\nax=ax)"} />
+
+We can perform cross-validation using `skm.GridSearchCV()` to select the best choice of _γ_ and `C` for an SVM with a radial kernel:
+
+<MdxCode language="text" code={"In [24]:kfold=skm.KFold(5,"} />
+
+<MdxCode language="text" code={"random_state=0,\nshuffle=True)\ngrid=skm.GridSearchCV(svm_rbf,\n{'C':[0.1,1,10,100,1000],\n'gamma':[0.5,1,2,3,4]},\nrefit=True,\ncv=kfold,\nscoring='accuracy');\ngrid.fit(X_train,y_train)\ngrid.best_params_"} />
+
+<MdxCode language="text" code={"Out[24]:{'C':100,'gamma':1}"} />
+
+The best choice of parameters under five-fold CV is achieved at `C=1` and `gamma=0.5` , though several other values also achieve the same value.
+
+<MdxCode language="text" code={"In [25]:best_svm=grid.best_estimator_\nfig,ax=subplots(figsize=(8,8))\nplot_svm(X_train,"} />
+
+<MdxCode language="text" code={"y_train,\nbest_svm,\nax=ax)\ny_hat_test=best_svm.predict(X_test)\nconfusion_table(y_hat_test ,y_test)"} />
+
+<MdxCode language="text" code={"Out[25]:Truth12\nPredicted\n1696\n2619"} />
+
+With these parameters, 12% of test observations are misclassified by this SVM.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 9.6.3 ROC Curves
+
+SVMs and support vector classifiers output class labels for each observation. However, it is also possible to obtain _fitted values_ for each observation, which are the numerical scores used to obtain the class labels. For instance, in the case of a support vector classifier, the fitted value for an observation _X_ = ( _X_ 1 _, X_ 2 _, . . . , Xp_ )^(_T_) takes the form _β_^(ˆ) 0 + _β_^(ˆ) 1 _X_ 1 + _β_^(ˆ) 2 _X_ 2 + _. . ._ + _β_^(ˆ) _pXp_ . For an SVM with a non-linear kernel, the equation that yields the fitted value is given in (9.23). The sign of the fitted value determines on which side of the decision boundary the observation lies. Therefore, the relationship between the fitted value and the class prediction for a given observation is simple: if the fitted value exceeds zero then the observation is assigned to one class, and if it is less than zero then it is assigned to the other. By changing this threshold from zero to some positive value, we skew the classifications in favor of one class versus the other. By considering a range of these thresholds, positive and negative, we produce the ingredients for a ROC plot. We can access these values by calling the `decision_function() .function_` method of a fitted SVM estimator. `decision()`
+
+<MdxCode language="text" code={"decision()"} />
+
+The function `ROCCurveDisplay.from_estimator()` (which we have abbreviated to `roc_curve()` ) will produce a plot of a ROC curve. It takes a fitted `roc_curve()` estimator as its first argument, followed by a model matrix _X_ and labels _y_ . The argument `name` is used in the legend, while `color` is used for the color of the line. Results are plotted on our axis object `ax` .
+
+<MdxCode language="text" code={"In [26]:fig,ax=subplots(figsize=(8,8))\nroc_curve(best_svm,\nX_train,\ny_train,\nname='Training',\ncolor='r',\nax=ax);"} />
+
+In this example, the SVM appears to provide accurate predictions. By increasing _γ_ we can produce a more flexible fit and generate further improvements in accuracy.
+
+<MdxCode language="text" code={"In [27]:svm_flex=SVC(kernel=\"rbf\",\ngamma=50,"} />
+
+<MdxCode language="text" code={"C=1)\nsvm_flex.fit(X_train,y_train)\nfig,ax=subplots(figsize=(8,8))\nroc_curve(svm_flex,\nX_train,\ny_train,\nname='Training$\\gamma=50$',\ncolor='r',\nax=ax);"} />
+
+However, these ROC curves are all on the training data. We are really more interested in the level of prediction accuracy on the test data. When we compute the ROC curves on the test data, the model with _γ_ = 0 _._ 5 appears to provide the most accurate results.
+
+<MdxCode language="text" code={"In [28]:roc_curve(svm_flex,"} />
+
+<MdxCode language="text" code={"X_test,\ny_test,\nname='Test$\\gamma=50$',\ncolor='b',\nax=ax)\nfig;"} />
+
+Let’s look at our tuned SVM.
+
+<MdxCode language="text" code={"In [29]:fig,ax=subplots(figsize=(8,8))\nfor(X_,y_,c,name)inzip(\n(X_train,X_test),\n(y_train,y_test),\n('r','b'),\n('CVtunedontraining',\n'CVtunedontest')):\nroc_curve(best_svm,\nX_,\ny_,\nname=name,\nax=ax,\ncolor=c)"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 9.6.4 SVM with Multiple Classes
+
+If the response is a factor containing more than two levels, then the `SVC()` function will perform multi-class classification using either the one-versusone approach (when `decision_function_shape=='ovo'` ) or one-versus-rest^(4) (when `decision_function_shape=='ovr'` ). We explore that setting briefly here by generating a third class of observations.
+
+<MdxCode language="text" code={"In [30]:rng=np.random.default_rng(123)\nX=np.vstack([X,rng.standard_normal((50,2))])\ny=np.hstack([y,[0]*50])\nX[y==0,1]+=2\nfig,ax=subplots(figsize=(8,8))\nax.scatter(X[:,0],X[:,1],c=y,cmap=cm.coolwarm);"} />
+
+> 4One-versus-rest is also known as one-versus-all.
+
+We now fit an SVM to the data:
+
+<MdxCode language="text" code={"In [31]:svm_rbf_3=SVC(kernel=\"rbf\",\nC=10,\ngamma=1,\ndecision_function_shape='ovo');\nsvm_rbf_3.fit(X,y)\nfig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_rbf_3,\nscatter_cmap=cm.tab10,\nax=ax)"} />
+
+The `sklearn.svm` library can also be used to perform support vector regression with a numerical response using the estimator `SupportVectorRegression()` .
+
+<MdxCode language="text" code={"SupportVector\nRegression()"} />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 9.6.5 Application to Gene Expression Data
+
+We now examine the `Khan` data set, which consists of a number of tissue samples corresponding to four distinct types of small round blue cell tumors. For each tissue sample, gene expression measurements are available. The data set consists of training data, `xtrain` and `ytrain` , and testing data, `xtest` and `ytest` .
+
+We examine the dimension of the data:
+
+<MdxCode language="text" code={"In [32]:Khan=load_data('Khan')\nKhan['xtrain'].shape,Khan['xtest'].shape"} />
+
+###### **`Out[32]:`** `((63, 2308), (20, 2308))`
+
+This data set consists of expression measurements for 2,308 genes. The training and test sets consist of 63 and 20 observations, respectively.
+
+We will use a support vector approach to predict cancer subtype using gene expression measurements. In this data set, there is a very large number of features relative to the number of observations. This suggests that we should use a linear kernel, because the additional flexibility that will result from using a polynomial or radial kernel is unnecessary.
+
+<MdxCode language="text" code={"In [33]:khan_linear=SVC(kernel='linear',C=10)\nkhan_linear.fit(Khan['xtrain'],Khan['ytrain'])\nconfusion_table(khan_linear.predict(Khan['xtrain']),\nKhan['ytrain'])"} />
+
+<MdxCode language="table" code={"|**`Out[33]:`** `Truth`|`1`|`2`|`3`|`4`|\n|---|---|---|---|---|\n|`Predicted`|||||\n|`1`|`8`|`0`|`0`|`0`|\n|`2`|`0`|`23`|`0`|`0`|\n|`3`|`0`|`0`|`12`|`0`|\n|`4`|`0`|`0`|`0`|`20`|"} />
+
+We see that there are _no_ training errors. In fact, this is not surprising, because the large number of variables relative to the number of observations implies that it is easy to find hyperplanes that fully separate the classes.
+
+We are more interested in the support vector classifier’s performance on the test observations.
+
+<MdxCode language="text" code={"In [34]:confusion_table(khan_linear.predict(Khan['xtest']),\nKhan['ytest'])"} />
+
+<MdxCode language="table" code={"|**`Out[34]:`** `Truth`|`1`|`2`|`3`|`4`|\n|---|---|---|---|---|\n|`Predicted`|||||\n|`1`|`3`|`0`|`0`|`0`|\n|`2`|`0`|`6`|`2`|`0`|\n|`3`|`0`|`0`|`4`|`0`|\n|`4`|`0`|`0`|`0`|`5`|"} />
+
+We see that using `C=10` yields two test set errors on these data.
+
+</MdxPage>

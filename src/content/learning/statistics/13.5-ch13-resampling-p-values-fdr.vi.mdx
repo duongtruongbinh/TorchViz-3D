@@ -1,0 +1,134 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch13-resampling-p-values-fdr",
+  "locale": "vi",
+  "title": "13.5 Phương pháp lấy mẫu lại cho giá trị p và tỷ lệ phát hiện sai",
+  "headings": [
+    "Phương pháp lấy mẫu lại cho giá trị p và tỷ lệ phát hiện sai",
+    "13.5.1 Phương pháp lấy mẫu lại cho giá trị p",
+    "13.5.2 Phương pháp lấy mẫu lại cho tỷ lệ phát hiện sai",
+    "13.5.3 Khi nào phương pháp lấy mẫu lại hữu ích?"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Kiểm định nhiều giả thuyết",
+    "Phương pháp lấy mẫu lại cho giá trị p và tỷ lệ phát hiện sai"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Phương pháp lấy mẫu lại cho giá trị p và tỷ lệ phát hiện sai
+
+Cho đến đây, chương này giả định rằng ta muốn kiểm định một giả thuyết không cụ thể _H_ 0 bằng thống kê kiểm định _T_, có một phân phối đã biết hoặc được giả định dưới _H_ 0, chẳng hạn phân phối chuẩn, phân phối _t_, phân phối _χ_^(2) hoặc phân phối _F_. Phân phối này được gọi là _phân phối không lý thuyết_. Ta thường dựa vào một phân phối không lý thuyết để tìm giá trị _p_ tương ứng với thống kê kiểm định. Thực tế, với phần lớn loại giả thuyết không cần kiểm định, ta đều có một phân phối không lý thuyết nếu sẵn sàng đặt ra các giả định nghiêm ngặt về dữ liệu.
+
+Tuy nhiên, nếu giả thuyết không _H_ 0 hoặc thống kê kiểm định _T_ khá khác thường, có thể không tồn tại phân phối không lý thuyết phù hợp. Ngay cả khi phân phối này tồn tại, ta vẫn có thể không muốn dựa vào nó vì một giả định cần thiết bị vi phạm, chẳng hạn cỡ mẫu quá nhỏ.
+
+Trong mục này, ta trình bày một khuôn khổ suy luận tận dụng máy tính tốc độ cao để xấp xỉ phân phối không của _T_, từ đó tìm giá trị _p_. Khuôn khổ này rất tổng quát nhưng cần được cụ thể hóa cẩn thận cho từng bài toán. Vì vậy, ta sẽ xét một ví dụ cụ thể: dùng kiểm định _t_ hai mẫu để kiểm tra trung bình của hai biến ngẫu nhiên có bằng nhau hay không.
+
+Nội dung mục này khó hơn các mục trước trong chương. Người đọc hài lòng với việc dùng phân phối không lý thuyết để tính giá trị _p_ cho thống kê kiểm định có thể bỏ qua mà không ảnh hưởng đến các phần còn lại.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 13.5.1 Phương pháp lấy mẫu lại cho giá trị p
+
+Ta trở lại ví dụ ở Mục 13.1.1, trong đó cần kiểm định trung bình của biến ngẫu nhiên _X_ có bằng trung bình của biến ngẫu nhiên _Y_ hay không, tức _H_ 0 : E( _X_ ) = E( _Y_ ), so với giả thuyết đối _Ha_ : E( _X_ ) = E( _Y_ ). Với _nX_ quan sát độc lập từ _X_ và _nY_ quan sát độc lập từ _Y_, thống kê _t_ hai mẫu có dạng
+
+trong đó _µ_ ˆ _X_ = _n_ 1 _X_ � _ni_ =1 _X_^(_xi_,)^(_µ_ˆ)^(_Y_=) _n_ 1 _Y_ � _ni_ =1 _Y_^(_yi_,)^(_s_=) ~~�~~ ( _nX −_ 1 _n_ ) _Xs_^(2) _X_ +^(+) _nY_^(()^(_n_) _−_^(_Y_) 2^(_−_1))^(_s_2) _Y_ , và _s_^(2) _X_^(and)^(_s_2) _Y_^(areunbiasedestimatorsofthevariancesinthetwogroups.) Trị tuyệt đối lớn của _T_ cung cấp bằng chứng chống lại _H_ 0. Nếu _nX_ và _nY_ lớn, _T_ trong (13.11) xấp xỉ tuân theo phân phối _N_ (0 _,_ 1). Nhưng nếu _nX_ và _nY_ nhỏ, khi không có giả định mạnh về phân phối của _X_ và _Y_, ta không biết phân phối không lý thuyết của _T_.^(17) Khi đó, ta có thể xấp xỉ phân phối không của _T_ bằng phương pháp _lấy mẫu lại_, cụ thể hơn là phương pháp _hoán vị_.
+
+Để làm điều này, hãy thực hiện một thí nghiệm tưởng tượng. Nếu _H_ 0 đúng, nên E( _X_ ) = E( _Y_ ), và ta đặt giả định mạnh hơn rằng _X_ và _Y_ có cùng phân phối, thì phân phối của _T_ không đổi khi hoán đổi các quan sát giữa _X_ và _Y_. Tức là, nếu tráo ngẫu nhiên một số quan sát trong _X_ với các quan sát trong _Y_, thì _thống kê kiểm định T trong_ (13.11) _tính trên dữ liệu đã tráo có cùng phân phối với T tính trên dữ liệu gốc_. Điều này chỉ đúng khi _H_ 0 đúng và _X_, _Y_ có cùng phân phối.
+
+Từ đó, ta có thể xấp xỉ phân phối không của _T_ như sau. Hoán vị ngẫu nhiên _nX_ + _nY_ quan sát _B_ lần, với _B_ đủ lớn, và mỗi lần tính (13.11). Ký hiệu _T_^(_∗_1) _, . . . , T_^(_∗B_) là các giá trị của (13.11) trên dữ liệu đã hoán vị. Chúng tạo thành một xấp xỉ cho phân phối không của _T_ dưới _H_ 0. Theo định nghĩa, giá trị _p_ là xác suất quan sát một thống kê kiểm định ít nhất cực đoan như giá trị đã thấy khi _H_ 0 đúng. Vì vậy, để tính giá trị _p_ cho _T_, ta chỉ cần tính
+
+tỷ lệ tập dữ liệu hoán vị có thống kê kiểm định ít nhất cực đoan như giá trị quan sát trên dữ liệu gốc. Quy trình được tóm tắt trong Thuật toán 13.3.
+
+> 17 Nếu giả sử _X_ và _Y_ phân phối chuẩn, thì dưới _H_ 0, _T_ trong (13.11) tuân theo phân phối _t_ với _nX_ + _nY −_ 2 bậc tự do. Tuy nhiên, trong thực tế ta hiếm khi biết phân phối của các biến ngẫu nhiên, nên phương pháp lấy mẫu lại thường thích hợp hơn việc đặt những giả định mạnh nhưng thiếu căn cứ. Nếu kết quả lấy mẫu lại khác với kết quả dựa trên phân phối không lý thuyết, kết quả lấy mẫu lại đáng tin cậy hơn.
+
+**Thuật toán 13.3** _Giá trị p bằng lấy mẫu lại cho kiểm định t hai mẫu_
+
+1. Tính _T_, được định nghĩa trong (13.11), trên dữ liệu gốc _x_ 1 _, . . . , xnX_ và _y_ 1 _, . . . , ynY_.
+
+2. Với _b_ = 1 _, . . . , B_, trong đó _B_ là một số lớn, chẳng hạn _B_ = 10 _,_ 000:
+
+   - (a) Hoán vị ngẫu nhiên _nX_ + _nY_ quan sát. Gọi _nX_ quan sát đầu sau hoán vị là _x_^(_∗_) 1^(_, . . . , x∗_) _nX_^(,andcalltheremaining)^(_nY_) và các quan sát còn lại là _y_ 1^(_∗, . . . , y_) _n_^(_∗_) _Y_^(.)
+
+   - (b) Tính (13.11) trên dữ liệu đã hoán vị _x_^(_∗_) 1^(_, . . . , x∗_) _nX_ và _y_ 1^(_∗, . . . , y_) _n_^(_∗_) _Y_^(,andcalltheresult)^(_T ∗b_.)
+
+Ta thử quy trình này trên tập dữ liệu `Khan`, gồm phép đo biểu hiện của 2 _,_ 308 gene trong bốn phân nhóm u tế bào tròn nhỏ, một dạng ung thư thường gặp ở trẻ em. Tập dữ liệu thuộc gói `ISLR2`. Ta chỉ xét hai phân nhóm có nhiều quan sát nhất: rhabdomyosarcoma (_nX_ = 29) và lymphoma Burkitt (_nY_ = 25).
+
+Kiểm định _t_ hai mẫu cho giả thuyết không rằng biểu hiện trung bình của gene thứ 11 bằng nhau giữa hai nhóm cho _T_ = _−_ 2 _._ 09. Dùng phân phối không lý thuyết _t_ 52, vì _nX_ + _nY −_ 2 = 52, ta thu được giá trị _p_ bằng 0 _._ 041. (Phân phối _t_ 52 gần như không phân biệt được với phân phối _N_ (0 _,_ 1).) Nếu áp dụng Thuật toán 13.3 với _B_ = 10 _,_ 000, giá trị _p_ bằng 0 _._ 042. Hình 13.7 thể hiện phân phối không lý thuyết, phân phối không lấy mẫu lại và giá trị thống kê kiểm định thực tế (_T_ = _−_ 2 _._ 09) cho gene này. Trong ví dụ, hai giá trị _p_ gần như không khác nhau.
+
+Ngược lại, Hình 13.8 trình bày kết quả tương tự cho gene thứ 877. Trong trường hợp này, phân phối không lý thuyết và phân phối không lấy mẫu lại khác nhau đáng kể, dẫn đến hai giá trị _p_ khác nhau.
+
+Nói chung, khi cỡ mẫu nhỏ hơn hoặc phân phối dữ liệu lệch hơn, khiến phân phối không lý thuyết kém chính xác, chênh lệch giữa giá trị _p_ lấy mẫu lại và giá trị _p_ lý thuyết có xu hướng rõ hơn. Trong Hình 13.8, khác biệt lớn giữa hai phân phối xuất phát từ một quan sát của gene thứ 877 nằm rất xa các quan sát còn lại, tạo ra phân phối rất lệch.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 13.5.2 Phương pháp lấy mẫu lại cho tỷ lệ phát hiện sai
+
+Bây giờ, giả sử ta muốn kiểm soát FDR cho _m_ giả thuyết không, _H_ 01 _, . . . , H_ 0 _m_, trong bối cảnh không có phân phối không lý thuyết hoặc ta muốn tránh sử dụng phân phối không lý thuyết.
+
+**HÌNH 13.7.** _Gene thứ_ 11 _trong tập dữ liệu_ `Khan` _có thống kê kiểm định T_ = _−_ 2 _._ 09_. Phân phối không lý thuyết và phân phối không lấy mẫu lại gần như giống hệt nhau. Giá trị p lý thuyết bằng_ 0 _._ 041 _và giá trị p lấy mẫu lại bằng_ 0 _._ 042_._
+
+**HÌNH 13.8.** _Gene thứ_ 877 _trong tập dữ liệu_ `Khan` _có thống kê kiểm định T_ = _−_ 0 _._ 57_. Phân phối không lý thuyết và phân phối không lấy mẫu lại khá khác nhau. Giá trị p lý thuyết bằng_ 0 _._ 571 _và giá trị p lấy mẫu lại bằng_ 0 _._ 673_._
+
+Như trong Mục 13.5.1, ta dùng thống kê _t_ hai mẫu cho từng giả thuyết, thu được _T_ 1 _, . . . , Tm_. Ta có thể tính một giá trị _p_ cho từng giả thuyết không như trong Mục 13.5.1, rồi áp dụng quy trình Benjamini–Hochberg ở Mục 13.4.2 cho các giá trị này. Tuy nhiên, có một cách trực tiếp hơn mà không cần tính giá trị _p_.
+
+Nhắc lại từ Mục 13.4 rằng FDR được định nghĩa là E( _V/R_ ), theo ký hiệu trong Bảng 13.2. Để ước lượng FDR bằng lấy mẫu lại, trước hết ta dùng xấp xỉ:
+
+Giả sử ta bác bỏ mọi giả thuyết không có trị tuyệt đối của thống kê kiểm định vượt quá _c_. Khi đó, tính _R_ ở mẫu số bên phải (13.13) rất đơn giản: _R_ =^(�)^(_m_) _j_ =1^(1()^(_|T_) _j_^(_|≥c_).)
+
+Tử số E( _V_ ) bên phải (13.13) khó hơn. Đây là số dương tính giả kỳ vọng khi bác bỏ mọi giả thuyết không có trị tuyệt đối của thống kê vượt quá _c_. Ước lượng _V_ khó vì ta không biết giả thuyết nào trong _H_ 01 _, . . . , H_ 0 _m_ thực sự đúng, nên cũng không biết những giả thuyết bị bác bỏ nào là dương tính giả. Để giải quyết, ta dùng lấy mẫu lại: mô phỏng dữ liệu dưới _H_ 01 _, . . . , H_ 0 _m_, rồi tính các thống kê kiểm định. Số thống kê lấy mẫu lại vượt quá _c_ cung cấp một ước lượng cho _V_.
+
+Cụ thể hơn, với thống kê _t_ hai mẫu (13.11) cho từng giả thuyết không _H_ 01 _, . . . , H_ 0 _m_, ta ước lượng E( _V_ ) như sau. Ký hiệu _x_^(() 1^(_j_))^(_, . . . , x_) _n_^(()^(_j_) _X_^()and)^(_y_) 1^(()^(_j_))^(_, . . . , y_) _n_^(()^(_j_) _Y_^()denotethedataassociatedwiththe)^(_j_th) là dữ liệu ứng với giả thuyết không thứ _j_, _j_ = 1 _, . . . , m_. Ta hoán vị ngẫu nhiên _nX_ + _nY_ quan sát rồi tính thống kê _t_ trên dữ liệu đã hoán vị. Với dữ liệu này, ta biết mọi giả thuyết _H_ 01 _, . . . , H_ 0 _m_ đều đúng; vì vậy, số thống kê _t_ hoán vị có trị tuyệt đối vượt ngưỡng _c_ là một ước lượng cho E( _V_ ). Có thể cải thiện ước lượng bằng cách lặp hoán vị _B_ lần với _B_ lớn rồi lấy trung bình.
+
+Thuật toán 13.4 trình bày chi tiết quy trình này.^(18) Nó tạo ra một _ước lượng thế vào_ (plug-in estimate) của FDR, vì xấp xỉ (13.13) cho phép thế _R_ vào mẫu số và một ước lượng E( _V_ ) vào tử số.
+
+Ta áp dụng phương pháp FDR lấy mẫu lại trong Thuật toán 13.4 và phương pháp Benjamini–Hochberg trong Thuật toán 13.2 dùng giá trị _p_ lý thuyết cho _m_ = 2 _,_ 308 gene trong tập dữ liệu `Khan`. Kết quả ở Hình 13.9 cho thấy với cùng số giả thuyết bị bác bỏ, FDR ước lượng của hai phương pháp gần như giống hệt nhau.
+
+Ở đầu mục, ta đã lưu ý rằng để kiểm soát FDR cho _m_ kiểm định bằng lấy mẫu lại, có thể tính _m_ giá trị _p_ lấy mẫu lại như trong Mục 13.5.1, rồi áp dụng quy trình Benjamini–Hochberg ở Mục 13.4.2. Nếu định nghĩa giá trị _p_ lấy mẫu lại thứ _j_ là
+
+với _j_ = 1 _, . . . , m_, thay vì như (13.12), thì áp dụng quy trình Benjamini–Hochberg cho các giá trị _p_ lấy mẫu lại này _hoàn toàn tương đương_ Thuật toán 13.4. Lưu ý rằng (13.14) là một phương án thay thế (13.12), gộp thông tin từ cả _m_ kiểm định để xấp xỉ phân phối không.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 13.5.3 Khi nào phương pháp lấy mẫu lại hữu ích?
+
+Trong Mục 13.5.1 và 13.5.2, ta đã xét kiểm định giả thuyết không dạng _H_ 0 : E( _X_ ) = E( _Y_ ) bằng thống kê _t_ hai mẫu (13.11), với phân phối không được xấp xỉ bằng lấy mẫu lại.
+
+> 18 Để triển khai Thuật toán 13.4 hiệu quả, nên dùng cùng một tập hoán vị ở Bước 2(b)i cho cả _m_ giả thuyết không.
+
+**Thuật toán 13.4** _FDR thế vào cho kiểm định T hai mẫu_
+
+1. Chọn ngưỡng _c_, trong đó _c &gt;_ 0.
+
+2. Với _j_ = 1 _, . . . , m_:
+
+- (a) Tính _T_^(()^(_j_)), thống kê _t_ hai mẫu (13.11) cho giả thuyết không _H_ 0 _j_ dựa trên dữ liệu gốc _x_^(() 1^(_j_))^(_, . . . , x_) _n_^(()^(_j_) _X_^()) và _y_ 1^(()^(_j_))^(_, . . . , y_) _n_^(()^(_j_) _Y_^().)
+
+- (b) Với _b_ = 1 _, . . . , B_, trong đó _B_ là một số lớn, chẳng hạn _B_ = 10 _,_ 000:
+
+5. FDR ước lượng ứng với ngưỡng _c_ là _V /R_^(�).
+
+Hình 13.8 cho thấy phương pháp lấy mẫu lại tạo kết quả khác đáng kể so với phương pháp giá trị _p_ lý thuyết, nhưng Hình 13.7 thì không.
+
+Nói chung, phương pháp lấy mẫu lại đặc biệt hữu ích trong hai trường hợp:
+
+1. Không có phân phối không lý thuyết. Điều này có thể xảy ra khi kiểm định một giả thuyết không _H_ 0 khác thường hoặc dùng một thống kê kiểm định _T_ khác thường.
+
+2. Có phân phối không lý thuyết nhưng các giả định bảo đảm tính hợp lệ không đúng. Chẳng hạn, thống kê _t_ hai mẫu trong (13.11) chỉ tuân theo phân phối _tnX_ + _nY −_ 2 khi các quan sát phân phối chuẩn. Hơn nữa, nó chỉ tuân theo phân phối _N_ (0 _,_ 1) khi _nX_ và _nY_ đủ lớn. Nếu dữ liệu không chuẩn và _nX_, _nY_ nhỏ, các giá trị _p_ dựa trên phân phối không lý thuyết sẽ không hợp lệ, tức không kiểm soát đúng sai số Loại I.
+
+Nói chung, nếu có thể lấy mẫu lại hoặc hoán vị các quan sát để sinh dữ liệu tuân theo phân phối không, ta có thể tính giá trị _p_ hoặc ước lượng FDR bằng các biến thể của Thuật toán 13.3 và 13.4. Trong nhiều bài toán thực tế, đây là một công cụ mạnh để kiểm định giả thuyết khi không có kiểm định dựng sẵn hoặc khi các giả định cốt lõi của những kiểm định đó bị vi phạm.
+
+**HÌNH 13.9.** _Với j_ = 1 _, . . . , m_ = 2 _,_ 308_, ta kiểm định giả thuyết không rằng ở gene thứ j trong tập dữ liệu_ `Khan`_, biểu hiện trung bình của lymphoma Burkitt bằng biểu hiện trung bình của rhabdomyosarcoma. Với mỗi k từ_ 1 _đến_ 2 _,_ 308_, trục y thể hiện FDR ước lượng khi bác bỏ các giả thuyết không ứng với k giá trị p nhỏ nhất. Đường cam nét đứt là FDR từ quy trình Benjamini–Hochberg, còn đường xanh liền là FDR từ phương pháp lấy mẫu lại trong Thuật toán 13.4 với B_ = 10 _,_ 000_. Hai ước lượng FDR chỉ khác nhau rất ít. Theo cả hai, bác bỏ giả thuyết không cho 500 gene có giá trị p nhỏ nhất tương ứng với FDR khoảng 17,7%._
+
+</MdxPage>

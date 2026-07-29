@@ -12,10 +12,12 @@ import { learningTableOfContents as nlpToc } from './nlp/table-of-contents.ts';
 import { learningTableOfContents as programmingFoundationToc } from './programming-foundation/table-of-contents.ts';
 import { learningTableOfContents as reinforcementLearningToc } from './reinforcement-learning/table-of-contents.ts';
 import { learningTableOfContents as robotLearningToc } from './robot-learning/table-of-contents.ts';
+import { learningTableOfContents as statisticsToc } from './statistics/table-of-contents.ts';
 
 export const learningTableOfContents = [
   programmingFoundationToc,
   linearAlgebraToc,
+  statisticsToc,
   fundamentalsToc,
   deepLearningToc,
   cvToc,

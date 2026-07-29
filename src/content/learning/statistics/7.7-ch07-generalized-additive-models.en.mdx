@@ -1,0 +1,99 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-generalized-additive-models",
+  "locale": "en",
+  "title": "7.7 Generalized Additive Models",
+  "headings": [
+    "Generalized Additive Models",
+    "7.7.1 GAMs for Regression Problems",
+    "7.7.2 GAMs for Classification Problems"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Moving Beyond Linearity",
+    "Generalized Additive Models"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Generalized Additive Models
+
+In Sections 7.1–7.6, we present a number of approaches for flexibly predicting a response _Y_ on the basis of a single predictor _X_ . These approaches can be seen as extensions of simple linear regression. Here we explore the problem of flexibly predicting _Y_ on the basis of several predictors, _X_ 1 _, . . . , Xp_ . This amounts to an extension of multiple linear regression.
+
+_Generalized additive models_ (GAMs) provide a general framework for generalized extending a standard linear model by allowing non-linear functions of each additive of the variables, while maintaining _additivity_ . Just like linear models, GAMs model can be applied with both quantitative and qualitative responses. We first additivity
+
+**FIGURE 7.11.** _For the_ `Wage` _data, plots of the relationship between each feature and the response,_ `wage` _, in the fitted model (7.16). Each plot displays the fitted function and pointwise standard errors. The first two functions are natural splines in_ `year` _and_ `age` _, with four and five degrees of freedom, respectively. The third function is a step function, fit to the qualitative variable_ `education` _._
+
+examine GAMs for a quantitative response in Section 7.7.1, and then for a qualitative response in Section 7.7.2.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 7.7.1 GAMs for Regression Problems
+
+A natural way to extend the multiple linear regression model
+
+in order to allow for non-linear relationships between each feature and the response is to replace each linear component _βjxij_ with a (smooth) nonlinear function _fj_ ( _xij_ ). We would then write the model as
+
+This is an example of a GAM. It is called an _additive_ model because we calculate a separate _fj_ for each _Xj_ , and then add together all of their contributions.
+
+In Sections 7.1–7.6, we discuss many methods for fitting functions to a single variable. The beauty of GAMs is that we can use these methods as building blocks for fitting an additive model. In fact, for most of the methods that we have seen so far in this chapter, this can be done fairly trivially. Take, for example, natural splines, and consider the task of fitting the model
+
+on the `Wage` data. Here `year` and `age` are quantitative variables, while the variable `education` is qualitative with five levels: `Coll` , referring to the amount of high school or college education that an individual has completed. We fit the first two functions using natural splines. We
+
+**FIGURE 7.12.** _Details are as in Figure 7.11, but now f_ 1 _and f_ 2 _are smoothing splines with four and five degrees of freedom, respectively._
+
+fit the third function using a separate constant for each level, via the usual dummy variable approach of Section 3.3.1.
+
+Figure 7.11 shows the results of fitting the model (7.16) using least squares. This is easy to do, since as discussed in Section 7.4, natural splines can be constructed using an appropriately chosen set of basis functions. Hence the entire model is just a big regression onto spline basis variables and dummy variables, all packed into one big regression matrix.
+
+Figure 7.11 can be easily interpreted. The left-hand panel indicates that holding `age` and `education` fixed, `wage` tends to increase slightly with `year` ; this may be due to inflation. The center panel indicates that holding `education` and `year` fixed, `wage` tends to be highest for intermediate values of `age` , and lowest for the very young and very old. The right-hand panel indicates that holding `year` and `age` fixed, `wage` tends to increase with `education` : the more educated a person is, the higher their salary, on average. All of these findings are intuitive.
+
+Figure 7.12 shows a similar triple of plots, but this time _f_ 1 and _f_ 2 are smoothing splines with four and five degrees of freedom, respectively. Fitting a GAM with a smoothing spline is not quite as simple as fitting a GAM with a natural spline, since in the case of smoothing splines, least squares cannot be used. However, standard software such as the `Python` package `pygam` can be used to fit GAMs using smoothing splines, via an approach `pygam` known as _backfitting_ . This method fits a model involving multiple predic- backfitting tors by repeatedly updating the fit for each predictor in turn, holding the others fixed. The beauty of this approach is that each time we update a function, we simply apply the fitting method for that variable to a _partial residual_ .^(6)
+
+The fitted functions in Figures 7.11 and 7.12 look rather similar. In most situations, the differences in the GAMs obtained using smoothing splines versus natural splines are small.
+
+> 6A partial residual for _X_ 3, for example, has the form _ri_ = _yi − f_ 1( _xi_ 1) _− f_ 2( _xi_ 2). If we know _f_ 1 and _f_ 2, then we can fit _f_ 3 by treating this residual as a response in a non-linear regression on _X_ 3.
+
+We do not have to use splines as the building blocks for GAMs: we can just as well use local regression, polynomial regression, or any combination of the approaches seen earlier in this chapter in order to create a GAM. GAMs are investigated in further detail in the lab at the end of this chapter.
+
+##### Pros and Cons of GAMs
+
+Before we move on, let us summarize the advantages and limitations of a GAM.
+
+- L GAMs allow us to fit a non-linear _fj_ to each _Xj_ , so that we can automatically model non-linear relationships that standard linear regression will miss. This means that we do not need to manually try out many different transformations on each variable individually.
+
+- L The non-linear fits can potentially make more accurate predictions for the response _Y_ .
+
+- L Because the model is additive, we can examine the effect of each _Xj_ on _Y_ individually while holding all of the other variables fixed.
+
+- L The smoothness of the function _fj_ for the variable _Xj_ can be summarized via degrees of freedom.
+
+- N The main limitation of GAMs is that the model is restricted to be additive. With many variables, important interactions can be missed. However, as with linear regression, we can manually add interaction terms to the GAM model by including additional predictors of the form _Xj × Xk_ . In addition we can add low-dimensional interaction functions of the form _fjk_ ( _Xj, Xk_ ) into the model; such terms can be fit using two-dimensional smoothers such as local regression, or two-dimensional splines (not covered here).
+
+For fully general models, we have to look for even more flexible approaches such as random forests and boosting, described in Chapter 8. GAMs provide a useful compromise between linear and fully nonparametric models.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 7.7.2 GAMs for Classification Problems
+
+GAMs can also be used in situations where _Y_ is qualitative. For simplicity, here we assume _Y_ takes on values 0 or 1, and let _p_ ( _X_ ) = Pr( _Y_ = 1 _|X_ ) be the conditional probability (given the predictors) that the response equals one. Recall the logistic regression model (4.6):
+
+The left-hand side is the log of the odds of _P_ ( _Y_ = 1 _|X_ ) versus _P_ ( _Y_ = 0 _|X_ ), which (7.17) represents as a linear function of the predictors. A natural way to extend (7.17) to allow for non-linear relationships is to use the model
+
+**FIGURE 7.13.** _For the_ `Wage` _data, the logistic regression GAM given in (7.19) is fit to the binary response_ `I(wage>250)` _. Each plot displays the fitted function and pointwise standard errors. The first function is linear in_ `year` _, the second function a smoothing spline with five degrees of freedom in_ `age` _, and the third a step function for_ `education` _. There are very wide standard errors for the first level_ `<HS` _of_ `education` _._
+
+Equation 7.18 is a logistic regression GAM. It has all the same pros and cons as discussed in the previous section for quantitative responses.
+
+We fit a GAM to the `Wage` data in order to predict the probability that an individual’s income exceeds $250 _,_ 000 per year. The GAM that we fit takes the form
+
+Once again _f_ 2 is fit using a smoothing spline with five degrees of freedom, and _f_ 3 is fit as a step function, by creating dummy variables for each of the levels of education. The resulting fit is shown in Figure 7.13. The last panel looks suspicious, with very wide confidence intervals for level `<HS` . In fact, no response values equal one for that category: no individuals with less than a high school education make more than $250 _,_ 000 per year. Hence we refit the GAM, excluding the individuals with less than a high school education. The resulting model is shown in Figure 7.14. As in Figures 7.11 and 7.12, all three panels have similar vertical scales. This allows us to visually assess the relative contributions of each of the variables. We observe that `age` and `education` have a much larger effect than `year` on the probability of being a high earner.
+
+</MdxPage>

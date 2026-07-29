@@ -1,0 +1,122 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch05-cross-validation",
+  "locale": "vi",
+  "title": "5.1 Xác thực chéo",
+  "headings": [
+    "Xác thực chéo",
+    "5.1.1 Phương pháp tập xác thực",
+    "5.1.2 Xác thực chéo bỏ-một-điểm",
+    "5.1.3 Xác thực chéo k-fold",
+    "5.1.4 Đánh đổi độ chệch–phương sai của xác thực chéo k-fold",
+    "5.1.5 Xác thực chéo trong bài toán phân loại"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phương pháp lấy mẫu lại",
+    "Xác thực chéo"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Xác thực chéo
+
+Trong Chương 2, ta đã thảo luận sự khác nhau giữa _tỷ lệ sai số kiểm tra_ và _tỷ lệ sai số huấn luyện_. Sai số kiểm tra là sai số trung bình khi dùng một phương pháp học thống kê để dự đoán biến đáp ứng cho một quan sát mới — tức một phép đo không được dùng để huấn luyện phương pháp. Với một bộ dữ liệu, việc sử dụng một phương pháp học thống kê cụ thể là hợp lý nếu nó cho sai số kiểm tra thấp. Có thể dễ dàng tính sai số kiểm tra khi có sẵn một tập kiểm tra riêng. Tiếc rằng thông thường không phải vậy. Ngược lại, có thể dễ dàng tính sai số huấn luyện bằng cách áp dụng phương pháp học thống kê cho các quan sát đã dùng để huấn luyện nó. Nhưng như ta thấy ở Chương 2, tỷ lệ sai số huấn luyện thường khá khác tỷ lệ sai số kiểm tra, và đặc biệt đại lượng trước có thể đánh giá thấp đáng kể đại lượng sau.
+
+Khi không có một tập kiểm tra riêng đủ lớn để trực tiếp ước lượng tỷ lệ sai số kiểm tra, ta có thể dùng một số kỹ thuật để ước lượng đại lượng này từ dữ liệu huấn luyện hiện có. Một số phương pháp hiệu chỉnh tỷ lệ sai số huấn luyện bằng toán học để ước lượng tỷ lệ sai số kiểm tra. Những cách này được thảo luận ở Chương 6. Trong mục này, thay vào đó ta xét một lớp phương pháp ước lượng tỷ lệ sai số kiểm tra bằng cách _giữ lại_ một tập con các quan sát huấn luyện, không đưa chúng vào quá trình khớp, rồi áp dụng phương pháp học thống kê cho những quan sát được giữ lại đó.
+
+Trong các Mục 5.1.1–5.1.4, để đơn giản, ta giả sử muốn thực hiện hồi quy với biến đáp ứng định lượng. Trong Mục 5.1.5, ta xét trường hợp phân loại với biến đáp ứng định tính. Như sẽ thấy, các khái niệm chính vẫn như nhau bất kể biến đáp ứng là định lượng hay định tính.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 5.1.1 Phương pháp tập xác thực
+
+Giả sử ta muốn ước lượng sai số kiểm tra gắn với việc khớp một phương pháp học thống kê cụ thể trên một tập quan sát. _Phương pháp tập xác thực_, minh họa trong Hình 5.1, là một chiến lược rất đơn giản cho bài toán này. Ta chia ngẫu nhiên tập quan sát hiện có thành hai phần: _tập huấn luyện_ và _tập xác thực_, còn gọi là _tập giữ lại_ (hold-out set). Mô hình được khớp trên tập huấn luyện, sau đó dùng mô hình đã khớp để dự đoán biến đáp ứng của các quan sát trong tập xác thực. Tỷ lệ sai số xác thực thu được — thường được đánh giá bằng MSE khi biến đáp ứng là định lượng — cung cấp một ước lượng của tỷ lệ sai số kiểm tra.
+
+Ta minh họa phương pháp tập xác thực trên bộ dữ liệu `Auto`. Nhắc lại từ Chương 3 rằng dường như có một quan hệ phi tuyến giữa `mpg` và `horsepower`, và mô hình dự đoán `mpg` bằng `horsepower` cùng `horsepower`^(2) cho kết quả tốt hơn mô hình chỉ dùng một số hạng tuyến tính. Một câu hỏi tự nhiên là liệu phép khớp bậc ba hoặc bậc cao hơn có cho kết quả tốt hơn nữa không. Trong Chương 3, ta trả lời câu hỏi này bằng cách xem các p-value gắn với số hạng bậc ba và những số hạng đa thức bậc cao hơn trong hồi quy tuyến tính. Nhưng cũng có thể trả lời bằng phương pháp xác thực. Ta chia ngẫu nhiên 392 quan sát thành hai
+
+**HÌNH 5.2.** _Phương pháp tập xác thực được áp dụng cho bộ dữ liệu_ `Auto` _để ước lượng sai số kiểm tra khi dự đoán_ `mpg` _bằng các hàm đa thức của_ `horsepower`_._ Trái: _Ước lượng sai số xác thực cho một lần chia thành tập huấn luyện và tập xác thực._ Phải: _Phương pháp xác thực được lặp mười lần, mỗi lần dùng một cách chia ngẫu nhiên khác nhau thành tập huấn luyện và tập xác thực. Hình minh họa độ biến thiên của MSE kiểm tra ước lượng từ phương pháp này._
+
+tỷ lệ sai số tập xác thực có thể có xu hướng _ước lượng quá cao_ tỷ lệ sai số kiểm tra của mô hình được khớp trên toàn bộ bộ dữ liệu.
+
+Trong các mục tiếp theo, ta sẽ trình bày _xác thực chéo_, một cải tiến của phương pháp tập xác thực nhằm giải quyết hai vấn đề này.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 5.1.2 Xác thực chéo bỏ-một-điểm
+
+_Xác thực chéo bỏ-một-điểm_ (leave-one-out cross-validation, LOOCV) có liên hệ chặt chẽ với phương pháp tập xác thực ở Mục 5.1.1, nhưng cố gắng khắc phục các nhược điểm của phương pháp đó.
+
+Tương tự phương pháp tập xác thực, LOOCV chia tập quan sát thành hai phần. Tuy nhiên, thay vì tạo hai tập con có kích thước tương đương, một quan sát duy nhất (_x_ 1 _, y_ 1) được dùng làm tập xác thực, còn các quan sát _\{_ (_x_ 2 _, y_ 2) _, . . . ,_ (_xn, yn_) _\}_ tạo thành tập huấn luyện. Phương pháp học thống kê được khớp trên _n −_ 1 quan sát huấn luyện, rồi dự đoán _y_ ˆ1 cho quan sát bị loại bằng giá trị _x_ 1 của nó. Vì (_x_ 1 _, y_ 1) không được dùng trong quá trình khớp, MSE1 = (_y_ 1 _− y_ ˆ1)^(2) cung cấp một ước lượng gần như không chệch của sai số kiểm tra. Nhưng dù MSE1 không chệch đối với sai số kiểm tra, đây vẫn là một ước lượng kém vì có độ biến thiên cao do chỉ dựa trên một quan sát (_x_ 1 _, y_ 1).
+
+Ta có thể lặp lại quy trình bằng cách chọn (_x_ 2 _, y_ 2) làm dữ liệu xác thực, huấn luyện quy trình học thống kê trên _n −_ 1 quan sát ˆ _\{_ (_x_ 1 _, y_ 1) _,_ (_x_ 3 _, y_ 3) _, . . . ,_ (_xn, yn_) _\}_, rồi tính MSE2 = (_y_ 2 _−y_ 2)^(2). Lặp cách làm này _n_ lần tạo ra _n_ sai số bình phương, MSE1 _, . . . ,_ MSE _n_. Ước lượng LOOCV của MSE kiểm tra là trung bình của _n_ ước lượng sai số kiểm tra này:
+
+**HÌNH 5.4.** _Xác thực chéo được áp dụng cho bộ dữ liệu_ `Auto` _để ước lượng sai số kiểm tra khi dự đoán_ `mpg` _bằng các hàm đa thức của_ `horsepower`_._ Trái: _Đường cong sai số LOOCV._ Phải: _Xác thực chéo 10-fold được chạy riêng chín lần, mỗi lần dùng một cách chia ngẫu nhiên dữ liệu khác nhau thành mười phần. Hình cho thấy chín đường cong sai số CV hơi khác nhau._
+
+trong đó _y_ ˆ _i_ là giá trị khớp thứ _i_ từ phép khớp bình phương tối thiểu ban đầu, và _hi_ là leverage được định nghĩa trong (3.37) ở trang 105.^(1) Công thức này giống MSE thông thường, ngoại trừ phần dư thứ _i_ được chia cho 1 _− hi_. Leverage nằm giữa 1 _/n_ và 1, phản ánh mức độ một quan sát ảnh hưởng đến chính giá trị khớp của nó. Vì vậy, trong công thức này, phần dư của các điểm có leverage cao được phóng đại đúng một lượng cần thiết để đẳng thức thỏa mãn.
+
+LOOCV là phương pháp rất tổng quát và có thể dùng với bất kỳ kiểu mô hình dự đoán nào. Ví dụ, ta có thể dùng nó với hồi quy logistic, phân tích biệt thức tuyến tính hoặc bất kỳ phương pháp nào được thảo luận ở các chương sau. Công thức đặc biệt (5.2) nhìn chung không còn đúng; khi đó phải khớp lại mô hình _n_ lần.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 5.1.3 Xác thực chéo k-fold
+
+Một phương án thay thế LOOCV là _xác thực chéo k-fold_. Cách này chia ngẫu nhiên tập quan sát thành _k_ nhóm, hay _fold_, có kích thước xấp xỉ bằng nhau. Fold thứ nhất được dùng làm tập xác thực và phương pháp được khớp trên _k −_ 1 fold còn lại. Sau đó tính sai số bình phương trung bình MSE1 trên các quan sát thuộc fold được giữ lại. Quy trình được lặp _k_ lần; mỗi lần một nhóm quan sát khác được dùng làm tập xác thực. Quá trình này tạo ra _k_ ước lượng sai số kiểm tra, MSE1 _,_ MSE2 _, . . . ,_ MSE _k_. Ước lượng CV k-fold được tính bằng cách lấy trung bình các giá trị này,
+
+Hình 5.5 minh họa phương pháp CV k-fold.
+
+> 1 Trong hồi quy tuyến tính bội, leverage có dạng hơi phức tạp hơn (3.37), nhưng (5.2) vẫn đúng.
+
+**HÌNH 5.6.** _MSE kiểm tra thực và ước lượng cho các bộ dữ liệu mô phỏng trong Hình 2.9 (_ trái _), 2.10 (_ giữa _) và 2.11 (_ phải _). MSE kiểm tra thực được vẽ màu xanh dương, ước lượng LOOCV là đường đứt nét màu đen, còn ước lượng CV_ 10 _-fold được vẽ màu cam. Các dấu chữ thập chỉ điểm cực tiểu của từng đường cong MSE._
+
+Trong Hình 5.6, MSE kiểm tra thực và các đường cong xác thực chéo gần như đồng nhất. Ở ô giữa của Hình 5.6, hai tập đường cong tương tự nhau tại các mức linh hoạt thấp, còn các đường cong CV ước lượng quá cao MSE tập kiểm tra tại các mức linh hoạt cao hơn. Ở ô bên trái của Hình 5.6, các đường cong CV có hình dạng tổng thể đúng nhưng đánh giá thấp MSE kiểm tra thực.
+
+Khi thực hiện xác thực chéo, mục tiêu có thể là xác định một quy trình học thống kê dự kiến hoạt động tốt đến mức nào trên dữ liệu độc lập; trong trường hợp này, ta quan tâm đến giá trị ước lượng thực tế của MSE kiểm tra. Nhưng đôi khi ta chỉ quan tâm đến vị trí của _điểm cực tiểu trên đường cong MSE kiểm tra ước lượng_. Lý do là ta có thể đang thực hiện xác thực chéo trên nhiều phương pháp học thống kê, hoặc trên một phương pháp duy nhất với những mức linh hoạt khác nhau, để tìm phương pháp cho sai số kiểm tra thấp nhất. Với mục đích này, vị trí điểm cực tiểu trên đường cong MSE kiểm tra ước lượng là quan trọng, còn giá trị thực tế của MSE kiểm tra ước lượng thì không. Trong Hình 5.6, dù đôi khi đánh giá thấp MSE kiểm tra thực, mọi đường cong CV đều gần như xác định đúng mức linh hoạt — tức mức linh hoạt tương ứng với MSE kiểm tra nhỏ nhất.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 5.1.4 Đánh đổi độ chệch–phương sai của xác thực chéo k-fold
+
+Trong Mục 5.1.3, ta đã đề cập rằng CV k-fold với _k &lt; n_ có lợi thế tính toán so với LOOCV. Nhưng bỏ qua vấn đề tính toán, một lợi thế ít hiển nhiên hơn nhưng có thể quan trọng hơn là CV k-fold thường ước lượng tỷ lệ sai số kiểm tra chính xác hơn LOOCV. Điều này liên quan đến sự đánh đổi độ chệch–phương sai.
+
+Mục 5.1.1 đã nêu rằng phương pháp tập xác thực có thể ước lượng quá cao tỷ lệ sai số kiểm tra, vì tập huấn luyện dùng để khớp phương pháp học thống kê chỉ chứa một nửa số quan sát trong toàn bộ bộ dữ liệu. Theo lô-gic này, dễ thấy
+
+LOOCV sẽ cho ước lượng sai số kiểm tra gần như không chệch vì mỗi tập huấn luyện chứa _n −_ 1 quan sát, gần bằng số quan sát trong toàn bộ bộ dữ liệu. Còn khi thực hiện CV k-fold với, chẳng hạn, _k_ = 5 hoặc _k_ = 10, độ chệch sẽ ở mức trung gian vì mỗi tập huấn luyện chứa xấp xỉ (_k −_ 1) _n/k_ quan sát — ít hơn LOOCV nhưng nhiều hơn đáng kể so với phương pháp tập xác thực. Do đó, xét trên phương diện giảm độ chệch, rõ ràng nên ưu tiên LOOCV hơn CV k-fold.
+
+Tuy nhiên, ta biết độ chệch không phải mối quan tâm duy nhất trong một quy trình ước lượng; còn phải xét phương sai của quy trình. LOOCV có phương sai cao hơn CV k-fold với _k &lt; n_. Tại sao vậy? Khi thực hiện LOOCV, thực chất ta lấy trung bình đầu ra của _n_ mô hình đã khớp, mỗi mô hình được huấn luyện trên một tập quan sát gần như giống hệt nhau; vì thế các đầu ra tương quan (dương) rất cao. Ngược lại, khi thực hiện CV k-fold với _k &lt; n_, ta lấy trung bình đầu ra của _k_ mô hình có tương quan thấp hơn đôi chút vì độ chồng lấp giữa các tập huấn luyện của từng mô hình nhỏ hơn. Vì trung bình của nhiều đại lượng tương quan cao có phương sai lớn hơn trung bình của nhiều đại lượng ít tương quan, ước lượng sai số kiểm tra từ LOOCV có xu hướng có phương sai cao hơn ước lượng từ CV k-fold.
+
+Tóm lại, việc chọn _k_ trong xác thực chéo k-fold có sự đánh đổi độ chệch–phương sai. Thông thường, dựa trên những cân nhắc này, người ta thực hiện xác thực chéo k-fold với _k_ = 5 hoặc _k_ = 10, vì thực nghiệm cho thấy các giá trị này tạo ra ước lượng tỷ lệ sai số kiểm tra không chịu độ chệch quá cao cũng không có phương sai quá lớn.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 5.1.5 Xác thực chéo trong bài toán phân loại
+
+Cho đến đây trong chương, ta đã minh họa việc dùng xác thực chéo trong bối cảnh hồi quy, nơi kết quả _Y_ là định lượng, nên dùng MSE để định lượng sai số kiểm tra. Nhưng xác thực chéo cũng rất hữu ích trong bối cảnh phân loại khi _Y_ là định tính. Trong trường hợp này, xác thực chéo hoạt động đúng như mô tả trước đó, ngoại trừ việc thay vì dùng MSE để định lượng sai số kiểm tra, ta dùng số quan sát bị phân loại sai. Chẳng hạn, trong bối cảnh phân loại, tỷ lệ sai số LOOCV có dạng
+
+ˆ trong đó Err _i_ = _I_(_yi_ = _yi_). Tỷ lệ sai số CV k-fold và tỷ lệ sai số tập xác thực được định nghĩa tương tự.
+
+Ví dụ, ta khớp nhiều mô hình hồi quy logistic trên dữ liệu phân loại hai chiều trình bày trong Hình 2.13. Ở ô trên bên trái của Hình 5.7, đường liền màu đen biểu diễn biên quyết định ước lượng thu được khi khớp một mô hình hồi quy logistic tiêu chuẩn với bộ dữ liệu này. Vì đây là dữ liệu mô phỏng, ta có thể tính tỷ lệ sai số kiểm tra _thực_, bằng 0 _._ 201 và do đó lớn hơn đáng kể so với Bayes
+
+**HÌNH 5.8.** _Sai số kiểm tra (nâu), sai số huấn luyện (xanh dương) và sai số CV_ 10 _-fold (đen) trên dữ liệu phân loại hai chiều trình bày trong Hình 5.7._ Trái: _Hồi quy logistic sử dụng các hàm đa thức của biến dự báo. Bậc đa thức được ghi trên trục x._ Phải: _Bộ phân loại KNN với các giá trị K khác nhau, trong đó K là số láng giềng được dùng trong bộ phân loại KNN._
+
+trong Hình 5.7, nơi ta khớp một mô hình hồi quy logistic chứa các đa thức bậc ba của biến dự báo. Giờ tỷ lệ sai số kiểm tra giảm xuống 0 _._ 160. Chuyển sang đa thức bậc bốn (ô dưới bên phải) làm sai số kiểm tra tăng nhẹ.
+
+Trong thực tế, với dữ liệu thật, biên quyết định Bayes và tỷ lệ sai số kiểm tra đều chưa biết. Vậy làm thế nào chọn giữa bốn mô hình hồi quy logistic trong Hình 5.7? Ta có thể dùng xác thực chéo. Ô bên trái của Hình 5.8 biểu diễn bằng màu đen các tỷ lệ sai số CV 10-fold thu được khi khớp mười mô hình hồi quy logistic với dữ liệu, sử dụng các hàm đa thức của biến dự báo đến bậc mười. Sai số kiểm tra thực được vẽ màu nâu, sai số huấn luyện được vẽ màu xanh dương. Như đã thấy trước đây, sai số huấn luyện có xu hướng giảm khi độ linh hoạt của phép khớp tăng. (Hình cho thấy dù tỷ lệ sai số huấn luyện không hoàn toàn giảm đơn điệu, nhìn chung nó giảm khi độ phức tạp mô hình tăng.) Ngược lại, sai số kiểm tra có dạng chữ U đặc trưng. Tỷ lệ sai số CV 10-fold xấp xỉ khá tốt tỷ lệ sai số kiểm tra. Dù đánh giá thấp phần nào tỷ lệ sai số, nó đạt cực tiểu khi dùng đa thức bậc bốn, rất gần cực tiểu của đường cong kiểm tra xảy ra khi dùng đa thức bậc ba. Thực tế, đa thức bậc bốn có thể cho hiệu năng tốt trên tập kiểm tra vì tỷ lệ sai số kiểm tra thực gần như bằng nhau đối với các đa thức bậc ba, bốn, năm và sáu.
+
+Ô bên phải của Hình 5.8 trình bày ba đường cong tương tự khi dùng phương pháp KNN để phân loại theo giá trị _K_ (trong bối cảnh này, _K_ chỉ số láng giềng dùng trong bộ phân loại KNN chứ không phải số fold CV). Tỷ lệ sai số huấn luyện lại giảm khi phương pháp trở nên linh hoạt hơn, vì vậy không thể dùng tỷ lệ sai số huấn luyện để chọn giá trị _K_ tối ưu. Dù đường cong sai số xác thực chéo đánh giá thấp nhẹ tỷ lệ sai số kiểm tra, nó đạt cực tiểu rất gần giá trị _K_ tốt nhất.
+
+</MdxPage>

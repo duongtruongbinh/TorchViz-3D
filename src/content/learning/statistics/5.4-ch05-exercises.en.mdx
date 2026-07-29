@@ -1,0 +1,174 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch05-exercises",
+  "locale": "en",
+  "title": "5.4 Exercises",
+  "headings": [
+    "Conceptual",
+    "Applied"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Resampling Methods",
+    "Exercises"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Conceptual
+
+1. Using basic statistical properties of the variance, as well as singlevariable calculus, derive (5.6). In other words, prove that _α_ given by (5.6) does indeed minimize Var( _αX_ + (1 _− α_ ) _Y_ ).
+
+2. We will now derive the probability that a given observation is part of a bootstrap sample. Suppose that we obtain a bootstrap sample from a set of _n_ observations.
+
+   - (a) What is the probability that the first bootstrap observation is _not_ the _j_ th observation from the original sample? Justify your answer.
+
+   - (b) What is the probability that the second bootstrap observation is _not_ the _j_ th observation from the original sample?
+
+   - (c) Argue that the probability that the _j_ th observation is _not_ in the bootstrap sample is (1 _−_ 1 _/n_ )^(_n_) .
+
+   - (d) When _n_ = 5, what is the probability that the _j_ th observation is in the bootstrap sample?
+
+   - (e) When _n_ = 100, what is the probability that the _j_ th observation is in the bootstrap sample?
+
+   - (f) When _n_ = 10 _,_ 000, what is the probability that the _j_ th observation is in the bootstrap sample?
+
+   - (g) Create a plot that displays, for each integer value of _n_ from 1 to 100 _,_ 000, the probability that the _j_ th observation is in the bootstrap sample. Comment on what you observe.
+
+   - (h) We will now investigate numerically the probability that a bootstrap sample of size _n_ = 100 contains the _j_ th observation. Here _j_ = 4. We first create an array `store` with values that will subsequently be overwritten using the function `np.empty()` . We then `np.empty()`
+
+repeatedly create bootstrap samples, and each time we record whether or not the fifth observation is contained in the bootstrap sample.
+
+<MdxCode language="text" code={"rng=np.random.default_rng(10)\nstore=np.empty(10000)\nforiinrange(10000):\nstore[i]=np.sum(rng.choice(100,replace=True)==4)\n>0\nnp.mean(store)"} />
+
+Comment on the results obtained.
+
+3. We now review _k_ -fold cross-validation.
+
+   - (a) Explain how _k_ -fold cross-validation is implemented.
+
+   - (b) What are the advantages and disadvantages of _k_ -fold crossvalidation relative to:
+
+      - i. The validation set approach?
+
+      - ii. LOOCV?
+
+4. Suppose that we use some statistical learning method to make a prediction for the response _Y_ for a particular value of the predictor _X_ . Carefully describe how we might estimate the standard deviation of our prediction.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Applied
+
+5. In Chapter 4, we used logistic regression to predict the probability of `default` using `income` and `balance` on the `Default` data set. We will now estimate the test error of this logistic regression model using the validation set approach. Do not forget to set a random seed before beginning your analysis.
+
+   - (a) Fit a logistic regression model that uses `income` and `balance` to predict `default` .
+
+   - (b) Using the validation set approach, estimate the test error of this model. In order to do this, you must perform the following steps:
+
+      - i. Split the sample set into a training set and a validation set.
+
+      - ii. Fit a multiple logistic regression model using only the training observations.
+
+      - iii. Obtain a prediction of default status for each individual in the validation set by computing the posterior probability of default for that individual, and classifying the individual to the `default` category if the posterior probability is greater than 0.5.
+
+      - iv. Compute the validation set error, which is the fraction of the observations in the validation set that are misclassified.
+
+   - (c) Repeat the process in (b) three times, using three different splits of the observations into a training set and a validation set. Comment on the results obtained.
+
+   - (d) Now consider a logistic regression model that predicts the probability of `default` using `income` , `balance` , and a dummy variable for `student` . Estimate the test error for this model using the validation set approach. Comment on whether or not including a dummy variable for `student` leads to a reduction in the test error rate.
+
+6. We continue to consider the use of a logistic regression model to predict the probability of `default` using `income` and `balance` on the `Default` data set. In particular, we will now compute estimates for the standard errors of the `income` and `balance` logistic regression coefficients in two different ways: (1) using the bootstrap, and (2) using the standard formula for computing the standard errors in the `sm.GLM()` function. Do not forget to set a random seed before beginning your analysis.
+
+   - (a) Using the `summarize()` and `sm.GLM()` functions, determine the estimated standard errors for the coefficients associated with `income` and `balance` in a multiple logistic regression model that uses both predictors.
+
+   - (b) Write a function, `boot_fn()` , that takes as input the `Default` data set as well as an index of the observations, and that outputs the coefficient estimates for `income` and `balance` in the multiple logistic regression model.
+
+   - (c) Following the bootstrap example in the lab, use your `boot_fn()` function to estimate the standard errors of the logistic regression coefficients for `income` and `balance` .
+
+   - (d) Comment on the estimated standard errors obtained using the `sm.GLM()` function and using the bootstrap.
+
+7. In Sections 5.1.2 and 5.1.3, we saw that the `cross_validate()` function can be used in order to compute the LOOCV test error estimate. Alternatively, one could compute those quantities using just `sm.GLM()` and the `predict()` method of the fitted model within a for loop. You will now take this approach in order to compute the LOOCV error for a simple logistic regression model on the `Weekly` data set. Recall that in the context of classification problems, the LOOCV error is given in (5.4).
+
+   - (a) Fit a logistic regression model that predicts `Direction` using `Lag1` and `Lag2` .
+
+   - (b) Fit a logistic regression model that predicts `Direction` using `Lag1` and `Lag2` _using all but the first observation_ .
+
+   - (c) Use the model from (b) to predict the direction of the first observation. You can do this by predicting that the first observation will go up if _P_ ( `Direction = "Up"` _|_ `Lag1` , `Lag2` ) _&gt;_ 0 _._ 5. Was this observation correctly classified?
+
+   - (d) Write a for loop from _i_ = 1 to _i_ = _n_ , where _n_ is the number of observations in the data set, that performs each of the following steps:
+
+      - i. Fit a logistic regression model using all but the _i_ th observation to predict `Direction` using `Lag1` and `Lag2` .
+
+      - ii. Compute the posterior probability of the market moving up for the _i_ th observation.
+
+      - iii. Use the posterior probability for the _i_ th observation in order to predict whether or not the market moves up.
+
+      - iv. Determine whether or not an error was made in predicting the direction for the _i_ th observation. If an error was made, then indicate this as a 1, and otherwise indicate it as a 0.
+
+   - (e) Take the average of the _n_ numbers obtained in (d)iv in order to obtain the LOOCV estimate for the test error. Comment on the results.
+
+8. We will now perform cross-validation on a simulated data set.
+
+   - (a) Generate a simulated data set as follows:
+
+<MdxCode language="text" code={"rng=np.random.default_rng(1)\nx=rng.normal(size=100)\ny=x-2*x**2+rng.normal(size=100)"} />
+
+In this data set, what is _n_ and what is _p_ ? Write out the model used to generate the data in equation form.
+
+- (b) Create a scatterplot of _X_ against _Y_ . Comment on what you find.
+
+- (c) Set a random seed, and then compute the LOOCV errors that result from fitting the following four models using least squares:
+
+   - i. _Y_ = _β_ 0 + _β_ 1 _X_ + _ϵ_
+
+   - ii. _Y_ = _β_ 0 + _β_ 1 _X_ + _β_ 2 _X_^(2) + _ϵ_
+
+   - iii. _Y_ = _β_ 0 + _β_ 1 _X_ + _β_ 2 _X_^(2) + _β_ 3 _X_^(3) + _ϵ_
+
+   - iv. _Y_ = _β_ 0 + _β_ 1 _X_ + _β_ 2 _X_^(2) + _β_ 3 _X_^(3) + _β_ 4 _X_^(4) + _ϵ_ .
+
+Note you may find it helpful to use the `data.frame()` function to create a single data set containing both _X_ and _Y_ .
+
+   - (d) Repeat (c) using another random seed, and report your results. Are your results the same as what you got in (c)? Why?
+
+   - (e) Which of the models in (c) had the smallest LOOCV error? Is this what you expected? Explain your answer.
+
+   - (f) Comment on the statistical significance of the coefficient estimates that results from fitting each of the models in (c) using least squares. Do these results agree with the conclusions drawn based on the cross-validation results?
+
+9. We will now consider the `Boston` housing data set, from the `ISLP` library.
+
+   - (a) Based on this data set, provide an estimate for the population ˆ
+
+   - mean of `medv` . Call this estimate _µ_ .
+
+- ˆ
+
+- (b) Provide an estimate of the standard error of _µ_ . Interpret this result.
+
+_Hint: We can compute the standard error of the sample mean by dividing the sample standard deviation by the square root of the number of observations._
+
+- (c) Now estimate the standard error of _µ_ ˆ using the bootstrap. How does this compare to your answer from (b)?
+
+- (d) Based on your bootstrap estimate from (c), provide a 95 % confidence interval for the mean of `medv` . Compare it to the results obtained by using `Boston['medv'].std()` and the two standard error rule (3.9).
+
+_Hint: You can approximate a 95 % confidence interval using the formula_ [ˆ _µ −_ 2SE(ˆ _µ_ ) _,_ ˆ _µ_ + 2SE(ˆ _µ_ )] _._
+
+- ˆ
+
+- (e) Based on this data set, provide an estimate, _µmed_ , for the median value of `medv` in the population.
+
+- (f) We now would like to estimate the standard error of _µ_ ˆ _med_ . Unfortunately, there is no simple formula for computing the standard error of the median. Instead, estimate the standard error of the median using the bootstrap. Comment on your findings.
+
+- (g) Based on this data set, provide an estimate for the tenth percentile of `medv` in Boston census tracts. Call this quantity _µ_ ˆ0 _._ 1. (You can use the `np.percentile()` function.)
+
+<MdxCode language="text" code={"np."} />
+
+- (h) Use the bootstrap to estimate the standard error of _µ_ ˆ0 _._ 1. Com- `percentile()` ment on your findings.
+
+</MdxPage>

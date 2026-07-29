@@ -1,0 +1,105 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-generalized-linear-models",
+  "locale": "vi",
+  "title": "4.6 Mô hình tuyến tính tổng quát",
+  "headings": [
+    "Mô hình tuyến tính tổng quát",
+    "4.6.1 Hồi quy tuyến tính trên dữ liệu Bikeshare",
+    "4.6.3 Mô hình tuyến tính tổng quát ở mức tổng quát hơn"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "phân loại",
+    "mô hình tuyến tính tổng quát"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Mô hình tuyến tính tổng quát
+
+Trong Chương 3, ta giả định biến đáp ứng _Y_ là định lượng và khảo sát việc dùng hồi quy tuyến tính bình phương tối thiểu để dự đoán _Y_. Cho đến đây trong chương này, ta lại giả định _Y_ là định tính. Tuy nhiên, đôi khi ta gặp tình huống _Y_ không phải định tính cũng không phải định lượng, nên cả hồi quy tuyến tính ở Chương 3 lẫn các cách tiếp cận phân loại trong chương này đều không áp dụng được.
+
+Làm ví dụ cụ thể, ta xét tập dữ liệu `Bikeshare`. Biến đáp ứng `bikers` là số người sử dụng theo giờ của một chương trình chia sẻ xe đạp ở Washington, DC. Giá trị đáp ứng này không phải định tính cũng không phải định lượng; thay vào đó, nó nhận các giá trị nguyên không âm, hay _số đếm_. Ta sẽ dự đoán `bikers` bằng các biến đồng biến `mnth` (tháng trong năm), `hr` (giờ trong ngày, từ 0 đến 23), `workingday` (biến chỉ báo bằng 1 nếu không phải cuối tuần hay ngày lễ), `temp` (nhiệt độ chuẩn hóa theo độ C) và `weathersit` (biến định tính nhận một trong bốn giá trị: trời quang; sương mù hoặc nhiều mây; mưa nhỏ hoặc tuyết nhẹ; mưa to hoặc tuyết dày).
+
+Trong các phân tích sau, ta xem `mnth`, `hr` và `weathersit` là biến định tính.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 4.6.1 Hồi quy tuyến tính trên dữ liệu Bikeshare
+
+Trước hết, ta xét dự đoán `bikers` bằng hồi quy tuyến tính. Kết quả nằm trong Bảng 4.10.
+
+Chẳng hạn, ta thấy khi thời tiết chuyển từ quang đãng sang nhiều mây, trung bình mỗi giờ có ít hơn 12 _._ 89 người đi xe; nếu thời tiết tiếp tục xấu thành mưa hoặc tuyết thì mỗi giờ lại giảm thêm 53 _._ 60 người. Hình 4.13 biểu diễn các hệ số gắn với `mnth`
+
+**HÌNH 4.13.** _Một mô hình hồi quy tuyến tính bình phương tối thiểu được khớp để dự đoán_ `bikers` _trong tập dữ liệu_ `Bikeshare` _._ Trái: _Các hệ số gắn với tháng trong năm. Mức sử dụng xe đạp cao nhất vào mùa xuân và mùa thu, thấp nhất vào mùa đông._ Phải: _Các hệ số gắn với giờ trong ngày. Mức sử dụng xe đạp cao nhất vào giờ đi làm cao điểm và thấp nhất vào ban đêm._
+
+và các hệ số gắn với `hr`. Ta thấy mức sử dụng xe đạp cao nhất vào mùa xuân và mùa thu, thấp nhất trong các tháng mùa đông. Hơn nữa, mức sử dụng cao nhất quanh giờ cao điểm (9 giờ sáng và 6 giờ chiều), thấp nhất vào ban đêm. Vì vậy, thoạt nhìn, khớp hồi quy tuyến tính cho dữ liệu `Bikeshare` dường như cho kết quả hợp lý và trực quan.
+
+Nhưng khi xem kỹ hơn, một số vấn đề xuất hiện. Chẳng hạn, 9,6% giá trị khớp trong dữ liệu `Bikeshare` là âm: mô hình hồi quy tuyến tính dự đoán số người dùng _âm_ trong 9,6% số giờ của tập dữ liệu. Điều này khiến khả năng đưa ra dự đoán có ý nghĩa bị nghi ngờ, đồng thời gây lo ngại về độ chính xác của các ước lượng hệ số, khoảng tin cậy và đầu ra khác của mô hình hồi quy.
+
+Hơn nữa, hợp lý khi nghi ngờ rằng khi kỳ vọng của `bikers` nhỏ thì phương sai của `bikers` cũng phải nhỏ. Chẳng hạn, lúc 2 giờ sáng trong một trận bão tuyết lớn tháng Mười Hai, ta kỳ vọng cực ít người dùng xe và số người dùng trong điều kiện đó cũng ít biến thiên. Dữ liệu xác nhận điều này: từ 1 đến 4 giờ sáng trong tháng Mười Hai, Một và Hai, khi trời mưa, trung bình có 5 _._ 05 người dùng với độ lệch chuẩn 3 _._ 73. Ngược lại, từ 7 đến 10 giờ sáng trong tháng Tư, Năm và Sáu khi trời quang, trung bình có 243 _._ 59 người dùng với độ lệch chuẩn 131 _._ 7. Quan hệ trung bình–phương sai nằm ở ô trái Hình 4.14. Đây là vi phạm lớn đối với giả định mô hình tuyến tính rằng _Y_ =^(�)^(_p_) _j_ =1^(_Xjβj_+)^(_ϵ_,) trong đó _ϵ_ là sai số có trung bình không và phương sai _σ_^(2) _không đổi_, không phải hàm của các biến đồng biến. Vì vậy, tính phương sai không đồng nhất của dữ liệu đặt ra nghi vấn về sự phù hợp của hồi quy tuyến tính.
+
+Cuối cùng, biến đáp ứng `bikers` nhận giá trị nguyên. Nhưng trong mô hình tuyến tính, _Y_ = _β_ 0 +^(�)^(_p_) _j_ =1^(_Xjβj_+)^(_ϵ_, trong đó)^(_ϵ_ là sai số nhận giá trị liên tục. Điều này) nghĩa là biến đáp ứng _Y_ trong mô hình tuyến tính nhất thiết nhận giá trị liên tục (định lượng). Do đó, bản chất nguyên của `bikers` cho thấy hồi quy tuyến tính chưa hoàn toàn thỏa đáng với tập dữ liệu này.
+
+Ở đây, _λ &gt;_ 0 là kỳ vọng của _Y_, tức E( _Y_ ). Hóa ra _λ_ cũng bằng phương sai của _Y_, tức _λ_ = E( _Y_ ) = Var( _Y_ ). Điều này nghĩa là nếu _Y_ tuân theo phân phối Poisson thì trung bình _Y_ càng lớn, phương sai càng lớn. (Trong (4.35), ký hiệu _k_ !, đọc là “k giai thừa”, được định nghĩa _k_ ! = _k ×_ ( _k −_ 1) _×_ ( _k −_ 2) _× . . . ×_ 3 _×_ 2 _×_ 1.)
+
+Phân phối Poisson thường được dùng để mô hình hóa _số đếm_; đây là lựa chọn tự nhiên vì nhiều lý do, trong đó có việc số đếm cũng như phân phối Poisson đều nhận giá trị nguyên không âm. Để thấy cách dùng phân phối Poisson trong thực tế, gọi _Y_ là số người sử dụng chương trình chia sẻ xe trong một giờ cụ thể của ngày, dưới một tập điều kiện thời tiết và trong một tháng cụ thể. Ta có thể mô hình hóa _Y_ bằng phân phối Poisson với trung bình E( _Y_ ) = _λ_ = 5. Điều này nghĩa là xác suất không có người dùng trong giờ đó là Pr( _Y_ = 0) = _e_^(_−_) 0!^(5) 5^(0) = _e_^(_−_5) = 0 _._ 0067 (theo quy ước 0! = 1). Xác suất có đúng một người dùng là Pr( _Y_ = 1) = _e_^(_−_) 1!^(5) 5^(1) = 5 _e_^(_−_5) = 0 _._ 034, xác suất có hai người dùng là Pr( _Y_ = 2) =^(_e−_) 2!^(552) = 0 _._ 084, v.v. Dĩ nhiên, trong thực tế, ta kỳ vọng số người dùng trung bình _λ_ = E( _Y_ ) thay đổi theo giờ trong ngày, tháng trong năm, điều kiện thời tiết, v.v. Vì vậy, thay vì mô hình hóa số người đi xe _Y_ bằng phân phối Poisson có trung bình cố định như _λ_ = 5, ta muốn trung bình thay đổi theo các biến đồng biến. Cụ thể, ta xét mô hình sau cho trung bình _λ_ = E( _Y_ ), giờ được viết _λ_ ( _X_ 1 _, . . . , Xp_ ) để nhấn mạnh rằng nó là hàm của _X_ 1 _, . . . , Xp_:
+
+Ở đây, _β_ 0 _, β_ 1 _, . . . , βp_ là các tham số cần ước lượng. Cùng nhau, (4.35) và (4.36) xác định mô hình hồi quy Poisson. Lưu ý trong (4.36), ta lấy _log_ của _λ_ ( _X_ 1 _, . . . , Xp_ ) là hàm tuyến tính theo _X_ 1 _, . . . , Xp_, thay vì để chính _λ_ ( _X_ 1 _, . . . , Xp_ ) là tuyến tính; điều này bảo đảm _λ_ ( _X_ 1 _, . . . , Xp_ ) nhận giá trị không âm với mọi giá trị biến đồng biến.
+
+Để ước lượng _β_ 0 _, β_ 1 _, . . . , βp_, ta dùng cùng phương pháp hợp lý cực đại đã áp dụng cho hồi quy logistic ở Mục 4.3.2. Cụ thể, với _n_ quan sát độc lập từ mô hình hồi quy Poisson, hàm hợp lý có dạng
+
+trong đó _λ_ ( _xi_ ) = _e_^(_β_0+)^(_β_1)^(_xi_1+)^(_···_+)^(_βpxip_) theo (4.37). Ta ước lượng các hệ số cực đại hóa hàm hợp lý _ℓ_ ( _β_ 0 _, β_ 1 _, . . . , βp_ ), tức khiến dữ liệu quan sát có khả năng xảy ra cao nhất.
+
+Bây giờ ta khớp hồi quy Poisson cho tập dữ liệu `Bikeshare`. Kết quả nằm trong Bảng 4.11 và Hình 4.15. Về mặt định tính, kết quả tương tự hồi quy tuyến tính ở Mục 4.6.1. Ta lại thấy mức sử dụng xe cao nhất vào mùa xuân, mùa thu và giờ cao điểm,
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _z_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|4.12|0.01|683.96|0.00|\n|`workingday`|0.01|0.00|7.5|0.00|\n|`temp`|0.79|0.01|68.43|0.00|\n|`weathersit[cloudy/misty]`|-0.08|0.00|-34.53|0.00|\n|`weathersit[light rain/snow]`|-0.58|0.00|-141.91|0.00|\n|`weathersit[heavy rain/snow]`|-0.93|0.17|-5.55|0.00|"} />
+
+**BẢNG 4.11.** _Kết quả của mô hình hồi quy Poisson được khớp để dự đoán_ `bikers` _trong dữ liệu_ `Bikeshare` _. Các biến dự báo_ `mnth` _và_ `hr` _được lược khỏi bảng do giới hạn không gian và có thể xem trong Hình 4.15. Với biến định tính_ `weathersit` _, mức mốc tương ứng với trời quang._
+
+**HÌNH 4.15.** _Một mô hình hồi quy Poisson được khớp để dự đoán_ `bikers` _trong tập dữ liệu_ `Bikeshare` _._ Trái: _Các hệ số gắn với tháng trong năm. Mức sử dụng xe đạp cao nhất vào mùa xuân và mùa thu, thấp nhất vào mùa đông._ Phải: _Các hệ số gắn với giờ trong ngày. Mức sử dụng xe đạp cao nhất vào giờ đi làm cao điểm và thấp nhất vào ban đêm._
+
+và thấp nhất vào mùa đông cùng những giờ sáng sớm. Hơn nữa, mức sử dụng xe tăng khi nhiệt độ tăng và giảm khi thời tiết xấu đi. Điều thú vị là hệ số gắn với `workingday` có ý nghĩa thống kê trong hồi quy Poisson nhưng không có ý nghĩa trong hồi quy tuyến tính.
+
+Một số khác biệt quan trọng giữa hồi quy Poisson và hồi quy tuyến tính:
+
+- _Diễn giải:_ Để diễn giải các hệ số trong hồi quy Poisson, cần chú ý kỹ (4.37), theo đó _Xj_ tăng một đơn vị gắn với E( _Y_ ) = _λ_ thay đổi theo hệ số exp( _βj_ ). Chẳng hạn, thời tiết chuyển từ quang đãng sang nhiều mây gắn với mức sử dụng xe trung bình thay đổi theo hệ số exp( _−_ 0 _._ 08) = 0 _._ 923, tức trung bình chỉ có 92,3% số người dùng xe khi trời nhiều mây so với trời quang. Nếu thời tiết xấu thêm và bắt đầu mưa thì mức sử dụng trung bình tiếp tục thay đổi theo hệ số exp( _−_ 0 _._ 5) = 0 _._ 607, tức trung bình chỉ có 60,7% số người dùng xe khi mưa so với khi nhiều mây.
+
+- _Quan hệ trung bình–phương sai:_ Như đã nói, trong mô hình Poisson, _λ_ = E( _Y_ ) = Var( _Y_ ). Vì vậy, khi mô hình hóa mức sử dụng xe bằng hồi quy Poisson, ta ngầm giả định mức sử dụng xe trung bình trong một giờ bằng phương sai của mức sử dụng trong giờ đó. Ngược lại, trong hồi quy tuyến tính, phương sai luôn nhận giá trị không đổi. Nhắc lại từ Hình 4.14 rằng trong dữ liệu `Bikeshare`, khi điều kiện đi xe thuận lợi, cả trung bình _lẫn_ phương sai mức sử dụng đều cao hơn nhiều so với khi điều kiện bất lợi. Vì vậy, hồi quy Poisson xử lý được quan hệ trung bình–phương sai của dữ liệu `Bikeshare` theo cách mà hồi quy tuyến tính không làm được.^(5)
+
+- _Giá trị khớp không âm:_ Hồi quy Poisson không tạo dự đoán âm vì bản thân mô hình Poisson chỉ cho phép giá trị không âm; xem (4.35). Ngược lại, khi khớp hồi quy tuyến tính cho `Bikeshare`, gần 10% dự đoán là âm.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 4.6.3 Mô hình tuyến tính tổng quát ở mức tổng quát hơn
+
+Đến đây ta đã bàn ba loại mô hình hồi quy: tuyến tính, logistic và Poisson. Các cách tiếp cận này có một số đặc điểm chung:
+
+1. Mỗi cách dùng các biến dự báo _X_ 1 _, . . . , Xp_ để dự đoán biến đáp ứng _Y_. Ta giả định rằng khi biết _X_ 1 _, . . . , Xp_, _Y_ thuộc một họ phân phối nhất định. Với hồi quy tuyến tính, ta thường giả định _Y_ tuân theo phân phối Gaussian hay chuẩn. Với hồi quy logistic, ta giả định _Y_ tuân theo phân phối Bernoulli. Cuối cùng, với hồi quy Poisson, ta giả định _Y_ tuân theo phân phối Poisson.
+
+2. Mỗi cách mô hình hóa trung bình của _Y_ như một hàm của các biến dự báo. Trong hồi quy tuyến tính, trung bình của _Y_ có dạng
+
+tức là hàm tuyến tính của các biến dự báo. Với hồi quy logistic, trung bình có dạng
+
+còn với hồi quy Poisson, nó có dạng
+
+Các phương trình (4.39)–(4.41) có thể được biểu diễn bằng một _hàm liên kết_ _η_, áp dụng
+
+> 5Thực tế, phương sai trong dữ liệu `Bikeshare` dường như lớn hơn trung bình nhiều, tình huống được gọi là _quá phân tán_ (overdispersion). Điều này khiến các giá trị Z trong Bảng 4.11 bị phóng đại. Một phân tích cẩn thận hơn phải tính đến quá phân tán để thu được giá trị Z chính xác hơn; có nhiều phương pháp thực hiện việc này nhưng chúng nằm ngoài phạm vi sách.
+
+một phép biến đổi lên E( _Y |X_ 1 _, . . . , Xp_ ) sao cho trung bình sau biến đổi là hàm tuyến tính của các biến dự báo. Tức là,
+
+Các hàm liên kết cho hồi quy tuyến tính, logistic và Poisson lần lượt là _η_ ( _µ_ ) = _µ_, _η_ ( _µ_ ) = log( _µ/_ (1 _− µ_ )) và _η_ ( _µ_ ) = log( _µ_ ).
+
+Phân phối Gaussian, Bernoulli và Poisson đều thuộc một lớp phân phối rộng hơn gọi là _họ mũ_. Các thành viên nổi tiếng khác gồm phân phối _mũ_, phân phối _Gamma_ và phân phối _nhị thức âm_. Nhìn chung, ta có thể thực hiện hồi quy bằng cách mô hình hóa biến đáp ứng _Y_ đến từ một thành viên cụ thể của họ mũ, rồi biến đổi trung bình của biến đáp ứng sao cho trung bình sau biến đổi là hàm tuyến tính của các biến dự báo thông qua (4.42). Mọi cách hồi quy tuân theo công thức tổng quát này đều được gọi là _mô hình tuyến tính tổng quát_ (GLM). Vì vậy, hồi quy tuyến tính, hồi quy logistic và hồi quy Poisson là ba ví dụ GLM. Những ví dụ khác không được trình bày ở đây gồm _hồi quy Gamma_ và _hồi quy nhị thức âm_.
+
+</MdxPage>

@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-23
+updated: 2026-07-30
 ---
 
 # Learning Lab
@@ -10,7 +10,11 @@ This page documents the active Landing Page and Learning Lab architecture. The
 current content migration and catalog decisions are recorded in
 [docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md),
 with the current LLM lesson state in
-[docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md](../../docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md).
+[docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md](../../docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md)
+and the Statistics import decisions in
+[docs/plans/2026-07-29-statistics-islp-mdx-domain.md](../../docs/plans/2026-07-29-statistics-islp-mdx-domain.md).
+The paired Vietnamese Statistics locale is recorded in
+[docs/plans/2026-07-30-statistics-vietnamese-translation.md](../../docs/plans/2026-07-30-statistics-vietnamese-translation.md).
 
 ## Status
 
@@ -21,11 +25,13 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 82 tracks, and 652 lesson nodes. Fifty-three
-Vietnamese-first lessons have authored content: forty-nine in `llm-ai-engineering`
-and four tagged exercise lessons in `cv`. The other 599 nodes are navigable
-placeholders and render one shared localized “content in progress” message.
-They do not carry legacy theory or practice payloads.
+The catalog contains 13 domains, 95 tracks, and 744 lesson nodes. It has 143
+authored lessons: forty-nine Vietnamese-first lessons in
+`llm-ai-engineering`, four Vietnamese CV exercises, and ninety bilingual
+English/Vietnamese lessons in `statistics`. Those lessons occupy 233 authored
+locale MDX files. The other 601 nodes are navigable placeholders and render one
+shared localized “content in progress” message. They do not carry legacy theory
+or practice payloads.
 
 The authored LLM lessons are:
 
@@ -98,6 +104,19 @@ lessons tagged `exercise` automatically populate Review mode. Applicable
 Conv2d and pooling nodes in the Workspace Forward Pass controls resolve through
 catalog entry-point metadata and open the canonical lesson route.
 
+The Statistics domain is separate from `math-statistics-ai`. Its 13 tracks and
+90 published lessons retain the imported ISLP chapter and section structure;
+each authored locale contains 265 ordered `MdxPage` surfaces that preserve the
+source subsections. The canonical English MDX has extraction headers, footers,
+picture OCR, and raw HTML removed while preserving prose, captions, tables,
+code, and exercise order. Every lesson also has a paired Vietnamese MDX source
+with localized catalog copy, headings, explanatory prose, captions, and
+exercises while code, identifiers, formulas, and page structure remain aligned.
+The one-time importer and source reference were removed after validation, so
+the checked-in TOC and locale MDX are now the content source of truth.
+Vietnamese UI requests resolve authored Vietnamese content directly; the
+domain's English fallback remains only as a resilience path.
+
 Learning Lab has no catalog practice contract, practice filter/query, or
 Review-specific content list. The Review surface is only a derived catalog view
 over authored exercise lessons.
@@ -150,7 +169,7 @@ typed domain TOCs
 
 locale MDX files
   -> scripts/learningContentMdx.ts validation/search extraction
-  -> Vite compiled lesson registry + React-free virtual search documents
+  -> Vite lazy compiled lesson registry + React-free virtual search documents
   -> LessonDetail + LessonRail
 ```
 
@@ -166,10 +185,19 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
-Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 599
-missing nodes from overwhelming authored results. Matching is case-insensitive
-and Vietnamese-diacritic-insensitive.
+The compiled registry stores locale-aware dynamic import loaders and loads only
+the selected lesson candidate. Route or locale changes discard stale async
+results, and `LessonDetail` renders localized loading and failure states.
+Production builds therefore emit authored lessons as independent chunks instead
+of absorbing the full content corpus into `LearningLabView`.
+
+Search indexes catalog metadata for all nodes. Published domains normally add
+the authored body text; a TOC can select `searchTextMode: 'metadata'` for large
+corpora. Statistics uses that mode and contributes its title, headings, and
+keywords without embedding the complete ISLP body in the initial Learning Lab
+chunk. The shared placeholder body is not indexed, preventing 601 missing nodes
+from overwhelming authored results. Matching is case-insensitive and
+Vietnamese-diacritic-insensitive.
 
 ## Active File Map
 
@@ -184,7 +212,7 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/learning/lesson/LessonDetail.tsx` | Placeholder or compiled authored lesson rendering. |
 | `src/components/learning/lesson/QuizBlock.tsx` | Shared stateful quiz behavior used by MDX. |
 | `src/components/learning/learningMdxComponents.tsx` | Shared Markdown primitives, context, lesson frame, and quiz adapter. |
-| `src/components/learning/learningMdxRegistry.tsx` | Generic compiled lesson lookup plus optional domain component maps. |
+| `src/components/learning/learningMdxRegistry.tsx` | Generic lazy compiled lesson lookup, locale fallback, and optional domain component maps. |
 | `src/components/learning/domains/llm-ai-engineering/mdxComponents.tsx` | Stable LLM MDX adapter and public component map. |
 | `src/components/learning/domains/llm-ai-engineering/*Renderers.tsx` | LLM-only tokenizer, language-model, and concept renderer families behind the stable `renderers.tsx` barrel. |
 | `src/components/learning/domains/llm-ai-engineering/rendererTypes.ts` | Domain-local authored-content shapes shared by the LLM renderer families. |
@@ -195,7 +223,10 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
-| `src/content/learning/index.ts` | Concrete catalog assembly over the twelve domain TOCs. |
+| `src/content/learning/statistics/table-of-contents.ts` | Canonical bilingual Statistics domain manifest with 13 tracks, 90 published lessons, English fallback, and compact search mode. |
+| `src/content/learning/statistics/*.en.mdx` | Canonical English ISLP lesson bodies and 265 ordered pages. |
+| `src/content/learning/statistics/*.vi.mdx` | Paired Vietnamese lesson bodies with the same 90 ids and 265-page structure. |
+| `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
 | `src/core/learning/materializeCatalog.ts` | Pure catalog construction and invariant validation. |
@@ -278,6 +309,9 @@ remain green so progress continues to take precedence.
 - The forty-nine authored LLM lessons retain their routes, paging, quiz
   state/reset, locale fallback, authored search text, and light-only runtime
   behavior.
+- Statistics remains a separate canonical domain with paired English and
+  Vietnamese authored MDX; English fallback is a resilience path, not the
+  normal Vietnamese content source.
 - Learning Lab changes must not reset Workspace editor/canvas state.
 
 ## Related Pages

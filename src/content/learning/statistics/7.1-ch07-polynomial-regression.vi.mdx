@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-polynomial-regression",
+  "locale": "vi",
+  "title": "7.1 Hồi quy đa thức",
+  "headings": [
+    "Hồi quy đa thức"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Hồi quy đa thức"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Hồi quy đa thức
+
+Trong lịch sử, cách tiêu chuẩn để mở rộng hồi quy tuyến tính sang những bối cảnh mà quan hệ giữa các biến dự báo và biến đáp ứng là phi tuyến là thay mô hình tuyến tính tiêu chuẩn
+
+trong đó _ϵi_ là sai số. Cách tiếp cận này được gọi là _hồi quy đa thức_ (polynomial regression), và thực tế ta đã thấy một ví dụ về phương pháp này trong Mục 3.3.2. Với bậc _d_ đủ lớn, hồi quy đa thức cho phép ta tạo ra một đường cong cực kỳ phi tuyến. Lưu ý rằng các hệ số trong (7.1) có thể được ước lượng dễ dàng bằng hồi quy tuyến tính bình phương tối thiểu, vì đây chỉ là một mô hình tuyến tính tiêu chuẩn với các biến dự báo _xi, x_^(2) _i_^(_, x_3) _i_^(_, . . . , xd_) _i_^(.Nóichung,rấthiếmkhi) dùng _d_ lớn hơn 3 hoặc 4, vì với _d_ lớn, đường cong đa thức có thể trở nên quá linh hoạt và mang những hình dạng rất kỳ lạ. Điều này đặc biệt đúng ở gần biên của biến _X_.
+
+Biểu đồ bên trái của Hình 7.1 thể hiện `wage` theo `age` cho bộ dữ liệu `Wage`, chứa thông tin thu nhập và nhân khẩu học của nam giới sống tại vùng Trung Đại Tây Dương của Hoa Kỳ. Ta thấy kết quả khớp một đa thức bậc 4 bằng bình phương tối thiểu (đường liền màu xanh). Mặc dù đây là một mô hình hồi quy tuyến tính như mọi mô hình khác, từng hệ số riêng lẻ không phải là điều ta đặc biệt quan tâm. Thay vào đó, ta xem toàn bộ hàm đã khớp trên một lưới gồm 63 giá trị `age` từ 18 đến 80 để hiểu quan hệ giữa `age` và `wage`.
+
+**Đa thức bậc 4**
+
+**HÌNH 7.1.** _Dữ liệu_ `Wage`_._ Trái: _Đường liền màu xanh là một đa thức bậc 4 biểu diễn_ `wage` _(nghìn đô la) theo_ `age` _, được khớp bằng bình phương tối thiểu. Các đường nét đứt biểu thị khoảng tin cậy 95 % ước lượng._ Phải: _Ta mô hình hóa sự kiện nhị phân_ `wage>250` _bằng hồi quy logistic, cũng với đa thức bậc 4. Xác suất hậu nghiệm đã khớp để_ `wage` _vượt quá_ $250 _,_ 000 _được vẽ màu xanh, cùng với khoảng tin cậy 95 % ước lượng._
+
+Trong Hình 7.1, một cặp đường nét đứt đi kèm đường khớp; đây là các đường (2 _×_ ) sai số chuẩn. Hãy xem chúng được tạo ra như thế nào. Giả sử ta đã tính giá trị khớp tại một giá trị `age` cụ thể, _x_ 0:
+
+Phương sai của giá trị khớp, tức Var _f_^(ˆ) ( _x_ 0), là bao nhiêu? Bình phương tối thiểu trả về ước lượng phương sai cho từng hệ số đã khớp _β_^(ˆ) _j_, cũng như hiệp phương sai giữa từng cặp ước lượng hệ số. Ta có thể dùng chúng để tính phương sai ước lượng của _f_^(ˆ) ( _x_ 0).^(1) _Sai số chuẩn theo điểm_ ước lượng của _f_ ( _x_ 0) là căn bậc hai của phương sai này. Phép tính được lặp tại từng điểm tham chiếu _x_ 0; ta vẽ đường cong đã khớp cùng với hai lần sai số chuẩn ở mỗi phía của đường cong. Ta dùng hai lần sai số chuẩn vì, với sai số phân phối chuẩn, đại lượng này tương ứng với một khoảng tin cậy xấp xỉ 95 %.
+
+Tiền lương trong Hình 7.1 dường như đến từ hai quần thể khác nhau: có vẻ có một nhóm _thu nhập cao_ kiếm trên $250 _,_ 000 mỗi năm và một nhóm _thu nhập thấp_. Ta có thể xem `wage` là biến nhị phân bằng cách chia nó thành hai nhóm này. Sau đó có thể dùng hồi quy logistic để dự đoán biến đáp ứng nhị phân này, với các hàm đa thức của `age`
+
+> 1Nếu **C** ˆ là ma trận hiệp phương sai 5 _×_ 5 của các _β_ ˆ _j_, và nếu _ℓT_ 0^(=(1)^(_, x_0)^(_, x_2) 0^(_, x_3) 0^(_, x_4) 0^(),thì) Var[ _f_^(ˆ) ( _x_ 0)] = _ℓ_^(_T_) 0^(**C**ˆ)^(_ℓ_0.)
+
+làm biến dự báo. Nói cách khác, ta khớp mô hình
+
+Kết quả được thể hiện ở biểu đồ bên phải của Hình 7.1. Các vạch xám ở phía trên và dưới biểu đồ cho biết độ tuổi của nhóm thu nhập cao và nhóm thu nhập thấp. Đường liền màu xanh biểu thị xác suất đã khớp của việc thuộc nhóm thu nhập cao theo `age`. Khoảng tin cậy 95 % ước lượng cũng được thể hiện. Ta thấy các khoảng tin cậy ở đây khá rộng, đặc biệt ở phía bên phải. Mặc dù cỡ mẫu của bộ dữ liệu này lớn ( _n_ = 3 _,_ 000), chỉ có 79 người thu nhập cao, dẫn đến phương sai lớn trong các hệ số ước lượng và do đó khoảng tin cậy rộng.
+
+</MdxPage>

@@ -1,0 +1,186 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-recurrent-neural-networks",
+  "locale": "vi",
+  "title": "10.5 Mạng nơ-ron hồi quy",
+  "headings": [
+    "Mạng nơ-ron hồi quy",
+    "10.5.1 Mô hình tuần tự cho phân loại tài liệu",
+    "10.5.2 Dự báo chuỗi thời gian",
+    "10.5.3 Tóm tắt về RNN"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "mạng nơ-ron hồi quy"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Mạng nơ-ron hồi quy
+
+Nhiều nguồn dữ liệu có bản chất tuần tự và cần được xử lý đặc biệt khi xây dựng mô hình dự đoán. Một số ví dụ:
+
+- Tài liệu như nhận xét sách và phim, bài báo và tweet. Trình tự cùng vị trí tương đối của các từ nắm bắt mạch kể, chủ đề và sắc thái, có thể được khai thác trong phân loại chủ đề, phân tích cảm xúc và dịch ngôn ngữ.
+
+- Chuỗi thời gian về nhiệt độ, lượng mưa, tốc độ gió, chất lượng không khí, v.v. Ta có thể muốn dự báo thời tiết trước vài ngày hay khí hậu trước vài thập kỷ.
+
+- Chuỗi thời gian tài chính theo dõi chỉ số thị trường, khối lượng giao dịch, giá cổ phiếu, trái phiếu và tỷ giá. Dự đoán ở đây thường khó, nhưng như ta sẽ thấy, một số chỉ số có thể được dự đoán với độ chính xác hợp lý.
+
+- Bản ghi lời nói, âm nhạc và các âm thanh khác. Ta có thể muốn chuyển lời nói thành văn bản hoặc dịch ngôn ngữ; cũng có thể muốn đánh giá chất lượng bản nhạc hay gán một số thuộc tính.
+
+- Chữ viết tay như ghi chú của bác sĩ và chữ số viết tay như mã bưu chính. Ta muốn chuyển chữ viết thành văn bản số hoặc đọc các chữ số (nhận dạng ký tự quang học).
+
+Trong _mạng nơ-ron hồi quy_ (RNN), đối tượng đầu vào _X_ là một _chuỗi_. Xét một kho tài liệu như tập nhận xét phim `IMDb`. Mỗi tài liệu có thể được biểu diễn thành chuỗi _L_ từ, _X_ = _\{X_ 1 _, X_ 2 _, . . . , XL\}_, trong đó mỗi _Xℓ_ biểu diễn một từ. Thứ tự từ và khoảng cách giữa một số từ trong câu truyền tải ý nghĩa ngữ nghĩa. RNN được thiết kế để xử lý và tận dụng bản chất tuần tự của những đầu vào này, tương tự cách mạng nơ-ron tích chập xử lý cấu trúc không gian của ảnh. Đầu ra _Y_ cũng có thể là một chuỗi (như trong dịch ngôn ngữ), nhưng thường là vô hướng, chẳng hạn nhãn cảm xúc nhị phân của một bài đánh giá phim.
+
+**HÌNH 10.12.** _Sơ đồ mạng nơ-ron hồi quy đơn giản. Đầu vào là chuỗi vector \{Xℓ\}_ 1^(_L, còn ở đây mục tiêu là một biến đáp ứng duy nhất. Mạng) _xử lý tuần tự chuỗi đầu vào X; mỗi Xℓ truyền vào tầng ẩn, tầng này cũng nhận vector kích hoạt Aℓ−_ 1 _từ phần tử trước và tạo vector kích hoạt hiện tại Aℓ. Cùng các tập trọng số_ **W** _,_ **U** _và_ **B** _được dùng khi xử lý từng phần tử. Tầng đầu ra tạo chuỗi dự đoán Oℓ từ kích hoạt hiện tại Aℓ, nhưng thường chỉ phần tử cuối OL là liên quan. Bên trái dấu bằng là biểu diễn cô đọng của mạng, được_ trải ra _thành phiên bản tường minh hơn ở bên phải._
+
+Hình 10.12 minh họa cấu trúc RNN rất cơ bản với chuỗi _X_ = _\{X_ 1 _, X_ 2 _, . . . , XL\}_ làm đầu vào, đầu ra đơn _Y_ và chuỗi tầng ẩn _\{Aℓ\}_ 1^(_L_=)^(_\{A_1)^(_, A_2)^(_, . . . , AL\}_. Mỗi)^(_Xℓ_ là vector; trong ví dụ tài liệu,) _Xℓ_ có thể biểu diễn mã hóa one-hot cho từ thứ _ℓ_ dựa trên từ điển kho ngữ liệu (xem ô trên Hình 10.13). Khi xử lý lần lượt từng vector _Xℓ_, mạng cập nhật các kích hoạt _Aℓ_ ở tầng ẩn, nhận vector _Xℓ_ cùng vector kích hoạt _Aℓ−_ 1 từ bước trước. Mỗi _Aℓ_ truyền vào tầng đầu ra và tạo dự đoán _Oℓ_ cho _Y_. Giá trị cuối _OL_ là liên quan nhất.
+
+Cụ thể, giả sử mỗi vector _Xℓ_ của chuỗi đầu vào có _p_ thành phần _Xℓ_^(_T_=()^(_Xℓ_1)^(_, Xℓ_2)^(_, . . . , Xℓp_), còn tầng ẩn gồm)^(_K_ nút)^(_AT_) _ℓ_^(=) ( _Aℓ_ 1 _, Aℓ_ 2 _, . . . , AℓK_ ). Như trong Hình 10.4, ta dùng ma trận **W** biểu diễn tập _K ×_ ( _p_ +1) trọng số chung _wkj_ của tầng đầu vào; tương tự, **U** là ma trận _K × K_ chứa trọng số _uks_ giữa các tầng ẩn, còn **B** là vector _K_ + 1 trọng số đầu ra _βk_. Khi đó
+
+và đầu ra _Oℓ_ được tính bằng
+
+với biến đáp ứng định lượng, hoặc thêm hàm kích hoạt sigmoid với biến đáp ứng nhị phân. Ở đây _g_ ( _·_ ) là hàm kích hoạt như ReLU. Lưu ý cùng các trọng số **W**, **U** và **B** được dùng khi
+
+xử lý từng phần tử trong chuỗi, tức chúng không phải hàm của _ℓ_. Đây là dạng _chia sẻ trọng số_ của RNN, tương tự việc dùng bộ lọc trong mạng nơ-ron tích chập (Mục 10.3.1). Khi đi từ đầu đến cuối, các kích hoạt _Aℓ_ tích lũy lịch sử những gì đã thấy để ngữ cảnh học được có thể dùng cho dự đoán.
+
+Với bài toán hồi quy, hàm mất mát cho một quan sát ( _X, Y_ ) là
+
+chỉ tham chiếu đầu ra cuối _OL_ = _β_ 0+^(�)^(_K_) _k_ =1^(_βkALk_. Vì vậy)^(_O_1)^(_, O_2)^(_,_) _. . . , OL−_ 1 không được dùng. Khi khớp mô hình, mỗi phần tử _Xℓ_ của chuỗi _X_ đóng góp vào _OL_ qua chuỗi (10.16), do đó gián tiếp giúp học các tham số chung **W**, **U**, **B** qua mất mát (10.18). Với _n_ cặp chuỗi đầu vào/đáp ứng ( _xi, yi_ ), các tham số được tìm bằng cách cực tiểu hóa tổng bình phương
+
+Ở đây ta dùng chữ thường cho _yi_ quan sát được và các chuỗi vector _xi_ = _\{xi_ 1 _, xi_ 2 _, . . . , xiL\}_,^(15) cũng như các kích hoạt dẫn xuất.
+
+Vì các đầu ra trung gian _Oℓ_ không được dùng, ta có thể hỏi tại sao chúng tồn tại. Trước hết, chúng gần như miễn phí vì dùng cùng trọng số đầu ra **B** cần để tạo _OL_, đồng thời cung cấp dự đoán đang tiến triển cho đầu ra. Hơn nữa, với một số nhiệm vụ học, biến đáp ứng cũng là chuỗi nên chuỗi đầu ra _\{O_ 1 _, O_ 2 _, . . . , OL\}_ thực sự cần thiết.
+
+Khi dùng đầy đủ, RNN có thể khá phức tạp. Ta minh họa chúng bằng hai ứng dụng đơn giản. Đầu tiên, ta tiếp tục phân tích cảm xúc `IMDb` ở mục trước và xử lý tuần tự các từ trong bài đánh giá. Ứng dụng thứ hai minh họa dự báo chuỗi thời gian tài chính.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 10.5.1 Mô hình tuần tự cho phân loại tài liệu
+
+Ta quay lại nhiệm vụ phân loại nhận xét `IMDb`. Ở Mục 10.4, ta dùng mô hình túi từ. Ở đây, thay vào đó ta dùng chuỗi từ xuất hiện trong tài liệu để dự đoán nhãn toàn bộ tài liệu.
+
+Tuy nhiên, ta có vấn đề về số chiều: mỗi từ trong tài liệu được biểu diễn bằng vector mã hóa one-hot (biến giả) có 10.000 phần tử (mỗi từ trong từ điển một phần tử)! Cách tiếp cận trở nên phổ biến là biểu diễn từng từ trong một không gian _embedding_ có chiều thấp hơn nhiều. Nghĩa là thay vì biểu diễn mỗi từ bằng vector nhị phân có 9.999 số không và một số một, ta biểu diễn nó bằng một tập _m_ số thực, thường không có số nào bằng không. _m_ là chiều embedding, có thể ở mức một vài trăm hoặc thấp hơn. Vì vậy, trong trường hợp này ta cần ma trận **E** kích thước _m ×_ 10 _,_ 000,
+
+> 15Đây là chuỗi các vector; mỗi phần tử _xiℓ_ là một vector _p_ chiều.
+
+**HÌNH 10.13.** _Minh họa chuỗi_ 20 _từ biểu diễn một tài liệu: được mã hóa one-hot bằng từ điển_ 16 _từ (ô trên) và nhúng vào không gian m chiều với m_ = 5 _(ô dưới)._
+
+trong đó mỗi cột được đánh chỉ số bởi một trong 10.000 từ của từ điển, còn các giá trị trong cột cho _m_ tọa độ của từ đó trong không gian embedding.
+
+Hình 10.13 minh họa ý tưởng (với từ điển 16 thay vì 10.000 từ và _m_ = 5). **E** đến từ đâu? Nếu có một kho tài liệu có nhãn lớn, ta có thể để mạng nơ-ron _học_ **E** như một phần của quá trình tối ưu. Khi đó **E** được gọi là _tầng embedding_ và được học chuyên biệt cho nhiệm vụ. Nếu không, ta có thể chèn ma trận **E** tính sẵn vào tầng embedding, quá trình gọi là _đóng băng trọng số_. Hai embedding huấn luyện sẵn được dùng rộng rãi là `word2vec` và `GloVe`.^(16) Chúng được xây dựng từ kho tài liệu rất lớn bằng một biến thể của phân tích thành phần chính (Mục 12.2). Trong cả `word2vec` và `GloVe`, vị trí các từ trong không gian embedding hướng đến bảo toàn ý nghĩa ngữ nghĩa; chẳng hạn từ đồng nghĩa nên nằm gần nhau.
+
+Đến đây, mỗi tài liệu được biểu diễn thành chuỗi vector _m_ chiều tương ứng với chuỗi từ. Bước tiếp theo là giới hạn mỗi tài liệu ở _L_ từ cuối. Tài liệu ngắn hơn _L_ được đệm số không ở đầu. Vì vậy, mỗi tài liệu giờ được biểu diễn bằng chuỗi _L_ vector _X_ = _\{X_ 1 _, X_ 2 _, . . . , XL\}_, mỗi _Xℓ_ có _m_ thành phần.
+
+Bây giờ ta dùng cấu trúc RNN trong Hình 10.12. Kho huấn luyện gồm _n_ chuỗi (tài liệu) riêng dài _L_, mỗi chuỗi được xử lý tuần tự từ trái sang phải. Trong quá trình này, một chuỗi vector kích hoạt ẩn song song _Aℓ, ℓ_ = 1 _, . . . , L_ được tạo như trong (10.16) cho từng tài liệu. _Aℓ_ truyền vào tầng đầu ra để tạo dự đoán đang tiến triển _Oℓ_. Ta dùng giá trị cuối _OL_ để dự đoán biến đáp ứng: cảm xúc của bài đánh giá.
+
+> 16 `word2vec` được mô tả trong Mikolov, Chen, Corrado và Dean (2013), tại `https://code.google.com/archive/p/word2vec`. `GloVe` được mô tả trong Pennington, Socher và Manning (2014), tại `https://nlp.stanford.edu/projects/glove`.
+
+Đây là RNN đơn giản và có tương đối ít tham số. Nếu có _K_ nút ẩn, ma trận trọng số chung **W** có _K ×_ ( _m_ + 1) tham số, **U** có _K × K_ tham số, còn **B** có 2( _K_ + 1) tham số cho hồi quy logistic hai lớp như trong (10.15). Chúng được dùng lặp lại khi xử lý chuỗi _X_ = _\{Xℓ\}_ 1^(_L_ từ trái sang phải, tương tự cách dùng một) bộ lọc tích chập để xử lý từng vùng trong ảnh (Mục 10.3.1). Nếu tầng embedding **E** được học, nó bổ sung _m × D_ tham số (_D_ = 10 _,_ 000 ở đây) và là chi phí lớn nhất.
+
+Ta khớp RNN như Hình 10.12 cùng phần mô tả vào dữ liệu `IMDb`. Mô hình có ma trận embedding **E** với _m_ = 32 (được học khi huấn luyện chứ không tính sẵn), theo sau là một tầng hồi quy gồm _K_ = 32 nút ẩn. Mô hình được huấn luyện với điều chuẩn dropout trên 25.000 bài đánh giá trong tập huấn luyện và chỉ đạt độ chính xác đáng thất vọng 76% trên dữ liệu kiểm tra `IMDb`. Mạng dùng ma trận embedding `GloVe` huấn luyện sẵn còn kém hơn đôi chút.
+
+Để dễ trình bày, ta dùng một RNN rất đơn giản. Phiên bản phức tạp hơn dùng bộ nhớ _dài hạn_ và _ngắn hạn_ (LSTM). Hai luồng kích hoạt tầng ẩn được duy trì để khi tính _Aℓ_, nó nhận đầu vào từ các nút ẩn cả ở thời điểm xa và gần hơn — gọi là _LSTM RNN_. Với chuỗi dài, LSTM RNN khắc phục việc tín hiệu ban đầu bị phai mờ khi truyền qua chuỗi đến vector kích hoạt cuối _AL_.
+
+Khi khớp lại mô hình với kiến trúc LSTM cho tầng ẩn, hiệu năng tăng lên 87% trên dữ liệu kiểm tra `IMDb`, tương đương 88% của mô hình túi từ ở Mục 10.4. Chi tiết khớp các mô hình nằm ở Mục 10.9.6.
+
+Dù thêm độ phức tạp LSTM, RNN này vẫn chỉ ở mức “nhập môn”. Có lẽ ta có thể đạt kết quả tốt hơn đôi chút bằng cách đổi kích thước mô hình, điều chuẩn và thêm tầng ẩn. Tuy nhiên, mô hình LSTM mất nhiều thời gian huấn luyện, khiến việc thử nhiều kiến trúc và tối ưu tham số trở nên tẻ nhạt.
+
+RNN cung cấp một khuôn khổ phong phú để mô hình hóa chuỗi dữ liệu và vẫn tiếp tục phát triển. Đã có nhiều tiến bộ trong kiến trúc, tăng cường dữ liệu và thuật toán học. Tại thời điểm viết sách (đầu năm 2020), các cấu hình RNN hàng đầu báo cáo độ chính xác trên 95% cho dữ liệu `IMDb`. Chi tiết nằm ngoài phạm vi sách.^(17)
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 10.5.2 Dự báo chuỗi thời gian
+
+Hình 10.14 trình bày thống kê giao dịch lịch sử từ Sở giao dịch Chứng khoán New York. Ba chuỗi thời gian hằng ngày được biểu diễn trong giai đoạn 3/12/1962 đến 31/12/1986:^(18)
+
+> 17Bảng xếp hạng `IMDb` tại `https://paperswithcode.com/sota/ sentiment-analysis-on-imdb`.
+
+> 18Dữ liệu do LeBaron và Weigend (1998) tổng hợp, _IEEE Transactions on Neural Networks_, 9(1): 213–220.
+
+**HÌNH 10.14.** _Thống kê giao dịch lịch sử từ Sở giao dịch Chứng khoán New York. Giá trị hằng ngày của log khối lượng giao dịch chuẩn hóa, lợi suất DJIA và log độ biến động được trình bày trong 24 năm từ 1962–1986. Ta muốn dự đoán khối lượng giao dịch một ngày dựa trên lịch sử của mọi ngày trước. Bên trái vạch đỏ (2/1/1980) là dữ liệu huấn luyện, bên phải là dữ liệu kiểm tra._
+
+- `Log trading volume`: tỷ lệ tổng số cổ phiếu đang lưu hành được giao dịch trong ngày, so với trung bình trượt 100 ngày của vòng quay trước đó, theo thang log.
+
+- `Dow Jones return`: chênh lệch log Chỉ số Công nghiệp Dow Jones giữa hai ngày giao dịch liên tiếp.
+
+- `Log volatility`: dựa trên giá trị tuyệt đối của biến động giá hằng ngày.
+
+Dự đoán giá cổ phiếu nổi tiếng là bài toán khó, nhưng dự đoán khối lượng giao dịch dựa trên lịch sử gần đây dễ quản lý hơn (và hữu ích để lập chiến lược giao dịch).
+
+Một quan sát ở đây gồm các phép đo ( _vt, rt, zt_ ) vào ngày _t_, tương ứng với `log_volume`, `DJ_return` và `log_volatility`. Có tổng cộng _T_ = 6 _,_ 051 bộ ba như vậy, mỗi bộ được biểu diễn thành chuỗi thời gian trong Hình 10.14. Một đặc điểm thấy ngay là các quan sát ngày này sang ngày khác không độc lập. Các chuỗi thể hiện _tự tương quan_ — ở đây những giá trị gần nhau về thời gian có xu hướng giống nhau. Điều này phân biệt chuỗi thời gian với các tập dữ liệu khác, nơi có thể giả định quan sát độc lập
+
+**HÌNH 10.15.** _Hàm tự tương quan của_ `log_volume` _. Các giá trị gần nhau tương quan khá mạnh, với hệ số tương quan trên_ 0 _._ 2 _ngay cả khi cách nhau đến 20 ngày._
+
+với nhau. Cụ thể, xét các cặp quan sát ( _vt, vt−ℓ_ ) có _độ trễ_ _ℓ_ ngày. Nếu lấy mọi cặp như vậy trong chuỗi _vt_ và tính hệ số tương quan, ta có tự tương quan tại độ trễ _ℓ_. Hình 10.15 trình bày hàm tự tương quan cho mọi độ trễ đến 37 và cho thấy tương quan đáng kể.
+
+Đặc điểm thú vị khác của bài toán dự báo này là biến đáp ứng _vt_ — `log_volume` — cũng là biến dự báo! Cụ thể, ta dùng các giá trị `log_volume` quá khứ để dự đoán tương lai.
+
+##### Bộ dự báo RNN
+
+Ta muốn dự đoán _vt_ từ các giá trị quá khứ _vt−_ 1 _, vt−_ 2 _, . . ._ và còn dùng các giá trị quá khứ của hai chuỗi kia _rt−_ 1 _, rt−_ 2 _, . . ._ cùng _zt−_ 1 _, zt−_ 2 _, . . ._. Dù dữ liệu kết hợp là một chuỗi khá dài gồm 6.051 ngày giao dịch, cấu trúc bài toán khác ví dụ phân loại tài liệu trước:
+
+- Ta chỉ có một chuỗi dữ liệu, không phải 25.000.
+
+- Ta có cả một _chuỗi_ mục tiêu _vt_, và đầu vào gồm các giá trị quá khứ của chuỗi này.
+
+Làm sao biểu diễn bài toán theo cấu trúc Hình 10.12? Ý tưởng là trích nhiều chuỗi con ngắn _X_ = _\{X_ 1 _, X_ 2 _, . . . , XL\}_ có độ dài định trước _L_ (gọi là _độ trễ_ trong bối cảnh này) cùng mục tiêu tương ứng _Y_. Chúng có dạng
+
+Ở đây mục tiêu _Y_ là giá trị `log_volume` _vt_ tại một thời điểm _t_, còn chuỗi đầu vào _X_ là chuỗi vector 3 chiều _\{Xℓ\}_ 1^(_L_, mỗi vector gồm) ba phép đo `log_volume`, `DJ_return`, `log_volatility` từ ngày _t − L_, _t − L_ + 1 đến _t −_ 1. Mỗi giá trị _t_ tạo một cặp ( _X, Y_ ) riêng, với _t_ từ _L_ + 1 đến _T_. Với dữ liệu `NYSE`, ta dùng
+
+**HÌNH 10.16.** _Dự báo RNN cho_ `log_volume` _trên dữ liệu kiểm tra_ `NYSE` _. Các đường đen là khối lượng thật, còn đường cam chồng lên là dự báo. Chuỗi dự báo giải thích 42% phương sai của_ `log_volume` _._
+
+năm ngày giao dịch trước để dự đoán khối lượng ngày tiếp theo, tức _L_ = 5. Vì _T_ = 6 _,_ 051, ta tạo được 6.046 cặp ( _X, Y_ ). Rõ ràng _L_ là tham số cần chọn cẩn thận, có thể bằng dữ liệu xác thực.
+
+Ta khớp mô hình với _K_ = 12 nút ẩn bằng 4.281 chuỗi huấn luyện từ dữ liệu trước 2/1/1980 (xem Hình 10.14), rồi dùng nó dự báo 1.770 giá trị `log_volume` sau ngày đó. Ta đạt _R_^(2) = 0 _._ 42 trên dữ liệu kiểm tra. Chi tiết ở Mục 10.9.6. Làm _mốc so sánh_,^(19) dùng `log_volume` hôm qua để dự đoán hôm nay cho _R_^(2) = 0 _._ 18. Hình 10.16 trình bày kết quả: các giá trị `log_volume` hằng ngày quan sát được trong giai đoạn kiểm tra 1980–1986 màu đen, chồng lên chuỗi dự đoán màu cam. Mức tương ứng có vẻ khá tốt.
+
+Khi dự báo `log_volume` trong giai đoạn kiểm tra, ta phải dùng chính dữ liệu kiểm tra để tạo chuỗi đầu vào _X_. Điều này có vẻ gian lận nhưng thực tế không phải; ta luôn dùng dữ liệu quá khứ để dự đoán tương lai.
+
+Tự hồi quy
+
+RNN vừa khớp có nhiều điểm chung với mô hình tuyến tính truyền thống (AR), được trình bày để so sánh. Trước hết ta chỉ xét _tự hồi quy_ chuỗi đáp ứng _vt_, rồi xây dựng vector đáp ứng **y** và ma trận biến dự báo **M** cho hồi quy bình phương tối thiểu:
+
+**M** và **y** đều có _T − L_ hàng, mỗi quan sát một hàng. Các biến dự báo cho biến đáp ứng _vt_ ngày _t_ là _L_ giá trị trước đó
+
+> 19“Mốc so sánh” ở đây chỉ một dự đoán đơn giản và hợp lý để làm đường cơ sở so sánh.
+
+của cùng chuỗi. Khớp hồi quy **y** theo **M** tương đương khớp mô hình
+
+và được gọi là mô hình tự hồi quy bậc _L_, hay AR( _L_ ). Với dữ liệu `NYSE`, ta có thể đưa các phiên bản trễ của `DJ_return` và `log_volatility`, _rt_ và _zt_, vào ma trận **M**, tạo 3 _L_ + 1 cột. Mô hình AR với _L_ = 5 đạt _R_^(2) kiểm tra 0 _._ 41, hơi kém 0 _._ 42 của RNN.
+
+Dĩ nhiên RNN và AR rất giống nhau. Cả hai dùng cùng biến đáp ứng _Y_ và chuỗi đầu vào _X_ dài _L_ = 5, chiều _p_ = 3. RNN xử lý chuỗi từ trái sang phải với cùng trọng số **W** (cho tầng đầu vào), còn AR đơn giản xem toàn bộ _L_ phần tử chuỗi như một vector _L × p_ biến dự báo — quá trình gọi là _trải phẳng_ trong tài liệu mạng nơ-ron. RNN còn có các kích hoạt tầng ẩn _Aℓ_ truyền thông tin dọc chuỗi và bổ sung tính phi tuyến. Từ (10.19) với _K_ = 12 nút ẩn, RNN có 13 + 12 _×_ (1 + 3 + 12) = 205 tham số, so với 16 của AR(5).
+
+Phần mở rộng hiển nhiên của AR là dùng tập biến dự báo trễ làm vector đầu vào cho mạng nơ-ron truyền thẳng thông thường (10.1), qua đó tăng độ linh hoạt. Cách này đạt _R_^(2) kiểm tra 0 _._ 42, nhỉnh hơn AR tuyến tính và bằng RNN.
+
+Mọi mô hình đều có thể cải thiện bằng cách thêm biến `day_of_week` tương ứng với ngày _t_ của mục tiêu _vt_ (có thể suy ra từ ngày lịch trong dữ liệu); khối lượng thường cao hơn vào thứ Hai và thứ Sáu. Vì có năm ngày giao dịch, biến được mã hóa one-hot thành năm biến nhị phân. Hiệu năng AR tăng lên _R_^(2) = 0 _._ 46, RNN cũng vậy, còn AR phi tuyến tăng lên _R_^(2) = 0 _._ 47.
+
+Ta dùng phiên bản RNN đơn giản nhất trong các ví dụ. Các thử nghiệm bổ sung với LSTM cải thiện nhỏ, thường đến 1% _R_^(2). Chi tiết cách khớp cả ba mô hình nằm ở Mục 10.9.6.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 10.5.3 Tóm tắt về RNN
+
+Ta đã minh họa RNN qua hai trường hợp sử dụng đơn giản và mới chỉ chạm bề mặt.
+
+RNN đơn giản dùng cho mô hình hóa chuỗi có nhiều biến thể và cải tiến. Một cách chưa bàn là dùng mạng nơ-ron tích chập một chiều, xem chuỗi vector (chẳng hạn các từ biểu diễn trong không gian embedding) như ảnh. Bộ lọc tích chập trượt dọc chuỗi theo một chiều, có khả năng học các cụm từ hoặc chuỗi con ngắn liên quan đến nhiệm vụ học.
+
+RNN cũng có thể có thêm tầng ẩn. Chẳng hạn, với hai tầng ẩn, chuỗi _Aℓ_ được xem là chuỗi đầu vào cho tầng ẩn tiếp theo theo cách tự nhiên.
+
+RNN ta dùng quét tài liệu từ đầu đến cuối; RNN _hai chiều_ thay thế quét chuỗi theo cả hai hướng.
+
+Trong dịch ngôn ngữ, mục tiêu cũng là chuỗi từ nhưng ở ngôn ngữ khác chuỗi đầu vào. Cả chuỗi đầu vào và chuỗi mục tiêu được biểu diễn bằng cấu trúc tương tự Hình 10.12 và chia sẻ các nút ẩn. Trong cách học _Seq2Seq_ này, các nút ẩn được xem là nắm bắt ý nghĩa ngữ nghĩa của câu. Một số bước đột phá lớn trong mô hình hóa và dịch ngôn ngữ đến từ những cải tiến tương đối gần đây của các RNN như vậy.
+
+Thuật toán khớp RNN có thể phức tạp và tốn kém tính toán. May mắn là phần mềm tốt giúp che bớt sự phức tạp và làm việc chỉ định, khớp mô hình tương đối nhẹ nhàng. Nhiều mô hình ta dùng hằng ngày (như _Google Translate_) sử dụng kiến trúc tiên tiến do các nhóm kỹ sư tay nghề cao phát triển, được huấn luyện bằng tài nguyên tính toán và dữ liệu khổng lồ.
+
+</MdxPage>

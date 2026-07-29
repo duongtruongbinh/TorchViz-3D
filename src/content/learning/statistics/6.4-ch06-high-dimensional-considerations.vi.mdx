@@ -1,0 +1,90 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch06-high-dimensional-considerations",
+  "locale": "vi",
+  "title": "6.4 Những cân nhắc trong không gian nhiều chiều",
+  "headings": [
+    "6.4.1 Dữ liệu nhiều chiều",
+    "6.4.2 Điều gì bất ổn trong không gian nhiều chiều?",
+    "6.4.3 Hồi quy trong không gian nhiều chiều",
+    "6.4.4 Diễn giải kết quả trong không gian nhiều chiều"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "lựa chọn và điều chuẩn mô hình tuyến tính",
+    "không gian nhiều chiều"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## 6.4.1 Dữ liệu nhiều chiều
+
+Phần lớn kỹ thuật thống kê truyền thống cho hồi quy và phân loại được thiết kế cho bối cảnh _ít chiều_, trong đó _n_, số quan sát, lớn hơn nhiều so với _p_, số đặc trưng. Một phần lý do là trong hầu hết lịch sử của lĩnh vực này, đa số bài toán khoa học cần đến thống kê đều ít chiều. Chẳng hạn, xét nhiệm vụ xây dựng mô hình dự đoán huyết áp bệnh nhân dựa trên tuổi, giới tính và chỉ số khối cơ thể (BMI). Có ba biến dự báo, hoặc bốn nếu mô hình có hệ số chặn, và có thể có vài nghìn bệnh nhân với đủ dữ liệu huyết áp, tuổi, giới tính và BMI. Do đó _n ≫ p_ và bài toán là ít chiều. (Ở đây chiều được hiểu là kích thước của _p_.)
+
+Trong 20 năm qua, các công nghệ mới đã thay đổi cách thu thập dữ liệu trong nhiều lĩnh vực từ tài chính, marketing đến y học. Giờ đây, việc thu thập gần như không giới hạn số phép đo đặc trưng (_p_ rất lớn) đã trở nên phổ biến. Dù _p_ có thể cực kỳ lớn, số quan sát _n_ thường bị giới hạn bởi chi phí, tính sẵn có của mẫu hoặc những cân nhắc khác. Hai ví dụ:
+
+1. Thay vì chỉ dự đoán huyết áp bằng tuổi, giới tính và BMI, ta còn có thể thu thập phép đo cho nửa triệu _đa hình nucleotide đơn_ (SNP; các đột biến DNA riêng lẻ tương đối phổ biến trong quần thể) để đưa vào mô hình dự đoán. Khi đó _n ≈_ 200 và _p ≈_ 500 _,_ 000.
+
+2. Một nhà phân tích marketing muốn tìm hiểu hành vi mua sắm trực tuyến có thể xem mọi cụm từ tìm kiếm mà người dùng nhập vào công cụ tìm kiếm là đặc trưng. Cách này đôi khi được gọi là mô hình “túi từ”. Nhà nghiên cứu có thể chỉ truy cập được lịch sử tìm kiếm của vài trăm hoặc vài nghìn người đã đồng ý chia sẻ thông tin. Với mỗi người dùng, từng cụm từ trong _p_ cụm từ tìm kiếm được ghi nhận là có mặt (0) hoặc
+
+vắng mặt (1), tạo thành một vector đặc trưng nhị phân lớn. Khi đó _n ≈_ 1 _,_ 000 còn _p_ lớn hơn nhiều.
+
+Các tập dữ liệu chứa nhiều đặc trưng hơn quan sát thường được gọi là _nhiều chiều_. Những cách tiếp cận cổ điển như hồi quy tuyến tính bình phương tối thiểu không phù hợp trong bối cảnh này. Nhiều vấn đề phát sinh khi phân tích dữ liệu nhiều chiều đã được bàn ở phần trước của sách vì chúng cũng áp dụng khi _n &gt; p_, gồm vai trò của sự đánh đổi độ chệch–phương sai và nguy cơ quá khớp. Dù luôn có liên quan, các vấn đề này trở nên đặc biệt quan trọng khi số đặc trưng rất lớn so với số quan sát.
+
+Chúng ta định nghĩa _bối cảnh nhiều chiều_ là trường hợp số đặc trưng _p_ lớn hơn số quan sát _n_. Tuy nhiên, những cân nhắc sắp bàn chắc chắn cũng áp dụng nếu _p_ chỉ nhỏ hơn _n_ đôi chút, và tốt nhất luôn nên ghi nhớ chúng khi thực hiện học có giám sát.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 6.4.2 Điều gì bất ổn trong không gian nhiều chiều?
+
+Để minh họa nhu cầu phải thận trọng hơn và dùng kỹ thuật chuyên biệt cho hồi quy và phân loại khi _p &gt; n_, trước hết ta xem điều gì có thể xảy ra nếu áp dụng một kỹ thuật thống kê không dành cho bối cảnh nhiều chiều. Ta xét hồi quy bình phương tối thiểu, nhưng các khái niệm tương tự cũng áp dụng cho hồi quy logistic, phân tích biệt thức tuyến tính và các phương pháp thống kê cổ điển khác.
+
+Khi số đặc trưng _p_ lớn bằng hoặc lớn hơn số quan sát _n_, không thể (hay đúng hơn là _không nên_) thực hiện bình phương tối thiểu như mô tả ở Chương 3. Lý do rất đơn giản: bất kể các đặc trưng có thực sự liên hệ với biến đáp ứng hay không, bình phương tối thiểu vẫn tạo ra một tập ước lượng hệ số khớp hoàn hảo dữ liệu, khiến các phần dư bằng không.
+
+Hình 6.22 trình bày ví dụ với _p_ = 1 đặc trưng (cộng hệ số chặn) trong hai trường hợp: có 20 quan sát và chỉ có hai quan sát. Khi có 20 quan sát, _n &gt; p_ và đường hồi quy bình phương tối thiểu không khớp dữ liệu hoàn hảo; thay vào đó, nó cố xấp xỉ 20 quan sát tốt nhất có thể. Mặt khác, khi chỉ có hai quan sát, bất kể giá trị của chúng là gì, đường hồi quy đều khớp dữ liệu chính xác. Điều này có vấn đề vì phép khớp hoàn hảo gần như chắc chắn dẫn đến quá khớp. Nói cách khác, dù có thể khớp hoàn hảo dữ liệu huấn luyện trong bối cảnh nhiều chiều, mô hình tuyến tính thu được sẽ hoạt động cực kỳ kém trên một tập kiểm tra độc lập nên không phải mô hình hữu ích. Thực tế, ta thấy điều đó xảy ra trong Hình 6.22: đường bình phương tối thiểu ở ô bên phải sẽ hoạt động rất kém trên tập kiểm tra gồm các quan sát ở ô bên trái. Vấn đề rất đơn giản: khi _p &gt; n_ hoặc _p ≈ n_, một đường hồi quy bình phương tối thiểu đơn giản quá _linh hoạt_ nên quá khớp dữ liệu.
+
+Hình 6.23 minh họa thêm nguy cơ áp dụng bình phương tối thiểu thiếu thận trọng khi số đặc trưng _p_ lớn. Dữ liệu được mô phỏng với _n_ = 20 quan sát và hồi quy được thực hiện với từ 1 đến 20 đặc trưng,
+
+**HÌNH 6.22.** Trái: _Hồi quy bình phương tối thiểu trong bối cảnh ít chiều._ Phải: _Hồi quy bình phương tối thiểu với n_ = 2 _quan sát và hai tham số cần ước lượng (một hệ số chặn và một hệ số)._
+
+**HÌNH 6.23.** _Trong ví dụ mô phỏng có n_ = 20 _quan sát huấn luyện, các đặc trưng hoàn toàn không liên quan đến kết quả được thêm vào mô hình._ Trái: _R_^(2) _tăng lên 1 khi thêm nhiều đặc trưng._ Giữa: _MSE tập huấn luyện giảm về 0 khi thêm nhiều đặc trưng._ Phải: _MSE tập kiểm tra tăng khi thêm nhiều đặc trưng._
+
+mỗi đặc trưng hoàn toàn không liên quan đến biến đáp ứng. Như hình cho thấy, _R_^(2) của mô hình tăng lên 1 khi số đặc trưng tăng, đồng thời MSE tập huấn luyện giảm về 0, _dù các đặc trưng hoàn toàn không liên quan đến biến đáp ứng_. Mặt khác, MSE trên một _tập kiểm tra độc lập_ trở nên cực lớn khi thêm nhiều đặc trưng, vì các biến dự báo bổ sung làm phương sai của ước lượng hệ số tăng mạnh. Dựa trên MSE tập kiểm tra, rõ ràng mô hình tốt nhất nhiều nhất chỉ chứa một vài biến. Tuy nhiên, người chỉ xem _R_^(2) hay MSE huấn luyện có thể kết luận sai rằng mô hình có nhiều biến nhất là tốt nhất. Điều này cho thấy cần hết sức thận trọng khi phân tích tập dữ liệu có nhiều biến và luôn đánh giá hiệu năng mô hình trên một tập kiểm tra độc lập.
+
+**HÌNH 6.24.** _Lasso được thực hiện với n_ = 100 _quan sát và ba giá trị p — số đặc trưng. Trong p đặc trưng, 20 đặc trưng liên hệ với biến đáp ứng. Các biểu đồ hộp cho thấy MSE kiểm tra khi dùng ba giá trị khác nhau của tham số tinh chỉnh λ trong (6.7). Để dễ diễn giải, hình báo cáo_ bậc tự do _thay cho λ; với lasso, đây đơn giản là số hệ số khác không được ước lượng. Khi p_ = 20 _, MSE kiểm tra thấp nhất đạt được với lượng điều chuẩn nhỏ nhất. Khi p_ = 50 _, MSE kiểm tra thấp nhất đạt được khi có lượng điều chuẩn đáng kể. Khi p_ = 2 _,_ 000 _, lasso hoạt động kém bất kể lượng điều chuẩn vì chỉ 20 trong 2.000 đặc trưng thực sự liên hệ với kết quả._
+
+Ở Mục 6.1.3, ta đã xét một số cách điều chỉnh RSS hoặc _R_^(2) tập huấn luyện để tính đến số biến dùng khớp mô hình bình phương tối thiểu. Đáng tiếc, _Cp_, AIC và BIC không phù hợp trong bối cảnh nhiều chiều vì việc ước lượng _σ_ ˆ^(2) có vấn đề. (Chẳng hạn, công thức _σ_ ˆ^(2) ở Chương 3 cho ước lượng _σ_ ˆ^(2) = 0 trong bối cảnh này.) Tương tự, việc áp dụng _R_^(2) hiệu chỉnh trong bối cảnh nhiều chiều cũng gặp vấn đề vì dễ thu được mô hình có _R_^(2) hiệu chỉnh bằng 1. Rõ ràng cần những cách tiếp cận thay thế phù hợp hơn với bối cảnh nhiều chiều.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 6.4.3 Hồi quy trong không gian nhiều chiều
+
+Nhiều phương pháp trong chương này dùng để khớp mô hình bình phương tối thiểu _kém linh hoạt hơn_, như lựa chọn tiến từng bước, hồi quy ridge, lasso và hồi quy thành phần chính, đặc biệt hữu ích khi thực hiện hồi quy trong bối cảnh nhiều chiều. Về cơ bản, chúng tránh quá khớp bằng cách dùng phương pháp khớp ít linh hoạt hơn bình phương tối thiểu.
+
+Hình 6.24 minh họa hiệu năng lasso trong một ví dụ mô phỏng đơn giản. Có _p_ = 20, 50 hoặc 2 _,_ 000 đặc trưng, trong đó 20 đặc trưng thực sự liên hệ với kết quả. Lasso được thực hiện trên _n_ = 100 quan sát huấn luyện và sai số bình phương trung bình được đánh giá trên một tập kiểm tra độc lập. Khi số đặc trưng tăng, lỗi tập kiểm tra tăng. Khi _p_ = 20, lỗi tập xác thực thấp nhất đạt được khi _λ_ trong
+
+(6.7) nhỏ; tuy nhiên, khi _p_ lớn hơn thì lỗi xác thực thấp nhất đạt được với giá trị _λ_ lớn hơn. Mỗi biểu đồ hộp hiển thị _bậc tự do_ của nghiệm lasso thay vì giá trị _λ_; đây đơn giản là số ước lượng hệ số khác không trong nghiệm lasso và là một thước đo độ linh hoạt của phép khớp lasso. Hình 6.24 nhấn mạnh ba điểm quan trọng: (1) điều chuẩn hay co rút đóng vai trò then chốt trong bài toán nhiều chiều, (2) lựa chọn tham số tinh chỉnh phù hợp là thiết yếu để đạt hiệu năng dự đoán tốt, và (3) lỗi kiểm tra có xu hướng tăng khi chiều của bài toán (tức số đặc trưng hay biến dự báo) tăng, trừ khi các đặc trưng bổ sung thực sự liên hệ với biến đáp ứng.
+
+Điểm thứ ba thực ra là một nguyên lý then chốt trong phân tích dữ liệu nhiều chiều, gọi là _lời nguyền số chiều_. Ta có thể nghĩ rằng khi tăng số đặc trưng dùng để khớp mô hình, chất lượng mô hình khớp cũng tăng. Tuy nhiên, so sánh ô trái và phải trong Hình 6.24 cho thấy điều đó không nhất thiết đúng: trong ví dụ này, MSE tập kiểm tra gần như tăng gấp đôi khi _p_ tăng từ 20 lên 2.000. Nhìn chung, _thêm các đặc trưng tín hiệu thực sự liên hệ với biến đáp ứng sẽ cải thiện mô hình khớp_ theo nghĩa làm giảm lỗi tập kiểm tra. Nhưng thêm các đặc trưng nhiễu không thực sự liên hệ với biến đáp ứng sẽ làm mô hình suy giảm và tăng lỗi kiểm tra. Lý do là đặc trưng nhiễu làm tăng chiều bài toán, khiến nguy cơ quá khớp trầm trọng hơn (các đặc trưng nhiễu có thể được gán hệ số khác không do ngẫu nhiên liên hệ với biến đáp ứng trên tập huấn luyện) mà không có lợi ích tiềm năng nào về lỗi kiểm tra. Do đó, các công nghệ mới cho phép thu thập phép đo của hàng nghìn hay hàng triệu đặc trưng là con dao hai lưỡi: chúng có thể cải thiện mô hình dự đoán nếu thực sự liên quan đến bài toán, nhưng làm kết quả xấu đi nếu không liên quan. Ngay cả khi có liên quan, phương sai phát sinh khi khớp các hệ số có thể lấn át phần giảm độ chệch mà chúng mang lại.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 6.4.4 Diễn giải kết quả trong không gian nhiều chiều
+
+Khi thực hiện lasso, hồi quy ridge hay các thủ tục hồi quy khác trong bối cảnh nhiều chiều, ta phải hết sức thận trọng khi báo cáo kết quả. Trong Chương 3, ta đã học về _đa cộng tuyến_, tức các biến trong hồi quy có thể tương quan với nhau. Trong bối cảnh nhiều chiều, vấn đề đa cộng tuyến trở nên cực đoan: mọi biến trong mô hình đều có thể được viết thành tổ hợp tuyến tính của tất cả biến còn lại. Về cơ bản, điều này nghĩa là ta không bao giờ biết chính xác biến nào (nếu có) thực sự dự đoán kết quả, và không bao giờ xác định được các hệ số _tốt nhất_ để dùng trong hồi quy. Nhiều nhất, ta chỉ có thể hy vọng gán hệ số hồi quy lớn cho những biến tương quan với các biến thực sự dự đoán kết quả.
+
+Chẳng hạn, giả sử ta cố dự đoán huyết áp dựa trên nửa triệu SNP, và lựa chọn tiến từng bước cho thấy 17 SNP tạo ra một mô hình dự đoán tốt trên dữ liệu huấn luyện. Sẽ không đúng nếu kết luận rằng 17 SNP này dự đoán huyết áp hiệu quả hơn những SNP khác không có trong mô hình. Có thể tồn tại nhiều tập 17 SNP dự đoán huyết áp tốt ngang mô hình đã chọn. Nếu lấy một tập dữ liệu độc lập và thực hiện lựa chọn tiến từng bước trên đó, nhiều khả năng ta sẽ thu được mô hình chứa một tập SNP khác, thậm chí có thể không giao nhau. Điều này không làm giảm giá trị của mô hình thu được — chẳng hạn, mô hình có thể dự đoán huyết áp rất hiệu quả trên một tập bệnh nhân độc lập và hữu ích về mặt lâm sàng. Nhưng ta phải cẩn thận không phóng đại kết quả, đồng thời nói rõ rằng mình chỉ xác định được _một trong nhiều mô hình khả dĩ_ để dự đoán huyết áp và mô hình đó cần được xác thực thêm trên các tập dữ liệu độc lập.
+
+Ta cũng phải đặc biệt thận trọng khi báo cáo lỗi và các thước đo độ khớp mô hình trong bối cảnh nhiều chiều. Ta đã thấy khi _p &gt; n_, rất dễ thu được một mô hình vô dụng có phần dư bằng không. Vì vậy, _không bao giờ_ nên dùng tổng bình phương sai số, giá trị p, thống kê _R_^(2) hay các thước đo độ khớp truyền thống khác trên dữ liệu huấn luyện làm bằng chứng cho một mô hình khớp tốt trong bối cảnh nhiều chiều. Chẳng hạn, như trong Hình 6.23, ta dễ dàng thu được mô hình có _R_^(2) = 1 khi _p &gt; n_. Việc báo cáo điều này có thể khiến người khác tưởng ta đã thu được một mô hình hợp lệ về thống kê và hữu ích, trong khi thực tế nó hoàn toàn không phải bằng chứng cho một mô hình thuyết phục. Thay vào đó, cần báo cáo kết quả trên một tập kiểm tra độc lập hoặc lỗi xác thực chéo. Chẳng hạn, MSE hay _R_^(2) trên tập kiểm tra độc lập là thước đo độ khớp hợp lệ, còn MSE trên tập huấn luyện chắc chắn không phải.
+
+</MdxPage>

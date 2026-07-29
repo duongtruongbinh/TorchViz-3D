@@ -1,0 +1,43 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-book-organization",
+  "locale": "en",
+  "title": "1.6 Organization of This Book",
+  "headings": [
+    "Organization of This Book"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Introduction",
+    "Organization of This Book"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Organization of This Book
+
+Chapter 2 introduces the basic terminology and concepts behind statistical learning. This chapter also presents the _K-nearest neighbor_ classifier, a very simple method that works surprisingly well on many problems. Chapters 3 and 4 cover classical linear methods for regression and classification. In particular, Chapter 3 reviews _linear regression_ , the fundamental starting point for all regression methods. In Chapter 4 we discuss two of the most important classical classification methods, _logistic regression_ and _linear discriminant analysis_ .
+
+A central problem in all statistical learning situations involves choosing the best method for a given application. Hence, in Chapter 5 we introduce _cross-validation_ and the _bootstrap_ , which can be used to estimate the accuracy of a number of different methods in order to choose the best one.
+
+Much of the recent research in statistical learning has concentrated on non-linear methods. However, linear methods often have advantages over their non-linear competitors in terms of interpretability and sometimes also accuracy. Hence, in Chapter 6 we consider a host of linear methods, both classical and more modern, which offer potential improvements over standard linear regression. These include _stepwise selection_ , _ridge regression_ , _principal components regression_ , and the _lasso_ .
+
+The remaining chapters move into the world of non-linear statistical learning. We first introduce in Chapter 7 a number of non-linear methods that work well for problems with a single input variable. We then show how these methods can be used to fit non-linear _additive_ models for which there is more than one input. In Chapter 8, we investigate _tree_ -based methods, including _bagging_ , _boosting_ , and _random forests_ . _Support vector machines_ , a set of approaches for performing both linear and non-linear classification, are discussed in Chapter 9. We cover _deep learning_ , an approach for non-linear regression and classification that has received a lot of attention in recent years, in Chapter 10. Chapter 11 explores _survival analysis_ , a regression approach that is specialized to the setting in which the output variable is _censored_ , i.e. not fully observed.
+
+In Chapter 12, we consider the _unsupervised_ setting in which we have input variables but no output variable. In particular, we present _principal components analysis_ , _K-means clustering_ , and _hierarchical clustering_ . Finally, in Chapter 13 we cover the very important topic of multiple hypothesis testing.
+
+At the end of each chapter, we present one or more `Python` lab sections in which we systematically work through applications of the various methods discussed in that chapter. These labs demonstrate the strengths and weaknesses of the various approaches, and also provide a useful reference for the syntax required to implement the various methods. The reader may choose to work through the labs at their own pace, or the labs may be the focus of group sessions as part of a classroom environment. Within each `Python` lab, we present the results that we obtained when we performed the lab at the time of writing this book. However, new versions of `Python` are continuously released, and over time, the packages called in the labs will be updated. Therefore, in the future, it is possible that the results shown in
+
+<MdxCode language="table" code={"|Name|Description|\n|---|---|\n|`Auto`|Gas mileage, horsepower, and other information for cars.|\n|`Bikeshare`|Hourly usage of a bike sharing program in Washington, DC.|\n|`Boston`|Housing values and other information about Boston census tracts.|\n|`BrainCancer`|Survival times for patients diagnosed with brain cancer. |\n|`Caravan`|Information about individuals ofered caravan insurance.|\n|`Carseats`|Information about car seat sales in 400 stores.|\n|`College`|Demographic characteristics, tuition, and more for USA colleges.|\n|`Credit`|Information about credit card debt for 400 customers.|\n|`Default`|Customer default records for a credit card company.|\n|`Fund`|Returns of 2,000 hedge fund managers over 50 months.|\n|`Hitters`|Records and salaries for baseball players.|\n|`Khan`|Gene expression measurements for four cancer types.|\n|`NCI60`|Gene expression measurements for 64 cancer cell lines.|\n|`NYSE`|Returns, volatility, and volume for the New York Stock Exchange.|\n|`OJ`|Sales information for Citrus Hill and Minute Maid orange juice. |\n|`Portfolio`|Past values of fnancial assets, for use in portfolio allocation.|\n|`Publication`|Time to publication for 244 clinical trials.|\n|`Smarket`|Daily percentage returns for S&P 500 over a 5-year period.|\n|`USArrests`|Crime statistics per 100,000 residents in 50 states of USA.|\n|`Wage`|Income survey data for men in central Atlantic region of USA.|\n|`Weekly`|1,089 weekly stock market returns for 21 years.|"} />
+
+**TABLE 1.1.** _A list of data sets needed to perform the labs and exercises in this textbook. All data sets are available in the_ `ISLP` _package, with the exception of_ `USArrests` _, which is part of the base_ `R` _distribution, but accessible from_ `Python` .
+
+the lab sections may no longer correspond precisely to the results obtained by the reader who performs the labs. As necessary, we will post updates to the labs on the book website.
+
+We use the symbol to denote sections or exercises that contain more challenging concepts. These can be easily skipped by readers who do not wish to delve as deeply into the material, or who lack the mathematical background.
+
+</MdxPage>

@@ -8,9 +8,9 @@ import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComp
 import type { LearningCatalog } from '../core/learning/types.ts';
 
 const lessonFiles = discoverLearningMdxFiles('src/content/learning');
-const publishedLessonIds = learningCatalog.lessons
+const publishedLessonKeys = learningCatalog.lessons
   .filter((lesson) => lesson.contentStatus === 'published')
-  .map((lesson) => lesson.id);
+  .map((lesson) => `${lesson.domainId}/${lesson.id}`);
 const expectedPageCounts: Record<string, number> = {
   'minimal-llm-project-skeleton': 1,
   'llm-from-scratch-roadmap': 3,
@@ -107,11 +107,26 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 66);
-  assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
-  assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
+  assert.equal(lessonFiles.length, 233);
+  const parsedLessonFiles = lessonFiles
+    .map((file) => parseLearningMdxPath(file))
+    .filter((file): file is NonNullable<typeof file> => file !== null);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'en').length, 90);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 90);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId !== 'statistics' && file.locale === 'vi').length, 53);
+  assert.deepEqual(
+    [...new Set(parsedLessonFiles.map((file) => `${file.domainId}/${file.lessonId}`))].sort(),
+    publishedLessonKeys.sort(),
+  );
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 66);
+  assert.equal(documents.length, 233);
+  const statisticsDocuments = documents.filter((document) => document.domainId === 'statistics');
+  assert.equal(statisticsDocuments.length, 180);
+  assert.deepEqual([...new Set(statisticsDocuments.map((document) => document.locale))].sort(), ['en', 'vi']);
+  assert.ok(statisticsDocuments.every((document) => document.text.length < 2_000));
+  const statisticsPageCounts = { en: 0, vi: 0 };
+  const statisticsInspections = new Map<string, Awaited<ReturnType<typeof inspectLearningMdx>>>();
+  const statisticsSources = new Map<string, string>();
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
@@ -120,17 +135,70 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     assert.equal(inspection.metadata.domainId, parsed.domainId);
     assert.equal(inspection.metadata.id, parsed.lessonId);
     assert.equal(inspection.metadata.locale, parsed.locale);
-    assert.equal(Number(inspection.metadata.pageCount ?? 1), expectedPageCounts[parsed.lessonId]);
-    if (expectedPageCounts[parsed.lessonId] > 1 && !inspection.quizQuestionIds.length) {
-      assert.deepEqual(inspection.pageIndexes, Array.from({ length: expectedPageCounts[parsed.lessonId] }, (_, index) => index));
+    const pageCount = Number(inspection.metadata.pageCount ?? 1);
+    if (parsed.domainId === 'statistics') {
+      assert.ok(Number.isInteger(pageCount) && pageCount > 0);
+      assert.ok(parsed.locale === 'en' || parsed.locale === 'vi');
+      statisticsPageCounts[parsed.locale] += pageCount;
+      statisticsInspections.set(`${parsed.lessonId}.${parsed.locale}`, inspection);
+      statisticsSources.set(`${parsed.lessonId}.${parsed.locale}`, source);
+    } else {
+      assert.equal(pageCount, expectedPageCounts[parsed.lessonId]);
+    }
+    if (pageCount > 1 && !inspection.quizQuestionIds.length) {
+      assert.deepEqual(inspection.pageIndexes, Array.from({ length: pageCount }, (_, index) => index));
     }
     if (expectedQuizQuestionIds[parsed.lessonId]) assert.deepEqual(inspection.quizQuestionIds, expectedQuizQuestionIds[parsed.lessonId]);
     if (parsed.domainId === 'cv') assert.equal(inspection.cvExerciseFixtures.length, 1);
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
+  assert.deepEqual(statisticsPageCounts, { en: 265, vi: 265 });
+  for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics')) {
+    const english = statisticsInspections.get(`${lesson.id}.en`);
+    const vietnamese = statisticsInspections.get(`${lesson.id}.vi`);
+    assert.ok(english && vietnamese, `Missing Statistics locale pair for ${lesson.id}`);
+    assert.equal(vietnamese.metadata.pageCount, english.metadata.pageCount);
+    assert.equal(
+      (vietnamese.metadata.headings as unknown[]).length,
+      (english.metadata.headings as unknown[]).length,
+    );
+    assert.deepEqual(vietnamese.pageIndexes, english.pageIndexes);
+    assert.deepEqual(
+      vietnamese.mdxCodeBlocks.map((block) => block.language),
+      english.mdxCodeBlocks.map((block) => block.language),
+    );
+    assert.deepEqual(
+      vietnamese.mdxCodeBlocks.filter((block) => block.language !== 'table'),
+      english.mdxCodeBlocks.filter((block) => block.language !== 'table'),
+    );
+    assert.deepEqual(
+      (statisticsSources.get(`${lesson.id}.vi`)?.replace(/<MdxCode\b[\s\S]*?\/>/g, '').match(/`[^`\n]+`/g) ?? []).sort(),
+      (statisticsSources.get(`${lesson.id}.en`)?.replace(/<MdxCode\b[\s\S]*?\/>/g, '').match(/`[^`\n]+`/g) ?? []).sort(),
+    );
+    const vietnameseProse = (statisticsSources.get(`${lesson.id}.vi`) ?? '')
+      .slice((statisticsSources.get(`${lesson.id}.vi`) ?? '').indexOf('<MdxPage'))
+      .replace(/<MdxCode\b[\s\S]*?\/>/g, '')
+      .replace(/`[^`\n]+`/g, '');
+    const commonEnglishWordCount = vietnameseProse.match(
+      /(?<![\p{L}\p{N}_])(?:the|and|of|to|in|is|are|that|for|with|from|we|this|which|using|data|observations)(?![\p{L}\p{N}_])/giu,
+    )?.length ?? 0;
+    assert.ok(
+      commonEnglishWordCount < 20,
+      `${lesson.id}.vi still appears to contain untranslated English prose (${commonEnglishWordCount} common-word hits)`,
+    );
+  }
   const requirements = documents.find((document) => document.lessonId === 'minimal-llm-project-skeleton')?.text ?? '';
   for (const requirement of ['Google Colab', 'Python', 'uv', 'VSCode']) assert.match(requirements, new RegExp(requirement));
+});
+
+test('retained Statistics authored output preserves the locked catalog counts', () => {
+  assert.equal(learningCatalog.tracks.filter((track) => track.domainId === 'statistics').length, 13);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 90);
+  assert.equal(
+    learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics' && lesson.contentStatus === 'published').length,
+    90,
+  );
 });
 
 test('generic MDX contract rejects imports, executable expressions, and unknown components', async () => {
@@ -165,7 +233,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxCode', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,
@@ -218,6 +286,14 @@ test('shared lesson assembly and search contain no LLM-specific branch or import
   for (const source of [detail, rail, contract, tooling]) {
     assert.doesNotMatch(source, /llm-ai-engineering|renderLlm|virtual:llm/);
   }
+});
+
+test('compiled Learning Lab MDX modules load lazily with stale-result protection', () => {
+  const registry = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
+  assert.match(registry, /import\.meta\.glob<MdxModule>\('\.\.\/\.\.\/content\/learning\/\*\/\*\.mdx'\)/);
+  assert.doesNotMatch(registry, /eager:\s*true/);
+  assert.match(registry, /let cancelled = false/);
+  assert.match(registry, /if \(cancelled\) return/);
 });
 
 test('migrated MDX lessons no longer have duplicate legacy extras or pilot renderer code', () => {

@@ -114,6 +114,20 @@ export function LessonNote({ children }: { children?: ReactNode }) {
   return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5', themeClasses.sectionAccent.note)}>{children}</div>;
 }
 
+export function MdxCode({ code, language = 'text' }: { code: string; language?: string }) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <div className="min-w-0 overflow-hidden rounded-lg border border-white/12 bg-[#0B1220] shadow-[inset_0_0_0_1px_rgba(168,184,200,0.10)]">
+      <div className="border-b border-white/10 px-4 py-2 text-[0.68rem] font-black uppercase tracking-[0.09em] text-[#A8B8C8]">
+        {language}
+      </div>
+      <pre className="max-w-full overflow-x-auto px-4 py-4 leading-7 text-[#E8F1FA]">
+        <code className={cx('whitespace-pre font-mono text-[0.82rem] md:text-sm', themeClasses.focusRing)}>{code}</code>
+      </pre>
+    </div>
+  );
+}
+
 export function ExtraFrame({ title, children, themeClasses, customTitle }: {
   title: string;
   children: ReactNode;
@@ -224,6 +238,7 @@ function MdxPre({ children }: { children?: ReactNode }) {
 
 const sharedAuthoredMdxComponents = {
   LessonNote,
+  MdxCode,
   MdxQuiz,
   MdxPage,
   RequirementCard,

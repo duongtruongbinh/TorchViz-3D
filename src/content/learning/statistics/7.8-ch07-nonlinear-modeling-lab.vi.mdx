@@ -1,0 +1,367 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-nonlinear-modeling-lab",
+  "locale": "vi",
+  "title": "7.8 Lab: Mô hình hóa phi tuyến",
+  "headings": [
+    "Thực hành: Mô hình hóa phi tuyến",
+    "7.8.1 Hồi quy đa thức và hàm bậc thang",
+    "7.8.2 Spline",
+    "7.8.3 Spline làm trơn và GAM",
+    "7.8.4 Hồi quy cục bộ"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Thực hành mô hình hóa phi tuyến"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Thực hành: Mô hình hóa phi tuyến
+
+Trong bài thực hành này, ta minh họa một số mô hình phi tuyến đã thảo luận trong chương. Ta dùng dữ liệu `Wage` làm ví dụ xuyên suốt và cho thấy nhiều quy trình khớp phi tuyến phức tạp có thể được triển khai dễ dàng trong `Python`.
+
+**HÌNH 7.14.** _Mô hình giống Hình 7.13 được khớp, nhưng lần này loại các quan sát có_ `education` _là_ `<HS`_. Giờ ta thấy trình độ học vấn tăng thường gắn với mức lương cao hơn._
+
+Như thường lệ, ta bắt đầu với các import tiêu chuẩn.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp,pandasaspd\nfrommatplotlib.pyplotimportsubplots\nimportstatsmodels.apiassm\nfromISLPimportload_data\nfromISLP.modelsimport(summarize,\npoly,\nModelSpecasMS)\nfromstatsmodels.stats.anovaimportanova_lm"} />
+
+Ta tiếp tục tập hợp các import mới cần cho bài thực hành. Nhiều thành phần trong số này được phát triển riêng cho gói `ISLP`.
+
+<MdxCode language="text" code={"In [2]:frompygamimport(sass_gam,\nlasl_gam,\nfasf_gam,\nLinearGAM,\nLogisticGAM)"} />
+
+<MdxCode language="text" code={"fromISLP.transformsimport(BSpline,\nNaturalSpline)\nfromISLP.modelsimportbs,ns\nfromISLP.pygamimport(approx_lam ,\ndegrees_of_freedom ,\nplotasplot_gam,\nanovaasanova_gam)"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 7.8.1 Hồi quy đa thức và hàm bậc thang
+
+Ta bắt đầu bằng cách minh họa cách tái tạo Hình 7.1. Trước hết hãy nạp dữ liệu.
+
+<MdxCode language="text" code={"In [3]:Wage=load_data('Wage')\ny=Wage['wage']\nage=Wage['age']"} />
+
+Trong phần lớn bài thực hành này, biến đáp ứng là `Wage['wage']`, được lưu thành `y` ở trên. Như Mục 3.6.6, ta dùng hàm `poly()` để tạo ma trận mô hình khớp một đa thức bậc 4 theo `age`.
+
+<MdxCode language="text" code={"In [4]:poly_age=MS([poly('age',degree=4)]).fit(Wage)\nM=sm.OLS(y,poly_age.transform(Wage)).fit()\nsummarize(M)"} />
+
+<MdxCode language="text" code={"Out[4]:"} />
+
+<MdxCode language="table" code={"|`intercept` `111.`|`coef` `7036`|`std ` `0`|`err` `.729`|`153.`|`t` `283`|`P>|t|` `0.000`|\n|---|---|---|---|---|---|---|\n|`poly(age, degree=4)[0]` `447.`|`0679`|`39`|`.915`|`11.`|`201`|`0.000`|\n|`poly(age, degree=4)[1] -478.`|`3158`|`39`|`.915`|`-11`|`.983`|`0.000`|\n|`poly(age, degree=4)[2]` `125.`|`5217`|`39`|`.915`|`3`|`.145`|`0.002`|\n|`poly(age, degree=4)[3]` `-77`|`.9112`|`39`|`.915`|`-1`|`.952`|`0.051`|"} />
+
+Đa thức này được xây dựng bằng hàm `poly()`, hàm tạo một _bộ biến đổi_ đặc biệt `Poly()` (theo thuật ngữ `sklearn` dành cho các phép biến đổi đặc trưng như `PCA()` đã thấy ở Mục 6.5.3), nhờ đó dễ đánh giá đa thức tại các điểm dữ liệu mới. Ở đây `poly()` được gọi là một hàm _trợ giúp_ và thiết lập phép biến đổi; `Poly()` mới là thành phần thực sự tính phép biến đổi. Xem thêm phần thảo luận về phép biến đổi ở trang 118.
+
+Trong đoạn mã trên, dòng đầu chạy phương thức `fit()` bằng dataframe `Wage`. Nó tính lại và lưu dưới dạng thuộc tính mọi tham số mà `Poly()` cần trên dữ liệu huấn luyện; các tham số này sẽ được dùng cho mọi lần gọi `transform()` sau đó. Ví dụ, chúng được dùng ở dòng thứ hai cũng như trong hàm vẽ biểu đồ được xây dựng dưới đây. Bây giờ ta tạo một lưới giá trị `age` mà tại đó ta muốn dự đoán.
+
+<MdxCode language="text" code={"In [5]:age_grid=np.linspace(age.min(),\nage.max(),\n100)\nage_df=pd.DataFrame({'age':age_grid})"} />
+
+Cuối cùng, ta muốn vẽ dữ liệu và thêm mô hình khớp từ đa thức bậc bốn. Vì sẽ tạo nhiều biểu đồ tương tự, trước hết ta viết một hàm chuẩn bị mọi thành phần và sinh biểu đồ. Hàm nhận một đặc tả mô hình (ở đây là cơ sở được chỉ định bởi một phép biến đổi) cùng lưới giá trị `age`. Hàm tạo đường cong đã khớp và các dải tin cậy 95%. Nhờ dùng đối số `basis`, ta có thể tạo và vẽ kết quả với nhiều phép biến đổi khác nhau, như các spline sắp thấy.
+
+<MdxCode language="text" code={"In [6]:defplot_wage_fit(age_df,\nbasis,\ntitle):\nX=basis.transform(Wage)\nXnew=basis.transform(age_df)\nM=sm.OLS(y,X).fit()\npreds=M.get_prediction(Xnew)\nbands=preds.conf_int(alpha=0.05)\nfig,ax=subplots(figsize=(8,8))\nax.scatter(age,\ny,"} />
+
+<MdxCode language="text" code={"facecolor='gray',\nalpha=0.5)\nforval,lsinzip([preds.predicted_mean ,\nbands[:,0],\nbands[:,1]],\n['b','r--','r--']):\nax.plot(age_df.values,val,ls,linewidth=3)\nax.set_title(title,fontsize=20)\nax.set_xlabel('Age',fontsize=20)\nax.set_ylabel('Wage',fontsize=20);\nreturnax"} />
+
+Ta đưa đối số `alpha` vào `ax.scatter()` để làm các điểm hơi trong suốt, qua đó biểu thị mật độ bằng trực quan. Lưu ý việc dùng hàm `zip()` trong vòng lặp `for` ở trên (xem Mục 2.3.8). Ta có ba đường cần vẽ, mỗi đường có màu và kiểu nét khác nhau. Ở đây `zip()` tiện lợi gom chúng thành các iterator trong vòng lặp.^(7) Bây giờ ta dùng hàm này để vẽ mô hình đa thức bậc bốn.
+
+<MdxCode language="text" code={"In [7]:plot_wage_fit(age_df,"} />
+
+<MdxCode language="text" code={"poly_age,\n'Degree-4Polynomial');"} />
+
+Với hồi quy đa thức, ta phải quyết định bậc của đa thức. Đôi khi ta chỉ ước đoán và chọn đa thức bậc hai hoặc ba đơn thuần để có một mô hình phi tuyến. Nhưng ta có thể đưa ra quyết định có hệ thống hơn. Một cách là dùng kiểm định giả thuyết, được minh họa ở đây. Ta khớp một loạt mô hình từ tuyến tính (bậc một) đến đa thức bậc năm, rồi tìm mô hình đơn giản nhất đủ để giải thích quan hệ giữa `wage` và `age`. Ta dùng hàm `anova_lm()`, thực hiện một chuỗi kiểm định ANOVA. _Phân tích phương sai_ (ANOVA) kiểm định giả thuyết không rằng mô hình _M_ 1 đủ giải thích dữ liệu so với giả thuyết đối rằng cần mô hình phức tạp hơn _M_ 2. Quyết định dựa trên kiểm định F. Để thực hiện, các mô hình _M_ 1 và _M_ 2 phải _lồng nhau_: không gian do các biến dự báo trong _M_ 1 sinh phải là không gian con của không gian do các biến dự báo trong _M_ 2 sinh. Trong trường hợp này, ta khớp năm mô hình đa thức khác nhau và lần lượt so sánh mô hình đơn giản với mô hình phức tạp hơn.
+
+<MdxCode language="text" code={"In [8]:models=[MS([poly('age',degree=d)])\nfordinrange(1,6)]"} />
+
+<MdxCode language="text" code={"Xs=[model.fit_transform(Wage)formodelinmodels]\nanova_lm(*[sm.OLS(y,X_).fit()\nforX_inXs])"} />
+
+<MdxCode language="table" code={"|**`Out[8]:`** `df_resid`|`ssr`|`df_diff`|`ss_`|`diff`|`F`|`Pr(>F)`|\n|---|---|---|---|---|---|---|\n|`0` `2998.0`|`5.022e+06`|`0.0`||`NaN`|`NaN`|`NaN`|\n|`1` `2997.0`|`4.793e+06`|`1.0`|`228786`|`.010`|`143.593`|`2.364e-32`|\n|`2` `2996.0`|`4.778e+06`|`1.0`|`15755`|`.694`|`9.889`|`1.679e-03`|\n|`3` `2995.0`|`4.772e+06`|`1.0`|`6070`|`.152`|`3.810`|`5.105e-02`|"} />
+
+> 7Theo cách nói của `Python`, “iterator” là một đối tượng có số lượng giá trị hữu hạn và có thể được duyệt, chẳng hạn trong vòng lặp.
+
+<MdxCode language="text" code={"42994.04.770e+061.01282.5630.8053.697e-01"} />
+
+Lưu ý dấu `*` trong dòng `anova_lm()` ở trên. Hàm này nhận số lượng đối số không khóa thay đổi, trong trường hợp này là các mô hình đã khớp. Khi các mô hình được cung cấp dưới dạng danh sách như ở đây, danh sách phải có tiền tố `*`.
+
+Giá trị p khi so sánh mô hình tuyến tính `models[0]` với mô hình bậc hai `models[1]` về cơ bản bằng không, cho thấy mô hình tuyến tính là không đủ.^(8) Tương tự, giá trị p khi so sánh `models[1]` bậc hai với `models[2]` bậc ba rất thấp (0.0017), nên mô hình bậc hai cũng không đủ. Giá trị p khi so sánh đa thức bậc ba với bậc bốn, `models[2]` và `models[3]`, xấp xỉ 5%, trong khi đa thức bậc năm `models[4]` dường như không cần thiết vì giá trị p là 0.37. Vì vậy, đa thức bậc ba hoặc bậc bốn đều có vẻ khớp dữ liệu hợp lý, còn mô hình bậc thấp hơn hoặc cao hơn không được biện minh.
+
+Trong trường hợp này, thay vì dùng hàm `anova()`, ta có thể thu được các giá trị p ngắn gọn hơn bằng cách tận dụng việc `poly()` tạo các đa thức trực giao.
+
+###### **`In [9]:`** `summarize(M)`
+
+<MdxCode language="table" code={"|**`Out[9]:`**|||`coef`|`std err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|---|\n||`intercept`||`111.7036`|`0.729`|`153.283`|`0.000`|\n||`poly(age, `|`degree=4)[0]`|`447.0679`|`39.915`|`11.201`|`0.000`|\n||`poly(age, `|`degree=4)[1] `|`-478.3158`|`39.915`|`-11.983`|`0.000`|\n||`poly(age, `|`degree=4)[2]`|`125.5217`|`39.915`|`3.145`|`0.002`|\n||`poly(age, `|`degree=4)[3]`|`-77.9112`|`39.915`|`-1.952`|`0.051`|"} />
+
+Lưu ý các giá trị p giống nhau; thực tế bình phương thống kê t bằng thống kê F từ hàm `anova_lm()`. Ví dụ:
+
+<MdxCode language="text" code={"In [10]:(-11.983)**2"} />
+
+###### **`Out[10]:`** `143.59228`
+
+Tuy nhiên, phương pháp ANOVA hoạt động dù ta có dùng đa thức trực giao hay không, miễn là các mô hình lồng nhau. Ví dụ, ta có thể dùng `anova_lm()` để so sánh ba mô hình sau, tất cả đều có một hạng tử tuyến tính theo `education` và một đa thức theo `age` với bậc khác nhau:
+
+<MdxCode language="text" code={"In [11]:models=[MS(['education',poly('age',degree=d)])\nfordinrange(1,4)]\nXEs=[model.fit_transform(Wage)\nformodelinmodels]\nanova_lm(*[sm.OLS(y,X_).fit()forX_inXEs])"} />
+
+<MdxCode language="table" code={"|**`Out[11]:`** `df_resid`|`ssr`|`df_diff`|`ss_`|`diff`|`F`|`Pr(>F)`|\n|---|---|---|---|---|---|---|\n|`0` `2997.0`|`3.902e+06`|`0.0`||`NaN`|`NaN`|`NaN`|\n|`1` `2996.0`|`3.759e+06`|`1.0`|`142862`|`.701`|`113.992`|`3.838e-26`|\n|`2` `2995.0`|`3.754e+06`|`1.0`|`5926`|`.207`|`4.729`|`2.974e-02`|"} />
+
+> 8Việc đánh chỉ số từ không gây nhầm lẫn trong ví dụ bậc đa thức, vì `models[1]` là bậc hai chứ không phải tuyến tính!
+
+Thay cho kiểm định giả thuyết và ANOVA, ta có thể chọn bậc đa thức bằng xác thực chéo như đã thảo luận trong Chương 5. Tiếp theo, ta xét nhiệm vụ dự đoán một người có kiếm trên $250,000 mỗi năm hay không. Ta làm gần giống trước, ngoại trừ việc trước hết tạo vector đáp ứng thích hợp, rồi áp dụng hàm `glm()` với họ nhị thức để khớp mô hình hồi quy logistic đa thức.
+
+<MdxCode language="text" code={"In [12]:X=poly_age.transform(Wage)\nhigh_earn=Wage['high_earn']=y>250#shorthand\nglm=sm.GLM(y>250,\nX,\nfamily=sm.families.Binomial())\nB=glm.fit()\nsummarize(B)\nOut[12]:coefstderrzP>|z|\nintercept-4.30120.345-12.4570.000\npoly(age,degree=4)[0]71.964226.1332.7540.006\npoly(age,degree=4)[1]-85.772935.929-2.3870.017\npoly(age,degree=4)[2]34.162619.6971.7340.083\npoly(age,degree=4)[3]-47.400824.105-1.9660.049"} />
+
+Một lần nữa, ta dự đoán bằng phương thức `get_prediction()`.
+
+<MdxCode language="text" code={"In [13]:newX=poly_age.transform(age_df)\npreds=B.get_prediction(newX)\nbands=preds.conf_int(alpha=0.05)"} />
+
+Bây giờ ta vẽ quan hệ ước lượng.
+
+<MdxCode language="text" code={"In [14]:fig,ax=subplots(figsize=(8,8))\nrng=np.random.default_rng(0)\nax.scatter(age+\n0.2*rng.uniform(size=y.shape[0]),\nnp.where(high_earn,0.198,0.002),\nfc='gray',\nmarker='|')\nforval,lsinzip([preds.predicted_mean ,\nbands[:,0],\nbands[:,1]],\n['b','r--','r--']):\nax.plot(age_df.values,val,ls,linewidth=3)\nax.set_title('Degree -4Polynomial',fontsize=20)\nax.set_xlabel('Age',fontsize=20)\nax.set_ylim([0,0.2])\nax.set_ylabel('P(Wage>250)',fontsize=20);"} />
+
+Ta vẽ các giá trị `age` của quan sát có `wage` trên 250 bằng những vạch xám ở phía trên biểu đồ, còn các quan sát có `wage` dưới 250 bằng những vạch xám ở phía dưới. Ta thêm một lượng nhiễu nhỏ để dịch các giá trị `age` đôi chút, nhờ đó các quan sát cùng `age` không che nhau. Kiểu biểu đồ này thường được gọi là _rug plot_. Để khớp hàm bậc thang như thảo luận ở Mục 7.2, trước hết ta dùng hàm `pd.qcut()` để rời rạc hóa `age` theo các phân vị. Sau đó dùng `pd.qcut()`
+
+`pd.get_dummies()` để tạo các cột của ma trận mô hình cho biến phân loại này; nhãn `pd.get_` trong nguồn là phần đầu của tên hàm bị ngắt dòng. Lưu ý rằng hàm này đưa vào _tất cả_ các cột cho một biến phân loại, thay vì cách thông thường là bỏ một mức.
+
+<MdxCode language="text" code={"dummies()"} />
+
+<MdxCode language="text" code={"In [15]:cut_age=pd.qcut(age,4)\nsummarize(sm.OLS(y,pd.get_dummies(cut_age)).fit())"} />
+
+<MdxCode language="table" code={"|**`Out[15]:`**||`coef`|`std err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|\n||`(17.999, 33.75]` `94`|`.1584`|`1.478`|`63.692`|`0.0`|\n||`(33.75, 42.0]` `116`|`.6608`|`1.470`|`79.385`|`0.0`|\n||`(42.0, 51.0]` `119`|`.1887`|`1.416`|`84.147`|`0.0`|\n||`(51.0, 80.0]` `116`|`.5717`|`1.559`|`74.751`|`0.0`|"} />
+
+Ở đây `pd.qcut()` tự động chọn các điểm cắt theo phân vị 25%, 50% và 75%, tạo ra bốn vùng. Ta cũng có thể chỉ định trực tiếp các phân vị thay cho đối số `4`. Với các điểm cắt không dựa trên phân vị, ta dùng hàm `pd.cut()`. Hàm `pd.cut() pd.qcut()` (và `pd.cut()`) trả về một biến phân loại có thứ tự. Sau đó mô hình hồi quy tạo một tập biến giả để dùng trong hồi quy. Vì `age` là biến duy nhất trong mô hình, giá trị $94,158.40 là lương trung bình của người dưới 33.75 tuổi, còn các hệ số khác là lương trung bình của các nhóm tuổi còn lại. Ta có thể dự đoán và vẽ biểu đồ giống như với mô hình đa thức.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 7.8.2 Spline
+
+Để khớp spline hồi quy, ta dùng các phép biến đổi từ gói `ISLP`. Các hàm đánh giá spline thực tế nằm trong gói `scipy.interpolate`; ta chỉ bọc chúng thành các phép biến đổi tương tự `Poly()` và `PCA()`.
+
+Trong Mục 7.4, ta đã thấy spline hồi quy có thể được khớp bằng cách xây dựng một ma trận hàm cơ sở thích hợp. Hàm `BSpline()` sinh toàn bộ ma trận hàm cơ sở; `BSpline()` nhận tập nút đã chỉ định. Theo mặc định, các B-spline được sinh là bậc ba. Để đổi bậc, dùng đối số `degree`.
+
+<MdxCode language="text" code={"In [16]:bs_=BSpline(internal_knots=[25,40,60],intercept=True).fit(age)\nbs_age=bs_.transform(age)\nbs_age.shape"} />
+
+<MdxCode language="text" code={"Out[16]:(3000,7)"} />
+
+Kết quả là một ma trận bảy cột, đúng như dự kiến cho một cơ sở spline bậc ba với 3 nút bên trong. Ta có thể tạo cùng ma trận bằng đối tượng `bs()`, giúp dễ thêm nó vào trình xây dựng ma trận mô hình (tương tự `poly()` so với thành phần thực thi `Poly()`) đã mô tả ở Mục 7.8.1. Bây giờ ta khớp mô hình spline bậc ba với dữ liệu `Wage`.
+
+<MdxCode language="text" code={"In [17]:bs_age=MS([bs('age',internal_knots=[25,40,60])])\nXbs=bs_age.fit_transform(Wage)\nM=sm.OLS(y,Xbs).fit()\nsummarize(M)"} />
+
+<MdxCode language="text" code={"Out[17]:"} />
+
+<MdxCode language="table" code={"||`intercept`|`coef` `60.494`|`std err` `9.460`|`...` `...`|\n|---|---|---|---|---|\n|`bs(age, internal_knots=[25, `|`40, 60])[0]`|`3.980`|`12.538`|`...`|\n|`bs(age, internal_knots=[25, `|`40, 60])[1]`|`44.631`|`9.626`|`...`|\n|`bs(age, internal_knots=[25, `|`40, 60])[2]`|`62.839`|`10.755`|`...`|\n|`bs(age, internal_knots=[25, `|`40, 60])[3]`|`55.991`|`10.706`|`...`|\n|`bs(age, internal_knots=[25, `|`40, 60])[4]`|`50.688`|`14.402`|`...`|\n|`bs(age, internal_knots=[25, `|`40, 60])[5]`|`16.606`|`19.126`|`...`|"} />
+
+Tên các cột hơi rườm rà và khiến ta phải cắt ngắn phần tóm tắt được in. Có thể đặt tên ngay khi khởi tạo bằng đối số `name` như sau.
+
+<MdxCode language="text" code={"In [18]:bs_age=MS([bs('age',"} />
+
+<MdxCode language="text" code={"internal_knots=[25,40,60],\nname='bs(age)')])"} />
+
+<MdxCode language="text" code={"Xbs=bs_age.fit_transform(Wage)\nM=sm.OLS(y,Xbs).fit()\nsummarize(M)"} />
+
+<MdxCode language="text" code={"Out[18]:"} />
+
+<MdxCode language="table" code={"||`coef `|`std err`|`t`|`P>|t|`|\n|---|---|---|---|---|\n|`intercept`|`60.494`|`9.460`|`6.394`|`0.000`|\n|`bs(age, knots)[0]`|`3.981`|`12.538`|`0.317`|`0.751`|\n|`bs(age, knots)[1]`|`44.631`|`9.626`|`4.636`|`0.000`|\n|`bs(age, knots)[2]`|`62.839`|`10.755`|`5.843`|`0.000`|\n|`bs(age, knots)[3]`|`55.991`|`10.706`|`5.230`|`0.000`|\n|`bs(age, knots)[4]`|`50.688`|`14.402`|`3.520`|`0.000`|\n|`bs(age, knots)[5]`|`16.606`|`19.126`|`0.868`|`0.385`|"} />
+
+Lưu ý rằng có 6 hệ số spline thay vì 7. Lý do là theo mặc định `bs()` giả định `intercept=False`, vì ta thường đã có một hệ số chặn tổng thể trong mô hình. Vì vậy nó sinh cơ sở spline với các nút đã cho, rồi bỏ một hàm cơ sở để tính đến hệ số chặn.
+
+Ta cũng có thể dùng tùy chọn `df` (bậc tự do) để chỉ định độ phức tạp của spline. Ở trên, với 3 nút, cơ sở spline có 6 cột hay 6 bậc tự do. Khi chỉ định `df=6` thay cho các nút thực tế, `bs()` tạo spline với 3 nút được chọn tại các phân vị đều của dữ liệu huấn luyện. Có thể xem các nút được chọn dễ nhất bằng cách dùng trực tiếp `Bspline()`:
+
+<MdxCode language="text" code={"In [19]:BSpline(df=6).fit(age).internal_knots_"} />
+
+<MdxCode language="text" code={"Out[19]:array([33.75,42.0,51.0])"} />
+
+Khi yêu cầu sáu bậc tự do, phép biến đổi chọn các nút tại độ tuổi 33.75, 42.0 và 51.0, tương ứng với phân vị 25, 50 và 75 của `age`.
+
+Khi dùng B-spline, ta không cần giới hạn ở đa thức bậc ba (tức `degree=3`). Chẳng hạn, dùng `degree=0` tạo các hàm hằng số từng đoạn như ví dụ với `pd.qcut()` ở trên.
+
+<MdxCode language="text" code={"In [20]:bs_age0=MS([bs('age',\ndf=3,\ndegree=0)]).fit(Wage)\nXbs0=bs_age0.transform(Wage)\nsummarize(sm.OLS(y,Xbs0).fit())"} />
+
+<MdxCode language="text" code={"Out[20]:"} />
+
+<MdxCode language="table" code={"|||`coef`|`std err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|\n||`intercept`|`94.158`|`1.478`|`63.687`|`0.0`|\n|`bs(age, df=3, `|`degree=0)[0]`|`22.349`|`2.152`|`10.388`|`0.0`|\n|`bs(age, df=3, `|`degree=0)[1]`|`24.808`|`2.044`|`12.137`|`0.0`|\n|`bs(age, df=3, `|`degree=0)[2]`|`22.781`|`2.087`|`10.917`|`0.0`|"} />
+
+Mô hình này nên được so sánh với ô [15], nơi ta dùng `qcut()` để tạo bốn khoảng bằng cách cắt tại các phân vị 25%, 50% và 75% của `age`. Vì ở đây ta chỉ định `df=3` cho spline bậc không, cũng sẽ có các nút tại cùng ba phân vị. Mặc dù các hệ số trông khác nhau, ta thấy đó là kết quả của cách mã hóa khác nhau. Ví dụ, hệ số đầu tiên giống hệt trong cả hai trường hợp và là đáp ứng trung bình ở khoảng đầu. Với hệ số thứ hai, ta có 94 _._ 158 + 22 _._ 349 = 116 _._ 507 _≈_ 116 _._ 611, trong đó số sau là trung bình ở khoảng thứ hai trong ô [15]. Ở đây hệ số chặn được mã hóa bằng một cột toàn số một, nên hệ số thứ hai, ba và bốn là mức tăng cho các khoảng đó. Vì sao tổng không hoàn toàn bằng nhau? Hóa ra `qcut()` dùng _≤_, còn `bs()` dùng _&lt;_ khi quyết định một điểm thuộc khoảng nào.
+
+Để khớp spline tự nhiên, ta dùng phép biến đổi `NaturalSpline()` — tên được tách thành `Natural` và `Spline()` trong nguồn — cùng hàm trợ giúp tương ứng `ns()`. Ở đây ta khớp spline tự nhiên có năm bậc tự do (không tính hệ số chặn) và vẽ kết quả.
+
+<MdxCode language="text" code={"In [21]:ns_age=MS([ns('age',df=5)]).fit(Wage)\nM_ns=sm.OLS(y,ns_age.transform(Wage)).fit()\nsummarize(M_ns)"} />
+
+<MdxCode language="table" code={"|**`Out[21]:`**||`coef`|`std err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|\n||`intercept`|`60.475`|`4.708`|`12.844`|`0.000`|\n|`ns(age, `|`df=5)[0]`|`61.527`|`4.709`|`13.065`|`0.000`|\n|`ns(age, `|`df=5)[1]`|`55.691`|`5.717`|`9.741`|`0.000`|\n|`ns(age, `|`df=5)[2]`|`46.818`|`4.948`|`9.463`|`0.000`|\n|`ns(age, `|`df=5)[3]`|`83.204`|`11.918`|`6.982`|`0.000`|\n|`ns(age, `|`df=5)[4]`|`6.877`|`9.484`|`0.725`|`0.468`|"} />
+
+Bây giờ ta dùng hàm vẽ đã viết để vẽ spline tự nhiên.
+
+<MdxCode language="text" code={"In [22]:plot_wage_fit(age_df,"} />
+
+<MdxCode language="text" code={"ns_age,\n'Naturalspline,df=5');"} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 7.8.3 Spline làm trơn và GAM
+
+Spline làm trơn là một trường hợp đặc biệt của GAM với mất mát sai số bình phương và một đặc trưng duy nhất. Để khớp GAM trong `Python`, ta dùng gói `pygam`, có thể cài bằng `pip install pygam`. Bộ ước lượng `LinearGAM() LinearGAM()` dùng mất mát sai số bình phương. GAM được chỉ định bằng cách liên kết mỗi cột của ma trận mô hình với một phép làm trơn cụ thể: `s` cho spline làm trơn, `l` cho tuyến tính và `f` cho biến nhân tố hoặc phân loại. Đối số `0` truyền cho `s` bên dưới chỉ rằng bộ làm trơn này áp dụng cho cột đầu tiên của ma trận đặc trưng. Dưới đây, ta truyền cho nó một ma trận một cột: `X_age`. Đối số `lam` là tham số phạt _λ_ như đã thảo luận ở Mục 7.5.2.
+
+<MdxCode language="text" code={"In [23]:X_age=np.asarray(age).reshape((-1,1))\ngam=LinearGAM(s_gam(0,lam=0.6))\ngam.fit(X_age,y)"} />
+
+<MdxCode language="text" code={"Out[23]:LinearGAM(callbacks=[Deviance(),Diffs()],fit_intercept=True,\nmax_iter=100,scale=None,terms=s(0)+intercept,tol=0.0001,\nverbose=False)"} />
+
+Thư viện `pygam` thường yêu cầu một ma trận đặc trưng, nên ta định hình lại `age` thành ma trận (mảng hai chiều) thay vì vector (mảng một chiều). Giá trị `-1` trong lời gọi phương thức `reshape()` yêu cầu `numpy` suy ra kích thước của chiều đó dựa trên các phần tử còn lại của tuple hình dạng.
+
+Hãy khảo sát mô hình khớp thay đổi thế nào theo tham số làm trơn `lam`. Hàm `np.logspace()` tương tự `np.linspace()`, nhưng `np.logspace()` phân bố các điểm đều trên thang log. Bên dưới ta thay đổi `lam` từ 10^(_−_2) đến 10^(6).
+
+<MdxCode language="text" code={"In [24]:fig,ax=subplots(figsize=(8,8))\nax.scatter(age,y,facecolor='gray',alpha=0.5)\nforlaminnp.logspace(-2,6,5):\ngam=LinearGAM(s_gam(0,lam=lam)).fit(X_age,y)\nax.plot(age_grid,\ngam.predict(age_grid),\nlabel='{:.1e}'.format(lam),\nlinewidth=3)\nax.set_xlabel('Age',fontsize=20)\nax.set_ylabel('Wage',fontsize=20);\nax.legend(title='$\\lambda$');"} />
+
+Gói `pygam` có thể tìm kiếm một tham số làm trơn tối ưu.
+
+<MdxCode language="text" code={"In [25]:gam_opt=gam.gridsearch(X_age,y)\nax.plot(age_grid,\ngam_opt.predict(age_grid),\nlabel='Gridsearch',\nlinewidth=4)\nax.legend()\nfig"} />
+
+Hoặc ta có thể cố định bậc tự do của spline làm trơn bằng một hàm trong gói `ISLP.pygam`. Dưới đây, ta tìm giá trị _λ_ cho xấp xỉ bốn bậc tự do. Lưu ý rằng số bậc tự do này bao gồm hệ số chặn không bị phạt và hạng tử tuyến tính của spline làm trơn, nên ít nhất có hai bậc tự do.
+
+<MdxCode language="text" code={"In [26]:age_term=gam.terms[0]\nlam_4=approx_lam(X_age,age_term,4)\nage_term.lam=lam_4\ndegrees_of_freedom(X_age,age_term)"} />
+
+<MdxCode language="text" code={"Out[26]:4.000000100004728"} />
+
+Hãy thay đổi bậc tự do trong một biểu đồ tương tự. Ta chọn số bậc tự do bằng số mong muốn cộng một để tính đến việc các spline làm trơn này luôn có hệ số chặn. Vì vậy, giá trị một cho `df` chỉ là một mô hình tuyến tính.
+
+<MdxCode language="text" code={"In [27]:fig,ax=subplots(figsize=(8,8))\nax.scatter(X_age,\ny,"} />
+
+<MdxCode language="text" code={"facecolor='gray',\nalpha=0.3)\nfordfin[1,3,4,8,15]:\nlam=approx_lam(X_age,age_term,df+1)\nage_term.lam=lam\ngam.fit(X_age,y)\nax.plot(age_grid,\ngam.predict(age_grid),\nlabel='{:d}'.format(df),\nlinewidth=4)\nax.set_xlabel('Age',fontsize=20)\nax.set_ylabel('Wage',fontsize=20);\nax.legend(title='Degreesoffreedom');"} />
+
+### Mô hình cộng tính với nhiều hạng tử
+
+Sức mạnh của mô hình cộng tính tổng quát nằm ở khả năng khớp mô hình hồi quy đa biến linh hoạt hơn mô hình tuyến tính. Ta minh họa hai cách: cách thứ nhất thủ công hơn, dùng spline tự nhiên và hàm hằng số từng đoạn; cách thứ hai dùng gói `pygam` và spline làm trơn.
+
+Bây giờ ta khớp thủ công một GAM để dự đoán `wage` bằng các hàm spline tự nhiên của `year` và `age`, đồng thời xem `education` là biến dự báo định tính như trong (7.16). Vì đây chỉ là một mô hình hồi quy tuyến tính lớn dùng lựa chọn hàm cơ sở thích hợp, ta có thể làm trực tiếp bằng hàm `sm.OLS()`.
+
+Ở đây ta xây dựng ma trận mô hình thủ công hơn vì muốn truy cập riêng từng phần khi dựng biểu đồ phụ thuộc riêng phần.
+
+<MdxCode language="text" code={"In [28]:ns_age=NaturalSpline(df=4).fit(age)\nns_year=NaturalSpline(df=5).fit(Wage['year'])\nXs=[ns_age.transform(age),\nns_year.transform(Wage['year']),\npd.get_dummies(Wage['education']).values]\nX_bh=np.hstack(Xs)\ngam_bh=sm.OLS(y,X_bh).fit()"} />
+
+Ở đây hàm `NaturalSpline()` là thành phần thực thi hỗ trợ hàm trợ giúp `ns()`. Ta chọn dùng tất cả các cột của ma trận chỉ báo cho biến phân loại `education`, khiến hệ số chặn trở nên dư thừa. Cuối cùng, ta ghép ngang ba ma trận thành phần để tạo ma trận mô hình `X_bh`.
+
+Bây giờ ta trình bày cách xây dựng biểu đồ phụ thuộc riêng phần cho từng hạng tử trong GAM đơn giản này. Với các lưới cho `age` và `year`, ta có thể làm thủ công: chỉ cần dự đoán bằng các ma trận _X_ mới, mỗi lần giữ cố định tất cả đặc trưng trừ một đặc trưng.
+
+<MdxCode language="text" code={"In [29]:age_grid=np.linspace(age.min(),\nage.max(),\n100)\nX_age_bh=X_bh.copy()[:100]\nX_age_bh[:]=X_bh[:].mean(0)[None,:]\nX_age_bh[:,:4]=ns_age.transform(age_grid)\npreds=gam_bh.get_prediction(X_age_bh)\nbounds_age=preds.conf_int(alpha=0.05)"} />
+
+<MdxCode language="text" code={"partial_age=preds.predicted_mean\ncenter=partial_age.mean()\npartial_age-=center\nbounds_age-=center\nfig,ax=subplots(figsize=(8,8))\nax.plot(age_grid,partial_age ,'b',linewidth=3)\nax.plot(age_grid,bounds_age[:,0],'r--',linewidth=3)\nax.plot(age_grid,bounds_age[:,1],'r--',linewidth=3)\nax.set_xlabel('Age')\nax.set_ylabel('Effectonwage')\nax.set_title('Partialdependenceofageonwage',fontsize=20);"} />
+
+Hãy giải thích chi tiết hơn những gì vừa làm. Ý tưởng là tạo một ma trận dự đoán mới, trong đó mọi cột không thuộc `age` đều là hằng số (và được đặt bằng trung bình trên dữ liệu huấn luyện). Bốn cột cho `age` được điền bằng cơ sở spline tự nhiên đánh giá tại 100 giá trị trong `age_grid`.
+
+1. Ta tạo một lưới độ dài 100 theo `age`, rồi tạo ma trận `X_age_bh` có 100 hàng và cùng số cột với `X_bh`.
+
+2. Ta thay mỗi hàng của ma trận bằng các trung bình cột của ma trận ban đầu.
+
+3. Sau đó chỉ thay bốn cột đầu biểu diễn `age` bằng cơ sở spline tự nhiên tính tại các giá trị trong `age_grid`.
+
+Các bước còn lại đến đây đã quen thuộc. Ta cũng xem ảnh hưởng của `year` lên `wage`; quy trình hoàn toàn giống.
+
+<MdxCode language="text" code={"In [30]:year_grid=np.linspace(2003,2009,100)\nyear_grid=np.linspace(Wage['year'].min(),\nWage['year'].max(),\n100)\nX_year_bh=X_bh.copy()[:100]\nX_year_bh[:]=X_bh[:].mean(0)[None,:]\nX_year_bh[:,4:9]=ns_year.transform(year_grid)\npreds=gam_bh.get_prediction(X_year_bh)\nbounds_year=preds.conf_int(alpha=0.05)\npartial_year=preds.predicted_mean\ncenter=partial_year.mean()\npartial_year-=center\nbounds_year-=center\nfig,ax=subplots(figsize=(8,8))\nax.plot(year_grid,partial_year ,'b',linewidth=3)\nax.plot(year_grid,bounds_year[:,0],'r--',linewidth=3)\nax.plot(year_grid,bounds_year[:,1],'r--',linewidth=3)\nax.set_xlabel('Year')\nax.set_ylabel('Effectonwage')\nax.set_title('Partialdependenceofyearonwage',fontsize=20);"} />
+
+Bây giờ ta khớp mô hình (7.16) bằng spline làm trơn thay vì spline tự nhiên. Tất cả hạng tử trong (7.16) được khớp đồng thời, có tính đến nhau để giải thích biến đáp ứng. Gói `pygam` chỉ làm việc với ma trận, nên ta phải chuyển chuỗi phân loại `education` sang biểu diễn mảng của nó, lấy từ thuộc tính `cat.codes` của `education`. Vì `year` chỉ có 7 giá trị duy nhất, ta chỉ dùng bảy hàm cơ sở cho nó.
+
+<MdxCode language="text" code={"In [31]:gam_full=LinearGAM(s_gam(0)+\ns_gam(1,n_splines=7)+\nf_gam(2,lam=0))\nXgam=np.column_stack([age,\nWage['year'],\nWage['education'].cat.codes])\ngam_full=gam_full.fit(Xgam,y)"} />
+
+Hai hạng tử `s_gam()` tạo các mô hình spline làm trơn và dùng giá trị mặc định cho _λ_ (`lam=0.6`), một lựa chọn hơi tùy ý. Với hạng tử phân loại `education`, được chỉ định bằng `f_gam()`, ta đặt `lam=0` để tránh co rút. Ta tạo biểu đồ phụ thuộc riêng phần theo `age` để xem ảnh hưởng của các lựa chọn này.
+
+Các giá trị cho biểu đồ được gói `pygam` sinh ra. Ta cung cấp hàm `plot_gam()` trong `ISLP.pygam` dành cho biểu đồ phụ thuộc riêng phần; `plot_gam()` giúp công việc này dễ hơn ví dụ trước với spline tự nhiên.
+
+<MdxCode language="text" code={"In [32]:fig,ax=subplots(figsize=(8,8))\nplot_gam(gam_full,0,ax=ax)\nax.set_xlabel('Age')\nax.set_ylabel('Effectonwage')\nax.set_title('Partialdependenceofageonwage-defaultlam=0.6',\nfontsize=20);"} />
+
+Ta thấy hàm hơi dao động. Việc chỉ định `df` tự nhiên hơn chỉ định giá trị `lam`. Ta khớp lại GAM dùng bốn bậc tự do cho cả `age` và `year`. Nhớ rằng việc cộng một dưới đây tính đến hệ số chặn của spline làm trơn.
+
+<MdxCode language="text" code={"In [33]:age_term=gam_full.terms[0]\nage_term.lam=approx_lam(Xgam,age_term,df=4+1)\nyear_term=gam_full.terms[1]\nyear_term.lam=approx_lam(Xgam,year_term,df=4+1)\ngam_full=gam_full.fit(Xgam,y)"} />
+
+Lưu ý rằng cập nhật `age_term.lam` ở trên cũng cập nhật nó trong `gam_full.terms[0]`! Tương tự với `year_term.lam`.
+
+Khi vẽ lại biểu đồ cho `age`, ta thấy nó trơn hơn nhiều. Ta cũng tạo biểu đồ cho `year`.
+
+<MdxCode language="text" code={"In [34]:fig,ax=subplots(figsize=(8,8))\nplot_gam(gam_full,\n1,\nax=ax)\nax.set_xlabel('Year')\nax.set_ylabel('Effectonwage')\nax.set_title('Partialdependenceofyearonwage',fontsize=20)"} />
+
+Cuối cùng, ta vẽ education, một biến phân loại. Biểu đồ phụ thuộc riêng phần có dạng khác và phù hợp hơn với tập hằng số đã khớp cho từng mức của biến.
+
+<MdxCode language="text" code={"In [35]:fig,ax=subplots(figsize=(8,8))\nax=plot_gam(gam_full,2)\nax.set_xlabel('Education')\nax.set_ylabel('Effectonwage')"} />
+
+<MdxCode language="text" code={"ax.set_title('Partialdependenceofwageoneducation',\nfontsize=20);\nax.set_xticklabels(Wage['education'].cat.categories,fontsize=8);"} />
+
+##### Kiểm định ANOVA cho mô hình cộng tính
+
+Trong tất cả các mô hình, hàm theo `year` trông khá tuyến tính. Ta có thể thực hiện một chuỗi kiểm định ANOVA để xác định mô hình nào trong ba mô hình là tốt nhất: GAM loại `year` (_M_ 1), GAM dùng hàm tuyến tính của `year` (_M_ 2), hay GAM dùng hàm spline của `year` (_M_ 3).
+
+<MdxCode language="text" code={"In [36]:gam_0=LinearGAM(age_term+f_gam(2,lam=0))\ngam_0.fit(Xgam,y)\ngam_linear=LinearGAM(age_term+\nl_gam(1,lam=0)+\nf_gam(2,lam=0))\ngam_linear.fit(Xgam,y)"} />
+
+<MdxCode language="text" code={"Out[36]:LinearGAM(callbacks=[Deviance(),Diffs()],fit_intercept=True,\nmax_iter=100,scale=None,terms=s(0)+l(1)+f(2)+intercept,\ntol=0.0001,verbose=False)"} />
+
+Lưu ý cách ta dùng `age_term` trong các biểu thức trên. Ta làm vậy vì trước đó đã đặt giá trị `lam` của hạng tử này để đạt bốn bậc tự do.
+
+Để đánh giá trực tiếp ảnh hưởng của `year`, ta chạy ANOVA trên ba mô hình đã khớp.
+
+<MdxCode language="text" code={"In [37]:anova_gam(gam_0,gam_linear,gam_full)"} />
+
+<MdxCode language="text" code={"Out[37]:"} />
+
+<MdxCode language="text" code={"deviancedfdeviance_diffdf_diffFpvalue\n03714362.3662991.004NaNNaNNaNNaN\n13696745.8232990.00517616.5430.99914.2650.002\n23693142.9302987.0073602.8942.9980.9720.436"} />
+
+Ta tìm thấy bằng chứng thuyết phục rằng GAM có hàm tuyến tính theo `year` tốt hơn GAM hoàn toàn không chứa `year` (giá trị _p_ = 0.002). Tuy nhiên, không có bằng chứng cho thấy cần một hàm phi tuyến của `year` (giá trị _p_ = 0.435). Nói cách khác, dựa trên kết quả ANOVA này, _M_ 2 được ưu tiên.
+
+Ta có thể lặp cùng quy trình cho `age`. Có bằng chứng rất rõ rằng cần một hạng tử phi tuyến cho `age`.
+
+<MdxCode language="text" code={"In [38]:gam_0=LinearGAM(year_term+\nf_gam(2,lam=0))\ngam_linear=LinearGAM(l_gam(0,lam=0)+\nyear_term+\nf_gam(2,lam=0))\ngam_0.fit(Xgam,y)\ngam_linear.fit(Xgam,y)\nanova_gam(gam_0,gam_linear,gam_full)"} />
+
+**`Out[38]:`** `deviance df deviance_diff df_diff F pvalue 0 3975443.045 2991.001 NaN NaN NaN NaN 1 3850246.908 2990.001 125196.137 1.000 101.270 0.000 2 3693142.930 2987.007 157103.978 2.993 42.448 0.000` Có một phương thức `summary()` (khá dài dòng) cho mô hình GAM đã khớp. (Ta không chép lại ở đây.)
+
+<MdxCode language="text" code={"In [39]:gam_full.summary()"} />
+
+Ta có thể dự đoán từ các đối tượng `gam`, giống như từ đối tượng `lm`, bằng phương thức `predict()` của lớp `gam`. Ở đây ta dự đoán trên tập huấn luyện.
+
+<MdxCode language="text" code={"In [40]:Yhat=gam_full.predict(Xgam)"} />
+
+Để khớp GAM hồi quy logistic, ta dùng `LogisticGAM()` từ `pygam` (được ghi là `LogisticGAM() pygam` trong nguồn). **`In [41]:`** `gam_logit = LogisticGAM(age_term + l_gam(1, lam=0) + f_gam(2, lam=0)) gam_logit.fit(Xgam, high_earn)`
+
+<MdxCode language="text" code={"Out[41]:LogisticGAM(callbacks=[Deviance(),Diffs(),Accuracy()],\nfit_intercept=True,max_iter=100,\nterms=s(0)+l(1)+f(2)+intercept,tol=0.0001,verbose=False)"} />
+
+<MdxCode language="text" code={"In [42]:fig,ax=subplots(figsize=(8,8))\nax=plot_gam(gam_logit,2)\nax.set_xlabel('Education')\nax.set_ylabel('Effectonwage')\nax.set_title('Partialdependenceofwageoneducation',\nfontsize=20);\nax.set_xticklabels(Wage['education'].cat.categories,fontsize=8);"} />
+
+Mô hình có vẻ rất phẳng, với các thanh sai số đặc biệt cao ở nhóm đầu tiên. Hãy xem kỹ dữ liệu hơn.
+
+<MdxCode language="text" code={"In [43]:pd.crosstab(Wage['high_earn'],Wage['education'])"} />
+
+Ta thấy không có người thu nhập cao ở nhóm học vấn đầu tiên, nghĩa là mô hình sẽ khó khớp. Ta sẽ khớp GAM hồi quy logistic sau khi loại tất cả quan sát thuộc nhóm này. Kết quả hợp lý hơn.
+
+Để làm vậy, ta có thể lấy tập con của ma trận mô hình, dù điều này không loại cột khỏi `Xgam`. Dù có thể suy ra cột nào ứng với đặc trưng này, để bảo đảm khả năng tái lập ta tạo lại ma trận mô hình trên tập con nhỏ hơn.
+
+**`In [44]:`** `only_hs = Wage['education'] == '1. < HS Grad' Wage_ = Wage.loc[` _∼_ `only_hs] Xgam_ = np.column_stack([Wage_['age'], Wage_['year'], Wage_['education'].cat.codes -1]) high_earn_ = Wage_['high_earn']`
+
+Ở dòng áp chót, ta trừ một khỏi mã của nhóm vì một lỗi trong `pygam`. Thao tác này chỉ gán nhãn lại các giá trị `education`, nên không ảnh hưởng đến mô hình khớp. Bây giờ ta khớp mô hình.
+
+<MdxCode language="text" code={"In [45]:gam_logit_=LogisticGAM(age_term+\nyear_term+\nf_gam(2,lam=0))\ngam_logit_.fit(Xgam_,high_earn_)"} />
+
+<MdxCode language="text" code={"Out[45]:LogisticGAM(callbacks=[Deviance(),Diffs(),Accuracy()],\nfit_intercept=True,max_iter=100,\nterms=s(0)+s(1)+f(2)+intercept,tol=0.0001,verbose=False)"} />
+
+Hãy xem ảnh hưởng của `education`, `year` và `age` lên trạng thái thu nhập cao sau khi đã loại các quan sát đó.
+
+<MdxCode language="text" code={"In [46]:fig,ax=subplots(figsize=(8,8))\nax=plot_gam(gam_logit_,2)\nax.set_xlabel('Education')\nax.set_ylabel('Effectonwage')\nax.set_title('Partialdependenceofhighearnerstatusoneducation\n'\n,fontsize=20);\nax.set_xticklabels(Wage['education'].cat.categories[1:],\nfontsize=8);"} />
+
+<MdxCode language="text" code={"In [47]:fig,ax=subplots(figsize=(8,8))\nax=plot_gam(gam_logit_,1)\nax.set_xlabel('Year')\nax.set_ylabel('Effectonwage')\nax.set_title('Partialdependenceofhighearnerstatusonyear',\nfontsize=20);"} />
+
+<MdxCode language="text" code={"In [48]:fig,ax=subplots(figsize=(8,8))\nax=plot_gam(gam_logit_,0)\nax.set_xlabel('Age')\nax.set_ylabel('Effectonwage')\nax.set_title('Partialdependenceofhighearnerstatusonage',\nfontsize=20);"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 7.8.4 Hồi quy cục bộ
+
+Ta minh họa hồi quy cục bộ bằng hàm `lowess()` từ `lowess() sm.nonparametric`. Một số cách triển khai GAM cho phép các hạng tử là toán tử hồi quy cục bộ; `pygam` không hỗ trợ điều này. Ở đây ta khớp mô hình hồi quy tuyến tính cục bộ với độ phủ 0.2 và 0.5, tức mỗi lân cận gồm 20% hoặc 50% quan sát. Đúng như dự kiến, dùng độ phủ 0.5 tạo kết quả trơn hơn 0.2.
+
+<MdxCode language="text" code={"In [49]:lowess=sm.nonparametric.lowess\nfig,ax=subplots(figsize=(8,8))\nax.scatter(age,y,facecolor='gray',alpha=0.5)\nforspanin[0.2,0.5]:\nfitted=lowess(y,"} />
+
+<MdxCode language="text" code={"age,\nfrac=span,\nxvals=age_grid)\nax.plot(age_grid,\nfitted,\nlabel='{:.1f}'.format(span),\nlinewidth=4)\nax.set_xlabel('Age',fontsize=20)\nax.set_ylabel('Wage',fontsize=20);\nax.legend(title='span',fontsize=15);"} />
+
+</MdxPage>

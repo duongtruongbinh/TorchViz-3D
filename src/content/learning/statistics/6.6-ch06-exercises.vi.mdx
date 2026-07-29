@@ -1,0 +1,204 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch06-exercises",
+  "locale": "vi",
+  "title": "6.6 Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Thực hành"
+  ],
+  "keywords": [
+    "statistics",
+    "học thống kê",
+    "ISLP",
+    "Lựa chọn và điều chuẩn mô hình tuyến tính",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Ta thực hiện lựa chọn tập con tốt nhất, lựa chọn từng bước tiến và lựa chọn từng bước lùi trên cùng một tập dữ liệu. Với mỗi phương pháp, ta thu được _p_ + 1 mô hình chứa 0 _,_ 1 _,_ 2 _, . . . , p_ biến dự báo. Hãy giải thích các câu trả lời:
+
+   - (a) Trong ba mô hình có _k_ biến dự báo, mô hình nào có RSS _huấn luyện_ nhỏ nhất?
+
+   - (b) Trong ba mô hình có _k_ biến dự báo, mô hình nào có RSS _kiểm tra_ nhỏ nhất?
+
+   - (c) Đúng hay Sai:
+
+      - i. Các biến dự báo trong mô hình _k_ biến được xác định bằng lựa chọn từng bước tiến là tập con của các biến dự báo trong mô hình ( _k_ +1) biến được xác định bằng lựa chọn từng bước tiến.
+
+      - ii. Các biến dự báo trong mô hình _k_ biến được xác định bằng lựa chọn từng bước lùi là tập con của các biến dự báo trong mô hình ( _k_ + 1) biến được xác định bằng lựa chọn từng bước lùi.
+
+      - iii. Các biến dự báo trong mô hình _k_ biến được xác định bằng lựa chọn từng bước lùi là tập con của các biến dự báo trong mô hình ( _k_ + 1) biến được xác định bằng lựa chọn từng bước tiến.
+
+      - iv. Các biến dự báo trong mô hình _k_ biến được xác định bằng lựa chọn từng bước tiến là tập con của các biến dự báo trong mô hình ( _k_ +1) biến được xác định bằng lựa chọn từng bước lùi.
+
+      - v. Các biến dự báo trong mô hình _k_ biến được xác định bằng lựa chọn tập con tốt nhất là tập con của các biến dự báo trong mô hình ( _k_ + 1) biến được xác định bằng lựa chọn tập con tốt nhất.
+
+2. Với các phần (a) đến (c), hãy chỉ ra đáp án đúng trong i. đến iv. và giải thích.
+
+   - (a) So với bình phương tối thiểu, lasso:
+
+      - i. Linh hoạt hơn, nên sẽ cải thiện độ chính xác dự đoán khi mức tăng độ chệch nhỏ hơn mức giảm phương sai.
+
+      - ii. Linh hoạt hơn, nên sẽ cải thiện độ chính xác dự đoán khi mức tăng phương sai nhỏ hơn mức giảm độ chệch.
+
+      - iii. Kém linh hoạt hơn, nên sẽ cải thiện độ chính xác dự đoán khi mức tăng độ chệch nhỏ hơn mức giảm phương sai.
+
+      - iv. Kém linh hoạt hơn, nên sẽ cải thiện độ chính xác dự đoán khi mức tăng phương sai nhỏ hơn mức giảm độ chệch.
+
+   - (b) Lặp lại (a) cho hồi quy ridge so với bình phương tối thiểu.
+
+   - (c) Lặp lại (a) cho các phương pháp phi tuyến so với bình phương tối thiểu.
+
+3. Giả sử ta ước lượng các hệ số trong mô hình hồi quy tuyến tính bằng cách cực tiểu hóa
+
+với một giá trị _s_ cụ thể. Với các phần (a) đến (e), hãy chỉ ra đáp án đúng trong i. đến v. và giải thích.
+
+   - (a) Khi tăng _s_ từ 0, RSS huấn luyện sẽ:
+
+      - i. Ban đầu tăng, rồi cuối cùng bắt đầu giảm theo dạng chữ U ngược.
+
+      - ii. Ban đầu giảm, rồi cuối cùng bắt đầu tăng theo dạng chữ U.
+
+      - iii. Tăng đều.
+
+      - iv. Giảm đều.
+
+      - v. Không đổi.
+
+   - (b) Lặp lại (a) cho RSS kiểm tra.
+
+   - (c) Lặp lại (a) cho phương sai.
+
+   - (d) Lặp lại (a) cho bình phương độ chệch.
+
+   - (e) Lặp lại (a) cho sai số không thể giảm.
+
+4. Giả sử ta ước lượng các hệ số trong mô hình hồi quy tuyến tính bằng cách cực tiểu hóa
+
+với một giá trị _λ_ cụ thể. Với các phần (a) đến (e), hãy chỉ ra đáp án đúng trong i. đến v. và giải thích.
+
+- (a) Khi tăng _λ_ từ 0, RSS huấn luyện sẽ:
+
+   - i. Ban đầu tăng, rồi cuối cùng bắt đầu giảm theo dạng chữ U ngược.
+
+   - ii. Ban đầu giảm, rồi cuối cùng bắt đầu tăng theo dạng chữ U.
+
+   - iii. Tăng đều.
+
+   - iv. Giảm đều.
+
+   - v. Không đổi.
+
+- (b) Lặp lại (a) cho RSS kiểm tra.
+
+- (c) Lặp lại (a) cho phương sai.
+
+- (d) Lặp lại (a) cho bình phương độ chệch.
+
+- (e) Lặp lại (a) cho sai số không thể giảm.
+
+5. Hồi quy ridge thường cho các biến tương quan những giá trị hệ số gần nhau, trong khi lasso có thể cho các biến tương quan những giá trị hệ số rất khác nhau. Bây giờ ta sẽ khảo sát tính chất này trong một trường hợp rất đơn giản.
+
+Giả sử _n_ = 2, _p_ = 2, _x_ 11 = _x_ 12, _x_ 21 = _x_ 22. Đồng thời, giả sử _y_ 1 + _y_ 2 = 0, _x_ 11 + _x_ 21 = 0 và _x_ 12 + _x_ 22 = 0, vì vậy ước lượng hệ số chặn trong mô hình bình phương tối thiểu, hồi quy ridge hoặc lasso bằng không: _β_^(ˆ) 0 = 0.
+
+   - (a) Viết bài toán tối ưu hồi quy ridge trong trường hợp này.
+
+   - (b) Lập luận rằng trong trường hợp này, các ước lượng hệ số ridge thỏa mãn ˆ ˆ _β_ 1 = _β_ 2.
+
+   - (c) Viết bài toán tối ưu lasso trong trường hợp này.
+
+   - (d) Lập luận rằng trong trường hợp này, các hệ số lasso _β_^(ˆ) 1 và _β_^(ˆ) 2 không duy nhất; nói cách khác, bài toán tối ưu trong (c) có nhiều nghiệm khả dĩ. Hãy mô tả các nghiệm đó.
+
+6. Bây giờ ta sẽ khảo sát thêm (6.12) và (6.13).
+
+   - (a) Xét (6.12) với _p_ = 1. Với một lựa chọn _y_ 1 và _λ &gt;_ 0 nào đó, hãy vẽ (6.12) theo _β_ 1. Đồ thị phải xác nhận rằng nghiệm của (6.12) được cho bởi (6.14).
+
+   - (b) Xét (6.13) với _p_ = 1. Với một lựa chọn _y_ 1 và _λ &gt;_ 0 nào đó, hãy vẽ (6.13) theo _β_ 1. Đồ thị phải xác nhận rằng nghiệm của (6.13) được cho bởi (6.15).
+
+7. Bây giờ ta sẽ suy ra mối liên hệ Bayes với lasso và hồi quy ridge đã thảo luận trong Mục 6.2.2.
+
+- (a) Giả sử _yi_ = _β_ 0 +^(�)^(_p_) _j_ =1^(_xijβj_+)^(_ϵi_where)^(_ϵ_1)^(_, . . . , ϵn_are inde-) độc lập, cùng phân phối theo phân phối _N_ (0 _, σ_^(2) ). Hãy viết hàm likelihood của dữ liệu.
+
+- (b) Giả sử prior sau cho _β_: _β_ 1 _, . . . , βp_ độc lập, cùng phân phối theo phân phối mũ kép có trung bình 0 và tham số tỷ lệ chung _b_, tức _p_ ( _β_ ) = 21 _b_^(exp()^(_−|β|/b_).Writeouttheposteriorfor)^(_β_inthis) trường hợp này. Hãy viết phân phối posterior của _β_.
+
+- (c) Lập luận rằng ước lượng lasso là _mode_ của _β_ theo phân phối posterior này.
+
+- (d) Bây giờ giả sử prior sau cho _β_: _β_ 1 _, . . . , βp_ độc lập, cùng phân phối theo phân phối chuẩn có trung bình bằng không và phương sai _c_. Hãy viết phân phối posterior của _β_ trong trường hợp này.
+
+- (e) Lập luận rằng ước lượng hồi quy ridge vừa là _mode_ vừa là _mean_ của _β_ theo phân phối posterior này.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thực hành
+
+8. Trong bài tập này, ta sẽ tạo dữ liệu mô phỏng rồi dùng dữ liệu đó để thực hiện lựa chọn từng bước tiến và từng bước lùi.
+
+   - (a) Tạo một bộ sinh số ngẫu nhiên và dùng phương thức `normal()` để sinh biến dự báo _X_ có độ dài _n_ = 100, cùng vector nhiễu _ϵ_ có độ dài _n_ = 100.
+
+   - (b) Sinh vector đáp ứng _Y_ có độ dài _n_ = 100 theo mô hình
+
+trong đó _β_ 0, _β_ 1, _β_ 2 và _β_ 3 là các hằng số do bạn chọn.
+
+- (c) Dùng lựa chọn từng bước tiến để chọn mô hình chứa các biến dự báo _X, X_^(2) _, . . . , X_^(10). Mô hình thu được theo _Cp_ là gì? Báo cáo các hệ số của mô hình đó.
+
+- (d) Lặp lại (c) bằng lựa chọn từng bước lùi. Câu trả lời khác kết quả trong (c) như thế nào?
+
+- (e) Bây giờ khớp một mô hình lasso với dữ liệu mô phỏng, vẫn dùng _X, X_^(2) _, . . . , X_^(10) làm biến dự báo. Dùng xác thực chéo để chọn giá trị _λ_ tối ưu. Vẽ sai số xác thực chéo theo _λ_. Báo cáo các hệ số ước lượng thu được và thảo luận kết quả.
+
+- (f) Bây giờ sinh vector đáp ứng _Y_ theo mô hình
+
+rồi thực hiện lựa chọn từng bước tiến và lasso. Hãy thảo luận kết quả.
+
+9. Trong bài này, ta sẽ dùng các biến khác trong tập dữ liệu `College` để dự đoán số hồ sơ đăng ký nhận được.
+
+   - (a) Chia tập dữ liệu thành tập huấn luyện và tập kiểm tra.
+
+   - (b) Khớp mô hình tuyến tính bằng bình phương tối thiểu trên tập huấn luyện và báo cáo sai số kiểm tra.
+
+   - (c) Khớp mô hình hồi quy ridge trên tập huấn luyện, với _λ_ được chọn bằng xác thực chéo. Báo cáo sai số kiểm tra.
+
+   - (d) Khớp mô hình lasso trên tập huấn luyện, với _λ_ được chọn bằng xác thực chéo. Báo cáo sai số kiểm tra cùng số lượng hệ số ước lượng khác không.
+
+   - (e) Khớp mô hình PCR trên tập huấn luyện, với _M_ được chọn bằng xác thực chéo. Báo cáo sai số kiểm tra cùng giá trị _M_ được xác thực chéo chọn.
+
+   - (f) Khớp mô hình PLS trên tập huấn luyện, với _M_ được chọn bằng xác thực chéo. Báo cáo sai số kiểm tra cùng giá trị _M_ được xác thực chéo chọn.
+
+   - (g) Nhận xét kết quả. Ta có thể dự đoán số hồ sơ đăng ký đại học nhận được chính xác đến mức nào? Sai số kiểm tra của năm phương pháp này có khác nhau nhiều không?
+
+10. Ta đã thấy rằng khi số đặc trưng trong mô hình tăng, sai số huấn luyện chắc chắn giảm nhưng sai số kiểm tra có thể không giảm. Bây giờ ta sẽ khảo sát điều này trên một tập dữ liệu mô phỏng.
+
+   - (a) Sinh một tập dữ liệu có _p_ = 20 đặc trưng, _n_ = 1 _,_ 000 quan sát và một vector đáp ứng định lượng tương ứng được sinh theo mô hình
+
+##### _Y_ = _Xβ_ + _ϵ,_
+
+trong đó một số phần tử của _β_ bằng đúng không.
+
+   - (b) Chia tập dữ liệu thành tập huấn luyện gồm 100 quan sát và tập kiểm tra gồm 900 quan sát.
+
+   - (c) Thực hiện lựa chọn tập con tốt nhất trên tập huấn luyện và vẽ MSE huấn luyện ứng với mô hình tốt nhất ở mỗi kích thước.
+
+   - (d) Vẽ MSE kiểm tra ứng với mô hình tốt nhất ở mỗi kích thước.
+
+   - (e) MSE kiểm tra đạt giá trị nhỏ nhất ở kích thước mô hình nào? Hãy nhận xét kết quả. Nếu giá trị nhỏ nhất xuất hiện ở mô hình chỉ có hệ số chặn hoặc mô hình chứa tất cả đặc trưng, hãy điều chỉnh cách sinh dữ liệu trong (a) cho đến khi tạo được trường hợp mà MSE kiểm tra nhỏ nhất ở một kích thước mô hình trung gian.
+
+   - (f) Mô hình làm MSE kiểm tra nhỏ nhất khác mô hình thật dùng để sinh dữ liệu như thế nào? Hãy nhận xét các giá trị hệ số.
+
+   - (g) Tạo đồ thị biểu diễn � ~~�~~ _pj_ =1^(()^(_βj−β_ˆ) _j_^(_r_)2for a range of values) của _r_, trong đó _β_^(ˆ) _j_^(_r_isthe)^(_j_thcoefficientestimateforthebestmodel) chứa _r_ hệ số. Hãy nhận xét điều quan sát được. Kết quả này khác đồ thị MSE kiểm tra trong (d) như thế nào?
+
+11. Bây giờ ta sẽ thử dự đoán tỷ lệ tội phạm bình quân đầu người trong tập dữ liệu `Boston`.
+
+   - (a) Thử một số phương pháp hồi quy đã khảo sát trong chương, chẳng hạn lựa chọn tập con tốt nhất, lasso, hồi quy ridge và PCR. Trình bày và thảo luận kết quả của các phương pháp bạn xem xét.
+
+   - (b) Đề xuất một mô hình (hoặc tập mô hình) có vẻ hoạt động tốt trên tập dữ liệu này và giải thích lựa chọn. Hãy bảo đảm bạn đánh giá hiệu năng mô hình bằng sai số tập xác thực, xác thực chéo hoặc một phương án hợp lý khác, thay vì dùng sai số huấn luyện.
+
+- (c) Mô hình bạn chọn có sử dụng tất cả đặc trưng trong tập dữ liệu không? Tại sao?
+
+</MdxPage>

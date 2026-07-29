@@ -1,0 +1,188 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-exercises",
+  "locale": "vi",
+  "title": "4.8 Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Thực hành"
+  ],
+  "keywords": [
+    "statistics",
+    "học thống kê",
+    "ISLP",
+    "Phân loại",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Dùng một vài phép biến đổi đại số để chứng minh rằng (4.2) tương đương với (4.3). Nói cách khác, biểu diễn bằng hàm logistic và biểu diễn logit của mô hình hồi quy logistic là tương đương.
+
+2. Phần nội dung đã khẳng định rằng việc xếp một quan sát vào lớp làm (4.17) lớn nhất tương đương với việc xếp quan sát đó vào lớp làm (4.18) lớn nhất. Hãy chứng minh khẳng định này. Nói cách khác, với giả định rằng các quan sát thuộc lớp thứ _k_ được lấy từ phân phối _N_ ( _µk, σ_^(2) ), bộ phân loại Bayes xếp một quan sát vào lớp làm cực đại hàm phân biệt.
+
+3. Bài này liên quan đến mô hình QDA, trong đó các quan sát thuộc mỗi lớp được lấy từ một phân phối chuẩn có vector trung bình riêng cho lớp và ma trận hiệp phương sai riêng cho lớp. Ta xét trường hợp đơn giản _p_ = 1, tức chỉ có một đặc trưng.
+
+   - Giả sử có _K_ lớp, và nếu một quan sát thuộc lớp thứ _k_ thì _X_ đến từ phân phối chuẩn một chiều, _X ∼ N_ ( _µk, σk_^(2).Recallthatthedensityfunctionforthe) Phân phối chuẩn một chiều được cho trong (4.16). Hãy chứng minh rằng trong trường hợp này, bộ phân loại Bayes _không_ tuyến tính. Lập luận rằng nó thực chất là bậc hai.
+
+   - _Gợi ý: Với bài này, hãy làm theo lập luận trong Mục 4.4.1 nhưng không sử dụng giả định σ_ 1^(2=)^(_· · ·_=)^(_σ_) _K_^(2)^(_._)
+
+4. Khi số đặc trưng _p_ lớn, hiệu năng của KNN và các phương pháp _cục bộ_ khác thường suy giảm. Các phương pháp này chỉ dùng những quan sát ở _gần_ quan sát kiểm tra cần dự đoán. Hiện tượng này được gọi là _lời nguyền số chiều_ (curse of dimensionality), và có liên quan đến việc các phương pháp phi tham số thường hoạt động kém khi _p_ lớn. Bây giờ ta sẽ khảo sát lời nguyền này.
+
+- (a) Giả sử ta có một tập quan sát, mỗi quan sát được đo trên _p_ = 1 đặc trưng _X_. Giả sử _X_ phân bố đều trên [0 _,_ 1]. Mỗi quan sát đi kèm một giá trị đáp ứng. Ta muốn dự đoán đáp ứng của một quan sát kiểm tra chỉ bằng những quan sát nằm trong 10 % khoảng giá trị của _X_ gần quan sát kiểm tra đó nhất. Chẳng hạn, để dự đoán đáp ứng cho một quan sát kiểm tra có _X_ = 0 _._ 6, ta sẽ dùng các quan sát trong khoảng [0 _._ 55 _,_ 0 _._ 65]. Trung bình, ta sẽ dùng bao nhiêu phần trong số các quan sát hiện có để dự đoán?
+
+- (b) Bây giờ giả sử mỗi quan sát được đo trên _p_ = 2 đặc trưng, _X_ 1 và _X_ 2. Giả sử ( _X_ 1 _, X_ 2) phân bố đều trên [0 _,_ 1] _×_ [0 _,_ 1]. Ta muốn dự đoán đáp ứng của một quan sát kiểm tra chỉ bằng những quan sát vừa nằm trong 10 % khoảng giá trị của _X_ 1, vừa nằm trong 10 % khoảng giá trị của _X_ 2 gần quan sát kiểm tra đó nhất. Chẳng hạn, để dự đoán đáp ứng cho một quan sát kiểm tra có _X_ 1 = 0 _._ 6 và _X_ 2 = 0 _._ 35, ta sẽ dùng các quan sát có _X_ 1 trong khoảng [0 _._ 55 _,_ 0 _._ 65] và _X_ 2 trong khoảng [0 _._ 3 _,_ 0 _._ 4]. Trung bình, ta sẽ dùng bao nhiêu phần trong số các quan sát hiện có?
+
+- (c) Bây giờ giả sử ta có một tập quan sát trên _p_ = 100 đặc trưng. Các quan sát vẫn phân bố đều trên từng đặc trưng và mỗi đặc trưng vẫn nhận giá trị từ 0 đến 1. Ta muốn dự đoán đáp ứng của một quan sát kiểm tra bằng những quan sát nằm trong 10 % khoảng giá trị của từng đặc trưng gần quan sát kiểm tra đó nhất. Ta sẽ dùng bao nhiêu phần trong số các quan sát hiện có?
+
+- (d) Dựa trên câu trả lời cho các phần (a)–(c), hãy lập luận rằng một nhược điểm của KNN khi _p_ lớn là có rất ít quan sát huấn luyện “gần” bất kỳ quan sát kiểm tra nào.
+
+- (e) Bây giờ giả sử ta muốn dự đoán cho một quan sát kiểm tra bằng cách tạo một siêu lập phương _p_ chiều có tâm tại quan sát đó và trung bình chứa 10 % số quan sát huấn luyện. Với _p_ = 1 _,_ 2 và 100, độ dài mỗi cạnh của siêu lập phương là bao nhiêu? Hãy nhận xét kết quả.
+
+_Lưu ý: Siêu lập phương là dạng tổng quát của hình lập phương cho số chiều bất kỳ. Khi p_ = 1 _, siêu lập phương chỉ là một đoạn thẳng; khi p_ = 2 _, nó là một hình vuông; và khi p_ = 100 _, nó là một khối lập phương 100 chiều._
+
+5. Bây giờ ta khảo sát sự khác biệt giữa LDA và QDA.
+
+   - (a) Nếu biên quyết định Bayes là tuyến tính, ta kỳ vọng LDA hay QDA hoạt động tốt hơn trên tập huấn luyện? Trên tập kiểm tra?
+
+   - (b) Nếu biên quyết định Bayes là phi tuyến, ta kỳ vọng LDA hay QDA hoạt động tốt hơn trên tập huấn luyện? Trên tập kiểm tra?
+
+   - (c) Nhìn chung, khi kích thước mẫu _n_ tăng, ta kỳ vọng độ chính xác dự đoán trên tập kiểm tra của QDA so với LDA tăng, giảm hay không đổi? Tại sao?
+
+   - (d) Đúng hay Sai: Ngay cả khi biên quyết định Bayes của một bài toán là tuyến tính, ta có lẽ vẫn đạt tỷ lệ lỗi kiểm tra tốt hơn với QDA thay vì LDA vì QDA đủ linh hoạt để mô hình hóa một biên quyết định tuyến tính. Hãy giải thích câu trả lời.
+
+6. Giả sử ta thu thập dữ liệu của một nhóm sinh viên trong lớp thống kê với các biến _X_ 1 = số giờ học, _X_ 2 = GPA bậc đại học và _Y_ = đạt điểm A. Ta khớp một mô hình hồi quy logistic và thu được các hệ số ước lượng _β_^(ˆ) 0 = _−_ 6 _, β_^(ˆ) 1 = 0 _._ 05 _, β_^(ˆ) 2 = 1.
+
+   - (a) Ước lượng xác suất một sinh viên học 40 giờ và có GPA bậc đại học bằng 3 _._ 5 đạt điểm A trong lớp.
+
+   - (b) Sinh viên trong phần (a) cần học bao nhiêu giờ để có 50 % khả năng đạt điểm A trong lớp?
+
+7. Giả sử ta muốn dự đoán một cổ phiếu có trả cổ tức trong năm nay hay không (“Có” hoặc “Không”) dựa trên _X_, tỷ lệ lợi nhuận của năm trước. Ta khảo sát nhiều công ty và nhận thấy giá trị trung bình của _X_ ở các công ty đã trả cổ tức là _X_^(¯) = 10, còn trung bình ở các công ty không trả cổ tức là _X_^(¯) = 0. Ngoài ra, phương sai ước lượng của _X_ cho hai nhóm công ty này là _σ_^(2) = 36. Cuối cùng, 80 % số công ty đã trả cổ tức. Giả sử _X_ tuân theo phân phối chuẩn, hãy dự đoán xác suất một công ty sẽ trả cổ tức trong năm nay khi tỷ lệ lợi nhuận năm trước của công ty đó là _X_ = 4.
+
+_Gợi ý: Nhớ rằng hàm mật độ của một biến ngẫu nhiên chuẩn là f_ ( _x_ ) = _~~√~~_ 21 _πσ_^(2)^(_e−_()^(_x−µ_)2)^(_/_2)^(_σ_2)^(_. Bạn sẽ cần dùng định lý Bayes._)
+
+8. Giả sử ta lấy một tập dữ liệu, chia thành hai tập huấn luyện và kiểm tra có cùng kích thước, rồi thử hai quy trình phân loại khác nhau. Trước hết, ta dùng hồi quy logistic và thu được tỷ lệ lỗi 20 % trên dữ liệu huấn luyện, 30 % trên dữ liệu kiểm tra. Tiếp theo, ta dùng 1 láng giềng gần nhất (tức _K_ = 1) và thu được tỷ lệ lỗi trung bình 18 % (lấy trung bình trên cả tập huấn luyện và tập kiểm tra). Dựa trên các kết quả này, ta nên ưu tiên phương pháp nào để phân loại các quan sát mới? Tại sao?
+
+9. Bài này liên quan đến _odds_.
+
+   - (a) Trung bình, bao nhiêu phần trong số những người có odds vỡ nợ thẻ tín dụng bằng 0,37 sẽ thực sự vỡ nợ?
+
+   - (b) Giả sử một người có xác suất vỡ nợ thẻ tín dụng là 16 %. Odds người đó vỡ nợ là bao nhiêu?
+
+- Pr( _Y_ = _k|X_ = _x_ )
+
+- 10. Phương trình 4.32 đã suy ra một biểu thức cho log � Pr( _Y_ = _K|X_ = _x_ ) � trong trường hợp _p &gt;_ 1, vì vậy trung bình của lớp thứ _k_, _µk_, là một vector _p_ chiều và hiệp phương sai chung **Σ** là một ma trận _p × p_. Tuy nhiên, trong trường hợp _p_ = 1, (4.32) có dạng đơn giản hơn vì các trung bình _µ_ 1 _, . . . , µK_ và phương sai _σ_^(2) đều là đại lượng vô hướng. Trong trường hợp đơn giản này, hãy lặp lại phép tính trong (4.32) và đưa ra biểu thức của _ak_ và _bkj_ theo _πk_ , _πK_ , _µk_ , _µK_ và _σ_^(2) .
+
+11. Hãy khai triển chi tiết _ak_ , _bkj_ và _bkjl_ trong (4.33). Câu trả lời cần chứa _πk_ , _πK_ , _µk_ , _µK_ , **Σ** _k_ và **Σ** _K_ .
+
+12. Giả sử bạn muốn phân loại một quan sát _X ∈_ R thành `apples` hoặc `oranges`. Bạn khớp một mô hình hồi quy logistic và nhận được
+
+Bạn của bạn khớp mô hình hồi quy logistic trên cùng dữ liệu bằng công thức _softmax_ trong (4.13), và nhận được
+
+� Pr( _Y_ = orange _|X_ = _x_ ) =
+
+- (a) Log odds của `orange` so với `apple` trong mô hình của bạn là bao nhiêu?
+
+- (b) Log odds của `orange` so với `apple` trong mô hình của người bạn là bao nhiêu?
+
+- (c) Giả sử trong mô hình của bạn, _β_^(ˆ) 0 = 2 và _β_^(ˆ) 1 = _−_ 1. Các hệ số ước lượng trong mô hình của người bạn là bao nhiêu? Hãy trả lời cụ thể nhất có thể.
+
+- (d) Bây giờ giả sử bạn và người bạn khớp cùng hai mô hình đó trên một tập dữ liệu khác. Lần này, người bạn thu được các hệ số ước lượng ˆ ˆ ˆ ˆ
+
+- _α_ orange0 = 1 _._ 2, _α_ orange1 = _−_ 2, _α_ orange0 = 3, _α_ orange1 = 0 _._ 6. Các hệ số ước lượng trong mô hình của bạn là bao nhiêu?
+
+- (e) Cuối cùng, giả sử bạn áp dụng cả hai mô hình trong (d) cho một tập dữ liệu gồm 2.000 quan sát kiểm tra. Bạn kỳ vọng nhãn lớp dự đoán từ hai mô hình trùng nhau trong bao nhiêu phần số trường hợp? Hãy giải thích.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thực hành
+
+13. Hãy trả lời câu hỏi này bằng tập dữ liệu `Weekly`, một phần của package `ISLP`. Dữ liệu này có tính chất tương tự dữ liệu `Smarket` trong bài lab của chương, ngoại trừ việc nó chứa 1 _,_ 089 mức lợi suất theo tuần trong 21 năm, từ đầu năm 1990 đến cuối năm 2010.
+
+   - (a) Tạo một số thống kê tóm tắt dạng số và đồ thị cho dữ liệu `Weekly`. Có mẫu hình nào rõ ràng không?
+
+   - (b) Dùng toàn bộ tập dữ liệu để thực hiện hồi quy logistic với `Direction` là biến đáp ứng, còn năm biến trễ cùng `Volume` là các biến dự báo. Dùng hàm summary để in kết quả. Có biến dự báo nào có ý nghĩa thống kê không? Nếu có, đó là những biến nào?
+
+   - (c) Tính ma trận nhầm lẫn và tỷ lệ dự đoán đúng tổng thể. Giải thích ma trận nhầm lẫn cho biết gì về các loại lỗi mà hồi quy logistic mắc phải.
+
+   - (d) Bây giờ khớp mô hình hồi quy logistic bằng dữ liệu huấn luyện từ năm 1990 đến 2008, với `Lag2` là biến dự báo duy nhất. Tính ma trận nhầm lẫn và tỷ lệ dự đoán đúng tổng thể trên dữ liệu được giữ lại (tức dữ liệu năm 2009 và 2010).
+
+   - (e) Lặp lại (d) bằng LDA.
+
+   - (f) Lặp lại (d) bằng QDA.
+
+   - (g) Lặp lại (d) bằng KNN với _K_ = 1.
+
+   - (h) Lặp lại (d) bằng naive Bayes.
+
+   - (i) Phương pháp nào có vẻ cho kết quả tốt nhất trên dữ liệu này?
+
+   - (j) Với mỗi phương pháp, hãy thử các tổ hợp biến dự báo khác nhau, bao gồm các phép biến đổi và tương tác có thể có. Báo cáo các biến, phương pháp và ma trận nhầm lẫn tương ứng cho kết quả tốt nhất trên dữ liệu được giữ lại. Bạn cũng nên thử nhiều giá trị _K_ cho bộ phân loại KNN.
+
+14. Trong bài này, bạn sẽ xây dựng mô hình dự đoán một ô tô có mức tiêu thụ nhiên liệu cao hay thấp dựa trên tập dữ liệu `Auto`.
+
+   - (a) Tạo biến nhị phân `mpg01`, nhận giá trị 1 nếu `mpg` lớn hơn trung vị và 0 nếu `mpg` nhỏ hơn trung vị. Bạn có thể tính trung vị bằng phương thức `median()` của data frame. Có thể sẽ hữu ích nếu thêm cột `mpg01` vào data frame bằng phép gán. Giả sử bạn đã lưu data frame dưới tên `Auto`, có thể làm như sau:
+
+<MdxCode language="text" code={"Auto['mpg01']=mpg01"} />
+
+- (b) Khám phá dữ liệu bằng đồ thị để khảo sát mối liên hệ giữa `mpg01` và các đặc trưng khác. Những đặc trưng nào có vẻ hữu ích nhất để dự đoán `mpg01`? Biểu đồ phân tán và boxplot có thể hữu ích để trả lời câu hỏi này. Hãy mô tả kết quả.
+
+- (c) Chia dữ liệu thành tập huấn luyện và tập kiểm tra.
+
+- (d) Thực hiện LDA trên dữ liệu huấn luyện để dự đoán `mpg01` bằng các biến có vẻ liên hệ mạnh nhất với `mpg01` trong (b). Sai số kiểm tra của mô hình thu được là bao nhiêu?
+
+   - (e) Thực hiện QDA trên dữ liệu huấn luyện để dự đoán `mpg01` bằng các biến có vẻ liên hệ mạnh nhất với `mpg01` trong (b). Sai số kiểm tra của mô hình thu được là bao nhiêu?
+
+   - (f) Thực hiện hồi quy logistic trên dữ liệu huấn luyện để dự đoán `mpg01` bằng các biến có vẻ liên hệ mạnh nhất với `mpg01` trong (b). Sai số kiểm tra của mô hình thu được là bao nhiêu?
+
+   - (g) Thực hiện naive Bayes trên dữ liệu huấn luyện để dự đoán `mpg01` bằng các biến có vẻ liên hệ mạnh nhất với `mpg01` trong (b). Sai số kiểm tra của mô hình thu được là bao nhiêu?
+
+   - (h) Thực hiện KNN trên dữ liệu huấn luyện với một số giá trị _K_ để dự đoán `mpg01`. Chỉ dùng các biến có vẻ liên hệ mạnh nhất với `mpg01` trong (b). Bạn thu được những sai số kiểm tra nào? Giá trị _K_ nào có vẻ hoạt động tốt nhất trên tập dữ liệu này?
+
+15. Bài này liên quan đến việc viết hàm.
+
+   - (a) Viết hàm `Power()` để in kết quả của 2 lũy thừa 3. Nói cách khác, hàm cần tính 2^(3) và in kết quả.
+
+      - _Gợi ý: Nhớ rằng_ `x**a` _nâng_ `x` _lên lũy thừa_ `a` _. Dùng hàm_ `print()` _để hiển thị kết quả._
+
+   - (b) Tạo một hàm mới `Power2()` cho phép truyền vào _hai số bất kỳ_ `x` và `a`, rồi in giá trị `x**a`. Bạn có thể bắt đầu hàm bằng dòng
+
+<MdxCode language="text" code={"defPower2(x,a):"} />
+
+Bạn có thể gọi hàm bằng cách nhập, chẳng hạn,
+
+<MdxCode language="text" code={"Power2(3,8)"} />
+
+trên dòng lệnh. Kết quả phải là giá trị 3^(8), tức 6 _,_ 561.
+
+- (c) Dùng hàm `Power2()` vừa viết để tính 10^(3), 8^(17) và 131^(3).
+
+- (d) Bây giờ tạo hàm mới `Power3()` thực sự _trả về_ kết quả `x**a` dưới dạng một đối tượng `Python`, thay vì chỉ in nó ra màn hình. Nghĩa là, nếu bạn lưu giá trị `x**a` vào một đối tượng tên `result` bên trong hàm, bạn có thể `return return` kết quả đó bằng dòng sau:
+
+<MdxCode language="text" code={"returnresult"} />
+
+Lưu ý rằng dòng trên phải là dòng cuối trong hàm và cần được thụt vào 4 dấu cách.
+
+- (e) Bây giờ dùng hàm `Power3()` để tạo đồ thị của _f_ ( _x_ ) = _x_^(2). Trục _x_ cần hiển thị dãy số nguyên từ 1 đến 10 và trục _y_ hiển thị _x_^(2). Đặt nhãn trục và tiêu đề hình phù hợp. Hãy cân nhắc hiển thị trục _x_, trục _y_ hoặc cả hai theo thang log. Bạn có thể thực hiện bằng các phương thức `ax.set_xscale()` và `ax.set_yscale()` của `.set_xscale()`
+
+- các trục mà bạn đang vẽ lên.
+
+<MdxCode language="text" code={".set_yscale()"} />
+
+- (f) Tạo hàm `PlotPower()` cho phép vẽ `x` theo `x**a` với một giá trị `a` cố định và một dãy giá trị x. Chẳng hạn, nếu gọi
+
+<MdxCode language="text" code={"PlotPower(np.arange(1,11),3)"} />
+
+   - thì đồ thị được tạo phải có trục _x_ nhận các giá trị 1 _,_ 2 _, . . . ,_ 10 và trục _y_ nhận các giá trị 1^(3) _,_ 2^(3) _, . . . ,_ 10^(3).
+
+16. Dùng tập dữ liệu `Boston` để khớp các mô hình phân loại nhằm dự đoán một vùng ngoại ô có tỷ lệ tội phạm cao hơn hay thấp hơn trung vị. Khảo sát hồi quy logistic, LDA, naive Bayes và KNN với nhiều tập con biến dự báo khác nhau. Hãy mô tả kết quả.
+
+_Gợi ý: Bạn sẽ phải tự tạo biến đáp ứng bằng các biến có trong tập dữ liệu_ `Boston` _._
+
+</MdxPage>

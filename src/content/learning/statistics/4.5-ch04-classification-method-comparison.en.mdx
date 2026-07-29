@@ -1,0 +1,94 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-classification-method-comparison",
+  "locale": "en",
+  "title": "4.5 A Comparison of Classification Methods",
+  "headings": [
+    "4.5.1 An Analytical Comparison",
+    "4.5.2 An Empirical Comparison"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Classification",
+    "A Comparison of Classification Methods"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## 4.5.1 An Analytical Comparison
+
+We now perform an _analytical_ (or mathematical) comparison of LDA, QDA, naive Bayes, and logistic regression. We consider these approaches in a setting with _K_ classes, so that we assign an observation to the class that maximizes Pr( _Y_ = _k|X_ = _x_ ). Equivalently, we can set _K_ as the _baseline_ class and assign an observation to the class that maximizes
+
+for _k_ = 1 _, . . . , K_ . Examining the specific form of (4.31) for each method provides a clear understanding of their similarities and differences.
+
+First, for LDA, we can make use of Bayes’ theorem (4.15) as well as the assumption that the predictors within each class are drawn from a multivariate normal density (4.23) with class-specific mean and shared co-
+
+Inspection of (4.32), (4.33), and (4.34) yields the following observations about LDA, QDA, and naive Bayes:
+
+- LDA is a special case of QDA with _ckjl_ = 0 for all _j_ = 1 _, . . . , p_ , _l_ = 1 _, . . . , p_ , and _k_ = 1 _, . . . , K_ . (Of course, this is not surprising, since LDA is simply a restricted version of QDA with **Σ** 1 = _· · ·_ = **Σ** _K_ = **Σ** .)
+
+- Any classifier with a linear decision boundary is a special case of naive Bayes with _gkj_ ( _xj_ ) = _bkjxj_ . In particular, this means that LDA is a special case of naive Bayes! This is not at all obvious from the descriptions of LDA and naive Bayes earlier in this chapter, since each method makes very different assumptions: LDA assumes that the features are normally distributed with a common within-class covariance matrix, and naive Bayes instead assumes independence of the features.
+
+- If we model _fkj_ ( _xj_ ) in the naive Bayes classifier using a one-dimensional Gaussian distribution _N_ ( _µkj, σj_^(2), then we end up with)^(_gkj_()^(_xj_) =) _bkjxj_ where _bkj_ = ( _µkj −µKj_ ) _/σj_^(2. In this case, naive Bayes is actually) a special case of LDA with **Σ** restricted to be a diagonal matrix with _j_ th diagonal element equal to _σj_^(2.)
+
+- Neither QDA nor naive Bayes is a special case of the other. Naive Bayes can produce a more flexible fit, since any choice can be made for _gkj_ ( _xj_ ). However, it is restricted to a purely _additive_ fit, in the sense that in (4.34), a function of _xj_ is _added_ to a function of _xl_ , for _j_ = _l_ ; however, these terms are never multiplied. By contrast, QDA includes multiplicative terms of the form _ckjlxjxl_ . Therefore, QDA has the potential to be more accurate in settings where interactions among the predictors are important in discriminating between classes.
+
+None of these methods uniformly dominates the others: in any setting, the choice of method will depend on the true distribution of the predictors in each of the _K_ classes, as well as other considerations, such as the values of _n_ and _p_ . The latter ties into the bias-variance trade-off.
+
+How does logistic regression tie into this story? Recall from (4.12) that multinomial logistic regression takes the form
+
+This is identical to the linear form of LDA (4.32): in both cases, Pr( _Y_ = _k|X_ = _x_ ) log � Pr( _Y_ = _K|X_ = _x_ ) � is a linear function of the predictors. In LDA, the coefficients in this linear function are functions of estimates for _πk_ , _πK_ , _µk_ , _µ_ bution within each class. By contrast, in logistic regression, the coefficients _K_ , and **Σ** obtained by assuming that _X_ 1 _, . . . , Xp_ follow a normal distriare chosen to maximize the likelihood function (4.5). Thus, we expect LDA to outperform logistic regression when the normality assumption (approximately) holds, and we expect logistic regression to perform better when it does not.
+
+We close with a brief discussion of _K-nearest neighbors_ (KNN), introduced in Chapter 2. Recall that KNN takes a completely different approach from the classifiers seen in this chapter. In order to make a prediction for an observation _X_ = _x_ , the training observations that are closest to _x_ are identified. Then _X_ is assigned to the class to which the plurality of these observations belong. Hence KNN is a completely non-parametric approach: no assumptions are made about the shape of the decision boundary. We make the following observations about KNN:
+
+- Because KNN is completely non-parametric, we can expect this approach to dominate LDA and logistic regression when the decision boundary is highly non-linear, provided that _n_ is very large and _p_ is small.
+
+- In order to provide accurate classification, KNN requires _a lot_ of observations relative to the number of predictors—that is, _n_ much larger than _p_ . This has to do with the fact that KNN is non-parametric, and thus tends to reduce the bias while incurring a lot of variance.
+
+- In settings where the decision boundary is non-linear but _n_ is only modest, or _p_ is not very small, then QDA may be preferred to KNN. This is because QDA can provide a non-linear decision boundary while taking advantage of a parametric form, which means that it requires a smaller sample size for accurate classification, relative to KNN.
+
+- Unlike logistic regression, KNN does not tell us which predictors are important: we don’t get a table of coefficients as in Table 4.3.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 4.5.2 An Empirical Comparison
+
+We now compare the _empirical_ (practical) performance of logistic regression, LDA, QDA, naive Bayes, and KNN. We generated data from six different scenarios, each of which involves a binary (two-class) classification problem. In three of the scenarios, the Bayes decision boundary is linear, and in the remaining scenarios it is non-linear. For each scenario, we produced 100 random training data sets. On each of these training sets, we fit each method to the data and computed the resulting test error rate on a large test set. Results for the linear scenarios are shown in Figure 4.11, and the results for the non-linear scenarios are in Figure 4.12. The KNN method requires selection of _K_ , the number of neighbors (not to be confused with the number of classes in earlier sections of this chapter). We performed KNN with two values of _K_ : _K_ = 1, and a value of _K_ that was chosen automatically using an approach called _cross-validation_ , which we discuss further in Chapter 5. We applied naive Bayes assuming univariate Gaussian densities for the features within each class (and, of course — since this is the key characteristic of naive Bayes — assuming independence of the features).
+
+In each of the six scenarios, there were _p_ = 2 quantitative predictors. The scenarios were as follows:
+
+**FIGURE 4.11.** _Boxplots of the test error rates for each of the linear scenarios described in the main text._
+
+_Scenario 1:_ There were 20 training observations in each of two classes. The observations within each class were uncorrelated random normal variables with a different mean in each class. The left-hand panel of Figure 4.11 shows that LDA performed well in this setting, as one would expect since this is the model assumed by LDA. Logistic regression also performed quite well, since it assumes a linear decision boundary. KNN performed poorly because it paid a price in terms of variance that was not offset by a reduction in bias. QDA also performed worse than LDA, since it fit a more flexible classifier than necessary. The performance of naive Bayes was slightly better than QDA, because the naive Bayes assumption of independent predictors is correct.
+
+_Scenario 2:_ Details are as in Scenario 1, except that within each class, the two predictors had a correlation of _−_ 0 _._ 5. The center panel of Figure 4.11 indicates that the performance of most methods is similar to the previous scenario. The notable exception is naive Bayes, which performs very poorly here, since the naive Bayes assumption of independent predictors is violated.
+
+_Scenario 3:_ As in the previous scenario, there is substantial negative correlation between the predictors within each class. However, this time we generated _X_ 1 and _X_ 2 from the _t-distribution_ , with 50 observations per class. _t_ - The _t_ -distribution has a similar shape to the normal distribution, but it has a tendency to yield more extreme points—that is, more points that are far from the mean. In this setting, the decision boundary was still linear, and so fit into the logistic regression framework. The set-up violated the assumptions of LDA, since the observations were not drawn from a normal distribution. The right-hand panel of Figure 4.11 shows that logistic regression outperformed LDA, though both methods were superior to the other approaches. In particular, the QDA results deteriorated considerably as a consequence of non-normality. Naive Bayes performed very poorly because the independence assumption is violated.
+
+_Scenario 4:_ The data were generated from a normal distribution, with a correlation of 0 _._ 5 between the predictors in the first class, and correlation of _−_ 0 _._ 5 between the predictors in the second class. This setup corresponded to the QDA assumption, and resulted in quadratic decision boundaries. The left-hand panel of Figure 4.12 shows that QDA outperformed all of the
+
+**FIGURE 4.12.** _Boxplots of the test error rates for each of the non-linear scenarios described in the main text._
+
+other approaches. The naive Bayes assumption of independent predictors is violated, so naive Bayes performs poorly.
+
+_Scenario 5:_ The data were generated from a normal distribution with uncorrelated predictors. Then the responses were sampled from the logistic function applied to a complicated non-linear function of the predictors. The center panel of Figure 4.12 shows that both QDA and naive Bayes gave slightly better results than the linear methods, while the much more flexible KNN-CV method gave the best results. But KNN with _K_ = 1 gave the worst results out of all methods. This highlights the fact that even when the data exhibits a complex non-linear relationship, a non-parametric method such as KNN can still give poor results if the level of smoothness is not chosen correctly.
+
+_Scenario 6:_ The observations were generated from a normal distribution with a different diagonal covariance matrix for each class. However, the sample size was _very_ small: just _n_ = 6 in each class. Naive Bayes performed very well, because its assumptions are met. LDA and logistic regression performed poorly because the true decision boundary is non-linear, due to the unequal covariance matrices. QDA performed a bit worse than naive Bayes, because given the very small sample size, the former incurred too much variance in estimating the correlation between the predictors within each class. KNN’s performance also suffered due to the very small sample size.
+
+These six examples illustrate that no one method will dominate the others in every situation. When the true decision boundaries are linear, then the LDA and logistic regression approaches will tend to perform well. When the boundaries are moderately non-linear, QDA or naive Bayes may give better results. Finally, for much more complicated decision boundaries, a non-parametric approach such as KNN can be superior. But the level of smoothness for a non-parametric approach must be chosen carefully. In the next chapter we examine a number of approaches for choosing the correct level of smoothness and, in general, for selecting the best overall method.
+
+Finally, recall from Chapter 3 that in the regression setting we can accommodate a non-linear relationship between the predictors and the response by performing regression using transformations of the predictors. A similar approach could be taken in the classification setting. For instance, we could
+
+<MdxCode language="table" code={"||Coefcient|Std. error|_t_-statistic|_p_-value|\n|---|---|---|---|---|\n|`Intercept`|73.60|5.13|14.34|0.00|\n|`workingday`|1.27|1.78|0.71|0.48|\n|`temp`|157.21|10.26|15.32|0.00|\n|`weathersit[cloudy/misty]`|-12.89|1.96|-6.56|0.00|\n|`weathersit[light rain/snow]`|-66.49|2.97|-22.43|0.00|\n|`weathersit[heavy rain/snow]`|-109.75|76.67|-1.43|0.15|"} />
+
+**TABLE 4.10.** _Results for a least squares linear model fit to predict_ `bikers` _in the_ `Bikeshare` _data. The predictors_ `mnth` _and_ `hr` _are omitted from this table due to space constraints, and can be seen in Figure 4.13. For the qualitative variable_ `weathersit` _, the baseline level corresponds to clear skies._
+
+create a more flexible version of logistic regression by including _X_^(2) , _X_^(3) , and even _X_^(4) as predictors. This may or may not improve logistic regression’s performance, depending on whether the increase in variance due to the added flexibility is offset by a sufficiently large reduction in bias. We could do the same for LDA. If we added all possible quadratic terms and cross-products to LDA, the form of the model would be the same as the QDA model, although the parameter estimates would be different. This device allows us to move somewhere between an LDA and a QDA model.
+
+</MdxPage>

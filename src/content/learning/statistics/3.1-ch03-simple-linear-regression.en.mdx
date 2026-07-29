@@ -1,0 +1,160 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch03-simple-linear-regression",
+  "locale": "en",
+  "title": "3.1 Simple Linear Regression",
+  "headings": [
+    "Simple Linear Regression",
+    "3.1.1 Estimating the Coefficients",
+    "3.1.2 Assessing the Accuracy of the Coefficient Estimates",
+    "3.1.3 Assessing the Accuracy of the Model"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Linear Regression",
+    "Simple Linear Regression"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Simple Linear Regression
+
+_Simple linear regression_ lives up to its name: it is a very straightforward simple linear approach for predicting a quantitative response _Y_ on the basis of a sinregression gle predictor variable _X_ . It assumes that there is approximately a linear relationship between _X_ and _Y_ . Mathematically, we can write this linear relationship as
+
+You might read “ _≈_ ” as _“is approximately modeled as”_ . We will sometimes describe (3.1) by saying that we are _regressing Y on X_ (or _Y onto X_ ).
+
+For example, _X_ may represent `TV` advertising and _Y_ may represent `sales` . Then we can regress `sales` onto `TV` by fitting the model
+
+In Equation 3.1, _β_ 0 and _β_ 1 are two unknown constants that represent the _intercept_ and _slope_ terms in the linear model. Together, _β_ 0 and _β_ 1 are intercept known as the model _coefficients_ or _parameters_ . Once we have used our training data to produce estimates _β_^(ˆ) 0 and _β_^(ˆ) 1 for the model coefficients, we slope coefficient can predict future sales on the basis of a particular value of TV advertising parameter by computing
+
+ˆ where _y_ indicates a prediction of _Y_ on the basis of _X_ = _x_ . Here we use a _hat_ symbol, ˆ , to denote the estimated value for an unknown parameter or coefficient, or to denote the predicted value of the response.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 3.1.1 Estimating the Coefficients
+
+In practice, _β_ 0 and _β_ 1 are unknown. So before we can use (3.1) to make predictions, we must use data to estimate the coefficients. Let
+
+represent _n_ observation pairs, each of which consists of a measurement of _X_ and a measurement of _Y_ . In the `Advertising` example, this data set consists of the TV advertising budget and product sales in _n_ = 200 different markets. (Recall that the data are displayed in Figure 2.1.) Our goal is to obtain coefficient estimates _β_^(ˆ) 0 and _β_^(ˆ) 1 such that the linear model (3.1) fits the available data well—that is, so that _yi ≈ β_^(ˆ) 0 + _β_^(ˆ) 1 _xi_ for _i_ = 1 _, . . . , n_ . In other words, we want to find an intercept _β_^(ˆ) 0 and a slope _β_^(ˆ) 1 such that the resulting line is as close as possible to the _n_ = 200 data points. There are a number of ways of measuring _closeness_ . However, by far the most common approach involves minimizing the _least squares_ criterion, and we take that approach in this chapter. Alternative approaches will be considered in least squares Chapter 6.
+
+ˆ Let _yi_ = _β_^(ˆ) 0 + _β_^(ˆ) 1 _xi_ be the prediction for _Y_ based on the _i_ th value of _X_ . ˆ Then _ei_ = _yi − yi_ represents the _i_ th _residual_ —this is the difference between residual the _i_ th observed response value and the _i_ th response value that is predicted by our linear model. We define the _residual sum of squares_ (RSS) as
+
+The least squares approach chooses _β_^(ˆ) 0 and _β_^(ˆ) 1 to minimize the RSS. Using some calculus, one can show that the minimizers are
+
+**FIGURE 3.1.** _For the_ `Advertising` _data, the least squares fit for the regression of_ `sales` _onto_ `TV` _is shown. The fit is found by minimizing the residual sum of squares. Each grey line segment represents a residual. In this case a linear fit captures the essence of the relationship, although it overestimates the trend in the left of the plot._
+
+¯ _n n_ where _y ≡ n_^(1) � _i_ =1^(_yi_and)^(_x_¯)^(_≡_) _n_^(1) � _i_ =1^(_xi_arethesamplemeans.Inother) words, (3.4) defines the _least squares coefficient estimates_ for simple linear regression.
+
+Figure 3.1 displays the simple linear regression fit to the `Advertising` data, where _β_^(ˆ) 0 = 7 _._ 03 and _β_^(ˆ) 1 = 0 _._ 0475. In other words, according to this approximation, an additional $1 _,_ 000 spent on TV advertising is associated with selling approximately 47 _._ 5 additional units of the product. In Figure 3.2, we have computed RSS for a number of values of _β_ 0 and _β_ 1, using the advertising data with `sales` as the response and `TV` as the predictor. In each plot, the red dot represents the pair of least squares estimates ( _β_^(ˆ) 0 _, β_^(ˆ) 1) given by (3.4). These values clearly minimize the RSS.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 3.1.2 Assessing the Accuracy of the Coefficient Estimates
+
+Recall from (2.1) that we assume that the _true_ relationship between _X_ and _Y_ takes the form _Y_ = _f_ ( _X_ ) + _ϵ_ for some unknown function _f_ , where _ϵ_ is a mean-zero random error term. If _f_ is to be approximated by a linear function, then we can write this relationship as
+
+Here _β_ 0 is the intercept term—that is, the expected value of _Y_ when _X_ = 0, and _β_ 1 is the slope—the average increase in _Y_ associated with a one-unit increase in _X_ . The error term is a catch-all for what we miss with this simple model: the true relationship is probably not linear, there may be other variables that cause variation in _Y_ , and there may be measurement error. We typically assume that the error term is independent of _X_ .
+
+**FIGURE 3.3.** _A simulated data set._ Left: _The red line represents the true relationship, f_ ( _X_ ) = 2 + 3 _X, which is known as the population regression line. The blue line is the least squares line; it is the least squares estimate for f_ ( _X_ ) _based on the observed data, shown in black._ Right: _The population regression line is again shown in red, and the least squares line in dark blue. In light blue, ten least squares lines are shown, each computed on the basis of a separate random set of observations. Each least squares line is different, but on average, the least squares lines are quite close to the population regression line._
+
+the population mean _µ_ of some random variable _Y_ . Unfortunately, _µ_ is unknown, but we do have access to _n_ observations from _Y_ , _y_ 1 _, . . . , yn_ , ˆ ¯ which we can use to estimate _µ_ . A reasonable estimate is _µ_ = _y_ , where ¯ _n y_ = _n_^(1) � _i_ =1^(_yi_isthesamplemean.Thesamplemeanandthepopulation) mean are different, but in general the sample mean will provide a good estimate of the population mean. In the same way, the unknown coefficients _β_ 0 and _β_ 1 in linear regression define the population regression line. We seek to estimate these unknown coefficients using _β_^(ˆ) 0 and _β_^(ˆ) 1 given in (3.4). These coefficient estimates define the least squares line.
+
+The analogy between linear regression and estimation of the mean of a random variable is an apt one based on the concept of _bias_ . If we use the sample mean _µ_ ˆ to estimate _µ_ , this estimate is _unbiased_ , in the sense that bias on average, we expect _µ_ ˆ to equal _µ_ . What exactly does this mean? It means unbiased that on the basis of one particular set of observations _y_ 1 _, . . . , yn_ , _µ_ ˆ might overestimate _µ_ , and on the basis of another set of observations, _µ_ ˆ might underestimate _µ_ . But if we could average a huge number of estimates of _µ_ obtained from a huge number of sets of observations, then this average would _exactly_ equal _µ_ . Hence, an unbiased estimator does not _systematically_ over- or under-estimate the true parameter. The property of unbiasedness holds for the least squares coefficient estimates given by (3.4) as well: if we estimate _β_ 0 and _β_ 1 on the basis of a particular data set, then our estimates won’t be exactly equal to _β_ 0 and _β_ 1. But if we could average the estimates obtained over a huge number of data sets, then the average of these estimates would be spot on! In fact, we can see from the righthand panel of Figure 3.3 that the average of many least squares lines, each
+
+estimated from a separate data set, is pretty close to the true population regression line.
+
+We continue the analogy with the estimation of the population mean _µ_ of a random variable _Y_ . A natural question is as follows: how accurate is the sample mean _µ_ ˆ as an estimate of _µ_ ? We have established that the average of _µ_ ˆ’s over many data sets will be very close to _µ_ , but that a ˆ single estimate _µ_ may be a substantial underestimate or overestimate of _µ_ . How far off will that single estimate of _µ_ ˆ be? In general, we answer this ˆ question by computing the _standard error_ of _µ_ , written as SE(ˆ _µ_ ). We have standard the well-known formula
+
+where _σ_ is the standard deviation of each of the realizations _yi_ of _Y_ .^(2) Roughly speaking, the standard error tells us the average amount that this estimate _µ_ ˆ differs from the actual value of _µ_ . Equation 3.7 also tells us how this deviation shrinks with _n_ —the more observations we have, the smaller ˆ the standard error of _µ_ . In a similar vein, we can wonder how close _β_^(ˆ) 0 and _β_^(ˆ) 1 are to the true values _β_ 0 and _β_ 1. To compute the standard errors associated with _β_^(ˆ) 0 and _β_^(ˆ) 1, we use the following formulas:
+
+where _σ_^(2) = Var( _ϵ_ ). For these formulas to be strictly valid, we need to assume that the errors _ϵi_ for each observation have common variance _σ_^(2) and are uncorrelated. This is clearly not true in Figure 3.1, but the formula still turns out to be a good approximation. Notice in the formula that SE( _β_^(ˆ) 1) is smaller when the _xi_ are more spread out; intuitively we have more _leverage_ to estimate a slope when this is the case. We also see that SE( _β_^(ˆ) 0) would be the same as SE(ˆ _µ_ ) if _x_ ¯ were zero (in which case _β_^(ˆ) 0 would be equal to _y_ ¯). In general, _σ_^(2) is not known, but can be estimated from the data. This estimate of _σ_ is known as the _residual standard error_ , and is given by the formula residual RSE = ~~�~~ RSS _/_ ( _n −_ 2). Strictly speaking, when _σ_^(2) is estimated from the standard data we should write SE(^(�) _β_^(ˆ) 1) to indicate that an estimate has been made, error but for simplicity of notation we will drop this extra “hat”.
+
+Standard errors can be used to compute _confidence intervals_ . A 95 % confidence confidence interval is defined as a range of values such that with 95 % interval probability, the range will contain the true unknown value of the parameter. The range is defined in terms of lower and upper limits computed from the sample of data. A 95% confidence interval has the following property: if we take repeated samples and construct the confidence interval for each sample, 95% of the intervals will contain the true unknown value of the parameter. For linear regression, the 95 % confidence interval for _β_ 1 approximately takes the form
+
+> 2This formula holds provided that the _n_ observations are uncorrelated.
+
+That is, there is approximately a 95 % chance that the interval
+
+will contain the true value of _β_ 1.^(3) Similarly, a confidence interval for _β_ 0 approximately takes the form
+
+In the case of the advertising data, the 95 % confidence interval for _β_ 0 is [6 _._ 130 _,_ 7 _._ 935] and the 95 % confidence interval for _β_ 1 is [0 _._ 042 _,_ 0 _._ 053]. Therefore, we can conclude that in the absence of any advertising, sales will, on average, fall somewhere between 6 _,_ 130 and 7 _,_ 935 units. Furthermore, for each $1 _,_ 000 increase in television advertising, there will be an average increase in sales of between 42 and 53 units.
+
+Standard errors can also be used to perform _hypothesis tests_ on the hypothesis coefficients. The most common hypothesis test involves testing the _null_ test _hypothesis_ of
+
+versus the _alternative hypothesis_
+
+Mathematically, this corresponds to testing
+
+since if _β_ 1 = 0 then the model (3.5) reduces to _Y_ = _β_ 0 + _ϵ_ , and _X_ is not associated with _Y_ . To test the null hypothesis, we need to determine whether _β_^(ˆ) 1, our estimate for _β_ 1, is sufficiently far from zero that we can be confident that _β_ 1 is non-zero. How far is far enough? This of course depends on the accuracy of _β_^(ˆ) 1—that is, it depends on SE( _β_^(ˆ) 1). If SE( _β_^(ˆ) 1) is small, then even relatively small values of _β_^(ˆ) 1 may provide strong evidence that _β_ 1 = 0, and hence that there is a relationship between _X_ and _Y_ . In contrast, if SE( _β_^(ˆ) 1) is large, then _β_^(ˆ) 1 must be large in absolute value in order for us to reject the null hypothesis. In practice, we compute a _t-statistic_ , _t_ -statistic given by
+
+> 3 _Approximately_ for several reasons. Equation 3.10 relies on the assumption that the errors are Gaussian. Also, the factor of 2 in front of the SE( _β_^(ˆ) 1) term will vary slightly depending on the number of observations _n_ in the linear regression. To be precise, rather than the number 2, (3.10) should contain the 97.5 % quantile of a _t_ -distribution with _n−_ 2 degrees of freedom. Details of how to compute the 95 % confidence interval precisely in `R` will be provided later in this chapter.
+
+<MdxCode language="table" code={"||Coefcient|Std. error|_t_-statistic|_p_-value|\n|---|---|---|---|---|\n|`Intercept`|7.0325|0.4578|15.36|_&lt;_0_._0001|\n|`TV`|0.0475|0.0027|17.67|_&lt;_0_._0001|"} />
+
+**TABLE 3.1.** _For the_ `Advertising` _data, coefficients of the least squares model for the regression of number of units sold on TV advertising budget. An increase of_ $1 _,_ 000 _in the TV advertising budget is associated with an increase in sales by around 50 units. (Recall that the_ `sales` _variable is in thousands of units, and the_ `TV` _variable is in thousands of dollars.)_
+
+which measures the number of standard deviations that _β_^(ˆ) 1 is away from 0. If there really is no relationship between _X_ and _Y_ , then we expect that (3.14) will have a _t_ -distribution with _n −_ 2 degrees of freedom. The _t_ -distribution has a bell shape and for values of _n_ greater than approximately 30 it is quite similar to the standard normal distribution. Consequently, it is a simple matter to compute the probability of observing any number equal to _|t|_ or larger in absolute value, assuming _β_ 1 = 0. We call this probability the _p-value_ . Roughly speaking, we interpret the _p_ -value as follows: a small _p_ -value _p_ -value indicates that it is unlikely to observe such a substantial association between the predictor and the response due to chance, in the absence of any real association between the predictor and the response. Hence, if we see a small _p_ -value, then we can infer that there is an association between the predictor and the response. We _reject the null hypothesis_ —that is, we declare a relationship to exist between _X_ and _Y_ —if the _p_ -value is small enough. Typical _p_ -value cutoffs for rejecting the null hypothesis are 5% or 1%, although this topic will be explored in much greater detail in Chapter 13. When _n_ = 30, these correspond to _t_ -statistics (3.14) of around 2 and 2.75, respectively.
+
+Table 3.1 provides details of the least squares model for the regression of number of units sold on TV advertising budget for the `Advertising` data. Notice that the coefficients for _β_^(ˆ) 0 and _β_^(ˆ) 1 are very large relative to their standard errors, so the _t_ -statistics are also large; the probabilities of seeing such values if _H_ 0 is true are virtually zero. Hence we can conclude that _β_ 0 = 0 and _β_ 1 = 0.^(4)
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 3.1.3 Assessing the Accuracy of the Model
+
+Once we have rejected the null hypothesis (3.12) in favor of the alternative hypothesis (3.13), it is natural to want to quantify _the extent to which the model fits the data_ . The quality of a linear regression fit is typically assessed using two related quantities: the _residual standard error_ (RSE) and the _R_^(2) statistic.
+
+_R_^(2)
+
+> 4In Table 3.1, a small _p_ -value for the intercept indicates that we can reject the null hypothesis that _β_ 0 = 0, and a small _p_ -value for `TV` indicates that we can reject the null hypothesis that _β_ 1 = 0. Rejecting the latter null hypothesis allows us to conclude that there is a relationship between `TV` and `sales` . Rejecting the former allows us to conclude that in the absence of `TV` expenditure, `sales` are non-zero.
+
+<MdxCode language="table" code={"|Quantity|Value|\n|---|---|\n|Residual standard error|3.26|\n|_R_^(2)|0.612|\n|_F_-statistic|312.1|"} />
+
+**TABLE 3.2.** _For the_ `Advertising` _data, more information about the least squares model for the regression of number of units sold on TV advertising budget._
+
+Table 3.2 displays the RSE, the _R_^(2) statistic, and the _F_ -statistic (to be described in Section 3.2.2) for the linear regression of number of units sold on TV advertising budget.
+
+##### Residual Standard Error
+
+Recall from the model (3.5) that associated with each observation is an error term _ϵ_ . Due to the presence of these error terms, even if we knew the true regression line (i.e. even if _β_ 0 and _β_ 1 were known), we would not be able to perfectly predict _Y_ from _X_ . The RSE is an estimate of the standard deviation of _ϵ_ . Roughly speaking, it is the average amount that the response will deviate from the true regression line. It is computed using the formula
+
+Note that RSS was defined in Section 3.1.1, and is given by the formula
+
+In the case of the advertising data, we see from the linear regression output in Table 3.2 that the RSE is 3 _._ 26. In other words, actual sales in each market deviate from the true regression line by approximately 3 _,_ 260 units, on average. Another way to think about this is that even if the model were correct and the true values of the unknown coefficients _β_ 0 and _β_ 1 were known exactly, any prediction of sales on the basis of TV advertising would still be off by about 3 _,_ 260 units on average. Of course, whether or not 3 _,_ 260 units is an acceptable prediction error depends on the problem context. In the advertising data set, the mean value of `sales` over all markets is approximately 14 _,_ 000 units, and so the percentage error is 3 _,_ 260 _/_ 14 _,_ 000 = 23 %.
+
+The RSE is considered a measure of the _lack of fit_ of the model (3.5) to the data. If the predictions obtained using the model are very close to the ˆ true outcome values—that is, if _yi ≈ yi_ for _i_ = 1 _, . . . , n_ —then (3.15) will be small, and we can conclude that the model fits the data very well. On the other hand, if _y_ ˆ _i_ is very far from _yi_ for one or more observations, then the RSE may be quite large, indicating that the model doesn’t fit the data well.
+
+_R_^(2) Statistic
+
+The RSE provides an absolute measure of lack of fit of the model (3.5) to the data. But since it is measured in the units of _Y_ , it is not always
+
+clear what constitutes a good RSE. The _R_^(2) statistic provides an alternative measure of fit. It takes the form of a _proportion_ —the proportion of variance explained—and so it always takes on a value between 0 and 1, and is independent of the scale of _Y_ .
+
+To calculate _R_^(2) , we use the formula
+
+¯ where TSS =^(�) ( _yi − y_ )^(2) is the _total sum of squares_ , and RSS is defined total sum of in (3.16). TSS measures the total variance in the response _Y_ , and can be squares thought of as the amount of variability inherent in the response before the regression is performed. In contrast, RSS measures the amount of variability that is left unexplained after performing the regression. Hence, TSS _−_ RSS measures the amount of variability in the response that is explained (or removed) by performing the regression, and _R_^(2) measures the _proportion of variability in Y that can be explained using X_ . An _R_^(2) statistic that is close to 1 indicates that a large proportion of the variability in the response is explained by the regression. A number near 0 indicates that the regression does not explain much of the variability in the response; this might occur because the linear model is wrong, or the error variance _σ_^(2) is high, or both. In Table 3.2, the _R_^(2) was 0 _._ 61, and so just under two-thirds of the variability in `sales` is explained by a linear regression on `TV` .
+
+The _R_^(2) statistic (3.17) has an interpretational advantage over the RSE (3.15), since unlike the RSE, it always lies between 0 and 1. However, it can still be challenging to determine what is a _good R_^(2) value, and in general, this will depend on the application. For instance, in certain problems in physics, we may know that the data truly comes from a linear model with a small residual error. In this case, we would expect to see an _R_^(2) value that is extremely close to 1, and a substantially smaller _R_^(2) value might indicate a serious problem with the experiment in which the data were generated. On the other hand, in typical applications in biology, psychology, marketing, and other domains, the linear model (3.5) is at best an extremely rough approximation to the data, and residual errors due to other unmeasured factors are often very large. In this setting, we would expect only a very small proportion of the variance in the response to be explained by the predictor, and an _R_^(2) value well below 0 _._ 1 might be more realistic!
+
+The _R_^(2) statistic is a measure of the linear relationship between _X_ and _Y_ . Recall that _correlation_ , defined as
+
+is also a measure of the linear relationship between _X_ and _Y_ .^(5) This suggests that we might be able to use _r_ = Cor( _X, Y_ ) instead of _R_^(2) in order to assess the fit of the linear model. In fact, it can be shown that in the simple
+
+> 5We note that in fact, the right-hand�side of (3.18) is the sample correlation; thus, it would be more correct to write Cor( _X, Y_ ); however, we omit the “hat” for ease of notation.
+
+<MdxCode language="table" code={"||Simple regre |ssion of `sal`|`es` on `radio`||\n|---|---|---|---|---|\n||Coefcient|Std. error|_t_-statistic|_p_-value|\n|`Intercept`|9.312|0.563|16.54|_&lt;_0_._0001|\n|`radio`|0.203|0.020|9.92|_&lt;_0_._0001|\n|S|imple regressi|on of `sales`|on `newspaper`||\n||Coefcient|Std. error|_t_-statistic|_p_-value|\n|`Intercept`|12.351|0.621|19.88|_&lt;_0_._0001|\n|`newspaper`|0.055|0.017|3.30|0_._00115|"} />
+
+**TABLE 3.3.** _More simple linear regression models for the_ `Advertising` _data. Coefficients of the simple linear regression model for number of units sold on_ Top: _radio advertising budget and_ Bottom: _newspaper advertising budget. A $_ 1 _,_ 000 _increase in spending on radio advertising is associated with an average increase in sales by around 203 units, while the same increase in spending on newspaper advertising is associated with an average increase in sales by around 55 units. (Note that the_ `sales` _variable is in thousands of units, and the_ `radio` _and_ `newspaper` _variables are in thousands of dollars.)_
+
+linear regression setting, _R_^(2) = _r_^(2) . In other words, the squared correlation and the _R_^(2) statistic are identical. However, in the next section we will discuss the multiple linear regression problem, in which we use several predictors simultaneously to predict the response. The concept of correlation between the predictors and the response does not extend automatically to this setting, since correlation quantifies the association between a single pair of variables rather than between a larger number of variables. We will see that _R_^(2) fills this role.
+
+</MdxPage>

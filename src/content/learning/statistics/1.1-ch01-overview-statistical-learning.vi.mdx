@@ -1,0 +1,70 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-overview-statistical-learning",
+  "locale": "vi",
+  "title": "1.1 Tổng quan về học thống kê",
+  "headings": [
+    "Tổng quan về học thống kê",
+    "Dữ liệu tiền lương",
+    "Dữ liệu thị trường chứng khoán",
+    "Dữ liệu biểu hiện gen"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Giới thiệu",
+    "Tổng quan về học thống kê"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Tổng quan về học thống kê
+
+_Học thống kê_ (statistical learning) là một tập hợp rất rộng các công cụ dùng để _hiểu dữ liệu_. Có thể phân loại những công cụ này thành phương pháp _có giám sát_ hoặc _không giám sát_. Nói khái quát, học thống kê có giám sát xây dựng một mô hình thống kê để dự đoán hoặc ước lượng một _đầu ra_ dựa trên một hay nhiều _đầu vào_. Các bài toán như vậy xuất hiện trong nhiều lĩnh vực, từ kinh doanh, y học và vật lý thiên văn đến chính sách công. Trong học thống kê không giám sát, ta có các đầu vào nhưng không có đầu ra giám sát; dù vậy, ta vẫn có thể học được những mối quan hệ và cấu trúc từ dữ liệu. Để minh họa một số ứng dụng của học thống kê, chúng ta sẽ điểm qua ba bộ dữ liệu thực tế được sử dụng trong cuốn sách này.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Dữ liệu tiền lương
+
+Trong ứng dụng này—được gọi là bộ dữ liệu `Wage` xuyên suốt cuốn sách—chúng ta xem xét một số yếu tố liên quan đến tiền lương của một nhóm nam giới tại khu vực Trung Đại Tây Dương của Hoa Kỳ. Cụ thể, ta muốn hiểu mối liên hệ giữa `age` và `education` của một nhân viên, cũng như `year` dương lịch, với `wage` của người đó. Chẳng hạn, hãy xem ô bên trái của Hình 1.1, biểu diễn `wage` theo `age` của từng người trong bộ dữ liệu. Có bằng chứng cho thấy `wage` tăng theo `age`, nhưng sau đó lại giảm khi tuổi vượt khoảng 60. Đường màu xanh, ước lượng `wage` trung bình tại một `age` nhất định, làm xu hướng này rõ hơn. Khi biết `age` của một nhân viên, ta có thể dùng đường cong này để _dự đoán_ `wage`. Tuy nhiên, Hình 1.1 cũng cho thấy giá trị trung bình này có độ biến thiên đáng kể, vì vậy chỉ riêng `age` khó có thể đưa ra dự đoán chính xác về `wage` của một người cụ thể.
+
+**HÌNH 1.1.** _Dữ liệu_ `Wage` _, chứa thông tin khảo sát thu nhập của nam giới tại khu vực Trung Đại Tây Dương của Hoa Kỳ._ Trái: `wage` _theo_ `age` _. Trung bình,_ `wage` _tăng theo_ `age` _cho đến khoảng 60 tuổi rồi bắt đầu giảm._ Giữa: `wage` _theo_ `year` _. Từ năm 2003 đến 2009,_ `wage` _trung bình tăng chậm nhưng đều khoảng 10.000 đô la._ Phải: _Các biểu đồ hộp thể hiện_ `wage` _theo_ `education` _, trong đó 1 là trình độ thấp nhất (chưa có bằng trung học) và 5 là trình độ cao nhất (bằng sau đại học nâng cao). Trung bình,_ `wage` _tăng theo trình độ học vấn._
+
+Ta cũng có thông tin về trình độ học vấn của mỗi nhân viên và `year` mà `wage` được ghi nhận. Các ô giữa và bên phải của Hình 1.1 biểu diễn `wage` theo cả `year` và `education`, cho thấy cả hai yếu tố đều có liên hệ với `wage`. Từ năm 2003 đến 2009, tiền lương tăng khoảng 10.000 đô la theo xu hướng gần tuyến tính (hay đường thẳng), dù mức tăng này khá nhỏ so với độ biến thiên trong dữ liệu. Người có trình độ học vấn cao hơn thường cũng có tiền lương cao hơn: nam giới ở trình độ thấp nhất (1) có xu hướng nhận lương thấp hơn đáng kể so với người ở trình độ cao nhất (5). Rõ ràng, dự đoán chính xác nhất về `wage` của một người sẽ đạt được khi kết hợp `age`, `education` và `year`. Trong Chương 3, chúng ta thảo luận hồi quy tuyến tính, một phương pháp có thể dùng để dự đoán `wage` từ bộ dữ liệu này. Lý tưởng nhất, dự đoán `wage` cần tính đến mối quan hệ phi tuyến giữa `wage` và `age`. Chương 7 trình bày một lớp phương pháp để xử lý vấn đề đó.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Dữ liệu thị trường chứng khoán
+
+Dữ liệu `Wage` liên quan đến việc dự đoán một giá trị đầu ra _liên tục_ hay _định lượng_. Đây thường được gọi là bài toán _hồi quy_. Tuy nhiên, trong một số trường hợp, ta muốn dự đoán một giá trị không phải số—tức một đầu ra _phân loại_ hay _định tính_. Ví dụ, Chương 4 xem xét một bộ dữ liệu thị trường chứng khoán chứa biến động hằng ngày của chỉ số Standard & Poor’s 500 (S&P) trong giai đoạn 5 năm từ 2001 đến 2005. Ta gọi đây là dữ liệu `Smarket`. Mục tiêu là dùng phần trăm thay đổi của chỉ số trong 5 ngày trước đó để dự đoán chỉ số sẽ _tăng_ hay _giảm_ vào một ngày nhất định. Bài toán học thống kê ở đây không dự đoán một giá trị số. Thay vào đó, nó dự đoán hiệu suất thị trường chứng khoán của một ngày sẽ thuộc nhóm `Up` hay `Down`. Đây được gọi là bài toán _phân loại_. Một mô hình có thể dự đoán chính xác hướng di chuyển của thị trường hẳn sẽ rất hữu ích.
+
+**HÌNH 1.2.** Trái: _Các biểu đồ hộp về phần trăm thay đổi của chỉ số S&P trong ngày trước đó, tách theo những ngày thị trường tăng hoặc giảm, lấy từ dữ liệu_ `Smarket` _._ Giữa và Phải: _Tương tự ô bên trái, nhưng thể hiện phần trăm thay đổi của 2 và 3 ngày trước._
+
+Ô bên trái của Hình 1.2 hiển thị hai biểu đồ hộp về phần trăm thay đổi của chỉ số chứng khoán trong ngày trước đó: một biểu đồ cho 648 ngày mà thị trường tăng vào ngày kế tiếp và một biểu đồ cho 602 ngày mà thị trường giảm. Hai biểu đồ gần như giống hệt nhau, cho thấy không có chiến lược đơn giản nào dùng biến động hôm qua của S&P để dự đoán lợi suất hôm nay. Các ô còn lại, thể hiện phần trăm thay đổi của 2 và 3 ngày trước, cũng cho thấy rất ít mối liên hệ giữa lợi suất quá khứ và hiện tại. Điều này thực ra đúng như ta kỳ vọng: nếu lợi suất của các ngày liên tiếp có tương quan mạnh, người ta có thể áp dụng một chiến lược giao dịch đơn giản để tạo lợi nhuận từ thị trường. Dù vậy, trong Chương 4, chúng ta khảo sát dữ liệu này bằng một số phương pháp học thống kê khác nhau. Đáng chú ý, dữ liệu có vài dấu hiệu của xu hướng yếu, cho thấy ít nhất trong giai đoạn 5 năm này, ta có thể dự đoán đúng hướng chuyển động của thị trường khoảng 60% số lần (Hình 1.3).
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Dữ liệu biểu hiện gen
+
+Hai ứng dụng trước minh họa các bộ dữ liệu có cả biến đầu vào lẫn biến đầu ra. Tuy nhiên, một lớp bài toán quan trọng khác chỉ quan sát các biến đầu vào mà không có đầu ra tương ứng. Chẳng hạn, trong marketing, ta có thể có thông tin nhân khẩu học của một số khách hàng hiện tại hoặc tiềm năng. Ta có thể muốn biết những nhóm khách hàng nào giống nhau bằng cách phân nhóm các cá nhân theo đặc điểm quan sát được. Đây được gọi là bài toán _phân cụm_. Khác với các ví dụ trước, ở đây ta không cố dự đoán một biến đầu ra.
+
+**HÌNH 1.3.** _Chúng tôi khớp một mô hình phân tích biệt thức bậc hai trên phần dữ liệu_ `Smarket` _ứng với giai đoạn 2001–2004 và dùng dữ liệu năm 2005 để dự đoán xác suất thị trường chứng khoán giảm. Trung bình, xác suất giảm dự đoán được cao hơn vào những ngày thị trường thực sự giảm. Dựa trên các kết quả này, chúng tôi dự đoán đúng hướng chuyển động của thị trường trong 60% số lần._
+
+Chương 12 dành cho các phương pháp học thống kê trong những bài toán không có biến đầu ra tự nhiên. Ta xem xét bộ dữ liệu `NCI60`, gồm 6.830 phép đo biểu hiện gen cho mỗi dòng trong số 64 dòng tế bào ung thư. Thay vì dự đoán một biến đầu ra cụ thể, ta muốn xác định liệu có các nhóm, hay cụm, giữa những dòng tế bào dựa trên các phép đo biểu hiện gen hay không. Đây là một câu hỏi khó, một phần vì mỗi dòng tế bào có hàng nghìn phép đo biểu hiện gen, khiến dữ liệu khó trực quan hóa.
+
+Ô bên trái của Hình 1.4 xử lý vấn đề này bằng cách biểu diễn mỗi dòng trong số 64 dòng tế bào chỉ bằng hai số, _Z_ 1 và _Z_ 2. Đây là hai _thành phần chính_ đầu tiên của dữ liệu; chúng rút gọn 6.830 phép đo biểu hiện của mỗi dòng tế bào xuống còn hai số, hay hai _chiều_. Việc giảm chiều này có thể làm mất một phần thông tin, nhưng đổi lại ta có thể quan sát trực quan dữ liệu để tìm dấu hiệu phân cụm. Xác định số cụm thường là một bài toán khó. Tuy nhiên, ô bên trái của Hình 1.4 gợi ý ít nhất bốn nhóm dòng tế bào, được biểu diễn bằng các màu khác nhau.
+
+Trong bộ dữ liệu cụ thể này, các dòng tế bào thực tế tương ứng với 14 loại ung thư khác nhau. (Tuy nhiên, thông tin đó không được dùng để tạo ô bên trái của Hình 1.4.) Ô bên phải của Hình 1.4 giống hệt ô bên trái, ngoại trừ việc 14 loại ung thư được biểu diễn bằng các ký hiệu màu khác nhau. Có bằng chứng rõ ràng rằng những dòng tế bào thuộc cùng một loại ung thư có xu hướng nằm gần nhau trong biểu diễn hai chiều này. Hơn nữa, dù thông tin ung thư không được dùng để tạo ô bên trái, kết quả phân cụm vẫn có nét tương đồng với một số loại ung thư thực được thể hiện ở ô bên phải. Điều này cung cấp một phép kiểm chứng độc lập cho độ chính xác của phân tích phân cụm.
+
+**HÌNH 1.4.** Trái: _Biểu diễn bộ dữ liệu biểu hiện gen_ `NCI60` _trong không gian hai chiều Z_ 1 _và Z_ 2 _. Mỗi điểm tương ứng với một trong 64 dòng tế bào. Có vẻ tồn tại bốn nhóm dòng tế bào, được biểu diễn bằng những màu khác nhau._ Phải: _Tương tự ô bên trái, nhưng mỗi loại trong số 14 loại ung thư được biểu diễn bằng một ký hiệu màu riêng. Các dòng tế bào thuộc cùng một loại ung thư có xu hướng nằm gần nhau trong không gian hai chiều._
+
+</MdxPage>

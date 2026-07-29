@@ -1,0 +1,106 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch12-missing-values-matrix-completion",
+  "locale": "vi",
+  "title": "12.3 Giá trị thiếu và hoàn thiện ma trận",
+  "headings": [
+    "Giá trị thiếu và hoàn thiện ma trận"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học không giám sát",
+    "giá trị thiếu",
+    "hoàn thiện ma trận"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Giá trị thiếu và hoàn thiện ma trận
+
+Các bộ dữ liệu thường có giá trị thiếu, gây nhiều bất tiện. Chẳng hạn, giả sử ta muốn phân tích dữ liệu `USArrests` và phát hiện 20 trong số 200 giá trị đã bị hỏng ngẫu nhiên rồi được đánh dấu là thiếu. Đáng tiếc, các phương pháp học thống kê đã trình bày trong sách không thể trực tiếp xử lý giá trị thiếu. Ta nên làm gì?
+
+Ta có thể loại bỏ các hàng chứa quan sát thiếu rồi phân tích những hàng hoàn chỉnh. Nhưng cách này có vẻ lãng phí và có thể không thực tế, tùy tỷ lệ dữ liệu bị thiếu. Một lựa chọn khác là thay _xij_ bị thiếu bằng trung bình của cột thứ _j_, được tính từ các phần tử không thiếu. Dù đây là chiến lược phổ biến và tiện lợi, ta thường có thể làm tốt hơn bằng cách khai thác tương quan giữa các biến.
+
+Phần này trình bày cách dùng thành phần chính để _điền khuyết_ (impute) các giá trị thiếu qua một quy trình gọi là _hoàn thiện ma trận_. Sau đó, ma trận đã hoàn thiện có thể được dùng trong một phương pháp học thống kê như hồi quy tuyến tính hoặc LDA.
+
+Cách điền khuyết này phù hợp khi dữ liệu bị thiếu ngẫu nhiên. Ví dụ, nó phù hợp nếu cân nặng của bệnh nhân bị thiếu vì pin của cân điện tử hết đúng lúc khám. Ngược lại, nếu cân nặng bị thiếu vì bệnh nhân quá nặng để bước lên cân thì dữ liệu không thiếu ngẫu nhiên; sự thiếu vắng đó chứa thông tin và phương pháp được mô tả ở đây không phù hợp.
+
+Đôi khi dữ liệu tất yếu phải bị thiếu. Chẳng hạn, nếu lập một ma trận điểm đánh giá—trên thang 1 đến 5—mà _n_ khách hàng dành cho toàn bộ danh mục _p_ phim của Netflix, phần lớn ma trận sẽ bị thiếu vì không khách hàng nào đã xem và chấm điểm quá một phần rất nhỏ của danh mục. Nếu điền khuyết tốt, ta có thể hình dung mỗi khách hàng sẽ đánh giá thế nào về những phim họ chưa xem. Vì vậy, hoàn thiện ma trận có thể là nền tảng cho _hệ thống gợi ý_.
+
+##### Thành phần chính khi có giá trị thiếu
+
+Trong Phần 12.2.2, ta đã thấy _M_ vector điểm số và vector tải thành phần chính đầu tiên cho xấp xỉ “tốt nhất” của ma trận dữ liệu **X** theo nghĩa của (12.6). Giả sử một số quan sát _xij_ bị thiếu. Sau đây, ta sẽ đồng thời điền khuyết các giá trị đó và giải bài toán thành phần chính. Ta quay lại một dạng đã sửa đổi của bài toán tối ưu (12.6),
+
+trong đó _O_ là tập mọi cặp chỉ số ( _i, j_ ) _được quan sát_, một tập con của _n × p_ cặp có thể có.
+
+Sau khi giải bài toán này:
+
+- ˆ
+
+- ta có thể ước lượng quan sát thiếu _xij_ bằng _xij_ =^(�)^(_M_) _m_ =1^(_a_ˆ)^(_im_ˆ)^(_bjm_,) trong đó _a_ ˆ _im_ và ^(ˆ) _bjm_ lần lượt là phần tử ( _i, m_ ) và ( _j, m_ ) của các ma trận **A**^(ˆ) và **B**^(ˆ) giải (12.12); và
+
+- ta có thể khôi phục xấp xỉ _M_ điểm số và tải thành phần chính như khi dữ liệu đầy đủ.
+
+Không giống trường hợp dữ liệu đầy đủ, việc giải chính xác (12.12) khá khó vì phép phân rã riêng không còn áp dụng được. Tuy nhiên, phương pháp lặp đơn giản trong Thuật toán 12.1—được minh họa ở Phần 12.5.2—thường cho lời giải tốt.^(56)
+
+Ta minh họa Thuật toán 12.1 trên dữ liệu `USArrests`. Có _p_ = 4 biến và _n_ = 50 quan sát, tương ứng 50 bang. Trước tiên, dữ liệu được chuẩn hóa để mỗi biến có trung bình bằng 0 và độ lệch chuẩn bằng 1. Sau đó, ta chọn ngẫu nhiên 20 trong số 50 bang rồi đặt ngẫu nhiên một trong bốn biến của mỗi bang đó thành giá trị thiếu. Như vậy, 10% phần tử của ma trận dữ liệu bị thiếu. Ta áp dụng Thuật toán 12.1 với _M_ = 1 thành phần chính. Hình 12.5 cho thấy các phần tử thiếu được khôi phục khá chính xác.
+
+> 5Thuật toán này được Mazumder, Hastie và Tibshirani (2010) gọi là “Hard-Impute” trong bài “Spectral regularization algorithms for learning large incomplete matrices”, đăng trên _Journal of Machine Learning Research_, trang 2287–2322.
+
+> 6Mỗi lần lặp của Bước 2 làm giảm mục tiêu (12.14). Tuy nhiên, thuật toán không được bảo đảm sẽ đạt cực tiểu toàn cục của (12.12).
+
+**Thuật toán 12.1** _Thuật toán lặp để hoàn thiện ma trận_
+
+1. Tạo một ma trận dữ liệu hoàn chỉnh **X**^(˜) kích thước _n × p_, trong đó phần tử ( _i, j_ ) bằng
+
+với _x_ ¯ _j_ là trung bình của các giá trị quan sát được cho biến thứ _j_ trong ma trận dữ liệu không đầy đủ **X**. Ở đây, _O_ đánh chỉ số những quan sát được quan sát trong **X**.
+
+2. Lặp các bước (a)–(c) cho đến khi mục tiêu (12.14) không còn giảm: (a) Giải
+
+bằng cách tính các thành phần chính của **X**^(˜).
+
+(b) Với mỗi phần tử ( _i, j_ ) _∈O/_, đặt _x_ ˜ _ij ←_^(�)^(_M_) _m_ =1^(_a_ˆ)^(_im_ˆ)^(_bjm_.) (c) Tính mục tiêu
+
+3. Trả về các phần tử thiếu ước lượng _xij_˜, ( _i, j_ ) _∈O/_.
+
+Qua 100 lần chạy ngẫu nhiên thí nghiệm này, tương quan trung bình giữa giá trị thật và giá trị điền khuyết của các phần tử thiếu là 0,63, với độ lệch chuẩn 0,11. Kết quả này có tốt không? Để trả lời, ta có thể so sánh với tương quan đạt được nếu ước lượng 20 giá trị đó bằng dữ liệu _đầy đủ_—tức chỉ đơn giản tính _x_ ˆ _ij_ = _zi_ 1 _φj_ 1, trong đó _zi_ 1 và _φj_ 1 là phần tử của vector điểm số và vector tải thành phần chính thứ nhất trên dữ liệu đầy đủ.^(7) Cách dùng dữ liệu đầy đủ này cho tương quan trung bình 0,79 giữa giá trị thật và ước lượng của 20 phần tử, với độ lệch chuẩn 0,08. Như vậy, phương pháp điền khuyết kém hơn phương pháp dùng toàn bộ dữ liệu (0 _._ 63 _±_ 0 _._ 11 so với 0 _._ 79 _±_ 0 _._ 08), nhưng vẫn hoạt động khá tốt. Dĩ nhiên, trong tình huống thực tế có dữ liệu thiếu, phương pháp dùng toàn bộ dữ liệu không thể áp dụng.
+
+Hình 12.6 tiếp tục cho thấy Thuật toán 12.1 hoạt động khá tốt trên bộ dữ liệu này.
+
+> 7Đây là một chuẩn vàng không thể đạt được, vì khi có dữ liệu thiếu, ta dĩ nhiên không thể tính các thành phần chính của dữ liệu đầy đủ.
+
+**HÌNH 12.5.** _Điền khuyết giá trị thiếu trên dữ liệu_ `USArrests` _. Hai mươi giá trị—10% tổng số phần tử ma trận—được đặt giả tạo thành thiếu rồi được điền bằng Thuật toán 12.1 với M_ = 1 _. Hình biểu diễn giá trị thật xij và giá trị điền khuyết x_ ˆ _ij của cả hai mươi giá trị thiếu. Với mỗi giá trị, màu sắc cho biết biến và nhãn cho biết bang. Tương quan giữa giá trị thật và giá trị điền khuyết xấp xỉ 0,63._
+
+Ta kết thúc phần này với vài nhận xét:
+
+- Dữ liệu `USArrests` chỉ có bốn biến, thuộc mức khá thấp để các phương pháp như Thuật toán 12.1 hoạt động tốt. Vì vậy, trong minh họa này ta chỉ đặt tối đa một biến của mỗi bang thành thiếu và chỉ dùng _M_ = 1 thành phần chính.
+
+- Nói chung, để áp dụng Thuật toán 12.1, ta phải chọn _M_, số thành phần chính dùng cho điền khuyết. Một cách là ngẫu nhiên giữ lại thêm một vài phần tử khỏi ma trận rồi chọn _M_ dựa trên mức độ khôi phục những giá trị đã biết này. Cách đó có quan hệ chặt chẽ với phương pháp tập xác thực ở Chương 5.
+
+##### Hệ thống gợi ý
+
+Các dịch vụ phát trực tuyến như Netflix và Amazon dùng dữ liệu về nội dung khách hàng từng xem, cùng dữ liệu từ khách hàng khác, để gợi ý nội dung mới. Trong một ví dụ cụ thể trước đây, Netflix yêu cầu khách hàng chấm mỗi phim đã xem từ 1 đến 5. Kết quả là một ma trận _n × p_ rất lớn, trong đó phần tử ( _i, j_ ) là điểm mà khách hàng thứ _i_ dành cho phim thứ _j_. Một phiên bản ban đầu cụ thể của ma trận có _n_ = 480.189 khách hàng và _p_ = 17.770 phim. Tuy nhiên, trung bình mỗi khách hàng chỉ xem khoảng 200 phim, nên 99% phần tử ma trận bị thiếu. Bảng 12.2 minh họa cấu trúc này.
+
+Để gợi ý một bộ phim mà khách hàng cụ thể có thể thích, Netflix cần một cách điền khuyết các giá trị thiếu trong ma trận. Ý tưởng chính như sau: tập phim khách hàng thứ _i_ đã xem sẽ giao với tập phim của những khách hàng khác. Hơn nữa, một số khách hàng khác có sở thích phim tương tự người thứ _i_. Vì vậy, có thể dùng điểm đánh giá của những khách hàng tương tự cho các phim mà người thứ _i_ chưa xem để dự đoán liệu người này có thích chúng hay không.
+
+Cụ thể hơn, bằng cách áp dụng Thuật toán 12.1, ta có thể dự đoán điểm mà khách hàng thứ _i_ dành cho phim thứ _j_ bằng _xij_ˆ =^(�)^(_M_) _m_ =1^(_a_ˆ)^(_im_ˆ)^(_bjm_.Furthermore,). Đồng thời, có thể diễn giải _M_ thành phần theo các “nhóm sở thích” và “thể loại”:
+
+- ˆ
+
+- _aim_ biểu diễn mức độ người dùng thứ _i_ thuộc nhóm sở thích thứ _m_, trong đó một _nhóm sở thích_ là nhóm khách hàng yêu thích phim thuộc thể loại thứ _m_;
+
+- ^(ˆ) _bjm_ biểu diễn mức độ phim thứ _j_ thuộc _thể loại_ thứ _m_.
+
+Ví dụ về thể loại gồm Lãng mạn, Viễn Tây và Hành động.
+
+Các mô hình thành phần chính tương tự Thuật toán 12.1 nằm ở trung tâm của nhiều hệ thống gợi ý. Dù ma trận dữ liệu liên quan thường rất lớn, các thuật toán đã được phát triển để khai thác tỷ lệ thiếu cao nhằm tính toán hiệu quả.
+
+**HÌNH 12.6.** _Như mô tả trong văn bản, ở mỗi lần trong 100 thử nghiệm, ta bỏ đi 20 phần tử của bộ dữ liệu_ `USArrests` _. Trong mỗi thử nghiệm, Thuật toán 12.1 với M_ = 1 _được dùng để điền các phần tử thiếu và tính thành phần chính._ Trái: _Với mỗi bang trong số 50 bang, điểm thành phần chính thứ nhất được điền—lấy trung bình qua 100 thử nghiệm và hiển thị cùng thanh độ lệch chuẩn—được vẽ theo điểm thành phần chính thứ nhất tính từ toàn bộ dữ liệu._ Phải: _Các tải thành phần chính được điền—lấy trung bình qua 100 thử nghiệm và hiển thị cùng thanh độ lệch chuẩn—được vẽ theo tải thành phần chính thật._
+
+**BẢNG 12.2.** _Một phần dữ liệu điểm phim Netflix. Phim được chấm từ 1—tệ nhất—đến 5—tốt nhất. Ký hiệu • biểu diễn một giá trị thiếu: bộ phim không được khách hàng tương ứng chấm điểm._
+
+</MdxPage>

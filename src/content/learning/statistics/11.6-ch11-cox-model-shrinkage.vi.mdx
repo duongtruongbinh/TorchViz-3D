@@ -1,0 +1,47 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-cox-model-shrinkage",
+  "locale": "vi",
+  "title": "11.6 Co rút cho mô hình Cox",
+  "headings": [
+    "Co rút cho mô hình Cox"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Co rút cho mô hình Cox"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Co rút cho mô hình Cox
+
+Trong mục này, ta minh họa rằng các phương pháp co rút ở Mục 6.2 có thể áp dụng cho dữ liệu sống còn. Cụ thể, dựa trên dạng thức “hàm mất mát + số hạng phạt” ở Mục 6.2, ta xét việc cực tiểu hóa một phiên bản có phạt của log âm hàm hợp lý từng phần trong (11.16),
+
+theo _β_ = (_β_ 1 _, . . . , βp_)^(_T_). Ta có thể chọn _P_(_β_) =^(�)^(_p_) _j_ =1^(_β_) _j_^(2,which) tương ứng với số hạng phạt ridge, hoặc _P_(_β_) =^(�)^(_p_) _j_ =1^(_|βj|_, which correspondsto) số hạng phạt lasso.
+
+Trong (11.17), _λ_ là một tham số tinh chỉnh không âm; thông thường ta sẽ cực tiểu hóa biểu thức trên một miền giá trị của _λ_. Khi _λ_ = 0, việc cực tiểu hóa (11.17) tương đương với chỉ đơn giản cực đại hóa hàm hợp lý từng phần Cox thông thường (11.16). Tuy nhiên, khi _λ &gt;_ 0, cực tiểu hóa (11.17) cho phiên bản bị co rút của các ước lượng hệ số. Khi _λ_ lớn, số hạng phạt ridge cho các hệ số nhỏ nhưng không bằng chính xác không. Ngược lại, với một
+
+**HÌNH 11.6.** _Với dữ liệu_ `Publication`, _ta trình bày đường cong sống còn của thời gian đến khi công bố, phân tầng theo việc nghiên cứu có cho kết quả dương tính hay không, sau khi điều chỉnh theo tất cả hiệp biến khác._
+
+giá trị _λ_ đủ lớn, số hạng phạt lasso sẽ cho một số hệ số bằng chính xác không.
+
+Bây giờ ta áp dụng mô hình Cox có phạt lasso cho dữ liệu `Publication` mô tả ở Mục 11.5.4. Đầu tiên, ta chia ngẫu nhiên 244 thử nghiệm thành tập huấn luyện và tập kiểm tra có kích thước bằng nhau. Kết quả xác thực chéo trên tập huấn luyện được trình bày trong Hình 11.7. “Độ lệch hàm hợp lý từng phần” (partial likelihood deviance) trên trục _y_ bằng hai lần log âm hàm hợp lý từng phần qua xác thực chéo; nó đóng vai trò là sai số xác thực chéo.^(15) Lưu ý hình dạng chữ U của độ lệch hàm hợp lý từng phần: tương tự những gì đã thấy ở các chương trước, sai số xác thực chéo đạt cực tiểu tại một mức độ phức tạp trung gian của mô hình. Cụ thể, điều này xảy ra khi chỉ hai biến dự báo `budget` và `impact` có hệ số ước lượng khác không.
+
+Vậy ta áp dụng mô hình này cho tập kiểm tra như thế nào? Điều này nêu lên một điểm khái niệm quan trọng: về bản chất, không có cách đơn giản để so sánh thời gian sống còn dự đoán với thời gian sống còn thực trên tập kiểm tra. Vấn đề thứ nhất là một số quan sát bị kiểm duyệt nên thời gian sống còn thực của chúng không được quan sát. Vấn đề thứ hai xuất phát từ việc trong mô hình Cox, thay vì dự đoán một thời gian sống còn duy nhất cho vector hiệp biến _x_, ta ước lượng toàn bộ đường cong sống còn _S_(_t|x_) theo _t_.
+
+Do đó, để đánh giá độ khớp của mô hình, ta phải dùng một cách khác, gồm việc phân tầng các quan sát dựa trên ước lượng hệ số. Cụ thể, với mỗi quan sát kiểm tra, ta tính điểm “nguy cơ”
+
+trong đó _β_^(ˆ) budget và _β_^(ˆ) impact là các ước lượng hệ số của hai đặc trưng này từ tập huấn luyện. Sau đó ta dùng các điểm nguy cơ để phân loại quan sát theo “nguy cơ”. Chẳng hạn, nhóm nguy cơ cao gồm các quan sát có budget _i · β_^(ˆ) budget + impact _i · β_^(ˆ) impact lớn nhất; theo
+
+> 15 Xác thực chéo cho mô hình Cox phức tạp hơn so với hồi quy tuyến tính hoặc logistic vì hàm mục tiêu không phải là tổng trên các quan sát.
+
+**HÌNH 11.7.** _Với dữ liệu_ `Publication` _mô tả ở Mục 11.5.4, hình trình bày kết quả xác thực chéo cho mô hình Cox có phạt lasso. Trục y biểu diễn độ lệch hàm hợp lý từng phần, đóng vai trò là sai số xác thực chéo. Trục x biểu diễn chuẩn ℓ_ 1 _(tức tổng các giá trị tuyệt đối) của hệ số trong mô hình Cox có phạt lasso với tham số tinh chỉnh λ, chia cho chuẩn ℓ_ 1 _của hệ số trong mô hình Cox không phạt. Đường đứt nét chỉ sai số xác thực chéo nhỏ nhất._
+
+(11.14), ta thấy đây là các quan sát có xác suất tức thời được công bố lớn nhất tại một thời điểm bất kỳ. Nói cách khác, nhóm nguy cơ cao gồm các thử nghiệm có khả năng được công bố sớm hơn. Trên dữ liệu `Publication`, ta phân tầng các quan sát thành ba nhóm nguy cơ thấp, trung bình và cao. Đường cong sống còn thu được cho ba tầng được trình bày trong Hình 11.8. Ta thấy ba tầng tách biệt rõ ràng và được sắp đúng theo nguy cơ công bố thấp, trung bình và cao.
+
+</MdxPage>

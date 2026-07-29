@@ -1,0 +1,139 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-logistic-regression",
+  "locale": "en",
+  "title": "4.3 Logistic Regression",
+  "headings": [
+    "Logistic Regression",
+    "4.3.2 Estimating the Regression Coefficients",
+    "4.3.3 Making Predictions",
+    "4.3.4 Multiple Logistic Regression",
+    "4.3.5 Multinomial Logistic Regression"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Classification",
+    "Logistic Regression"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Logistic Regression
+
+Consider again the `Default` data set, where the response `default` falls into one of two categories, `Yes` or `No` . Rather than modeling this response _Y_ directly, logistic regression models the _probability_ that _Y_ belongs to a particular category.
+
+For the `Default` data, logistic regression models the probability of default. For example, the probability of default given `balance` can be written as
+
+The values of Pr( `default` = `Yes` _|_ `balance` ), which we abbreviate _p_ ( `balance` ), will range between 0 and 1. Then for any given value of `balance` , a prediction can be made for `default` . For example, one might predict default = Yes
+
+low balances we now predict the probability of default as close to, but never below, zero. Likewise, for high balances we predict a default probability close to, but never above, one. The logistic function will always produce an _S-shaped_ curve of this form, and so regardless of the value of _X_ , we will obtain a sensible prediction. We also see that the logistic model is better able to capture the range of probabilities than is the linear regression model in the left-hand plot. The average fitted probability in both cases is 0.0333 (averaged over the training data), which is the same as the overall proportion of defaulters in the data set.
+
+After a bit of manipulation of (4.2), we find that
+
+The quantity _p_ ( _X_ ) _/_ [1 _− p_ ( _X_ )] is called the _odds_ , and can take on any value odds between 0 and _∞_ . Values of the odds close to 0 and _∞_ indicate very low and very high probabilities of default, respectively. For example, on average 1 in 5 people with an odds of 1 _/_ 4 will default, since _p_ ( _X_ ) = 0 _._ 2 implies an odds of 1 _−_ 0 _._ 02 _._ 2^(= 1)^(_/_4. Likewise, on average nine out of every ten people with) an odds of 9 will default, since _p_ ( _X_ ) = 0 _._ 9 implies an odds of 1 _−_ 0 _._ 09 _._ 9^(=9.) Odds are traditionally used instead of probabilities in horse-racing, since they relate more naturally to the correct betting strategy.
+
+By taking the logarithm of both sides of (4.3), we arrive at
+
+The left-hand side is called the _log odds_ or _logit_ . We see that the logistic log odds regression model (4.2) has a logit that is linear in _X_ .
+
+Recall from Chapter 3 that in a linear regression model, _β_ 1 gives the average change in _Y_ associated with a one-unit increase in _X_ . By contrast, in a logistic regression model, increasing _X_ by one unit changes the log odds by _β_ 1 (4.4). Equivalently, it multiplies the odds by _e_^(_β_1) (4.3). However, because the relationship between _p_ ( _X_ ) and _X_ in (4.2) is not a straight line, _β_ 1 does _not_ correspond to the change in _p_ ( _X_ ) associated with a one-unit increase in _X_ . The amount that _p_ ( _X_ ) changes due to a one-unit change in _X_ depends on the current value of _X_ . But regardless of the value of _X_ , if _β_ 1 is positive then increasing _X_ will be associated with increasing _p_ ( _X_ ), and if _β_ 1 is negative then increasing _X_ will be associated with decreasing _p_ ( _X_ ). The fact that there is not a straight-line relationship between _p_ ( _X_ ) and _X_ , and the fact that the rate of change in _p_ ( _X_ ) per unit change in _X_ depends on the current value of _X_ , can also be seen by inspection of the right-hand panel of Figure 4.2.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 4.3.2 Estimating the Regression Coefficients
+
+The coefficients _β_ 0 and _β_ 1 in (4.2) are unknown, and must be estimated based on the available training data. In Chapter 3, we used the least squares approach to estimate the unknown linear regression coefficients. Although we could use (non-linear) least squares to fit the model (4.4), the more general method of _maximum likelihood_ is preferred, since it has better statistical properties. The basic intuition behind using maximum likelihood
+
+to fit a logistic regression model is as follows: we seek estimates for _β_ 0 and _β_ 1 such that the predicted probability _p_ ˆ( _xi_ ) of default for each individual, using (4.2), corresponds as closely as possible to the individual’s observed default status. In other words, we try to find _β_^(ˆ) 0 and _β_^(ˆ) 1 such that plugging these estimates into the model for _p_ ( _X_ ), given in (4.2), yields a number close to one for all individuals who defaulted, and a number close to zero for all individuals who did not. This intuition can be formalized using a mathematical equation called a _likelihood function_ :
+
+The estimates _β_^(ˆ) 0 and _β_^(ˆ) 1 are chosen to _maximize_ this likelihood function. Maximum likelihood is a very general approach that is used to fit many of the non-linear models that we examine throughout this book. In the linear regression setting, the least squares approach is in fact a special case of maximum likelihood. The mathematical details of maximum likelihood are beyond the scope of this book. However, in general, logistic regression and other models can be easily fit using statistical software such as `R` , and so we do not need to concern ourselves with the details of the maximum likelihood fitting procedure.
+
+Table 4.1 shows the coefficient estimates and related information that result from fitting a logistic regression model on the `Default` data in order to predict the probability of `default` = `Yes` using `balance` . We see that _β_^(ˆ) 1 = 0 _._ 0055; this indicates that an increase in `balance` is associated with an increase in the probability of `default` . To be precise, a one-unit increase in `balance` is associated with an increase in the log odds of `default` by 0 _._ 0055 units.
+
+Many aspects of the logistic regression output shown in Table 4.1 are similar to the linear regression output of Chapter 3. For example, we can measure the accuracy of the coefficient estimates by computing their standard errors. The _z_ -statistic in Table 4.1 plays the same role as the _t_ -statistic in the linear regression output, for example in Table 3.1 on page 77. For instance, the _z_ -statistic associated with _β_ 1 is equal to _β_^(ˆ) 1 _/_ SE( _β_^(ˆ) 1), and so a large (absolute) value of the _z_ -statistic indicates evidence against the null hypothesis _H_ 0 : _β_ 1 = 0. This null hypothesis implies that _p_ ( _X_ ) = 1+ _e_^(_β_) _e_^(0)^(_β_0: in) other words, that the probability of `default` does not depend on `balance` . Since the _p_ -value associated with `balance` in Table 4.1 is tiny, we can reject _H_ 0. In other words, we conclude that there is indeed an association between `balance` and probability of `default` . The estimated intercept in Table 4.1 is typically not of interest; its main purpose is to adjust the average fitted probabilities to the proportion of ones in the data (in this case, the overall default rate).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 4.3.3 Making Predictions
+
+Once the coefficients have been estimated, we can compute the probability of `default` for any given credit card balance. For example, using the coefficient estimates given in Table 4.1, we predict that the default probability
+
+<MdxCode language="table" code={"||Coefcient|Std. error|_z_-statistic|_p_-value|\n|---|---|---|---|---|\n|`Intercept`|_−_10.6513|0.3612|_−_29.5|_&lt;_0.0001|\n|`balance`|0.0055|0.0002|24.9|_&lt;_0.0001|"} />
+
+**TABLE 4.1.** _For the_ `Default` _data, estimated coefficients of the logistic regression model that predicts the probability of_ `default` _using_ `balance` _. A one-unit increase in_ `balance` _is associated with an increase in the log odds of_ `default` _by_ 0 _._ 0055 _units._
+
+<MdxCode language="table" code={"||Coefcient|Std. error|_z_-statistic|_p_-value|\n|---|---|---|---|---|\n|`Intercept`|_−_3.5041|0.0707|_−_49.55|_&lt;_0.0001|\n|`student[Yes]`|0.4049|0.1150|3.52|0.0004|"} />
+
+**TABLE 4.2.** _For the_ `Default` _data, estimated coefficients of the logistic regression model that predicts the probability of_ `default` _using student status. Student status is encoded as a dummy variable, with a value of_ 1 _for a student and a value of_ 0 _for a non-student, and represented by the variable_ `student[Yes]` _in the table._
+
+for an individual with a `balance` of $1 _,_ 000 is
+
+which is below 1 %. In contrast, the predicted probability of default for an individual with a balance of $2 _,_ 000 is much higher, and equals 0 _._ 586 or 58 _._ 6 %.
+
+One can use qualitative predictors with the logistic regression model using the dummy variable approach from Section 3.3.1. As an example, the `Default` data set contains the qualitative variable `student` . To fit a model that uses student status as a predictor variable, we simply create a dummy variable that takes on a value of 1 for students and 0 for non-students. The logistic regression model that results from predicting probability of default from student status can be seen in Table 4.2. The coefficient associated with the dummy variable is positive, and the associated _p_ -value is statistically significant. This indicates that students tend to have higher default probabilities than non-students:
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 4.3.4 Multiple Logistic Regression
+
+We now consider the problem of predicting a binary response using multiple predictors. By analogy with the extension from simple to multiple linear regression in Chapter 3, we can generalize (4.4) as follows:
+
+<MdxCode language="table" code={"||Coefcient|Std. error|_z_-statistic|_p_-value|\n|---|---|---|---|---|\n|`Intercept`|_−_10.8690|0.4923|_−_22.08|_&lt;_0.0001|\n|`balance`|0.0057|0.0002|24.74|_&lt;_0.0001|\n|`income`|0.0030|0.0082|0.37|0.7115|\n|`student[Yes]`|_−_0.6468|0.2362|_−_2.74|0.0062|"} />
+
+**TABLE 4.3.** _For the_ `Default` _data, estimated coefficients of the logistic regression model that predicts the probability of_ `default` _using_ `balance` _,_ `income` _, and student status. Student status is encoded as a dummy variable_ `student[Yes]` _, with a value of_ 1 _for a student and a value of_ 0 _for a non-student. In fitting this model,_ `income` _was measured in thousands of dollars._
+
+Just as in Section 4.3.2, we use the maximum likelihood method to estimate _β_ 0 _, β_ 1 _, . . . , βp_ .
+
+Table 4.3 shows the coefficient estimates for a logistic regression model that uses `balance` , `income` (in thousands of dollars), and `student` status to predict probability of `default` . There is a surprising result here. The _p_ - values associated with `balance` and the dummy variable for `student` status are very small, indicating that each of these variables is associated with the probability of `default` . However, the coefficient for the dummy variable is negative, indicating that students are less likely to default than nonstudents. In contrast, the coefficient for the dummy variable is positive in Table 4.2. How is it possible for student status to be associated with an _increase_ in probability of default in Table 4.2 and a _decrease_ in probability of default in Table 4.3? The left-hand panel of Figure 4.3 provides a graphical illustration of this apparent paradox. The orange and blue solid lines show the average default rates for students and non-students, respectively, as a function of credit card balance. The negative coefficient for `student` in the multiple logistic regression indicates that _for a fixed value of_ `balance` _and_ `income` , a student is less likely to default than a non-student. Indeed, we observe from the left-hand panel of Figure 4.3 that the student default rate is at or below that of the non-student default rate for every value of `balance` . But the horizontal broken lines near the base of the plot, which show the default rates for students and non-students averaged over all values of `balance` and `income` , suggest the opposite effect: the overall student default rate is higher than the non-student default rate. Consequently, there is a positive coefficient for `student` in the single variable logistic regression output shown in Table 4.2.
+
+The right-hand panel of Figure 4.3 provides an explanation for this discrepancy. The variables `student` and `balance` are correlated. Students tend to hold higher levels of debt, which is in turn associated with higher probability of default. In other words, students are more likely to have large credit card balances, which, as we know from the left-hand panel of Figure 4.3, tend to be associated with high default rates. Thus, even though an individual student with a given credit card balance will tend to have a lower probability of default than a non-student with the same credit card balance, the fact that students on the whole tend to have higher credit card balances means that overall, students tend to default at a higher rate than non-students. This is an important distinction for a credit card company that is trying to determine to whom they should offer credit. A student is riskier than a non-student if no information about the student’s credit card
+
+**FIGURE 4.3.** _Confounding in the_ `Default` _data._ Left: _Default rates are shown for students (orange) and non-students (blue). The solid lines display default rate as a function of_ `balance` _, while the horizontal broken lines display the overall default rates._ Right: _Boxplots of_ `balance` _for students (orange) and non-students (blue) are shown._
+
+balance is available. However, that student is less risky than a non-student _with the same credit card balance_ !
+
+This simple example illustrates the dangers and subtleties associated with performing regressions involving only a single predictor when other predictors may also be relevant. As in the linear regression setting, the results obtained using one predictor may be quite different from those obtained using multiple predictors, especially when there is correlation among the predictors. In general, the phenomenon seen in Figure 4.3 is known as _confounding_ .
+
+By substituting estimates for the regression coefficients from Table 4.3 into (4.7), we can make predictions. For example, a student with a credit card balance of $1 _,_ 500 and an income of $40 _,_ 000 has an estimated probability of default of
+
+A non-student with the same balance and income has an estimated probability of default of
+
+(Here we multiply the `income` coefficient estimate from Table 4.3 by 40, rather than by 40,000, because in that table the model was fit with `income` measured in units of $1 _,_ 000.)
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 4.3.5 Multinomial Logistic Regression
+
+We sometimes wish to classify a response variable that has more than two classes. For example, in Section 4.2 we had three categories of medical condition in the emergency room: `stroke` , `drug overdose` , `epileptic seizure` . However, the logistic regression approach that we have seen in this section only allows for _K_ = 2 classes for the response variable.
+
+It turns out that it is possible to extend the two-class logistic regression approach to the setting of _K &gt;_ 2 classes. This extension is sometimes known as _multinomial logistic regression_ . To do this, we first select a single multinomial class to serve as the _baseline_ ; without loss of generality, we select the _K_ th logistic class for this role. Then we replace the model (4.7) with the model regression
+
+for _k_ = 1 _, . . . , K −_ 1, and
+
+It is not hard to show that for _k_ = 1 _, . . . , K −_ 1,
+
+Notice that (4.12) is quite similar to (4.6). Equation 4.12 indicates that once again, the log odds between any pair of classes is linear in the features.
+
+It turns out that in (4.10)–(4.12), the decision to treat the _K_ th class as the baseline is unimportant. For example, when classifying emergency room visits into `stroke` , `drug overdose` , and `epileptic seizure` , suppose that we fit two multinomial logistic regression models: one treating `stroke` as the baseline, another treating `drug overdose` as the baseline. The coefficient estimates will differ between the two fitted models due to the differing choice of baseline, but the fitted values (predictions), the log odds between any pair of classes, and the other key model outputs will remain the same.
+
+Nonetheless, interpretation of the coefficients in a multinomial logistic regression model must be done with care, since it is tied to the choice of baseline. For example, if we set `epileptic seizure` to be the baseline, then we can interpret _β_ stroke0 as the log odds of `stroke` versus `epileptic seizure` , given that _x_ 1 = _· · ·_ = _xp_ = 0. Furthermore, a one-unit increase in _Xj_ is associated with a _β_ stroke _j_ increase in the log odds of `stroke` over `epileptic seizure` . Stated another way, if _Xj_ increases by one unit, then
+
+increases by _e_^(_β_stroke)^(_j_) .
+
+We now briefly present an alternative coding for multinomial logistic regression, known as the _softmax_ coding. The softmax coding is equivalent softmax to the coding just described in the sense that the fitted values, log odds between any pair of classes, and other key model outputs will remain the same, regardless of coding. But the softmax coding is used extensively in some areas of the machine learning literature (and will appear again in Chapter 10), so it is worth being aware of it. In the softmax coding, rather than selecting a baseline class, we treat all _K_ classes symmetrically, and assume that for _k_ = 1 _, . . . , K_ ,
+
+Thus, rather than estimating coefficients for _K −_ 1 classes, we actually estimate coefficients for all _K_ classes. It is not hard to see that as a result of (4.13), the log odds ratio between the _k_ th and _k_^(_′_) th classes equals
+
+</MdxPage>

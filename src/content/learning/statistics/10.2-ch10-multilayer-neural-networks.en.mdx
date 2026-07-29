@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-multilayer-neural-networks",
+  "locale": "en",
+  "title": "10.2 Multilayer Neural Networks",
+  "headings": [
+    "Multilayer Neural Networks"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Deep Learning",
+    "Multilayer Neural Networks"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Multilayer Neural Networks
+
+Modern neural networks typically have more than one hidden layer, and often many units per layer. In theory a single hidden layer with a large number of units has the ability to approximate most functions. However, the learning task of discovering a good solution is made much easier with multiple layers each of modest size.
+
+We will illustrate a large dense network on the famous and publicly available `MNIST` handwritten digit dataset.^(1) Figure 10.3 shows examples of these digits. The idea is to build a model to classify the images into their correct digit class 0–9. Every image has _p_ = 28 _×_ 28 = 784 pixels, each of which is an eight-bit grayscale value between 0 and 255 representing
+
+> 1See LeCun, Cortes, and Burges (2010) “The MNIST database of handwritten digits”, available at `http://yann.lecun.com/exdb/mnist` .
+
+**FIGURE 10.4.** _Neural network diagram with two hidden layers and multiple outputs, suitable for the_ `MNIST` _handwritten-digit problem. The input layer has p_ = 784 _units, the two hidden layers K_ 1 = 256 _and K_ 2 = 128 _units respectively, and the output layer_ 10 _units. Along with intercepts (referred to as_ biases _in the deep-learning community) this network has 235,146 parameters (referred to as weights)._
+
+The first hidden layer is as in (10.2), with
+
+for _k_ = 1 _, . . . , K_ 1. The second hidden layer treats the activations _A_^((1)) _k_ of the first hidden layer as inputs and computes new activations
+
+for _ℓ_ = 1 _, . . . , K_ 2 _._ Notice that each of the activations in the second layer _A_^((2)) _ℓ_ = _h_^((2)) _ℓ_^(()^(_X_) is a function of the input vector)^(_X_. This is the case because) while they are explicitly a function of the activations _A_^((1)) _k_ from layer _L_ 1, these in turn are functions of _X_ . This would also be the case with more hidden layers. Thus, through a chain of transformations, the network is able to build up fairly complex transformations of _X_ that ultimately feed into the output layer as features.
+
+We have introduced additional superscript notation such as _h_^((2)) _ℓ_^(()^(_X_)and) _wℓj_^((2)) in (10.10) and (10.11) to indicate to which layer the activations and _weights_ (coefficients) belong, in this case layer 2. The notation **W** 1 in Fig- weights
+
+ure 10.4 represents the entire matrix of weights that feed from the input layer to the first hidden layer _L_ 1. This matrix will have 785 _×_ 256 = 200 _,_ 960 elements; there are 785 rather than 784 because we must account for the intercept or _bias_ term.^(3)
+
+Each element _A_^((1)) _k_ feeds to the second hidden layer _L_ 2 via the matrix of weights **W** 2 of dimension 257 _×_ 128 = 32 _,_ 896.
+
+We now get to the output layer, where we now have ten responses rather than one. The first step is to compute ten different linear models similar to our single model (10.1),
+
+for _m_ = 0 _,_ 1 _, . . . ,_ 9. The matrix **B** stores all 129 _×_ 10 = 1 _,_ 290 of these weights.
+
+If these were all separate quantitative responses, we would simply set each _fm_ ( _X_ ) = _Zm_ and be done. However, we would like our estimates to represent class probabilities _fm_ ( _X_ ) = Pr( _Y_ = _m|X_ ), just like in multinomial logistic regression in Section 4.3.5. So we use the special _softmax_ softmax activation function (see (4.13) on page 145),
+
+for _m_ = 0 _,_ 1 _, . . . ,_ 9. This ensures that the 10 numbers behave like probabilities (non-negative and sum to one). Even though the goal is to build a classifier, our model actually estimates a probability for each of the 10 classes. The classifier then assigns the image to the class with the highest probability.
+
+To train this network, since the response is qualitative, we look for coefficient estimates that minimize the negative multinomial log-likelihood
+
+also known as the _cross-entropy_ . This is a generalization of the crite- crossrion (4.5) for two-class logistic regression. Details on how to minimize this objective are given in Section 10.7. If the response were quantitative, we would instead minimize squared-error loss as in (10.9).
+
+Table 10.1 compares the test performance of the neural network with two simple models presented in Chapter 4 that make use of linear decision boundaries: multinomial logistic regression and linear discriminant analysis. The improvement of neural networks over both of these linear methods is dramatic: the network with dropout regularization achieves a test error rate below 2% on the 10 _,_ 000 test images. (We describe dropout regularization in Section 10.7.3.) In Section 10.9.2 of the lab, we present the code for fitting this model, which runs in just over two minutes on a laptop computer.
+
+> 3The use of “weights” for coefficients and “bias” for the intercepts _wk_ 0 in (10.2) is popular in the machine learning community; this use of bias is not to be confused with the “bias-variance” usage elsewhere in this book.
+
+<MdxCode language="table" code={"|Method|Test Error|\n|---|---|\n|Neural Network + Ridge Regularization|2_._3%|\n|Neural Network + Dropout Regularization|1_._8%|\n|Multinomial Logistic Regression|7_._2%|\n|Linear Discriminant Analysis|12_._7%|"} />
+
+**TABLE 10.1.** _Test error rate on the_ `MNIST` _data, for neural networks with two forms of regularization, as well as multinomial logistic regression and linear discriminant analysis. In this example, the extra complexity of the neural network leads to a marked improvement in test error._
+
+**FIGURE 10.5.** _A sample of images from the_ `CIFAR100` _database: a collection of natural images from everyday life, with 100 different classes represented._
+
+Adding the number of coefficients in **W** 1, **W** 2 and **B** , we get 235 _,_ 146 in all, more than 33 times the number 785 _×_ 9 = 7 _,_ 065 needed for multinomial logistic regression. Recall that there are 60 _,_ 000 images in the training set. While this might seem like a large training set, there are almost four times as many coefficients in the neural network model as there are observations in the training set! To avoid overfitting, some regularization is needed. In this example, we used two forms of regularization: ridge regularization, which is similar to ridge regression from Chapter 6, and _dropout_ regularization. dropout We discuss both forms of regularization in Section 10.7.
+
+</MdxPage>

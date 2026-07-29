@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-document-classification",
+  "locale": "en",
+  "title": "10.4 Document Classification",
+  "headings": [
+    "Document Classification"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Deep Learning",
+    "Document Classification"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Document Classification
+
+In this section we introduce a new type of example that has important applications in industry and science: predicting attributes of documents. Examples of documents include articles in medical journals, Reuters news feeds, emails, tweets, and so on. Our example will be `IMDb` (Internet Movie Database) ratings — short documents where viewers have written critiques of movies.^(13) The response in this case is the `sentiment` of the review, which will be _positive_ or _negative_ .
+
+> 12 _Deep Learning with R_ by F. Chollet and J.J. Allaire, 2018, Manning Publications.
+
+> 13For details, see Maas et al. (2011) “Learning word vectors for sentiment analysis”, in _Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human Language Technologies_ , pages 142–150.
+
+Here is the beginning of a rather amusing negative review:
+
+_This has to be one of the worst films of the 1990s. When my friends & I were watching this film (being the target audience it was aimed at) we just sat & watched the first half an hour with our jaws touching the floor at how bad it really was. The rest of the time, everyone else in the theater just started talking to each other, leaving or generally crying into their popcorn . . ._
+
+Each review can be a different length, include slang or non-words, have spelling errors, etc. We need to find a way to _featurize_ such a document. featurize This is modern parlance for defining a set of predictors. The simplest and most common featurization is the _bag-of-words_ model. bag-of-words We score each document for the presence or absence of each of the words in a language dictionary — in this case an English dictionary. If the dictionary contains _M_ words, that means for each document we create a binary feature vector of length _M_ , and score a 1 for every word present, and 0 otherwise. That can be a very wide feature vector, so we limit the dictionary — in this case to the 10,000 most frequently occurring words in the training corpus of 25,000 reviews. Fortunately there are nice tools for doing this automatically. Here is the beginning of a positive review that has been redacted in this way:
+
+_⟨START ⟩ this film was just brilliant casting location scenery story direction everyone’s really suited the part they played and you could just imagine being there robert ⟨UNK ⟩ is an amazing actor and now the same being director ⟨UNK ⟩ father came from the same scottish island as myself so i loved . . ._
+
+Here we can see many words have been omitted, and some unknown words (UNK) have been marked as such. With this reduction the binary feature vector has length 10,000, and consists mostly of 0’s and a smattering of 1’s in the positions corresponding to words that are present in the document. We have a training set and test set, each with 25,000 examples, and each balanced with regard to `sentiment` . The resulting training feature matrix **X** has dimension 25 _,_ 000 _×_ 10 _,_ 000, but only 1.3% of the binary entries are nonzero. We call such a matrix sparse, because most of the values are the same (zero in this case); it can be stored efficiently in _sparse matrix format_ .^(14) There are a variety of ways to account for the document length; here we only score a word as in or out of the document, but for example one could instead record the relative frequency of words. We split off a validation set of size 2,000 from the 25,000 training observations (for model tuning), and fit two model sequences:
+
+- A lasso logistic regression using the `glmnet` package;
+
+- A two-class neural network with two hidden layers, each with 16 ReLU units.
+
+> 14Rather than store the whole matrix, we can store instead the location and values for the nonzero entries. In this case, since the nonzero entries are all 1, just the locations are stored.
+
+**FIGURE 10.11.** _Accuracy of the lasso and a two-hidden-layer neural network on the_ `IMDb` _data. For the lasso, the x-axis displays −_ log( _λ_ ) _, while for the neural network it displays epochs (number of times the fitting algorithm passes through the training set). Both show a tendency to overfit, and achieve approximately the same test accuracy._
+
+Both methods produce a sequence of solutions. The lasso sequence is indexed by the regularization parameter _λ_ . The neural-net sequence is indexed by the number of gradient-descent iterations used in the fitting, as measured by training epochs or passes through the training set (Section 10.7). Notice that the training accuracy in Figure 10.11 (black points) increases monotonically in both cases. We can use the validation error to pick a good solution from each sequence (blue points in the plots), which would then be used to make predictions on the test data set.
+
+Note that a two-class neural network amounts to a nonlinear logistic regression model. From (10.12) and (10.13) we can see that
+
+(This shows the redundancy in the softmax function; for _K_ classes we really only need to estimate _K −_ 1 sets of coefficients. See Section 4.3.5.) In Figure 10.11 we show _accuracy_ (fraction correct) rather than classification accuracy error (fraction incorrect), the former being more popular in the machine learning community. Both models achieve a test-set accuracy of about 88%.
+
+The bag-of-words model summarizes a document by the words present, and ignores their context. There are at least two popular ways to take the context into account:
+
+- The _bag-of-n-grams_ model. For example, a bag of 2-grams records bag-of- _n_ -
+
+the consecutive co-occurrence of every distinct pair of words. “Blissfully long” can be seen as a positive phrase in a movie review, while “blissfully short” a negative.
+
+- Treat the document as a sequence, taking account of all the words in the context of those that preceded and those that follow.
+
+In the next section we explore models for sequences of data, which have applications in weather forecasting, speech recognition, language translation, and time-series prediction, to name a few. We continue with this `IMDb` example there.
+
+</MdxPage>

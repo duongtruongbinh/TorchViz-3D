@@ -1,0 +1,75 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-smoothing-splines",
+  "locale": "en",
+  "title": "7.5 Smoothing Splines",
+  "headings": [
+    "Smoothing Splines",
+    "7.5.1 An Overview of Smoothing Splines",
+    "7.5.2 Choosing the Smoothing Parameter λ"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Moving Beyond Linearity",
+    "Smoothing Splines"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Smoothing Splines
+
+In the last section we discussed regression splines, which we create by specifying a set of knots, producing a sequence of basis functions, and then using least squares to estimate the spline coefficients. We now introduce a somewhat different approach that also produces a spline.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 7.5.1 An Overview of Smoothing Splines
+
+In fitting a smooth curve to a set of data, what we really want to do is find some function, say _g_ ( _x_ ), that fits the observed data well: that is, we want RSS =^(�)^(_n_) _i_ =1^(()^(_yi−g_()^(_xi_))2tobesmall.However,thereisaproblem) with this approach. If we don’t put any constraints on _g_ ( _xi_ ), then we can always make RSS zero simply by choosing _g_ such that it _interpolates_ all of the _yi_ . Such a function would woefully overfit the data—it would be far too flexible. What we really want is a function _g_ that makes RSS small, but that is also _smooth_ .
+
+How might we ensure that _g_ is smooth? There are a number of ways to do this. A natural approach is to find the function _g_ that minimizes
+
+where _λ_ is a nonnegative _tuning parameter_ . The function _g_ that minimizes (7.11) is known as a _smoothing spline_ .
+
+What does (7.11) mean? Equation 7.11 takes the “Loss+Penalty” forspline mulation that we encounter in the context of ridge regression and the lasso in Chapter 6. The term^(�)^(_n_) _i_ =1^(()^(_yi −g_()^(_xi_))2isa)^(_lossfunction_thatencour-) loss function ages _g_ to fit the data well, and the term _λ_ � _g_^(_′′_) ( _t_ )^(2) _dt_ is a _penalty term_ that penalizes the variability in _g_ . The notation _g_^(_′′_) ( _t_ ) indicates the second derivative of the function _g_ . The first derivative _g_^(_′_) ( _t_ ) measures the slope
+
+of a function at _t_ , and the second derivative corresponds to the amount by which the slope is changing. Hence, broadly speaking, the second derivative of a function is a measure of its _roughness_ : it is large in absolute value if _g_ ( _t_ ) is very wiggly near _t_ , and it is close to zero otherwise. (The second derivative of a straight line is zero; note that a line is perfectly smooth.) The � notation is an _integral_ , which we can think of as a summation over the range of _t_ . In other words, � _g_^(_′′_) ( _t_ )^(2) _dt_ is simply a measure of the total change in the function _g_^(_′_) ( _t_ ), over its entire range. If _g_ is very smooth, then _g_^(_′_) ( _t_ ) will be close to constant and � _g_^(_′′_) ( _t_ )^(2) _dt_ will take on a small value. Conversely, if _g_ is jumpy and variable then _g_^(_′_) ( _t_ ) will vary significantly and � _g_^(_′′_) ( _t_ )^(2) _dt_ will take on a large value. Therefore, in (7.11), _λ_ � _g_^(_′′_) ( _t_ )^(2) _dt_ encourages _g_ to be smooth. The larger the value of _λ_ , the smoother _g_ will be. When _λ_ = 0, then the penalty term in (7.11) has no effect, and so the function _g_ will be very jumpy and will exactly interpolate the training observations. When _λ →∞_ , _g_ will be perfectly smooth—it will just be a straight line that passes as closely as possible to the training points. In fact, in this case, _g_ will be the linear least squares line, since the loss function in (7.11) amounts to minimizing the residual sum of squares. For an intermediate value of _λ_ , _g_ will approximate the training observations but will be somewhat smooth. We see that _λ_ controls the bias-variance trade-off of the smoothing spline.
+
+The function _g_ ( _x_ ) that minimizes (7.11) can be shown to have some special properties: it is a piecewise cubic polynomial with knots at the unique values of _x_ 1 _, . . . , xn_ , and continuous first and second derivatives at each knot. Furthermore, it is linear in the region outside of the extreme knots. In other words, _the function g_ ( _x_ ) _that minimizes (7.11) is a natural cubic spline with knots at x_ 1 _, . . . , xn!_ However, it is not the same natural cubic spline that one would get if one applied the basis function approach described in Section 7.4.3 with knots at _x_ 1 _, . . . , xn_ —rather, it is a _shrunken_ version of such a natural cubic spline, where the value of the tuning parameter _λ_ in (7.11) controls the level of shrinkage.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 7.5.2 Choosing the Smoothing Parameter λ
+
+We have seen that a smoothing spline is simply a natural cubic spline with knots at every unique value of _xi_ . It might seem that a smoothing spline will have far too many degrees of freedom, since a knot at each data point allows a great deal of flexibility. But the tuning parameter _λ_ controls the roughness of the smoothing spline, and hence the _effective degrees of freedom_ . It is possible to show that as _λ_ increases from 0 to _∞_ , the effective effective degrees of freedom, which we write _dfλ_ , decrease from _n_ to 2.
+
+In the context of smoothing splines, why do we discuss _effective_ degrees of freedom instead of degrees of freedom? Usually degrees of freedom refer to the number of free parameters, such as the number of coefficients fit in a polynomial or cubic spline. Although a smoothing spline has _n_ parameters and hence _n_ nominal degrees of freedom, these _n_ parameters are heavily constrained or shrunk down. Hence _dfλ_ is a measure of the flexibility of the smoothing spline—the higher it is, the more flexible (and the lower-bias but higher-variance) the smoothing spline. The definition of effective degrees of
+
+freedom is somewhat technical. We can write
+
+where **g** ˆ _λ_ is the solution to (7.11) for a particular choice of _λ_ —that is, it is an _n_ -vector containing the fitted values of the smoothing spline at the training points _x_ 1 _, . . . , xn_ . Equation 7.12 indicates that the vector of fitted values when applying a smoothing spline to the data can be written as a _n × n_ matrix **S** _λ_ (for which there is a formula) times the response vector **y** . Then the effective degrees of freedom is defined to be
+
+the sum of the diagonal elements of the matrix **S** _λ_ .
+
+In fitting a smoothing spline, we do not need to select the number or location of the knots—there will be a knot at each training observation, _x_ 1 _, . . . , xn_ . Instead, we have another problem: we need to choose the value of _λ_ . It should come as no surprise that one possible solution to this problem is cross-validation. In other words, we can find the value of _λ_ that makes the cross-validated RSS as small as possible. It turns out that the _leaveone-out_ cross-validation error (LOOCV) can be computed very efficiently for smoothing splines, with essentially the same cost as computing a single fit, using the following formula:
+
+The notation _g_ ˆ _λ_^(()^(_−i_)) ( _xi_ ) indicates the fitted value for this smoothing spline evaluated at _xi_ , where the fit uses all of the training observations except ˆ for the _i_ th observation ( _xi, yi_ ). In contrast, _gλ_ ( _xi_ ) indicates the smoothing spline function fit to all of the training observations and evaluated at _xi_ . This remarkable formula says that we can compute each of these _leaveone-out_ fits using only _g_ ˆ _λ_ , the original fit to _all_ of the data!^(5) We have a very similar formula (5.2) on page 205 in Chapter 5 for least squares linear regression. Using (5.2), we can very quickly perform LOOCV for the regression splines discussed earlier in this chapter, as well as for least squares regression using arbitrary basis functions.
+
+Figure 7.8 shows the results from fitting a smoothing spline to the `Wage` data. The red curve indicates the fit obtained from pre-specifying that we would like a smoothing spline with 16 effective degrees of freedom. The blue curve is the smoothing spline obtained when _λ_ is chosen using LOOCV; in this case, the value of _λ_ chosen results in 6 _._ 8 effective degrees of freedom (computed using (7.13)). For this data, there is little discernible difference between the two smoothing splines, beyond the fact that the one with 16 degrees of freedom seems slightly wigglier. Since there is little difference between the two fits, the smoothing spline fit with 6 _._ 8 degrees of freedom
+
+> 5The exact formulas for computing _g_ ˆ( _xi_ ) and **S** _λ_ are very technical; however, efficient algorithms are available for computing these quantities.
+
+###### **Smoothing Spline**
+
+**FIGURE 7.8.** _Smoothing spline fits to the_ `Wage` _data. The red curve results from specifying_ 16 _effective degrees of freedom. For the blue curve, λ was found automatically by leave-one-out cross-validation, which resulted in_ 6 _._ 8 _effective degrees of freedom._
+
+is preferable, since in general simpler models are better unless the data provides evidence in support of a more complex model.
+
+</MdxPage>

@@ -1,0 +1,126 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch08-exercises",
+  "locale": "vi",
+  "title": "8.4 Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Thực hành"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phương pháp dựa trên cây",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Tự nghĩ và vẽ một ví dụ về cách phân hoạch không gian đặc trưng hai chiều có thể thu được từ chia nhị phân đệ quy. Ví dụ phải chứa ít nhất sáu vùng. Vẽ cây quyết định tương ứng với cách phân hoạch này. Hãy gắn nhãn mọi thành phần của hình, gồm các vùng _R_ 1 _, R_ 2 _, . . ._, các điểm cắt _t_ 1 _, t_ 2 _, . . ._, v.v.
+
+_Gợi ý: Kết quả nên có dạng tương tự Hình 8.1 và 8.2._
+
+2. Mục 8.2.3 đề cập rằng boosting dùng cây độ sâu một (hay _gốc cây_) tạo ra một mô hình _cộng tính_, tức mô hình có dạng
+
+Hãy giải thích tại sao lại như vậy. Có thể bắt đầu từ (8.12) trong Thuật toán 8.2.
+
+3. Xét chỉ số Gini, sai số phân loại và entropy trong bối cảnh phân loại đơn giản có hai lớp. Tạo một biểu đồ duy nhất biểu diễn từng đại lượng này theo _p_ ˆ _m_ 1. Trục _x_ biểu diễn _p_ ˆ _m_ 1 từ 0 đến 1, còn trục _y_ biểu diễn giá trị chỉ số Gini, sai số phân loại và entropy.
+
+   - ˆ ˆ
+
+   - _Gợi ý: Trong bối cảnh hai lớp, pm_ 1 = 1 _− pm_ 2_. Có thể vẽ biểu đồ bằng tay, nhưng dùng_ `R` _sẽ dễ hơn nhiều._
+
+4. Câu hỏi này liên quan đến các biểu đồ trong Hình 8.14.
+
+**HÌNH 8.14.** Trái_: Một cách phân hoạch không gian biến dự báo tương ứng với Bài tập 4a._ Phải_: Một cây tương ứng với Bài tập 4b._
+
+   - (a) Phác họa cây tương ứng với cách phân hoạch không gian biến dự báo trong ô bên trái của Hình 8.14. Các số trong hộp chỉ trung bình _Y_ trong từng vùng.
+
+   - (b) Tạo một sơ đồ tương tự ô bên trái của Hình 8.14 bằng cây trong ô bên phải của cùng hình. Bạn cần chia không gian biến dự báo thành đúng các vùng và ghi trung bình của mỗi vùng.
+
+5. Giả sử ta tạo mười mẫu bootstrap từ một bộ dữ liệu chứa lớp đỏ và xanh lá. Sau đó, ta áp dụng cây phân loại cho mỗi mẫu bootstrap và với một giá trị _X_ cụ thể, tạo 10 ước lượng của _P_(Lớp là Đỏ _|X_):
+
+0 _._ 1 _,_ 0 _._ 15 _,_ 0 _._ 2 _,_ 0 _._ 2 _,_ 0 _._ 55 _,_ 0 _._ 6 _,_ 0 _._ 6 _,_ 0 _._ 65 _,_ 0 _._ 7 _,_ và 0 _._ 75_._
+
+Có hai cách phổ biến để kết hợp các kết quả thành một dự đoán lớp duy nhất. Cách thứ nhất là biểu quyết đa số được thảo luận trong chương. Cách thứ hai là phân loại dựa trên xác suất trung bình. Trong ví dụ này, phân loại cuối theo mỗi cách là gì?
+
+6. Giải thích chi tiết thuật toán dùng để khớp cây hồi quy.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thực hành
+
+7. Trong Mục 8.3.3, ta áp dụng rừng ngẫu nhiên cho dữ liệu `Boston` với `max_features = 6`, đồng thời dùng `n_estimators = 100` và `n_estimators = 500`. Tạo biểu đồ biểu diễn sai số kiểm tra của rừng ngẫu nhiên trên bộ dữ liệu này với miền giá trị toàn diện hơn cho `max_features` và `n_estimators`. Có thể dựa theo Hình 8.10. Mô tả kết quả.
+
+8. Trong bài thực hành, cây phân loại được áp dụng cho bộ dữ liệu `Carseats` sau khi chuyển `Sales` thành biến đáp ứng định tính. Bây giờ ta sẽ dự đoán `Sales` bằng cây hồi quy và các phương pháp liên quan, coi biến đáp ứng là định lượng.
+
+   - (a) Chia bộ dữ liệu thành tập huấn luyện và tập kiểm tra.
+
+   - (b) Khớp cây hồi quy với tập huấn luyện. Vẽ cây và diễn giải kết quả. MSE kiểm tra thu được là bao nhiêu?
+
+   - (c) Dùng xác thực chéo để xác định mức độ phức tạp cây tối ưu. Việc cắt tỉa cây có cải thiện MSE kiểm tra không?
+
+   - (d) Dùng bagging để phân tích dữ liệu. MSE kiểm tra thu được là bao nhiêu? Dùng giá trị `feature_importance_` để xác định những biến quan trọng nhất.
+
+   - (e) Dùng rừng ngẫu nhiên để phân tích dữ liệu. MSE kiểm tra thu được là bao nhiêu? Dùng giá trị `feature_importance_` để xác định những biến quan trọng nhất. Mô tả ảnh hưởng của _m_, số biến được xét tại mỗi lần chia, lên tỷ lệ sai số thu được.
+
+   - (f) Bây giờ phân tích dữ liệu bằng BART và báo cáo kết quả.
+
+9. Bài này sử dụng bộ dữ liệu `OJ`, một phần của package `ISLP`.
+
+   - (a) Tạo tập huấn luyện gồm một mẫu ngẫu nhiên 800 quan sát và tập kiểm tra gồm các quan sát còn lại.
+
+   - (b) Khớp cây với dữ liệu huấn luyện, dùng `Purchase` làm biến đáp ứng và các biến khác làm biến dự báo. Tỷ lệ sai số huấn luyện là bao nhiêu?
+
+   - (c) Vẽ cây và diễn giải kết quả. Cây có bao nhiêu nút cuối?
+
+   - (d) Dùng hàm `export_tree()` để tạo bản tóm tắt dạng văn bản của cây đã khớp. Chọn một nút cuối và diễn giải thông tin hiển thị.
+
+   - (e) Dự đoán biến đáp ứng trên dữ liệu kiểm tra và tạo ma trận nhầm lẫn so sánh nhãn kiểm tra với nhãn kiểm tra dự đoán. Tỷ lệ sai số kiểm tra là bao nhiêu?
+
+   - (f) Dùng xác thực chéo trên tập huấn luyện để xác định kích thước cây tối ưu.
+
+   - (g) Tạo biểu đồ với kích thước cây trên trục _x_ và tỷ lệ sai số phân loại qua xác thực chéo trên trục _y_.
+
+   - (h) Kích thước cây nào tương ứng với tỷ lệ sai số phân loại qua xác thực chéo thấp nhất?
+
+   - (i) Tạo cây đã cắt tỉa tương ứng với kích thước cây tối ưu thu được từ xác thực chéo. Nếu xác thực chéo không chọn cây đã cắt tỉa, hãy tạo một cây đã cắt tỉa có năm nút cuối.
+
+   - (j) So sánh tỷ lệ sai số huấn luyện giữa cây đã cắt tỉa và chưa cắt tỉa. Tỷ lệ nào cao hơn?
+
+   - (k) So sánh tỷ lệ sai số kiểm tra giữa cây đã cắt tỉa và chưa cắt tỉa. Tỷ lệ nào cao hơn?
+
+10. Bây giờ ta dùng boosting để dự đoán `Salary` trong bộ dữ liệu `Hitters`.
+
+   - (a) Loại các quan sát không biết thông tin tiền lương, rồi biến đổi log tiền lương.
+
+   - (b) Tạo tập huấn luyện gồm 200 quan sát đầu tiên và tập kiểm tra gồm các quan sát còn lại.
+
+   - (c) Thực hiện boosting trên tập huấn luyện với 1.000 cây cho một miền giá trị của tham số co rút _λ_. Tạo biểu đồ với các giá trị co rút trên trục _x_ và MSE tập huấn luyện tương ứng trên trục _y_.
+
+   - (d) Tạo biểu đồ với các giá trị co rút trên trục _x_ và MSE tập kiểm tra tương ứng trên trục _y_.
+
+   - (e) So sánh MSE kiểm tra của boosting với MSE kiểm tra thu được khi áp dụng hai phương pháp hồi quy đã thấy trong Chương 3 và 6.
+
+   - (f) Những biến nào có vẻ là biến dự báo quan trọng nhất trong mô hình boosting?
+
+   - (g) Bây giờ áp dụng bagging cho tập huấn luyện. MSE tập kiểm tra của phương pháp này là bao nhiêu?
+
+11. Câu hỏi này sử dụng bộ dữ liệu `Caravan`.
+
+   - (a) Tạo tập huấn luyện gồm 1.000 quan sát đầu tiên và tập kiểm tra gồm các quan sát còn lại.
+
+   - (b) Khớp mô hình boosting với tập huấn luyện, dùng `Purchase` làm biến đáp ứng và các biến khác làm biến dự báo. Dùng 1.000 cây và giá trị co rút 0 _._ 01. Những biến dự báo nào có vẻ quan trọng nhất?
+
+   - (c) Dùng mô hình boosting để dự đoán biến đáp ứng trên dữ liệu kiểm tra. Dự đoán một người sẽ mua hàng nếu xác suất mua ước lượng lớn hơn 20%. Lập ma trận nhầm lẫn. Trong số những người được dự đoán sẽ mua, tỷ lệ thực sự mua là bao nhiêu? Kết quả này so với kết quả khi áp dụng KNN hoặc hồi quy logistic cho bộ dữ liệu này như thế nào?
+
+12. Áp dụng boosting, bagging, rừng ngẫu nhiên và BART cho một bộ dữ liệu tự chọn. Hãy khớp mô hình trên tập huấn luyện và đánh giá hiệu năng trên tập kiểm tra. Kết quả chính xác đến đâu so với các phương pháp đơn giản như hồi quy tuyến tính hoặc logistic? Phương pháp nào trong số này cho hiệu năng tốt nhất?
+
+</MdxPage>

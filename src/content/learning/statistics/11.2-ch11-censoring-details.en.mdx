@@ -1,0 +1,35 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-censoring-details",
+  "locale": "en",
+  "title": "11.2 A Closer Look at Censoring",
+  "headings": [
+    "A Closer Look at Censoring"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Survival Analysis and Censored Data",
+    "A Closer Look at Censoring"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## A Closer Look at Censoring
+
+In order to analyze survival data, we need to make some assumptions about _why_ censoring has occurred. For instance, suppose that a number of patients drop out of a cancer study early because they are very sick. An analysis that does not take into consideration the reason why the patients dropped out will likely overestimate the true average survival time. Similarly, suppose that males who are very sick are more likely to drop out of the study than
+
+**FIGURE 11.1.** _Illustration of censored survival data. For patients 1 and 3, the event was observed. Patient 2 was alive when the study ended. Patient 4 dropped out of the study._
+
+females who are very sick. Then a comparison of male and female survival times may wrongly suggest that males survive longer than females.
+
+In general, we need to assume that the censoring mechanism is _independent_ : conditional on the features, the event time _T_ is independent of the censoring time _C_ . The two examples above violate the assumption of independent censoring. Typically, it is not possible to determine from the data itself whether the censoring mechanism is independent. Instead, one has to carefully consider the data collection process in order to determine whether independent censoring is a reasonable assumption. In the remainder of this chapter, we will assume that the censoring mechanism is independent.^(1)
+
+In this chapter, we focus on _right censoring_ , which occurs when _T ≥ Y_ , i.e. the true event time _T_ is at least as large as the observed time _Y_ . (Notice that _T ≥ Y_ is a consequence of (11.1). Right censoring derives its name from the fact that time is typically displayed from left to right, as in Figure 11.1.) However, other types of censoring are possible. For instance, in _left censoring_ , the true event time _T_ is less than or equal to the observed time _Y_ . For example, in a study of pregnancy duration, suppose that we survey patients 250 days after conception, when some have already had their babies. Then we know that for those patients, pregnancy duration is less than 250 days. More generally, _interval censoring_ refers to the setting in which we do not know the exact event time, but we know that it falls in some interval. For instance, this setting arises if we survey patients once per week in order to determine whether the event has occurred. While left censoring and interval censoring can be accommodated using variants of the ideas presented in this chapter, in what follows we focus specifically on right censoring.
+
+> 1The assumption of independent censoring can be relaxed somewhat using the notion of _non-informative censoring_ ; however, the definition of non-informative censoring is too technical for this book.
+
+</MdxPage>

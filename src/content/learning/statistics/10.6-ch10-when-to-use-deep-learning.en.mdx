@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-when-to-use-deep-learning",
+  "locale": "en",
+  "title": "10.6 When to Use Deep Learning",
+  "headings": [
+    "When to Use Deep Learning"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Deep Learning",
+    "When to Use Deep Learning"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## When to Use Deep Learning
+
+The performance of deep learning in this chapter has been rather impressive. It nailed the digit classification problem, and deep CNNs have really revolutionized image classification. We see daily reports of new success stories for deep learning. Many of these are related to image classification tasks, such as machine diagnosis of mammograms or digital X-ray images, ophthalmology eye scans, annotations of MRI scans, and so on. Likewise there are numerous successes of RNNs in speech and language translation, forecasting, and document modeling. The question that then begs an answer is: _should we discard all our older tools, and use deep learning on every problem with data?_ To address this question, we revisit our `Hitters` dataset from Chapter 6.
+
+This is a regression problem, where the goal is to predict the `Salary` of a baseball player in 1987 using his performance statistics from 1986. After removing players with missing responses, we are left with 263 players and 19 variables. We randomly split the data into a training set of 176 players (two thirds), and a test set of 87 players (one third). We used three methods for fitting a regression model to these data.
+
+- A linear model was used to fit the training data, and make predictions on the test data. The model has 20 parameters.
+
+- The same linear model was fit with lasso regularization. The tuning parameter was selected by 10-fold cross-validation on the training data. It selected a model with 12 variables having nonzero coefficients.
+
+- A neural network with one hidden layer consisting of 64 `ReLU` units was fit to the data. This model has 1,345 parameters.^(20)
+
+> 20The model was fit by stochastic gradient descent with a batch size of 32 for 1,000 epochs, and 10% dropout regularization. The test error performance flattened out and started to slowly increase after 1,000 epochs. These fitting details are discussed in Section 10.7.
+
+<MdxCode language="table" code={"|Model|# Parameters|Mean Abs.|Error|Test Set _R_^(2)|\n|---|---|---|---|---|\n|Linear Regression|20||254.7|0.56|\n|Lasso|12||252.3|0.51|\n|Neural Network|1345||257.4|0.54|"} />
+
+**TABLE 10.2.** _Prediction results on the_ `Hitters` _test data for linear models fit by ordinary least squares and lasso, compared to a neural network fit by stochastic gradient descent with dropout regularization._
+
+<MdxCode language="table" code={"||Coefcient|Std. error|_t_-statistic|_p_-value|\n|---|---|---|---|---|\n|`Intercept`|-226.67|86.26|-2.63|0.0103|\n|`Hits`|3.06|1.02|3.00|0.0036|\n|`Walks`|0.181|2.04|0.09|0.9294|\n|`CRuns`|0.859|0.12|7.09|_&lt;_0_._0001|\n|`PutOuts`|0.465|0.13|3.60|0.0005|"} />
+
+**TABLE 10.3.** _Least squares coefficient estimates associated with the regression of_ `Salary` _on four variables chosen by lasso on the_ `Hitters` _data set. This model achieved the best performance on the test data, with a mean absolute error of 224.8. The results reported here were obtained from a regression on the test data, which was not used in fitting the lasso model._
+
+Table 10.2 compares the results. We see similar performance for all three models. We report the mean absolute error on the test data, as well as the test _R_^(2) for each method, which are all respectable (see Exercise 5). We spent a fair bit of time fiddling with the configuration parameters of the neural network to achieve these results. It is possible that if we were to spend more time, and got the form and amount of regularization just right, that we might be able to match or even outperform linear regression and the lasso. But with great ease we obtained linear models that work well. Linear models are much easier to present and understand than the neural network, which is essentially a black box. The lasso selected 12 of the 19 variables in making its prediction. So in cases like this we are much better off following the _Occam’s razor_ principle: when faced with several methods Occam’s that give roughly equivalent performance, pick the simplest.
+
+After a bit more exploration with the lasso model, we identified an even simpler model with four variables. We then refit the linear model with these four variables to the training data (the so-called _relaxed lasso_ ), and achieved a test mean absolute error of 224.8, the overall winner! It is tempting to present the summary table from this fit, so we can see coefficients and p- values; however, since the model was selected on the training data, there would be _selection bias_ . Instead, we refit the model on the test data, which was not used in the selection. Table 10.3 shows the results.
+
+We have a number of very powerful tools at our disposal, including neural networks, random forests and boosting, support vector machines and generalized additive models, to name a few. And then we have linear models, and simple variants of these. When faced with new data modeling and prediction problems, it’s tempting to always go for the trendy new methods. Often they give extremely impressive results, especially when the datasets are very large and can support the fitting of high-dimensional nonlinear models. However, _if_ we can produce models with the simpler tools that
+
+10.7 Fitting a Neural Network
+
+perform as well, they are likely to be easier to fit and understand, and potentially less fragile than the more complex approaches. Wherever possible, it makes sense to try the simpler models as well, and then make a choice based on the performance/complexity tradeoff.
+
+Typically we expect deep learning to be an attractive choice when the sample size of the training set is extremely large, and when interpretability of the model is not a high priority.
+
+</MdxPage>

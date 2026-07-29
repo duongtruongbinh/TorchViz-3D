@@ -1,0 +1,220 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch12-clustering-methods",
+  "locale": "en",
+  "title": "12.4 Clustering Methods",
+  "headings": [
+    "Clustering Methods",
+    "12.4.1 K-Means Clustering",
+    "12.4.2 Hierarchical Clustering",
+    "12.4.3 Practical Issues in Clustering"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Unsupervised Learning",
+    "Clustering Methods"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Clustering Methods
+
+_Clustering_ refers to a very broad set of techniques for finding _subgroups_ , or clustering _clusters_ , in a data set. When we cluster the observations of a data set, we seek to partition them into distinct groups so that the observations within each group are quite similar to each other, while observations in different groups are quite different from each other. Of course, to make this concrete, we must define what it means for two or more observations to be _similar_ or _different_ . Indeed, this is often a domain-specific consideration that must be made based on knowledge of the data being studied.
+
+For instance, suppose that we have a set of _n_ observations, each with _p_ features. The _n_ observations could correspond to tissue samples for patients with breast cancer, and the _p_ features could correspond to measurements collected for each tissue sample; these could be clinical measurements, such as tumor stage or grade, or they could be gene expression measurements. We may have a reason to believe that there is some heterogeneity among the _n_ tissue samples; for instance, perhaps there are a few different _unknown_ subtypes of breast cancer. Clustering could be used to find these subgroups. This is an unsupervised problem because we are trying to discover structure—in this case, distinct clusters—on the basis of a data set. The goal in supervised problems, on the other hand, is to try to predict some outcome vector such as survival time or response to drug treatment.
+
+Both clustering and PCA seek to simplify the data via a small number of summaries, but their mechanisms are different:
+
+- PCA looks to find a low-dimensional representation of the observations that explain a good fraction of the variance;
+
+- Clustering looks to find homogeneous subgroups among the observations.
+
+Another application of clustering arises in marketing. We may have access to a large number of measurements (e.g. median household income, occupation, distance from nearest urban area, and so forth) for a large number of people. Our goal is to perform _market segmentation_ by identifying subgroups of people who might be more receptive to a particular form of advertising, or more likely to purchase a particular product. The task of performing market segmentation amounts to clustering the people in the data set.
+
+Since clustering is popular in many fields, there exist a great number of clustering methods. In this section we focus on perhaps the two best-known clustering approaches: _K-means clustering_ and _hierarchical K_ -means _clustering_ . In _K_ -means clustering, we seek to partition the observations clustering into a pre-specified number of clusters. On the other hand, in hierarchical hierarchical clustering, we do not know in advance how many clusters we want; in fact, clustering we end up with a tree-like visual representation of the observations, called a _dendrogram_ , that allows us to view at once the clusterings obtained for dendrogram each possible number of clusters, from 1 to _n_ . There are advantages and disadvantages to each of these clustering approaches, which we highlight in this chapter.
+
+In general, we can cluster observations on the basis of the features in order to identify subgroups among the observations, or we can cluster features on the basis of the observations in order to discover subgroups among the features. In what follows, for simplicity we will discuss clustering observations on the basis of the features, though the converse can be performed by simply transposing the data matrix.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 12.4.1 K-Means Clustering
+
+_K_ -means clustering is a simple and elegant approach for partitioning a data set into _K_ distinct, non-overlapping clusters. To perform _K_ -means clustering, we must first specify the desired number of clusters _K_ ; then the _K_ -means algorithm will assign each observation to exactly one of the _K_ clusters. Figure 12.7 shows the results obtained from performing _K_ -means clustering on a simulated example consisting of 150 observations in two dimensions, using three different values of _K_ .
+
+The _K_ -means clustering procedure results from a simple and intuitive mathematical problem. We begin by defining some notation. Let _C_ 1 _, . . . , CK_ denote sets containing the indices of the observations in each cluster. These sets satisfy two properties:
+
+1. _C_ 1 _∪ C_ 2 _∪· · · ∪ CK_ = _\{_ 1 _, . . . , n\}_ . In other words, each observation belongs to at least one of the _K_ clusters.
+
+2. _Ck ∩ Ck′_ = _∅_ for all _k_ = _k_^(_′_) . In other words, the clusters are nonoverlapping: no observation belongs to more than one cluster.
+
+**FIGURE 12.7.** _A simulated data set with 150 observations in two-dimensional space. Panels show the results of applying K-means clustering with different values of K, the number of clusters. The color of each observation indicates the cluster to which it was assigned using the K-means clustering algorithm. Note that there is no ordering of the clusters, so the cluster coloring is arbitrary. These cluster labels were not used in clustering; instead, they are the outputs of the clustering procedure._
+
+For instance, if the _i_ th observation is in the _k_ th cluster, then _i ∈ Ck_ . The idea behind _K_ -means clustering is that a _good_ clustering is one for which the _within-cluster variation_ is as small as possible. The within-cluster variation for cluster _Ck_ is a measure _W_ ( _Ck_ ) of the amount by which the observations within a cluster differ from each other. Hence we want to solve the problem
+
+In words, this formula says that we want to partition the observations into _K_ clusters such that the total within-cluster variation, summed over all _K_ clusters, is as small as possible.
+
+Solving (12.15) seems like a reasonable idea, but in order to make it actionable we need to define the within-cluster variation. There are many possible ways to define this concept, but by far the most common choice involves _squared Euclidean distance_ . That is, we define
+
+where _|Ck|_ denotes the number of observations in the _k_ th cluster. In other words, the within-cluster variation for the _k_ th cluster is the sum of all of the pairwise squared Euclidean distances between the observations in the _k_ th cluster, divided by the total number of observations in the _k_ th cluster. Combining (12.15) and (12.16) gives the optimization problem that defines
+
+_K_ -means clustering,
+
+Now, we would like to find an algorithm to solve (12.17)—that is, a method to partition the observations into _K_ clusters such that the objective of (12.17) is minimized. This is in fact a very difficult problem to solve precisely, since there are almost _K_^(_n_) ways to partition _n_ observations into _K_ clusters. This is a huge number unless _K_ and _n_ are tiny! Fortunately, a very simple algorithm can be shown to provide a local optimum—a _pretty good solution_ —to the _K_ -means optimization problem (12.17). This approach is laid out in Algorithm 12.2.
+
+##### **Algorithm 12.2** _K-Means Clustering_
+
+1. Randomly assign a number, from 1 to _K_ , to each of the observations. These serve as initial cluster assignments for the observations.
+
+2. Iterate until the cluster assignments stop changing:
+
+   - (a) For each of the _K_ clusters, compute the cluster _centroid_ . The _k_ th cluster centroid is the vector of the _p_ feature means for the observations in the _k_ th cluster.
+
+   - (b) Assign each observation to the cluster whose centroid is closest (where _closest_ is defined using Euclidean distance).
+
+Algorithm 12.2 is guaranteed to decrease the value of the objective (12.17) at each step. To understand why, the following identity is illuminating:
+
+where _x_ ¯ _kj_ = _|C_ 1 _k|_ � _i∈Ck_^(_xij_isthemeanforfeature)^(_j_incluster)^(_Ck_.) In Step 2(a) the cluster means for each feature are the constants that minimize the sum-of-squared deviations, and in Step 2(b), reallocating the observations can only improve (12.18). This means that as the algorithm is run, the clustering obtained will continually improve until the result no longer changes; the objective of (12.17) will never increase. When the result no longer changes, a _local optimum_ has been reached. Figure 12.8 shows the progression of the algorithm on the toy example from Figure 12.7. _K_ -means clustering derives its name from the fact that in Step 2(a), the cluster centroids are computed as the mean of the observations assigned to each cluster.
+
+Because the _K_ -means algorithm finds a local rather than a global optimum, the results obtained will depend on the initial (random) cluster assignment of each observation in Step 1 of Algorithm 12.2. For this reason, it is important to run the algorithm multiple times from different random
+
+**FIGURE 12.8.** _The progress of the K-means algorithm on the example of Figure 12.7 with K=3._ Top left: _the observations are shown._ Top center: _in Step 1 of the algorithm, each observation is randomly assigned to a cluster._ Top right: _in Step 2(a), the cluster centroids are computed. These are shown as large colored disks. Initially the centroids are almost completely overlapping because the initial cluster assignments were chosen at random._ Bottom left: _in Step 2(b), each observation is assigned to the nearest centroid._ Bottom center: _Step 2(a) is once again performed, leading to new cluster centroids._ Bottom right: _the results obtained after ten iterations._
+
+initial configurations. Then one selects the _best_ solution, i.e. that for which the objective (12.17) is smallest. Figure 12.9 shows the local optima obtained by running _K_ -means clustering six times using six different initial cluster assignments, using the toy data from Figure 12.7. In this case, the best clustering is the one with an objective value of 235.8.
+
+As we have seen, to perform _K_ -means clustering, we must decide how many clusters we expect in the data. The problem of selecting _K_ is far from simple. This issue, along with other practical considerations that arise in performing _K_ -means clustering, is addressed in Section 12.4.3.
+
+**FIGURE 12.9.** _K-means clustering performed six times on the data from Figure 12.7 with K_ = 3 _, each time with a different random assignment of the observations in Step 1 of the K-means algorithm. Above each plot is the value of the objective (12.17). Three different local optima were obtained, one of which resulted in a smaller value of the objective and provides better separation between the clusters. Those labeled in red all achieved the same best solution, with an objective value of 235.8._
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 12.4.2 Hierarchical Clustering
+
+One potential disadvantage of _K_ -means clustering is that it requires us to pre-specify the number of clusters _K_ . _Hierarchical clustering_ is an alternative approach which does not require that we commit to a particular choice of _K_ . Hierarchical clustering has an added advantage over _K_ -means clustering in that it results in an attractive tree-based representation of the observations, called a _dendrogram_ .
+
+In this section, we describe _bottom-up_ or _agglomerative_ clustering. This is the most common type of hierarchical clustering, and refers to the fact that a dendrogram (generally depicted as an upside-down tree; see Figure 12.11) is built starting from the leaves and combining clusters up to the trunk. We will begin with a discussion of how to interpret a dendrogram
+
+**FIGURE 12.10.** _Forty-five observations generated in two-dimensional space. In reality there are three distinct classes, shown in separate colors. However, we will treat these class labels as unknown and will seek to cluster the observations in order to discover the classes from the data._
+
+and then discuss how hierarchical clustering is actually performed—that is, how the dendrogram is built.
+
+##### Interpreting a Dendrogram
+
+We begin with the simulated data set shown in Figure 12.10, consisting of 45 observations in two-dimensional space. The data were generated from a three-class model; the true class labels for each observation are shown in distinct colors. However, suppose that the data were observed without the class labels, and that we wanted to perform hierarchical clustering of the data. Hierarchical clustering (with complete linkage, to be discussed later) yields the result shown in the left-hand panel of Figure 12.11. How can we interpret this dendrogram?
+
+In the left-hand panel of Figure 12.11, each _leaf_ of the dendrogram represents one of the 45 observations in Figure 12.10. However, as we move up the tree, some leaves begin to _fuse_ into branches. These correspond to observations that are similar to each other. As we move higher up the tree, branches themselves fuse, either with leaves or other branches. The earlier (lower in the tree) fusions occur, the more similar the groups of observations are to each other. On the other hand, observations that fuse later (near the top of the tree) can be quite different. In fact, this statement can be made precise: for any two observations, we can look for the point in the tree where branches containing those two observations are first fused. The height of this fusion, as measured on the vertical axis, indicates how different the two observations are. Thus, observations that fuse at the very bottom of the tree are quite similar to each other, whereas observations that fuse close to the top of the tree will tend to be quite different.
+
+This highlights a very important point in interpreting dendrograms that is often misunderstood. Consider the left-hand panel of Figure 12.12, which shows a simple dendrogram obtained from hierarchically clustering nine
+
+**FIGURE 12.11.** Left: _dendrogram obtained from hierarchically clustering the data from Figure 12.10 with complete linkage and Euclidean distance._ Center: _the dendrogram from the left-hand panel, cut at a height of nine (indicated by the dashed line). This cut results in two distinct clusters, shown in different colors._ Right: _the dendrogram from the left-hand panel, now cut at a height of five. This cut results in three distinct clusters, shown in different colors. Note that the colors were not used in clustering, but are simply used for display purposes in this figure._
+
+observations. One can see that observations 5 and 7 are quite similar to each other, since they fuse at the lowest point on the dendrogram. Observations 1 and 6 are also quite similar to each other. However, it is tempting but incorrect to conclude from the figure that observations 9 and 2 are quite similar to each other on the basis that they are located near each other on the dendrogram. In fact, based on the information contained in the dendrogram, observation 9 is no more similar to observation 2 than it is to observations 8 _,_ 5 _,_ and 7. (This can be seen from the right-hand panel of Figure 12.12, in which the raw data are displayed.) To put it mathematically, there are 2^(_n−_1) possible reorderings of the dendrogram, where _n_ is the number of leaves. This is because at each of the _n −_ 1 points where fusions occur, the positions of the two fused branches could be swapped without affecting the meaning of the dendrogram. Therefore, we cannot draw conclusions about the similarity of two observations based on their proximity along the _horizontal axis_ . Rather, we draw conclusions about the similarity of two observations based on the location on the _vertical axis_ where branches containing those two observations first are fused.
+
+Now that we understand how to interpret the left-hand panel of Figure 12.11, we can move on to the issue of identifying clusters on the basis of a dendrogram. In order to do this, we make a horizontal cut across the dendrogram, as shown in the center and right-hand panels of Figure 12.11. The distinct sets of observations beneath the cut can be interpreted as clusters. In the center panel of Figure 12.11, cutting the dendrogram at a height of nine results in two clusters, shown in distinct colors. In the right-hand panel, cutting the dendrogram at a height of five results in three clusters. Further cuts can be made as one descends the dendrogram in order to obtain any number of clusters, between 1 (corresponding to no cut) and _n_
+
+**FIGURE 12.12.** _An illustration of how to properly interpret a dendrogram with nine observations in two-dimensional space._ Left: _a dendrogram generated using Euclidean distance and complete linkage. Observations_ 5 _and_ 7 _are quite similar to each other, as are observations_ 1 _and_ 6 _. However, observation_ 9 _is_ no more similar to _observation_ 2 _than it is to observations_ 8 _,_ 5 _, and_ 7 _, even though observations_ 9 _and_ 2 _are close together in terms of horizontal distance. This is because observations_ 2 _,_ 8 _,_ 5 _, and_ 7 _all fuse with observation_ 9 _at the same height, approximately_ 1 _._ 8 _._ Right: _the raw data used to generate the dendrogram can be used to confirm that indeed, observation_ 9 _is no more similar to observation_ 2 _than it is to observations_ 8 _,_ 5 _, and_ 7 _._
+
+(corresponding to a cut at height 0, so that each observation is in its own cluster). In other words, the height of the cut to the dendrogram serves the same role as the _K_ in _K_ -means clustering: it controls the number of clusters obtained.
+
+Figure 12.11 therefore highlights a very attractive aspect of hierarchical clustering: one single dendrogram can be used to obtain any number of clusters. In practice, people often look at the dendrogram and select by eye a sensible number of clusters, based on the heights of the fusion and the number of clusters desired. In the case of Figure 12.11, one might choose to select either two or three clusters. However, often the choice of where to cut the dendrogram is not so clear.
+
+The term _hierarchical_ refers to the fact that clusters obtained by cutting the dendrogram at a given height are necessarily nested within the clusters obtained by cutting the dendrogram at any greater height. However, on an arbitrary data set, this assumption of hierarchical structure might be unrealistic. For instance, suppose that our observations correspond to a group of men and women, evenly split among Americans, Japanese, and French. We can imagine a scenario in which the best division into two groups might split these people by gender, and the best division into three groups might split them by nationality. In this case, the true clusters are not nested, in the sense that the best division into three groups does not result from taking the best division into two groups and splitting up one of those groups. Consequently, this situation could not be well-represented by hierarchical clustering. Due to situations such as this one, hierarchical clustering can sometimes yield _worse_ (i.e. less accurate) results than _K_ - means clustering for a given number of clusters.
+
+**Algorithm 12.3** _Hierarchical Clustering_
+
+1. Begin with _n_ observations and a measure (such as Euclidean dis- _n_
+
+tance) of all the �2� = _n_ ( _n −_ 1) _/_ 2 pairwise dissimilarities. Treat each observation as its own cluster.
+
+2. For _i_ = _n, n −_ 1 _, . . . ,_ 2:
+
+   - (a) Examine all pairwise inter-cluster dissimilarities among the _i_ clusters and identify the pair of clusters that are least dissimilar (that is, most similar). Fuse these two clusters. The dissimilarity between these two clusters indicates the height in the dendrogram at which the fusion should be placed.
+
+   - (b) Compute the new pairwise inter-cluster dissimilarities among the _i −_ 1 remaining clusters.
+
+##### The Hierarchical Clustering Algorithm
+
+The hierarchical clustering dendrogram is obtained via an extremely simple algorithm. We begin by defining some sort of _dissimilarity_ measure between each pair of observations. Most often, Euclidean distance is used; we will discuss the choice of dissimilarity measure later in this chapter. The algorithm proceeds iteratively. Starting out at the bottom of the dendrogram, each of the _n_ observations is treated as its own cluster. The two clusters that are most similar to each other are then _fused_ so that there now are _n −_ 1 clusters. Next the two clusters that are most similar to each other are fused again, so that there now are _n −_ 2 clusters. The algorithm proceeds in this fashion until all of the observations belong to one single cluster, and the dendrogram is complete. Figure 12.13 depicts the first few steps of the algorithm, for the data from Figure 12.12. To summarize, the hierarchical clustering algorithm is given in Algorithm 12.3.
+
+This algorithm seems simple enough, but one issue has not been addressed. Consider the bottom right panel in Figure 12.13. How did we determine that the cluster _\{_ 5 _,_ 7 _\}_ should be fused with the cluster _\{_ 8 _\}_ ? We have a concept of the dissimilarity between pairs of observations, but how do we define the dissimilarity between two clusters if one or both of the clusters contains multiple observations? The concept of dissimilarity between a pair of observations needs to be extended to a pair of _groups of observations_ . This extension is achieved by developing the notion of _linkage_ , which defines the dissimilarity between two groups of observa- linkage tions. The four most common types of linkage— _complete_ , _average_ , _single_ , and _centroid_ —are briefly described in Table 12.3. Average, complete, and single linkage are most popular among statisticians. Average and complete linkage are generally preferred over single linkage, as they tend to yield more balanced dendrograms. Centroid linkage is often used in genomics, but suffers from a major drawback in that an _inversion_ can occur, whereby inversion two clusters are fused at a height _below_ either of the individual clusters in the dendrogram. This can lead to difficulties in visualization as well as in interpretation of the dendrogram. The dissimilarities computed in Step 2(b)
+
+<MdxCode language="table" code={"|_Linkage_|_Description_|\n|---|---|\n|Complete|Maximal intercluster dissimilarity. Compute all pairwise dissimilarities between the observations in cluster A and the observations in cluster B, and record the_largest_ of these dis- similarities.|\n|Single|Minimal intercluster dissimilarity. Compute all pairwise dis- similarities between the observations in cluster A and the observations in cluster B, and record the _smallest_ of these dissimilarities. Single linkage can result in extended, trailing clusters in which single observations are fused one-at-a-time.|\n|Average|Mean intercluster dissimilarity. Compute all pairwise dis- similarities between the observations in cluster A and the observations in cluster B, and record the _average_ of these dissimilarities.|\n||Dissimilarity between the centroid for cluster A (a mean|\n|Centroid|vector of length _p_) and the centroid for cluster B. Centroid linkage can result in undesirable _inversions_.|"} />
+
+**TABLE 12.3.** _A summary of the four most commonly-used types of linkage in hierarchical clustering._
+
+of the hierarchical clustering algorithm will depend on the type of linkage used, as well as on the choice of dissimilarity measure. Hence, the resulting dendrogram typically depends quite strongly on the type of linkage used, as is shown in Figure 12.14.
+
+Choice of Dissimilarity Measure
+
+Thus far, the examples in this chapter have used Euclidean distance as the dissimilarity measure. But sometimes other dissimilarity measures might be preferred. For example, _correlation-based distance_ considers two observations to be similar if their features are highly correlated, even though the observed values may be far apart in terms of Euclidean distance. This is an unusual use of correlation, which is normally computed between variables; here it is computed between the observation profiles for each pair of observations. Figure 12.15 illustrates the difference between Euclidean and correlation-based distance. Correlation-based distance focuses on the shapes of observation profiles rather than their magnitudes.
+
+The choice of dissimilarity measure is very important, as it has a strong effect on the resulting dendrogram. In general, careful attention should be paid to the type of data being clustered and the scientific question at hand. These considerations should determine what type of dissimilarity measure is used for hierarchical clustering.
+
+For instance, consider an online retailer interested in clustering shoppers based on their past shopping histories. The goal is to identify subgroups of _similar_ shoppers, so that shoppers within each subgroup can be shown items and advertisements that are particularly likely to interest them. Suppose the data takes the form of a matrix where the rows are the shoppers and the columns are the items available for purchase; the elements of the data matrix indicate the number of times a given shopper has purchased a
+
+**FIGURE 12.13.** _An illustration of the first few steps of the hierarchical clustering algorithm, using the data from Figure 12.12, with complete linkage and Euclidean distance._ Top Left: _initially, there are nine distinct clusters, \{_ 1 _\}, \{_ 2 _\}, . . . , \{_ 9 _\}._ Top Right: _the two clusters that are closest together, \{_ 5 _\} and \{_ 7 _\}, are fused into a single cluster._ Bottom Left: _the two clusters that are closest together, \{_ 6 _\} and \{_ 1 _\}, are fused into a single cluster._ Bottom Right: _the two clusters that are closest together using_ complete linkage _, \{_ 8 _\} and the cluster \{_ 5 _,_ 7 _\}, are fused into a single cluster._
+
+given item (i.e. a 0 if the shopper has never purchased this item, a 1 if the shopper has purchased it once, etc.) What type of dissimilarity measure should be used to cluster the shoppers? If Euclidean distance is used, then shoppers who have bought very few items overall (i.e. infrequent users of the online shopping site) will be clustered together. This may not be desirable. On the other hand, if correlation-based distance is used, then shoppers with similar preferences (e.g. shoppers who have bought items A and B but never items C or D) will be clustered together, even if some shoppers with these preferences are higher-volume shoppers than others. Therefore, for this application, correlation-based distance may be a better choice.
+
+In addition to carefully selecting the dissimilarity measure used, one must also consider whether or not the variables should be scaled to have standard deviation one before the dissimilarity between the observations is computed. To illustrate this point, we continue with the online shopping ex-
+
+**FIGURE 12.14.** _Average, complete, and single linkage applied to an example data set. Average and complete linkage tend to yield more balanced clusters._
+
+ample just described. Some items may be purchased more frequently than others; for instance, a shopper might buy ten pairs of socks a year, but a computer very rarely. High-frequency purchases like socks therefore tend to have a much larger effect on the inter-shopper dissimilarities, and hence on the clustering ultimately obtained, than rare purchases like computers. This may not be desirable. If the variables are scaled to have standard deviation one before the inter-observation dissimilarities are computed, then each variable will in effect be given equal importance in the hierarchical clustering performed. We might also want to scale the variables to have standard deviation one if they are measured on different scales; otherwise, the choice of units (e.g. centimeters versus kilometers) for a particular variable will greatly affect the dissimilarity measure obtained. It should come as no surprise that whether or not it is a good decision to scale the variables before computing the dissimilarity measure depends on the application at hand. An example is shown in Figure 12.16. We note that the issue of whether or not to scale the variables before performing clustering applies to _K_ -means clustering as well.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 12.4.3 Practical Issues in Clustering
+
+Clustering can be a very useful tool for data analysis in the unsupervised setting. However, there are a number of issues that arise in performing clustering. We describe some of these issues here.
+
+Small Decisions with Big Consequences
+
+In order to perform clustering, some decisions must be made.
+
+**FIGURE 12.15.** _Three observations with measurements on 20 variables are shown. Observations 1 and 3 have similar values for each variable and so there is a small Euclidean distance between them. But they are very weakly correlated, so they have a large correlation-based distance. On the other hand, observations 1 and 2 have quite different values for each variable, and so there is a large Euclidean distance between them. But they are highly correlated, so there is a small correlation-based distance between them._
+
+- Should the observations or features first be standardized in some way? For instance, maybe the variables should be scaled to have standard deviation one.
+
+- In the case of hierarchical clustering,
+
+   - What dissimilarity measure should be used?
+
+   - What type of linkage should be used?
+
+   - Where should we cut the dendrogram in order to obtain clusters?
+
+- In the case of _K_ -means clustering, how many clusters should we look for in the data?
+
+Each of these decisions can have a strong impact on the results obtained. In practice, we try several different choices, and look for the one with the most useful or interpretable solution. With these methods, there is no single right answer—any solution that exposes some interesting aspects of the data should be considered.
+
+##### Validating the Clusters Obtained
+
+Any time clustering is performed on a data set we will find clusters. But we really want to know whether the clusters that have been found represent true subgroups in the data, or whether they are simply a result of _clustering the noise_ . For instance, if we were to obtain an independent set of observations, then would those observations also display the same set of clusters? This is a hard question to answer. There exist a number of techniques for assigning a p-value to a cluster in order to assess whether there is more
+
+**FIGURE 12.16.** _An eclectic online retailer sells two items: socks and computers._ Left: _the number of pairs of socks, and computers, purchased by eight online shoppers is displayed. Each shopper is shown in a different color. If inter-observation dissimilarities are computed using Euclidean distance on the raw variables, then the number of socks purchased by an individual will drive the dissimilarities obtained, and the number of computers purchased will have little effect. This might be undesirable, since (1) computers are more expensive than socks and so the online retailer may be more interested in encouraging shoppers to buy computers than socks, and (2) a large difference in the number of socks purchased by two shoppers may be less informative about the shoppers’ overall shopping preferences than a small difference in the number of computers purchased._ Center: _the same data are shown, after scaling each variable by its standard deviation. Now the two products will have a comparable effect on the inter-observation dissimilarities obtained._ Right: _the same data are displayed, but now the y-axis represents the number of dollars spent by each online shopper on socks and on computers. Since computers are much more expensive than socks, now computer purchase history will drive the inter-observation dissimilarities obtained._
+
+evidence for the cluster than one would expect due to chance. However, there has been no consensus on a single best approach. More details can be found in ESL.^(8)
+
+Other Considerations in Clustering
+
+Both _K_ -means and hierarchical clustering will assign each observation to a cluster. However, sometimes this might not be appropriate. For instance, suppose that most of the observations truly belong to a small number of (unknown) subgroups, and a small subset of the observations are quite different from each other and from all other observations. Then since _K_ - means and hierarchical clustering force _every_ observation into a cluster, the clusters found may be heavily distorted due to the presence of outliers that do not belong to any cluster. Mixture models are an attractive approach for accommodating the presence of such outliers. These amount to a _soft_ version of _K_ -means clustering, and are described in ESL.
+
+> 8ESL: _The Elements of Statistical Learning_ by Hastie, Tibshirani and Friedman.
+
+In addition, clustering methods generally are not very robust to perturbations to the data. For instance, suppose that we cluster _n_ observations, and then cluster the observations again after removing a subset of the _n_ observations at random. One would hope that the two sets of clusters obtained would be quite similar, but often this is not the case!
+
+##### A Tempered Approach to Interpreting the Results of Clustering
+
+We have described some of the issues associated with clustering. However, clustering can be a very useful and valid statistical tool if used properly. We mentioned that small decisions in how clustering is performed, such as how the data are standardized and what type of linkage is used, can have a large effect on the results. Therefore, we recommend performing clustering with different choices of these parameters, and looking at the full set of results in order to see what patterns consistently emerge. Since clustering can be non-robust, we recommend clustering subsets of the data in order to get a sense of the robustness of the clusters obtained. Most importantly, we must be careful about how the results of a clustering analysis are reported. These results should not be taken as the absolute truth about a data set. Rather, they should constitute a starting point for the development of a scientific hypothesis and further study, preferably on an independent data set.
+
+</MdxPage>

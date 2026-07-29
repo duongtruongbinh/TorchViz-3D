@@ -1,0 +1,837 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch02-python-introduction-lab",
+  "locale": "en",
+  "title": "2.3 Lab: Introduction to Python",
+  "headings": [
+    "2.3.1 Getting Started",
+    "2.3.2 Basic Commands",
+    "2.3.3 Introduction to Numerical Python",
+    "2.3.4 Graphics",
+    "2.3.5 Sequences and Slice Notation",
+    "2.3.6 Indexing Data",
+    "2.3.7 Loading Data",
+    "2.3.8 For Loops",
+    "2.3.9 Additional Graphical and Numerical Summaries"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Statistical Learning",
+    "Lab: Introduction to Python"
+  ],
+  "pageCount": 9
+}
+
+<MdxPage page={0}>
+
+## 2.3.1 Getting Started
+
+To run the labs in this book, you will need two things:
+
+1. An installation of `Python3` , which is the specific version of `Python` used in the labs.
+
+2. Access to `Jupyter` , a very popular `Python` interface that runs code through a file called a _notebook_ .
+
+You can download and install `Python3` by following the instructions available at anaconda.com.
+
+There are a number of ways to get access to `Jupyter` . Here are just a few:
+
+1. Using Google’s `Colaboratory` service: colab.research.google.com/.
+
+2. Using `JupyterHub` , available at jupyter.org/hub.
+
+3. Using your own `jupyter` installation. Installation instructions are available at jupyter.org/install.
+
+Please see the `Python` resources page on the book website statlearning.com for up-to-date information about getting `Python` and `Jupyter` working on your computer.
+
+You will need to install the `ISLP` package, which provides access to the datasets and custom-built functions that we provide. Inside a macOS or Linux terminal type `pip install ISLP` ; this also installs most other packages needed in the labs. The `Python` resources page has a link to the `ISLP` documentation website.
+
+To run this lab, download the file `Ch2-statlearn-lab.ipynb` from the `Python` resources page. Now run the following code at the command line: `jupyter lab Ch2-statlearn-lab.ipynb` .
+
+If you’re using Windows, you can use the `start menu` to access `anaconda` , and follow the links. For example, to install `ISLP` and run this lab, you can run the same code above in an `anaconda` shell.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 2.3.2 Basic Commands
+
+In this lab, we will introduce some simple `Python` commands. For more resources about `Python` in general, readers may want to consult the tutorial at docs.python.org/3/tutorial/.
+
+Like most programming languages, `Python` uses _functions_ to perform op- function erations. To run a function called `fun` , we type `fun(input1,input2)` , where the inputs (or _arguments_ ) `input1` and `input2` tell `Python` how to run the function. A function can have any number of inputs. For example, the argument `print()` function outputs a text representation of all of its arguments to `print()` the console.
+
+<MdxCode language="text" code={"In [1]:print('fitamodelwith',11,'variables')"} />
+
+###### `fit a model with 11 variables`
+
+The following command will provide information about the `print()` function.
+
+###### **`In [2]:`** `print?`
+
+Adding two integers in `Python` is pretty intuitive.
+
+<MdxCode language="text" code={"In [3]:3+5"} />
+
+###### **`Out[3]:`** `8`
+
+In `Python` , textual data is handled using _strings_ . For instance, `"hello"` and string `'hello'` are strings. We can concatenate them using the addition `+` symbol.
+
+<MdxCode language="text" code={"In [4]:\"hello\"+\"\"+\"world\""} />
+
+###### **`Out[4]:`** `'hello world'`
+
+A string is actually a type of _sequence_ : this is a generic term for an ordered sequence list. The three most important types of sequences are lists, tuples, and strings. We introduce lists now.
+
+The following command instructs `Python` to join together the numbers 3, 4, and 5, and to save them as a _list_ named `x` . When we type `x` , it gives us list back the list.
+
+###### **`In [5]:`** `x = [3, 4, 5]`
+
+<MdxCode language="text" code={"x"} />
+
+###### **`Out[5]:`** `[3, 4, 5]`
+
+Note that we used the brackets `[]` to construct this list.
+
+We will often want to add two sets of numbers together. It is reasonable to try the following code, though it will not produce the desired results.
+
+<MdxCode language="text" code={"In [6]:y=[4,9,7]\nx+y"} />
+
+###### **`Out[6]:`** `[3, 4, 5, 4, 9, 7]`
+
+The result may appear slightly counterintuitive: why did `Python` not add the entries of the lists element-by-element? In `Python` , lists hold _arbitrary_ objects, and are added using _concatenation_ . In fact, concatenation is the concatenatbehavior that we saw earlier when we entered `"hello" + " " + "world"` .
+
+This example reflects the fact that `Python` is a general-purpose programming language. Much of `Python` ’s data-specific functionality comes from other packages, notably `numpy` and `pandas` . In the next section, we will introduce the `numpy` package. See docs.scipy.org/doc/numpy/user/quickstart.html for more information about `numpy` .
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 2.3.3 Introduction to Numerical Python
+
+As mentioned earlier, this book makes use of functionality that is contained in the `numpy` _library_ , or _package_ . A package is a collection of modules that `numpy` are not necessarily included in the base `Python` distribution. The name `numpy` is an abbreviation for _numerical Python_ . To access `numpy` , we must first `import` it.
+
+<MdxCode language="text" code={"import"} />
+
+<MdxCode language="text" code={"In [7]:importnumpyasnp"} />
+
+In the previous line, we named the `numpy` _module_ `np` ; an abbreviation for module easier referencing. In `numpy` , an _array_ is a generic term for a multidimensional set of numbers. array We use the `np.array()` function to define `x` and `y` , which are one-dimensional `np.array()` arrays, i.e. vectors.
+
+<MdxCode language="text" code={"In [8]:x=np.array([3,4,5])\ny=np.array([4,9,7])"} />
+
+Note that if you forgot to run the `import numpy as np` command earlier, then you will encounter an error in calling the `np.array()` function in the previous line. The syntax `np.array()` indicates that the function being called is part of the `numpy` package, which we have abbreviated as `np` . Since `x` and `y` have been defined using `np.array()` , we get a sensible result when we add them together. Compare this to our results in the previous section, when we tried to add two lists without using `numpy` .
+
+###### **`In [9]:`** `x + y`
+
+<MdxCode language="text" code={"Out[9]:array([7,13,12])"} />
+
+In `numpy` , matrices are typically represented as two-dimensional arrays, and vectors as one-dimensional arrays.^(1) We can create a two-dimensional array as follows.
+
+<MdxCode language="text" code={"In [10]:x=np.array([[1,2],[3,4]])\nx"} />
+
+<MdxCode language="text" code={"Out[10]:array([[1,2],\n[3,4]])"} />
+
+The object `x` has several _attributes_ , or associated objects. To access an attribute attribute of `x` , we type `x.attribute` , where we replace `attribute` with the name of the attribute. For instance, we can access the `ndim` attribute of `x ndim` as follows.
+
+<MdxCode language="text" code={"In [11]:x.ndim"} />
+
+<MdxCode language="text" code={"Out[11]:2"} />
+
+The output indicates that `x` is a two-dimensional array. Similarly, `x.dtype` is the _data type_ attribute of the object `x` . This indicates that `x` is comprised data type of 64-bit integers:
+
+> 1While it is also possible to create matrices using `np.matrix()` , we will use `np.array()` throughout the labs in this book.
+
+<MdxCode language="text" code={"In [12]:x.dtype"} />
+
+###### **`Out[12]:`** `dtype('int64')`
+
+Why is `x` comprised of integers? This is because we created `x` by passing in exclusively integers to the `np.array()` function. If we had passed in any decimals, then we would have obtained an array of _floating point numbers_ floating (i.e. real-valued numbers).
+
+<MdxCode language="text" code={"In [13]:np.array([[1,2],[3.0,4]]).dtype"} />
+
+<MdxCode language="text" code={"Out[13]:dtype('float64')"} />
+
+Typing `fun?` will cause `Python` to display documentation associated with the function `fun` , if it exists. We can try this for `np.array()` .
+
+<MdxCode language="text" code={"In [14]:np.array?"} />
+
+This documentation indicates that we could create a floating point array by passing a `dtype` argument into `np.array()` .
+
+<MdxCode language="text" code={"dtype"} />
+
+<MdxCode language="text" code={"In [15]:np.array([[1,2],[3,4]],float).dtype"} />
+
+###### **`Out[15]:`** `dtype('float64')`
+
+The array `x` is two-dimensional. We can find out the number of rows and columns by looking at its `shape` attribute.
+
+<MdxCode language="text" code={"shape"} />
+
+<MdxCode language="text" code={"In [16]:x.shape"} />
+
+<MdxCode language="text" code={"Out[16]:(2,2)"} />
+
+A _method_ is a function that is associated with an object. For instance, method given an array `x` , the expression `x.sum()` sums all of its elements, using the `sum()` method for arrays. The call `x.sum()` automatically provides `x` as the `.sum()` first argument to its `sum()` method.
+
+<MdxCode language="text" code={"In [17]:x=np.array([1,2,3,4])\nx.sum()"} />
+
+<MdxCode language="text" code={"Out[17]:10"} />
+
+We could also sum the elements of `x` by passing in `x` as an argument to the `np.sum()` function.
+
+<MdxCode language="text" code={"np.sum()"} />
+
+<MdxCode language="text" code={"In [18]:x=np.array([1,2,3,4])\nnp.sum(x)"} />
+
+<MdxCode language="text" code={"Out[18]:10"} />
+
+As another example, the `reshape()` method returns a new array with the `.reshape()` same elements as `x` , but a different shape. We do this by passing in a `tuple tuple`
+
+in our call to `reshape()` , in this case `(2, 3)` . This tuple specifies that we would like to create a two-dimensional array with 2 rows and 3 columns.^(2) In what follows, the `\n` character creates a _new line_ .
+
+<MdxCode language="text" code={"In [19]:x=np.array([1,2,3,4,5,6])\nprint('beginningx:\\n',x)\nx_reshape=x.reshape((2,3))\nprint('reshapedx:\\n',x_reshape)"} />
+
+<MdxCode language="text" code={"beginningx:\n[123456]\nreshapedx:\n[[123]\n[456]]"} />
+
+The previous output reveals that `numpy` arrays are specified as a sequence of _rows_ . This is called _row-major ordering_ , as opposed to _column-major ordering_ .
+
+`Python` (and hence `numpy` ) uses 0-based indexing. This means that to access the top left element of `x_reshape` , we type in `x_reshape[0,0]` .
+
+<MdxCode language="text" code={"In [20]:x_reshape[0,0]"} />
+
+<MdxCode language="text" code={"Out[20]:1"} />
+
+Similarly, `x_reshape[1,2]` yields the element in the second row and the third column of `x_reshape` .
+
+<MdxCode language="text" code={"In [21]:x_reshape[1,2]"} />
+
+<MdxCode language="text" code={"Out[21]:6"} />
+
+Similarly, `x[2]` yields the third entry of `x` .
+
+Now, let’s modify the top left element of `x_reshape` . To our surprise, we discover that the first element of `x` has been modified as well!
+
+<MdxCode language="text" code={"In [22]:print('xbeforewemodifyx_reshape:\\n',x)\nprint('x_reshapebeforewemodifyx_reshape:\\n',x_reshape)\nx_reshape[0,0]=5\nprint('x_reshapeafterwemodifyitstopleftelement:\\n',\nx_reshape)\nprint('xafterwemodifytopleftelementofx_reshape:\\n',x)\nOut[22]:xbeforewemodifyx_reshape:\n[123456]\nx_reshapebeforewemodifyx_reshape:\n[[123]\n[456]]\nx_reshapeafterwemodifyitstopleftelement:\n[[523]"} />
+
+2Like lists, tuples represent a sequence of objects. Why do we need more than one way to create a sequence? There are a few differences between tuples and lists, but perhaps the most important is that elements of a tuple cannot be modified, whereas elements of a list can be.
+
+<MdxCode language="text" code={"[456]]\nxafterwemodifytopleftelementofx_reshape:\n[523456]"} />
+
+Modifying `x_reshape` also modified `x` because the two objects occupy the same space in memory.
+
+We just saw that we can modify an element of an array. Can we also modify a tuple? It turns out that we cannot — and trying to do so introduces an _exception_ , or error.
+
+<MdxCode language="text" code={"In [23]:my_tuple=(3,4,5)\nmy_tuple[0]=2"} />
+
+<MdxCode language="text" code={"TypeError:'tuple'objectdoesnotsupportitemassignment"} />
+
+We now briefly mention some attributes of arrays that will come in handy. An array’s `shape` attribute contains its dimension; this is always a tuple. The `ndim` attribute yields the number of dimensions, and `T` provides its transpose.
+
+<MdxCode language="text" code={"In [24]:x_reshape.shape,x_reshape.ndim,x_reshape.T"} />
+
+<MdxCode language="text" code={"Out[24]:((2,3),\n2,\narray([[5,4],\n[2,5],\n[3,6]]))"} />
+
+Notice that the three individual outputs `(2,3)` , `2` , and `array([[5, 4],[2, 5], [3,6]])` are themselves output as a tuple.
+
+We will often want to apply functions to arrays. For instance, we can compute the square root of the entries using the `np.sqrt()` function:
+
+<MdxCode language="text" code={"np.sqrt()"} />
+
+<MdxCode language="text" code={"In [25]:np.sqrt(x)"} />
+
+<MdxCode language="text" code={"Out[25]:array([2.24,1.41,1.73,2.,2.24,2.45])"} />
+
+We can also square the elements:
+
+<MdxCode language="text" code={"In [26]:x**2"} />
+
+<MdxCode language="text" code={"Out[26]:array([25,4,9,16,25,36])"} />
+
+We can compute the square roots using the same notation, raising to the power of 1 _/_ 2 instead of 2.
+
+<MdxCode language="text" code={"In [27]:x**0.5"} />
+
+<MdxCode language="text" code={"Out[27]:array([2.24,1.41,1.73,2.,2.24,2.45])"} />
+
+Throughout this book, we will often want to generate random data. The `np.random.normal()` function generates a vector of random normal variables. `np.random.` We can learn more about this function by looking at the help page, via a call `normal()` to `np.random.normal?` . The first line of the help page reads `normal(loc=0.0, scale=1.0, size=None)` . This _signature_ line tells us that the function’s ar- signature
+
+guments are `loc` , `scale` , and `size` . These are _keyword_ arguments, which keyword means that when they are passed into the function, they can be referred to by name (in any order).^(3) By default, this function will generate random normal variable(s) with mean ( `loc` ) 0 and standard deviation ( `scale` ) 1; furthermore, a single random variable will be generated unless the argument to `size` is changed.
+
+We now generate 50 independent random variables from a _N_ (0 _,_ 1) distribution.
+
+<MdxCode language="text" code={"In [28]:x=np.random.normal(size=50)\nx"} />
+
+<MdxCode language="text" code={"Out[28]:array([-1.19,0.41,0.9,-0.44,-0.9,-0.38,0.13,1.87,\n-0.35,1.16,0.79,-0.97,-1.21,0.06,-1.62,-0.6,\n-0.77,-2.12,0.38,-1.22,-0.06,-1.97,-1.74,-0.56,\n1.7,-0.95,0.56,0.35,0.87,0.88,-1.66,-0.32,\n-0.3,-1.36,0.92,-0.31,1.28,-1.94,1.07,0.07,\n0.79,-0.46,2.19,-0.27,-0.64,0.85,0.13,0.46,\n-0.09,0.7])"} />
+
+We create an array `y` by adding an independent _N_ (50 _,_ 1) random variable to each element of `x` .
+
+<MdxCode language="text" code={"In [29]:y=x+np.random.normal(loc=50,scale=1,size=50)"} />
+
+The `np.corrcoef()` function computes the correlation matrix between `x` and `np.corrcoef() y` . The off-diagonal elements give the correlation between `x` and `y` .
+
+<MdxCode language="text" code={"In [30]:np.corrcoef(x,y)"} />
+
+<MdxCode language="text" code={"Out[30]:array([[1.,0.69],\n[0.69,1.]])"} />
+
+If you’re following along in your own `Jupyter` notebook, then you probably noticed that you got a different set of results when you ran the past few commands. In particular, each time we call `np.random.normal()` , we will get a different answer, as shown in the following example.
+
+<MdxCode language="text" code={"In [31]:print(np.random.normal(scale=5,size=2))\nprint(np.random.normal(scale=5,size=2))"} />
+
+<MdxCode language="text" code={"Out[31]:[4.282.59]\n[4.62-2.54]"} />
+
+In order to ensure that our code provides exactly the same results each time it is run, we can set a _random seed_ using the `np.random.default_rng()` function. This function takes an arbitrary, user-specified integer argument. random `np.random.` seed If we set a random seed before generating random data, then re-running `default_rng()` our code will yield the same results. The object `rng` has essentially all the
+
+<MdxCode language="text" code={"np.random.\ndefault_rng()"} />
+
+> 3 `Python` also uses _positional_ arguments. Positional arguments do not need to use a keyword. To see an example, type in `np.sum?` . We see that `a` is a positional argument, i.e. this function assumes that the first unnamed argument that it receives is the array to be summed. By contrast, `axis` and `dtype` are keyword arguments: the position in which these arguments are entered into `np.sum()` does not matter.
+
+random number generating methods found in `np.random` . Hence, to generate normal data we use `rng.normal()` .
+
+<MdxCode language="text" code={"In [32]:rng=np.random.default_rng(1303)\nprint(rng.normal(scale=5,size=2))\nrng2=np.random.default_rng(1303)\nprint(rng2.normal(scale=5,size=2))"} />
+
+<MdxCode language="text" code={"Out[32]:[4.09-1.07]\n[4.09-1.07]"} />
+
+Throughout the labs in this book, we use `np.random.default_rng()` whenever we perform calculations involving random quantities within `numpy` . In principle, this should enable the reader to exactly reproduce the stated results. However, as new versions of `numpy` become available, it is possible that some small discrepancies may occur between the output in the labs and the output from `numpy` .
+
+The `np.mean()` , `np.var()` , and `np.std()` functions can be used to compute `np.mean()` the mean, variance, and standard deviation of arrays. These functions are `np.var()` also available as methods on the arrays.
+
+<MdxCode language="text" code={"np.var()\nnp.std()"} />
+
+<MdxCode language="text" code={"In [33]:rng=np.random.default_rng(3)\ny=rng.standard_normal(10)\nnp.mean(y),y.mean()"} />
+
+<MdxCode language="text" code={"Out[33]:(-0.11,-0.11)"} />
+
+<MdxCode language="text" code={"In [34]:np.var(y),y.var(),np.mean((y-y.mean())**2)"} />
+
+<MdxCode language="text" code={"Out[34]:(2.72,2.72,2.72)"} />
+
+Notice that by default `np.var()` divides by the sample size _n_ rather than _n −_ 1; see the `ddof` argument in `np.var?` .
+
+<MdxCode language="text" code={"In [35]:np.sqrt(np.var(y)),np.std(y)"} />
+
+<MdxCode language="text" code={"Out[35]:(1.65,1.65)"} />
+
+The `np.mean()` , `np.var()` , and `np.std()` functions can also be applied to the rows and columns of a matrix. To see this, we construct a 10 _×_ 3 matrix of _N_ (0 _,_ 1) random variables, and consider computing its row sums.
+
+<MdxCode language="text" code={"In [36]:X=rng.standard_normal((10,3))\nX"} />
+
+<MdxCode language="table" code={"|**`Out[36]:`** `array([[ 0.23, `|`-0.35, `|`-0.28],`|\n|---|---|---|\n|`[-0.67, `|`-1.06, `|`-0.39],`|\n|`[ 0.48, `|`-0.24,`|`0.96],`|\n|`[-0.2 ,`|`0.02,`|`1.55],`|\n|`[ 0.55, `|`-0.51, `|`-0.18],`|\n|`[ 0.54,`|`1.94, `|`-0.27],`|\n|`[-0.24,`|`1.` `, `|`-0.89],`|\n|`[-0.29,`|`0.88,`|`0.58],`|\n|`[ 0.09,`|`0.67, `|`-2.83],`|\n|`[ 1.02, `|`-0.96, `|`-1.67]])`|"} />
+
+Since arrays are row-major ordered, the first axis, i.e. `axis=0` , refers to its rows. We pass this argument into the `mean()` method for the object `X` .
+
+<MdxCode language="text" code={".mean()"} />
+
+<MdxCode language="text" code={"In [37]:X.mean(axis=0)"} />
+
+<MdxCode language="text" code={"Out[37]:array([0.15,0.14,-0.34])"} />
+
+The following yields the same result.
+
+<MdxCode language="text" code={"In [38]:X.mean(0)"} />
+
+<MdxCode language="text" code={"Out[38]:array([0.15,0.14,-0.34])"} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 2.3.4 Graphics
+
+In `Python` , common practice is to use the library `matplotlib` for graphics. `matplotlib` However, since `Python` was not written with data analysis in mind, the notion of plotting is not intrinsic to the language. We will use the `subplots()` function from `matplotlib.pyplot` to create a figure and the axes onto which we plot our data. For many more examples of how to make plots in `Python` , readers are encouraged to visit matplotlib.org/stable/gallery/.
+
+In `matplotlib` , a plot consists of a _figure_ and one or more _axes_ . You can figure think of the figure as the blank canvas upon which one or more plots will axes be displayed: it is the entire plotting window. The _axes_ contain important information about each plot, such as its _x_ - and _y_ -axis labels, title, and more. (Note that in `matplotlib` , the word _axes_ is not the plural of _axis_ : a plot’s _axes_ contains much more information than just the _x_ -axis and the _y_ -axis.)
+
+We begin by importing the `subplots()` function from `matplotlib` . We `subplots()` use this function throughout when creating figures. The function returns a tuple of length two: a figure object as well as the relevant axes object. We will typically pass `figsize` as a keyword argument. Having created our axes, we attempt our first plot using its `plot()` method. To learn more `.plot()` about it, type `ax.plot?` .
+
+<MdxCode language="text" code={"In [39]:frommatplotlib.pyplotimportsubplots\nfig,ax=subplots(figsize=(8,8))\nx=rng.standard_normal(100)\ny=rng.standard_normal(100)\nax.plot(x,y);"} />
+
+We pause here to note that we have _unpacked_ the tuple of length two returned by `subplots()` into the two distinct variables `fig` and `ax` . Unpacking is typically preferred to the following equivalent but slightly more verbose code:
+
+<MdxCode language="text" code={"In [40]:output=subplots(figsize=(8,8))\nfig=output[0]\nax=output[1]"} />
+
+We see that our earlier cell produced a line plot, which is the default. To create a scatterplot, we provide an additional argument to `ax.plot()` , indicating that circles should be displayed.
+
+<MdxCode language="text" code={"In [41]:fig,ax=subplots(figsize=(8,8))\nax.plot(x,y,'o');"} />
+
+Different values of this additional argument can be used to produce different colored lines as well as different linestyles. As an alternative, we could use the `ax.scatter()` function to create a `.scatter()` scatterplot.
+
+<MdxCode language="text" code={"In [42]:fig,ax=subplots(figsize=(8,8))\nax.scatter(x,y,marker='o');"} />
+
+Notice that in the code blocks above, we have ended the last line with a semicolon. This prevents `ax.plot(x, y)` from printing text to the notebook. However, it does not prevent a plot from being produced. If we omit the trailing semi-colon, then we obtain the following output:
+
+<MdxCode language="text" code={"In [43]:fig,ax=subplots(figsize=(8,8))\nax.scatter(x,y,marker='o')"} />
+
+<MdxCode language="text" code={"Out[43]:<matplotlib.collections.PathCollectionat0x7fb3d9c8f310 >\nFigure(432x288)"} />
+
+In what follows, we will use trailing semicolons whenever the text that would be output is not germane to the discussion at hand.
+
+To label our plot, we make use of the `set_xlabel()` , `set_ylabel()` , and `.set_xlabel() set_title()` methods of `ax` .
+
+<MdxCode language="text" code={".set_ylabel()\n.set_title()"} />
+
+<MdxCode language="text" code={"In [44]:fig,ax=subplots(figsize=(8,8))\nax.scatter(x,y,marker='o')\nax.set_xlabel(\"thisisthex-axis\")\nax.set_ylabel(\"thisisthey-axis\")\nax.set_title(\"PlotofXvsY\");"} />
+
+Having access to the figure object `fig` itself means that we can go in and change some aspects and then redisplay it. Here, we change the size from `(8, 8)` to `(12, 3)` .
+
+<MdxCode language="text" code={"fig.set_size_inches(12,3)\nfig"} />
+
+Occasionally we will want to create several plots within a figure. This can be achieved by passing additional arguments to `subplots()` . Below, we create a 2 _×_ 3 grid of plots in a figure of size determined by the `figsize` argument. In such situations, there is often a relationship between the axes in the plots. For example, all plots may have a common _x_ -axis. The `subplots()` function can automatically handle this situation when passed the keyword argument `sharex=True` . The `axes` object below is an array pointing to different plots in the figure.
+
+<MdxCode language="text" code={"In [45]:fig,axes=subplots(nrows=2,\nncols=3,\nfigsize=(15,5))"} />
+
+We now produce a scatter plot with `'o'` in the second column of the first row and a scatter plot with `'+'` in the third column of the second row.
+
+<MdxCode language="text" code={"In [46]:axes[0,1].plot(x,y,'o')\naxes[1,2].scatter(x,y,marker='+')\nfig"} />
+
+Type `subplots?` to learn more about `subplots()` . To save the output of `fig` , we call its `savefig()` method. The argument `.savefig() dpi` is the dots per inch, used to determine how large the figure will be in pixels.
+
+<MdxCode language="text" code={"In [47]:fig.savefig(\"Figure.png\",dpi=400)\nfig.savefig(\"Figure.pdf\",dpi=200);"} />
+
+We can continue to modify `fig` using step-by-step updates; for example, we can modify the range of the _x_ -axis, re-save the figure, and even re-display it.
+
+<MdxCode language="text" code={"In [48]:axes[0,1].set_xlim([-1,1])\nfig.savefig(\"Figure_updated.jpg\")\nfig"} />
+
+We now create some more sophisticated plots. The `ax.contour()` method `.contour()` produces a _contour plot_ in order to represent three-dimensional data, similar contour plot to a topographical map. It takes three arguments:
+
+- A vector of `x` values (the first dimension),
+
+- A vector of `y` values (the second dimension), and
+
+- A matrix whose elements correspond to the `z` value (the third dimension) for each pair of `(x,y)` coordinates.
+
+To create `x` and `y` , we’ll use the command `np.linspace(a, b, n)` , which `np.linspace()` returns a vector of `n` numbers starting at `a` and ending at `b` .
+
+<MdxCode language="text" code={"In [49]:fig,ax=subplots(figsize=(8,8))\nx=np.linspace(-np.pi,np.pi,50)\ny=x\nf=np.multiply.outer(np.cos(y),1/(1+x**2))\nax.contour(x,y,f);"} />
+
+We can increase the resolution by adding more levels to the image.
+
+<MdxCode language="text" code={"In [50]:fig,ax=subplots(figsize=(8,8))\nax.contour(x,y,f,levels=45);"} />
+
+To fine-tune the output of the `ax.contour()` function, take a look at the help file by typing `?plt.contour` . The `ax.imshow()` method is similar to `ax.contour()` , except that it pro- `.imshow()` duces a color-coded plot whose colors depend on the `z` value. This is known as a _heatmap_ , and is sometimes used to plot temperature in weather fore- heatmap casts.
+
+<MdxCode language="text" code={"In [51]:fig,ax=subplots(figsize=(8,8))\nax.imshow(f);"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 2.3.5 Sequences and Slice Notation
+
+As seen above, the function `np.linspace()` can be used to create a sequence of numbers.
+
+<MdxCode language="text" code={"In [52]:seq1=np.linspace(0,10,11)\nseq1"} />
+
+<MdxCode language="text" code={"Out[52]:array([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.])"} />
+
+The function `np.arange()` returns a sequence of numbers spaced out by `np.arange() step` . If `step` is not specified, then a default value of 1 is used. Let’s create a sequence that starts at 0 and ends at 10.
+
+<MdxCode language="text" code={"In [53]:seq2=np.arange(0,10)\nseq2"} />
+
+<MdxCode language="text" code={"Out[53]:array([0,1,2,3,4,5,6,7,8,9])"} />
+
+Why isn’t 10 output above? This has to do with _slice_ notation in `Python` . slice Slice notation is used to index sequences such as lists, tuples and arrays. Suppose we want to retrieve the fourth through sixth (inclusive) entries of a string. We obtain a slice of the string using the indexing notation `[3:6]` .
+
+<MdxCode language="text" code={"In [54]:\"helloworld\"[3:6]"} />
+
+<MdxCode language="text" code={"Out[54]:'lo'"} />
+
+In the code block above, the notation `3:6` is shorthand for `slice(3,6)` when used inside `[]` .
+
+<MdxCode language="text" code={"In [55]:\"helloworld\"[slice(3,6)]"} />
+
+<MdxCode language="text" code={"Out[55]:'lo'"} />
+
+You might have expected `slice(3,6)` to output the fourth through seventh characters in the text string (recalling that `Python` begins its indexing at zero), but instead it output the fourth through sixth. This also explains why the earlier `np.arange(0, 10)` command output only the integers from 0 to 9. See the documentation `slice?` for useful options in creating slices.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 2.3.6 Indexing Data
+
+To begin, we create a two-dimensional `numpy` array.
+
+<MdxCode language="text" code={"In [56]:A=np.array(np.arange(16)).reshape((4,4))\nA"} />
+
+<MdxCode language="text" code={"Out[56]:array([[0,1,2,3],\n[4,5,6,7],\n[8,9,10,11],\n[12,13,14,15]])"} />
+
+Typing `A[1,2]` retrieves the element corresponding to the second row and third column. (As usual, `Python` indexes from 0 _._ )
+
+<MdxCode language="text" code={"In [57]:A[1,2]"} />
+
+<MdxCode language="text" code={"Out[57]:6"} />
+
+The first number after the open-bracket symbol `[` refers to the row, and the second number refers to the column.
+
+Indexing Rows, Columns, and Submatrices
+
+To select multiple rows at a time, we can pass in a list specifying our selection. For instance, `[1,3]` will retrieve the second and fourth rows:
+
+<MdxCode language="text" code={"In [58]:A[[1,3]]"} />
+
+<MdxCode language="text" code={"Out[58]:array([[4,5,6,7],\n[12,13,14,15]])"} />
+
+To select the first and third columns, we pass in `[0,2]` as the second argument in the square brackets. In this case we need to supply the first argument `:` which selects all rows.
+
+<MdxCode language="text" code={"In [59]:A[:,[0,2]]"} />
+
+<MdxCode language="text" code={"Out[59]:array([[0,2],\n[4,6],\n[8,10],\n[12,14]])"} />
+
+Now, suppose that we want to select the submatrix made up of the second and fourth rows as well as the first and third columns. This is where indexing gets slightly tricky. It is natural to try to use lists to retrieve the rows and columns:
+
+<MdxCode language="text" code={"In [60]:A[[1,3],[0,2]]"} />
+
+<MdxCode language="text" code={"Out[60]:array([4,14])"} />
+
+Oops — what happened? We got a one-dimensional array of length two identical to
+
+<MdxCode language="text" code={"In [61]:np.array([A[1,0],A[3,2]])"} />
+
+<MdxCode language="text" code={"Out[61]:array([4,14])"} />
+
+Similarly, the following code fails to extract the submatrix comprised of the second and fourth rows and the first, third, and fourth columns:
+
+<MdxCode language="text" code={"In [62]:A[[1,3],[0,2,3]]"} />
+
+<MdxCode language="text" code={"IndexError:shapemismatch:indexingarrayscouldnotbebroadcast\ntogetherwithshapes(2,)(3,)"} />
+
+We can see what has gone wrong here. When supplied with two indexing lists, the `numpy` interpretation is that these provide pairs of _i, j_ indices for a series of entries. That is why the pair of lists must have the same length. However, that was not our intent, since we are looking for a submatrix.
+
+One easy way to do this is as follows. We first create a submatrix by subsetting the rows of `A` , and then on the fly we make a further submatrix by subsetting its columns.
+
+<MdxCode language="text" code={"In [63]:A[[1,3]][:,[0,2]]"} />
+
+<MdxCode language="text" code={"Out[63]:array([[4,6],\n[12,14]])"} />
+
+There are more efficient ways of achieving the same result. The _convenience function_ `np.ix_()` allows us to extract a submatrix using convenience lists, by creating an intermediate _mesh_ object.
+
+function `np.ix_()` mesh
+
+<MdxCode language="text" code={"In [64]:idx=np.ix_([1,3],[0,2,3])\nA[idx]"} />
+
+<MdxCode language="text" code={"Out[64]:array([[4,6,7],\n[12,14,15]])"} />
+
+Alternatively, we can subset matrices efficiently using slices. The slice `1:4:2` captures the second and fourth items of a sequence, while the slice `0:3:2` captures the first and third items (the third element in a slice sequence is the step size).
+
+<MdxCode language="text" code={"In [65]:A[1:4:2,0:3:2]"} />
+
+<MdxCode language="text" code={"Out[65]:array([[4,6],\n[12,14]])"} />
+
+Why are we able to retrieve a submatrix directly using slices but not using lists? Its because they are different `Python` types, and are treated differently by `numpy` . Slices can be used to extract objects from arbitrary sequences, such as strings, lists, and tuples, while the use of lists for indexing is more limited.
+
+Boolean Indexing
+
+In `numpy` , a _Boolean_ is a type that equals either `True` or `False` (also rep- Boolean resented as 1 and 0, respectively). The next line creates a vector of 0’s, represented as Booleans, of length equal to the first dimension of `A` .
+
+<MdxCode language="text" code={"In [66]:keep_rows=np.zeros(A.shape[0],bool)\nkeep_rows"} />
+
+<MdxCode language="text" code={"Out[66]:array([False,False,False,False])"} />
+
+We now set two of the elements to `True` .
+
+<MdxCode language="text" code={"In [67]:keep_rows[[1,3]]=True\nkeep_rows"} />
+
+<MdxCode language="text" code={"Out[67]:array([False,True,False,True])"} />
+
+Note that the elements of `keep_rows` , when viewed as integers, are the same as the values of `np.array([0,1,0,1])` . Below, we use `==` to verify their equality. When applied to two arrays, the `==` operation is applied elementwise.
+
+<MdxCode language="text" code={"In [68]:np.all(keep_rows==np.array([0,1,0,1]))"} />
+
+<MdxCode language="text" code={"Out[68]:True"} />
+
+(Here, the function `np.all()` has checked whether all entries of an array `np.all()` are `True` . A similar function, `np.any()` , can be used to check whether any `np.any()` entries of an array are `True` .)
+
+However, even though `np.array([0,1,0,1])` and `keep_rows` are equal according to `==` , they index different sets of rows! The former retrieves the first, second, first, and second rows of `A` .
+
+<MdxCode language="text" code={"In [69]:A[np.array([0,1,0,1])]"} />
+
+<MdxCode language="text" code={"Out[69]:array([[0,1,2,3],\n[4,5,6,7],\n[0,1,2,3],\n[4,5,6,7]])"} />
+
+By contrast, `keep_rows` retrieves only the second and fourth rows of `A` — i.e. the rows for which the Boolean equals `TRUE` .
+
+<MdxCode language="text" code={"In [70]:A[keep_rows]"} />
+
+<MdxCode language="text" code={"Out[70]:array([[4,5,6,7],\n[12,13,14,15]])"} />
+
+This example shows that Booleans and integers are treated differently by `numpy` .
+
+We again make use of the `np.ix_()` function to create a mesh containing the second and fourth rows, and the first, third, and fourth columns. This time, we apply the function to Booleans, rather than lists.
+
+<MdxCode language="text" code={"In [71]:keep_cols=np.zeros(A.shape[1],bool)\nkeep_cols[[0,2,3]]=True\nidx_bool=np.ix_(keep_rows,keep_cols)\nA[idx_bool]"} />
+
+<MdxCode language="text" code={"Out[71]:array([[4,6,7],\n[12,14,15]])"} />
+
+We can also mix a list with an array of Booleans in the arguments to `np.ix_()` :
+
+<MdxCode language="text" code={"In [72]:idx_mixed=np.ix_([1,3],keep_cols)\nA[idx_mixed]"} />
+
+<MdxCode language="text" code={"Out[72]:array([[4,6,7],\n[12,14,15]])"} />
+
+For more details on indexing in `numpy` , readers are referred to the `numpy` tutorial mentioned earlier.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## 2.3.7 Loading Data
+
+Data sets often contain different types of data, and may have names associated with the rows or columns. For these reasons, they typically are best accommodated using a _data frame_ . We can think of a data frame as data frame a sequence of arrays of identical length; these are the columns. Entries in the different arrays can be combined to form a row. The `pandas` library can be used to create and work with data frame objects.
+
+Reading in a Data Set
+
+The first step of most analyses involves importing a data set into `Python` . Before attempting to load a data set, we must make sure that `Python` knows where to find the file containing it. If the file is in the same location as this notebook file, then we are all set. Otherwise, the command `os.chdir()` can `os.chdir()` be used to _change directory_ . (You will need to call `import os` before calling `os.chdir()` .)
+
+We will begin by reading in `Auto.csv` , available on the book website. This is a comma-separated file, and can be read in using `pd.read_csv()` :
+
+<MdxCode language="text" code={"pd.read_csv()"} />
+
+<MdxCode language="text" code={"In [73]:importpandasaspd"} />
+
+<MdxCode language="text" code={"Auto=pd.read_csv('Auto.csv')\nAuto"} />
+
+The book website also has a whitespace-delimited version of this data, called `Auto.data` . This can be read in as follows:
+
+<MdxCode language="text" code={"In [74]:Auto=pd.read_csv('Auto.data',delim_whitespace=True)"} />
+
+Both `Auto.csv` and `Auto.data` are simply text files. Before loading data into `Python` , it is a good idea to view it using a text editor or other software, such as Microsoft Excel.
+
+We now take a look at the column of `Auto` corresponding to the variable `horsepower` :
+
+<MdxCode language="text" code={"In [75]:Auto['horsepower']"} />
+
+<MdxCode language="text" code={"Out[75]:0130.0\n1165.0\n2150.0\n3150.0\n4140.0\n...\n39286.00\n39352.00\n39484.00\n39579.00\n39682.00\nName:horsepower ,Length:397,dtype:object"} />
+
+We see that the `dtype` of this column is `object` . It turns out that all values of the `horsepower` column were interpreted as strings when reading in the data. We can find out why by looking at the unique values.
+
+<MdxCode language="text" code={"In [76]:np.unique(Auto['horsepower'])"} />
+
+To save space, we have omitted the output of the previous code block. We see the culprit is the value `?` , which is being used to encode missing values.
+
+To fix the problem, we must provide `pd.read_csv()` with an argument called `na_values` . Now, each instance of `?` in the file is replaced with the value `np.nan` , which means _not a number_ :
+
+<MdxCode language="text" code={"In [77]:Auto=pd.read_csv('Auto.data',\nna_values=['?'],\ndelim_whitespace=True)\nAuto['horsepower'].sum()"} />
+
+<MdxCode language="text" code={"Out[77]:40952.0"} />
+
+The `Auto.shape` attribute tells us that the data has 397 observations, or rows, and nine variables, or columns.
+
+<MdxCode language="text" code={"In [78]:Auto.shape"} />
+
+<MdxCode language="text" code={"Out[78]:(397,9)"} />
+
+There are various ways to deal with missing data. In this case, since only five of the rows contain missing observations, we choose to use the `Auto.dropna()` method to simply remove these rows.
+
+<MdxCode language="text" code={".dropna()"} />
+
+<MdxCode language="text" code={"In [79]:Auto_new=Auto.dropna()\nAuto_new.shape"} />
+
+<MdxCode language="text" code={"Out[79]:(392,9)"} />
+
+Basics of Selecting Rows and Columns
+
+We can use `Auto.columns` to check the variable names.
+
+<MdxCode language="text" code={"In [80]:Auto=Auto_new#overwritethepreviousvalue\nAuto.columns"} />
+
+<MdxCode language="text" code={"Out[80]:Index(['mpg','cylinders','displacement','horsepower',\n'weight','acceleration','year','origin','name'],\ndtype='object')"} />
+
+Accessing the rows and columns of a data frame is similar, but not identical, to accessing the rows and columns of an array. Recall that the first argument to the `[]` method is always applied to the rows of the array. Similarly, passing in a slice to the `[]` method creates a data frame whose _rows_ are determined by the slice:
+
+<MdxCode language="text" code={"In [81]:Auto[:3]"} />
+
+<MdxCode language="table" code={"|**`Out[81]:`**|`mpg`|`cylinders`|`displacement`|`horsepower`|`weight` `...`|\n|---|---|---|---|---|---|\n|`0`|`18.0`|`8`|`307.0`|`130.0`|`3504.0` `...`|\n|`1`|`15.0`|`8`|`350.0`|`165.0`|`3693.0` `...`|\n|`2`|`18.0`|`8`|`318.0`|`150.0`|`3436.0` `...`|"} />
+
+Similarly, an array of Booleans can be used to subset the rows:
+
+<MdxCode language="text" code={"In [82]:idx_80=Auto['year']>80\nAuto[idx_80]"} />
+
+However, if we pass in a list of strings to the `[]` method, then we obtain a data frame containing the corresponding set of _columns_ .
+
+<MdxCode language="text" code={"In [83]:Auto[['mpg','horsepower']]"} />
+
+<MdxCode language="text" code={"Out[83]:mpghorsepower\n018.0130.0\n115.0165.0\n218.0150.0\n316.0150.0\n417.0140.0\n.........\n39227.086.0\n39344.052.0\n39432.084.0\n39528.079.0\n39631.082.0\n392rowsx2columns"} />
+
+Since we did not specify an _index_ column when we loaded our data frame, the rows are labeled using integers 0 to 396.
+
+<MdxCode language="text" code={"In [84]:Auto.index"} />
+
+<MdxCode language="text" code={"Out[84]:Int64Index([0,1,2,3,4,5,6,7,8,9,\n...\n387,388,389,390,391,392,393,394,395,396],\ndtype='int64',length=392)"} />
+
+We can use the `set_index()` method to re-name the rows using the contents of `Auto['name']` .
+
+<MdxCode language="text" code={".set_index()"} />
+
+<MdxCode language="text" code={"In [85]:Auto_re=Auto.set_index('name')\nAuto_re"} />
+
+<MdxCode language="text" code={"Out[85]:mpgcylindersdisplacement...\nname\nchevroletchevellemalibu18.08307.0...\nbuickskylark3215.08350.0...\nplymouthsatellite18.08318.0...\namcrebelsst16.08304.0..."} />
+
+<MdxCode language="text" code={"In [86]:Auto_re.columns"} />
+
+<MdxCode language="text" code={"Out[86]:Index(['mpg','cylinders','displacement','horsepower',\n'weight','acceleration','year','origin'],\ndtype='object')"} />
+
+We see that the column `'name'` is no longer there. Now that the index has been set to `name` , we can access rows of the data frame by `name` using the `loc[]` method of `Auto` :
+
+<MdxCode language="text" code={".loc[]"} />
+
+<MdxCode language="text" code={"In [87]:rows=['amcrebelsst','fordtorino']\nAuto_re.loc[rows]"} />
+
+<MdxCode language="text" code={"Out[87]:mpgcylindersdisplacementhorsepower...\nname\namcrebelsst16.08304.0150.0...\nfordtorino17.08302.0140.0..."} />
+
+As an alternative to using the index name, we could retrieve the 4th and 5th rows of `Auto` using the `iloc[]` method:
+
+<MdxCode language="text" code={".iloc[]"} />
+
+<MdxCode language="text" code={"In [88]:Auto_re.iloc[[3,4]]"} />
+
+We can also use it to retrieve the 1st, 3rd and and 4th columns of `Auto_re` :
+
+<MdxCode language="text" code={"In [89]:Auto_re.iloc[:,[0,2,3]]"} />
+
+We can extract the 4th and 5th rows, as well as the 1st, 3rd and 4th columns, using a single call to `iloc[]` :
+
+<MdxCode language="text" code={"In [90]:Auto_re.iloc[[3,4],[0,2,3]]"} />
+
+<MdxCode language="text" code={"Out[90]:mpgdisplacementhorsepower\nname\namcrebelsst16.0304.0150.0\nfordtorino17.0302.0140.0"} />
+
+Index entries need not be unique: there are several cars in the data frame named `ford galaxie 500` .
+
+<MdxCode language="text" code={"In [91]:Auto_re.loc['fordgalaxie500',['mpg','origin']]"} />
+
+<MdxCode language="table" code={"|**`Out[91]:`**|||`mpg`|`origin`|\n|---|---|---|---|---|\n||`n`|`ame`|||\n|`ford `|`galaxie `|`500`|`15.0`|`1`|\n|`ford `|`galaxie `|`500`|`14.0`|`1`|\n|`ford `|`galaxie `|`500`|`14.0`|`1`|"} />
+
+More on Selecting Rows and Columns
+
+Suppose now that we want to create a data frame consisting of the `weight` and `origin` of the subset of cars with `year` greater than 80 — i.e. those built after 1980. To do this, we first create a Boolean array that indexes the rows. The `loc[]` method allows for Boolean entries as well as strings:
+
+<MdxCode language="text" code={"In [92]:idx_80=Auto_re['year']>80\nAuto_re.loc[idx_80,['weight','origin']]"} />
+
+To do this more concisely, we can use an anonymous function called a `lambda` :
+
+<MdxCode language="text" code={"lambda"} />
+
+<MdxCode language="text" code={"In [93]:Auto_re.loc[lambdadf:df['year']>80,['weight','origin']]"} />
+
+The `lambda` call creates a function that takes a single argument, here `df` , and returns `df['year']>80` . Since it is created inside the `loc[]` method for
+
+the dataframe `Auto_re` , that dataframe will be the argument supplied. As another example of using a `lambda` , suppose that we want all cars built after 1980 that achieve greater than 30 miles per gallon:
+
+<MdxCode language="text" code={"In [94]:Auto_re.loc[lambdadf:(df['year']>80)&(df['mpg']>30),\n['weight','origin']\n]"} />
+
+The symbol `&` computes an element-wise _and_ operation. As another example, suppose that we want to retrieve all `Ford` and `Datsun` cars with `displacement` less than 300. We check whether each `name` entry contains either the string `ford` or `datsun` using the `str.contains()` method of the `.str. index` attribute of of the dataframe:
+
+<MdxCode language="text" code={"contains()"} />
+
+<MdxCode language="text" code={"In [95]:Auto_re.loc[lambdadf:(df['displacement']<300)\n&(df.index.str.contains('ford')\n|df.index.str.contains('datsun')),\n['weight','origin']\n]"} />
+
+Here, the symbol `|` computes an element-wise _or_ operation.
+
+In summary, a powerful set of operations is available to index the rows and columns of data frames. For integer based queries, use the `iloc[]` method. For string and Boolean selections, use the `loc[]` method. For functional queries that filter rows, use the `loc[]` method with a function (typically a `lambda` ) in the rows argument.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## 2.3.8 For Loops
+
+A `for` loop is a standard tool in many languages that repeatedly evaluates `for` some chunk of code while varying different values inside the code. For example, suppose we loop over elements of a list and compute their sum.
+
+<MdxCode language="text" code={"In [96]:total=0\nforvaluein[3,2,19]:\ntotal+=value\nprint('Totalis:{0}'.format(total))"} />
+
+<MdxCode language="text" code={"Totalis:24"} />
+
+The indented code beneath the line with the `for` statement is run for each value in the sequence specified in the `for` statement. The loop ends either when the cell ends or when code is indented at the same level as the original `for` statement. We see that the final line above which prints the total is executed only once after the for loop has terminated. Loops can be nested by additional indentation.
+
+<MdxCode language="text" code={"In [97]:total=0\nforvaluein[2,3,19]:\nforweightin[3,2,1]:\ntotal+=value*weight\nprint('Totalis:{0}'.format(total))"} />
+
+<MdxCode language="text" code={"Totalis:144"} />
+
+Above, we summed over each combination of `value` and `weight` . We also took advantage of the _increment_ notation in `Python` : the expression `a += b` increment is equivalent to `a = a + b` . Besides being a convenient notation, this can save time in computationally heavy tasks in which the intermediate value of `a+b` need not be explicitly created.
+
+Perhaps a more common task would be to sum over `(value, weight)` pairs. For instance, to compute the average value of a random variable that takes on possible values 2, 3 or 19 with probability 0.2, 0.3, 0.5 respectively we would compute the weighted sum. Tasks such as this can often be accomplished using the `zip()` function that loops over a sequence of tuples. `zip()`
+
+<MdxCode language="text" code={"In [98]:total=0\nforvalue,weightinzip([2,3,19],\n[0.2,0.3,0.5]):\ntotal+=weight*value\nprint('Weightedaverageis:{0}'.format(total))"} />
+
+<MdxCode language="text" code={"Weightedaverageis:10.8"} />
+
+##### String Formatting
+
+In the code chunk above we also printed a string displaying the total. However, the object `total` is an integer and not a string. Inserting the value of something into a string is a common task, made simple using some of the powerful string formatting tools in `Python` . Many data cleaning tasks involve manipulating and programmatically producing strings.
+
+For example we may want to loop over the columns of a data frame and print the percent missing in each column. Let’s create a data frame `D` with columns in which 20% of the entries are missing i.e. set to `np.nan` . `np.nan` We’ll create the values in `D` from a normal distribution with mean 0 and variance 1 using `rng.standard_normal()` and then overwrite some random entries using `rng.choice()` .
+
+<MdxCode language="text" code={"In [99]:rng=np.random.default_rng(1)\nA=rng.standard_normal((127,5))\nM=rng.choice([0,np.nan],p=[0.8,0.2],size=A.shape)\nA+=M\nD=pd.DataFrame(A,columns=['food',\n'bar',\n'pickle',\n'snack',\n'popcorn'])\nD[:3]\nOut[99]:foodbarpicklesnackpopcorn\n00.3455840.8216180.330437-1.303157NaN\n1NaN-0.5369530.5811180.3645720.294132\n2NaN0.546713NaN-0.162910-0.482119\nIn [100]:forcolinD.columns:\ntemplate='Column\"{0}\"has{1:.2%}missingvalues'\nprint(template.format(col,\nnp.isnan(D[col]).mean()))"} />
+
+<MdxCode language="text" code={"Column\"food\"has16.54%missingvalues\nColumn\"bar\"has25.98%missingvalues\nColumn\"pickle\"has29.13%missingvalues\nColumn\"snack\"has21.26%missingvalues\nColumn\"popcorn\"has22.83%missingvalues"} />
+
+We see that the `template.format()` method expects two arguments `{0}` and `{1:.2%}` , and the latter includes some formatting information. In particular, it specifies that the second argument should be expressed as a percent with two decimal digits.
+
+The reference docs.python.org/3/library/string.html includes many helpful and more complex examples.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## 2.3.9 Additional Graphical and Numerical Summaries
+
+We can use the `ax.plot()` or `ax.scatter()` functions to display the quantitative variables. However, simply typing the variable names will produce an error message, because `Python` does not know to look in the `Auto` data set for those variables.
+
+<MdxCode language="text" code={"In [101]:fig,ax=subplots(figsize=(8,8))\nax.plot(horsepower,mpg,'o');"} />
+
+<MdxCode language="text" code={"NameError:name'horsepower'isnotdefined"} />
+
+We can address this by accessing the columns directly:
+
+<MdxCode language="text" code={"In [102]:fig,ax=subplots(figsize=(8,8))\nax.plot(Auto['horsepower'],Auto['mpg'],'o');"} />
+
+Alternatively, we can use the `plot()` method with the call `Auto.plot()` . Us- `.plot()` ing this method, the variables can be accessed by name. The plot methods of a data frame return a familiar object: an axes. We can use it to update the plot as we did previously:
+
+<MdxCode language="text" code={"In [103]:ax=Auto.plot.scatter('horsepower','mpg');\nax.set_title('Horsepowervs.MPG')"} />
+
+If we want to save the figure that contains a given axes, we can find the relevant figure by accessing the `figure` attribute: **`In [104]:`** `fig = ax.figure fig.savefig('horsepower_mpg.png');`
+
+We can further instruct the data frame to plot to a particular axes object. In this case the corresponding `plot()` method will return the modified axes we passed in as an argument. Note that when we request a one-dimensional grid of plots, the object `axes` is similarly one-dimensional. We place our scatter plot in the middle plot of a row of three plots within a figure.
+
+<MdxCode language="text" code={"In [105]:fig,axes=subplots(ncols=3,figsize=(15,5))\nAuto.plot.scatter('horsepower','mpg',ax=axes[1]);"} />
+
+Note also that the columns of a data frame can be accessed as attributes: try typing in `Auto.horsepower` .
+
+We now consider the `cylinders` variable. Typing in `Auto.cylinders.dtype` reveals that it is being treated as a quantitative variable. However, since there is only a small number of possible values for this variable, we may wish to treat it as qualitative. Below, we replace the `cylinders` column with a categorical version of `Auto.cylinders` . The function `pd.Series()` owes its `pd.Series()` name to the fact that `pandas` is often used in time series applications.
+
+<MdxCode language="text" code={"In [106]:Auto.cylinders=pd.Series(Auto.cylinders,dtype='category')\nAuto.cylinders.dtype"} />
+
+Now that `cylinders` is qualitative, we can display it using the `boxplot() .boxplot()` method. **`In [107]:`** `fig, ax = subplots(figsize=(8, 8)) Auto.boxplot('mpg', by='cylinders', ax=ax);`
+
+The `hist()` method can be used to plot a _histogram_ .
+
+<MdxCode language="text" code={".hist()"} />
+
+<MdxCode language="text" code={"In [108]:fig,ax=subplots(figsize=(8,8))\nAuto.hist('mpg',ax=ax);"} />
+
+The color of the bars and the number of bins can be changed:
+
+<MdxCode language="text" code={"In [109]:fig,ax=subplots(figsize=(8,8))\nAuto.hist('mpg',color='red',bins=12,ax=ax);"} />
+
+See `Auto.hist?` for more plotting options. We can use the `pd.plotting.scatter_matrix()` function to create a _scat-_ `pd.plotting.` _terplot matrix_ to visualize all of the pairwise relationships between the `scatter_` columns in a data frame.
+
+<MdxCode language="text" code={"scatter_\nmatrix()"} />
+
+<MdxCode language="text" code={"In [110]:pd.plotting.scatter_matrix(Auto);"} />
+
+We can also produce scatterplots for a subset of the variables.
+
+<MdxCode language="text" code={"In [111]:pd.plotting.scatter_matrix(Auto[['mpg',"} />
+
+<MdxCode language="text" code={"'displacement',\n'weight']]);"} />
+
+The `describe()` method produces a numerical summary of each column in `.describe()` a data frame.
+
+<MdxCode language="text" code={"In [112]:Auto[['mpg','weight']].describe()"} />
+
+We can also produce a summary of just a single column.
+
+<MdxCode language="text" code={"In [113]:Auto['cylinders'].describe()\nAuto['mpg'].describe()"} />
+
+To exit `Jupyter` , select `File / Close and Halt` .
+
+</MdxPage>

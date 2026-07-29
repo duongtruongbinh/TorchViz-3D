@@ -1,0 +1,208 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch06-subset-selection",
+  "locale": "en",
+  "title": "6.1 Subset Selection",
+  "headings": [
+    "Subset Selection",
+    "6.1.1 Best Subset Selection",
+    "6.1.2 Stepwise Selection",
+    "6.1.3 Choosing the Optimal Model"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Linear Model Selection and Regularization",
+    "Subset Selection"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Subset Selection
+
+In this section we consider some methods for selecting subsets of predictors. These include best subset and stepwise model selection procedures.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 6.1.1 Best Subset Selection
+
+To perform _best subset selection_ , we fit a separate least squares regression best subset for each possible combination of the _p_ predictors. That is, we fit all _p_ models selection that contain exactly one predictor, all � _p_ 2� = _p_ ( _p −_ 1) _/_ 2 models that contain exactly two predictors, and so forth. We then look at all of the resulting models, with the goal of identifying the one that is _best_ .
+
+The problem of selecting the _best model_ from among the 2^(_p_) possibilities considered by best subset selection is not trivial. This is usually broken up into two stages, as described in Algorithm 6.1.
+
+##### **Algorithm 6.1** _Best subset selection_
+
+1. Let _M_ 0 denote the _null model_ , which contains no predictors. This model simply predicts the sample mean for each observation.
+
+2. For _k_ = 1 _,_ 2 _, . . . p_ :
+
+   - (a) Fit all � _kp_ � models that contain exactly _k_ predictors. (b) Pick the best among these � _kp_ � models, and call it _Mk_ . Here _best_ is defined as having the smallest RSS, or equivalently largest _R_^(2) .
+
+3. Select a single best model from among _M_ 0 _, . . . , Mp_ using using the prediction error on a validation set, _Cp_ (AIC), BIC, or adjusted _R_^(2) . Or use the cross-validation method.
+
+In Algorithm 6.1, Step 2 identifies the best model (on the training data) for each subset size, in order to reduce the problem from one of 2^(_p_) possible models to one of _p_ + 1 possible models. In Figure 6.1, these models form the lower frontier depicted in red.
+
+Now in order to select a single best model, we must simply choose among these _p_ + 1 options. This task must be performed with care, because the RSS of these _p_ + 1 models decreases monotonically, and the _R_^(2) increases monotonically, as the number of features included in the models increases. Therefore, if we use these statistics to select the best model, then we will always end up with a model involving all of the variables. The problem is that a low RSS or a high _R_^(2) indicates a model with a low _training_ error, whereas we wish to choose a model that has a low _test_ error. (As shown in Chapter 2 in Figures 2.9–2.11, training error tends to be quite a bit smaller than test error, and a low training error by no means guarantees a low test error.) Therefore, in Step 3, we use the error on a validation set, _Cp_ , BIC, or adjusted _R_^(2) in order to select among _M_ 0 _, M_ 1 _, . . . , Mp_ . If cross-validation is used to select the best model, then Step 2 is repeated on each training fold, and the validation errors are averaged to select the best value of _k_ .
+
+**FIGURE 6.1.** _For each possible model containing a subset of the ten predictors in the_ `Credit` _data set, the RSS and R_^(2) _are displayed. The red frontier tracks the_ best _model for a given number of predictors, according to RSS and R_^(2) _. Though the data set contains only ten predictors, the x-axis ranges from_ 1 _to_ 11 _, since one of the variables is categorical and takes on three values, leading to the creation of two dummy variables._
+
+Then the model _Mk_ fit on the full training set is delivered for the chosen _k_ . These approaches are discussed in Section 6.1.3.
+
+An application of best subset selection is shown in Figure 6.1. Each plotted point corresponds to a least squares regression model fit using a different subset of the 10 predictors in the `Credit` data set, discussed in Chapter 3. Here the variable `region` is a three-level qualitative variable, and so is represented by two dummy variables, which are selected separately in this case. Hence, there are a total of 11 possible variables which can be included in the model. We have plotted the RSS and _R_^(2) statistics for each model, as a function of the number of variables. The red curves connect the best models for each model size, according to RSS or _R_^(2) . The figure shows that, as expected, these quantities improve as the number of variables increases; however, from the three-variable model on, there is little improvement in RSS and _R_^(2) as a result of including additional predictors.
+
+Although we have presented best subset selection here for least squares regression, the same ideas apply to other types of models, such as logistic regression. In the case of logistic regression, instead of ordering models by RSS in Step 2 of Algorithm 6.1, we instead use the _deviance_ , a measure deviance that plays the role of RSS for a broader class of models. The deviance is negative two times the maximized log-likelihood; the smaller the deviance, the better the fit.
+
+While best subset selection is a simple and conceptually appealing approach, it suffers from computational limitations. The number of possible models that must be considered grows rapidly as _p_ increases. In general, there are 2^(_p_) models that involve subsets of _p_ predictors. So if _p_ = 10, then there are approximately 1,000 possible models to be considered, and if _p_ = 20, then there are over one million possibilities! Consequently, best subset selection becomes computationally infeasible for values of _p_ greater than
+
+**Algorithm 6.2** _Forward stepwise selection_
+
+1. Let _M_ 0 denote the _null_ model, which contains no predictors.
+
+2. For _k_ = 0 _, . . . , p −_ 1:
+
+   - (a) Consider all _p − k_ models that augment the predictors in _Mk_ with one additional predictor.
+
+   - (b) Choose the _best_ among these _p − k_ models, and call it _Mk_ +1. Here _best_ is defined as having smallest RSS or highest _R_^(2) .
+
+3. Select a single best model from among _M_ 0 _, . . . , Mp_ using the prediction error on a validation set, _Cp_ (AIC), BIC, or adjusted _R_^(2) . Or use the cross-validation method.
+
+around 40, even with extremely fast modern computers. There are computational shortcuts—so called branch-and-bound techniques—for eliminating some choices, but these have their limitations as _p_ gets large. They also only work for least squares linear regression. We present computationally efficient alternatives to best subset selection next.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 6.1.2 Stepwise Selection
+
+For computational reasons, best subset selection cannot be applied with very large _p_ . Best subset selection may also suffer from statistical problems when _p_ is large. The larger the search space, the higher the chance of finding models that look good on the training data, even though they might not have any predictive power on future data. Thus an enormous search space can lead to overfitting and high variance of the coefficient estimates.
+
+For both of these reasons, _stepwise_ methods, which explore a far more restricted set of models, are attractive alternatives to best subset selection.
+
+##### Forward Stepwise Selection
+
+_Forward stepwise selection_ is a computationally efficient alternative to best forward subset selection. While the best subset selection procedure considers all stepwise 2^(_p_) possible models containing subsets of the _p_ predictors, forward stepselection wise considers a much smaller set of models. Forward stepwise selection begins with a model containing no predictors, and then adds predictors to the model, one-at-a-time, until all of the predictors are in the model. In particular, at each step the variable that gives the greatest _additional_ improvement to the fit is added to the model. More formally, the forward stepwise selection procedure is given in Algorithm 6.2.
+
+Unlike best subset selection, which involved fitting 2^(_p_) models, forward stepwise selection involves fitting one null model, along with _p − k_ models in the _k_ th iteration, for _k_ = 0 _, . . . , p −_ 1. This amounts to a total of 1 + � _kp−_ =01^(()^(_p−k_) = 1+)^(_p_()^(_p_+1))^(_/_2 models. This is a substantial difference: when)
+
+<MdxCode language="table" code={"|# Variables|Best subset|Forward stepwise|\n|---|---|---|\n|One|`rating`|`rating`|\n|Two|`rating`, `income`|`rating`, `income`|\n|Three|`rating`, `income`, `student`|`rating`, `income`, `student`|\n|Four|`cards`, `income`|`rating`, `income`,|\n||`student`, `limit`|`student`, `limit`|"} />
+
+**TABLE 6.1.** _The first four selected models for best subset selection and forward stepwise selection on the_ `Credit` _data set. The first three models are identical but the fourth models differ._
+
+_p_ = 20, best subset selection requires fitting 1 _,_ 048 _,_ 576 models, whereas forward stepwise selection requires fitting only 211 models.^(2)
+
+In Step 2(b) of Algorithm 6.2, we must identify the _best_ model from among those _p−k_ that augment _Mk_ with one additional predictor. We can do this by simply choosing the model with the lowest RSS or the highest _R_^(2) . However, in Step 3, we must identify the best model among a set of models with different numbers of variables. This is more challenging, and is discussed in Section 6.1.3.
+
+Forward stepwise selection’s computational advantage over best subset selection is clear. Though forward stepwise tends to do well in practice, it is not guaranteed to find the best possible model out of all 2^(_p_) models containing subsets of the _p_ predictors. For instance, suppose that in a given data set with _p_ = 3 predictors, the best possible one-variable model contains _X_ 1, and the best possible two-variable model instead contains _X_ 2 and _X_ 3. Then forward stepwise selection will fail to select the best possible two-variable model, because _M_ 1 will contain _X_ 1, so _M_ 2 must also contain _X_ 1 together with one additional variable.
+
+Table 6.1, which shows the first four selected models for best subset and forward stepwise selection on the `Credit` data set, illustrates this phenomenon. Both best subset selection and forward stepwise selection choose `rating` for the best one-variable model and then include `income` and `student` for the two- and three-variable models. However, best subset selection replaces `rating` by `cards` in the four-variable model, while forward stepwise selection must maintain `rating` in its four-variable model. In this example, Figure 6.1 indicates that there is not much difference between the threeand four-variable models in terms of RSS, so either of the four-variable models will likely be adequate.
+
+Forward stepwise selection can be applied even in the high-dimensional setting where _n &lt; p_ ; however, in this case, it is possible to construct submodels _M_ 0 _, . . . , Mn−_ 1 only, since each submodel is fit using least squares, which will not yield a unique solution if _p ≥ n_ .
+
+Backward Stepwise Selection
+
+Like forward stepwise selection, _backward stepwise selection_ provides an backward
+
+> 2Though forward stepwise selection considers _p_ ( _p_ + 1) _/_ 2 + 1 models, it performs a _guided_ search over model space, and so the _effective_ model space considered contains substantially more than _p_ ( _p_ + 1) _/_ 2 + 1 models.
+
+efficient alternative to best subset selection. However, unlike forward stepwise selection, it begins with the full least squares model containing all _p_ predictors, and then iteratively removes the least useful predictor, one-ata-time. Details are given in Algorithm 6.3.
+
+##### **Algorithm 6.3** _Backward stepwise selection_
+
+1. Let _Mp_ denote the _full_ model, which contains all _p_ predictors.
+
+2. For _k_ = _p, p −_ 1 _, . . . ,_ 1:
+
+   - (a) Consider all _k_ models that contain all but one of the predictors in _Mk_ , for a total of _k −_ 1 predictors.
+
+   - (b) Choose the _best_ among these _k_ models, and call it _Mk−_ 1. Here _best_ is defined as having smallest RSS or highest _R_^(2) .
+
+3. Select a single best model from among _M_ 0 _, . . . , Mp_ using the prediction error on a validation set, _Cp_ (AIC), BIC, or adjusted _R_^(2) . Or use the cross-validation method.
+
+Like forward stepwise selection, the backward selection approach searches through only 1+ _p_ ( _p_ +1) _/_ 2 models, and so can be applied in settings where _p_ is too large to apply best subset selection.^(3) Also like forward stepwise selection, backward stepwise selection is not guaranteed to yield the _best_ model containing a subset of the _p_ predictors.
+
+Backward selection requires that the number of samples _n_ is larger than the number of variables _p_ (so that the full model can be fit). In contrast, forward stepwise can be used even when _n &lt; p_ , and so is the only viable subset method when _p_ is very large.
+
+##### Hybrid Approaches
+
+The best subset, forward stepwise, and backward stepwise selection approaches generally give similar but not identical models. As another alternative, hybrid versions of forward and backward stepwise selection are available, in which variables are added to the model sequentially, in analogy to forward selection. However, after adding each new variable, the method may also remove any variables that no longer provide an improvement in the model fit. Such an approach attempts to more closely mimic best subset selection while retaining the computational advantages of forward and backward stepwise selection.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 6.1.3 Choosing the Optimal Model
+
+Best subset selection, forward selection, and backward selection result in the creation of a set of models, each of which contains a subset of the _p_
+
+> 3Like forward stepwise selection, backward stepwise selection performs a _guided_ search over model space, and so effectively considers substantially more than 1 + _p_ ( _p_ + 1) _/_ 2 models.
+
+predictors. To apply these methods, we need a way to determine which of these models is _best_ . As we discussed in Section 6.1.1, the model containing all of the predictors will always have the smallest RSS and the largest _R_^(2) , since these quantities are related to the training error. Instead, we wish to choose a model with a low test error. As is evident here, and as we show in Chapter 2, the training error can be a poor estimate of the test error. Therefore, RSS and _R_^(2) are not suitable for selecting the best model among a collection of models with different numbers of predictors.
+
+In order to select the best model with respect to test error, we need to estimate this test error. There are two common approaches:
+
+1. We can indirectly estimate test error by making an _adjustment_ to the training error to account for the bias due to overfitting.
+
+2. We can _directly_ estimate the test error, using either a validation set approach or a cross-validation approach, as discussed in Chapter 5.
+
+We consider both of these approaches below.
+
+##### _Cp_ , AIC, BIC, and Adjusted _R_^(2)
+
+We show in Chapter 2 that the training set MSE is generally an underestimate of the test MSE. (Recall that MSE = RSS _/n_ .) This is because when we fit a model to the training data using least squares, we specifically estimate the regression coefficients such that the training RSS (but not the test RSS) is as small as possible. In particular, the training error will decrease as more variables are included in the model, but the test error may not. Therefore, training set RSS and training set _R_^(2) cannot be used to select from among a set of models with different numbers of variables.
+
+However, a number of techniques for _adjusting_ the training error for the model size are available. These approaches can be used to select among a set of models with different numbers of variables. We now consider four such approaches: _criterion_ (BIC), and _Cp_ , _Akaike information adjusted R_^(2) . Figure _criterion_ 6.2 displays (AIC), _C Bayesian informationp_ , BIC, and adjusted _Cp R_^(2) for the best model of each size produced by best subset selection on the `Credit` data set.
+
+Akaike information criterion Bayesian information criterion adjusted _R_^(2)
+
+For a fitted least squares model containing _d_ predictors, the _Cp_ estimate of test MSE is computed using the equation
+
+where _σ_ ˆ^(2) is an estimate of the variance of the error _ϵ_ associated with each response measurement in (6.1).^(4) Typically _σ_ ˆ^(2) is estimated using the full model containing all predictors. Essentially, the _Cp_ statistic adds a penalty of 2 _dσ_ ˆ^(2) to the training RSS in order to adjust for the fact that the training error tends to underestimate the test error. Clearly, the penalty increases as the number of predictors in the model increases; this is intended to adjust
+
+> 4Mallow’s _Cp_ is sometimes defined as _Cp′_^(=RSS)^(_/σ_ˆ2+ 2)^(_d −n_.Thisisequivalentto) the definition given above in the sense that _Cp_ = _n_^(1)^(_σ_ˆ2()^(_C_) _p_^(_′_+)^(_n_),andsothemodelwith) smallest _Cp_ also has smallest _Cp_^(_′_.)
+
+**FIGURE 6.2.** _Cp, BIC, and adjusted R_^(2) _are shown for the best models of each size for the_ `Credit` _data set (the lower frontier in Figure 6.1). Cp and BIC are estimates of test MSE. In the middle plot we see that the BIC estimate of test error shows an increase after four variables are selected. The other two plots are rather flat after four variables are included._
+
+for the corresponding decrease in training RSS. Though it is beyond the scope of this book, one can show that if _σ_ ˆ^(2) is an unbiased estimate of _σ_^(2) in (6.2), then _Cp_ is an unbiased estimate of test MSE. As a consequence, the _Cp_ statistic tends to take on a small value for models with a low test error, so when determining which of a set of models is best, we choose the model with the lowest _Cp_ value. In Figure 6.2, _Cp_ selects the six-variable model containing the predictors `income` , `limit` , `rating` , `cards` , `age` and `student` .
+
+The AIC criterion is defined for a large class of models fit by maximum likelihood. In the case of the model (6.1) with Gaussian errors, maximum likelihood and least squares are the same thing. In this case AIC is given by
+
+where, for simplicity, we have omitted irrelevant constants.^(5) Hence for least squares models, _Cp_ and AIC are proportional to each other, and so only _Cp_ is displayed in Figure 6.2.
+
+BIC is derived from a Bayesian point of view, but ends up looking similar to _Cp_ (and AIC) as well. For the least squares model with _d_ predictors, the BIC is, up to irrelevant constants, given by
+
+Like _Cp_ , the BIC will tend to take on a small value for a model with a low test error, and so generally we select the model that has the lowest BIC value. Notice that BIC replaces the 2 _dσ_ ˆ^(2) used by _Cp_ with a log( _n_ ) _dσ_ ˆ^(2) term, where _n_ is the number of observations. Since log _n &gt;_ 2 for any _n &gt;_ 7,
+
+> 5There are two formulas for AIC for least squares regression. The formula that we provide here requires an expression for _σ_^(2) , which we obtain using the full model containing all predictors. The second formula is appropriate when _σ_^(2) is unknown and we do not want to explicitly estimate it; that formula has a log(RSS) term instead of an RSS term. Detailed derivations of these two formulas are outside of the scope of this book.
+
+the BIC statistic generally places a heavier penalty on models with many variables, and hence results in the selection of smaller models than _Cp_ . In Figure 6.2, we see that this is indeed the case for the `Credit` data set; BIC chooses a model that contains only the four predictors `income` , `limit` , `cards` , and `student` . In this case the curves are very flat and so there does not appear to be much difference in accuracy between the four-variable and six-variable models.
+
+The adjusted _R_^(2) statistic is another popular approach for selecting among a set of models that contain different numbers of variables. Recall from Chapter 3 that the usual _R_^(2) is defined as 1 _−_ RSS _/_ TSS, where TSS = �( _yi −_ _~~y~~_ )^(2) is the _total sum of squares_ for the response. Since RSS always decreases as more variables are added to the model, the _R_^(2) always increases as more variables are added. For a least squares model with _d_ variables, the adjusted _R_^(2) statistic is calculated as
+
+Unlike _Cp_ , AIC, and BIC, for which a _small_ value indicates a model with a low test error, a _large_ value of adjusted _R_^(2) indicates a model with a small test error. Maximizing the adjusted _R_^(2) is equivalent to minimizing RSS _n−d−_ 1^(. While RSS always decreases as the number of variables in the model) increases, _n−_ RSS _d−_ 1^(mayincreaseordecrease,duetothepresenceof)^(_d_inthe) denominator.
+
+The intuition behind the adjusted _R_^(2) is that once all of the correct variables have been included in the model, adding additional _noise_ variables will lead to only a very small decrease in RSS. Since adding noise variables leads to an increase in _d_ , such variables will lead to an increase in _n−_ RSS _d−_ 1^(,) and consequently a decrease in the adjusted _R_^(2) . Therefore, in theory, the model with the largest adjusted _R_^(2) will have only correct variables and no noise variables. Unlike the _R_^(2) statistic, the adjusted _R_^(2) statistic _pays a price_ for the inclusion of unnecessary variables in the model. Figure 6.2 displays the adjusted _R_^(2) for the `Credit` data set. Using this statistic results in the selection of a model that contains seven variables, adding `own` to the model selected by _Cp_ and AIC.
+
+_Cp_ , AIC, and BIC all have rigorous theoretical justifications that are beyond the scope of this book. These justifications rely on asymptotic arguments (scenarios where the sample size _n_ is very large). Despite its popularity, and even though it is quite intuitive, the adjusted _R_^(2) is not as well motivated in statistical theory as AIC, BIC, and _Cp_ . All of these measures are simple to use and compute. Here we have presented their formulas in the case of a linear model fit using least squares; however, AIC and BIC can also be defined for more general types of models.
+
+##### Validation and Cross-Validation
+
+As an alternative to the approaches just discussed, we can directly estimate the test error using the validation set and cross-validation methods discussed in Chapter 5. We can compute the validation set error or the cross-validation error for each model under consideration, and then select
+
+**FIGURE 6.3.** _For the_ `Credit` _data set, three quantities are displayed for the best model containing d predictors, for d ranging from_ 1 _to_ 11 _. The overall_ best _model, based on each of these quantities, is shown as a blue cross._ Left: _Square root of BIC._ Center: _Validation set errors._ Right: _Cross-validation errors._
+
+the model for which the resulting estimated test error is smallest. This procedure has an advantage relative to AIC, BIC, _Cp_ , and adjusted _R_^(2) , in that it provides a direct estimate of the test error, and makes fewer assumptions about the true underlying model. It can also be used in a wider range of model selection tasks, even in cases where it is hard to pinpoint the model degrees of freedom (e.g. the number of predictors in the model) or hard to estimate the error variance _σ_^(2) . Note that when cross-validation is used, the sequence of models _Mk_ in Algorithms 6.1–6.3 is determined separately for each training fold, and the validation errors are averaged over all folds for each model size _k_ . This means, for example with best-subset regression, that _Mk_ , the best subset of size _k_ , can differ across the folds. Once the best size _k_ is chosen, we find the best model of that size on the full data set.
+
+In the past, performing cross-validation was computationally prohibitive for many problems with large _p_ and/or large _n_ , and so AIC, BIC, _Cp_ , and adjusted _R_^(2) were more attractive approaches for choosing among a set of models. However, nowadays with fast computers, the computations required to perform cross-validation are hardly ever an issue. Thus, crossvalidation is a very attractive approach for selecting from among a number of models under consideration.
+
+Figure 6.3 displays, as a function of _d_ , the BIC, validation set errors, and cross-validation errors on the `Credit` data, for the best _d_ -variable model. The validation errors were calculated by randomly selecting three-quarters of the observations as the training set, and the remainder as the validation set. The cross-validation errors were computed using _k_ = 10 folds. In this case, the validation and cross-validation methods both result in a six-variable model. However, all three approaches suggest that the four-, five-, and six-variable models are roughly equivalent in terms of their test errors.
+
+In fact, the estimated test error curves displayed in the center and righthand panels of Figure 6.3 are quite flat. While a three-variable model clearly has lower estimated test error than a two-variable model, the estimated test errors of the 3- to 11-variable models are quite similar. Furthermore, if we
+
+repeated the validation set approach using a different split of the data into a training set and a validation set, or if we repeated cross-validation using a different set of cross-validation folds, then the precise model with the lowest estimated test error would surely change. In this setting, we can select a model using the _one-standard-error rule_ . We first calculate the onestandard error of the estimated test MSE for each model size, and then select the smallest model for which the estimated test error is within one error standard error of the lowest point on the curve. The rationale here is that rule if a set of models appear to be more or less equally good, then we might as well choose the simplest model—that is, the model with the smallest number of predictors. In this case, applying the one-standard-error rule to the validation set or cross-validation approach leads to selection of the three-variable model.
+
+</MdxPage>

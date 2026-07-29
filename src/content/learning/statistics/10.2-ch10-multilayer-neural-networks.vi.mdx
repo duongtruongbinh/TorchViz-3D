@@ -1,0 +1,65 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-multilayer-neural-networks",
+  "locale": "vi",
+  "title": "10.2 Mạng nơ-ron nhiều lớp",
+  "headings": [
+    "Mạng nơ-ron nhiều tầng"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "mạng nơ-ron nhiều tầng"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Mạng nơ-ron nhiều tầng
+
+Mạng nơ-ron hiện đại thường có nhiều hơn một tầng ẩn và thường có nhiều nút ở mỗi tầng. Về lý thuyết, một tầng ẩn duy nhất với số lượng nút lớn có khả năng xấp xỉ hầu hết các hàm. Tuy nhiên, bài toán học để tìm ra một nghiệm tốt trở nên dễ hơn nhiều khi dùng nhiều tầng có kích thước vừa phải.
+
+Chúng ta sẽ minh họa một mạng dày đặc lớn trên tập dữ liệu chữ số viết tay `MNIST` nổi tiếng và công khai.^(1) Hình 10.3 trình bày một số chữ số mẫu. Mục tiêu là xây dựng mô hình phân loại các ảnh vào đúng lớp chữ số 0–9. Mỗi ảnh có _p_ = 28 _×_ 28 = 784 pixel, mỗi pixel là một giá trị thang xám tám bit từ 0 đến 255 biểu diễn
+
+> 1Xem LeCun, Cortes và Burges (2010), “The MNIST database of handwritten digits”, tại `http://yann.lecun.com/exdb/mnist`.
+
+**HÌNH 10.4.** _Sơ đồ mạng nơ-ron có hai tầng ẩn và nhiều đầu ra, phù hợp với bài toán chữ số viết tay_ `MNIST` _. Tầng đầu vào có p_ = 784 _nút, hai tầng ẩn lần lượt có K_ 1 = 256 _và K_ 2 = 128 _nút, còn tầng đầu ra có_ 10 _nút. Tính cả hệ số chặn (được gọi là_ bias _trong cộng đồng học sâu), mạng này có 235.146 tham số (được gọi là trọng số)._
+
+Tầng ẩn thứ nhất giống (10.2), với
+
+cho _k_ = 1 _, . . . , K_ 1. Tầng ẩn thứ hai xem các giá trị kích hoạt _A_^((1)) _k_ của tầng ẩn thứ nhất là đầu vào và tính các giá trị kích hoạt mới
+
+cho _ℓ_ = 1 _, . . . , K_ 2 _._ Lưu ý mỗi giá trị kích hoạt ở tầng thứ hai _A_^((2)) _ℓ_ = _h_^((2)) _ℓ_^(()^(_X_) là một hàm của vector đầu vào)^(_X_. Điều này đúng vì) dù chúng là hàm trực tiếp của các giá trị kích hoạt _A_^((1)) _k_ từ tầng _L_ 1, các giá trị này đến lượt chúng lại là hàm của _X_. Điều tương tự cũng đúng khi có nhiều tầng ẩn hơn. Vì vậy, thông qua một chuỗi phép biến đổi, mạng có thể xây dựng những phép biến đổi khá phức tạp của _X_ để cuối cùng đưa vào tầng đầu ra như các đặc trưng.
+
+Chúng ta đã thêm ký hiệu chỉ số trên như _h_^((2)) _ℓ_^(()^(_X_) và) _wℓj_^((2)) trong (10.10) và (10.11) để chỉ tầng chứa các giá trị kích hoạt và _trọng số_ (hệ số), ở đây là tầng 2. Ký hiệu **W** 1 trong Hình 10.4 biểu diễn toàn bộ ma trận trọng số truyền từ tầng đầu vào đến tầng ẩn thứ nhất _L_ 1. Ma trận này có 785 _×_ 256 = 200 _,_ 960 phần tử; dùng 785 thay vì 784 vì phải tính cả hệ số chặn hay _bias_.^(3)
+
+Mỗi phần tử _A_^((1)) _k_ truyền đến tầng ẩn thứ hai _L_ 2 qua ma trận trọng số **W** 2 có kích thước 257 _×_ 128 = 32 _,_ 896.
+
+Bây giờ đến tầng đầu ra, nơi ta có mười biến đáp ứng thay vì một. Bước đầu tiên là tính mười mô hình tuyến tính khác nhau tương tự mô hình đơn (10.1),
+
+với _m_ = 0 _,_ 1 _, . . . ,_ 9. Ma trận **B** lưu toàn bộ 129 _×_ 10 = 1 _,_ 290 trọng số này.
+
+Nếu đây đều là các biến đáp ứng định lượng tách biệt, ta chỉ cần đặt mỗi _fm_ ( _X_ ) = _Zm_ là xong. Tuy nhiên, ta muốn các ước lượng biểu diễn xác suất lớp _fm_ ( _X_ ) = Pr( _Y_ = _m|X_ ), giống hồi quy logistic đa thức ở Mục 4.3.5. Vì vậy, ta dùng hàm kích hoạt _softmax_ đặc biệt (xem (4.13) trang 145),
+
+với _m_ = 0 _,_ 1 _, . . . ,_ 9. Điều này bảo đảm 10 số hoạt động như các xác suất (không âm và có tổng bằng một). Dù mục tiêu là xây dựng bộ phân loại, mô hình thực sự ước lượng xác suất cho từng lớp trong 10 lớp. Sau đó bộ phân loại gán ảnh vào lớp có xác suất cao nhất.
+
+Để huấn luyện mạng này, vì biến đáp ứng là định tính, ta tìm các ước lượng hệ số làm cực tiểu log-hợp lý đa thức âm,
+
+còn được gọi là _cross-entropy_ (entropy chéo). Đây là dạng tổng quát hóa của tiêu chuẩn (4.5) cho hồi quy logistic hai lớp. Chi tiết cách cực tiểu hóa hàm mục tiêu này được trình bày ở Mục 10.7. Nếu biến đáp ứng là định lượng, thay vào đó ta sẽ cực tiểu hóa mất mát sai số bình phương như trong (10.9).
+
+Bảng 10.1 so sánh hiệu năng kiểm tra của mạng nơ-ron với hai mô hình đơn giản ở Chương 4 sử dụng biên quyết định tuyến tính: hồi quy logistic đa thức và phân tích biệt thức tuyến tính. Mạng nơ-ron cải thiện mạnh mẽ so với cả hai phương pháp tuyến tính: mạng dùng điều chuẩn dropout đạt tỷ lệ lỗi kiểm tra dưới 2% trên 10 _,_ 000 ảnh kiểm tra. (Chúng ta mô tả điều chuẩn dropout ở Mục 10.7.3.) Trong Mục 10.9.2 của bài lab, chúng ta trình bày mã khớp mô hình này; mã chạy chỉ hơn hai phút trên máy tính xách tay.
+
+> 3Việc dùng “trọng số” cho hệ số và “bias” cho hệ số chặn _wk_ 0 trong (10.2) phổ biến trong cộng đồng học máy; cách dùng bias này không nên bị nhầm với “độ chệch–phương sai” ở những phần khác của sách.
+
+<MdxCode language="table" code={"|Phương pháp|Lỗi kiểm tra|\n|---|---|\n|Mạng nơ-ron + điều chuẩn Ridge|2_._3%|\n|Mạng nơ-ron + điều chuẩn Dropout|1_._8%|\n|Hồi quy logistic đa thức|7_._2%|\n|Phân tích biệt thức tuyến tính|12_._7%|"} />
+
+**BẢNG 10.1.** _Tỷ lệ lỗi kiểm tra trên dữ liệu_ `MNIST` _đối với mạng nơ-ron dùng hai dạng điều chuẩn, cùng hồi quy logistic đa thức và phân tích biệt thức tuyến tính. Trong ví dụ này, độ phức tạp bổ sung của mạng nơ-ron giúp cải thiện rõ rệt lỗi kiểm tra._
+
+**HÌNH 10.5.** _Một mẫu ảnh từ cơ sở dữ liệu_ `CIFAR100` _: tập hợp các ảnh tự nhiên trong đời sống hằng ngày, biểu diễn 100 lớp khác nhau._
+
+Cộng số hệ số trong **W** 1, **W** 2 và **B**, ta được tổng cộng 235 _,_ 146, nhiều hơn 33 lần so với 785 _×_ 9 = 7 _,_ 065 hệ số cần cho hồi quy logistic đa thức. Nhắc lại rằng tập huấn luyện có 60 _,_ 000 ảnh. Dù đây có vẻ là một tập huấn luyện lớn, số hệ số trong mô hình mạng nơ-ron gần gấp bốn lần số quan sát trong tập huấn luyện! Để tránh quá khớp, cần có điều chuẩn. Trong ví dụ này, chúng ta dùng hai dạng điều chuẩn: điều chuẩn ridge, tương tự hồi quy ridge ở Chương 6, và điều chuẩn _dropout_. Chúng ta bàn cả hai dạng ở Mục 10.7.
+
+</MdxPage>

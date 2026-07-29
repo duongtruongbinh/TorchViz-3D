@@ -1,0 +1,59 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-log-rank-test",
+  "locale": "vi",
+  "title": "11.4 Kiểm định log-rank",
+  "headings": [
+    "Kiểm định log-rank"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Kiểm định log-rank"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Kiểm định log-rank
+
+Ta tiếp tục phân tích dữ liệu `BrainCancer` đã giới thiệu ở Mục 11.3. Ta muốn so sánh khả năng sống còn của nam với nữ. Hình 11.3 cho thấy các đường cong sống còn Kaplan–Meier của hai nhóm. Nữ dường như có kết quả tốt hơn đôi chút cho đến khoảng 50 tháng, nhưng sau đó cả hai đường cong đều ổn định ở khoảng 50%. Làm thế nào để thực hiện một kiểm định chính thức về sự bằng nhau của hai đường cong sống còn?
+
+Thoạt nhìn, kiểm định _t_ hai mẫu có vẻ là lựa chọn hiển nhiên: ta có thể kiểm định liệu thời gian sống còn trung bình ở nữ có bằng thời gian sống còn trung bình ở nam hay không. Nhưng sự hiện diện của kiểm duyệt lại tạo ra một khó khăn. Để khắc phục, ta sẽ thực hiện _kiểm định log-rank_,^(4)
+
+<MdxCode language="table" code={"||Nhóm 1|Nhóm 2|Tổng|\n|---|---|---|---|\n|Tử vong|_q_1_k_|_q_2_k_|_qk_|\n|Sống sót|_r_1_k −q_1_k_|_r_2_k −q_2_k_|_rk −qk_|\n|Tổng|_r_1_k_|_r_2_k_|_rk_|"} />
+
+**BẢNG 11.1.** _Trong tập bệnh nhân có nguy cơ tại thời điểm dk, bảng cho biết số bệnh nhân tử vong và sống sót trong mỗi nhóm._
+
+kiểm định này xem xét cách các biến cố trong mỗi nhóm lần lượt diễn tiến theo thời gian.
+
+Nhắc lại từ Mục 11.3 rằng _d_ 1 _&lt; d_ 2 _&lt; · · · &lt; dK_ là các thời điểm tử vong phân biệt của bệnh nhân không bị kiểm duyệt, _rk_ là số bệnh nhân có nguy cơ tại thời điểm _dk_, và _qk_ là số bệnh nhân tử vong tại thời điểm _dk_. Ta định nghĩa thêm _r_ 1 _k_ và _r_ 2 _k_ lần lượt là số bệnh nhân thuộc nhóm 1 và nhóm 2 có nguy cơ tại thời điểm _dk_. Tương tự, ta định nghĩa _q_ 1 _k_ và _q_ 2 _k_ lần lượt là số bệnh nhân thuộc nhóm 1 và nhóm 2 tử vong tại thời điểm _dk_. Lưu ý rằng _r_ 1 _k_ + _r_ 2 _k_ = _rk_ và _q_ 1 _k_ + _q_ 2 _k_ = _qk_.
+
+Tại mỗi thời điểm tử vong _dk_, ta lập một bảng đếm 2 _×_ 2 có dạng như Bảng 11.1. Lưu ý rằng nếu các thời điểm tử vong là duy nhất (tức không có hai cá thể tử vong cùng lúc) thì một trong hai đại lượng _q_ 1 _k_ và _q_ 2 _k_ bằng một, còn đại lượng kia bằng không.
+
+Ý tưởng chính của thống kê kiểm định log-rank như sau. Để kiểm định _H_ 0 : E(_X_) = _µ_ với một biến ngẫu nhiên _X_ nào đó, một cách là xây dựng thống kê kiểm định có dạng
+
+Để xây dựng thống kê kiểm định log-rank, ta tính một đại lượng có chính xác dạng (11.4), với _X_ =^(�)^(_K_) _k_ =1^(_q_1)^(_k_,where)^(_q_1)^(_k_isgiveninthetop) left of Table 11.1.
+
+Chi tiết hơn, nếu hai nhóm không khác nhau về khả năng sống còn và ta lấy điều kiện theo tổng hàng và tổng cột trong Bảng 11.1, kỳ vọng của _q_ 1 _k_ là
+
+Vì vậy, kỳ vọng của _X_ =^(�)^(_K_) _k_ =1^(_q_1)^(_k_is)^(_µ_=�) _k_^(_K_) =1 _rr_ 1 _kk_^(_qk_.Furthermore,) có thể chứng minh^(5) rằng phương sai của _q_ 1 _k_ là
+
+Mặc dù _q_ 11 _, . . . , q_ 1 _K_ có thể tương quan với nhau, ta vẫn ước lượng
+
+> 4 Kiểm định log-rank còn được gọi là _kiểm định Mantel–Haenszel_ hoặc _kiểm định Cochran–Mantel–Haenszel_.
+
+> 5 Xem Bài tập 7 ở cuối chương để biết chi tiết.
+
+Do đó, để tính thống kê kiểm định log-rank, ta chỉ cần làm như trong (11.4), với _X_ =^(�)^(_K_) _k_ =1^(_q_1)^(_k_, sử dụng (11.5) và (11.7). Tức là, ta) tính
+
+Khi cỡ mẫu lớn, thống kê kiểm định log-rank _W_ có phân phối xấp xỉ chuẩn tắc; có thể dùng kết quả này để tính _p_-value cho giả thuyết không rằng hai nhóm không khác nhau về đường cong sống còn.^(6)
+
+So sánh thời gian sống còn của nữ và nam trên dữ liệu `BrainCancer` cho thống kê kiểm định log-rank _W_ = 1 _._ 2, tương ứng với _p_-value hai phía bằng 0 _._ 2 khi dùng phân phối không lý thuyết, và _p_-value bằng 0 _._ 25 khi dùng phân phối không hoán vị với 1.000 phép hoán vị. Vì vậy, ta không thể bác bỏ giả thuyết không rằng đường cong sống còn của nữ và nam không khác nhau.
+
+Kiểm định log-rank có liên hệ chặt chẽ với mô hình nguy cơ tỷ lệ Cox, nội dung sẽ được thảo luận ở Mục 11.5.2.
+
+</MdxPage>

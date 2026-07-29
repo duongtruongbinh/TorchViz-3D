@@ -1,0 +1,264 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch03-regression-model-considerations",
+  "locale": "vi",
+  "title": "3.3 Những cân nhắc khác trong mô hình hồi quy",
+  "headings": [
+    "3.3.1 Biến dự báo định tính",
+    "3.3.2 Mở rộng mô hình tuyến tính",
+    "3.3.3 Các vấn đề tiềm ẩn"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Hồi quy tuyến tính",
+    "Biến định tính",
+    "Tương tác",
+    "Đa cộng tuyến"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## 3.3.1 Biến dự báo định tính
+
+Cho đến đây, ta giả định mọi biến trong mô hình hồi quy tuyến tính đều _định lượng_. Trong thực tế không nhất thiết như vậy; một số biến dự báo thường là _định tính_.
+
+Ví dụ, dữ liệu `Credit` trong Hình 3.6 ghi nhiều biến của người dùng thẻ tín dụng. Đáp ứng là `balance` (nợ thẻ trung bình của mỗi người); các biến định lượng gồm `age`, `cards` (số thẻ), `education` (số năm học), `income` (nghìn đô la), `limit` (hạn mức) và `rating` (xếp hạng tín dụng). Mỗi ô trong Hình 3.6 là biểu đồ phân tán cho cặp biến được ghi ở nhãn hàng, cột. Chẳng hạn, biểu đồ ngay bên phải nhãn Balance vẽ `balance` theo `age`, còn biểu đồ bên phải nhãn Age vẽ `age` theo `cards`. Ngoài ra còn bốn biến định tính: `own` (sở hữu nhà), `student` (tình trạng sinh viên), `status` (hôn nhân) và `region` (Đông, Tây hoặc Nam).
+
+##### Biến dự báo chỉ có hai mức
+
+Giả sử ta muốn khảo sát chênh lệch `balance` giữa người sở hữu và không sở hữu nhà, tạm bỏ qua các biến khác. Nếu biến định tính (còn gọi là _nhân tố_) chỉ có hai _mức_, việc đưa nó vào hồi quy rất đơn giản: tạo một biến chỉ báo hay _biến giả_ nhận hai giá trị số.^(10) Từ `own`, ta tạo một biến mới
+
+và dùng nó trong phương trình hồi quy, thu được mô hình
+
+Giờ _β_ 0 là `balance` trung bình của người không sở hữu nhà; _β_ 0 + _β_ 1 là trung bình của người sở hữu nhà; _β_ 1 là chênh lệch trung bình giữa hai nhóm.
+
+Bảng 3.7 hiển thị các ước lượng. Nợ trung bình của người không sở hữu nhà là $509 _._ 80; chủ nhà mang thêm ước tính $19 _._ 73, tổng $529 _._ 53. Tuy nhiên,
+
+> 10Trong cộng đồng học máy, việc tạo biến giả cho biến định tính được gọi là “one-hot encoding”.
+
+**HÌNH 3.6.** _Dữ liệu_ `Credit` _chứa thông tin_ `balance`_,_ `age`_,_ `cards`_,_ `education`_,_ `income`_,_ `limit` _và_ `rating` _của một số khách hàng tiềm năng._
+
+giá trị p của biến giả rất cao, nên không có bằng chứng thống kê rằng `balance` trung bình khác nhau theo quyền sở hữu nhà.
+
+Việc mã hóa chủ nhà là 1, người không sở hữu là 0 trong (3.27) là tùy ý, không ảnh hưởng mô hình khớp nhưng thay đổi diễn giải hệ số. Nếu đảo mã hóa, ước lượng _β_ 0, _β_ 1 lần lượt là 529 _._ 53 và _−_ 19 _._ 73, vẫn dự đoán $509 _._ 80 cho người không sở hữu và $529 _._ 53 cho chủ nhà. Hoặc thay mã 0/1, ta có thể tạo biến giả
+
+rồi dùng trong mô hình
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|509.80|33.13|15.389|_&lt;_0_._0001|\n|`own[Yes]`|19.73|46.05|0.429|0.6690|"} />
+
+**BẢNG 3.7.** _Ước lượng bình phương tối thiểu của hồi quy_ `balance` _theo_ `own` _trong dữ liệu_ `Credit`_. Mô hình (3.27) mã hóa quyền sở hữu bằng biến giả như (3.26)._
+
+Giờ _β_ 0 có thể được hiểu là `balance` trung bình chung (bỏ qua ảnh hưởng sở hữu nhà), còn _β_ 1 là mức chủ nhà và người không sở hữu lần lượt cao hơn, thấp hơn trung bình.^(11) Ước lượng _β_ 0 là $519 _._ 665, nằm giữa $509 _._ 80 và $529 _._ 53; _β_ 1 là $9 _._ 865, bằng nửa chênh lệch $19 _._ 73. Các dự đoán cuối cùng giống nhau bất kể mã hóa; chỉ cách diễn giải hệ số thay đổi.
+
+##### Biến dự báo định tính có nhiều hơn hai mức
+
+Khi biến định tính có hơn hai mức, một biến giả không thể biểu diễn mọi giá trị; ta tạo thêm biến giả. Với `region`, ta tạo hai biến giả, biến thứ nhất có thể là
+
+Cả hai biến được đưa vào phương trình để thu được mô hình (3.30).
+
+Giờ _β_ 0 là `balance` trung bình của người miền Đông; _β_ 1 là chênh lệch Nam so với Đông; _β_ 2 là chênh lệch Tây so với Đông. Luôn có ít hơn một biến giả so với số mức. Mức không có biến giả—Đông trong ví dụ—gọi là _mức cơ sở_.
+
+> 11Nói chính xác, _β_ 0 là nửa tổng nợ trung bình của hai nhóm, nên chỉ đúng bằng trung bình chung nếu hai nhóm có cùng số thành viên.
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|531.00|46.32|11.464|_&lt;_0_._0001|\n|`region[South]`|_−_12.50|56.68|_−_0.221|0.8260|\n|`region[West]`|_−_18.69|65.02|_−_0.287|0.7740|"} />
+
+**BẢNG 3.8.** _Ước lượng bình phương tối thiểu của hồi quy_ `balance` _theo_ `region` _trong dữ liệu_ `Credit`_. Biến region được mã hóa bằng hai biến giả (3.28), (3.29)._
+
+Bảng 3.8 cho thấy `balance` ước lượng ở mức cơ sở Đông là $531 _._ 00. Nhóm Nam và Tây được ước lượng có nợ thấp hơn Đông lần lượt $18 _._ 69 và $12 _._ 50. Tuy nhiên, giá trị p rất lớn, không cho bằng chứng thống kê về khác biệt thật.^(12) Chọn mức cơ sở là tùy ý; dự đoán cho mỗi nhóm vẫn giống nhau, nhưng hệ số và giá trị p phụ thuộc mã hóa. Thay vì dựa vào hệ số riêng, ta dùng kiểm định _F_ cho _H_ 0 : _β_ 1 = _β_ 2 = 0, không phụ thuộc mã hóa. Giá trị p 0 _._ 96 cho biết không thể bác bỏ giả thuyết không có quan hệ giữa `balance` và `region`.
+
+Cách biến giả không gây khó khăn khi cùng dùng biến định lượng và định tính. Để hồi quy `balance` theo `income` và `student`, ta tạo biến giả cho `student`, rồi khớp hồi quy bội bằng `income` và biến giả.
+
+Có nhiều cách mã hóa biến định tính khác; tất cả cho mô hình khớp tương đương nhưng hệ số khác nhau, có diễn giải khác nhau và đo những _độ tương phản_ cụ thể. Chủ đề này ngoài phạm vi sách.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 3.3.2 Mở rộng mô hình tuyến tính
+
+Mô hình hồi quy tuyến tính tiêu chuẩn (3.19) dễ diễn giải và hoạt động tốt trong nhiều bài toán thực, nhưng có các giả định hạn chế thường bị vi phạm. Hai giả định quan trọng là quan hệ giữa biến dự báo và đáp ứng có tính _cộng_ và _tuyến tính_. Tính cộng nghĩa là liên hệ giữa _Xj_ và _Y_ không phụ thuộc giá trị các biến khác. Tính tuyến tính nghĩa là thay đổi của _Y_ gắn với một đơn vị thay đổi _Xj_ là hằng số, bất kể giá trị _Xj_. Các chương sau trình bày phương pháp tinh vi hơn để nới lỏng hai giả định; ở đây ta xem vài cách cổ điển.
+
+> 12Về lý thuyết vẫn có thể có khác biệt giữa Nam và Tây, dù dữ liệu không gợi ý điều đó.
+
+##### Loại bỏ giả định cộng
+
+Phân tích `Advertising` kết luận cả `TV` và `radio` liên quan đến `sales`. Các mô hình giả định ảnh hưởng của việc tăng một phương tiện độc lập với số tiền chi cho phương tiện kia: (3.20) nói mức tăng trung bình của `sales` khi `TV` tăng một đơn vị luôn là _β_ 1, bất kể `radio`.
+
+Nhưng mô hình này có thể sai. Giả sử quảng cáo radio làm TV hiệu quả hơn, khiến độ dốc của `TV` tăng theo `radio`. Với ngân sách cố định $100 _,_ 000, chia đôi cho radio và TV có thể tăng `sales` nhiều hơn chi toàn bộ cho một phương tiện. Trong marketing đây là _hiệp lực_, trong thống kê là _tương tác_. Hình 3.5 gợi ý hiệu ứng này: khi `TV` hoặc `radio` thấp, `sales` thật thấp hơn dự đoán; khi ngân sách được chia, mô hình đánh giá thấp `sales`.
+
+Xét mô hình hai biến tiêu chuẩn
+
+Theo mô hình, _X_ 1 tăng một đơn vị gắn với _Y_ tăng trung bình _β_ 1, bất kể _X_ 2. Ta mở rộng bằng biến thứ ba gọi là _hạng tử tương tác_, tích _X_ 1 _X_ 2:
+
+(3.31) có thể viết lại
+
+với _β_^(˜) 1 = _β_ 1 + _β_ 3 _X_ 2. Vì _β_^(˜) 1 là hàm của _X_ 2, liên hệ _X_ 1–_Y_ không còn hằng số. Tương tự, thay _X_ 1 làm thay đổi liên hệ _X_ 2–_Y_.
+
+Ví dụ, để dự đoán số `units` của nhà máy từ số `lines` và `workers`, ảnh hưởng của thêm dây chuyền sẽ phụ thuộc số công nhân: không có công nhân thì thêm dây chuyền không tăng sản lượng. Vì vậy nên thêm tương tác `lines`–`workers`. Giả sử mô hình khớp cho thấy thêm một dây chuyền tăng sản lượng 3 _._ 4 + 1 _._ 4 _×_ `workers`: càng nhiều công nhân, ảnh hưởng của dây chuyền càng mạnh.
+
+Nói cách khác, `units` chỉ tăng hiệu quả khi cả `lines` và `workers` được phối hợp trong cùng mô hình.
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|6.7502|0.248|27.23|_&lt;_0_._0001|\n|`TV`|0.0191|0.002|12.70|_&lt;_0_._0001|\n|`radio`|0.0289|0.009|3.24|0.0014|\n|`TV`_×_`radio`|0.0011|0.000|20.73|_&lt;_0_._0001|"} />
+
+**BẢNG 3.9.** _Với dữ liệu_ `Advertising`_, các hệ số hồi quy_ `sales` _theo_ `TV`_,_ `radio` _và hạng tử tương tác như (3.33)._
+
+Trở lại `Advertising`, mô hình dùng `radio`, `TV` và tương tác có dạng
+
+_β_ 3 là mức tăng hiệu quả quảng cáo TV gắn với một đơn vị tăng radio (hoặc ngược lại). Bảng 3.9 cho các hệ số.
+
+Kết quả cho thấy mô hình có tương tác vượt trội mô hình chỉ có _ảnh hưởng chính_. Giá trị p của `TV` _×_ `radio` cực thấp, cho bằng chứng mạnh về _Ha_ : _β_ 3 = 0; quan hệ thật không cộng tính. _R_^(2) là 96,8 %, so với 89,7 % khi không có tương tác. Tức tương tác giải thích (96 _._ 8 _−_ 89 _._ 7) _/_ (100 _−_ 89 _._ 7) = 69 % độ biến thiên còn lại sau mô hình cộng. Hệ số cho thấy $1 _,_ 000 tăng quảng cáo TV gắn với ( _β_^(ˆ) 1 + _β_^(ˆ) 3 _×_ `radio` ) _×_ 1 _,_ 000 = 19 + 1 _._ 1 _×_ `radio` đơn vị doanh số; tăng radio tương tự cho 29 + 1 _._ 1 _×_ `TV`.
+
+Ở đây `TV`, `radio` và tương tác đều có ý nghĩa nên rõ ràng giữ cả ba. Đôi khi tương tác có giá trị p nhỏ nhưng các ảnh hưởng chính không. _Nguyên tắc phân cấp_ nói rằng _nếu đưa tương tác vào mô hình, cũng nên đưa các ảnh hưởng chính, dù giá trị p của chúng không có ý nghĩa_. Nếu _X_ 1 _× X_ 2 liên quan đến đáp ứng, việc hệ số riêng của _X_ 1 hay _X_ 2 đúng bằng không không quan trọng. Tích cũng thường tương quan với từng biến, nên bỏ chúng làm thay đổi ý nghĩa tương tác.
+
+Trong mô hình Advertising, `TV` và `radio` cùng dự đoán `sales`; hạng tử `TV` × `radio` làm ảnh hưởng của `TV` phụ thuộc `radio`. Vì vậy, `sales` phản ánh hiệp lực giữa `TV` và `radio`, thay vì chỉ tổng hai ảnh hưởng. Khi `TV` và `radio` cùng cao, `sales` có thể tăng mạnh; do đó hệ số `TV` cần được diễn giải cùng `sales`.
+
+Tương tác cũng áp dụng cho biến định tính hoặc kết hợp định lượng–định tính. Xét `Credit`, dự đoán `balance` bằng `income` và `student`. Không có tương tác, mô hình
+
+khớp hai đường song song cho sinh viên và người không phải sinh viên: hệ số chặn khác nhau _β_ 0 + _β_ 2 và _β_ 0, nhưng cùng độ dốc _β_ 1. Điều này giả định ảnh hưởng của `income` lên `balance` không phụ thuộc tình trạng sinh viên, có thể là hạn chế nghiêm trọng.
+
+Thêm tương tác bằng tích `income` với biến giả `student`:
+
+Giờ hai đường có cả hệ số chặn khác nhau lẫn độ dốc khác nhau, lần lượt _β_ 1 + _β_ 3 và _β_ 1. Điều này cho phép thu nhập ảnh hưởng khác nhau. Hình 3.7
+
+Biến `student` cho phép độ dốc theo `income` thay đổi giữa hai nhóm; vì vậy tác động của `income` được ước lượng riêng thay vì buộc hệ số `income` phải giống nhau.
+
+**HÌNH 3.7.** _Với dữ liệu_ `Credit`_, các đường bình phương tối thiểu dự đoán_ `balance` _từ_ `income` _cho sinh viên và người không phải sinh viên._ Trái: _Mô hình (3.34), không có tương tác._ Phải: _Mô hình (3.35), có tương tác giữa_ `income` _và_ `student`_._
+
+cho thấy độ dốc của sinh viên thấp hơn, gợi ý thu nhập tăng gắn với mức tăng `balance` nhỏ hơn ở sinh viên.
+
+##### Quan hệ phi tuyến
+
+Mô hình (3.19) giả định quan hệ tuyến tính, nhưng quan hệ thật có thể phi tuyến. Một cách mở rộng đơn giản là _hồi quy đa thức_; các chương sau trình bày cách tổng quát hơn.
+
+Hình 3.8 vẽ `mpg` theo `horsepower` trong dữ liệu `Auto`. Đường cam là hồi quy tuyến tính. Quan hệ rõ rệt nhưng cong, nên mô hình bậc hai
+
+có thể tốt hơn. Dù dự đoán `mpg` bằng hàm phi tuyến của `horsepower`, (3.36) _vẫn là mô hình tuyến tính_: một hồi quy bội với _X_ 1 = `horsepower`, _X_ 2 = `horsepower`^(2). Do đó phần mềm hồi quy chuẩn có thể ước lượng _β_ 0, _β_ 1, _β_ 2. Đường xanh là mô hình bậc hai.
+
+**HÌNH 3.8.** _Dữ liệu_ `Auto`_: `mpg` và `horsepower` của nhiều xe. Đường cam là hồi quy tuyến tính; đường xanh là mô hình thêm_ `horsepower`^(2)_; đường xanh lá là mô hình chứa mọi đa thức đến bậc năm._
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|56.9001|1.8004|31.6|_&lt;_0_._0001|\n|`horsepower`|_−_0.4662|0.0311|_−_15.0|_&lt;_0_._0001|\n|`horsepower`^(2)|0.0012|0.0001|10.1|_&lt;_0_._0001|"} />
+
+**BẢNG 3.10.** _Hệ số bình phương tối thiểu hồi quy_ `mpg` _theo_ `horsepower` _và_ `horsepower`^(2) _trong dữ liệu_ `Auto`_._
+
+Mô hình bậc hai tốt hơn đáng kể: _R_^(2) = 0 _._ 688 so với 0 _._ 606, và giá trị p của hạng tử bậc hai rất có ý nghĩa.
+
+Nếu bậc hai cải thiện nhiều, sao không thêm bậc ba, bốn hoặc năm? Đường xanh lá trong Hình 3.8 dùng mọi đa thức đến bậc năm. Nó có vẻ dao động không cần thiết; chưa rõ các hạng tử thêm thực sự giúp khớp tốt hơn.
+
+Cách đưa hàm đa thức của biến dự báo vào mô hình gọi là _hồi quy đa thức_. Chương 7 khảo sát sâu hơn cách này và các mở rộng phi tuyến khác.
+
+Trong dữ liệu `Auto`, `horsepower` là biến dự báo của `mpg`. Mô hình tuyến tính dùng `horsepower`, còn mô hình bậc hai dùng `horsepower` và `horsepower`^(2) để mô tả độ cong của `mpg`. Việc so sánh phần dư theo `horsepower` cho thấy thêm `horsepower`^(2) tốt hơn; các bậc cao hơn của `horsepower` cần được đánh giá cẩn thận.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 3.3.3 Các vấn đề tiềm ẩn
+
+Khi khớp hồi quy tuyến tính, các vấn đề phổ biến gồm:
+
+1. _Quan hệ đáp ứng–dự báo phi tuyến._
+2. _Các sai số tương quan._
+3. _Phương sai sai số không hằng._
+4. _Ngoại lệ._
+5. _Điểm đòn bẩy cao._
+6. _Đa cộng tuyến._
+
+Nhận diện và khắc phục chúng vừa là nghệ thuật vừa là khoa học. Ở đây chỉ tóm lược các điểm chính.
+
+##### 1. Tính phi tuyến của dữ liệu
+
+**HÌNH 3.9.** _Biểu đồ phần dư theo giá trị khớp cho dữ liệu_ `Auto`_. Đường đỏ làm trơn phần dư để dễ thấy xu hướng._ Trái: _Hồi quy_ `mpg` _theo_ `horsepower`_; mẫu hình mạnh chỉ ra tính phi tuyến._ Phải: _Hồi quy thêm_ `horsepower`^(2)_; phần dư hầu như không còn mẫu hình._
+
+Mô hình giả định quan hệ đường thẳng. Nếu quan hệ thật khác xa tuyến tính, hầu như mọi kết luận đều đáng ngờ và độ chính xác dự đoán giảm.
+
+_Biểu đồ phần dư_ giúp nhận diện tính phi tuyến. Với hồi quy đơn, vẽ phần dư _ei_ = _yi − yi_ ˆ theo _xi_; với hồi quy bội, vẽ theo giá trị dự đoán _yi_ ˆ. Lý tưởng là không có mẫu hình; mẫu hình có thể chỉ ra vấn đề.
+
+Trong Hình 3.9, hồi quy `mpg` theo `horsepower` tạo phần dư hình chữ U rõ rệt. Mô hình (3.36) có hạng tử bậc hai hầu như không còn mẫu hình, cho thấy độ khớp được cải thiện. Nếu thấy phi tuyến, cách đơn giản là thêm biến đổi như log _X_, _√X_, _X_^(2); các chương sau trình bày cách nâng cao hơn.
+
+##### 2. Tương quan giữa các sai số
+
+Một giả định quan trọng là _ϵ_ 1 _, . . . , ϵn_ không tương quan. Nếu đúng, dấu dương của _ϵi_ gần như không cho thông tin về dấu _ϵi_ +1. Sai số chuẩn của hệ số và giá trị khớp dựa trên giả định này. Nếu sai số tương quan, sai số chuẩn ước lượng thường thấp hơn thực tế, khiến khoảng tin cậy và dự đoán quá hẹp, giá trị p quá thấp và có thể kết luận sai rằng tham số có ý nghĩa. Nói ngắn gọn, ta tự tin quá mức.
+
+Ví dụ cực đoan: vô tình nhân đôi dữ liệu, tạo các cặp quan sát và sai số giống hệt. Nếu bỏ qua, phép tính coi cỡ mẫu là 2 _n_ dù thực tế chỉ có _n_. Ước lượng tham số không đổi nhưng khoảng tin cậy hẹp hơn hệ số _√_ 2.
+
+Tương quan thường xảy ra trong dữ liệu _chuỗi thời gian_, khi phép đo ở các thời điểm kề nhau có sai số tương quan dương. Ta vẽ phần dư theo thời gian: nếu không tương quan, không có mẫu hình; nếu tương quan dương, phần dư kề nhau có giá trị giống nhau, gọi là _bám theo_.
+
+**HÌNH 3.10.** _Phần dư của chuỗi thời gian mô phỏng với các mức tương quan ρ khác nhau giữa sai số ở thời điểm kề nhau._
+
+Hình trên cùng có sai số không tương quan, không có xu hướng thời gian. Hình dưới có tương quan 0 _._ 9 và mẫu hình rõ; hình giữa có 0 _._ 5, vẫn bám theo nhưng kém rõ.
+
+Nhiều phương pháp xử lý tương quan trong chuỗi thời gian. Nó cũng có thể xảy ra ngoài chuỗi, chẳng hạn dự đoán chiều cao từ cân nặng khi người tham gia cùng gia đình, chế độ ăn hoặc môi trường. Giả định không tương quan cực kỳ quan trọng; thiết kế thí nghiệm tốt giúp giảm rủi ro.
+
+**HÌNH 3.11.** _Biểu đồ phần dư; đường đỏ làm trơn, đường xanh theo các phân vị ngoài._ Trái: _Hình phễu chỉ phương sai thay đổi._ Phải: _Đáp ứng được biến đổi log và không còn bằng chứng phương sai thay đổi._
+
+##### 3. Phương sai sai số không hằng
+
+Mô hình cũng giả định Var( _ϵi_ ) = _σ_^(2). Sai số chuẩn, khoảng tin cậy và kiểm định dựa vào điều này.
+
+Trong thực tế, phương sai có thể tăng theo đáp ứng. _Phương sai thay đổi_ (heteroscedasticity) thể hiện bằng _hình phễu_ trong biểu đồ phần dư, như Hình 3.11, nơi độ lớn phần dư tăng theo giá trị khớp. Một giải pháp là biến đổi _Y_ bằng hàm lõm như log _Y_ hoặc _√Y_, co rút mạnh hơn các đáp ứng lớn. Sau log _Y_, phần dư có vẻ có phương sai hằng, dù còn dấu hiệu phi tuyến nhẹ.
+
+Đôi khi ta biết phương sai từng đáp ứng. Nếu đáp ứng thứ _i_ là trung bình của _ni_ quan sát thô không tương quan có phương sai _σ_^(2), trung bình có phương sai _σi_^(2=)^(_σ_2)^(_/ni_). Khi đó có thể dùng _bình phương tối thiểu có trọng số_, với trọng số tỷ lệ nghịch phương sai, tức _wi_ = _ni_. Phần mềm hồi quy thường hỗ trợ trọng số quan sát.
+
+##### 4. Ngoại lệ
+
+_Ngoại lệ_ là điểm có _yi_ cách xa giá trị mô hình dự đoán, có thể do ghi dữ liệu sai.
+
+**HÌNH 3.12.** Trái: _Đường đỏ khớp tất cả dữ liệu, đường xanh sau khi bỏ ngoại lệ._ Giữa: _Biểu đồ phần dư nhận diện rõ ngoại lệ._ Phải: _Ngoại lệ có phần dư student hóa bằng_ 6_; thường kỳ vọng từ −_ 3 _đến_ 3_._
+
+Điểm đỏ 20 minh họa ngoại lệ. Bỏ nó hầu như không đổi độ dốc và chỉ giảm rất ít hệ số chặn, điển hình cho ngoại lệ không có giá trị dự báo bất thường. Nhưng nó vẫn gây vấn đề: RSE giảm từ 1 _._ 09 xuống 0 _._ 77 khi bỏ điểm, ảnh hưởng mọi khoảng tin cậy và giá trị p; _R_^(2) tăng từ 0 _._ 805 lên 0 _._ 892.
+
+Biểu đồ phần dư giúp nhận diện ngoại lệ, nhưng khó chọn ngưỡng. Ta dùng _phần dư student hóa_, chia mỗi _ei_ cho sai số chuẩn ước lượng. Trị tuyệt đối trên 3 gợi ý ngoại lệ. Trong Hình 3.12, điểm này vượt 6, còn các điểm khác nằm giữa _−_ 2 và 2.
+
+Nếu ngoại lệ do lỗi thu thập hoặc ghi chép, có thể loại quan sát; nhưng cần thận trọng vì nó có thể chỉ ra thiếu sót mô hình như thiếu biến dự báo.
+
+##### 5. Điểm đòn bẩy cao
+
+Ngoại lệ có _yi_ bất thường khi biết _xi_; điểm _đòn bẩy cao_ có _xi_ bất thường.
+
+**HÌNH 3.13.** Trái: _Quan sát 41 có đòn bẩy cao, 20 thì không; đường đỏ dùng toàn bộ dữ liệu, đường xanh bỏ 41._ Giữa: _Điểm đỏ không bất thường riêng theo X_ 1 _hay X_ 2 _nhưng nằm ngoài khối dữ liệu nên có đòn bẩy cao._ Phải: _Quan sát 41 vừa có đòn bẩy vừa có phần dư cao._
+
+Quan sát 41 có giá trị dự báo lớn so với các điểm khác. Bỏ nó ảnh hưởng đường bình phương tối thiểu nhiều hơn hẳn bỏ ngoại lệ 20. Điểm đòn bẩy cao thường ảnh hưởng lớn đến đường hồi quy; nếu chỉ vài điểm chi phối mô hình, lỗi ở chúng có thể làm toàn bộ mô hình vô hiệu, nên cần nhận diện.
+
+Trong hồi quy đơn, tìm điểm có biến dự báo ngoài khoảng bình thường khá dễ. Trong hồi quy bội, một quan sát có thể nằm trong khoảng của từng biến riêng nhưng bất thường xét toàn bộ tập biến. Ở Hình 3.13, điểm đỏ không bất thường theo riêng _X_ 1 hay _X_ 2 nhưng nằm ngoài ellipse của phần lớn dữ liệu. Vấn đề càng khó khi có nhiều hơn hai biến vì không thể vẽ đồng thời mọi chiều.
+
+Ta định lượng bằng _thống kê đòn bẩy_. Với hồi quy đơn,
+
+**HÌNH 3.14.** _Biểu đồ phân tán dữ liệu_ `Credit`_._ Trái: `age` _theo_ `limit`_, không cộng tuyến._ Phải: `rating` _theo_ `limit`_, cộng tuyến cao._
+
+_hi_ tăng theo khoảng cách từ _xi_ đến _x_ ¯. Có mở rộng cho nhiều biến. _hi_ luôn giữa 1 _/n_ và 1; trung bình bằng ( _p_ + 1) _/n_. Giá trị lớn hơn nhiều mức này gợi ý đòn bẩy cao.
+
+Biểu đồ phần dư student hóa theo _hi_ cho thấy quan sát 41 vừa có đòn bẩy rất cao vừa có phần dư cao—một tổ hợp đặc biệt nguy hiểm. Quan sát 20 ảnh hưởng ít vì đòn bẩy thấp.
+
+##### 6. Đa cộng tuyến
+
+_Cộng tuyến_ là khi hai hoặc nhiều biến dự báo liên quan chặt. Trong Hình 3.14, `limit` và `age` không có quan hệ rõ, còn `limit`, `rating` tương quan rất cao. Cộng tuyến khiến khó tách ảnh hưởng riêng của từng biến lên `balance`, vì chúng cùng tăng giảm.
+
+Hình 3.15 minh họa các khó khăn. Biểu đồ trái là các đường đồng mức RSS cho hồi quy `balance` theo `limit`, `age`; mỗi ellipse là tập hệ số có cùng RSS, ellipse gần tâm thấp hơn. Chấm đen là ước lượng bình phương tối thiểu. Trục được co giãn đến bốn sai số chuẩn mỗi phía, bao phủ các giá trị hợp lý; hệ số `limit` thật gần như chắc chắn giữa 0 _._ 15 và 0 _._ 20.
+
+**HÌNH 3.15.** _Đường đồng mức RSS theo tham số β cho các hồi quy dữ liệu_ `Credit`_; chấm đen là hệ số cực tiểu RSS._ Trái: _Hồi quy_ `balance` _theo_ `age`, `limit` _có cực tiểu rõ._ Phải: _Hồi quy theo_ `rating`, `limit`_; do cộng tuyến, nhiều cặp_ ( _β_ Limit _, β_ Rating) _có RSS tương tự._
+
+Ở biểu đồ phải, `limit`, `rating` cộng tuyến cao nên các đường chạy dọc một thung lũng hẹp; một dải hệ số rộng cho RSS bằng nhau. Thay đổi nhỏ trong dữ liệu có thể làm nghiệm di chuyển dọc thung lũng, tạo bất định lớn. Thang hệ số `limit` giờ từ khoảng _−_ 0 _._ 2 đến 0 _._ 2, rộng gấp tám lần hồi quy với `age`. Dù từng hệ số bất định hơn, cặp hệ số gần như chắc chắn nằm trong thung lũng.
+
+Cộng tuyến làm giảm độ chính xác hệ số và tăng sai số chuẩn _β_^(ˆ) _j_. Vì thống kê _t_ bằng hệ số chia sai số chuẩn, nó giảm; ta có thể không bác bỏ _H_ 0 : _βj_ = 0. Do đó, _lực kiểm định_—xác suất phát hiện đúng hệ số khác không—bị giảm.
+
+<MdxCode language="table" code={"|||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|---|\n||`Intercept`|_−_173.411|43.828|_−_3.957|_&lt;_0_._0001|\n|Mô hình 1|`age`|_−_2.292|0.672|_−_3.407|0_._0007|\n||`limit`|0.173|0.005|34.496|_&lt;_0_._0001|\n||`Intercept`|_−_377.537|45.254|_−_8.343|_&lt;_0_._0001|\n|Mô hình 2|`rating`|2.202|0.952|2.312|0.0213|\n||`limit`|0.025|0.064|0.384|0.7012|"} />
+
+**BẢNG 3.11.** _Hai mô hình hồi quy bội cho dữ liệu_ `Credit`_. Mô hình 1 hồi quy_ `balance` _theo_ `age`, `limit`_; mô hình 2 theo_ `rating`, `limit`_. Sai số chuẩn của hệ số `limit` tăng 12 lần trong mô hình 2 do cộng tuyến._
+
+Trong mô hình 1, `age`, `limit` đều rất có ý nghĩa. Trong mô hình 2, cộng tuyến làm sai số chuẩn của `limit` tăng 12 lần và giá trị p tăng lên 0 _._ 701, che khuất tầm quan trọng của `limit`. Vì vậy cần nhận diện, xử lý cộng tuyến khi khớp mô hình.
+
+Cách đơn giản là xem ma trận tương quan: phần tử có trị tuyệt đối lớn chỉ cặp tương quan cao. Nhưng cộng tuyến có thể tồn tại giữa ba biến trở lên dù không cặp nào có tương quan cao, gọi là _đa cộng tuyến_. Cách tốt hơn là tính _hệ số phóng đại phương sai_ (VIF): tỷ số phương sai của _β_^(ˆ) _j_ trong mô hình đầy đủ so với khi khớp riêng. VIF nhỏ nhất là 1, nghĩa là không cộng tuyến. Quy tắc kinh nghiệm: trên 5 hoặc 10 là đáng lo. Công thức:
+
+trong đó _RX_^(2) _j |X−j_ là _R_^(2) từ hồi quy _Xj_ theo mọi biến khác. Nếu gần 1, có cộng tuyến và VIF lớn.
+
+Trong `Credit`, hồi quy `balance` theo `age`, `rating`, `limit` cho VIF 1.01, 160.67, 160.59—cộng tuyến rất lớn.
+
+Trong dữ liệu `Credit`, `balance` được mô hình hóa bằng `age`, `rating` và `limit`. `age` ít liên quan đến `limit`, còn trong cặp `rating`–`limit`, hai biến thay đổi gần như cùng nhau. Vì `rating` và `limit` mang thông tin tương tự, hệ số `rating` và `limit` khó được ước lượng riêng. Bỏ `rating` nhưng giữ `limit` thường ổn định hơn; khi đó thông tin của `rating` được đại diện bởi `limit`, còn hệ số limit cũng chính xác hơn.
+
+Có hai giải pháp đơn giản. Thứ nhất, bỏ một biến có vấn đề; thông tin của nó thường dư thừa. Bỏ `rating`, hồi quy theo `age`, `limit` cho VIF gần 1 và _R_^(2) chỉ giảm từ 0 _._ 754 xuống 0 _._ 75, giải quyết cộng tuyến mà gần như không giảm độ khớp. Thứ hai, kết hợp các biến cộng tuyến thành một biến, chẳng hạn lấy trung bình các phiên bản chuẩn hóa của `limit`, `rating` để đo _mức tín nhiệm tín dụng_.
+
+</MdxPage>

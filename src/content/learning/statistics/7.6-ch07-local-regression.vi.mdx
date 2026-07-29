@@ -1,0 +1,47 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-local-regression",
+  "locale": "vi",
+  "title": "7.6 Hồi quy cục bộ",
+  "headings": [
+    "Hồi quy cục bộ"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Hồi quy cục bộ"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Hồi quy cục bộ
+
+_Hồi quy cục bộ_ (local regression) là một cách tiếp cận khác để khớp các hàm phi tuyến linh hoạt; nó tính mô hình khớp tại điểm đích _x_ 0 chỉ bằng những quan sát huấn luyện ở gần. Hình 7.9 minh họa ý tưởng trên dữ liệu mô phỏng, với một điểm đích gần 0 _._ 4 và một điểm khác gần biên tại 0 _._ 05. Trong hình, đường màu xanh biểu diễn hàm _f_ ( _x_ ) sinh ra dữ liệu, còn đường cam nhạt tương ứng với ước lượng hồi quy cục bộ _f_^(ˆ) ( _x_ ). Hồi quy cục bộ được mô tả trong Thuật toán 7.1. Lưu ý rằng ở Bước 3 của Thuật toán 7.1, các trọng số _Ki_ 0 sẽ khác nhau với mỗi giá trị _x_ 0. Nói cách khác, để thu được giá trị khớp hồi quy cục bộ tại một điểm mới, ta cần khớp một mô hình hồi quy bình phương tối thiểu có trọng số mới bằng cách cực tiểu (7.14) với tập trọng số mới. Hồi quy cục bộ đôi khi được gọi là một thủ tục _dựa trên bộ nhớ_, vì giống phương pháp láng giềng gần nhất, ta cần toàn bộ dữ liệu huấn luyện mỗi lần muốn tính một dự đoán. Ở đây ta sẽ không đi sâu vào các chi tiết kỹ thuật của hồi quy cục bộ—đã có cả sách viết về chủ đề này.
+
+Để thực hiện hồi quy cục bộ, cần đưa ra một số lựa chọn như cách định nghĩa hàm trọng số _K_, và nên khớp hồi quy tuyến tính, hằng số hay bậc hai ở Bước 3. (Phương trình 7.14 tương ứng với hồi quy tuyến tính.) Mặc dù tất cả lựa chọn này đều tạo ra khác biệt nhất định, lựa chọn quan trọng nhất là _độ phủ s_ (span), tức tỷ lệ điểm được dùng để tính hồi quy cục bộ tại _x_ 0 như định nghĩa ở Bước 1. Độ phủ đóng vai trò tương tự tham số điều chỉnh _λ_ trong spline làm
+
+**HÌNH 7.9.** _Minh họa hồi quy cục bộ trên dữ liệu mô phỏng, trong đó đường màu xanh biểu diễn f_ ( _x_ ) _đã sinh ra dữ liệu, còn đường cam nhạt tương ứng với ước lượng hồi quy cục bộ f_^(ˆ) ( _x_ )_. Các điểm màu cam nằm cục bộ quanh điểm đích x_ 0 _, được biểu diễn bằng đường thẳng đứng màu cam. Hình chuông màu vàng chồng lên biểu đồ chỉ trọng số gán cho từng điểm, giảm về không khi khoảng cách tới điểm đích tăng. Giá trị khớp f_^(ˆ) ( _x_ 0) _tại x_ 0 _thu được bằng cách khớp hồi quy tuyến tính có trọng số (đoạn thẳng màu cam), rồi dùng giá trị khớp tại x_ 0 _(chấm tròn màu cam) làm ước lượng f_^(ˆ) ( _x_ 0)_._
+
+trơn: nó kiểm soát độ linh hoạt của mô hình phi tuyến. _s_ càng nhỏ thì mô hình khớp càng _cục bộ_ và dao động; ngược lại, _s_ rất lớn dẫn đến mô hình toàn cục dùng tất cả quan sát huấn luyện. Ta lại có thể dùng xác thực chéo để chọn _s_, hoặc chỉ định trực tiếp. Hình 7.10 thể hiện các mô hình hồi quy tuyến tính cục bộ trên dữ liệu `Wage` với hai giá trị _s_: 0 _._ 7 và 0 _._ 2. Đúng như dự kiến, mô hình khớp dùng _s_ = 0 _._ 7 trơn hơn mô hình dùng _s_ = 0 _._ 2.
+
+Ý tưởng hồi quy cục bộ có thể được tổng quát hóa theo nhiều cách. Trong bối cảnh có nhiều đặc trưng _X_ 1 _, X_ 2 _, . . . , Xp_, một mở rộng rất hữu ích là khớp mô hình hồi quy tuyến tính bội mang tính toàn cục theo một số biến nhưng cục bộ theo một biến khác, chẳng hạn thời gian. Các _mô hình hệ số biến thiên_ như vậy là cách hữu ích để thích nghi mô hình với dữ liệu được thu thập gần đây nhất. Hồi quy cục bộ cũng mở rộng rất tự nhiên khi ta muốn khớp mô hình cục bộ theo một cặp biến _X_ 1 và _X_ 2 thay vì một biến. Ta chỉ cần dùng các lân cận hai chiều và khớp mô hình hồi quy tuyến tính hai biến bằng những quan sát gần mỗi điểm đích trong không gian hai chiều. Về lý thuyết, có thể triển khai cùng cách tiếp cận ở số chiều cao hơn, dùng các hồi quy tuyến tính khớp với lân cận _p_ chiều. Tuy nhiên, hồi quy cục bộ có thể hoạt động kém nếu _p_ lớn hơn đáng kể khoảng 3 hoặc 4, vì thường có rất ít quan sát huấn luyện gần _x_ 0. Hồi quy láng giềng gần nhất được thảo luận trong Chương 3 cũng gặp vấn đề tương tự ở số chiều cao.
+
+##### **Thuật toán 7.1** _Hồi quy cục bộ tại X_ = _x_ 0
+
+1. Thu thập tỷ lệ _s_ = _k/n_ điểm huấn luyện có _xi_ gần _x_ 0 nhất.
+
+2. Gán trọng số _Ki_ 0 = _K_ ( _xi, x_ 0) cho mỗi điểm trong lân cận này sao cho điểm xa _x_ 0 nhất có trọng số bằng không và điểm gần nhất có trọng số lớn nhất. Tất cả điểm ngoài _k_ láng giềng gần nhất này có trọng số bằng không.
+
+3. Khớp _hồi quy bình phương tối thiểu có trọng số_ của _yi_ theo _xi_ bằng các trọng số trên, bằng cách tìm _β_^(ˆ) 0 và _β_^(ˆ) 1 làm cực tiểu
+
+4. Giá trị khớp tại _x_ 0 là _f_^(ˆ) ( _x_ 0) = _β_^(ˆ) 0 + _β_^(ˆ) 1 _x_ 0.
+
+###### **Hồi quy tuyến tính cục bộ**
+
+**HÌNH 7.10.** _Các mô hình tuyến tính cục bộ khớp với dữ liệu_ `Wage`_. Độ phủ chỉ định tỷ lệ dữ liệu được dùng để tính mô hình khớp tại mỗi điểm đích._
+
+</MdxPage>

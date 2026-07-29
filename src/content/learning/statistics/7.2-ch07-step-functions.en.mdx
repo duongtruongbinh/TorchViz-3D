@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-step-functions",
+  "locale": "en",
+  "title": "7.2 Step Functions",
+  "headings": [
+    "Step Functions"
+  ],
+  "keywords": [
+    "statistics",
+    "statistical learning",
+    "ISLP",
+    "Moving Beyond Linearity",
+    "Step Functions"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Step Functions
+
+Using polynomial functions of the features as predictors in a linear model imposes a _global_ structure on the non-linear function of _X_ . We can instead use _step functions_ in order to avoid imposing such a global structure. Here step we break the range of _X_ into _bins_ , and fit a different constant in each bin. This amounts to converting a continuous variable into an _ordered categorical variable_ .
+
+In greater detail, we create cutpoints _c_ 1, _c_ 2 _, . . . , cK_ in the range of _X_ , and then construct _K_ + 1 new variables
+
+where _I_ ( _·_ ) is an _indicator function_ that returns a 1 if the condition is true, indicator and returns a 0 otherwise. For example, _I_ ( _cK ≤ X_ ) equals 1 if _cK ≤ X_ , and function equals 0 otherwise. These are sometimes called _dummy_ variables. Notice that for any value of _X_ , _C_ 0( _X_ ) + _C_ 1( _X_ ) + _· · ·_ + _CK_ ( _X_ ) = 1, since _X_ must be in exactly one of the _K_ + 1 intervals. We then use least squares to fit a linear model using _C_ 1( _X_ ) _, C_ 2( _X_ ) _, . . . , CK_ ( _X_ ) as predictors^(2) :
+
+For a given value of _X_ , at most one of _C_ 1 _, C_ 2 _, . . . , CK_ can be non-zero. Note that when _X &lt; c_ 1, all of the predictors in (7.5) are zero, so _β_ 0 can
+
+> 2We exclude _C_ 0( _X_ ) as a predictor in (7.5) because it is redundant with the intercept. This is similar to the fact that we need only two dummy variables to code a qualitative variable with three levels, provided that the model will contain an intercept. The decision to exclude _C_ 0( _X_ ) instead of some other _Ck_ ( _X_ ) in (7.5) is arbitrary. Alternatively, we could include _C_ 0( _X_ ) _, C_ 1( _X_ ) _, . . . , CK_ ( _X_ ), and exclude the intercept.
+
+###### **Piecewise Constant**
+
+**FIGURE 7.2.** _The_ `Wage` _data._ Left: _The solid curve displays the fitted value from a least squares regression of_ `wage` _(in thousands of dollars) using step functions of_ `age` _. The dashed curves indicate an estimated 95 % confidence interval._ Right: _We model the binary event_ `wage>250` _using logistic regression, again using step functions of_ `age` _. The fitted posterior probability of_ `wage` _exceeding_ $250 _,_ 000 _is shown, along with an estimated 95 % confidence interval._
+
+be interpreted as the mean value of _Y_ for _X &lt; c_ 1. By comparison, (7.5) predicts a response of _β_ 0+ _βj_ for _cj ≤ X &lt; cj_ +1, so _βj_ represents the average increase in the response for _X_ in _cj ≤ X &lt; cj_ +1 relative to _X &lt; c_ 1.
+
+An example of fitting step functions to the `Wage` data from Figure 7.1 is shown in the left-hand panel of Figure 7.2. We also fit the logistic regression model
+
+in order to predict the probability that an individual is a high earner on the basis of `age` . The right-hand panel of Figure 7.2 displays the fitted posterior probabilities obtained using this approach.
+
+Unfortunately, unless there are natural breakpoints in the predictors, piecewise-constant functions can miss the action. For example, in the lefthand panel of Figure 7.2, the first bin clearly misses the increasing trend of `wage` with `age` . Nevertheless, step function approaches are very popular in biostatistics and epidemiology, among other disciplines. For example, 5-year age groups are often used to define the bins.
+
+</MdxPage>

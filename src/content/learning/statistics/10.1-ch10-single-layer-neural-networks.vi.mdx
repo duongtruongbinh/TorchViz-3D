@@ -1,0 +1,53 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-single-layer-neural-networks",
+  "locale": "vi",
+  "title": "10.1 Mạng nơ-ron một lớp",
+  "headings": [
+    "Mạng nơ-ron một tầng"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "mạng nơ-ron một tầng"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Mạng nơ-ron một tầng
+
+Mạng nơ-ron nhận một vector đầu vào gồm _p_ biến _X_ = ( _X_ 1 _, X_ 2 _, . . . , Xp_ ) và xây dựng một hàm phi tuyến _f_ ( _X_ ) để dự đoán biến đáp ứng _Y_. Trong các chương trước, chúng ta đã xây dựng mô hình dự đoán phi tuyến bằng cây, boosting và mô hình cộng tổng quát. Điểm phân biệt mạng nơ-ron với các phương pháp này là _cấu trúc_ riêng của mô hình. Hình 10.1 trình bày một _mạng nơ-ron truyền thẳng_ (feed-forward neural network) đơn giản để mô hình hóa biến đáp ứng định lượng bằng _p_ = 4 biến dự báo. Theo thuật ngữ mạng nơ-ron, bốn đặc trưng _X_ 1 _, . . . , X_ 4 tạo thành các nút ở _tầng đầu vào_. Các mũi tên cho biết mỗi đầu vào từ tầng đầu vào truyền đến từng _nút ẩn_ trong số _K_ nút (ta được chọn _K_; ở đây chọn 5). Mô hình mạng nơ-ron có dạng
+
+Ở đây mô hình được xây dựng qua hai bước. Trước hết, _K_ giá trị kích hoạt _Ak, k_ = 1 _, . . . , K,_ ở tầng ẩn được tính như các hàm của các đặc trưng đầu vào _X_ 1 _, . . . , Xp_,
+
+**HÌNH 10.2.** _Các hàm kích hoạt. Hàm_ `ReLU` _tuyến tính từng đoạn được ưa dùng nhờ hiệu quả và dễ tính toán. Chúng tôi đã thu nhỏ hàm theo hệ số năm để tiện so sánh._
+
+trong đó _g_ ( _z_ ) là một _hàm kích hoạt_ phi tuyến được xác định trước. Có thể xem mỗi _Ak_ là một phép biến đổi _hk_ ( _X_ ) khác nhau của các đặc trưng ban đầu, tương tự các hàm cơ sở ở Chương 7. Sau đó, _K_ giá trị kích hoạt từ tầng ẩn truyền vào tầng đầu ra, tạo thành
+
+một mô hình hồi quy tuyến tính theo _K_ = 5 giá trị kích hoạt. Tất cả tham số _β_ 0 _, . . . , βK_ và _w_ 10 _, . . . , wKp_ đều phải được ước lượng từ dữ liệu. Trong những mạng nơ-ron ban đầu, hàm kích hoạt _sigmoid_ được ưa chuộng,
+
+đây chính là hàm được dùng trong hồi quy logistic để chuyển một hàm tuyến tính thành xác suất từ không đến một (xem Hình 10.2). Lựa chọn phổ biến trong mạng nơ-ron hiện đại là hàm kích hoạt _ReLU_ ( _rectified linear unit_ — đơn vị tuyến tính chỉnh lưu), có dạng
+
+Giá trị kích hoạt ReLU có thể được tính và lưu hiệu quả hơn sigmoid. Dù có ngưỡng tại không, vì ta áp dụng nó lên một hàm tuyến tính (10.2), hằng số _wk_ 0 sẽ dịch chuyển điểm uốn này. Nói bằng lời, mô hình trong Hình 10.1 tạo ra năm đặc trưng mới bằng cách tính năm tổ hợp tuyến tính khác nhau của _X_, rồi đưa từng tổ hợp qua hàm kích hoạt _g_ ( _·_ ) để biến đổi. Mô hình cuối cùng tuyến tính theo các biến dẫn xuất này.
+
+Tên gọi _mạng nơ-ron_ ban đầu xuất phát từ việc xem các nút ẩn này tương tự nơ-ron trong não: các giá trị kích hoạt _Ak_ = _hk_ ( _X_ ) gần một đang _phát xung_, còn các giá trị gần không thì _im lặng_ (khi dùng hàm kích hoạt sigmoid).
+
+Tính phi tuyến trong hàm kích hoạt _g_ ( _·_ ) là thiết yếu, vì nếu thiếu nó thì mô hình _f_ ( _X_ ) trong (10.1) sẽ thu gọn thành một mô hình tuyến tính đơn giản theo
+
+_X_ 1 _, . . . , Xp_. Hơn nữa, hàm kích hoạt phi tuyến cho phép mô hình nắm bắt các quan hệ phi tuyến phức tạp và hiệu ứng tương tác. Xét một ví dụ rất đơn giản với _p_ = 2 biến đầu vào _X_ = ( _X_ 1 _, X_ 2), _K_ = 2 nút ẩn _h_ 1( _X_ ) và _h_ 2( _X_ ), cùng _g_ ( _z_ ) = _z_^(2). Ta đặt các tham số còn lại là
+
+Theo (10.2), điều này có nghĩa
+
+Sau đó thế (10.7) vào (10.1), ta được
+
+Như vậy, tổng của hai phép biến đổi phi tuyến trên các hàm tuyến tính có thể tạo ra một tương tác! Trong thực tế, ta không dùng hàm bậc hai cho _g_ ( _z_ ), vì khi ấy ta luôn thu được một đa thức bậc hai theo các tọa độ ban đầu _X_ 1 _, . . . , Xp_. Các hàm kích hoạt sigmoid hay ReLU không có hạn chế này.
+
+Khớp mạng nơ-ron đòi hỏi ước lượng các tham số chưa biết trong (10.1). Với biến đáp ứng định lượng, hàm mất mát sai số bình phương thường được dùng, do đó các tham số được chọn để cực tiểu hóa
+
+Chi tiết cách thực hiện phép cực tiểu hóa này được trình bày ở Mục 10.7.
+
+</MdxPage>

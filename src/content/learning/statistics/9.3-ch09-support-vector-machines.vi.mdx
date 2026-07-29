@@ -1,0 +1,116 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-support-vector-machines",
+  "locale": "vi",
+  "title": "9.3 Máy vector hỗ trợ",
+  "headings": [
+    "Máy vector hỗ trợ",
+    "9.3.1 Phân loại với biên quyết định phi tuyến",
+    "9.3.2 Máy vector hỗ trợ",
+    "9.3.3 Ứng dụng cho dữ liệu bệnh tim"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Máy vector hỗ trợ",
+    "SVM"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Máy vector hỗ trợ
+
+Trước hết, ta thảo luận một cơ chế tổng quát để chuyển bộ phân loại tuyến tính thành bộ phân loại tạo ra các biên quyết định phi tuyến. Sau đó, ta giới thiệu máy vector hỗ trợ, phương pháp thực hiện điều này một cách tự động.
+
+**HÌNH 9.8.** Trái: _Các quan sát thuộc hai lớp có biên phi tuyến giữa chúng._ Phải: _Bộ phân loại vector hỗ trợ tìm một biên tuyến tính và do đó hoạt động rất kém._
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 9.3.1 Phân loại với biên quyết định phi tuyến
+
+Bộ phân loại vector hỗ trợ là cách tiếp cận tự nhiên cho phân loại hai lớp nếu biên giữa hai lớp là tuyến tính. Tuy nhiên, trong thực tế đôi khi ta gặp biên lớp phi tuyến. Chẳng hạn, xét dữ liệu ở biểu đồ bên trái của Hình 9.8. Rõ ràng bộ phân loại vector hỗ trợ hay bất kỳ bộ phân loại tuyến tính nào cũng hoạt động kém ở đây. Thật vậy, bộ phân loại vector hỗ trợ ở biểu đồ bên phải của Hình 9.8 hoàn toàn vô dụng.
+
+Trong Chương 7, ta gặp một tình huống tương tự. Ở đó, hiệu năng của hồi quy tuyến tính có thể suy giảm khi tồn tại quan hệ phi tuyến giữa các biến dự báo và kết quả. Khi đó, ta xem xét mở rộng không gian đặc trưng bằng các hàm của biến dự báo, như hạng tử bậc hai và bậc ba, để xử lý tính phi tuyến. Với bộ phân loại vector hỗ trợ, ta có thể giải quyết vấn đề biên giữa các lớp có khả năng phi tuyến theo cách tương tự: mở rộng không gian đặc trưng bằng các hàm đa thức bậc hai, bậc ba và thậm chí bậc cao hơn của biến dự báo. Ví dụ, thay vì khớp bộ phân loại vector hỗ trợ dùng _p_ đặc trưng
+
+ta có thể khớp bộ phân loại vector hỗ trợ dùng 2 _p_ đặc trưng
+
+Khi đó (9.12)–(9.15) trở thành
+
+Vì sao điều này tạo ra biên quyết định phi tuyến? Trong không gian đặc trưng mở rộng, biên quyết định từ (9.16) thực ra là tuyến tính. Nhưng trong không gian đặc trưng ban đầu, biên quyết định có dạng _q_ ( _x_ ) = 0, trong đó _q_ là đa thức bậc hai, và nghiệm của nó thường là phi tuyến. Ta cũng có thể muốn mở rộng không gian bằng các hạng tử đa thức bậc cao hơn, hoặc các hạng tử tương tác dạng _XjXj_^(_′_) với _j_ = _j_^(_′_). Ngoài đa thức, có thể xét các hàm khác của biến dự báo. Dễ thấy có nhiều cách để mở rộng không gian đặc trưng, và nếu không cẩn thận, ta có thể thu được số lượng đặc trưng khổng lồ, khiến tính toán không thể quản lý. Máy vector hỗ trợ được trình bày tiếp theo cho phép mở rộng không gian đặc trưng của bộ phân loại vector hỗ trợ theo cách dẫn đến tính toán hiệu quả.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 9.3.2 Máy vector hỗ trợ
+
+_Máy vector hỗ trợ_ (support vector machine, SVM) là một mở rộng của bộ phân loại vector hỗ trợ, thu được bằng cách mở rộng không gian đặc trưng theo một cách cụ thể bằng _kernel_. Bây giờ ta thảo luận mở rộng này; các chi tiết của nó khá phức tạp và nằm ngoài phạm vi cuốn sách. Tuy nhiên, ý tưởng chính đã được mô tả ở Mục 9.3.1: ta có thể muốn mở rộng không gian đặc trưng để thích nghi với biên phi tuyến giữa các lớp. Cách tiếp cận kernel được mô tả ở đây đơn giản là một cách tính toán hiệu quả để hiện thực hóa ý tưởng đó.
+
+Ta chưa thảo luận chính xác cách tính bộ phân loại vector hỗ trợ vì các chi tiết trở nên khá kỹ thuật. Tuy nhiên, hóa ra nghiệm của bài toán (9.12)–(9.15) chỉ liên quan đến _tích trong_ của các quan sát (thay vì bản thân quan sát). Tích trong của hai vector _r_ chiều _a_ và _b_ được định nghĩa là _⟨a, b⟩_ =^(�) _i_^(_r_) =1^(_aibi_.Dođó,tíchtrongcủahaiquansát) _xi_, _xi′_ là
+
+Có thể chứng minh rằng
+
+• Bộ phân loại vector hỗ trợ tuyến tính có thể được biểu diễn là
+
+trong đó có _n_ tham số _αi, i_ = 1 _, . . . , n_, mỗi tham số ứng với một quan sát huấn luyện.
+
+- Để ước lượng các tham số _α_ 1 _, . . . , αn_ và _β_ 0, ta chỉ cần _n_
+
+- �2� tích trong _⟨xi, xi′ ⟩_ giữa mọi cặp quan sát huấn luyện. (Ký hiệu � _n_ 2� nghĩa là _n_ ( _n −_ 1) _/_ 2 và cho biết số cặp trong một tập _n_ phần tử.)
+
+Lưu ý trong (9.18), để đánh giá hàm _f_ ( _x_ ), ta cần tính tích trong giữa điểm mới _x_ và từng điểm huấn luyện _xi_. Tuy nhiên, hóa ra _αi_ chỉ khác không đối với các vector hỗ trợ trong nghiệm—tức nếu một quan sát huấn luyện không phải vector hỗ trợ thì _αi_ của nó bằng không. Vì vậy, nếu _S_ là tập chỉ số của các điểm hỗ trợ, ta có thể viết lại mọi hàm nghiệm dạng (9.18) thành
+
+biểu thức thường có ít hạng tử hơn nhiều so với (9.18).^(2)
+
+Tóm lại, để biểu diễn bộ phân loại tuyến tính _f_ ( _x_ ) và tính các hệ số của nó, ta chỉ cần các tích trong.
+
+Bây giờ giả sử mỗi khi tích trong (9.17) xuất hiện trong biểu diễn (9.18), hoặc trong phép tính nghiệm cho bộ phân loại vector hỗ trợ, ta thay nó bằng một dạng _tổng quát hóa_ của tích trong:
+
+trong đó _K_ là một hàm mà ta gọi là _kernel_. Kernel là một hàm định lượng độ tương đồng giữa hai quan sát. Chẳng hạn, ta có thể đơn giản chọn
+
+và khi đó thu lại bộ phân loại vector hỗ trợ. Phương trình 9.21 được gọi là kernel _tuyến tính_ vì bộ phân loại vector hỗ trợ tuyến tính theo các đặc trưng; về bản chất, kernel tuyến tính định lượng độ tương đồng của một cặp quan sát bằng tương quan Pearson (tiêu chuẩn). Nhưng ta có thể chọn một dạng khác cho (9.20). Ví dụ, có thể thay mọi lần xuất hiện của^(�)^(_p_) _j_ =1^(_xijxi′j_bằngđạilượng)
+
+Đây được gọi là _kernel đa thức_ bậc _d_, trong đó _d_ là số nguyên dương. Dùng kernel như vậy với _d &gt;_ 1 thay cho kernel tuyến tính tiêu chuẩn (9.21) trong thuật toán bộ phân loại vector hỗ trợ tạo biên quyết định linh hoạt hơn nhiều. Về bản chất, nó tương đương với việc khớp một bộ phân loại vector hỗ trợ
+
+> 2Bằng cách khai triển từng tích trong ở (9.19), có thể dễ dàng thấy _f_ ( _x_ ) là hàm tuyến tính theo các tọa độ của _x_. Việc này cũng thiết lập sự tương ứng giữa _αi_ và các tham số ban đầu _βj_.
+
+**HÌNH 9.9.** Trái: _Một SVM với kernel đa thức bậc 3 được áp dụng cho dữ liệu phi tuyến ở Hình 9.8, tạo ra quy tắc quyết định phù hợp hơn nhiều._ Phải: _Một SVM với kernel xuyên tâm được áp dụng. Trong ví dụ này, cả hai kernel đều có khả năng nắm bắt biên quyết định._
+
+trong không gian chiều cao hơn chứa các đa thức bậc _d_, thay vì trong không gian đặc trưng ban đầu. Khi bộ phân loại vector hỗ trợ được kết hợp với kernel phi tuyến như (9.22), bộ phân loại kết quả được gọi là máy vector hỗ trợ. Lưu ý trong trường hợp này, hàm (phi tuyến) có dạng
+
+Biểu đồ bên trái của Hình 9.9 thể hiện ví dụ về SVM dùng kernel đa thức trên dữ liệu phi tuyến từ Hình 9.8. Mô hình khớp cải thiện đáng kể so với bộ phân loại vector hỗ trợ tuyến tính. Khi _d_ = 1, SVM trở về bộ phân loại vector hỗ trợ đã thấy trước đó trong chương.
+
+Kernel đa thức trong (9.22) là một ví dụ về kernel phi tuyến, nhưng có rất nhiều lựa chọn khác. Một lựa chọn phổ biến khác là _kernel xuyên tâm_ (radial kernel), có dạng
+
+Trong (9.24), _γ_ là một hằng số dương. Biểu đồ bên phải của Hình 9.9 minh họa SVM với kernel xuyên tâm trên dữ liệu phi tuyến này; nó cũng phân tách tốt hai lớp.
+
+Kernel xuyên tâm (9.24) thực sự hoạt động như thế nào? Nếu một quan sát kiểm tra _x_^(_∗_) = ( _x_^(_∗_) 1^(_, . . . , x∗_) _p_^())^(_T_cáchxaquansáthuấnluyện)^(_xi_xéttheo) khoảng cách Euclid, thì^(�)^(_p_) _j_ =1^(()^(_x∗_) _j_^(_−xij_)2sẽ lớn, nên)^(_K_()^(_x∗, xi_) =) exp( _−γ_^(�)^(_p_) _j_ =1^(()^(_x∗_) _j_^(_−xij_)2)sẽrấtnhỏ.Điềunàycónghĩatrong(9.23),)^(_xi_hầunhư) không đóng vai trò gì trong _f_ ( _x_^(_∗_) ). Nhắc lại rằng nhãn lớp dự đoán cho quan sát kiểm tra _x_^(_∗_) dựa trên dấu của _f_ ( _x_^(_∗_) ). Nói cách khác, các quan sát huấn luyện cách xa _x_^(_∗_) về cơ bản không ảnh hưởng đến nhãn lớp dự đoán cho _x_^(_∗_). Điều này có nghĩa kernel xuyên tâm có hành vi rất _cục bộ_
+
+**HÌNH 9.10.** _Các đường cong ROC cho tập huấn luyện của dữ liệu_ `Heart`_._ Trái: _So sánh bộ phân loại vector hỗ trợ với LDA._ Phải: _So sánh bộ phân loại vector hỗ trợ với SVM dùng kernel cơ sở xuyên tâm có γ_ = 10^(_−_3) _,_ 10^(_−_2) _và_ 10^(_−_1)_._
+
+theo nghĩa chỉ các quan sát huấn luyện ở gần mới ảnh hưởng đến nhãn lớp của quan sát kiểm tra.
+
+Ưu điểm của việc dùng kernel thay vì chỉ mở rộng không gian đặc trưng bằng các hàm của đặc trưng ban đầu như trong (9.16) là gì? Một ưu điểm thuộc về tính toán: khi dùng kernel, ta chỉ cần tính _K_ ( _xi, x_^(_′_) _i_^() cho mọi) � _n_ 2� cặp phân biệt _i, i_^(_′_). Có thể làm điều này mà không cần làm việc tường minh trong không gian đặc trưng mở rộng. Đây là điểm quan trọng vì trong nhiều ứng dụng SVM, không gian đặc trưng mở rộng lớn đến mức tính toán không khả thi. Với một số kernel như kernel xuyên tâm (9.24), không gian đặc trưng là _ẩn_ và có vô hạn chiều, nên dù sao ta cũng không bao giờ có thể tính trực tiếp trong đó!
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 9.3.3 Ứng dụng cho dữ liệu bệnh tim
+
+Trong Chương 8, ta áp dụng cây quyết định và các phương pháp liên quan cho dữ liệu `Heart`. Mục tiêu là dùng 13 biến dự báo như `Age`, `Sex` và `Chol` để dự đoán một người có bệnh tim hay không. Bây giờ ta khảo sát SVM so với LDA trên dữ liệu này như thế nào. Sau khi loại 6 quan sát thiếu, dữ liệu gồm 297 đối tượng, được chia ngẫu nhiên thành 207 quan sát huấn luyện và 90 quan sát kiểm tra.
+
+Trước hết, ta khớp LDA và bộ phân loại vector hỗ trợ với dữ liệu huấn luyện. Lưu ý rằng bộ phân loại vector hỗ trợ tương đương SVM dùng kernel đa thức bậc _d_ = 1. Biểu đồ bên trái của Hình 9.10 hiển thị các đường cong ROC (được mô tả ở Mục 4.4.2) cho dự đoán trên tập huấn luyện của cả LDA và bộ phân loại vector hỗ trợ. Cả hai bộ phân loại đều tính điểm có dạng _f_^(ˆ) ( _X_ ) = _β_^(ˆ) 0 + _β_^(ˆ) 1 _X_ 1 + _β_^(ˆ) 2 _X_ 2 + _· · ·_ + _β_^(ˆ) _pXp_ cho mỗi quan sát. Với một ngưỡng _t_ bất kỳ, ta phân quan sát vào nhóm _bệnh tim_ hoặc _không bệnh tim_ tùy theo _f_^(ˆ) ( _X_ ) _&lt; t_ hay _f_^(ˆ) ( _X_ ) _≥ t_. Đường cong ROC thu được bằng cách tạo các dự đoán này rồi tính tỷ lệ dương tính giả và dương tính thật trên một dải giá trị _t_. Bộ phân loại tối ưu sẽ ôm sát góc trên bên trái của biểu đồ ROC. Trong trường hợp này,
+
+**HÌNH 9.11.** _Các đường cong ROC cho tập kiểm tra của dữ liệu_ `Heart`_._ Trái: _So sánh bộ phân loại vector hỗ trợ với LDA._ Phải: _So sánh bộ phân loại vector hỗ trợ với SVM dùng kernel cơ sở xuyên tâm có γ_ = 10^(_−_3) _,_ 10^(_−_2) _và_ 10^(_−_1)_._
+
+cả LDA và bộ phân loại vector hỗ trợ đều hoạt động tốt, dù có dấu hiệu cho thấy bộ phân loại vector hỗ trợ có thể nhỉnh hơn một chút.
+
+Biểu đồ bên phải của Hình 9.10 hiển thị các đường cong ROC cho SVM dùng kernel xuyên tâm với nhiều giá trị _γ_. Khi _γ_ tăng và mô hình khớp trở nên phi tuyến hơn, các đường ROC được cải thiện. Dùng _γ_ = 10^(_−_1) dường như tạo đường ROC gần hoàn hảo. Tuy nhiên, các đường này biểu diễn tỷ lệ lỗi huấn luyện, có thể gây hiểu lầm về hiệu năng trên dữ liệu kiểm tra mới. Hình 9.11 hiển thị các đường ROC tính trên 90 quan sát kiểm tra. Ta thấy một số khác biệt so với các đường ROC huấn luyện. Ở biểu đồ bên trái của Hình 9.11, bộ phân loại vector hỗ trợ có vẻ có lợi thế nhỏ so với LDA (dù khác biệt này không có ý nghĩa thống kê). Ở biểu đồ bên phải, SVM dùng _γ_ = 10^(_−_1), vốn cho kết quả tốt nhất trên dữ liệu huấn luyện, lại tạo ước lượng tệ nhất trên dữ liệu kiểm tra. Đây một lần nữa là bằng chứng rằng dù phương pháp linh hoạt hơn thường tạo tỷ lệ lỗi huấn luyện thấp hơn, điều đó không nhất thiết cải thiện hiệu năng trên dữ liệu kiểm tra. Các SVM với _γ_ = 10^(_−_2) và _γ_ = 10^(_−_3) hoạt động tương đương bộ phân loại vector hỗ trợ; cả ba đều tốt hơn SVM với _γ_ = 10^(_−_1).
+
+</MdxPage>

@@ -1,0 +1,249 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch13-multiple-testing-lab",
+  "locale": "vi",
+  "title": "13.6 Lab: Kiểm định nhiều giả thuyết",
+  "headings": [
+    "Lab: Kiểm định nhiều giả thuyết",
+    "13.6.1 Ôn tập kiểm định giả thuyết",
+    "13.6.2 Tỷ lệ lỗi theo họ",
+    "13.6.3 Tỷ lệ phát hiện sai",
+    "13.6.4 Phương pháp lấy mẫu lại"
+  ],
+  "keywords": [
+    "statistics",
+    "học thống kê",
+    "ISLP",
+    "Kiểm định nhiều giả thuyết",
+    "Lab: Kiểm định nhiều giả thuyết"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Lab: Kiểm định nhiều giả thuyết
+
+Ta dùng các import quen thuộc đã gặp trong những bài lab trước.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nimportpandasaspd\nimportmatplotlib.pyplotasplt\nimportstatsmodels.apiassm\nfromISLPimportload_data"} />
+
+Ta cũng tập hợp các import mới cần cho bài lab này.
+
+<MdxCode language="text" code={"In [2]:fromscipy.statsimport\\\n(ttest_1samp ,\nttest_rel,\nttest_ind,\ntast_dbn)\nfromstatsmodels.stats.multicompimport\\\npairwise_tukeyhsd\nfromstatsmodels.stats.multitestimport\\\nmultipletestsasmult_test"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 13.6.1 Ôn tập kiểm định giả thuyết
+
+Ta bắt đầu bằng một số kiểm định _t_ một mẫu. Trước hết, ta tạo 100 biến, mỗi biến gồm 10 quan sát. 50 biến đầu có trung bình 0 _._ 5 và phương sai 1, còn các biến khác có trung bình 0 và phương sai 1.
+
+<MdxCode language="text" code={"In [3]:rng=np.random.default_rng(12)\nX=rng.standard_normal((10,100))\ntrue_mean=np.array([0.5]*50+[0]*50)\nX+=true_mean[None,:]"} />
+
+Đầu tiên, ta dùng `ttest_1samp()` từ module `scipy.stats` để kiểm định _H_ 0 : `ttest_1samp()` _µ_ 1 = 0, tức giả thuyết không rằng biến đầu tiên có trung bình bằng không.
+
+<MdxCode language="text" code={"In [4]:result=ttest_1samp(X[:,0],0)\nresult.pvalue"} />
+
+<MdxCode language="text" code={"Out[4]:0.931"} />
+
+Giá trị _p_ thu được là 0,931, không đủ thấp để bác bỏ giả thuyết không ở mức _α_ = 0 _._ 05. Trong trường hợp này, _µ_ 1 = 0 _._ 5 nên giả thuyết không sai. Vì vậy, ta đã mắc sai số Loại II khi không bác bỏ một giả thuyết không vốn sai.
+
+Bây giờ ta kiểm định _H_ 0 _,j_ : _µj_ = 0 với _j_ = 1 _, . . . ,_ 100. Ta tính 100 giá trị _p_, rồi tạo một vector ghi nhận giá trị _p_ thứ _j_ nhỏ hơn hoặc bằng 0,05, khi đó bác bỏ _H_ 0 _j_, hay lớn hơn 0,05, khi đó không bác bỏ _H_ 0 _j_, với _j_ = 1 _, . . . ,_ 100.
+
+<MdxCode language="text" code={"In [5]:p_values=np.empty(100)\nforiinrange(100):\np_values[i]=ttest_1samp(X[:,i],0).pvalue\ndecision=pd.cut(p_values,\n[0,0.05,1],\nlabels=['RejectH0',\n'DonotrejectH0'])\ntruth=pd.Categorical(true_mean==0,\ncategories=[True,False],\nordered=True)"} />
+
+Vì đây là tập dữ liệu mô phỏng, ta có thể tạo bảng 2 _×_ 2 tương tự Bảng 13.2.
+
+<MdxCode language="text" code={"In [6]:pd.crosstab(decision,\ntruth,\nrownames=['Decision'],\ncolnames=['H0'])"} />
+
+<MdxCode language="text" code={"Out[6]:H0TrueFalse\nDecision\nRejectH0515\nDonotrejectH04535"} />
+
+Vì vậy, ở mức _α_ = 0 _._ 05, ta bác bỏ 15 trong 50 giả thuyết không vốn sai và bác bỏ nhầm 5 giả thuyết không đúng. Theo ký hiệu trong Mục 13.3, ta có _V_ = 5, _S_ = 15, _U_ = 45 và _W_ = 35. Ta đặt _α_ = 0 _._ 05, nghĩa là kỳ vọng bác bỏ khoảng 5 % số giả thuyết không đúng. Điều này phù hợp với bảng 2 _×_ 2 phía trên, cho thấy ta đã bác bỏ _V_ = 5 trong 50 giả thuyết không đúng.
+
+Trong mô phỏng phía trên, với các giả thuyết không vốn sai, tỷ số giữa trung bình và độ lệch chuẩn chỉ bằng 0 _._ 5 _/_ 1 = 0 _._ 5. Đây là tín hiệu khá yếu và dẫn đến nhiều sai số Loại II. Thay vào đó, hãy mô phỏng dữ liệu có tín hiệu mạnh hơn sao cho tỷ số giữa trung bình và độ lệch chuẩn của các giả thuyết không vốn sai bằng 1. Khi đó, ta chỉ mắc 10 sai số Loại II.
+
+<MdxCode language="text" code={"In [7]:true_mean=np.array([1]*50+[0]*50)\nX=rng.standard_normal((10,100))\nX+=true_mean[None,:]\nforiinrange(100):\np_values[i]=ttest_1samp(X[:,i],0).pvalue\ndecision=pd.cut(p_values,\n[0,0.05,1],\nlabels=['RejectH0',\n'DonotrejectH0'])\ntruth=pd.Categorical(true_mean==0,\ncategories=[True,False],\nordered=True)\npd.crosstab(decision,\ntruth,\nrownames=['Decision'],\ncolnames=['H0'])\nOut[7]:H0TrueFalse\nDecision\nRejectH0240\nDonotrejectH04810"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 13.6.2 Tỷ lệ lỗi theo họ
+
+Nhắc lại từ (13.5), nếu giả thuyết không đúng trong mỗi kiểm định thuộc _m_ kiểm định giả thuyết độc lập thì FWER bằng 1 _−_ (1 _− α_ )^(_m_). Ta có thể dùng biểu thức này để tính FWER với _m_ = 1 _, . . . ,_ 500 và _α_ = 0 _._ 05, 0 _._ 01, 0 _._ 001. Ta vẽ FWER cho các giá trị _α_ này để tái tạo Hình 13.2.
+
+<MdxCode language="text" code={"In [8]:m=np.linspace(1,501)\nfig,ax=plt.subplots()\n[ax.plot(m,\n1-(1-alpha)**m,\nlabel=r'$\\alpha=%s$'%str(alpha))\nforalphain[0.05,0.01,0.001]]\nax.set_xscale('log')\nax.set_xlabel('NumberofHypotheses')\nax.set_ylabel('Family-WiseErrorRate')\nax.legend()\nax.axhline(0.05,c='k',ls='--');"} />
+
+Như đã thảo luận, ngay cả với giá trị _m_ vừa phải như 50, FWER vẫn vượt 0 _._ 05 trừ khi đặt _α_ rất thấp, chẳng hạn 0 _._ 001. Vấn đề của việc đặt _α_ thấp như vậy là ta có khả năng mắc nhiều sai số Loại II; nói cách khác, power rất thấp. Bây giờ ta thực hiện kiểm định _t_ một mẫu cho từng nhà quản lý trong năm nhà quản lý đầu tiên của tập dữ liệu `Fund`, nhằm kiểm định giả thuyết không rằng lợi suất trung bình của nhà quản lý quỹ thứ _j_ bằng không, _H_ 0 _,j_ : _µj_ = 0.
+
+<MdxCode language="text" code={"In [9]:Fund=load_data('Fund')\nfund_mini=Fund.iloc[:,:5]\nfund_mini_pvals=np.empty(5)\nforiinrange(5):"} />
+
+<MdxCode language="text" code={"fund_mini_pvals[i]=ttest_1samp(fund_mini.iloc[:,i],0).pvalue\nfund_mini_pvals"} />
+
+<MdxCode language="text" code={"Out[9]:array([0.006,0.918,0.012,0.601,0.756])"} />
+
+Các giá trị _p_ thấp ở Nhà quản lý Một và Ba, nhưng cao ở ba nhà quản lý còn lại. Tuy nhiên, ta không thể đơn giản bác bỏ _H_ 0 _,_ 1 và _H_ 0 _,_ 3 vì như vậy không tính đến việc đã thực hiện nhiều kiểm định. Thay vào đó, ta sẽ dùng phương pháp Bonferroni và Holm để kiểm soát FWER.
+
+Để làm điều này, ta dùng hàm `multipletests()` từ module `statsmodels multiple-` (viết tắt là `mult_test()`). Khi nhận các giá trị _p_, với những phương pháp như `tests()` Holm và Bonferroni, hàm trả về _các giá trị p đã điều chỉnh_, có thể xem là một tập giá trị _p_ mới đã được hiệu chỉnh cho kiểm định nhiều giả thuyết. Nếu giá trị _p_ đã điều chỉnh của một giả thuyết nhỏ hơn hoặc bằng _α_, có thể bác bỏ giả thuyết đó mà vẫn duy trì FWER không quá _α_. Nói cách khác, với các phương pháp này, chỉ cần so sánh các giá trị _p_ đã điều chỉnh từ hàm `multipletests()` với FWER mong muốn để quyết định có bác bỏ từng giả thuyết hay không. Sau đó, ta sẽ thấy cũng có thể dùng cùng hàm để kiểm soát FDR.
+
+Hàm `mult_test()` nhận các giá trị _p_, đối số `method` và đối số `alpha` tùy chọn. Hàm trả về các quyết định (`reject` bên dưới) cùng các giá trị _p_ đã điều chỉnh (`bonf`).
+
+<MdxCode language="text" code={"In [10]:reject,bonf=mult_test(fund_mini_pvals ,method=\"bonferroni\")[:2]\nreject"} />
+
+<MdxCode language="text" code={"Out[10]:array([True,False,False,False,False])"} />
+
+Các giá trị _p_ `bonf` đơn giản là `fund_mini_pvalues` nhân với 5 rồi giới hạn không vượt quá 1.
+
+<MdxCode language="text" code={"In [11]:bonf,np.minimum(fund_mini_pvals*5,1)"} />
+
+<MdxCode language="text" code={"Out[11]:(array([0.03,1.,0.06,1.,1.]),\narray([0.03,1.,0.06,1.,1.]))"} />
+
+Vì vậy, khi dùng phương pháp Bonferroni, ta chỉ có thể bác bỏ giả thuyết không của Nhà quản lý Một trong khi kiểm soát FWER ở mức 0 _._ 05.
+
+Ngược lại, với phương pháp Holm, các giá trị _p_ đã điều chỉnh cho thấy ta có thể bác bỏ giả thuyết không của Nhà quản lý Một và Ba ở FWER 0 _._ 05.
+
+<MdxCode language="text" code={"In [12]:mult_test(fund_mini_pvals ,method=\"holm\",alpha=0.05)[:2]"} />
+
+<MdxCode language="text" code={"Out[12]:(array([True,False,True,False,False]),\narray([0.03,1.,0.05,1.,1.]))"} />
+
+Như đã thảo luận, Nhà quản lý Một có vẻ hoạt động đặc biệt tốt, còn Nhà quản lý Hai có hiệu năng kém.
+
+<MdxCode language="text" code={"In [13]:fund_mini.mean()"} />
+
+<MdxCode language="text" code={"Out[13]:Manager13.0\nManager2-0.1\nManager32.8\nManager40.5\nManager50.3\ndtype:float64"} />
+
+Có bằng chứng về khác biệt hiệu năng có ý nghĩa giữa hai nhà quản lý này không? Ta có thể kiểm tra bằng _kiểm định t ghép cặp_, sử dụng hàm kiểm định _t_ ghép cặp `ttest_rel()` từ `scipy.stats`:
+
+<MdxCode language="text" code={"ttest_rel()"} />
+
+<MdxCode language="text" code={"In [14]:ttest_rel(fund_mini['Manager1'],\nfund_mini['Manager2']).pvalue"} />
+
+<MdxCode language="text" code={"Out[14]:0.038"} />
+
+Kiểm định cho giá trị _p_ bằng 0,038, gợi ý một khác biệt có ý nghĩa thống kê.
+
+Tuy nhiên, ta chỉ quyết định thực hiện kiểm định này sau khi xem dữ liệu và nhận thấy Nhà quản lý Một và Hai có hiệu năng trung bình cao nhất và thấp nhất. Theo một nghĩa nào đó, điều này có nghĩa ta đã ngầm thực hiện �52� = 5(5 _−_ 1) _/_ 2 = 10 kiểm định giả thuyết thay vì chỉ một, như đã thảo luận trong Mục 13.3.2. Vì vậy, ta dùng hàm `pairwise_tukeyhsd()` từ `pairwise_ statsmodels.stats.multicomp` để áp dụng phương pháp Tukey nhằm điều chỉnh `tukeyhsd()` cho kiểm định nhiều giả thuyết. Hàm nhận đầu vào là một mô hình hồi quy _ANOVA_ đã khớp; về cơ bản, đây là hồi quy tuyến tính mà mọi biến dự báo đều là biến định tính. Trong trường hợp này, biến đáp ứng gồm lợi suất vượt trội hằng tháng của mỗi nhà quản lý, còn biến dự báo cho biết mỗi lợi suất tương ứng với nhà quản lý nào.
+
+<MdxCode language="text" code={"tukeyhsd()"} />
+
+<MdxCode language="text" code={"In [15]:returns=np.hstack([fund_mini.iloc[:,i]foriinrange(5)])\nmanagers=np.hstack([[i+1]*50foriinrange(5)])\ntukey=pairwise_tukeyhsd(returns,managers)\nprint(tukey.summary())"} />
+
+<MdxCode language="text" code={"MultipleComparisonofMeans-TukeyHSD,FWER=0.05"} />
+
+<MdxCode language="table" code={"|`======================` |`========` |`=======` |`=======` |`=======` |\n|---|---|---|---|---|\n|`group1 group2 meandiff ` `----------------------`|`p-adj` `--------`|`lower` `-------`|`upper` `-------`|`reject` `-------`|\n|`1` `2` `-3.1 `|`0.1862 `|`-6.9865 `|`0.7865`|`False`|\n|`1` `3` `-0.2 `|`0.9999 `|`-4.0865 `|`3.6865`|`False`|\n|`1` `4` `-2.5 `|`0.3948 `|`-6.3865 `|`1.3865`|`False`|\n|`1` `5` `-2.7 `|`0.3152 `|`-6.5865 `|`1.1865`|`False`|\n|`2` `3` `2.9 `|`0.2453 `|`-0.9865 `|`6.7865`|`False`|\n|`2` `4` `0.6 `|`0.9932 `|`-3.2865 `|`4.4865`|`False`|\n|`2` `5` `0.4 `|`0.9986 `|`-3.4865 `|`4.2865`|`False`|\n|`3` `4` `-2.3`|`0.482 `|`-6.1865 `|`1.5865`|`False`|\n|`3` `5` `-2.5 `|`0.3948 `|`-6.3865 `|`1.3865`|`False`|\n|`4` `5` `-0.2 ` `----------------------`|`0.9999 ` `--------`|`-4.0865 ` `-------`|`3.6865` `-------`|`False` `-------`|"} />
+
+Hàm `pairwise_tukeyhsd()` cung cấp khoảng tin cậy cho chênh lệch giữa từng cặp nhà quản lý (`lower` và `upper`), cùng với một
+
+**HÌNH 13.10.** _Khoảng tin cậy 95 % của từng nhà quản lý trên dữ liệu_ `Fund` _, dùng phương pháp Tukey để điều chỉnh cho kiểm định nhiều giả thuyết. Mọi khoảng tin cậy đều chồng lấn, nên không khác biệt nào giữa các nhà quản lý có ý nghĩa thống kê khi kiểm soát FWER ở mức_ 0 _._ 05 _._
+
+giá trị _p_. Mọi đại lượng này đều đã được điều chỉnh cho kiểm định nhiều giả thuyết. Lưu ý giá trị _p_ của khác biệt giữa Nhà quản lý Một và Hai tăng từ 0 _._ 038 lên 0 _._ 186, nên không còn bằng chứng rõ ràng về khác biệt hiệu năng giữa họ. Ta có thể vẽ khoảng tin cậy của các so sánh theo cặp bằng phương thức `plot_simultaneous()` của `tukey`. Bất kỳ cặp khoảng nào không chồng lấn đều cho thấy khác biệt có ý nghĩa ở mức danh nghĩa 0,05. Trong trường hợp này, đúng như bảng trên, không khác biệt nào được xem là có ý nghĩa.
+
+<MdxCode language="text" code={"In [16]:fig,ax=plt.subplots(figsize=(8,8))\ntukey.plot_simultaneous(ax=ax);"} />
+
+Kết quả được trình bày^(19) trong Hình 13.10.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 13.6.3 Tỷ lệ phát hiện sai
+
+Bây giờ ta thực hiện kiểm định giả thuyết cho toàn bộ 2.000 nhà quản lý quỹ trong tập dữ liệu `Fund`. Ta thực hiện kiểm định _t_ một mẫu cho _H_ 0 _,j_ : _µj_ = 0, phát biểu rằng lợi suất trung bình của nhà quản lý quỹ thứ _j_ bằng không.
+
+<MdxCode language="text" code={"In [17]:fund_pvalues=np.empty(2000)\nfori,managerinenumerate(Fund.columns):\nfund_pvalues[i]=ttest_1samp(Fund[manager],0).pvalue"} />
+
+Số lượng nhà quản lý quá lớn để cân nhắc kiểm soát FWER. Thay vào đó, ta tập trung kiểm soát FDR, tức tỷ lệ kỳ vọng trong số các giả thuyết không bị bác bỏ mà thực chất là false positive. Hàm
+
+> 19Theo truyền thống, đồ thị này hiển thị khoảng cho từng chênh lệch ghép cặp. Khi có nhiều nhóm, việc hiển thị một khoảng cho mỗi nhóm như ở đây thuận tiện hơn và tương đương. Bằng cách lấy “chênh lệch” của mọi cặp khoảng hiển thị, ta khôi phục được đồ thị truyền thống.
+
+`multipletests()` (viết tắt là `mult_test()`) có thể được dùng để thực hiện quy trình Benjamini–Hochberg.
+
+<MdxCode language="text" code={"In [18]:fund_qvalues=mult_test(fund_pvalues ,method=\"fdr_bh\")[1]\nfund_qvalues[:10]"} />
+
+<MdxCode language="text" code={"Out[18]:array([0.09,0.99,0.12,0.92,0.96,0.08,0.08,0.08,0.08,\n0.08])"} />
+
+Các _giá trị q_ do quy trình Benjamini–Hochberg trả về có thể được diễn giải là ngưỡng FDR nhỏ nhất mà tại đó ta bác bỏ một giả thuyết không cụ thể. Chẳng hạn, giá trị _q_ bằng 0 _._ 1 cho biết có thể bác bỏ giả thuyết không tương ứng ở FDR từ 10 % trở lên, nhưng không thể bác bỏ ở FDR dưới 10 %.
+
+Nếu kiểm soát FDR ở 10 %, ta có thể bác bỏ _H_ 0 _,j_ : _µj_ = 0 cho bao nhiêu nhà quản lý quỹ?
+
+<MdxCode language="text" code={"In [19]:(fund_qvalues<=0.1).sum()"} />
+
+<MdxCode language="text" code={"Out[19]:146"} />
+
+Ta thấy 146 trong 2.000 nhà quản lý quỹ có giá trị _q_ dưới 0,1; do đó có thể kết luận 146 nhà quản lý vượt thị trường ở FDR 10 %. Chỉ khoảng 15 người (10 % của 146) trong số này có khả năng là phát hiện sai.
+
+Ngược lại, nếu dùng phương pháp Bonferroni để kiểm soát FWER ở mức _α_ = 0 _._ 1, ta sẽ không bác bỏ được bất kỳ giả thuyết không nào.
+
+<MdxCode language="text" code={"In [20]:(fund_pvalues<=0.1/2000).sum()"} />
+
+<MdxCode language="text" code={"Out[20]:0"} />
+
+Hình 13.6 trình bày các giá trị _p_ đã sắp thứ tự, _p_ (1) _≤ p_ (2) _≤· · · ≤ p_ (2000), của tập dữ liệu `Fund`, cùng ngưỡng bác bỏ của quy trình Benjamini–Hochberg. Nhắc lại, quy trình này xác định giá trị _p_ lớn nhất sao cho _p_ ( _j_ ) _&lt; qj/m_, rồi bác bỏ mọi giả thuyết có giá trị _p_ nhỏ hơn hoặc bằng _p_ ( _j_ ). Trong mã bên dưới, ta tự triển khai quy trình Benjamini–Hochberg để minh họa cách hoạt động. Trước hết, ta sắp thứ tự các giá trị _p_. Sau đó xác định mọi giá trị _p_ thỏa _p_ ( _j_ ) _&lt; qj/m_ (`sorted_set_`). Cuối cùng, `selected_` là một mảng boolean cho biết những giá trị _p_ nào nhỏ hơn hoặc bằng giá trị _p_ lớn nhất trong `sorted_[sorted_set_]`. Do đó, `selected_` lập chỉ mục các giá trị _p_ bị quy trình Benjamini–Hochberg bác bỏ.
+
+<MdxCode language="text" code={"In [21]:sorted_=np.sort(fund_pvalues)\nm=fund_pvalues.shape[0]\nq=0.1\nsorted_set_=np.where(sorted_<q*np.linspace(1,m,m)/m)[0]\nifsorted_set_.shape[0]>0:\nselected_=fund_pvalues<sorted_[sorted_set_].max()\nsorted_set_=np.arange(sorted_set_.max())\nelse:\nselected_=[]\nsorted_set_=[]"} />
+
+Bây giờ ta tái tạo ô giữa của Hình 13.6.
+
+<MdxCode language="text" code={"In [22]:fig,ax=plt.subplots()\nax.scatter(np.arange(0,sorted_.shape[0])+1,\nsorted_,s=10)\nax.set_yscale('log')\nax.set_xscale('log')\nax.set_ylabel('P-Value')\nax.set_xlabel('Index')\nax.scatter(sorted_set_+1,sorted_[sorted_set_],c='r',s=20)\nax.axline((0,0),(1,q/m),c='k',ls='--',linewidth=3);"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 13.6.4 Phương pháp lấy mẫu lại
+
+Ở đây, ta triển khai phương pháp lấy mẫu lại cho kiểm định giả thuyết bằng tập dữ liệu `Khan` đã khảo sát trong Mục 13.5. Trước hết, ta gộp dữ liệu huấn luyện và kiểm tra, thu được các quan sát của 83 bệnh nhân trên 2.308 gene.
+
+<MdxCode language="text" code={"In [23]:Khan=load_data('Khan')\nD=pd.concat([Khan['xtrain'],Khan['xtest']])\nD['Y']=pd.concat([Khan['ytrain'],Khan['ytest']])\nD['Y'].value_counts()"} />
+
+<MdxCode language="text" code={"Out[23]:229\n425\n318\n111\nName:Y,dtype:int64"} />
+
+Có bốn lớp ung thư. Với mỗi gene, ta so sánh biểu hiện trung bình trong lớp thứ hai (rhabdomyosarcoma) với biểu hiện trung bình trong lớp thứ tư (u lympho Burkitt). Thực hiện kiểm định _t_ hai mẫu tiêu chuẩn bằng `ttest_ind()` từ `scipy.stats` trên gene thứ 11 cho thống kê kiểm định `ttest_ind()` bằng -2,09 và giá trị _p_ tương ứng bằng 0,0412, gợi ý bằng chứng vừa phải về khác biệt mức biểu hiện trung bình giữa hai loại ung thư.
+
+<MdxCode language="text" code={"In [24]:D2=D[lambdadf:df['Y']==2]\nD4=D[lambdadf:df['Y']==4]\ngene_11='G0011'\nobservedT,pvalue=ttest_ind(D2[gene_11],\nD4[gene_11],\nequal_var=True)\nobservedT,pvalue"} />
+
+<MdxCode language="text" code={"Out[24]:(-2.094,0.041)"} />
+
+Tuy nhiên, giá trị _p_ này dựa trên giả định rằng dưới giả thuyết không về việc hai nhóm không khác nhau, thống kê kiểm định tuân theo phân phối _t_ với 29 + 25 _−_ 2 = 52 bậc tự do. Thay vì dùng phân phối không lý thuyết này, ta có thể chia ngẫu nhiên 54 bệnh nhân thành hai nhóm 29 và 25 người rồi tính thống kê kiểm định mới. Dưới giả thuyết không rằng hai nhóm không khác nhau, thống kê mới phải có cùng phân phối với thống kê ban đầu. Lặp lại
+
+quá trình 10.000 lần cho phép xấp xỉ phân phối không của thống kê kiểm định. Ta tính tỷ lệ số lần trị tuyệt đối của thống kê kiểm định quan sát được vượt các thống kê kiểm định thu từ lấy mẫu lại.
+
+<MdxCode language="text" code={"In [25]:B=10000\nTnull=np.empty(B)\nD_=np.hstack([D2[gene_11],D4[gene_11]])\nn_=D2[gene_11].shape[0]\nD_null=D_.copy()\nforbinrange(B):\nrng.shuffle(D_null)\nttest_=ttest_ind(D_null[:n_],\nD_null[n_:],\nequal_var=True)\nTnull[b]=ttest_.statistic\n(np.abs(Tnull)>np.abs(observedT)).mean()"} />
+
+<MdxCode language="text" code={"Out[25]:0.0398"} />
+
+Tỷ lệ 0,0398 này là giá trị _p_ dựa trên lấy mẫu lại. Nó gần như giống hệt giá trị _p_ 0,0412 thu được bằng phân phối không lý thuyết. Ta có thể vẽ histogram của các thống kê kiểm định dựa trên lấy mẫu lại để tái tạo Hình 13.7.
+
+<MdxCode language="text" code={"In [26]:fig,ax=plt.subplots(figsize=(8,8))\nax.hist(Tnull,\nbins=100,\ndensity=True,\nfacecolor='y',\nlabel='Null')\nxval=np.linspace(-4.2,4.2,1001)\nax.plot(xval,\nt_dbn.pdf(xval,D_.shape[0]-2),\nc='r')\nax.axvline(observedT,\nc='b',\nlabel='Observed')\nax.legend()\nax.set_xlabel(\"NullDistributionofTestStatistic\");"} />
+
+Phân phối không dựa trên lấy mẫu lại gần như giống hệt phân phối không lý thuyết được hiển thị màu đỏ.
+
+Cuối cùng, ta triển khai phương pháp FDR lấy mẫu lại plug-in được nêu trong Thuật toán 13.4. Tùy tốc độ máy tính, việc tính FDR cho toàn bộ 2.308 gene trong tập dữ liệu `Khan` có thể mất một lúc. Vì vậy, ta minh họa phương pháp trên một tập con ngẫu nhiên gồm 100 gene. Với mỗi gene, trước tiên tính thống kê kiểm định quan sát được, rồi tạo 10.000 thống kê kiểm định lấy mẫu lại. Quá trình này có thể mất vài phút. Nếu cần nhanh hơn, bạn có thể đặt `B` bằng một giá trị nhỏ hơn (chẳng hạn `B=500`).
+
+<MdxCode language="text" code={"In [27]:m,B=100,10000\nidx=rng.choice(Khan['xtest'].columns,m,replace=False)\nT_vals=np.empty(m)\nTnull_vals=np.empty((m,B))\nforjinrange(m):\ncol=idx[j]"} />
+
+<MdxCode language="text" code={"T_vals[j]=ttest_ind(D2[col],\nD4[col],\nequal_var=True).statistic\nD_=np.hstack([D2[col],D4[col]])\nD_null=D_.copy()\nforbinrange(B):\nrng.shuffle(D_null)\nttest_=ttest_ind(D_null[:n_],\nD_null[n_:],\nequal_var=True)\nTnull_vals[j,b]=ttest_.statistic"} />
+
+Tiếp theo, ta tính số giả thuyết không bị bác bỏ _R_, số false positive ước lượng _V_^(�) và FDR ước lượng trên một khoảng giá trị ngưỡng _c_ trong Thuật toán 13.4. Các giá trị ngưỡng được chọn bằng trị tuyệt đối của thống kê kiểm định từ 100 gene.
+
+<MdxCode language="text" code={"In [28]:cutoffs=np.sort(np.abs(T_vals))\nFDRs,Rs,Vs=np.empty((3,m))\nforjinrange(m):\nR=np.sum(np.abs(T_vals)>=cutoffs[j])\nV=np.sum(np.abs(Tnull_vals)>=cutoffs[j])/B\nRs[j]=R\nVs[j]=V\nFDRs[j]=V/R"} />
+
+Bây giờ, với bất kỳ FDR cho trước nào, ta có thể tìm các gene sẽ bị bác bỏ. Chẳng hạn, khi kiểm soát FDR ở 0,1, ta bác bỏ 15 trong 100 giả thuyết không. Trung bình, khoảng một hoặc hai gene trong số đó (tức 10 % của 15) được kỳ vọng là phát hiện sai. Ở FDR 0,2, ta có thể bác bỏ giả thuyết không của 28 gene, trong đó khoảng sáu gene được kỳ vọng là phát hiện sai.
+
+Biến `idx` lưu những gene nằm trong tập 100 gene được chọn ngẫu nhiên. Hãy xem các gene có FDR ước lượng nhỏ hơn 0,1.
+
+<MdxCode language="text" code={"In [29]:sorted(idx[np.abs(T_vals)>=cutoffs[FDRs<0.1].min()])"} />
+
+Ở ngưỡng FDR 0,2, nhiều gene hơn được chọn, đổi lại tỷ lệ phát hiện sai kỳ vọng cao hơn.
+
+<MdxCode language="text" code={"In [30]:sorted(idx[np.abs(T_vals)>=cutoffs[FDRs<0.2].min()])"} />
+
+Dòng tiếp theo tạo Hình 13.11, tương tự Hình 13.9 nhưng chỉ dựa trên một tập con gene.
+
+<MdxCode language="text" code={"In [31]:fig,ax=plt.subplots()\nax.plot(Rs,FDRs,'b',linewidth=3)\nax.set_xlabel(\"NumberofRejections\")\nax.set_ylabel(\"FalseDiscoveryRate\");"} />
+
+**HÌNH 13.11.** _Tỷ lệ phát hiện sai ước lượng theo số giả thuyết không bị bác bỏ, với 100 gene được chọn ngẫu nhiên từ tập dữ liệu_ `Khan` _._
+
+</MdxPage>

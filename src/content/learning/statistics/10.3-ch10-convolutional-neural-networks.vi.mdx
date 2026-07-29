@@ -1,0 +1,116 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-convolutional-neural-networks",
+  "locale": "vi",
+  "title": "10.3 Mạng nơ-ron tích chập",
+  "headings": [
+    "Mạng nơ-ron tích chập",
+    "10.3.2 Các tầng pooling",
+    "10.3.3 Kiến trúc mạng nơ-ron tích chập",
+    "10.3.4 Tăng cường dữ liệu"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "mạng nơ-ron tích chập"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Mạng nơ-ron tích chập
+
+Mạng nơ-ron hồi sinh vào khoảng năm 2010 với những thành công lớn trong phân loại ảnh. Cũng vào thời điểm đó, các cơ sở dữ liệu ảnh có nhãn khổng lồ được tích lũy với số lớp ngày càng tăng. Hình 10.5 trình bày 75 ảnh từ cơ sở dữ liệu `CIFAR100`.^(4) Cơ sở dữ liệu này gồm 60.000 ảnh được gán nhãn theo 20 siêu lớp (chẳng hạn động vật có vú dưới nước), mỗi siêu lớp có năm lớp (hải ly, cá heo, rái cá, hải cẩu, cá voi). Mỗi ảnh có độ phân giải 32 _×_ 32 pixel, mỗi pixel chứa ba số tám bit biểu diễn màu đỏ, xanh lá và xanh dương. Các số của mỗi ảnh được tổ chức trong một mảng ba chiều gọi là _bản đồ đặc trưng_. Hai chiều đầu của bản đồ đặc trưng
+
+> 4Xem Chương 3 của Krizhevsky (2009), “Learning multiple layers of features from tiny images”, tại `https://www.cs.toronto.edu/~kriz/ learning-features-2009-TR.pdf`.
+
+CTIGERD AGH OWONHRUe iSo
+
+mỗi bộ lọc là một mẫu xác định liệu một đặc trưng cục bộ cụ thể có xuất hiện trong ảnh hay không. Bộ lọc tích chập dựa trên một phép toán rất đơn giản gọi là _tích chập_, về cơ bản là liên tục nhân các phần tử ma trận rồi cộng kết quả.
+
+Để hiểu bộ lọc tích chập hoạt động thế nào, xét ví dụ rất đơn giản về ảnh 4 _×_ 3:
+
+Bây giờ xét bộ lọc 2 _×_ 2 có dạng
+
+Khi _tích chập_ ảnh với bộ lọc, ta thu được kết quả^(7)
+
+Chẳng hạn, phần tử góc trên trái được tạo bằng cách nhân từng phần tử trong bộ lọc 2 _×_ 2 với phần tử tương ứng ở vùng 2 _×_ 2 góc trên trái của ảnh rồi cộng các kết quả. Những phần tử khác được tính tương tự: bộ lọc tích chập được áp dụng lên mọi ma trận con 2 _×_ 2 của ảnh gốc để thu ảnh sau tích chập. Nếu một ma trận con 2 _×_ 2 giống bộ lọc tích chập thì nó nhận giá trị _lớn_ trong ảnh sau tích chập; nếu không, nó nhận giá trị _nhỏ_. Vì vậy, _ảnh sau tích chập làm nổi bật những vùng của ảnh gốc giống bộ lọc tích chập._ Ta dùng 2 _×_ 2 làm ví dụ; nhìn chung bộ lọc tích chập là các mảng _ℓ_ 1 _× ℓ_ 2 nhỏ, trong đó _ℓ_ 1 và _ℓ_ 2 là các số nguyên dương nhỏ không nhất thiết bằng nhau.
+
+Hình 10.7 minh họa việc áp dụng hai bộ lọc tích chập lên ảnh hổ 192 _×_ 179 ở bên trái.^(8) Mỗi bộ lọc là một ảnh 15 _×_ 15 chủ yếu chứa số không (đen), với một dải hẹp số một (trắng) theo chiều dọc hoặc ngang. Khi từng bộ lọc được tích chập với ảnh hổ, các vùng giống bộ lọc (có sọc hay cạnh ngang hoặc dọc) nhận giá trị lớn, còn vùng không giống đặc trưng nhận giá trị nhỏ. Ảnh sau tích chập nằm bên phải. Ta thấy bộ lọc sọc ngang chọn các sọc và cạnh ngang trong ảnh gốc, còn bộ lọc sọc dọc chọn sọc và cạnh dọc.
+
+> 7Ảnh sau tích chập nhỏ hơn ảnh gốc vì kích thước của nó bằng số ma trận con 2 _×_ 2 trong ảnh gốc. Lưu ý 2 _×_ 2 là kích thước bộ lọc tích chập. Nếu muốn ảnh sau tích chập có cùng kích thước ảnh gốc, ta có thể dùng padding.
+
+> 8Ảnh hổ dùng trong Hình 10.7–10.9 lấy từ nguồn ảnh phạm vi công cộng `https://www.needpix.com/`.
+
+**HÌNH 10.7.** _Bộ lọc tích chập tìm các đặc trưng cục bộ trong ảnh như cạnh và hình nhỏ. Ta bắt đầu với ảnh hổ bên trái và áp dụng hai bộ lọc tích chập nhỏ ở giữa. Các ảnh sau tích chập làm nổi bật những vùng trong ảnh gốc có chi tiết giống bộ lọc. Cụ thể, ảnh sau tích chập phía trên làm nổi các sọc dọc của hổ, còn ảnh phía dưới làm nổi các sọc ngang. Có thể xem ảnh gốc là tầng đầu vào trong mạng nơ-ron tích chập và các ảnh sau tích chập là các nút ở tầng ẩn thứ nhất._
+
+Ta dùng ảnh lớn và hai bộ lọc lớn trong Hình 10.7 để minh họa. Với cơ sở dữ liệu `CIFAR100`, mỗi ảnh có 32 _×_ 32 pixel màu và ta dùng bộ lọc tích chập 3 _×_ 3.
+
+Trong một tầng tích chập, ta dùng cả một dãy bộ lọc để chọn ra nhiều cạnh và hình có hướng khác nhau trong ảnh. Dùng bộ lọc xác định trước theo cách này là thông lệ chuẩn trong xử lý ảnh. Ngược lại, với CNN, các bộ lọc được _học_ cho nhiệm vụ phân loại cụ thể. Có thể xem trọng số bộ lọc là các tham số truyền từ tầng đầu vào đến tầng ẩn, với mỗi pixel trong ảnh sau tích chập tương ứng một nút ẩn. Thực tế đúng là như vậy, dù các tham số có cấu trúc và ràng buộc chặt chẽ (xem Bài tập 4). Chúng hoạt động trên các vùng cục bộ trong ảnh đầu vào (nên có nhiều số không cấu trúc), và cùng trọng số trong một bộ lọc được tái sử dụng cho mọi vùng khả dĩ của ảnh (nên trọng số bị ràng buộc).^(9)
+
+Một số chi tiết bổ sung:
+
+- Vì ảnh đầu vào có màu, nó có ba kênh được biểu diễn bằng một bản đồ đặc trưng (mảng) ba chiều. Mỗi kênh là một bản đồ đặc trưng hai chiều (32 _×_ 32): một cho đỏ, một cho xanh lá, một cho xanh dương. Một bộ lọc tích chập cũng có ba kênh, mỗi màu một kênh, mỗi kênh có kích thước 3 _×_ 3 và có thể có trọng số lọc khác nhau. Kết quả của ba phép tích chập được cộng lại thành một bản đồ đặc trưng đầu ra hai chiều. Tại đây thông tin màu đã được dùng và không truyền đến các tầng sau ngoài vai trò của nó trong phép tích chập.
+
+- 9Trong những năm đầu của mạng nơ-ron, cách này được gọi là _chia sẻ trọng số_.
+
+- Nếu dùng _K_ bộ lọc tích chập khác nhau ở tầng ẩn thứ nhất, ta thu được _K_ bản đồ đặc trưng đầu ra hai chiều; chúng cùng được xem là một bản đồ đặc trưng ba chiều duy nhất. Ta xem từng bản đồ trong _K_ bản đồ đầu ra là một kênh thông tin riêng, nên giờ có _K_ kênh thay cho ba kênh màu của bản đồ đầu vào ban đầu. Bản đồ đặc trưng ba chiều giống các giá trị kích hoạt ở tầng ẩn của mạng nơ-ron đơn giản, ngoại trừ việc nó được tổ chức và tạo ra theo cấu trúc không gian.
+
+- Ta thường áp dụng hàm kích hoạt ReLU (10.5) lên ảnh sau tích chập. Bước này đôi khi được xem là một tầng riêng trong mạng nơ-ron tích chập, khi đó được gọi là _tầng dò_.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 10.3.2 Các tầng pooling
+
+Tầng _pooling_ cung cấp cách cô đọng một ảnh lớn thành ảnh tóm tắt nhỏ hơn. Dù có nhiều cách pooling, phép _max pooling_ tóm tắt mỗi khối pixel 2 _×_ 2 không chồng lấn bằng giá trị lớn nhất trong khối. Điều này giảm kích thước ảnh đi hai lần theo mỗi chiều, đồng thời tạo ra một mức _bất biến vị trí_: miễn là một trong bốn pixel của khối có giá trị lớn, toàn khối sẽ được ghi nhận là giá trị lớn trong ảnh thu gọn.
+
+Sau đây là ví dụ đơn giản về max pooling:
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 10.3.3 Kiến trúc mạng nơ-ron tích chập
+
+Đến đây ta đã định nghĩa một tầng tích chập duy nhất — mỗi bộ lọc tạo một bản đồ đặc trưng hai chiều mới. Số bộ lọc tích chập trong một tầng tương tự số nút tại một tầng ẩn cụ thể của mạng nơ-ron kết nối đầy đủ như ở Mục 10.2. Số này cũng xác định số kênh trong bản đồ đặc trưng ba chiều thu được. Ta cũng đã mô tả tầng pooling, giúp giảm hai chiều đầu của mỗi bản đồ đặc trưng ba chiều. CNN sâu có nhiều tầng như vậy. Hình 10.8 trình bày kiến trúc CNN điển hình cho nhiệm vụ phân loại ảnh `CIFAR100`.
+
+Ở tầng đầu vào, ta thấy bản đồ đặc trưng ba chiều của ảnh màu, trong đó trục kênh biểu diễn mỗi màu bằng một bản đồ pixel hai chiều 32 _×_ 32. Mỗi bộ lọc tích chập tạo một kênh mới ở tầng ẩn thứ nhất, mỗi kênh là bản đồ đặc trưng 32 _×_ 32 (sau khi đệm một phần ở cạnh). Sau lượt tích chập đầu tiên, ta có một “ảnh” mới: bản đồ đặc trưng với số kênh nhiều hơn đáng kể ba kênh màu đầu vào (sáu kênh trong hình vì dùng sáu bộ lọc).
+
+**HÌNH 10.8.** _Kiến trúc CNN sâu cho nhiệm vụ phân loại_ `CIFAR100` _. Các tầng tích chập xen kẽ với tầng max-pool_ 2 _×_ 2 _, giúp giảm kích thước hai lần theo cả hai chiều._
+
+Tiếp theo là tầng max-pool, làm giảm kích thước bản đồ đặc trưng trong mỗi kênh bốn lần: hai lần theo mỗi chiều.
+
+Chuỗi tích chập-rồi-pooling này được lặp lại ở hai tầng tiếp theo. Một số chi tiết:
+
+- Mỗi tầng tích chập tiếp theo tương tự tầng đầu. Nó nhận bản đồ đặc trưng ba chiều từ tầng trước làm đầu vào và xem đó như một ảnh đa kênh duy nhất. Mỗi bộ lọc tích chập được học có số kênh bằng bản đồ đặc trưng này.
+
+- Vì bản đồ đặc trưng của các kênh giảm kích thước sau mỗi tầng pooling, ta thường tăng số bộ lọc ở tầng tích chập tiếp theo để bù lại.
+
+- Đôi khi ta lặp nhiều tầng tích chập trước một tầng pooling. Điều này làm tăng kích thước hiệu dụng của bộ lọc.
+
+Các phép toán này được lặp đến khi pooling giảm bản đồ đặc trưng của mỗi kênh xuống chỉ còn vài pixel theo mỗi chiều. Tại đó, các bản đồ ba chiều được _trải phẳng_ — các pixel được xem là những nút riêng — rồi truyền vào một hoặc nhiều tầng kết nối đầy đủ trước khi đến tầng đầu ra, là một _kích hoạt softmax_ cho 100 lớp (như trong (10.13)).
+
+Khi xây dựng mạng như vậy, ngoài số lượng, bản chất và kích thước của từng tầng, còn có nhiều tham số tinh chỉnh cần chọn. Có thể dùng học dropout ở mỗi tầng cùng điều chuẩn lasso hoặc ridge (xem Mục 10.7). Chi tiết xây dựng mạng nơ-ron tích chập có vẻ khó khăn. May mắn là đã có phần mềm rất tốt với nhiều ví dụ và hướng dẫn đưa ra lựa chọn tham số hợp lý. Trên tập kiểm tra chính thức `CIFAR100`, độ chính xác tốt nhất tại thời điểm viết sách nhỉnh hơn 75%, nhưng chắc chắn hiệu năng sẽ tiếp tục cải thiện.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 10.3.4 Tăng cường dữ liệu
+
+Một kỹ thuật quan trọng khác trong mô hình hóa ảnh là _tăng cường dữ liệu_. Về cơ bản, mỗi ảnh huấn luyện được nhân bản nhiều lần, mỗi bản sao được làm biến dạng ngẫu nhiên theo cách tự nhiên mà con người vẫn nhận ra được. Hình 10.9 trình bày một số ví dụ. Những biến dạng điển hình là
+
+&gt;
+
+<MdxCode language="table" code={"|famingo ||Cooper’s hawk||Cooper’s|hawk|\n|---|---|---|---|---|---|\n|famingo|0.83|kite|0.60|fountain|0.35|\n|spoonbill|0.17|great grey owl|0.09|nail|0.12|\n|white stork|0.00|robin|0.06|hook|0.07|\n|Lhasa Apso||cat||Cape we|aver|\n|Tibetan terrier|0.56|Old English sheepdog|0.82|jacamar|0.28|\n|Lhasa|0.32|Shih-Tzu|0.04|macaw|0.12|\n|cocker spaniel|0.03|Persian cat|0.04|robin|0.12|"} />
+
+**HÌNH 10.10.** _Phân loại sáu ảnh bằng CNN_ `resnet50` _được huấn luyện trên kho ngữ liệu_ `imagenet` _. Bảng dưới ảnh hiển thị nhãn thật (dự kiến) ở đầu mỗi ô và ba lựa chọn cao nhất của bộ phân loại (trong số 100). Các con số là xác suất ước lượng cho mỗi lựa chọn. (Kite là một loài chim săn mồi nhưng không phải hawk.)_
+
+Các vignette và cuốn sách^(12) đi kèm gói `keras` cung cấp thêm chi tiết về những ứng dụng này.
+
+</MdxPage>

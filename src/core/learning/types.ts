@@ -1,6 +1,7 @@
 export type LearningDomainId =
   | 'programming-foundation'
   | 'linear-algebra'
+  | 'statistics'
   | 'fundamentals'
   | 'deep-learning'
   | 'cv'
@@ -80,6 +81,7 @@ export type LearningTableOfContents = {
   };
   status: LearningDomainStatus;
   fallbackLocales?: string[];
+  searchTextMode?: 'full' | 'metadata';
   sectionKinds: LearningLessonSection['kind'][];
   firstLessonStatus?: LearningLessonStatus;
   defaultLessonStatus?: LearningLessonStatus;
@@ -108,6 +110,7 @@ export type LearningDomain = {
   trackIds: string[];
   mdx?: {
     fallbackLocales: string[];
+    searchTextMode: 'full' | 'metadata';
   };
 };
 

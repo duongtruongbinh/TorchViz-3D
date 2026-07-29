@@ -9,6 +9,7 @@ test('learning search normalizes queries and resolves locale fallback order', ()
   assert.equal(normalizeLearningSearch('Đăng ký GPU'), 'dang ky gpu');
   assert.deepEqual(getLearningMdxLocaleCandidates('en', ['vi']), ['en', 'vi']);
   assert.deepEqual(getLearningMdxLocaleCandidates('vi', ['vi']), ['vi']);
+  assert.deepEqual(getLearningMdxLocaleCandidates('vi', ['en']), ['vi', 'en']);
 });
 
 test('authored search documents retain prose and remove implementation syntax', async () => {

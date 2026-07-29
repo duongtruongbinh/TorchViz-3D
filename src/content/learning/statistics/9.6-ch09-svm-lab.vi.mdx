@@ -1,0 +1,256 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-svm-lab",
+  "locale": "vi",
+  "title": "9.6 Lab: Máy vector hỗ trợ",
+  "headings": [
+    "Lab: Máy vector hỗ trợ",
+    "9.6.1 Bộ phân loại vector hỗ trợ",
+    "9.6.2 Máy vector hỗ trợ",
+    "9.6.3 Đường cong ROC",
+    "9.6.4 SVM với nhiều lớp",
+    "9.6.5 Ứng dụng cho dữ liệu biểu hiện gene"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Máy vector hỗ trợ",
+    "Lab SVM"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Lab: Máy vector hỗ trợ
+
+Trong bài thực hành này, ta dùng thư viện `sklearn.svm` để minh họa bộ phân loại vector hỗ trợ và máy vector hỗ trợ. Ta import một số thư viện quen thuộc.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nfrommatplotlib.pyplotimportsubplots,cm\nimportsklearn.model_selectionasskm\nfromISLPimportload_data,confusion_table"} />
+
+Ta cũng tập hợp các import mới cần cho bài thực hành.
+
+<MdxCode language="text" code={"In [2]:fromsklearn.svmimportSVC\nfromISLP.svmimportplotasplot_svm\nfromsklearn.metricsimportRocCurveDisplay"} />
+
+Ta sẽ dùng hàm `RocCurveDisplay.from_estimator()` để tạo một số biểu đồ ROC (`RocCurve`), với tên rút gọn `roc_curve`.
+
+<MdxCode language="text" code={"Display.from_\nestimator()"} />
+
+<MdxCode language="text" code={"In [3]:roc_curve=RocCurveDisplay.from_estimator#shorthand"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 9.6.1 Bộ phân loại vector hỗ trợ
+
+Bây giờ ta dùng hàm `SupportVectorClassifier()` (viết tắt là `SVC()`) từ `sklearn` để khớp bộ phân loại vector hỗ trợ. Hai phần tên `SupportVector` và `Classifier()` cùng chỉ bộ phân loại này, với một giá trị cho trước của tham số `C`. Đối số `C` cho phép chỉ định chi phí của một vi phạm biên. Khi đối số `cost` nhỏ, các biên sẽ rộng và nhiều vector hỗ trợ nằm trên biên hoặc vi phạm biên. Khi `C` lớn, các biên sẽ hẹp và chỉ có ít vector hỗ trợ nằm trên hoặc vi phạm biên.
+
+Ở đây ta minh họa `SVC()` trên ví dụ hai chiều để có thể vẽ biên quyết định kết quả. Ta bắt đầu bằng cách sinh các quan sát thuộc hai lớp và kiểm tra hai lớp có thể phân tách tuyến tính hay không.
+
+<MdxCode language="text" code={"In [4]:rng=np.random.default_rng(1)\nX=rng.standard_normal((50,2))\ny=np.array([-1]*25+[1]*25)\nX[y==1]+=1\nfig,ax=subplots(figsize=(8,8))\nax.scatter(X[:,0],\nX[:,1],\nc=y,\ncmap=cm.coolwarm);"} />
+
+Chúng không thể phân tách tuyến tính. Bây giờ ta khớp bộ phân loại.
+
+<MdxCode language="text" code={"In [5]:svm_linear=SVC(C=10,kernel='linear')\nsvm_linear.fit(X,y)"} />
+
+<MdxCode language="text" code={"Out[5]:SVC(C=10,kernel='linear')"} />
+
+Có thể trực quan hóa bộ phân loại vector hỗ trợ với hai đặc trưng bằng cách vẽ các giá trị của _hàm quyết định_. Ta đã đưa vào gói `ISLP` một hàm cho việc này (lấy cảm hứng từ ví dụ tương tự trong tài liệu `sklearn`).
+
+<MdxCode language="text" code={"In [6]:fig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_linear,\nax=ax)"} />
+
+Biên quyết định giữa hai lớp là tuyến tính (vì ta dùng đối số `kernel='linear'`). Các vector hỗ trợ được đánh dấu bằng `+`, còn những quan sát khác được vẽ bằng hình tròn. Điều gì xảy ra nếu dùng giá trị nhỏ hơn cho tham số chi phí?
+
+<MdxCode language="text" code={"In [7]:svm_linear_small=SVC(C=0.1,kernel='linear')\nsvm_linear_small.fit(X,y)\nfig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_linear_small ,\nax=ax)"} />
+
+Với giá trị chi phí nhỏ hơn, ta thu được nhiều vector hỗ trợ hơn vì biên giờ rộng hơn. Với kernel tuyến tính, ta có thể trích xuất các hệ số của biên quyết định tuyến tính như sau:
+
+<MdxCode language="text" code={"In [8]:svm_linear.coef_"} />
+
+<MdxCode language="text" code={"Out[8]:array([[1.173,0.7734]])"} />
+
+Vì máy vector hỗ trợ là một bộ ước lượng trong `sklearn`, ta có thể dùng cơ chế thông thường để điều chỉnh nó.
+
+<MdxCode language="text" code={"In [9]:kfold=skm.KFold(5,\nrandom_state=0,\nshuffle=True)\ngrid=skm.GridSearchCV(svm_linear,\n{'C':[0.001,0.01,0.1,1,5,10,100]},\nrefit=True,\ncv=kfold,\nscoring='accuracy')\ngrid.fit(X,y)\ngrid.best_params_"} />
+
+<MdxCode language="text" code={"Out[9]:{'C':1}"} />
+
+Ta dễ dàng truy cập sai số xác thực chéo của từng mô hình trong `grid.cv_results_`. Đầu ra có rất nhiều chi tiết, nên ta chỉ trích xuất kết quả độ chính xác.
+
+<MdxCode language="text" code={"In [10]:grid.cv_results_[('mean_test_score')]"} />
+
+<MdxCode language="text" code={"Out[10]:array([0.46,0.46,0.72,0.74,0.74,0.74,0.74])"} />
+
+Ta thấy `C=1` cho độ chính xác xác thực chéo cao nhất là 0.74, dù nhiều giá trị `C` có cùng độ chính xác. Bộ phân loại `grid.best_estimator_` có thể được dùng để dự đoán nhãn lớp trên một tập quan sát kiểm tra. Hãy sinh một tập dữ liệu kiểm tra.
+
+<MdxCode language="text" code={"In [11]:X_test=rng.standard_normal((20,2))\ny_test=np.array([-1]*10+[1]*10)\nX_test[y_test==1]+=1"} />
+
+Bây giờ ta dự đoán nhãn lớp của các quan sát kiểm tra này. Ở đây ta dùng mô hình tốt nhất được xác thực chéo chọn để dự đoán.
+
+<MdxCode language="text" code={"In [12]:best_=grid.best_estimator_\ny_test_hat=best_.predict(X_test)\nconfusion_table(y_test_hat ,y_test)"} />
+
+<MdxCode language="text" code={"Out[12]:Truth-11\nPredicted\n-184\n126"} />
+
+Như vậy, với giá trị `C` này, 70% quan sát kiểm tra được phân loại đúng. Điều gì xảy ra nếu thay vào đó ta dùng `C=0.001`?
+
+<MdxCode language="text" code={"In [13]:svm_=SVC(C=0.001,\nkernel='linear').fit(X,y)\ny_test_hat=svm_.predict(X_test)\nconfusion_table(y_test_hat ,y_test)"} />
+
+<MdxCode language="text" code={"Out[13]:Truth-11\nPredicted\n-120\n1810"} />
+
+Trong trường hợp này, 60% quan sát kiểm tra được phân loại đúng. Bây giờ ta xét tình huống hai lớp có thể phân tách tuyến tính. Khi đó có thể tìm siêu phẳng phân tách tối ưu bằng bộ ước lượng `SVC()`. Trước hết, ta tách hai lớp trong dữ liệu mô phỏng xa hơn để chúng có thể phân tách tuyến tính:
+
+<MdxCode language="text" code={"In [14]:X[y==1]+=1.9;\nfig,ax=subplots(figsize=(8,8))\nax.scatter(X[:,0],X[:,1],c=y,cmap=cm.coolwarm);"} />
+
+Giờ các quan sát vừa đủ để phân tách tuyến tính.
+
+<MdxCode language="text" code={"In [15]:svm_=SVC(C=1e5,kernel='linear').fit(X,y)\ny_hat=svm_.predict(X)\nconfusion_table(y_hat,y)"} />
+
+<MdxCode language="text" code={"Out[15]:Truth-11\nPredicted\n-1250\n1025"} />
+
+Ta khớp bộ phân loại vector hỗ trợ và vẽ siêu phẳng kết quả, dùng giá trị `C` rất lớn để không có quan sát nào bị phân loại sai.
+
+<MdxCode language="text" code={"In [16]:fig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_,\nax=ax)"} />
+
+Quả thực không có lỗi huấn luyện và chỉ ba vector hỗ trợ được dùng. Giá trị `C` lớn cũng có nghĩa ba điểm hỗ trợ này nằm _trên biên_ và xác định biên. Ta có thể đặt câu hỏi bộ phân loại trên dữ liệu kiểm tra sẽ tốt đến đâu khi nó chỉ phụ thuộc vào ba điểm dữ liệu! Bây giờ ta thử giá trị `C` nhỏ hơn.
+
+<MdxCode language="text" code={"In [17]:svm_=SVC(C=0.1,kernel='linear').fit(X,y)\ny_hat=svm_.predict(X)\nconfusion_table(y_hat,y)"} />
+
+<MdxCode language="text" code={"Out[17]:Truth-11\nPredicted\n-1250\n1025"} />
+
+Với `C=0.1`, ta một lần nữa không phân loại sai quan sát huấn luyện nào, nhưng đồng thời có biên rộng hơn nhiều và dùng mười hai vector hỗ trợ. Chúng cùng nhau xác định hướng của biên quyết định, và vì có nhiều điểm hơn nên biên ổn định hơn. Có vẻ mô hình này có thể hoạt động tốt hơn trên dữ liệu kiểm tra so với mô hình `C=1e5` (thực tế một thí nghiệm đơn giản với tập kiểm tra lớn sẽ xác nhận điều này).
+
+<MdxCode language="text" code={"In [18]:fig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_,\nax=ax)"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 9.6.2 Máy vector hỗ trợ
+
+Để khớp SVM bằng kernel phi tuyến, ta lại dùng bộ ước lượng `SVC()`. Tuy nhiên, giờ ta dùng một giá trị khác cho tham số `kernel`. Để khớp SVM với kernel đa thức, dùng `kernel="poly"`; với kernel xuyên tâm, dùng `kernel="rbf"`. Trong trường hợp đầu, ta còn dùng đối số `degree` để chỉ định bậc của kernel đa thức (đây là _d_ trong (9.22)); trong trường hợp sau, dùng `gamma` để chỉ định giá trị _γ_ cho kernel cơ sở xuyên tâm (9.24).
+
+Trước hết ta sinh một số dữ liệu có biên lớp phi tuyến như sau:
+
+<MdxCode language="text" code={"In [19]:X=rng.standard_normal((200,2))\nX[:100]+=2\nX[100:150]-=2\ny=np.array([1]*150+[2]*50)"} />
+
+Vẽ dữ liệu cho thấy rõ biên lớp thực sự là phi tuyến.
+
+<MdxCode language="text" code={"In [20]:fig,ax=subplots(figsize=(8,8))\nax.scatter(X[:,0],\nX[:,1],\nc=y,\ncmap=cm.coolwarm)"} />
+
+<MdxCode language="text" code={"Out[20]:<matplotlib.collections.PathCollectionat0x7faa9ba52eb0 >"} />
+
+Dữ liệu được chia ngẫu nhiên thành nhóm huấn luyện và kiểm tra. Sau đó ta khớp dữ liệu huấn luyện bằng bộ ước lượng `SVC()` với kernel xuyên tâm và _γ_ = 1:
+
+<MdxCode language="text" code={"In [21]:(X_train,\nX_test,\ny_train,\ny_test)=skm.train_test_split(X,\ny,\ntest_size=0.5,\nrandom_state=0)\nsvm_rbf=SVC(kernel=\"rbf\",gamma=1,C=1)\nsvm_rbf.fit(X_train,y_train)"} />
+
+Biểu đồ cho thấy SVM kết quả có một biên rõ ràng là phi tuyến.
+
+<MdxCode language="text" code={"In [22]:fig,ax=subplots(figsize=(8,8))\nplot_svm(X_train,\ny_train,\nsvm_rbf,\nax=ax)"} />
+
+Từ hình, ta thấy mô hình SVM này có khá nhiều lỗi huấn luyện. Nếu tăng `C`, ta có thể giảm số lỗi huấn luyện. Tuy nhiên, cái giá phải trả là một biên quyết định bất quy tắc hơn, có vẻ có nguy cơ quá khớp dữ liệu.
+
+<MdxCode language="text" code={"In [23]:svm_rbf=SVC(kernel=\"rbf\",gamma=1,C=1e5)\nsvm_rbf.fit(X_train,y_train)\nfig,ax=subplots(figsize=(8,8))\nplot_svm(X_train,\ny_train,\nsvm_rbf,\nax=ax)"} />
+
+Ta có thể thực hiện xác thực chéo bằng `skm.GridSearchCV()` để chọn _γ_ và `C` tốt nhất cho SVM với kernel xuyên tâm:
+
+<MdxCode language="text" code={"In [24]:kfold=skm.KFold(5,"} />
+
+<MdxCode language="text" code={"random_state=0,\nshuffle=True)\ngrid=skm.GridSearchCV(svm_rbf,\n{'C':[0.1,1,10,100,1000],\n'gamma':[0.5,1,2,3,4]},\nrefit=True,\ncv=kfold,\nscoring='accuracy');\ngrid.fit(X_train,y_train)\ngrid.best_params_"} />
+
+<MdxCode language="text" code={"Out[24]:{'C':100,'gamma':1}"} />
+
+Lựa chọn tham số tốt nhất theo CV năm phần đạt được tại `C=1` và `gamma=0.5`, dù một số giá trị khác cũng đạt cùng kết quả.
+
+<MdxCode language="text" code={"In [25]:best_svm=grid.best_estimator_\nfig,ax=subplots(figsize=(8,8))\nplot_svm(X_train,"} />
+
+<MdxCode language="text" code={"y_train,\nbest_svm,\nax=ax)\ny_hat_test=best_svm.predict(X_test)\nconfusion_table(y_hat_test ,y_test)"} />
+
+<MdxCode language="text" code={"Out[25]:Truth12\nPredicted\n1696\n2619"} />
+
+Với các tham số này, SVM phân loại sai 12% quan sát kiểm tra.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 9.6.3 Đường cong ROC
+
+SVM và bộ phân loại vector hỗ trợ xuất nhãn lớp cho mỗi quan sát. Tuy nhiên, cũng có thể lấy _giá trị khớp_ cho mỗi quan sát, tức các điểm số được dùng để tạo nhãn lớp. Ví dụ, với bộ phân loại vector hỗ trợ, giá trị khớp cho một quan sát _X_ = ( _X_ 1 _, X_ 2 _, . . . , Xp_ )^(_T_) có dạng _β_^(ˆ) 0 + _β_^(ˆ) 1 _X_ 1 + _β_^(ˆ) 2 _X_ 2 + _. . ._ + _β_^(ˆ) _pXp_. Với SVM dùng kernel phi tuyến, phương trình cho giá trị khớp là (9.23). Dấu của giá trị khớp quyết định quan sát nằm phía nào của biên quyết định. Vì vậy, quan hệ giữa giá trị khớp và dự đoán lớp rất đơn giản: nếu giá trị khớp lớn hơn không, quan sát được gán vào một lớp; nếu nhỏ hơn không, nó được gán vào lớp kia. Bằng cách đổi ngưỡng từ không sang một giá trị dương, ta thiên lệch phân loại về một lớp so với lớp còn lại. Xét một dải ngưỡng dương và âm sẽ tạo các thành phần cho biểu đồ ROC. Ta truy cập các giá trị này bằng phương thức `decision_function() .function_` của bộ ước lượng SVM đã khớp. `decision()`
+
+<MdxCode language="text" code={"decision()"} />
+
+Hàm `ROCCurveDisplay.from_estimator()` (được viết tắt thành `roc_curve()`) tạo biểu đồ đường cong ROC. Hàm `roc_curve()` nhận bộ ước lượng đã khớp làm đối số đầu, tiếp theo là ma trận mô hình _X_ và nhãn _y_. Đối số `name` dùng trong chú giải, còn `color` xác định màu đường. Kết quả được vẽ trên đối tượng trục `ax`.
+
+<MdxCode language="text" code={"In [26]:fig,ax=subplots(figsize=(8,8))\nroc_curve(best_svm,\nX_train,\ny_train,\nname='Training',\ncolor='r',\nax=ax);"} />
+
+Trong ví dụ này, SVM có vẻ tạo dự đoán chính xác. Bằng cách tăng _γ_, ta có thể tạo mô hình linh hoạt hơn và cải thiện thêm độ chính xác.
+
+<MdxCode language="text" code={"In [27]:svm_flex=SVC(kernel=\"rbf\",\ngamma=50,"} />
+
+<MdxCode language="text" code={"C=1)\nsvm_flex.fit(X_train,y_train)\nfig,ax=subplots(figsize=(8,8))\nroc_curve(svm_flex,\nX_train,\ny_train,\nname='Training$\\gamma=50$',\ncolor='r',\nax=ax);"} />
+
+Tuy nhiên, các đường ROC này đều dựa trên dữ liệu huấn luyện. Điều ta thực sự quan tâm hơn là mức độ chính xác dự đoán trên dữ liệu kiểm tra. Khi tính các đường ROC trên dữ liệu kiểm tra, mô hình với _γ_ = 0 _._ 5 có vẻ cho kết quả chính xác nhất.
+
+<MdxCode language="text" code={"In [28]:roc_curve(svm_flex,"} />
+
+<MdxCode language="text" code={"X_test,\ny_test,\nname='Test$\\gamma=50$',\ncolor='b',\nax=ax)\nfig;"} />
+
+Hãy xem SVM đã được điều chỉnh.
+
+<MdxCode language="text" code={"In [29]:fig,ax=subplots(figsize=(8,8))\nfor(X_,y_,c,name)inzip(\n(X_train,X_test),\n(y_train,y_test),\n('r','b'),\n('CVtunedontraining',\n'CVtunedontest')):\nroc_curve(best_svm,\nX_,\ny_,\nname=name,\nax=ax,\ncolor=c)"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 9.6.4 SVM với nhiều lớp
+
+Nếu biến đáp ứng là một nhân tố có hơn hai mức, hàm `SVC()` sẽ thực hiện phân loại đa lớp bằng cách một-đối-một (khi `decision_function_shape=='ovo'`) hoặc một-đối-phần-còn-lại^(4) (khi `decision_function_shape=='ovr'`). Ta khảo sát ngắn gọn bối cảnh này bằng cách sinh lớp quan sát thứ ba.
+
+<MdxCode language="text" code={"In [30]:rng=np.random.default_rng(123)\nX=np.vstack([X,rng.standard_normal((50,2))])\ny=np.hstack([y,[0]*50])\nX[y==0,1]+=2\nfig,ax=subplots(figsize=(8,8))\nax.scatter(X[:,0],X[:,1],c=y,cmap=cm.coolwarm);"} />
+
+> 4Một-đối-phần-còn-lại còn được gọi là một-đối-tất-cả.
+
+Bây giờ ta khớp SVM với dữ liệu:
+
+<MdxCode language="text" code={"In [31]:svm_rbf_3=SVC(kernel=\"rbf\",\nC=10,\ngamma=1,\ndecision_function_shape='ovo');\nsvm_rbf_3.fit(X,y)\nfig,ax=subplots(figsize=(8,8))\nplot_svm(X,\ny,\nsvm_rbf_3,\nscatter_cmap=cm.tab10,\nax=ax)"} />
+
+Thư viện `sklearn.svm` cũng có thể thực hiện hồi quy vector hỗ trợ với biến đáp ứng số bằng bộ ước lượng `SupportVectorRegression()`.
+
+<MdxCode language="text" code={"SupportVector\nRegression()"} />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 9.6.5 Ứng dụng cho dữ liệu biểu hiện gene
+
+Bây giờ ta khảo sát bộ dữ liệu `Khan`, gồm một số mẫu mô tương ứng với bốn loại khối u tế bào tròn nhỏ màu xanh khác nhau. Mỗi mẫu mô có các phép đo biểu hiện gene. Bộ dữ liệu gồm dữ liệu huấn luyện `xtrain`, `ytrain` và dữ liệu kiểm tra `xtest`, `ytest`.
+
+Ta xem kích thước dữ liệu:
+
+<MdxCode language="text" code={"In [32]:Khan=load_data('Khan')\nKhan['xtrain'].shape,Khan['xtest'].shape"} />
+
+###### **`Out[32]:`** `((63, 2308), (20, 2308))`
+
+Bộ dữ liệu này gồm các phép đo biểu hiện của 2.308 gene. Tập huấn luyện và kiểm tra lần lượt có 63 và 20 quan sát.
+
+Ta sẽ dùng cách tiếp cận vector hỗ trợ để dự đoán phân nhóm ung thư bằng các phép đo biểu hiện gene. Trong dữ liệu này, số đặc trưng rất lớn so với số quan sát. Điều đó gợi ý nên dùng kernel tuyến tính, vì độ linh hoạt bổ sung từ kernel đa thức hoặc xuyên tâm là không cần thiết.
+
+<MdxCode language="text" code={"In [33]:khan_linear=SVC(kernel='linear',C=10)\nkhan_linear.fit(Khan['xtrain'],Khan['ytrain'])\nconfusion_table(khan_linear.predict(Khan['xtrain']),\nKhan['ytrain'])"} />
+
+<MdxCode language="table" code={"|**`Out[33]:`** `Truth`|`1`|`2`|`3`|`4`|\n|---|---|---|---|---|\n|`Predicted`|||||\n|`1`|`8`|`0`|`0`|`0`|\n|`2`|`0`|`23`|`0`|`0`|\n|`3`|`0`|`0`|`12`|`0`|\n|`4`|`0`|`0`|`0`|`20`|"} />
+
+Ta thấy _không có_ lỗi huấn luyện. Thực ra điều này không đáng ngạc nhiên, vì số lượng biến lớn so với số quan sát khiến việc tìm các siêu phẳng phân tách hoàn toàn các lớp trở nên dễ dàng.
+
+Ta quan tâm hơn đến hiệu năng của bộ phân loại vector hỗ trợ trên các quan sát kiểm tra.
+
+<MdxCode language="text" code={"In [34]:confusion_table(khan_linear.predict(Khan['xtest']),\nKhan['ytest'])"} />
+
+<MdxCode language="table" code={"|**`Out[34]:`** `Truth`|`1`|`2`|`3`|`4`|\n|---|---|---|---|---|\n|`Predicted`|||||\n|`1`|`3`|`0`|`0`|`0`|\n|`2`|`0`|`6`|`2`|`0`|\n|`3`|`0`|`0`|`4`|`0`|\n|`4`|`0`|`0`|`0`|`5`|"} />
+
+Ta thấy dùng `C=10` tạo hai lỗi trên tập kiểm tra của dữ liệu này.
+
+</MdxPage>

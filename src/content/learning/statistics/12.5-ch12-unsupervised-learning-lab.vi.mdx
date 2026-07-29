@@ -1,0 +1,416 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch12-unsupervised-learning-lab",
+  "locale": "vi",
+  "title": "12.5 Lab: Học không giám sát",
+  "headings": [
+    "Lab: Học không giám sát",
+    "12.5.1 Phân tích thành phần chính",
+    "12.5.2 Hoàn thiện ma trận",
+    "12.5.3 Phân cụm",
+    "12.5.4 Ví dụ dữ liệu NCI60"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Học không giám sát",
+    "PCA",
+    "Phân cụm"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Lab: Học không giám sát
+
+Trong bài thực hành này, ta minh họa PCA và phân cụm trên một số bộ dữ liệu. Giống các bài thực hành khác, ta import một số thư viện ở cấp đầu này. Điều đó giúp mã dễ đọc hơn, vì chỉ cần xem vài dòng đầu của notebook là biết những thư viện nào được sử dụng.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nimportpandasaspd\nimportmatplotlib.pyplotasplt\nfromstatsmodels.datasetsimportget_rdataset\nfromsklearn.decompositionimportPCA\nfromsklearn.preprocessingimportStandardScaler\nfromISLPimportload_data"} />
+
+Ta cũng tập hợp các import mới cần cho bài thực hành.
+
+<MdxCode language="text" code={"In [2]:fromsklearn.clusterimport\\\n(KMeans,\nAgglomerativeClustering)\nfromscipy.cluster.hierarchyimport\\\n(dendrogram ,\ncut_tree)\nfromISLP.clusterimportcompute_linkage"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 12.5.1 Phân tích thành phần chính
+
+Trong bài thực hành này, ta thực hiện PCA trên `USArrests`, một bộ dữ liệu trong môi trường tính toán `R`. Ta lấy dữ liệu bằng `get_rdataset()`; nhãn `get_` trong nguồn là phần đầu của tên hàm bị ngắt dòng. Hàm này có thể tải
+
+<MdxCode language="text" code={"rdataset()"} />
+
+dữ liệu từ nhiều gói `R` tiêu chuẩn.
+
+Các hàng của bộ dữ liệu chứa 50 tiểu bang theo thứ tự bảng chữ cái.
+
+<MdxCode language="text" code={"In [3]:USArrests=get_rdataset('USArrests').data\nUSArrests"} />
+
+<MdxCode language="table" code={"|**`Out[3]:`**|`Murder`|`Assault`|`UrbanPop`|`Rape`|\n|---|---|---|---|---|\n|`Alabama`|`13.2`|`236`|`58`|`21.2`|\n|`Alaska`|`10.0`|`263`|`48`|`44.5`|\n|`Arizona`|`8.1`|`294`|`80`|`31.0`|\n|`...`|`...`|`...`|`...`|`...`|\n|`Wisconsin`|`2.6`|`53`|`66`|`10.8`|\n|`Wyoming`|`6.8`|`161`|`60`|`15.6`|"} />
+
+Các cột của bộ dữ liệu chứa bốn biến.
+
+<MdxCode language="text" code={"In [4]:USArrests.columns"} />
+
+<MdxCode language="text" code={"Out[4]:Index(['Murder','Assault','UrbanPop','Rape'],\ndtype='object')"} />
+
+Trước hết, ta xem xét sơ bộ dữ liệu. Ta nhận thấy các biến có trung bình rất khác nhau.
+
+<MdxCode language="text" code={"In [5]:USArrests.mean()"} />
+
+<MdxCode language="table" code={"|**`Out[5]:`**|`Murder` `7`|`.788`|\n|---|---|---|\n||`Assault` `170`|`.760`|\n||`UrbanPop` `65`|`.540`|\n||`Rape` `21`|`.232`|\n||`dtype: float64`||"} />
+
+Dataframe có một số phương thức hữu ích để tính thống kê tóm tắt theo cột. Ta cũng có thể xem phương sai của bốn biến bằng phương thức `var()`.
+
+<MdxCode language="text" code={"In [6]:USArrests.var()"} />
+
+<MdxCode language="table" code={"|**`Out[6]:`**|`Murder` `18.970465`|\n|---|---|\n||`Assault` `6945.165714`|\n||`UrbanPop` `209.518776`|\n||`Rape` `87.729159`|\n||`dtype: float64`|"} />
+
+Không có gì đáng ngạc nhiên khi các biến cũng có phương sai rất khác nhau. Biến `UrbanPop` đo tỷ lệ phần trăm dân số của mỗi tiểu bang sống trong khu vực đô thị, một con số không thể so sánh trực tiếp với số vụ hiếp dâm trên 100.000 người tại mỗi tiểu bang. PCA tìm các biến dẫn xuất giải thích phần lớn phương sai trong bộ dữ liệu. Nếu không co giãn các biến trước khi thực hiện PCA, các thành phần chính sẽ chủ yếu bị chi phối bởi biến `Assault`, vì nó có phương sai lớn hơn hẳn. Vì vậy, nếu các biến được đo bằng đơn vị khác nhau hoặc có thang đo rất khác nhau, nên chuẩn hóa chúng để có độ lệch chuẩn bằng một trước khi thực hiện PCA. Thông thường, ta cũng đặt trung bình bằng không.
+
+Việc co giãn này có thể được thực hiện bằng phép biến đổi `StandardScaler()` đã import ở trên. Trước hết ta `fit` bộ co giãn để tính các trung bình và độ lệch chuẩn cần thiết, rồi áp dụng nó lên dữ liệu bằng phương thức `transform`. Như trước, ta kết hợp hai bước bằng phương thức `fit_transform()`.
+
+<MdxCode language="text" code={"In [7]:scaler=StandardScaler(with_std=True,\nwith_mean=True)\nUSArrests_scaled=scaler.fit_transform(USArrests)"} />
+
+Sau khi co giãn dữ liệu, ta có thể thực hiện phân tích thành phần chính bằng phép biến đổi `PCA()` từ gói `sklearn.decomposition`.
+
+<MdxCode language="text" code={"PCA()"} />
+
+<MdxCode language="text" code={"In [8]:pcaUS=PCA()"} />
+
+(Theo mặc định, phép biến đổi `PCA()` định tâm các biến để có trung bình bằng không nhưng không co giãn chúng.) Phép biến đổi `pcaUS` có thể được dùng để tìm các `scores` PCA do `fit()` trả về. Sau khi gọi phương thức `fit`, đối tượng `pcaUS` còn chứa một số đại lượng hữu ích.
+
+<MdxCode language="text" code={"In [9]:pcaUS.fit(USArrests_scaled)"} />
+
+Sau khi khớp, thuộc tính `mean_` tương ứng với trung bình của các biến. Trong trường hợp này, do ta đã định tâm và co giãn dữ liệu bằng `scaler()`, tất cả trung bình đều bằng 0.
+
+<MdxCode language="text" code={"In [10]:pcaUS.mean_"} />
+
+<MdxCode language="text" code={"Out[10]:array([-0.,0.,-0.,0.])"} />
+
+Các score có thể được tính bằng phương thức `transform()` của `pcaUS` sau khi nó được khớp.
+
+<MdxCode language="text" code={"In [11]:scores=pcaUS.transform(USArrests_scaled)"} />
+
+Ta sẽ vẽ các score này ở phần dưới. Thuộc tính `components_` cung cấp các tải thành phần chính: mỗi hàng của `pcaUS.components_` chứa vector tải thành phần chính tương ứng.
+
+<MdxCode language="text" code={"In [12]:pcaUS.components_"} />
+
+<MdxCode language="text" code={"Out[12]:array([[0.53589947,0.58318363,0.27819087,0.54343209],\n[0.41818087,0.1879856,-0.87280619,-0.16731864],\n[-0.34123273,-0.26814843,-0.37801579,0.81777791],\n[0.6492278,-0.74340748,0.13387773,0.08902432]])"} />
+
+`biplot` là một phương pháp trực quan hóa thường dùng với PCA. Nó không phải thành phần tiêu chuẩn tích hợp sẵn trong `sklearn`, dù có các gói Python tạo được loại biểu đồ này. Ở đây ta tự tạo một biplot đơn giản.
+
+<MdxCode language="text" code={"In [13]:i,j=0,1#whichcomponents\nfig,ax=plt.subplots(1,1,figsize=(8,8))\nax.scatter(scores[:,0],scores[:,1])\nax.set_xlabel('PC%d'%(i+1))\nax.set_ylabel('PC%d'%(j+1))\nforkinrange(pcaUS.components_.shape[1]):"} />
+
+<MdxCode language="text" code={"ax.arrow(0,0,pcaUS.components_[i,k],pcaUS.components_[j,k])\nax.text(pcaUS.components_[i,k],\npcaUS.components_[j,k],\nUSArrests.columns[k])"} />
+
+Lưu ý hình này là ảnh phản chiếu của Hình 12.1 qua trục _y_. Nhắc lại rằng các thành phần chính chỉ duy nhất đến phép đổi dấu, nên ta có thể tái tạo hình đó bằng cách đảo dấu tập score và tải thứ hai. Ta cũng tăng độ dài mũi tên để nhấn mạnh các tải.
+
+<MdxCode language="text" code={"In [14]:scale_arrow=s_=2\nscores[:,1]*=-1\npcaUS.components_[1]*=-1#flipthey-axis\nfig,ax=plt.subplots(1,1,figsize=(8,8))\nax.scatter(scores[:,0],scores[:,1])\nax.set_xlabel('PC%d'%(i+1))\nax.set_ylabel('PC%d'%(j+1))\nforkinrange(pcaUS.components_.shape[1]):\nax.arrow(0,0,s_*pcaUS.components_[i,k],s_*pcaUS.components_[\nj,k])\nax.text(s_*pcaUS.components_[i,k],\ns_*pcaUS.components_[j,k],\nUSArrests.columns[k])"} />
+
+Độ lệch chuẩn của các score thành phần chính như sau:
+
+<MdxCode language="text" code={"In [15]:scores.std(0,ddof=1)"} />
+
+<MdxCode language="text" code={"Out[15]:array([1.5909,1.0050,0.6032,0.4207])"} />
+
+Phương sai của mỗi score có thể được trích xuất trực tiếp từ đối tượng `pcaUS` qua thuộc tính `explained_variance_`.
+
+<MdxCode language="text" code={"In [16]:pcaUS.explained_variance_"} />
+
+<MdxCode language="text" code={"Out[16]:array([2.5309,1.01,0.3638,0.177])"} />
+
+Tỷ lệ phương sai được giải thích bởi từng thành phần chính (PVE) được lưu trong `explained_variance_ratio_`:
+
+<MdxCode language="text" code={"In [17]:pcaUS.explained_variance_ratio_"} />
+
+<MdxCode language="text" code={"Out[17]:array([0.6201,0.2474,0.0891,0.0434])"} />
+
+Ta thấy thành phần chính đầu tiên giải thích 62,0% phương sai trong dữ liệu, thành phần tiếp theo giải thích 24,7%, v.v. Ta có thể vẽ PVE của từng thành phần cũng như PVE tích lũy. Trước hết, ta vẽ tỷ lệ phương sai được giải thích.
+
+<MdxCode language="text" code={"In [18]:%%capture\nfig,axes=plt.subplots(1,2,figsize=(15,6))\nticks=np.arange(pcaUS.n_components_)+1\nax=axes[0]\nax.plot(ticks,\npcaUS.explained_variance_ratio_ ,\nmarker='o')"} />
+
+<MdxCode language="text" code={"ax.set_xlabel('PrincipalComponent');\nax.set_ylabel('ProportionofVarianceExplained')\nax.set_ylim([0,1])\nax.set_xticks(ticks)"} />
+
+Lưu ý việc dùng `%%capture` để ngăn hiển thị hình chưa hoàn thiện.
+
+<MdxCode language="text" code={"In [19]:ax=axes[1]\nax.plot(ticks,\npcaUS.explained_variance_ratio_.cumsum(),\nmarker='o')\nax.set_xlabel('PrincipalComponent')\nax.set_ylabel('CumulativeProportionofVarianceExplained')\nax.set_ylim([0,1])\nax.set_xticks(ticks)\nfig"} />
+
+Kết quả tương tự Hình 12.3. Lưu ý phương thức `cumsum()` tính tổng tích lũy của các phần tử trong một vector số; ta minh họa `cumsum()` bằng ví dụ:
+
+<MdxCode language="text" code={"In [20]:a=np.array([1,2,8,-3])\nnp.cumsum(a)"} />
+
+<MdxCode language="text" code={"Out[20]:array([1,3,11,8])"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 12.5.2 Hoàn thiện ma trận
+
+Bây giờ ta tái tạo phép phân tích đã thực hiện trên dữ liệu `USArrests` ở Mục 12.3.
+
+Ta đã thấy trong Mục 12.2.2 rằng giải bài toán tối ưu (12.6) trên ma trận dữ liệu đã định tâm **X** tương đương với tính _M_ thành phần chính đầu tiên của dữ liệu. Dưới đây, ta dùng dữ liệu `USArrests` đã co giãn và định tâm làm **X**. _Phân rã giá trị kỳ dị_ (singular value decomposition, SVD) là một thuật toán tổng quát để giải (12.6).
+
+phân rã giá trị `svd()`
+
+<MdxCode language="text" code={"In [21]:X=USArrests_scaled\nU,D,V=np.linalg.svd(X,full_matrices=False)\nU.shape,D.shape,V.shape"} />
+
+<MdxCode language="text" code={"Out[21]:((50,4),(4,),(4,4))"} />
+
+Hàm `np.linalg.svd()` trả về ba thành phần `U`, `D` và `V`. Tiền tố `np.linalg.` cho biết phép `svd()` thuộc module đại số tuyến tính. Ma trận `V` tương đương ma trận tải từ các thành phần chính (không kể phép đảo dấu không quan trọng). Dùng tùy chọn `full_matrices=False` bảo đảm rằng với ma trận cao, hình dạng của `U` giống hình dạng của `X`.
+
+<MdxCode language="text" code={"In [22]:V"} />
+
+<MdxCode language="text" code={"Out[22]:array([[-0.53589947,-0.58318363,-0.27819087,-0.54343209],\n[0.41818087,0.1879856,-0.87280619,-0.16731864],\n[-0.34123273,-0.26814843,-0.37801579,0.81777791],\n[0.6492278,-0.74340748,0.13387773,0.08902432]])"} />
+
+<MdxCode language="text" code={"In [23]:pcaUS.components_"} />
+
+<MdxCode language="text" code={"Out[23]:array([[0.53589947,0.58318363,0.27819087,0.54343209],\n[0.41818087,0.1879856,-0.87280619,-0.16731864],\n[-0.34123273,-0.26814843,-0.37801579,0.81777791],\n[0.6492278,-0.74340748,0.13387773,0.08902432]])"} />
+
+Ma trận `U` tương ứng với phiên bản đã _chuẩn hóa_ của ma trận score PCA (mỗi cột được chuẩn hóa để có tổng bình phương bằng một). Nếu nhân mỗi cột của `U` với phần tử tương ứng trong `D`, ta khôi phục chính xác các score PCA (không kể phép đảo dấu vô nghĩa).
+
+<MdxCode language="text" code={"In [24]:(U*D[None,:])[:3]"} />
+
+<MdxCode language="text" code={"Out[24]:array([[-0.9856,1.1334,-0.4443,0.1563],\n[-1.9501,1.0732,2.04,-0.4386],\n[-1.7632,-0.746,0.0548,-0.8347]])"} />
+
+<MdxCode language="text" code={"In [25]:scores[:3]"} />
+
+<MdxCode language="text" code={"Out[25]:array([[0.9856,-1.1334,-0.4443,0.1563],\n[1.9501,-1.0732,2.04,-0.4386],\n[1.7632,0.746,0.0548,-0.8347]])"} />
+
+Mặc dù có thể thực hiện bài thực hành này bằng bộ ước lượng `PCA()`, ở đây ta dùng hàm `np.linalg.svd()` để minh họa cách sử dụng nó.
+
+Bây giờ ta ngẫu nhiên bỏ 20 mục trong ma trận dữ liệu 50 _×_ 4. Ta làm điều đó bằng cách trước hết chọn ngẫu nhiên 20 hàng (tiểu bang), rồi chọn ngẫu nhiên một trong bốn mục ở mỗi hàng. Điều này bảo đảm mỗi hàng có ít nhất ba giá trị được quan sát.
+
+<MdxCode language="text" code={"In [26]:n_omit=20\nnp.random.seed(15)\nr_idx=np.random.choice(np.arange(X.shape[0]),\nn_omit,\nreplace=False)\nc_idx=np.random.choice(np.arange(X.shape[1]),\nn_omit,\nreplace=True)\nXna=X.copy()\nXna[r_idx,c_idx]=np.nan"} />
+
+Ở đây mảng `r_idx` chứa 20 số nguyên từ 0 đến 49, biểu diễn các tiểu bang (hàng của `X`) được chọn để chứa giá trị thiếu. Còn `c_idx` chứa 20 số nguyên từ 0 đến 3, biểu diễn các đặc trưng (cột trong `X`) chứa giá trị thiếu cho mỗi tiểu bang đã chọn.
+
+Bây giờ ta viết mã triển khai Thuật toán 12.1. Trước hết, ta viết một hàm nhận ma trận và trả về một xấp xỉ của ma trận bằng hàm `svd()`. Hàm này sẽ cần ở Bước 2 của Thuật toán 12.1.
+
+<MdxCode language="text" code={"In [27]:deflow_rank(X,M=1):\nU,D,V=np.linalg.svd(X)\nL=U[:,:M]*D[None,:M]\nreturnL.dot(V[:M])"} />
+
+Để thực hiện Bước 1 của thuật toán, ta khởi tạo `Xhat`—đây là **X**^(˜) trong Thuật toán 12.1—bằng cách thay các giá trị thiếu bằng trung bình cột của những mục không thiếu. Các trung bình được lưu trong `Xbar` bên dưới sau khi chạy `np.nanmean()` theo trục hàng. Ta tạo một bản sao để khi gán các giá trị `np.nanmean()` cho `Xhat`, ta không đồng thời ghi đè giá trị trong `Xna`.
+
+<MdxCode language="text" code={"In [28]:Xhat=Xna.copy()\nXbar=np.nanmean(Xhat,axis=0)\nXhat[r_idx,c_idx]=Xbar[c_idx]"} />
+
+Trước khi bắt đầu Bước 2, ta thiết lập để đo tiến độ các vòng lặp:
+
+<MdxCode language="text" code={"In [29]:thresh=1e-7"} />
+
+`rel_err = 1 count = 0 ismiss = np.isnan(Xna) mssold = np.mean(Xhat[` _∼_ `ismiss]**2) mss0 = np.mean(Xna[` _∼_ `ismiss]**2)`
+
+Ở đây `ismiss` là một ma trận logic cùng kích thước với `Xna`; một phần tử là `True` nếu phần tử ma trận tương ứng bị thiếu. Ký hiệu _∼_ `ismiss` phủ định vector boolean này. Điều này hữu ích vì cho phép truy cập cả các mục thiếu lẫn không thiếu. Ta lưu trung bình bình phương của các phần tử không thiếu vào `mss0`. Ta lưu sai số bình phương trung bình của các phần tử không thiếu trong phiên bản `Xhat` cũ vào `mssold` (hiện tại bằng `mss0`). Ta dự định lưu sai số bình phương trung bình của các phần tử không thiếu trong phiên bản `Xhat` hiện tại vào `mss`, rồi lặp Bước 2 của Thuật toán 12.1 cho đến khi _sai số tương đối_, được định nghĩa là `(mssold - mss) / mss0`, giảm xuống dưới `thresh = 1e-7`.^(9)
+
+Trong Bước 2(a) của Thuật toán 12.1, ta xấp xỉ `Xhat` bằng `low_rank()` và gọi kết quả là `Xapp`. Trong Bước 2(b), ta dùng `Xapp` để cập nhật ước lượng cho các phần tử trong `Xhat` bị thiếu ở `Xna`. Cuối cùng, trong Bước 2(c), ta tính sai số tương đối. Ba bước này nằm trong vòng lặp `while` sau:
+
+**`In [30]:`** `while rel_err > thresh: count += 1 # Step 2(a) Xapp = low_rank(Xhat, M=1) # Step 2(b) Xhat[ismiss] = Xapp[ismiss] # Step 2(c) mss = np.mean(((Xna - Xapp)[` _∼_ `ismiss])**2) rel_err = (mssold - mss) / mss0 mssold = mss print("Iteration: {0}, MSS:{1:.3f}, Rel.Err {2:.2e}" .format(count, mss, rel_err))`
+
+> 9Thuật toán 12.1 yêu cầu lặp Bước 2 cho đến khi (12.14) không còn giảm. Để xác định (12.14) có giảm hay không, ta chỉ cần theo dõi `mssold - mss`. Tuy nhiên, trong thực tế ta theo dõi `(mssold - mss) / mss0`: điều này khiến số vòng lặp cần để Thuật toán 12.1 hội tụ không phụ thuộc vào việc ta có nhân dữ liệu thô **X** với một hệ số không đổi hay không.
+
+<MdxCode language="text" code={"Iteration:1,MSS:0.395,Rel.Err5.99e-01\nIteration:2,MSS:0.382,Rel.Err1.33e-02\nIteration:3,MSS:0.381,Rel.Err1.44e-03\nIteration:4,MSS:0.381,Rel.Err1.79e-04\nIteration:5,MSS:0.381,Rel.Err2.58e-05\nIteration:6,MSS:0.381,Rel.Err4.22e-06\nIteration:7,MSS:0.381,Rel.Err7.65e-07\nIteration:8,MSS:0.381,Rel.Err1.48e-07\nIteration:9,MSS:0.381,Rel.Err2.95e-08"} />
+
+Ta thấy sau tám vòng lặp, sai số tương đối đã giảm xuống dưới `thresh = 1e-7`, nên thuật toán kết thúc. Khi đó, sai số bình phương trung bình của các phần tử không thiếu bằng 0.381.
+
+Cuối cùng, ta tính tương quan giữa 20 giá trị được điền và các giá trị thực:
+
+<MdxCode language="text" code={"In [31]:np.corrcoef(Xapp[ismiss],X[ismiss])[0,1]"} />
+
+<MdxCode language="text" code={"Out[31]:0.711"} />
+
+Trong bài thực hành này, ta tự triển khai Thuật toán 12.1 vì mục đích giảng dạy. Tuy nhiên, người đọc muốn áp dụng hoàn thiện ma trận cho dữ liệu của mình có thể tìm các cách triển khai `Python` chuyên biệt hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 12.5.3 Phân cụm
+
+### Phân cụm _K_-means
+
+Bộ ước lượng `sklearn.cluster.KMeans()` thực hiện phân cụm _K_-means trong `Kmeans() Python`. Ta bắt đầu với ví dụ mô phỏng đơn giản mà dữ liệu thực sự có hai cụm: 25 quan sát đầu có trung bình dịch chuyển so với 25 quan sát tiếp theo.
+
+<MdxCode language="text" code={"In [32]:np.random.seed(0);\nX=np.random.standard_normal((50,2));\nX[:25,0]+=3;\nX[:25,1]-=4;"} />
+
+Bây giờ ta thực hiện phân cụm _K_-means với _K_ = 2.
+
+<MdxCode language="text" code={"In [33]:kmeans=KMeans(n_clusters=2,\nrandom_state=2,\nn_init=20).fit(X)"} />
+
+Ta chỉ định `random_state` để kết quả có thể tái lập. Việc gán cụm của 50 quan sát được chứa trong `kmeans.labels_`.
+
+<MdxCode language="text" code={"In [34]:kmeans.labels_"} />
+
+<MdxCode language="text" code={"Out[34]:array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,\n1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,\n0,0,0,0,0,0,0,0,0,0,0,0],dtype=int32)"} />
+
+Phân cụm _K_-means đã phân tách hoàn hảo các quan sát thành hai cụm dù ta không cung cấp thông tin nhóm nào cho `KMeans()`. Ta có thể vẽ dữ liệu, tô màu từng quan sát theo cụm được gán.
+
+<MdxCode language="text" code={"In [35]:fig,ax=plt.subplots(1,1,figsize=(8,8))\nax.scatter(X[:,0],X[:,1],c=kmeans.labels_)\nax.set_title(\"K-MeansClusteringResultswithK=2\");"} />
+
+Ở đây có thể dễ dàng vẽ các quan sát vì chúng có hai chiều. Nếu có hơn hai biến, ta có thể thực hiện PCA và vẽ hai vector score thành phần chính đầu tiên để biểu diễn các cụm.
+
+Trong ví dụ này, ta biết thực sự có hai cụm vì chính ta đã sinh dữ liệu. Tuy nhiên, với dữ liệu thực, ta không biết số cụm thật, cũng không biết chúng có tồn tại theo một nghĩa chính xác nào không. Ta có thể thực hiện phân cụm _K_-means trên ví dụ này với _K_ = 3.
+
+<MdxCode language="text" code={"In [36]:kmeans=KMeans(n_clusters=3,\nrandom_state=3,\nn_init=20).fit(X)\nfig,ax=plt.subplots(figsize=(8,8))\nax.scatter(X[:,0],X[:,1],c=kmeans.labels_)\nax.set_title(\"K-MeansClusteringResultswithK=3\");"} />
+
+Khi _K_ = 3, phân cụm _K_-means chia tách hai cụm ban đầu. Ta đã dùng đối số `n_init` để chạy _K_-means với 20 cách gán cụm ban đầu (mặc định là 10). Nếu dùng `n_init` lớn hơn một, phân cụm _K_-means sẽ được thực hiện với nhiều cách gán ngẫu nhiên trong Bước 1 của Thuật toán 12.2, và hàm `KMeans()` chỉ báo cáo kết quả tốt nhất. Ở đây ta so sánh `n_init=1` với `n_init=20`.
+
+<MdxCode language="text" code={"In [37]:kmeans1=KMeans(n_clusters=3,\nrandom_state=3,\nn_init=1).fit(X)\nkmeans20=KMeans(n_clusters=3,\nrandom_state=3,\nn_init=20).fit(X);\nkmeans1.inertia_,kmeans20.inertia_"} />
+
+<MdxCode language="text" code={"Out[37]:(78.06,75.04)"} />
+
+Lưu ý `kmeans.inertia_` là tổng bình phương nội cụm, đại lượng ta muốn cực tiểu khi thực hiện phân cụm _K_-means (12.17).
+
+Ta _đặc biệt_ khuyến nghị luôn chạy phân cụm _K_-means với `n_init` lớn như 20 hoặc 50; nếu không, có thể thu được một cực trị cục bộ không mong muốn.
+
+Khi thực hiện phân cụm _K_-means, ngoài việc dùng nhiều cách gán cụm ban đầu, cũng cần đặt seed ngẫu nhiên bằng đối số `random_state` của `KMeans()`. Nhờ đó, các cách gán cụm ban đầu trong Bước 1 có thể được tái lập và đầu ra _K_-means hoàn toàn có thể tái lập.
+
+### Phân cụm phân cấp
+
+Lớp `AgglomerativeClustering()` từ gói `sklearn.clustering` triển khai phân cụm phân cấp; hai phần tên `Agglomerative` và `Clustering()` cùng chỉ lớp này. Vì tên dài, ta dùng tên rút gọn `HClust` cho _phân cụm phân cấp_. Lưu ý điều này không thay đổi kiểu trả về khi dùng phương thức, nên các instance vẫn thuộc lớp `AgglomerativeClustering`. Trong ví dụ sau, ta dùng dữ liệu từ bài thực hành trước để vẽ dendrogram phân cụm phân cấp với liên kết hoàn chỉnh, đơn và trung bình, dùng khoảng cách Euclid làm thước đo độ bất tương đồng. Ta bắt đầu bằng cách phân cụm các quan sát với liên kết hoàn chỉnh.
+
+<MdxCode language="text" code={"In [38]:HClust=AgglomerativeClustering\nhc_comp=HClust(distance_threshold=0,\nn_clusters=None,\nlinkage='complete')\nhc_comp.fit(X)"} />
+
+Thao tác này tính toàn bộ dendrogram. Ta cũng có thể dễ dàng thực hiện phân cụm phân cấp bằng liên kết trung bình hoặc đơn:
+
+<MdxCode language="text" code={"In [39]:hc_avg=HClust(distance_threshold=0,\nn_clusters=None,\nlinkage='average');\nhc_avg.fit(X)\nhc_sing=HClust(distance_threshold=0,\nn_clusters=None,\nlinkage='single');\nhc_sing.fit(X);"} />
+
+Để dùng ma trận khoảng cách đã tính trước, ta cung cấp thêm đối số `metric="precomputed"`. Trong đoạn mã dưới, bốn dòng đầu tính ma trận khoảng cách từng cặp 50 _×_ 50.
+
+<MdxCode language="text" code={"In [40]:D=np.zeros((X.shape[0],X.shape[0]));\nforiinrange(X.shape[0]):\nx_=np.multiply.outer(np.ones(X.shape[0]),X[i])\nD[i]=np.sqrt(np.sum((X-x_)**2,1));\nhc_sing_pre=HClust(distance_threshold=0,\nn_clusters=None,\nmetric='precomputed',\nlinkage='single')\nhc_sing_pre.fit(D)"} />
+
+Ta dùng `dendrogram()` từ `scipy.cluster.hierarchy` để vẽ dendrogram. Tuy nhiên, hàm `dendrogram()` yêu cầu cái gọi là _biểu diễn ma trận liên kết_ của phép phân cụm; `dendrogram()` không nhận trực tiếp kết quả của `AgglomerativeClustering()` nhưng ma trận này có thể tính được. Hàm `compute_linkage()` trong gói `ISLP.cluster compute_` được cung cấp cho mục đích này.
+
+<MdxCode language="text" code={"linkage()\nISLP.cluster"} />
+
+Bây giờ ta có thể vẽ các dendrogram. Các số ở đáy biểu đồ xác định từng quan sát. Hàm `dendrogram()` có phương thức mặc định tô màu các nhánh cây, gợi ý một phép cắt cây định trước tại độ sâu nhất định. Ta muốn ghi đè mặc định này bằng cách đặt ngưỡng thành vô hạn. Vì muốn hành vi này cho nhiều dendrogram, ta lưu các giá trị trong dictionary `cargs` và truyền chúng dưới dạng đối số từ khóa bằng ký hiệu `**cargs`.
+
+<MdxCode language="text" code={"In [41]:cargs={'color_threshold':-np.inf,\n'above_threshold_color':'black'}\nlinkage_comp=compute_linkage(hc_comp)\nfig,ax=plt.subplots(1,1,figsize=(8,8))"} />
+
+<MdxCode language="text" code={"dendrogram(linkage_comp ,\nax=ax,\n**cargs);"} />
+
+Ta có thể muốn tô màu khác nhau cho các nhánh cây ở trên và dưới một ngưỡng cắt. Có thể làm điều này bằng cách thay đổi `color_threshold`. Hãy cắt cây ở độ cao 4, tô đen các liên kết hợp nhất phía trên 4.
+
+<MdxCode language="text" code={"In [42]:fig,ax=plt.subplots(1,1,figsize=(8,8))\ndendrogram(linkage_comp ,\nax=ax,\ncolor_threshold=4,\nabove_threshold_color='black');"} />
+
+Để xác định nhãn cụm của từng quan sát ứng với một phép cắt dendrogram cho trước, ta có thể dùng hàm `cut_tree()` từ `cut_tree() scipy.cluster.hierarchy`:
+
+<MdxCode language="text" code={"In [43]:cut_tree(linkage_comp ,n_clusters=4).T"} />
+
+<MdxCode language="text" code={"Out[43]:array([[0,1,0,0,1,1,0,1,0,0,2,0,0,0,1,1,0,0,1,\n0,0,2,0,2,2,3,2,3,3,3,3,2,3,3,3,3,2,3,\n3,3,3,2,3,3,3,3,3,3,3,3]])"} />
+
+Cũng có thể làm điều này bằng cách truyền đối số `n_clusters` cho `HClust()`; tuy nhiên mỗi phép cắt sẽ yêu cầu tính lại phép phân cụm. Tương tự, cây có thể được cắt theo ngưỡng khoảng cách bằng đối số `distance_threshold` cho `HClust()` hoặc `height` cho `cut_tree()`.
+
+<MdxCode language="text" code={"In [44]:cut_tree(linkage_comp ,height=5)"} />
+
+<MdxCode language="text" code={"Out[44]:array([[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,\n0,0,1,0,1,1,2,1,2,2,2,2,1,2,2,2,2,1,2,\n2,2,2,1,2,2,2,2,2,2,2,2]])"} />
+
+Để co giãn các biến trước khi phân cụm phân cấp các quan sát, ta dùng `StandardScaler()` như trong ví dụ PCA:
+
+<MdxCode language="text" code={"In [45]:scaler=StandardScaler()\nX_scale=scaler.fit_transform(X)\nhc_comp_scale=HClust(distance_threshold=0,\nn_clusters=None,\nlinkage='complete').fit(X_scale)\nlinkage_comp_scale=compute_linkage(hc_comp_scale)\nfig,ax=plt.subplots(1,1,figsize=(8,8))\ndendrogram(linkage_comp_scale ,ax=ax,**cargs)\nax.set_title(\"HierarchicalClusteringwithScaledFeatures\");"} />
+
+Khoảng cách dựa trên tương quan giữa các quan sát có thể được dùng để phân cụm. Tương quan giữa hai quan sát đo độ tương đồng của các giá trị đặc trưng.^(10) Với _n_ quan sát, ma trận tương quan _n × n_
+
+> 10Giả sử mỗi quan sát có _p_ đặc trưng, mỗi đặc trưng là một giá trị số. Ta đo độ tương đồng của hai quan sát như vậy bằng cách tính tương quan của _p_ cặp số này.
+
+sau đó có thể được dùng làm ma trận tương đồng (hay affinity), nghĩa là một trừ ma trận tương quan là ma trận bất tương đồng dùng cho phân cụm.
+
+Lưu ý dùng tương quan chỉ có ý nghĩa với dữ liệu có ít nhất ba đặc trưng, vì trị tuyệt đối của tương quan giữa hai quan sát bất kỳ có phép đo trên hai đặc trưng luôn bằng một. Vì vậy, ta sẽ phân cụm một bộ dữ liệu ba chiều.
+
+<MdxCode language="text" code={"In [46]:X=np.random.standard_normal((30,3))\ncorD=1-np.corrcoef(X)\nhc_cor=HClust(linkage='complete',\ndistance_threshold=0,\nn_clusters=None,\nmetric='precomputed')\nhc_cor.fit(corD)\nlinkage_cor=compute_linkage(hc_cor)\nfig,ax=plt.subplots(1,1,figsize=(8,8))\ndendrogram(linkage_cor ,ax=ax,**cargs)\nax.set_title(\"CompleteLinkagewithCorrelation -BasedDissimilarity\n\");"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 12.5.4 Ví dụ dữ liệu NCI60
+
+Các kỹ thuật không giám sát thường được dùng trong phân tích dữ liệu hệ gene. Đặc biệt, PCA và phân cụm phân cấp là những công cụ phổ biến. Ta minh họa các kỹ thuật này trên dữ liệu microarray dòng tế bào ung thư `NCI60`, gồm 6.830 phép đo biểu hiện gene trên 64 dòng tế bào ung thư.
+
+<MdxCode language="text" code={"In [47]:NCI60=load_data('NCI60')\nnci_labs=NCI60['labels']\nnci_data=NCI60['data']"} />
+
+Mỗi dòng tế bào được gán nhãn bằng một loại ung thư. Ta không dùng loại ung thư khi thực hiện PCA và phân cụm, vì đây là các kỹ thuật không giám sát. Nhưng sau khi thực hiện PCA và phân cụm, ta sẽ kiểm tra xem các loại ung thư này phù hợp đến mức nào với kết quả của các kỹ thuật không giám sát.
+
+Dữ liệu có 64 hàng và 6.830 cột.
+
+<MdxCode language="text" code={"In [48]:nci_data.shape"} />
+
+<MdxCode language="text" code={"Out[48]:(64,6830)"} />
+
+Ta bắt đầu bằng cách xem các loại ung thư của các dòng tế bào.
+
+<MdxCode language="text" code={"In [49]:nci_labs.value_counts()"} />
+
+<MdxCode language="text" code={"Out[49]:label"} />
+
+<MdxCode language="table" code={"|`NSCLC`|`9`|\n|---|---|\n|`RENAL`|`9`|\n|`MELANOMA`|`8`|\n|`BREAST`|`7`|\n|`COLON`|`7`|\n|`LEUKEMIA`|`6`|\n|`OVARIAN`|`6`|"} />
+
+<MdxCode language="text" code={"CNS5\nPROSTATE2\nK562A-repro1\nK562B-repro1\nMCF7A-repro1\nMCF7D-repro1\nUNKNOWN1\ndtype:int64"} />
+
+### PCA trên dữ liệu NCI60
+
+Trước hết, ta thực hiện PCA trên dữ liệu sau khi co giãn các biến (gene) để có độ lệch chuẩn bằng một, dù ở đây có thể lập luận hợp lý rằng không nên co giãn gene vì chúng được đo bằng cùng đơn vị.
+
+<MdxCode language="text" code={"In [50]:scaler=StandardScaler()\nnci_scaled=scaler.fit_transform(nci_data)\nnci_pca=PCA()\nnci_scores=nci_pca.fit_transform(nci_scaled)"} />
+
+Bây giờ ta vẽ một vài vector score thành phần chính đầu tiên để trực quan hóa dữ liệu. Các quan sát (dòng tế bào) ứng với cùng một loại ung thư được vẽ cùng màu để có thể xem các quan sát trong một loại ung thư giống nhau đến mức nào.
+
+<MdxCode language="text" code={"In [51]:cancer_types=list(np.unique(nci_labs))\nnci_groups=np.array([cancer_types.index(lab)\nforlabinnci_labs.values])\nfig,axes=plt.subplots(1,2,figsize=(15,6))\nax=axes[0]\nax.scatter(nci_scores[:,0],\nnci_scores[:,1],\nc=nci_groups,\nmarker='o',\ns=50)\nax.set_xlabel('PC1');ax.set_ylabel('PC2')\nax=axes[1]\nax.scatter(nci_scores[:,0],\nnci_scores[:,2],\nc=nci_groups,\nmarker='o',\ns=50)\nax.set_xlabel('PC1');ax.set_ylabel('PC3');"} />
+
+Các biểu đồ kết quả được thể hiện trong Hình 12.17. Nhìn chung, các dòng tế bào thuộc cùng một loại ung thư có xu hướng nhận giá trị tương tự trên một vài vector score thành phần chính đầu tiên. Điều này cho thấy các dòng tế bào từ cùng loại ung thư thường có mức biểu hiện gene khá giống nhau.
+
+Ta cũng có thể vẽ tỷ lệ phần trăm phương sai được giải thích bởi các thành phần chính và tỷ lệ tích lũy. Điều này tương tự các biểu đồ đã tạo trước đó cho dữ liệu `USArrests`.
+
+<MdxCode language="text" code={"In [52]:fig,axes=plt.subplots(1,2,figsize=(15,6))\nax=axes[0]\nticks=np.arange(nci_pca.n_components_)+1"} />
+
+**HÌNH 12.17.** _Hình chiếu của các dòng tế bào ung thư_ `NCI60` _lên ba thành phần chính đầu tiên (nói cách khác, các score của ba thành phần chính đầu). Nhìn chung, các quan sát thuộc một loại ung thư có xu hướng nằm gần nhau trong không gian ít chiều này. Ta không thể trực quan hóa dữ liệu nếu không dùng phương pháp giảm chiều như PCA, vì dựa trên toàn bộ dữ liệu có_ �6 _,_ 8302 � _biểu đồ phân tán khả dĩ và không biểu đồ nào đặc biệt giàu thông tin._
+
+<MdxCode language="text" code={"ax.plot(ticks,\nnci_pca.explained_variance_ratio_ ,\nmarker='o')\nax.set_xlabel('PrincipalComponent');\nax.set_ylabel('PVE')\nax=axes[1]\nax.plot(ticks,\nnci_pca.explained_variance_ratio_.cumsum(),\nmarker='o');\nax.set_xlabel('PrincipalComponent')\nax.set_ylabel('CumulativePVE');"} />
+
+Các biểu đồ kết quả được thể hiện trong Hình 12.18.
+
+Ta thấy bảy thành phần chính đầu tiên cùng nhau giải thích khoảng 40% phương sai trong dữ liệu. Đây không phải là tỷ lệ rất lớn. Tuy nhiên, nhìn vào scree plot, ta thấy mỗi thành phần trong bảy thành phần đầu giải thích một lượng phương sai đáng kể, còn phương sai được giải thích bởi các thành phần sau giảm rõ rệt. Tức là, biểu đồ có một _điểm khuỷu_ sau khoảng thành phần chính thứ bảy. Điều này gợi ý rằng xem xét nhiều hơn khoảng bảy thành phần chính có thể không đem lại nhiều lợi ích (dù ngay cả việc xem bảy thành phần cũng có thể khó).
+
+### Phân cụm các quan sát trong dữ liệu NCI60
+
+Bây giờ ta thực hiện phân cụm phân cấp các dòng tế bào trong dữ liệu `NCI60` bằng liên kết hoàn chỉnh, đơn và trung bình. Một lần nữa, mục tiêu là tìm hiểu các quan sát có phân thành những loại ung thư riêng biệt hay không. Khoảng cách Euclid được dùng làm thước đo độ bất tương đồng. Trước hết, ta viết một hàm ngắn để tạo ba dendrogram.
+
+**HÌNH 12.18.** _PVE của các thành phần chính trong bộ dữ liệu microarray dòng tế bào ung thư_ `NCI60`_._ Trái: _PVE của từng thành phần chính._ Phải: _PVE tích lũy của các thành phần chính. Tất cả thành phần chính cùng nhau giải thích 100,% phương sai._
+
+<MdxCode language="text" code={"In [53]:defplot_nci(linkage,ax,cut=-np.inf):\ncargs={'above_threshold_color':'black',\n'color_threshold':cut}\nhc=HClust(n_clusters=None,\ndistance_threshold=0,\nlinkage=linkage.lower()).fit(nci_scaled)\nlinkage_=compute_linkage(hc)\ndendrogram(linkage_,\nax=ax,\nlabels=np.asarray(nci_labs),\nleaf_font_size=10,\n**cargs)\nax.set_title('%sLinkage'%linkage)\nreturnhc"} />
+
+Hãy vẽ kết quả.
+
+<MdxCode language="text" code={"In [54]:fig,axes=plt.subplots(3,1,figsize=(15,30))\nax=axes[0];hc_comp=plot_nci('Complete',ax)\nax=axes[1];hc_avg=plot_nci('Average',ax)\nax=axes[2];hc_sing=plot_nci('Single',ax)"} />
+
+Kết quả được thể hiện trong Hình 12.19. Ta thấy việc chọn kiểu liên kết chắc chắn ảnh hưởng đến kết quả. Thông thường, liên kết đơn có xu hướng tạo các cụm _kéo đuôi_: những cụm rất lớn mà các quan sát riêng lẻ lần lượt gắn vào. Mặt khác, liên kết hoàn chỉnh và trung bình có xu hướng tạo các cụm cân bằng, đẹp hơn. Vì lý do này, chúng thường được ưu tiên hơn liên kết đơn. Rõ ràng các dòng tế bào trong cùng một loại ung thư có xu hướng tụ lại với nhau, dù việc phân cụm không hoàn hảo. Ta sẽ dùng phân cụm phân cấp liên kết hoàn chỉnh cho phân tích tiếp theo.
+
+**HÌNH 12.19.** _Dữ liệu microarray dòng tế bào ung thư_ `NCI60`_, được phân cụm bằng liên kết trung bình, hoàn chỉnh và đơn, với khoảng cách Euclid làm thước đo độ bất tương đồng. Liên kết hoàn chỉnh và trung bình có xu hướng tạo các cụm kích thước đồng đều, còn liên kết đơn có xu hướng tạo các cụm kéo dài mà từng lá riêng lẻ lần lượt được hợp vào._
+
+Ta có thể cắt dendrogram ở độ cao tạo ra một số cụm cụ thể, chẳng hạn bốn:
+
+<MdxCode language="text" code={"In [55]:linkage_comp=compute_linkage(hc_comp)\ncomp_cut=cut_tree(linkage_comp ,n_clusters=4).reshape(-1)\npd.crosstab(nci_labs['label'],\npd.Series(comp_cut.reshape(-1),name='Complete'))"} />
+
+Có một số mẫu hình rõ ràng. Tất cả dòng tế bào bệnh bạch cầu nằm trong một cụm, trong khi các dòng tế bào ung thư vú trải trên ba cụm khác nhau.
+
+Ta có thể vẽ một đường cắt trên dendrogram tạo ra bốn cụm này:
+
+<MdxCode language="text" code={"In [56]:fig,ax=plt.subplots(figsize=(10,10))\nplot_nci('Complete',ax,cut=140)\nax.axhline(140,c='r',linewidth=4);"} />
+
+Hàm `axhline()` vẽ một đường ngang lên trên tập trục hiện có. Đối số `140` vẽ đường ngang tại độ cao 140 trên dendrogram; đây là độ cao tạo ra bốn cụm riêng biệt. Có thể dễ dàng kiểm tra các cụm kết quả giống những cụm thu được trong `comp_cut`.
+
+Trước đó ở Mục 12.4.2, ta khẳng định rằng phân cụm _K_-means và phân cụm phân cấp với dendrogram được cắt để có cùng số cụm có thể tạo kết quả rất khác nhau. Kết quả phân cụm phân cấp `NCI60` này so với kết quả phân cụm _K_-means với _K_ = 4 như thế nào?
+
+<MdxCode language="text" code={"In [57]:nci_kmeans=KMeans(n_clusters=4,\nrandom_state=0,\nn_init=20).fit(nci_scaled)\npd.crosstab(pd.Series(comp_cut,name='HClust'),\npd.Series(nci_kmeans.labels_,name='K-means'))"} />
+
+<MdxCode language="text" code={"Out[57]:K-means0123\nHClust\n028390\n17000\n20008\n30900"} />
+
+Ta thấy bốn cụm thu được bằng phân cụm phân cấp và _K_-means hơi khác nhau. Trước hết, lưu ý rằng nhãn trong hai phép phân cụm là tùy ý. Tức là đổi định danh của cụm không làm thay đổi phép phân cụm. Ở đây, cụm 3 trong _K_-means giống hệt cụm 2 trong phân cụm phân cấp. Tuy nhiên, các cụm khác thì khác nhau: chẳng hạn, cụm 0 trong _K_-means chứa một phần các quan sát được phân cụm phân cấp gán vào cụm 0, cùng với tất cả quan sát được phân cụm phân cấp gán vào cụm 1.
+
+Thay vì thực hiện phân cụm phân cấp trên toàn bộ ma trận dữ liệu, ta cũng có thể thực hiện nó trên một vài vector score thành phần chính đầu tiên, xem chúng như phiên bản ít nhiễu hơn của dữ liệu.
+
+<MdxCode language="text" code={"In [58]:hc_pca=HClust(n_clusters=None,\ndistance_threshold=0,\nlinkage='complete'\n).fit(nci_scores[:,:5])\nlinkage_pca=compute_linkage(hc_pca)\nfig,ax=plt.subplots(figsize=(8,8))\ndendrogram(linkage_pca ,\nlabels=np.asarray(nci_labs),\nleaf_font_size=10,\nax=ax,\n**cargs)\nax.set_title(\"Hier.Clust.onFirstFiveScoreVectors\")\npca_labels=pd.Series(cut_tree(linkage_pca ,\nn_clusters=4).reshape(-1),\nname='Complete-PCA')\npd.crosstab(nci_labs['label'],pca_labels)"} />
+
+</MdxPage>

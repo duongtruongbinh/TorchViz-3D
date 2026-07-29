@@ -28,30 +28,47 @@ test('learning core remains independent from authored content and React UI', () 
 test('typed catalog materializes domain metadata and content lifecycle counts', () => {
   const rlDomain = getLearningDomain(learningCatalog, 'reinforcement-learning');
   const robotDomain = getLearningDomain(learningCatalog, 'robot-learning');
+  const statisticsDomain = getLearningDomain(learningCatalog, 'statistics');
 
   assert.equal(rlDomain?.status, 'active');
   assert.equal(robotDomain?.status, 'partial');
+  assert.equal(statisticsDomain?.status, 'active');
+  assert.deepEqual(statisticsDomain?.mdx?.fallbackLocales, ['en']);
+  assert.equal(statisticsDomain?.mdx?.searchTextMode, 'metadata');
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
-  assert.equal(learningTableOfContents.length, 12);
-  assert.equal(learningCatalog.domains.length, 12);
-  assert.equal(learningCatalog.tracks.length, 84);
-  assert.equal(learningCatalog.lessons.length, 602);
+  assert.deepEqual(
+    learningCatalog.domains.slice(0, 3).map((domain) => domain.id),
+    ['programming-foundation', 'linear-algebra', 'statistics'],
+  );
+  assert.equal(learningTableOfContents.length, 13);
+  assert.equal(learningCatalog.domains.length, 13);
+  assert.equal(learningCatalog.tracks.length, 97);
+  assert.equal(learningCatalog.lessons.length, 692);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 64, next: 1, locked: 537 },
+    { available: 154, next: 1, locked: 537 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 66);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 156);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 536);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
   assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.text.title.en, '1.1 RL Fundamentals');
+  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'statistical-learning')?.text.title.en, '2. Statistical Learning');
+  assert.deepEqual(
+    resolveLearningLessonRoute(learningCatalog, {
+      domainId: 'statistics',
+      trackId: 'statistical-learning',
+      lessonId: 'ch02-what-is-statistical-learning',
+    })?.lesson.id,
+    'ch02-what-is-statistical-learning',
+  );
 });
 
 test('catalog lesson text is canonical', () => {
@@ -114,7 +131,7 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 });
 
-test('only LLM and tagged CV exercise lessons carry authored content', () => {
+test('LLM, Statistics, and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
   assert.equal(missingLessons.length, 536);
   for (const lesson of missingLessons) {
@@ -123,6 +140,8 @@ test('only LLM and tagged CV exercise lessons carry authored content', () => {
   }
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'statistics').length, 90);
+  assert.ok(publishedLessons.filter((lesson) => lesson.domainId === 'statistics').every((lesson) => lesson.status === 'available'));
   assert.deepEqual(getReviewableLearningLessons(learningCatalog).map((lesson) => lesson.id), [
     'conv2d-shape-exercise',
     'conv2d-value-exercise',

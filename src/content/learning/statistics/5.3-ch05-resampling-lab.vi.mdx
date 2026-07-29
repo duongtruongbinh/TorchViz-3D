@@ -1,0 +1,232 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch05-resampling-lab",
+  "locale": "vi",
+  "title": "5.3 Lab: Xác thực chéo và bootstrap",
+  "headings": [
+    "Thực hành: Xác thực chéo và bootstrap",
+    "5.3.1 Phương pháp tập xác thực",
+    "5.3.2 Xác thực chéo",
+    "5.3.3 Bootstrap"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phương pháp lấy mẫu lại",
+    "Thực hành: Xác thực chéo và bootstrap"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Thực hành: Xác thực chéo và bootstrap
+
+Trong bài thực hành này, ta khảo sát các kỹ thuật lấy mẫu lại được đề cập trong chương. Một số lệnh có thể mất một lúc để chạy trên máy tính của bạn.
+
+Ta lại bắt đầu bằng cách đặt hầu hết lệnh import ở cấp đầu này.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nimportstatsmodels.apiassm\nfromISLPimportload_data\nfromISLP.modelsimport(ModelSpecasMS,\nsummarize,\npoly)\nfromsklearn.model_selectionimporttrain_test_split"} />
+
+Bài thực hành này cần một số lệnh import mới.
+
+<MdxCode language="text" code={"In [2]:fromfunctoolsimportpartial\nfromsklearn.model_selectionimport\\\n(cross_validate ,\nKFold,\nShuffleSplit)\nfromsklearn.baseimportclone\nfromISLP.modelsimportsklearn_sm"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 5.3.1 Phương pháp tập xác thực
+
+Ta khảo sát cách dùng phương pháp tập xác thực để ước lượng tỷ lệ sai số kiểm tra khi khớp nhiều mô hình tuyến tính với bộ dữ liệu `Auto`.
+
+Ta dùng hàm `train_test_split()` để chia dữ liệu thành tập huấn luyện và tập xác thực. Tên hàm gồm các phần `train_test_` và `split()`. Vì có 392 quan sát, ta dùng đối số `test_size=196` để chia thành hai tập bằng nhau, mỗi tập có kích thước 196. Thông thường nên đặt hạt giống ngẫu nhiên khi thực hiện các thao tác có yếu tố ngẫu nhiên như vậy, để sau này có thể tái lập chính xác kết quả. Ta đặt hạt giống ngẫu nhiên của bộ chia bằng đối số `random_state=0`.
+
+<MdxCode language="text" code={"In [3]:Auto=load_data('Auto')"} />
+
+<MdxCode language="text" code={"Auto_train,Auto_valid=train_test_split(Auto,\ntest_size=196,\nrandom_state=0)"} />
+
+Giờ ta có thể khớp hồi quy tuyến tính chỉ bằng các quan sát trong tập huấn luyện `Auto_train`.
+
+<MdxCode language="text" code={"In [4]:hp_mm=MS(['horsepower'])\nX_train=hp_mm.fit_transform(Auto_train)\ny_train=Auto_train['mpg']\nmodel=sm.OLS(y_train,X_train)\nresults=model.fit()"} />
+
+Ta dùng phương thức `predict()` của `results`, đánh giá trên ma trận mô hình được tạo từ tập dữ liệu xác thực. Ta cũng tính MSE xác thực của mô hình.
+
+<MdxCode language="text" code={"In [5]:X_valid=hp_mm.transform(Auto_valid)\ny_valid=Auto_valid['mpg']\nvalid_pred=results.predict(X_valid)\nnp.mean((y_valid-valid_pred)**2)"} />
+
+<MdxCode language="text" code={"Out[5]:23.6166"} />
+
+Vì vậy, ước lượng MSE xác thực của phép khớp hồi quy tuyến tính là 23 _._ 62.
+
+Ta cũng có thể ước lượng sai số xác thực cho hồi quy đa thức bậc cao hơn. Đầu tiên, ta cung cấp một hàm `evalMSE()` nhận một chuỗi mô hình cùng tập huấn luyện và tập kiểm tra, rồi trả về MSE trên tập kiểm tra.
+
+<MdxCode language="text" code={"In [6]:defevalMSE(terms,\nresponse,\ntrain,\ntest):\nmm=MS(terms)\nX_train=mm.fit_transform(train)\ny_train=train[response]\nX_test=mm.transform(test)\ny_test=test[response]"} />
+
+<MdxCode language="text" code={"results=sm.OLS(y_train,X_train).fit()\ntest_pred=results.predict(X_test)\nreturnnp.mean((y_test-test_pred)**2)"} />
+
+Hãy dùng hàm này để ước lượng MSE xác thực cho các phép khớp tuyến tính, bậc hai và bậc ba. Ở đây ta dùng hàm `enumerate()`; `enumerate()` cung cấp cả giá trị lẫn chỉ số của các đối tượng khi lặp qua vòng lặp for.
+
+<MdxCode language="text" code={"In [7]:MSE=np.zeros(3)\nforidx,degreeinenumerate(range(1,4)):\nMSE[idx]=evalMSE([poly('horsepower',degree)],\n'mpg',\nAuto_train ,\nAuto_valid)\nMSE"} />
+
+<MdxCode language="text" code={"Out[7]:array([23.62,18.76,18.80])"} />
+
+Các tỷ lệ sai số lần lượt là 23 _._ 62 _,_ 18 _._ 76 và 18 _._ 80. Nếu chọn một cách chia huấn luyện/xác thực khác, ta có thể kỳ vọng sai số trên tập xác thực hơi khác.
+
+<MdxCode language="text" code={"In [8]:Auto_train,Auto_valid=train_test_split(Auto,\ntest_size=196,\nrandom_state=3)\nMSE=np.zeros(3)\nforidx,degreeinenumerate(range(1,4)):\nMSE[idx]=evalMSE([poly('horsepower',degree)],\n'mpg',\nAuto_train ,\nAuto_valid)\nMSE"} />
+
+<MdxCode language="text" code={"Out[8]:array([20.76,16.95,16.97])"} />
+
+Với cách chia quan sát này thành tập huấn luyện và tập xác thực, tỷ lệ sai số tập xác thực của các mô hình có số hạng tuyến tính, bậc hai và bậc ba lần lượt là 20 _._ 76, 16 _._ 95 và 16 _._ 97.
+
+Các kết quả phù hợp với phát hiện trước đó: mô hình dự đoán `mpg` bằng hàm bậc hai của `horsepower` hoạt động tốt hơn mô hình chỉ chứa hàm tuyến tính của `horsepower`, và không có bằng chứng cho thấy dùng hàm bậc ba của `horsepower` đem lại cải thiện.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 5.3.2 Xác thực chéo
+
+Về lý thuyết, có thể tính ước lượng xác thực chéo cho bất kỳ mô hình tuyến tính tổng quát nào. Tuy nhiên, trong thực tế, cách đơn giản nhất để thực hiện xác thực chéo trong Python là dùng `sklearn`, có giao diện hay API khác với `statsmodels`, phần code ta đã dùng để khớp GLM.
+
+Đây là vấn đề các nhà khoa học dữ liệu thường gặp: “Tôi có một hàm thực hiện tác vụ _A_ và cần đưa nó vào một thứ thực hiện tác vụ _B_, để tính _B_(_A_(_D_)), trong đó _D_ là dữ liệu.” Khi _A_ và _B_ không tự nhiên giao tiếp được với nhau, ta cần dùng một _wrapper_. Trong package `ISLP`, ta cung cấp wrapper `sklearn_sm()`; lớp `sklearn_sm()` giúp dễ dàng dùng công cụ xác thực chéo của `sklearn` với các mô hình được khớp bằng `statsmodels`. Đối số đầu tiên của lớp `sklearn_sm()` là một mô hình từ `statsmodels`. Nó có thể nhận thêm hai đối số tùy chọn: `model_str` dùng để xác định một công thức, và `model_args` là dictionary chứa các đối số bổ sung khi khớp mô hình. Ví dụ, để khớp mô hình hồi quy logistic, ta phải xác định đối số `family`. Đối số này được truyền dưới dạng `model_args={'family':sm.families.Binomial()}`.
+
+Đây là wrapper của ta khi hoạt động:
+
+<MdxCode language="text" code={"In [9]:hp_model=sklearn_sm(sm.OLS,\nMS(['horsepower']))\nX,Y=Auto.drop(columns=['mpg']),Auto['mpg']\ncv_results=cross_validate(hp_model,\nX,\nY,\ncv=Auto.shape[0])\ncv_err=np.mean(cv_results['test_score'])\ncv_err"} />
+
+<MdxCode language="text" code={"Out[9]:24.2315"} />
+
+Các đối số của `cross_validate()` gồm: một đối tượng có các phương thức `fit()`, `predict()` và `score()` phù hợp, một mảng đặc trưng `X` và một biến đáp ứng `Y`. Ta còn đưa thêm đối số `cv` vào `cross_validate()`; việc chỉ định một số nguyên _K_ tạo ra xác thực chéo _K_-fold. Ta cung cấp giá trị bằng tổng số quan sát, dẫn đến xác thực chéo bỏ-một-điểm (LOOCV). Tên hàm có thể được tách thành `cross_` và `validate()`. Hàm `cross_validate()` tạo một dictionary có nhiều thành phần; ở đây ta chỉ muốn điểm kiểm tra qua xác thực chéo (MSE), được ước lượng là 24,23.
+
+Ta có thể lặp quy trình này với các phép khớp đa thức ngày càng phức tạp. Để tự động hóa, ta lại dùng vòng lặp for, lần lượt khớp hồi quy đa thức bậc 1 đến 5, tính sai số xác thực chéo tương ứng và lưu vào phần tử thứ _i_ của vector `cv_error`. Biến `d` trong vòng lặp for tương ứng với bậc đa thức. Ta bắt đầu bằng cách khởi tạo vector. Lệnh này có thể mất vài giây để chạy.
+
+<MdxCode language="text" code={"In [10]:cv_error=np.zeros(5)\nH=np.array(Auto['horsepower'])\nM=sklearn_sm(sm.OLS)\nfori,dinenumerate(range(1,6)):\nX=np.power.outer(H,np.arange(d+1))\nM_CV=cross_validate(M,\nX,\nY,\ncv=Auto.shape[0])\ncv_error[i]=np.mean(M_CV['test_score'])\ncv_error"} />
+
+<MdxCode language="text" code={"Out[10]:array([24.2315,19.2482,19.3350,19.4244,19.0332])"} />
+
+Như trong Hình 5.4, MSE kiểm tra ước lượng giảm mạnh từ phép khớp tuyến tính sang bậc hai, nhưng sau đó không có cải thiện rõ ràng khi dùng đa thức bậc cao hơn.
+
+Ở trên, ta đã giới thiệu phương thức `outer()` của hàm `np.power()`. Phương thức này còn được ký hiệu là `.outer()`. Phương thức `outer()` được áp dụng cho một phép toán có hai đối số như `add()`, `min()` hoặc `power()`. Nó nhận hai mảng làm đối số, rồi tạo một mảng lớn hơn bằng cách áp dụng phép toán cho từng cặp phần tử của hai mảng.
+
+<MdxCode language="text" code={"np.power()"} />
+
+<MdxCode language="text" code={"In [11]:A=np.array([3,5,9])\nB=np.array([2,4])\nnp.add.outer(A,B)"} />
+
+<MdxCode language="text" code={"Out[11]:array([[5,7],\n[7,9],\n[11,13]])"} />
+
+Trong ví dụ CV ở trên, ta dùng _K_ = _n_, nhưng tất nhiên cũng có thể dùng _K &lt; n_. Code rất giống ở trên và chạy nhanh hơn đáng kể. Ở đây, ta dùng `KFold()` để chia dữ liệu thành _K_ = 10 nhóm ngẫu nhiên. Ta tiếp tục dùng `KFold()` cùng `random_state` để đặt hạt giống ngẫu nhiên và khởi tạo vector `cv_error` để lưu các sai số CV tương ứng với phép khớp đa thức bậc một đến năm.
+
+<MdxCode language="text" code={"In [12]:cv_error=np.zeros(5)\ncv=KFold(n_splits=10,\nshuffle=True,\nrandom_state=0)#usesamesplitsforeachdegree\nfori,dinenumerate(range(1,6)):\nX=np.power.outer(H,np.arange(d+1))\nM_CV=cross_validate(M,\nX,\nY,\ncv=cv)\ncv_error[i]=np.mean(M_CV['test_score'])\ncv_error"} />
+
+<MdxCode language="text" code={"Out[12]:array([24.2077,19.1853,19.2763,19.4785,19.1372])"} />
+
+Lưu ý thời gian tính toán ngắn hơn nhiều so với LOOCV. (Về nguyên tắc, thời gian tính LOOCV cho mô hình tuyến tính bình phương tối thiểu phải nhanh hơn CV _K_-fold vì có công thức (5.2) cho LOOCV; tuy nhiên, hàm `cross_validate()` tổng quát không dùng công thức này.) Ta vẫn thấy rất ít bằng chứng rằng các số hạng đa thức bậc ba hoặc cao hơn cho sai số kiểm tra thấp hơn so với phép khớp bậc hai.
+
+Hàm `cross_validate()` linh hoạt và có thể nhận các cơ chế chia khác nhau làm đối số. Chẳng hạn, có thể dùng hàm `ShuffleSplit() Shuffle`, với phần còn lại là `Split()`, để triển khai phương pháp tập xác thực dễ dàng như xác thực chéo K-fold.
+
+<MdxCode language="text" code={"In [13]:validation=ShuffleSplit(n_splits=1,\ntest_size=196,\nrandom_state=0)\nresults=cross_validate(hp_model,\nAuto.drop(['mpg'],axis=1),\nAuto['mpg'],\ncv=validation);\nresults['test_score']"} />
+
+###### **`Out[13]:`** `array([23.6166])`
+
+Có thể ước lượng độ biến thiên của sai số kiểm tra bằng cách chạy:
+
+<MdxCode language="text" code={"In [14]:validation=ShuffleSplit(n_splits=10,\ntest_size=196,\nrandom_state=0)\nresults=cross_validate(hp_model,\nAuto.drop(['mpg'],axis=1),\nAuto['mpg'],\ncv=validation)\nresults['test_score'].mean(),results['test_score'].std()"} />
+
+###### **`Out[14]:`** `(23.8022, 1.4218)`
+
+Lưu ý độ lệch chuẩn này không phải một ước lượng hợp lệ của độ biến thiên lấy mẫu của điểm kiểm tra trung bình hay từng điểm riêng lẻ, vì các mẫu huấn luyện được chọn ngẫu nhiên chồng lấp nhau và do đó tạo ra tương quan. Nhưng nó vẫn cho ta hình dung về độ biến thiên Monte Carlo phát sinh khi chọn các fold ngẫu nhiên khác nhau.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 5.3.3 Bootstrap
+
+Ta minh họa cách dùng bootstrap trong ví dụ đơn giản ở Mục 5.2, cũng như trong một ví dụ ước lượng độ chính xác của mô hình hồi quy tuyến tính trên bộ dữ liệu `Auto`.
+
+Ước lượng độ chính xác của một thống kê quan tâm
+
+Một trong những lợi thế lớn của bootstrap là có thể áp dụng trong hầu hết mọi tình huống mà không cần tính toán toán học phức tạp. Dù Python có một số cách triển khai bootstrap, việc dùng nó để ước lượng sai số chuẩn đủ đơn giản để ta tự viết hàm bên dưới cho trường hợp dữ liệu được lưu trong dataframe.
+
+Để minh họa bootstrap, ta bắt đầu bằng một ví dụ đơn giản. Bộ dữ liệu `Portfolio` trong package `ISLP` được mô tả ở Mục 5.2. Mục tiêu là ước lượng phương sai lấy mẫu của tham số _α_ trong công thức (5.7). Ta sẽ tạo hàm `alpha_func()`, nhận đầu vào là một dataframe `D` được giả sử có các cột `X` và `Y`, cùng một vector `idx` cho biết nên dùng những quan sát nào để ước lượng _α_. Hàm trả về ước lượng _α_ dựa trên các quan sát được chọn.
+
+<MdxCode language="text" code={"In [15]:Portfolio=load_data('Portfolio')\ndefalpha_func(D,idx):\ncov_=np.cov(D[['X','Y']].loc[idx],rowvar=False)\nreturn((cov_[1,1]-cov_[0,1])/\n(cov_[0,0]+cov_[1,1]-2*cov_[0,1]))"} />
+
+Hàm này trả về một ước lượng _α_ bằng cách áp dụng công thức phương sai tối thiểu (5.7) cho các quan sát được đối số `idx` lập chỉ mục. Chẳng hạn, lệnh sau ước lượng _α_ bằng toàn bộ 100 quan sát.
+
+<MdxCode language="text" code={"In [16]:alpha_func(Portfolio,range(100))"} />
+
+<MdxCode language="text" code={"Out[16]:0.5758"} />
+
+Tiếp theo, ta chọn ngẫu nhiên có hoàn lại 100 quan sát từ `range(100)`. Điều này tương đương với việc xây dựng một bộ dữ liệu bootstrap mới và tính lại _α_ ˆ dựa trên bộ dữ liệu mới.
+
+<MdxCode language="text" code={"In [17]:rng=np.random.default_rng(0)\nalpha_func(Portfolio,\nrng.choice(100,\n100,\nreplace=True))"} />
+
+###### **`Out[17]:`** `0.6074`
+
+Có thể khái quát quá trình này để tạo hàm đơn giản `boot_SE()`, dùng tính sai số chuẩn bootstrap cho các hàm bất kỳ chỉ nhận một dataframe làm đối số.
+
+<MdxCode language="text" code={"In [18]:defboot_SE(func,\nD,\nn=None,\nB=1000,\nseed=0):\nrng=np.random.default_rng(seed)\nfirst_,second_=0,0\nn=norD.shape[0]\nfor_inrange(B):\nidx=rng.choice(D.index,\nn,\nreplace=True)\nvalue=func(D,idx)\nfirst_+=value\nsecond_+=value**2\nreturnnp.sqrt(second_/B-(first_/B)**2)"} />
+
+Lưu ý việc dùng `_` làm biến lặp trong `for _ in range(B)`. Cách này thường được dùng khi giá trị bộ đếm không quan trọng và chỉ nhằm đảm bảo vòng lặp được thực thi `B` lần.
+
+Hãy dùng hàm vừa tạo để đánh giá độ chính xác của ước lượng _α_ với _B_ = 1 _,_ 000 lần lặp bootstrap.
+
+<MdxCode language="text" code={"In [19]:alpha_SE=boot_SE(alpha_func,\nPortfolio,\nB=1000,\nseed=0)\nalpha_SE"} />
+
+###### **`Out[19]:`** `0.0912`
+
+Đầu ra cuối cho biết ước lượng bootstrap của SE(ˆ _α_) là 0 _._ 0912.
+
+Ước lượng độ chính xác của mô hình hồi quy tuyến tính
+
+Có thể dùng bootstrap để đánh giá độ biến thiên của các ước lượng hệ số và dự đoán từ một phương pháp học thống kê. Ở đây, ta dùng bootstrap để đánh giá độ biến thiên của
+
+các ước lượng _β_ 0 và _β_ 1, tức hệ số chặn và hệ số góc của mô hình hồi quy tuyến tính dùng `horsepower` để dự đoán `mpg` trong bộ dữ liệu `Auto`. Ta sẽ so sánh các ước lượng thu được bằng bootstrap với những ước lượng từ công thức SE(_β_^(ˆ) 0) và SE(_β_^(ˆ) 1) mô tả ở Mục 3.1.2.
+
+Để dùng hàm `boot_SE()`, ta phải viết một hàm (đối số đầu tiên của nó) chỉ nhận dataframe `D` và các chỉ số `idx` làm đối số. Nhưng ở đây ta muốn thực hiện bootstrap cho một mô hình hồi quy cụ thể, được xác định bởi công thức mô hình và dữ liệu. Ta sẽ thực hiện qua vài bước đơn giản.
+
+Đầu tiên, ta viết hàm tổng quát `boot_OLS()` để thực hiện bootstrap cho một mô hình hồi quy nhận một công thức xác định hồi quy tương ứng. Ta dùng hàm `clone()` để tạo bản sao của công thức; `clone()` cho phép công thức được khớp lại với dataframe mới. Điều này có nghĩa mọi đặc trưng dẫn xuất, chẳng hạn những đặc trưng được định nghĩa bằng `poly()` (sẽ thấy ngay sau đây), đều được khớp lại trên dataframe đã lấy mẫu lại.
+
+<MdxCode language="text" code={"In [20]:defboot_OLS(model_matrix ,response,D,idx):\nD_=D.loc[idx]\nY_=D_[response]\nX_=clone(model_matrix).fit_transform(D_)\nreturnsm.OLS(Y_,X_).fit().params"} />
+
+Hàm này chưa hoàn toàn phù hợp để làm đối số đầu tiên của `boot_SE()`. Hai đối số đầu tiên xác định mô hình sẽ không đổi trong quá trình bootstrap và ta muốn _cố định_ chúng. Hàm `partial()` từ module `partial() functools` thực hiện chính xác việc này: nó nhận một hàm làm đối số và cố định một số đối số của hàm, bắt đầu từ bên trái. Ta dùng nó để cố định hai đối số công thức mô hình đầu tiên của `boot_OLS()`.
+
+<MdxCode language="text" code={"In [21]:hp_func=partial(boot_OLS,MS(['horsepower']),'mpg')"} />
+
+Nhập `hp_func?` sẽ cho thấy nó có hai đối số `D` và `idx` — đây là phiên bản `boot_OLS()` với hai đối số đầu được cố định — nên rất phù hợp làm đối số đầu tiên của `boot_SE()`.
+
+Giờ có thể dùng hàm `hp_func()` để tạo các ước lượng bootstrap cho hệ số chặn và hệ số góc bằng cách lấy mẫu ngẫu nhiên có hoàn lại từ các quan sát. Đầu tiên, ta minh họa cách dùng trên 10 mẫu bootstrap.
+
+<MdxCode language="text" code={"In [22]:rng=np.random.default_rng(0)\nnp.array([hp_func(Auto,\nrng.choice(392,\n392,\nreplace=True))for_inrange(10)])"} />
+
+<MdxCode language="text" code={"Out[22]:array([[39.8806,-0.1568],\n[38.733,-0.147],\n[38.3173,-0.1444],\n[39.9145,-0.1578],\n[39.4335,-0.1507],\n[40.3663,-0.1591],\n[39.6233,-0.1545],\n[39.0581,-0.1495],\n[38.6669,-0.1452],\n[39.6428,-0.1556]])"} />
+
+Tiếp theo, ta dùng hàm `boot_SE()` để tính sai số chuẩn của 1.000 ước lượng bootstrap cho hệ số chặn và hệ số góc.
+
+<MdxCode language="text" code={"In [23]:hp_se=boot_SE(hp_func,\nAuto,\nB=1000,\nseed=10)\nhp_se\nOut[23]:intercept0.8488\nhorsepower0.0074\ndtype:float64"} />
+
+Kết quả cho biết ước lượng bootstrap của SE(_β_^(ˆ) 0) là 0,85, còn ước lượng bootstrap của SE(_β_^(ˆ) 1) là 0,0074. Như đã thảo luận ở Mục 3.1.2, có thể dùng các công thức tiêu chuẩn để tính sai số chuẩn của hệ số hồi quy trong mô hình tuyến tính. Có thể thu được chúng bằng hàm `summarize()` từ `ISLP.sm`.
+
+<MdxCode language="text" code={"In [24]:hp_model.fit(Auto,Auto['mpg'])\nmodel_se=summarize(hp_model.results_)['stderr']\nmodel_se"} />
+
+<MdxCode language="text" code={"Out[24]:intercept0.717\nhorsepower0.006\nName:stderr,dtype:float64"} />
+
+Các ước lượng sai số chuẩn của _β_^(ˆ) 0 và _β_^(ˆ) 1 thu được bằng công thức ở Mục 3.1.2 lần lượt là 0,717 cho hệ số chặn và 0,006 cho hệ số góc. Đáng chú ý là chúng hơi khác các ước lượng từ bootstrap. Điều này có cho thấy bootstrap có vấn đề không? Thực ra, nó gợi ý điều ngược lại. Nhắc lại rằng các công thức tiêu chuẩn trong Phương trình 3.8 ở trang 75 dựa trên một số giả định. Ví dụ, chúng phụ thuộc vào tham số chưa biết _σ_^(2), tức phương sai nhiễu. Sau đó ta ước lượng _σ_^(2) bằng RSS. Dù công thức sai số chuẩn không phụ thuộc vào việc mô hình tuyến tính có đúng hay không, ước lượng _σ_^(2) lại phụ thuộc. Trong Hình 3.8 ở trang 99, ta thấy dữ liệu có quan hệ phi tuyến, nên phần dư từ phép khớp tuyến tính sẽ bị phóng đại và _σ_^(2) cũng vậy. Thứ hai, các công thức tiêu chuẩn giả định (hơi thiếu thực tế) rằng _xi_ cố định và toàn bộ độ biến thiên đến từ biến thiên của sai số _ϵi_. Phương pháp bootstrap không dựa trên bất kỳ giả định nào trong số này, nên có khả năng cho ước lượng sai số chuẩn của _β_^(ˆ) 0 và _β_^(ˆ) 1 chính xác hơn kết quả từ `sm.OLS`.
+
+Dưới đây, ta tính các ước lượng sai số chuẩn bootstrap và các ước lượng hồi quy tuyến tính tiêu chuẩn khi khớp mô hình bậc hai với dữ liệu. Vì mô hình này khớp dữ liệu tốt (Hình 3.8), giờ các ước lượng bootstrap và ước lượng tiêu chuẩn của SE(_β_^(ˆ) 0), SE(_β_^(ˆ) 1) và SE(_β_^(ˆ) 2) tương ứng với nhau tốt hơn.
+
+<MdxCode language="text" code={"In [25]:quad_model=MS([poly('horsepower',2,raw=True)])\nquad_func=partial(boot_OLS,\nquad_model,\n'mpg')\nboot_SE(quad_func,Auto,B=1000)"} />
+
+<MdxCode language="text" code={"Out[25]:intercept2.067840\npoly(horsepower ,2,raw=True)[0]0.033019\npoly(horsepower ,2,raw=True)[1]0.000120\ndtype:float64"} />
+
+Ta so sánh kết quả với sai số chuẩn được tính bằng `sm.OLS()`.
+
+<MdxCode language="text" code={"In [26]:M=sm.OLS(Auto['mpg'],"} />
+
+<MdxCode language="text" code={"quad_model.fit_transform(Auto))\nsummarize(M.fit())['stderr']"} />
+
+<MdxCode language="text" code={"Out[26]:intercept1.800\npoly(horsepower ,2,raw=True)[0]0.031\npoly(horsepower ,2,raw=True)[1]0.000\nName:stderr,dtype:float64"} />
+
+</MdxPage>

@@ -1,0 +1,57 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch05-bootstrap",
+  "locale": "vi",
+  "title": "5.2 Bootstrap",
+  "headings": [
+    "Bootstrap"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phương pháp lấy mẫu lại",
+    "Bootstrap"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Bootstrap
+
+_Bootstrap_ là một công cụ thống kê có phạm vi áp dụng rộng và cực kỳ mạnh, dùng để định lượng độ bất định gắn với một bộ ước lượng hoặc phương pháp học thống kê cụ thể. Một ví dụ đơn giản là dùng bootstrap để ước lượng sai số chuẩn của các hệ số từ một phép khớp hồi quy tuyến tính. Riêng với hồi quy tuyến tính, điều này không đặc biệt hữu ích vì ta đã thấy trong Chương 3 rằng phần mềm thống kê tiêu chuẩn như `R` tự động xuất những sai số chuẩn này. Tuy nhiên, sức mạnh của bootstrap nằm ở chỗ nó có thể dễ dàng áp dụng cho nhiều phương pháp học thống kê, kể cả những phương pháp mà nếu không dùng bootstrap thì khó thu được thước đo độ biến thiên và phần mềm thống kê cũng không tự động xuất thước đo này.
+
+Trong mục này, ta minh họa bootstrap bằng một ví dụ đơn giản, nơi ta muốn xác định cách phân bổ đầu tư tốt nhất dưới một mô hình đơn giản. Trong Mục 5.3, ta tìm hiểu cách dùng bootstrap để đánh giá độ biến thiên gắn với các hệ số hồi quy trong một phép khớp mô hình tuyến tính.
+
+Giả sử ta muốn đầu tư một khoản tiền cố định vào hai tài sản tài chính có lợi suất lần lượt là _X_ và _Y_, trong đó _X_ và _Y_ là các đại lượng ngẫu nhiên. Ta sẽ đầu tư tỷ lệ _α_ số tiền vào _X_, và đầu tư phần còn lại 1 _− α_ vào _Y_. Vì lợi suất của hai tài sản này có độ biến thiên, ta muốn chọn _α_ để cực tiểu hóa tổng rủi ro, hay phương sai, của khoản đầu tư. Nói cách khác, ta muốn cực tiểu hóa Var(_αX_ + (1 _− α_) _Y_). Có thể chứng minh giá trị làm cực tiểu rủi ro là
+
+trong đó _σX_^(2= Var()^(_X_))^(_, σ_) _Y_^(2= Var()^(_Y_),and)^(_σXY_= Cov()^(_X, Y_).) Trong thực tế, các đại lượng _σX_^(2,)^(_σ_) _Y_^(2, and)^(_σXY_are unknown. We can compute) chưa biết. Ta có thể tính các ước lượng cho chúng, _σ_ ˆ _X_^(2,)^(_σ_ˆ) _Y_^(2,and)^(_σ_ˆ)^(_XY_,usingadatasetthat) chứa những phép đo trước đây của _X_ và _Y_. Sau đó, có thể ước lượng giá trị _α_ làm cực tiểu phương sai khoản đầu tư bằng
+
+Hình 5.9 minh họa cách ước lượng _α_ trên một bộ dữ liệu mô phỏng. Trong mỗi ô, ta mô phỏng 100 cặp lợi suất của các khoản đầu tư _X_ và _Y_. Ta dùng các lợi suất này để ước lượng _σX_^(2)^(_, σ_) _Y_^(2,and)^(_σXY_,whichwe), rồi thay vào (5.7) để thu được ước lượng _α_. Giá trị ˆ _α_ từ mỗi bộ dữ liệu mô phỏng nằm trong khoảng 0 _._ 532 đến 0 _._ 657.
+
+Một mong muốn tự nhiên là định lượng độ chính xác của ước lượng _α_. Để ước lượng độ lệch chuẩn của _α_ ˆ, ta lặp 1.000 lần quá trình mô phỏng 100 quan sát ghép cặp của _X_ và _Y_, rồi ước lượng _α_ bằng (5.7). Nhờ đó, ta thu được 1.000 ước lượng cho _α_, có thể gọi là _α_ ˆ1 _,_ ˆ _α_ 2 _, . . . ,_ ˆ _α_ 1 _,_ 000. Ô bên trái của Hình 5.10 trình bày histogram của các ước lượng thu được. Trong các mô phỏng này, tham số được đặt là _σX_^(2= 1)^(_, σ_) _Y_^(2= 1)^(_._25,and)^(_σXY_= 0)^(_._5,andsoweknowthatthetruevalueof) _α_ bằng 0 _._ 6. Ta đánh dấu giá trị này bằng một đường thẳng đứng liền trên histogram.
+
+**HÌNH 5.9.** _Mỗi ô trình bày_ 100 _lợi suất mô phỏng của các khoản đầu tư X và Y. Từ trái sang phải và từ trên xuống dưới, các ước lượng α thu được lần lượt là_ 0 _._ 576 _,_ 0 _._ 532 _,_ 0 _._ 657 _và_ 0 _._ 651_._
+
+Trung bình của toàn bộ 1.000 ước lượng _α_ là
+
+rất gần _α_ = 0 _._ 6, còn độ lệch chuẩn của các ước lượng là
+
+Điều này cho ta hình dung rất tốt về độ chính xác của _α_ ˆ: SE(ˆ _α_) _≈_ 0 _._ 083. Nói một cách gần đúng, với một mẫu ngẫu nhiên từ quần thể, ta kỳ vọng ˆ _α_ lệch khỏi _α_ trung bình khoảng 0 _._ 08.
+
+Tuy nhiên, trong thực tế không thể áp dụng quy trình ước lượng SE(ˆ _α_) nêu trên vì với dữ liệu thật, ta không thể tạo mẫu mới từ quần thể gốc. Phương pháp bootstrap cho phép dùng máy tính để mô phỏng quá trình lấy các tập mẫu mới, nhờ đó ước lượng độ biến thiên của _α_ ˆ mà không cần tạo thêm mẫu. Thay vì liên tục lấy các bộ dữ liệu độc lập từ quần thể, ta tạo các bộ dữ liệu khác nhau bằng cách liên tục lấy mẫu các quan sát _từ bộ dữ liệu gốc_.
+
+Cách làm này được minh họa trong Hình 5.11 trên một bộ dữ liệu đơn giản gọi là _Z_, chỉ chứa _n_ = 3 quan sát. Ta chọn ngẫu nhiên _n_ quan sát từ bộ dữ liệu để tạo một bộ dữ liệu bootstrap,
+
+**HÌNH 5.10.** Trái: _Histogram các ước lượng α thu được bằng cách tạo 1.000 bộ dữ liệu mô phỏng từ quần thể thực._ Giữa: _Histogram các ước lượng α thu được từ 1.000 mẫu bootstrap của một bộ dữ liệu duy nhất._ Phải: _Các ước lượng α trong ô bên trái và giữa được biểu diễn bằng boxplot. Trong mỗi ô, đường màu hồng chỉ giá trị thực của α._
+
+_Z_^(_∗_1). Việc lấy mẫu được thực hiện _có hoàn lại_, nghĩa là cùng một quan sát có thể xuất hiện nhiều hơn một lần trong bộ dữ liệu bootstrap. Trong ví dụ này, _Z_^(_∗_1) chứa quan sát thứ ba hai lần, quan sát thứ nhất một lần và không chứa quan sát thứ hai. Lưu ý rằng nếu một quan sát có trong _Z_^(_∗_1), cả giá trị _X_ lẫn _Y_ của nó đều được đưa vào. Ta có thể dùng _Z_^(_∗_1) để tạo một ước lượng bootstrap mới cho _α_, gọi là _α_ ˆ^(_∗_1). Quy trình này được lặp _B_ lần với một giá trị _B_ lớn để tạo _B_ bộ dữ liệu bootstrap khác nhau, _Z_^(_∗_1) _, Z_^(_∗_2) _, . . . , Z_^(_∗B_), và _B_ ước lượng _α_ tương ứng, _α_ ˆ^(_∗_1) _,_ ˆ _α_^(_∗_2) _, . . . ,_ ˆ _α_^(_∗B_). Ta có thể tính sai số chuẩn của các ước lượng bootstrap bằng công thức
+
+Đây là một ước lượng cho sai số chuẩn của _α_ ˆ được ước lượng từ bộ dữ liệu gốc.
+
+Phương pháp bootstrap được minh họa ở ô giữa của Hình 5.10, nơi trình bày histogram của 1.000 ước lượng bootstrap cho _α_, mỗi ước lượng được tính từ một bộ dữ liệu bootstrap riêng. Ô này được xây dựng từ một bộ dữ liệu duy nhất nên có thể được tạo bằng dữ liệu thật. Lưu ý histogram rất giống ô bên trái, nơi trình bày histogram lý tưởng hóa của các ước lượng _α_ thu được bằng cách tạo 1.000 bộ dữ liệu mô phỏng từ quần thể thực. Cụ thể, ước lượng bootstrap SE(ˆ _α_) từ (5.8) là 0 _._ 087, rất gần ước lượng 0 _._ 083 thu được bằng 1.000 bộ dữ liệu mô phỏng. Ô bên phải trình bày thông tin trong ô giữa và ô trái theo một cách khác, bằng boxplot của các ước lượng _α_ thu được từ 1.000 bộ dữ liệu mô phỏng của quần thể thực và từ phương pháp bootstrap. Các boxplot lại có độ phân tán tương tự nhau, cho thấy phương pháp bootstrap có thể ước lượng hiệu quả độ biến thiên gắn với _α_ ˆ.
+
+**HÌNH 5.11.** _Minh họa trực quan phương pháp bootstrap trên một mẫu nhỏ chứa n_ = 3 _quan sát. Mỗi bộ dữ liệu bootstrap chứa n quan sát được lấy mẫu có hoàn lại từ bộ dữ liệu gốc. Mỗi bộ dữ liệu bootstrap được dùng để thu một ước lượng α._
+
+</MdxPage>
