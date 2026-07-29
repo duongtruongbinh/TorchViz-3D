@@ -1,11 +1,12 @@
 import { Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { createContext, useContext, type ComponentType, type ReactNode } from 'react';
+import { createContext, isValidElement, useContext, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
 import QuizBlock, { type QuizQuestionState } from './lesson/QuizBlock';
+import { CodeBlock } from './code/CodeBlock';
 import { cx, getLearningLabTheme } from './theme';
 
 export type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
@@ -199,6 +200,28 @@ function BlockMath({ formula }: { formula: string }) {
   );
 }
 
+function MdxPre({ children }: { children?: ReactNode }) {
+  const themeClasses = useLearningMdxTheme();
+
+  // MDX compiles fenced code blocks to <pre><code className="language-xxx">...</code></pre>.
+  // Inspect the child element to detect Python code blocks and hand them to CodeBlock.
+  if (!isValidElement(children)) {
+    return <pre>{children}</pre>;
+  }
+
+  const codeElement = children as ReactElement<{ className?: string; children?: ReactNode }>;
+  const codeClassName = codeElement.props?.className;
+
+  if (typeof codeClassName === 'string' && /^language-python(?:$|\s)/.test(codeClassName)) {
+    const codeContent = codeElement.props.children;
+    const code = typeof codeContent === 'string' ? codeContent : '';
+    return <CodeBlock code={code} variant="code" themeClasses={themeClasses} />;
+  }
+
+  // Non-Python or unlabeled code blocks: render as a normal <pre>.
+  return <pre>{children}</pre>;
+}
+
 const sharedAuthoredMdxComponents = {
   LessonNote,
   MdxQuiz,
@@ -212,5 +235,6 @@ const sharedAuthoredMdxComponents = {
 export const sharedLearningMdxComponents = {
   a: MdxLink,
   p: MdxParagraph,
+  pre: MdxPre,
   ...sharedAuthoredMdxComponents,
 };
