@@ -39,8 +39,7 @@ generated content as the canonical source.
 
 # Context Read
 
-- `src/content/learning/statistics/` contains exactly 90 `.en.mdx` files and no
-  `.vi.mdx` files.
+- `src/content/learning/statistics/` contains 90 `.vi.mdx` files.
 - Generic MDX validation already verifies catalog/path/metadata parity and
   contiguous page indexes for all published lessons.
 - The Statistics page-count assertion currently imports expected values from
