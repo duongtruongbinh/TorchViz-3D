@@ -1,9 +1,12 @@
 import { Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
-import { createContext, useContext, type ComponentType, type ReactNode } from 'react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+import { createContext, isValidElement, useContext, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
 import QuizBlock, { type QuizQuestionState } from './lesson/QuizBlock';
+import { CodeBlock } from './code/CodeBlock';
 import { cx, getLearningLabTheme } from './theme';
 
 export type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
@@ -175,16 +178,63 @@ export function MdxPage({ children, page }: { children?: ReactNode; page: number
   return useLearningMdxLesson().pageIndex === page ? <>{children}</> : null;
 }
 
+function InlineMath({ formula }: { formula: string }) {
+  const themeClasses = useLearningMdxTheme();
+  const html = katex.renderToString(formula, { displayMode: false, throwOnError: false });
+  return <span className={cx('px-0.5', themeClasses.bodyText)} dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+function BlockMath({ formula }: { formula: string }) {
+  const themeClasses = useLearningMdxTheme();
+  const html = katex.renderToString(formula, { displayMode: true, throwOnError: false });
+  return (
+    <div
+      className={cx(
+        'my-4 overflow-x-auto rounded-lg border px-5 py-4 text-center text-lg font-semibold sm:text-xl',
+        themeClasses.isLight
+          ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]'
+          : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]',
+      )}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
+function MdxPre({ children }: { children?: ReactNode }) {
+  const themeClasses = useLearningMdxTheme();
+
+  // MDX compiles fenced code blocks to <pre><code className="language-xxx">...</code></pre>.
+  // Inspect the child element to detect Python code blocks and hand them to CodeBlock.
+  if (!isValidElement(children)) {
+    return <pre>{children}</pre>;
+  }
+
+  const codeElement = children as ReactElement<{ className?: string; children?: ReactNode }>;
+  const codeClassName = codeElement.props?.className;
+
+  if (typeof codeClassName === 'string' && /^language-python(?:$|\s)/.test(codeClassName)) {
+    const codeContent = codeElement.props.children;
+    const code = typeof codeContent === 'string' ? codeContent : '';
+    return <CodeBlock code={code} variant="code" themeClasses={themeClasses} />;
+  }
+
+  // Non-Python or unlabeled code blocks: render as a normal <pre>.
+  return <pre>{children}</pre>;
+}
+
 const sharedAuthoredMdxComponents = {
   LessonNote,
   MdxQuiz,
   MdxPage,
   RequirementCard,
   RequirementsGrid,
+  InlineMath,
+  BlockMath,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
 
 export const sharedLearningMdxComponents = {
   a: MdxLink,
   p: MdxParagraph,
+  pre: MdxPre,
   ...sharedAuthoredMdxComponents,
 };

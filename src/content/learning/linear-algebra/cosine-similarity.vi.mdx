@@ -1,0 +1,83 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'cosine-similarity',
+  locale: 'vi',
+  title: 'Độ tương đồng Cosine (Cosine Similarity)',
+  headings: ['Cosine Similarity là gì?', 'Công thức tính', 'Giải mã giá trị Cosine', 'Ứng dụng trong Search & RAG'],
+  keywords: ['cosine similarity', 'semantic search', 'embeddings', 'RAG', 'vector space'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+  # Độ tương đồng Cosine (Cosine Similarity)
+  
+  Trong thế giới của AI, chúng ta thường xuyên phải trả lời câu hỏi: *"Hai mẩu nội dung này có giống nhau không?"*.
+  Thay vì so sánh từng chữ cái, chúng ta biến nội dung thành các vector (embeddings) và đo góc giữa chúng. Đó chính là **Cosine Similarity**.
+</MdxPage>
+
+<MdxPage page={1}>
+  ## 1. Công thức tính
+  
+  Độ tương đồng Cosine là tích vô hướng của hai vector sau khi cả hai đã được **chuẩn hóa** về độ dài 1.
+  
+  <BlockMath formula="\text{similarity} = \cos\theta = \frac{\mathbf{v} \cdot \mathbf{w}}{\|\mathbf{v}\|_2 \, \|\mathbf{w}\|_2}" />
+  
+  Nếu hai vector <InlineMath formula="\mathbf{v}" /> và <InlineMath formula="\mathbf{w}" /> đã được chuẩn hóa trước đó, công thức đơn giản chỉ còn là:
+  <InlineMath formula="\text{similarity} = \mathbf{v} \cdot \mathbf{w}" />.
+</MdxPage>
+
+<MdxPage page={2}>
+  ## 2. Giải mã giá trị Cosine
+  
+  Kết quả của Cosine Similarity luôn nằm trong khoảng từ **-1 đến 1**:
+  
+  - **1.0:** Hai vector trùng hướng hoàn toàn (<InlineMath formula="\theta = 0^\circ" />). Nội dung cực kỳ tương đồng.
+  - **0.0:** Hai vector vuông góc (<InlineMath formula="\theta = 90^\circ" />). Hai nội dung không có liên quan gì đến nhau.
+  - **-1.0:** Hai vector đối ngược hoàn toàn (<InlineMath formula="\theta = 180^\circ" />). Nội dung trái ngược nhau.
+  
+  <LessonNote>
+    Trong hầu hết các bài toán NLP (như dùng Sentence-BERT), các vector embedding thường nằm trong một không gian mà các giá trị cosine thường từ 0 đến 1.
+  </LessonNote>
+</MdxPage>
+
+<MdxPage page={3}>
+  ## 3. Tại sao dùng Cosine thay vì Khoảng cách Euclidean?
+  
+  Hãy tưởng tượng hai tài liệu nói về cùng một chủ đề: một bài ngắn (100 chữ) và một bài dài (10,000 chữ).
+  
+  - **Khoảng cách Euclidean:** Sẽ rất lớn vì bài dài có nhiều từ khóa hơn, làm vector "dài" hơn nhiều.
+  - **Cosine Similarity:** Chỉ quan tâm đến **hướng** của vector (tỷ lệ các từ xuất hiện). Cả hai bài đều chỉ về cùng một hướng "chủ đề", nên chúng sẽ có độ tương đồng cao.
+  
+  Đây là lý do Cosine Similarity là tiêu chuẩn cho **Semantic Search** và **RAG (Retrieval Augmented Generation)**.
+</MdxPage>
+
+<MdxPage page={4}>
+  ## Thực hành với PyTorch
+  
+  ```python
+  import torch
+  import torch.nn.functional as F
+
+  # Giả sử đây là embeddings của 2 câu văn
+  vec_a = torch.tensor([1.0, 2.0, 0.0])
+  vec_b = torch.tensor([1.1, 2.1, 0.1])
+  vec_c = torch.tensor([-1.0, -2.0, 0.0])
+
+  # Tính cosine similarity
+  sim_ab = F.cosine_similarity(vec_a, vec_b, dim=0)
+  sim_ac = F.cosine_similarity(vec_a, vec_c, dim=0)
+
+  print(f"A vs B: {sim_ab:.4f}") # Gần 1.0 (rất giống)
+  print(f"A vs C: {sim_ac:.4f}") # Gần -1.0 (ngược nhau)
+  ```
+  
+  <MdxQuiz 
+    question="Trong hệ thống RAG, nếu bạn muốn tìm tài liệu có nội dung tương đồng nhất với câu hỏi của người dùng, bạn sẽ tìm vector có giá trị Cosine Similarity như thế nào?"
+    options={[
+      { text: "Gần bằng 0", isCorrect: false, feedback: "Đó là những tài liệu không liên quan." },
+      { text: "Càng gần -1 càng tốt", isCorrect: false, feedback: "Đó là những tài liệu có nội dung trái ngược." },
+      { text: "Càng gần 1 càng tốt", isCorrect: true, feedback: "Chính xác! Càng gần 1 nghĩa là hướng của vector càng trùng khớp." },
+      { text: "Giá trị bất kỳ, miễn là số nguyên", isCorrect: false, feedback: "Cosine similarity là số thực từ -1 đến 1." }
+    ]}
+  />
+</MdxPage>

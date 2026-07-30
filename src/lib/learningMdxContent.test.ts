@@ -65,6 +65,19 @@ const expectedPageCounts: Record<string, number> = {
   'conv2d-value-exercise': 1,
   'pooling-shape-exercise': 1,
   'pooling-value-exercise': 1,
+  'vectors-intuition': 6,
+  'vector-operations': 6,
+  'dot-product': 6,
+  'vector-norms': 6,
+  'unit-vectors-normalization': 5,
+  'cosine-similarity': 5,
+  'orthogonality': 5,
+  'matrix-operations': 6,
+  'elementwise-vs-matrix-product': 6,
+  'systems-of-linear-equations': 6,
+  'gaussian-elimination': 6,
+  'lu-decomposition': 6,
+  'identity-inverse-matrix': 6,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
@@ -94,11 +107,11 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 53);
+  assert.equal(lessonFiles.length, 66);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 53);
+  assert.equal(documents.length, 66);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
@@ -152,7 +165,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,

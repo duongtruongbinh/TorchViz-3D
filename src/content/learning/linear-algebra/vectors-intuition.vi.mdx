@@ -1,0 +1,80 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vectors-intuition',
+  locale: 'vi',
+  title: 'Trực giác về Vector',
+  headings: ['Vector là gì?', 'Ba góc nhìn về Vector', 'Vector trong Machine Learning', 'Tổng kết'],
+  keywords: ['vector', 'coordinates', 'direction', 'magnitude', 'ML embeddings'],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+  # Trực giác về Vector
+  
+  Trong toán học và AI, **vector** là một trong những khái niệm cơ bản nhất. Tuy nhiên, tùy vào việc bạn là một lập trình viên, một nhà toán học hay một kỹ sư vật lý mà bạn sẽ nhìn vector theo những cách khác nhau.
+  
+  <LessonNote>
+    Thay vì cố gắng học một định nghĩa khô khan, hãy cùng khám phá vector thông qua 3 góc nhìn phổ biến nhất.
+  </LessonNote>
+</MdxPage>
+
+<MdxPage page={1}>
+  ## 1. Góc nhìn Lập trình: Vector là một "Danh sách số"
+  
+  Đối với một coder, vector đơn giản là một mảng (array) hoặc một danh sách các số. 
+  
+  ```
+  v = [1.2, -0.5, 3.1, 0.0]
+  ```
+  
+  Mỗi con số trong danh sách này gọi là một **thành phần (component)** của vector. 
+  Nếu vector có 3 số, ta gọi là vector trong không gian 3 chiều (<InlineMath formula="\mathbb{R}^3" />). Nếu nó có 512 số, ta gọi là vector 512 chiều.
+  
+  **Ví dụ trong ML:** Một tấm ảnh 28x28 pixel có thể được "trải phẳng" thành một vector 784 chiều, trong đó mỗi số là cường độ sáng của một pixel.
+</MdxPage>
+
+<MdxPage page={2}>
+  ## 2. Góc nhìn Vật lý: Vector là một "Mũi tên"
+  
+  Trong vật lý, vector không chỉ là những con số, mà là một **mũi tên** trong không gian. Một mũi tên được xác định bởi hai yếu tố chính:
+  
+  - **Độ dài (Magnitude/Length):** Đại diện cho cường độ, tốc độ hoặc khoảng cách.
+  - **Hướng (Direction):** Cho biết mũi tên đang chỉ về đâu.
+  
+  Khi bạn nói "xe chạy với vận tốc 60km/h về phía Bắc", bạn đang mô tả một vector. Con số 60 là độ dài, và "phía Bắc" là hướng.
+</MdxPage>
+
+<MdxPage page={3}>
+  ## 3. Góc nhìn Toán học: Vector là một "Điểm"
+  
+  Trong hệ tọa độ Descartes, một vector cũng có thể được coi là một **điểm** trong không gian.
+  
+  Nếu ta coi gốc tọa độ <InlineMath formula="(0,0)" /> là điểm bắt đầu, thì vector <InlineMath formula="[x, y]" /> chính là vị trí của điểm đó trong không gian. Sự khác biệt giữa "mũi tên" và "điểm" thực ra rất mong manh: mũi tên chính là đường nối từ gốc tọa độ đến điểm đó.
+</MdxPage>
+
+<MdxPage page={4}>
+  ## Tại sao điều này quan trọng với AI?
+  
+  Trong Machine Learning, hầu hết mọi thứ đều được biểu diễn dưới dạng vector. Đây gọi là **Embedding**.
+  
+  Hãy tưởng tượng từ "Vua" và "Hoàng hậu" được biểu diễn bằng hai vector trong không gian hàng nghìn chiều. 
+  - Nếu hai từ có nghĩa gần nhau, hai vector của chúng sẽ **chỉ về hướng gần nhau** (góc nhỏ).
+  - Nếu hai từ không liên quan, chúng sẽ **chỉ về hai hướng khác nhau**.
+  
+  <LessonNote>
+    Khả năng biến "ý nghĩa" thành "tọa độ" chính là chìa khóa giúp LLM như GPT hiểu được ngôn ngữ con người.
+  </LessonNote>
+</MdxPage>
+
+<MdxPage page={5}>
+  ## Kiểm tra nhanh
+  <MdxQuiz 
+    question="Nếu bạn có một vector v = [3, 4], theo góc nhìn 'Mũi tên', điều này có nghĩa là gì?"
+    options={[
+      { text: "Một danh sách gồm hai số 3 và 4", isCorrect: false, feedback: "Đây là góc nhìn Lập trình." },
+      { text: "Một điểm nằm tại tọa độ (3, 4) hoặc một mũi tên đi từ (0,0) đến (3,4)", isCorrect: true, feedback: "Chính xác! Nó mô tả cả vị trí và hướng." },
+      { text: "Một hằng số có giá trị là 7", isCorrect: false, feedback: "Sai rồi, vector không phải là tổng các thành phần của nó." },
+      { text: "Một đường thẳng kéo dài vô tận", isCorrect: false, feedback: "Vector có độ dài hữu hạn và hướng xác định." }
+    ]}
+  />
+</MdxPage>

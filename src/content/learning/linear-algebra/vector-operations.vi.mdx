@@ -1,0 +1,92 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vector-operations',
+  locale: 'vi',
+  title: 'Các phép toán Vector cơ bản',
+  headings: ['Cộng Vector', 'Trừ Vector', 'Nhân với một số (Scalar Multiplication)', 'Ví dụ với PyTorch'],
+  keywords: ['vector addition', 'vector subtraction', 'scalar multiplication', 'pytorch'],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+  # Các phép toán Vector cơ bản
+  
+  Khi đã hiểu vector là gì, câu hỏi tiếp theo là: *Chúng ta có thể làm gì với chúng?* 
+  Có ba phép toán cơ bản nhất mà bạn sẽ gặp liên tục trong Deep Learning: Cộng, Trừ và Nhân với một số.
+</MdxPage>
+
+<MdxPage page={1}>
+  ## 1. Cộng Vector (Vector Addition)
+  
+  Về mặt **đại số**, cộng hai vector đơn giản là cộng các thành phần tương ứng của chúng:
+  
+  <BlockMath formula="\begin{bmatrix}a\\b\end{bmatrix} + \begin{bmatrix}c\\d\end{bmatrix} = \begin{bmatrix}a+c\\b+d\end{bmatrix}" />
+  
+  Về mặt **hình học**, hãy dùng quy tắc "nối đuôi" (tip-to-tail):
+  Đặt đuôi của vector w vào đầu của vector v. Vector tổng v + w là mũi tên đi từ điểm bắt đầu của v đến điểm kết thúc của w.
+  
+  <LessonNote>
+    Phép cộng vector có tính chất giao hoán: <InlineMath formula="\mathbf{v} + \mathbf{w} = \mathbf{w} + \mathbf{v}" />.
+  </LessonNote>
+</MdxPage>
+
+<MdxPage page={2}>
+  ## 2. Trừ Vector (Vector Subtraction)
+  
+  Trừ hai vector thực chất là cộng với vector đối: <InlineMath formula="\mathbf{v} - \mathbf{w} = \mathbf{v} + (-\mathbf{w})" />.
+  
+  Về mặt **đại số**:
+  
+  <BlockMath formula="\begin{bmatrix}a\\b\end{bmatrix} - \begin{bmatrix}c\\d\end{bmatrix} = \begin{bmatrix}a-c\\b-d\end{bmatrix}" />
+  
+  Về mặt **hình học**, <InlineMath formula="\mathbf{v} - \mathbf{w}" /> là vector đi **từ đầu của <InlineMath formula="\mathbf{w}" /> đến đầu của <InlineMath formula="\mathbf{v}" />**. 
+  Đây là cách chúng ta tính khoảng cách và hướng giữa hai điểm trong không gian.
+</MdxPage>
+
+<MdxPage page={3}>
+  ## 3. Nhân với một số (Scalar Multiplication)
+  
+  Khi bạn nhân một vector với một số thực <InlineMath formula="c" /> (gọi là một *scalar*), bạn đang thay đổi độ dài của nó:
+  
+  <BlockMath formula="c \cdot \begin{bmatrix}a\\b\end{bmatrix} = \begin{bmatrix}c\cdot a\\c\cdot b\end{bmatrix}" />
+  
+  **Các trường hợp đặc biệt:**
+  - Nếu <InlineMath formula="c > 1" />: Vector dài ra (stretch).
+  - Nếu <InlineMath formula="0 < c < 1" />: Vector ngắn lại (shrink).
+  - Nếu <InlineMath formula="c < 0" />: Vector bị đảo ngược hướng.
+</MdxPage>
+
+<MdxPage page={4}>
+  ## Thực hành với PyTorch
+  
+  Trong AI, chúng ta không bao giờ cộng từng phần tử bằng tay. Chúng ta dùng thư viện như PyTorch để tính toán song song trên hàng triệu phần tử cùng lúc.
+  
+  ```python
+  import torch
+
+  v = torch.tensor([1.0, 2.0])
+  w = torch.tensor([3.0, 4.0])
+
+  # Cộng
+  sum_vec = v + w       # tensor([4.0, 6.0])
+
+  # Trừ
+  diff_vec = v - w      # tensor([-2.0, -2.0])
+
+  # Nhân scalar
+  scaled_vec = v * 2    # tensor([2.0, 4.0])
+  ```
+</MdxPage>
+
+<MdxPage page={5}>
+  ## Kiểm tra nhanh
+  <MdxQuiz 
+    question="Nếu vector v = [1, 0] và vector w = [0, 1], thì v + w sẽ là gì?"
+    options={[
+      { text: "[1, 1]", isCorrect: true, feedback: "Chính xác! 1+0=1 và 0+1=1." },
+      { text: "[0, 0]", isCorrect: false, feedback: "Sai rồi, bạn đang trừ hoặc triệt tiêu chúng." },
+      { text: "[1, 0]", isCorrect: false, feedback: "Bạn quên cộng thành phần thứ hai rồi." },
+      { text: "[0, 1]", isCorrect: false, feedback: "Bạn quên cộng thành phần thứ nhất rồi." }
+    ]}
+  />
+</MdxPage>
