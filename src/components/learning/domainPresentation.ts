@@ -18,7 +18,7 @@ import type { LearningDomainId } from '../../core/learning/types';
 
 export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   'programming-foundation': Code2,
-  'math-statistics-ai': Calculator,
+  'linear-algebra': Calculator,
   fundamentals: BookOpen,
   'deep-learning': BrainCircuit,
   cv: Eye,
@@ -43,7 +43,7 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     icon: 'bg-[#F5F4FF] text-[#454A75]',
     accent: 'bg-[#777EAF]',
   },
-  'math-statistics-ai': {
+  'linear-algebra': {
     visual: 'bg-[#9BC9BB]',
     glow: 'bg-[#E8FFF5]/38',
     icon: 'bg-[#E8FFF7] text-[#245E52]',

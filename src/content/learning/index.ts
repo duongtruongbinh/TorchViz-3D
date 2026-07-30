@@ -6,7 +6,7 @@ import { learningTableOfContents as cvToc } from './cv/table-of-contents.ts';
 import { learningTableOfContents as deepLearningToc } from './deep-learning/table-of-contents.ts';
 import { learningTableOfContents as fundamentalsToc } from './fundamentals/table-of-contents.ts';
 import { learningTableOfContents as llmAiEngineeringToc } from './llm-ai-engineering/table-of-contents.ts';
-import { learningTableOfContents as mathStatisticsAiToc } from './math-statistics-ai/table-of-contents.ts';
+import { learningTableOfContents as linearAlgebraToc } from './linear-algebra/table-of-contents.ts';
 import { learningTableOfContents as mlopsLlmopsProductionSystemsToc } from './mlops-llmops-production-systems/table-of-contents.ts';
 import { learningTableOfContents as nlpToc } from './nlp/table-of-contents.ts';
 import { learningTableOfContents as programmingFoundationToc } from './programming-foundation/table-of-contents.ts';
@@ -15,7 +15,7 @@ import { learningTableOfContents as robotLearningToc } from './robot-learning/ta
 
 export const learningTableOfContents = [
   programmingFoundationToc,
-  mathStatisticsAiToc,
+  linearAlgebraToc,
   fundamentalsToc,
   deepLearningToc,
   cvToc,

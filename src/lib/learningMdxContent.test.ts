@@ -72,6 +72,12 @@ const expectedPageCounts: Record<string, number> = {
   'unit-vectors-normalization': 5,
   'cosine-similarity': 5,
   'orthogonality': 5,
+  'matrix-operations': 6,
+  'elementwise-vs-matrix-product': 6,
+  'systems-of-linear-equations': 6,
+  'gaussian-elimination': 6,
+  'lu-decomposition': 6,
+  'identity-inverse-matrix': 6,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
@@ -101,11 +107,11 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 60);
+  assert.equal(lessonFiles.length, 66);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 60);
+  assert.equal(documents.length, 66);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);

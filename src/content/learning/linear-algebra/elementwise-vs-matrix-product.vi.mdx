@@ -1,0 +1,128 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'elementwise-vs-matrix-product',
+  locale: 'vi',
+  title: 'Tích Element-wise và tích Ma trận',
+  headings: ['Hai loại tích', 'Tích Element-wise (Hadamard)', 'Tích Ma trận (Dot Product)', 'So sánh trực quan', 'Khi nào dùng loại nào?', 'Tổng kết'],
+  keywords: ['element-wise', 'hadamard product', 'matrix product', 'dot product', 'broadcasting'],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+  # Tích Element-wise và tích Ma trận
+
+  Có **hai cách** phổ biến để "nhân" hai ma trận với nhau, và chúng có ý nghĩa hoàn toàn khác nhau. Nhầm lẫn giữa chúng là một trong những lỗi phổ biến nhất khi học đại số tuyến tính.
+
+  <LessonNote>
+    Trong PyTorch, toán tử `*` thực hiện tích element-wise, còn `@` thực hiện tích ma trận. Đây là điểm khác biệt quan trọng cần nhớ!
+  </LessonNote>
+</MdxPage>
+
+<MdxPage page={1}>
+  ## Tích Element-wise (Hadamard Product)
+
+  Tích element-wise, còn gọi là **tích Hadamard**, nhân từng cặp phần tử tương ứng của hai ma trận có cùng kích thước.
+
+  <BlockMath formula="(A \odot B)_{ij} = a_{ij} \cdot b_{ij}" />
+
+  **Ví dụ:**
+
+  <BlockMath formula="\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \odot \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix} = \begin{bmatrix} 1\cdot5 & 2\cdot6 \\ 3\cdot7 & 4\cdot8 \end{bmatrix} = \begin{bmatrix} 5 & 12 \\ 21 & 32 \end{bmatrix}" />
+
+  Trong PyTorch:
+  ```python
+  import torch
+
+  A = torch.tensor([[1, 2], [3, 4]])
+  B = torch.tensor([[5, 6], [7, 8]])
+
+  C = A * B  # tensor([[ 5, 12], [21, 32]])
+  ```
+
+  **Điều kiện:** Hai ma trận phải có cùng kích thước (hoặc tương thích broadcasting).
+</MdxPage>
+
+<MdxPage page={2}>
+  ## Tích Ma trận (Matrix Product)
+
+  Tích ma trận (còn gọi là tích chấm - dot product) là phép nhân theo quy tắc **hàng × cột**: mỗi phần tử <InlineMath formula="c_{ij}" /> là tổng của tích các phần tử tương ứng từ hàng <InlineMath formula="i" /> của ma trận thứ nhất và cột <InlineMath formula="j" /> của ma trận thứ hai.
+
+  <BlockMath formula="(AB)_{ij} = \sum_{k=1}^{n} a_{ik} b_{kj}" />
+
+  **Ví dụ với cùng hai ma trận:**
+
+  <BlockMath formula="\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix} = \begin{bmatrix} 1\cdot5+2\cdot7 & 1\cdot6+2\cdot8 \\ 3\cdot5+4\cdot7 & 3\cdot6+4\cdot8 \end{bmatrix} = \begin{bmatrix} 19 & 22 \\ 43 & 50 \end{bmatrix}" />
+
+  Trong PyTorch:
+  ```python
+  C = A @ B  # tensor([[19, 22], [43, 50]])
+  # hoặc
+  C = torch.mm(A, B)
+  ```
+
+  **Kết quả hoàn toàn khác** so với tích element-wise!
+</MdxPage>
+
+<MdxPage page={3}>
+  ## So sánh trực quan
+
+  | Tính chất | Element-wise (<InlineMath formula="\odot" />) | Ma trận (<InlineMath formula="\cdot" />) |
+  |---|---|---|
+  | Ký hiệu | <InlineMath formula="A \odot B" /> hoặc <InlineMath formula="A * B" /> | <InlineMath formula="AB" /> hoặc <InlineMath formula="A @ B" /> |
+  | Điều kiện | Cùng kích thước | Số cột A = số hàng B |
+  | Kết quả | Cùng kích thước | <InlineMath formula="(m \times n)(n \times p) \to (m \times p)" /> |
+  | Giao hoán | Có (<InlineMath formula="A \odot B = B \odot A" />) | Không (<InlineMath formula="AB \neq BA" />) |
+  | Kết hợp | Có | Có |
+  | Phân phối | Với phép cộng | Với phép cộng |
+
+  <LessonNote>
+    Trong deep learning, tích ma trận được dùng để tính đầu ra của các fully-connected layer: <InlineMath formula="y = Wx + b" />. Tích element-wise được dùng trong các activation function như ReLU và các cổng trong LSTM.
+  </LessonNote>
+</MdxPage>
+
+<MdxPage page={4}>
+  ## Khi nào dùng loại nào?
+
+  **Dùng tích ma trận (`@` hoặc `torch.mm`) khi:**
+  - Tính đầu ra của neural network layer: <InlineMath formula="h = Wx" />
+  - Biến đổi không gian vector
+  - Tính attention scores trong Transformer
+  - Nhân hệ số với nhiều điểm dữ liệu cùng lúc
+
+  **Dùng tích element-wise (`*`) khi:**
+  - Áp dụng mask lên ma trận
+  - Nhân trọng số (weight) với gradient
+  - Tính đạo hàm riêng (element-wise gradient)
+  - Kết hợp các đặc trưng (feature interaction)
+
+  **Ví dụ trong PyTorch:**
+
+  ```python
+  batch_size, features = 32, 64
+  hidden_dim = 128
+
+  x = torch.randn(batch_size, features)  # đầu vào
+  W = torch.randn(features, hidden_dim)  # trọng số
+
+  # Tích ma trận: (32×64) @ (64×128) → (32×128)
+  h = x @ W  # đầu ra layer
+
+  # Tích element-wise với mask
+  mask = torch.randn(32, 128) > 0
+  h_masked = h * mask
+  ```
+</MdxPage>
+
+<MdxPage page={5}>
+  ## Kiểm tra nhanh
+
+  <MdxQuiz
+    question="Cho A kích thước (3, 5) và B kích thước (5, 2). Phép tính nào sau đây hợp lệ và cho kết quả kích thước (3, 2)?"
+    options={[
+      { text: "A @ B (tích ma trận)", isCorrect: true, feedback: "Chính xác! (3×5) @ (5×2) = (3×2)." },
+      { text: "A * B (tích element-wise)", isCorrect: false, feedback: "Sai vì hai ma trận có kích thước khác nhau (3×5 vs 5×2), không thể nhân element-wise." },
+      { text: "B @ A (tích ma trận ngược)", isCorrect: false, feedback: "B @ A = (5×2) @ (3×5) không hợp lệ vì 2 ≠ 3." },
+      { text: "Cả A*B và A@B đều hợp lệ", isCorrect: false, feedback: "Chỉ A@B hợp lệ. A*B yêu cầu cùng kích thước." },
+    ]}
+  />
+</MdxPage>

@@ -112,6 +112,6 @@ function MathQuiz({ question, options }: { question: string; options: MathQuizOp
   );
 }
 
-export const mathStatisticsMdxComponents = {
+export const linearAlgebraMdxComponents = {
   MdxQuiz: MathQuiz,
 } satisfies Record<'MdxQuiz', LearningMdxComponent>;

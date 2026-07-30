@@ -1,6 +1,6 @@
 export type LearningDomainId =
   | 'programming-foundation'
-  | 'math-statistics-ai'
+  | 'linear-algebra'
   | 'fundamentals'
   | 'deep-learning'
   | 'cv'

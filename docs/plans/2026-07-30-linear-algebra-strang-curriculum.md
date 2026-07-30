@@ -1,6 +1,6 @@
 ---
 title: "Linear Algebra Curriculum — Strang-Based Outline Implementation"
-status: proposed
+status: executing
 created: 2026-07-30
 author: Antigravity
 task: "Rename domain from math-statistics-ai to linear-algebra, restructure TOC to follow Strang's outline, author remaining lessons across 5 phases"
