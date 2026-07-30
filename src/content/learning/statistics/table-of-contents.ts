@@ -192,6 +192,15 @@ const chapters = [
     },
     "lessonIds": [
       {
+        "id": "ch02-classical-statistics-fundamentals",
+        "title": {
+          "en": "2.0 Classical Statistics Fundamentals",
+          "vi": "2.0 Nền tảng Thống kê Cổ điển"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
         "id": "ch02-what-is-statistical-learning",
         "title": {
           "en": "2.1 What Is Statistical Learning?",
