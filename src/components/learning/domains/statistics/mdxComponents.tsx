@@ -1,6 +1,6 @@
 import {
   ArrowRight,
-  BookOpenCheck,
+  Check,
   Cloud,
   CloudRain,
   ChartColumn,
@@ -8,12 +8,11 @@ import {
   Dices,
   Eye,
   GitBranch,
-  ListChecks,
   RefreshCw,
   Scale,
   Sigma,
   Sun,
-  Target,
+  TriangleAlert,
   type LucideIcon,
 } from 'lucide-react';
 import katex from 'katex';
@@ -51,20 +50,28 @@ type ProbabilityChapterVisualKind =
   | 'exhaustive-survey'
   | 'exclusive'
   | 'exclusive-not-complement'
-  | 'exercises'
   | 'foundations'
   | 'frequency-simulation'
   | 'frequency-stability'
   | 'histogram'
   | 'independence'
-  | 'naive-bayes-evidence'
+  | 'naive-bayes-combinations'
+  | 'naive-bayes-exercise'
+  | 'naive-bayes-laplace'
   | 'naive-bayes-practical'
+  | 'naive-bayes-tradeoffs'
   | 'intersection-cases'
   | 'pairwise-exclusive'
   | 'relations'
   | 'equiprobable'
   | 'prior-posterior'
   | 'probability-definitions'
+  | 'play-tennis-data'
+  | 'play-tennis-likelihoods'
+  | 'play-tennis-likelihoods-laplace'
+  | 'email-naive-bayes-data'
+  | 'email-naive-bayes-probabilities'
+  | 'email-naive-bayes-scores'
   | 'random-variable'
   | 'sample-space'
   | 'statistical-modelling-schools'
@@ -1822,34 +1829,339 @@ function BayesAnnotation({ className, connector, description, dimmed = false, la
 }
 
 function BayesNormalizationVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
-  const comparisons = [
-    { relation: '>', result: 'Posterior tăng', mark: '↑' },
-    { relation: '=', result: 'Không đổi', mark: '→' },
-    { relation: '<', result: 'Posterior giảm', mark: '↓' },
-  ];
+  const scenarios = [
+    {
+      title: 'Kịch bản 1: Dữ liệu củng cố niềm tin',
+      students: [
+        { name: 'An', studied: true, result: 'Đậu' },
+        { name: 'Bình', studied: true, result: 'Đậu' },
+        { name: 'Chi', studied: false, result: 'Đậu' },
+        { name: 'Dũng', studied: true, result: 'Rớt' },
+        { name: 'Hà', studied: false, result: 'Rớt' },
+        { name: 'Lan', studied: false, result: 'Rớt' },
+      ],
+      likelihood: 'P(A\\mid B)=\\frac{2}{3}',
+      likelihoodDescription: 'Trong 3 bạn đậu, 2 bạn có học bài.',
+      posterior: 'P(B\\mid A)=\\frac{P(A\\mid B)P(B)}{P(A)}=\\frac{\\frac23\\times\\frac12}{\\frac12}=\\frac23',
+      summary: 'Trong 3 học sinh có học bài, 2 bạn thi đậu.',
+      change: 'Niềm tin tăng từ 50% lên khoảng 67%.',
+      direction: 'increase',
+    },
+    {
+      title: 'Kịch bản 2: Dữ liệu làm niềm tin giảm',
+      students: [
+        { name: 'An', studied: true, result: 'Đậu' },
+        { name: 'Bình', studied: false, result: 'Đậu' },
+        { name: 'Chi', studied: false, result: 'Đậu' },
+        { name: 'Dũng', studied: true, result: 'Rớt' },
+        { name: 'Hà', studied: true, result: 'Rớt' },
+        { name: 'Lan', studied: false, result: 'Rớt' },
+      ],
+      likelihood: 'P(A\\mid B)=\\frac{1}{3}',
+      likelihoodDescription: 'Trong 3 bạn đậu, chỉ 1 bạn có học bài.',
+      posterior: 'P(B\\mid A)=\\frac{P(A\\mid B)P(B)}{P(A)}=\\frac{\\frac13\\times\\frac12}{\\frac12}=\\frac13',
+      summary: 'Trong 3 học sinh có học bài, chỉ 1 bạn thi đậu.',
+      change: 'Niềm tin giảm từ 50% xuống khoảng 33%.',
+      direction: 'decrease',
+    },
+  ] as const;
+
   return (
-    <section aria-label="Likelihood tương đối quyết định posterior tăng hay giảm" className={cx('py-4', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
-      <div className="mx-auto max-w-3xl">
-        <div className="overflow-hidden rounded-xl">
-          <div className="flex h-24">
-            <div className={cx('grid w-2/3 place-items-center text-center', themeClasses.isLight ? 'bg-[#82BD94] text-[#143A20]' : 'bg-[#78C990]/42 text-[#ECFFF1]')}>
-              <div><strong className="text-xl">2</strong><span className="block text-xs font-bold">Học và đậu</span></div>
+    <section aria-label="Giáo viên thu thập dữ liệu để cập nhật niềm tin" className={cx('py-4', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      {scenarios.map((scenario, scenarioIndex) => (
+        <div key={scenario.title} className={cx(scenarioIndex > 0 && 'mt-12')}>
+          <h3 className={cx('!mb-4 !mt-0 text-base font-black', themeClasses.titleText)}>{scenario.title}</h3>
+
+          <div className="grid items-start gap-8 lg:grid-cols-2">
+            <div className="min-w-0 overflow-x-auto">
+              <table className="!m-0 !w-full min-w-[30rem] table-fixed border-collapse text-left">
+                <caption className="sr-only">{scenario.title}</caption>
+                <thead>
+                  <tr className={themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8'}>
+                    <th className="w-[24%] rounded-l-lg px-4 py-3 text-xs font-black">Học sinh</th>
+                    <th className="w-[46%] px-4 py-3 text-xs font-black">Học trước khi thi</th>
+                    <th className="w-[30%] rounded-r-lg px-4 py-3 text-xs font-black">Kết quả</th>
+                  </tr>
+                </thead>
+                <tbody className={cx('divide-y', themeClasses.isLight ? 'divide-[#DCE5ED]' : 'divide-[#A8D4FF]/12')}>
+                  {scenario.students.map((student) => (
+                    <tr key={student.name}>
+                      <td className={cx('px-4 py-3 text-sm font-bold', themeClasses.titleText)}>{student.name}</td>
+                      <td className={cx('px-4 py-3 text-sm', themeClasses.bodyText)}>
+                        {student.studied ? 'Có' : 'Không'}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={cx(
+                          'inline-flex min-w-14 justify-center rounded-full px-2.5 py-1 text-xs font-black',
+                          student.result === 'Đậu'
+                            ? themeClasses.isLight ? 'bg-[#DDEFE3] text-[#205B34]' : 'bg-[#78C990]/16 text-[#AEE7BE]'
+                            : themeClasses.isLight ? 'bg-[#F5E5D4] text-[#7B4515]' : 'bg-[#F2C66D]/14 text-[#F7D99B]',
+                        )}>
+                          {student.result}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className={cx('grid w-1/3 place-items-center text-center', themeClasses.isLight ? 'bg-[#E7C38B] text-[#53350B]' : 'bg-[#F2C66D]/30 text-[#FFF7DE]')}>
-              <div><strong className="text-xl">1</strong><span className="block text-xs font-bold">Học và rớt</span></div>
+
+            <div>
+              <h4 className={cx('!m-0 text-sm font-black', themeClasses.titleText)}>Đọc từng thành phần từ bảng</h4>
+
+              <div className={cx('mt-3 divide-y', themeClasses.isLight ? 'divide-[#DCE5ED]' : 'divide-[#A8D4FF]/12')}>
+                <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-4 py-3">
+                  <span className={cx('text-sm font-black', themeClasses.accentText)}>Prior</span>
+                  <div>
+                    <MathText className={cx('block overflow-x-auto text-base font-semibold', themeClasses.titleText)} formula="P(B)=\frac{3}{6}=\frac12" />
+                    <span className={cx('mt-1 block text-xs leading-5', themeClasses.mutedText)}>3 trong 6 học sinh thi đậu.</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-4 py-3">
+                  <span className={cx('text-sm font-black', themeClasses.accentText)}>Likelihood</span>
+                  <div>
+                    <MathText className={cx('block overflow-x-auto text-base font-semibold', themeClasses.titleText)} formula={scenario.likelihood} />
+                    <span className={cx('mt-1 block text-xs leading-5', themeClasses.mutedText)}>{scenario.likelihoodDescription}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-4 py-3">
+                  <span className={cx('text-sm font-black', themeClasses.accentText)}>Margin</span>
+                  <div>
+                    <MathText className={cx('block overflow-x-auto text-base font-semibold', themeClasses.titleText)} formula="P(A)=\frac{3}{6}=\frac12" />
+                    <span className={cx('mt-1 block text-xs leading-5', themeClasses.mutedText)}>3 trong 6 học sinh có học bài.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <span className={cx('text-xs font-black', themeClasses.mutedText)}>Thay số vào công thức Bayes</span>
+                <MathText
+                  className={cx('mt-3 block max-w-full overflow-x-auto text-lg font-semibold', themeClasses.titleText)}
+                  formula={scenario.posterior}
+                />
+                <p className={cx('mt-3 text-sm leading-6', themeClasses.bodyText)}>
+                  {scenario.summary}{' '}
+                  <strong className={cx(
+                    scenario.direction === 'increase'
+                      ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]'
+                      : themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]',
+                  )}>
+                    {scenario.change}
+                  </strong>
+                </p>
+              </div>
             </div>
-          </div>
-          <div className={cx('grid place-items-center py-2 text-sm font-black', themeClasses.isLight ? 'bg-[#F5F8FB]' : 'bg-[#A8D4FF]/5', themeClasses.titleText)}>
-            Nhóm đã học <MathText className="ml-1" formula="A" />
           </div>
         </div>
-        <MathText className={cx('mt-4 block text-center text-lg font-semibold', themeClasses.titleText)} formula="P(B\mid A)=\frac{2}{2+1}=\frac23" />
-        <div className={cx('mt-5 divide-y', themeClasses.isLight ? 'divide-[#205089]/10' : 'divide-[#A8D4FF]/12')}>
-          {comparisons.map(({ relation, result, mark }) => (
-            <div key={relation} className="grid grid-cols-[minmax(0,1fr)_2rem_minmax(0,0.8fr)] items-center gap-2 py-3">
-              <MathText className={cx('text-sm font-semibold', themeClasses.titleText)} formula={`P(A\\mid B)${relation}P(A\\mid\\neg B)`} />
-              <span className={cx('text-center text-lg font-black', themeClasses.accentText)}>{mark}</span>
-              <span className={cx('text-sm font-black', themeClasses.bodyText)}>{result}</span>
+      ))}
+    </section>
+  );
+}
+
+function NaiveBayesCombinationsVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const combinations = [
+    ['Có', 'Có', 'Có'],
+    ['Có', 'Có', 'Không'],
+    ['Có', 'Không', 'Có'],
+    ['Có', 'Không', 'Không'],
+    ['Không', 'Có', 'Có'],
+    ['Không', 'Có', 'Không'],
+    ['Không', 'Không', 'Có'],
+    ['Không', 'Không', 'Không'],
+  ];
+  const growth = Array.from({ length: 9 }, (_, index) => {
+    const featureCount = index + 2;
+    return { featureCount, combinations: 2 ** featureCount };
+  });
+  return (
+    <section aria-label="Số tổ hợp tăng theo số lượng feature nhị phân" className={cx('py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
+        <div className="min-w-0">
+          <div className="mb-4">
+            <span className={cx('text-sm font-black', themeClasses.titleText)}>Ước lượng từng tổ hợp</span>
+          </div>
+          <div className="overflow-x-auto">
+            <div className="min-w-[30rem]">
+              <div className={cx('grid grid-cols-[2.5rem_repeat(3,1fr)] gap-x-3 px-3 pb-2 text-center text-xs font-black', themeClasses.mutedText)}>
+                <span>#</span>
+                <span>Học bài</span>
+                <span>Nộp bài</span>
+                <span>Đi học đều</span>
+              </div>
+              <div className={cx('divide-y', themeClasses.isLight ? 'divide-[#DCE5ED]' : 'divide-[#A8D4FF]/12')}>
+                {combinations.map((combination, index) => (
+                  <div key={combination.join(`-${index}`)} className="grid grid-cols-[2.5rem_repeat(3,1fr)] gap-x-3 px-3 py-2 text-center">
+                    <span className={cx('text-xs font-black', themeClasses.mutedText)}>{index + 1}</span>
+                    {combination.map((value, valueIndex) => (
+                      <span
+                        key={`${value}-${valueIndex}`}
+                        className={cx(
+                          'text-sm font-bold',
+                          value === 'Có'
+                            ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]'
+                            : themeClasses.mutedText,
+                        )}
+                      >
+                        {value}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <div className="mb-4 flex items-baseline justify-between gap-3">
+            <span className={cx('text-sm font-black', themeClasses.titleText)}>Khi số feature tăng</span>
+            <span className={cx('text-xs font-bold', themeClasses.mutedText)}>Số tổ hợp</span>
+          </div>
+          <div className="grid gap-2.5">
+            {growth.map(({ combinations: count, featureCount }) => (
+              <div key={featureCount} className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.5rem] items-center gap-3">
+                <span className={cx('text-xs font-bold', themeClasses.mutedText)}>{featureCount} feature</span>
+                <div className={cx('h-2 overflow-hidden rounded-full', themeClasses.isLight ? 'bg-[#E7EDF2]' : 'bg-[#A8D4FF]/10')}>
+                  <div
+                    className={cx('h-full rounded-full', themeClasses.isLight ? 'bg-[#5D92C7]' : 'bg-[#8EBBE3]')}
+                    style={{ width: `${Math.max((count / 1024) * 100, 1.5)}%` }}
+                  />
+                </div>
+                <span className={cx('text-right text-xs font-black tabular-nums', themeClasses.titleText)}>
+                  {count.toLocaleString('vi-VN')}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function NaiveBayesExerciseVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const students = [
+    { name: 'An', studied: true, submitted: true, attended: true, result: 'Đậu' },
+    { name: 'Bình', studied: true, submitted: true, attended: true, result: 'Đậu' },
+    { name: 'Chi', studied: true, submitted: false, attended: true, result: 'Đậu' },
+    { name: 'Dũng', studied: false, submitted: true, attended: true, result: 'Đậu' },
+    { name: 'Hà', studied: true, submitted: true, attended: false, result: 'Rớt' },
+    { name: 'Lan', studied: false, submitted: true, attended: true, result: 'Rớt' },
+    { name: 'Minh', studied: false, submitted: false, attended: false, result: 'Rớt' },
+    { name: 'Nga', studied: false, submitted: false, attended: false, result: 'Rớt' },
+  ] as const;
+  const featureTables = [
+    {
+      label: 'Học bài',
+      rows: [
+        { value: 'Có', pass: '\\frac34', fail: '\\frac14' },
+        { value: 'Không', pass: '\\frac14', fail: '\\frac34' },
+      ],
+    },
+    {
+      label: 'Nộp bài',
+      rows: [
+        { value: 'Có', pass: '\\frac34', fail: '\\frac12' },
+        { value: 'Không', pass: '\\frac14', fail: '\\frac12' },
+      ],
+    },
+    {
+      label: 'Đi học đều',
+      rows: [
+        { value: 'Có', pass: '1', fail: '\\frac14' },
+        { value: 'Không', pass: '0', fail: '\\frac34' },
+      ],
+    },
+  ];
+  const cellClass = cx('px-4 py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]');
+  return (
+    <section aria-label="Từ dữ liệu học sinh đến bảng prior và likelihood" className={cx('grid gap-6 py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      <div className="overflow-x-auto">
+        <h3 className={cx('!mb-3 !mt-0 text-sm font-black', themeClasses.titleText)}>1. Dữ liệu huấn luyện</h3>
+        <div className={cx(
+          'grid min-w-[44rem] grid-cols-[7rem_repeat(3,minmax(7rem,1fr))_7rem] gap-px overflow-hidden rounded-lg text-sm',
+          themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+        )}>
+          {['Học sinh', 'Có học bài', 'Có nộp bài', 'Đi học đều', 'Kết quả'].map((label) => (
+            <div key={label} className={cx('px-3 py-3 text-center font-black first:text-left', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>
+              {label}
+            </div>
+          ))}
+          {students.map((student) => (
+            <div key={student.name} className="contents">
+              <div className={cx(cellClass, 'font-bold', themeClasses.titleText)}>{student.name}</div>
+              {[student.studied, student.submitted, student.attended].map((value, index) => (
+                <div key={`${student.name}-${index}`} className={cx(cellClass, 'text-center', themeClasses.bodyText)}>
+                  {value ? 'Có' : 'Không'}
+                </div>
+              ))}
+              <div className={cx(cellClass, 'text-center')}>
+                <span className={cx(
+                  'inline-flex min-w-14 justify-center rounded-full px-2.5 py-1 text-xs font-black',
+                  student.result === 'Đậu'
+                    ? themeClasses.isLight ? 'bg-[#DDEFE3] text-[#205B34]' : 'bg-[#78C990]/16 text-[#AEE7BE]'
+                    : themeClasses.isLight ? 'bg-[#F5E5D4] text-[#7B4515]' : 'bg-[#F2C66D]/14 text-[#F7D99B]',
+                )}>
+                  {student.result}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <ArrowRight className={cx('mx-auto h-6 w-6 rotate-90', themeClasses.accentText)} strokeWidth={2.2} aria-hidden="true" />
+
+      <div className="overflow-x-auto">
+        <h3 className={cx('!mb-3 !mt-0 text-sm font-black', themeClasses.titleText)}>2. Đếm riêng trong từng class</h3>
+        <div className={cx(
+          'mx-auto mb-7 grid max-w-3xl grid-cols-[minmax(8rem,1fr)_minmax(7rem,0.8fr)_minmax(8rem,1fr)] gap-px overflow-hidden rounded-lg text-sm',
+          themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+        )}>
+          <div className={cx('px-4 py-3 font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Class</div>
+          <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Số học sinh</div>
+          <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Prior</div>
+          <div className={cx(cellClass, 'font-bold', themeClasses.bodyText)}>Đậu</div>
+          <div className={cx(cellClass, 'text-center', themeClasses.bodyText)}>4</div>
+          <div className={cx(cellClass, 'text-center')}>
+            <MathText className={cx('font-semibold', themeClasses.titleText)} formula="\frac48=\frac12" />
+          </div>
+          <div className={cx(cellClass, 'font-bold', themeClasses.bodyText)}>Rớt</div>
+          <div className={cx(cellClass, 'text-center', themeClasses.bodyText)}>4</div>
+          <div className={cx(cellClass, 'text-center')}>
+            <MathText className={cx('font-semibold', themeClasses.titleText)} formula="\frac48=\frac12" />
+          </div>
+        </div>
+
+        <div className="mx-auto grid max-w-3xl gap-6">
+          {featureTables.map((feature) => (
+            <div key={feature.label}>
+              <h4 className={cx('!mb-2 !mt-0 text-sm font-black', themeClasses.titleText)}>{feature.label}</h4>
+              <div className={cx(
+                'grid min-w-[30rem] grid-cols-[minmax(7rem,1fr)_minmax(9rem,1fr)_minmax(9rem,1fr)] gap-px overflow-hidden rounded-lg text-sm',
+                themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+              )}>
+                <div className={cx('px-3 py-3 font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Giá trị</div>
+                <div className={cx('px-3 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#E4F0E7]' : 'bg-[#78C990]/12', themeClasses.titleText)}>
+                  P({feature.label} | Đậu)
+                </div>
+                <div className={cx('px-3 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#F8EBD6]' : 'bg-[#F2C66D]/10', themeClasses.titleText)}>
+                  P({feature.label} | Rớt)
+                </div>
+                {feature.rows.map((row) => (
+                  <div key={row.value} className="contents">
+                    <div className={cx(cellClass, 'font-bold', themeClasses.bodyText)}>{row.value}</div>
+                    <div className={cx(cellClass, 'text-center')}>
+                      <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.pass} />
+                    </div>
+                    <div className={cx(cellClass, 'text-center')}>
+                      <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.fail} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -1858,38 +2170,119 @@ function BayesNormalizationVisual({ themeClasses }: { themeClasses: LearningThem
   );
 }
 
-function NaiveBayesEvidenceVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
-  const rows = [
-    { label: 'Tiên nghiệm', pass: 'P(C_{Pass})', fail: 'P(C_{Fail})' },
-    { label: 'Có học', pass: 'P(X_1\\mid C_{Pass})', fail: 'P(X_1\\mid C_{Fail})' },
-    { label: 'Nộp bài', pass: 'P(X_2\\mid C_{Pass})', fail: 'P(X_2\\mid C_{Fail})' },
-    { label: 'Đi học đều', pass: 'P(X_3\\mid C_{Pass})', fail: 'P(X_3\\mid C_{Fail})' },
+function NaiveBayesLaplaceVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const students = [
+    { name: 'An', submitted: true, result: 'Đậu' },
+    { name: 'Bình', submitted: true, result: 'Đậu' },
+    { name: 'Chi', submitted: true, result: 'Đậu' },
+    { name: 'Dũng', submitted: true, result: 'Rớt' },
+    { name: 'Hà', submitted: false, result: 'Rớt' },
+    { name: 'Lan', submitted: false, result: 'Rớt' },
+  ] as const;
+  const beforeRows = [
+    { value: 'Có', pass: '\\frac33=1', fail: '\\frac13' },
+    { value: 'Không', pass: '\\frac03=0', fail: '\\frac23' },
   ];
-  return (
-    <section aria-label="Naive Bayes cộng dồn bằng chứng cho hai class" className={cx('py-4', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
-      <div className="overflow-x-auto">
-        <div className="min-w-[35rem]">
-          <div className={cx('grid grid-cols-[9rem_1fr_1fr] gap-px text-center text-sm', themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]')}>
-            <div className={cx('px-3 py-3 font-black text-left', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>Bằng chứng</div>
-            <div className={cx('px-3 py-3 font-black', themeClasses.isLight ? 'bg-[#E4F0E7]' : 'bg-[#78C990]/12')}>Class Pass</div>
-            <div className={cx('px-3 py-3 font-black', themeClasses.isLight ? 'bg-[#F8EBD6]' : 'bg-[#F2C66D]/10')}>Class Fail</div>
-            {rows.map((row) => (
-              <div key={row.label} className="contents">
-                <div className={cx('px-3 py-3 text-left font-bold', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>{row.label}</div>
-                <div className={cx('px-3 py-3', themeClasses.isLight ? 'bg-[#F4F9F5]' : 'bg-[#78C990]/5')}>
-                  <MathText formula={row.pass} />
-                </div>
-                <div className={cx('px-3 py-3', themeClasses.isLight ? 'bg-[#FCF7EF]' : 'bg-[#F2C66D]/5')}>
-                  <MathText formula={row.fail} />
-                </div>
-              </div>
-            ))}
+  const afterRows = [
+    { value: 'Có', pass: '\\frac{3+1}{3+2}=\\frac45', fail: '\\frac{1+1}{3+2}=\\frac25' },
+    { value: 'Không', pass: '\\frac{0+1}{3+2}=\\frac15', fail: '\\frac{2+1}{3+2}=\\frac35' },
+  ];
+  const cellClass = cx('px-4 py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]');
+  const probabilityTable = (rows: typeof beforeRows | typeof afterRows, highlightZero = false) => (
+    <div className={cx(
+      'grid min-w-[34rem] grid-cols-[minmax(7rem,0.8fr)_minmax(11rem,1fr)_minmax(11rem,1fr)] gap-px overflow-hidden rounded-lg text-sm',
+      themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+    )}>
+      <div className={cx('px-4 py-3 font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Giá trị</div>
+      <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#E4F0E7]' : 'bg-[#78C990]/12', themeClasses.titleText)}>P(Nộp bài | Đậu)</div>
+      <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#F8EBD6]' : 'bg-[#F2C66D]/10', themeClasses.titleText)}>P(Nộp bài | Rớt)</div>
+      {rows.map((row) => (
+        <div key={row.value} className="contents">
+          <div className={cx(cellClass, 'font-bold', themeClasses.bodyText)}>{row.value}</div>
+          <div className={cx(
+            cellClass,
+            'text-center',
+            highlightZero && row.value === 'Không' && (themeClasses.isLight ? '!bg-[#FCE9DC]' : '!bg-[#E48A44]/12'),
+          )}>
+            <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.pass} />
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4 text-center">
-            <MathText className={cx('text-sm font-semibold', themeClasses.titleText)} formula="P(C_{Pass})\prod_k P(X_k\mid C_{Pass})" />
-            <MathText className={cx('text-sm font-semibold', themeClasses.titleText)} formula="P(C_{Fail})\prod_k P(X_k\mid C_{Fail})" />
+          <div className={cx(cellClass, 'text-center')}>
+            <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.fail} />
           </div>
         </div>
+      ))}
+    </div>
+  );
+  return (
+    <section aria-label="Từ dữ liệu có xác suất bằng không đến Laplace smoothing" className={cx('grid gap-6 py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      <div className="overflow-x-auto">
+        <h3 className={cx('!mb-3 !mt-0 text-sm font-black', themeClasses.titleText)}>1. Dữ liệu huấn luyện</h3>
+        <div className={cx(
+          'grid min-w-[28rem] grid-cols-[minmax(7rem,0.8fr)_minmax(10rem,1fr)_minmax(7rem,0.8fr)] gap-px overflow-hidden rounded-lg text-sm',
+          themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+        )}>
+          {['Học sinh', 'Có nộp bài', 'Kết quả'].map((label) => (
+            <div key={label} className={cx('px-4 py-3 text-center font-black first:text-left', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>
+              {label}
+            </div>
+          ))}
+          {students.map((student) => (
+            <div key={student.name} className="contents">
+              <div className={cx(cellClass, 'font-bold', themeClasses.titleText)}>{student.name}</div>
+              <div className={cx(cellClass, 'text-center', themeClasses.bodyText)}>{student.submitted ? 'Có' : 'Không'}</div>
+              <div className={cx(cellClass, 'text-center')}>
+                <span className={cx(
+                  'inline-flex min-w-14 justify-center rounded-full px-2.5 py-1 text-xs font-black',
+                  student.result === 'Đậu'
+                    ? themeClasses.isLight ? 'bg-[#DDEFE3] text-[#205B34]' : 'bg-[#78C990]/16 text-[#AEE7BE]'
+                    : themeClasses.isLight ? 'bg-[#F5E5D4] text-[#7B4515]' : 'bg-[#F2C66D]/14 text-[#F7D99B]',
+                )}>
+                  {student.result}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <ArrowRight className={cx('mx-auto h-6 w-6 rotate-90', themeClasses.accentText)} strokeWidth={2.2} aria-hidden="true" />
+
+      <div className="overflow-x-auto">
+        <h3 className={cx('!mb-3 !mt-0 text-sm font-black', themeClasses.titleText)}>2. Đếm riêng trong từng class</h3>
+        <div className={cx(
+          'mx-auto mb-5 grid max-w-3xl grid-cols-[minmax(8rem,1fr)_minmax(7rem,0.8fr)_minmax(8rem,1fr)] gap-px overflow-hidden rounded-lg text-sm',
+          themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+        )}>
+          <div className={cx('px-4 py-3 font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Class</div>
+          <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Số học sinh</div>
+          <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Prior</div>
+          {[
+            { label: 'Đậu', formula: '\\frac36=\\frac12' },
+            { label: 'Rớt', formula: '\\frac36=\\frac12' },
+          ].map((row) => (
+            <div key={row.label} className="contents">
+              <div className={cx(cellClass, 'font-bold', themeClasses.bodyText)}>{row.label}</div>
+              <div className={cx(cellClass, 'text-center', themeClasses.bodyText)}>3</div>
+              <div className={cx(cellClass, 'text-center')}>
+                <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.formula} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mx-auto max-w-3xl">{probabilityTable(beforeRows, true)}</div>
+        <p className={cx('mx-auto mt-4 max-w-3xl text-sm leading-6', themeClasses.bodyText)}>
+          Ô <strong>Không nộp bài | Đậu</strong> có likelihood bằng <MathText formula="0" />, nên chỉ một thừa số này cũng làm score của class Đậu bằng <MathText formula="0" />.
+        </p>
+      </div>
+
+      <ArrowRight className={cx('mx-auto h-6 w-6 rotate-90', themeClasses.accentText)} strokeWidth={2.2} aria-hidden="true" />
+
+      <div className="overflow-x-auto">
+        <h3 className={cx('!mb-3 !mt-0 text-sm font-black', themeClasses.titleText)}>3. Laplace smoothing: cộng 1 vào mỗi lượt đếm</h3>
+        <p className={cx('mx-auto mb-4 max-w-3xl text-sm leading-6', themeClasses.bodyText)}>
+          Để khắc phục, ta cộng <MathText formula="1" /> vào tử số của <strong>tất cả</strong> <MathText formula="K" /> giá trị, không chỉ ô đang bằng <MathText formula="0" />. Tổng lượt đếm vì thế tăng thêm <MathText formula="K" />, nên mẫu số cũng phải đổi từ <MathText formula="N_i" /> thành <MathText formula="N_i+K" /> để tổng xác suất vẫn bằng <MathText formula="1" />.
+        </p>
+        <div className="mx-auto max-w-3xl">{probabilityTable(afterRows)}</div>
       </div>
     </section>
   );
@@ -1920,29 +2313,455 @@ function NaiveBayesPracticalVisual({ themeClasses }: { themeClasses: LearningThe
   );
 }
 
-function ExercisesVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
-  const steps: Array<{ icon: LucideIcon; label: string }> = [
-    { icon: BookOpenCheck, label: 'Đọc đề' },
-    { icon: Target, label: 'Đặt biến cố' },
-    { icon: Sigma, label: 'Chọn công thức' },
-    { icon: ListChecks, label: 'Kết luận' },
+function NaiveBayesTradeoffsVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const advantages = [
+    'Huấn luyện và dự đoán nhanh vì chỉ cần ước lượng prior và likelihood.',
+    'Dùng được cho feature phân loại hoặc số khi chọn mô hình likelihood phù hợp.',
+    'Có thể cập nhật các thống kê đếm khi dữ liệu mới xuất hiện.',
+    'Có thể xử lý giá trị thiếu nếu implementation hỗ trợ bỏ qua hoặc mô hình hóa feature bị thiếu.',
+    'Feature không liên quan thường ít ảnh hưởng nếu likelihood của nó gần giống nhau giữa các class.',
   ];
   return (
-    <VisualSurface label="Quy trình giải một bài tập xác suất" themeClasses={themeClasses}>
-      <ol className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        {steps.map(({ icon: Icon, label }, index) => (
-          <li key={label} className="contents">
-            <div className="flex min-w-0 flex-1 items-center gap-3 py-2">
-              <span className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-full', themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#A8D4FF]/12 text-[#A8D4FF]')}>
-                <Icon className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-              </span>
-              <span className={cx('text-sm font-black', themeClasses.titleText)}>{label}</span>
+    <section aria-label="Ưu điểm và hạn chế của Naive Bayes" className={cx('grid gap-9 py-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      <div>
+        <div className="mb-4 flex items-center gap-3">
+          <span className={cx('grid h-9 w-9 place-items-center rounded-full', themeClasses.isLight ? 'bg-[#DDEFE3] text-[#2D7646]' : 'bg-[#78C990]/14 text-[#8ED8A4]')}>
+            <Check className="h-5 w-5" strokeWidth={2.4} aria-hidden="true" />
+          </span>
+          <h3 className={cx('!m-0 text-base font-black', themeClasses.titleText)}>Ưu điểm</h3>
+        </div>
+        <ul className={cx('divide-y', themeClasses.isLight ? 'divide-[#DCE5ED]' : 'divide-[#A8D4FF]/12')}>
+          {advantages.map((advantage) => (
+            <li key={advantage} className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-3 py-3 first:pt-0">
+              <Check className={cx('mt-1 h-4 w-4', themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]')} strokeWidth={2.4} aria-hidden="true" />
+              <span className={cx('text-sm leading-6', themeClasses.bodyText)}>{advantage}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <div className="mb-4 flex items-center gap-3">
+          <span className={cx('grid h-9 w-9 place-items-center rounded-full', themeClasses.isLight ? 'bg-[#F5E5D4] text-[#A05218]' : 'bg-[#F2C66D]/12 text-[#F0B172]')}>
+            <TriangleAlert className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
+          </span>
+          <h3 className={cx('!m-0 text-base font-black', themeClasses.titleText)}>Hạn chế</h3>
+        </div>
+
+        <div className="grid gap-2">
+          <div className="grid grid-cols-2 gap-3">
+            <div className={cx('rounded-lg px-3 py-3 text-center', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/7')}>
+              <MathText className={cx('block font-semibold', themeClasses.titleText)} formula="X_1" />
+              <span className={cx('mt-1 block text-xs', themeClasses.mutedText)}>Feature thứ nhất</span>
             </div>
-            {index < steps.length - 1 ? <ArrowRight className={cx('hidden h-4 w-4 shrink-0 sm:block', themeClasses.mutedText)} aria-hidden="true" /> : null}
-          </li>
+            <div className={cx('rounded-lg px-3 py-3 text-center', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/7')}>
+              <MathText className={cx('block font-semibold', themeClasses.titleText)} formula="X_2" />
+              <span className={cx('mt-1 block text-xs', themeClasses.mutedText)}>Feature tương quan</span>
+            </div>
+          </div>
+          <ArrowRight className={cx('mx-auto h-5 w-5 rotate-90', themeClasses.mutedText)} aria-hidden="true" />
+          <div className={cx('rounded-lg px-4 py-3 text-center text-sm font-bold', themeClasses.isLight ? 'bg-[#F8EBD6] text-[#704514]' : 'bg-[#F2C66D]/10 text-[#F4D597]')}>
+            Cùng mang một tín hiệu
+          </div>
+          <ArrowRight className={cx('mx-auto h-5 w-5 rotate-90', themeClasses.mutedText)} aria-hidden="true" />
+          <div className={cx('rounded-lg px-4 py-3 text-center text-sm font-black', themeClasses.isLight ? 'bg-[#F5E5D4] text-[#8A4716]' : 'bg-[#E48A44]/12 text-[#F0B172]')}>
+            Bị nhân như hai bằng chứng riêng → xác suất quá tự tin
+          </div>
+        </div>
+
+        <p className={cx('mt-5 text-sm leading-6', themeClasses.bodyText)}>
+          Giả định độc lập có điều kiện thường không hoàn toàn đúng trong thực tế. Khi các feature có tương quan mạnh, mô hình có thể đếm lặp cùng một tín hiệu. Dù vậy, Naive Bayes vẫn thường cho kết quả phân loại tốt khi xấp xỉ này đủ phù hợp với dữ liệu.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function PlayTennisDataVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const rows = [
+    ['D1', 'Sunny', 'Hot', 'High', 'Weak', 'No'],
+    ['D2', 'Sunny', 'Hot', 'High', 'Strong', 'No'],
+    ['D3', 'Overcast', 'Hot', 'High', 'Weak', 'Yes'],
+    ['D4', 'Rain', 'Mild', 'High', 'Weak', 'Yes'],
+    ['D5', 'Rain', 'Cool', 'Normal', 'Weak', 'Yes'],
+    ['D6', 'Rain', 'Cool', 'Normal', 'Strong', 'No'],
+    ['D7', 'Overcast', 'Cool', 'Normal', 'Strong', 'Yes'],
+    ['D8', 'Sunny', 'Mild', 'High', 'Weak', 'No'],
+    ['D9', 'Sunny', 'Cool', 'Normal', 'Weak', 'Yes'],
+    ['D10', 'Rain', 'Mild', 'Normal', 'Weak', 'Yes'],
+    ['D11', 'Sunny', 'Mild', 'Normal', 'Strong', 'Yes'],
+    ['D12', 'Overcast', 'Mild', 'High', 'Strong', 'Yes'],
+    ['D13', 'Overcast', 'Hot', 'Normal', 'Weak', 'Yes'],
+    ['D14', 'Rain', 'Mild', 'High', 'Strong', 'No'],
+  ] as const;
+  return (
+    <section aria-label="Dataset Play Tennis gồm 14 ngày" className={cx('py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      <div className="overflow-x-auto">
+        <div className={cx(
+          'grid min-w-[46rem] grid-cols-[4rem_repeat(4,minmax(7rem,1fr))_5rem] gap-px overflow-hidden rounded-lg text-sm',
+          themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+        )}>
+          {['Ngày', 'Outlook', 'Temp', 'Humidity', 'Wind', 'Play'].map((label) => (
+            <div key={label} className={cx('px-3 py-3 text-center font-black first:text-left', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>
+              {label}
+            </div>
+          ))}
+          {rows.map((row) => (
+            <div key={row[0]} className="contents">
+              {row.slice(0, 5).map((value, index) => (
+                <div key={`${row[0]}-${index}`} className={cx('px-3 py-2.5 text-center first:text-left first:font-bold', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]', themeClasses.bodyText)}>
+                  {value}
+                </div>
+              ))}
+              <div className={cx('px-3 py-2.5 text-center', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+                <span className={cx(
+                  'inline-flex min-w-12 justify-center rounded-full px-2 py-1 text-xs font-black',
+                  row[5] === 'Yes'
+                    ? themeClasses.isLight ? 'bg-[#DDEFE3] text-[#205B34]' : 'bg-[#78C990]/16 text-[#AEE7BE]'
+                    : themeClasses.isLight ? 'bg-[#F5E5D4] text-[#7B4515]' : 'bg-[#F2C66D]/14 text-[#F7D99B]',
+                )}>
+                  {row[5]}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PlayTennisLikelihoodVisual({ smoothed = false, themeClasses }: {
+  smoothed?: boolean;
+  themeClasses: LearningThemeClasses;
+}) {
+  const tables = smoothed
+    ? [
+        {
+          label: 'Outlook',
+          selected: 'Sunny',
+          rows: [
+            { value: 'Sunny', yes: '\\frac{2+1}{9+3}=\\frac3{12}', no: '\\frac{3+1}{5+3}=\\frac48' },
+            { value: 'Overcast', yes: '\\frac{4+1}{9+3}=\\frac5{12}', no: '\\frac{0+1}{5+3}=\\frac18' },
+            { value: 'Rain', yes: '\\frac{3+1}{9+3}=\\frac4{12}', no: '\\frac{2+1}{5+3}=\\frac38' },
+          ],
+        },
+        {
+          label: 'Temp',
+          selected: 'Cool',
+          rows: [
+            { value: 'Hot', yes: '\\frac{2+1}{9+3}=\\frac3{12}', no: '\\frac{2+1}{5+3}=\\frac38' },
+            { value: 'Mild', yes: '\\frac{4+1}{9+3}=\\frac5{12}', no: '\\frac{2+1}{5+3}=\\frac38' },
+            { value: 'Cool', yes: '\\frac{3+1}{9+3}=\\frac4{12}', no: '\\frac{1+1}{5+3}=\\frac28' },
+          ],
+        },
+        {
+          label: 'Humidity',
+          selected: 'High',
+          rows: [
+            { value: 'High', yes: '\\frac{3+1}{9+2}=\\frac4{11}', no: '\\frac{4+1}{5+2}=\\frac57' },
+            { value: 'Normal', yes: '\\frac{6+1}{9+2}=\\frac7{11}', no: '\\frac{1+1}{5+2}=\\frac27' },
+          ],
+        },
+        {
+          label: 'Wind',
+          selected: 'Strong',
+          rows: [
+            { value: 'Weak', yes: '\\frac{6+1}{9+2}=\\frac7{11}', no: '\\frac{2+1}{5+2}=\\frac37' },
+            { value: 'Strong', yes: '\\frac{3+1}{9+2}=\\frac4{11}', no: '\\frac{3+1}{5+2}=\\frac47' },
+          ],
+        },
+      ]
+    : [
+        {
+          label: 'Outlook',
+          selected: 'Sunny',
+          rows: [
+            { value: 'Sunny', yes: '\\frac29', no: '\\frac35' },
+            { value: 'Overcast', yes: '\\frac49', no: '0' },
+            { value: 'Rain', yes: '\\frac39', no: '\\frac25' },
+          ],
+        },
+        {
+          label: 'Temp',
+          selected: 'Cool',
+          rows: [
+            { value: 'Hot', yes: '\\frac29', no: '\\frac25' },
+            { value: 'Mild', yes: '\\frac49', no: '\\frac25' },
+            { value: 'Cool', yes: '\\frac39', no: '\\frac15' },
+          ],
+        },
+        {
+          label: 'Humidity',
+          selected: 'High',
+          rows: [
+            { value: 'High', yes: '\\frac39', no: '\\frac45' },
+            { value: 'Normal', yes: '\\frac69', no: '\\frac15' },
+          ],
+        },
+        {
+          label: 'Wind',
+          selected: 'Strong',
+          rows: [
+            { value: 'Weak', yes: '\\frac69', no: '\\frac25' },
+            { value: 'Strong', yes: '\\frac39', no: '\\frac35' },
+          ],
+        },
+      ];
+  const cellClass = cx('px-4 py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]');
+  return (
+    <section aria-label={smoothed ? 'Likelihood Play Tennis sau Laplace smoothing' : 'Likelihood Play Tennis không dùng Laplace'} className={cx('grid gap-6 py-2 lg:grid-cols-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      {tables.map((table) => (
+        <div key={table.label} className="min-w-0 overflow-x-auto">
+          <h3 className={cx('!mb-3 !mt-0 text-sm font-black', themeClasses.titleText)}>{table.label}</h3>
+          <div className={cx(
+            'grid min-w-[28rem] grid-cols-[minmax(7rem,0.9fr)_minmax(9rem,1fr)_minmax(9rem,1fr)] gap-px overflow-hidden rounded-lg text-sm',
+            themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+          )}>
+            <div className={cx('px-4 py-3 font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Giá trị</div>
+            <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#E4F0E7]' : 'bg-[#78C990]/12', themeClasses.titleText)}>Yes</div>
+            <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#F8EBD6]' : 'bg-[#F2C66D]/10', themeClasses.titleText)}>No</div>
+            {table.rows.map((row) => (
+              <div key={row.value} className="contents">
+                <div className={cx(
+                  cellClass,
+                  'font-bold',
+                  row.value === table.selected && (themeClasses.isLight ? '!bg-[#EAF1F7]' : '!bg-[#A8D4FF]/8'),
+                  themeClasses.bodyText,
+                )}>
+                  {row.value}
+                </div>
+                <div className={cx(cellClass, 'text-center', row.value === table.selected && (themeClasses.isLight ? '!bg-[#EDF7F0]' : '!bg-[#78C990]/8'))}>
+                  <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.yes} />
+                </div>
+                <div className={cx(cellClass, 'text-center', row.value === table.selected && (themeClasses.isLight ? '!bg-[#FCF3E6]' : '!bg-[#F2C66D]/7'))}>
+                  <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.no} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
+  step: 'data' | 'probabilities' | 'scores';
+  themeClasses: LearningThemeClasses;
+}) {
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [prediction, setPrediction] = useState<'spam' | 'ham' | null>(null);
+  const [checked, setChecked] = useState(false);
+  const rows = [
+    ['E1', 'Có', 'Có', 'Spam'],
+    ['E2', 'Có', 'Có', 'Spam'],
+    ['E3', 'Có', 'Không', 'Spam'],
+    ['E4', 'Không', 'Có', 'Spam'],
+    ['E5', 'Không', 'Không', 'Không spam'],
+    ['E6', 'Không', 'Có', 'Không spam'],
+    ['E7', 'Có', 'Không', 'Không spam'],
+    ['E8', 'Không', 'Không', 'Không spam'],
+  ] as const;
+  const expected = {
+    priorSpam: 1 / 2,
+    priorHam: 1 / 2,
+    freeSpam: 3 / 4,
+    freeHam: 1 / 4,
+    linkSpam: 3 / 4,
+    linkHam: 1 / 4,
+    scoreSpam: 9 / 32,
+    scoreHam: 1 / 32,
+  } as const;
+  const parseAnswer = (value: string) => {
+    const normalized = value.trim().replace(',', '.');
+    const fraction = normalized.match(/^(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)$/);
+    if (fraction) {
+      const denominator = Number(fraction[2]);
+      return denominator === 0 ? Number.NaN : Number(fraction[1]) / denominator;
+    }
+    return Number(normalized);
+  };
+  const answerIsCorrect = (key: keyof typeof expected) => (
+    Number.isFinite(parseAnswer(answers[key] ?? ''))
+    && Math.abs(parseAnswer(answers[key] ?? '') - expected[key]) < 1e-6
+  );
+  const setAnswer = (key: keyof typeof expected, value: string) => {
+    setAnswers((current) => ({ ...current, [key]: value }));
+    setChecked(false);
+  };
+  const inputClass = (key: keyof typeof expected) => cx(
+    'h-10 w-full rounded-lg border bg-transparent px-3 text-center text-sm font-bold outline-none transition-colors',
+    themeClasses.focusRing,
+    checked
+      ? answerIsCorrect(key)
+        ? themeClasses.isLight ? 'border-[#4D9B65] text-[#205B34]' : 'border-[#78C990] text-[#AEE7BE]'
+        : themeClasses.isLight ? 'border-[#C56B32] text-[#8A4716]' : 'border-[#E9A064] text-[#F0B172]'
+      : themeClasses.isLight ? 'border-[#CBD8E3] text-[#172A43]' : 'border-[#A8D4FF]/20 text-[#F2F6FA]',
+  );
+  const checkButton = (
+    <button
+      type="button"
+      onClick={() => setChecked(true)}
+      className={cx(
+        'inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-black transition-colors',
+        themeClasses.focusRing,
+        themeClasses.isLight ? 'bg-[#205089] text-white hover:bg-[#173F6D]' : 'bg-[#A8D4FF] text-[#10263D] hover:bg-[#BDDFFF]',
+      )}
+    >
+      Kiểm tra đáp án
+    </button>
+  );
+
+  if (step === 'data') {
+    return (
+      <section aria-label="Dataset phân loại email Spam" className={cx('py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+        <div className="overflow-x-auto">
+          <div className={cx(
+            'grid min-w-[34rem] grid-cols-[5rem_1fr_1fr_8rem] gap-px overflow-hidden rounded-lg text-sm',
+            themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+          )}>
+            {['Email', 'Có từ “miễn phí”', 'Có liên kết', 'Class'].map((label) => (
+              <div key={label} className={cx('px-3 py-3 text-center font-black first:text-left', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>
+                {label}
+              </div>
+            ))}
+            {rows.map((row) => (
+              <div key={row[0]} className="contents">
+                {row.slice(0, 3).map((value, index) => (
+                  <div key={`${row[0]}-${index}`} className={cx('px-3 py-2.5 text-center first:text-left first:font-bold', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]', themeClasses.bodyText)}>
+                    {value}
+                  </div>
+                ))}
+                <div className={cx('px-3 py-2.5 text-center', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+                  <span className={cx(
+                    'inline-flex min-w-20 justify-center rounded-full px-2 py-1 text-xs font-black',
+                    row[3] === 'Spam'
+                      ? themeClasses.isLight ? 'bg-[#F5E5D4] text-[#8A4716]' : 'bg-[#F2C66D]/14 text-[#F7D99B]'
+                      : themeClasses.isLight ? 'bg-[#DDEFE3] text-[#205B34]' : 'bg-[#78C990]/16 text-[#AEE7BE]',
+                  )}>
+                    {row[3]}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (step === 'probabilities') {
+    const probabilityKeys: Array<{
+      ham: keyof typeof expected;
+      label: string;
+      spam: keyof typeof expected;
+    }> = [
+      { label: 'Prior', spam: 'priorSpam', ham: 'priorHam' },
+      { label: 'Có từ “miễn phí”', spam: 'freeSpam', ham: 'freeHam' },
+      { label: 'Có liên kết', spam: 'linkSpam', ham: 'linkHam' },
+    ];
+    const allCorrect = probabilityKeys.every((row) => answerIsCorrect(row.spam) && answerIsCorrect(row.ham));
+    return (
+      <section aria-label="Điền prior và likelihood cho bài phân loại email" className={cx('py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+        <div className="overflow-x-auto">
+          <div className={cx(
+            'grid min-w-[34rem] grid-cols-[minmax(11rem,1.2fr)_1fr_1fr] gap-px overflow-hidden rounded-lg text-sm',
+            themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
+          )}>
+            <div className={cx('px-4 py-3 font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Thành phần</div>
+            <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#F8EBD6]' : 'bg-[#F2C66D]/10', themeClasses.titleText)}>Spam</div>
+            <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#E4F0E7]' : 'bg-[#78C990]/12', themeClasses.titleText)}>Không spam</div>
+            {probabilityKeys.map((row) => (
+              <div key={row.label} className="contents">
+                <div className={cx('px-4 py-3 font-bold', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]', themeClasses.bodyText)}>{row.label}</div>
+                {[row.spam, row.ham].map((key) => (
+                  <div key={key} className={cx('px-3 py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+                    <input
+                      aria-label={`${row.label} cho ${key === row.spam ? 'Spam' : 'Không spam'}`}
+                      value={answers[key] ?? ''}
+                      onChange={(event) => setAnswer(key, event.target.value)}
+                      placeholder="Ví dụ: 3/4"
+                      className={inputClass(key)}
+                    />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          {checkButton}
+          {checked ? (
+            <p className={cx('text-sm font-bold', allCorrect ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]' : themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')}>
+              {allCorrect ? 'Đúng. Các prior và likelihood đã được tính chính xác.' : 'Chưa đúng. Hãy đếm riêng trong từng class và kiểm tra tổng mỗi cột bằng 1.'}
+            </p>
+          ) : null}
+        </div>
+      </section>
+    );
+  }
+
+  const scoresCorrect = answerIsCorrect('scoreSpam') && answerIsCorrect('scoreHam');
+  const allCorrect = scoresCorrect && prediction === 'spam';
+  return (
+    <section aria-label="Điền score và dự đoán class email" className={cx('py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      <div className="grid gap-5 md:grid-cols-2">
+        {[
+          { key: 'scoreSpam' as const, label: 'score(Spam)', formula: '\\frac12\\times\\frac34\\times\\frac34' },
+          { key: 'scoreHam' as const, label: 'score(Không\\ spam)', formula: '\\frac12\\times\\frac14\\times\\frac14' },
+        ].map((item) => (
+          <div key={item.key} className="grid gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className={cx('text-sm font-black', themeClasses.titleText)}>{item.label}</span>
+              <MathText className={cx('text-sm font-semibold', themeClasses.mutedText)} formula={item.formula} />
+            </div>
+            <input
+              aria-label={`Giá trị ${item.label}`}
+              value={answers[item.key] ?? ''}
+              onChange={(event) => setAnswer(item.key, event.target.value)}
+              placeholder="Nhập phân số hoặc số thập phân"
+              className={inputClass(item.key)}
+            />
+          </div>
         ))}
-      </ol>
-    </VisualSurface>
+      </div>
+      <div className="mt-6">
+        <span className={cx('text-sm font-black', themeClasses.titleText)}>Class dự đoán</span>
+        <div className="mt-3 flex flex-wrap gap-3">
+          {[
+            { id: 'spam' as const, label: 'Spam' },
+            { id: 'ham' as const, label: 'Không spam' },
+          ].map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => {
+                setPrediction(option.id);
+                setChecked(false);
+              }}
+              className={cx(
+                'min-h-10 rounded-lg border px-4 text-sm font-black transition-colors',
+                themeClasses.focusRing,
+                prediction === option.id
+                  ? themeClasses.isLight ? 'border-[#205089] bg-[#EAF1F7] text-[#123B68]' : 'border-[#A8D4FF] bg-[#A8D4FF]/10 text-[#D7EAFE]'
+                  : themeClasses.isLight ? 'border-[#CBD8E3] text-[#43536A]' : 'border-[#A8D4FF]/20 text-[#C8D4DF]',
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mt-5 flex flex-wrap items-center gap-4">
+        {checkButton}
+        {checked ? (
+          <p className={cx('text-sm font-bold', allCorrect ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]' : themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')}>
+            {allCorrect ? 'Đúng. score(Spam)=9/32 lớn hơn score(Không spam)=1/32.' : 'Chưa đúng. Hãy nhân prior với hai likelihood rồi chọn score lớn hơn.'}
+          </p>
+        ) : null}
+      </div>
+    </section>
   );
 }
 
@@ -1981,9 +2800,18 @@ function ProbabilityChapterVisual({ kind }: {
   if (kind === 'bayes') return <BayesVisual themeClasses={themeClasses} />;
   if (kind === 'bayes-prior-posterior') return <BayesVisual focus="prior-posterior" themeClasses={themeClasses} />;
   if (kind === 'bayes-normalization') return <BayesNormalizationVisual themeClasses={themeClasses} />;
-  if (kind === 'naive-bayes-evidence') return <NaiveBayesEvidenceVisual themeClasses={themeClasses} />;
+  if (kind === 'naive-bayes-combinations') return <NaiveBayesCombinationsVisual themeClasses={themeClasses} />;
+  if (kind === 'naive-bayes-exercise') return <NaiveBayesExerciseVisual themeClasses={themeClasses} />;
+  if (kind === 'naive-bayes-laplace') return <NaiveBayesLaplaceVisual themeClasses={themeClasses} />;
   if (kind === 'naive-bayes-practical') return <NaiveBayesPracticalVisual themeClasses={themeClasses} />;
-  return <ExercisesVisual themeClasses={themeClasses} />;
+  if (kind === 'naive-bayes-tradeoffs') return <NaiveBayesTradeoffsVisual themeClasses={themeClasses} />;
+  if (kind === 'play-tennis-data') return <PlayTennisDataVisual themeClasses={themeClasses} />;
+  if (kind === 'play-tennis-likelihoods') return <PlayTennisLikelihoodVisual themeClasses={themeClasses} />;
+  if (kind === 'play-tennis-likelihoods-laplace') return <PlayTennisLikelihoodVisual smoothed themeClasses={themeClasses} />;
+  if (kind === 'email-naive-bayes-data') return <EmailNaiveBayesPracticeVisual step="data" themeClasses={themeClasses} />;
+  if (kind === 'email-naive-bayes-probabilities') return <EmailNaiveBayesPracticeVisual step="probabilities" themeClasses={themeClasses} />;
+  if (kind === 'email-naive-bayes-scores') return <EmailNaiveBayesPracticeVisual step="scores" themeClasses={themeClasses} />;
+  return null;
 }
 
 export const statisticsMdxComponents = {

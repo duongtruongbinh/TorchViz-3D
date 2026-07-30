@@ -168,7 +168,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.equal(statisticsPageCount, 326);
+  assert.equal(statisticsPageCount, 333);
   for (const lessonId of [
     'ch01-probability-origins',
     'ch01-experiments-events-sample-space',

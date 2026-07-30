@@ -6,8 +6,12 @@ export const lessonMetadata = {
   "headings": [
     "Bayes: cập nhật niềm tin",
     "Bước 1: Prior và Posterior",
-    "Vì sao likelihood làm niềm tin thay đổi",
+    "Bước 2: Thu thập dữ liệu và cập nhật niềm tin",
     "Từ Bayes đến Naive Bayes",
+    "Tính score cho từng class",
+    "Bài tập: So sánh score",
+    "Log-likelihood",
+    "Laplace smoothing",
     "Naive Bayes trong thực tế"
   ],
   "keywords": [
@@ -18,7 +22,7 @@ export const lessonMetadata = {
     "log-likelihood",
     "Laplace smoothing"
   ],
-  "pageCount": 5
+  "pageCount": 9
 }
 
 <MdxPage page={0}>
@@ -48,29 +52,18 @@ Khi chưa đưa bằng chứng vào quá trình cập nhật, không có thành 
 
 <MdxPage page={2}>
 
-## Vì sao likelihood làm niềm tin thay đổi
+## Bước 2: Thu thập dữ liệu và cập nhật niềm tin
 
-Mẫu số <MdxFormula inline formula={"P(A)"} /> là xác suất quan sát thấy dữ liệu <MdxFormula inline formula={"A"} /> dưới tất cả khả năng. Với hệ đầy đủ <MdxFormula inline formula={"\\{B,\\neg B\\}"} />, công thức xác suất toàn phần cho ta:
+Một giáo viên tin rằng **học bài trước khi thi giúp học sinh dễ đậu hơn**. Niềm tin ban đầu của thầy là prior. Để kiểm tra niềm tin đó, thầy thu thập thêm hai thông tin từ kết quả giữa kỳ:
 
-<MdxFormula formula={"P(A)=P(A\\mid B)P(B)+P(A\\mid\\neg B)P(\\neg B)"} />
+- Học sinh có học bài trước khi thi hay không — dữ liệu <MdxFormula inline formula={"A"} />.
+- Học sinh thi đậu hay rớt — giả thuyết <MdxFormula inline formula={"B"} /> cần đánh giá.
 
 <ProbabilityChapterVisual kind="bayes-normalization" />
 
-Thay công thức xác suất toàn phần vào Bayes:
-
-<MdxFormula formula={"P(B\\mid A)=\\frac{P(A\\mid B)P(B)}{P(A\\mid B)P(B)+P(A\\mid\\neg B)P(\\neg B)}"} />
-
-- Nếu <MdxFormula inline formula={"P(A\\mid B)>P(A\\mid\\neg B)"} />, dữ liệu <MdxFormula inline formula={"A"} /> ủng hộ <MdxFormula inline formula={"B"} /> hơn và posterior tăng.
-- Nếu <MdxFormula inline formula={"P(A\\mid B)<P(A\\mid\\neg B)"} />, dữ liệu ủng hộ <MdxFormula inline formula={"\\neg B"} /> hơn và posterior giảm.
-- Nếu hai likelihood bằng nhau, dữ liệu không giúp phân biệt hai khả năng và posterior bằng prior.
-
-Mối quan hệ này thể hiện gọn nhất bằng odds:
-
-<MdxFormula formula={"\\frac{P(B\\mid A)}{P(\\neg B\\mid A)}=\\frac{P(B)}{P(\\neg B)}\\times\\frac{P(A\\mid B)}{P(A\\mid\\neg B)}"} />
-
 <LessonNote>
 
-Likelihood không phải xác suất của giả thuyết. Nó cho biết dữ liệu vừa quan sát phù hợp với mỗi giả thuyết đến đâu. Bayes dùng mức độ phù hợp tương đối đó để cập nhật prior thành posterior.
+Likelihood không phải xác suất học sinh sẽ đậu. Nó cho biết dữ liệu “có học bài” xuất hiện thường xuyên đến đâu trong nhóm đậu so với nhóm rớt. Dữ liệu càng ủng hộ giả thuyết, niềm tin càng tăng; dữ liệu phản bác giả thuyết, niềm tin sẽ giảm.
 
 </LessonNote>
 
@@ -82,55 +75,152 @@ Likelihood không phải xác suất của giả thuyết. Nó cho biết dữ l
 
 Bayes cập nhật một giả thuyết bằng một bằng chứng. Naive Bayes mở rộng ý tưởng đó sang nhiều feature <MdxFormula inline formula={"X_1,X_2,\\ldots,X_d"} /> để so sánh nhiều class <MdxFormula inline formula={"C_i"} />.
 
-<ProbabilityChapterVisual kind="naive-bayes-evidence" />
-
 ### Vì sao gọi là “Naive”?
 
 Thuật toán giả sử các feature **độc lập có điều kiện khi đã biết class**:
 
 <MdxFormula formula={"P(X_1,X_2,\\ldots,X_d\\mid C_i)=\\prod_{k=1}^{d}P(X_k\\mid C_i)"} />
 
-Đây không phải giả định rằng các feature độc lập tuyệt đối. Chúng chỉ được xem là độc lập sau khi ta đã cố định class <MdxFormula inline formula={"C_i"} />. Giả định này giúp tránh phải ước lượng trực tiếp mọi tổ hợp feature từ một dataset không đủ lớn.
+Ví dụ, sau khi đã xét riêng nhóm **Đậu**, Naive Bayes tạm coi “có học bài”, “nộp bài” và “đi học đều” là ba bằng chứng riêng biệt. Mô hình làm tương tự trong nhóm **Rớt**.
 
-### Tính score cho từng class
+Nếu mỗi feature chỉ có hai giá trị “có” hoặc “không”, ba feature đã tạo ra <MdxFormula inline formula={"2^3=8"} /> tổ hợp.
 
-Với mỗi class, Naive Bayes lấy prior nhân với likelihood của từng feature:
+<ProbabilityChapterVisual kind="naive-bayes-combinations" />
 
-<MdxFormula formula={"P(C_i\\mid X_1,\\ldots,X_d)\\propto P(C_i)\\prod_{k=1}^{d}P(X_k\\mid C_i)"} />
+Khi số feature tăng, số tổ hợp tăng rất nhanh và nhiều tổ hợp có thể không xuất hiện đủ trong dataset. Naive Bayes tránh việc phải ước lượng từng tổ hợp bằng cách tính likelihood của từng feature trong mỗi class rồi nhân chúng lại.
 
-Khi chỉ cần phân loại, mẫu số <MdxFormula inline formula={"P(X_1,\ldots,X_d)"} /> giống nhau cho mọi class nên ta có thể so sánh trực tiếp các score:
-
-<MdxFormula formula={"\\hat C=\\operatorname*{arg\\,max}_{C_i}\\;P(C_i)\\prod_{k=1}^{d}P(X_k\\mid C_i)"} />
+Trong trường hợp tổng quát, các feature có thể liên quan với nhau nên phép nhân này chỉ là một xấp xỉ, không đảm bảo cho xác suất chính xác. Tuy vậy, trong nhiều bài toán phân loại, giả định đơn giản này vẫn đem lại kết quả tốt, đặc biệt khi dataset còn nhỏ so với số lượng feature.
 
 </MdxPage>
 
 <MdxPage page={4}>
 
+## Tính score cho từng class
+
+Nếu chỉ có một feature <MdxFormula inline formula={"X"} />, Bayes cập nhật xác suất của class <MdxFormula inline formula={"C_i"} /> như sau:
+
+<MdxFormula formula={"P(C_i\\mid X)=\\frac{P(C_i)P(X\\mid C_i)}{P(X)}"} />
+
+Với nhiều feature, ta thay likelihood của một feature bằng joint likelihood của toàn bộ feature:
+
+<MdxFormula formula={"P(C_i\\mid X_1,\\ldots,X_d)=\\frac{P(C_i)P(X_1,\\ldots,X_d\\mid C_i)}{P(X_1,\\ldots,X_d)}"} />
+
+Trong đó <MdxFormula inline formula={"P(X_1,\\ldots,X_d\\mid C_i)"} /> là xác suất quan sát đồng thời toàn bộ feature khi class <MdxFormula inline formula={"C_i"} /> đúng.
+
+Naive Bayes giả sử các feature độc lập có điều kiện khi đã biết class, nên joint likelihood ở tử số được tách thành tích:
+
+<MdxFormula formula={"\\begin{aligned}P(C_i\\mid X_1,\\ldots,X_d)&=\\frac{P(C_i)P(X_1\\mid C_i)P(X_2\\mid C_i)\\cdots P(X_d\\mid C_i)}{P(X_1,\\ldots,X_d)}\\\\&=\\frac{P(C_i)\\prod_{k=1}^{d}P(X_k\\mid C_i)}{P(X_1,\\ldots,X_d)}\\end{aligned}"} />
+
+Vì đây là bài toán **phân loại**, ta chỉ cần so sánh giữa class **Đậu** và class **Rớt**. Gọi <MdxFormula inline formula={"X=(X_1,\\ldots,X_d)"} /> là toàn bộ feature của học sinh cần dự đoán:
+
+<MdxFormula formula={"\\begin{aligned}P(\\text{Đậu}\\mid X)&=\\frac{P(\\text{Đậu})\\prod_{k=1}^{d}P(X_k\\mid\\text{Đậu})}{P(X)}\\\\P(\\text{Rớt}\\mid X)&=\\frac{P(\\text{Rớt})\\prod_{k=1}^{d}P(X_k\\mid\\text{Rớt})}{P(X)}\\end{aligned}"} />
+
+Hai class cùng có mẫu số <MdxFormula inline formula={"P(X)"} />, nên ta không cần tính mẫu số mà chỉ so sánh hai score ở tử số:
+
+<MdxFormula formula={"\\begin{aligned}P(\\text{Đậu}\\mid X)&\\propto P(\\text{Đậu})\\prod_{k=1}^{d}P(X_k\\mid\\text{Đậu})\\\\P(\\text{Rớt}\\mid X)&\\propto P(\\text{Rớt})\\prod_{k=1}^{d}P(X_k\\mid\\text{Rớt})\\end{aligned}"} />
+
+Class có score lớn hơn sẽ là kết quả dự đoán.
+
+<MdxFormula formula={"\\hat C=\\operatorname*{arg\\,max}_{C_i}\\;P(C_i)\\prod_{k=1}^{d}P(X_k\\mid C_i)"} />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Bài tập: So sánh score
+
+Giáo viên đã thu thập dữ liệu giữa kỳ của 8 học sinh. Từ dữ liệu ban đầu, hãy đếm số lần từng feature xuất hiện trong class **Đậu** và class **Rớt** để lập bảng prior và likelihood.
+
+<ProbabilityChapterVisual kind="naive-bayes-exercise" />
+
+<LessonNote>
+
+**Tip kiểm tra:** Trong mỗi bảng feature, hãy cộng toàn bộ xác suất theo từng cột class. Nếu tổng bằng <MdxFormula inline formula={"1"} />, bảng likelihood đã được chuẩn hóa đúng. Ví dụ:
+
+<MdxFormula formula={"P(\\text{có học bài}\\mid\\text{Đậu})+P(\\text{không học bài}\\mid\\text{Đậu})=\\frac34+\\frac14=1"} />
+
+</LessonNote>
+
+Ta cần dự đoán một học sinh mới thuộc class **Đậu** hay **Rớt**. Học sinh này **có học bài**, **có nộp bài** và **đi học đều**.
+
+Hãy nhân prior với ba likelihood để tính score của từng class, sau đó chọn class có score lớn hơn.
+
+### Đáp án
+
+Nhắc lại công thức score cho class <MdxFormula inline formula={"C_i"} />:
+
+<MdxFormula formula={"\\operatorname{score}(C_i)=P(C_i)\\prod_{k=1}^{d}P(X_k\\mid C_i)"} />
+
+Với class **Đậu**:
+
+<MdxFormula formula={"\\begin{aligned}\\operatorname{score}(\\text{Đậu})&=P(\\text{Đậu})\\\\&\\quad\\times P(\\text{có học bài}\\mid\\text{Đậu})\\\\&\\quad\\times P(\\text{có nộp bài}\\mid\\text{Đậu})\\\\&\\quad\\times P(\\text{đi học đều}\\mid\\text{Đậu})\\\\&=\\frac12\\times\\frac34\\times\\frac34\\times1=\\frac9{32}\\end{aligned}"} />
+
+Với class **Rớt**:
+
+<MdxFormula formula={"\\begin{aligned}\\operatorname{score}(\\text{Rớt})&=P(\\text{Rớt})\\\\&\\quad\\times P(\\text{có học bài}\\mid\\text{Rớt})\\\\&\\quad\\times P(\\text{có nộp bài}\\mid\\text{Rớt})\\\\&\\quad\\times P(\\text{đi học đều}\\mid\\text{Rớt})\\\\&=\\frac12\\times\\frac14\\times\\frac12\\times\\frac14=\\frac1{64}\\end{aligned}"} />
+
+Vì <MdxFormula inline formula={"\\frac9{32}>\\frac1{64}"} />, Naive Bayes dự đoán học sinh thuộc class **Đậu**.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Log-likelihood
+
+Nhắc lại score của class <MdxFormula inline formula={"C_i"} />:
+
+<MdxFormula formula={"\\begin{aligned}\\operatorname{score}(C_i)&=P(C_i)P(X_1\\mid C_i)P(X_2\\mid C_i)\\cdots P(X_d\\mid C_i)\\\\&=P(C_i)\\prod_{k=1}^{d}P(X_k\\mid C_i)\\end{aligned}"} />
+
+Mỗi likelihood nằm trong khoảng <MdxFormula inline formula={"[0,1]"} />. Khi có nhiều feature, máy tính phải nhân liên tiếp nhiều số rất nhỏ. Ví dụ:
+
+<MdxFormula formula={"0.01^{200}=10^{-400}"} />
+
+Về toán học, kết quả vẫn lớn hơn <MdxFormula inline formula={"0"} />. Tuy nhiên, giá trị này có thể nhỏ hơn khả năng biểu diễn của máy tính và bị làm tròn thành <MdxFormula inline formula={"0"} /> — hiện tượng **underflow**.
+
+Ta lấy log trên toàn bộ score:
+
+<MdxFormula formula={"\\log\\operatorname{score}(C_i)=\\log\\left[P(C_i)P(X_1\\mid C_i)P(X_2\\mid C_i)\\cdots P(X_d\\mid C_i)\\right]"} />
+
+Log biến phép nhân thành phép cộng:
+
+<MdxFormula formula={"\\begin{aligned}\\log\\operatorname{score}(C_i)&=\\log P(C_i)\\\\&\\quad+\\log P(X_1\\mid C_i)\\\\&\\quad+\\log P(X_2\\mid C_i)\\\\&\\quad+\\cdots+\\log P(X_d\\mid C_i)\\\\&=\\log P(C_i)+\\sum_{k=1}^{d}\\log P(X_k\\mid C_i)\\end{aligned}"} />
+
+Hàm log đồng biến, nên class có score lớn nhất cũng có log-score lớn nhất. Ta đưa log-score vào công thức argmax:
+
+<MdxFormula formula={"\\hat C=\\operatorname*{arg\\,max}_{C_i}\\left[\\log P(C_i)+\\sum_{k=1}^{d}\\log P(X_k\\mid C_i)\\right]"} />
+
+Log-likelihood chỉ xử lý các xác suất **dương nhưng rất nhỏ**. Nếu một likelihood bằng đúng <MdxFormula inline formula={"0"} />, ta cần Laplace smoothing ở trang tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Laplace smoothing
+
+Giả sử giáo viên thu thập dữ liệu về việc nộp bài và kết quả thi của 6 học sinh:
+
+<ProbabilityChapterVisual kind="naive-bayes-laplace" />
+
+<LessonNote>
+
+**Tip kiểm tra:** Sau khi Laplace smoothing, tổng xác suất theo từng cột class vẫn phải bằng <MdxFormula inline formula={"1"} />:
+
+<MdxFormula formula={"\\frac45+\\frac15=1\\qquad\\text{và}\\qquad\\frac25+\\frac35=1"} />
+
+</LessonNote>
+
+Công thức tổng quát:
+
+<MdxFormula formula={"\\widehat{P}(X_k=x\\mid C_i)=\\frac{N_{ikx}+1}{N_i+K}"} />
+
+</MdxPage>
+
+<MdxPage page={8}>
+
 ## Naive Bayes trong thực tế
 
 <ProbabilityChapterVisual kind="naive-bayes-practical" />
 
-### Log-score
-
-Khi có nhiều feature, việc nhân nhiều xác suất nhỏ có thể gây underflow về <MdxFormula inline formula={"0"} />. Ta chuyển phép nhân thành phép cộng bằng log và chọn class có log-score lớn nhất:
-
-<MdxFormula formula={"\\hat C=\\operatorname*{arg\\,max}_{C_i}\\left[\\log P(C_i)+\\sum_{k=1}^{d}\\log P(X_k\\mid C_i)\\right]"} />
-
-### Laplace smoothing
-
-Nếu một giá trị chưa từng xuất hiện cùng class trong dữ liệu huấn luyện, likelihood ước lượng có thể bằng <MdxFormula inline formula={"0"} /> và làm toàn bộ tích bằng <MdxFormula inline formula={"0"} />. Laplace smoothing cộng một lượng giả đếm:
-
-<MdxFormula formula={"\\widehat{P}(X_k=x\\mid C_i)=\\frac{N_{ikx}+1}{N_i+K}"} />
-
-### Ưu điểm
-
-- Huấn luyện và dự đoán nhanh vì chỉ cần ước lượng prior và likelihood.
-- Dùng được cho feature phân loại hoặc số khi chọn mô hình likelihood phù hợp.
-- Có thể cập nhật các thống kê đếm khi dữ liệu mới xuất hiện.
-- Có thể xử lý giá trị thiếu nếu implementation hỗ trợ bỏ qua hoặc mô hình hóa feature bị thiếu.
-
-### Hạn chế
-
-Giả định độc lập có điều kiện thường không hoàn toàn đúng trong thực tế. Feature không liên quan chỉ ít ảnh hưởng trong trường hợp likelihood của nó gần giống nhau giữa các class; correlation hoặc dữ liệu hữu hạn vẫn có thể làm mô hình bị lệch.
+<ProbabilityChapterVisual kind="naive-bayes-tradeoffs" />
 
 </MdxPage>
