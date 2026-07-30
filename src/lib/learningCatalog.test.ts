@@ -36,7 +36,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 12);
   assert.equal(learningCatalog.domains.length, 12);
-  assert.equal(learningCatalog.tracks.length, 78);
+  assert.equal(learningCatalog.tracks.length, 84);
   assert.equal(learningCatalog.lessons.length, 602);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
