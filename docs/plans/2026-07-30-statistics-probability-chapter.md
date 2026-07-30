@@ -298,7 +298,7 @@ new planning surface.
   warning for chunks larger than 1,000 kB remains non-blocking.
 - 2026-07-30T02:27:33+07:00 - Added the requester-supplied Méré illustration
   as the local asset
-  `public/assets/learning/statistics/01-statistics-probability-origins-mere-gambling-scene.jpg`
+  `src/assets/learning/statistics/ch01-probability/01-statistics-probability-origins-mere-gambling-scene.jpg`
   and placed
   it before the spelling note on page 1 of the probability-origins lesson.
   Added a responsive, lazy-loaded renderer for standard Markdown images in the

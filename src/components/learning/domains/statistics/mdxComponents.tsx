@@ -18,11 +18,14 @@ import {
 } from 'lucide-react';
 import katex from 'katex';
 import { useEffect, useId, useMemo, useState } from 'react';
+import mereGamblingScene from '../../../../assets/learning/statistics/ch01-probability/01-statistics-probability-origins-mere-gambling-scene.jpg';
+import pascalFermatIllustration from '../../../../assets/learning/statistics/ch01-probability/01-statistics-probability-origins-pascal-fermat.png';
 import experimentOutcomesIllustration from '../../../../assets/learning/statistics/ch01-probability/01-statistics-probability-origins-experiment-outcomes.png';
 import certainImpossibleEventsIllustration from '../../../../assets/learning/statistics/ch01-probability/02-statistics-experiments-events-sample-space-certain-impossible-events.png';
 import elementaryEventsIllustration from '../../../../assets/learning/statistics/ch01-probability/02-statistics-experiments-events-sample-space-elementary-events.png';
 import experimentEventIllustration from '../../../../assets/learning/statistics/ch01-probability/02-statistics-experiments-events-sample-space-experiment-event.png';
 import randomEventVariableIllustration from '../../../../assets/learning/statistics/ch01-probability/02-statistics-experiments-events-sample-space-random-event-variable.png';
+import frequencyStabilityAnimation from '../../../../assets/learning/statistics/ch01-probability/05-statistics-empirical-probability-frequency-stability.gif';
 import priorPosteriorProbabilityIllustration from '../../../../assets/learning/statistics/ch01-probability/06-statistics-conditional-probability-prior-posterior.png';
 import { STATISTICS_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
@@ -78,11 +81,21 @@ function MathText({ className, formula }: { className?: string; formula: string 
   );
 }
 
-function ProbabilitySourceImage({ alt, source, src }: { alt: string; source: string; src: string }) {
+const probabilitySourceImages = {
+  'mere-gambling-scene': mereGamblingScene,
+  'pascal-fermat': pascalFermatIllustration,
+  'frequency-stability': frequencyStabilityAnimation,
+} as const;
+
+function ProbabilitySourceImage({ alt, asset, source }: {
+  alt: string;
+  asset: keyof typeof probabilitySourceImages;
+  source: string;
+}) {
   const themeClasses = useLearningMdxTheme();
   return (
     <figure className="grid w-full justify-items-center gap-2">
-      <img src={src} alt={alt} loading="lazy" className="max-h-[18rem] w-auto max-w-full rounded-lg object-contain" />
+      <img src={probabilitySourceImages[asset]} alt={alt} loading="lazy" className="max-h-[18rem] w-auto max-w-full rounded-lg object-contain" />
       <figcaption className={cx('text-center text-xs font-semibold leading-5', themeClasses.mutedText)}>
         Nguồn: {source}
       </figcaption>
