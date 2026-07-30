@@ -3,7 +3,7 @@ title: Statistics Vietnamese-only Test and Documentation Alignment
 status: done
 created: 2026-07-30T01:34:04+07:00
 updated: 2026-07-30T01:37:07+07:00
-author: Codex
+author: nmkhiem
 task: "update Learning Lab tests and documentation to match the Vietnamese-only Statistics content retained after repository compaction"
 supersedes:
   - docs/plans/2026-07-29-statistics-import-artifact-cleanup.md

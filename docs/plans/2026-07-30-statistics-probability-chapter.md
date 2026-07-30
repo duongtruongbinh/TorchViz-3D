@@ -3,7 +3,7 @@ title: Replace Statistics Chapter 1 with Probability
 status: done
 created: 2026-07-30T01:52:39+07:00
 updated: 2026-07-30T03:41:28+07:00
-author: Codex
+author: nmkhiem
 task: "rename the Statistics domain to Probability & Statistics and replace its entire first chapter with the requester-provided Vietnamese probability wording, corrected only where necessary and rendered with KaTeX"
 supersedes:
   - docs/plans/2026-07-30-statistics-overview-lesson-replacement.md

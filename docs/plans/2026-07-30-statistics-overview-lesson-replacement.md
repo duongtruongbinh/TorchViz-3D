@@ -3,7 +3,7 @@ title: Statistics Overview Lesson Replacement
 status: done
 created: 2026-07-30T01:40:11+07:00
 updated: 2026-07-30T01:47:12+07:00
-author: Codex
+author: nmkhiem
 task: "adapt the requester-provided statistics transcript into an original four-page Vietnamese overview lesson"
 supersedes:
   - docs/plans/2026-07-30-statistics-vietnamese-only-test-doc-alignment.md
