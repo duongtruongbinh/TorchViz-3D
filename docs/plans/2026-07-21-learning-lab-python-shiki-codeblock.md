@@ -3,7 +3,7 @@ title: Learning Lab Python syntax highlighting (Shiki v4) + reusable CodeBlock
 status: done
 created: 2026-07-21T00:00:00+07:00
 updated: 2026-07-21T02:30:00+07:00
-author: Claude
+author: duongtruongbinh
 task: "Add Shiki v4 Python syntax highlighting to Learning Lab renderer code, via a reusable theme-aware CodeBlock, and refactor the hand-written Python <pre><code> in tokenizerRenderers.tsx onto it."
 supersedes:
   - docs/plans/2026-07-20-refactor-llm-domain-renderers.md

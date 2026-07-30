@@ -3,7 +3,7 @@ title: Convert Linear Algebra Plaintext Formulas to LaTeX/KaTeX
 status: done
 created: 2026-07-29
 updated: 2026-07-29
-author: Codex & Antigravity
+author: hienlong
 task: "Convert plaintext math formulas in linear algebra lessons to proper LaTeX rendering using KaTeX, and format inline math variables/expressions for completeness and consistency."
 supersedes: []
 ---

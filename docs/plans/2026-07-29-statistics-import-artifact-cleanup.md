@@ -3,7 +3,7 @@ title: Statistics Import Artifact Cleanup
 status: done
 created: 2026-07-29T23:55:43+07:00
 updated: 2026-07-30T00:00:16+07:00
-author: Codex
+author: nmkhiem
 task: "remove the completed Statistics import scripts and ISLP source reference while preserving and directly validating the generated Learning Lab content"
 supersedes:
   - docs/plans/2026-07-29-statistics-islp-mdx-domain.md

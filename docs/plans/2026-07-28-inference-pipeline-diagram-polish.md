@@ -3,7 +3,7 @@ title: Inference Pipeline Diagram Polish — container block, alignment, connect
 status: executed
 created: 2026-07-28
 updated: 2026-07-28
-author: pi
+author: hienlong
 approved-by: user (direct prompt)
 task: diagram
 supersedes: null

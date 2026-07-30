@@ -2,7 +2,7 @@
 title: Divide Linear Algebra Track into Structured Chapters
 status: executing
 created: 2026-07-30
-author: pi agent
+author: hienlong
 task: "Split the flat linear-algebra track into real chapter objects matching the Strang curriculum, and ensure lesson ordering follows the canonical pedagogical flow."
 ---
 

@@ -3,7 +3,7 @@ title: Improve ordering exercise drag interaction
 status: done
 created: 2026-07-28T12:00:00+07:00
 updated: 2026-07-28T12:00:00+07:00
-author: Codex
+author: hienlong
 task: "Replace native HTML5 Drag & Drop in the ordering exercise (QuizBlock.tsx mode: 'order') with @dnd-kit for smoother, touch-friendly, and accessible drag reordering."
 supersedes: []
 ---
