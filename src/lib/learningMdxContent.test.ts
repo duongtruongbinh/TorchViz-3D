@@ -80,6 +80,21 @@ const expectedPageCounts: Record<string, number> = {
   'identity-inverse-matrix': 6,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
+  'ch01-probability-origins-quiz': ['origins-random-trial', 'origins-relative-frequency', 'origins-die-limit'],
+  'ch01-experiments-events-sample-space-quiz': [
+    'foundational-concepts-match',
+    'elementary-events-in-even-event',
+    'event-types-match',
+    'sample-space-die',
+    'random-variable-definition',
+  ],
+  'ch01-event-relations-quiz': ['union-intersection-match', 'complete-system-conditions', 'exclusive-vs-independent'],
+  'ch01-probability-definitions-properties-quiz': ['classical-probability-formula', 'probability-properties', 'addition-rule'],
+  'ch01-empirical-probability-quiz': ['frequency-relative-frequency', 'histogram-modes', 'relative-frequency-stability'],
+  'ch01-conditional-probability-quiz': ['conditional-formula', 'replacement-dependence', 'monty-hall-switch'],
+  'ch01-total-probability-quiz': ['partition-requirements', 'total-probability-formula', 'total-probability-order'],
+  'ch01-bayes-naive-bayes-quiz': ['bayes-term-match', 'naive-bayes-assumption', 'naive-bayes-stability'],
+  'ch01-probability-exercises-quiz': ['queen-given-face-card', 'compare-naive-bayes-scores', 'laplace-denominator'],
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
   'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
   'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
@@ -107,24 +122,24 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 233);
+  assert.equal(lessonFiles.length, 165);
   const parsedLessonFiles = lessonFiles
     .map((file) => parseLearningMdxPath(file))
     .filter((file): file is NonNullable<typeof file> => file !== null);
-  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'en').length, 90);
-  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 90);
-  assert.equal(parsedLessonFiles.filter((file) => file.domainId !== 'statistics' && file.locale === 'vi').length, 53);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'en').length, 0);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 99);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId !== 'statistics' && file.locale === 'vi').length, 66);
   assert.deepEqual(
     [...new Set(parsedLessonFiles.map((file) => `${file.domainId}/${file.lessonId}`))].sort(),
     publishedLessonKeys.sort(),
   );
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 233);
+  assert.equal(documents.length, 165);
   const statisticsDocuments = documents.filter((document) => document.domainId === 'statistics');
-  assert.equal(statisticsDocuments.length, 180);
-  assert.deepEqual([...new Set(statisticsDocuments.map((document) => document.locale))].sort(), ['en', 'vi']);
+  assert.equal(statisticsDocuments.length, 99);
+  assert.deepEqual([...new Set(statisticsDocuments.map((document) => document.locale))], ['vi']);
   assert.ok(statisticsDocuments.every((document) => document.text.length < 2_000));
-  const statisticsPageCounts = { en: 0, vi: 0 };
+  let statisticsPageCount = 0;
   const statisticsInspections = new Map<string, Awaited<ReturnType<typeof inspectLearningMdx>>>();
   const statisticsSources = new Map<string, string>();
   for (const lessonFile of lessonFiles) {
@@ -138,10 +153,10 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const pageCount = Number(inspection.metadata.pageCount ?? 1);
     if (parsed.domainId === 'statistics') {
       assert.ok(Number.isInteger(pageCount) && pageCount > 0);
-      assert.ok(parsed.locale === 'en' || parsed.locale === 'vi');
-      statisticsPageCounts[parsed.locale] += pageCount;
-      statisticsInspections.set(`${parsed.lessonId}.${parsed.locale}`, inspection);
-      statisticsSources.set(`${parsed.lessonId}.${parsed.locale}`, source);
+      assert.equal(parsed.locale, 'vi');
+      statisticsPageCount += pageCount;
+      statisticsInspections.set(parsed.lessonId, inspection);
+      statisticsSources.set(parsed.lessonId, source);
     } else {
       assert.equal(pageCount, expectedPageCounts[parsed.lessonId]);
     }
@@ -153,31 +168,30 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.deepEqual(statisticsPageCounts, { en: 265, vi: 265 });
+  assert.equal(statisticsPageCount, 322);
+  for (const lessonId of [
+    'ch01-probability-origins',
+    'ch01-experiments-events-sample-space',
+    'ch01-event-relations',
+    'ch01-probability-definitions-properties',
+    'ch01-empirical-probability',
+    'ch01-conditional-probability',
+    'ch01-total-probability',
+    'ch01-bayes-naive-bayes',
+    'ch01-probability-exercises',
+  ]) {
+    const source = statisticsSources.get(lessonId) ?? '';
+    assert.match(source, /<MdxFormula\b/);
+    assert.doesNotMatch(source, /<MdxCode\b/);
+    assert.doesNotMatch(source, /\$\$|(?<!\\)\$(?!\{)/);
+  }
   for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics')) {
-    const english = statisticsInspections.get(`${lesson.id}.en`);
-    const vietnamese = statisticsInspections.get(`${lesson.id}.vi`);
-    assert.ok(english && vietnamese, `Missing Statistics locale pair for ${lesson.id}`);
-    assert.equal(vietnamese.metadata.pageCount, english.metadata.pageCount);
-    assert.equal(
-      (vietnamese.metadata.headings as unknown[]).length,
-      (english.metadata.headings as unknown[]).length,
-    );
-    assert.deepEqual(vietnamese.pageIndexes, english.pageIndexes);
-    assert.deepEqual(
-      vietnamese.mdxCodeBlocks.map((block) => block.language),
-      english.mdxCodeBlocks.map((block) => block.language),
-    );
-    assert.deepEqual(
-      vietnamese.mdxCodeBlocks.filter((block) => block.language !== 'table'),
-      english.mdxCodeBlocks.filter((block) => block.language !== 'table'),
-    );
-    assert.deepEqual(
-      (statisticsSources.get(`${lesson.id}.vi`)?.replace(/<MdxCode\b[\s\S]*?\/>/g, '').match(/`[^`\n]+`/g) ?? []).sort(),
-      (statisticsSources.get(`${lesson.id}.en`)?.replace(/<MdxCode\b[\s\S]*?\/>/g, '').match(/`[^`\n]+`/g) ?? []).sort(),
-    );
-    const vietnameseProse = (statisticsSources.get(`${lesson.id}.vi`) ?? '')
-      .slice((statisticsSources.get(`${lesson.id}.vi`) ?? '').indexOf('<MdxPage'))
+    const vietnamese = statisticsInspections.get(lesson.id);
+    assert.ok(vietnamese, `Missing Vietnamese Statistics content for ${lesson.id}`);
+    assert.equal(vietnamese.metadata.locale, 'vi');
+    const vietnameseSource = statisticsSources.get(lesson.id) ?? '';
+    const vietnameseProse = vietnameseSource
+      .slice(vietnameseSource.indexOf('<MdxPage'))
       .replace(/<MdxCode\b[\s\S]*?\/>/g, '')
       .replace(/`[^`\n]+`/g, '');
     const commonEnglishWordCount = vietnameseProse.match(
@@ -194,10 +208,10 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
 
 test('retained Statistics authored output preserves the locked catalog counts', () => {
   assert.equal(learningCatalog.tracks.filter((track) => track.domainId === 'statistics').length, 13);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 90);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 99);
   assert.equal(
     learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics' && lesson.contentStatus === 'published').length,
-    90,
+    99,
   );
 });
 
@@ -233,7 +247,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxCode', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxCode', 'MdxConceptContrast', 'MdxFormula', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,

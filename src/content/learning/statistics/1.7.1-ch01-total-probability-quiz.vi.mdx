@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-total-probability-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Điều kiện phân hoạch', 'Công thức toàn phần', 'Trình tự tính'],
+  keywords: ['xác suất toàn phần', 'phân hoạch', 'hệ đầy đủ'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="ch01-total-probability-quiz" questions={[
+  {
+    id: 'partition-requirements', title: 'Điều kiện phân hoạch', prompt: 'Để áp dụng công thức xác suất toàn phần với $A_1,\\ldots,A_n$, những điều kiện nào phải đúng?', mode: 'multi',
+    options: [
+      { id: 'pairwise-disjoint', label: '$A_i\\cap A_j=\\varnothing$ với mọi $i\\ne j$.', isCorrect: true },
+      { id: 'cover-space', label: '$\\bigcup_{i=1}^{n}A_i=\\Omega$.', isCorrect: true },
+      { id: 'equal-probability', label: 'Mọi $A_i$ phải có cùng xác suất.' },
+      { id: 'independent', label: 'Mọi $A_i$ phải độc lập.' },
+    ],
+    success: 'Đúng. Các nhánh phải xung khắc từng đôi và bao phủ toàn bộ không gian mẫu.',
+    error: 'Chưa đúng. Công thức cần một hệ đầy đủ, không yêu cầu các nhánh đồng khả năng hay độc lập.',
+  },
+  {
+    id: 'total-probability-formula', title: 'Công thức toàn phần', prompt: 'Công thức nào tính đúng $P(H)$ theo một hệ đầy đủ $A_1,\\ldots,A_n$?', mode: 'single',
+    options: [
+      { id: 'weighted-sum', label: '$P(H)=\\sum_{i=1}^{n}P(A_i)P(H\\mid A_i)$', isCorrect: true },
+      { id: 'unweighted', label: '$P(H)=\\sum_{i=1}^{n}P(H\\mid A_i)$' },
+      { id: 'product-all', label: '$P(H)=\\prod_{i=1}^{n}P(A_i)P(H\\mid A_i)$' },
+      { id: 'reverse-condition', label: '$P(H)=\\sum_{i=1}^{n}P(H)P(A_i\\mid H)$' },
+    ],
+    success: 'Đúng. Mỗi xác suất có điều kiện được cân theo xác suất của nhánh tương ứng.',
+    error: 'Chưa đúng. Mỗi nhánh phải đóng góp $P(A_i)P(H\\mid A_i)$.',
+  },
+  {
+    id: 'total-probability-order', title: 'Trình tự tính', prompt: 'Sắp xếp quy trình áp dụng công thức xác suất toàn phần.', mode: 'order',
+    options: [
+      { id: 'sum', label: 'Cộng các tích của mọi nhánh.' },
+      { id: 'partition', label: 'Xác định một hệ đầy đủ các biến cố.' },
+      { id: 'conditionals', label: 'Tính xác suất của từng nhánh và xác suất có điều kiện trên nhánh đó.' },
+    ],
+    correctOrder: ['partition', 'conditionals', 'sum'],
+    success: 'Đúng. Ta chia không gian mẫu, tính đóng góp từng nhánh rồi cộng lại.',
+    error: 'Chưa đúng. Phải xác định phân hoạch trước khi tính và cộng các đóng góp.',
+  },
+]} />

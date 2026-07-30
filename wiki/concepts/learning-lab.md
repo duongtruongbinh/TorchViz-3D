@@ -11,10 +11,12 @@ current content migration and catalog decisions are recorded in
 [docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md),
 with the current LLM lesson state in
 [docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md](../../docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md)
-and the Statistics import decisions in
-[docs/plans/2026-07-29-statistics-islp-mdx-domain.md](../../docs/plans/2026-07-29-statistics-islp-mdx-domain.md).
-The paired Vietnamese Statistics locale is recorded in
-[docs/plans/2026-07-30-statistics-vietnamese-translation.md](../../docs/plans/2026-07-30-statistics-vietnamese-translation.md).
+and the retained Statistics corpus history in
+[docs/plans/2026-07-29-statistics-import-artifact-cleanup.md](../../docs/plans/2026-07-29-statistics-import-artifact-cleanup.md).
+The current Vietnamese-only Statistics contract is recorded in
+[docs/plans/2026-07-30-statistics-vietnamese-only-test-doc-alignment.md](../../docs/plans/2026-07-30-statistics-vietnamese-only-test-doc-alignment.md).
+The domain rename and complete Probability chapter replacement are recorded in
+[docs/plans/2026-07-30-statistics-probability-chapter.md](../../docs/plans/2026-07-30-statistics-probability-chapter.md).
 
 ## Status
 
@@ -25,11 +27,12 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 95 tracks, and 744 lesson nodes. It has 143
+The catalog contains 13 domains, 95 tracks, and 753 lesson nodes. It has 152
 authored lessons: forty-nine Vietnamese-first lessons in
-`llm-ai-engineering`, four Vietnamese CV exercises, and ninety bilingual
-English/Vietnamese lessons in `statistics`. Those lessons occupy 233 authored
-locale MDX files. The other 601 nodes are navigable placeholders and render one
+`llm-ai-engineering`, four Vietnamese CV exercises, and ninety-nine Vietnamese
+lessons in Probability & Statistics (`statistics`). Those lessons occupy 152
+authored locale MDX files.
+The other 601 nodes are navigable placeholders and render one
 shared localized “content in progress” message. They do not carry legacy theory
 or practice payloads.
 
@@ -104,26 +107,33 @@ lessons tagged `exercise` automatically populate Review mode. Applicable
 Conv2d and pooling nodes in the Workspace Forward Pass controls resolve through
 catalog entry-point metadata and open the canonical lesson route.
 
-The Statistics domain is separate from `math-statistics-ai`. Its 13 tracks and
-90 published lessons retain the imported ISLP chapter and section structure;
-each authored locale contains 265 ordered `MdxPage` surfaces that preserve the
-source subsections. The canonical English MDX has extraction headers, footers,
-picture OCR, and raw HTML removed while preserving prose, captions, tables,
-code, and exercise order. Every lesson also has a paired Vietnamese MDX source
-with localized catalog copy, headings, explanatory prose, captions, and
-exercises while code, identifiers, formulas, and page structure remain aligned.
-The one-time importer and source reference were removed after validation, so
-the checked-in TOC and locale MDX are now the content source of truth.
-Vietnamese UI requests resolve authored Vietnamese content directly; the
-domain's English fallback remains only as a resilience path.
+Probability & Statistics is the display name of the canonical `statistics`
+domain, which remains separate from `math-statistics-ai`. It contains 13 tracks,
+99 published lessons, and 320 ordered lesson pages. Chapter 1 alternates nine
+Probability lessons with nine adjacent `Quiz` nodes: 40 theory pages and 27
+quiz pages. The theory retains the supplied Vietnamese wording, notes,
+examples, and informal voice while correcting mathematical or conceptual
+errors. Formulas and mathematical symbols use KaTeX in both lesson and quiz
+content. Chapter 1 theory pages share a full-width reading treatment and use
+the domain-local `ProbabilityChapterVisual` variants for concept-specific
+diagrams; quiz pages reuse the shared LLM-domain interaction modes. Chapters
+2–13 retain the 253-page
+ISLP-derived chapter and section structure, including localized prose,
+captions, tables, code, formulas, labs, and exercise order. The one-time
+importer and source reference were removed after validation, so the checked-in
+TOC and Vietnamese MDX are the content source of truth.
+Vietnamese UI requests resolve the authored locale directly. Other UI locales
+use the registry's final available-locale fallback and therefore render the
+Vietnamese lesson source.
 
 Learning Lab has no catalog practice contract, practice filter/query, or
 Review-specific content list. The Review surface is only a derived catalog view
 over authored exercise lessons.
 
-Canonical domain, track, and lesson routes are preserved. Seven legacy aliases,
-including the Reinforcement Learning redirects, resolve to canonical catalog
-nodes instead of duplicating content.
+Canonical domain, track, and lesson routes are preserved. Seventeen legacy
+aliases, including the Probability Chapter 1 replacements and Reinforcement
+Learning redirects, resolve to canonical catalog nodes instead of duplicating
+content.
 
 ## Content Ownership
 
@@ -193,8 +203,9 @@ of absorbing the full content corpus into `LearningLabView`.
 
 Search indexes catalog metadata for all nodes. Published domains normally add
 the authored body text; a TOC can select `searchTextMode: 'metadata'` for large
-corpora. Statistics uses that mode and contributes its title, headings, and
-keywords without embedding the complete ISLP body in the initial Learning Lab
+corpora. Probability & Statistics uses that mode and contributes its title,
+headings, and keywords without embedding the complete lesson bodies in the
+initial Learning Lab
 chunk. The shared placeholder body is not indexed, preventing 601 missing nodes
 from overwhelming authored results. Matching is case-insensitive and
 Vietnamese-diacritic-insensitive.
@@ -223,9 +234,9 @@ Vietnamese-diacritic-insensitive.
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
-| `src/content/learning/statistics/table-of-contents.ts` | Canonical bilingual Statistics domain manifest with 13 tracks, 90 published lessons, English fallback, and compact search mode. |
-| `src/content/learning/statistics/*.en.mdx` | Canonical English ISLP lesson bodies and 265 ordered pages. |
-| `src/content/learning/statistics/*.vi.mdx` | Paired Vietnamese lesson bodies with the same 90 ids and 265-page structure. |
+| `src/content/learning/statistics/table-of-contents.ts` | Probability & Statistics manifest with localized catalog metadata, 13 tracks, 99 published lessons, adjacent Chapter 1 quiz nodes, legacy aliases, and compact search mode. |
+| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 99 lesson ids and 320 ordered pages. |
+| `src/components/learning/domains/statistics/mdxComponents.tsx` | Statistics-only MDX adapter for the responsive, light/dark `ProbabilityChapterVisual` diagram family. |
 | `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
@@ -309,9 +320,10 @@ remain green so progress continues to take precedence.
 - The forty-nine authored LLM lessons retain their routes, paging, quiz
   state/reset, locale fallback, authored search text, and light-only runtime
   behavior.
-- Statistics remains a separate canonical domain with paired English and
-  Vietnamese authored MDX; English fallback is a resilience path, not the
-  normal Vietnamese content source.
+- Probability & Statistics retains the canonical `statistics` domain id with
+  99 Vietnamese authored MDX lessons and 320 ordered pages; other UI locales
+  render the Vietnamese source through the registry's available-locale
+  fallback.
 - Learning Lab changes must not reset Workspace editor/canvas state.
 
 ## Related Pages

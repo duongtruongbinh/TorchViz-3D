@@ -2,6 +2,8 @@ import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxCont
 
 export const CV_MDX_COMPONENT_NAMES = ['CvExercise'] as const;
 
+export const STATISTICS_MDX_COMPONENT_NAMES = ['ProbabilityChapterVisual', 'ProbabilitySourceImage'] as const;
+
 export const LLM_MDX_COMPONENT_NAMES = [
   'TrainingLifecycle',
   'TransformerTranslationStep',
@@ -47,6 +49,7 @@ export const LLM_MDX_COMPONENT_NAMES = [
 
 const domainMdxComponentNames = {
   cv: CV_MDX_COMPONENT_NAMES,
+  statistics: STATISTICS_MDX_COMPONENT_NAMES,
   'llm-ai-engineering': LLM_MDX_COMPONENT_NAMES,
 } as const;
 

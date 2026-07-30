@@ -1,0 +1,71 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-total-probability",
+  "locale": "vi",
+  "title": "1.7 Công thức xác suất toàn phần",
+  "headings": [
+    "Xác suất toàn phần",
+    "Công thức tổng quát"
+  ],
+  "keywords": [
+    "xác suất toàn phần",
+    "hệ đầy đủ",
+    "phân hoạch",
+    "xác suất có điều kiện"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Xác suất toàn phần (Total Probability)
+
+Cho <MdxFormula inline formula={"A_1, A_2, A_3"} /> là ba biến cố tạo thành một hệ đầy đủ.
+
+<LessonNote>
+
+Hệ đầy đủ thì các biến cố xung khắc từng đôi.
+
+</LessonNote>
+
+### Ví dụ
+
+<MdxFormula formula={"A_1 = \\text{Sunny} \\\\ A_2 = \\text{Overcast} \\\\ A_3 = \\text{Rain}"} />
+
+Không còn trường hợp nào khác.
+
+Giả sử <MdxFormula inline formula={"H"} /> là một biến cố bất kì trong <MdxFormula inline formula={"\\Omega"} />, ta ký hiệu xác suất xảy ra của <MdxFormula inline formula={"H"} /> là <MdxFormula inline formula={"P(H)"} />.
+
+### Ví dụ
+
+<MdxFormula formula={"H = \\text{Đi chơi tennis}"} />
+
+Do các biến cố <MdxFormula inline formula={"A_i"} /> xung khắc với nhau nên mỗi kết quả thuộc <MdxFormula inline formula={"H"} /> chỉ nằm trong một trong các phần giao <MdxFormula inline formula={"H\\cap A_1"} />, <MdxFormula inline formula={"H\\cap A_2"} />, <MdxFormula inline formula={"H\\cap A_3"} />.
+
+<ProbabilityChapterVisual kind="total" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Công thức tổng quát
+
+Ta có được công thức:
+
+<MdxFormula formula={"\\begin{aligned}P(H) &= P(H\\cap A_1) + P(H\\cap A_2) + P(H\\cap A_3) \\\\ &= P(A_1)P(H\\mid A_1) + P(A_2)P(H\\mid A_2) + P(A_3)P(H\\mid A_3)\\end{aligned}"} />
+
+### Ví dụ
+
+Do <MdxFormula inline formula={"A"} /> là hệ đầy đủ nên chỉ có thể xảy ra 3 trường hợp:
+
+- Trời mưa, đi chơi tennis
+- Trời nắng, đi chơi tennis
+- Trời râm, đi chơi tennis
+
+<ProbabilityChapterVisual kind="total-sum" />
+
+Tổng quát hơn với một hệ <MdxFormula inline formula={"n"} /> các biến cố:
+
+<MdxFormula formula={"P(H)=\\sum_{i=1}^{n} P(A_i)\\,P(H\\mid A_i)"} />
+
+</MdxPage>

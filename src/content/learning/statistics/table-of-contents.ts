@@ -2,95 +2,176 @@ import type { LearningTableOfContents, LearningTocTrackSeed } from '../../../cor
 
 const chapters = [
   {
-    "id": "introduction",
+    "id": "probability",
     "text": {
       "title": {
-        "en": "1. Introduction",
-        "vi": "1. Giới thiệu"
+        "en": "1. Probability",
+        "vi": "1. Xác suất"
       },
       "description": {
-        "en": "Statistical learning in context: motivating data, notation, audiences, organization, and resources.",
-        "vi": "Bối cảnh của học thống kê: dữ liệu tạo động lực, ký hiệu, đối tượng độc giả, cấu trúc sách và tài nguyên."
+        "en": "Random experiments, events, probability rules, conditioning, Bayes' theorem, and Naive Bayes.",
+        "vi": "Phép thử ngẫu nhiên, biến cố, các quy tắc xác suất, xác suất có điều kiện, định lý Bayes và Naive Bayes."
       }
     },
     "lessonIds": [
       {
-        "id": "ch01-overview-statistical-learning",
+        "id": "ch01-probability-origins",
         "title": {
-          "en": "1.1 An Overview of Statistical Learning",
-          "vi": "1.1 Tổng quan về học thống kê"
+          "en": "1.1 Origins and Intuition of Probability",
+          "vi": "1.1 Khởi nguồn và trực giác xác suất"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
-        "id": "ch01-history-statistical-learning",
+        "id": "ch01-probability-origins-quiz",
         "title": {
-          "en": "1.2 A Brief History of Statistical Learning",
-          "vi": "1.2 Lược sử học thống kê"
+          "en": "Quiz",
+          "vi": "Quiz"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
-        "id": "ch01-about-islp",
+        "id": "ch01-experiments-events-sample-space",
         "title": {
-          "en": "1.3 This Book",
-          "vi": "1.3 Cuốn sách này"
+          "en": "1.2 Experiments, Events, and Sample Spaces",
+          "vi": "1.2 Phép thử, biến cố và không gian mẫu"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
-        "id": "ch01-who-should-read",
+        "id": "ch01-experiments-events-sample-space-quiz",
         "title": {
-          "en": "1.4 Who Should Read This Book?",
-          "vi": "1.4 Ai nên đọc cuốn sách này?"
+          "en": "Quiz",
+          "vi": "Quiz"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
-        "id": "ch01-notation-matrix-algebra",
+        "id": "ch01-event-relations",
         "title": {
-          "en": "1.5 Notation and Simple Matrix Algebra",
-          "vi": "1.5 Ký hiệu và đại số ma trận cơ bản"
+          "en": "1.3 Relations Between Events",
+          "vi": "1.3 Quan hệ giữa các biến cố"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
-        "id": "ch01-book-organization",
+        "id": "ch01-event-relations-quiz",
         "title": {
-          "en": "1.6 Organization of This Book",
-          "vi": "1.6 Cấu trúc cuốn sách"
+          "en": "Quiz",
+          "vi": "Quiz"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
-        "id": "ch01-datasets",
+        "id": "ch01-probability-definitions-properties",
         "title": {
-          "en": "1.7 Data Sets Used in Labs and Exercises",
-          "vi": "1.7 Các bộ dữ liệu dùng trong lab và bài tập"
+          "en": "1.4 Probability Definitions and Properties",
+          "vi": "1.4 Định nghĩa và tính chất xác suất"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
-        "id": "ch01-book-website",
+        "id": "ch01-probability-definitions-properties-quiz",
         "title": {
-          "en": "1.8 Book Website",
-          "vi": "1.8 Website của sách"
+          "en": "Quiz",
+          "vi": "Quiz"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
-        "id": "ch01-acknowledgements",
+        "id": "ch01-empirical-probability",
         "title": {
-          "en": "1.9 Acknowledgements",
-          "vi": "1.9 Lời cảm ơn"
+          "en": "1.5 Frequency and Empirical Probability",
+          "vi": "1.5 Tần số và xác suất thực nghiệm"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-empirical-probability-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-conditional-probability",
+        "title": {
+          "en": "1.6 Conditional Probability and the Multiplication Rule",
+          "vi": "1.6 Xác suất có điều kiện và quy tắc nhân"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-conditional-probability-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-total-probability",
+        "title": {
+          "en": "1.7 The Law of Total Probability",
+          "vi": "1.7 Công thức xác suất toàn phần"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-total-probability-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-bayes-naive-bayes",
+        "title": {
+          "en": "1.8 Bayes' Theorem and Naive Bayes",
+          "vi": "1.8 Định lý Bayes và Naive Bayes"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-bayes-naive-bayes-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-probability-exercises",
+        "title": {
+          "en": "1.9 Probability Exercises",
+          "vi": "1.9 Bài tập xác suất"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-probability-exercises-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
         },
         "status": "available",
         "contentStatus": "published"
@@ -1011,12 +1092,24 @@ const chapters = [
 export const learningTableOfContents = {
   id: 'statistics',
   text: {
-    title: { en: 'Statistics', vi: 'Thống kê' },
-    description: { en: 'Learn statistical learning from foundations to modern methods through theory, worked examples, Python labs, and exercises adapted from ISLP.', vi: 'Học thống kê từ nền tảng đến các phương pháp hiện đại qua lý thuyết, ví dụ có lời giải, bài lab Python và bài tập được biên soạn từ ISLP.' },
+    title: { en: 'Probability & Statistics', vi: 'Xác suất & Thống kê' },
+    description: { en: 'Learn probability and statistical learning from foundations to modern methods through theory, worked examples, Python labs, and exercises.', vi: 'Học xác suất và học thống kê từ nền tảng đến các phương pháp hiện đại qua lý thuyết, ví dụ có lời giải, bài lab Python và bài tập.' },
   },
   status: 'active',
   fallbackLocales: ['en'],
   searchTextMode: 'metadata',
   chapters,
   sectionKinds: ['theory', 'code', 'calculation'],
+  routeAliases: [
+    { fromTrackId: 'introduction', toTrackId: 'probability' },
+    { fromLessonId: 'ch01-overview-statistical-learning', toTrackId: 'probability', toLessonId: 'ch01-probability-origins' },
+    { fromLessonId: 'ch01-history-statistical-learning', toTrackId: 'probability', toLessonId: 'ch01-experiments-events-sample-space' },
+    { fromLessonId: 'ch01-about-islp', toTrackId: 'probability', toLessonId: 'ch01-event-relations' },
+    { fromLessonId: 'ch01-who-should-read', toTrackId: 'probability', toLessonId: 'ch01-probability-definitions-properties' },
+    { fromLessonId: 'ch01-notation-matrix-algebra', toTrackId: 'probability', toLessonId: 'ch01-empirical-probability' },
+    { fromLessonId: 'ch01-book-organization', toTrackId: 'probability', toLessonId: 'ch01-conditional-probability' },
+    { fromLessonId: 'ch01-datasets', toTrackId: 'probability', toLessonId: 'ch01-total-probability' },
+    { fromLessonId: 'ch01-book-website', toTrackId: 'probability', toLessonId: 'ch01-bayes-naive-bayes' },
+    { fromLessonId: 'ch01-acknowledgements', toTrackId: 'probability', toLessonId: 'ch01-probability-exercises' },
+  ],
 } satisfies LearningTableOfContents;

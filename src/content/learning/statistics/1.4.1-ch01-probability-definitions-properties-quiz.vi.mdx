@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-probability-definitions-properties-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Xác suất cổ điển', 'Các tiên đề', 'Quy tắc cộng'],
+  keywords: ['xác suất cổ điển', 'tiên đề xác suất', 'quy tắc cộng'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="ch01-probability-definitions-properties-quiz" questions={[
+  {
+    id: 'classical-probability-formula', title: 'Xác suất cổ điển', prompt: 'Trong $n$ kết quả đồng khả năng có $m$ kết quả thuận lợi cho $A$. Công thức nào đúng?', mode: 'single',
+    options: [
+      { id: 'm-over-n', label: '$P(A)=\\frac{m}{n}$', isCorrect: true },
+      { id: 'n-over-m', label: '$P(A)=\\frac{n}{m}$' },
+      { id: 'one-over-mn', label: '$P(A)=\\frac{1}{mn}$' },
+      { id: 'm-minus-n', label: '$P(A)=m-n$' },
+    ],
+    success: 'Đúng. Xác suất cổ điển là số kết quả thuận lợi chia cho tổng số kết quả đồng khả năng.',
+    error: 'Chưa đúng. Hãy đặt số kết quả thuận lợi ở tử số.',
+  },
+  {
+    id: 'probability-properties', title: 'Các tiên đề', prompt: 'Chọn tất cả phát biểu đúng.', mode: 'multi',
+    options: [
+      { id: 'range', label: '$0\\le P(A)\\le 1$', isCorrect: true },
+      { id: 'space-one', label: '$P(\\Omega)=1$', isCorrect: true },
+      { id: 'empty-zero', label: '$P(\\varnothing)=0$', isCorrect: true },
+      { id: 'every-event-one', label: '$P(A)=1$ với mọi biến cố $A$.' },
+    ],
+    success: 'Đúng. Xác suất nằm trong đoạn từ 0 đến 1; không gian mẫu có xác suất 1 và biến cố rỗng có xác suất 0.',
+    error: 'Chưa đúng. Một biến cố thông thường không bắt buộc có xác suất bằng 1.',
+  },
+  {
+    id: 'addition-rule', title: 'Quy tắc cộng', prompt: 'Công thức cộng tổng quát cho hai biến cố là gì?', mode: 'single',
+    options: [
+      { id: 'subtract-overlap', label: '$P(A\\cup B)=P(A)+P(B)-P(A\\cap B)$', isCorrect: true },
+      { id: 'always-add', label: '$P(A\\cup B)=P(A)+P(B)$ trong mọi trường hợp.' },
+      { id: 'multiply', label: '$P(A\\cup B)=P(A)P(B)$' },
+      { id: 'add-overlap', label: '$P(A\\cup B)=P(A)+P(B)+P(A\\cap B)$' },
+    ],
+    success: 'Đúng. Phần giao bị đếm hai lần nên phải trừ đi một lần.',
+    error: 'Chưa đúng. Công thức tổng quát phải điều chỉnh phần giao giữa hai biến cố.',
+  },
+]} />

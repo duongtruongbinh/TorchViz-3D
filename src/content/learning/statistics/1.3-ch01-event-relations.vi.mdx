@@ -1,0 +1,288 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-event-relations",
+  "locale": "vi",
+  "title": "1.3 Quan hệ giữa các biến cố",
+  "headings": [
+    "Quan hệ giữa các biến cố",
+    "Biến cố tổng",
+    "Biến cố tích",
+    "Biến cố xung khắc",
+    "Nhóm các biến cố xung khắc từng đôi",
+    "Biến cố đối",
+    "Biến cố độc lập và biến cố phụ thuộc",
+    "Tính giao hoán, kết hợp và phân phối",
+    "Hệ đầy đủ các biến cố",
+    "Biến cố đồng khả năng"
+  ],
+  "keywords": [
+    "quan hệ biến cố",
+    "hợp",
+    "giao",
+    "xung khắc",
+    "độc lập",
+    "hệ đầy đủ"
+  ],
+  "pageCount": 10
+}
+
+<MdxPage page={0}>
+
+## Một số loại quan hệ giữa các biến cố (relation of events)
+
+<ProbabilityChapterVisual kind="relations" />
+
+Vì một biến cố là một tập hợp (set), nên chúng ta có thể tổ hợp các biến cố thành các biến cố mới theo những phép tính về tập hợp.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Biến cố tổng/Hợp 2 biến cố (Sum/Union of events)
+
+Biến cố tổng là biến cố xảy ra khi và chỉ khi có ít nhất một trong hai biến cố thành phần xảy ra.
+
+<MdxFormula formula={"C = A \\cup B"} />
+
+Hoặc
+
+<MdxFormula formula={"C = A + B"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Biến cố tích/Giao 2 biến cố (Product/Intersection of events)
+
+Biến cố tích là biến cố chỉ xảy ra khi <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> đồng thời xảy ra.
+
+<MdxFormula formula={"C = A \\cap B"} />
+
+Hoặc:
+
+<MdxFormula formula={"C = A B"} />
+
+> Ta có thể xem phần giao giữa 2 tập hợp là biến cố tích.
+
+<ProbabilityChapterVisual kind="intersection-cases" />
+
+### Ví dụ 1
+
+Gọi <MdxFormula inline formula={"A"} /> là biến cố học sinh được điểm 8 môn văn trở lên, <MdxFormula inline formula={"B"} /> là biến cố học sinh được điểm 7 môn văn trở lên và <MdxFormula inline formula={"C"} /> là biến cố học sinh được đồng thời điểm toán lớn hơn 8 và văn lớn hơn 7.
+
+### Ví dụ 2
+
+Có 2 người thợ săn cùng ngắm bắn một con thú, gọi <MdxFormula inline formula={"A"} /> là biến cố người thợ săn 1 bắn trượt, <MdxFormula inline formula={"B"} /> là biến cố người thợ săn 2 bắn trượt.
+
+Ta có thể đặt:
+
+- Biến cố <MdxFormula inline formula={"C"} /> là trường hợp cả 2 đều bắn trượt
+- Hoặc biến cố <MdxFormula inline formula={"C"} /> là trường hợp con thú không bị bắn trúng
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Biến cố xung khắc (Exclusive events)
+
+Hai biến cố <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> được gọi là xung khắc khi và chỉ khi chúng không đồng thời xảy ra.
+
+Nghĩa là nếu <MdxFormula inline formula={"A"} /> xảy ra thì <MdxFormula inline formula={"B"} /> không thể xảy ra và ngược lại <MdxFormula inline formula={"B"} /> xảy ra thì <MdxFormula inline formula={"A"} /> không thể xảy ra.
+
+<ProbabilityChapterVisual kind="exclusive" />
+
+Ta ký hiệu là
+
+<MdxFormula formula={"A \\cap B = \\varnothing"} />
+
+### Ví dụ
+
+Khi chơi bộ môn bắn súng, trên bia có vẽ các vòng đồng tâm đánh số điểm. Mỗi xạ thủ chỉ được bắn một viên đạn vào bia. Ta đặt:
+
+- <MdxFormula inline formula={"N"} /> là biến cố xạ thủ bắn trúng vòng 5 điểm
+- <MdxFormula inline formula={"B"} /> là biến cố xạ thủ bắn trúng vòng 7 điểm
+
+<MdxFormula inline formula={"N"} /> và <MdxFormula inline formula={"B"} /> là hai biến cố xung khắc vì một phát đạn không thể vừa ghim trúng vòng 5 điểm, vừa ghim vào vòng 7 điểm.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Nhóm các biến cố xung khắc từng đôi (Mutually exclusive events)
+
+Khi áp dụng khái niệm xung khắc cho một nhóm <MdxFormula inline formula={"n"} /> các biến cố, ta có khái niệm xung khắc từng đôi như sau:
+
+Với <MdxFormula inline formula={"n"} /> biến cố <MdxFormula inline formula={"A_1, A_2,\\ldots, A_n"} /> xung khắc từng đôi với nhau nếu như 2 biến cố bất kì xung khắc với nhau.
+
+<ProbabilityChapterVisual kind="pairwise-exclusive" />
+
+Ta ký hiệu
+
+<MdxFormula formula={"A_i \\cap A_j = \\varnothing, \\quad \\forall\\ i \\ne j"} />
+
+### Ví dụ 1
+
+Một học sinh cầm trong tay 40k để ăn sáng. Gọi <MdxFormula inline formula={"A"} /> là biến cố học sinh này lựa chọn ăn bún bò 30k, <MdxFormula inline formula={"B"} /> là biến cố học sinh này lựa chọn ăn phở 40k và <MdxFormula inline formula={"C"} /> là biến cố học sinh này chỉ uống một hộp sữa 15k.
+
+Vậy trừ khi học sinh này mượn bạn thêm 5k để vừa ăn bún bò + uống một hộp sữa, thì ta nói nhóm các biến cố <MdxFormula inline formula={"A, B"} /> và <MdxFormula inline formula={"C"} /> xung khắc từng đôi một với nhau.
+
+### Ví dụ 2
+
+Tung một con xúc sắc có 6 mặt chấm, ta sẽ có các biến cố <MdxFormula inline formula={"A_i"} /> với <MdxFormula inline formula={"i = 1,2,\\ldots,6"} />.
+
+Vậy nhóm các biến cố <MdxFormula inline formula={"A_i"} /> được gọi là xung khắc từng đôi một với nhau, vì <MdxFormula inline formula={"A_1"} /> xảy ra thì <MdxFormula inline formula={"A_2"} /> không thể xảy ra (<MdxFormula inline formula={"A_1"} /> xung khắc <MdxFormula inline formula={"A_2"} />), <MdxFormula inline formula={"A_2"} /> xung khắc <MdxFormula inline formula={"A_4"} />,…
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Biến cố đối (Complementary event)
+
+Ta ký hiệu biến cố “không xảy ra biến cố <MdxFormula inline formula={"A"} />” là <MdxFormula inline formula={"\\overline{A}"} /> → biến cố đối lập của biến cố <MdxFormula inline formula={"A"} />.
+
+<ProbabilityChapterVisual kind="complement" />
+
+Vậy có thể nói bản thân một biến cố và biến cố đối lập của nó là 2 biến cố xung khắc
+
+<MdxFormula formula={"A \\cap \\overline{A}= \\varnothing"} />
+
+Nhưng chưa chắc chiều ngược lại là đúng, biến cố xung khắc chưa chắc là biến cố đối.
+
+<ProbabilityChapterVisual kind="exclusive-not-complement" />
+
+<LessonNote>
+
+Một lí do cho điều này là ta chỉ cần nhớ biến cố đối nó rộng hơn biến cố xung khắc. Cho nên là từ cái rộng hơn ta có thể suy ra cái nhỏ hơn bên trong nó, tuy nhiên chiều ngược lại từ cái nhỏ suy ra cái bự thì không được.
+
+</LessonNote>
+
+### Ví dụ
+
+Lấy lại ví dụ ở trên, một học sinh được mẹ cho 40k để ăn sáng. Gọi <MdxFormula inline formula={"A"} /> là biến cố học sinh đó lựa chọn ăn bún bò 30k, <MdxFormula inline formula={"B"} /> là biến cố học sinh ăn phở 40k và <MdxFormula inline formula={"C"} /> là biến cố học sinh không ăn gì hết.
+
+Vậy biến cố đối của <MdxFormula inline formula={"A"} /> là <MdxFormula inline formula={"\\overline{A}"} />: biến cố học sinh không ăn bún bò.
+
+Ta còn thấy rằng <MdxFormula inline formula={"\\overline{A} = B + C"} />.
+
+Biến cố xung khắc chưa chắc là biến cố đối vì:
+
+- <MdxFormula inline formula={"B"} /> xung khắc <MdxFormula inline formula={"A"} /> (ăn phở nên không ăn bún bò)
+- Nhưng <MdxFormula inline formula={"B"} /> không bằng <MdxFormula inline formula={"\\overline{A}"} /> vì <MdxFormula inline formula={"B"} /> nhỏ hơn.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Biến cố độc lập (Independent event) và biến cố phụ thuộc (Dependent event)
+
+Hai biến cố <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> được gọi là độc lập với nhau nếu việc xảy ra hay không xảy ra của biến cố này không làm ảnh hưởng tới xác suất xảy ra của biến cố kia.
+
+<ProbabilityChapterVisual kind="independence" />
+
+### Ví dụ
+
+**Độc lập:**
+
+Tung hai đồng xu. Kết quả của việc tung đồng xu thứ nhất không ảnh hưởng đến kết quả của việc tung đồng xu thứ hai.
+
+**Phụ thuộc:**
+
+Rút hai lá bài từ bộ bài 52 lá mà không hoàn lại lá bài đầu tiên. Xác suất rút lá bài thứ hai sẽ thay đổi dựa trên lá bài đã rút đầu tiên.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Tính giao hoán, kết hợp và phân phối
+
+1. **Tính giao hoán**
+
+<MdxFormula formula={"AB = BA \\\\ A + B = B + A"} />
+
+2. **Tính kết hợp**
+
+<MdxFormula formula={"A(BC) = (AB)C"} />
+
+3. **Tính phân phối**
+
+<MdxFormula formula={"A(B+C) = AB + AC"} />
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Hệ đầy đủ các biến cố (Complete system/Exhaustive set of events)
+
+Ba biến cố <MdxFormula inline formula={"A_1"} />, <MdxFormula inline formula={"A_2"} /> và <MdxFormula inline formula={"A_3"} /> được gọi là một hệ đầy đủ các biến cố nếu thỏa mãn 2 tính chất:
+
+1. <MdxFormula inline formula={"A_i \\cap A_j = \\varnothing, \\quad i \\neq j"} /> → xung khắc từng đôi
+2. <MdxFormula inline formula={"A_1 \\cup A_2 \\cup A_3 = \\Omega"} /> → hợp lại thành tập đầy đủ các biến cố
+
+<ProbabilityChapterVisual kind="exhaustive" />
+
+<LessonNote>
+
+Điều này có nghĩa là một trong các biến cố trong hệ thống phải xảy ra khi thí nghiệm được thực hiện, và không có hai biến cố nào có thể xảy ra đồng thời.
+
+</LessonNote>
+
+Định nghĩa này rất quan trọng, bởi sau này khi sử dụng công thức Bayes, nó đòi hỏi các biến cố trong không gian mẫu phải hợp thành một hệ đầy đủ.
+
+### Ví dụ 1: Khảo sát ý kiến khách hàng
+
+Giả sử bạn là một nhà nghiên cứu thị trường và bạn đang thực hiện một khảo sát để thu thập ý kiến của khách hàng về một sản phẩm mới. Bạn hỏi khách hàng về mức độ hài lòng của họ và phân loại câu trả lời thành 5 mức độ:
+
+<ProbabilityChapterVisual kind="exhaustive-survey" />
+
+Trong trường hợp này, các mức độ hài lòng tạo thành một hệ đầy đủ các biến cố:
+
+- **Tính xung khắc:** Một khách hàng chỉ có thể chọn một trong 5 mức độ hài lòng, không thể chọn hai mức độ cùng một lúc.
+- **Tính đầy đủ:** Các thang đo đi từ thấp đến cao, đầy đủ mọi trạng thái của khách hàng.
+
+### Ví dụ 2: Bốc thăm trúng thưởng
+
+Giả sử bạn tổ chức một chương trình bốc thăm trúng thưởng với 4 phần thưởng khác nhau:
+
+<ProbabilityChapterVisual kind="exhaustive-raffle" />
+
+Trong trường hợp này, các phần thưởng tạo thành một hệ đầy đủ các biến cố, bởi vì:
+
+- **Tính xung khắc:** Một người tham gia chỉ có thể trúng một phần thưởng duy nhất. Nếu người đó trúng phần thưởng A, họ không thể đồng thời trúng nhiều phần thưởng.
+- **Tính đầy đủ:** Khi rút thăm, chắc chắn một trong bốn phần thưởng sẽ được trao, bao phủ tất cả các kết quả có thể của việc bốc thăm.
+
+Tổng quát hơn, các biến cố <MdxFormula inline formula={"A_1, A_2,\\ldots"} /> được gọi là một hệ đầy đủ các biến cố nếu thỏa 2 điều kiện:
+
+1. Xung khắc từng đôi một
+
+<MdxFormula formula={"A_i \\cap A_j = \\varnothing, \\quad i \\neq j"} />
+
+2. Hợp thành hệ đầy đủ, bao phủ toàn bộ biến cố
+
+<MdxFormula formula={"A_1 \\cup A_2 \\cup \\cdots \\cup A_n = \\Omega, \\quad n \\in \\mathbb{N}"} />
+
+hoặc
+
+<MdxFormula formula={"\\bigcup_{i=1}^{n} A_i = \\Omega"} />
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Biến cố đồng khả năng (Equiprobable events)
+
+Biến cố đồng khả năng là những biến cố có cùng xác suất xảy ra. Nói cách khác, mỗi biến cố trong tập hợp các biến cố đồng khả năng đều có xác suất xảy ra bằng nhau.
+
+Ví dụ: tung con xúc sắc, tung đồng xu.
+
+<ProbabilityChapterVisual kind="equiprobable" />
+
+<LessonNote>
+
+Nếu bạn đã đọc qua phần ***Khởi nguồn của xác suất***, thì người ta bắt đầu từ việc tung đồng xu, tung con xúc sắc; do đó khái niệm Equiprobable events được xem như một điều kiện giả sử để:
+
+1. Đồng xu cân đối, đồng chất cho bài toán lý tưởng, dễ dàng hơn.
+2. Khi đó các mặt sẽ có xác suất bằng nhau và bằng một hằng số.
+
+</LessonNote>
+
+</MdxPage>

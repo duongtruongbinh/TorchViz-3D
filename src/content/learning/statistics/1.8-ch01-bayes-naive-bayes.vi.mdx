@@ -1,0 +1,136 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-bayes-naive-bayes",
+  "locale": "vi",
+  "title": "1.8 Định lý Bayes và Naive Bayes",
+  "headings": [
+    "Bayes: cập nhật niềm tin",
+    "Bước 1: Prior và Posterior",
+    "Vì sao likelihood làm niềm tin thay đổi",
+    "Từ Bayes đến Naive Bayes",
+    "Naive Bayes trong thực tế"
+  ],
+  "keywords": [
+    "Bayes",
+    "prior",
+    "posterior",
+    "Naive Bayes",
+    "log-likelihood",
+    "Laplace smoothing"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Bayes: cập nhật niềm tin
+
+Định lý Bayes được suy ra từ công thức xác suất có điều kiện. Nếu <MdxFormula inline formula={"B"} /> là giả thuyết cần đánh giá và <MdxFormula inline formula={"A"} /> là dữ liệu vừa quan sát, ta có:
+
+<ProbabilityChapterVisual kind="bayes" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bước 1: Prior và Posterior
+
+Ta tạm làm mờ **Likelihood** và **Margin** để chỉ nhìn vào hai đầu của quá trình cập nhật:
+
+- **Prior** là niềm tin ban đầu vào <MdxFormula inline formula={"B"} />.
+- **Posterior** là niềm tin vào <MdxFormula inline formula={"B"} /> sau quá trình cập nhật.
+
+<ProbabilityChapterVisual kind="bayes-prior-posterior" />
+
+Khi chưa đưa bằng chứng vào quá trình cập nhật, không có thành phần nào làm thay đổi niềm tin ban đầu. Vì vậy posterior giữ nguyên bằng prior.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vì sao likelihood làm niềm tin thay đổi
+
+Mẫu số <MdxFormula inline formula={"P(A)"} /> là xác suất quan sát thấy dữ liệu <MdxFormula inline formula={"A"} /> dưới tất cả khả năng. Với hệ đầy đủ <MdxFormula inline formula={"\\{B,\\neg B\\}"} />, công thức xác suất toàn phần cho ta:
+
+<MdxFormula formula={"P(A)=P(A\\mid B)P(B)+P(A\\mid\\neg B)P(\\neg B)"} />
+
+<ProbabilityChapterVisual kind="bayes-normalization" />
+
+Thay công thức xác suất toàn phần vào Bayes:
+
+<MdxFormula formula={"P(B\\mid A)=\\frac{P(A\\mid B)P(B)}{P(A\\mid B)P(B)+P(A\\mid\\neg B)P(\\neg B)}"} />
+
+- Nếu <MdxFormula inline formula={"P(A\\mid B)>P(A\\mid\\neg B)"} />, dữ liệu <MdxFormula inline formula={"A"} /> ủng hộ <MdxFormula inline formula={"B"} /> hơn và posterior tăng.
+- Nếu <MdxFormula inline formula={"P(A\\mid B)<P(A\\mid\\neg B)"} />, dữ liệu ủng hộ <MdxFormula inline formula={"\\neg B"} /> hơn và posterior giảm.
+- Nếu hai likelihood bằng nhau, dữ liệu không giúp phân biệt hai khả năng và posterior bằng prior.
+
+Mối quan hệ này thể hiện gọn nhất bằng odds:
+
+<MdxFormula formula={"\\frac{P(B\\mid A)}{P(\\neg B\\mid A)}=\\frac{P(B)}{P(\\neg B)}\\times\\frac{P(A\\mid B)}{P(A\\mid\\neg B)}"} />
+
+<LessonNote>
+
+Likelihood không phải xác suất của giả thuyết. Nó cho biết dữ liệu vừa quan sát phù hợp với mỗi giả thuyết đến đâu. Bayes dùng mức độ phù hợp tương đối đó để cập nhật prior thành posterior.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Từ Bayes đến Naive Bayes
+
+Bayes cập nhật một giả thuyết bằng một bằng chứng. Naive Bayes mở rộng ý tưởng đó sang nhiều feature <MdxFormula inline formula={"X_1,X_2,\\ldots,X_d"} /> để so sánh nhiều class <MdxFormula inline formula={"C_i"} />.
+
+<ProbabilityChapterVisual kind="naive-bayes-evidence" />
+
+### Vì sao gọi là “Naive”?
+
+Thuật toán giả sử các feature **độc lập có điều kiện khi đã biết class**:
+
+<MdxFormula formula={"P(X_1,X_2,\\ldots,X_d\\mid C_i)=\\prod_{k=1}^{d}P(X_k\\mid C_i)"} />
+
+Đây không phải giả định rằng các feature độc lập tuyệt đối. Chúng chỉ được xem là độc lập sau khi ta đã cố định class <MdxFormula inline formula={"C_i"} />. Giả định này giúp tránh phải ước lượng trực tiếp mọi tổ hợp feature từ một dataset không đủ lớn.
+
+### Tính score cho từng class
+
+Với mỗi class, Naive Bayes lấy prior nhân với likelihood của từng feature:
+
+<MdxFormula formula={"P(C_i\\mid X_1,\\ldots,X_d)\\propto P(C_i)\\prod_{k=1}^{d}P(X_k\\mid C_i)"} />
+
+Khi chỉ cần phân loại, mẫu số <MdxFormula inline formula={"P(X_1,\ldots,X_d)"} /> giống nhau cho mọi class nên ta có thể so sánh trực tiếp các score:
+
+<MdxFormula formula={"\\hat C=\\operatorname*{arg\\,max}_{C_i}\\;P(C_i)\\prod_{k=1}^{d}P(X_k\\mid C_i)"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Naive Bayes trong thực tế
+
+<ProbabilityChapterVisual kind="naive-bayes-practical" />
+
+### Log-score
+
+Khi có nhiều feature, việc nhân nhiều xác suất nhỏ có thể gây underflow về <MdxFormula inline formula={"0"} />. Ta chuyển phép nhân thành phép cộng bằng log và chọn class có log-score lớn nhất:
+
+<MdxFormula formula={"\\hat C=\\operatorname*{arg\\,max}_{C_i}\\left[\\log P(C_i)+\\sum_{k=1}^{d}\\log P(X_k\\mid C_i)\\right]"} />
+
+### Laplace smoothing
+
+Nếu một giá trị chưa từng xuất hiện cùng class trong dữ liệu huấn luyện, likelihood ước lượng có thể bằng <MdxFormula inline formula={"0"} /> và làm toàn bộ tích bằng <MdxFormula inline formula={"0"} />. Laplace smoothing cộng một lượng giả đếm:
+
+<MdxFormula formula={"\\widehat{P}(X_k=x\\mid C_i)=\\frac{N_{ikx}+1}{N_i+K}"} />
+
+### Ưu điểm
+
+- Huấn luyện và dự đoán nhanh vì chỉ cần ước lượng prior và likelihood.
+- Dùng được cho feature phân loại hoặc số khi chọn mô hình likelihood phù hợp.
+- Có thể cập nhật các thống kê đếm khi dữ liệu mới xuất hiện.
+- Có thể xử lý giá trị thiếu nếu implementation hỗ trợ bỏ qua hoặc mô hình hóa feature bị thiếu.
+
+### Hạn chế
+
+Giả định độc lập có điều kiện thường không hoàn toàn đúng trong thực tế. Feature không liên quan chỉ ít ảnh hưởng trong trường hợp likelihood của nó gần giống nhau giữa các class; correlation hoặc dữ liệu hữu hạn vẫn có thể làm mô hình bị lệch.
+
+</MdxPage>

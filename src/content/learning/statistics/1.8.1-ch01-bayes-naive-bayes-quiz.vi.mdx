@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-bayes-naive-bayes-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Các thành phần Bayes', 'Giả định Naive Bayes', 'Ổn định số học'],
+  keywords: ['Bayes', 'prior', 'posterior', 'Naive Bayes', 'log-likelihood', 'Laplace smoothing'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="ch01-bayes-naive-bayes-quiz" questions={[
+  {
+    id: 'bayes-term-match', title: 'Các thành phần Bayes', prompt: 'Kéo mỗi mô tả vào đúng thành phần.', mode: 'categorize', hideUnsortedLabel: true,
+    completeLabel: 'Tất cả mô tả đã được phân loại.',
+    categories: [
+      { id: 'prior', label: 'Prior' },
+      { id: 'likelihood', label: 'Likelihood' },
+      { id: 'posterior', label: 'Posterior' },
+    ],
+    options: [
+      { id: 'belief-before', label: 'Niềm tin trước khi quan sát bằng chứng mới.', categoryId: 'prior' },
+      { id: 'evidence-under-class', label: 'Khả năng quan sát bằng chứng khi giả thuyết đúng.', categoryId: 'likelihood' },
+      { id: 'belief-after', label: 'Niềm tin đã được cập nhật sau khi có bằng chứng.', categoryId: 'posterior' },
+    ],
+    success: 'Đúng. Bayes kết hợp prior với likelihood để tạo posterior.',
+    error: 'Chưa đúng. Hãy lần theo thứ tự: trước dữ liệu, khả năng của dữ liệu, rồi sau dữ liệu.',
+  },
+  {
+    id: 'naive-bayes-assumption', title: 'Giả định Naive Bayes', prompt: 'Giả định “naive” chính xác nhất là gì?', mode: 'single',
+    options: [
+      { id: 'unconditional', label: 'Mọi feature độc lập tuyệt đối trong toàn bộ dataset.' },
+      { id: 'conditional', label: 'Các feature độc lập có điều kiện với nhau khi đã biết class.', isCorrect: true },
+      { id: 'linear', label: 'Mọi feature có quan hệ tuyến tính với class.' },
+      { id: 'equal-prior', label: 'Mọi class có prior bằng nhau.' },
+    ],
+    success: 'Đúng. Naive Bayes giả sử độc lập có điều kiện theo class.',
+    error: 'Chưa đúng. Từ khóa quan trọng là “khi đã biết class”.',
+  },
+  {
+    id: 'naive-bayes-stability', title: 'Ổn định số học', prompt: 'Những kỹ thuật nào giải quyết hai vấn đề phổ biến khi triển khai Naive Bayes?', mode: 'multi',
+    options: [
+      { id: 'log', label: 'Cộng log-likelihood thay vì nhân nhiều xác suất nhỏ.', isCorrect: true },
+      { id: 'laplace', label: 'Dùng Laplace smoothing để tránh xác suất bằng 0.', isCorrect: true },
+      { id: 'remove-prior', label: 'Luôn bỏ prior khỏi phép tính.' },
+      { id: 'force-equal', label: 'Ép mọi likelihood bằng nhau.' },
+    ],
+    success: 'Đúng. Log-space hạn chế underflow; smoothing xử lý giá trị chưa từng xuất hiện.',
+    error: 'Chưa đúng. Hãy phân biệt vấn đề số rất nhỏ với vấn đề xác suất bằng 0.',
+  },
+]} />

@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-conditional-probability-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Xác suất có điều kiện', 'Có hoàn lại và không hoàn lại', 'Monty Hall'],
+  keywords: ['xác suất có điều kiện', 'quy tắc nhân', 'độc lập', 'Monty Hall'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="ch01-conditional-probability-quiz" questions={[
+  {
+    id: 'conditional-formula', title: 'Xác suất có điều kiện', prompt: 'Với $P(B)>0$, công thức nào đúng?', mode: 'single',
+    options: [
+      { id: 'intersection-over-b', label: '$P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}$', isCorrect: true },
+      { id: 'intersection-over-a', label: '$P(A\\mid B)=\\frac{P(A\\cap B)}{P(A)}$' },
+      { id: 'union-over-b', label: '$P(A\\mid B)=\\frac{P(A\\cup B)}{P(B)}$' },
+      { id: 'product', label: '$P(A\\mid B)=P(A)P(B)$' },
+    ],
+    success: 'Đúng. Điều kiện $B$ trở thành không gian mẫu mới nên ta chuẩn hóa phần giao theo $P(B)$.',
+    error: 'Chưa đúng. Tử số là phần giao; mẫu số là xác suất của điều kiện $B$.',
+  },
+  {
+    id: 'replacement-dependence', title: 'Có hoàn lại và không hoàn lại', prompt: 'Kéo mỗi tình huống vào đúng nhóm.', mode: 'categorize', hideUnsortedLabel: true,
+    completeLabel: 'Tất cả tình huống đã được phân loại.',
+    categories: [
+      { id: 'independent', label: 'Độc lập' },
+      { id: 'dependent', label: 'Phụ thuộc' },
+    ],
+    options: [
+      { id: 'two-coins', label: 'Tung hai đồng xu riêng biệt.', categoryId: 'independent' },
+      { id: 'replace-ball', label: 'Rút bi rồi hoàn lại trước lần rút tiếp theo.', categoryId: 'independent' },
+      { id: 'no-replace-card', label: 'Rút hai lá bài liên tiếp mà không hoàn lại.', categoryId: 'dependent' },
+      { id: 'no-replace-ball', label: 'Rút bi và giữ viên đầu tiên bên ngoài hộp.', categoryId: 'dependent' },
+    ],
+    success: 'Đúng. Hoàn lại giữ nguyên phân phối; không hoàn lại làm lần sau phụ thuộc lần trước.',
+    error: 'Chưa đúng. Hãy xem lần thử đầu có làm thay đổi không gian kết quả của lần sau hay không.',
+  },
+  {
+    id: 'monty-hall-switch', title: 'Monty Hall', prompt: 'Trong bài toán Monty Hall chuẩn, chiến lược đổi sang cánh cửa còn lại có xác suất thắng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'one-third', label: '$\\frac{1}{3}$' },
+      { id: 'one-half', label: '$\\frac{1}{2}$' },
+      { id: 'two-thirds', label: '$\\frac{2}{3}$', isCorrect: true },
+      { id: 'one', label: '$1$' },
+    ],
+    success: 'Đúng. Lựa chọn ban đầu đúng với xác suất một phần ba; hai phần ba còn lại được dồn vào cửa chưa mở khi ta đổi.',
+    error: 'Chưa đúng. Việc MC biết vị trí phần thưởng khiến hai cửa còn lại không còn đối xứng như một lựa chọn ngẫu nhiên.',
+  },
+]} />

@@ -45,22 +45,60 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
   assert.equal(learningCatalog.tracks.length, 97);
-  assert.equal(learningCatalog.lessons.length, 692);
-  assert.equal(learningCatalog.routeAliases?.length, 7);
+  assert.equal(learningCatalog.lessons.length, 701);
+  assert.equal(learningCatalog.routeAliases?.length, 17);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 154, next: 1, locked: 537 },
+    { available: 163, next: 1, locked: 537 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 156);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 165);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 536);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
   assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.text.title.en, '1.1 RL Fundamentals');
+  assert.equal(getLearningDomain(learningCatalog, 'statistics')?.text.title.en, 'Probability & Statistics');
+  assert.equal(getLearningDomain(learningCatalog, 'statistics')?.text.title.vi, 'Xác suất & Thống kê');
+  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'probability')?.text.title.vi, '1. Xác suất');
+  assert.deepEqual(
+    getLearningTrack(learningCatalog, 'statistics', 'probability')?.lessonIds,
+    [
+      'ch01-probability-origins',
+      'ch01-probability-origins-quiz',
+      'ch01-experiments-events-sample-space',
+      'ch01-experiments-events-sample-space-quiz',
+      'ch01-event-relations',
+      'ch01-event-relations-quiz',
+      'ch01-probability-definitions-properties',
+      'ch01-probability-definitions-properties-quiz',
+      'ch01-empirical-probability',
+      'ch01-empirical-probability-quiz',
+      'ch01-conditional-probability',
+      'ch01-conditional-probability-quiz',
+      'ch01-total-probability',
+      'ch01-total-probability-quiz',
+      'ch01-bayes-naive-bayes',
+      'ch01-bayes-naive-bayes-quiz',
+      'ch01-probability-exercises',
+      'ch01-probability-exercises-quiz',
+    ],
+  );
   assert.equal(getLearningTrack(learningCatalog, 'statistics', 'statistical-learning')?.text.title.en, '2. Statistical Learning');
+  assert.deepEqual(
+    resolveLearningLessonRoute(learningCatalog, {
+      domainId: 'statistics',
+      trackId: 'introduction',
+      lessonId: 'ch01-overview-statistical-learning',
+    }),
+    {
+      track: getLearningTrack(learningCatalog, 'statistics', 'probability'),
+      lesson: learningCatalog.lessons.find((lesson) => lesson.domainId === 'statistics' && lesson.id === 'ch01-probability-origins'),
+      isCanonical: false,
+    },
+  );
   assert.deepEqual(
     resolveLearningLessonRoute(learningCatalog, {
       domainId: 'statistics',
@@ -140,7 +178,7 @@ test('LLM, Statistics, and tagged CV exercise lessons carry authored content', (
   }
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
-  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'statistics').length, 90);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'statistics').length, 99);
   assert.ok(publishedLessons.filter((lesson) => lesson.domainId === 'statistics').every((lesson) => lesson.status === 'available'));
   assert.deepEqual(getReviewableLearningLessons(learningCatalog).map((lesson) => lesson.id), [
     'conv2d-shape-exercise',

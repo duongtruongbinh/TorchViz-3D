@@ -1,0 +1,86 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-probability-origins",
+  "locale": "vi",
+  "title": "1.1 Khởi nguồn và trực giác xác suất",
+  "headings": [
+    "Khởi nguồn của xác suất",
+    "Phép thử và những kết quả có thể xảy ra",
+    "Tính ổn định của tần suất"
+  ],
+  "keywords": [
+    "xác suất",
+    "Méré",
+    "Pascal",
+    "Fermat",
+    "tần suất"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Khởi nguồn của xác suất
+
+Khoảng 300 năm trước, một nhà quý tộc người Pháp tên là Méré đã quan sát và tự đặt ra những câu hỏi về quy luật ẩn sau các trò chơi có tính may rủi, ví dụ như trò tung xúc sắc.
+
+<ProbabilitySourceImage
+  src="/assets/learning/statistics/01-statistics-probability-origins-mere-gambling-scene.jpg"
+  alt="Những người chơi trò may rủi quanh một chiếc bàn"
+  source="Carnot Cycle"
+/>
+
+<LessonNote label="Note">
+
+**Bạn có thể viết là “xúc xắc”, “xúc sắc”, “súc sắc” hay “xúc sắc” đều đúng.**
+
+</LessonNote>
+
+Một nhà toán học nổi tiếng khác người Pháp Blaise Pascal đã cùng người bạn của mình là Pierre de Fermat nghiên cứu để tìm ra đáp án cho câu hỏi của Méré, tất nhiên khi bắt tay vào nghiên cứu, Pascal và người cộng sự của mình đã tự đặt ra những câu hỏi phức tạp hơn, và từ đó các nghiên cứu chính thức về xác suất đã được bắt đầu.
+
+<ProbabilitySourceImage
+  src="/assets/learning/statistics/01-statistics-probability-origins-pascal-fermat.png"
+  alt="Chân dung Pierre de Fermat và Blaise Pascal cùng những viên xúc xắc"
+  source="LinkedIn"
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phép thử và những kết quả có thể xảy ra
+
+<MdxConceptContrast
+  eyebrow="Phép thử ngẫu nhiên"
+  description="Các trò chơi may rủi như quay số, rút bài, tung đồng xu,… cho chúng ta khái niệm về “phép thử” (còn có thể gọi là thí nghiệm ngẫu nhiên), khi phép thử được thực hiện có thể dẫn đến nhiều kết quả khác nhau."
+  leftLabel="Không thể biết trước"
+  leftText="Thông thường ta không thể nào tiên đoán chính xác kết cục nào sẽ xảy ra trước khi thực hiện phép thử. Như với trò tung xúc sắc, chúng ta không biết trước là mặt mấy chấm sẽ ngửa lên."
+  rightLabel="Vẫn biết phạm vi"
+  rightText="Mặc dù ta vẫn biết sẽ có những kết quả nào xảy ra, ta có thể chắc chắn số chấm của mặt ngửa sẽ không thể lớn hơn 6."
+/>
+
+<ProbabilityChapterVisual kind="experiment-outcomes" />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tính ổn định của tần suất
+
+<ProbabilitySourceImage
+  src="/assets/learning/statistics/05-statistics-empirical-probability-frequency-stability.gif"
+  alt="Nhiều viên xúc xắc đang lăn"
+  source="Giphy"
+/>
+
+Nếu lặp lại phép thử <MdxFormula inline formula={"n"} /> lần, và gọi <MdxFormula inline formula={"m"} /> là số lần xuất hiện mặt 3 chấm, thực nghiệm sẽ cho thấy rằng tỉ số
+
+<MdxFormula formula={"f = \\frac{m}{n}"} />
+
+sẽ tiến tới một giới hạn ổn định nếu như số lần tung xúc sắc <MdxFormula inline formula={"n"} /> ngày càng lớn.
+
+Trong ví dụ trên, giả sử con xúc sắc cân đối đồng chất, tỉ số này sẽ tiến về xác suất <MdxFormula inline formula={"f \\approx \\frac{1}{6}"} /> cho mỗi mặt.
+
+Tính ổn định trên chính là nền tảng của lý thuyết xác suất.
+
+</MdxPage>

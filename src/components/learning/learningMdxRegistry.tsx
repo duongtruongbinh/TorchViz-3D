@@ -10,6 +10,7 @@ import type { Language } from '../../lib/localization';
 import { cvMdxComponents } from './domains/cv/mdxComponents';
 import { llmMdxComponents } from './domains/llm-ai-engineering/mdxComponents';
 import { linearAlgebraMdxComponents } from './domains/linear-algebra/mdxComponents';
+import { statisticsMdxComponents } from './domains/statistics/mdxComponents';
 import type { QuizQuestionState } from './lesson/QuizBlock';
 import {
   LearningMdxLessonProvider,
@@ -21,6 +22,7 @@ import {
 
 const domainMdxComponents: Partial<Record<LearningDomainId, Record<string, LearningMdxComponent>>> = {
   cv: cvMdxComponents,
+  statistics: statisticsMdxComponents,
   'llm-ai-engineering': llmMdxComponents,
   'linear-algebra': linearAlgebraMdxComponents,
 };
