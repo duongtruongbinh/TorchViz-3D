@@ -1179,7 +1179,12 @@ const chapters = [
         status: 'available',
         contentStatus: 'published',
       },
-      missingLesson('point-estimation', '3.2 Point Estimation', '3.2 Ước lượng điểm'),
+      {
+        id: 'point-estimation',
+        title: { en: '3.2 Point Estimation', vi: '3.2 Ước lượng điểm' },
+        status: 'available',
+        contentStatus: 'published',
+      },
       missingLesson('sampling-distributions-standard-errors', '3.3 Sampling Distributions and Standard Errors', '3.3 Phân phối lấy mẫu và sai số chuẩn'),
       retitle(getLesson('ch02-python-introduction-lab'), '3.4 Lab: Python for Statistical Work', '3.4 Lab: Python cho công việc thống kê'),
     ],

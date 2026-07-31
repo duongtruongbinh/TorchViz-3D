@@ -52,10 +52,10 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 166, next: 1, locked: 552 },
+    { available: 167, next: 1, locked: 551 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 168);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 551);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 169);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 550);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
@@ -176,14 +176,14 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('LLM, Statistics, and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 551);
+  assert.equal(missingLessons.length, 550);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);
   }
   const publishedLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published');
   assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'llm-ai-engineering').length, 49);
-  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'statistics').length, 102);
+  assert.equal(publishedLessons.filter((lesson) => lesson.domainId === 'statistics').length, 103);
   assert.ok(publishedLessons.filter((lesson) => lesson.domainId === 'statistics').every((lesson) => lesson.status === 'available'));
   assert.deepEqual(getReviewableLearningLessons(learningCatalog).map((lesson) => lesson.id), [
     'conv2d-shape-exercise',
