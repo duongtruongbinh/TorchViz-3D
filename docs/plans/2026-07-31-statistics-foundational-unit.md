@@ -1,3 +1,4 @@
+---
 title: Add Foundational Classical Statistics Lesson to Chapter 2
 status: done
 created: 2026-07-31T01:21:00+07:00
