@@ -185,6 +185,12 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     assert.doesNotMatch(source, /<MdxCode\b/);
     assert.doesNotMatch(source, /\$\$|(?<!\\)\$(?!\{)/);
   }
+  const statisticalThinking = statisticsInspections.get('ch02-classical-statistics-fundamentals');
+  const statisticalThinkingSource = statisticsSources.get('ch02-classical-statistics-fundamentals') ?? '';
+  assert.equal(statisticalThinking?.metadata.pageCount, 4);
+  for (const kind of ['statistical-thinking-variation', 'statistical-thinking-sampling', 'statistical-thinking-study-design']) {
+    assert.match(statisticalThinkingSource, new RegExp(`<ProbabilityChapterVisual kind="${kind}"`));
+  }
   for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics' && item.contentStatus === 'published')) {
     const vietnamese = statisticsInspections.get(lesson.id);
     assert.ok(vietnamese, `Missing Vietnamese Statistics content for ${lesson.id}`);

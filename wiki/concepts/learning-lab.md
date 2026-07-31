@@ -125,9 +125,12 @@ correcting mathematical or conceptual errors. Formulas and mathematical
 symbols use KaTeX in both lesson and quiz content. Probability theory pages
 share a full-width reading treatment and use the domain-local
 `ProbabilityChapterVisual` variants for concept-specific diagrams; quiz pages
-reuse the shared LLM-domain interaction modes. The one-time importer and source
-reference were removed after validation, so the checked-in TOC and Vietnamese
-MDX are the content source of truth. Vietnamese UI requests resolve the
+reuse the shared LLM-domain interaction modes. The first Statistical Thinking
+lesson also uses that domain-local gateway for deterministic, resettable
+variation comparison, population-sampling, and study-design claim activities;
+they remain embedded lesson behavior rather than Review exercises. The one-time
+importer and source reference were removed after validation, so the checked-in
+TOC and Vietnamese MDX are the content source of truth. Vietnamese UI requests resolve the
 authored locale directly. Other UI locales use the registry's final
 available-locale fallback and therefore render the Vietnamese lesson source.
 
@@ -241,7 +244,7 @@ Vietnamese-diacritic-insensitive.
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
 | `src/content/learning/statistics/table-of-contents.ts` | Probability & Statistics manifest with seven core tracks, one Statistical Learning Extensions track, 100 published lessons, sixteen explicit missing-content nodes, route aliases, and compact search mode. |
 | `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 100 published lesson ids and 333 ordered pages. |
-| `src/components/learning/domains/statistics/mdxComponents.tsx` | Statistics-only MDX adapter for the responsive, light/dark `ProbabilityChapterVisual` diagram family. |
+| `src/components/learning/domains/statistics/mdxComponents.tsx` | Statistics-only MDX adapter for responsive `ProbabilityChapterVisual` diagrams and deterministic embedded Statistical Thinking interactions. |
 | `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
