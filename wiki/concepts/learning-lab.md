@@ -108,28 +108,28 @@ catalog entry-point metadata and open the canonical lesson route.
 Probability & Statistics is the display name of the canonical `statistics`
 domain, which remains separate from `math-statistics-ai`. It has eight tracks,
 117 lesson nodes, 101 published Vietnamese lessons, and 339 ordered lesson
-pages. Its first seven tracks form the applied-statistics core: statistical
-thinking; probability and random variables; descriptive statistics and point
-estimation; statistical inference; regression analysis; design of experiments;
-and statistical quality control. Sixteen missing-content nodes make the
-forthcoming estimation, inference, experimental-design, and quality-control
-sequence explicit without claiming it is already authored. The eighth track,
+pages. Its first seven tracks form the applied-statistics core: probability;
+statistical thinking; descriptive statistics and point estimation; statistical
+inference; regression analysis; design of experiments; and statistical quality
+control. Sixteen missing-content nodes make the forthcoming estimation,
+inference, experimental-design, and quality-control sequence explicit without
+claiming it is already authored. The eighth track,
 `statistical-learning-extensions`, keeps classification, dimension reduction,
 trees, SVMs, deep learning, and unsupervised learning available as optional
 material rather than core prerequisites. Regression retains logistic and
 generalized linear models, regularization, nonlinear methods, and survival
-analysis. Chapter 2 alternates nine Probability lessons with nine adjacent
+analysis. Chapter 1 alternates nine Probability lessons with nine adjacent
 `Quiz` nodes: 40 theory pages and 27 quiz pages. The theory retains the
 supplied Vietnamese wording, notes, examples, and informal voice while
 correcting mathematical or conceptual errors. Formulas and mathematical
 symbols use KaTeX in both lesson and quiz content. Probability theory pages
 share a full-width reading treatment and use the domain-local
 `ProbabilityChapterVisual` variants for concept-specific diagrams; quiz pages
-reuse the shared LLM-domain interaction modes. The first Statistical Thinking
-lesson also uses that domain-local gateway for deterministic, resettable
-variation comparison, population-sampling, and study-design claim activities;
-they remain embedded lesson behavior rather than Review exercises. Chapter 1
-closes with a six-question pandas quiz over the Iris dataset
+reuse the shared LLM-domain interaction modes. Chapter 2 Statistical Thinking
+uses that domain-local gateway for deterministic, resettable variation
+comparison, population-sampling, and study-design claim activities; they remain
+embedded lesson behavior rather than Review exercises. Chapter 2 closes with a
+six-question pandas quiz over the Iris dataset
 (`ch02-classical-statistics-fundamentals-quiz`) that applies the chapter's
 variation, descriptive-statistics, and estimation concepts; its questions carry
 deterministic Iris dataframe fixtures rendered by the shared quiz renderer as

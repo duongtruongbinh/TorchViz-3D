@@ -1142,42 +1142,19 @@ function missingLesson(id: string, en: string, vi: string, status: 'next' | 'loc
   return { id, title: { en, vi }, status, contentStatus: 'missing' };
 }
 
-const probability = {
-  ...getChapter('probability'),
-  text: {
-    title: { en: '2. Probability and Random Variables', vi: '2. Xác suất và biến ngẫu nhiên' },
-    description: {
-      en: 'Probability foundations, conditioning, Bayes’ theorem, and the upcoming random-variable and distribution sequence.',
-      vi: 'Nền tảng xác suất, xác suất có điều kiện, định lý Bayes và chuỗi bài sắp bổ sung về biến ngẫu nhiên, phân phối.',
-    },
-  },
-  lessonIds: (() => {
-    let number = 1;
-    return getLessons('probability').map((seed) => {
-      if (typeof seed === 'string' || seed.title?.en === 'Quiz') return seed;
-      const renamed = retitle(
-        seed,
-        seed.title?.en.replace(/^1\.\d+\s+/, `2.${number} `) ?? '',
-        seed.title?.vi.replace(/^1\.\d+\s+/, `2.${number} `) ?? '',
-      );
-      number += 1;
-      return renamed;
-    });
-  })(),
-} satisfies LearningTocTrackSeed;
-
 const chapters = [
+  getChapter('probability'),
   {
     id: 'statistical-thinking',
     text: {
-      title: { en: '1. Introduction to Statistical Thinking', vi: '1. Nhập môn tư duy thống kê' },
+      title: { en: '2. Introduction to Statistical Thinking', vi: '2. Nhập môn tư duy thống kê' },
       description: {
         en: 'Variation, populations and samples, data collection, descriptive summaries, and the role of statistical inference.',
         vi: 'Biến động, quần thể và mẫu, thu thập dữ liệu, tóm tắt mô tả và vai trò của suy luận thống kê.',
       },
     },
     lessonIds: [
-      retitle(getLesson('ch02-classical-statistics-fundamentals'), '1.1 Statistical Thinking, Data, and Inference', '1.1 Tư duy thống kê, dữ liệu và suy luận'),
+      retitle(getLesson('ch02-classical-statistics-fundamentals'), '2.1 Statistical Thinking, Data, and Inference', '2.1 Tư duy thống kê, dữ liệu và suy luận'),
       {
         id: 'ch02-classical-statistics-fundamentals-quiz',
         title: { en: 'Quiz', vi: 'Quiz' },
@@ -1186,7 +1163,6 @@ const chapters = [
       },
     ],
   },
-  probability,
   {
     id: 'descriptive-statistics-estimation',
     text: {

@@ -62,7 +62,12 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.text.title.en, '1.1 RL Fundamentals');
   assert.equal(getLearningDomain(learningCatalog, 'statistics')?.text.title.en, 'Probability & Statistics');
   assert.equal(getLearningDomain(learningCatalog, 'statistics')?.text.title.vi, 'Xác suất & Thống kê');
-  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'probability')?.text.title.vi, '2. Xác suất và biến ngẫu nhiên');
+  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'probability')?.text.title.vi, '1. Xác suất');
+  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'statistical-thinking')?.text.title.vi, '2. Nhập môn tư duy thống kê');
+  assert.deepEqual(
+    learningCatalog.tracks.filter((track) => track.domainId === 'statistics').slice(0, 2).map((track) => track.id),
+    ['probability', 'statistical-thinking'],
+  );
   assert.deepEqual(
     getLearningTrack(learningCatalog, 'statistics', 'probability')?.lessonIds,
     [
