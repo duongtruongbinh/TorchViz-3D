@@ -1176,7 +1176,15 @@ const chapters = [
         vi: 'Biến động, quần thể và mẫu, thu thập dữ liệu, tóm tắt mô tả và vai trò của suy luận thống kê.',
       },
     },
-    lessonIds: [retitle(getLesson('ch02-classical-statistics-fundamentals'), '1.1 Statistical Thinking, Data, and Inference', '1.1 Tư duy thống kê, dữ liệu và suy luận')],
+    lessonIds: [
+      retitle(getLesson('ch02-classical-statistics-fundamentals'), '1.1 Statistical Thinking, Data, and Inference', '1.1 Tư duy thống kê, dữ liệu và suy luận'),
+      {
+        id: 'ch02-classical-statistics-fundamentals-quiz',
+        title: { en: 'Quiz', vi: 'Quiz' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+    ],
   },
   probability,
   {

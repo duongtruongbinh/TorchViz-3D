@@ -20,7 +20,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { LearningLessonExtra } from '../authoredTypes';
+import type { AuthoredQuizPreview, LearningLessonExtra } from '../authoredTypes';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getLearningLocalizedText as text } from '../learningText';
 import { cx, getLearningLabTheme } from '../theme';
@@ -191,6 +191,8 @@ function QuizQuestion({
         'py-1',
         quizPalette.card,
       )}>
+      {question.preview ? <QuizPreview preview={question.preview} language={language} themeClasses={themeClasses} /> : null}
+
       {promptText ? (
         <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderInlineCode(promptText, themeClasses)}</p>
       ) : null}
@@ -382,6 +384,56 @@ function OrderRowOverlay({
       <span className="min-w-0 flex-1">{renderInlineCode(label, themeClasses)}</span>
       <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
     </div>
+  );
+}
+
+function QuizPreview({ preview, language, themeClasses }: {
+  preview: AuthoredQuizPreview;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const caption = preview.caption ? text(preview.caption, language) : '';
+  const isLight = themeClasses.isLight;
+  return (
+    <figure
+      aria-label={caption || 'Dữ liệu của câu hỏi'}
+      className={cx(
+        'mt-4 overflow-hidden rounded-lg border',
+        isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/20 bg-[#121A24]/58',
+      )}
+    >
+      {caption || preview.code ? (
+        <figcaption className={cx(
+          'flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2',
+          isLight ? 'border-[#205089]/10 bg-[#EAF1F7]/70' : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/6',
+        )}>
+          {caption ? <span className={cx('text-xs font-black leading-5', isLight ? 'text-[#254F70]' : 'text-[#D7EAFE]')}>{caption}</span> : null}
+          {preview.code ? (
+            <code className={cx('rounded px-1.5 py-0.5 font-mono text-[0.8rem] font-semibold', isLight ? 'bg-white text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{preview.code}</code>
+          ) : null}
+        </figcaption>
+      ) : null}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-left text-xs font-semibold">
+          <thead>
+            <tr>
+              {preview.columns.map((column) => (
+                <th key={column} scope="col" className={cx('whitespace-nowrap border-b px-3 py-2 font-black', isLight ? 'border-[#205089]/12 bg-[#F2F6FA] text-[#205089]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/8 text-[#D7EAFE]')}>{column}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {preview.rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex} className={cx('whitespace-nowrap border-b px-3 py-2 font-mono', isLight ? 'border-[#205089]/8 text-[#172A43]' : 'border-[#A8B8C8]/10 text-[#F2F6FA]/84', rowIndex % 2 ? (isLight ? 'bg-[#F8FAFC]' : 'bg-[#A8B8C8]/4') : '')}>{String(cell)}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </figure>
   );
 }
 

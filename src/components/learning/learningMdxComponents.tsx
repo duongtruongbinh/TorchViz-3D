@@ -2,7 +2,7 @@ import { AlertTriangle, Code2, Dice5, EyeOff, Info, ListChecks, Monitor, Termina
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { createContext, isValidElement, useContext, type ComponentType, type ReactElement, type ReactNode } from 'react';
-import type { LearningLessonExtra } from './authoredTypes';
+import type { AuthoredQuizPreview, LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
 import QuizBlock, { type QuizQuestionState } from './lesson/QuizBlock';
@@ -326,7 +326,7 @@ function MdxImage({ alt = '', src }: { alt?: string; src?: string }) {
   return <img src={src} alt={alt} loading="lazy" className="max-h-[16rem] w-auto max-w-full rounded-lg object-contain transition-transform duration-300 group-hover:scale-[1.01] sm:max-h-[18rem]" />;
 }
 
-type AuthoredQuizQuestion = Omit<Extract<LearningLessonExtra, { kind: 'quiz' }>['questions'][number], 'title' | 'prompt' | 'options' | 'categories' | 'success' | 'error' | 'completeLabel'> & {
+type AuthoredQuizQuestion = Omit<Extract<LearningLessonExtra, { kind: 'quiz' }>['questions'][number], 'title' | 'prompt' | 'options' | 'categories' | 'success' | 'error' | 'completeLabel' | 'preview'> & {
   title: string;
   prompt: string;
   options: Array<{ id: string; label: string; isCorrect?: boolean; categoryId?: string }>;
@@ -334,6 +334,7 @@ type AuthoredQuizQuestion = Omit<Extract<LearningLessonExtra, { kind: 'quiz' }>[
   success: string;
   error: string;
   completeLabel?: string;
+  preview?: Omit<AuthoredQuizPreview, 'caption'> & { caption?: string };
 };
 
 export function MdxQuiz({ id, questions }: { id: string; questions: AuthoredQuizQuestion[] }) {
@@ -351,6 +352,9 @@ export function MdxQuiz({ id, questions }: { id: string; questions: AuthoredQuiz
       categories: question.categories?.map((category) => ({ ...category, label: localized(category.label) })),
       success: localized(question.success), error: localized(question.error),
       completeLabel: question.completeLabel ? localized(question.completeLabel) : undefined,
+      preview: question.preview
+        ? { ...question.preview, caption: question.preview.caption ? localized(question.preview.caption) : undefined }
+        : undefined,
     }],
   };
   return <QuizBlock extra={extra} language={lessonContext.language} quizQuestionStates={lessonContext.quizQuestionStates} themeClasses={themeClasses} onQuizQuestionStateChange={lessonContext.onQuizQuestionStateChange} />;

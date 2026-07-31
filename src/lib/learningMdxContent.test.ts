@@ -95,6 +95,14 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
   'ch01-total-probability-quiz': ['partition-requirements', 'total-probability-formula', 'total-probability-order'],
   'ch01-bayes-naive-bayes-quiz': ['bayes-term-match', 'naive-bayes-assumption', 'naive-bayes-stability'],
   'ch01-probability-exercises-quiz': ['queen-given-face-card', 'compare-naive-bayes-scores', 'laplace-denominator'],
+  'ch02-classical-statistics-fundamentals-quiz': [
+    'thinking-pandas-iris-shape',
+    'thinking-pandas-iris-value-counts',
+    'thinking-pandas-iris-groupby-center',
+    'thinking-pandas-iris-std-ddof',
+    'thinking-pandas-iris-filter-setosa',
+    'thinking-pandas-iris-describe',
+  ],
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
   'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
   'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
@@ -122,21 +130,21 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 166);
+  assert.equal(lessonFiles.length, 167);
   const parsedLessonFiles = lessonFiles
     .map((file) => parseLearningMdxPath(file))
     .filter((file): file is NonNullable<typeof file> => file !== null);
   assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'en').length, 0);
-  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 100);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 101);
   assert.equal(parsedLessonFiles.filter((file) => file.domainId !== 'statistics' && file.locale === 'vi').length, 66);
   assert.deepEqual(
     [...new Set(parsedLessonFiles.map((file) => `${file.domainId}/${file.lessonId}`))].sort(),
     publishedLessonKeys.sort(),
   );
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 166);
+  assert.equal(documents.length, 167);
   const statisticsDocuments = documents.filter((document) => document.domainId === 'statistics');
-  assert.equal(statisticsDocuments.length, 100);
+  assert.equal(statisticsDocuments.length, 101);
   assert.deepEqual([...new Set(statisticsDocuments.map((document) => document.locale))], ['vi']);
   assert.ok(statisticsDocuments.every((document) => document.text.length < 2_000));
   let statisticsPageCount = 0;
@@ -168,7 +176,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.equal(statisticsPageCount, 333);
+  assert.equal(statisticsPageCount, 339);
   for (const lessonId of [
     'ch01-probability-origins',
     'ch01-experiments-events-sample-space',
@@ -191,6 +199,18 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   for (const kind of ['statistical-thinking-variation', 'statistical-thinking-sampling', 'statistical-thinking-study-design']) {
     assert.match(statisticalThinkingSource, new RegExp(`<ProbabilityChapterVisual kind="${kind}"`));
   }
+  const statisticalThinkingQuiz = statisticsInspections.get('ch02-classical-statistics-fundamentals-quiz');
+  const statisticalThinkingQuizSource = statisticsSources.get('ch02-classical-statistics-fundamentals-quiz') ?? '';
+  assert.equal(statisticalThinkingQuiz?.metadata.pageCount, 6);
+  assert.equal(statisticalThinkingQuiz?.metadata.title, 'Quiz');
+  assert.match(statisticalThinkingQuizSource, /<MdxQuiz id="ch02-classical-statistics-fundamentals-quiz"/);
+  assert.match(statisticalThinkingQuizSource, /preview:\s*\{/);
+  assert.match(statisticalThinkingQuizSource, /columns:\s*\[['"]sepal_length['"]/);
+  const thinkingTrack = learningCatalog.tracks.find((track) => track.domainId === 'statistics' && track.id === 'statistical-thinking');
+  assert.ok(thinkingTrack?.lessonIds.includes('ch02-classical-statistics-fundamentals-quiz'));
+  const thinkingQuizNode = learningCatalog.lessons.find((lesson) => lesson.domainId === 'statistics' && lesson.id === 'ch02-classical-statistics-fundamentals-quiz');
+  assert.equal(thinkingQuizNode?.text?.title?.vi, 'Quiz');
+  assert.equal(thinkingQuizNode?.contentStatus, 'published');
   for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics' && item.contentStatus === 'published')) {
     const vietnamese = statisticsInspections.get(lesson.id);
     assert.ok(vietnamese, `Missing Vietnamese Statistics content for ${lesson.id}`);
@@ -214,10 +234,10 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
 
 test('retained Statistics authored output preserves the locked catalog counts', () => {
   assert.equal(learningCatalog.tracks.filter((track) => track.domainId === 'statistics').length, 8);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 116);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 117);
   assert.equal(
     learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics' && lesson.contentStatus === 'published').length,
-    100,
+    101,
   );
 });
 
