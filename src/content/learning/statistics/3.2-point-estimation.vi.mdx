@@ -41,9 +41,9 @@ export const lessonMetadata = {
   caption="Ba đại lượng ta quan tâm"
   headers={["Đại lượng", "Quần thể (Tham số)", "Mẫu (Ước lượng điểm)"]}
   rows={[
-    ["Trung bình", "μ", "x̄"],
-    ["Phương sai", "σ²", "s²"],
-    ["Tỉ lệ", "p", "p̂"]
+    ["Trung bình", "$\\mu$", "$\\bar{x}$"],
+    ["Phương sai", "$\\sigma^2$", "$s^2$"],
+    ["Tỉ lệ", "$p$", "$\\hat{p}$"]
   ]}
 />
 
@@ -159,8 +159,8 @@ Có hai cách chia mẫu số:
   caption="Hai công thức phương sai"
   headers={["Cách tính", "Kết quả", "Ý nghĩa"]}
   rows={[
-    ["Chia n", "326 / 10 = 32.6 ms²", "Mô tả độ phân tán của chính mẫu"],
-    ["Chia n − 1 (ddof=1)", "326 / 9 ≈ 36.22 ms²", "Ước lượng σ² của quần thể"]
+    ["Chia n", "$326/10 = 32.6$ ms²", "Mô tả độ phân tán của chính mẫu"],
+    ["Chia $n-1$ (ddof=1)", "$326/9 \\approx 36.22$ ms²", "Ước lượng $\\sigma^2$ của quần thể"]
   ]}
 />
 
@@ -170,14 +170,14 @@ Có hai cách chia mẫu số:
 
 <div>
 
-**Vì sao phải chia cho n − 1?**
+**Vì sao phải chia cho <MdxFormula inline formula={"n-1"} />?**
 
 Vì <MdxFormula inline formula={"\\bar{x}"} /> cũng được tính từ chính mẫu đó, các giá trị <MdxFormula inline formula={"x_i"} /> nằm *gần* trung bình mẫu hơn so với trung bình quần thể — nên tổng bình phương độ lệch bị **nhỏ đi một chút**. Chia n cho kết quả hơi thấp; chia <MdxFormula inline formula={"n-1"} /> (hiệu chỉnh Bessel) bù lại đúng phần thiếu đó.
 
 Mô phỏng lại với quần thể <MdxFormula inline formula={"\\sigma^2 = 25"} />:
 
 - Trung bình của <MdxFormula inline formula={"s^2"} /> khi chia **n**: <MdxFormula inline formula={"\\approx 22.4"} /> — thấp hơn 25
-- Trung bình của <MdxFormula inline formula={"s^2"} /> khi chia **n − 1**: <MdxFormula inline formula={"\\approx 24.9"} /> — rất gần 25
+- Trung bình của <MdxFormula inline formula={"s^2"} /> khi chia **<MdxFormula inline formula={"n-1"} />**: <MdxFormula inline formula={"\\approx 24.9"} /> — rất gần 25
 
 </div>
 
@@ -206,7 +206,7 @@ Chia n-1 -> trung bình s² ≈ 24.9
 
 <LessonNote label="Quy tắc nhớ nhanh" tone="warning">
 
-Muốn **mô tả mẫu**: dùng <MdxFormula inline formula={"\\sigma^2"} /> hay `np.var(x)` (chia n). Muốn **ước lượng quần thể**: luôn dùng <MdxFormula inline formula={"s^2"} /> hay `np.var(x, ddof=1)` (chia n − 1). Đây là lý do pandas tính phương sai mẫu bằng <MdxFormula inline formula={"n-1"} /> theo mặc định.
+Muốn **mô tả mẫu**: dùng <MdxFormula inline formula={"\\sigma^2"} /> hay `np.var(x)` (chia n). Muốn **ước lượng quần thể**: luôn dùng <MdxFormula inline formula={"s^2"} /> hay `np.var(x, ddof=1)` (chia <MdxFormula inline formula={"n-1"} />). Đây là lý do pandas tính phương sai mẫu bằng <MdxFormula inline formula={"n-1"} /> theo mặc định.
 
 </LessonNote>
 
@@ -282,12 +282,12 @@ Với 3 sản phẩm lỗi trong 40 sản phẩm, xác suất quan sát đúng d
 
 <MdxTable
   caption="Hàm hợp lý với các giá trị p khác nhau"
-  headers={["Giá trị p", "L(p) = p³(1−p)³⁷", "Nhận xét"]}
+  headers={["Giá trị $p$", "$L(p) = p^3(1-p)^{37}$", "Nhận xét"]}
   rows={[
-    ["0.050", "≈ 1.9 × 10⁻⁵", ""],
-    ["0.075 (= 3/40)", "≈ 2.3 × 10⁻⁵", "Lớn nhất — chọn!"],
-    ["0.100", "≈ 2.0 × 10⁻⁵", ""],
-    ["0.150", "≈ 0.8 × 10⁻⁵", ""]
+    ["$0.050$", "$\\approx 1.9 \\times 10^{-5}$", ""],
+    ["$0.075$ (= 3/40)", "$\\approx 2.3 \\times 10^{-5}$", "Lớn nhất — chọn!"],
+    ["$0.100$", "$\\approx 2.0 \\times 10^{-5}$", ""],
+    ["$0.150$", "$\\approx 0.8 \\times 10^{-5}$", ""]
   ]}
 />
 
@@ -326,7 +326,7 @@ Dùng lại bộ dữ liệu độ trễ 10 yêu cầu. Nếu yêu cầu thứ 1
 
 <MdxTable
   caption="Trung bình vs trung vị khi có outlier"
-  headers={["Tình huống", "x̄ (trung bình)", "Trung vị"]}
+  headers={["Tình huống", "$\\bar{x}$ (trung bình)", "Trung vị"]}
   rows={[
     ["Dữ liệu bình thường", "18.0 ms", "16.5 ms"],
     ["Có outlier 300 ms", "45.0 ms (lệch mạnh)", "16.5 ms (không đổi)"]
@@ -346,10 +346,10 @@ Không có ước lượng nào "thắng tuyệt đối" — việc chọn phụ
   caption="Bảng tổng kết"
   headers={["Tham số", "Ước lượng điểm", "Công thức", "Không chệch?"]}
   rows={[
-    ["μ — trung bình", "x̄", "Σxᵢ / n", "Có"],
-    ["σ² — phương sai", "s²", "Σ(xᵢ − x̄)² / (n − 1)", "Có"],
-    ["p — tỉ lệ", "p̂", "k / n", "Có"],
-    ["σ² (MLE)", "σ̂²", "Σ(xᵢ − x̄)² / n", "Chệch — cần sửa Bessel"]
+    ["$\\mu$ — trung bình", "$\\bar{x}$", "$\\Sigma x_i / n$", "Có"],
+    ["$\\sigma^2$ — phương sai", "$s^2$", "$\\Sigma (x_i - \\bar{x})^2 / (n-1)$", "Có"],
+    ["$p$ — tỉ lệ", "$\\hat{p}$", "$k / n$", "Có"],
+    ["$\\sigma^2$ (MLE)", "$\\hat{\\sigma}^2$", "$\\Sigma (x_i - \\bar{x})^2 / n$", "Chệch — cần sửa Bessel"]
   ]}
 />
 

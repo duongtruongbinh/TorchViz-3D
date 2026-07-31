@@ -289,7 +289,7 @@ export function MdxTable({
           'flex items-center justify-between border-b px-4 py-2.5 text-xs font-black uppercase tracking-wider',
           themeClasses.isLight ? 'border-[#205089]/10 bg-[#EFF4FA] text-[#205089]' : 'border-[#A8D4FF]/12 bg-[#1A283C] text-[#A8D4FF]',
         )}>
-          <span>{caption}</span>
+          <span>{renderRichText(caption, themeClasses)}</span>
         </div>
       ) : null}
       <div className="w-full max-w-full overflow-x-auto">
@@ -300,7 +300,7 @@ export function MdxTable({
               themeClasses.isLight ? 'border-[#205089]/12 bg-[#EAF1F7] text-[#1C3A5E]' : 'border-[#A8D4FF]/14 bg-[#182638] text-[#D4E4F7]',
             )}>
               {headers.map((header, index) => (
-                <th key={index} className="px-4 py-2.5 font-bold">{header}</th>
+                <th key={index} className="px-4 py-2.5 font-bold">{renderRichText(header, themeClasses)}</th>
               ))}
             </tr>
           </thead>
@@ -308,7 +308,7 @@ export function MdxTable({
             {rows.map((row, rowIndex) => (
               <tr key={rowIndex} className={cx('transition-colors', themeClasses.isLight ? 'even:bg-[#F8FAFC]' : 'even:bg-[#15202D]/40')}>
                 {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} className="px-4 py-2.5 font-medium">{cell}</td>
+                  <td key={cellIndex} className="px-4 py-2.5 font-medium">{renderRichText(String(cell), themeClasses)}</td>
                 ))}
               </tr>
             ))}
@@ -317,6 +317,29 @@ export function MdxTable({
       </div>
     </div>
   );
+}
+
+function renderRichText(value: string, themeClasses: LearningThemeClasses): ReactNode {
+  return value.split(/(\$[^$\n]+\$|`[^`]+`|“[^”]+”)/g).filter(Boolean).map((part, index) => {
+    const isMath = part.startsWith('$') && part.endsWith('$');
+    const isBacktickCode = part.startsWith('`') && part.endsWith('`');
+    const isQuotedCode = part.startsWith('“') && part.endsWith('”');
+    if (isMath) {
+      const formula = part.slice(1, -1);
+      return (
+        <span
+          key={`${index}-${part}`}
+          aria-label={formula}
+          className={cx('inline-block max-w-full px-0.5 align-middle', themeClasses.titleText)}
+          dangerouslySetInnerHTML={{ __html: katex.renderToString(formula, { throwOnError: false }) }}
+        />
+      );
+    }
+    if (isBacktickCode || isQuotedCode) {
+      return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
+    }
+    return <span key={`${index}-${part}`}>{part}</span>;
+  });
 }
 
 export function MdxFormula({ formula, inline = false }: { formula: string; inline?: boolean }) {

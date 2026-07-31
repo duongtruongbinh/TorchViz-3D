@@ -122,7 +122,9 @@ analysis. Chapter 1 alternates nine Probability lessons with nine adjacent
 `Quiz` nodes: 40 theory pages and 27 quiz pages. The theory retains the
 supplied Vietnamese wording, notes, examples, and informal voice while
 correcting mathematical or conceptual errors. Formulas and mathematical
-symbols use KaTeX in both lesson and quiz content. Probability theory pages
+symbols use KaTeX in lesson and quiz content; `MdxTable` cells and headers
+render `$...$` inline math through the shared rich-cell renderer. Probability
+theory pages
 share a full-width reading treatment and use the domain-local
 `ProbabilityChapterVisual` variants for concept-specific diagrams; quiz pages
 reuse the shared LLM-domain interaction modes. Chapter 2 Statistical Thinking
