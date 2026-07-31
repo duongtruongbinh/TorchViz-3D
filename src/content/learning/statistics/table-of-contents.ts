@@ -1173,7 +1173,12 @@ const chapters = [
       },
     },
     lessonIds: [
-      missingLesson('descriptive-data-analysis', '3.1 Descriptive Data Analysis', '3.1 Phân tích dữ liệu mô tả', 'next'),
+      {
+        id: 'descriptive-data-analysis',
+        title: { en: '3.1 Descriptive Data Analysis', vi: '3.1 Phân tích dữ liệu mô tả' },
+        status: 'available',
+        contentStatus: 'published',
+      },
       missingLesson('point-estimation', '3.2 Point Estimation', '3.2 Ước lượng điểm'),
       missingLesson('sampling-distributions-standard-errors', '3.3 Sampling Distributions and Standard Errors', '3.3 Phân phối lấy mẫu và sai số chuẩn'),
       retitle(getLesson('ch02-python-introduction-lab'), '3.4 Lab: Python for Statistical Work', '3.4 Lab: Python cho công việc thống kê'),

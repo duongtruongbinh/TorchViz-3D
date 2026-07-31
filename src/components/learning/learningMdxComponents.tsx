@@ -35,6 +35,7 @@ const REDESIGNED_PROBABILITY_LESSON_IDS = new Set([
   'ch01-total-probability',
   'ch01-bayes-naive-bayes',
   'ch01-probability-exercises',
+  'descriptive-data-analysis',
 ]);
 
 function isRedesignedProbabilityLesson(domainId: string, lessonId: string): boolean {
@@ -252,6 +253,72 @@ export function MdxCode({ code, language = 'text' }: { code: string; language?: 
   );
 }
 
+export function MdxColumns({ children }: { children?: ReactNode }) {
+  const themeClasses = useLearningMdxTheme();
+  const childArray = Array.isArray(children) ? children : [children];
+  const [left, right] = [childArray[0], childArray[1]];
+  return (
+    <div className="grid min-w-0 max-w-full gap-x-5 gap-y-5 md:grid-cols-2">
+      <div className={cx('flex min-w-0 max-w-full flex-col justify-start gap-3 rounded-xl border p-5 text-sm leading-7', themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8D4FF]/14 bg-[#121A24]/40', themeClasses.bodyText, '[&_strong]:font-black')}>
+        {left}
+      </div>
+      <div className="flex min-w-0 max-w-full flex-col justify-start gap-4">
+        {right}
+      </div>
+    </div>
+  );
+}
+
+export function MdxTable({
+  caption,
+  headers,
+  rows,
+}: {
+  caption?: string;
+  headers: string[];
+  rows: (string | number)[][];
+}) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <div className={cx(
+      'my-3 w-full overflow-hidden rounded-xl border shadow-sm',
+      themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8D4FF]/16 bg-[#121A24]/60',
+    )}>
+      {caption ? (
+        <div className={cx(
+          'flex items-center justify-between border-b px-4 py-2.5 text-xs font-black uppercase tracking-wider',
+          themeClasses.isLight ? 'border-[#205089]/10 bg-[#EFF4FA] text-[#205089]' : 'border-[#A8D4FF]/12 bg-[#1A283C] text-[#A8D4FF]',
+        )}>
+          <span>{caption}</span>
+        </div>
+      ) : null}
+      <div className="w-full max-w-full overflow-x-auto">
+        <table className="!table w-full min-w-full border-collapse text-left text-sm">
+          <thead>
+            <tr className={cx(
+              'border-b text-xs uppercase tracking-wider font-bold',
+              themeClasses.isLight ? 'border-[#205089]/12 bg-[#EAF1F7] text-[#1C3A5E]' : 'border-[#A8D4FF]/14 bg-[#182638] text-[#D4E4F7]',
+            )}>
+              {headers.map((header, index) => (
+                <th key={index} className="px-4 py-2.5 font-bold">{header}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className={cx('divide-y', themeClasses.isLight ? 'divide-black/5 text-[#243B53]' : 'divide-white/5 text-[#E2ECF8]')}>
+            {rows.map((row, rowIndex) => (
+              <tr key={rowIndex} className={cx('transition-colors', themeClasses.isLight ? 'even:bg-[#F8FAFC]' : 'even:bg-[#15202D]/40')}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex} className="px-4 py-2.5 font-medium">{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export function MdxFormula({ formula, inline = false }: { formula: string; inline?: boolean }) {
   const themeClasses = useLearningMdxTheme();
   const renderedFormula = katex.renderToString(formula, {
@@ -389,7 +456,7 @@ function BlockMath({ formula }: { formula: string }) {
   return (
     <div
       className={cx(
-        'my-4 overflow-x-auto rounded-lg border px-5 py-4 text-center text-lg font-semibold sm:text-xl',
+        'my-3 max-w-full overflow-x-auto rounded-lg border px-3 py-3 text-center text-base font-semibold sm:px-4 sm:text-lg',
         themeClasses.isLight
           ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]'
           : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]',
@@ -411,10 +478,17 @@ function MdxPre({ children }: { children?: ReactNode }) {
   const codeElement = children as ReactElement<{ className?: string; children?: ReactNode }>;
   const codeClassName = codeElement.props?.className;
 
-  if (typeof codeClassName === 'string' && /^language-python(?:$|\s)/.test(codeClassName)) {
-    const codeContent = codeElement.props.children;
-    const code = typeof codeContent === 'string' ? codeContent : '';
-    return <CodeBlock code={code} variant="code" themeClasses={themeClasses} />;
+  if (typeof codeClassName === 'string') {
+    if (/^language-python(?:$|\s)/.test(codeClassName)) {
+      const codeContent = codeElement.props?.children;
+      const code = typeof codeContent === 'string' ? codeContent : '';
+      return <CodeBlock code={code} variant="code" themeClasses={themeClasses} />;
+    }
+    if (/^language-(?:output|text)(?:$|\s)/.test(codeClassName)) {
+      const codeContent = codeElement.props?.children;
+      const code = typeof codeContent === 'string' ? codeContent : '';
+      return <CodeBlock code={code} variant="output" themeClasses={themeClasses} />;
+    }
   }
 
   // Non-Python or unlabeled code blocks: render as a normal <pre>.
@@ -424,14 +498,17 @@ function MdxPre({ children }: { children?: ReactNode }) {
 const sharedAuthoredMdxComponents = {
   LessonNote,
   MdxCode,
+  MdxColumns,
   MdxConceptContrast,
   MdxFormula,
   MdxQuiz,
   MdxPage,
+  MdxTable,
   RequirementCard,
   RequirementsGrid,
   InlineMath,
   BlockMath,
+  div: 'div' as unknown as LearningMdxComponent,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
 
 export const sharedLearningMdxComponents = {

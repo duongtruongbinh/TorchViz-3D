@@ -1,14 +1,17 @@
 export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'LessonNote',
   'MdxCode',
+  'MdxColumns',
   'MdxConceptContrast',
   'MdxFormula',
   'MdxQuiz',
   'MdxPage',
+  'MdxTable',
   'RequirementCard',
   'RequirementsGrid',
   'InlineMath',
   'BlockMath',
+  'div',
 ] as const;
 
 export type LearningMdxMetadata = {

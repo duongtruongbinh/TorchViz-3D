@@ -130,21 +130,21 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 167);
+  assert.equal(lessonFiles.length, 168);
   const parsedLessonFiles = lessonFiles
     .map((file) => parseLearningMdxPath(file))
     .filter((file): file is NonNullable<typeof file> => file !== null);
   assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'en').length, 0);
-  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 101);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 102);
   assert.equal(parsedLessonFiles.filter((file) => file.domainId !== 'statistics' && file.locale === 'vi').length, 66);
   assert.deepEqual(
     [...new Set(parsedLessonFiles.map((file) => `${file.domainId}/${file.lessonId}`))].sort(),
     publishedLessonKeys.sort(),
   );
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 167);
+  assert.equal(documents.length, 168);
   const statisticsDocuments = documents.filter((document) => document.domainId === 'statistics');
-  assert.equal(statisticsDocuments.length, 101);
+  assert.equal(statisticsDocuments.length, 102);
   assert.deepEqual([...new Set(statisticsDocuments.map((document) => document.locale))], ['vi']);
   assert.ok(statisticsDocuments.every((document) => document.text.length < 2_000));
   let statisticsPageCount = 0;
@@ -176,7 +176,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.equal(statisticsPageCount, 339);
+  assert.equal(statisticsPageCount, 343);
   for (const lessonId of [
     'ch01-probability-origins',
     'ch01-experiments-events-sample-space',
@@ -219,6 +219,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const vietnameseProse = vietnameseSource
       .slice(vietnameseSource.indexOf('<MdxPage'))
       .replace(/<MdxCode\b[\s\S]*?\/>/g, '')
+      .replace(/```[\s\S]*?```/g, '')
       .replace(/`[^`\n]+`/g, '');
     const commonEnglishWordCount = vietnameseProse.match(
       /(?<![\p{L}\p{N}_])(?:the|and|of|to|in|is|are|that|for|with|from|we|this|which|using|data|observations)(?![\p{L}\p{N}_])/giu,
@@ -237,7 +238,7 @@ test('retained Statistics authored output preserves the locked catalog counts', 
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 117);
   assert.equal(
     learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics' && lesson.contentStatus === 'published').length,
-    101,
+    102,
   );
 });
 
@@ -273,7 +274,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxCode', 'MdxConceptContrast', 'MdxFormula', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxCode', 'MdxColumns', 'MdxConceptContrast', 'MdxFormula', 'MdxQuiz', 'MdxPage', 'MdxTable', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'div', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,
