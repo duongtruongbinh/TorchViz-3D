@@ -1,6 +1,6 @@
-import type { LearningTableOfContents, LearningTocTrackSeed } from '../../../core/learning/types.ts';
+import type { LearningTableOfContents, LearningTocLessonSeed, LearningTocTrackSeed } from '../../../core/learning/types.ts';
 
-const chapters = [
+const sourceChapters = [
   {
     "id": "probability",
     "text": {
@@ -1098,6 +1098,192 @@ const chapters = [
   }
 ] satisfies LearningTocTrackSeed[];
 
+function getChapter(id: string): LearningTocTrackSeed {
+  const chapter = sourceChapters.find((candidate) => candidate.id === id);
+  if (!chapter) throw new Error(`Unknown Statistics source chapter: ${id}`);
+  return chapter;
+}
+
+function copyLesson(seed: LearningTocLessonSeed): LearningTocLessonSeed {
+  return typeof seed === 'string' ? seed : { ...seed, title: seed.title && { ...seed.title } };
+}
+
+function getLesson(id: string): LearningTocLessonSeed {
+  const lesson = sourceChapters.flatMap((chapter) => chapter.lessonIds).find((candidate) => (
+    (typeof candidate === 'string' ? candidate : candidate.id) === id
+  ));
+  if (!lesson) throw new Error(`Unknown Statistics source lesson: ${id}`);
+  return copyLesson(lesson);
+}
+
+function getLessons(chapterId: string, excludedIds: readonly string[] = []): LearningTocLessonSeed[] {
+  const excluded = new Set(excludedIds);
+  return getChapter(chapterId).lessonIds
+    .filter((candidate) => !excluded.has(typeof candidate === 'string' ? candidate : candidate.id))
+    .map(copyLesson);
+}
+
+function retitle(seed: LearningTocLessonSeed, en: string, vi: string): LearningTocLessonSeed {
+  const lesson = copyLesson(seed);
+  if (typeof lesson === 'string') throw new Error('Statistics lessons must carry authored titles');
+  return { ...lesson, title: { en, vi } };
+}
+
+function removeLessonNumber(seed: LearningTocLessonSeed): LearningTocLessonSeed {
+  if (typeof seed === 'string' || !seed.title) return seed;
+  return retitle(
+    seed,
+    seed.title.en.replace(/^\d+(?:\.\d+)?\s+/, ''),
+    seed.title.vi.replace(/^\d+(?:\.\d+)?\s+/, ''),
+  );
+}
+
+function missingLesson(id: string, en: string, vi: string, status: 'next' | 'locked' = 'locked'): LearningTocLessonSeed {
+  return { id, title: { en, vi }, status, contentStatus: 'missing' };
+}
+
+const probability = {
+  ...getChapter('probability'),
+  text: {
+    title: { en: '2. Probability and Random Variables', vi: '2. Xác suất và biến ngẫu nhiên' },
+    description: {
+      en: 'Probability foundations, conditioning, Bayes’ theorem, and the upcoming random-variable and distribution sequence.',
+      vi: 'Nền tảng xác suất, xác suất có điều kiện, định lý Bayes và chuỗi bài sắp bổ sung về biến ngẫu nhiên, phân phối.',
+    },
+  },
+  lessonIds: (() => {
+    let number = 1;
+    return getLessons('probability').map((seed) => {
+      if (typeof seed === 'string' || seed.title?.en === 'Quiz') return seed;
+      const renamed = retitle(
+        seed,
+        seed.title?.en.replace(/^1\.\d+\s+/, `2.${number} `) ?? '',
+        seed.title?.vi.replace(/^1\.\d+\s+/, `2.${number} `) ?? '',
+      );
+      number += 1;
+      return renamed;
+    });
+  })(),
+} satisfies LearningTocTrackSeed;
+
+const chapters = [
+  {
+    id: 'statistical-thinking',
+    text: {
+      title: { en: '1. Introduction to Statistical Thinking', vi: '1. Nhập môn tư duy thống kê' },
+      description: {
+        en: 'Variation, populations and samples, data collection, descriptive summaries, and the role of statistical inference.',
+        vi: 'Biến động, quần thể và mẫu, thu thập dữ liệu, tóm tắt mô tả và vai trò của suy luận thống kê.',
+      },
+    },
+    lessonIds: [retitle(getLesson('ch02-classical-statistics-fundamentals'), '1.1 Statistical Thinking, Data, and Inference', '1.1 Tư duy thống kê, dữ liệu và suy luận')],
+  },
+  probability,
+  {
+    id: 'descriptive-statistics-estimation',
+    text: {
+      title: { en: '3. Descriptive Statistics and Point Estimation', vi: '3. Thống kê mô tả và ước lượng điểm' },
+      description: {
+        en: 'Data summaries, sampling variation, point estimators, standard errors, and computational practice.',
+        vi: 'Tóm tắt dữ liệu, biến động lấy mẫu, ước lượng điểm, sai số chuẩn và thực hành tính toán.',
+      },
+    },
+    lessonIds: [
+      missingLesson('descriptive-data-analysis', '3.1 Descriptive Data Analysis', '3.1 Phân tích dữ liệu mô tả', 'next'),
+      missingLesson('point-estimation', '3.2 Point Estimation', '3.2 Ước lượng điểm'),
+      missingLesson('sampling-distributions-standard-errors', '3.3 Sampling Distributions and Standard Errors', '3.3 Phân phối lấy mẫu và sai số chuẩn'),
+      retitle(getLesson('ch02-python-introduction-lab'), '3.4 Lab: Python for Statistical Work', '3.4 Lab: Python cho công việc thống kê'),
+    ],
+  },
+  {
+    id: 'statistical-inference',
+    text: {
+      title: { en: '4. Statistical Inference', vi: '4. Suy luận thống kê' },
+      description: {
+        en: 'Confidence intervals, tests, power, resampling, and multiple-testing error control.',
+        vi: 'Khoảng tin cậy, kiểm định, lực kiểm định, lấy mẫu lại và kiểm soát sai số kiểm định nhiều giả thuyết.',
+      },
+    },
+    lessonIds: [
+      missingLesson('confidence-intervals-hypothesis-tests', '4.1 Confidence Intervals and Hypothesis Tests', '4.1 Khoảng tin cậy và kiểm định giả thuyết'),
+      missingLesson('power-and-sample-size', '4.2 Power and Sample Size', '4.2 Lực kiểm định và cỡ mẫu'),
+      missingLesson('goodness-of-fit-two-sample-inference', '4.3 Goodness-of-Fit and Two-Sample Inference', '4.3 Độ phù hợp và suy luận hai mẫu'),
+      missingLesson('nonparametric-inference', '4.4 Nonparametric Inference', '4.4 Suy luận phi tham số'),
+      ...getLessons('resampling-methods').map(removeLessonNumber),
+      ...getLessons('multiple-testing').map(removeLessonNumber),
+    ],
+  },
+  {
+    id: 'regression-analysis',
+    text: {
+      title: { en: '5. Regression Analysis', vi: '5. Phân tích hồi quy' },
+      description: {
+        en: 'Linear, generalized, regularized, nonlinear, and survival regression models with applied labs.',
+        vi: 'Mô hình hồi quy tuyến tính, tổng quát, điều chuẩn, phi tuyến và sống còn cùng các bài lab ứng dụng.',
+      },
+    },
+    lessonIds: [
+      ...getLessons('linear-regression').map(removeLessonNumber),
+      ...['ch04-logistic-regression', 'ch04-generalized-linear-models'].map(getLesson).map(removeLessonNumber),
+      ...getLessons('linear-model-selection-regularization', ['ch06-dimension-reduction-methods']).map(removeLessonNumber),
+      ...getLessons('moving-beyond-linearity').map(removeLessonNumber),
+      ...getLessons('survival-analysis-censored-data').map(removeLessonNumber),
+    ],
+  },
+  {
+    id: 'design-of-experiments',
+    text: {
+      title: { en: '6. Design of Experiments', vi: '6. Thiết kế thí nghiệm' },
+      description: {
+        en: 'Randomization, blocking, ANOVA, factorial designs, confounding, and response-surface methods.',
+        vi: 'Ngẫu nhiên hóa, khối, ANOVA, thiết kế nhân tố, nhiễu lẫn và phương pháp bề mặt đáp ứng.',
+      },
+    },
+    lessonIds: [
+      missingLesson('randomized-comparative-experiments', '6.1 Randomized Comparative Experiments', '6.1 Thí nghiệm so sánh ngẫu nhiên'),
+      missingLesson('anova-and-blocking', '6.2 ANOVA and Blocking', '6.2 ANOVA và thiết kế khối'),
+      missingLesson('factorial-experiments', '6.3 Factorial Experiments', '6.3 Thí nghiệm nhân tố'),
+      missingLesson('fractional-factorial-confounding', '6.4 Fractional Factorials and Confounding', '6.4 Nhân tố phân đoạn và nhiễu lẫn'),
+      missingLesson('response-surface-methods', '6.5 Response-Surface Methods', '6.5 Phương pháp bề mặt đáp ứng'),
+    ],
+  },
+  {
+    id: 'statistical-quality-control',
+    text: {
+      title: { en: '7. Statistical Quality Control', vi: '7. Kiểm soát chất lượng thống kê' },
+      description: {
+        en: 'Process variation, control charts, capability analysis, CUSUM, and EWMA.',
+        vi: 'Biến động quá trình, biểu đồ kiểm soát, năng lực quá trình, CUSUM và EWMA.',
+      },
+    },
+    lessonIds: [
+      missingLesson('statistical-process-control', '7.1 Statistical Process Control', '7.1 Kiểm soát quá trình thống kê'),
+      missingLesson('control-charts', '7.2 Control Charts', '7.2 Biểu đồ kiểm soát'),
+      missingLesson('process-capability', '7.3 Process Capability', '7.3 Năng lực quá trình'),
+      missingLesson('cusum-ewma', '7.4 CUSUM and EWMA', '7.4 CUSUM và EWMA'),
+    ],
+  },
+  {
+    id: 'statistical-learning-extensions',
+    text: {
+      title: { en: 'Extensions: Statistical Learning', vi: 'Mở rộng: Học thống kê' },
+      description: {
+        en: 'Optional predictive and unsupervised methods: classification, dimension reduction, trees, SVMs, deep learning, and clustering.',
+        vi: 'Các phương pháp dự đoán và không giám sát tùy chọn: phân loại, giảm chiều, cây, SVM, học sâu và phân cụm.',
+      },
+    },
+    lessonIds: [
+      ...getLessons('statistical-learning', ['ch02-classical-statistics-fundamentals', 'ch02-python-introduction-lab']).map(removeLessonNumber),
+      ...getLessons('classification', ['ch04-logistic-regression', 'ch04-generalized-linear-models']).map(removeLessonNumber),
+      getLesson('ch06-dimension-reduction-methods'),
+      ...getLessons('tree-based-methods').map(removeLessonNumber),
+      ...getLessons('support-vector-machines').map(removeLessonNumber),
+      ...getLessons('deep-learning').map(removeLessonNumber),
+      ...getLessons('unsupervised-learning').map(removeLessonNumber),
+    ],
+  },
+] satisfies LearningTocTrackSeed[];
+
 export const learningTableOfContents = {
   id: 'statistics',
   text: {
@@ -1110,6 +1296,18 @@ export const learningTableOfContents = {
   chapters,
   sectionKinds: ['theory', 'code', 'calculation'],
   routeAliases: [
+    { fromTrackId: 'statistical-learning', toTrackId: 'statistical-learning-extensions' },
+    { fromTrackId: 'linear-regression', toTrackId: 'regression-analysis' },
+    { fromTrackId: 'classification', toTrackId: 'statistical-learning-extensions' },
+    { fromTrackId: 'resampling-methods', toTrackId: 'statistical-inference' },
+    { fromTrackId: 'linear-model-selection-regularization', toTrackId: 'regression-analysis' },
+    { fromTrackId: 'moving-beyond-linearity', toTrackId: 'regression-analysis' },
+    { fromTrackId: 'tree-based-methods', toTrackId: 'statistical-learning-extensions' },
+    { fromTrackId: 'support-vector-machines', toTrackId: 'statistical-learning-extensions' },
+    { fromTrackId: 'deep-learning', toTrackId: 'statistical-learning-extensions' },
+    { fromTrackId: 'survival-analysis-censored-data', toTrackId: 'regression-analysis' },
+    { fromTrackId: 'unsupervised-learning', toTrackId: 'statistical-learning-extensions' },
+    { fromTrackId: 'multiple-testing', toTrackId: 'statistical-inference' },
     { fromTrackId: 'introduction', toTrackId: 'probability' },
     { fromLessonId: 'ch01-overview-statistical-learning', toTrackId: 'probability', toLessonId: 'ch01-probability-origins' },
     { fromLessonId: 'ch01-history-statistical-learning', toTrackId: 'probability', toLessonId: 'ch01-experiments-events-sample-space' },

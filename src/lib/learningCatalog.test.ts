@@ -44,25 +44,25 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   );
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
-  assert.equal(learningCatalog.tracks.length, 97);
-  assert.equal(learningCatalog.lessons.length, 702);
-  assert.equal(learningCatalog.routeAliases?.length, 17);
+  assert.equal(learningCatalog.tracks.length, 92);
+  assert.equal(learningCatalog.lessons.length, 718);
+  assert.equal(learningCatalog.routeAliases?.length, 29);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 164, next: 1, locked: 537 },
+    { available: 164, next: 2, locked: 552 },
   );
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 166);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 536);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 552);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
   assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.text.title.en, '1.1 RL Fundamentals');
   assert.equal(getLearningDomain(learningCatalog, 'statistics')?.text.title.en, 'Probability & Statistics');
   assert.equal(getLearningDomain(learningCatalog, 'statistics')?.text.title.vi, 'Xác suất & Thống kê');
-  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'probability')?.text.title.vi, '1. Xác suất');
+  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'probability')?.text.title.vi, '2. Xác suất và biến ngẫu nhiên');
   assert.deepEqual(
     getLearningTrack(learningCatalog, 'statistics', 'probability')?.lessonIds,
     [
@@ -86,7 +86,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
       'ch01-probability-exercises-quiz',
     ],
   );
-  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'statistical-learning')?.text.title.en, '2. Statistical Learning');
+  assert.equal(getLearningTrack(learningCatalog, 'statistics', 'statistical-learning-extensions')?.text.title.en, 'Extensions: Statistical Learning');
   assert.deepEqual(
     resolveLearningLessonRoute(learningCatalog, {
       domainId: 'statistics',
@@ -171,7 +171,7 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('LLM, Statistics, and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 536);
+  assert.equal(missingLessons.length, 552);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);

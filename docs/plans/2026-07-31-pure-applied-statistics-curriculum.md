@@ -1,8 +1,8 @@
 ---
 title: Pure Applied Statistics Curriculum Integration
-status: draft
+status: executing
 created: 2026-07-31T00:00:00+07:00
-updated: 2026-07-31T00:00:00+07:00
+updated: 2026-07-31T17:25:00+07:00
 author: Codex
 task: "Combine the proposed applied-statistics outline with the current Statistics Learning Lab material while keeping the core focused on probability, inference, regression, experiments, and quality control"
 supersedes:
@@ -46,9 +46,9 @@ contract, and Learning Lab architecture remain in force.
   discrete and continuous random variables, standard distributions, and joint
   distributions.
 - Fold compatible current material into the new sequence:
-  statistical-learning foundations into Chapter 1; resampling, survival, and
-  multiple testing into Chapter 4; and current regression, regularization, and
-  nonlinear-regression material into Chapter 5.
+  classical statistical foundations into Chapter 1; resampling and multiple
+  testing into Chapter 4; and current regression, regularization, nonlinear
+  regression, and survival analysis into Chapter 5.
 - Add Design of Experiments and Statistical Quality Control as first-class
   chapters; these are not currently covered adequately.
 - Treat classification, SVMs, tree methods, deep learning, and unsupervised
@@ -138,3 +138,15 @@ contract, and Learning Lab architecture remain in force.
 - 2026-07-31 — Drafted this plan from the current Statistics TOC and the
   proposed applied-statistics outline. No lesson, catalog, code, or wiki files
   were modified.
+- 2026-07-31T17:13:24+07:00 — Requester approved the plan in conversation; execution started.
+- 2026-07-31T17:25:00+07:00 — Completed the curriculum audit and catalog
+  restructure. The Statistics domain now presents seven applied-statistics
+  core tracks plus `statistical-learning-extensions`; existing authored lessons
+  were reclassified without changing their canonical ids, and twelve legacy
+  track aliases preserve track-only URLs. Added sixteen explicit `missing`
+  nodes for the required estimation, inference, experimental-design, and
+  quality-control sequence rather than falsely presenting it as authored.
+  Updated all affected published MDX metadata titles to match their new
+  catalog placement, catalog/MDX regression expectations, and the Learning Lab
+  wiki. `npm test`, `npm run verify`, and `git diff --check` passed. The
+  remaining Phase 3 work is authoring the sixteen missing lesson bodies.

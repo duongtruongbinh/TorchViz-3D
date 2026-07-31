@@ -185,7 +185,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     assert.doesNotMatch(source, /<MdxCode\b/);
     assert.doesNotMatch(source, /\$\$|(?<!\\)\$(?!\{)/);
   }
-  for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics')) {
+  for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics' && item.contentStatus === 'published')) {
     const vietnamese = statisticsInspections.get(lesson.id);
     assert.ok(vietnamese, `Missing Vietnamese Statistics content for ${lesson.id}`);
     assert.equal(vietnamese.metadata.locale, 'vi');
@@ -207,8 +207,8 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
 });
 
 test('retained Statistics authored output preserves the locked catalog counts', () => {
-  assert.equal(learningCatalog.tracks.filter((track) => track.domainId === 'statistics').length, 13);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 100);
+  assert.equal(learningCatalog.tracks.filter((track) => track.domainId === 'statistics').length, 8);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 116);
   assert.equal(
     learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics' && lesson.contentStatus === 'published').length,
     100,
