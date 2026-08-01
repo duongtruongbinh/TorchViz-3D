@@ -186,7 +186,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.equal(statisticsPageCount, 360);
+  assert.equal(statisticsPageCount, 362);
   for (const lessonId of [
     'ch01-probability-origins',
     'ch01-experiments-events-sample-space',
@@ -205,8 +205,8 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   }
   const statisticalThinking = statisticsInspections.get('ch02-classical-statistics-fundamentals');
   const statisticalThinkingSource = statisticsSources.get('ch02-classical-statistics-fundamentals') ?? '';
-  assert.equal(statisticalThinking?.metadata.pageCount, 4);
-  for (const kind of ['statistical-thinking-variation', 'statistical-thinking-sampling', 'statistical-thinking-study-design']) {
+  assert.equal(statisticalThinking?.metadata.pageCount, 6);
+  for (const kind of ['statistical-thinking-sampling', 'statistical-thinking-study-design']) {
     assert.match(statisticalThinkingSource, new RegExp(`<ProbabilityChapterVisual kind="${kind}"`));
   }
   const statisticalThinkingQuiz = statisticsInspections.get('ch02-classical-statistics-fundamentals-quiz');

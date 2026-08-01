@@ -87,7 +87,7 @@ Genesis plan — no predecessor. Các follow-up trong cùng phiên được comp
 - Trang 2 tập trung vào câu nói về “ba kiểu nói dối” và khẳng định trực tiếp nguy cơ số liệu bị lựa chọn, trình bày, diễn giải để dẫn dắt kết luận; không giữ phần p-value riêng.
 - Trang 3 dùng hình WebP cắt trục được cung cấp, ghi nguồn, giới thiệu *How to Lie with Statistics* và checklist năm bước không dùng card/border lặp.
 - Các visual mới đi qua `ProbabilityChapterVisual`, responsive và hỗ trợ light/dark mode; không thêm route đặc biệt, dependency hoặc Quiz.
-- Đồng bộ catalog/content invariants và wiki: toàn catalog 721 nodes/171 authored files; Statistics có 119 nodes, 105 published lessons và 360 ordered pages; missing-node count giữ nguyên.
+- Đồng bộ catalog/content invariants và wiki: toàn catalog 721 nodes/171 authored files; Statistics có 119 nodes, 105 published lessons và 362 ordered pages sau khi merge upstream; missing-node count giữ nguyên.
 
 ## Addendum execution log
 
