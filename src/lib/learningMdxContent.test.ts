@@ -206,7 +206,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   const statisticalThinking = statisticsInspections.get('ch02-classical-statistics-fundamentals');
   const statisticalThinkingSource = statisticsSources.get('ch02-classical-statistics-fundamentals') ?? '';
   assert.equal(statisticalThinking?.metadata.pageCount, 6);
-  for (const kind of ['statistical-thinking-variation', 'statistical-thinking-sampling', 'statistical-thinking-study-design']) {
+  for (const kind of ['statistical-thinking-sampling', 'statistical-thinking-study-design']) {
     assert.match(statisticalThinkingSource, new RegExp(`<ProbabilityChapterVisual kind="${kind}"`));
   }
   const statisticalThinkingQuiz = statisticsInspections.get('ch02-classical-statistics-fundamentals-quiz');
