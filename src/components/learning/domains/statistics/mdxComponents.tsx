@@ -27,6 +27,7 @@ import randomEventVariableIllustration from '../../../../assets/learning/statist
 import frequencyStabilityAnimation from '../../../../assets/learning/statistics/ch01-probability/05-statistics-empirical-probability-frequency-stability.gif';
 import priorPosteriorProbabilityIllustration from '../../../../assets/learning/statistics/ch01-probability/06-statistics-conditional-probability-prior-posterior.png';
 import bushTaxTruncatedAxisIllustration from '../../../../assets/learning/statistics/ch02-statistical-thinking/02-statistics-criticism-bush-tax.webp';
+import irisPairsPlotIllustration from '../../../../assets/learning/statistics/ch02-statistical-thinking/01-statistics-iris-pairs-plot.svg';
 import { STATISTICS_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
   useLearningMdxTheme,
@@ -102,6 +103,7 @@ const probabilitySourceImages = {
   'pascal-fermat': pascalFermatIllustration,
   'frequency-stability': frequencyStabilityAnimation,
   'bush-tax-truncated-axis': bushTaxTruncatedAxisIllustration,
+  'iris-pairs-plot': irisPairsPlotIllustration,
 } as const;
 
 function ProbabilitySourceImage({ alt, asset, source }: {
