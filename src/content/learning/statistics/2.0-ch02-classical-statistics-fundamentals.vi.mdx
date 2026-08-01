@@ -5,6 +5,8 @@ export const lessonMetadata = {
   "title": "2.1 Tư duy thống kê, dữ liệu và suy luận",
   "headings": [
     "Thống kê là gì & Sự biến động",
+    "Ứng dụng của Thống kê & AI/ML/DL",
+    "Câu hỏi nghiên cứu & kinh doanh",
     "Quần thể, Mẫu & Thu thập Dữ liệu",
     "Thống kê Mô tả & Kỹ thuật Trực quan",
     "Suy luận Thống kê: Ước lượng & Kiểm định"
@@ -22,7 +24,7 @@ export const lessonMetadata = {
     "khoảng tin cậy",
     "kiểm định giả thuyết"
   ],
-  "pageCount": 4
+  "pageCount": 6
 }
 
 <MdxPage page={0}>
@@ -37,13 +39,122 @@ Mục tiêu cơ bản của thống kê là giúp chúng ta rút ra kết luận
 
 </LessonNote>
 
-Trong các hệ thống kỹ thuật và tự nhiên, khi đo lường cùng một đại lượng vật lý nhiều lần hoặc sản xuất các sản phẩm trong cùng một dây chuyền, kết quả thu được hiếm khi hoàn toàn trùng khớp 100%. Sự khác biệt giữa các lần đo hay giữa các sản phẩm chính là **sự biến động (variability)**. Thống kê cung cấp các công cụ định lượng để đo lường, mô hình hóa và đưa ra quyết định chính xác ngay cả khi dữ liệu có chứa nhiễu và độ biến động này.
-
 <ProbabilityChapterVisual kind="statistical-thinking-variation" />
 
 </MdxPage>
 
 <MdxPage page={1}>
+
+## Ứng dụng của Thống kê & AI/ML/DL
+
+Thống kê được ứng dụng rộng rãi, từ các lĩnh vực truyền thống đến Trí tuệ nhân tạo (AI), Học máy (ML) và Học sâu (DL):
+
+**Ứng dụng chung (General Applications)**
+
+- **Kỹ thuật & sản xuất:** kiểm soát chất lượng quy trình (SPC) theo dõi độ lệch đường kính của từng viên thuốc trong dây chuyền dược phẩm hay độ dày tấm thép cán để phát hiện sớm quy trình đi chệch; thiết kế thí nghiệm (DOE) tối ưu nhiệt độ và áp suất trong sản xuất chip bán dẫn.
+- **Y khoa & sinh học:** thử nghiệm lâm sàng vaccine giai đoạn III trên hàng chục nghìn tình nguyện viên — so sánh tỷ lệ mắc bệnh giữa nhóm tiêm và nhóm giả dược để kết luận cho toàn bộ quần thể; nghiên cứu dịch tễ học đánh giá mối liên hệ giữa hút thuốc và ung thư phổi.
+- **Kinh doanh & kinh tế:** ngân hàng chấm điểm tín dụng dựa trên hồ sơ khách hàng để quyết định cho vay; công ty bảo hiểm định phí dựa trên phân bố thiệt hại từ dữ liệu lịch sử; dự báo doanh số bán lẻ theo mùa vụ.
+- **Khoa học xã hội:** cuộc thăm dò dư luận chỉ hỏi vài nghìn người nhưng dự đoán được kết quả bầu cử cho hàng chục triệu cử tri.
+
+**Ứng dụng trong AI/ML/DL**
+
+- **Học máy (ML):** bộ lọc thư rác được huấn luyện trên hàng triệu email đã gán nhãn (một **mẫu**) để phân loại email mới chưa từng thấy — đây chính là suy luận thống kê từ mẫu ra quần thể; hệ thống phát hiện gian lận thẻ tín dụng học từ dữ liệu giao dịch lịch sử. **Quá khớp (overfitting)** xảy ra khi mô hình học thuộc lòng **nhiễu (noise)** trong dữ liệu huấn luyện thay vì tín hiệu thật, nên kết quả sụt giảm trên dữ liệu mới.
+- **Học sâu (DL):** mạng nơ-ron tích chập (CNN) nhận diện khuôn mặt và điều khiển xe tự lái được huấn luyện trên hàng triệu bức ảnh; mô hình ngôn ngữ như GPT dự đoán **phân phối xác suất** của token tiếp theo trong chuỗi từ; mô hình sinh như GAN hay Stable Diffusion mô hình hóa phân phối xác suất của dữ liệu ảnh để tạo ra hình ảnh mới.
+- **Đánh giá mô hình:** A/B testing so sánh thuật toán gợi ý nội dung của Netflix; khoảng tin cậy cho độ chính xác của mô hình chẩn đoán bệnh từ ảnh X-quang; cross-validation để chọn siêu tham số tối ưu.
+
+**Điểm chung & khác biệt**
+
+Cả hai nhóm ứng dụng đều giải quyết cùng một bài toán cốt lõi: ra quyết định khách quan trước sự biến động của dữ liệu, dựa trên thông tin từ mẫu. Khác biệt nằm ở quy mô và mức độ tự động hóa — thống kê truyền thống thường làm việc với dữ liệu nhỏ, thí nghiệm được thiết kế và mô hình có thể diễn giải; còn AI/ML/DL xử lý dữ liệu lớn, nhiều chiều và tự động học quy luật — nhưng vẫn đứng trên cùng nền tảng thống kê về sự biến động, mẫu và suy luận.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Câu hỏi nghiên cứu & kinh doanh
+
+Mỗi ứng dụng ở trang trước bắt đầu từ một câu hỏi thực tế. Đây là những câu hỏi nghiên cứu và kinh doanh điển hình mà thống kê — kết hợp với AI/ML/DL — được dùng để trả lời bằng dữ liệu:
+
+### Kỹ thuật & sản xuất
+
+- Quy trình sản xuất có đang hoạt động ổn định không?
+- Tỷ lệ sản phẩm lỗi là bao nhiêu và nguyên nhân đến từ đâu?
+- Yếu tố nào ảnh hưởng nhiều nhất đến chất lượng sản phẩm?
+- Cần điều chỉnh nhiệt độ, áp suất hoặc tốc độ máy như thế nào để tối ưu năng suất?
+- Một thiết kế hoặc quy trình mới có thực sự tốt hơn quy trình hiện tại không?
+- Sai số đo lường có đủ nhỏ để kết quả kiểm tra đáng tin cậy không?
+
+### Y khoa & sinh học
+
+- Một loại thuốc hoặc phương pháp điều trị có thực sự hiệu quả không?
+- Hiệu quả điều trị có khác nhau giữa các nhóm bệnh nhân không?
+- Thuốc có gây ra tác dụng phụ đáng kể không?
+- Những yếu tố nào làm tăng nguy cơ mắc bệnh?
+- Một xét nghiệm có khả năng phát hiện đúng người mắc bệnh đến mức nào?
+- Từ một mẫu bệnh nhân, có thể suy rộng kết quả cho toàn bộ quần thể hay không?
+
+### Kinh doanh & kinh tế
+
+- Doanh thu trong tháng hoặc quý tới có thể đạt bao nhiêu?
+- Yếu tố nào ảnh hưởng nhiều nhất đến quyết định mua hàng?
+- Một chương trình khuyến mãi có giúp tăng doanh số không?
+- Nhóm khách hàng nào có khả năng rời bỏ doanh nghiệp cao nhất?
+- Mức giá nào giúp cân bằng giữa nhu cầu và lợi nhuận?
+- Khoản đầu tư, cổ phiếu hoặc hợp đồng bảo hiểm có mức rủi ro như thế nào?
+
+### Khoa học xã hội
+
+- Thu nhập, trình độ học vấn và nơi sinh sống có liên quan như thế nào?
+- Một chính sách mới có làm thay đổi hành vi của người dân không?
+- Quan điểm của người dân về một vấn đề xã hội đang thay đổi ra sao?
+- Mẫu khảo sát có đại diện cho toàn bộ dân số không?
+- Những yếu tố nào ảnh hưởng đến mức độ hài lòng, hành vi hoặc lựa chọn của con người?
+- Sự khác biệt giữa các nhóm quan sát được có thực sự đáng kể hay chỉ do ngẫu nhiên?
+
+### Học máy (Machine Learning)
+
+- Mô hình có hoạt động tốt trên dữ liệu mới chưa từng thấy không?
+- Dữ liệu huấn luyện có đại diện cho dữ liệu thực tế không?
+- Mô hình đang học được quy luật hay chỉ ghi nhớ tập huấn luyện?
+- Những đặc trưng nào ảnh hưởng nhiều nhất đến dự đoán?
+- Sai số của mô hình đến từ nhiễu dữ liệu hay do mô hình chưa đủ tốt?
+- Cần bao nhiêu dữ liệu để kết quả dự đoán đủ đáng tin cậy?
+
+### Học sâu (Deep Learning)
+
+- Chuẩn hóa batch có giúp quá trình huấn luyện ổn định và nhanh hơn không?
+- Data augmentation có thực sự cải thiện khả năng tổng quát hóa không?
+- Dropout bao nhiêu là phù hợp để giảm quá khớp?
+- Kiến trúc hoặc siêu tham số nào cho kết quả tốt nhất?
+- Mô hình sinh có tạo ra dữ liệu giống phân phối dữ liệu thật không?
+- Sự khác biệt giữa hai phiên bản mô hình có thực sự có ý nghĩa hay chỉ do ngẫu nhiên?
+
+### Đánh giá mô hình
+
+- Mô hình nào tốt hơn khi đánh giá trên cùng một tập dữ liệu?
+- Kết quả hiện tại có ổn định qua nhiều lần chia dữ liệu không?
+- Khoảng tin cậy của các chỉ số như accuracy, precision, recall là bao nhiêu?
+- Chênh lệch hiệu năng giữa hai mô hình có ý nghĩa thống kê không?
+- Cross-validation có cho thấy mô hình hoạt động ổn định không?
+- Mô hình có hoạt động công bằng trên các nhóm dữ liệu khác nhau không?
+- Chỉ số đánh giá nào phù hợp nhất với mục tiêu thực tế của bài toán?
+
+<LessonNote label="Bản đồ câu hỏi → phương pháp → chương">
+
+Toàn bộ câu hỏi trên được trả lời bằng chính các công cụ thống kê trong khóa học này:
+
+- **Kỹ thuật & sản xuất** → kiểm soát quá trình thống kê và biểu đồ kiểm soát (Chương 7), thiết kế thí nghiệm (Chương 6), ước lượng tỷ lệ (Chương 3).
+- **Y khoa & sinh học** → thử nghiệm ngẫu nhiên và kiểm định giả thuyết (Chương 4, 6), hồi quy logistic cho yếu tố nguy cơ (Chương 5), độ nhạy và độ đặc hiệu của xét nghiệm (Chương 4).
+- **Kinh doanh & kinh tế** → hồi quy và dự báo doanh thu (Chương 5), A/B testing (Chương 4), phân loại khách hàng rời bỏ (Chương 4, Mở rộng).
+- **Khoa học xã hội** → lấy mẫu và suy luận từ khảo sát (Chương 2, 4), kiểm định sự khác biệt giữa các nhóm (Chương 4).
+- **Học máy** → xác thực chéo và bootstrap (Chương 4), quá khớp và đánh đổi độ chệch–phương sai (Chương 2), lực kiểm định và cỡ mẫu (Chương 4).
+- **Học sâu** → so sánh có kiểm soát bằng thiết kế thí nghiệm (Chương 6), xác thực chéo để chọn siêu tham số (Chương 4).
+- **Đánh giá mô hình** → khoảng tin cậy bằng bootstrap (Chương 4), kiểm định ý nghĩa thống kê của chênh lệch hiệu năng (Chương 4), kiểm soát kiểm định nhiều giả thuyết (Chương 4).
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
 
 ## Quần thể (Population), Mẫu (Sample) & Thu thập Dữ liệu
 
@@ -67,7 +178,7 @@ Dữ liệu thống kê có thể được thu thập thông qua ba phương ph�
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={4}>
 
 ## Thống kê Mô tả (Descriptive Statistics) & Kỹ thuật Trực quan
 
@@ -88,7 +199,7 @@ Thống kê mô tả dựa chủ yếu vào các kỹ thuật đồ họa và tr
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={5}>
 
 ## Suy luận Thống kê (Statistical Inference: Estimation & Hypothesis Testing)
 
