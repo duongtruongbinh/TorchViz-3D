@@ -26,6 +26,7 @@ import experimentEventIllustration from '../../../../assets/learning/statistics/
 import randomEventVariableIllustration from '../../../../assets/learning/statistics/ch01-probability/02-statistics-experiments-events-sample-space-random-event-variable.png';
 import frequencyStabilityAnimation from '../../../../assets/learning/statistics/ch01-probability/05-statistics-empirical-probability-frequency-stability.gif';
 import priorPosteriorProbabilityIllustration from '../../../../assets/learning/statistics/ch01-probability/06-statistics-conditional-probability-prior-posterior.png';
+import bushTaxTruncatedAxisIllustration from '../../../../assets/learning/statistics/ch02-statistical-thinking/02-statistics-criticism-bush-tax.webp';
 import { STATISTICS_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
   useLearningMdxTheme,
@@ -68,6 +69,7 @@ type ProbabilityChapterVisualKind =
   | 'equiprobable'
   | 'prior-posterior'
   | 'probability-definitions'
+  | 'responsible-statistics-checklist'
   | 'play-tennis-data'
   | 'play-tennis-likelihoods'
   | 'play-tennis-likelihoods-laplace'
@@ -77,6 +79,8 @@ type ProbabilityChapterVisualKind =
   | 'random-variable'
   | 'sample-space'
   | 'statistical-modelling-schools'
+  | 'statistical-assumptions'
+  | 'statistics-misuse-quote'
   | 'statistical-thinking-sampling'
   | 'statistical-thinking-study-design'
   | 'statistical-thinking-variation'
@@ -97,6 +101,7 @@ const probabilitySourceImages = {
   'mere-gambling-scene': mereGamblingScene,
   'pascal-fermat': pascalFermatIllustration,
   'frequency-stability': frequencyStabilityAnimation,
+  'bush-tax-truncated-axis': bushTaxTruncatedAxisIllustration,
 } as const;
 
 function ProbabilitySourceImage({ alt, asset, source }: {
@@ -3067,6 +3072,92 @@ function StatisticalThinkingVariationVisual({ themeClasses }: { themeClasses: Le
   );
 }
 
+function StatisticalAssumptionsVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const assumptions = [
+    { key: 'A', title: 'Tuyến tính', detail: 'Giá trung bình thay đổi gần theo một đường thẳng khi diện tích tăng.', issue: 'Quan hệ không tuyến tính', remedy: 'thử biến đổi dữ liệu hoặc dùng hồi quy đa thức (Polynomial Regression), spline hay GAM.' },
+    { key: 'B', title: 'Sai số độc lập', detail: 'Sai số của một căn nhà không kéo theo sai số của căn nhà khác.', issue: 'Các sai số phụ thuộc nhau', remedy: 'dùng GLS, mô hình hiệu ứng hỗn hợp (mixed-effects) hoặc sai số chuẩn theo cụm.' },
+    { key: 'C', title: 'Phương sai không đổi', detail: 'Độ phân tán của sai số tương đối ổn định ở mọi mức diện tích.', issue: 'Độ phân tán sai số thay đổi', remedy: 'dùng bình phương tối thiểu có trọng số (Weighted Least Squares) hoặc sai số chuẩn bền vững.' },
+    { key: 'D', title: 'Phần dư gần chuẩn', detail: 'Cần thiết cho kiểm định và khoảng tin cậy, nhất là khi mẫu nhỏ.', issue: 'Phần dư lệch chuẩn rõ rệt', remedy: 'dùng bootstrap; nếu phân phối biến đích không phù hợp, cân nhắc mô hình tuyến tính tổng quát (GLM).' },
+  ] as const;
+
+  return (
+    <div className="grid gap-4">
+      <section
+        aria-labelledby="statistical-assumptions-title"
+        className={cx(
+          'overflow-hidden rounded-xl px-4 py-5 sm:px-5 sm:py-6',
+          themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]',
+        )}
+      >
+        <div className="grid gap-1">
+          <p className={cx('text-[0.68rem] font-black uppercase tracking-[0.18em]', themeClasses.isLight ? 'text-[#39724A]' : 'text-[#9DDBAF]')}>Ví dụ: Linear Regression</p>
+          <h3 id="statistical-assumptions-title" className={cx('text-lg font-black sm:text-xl', themeClasses.titleText)}>Dự đoán giá nhà từ diện tích</h3>
+          <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>Trước khi diễn giải hệ số của mô hình, ta cần kiểm tra ít nhất bốn giả thiết:</p>
+        </div>
+
+        <ol className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Bốn giả thiết của ví dụ Linear Regression">
+          {assumptions.map((assumption) => (
+            <li key={assumption.key} className={cx('grid min-h-36 content-start gap-2 rounded-lg px-3 py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#172232]')}>
+              <span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#EAF1F7] text-[#205089]' : 'bg-[#A8D4FF]/12 text-[#A8D4FF]')} aria-hidden="true">{assumption.key}</span>
+              <strong className={cx('text-sm font-black', themeClasses.titleText)}>{assumption.title}</strong>
+              <span className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{assumption.detail}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section aria-labelledby="statistical-assumptions-remedies-title" className={cx('rounded-xl border px-4 py-4 sm:px-5', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8D4FF]/18 bg-[#172232]')}>
+        <h4 id="statistical-assumptions-remedies-title" className={cx('text-sm font-bold', themeClasses.titleText)}>Làm gì khi giả thiết bị vi phạm?</h4>
+        <p className={cx('mt-1 text-xs font-normal leading-5', themeClasses.mutedText)}>Để xử lý từng vấn đề, ta có thể dùng các phương pháp sau:</p>
+        <dl className="mt-3 grid gap-x-5 gap-y-3 sm:grid-cols-2">
+          {assumptions.map((assumption) => (
+            <div key={assumption.key} className="grid grid-cols-[2rem_minmax(0,1fr)] items-start gap-2">
+              <dt className={cx('grid h-7 w-7 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#FBF2E7] text-[#8A4718]' : 'bg-[#F0B172]/10 text-[#F0B172]')}>{assumption.key}</dt>
+              <dd className={cx('text-xs font-normal leading-5', themeClasses.bodyText)}><strong className="font-semibold">{assumption.issue}:</strong> {assumption.remedy}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    </div>
+  );
+}
+
+function ResponsibleStatisticsChecklistVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const checks = [
+    { lead: 'Kiểm tra nguồn dữ liệu', rest: ', cách lấy mẫu và nhóm bị bỏ sót.' },
+    { lead: 'Kiểm tra giả thiết', rest: ' của phương pháp và thiết kế nghiên cứu.' },
+    { lead: 'Đọc kích thước hiệu ứng', rest: ' và khoảng tin cậy, không chỉ nhìn p-value.' },
+    { lead: 'Kiểm tra trục, đơn vị, mốc so sánh', rest: ' và dữ liệu có bị cắt hay không.' },
+    { lead: 'Tìm phân tích thay thế', rest: ', kiểm tra độ nhạy hoặc kết quả có thể tái lập.' },
+  ] as const;
+
+  return (
+    <section aria-labelledby="responsible-statistics-checklist-title" className={cx('rounded-xl px-4 py-5 sm:px-5', themeClasses.isLight ? 'bg-[#F7FAFD]' : 'bg-[#121A24]')}>
+      <p className={cx('text-[0.68rem] font-black uppercase tracking-[0.18em]', themeClasses.isLight ? 'text-[#39724A]' : 'text-[#9DDBAF]')}>Checklist 5 bước</p>
+      <h3 id="responsible-statistics-checklist-title" className={cx('mt-1 text-lg font-black', themeClasses.titleText)}>Trước khi tin vào một kết luận thống kê</h3>
+      <ol className="mt-4 grid gap-2">
+        {checks.map((check, index) => (
+          <li key={check.lead} className="grid grid-cols-[2rem_minmax(0,1fr)] items-start gap-3 py-1.5">
+            <span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#DDEFE3] text-[#2D7646]' : 'bg-[#9DDBAF]/12 text-[#9DDBAF]')} aria-hidden="true">{index + 1}</span>
+            <p className={cx('pt-1 text-sm font-normal leading-6', themeClasses.bodyText)}><strong className="font-semibold">{check.lead}</strong>{check.rest}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function StatisticsMisuseQuoteVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  return (
+    <section aria-labelledby="statistics-misuse-quote-title" className={cx('relative overflow-hidden rounded-xl px-5 py-7 sm:px-8 sm:py-9', themeClasses.isLight ? 'bg-[#F3F7F4]' : 'bg-[#121A24]')}>
+      <span className={cx('pointer-events-none absolute -top-3 left-4 text-8xl font-black leading-none', themeClasses.isLight ? 'text-[#39724A]/15' : 'text-[#9DDBAF]/12')} aria-hidden="true">“</span>
+      <blockquote id="statistics-misuse-quote-title" className={cx('relative mx-auto max-w-3xl text-xl font-black leading-8 sm:text-2xl sm:leading-9', themeClasses.titleText)}>
+        “Có ba kiểu nói dối: nói dối, nói dối trắng trợn và thống kê.”
+      </blockquote>
+    </section>
+  );
+}
+
 const populationValues = [47, 48, 48, 49, 49, 50, 50, 50, 51, 51, 52, 55] as const;
 const samplingSequences = {
   random: [[48, 50, 51, 52], [47, 49, 50, 55], [48, 49, 51, 52], [48, 50, 50, 51]],
@@ -3174,6 +3265,9 @@ function ProbabilityChapterVisual({ kind }: {
   if (kind === 'axioms') return <AxiomsVisual themeClasses={themeClasses} />;
   if (kind === 'probability-definitions') return <ProbabilityDefinitionsVisual themeClasses={themeClasses} />;
   if (kind === 'statistical-modelling-schools') return <StatisticalModellingSchoolsVisual themeClasses={themeClasses} />;
+  if (kind === 'statistical-assumptions') return <StatisticalAssumptionsVisual themeClasses={themeClasses} />;
+  if (kind === 'responsible-statistics-checklist') return <ResponsibleStatisticsChecklistVisual themeClasses={themeClasses} />;
+  if (kind === 'statistics-misuse-quote') return <StatisticsMisuseQuoteVisual themeClasses={themeClasses} />;
   if (kind === 'statistical-thinking-variation') return <StatisticalThinkingVariationVisual themeClasses={themeClasses} />;
   if (kind === 'statistical-thinking-sampling') return <StatisticalThinkingSamplingVisual themeClasses={themeClasses} />;
   if (kind === 'statistical-thinking-study-design') return <StatisticalThinkingStudyDesignVisual themeClasses={themeClasses} />;

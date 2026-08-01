@@ -2,7 +2,7 @@
 title: Bài 3.1 Descriptive Statistics và Quiz ôn tập
 status: done
 created: 2026-08-01T00:05:00+07:00
-updated: 2026-08-01T14:10:00+07:00
+updated: 2026-08-01T14:20:00+07:00
 author: nmkhiem
 task: "Hoàn thiện bài 3.1 về Mean, Median, Mode, histogram và một Quiz tính tay/đọc code"
 supersedes: []
@@ -55,7 +55,7 @@ Genesis plan — no predecessor. Các follow-up trong cùng phiên được comp
 - Mở rộng bài `3.1-descriptive-data-analysis.vi.mdx` từ 4 lên 6 trang.
 - Thêm `3.1.1-descriptive-data-analysis-quiz.vi.mdx` và catalog node tương ứng.
 - Cập nhật `AuthoredQuizPreview`, `QuizPreview`, catalog/content invariants và wiki counts.
-- Trạng thái cuối: toàn catalog có 720 nodes; Statistics có 118 nodes, 104 published Vietnamese lessons và 357 ordered pages.
+- Trước addendum Chương 2: toàn catalog có 720 nodes; Statistics có 118 nodes, 104 published Vietnamese lessons và 357 ordered pages.
 
 # Sync and cleanup
 
@@ -77,3 +77,20 @@ Genesis plan — no predecessor. Các follow-up trong cùng phiên được comp
 - 2026-08-01 — Thực hiện các vòng polish theo phản hồi: bỏ nội dung lặp, không tiết lộ đáp án, rút gọn prompt và chuyển câu cuối sang multi-select theo ngưỡng giả định.
 - 2026-08-01 — Đồng bộ catalog tests/wiki counts và xác minh toàn bộ suite.
 - 2026-08-01 — Compact toàn bộ follow-up vào một plan canonical duy nhất trước khi commit.
+
+# Chapter 2 addendum — Một số phê phán về thống kê
+
+## Goal and final decisions
+
+- Thêm node published `statistics-criticism` sau Quiz bài 2.1, gồm ba trang theo thứ tự: điều kiện áp dụng; sai lầm khó nhận ra; đọc thống kê có trách nhiệm.
+- Trang 1 giữ prose sát tài liệu tham khảo và dùng ví dụ Linear Regression dự đoán giá nhà để minh họa bốn giả thiết A–D cùng các hướng xử lý khi vi phạm.
+- Trang 2 tập trung vào câu nói về “ba kiểu nói dối” và khẳng định trực tiếp nguy cơ số liệu bị lựa chọn, trình bày, diễn giải để dẫn dắt kết luận; không giữ phần p-value riêng.
+- Trang 3 dùng hình WebP cắt trục được cung cấp, ghi nguồn, giới thiệu *How to Lie with Statistics* và checklist năm bước không dùng card/border lặp.
+- Các visual mới đi qua `ProbabilityChapterVisual`, responsive và hỗ trợ light/dark mode; không thêm route đặc biệt, dependency hoặc Quiz.
+- Đồng bộ catalog/content invariants và wiki: toàn catalog 721 nodes/171 authored files; Statistics có 119 nodes, 105 published lessons và 360 ordered pages; missing-node count giữ nguyên.
+
+## Addendum execution log
+
+- 2026-08-01 — Thêm lesson, TOC node, asset cục bộ, asset map và ba visual Statistics; polish wording/hierarchy theo review và giữ một plan canonical duy nhất.
+- 2026-08-01 — Cập nhật catalog/MDX tests và Learning Lab wiki theo counts cuối.
+- 2026-08-01 — `git diff --check` và dead-code audit pass; `npm run verify` pass với typecheck, 77/77 tests và production build.

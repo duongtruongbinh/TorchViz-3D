@@ -140,21 +140,21 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 170);
+  assert.equal(lessonFiles.length, 171);
   const parsedLessonFiles = lessonFiles
     .map((file) => parseLearningMdxPath(file))
     .filter((file): file is NonNullable<typeof file> => file !== null);
   assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'en').length, 0);
-  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 104);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 105);
   assert.equal(parsedLessonFiles.filter((file) => file.domainId !== 'statistics' && file.locale === 'vi').length, 66);
   assert.deepEqual(
     [...new Set(parsedLessonFiles.map((file) => `${file.domainId}/${file.lessonId}`))].sort(),
     publishedLessonKeys.sort(),
   );
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 170);
+  assert.equal(documents.length, 171);
   const statisticsDocuments = documents.filter((document) => document.domainId === 'statistics');
-  assert.equal(statisticsDocuments.length, 104);
+  assert.equal(statisticsDocuments.length, 105);
   assert.deepEqual([...new Set(statisticsDocuments.map((document) => document.locale))], ['vi']);
   assert.ok(statisticsDocuments.every((document) => document.text.length < 2_000));
   let statisticsPageCount = 0;
@@ -186,7 +186,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.equal(statisticsPageCount, 357);
+  assert.equal(statisticsPageCount, 360);
   for (const lessonId of [
     'ch01-probability-origins',
     'ch01-experiments-events-sample-space',
@@ -217,10 +217,18 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.match(statisticalThinkingQuizSource, /preview:\s*\{/);
   assert.match(statisticalThinkingQuizSource, /columns:\s*\[['"]sepal_length['"]/);
   const thinkingTrack = learningCatalog.tracks.find((track) => track.domainId === 'statistics' && track.id === 'statistical-thinking');
-  assert.ok(thinkingTrack?.lessonIds.includes('ch02-classical-statistics-fundamentals-quiz'));
+  assert.deepEqual(thinkingTrack?.lessonIds, [
+    'ch02-classical-statistics-fundamentals',
+    'ch02-classical-statistics-fundamentals-quiz',
+    'statistics-criticism',
+  ]);
   const thinkingQuizNode = learningCatalog.lessons.find((lesson) => lesson.domainId === 'statistics' && lesson.id === 'ch02-classical-statistics-fundamentals-quiz');
   assert.equal(thinkingQuizNode?.text?.title?.vi, 'Quiz');
   assert.equal(thinkingQuizNode?.contentStatus, 'published');
+  const criticism = statisticsInspections.get('statistics-criticism');
+  const criticismSource = statisticsSources.get('statistics-criticism') ?? '';
+  assert.equal(criticism?.metadata.pageCount, 3);
+  assert.match(criticismSource, /asset="bush-tax-truncated-axis"/);
   for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics' && item.contentStatus === 'published')) {
     const vietnamese = statisticsInspections.get(lesson.id);
     assert.ok(vietnamese, `Missing Vietnamese Statistics content for ${lesson.id}`);
@@ -245,10 +253,10 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
 
 test('retained Statistics authored output preserves the locked catalog counts', () => {
   assert.equal(learningCatalog.tracks.filter((track) => track.domainId === 'statistics').length, 8);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 118);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 119);
   assert.equal(
     learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics' && lesson.contentStatus === 'published').length,
-    104,
+    105,
   );
 });
 

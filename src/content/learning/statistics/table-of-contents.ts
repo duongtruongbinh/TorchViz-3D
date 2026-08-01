@@ -1161,6 +1161,12 @@ const chapters = [
         status: 'available',
         contentStatus: 'published',
       },
+      {
+        id: 'statistics-criticism',
+        title: { en: '2.2 Critiques of Statistics', vi: '2.2 Một số phê phán về thống kê' },
+        status: 'available',
+        contentStatus: 'published',
+      },
     ],
   },
   {

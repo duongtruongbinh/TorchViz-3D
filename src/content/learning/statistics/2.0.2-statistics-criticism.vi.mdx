@@ -1,0 +1,66 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'statistics-criticism',
+  locale: 'vi',
+  title: '2.2 Một số phê phán về thống kê',
+  headings: [
+    'Phương pháp đúng cần giả thiết đúng',
+    'Vì sao sai lầm khó nhận ra?',
+    'Tạo và Đọc biểu đồ thống kê một cách có trách nhiệm',
+  ],
+  keywords: [
+    'phê phán thống kê',
+    'giả thiết thống kê',
+    'p-value',
+    'khoảng tin cậy',
+    'ý nghĩa thực tiễn',
+    'đồ thị gây hiểu lầm',
+    'How to Lie with Statistics',
+  ],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Phương pháp đúng cần giả thiết đúng
+
+Việc sử dụng bất kỳ phương pháp thống kê nào cũng chỉ đúng đắn khi **tổng thể nghiên cứu thỏa mãn những giả thiết toán học cần thiết của phương pháp**.
+
+<ProbabilityChapterVisual kind="statistical-assumptions" />
+
+Việc sử dụng sai kết quả thống kê có thể tạo ra **những sai lầm nghiêm trọng nhưng khó thấy** trong việc mô tả và diễn giải.
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Vì sao sai lầm khó nhận ra?
+
+Ngay cả người có chuyên môn cũng có thể mắc lỗi vì một bảng số liệu hoặc mô hình thường tạo cảm giác **khách quan và chính xác**.
+
+<ProbabilityChapterVisual kind="statistics-misuse-quote" />
+
+Không thể phủ nhận vai trò của thống kê, nhưng số liệu vẫn có thể bị lựa chọn, trình bày và diễn giải nhằm dẫn người đọc đến một kết luận có lợi cho người sử dụng.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tạo và Đọc biểu đồ thống kê một cách có trách nhiệm
+
+<ProbabilitySourceImage
+  asset="bush-tax-truncated-axis"
+  alt="Biểu đồ cột so sánh thuế suất 35 phần trăm và 39,6 phần trăm nhưng trục tung bắt đầu từ 34 phần trăm, khiến chênh lệch trông lớn hơn thực tế"
+  source="https://cdn.prod.website-files.com/61e007dd65cd8c6a2b36174c/6716210df2562854bb27d3da_67161b69d55380d5b0860661_bush-tax.webp"
+/>
+
+Hai nhãn số trong hình là 35% và 39,6%, chênh nhau **4,6 điểm phần trăm**. Tuy nhiên, trục tung bắt đầu ở 34% thay vì 0%, khiến cột thứ hai trông cao hơn rất nhiều lần. Con số không bị sửa, nhưng cách trình bày đã khuếch đại cảm nhận của người xem.
+
+<LessonNote label="Đọc thêm">
+
+Cuốn *How to Lie with Statistics* của **Darrell Huff** trình bày nhiều cách dữ liệu và đồ thị có thể được lựa chọn hoặc biến đổi để dẫn người đọc đến một kết luận có lợi cho người trình bày.
+
+</LessonNote>
+
+<ProbabilityChapterVisual kind="responsible-statistics-checklist" />
+
+</MdxPage>
