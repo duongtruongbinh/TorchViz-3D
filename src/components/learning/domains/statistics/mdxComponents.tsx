@@ -42,6 +42,7 @@ type ProbabilityChapterVisualKind =
   | 'certainty'
   | 'complement'
   | 'conditional'
+  | 'descriptive-center-histogram'
   | 'elementary'
   | 'empirical'
   | 'experiment-outcomes'
@@ -55,6 +56,7 @@ type ProbabilityChapterVisualKind =
   | 'frequency-stability'
   | 'histogram'
   | 'independence'
+  | 'ideal-normal-center'
   | 'naive-bayes-combinations'
   | 'naive-bayes-exercise'
   | 'naive-bayes-laplace'
@@ -968,6 +970,245 @@ function HistogramVisual({ themeClasses }: { themeClasses: LearningThemeClasses 
         </div>
       </article>
     </section>
+  );
+}
+
+function DescriptiveCenterHistogramVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const frequencies = new Map([
+    [12, 3],
+    [15, 2],
+    [18, 1],
+    [20, 1],
+    [22, 1],
+    [24, 1],
+    [30, 1],
+  ]);
+  const bins = Array.from({ length: 19 }, (_, index) => ({
+    count: frequencies.get(index + 12) ?? 0,
+    value: index + 12,
+  }));
+  const plot = { bottom: 250, left: 62, right: 718, top: 58 };
+  const binWidth = (plot.right - plot.left) / bins.length;
+  const xForValue = (value: number) => plot.left + (value - 11.5) * binWidth;
+  const yForCount = (count: number) => plot.bottom - count * 52;
+  const axisColor = themeClasses.isLight ? '#7A8DA3' : '#A8B8C8';
+  const gridColor = themeClasses.isLight ? '#D8E2EC' : '#34465A';
+  const barColor = themeClasses.isLight ? '#517FCB' : '#8CB9E8';
+  const labelColor = themeClasses.isLight ? '#172A43' : '#F2F6FA';
+  const mutedColor = themeClasses.isLight ? '#5D7188' : '#A8B8C8';
+  const markers = [
+    { color: '#C46A2B', label: 'Mode', value: 12 },
+    { color: '#39724A', label: 'Median', value: 16.5 },
+    { color: '#8A4F7D', label: 'Mean', value: 18 },
+  ];
+
+  return (
+    <figure
+      className={cx(
+        'grid gap-4 rounded-xl border p-4 sm:p-5',
+        themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8D4FF]/14 bg-[#121A24]',
+      )}
+    >
+      <div className="grid gap-2 sm:grid-cols-3">
+        {markers.map((marker) => (
+          <div
+            key={marker.label}
+            className={cx(
+              'flex min-h-11 items-center justify-between gap-3 rounded-lg border px-3 py-2',
+              themeClasses.isLight ? 'border-[#205089]/10 bg-[#F6F9FC]' : 'border-[#A8D4FF]/12 bg-[#172232]',
+            )}
+          >
+            <span className="flex items-center gap-2 text-sm font-black" style={{ color: marker.color }}>
+              <span className="h-5 w-1 rounded-full" style={{ backgroundColor: marker.color }} aria-hidden="true" />
+              {marker.label}
+            </span>
+            <span className={cx('text-sm font-black tabular-nums', themeClasses.titleText)}>{marker.value} ms</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto">
+        <svg
+          aria-labelledby="descriptive-histogram-title descriptive-histogram-description"
+          className="h-auto min-w-[42rem] w-full"
+          role="img"
+          viewBox="0 0 780 315"
+        >
+          <title id="descriptive-histogram-title">Histogram độ trễ và ba thước đo xu hướng trung tâm</title>
+          <desc id="descriptive-histogram-description">
+            Histogram của mười độ trễ từ 12 đến 30 mili-giây. Mode bằng 12, median bằng 16.5 và mean bằng 18 mili-giây.
+          </desc>
+
+          {[0, 1, 2, 3].map((count) => {
+            const y = yForCount(count);
+            return (
+              <g key={count}>
+                <line x1={plot.left} x2={plot.right} y1={y} y2={y} stroke={gridColor} strokeWidth="1" />
+                <text x={plot.left - 14} y={y + 4} fill={mutedColor} fontSize="12" fontWeight="700" textAnchor="end">
+                  {count}
+                </text>
+              </g>
+            );
+          })}
+
+          {bins.map(({ count, value }, index) => {
+            const height = count * 52;
+            const x = plot.left + index * binWidth + 1;
+            return (
+              <g key={value}>
+                {count > 0 ? (
+                  <>
+                    <rect
+                      x={x}
+                      y={plot.bottom - height}
+                      width={binWidth - 2}
+                      height={height}
+                      rx="2"
+                      fill={barColor}
+                      opacity="0.88"
+                    />
+                    <text
+                      x={x + (binWidth - 2) / 2}
+                      y={plot.bottom - height - 8}
+                      fill={labelColor}
+                      fontSize="12"
+                      fontWeight="800"
+                      textAnchor="middle"
+                    >
+                      {count}
+                    </text>
+                  </>
+                ) : null}
+              </g>
+            );
+          })}
+
+          {markers.map((marker) => {
+            const x = xForValue(marker.value);
+            return (
+              <g key={marker.label}>
+                <line
+                  x1={x}
+                  x2={x}
+                  y1={plot.top}
+                  y2={plot.bottom}
+                  stroke={marker.color}
+                  strokeDasharray="6 5"
+                  strokeWidth="3"
+                />
+                <circle cx={x} cy={plot.top} r="4" fill={marker.color} />
+              </g>
+            );
+          })}
+
+          <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={axisColor} strokeWidth="2" />
+          <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={axisColor} strokeWidth="2" />
+
+          {[12, 15, 18, 21, 24, 27, 30].map((value) => (
+            <g key={value}>
+              <line x1={xForValue(value)} x2={xForValue(value)} y1={plot.bottom} y2={plot.bottom + 6} stroke={axisColor} strokeWidth="1.5" />
+              <text x={xForValue(value)} y={plot.bottom + 23} fill={mutedColor} fontSize="12" fontWeight="700" textAnchor="middle">
+                {value}
+              </text>
+            </g>
+          ))}
+
+          <text x={(plot.left + plot.right) / 2} y="302" fill={labelColor} fontSize="13" fontWeight="800" textAnchor="middle">
+            Độ trễ phản hồi (ms)
+          </text>
+          <text x="17" y={(plot.top + plot.bottom) / 2} fill={labelColor} fontSize="13" fontWeight="800" textAnchor="middle" transform={`rotate(-90 17 ${(plot.top + plot.bottom) / 2})`}>
+            Tần số
+          </text>
+        </svg>
+      </div>
+
+      <figcaption className={cx('text-center text-xs font-semibold leading-5', themeClasses.mutedText)}>
+        Mỗi bin rộng 1 ms và được đặt tại giá trị nguyên tương ứng trong bộ dữ liệu.
+      </figcaption>
+    </figure>
+  );
+}
+
+function IdealNormalCenterVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const plot = { bottom: 224, left: 72, right: 708, top: 62 };
+  const centerX = (plot.left + plot.right) / 2;
+  const curvePoints = Array.from({ length: 121 }, (_, index) => {
+    const normalizedX = -3 + index * 0.05;
+    return {
+      x: plot.left + (index / 120) * (plot.right - plot.left),
+      y: plot.bottom - Math.exp(-0.5 * normalizedX ** 2) * 142,
+    };
+  });
+  const curvePath = curvePoints.map((point, index) => `${index ? 'L' : 'M'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ');
+  const areaPath = `${curvePath} L ${plot.right} ${plot.bottom} L ${plot.left} ${plot.bottom} Z`;
+  const axisColor = themeClasses.isLight ? '#7A8DA3' : '#A8B8C8';
+  const curveColor = themeClasses.isLight ? '#517FCB' : '#8CB9E8';
+  const centerColor = themeClasses.isLight ? '#7E405F' : '#D699B8';
+  const labelColor = themeClasses.isLight ? '#172A43' : '#F2F6FA';
+  const mutedColor = themeClasses.isLight ? '#5D7188' : '#A8B8C8';
+
+  return (
+    <figure
+      className={cx(
+        'grid gap-4 rounded-xl border p-4 sm:p-5',
+        themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8D4FF]/14 bg-[#121A24]',
+      )}
+    >
+      <div className="flex flex-wrap items-center justify-center gap-2 text-sm font-black sm:text-base">
+        {['Mean', 'Median', 'Mode'].map((label, index) => (
+          <div key={label} className="contents">
+            {index ? <span className={themeClasses.mutedText}>=</span> : null}
+            <span className={cx(
+              'rounded-lg border px-3 py-2',
+              themeClasses.isLight ? 'border-[#7E405F]/15 bg-[#F7EDF3] text-[#7E405F]' : 'border-[#D699B8]/18 bg-[#D699B8]/9 text-[#F3CDE0]',
+            )}>
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto">
+        <svg
+          aria-labelledby="ideal-normal-title ideal-normal-description"
+          className="h-auto min-w-[38rem] w-full"
+          role="img"
+          viewBox="0 0 780 292"
+        >
+          <title id="ideal-normal-title">Phân phối chuẩn lý tưởng với Mean, Median và Mode trùng nhau</title>
+          <desc id="ideal-normal-description">
+            Đường cong chuông đối xứng có một đường thẳng tại tâm mu, là vị trí chung của trung bình, trung vị và yếu vị.
+          </desc>
+
+          <path d={areaPath} fill={curveColor} opacity="0.12" />
+          <path d={curvePath} fill="none" stroke={curveColor} strokeLinecap="round" strokeWidth="4" />
+          <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={axisColor} strokeWidth="2" />
+          <line x1={centerX} x2={centerX} y1={plot.top} y2={plot.bottom} stroke={centerColor} strokeDasharray="7 5" strokeWidth="4" />
+          <circle cx={centerX} cy={plot.top + 20} r="6" fill={centerColor} />
+
+          <rect x={centerX - 126} y="18" width="252" height="38" rx="10" fill={centerColor} opacity="0.12" />
+          <text x={centerX} y="43" fill={centerColor} fontSize="15" fontWeight="900" textAnchor="middle">
+            Mean = Median = Mode
+          </text>
+          <text x={centerX} y={plot.bottom + 25} fill={centerColor} fontSize="15" fontWeight="900" textAnchor="middle">
+            μ
+          </text>
+          <text x={plot.left} y={plot.bottom + 25} fill={mutedColor} fontSize="12" fontWeight="700" textAnchor="middle">
+            −3σ
+          </text>
+          <text x={plot.right} y={plot.bottom + 25} fill={mutedColor} fontSize="12" fontWeight="700" textAnchor="middle">
+            +3σ
+          </text>
+          <text x={centerX} y="282" fill={labelColor} fontSize="13" fontWeight="800" textAnchor="middle">
+            Tâm của phân phối chuẩn đối xứng
+          </text>
+        </svg>
+      </div>
+
+      <figcaption className={cx('text-center text-sm font-semibold leading-6', themeClasses.bodyText)}>
+        Trong mô hình phân phối chuẩn lý tưởng, cả ba thước đo cùng chỉ một vị trí trung tâm. Với một mẫu hữu hạn lấy từ phân phối chuẩn, các giá trị ước lượng có thể vẫn lệch nhau đôi chút.
+      </figcaption>
+    </figure>
   );
 }
 
@@ -2938,6 +3179,8 @@ function ProbabilityChapterVisual({ kind }: {
   if (kind === 'statistical-thinking-study-design') return <StatisticalThinkingStudyDesignVisual themeClasses={themeClasses} />;
   if (kind === 'empirical') return <EmpiricalVisual themeClasses={themeClasses} />;
   if (kind === 'histogram') return <HistogramVisual themeClasses={themeClasses} />;
+  if (kind === 'descriptive-center-histogram') return <DescriptiveCenterHistogramVisual themeClasses={themeClasses} />;
+  if (kind === 'ideal-normal-center') return <IdealNormalCenterVisual themeClasses={themeClasses} />;
   if (kind === 'frequency-stability') return <FrequencyStabilityVisual themeClasses={themeClasses} />;
   if (kind === 'frequency-simulation') return <FrequencySimulationVisual themeClasses={themeClasses} />;
   if (kind === 'independence') return <IndependenceVisual themeClasses={themeClasses} />;

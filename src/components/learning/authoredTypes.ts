@@ -22,10 +22,12 @@ export type AuthoredQuizPreview = {
   caption?: LearningLocalizedText;
   /** Optional pandas snippet displayed above the table as a code line. */
   code?: string;
-  /** Column names of the read-only dataframe preview. */
-  columns: string[];
-  /** Cell values in row-major order; strings and numbers only. */
-  rows: Array<Array<string | number>>;
+  /** Optional complete, read-only Python snippet that learners can copy and run externally. */
+  codeBlock?: string;
+  /** Optional column names of the read-only dataframe preview. */
+  columns?: string[];
+  /** Optional cell values in row-major order; strings and numbers only. */
+  rows?: Array<Array<string | number>>;
 };
 
 export type LearningLessonExtra =

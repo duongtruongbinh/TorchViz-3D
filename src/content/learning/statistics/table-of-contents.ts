@@ -1180,6 +1180,12 @@ const chapters = [
         contentStatus: 'published',
       },
       {
+        id: 'descriptive-data-analysis-quiz',
+        title: { en: 'Quiz', vi: 'Quiz' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
         id: 'point-estimation',
         title: { en: '3.2 Point Estimation', vi: '3.2 Ước lượng điểm' },
         status: 'available',

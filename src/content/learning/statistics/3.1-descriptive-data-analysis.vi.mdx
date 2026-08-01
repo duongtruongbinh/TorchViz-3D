@@ -7,7 +7,9 @@ export const lessonMetadata = {
     "Giới thiệu & Dataset",
     "Trung bình (Mean)",
     "Trung vị (Median)",
-    "Yếu vị (Mode)"
+    "Yếu vị (Mode)",
+    "Histogram & Nhận xét",
+    "Tổng kết: So sánh ba thước đo"
   ],
   "keywords": [
     "thống kê mô tả",
@@ -21,7 +23,7 @@ export const lessonMetadata = {
     "pandas",
     "scipy"
   ],
-  "pageCount": 4
+  "pageCount": 6
 }
 
 <MdxPage page={0}>
@@ -58,7 +60,7 @@ Hãy xem xét bộ dữ liệu ghi lại **độ trễ phản hồi (inference l
 Từ bộ dữ liệu này, ta có 3 câu hỏi cần trả lời:
 
 1. *Độ trễ **trung bình** của 10 yêu cầu là bao nhiêu?*
-2. *Mức trễ **ở giữa** nếu loại bỏ cực đoan là bao nhiêu?*
+2. *Mức trễ "trung bình" nếu loại bỏ giá trị cực đoan là bao nhiêu?*
 3. *Độ trễ nào xảy ra **thường xuyên nhất**?*
 
 ---
@@ -71,14 +73,6 @@ Từ bộ dữ liệu này, ta có 3 câu hỏi cần trả lời:
 data = [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
 ```
 
-**1. In dữ liệu:**
-```python
-print(f"Dữ liệu: {data}")
-```
-```output
-Dữ liệu: [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
-```
-
 **2. Số lượng phần tử:**
 ```python
 print(f"Số lượng phần tử: {len(data)}")
@@ -87,19 +81,13 @@ print(f"Số lượng phần tử: {len(data)}")
 Số lượng phần tử: 10
 ```
 
-**3. Giá trị nhỏ nhất (Min):**
+**3. Giá trị nhỏ nhất (Min) và lớn nhất (Max):**
 ```python
 print(f"Giá trị nhỏ nhất: {min(data)} ms")
-```
-```output
-Giá trị nhỏ nhất: 12 ms
-```
-
-**4. Giá trị lớn nhất (Max):**
-```python
 print(f"Giá trị lớn nhất: {max(data)} ms")
 ```
 ```output
+Giá trị nhỏ nhất: 12 ms
 Giá trị lớn nhất: 30 ms
 ```
 
@@ -180,7 +168,7 @@ Giả sử yêu cầu thứ 10 gặp sự cố mạng, độ trễ vọt lên **
   ]}
 />
 
-<LessonNote label="Hạn chế cốt lõi của Trung bình" tone="warning">
+<LessonNote label="Hạn chế của Trung bình" tone="warning">
 
 Chỉ duy nhất **1 yêu cầu bị lỗi (300 ms)** đã kéo độ trễ trung bình của toàn hệ thống từ **18 ms** vọt lên **45 ms**! Mặc dù 9/10 người dùng thực tế vẫn phản hồi rất nhanh (dưới 30 ms), con số trung bình 45 ms tạo ra cảm giác hệ thống bị chậm. Để giải quyết hạn chế này, ta cần dùng thước đo **Trung vị (Median)** ở Trang 3.
 
@@ -340,11 +328,76 @@ scipy   : 12 ms (lặp 3 lần)
 
 </MdxColumns>
 
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Histogram & Nhận xét Mean, Median và Mode
+
+Histogram dưới đây biểu diễn tần số của từng mức độ trễ với **bin rộng 1 ms**. Ba đường dọc đánh dấu vị trí của **Mode**, **Median** và **Mean** trên cùng một trục.
+
+<ProbabilityChapterVisual kind="descriptive-center-histogram" />
+
 ---
 
-<LessonNote label="Tổng kết: So sánh ba thước đo">
+<MdxColumns>
 
-Với bộ dữ liệu `X = {12, 15, 12, 18, 20, 12, 22, 15, 30, 24}`:
+<div>
+
+### Vẽ bằng Python
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+data = [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
+
+mean = np.mean(data)
+median = np.median(data)
+mode = stats.mode(data, keepdims=True).mode[0]
+
+bins = np.arange(min(data) - 0.5, max(data) + 1.5, 1)
+plt.hist(data, bins=bins, edgecolor="white")
+plt.axvline(mode, label=f"Mode = {mode} ms")
+plt.axvline(median, label=f"Median = {median} ms")
+plt.axvline(mean, label=f"Mean = {mean} ms")
+plt.xlabel("Độ trễ phản hồi (ms)")
+plt.ylabel("Tần số")
+plt.legend()
+plt.show()
+```
+
+</div>
+
+<div>
+
+### Đọc biểu đồ
+
+- **Mode = 12 ms:** cột tại 12 ms cao nhất, với 3 lần xuất hiện.
+- **Median = 16.5 ms:** nằm giữa 15 ms và 18 ms, chia 10 quan sát thành hai nửa.
+- **Mean = 18 ms:** nằm bên phải Median vì giá trị 30 ms kéo điểm cân bằng về phía các giá trị lớn.
+- Thứ tự <MdxFormula inline formula={"\\text{Mode} < \\text{Median} < \\text{Mean}"} /> cho thấy mẫu có **đuôi phải dài hơn**. Tuy nhiên, với chỉ 10 quan sát, ta nên xem đây là nhận xét về bộ dữ liệu hiện tại thay vì kết luận chắc chắn về toàn bộ phân phối.
+
+</div>
+
+</MdxColumns>
+
+---
+
+### Đối chiếu với phân phối chuẩn lý tưởng
+
+Khi phân phối có dạng chuông và hoàn toàn đối xứng, Mean, Median và Mode không còn nằm ở ba vị trí khác nhau mà cùng hội tụ tại tâm.
+
+<ProbabilityChapterVisual kind="ideal-normal-center" />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Tổng kết: So sánh ba thước đo
+
+Với bộ dữ liệu X = {12, 15, 12, 18, 20, 12, 22, 15, 30, 24}:
 
 <MdxTable
   caption="So sánh ba thước đo xu hướng trung tâm"
@@ -355,7 +408,5 @@ Với bộ dữ liệu `X = {12, 15, 12, 18, 20, 12, 22, 15, 30, 24}`:
     ["Mode (Yếu vị)", "12 ms", "Không bị ảnh hưởng", "Dữ liệu định tính, kích cỡ phổ biến nhất"]
   ]}
 />
-
-</LessonNote>
 
 </MdxPage>

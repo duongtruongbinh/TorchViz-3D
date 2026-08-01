@@ -27,10 +27,10 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 92 tracks, and 719 lesson nodes. It has 168
+The catalog contains 13 domains, 92 tracks, and 720 lesson nodes. It has 170
 authored locale MDX files, including forty-nine Vietnamese-first lessons in
-`llm-ai-engineering`, four Vietnamese CV exercises, and one hundred one Vietnamese
-lessons in Probability & Statistics (`statistics`). The other 551 nodes are
+`llm-ai-engineering`, four Vietnamese CV exercises, and one hundred four Vietnamese
+lessons in Probability & Statistics (`statistics`). The other 550 nodes are
 navigable placeholders and render one shared localized “content in progress”
 message. They do not carry legacy theory or practice payloads.
 
@@ -107,11 +107,11 @@ catalog entry-point metadata and open the canonical lesson route.
 
 Probability & Statistics is the display name of the canonical `statistics`
 domain, which remains separate from `math-statistics-ai`. It has eight tracks,
-117 lesson nodes, 102 published Vietnamese lessons, and 347 ordered lesson
+118 lesson nodes, 104 published Vietnamese lessons, and 357 ordered lesson
 pages. Its first seven tracks form the applied-statistics core: probability;
 statistical thinking; descriptive statistics and point estimation; statistical
 inference; regression analysis; design of experiments; and statistical quality
-control. Fifteen missing-content nodes make the forthcoming estimation,
+control. Fourteen missing-content nodes make the forthcoming estimation,
 inference, experimental-design, and quality-control sequence explicit without
 claiming it is already authored. The eighth track,
 `statistical-learning-extensions`, keeps classification, dimension reduction,
@@ -249,8 +249,8 @@ Vietnamese-diacritic-insensitive.
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
-| `src/content/learning/statistics/table-of-contents.ts` | Probability & Statistics manifest with seven core tracks, one Statistical Learning Extensions track, 102 published lessons, fifteen explicit missing-content nodes, route aliases, and compact search mode. |
-| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 102 published lesson ids and 347 ordered pages. |
+| `src/content/learning/statistics/table-of-contents.ts` | Probability & Statistics manifest with seven core tracks, one Statistical Learning Extensions track, 104 published lessons, fourteen explicit missing-content nodes, route aliases, and compact search mode. |
+| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 104 published lesson ids and 357 ordered pages. |
 | `src/components/learning/domains/statistics/mdxComponents.tsx` | Statistics-only MDX adapter for responsive `ProbabilityChapterVisual` diagrams and deterministic embedded Statistical Thinking interactions. |
 | `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
@@ -336,7 +336,7 @@ remain green so progress continues to take precedence.
   state/reset, locale fallback, authored search text, and light-only runtime
   behavior.
 - Probability & Statistics retains the canonical `statistics` domain id with
-  102 Vietnamese authored MDX lessons, 347 ordered pages, seven core
+  104 Vietnamese authored MDX lessons, 357 ordered pages, seven core
   applied-statistics tracks, and a separate optional Statistical Learning
   Extensions track; other UI locales render the Vietnamese source through the
   registry's available-locale fallback.
