@@ -3,12 +3,19 @@ import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxCont
 export const CV_MDX_COMPONENT_NAMES = ['CvExercise'] as const;
 
 export const STATISTICS_MDX_COMPONENT_NAMES = [
+  'CorrelationMatrixExplorer',
+  'CovarianceConceptVisual',
+  'CovarianceMatrixExplorer',
   'HistogramBinComparison',
   'HistogramBinExplorer',
   'HistogramConstructionVisual',
   'HistogramReadingInteraction',
   'HistogramRulesVisual',
   'HistogramShapeVisual',
+  'JointMarginalConceptVisual',
+  'MarginalProjectionExplorer',
+  'MultivariateNormalConceptVisual',
+  'MultivariateNormalExplorer',
   'NormalDistributionVisual',
   'NormalParameterExplorer',
   'PopulationSampleObservationOverview',

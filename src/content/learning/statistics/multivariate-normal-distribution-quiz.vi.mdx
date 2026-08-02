@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'multivariate-normal-distribution-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Thông số Phân phối chuẩn nhiều chiều', 'Hình dạng Contour', 'Độc lập trong Joint Gaussian', 'Khoảng cách Mahalanobis'],
+  keywords: ['multivariate normal', 'gaussian', 'mahalanobis', 'covariance matrix', 'contour'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="multivariate-normal-distribution-quiz" questions={[
+  {
+    id: 'multivariate-normal-params', title: 'Thông số Phân phối chuẩn nhiều chiều', prompt: 'Phân phối chuẩn $d$-chiều $\\mathcal{N}(\\boldsymbol{\\mu}, \\boldsymbol{\\Sigma})$ được xác định hoàn toàn bởi hai tham số nào?', mode: 'single',
+    options: [
+      { id: 'mean-vector-cov-matrix', label: 'Vector trung bình $\\boldsymbol{\\mu} \\in \\mathbb{R}^d$ và Ma trận Covariance $\\boldsymbol{\\Sigma} \\in \\mathbb{R}^{d \\times d}$.', isCorrect: true },
+      { id: 'scalar-mean-var', label: 'Một con số trung bình và một con số phương sai.' },
+      { id: 'median-vector-iqr', label: 'Vector trung vị và khoảng tứ phân vị.' },
+      { id: 'eigen-values-only', label: 'Chỉ gồm các trị riêng (eigenvalues).' }
+    ],
+    success: 'Đúng. Phân phối chuẩn nhiều chiều được xác định duy nhất bởi vector trung bình $\\boldsymbol{\\mu}$ và ma trận covariance $\\boldsymbol{\\Sigma}$.',
+    error: 'Chưa đúng. Cần một vector tâm $\\boldsymbol{\\mu}$ và ma trận ma trận độ phân tán/tương quan $\\boldsymbol{\\Sigma}$.'
+  },
+  {
+    id: 'contour-shape-and-covariance', title: 'Hình dạng Contour', prompt: 'Nếu ma trận covariance là $\\boldsymbol{\\Sigma} = \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix} = \\mathbf{I}$, các đường đẳng mật độ (contour) của $f(x, y)$ có dạng hình gì?', mode: 'single',
+    options: [
+      { id: 'perfect-circles', label: 'Các đường tròn đồng tâm hoàn hảo (đẳng hướng).', isCorrect: true },
+      { id: 'tilted-ellipse', label: 'Các hình Ellipse nghiêng góc 45 độ.' },
+      { id: 'horizontal-ellipse', label: 'Hình Ellipse dẹt theo chiều ngang.' },
+      { id: 'square-contours', label: 'Hình vuông đồng tâm.' }
+    ],
+    success: 'Đúng. Khi phương sai hai chiều bằng nhau (1) và covariance bằng 0, độ phân tán là đẳng hướng (isotropic), tạo ra contour đường tròn.',
+    error: 'Chưa đúng. Ma trận đơn vị $I$ cho phương sai hai chiều như nhau và không tương quan, tạo đường tròn đồng tâm.'
+  },
+  {
+    id: 'uncorrelated-vs-independent-gaussian', title: 'Độc lập trong Joint Gaussian', prompt: 'Với hai biến $X$ và $Y$ tuân theo Phân phối chuẩn đồng thời (Joint Gaussian), điều kiện $\\operatorname{Cov}(X, Y) = 0$ suy ra điều gì?', mode: 'single',
+    options: [
+      { id: 'independent-in-gaussian', label: '$X$ và $Y$ độc lập hoàn toàn ($X \\perp Y$).', isCorrect: true },
+      { id: 'not-enough-for-independence', label: '$X$ và $Y$ chỉ không tương quan chứ chưa chắc độc lập.' },
+      { id: 'must-have-equal-variance', label: 'Phương sai của $X$ phải bằng phương sai của $Y$.' },
+      { id: 'joint-density-is-zero', label: 'Hàm mật độ đồng thời bằng 0.' }
+    ],
+    success: 'Đúng. Đây là tính chất ĐẶC BIỆT của Joint Gaussian: không tương quan ($\operatorname{Cov}=0$) tương đương với độc lập hoàn toàn ($X \\perp Y$). Tính chất này KHÔNG đúng cho các phân phối phi Gaussian nói chung.',
+    error: 'Chưa đúng. Với Joint Gaussian, $\\operatorname{Cov}(X, Y) = 0 \\iff X \\perp Y$.'
+  },
+  {
+    id: 'mahalanobis-vs-euclidean', title: 'Khoảng cách Mahalanobis', prompt: 'Điểm khác biệt chính giữa Mahalanobis Distance và Euclidean Distance là gì?', mode: 'single',
+    options: [
+      { id: 'mahalanobis-considers-covariance', label: 'Mahalanobis distance chuẩn hóa khoảng cách theo ma trận covariance (tính đến độ phân tán và tương quan của dữ liệu).', isCorrect: true },
+      { id: 'euclidean-always-larger', label: 'Euclidean distance luôn lớn hơn Mahalanobis distance.' },
+      { id: 'mahalanobis-ignores-direction', label: 'Mahalanobis distance không quan tâm đến vị trí tâm $\\boldsymbol{\\mu}$.' },
+      { id: 'same-definition', label: 'Hai khoảng cách hoàn toàn giống nhau trong mọi trường hợp.' }
+    ],
+    success: 'Đúng. $D_M(\\mathbf{x}) = \\sqrt{(\\mathbf{x}-\\boldsymbol{\\mu})^\\top \\boldsymbol{\\Sigma}^{-1} (\\mathbf{x}-\\boldsymbol{\\mu})}$ điều chỉnh độ xa dựa trên độ phân tán của đám mây dữ liệu.',
+    error: 'Chưa đúng. Mahalanobis distance sử dụng $\\boldsymbol{\\Sigma}^{-1}$ để tính khoảng cách có tính đến độ co giãn và góc nghiêng của dữ liệu.'
+  }
+]} />

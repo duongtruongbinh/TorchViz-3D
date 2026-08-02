@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'mean-vector-covariance-matrix-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Kích thước ma trận Covariance', 'Đọc ma trận Covariance', 'Ý nghĩa dấu của Covariance', 'Tham số rowvar trong np.cov'],
+  keywords: ['mean vector', 'covariance', 'covariance matrix', 'rowvar', 'numpy'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="mean-vector-covariance-matrix-quiz" questions={[
+  {
+    id: 'covariance-matrix-shape', title: 'Kích thước ma trận Covariance', prompt: 'Một tập dữ liệu có $n=100$ quan sát và $d=4$ đặc trưng (features). Ma trận Covariance có kích thước bằng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'four-by-four', label: '$4 \\times 4\\ (d \\times d)$', isCorrect: true },
+      { id: 'hundred-by-four', label: '$100 \\times 4\\ (n \\times d)$' },
+      { id: 'hundred-by-hundred', label: '$100 \\times 100\\ (n \\times n)$' },
+      { id: 'four-by-hundred', label: '$4 \\times 100$' }
+    ],
+    success: 'Đúng. Ma trận Covariance đo quan hệ giữa từng cặp đặc trưng nên luôn có kích thước $d \\times d$.',
+    error: 'Chưa đúng. Kích thước ma trận Covariance phụ thuộc vào số đặc trưng $d$, không phụ thuộc vào số lượng mẫu $n$.'
+  },
+  {
+    id: 'reading-covariance-matrix', title: 'Đọc ma trận Covariance', prompt: 'Cho ma trận Covariance $\\boldsymbol{\\Sigma} = \\begin{bmatrix} 4.0 & -1.5 \\\\ -1.5 & 9.0 \\end{bmatrix}$. Nhận định nào đúng?', mode: 'single',
+    options: [
+      { id: 'correct-interpretation', label: 'Phương sai của X1 là 4.0, phương sai của X2 là 9.0, và Covariance giữa X1 và X2 là -1.5.', isCorrect: true },
+      { id: 'swapped-variances', label: 'Phương sai của X1 là 9.0, phương sai của X2 là 4.0.' },
+      { id: 'covariance-positive', label: 'X1 và X2 có mối quan hệ đồng biến dương.' },
+      { id: 'off-diagonal-variance', label: 'Phần tử ngoài đường chéo (-1.5) đại diện cho phương sai của X1.' }
+    ],
+    success: 'Đúng. Các phần tử trên đường chéo chính ($\\Sigma_{11}=4.0, \\Sigma_{22}=9.0$) là phương sai từng biến; phần tử ngoài đường chéo ($-1.5$) là covariance.',
+    error: 'Chưa đúng. Các số trên đường chéo chính là phương sai; các số ngoài đường chéo là hiệp phương sai.'
+  },
+  {
+    id: 'covariance-sign-meaning', title: 'Ý nghĩa dấu của Covariance', prompt: 'Nếu $\\operatorname{Cov}(X, Y) > 0$, điều này thể hiện xu hướng gì giữa hai biến?', mode: 'single',
+    options: [
+      { id: 'positive-trend', label: 'Khi X tăng, Y cũng có xu hướng tăng theo.', isCorrect: true },
+      { id: 'negative-trend', label: 'Khi X tăng, Y có xu hướng giảm đi.' },
+      { id: 'no-relationship', label: 'X và Y hoàn toàn độc lập với nhau.' },
+      { id: 'equal-values', label: 'Giá trị của X luôn bằng giá trị của Y.' }
+    ],
+    success: 'Đúng. Covariance dương cho biết hai biến có xu hướng biến thiên cùng chiều.',
+    error: 'Chưa đúng. Covariance dương nghĩa là khi một biến cao hơn trung bình của nó, biến kia cũng có xu hướng cao hơn trung bình.'
+  },
+  {
+    id: 'np-cov-rowvar-check', title: 'Tham số rowvar trong np.cov', prompt: 'Với bảng dữ liệu `X` có dạng `(n_samples, n_features)` = `(100, 3)`, để tính ma trận covariance $3 \\times 3$, lệnh NumPy nào đúng?', mode: 'single',
+    options: [
+      { id: 'rowvar-false', label: '`np.cov(X, rowvar=False)`', isCorrect: true },
+      { id: 'default-rowvar', label: '`np.cov(X)` (mặc định)' },
+      { id: 'rowvar-true', label: '`np.cov(X, rowvar=True)`' },
+      { id: 'transpose-rowvar-false', label: '`np.cov(X.T, rowvar=False)`' }
+    ],
+    success: 'Đúng. `np.cov` mặc định xem mỗi HÀNG là một feature (`rowvar=True`). Vì vậy khi dữ liệu có định dạng chuẩn (hàng là mẫu, cột là feature), ta phải truyền `rowvar=False`.',
+    error: 'Chưa đúng. NumPy mặc định `rowvar=True` xem hàng là biến. Để chỉ định cột là biến, cần truyền `rowvar=False`.'
+  }
+]} />

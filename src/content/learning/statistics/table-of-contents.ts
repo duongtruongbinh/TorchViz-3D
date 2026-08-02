@@ -175,6 +175,15 @@ const sourceChapters = [
         },
         "status": "available",
         "contentStatus": "published"
+      },
+      {
+        "id": "ch01-probability-summary-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
+        },
+        "status": "available",
+        "contentStatus": "published"
       }
     ]
   },
@@ -1210,19 +1219,73 @@ const chapters = [
         contentStatus: 'published',
       },
       {
+        id: 'variance-standard-deviation-quiz',
+        title: { en: 'Quiz', vi: 'Quiz' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'mean-vector-covariance-matrix',
+        title: { en: '3.4 Mean Vector, Covariance & Covariance Matrix', vi: '3.4 Vector trung bình, Covariance & Ma trận Covariance (Mean Vector, Covariance & Covariance Matrix)' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'mean-vector-covariance-matrix-quiz',
+        title: { en: 'Quiz', vi: 'Quiz' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'joint-marginal-correlation',
+        title: { en: '3.5 Joint Distribution, Marginal Distribution & Correlation', vi: '3.5 Phân phối đồng thời, Phân phối biên & Tương quan (Joint Distribution, Marginal Distribution & Correlation)' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
         id: 'normal-distribution',
-        title: { en: '3.4 Normal Distribution', vi: '3.4 Phân phối chuẩn (Normal Distribution)' },
+        title: { en: '3.6 Normal Distribution', vi: '3.6 Phân phối chuẩn (Normal Distribution)' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'normal-distribution-quiz',
+        title: { en: 'Quiz', vi: 'Quiz' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'multivariate-normal-distribution',
+        title: { en: '3.7 Multivariate Normal Distribution', vi: '3.7 Phân phối chuẩn nhiều chiều (Multivariate Normal Distribution)' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'multivariate-normal-distribution-quiz',
+        title: { en: 'Quiz', vi: 'Quiz' },
         status: 'available',
         contentStatus: 'published',
       },
       {
         id: 'point-estimation',
-        title: { en: '3.5 Point Estimation', vi: '3.5 Ước lượng điểm' },
+        title: { en: '3.8 Point Estimation', vi: '3.8 Ước lượng điểm' },
         status: 'available',
         contentStatus: 'published',
       },
-      missingLesson('sampling-distributions-standard-errors', '3.6 Sampling Distributions and Standard Errors', '3.6 Phân phối lấy mẫu và sai số chuẩn'),
-      retitle(getLesson('ch02-python-introduction-lab'), '3.7 Lab: Python for Statistical Work', '3.7 Lab: Python cho công việc thống kê'),
+      {
+        id: 'point-estimation-quiz',
+        title: { en: 'Quiz', vi: 'Quiz' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'ch03-descriptive-statistics-summary-quiz',
+        title: { en: 'Quiz', vi: 'Quiz' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      missingLesson('sampling-distributions-standard-errors', '3.9 Sampling Distributions and Standard Errors', '3.9 Phân phối lấy mẫu và sai số chuẩn'),
+      retitle(getLesson('ch02-python-introduction-lab'), '3.10 Lab: Python for Statistical Work', '3.10 Lab: Python cho công việc thống kê'),
     ],
   },
   {

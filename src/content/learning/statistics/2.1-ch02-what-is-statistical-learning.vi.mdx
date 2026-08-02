@@ -9,7 +9,8 @@ export const lessonMetadata = {
     "2.1.2 Ước lượng f như thế nào?",
     "2.1.3 Đánh đổi giữa độ chính xác dự đoán và khả năng diễn giải mô hình",
     "2.1.4 Học có giám sát so với học không giám sát",
-    "2.1.5 Bài toán hồi quy so với phân loại"
+    "2.1.5 Bài toán hồi quy so với phân loại",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "thống kê",
@@ -18,7 +19,7 @@ export const lessonMetadata = {
     "Học thống kê",
     "Học thống kê là gì?"
   ],
-  "pageCount": 6
+  "pageCount": 7
 }
 
 <MdxPage page={0}>
@@ -202,5 +203,27 @@ phép đo biến đáp ứng. Với _n − m_ quan sát còn lại, ta có phép
 Biến có thể được mô tả là _định lượng_ hoặc _định tính_ (còn gọi là _phân loại_). Biến định lượng nhận giá trị số. Ví dụ gồm tuổi, chiều cao hoặc thu nhập của một người, giá trị căn nhà và giá cổ phiếu. Ngược lại, biến định tính nhận giá trị thuộc một trong _K_ _lớp_ hay nhóm khác nhau. Ví dụ gồm tình trạng hôn nhân (đã kết hôn hay chưa), nhãn hiệu sản phẩm đã mua (A, B hoặc C), một người có vỡ nợ hay không (có hoặc không), hay chẩn đoán ung thư (bạch cầu cấp dòng tủy, bạch cầu cấp dòng lympho hoặc không mắc bệnh bạch cầu). Ta thường gọi bài toán có biến đáp ứng định lượng là bài toán _hồi quy_, còn bài toán có biến đáp ứng định tính là bài toán _phân loại_. Tuy nhiên, sự phân biệt không phải lúc nào cũng rạch ròi. Hồi quy tuyến tính bình phương tối thiểu (Chương 3) được dùng với biến đáp ứng định lượng, còn hồi quy logistic (Chương 4) thường dùng với biến đáp ứng định tính (hai lớp hay _nhị phân_). Vì vậy, bất chấp tên gọi, hồi quy logistic là một phương pháp phân loại. Nhưng vì nó ước lượng xác suất lớp, cũng có thể xem nó là một phương pháp hồi quy. Một số phương pháp thống kê như _K_ láng giềng gần nhất (Chương 2 và 4) và boosting (Chương 8) có thể dùng với cả biến đáp ứng định lượng lẫn định tính.
 
 Ta thường chọn phương pháp học thống kê dựa trên biến đáp ứng là định lượng hay định tính; tức có thể dùng hồi quy tuyến tính khi định lượng và hồi quy logistic khi định tính. Tuy nhiên, việc _biến dự báo_ là định tính hay định lượng nhìn chung ít quan trọng hơn. Hầu hết phương pháp học thống kê trong sách có thể áp dụng bất kể kiểu biến dự báo, miễn là mọi biến dự báo định tính được _mã hóa_ đúng trước khi phân tích. Nội dung này được thảo luận trong Chương 3.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 2.1">
+
+- **Mô hình tổng quát**: <MdxFormula inline formula={"Y = f(X) + \\\\epsilon"} />, với <MdxFormula inline formula={"X"} /> là tập các biến dự báo, <MdxFormula inline formula={"Y"} /> là biến đáp ứng, và <MdxFormula inline formula={"\\\\epsilon"} /> là sai số ngẫu nhiên.
+- **Mục tiêu của việc ước lượng <MdxFormula inline formula={"f"} />**:
+  - **Dự đoán** (*Prediction*): Dự đoán <MdxFormula inline formula={"\\\\hat{Y} = \\\\hat{f}(X)"} /> cho dữ liệu mới. Sai số gồm **sai số giảm được** (do chọn mô hình <MdxFormula inline formula={"\\\\hat{f}"} />) và **sai số không thể giảm** <MdxFormula inline formula={"\\\\text{Var}(\\\\epsilon)"} />.
+  - **Suy luận** (*Inference*): Hiểu rõ mối liên hệ giữa các <MdxFormula inline formula={"X_j"} /> và <MdxFormula inline formula={"Y"} /> (biến nào quan trọng, hướng tác động dương/âm, dạng tuyến tính hay phi tuyến).
+- **Phương pháp Tham số vs Phi tham số**:
+  - **Tham số** (*Parametric*): Giả định trước dạng hàm của <MdxFormula inline formula={"f"} /> (như tuyến tính) <MdxFormula inline formula={"\\rightarrow"} /> Đơn giản hóa thành ước lượng các hệ số, nhưng dễ bị sai mô hình.
+  - **Phi tham số** (*Non-parametric*): Không giả định trước dạng hàm <MdxFormula inline formula={"\\rightarrow"} /> Linh hoạt hơn, nhưng cần cỡ mẫu rất lớn để tránh quá khớp (*overfitting*).
+- **Đánh đổi Linh hoạt vs Khả năng diễn giải**: Mô hình càng linh hoạt (như Neural Networks, Boosting) thì dự đoán càng tốt nhưng càng khó diễn giải (hộp đen). Mô hình kém linh hoạt (như Hồi quy tuyến tính, Lasso) thì dễ diễn giải hơn.
+- **Phân loại bài toán**:
+  - **Học có giám sát** (*Supervised*) vs **Học không giám sát** (*Unsupervised*).
+  - **Hồi quy** (*Regression* - <MdxFormula inline formula={"Y"} /> định lượng) vs **Phân loại** (*Classification* - <MdxFormula inline formula={"Y"} /> định tính).
+
+</LessonNote>
 
 </MdxPage>

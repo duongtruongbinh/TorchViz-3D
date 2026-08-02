@@ -8,25 +8,37 @@ export const lessonMetadata = {
     "Ba quy tắc của một mô hình xác suất",
     "Xác suất cổ điển",
     "Xác suất của biến cố đối",
-    "Quy tắc cộng"
+    "Quy tắc cộng",
+    "Tính xác suất bằng Python",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "xác suất",
     "mô hình xác suất",
     "xác suất cổ điển",
     "biến cố đối",
-    "quy tắc cộng"
+    "quy tắc cộng",
+    "python"
   ],
-  "pageCount": 5
+  "pageCount": 7
 }
 
 <MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập">
+
+Sau bài này, bạn sẽ:
+- Giải thích được ý nghĩa của **xác suất** (*probability*) <MdxFormula inline formula={"P(A)"} /> là một giá trị trong đoạn <MdxFormula inline formula={"[0, 1]"} />.
+- Phát biểu 3 **tiên đề xác suất** (*axioms of probability*) cho một mô hình xác suất hợp lệ.
+- Tính xác suất theo định nghĩa **xác suất cổ điển** (*classical probability*) và áp dụng **quy tắc cộng** (*addition rule*).
+
+</LessonNote>
 
 ## Xác suất đo điều gì?
 
 Ta đã biết biến cố “xúc xắc xuất hiện mặt chẵn” là <MdxFormula inline formula={"A=\\{2,4,6\\}"} />. Bây giờ cần một con số để trả lời: biến cố này có khả năng xảy ra đến đâu?
 
-**Xác suất** của biến cố <MdxFormula inline formula={"A"} />, ký hiệu <MdxFormula inline formula={"P(A)"} />, là một số từ 0 đến 1:
+**Xác suất** (*probability*) của biến cố <MdxFormula inline formula={"A"} />, ký hiệu <MdxFormula inline formula={"P(A)"} />, là một số từ 0 đến 1:
 
 <ProbabilityChapterVisual kind="axioms" />
 
@@ -44,7 +56,7 @@ Với một đồng xu cân đối, đặt <MdxFormula inline formula={"S"} /> l
 
 ## Ba quy tắc của một mô hình xác suất
 
-Không thể gán các con số bất kỳ cho các biến cố. Một mô hình xác suất hợp lệ phải giữ ba quy tắc sau:
+Không thể gán các con số bất kỳ cho các biến cố. Một **mô hình xác suất** (*probability model*) hợp lệ phải giữ ba quy tắc (tiên đề xác suất) sau:
 
 1. Xác suất không âm:
 
@@ -66,11 +78,11 @@ Từ ba quy tắc này, ta suy ra <MdxFormula inline formula={"0\\le P(A)\\le 1"
 
 ## Xác suất cổ điển
 
-Với một xúc xắc lý tưởng, sáu kết quả 1 đến 6 được xem là **đồng khả năng**. Biến cố <MdxFormula inline formula={"A=\\{2,4,6\\}"} /> có ba kết quả thuận lợi trong tổng số sáu kết quả:
+Với một xúc xắc lý tưởng, sáu kết quả 1 đến 6 được xem là **đồng khả năng** (*equally likely*). Biến cố <MdxFormula inline formula={"A=\\{2,4,6\\}"} /> có ba kết quả thuận lợi trong tổng số sáu kết quả:
 
 <MdxFormula formula={"P(A)=\\frac{|A|}{|\\Omega|}=\\frac{3}{6}=\\frac{1}{2}"} />
 
-Tổng quát, khi không gian mẫu hữu hạn và mọi kết quả sơ cấp đồng khả năng:
+Tổng quát, **xác suất cổ điển** (*classical probability*) được tính bằng tỷ lệ:
 
 <MdxFormula formula={"P(A)=\\frac{|A|}{|\\Omega|}"} />
 
@@ -119,5 +131,57 @@ Trong ví dụ này:
 <MdxFormula formula={"P(A\\cup B)=\\frac{3}{6}+\\frac{2}{6}-\\frac{1}{6}=\\frac{4}{6}=\\frac{2}{3}"} />
 
 Nếu <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> xung khắc thì <MdxFormula inline formula={"P(A\\cap B)=0"} />, nên công thức rút gọn thành <MdxFormula inline formula={"P(A\\cup B)=P(A)+P(B)"} />.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Tính xác suất bằng Python
+
+Dưới đây là đoạn code tính xác suất cổ điển và quy tắc cộng cho ví dụ xúc xắc:
+
+```python
+omega = {1, 2, 3, 4, 5, 6}
+A = {2, 4, 6}   # Mặt chẵn
+B = {5, 6}      # Mặt > 4
+A_inter_B = A & B
+
+p_A = len(A) / len(omega)
+p_B = len(B) / len(omega)
+p_inter = len(A_inter_B) / len(omega)
+
+# Quy tắc cộng: P(A ∪ B) = P(A) + P(B) - P(A ∩ B)
+p_union = p_A + p_B - p_inter
+print(f"P(A) = {p_A:.4f}")
+print(f"P(B) = {p_B:.4f}")
+print(f"P(A ∩ B) = {p_inter:.4f}")
+print(f"P(A ∪ B) = {p_union:.4f} ({len(A | B)}/{len(omega)})")
+```
+
+```output
+P(A) = 0.5000
+P(B) = 0.3333
+P(A ∩ B) = 0.1667
+P(A ∪ B) = 0.6667 (4/6)
+```
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 1.3">
+
+- **Định nghĩa xác suất**: Giá trị <MdxFormula inline formula={"P(A) \\in [0, 1]"} /> đo lường khả năng xảy ra của biến cố <MdxFormula inline formula={"A"} />.
+- **Ba tiên đề xác suất (Kolmogorov)**:
+  1. Không âm: <MdxFormula inline formula={"P(A) \\ge 0"} />.
+  2. Chuẩn hóa: <MdxFormula inline formula={"P(\\\\Omega) = 1"} />.
+  3. Cộng tính: Nếu <MdxFormula inline formula={"A \\\\cap B = \\\\varnothing"} /> thì <MdxFormula inline formula={"P(A \\\\cup B) = P(A) + P(B)"} />.
+- **Xác suất cổ điển**: <MdxFormula inline formula={"P(A) = \\\\frac{|A|}{|\\\\Omega|}"} /> (chỉ dùng khi các kết quả sơ cấp đồng khả năng).
+- **Biến cố đối**: <MdxFormula inline formula={"P(A^c) = 1 - P(A)"} />.
+- **Quy tắc cộng tổng quát**: <MdxFormula inline formula={"P(A \\\\cup B) = P(A) + P(B) - P(A \\\\cap B)"} />.
+
+</LessonNote>
 
 </MdxPage>

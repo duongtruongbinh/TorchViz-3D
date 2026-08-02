@@ -6,7 +6,8 @@ export const lessonMetadata = {
   "headings": [
     "Thống kê là gì?",
     "Câu hỏi nghiên cứu & kinh doanh",
-    "Phân loại thống kê"
+    "Phân loại thống kê",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "thống kê",
@@ -17,10 +18,19 @@ export const lessonMetadata = {
     "ước lượng",
     "kiểm định giả thuyết"
   ],
-  "pageCount": 3
+  "pageCount": 4
 }
 
 <MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập">
+
+Sau bài này, bạn sẽ:
+- Giải thích định nghĩa của **Thống kê** (*Statistics*) và vai trò của **sự biến động** (*variability*) trong dữ liệu.
+- Phân biệt hai nhánh chính: **Thống kê mô tả** (*descriptive statistics*) và **Thống kê suy luận** (*inferential statistics*).
+- Nhận biết các dạng câu hỏi nghiên cứu và kinh doanh có thể giải quyết bằng thống kê.
+
+</LessonNote>
 
 ## Thống kê là gì?
 
@@ -146,5 +156,21 @@ Hai nhánh chính của thống kê khác nhau ở phạm vi câu hỏi: một n
     "Chương 4 · Suy luận thống kê"
   ]}
 />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 2.0">
+
+- **Thống kê** (*Statistics*): Khoa học thu thập, trình bày, phân tích và đưa ra quyết định dựa trên bằng chứng dữ liệu trong điều kiện có **sự biến động** (*variability*).
+- **Hai nhánh thống kê chính**:
+  - **Thống kê mô tả** (*Descriptive Statistics*): Tổ chức, tóm tắt và hiển thị trực quan các đặc trưng của dữ liệu đã quan sát (dùng trung bình, trung vị, histogram, boxplot).
+  - **Thống kê suy luận** (*Inferential Statistics*): Dùng dữ liệu mẫu nhỏ để suy rộng, ước lượng tham số và kiểm định giả thuyết cho toàn bộ quần thể.
+- **Tư duy dựa trên bằng chứng**: Mọi phân tích thống kê đều phải bắt đầu từ một câu hỏi thực tế (nghiên cứu, kỹ thuật, kinh doanh hoặc học máy).
+
+</LessonNote>
 
 </MdxPage>

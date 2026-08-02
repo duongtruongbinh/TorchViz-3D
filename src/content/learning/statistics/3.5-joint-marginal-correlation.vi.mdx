@@ -1,0 +1,666 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'joint-marginal-correlation',
+  locale: 'vi',
+  title: '3.5 Phân phối đồng thời, Phân phối biên & Tương quan (Joint Distribution, Marginal Distribution & Correlation)',
+  headings: [
+    'Từ từng biến riêng sang phân phối chung',
+    'Joint distribution',
+    'Joint distribution không chỉ là scatter plot',
+    'Marginal distribution là gì?',
+    'Chiếu dữ liệu xuống từng trục',
+    'Marginal mean và marginal variance',
+    'Marginal không giống conditional',
+    'Tại sao covariance chưa đủ?',
+    'Correlation',
+    'Đọc dấu của correlation',
+    'Độ lớn của correlation',
+    'Correlation chỉ đo quan hệ tuyến tính',
+    'Correlation không đồng nghĩa causation',
+    'Correlation matrix',
+    'Standardization và correlation',
+    'Code: joint và marginal distributions',
+    'Code: marginal statistics',
+    'Code: covariance và correlation',
+    'Code: kiểm tra correlation không đổi khi đổi đơn vị',
+    'Code: quan hệ phi tuyến nhưng correlation gần 0',
+    'Mini interaction: tạo marginal distributions',
+    'Mini interaction: correlation',
+    'Những lỗi thường gặp',
+  ],
+  keywords: [
+    'joint distribution',
+    'marginal distribution',
+    'conditional distribution',
+    'pearson correlation',
+    'correlation matrix',
+    'standardization',
+    'multivariate normal',
+    'numpy corrcoef',
+  ],
+  pageCount: 23,
+};
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập">
+
+Sau bài này, bạn sẽ:
+- Phân biệt **phân phối đồng thời** (*joint distribution*) và **phân phối biên** (*marginal distribution*).
+- Tính hệ số **tương quan Pearson** (*Pearson correlation coefficient*) <MdxFormula inline formula={"r_{XY}"} /> và chuẩn hóa covariance về khoảng <MdxFormula inline formula={"[-1, 1]"} />.
+- Nhận biết hạn chế của correlation: chỉ đo mối quan hệ **tuyến tính** và **không đồng nghĩa với nhân quả** (*correlation ≠ causation*).
+- Lập trình tính ma trận tương quan bằng NumPy (`np.corrcoef`).
+
+</LessonNote>
+
+## Từ từng biến riêng sang phân phối chung
+
+Trong dữ liệu hai chiều, mỗi quan sát (observation) được biểu diễn bằng một **vector hàng** gồm hai đặc trưng:
+
+<MdxFormula formula={"\\mathbf{x}_i = \\begin{bmatrix} x_i & y_i \\end{bmatrix} \\in \\mathbb{R}^{1 \\times 2}"} />
+
+Ví dụ:
+- <MdxFormula inline formula={"X"} />: Chiều cao (cm).
+- <MdxFormula inline formula={"Y"} />: Cân nặng (kg).
+
+Nếu chỉ nhìn riêng <MdxFormula inline formula={"X"} />, ta chỉ thấy phân phối một chiều của chiều cao.
+Nếu chỉ nhìn riêng <MdxFormula inline formula={"Y"} />, ta chỉ thấy phân phối một chiều của cân nặng.
+Nếu nhìn cả hai cùng lúc, ta có **phân phối đồng thời** (Joint distribution).
+
+<JointMarginalConceptVisual
+  kind="table-to-scatter"
+  ariaLabel="Bảng dữ liệu 2 chiều được chuyển đổi thành các điểm trên Scatter Plot."
+  caption="Bảng quan sát gồm các hàng dữ liệu biến thành các điểm tương ứng trên scatter plot 2D."
+/>
+
+> Joint distribution mô tả cách nhiều biến xuất hiện cùng nhau.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Joint distribution
+
+Với hai biến rời rạc:
+
+<MdxFormula formula={"p_{X,Y}(x,y) = P(X=x, Y=y)"} />
+
+Với hai biến liên tục:
+
+<MdxFormula formula={"f_{X,Y}(x,y)"} />
+
+### Ý nghĩa thực tiễn
+Joint distribution trả lời các câu hỏi quan trọng như:
+- Giá trị <MdxFormula inline formula={"X"} /> nào thường đi cùng giá trị <MdxFormula inline formula={"Y"} /> nào?
+- Dữ liệu tập trung dày đặc ở vùng không gian nào?
+- Hai biến có xu hướng cùng tăng hay cùng giảm?
+- Có xuất hiện các cụm (clusters) dữ liệu tách biệt hay không?
+
+<JointMarginalConceptVisual
+  kind="joint-heatmap"
+  ariaLabel="Trực quan hóa mật độ xác suất 2D (heatmap density) của Joint distribution."
+  caption="Vùng sáng đậm thể hiện mật độ xác suất cao, nơi dữ liệu tập trung xuất hiện nhiều nhất."
+/>
+
+> Joint distribution không chỉ mô tả từng biến độc lập, mà còn mô tả mối quan hệ toàn cục giữa chúng.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Joint distribution không chỉ là scatter plot
+
+Scatter plot là một cách trực quan hóa dữ liệu hai chiều phổ biến, nhưng khái niệm **joint distribution** rộng lớn hơn nhiều.
+
+Có nhiều công cụ toán học và đồ họa để biểu diễn joint distribution:
+- **Scatter plot**: Hiển thị vị trí cụ thể của từng quan sát.
+- **2D Histogram**: Chia mặt phẳng thành các ô lưới và đếm số lượng điểm.
+- **Density Contour Plot**: Các đường đồng mức độ mật độ xác suất (giống bản đồ địa hình).
+- **Bảng xác suất đồng thời**: Dùng cho các biến rời rạc.
+
+<JointMarginalConceptVisual
+  kind="joint-representations"
+  ariaLabel="So sánh 3 cách biểu diễn joint distribution: Scatter plot, 2D Histogram và Density Contour."
+  caption="Scatter plot hiển thị từng quan sát; density plot nhấn mạnh các vùng dữ liệu xuất hiện thường xuyên."
+/>
+
+> Scatter plot hiển thị từng quan sát; density plot nhấn mạnh vùng dữ liệu thường xuất hiện.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Marginal distribution là gì?
+
+**Marginal distribution** (Phân phối biên) là phân phối của một biến khi ta bỏ qua (cộng/tích phân triệt tiêu) các biến còn lại.
+
+Với biến rời rạc, ta lấy tổng theo biến kia:
+
+<MdxFormula formula={"p_X(x) = \\sum_y p_{X,Y}(x,y), \\qquad p_Y(y) = \\sum_x p_{X,Y}(x,y)"} />
+
+Với biến liên tục, ta lấy tích phân trên toàn bộ trục của biến kia:
+
+<MdxFormula formula={"f_X(x) = \\int_{-\\infty}^{\\infty} f_{X,Y}(x,y) \\, dy, \\qquad f_Y(y) = \\int_{-\\infty}^{\\infty} f_{X,Y}(x,y) \\, dx"} />
+
+### Trực giác đơn giản:
+Nguồn gốc tên gọi "marginal" xuất phát từ việc tính tổng ở lề (margin) của bảng xác suất.
+
+> Marginal distribution là hình dạng phân phối của một biến khi ta tạm thời không quan tâm đến các biến khác.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Chiếu dữ liệu xuống từng trục
+
+Phép chiếu hình học giúp hiểu rõ bản chất của marginal distribution.
+
+<JointMarginalConceptVisual
+  kind="axis-projection"
+  ariaLabel="Minh họa các điểm dữ liệu 2D được chiếu thẳng đứng xuống trục X tạo ra Marginal X và chiếu ngang sang trục Y tạo ra Marginal Y."
+  caption="Chiếu joint distribution 2D lên từng trục tạo ra phân phối biên (marginal distributions) tương ứng."
+/>
+
+### Trình tự chiếu:
+1. Xét đám mây điểm 2D ban đầu đại diện cho joint distribution.
+2. Chiếu tất cả các điểm theo chiều dọc xuống trục <MdxFormula inline formula={"X"} /> <MdxFormula inline formula={"\\implies"} /> thu được **Marginal Distribution của X**.
+3. Chiếu tất cả các điểm theo chiều ngang sang trục <MdxFormula inline formula={"Y"} /> <MdxFormula inline formula={"\\implies"} /> thu được **Marginal Distribution của Y**.
+
+> Chiếu joint distribution lên từng trục tạo ra marginal distributions.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Marginal mean và marginal variance
+
+Giả sử dữ liệu có Mean vector:
+
+<MdxFormula formula={"\\boldsymbol{\\mu} = \\begin{bmatrix} \\mu_X & \\mu_Y \\end{bmatrix}"} />
+
+và Covariance matrix:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\begin{bmatrix} \\sigma_X^2 & \\sigma_{XY} \\\\ \\sigma_{XY} & \\sigma_Y^2 \\end{bmatrix}"} />
+
+Khi chỉ xét phân phối biên của từng biến riêng lẻ:
+
+### Với biến <MdxFormula inline formula={"X"} />:
+- Marginal mean: <MdxFormula inline formula={"\\mu_X"} /> (phần tử thứ nhất của mean vector).
+- Marginal variance: <MdxFormula inline formula={"\\sigma_X^2"} /> (phần tử <MdxFormula inline formula={"\\Sigma_{11}"} /> trên đường chéo covariance matrix).
+
+### Với biến <MdxFormula inline formula={"Y"} />:
+- Marginal mean: <MdxFormula inline formula={"\\mu_Y"} /> (phần tử thứ hai của mean vector).
+- Marginal variance: <MdxFormula inline formula={"\\sigma_Y^2"} /> (phần tử <MdxFormula inline formula={"\\Sigma_{22}"} /> trên đường chéo covariance matrix).
+
+> Mean biên lấy từ mean vector; variance biên lấy từ đường chéo của covariance matrix.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Marginal không giống conditional
+
+Cần phân biệt rõ hai khái niệm quan trọng này:
+
+### Marginal distribution <MdxFormula inline formula={"f_X(x)"} />
+Bỏ qua biến còn lại (tích phân triệt tiêu <MdxFormula inline formula={"Y"} />):
+
+<MdxFormula formula={"f_X(x) = \\int_{-\\infty}^{\\infty} f_{X,Y}(x,y) \\, dy"} />
+
+Câu hỏi: *Nhìn chung trên toàn bộ dữ liệu, biến <MdxFormula inline formula={"X"} /> phân phối như thế nào?*
+
+### Conditional distribution <MdxFormula inline formula={"f_{X|Y}(x \\mid y)"} />
+Cố định biến <MdxFormula inline formula={"Y"} /> tại một giá trị cụ thể <MdxFormula inline formula={"y_0"} />:
+
+<MdxFormula formula={"f_{X|Y}(x \\mid y) = \\frac{f_{X,Y}(x,y)}{f_Y(y)}"} />
+
+Câu hỏi: *Khi đã biết <MdxFormula inline formula={"Y = y_0"} />, biến <MdxFormula inline formula={"X"} /> phân phối như thế nào?*
+
+<JointMarginalConceptVisual
+  kind="marginal-vs-conditional"
+  ariaLabel="So sánh phép chiếu toàn bộ đám mây điểm (Marginal) và cắt lát mỏng tại Y = y0 (Conditional)."
+  caption="Marginal là bỏ qua biến khác; Conditional là cố định hoặc khi biết biến khác."
+/>
+
+> Marginal là bỏ qua biến khác; conditional là cố định hoặc biết biến khác.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Tại sao covariance chưa đủ?
+
+Covariance cho biết **hướng** của mối quan hệ tuyến tính:
+- <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) > 0"} />: Đồng biến.
+- <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) < 0"} />: Nghịch biến.
+
+Tuy nhiên, covariance **phụ thuộc trực tiếp vào đơn vị đo lường (scale)**.
+
+<JointMarginalConceptVisual
+  kind="scale-dependence"
+  ariaLabel="Minh họa Covariance tăng 100 lần khi đổi đơn vị từ m sang cm dù bản chất mối quan hệ không đổi."
+  caption="Đổi đơn vị đo từ m sang cm làm covariance tăng gấp 100 lần, khiến việc so sánh trực tiếp trở nên bất khả thi."
+/>
+
+Giả sử <MdxFormula inline formula={"X_{\\text{cm}} = 100 X_{\\text{m}}"} />:
+
+<MdxFormula formula={"\\operatorname{Cov}(X_{\\text{cm}}, Y) = 100 \\cdot \\operatorname{Cov}(X_{\\text{m}}, Y)"} />
+
+> Ta cần một đại lượng đã được chuẩn hóa để không phụ thuộc vào scale.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Correlation
+
+**Pearson correlation coefficient** (Hệ số tương quan Pearson) được ký hiệu là:
+- <MdxFormula inline formula={"\\rho_{XY}"} />: cho quần thể (population).
+- <MdxFormula inline formula={"r_{XY}"} />: cho mẫu dữ liệu (sample).
+
+Công thức định nghĩa:
+
+<MdxFormula formula={"\\rho_{XY} = \\frac{\\operatorname{Cov}(X,Y)}{\\sigma_X \\sigma_Y}"} />
+
+### Trực giác toán học:
+Correlation chính là **covariance được chia cho tích hai độ lệch chuẩn** <MdxFormula inline formula={"\\sigma_X \\sigma_Y"} /> để loại bỏ hoàn toàn đơn vị đo.
+
+### Miền giá trị chuẩn hóa:
+
+<MdxFormula formula={"-1 \\le \\rho_{XY} \\le 1"} />
+
+> Correlation là covariance đã được chuẩn hóa để không còn phụ thuộc vào đơn vị đo.
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Đọc dấu của correlation
+
+Dấu của hệ số tương quan <MdxFormula inline formula={"\\rho"} /> cho biết hướng biến thiên:
+
+- **<MdxFormula inline formula={"\\rho > 0"} /> (Tương quan dương)**: Khi <MdxFormula inline formula={"X"} /> tăng, <MdxFormula inline formula={"Y"} /> có xu hướng tăng theo (đồng biến).
+- **<MdxFormula inline formula={"\\rho < 0"} /> (Tương quan âm)**: Khi <MdxFormula inline formula={"X"} /> tăng, <MdxFormula inline formula={"Y"} /> có xu hướng giảm xuống (nghịch biến).
+- **<MdxFormula inline formula={"\\rho \\approx 0"} /> (Không tương quan tuyến tính)**: Không có xu hướng tăng hay giảm tuyến tính rõ ràng.
+
+<JointMarginalConceptVisual
+  kind="correlation-signs"
+  ariaLabel="Ba scatter plot minh họa tương quan dương (rho > 0), không tương quan (rho ~ 0) và tương quan âm (rho < 0)."
+  caption="Dấu của correlation xác định hướng nghiêng của mối quan hệ tuyến tính."
+/>
+
+> Dấu của correlation cho biết hướng của quan hệ tuyến tính.
+
+</MdxPage>
+
+<MdxPage page={10}>
+
+## Độ lớn của correlation
+
+Giá trị tuyệt đối <MdxFormula inline formula={"|\\rho|"} /> cho biết **độ mạnh yếu** của mối quan hệ tuyến tính (mức độ tập trung của các điểm quanh một đường thẳng):
+
+- **<MdxFormula inline formula={"|\\rho| \\approx 1"} />**: Các điểm dữ liệu nằm rất sát một đường thẳng (tương quan tuyến tính rất mạnh).
+- **<MdxFormula inline formula={"|\\rho| \\approx 0"} />**: Các điểm dữ liệu phân tán hỗn loạn, không bám theo đường thẳng.
+
+### Các trạng thái điển hình:
+- <MdxFormula inline formula={"\\rho = +1"} />: Tuyến tính dương hoàn hảo.
+- <MdxFormula inline formula={"\\rho = +0.8"} />: Tuyến tính dương mạnh.
+- <MdxFormula inline formula={"\\rho = 0"} />: Không có quan hệ tuyến tính.
+- <MdxFormula inline formula={"\\rho = -0.8"} />: Tuyến tính âm mạnh.
+- <MdxFormula inline formula={"\\rho = -1"} />: Tuyến tính âm hoàn hảo.
+
+> Độ lớn |ρ| thể hiện mức độ bám sát của dữ liệu quanh một đường thẳng.
+
+</MdxPage>
+
+<MdxPage page={11}>
+
+## Correlation chỉ đo quan hệ tuyến tính
+
+Một điểm cực kỳ quan trọng trong thống kê:
+
+> Pearson correlation bằng 0 **không có nghĩa** hai biến độc lập hay không có liên hệ!
+
+Ví dụ quan hệ phi tuyến: <MdxFormula inline formula={"Y = X^2"} /> với <MdxFormula inline formula={"X"} /> phân bố đối xứng qua 0.
+
+<JointMarginalConceptVisual
+  kind="non-linear-ushape"
+  ariaLabel="Scatter plot hình parabol U-shape thể hiện Y = X^2 có correlation bằng 0 nhưng quan hệ phụ thuộc hoàn toàn."
+  caption="Đám mây điểm hình chữ U có Correlation ≈ 0 nhưng Y phụ thuộc hoàn toàn vào X."
+/>
+
+Pearson correlation đo lường khả năng xấp xỉ bằng **đường thẳng**. Do đó, với các đường cong đối xứng như Parabol, các phần tăng và giảm triệt tiêu lẫn nhau làm <MdxFormula inline formula={"\\rho \\approx 0"} banquet />.
+
+> Pearson correlation đo quan hệ tuyến tính, không đo mọi loại phụ thuộc.
+
+</MdxPage>
+
+<MdxPage page={12}>
+
+## Correlation không đồng nghĩa causation
+
+Một câu khẩu hiệu kinh điển trong Data Science:
+
+> **Correlation does not imply Causation** (Tương quan không đồng nghĩa với Nhân quả).
+
+Khi hai biến <MdxFormula inline formula={"X"} /> và <MdxFormula inline formula={"Y"} /> có hệ số tương quan cao, có thể do:
+1. <MdxFormula inline formula={"X"} /> gây ra <MdxFormula inline formula={"Y"} />.
+2. <MdxFormula inline formula={"Y"} /> gây ra <MdxFormula inline formula={"X"} />.
+3. Có một **biến ẩn thứ 3 (Confounding Variable <MdxFormula inline formula={"Z"} />)** gây ra cả <MdxFormula inline formula={"X"} /> và <MdxFormula inline formula={"Y"} />.
+4. Tương quan ngẫu nhiên do trùng hợp ngẫu nhiên (spurious correlation).
+
+<JointMarginalConceptVisual
+  kind="causation-confounding"
+  ariaLabel="Sơ đồ biến ẩn Nhiệt độ mùa hè gây ra cả việc bán kem tăng và số người đi bơi tăng."
+  caption="Doanh số bán kem và số người đi bơi có tương quan cao do cùng chịu tác động của Nhiệt độ mùa hè."
+/>
+
+> Correlation là tín hiệu về mối liên hệ, không phải bằng chứng về quan hệ nhân quả.
+
+</MdxPage>
+
+<MdxPage page={13}>
+
+## Correlation matrix
+
+Với tập dữ liệu gồm <MdxFormula inline formula={"d"} /> đặc trưng, ma trận tương quan **Correlation matrix** <MdxFormula inline formula={"\\mathbf{R} \\in \\mathbb{R}^{d \\times d}"} /> được định nghĩa là:
+
+<MdxFormula formula={"\\mathbf{R} = \\begin{bmatrix} 1 & \\rho_{12} & \\cdots & \\rho_{1d} \\\\ \\rho_{21} & 1 & \\cdots & \\rho_{2d} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ \\rho_{d1} & \\rho_{d2} & \\cdots & 1 \\end{bmatrix}"} />
+
+### So sánh Covariance Matrix và Correlation Matrix:
+
+<MdxCode language="table" code={"|Đặc điểm|Covariance Matrix (Σ)|Correlation Matrix (R)|\\n|---|---|---|\\n|Đơn vị đo|Phụ thuộc đơn vị dữ liệu|Không có đơn vị (triệt tiêu scale)|\\n|Đường chéo chính|Phương sai từng biến (σ_i²)|Luôn bằng 1.0|\\n|So sánh giữa các cặp|Khó so sánh trực tiếp|Rất dễ so sánh (trong khoảng [-1, 1])|\\n|Giữ thông tin scale|Có|Loại bỏ scale|"} />
+
+> Correlation matrix là covariance matrix sau khi đã chuẩn hóa từng biến.
+
+</MdxPage>
+
+<MdxPage page={14}>
+
+## Standardization và correlation
+
+Giả sử ta chuẩn hóa (Standardize) từng biến về Z-score bằng cách trừ mean và chia cho độ lệch chuẩn:
+
+<MdxFormula formula={"Z_X = \\frac{X - \\mu_X}{\\sigma_X}, \\qquad Z_Y = \\frac{Y - \\mu_Y}{\\sigma_Y}"} />
+
+Sau khi chuẩn hóa:
+- <MdxFormula inline formula={"\\mathbb{E}[Z_X] = 0"} /> và <MdxFormula inline formula={"\\operatorname{Var}(Z_X) = 1"} />.
+- <MdxFormula inline formula={"\\mathbb{E}[Z_Y] = 0"} /> và <MdxFormula inline formula={"\\operatorname{Var}(Z_Y) = 1"} />.
+
+Covariance giữa hai biến đã standardize chính là Pearson correlation:
+
+<MdxFormula formula={"\\operatorname{Cov}(Z_X, Z_Y) = \\mathbb{E}[Z_X Z_Y] = \\rho_{XY}"} />
+
+Dưới dạng ma trận cho vector đã chuẩn hóa <MdxFormula inline formula={"\\mathbf{Z}"} />:
+
+<MdxFormula formula={"\\operatorname{Cov}(\\mathbf{Z}) = \\mathbf{R}"} />
+
+> Correlation matrix chính là covariance matrix của dữ liệu đã được standardize.
+
+</MdxPage>
+
+<MdxPage page={15}>
+
+## Code: joint và marginal distributions
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+
+mean = np.array([2.0, 5.0])
+covariance = np.array([
+    [4.0, 2.5],
+    [2.5, 3.0],
+])
+
+data = rng.multivariate_normal(mean=mean, cov=covariance, size=3_000)
+x = data[:, 0]
+y = data[:, 1]
+
+fig = plt.figure(figsize=(8, 8))
+grid = fig.add_gridspec(
+    2, 2,
+    width_ratios=(4, 1),
+    height_ratios=(1, 4),
+    hspace=0.05,
+    wspace=0.05
+)
+
+ax_hist_x = fig.add_subplot(grid[0, 0])
+ax_scatter = fig.add_subplot(grid[1, 0])
+ax_hist_y = fig.add_subplot(grid[1, 1])
+
+ax_scatter.scatter(x, y, alpha=0.25)
+ax_hist_x.hist(x, bins=40, edgecolor="black")
+ax_hist_y.hist(y, bins=40, orientation="horizontal", edgecolor="black")
+
+ax_hist_x.tick_params(labelbottom=False)
+ax_hist_y.tick_params(labelleft=False)
+
+ax_scatter.set_xlabel("X")
+ax_scatter.set_ylabel("Y")
+ax_scatter.set_title("Joint distribution and marginals")
+
+plt.show()
+```
+
+- Scatter plot chính giữa thể hiện **Joint distribution**.
+- Histogram phía trên thể hiện **Marginal distribution của X**.
+- Histogram bên phải thể hiện **Marginal distribution của Y**.
+
+</MdxPage>
+
+<MdxPage page={16}>
+
+## Code: marginal statistics
+
+```python
+import numpy as np
+
+data = np.array([
+    [1, 2],
+    [3, 4],
+    [5, 9],
+], dtype=float)
+
+mean_vector = np.mean(data, axis=0)
+marginal_variances = np.var(data, axis=0, ddof=0)
+covariance_matrix = np.cov(data, rowvar=False, ddof=0)
+
+print("Mean vector:")
+print(mean_vector)
+
+print("\nMarginal variances:")
+print(marginal_variances)
+
+print("\nCovariance matrix:")
+print(covariance_matrix)
+
+print("\nDiagonal of covariance matrix:")
+print(np.diag(covariance_matrix))
+```
+
+```text
+Mean vector:
+[3. 5.]
+
+Marginal variances:
+[2.66666667 8.66666667]
+
+Covariance matrix:
+[[2.66666667 4.66666667]
+ [4.66666667 8.66666667]]
+
+Diagonal of covariance matrix:
+[2.66666667 8.66666667]
+```
+
+> Phương sai của từng phân phối biên (marginal variance) khớp chính xác với đường chéo của covariance matrix.
+
+</MdxPage>
+
+<MdxPage page={17}>
+
+## Code: covariance và correlation
+
+```python
+import numpy as np
+
+data = np.array([
+    [1, 2],
+    [3, 4],
+    [5, 9],
+], dtype=float)
+
+covariance_matrix = np.cov(data, rowvar=False, ddof=0)
+correlation_matrix = np.corrcoef(data, rowvar=False)
+
+print("Covariance matrix:")
+print(covariance_matrix)
+
+print("\nCorrelation matrix:")
+print(correlation_matrix)
+```
+
+```text
+Covariance matrix:
+[[2.66666667 4.66666667]
+ [4.66666667 8.66666667]]
+
+Correlation matrix:
+[[1.         0.97072534]
+ [0.97072534 1.        ]]
+```
+
+- **Covariance matrix**: Đường chéo là phương sai, phụ thuộc vào scale.
+- **Correlation matrix**: Đường chéo luôn bằng 1.0, phần tử ngoài đường chéo chuẩn hóa trong khoảng <MdxFormula inline formula={"[-1, 1]"} />.
+
+</MdxPage>
+
+<MdxPage page={18}>
+
+## Code: kiểm tra correlation không đổi khi đổi đơn vị
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(42)
+
+height_m = rng.normal(loc=1.70, scale=0.08, size=1_000)
+weight_kg = 35 * height_m + rng.normal(loc=0, scale=4, size=1_000)
+
+height_cm = height_m * 100
+
+covariance_m = np.cov(height_m, weight_kg, ddof=0)[0, 1]
+covariance_cm = np.cov(height_cm, weight_kg, ddof=0)[0, 1]
+
+correlation_m = np.corrcoef(height_m, weight_kg)[0, 1]
+correlation_cm = np.corrcoef(height_cm, weight_kg)[0, 1]
+
+print(f"Covariance (meters)     : {covariance_m:.4f}")
+print(f"Covariance (centimeters): {covariance_cm:.4f}")
+print(f"Correlation (meters)    : {correlation_m:.4f}")
+print(f"Correlation (centimeters): {correlation_cm:.4f}")
+```
+
+```text
+Covariance (meters)     : 0.2241
+Covariance (centimeters): 22.4100
+Correlation (meters)    : 0.5732
+Correlation (centimeters): 0.5732
+```
+
+- Covariance tăng 100 lần khi chuyển từ mét sang centimet.
+- Correlation giữ nguyên giá trị `0.5732` tuyệt đối.
+
+</MdxPage>
+
+<MdxPage page={19}>
+
+## Code: quan hệ phi tuyến nhưng correlation gần 0
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+
+x = rng.uniform(low=-3, high=3, size=2_000)
+y = x**2 + rng.normal(loc=0, scale=0.5, size=2_000)
+
+correlation = np.corrcoef(x, y)[0, 1]
+
+print(f"Pearson correlation: {correlation:.3f}")
+
+plt.scatter(x, y, alpha=0.25)
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title(f"Nonlinear relationship\nCorrelation = {correlation:.3f}")
+plt.show()
+```
+
+```text
+Pearson correlation: 0.005
+```
+
+- Correlation <MdxFormula inline formula={"r \\approx 0"} /> dù <MdxFormula inline formula={"Y = X^2"} /> có sự phụ thuộc phi tuyến rất rõ nét.
+
+</MdxPage>
+
+<MdxPage page={20}>
+
+## Mini interaction: tạo marginal distributions
+
+Thực hành bấm các nút chiếu dữ liệu để quan sát sự hình thành phân phối biên từ joint distribution:
+
+<MarginalProjectionExplorer
+  ariaLabel="Mô phỏng tương tác chiếu các điểm 2D xuống trục X và trục Y để hình thành các phân phối biên."
+  caption="Bấm nút chiếu để gom các điểm dữ liệu và xem thống kê marginal mean, marginal variance tương ứng."
+/>
+
+> Mỗi marginal distribution là một góc nhìn một chiều của joint distribution khi bỏ qua biến còn lại.
+
+</MdxPage>
+
+<MdxPage page={21}>
+
+## Mini interaction: correlation
+
+Điều chỉnh thanh trượt hệ số tương quan Pearson <MdxFormula inline formula={"\\rho"} /> để quan sát độ bám của đám mây điểm và ma trận Correlation:
+
+<CorrelationMatrixExplorer
+  ariaLabel="Trực quan tương tác điều chỉnh hệ số tương quan Pearson rho từ -1 đến +1."
+  caption="Thực hành điều chỉnh slider để hiểu rõ tác động của dấu và độ lớn hệ số tương quan."
+  mode="synthesis"
+/>
+
+> Tóm tắt: Hệ số tương quan Pearson chuẩn hóa quan hệ giữa hai biến về khoảng [-1, +1], loại bỏ hoàn toàn ảnh hưởng của scale đơn vị đo.
+
+</MdxPage>
+
+<MdxPage page={22}>
+
+## Những lỗi thường gặp
+
+### 1. Nghĩ Marginal là "ở rìa biểu đồ"
+Tên gọi "marginal" xuất phát từ việc viết tổng xác suất ở lề (margin) của bảng dữ liệu. Về mặt ý nghĩa, nó là phân phối của 1 biến sau khi tích phân/cộng triệt tiêu biến còn lại.
+
+### 2. Nhầm lẫn giữa Marginal và Conditional
+- **Marginal**: Bỏ qua biến khác (<MdxFormula inline formula={"f_X(x)"} />).
+- **Conditional**: Cố định hoặc biết biến khác tại giá trị cụ thể (<MdxFormula inline formula={"f_{X|Y}(x \\mid y_0)"} />).
+
+### 3. Cho rằng Correlation = 0 nghĩa là 2 biến độc lập
+Correlation chỉ đo quan hệ **tuyến tính**. Hai biến có quan hệ phi tuyến hoàn hảo (như <MdxFormula inline formula={"Y=X^2"} />) vẫn có correlation bằng 0.
+
+### 4. Coi Correlation cao là bằng chứng quan hệ Nhân Quả (Causation)
+Correlation chỉ phản ánh xu hướng đồng biến/nghịch biến, có thể do một biến ẩn thứ ba (Confounding variable) chi phối cả hai.
+
+### 5. Diễn giải Correlation 0.8 là "Y tăng 0.8 khi X tăng 1"
+Đây là cách diễn giải độ dốc (slope) của đường hồi quy, không phải hệ số tương quan. Correlation 0.8 thể hiện mức độ bám sát đường thẳng là 80%.
+
+### 6. Nghĩ Correlation không bao giờ đổi dấu
+Correlation không đổi qua các phép biến đổi tuyến tính dương (<MdxFormula inline formula={"a > 0"} />), nhưng nếu nhân biến với số âm (<MdxFormula inline formula={"a < 0"} />) thì correlation sẽ đổi dấu.
+
+</MdxPage>

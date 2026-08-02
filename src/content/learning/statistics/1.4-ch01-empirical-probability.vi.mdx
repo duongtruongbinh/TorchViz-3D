@@ -5,19 +5,33 @@ export const lessonMetadata = {
   "title": "1.4 Tần số và xác suất thực nghiệm",
   "headings": [
     "Từ số lần xuất hiện đến tần suất",
-    "Khi nào tần suất trở nên ổn định?"
+    "Khi nào tần suất trở nên ổn định?",
+    "Mô phỏng sự hội tụ bằng Python",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "xác suất thực nghiệm",
     "tần số",
     "tần suất",
     "ước lượng",
-    "tính ổn định"
+    "tính ổn định",
+    "luật số lớn",
+    "python",
+    "numpy"
   ],
-  "pageCount": 2
+  "pageCount": 4
 }
 
 <MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập">
+
+Sau bài này, bạn sẽ:
+- Phân biệt **tần số** (*frequency*) và **tần suất tương đối** (*relative frequency* / *empirical probability*).
+- Giải thích vì sao tần suất từ một mẫu chỉ là **ước lượng** (*estimate*) cho xác suất lý thuyết.
+- Nhận biết sự hội tụ của tần suất khi số lần thử <MdxFormula inline formula={"n"} /> lớn theo **Luật số lớn** (*Law of Large Numbers*).
+
+</LessonNote>
 
 ## Từ số lần xuất hiện đến tần suất
 
@@ -25,13 +39,13 @@ Một dịch vụ theo dõi 10 đơn hàng và thấy 4 đơn đến đúng gi�
 
 <ProbabilityChapterVisual kind="empirical" />
 
-Trong ví dụ này, <MdxFormula inline formula={"m=4"} /> là **tần số** và <MdxFormula inline formula={"n=10"} /> là tổng số lần quan sát. Tỷ số của hai số này là **tần suất** hay tần suất tương đối.
+Trong ví dụ này, <MdxFormula inline formula={"m=4"} /> là **tần số** (*frequency*) và <MdxFormula inline formula={"n=10"} /> là tổng số lần quan sát. Tỷ số của hai số này là **tần suất** (*relative frequency*) hay **xác suất thực nghiệm** (*empirical probability*).
 
 Tổng quát, nếu biến cố <MdxFormula inline formula={"A"} /> xuất hiện <MdxFormula inline formula={"m"} /> lần trong <MdxFormula inline formula={"n"} /> phép thử:
 
 <MdxFormula formula={"f_n(A)=\\frac{m}{n}"} />
 
-Với dữ liệu hữu hạn, <MdxFormula inline formula={"f_n(A)"} /> chỉ là một **ước lượng** của xác suất <MdxFormula inline formula={"P(A)"} />, không phải bản thân xác suất lý thuyết. Một mẫu dữ liệu khác có thể cho một tần suất khác.
+Với dữ liệu hữu hạn, <MdxFormula inline formula={"f_n(A)"} /> chỉ là một **ước lượng** (*estimate*) của xác suất <MdxFormula inline formula={"P(A)"} />, không phải bản thân xác suất lý thuyết. Một mẫu dữ liệu khác có thể cho một tần suất khác.
 
 </MdxPage>
 
@@ -39,7 +53,7 @@ Với dữ liệu hữu hạn, <MdxFormula inline formula={"f_n(A)"} /> chỉ l�
 
 ## Khi nào tần suất trở nên ổn định?
 
-Nếu cùng một phép thử được lặp lại độc lập trong điều kiện ổn định, tần suất <MdxFormula inline formula={"f_n(A)"} /> thường dao động ít dần quanh <MdxFormula inline formula={"P(A)"} /> khi số lần thử tăng.
+Nếu cùng một phép thử được lặp lại độc lập trong điều kiện ổn định, tần suất <MdxFormula inline formula={"f_n(A)"} /> thường dao động ít dần quanh <MdxFormula inline formula={"P(A)"} /> khi số lần thử tăng. Xu hướng này là **Luật số lớn** (*Law of Large Numbers*).
 
 <ProbabilityChapterVisual kind="frequency-stability" />
 
@@ -47,10 +61,51 @@ Nhiều phép thử hơn giúp giảm dao động ngẫu nhiên, nhưng không t
 
 Ví dụ, nếu chỉ đo thời gian giao hàng vào giờ vắng, việc thu thập thêm nhiều đơn trong đúng khung giờ đó vẫn không đại diện cho giờ cao điểm. Muốn tần suất có ý nghĩa, phép thử phải được xác định rõ và điều kiện quan sát phải phù hợp với câu hỏi.
 
-<LessonNote label="Kết luận">
+</MdxPage>
 
-- **Xác suất lý thuyết** đến từ một mô hình.
-- **Tần suất thực nghiệm** đến từ dữ liệu lặp lại và được dùng để ước lượng hoặc kiểm tra mô hình đó.
+<MdxPage page={2}>
+
+## Mô phỏng sự hội tụ bằng Python
+
+Ta dùng NumPy mô phỏng gieo xúc xắc 1.000 lần và theo dõi tần suất tích lũy của biến cố "mặt chẵn" (<MdxFormula inline formula={"P(A) = 0.5"} />):
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(42)
+n_trials = 1000
+
+# Gieo xúc xắc 1000 lần (giá trị ngẫu nhiên từ 1 đến 6)
+rolls = rng.integers(1, 7, size=n_trials)
+is_even = (rolls % 2 == 0)
+
+# Tính tần suất tích lũy sau từng lần gieo
+cumulative_freq = np.cumsum(is_even) / np.arange(1, n_trials + 1)
+
+print(f"Tần suất sau  10 lần gieo: {cumulative_freq[9]:.4f}")
+print(f"Tần suất sau 100 lần gieo: {cumulative_freq[99]:.4f}")
+print(f"Tần suất sau 1000 lần gieo: {cumulative_freq[999]:.4f}")
+```
+
+```output
+Tần suất sau  10 lần gieo: 0.6000
+Tần suất sau 100 lần gieo: 0.5200
+Tần suất sau 1000 lần gieo: 0.5040
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 1.4">
+
+- **Tần số** (*frequency*) <MdxFormula inline formula={"m"} />: Số lần xuất hiện của biến cố trong <MdxFormula inline formula={"n"} /> lần quan sát.
+- **Tần suất tương đối** (*relative frequency*) / **Xác suất thực nghiệm**: <MdxFormula inline formula={"f_n(A) = \\frac{m}{n}"} />.
+- **Ước lượng xác suất**: Tần suất thực nghiệm từ dữ liệu mẫu chỉ là **ước lượng** cho xác suất lý thuyết <MdxFormula inline formula={"P(A)"} />.
+- **Luật số lớn** (*Law of Large Numbers*): Khi số lần thử <MdxFormula inline formula={"n"} /> càng lớn, tần suất <MdxFormula inline formula={"f_n(A)"} /> tiến gần và hội tụ về xác suất lý thuyết <MdxFormula inline formula={"P(A)"} />.
+- **Lưu ý dữ liệu**: Thu thập thêm nhiều quan sát giúp giảm **dao động ngẫu nhiên**, nhưng không tự sửa được dữ liệu bị **thiên lệch** (bias).
 
 </LessonNote>
 

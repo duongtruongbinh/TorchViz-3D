@@ -7,19 +7,32 @@ export const lessonMetadata = {
     "Hợp của hai biến cố",
     "Giao của hai biến cố",
     "Hai biến cố xung khắc",
-    "Biến cố đối"
+    "Biến cố đối",
+    "Thao tác trên tập hợp bằng Python",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "quan hệ biến cố",
     "hợp",
     "giao",
     "xung khắc",
-    "biến cố đối"
+    "biến cố đối",
+    "python",
+    "set"
   ],
-  "pageCount": 4
+  "pageCount": 6
 }
 
 <MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập">
+
+Sau bài này, bạn sẽ:
+- Thực hiện các phép toán **hợp** (*union*) và **giao** (*intersection*) giữa các biến cố.
+- Nhận biết hai biến cố **xung khắc** (*mutually exclusive*) và biến cố **đối** (*complement*).
+- Phân biệt sự khác nhau giữa biến cố xung khắc đơn thuần và biến cố đối.
+
+</LessonNote>
 
 ## Hợp của hai biến cố
 
@@ -28,7 +41,7 @@ Khi gieo một con xúc xắc, đặt:
 - <MdxFormula inline formula={"A=\\{2,4,6\\}"} />: xuất hiện mặt chẵn.
 - <MdxFormula inline formula={"B=\\{5,6\\}"} />: xuất hiện mặt lớn hơn 4.
 
-Câu hỏi “<MdxFormula inline formula={"A"} /> **hoặc** <MdxFormula inline formula={"B"} /> xảy ra” chấp nhận mọi kết quả thuộc ít nhất một trong hai biến cố. Ta gọi đó là **hợp** của <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} />:
+Câu hỏi “<MdxFormula inline formula={"A"} /> **hoặc** <MdxFormula inline formula={"B"} /> xảy ra” chấp nhận mọi kết quả thuộc ít nhất một trong hai biến cố. Ta gọi đó là **hợp** (*union*) của <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} />, ký hiệu <MdxFormula inline formula={"A\\cup B"} />:
 
 <MdxFormula formula={"A\\cup B=\\{2,4,5,6\\}"} />
 
@@ -44,7 +57,7 @@ Từ “hoặc” ở đây mang nghĩa bao hàm: kết quả 6 thuộc cả hai
 
 Nếu câu hỏi đổi thành “<MdxFormula inline formula={"A"} /> **và** <MdxFormula inline formula={"B"} /> cùng xảy ra”, kết quả phải thuộc đồng thời cả hai tập.
 
-Ta gọi phần chung đó là **giao** của hai biến cố:
+Ta gọi phần chung đó là **giao** (*intersection*) của hai biến cố, ký hiệu <MdxFormula inline formula={"A\\cap B"} />:
 
 <MdxFormula formula={"A\\cap B=\\{6\\}"} />
 
@@ -60,7 +73,7 @@ Chỉ mặt 6 vừa là số chẵn, vừa lớn hơn 4.
 
 Đặt <MdxFormula inline formula={"C=\\{1,3,5\\}"} /> là biến cố “xuất hiện mặt lẻ”. Không có kết quả nào vừa chẵn vừa lẻ, nên <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"C"} /> không thể xảy ra cùng lúc.
 
-Hai biến cố như vậy được gọi là **xung khắc**:
+Hai biến cố như vậy được gọi là **xung khắc** (*mutually exclusive*):
 
 <MdxFormula formula={"A\\cap C=\\varnothing"} />
 
@@ -78,12 +91,58 @@ Với <MdxFormula inline formula={"A=\\{2,4,6\\}"} />, câu hỏi “không xu�
 
 <MdxFormula formula={"A^c=\\Omega\\setminus A=\\{1,3,5\\}"} />
 
-Biến cố <MdxFormula inline formula={"A^c"} /> được gọi là **biến cố đối** của <MdxFormula inline formula={"A"} />. Hai biến cố đối vừa xung khắc, vừa phủ hết không gian mẫu:
+Biến cố <MdxFormula inline formula={"A^c"} /> được gọi là **biến cố đối** (*complement*) của <MdxFormula inline formula={"A"} />. Hai biến cố đối vừa xung khắc, vừa phủ hết không gian mẫu:
 
 <MdxFormula formula={"A\\cap A^c=\\varnothing,\\qquad A\\cup A^c=\\Omega"} />
 
 <ProbabilityChapterVisual kind="exclusive-not-complement" />
 
 Một biến cố <MdxFormula inline formula={"B"} /> có thể xung khắc với <MdxFormula inline formula={"A"} /> nhưng chưa chắc là <MdxFormula inline formula={"A^c"} />. Muốn là biến cố đối, <MdxFormula inline formula={"B"} /> phải chứa **toàn bộ** phần còn lại của <MdxFormula inline formula={"\\Omega"} />.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Thao tác trên tập hợp bằng Python
+
+Trong Python, kiểu dữ liệu `set` cung cấp trực tiếp các phép toán hợp (`|`), giao (`&`) và hiệu (`-`):
+
+```python
+omega = {1, 2, 3, 4, 5, 6}
+A = {2, 4, 6}  # Mặt chẵn
+B = {5, 6}     # Mặt > 4
+C = {1, 3, 5}  # Mặt lẻ
+
+print("Hợp A ∪ B:", A | B)             # {2, 4, 5, 6}
+print("Giao A ∩ B:", A & B)             # {6}
+print("A ∩ C (rỗng?):", A & C)          # set()
+print("Biến cố đối A^c (Ω \\ A):", omega - A)  # {1, 3, 5}
+```
+
+```output
+Hợp A ∪ B: {2, 4, 5, 6}
+Giao A ∩ B: {6}
+A ∩ C (rỗng?): set()
+Biến cố đối A^c (Ω \ A): {1, 3, 5}
+```
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 1.2">
+
+- **Hợp của hai biến cố** (<MdxFormula inline formula={"A \\cup B"} />): Gồm mọi kết quả thuộc **ít nhất một** trong hai biến cố (<MdxFormula inline formula={"A"} /> **hoặc** <MdxFormula inline formula={"B"} /> xảy ra).
+- **Giao của hai biến cố** (<MdxFormula inline formula={"A \\cap B"} />): Chỉ gồm các kết quả thuộc **đồng thời cả hai** biến cố (<MdxFormula inline formula={"A"} /> **và** <MdxFormula inline formula={"B"} /> cùng xảy ra).
+- **Hai biến cố xung khắc** (*mutually exclusive*): Không thể xảy ra cùng lúc, tức là <MdxFormula inline formula={"A \\cap B = \\varnothing"} />.
+- **Biến cố đối** (*complement*): Biến cố <MdxFormula inline formula={"A^c = \\Omega \\setminus A"} /> gồm tất cả kết quả không thuộc <MdxFormula inline formula={"A"} />.
+- **Phân biệt quan trọng**:
+  - Hai biến cố **xung khắc** chỉ cần **không có phần chung** (<MdxFormula inline formula={"A \\cap B = \\varnothing"} />).
+  - Hai biến cố **đối** vừa **xung khắc** (<MdxFormula inline formula={"A \\cap A^c = \\varnothing"} />), vừa **phủ hết không gian mẫu** (<MdxFormula inline formula={"A \\cup A^c = \\Omega"} />).
+- **Lập trình Python**: Sử dụng kiểu dữ liệu `set` với các phép toán `|` (hợp), `&` (giao), và `-` (hiệu / biến cố đối).
+
+</LessonNote>
 
 </MdxPage>

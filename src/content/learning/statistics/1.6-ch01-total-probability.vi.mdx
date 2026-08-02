@@ -6,19 +6,31 @@ export const lessonMetadata = {
   "headings": [
     "Chia bài toán thành các trường hợp",
     "Đóng góp của từng nhánh",
-    "Tính xác suất toàn phần"
+    "Tính xác suất toàn phần",
+    "Tính xác suất toàn phần bằng Python",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "xác suất toàn phần",
     "phân hoạch",
     "hệ đầy đủ",
     "xác suất có điều kiện",
-    "quy tắc nhân"
+    "quy tắc nhân",
+    "python"
   ],
-  "pageCount": 3
+  "pageCount": 5
 }
 
 <MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập">
+
+Sau bài này, bạn sẽ:
+- Nhận biết điều kiện tạo thành một **phân hoạch** (*partition*) của không gian mẫu.
+- Áp dụng **công thức xác suất toàn phần** (*law of total probability*) để tính xác suất của một biến cố bằng cách chia theo các trường hợp.
+- Hiểu vai trò của công thức này như mẫu số chuẩn hóa trong định lý Bayes ở bài tiếp theo.
+
+</LessonNote>
 
 ## Chia bài toán thành các trường hợp
 
@@ -28,10 +40,10 @@ Ta muốn tính xác suất đi chơi tennis, nhưng thời tiết có thể là
 - <MdxFormula inline formula={"A_2"} />: trời râm.
 - <MdxFormula inline formula={"A_3"} />: trời mưa.
 
-Ba biến cố này tạo thành một **phân hoạch** của không gian mẫu vì:
+Ba biến cố này tạo thành một **phân hoạch** (*partition*) của không gian mẫu vì:
 
-1. Chúng xung khắc từng đôi: <MdxFormula inline formula={"A_i\\cap A_j=\\varnothing"} /> khi <MdxFormula inline formula={"i\\ne j"} />.
-2. Chúng bao phủ mọi khả năng: <MdxFormula inline formula={"A_1\\cup A_2\\cup A_3=\\Omega"} />.
+1. Chúng xung khắc từng đôi (*mutually exclusive*): <MdxFormula inline formula={"A_i\\cap A_j=\\varnothing"} /> khi <MdxFormula inline formula={"i\\ne j"} />.
+2. Chúng bao phủ mọi khả năng (*exhaustive*): <MdxFormula inline formula={"A_1\\cup A_2\\cup A_3=\\Omega"} />.
 
 <ProbabilityChapterVisual kind="total" />
 
@@ -53,7 +65,7 @@ Dùng quy tắc nhân cho từng nhánh:
 
 <MdxFormula formula={"P(H\\cap A_i)=P(A_i)P(H\\mid A_i)"} />
 
-Thay vào tổng trên, ta thu được:
+Thay vào tổng trên, ta thu được **công thức xác suất toàn phần** (*law of total probability*):
 
 <MdxFormula formula={"P(H)=P(A_1)P(H\\mid A_1)+P(A_2)P(H\\mid A_2)+P(A_3)P(H\\mid A_3)"} />
 
@@ -82,5 +94,51 @@ Tổng quát, với một phân hoạch <MdxFormula inline formula={"A_1,\\ldots
 <MdxFormula formula={"P(H)=\\sum_{i=1}^{n}P(A_i)P(H\\mid A_i)"} />
 
 Ở bài Bayes, tổng này sẽ đóng vai trò xác suất của bằng chứng ở mẫu số, giúp chuẩn hóa các khả năng sau khi có thông tin mới.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tính xác suất toàn phần bằng Python
+
+Ta có thể biểu diễn phép tính trên dưới dạng tích trong (*dot product*) của hai vector bằng NumPy:
+
+```python
+import numpy as np
+
+# Xác suất của các nhánh phân hoạch P(A_i)
+P_A = np.array([0.5, 0.2, 0.3])  # [Nắng, Râm, Mưa]
+
+# Xác suất có điều kiện P(H | A_i)
+P_H_given_A = np.array([0.8, 0.6, 0.1])
+
+# Tính P(H) = ∑ P(A_i) * P(H | A_i) bằng np.dot
+P_H = np.dot(P_A, P_H_given_A)
+
+print(f"Đóng góp từng nhánh: {P_A * P_H_given_A}")
+print(f"Xác suất toàn phần P(H): {P_H:.4f}")
+```
+
+```output
+Đóng góp từng nhánh: [0.4  0.12 0.03]
+Xác suất toàn phần P(H): 0.5500
+```
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 1.6">
+
+- **Phân hoạch** (*partition*): Tập hợp các biến cố <MdxFormula inline formula={"\\{A_1, A_2, \\\\dots, A_n\\}"} /> xung khắc từng đôi (<MdxFormula inline formula={"A_i \\\\cap A_j = \\\\varnothing"} />) và bao phủ toàn bộ không gian mẫu (<MdxFormula inline formula={"\\\\bigcup A_i = \\\\Omega"} />).
+- **Đóng góp của từng nhánh**: Xác suất phần giao <MdxFormula inline formula={"P(H \\\\cap A_i) = P(A_i) P(H \\\\mid A_i)"} /> theo quy tắc nhân.
+- **Công thức xác suất toàn phần**:
+  <MdxFormula formula={"P(H) = \\\\sum_{i=1}^{n} P(A_i) P(H \\\\mid A_i)"} />
+- **Cầu nối sang định lý Bayes**: Tổng xác suất toàn phần đóng vai trò mẫu số chuẩn hóa (Evidence / Margin) khi cập nhật niềm tin ở bài Bayes tiếp theo.
+- **Lập trình Python**: Dùng tích trong `np.dot(P_A, P_H_given_A)` giữa vector prior và vector likelihood có điều kiện.
+
+</LessonNote>
 
 </MdxPage>

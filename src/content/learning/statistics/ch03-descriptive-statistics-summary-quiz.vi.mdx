@@ -1,0 +1,122 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch03-descriptive-statistics-summary-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Ôn tập Chương 3: Thống kê mô tả & Ước lượng điểm'],
+  keywords: ['thống kê mô tả', 'histogram', 'trung bình', 'trung vị', 'phương sai', 'covariance', 'tương quan', 'phân phối chuẩn', 'mle'],
+  pageCount: 10,
+}
+
+<MdxQuiz id="ch03-descriptive-statistics-summary-quiz" questions={[
+  {
+    id: 'ch03-q1-histogram-bins', title: 'Câu 1: Histogram và Bins', prompt: 'Điều gì xảy ra khi chọn số lượng bin quá lớn (quá nhiều cột nhỏ) cho một Histogram?', mode: 'single',
+    options: [
+      { id: 'too-many-bins-noisy', label: 'Biểu đồ bị nhiễu, xuất hiện nhiều cột lởm chởm và mất đi hình dạng phân phối tổng thể.', isCorrect: true },
+      { id: 'too-few-bins-oversimplified', label: 'Biểu đồ quá phẳng, làm mất hoàn toàn chi tiết.' },
+      { id: 'perfect-smoothness', label: 'Biểu đồ trở nên mịn màng và chính xác nhất.' },
+      { id: 'no-effect', label: 'Số bin không ảnh hưởng đến hình dạng biểu đồ.' }
+    ],
+    success: 'Đúng. Quá nhiều bin làm mỗi bin chỉ có 0 hoặc 1-2 quan sát, gây nhiễu và làm mất bức tranh toàn cảnh.',
+    error: 'Chưa đúng. Quá nhiều bin gây ra sự lởm chởm và nhiễu do dao động ngẫu nhiên.'
+  },
+  {
+    id: 'ch03-q2-mean-vs-median-outliers', title: 'Câu 2: Trung bình vs Trung vị khi có Outliers', prompt: 'Trong một phân phối bị lệch phải mạnh (thu nhập dân cư có một vài tỷ phú), thứ tự nào giữa Mean và Median thường xảy ra?', mode: 'single',
+    options: [
+      { id: 'mean-greater-than-median', label: 'Mean > Median (Trung bình bị kéo về phía các giá trị cực lớn)', isCorrect: true },
+      { id: 'median-greater-than-mean', label: 'Median > Mean' },
+      { id: 'mean-equal-median', label: 'Mean = Median' },
+      { id: 'cannot-tell', label: 'Không thể so sánh' }
+    ],
+    success: 'Đúng. Outlier lớn kéo tổng và do đó kéo Mean sang phải, trong khi Median ở vị trí giữa nên ít bị ảnh hưởng.',
+    error: 'Chưa đúng. Phân phối lệch phải có các giá trị cực lớn kéo Mean lên cao hơn Median.'
+  },
+  {
+    id: 'ch03-q3-bessel-correction', title: 'Câu 3: Phương sai mẫu', prompt: 'Cho mẫu dữ liệu $X = \\{2, 4, 6\\}$. Trung bình mẫu $\\bar{x} = 4$. Phương sai mẫu $s^2$ (dùng hiệu chỉnh Bessel chia $n-1$) bằng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'four', label: '$s^2 = \\frac{(2-4)^2 + (4-4)^2 + (6-4)^2}{3-1} = \\frac{4 + 0 + 4}{2} = 4$', isCorrect: true },
+      { id: 'two-point-six-seven', label: '$s^2 = 8/3 \\approx 2.67$' },
+      { id: 'eight', label: '$s^2 = 8$' },
+      { id: 'two', label: '$s^2 = 2$' }
+    ],
+    success: 'Đúng. Tổng bình phương độ lệch là $4 + 0 + 4 = 8$. Cỡ mẫu $n=3$, chia cho $n-1=2$ thu được $s^2 = 4$.',
+    error: 'Chưa đúng. Nhớ chia cho $n-1 = 2$ chứ không chia cho $n = 3$.'
+  },
+  {
+    id: 'ch03-q4-covariance-sign', title: 'Câu 4: Ma trận Covariance', prompt: 'Ma trận Covariance của 2 biến $X, Y$ là $\\boldsymbol{\\Sigma} = \\begin{bmatrix} 9 & 3 \\\\ 3 & 16 \\end{bmatrix}$. Độ lệch chuẩn của biến $Y$ là bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'four-y-std', label: '$s_Y = \\sqrt{16} = 4$', isCorrect: true },
+      { id: 'sixteen-y-var', label: '$16$' },
+      { id: 'three-cov', label: '$3$' },
+      { id: 'nine-x-var', label: '$9$' }
+    ],
+    success: 'Đúng. Phần tử $\\Sigma_{22} = 16$ là phương sai của $Y$. Độ lệch chuẩn là $s_Y = \\sqrt{16} = 4$.',
+    error: 'Chưa đúng. Đường chéo là phương sai, độ lệch chuẩn bằng căn bậc hai của phương sai.'
+  },
+  {
+    id: 'ch03-q5-correlation-range', title: 'Câu 5: Hệ số tương quan Pearson', prompt: 'Hệ số tương quan Pearson $r_{XY}$ luôn nằm trong khoảng giá trị nào?', mode: 'single',
+    options: [
+      { id: 'minus-one-to-one', label: '$-1 \\le r_{XY} \\le 1$', isCorrect: true },
+      { id: 'zero-to-one', label: '$0 \\le r_{XY} \\le 1$' },
+      { id: 'minus-infinity-to-plus-infinity', label: '$-\\infty < r_{XY} < +\\infty$' },
+      { id: 'zero-to-infinity', label: '$0 \\le r_{XY} < +\\infty$' }
+    ],
+    success: 'Đúng. Tương quan Pearson được chuẩn hóa bởi tích độ lệch chuẩn hai biến nên luôn nằm trong đoạn $[-1, 1]$.',
+    error: 'Chưa đúng. Tương quan biến thiên từ -1 (tương quan âm hoàn hảo) đến +1 (tương quan dương hoàn hảo).'
+  },
+  {
+    id: 'ch03-q6-correlation-not-causation', title: 'Câu 6: Tương quan không đồng nghĩa nhân quả', prompt: 'Nếu hệ số tương quan giữa lượng tiêu thụ kem và số vụ đuối nước là $r = 0.85$, kết luận nào ĐÚNG về mặt thống kê?', mode: 'single',
+    options: [
+      { id: 'linear-assoc-only', label: 'Hai biến có mối liên hệ tuyến tính dương mạnh, nhưng không thể kết luận ăn kem gây ra đuối nước.', isCorrect: true },
+      { id: 'ice-cream-causes-drowning', label: 'Ăn kem trực tiếp gây ra đuối nước.' },
+      { id: 'drowning-causes-ice-cream', label: 'Đuối nước khiến người ta mua nhiều kem hơn.' },
+      { id: 'data-is-wrong', label: 'Dữ liệu chắc chắn bị tính sai vì tương quan không thể lớn hơn 0.5.' }
+    ],
+    success: 'Đúng! Correlation ≠ Causation. Cả hai biến cùng tăng vào mùa hè (biến ẩn nhiệt độ môi trường).',
+    error: 'Chưa đúng. Tương quan chỉ đo mối liên hệ đồng biến thiên, không chứng minh quan hệ nhân quả.'
+  },
+  {
+    id: 'ch03-q7-normal-z-score', title: 'Câu 7: Phân phối chuẩn và Z-score', prompt: 'Một biến có phân phối chuẩn $\\mathcal{N}(50, 10^2)$. Một giá trị $x = 30$ có Z-score bằng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'minus-two', label: '$Z = \\frac{30 - 50}{10} = -2.0$', isCorrect: true },
+      { id: 'plus-two', label: '$Z = +2.0$' },
+      { id: 'minus-twenty', label: '$Z = -20$' },
+      { id: 'zero', label: '$Z = 0$' }
+    ],
+    success: 'Đúng. $Z = (30 - 50) / 10 = -2.0$, điểm 30 thấp hơn trung bình 2 độ lệch chuẩn.',
+    error: 'Chưa đúng. $Z = (x - \\mu) / \\sigma = (30 - 50) / 10 = -2.0$.'
+  },
+  {
+    id: 'ch03-q8-multivariate-normal-independence', title: 'Câu 8: Phân phối chuẩn nhiều chiều', prompt: 'Trong Phân phối chuẩn 2 chiều Joint Gaussian, nếu $\\operatorname{Cov}(X, Y) = 0$, hai biến $X$ và $Y$ có độc lập không?', mode: 'single',
+    options: [
+      { id: 'yes-for-gaussian', label: 'Có, vì đối với Joint Gaussian, không tương quan đồng nghĩa với độc lập.', isCorrect: true },
+      { id: 'no-never', label: 'Không bao giờ.' },
+      { id: 'only-if-means-are-zero', label: 'Chỉ độc lập khi trung bình hai biến bằng 0.' },
+      { id: 'only-in-1d', label: 'Chỉ đúng trong 1 chiều.' }
+    ],
+    success: 'Đúng. Với Joint Gaussian, $\\operatorname{Cov}(X,Y) = 0 \\iff X \\perp Y$. Đây là tính chất riêng có của phân phối chuẩn đồng thời.',
+    error: 'Chưa đúng. Đối với Joint Gaussian, không tương quan đồng nghĩa với độc lập.'
+  },
+  {
+    id: 'ch03-q9-unbiased-estimator', title: 'Câu 9: Ước lượng không chệch', prompt: 'Vì sao trung bình mẫu $\\bar{X}$ được gọi là ước lượng không chệch cho trung bình quần thể $\\mu$?', mode: 'single',
+    options: [
+      { id: 'exp-xbar-equals-mu', label: 'Vì kỳ vọng của trung bình mẫu bằng đúng trung bình quần thể: $\\mathbb{E}[\\bar{X}] = \\mu$.', isCorrect: true },
+      { id: 'xbar-always-equals-mu', label: 'Vì $\\bar{X}$ luôn bằng $\\mu$ trong mọi mẫu.' },
+      { id: 'var-xbar-is-zero', label: 'Vì phương sai của $\\bar{X}$ bằng 0.' },
+      { id: 'n-is-infinite', label: 'Vì cỡ mẫu $n$ là vô hạn.' }
+    ],
+    success: 'Đúng. Ước lượng không chệch có kỳ vọng qua tất cả các mẫu có thể có bằng đúng tham số quần thể.',
+    error: 'Chưa đúng. Định nghĩa không chệch là kỳ vọng của ước lượng bằng tham số thực sự $\\mathbb{E}[\\bar{X}] = \\mu$.'
+  },
+  {
+    id: 'ch03-q10-mle-principle', title: 'Câu 10: Ước lượng Hợp lý Cực đại (MLE)', prompt: 'Phương pháp Ước lượng Hợp lý Cực đại (MLE) chọn tham số $\\hat{\\theta}$ dựa trên tiêu chí nào?', mode: 'single',
+    options: [
+      { id: 'max-likelihood-function', label: 'Làm cực đại hóa hàm Likelihood $L(\\theta \\mid X) = P(X \\mid \\theta)$.', isCorrect: true },
+      { id: 'min-sample-size', label: 'Làm giảm cỡ mẫu $n$ xuống nhỏ nhất.' },
+      { id: 'max-prior-prob', label: 'Làm tăng Prior lên 1.0.' },
+      { id: 'min-mean-squared-error-to-zero', label: 'Ép MSE bằng 0.' }
+    ],
+    success: 'Đúng! MLE tìm tham số $\\hat{\\theta}$ sao cho xác suất sinh ra tập dữ liệu quan sát được $X$ là lớn nhất.',
+    error: 'Chưa đúng. MLE hoạt động bằng cách tối đa hóa hàm Likelihood $P(Dữ liệu \\mid Tham số)$.'
+  }
+]} />

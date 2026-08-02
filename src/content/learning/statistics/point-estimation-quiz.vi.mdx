@@ -1,0 +1,61 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'point-estimation-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Tham số vs Ước lượng điểm', 'Tính chất Không chệch', 'Ước lượng Hợp lý Cực đại (MLE)', 'Sai số Bình phương Trung bình (MSE)'],
+  keywords: ['point estimation', 'parameter', 'unbiased', 'MLE', 'MSE'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="point-estimation-quiz" questions={[
+  {
+    id: 'parameter-vs-estimator', title: 'Tham số vs Ước lượng điểm', prompt: 'Kéo mỗi khái niệm vào đúng phân loại.', mode: 'categorize', hideUnsortedLabel: true,
+    completeLabel: 'Tất cả đại lượng đã được phân loại.',
+    categories: [
+      { id: 'parameter', label: 'Tham số Quần thể (Hằng số chưa biết)' },
+      { id: 'statistic', label: 'Thống kê mẫu / Ước lượng điểm (Biến ngẫu nhiên)' },
+    ],
+    options: [
+      { id: 'pop-mean-mu', label: 'Trung bình quần thể μ', categoryId: 'parameter' },
+      { id: 'pop-var-sigma2', label: 'Phương sai quần thể σ²', categoryId: 'parameter' },
+      { id: 'sample-mean-xbar', label: 'Trung bình mẫu x̄', categoryId: 'statistic' },
+      { id: 'sample-var-s2', label: 'Phương sai mẫu s²', categoryId: 'statistic' },
+    ],
+    success: 'Đúng. Tham số quần thể (μ, σ²) là hằng số cố định nhưng chưa biết; Ước lượng điểm (x̄, s²) là thống kê tính từ mẫu.',
+    error: 'Chưa đúng. Hãy nhớ: Tham số thuộc về quần thể, Thống kê/Ước lượng thuộc về mẫu quan sát.',
+  },
+  {
+    id: 'unbiasedness-definition', title: 'Tính chất Không chệch', prompt: 'Một ước lượng điểm $\\hat{\\theta}$ được gọi là **không chệch** (*unbiased*) cho tham số $\\theta$ khi nào?', mode: 'single',
+    options: [
+      { id: 'exp-equals-theta', label: 'Kỳ vọng của ước lượng bằng đúng tham số thực sự: $\\mathbb{E}[\\hat{\\theta}] = \\theta$.', isCorrect: true },
+      { id: 'variance-zero', label: 'Phương sai của ước lượng bằng 0.' },
+      { id: 'equals-sample-size', label: 'Ước lượng bằng đúng cỡ mẫu $n$.' },
+      { id: 'always-equals-theta', label: 'Trong mọi lần lấy mẫu, $\\hat{\\theta}$ luôn tính ra kết quả đúng bằng $\\theta$.' }
+    ],
+    success: 'Đúng. Không chệch nghĩa là trung bình qua rất nhiều mẫu độc lập, giá trị ước lượng sẽ trùng với tham số thực sự của quần thể.',
+    error: 'Chưa đúng. Ước lượng không chệch nghĩa là kỳ vọng $\\mathbb{E}[\\hat{\\theta}] = \\theta$.'
+  },
+  {
+    id: 'mle-concept', title: 'Ước lượng Hợp lý Cực đại (MLE)', prompt: 'Ý tưởng cốt lõi của phương pháp Ước lượng Hợp lý Cực đại (MLE) là gì?', mode: 'single',
+    options: [
+      { id: 'maximize-likelihood', label: 'Tìm giá trị tham số $\\hat{\\theta}$ làm cho khả năng quan sát được dữ liệu thực tế là cao nhất.', isCorrect: true },
+      { id: 'minimize-variance', label: 'Tìm ước lượng có phương sai nhỏ nhất bằng 0.' },
+      { id: 'make-sample-equal-pop', label: 'Ép cỡ mẫu bằng cỡ quần thể.' },
+      { id: 'maximize-prior', label: 'Tối đa hóa xác suất Prior.' }
+    ],
+    success: 'Đúng. MLE chọn giá trị tham số làm cực đại hóa hàm Likelihood $L(\\theta \\mid X) = P(X \\mid \\theta)$.',
+    error: 'Chưa đúng. MLE chọn tham số làm cho quan sát vừa thu được có xác suất xuất hiện cao nhất.'
+  },
+  {
+    id: 'mse-bias-variance-tradeoff', title: 'Sai số Bình phương Trung bình (MSE)', prompt: 'Sai số bình phương trung bình $\\operatorname{MSE}(\\hat{\\theta}) = \\mathbb{E}[(\\hat{\\theta} - \\theta)^2]$ được phân rã thành hai thành phần nào?', mode: 'single',
+    options: [
+      { id: 'bias2-plus-var', label: '$\\operatorname{Bias}(\\hat{\\theta})^2 + \\operatorname{Var}(\\hat{\\theta})$ (Độ chệch bình phương + Phương sai)', isCorrect: true },
+      { id: 'mean-plus-std', label: 'Trung bình + Độ lệch chuẩn' },
+      { id: 'prior-plus-posterior', label: 'Prior + Posterior' },
+      { id: 'n-plus-k', label: '$n + k$' }
+    ],
+    success: 'Đúng! $\\operatorname{MSE} = \\operatorname{Bias}^2 + \\operatorname{Var}$. Đây là công thức phân rã Bias-Variance Tradeoff nổi tiếng trong Thống kê và Machine Learning.',
+    error: 'Chưa đúng. $\\operatorname{MSE}$ bằng tổng của độ chệch bình phương và phương sai của ước lượng.'
+  }
+]} />

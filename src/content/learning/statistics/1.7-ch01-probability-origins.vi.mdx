@@ -8,7 +8,8 @@ export const lessonMetadata = {
     "Phép thử và những kết quả có thể xảy ra",
     "Con số 50% thực sự có nghĩa gì?",
     "Tính ổn định của tần suất",
-    "Khi một sự kiện chỉ xảy ra một lần"
+    "Khi một sự kiện chỉ xảy ra một lần",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "xác suất",
@@ -17,7 +18,7 @@ export const lessonMetadata = {
     "Fermat",
     "tần suất"
   ],
-  "pageCount": 5
+  "pageCount": 6
 }
 
 <MdxPage page={0}>
@@ -56,6 +57,8 @@ Các trò chơi may rủi như quay số, rút bài, tung đồng xu,… cho ch�
 
 ## Con số 50% thực sự có nghĩa gì?
 
+Trước khi tiếp tục, hãy dừng lại và suy nghĩ: khi ta nói "xác suất sấp là 50%", con số đó thực sự mô tả điều gì? Đồng xu đã nằm ở một mặt cụ thể — điều còn bất định là thông tin của người quan sát.
+
 <ProbabilityChapterVisual kind="hidden-coin-probability" />
 
 </MdxPage>
@@ -64,7 +67,7 @@ Các trò chơi may rủi như quay số, rút bài, tung đồng xu,… cho ch�
 
 ## Tính ổn định của tần suất
 
-Trong thực tế, nhiều hệ thống không cố đoán chính xác điều gì sẽ xảy ra với trường hợp kế tiếp:
+Kết quả của từng trường hợp có thể khó đoán. Nhưng khi có đủ nhiều quan sát, tần suất tương đối bắt đầu bộc lộ một quy luật ổn định. Trong thực tế, nhiều hệ thống không cố đoán chính xác điều gì sẽ xảy ra với trường hợp kế tiếp:
 
 <ProbabilityChapterVisual kind="large-number-applications" />
 
@@ -95,5 +98,21 @@ Tần suất tương đối phát huy tác dụng khi ta có thể quan sát nhi
 Ta không thể lặp lại chính xác cùng một ngày mai, cùng một cuộc bầu cử hay cùng một thử nghiệm hàng nghìn lần. Vì vậy, tần suất quan sát đơn thuần không đủ để trả lời trực tiếp những câu hỏi này. Dữ liệu quá khứ vẫn hữu ích, nhưng cần được kết hợp với mô hình và thông tin hiện có.
 
 Đây là cầu nối sang cách nhìn Bayesian: xác suất biểu diễn mức độ tin cậy vào từng khả năng dựa trên thông tin hiện tại, rồi được cập nhật khi có bằng chứng mới. Naive Bayes sẽ áp dụng logic cập nhật đó cho bài toán phân loại với một giả định đơn giản hóa về các đặc trưng.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 1.7">
+
+- **Khởi nguồn lịch sử**: Lý thuyết xác suất ra đời vào thế kỷ XVII từ thư từ giữa Pascal và Fermat giải quyết các bài toán xúc xắc của Chevalier de Méré.
+- **Hai cách hiểu xác suất cốt lõi**:
+  - **Tần suất tương đối** (*Frequentist*): Xác suất là giới hạn tần suất khi phép thử được lặp lại vô số lần trong điều kiện ổn định.
+  - **Mức độ tin cậy** (*Bayesian*): Xác suất biểu diễn sự thiếu thông tin của người quan sát về một sự kiện đơn lẻ, được cập nhật liên tục khi có bằng chứng mới.
+- **Ứng dụng trong AI & Học máy**: Xác suất là ngôn ngữ giúp AI mô hình hóa sự bất định (uncertainty) thay vì đưa ra dự đoán cứng 100%.
+
+</LessonNote>
 
 </MdxPage>

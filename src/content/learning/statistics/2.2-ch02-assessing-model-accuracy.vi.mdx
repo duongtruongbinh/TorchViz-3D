@@ -7,7 +7,8 @@ export const lessonMetadata = {
     "Đánh giá độ chính xác của mô hình",
     "2.2.1 Đo chất lượng phép khớp",
     "2.2.2 Đánh đổi độ chệch–phương sai",
-    "2.2.3 Bối cảnh phân loại"
+    "2.2.3 Bối cảnh phân loại",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "thống kê",
@@ -16,7 +17,7 @@ export const lessonMetadata = {
     "Học thống kê",
     "Đánh giá độ chính xác của mô hình"
   ],
-  "pageCount": 4
+  "pageCount": 5
 }
 
 <MdxPage page={0}>
@@ -132,5 +133,30 @@ Hình 2.14 minh họa phương pháp KNN. Trong ô bên trái, ta vẽ một b�
 Dù là một cách rất đơn giản, KNN thường tạo bộ phân loại gần bộ phân loại Bayes tối ưu một cách đáng ngạc nhiên. Hình 2.15 trình bày biên quyết định KNN với _K_ = 10 khi áp dụng cho bộ dữ liệu mô phỏng lớn hơn từ Hình 2.13. Lưu ý dù bộ phân loại KNN không biết phân phối thực, biên quyết định KNN rất gần biên của bộ phân loại Bayes. Tỷ lệ sai số kiểm tra bằng KNN là 0 _._ 1363, gần tỷ lệ sai số Bayes 0 _._ 1304. Việc chọn _K_ ảnh hưởng mạnh đến bộ phân loại KNN thu được. Hình 2.16 trình bày hai phép khớp KNN trên dữ liệu mô phỏng từ Hình 2.13 với _K_ = 1 và _K_ = 100. Khi _K_ = 1, biên quyết định quá linh hoạt và tìm những quy luật trong dữ liệu không tương ứng với biên quyết định Bayes. Đây là bộ phân loại có độ chệch thấp nhưng phương sai rất cao. Khi _K_ tăng, phương pháp kém linh hoạt hơn và tạo biên quyết định gần tuyến tính. Đây là bộ phân loại phương sai thấp nhưng độ chệch cao. Trên bộ dữ liệu mô phỏng này, cả _K_ = 1 lẫn _K_ = 100 đều không dự đoán tốt: tỷ lệ sai số kiểm tra lần lượt là 0 _._ 1695 và 0 _._ 1925.
 
 Tương tự bối cảnh hồi quy, tỷ lệ sai số huấn luyện không có quan hệ chặt chẽ với tỷ lệ sai số kiểm tra. Với _K_ = 1, tỷ lệ sai số huấn luyện KNN bằng 0, nhưng tỷ lệ sai số kiểm tra có thể khá cao. Nhìn chung, khi dùng phương pháp phân loại linh hoạt hơn, tỷ lệ sai số huấn luyện giảm nhưng tỷ lệ sai số kiểm tra có thể không giảm. Trong Hình 2.17, ta vẽ sai số kiểm tra và huấn luyện KNN theo 1 _/K_. Khi 1 _/K_ tăng, phương pháp trở nên linh hoạt hơn. Tương tự bối cảnh hồi quy, tỷ lệ sai số huấn luyện liên tục giảm khi tính linh hoạt tăng. Tuy nhiên, sai số kiểm tra có dạng chữ U đặc trưng, lúc đầu giảm (cực tiểu ở khoảng _K_ = 10) rồi tăng lại khi phương pháp quá linh hoạt và quá khớp.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 2.2">
+
+- **Chỉ số đánh giá độ khớp**:
+  - **Hồi quy**: Sai số bình phương trung bình (<MdxFormula inline formula={"\\\\text{MSE} = \\\\frac{1}{n} \\\\sum (y_i - \\\\hat{f}(x_i))^2"} />).
+  - **Phân loại**: Tỷ lệ sai số phân loại (<MdxFormula inline formula={"\\\\text{Error Rate} = \\\\frac{1}{n} \\\\sum I(y_i \\\\ne \\\\hat{y}_i)"} />).
+- **MSE Huấn luyện vs MSE Kiểm tra**:
+  - Tối ưu hóa mô hình nhằm giảm **MSE kiểm tra** (trên dữ liệu chưa từng thấy), không phải MSE huấn luyện.
+  - **Quá khớp** (*Overfitting*): Xảy ra khi MSE huấn luyện rất nhỏ nhưng MSE kiểm tra lại rất lớn do mô hình học cả nhiễu ngẫu nhiên.
+- **Phân rã Đánh đổi Bias-Variance**:
+  <MdxFormula formula={"\\\\text{E}(y_0 - \\\\hat{f}(x_0))^2 = \\\\text{Var}(\\\\hat{f}(x_0)) + [\\\\text{Bias}(\\\\hat{f}(x_0))]^2 + \\\\text{Var}(\\\\epsilon)"} />
+  - **Độ chệch** (*Bias*): Sai số do giả định mô hình đơn giản hóa bài toán thực tế.
+  - **Phương sai** (*Variance*): Mức độ thay đổi của dự đoán khi huấn luyện trên tập dữ liệu mới.
+  - **Đường cong chữ U**: Khi tăng độ linh hoạt của mô hình, Bias giảm nhưng Variance tăng; MSE kiểm tra đạt cực tiểu tại điểm cân bằng tối ưu.
+- **Bộ phân loại Bayes & KNN**:
+  - **Bộ phân loại Bayes**: Đạt tỷ lệ lỗi kiểm tra thấp nhất bằng cách gán quan sát vào lớp có xác suất có điều kiện lớn nhất (<MdxFormula inline formula={"P(Y=j \\\\mid X=x_0)"} />).
+  - **Thuật toán KNN**: Ước lượng xác suất có điều kiện dựa trên <MdxFormula inline formula={"K"} /> láng giềng gần nhất. <MdxFormula inline formula={"K"} /> nhỏ <MdxFormula inline formula={"\\rightarrow"} /> linh hoạt cao, bias thấp, variance cao; <MdxFormula inline formula={"K"} /> lớn <MdxFormula inline formula={"\\rightarrow"} /> trơn hơn, bias cao, variance thấp.
+
+</LessonNote>
 
 </MdxPage>

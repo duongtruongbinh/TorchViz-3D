@@ -2,7 +2,7 @@ export const lessonMetadata = {
   "domainId": "statistics",
   "id": "ch02-python-introduction-lab",
   "locale": "vi",
-  "title": "3.7 Lab: Python cho công việc thống kê",
+  "title": "3.10 Lab: Python cho công việc thống kê",
   "headings": [
     "2.3.1 Bắt đầu",
     "2.3.2 Các lệnh cơ bản",
@@ -12,7 +12,8 @@ export const lessonMetadata = {
     "2.3.6 Lập chỉ mục dữ liệu",
     "2.3.7 Nạp dữ liệu",
     "2.3.8 Vòng lặp for",
-    "2.3.9 Các tóm tắt đồ họa và số bổ sung"
+    "2.3.9 Các tóm tắt đồ họa và số bổ sung",
+    "Cheatsheet Python cho Thống kê"
   ],
   "keywords": [
     "thống kê",
@@ -21,7 +22,7 @@ export const lessonMetadata = {
     "Học thống kê",
     "Thực hành: Nhập môn Python"
   ],
-  "pageCount": 9
+  "pageCount": 10
 }
 
 <MdxPage page={0}>
@@ -825,5 +826,29 @@ Ta cũng có thể tạo tóm tắt chỉ cho một cột.
 <MdxCode language="text" code={"In [113]:Auto['cylinders'].describe()\nAuto['mpg'].describe()"} />
 
 Để thoát `Jupyter`, chọn `File / Close and Halt`.
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Cheatsheet Python cho Thống kê
+
+<LessonNote label="Tổng kết các lệnh Python quan trọng">
+
+- **NumPy (Tính toán mảng số)**:
+  - `np.array([1, 2, 3])`: Tạo mảng NumPy 1D.
+  - `np.arange(1, 11)`: Tạo dãy số từ 1 đến 10.
+  - `np.cumsum(x)`: Tính tổng tích lũy.
+  - `np.dot(a, b)`: Tính tích trong của 2 vector.
+- **Pandas (Thao tác bảng dữ liệu)**:
+  - `pd.read_csv('file.csv')`: Đọc dữ liệu từ file CSV.
+  - `df.describe()`: Tóm tắt các chỉ số thống kê mô tả (mean, std, min, max, quantiles).
+  - `pd.crosstab(df['A'], df['B'], normalize='index')`: Lập bảng chéo tần số và tính xác suất có điều kiện theo hàng.
+- **Matplotlib / Seaborn (Hiển thị đồ họa)**:
+  - `plt.plot(x, y)`: Vẽ biểu đồ đường.
+  - `plt.hist(x, bins=10)`: Vẽ biểu đồ tần số (Histogram).
+  - `pd.plotting.scatter_matrix(df)`: Vẽ biểu đồ phân tán cặp (Pairs Plot / Scatter Matrix).
+
+</LessonNote>
 
 </MdxPage>

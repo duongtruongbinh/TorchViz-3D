@@ -54,6 +54,19 @@ import {
   VarianceEstimatorComparison,
   VariancePointExplorer,
 } from './varianceStandardDeviationRenderers';
+import {
+  CovarianceConceptVisual,
+  CovarianceMatrixExplorer,
+} from './covarianceMatrixRenderers';
+import {
+  CorrelationMatrixExplorer,
+  JointMarginalConceptVisual,
+  MarginalProjectionExplorer,
+} from './jointMarginalCorrelationRenderers';
+import {
+  MultivariateNormalConceptVisual,
+  MultivariateNormalExplorer,
+} from './multivariateNormalRenderers';
 
 type ProbabilityChapterVisualKind =
   | 'axioms'
@@ -3163,12 +3176,19 @@ function ProbabilityChapterVisual({ kind }: {
 }
 
 export const statisticsMdxComponents = {
+  CorrelationMatrixExplorer,
+  CovarianceConceptVisual,
+  CovarianceMatrixExplorer,
   HistogramBinComparison,
   HistogramBinExplorer,
   HistogramConstructionVisual,
   HistogramReadingInteraction,
   HistogramRulesVisual,
   HistogramShapeVisual,
+  JointMarginalConceptVisual,
+  MarginalProjectionExplorer,
+  MultivariateNormalConceptVisual,
+  MultivariateNormalExplorer,
   NormalDistributionVisual,
   NormalParameterExplorer,
   PopulationSampleObservationOverview,

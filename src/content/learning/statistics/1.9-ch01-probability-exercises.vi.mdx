@@ -9,7 +9,8 @@ export const lessonMetadata = {
     "Dùng Laplace smoothing",
     "Bài tập mới: Phân loại email",
     "Điền prior và likelihood",
-    "Điền score và kiểm tra đáp án"
+    "Điền score và kiểm tra đáp án",
+    "Kiến thức cần nắm"
   ],
   "keywords": [
     "bài tập xác suất",
@@ -17,7 +18,7 @@ export const lessonMetadata = {
     "Naive Bayes",
     "Laplace smoothing"
   ],
-  "pageCount": 6
+  "pageCount": 7
 }
 
 <MdxPage page={0}>
@@ -131,5 +132,21 @@ Với email mới có từ “miễn phí” và có liên kết, score của m�
 Hãy tính hai score, chọn class có score lớn hơn rồi kiểm tra đáp án.
 
 <ProbabilityChapterVisual kind="email-naive-bayes-scores" />
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt quy trình giải bài tập Naive Bayes">
+
+1. **Tính Prior <MdxFormula inline formula={"P(C_i)"} />**: Đếm số mẫu thuộc lớp <MdxFormula inline formula={"C_i"} /> chia cho tổng số mẫu trong dataset.
+2. **Tính Likelihood <MdxFormula inline formula={"P(X_k \\\\mid C_i)"} />**: Đếm số lần đặc trưng <MdxFormula inline formula={"X_k"} /> xuất hiện trong lớp <MdxFormula inline formula={"C_i"} /> chia cho tổng số mẫu của **chính lớp <MdxFormula inline formula={"C_i"} /> đó**.
+3. **Áp dụng Laplace Smoothing (nếu yêu cầu)**: Cộng <MdxFormula inline formula={"1"} /> vào lượt đếm tử số và cộng <MdxFormula inline formula={"K"} /> (số giá trị phân biệt của đặc trưng) vào mẫu số.
+4. **Tính Score cho mỗi lớp**: Nhân Prior với tích các Likelihood của các đặc trưng cần dự đoán.
+5. **Đưa ra quyết định**: Chọn lớp có Score lớn hơn (<MdxFormula inline formula={"\\\\hat{C} = \\\\operatorname*{arg\\\\,max} \\\\text{score}(C_i)"} />).
+
+</LessonNote>
 
 </MdxPage>

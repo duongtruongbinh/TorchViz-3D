@@ -1,0 +1,720 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'mean-vector-covariance-matrix',
+  locale: 'vi',
+  title: '3.4 Vector trung bình, Covariance & Ma trận Covariance (Mean Vector, Covariance & Covariance Matrix)',
+  headings: [
+    'Từ một số sang một vector',
+    'Dataset là một ma trận',
+    'Trung bình trở thành vector trung bình',
+    'Tính vector trung bình bằng tay',
+    'Center dữ liệu',
+    'Variance mới chỉ mô tả từng chiều riêng',
+    'Covariance là gì?',
+    'Covariance dương',
+    'Covariance âm',
+    'Covariance gần 0',
+    'Tính covariance bằng tay',
+    'Variance là covariance của một biến với chính nó',
+    'Outer product mở rộng squared deviation',
+    'Covariance matrix',
+    'Đọc covariance matrix',
+    'Tính covariance matrix bằng tay',
+    'Công thức dạng ma trận',
+    'Phiên bản chia cho n − 1',
+    'Covariance matrix và hình dạng đám mây điểm',
+    'Scale ảnh hưởng đến covariance',
+    'Code tính vector trung bình',
+    'Code tính covariance thủ công',
+    'Code bằng np.cov',
+    'Kiểm tra đường chéo',
+    'Code minh họa dấu của covariance',
+    'Những lỗi thường gặp',
+    'Mini interaction tổng hợp',
+  ],
+  keywords: [
+    'mean vector',
+    'covariance',
+    'covariance matrix',
+    'centered matrix',
+    'outer product',
+    'bivariate distribution',
+    'scatter plot',
+    'numpy cov',
+  ],
+  pageCount: 27,
+};
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập">
+
+Sau bài này, bạn sẽ:
+- Biểu diễn dữ liệu nhiều chiều dưới dạng ma trận dữ liệu <MdxFormula inline formula={"X \\in \\mathbb{R}^{n \\times d}"} /> và tính **vector trung bình** (*mean vector*) <MdxFormula inline formula={"\\boldsymbol{\\mu}"} />.
+- Định nghĩa **Hiệp phương sai** (*Covariance*) giữa hai biến và giải thích ý nghĩa dấu của covariance (dương, âm, gần 0).
+- Xây dựng **ma trận Covariance** (*Covariance matrix*) <MdxFormula inline formula={"\\boldsymbol{\\Sigma} \\in \\mathbb{R}^{d \\times d}"} />, đọc các phần tử đường chéo (variance) và ngoài đường chéo (covariance).
+- Lập trình tính toán ma trận covariance bằng NumPy (`np.cov`) và chú ý tham số `rowvar=False`.
+
+</LessonNote>
+
+## Từ một số sang một vector
+
+Trong dữ liệu một chiều, mỗi đối tượng chỉ có một giá trị:
+
+<MdxFormula formula={"x_i \\in \\mathbb{R}"} />
+
+Ví dụ: chiều cao của người thứ <MdxFormula inline formula={"i"} /> là 170 cm.
+
+Trong dữ liệu nhiều chiều, mỗi đối tượng có nhiều đặc trưng. Ta biểu diễn 1 quan sát (observation) bằng một **vector hàng**:
+
+<MdxFormula formula={"\\mathbf{x}_i = \\begin{bmatrix} x_{i1} & x_{i2} & \\cdots & x_{id} \\end{bmatrix} \\in \\mathbb{R}^{1 \\times d}"} />
+
+Ví dụ với 2 đặc trưng (chiều cao và cân nặng):
+
+<MdxFormula formula={"\\mathbf{x}_i = \\begin{bmatrix} 170 & 65 \\end{bmatrix}"} />
+
+Trong đó 170 là chiều cao (cm) và 65 là cân nặng (kg).
+
+<CovarianceConceptVisual
+  kind="vector-expansion"
+  ariaLabel="Mở rộng từ một đối tượng có 1 giá trị thành một vector hàng quan sát gồm nhiều đặc trưng."
+  caption="Thống nhất quy ước: 1 quan sát (Observation) là 1 vector hàng gồm d đặc trưng; trong khi 1 đặc trưng (Feature) là 1 vector cột gồm n quan sát."
+/>
+
+> Khi mỗi đối tượng có nhiều đặc trưng, một quan sát trở thành một vector hàng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Dataset là một ma trận
+
+Giả sử tập dữ liệu gồm có <MdxFormula inline formula={"n"} /> quan sát và <MdxFormula inline formula={"d"} /> đặc trưng. Ta biểu diễn toàn bộ dữ liệu bằng ma trận:
+
+<MdxFormula formula={"\\mathbf{X} \\in \\mathbb{R}^{n \\times d}"} />
+
+Quy ước chuẩn trong Data Science và Machine Learning:
+- Mỗi hàng là một vector hàng quan sát (observation vector <MdxFormula inline formula={"\\mathbf{x}_i \\in \\mathbb{R}^{1 \\times d}"} />).
+- Mỗi cột là một vector cột đặc trưng (feature vector <MdxFormula inline formula={"\\mathbf{f}_j \\in \\mathbb{R}^{n \\times 1}"} />).
+
+<MdxFormula formula={"\\mathbf{X} = \\begin{bmatrix} \\mathbf{x}_1 \\\\ \\mathbf{x}_2 \\\\ \\vdots \\\\ \\mathbf{x}_n \\end{bmatrix} = \\begin{bmatrix} x_{11} & x_{12} & \\cdots & x_{1d} \\\\ x_{21} & x_{22} & \\cdots & x_{2d} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ x_{n1} & x_{n2} & \\cdots & x_{nd} \\end{bmatrix}"} />
+
+Ví dụ với <MdxFormula inline formula={"n=3"} /> người và <MdxFormula inline formula={"d=2"} /> đặc trưng (Chiều cao, Cân nặng):
+
+<MdxFormula formula={"\\mathbf{X} = \\begin{bmatrix} 160 & 50 \\\\ 170 & 65 \\\\ 180 & 80 \\end{bmatrix}"} />
+
+<CovarianceConceptVisual
+  kind="dataset-matrix"
+  ariaLabel="Chuyển đổi bảng dữ liệu quan sát thành ký hiệu ma trận X kích thước n x d."
+  caption="Ma trận dữ liệu gom n vector hàng quan sát thành ma trận X."
+/>
+
+> Ma trận dữ liệu gom tất cả vector quan sát vào cùng một cấu trúc.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Trung bình trở thành vector trung bình
+
+Trong dữ liệu một chiều, giá trị trung bình là:
+
+<MdxFormula formula={"\\mu = \\frac{1}{n}\\sum_{i=1}^{n} x_i"} />
+
+Trong dữ liệu nhiều chiều, ta tính trung bình riêng cho từng đặc trưng (từng cột). Vector trung bình thu được là một **vector hàng** kích thước <MdxFormula inline formula={"1 \\times d"} />:
+
+<MdxFormula formula={"\\boldsymbol{\\mu} = \\frac{1}{n}\\sum_{i=1}^{n} \\mathbf{x}_i"} />
+
+<MdxFormula formula={"\\boldsymbol{\\mu} = \\begin{bmatrix} \\mu_1 & \\mu_2 & \\cdots & \\mu_d \\end{bmatrix}"} />
+
+Trong đó trung bình của đặc trưng thứ <MdxFormula inline formula={"j"} /> là:
+
+<MdxFormula formula={"\\mu_j = \\frac{1}{n}\\sum_{i=1}^{n} x_{ij}"} />
+
+- <MdxFormula inline formula={"\\mu_1"} />: trung bình của đặc trưng thứ nhất.
+- <MdxFormula inline formula={"\\mu_2"} />: trung bình của đặc trưng thứ hai.
+- Mỗi chiều có một giá trị trung bình đại diện riêng.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tính vector trung bình bằng tay
+
+Cho ba quan sát dữ liệu 2 chiều (3 vector hàng):
+
+<MdxFormula formula={"\\mathbf{x}_1 = \\begin{bmatrix} 1 & 2 \\end{bmatrix}, \\qquad \\mathbf{x}_2 = \\begin{bmatrix} 3 & 4 \\end{bmatrix}, \\qquad \\mathbf{x}_3 = \\begin{bmatrix} 5 & 9 \\end{bmatrix}"} />
+
+Vector trung bình <MdxFormula inline formula={"\\boldsymbol{\\mu}"} /> được tính bằng:
+
+<MdxFormula formula={"\\boldsymbol{\\mu} = \\frac{1}{3} \\left( \\mathbf{x}_1 + \\mathbf{x}_2 + \\mathbf{x}_3 \\right) = \\frac{1}{3} \\left( \\begin{bmatrix} 1 & 2 \\end{bmatrix} + \\begin{bmatrix} 3 & 4 \\end{bmatrix} + \\begin{bmatrix} 5 & 9 \\end{bmatrix} \\right)"} />
+
+<MdxFormula formula={"\\boldsymbol{\\mu} = \\frac{1}{3} \\begin{bmatrix} 9 & 15 \\end{bmatrix} = \\begin{bmatrix} 3 & 5 \\end{bmatrix}"} />
+
+<CovarianceConceptVisual
+  kind="mean-vector-2d"
+  ariaLabel="Biểu diễn 3 điểm dữ liệu (1,2), (3,4), (5,9) và điểm trung tâm mean vector (3,5) trên mặt phẳng 2D."
+  caption="Vector trung bình μ = [3, 5] chính là trọng tâm (center of mass) của đám mây dữ liệu."
+/>
+
+> Vector trung bình là tâm của đám mây dữ liệu theo từng chiều.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Center dữ liệu
+
+Trong một chiều, ta lấy độ lệch khỏi trung bình: <MdxFormula inline formula={"x_i - \\mu"} />. Trong nhiều chiều, ta trừ vector trung bình khỏi từng vector hàng quan sát:
+
+<MdxFormula formula={"\\mathbf{x}_i - \\boldsymbol{\\mu}"} />
+
+Đây gọi là **centered vector** (vector đã được dịch tâm). Với 3 quan sát ví dụ ở trang trước:
+
+<MdxFormula formula={"\\mathbf{x}_1 - \\boldsymbol{\\mu} = \\begin{bmatrix} 1 & 2 \\end{bmatrix} - \\begin{bmatrix} 3 & 5 \\end{bmatrix} = \\begin{bmatrix} -2 & -3 \\end{bmatrix}"} />
+
+<MdxFormula formula={"\\mathbf{x}_2 - \\boldsymbol{\\mu} = \\begin{bmatrix} 3 & 4 \\end{bmatrix} - \\begin{bmatrix} 3 & 5 \\end{bmatrix} = \\begin{bmatrix} 0 & -1 \\end{bmatrix}"} />
+
+<MdxFormula formula={"\\mathbf{x}_3 - \\boldsymbol{\\mu} = \\begin{bmatrix} 5 & 9 \\end{bmatrix} - \\begin{bmatrix} 3 & 5 \\end{bmatrix} = \\begin{bmatrix} 2 & 4 \\end{bmatrix}"} />
+
+<CovarianceConceptVisual
+  kind="centering"
+  ariaLabel="Mô phỏng trượt đám mây điểm để vector trung bình trùng với gốc tọa độ (0,0)."
+  caption="Thao tác Centering dịch toàn bộ đám mây dữ liệu sao cho tâm mới nằm tại gốc tọa độ 0."
+/>
+
+> Centering chỉ thay đổi vị trí trung tâm, không thay đổi độ phân tán hay mối quan hệ giữa các biến.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Variance mới chỉ mô tả từng chiều riêng
+
+Với hai biến <MdxFormula inline formula={"X"} /> và <MdxFormula inline formula={"Y"} />, ta có thể tính riêng phương sai cho từng biến: <MdxFormula inline formula={"\\operatorname{Var}(X)"} /> và <MdxFormula inline formula={"\\operatorname{Var}(Y)"} />.
+
+Hai đại lượng này cho biết:
+- <MdxFormula inline formula={"X"} /> trải rộng đến mức nào theo trục ngang.
+- <MdxFormula inline formula={"Y"} /> trải rộng đến mức nào theo trục dọc.
+
+Nhưng chúng **chưa trả lời được câu hỏi**:
+
+> Khi <MdxFormula inline formula={"X"} /> thay đổi (tăng hoặc giảm), <MdxFormula inline formula={"Y"} /> có xu hướng thay đổi cùng chiều hay ngược chiều?
+
+<CovarianceConceptVisual
+  kind="variance-limitations"
+  ariaLabel="Ba đám mây điểm có cùng Var(X) và Var(Y) nhưng xu hướng đồng biến, nghịch biến hoặc không liên quan hoàn toàn khác nhau."
+  caption="Cùng độ phân tán riêng từng chiều, nhưng xu hướng biến thiên cùng nhau của (X, Y) lại khác nhau."
+/>
+
+> Ta cần một đại lượng mô tả cách hai biến cùng thay đổi (co-vary).
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Covariance là gì?
+
+**Covariance** (hiệp phương sai) giữa hai biến <MdxFormula inline formula={"X"} /> và <MdxFormula inline formula={"Y"} /> đo mức độ biến thiên cùng nhau của chúng:
+
+<MdxFormula formula={"\\operatorname{Cov}(X,Y) = \\frac{1}{n}\\sum_{i=1}^{n} (x_i - \\mu_X)(y_i - \\mu_Y)"} />
+
+Trong thống kê suy luận từ mẫu (sample), công thức hiệu chỉnh dùng <MdxFormula inline formula={"n-1"} />:
+
+<MdxFormula formula={"s_{XY} = \\frac{1}{n-1}\\sum_{i=1}^{n} (x_i - \\bar{x})(y_i - \\bar{y})"} />
+
+Theo quy ước phổ biến trong AI / Machine Learning, ta mặc định dùng chia cho <MdxFormula inline formula={"n"} />:
+
+<MdxFormula formula={"\\operatorname{Cov}(X,Y) = \\frac{1}{n}\\sum_{i=1}^{n} (x_i - \\mu_X)(y_i - \\mu_Y)"} />
+
+### Trực giác toán học
+Ta nhân hai độ lệch (deviations): <MdxFormula inline formula={"(x_i - \\mu_X)(y_i - \\mu_Y)"} />
+- Hai độ lệch cùng dấu: tích số **dương**.
+- Hai độ lệch trái dấu: tích số **âm**.
+- Lấy trung bình cộng tất cả các tích.
+
+> Covariance đo xem hai biến có xu hướng lệch khỏi trung bình theo cùng hướng hay ngược hướng.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Covariance dương
+
+Khi <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) > 0"} />:
+- Khi <MdxFormula inline formula={"X"} /> cao hơn trung bình, <MdxFormula inline formula={"Y"} /> cũng thường cao hơn trung bình: <MdxFormula inline formula={"(+)(+) > 0"} />.
+- Khi <MdxFormula inline formula={"X"} /> thấp hơn trung bình, <MdxFormula inline formula={"Y"} /> cũng thường thấp hơn trung bình: <MdxFormula inline formula={"(-)(-) > 0"} />.
+
+Hai độ lệch thường cùng dấu, dẫn đến tổng các tích mang dấu dương.
+
+<CovarianceConceptVisual
+  kind="covariance-positive"
+  ariaLabel="Mặt phẳng 4 phần tư nhấn mạnh hai góc Trái-Dưới và Phải-Trên cho covariance dương."
+  caption="Covariance dương: Các điểm dữ liệu tập trung chủ yếu ở phần tư Phải-Trên và Trái-Dưới."
+/>
+
+> Covariance dương cho thấy hai biến thường cùng tăng hoặc cùng giảm với nhau.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Covariance âm
+
+Khi <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) < 0"} />:
+- Khi <MdxFormula inline formula={"X"} /> cao hơn trung bình, <MdxFormula inline formula={"Y"} /> thường thấp hơn trung bình: <MdxFormula inline formula={"(+)(-) < 0"} />.
+- Khi <MdxFormula inline formula={"X"} /> thấp hơn trung bình, <MdxFormula inline formula={"Y"} /> thường cao hơn trung bình: <MdxFormula inline formula={"(-)(+) < 0"} />.
+
+Hai độ lệch thường trái dấu, dẫn đến tổng các tích mang dấu âm.
+
+<CovarianceConceptVisual
+  kind="covariance-negative"
+  ariaLabel="Mặt phẳng 4 phần tư nhấn mạnh hai góc Trái-Trên và Phải-Dưới cho covariance âm."
+  caption="Covariance âm: Các điểm dữ liệu tập trung chủ yếu ở phần tư Trái-Trên và Phải-Dưới."
+/>
+
+> Covariance âm cho thấy một biến thường tăng khi biến còn lại giảm.
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Covariance gần 0
+
+Khi <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) \\approx 0"} />: Không có xu hướng tuyến tính rõ ràng. Các tích dương và tích âm triệt tiêu lẫn nhau khi cộng tổng.
+
+<CovarianceConceptVisual
+  kind="covariance-zero"
+  ariaLabel="So sánh đám mây điểm đối xứng tròn (Cov ~ 0) và quan hệ phi tuyến Y = X^2 cũng có Cov = 0."
+  caption="Đám mây điểm hình tròn hoặc phân bố đối xứng phi tuyến đều cho Covariance xấp xỉ 0."
+/>
+
+### Cảnh báo quan trọng!
+> Covariance bằng 0 **không nhất thiết** có nghĩa là hai biến độc lập!
+
+Ví dụ: nếu <MdxFormula inline formula={"Y = X^2"} /> và <MdxFormula inline formula={"X"} /> phân bố đối xứng qua 0, thì <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) = 0"} /> dù <MdxFormula inline formula={"Y"} /> phụ thuộc hoàn toàn vào <MdxFormula inline formula={"X"} banquet />.
+
+> Covariance chủ yếu đo lường mối quan hệ tuyến tính (linear association).
+
+</MdxPage>
+
+<MdxPage page={10}>
+
+## Tính covariance bằng tay
+
+<CovarianceConceptVisual
+  kind="hand-calculation"
+  ariaLabel="Bảng tính covariance bằng tay cho 3 quan sát (1,2), (3,4), (5,9)."
+  caption="Bảng tổng hợp tính độ lệch và tích độ lệch cho từng quan sát trước khi lấy trung bình."
+  labels={['Quan sát i', 'xᵢ', 'yᵢ', 'xᵢ − μ_X', 'yᵢ − μ_Y', 'Tích độ lệch (xᵢ − μ_X)(yᵢ − μ_Y)']}
+/>
+
+### Bước 3: Lấy trung bình cộng các tích
+<MdxFormula formula={"\\operatorname{Cov}(X,Y) = \\frac{6 + 0 + 8}{3} = \\frac{14}{3} \\approx 4.667"} />
+
+Covariance mang dấu dương vì khi <MdxFormula inline formula={"X"} /> tăng, <MdxFormula inline formula={"Y"} /> cũng có xu hướng tăng theo.
+
+</MdxPage>
+
+<MdxPage page={11}>
+
+## Variance là covariance của một biến với chính nó
+
+Xét công thức Covariance khi tính giữa biến <MdxFormula inline formula={"X"} /> và chính nó <MdxFormula inline formula={"X"} />:
+
+<MdxFormula formula={"\\operatorname{Cov}(X,X) = \\frac{1}{n}\\sum_{i=1}^{n} (x_i - \\mu_X)(x_i - \\mu_X)"} />
+
+Biến đổi đại số:
+
+<MdxFormula formula={"\\operatorname{Cov}(X,X) = \\frac{1}{n}\\sum_{i=1}^{n} (x_i - \\mu_X)^2 = \\operatorname{Var}(X)"} />
+
+Do đó:
+
+<MdxFormula formula={"\\operatorname{Cov}(X,X) = \\operatorname{Var}(X)"} />
+
+> Variance không phải một khái niệm tách rời độc lập; nó chính là covariance của một biến với chính nó.
+
+</MdxPage>
+
+<MdxPage page={12}>
+
+## Outer product mở rộng squared deviation
+
+Khi centered observation <MdxFormula inline formula={"\\mathbf{d}_i = \\mathbf{x}_i - \\boldsymbol{\\mu}"} /> là một **vector hàng** <MdxFormula inline formula={"\\mathbb{R}^{1 \\times d}"} />:
+
+<MdxFormula formula={"\\mathbf{d}_i = \\begin{bmatrix} d_x & d_y \\end{bmatrix}"} />
+
+Chuyển vị <MdxFormula inline formula={"\\mathbf{d}_i^\\top"} /> trở thành vector cột <MdxFormula inline formula={"\\mathbb{R}^{d \\times 1}"} />:
+
+<MdxFormula formula={"\\mathbf{d}_i^\\top = \\begin{bmatrix} d_x \\\\ d_y \\end{bmatrix}"} />
+
+Tích ngoài (Outer Product) nhân vector cột <MdxFormula inline formula={"(d \\times 1)"} /> với vector hàng <MdxFormula inline formula={"(1 \\times d)"} /> tạo thành ma trận đóng góp <MdxFormula inline formula={"d \\times d"} />:
+
+<MdxFormula formula={"\\mathbf{d}_i^\\top \\mathbf{d}_i = \\begin{bmatrix} d_x \\\\ d_y \\end{bmatrix} \\begin{bmatrix} d_x & d_y \\end{bmatrix} = \\begin{bmatrix} d_x^2 & d_x d_y \\\\ d_x d_y & d_y^2 \\end{bmatrix}"} />
+
+<CovarianceConceptVisual
+  kind="outer-product"
+  ariaLabel="Minh họa tích ngoài d_i^T d_i cột nhân hàng tạo ra ma trận 2x2 chứa variance trên đường chéo và covariance ngoài đường chéo."
+  caption="Ô d_x² và d_y² đóng góp vào Variance; hai ô chéo d_x d_y đóng góp vào Covariance."
+/>
+
+> Tích ngoài d_iᵀ d_i tự động tính cả bình phương độ lệch từng chiều lẫn tích độ lệch giữa các cặp chiều.
+
+</MdxPage>
+
+<MdxPage page={13}>
+
+## Covariance matrix
+
+Với các vector hàng quan sát <MdxFormula inline formula={"\\mathbf{x}_i \\in \\mathbb{R}^{1 \\times d}"} />, ma trận covariance <MdxFormula inline formula={"\\boldsymbol{\\Sigma}"} /> kích thước <MdxFormula inline formula={"d \\times d"} /> được tính bằng:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\frac{1}{n}\\sum_{i=1}^{n} (\\mathbf{x}_i - \\boldsymbol{\\mu})^\\top (\\mathbf{x}_i - \\boldsymbol{\\mu})"} />
+
+Dạng kỳ vọng toán học lý thuyết:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\mathbb{E}\\left[ (\\mathbf{X} - \\boldsymbol{\\mu})^\\top (\\mathbf{X} - \\boldsymbol{\\mu}) \\right]"} />
+
+### Dạng tổng quát kích thước <MdxFormula inline formula={"d \\times d"} />:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\begin{bmatrix} \\operatorname{Var}(X_1) & \\operatorname{Cov}(X_1,X_2) & \\cdots & \\operatorname{Cov}(X_1,X_d) \\\\ \\operatorname{Cov}(X_2,X_1) & \\operatorname{Var}(X_2) & \\cdots & \\operatorname{Cov}(X_2,X_d) \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ \\operatorname{Cov}(X_d,X_1) & \\operatorname{Cov}(X_d,X_2) & \\cdots & \\operatorname{Var}(X_d) \\end{bmatrix}"} />
+
+</MdxPage>
+
+<MdxPage page={14}>
+
+## Đọc covariance matrix
+
+Đối với dữ liệu 2 chiều <MdxFormula inline formula={"(X, Y)"} />, ma trận covariance có dạng:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\begin{bmatrix} \\sigma_X^2 & \\sigma_{XY} \\\\ \\sigma_{YX} & \\sigma_Y^2 \\end{bmatrix}"} />
+
+### Đường chéo chính (Diagonal)
+- <MdxFormula inline formula={"\\Sigma_{11} = \\operatorname{Var}(X) = \\sigma_X^2"} />: phương sai của <MdxFormula inline formula={"X"} />.
+- <MdxFormula inline formula={"\\Sigma_{22} = \\operatorname{Var}(Y) = \\sigma_Y^2"} />: phương sai của <MdxFormula inline formula={"Y"} />.
+- Các phần tử trên đường chéo cho biết độ phân tán riêng lẻ của từng chiều.
+
+### Phần ngoài đường chéo (Off-diagonal)
+- <MdxFormula inline formula={"\\Sigma_{12} = \\operatorname{Cov}(X,Y)"} /> và <MdxFormula inline formula={"\\Sigma_{21} = \\operatorname{Cov}(Y,X)"} />.
+- Do <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) = \\operatorname{Cov}(Y,X)"} />, ma trận covariance luôn là **ma trận đối xứng**:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\boldsymbol{\\Sigma}^\\top"} />
+
+> Câu thần chú: Đường chéo là Variance; ngoài đường chéo là Covariance.
+
+</MdxPage>
+
+<MdxPage page={15}>
+
+## Tính covariance matrix bằng tay
+
+Dùng lại dữ liệu 3 quan sát: <MdxFormula inline formula={"\\mathbf{x}_1 = [1,2], \\mathbf{x}_2 = [3,4], \\mathbf{x}_3 = [5,9]"} /> với <MdxFormula inline formula={"\\boldsymbol{\\mu} = [3,5]"} />.
+
+Centered observation row vectors:
+
+<MdxFormula formula={"\\mathbf{d}_1 = \\begin{bmatrix} -2 & -3 \\end{bmatrix}, \\quad \\mathbf{d}_2 = \\begin{bmatrix} 0 & -1 \\end{bmatrix}, \\quad \\mathbf{d}_3 = \\begin{bmatrix} 2 & 4 \\end{bmatrix}"} />
+
+### Tính 3 tích ngoài <MdxFormula inline formula={"\\mathbf{d}_i^\\top \\mathbf{d}_i"} />:
+<MdxFormula formula={"\\mathbf{d}_1^\\top \\mathbf{d}_1 = \\begin{bmatrix} -2 \\\\ -3 \\end{bmatrix} \\begin{bmatrix} -2 & -3 \\end{bmatrix} = \\begin{bmatrix} 4 & 6 \\\\ 6 & 9 \\end{bmatrix}"} />
+
+<MdxFormula formula={"\\mathbf{d}_2^\\top \\mathbf{d}_2 = \\begin{bmatrix} 0 \\\\ -1 \\end{bmatrix} \\begin{bmatrix} 0 & -1 \\end{bmatrix} = \\begin{bmatrix} 0 & 0 \\\\ 0 & 1 \\end{bmatrix}"} />
+
+<MdxFormula formula={"\\mathbf{d}_3^\\top \\mathbf{d}_3 = \\begin{bmatrix} 2 \\\\ 4 \\end{bmatrix} \\begin{bmatrix} 2 & 4 \\end{bmatrix} = \\begin{bmatrix} 4 & 8 \\\\ 8 & 16 \\end{bmatrix}"} />
+
+### Cộng 3 ma trận và chia cho <MdxFormula inline formula={"n=3"} />:
+<MdxFormula formula={"\\sum_{i=1}^{3} \\mathbf{d}_i^\\top \\mathbf{d}_i = \\begin{bmatrix} 8 & 14 \\\\ 14 & 26 \\end{bmatrix} \\implies \\boldsymbol{\\Sigma} = \\frac{1}{3} \\begin{bmatrix} 8 & 14 \\\\ 14 & 26 \\end{bmatrix} = \\begin{bmatrix} 8/3 & 14/3 \\\\ 14/3 & 26/3 \\end{bmatrix}"} />
+
+Kết quả: <MdxFormula inline formula={"\\operatorname{Var}(X) = 8/3"} />, <MdxFormula inline formula={"\\operatorname{Var}(Y) = 26/3"} />, và <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) = 14/3"} />.
+
+</MdxPage>
+
+<MdxPage page={16}>
+
+## Công thức dạng ma trận
+
+Giả sử ma trận dữ liệu ban đầu là <MdxFormula inline formula={"\\mathbf{X} \\in \\mathbb{R}^{n \\times d}"} /> với mỗi hàng là một vector hàng quan sát <MdxFormula inline formula={"\\mathbf{x}_i"} />.
+
+Vector trung bình <MdxFormula inline formula={"\\boldsymbol{\\mu} = \\frac{1}{n}\\mathbf{1}^\\top \\mathbf{X} \\in \\mathbb{R}^{1 \\times d}"} />.
+
+Ma trận centered <MdxFormula inline formula={"\\mathbf{X}_c"} /> được tính bằng cách trừ vector trung bình khỏi mỗi hàng:
+
+<MdxFormula formula={"\\mathbf{X}_c = \\mathbf{X} - \\mathbf{1}\\boldsymbol{\\mu} \\in \\mathbb{R}^{n \\times d}"} />
+
+Trong đó <MdxFormula inline formula={"\\mathbf{1}"} /> là vector toàn số 1 kích thước <MdxFormula inline formula={"n \\times 1"} />.
+
+Công thức ma trận tính toàn bộ Covariance Matrix:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\frac{1}{n} \\mathbf{X}_c^\\top \\mathbf{X}_c"} />
+
+### Kiểm tra kích thước ma trận:
+- <MdxFormula inline formula={"\\mathbf{X}_c^\\top \\in \\mathbb{R}^{d \\times n}"} />
+- <MdxFormula inline formula={"\\mathbf{X}_c \\in \\mathbb{R}^{n \\times d}"} />
+- Tích <MdxFormula inline formula={"(d \\times n) \\times (n \\times d) = d \\times d"} />.
+
+> Tập dữ liệu có d đặc trưng thì covariance matrix luôn có kích thước (d x d).
+
+</MdxPage>
+
+<MdxPage page={17}>
+
+## Phiên bản chia cho n − 1
+
+Nếu dữ liệu là một mẫu (sample) thu thập từ quần thể lớn và mục tiêu là ước lượng không lệch (unbiased) cho covariance của quần thể:
+
+<MdxFormula formula={"\\mathbf{S} = \\frac{1}{n-1} \\mathbf{X}_c^\\top \\mathbf{X}_c"} />
+
+Đây là phiên bản nhiều chiều của hiệu chỉnh Bessel (Bessel's correction).
+
+### Liên hệ với Node 1:
+- Trong 1 chiều: <MdxFormula inline formula={"s^2 = \\frac{1}{n-1}\\sum_{i=1}^{n} (x_i - \\bar{x})^2"} />
+- Trong nhiều chiều: <MdxFormula inline formula={"\\mathbf{S} = \\frac{1}{n-1}\\sum_{i=1}^{n} (\\mathbf{x}_i - \\bar{\\mathbf{x}})^\\top (\\mathbf{x}_i - \\bar{\\mathbf{x}})"} />
+
+### Quy ước cần nhớ:
+- AI/ML, mô tả batch dữ liệu: mặc định dùng chia cho <MdxFormula inline formula={"n"} />.
+- Ước lượng covariance quần thể từ mẫu: dùng chia cho <MdxFormula inline formula={"n-1"} />.
+
+</MdxPage>
+
+<MdxPage page={18}>
+
+## Covariance matrix và hình dạng đám mây điểm
+
+Hình dạng và hướng nghiêng của đám mây điểm 2D phụ thuộc trực tiếp vào các phần tử của Covariance matrix <MdxFormula inline formula={"\\boldsymbol{\\Sigma}"} />:
+
+- **Variance theo X (<MdxFormula inline formula={"\\Sigma_{11}"} />)**: Càng lớn thì đám mây càng trải rộng theo chiều ngang.
+- **Variance theo Y (<MdxFormula inline formula={"\\Sigma_{22}"} />)**: Càng lớn thì đám mây càng trải rộng theo chiều dọc.
+- **Covariance (<MdxFormula inline formula={"\\Sigma_{12} > 0"} />)**: Đám mây nghiêng từ Trái-Dưới lên Phải-Trên.
+- **Covariance (<MdxFormula inline formula={"\\Sigma_{12} < 0"} />)**: Đám mây nghiêng từ Trái-Trên xuống Phải-Dưới.
+- **Covariance (<MdxFormula inline formula={"\\Sigma_{12} = 0"} />)**: Đám mây song song với các trục tọa độ, không nghiêng.
+
+<CovarianceMatrixExplorer
+  ariaLabel="Trực quan tương tác điều chỉnh Var(X), Var(Y) và Cov(XY) để quan sát hình dạng ellipse và đám mây điểm."
+  caption="Đường chéo điều khiển độ rộng theo từng trục; covariance điều khiển hướng nghiêng của ellipse dữ liệu."
+  mode="interactive"
+/>
+
+> Đường chéo quyết định độ rộng theo từng trục; covariance quyết định hướng nghiêng.
+
+</MdxPage>
+
+<MdxPage page={19}>
+
+## Scale ảnh hưởng đến covariance
+
+Covariance phụ thuộc trực tiếp vào đơn vị đo lường của các biến.
+
+Giả sử chiều cao ban đầu tính bằng mét (<MdxFormula inline formula={"X"} />), sau đó ta đổi đơn vị sang centimet (<MdxFormula inline formula={"Y = 100X"} />):
+
+<MdxFormula formula={"\\operatorname{Var}(Y) = 100^2 \\operatorname{Var}(X) = 10,000 \\operatorname{Var}(X)"} />
+
+Với hai biến bất kỳ khi nhân với hằng số tỉ lệ <MdxFormula inline formula={"a"} /> và <MdxFormula inline formula={"b"} />:
+
+<MdxFormula formula={"\\operatorname{Cov}(aX, bY) = a \\cdot b \\cdot \\operatorname{Cov}(X,Y)"} />
+
+### Ví dụ minh họa:
+Nếu <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) = 2"} /> (với X tính bằng mét), khi đổi X sang centimet (<MdxFormula inline formula={"100X"} />), ta có:
+
+<MdxFormula formula={"\\operatorname{Cov}(100X, Y) = 100 \\times 2 = 200"} />
+
+> Giá trị covariance lớn không tự động có nghĩa là mối quan hệ mạnh; nó còn phụ thuộc vào đơn vị (scale). Đây là lý do ta cần chuẩn hóa thành Correlation (hệ số tương quan) ở bài học sau.
+
+</MdxPage>
+
+<MdxPage page={20}>
+
+## Code tính vector trung bình
+
+```python
+import numpy as np
+
+data = np.array([
+    [1, 2],
+    [3, 4],
+    [5, 9],
+], dtype=float)
+
+mean_vector = np.mean(data, axis=0)
+
+print("Data shape:", data.shape)
+print("Mean vector:", mean_vector)
+```
+
+### Kết quả xuất ra:
+```text
+Data shape: (3, 2)
+Mean vector: [3. 5.]
+```
+
+### Giải thích quan trọng:
+Tham số `axis=0` yêu cầu NumPy tính trung bình theo từng cột (từng đặc trưng).
+Lỗi thường gặp: Nếu viết `np.mean(data)` mà bỏ quên `axis=0`, NumPy sẽ tính trung bình của tất cả 6 số trong ma trận và trả về một số duy nhất là `4.0`.
+
+</MdxPage>
+
+<MdxPage page={21}>
+
+## Code tính covariance thủ công
+
+```python
+import numpy as np
+
+data = np.array([
+    [1, 2],
+    [3, 4],
+    [5, 9],
+], dtype=float)
+
+n = data.shape[0]
+mean_vector = np.mean(data, axis=0)
+
+# Broadcasting tự động trừ mean_vector khỏi mỗi hàng
+centered_data = data - mean_vector
+
+# Công thức ma trận: X_c^T @ X_c / n
+covariance_matrix = (centered_data.T @ centered_data) / n
+
+print("Mean vector:\n", mean_vector)
+print("\nCentered data:\n", centered_data)
+print("\nCovariance matrix (divide by n):\n", covariance_matrix)
+```
+
+### Điểm kỹ thuật:
+- NumPy tự động dùng cơ chế **broadcasting** khi thực hiện phép trừ `data - mean_vector`.
+- Lệnh `centered_data.T @ centered_data` tạo ra ma trận tích có kích thước <MdxFormula inline formula={"d \\times d"} />.
+
+</MdxPage>
+
+<MdxPage page={22}>
+
+## Code bằng `np.cov`
+
+```python
+import numpy as np
+
+data = np.array([
+    [1, 2],
+    [3, 4],
+    [5, 9],
+], dtype=float)
+
+# Chia cho n (ddof=0)
+covariance_n = np.cov(data, rowvar=False, ddof=0)
+
+# Chia cho n - 1 (ddof=1)
+covariance_n_minus_1 = np.cov(data, rowvar=False, ddof=1)
+
+print("Divide by n (ddof=0):\n", covariance_n)
+print("\nDivide by n - 1 (ddof=1):\n", covariance_n_minus_1)
+```
+
+### Ý nghĩa các tham số:
+- **`rowvar=False`**: Thông báo dữ liệu được tổ chức theo chuẩn Machine Learning (hàng là quan sát, cột là biến). Nếu mặc định `rowvar=True`, NumPy sẽ coi mỗi hàng là một biến.
+- **`ddof=0`**: Chia cho <MdxFormula inline formula={"n"} /> (Delta Degrees of Freedom = 0).
+- **`ddof=1`**: Chia cho <MdxFormula inline formula={"n-1"} /> (Delta Degrees of Freedom = 1).
+
+</MdxPage>
+
+<MdxPage page={23}>
+
+## Kiểm tra đường chéo
+
+```python
+import numpy as np
+
+data = np.array([
+    [1, 2],
+    [3, 4],
+    [5, 9],
+], dtype=float)
+
+cov_mat = np.cov(data, rowvar=False, ddof=0)
+variances = np.var(data, axis=0, ddof=0)
+
+print("Covariance matrix:\n", cov_mat)
+print("\nDiagonal elements:", np.diag(cov_mat))
+print("Column variances: ", variances)
+
+# Kiểm tra tính bằng nhau
+assert np.allclose(np.diag(cov_mat), variances)
+print("\nXác nhận: Đường chéo chính xác bằng phương sai từng cột!")
+```
+
+> Tính phương sai riêng lẻ từng cột cho kết quả khớp hoàn toàn với đường chéo chính của ma trận covariance.
+
+</MdxPage>
+
+<MdxPage page={24}>
+
+## Code minh họa dấu của covariance
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+x = rng.normal(loc=0, scale=1, size=500)
+
+positive_y = 2 * x + rng.normal(loc=0, scale=0.7, size=500)
+negative_y = -2 * x + rng.normal(loc=0, scale=0.7, size=500)
+independent_y = rng.normal(loc=0, scale=1, size=500)
+
+datasets = {
+    "Positive covariance": positive_y,
+    "Negative covariance": negative_y,
+    "Near-zero covariance": independent_y,
+}
+
+for title, y in datasets.items():
+    cov_val = np.cov(x, y, ddof=0)[0, 1]
+    plt.figure(figsize=(5, 3.5))
+    plt.scatter(x, y, alpha=0.35)
+    plt.title(f"{title}\nCovariance = {cov_val:.2f}")
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    plt.show()
+```
+
+- Đám mây nghiêng lên: Covariance dương.
+- Đám mây nghiêng xuống: Covariance âm.
+- Đám mây không nghiêng: Covariance gần 0.
+
+</MdxPage>
+
+<MdxPage page={25}>
+
+## Những lỗi thường gặp
+
+### 1. Nhầm covariance với variance
+Variance chỉ đo 1 biến: <MdxFormula inline formula={"\\operatorname{Var}(X)"} />. Covariance đo mối quan hệ giữa 2 biến: <MdxFormula inline formula={"\\operatorname{Cov}(X,Y)"} />.
+
+### 2. Nghĩ covariance không có đơn vị đo
+Covariance có đơn vị bằng tích đơn vị của hai biến (ví dụ: <MdxFormula inline formula={"\\text{cm} \\times \\text{kg}"} />).
+
+### 3. Nghĩ covariance bằng 0 đồng nghĩa với độc lập
+Covariance chỉ phát hiện quan hệ **tuyến tính**. Quan hệ phi tuyến (như <MdxFormula inline formula={"Y=X^2"} />) có thể có covariance bằng 0.
+
+### 4. Quên center dữ liệu trước khi nhân ma trận
+Cần tính <MdxFormula inline formula={"\\mathbf{X}_c = \\mathbf{X} - \\mathbf{1}\\boldsymbol{\\mu}"} /> trước khi thực hiện <MdxFormula inline formula={"\\mathbf{X}_c^\\top \\mathbf{X}_c / n"} />.
+
+### 5. Nhầm lẫn giữa hàng và cột
+Luôn ghi nhớ chuẩn: <MdxFormula inline formula={"\\mathbf{X} \\in \\mathbb{R}^{n \\times d}"} /> (<MdxFormula inline formula={"n"} /> hàng quan sát, <MdxFormula inline formula={"d"} /> cột đặc trưng). Khi dùng NumPy cần đặt `rowvar=False`.
+
+### 6. So sánh trực tiếp covariance ở các scale khác nhau
+Covariance thay đổi khi thay đổi đơn vị đo lường của dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={26}>
+
+## Mini interaction tổng hợp
+
+Thực hành điều chỉnh ma trận Covariance để tạo hình dạng đám mây điểm tương ứng theo các yêu cầu bên dưới:
+
+<CovarianceMatrixExplorer
+  ariaLabel="Mini interaction tổng hợp thực hành điều chỉnh Var(X), Var(Y) và Cov(XY) để hoàn thành các bài tập định hình đám mây điểm."
+  caption="Hoàn thành các nhiệm vụ bằng cách kéo slider để ghi nhớ sâu tác động của đường chéo và phần ngoài đường chéo."
+  mode="synthesis"
+/>
+
+> Tóm tắt cốt lõi: Đường chéo chính điều khiển độ rộng phân tán theo từng chiều; Các phần tử ngoài đường chéo điều khiển hướng và độ nghiêng biến thiên cùng nhau của dữ liệu.
+
+</MdxPage>

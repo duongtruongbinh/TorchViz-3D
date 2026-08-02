@@ -1,0 +1,122 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-probability-summary-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Ôn tập Chương 1: Xác suất'],
+  keywords: ['xác suất', 'không gian mẫu', 'biến cố', 'xác suất có điều kiện', 'xác suất toàn phần', 'Bayes', 'Naive Bayes'],
+  pageCount: 10,
+}
+
+<MdxQuiz id="ch01-probability-summary-quiz" questions={[
+  {
+    id: 'ch01-q1-sample-space', title: 'Câu 1: Không gian mẫu', prompt: 'Tung hai đồng xu cân đối. Không gian mẫu $\\Omega$ có bao nhiêu phần tử?', mode: 'single',
+    options: [
+      { id: 'four', label: '4 phần tử: {(S,S), (S,N), (N,S), (N,N)}', isCorrect: true },
+      { id: 'two', label: '2 phần tử: {Sấp, Ngửa}' },
+      { id: 'three', label: '3 phần tử: {2 Sấp, 1 Sấp 1 Ngửa, 2 Ngửa}' },
+      { id: 'eight', label: '8 phần tử' }
+    ],
+    success: 'Đúng. Tung 2 đồng xu có $2 \\times 2 = 4$ kết quả phân biệt.',
+    error: 'Chưa đúng. Mỗi đồng xu có 2 kết quả, 2 đồng xu có $2^2 = 4$ kết quả.'
+  },
+  {
+    id: 'ch01-q2-event-union', title: 'Câu 2: Phép hợp biến cố', prompt: 'Cho $A$ là biến cố "rút được lá bài cơ" và $B$ là biến cố "rút được lá bài K" từ bộ bài 52 lá. Biến cố $A \\cup B$ gồm bao nhiêu lá bài?', mode: 'single',
+    options: [
+      { id: 'sixteen', label: '16 lá bài ($13 + 4 - 1 = 16$)', isCorrect: true },
+      { id: 'seventeen', label: '17 lá bài' },
+      { id: 'thirteen', label: '13 lá bài' },
+      { id: 'four', label: '4 lá bài' }
+    ],
+    success: 'Đúng. Có 13 lá cơ và 4 lá K, lá K cơ thuộc cả hai nên $|A \\cup B| = 13 + 4 - 1 = 16$.',
+    error: 'Chưa đúng. Cần trừ đi phần giao (lá K cơ bị đếm trùng) theo quy tắc cộng.'
+  },
+  {
+    id: 'ch01-q3-mutually-exclusive', title: 'Câu 3: Biến cố xung khắc', prompt: 'Nếu $P(A) = 0.4$ và $P(B) = 0.3$, và $A, B$ là hai biến cố xung khắc, $P(A \\cup B)$ bằng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'zero-seven', label: '$0.7$', isCorrect: true },
+      { id: 'zero-twelve', label: '$0.12$' },
+      { id: 'zero-one', label: '$0.1$' },
+      { id: 'one', label: '$1.0$' }
+    ],
+    success: 'Đúng. Khi $A$ và $B$ xung khắc ($P(A \\cap B) = 0$), $P(A \\cup B) = P(A) + P(B) = 0.4 + 0.3 = 0.7$.',
+    error: 'Chưa đúng. Với hai biến cố xung khắc, xác suất hợp bằng tổng xác suất hai biến cố.'
+  },
+  {
+    id: 'ch01-q4-complement-rule', title: 'Câu 4: Biến cố đối', prompt: 'Xác suất để một mô hình AI phân loại sai một bức ảnh là $0.05$. Xác suất mô hình phân loại ĐÚNG là bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'zero-ninety-five', label: '$0.95$', isCorrect: true },
+      { id: 'zero-zero-five', label: '$0.05$' },
+      { id: 'one', label: '$1.00$' },
+      { id: 'zero-fifty', label: '$0.50$' }
+    ],
+    success: 'Đúng. Áp dụng quy tắc biến cố đối: $P(\\text{Đúng}) = 1 - P(\\text{Sai}) = 1 - 0.05 = 0.95$.',
+    error: 'Chưa đúng. Tổng xác suất của biến cố và biến cố đối luôn bằng 1.'
+  },
+  {
+    id: 'ch01-q5-conditional-prob', title: 'Câu 5: Xác suất có điều kiện', prompt: 'Rút ngẫu nhiên một lá bài. Biết rằng đó là lá đỏ (26 lá), xác suất để đó là lá Ách (Ace - 2 lá đỏ) là bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'two-over-twenty-six', label: '$\\frac{2}{26} = \\frac{1}{13}$', isCorrect: true },
+      { id: 'four-over-fifty-two', label: '$\\frac{4}{52}$' },
+      { id: 'two-over-fifty-two', label: '$\\frac{2}{52}$' },
+      { id: 'one-over-two', label: '$\\frac{1}{2}$' }
+    ],
+    success: 'Đúng. Thông tin "lá đỏ" thu hẹp không gian mẫu xuống 26 lá, trong đó có 2 lá Ách đỏ, nên $P(\\text{Ách} \\mid \\text{Đỏ}) = 2/26 = 1/13$.',
+    error: 'Chưa đúng. Mẫu số mới là 26 (số lá đỏ).'
+  },
+  {
+    id: 'ch01-q6-independence', title: 'Câu 6: Biến cố độc lập', prompt: 'Gieo hai con xúc xắc cân đối. Đặt $A$ là mặt chẵn ở con thứ nhất ($P(A)=0.5$), $B$ là mặt 6 ở con thứ hai ($P(B)=1/6$). Xác suất $P(A \\cap B)$ bằng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'one-over-twelve', label: '$\\frac{1}{2} \\times \\frac{1}{6} = \\frac{1}{12}$', isCorrect: true },
+      { id: 'one-over-six', label: '$\\frac{1}{6}$' },
+      { id: 'one-over-two', label: '$\\frac{1}{2}$' },
+      { id: 'two-over-three', label: '$\\frac{2}{3}$' }
+    ],
+    success: 'Đúng. Việc gieo hai con xúc xắc là độc lập, nên $P(A \\cap B) = P(A) \\times P(B) = 1/2 \\times 1/6 = 1/12$.',
+    error: 'Chưa đúng. Vì hai con xúc xắc độc lập, xác suất giao bằng tích xác suất.'
+  },
+  {
+    id: 'ch01-q7-total-prob', title: 'Câu 7: Xác suất toàn phần', prompt: 'Nhà máy có 2 máy: Máy 1 sản xuất 60% sản phẩm (tỷ lệ lỗi 1%), Máy 2 sản xuất 40% sản phẩm (tỷ lệ lỗi 2%). Tỷ lệ lỗi chung của toàn nhà máy là bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'one-point-four-percent', label: '$1.4\\%$ ($0.6 \\times 0.01 + 0.4 \\times 0.02 = 0.014$)', isCorrect: true },
+      { id: 'one-point-five-percent', label: '$1.5\\%$' },
+      { id: 'three-percent', label: '$3.0\\%$' },
+      { id: 'zero-point-four-percent', label: '$0.4\\%$' }
+    ],
+    success: 'Đúng. Áp dụng công thức xác suất toàn phần: $P(\\text{Lỗi}) = 0.6 \\times 0.01 + 0.4 \\times 0.02 = 0.014 = 1.4\\%$.',
+    error: 'Chưa đúng. Nhân tỷ lệ sản xuất từng máy với tỷ lệ lỗi của máy đó rồi cộng lại.'
+  },
+  {
+    id: 'ch01-q8-bayes-theorem', title: 'Câu 8: Định lý Bayes', prompt: 'Trong công thức Bayes $P(B \\mid A) = \\frac{P(A \\mid B)P(B)}{P(A)}$, thành phần $P(B)$ được gọi là gì?', mode: 'single',
+    options: [
+      { id: 'prior-prob', label: 'Xác suất Prior (Niềm tin ban đầu)', isCorrect: true },
+      { id: 'posterior-prob', label: 'Xác suất Posterior' },
+      { id: 'likelihood-prob', label: 'Likelihood' },
+      { id: 'marginal-prob', label: 'Evidence / Marginal Likelihood' }
+    ],
+    success: 'Đúng. $P(B)$ là Prior (xác suất tiên quyết/niềm tin ban đầu trước khi có dữ liệu A).',
+    error: 'Chưa đúng. $P(B)$ là Prior, $P(A \\mid B)$ là Likelihood, $P(A)$ là Evidence, $P(B \\mid A)$ là Posterior.'
+  },
+  {
+    id: 'ch01-q9-naive-bayes-assumption', title: 'Câu 9: Giả định Naive Bayes', prompt: 'Giả định "Naive" trong thuật toán Naive Bayes là gì?', mode: 'single',
+    options: [
+      { id: 'conditional-independence', label: 'Các đặc trưng (features) độc lập có điều kiện với nhau khi đã biết nhãn (class).', isCorrect: true },
+      { id: 'absolute-independence', label: 'Các đặc trưng độc lập tuyệt đối trong toàn bộ tập dữ liệu.' },
+      { id: 'equal-priors', label: 'Mọi nhãn có xác suất Prior bằng nhau.' },
+      { id: 'linear-boundary', label: 'Đường ranh giới phân loại luôn là đường thẳng.' }
+    ],
+    success: 'Đúng. Naive Bayes giả định rằng các đặc trưng độc lập có điều kiện khi đã biết class $C_k$: $P(X_1, X_2 \\mid C_k) = P(X_1 \\mid C_k) P(X_2 \\mid C_k)$.',
+    error: 'Chưa đúng. Giả định "ngây thơ" chính là độc lập có điều kiện theo từng class.'
+  },
+  {
+    id: 'ch01-q10-laplace-smoothing', title: 'Câu 10: Laplace smoothing', prompt: 'Mục đích chính của việc thêm Laplace smoothing ($\\\\alpha=1$) trong Naive Bayes là gì?', mode: 'single',
+    options: [
+      { id: 'avoid-zero-prob', label: 'Tránh xác suất bằng 0 khiến tích các xác suất triệt tiêu thành 0.', isCorrect: true },
+      { id: 'speed-up-training', label: 'Tăng tốc độ huấn luyện mô hình.' },
+      { id: 'reduce-features', label: 'Giảm số lượng đặc trưng đầu vào.' },
+      { id: 'normalize-labels', label: 'Chuẩn hóa số lượng nhãn.' }
+    ],
+    success: 'Đúng. Nếu một từ/đặc trưng chưa từng xuất hiện trong class, xác suất bằng 0 sẽ làm triệt tiêu toàn bộ tích Likelihood. Laplace smoothing cộng 1 lượt đếm giả để khắc phục vấn đề này.',
+    error: 'Chưa đúng. Laplace smoothing giải quyết vấn đề xác suất 0 (zero-frequency problem).'
+  }
+]} />
