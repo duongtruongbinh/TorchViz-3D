@@ -1,0 +1,134 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-conditional-probability",
+  "locale": "vi",
+  "title": "1.5 Xác suất có điều kiện và quy tắc nhân",
+  "headings": [
+    "Xác suất trong một nhóm nhỏ hơn",
+    "Công thức xác suất có điều kiện",
+    "Quy tắc nhân",
+    "Độc lập và phụ thuộc",
+    "Chiều của điều kiện"
+  ],
+  "keywords": [
+    "xác suất có điều kiện",
+    "quy tắc nhân",
+    "độc lập",
+    "phụ thuộc",
+    "bảng chéo"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Xác suất trong một nhóm nhỏ hơn
+
+Một lớp có 10 học sinh với kết quả giữa kỳ như sau. Đặt <MdxFormula inline formula={"A"} /> là biến cố “Đậu” và <MdxFormula inline formula={"B"} /> là biến cố “Có học bài”.
+
+<MdxTable
+  headers={["", "Đậu", "Rớt", "Tổng"]}
+  rows={[
+    ["Có học bài", 4, 1, 5],
+    ["Không học bài", 2, 3, 5],
+    ["Tổng", 6, 4, 10]
+  ]}
+/>
+
+Nếu chọn ngẫu nhiên một học sinh trong cả lớp, xác suất học sinh đó đậu là:
+
+<MdxFormula formula={"P(A)=\\frac{6}{10}=0.6"} />
+
+Nhưng nếu đã biết học sinh đó **có học bài**, ta chỉ xét nhóm 5 học sinh ở hàng đầu tiên. Trong nhóm này có 4 học sinh đậu:
+
+<MdxFormula formula={"P(A\\mid B)=\\frac{4}{5}=0.8"} />
+
+Thông tin “có học bài” đã thu hẹp nhóm đang xét, nên xác suất thay đổi từ <MdxFormula inline formula={"0.6"} /> thành <MdxFormula inline formula={"0.8"} />.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Công thức xác suất có điều kiện
+
+Khi biết <MdxFormula inline formula={"B"} /> đúng, ta xem <MdxFormula inline formula={"B"} /> như không gian mẫu mới.
+
+Trong không gian mới đó, phần thuận lợi cho <MdxFormula inline formula={"A"} /> là phần giao <MdxFormula inline formula={"A\\cap B"} />.
+
+<ProbabilityChapterVisual kind="conditional" />
+
+Với <MdxFormula inline formula={"P(B)>0"} />, xác suất có điều kiện được định nghĩa bởi:
+
+<MdxFormula formula={"P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}"} />
+
+Dấu gạch đứng được đọc là “với điều kiện”. Ta có thể tính xác suất này từ một mô hình hoặc từ dữ liệu phù hợp; không bắt buộc biến cố phải được quan sát trực tiếp trong một thí nghiệm đang diễn ra.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Quy tắc nhân
+
+Đôi khi ta cần xác suất để cả <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> cùng xảy ra, nhưng dữ liệu thuận tiện hơn lại là <MdxFormula inline formula={"P(B)"} /> và <MdxFormula inline formula={"P(A\\mid B)"} />.
+
+Từ định nghĩa xác suất có điều kiện, nhân hai vế với <MdxFormula inline formula={"P(B)"} /> cho ta:
+
+<MdxFormula formula={"P(A\\cap B)=P(B)P(A\\mid B)"} />
+
+Do <MdxFormula inline formula={"A\\cap B=B\\cap A"} />, ta cũng có thể đổi chiều:
+
+<MdxFormula formula={"P(A\\cap B)=P(A)P(B\\mid A)"} />
+
+Hai biểu thức cho cùng một kết quả. Ta chọn chiều có các xác suất dễ xác định hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Độc lập và phụ thuộc
+
+Một hộp có 2 viên bi trắng và 2 viên bi đen. Ta rút hai lần và muốn cả hai lần đều được bi trắng.
+
+Đặt <MdxFormula inline formula={"W_1"} /> và <MdxFormula inline formula={"W_2"} /> là biến cố rút được bi trắng ở lần thứ nhất và thứ hai. Nếu hoàn lại viên đầu trước lần rút thứ hai, thành phần hộp không đổi:
+
+<MdxFormula formula={"P(W_1\\cap W_2)=\\frac{2}{4}\\times\\frac{2}{4}=\\frac{1}{4}"} />
+
+Nếu không hoàn lại, sau khi đã rút một viên trắng thì chỉ còn 1 viên trắng trong 3 viên:
+
+<MdxFormula formula={"P(W_1\\cap W_2)=\\frac{2}{4}\\times\\frac{1}{3}=\\frac{1}{6}"} />
+
+Hai biến cố <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> **độc lập** khi:
+
+<MdxFormula formula={"P(A\\cap B)=P(A)P(B)"} />
+
+Khi <MdxFormula inline formula={"P(A)>0"} />, điều này tương đương với <MdxFormula inline formula={"P(B\\mid A)=P(B)"} />: biết <MdxFormula inline formula={"A"} /> xảy ra không làm thay đổi xác suất của <MdxFormula inline formula={"B"} />.
+
+Rút có hoàn lại tạo hai bước độc lập trong mô hình này; rút không hoàn lại tạo hai bước phụ thuộc.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Chiều của điều kiện
+
+Quay lại bảng kết quả của lớp học:
+
+- Trong 5 học sinh có học bài, 4 em đậu:
+
+<MdxFormula formula={"P(A\\mid B)=\\frac{4}{5}"} />
+
+- Trong 6 học sinh đậu, 4 em có học bài:
+
+<MdxFormula formula={"P(B\\mid A)=\\frac{4}{6}=\\frac{2}{3}"} />
+
+Hai câu hỏi dùng cùng 4 học sinh ở phần giao, nhưng mẫu số khác nhau vì điều kiện sau dấu <MdxFormula inline formula={"\\mid"} /> xác định nhóm đang xét.
+
+<LessonNote label="Điểm cần nhớ">
+
+<MdxFormula formula={"A\\cap B=B\\cap A"} />
+
+Từ tính đối xứng của phần giao không thể suy ra <MdxFormula inline formula={"P(A\\mid B)=P(B\\mid A)"} />. Hai xác suất có điều kiện thường dùng hai mẫu số khác nhau.
+
+</LessonNote>
+
+</MdxPage>

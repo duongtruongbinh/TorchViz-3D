@@ -1,0 +1,99 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-probability-origins",
+  "locale": "vi",
+  "title": "1.7 Khởi nguồn và trực giác xác suất",
+  "headings": [
+    "Khởi nguồn của xác suất",
+    "Phép thử và những kết quả có thể xảy ra",
+    "Con số 50% thực sự có nghĩa gì?",
+    "Tính ổn định của tần suất",
+    "Khi một sự kiện chỉ xảy ra một lần"
+  ],
+  "keywords": [
+    "xác suất",
+    "Méré",
+    "Pascal",
+    "Fermat",
+    "tần suất"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Khởi nguồn của xác suất
+
+Vào thế kỷ XVII, nhà quý tộc Pháp Chevalier de Méré đã đặt ra những câu hỏi về quy luật ẩn sau các trò chơi may rủi, đặc biệt là các bài toán liên quan đến xúc xắc.
+
+<ProbabilitySourceImage
+  asset="mere-gambling-scene"
+  alt="Những người chơi trò may rủi quanh một chiếc bàn"
+  source="Carnot Cycle"
+/>
+
+Blaise Pascal và Pierre de Fermat đã trao đổi thư từ về các câu hỏi của de Méré vào năm 1654. Những lời giải của họ thường được xem là một cột mốc quan trọng trong quá trình hình thành lý thuyết xác suất hiện đại.
+
+<ProbabilitySourceImage
+  asset="pascal-fermat"
+  alt="Chân dung Pierre de Fermat và Blaise Pascal cùng những viên xúc xắc"
+  source="LinkedIn"
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phép thử và những kết quả có thể xảy ra
+
+Các trò chơi may rủi như quay số, rút bài, tung đồng xu,… cho chúng ta khái niệm về **phép thử ngẫu nhiên**: phép thử có thể dẫn đến nhiều kết quả khác nhau, nhưng ta chưa biết trước kết quả cụ thể nào sẽ xảy ra.
+
+<ProbabilityChapterVisual kind="experiment-outcomes" />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Con số 50% thực sự có nghĩa gì?
+
+<ProbabilityChapterVisual kind="hidden-coin-probability" />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tính ổn định của tần suất
+
+Trong thực tế, nhiều hệ thống không cố đoán chính xác điều gì sẽ xảy ra với trường hợp kế tiếp:
+
+<ProbabilityChapterVisual kind="large-number-applications" />
+
+Một kết quả đơn lẻ vẫn có thể rất khó đoán. Nhưng khi số lần quan sát đủ lớn, tần suất tương đối bắt đầu bộc lộ một quy luật ổn định hơn.
+
+<ProbabilityChapterVisual kind="frequency-simulation" />
+
+Ba ví dụ trên cùng cho thấy một điểm: kết quả của từng trường hợp có thể khó đoán, nhưng tỷ lệ quan sát trên số lượng lớn thường ổn định hơn. Đây là trực giác thực tế đứng sau cách hiểu xác suất bằng tần suất tương đối.
+
+<LessonNote label="Liên hệ với AI" tone="warning">
+
+Một ảnh viết tay mờ có thể giống cả số 3 và số 8. Thay vì xem dự đoán là hoàn toàn chắc chắn, mô hình có thể gán xác suất cho từng khả năng. Xác suất là ngôn ngữ giúp AI biểu diễn và xử lý sự bất định như vậy.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Khi một sự kiện chỉ xảy ra một lần
+
+Tần suất tương đối phát huy tác dụng khi ta có thể quan sát nhiều trường hợp cùng loại. Nhưng một số câu hỏi lại hướng đến một sự kiện cụ thể chỉ xảy ra một lần:
+
+- Ngày mai có mưa hay không?
+- Ứng viên nào sẽ thắng trong cuộc bầu cử này?
+- Một loại thuốc mới có vượt qua cuộc thử nghiệm lâm sàng này hay không?
+
+Ta không thể lặp lại chính xác cùng một ngày mai, cùng một cuộc bầu cử hay cùng một thử nghiệm hàng nghìn lần. Vì vậy, tần suất quan sát đơn thuần không đủ để trả lời trực tiếp những câu hỏi này. Dữ liệu quá khứ vẫn hữu ích, nhưng cần được kết hợp với mô hình và thông tin hiện có.
+
+Đây là cầu nối sang cách nhìn Bayesian: xác suất biểu diễn mức độ tin cậy vào từng khả năng dựa trên thông tin hiện tại, rồi được cập nhật khi có bằng chứng mới. Naive Bayes sẽ áp dụng logic cập nhật đó cho bài toán phân loại với một giả định đơn giản hóa về các đặc trưng.
+
+</MdxPage>

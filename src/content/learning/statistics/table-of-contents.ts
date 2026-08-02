@@ -15,28 +15,10 @@ const sourceChapters = [
     },
     "lessonIds": [
       {
-        "id": "ch01-probability-origins",
-        "title": {
-          "en": "1.1 Origins and Intuition of Probability",
-          "vi": "1.1 Khởi nguồn và trực giác xác suất"
-        },
-        "status": "available",
-        "contentStatus": "published"
-      },
-      {
-        "id": "ch01-probability-origins-quiz",
-        "title": {
-          "en": "Quiz",
-          "vi": "Quiz"
-        },
-        "status": "available",
-        "contentStatus": "published"
-      },
-      {
         "id": "ch01-experiments-events-sample-space",
         "title": {
-          "en": "1.2 Experiments, Events, and Sample Spaces",
-          "vi": "1.2 Phép thử, biến cố và không gian mẫu"
+          "en": "1.1 Experiments, Events, and Sample Spaces",
+          "vi": "1.1 Phép thử, biến cố và không gian mẫu"
         },
         "status": "available",
         "contentStatus": "published"
@@ -53,8 +35,8 @@ const sourceChapters = [
       {
         "id": "ch01-event-relations",
         "title": {
-          "en": "1.3 Relations Between Events",
-          "vi": "1.3 Quan hệ giữa các biến cố"
+          "en": "1.2 Relations Between Events",
+          "vi": "1.2 Quan hệ giữa các biến cố"
         },
         "status": "available",
         "contentStatus": "published"
@@ -71,8 +53,8 @@ const sourceChapters = [
       {
         "id": "ch01-probability-definitions-properties",
         "title": {
-          "en": "1.4 Probability Definitions and Properties",
-          "vi": "1.4 Định nghĩa và tính chất xác suất"
+          "en": "1.3 Probability Definitions and Properties",
+          "vi": "1.3 Định nghĩa và tính chất xác suất"
         },
         "status": "available",
         "contentStatus": "published"
@@ -89,8 +71,8 @@ const sourceChapters = [
       {
         "id": "ch01-empirical-probability",
         "title": {
-          "en": "1.5 Frequency and Empirical Probability",
-          "vi": "1.5 Tần số và xác suất thực nghiệm"
+          "en": "1.4 Frequency and Empirical Probability",
+          "vi": "1.4 Tần số và xác suất thực nghiệm"
         },
         "status": "available",
         "contentStatus": "published"
@@ -107,8 +89,8 @@ const sourceChapters = [
       {
         "id": "ch01-conditional-probability",
         "title": {
-          "en": "1.6 Conditional Probability and the Multiplication Rule",
-          "vi": "1.6 Xác suất có điều kiện và quy tắc nhân"
+          "en": "1.5 Conditional Probability and the Multiplication Rule",
+          "vi": "1.5 Xác suất có điều kiện và quy tắc nhân"
         },
         "status": "available",
         "contentStatus": "published"
@@ -125,14 +107,32 @@ const sourceChapters = [
       {
         "id": "ch01-total-probability",
         "title": {
-          "en": "1.7 The Law of Total Probability",
-          "vi": "1.7 Công thức xác suất toàn phần"
+          "en": "1.6 The Law of Total Probability",
+          "vi": "1.6 Công thức xác suất toàn phần"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
         "id": "ch01-total-probability-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-probability-origins",
+        "title": {
+          "en": "1.7 Origins and Intuition of Probability",
+          "vi": "1.7 Khởi nguồn và trực giác xác suất"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-probability-origins-quiz",
         "title": {
           "en": "Quiz",
           "vi": "Quiz"

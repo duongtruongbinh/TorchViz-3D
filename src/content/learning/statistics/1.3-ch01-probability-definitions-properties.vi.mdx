@@ -1,0 +1,123 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-probability-definitions-properties",
+  "locale": "vi",
+  "title": "1.3 Định nghĩa và tính chất xác suất",
+  "headings": [
+    "Xác suất đo điều gì?",
+    "Ba quy tắc của một mô hình xác suất",
+    "Xác suất cổ điển",
+    "Xác suất của biến cố đối",
+    "Quy tắc cộng"
+  ],
+  "keywords": [
+    "xác suất",
+    "mô hình xác suất",
+    "xác suất cổ điển",
+    "biến cố đối",
+    "quy tắc cộng"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Xác suất đo điều gì?
+
+Ta đã biết biến cố “xúc xắc xuất hiện mặt chẵn” là <MdxFormula inline formula={"A=\\{2,4,6\\}"} />. Bây giờ cần một con số để trả lời: biến cố này có khả năng xảy ra đến đâu?
+
+**Xác suất** của biến cố <MdxFormula inline formula={"A"} />, ký hiệu <MdxFormula inline formula={"P(A)"} />, là một số từ 0 đến 1:
+
+<ProbabilityChapterVisual kind="axioms" />
+
+- Biến cố không thể <MdxFormula inline formula={"\\varnothing"} /> có xác suất <MdxFormula inline formula={"P(\\varnothing)=0"} />.
+- Biến cố chắc chắn <MdxFormula inline formula={"\\Omega"} /> có xác suất <MdxFormula inline formula={"P(\\Omega)=1"} />.
+- Giá trị càng gần 1, mô hình xem biến cố càng có khả năng xảy ra.
+
+Với một đồng xu cân đối, đặt <MdxFormula inline formula={"S"} /> là biến cố “xuất hiện mặt sấp”. Ta có thể viết ngắn gọn:
+
+<MdxFormula formula={"P(S)=0.5"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Ba quy tắc của một mô hình xác suất
+
+Không thể gán các con số bất kỳ cho các biến cố. Một mô hình xác suất hợp lệ phải giữ ba quy tắc sau:
+
+1. Xác suất không âm:
+
+<MdxFormula formula={"P(A)\\ge 0"} />
+
+2. Toàn bộ không gian mẫu có tổng xác suất bằng 1:
+
+<MdxFormula formula={"P(\\Omega)=1"} />
+
+3. Nếu hai biến cố xung khắc, xác suất của hợp bằng tổng xác suất của từng biến cố:
+
+<MdxFormula formula={"A\\cap B=\\varnothing\\quad\\Longrightarrow\\quad P(A\\cup B)=P(A)+P(B)"} />
+
+Từ ba quy tắc này, ta suy ra <MdxFormula inline formula={"0\\le P(A)\\le 1"} /> và <MdxFormula inline formula={"P(\\varnothing)=0"} />.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Xác suất cổ điển
+
+Với một xúc xắc lý tưởng, sáu kết quả 1 đến 6 được xem là **đồng khả năng**. Biến cố <MdxFormula inline formula={"A=\\{2,4,6\\}"} /> có ba kết quả thuận lợi trong tổng số sáu kết quả:
+
+<MdxFormula formula={"P(A)=\\frac{|A|}{|\\Omega|}=\\frac{3}{6}=\\frac{1}{2}"} />
+
+Tổng quát, khi không gian mẫu hữu hạn và mọi kết quả sơ cấp đồng khả năng:
+
+<MdxFormula formula={"P(A)=\\frac{|A|}{|\\Omega|}"} />
+
+Ví dụ, rút ngẫu nhiên một lá từ bộ bài 52 lá đã được xáo đều. Có bốn lá Q nên:
+
+<MdxFormula formula={"P(Q)=\\frac{4}{52}=\\frac{1}{13}"} />
+
+<LessonNote label="Điều kiện bắt buộc" tone="warning">
+
+Cách đếm này chỉ áp dụng trực tiếp khi các kết quả sơ cấp thực sự đồng khả năng. Liệt kê được <MdxFormula inline formula={"n"} /> kết quả không có nghĩa mỗi kết quả tự động có xác suất <MdxFormula inline formula={"1/n"} />.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Xác suất của biến cố đối
+
+Khi gieo xúc xắc, đặt <MdxFormula inline formula={"A"} /> là biến cố “xuất hiện mặt chẵn”. Biến cố đối <MdxFormula inline formula={"A^c"} /> là “xuất hiện mặt lẻ”. Một trong hai biến cố chắc chắn xảy ra và chúng không thể xảy ra cùng lúc.
+
+Vì tổng xác suất của hai phần bằng 1:
+
+<MdxFormula formula={"P(A)+P(A^c)=1"} />
+
+Ta có quy tắc biến cố đối:
+
+<MdxFormula formula={"P(A^c)=1-P(A)"} />
+
+Nếu <MdxFormula inline formula={"P(A)=1/2"} /> thì <MdxFormula inline formula={"P(A^c)=1-1/2=1/2"} />.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Quy tắc cộng
+
+Vẫn đặt <MdxFormula inline formula={"A=\\{2,4,6\\}"} /> là “mặt chẵn” và <MdxFormula inline formula={"B=\\{5,6\\}"} /> là “mặt lớn hơn 4”. Nếu cộng <MdxFormula inline formula={"P(A)"} /> và <MdxFormula inline formula={"P(B)"} />, kết quả 6 bị đếm hai lần vì thuộc <MdxFormula inline formula={"A\\cap B"} />.
+
+Do đó phải trừ phần giao một lần:
+
+<MdxFormula formula={"P(A\\cup B)=P(A)+P(B)-P(A\\cap B)"} />
+
+Trong ví dụ này:
+
+<MdxFormula formula={"P(A\\cup B)=\\frac{3}{6}+\\frac{2}{6}-\\frac{1}{6}=\\frac{4}{6}=\\frac{2}{3}"} />
+
+Nếu <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> xung khắc thì <MdxFormula inline formula={"P(A\\cap B)=0"} />, nên công thức rút gọn thành <MdxFormula inline formula={"P(A\\cup B)=P(A)+P(B)"} />.
+
+</MdxPage>

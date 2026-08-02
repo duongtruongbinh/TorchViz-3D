@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-event-relations",
+  "locale": "vi",
+  "title": "1.2 Quan hệ giữa các biến cố",
+  "headings": [
+    "Hợp của hai biến cố",
+    "Giao của hai biến cố",
+    "Hai biến cố xung khắc",
+    "Biến cố đối"
+  ],
+  "keywords": [
+    "quan hệ biến cố",
+    "hợp",
+    "giao",
+    "xung khắc",
+    "biến cố đối"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Hợp của hai biến cố
+
+Khi gieo một con xúc xắc, đặt:
+
+- <MdxFormula inline formula={"A=\\{2,4,6\\}"} />: xuất hiện mặt chẵn.
+- <MdxFormula inline formula={"B=\\{5,6\\}"} />: xuất hiện mặt lớn hơn 4.
+
+Câu hỏi “<MdxFormula inline formula={"A"} /> **hoặc** <MdxFormula inline formula={"B"} /> xảy ra” chấp nhận mọi kết quả thuộc ít nhất một trong hai biến cố. Ta gọi đó là **hợp** của <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} />:
+
+<MdxFormula formula={"A\\cup B=\\{2,4,5,6\\}"} />
+
+<ProbabilityChapterVisual kind="union" />
+
+Từ “hoặc” ở đây mang nghĩa bao hàm: kết quả 6 thuộc cả hai biến cố vẫn được tính.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Giao của hai biến cố
+
+Nếu câu hỏi đổi thành “<MdxFormula inline formula={"A"} /> **và** <MdxFormula inline formula={"B"} /> cùng xảy ra”, kết quả phải thuộc đồng thời cả hai tập.
+
+Ta gọi phần chung đó là **giao** của hai biến cố:
+
+<MdxFormula formula={"A\\cap B=\\{6\\}"} />
+
+<ProbabilityChapterVisual kind="intersection" />
+
+Chỉ mặt 6 vừa là số chẵn, vừa lớn hơn 4.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Hai biến cố xung khắc
+
+Đặt <MdxFormula inline formula={"C=\\{1,3,5\\}"} /> là biến cố “xuất hiện mặt lẻ”. Không có kết quả nào vừa chẵn vừa lẻ, nên <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"C"} /> không thể xảy ra cùng lúc.
+
+Hai biến cố như vậy được gọi là **xung khắc**:
+
+<MdxFormula formula={"A\\cap C=\\varnothing"} />
+
+<ProbabilityChapterVisual kind="exclusive" />
+
+Xung khắc chỉ nói rằng hai biến cố không chồng lấn; nó chưa nói rằng chúng đã bao phủ toàn bộ không gian mẫu.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Biến cố đối
+
+Với <MdxFormula inline formula={"A=\\{2,4,6\\}"} />, câu hỏi “không xuất hiện mặt chẵn” gồm mọi kết quả còn lại trong <MdxFormula inline formula={"\\Omega"} />:
+
+<MdxFormula formula={"A^c=\\Omega\\setminus A=\\{1,3,5\\}"} />
+
+Biến cố <MdxFormula inline formula={"A^c"} /> được gọi là **biến cố đối** của <MdxFormula inline formula={"A"} />. Hai biến cố đối vừa xung khắc, vừa phủ hết không gian mẫu:
+
+<MdxFormula formula={"A\\cap A^c=\\varnothing,\\qquad A\\cup A^c=\\Omega"} />
+
+<ProbabilityChapterVisual kind="exclusive-not-complement" />
+
+Một biến cố <MdxFormula inline formula={"B"} /> có thể xung khắc với <MdxFormula inline formula={"A"} /> nhưng chưa chắc là <MdxFormula inline formula={"A^c"} />. Muốn là biến cố đối, <MdxFormula inline formula={"B"} /> phải chứa **toàn bộ** phần còn lại của <MdxFormula inline formula={"\\Omega"} />.
+
+</MdxPage>

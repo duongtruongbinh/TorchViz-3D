@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-probability-definitions-properties-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Xác suất cổ điển', 'Mô hình xác suất hợp lệ', 'Biến cố đối', 'Quy tắc cộng'],
+  keywords: ['xác suất cổ điển', 'mô hình xác suất', 'biến cố đối', 'quy tắc cộng'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="ch01-probability-definitions-properties-quiz" questions={[
+  {
+    id: 'classical-probability-formula', title: 'Xác suất cổ điển', prompt: 'Một hộp có 3 viên bi đỏ và 2 viên bi xanh giống nhau về kích thước. Rút ngẫu nhiên một viên. Xác suất rút được bi đỏ là bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'three-fifths', label: '$\\frac{3}{5}$', isCorrect: true },
+      { id: 'two-fifths', label: '$\\frac{2}{5}$' },
+      { id: 'three-halves', label: '$\\frac{3}{2}$' },
+      { id: 'one-third', label: '$\\frac{1}{3}$' },
+    ],
+    success: 'Đúng. Có 3 kết quả thuận lợi trong tổng số 5 viên bi được chọn đồng khả năng.',
+    error: 'Chưa đúng. Mẫu số là tổng số viên bi; tử số là số viên bi đỏ.',
+  },
+  {
+    id: 'probability-properties', title: 'Mô hình xác suất hợp lệ', prompt: 'Một phép thử có đúng ba kết quả xung khắc $a,b,c$. Cách gán xác suất nào có thể hợp lệ?', mode: 'single',
+    options: [
+      { id: 'valid', label: '$P(a)=0.2,\\ P(b)=0.3,\\ P(c)=0.5$', isCorrect: true },
+      { id: 'sum-low', label: '$P(a)=0.2,\\ P(b)=0.3,\\ P(c)=0.4$' },
+      { id: 'negative', label: '$P(a)=-0.1,\\ P(b)=0.4,\\ P(c)=0.7$' },
+      { id: 'sum-high', label: '$P(a)=0.4,\\ P(b)=0.4,\\ P(c)=0.4$' },
+    ],
+    success: 'Đúng. Ba xác suất đều không âm và cộng lại bằng 1.',
+    error: 'Chưa đúng. Xác suất phải không âm và tổng xác suất của toàn bộ không gian mẫu phải bằng 1.',
+  },
+  {
+    id: 'complement-probability', title: 'Biến cố đối', prompt: 'Một chuyến xe đến đúng giờ với xác suất $0.8$. Xác suất xe không đến đúng giờ là bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'point-two', label: '$0.2$', isCorrect: true },
+      { id: 'point-eight', label: '$0.8$' },
+      { id: 'one-point-eight', label: '$1.8$' },
+      { id: 'zero', label: '$0$' },
+    ],
+    success: 'Đúng. Hai biến cố đối có tổng xác suất bằng 1, nên $1-0.8=0.2$.',
+    error: 'Chưa đúng. Hãy lấy 1 trừ xác suất đến đúng giờ.',
+  },
+  {
+    id: 'addition-rule', title: 'Quy tắc cộng', prompt: 'Cho $P(A)=0.5$, $P(B)=0.4$ và $P(A\\cap B)=0.2$. Tính $P(A\\cup B)$.', mode: 'single',
+    options: [
+      { id: 'point-seven', label: '$0.7$', isCorrect: true },
+      { id: 'point-nine', label: '$0.9$' },
+      { id: 'point-two', label: '$0.2$' },
+      { id: 'point-one', label: '$0.1$' },
+    ],
+    success: 'Đúng. Phần giao bị đếm hai lần trong $0.5+0.4$, nên phải trừ $0.2$.',
+    error: 'Chưa đúng. Dùng $P(A\\cup B)=P(A)+P(B)-P(A\\cap B)$.',
+  },
+]} />

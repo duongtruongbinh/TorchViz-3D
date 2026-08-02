@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-empirical-probability-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Tính tần suất', 'Diễn giải tần suất', 'Điều kiện ổn định'],
+  keywords: ['tần số', 'tần suất', 'ước lượng', 'xác suất thực nghiệm'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="ch01-empirical-probability-quiz" questions={[
+  {
+    id: 'frequency-relative-frequency', title: 'Tính tần suất', prompt: 'Trong 25 đơn hàng có 18 đơn đến đúng giờ. Tần số và tần suất của biến cố “đến đúng giờ” lần lượt là gì?', mode: 'single',
+    options: [
+      { id: 'correct', label: '$m=18$ và $f_{25}(A)=18/25=0.72$', isCorrect: true },
+      { id: 'swap', label: '$m=25$ và $f_{25}(A)=25/18$' },
+      { id: 'late-count', label: '$m=7$ và $f_{25}(A)=7/25=0.28$' },
+      { id: 'percent-count', label: '$m=0.72$ và $f_{25}(A)=18$' },
+    ],
+    success: 'Đúng. Tần số là số đếm 18; tần suất là tỷ lệ $18/25=0.72$.',
+    error: 'Chưa đúng. Tần số đếm số lần biến cố xuất hiện; tần suất chia số đếm đó cho 25.',
+  },
+  {
+    id: 'finite-estimate-interpretation', title: 'Diễn giải tần suất', prompt: 'Từ mẫu 25 đơn trên, kết luận nào chính xác nhất?', mode: 'single',
+    options: [
+      { id: 'estimate', label: '$0.72$ là ước lượng từ mẫu hiện có cho xác suất giao đúng giờ.', isCorrect: true },
+      { id: 'guarantee', label: 'Mọi nhóm 25 đơn trong tương lai chắc chắn có đúng 18 đơn đúng giờ.' },
+      { id: 'theoretical-identity', label: '$0.72$ luôn là xác suất lý thuyết, không phụ thuộc cách lấy mẫu.' },
+      { id: 'next-order', label: 'Đơn tiếp theo chắc chắn đến đúng giờ vì $0.72>0.5$.' },
+    ],
+    success: 'Đúng. Tần suất của một mẫu hữu hạn là ước lượng; nó có thể thay đổi giữa các mẫu.',
+    error: 'Chưa đúng. Dữ liệu hữu hạn không bảo đảm kết quả của mẫu khác hay của lần thử tiếp theo.',
+  },
+  {
+    id: 'relative-frequency-stability', title: 'Điều kiện ổn định', prompt: 'Cách thu thập nào phù hợp nhất để tần suất giao đúng giờ phản ánh toàn bộ hoạt động trong ngày?', mode: 'single',
+    options: [
+      { id: 'representative', label: 'Theo dõi nhiều đơn ở các khung giờ theo đúng tỷ lệ hoạt động thực tế.', isCorrect: true },
+      { id: 'quiet-only', label: 'Chỉ theo dõi thật nhiều đơn vào giờ vắng.' },
+      { id: 'successful-only', label: 'Chỉ giữ lại các đơn đã giao đúng giờ.' },
+      { id: 'changing-rule', label: 'Thay đổi định nghĩa “đúng giờ” sau mỗi ngày.' },
+    ],
+    success: 'Đúng. Nhiều quan sát chỉ hữu ích khi cách lấy mẫu và điều kiện đo phù hợp với câu hỏi.',
+    error: 'Chưa đúng. Tăng số lượng không sửa được việc chỉ quan sát một nhóm lệch hoặc thay đổi tiêu chí đo.',
+  },
+]} />

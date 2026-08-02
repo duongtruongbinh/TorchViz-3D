@@ -1,0 +1,86 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-total-probability",
+  "locale": "vi",
+  "title": "1.6 Công thức xác suất toàn phần",
+  "headings": [
+    "Chia bài toán thành các trường hợp",
+    "Đóng góp của từng nhánh",
+    "Tính xác suất toàn phần"
+  ],
+  "keywords": [
+    "xác suất toàn phần",
+    "phân hoạch",
+    "hệ đầy đủ",
+    "xác suất có điều kiện",
+    "quy tắc nhân"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Chia bài toán thành các trường hợp
+
+Ta muốn tính xác suất đi chơi tennis, nhưng thời tiết có thể là nắng, râm hoặc mưa. Thay vì xử lý cả ba tình huống cùng lúc, ta chia không gian mẫu thành ba nhánh:
+
+- <MdxFormula inline formula={"A_1"} />: trời nắng.
+- <MdxFormula inline formula={"A_2"} />: trời râm.
+- <MdxFormula inline formula={"A_3"} />: trời mưa.
+
+Ba biến cố này tạo thành một **phân hoạch** của không gian mẫu vì:
+
+1. Chúng xung khắc từng đôi: <MdxFormula inline formula={"A_i\\cap A_j=\\varnothing"} /> khi <MdxFormula inline formula={"i\\ne j"} />.
+2. Chúng bao phủ mọi khả năng: <MdxFormula inline formula={"A_1\\cup A_2\\cup A_3=\\Omega"} />.
+
+<ProbabilityChapterVisual kind="total" />
+
+Vì là một phân hoạch, mỗi kết quả thuộc đúng một nhánh và không có kết quả nào bị bỏ sót.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Đóng góp của từng nhánh
+
+Đặt <MdxFormula inline formula={"H"} /> là biến cố “đi chơi tennis”. Trong mỗi nhánh thời tiết, phần làm <MdxFormula inline formula={"H"} /> xảy ra là <MdxFormula inline formula={"H\\cap A_i"} />.
+
+Ba phần <MdxFormula inline formula={"H\\cap A_1"} />, <MdxFormula inline formula={"H\\cap A_2"} /> và <MdxFormula inline formula={"H\\cap A_3"} /> xung khắc và hợp lại thành <MdxFormula inline formula={"H"} />, nên:
+
+<MdxFormula formula={"P(H)=P(H\\cap A_1)+P(H\\cap A_2)+P(H\\cap A_3)"} />
+
+Dùng quy tắc nhân cho từng nhánh:
+
+<MdxFormula formula={"P(H\\cap A_i)=P(A_i)P(H\\mid A_i)"} />
+
+Thay vào tổng trên, ta thu được:
+
+<MdxFormula formula={"P(H)=P(A_1)P(H\\mid A_1)+P(A_2)P(H\\mid A_2)+P(A_3)P(H\\mid A_3)"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tính xác suất toàn phần
+
+Giả sử xác suất của ba loại thời tiết là:
+
+<MdxFormula formula={"P(A_1)=0.5,\\qquad P(A_2)=0.2,\\qquad P(A_3)=0.3"} />
+
+Và xác suất đi chơi tennis trong từng loại thời tiết là:
+
+<MdxFormula formula={"P(H\\mid A_1)=0.8,\\qquad P(H\\mid A_2)=0.6,\\qquad P(H\\mid A_3)=0.1"} />
+
+Mỗi nhánh đóng góp xác suất của nhánh nhân với xác suất đi chơi trong nhánh đó:
+
+<MdxFormula formula={"\\begin{aligned}P(H)&=0.5\\times0.8+0.2\\times0.6+0.3\\times0.1\\\\&=0.4+0.12+0.03=0.55\\end{aligned}"} />
+
+<ProbabilityChapterVisual kind="total-sum" />
+
+Tổng quát, với một phân hoạch <MdxFormula inline formula={"A_1,\\ldots,A_n"} />:
+
+<MdxFormula formula={"P(H)=\\sum_{i=1}^{n}P(A_i)P(H\\mid A_i)"} />
+
+Ở bài Bayes, tổng này sẽ đóng vai trò xác suất của bằng chứng ở mẫu số, giúp chuẩn hóa các khả năng sau khi có thông tin mới.
+
+</MdxPage>

@@ -1,0 +1,67 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-probability-origins-quiz',
+  locale: 'vi',
+  "title": "Quiz",
+  headings: ['Phép thử ngẫu nhiên', 'Con số 50%', 'Tần suất ở số lượng lớn', 'Sự kiện chỉ xảy ra một lần', 'Liên hệ với AI'],
+  keywords: ['phép thử', 'tần suất', 'xúc xắc', 'xác suất', 'Bayesian', 'AI', 'sự bất định'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="ch01-probability-origins-quiz" questions={[
+  {
+    id: 'origins-random-trial', title: 'Phép thử ngẫu nhiên', prompt: 'Phát biểu nào mô tả đúng một phép thử ngẫu nhiên?', mode: 'single',
+    options: [
+      { id: 'exact-result', label: 'Ta luôn biết chính xác kết quả trước khi thực hiện.' },
+      { id: 'possible-not-exact', label: 'Ta biết các kết quả có thể xảy ra nhưng không biết trước chính xác kết quả nào sẽ xuất hiện.', isCorrect: true },
+      { id: 'no-outcome-space', label: 'Ta không thể mô tả bất kỳ kết quả có thể nào.' },
+      { id: 'same-result', label: 'Mọi lần thực hiện đều bắt buộc cho cùng một kết quả.' },
+    ],
+    success: 'Đúng. Tính ngẫu nhiên nằm ở kết quả cụ thể, không có nghĩa ta hoàn toàn không biết các khả năng.',
+    error: 'Chưa đúng. Hãy phân biệt kết quả cụ thể với tập hợp các kết quả có thể xảy ra.',
+  },
+  {
+    id: 'origins-hidden-coin', title: 'Con số 50%', prompt: 'Một đồng xu cân đối đã được tung và kết quả đang bị che kín. Nhận xét nào đúng?', mode: 'single',
+    options: [
+      { id: 'not-decided', label: 'Đồng xu chưa có kết quả cho đến khi ta nhìn vào nó.' },
+      { id: 'fixed-unknown', label: 'Kết quả đã cố định; người quan sát chỉ chưa biết nó là sấp hay ngửa.', isCorrect: true },
+      { id: 'changes-with-guess', label: 'Kết quả có thể thay đổi nếu người quan sát đoán sai.' },
+      { id: 'one-tail-every-two', label: 'Trong hai lần tung, chắc chắn phải có đúng một lần xuất hiện mặt sấp.' },
+    ],
+    success: 'Đúng. Đồng xu đã nằm ở một mặt cụ thể; điều còn bất định là thông tin của người quan sát.',
+    error: 'Chưa đúng. Hãy phân biệt trạng thái thực tế của đồng xu với điều người quan sát đang biết.',
+  },
+  {
+    id: 'origins-large-number-frequency', title: 'Tần suất ở số lượng lớn', prompt: 'Chọn tất cả nhận xét đúng về tần suất tương đối và việc quan sát số lượng lớn.', mode: 'multi',
+    options: [
+      { id: 'aggregate-without-next-case', label: 'Không cần biết chính xác trường hợp kế tiếp để ước lượng tỷ lệ trên số lượng lớn.', isCorrect: true },
+      { id: 'stable-not-monotonic', label: 'Trong điều kiện ổn định, tần suất thường ổn định hơn khi số lần quan sát tăng nhưng không bắt buộc gần xác suất hơn sau từng lần thử.', isCorrect: true },
+      { id: 'single-case-certainty', label: 'Tỷ lệ ổn định trên số lượng lớn cho phép biết chắc kết quả của từng trường hợp riêng lẻ.' },
+      { id: 'large-data-removes-bias', label: 'Thu thập thật nhiều dữ liệu sẽ tự động loại bỏ mọi sai lệch trong cách lấy mẫu.' },
+    ],
+    success: 'Đúng. Số lượng lớn giúp tỷ lệ quan sát ổn định hơn, nhưng không quyết định trường hợp kế tiếp và không sửa được dữ liệu lấy mẫu sai lệch.',
+    error: 'Chưa đúng. Hãy phân biệt quy luật trên số lượng lớn với kết quả của một trường hợp riêng lẻ và giới hạn của việc tăng cỡ mẫu.',
+  },
+  {
+    id: 'origins-one-off-event', title: 'Sự kiện chỉ xảy ra một lần', prompt: 'Vì sao chỉ dựa vào tần suất tương đối chưa đủ để trả lời trực tiếp câu hỏi “Ngày mai có mưa hay không?”', mode: 'single',
+    options: [
+      { id: 'probability-not-weather', label: 'Vì xác suất chỉ áp dụng cho trò chơi may rủi, không áp dụng cho thời tiết.' },
+      { id: 'exact-repeat-unavailable', label: 'Vì không thể lặp lại chính xác cùng một ngày mai nhiều lần; cần kết hợp dữ liệu quá khứ với mô hình và thông tin hiện có.', isCorrect: true },
+      { id: 'past-data-useless', label: 'Vì dữ liệu thời tiết trong quá khứ hoàn toàn không liên quan đến ngày mai.' },
+      { id: 'must-be-certain', label: 'Vì một sự kiện chỉ xảy ra một lần thì kết quả phải được xem là chắc chắn.' },
+    ],
+    success: 'Đúng. Với một sự kiện cụ thể không thể lặp lại y hệt, ta phải dùng dữ liệu và bằng chứng hiện có để đánh giá mức độ tin cậy của từng khả năng.',
+    error: 'Chưa đúng. Dữ liệu quá khứ vẫn hữu ích, nhưng không thể tạo ra nhiều bản sao độc lập của chính ngày mai để đếm tần suất trực tiếp.',
+  },
+  {
+    id: 'origins-ai-uncertainty', title: 'Liên hệ với AI', prompt: 'Khi một mô hình AI không thể xác định chắc chắn kết quả, xác suất được sử dụng chủ yếu để làm gì?', mode: 'single',
+    options: [
+      { id: 'certain-conclusion', label: 'Chuyển dự đoán có xác suất cao nhất thành một kết luận chắc chắn.' },
+      { id: 'confidence-by-possibility', label: 'Biểu diễn mức độ tin cậy của mô hình đối với từng khả năng.', isCorrect: true },
+      { id: 'overall-accuracy', label: 'Đo độ chính xác chung của mô hình trên toàn bộ tập dữ liệu.' },
+      { id: 'exact-error-cause', label: 'Xác định chính xác nguyên nhân khiến mô hình dự đoán sai.' },
+    ],
+    success: 'Đúng. Xác suất giúp AI định lượng sự bất định bằng cách thể hiện mức độ tin cậy đối với từng kết quả có thể xảy ra.',
+    error: 'Chưa đúng. Hãy phân biệt mức độ tin cậy của từng khả năng với độ chính xác chung hoặc nguyên nhân dự đoán sai.',
+  },
+]} />

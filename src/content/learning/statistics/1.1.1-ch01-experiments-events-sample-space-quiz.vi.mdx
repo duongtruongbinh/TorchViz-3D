@@ -1,0 +1,71 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-experiments-events-sample-space-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Bốn khái niệm nền tảng', 'Chọn không gian mẫu', 'Biến cố là tập hợp', 'Ba loại biến cố'],
+  keywords: ['phép thử', 'kết quả', 'không gian mẫu', 'biến cố', 'biến cố chắc chắn', 'biến cố không thể'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="ch01-experiments-events-sample-space-quiz" questions={[
+  {
+    id: 'foundational-concepts-match', title: 'Bốn khái niệm nền tảng', prompt: 'Kéo mỗi mô tả vào đúng khái niệm của phép thử gieo một con xúc xắc.', mode: 'categorize', hideUnsortedLabel: true,
+    completeLabel: 'Tất cả mô tả đã được phân loại.',
+    categories: [
+      { id: 'experiment', label: 'Phép thử' },
+      { id: 'outcome', label: 'Kết quả' },
+      { id: 'sample-space', label: 'Không gian mẫu' },
+      { id: 'event', label: 'Biến cố' },
+    ],
+    options: [
+      { id: 'roll-die', label: 'Gieo một con xúc xắc.', categoryId: 'experiment' },
+      { id: 'face-four', label: 'Quan sát được mặt 4 sau một lần gieo.', categoryId: 'outcome' },
+      { id: 'six-outcomes', label: '$\\Omega=\\{1,2,3,4,5,6\\}$.', categoryId: 'sample-space' },
+      { id: 'even-event', label: 'Xuất hiện mặt chẵn, $A=\\{2,4,6\\}$.', categoryId: 'event' },
+    ],
+    success: 'Đúng. Phép thử là hành động; kết quả là một đầu ra cụ thể; không gian mẫu chứa mọi đầu ra có thể; biến cố là tập đầu ra ta quan tâm.',
+    error: 'Chưa đúng. Hãy phân biệt hành động, một đầu ra cụ thể, tập mọi đầu ra và tập đầu ra trả lời câu hỏi.',
+  },
+  {
+    id: 'sample-space-recording-rule', title: 'Chọn không gian mẫu', prompt: 'Một cảm biến chỉ ghi xúc xắc xuất hiện mặt chẵn hay mặt lẻ. Không gian mẫu nào khớp với dữ liệu được ghi?', mode: 'single',
+    options: [
+      { id: 'parity-space', label: '$\\Omega$ gồm hai kết quả: chẵn và lẻ.', isCorrect: true },
+      { id: 'face-space', label: '$\\Omega=\\{1,2,3,4,5,6\\}$' },
+      { id: 'even-only', label: '$\\Omega=\\{2,4,6\\}$' },
+      { id: 'counts', label: '$\\Omega=\\{3,3\\}$' },
+    ],
+    success: 'Đúng. Không gian mẫu mô tả đúng mức chi tiết mà phép thử ghi nhận: chẵn hoặc lẻ.',
+    error: 'Chưa đúng. Hãy dùng đúng hai giá trị mà cảm biến có thể ghi lại.',
+  },
+  {
+    id: 'event-as-subset', title: 'Biến cố là tập hợp', prompt: 'Với $\\Omega=\\{1,2,3,4,5,6\\}$, cách viết nào mô tả đúng biến cố “xuất hiện mặt lớn hơn 4”?', mode: 'single',
+    options: [
+      { id: 'five-six', label: '$A=\\{5,6\\}$', isCorrect: true },
+      { id: 'single-number', label: '$A=5$' },
+      { id: 'outside-space', label: '$A=\\{5,6,7\\}$' },
+      { id: 'experiment-action', label: '$A$ là hành động gieo xúc xắc.' },
+    ],
+    success: 'Đúng. Một biến cố là tập con của không gian mẫu; các kết quả thuận lợi ở đây là 5 và 6.',
+    error: 'Chưa đúng. Hãy chọn một tập hợp chỉ gồm các kết quả trong $\\Omega$ trả lời đúng câu hỏi.',
+  },
+  {
+    id: 'event-types-match', title: 'Ba loại biến cố', prompt: 'Phân loại mỗi biến cố khi gieo một con xúc xắc sáu mặt.', mode: 'categorize', hideUnsortedLabel: true,
+    completeLabel: 'Tất cả biến cố đã được phân loại.',
+    categories: [
+      { id: 'certain', label: 'Chắc chắn' },
+      { id: 'impossible', label: 'Không thể' },
+      { id: 'random', label: 'Ngẫu nhiên' },
+    ],
+    options: [
+      { id: 'valid-face', label: 'Mặt xuất hiện thuộc $\\{1,2,3,4,5,6\\}$.', categoryId: 'certain' },
+      { id: 'face-seven', label: 'Xuất hiện mặt 7.', categoryId: 'impossible' },
+      { id: 'even-face', label: 'Xuất hiện mặt chẵn.', categoryId: 'random' },
+      { id: 'positive-face', label: 'Số chấm xuất hiện lớn hơn 0.', categoryId: 'certain' },
+      { id: 'negative-face', label: 'Số chấm xuất hiện là số âm.', categoryId: 'impossible' },
+      { id: 'face-one', label: 'Xuất hiện mặt 1.', categoryId: 'random' },
+    ],
+    success: 'Đúng. Biến cố chắc chắn luôn xảy ra, biến cố không thể không có kết quả phù hợp trong $\\Omega$, còn biến cố ngẫu nhiên có thể xảy ra hoặc không.',
+    error: 'Chưa đúng. Hãy đối chiếu từng biến cố với toàn bộ không gian mẫu $\\Omega=\\{1,2,3,4,5,6\\}$.',
+  },
+]} />

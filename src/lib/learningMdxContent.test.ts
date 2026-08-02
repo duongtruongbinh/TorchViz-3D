@@ -80,18 +80,17 @@ const expectedPageCounts: Record<string, number> = {
   'identity-inverse-matrix': 6,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
-  'ch01-probability-origins-quiz': ['origins-random-trial', 'origins-relative-frequency', 'origins-die-limit'],
+  'ch01-probability-origins-quiz': ['origins-random-trial', 'origins-hidden-coin', 'origins-large-number-frequency', 'origins-one-off-event', 'origins-ai-uncertainty'],
   'ch01-experiments-events-sample-space-quiz': [
     'foundational-concepts-match',
-    'elementary-events-in-even-event',
+    'sample-space-recording-rule',
+    'event-as-subset',
     'event-types-match',
-    'sample-space-die',
-    'random-variable-definition',
   ],
-  'ch01-event-relations-quiz': ['union-intersection-match', 'complete-system-conditions', 'exclusive-vs-independent'],
-  'ch01-probability-definitions-properties-quiz': ['classical-probability-formula', 'probability-properties', 'addition-rule'],
-  'ch01-empirical-probability-quiz': ['frequency-relative-frequency', 'histogram-modes', 'relative-frequency-stability'],
-  'ch01-conditional-probability-quiz': ['conditional-formula', 'replacement-dependence', 'monty-hall-switch'],
+  'ch01-event-relations-quiz': ['union-intersection-match', 'disjoint-events-die', 'exclusive-vs-complement'],
+  'ch01-probability-definitions-properties-quiz': ['classical-probability-formula', 'probability-properties', 'complement-probability', 'addition-rule'],
+  'ch01-empirical-probability-quiz': ['frequency-relative-frequency', 'finite-estimate-interpretation', 'relative-frequency-stability'],
+  'ch01-conditional-probability-quiz': ['conditional-formula', 'multiplication-without-replacement', 'replacement-dependence', 'conditional-direction'],
   'ch01-total-probability-quiz': ['partition-requirements', 'total-probability-formula', 'total-probability-order'],
   'ch01-bayes-naive-bayes-quiz': ['bayes-term-match', 'naive-bayes-assumption', 'naive-bayes-stability'],
   'ch01-probability-exercises-quiz': ['queen-given-face-card', 'compare-naive-bayes-scores', 'laplace-denominator'],
@@ -186,9 +185,8 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.equal(statisticsPageCount, 362);
+  assert.equal(statisticsPageCount, 361);
   for (const lessonId of [
-    'ch01-probability-origins',
     'ch01-experiments-events-sample-space',
     'ch01-event-relations',
     'ch01-probability-definitions-properties',

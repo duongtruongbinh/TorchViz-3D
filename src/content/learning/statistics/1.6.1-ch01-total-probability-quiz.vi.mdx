@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-total-probability-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Chọn phân hoạch', 'Tính xác suất toàn phần', 'Trình tự tính'],
+  keywords: ['xác suất toàn phần', 'phân hoạch', 'hệ đầy đủ'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="ch01-total-probability-quiz" questions={[
+  {
+    id: 'partition-requirements', title: 'Chọn phân hoạch', prompt: 'Khi chọn ngẫu nhiên một đơn hàng, cách chia nào tạo thành một phân hoạch của không gian mẫu?', mode: 'single',
+    options: [
+      { id: 'delivery-status', label: 'Đúng giờ, trễ, hoặc bị hủy; mỗi đơn thuộc đúng một nhóm.', isCorrect: true },
+      { id: 'overlap', label: 'Đúng giờ, giao trong ngày, hoặc bị hủy; một đơn có thể thuộc hai nhóm đầu.' },
+      { id: 'missing', label: 'Đúng giờ hoặc trễ; bỏ qua các đơn bị hủy.' },
+      { id: 'unrelated', label: 'Đúng giờ hoặc khách hàng hài lòng; hai nhóm không loại trừ nhau.' },
+    ],
+    success: 'Đúng. Ba trạng thái loại trừ nhau và bao phủ mọi kết quả của một đơn hàng.',
+    error: 'Chưa đúng. Phân hoạch phải không chồng lấn và không bỏ sót kết quả nào.',
+  },
+  {
+    id: 'total-probability-formula', title: 'Tính xác suất toàn phần', prompt: 'Có hai tuyến giao hàng: tuyến 1 xử lý 60% đơn và đúng giờ 90%; tuyến 2 xử lý 40% đơn và đúng giờ 70%. Xác suất một đơn chọn ngẫu nhiên đến đúng giờ là bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'weighted', label: '$0.6\\times0.9+0.4\\times0.7=0.82$', isCorrect: true },
+      { id: 'unweighted', label: '$0.9+0.7=1.6$' },
+      { id: 'average', label: '$(0.9+0.7)/2=0.8$' },
+      { id: 'all-product', label: '$0.6\\times0.9\\times0.4\\times0.7=0.1512$' },
+    ],
+    success: 'Đúng. Mỗi tỷ lệ đúng giờ phải được cân theo tỷ lệ đơn đi qua tuyến tương ứng.',
+    error: 'Chưa đúng. Tính đóng góp của từng tuyến rồi cộng: $P(A_i)P(H\\mid A_i)$.',
+  },
+  {
+    id: 'total-probability-order', title: 'Trình tự tính', prompt: 'Sắp xếp quy trình áp dụng công thức xác suất toàn phần.', mode: 'order',
+    options: [
+      { id: 'sum', label: 'Cộng các tích của mọi nhánh.' },
+      { id: 'partition', label: 'Xác định một phân hoạch của không gian mẫu.' },
+      { id: 'conditionals', label: 'Tính xác suất từng nhánh và xác suất của biến cố trong nhánh đó.' },
+    ],
+    correctOrder: ['partition', 'conditionals', 'sum'],
+    success: 'Đúng. Ta chia không gian mẫu, tính đóng góp từng nhánh rồi cộng lại.',
+    error: 'Chưa đúng. Phải xác định phân hoạch trước khi tính và cộng các đóng góp.',
+  },
+]} />

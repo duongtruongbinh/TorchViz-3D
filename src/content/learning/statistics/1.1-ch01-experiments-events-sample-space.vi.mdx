@@ -1,0 +1,79 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-experiments-events-sample-space",
+  "locale": "vi",
+  "title": "1.1 Phép thử, biến cố và không gian mẫu",
+  "headings": [
+    "Phép thử và kết quả",
+    "Không gian mẫu",
+    "Biến cố",
+    "Biến cố chắc chắn, không thể và ngẫu nhiên"
+  ],
+  "keywords": [
+    "phép thử",
+    "kết quả",
+    "không gian mẫu",
+    "biến cố",
+    "biến cố sơ cấp"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Phép thử và kết quả
+
+Trước khi gieo một con xúc xắc, ta biết mình sẽ làm gì nhưng chưa biết mặt nào sẽ xuất hiện.
+
+- **Phép thử** là hành động được thực hiện: gieo một con xúc xắc.
+- **Kết quả** là điều quan sát được sau một lần thực hiện: chẳng hạn xúc xắc xuất hiện mặt 4.
+
+<ProbabilityChapterVisual kind="foundations" />
+
+Một phép thử có thể được lặp lại nhiều lần. Mỗi lần chỉ cho ra một kết quả cụ thể.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Không gian mẫu
+
+Trước khi gieo, ta chưa biết kết quả cụ thể nhưng có thể liệt kê mọi kết quả có thể xảy ra.
+
+Tập hợp đó được gọi là **không gian mẫu**, ký hiệu là <MdxFormula inline formula={"\\Omega"} />.
+
+<ProbabilityChapterVisual kind="sample-space" />
+
+Ở đây, <MdxFormula inline formula={"\\Omega"} /> phải chứa đủ sáu mặt. Tập <MdxFormula inline formula={"\\{2,4,6\\}"} /> chỉ giữ các mặt chẵn nên, trong phép thử đang xét, nó không phải là không gian mẫu. Vậy tập này được gọi là gì?
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Biến cố
+
+Đó là một **biến cố**. Biến cố là tập hợp các kết quả ta quan tâm, tức một tập con của không gian mẫu.
+
+<MdxFormula formula={"A=\\{2,4,6\\},\\qquad A\\subseteq\\Omega"} />
+
+<ProbabilityChapterVisual kind="elementary" />
+
+Mỗi tập chỉ chứa một kết quả, như <MdxFormula inline formula={"\\{2\\}"} />, được gọi là một **biến cố sơ cấp**. Biến cố <MdxFormula inline formula={"A"} /> ở trên gồm ba biến cố sơ cấp <MdxFormula inline formula={"\\{2\\},\\{4\\},\\{6\\}"} />.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Biến cố chắc chắn, không thể và ngẫu nhiên
+
+Vẫn với <MdxFormula inline formula={"\\Omega=\\{1,2,3,4,5,6\\}"} />, hãy xét ba câu hỏi:
+
+- “Kết quả thuộc từ 1 đến 6” luôn đúng, nên đó là **biến cố chắc chắn** <MdxFormula inline formula={"\\Omega"} />.
+- “Xuất hiện mặt 7” không có kết quả phù hợp, nên đó là **biến cố không thể** <MdxFormula inline formula={"\\varnothing"} />.
+- “Xuất hiện mặt chẵn” có thể xảy ra hoặc không, nên đó là **biến cố ngẫu nhiên** <MdxFormula inline formula={"A=\\{2,4,6\\}"} />.
+
+<ProbabilityChapterVisual kind="certainty" />
+
+Ba loại biến cố này đều được xác định so với cùng một không gian mẫu.
+
+</MdxPage>

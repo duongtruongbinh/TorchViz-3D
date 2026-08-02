@@ -1,0 +1,57 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-empirical-probability",
+  "locale": "vi",
+  "title": "1.4 Tần số và xác suất thực nghiệm",
+  "headings": [
+    "Từ số lần xuất hiện đến tần suất",
+    "Khi nào tần suất trở nên ổn định?"
+  ],
+  "keywords": [
+    "xác suất thực nghiệm",
+    "tần số",
+    "tần suất",
+    "ước lượng",
+    "tính ổn định"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Từ số lần xuất hiện đến tần suất
+
+Một dịch vụ theo dõi 10 đơn hàng và thấy 4 đơn đến đúng giờ. Đặt <MdxFormula inline formula={"A"} /> là biến cố “đơn hàng đến đúng giờ”. Số đếm 4 cho biết <MdxFormula inline formula={"A"} /> đã xuất hiện bao nhiêu lần; muốn biết tỷ lệ, ta chia cho tổng số đơn được quan sát.
+
+<ProbabilityChapterVisual kind="empirical" />
+
+Trong ví dụ này, <MdxFormula inline formula={"m=4"} /> là **tần số** và <MdxFormula inline formula={"n=10"} /> là tổng số lần quan sát. Tỷ số của hai số này là **tần suất** hay tần suất tương đối.
+
+Tổng quát, nếu biến cố <MdxFormula inline formula={"A"} /> xuất hiện <MdxFormula inline formula={"m"} /> lần trong <MdxFormula inline formula={"n"} /> phép thử:
+
+<MdxFormula formula={"f_n(A)=\\frac{m}{n}"} />
+
+Với dữ liệu hữu hạn, <MdxFormula inline formula={"f_n(A)"} /> chỉ là một **ước lượng** của xác suất <MdxFormula inline formula={"P(A)"} />, không phải bản thân xác suất lý thuyết. Một mẫu dữ liệu khác có thể cho một tần suất khác.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khi nào tần suất trở nên ổn định?
+
+Nếu cùng một phép thử được lặp lại độc lập trong điều kiện ổn định, tần suất <MdxFormula inline formula={"f_n(A)"} /> thường dao động ít dần quanh <MdxFormula inline formula={"P(A)"} /> khi số lần thử tăng.
+
+<ProbabilityChapterVisual kind="frequency-stability" />
+
+Nhiều phép thử hơn giúp giảm dao động ngẫu nhiên, nhưng không tự sửa được một quy trình thu thập dữ liệu sai lệch.
+
+Ví dụ, nếu chỉ đo thời gian giao hàng vào giờ vắng, việc thu thập thêm nhiều đơn trong đúng khung giờ đó vẫn không đại diện cho giờ cao điểm. Muốn tần suất có ý nghĩa, phép thử phải được xác định rõ và điều kiện quan sát phải phù hợp với câu hỏi.
+
+<LessonNote label="Kết luận">
+
+- **Xác suất lý thuyết** đến từ một mô hình.
+- **Tần suất thực nghiệm** đến từ dữ liệu lặp lại và được dùng để ước lượng hoặc kiểm tra mô hình đó.
+
+</LessonNote>
+
+</MdxPage>
