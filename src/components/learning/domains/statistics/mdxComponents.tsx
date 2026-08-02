@@ -15,6 +15,8 @@ import {
   FlaskConical,
   HeartPulse,
   Network,
+  Pause,
+  Play,
   RefreshCw,
   ScanSearch,
   ShieldCheck,
@@ -26,8 +28,6 @@ import {
 import katex from 'katex';
 import { useEffect, useId, useMemo, useState } from 'react';
 import mereGamblingScene from '../../../../assets/learning/statistics/ch01-probability/01-statistics-probability-origins-mere-gambling-scene.jpg';
-import pascalFermatIllustration from '../../../../assets/learning/statistics/ch01-probability/01-statistics-probability-origins-pascal-fermat.png';
-import experimentOutcomesIllustration from '../../../../assets/learning/statistics/ch01-probability/01-statistics-probability-origins-experiment-outcomes.png';
 import elementaryEventsIllustration from '../../../../assets/learning/statistics/ch01-probability/02-statistics-experiments-events-sample-space-elementary-events.png';
 import bushTaxTruncatedAxisIllustration from '../../../../assets/learning/statistics/ch02-statistical-thinking/02-statistics-criticism-bush-tax.webp';
 import { STATISTICS_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
@@ -78,7 +78,6 @@ type ProbabilityChapterVisualKind =
   | 'descriptive-center-histogram'
   | 'elementary'
   | 'empirical'
-  | 'experiment-outcomes'
   | 'exclusive'
   | 'exclusive-not-complement'
   | 'foundations'
@@ -102,7 +101,7 @@ type ProbabilityChapterVisualKind =
   | 'email-naive-bayes-scores'
   | 'sample-space'
   | 'statistical-assumptions'
-  | 'statistics-misuse-quote'
+  | 'statistics-misuse-flow'
   | 'statistical-thinking-sampling'
   | 'statistical-thinking-study-design'
   | 'total'
@@ -121,7 +120,6 @@ function MathText({ className, formula }: { className?: string; formula: string 
 
 const probabilitySourceImages = {
   'mere-gambling-scene': mereGamblingScene,
-  'pascal-fermat': pascalFermatIllustration,
   'bush-tax-truncated-axis': bushTaxTruncatedAxisIllustration,
 } as const;
 
@@ -250,47 +248,6 @@ function CertaintyVisual({ themeClasses }: { themeClasses: LearningThemeClasses 
             <p className={cx('text-sm font-semibold', themeClasses.bodyText)}>{item.description}</p>
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-function ExperimentOutcomesVisual({ themeClasses: _themeClasses }: { themeClasses: LearningThemeClasses }) {
-  return (
-    <section
-      aria-label="Trước khi tung xúc xắc, chưa biết kết quả cụ thể nhưng biết sáu kết quả có thể xảy ra"
-      className="rounded-xl bg-white px-4 py-4 text-[#172A43] sm:px-5 sm:py-5"
-    >
-      <div className="mx-auto grid max-w-6xl items-center gap-6 lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)] lg:gap-8">
-        <img
-          src={experimentOutcomesIllustration}
-          alt="Phép thử có kết quả chưa biết trước nhưng phạm vi kết quả của xúc xắc là Omega bằng tập hợp từ 1 đến 6"
-          loading="lazy"
-          className="mx-auto h-auto max-h-[22rem] w-full rounded-xl object-contain lg:order-2"
-        />
-
-        <div className="lg:order-1">
-          <div className="grid gap-3">
-            <section className="flex min-h-28 items-center justify-between gap-4 rounded-xl bg-[#F7E8CC] px-4 py-4 text-[#80591E] sm:px-5">
-              <div>
-                <span className="text-[0.68rem] font-black uppercase tracking-[0.16em] opacity-75">Chưa biết trước</span>
-                <p className="mt-1 text-sm font-black">Kết quả cụ thể</p>
-              </div>
-              <MathText className="text-3xl font-semibold sm:text-4xl" formula="\omega=?" />
-            </section>
-
-            <div className="flex items-center gap-3" aria-hidden="true">
-              <span className="h-px flex-1 bg-[#D7E1EA]" />
-              <span className="text-xs font-black uppercase tracking-[0.14em] text-[#627D98]">nhưng</span>
-              <span className="h-px flex-1 bg-[#D7E1EA]" />
-            </div>
-
-            <section className="grid min-h-36 content-center rounded-xl bg-[#DDEBFB] px-4 py-4 text-center text-[#173F6C] sm:px-5">
-              <span className="text-[0.68rem] font-black uppercase tracking-[0.16em] opacity-75">Biết trước toàn bộ khả năng</span>
-              <MathText className="mt-2 text-2xl font-semibold sm:text-3xl" formula="\Omega=\{1,2,3,4,5,6\}" />
-            </section>
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -1059,8 +1016,8 @@ function simulateCoinFlips(seed: number) {
 
 function FrequencySimulationVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
   const [run, setRun] = useState(0);
-  const [visibleFlips, setVisibleFlips] = useState(1);
-  const [isRunning, setIsRunning] = useState(true);
+  const [visibleFlips, setVisibleFlips] = useState(10);
+  const [isRunning, setIsRunning] = useState(false);
   const simulation = useMemo(() => simulateCoinFlips(run + 1), [run]);
   const line = themeClasses.isLight ? '#205089' : '#A8D4FF';
   const target = themeClasses.isLight ? '#39724A' : '#9DDBAF';
@@ -1088,6 +1045,8 @@ function FrequencySimulationVisual({ themeClasses }: { themeClasses: LearningThe
   }, [simulation.frequencies, visibleFlips]);
 
   useEffect(() => {
+    if (!isRunning) return undefined;
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion) {
       setVisibleFlips(simulation.totalFlips);
@@ -1097,12 +1056,13 @@ function FrequencySimulationVisual({ themeClasses }: { themeClasses: LearningThe
 
     let frame = 0;
     let startedAt: number | undefined;
-    setVisibleFlips(1);
-    setIsRunning(true);
+    const startingFlips = visibleFlips;
+    const startingProgress = Math.log10(startingFlips) / Math.log10(simulation.totalFlips);
 
     const advance = (timestamp: number) => {
       startedAt ??= timestamp;
-      const progress = Math.min(1, (timestamp - startedAt) / 6_500);
+      const elapsedProgress = (timestamp - startedAt) / 6_500;
+      const progress = Math.min(1, startingProgress + elapsedProgress);
       const nextFlips = Math.max(1, Math.round(simulation.totalFlips ** progress));
       setVisibleFlips(nextFlips);
 
@@ -1115,7 +1075,21 @@ function FrequencySimulationVisual({ themeClasses }: { themeClasses: LearningThe
 
     frame = window.requestAnimationFrame(advance);
     return () => window.cancelAnimationFrame(frame);
-  }, [run, simulation.totalFlips]);
+  }, [isRunning, run, simulation.totalFlips]);
+
+  const replay = () => {
+    setRun((currentRun) => currentRun + 1);
+    setVisibleFlips(1);
+    setIsRunning(true);
+  };
+
+  const togglePlayback = () => {
+    if (visibleFlips >= simulation.totalFlips) {
+      replay();
+      return;
+    }
+    setIsRunning((current) => !current);
+  };
 
   return (
     <section
@@ -1138,16 +1112,16 @@ function FrequencySimulationVisual({ themeClasses }: { themeClasses: LearningThe
           </div>
           <button
             type="button"
-            onClick={() => setRun((currentRun) => currentRun + 1)}
+            onClick={togglePlayback}
             className={cx(
-              'inline-flex min-h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm font-black transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+              'inline-flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-sm font-black transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
               themeClasses.isLight
                 ? 'bg-[#205089] text-white hover:bg-[#173F6C] focus-visible:outline-[#205089]'
                 : 'bg-[#789CC2] text-[#121A24] hover:bg-[#8CB9E8] focus-visible:outline-[#A8D4FF]',
             )}
           >
-            <RefreshCw className={cx('h-4 w-4 motion-reduce:animate-none', isRunning && 'animate-spin')} strokeWidth={2} aria-hidden="true" />
-            {isRunning ? 'Đang mô phỏng' : 'Mô phỏng lại'}
+            {isRunning ? <Pause className="h-4 w-4" strokeWidth={2} aria-hidden="true" /> : visibleFlips >= simulation.totalFlips ? <RefreshCw className="h-4 w-4" strokeWidth={2} aria-hidden="true" /> : <Play className="h-4 w-4" strokeWidth={2} aria-hidden="true" />}
+            {isRunning ? 'Tạm dừng' : visibleFlips >= simulation.totalFlips ? 'Chạy lại' : 'Bắt đầu'}
           </button>
         </div>
 
@@ -1191,7 +1165,7 @@ function FrequencySimulationVisual({ themeClasses }: { themeClasses: LearningThe
           />
         </div>
 
-        <div aria-live="polite" className="mt-2 grid grid-cols-3 gap-2">
+        <div className="mt-2 grid grid-cols-3 gap-2">
           <div className={cx('grid gap-1 rounded-lg px-2 py-2.5 text-center sm:px-3', themeClasses.isLight ? 'bg-[#F5F8FB]' : 'bg-[#A8D4FF]/6')}>
             <span className={cx('text-xs font-bold', themeClasses.mutedText)}>Số lần tung</span>
             <strong className={cx('text-base tabular-nums sm:text-lg', themeClasses.titleText)}>{visibleFlips.toLocaleString('vi-VN')}</strong>
@@ -1205,6 +1179,9 @@ function FrequencySimulationVisual({ themeClasses }: { themeClasses: LearningThe
             <strong className={cx('text-base tabular-nums sm:text-lg', themeClasses.titleText)}>{currentFrequency.toFixed(4)}</strong>
           </div>
         </div>
+        <p role="status" aria-live="polite" className={cx('mt-3 text-center text-xs font-semibold', themeClasses.mutedText)}>
+          {isRunning ? `Đang mô phỏng: ${visibleFlips.toLocaleString('vi-VN')} lần tung.` : visibleFlips >= simulation.totalFlips ? 'Hoàn tất: tần suất đã tiến gần xác suất 0,5.' : `Đang dừng ở ${visibleFlips.toLocaleString('vi-VN')} lần tung.`}
+        </p>
       </div>
     </section>
   );
@@ -2124,24 +2101,14 @@ function PlayTennisDataVisual({ themeClasses }: { themeClasses: LearningThemeCla
   ] as const;
   return (
     <section aria-label="Dataset Play Tennis gồm 14 ngày" className={cx('py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
-      <div className="overflow-x-auto">
-        <div className={cx(
-          'grid min-w-[46rem] grid-cols-[4rem_repeat(4,minmax(7rem,1fr))_5rem] gap-px overflow-hidden rounded-lg text-sm',
-          themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
-        )}>
-          {['Ngày', 'Outlook', 'Temp', 'Humidity', 'Wind', 'Play'].map((label) => (
-            <div key={label} className={cx('px-3 py-3 text-center font-black first:text-left', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>
-              {label}
-            </div>
-          ))}
-          {rows.map((row) => (
-            <div key={row[0]} className="contents">
-              {row.slice(0, 5).map((value, index) => (
-                <div key={`${row[0]}-${index}`} className={cx('px-3 py-2.5 text-center first:text-left first:font-bold', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]', themeClasses.bodyText)}>
-                  {value}
-                </div>
-              ))}
-              <div className={cx('px-3 py-2.5 text-center', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+      <div role="region" aria-label="Bảng dữ liệu Play Tennis, có thể cuộn ngang" tabIndex={0} className={cx('overflow-x-auto rounded-lg', themeClasses.focusRing)}>
+        <table className={cx('min-w-[46rem] border-separate border-spacing-0 text-sm', themeClasses.bodyText)}>
+          <caption className="sr-only">Mười bốn ngày thời tiết và quyết định chơi tennis</caption>
+          <thead><tr>{['Ngày', 'Outlook', 'Temp', 'Humidity', 'Wind', 'Play'].map((label) => <th key={label} scope="col" className={cx('border-b px-3 py-3 text-center font-black first:text-left', themeClasses.isLight ? 'border-[#D7E1EA] bg-[#EEF4F8]' : 'border-[#344454] bg-[#A8D4FF]/8', themeClasses.titleText)}>{label}</th>)}</tr></thead>
+          <tbody>{rows.map((row) => (
+            <tr key={row[0]}>
+              {row.slice(0, 5).map((value, index) => index === 0 ? <th key={`${row[0]}-${index}`} scope="row" className={cx('border-b px-3 py-2.5 text-left font-bold', themeClasses.isLight ? 'border-[#E3EAF0] bg-white' : 'border-[#344454] bg-[#121A24]')}>{value}</th> : <td key={`${row[0]}-${index}`} className={cx('border-b px-3 py-2.5 text-center', themeClasses.isLight ? 'border-[#E3EAF0] bg-white' : 'border-[#344454] bg-[#121A24]')}>{value}</td>)}
+              <td className={cx('border-b px-3 py-2.5 text-center', themeClasses.isLight ? 'border-[#E3EAF0] bg-white' : 'border-[#344454] bg-[#121A24]')}>
                 <span className={cx(
                   'inline-flex min-w-12 justify-center rounded-full px-2 py-1 text-xs font-black',
                   row[5] === 'Yes'
@@ -2150,10 +2117,10 @@ function PlayTennisDataVisual({ themeClasses }: { themeClasses: LearningThemeCla
                 )}>
                   {row[5]}
                 </span>
-              </div>
-            </div>
-          ))}
-        </div>
+              </td>
+            </tr>
+          ))}</tbody>
+        </table>
       </div>
     </section>
   );
@@ -2236,37 +2203,39 @@ function PlayTennisLikelihoodVisual({ smoothed = false, themeClasses }: {
           ],
         },
       ];
-  const cellClass = cx('px-4 py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]');
+  const cellClass = cx('border-b px-4 py-3', themeClasses.isLight ? 'border-[#E3EAF0] bg-white' : 'border-[#344454] bg-[#121A24]');
   return (
     <section aria-label={smoothed ? 'Likelihood Play Tennis sau Laplace smoothing' : 'Likelihood Play Tennis không dùng Laplace'} className={cx('grid gap-6 py-2 lg:grid-cols-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
       {tables.map((table) => (
-        <div key={table.label} className="min-w-0 overflow-x-auto">
+        <div key={table.label} className="min-w-0">
           <h3 className={cx('!mb-3 !mt-0 text-sm font-black', themeClasses.titleText)}>{table.label}</h3>
-          <div className={cx(
-            'grid min-w-[28rem] grid-cols-[minmax(7rem,0.9fr)_minmax(9rem,1fr)_minmax(9rem,1fr)] gap-px overflow-hidden rounded-lg text-sm',
-            themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
-          )}>
-            <div className={cx('px-4 py-3 font-black', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>Giá trị</div>
-            <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#E4F0E7]' : 'bg-[#78C990]/12', themeClasses.titleText)}>Yes</div>
-            <div className={cx('px-4 py-3 text-center font-black', themeClasses.isLight ? 'bg-[#F8EBD6]' : 'bg-[#F2C66D]/10', themeClasses.titleText)}>No</div>
-            {table.rows.map((row) => (
-              <div key={row.value} className="contents">
-                <div className={cx(
+          <div role="region" aria-label={`Bảng likelihood cho ${table.label}, có thể cuộn ngang`} tabIndex={0} className={cx('overflow-x-auto rounded-lg', themeClasses.focusRing)}>
+            <table className="min-w-[28rem] border-separate border-spacing-0 text-sm">
+              <caption className="sr-only">Likelihood {table.label} cho hai class Yes và No</caption>
+              <thead><tr>
+                <th scope="col" className={cx('border-b px-4 py-3 text-left font-black', themeClasses.isLight ? 'border-[#D7E1EA] bg-[#EEF4F8]' : 'border-[#344454] bg-[#A8D4FF]/8', themeClasses.titleText)}>Giá trị</th>
+                <th scope="col" className={cx('border-b px-4 py-3 text-center font-black', themeClasses.isLight ? 'border-[#D7E1EA] bg-[#E4F0E7]' : 'border-[#344454] bg-[#78C990]/12', themeClasses.titleText)}>Yes</th>
+                <th scope="col" className={cx('border-b px-4 py-3 text-center font-black', themeClasses.isLight ? 'border-[#D7E1EA] bg-[#F8EBD6]' : 'border-[#344454] bg-[#F2C66D]/10', themeClasses.titleText)}>No</th>
+              </tr></thead>
+              <tbody>{table.rows.map((row) => (
+              <tr key={row.value}>
+                <th scope="row" className={cx(
                   cellClass,
-                  'font-bold',
+                  'text-left font-bold',
                   row.value === table.selected && (themeClasses.isLight ? '!bg-[#EAF1F7]' : '!bg-[#A8D4FF]/8'),
                   themeClasses.bodyText,
                 )}>
                   {row.value}
-                </div>
-                <div className={cx(cellClass, 'text-center', row.value === table.selected && (themeClasses.isLight ? '!bg-[#EDF7F0]' : '!bg-[#78C990]/8'))}>
+                </th>
+                <td className={cx(cellClass, 'text-center', row.value === table.selected && (themeClasses.isLight ? '!bg-[#EDF7F0]' : '!bg-[#78C990]/8'))}>
                   <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.yes} />
-                </div>
-                <div className={cx(cellClass, 'text-center', row.value === table.selected && (themeClasses.isLight ? '!bg-[#FCF3E6]' : '!bg-[#F2C66D]/7'))}>
+                </td>
+                <td className={cx(cellClass, 'text-center', row.value === table.selected && (themeClasses.isLight ? '!bg-[#FCF3E6]' : '!bg-[#F2C66D]/7'))}>
                   <MathText className={cx('font-semibold', themeClasses.titleText)} formula={row.no} />
-                </div>
-              </div>
-            ))}
+                </td>
+              </tr>
+            ))}</tbody>
+            </table>
           </div>
         </div>
       ))}
@@ -2319,7 +2288,7 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
     setChecked(false);
   };
   const inputClass = (key: keyof typeof expected) => cx(
-    'h-10 w-full rounded-lg border bg-transparent px-3 text-center text-sm font-bold outline-none transition-colors',
+    'h-11 w-full rounded-lg border bg-transparent px-3 text-center text-sm font-bold outline-none transition-colors',
     themeClasses.focusRing,
     checked
       ? answerIsCorrect(key)
@@ -2332,7 +2301,7 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
       type="button"
       onClick={() => setChecked(true)}
       className={cx(
-        'inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-black transition-colors',
+        'inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm font-black transition-colors',
         themeClasses.focusRing,
         themeClasses.isLight ? 'bg-[#205089] text-white hover:bg-[#173F6D]' : 'bg-[#A8D4FF] text-[#10263D] hover:bg-[#BDDFFF]',
       )}
@@ -2344,24 +2313,14 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
   if (step === 'data') {
     return (
       <section aria-label="Dataset phân loại email Spam" className={cx('py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
-        <div className="overflow-x-auto">
-          <div className={cx(
-            'grid min-w-[34rem] grid-cols-[5rem_1fr_1fr_8rem] gap-px overflow-hidden rounded-lg text-sm',
-            themeClasses.isLight ? 'bg-[#D7E1EA]' : 'bg-[#344454]',
-          )}>
-            {['Email', 'Có từ “miễn phí”', 'Có liên kết', 'Class'].map((label) => (
-              <div key={label} className={cx('px-3 py-3 text-center font-black first:text-left', themeClasses.isLight ? 'bg-[#EEF4F8]' : 'bg-[#A8D4FF]/8', themeClasses.titleText)}>
-                {label}
-              </div>
-            ))}
-            {rows.map((row) => (
-              <div key={row[0]} className="contents">
-                {row.slice(0, 3).map((value, index) => (
-                  <div key={`${row[0]}-${index}`} className={cx('px-3 py-2.5 text-center first:text-left first:font-bold', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]', themeClasses.bodyText)}>
-                    {value}
-                  </div>
-                ))}
-                <div className={cx('px-3 py-2.5 text-center', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
+        <div role="region" aria-label="Bảng dữ liệu email, có thể cuộn ngang" tabIndex={0} className={cx('overflow-x-auto rounded-lg', themeClasses.focusRing)}>
+          <table className={cx('min-w-[34rem] border-separate border-spacing-0 text-sm', themeClasses.bodyText)}>
+            <caption className="sr-only">Tám email với hai feature và class Spam hoặc Không spam</caption>
+            <thead><tr>{['Email', 'Có từ “miễn phí”', 'Có liên kết', 'Class'].map((label) => <th key={label} scope="col" className={cx('border-b px-3 py-3 text-center font-black first:text-left', themeClasses.isLight ? 'border-[#D7E1EA] bg-[#EEF4F8]' : 'border-[#344454] bg-[#A8D4FF]/8', themeClasses.titleText)}>{label}</th>)}</tr></thead>
+            <tbody>{rows.map((row) => (
+              <tr key={row[0]}>
+                {row.slice(0, 3).map((value, index) => index === 0 ? <th key={`${row[0]}-${index}`} scope="row" className={cx('border-b px-3 py-2.5 text-left font-bold', themeClasses.isLight ? 'border-[#E3EAF0] bg-white' : 'border-[#344454] bg-[#121A24]')}>{value}</th> : <td key={`${row[0]}-${index}`} className={cx('border-b px-3 py-2.5 text-center', themeClasses.isLight ? 'border-[#E3EAF0] bg-white' : 'border-[#344454] bg-[#121A24]')}>{value}</td>)}
+                <td className={cx('border-b px-3 py-2.5 text-center', themeClasses.isLight ? 'border-[#E3EAF0] bg-white' : 'border-[#344454] bg-[#121A24]')}>
                   <span className={cx(
                     'inline-flex min-w-20 justify-center rounded-full px-2 py-1 text-xs font-black',
                     row[3] === 'Spam'
@@ -2370,10 +2329,10 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
                   )}>
                     {row[3]}
                   </span>
-                </div>
-              </div>
-            ))}
-          </div>
+                </td>
+              </tr>
+            ))}</tbody>
+          </table>
         </div>
       </section>
     );
@@ -2407,6 +2366,8 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
                   <div key={key} className={cx('px-3 py-2', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
                     <input
                       aria-label={`${row.label} cho ${key === row.spam ? 'Spam' : 'Không spam'}`}
+                      aria-invalid={checked && !answerIsCorrect(key)}
+                      aria-describedby={checked ? 'email-probability-feedback' : undefined}
                       value={answers[key] ?? ''}
                       onChange={(event) => setAnswer(key, event.target.value)}
                       placeholder="Ví dụ: 3/4"
@@ -2421,7 +2382,7 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
         <div className="mt-5 flex flex-wrap items-center gap-4">
           {checkButton}
           {checked ? (
-            <p className={cx('text-sm font-bold', allCorrect ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]' : themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')}>
+            <p id="email-probability-feedback" role="status" aria-live="polite" className={cx('text-sm font-bold', allCorrect ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]' : themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')}>
               {allCorrect ? 'Đúng. Các prior và likelihood đã được tính chính xác.' : 'Chưa đúng. Hãy đếm riêng trong từng class và kiểm tra tổng mỗi cột bằng 1.'}
             </p>
           ) : null}
@@ -2446,6 +2407,8 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
             </div>
             <input
               aria-label={`Giá trị ${item.label}`}
+              aria-invalid={checked && !answerIsCorrect(item.key)}
+              aria-describedby={checked ? 'email-score-feedback' : undefined}
               value={answers[item.key] ?? ''}
               onChange={(event) => setAnswer(item.key, event.target.value)}
               placeholder="Nhập phân số hoặc số thập phân"
@@ -2456,7 +2419,7 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
       </div>
       <div className="mt-6">
         <span className={cx('text-sm font-black', themeClasses.titleText)}>Class dự đoán</span>
-        <div className="mt-3 flex flex-wrap gap-3">
+        <div role="group" aria-label="Chọn class dự đoán" className="mt-3 flex flex-wrap gap-3">
           {[
             { id: 'spam' as const, label: 'Spam' },
             { id: 'ham' as const, label: 'Không spam' },
@@ -2464,12 +2427,13 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
             <button
               key={option.id}
               type="button"
+              aria-pressed={prediction === option.id}
               onClick={() => {
                 setPrediction(option.id);
                 setChecked(false);
               }}
               className={cx(
-                'min-h-10 rounded-lg border px-4 text-sm font-black transition-colors',
+                'min-h-11 rounded-lg border px-4 text-sm font-black transition-colors',
                 themeClasses.focusRing,
                 prediction === option.id
                   ? themeClasses.isLight ? 'border-[#205089] bg-[#EAF1F7] text-[#123B68]' : 'border-[#A8D4FF] bg-[#A8D4FF]/10 text-[#D7EAFE]'
@@ -2484,7 +2448,7 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
       <div className="mt-5 flex flex-wrap items-center gap-4">
         {checkButton}
         {checked ? (
-          <p className={cx('text-sm font-bold', allCorrect ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]' : themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')}>
+          <p id="email-score-feedback" role="status" aria-live="polite" className={cx('text-sm font-bold', allCorrect ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]' : themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')}>
             {allCorrect ? 'Đúng. score(Spam)=9/32 lớn hơn score(Không spam)=1/32.' : 'Chưa đúng. Hãy nhân prior với hai likelihood rồi chọn score lớn hơn.'}
           </p>
         ) : null}
@@ -2495,10 +2459,10 @@ function EmailNaiveBayesPracticeVisual({ step, themeClasses }: {
 
 function StatisticalAssumptionsVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
   const assumptions = [
-    { key: 'A', title: 'Tuyến tính', detail: 'Giá trung bình thay đổi gần theo một đường thẳng khi diện tích tăng.', issue: 'Quan hệ không tuyến tính', remedy: 'thử biến đổi dữ liệu hoặc dùng hồi quy đa thức (Polynomial Regression), spline hay GAM.' },
-    { key: 'B', title: 'Sai số độc lập', detail: 'Sai số của một căn nhà không kéo theo sai số của căn nhà khác.', issue: 'Các sai số phụ thuộc nhau', remedy: 'dùng GLS, mô hình hiệu ứng hỗn hợp (mixed-effects) hoặc sai số chuẩn theo cụm.' },
-    { key: 'C', title: 'Phương sai không đổi', detail: 'Độ phân tán của sai số tương đối ổn định ở mọi mức diện tích.', issue: 'Độ phân tán sai số thay đổi', remedy: 'dùng bình phương tối thiểu có trọng số (Weighted Least Squares) hoặc sai số chuẩn bền vững.' },
-    { key: 'D', title: 'Phần dư gần chuẩn', detail: 'Cần thiết cho kiểm định và khoảng tin cậy, nhất là khi mẫu nhỏ.', issue: 'Phần dư lệch chuẩn rõ rệt', remedy: 'dùng bootstrap; nếu phân phối biến đích không phù hợp, cân nhắc mô hình tuyến tính tổng quát (GLM).' },
+    { key: 'A', title: 'Quan hệ phù hợp', detail: 'Dạng quan hệ trong dữ liệu gần với dạng mà mô hình giả định.', issue: 'Mô hình có thể bỏ sót mẫu hình quan trọng.' },
+    { key: 'B', title: 'Quan sát đủ độc lập', detail: 'Một quan sát không lặp lại hoặc kéo theo một quan sát khác.', issue: 'Mức độ chắc chắn có thể bị phóng đại.' },
+    { key: 'C', title: 'Độ phân tán hợp lý', detail: 'Sai số không thay đổi quá mạnh giữa các nhóm dữ liệu.', issue: 'Khoảng bất định có thể không còn đáng tin.' },
+    { key: 'D', title: 'Mẫu đại diện', detail: 'Dữ liệu phản ánh đúng quần thể mà ta muốn kết luận.', issue: 'Kết quả có thể không áp dụng được cho quần thể.' },
   ] as const;
 
   return (
@@ -2511,9 +2475,8 @@ function StatisticalAssumptionsVisual({ themeClasses }: { themeClasses: Learning
         )}
       >
         <div className="grid gap-1">
-          <p className={cx('text-[0.68rem] font-black uppercase tracking-[0.18em]', themeClasses.isLight ? 'text-[#39724A]' : 'text-[#9DDBAF]')}>Ví dụ: Linear Regression</p>
-          <h3 id="statistical-assumptions-title" className={cx('text-lg font-black sm:text-xl', themeClasses.titleText)}>Dự đoán giá nhà từ diện tích</h3>
-          <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>Trước khi diễn giải hệ số của mô hình, ta cần kiểm tra ít nhất bốn giả thiết:</p>
+          <p className={cx('text-[0.68rem] font-black uppercase tracking-[0.18em]', themeClasses.accentText)}>Bốn câu hỏi kiểm tra</p>
+          <h3 id="statistical-assumptions-title" className={cx('text-lg font-black sm:text-xl', themeClasses.titleText)}>Điều kiện áp dụng có hợp lý không?</h3>
         </div>
 
         <ol className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Bốn giả thiết của ví dụ Linear Regression">
@@ -2521,24 +2484,13 @@ function StatisticalAssumptionsVisual({ themeClasses }: { themeClasses: Learning
             <li key={assumption.key} className={cx('grid min-h-36 content-start gap-2 rounded-lg px-3 py-3', themeClasses.isLight ? 'bg-white' : 'bg-[#172232]')}>
               <span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#EAF1F7] text-[#205089]' : 'bg-[#A8D4FF]/12 text-[#A8D4FF]')} aria-hidden="true">{assumption.key}</span>
               <strong className={cx('text-sm font-black', themeClasses.titleText)}>{assumption.title}</strong>
-              <span className={cx('text-xs font-semibold leading-5', themeClasses.mutedText)}>{assumption.detail}</span>
+              <span className={cx('text-xs font-semibold leading-5', themeClasses.bodyText)}>{assumption.detail}</span>
+              <span className={cx('text-xs leading-5', themeClasses.mutedText)}><strong>Nếu không:</strong> {assumption.issue}</span>
             </li>
           ))}
         </ol>
       </section>
 
-      <section aria-labelledby="statistical-assumptions-remedies-title" className={cx('rounded-xl border px-4 py-4 sm:px-5', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8D4FF]/18 bg-[#172232]')}>
-        <h4 id="statistical-assumptions-remedies-title" className={cx('text-sm font-bold', themeClasses.titleText)}>Làm gì khi giả thiết bị vi phạm?</h4>
-        <p className={cx('mt-1 text-xs font-normal leading-5', themeClasses.mutedText)}>Để xử lý từng vấn đề, ta có thể dùng các phương pháp sau:</p>
-        <dl className="mt-3 grid gap-x-5 gap-y-3 sm:grid-cols-2">
-          {assumptions.map((assumption) => (
-            <div key={assumption.key} className="grid grid-cols-[2rem_minmax(0,1fr)] items-start gap-2">
-              <dt className={cx('grid h-7 w-7 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#FBF2E7] text-[#8A4718]' : 'bg-[#F0B172]/10 text-[#F0B172]')}>{assumption.key}</dt>
-              <dd className={cx('text-xs font-normal leading-5', themeClasses.bodyText)}><strong className="font-semibold">{assumption.issue}:</strong> {assumption.remedy}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
     </div>
   );
 }
@@ -2568,13 +2520,24 @@ function ResponsibleStatisticsChecklistVisual({ themeClasses }: { themeClasses: 
   );
 }
 
-function StatisticsMisuseQuoteVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+function StatisticsMisuseFlowVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const steps = [
+    { label: '1', title: 'Chọn dữ liệu', detail: 'Giữ phần thuận lợi, bỏ phần bất lợi.' },
+    { label: '2', title: 'Trình bày', detail: 'Dùng trục hoặc tỷ lệ làm khác biệt trông lớn hơn.' },
+    { label: '3', title: 'Diễn giải', detail: 'Khẳng định mạnh hơn điều bằng chứng hỗ trợ.' },
+  ] as const;
   return (
-    <section aria-labelledby="statistics-misuse-quote-title" className={cx('relative overflow-hidden rounded-xl px-5 py-7 sm:px-8 sm:py-9', themeClasses.isLight ? 'bg-[#F3F7F4]' : 'bg-[#121A24]')}>
-      <span className={cx('pointer-events-none absolute -top-3 left-4 text-8xl font-black leading-none', themeClasses.isLight ? 'text-[#39724A]/15' : 'text-[#9DDBAF]/12')} aria-hidden="true">“</span>
-      <blockquote id="statistics-misuse-quote-title" className={cx('relative mx-auto max-w-3xl text-xl font-black leading-8 sm:text-2xl sm:leading-9', themeClasses.titleText)}>
-        “Có ba kiểu nói dối: nói dối, nói dối trắng trợn và thống kê.”
-      </blockquote>
+    <section aria-label="Ba bước có thể làm số liệu dẫn dắt người đọc" className={cx('rounded-xl px-4 py-5 sm:px-5', themeClasses.isLight ? 'bg-[#F7FAFD]' : 'bg-[#121A24]')}>
+      <ol className="grid gap-3 md:grid-cols-3">
+        {steps.map((step, index) => (
+          <li key={step.title} className={cx('relative grid content-start gap-2 rounded-lg px-4 py-4', themeClasses.isLight ? 'bg-white' : 'bg-[#172232]')}>
+            <span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-black', themeClasses.isLight ? 'bg-[#EAF1F7] text-[#205089]' : 'bg-[#A8D4FF]/12 text-[#A8D4FF]')}>{step.label}</span>
+            <strong className={cx('text-sm', themeClasses.titleText)}>{step.title}</strong>
+            <span className={cx('text-sm leading-6', themeClasses.bodyText)}>{step.detail}</span>
+            {index < steps.length - 1 ? <ArrowRight className={cx('absolute -bottom-5 left-1/2 z-10 h-5 w-5 -translate-x-1/2 rotate-90 md:-right-4 md:bottom-auto md:left-auto md:top-1/2 md:translate-x-0 md:-translate-y-1/2 md:rotate-0', themeClasses.accentText)} aria-hidden="true" /> : null}
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
@@ -2582,7 +2545,7 @@ function StatisticsMisuseQuoteVisual({ themeClasses }: { themeClasses: LearningT
 const populationValues = [47, 48, 48, 49, 49, 50, 50, 50, 51, 51, 52, 55] as const;
 const samplingSequences = {
   random: [[48, 50, 51, 52], [47, 49, 50, 55], [48, 49, 51, 52], [48, 50, 50, 51]],
-  convenience: [[51, 52, 55, 51], [50, 51, 52, 55], [51, 51, 52, 55], [50, 52, 52, 55]],
+  convenience: [[50, 51, 52, 55], [49, 50, 52, 55], [50, 50, 51, 55], [49, 51, 52, 55]],
 } as const;
 
 type StudyCollectionMethod = {
@@ -2594,14 +2557,16 @@ type StudyCollectionMethod = {
   conclusion: string;
 };
 
+type PopulationStage = {
+  id: 'population' | 'sample' | 'observation';
+  title: string;
+  englishTitle: string;
+  description: string;
+};
+
 type PopulationSampleObservationOverviewProps = {
   overviewLabel: string;
-  stages: Array<{
-    id: 'population' | 'sample' | 'observation';
-    title: string;
-    englishTitle: string;
-    description: string;
-  }>;
+  stages: PopulationStage[];
   sampleCaption: string;
   methodsHeading: string;
   methodLabels: {
@@ -2638,6 +2603,68 @@ const studyCollectionMethodMeta: Record<StudyCollectionMethod['id'], {
     darkIcon: 'bg-[#7FD3B1]/10 text-[#9BDCC2]',
   },
 };
+
+function PopulationSampleOverview({ stages }: { stages: PopulationStage[] }) {
+  const themeClasses = useLearningMdxTheme();
+  const populationDots = Array.from({ length: 24 }, (_, index) => index);
+  const selectedDots = new Set([2, 5, 9, 14, 18, 22]);
+
+  return (
+    <section aria-label="Từ quần thể đến mẫu và một quan sát" className={cx('rounded-xl px-4 py-5 sm:px-5', themeClasses.isLight ? 'bg-[#F7FAFD]' : 'bg-[#121A24]')}>
+      <div className="grid gap-3 md:grid-cols-3">
+        {stages.map((stage, index) => (
+          <article key={stage.id} className={cx('relative grid content-start gap-3 rounded-lg px-4 py-4', themeClasses.isLight ? 'bg-white' : 'bg-[#172232]')}>
+            <div className="flex items-start gap-3">
+              <span className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-black', themeClasses.isLight ? 'bg-[#EAF1F7] text-[#205089]' : 'bg-[#A8D4FF]/12 text-[#A8D4FF]')} aria-hidden="true">{index + 1}</span>
+              <div>
+                <h3 className={cx('text-sm font-black', themeClasses.titleText)}>{stage.title}</h3>
+                <p className={cx('text-xs font-semibold', themeClasses.mutedText)}>{stage.englishTitle}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-8 gap-1.5" aria-hidden="true">
+              {populationDots.map((dot) => {
+                const highlighted = stage.id === 'population' || (stage.id === 'sample' && selectedDots.has(dot)) || (stage.id === 'observation' && dot === 9);
+                return <span key={dot} className={cx('aspect-square rounded-full', highlighted ? themeClasses.isLight ? 'bg-[#2F78B7]' : 'bg-[#8CC8F2]' : themeClasses.isLight ? 'bg-[#DCE5ED]' : 'bg-[#A8D4FF]/12')} />;
+              })}
+            </div>
+            <p className={cx('text-sm leading-6', themeClasses.bodyText)}>{stage.description}</p>
+            {index < stages.length - 1 ? <ArrowRight className={cx('absolute -bottom-5 left-1/2 z-10 h-5 w-5 -translate-x-1/2 rotate-90 md:-right-4 md:bottom-auto md:left-auto md:top-1/2 md:translate-x-0 md:-translate-y-1/2 md:rotate-0', themeClasses.accentText)} aria-hidden="true" /> : null}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function StudyDesignComparison({ methods }: { methods: StudyCollectionMethod[] }) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <section aria-label="So sánh ba cách tạo dữ liệu" className={cx('overflow-hidden rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8D4FF]/18 bg-[#121A24]')}>
+      <div className={cx('grid divide-y md:grid-cols-3 md:divide-x md:divide-y-0', themeClasses.isLight ? 'divide-[#DCE5ED]' : 'divide-[#A8D4FF]/14')}>
+        {methods.map((method) => {
+          const meta = studyCollectionMethodMeta[method.id];
+          const Icon = meta.icon;
+          return (
+            <article key={method.id} className="grid content-start gap-4 px-4 py-5 sm:px-5">
+              <div className="flex items-center gap-3">
+                <span className={cx('grid h-10 w-10 shrink-0 place-items-center rounded-lg', themeClasses.isLight ? meta.lightIcon : meta.darkIcon)}><Icon className="h-5 w-5" aria-hidden="true" /></span>
+                <div>
+                  <h3 className={cx('text-sm font-black', themeClasses.titleText)}>{method.title}</h3>
+                  <p className={cx('text-xs font-semibold', themeClasses.mutedText)}>{method.englishTitle}</p>
+                </div>
+              </div>
+              <dl className="grid gap-3 text-sm leading-6">
+                <div><dt className={cx('font-black', themeClasses.titleText)}>Nguồn dữ liệu</dt><dd className={themeClasses.bodyText}>{method.evidence}</dd></div>
+                <div><dt className={cx('font-black', themeClasses.titleText)}>Can thiệp</dt><dd className={themeClasses.bodyText}>{method.intervention}</dd></div>
+                <div><dt className={cx('font-black', themeClasses.titleText)}>Kết luận</dt><dd className={themeClasses.bodyText}>{method.conclusion}</dd></div>
+              </dl>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 function PopulationSampleObservationOverview({
   overviewLabel,
@@ -2812,12 +2839,12 @@ function StatisticalThinkingSamplingVisual({ themeClasses }: { themeClasses: Lea
             ['random', 'Mẫu ngẫu nhiên'],
             ['convenience', 'Mẫu thuận tiện'],
           ] as const).map(([option, label]) => (
-            <button key={option} type="button" aria-pressed={mode === option} onClick={() => selectMode(option)} className={cx('min-h-10 rounded-lg border px-3 text-sm font-black transition-colors', themeClasses.focusRing, mode === option ? themeClasses.isLight ? 'border-[#205089] bg-[#EAF1F7] text-[#123B68]' : 'border-[#A8D4FF] bg-[#A8D4FF]/10 text-[#D7EAFE]' : themeClasses.isLight ? 'border-[#B8C9D8] bg-white text-[#43536A]' : 'border-[#A8D4FF]/24 text-[#C8D4DF]')}>{label}</button>
+            <button key={option} type="button" aria-pressed={mode === option} onClick={() => selectMode(option)} className={cx('min-h-11 rounded-lg border px-3 text-sm font-black transition-colors', themeClasses.focusRing, mode === option ? themeClasses.isLight ? 'border-[#205089] bg-[#EAF1F7] text-[#123B68]' : 'border-[#A8D4FF] bg-[#A8D4FF]/10 text-[#D7EAFE]' : themeClasses.isLight ? 'border-[#B8C9D8] bg-white text-[#43536A]' : 'border-[#A8D4FF]/24 text-[#C8D4DF]')}>{label}</button>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button type="button" disabled={!canDraw} onClick={() => setDrawCount((count) => count + 1)} className={cx('min-h-10 rounded-lg px-4 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50', themeClasses.focusRing, themeClasses.isLight ? 'bg-[#205089] text-white hover:bg-[#173F6C]' : 'bg-[#A8D4FF] text-[#102030]')}>Rút một mẫu 4 chi tiết</button>
-          {drawCount > 0 ? <button type="button" onClick={() => { setMode('random'); setDrawCount(0); }} className={cx('min-h-10 px-2 text-sm font-black underline underline-offset-4', themeClasses.focusRing, themeClasses.mutedText)}>Đặt lại</button> : null}
+          <button type="button" disabled={!canDraw} onClick={() => setDrawCount((count) => count + 1)} className={cx('min-h-11 rounded-lg px-4 text-sm font-black transition-colors disabled:cursor-not-allowed disabled:opacity-50', themeClasses.focusRing, themeClasses.isLight ? 'bg-[#205089] text-white hover:bg-[#173F6C]' : 'bg-[#A8D4FF] text-[#102030]')}>Rút một mẫu 4 chi tiết</button>
+          {drawCount > 0 ? <button type="button" onClick={() => { setMode('random'); setDrawCount(0); }} className={cx('min-h-11 px-2 text-sm font-black underline underline-offset-4', themeClasses.focusRing, themeClasses.mutedText)}>Đặt lại</button> : null}
           {!canDraw ? <span className={cx('text-sm font-bold', themeClasses.mutedText)}>Đã xem đủ bốn mẫu cố định.</span> : null}
         </div>
       </div>
@@ -2845,11 +2872,11 @@ const statisticalQuestionDomainMeta: Record<StatisticalQuestionDomainId, {
   darkIcon: string;
 }> = {
   engineering: { icon: Factory, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
-  medicine: { icon: HeartPulse, lightIcon: 'bg-[#E2F0EA] text-[#2F6F59]', darkIcon: 'bg-[#7FD3B1]/10 text-[#9BDCC2]' },
-  business: { icon: BriefcaseBusiness, lightIcon: 'bg-[#ECE7F5] text-[#66518F]', darkIcon: 'bg-[#B8A1E6]/10 text-[#C9B8ED]' },
+  medicine: { icon: HeartPulse, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
+  business: { icon: BriefcaseBusiness, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
   society: { icon: Users, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
-  'machine-learning': { icon: BrainCircuit, lightIcon: 'bg-[#E2F0EA] text-[#2F6F59]', darkIcon: 'bg-[#7FD3B1]/10 text-[#9BDCC2]' },
-  'deep-learning': { icon: Network, lightIcon: 'bg-[#ECE7F5] text-[#66518F]', darkIcon: 'bg-[#B8A1E6]/10 text-[#C9B8ED]' },
+  'machine-learning': { icon: BrainCircuit, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
+  'deep-learning': { icon: Network, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
   evaluation: { icon: ChartNoAxesCombined, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
 };
 
@@ -2937,10 +2964,10 @@ const statisticsBranchMeta: Record<StatisticsBranch['id'], {
   },
   inferential: {
     icon: ScanSearch,
-    lightIcon: 'bg-[#E2F0EA] text-[#2F6F59]',
-    darkIcon: 'bg-[#7FD3B1]/10 text-[#9BDCC2]',
-    lightSurface: 'bg-[#F5FAF8]',
-    darkSurface: 'bg-[#7FD3B1]/5',
+    lightIcon: 'bg-[#DDEAF5] text-[#205089]',
+    darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]',
+    lightSurface: 'bg-white',
+    darkSurface: 'bg-[#121A24]/55',
   },
 };
 
@@ -3072,7 +3099,7 @@ function StatisticsBranchesOverview({ branches, nextSteps }: { branches: Statist
               <ul className={cx('grid gap-2 border-t pt-4', border)}>
                 {branch.tools.map((tool) => (
                   <li key={tool} className={cx('flex gap-2 text-sm font-semibold leading-6', themeClasses.bodyText)}>
-                    <Check className={cx('mt-1 h-4 w-4 shrink-0', branch.id === 'descriptive' ? themeClasses.accentText : themeClasses.isLight ? 'text-[#2F6F59]' : 'text-[#9BDCC2]')} strokeWidth={2.2} aria-hidden="true" />
+                    <Check className={cx('mt-1 h-4 w-4 shrink-0', themeClasses.accentText)} strokeWidth={2.2} aria-hidden="true" />
                     <span>{tool}</span>
                   </li>
                 ))}
@@ -3118,13 +3145,13 @@ function StatisticalThinkingStudyDesignVisual({ themeClasses }: { themeClasses: 
               {([
                 ['association', 'Mô tả hoặc mối liên hệ'],
                 ['causal', 'Quan hệ nhân quả'],
-              ] as const).map(([claim, label]) => <button key={claim} type="button" aria-pressed={selected === claim} onClick={() => setAnswers((current) => ({ ...current, [scenario.id]: claim }))} className={cx('min-h-10 rounded-lg border px-3 text-sm font-black transition-colors', themeClasses.focusRing, selected === claim ? themeClasses.isLight ? 'border-[#205089] bg-[#EAF1F7] text-[#123B68]' : 'border-[#A8D4FF] bg-[#A8D4FF]/10 text-[#D7EAFE]' : themeClasses.isLight ? 'border-[#B8C9D8] text-[#43536A]' : 'border-[#A8D4FF]/24 text-[#C8D4DF]')}>{label}</button>)}
+              ] as const).map(([claim, label]) => <button key={claim} type="button" aria-pressed={selected === claim} onClick={() => setAnswers((current) => ({ ...current, [scenario.id]: claim }))} className={cx('min-h-11 rounded-lg border px-3 text-sm font-black transition-colors', themeClasses.focusRing, selected === claim ? themeClasses.isLight ? 'border-[#205089] bg-[#EAF1F7] text-[#123B68]' : 'border-[#A8D4FF] bg-[#A8D4FF]/10 text-[#D7EAFE]' : themeClasses.isLight ? 'border-[#B8C9D8] text-[#43536A]' : 'border-[#A8D4FF]/24 text-[#C8D4DF]')}>{label}</button>)}
             </div>
             {selected ? <p aria-live="polite" className={cx('text-sm font-bold leading-6', correct ? themeClasses.isLight ? 'text-[#2D7646]' : 'text-[#8ED8A4]' : themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')}>{correct ? scenario.feedback : scenario.answer === 'association' ? 'Chưa đúng. Không có phân ngẫu nhiên; một yếu tố khác có thể đồng thời giải thích kết quả.' : 'Chưa đúng. Hãy tìm điểm khác biệt: các chi tiết được phân ngẫu nhiên vào hai chế độ trước khi đo kết quả.'}</p> : null}
           </article>;
         })}
       </div>
-      {Object.keys(answers).length ? <button type="button" onClick={reset} className={cx('justify-self-start min-h-10 px-2 text-sm font-black underline underline-offset-4', themeClasses.focusRing, themeClasses.mutedText)}>Làm lại cả ba tình huống</button> : null}
+      {Object.keys(answers).length ? <button type="button" onClick={reset} className={cx('min-h-11 justify-self-start px-2 text-sm font-black underline underline-offset-4', themeClasses.focusRing, themeClasses.mutedText)}>Làm lại cả ba tình huống</button> : null}
     </section>
   );
 }
@@ -3134,7 +3161,6 @@ function ProbabilityChapterVisual({ kind }: {
 }) {
   const themeClasses = useLearningMdxTheme();
   if (kind === 'foundations') return <FoundationsVisual themeClasses={themeClasses} />;
-  if (kind === 'experiment-outcomes') return <ExperimentOutcomesVisual themeClasses={themeClasses} />;
   if (kind === 'hidden-coin-probability') return <HiddenCoinProbabilityVisual themeClasses={themeClasses} />;
   if (kind === 'large-number-applications') return <LargeNumberApplicationsVisual themeClasses={themeClasses} />;
   if (kind === 'elementary') return <ElementaryEventVisual themeClasses={themeClasses} />;
@@ -3147,7 +3173,7 @@ function ProbabilityChapterVisual({ kind }: {
   if (kind === 'axioms') return <AxiomsVisual themeClasses={themeClasses} />;
   if (kind === 'statistical-assumptions') return <StatisticalAssumptionsVisual themeClasses={themeClasses} />;
   if (kind === 'responsible-statistics-checklist') return <ResponsibleStatisticsChecklistVisual themeClasses={themeClasses} />;
-  if (kind === 'statistics-misuse-quote') return <StatisticsMisuseQuoteVisual themeClasses={themeClasses} />;
+  if (kind === 'statistics-misuse-flow') return <StatisticsMisuseFlowVisual themeClasses={themeClasses} />;
   if (kind === 'statistical-thinking-sampling') return <StatisticalThinkingSamplingVisual themeClasses={themeClasses} />;
   if (kind === 'statistical-thinking-study-design') return <StatisticalThinkingStudyDesignVisual themeClasses={themeClasses} />;
   if (kind === 'empirical') return <EmpiricalVisual themeClasses={themeClasses} />;
@@ -3191,10 +3217,12 @@ export const statisticsMdxComponents = {
   MultivariateNormalExplorer,
   NormalDistributionVisual,
   NormalParameterExplorer,
+  PopulationSampleOverview,
   PopulationSampleObservationOverview,
   ProbabilityChapterVisual,
   ProbabilitySourceImage,
   StatisticalQuestionAtlas,
+  StudyDesignComparison,
   StatisticsBranchesOverview,
   VarianceConceptVisual,
   VarianceEstimatorComparison,

@@ -3,7 +3,7 @@ export const lessonMetadata = {
   id: 'ch01-bayes-naive-bayes-quiz',
   locale: 'vi',
   "title": "Quiz",
-  headings: ['Các thành phần Bayes', 'Giả định Naive Bayes', 'Ổn định số học'],
+  headings: ['Các thành phần Bayes', 'So sánh score', 'Ổn định số học'],
   keywords: ['Bayes', 'prior', 'posterior', 'Naive Bayes', 'log-likelihood', 'Laplace smoothing'],
   pageCount: 3,
 }
@@ -26,15 +26,15 @@ export const lessonMetadata = {
     error: 'Chưa đúng. Hãy lần theo thứ tự: trước dữ liệu, khả năng của dữ liệu, rồi sau dữ liệu.',
   },
   {
-    id: 'naive-bayes-assumption', title: 'Giả định Naive Bayes', prompt: 'Giả định “naive” chính xác nhất là gì?', mode: 'single',
+    id: 'naive-bayes-assumption', title: 'So sánh score', prompt: 'Một mẫu mới có score(A) = 0,06 và score(B) = 0,02. Naive Bayes nên dự đoán class nào?', mode: 'single',
     options: [
-      { id: 'unconditional', label: 'Mọi feature độc lập tuyệt đối trong toàn bộ dataset.' },
-      { id: 'conditional', label: 'Các feature độc lập có điều kiện với nhau khi đã biết class.', isCorrect: true },
-      { id: 'linear', label: 'Mọi feature có quan hệ tuyến tính với class.' },
-      { id: 'equal-prior', label: 'Mọi class có prior bằng nhau.' },
+      { id: 'unconditional', label: 'Class B, vì score nhỏ hơn.' },
+      { id: 'conditional', label: 'Class A, vì 0,06 lớn hơn 0,02.', isCorrect: true },
+      { id: 'linear', label: 'Không thể chọn nếu chưa chuẩn hóa score thành tổng bằng 1.' },
+      { id: 'equal-prior', label: 'Chọn ngẫu nhiên vì hai score đều nhỏ hơn 0,5.' },
     ],
-    success: 'Đúng. Naive Bayes giả sử độc lập có điều kiện theo class.',
-    error: 'Chưa đúng. Từ khóa quan trọng là “khi đã biết class”.',
+    success: 'Đúng. Khi phân loại, chỉ cần chọn class có score lớn nhất; không bắt buộc chuẩn hóa trước.',
+    error: 'Chưa đúng. Hãy so sánh trực tiếp hai score và chọn giá trị lớn hơn.',
   },
   {
     id: 'naive-bayes-stability', title: 'Ổn định số học', prompt: 'Những kỹ thuật nào giải quyết hai vấn đề phổ biến khi triển khai Naive Bayes?', mode: 'multi',

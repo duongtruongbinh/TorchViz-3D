@@ -2,7 +2,7 @@ export const lessonMetadata = {
   "domainId": "statistics",
   "id": "ch01-probability-exercises",
   "locale": "vi",
-  "title": "1.9 Bài tập xác suất",
+  "title": "1.9 Bài tập Naive Bayes",
   "headings": [
     "Bài tập: Dự đoán Play Tennis",
     "Không dùng Laplace",
@@ -13,7 +13,7 @@ export const lessonMetadata = {
     "Kiến thức cần nắm"
   ],
   "keywords": [
-    "bài tập xác suất",
+    "bài tập Naive Bayes",
     "xác suất có điều kiện",
     "Naive Bayes",
     "Laplace smoothing"
@@ -57,9 +57,7 @@ Mẫu số của likelihood là số quan sát trong class tương ứng. Vì v�
 
 **Bước 3: Tính score**
 
-<MdxFormula formula={"\\begin{aligned}\\operatorname{score}(\\text{Yes})&=P(\\text{Yes})P(\\text{Sunny}\\mid\\text{Yes})P(\\text{Cool}\\mid\\text{Yes})P(\\text{High}\\mid\\text{Yes})P(\\text{Strong}\\mid\\text{Yes})\\\\&=\\frac9{14}\\times\\frac29\\times\\frac39\\times\\frac39\\times\\frac39=\\frac1{189}\\end{aligned}"} />
-
-<MdxFormula formula={"\\begin{aligned}\\operatorname{score}(\\text{No})&=P(\\text{No})P(\\text{Sunny}\\mid\\text{No})P(\\text{Cool}\\mid\\text{No})P(\\text{High}\\mid\\text{No})P(\\text{Strong}\\mid\\text{No})\\\\&=\\frac5{14}\\times\\frac35\\times\\frac15\\times\\frac45\\times\\frac35=\\frac{18}{875}\\end{aligned}"} />
+<MdxFormula formula={"\\begin{aligned}\\operatorname{score}(\\text{Yes})&=\\frac9{14}\\times\\frac29\\times\\frac39\\times\\frac39\\times\\frac39=\\frac1{189}\\\\\\operatorname{score}(\\text{No})&=\\frac5{14}\\times\\frac35\\times\\frac15\\times\\frac45\\times\\frac35=\\frac{18}{875}\\end{aligned}"} />
 
 Vì <MdxFormula inline formula={"\\frac{18}{875}>\\frac1{189}"} />, mô hình dự đoán class **No**.
 
@@ -142,10 +140,10 @@ Hãy tính hai score, chọn class có score lớn hơn rồi kiểm tra đáp �
 <LessonNote label="Tóm tắt quy trình giải bài tập Naive Bayes">
 
 1. **Tính Prior <MdxFormula inline formula={"P(C_i)"} />**: Đếm số mẫu thuộc lớp <MdxFormula inline formula={"C_i"} /> chia cho tổng số mẫu trong dataset.
-2. **Tính Likelihood <MdxFormula inline formula={"P(X_k \\\\mid C_i)"} />**: Đếm số lần đặc trưng <MdxFormula inline formula={"X_k"} /> xuất hiện trong lớp <MdxFormula inline formula={"C_i"} /> chia cho tổng số mẫu của **chính lớp <MdxFormula inline formula={"C_i"} /> đó**.
+2. **Tính likelihood <MdxFormula inline formula={"P(X_k\\mid C_i)"} />**: Đếm trong chính class <MdxFormula inline formula={"C_i"} />, không chia cho toàn bộ dataset.
 3. **Áp dụng Laplace Smoothing (nếu yêu cầu)**: Cộng <MdxFormula inline formula={"1"} /> vào lượt đếm tử số và cộng <MdxFormula inline formula={"K"} /> (số giá trị phân biệt của đặc trưng) vào mẫu số.
 4. **Tính Score cho mỗi lớp**: Nhân Prior với tích các Likelihood của các đặc trưng cần dự đoán.
-5. **Đưa ra quyết định**: Chọn lớp có Score lớn hơn (<MdxFormula inline formula={"\\\\hat{C} = \\\\operatorname*{arg\\\\,max} \\\\text{score}(C_i)"} />).
+5. **Đưa ra quyết định**: Chọn class có score lớn hơn, <MdxFormula inline formula={"\\hat C=\\operatorname*{arg\\,max}_{C_i}\\operatorname{score}(C_i)"} />.
 
 </LessonNote>
 

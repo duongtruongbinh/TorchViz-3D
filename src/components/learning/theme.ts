@@ -12,13 +12,13 @@ export function isTypingTarget(target: EventTarget | null): boolean {
   if (target.isContentEditable) return true;
   const tag = target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-  if (target.closest('[data-quiz]')) return true;
+  if (target.closest('button, [role="button"], [role="radio"], [role="radiogroup"], [data-learning-interactive], [data-quiz]')) return true;
   return false;
 }
 
 export function getLearningLabTheme(theme: LearningLabTheme) {
   const isLight = theme === 'light';
-  const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#517FCB]/30';
+  const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#205089] focus-visible:ring-offset-2';
 
   const radius = {
     icon: 'rounded-lg',

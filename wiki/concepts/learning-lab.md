@@ -105,49 +105,25 @@ lessons tagged `exercise` automatically populate Review mode. Applicable
 Conv2d and pooling nodes in the Workspace Forward Pass controls resolve through
 catalog entry-point metadata and open the canonical lesson route.
 
-Probability & Statistics is the display name of the canonical `statistics`
-domain, which remains separate from `math-statistics-ai`. It has eight tracks,
-133 lesson nodes, 119 published Vietnamese lessons, and 543 ordered lesson
-pages. Its first seven tracks form the applied-statistics core: probability;
-statistical thinking; descriptive statistics and point estimation; statistical
-inference; regression analysis; design of experiments; and statistical quality
-control. Fourteen missing-content nodes make the forthcoming estimation,
-inference, experimental-design, and quality-control sequence explicit without
-claiming it is already authored. The eighth track,
-`statistical-learning-extensions`, keeps classification, dimension reduction,
-trees, SVMs, deep learning, and unsupervised learning available as optional
-material rather than core prerequisites. Regression retains logistic and
-generalized linear models, regularization, nonlinear methods, and survival
-analysis. Chapter 1 alternates nine Probability lessons with nine adjacent
-`Quiz` nodes: 43 theory pages and 32 quiz pages. Its sequence establishes
-experiments, event relations, probability rules, empirical probability,
-conditional probability, and total probability before the origins-and-intuition
-lesson motivates the direct transition into Bayes and Naive Bayes. The theory retains the
-supplied Vietnamese wording, notes, examples, and informal voice while
-correcting mathematical or conceptual errors. Formulas and mathematical
-symbols use KaTeX in lesson and quiz content; `MdxTable` cells and headers
-render `$...$` inline math through the shared rich-cell renderer. Probability
-theory pages
-share a full-width reading treatment and use the domain-local
-`ProbabilityChapterVisual` variants for concept-specific diagrams; quiz pages
-reuse the shared LLM-domain interaction modes. Chapter 2 Statistical Thinking
-opens with a three-page overview covering the definition and purpose of
-statistics, research and business questions, and the descriptive-versus-
-inferential classification. Its Statistics adapter renders the question groups
-as a responsive domain atlas and the two statistical branches as an accessible
-comparison flow while the Vietnamese MDX remains the content owner. A separate
-one-page `2.2 Quần thể, Mẫu & Quan
-trắc` lesson presents population → sample → study design → conclusion as one
-responsive visual flow, compares retrospective, observational, and designed
-studies by their evidence and intervention boundaries, and owns the
-deterministic, resettable population-sampling and study-design claim activities
-as a numbered two-stage practice path rather than Review exercises. The
-following six-question pandas
-quiz over the Iris dataset (`ch02-classical-statistics-fundamentals-quiz`)
-applies variation, descriptive-statistics, and estimation concepts through
-deterministic read-only dataframe fixtures. The chapter then closes with a
-three-page critique of statistical assumptions, interpretation, misleading
-graphs, p-values, effect sizes, and confidence intervals. Chapter 3 now opens
+Probability & Statistics is the canonical `statistics` domain, separate from
+`math-statistics-ai`. It has eight tracks, 133 lesson nodes, 119 published
+Vietnamese lessons, and 549 ordered pages. Seven tracks form the
+applied-statistics core; `statistical-learning-extensions` keeps classification,
+dimension reduction, trees, SVMs, deep learning, and unsupervised learning
+optional. Fourteen missing-content nodes expose the planned core sequence
+without claiming it is authored.
+
+Chapter 1 alternates nine Probability lessons with nine adjacent `Quiz` nodes
+and ends with a ten-question capstone: 59 theory and 42 quiz pages. Vietnamese
+MDX owns the prose and KaTeX formulas; the Statistics adapter owns focused
+`ProbabilityChapterVisual` diagrams and accessible deterministic interactions.
+
+Chapter 2 has 20 pages: a four-page statistical-thinking overview; five pages
+on population, sample, representativeness, study design, and conclusion limits;
+five pages on assumptions and responsible statistical reading; then a
+six-question applied Quiz. Each theory node ends with a standalone takeaway,
+and inline sampling/study-design activities remain lesson practice rather than
+Review exercises. Chapter 3 now opens
 with the 17-page `histogram-foundations` lesson before
 descriptive data analysis. It carries one fixed dataset through observations,
 number-line points, bins, stacked counts, and bars; compares too few, useful,
@@ -280,7 +256,7 @@ Vietnamese-diacritic-insensitive.
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
 | `src/content/learning/statistics/table-of-contents.ts` | Probability & Statistics manifest with seven core tracks, one Statistical Learning Extensions track, 109 published lessons, fourteen explicit missing-content nodes, route aliases, and compact search mode. |
-| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 119 published lesson ids and 543 ordered pages. |
+| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 119 published lesson ids and 549 ordered pages. |
 | `src/components/learning/domains/statistics/mdxComponents.tsx` | Statistics-only MDX adapter for responsive Probability diagrams, Histogram/variance/Normal-distribution visualizations, the Statistical Thinking question atlas/branch comparison, and deterministic embedded interactions. |
 | `src/components/learning/domains/statistics/normalDistributionRenderers.tsx` | Domain-local Normal-distribution chart geometry, mean/variance exploration, and deterministic Histogram-reading interaction consumed through the Statistics MDX adapter. |
 | `src/components/learning/domains/statistics/varianceStandardDeviationRenderers.tsx` | Domain-local variance concept sequence, accessible point explorer, degrees-of-freedom constraint, and deterministic denominator comparison. |
@@ -368,7 +344,7 @@ remain green so progress continues to take precedence.
   state/reset, locale fallback, authored search text, and light-only runtime
   behavior.
 - Probability & Statistics retains the canonical `statistics` domain id with
-  119 Vietnamese authored MDX lessons, 543 ordered pages, seven core
+  119 Vietnamese authored MDX lessons, 549 ordered pages, seven core
   applied-statistics tracks, and a separate optional Statistical Learning
   Extensions track; other UI locales render the Vietnamese source through the
   registry's available-locale fallback.

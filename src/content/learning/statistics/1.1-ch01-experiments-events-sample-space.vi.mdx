@@ -116,22 +116,21 @@ Biến cố A: [('S', 'S'), ('S', 'N'), ('N', 'S')]
 Số kết quả thuận lợi |A| = 3, tổng số kết quả |Ω| = 4
 ```
 
+**Quan sát:** Không gian mẫu có 4 kết quả; biến cố “ít nhất một mặt sấp” giữ lại 3 kết quả.
+
 </MdxPage>
 
 <MdxPage page={5}>
 
 ## Kiến thức cần nắm
 
-<LessonNote label="Tóm tắt trọng tâm bài 1.1">
+<LessonNote label="Tóm tắt bài 1.1">
 
-- **Phép thử ngẫu nhiên** (*random experiment*) là hành động có thể lặp lại và cho ra một trong các **kết quả** (*outcome*) chưa biết trước.
-- **Không gian mẫu** (*sample space*) <MdxFormula inline formula={"\\Omega"} /> là tập hợp chứa toàn bộ các kết quả có thể xảy ra của phép thử.
-- **Biến cố** (*event*) là một tập hợp con của không gian mẫu (<MdxFormula inline formula={"A \\subseteq \\Omega"} />).
-- **Phân loại biến cố**:
-  - Biến cố **chắc chắn** (*certain event*): <MdxFormula inline formula={"A = \\Omega"} />, xác suất xảy ra bằng 1.
-  - Biến cố **không thể** (*impossible event*): <MdxFormula inline formula={"A = \\varnothing"} />, xác suất xảy ra bằng 0.
-  - Biến cố **ngẫu nhiên** (*random event*): <MdxFormula inline formula={"\\varnothing \\subset A \\subset \\Omega"} />, có thể xảy ra hoặc không.
-- **Lập trình Python**: Thư viện `itertools.product` giúp tạo nhanh không gian mẫu cho các phép thử lặp lại hoặc nhiều bước.
+- **Phép thử ngẫu nhiên** tạo ra một **kết quả** chưa biết trước.
+- **Không gian mẫu** <MdxFormula inline formula={"\\Omega"} /> chứa mọi kết quả có thể xảy ra.
+- **Biến cố** là tập con của không gian mẫu: <MdxFormula inline formula={"A \\subseteq \\Omega"} />.
+- Biến cố **chắc chắn** là <MdxFormula inline formula={"\\Omega"} />; biến cố **không thể** là <MdxFormula inline formula={"\\varnothing"} />; các biến cố còn lại có thể xảy ra hoặc không.
+- Trong Python, `itertools.product` giúp tạo không gian mẫu cho phép thử nhiều bước.
 
 </LessonNote>
 

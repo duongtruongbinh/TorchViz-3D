@@ -77,8 +77,6 @@ Hai biến cố như vậy được gọi là **xung khắc** (*mutually exclusi
 
 <MdxFormula formula={"A\\cap C=\\varnothing"} />
 
-<ProbabilityChapterVisual kind="exclusive" />
-
 Xung khắc chỉ nói rằng hai biến cố không chồng lấn; nó chưa nói rằng chúng đã bao phủ toàn bộ không gian mẫu.
 
 </MdxPage>
@@ -126,22 +124,21 @@ A ∩ C (rỗng?): set()
 Biến cố đối A^c (Ω \ A): {1, 3, 5}
 ```
 
+**Quan sát:** `|` giữ phần tử thuộc ít nhất một tập, `&` chỉ giữ phần chung, còn `omega - A` trả về biến cố đối của `A`.
+
 </MdxPage>
 
 <MdxPage page={5}>
 
 ## Kiến thức cần nắm
 
-<LessonNote label="Tóm tắt trọng tâm bài 1.2">
+<LessonNote label="Tóm tắt bài 1.2">
 
-- **Hợp của hai biến cố** (<MdxFormula inline formula={"A \\cup B"} />): Gồm mọi kết quả thuộc **ít nhất một** trong hai biến cố (<MdxFormula inline formula={"A"} /> **hoặc** <MdxFormula inline formula={"B"} /> xảy ra).
-- **Giao của hai biến cố** (<MdxFormula inline formula={"A \\cap B"} />): Chỉ gồm các kết quả thuộc **đồng thời cả hai** biến cố (<MdxFormula inline formula={"A"} /> **và** <MdxFormula inline formula={"B"} /> cùng xảy ra).
-- **Hai biến cố xung khắc** (*mutually exclusive*): Không thể xảy ra cùng lúc, tức là <MdxFormula inline formula={"A \\cap B = \\varnothing"} />.
-- **Biến cố đối** (*complement*): Biến cố <MdxFormula inline formula={"A^c = \\Omega \\setminus A"} /> gồm tất cả kết quả không thuộc <MdxFormula inline formula={"A"} />.
-- **Phân biệt quan trọng**:
-  - Hai biến cố **xung khắc** chỉ cần **không có phần chung** (<MdxFormula inline formula={"A \\cap B = \\varnothing"} />).
-  - Hai biến cố **đối** vừa **xung khắc** (<MdxFormula inline formula={"A \\cap A^c = \\varnothing"} />), vừa **phủ hết không gian mẫu** (<MdxFormula inline formula={"A \\cup A^c = \\Omega"} />).
-- **Lập trình Python**: Sử dụng kiểu dữ liệu `set` với các phép toán `|` (hợp), `&` (giao), và `-` (hiệu / biến cố đối).
+- **Hợp** <MdxFormula inline formula={"A\\cup B"} /> giữ kết quả thuộc ít nhất một biến cố; **giao** <MdxFormula inline formula={"A\\cap B"} /> chỉ giữ phần chung.
+- Hai biến cố **xung khắc** khi <MdxFormula inline formula={"A\\cap B=\\varnothing"} />.
+- **Biến cố đối** <MdxFormula inline formula={"A^c"} /> vừa xung khắc với <MdxFormula inline formula={"A"} />, vừa cùng <MdxFormula inline formula={"A"} /> phủ hết <MdxFormula inline formula={"\\Omega"} />.
+- Xung khắc chưa đủ để là biến cố đối; cặp biến cố còn phải phủ hết không gian mẫu.
+- Trong Python, dùng `|`, `&` và `-` cho hợp, giao và hiệu tập hợp.
 
 </LessonNote>
 

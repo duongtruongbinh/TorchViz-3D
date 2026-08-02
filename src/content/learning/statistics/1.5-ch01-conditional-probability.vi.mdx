@@ -119,6 +119,8 @@ Khi <MdxFormula inline formula={"P(A)>0"} />, điều này tương đương vớ
 
 Rút có hoàn lại tạo hai bước độc lập trong mô hình này; rút không hoàn lại tạo hai bước phụ thuộc.
 
+**Đừng nhầm độc lập với xung khắc:** nếu hai biến cố có xác suất dương và xung khắc, việc một biến cố xảy ra làm biến cố kia không thể xảy ra. Vì vậy chúng **phụ thuộc**, không độc lập.
+
 </MdxPage>
 
 <MdxPage page={4}>
@@ -139,8 +141,7 @@ Hai câu hỏi dùng cùng 4 học sinh ở phần giao, nhưng mẫu số khác
 
 <LessonNote label="Hiểu lầm thường gặp" tone="warning">
 
-1. **Nhầm lẫn hai chiều điều kiện**: <MdxFormula inline formula={"P(A\\mid B) \\ne P(B\\mid A)"} /> nói chung. Ví dụ: <MdxFormula inline formula={"P(\\text{Sốt} \\mid \\text{Cúm})"} /> rất cao, nhưng <MdxFormula inline formula={"P(\\text{Cúm} \\mid \\text{Sốt})"} /> thấp hơn nhiều vì sốt có thể do nhiều nguyên nhân khác.
-2. **Nhầm độc lập với xung khắc**: Nếu <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> xung khắc (<MdxFormula inline formula={"A\\cap B = \\varnothing"} />) và có xác suất dương, thì chúng **luôn phụ thuộc nhau** vì nếu <MdxFormula inline formula={"A"} /> xảy ra thì <MdxFormula inline formula={"B"} /> chắc chắn không xảy ra (<MdxFormula inline formula={"P(B\\mid A) = 0 \\ne P(B)"} />).
+Nói chung, <MdxFormula inline formula={"P(A\\mid B) \\ne P(B\\mid A)"} />. Điều kiện sau dấu <MdxFormula inline formula={"\\mid"} /> quyết định nhóm làm mẫu số. Ví dụ, <MdxFormula inline formula={"P(\\text{Sốt}\\mid\\text{Cúm})"} /> có thể cao nhưng <MdxFormula inline formula={"P(\\text{Cúm}\\mid\\text{Sốt})"} /> thấp hơn vì sốt có nhiều nguyên nhân.
 
 </LessonNote>
 
@@ -199,12 +200,11 @@ Có       0.2  0.8
 
 <LessonNote label="Tóm tắt trọng tâm bài 1.5">
 
-- **Xác suất có điều kiện**: <MdxFormula inline formula={"P(A \\\\mid B) = \\\\frac{P(A \\\\cap B)}{P(B)}"} /> khi <MdxFormula inline formula={"P(B) > 0"} />. Không gian mẫu bị thu hẹp chỉ còn <MdxFormula inline formula={"B"} />.
-- **Quy tắc nhân**: <MdxFormula inline formula={"P(A \\\\cap B) = P(B) P(A \\\\mid B) = P(A) P(B \\\\mid A)"} />.
-- **Biến cố độc lập**: <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> độc lập khi <MdxFormula inline formula={"P(A \\\\cap B) = P(A) P(B)"} />, tương đương với <MdxFormula inline formula={"P(A \\\\mid B) = P(A)"} />.
-- **Phân biệt hai chiều điều kiện**: <MdxFormula inline formula={"P(A \\\\mid B) \\\\ne P(B \\\\mid A)"} /> nói chung. Luôn chú ý biến cố nằm sau dấu <MdxFormula inline formula={"\\\\mid"} /> xác định nhóm mẫu số.
-- **Độc lập vs Xung khắc**: Hai biến cố xung khắc có xác suất dương **không bao giờ độc lập** (nếu một biến cố xảy ra thì biến cố kia chắc chắn không xảy ra).
-- **Lập trình pandas**: Dùng `pd.crosstab(df['B'], df['A'], normalize='index')` để tính nhanh bảng xác suất có điều kiện theo hàng.
+- **Thu hẹp nhóm đang xét**: <MdxFormula inline formula={"P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}"} /> với <MdxFormula inline formula={"P(B)>0"} />.
+- **Tính xác suất hai bước**: <MdxFormula inline formula={"P(A\\cap B)=P(B)P(A\\mid B)=P(A)P(B\\mid A)"} />.
+- **Nhận biết độc lập**: Biết <MdxFormula inline formula={"B"} /> không làm đổi xác suất của <MdxFormula inline formula={"A"} />, nên <MdxFormula inline formula={"P(A\\mid B)=P(A)"} />.
+- **Đọc đúng chiều**: Nói chung <MdxFormula inline formula={"P(A\\mid B)\\ne P(B\\mid A)"} />; biến cố sau dấu <MdxFormula inline formula={"\\mid"} /> quyết định mẫu số.
+- **Trong pandas**: `pd.crosstab(..., normalize='index')` cho tỷ lệ có điều kiện theo từng hàng.
 
 </LessonNote>
 

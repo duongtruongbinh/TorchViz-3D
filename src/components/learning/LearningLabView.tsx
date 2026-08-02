@@ -420,11 +420,13 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                       : 'pointer-events-none -translate-x-3 opacity-0',
                   )}
                 >
-                  <LessonRail
-                    {...lessonRailProps}
-                    isRailOpen={isLessonRailOpen}
-                    onToggleRail={closeLessonRail}
-                  />
+                  {isLessonRailOpen ? (
+                    <LessonRail
+                      {...lessonRailProps}
+                      isRailOpen={true}
+                      onToggleRail={closeLessonRail}
+                    />
+                  ) : null}
                 </div>
                 {!isLessonRailOpen ? (
                   <button

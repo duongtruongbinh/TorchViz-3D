@@ -1,24 +1,22 @@
 export const lessonMetadata = {
-  "domainId": "statistics",
-  "id": "ch02-classical-statistics-fundamentals",
-  "locale": "vi",
-  "title": "2.1 Tư duy thống kê, dữ liệu và suy luận",
-  "headings": [
-    "Thống kê là gì?",
-    "Câu hỏi nghiên cứu & kinh doanh",
-    "Phân loại thống kê",
-    "Kiến thức cần nắm"
+  domainId: 'statistics',
+  id: 'ch02-classical-statistics-fundamentals',
+  locale: 'vi',
+  title: '2.1 Tư duy thống kê',
+  headings: [
+    'Thống kê giúp trả lời điều gì?',
+    'Bắt đầu từ câu hỏi',
+    'Mô tả hay suy luận?',
+    'Kiến thức cần nắm',
   ],
-  "keywords": [
-    "thống kê",
-    "sự biến động",
-    "câu hỏi nghiên cứu",
-    "thống kê mô tả",
-    "suy luận thống kê",
-    "ước lượng",
-    "kiểm định giả thuyết"
+  keywords: [
+    'thống kê',
+    'sự biến động',
+    'câu hỏi nghiên cứu',
+    'thống kê mô tả',
+    'thống kê suy luận',
   ],
-  "pageCount": 4
+  pageCount: 4,
 }
 
 <MdxPage page={0}>
@@ -26,135 +24,66 @@ export const lessonMetadata = {
 <LessonNote label="Mục tiêu học tập">
 
 Sau bài này, bạn sẽ:
-- Giải thích định nghĩa của **Thống kê** (*Statistics*) và vai trò của **sự biến động** (*variability*) trong dữ liệu.
-- Phân biệt hai nhánh chính: **Thống kê mô tả** (*descriptive statistics*) và **Thống kê suy luận** (*inferential statistics*).
-- Nhận biết các dạng câu hỏi nghiên cứu và kinh doanh có thể giải quyết bằng thống kê.
+- Giải thích vì sao thống kê luôn đi cùng **sự biến động**.
+- Phân biệt **thống kê mô tả** và **thống kê suy luận**.
+- Chuyển một vấn đề thực tế thành câu hỏi có thể trả lời bằng dữ liệu.
 
 </LessonNote>
 
-## Thống kê là gì?
+## Thống kê giúp trả lời điều gì?
 
-**Thống kê (Statistics)** là khoa học về dữ liệu, gồm bốn công đoạn: **thu thập, trình bày, phân tích và sử dụng dữ liệu** để giải quyết bài toán, thiết kế sản phẩm và đưa ra quyết định dựa trên bằng chứng thực nghiệm.
+**Thống kê** là khoa học thu thập, tóm tắt và phân tích dữ liệu để trả lời câu hỏi thực tế.
 
-<LessonNote label="Mục tiêu cốt lõi">
-
-Thống kê giúp ta đưa ra **quyết định khách quan** dựa trên dữ liệu, dù dữ liệu luôn có **sự biến động (variability)** — yếu tố tự nhiên tồn tại trong mọi hệ thống vật lý và bài toán kỹ thuật thực tế.
-
-</LessonNote>
+Dữ liệu luôn có **sự biến động**: hai người, hai sản phẩm hoặc hai lần đo hiếm khi giống hệt nhau. Thống kê giúp ta nhận ra mẫu hình trong sự biến động đó và nói rõ kết luận còn bất định đến đâu.
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Câu hỏi nghiên cứu & kinh doanh
+## Bắt đầu từ câu hỏi
 
-Mọi phân tích thống kê đều bắt đầu bằng một câu hỏi thực tế. Bảy miền dưới đây cho thấy dữ liệu được dùng để đo lường, so sánh và ra quyết định trong nhiều bối cảnh khác nhau.
+Một phân tích tốt bắt đầu bằng câu hỏi rõ ràng. Mỗi nhóm dưới đây chỉ giữ một câu hỏi tiêu biểu để bạn nhận ra cách tư duy chung.
 
 <StatisticalQuestionAtlas groups={[
-  {
-    id: "engineering",
-    title: "Kỹ thuật & sản xuất",
-    questions: [
-      "Quy trình có đang ổn định không, tỷ lệ sản phẩm lỗi là bao nhiêu và nguyên nhân từ đâu?",
-      "Yếu tố nào ảnh hưởng nhiều nhất đến chất lượng, và điều chỉnh nhiệt độ, áp suất, tốc độ máy ra sao để tối ưu năng suất?",
-      "Thiết kế hoặc quy trình mới có thực sự tốt hơn không, và sai số đo lường có đủ nhỏ để kết quả đáng tin cậy?"
-    ]
-  },
-  {
-    id: "medicine",
-    title: "Y khoa & sinh học",
-    questions: [
-      "Thuốc hoặc phương pháp điều trị có thực sự hiệu quả, có tác dụng phụ đáng kể, và hiệu quả có khác nhau giữa các nhóm bệnh nhân không?",
-      "Yếu tố nào làm tăng nguy cơ mắc bệnh, xét nghiệm phát hiện đúng đến mức nào, và kết quả từ mẫu có suy rộng được cho cả quần thể?"
-    ]
-  },
-  {
-    id: "business",
-    title: "Kinh doanh & kinh tế",
-    questions: [
-      "Doanh thu tháng hoặc quý tới đạt bao nhiêu, yếu tố nào ảnh hưởng nhất đến quyết định mua hàng, và mức giá nào cân bằng nhu cầu với lợi nhuận?",
-      "Khuyến mãi có giúp tăng doanh số, nhóm khách nào có khả năng rời bỏ cao nhất, và đầu tư, cổ phiếu, bảo hiểm có mức rủi ro ra sao?"
-    ]
-  },
-  {
-    id: "society",
-    title: "Khoa học xã hội",
-    questions: [
-      "Thu nhập, trình độ học vấn và nơi sinh sống liên quan như thế nào; chính sách mới có thay đổi hành vi; quan điểm của người dân đang thay đổi ra sao?",
-      "Mẫu khảo sát có đại diện cho toàn bộ dân số không, và khác biệt giữa các nhóm quan sát được là thật hay chỉ do ngẫu nhiên?"
-    ]
-  },
-  {
-    id: "machine-learning",
-    title: "Học máy (Machine Learning)",
-    questions: [
-      "Mô hình có hoạt động tốt trên dữ liệu mới chưa từng thấy, đang học quy luật hay chỉ ghi nhớ tập huấn luyện?",
-      "Dữ liệu huấn luyện có đại diện không, đặc trưng nào ảnh hưởng nhất đến dự đoán, sai số đến từ nhiễu hay mô hình chưa đủ tốt, và cần bao nhiêu dữ liệu để đáng tin cậy?"
-    ]
-  },
-  {
-    id: "deep-learning",
-    title: "Học sâu (Deep Learning)",
-    questions: [
-      "Chuẩn hóa batch có giúp huấn luyện ổn định và nhanh hơn, data augmentation có cải thiện tổng quát hóa, và dropout bao nhiêu là phù hợp để giảm quá khớp?",
-      "Kiến trúc hoặc siêu tham số nào cho kết quả tốt nhất, mô hình sinh có tạo dữ liệu giống phân phối thật, và chênh lệch giữa hai phiên bản mô hình có ý nghĩa hay chỉ do ngẫu nhiên?"
-    ]
-  },
-  {
-    id: "evaluation",
-    title: "Đánh giá mô hình",
-    questions: [
-      "Mô hình nào tốt hơn trên cùng tập dữ liệu, kết quả có ổn định qua nhiều lần chia, và cross-validation có xác nhận điều đó không?",
-      "Khoảng tin cậy của accuracy, precision, recall là bao nhiêu, chênh lệch hiệu năng có ý nghĩa thống kê, mô hình có công bằng giữa các nhóm dữ liệu, và chỉ số nào phù hợp nhất với mục tiêu thực tế?"
-    ]
-  }
+  { id: 'engineering', title: 'Kỹ thuật', questions: ['Quy trình mới có làm giảm tỷ lệ sản phẩm lỗi không?'] },
+  { id: 'medicine', title: 'Y khoa', questions: ['Phương pháp điều trị mới có cải thiện kết quả của bệnh nhân không?'] },
+  { id: 'business', title: 'Kinh doanh', questions: ['Chương trình khuyến mãi có làm tăng doanh số không?'] },
+  { id: 'society', title: 'Xã hội', questions: ['Mẫu khảo sát có đại diện cho dân số cần nghiên cứu không?'] },
+  { id: 'machine-learning', title: 'Học máy', questions: ['Mô hình có dự đoán tốt trên dữ liệu chưa từng thấy không?'] },
+  { id: 'deep-learning', title: 'Học sâu', questions: ['Thay đổi kiến trúc có cải thiện kết quả một cách ổn định không?'] },
+  { id: 'evaluation', title: 'Đánh giá mô hình', questions: ['Chênh lệch giữa hai mô hình có đủ lớn để đáng quan tâm không?'] },
 ]} />
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Phân loại thống kê
+## Mô tả hay suy luận?
 
-Hai nhánh chính của thống kê khác nhau ở phạm vi câu hỏi: một nhánh mô tả những gì đã quan sát, nhánh còn lại dùng mẫu để suy luận về một quần thể rộng hơn.
+Hai nhánh chính khác nhau ở **phạm vi kết luận**: mô tả dữ liệu đã quan sát, hoặc dùng mẫu để nói về một quần thể rộng hơn.
 
 <StatisticsBranchesOverview
   branches={[
     {
-      id: "descriptive",
-      title: "Thống kê mô tả",
-      englishTitle: "Descriptive Statistics",
-      question: "Dữ liệu đang có trông như thế nào?",
-      description: "Tổ chức, trình bày và tóm tắt các quan sát đã thu thập để nhận ra giá trị điển hình, mức độ phân tán, cấu trúc và điểm bất thường.",
-      visualsLabel: "Nhìn dữ liệu qua ba dạng biểu đồ",
-      visuals: [
-        { id: "histogram", title: "Histogram", insight: "Nhìn hình dạng phân phối" },
-        { id: "box-plot", title: "Box plot", insight: "Thấy trung vị và ngoại lệ" },
-        { id: "scatter-plot", title: "Scatter plot", insight: "Tìm mối liên hệ giữa hai biến" }
-      ],
-      steps: ["Dữ liệu đã quan sát", "Tổ chức & tóm tắt", "Mẫu hình & bất thường"],
-      tools: [
-        "Trung bình, trung vị, phương sai và độ lệch chuẩn",
-        "Bảng, histogram, box plot và biểu đồ tán xạ"
-      ]
+      id: 'descriptive',
+      title: 'Thống kê mô tả',
+      englishTitle: 'Descriptive statistics',
+      question: 'Dữ liệu đang có trông như thế nào?',
+      description: 'Tóm tắt giá trị điển hình, độ phân tán, mẫu hình và điểm bất thường trong dữ liệu đã quan sát.',
+      steps: ['Dữ liệu đã có', 'Tóm tắt', 'Mẫu hình'],
+      tools: ['Ví dụ: trung vị, độ lệch chuẩn, histogram và box plot'],
     },
     {
-      id: "inferential",
-      title: "Thống kê suy luận",
-      englishTitle: "Statistical Inference",
-      question: "Từ mẫu, ta có thể nói gì về quần thể?",
-      description: "Dùng thông tin từ mẫu để ước lượng, kiểm tra giả thuyết và ra quyết định về quần thể, đồng thời biểu diễn mức độ bất định do biến động ngẫu nhiên.",
-      steps: ["Mẫu", "Đo độ bất định", "Kết luận về quần thể"],
-      tools: [
-        "Ước lượng điểm và khoảng tin cậy",
-        "Kiểm định giả thuyết và quyết định dựa trên bằng chứng"
-      ]
-    }
+      id: 'inferential',
+      title: 'Thống kê suy luận',
+      englishTitle: 'Statistical inference',
+      question: 'Từ mẫu, ta có thể nói gì về quần thể?',
+      description: 'Dùng mẫu để ước lượng hoặc kiểm tra một nhận định về quần thể, đồng thời nêu rõ mức độ bất định.',
+      steps: ['Mẫu', 'Độ bất định', 'Kết luận'],
+      tools: ['Ví dụ: khoảng tin cậy và kiểm định giả thuyết'],
+    },
   ]}
-  nextSteps={[
-    "Chương 3 · Mô tả & ước lượng điểm",
-    "Chương 4 · Suy luận thống kê"
-  ]}
+  nextSteps={['Tiếp theo: quần thể, mẫu và cách dữ liệu được tạo ra']}
 />
 
 </MdxPage>
@@ -163,13 +92,12 @@ Hai nhánh chính của thống kê khác nhau ở phạm vi câu hỏi: một n
 
 ## Kiến thức cần nắm
 
-<LessonNote label="Tóm tắt trọng tâm bài 2.0">
+<LessonNote label="Tóm tắt bài 2.1">
 
-- **Thống kê** (*Statistics*): Khoa học thu thập, trình bày, phân tích và đưa ra quyết định dựa trên bằng chứng dữ liệu trong điều kiện có **sự biến động** (*variability*).
-- **Hai nhánh thống kê chính**:
-  - **Thống kê mô tả** (*Descriptive Statistics*): Tổ chức, tóm tắt và hiển thị trực quan các đặc trưng của dữ liệu đã quan sát (dùng trung bình, trung vị, histogram, boxplot).
-  - **Thống kê suy luận** (*Inferential Statistics*): Dùng dữ liệu mẫu nhỏ để suy rộng, ước lượng tham số và kiểm định giả thuyết cho toàn bộ quần thể.
-- **Tư duy dựa trên bằng chứng**: Mọi phân tích thống kê đều phải bắt đầu từ một câu hỏi thực tế (nghiên cứu, kỹ thuật, kinh doanh hoặc học máy).
+- **Thống kê** dùng dữ liệu để trả lời câu hỏi trong điều kiện luôn có sự biến động.
+- **Thống kê mô tả** tóm tắt dữ liệu đã quan sát.
+- **Thống kê suy luận** dùng mẫu để nói về quần thể và phải nêu mức độ bất định.
+- Trước khi chọn công thức hoặc biểu đồ, hãy viết rõ **câu hỏi cần trả lời**.
 
 </LessonNote>
 

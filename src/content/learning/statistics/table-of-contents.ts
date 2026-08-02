@@ -125,8 +125,8 @@ const sourceChapters = [
       {
         "id": "ch01-probability-origins",
         "title": {
-          "en": "1.7 Origins and Intuition of Probability",
-          "vi": "1.7 Khởi nguồn và trực giác xác suất"
+          "en": "1.7 Two Views of Probability",
+          "vi": "1.7 Hai cách hiểu xác suất"
         },
         "status": "available",
         "contentStatus": "published"
@@ -161,8 +161,8 @@ const sourceChapters = [
       {
         "id": "ch01-probability-exercises",
         "title": {
-          "en": "1.9 Probability Exercises",
-          "vi": "1.9 Bài tập xác suất"
+          "en": "1.9 Naive Bayes Exercises",
+          "vi": "1.9 Bài tập Naive Bayes"
         },
         "status": "available",
         "contentStatus": "published"
@@ -1163,22 +1163,22 @@ const chapters = [
       },
     },
     lessonIds: [
-      retitle(getLesson('ch02-classical-statistics-fundamentals'), '2.1 Statistical Thinking, Data, and Inference', '2.1 Tư duy thống kê, dữ liệu và suy luận'),
+      retitle(getLesson('ch02-classical-statistics-fundamentals'), '2.1 Statistical Thinking', '2.1 Tư duy thống kê'),
       {
         id: 'ch02-populations-samples-observation',
-        title: { en: '2.2 Populations, Samples, and Observation', vi: '2.2 Quần thể, Mẫu & Quan trắc' },
+        title: { en: '2.2 Populations, Samples, and Study Design', vi: '2.2 Quần thể, mẫu và thiết kế nghiên cứu' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'statistics-criticism',
+        title: { en: '2.3 Reading Statistics Critically', vi: '2.3 Đọc thống kê có trách nhiệm' },
         status: 'available',
         contentStatus: 'published',
       },
       {
         id: 'ch02-classical-statistics-fundamentals-quiz',
         title: { en: 'Quiz', vi: 'Quiz' },
-        status: 'available',
-        contentStatus: 'published',
-      },
-      {
-        id: 'statistics-criticism',
-        title: { en: '2.3 Critiques of Statistics', vi: '2.3 Một số phê phán về thống kê' },
         status: 'available',
         contentStatus: 'published',
       },

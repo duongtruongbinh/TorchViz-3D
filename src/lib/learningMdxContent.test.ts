@@ -95,12 +95,12 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
   'ch01-bayes-naive-bayes-quiz': ['bayes-term-match', 'naive-bayes-assumption', 'naive-bayes-stability'],
   'ch01-probability-exercises-quiz': ['queen-given-face-card', 'compare-naive-bayes-scores', 'laplace-denominator'],
   'ch02-classical-statistics-fundamentals-quiz': [
-    'thinking-pandas-iris-shape',
-    'thinking-pandas-iris-value-counts',
-    'thinking-pandas-iris-groupby-center',
-    'thinking-pandas-iris-std-ddof',
-    'thinking-pandas-iris-filter-setosa',
-    'thinking-pandas-iris-describe',
+    'thinking-goal-classification',
+    'thinking-population-sample',
+    'thinking-representative-sample',
+    'thinking-causal-evidence',
+    'thinking-truncated-axis',
+    'thinking-responsible-reading',
   ],
   'descriptive-data-analysis-quiz': [
     'descriptive-manual-mean',
@@ -185,7 +185,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.equal(statisticsPageCount, 543);
+  assert.equal(statisticsPageCount, 549);
   for (const lessonId of [
     'ch01-experiments-events-sample-space',
     'ch01-event-relations',
@@ -205,9 +205,9 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   const statisticalThinkingSource = statisticsSources.get('ch02-classical-statistics-fundamentals') ?? '';
   assert.equal(statisticalThinking?.metadata.pageCount, 4);
   assert.deepEqual(statisticalThinking?.metadata.headings, [
-    'Thống kê là gì?',
-    'Câu hỏi nghiên cứu & kinh doanh',
-    'Phân loại thống kê',
+    'Thống kê giúp trả lời điều gì?',
+    'Bắt đầu từ câu hỏi',
+    'Mô tả hay suy luận?',
     'Kiến thức cần nắm',
   ]);
   assert.match(statisticalThinkingSource, /<StatisticalQuestionAtlas groups=/);
@@ -215,8 +215,10 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.doesNotMatch(statisticalThinkingSource, /Bản đồ câu hỏi → phương pháp → chương|Ứng dụng của Thống kê & AI\/ML\/DL/);
   const populationSampleObservation = statisticsInspections.get('ch02-populations-samples-observation');
   const populationSampleObservationSource = statisticsSources.get('ch02-populations-samples-observation') ?? '';
-  assert.equal(populationSampleObservation?.metadata.pageCount, 1);
-  assert.match(populationSampleObservationSource, /<PopulationSampleObservationOverview\b/);
+  assert.equal(populationSampleObservation?.metadata.pageCount, 5);
+  assert.match(populationSampleObservationSource, /<PopulationSampleOverview\b/);
+  assert.match(populationSampleObservationSource, /<StudyDesignComparison\b/);
+  assert.match(populationSampleObservationSource, /## Kiến thức cần nắm/);
   assert.doesNotMatch(populationSampleObservationSource, /<LessonNote label="Phương pháp thu thập dữ liệu"/);
   for (const kind of ['statistical-thinking-sampling', 'statistical-thinking-study-design']) {
     assert.match(populationSampleObservationSource, new RegExp(`<ProbabilityChapterVisual kind="${kind}"`));
@@ -226,14 +228,13 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.equal(statisticalThinkingQuiz?.metadata.pageCount, 6);
   assert.equal(statisticalThinkingQuiz?.metadata.title, 'Quiz');
   assert.match(statisticalThinkingQuizSource, /<MdxQuiz id="ch02-classical-statistics-fundamentals-quiz"/);
-  assert.match(statisticalThinkingQuizSource, /preview:\s*\{/);
-  assert.match(statisticalThinkingQuizSource, /columns:\s*\[['"]sepal_length['"]/);
+  assert.doesNotMatch(statisticalThinkingQuizSource, /preview:\s*\{|columns:\s*\[/);
   const thinkingTrack = learningCatalog.tracks.find((track) => track.domainId === 'statistics' && track.id === 'statistical-thinking');
   assert.deepEqual(thinkingTrack?.lessonIds, [
     'ch02-classical-statistics-fundamentals',
     'ch02-populations-samples-observation',
-    'ch02-classical-statistics-fundamentals-quiz',
     'statistics-criticism',
+    'ch02-classical-statistics-fundamentals-quiz',
   ]);
   const thinkingQuizNode = learningCatalog.lessons.find((lesson) => lesson.domainId === 'statistics' && lesson.id === 'ch02-classical-statistics-fundamentals-quiz');
   assert.equal(thinkingQuizNode?.text?.title?.vi, 'Quiz');
@@ -343,8 +344,9 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.equal(learningCatalog.lessons.find((lesson) => lesson.domainId === 'statistics' && lesson.id === 'point-estimation')?.text?.title.vi, '3.8 Ước lượng điểm');
   const criticism = statisticsInspections.get('statistics-criticism');
   const criticismSource = statisticsSources.get('statistics-criticism') ?? '';
-  assert.equal(criticism?.metadata.pageCount, 3);
+  assert.equal(criticism?.metadata.pageCount, 5);
   assert.match(criticismSource, /asset="bush-tax-truncated-axis"/);
+  assert.match(criticismSource, /## Kiến thức cần nắm/);
   for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics' && item.contentStatus === 'published')) {
     const vietnamese = statisticsInspections.get(lesson.id);
     assert.ok(vietnamese, `Missing Vietnamese Statistics content for ${lesson.id}`);

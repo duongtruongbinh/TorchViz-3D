@@ -124,6 +124,8 @@ print(f"Xác suất toàn phần P(H): {P_H:.4f}")
 Xác suất toàn phần P(H): 0.5500
 ```
 
+**Quan sát:** Ba đóng góp cộng lại thành <MdxFormula inline formula={"0.55"} />, đúng với phép tính tay ở trang trước.
+
 </MdxPage>
 
 <MdxPage page={4}>
@@ -132,12 +134,11 @@ Xác suất toàn phần P(H): 0.5500
 
 <LessonNote label="Tóm tắt trọng tâm bài 1.6">
 
-- **Phân hoạch** (*partition*): Tập hợp các biến cố <MdxFormula inline formula={"\\{A_1, A_2, \\\\dots, A_n\\}"} /> xung khắc từng đôi (<MdxFormula inline formula={"A_i \\\\cap A_j = \\\\varnothing"} />) và bao phủ toàn bộ không gian mẫu (<MdxFormula inline formula={"\\\\bigcup A_i = \\\\Omega"} />).
-- **Đóng góp của từng nhánh**: Xác suất phần giao <MdxFormula inline formula={"P(H \\\\cap A_i) = P(A_i) P(H \\\\mid A_i)"} /> theo quy tắc nhân.
-- **Công thức xác suất toàn phần**:
-  <MdxFormula formula={"P(H) = \\\\sum_{i=1}^{n} P(A_i) P(H \\\\mid A_i)"} />
-- **Cầu nối sang định lý Bayes**: Tổng xác suất toàn phần đóng vai trò mẫu số chuẩn hóa (Evidence / Margin) khi cập nhật niềm tin ở bài Bayes tiếp theo.
-- **Lập trình Python**: Dùng tích trong `np.dot(P_A, P_H_given_A)` giữa vector prior và vector likelihood có điều kiện.
+- **Phân hoạch** (partition): Các nhánh không chồng lên nhau và cùng bao phủ mọi khả năng.
+- **Đóng góp của một nhánh**: <MdxFormula inline formula={"P(H\\cap A_i)=P(A_i)P(H\\mid A_i)"} />.
+- **Cộng mọi nhánh**: <MdxFormula inline formula={"P(H)=\\sum_{i=1}^{n}P(A_i)P(H\\mid A_i)"} />.
+- **Cầu nối sang Bayes**: Tổng này là **Evidence** (marginal likelihood), tức mẫu số chuẩn hóa của phép cập nhật.
+- **Trong NumPy**: `np.dot(P_A, P_H_given_A)` tính đúng tổng có trọng số.
 
 </LessonNote>
 

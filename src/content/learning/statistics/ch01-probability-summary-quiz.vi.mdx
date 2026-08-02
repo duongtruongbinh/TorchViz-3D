@@ -87,15 +87,15 @@ export const lessonMetadata = {
     error: 'Chưa đúng. Nhân tỷ lệ sản xuất từng máy với tỷ lệ lỗi của máy đó rồi cộng lại.'
   },
   {
-    id: 'ch01-q8-bayes-theorem', title: 'Câu 8: Định lý Bayes', prompt: 'Trong công thức Bayes $P(B \\mid A) = \\frac{P(A \\mid B)P(B)}{P(A)}$, thành phần $P(B)$ được gọi là gì?', mode: 'single',
+    id: 'ch01-q8-bayes-theorem', title: 'Câu 8: Cập nhật bằng chứng', prompt: 'Một bệnh hiếm có prior rất thấp. Sau khi nhận kết quả xét nghiệm dương tính, phát biểu nào đúng nhất?', mode: 'single',
     options: [
-      { id: 'prior-prob', label: 'Xác suất Prior (Niềm tin ban đầu)', isCorrect: true },
-      { id: 'posterior-prob', label: 'Xác suất Posterior' },
-      { id: 'likelihood-prob', label: 'Likelihood' },
-      { id: 'marginal-prob', label: 'Evidence / Marginal Likelihood' }
+      { id: 'prior-prob', label: 'Cần kết hợp prior với độ phù hợp của kết quả xét nghiệm trong cả nhóm có bệnh và không bệnh.', isCorrect: true },
+      { id: 'posterior-prob', label: 'Dương tính nghĩa là chắc chắn mắc bệnh.' },
+      { id: 'likelihood-prob', label: 'Có thể bỏ qua prior vì đã có dữ liệu mới.' },
+      { id: 'marginal-prob', label: 'Posterior luôn bằng likelihood.' }
     ],
-    success: 'Đúng. $P(B)$ là Prior (xác suất tiên quyết/niềm tin ban đầu trước khi có dữ liệu A).',
-    error: 'Chưa đúng. $P(B)$ là Prior, $P(A \\mid B)$ là Likelihood, $P(A)$ là Evidence, $P(B \\mid A)$ là Posterior.'
+    success: 'Đúng. Bayes kết hợp prior với likelihood của bằng chứng và chuẩn hóa bằng Evidence để tạo posterior.',
+    error: 'Chưa đúng. Một bằng chứng mới không tự xóa prior; cần xem bằng chứng đó phổ biến đến đâu trong từng giả thuyết.'
   },
   {
     id: 'ch01-q9-naive-bayes-assumption', title: 'Câu 9: Giả định Naive Bayes', prompt: 'Giả định "Naive" trong thuật toán Naive Bayes là gì?', mode: 'single',
@@ -109,7 +109,7 @@ export const lessonMetadata = {
     error: 'Chưa đúng. Giả định "ngây thơ" chính là độc lập có điều kiện theo từng class.'
   },
   {
-    id: 'ch01-q10-laplace-smoothing', title: 'Câu 10: Laplace smoothing', prompt: 'Mục đích chính của việc thêm Laplace smoothing ($\\\\alpha=1$) trong Naive Bayes là gì?', mode: 'single',
+    id: 'ch01-q10-laplace-smoothing', title: 'Câu 10: Laplace smoothing', prompt: 'Mục đích chính của việc thêm Laplace smoothing ($\\alpha=1$) trong Naive Bayes là gì?', mode: 'single',
     options: [
       { id: 'avoid-zero-prob', label: 'Tránh xác suất bằng 0 khiến tích các xác suất triệt tiêu thành 0.', isCorrect: true },
       { id: 'speed-up-training', label: 'Tăng tốc độ huấn luyện mô hình.' },
