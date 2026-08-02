@@ -16,6 +16,9 @@ export const STATISTICS_MDX_COMPONENT_NAMES = [
   'ProbabilitySourceImage',
   'StatisticalQuestionAtlas',
   'StatisticsBranchesOverview',
+  'VarianceConceptVisual',
+  'VarianceEstimatorComparison',
+  'VariancePointExplorer',
 ] as const;
 
 export const LLM_MDX_COMPONENT_NAMES = [

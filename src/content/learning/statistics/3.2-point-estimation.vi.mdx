@@ -2,7 +2,7 @@ export const lessonMetadata = {
   "domainId": "statistics",
   "id": "point-estimation",
   "locale": "vi",
-  "title": "3.4 Ước lượng điểm",
+  "title": "3.5 Ước lượng điểm",
   "headings": [
     "Tham số và ước lượng điểm",
     "Ước lượng không chệch: trung bình và phương sai mẫu",
@@ -35,7 +35,7 @@ export const lessonMetadata = {
 
 ## Tham số và ước lượng điểm
 
-Ở bài 3.1, chúng ta đã dùng **thống kê mô tả** để tóm tắt một bộ dữ liệu cụ thể: 10 độ trễ phản hồi của một mô hình học sâu. Nhưng trong thực tế, bộ dữ liệu quan sát được chỉ là một **mẫu** — còn điều ta thực sự muốn biết là đặc trưng của **toàn bộ quần thể** mà mẫu đó đại diện.
+Ở bài 3.2, chúng ta đã dùng **thống kê mô tả** để tóm tắt một bộ dữ liệu cụ thể: 10 độ trễ phản hồi của một mô hình học sâu. Nhưng trong thực tế, bộ dữ liệu quan sát được chỉ là một **mẫu** — còn điều ta thực sự muốn biết là đặc trưng của **toàn bộ quần thể** mà mẫu đó đại diện.
 
 <MdxTable
   caption="Ba đại lượng ta quan tâm"
@@ -83,7 +83,7 @@ Bộ dữ liệu này chỉ là một **mẫu** trong vô số yêu cầu mà h�
 2. **Chọn công thức** tính từ mẫu (<MdxFormula inline formula={"\\bar{x}, s^2, \\hat{p}"} />).
 3. **Tính một con số duy nhất** — đó chính là ước lượng điểm.
 
-Con số duy nhất này rất tiện so sánh và báo cáo, nhưng nó **không nói gì về độ không chắc chắn**. Chính vì thế, ở bài 3.3 ta sẽ nghiên cứu ước lượng thay đổi thế nào giữa các mẫu, và ở Chương 4 ta sẽ bọc nó trong một **khoảng tin cậy**.
+Con số duy nhất này rất tiện so sánh và báo cáo, nhưng nó **không nói gì về độ không chắc chắn**. Chính vì thế, ở bài 3.6 ta sẽ nghiên cứu ước lượng thay đổi thế nào giữa các mẫu, và ở Chương 4 ta sẽ bọc nó trong một **khoảng tin cậy**.
 
 </div>
 
@@ -118,95 +118,36 @@ s² = 36.22 ms² -> ước lượng cho σ²
 
 ## Ước lượng không chệch: trung bình và phương sai mẫu
 
-Một ước lượng tốt cần đáp ứng **tính không chệch (unbiasedness)**: nếu lặp lại việc lấy mẫu nhiều lần, giá trị trung bình của các ước lượng phải hội tụ về đúng tham số.
+Một ước lượng gọi là **không chệch (unbiased)** nếu trung bình của nó qua vô số mẫu bằng đúng tham số cần ước lượng:
 
 <MdxFormula formula={"E[\\bar{x}] = \\mu, \\qquad E[s^2] = \\sigma^2"} />
 
----
-
-### Kiểm chứng bằng mô phỏng
-
-Giả sử ta *biết trước* quần thể thực sự là phân phối chuẩn <MdxFormula inline formula={"\\mu = 20,\\ \\sigma = 5"} /> (đơn vị: ms). Ta mô phỏng 200 lần, mỗi lần lấy một mẫu 10 yêu cầu, rồi tính trung bình của 200 giá trị <MdxFormula inline formula={"\\bar{x}"} />:
-
-```python
-import numpy as np
-
-rng = np.random.default_rng(42)
-population = rng.normal(20, 5, size=10_000)
-
-# 200 mẫu, mỗi mẫu 10 giá trị
-sample_means = [rng.choice(population, size=10).mean() for _ in range(200)]
-
-print(f"Trung bình của 200 giá trị x̄: {np.mean(sample_means):.2f}")
-```
-```output
-Trung bình của 200 giá trị x̄: 19.98
-```
-
-Kết quả <MdxFormula inline formula={"\\approx 19.98"} /> — rất gần với <MdxFormula inline formula={"\\mu = 20"} />. Trung bình mẫu là ước lượng **không chệch** cho trung bình quần thể.
-
----
-
-### Phương sai mẫu: vì sao chia cho n − 1?
-
-Với mẫu độ trễ của bài 3.1, ta có <MdxFormula inline formula={"\\bar{x} = 18.0"} />. Tổng bình phương độ lệch:
-
-<MdxFormula formula={"\\begin{aligned} \\sum_{i=1}^{n} (x_i - \\bar{x})^2 &= (12-18)^2 + (15-18)^2 + \\cdots + (24-18)^2 \\\\ &= 326 \\text{ ms}^2 \\end{aligned}"} />
-
-Có hai cách chia mẫu số:
+Ở bài 3.3, ta đã chứng minh hiệu chỉnh Bessel làm <MdxFormula inline formula={"s^2"} /> không chệch cho <MdxFormula inline formula={"\\sigma^2"} />. Tại đây, trọng tâm chuyển từ **cách dựng công thức** sang **vai trò của công thức như một estimator**.
 
 <MdxTable
-  caption="Hai công thức phương sai"
-  headers={["Cách tính", "Kết quả", "Ý nghĩa"]}
+  caption="Tham số và estimator không chệch tương ứng"
+  headers={["Tham số quần thể", "Estimator từ mẫu", "Tính chất qua nhiều mẫu"]}
   rows={[
-    ["Chia n", "$326/10 = 32.6$ ms²", "Mô tả độ phân tán của chính mẫu"],
-    ["Chia $n-1$ (ddof=1)", "$326/9 \\approx 36.22$ ms²", "Ước lượng $\\sigma^2$ của quần thể"]
+    ["$\\mu$", "$\\bar{x}$", "$E[\\bar{x}]=\\mu$"],
+    ["$\\sigma^2$", "$s^2$ với mẫu số $n-1$", "$E[s^2]=\\sigma^2$"]
   ]}
 />
 
----
-
-<MdxColumns>
-
-<div>
-
-**Vì sao phải chia cho <MdxFormula inline formula={"n-1"} />?**
-
-Vì <MdxFormula inline formula={"\\bar{x}"} /> cũng được tính từ chính mẫu đó, các giá trị <MdxFormula inline formula={"x_i"} /> nằm *gần* trung bình mẫu hơn so với trung bình quần thể — nên tổng bình phương độ lệch bị **nhỏ đi một chút**. Chia n cho kết quả hơi thấp; chia <MdxFormula inline formula={"n-1"} /> (hiệu chỉnh Bessel) bù lại đúng phần thiếu đó.
-
-Mô phỏng lại với quần thể <MdxFormula inline formula={"\\sigma^2 = 25"} />:
-
-- Trung bình của <MdxFormula inline formula={"s^2"} /> khi chia **n**: <MdxFormula inline formula={"\\approx 22.4"} /> — thấp hơn 25
-- Trung bình của <MdxFormula inline formula={"s^2"} /> khi chia **<MdxFormula inline formula={"n-1"} />**: <MdxFormula inline formula={"\\approx 24.9"} /> — rất gần 25
-
-</div>
-
-<div>
+Hai mẫu khác nhau thường cho hai giá trị <MdxFormula inline formula={"\\bar{x}"} /> hoặc <MdxFormula inline formula={"s^2"} /> khác nhau. Không chệch **không** đảm bảo một mẫu riêng cho kết quả gần tham số; nó mô tả tâm của phân phối estimator khi lặp lấy mẫu.
 
 ```python
 import numpy as np
 
-rng = np.random.default_rng(7)
-population = rng.normal(20, 5, size=10_000)
+x = np.array([12, 15, 12, 18, 20, 12, 22, 15, 30, 24])
 
-v0 = [np.var(rng.choice(population, size=10), ddof=0) for _ in range(200)]
-v1 = [np.var(rng.choice(population, size=10), ddof=1) for _ in range(200)]
-
-print(f"Chia n   -> trung bình s² ≈ {np.mean(v0):.1f}")
-print(f"Chia n-1 -> trung bình s² ≈ {np.mean(v1):.1f}")
-```
-```output
-Chia n   -> trung bình s² ≈ 22.4
-Chia n-1 -> trung bình s² ≈ 24.9
+x_bar = np.mean(x)          # estimator của μ
+s2 = np.var(x, ddof=1)      # estimator không chệch của σ²
+print(x_bar, s2)
 ```
 
-</div>
+<LessonNote label="Cầu nối sang phân phối lấy mẫu">
 
-</MdxColumns>
-
-<LessonNote label="Quy tắc nhớ nhanh" tone="warning">
-
-Muốn **mô tả mẫu**: dùng <MdxFormula inline formula={"\\sigma^2"} /> hay `np.var(x)` (chia n). Muốn **ước lượng quần thể**: luôn dùng <MdxFormula inline formula={"s^2"} /> hay `np.var(x, ddof=1)` (chia <MdxFormula inline formula={"n-1"} />). Đây là lý do pandas tính phương sai mẫu bằng <MdxFormula inline formula={"n-1"} /> theo mặc định.
+Một estimator là **quy tắc** biến mẫu thành con số; estimate là **con số thu được** từ một mẫu cụ thể. Bài 3.6 sẽ xét cả phân phối của estimator qua nhiều mẫu để lượng hóa độ không chắc chắn.
 
 </LessonNote>
 
@@ -353,9 +294,9 @@ Không có ước lượng nào "thắng tuyệt đối" — việc chọn phụ
   ]}
 />
 
-<LessonNote label="Cầu nối sang bài 3.3">
+<LessonNote label="Cầu nối sang bài 3.6">
 
-Mọi ước lượng điểm đều là **một con số duy nhất** — nhưng nếu ta lấy nhiều mẫu khác nhau, con số đó sẽ dao động. Sự phân bố của <MdxFormula inline formula={"\\bar{x}"} /> qua các lần lấy mẫu được gọi là **phân phối lấy mẫu (sampling distribution)**, và độ lệch chuẩn của nó — <MdxFormula inline formula={"\\sigma/\\sqrt{n}"} /> — chính là **sai số chuẩn (standard error)**. Đó là nội dung của bài 3.3, và là nền tảng cho khoảng tin cậy ở Chương 4.
+Mọi ước lượng điểm đều là **một con số duy nhất** — nhưng nếu ta lấy nhiều mẫu khác nhau, con số đó sẽ dao động. Sự phân bố của <MdxFormula inline formula={"\\bar{x}"} /> qua các lần lấy mẫu được gọi là **phân phối lấy mẫu (sampling distribution)**, và độ lệch chuẩn của nó — <MdxFormula inline formula={"\\sigma/\\sqrt{n}"} /> — chính là **sai số chuẩn (standard error)**. Đó là nội dung của bài 3.6, và là nền tảng cho khoảng tin cậy ở Chương 4.
 
 </LessonNote>
 

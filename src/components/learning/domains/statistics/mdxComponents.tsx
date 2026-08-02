@@ -49,6 +49,11 @@ import {
   NormalDistributionVisual,
   NormalParameterExplorer,
 } from './normalDistributionRenderers';
+import {
+  VarianceConceptVisual,
+  VarianceEstimatorComparison,
+  VariancePointExplorer,
+} from './varianceStandardDeviationRenderers';
 
 type ProbabilityChapterVisualKind =
   | 'axioms'
@@ -3171,4 +3176,7 @@ export const statisticsMdxComponents = {
   ProbabilitySourceImage,
   StatisticalQuestionAtlas,
   StatisticsBranchesOverview,
+  VarianceConceptVisual,
+  VarianceEstimatorComparison,
+  VariancePointExplorer,
 } satisfies Record<typeof STATISTICS_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
