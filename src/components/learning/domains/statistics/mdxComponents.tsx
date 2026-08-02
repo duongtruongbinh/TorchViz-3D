@@ -1,15 +1,26 @@
 import {
   ArrowRight,
+  Archive,
+  BrainCircuit,
+  BriefcaseBusiness,
+  ChartNoAxesCombined,
   Check,
   Cloud,
   CloudRain,
   CircleDot,
+  Database,
   Dices,
+  Eye,
   Factory,
+  FlaskConical,
+  HeartPulse,
+  Network,
   RefreshCw,
+  ScanSearch,
   ShieldCheck,
   Sun,
   TriangleAlert,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 import katex from 'katex';
@@ -19,7 +30,6 @@ import pascalFermatIllustration from '../../../../assets/learning/statistics/ch0
 import experimentOutcomesIllustration from '../../../../assets/learning/statistics/ch01-probability/01-statistics-probability-origins-experiment-outcomes.png';
 import elementaryEventsIllustration from '../../../../assets/learning/statistics/ch01-probability/02-statistics-experiments-events-sample-space-elementary-events.png';
 import bushTaxTruncatedAxisIllustration from '../../../../assets/learning/statistics/ch02-statistical-thinking/02-statistics-criticism-bush-tax.webp';
-import irisPairsPlotIllustration from '../../../../assets/learning/statistics/ch02-statistical-thinking/01-statistics-iris-pairs-plot.svg';
 import { STATISTICS_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
   useLearningMdxTheme,
@@ -27,6 +37,18 @@ import {
   type LearningThemeClasses,
 } from '../../learningMdxComponents';
 import { cx } from '../../theme';
+import {
+  HistogramBinComparison,
+  HistogramBinExplorer,
+  HistogramConstructionVisual,
+  HistogramRulesVisual,
+  HistogramShapeVisual,
+} from './histogramRenderers';
+import {
+  HistogramReadingInteraction,
+  NormalDistributionVisual,
+  NormalParameterExplorer,
+} from './normalDistributionRenderers';
 
 type ProbabilityChapterVisualKind =
   | 'axioms'
@@ -83,7 +105,6 @@ const probabilitySourceImages = {
   'mere-gambling-scene': mereGamblingScene,
   'pascal-fermat': pascalFermatIllustration,
   'bush-tax-truncated-axis': bushTaxTruncatedAxisIllustration,
-  'iris-pairs-plot': irisPairsPlotIllustration,
 } as const;
 
 function ProbabilitySourceImage({ alt, asset, children, layout = 'default', source }: {
@@ -2546,6 +2567,202 @@ const samplingSequences = {
   convenience: [[51, 52, 55, 51], [50, 51, 52, 55], [51, 51, 52, 55], [50, 52, 52, 55]],
 } as const;
 
+type StudyCollectionMethod = {
+  id: 'retrospective' | 'observational' | 'experiment';
+  title: string;
+  englishTitle: string;
+  evidence: string;
+  intervention: string;
+  conclusion: string;
+};
+
+type PopulationSampleObservationOverviewProps = {
+  overviewLabel: string;
+  stages: Array<{
+    id: 'population' | 'sample' | 'observation';
+    title: string;
+    englishTitle: string;
+    description: string;
+  }>;
+  sampleCaption: string;
+  methodsHeading: string;
+  methodLabels: {
+    evidence: string;
+    intervention: string;
+    conclusion: string;
+  };
+  methods: StudyCollectionMethod[];
+  conclusionBoundary: {
+    label: string;
+    association: string;
+    causal: string;
+  };
+};
+
+const studyCollectionMethodMeta: Record<StudyCollectionMethod['id'], {
+  icon: LucideIcon;
+  lightIcon: string;
+  darkIcon: string;
+}> = {
+  retrospective: {
+    icon: Archive,
+    lightIcon: 'bg-[#E8EDF3] text-[#48627A]',
+    darkIcon: 'bg-[#AFC3D5]/10 text-[#BFD0DE]',
+  },
+  observational: {
+    icon: Eye,
+    lightIcon: 'bg-[#DDEAF5] text-[#205089]',
+    darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]',
+  },
+  experiment: {
+    icon: FlaskConical,
+    lightIcon: 'bg-[#E2F0EA] text-[#2F6F59]',
+    darkIcon: 'bg-[#7FD3B1]/10 text-[#9BDCC2]',
+  },
+};
+
+function PopulationSampleObservationOverview({
+  overviewLabel,
+  stages,
+  sampleCaption,
+  methodsHeading,
+  methodLabels,
+  methods,
+  conclusionBoundary,
+}: PopulationSampleObservationOverviewProps) {
+  const themeClasses = useLearningMdxTheme();
+  const border = themeClasses.isLight ? 'border-[#205089]/12' : 'border-[#A8D4FF]/14';
+  const populationDots = Array.from({ length: 24 }, (_, index) => index);
+  const sampleDots = [2, 5, 9, 14, 18, 22];
+
+  return (
+    <section
+      aria-label={overviewLabel}
+      className={cx('overflow-hidden rounded-2xl border', border, themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/45')}
+    >
+      <div className="grid md:grid-cols-3">
+        {stages.map((stage, index) => (
+          <article
+            key={stage.id}
+            className={cx(
+              'relative grid content-start gap-4 border-b px-5 py-6 sm:px-6',
+              index > 0 && 'md:border-l',
+              index === stages.length - 1 && 'border-b-0',
+              'md:border-b-0',
+              border,
+              stage.id === 'sample' && (themeClasses.isLight ? 'bg-[#F7FAFD]' : 'bg-[#A8D4FF]/5'),
+            )}
+          >
+            <div className="flex items-start gap-3">
+              <span className={cx(
+                'grid h-10 w-10 shrink-0 place-items-center rounded-xl',
+                themeClasses.isLight ? 'bg-[#DDEAF5] text-[#205089]' : 'bg-[#A8D4FF]/10 text-[#A8D4FF]',
+              )}>
+                {stage.id === 'population' ? <Users className="h-5 w-5" strokeWidth={2} aria-hidden="true" /> : null}
+                {stage.id === 'sample' ? <ScanSearch className="h-5 w-5" strokeWidth={2} aria-hidden="true" /> : null}
+                {stage.id === 'observation' ? <Eye className="h-5 w-5" strokeWidth={2} aria-hidden="true" /> : null}
+              </span>
+              <div className="min-w-0">
+                <h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{stage.title}</h3>
+                <p className={cx('mt-0.5 text-xs font-bold', themeClasses.mutedText)}>{stage.englishTitle}</p>
+              </div>
+            </div>
+
+            {stage.id === 'population' ? (
+              <div className="grid grid-cols-8 gap-2" aria-hidden="true">
+                {populationDots.map((dot) => (
+                  <span key={dot} className={cx('aspect-square rounded-full', themeClasses.isLight ? 'bg-[#BFD2E2]' : 'bg-[#A8D4FF]/28')} />
+                ))}
+              </div>
+            ) : null}
+
+            {stage.id === 'sample' ? (
+              <div className="grid gap-2">
+                <div className={cx('grid grid-cols-6 gap-2 rounded-xl border border-dashed px-3 py-4', themeClasses.isLight ? 'border-[#205089]/35' : 'border-[#A8D4FF]/40')} aria-hidden="true">
+                  {sampleDots.map((dot) => (
+                    <span key={dot} className={cx('aspect-square rounded-full', themeClasses.isLight ? 'bg-[#2F78B7]' : 'bg-[#8CC8F2]')} />
+                  ))}
+                </div>
+                <p className={cx('text-center text-xs font-bold', themeClasses.mutedText)}>{sampleCaption}</p>
+              </div>
+            ) : null}
+
+            {stage.id === 'observation' ? (
+              <div className="grid gap-2" aria-hidden="true">
+                <div className={cx('flex items-center gap-2 rounded-lg px-3 py-2', themeClasses.isLight ? 'bg-[#EAF1F7]' : 'bg-[#A8D4FF]/9')}>
+                  <Eye className={cx('h-4 w-4', themeClasses.accentText)} strokeWidth={2} />
+                  <span className={cx('h-1.5 flex-1 rounded-full', themeClasses.isLight ? 'bg-[#7FA7C8]' : 'bg-[#A8D4FF]/45')} />
+                </div>
+                <div className={cx('flex items-center gap-2 rounded-lg px-3 py-2', themeClasses.isLight ? 'bg-[#E7F3EC]' : 'bg-[#7FD3B1]/9')}>
+                  <FlaskConical className={cx('h-4 w-4', themeClasses.isLight ? 'text-[#2F6F59]' : 'text-[#9BDCC2]')} strokeWidth={2} />
+                  <span className={cx('h-1.5 flex-1 rounded-full', themeClasses.isLight ? 'bg-[#83B49E]' : 'bg-[#7FD3B1]/45')} />
+                </div>
+              </div>
+            ) : null}
+
+            <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{stage.description}</p>
+            {index < stages.length - 1 ? (
+              <span className={cx(
+                'absolute bottom-[-0.8rem] left-1/2 z-10 grid h-7 w-7 -translate-x-1/2 place-items-center rounded-full border md:bottom-auto md:left-auto md:right-[-0.9rem] md:top-1/2 md:-translate-y-1/2 md:translate-x-0',
+                border,
+                themeClasses.isLight ? 'bg-white text-[#205089]' : 'bg-[#172232] text-[#A8D4FF]',
+              )} aria-hidden="true">
+                <ArrowRight className="h-3.5 w-3.5 rotate-90 md:rotate-0" strokeWidth={2.2} />
+              </span>
+            ) : null}
+          </article>
+        ))}
+      </div>
+
+      <section className={cx('border-t', border)} aria-labelledby="study-collection-methods-title">
+        <div className="px-5 pb-3 pt-5 sm:px-6">
+          <h3 id="study-collection-methods-title" className={cx('text-lg font-black', themeClasses.titleText)}>{methodsHeading}</h3>
+        </div>
+        <div className={cx('grid divide-y md:grid-cols-3 md:divide-x md:divide-y-0', themeClasses.isLight ? 'divide-[#205089]/10' : 'divide-[#A8D4FF]/12')}>
+          {methods.map((method) => {
+            const meta = studyCollectionMethodMeta[method.id];
+            const Icon = meta.icon;
+            return (
+              <article key={method.id} className="grid content-start gap-4 px-5 py-5 sm:px-6">
+                <div className="flex items-center gap-3">
+                  <span className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-lg', themeClasses.isLight ? meta.lightIcon : meta.darkIcon)}>
+                    <Icon className="h-[1.125rem] w-[1.125rem]" strokeWidth={2} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h4 className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{method.title}</h4>
+                    <p className={cx('text-xs font-bold', themeClasses.mutedText)}>{method.englishTitle}</p>
+                  </div>
+                </div>
+                <dl className="grid gap-3">
+                  {([
+                    [methodLabels.evidence, method.evidence],
+                    [methodLabels.intervention, method.intervention],
+                    [methodLabels.conclusion, method.conclusion],
+                  ] as const).map(([term, description]) => (
+                    <div key={term} className="grid gap-0.5">
+                      <dt className={cx('text-xs font-black', themeClasses.mutedText)}>{term}</dt>
+                      <dd className={cx('text-sm font-semibold leading-5', themeClasses.bodyText)}>{description}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className={cx('grid border-t sm:grid-cols-2', border)} aria-label={conclusionBoundary.label}>
+        <p className={cx('px-5 py-4 text-sm font-black leading-6 sm:px-6', themeClasses.isLight ? 'bg-[#EEF4F9] text-[#205089]' : 'bg-[#A8D4FF]/8 text-[#BFDFFF]')}>
+          {conclusionBoundary.association}
+        </p>
+        <p className={cx('border-t px-5 py-4 text-sm font-black leading-6 sm:border-l sm:border-t-0 sm:px-6', border, themeClasses.isLight ? 'bg-[#EDF7F1] text-[#2F6F59]' : 'bg-[#7FD3B1]/8 text-[#A9E4CC]')}>
+          {conclusionBoundary.causal}
+        </p>
+      </section>
+    </section>
+  );
+}
+
 function StatisticalThinkingSamplingVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
   const [mode, setMode] = useState<keyof typeof samplingSequences>('random');
   const [drawCount, setDrawCount] = useState(0);
@@ -2561,9 +2778,12 @@ function StatisticalThinkingSamplingVisual({ themeClasses }: { themeClasses: Lea
 
   return (
     <section aria-labelledby="statistical-thinking-sampling-title" className={cx('grid gap-4 rounded-xl border px-4 py-5 sm:px-5', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F7FAFD]' : 'border-[#A8D4FF]/18 bg-[#121A24]')}>
-      <div className="grid gap-1">
-        <h3 id="statistical-thinking-sampling-title" className={cx('text-base font-black', themeClasses.titleText)}>Từ mẫu đến kết luận</h3>
-        <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>Quần thể có 12 chi tiết; giá trị trung bình thật là <strong>{populationMean.toFixed(1)} mm</strong>. Hãy quan sát các ước lượng thay đổi theo cách lấy mẫu.</p>
+      <div className="flex items-start gap-3">
+        <span className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-black', themeClasses.isLight ? 'bg-[#DDEAF5] text-[#205089]' : 'bg-[#A8D4FF]/10 text-[#A8D4FF]')} aria-hidden="true">1</span>
+        <div className="grid gap-1">
+          <h3 id="statistical-thinking-sampling-title" className={cx('text-base font-black', themeClasses.titleText)}>Lấy mẫu có thể làm kết luận thay đổi ra sao?</h3>
+          <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>Quần thể có 12 chi tiết; giá trị trung bình thật là <strong>{populationMean.toFixed(1)} mm</strong>. Hãy quan sát các ước lượng thay đổi theo cách lấy mẫu.</p>
+        </div>
       </div>
       <div className={cx('grid gap-2 rounded-lg border px-3 py-3 sm:grid-cols-12', themeClasses.isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8D4FF]/16 bg-[#172232]')} aria-label={`Quần thể gồm các giá trị: ${populationValues.join(', ')} mm`}>
         {populationValues.map((value, index) => <span key={`${value}-${index}`} className={cx('grid min-h-9 place-items-center rounded-md text-xs font-black', themeClasses.isLight ? 'bg-[#EAF1F7] text-[#205089]' : 'bg-[#A8D4FF]/12 text-[#D7EAFE]')}>{value}</span>)}
@@ -2593,6 +2813,269 @@ function StatisticalThinkingSamplingVisual({ themeClasses }: { themeClasses: Lea
   );
 }
 
+type StatisticalQuestionDomainId = 'engineering' | 'medicine' | 'business' | 'society' | 'machine-learning' | 'deep-learning' | 'evaluation';
+
+type StatisticalQuestionGroup = {
+  id: StatisticalQuestionDomainId;
+  title: string;
+  questions: string[];
+};
+
+const statisticalQuestionDomainMeta: Record<StatisticalQuestionDomainId, {
+  icon: LucideIcon;
+  lightIcon: string;
+  darkIcon: string;
+}> = {
+  engineering: { icon: Factory, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
+  medicine: { icon: HeartPulse, lightIcon: 'bg-[#E2F0EA] text-[#2F6F59]', darkIcon: 'bg-[#7FD3B1]/10 text-[#9BDCC2]' },
+  business: { icon: BriefcaseBusiness, lightIcon: 'bg-[#ECE7F5] text-[#66518F]', darkIcon: 'bg-[#B8A1E6]/10 text-[#C9B8ED]' },
+  society: { icon: Users, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
+  'machine-learning': { icon: BrainCircuit, lightIcon: 'bg-[#E2F0EA] text-[#2F6F59]', darkIcon: 'bg-[#7FD3B1]/10 text-[#9BDCC2]' },
+  'deep-learning': { icon: Network, lightIcon: 'bg-[#ECE7F5] text-[#66518F]', darkIcon: 'bg-[#B8A1E6]/10 text-[#C9B8ED]' },
+  evaluation: { icon: ChartNoAxesCombined, lightIcon: 'bg-[#DDEAF5] text-[#205089]', darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]' },
+};
+
+function StatisticalQuestionAtlas({ groups }: { groups: StatisticalQuestionGroup[] }) {
+  const themeClasses = useLearningMdxTheme();
+  const border = themeClasses.isLight ? 'border-[#205089]/12' : 'border-[#A8D4FF]/14';
+
+  return (
+    <section
+      aria-label="Các miền câu hỏi nghiên cứu và kinh doanh"
+      className={cx(
+        'overflow-hidden rounded-2xl border',
+        border,
+        themeClasses.isLight ? 'bg-[#F8FAFC]' : 'bg-[#121A24]/45',
+      )}
+    >
+      <div className="grid lg:grid-cols-2">
+        {groups.map((group, index) => {
+          const meta = statisticalQuestionDomainMeta[group.id];
+          const Icon = meta.icon;
+          const isLast = index === groups.length - 1;
+          const hasRightDivider = index % 2 === 0 && !isLast;
+
+          return (
+            <section
+              key={group.id}
+              className={cx(
+                'grid content-start gap-4 border-b px-5 py-5 sm:px-6 sm:py-6',
+                border,
+                isLast && 'border-b-0 lg:col-span-2',
+                hasRightDivider && 'lg:border-r',
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <span className={cx('grid h-10 w-10 shrink-0 place-items-center rounded-xl', themeClasses.isLight ? meta.lightIcon : meta.darkIcon)}>
+                  <Icon className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+                </span>
+                <h3 className={cx('text-base font-black leading-6', themeClasses.titleText)}>{group.title}</h3>
+              </div>
+              <ul className={cx('grid gap-3', isLast && 'sm:grid-cols-2 sm:gap-x-8')}>
+                {group.questions.map((question) => (
+                  <li key={question} className={cx('flex gap-3 text-sm font-semibold leading-6', themeClasses.bodyText)}>
+                    <span className={cx('mt-[0.6rem] h-1.5 w-1.5 shrink-0 rounded-full', themeClasses.isLight ? 'bg-[#517FCB]' : 'bg-[#A8D4FF]')} aria-hidden="true" />
+                    <span>{question}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+type StatisticsBranch = {
+  id: 'descriptive' | 'inferential';
+  title: string;
+  englishTitle: string;
+  question: string;
+  description: string;
+  steps: string[];
+  tools: string[];
+  visualsLabel?: string;
+  visuals?: Array<{
+    id: 'histogram' | 'box-plot' | 'scatter-plot';
+    title: string;
+    insight: string;
+  }>;
+};
+
+const statisticsBranchMeta: Record<StatisticsBranch['id'], {
+  icon: LucideIcon;
+  lightIcon: string;
+  darkIcon: string;
+  lightSurface: string;
+  darkSurface: string;
+}> = {
+  descriptive: {
+    icon: Database,
+    lightIcon: 'bg-[#DDEAF5] text-[#205089]',
+    darkIcon: 'bg-[#A8D4FF]/10 text-[#A8D4FF]',
+    lightSurface: 'bg-[#F7FAFD]',
+    darkSurface: 'bg-[#A8D4FF]/5',
+  },
+  inferential: {
+    icon: ScanSearch,
+    lightIcon: 'bg-[#E2F0EA] text-[#2F6F59]',
+    darkIcon: 'bg-[#7FD3B1]/10 text-[#9BDCC2]',
+    lightSurface: 'bg-[#F5FAF8]',
+    darkSurface: 'bg-[#7FD3B1]/5',
+  },
+};
+
+function DescriptiveStatisticsGallery({ label, visuals }: {
+  label: string;
+  visuals: NonNullable<StatisticsBranch['visuals']>;
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const border = themeClasses.isLight ? 'border-[#205089]/12' : 'border-[#A8D4FF]/14';
+  const axis = themeClasses.isLight ? 'text-[#71869B]' : 'text-[#8296AA]';
+  const mark = themeClasses.isLight ? 'text-[#2F78B7]' : 'text-[#8CC8F2]';
+
+  const renderChart = (visual: NonNullable<StatisticsBranch['visuals']>[number]) => {
+    if (visual.id === 'histogram') {
+      return (
+        <svg viewBox="0 0 140 88" role="img" aria-label={`${visual.title}: ${visual.insight}`} className="h-24 w-full" preserveAspectRatio="xMidYMid meet">
+          <title>{`${visual.title}: ${visual.insight}`}</title>
+          <path d="M18 12V70H128" fill="none" stroke="currentColor" strokeWidth="1.5" className={axis} />
+          <g fill="currentColor" className={mark}>
+            <rect x="25" y="58" width="13" height="12" rx="2" opacity="0.48" />
+            <rect x="41" y="44" width="13" height="26" rx="2" opacity="0.62" />
+            <rect x="57" y="23" width="13" height="47" rx="2" opacity="0.88" />
+            <rect x="73" y="31" width="13" height="39" rx="2" opacity="0.76" />
+            <rect x="89" y="49" width="13" height="21" rx="2" opacity="0.58" />
+            <rect x="105" y="61" width="13" height="9" rx="2" opacity="0.42" />
+          </g>
+        </svg>
+      );
+    }
+    if (visual.id === 'box-plot') {
+      return (
+        <svg viewBox="0 0 140 88" role="img" aria-label={`${visual.title}: ${visual.insight}`} className="h-24 w-full" preserveAspectRatio="xMidYMid meet">
+          <title>{`${visual.title}: ${visual.insight}`}</title>
+          <path d="M18 70H128" fill="none" stroke="currentColor" strokeWidth="1.5" className={axis} />
+          <g fill="none" stroke="currentColor" className={mark} strokeWidth="2">
+            <path d="M24 42H43M99 42H116M24 32V52M116 32V52" />
+            <rect x="43" y="25" width="56" height="34" rx="3" fill="currentColor" fillOpacity="0.12" />
+            <path d="M71 25V59" strokeWidth="3" />
+            <circle cx="126" cy="42" r="3" fill="currentColor" stroke="none" />
+          </g>
+        </svg>
+      );
+    }
+    return (
+      <svg viewBox="0 0 140 88" role="img" aria-label={`${visual.title}: ${visual.insight}`} className="h-24 w-full" preserveAspectRatio="xMidYMid meet">
+        <title>{`${visual.title}: ${visual.insight}`}</title>
+        <path d="M18 12V70H128" fill="none" stroke="currentColor" strokeWidth="1.5" className={axis} />
+        <path d="M27 64L118 22" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" opacity="0.55" className={mark} />
+        <g fill="currentColor" className={mark}>
+          <circle cx="29" cy="61" r="3.5" /><circle cx="42" cy="55" r="3.5" opacity="0.72" />
+          <circle cx="54" cy="57" r="3.5" opacity="0.58" /><circle cx="65" cy="43" r="3.5" />
+          <circle cx="78" cy="46" r="3.5" opacity="0.7" /><circle cx="91" cy="32" r="3.5" />
+          <circle cx="104" cy="35" r="3.5" opacity="0.64" /><circle cx="117" cy="20" r="3.5" />
+        </g>
+      </svg>
+    );
+  };
+
+  return (
+    <figure className={cx('overflow-hidden rounded-xl border', border, themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/55')}>
+      <figcaption className={cx('border-b px-4 py-2.5 text-sm font-black', border, themeClasses.titleText)}>{label}</figcaption>
+      <div className={cx('grid divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0', themeClasses.isLight ? 'divide-[#205089]/10' : 'divide-[#A8D4FF]/12')}>
+        {visuals.map((visual) => (
+          <div key={visual.id} className="grid content-start gap-1 px-3 py-3">
+            {renderChart(visual)}
+            <div>
+              <span className={cx('block text-xs font-black', themeClasses.titleText)}>{visual.title}</span>
+              <span className={cx('mt-0.5 block text-[0.7rem] font-semibold leading-4', themeClasses.mutedText)}>{visual.insight}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </figure>
+  );
+}
+
+function StatisticsBranchesOverview({ branches, nextSteps }: { branches: StatisticsBranch[]; nextSteps: string[] }) {
+  const themeClasses = useLearningMdxTheme();
+  const border = themeClasses.isLight ? 'border-[#205089]/12' : 'border-[#A8D4FF]/14';
+
+  return (
+    <section
+      aria-label="So sánh thống kê mô tả và thống kê suy luận"
+      className={cx('overflow-hidden rounded-2xl border', border, themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/45')}
+    >
+      <div className="grid md:grid-cols-[1.15fr_0.85fr]">
+        {branches.map((branch, branchIndex) => {
+          const meta = statisticsBranchMeta[branch.id];
+          const Icon = meta.icon;
+          return (
+            <article
+              key={branch.id}
+              className={cx(
+                'grid content-start gap-5 px-5 py-6 sm:px-6 sm:py-7',
+                branchIndex > 0 && 'border-t md:border-l md:border-t-0',
+                border,
+                themeClasses.isLight ? meta.lightSurface : meta.darkSurface,
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <span className={cx('grid h-11 w-11 shrink-0 place-items-center rounded-xl', themeClasses.isLight ? meta.lightIcon : meta.darkIcon)}>
+                  <Icon className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className={cx('text-lg font-black leading-6', themeClasses.titleText)}>{branch.title}</h3>
+                  <p className={cx('mt-0.5 text-xs font-bold', themeClasses.mutedText)}>{branch.englishTitle}</p>
+                </div>
+              </div>
+
+              <p className={cx('text-xl font-black leading-8 text-pretty', themeClasses.titleText)}>{branch.question}</p>
+              <p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>{branch.description}</p>
+
+              {branch.visuals?.length && branch.visualsLabel ? (
+                <DescriptiveStatisticsGallery label={branch.visualsLabel} visuals={branch.visuals} />
+              ) : null}
+
+              <ol className="grid items-center gap-2 sm:grid-cols-3" aria-label={`Quy trình ${branch.title}`}>
+                {branch.steps.map((step, stepIndex) => (
+                  <li key={step} className="flex items-center gap-2">
+                    <span className={cx('grid h-6 w-6 shrink-0 place-items-center rounded-full text-[0.68rem] font-black', themeClasses.isLight ? meta.lightIcon : meta.darkIcon)}>
+                      {stepIndex + 1}
+                    </span>
+                    <span className={cx('text-sm font-bold leading-5', themeClasses.bodyText)}>{step}</span>
+                    {stepIndex < branch.steps.length - 1 ? <ArrowRight className={cx('ml-auto hidden h-4 w-4 shrink-0 sm:block', themeClasses.mutedText)} strokeWidth={1.8} aria-hidden="true" /> : null}
+                  </li>
+                ))}
+              </ol>
+
+              <ul className={cx('grid gap-2 border-t pt-4', border)}>
+                {branch.tools.map((tool) => (
+                  <li key={tool} className={cx('flex gap-2 text-sm font-semibold leading-6', themeClasses.bodyText)}>
+                    <Check className={cx('mt-1 h-4 w-4 shrink-0', branch.id === 'descriptive' ? themeClasses.accentText : themeClasses.isLight ? 'text-[#2F6F59]' : 'text-[#9BDCC2]')} strokeWidth={2.2} aria-hidden="true" />
+                    <span>{tool}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className={cx('flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:px-6', border, themeClasses.isLight ? 'bg-[#EEF4F9]' : 'bg-[#172232]')}>
+        {nextSteps.map((step, index) => (
+          <div key={step} className="contents">
+            <span className={cx('text-sm font-black leading-6', themeClasses.titleText)}>{step}</span>
+            {index < nextSteps.length - 1 ? <ArrowRight className={cx('h-4 w-4 shrink-0 rotate-90 sm:rotate-0', themeClasses.accentText)} strokeWidth={2.2} aria-hidden="true" /> : null}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 const studyDesignScenarios = [
   { id: 'retrospective', title: 'Dữ liệu hồi cứu', detail: 'Một kỹ sư dùng hồ sơ bảo dưỡng cũ để xem máy nào có nhiều lỗi hơn.', answer: 'association', feedback: 'Đúng: dữ liệu quá khứ có thể mô tả hoặc chỉ ra mối liên hệ, nhưng không tự chứng minh nguyên nhân.' },
   { id: 'observational', title: 'Nghiên cứu quan sát', detail: 'Một nhóm ghi nhận nhiệt độ và tỷ lệ lỗi của các ca sản xuất như chúng vốn diễn ra.', answer: 'association', feedback: 'Đúng: có thể thấy mối liên hệ, nhưng ca nóng có thể đồng thời khác về máy, vật liệu hoặc người vận hành.' },
@@ -2606,7 +3089,7 @@ function StatisticalThinkingStudyDesignVisual({ themeClasses }: { themeClasses: 
   const reset = () => setAnswers({});
   return (
     <section aria-labelledby="statistical-thinking-design-title" className={cx('grid gap-4 rounded-xl border px-4 py-5 sm:px-5', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F7FAFD]' : 'border-[#A8D4FF]/18 bg-[#121A24]')}>
-      <div className="grid gap-1"><h3 id="statistical-thinking-design-title" className={cx('text-base font-black', themeClasses.titleText)}>Bằng chứng nào cho phép kết luận gì?</h3><p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>Với mỗi tình huống, chọn kết luận mạnh nhất mà thiết kế nghiên cứu có thể hỗ trợ.</p></div>
+      <div className="flex items-start gap-3"><span className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-black', themeClasses.isLight ? 'bg-[#E2F0EA] text-[#2F6F59]' : 'bg-[#7FD3B1]/10 text-[#9BDCC2]')} aria-hidden="true">2</span><div className="grid gap-1"><h3 id="statistical-thinking-design-title" className={cx('text-base font-black', themeClasses.titleText)}>Bằng chứng nào cho phép kết luận gì?</h3><p className={cx('text-sm font-semibold leading-6', themeClasses.bodyText)}>Với mỗi tình huống, chọn kết luận mạnh nhất mà thiết kế nghiên cứu có thể hỗ trợ.</p></div></div>
       <div className="grid gap-3">
         {studyDesignScenarios.map((scenario) => {
           const selected = answers[scenario.id];
@@ -2675,6 +3158,17 @@ function ProbabilityChapterVisual({ kind }: {
 }
 
 export const statisticsMdxComponents = {
+  HistogramBinComparison,
+  HistogramBinExplorer,
+  HistogramConstructionVisual,
+  HistogramReadingInteraction,
+  HistogramRulesVisual,
+  HistogramShapeVisual,
+  NormalDistributionVisual,
+  NormalParameterExplorer,
+  PopulationSampleObservationOverview,
   ProbabilityChapterVisual,
   ProbabilitySourceImage,
+  StatisticalQuestionAtlas,
+  StatisticsBranchesOverview,
 } satisfies Record<typeof STATISTICS_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;

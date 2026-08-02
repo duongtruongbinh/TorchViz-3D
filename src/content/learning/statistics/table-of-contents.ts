@@ -1156,6 +1156,12 @@ const chapters = [
     lessonIds: [
       retitle(getLesson('ch02-classical-statistics-fundamentals'), '2.1 Statistical Thinking, Data, and Inference', '2.1 Tư duy thống kê, dữ liệu và suy luận'),
       {
+        id: 'ch02-populations-samples-observation',
+        title: { en: '2.2 Populations, Samples, and Observation', vi: '2.2 Quần thể, Mẫu & Quan trắc' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
         id: 'ch02-classical-statistics-fundamentals-quiz',
         title: { en: 'Quiz', vi: 'Quiz' },
         status: 'available',
@@ -1163,7 +1169,7 @@ const chapters = [
       },
       {
         id: 'statistics-criticism',
-        title: { en: '2.2 Critiques of Statistics', vi: '2.2 Một số phê phán về thống kê' },
+        title: { en: '2.3 Critiques of Statistics', vi: '2.3 Một số phê phán về thống kê' },
         status: 'available',
         contentStatus: 'published',
       },
@@ -1180,8 +1186,14 @@ const chapters = [
     },
     lessonIds: [
       {
+        id: 'histogram-foundations',
+        title: { en: '3.1 Histogram — From Raw Data to Distribution Shape', vi: '3.1 Histogram — Từ dữ liệu thô đến hình dạng phân phối' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
         id: 'descriptive-data-analysis',
-        title: { en: '3.1 Descriptive Data Analysis', vi: '3.1 Phân tích dữ liệu mô tả' },
+        title: { en: '3.2 Descriptive Data Analysis', vi: '3.2 Phân tích dữ liệu mô tả' },
         status: 'available',
         contentStatus: 'published',
       },
@@ -1192,13 +1204,19 @@ const chapters = [
         contentStatus: 'published',
       },
       {
-        id: 'point-estimation',
-        title: { en: '3.2 Point Estimation', vi: '3.2 Ước lượng điểm' },
+        id: 'normal-distribution',
+        title: { en: '3.3 Normal Distribution', vi: '3.3 Phân phối chuẩn (Normal Distribution)' },
         status: 'available',
         contentStatus: 'published',
       },
-      missingLesson('sampling-distributions-standard-errors', '3.3 Sampling Distributions and Standard Errors', '3.3 Phân phối lấy mẫu và sai số chuẩn'),
-      retitle(getLesson('ch02-python-introduction-lab'), '3.4 Lab: Python for Statistical Work', '3.4 Lab: Python cho công việc thống kê'),
+      {
+        id: 'point-estimation',
+        title: { en: '3.4 Point Estimation', vi: '3.4 Ước lượng điểm' },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      missingLesson('sampling-distributions-standard-errors', '3.5 Sampling Distributions and Standard Errors', '3.5 Phân phối lấy mẫu và sai số chuẩn'),
+      retitle(getLesson('ch02-python-introduction-lab'), '3.6 Lab: Python for Statistical Work', '3.6 Lab: Python cho công việc thống kê'),
     ],
   },
   {

@@ -1,0 +1,95 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch02-populations-samples-observation",
+  "locale": "vi",
+  "title": "2.2 Quần thể, Mẫu & Quan trắc",
+  "headings": [
+    "Quần thể, Mẫu & Quan trắc"
+  ],
+  "keywords": [
+    "quần thể",
+    "mẫu",
+    "quan trắc",
+    "nghiên cứu hồi cứu",
+    "nghiên cứu quan sát",
+    "thực nghiệm được thiết kế",
+    "thu thập dữ liệu"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Quần thể (Population), Mẫu (Sample) & Quan trắc (Observation)
+
+Ta hiếm khi có thể đo toàn bộ **quần thể**. Thống kê vì thế bắt đầu bằng một **mẫu**, nhưng kết luận hợp lý còn phụ thuộc vào cách chọn mẫu và cách dữ liệu được tạo ra.
+
+<PopulationSampleObservationOverview
+  overviewLabel="Từ quần thể và mẫu đến thiết kế nghiên cứu"
+  stages={[
+    {
+      id: 'population',
+      title: 'Quần thể',
+      englishTitle: 'Population',
+      description: 'Toàn bộ đối tượng hoặc đơn vị mà câu hỏi nghiên cứu hướng tới. Điều tra toàn bộ thường tốn kém, chậm hoặc có thể phá hủy đối tượng đo.',
+    },
+    {
+      id: 'sample',
+      title: 'Mẫu',
+      englishTitle: 'Sample',
+      description: 'Một tập con được chọn để quan sát. Mẫu đại diện giúp ta suy luận về quần thể; mẫu thiên lệch có thể dẫn kết luận đi sai hướng.',
+    },
+    {
+      id: 'observation',
+      title: 'Quan trắc & thiết kế',
+      englishTitle: 'Observation & study design',
+      description: 'Ta có thể chỉ quan sát điều đang xảy ra hoặc chủ động can thiệp. Lựa chọn này quyết định loại kết luận mà bằng chứng có thể hỗ trợ.',
+    },
+  ]}
+  sampleCaption="Tập con được chọn từ quần thể"
+  methodsHeading="Dữ liệu được tạo ra như thế nào?"
+  methodLabels={{
+    evidence: 'Nguồn bằng chứng',
+    intervention: 'Can thiệp',
+    conclusion: 'Kết luận phù hợp',
+  }}
+  methods={[
+    {
+      id: 'retrospective',
+      title: 'Nghiên cứu hồi cứu',
+      englishTitle: 'Retrospective study',
+      evidence: 'Hồ sơ và dữ liệu đã ghi nhận trong quá khứ.',
+      intervention: 'Không can thiệp vào quá trình đã xảy ra.',
+      conclusion: 'Mô tả và phát hiện mối liên hệ.',
+    },
+    {
+      id: 'observational',
+      title: 'Nghiên cứu quan sát',
+      englishTitle: 'Observational study',
+      evidence: 'Ghi nhận quần thể hoặc quy trình khi chúng diễn ra tự nhiên.',
+      intervention: 'Không thay đổi yếu tố tác động.',
+      conclusion: 'Mối liên hệ, chưa tự chứng minh nhân quả.',
+    },
+    {
+      id: 'experiment',
+      title: 'Thực nghiệm được thiết kế',
+      englishTitle: 'Designed experiment',
+      evidence: 'Kết quả sau khi phân nhóm hoặc thay đổi đầu vào có kiểm soát.',
+      intervention: 'Chủ động can thiệp và so sánh công bằng.',
+      conclusion: 'Có thể hỗ trợ quan hệ nhân quả khi thiết kế phù hợp.',
+    },
+  ]}
+  conclusionBoundary={{
+    label: 'Giới hạn kết luận',
+    association: 'Quan sát tốt giúp nhận ra mẫu hình và mối liên hệ.',
+    causal: 'Can thiệp có kiểm soát mới mở đường cho kết luận nhân quả.',
+  }}
+/>
+
+Hai hoạt động dưới đây lần lượt kiểm tra **cách lấy mẫu** và **sức mạnh của bằng chứng**.
+
+<ProbabilityChapterVisual kind="statistical-thinking-sampling" />
+
+<ProbabilityChapterVisual kind="statistical-thinking-study-design" />
+
+</MdxPage>

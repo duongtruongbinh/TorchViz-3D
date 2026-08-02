@@ -2,7 +2,21 @@ import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxCont
 
 export const CV_MDX_COMPONENT_NAMES = ['CvExercise'] as const;
 
-export const STATISTICS_MDX_COMPONENT_NAMES = ['ProbabilityChapterVisual', 'ProbabilitySourceImage'] as const;
+export const STATISTICS_MDX_COMPONENT_NAMES = [
+  'HistogramBinComparison',
+  'HistogramBinExplorer',
+  'HistogramConstructionVisual',
+  'HistogramReadingInteraction',
+  'HistogramRulesVisual',
+  'HistogramShapeVisual',
+  'NormalDistributionVisual',
+  'NormalParameterExplorer',
+  'PopulationSampleObservationOverview',
+  'ProbabilityChapterVisual',
+  'ProbabilitySourceImage',
+  'StatisticalQuestionAtlas',
+  'StatisticsBranchesOverview',
+] as const;
 
 export const LLM_MDX_COMPONENT_NAMES = [
   'TrainingLifecycle',

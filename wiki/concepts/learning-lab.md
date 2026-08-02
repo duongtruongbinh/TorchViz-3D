@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-30
+updated: 2026-08-02
 ---
 
 # Learning Lab
@@ -27,9 +27,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 92 tracks, and 721 lesson nodes. It has 171
+The catalog contains 13 domains, 92 tracks, and 724 lesson nodes. It has 174
 authored locale MDX files, including forty-nine Vietnamese-first lessons in
-`llm-ai-engineering`, four Vietnamese CV exercises, and one hundred five Vietnamese
+`llm-ai-engineering`, four Vietnamese CV exercises, and one hundred eight Vietnamese
 lessons in Probability & Statistics (`statistics`). The other 550 nodes are
 navigable placeholders and render one shared localized “content in progress”
 message. They do not carry legacy theory or practice payloads.
@@ -107,7 +107,7 @@ catalog entry-point metadata and open the canonical lesson route.
 
 Probability & Statistics is the display name of the canonical `statistics`
 domain, which remains separate from `math-statistics-ai`. It has eight tracks,
-119 lesson nodes, 105 published Vietnamese lessons, and 361 ordered lesson
+122 lesson nodes, 108 published Vietnamese lessons, and 393 ordered lesson
 pages. Its first seven tracks form the applied-statistics core: probability;
 statistical thinking; descriptive statistics and point estimation; statistical
 inference; regression analysis; design of experiments; and statistical quality
@@ -131,16 +131,41 @@ theory pages
 share a full-width reading treatment and use the domain-local
 `ProbabilityChapterVisual` variants for concept-specific diagrams; quiz pages
 reuse the shared LLM-domain interaction modes. Chapter 2 Statistical Thinking
-now spans six pages covering variability, AI/ML/DL applications, research and
-business questions, sampling and study design, descriptive statistics, and
-statistical inference. Its domain-local gateway retains deterministic,
-resettable population-sampling and study-design claim activities as embedded
-lesson behavior rather than Review exercises. The adjacent six-question pandas
+opens with a three-page overview covering the definition and purpose of
+statistics, research and business questions, and the descriptive-versus-
+inferential classification. Its Statistics adapter renders the question groups
+as a responsive domain atlas and the two statistical branches as an accessible
+comparison flow while the Vietnamese MDX remains the content owner. A separate
+one-page `2.2 Quần thể, Mẫu & Quan
+trắc` lesson presents population → sample → study design → conclusion as one
+responsive visual flow, compares retrospective, observational, and designed
+studies by their evidence and intervention boundaries, and owns the
+deterministic, resettable population-sampling and study-design claim activities
+as a numbered two-stage practice path rather than Review exercises. The
+following six-question pandas
 quiz over the Iris dataset (`ch02-classical-statistics-fundamentals-quiz`)
 applies variation, descriptive-statistics, and estimation concepts through
 deterministic read-only dataframe fixtures. The chapter then closes with a
 three-page critique of statistical assumptions, interpretation, misleading
-graphs, p-values, effect sizes, and confidence intervals. The one-time
+graphs, p-values, effect sizes, and confidence intervals. Chapter 3 now opens
+with the 17-page `histogram-foundations` lesson before
+descriptive data analysis. It carries one fixed dataset through observations,
+number-line points, bins, stacked counts, and bars; compares too few, useful,
+and too many bins on fixed axes; introduces square-root, Sturges, and
+Freedman–Diaconis guidance; then maps the visual model to NumPy/Matplotlib and
+an accessible live bin-count explorer. The later descriptive Histogram remains
+an application for interpreting mean, median, mode, and skew rather than a
+duplicate construction lesson. After the descriptive-data quiz, the 17-page
+`normal-distribution` lesson continues from observed Histogram shape into the
+Normal/Gaussian bell curve, symmetry, center and tails, mean and variance
+controls, standard Normal z-scores, and the distinction between scaling and
+normality. It then returns to observed data to recognize multimodal mixtures,
+left/right skew, long tails, and possible outliers before
+closing with a deterministic five-shape Histogram-reading interaction. Its
+Vietnamese MDX owns the explanations, labels, formulas, examples, and Python
+code; the focused domain-local React renderer owns chart geometry, parameter
+state and calculations, scenario progression, responsive layout, and accessible
+status updates. The one-time
 importer and source reference were removed after validation, so the checked-in
 TOC and Vietnamese MDX are the content source of truth. Vietnamese UI requests resolve the
 authored locale directly. Other UI locales use the registry's final
@@ -226,7 +251,7 @@ the authored body text; a TOC can select `searchTextMode: 'metadata'` for large
 corpora. Probability & Statistics uses that mode and contributes its title,
 headings, and keywords without embedding the complete lesson bodies in the
 initial Learning Lab
-chunk. The shared placeholder body is not indexed, preventing 601 missing nodes
+chunk. The shared placeholder body is not indexed, preventing 550 missing nodes
 from overwhelming authored results. Matching is case-insensitive and
 Vietnamese-diacritic-insensitive.
 
@@ -254,9 +279,10 @@ Vietnamese-diacritic-insensitive.
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
-| `src/content/learning/statistics/table-of-contents.ts` | Probability & Statistics manifest with seven core tracks, one Statistical Learning Extensions track, 105 published lessons, fourteen explicit missing-content nodes, route aliases, and compact search mode. |
-| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 105 published lesson ids and 361 ordered pages. |
-| `src/components/learning/domains/statistics/mdxComponents.tsx` | Statistics-only MDX adapter for responsive `ProbabilityChapterVisual` diagrams and deterministic embedded Statistical Thinking interactions. |
+| `src/content/learning/statistics/table-of-contents.ts` | Probability & Statistics manifest with seven core tracks, one Statistical Learning Extensions track, 108 published lessons, fourteen explicit missing-content nodes, route aliases, and compact search mode. |
+| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 108 published lesson ids and 393 ordered pages. |
+| `src/components/learning/domains/statistics/mdxComponents.tsx` | Statistics-only MDX adapter for responsive Probability diagrams, Histogram/Normal-distribution visualizations, the Statistical Thinking question atlas/branch comparison, and deterministic embedded interactions. |
+| `src/components/learning/domains/statistics/normalDistributionRenderers.tsx` | Domain-local Normal-distribution chart geometry, mean/variance exploration, and deterministic Histogram-reading interaction consumed through the Statistics MDX adapter. |
 | `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
@@ -341,7 +367,7 @@ remain green so progress continues to take precedence.
   state/reset, locale fallback, authored search text, and light-only runtime
   behavior.
 - Probability & Statistics retains the canonical `statistics` domain id with
-  105 Vietnamese authored MDX lessons, 361 ordered pages, seven core
+  108 Vietnamese authored MDX lessons, 393 ordered pages, seven core
   applied-statistics tracks, and a separate optional Statistical Learning
   Extensions track; other UI locales render the Vietnamese source through the
   registry's available-locale fallback.
