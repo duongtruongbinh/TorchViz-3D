@@ -1,0 +1,84 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch02-classical-statistics-fundamentals-quiz',
+  locale: 'vi',
+  "title": "Quiz",
+  headings: ['Mô tả hay suy luận?', 'Quần thể và mẫu', 'Mẫu đại diện', 'Bằng chứng nhân quả', 'Biểu đồ cắt trục', 'Đọc có trách nhiệm'],
+  keywords: ['thống kê mô tả', 'thống kê suy luận', 'quần thể', 'mẫu', 'thiên lệch lấy mẫu', 'nhân quả', 'biểu đồ gây hiểu lầm'],
+  pageCount: 6,
+}
+
+<MdxQuiz id="ch02-classical-statistics-fundamentals-quiz" questions={[
+  {
+    id: 'thinking-goal-classification', title: 'Mô tả hay suy luận?', mode: 'single',
+    prompt: 'Một bệnh viện báo cáo trung vị thời gian chờ của 500 lượt khám đã ghi nhận, không suy rộng ra lượt khám khác. Đây là nhiệm vụ nào?',
+    options: [
+      { id: 'descriptive', label: 'Thống kê mô tả', isCorrect: true },
+      { id: 'inferential', label: 'Thống kê suy luận' },
+      { id: 'causal', label: 'Kết luận nhân quả' },
+      { id: 'sampling', label: 'Thiết kế lấy mẫu' },
+    ],
+    success: 'Đúng. Câu hỏi chỉ tóm tắt dữ liệu đã quan sát nên thuộc thống kê mô tả.',
+    error: 'Chưa đúng. Hãy hỏi: kết luận chỉ nói về 500 lượt đã thấy, hay suy rộng ra một quần thể lớn hơn?',
+  },
+  {
+    id: 'thinking-population-sample', title: 'Quần thể và mẫu', mode: 'single',
+    prompt: 'Nhà máy sản xuất 10.000 chi tiết trong tuần và kiểm tra ngẫu nhiên 200 chi tiết. Trong nghiên cứu này, đâu là mẫu?',
+    options: [
+      { id: 'sample-200', label: '200 chi tiết được kiểm tra', isCorrect: true },
+      { id: 'population-10000', label: 'Toàn bộ 10.000 chi tiết' },
+      { id: 'one-observation', label: 'Một chi tiết bất kỳ' },
+      { id: 'defects', label: 'Chỉ các chi tiết bị lỗi' },
+    ],
+    success: 'Đúng. 200 chi tiết là tập con thực sự được đo; 10.000 chi tiết là quần thể mục tiêu.',
+    error: 'Chưa đúng. Mẫu là tập con được chọn để quan sát, không phải toàn bộ nhóm mà ta muốn kết luận.',
+  },
+  {
+    id: 'thinking-representative-sample', title: 'Mẫu đại diện', mode: 'single',
+    prompt: 'Nhà máy chạy ba ca với điều kiện khác nhau. Cách lấy mẫu nào phù hợp nhất để ước lượng tỷ lệ lỗi của cả ngày?',
+    options: [
+      { id: 'all-shifts', label: 'Lấy ngẫu nhiên ở cả ba ca theo tỷ trọng sản lượng', isCorrect: true },
+      { id: 'morning-only', label: 'Chỉ lấy ở ca sáng vì thuận tiện' },
+      { id: 'defects-only', label: 'Chỉ giữ các chi tiết đã phát hiện lỗi' },
+      { id: 'latest-only', label: 'Lấy 20 chi tiết cuối ngày' },
+    ],
+    success: 'Đúng. Mẫu phải phản ánh đủ các ca và đúng tỷ trọng để giảm thiên lệch chọn mẫu.',
+    error: 'Chưa đúng. Một mẫu lớn nhưng chỉ đến từ nhóm thuận tiện vẫn có thể lệch hệ thống.',
+  },
+  {
+    id: 'thinking-causal-evidence', title: 'Bằng chứng nhân quả', mode: 'single',
+    prompt: 'Tình huống nào hỗ trợ kết luận nhân quả mạnh nhất?',
+    options: [
+      { id: 'randomized', label: 'Phân ngẫu nhiên chi tiết vào hai mức nhiệt rồi so sánh tỷ lệ lỗi', isCorrect: true },
+      { id: 'archive', label: 'Đọc hồ sơ bảo dưỡng cũ và thấy hai biến cùng tăng' },
+      { id: 'observe', label: 'Quan sát các ca sản xuất như chúng vốn diễn ra' },
+      { id: 'survey', label: 'Hỏi người vận hành mức nhiệt họ thường chọn' },
+    ],
+    success: 'Đúng. Phân ngẫu nhiên và kiểm soát đầu vào giúp các nhóm công bằng hơn, nên bằng chứng nhân quả mạnh hơn.',
+    error: 'Chưa đúng. Mối liên hệ trong dữ liệu quan sát có thể còn do biến gây nhiễu; hãy tìm thiết kế có can thiệp và phân nhóm công bằng.',
+  },
+  {
+    id: 'thinking-truncated-axis', title: 'Biểu đồ cắt trục', mode: 'single',
+    prompt: 'Hai tỷ lệ là 35% và 39,6%, nhưng biểu đồ cột bắt đầu trục tung ở 34%. Nhận xét nào đúng?',
+    options: [
+      { id: 'exaggerates', label: 'Số liệu có thể đúng nhưng hình ảnh đã phóng đại cảm giác chênh lệch.', isCorrect: true },
+      { id: 'nine-times', label: 'Tỷ lệ 39,6% lớn gấp chín lần 35%.' },
+      { id: 'must-zero', label: 'Mọi biểu đồ đều bắt buộc bắt đầu từ 0.' },
+      { id: 'no-effect', label: 'Mốc bắt đầu của trục không ảnh hưởng cách đọc.' },
+    ],
+    success: 'Đúng. Hai giá trị chỉ chênh 4,6 điểm phần trăm; trục cắt làm khoảng cách đó trông lớn hơn nhiều.',
+    error: 'Chưa đúng. Hãy đọc nhãn số và mốc trục trước khi so chiều cao cột.',
+  },
+  {
+    id: 'thinking-responsible-reading', title: 'Đọc có trách nhiệm', mode: 'multi',
+    prompt: 'Khi gặp một kết luận thống kê mạnh, nên kiểm tra những gì?',
+    options: [
+      { id: 'source', label: 'Nguồn dữ liệu và cách lấy mẫu', isCorrect: true },
+      { id: 'assumptions', label: 'Giả thiết của phương pháp và thiết kế nghiên cứu', isCorrect: true },
+      { id: 'uncertainty', label: 'Độ lớn hiệu ứng và mức độ bất định', isCorrect: true },
+      { id: 'appearance', label: 'Chỉ cần biểu đồ trông chuyên nghiệp là đủ' },
+    ],
+    success: 'Đúng. Một kết luận đáng tin cần dữ liệu phù hợp, phương pháp phù hợp và cách diễn giải nêu rõ độ lớn lẫn bất định.',
+    error: 'Chưa đúng. Hãy kiểm tra nguồn dữ liệu, giả thiết và độ bất định; hình thức chuyên nghiệp không bảo đảm kết luận đúng.',
+  },
+]} />

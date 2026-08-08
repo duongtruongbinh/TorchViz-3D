@@ -1,0 +1,416 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'normal-distribution',
+  locale: 'vi',
+  title: '3.6 Phân phối chuẩn (Normal Distribution)',
+  headings: [
+    'Mục tiêu học tập',
+    'Phân phối chuẩn — một mô hình quan trọng và phổ biến',
+    'Một phân phối, nhiều tên gọi',
+    'Ở giữa thường gặp, ra xa càng hiếm',
+    'Hai bên đối xứng',
+    'Trung tâm và hai tails',
+    'Công thức và các tham số đặc trưng',
+    'Kéo để thay đổi trung bình',
+    'Kéo để thay đổi phương sai',
+    'Mean, median và mode',
+    'Phân phối đa đỉnh',
+    'Phân phối chuẩn tắc',
+    'StandardScaler và phân phối chuẩn tắc',
+    'Phân phối lệch trái và lệch phải',
+    'Code Python: lệch phải',
+    'Code Python: lệch trái',
+    'Đuôi dài và outlier',
+    'Đọc Histogram',
+  ],
+  keywords: ['normal distribution', 'Gaussian distribution', 'bell curve', 'phân phối chuẩn', 'histogram', 'mean', 'variance', 'z-score', 'StandardScaler', 'skew', 'multimodal', 'outlier'],
+  pageCount: 18,
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Giải thích các đặc tính của **Phân phối chuẩn** (*Normal Distribution / Gaussian Distribution*): hình chuông, đối tính, đối xứng qua trung bình <MdxFormula inline formula={"\\mu"} />.
+- Áp dụng quy tắc 68-95-99.7% và tính giá trị chuẩn hóa **Z-score**.
+- Phân biệt **StandardScaler** (dời mean về 0, std về 1) với việc biến đổi phân phối thành phân phối chuẩn.
+- Nhận dạng các dạng phân phối phi chuẩn (lệch trái, lệch phải, đa đỉnh, đuôi dài).
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phân phối chuẩn — một mô hình quan trọng và phổ biến
+
+Phân phối chuẩn là một trong những mô hình quan trọng nhất của thống kê. Nó xuất hiện gần đúng trong nhiều loại phép đo và là nền tảng của nhiều phương pháp ước lượng, kiểm định và mô hình hóa.
+
+<NormalDistributionVisual
+  kind="overview"
+  ariaLabel="Đường cong phân phối chuẩn ở trung tâm, bao quanh bởi bốn ví dụ về những đại lượng có thể mang hình dạng gần chuẩn."
+  labels={['Chiều cao trong một nhóm tương đối đồng nhất', 'Sai số đo lường', 'Điểm số tổng hợp', 'Biến động của quy trình ổn định']}
+  caption="Khi nhiều tác động nhỏ cùng cộng lại, kết quả thường có xu hướng tập trung ở giữa và thưa dần về hai phía."
+/>
+
+Điều này không có nghĩa mọi dữ liệu đều tuân theo phân phối chuẩn. Thu nhập, thời gian chờ, giá nhà hoặc dữ liệu trộn từ nhiều nhóm có thể lệch, nhiều đỉnh hoặc có tail dài.
+
+Trong thực tế, ta thường bắt đầu bằng **Histogram** để xem dữ liệu có gần đối xứng, có một đỉnh và mang dạng chuông hay không. Nếu có, phân phối chuẩn là một mô hình đáng để xem xét—không phải một kết luận tự động.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Một phân phối, nhiều tên gọi
+
+Ba tên sau thường cùng chỉ một họ phân phối đối xứng có dạng hình chuông:
+
+- **Normal distribution:** phân phối chuẩn.
+- **Gaussian distribution:** phân phối Gauss.
+- **Bell curve:** đường cong hình chuông.
+
+<NormalDistributionVisual
+  kind="names"
+  ariaLabel="Một đường cong hình chuông mang ba tên Normal distribution, Gaussian distribution và Bell curve."
+  labels={['Normal distribution', 'Gaussian distribution', 'Bell curve']}
+  caption="Các tên gọi khác nhau cùng mô tả một phân phối đối xứng có dạng hình chuông."
+/>
+
+“Bell curve” mô tả hình dáng trực quan; “Normal” và “Gaussian” là những tên dùng trong thống kê và toán học.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Ở giữa thường gặp, ra xa càng hiếm
+
+Trong phân phối chuẩn, dữ liệu tập trung quanh trung bình. Các giá trị gần trung tâm xuất hiện thường xuyên hơn; càng đi xa trung tâm, mật độ càng thấp và quan sát càng hiếm.
+
+<NormalDistributionVisual
+  kind="frequency"
+  ariaLabel="Đường cong cao ở trung tâm biểu thị vùng thường gặp và thấp ở hai đầu biểu thị vùng hiếm gặp."
+  labels={['Hiếm', 'Thường gặp', 'Hiếm']}
+  caption="Trong phân phối chuẩn, ở giữa thường xảy ra; càng ra xa hai tail thì càng hiếm."
+/>
+
+Đường cong không cho biết một giá trị cụ thể chắc chắn sẽ xuất hiện. Nó cho biết **vùng nào có mật độ tương đối cao hoặc thấp**.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Hai bên đối xứng
+
+Phân phối chuẩn đối xứng qua trung tâm: nửa bên trái là ảnh phản chiếu của nửa bên phải. Hai giá trị cách trung bình một khoảng bằng nhau có cùng mật độ.
+
+<NormalDistributionVisual
+  kind="symmetry"
+  ariaLabel="Đường cong đối xứng qua trung bình mu bằng không."
+  labels={['μ', 'Nửa trái phản chiếu nửa phải']}
+  caption="Hai giá trị cách trung bình một khoảng bằng nhau có độ hiếm tương tự nhau."
+/>
+
+Nếu một phía của Histogram kéo dài rõ rệt hơn phía còn lại, hình dạng quan sát được không còn phù hợp với tính đối xứng này.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Trung tâm và hai tails
+
+Phần cao nhất của đường cong nằm tại trung tâm. Hai phần thấp dần và kéo ra xa được gọi là **tails**:
+
+- **Left tail:** đuôi trái.
+- **Right tail:** đuôi phải.
+- Càng đi sâu vào tail, giá trị càng hiếm gặp.
+
+<NormalDistributionVisual
+  kind="tails"
+  ariaLabel="Đường cong gồm đuôi trái, trung tâm và đuôi phải."
+  labels={['Left tail', 'Trung tâm', 'Right tail']}
+  caption="Tail chứa những giá trị xa trung tâm và ít xuất hiện hơn."
+/>
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Công thức và các tham số đặc trưng
+
+Một biến ngẫu nhiên có phân phối chuẩn được viết là:
+
+<MdxFormula formula={"X \\sim \\mathcal{N}(\\mu,\\sigma^2)"} />
+
+Ký hiệu này mới cho biết **họ phân phối** và hai tham số điều khiển nó. Để vẽ được đường cong, ta cần một quy tắc cho biết đường cong nên cao bao nhiêu tại mỗi giá trị <MdxFormula inline formula={"x"} />. Quy tắc đó gọi là **hàm mật độ xác suất**.
+
+Mật độ cao nghĩa là vùng quanh <MdxFormula inline formula={"x"} /> thường gặp hơn; mật độ thấp nghĩa là vùng đó hiếm hơn. Bản thân <MdxFormula inline formula={"f(x)"} /> không phải xác suất tại đúng một điểm. Xác suất một giá trị nằm trong một khoảng được biểu diễn bằng **diện tích dưới đường cong** trên khoảng đó, và tổng diện tích dưới toàn bộ đường cong bằng 1.
+
+Với phân phối chuẩn, hàm mật độ là:
+
+<MdxFormula formula={"f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}\\exp\\left(-\\frac{(x-\\mu)^2}{2\\sigma^2}\\right)"} />
+
+Không cần ghi nhớ công thức ngay. Hãy đọc cấu trúc của nó:
+
+- <MdxFormula inline formula={"(x-\\mu)^2"} /> đo khoảng cách bình phương từ <MdxFormula inline formula={"x"} /> đến trung tâm. Càng xa <MdxFormula inline formula={"\\mu"} />, số mũ càng âm và mật độ càng giảm.
+- <MdxFormula inline formula={"\\sigma"} /> xuất hiện trong cả hệ số phía trước lẫn số mũ, nên nó đồng thời điều khiển độ rộng và độ cao của đường cong.
+- Hệ số <MdxFormula inline formula={"1/(\\sigma\\sqrt{2\\pi})"} /> giúp tổng diện tích dưới đường cong luôn bằng 1.
+
+- <MdxFormula inline formula={"\\mu"} /> là trung bình, quyết định vị trí trung tâm.
+- <MdxFormula inline formula={"\\sigma^2"} /> là phương sai, quyết định mức độ phân tán.
+- <MdxFormula inline formula={"\\sigma=\\sqrt{\\sigma^2}"} /> là độ lệch chuẩn.
+
+> **Trung bình cho biết đường cong nằm ở đâu. Phương sai cho biết đường cong trải rộng đến mức nào.**
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Kéo để thay đổi trung bình
+
+Giữ phương sai cố định tại <MdxFormula inline formula={"\\sigma^2=4"} /> rồi kéo trung bình. Quan sát toàn bộ đường cong, đường đánh dấu trung tâm và hai tail cùng dịch chuyển.
+
+<NormalParameterExplorer
+  mode="mean"
+  curveAriaLabel="Đường cong phân phối chuẩn cập nhật theo giá trị trung bình đang chọn."
+  meanMarkerLabel="μ ="
+  meanLabel="Trung bình μ"
+  varianceLabel="Phương sai σ² — được khóa"
+  feedback={{
+    lower: 'Trung bình giảm: toàn bộ phân phối dịch sang trái, hình dạng giữ nguyên.',
+    baseline: 'Trung bình bằng 0: tâm và đỉnh nằm tại 0.',
+    higher: 'Trung bình tăng: toàn bộ phân phối dịch sang phải, hình dạng giữ nguyên.',
+  }}
+  caption="Thay đổi trung bình giống như di chuyển cả chiếc chuông trên trục số."
+/>
+
+Trung bình thay đổi **vị trí**, không tự làm đường cong rộng hơn hoặc hẹp hơn. Khi phương sai giữ nguyên, hình dạng giữ nguyên.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Kéo để thay đổi phương sai
+
+Giữ trung bình tại <MdxFormula inline formula={"\\mu=0"} /> rồi thay đổi phương sai. Khi phương sai tăng, đường cong trải rộng và đỉnh hạ thấp; khi phương sai giảm, đường cong co lại và đỉnh cao hơn.
+
+<NormalParameterExplorer
+  mode="variance"
+  curveAriaLabel="Đường cong phân phối chuẩn cập nhật theo giá trị phương sai đang chọn."
+  meanMarkerLabel="μ ="
+  meanLabel="Trung bình μ — được khóa"
+  varianceLabel="Phương sai σ²"
+  feedback={{
+    lower: 'Phương sai nhỏ hơn: đường cong hẹp hơn và đỉnh cao hơn.',
+    baseline: 'Phương sai bằng 4: độ lệch chuẩn bằng 2.',
+    higher: 'Phương sai lớn hơn: đường cong rộng hơn và đỉnh thấp hơn.',
+  }}
+  caption="Trung bình di chuyển chiếc chuông; phương sai kéo giãn hoặc ép chiếc chuông."
+/>
+
+Tổng diện tích dưới đường cong luôn bằng 1. Vì vậy, khi đường cong trải rộng hơn, chiều cao phải giảm; khi co hẹp lại, chiều cao tăng.
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Mean, median và mode
+
+Trong phân phối chuẩn lý tưởng:
+
+<MdxFormula formula={"\\operatorname{Mean}=\\operatorname{Median}=\\operatorname{Mode}"} />
+
+<NormalDistributionVisual
+  kind="centers"
+  ariaLabel="Mean, median và mode cùng nằm tại đỉnh ở trung tâm đường cong chuẩn."
+  labels={['Mean = Median = Mode']}
+  caption="Mean, median và mode cùng nằm tại trung tâm của phân phối chuẩn lý tưởng."
+/>
+
+Mode nằm tại đỉnh vì đây là vùng có mật độ cao nhất. Mean và median nằm ở giữa vì phân phối đối xứng.
+
+</MdxPage>
+
+<MdxPage page={10}>
+
+## Phân phối đa đỉnh
+
+**Multimodal distribution** là phân phối đa đỉnh; trường hợp có hai đỉnh gọi là **bimodal distribution**. Nhiều đỉnh rõ có thể cho thấy dữ liệu chứa nhiều nhóm đối tượng với cơ chế khác nhau.
+
+<NormalDistributionVisual
+  kind="multimodal"
+  ariaLabel="Hai đường cong tạo hai đỉnh rõ ràng cho nhóm A và nhóm B."
+  labels={['Nhóm A', 'Nhóm B']}
+  caption="Hai đỉnh có thể được tạo ra khi hai nhóm dữ liệu khác nhau bị gộp chung."
+/>
+
+Ví dụ gồm chiều cao của học sinh và giáo viên, thời gian xử lý của giao dịch thường và ưu tiên, hoặc giá nhà từ hai khu vực khác nhau.
+
+</MdxPage>
+
+<MdxPage page={11}>
+
+## Phân phối chuẩn tắc
+
+Phân phối chuẩn tắc — **standard normal distribution** — có:
+
+<MdxFormula formula={"Z \\sim \\mathcal{N}(0,1),\\qquad \\mu=0,\\quad \\sigma^2=1,\\quad \\sigma=1"} />
+
+Để chuyển một giá trị thành z-score:
+
+<MdxFormula formula={"z=\\frac{x-\\mu}{\\sigma}"} />
+
+<NormalDistributionVisual
+  kind="standard-normal"
+  ariaLabel="Phân phối chuẩn tắc có trung bình bằng không và độ lệch chuẩn bằng một."
+  labels={['z = −2', 'z = −1', 'z = 0', 'z = 1', 'z = 2']}
+  caption="Z-score cho biết một giá trị nằm cách trung bình bao nhiêu độ lệch chuẩn."
+/>
+
+Giá trị có <MdxFormula inline formula={"|z|"} /> càng lớn thì càng xa trung tâm và thường càng hiếm.
+
+</MdxPage>
+
+<MdxPage page={12}>
+
+## StandardScaler và phân phối chuẩn tắc
+
+`StandardScaler` thực hiện phép biến đổi:
+
+<MdxFormula formula={"z=\\frac{x-\\bar{x}}{s}"} />
+
+Sau khi scale, dữ liệu thường có <MdxFormula inline formula={"\\operatorname{mean}\\approx0"} /> và <MdxFormula inline formula={"\\operatorname{variance}\\approx1"} />. Nhưng mean 0 và variance 1 **không đủ** để kết luận dữ liệu có phân phối chuẩn tắc.
+
+<NormalDistributionVisual
+  kind="scaler-shape"
+  ariaLabel="Cùng một Histogram lệch phải trước và sau khi dịch trung tâm về 0, co độ lệch chuẩn về 1 trên cùng trục số."
+  frequencyLabel="Tần số theo từng bin"
+  rangeLabel="Khoảng giá trị của các bin"
+  labels={['Trước: tâm ở vùng giá trị dương, độ phân tán lớn', 'Sau: mean ≈ 0, variance ≈ 1 — vẫn lệch phải']}
+  caption="StandardScaler thay đổi trung tâm và tỷ lệ, nhưng giữ nguyên hình dạng cơ bản."
+/>
+
+Nếu dữ liệu ban đầu lệch hoặc đa đỉnh, sau StandardScaler nó vẫn lệch hoặc đa đỉnh.
+
+</MdxPage>
+
+<MdxPage page={13}>
+
+## Phân phối lệch trái và lệch phải
+
+Nếu hai phía không đối xứng và một phía thưa dần, kéo dài hơn, ta có phân phối lệch. Để gọi đúng hướng lệch, hãy nhìn phía tạo thành tail:
+
+<NormalDistributionVisual
+  kind="skew"
+  ariaLabel="So sánh Histogram lệch phải và Histogram lệch trái."
+  frequencyLabel="Tần số theo từng bin"
+  labels={['Thiếu dần bên phải → lệch phải', 'Thiếu dần bên trái → lệch trái']}
+  caption="Thiếu bên nào thì lệch bên đó."
+/>
+
+Không nhìn phía có cột cao nhất. Hãy nhìn phía dữ liệu **thiếu dần và kéo dài**: đó là tail và cũng là hướng lệch.
+
+</MdxPage>
+
+<MdxPage page={14}>
+
+## Code Python: lệch phải
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+right_skewed = rng.exponential(scale=2, size=5_000)
+mean = np.mean(right_skewed)
+median = np.median(right_skewed)
+
+plt.hist(right_skewed, bins=50, edgecolor="black")
+plt.axvline(mean, linestyle=":", label=f"Mean = {mean:.2f}")
+plt.axvline(median, linestyle="--", label=f"Median = {median:.2f}")
+plt.xlabel("Giá trị")
+plt.ylabel("Tần số")
+plt.title("Phân phối lệch phải")
+plt.legend()
+plt.show()
+```
+
+Dữ liệu tập trung ở các giá trị nhỏ và thiếu dần về bên phải. Theo câu thần chú: **thiếu bên phải nên lệch phải**.
+
+</MdxPage>
+
+<MdxPage page={15}>
+
+## Code Python: lệch trái
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+left_skewed = -rng.exponential(scale=2, size=5_000)
+mean = np.mean(left_skewed)
+median = np.median(left_skewed)
+
+plt.hist(left_skewed, bins=50, edgecolor="black")
+plt.axvline(mean, linestyle=":", label=f"Mean = {mean:.2f}")
+plt.axvline(median, linestyle="--", label=f"Median = {median:.2f}")
+plt.xlabel("Giá trị")
+plt.ylabel("Tần số")
+plt.title("Phân phối lệch trái")
+plt.legend()
+plt.show()
+```
+
+Dữ liệu tập trung ở các giá trị lớn và thiếu dần về bên trái. Theo câu thần chú: **thiếu bên trái nên lệch trái**.
+
+</MdxPage>
+
+<MdxPage page={16}>
+
+## Đuôi dài và outlier
+
+Tail càng kéo dài, dữ liệu càng có khả năng chứa những giá trị rất xa trung tâm. Đó có thể là trường hợp hiếm nhưng hợp lệ, lỗi nhập liệu, lỗi đo lường, quan sát từ nhóm khác hoặc thành phần tự nhiên của một phân phối đuôi dài.
+
+<NormalDistributionVisual
+  kind="tail-outlier"
+  ariaLabel="Một phân phối có đỉnh nhọn, hai đuôi giảm chậm và ba quan sát cực đoan nằm xa trung tâm."
+  labels={['Hiếm ở đuôi trái', 'Vùng thường gặp', 'Giá trị cực đoan có thể là outlier']}
+  caption="Đuôi dài là dấu hiệu có giá trị cực đoan và có thể có outlier."
+/>
+
+Không nên khẳng định mọi điểm trong tail đều là outlier. Cần dùng bối cảnh và phương pháp phát hiện phù hợp để điều tra thêm.
+
+</MdxPage>
+
+<MdxPage page={17}>
+
+## Đọc Histogram
+
+Đọc lần lượt thay vì đoán tên phân phối ngay từ đầu. Với mỗi Histogram, hãy trả lời năm câu hỏi rồi mới xem nhận xét.
+
+<HistogramReadingInteraction
+  caption="Đọc hình dạng Histogram theo một trình tự ổn định."
+  frequencyLabel="Tần số theo từng bin"
+  scenarioLabel="Tình huống"
+  revealLabel="Xem nhận xét"
+  nextLabel="Biểu đồ tiếp theo"
+  questions={[
+    'Dữ liệu tập trung ở đâu?',
+    'Phân phối có đối xứng không?',
+    'Phân phối có bao nhiêu đỉnh chính?',
+    'Bên nào đang thiếu dần?',
+    'Có giá trị nào nằm rất xa trung tâm không?',
+  ]}
+  scenarios={[
+    { title: 'Gần phân phối chuẩn', counts: [1, 3, 7, 13, 20, 24, 20, 13, 7, 3, 1], answer: 'Phần lớn dữ liệu ở giữa, hai phía tương đối đối xứng và càng ra tail càng hiếm.' },
+    { title: 'Lệch trái', counts: [1, 2, 3, 5, 8, 13, 19, 24, 21, 14], answer: 'Dữ liệu thiếu dần về bên trái, vì vậy đây là phân phối lệch trái.' },
+    { title: 'Lệch phải', counts: [14, 21, 24, 19, 13, 8, 5, 3, 2, 1], answer: 'Dữ liệu thiếu dần về bên phải, vì vậy đây là phân phối lệch phải.' },
+    { title: 'Hai đỉnh', counts: [2, 7, 15, 20, 13, 5, 4, 11, 20, 16, 7, 2], answer: 'Hai đỉnh rõ có thể cho thấy dữ liệu chứa hai nhóm đối tượng; cần tìm biến phân nhóm.' },
+    { title: 'Tail dài và giá trị cực đoan', counts: [1, 0, 1, 2, 5, 12, 21, 24, 18, 10, 5, 3, 2, 1, 1], answer: 'Tail dài cho thấy có giá trị cực đoan và có thể chứa outlier, nhưng không phải mọi điểm trong tail đều là outlier.' },
+  ]}
+/>
+
+> Histogram là bằng chứng quan sát được. Tên phân phối là một mô hình hoặc mô tả ta cân nhắc sau khi đã đọc trung tâm, đối xứng, số đỉnh và tail.
+
+</MdxPage>

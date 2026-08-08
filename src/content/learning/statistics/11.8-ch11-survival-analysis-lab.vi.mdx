@@ -1,0 +1,252 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-survival-analysis-lab",
+  "locale": "vi",
+  "title": "Lab: Phân tích sống còn",
+  "headings": [
+    "Thực hành: Phân tích sống còn",
+    "11.8.1 Dữ liệu ung thư não",
+    "11.8.2 Dữ liệu công bố",
+    "11.8.3 Dữ liệu trung tâm cuộc gọi"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Thực hành: Phân tích sống còn"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Thực hành: Phân tích sống còn
+
+Trong bài thực hành này, ta tiến hành phân tích sống còn trên ba bộ dữ liệu riêng biệt. Ở Mục 11.8.1, ta phân tích dữ liệu `BrainCancer` được mô tả lần đầu trong Mục 11.3. Ở Mục 11.8.2, ta khảo sát dữ liệu `Publication` từ Mục 11.5.4. Cuối cùng, Mục 11.8.3 tìm hiểu một bộ dữ liệu trung tâm cuộc gọi mô phỏng.
+
+Ta bắt đầu bằng cách import một số thư viện ở cấp đầu của notebook. Điều này giúp code dễ đọc hơn, vì chỉ cần xem qua vài dòng đầu của notebook là biết notebook sử dụng những thư viện nào.
+
+<MdxCode language="text" code={"In [1]:frommatplotlib.pyplotimportsubplots\nimportnumpyasnp\nimportpandasaspd\nfromISLP.modelsimportModelSpecasMS\nfromISLPimportload_data"} />
+
+Ta cũng tập hợp các lệnh import mới cần cho bài thực hành này.
+
+<MdxCode language="text" code={"In [2]:fromlifelinesimport\\\n(KaplanMeierFitter ,\nCoxPHFitter)\nfromlifelines.statisticsimport\\\n(logrank_test ,\nmultivariate_logrank_test)\nfromISLP.survivalimportsim_time"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 11.8.1 Dữ liệu ung thư não
+
+Ta bắt đầu với bộ dữ liệu `BrainCancer` có trong package `ISLP`.
+
+<MdxCode language="text" code={"In [3]:BrainCancer=load_data('BrainCancer')\nBrainCancer.columns"} />
+
+<MdxCode language="text" code={"Out[3]:Index(['sex','diagnosis','loc','ki','gtv','stereo',\n'status','time'],\ndtype='object')"} />
+
+Các hàng lập chỉ mục cho 88 bệnh nhân, còn 8 cột chứa các biến dự báo và biến kết quả. Đầu tiên, ta xem qua dữ liệu.
+
+<MdxCode language="text" code={"In [4]:BrainCancer['sex'].value_counts()"} />
+
+<MdxCode language="text" code={"Out[4]:Female45\nMale43\nName:sex,dtype:int64"} />
+
+<MdxCode language="text" code={"In [5]:BrainCancer['diagnosis'].value_counts()"} />
+
+<MdxCode language="text" code={"Out[5]:Meningioma42\nHGglioma22\nOther14\nLGglioma9\nName:diagnosis,dtype:int64"} />
+
+<MdxCode language="text" code={"In [6]:BrainCancer['status'].value_counts()"} />
+
+<MdxCode language="text" code={"Out[6]:053\n135\nName:status,dtype:int64"} />
+
+Trước khi bắt đầu phân tích, điều quan trọng là phải biết biến `status` được mã hóa như thế nào. Hầu hết phần mềm dùng quy ước `status` bằng 1 chỉ một quan sát không bị kiểm duyệt (thường là tử vong), còn `status` bằng 0 chỉ một quan sát bị kiểm duyệt. Nhưng một số nhà khoa học có thể dùng cách mã hóa ngược lại. Trong bộ dữ liệu `BrainCancer`, 35 bệnh nhân tử vong trước khi nghiên cứu kết thúc, vì vậy ta đang dùng cách mã hóa thông thường.
+
+Để bắt đầu phân tích, ta tạo lại đường cong sống còn Kaplan–Meier trong Hình 11.2. Package chính được dùng để phân tích sống còn là `lifelines`. Biến `time` tương ứng với _yi_, thời gian đến biến cố thứ _i_ trong `lifelines` (kiểm duyệt hoặc tử vong). Đối số thứ nhất của `km.fit` là thời gian biến cố, đối số thứ hai là biến kiểm duyệt, trong đó 1 chỉ thời gian hỏng được quan sát. Phương thức `plot()`, hay `.plot()`, tạo đường cong sống còn cùng các khoảng tin cậy theo từng điểm. Mặc định, đây là khoảng tin cậy 90%, nhưng có thể thay đổi bằng cách đặt đối số `alpha` bằng một trừ đi mức tin cậy mong muốn.
+
+<MdxCode language="text" code={"In [7]:fig,ax=subplots(figsize=(8,8))\nkm=KaplanMeierFitter()\nkm_brain=km.fit(BrainCancer['time'],BrainCancer['status'])\nkm_brain.plot(label='KaplanMeierestimate',ax=ax)"} />
+
+Tiếp theo, ta tạo các đường cong sống còn Kaplan–Meier phân tầng theo `sex` để tái hiện Hình 11.3. Ta thực hiện bằng phương thức `groupby()`, còn được ký hiệu là `.groupby()`, của dataframe. Phương thức này trả về một generator có thể lặp qua trong vòng lặp `for`. Ở đây, các phần tử trong vòng lặp `for` là những bộ 2 phần tử biểu diễn các nhóm: phần tử đầu là giá trị của cột phân nhóm `sex`, còn phần tử thứ hai là dataframe gồm mọi hàng có cùng giá trị `sex`. Ta sẽ dùng dữ liệu này bên dưới trong kiểm định log-rank nên lưu thông tin vào dictionary `by_sex`. Cuối cùng, ta còn dùng khái niệm _nội suy chuỗi_ để tự động gắn nhãn cho các đường khác nhau trên biểu đồ. Nội suy chuỗi là một kỹ thuật mạnh để định dạng chuỗi — `Python` cung cấp nhiều cách hỗ trợ các thao tác này.
+
+<MdxCode language="text" code={"In [8]:fig,ax=subplots(figsize=(8,8))\nby_sex={}\nforsex,dfinBrainCancer.groupby('sex'):\nby_sex[sex]=df\nkm_sex=km.fit(df['time'],df['status'])\nkm_sex.plot(label='Sex=%s'%sex,ax=ax)"} />
+
+Như đã thảo luận ở Mục 11.4, ta có thể thực hiện kiểm định log-rank để so sánh khả năng sống còn của nam và nữ. Ta dùng hàm `logrank_test()`, với tiền tố `logrank_`, từ module `lifelines.statistics`.
+
+<MdxCode language="text" code={"test()"} />
+
+Hai đối số đầu tiên là thời gian biến cố; hai đối số tiếp theo biểu thị các chỉ báo kiểm duyệt tương ứng (không bắt buộc).
+
+<MdxCode language="text" code={"In [9]:logrank_test(by_sex['Male']['time'],\nby_sex['Female']['time'],\nby_sex['Male']['status'],\nby_sex['Female']['status'])"} />
+
+<MdxCode language="text" code={"Out[9]:t_0-1\nnull_distributionchisquared\ndegrees_of_freedom1\ntest_namelogrank_test\ntest_statisticp-log2(p)\n1.440.232.12"} />
+
+_p_-value thu được là 0 _._ 23, không cho thấy bằng chứng về sự khác biệt khả năng sống còn giữa hai giới.
+
+Tiếp theo, ta dùng bộ ước lượng `CoxPHFitter()` từ `lifelines`; `CoxPHFitter()` dùng để khớp các mô hình nguy cơ tỷ lệ Cox. Đầu tiên, ta xét một mô hình chỉ dùng `sex` làm biến dự báo.
+
+<MdxCode language="text" code={"In [10]:coxph=CoxPHFitter#shorthand\nsex_df=BrainCancer[['time','status','sex']]\nmodel_df=MS(['time','status','sex'],\nintercept=False).fit_transform(sex_df)\ncox_fit=coxph().fit(model_df,\n'time',\n'status')\ncox_fit.summary[['coef','se(coef)','p']]"} />
+
+<MdxCode language="text" code={"Out[10]:"} />
+
+<MdxCode language="text" code={"coefse(coef)p\ncovariate\nsex[Male]0.4076670.3420040.233263"} />
+
+Đối số đầu tiên của `fit` phải là một dataframe chứa ít nhất thời gian biến cố (đối số thứ hai `time` trong trường hợp này), cùng một biến kiểm duyệt tùy chọn (đối số `status` trong trường hợp này). Cũng lưu ý rằng mô hình Cox không có hệ số chặn, đó là lý do ta dùng đối số `intercept=False` cho `ModelSpec` ở trên. Phương thức `summary()` trả về nhiều cột; ở đây ta rút gọn đầu ra. Có thể thực hiện kiểm định tỷ số hợp lý so sánh mô hình này với mô hình không có đặc trưng như sau:
+
+<MdxCode language="text" code={"In [11]:cox_fit.log_likelihood_ratio_test()"} />
+
+<MdxCode language="text" code={"Out[11]:null_distributionchisquared\ndegrees_freedom1\ntest_namelog-likelihoodratiotest\ntest_statisticp-log2(p)\n1.440.232.12"} />
+
+Bất kể dùng kiểm định nào, ta đều không thấy bằng chứng rõ ràng về khác biệt khả năng sống còn giữa nam và nữ. Như đã học trong chương này, kiểm định score từ mô hình Cox hoàn toàn bằng thống kê kiểm định log-rank!
+
+Bây giờ ta khớp một mô hình sử dụng thêm các biến dự báo. Trước tiên lưu ý rằng một giá trị `diagnosis` bị thiếu, nên ta loại quan sát đó trước khi tiếp tục.
+
+<MdxCode language="text" code={"In [12]:cleaned=BrainCancer.dropna()\nall_MS=MS(cleaned.columns,intercept=False)\nall_df=all_MS.fit_transform(cleaned)\nfit_all=coxph().fit(all_df,\n'time',\n'status')\nfit_all.summary[['coef','se(coef)','p']]"} />
+
+<MdxCode language="text" code={"Out[12]:"} />
+
+<MdxCode language="table" code={"|`covariate` `sex[Male]`|`coef` `0.183748`|`se(coef)` `0.360358`|`p` `0.610119`|\n|---|---|---|---|\n|`diagnosis[LG glioma]`|`-1.239541`|`0.579557`|`0.032454`|\n|`diagnosis[Meningioma]`|`-2.154566`|`0.450524`|`0.000002`|\n|`diagnosis[Other]`|`-1.268870`|`0.617672`|`0.039949`|\n|`loc[Supratentorial]`|`0.441195`|`0.703669`|`0.530664`|\n|`ki`|`-0.054955`|`0.018314`|`0.002693`|\n|`gtv`|`0.034293`|`0.022333`|`0.124660`|\n|`stereo[SRT]`|`0.177778`|`0.601578`|`0.767597`|"} />
+
+Biến `diagnosis` được mã hóa sao cho mức nền tương ứng với u thần kinh đệm độ cao (HG glioma). Kết quả cho biết nguy cơ gắn với HG glioma cao hơn tám lần (tức _e_^(2)^(_._15) = 8 _._ 62) nguy cơ gắn với u màng não. Nói cách khác, sau khi điều chỉnh theo các biến dự báo khác, bệnh nhân HG glioma có khả năng sống còn kém hơn nhiều so với bệnh nhân u màng não. Ngoài ra, giá trị chỉ số Karnofsky `ki` lớn hơn gắn với nguy cơ thấp hơn, tức thời gian sống còn dài hơn.
+
+Cuối cùng, ta vẽ các đường cong sống còn ước lượng cho từng nhóm chẩn đoán, sau khi điều chỉnh theo các biến dự báo khác. Để tạo các biểu đồ này, ta đặt giá trị của những biến dự báo khác bằng trung bình với biến định lượng và mode với biến phân loại. Ta làm vậy bằng phương thức `apply()` qua các hàng (tức `axis=0`) với hàm `representative` kiểm tra xem cột có phải là biến phân loại hay không.
+
+<MdxCode language="text" code={"In [13]:levels=cleaned['diagnosis'].unique()\ndefrepresentative(series):\nifhasattr(series.dtype,'categories'):\nreturnpd.Series.mode(series)\nelse:\nreturnseries.mean()\nmodal_data=cleaned.apply(representative ,axis=0)"} />
+
+Ta tạo bốn bản sao của các trung bình cột và gán cột `diagnosis` thành bốn chẩn đoán khác nhau. **`In [14]:`** `modal_df = pd.DataFrame( [modal_data.iloc[0] for _ in range(len(levels))]) modal_df['diagnosis'] = levels modal_df`
+
+<MdxCode language="text" code={"Out[14]:"} />
+
+<MdxCode language="table" code={"|`sex`|`diagnosis`|`loc`|`ki`|`gtv`|`stereo`|`...`|\n|---|---|---|---|---|---|---|\n|`Female`|`Meningioma`|`Supratentorial`|`80.920`|`8.687`|`SRT`|`...`|\n|`Female`|`HG glioma`|`Supratentorial`|`80.920`|`8.687`|`SRT`|`...`|\n|`Female`|`LG glioma`|`Supratentorial`|`80.920`|`8.687`|`SRT`|`...`|\n|`Female`|`Other`|`Supratentorial`|`80.920`|`8.687`|`SRT`|`...`|"} />
+
+Sau đó ta xây dựng ma trận mô hình dựa trên đặc tả mô hình `all_MS` đã dùng để khớp mô hình và đặt tên các hàng theo các mức của `diagnosis`.
+
+<MdxCode language="text" code={"In [15]:modal_X=all_MS.transform(modal_df)\nmodal_X.index=levels\nmodal_X"} />
+
+Ta có thể dùng phương thức `predict_survival_function()`, có tiền tố `.predict_`, để thu được hàm sống còn ước lượng.
+
+<MdxCode language="text" code={"survival_\nfunction()"} />
+
+<MdxCode language="text" code={"In [16]:predicted_survival=fit_all.predict_survival_function(modal_X)\npredicted_survival"} />
+
+<MdxCode language="table" code={"|**`Out[16]:`**|`M`|`eningioma` |`HG glioma`|`LG glioma`|`Other`|\n|---|---|---|---|---|---|\n||`0.070`|`0.998`|`0.982`|`0.995`|`0.995`|\n||`1.180`|`0.998`|`0.982`|`0.995`|`0.995`|\n||`1.410`|`0.996`|`0.963`|`0.989`|`0.990`|\n||`1.540`|`0.996`|`0.963`|`0.989`|`0.990`|\n||`...` `67.380`|`...` `0.689`|`...` `0.040`|`...` `0.394`|`...` `0.405`|\n||`73.740`|`0.689`|`0.040`|`0.394`|`0.405`|\n||`78.750`|`0.689`|`0.040`|`0.394`|`0.405`|\n||`82.560`|`0.689`|`0.040`|`0.394`|`0.405`|\n||`85 rows `|`× 4 columns`||||"} />
+
+Kết quả trả về một dataframe; các phương thức vẽ của nó tạo ra những đường cong sống còn khác nhau. Để biểu đồ không rối, ta không hiển thị khoảng tin cậy.
+
+<MdxCode language="text" code={"In [17]:fig,ax=subplots(figsize=(8,8))\npredicted_survival.plot(ax=ax);"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 11.8.2 Dữ liệu công bố
+
+Dữ liệu `Publication` trình bày trong Mục 11.5.4 có trong package `ISLP`. Đầu tiên, ta tái hiện Hình 11.5 bằng cách vẽ các đường cong Kaplan–Meier phân tầng theo biến `posres`, biến ghi lại nghiên cứu có kết quả dương tính hay âm tính.
+
+<MdxCode language="text" code={"In [18]:fig,ax=subplots(figsize=(8,8))\nPublication=load_data('Publication')\nby_result={}\nforresult,dfinPublication.groupby('posres'):\nby_result[result]=df\nkm_result=km.fit(df['time'],df['status'])\nkm_result.plot(label='Result=%d'%result,ax=ax)"} />
+
+Như đã thảo luận, các _p_-value khi khớp mô hình nguy cơ tỷ lệ Cox chỉ với biến `posres` khá lớn, không cung cấp bằng chứng về khác biệt thời gian đến khi công bố giữa nghiên cứu có kết quả dương tính và âm tính.
+
+<MdxCode language="text" code={"In [19]:posres_df=MS(['posres',\n'time',\n'status'],\nintercept=False).fit_transform(Publication)\nposres_fit=coxph().fit(posres_df,\n'time',\n'status')\nposres_fit.summary[['coef','se(coef)','p']]"} />
+
+<MdxCode language="text" code={"Out[19]:coefse(coef)p\ncovariate\nposres0.1480760.1616250.359578"} />
+
+Tuy nhiên, kết quả thay đổi đáng kể khi ta đưa các biến dự báo khác vào mô hình. Ở đây ta loại biến cơ chế tài trợ.
+
+<MdxCode language="text" code={"In [20]:model=MS(Publication.columns.drop('mech'),\nintercept=False)\ncoxph().fit(model.fit_transform(Publication),\n'time',\n'status').summary[['coef','se(coef)','p']]"} />
+
+<MdxCode language="table" code={"|**`Out[20]:`**||`coef`|`se(coef)`|`p`|\n|---|---|---|---|---|\n||`covariate`||||\n||`posres`|`0.570774`|`0.175960`|`1.179606e-03`|\n||`multi`|`-0.040863`|`0.251194`|`8.707727e-01`|\n||`clinend`|`0.546180`|`0.262001`|`3.710099e-02`|\n||`sampsize`|`0.000005`|`0.000015`|`7.506978e-01`|\n||`budget`|`0.004386`|`0.002464`|`7.511276e-02`|\n||`impact`|`0.058318`|`0.006676`|`2.426779e-18`|"} />
+
+Ta thấy có một số biến có ý nghĩa thống kê, gồm thử nghiệm có tập trung vào một tiêu chí lâm sàng hay không, mức độ ảnh hưởng của nghiên cứu và nghiên cứu có kết quả dương tính hay âm tính.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 11.8.3 Dữ liệu trung tâm cuộc gọi
+
+Trong mục này, ta mô phỏng dữ liệu sống còn bằng mối liên hệ giữa nguy cơ tích lũy và hàm sống còn được khảo sát ở Bài tập 8. Dữ liệu mô phỏng biểu thị thời gian chờ quan sát được (tính bằng giây) của 2.000 khách hàng gọi đến một trung tâm cuộc gọi. Trong bối cảnh này, kiểm duyệt xảy ra nếu khách hàng gác máy trước khi cuộc gọi được trả lời.
+
+Có ba hiệp biến: `Operators` (số điện thoại viên trực tại thời điểm cuộc gọi, có thể từ 5 đến 15), `Center` (A, B hoặc C), và `Time` trong ngày (Sáng, Chiều hoặc Tối). Ta tạo dữ liệu cho các hiệp biến này sao cho mọi khả năng đều có xác suất như nhau: chẳng hạn, cuộc gọi vào buổi sáng, chiều và tối có xác suất như nhau, và mọi số lượng điện thoại viên từ 5 đến 15 đều có xác suất như nhau.
+
+<MdxCode language="text" code={"In [21]:rng=np.random.default_rng(10)\nN=2000\nOperators=rng.choice(np.arange(5,16),\nN,\nreplace=True)"} />
+
+<MdxCode language="text" code={"Center=rng.choice(['A','B','C'],\nN,\nreplace=True)\nTime=rng.choice(['Morn.','After.','Even.'],\nN,\nreplace=True)\nD=pd.DataFrame({'Operators':Operators,\n'Center':pd.Categorical(Center),\n'Time':pd.Categorical(Time)})"} />
+
+Sau đó ta xây dựng một ma trận mô hình (bỏ hệ số chặn)
+
+<MdxCode language="text" code={"In [22]:model=MS(['Operators',\n'Center',\n'Time'],\nintercept=False)\nX=model.fit_transform(D)"} />
+
+Ta nên xem qua ma trận mô hình `X` để chắc chắn mình hiểu cách mã hóa các biến. Mặc định, các mức của biến phân loại được sắp xếp và như thường lệ, cột đầu tiên của mã hóa one-hot cho biến sẽ bị loại.
+
+<MdxCode language="text" code={"In [23]:X[:5]"} />
+
+<MdxCode language="table" code={"|**`Out[23]:`**|`Operators`|`Center[B]`|`Center[C]`|`Time[Even.]`|`Time[Morn.]`|\n|---|---|---|---|---|---|\n|`0`|`13`|`0.0`|`1.0`|`0.0`|`0.0`|\n|`1`|`15`|`0.0`|`0.0`|`1.0`|`0.0`|\n|`2`|`7`|`1.0`|`0.0`|`0.0`|`1.0`|\n|`3`|`7`|`0.0`|`1.0`|`0.0`|`1.0`|\n|`4`|`13`|`0.0`|`1.0`|`1.0`|`0.0`|"} />
+
+Tiếp theo, ta xác định các hệ số và hàm nguy cơ.
+
+<MdxCode language="text" code={"In [24]:true_beta=np.array([0.04,-0.3,0,0.2,-0.2])\ntrue_linpred=X.dot(true_beta)\nhazard=lambdat:1e-5*t"} />
+
+Ở đây, ta đặt hệ số gắn với `Operators` bằng 0 _._ 04; nói cách khác, khi đã biết các hiệp biến `Center` và `Time`, mỗi điện thoại viên bổ sung làm “nguy cơ” cuộc gọi được trả lời tăng theo hệ số _e_^(0)^(_._04) = 1 _._ 041. Điều này hợp lý: càng có nhiều điện thoại viên thì thời gian chờ càng ngắn! Hệ số gắn với `Center == B` là _−_ 0 _._ 3, còn `Center == A` được coi là mức nền. Điều này có nghĩa nguy cơ một cuộc gọi được trả lời ở Trung tâm B bằng 0,74 lần nguy cơ ở Trung tâm A; nói cách khác, thời gian chờ ở Trung tâm B dài hơn đôi chút.
+
+Nhắc lại từ Mục 2.3.7 việc dùng `lambda` để tạo nhanh các hàm ngắn. Ta dùng hàm `sim_time()` từ package `ISLP.survival`; `sim_time()` sử dụng mối liên hệ giữa hàm sống còn và nguy cơ tích lũy _S_(_t_) = exp(_−H_(_t_)), cùng dạng cụ thể của hàm nguy cơ tích lũy trong mô hình Cox, để mô phỏng dữ liệu dựa trên các giá trị của biến dự báo tuyến tính `true_linpred` và nguy cơ tích lũy. Ta cần cung cấp hàm nguy cơ tích lũy như sau.
+
+<MdxCode language="text" code={"In [25]:cum_hazard=lambdat:1e-5*t**2/2"} />
+
+Giờ ta có thể tạo dữ liệu theo mô hình nguy cơ tỷ lệ Cox. Ta cắt ngưỡng thời gian tối đa ở 1.000 giây để giữ thời gian chờ mô phỏng ở mức hợp lý. Hàm `sim_time()` nhận một biến dự báo tuyến tính, một hàm nguy cơ tích lũy và một bộ sinh số ngẫu nhiên.
+
+<MdxCode language="text" code={"In [26]:W=np.array([sim_time(l,cum_hazard,rng)\nforlintrue_linpred])\nD['Waittime']=np.clip(W,0,1000)"} />
+
+Bây giờ ta mô phỏng biến kiểm duyệt, với giả định 90% cuộc gọi được trả lời (`Failed==1`) trước khi khách hàng gác máy (`Failed==0`).
+
+<MdxCode language="text" code={"In [27]:D['Failed']=rng.choice([1,0],\nN,\np=[0.9,0.1])\nD[:5]"} />
+
+<MdxCode language="table" code={"|**`Out[27]:`**||`Operators `|`Center`|`Time`|`Wait time`|`Failed`|\n|---|---|---|---|---|---|---|\n||`0`|`13`|`C`|`After.`|`525.064979`|`1`|\n||`1`|`15`|`A`|`Even.`|`254.677835`|`1`|\n||`2`|`7`|`B`|`Morn.`|`487.739224`|`1`|\n||`3`|`7`|`C`|`Morn.`|`308.580292`|`1`|\n||`4`|`13`|`C`|`Even.`|`154.174608`|`1`|"} />
+
+<MdxCode language="text" code={"In [28]:D['Failed'].mean()"} />
+
+<MdxCode language="text" code={"Out[28]:0.8985"} />
+
+Bây giờ ta vẽ các đường cong sống còn Kaplan–Meier. Đầu tiên, ta phân tầng theo `Center`.
+
+<MdxCode language="text" code={"In [29]:fig,ax=subplots(figsize=(8,8))\nby_center={}\nforcenter,dfinD.groupby('Center'):\nby_center[center]=df\nkm_center=km.fit(df['Waittime'],df['Failed'])\nkm_center.plot(label='Center=%s'%center,ax=ax)\nax.set_title(\"ProbabilityofStillBeingonHold\")"} />
+
+Tiếp theo, ta phân tầng theo `Time`.
+
+<MdxCode language="text" code={"In [30]:fig,ax=subplots(figsize=(8,8))\nby_time={}\nfortime,dfinD.groupby('Time'):\nby_time[time]=df\nkm_time=km.fit(df['Waittime'],df['Failed'])\nkm_time.plot(label='Time=%s'%time,ax=ax)\nax.set_title(\"ProbabilityofStillBeingonHold\")"} />
+
+Có vẻ cuộc gọi tại Trung tâm B mất nhiều thời gian để được trả lời hơn cuộc gọi ở Trung tâm A và C. Tương tự, thời gian chờ dường như dài nhất vào buổi sáng và ngắn nhất vào buổi tối. Ta có thể dùng kiểm định log-rank thông qua hàm `multivariate_logrank_test()` để xác định các khác biệt này có ý nghĩa thống kê hay không.
+
+<MdxCode language="text" code={"In [31]:multivariate_logrank_test(D['Waittime'],\nD['Center'],\nD['Failed'])"} />
+
+<MdxCode language="text" code={"Out[31]:"} />
+
+<MdxCode language="text" code={"t_0-1\nnull_distributionchisquared\ndegrees_of_freedom2\ntest_namemultivariate_logrank_test\ntest_statisticp-log2(p)\n20.30<0.00514.65"} />
+
+Tiếp theo, ta xét ảnh hưởng của `Time`.
+
+<MdxCode language="text" code={"In [32]:multivariate_logrank_test(D['Waittime'],\nD['Time'],\nD['Failed'])"} />
+
+<MdxCode language="text" code={"Out[32]:"} />
+
+<MdxCode language="text" code={"t_0-1\nnull_distributionchisquared\ndegrees_of_freedom2\ntest_namemultivariate_logrank_test\ntest_statisticp-log2(p)\n49.90<0.00535.99"} />
+
+Tương tự trường hợp biến phân loại có 2 mức, các kết quả này gần với kiểm định tỷ số hợp lý từ mô hình nguy cơ tỷ lệ Cox. Đầu tiên, ta xem kết quả cho `Center`.
+
+<MdxCode language="text" code={"In [33]:X=MS(['Waittime',\n'Failed',\n'Center'],\nintercept=False).fit_transform(D)\nF=coxph().fit(X,'Waittime','Failed')\nF.log_likelihood_ratio_test()"} />
+
+<MdxCode language="text" code={"Out[33]:null_distributionchisquared\ndegrees_freedom2\ntest_namelog-likelihoodratiotest\ntest_statisticp-log2(p)\n20.58<0.00514.85"} />
+
+Tiếp theo, ta xem kết quả cho `Time`.
+
+<MdxCode language="text" code={"In [34]:X=MS(['Waittime',\n'Failed',\n'Time'],\nintercept=False).fit_transform(D)\nF=coxph().fit(X,'Waittime','Failed')\nF.log_likelihood_ratio_test()"} />
+
+<MdxCode language="text" code={"Out[34]:null_distributionchisquared\ndegrees_freedom2\ntest_namelog-likelihoodratiotest\ntest_statisticp-log2(p)\n48.12<0.00534.71"} />
+
+Ta thấy khác biệt giữa các trung tâm có ý nghĩa thống kê cao, khác biệt giữa các thời điểm trong ngày cũng vậy. Cuối cùng, ta khớp mô hình nguy cơ tỷ lệ Cox với dữ liệu.
+
+<MdxCode language="table" code={"|**`In [35]:`** `X = MS(D.columns,`|\n|---|\n|`intercept=False).fit_transform(D)`|\n|`fit_queuing = coxph().fit(`|\n|`X,`|\n|`'Wait time',`|\n|`'Failed')`|\n|`fit_queuing.summary[['coef', 'se(coef)', 'p']]`|"} />
+
+<MdxCode language="table" code={"|**`Out[35]:`**||`coef`|`se(coef)`|`p`|\n|---|---|---|---|---|\n||`covariate`||||\n||`Operators`|`0.043934`|`0.007520`|`5.143677e-09`|\n||`Center[B]`|`-0.236059`|`0.058113`|`4.864734e-05`|\n||`Center[C]`|`0.012231`|`0.057518`|`8.316083e-01`|\n||`Time[Even.]`|`0.268845`|`0.057797`|`3.294914e-06`|\n||`Time[Morn.]`|`-0.148215`|`0.057334`|`9.734378e-03`|"} />
+
+Các _p_-value cho Trung tâm B và buổi tối đều rất nhỏ. Cũng có thể thấy rõ rằng nguy cơ — tức khả năng tức thời một cuộc gọi được trả lời — tăng theo số điện thoại viên. Vì dữ liệu do ta tự tạo, ta biết hệ số thực của `Operators`, `Center = B`, `Center = C`, `Time = Even.` và `Time = Morn.` lần lượt là 0 _._ 04, _−_ 0 _._ 3, 0, 0 _._ 2 và _−_ 0 _._ 2. Các ước lượng hệ số từ mô hình Cox đã khớp khá chính xác.
+
+</MdxPage>

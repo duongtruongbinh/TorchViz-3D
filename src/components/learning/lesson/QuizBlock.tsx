@@ -1,4 +1,5 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
+import katex from 'katex';
 import { type DragEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import {
   DndContext,
@@ -19,7 +20,8 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { LearningLessonExtra } from '../authoredTypes';
+import type { AuthoredQuizPreview, LearningLessonExtra } from '../authoredTypes';
+import { CodeBlock } from '../code/CodeBlock';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getLearningLocalizedText as text } from '../learningText';
 import { cx, getLearningLabTheme } from '../theme';
@@ -190,6 +192,8 @@ function QuizQuestion({
         'py-1',
         quizPalette.card,
       )}>
+      {question.preview ? <QuizPreview preview={question.preview} language={language} themeClasses={themeClasses} /> : null}
+
       {promptText ? (
         <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderInlineCode(promptText, themeClasses)}</p>
       ) : null}
@@ -228,6 +232,7 @@ function QuizQuestion({
                   index={orderIds.indexOf(activeId)}
                   label={text(activeOption.label, language)}
                   quizPalette={quizPalette}
+                  themeClasses={themeClasses}
                 />
               );
             })() : null}
@@ -240,6 +245,7 @@ function QuizQuestion({
           language={language}
           question={question}
           quizPalette={quizPalette}
+          themeClasses={themeClasses}
           onAssign={assignCategoryOption}
         />
       ) : (
@@ -348,7 +354,7 @@ function SortableOrderRow({
       <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-black tabular-nums', quizPalette.orderNumber)}>
         {index + 1}
       </span>
-      <span className="min-w-0 flex-1">{label}</span>
+      <span className="min-w-0 flex-1">{renderInlineCode(label, themeClasses)}</span>
       <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
     </div>
   );
@@ -358,15 +364,17 @@ function OrderRowOverlay({
   index,
   label,
   quizPalette,
+  themeClasses,
 }: {
   index: number;
   label: string;
   quizPalette: QuizPalette;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   return (
     <div
       className={cx(
-        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-xl',
+        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6',
         quizPalette.orderRow,
       )}
       style={{ transform: 'scale(1.02)' }}
@@ -374,16 +382,84 @@ function OrderRowOverlay({
       <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-black tabular-nums', quizPalette.orderNumber)}>
         {index + 1}
       </span>
-      <span className="min-w-0 flex-1">{label}</span>
+      <span className="min-w-0 flex-1">{renderInlineCode(label, themeClasses)}</span>
       <GripVertical className={cx('h-4 w-4 shrink-0', quizPalette.dragIcon)} strokeWidth={2.2} aria-hidden="true" />
     </div>
   );
 }
 
+function QuizPreview({ preview, language, themeClasses }: {
+  preview: AuthoredQuizPreview;
+  language: Language;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const caption = preview.caption ? text(preview.caption, language) : '';
+  const isLight = themeClasses.isLight;
+  const columns = preview.columns ?? [];
+  const rows = preview.rows ?? [];
+  const hasTable = columns.length > 0 && rows.length > 0;
+  return (
+    <div className="mt-4 grid gap-3">
+      {preview.codeBlock ? <CodeBlock code={preview.codeBlock} themeClasses={themeClasses} /> : null}
+      {hasTable ? <figure
+        aria-label={caption || 'Dữ liệu của câu hỏi'}
+        className={cx(
+          'overflow-hidden rounded-lg border',
+          isLight ? 'border-[#205089]/14 bg-white' : 'border-[#A8B8C8]/20 bg-[#121A24]/58',
+        )}
+      >
+        {caption || preview.code ? (
+          <figcaption className={cx(
+            'flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2',
+            isLight ? 'border-[#205089]/10 bg-[#EAF1F7]/70' : 'border-[#A8B8C8]/14 bg-[#A8B8C8]/6',
+          )}>
+            {caption ? <span className={cx('text-xs font-black leading-5', isLight ? 'text-[#254F70]' : 'text-[#D7EAFE]')}>{caption}</span> : null}
+            {preview.code ? (
+              <code className={cx('rounded px-1.5 py-0.5 font-mono text-[0.8rem] font-semibold', isLight ? 'bg-white text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{preview.code}</code>
+            ) : null}
+          </figcaption>
+        ) : null}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left text-xs font-semibold">
+            <thead>
+              <tr>
+                {columns.map((column) => (
+                  <th key={column} scope="col" className={cx('whitespace-nowrap border-b px-3 py-2 font-black', isLight ? 'border-[#205089]/12 bg-[#F2F6FA] text-[#205089]' : 'border-[#A8B8C8]/16 bg-[#A8B8C8]/8 text-[#D7EAFE]')}>{column}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <td key={cellIndex} className={cx('whitespace-nowrap border-b px-3 py-2 font-mono', isLight ? 'border-[#205089]/8 text-[#172A43]' : 'border-[#A8B8C8]/10 text-[#F2F6FA]/84', rowIndex % 2 ? (isLight ? 'bg-[#F8FAFC]' : 'bg-[#A8B8C8]/4') : '')}>{String(cell)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </figure> : null}
+    </div>
+  );
+}
+
 function renderInlineCode(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
-  return value.split(/(`[^`]+`|“[^”]+”)/g).filter(Boolean).map((part, index) => {
+  return value.split(/(\$[^$\n]+\$|`[^`]+`|“[^”]+”)/g).filter(Boolean).map((part, index) => {
+    const isMath = part.startsWith('$') && part.endsWith('$');
     const isBacktickCode = part.startsWith('`') && part.endsWith('`');
     const isQuotedCode = part.startsWith('“') && part.endsWith('”');
+    if (isMath) {
+      const formula = part.slice(1, -1);
+      return (
+        <span
+          key={`${index}-${part}`}
+          aria-label={formula}
+          className={cx('inline-block max-w-full px-0.5 align-middle', themeClasses.titleText)}
+          dangerouslySetInnerHTML={{ __html: katex.renderToString(formula, { throwOnError: false }) }}
+        />
+      );
+    }
     if (isBacktickCode || isQuotedCode) {
       return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
     }
@@ -397,6 +473,7 @@ function CategorizeQuestion({
   language,
   question,
   quizPalette,
+  themeClasses,
   onAssign,
 }: {
   assignments: Record<string, string>;
@@ -404,6 +481,7 @@ function CategorizeQuestion({
   language: Language;
   question: Extract<LearningLessonExtra, { kind: 'quiz' }>['questions'][number];
   quizPalette: QuizPalette;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
   onAssign: (optionId: string, categoryId: string | null) => void;
 }) {
   const strings = getStrings(language).learningLab;
@@ -435,7 +513,7 @@ function CategorizeQuestion({
       >
         {question.hideUnsortedLabel ? null : (
           <div className={cx('text-xs font-black uppercase tracking-wide', quizPalette.categoryCaption)}>
-            {unsortedLabel}
+            {renderInlineCode(unsortedLabel, themeClasses)}
           </div>
         )}
         <div className="flex flex-wrap gap-2">
@@ -446,10 +524,12 @@ function CategorizeQuestion({
               label={text(option.label, language)}
               optionId={option.id}
               quizPalette={quizPalette}
+              themeClasses={themeClasses}
+              onActivate={() => onAssign(option.id, categories[0]?.id ?? null)}
             />
           )) : (
             <span className={cx('text-sm font-semibold leading-6', quizPalette.categoryCaption)}>
-              {completeLabel}
+              {renderInlineCode(completeLabel, themeClasses)}
             </span>
           )}
         </div>
@@ -473,7 +553,7 @@ function CategorizeQuestion({
               onDrop={(event) => handleDrop(event, category.id)}
             >
               <div className={cx('text-sm font-black leading-6', quizPalette.categoryTitle)}>
-                {text(category.label, language)}
+                {renderInlineCode(text(category.label, language), themeClasses)}
               </div>
               <div className="flex flex-wrap gap-2">
                 {categoryOptions.map((option) => (
@@ -483,6 +563,11 @@ function CategorizeQuestion({
                     label={text(option.label, language)}
                     optionId={option.id}
                     quizPalette={quizPalette}
+                    themeClasses={themeClasses}
+                    onActivate={() => {
+                      const currentCategoryIndex = categories.findIndex((item) => item.id === category.id);
+                      onAssign(option.id, categories[currentCategoryIndex + 1]?.id ?? null);
+                    }}
                   />
                 ))}
               </div>
@@ -499,26 +584,33 @@ function TokenChip({
   label,
   optionId,
   quizPalette,
+  themeClasses,
+  onActivate,
 }: {
   isIncorrect: boolean;
   label: string;
   optionId: string;
   quizPalette: QuizPalette;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+  onActivate: () => void;
 }) {
   return (
-    <span
+    <button
+      type="button"
       draggable
+      onClick={onActivate}
       onDragStart={(event) => {
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/plain', optionId);
       }}
       className={cx(
-        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-sm font-black leading-6 shadow-sm active:cursor-grabbing',
+        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-left text-sm font-black leading-6 shadow-sm active:cursor-grabbing',
+        themeClasses.focusRing,
         isIncorrect ? quizPalette.tokenChipIncorrect : quizPalette.tokenChip,
       )}
     >
-      {label}
-    </span>
+      {renderInlineCode(label, themeClasses)}
+    </button>
   );
 }
 
@@ -534,7 +626,7 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
       optionSelected: 'border-[#A8B8C8]/28 bg-[#D7DCE2] text-[#121A24]',
       optionDisabled: 'border-[#A8B8C8]/12 bg-[#A8B8C8]/6 text-[#F2F6FA]/35',
       optionIdle: 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
-      optionMarkerSelected: 'text-[#D7DCE2]',
+      optionMarkerSelected: 'text-[#121A24]',
       optionMarkerIdle: 'text-[#D7EAFE]',
       orderRow: 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
       orderRowDragging: 'opacity-55',
@@ -559,12 +651,12 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
     prompt: 'text-[#2F78B7]',
     orderNumber: 'border-[#2F6B55]/18 bg-[#DDEFE7] text-[#1F5A46]',
     dragIcon: 'text-[#385F7A]',
-    optionSelected: 'border-[#2F6B55]/22 bg-[#EEF7F2] text-[#1F5A46] shadow-[0_6px_16px_rgba(47,107,85,0.08)]',
+    optionSelected: 'border-[#2F6B55]/22 bg-[#EEF7F2] text-[#1F5A46]',
     optionDisabled: 'border-[#2F6B55]/10 bg-[#DDEFE7]/30 text-[#1F5A46]/35 shadow-none',
-    optionIdle: 'border-[#2F6B55]/14 bg-white text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)] hover:border-[#2F6B55]/24 hover:bg-[#F6FAF8]',
+    optionIdle: 'border-[#2F6B55]/14 bg-white text-[#1F5A46] hover:border-[#2F6B55]/24 hover:bg-[#F6FAF8]',
     optionMarkerSelected: 'text-[#1F5A46]',
     optionMarkerIdle: 'text-[#1F5A46]',
-    orderRow: 'border-[#2F6B55]/14 bg-white text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)] hover:border-[#2F6B55]/28 hover:bg-[#F6FAF8]',
+    orderRow: 'border-[#2F6B55]/14 bg-white text-[#1F5A46] hover:border-[#2F6B55]/28 hover:bg-[#F6FAF8]',
     orderRowDragging: 'opacity-55',
     dropLine: 'bg-[#6FAF93]',
     categoryBank: 'border-[#2F6B55]/16 bg-[#F6FAF8]',
@@ -572,9 +664,9 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
     categoryZone: 'border-[#2F6B55]/16 bg-white hover:bg-[#F6FAF8]',
     categoryZoneIncorrect: 'border-[#C45151]/42 bg-[#FBECEC]',
     categoryTitle: 'text-[#1F5A46]',
-    tokenChip: 'border-[#2F6B55]/14 bg-[#EEF7F2] text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)]',
-    tokenChipIncorrect: 'border-[#C45151]/48 bg-[#FBECEC] text-[#8C3333] shadow-[0_4px_12px_rgba(196,81,81,0.08)]',
-    checkButton: 'border border-[#CBD5E1] bg-[#E2E8F0] text-[#172A43] shadow-[0_8px_18px_rgba(15,23,42,0.10)] hover:bg-[#CBD5E1]',
+    tokenChip: 'border-[#2F6B55]/14 bg-[#EEF7F2] text-[#1F5A46]',
+    tokenChipIncorrect: 'border-[#C45151]/48 bg-[#FBECEC] text-[#8C3333]',
+    checkButton: 'bg-[#205089] text-white hover:bg-[#173F6D]',
     disabledButton: 'bg-[#B8C8DA]/12 text-[#64748B]/40 shadow-none',
     resetButton: 'bg-[#2F6B55]/8 text-[#1F5A46] hover:bg-[#2F6B55]/12',
     feedbackCorrect: 'border-[#1F6F48]/18 bg-[#E8F7EE] text-[#1F6F48]',

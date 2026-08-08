@@ -1,0 +1,31 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-basis-functions",
+  "locale": "vi",
+  "title": "Hàm cơ sở",
+  "headings": [
+    "Hàm cơ sở"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Hàm cơ sở"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Hàm cơ sở
+
+Mô hình hồi quy đa thức và hồi quy hằng số từng đoạn thực ra là các trường hợp đặc biệt của cách tiếp cận dùng _hàm cơ sở_ (basis function). Ý tưởng là chuẩn bị một họ
+
+các hàm hoặc phép biến đổi có thể áp dụng cho biến _X_: _b_ 1( _X_ ) _, b_ 2( _X_ ) _, . . . , bK_ ( _X_ ). Thay vì khớp mô hình tuyến tính theo _X_, ta khớp mô hình
+
+Lưu ý rằng các hàm cơ sở _b_ 1( _·_ ) _, b_ 2( _·_ ) _, . . . , bK_ ( _·_ ) là cố định và đã biết. (Nói cách khác, ta chọn các hàm này từ trước.) Với hồi quy đa thức, các hàm cơ sở là _bj_ ( _xi_ ) = _x_^(_j_) _i_^(,cònvớihàmhằngsốtừngđoạn), chúng là _bj_ ( _xi_ ) = _I_ ( _cj ≤ xi &lt; cj_ +1). Ta có thể xem (7.7) là một mô hình tuyến tính tiêu chuẩn với các biến dự báo _b_ 1( _xi_ ) _, b_ 2( _xi_ ) _, . . . , bK_ ( _xi_ ). Vì vậy, ta có thể dùng bình phương tối thiểu để ước lượng các hệ số hồi quy chưa biết trong (7.7). Quan trọng hơn, điều này có nghĩa là tất cả công cụ suy luận cho mô hình tuyến tính được trình bày trong Chương 3—như sai số chuẩn của các ước lượng hệ số và thống kê F cho mức ý nghĩa tổng thể của mô hình—đều dùng được trong bối cảnh này.
+
+Đến đây ta đã xem xét hàm đa thức và hàm hằng số từng đoạn làm hàm cơ sở; tuy nhiên còn nhiều lựa chọn khác. Chẳng hạn, ta có thể dùng wavelet hoặc chuỗi Fourier để xây dựng các hàm cơ sở. Trong phần tiếp theo, ta khảo sát một lựa chọn rất phổ biến: _spline hồi quy_.
+
+</MdxPage>

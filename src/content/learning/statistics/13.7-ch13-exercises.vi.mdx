@@ -1,0 +1,118 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch13-exercises",
+  "locale": "vi",
+  "title": "Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Thực hành"
+  ],
+  "keywords": [
+    "statistics",
+    "học thống kê",
+    "ISLP",
+    "Kiểm định nhiều giả thuyết",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Giả sử ta kiểm định _m_ giả thuyết không và tất cả đều đúng. Ta kiểm soát sai số Loại I của mỗi giả thuyết không ở mức _α_. Hãy giải thích câu trả lời cho từng phần.
+
+   - (a) Tổng cộng, ta kỳ vọng mắc bao nhiêu sai số Loại I?
+
+   - (b) Giả sử _m_ kiểm định được thực hiện là độc lập. Tỷ lệ lỗi theo họ (family-wise error rate, FWER) gắn với _m_ kiểm định này là bao nhiêu? _Gợi ý: Nếu hai biến cố A và B độc lập thì_ Pr( _A ∩ B_ ) = Pr( _A_ ) Pr( _B_ ) _._
+
+   - (c) Giả sử _m_ = 2 và các giá trị _p_ của hai kiểm định tương quan dương, nghĩa là khi một giá trị nhỏ thì giá trị kia cũng có xu hướng nhỏ, còn khi một giá trị lớn thì giá trị kia cũng có xu hướng lớn. Xét về định tính, FWER của _m_ = 2 kiểm định này khác câu trả lời trong (b) với _m_ = 2 như thế nào?
+
+_Gợi ý: Trước hết, giả sử hai giá trị p tương quan hoàn hảo._
+
+- (d) Vẫn giả sử _m_ = 2, nhưng bây giờ các giá trị _p_ của hai kiểm định tương quan âm, nghĩa là nếu một giá trị lớn thì giá trị kia có xu hướng nhỏ. Xét về định tính, FWER của _m_ = 2 kiểm định này khác câu trả lời trong (b) với _m_ = 2 như thế nào?
+
+_Gợi ý: Trước hết, giả sử bất cứ khi nào một giá trị p nhỏ hơn α thì giá trị kia lớn hơn α. Nói cách khác, ta không bao giờ có thể bác bỏ cả hai giả thuyết không._
+
+2. Giả sử ta kiểm định _m_ giả thuyết và kiểm soát sai số Loại I của mỗi giả thuyết ở mức _α_. Giả sử mọi giá trị _m p_ đều độc lập và mọi giả thuyết không đều đúng.
+
+   - (a) Đặt biến ngẫu nhiên _Aj_ bằng 1 nếu giả thuyết không thứ _j_ bị bác bỏ và bằng 0 trong trường hợp ngược lại. Phân phối của _Aj_ là gì?
+
+   - (b) Phân phối của^(�)^(_m_) _j_ =1^(_Aj_?) là gì?
+
+   - (c) Độ lệch chuẩn của số sai số Loại I mà ta sẽ mắc là bao nhiêu?
+
+3. Giả sử ta kiểm định _m_ giả thuyết không và kiểm soát sai số Loại I của giả thuyết không thứ _j_ ở mức _αj_, với _j_ = 1 _, . . . , m_. Hãy lập luận rằng FWER không lớn hơn^(�)^(_m_) _j_ =1^(_αj_.)
+
+<MdxCode language="table" code={"|Giả thuyết không|Giá trị _p_|\n|---|---|\n|_H_01|0_._0011|\n|_H_02|0_._031|\n|_H_03|0_._017|\n|_H_04|0_._32|\n|_H_05|0_._11|\n|_H_06|0_._90|\n|_H_07|0_._07|\n|_H_08|0_._006|\n|_H_09|0_._004|\n|_H_10|0_._0009|"} />
+
+**BẢNG 13.4.** _Các giá trị p của Bài tập 4._
+
+4. Giả sử ta kiểm định _m_ = 10 giả thuyết và thu được các giá trị _p_ trong Bảng 13.4.
+
+   - (a) Giả sử ta muốn kiểm soát sai số Loại I của mỗi giả thuyết không ở mức _α_ = 0 _._ 05. Những giả thuyết không nào sẽ bị bác bỏ?
+
+   - (b) Bây giờ giả sử ta muốn kiểm soát FWER ở mức _α_ = 0 _._ 05. Những giả thuyết không nào sẽ bị bác bỏ? Hãy giải thích.
+
+   - (c) Bây giờ giả sử ta muốn kiểm soát FDR ở mức _q_ = 0 _._ 05. Những giả thuyết không nào sẽ bị bác bỏ? Hãy giải thích.
+
+   - (d) Bây giờ giả sử ta muốn kiểm soát FDR ở mức _q_ = 0 _._ 2. Những giả thuyết không nào sẽ bị bác bỏ? Hãy giải thích.
+
+   - (e) Trong số các giả thuyết không bị bác bỏ ở mức FDR _q_ = 0 _._ 2, có khoảng bao nhiêu false positive? Hãy giải thích.
+
+5. Trong bài này, bạn sẽ tự tạo các giá trị _p_ dẫn đến một số lượng bác bỏ nhất định khi dùng quy trình Bonferroni và Holm.
+
+   - (a) Đưa ra một ví dụ gồm năm giá trị _p_ (tức năm số từ 0 đến 1 mà trong bài này ta diễn giải là các giá trị _p_) sao cho cả phương pháp Bonferroni và phương pháp Holm
+
+bác bỏ đúng một giả thuyết không khi kiểm soát FWER ở mức 0 _._ 1.
+
+   - (b) Bây giờ, đưa ra một ví dụ gồm năm giá trị _p_ sao cho ở mức 0 _._ 1, Bonferroni bác bỏ một giả thuyết không còn Holm bác bỏ nhiều hơn một giả thuyết không.
+
+6. Với mỗi ô trong ba ô của Hình 13.3, hãy trả lời các câu hỏi sau:
+
+   - (a) Có bao nhiêu false positive, false negative, true positive, true negative, sai số Loại I và sai số Loại II khi áp dụng quy trình Bonferroni để kiểm soát FWER ở mức _α_ = 0 _._ 05?
+
+   - (b) Có bao nhiêu false positive, false negative, true positive, true negative, sai số Loại I và sai số Loại II khi áp dụng quy trình Holm để kiểm soát FWER ở mức _α_ = 0 _._ 05?
+
+   - (c) Tỷ lệ phát hiện sai khi dùng quy trình Bonferroni để kiểm soát FWER ở mức _α_ = 0 _._ 05 là bao nhiêu?
+
+   - (d) Tỷ lệ phát hiện sai khi dùng quy trình Holm để kiểm soát FWER ở mức _α_ = 0 _._ 05 là bao nhiêu?
+
+   - (e) Câu trả lời cho (a) và (c) thay đổi thế nào nếu thay vào đó ta dùng quy trình Bonferroni để kiểm soát FWER ở mức _α_ = 0 _._ 001?
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thực hành
+
+7. Bài này sử dụng tập dữ liệu `Carseats` trong package `ISLP`.
+
+   - (a) Với mỗi biến định lượng trong tập dữ liệu ngoại trừ `Sales`, hãy khớp một mô hình tuyến tính để dự đoán `Sales` bằng biến định lượng đó. Báo cáo các giá trị _p_ gắn với hệ số của các biến. Nghĩa là, với mỗi mô hình dạng _Y_ = _β_ 0 + _β_ 1 _X_ + _ϵ_, hãy báo cáo giá trị _p_ gắn với hệ số _β_ 1. Ở đây, _Y_ biểu diễn `Sales` và _X_ biểu diễn một trong các biến định lượng khác.
+
+   - (b) Giả sử ta kiểm soát sai số Loại I ở mức _α_ = 0 _._ 05 cho các giá trị _p_ thu được trong (a). Những giả thuyết không nào bị bác bỏ?
+
+   - (c) Bây giờ giả sử ta kiểm soát FWER ở mức 0 _._ 05 cho các giá trị _p_. Những giả thuyết không nào bị bác bỏ?
+
+   - (d) Cuối cùng, giả sử ta kiểm soát FDR ở mức 0 _._ 2 cho các giá trị _p_. Những giả thuyết không nào bị bác bỏ?
+
+8. Trong bài này, ta sẽ mô phỏng dữ liệu của _m_ = 100 nhà quản lý quỹ.
+
+<MdxCode language="text" code={"rng=np.random.default_rng(1)\nn,m=20,100\nX=rng.normal(size=(n,m))"} />
+
+Các dữ liệu này biểu diễn lợi suất phần trăm của từng nhà quản lý quỹ trong mỗi tháng của _n_ = 20 tháng. Ta muốn kiểm định giả thuyết không rằng lợi suất phần trăm của mỗi nhà quản lý quỹ có trung bình tổng thể bằng không. Lưu ý dữ liệu được mô phỏng sao cho lợi suất phần trăm của từng nhà quản lý quỹ thực sự có trung bình tổng thể bằng không; nói cách khác, cả _m_ giả thuyết không đều đúng.
+
+- (a) Thực hiện kiểm định _t_ một mẫu cho từng nhà quản lý quỹ và vẽ histogram của các giá trị _p_ thu được.
+
+- (b) Nếu kiểm soát sai số Loại I của mỗi giả thuyết không ở mức _α_ = 0 _._ 05, ta bác bỏ bao nhiêu giả thuyết không?
+
+- (c) Nếu kiểm soát FWER ở mức 0 _._ 05, ta bác bỏ bao nhiêu giả thuyết không?
+
+- (d) Nếu kiểm soát FDR ở mức 0 _._ 05, ta bác bỏ bao nhiêu giả thuyết không?
+
+- (e) Bây giờ giả sử ta “cherry-pick” 10 nhà quản lý quỹ có hiệu năng tốt nhất trong dữ liệu. Nếu chỉ kiểm soát FWER cho 10 nhà quản lý này ở mức 0 _._ 05, ta bác bỏ bao nhiêu giả thuyết không? Nếu chỉ kiểm soát FDR cho 10 nhà quản lý này ở mức 0 _._ 05, ta bác bỏ bao nhiêu giả thuyết không?
+
+- (f) Giải thích vì sao phân tích trong (e) gây hiểu nhầm. _Gợi ý: Các phương pháp chuẩn để kiểm soát FWER và FDR giả định rằng_ tất cả _giả thuyết không được kiểm định đều đã điều chỉnh cho tính đa kiểm định và không có việc “cherry-picking” các giá trị p nhỏ nhất. Điều gì sai khi ta cherry-pick?_
+
+</MdxPage>

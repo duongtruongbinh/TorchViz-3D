@@ -2,7 +2,7 @@
 title: Linear Algebra Iteration - Phase 1 - Vector Foundations
 status: active
 created: 2026-07-14
-author: Codex
+author: hienlong
 task: "Author content for the first 7 lessons of the Linear Algebra track"
 ---
 

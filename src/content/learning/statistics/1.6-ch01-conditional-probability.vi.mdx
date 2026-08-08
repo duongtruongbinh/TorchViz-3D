@@ -1,0 +1,238 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-conditional-probability",
+  "locale": "vi",
+  "title": "1.6 Thông tin làm xác suất thay đổi",
+  "headings": [
+    "Mục tiêu học tập",
+    "Hai người, một đồng xu",
+    "Xác suất trong một nhóm nhỏ hơn",
+    "Công thức xác suất có điều kiện",
+    "Quy tắc nhân",
+    "Độc lập và phụ thuộc",
+    "Chiều của điều kiện",
+    "Tính bằng pandas",
+    "Kiến thức cần nắm"
+  ],
+  "keywords": [
+    "xác suất có điều kiện",
+    "quy tắc nhân",
+    "độc lập",
+    "phụ thuộc",
+    "bảng chéo",
+    "python",
+    "pandas"
+  ],
+  "pageCount": 9
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Giải thích vì sao hai người có thông tin khác nhau có thể gán xác suất khác nhau cho cùng một mệnh đề mà không làm thay đổi trạng thái vật lý của sự vật.
+- Tính **xác suất có điều kiện** (*conditional probability*) <MdxFormula inline formula={"P(A\\mid B)"} /> khi không gian mẫu bị thu hẹp bởi thông tin mới.
+- Áp dụng **quy tắc nhân** (*multiplication rule*) để tính xác suất giao của hai biến cố.
+- Phân biệt biến cố **độc lập** (*independent*) và **phụ thuộc** (*dependent*).
+- Tránh nhầm lẫn giữa <MdxFormula inline formula={"P(A\\mid B)"} /> và <MdxFormula inline formula={"P(B\\mid A)"} />.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hai người, một đồng xu
+
+Người dẫn lén nhìn kết quả dưới bàn tay nhưng không nói cho bạn. Gọi <MdxFormula inline formula={"N"} /> là biến cố “mặt ngửa” và <MdxFormula inline formula={"I_0"} /> là thông tin ban đầu rằng đồng xu được tung theo mô hình cân đối.
+
+Với bạn:
+
+<MdxFormula formula={"P(N\\mid I_0)=\\frac12"} />
+
+Người dẫn có thêm thông tin <MdxFormula inline formula={"I_1"} /> chứa kết quả vừa nhìn thấy, nên:
+
+<MdxFormula formula={"P(N\\mid I_1)\\in\\{0,1\\}"} />
+
+Hai người đang nói về cùng một đồng xu, nhưng điều kiện sau dấu <MdxFormula inline formula={"\\mid"} /> khác nhau. Đây là điểm nối từ câu chuyện sang **xác suất có điều kiện**: ta không đặt lại thế giới; ta cập nhật không gian đang xét bằng thông tin mới.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Xác suất trong một nhóm nhỏ hơn
+
+Một lớp có 10 học sinh với kết quả giữa kỳ như sau. Đặt <MdxFormula inline formula={"A"} /> là biến cố “Đậu” và <MdxFormula inline formula={"B"} /> là biến cố “Có học bài”.
+
+<MdxTable
+  headers={["", "Đậu", "Rớt", "Tổng"]}
+  rows={[
+    ["Có học bài", 4, 1, 5],
+    ["Không học bài", 2, 3, 5],
+    ["Tổng", 6, 4, 10]
+  ]}
+/>
+
+Nếu chọn ngẫu nhiên một học sinh trong cả lớp, xác suất học sinh đó đậu là:
+
+<MdxFormula formula={"P(A)=\\frac{6}{10}=0.6"} />
+
+Nhưng nếu đã biết học sinh đó **có học bài**, ta chỉ xét nhóm 5 học sinh ở hàng đầu tiên. Trong nhóm này có 4 học sinh đậu:
+
+<MdxFormula formula={"P(A\\mid B)=\\frac{4}{5}=0.8"} />
+
+Thông tin “có học bài” đã thu hẹp nhóm đang xét, nên xác suất thay đổi từ <MdxFormula inline formula={"0.6"} /> thành <MdxFormula inline formula={"0.8"} />.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Công thức xác suất có điều kiện
+
+Khi biết <MdxFormula inline formula={"B"} /> đúng, ta xem <MdxFormula inline formula={"B"} /> như không gian mẫu mới.
+
+Trong không gian mới đó, phần thuận lợi cho <MdxFormula inline formula={"A"} /> là phần giao <MdxFormula inline formula={"A\\cap B"} />.
+
+<ProbabilityChapterVisual kind="conditional" />
+
+Với <MdxFormula inline formula={"P(B)>0"} />, **xác suất có điều kiện** (*conditional probability*) được định nghĩa bởi:
+
+<MdxFormula formula={"P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}"} />
+
+Dấu gạch đứng được đọc là “với điều kiện”. Ta có thể tính xác suất này từ một mô hình hoặc từ dữ liệu phù hợp; không bắt buộc biến cố phải được quan sát trực tiếp trong một thí nghiệm đang diễn ra.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Quy tắc nhân
+
+Đôi khi ta cần xác suất để cả <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> cùng xảy ra, nhưng dữ liệu thuận tiện hơn lại là <MdxFormula inline formula={"P(B)"} /> và <MdxFormula inline formula={"P(A\\mid B)"} />.
+
+Từ định nghĩa xác suất có điều kiện, nhân hai vế với <MdxFormula inline formula={"P(B)"} /> cho ta **quy tắc nhân** (*multiplication rule*):
+
+<MdxFormula formula={"P(A\\cap B)=P(B)P(A\\mid B)"} />
+
+Do <MdxFormula inline formula={"A\\cap B=B\\cap A"} />, ta cũng có thể đổi chiều:
+
+<MdxFormula formula={"P(A\\cap B)=P(A)P(B\\mid A)"} />
+
+Hai biểu thức cho cùng một kết quả. Ta chọn chiều có các xác suất dễ xác định hơn.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Độc lập và phụ thuộc
+
+Một hộp có 2 viên bi trắng và 2 viên bi đen. Ta rút hai lần và muốn cả hai lần đều được bi trắng.
+
+Đặt <MdxFormula inline formula={"W_1"} /> và <MdxFormula inline formula={"W_2"} /> là biến cố rút được bi trắng ở lần thứ nhất và thứ hai. Nếu hoàn lại viên đầu trước lần rút thứ hai, thành phần hộp không đổi:
+
+<MdxFormula formula={"P(W_1\\cap W_2)=\\frac{2}{4}\\times\\frac{2}{4}=\\frac{1}{4}"} />
+
+Nếu không hoàn lại, sau khi đã rút một viên trắng thì chỉ còn 1 viên trắng trong 3 viên:
+
+<MdxFormula formula={"P(W_1\\cap W_2)=\\frac{2}{4}\\times\\frac{1}{3}=\\frac{1}{6}"} />
+
+Hai biến cố <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /> **độc lập** (*independent*) khi:
+
+<MdxFormula formula={"P(A\\cap B)=P(A)P(B)"} />
+
+Khi <MdxFormula inline formula={"P(A)>0"} />, điều này tương đương với <MdxFormula inline formula={"P(B\\mid A)=P(B)"} />: biết <MdxFormula inline formula={"A"} /> xảy ra không làm thay đổi xác suất của <MdxFormula inline formula={"B"} />. Nếu không thỏa mãn, hai biến cố được gọi là **phụ thuộc** (*dependent*).
+
+Rút có hoàn lại tạo hai bước độc lập trong mô hình này; rút không hoàn lại tạo hai bước phụ thuộc.
+
+**Đừng nhầm độc lập với xung khắc:** nếu hai biến cố có xác suất dương và xung khắc, việc một biến cố xảy ra làm biến cố kia không thể xảy ra. Vì vậy chúng **phụ thuộc**, không độc lập.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Chiều của điều kiện
+
+Quay lại bảng kết quả của lớp học:
+
+- Trong 5 học sinh có học bài, 4 em đậu:
+
+<MdxFormula formula={"P(A\\mid B)=\\frac{4}{5}=0.8"} />
+
+- Trong 6 học sinh đậu, 4 em có học bài:
+
+<MdxFormula formula={"P(B\\mid A)=\\frac{4}{6}=\\frac{2}{3}\\approx 0.67"} />
+
+Hai câu hỏi dùng cùng 4 học sinh ở phần giao, nhưng mẫu số khác nhau vì điều kiện sau dấu <MdxFormula inline formula={"\\mid"} /> xác định nhóm đang xét.
+
+<LessonNote label="Hiểu lầm thường gặp" tone="warning">
+
+Nói chung, <MdxFormula inline formula={"P(A\\mid B) \\ne P(B\\mid A)"} />. Điều kiện sau dấu <MdxFormula inline formula={"\\mid"} /> quyết định nhóm làm mẫu số. Ví dụ, <MdxFormula inline formula={"P(\\text{Sốt}\\mid\\text{Cúm})"} /> có thể cao nhưng <MdxFormula inline formula={"P(\\text{Cúm}\\mid\\text{Sốt})"} /> thấp hơn vì sốt có nhiều nguyên nhân.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Tính bằng pandas
+
+Thư viện `pandas` giúp tính nhanh xác suất có điều kiện từ bảng chéo (*contingency table / crosstab*):
+
+```python
+import pandas as pd
+
+# Tạo dữ liệu 10 học sinh
+df = pd.DataFrame({
+    'Học_bài': ['Có', 'Có', 'Có', 'Có', 'Có', 'Không', 'Không', 'Không', 'Không', 'Không'],
+    'Kết_quả': ['Đậu', 'Đậu', 'Đậu', 'Đậu', 'Rớt', 'Đậu', 'Đậu', 'Rớt', 'Rớt', 'Rớt']
+})
+
+# Bảng chéo tần số
+ct = pd.crosstab(df['Học_bài'], df['Kết_quả'])
+print("Bảng chéo tần số:\n", ct)
+
+# Xác suất có điều kiện theo hàng: P(Kết_quả | Học_bài)
+p_result_given_study = pd.crosstab(df['Học_bài'], df['Kết_quả'], normalize='index')
+print("\nP(Kết_quả | Học_bài):\n", p_result_given_study)
+```
+
+```output
+Bảng chéo tần số:
+ Kết_quả  Rớt  Đậu
+Học_bài
+Không      3    2
+Có         1    4
+
+P(Kết_quả | Học_bài):
+ Kết_quả  Rớt  Đậu
+Học_bài
+Không    0.6  0.4
+Có       0.2  0.8
+```
+
+<LessonNote label="Nhận xét kết quả">
+
+- Tham số `normalize='index'` chia mỗi hàng cho tổng của hàng đó, tính trực tiếp xác suất có điều kiện theo từng nhóm `Học_bài`.
+- Ta thấy ngay <MdxFormula inline formula={"P(\\text{Đậu} \\mid \\text{Có học}) = 0.8"} /> và <MdxFormula inline formula={"P(\\text{Đậu} \\mid \\text{Không học}) = 0.4"} />.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 1.6">
+
+- **Thu hẹp nhóm đang xét**: <MdxFormula inline formula={"P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}"} /> với <MdxFormula inline formula={"P(B)>0"} />.
+- **Tính xác suất hai bước**: <MdxFormula inline formula={"P(A\\cap B)=P(B)P(A\\mid B)=P(A)P(B\\mid A)"} />.
+- **Nhận biết độc lập**: Biết <MdxFormula inline formula={"B"} /> không làm đổi xác suất của <MdxFormula inline formula={"A"} />, nên <MdxFormula inline formula={"P(A\\mid B)=P(A)"} />.
+- **Đọc đúng chiều**: Nói chung <MdxFormula inline formula={"P(A\\mid B)\\ne P(B\\mid A)"} />; biến cố sau dấu <MdxFormula inline formula={"\\mid"} /> quyết định mẫu số.
+- **Trong pandas**: `pd.crosstab(..., normalize='index')` cho tỷ lệ có điều kiện theo từng hàng.
+
+</LessonNote>
+
+Thông tin có thể đến từ nhiều nguyên nhân nền khác nhau. Lesson tiếp theo sẽ chia những nguyên nhân đó thành các nhánh, tính đóng góp của từng nhánh và cộng chúng lại — đúng phần mẫu số mà Bayes cần.
+
+</MdxPage>

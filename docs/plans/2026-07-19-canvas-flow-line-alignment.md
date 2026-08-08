@@ -3,7 +3,7 @@ title: Fix canvas flow-line alignment
 status: done
 created: 2026-07-19T20:23:27+07:00
 updated: 2026-07-19T22:03:05+07:00
-author: Codex
+author: duongtruongbinh
 task: "Remove the apparent connector tails in the static 3D canvas and Forward Pass, and correct route endpoints."
 supersedes:
   - ./2026-07-02-architecture-priority-refactors.md

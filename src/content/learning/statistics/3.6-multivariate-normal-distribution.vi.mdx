@@ -1,0 +1,630 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'multivariate-normal-distribution',
+  locale: 'vi',
+  title: '3.7 Phân phối chuẩn nhiều chiều (Multivariate Normal Distribution)',
+  headings: [
+    'Mục tiêu học tập',
+    'Từ bell curve một chiều sang nhiều chiều',
+    'Ký hiệu của phân phối chuẩn nhiều chiều',
+    'Hàm mật độ xác suất',
+    'Mean vector quyết định tâm',
+    'Covariance matrix quyết định hình dạng',
+    'Contour có dạng ellipse',
+    'Thay đổi variance theo từng chiều',
+    'Covariance làm ellipse nghiêng',
+    'Eigenvectors và eigenvalues',
+    'Marginal distributions vẫn là Gaussian',
+    'Covariance bằng 0 và độc lập',
+    'Standard multivariate normal distribution',
+    'Standardization không tạo identity covariance',
+    'Mahalanobis distance',
+    'Code: sinh dữ liệu Gaussian nhiều chiều',
+    'Code: kiểm tra mean và covariance',
+    'Code: so sánh các covariance matrix',
+    'Code: marginal distributions',
+    'Code: tính Mahalanobis distance',
+    'Ứng dụng trong AI',
+    'Mini interaction tổng hợp',
+    'Những lỗi thường gặp',
+  ],
+  keywords: [
+    'multivariate normal distribution',
+    'gaussian distribution',
+    'mean vector',
+    'covariance matrix',
+    'density contour',
+    'mahalanobis distance',
+    'eigenvalues eigenvectors',
+    'whitening',
+  ],
+  pageCount: 23,
+};
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Mở rộng khái niệm Gauss từ 1D sang **Phân phối chuẩn nhiều chiều** (*Multivariate Normal Distribution*) <MdxFormula inline formula={"\\mathcal{N}(\\boldsymbol{\\mu}, \\boldsymbol{\\Sigma})"} />.
+- Giải thích vai trò của **Mean vector** <MdxFormula inline formula={"\\boldsymbol{\\mu}"} /> (xác định tâm) và **Ma trận Covariance** <MdxFormula inline formula={"\\boldsymbol{\\Sigma}"} /> (xác định hình dạng và độ nghiêng của Ellipse).
+- Hiểu tính chất đặc biệt của Joint Gaussian: **không tương quan đồng nghĩa với độc lập hoàn toàn**.
+- Phân biệt khoảng cách Euclidean và **khoảng cách Mahalanobis** (*Mahalanobis distance*).
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Từ bell curve một chiều sang nhiều chiều
+
+Trong một chiều, phân phối chuẩn có dạng hình chuông (bell curve) quen thuộc:
+
+<MdxFormula formula={"X \\sim \\mathcal{N}(\\mu, \\sigma^2)"} />
+
+Khi mở rộng sang hai hay nhiều chiều, mỗi quan sát (observation) trở thành một **vector hàng**:
+
+<MdxFormula formula={"\\mathbf{x}_i = \\begin{bmatrix} x_i & y_i \\end{bmatrix} \\in \\mathbb{R}^{1 \\times 2}"} />
+
+Thay vì một đường cong trên mặt phẳng 2D, ta thu được một **bề mặt mật độ (density surface)** dạng ngọn đồi trong không gian 3D, hoặc biểu diễn bằng các đường **contour** đồng mức.
+
+<MultivariateNormalConceptVisual
+  kind="1d-to-2d-bell"
+  ariaLabel="Chuyển đổi trực quan từ bell curve 1D sang đám mây điểm 2D và bề mặt mật độ."
+  caption="Phân phối chuẩn nhiều chiều mở rộng ý tưởng bell curve sang không gian nhiều đặc trưng."
+/>
+
+> Phân phối chuẩn nhiều chiều là phiên bản mở rộng của bell curve khi mỗi quan sát có nhiều đặc trưng.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Ký hiệu của phân phối chuẩn nhiều chiều
+
+Một vector ngẫu nhiên <MdxFormula inline formula={"d"} /> chiều được biểu diễn bằng vector cột ngẫu nhiên:
+
+<MdxFormula formula={"\\mathbf{X} = \\begin{bmatrix} X_1 \\\\ X_2 \\\\ \\vdots \\\\ X_d \\end{bmatrix}"} />
+
+có **phân phối chuẩn nhiều chiều** nếu tuân theo ký hiệu:
+
+<MdxFormula formula={"\\mathbf{X} \\sim \\mathcal{N}(\\boldsymbol{\\mu}, \\boldsymbol{\\Sigma})"} />
+
+Trong đó:
+- <MdxFormula inline formula={"\\boldsymbol{\\mu} \\in \\mathbb{R}^d"} />: Mean vector (vector trung bình), xác định vị trí tâm phân phối.
+- <MdxFormula inline formula={"\\boldsymbol{\\Sigma} \\in \\mathbb{R}^{d \\times d}"} />: Covariance matrix (ma trận hiệp phương sai), xác định hình dạng và độ phân tán.
+
+<MultivariateNormalConceptVisual
+  kind="notation-breakdown"
+  ariaLabel="Giải thích ký hiệu toán học X ~ N(mu, Sigma)."
+  caption="Mean vector quyết định vị trí tâm; Covariance matrix quyết định hình dạng và hướng."
+/>
+
+> Mean vector quyết định tâm; covariance matrix quyết định hình dạng.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Hàm mật độ xác suất
+
+Hàm mật độ xác suất (PDF - Probability Density Function) cho dữ liệu <MdxFormula inline formula={"d"} /> chiều có công thức tổng quát:
+
+<MdxFormula formula={"f(\\mathbf{x}) = \\frac{1}{(2\\pi)^{d/2} |\\boldsymbol{\\Sigma}|^{1/2}} \\exp \\left( -\\frac{1}{2} (\\mathbf{x}-\\boldsymbol{\\mu})^\\top \\boldsymbol{\\Sigma}^{-1} (\\mathbf{x}-\\boldsymbol{\\mu}) \\right)"} />
+
+### Các thành phần chính:
+- <MdxFormula inline formula={"\\mathbf{x}"} />: Vector giá trị cần tính mật độ.
+- <MdxFormula inline formula={"|\\boldsymbol{\\Sigma}|"} />: Định thức (determinant) của ma trận covariance, đo tổng thể tích biến động.
+- <MdxFormula inline formula={"\\boldsymbol{\\Sigma}^{-1}"} />: Ma trận nghịch đảo (precision matrix).
+- **Dạng toàn phương (Quadratic Form)**:
+
+<MdxFormula formula={"(\\mathbf{x}-\\boldsymbol{\\mu})^\\top \\boldsymbol{\\Sigma}^{-1} (\\mathbf{x}-\\boldsymbol{\\mu})"} />
+
+Biểu thức này đo mức độ một điểm <MdxFormula inline formula={"\\mathbf{x}"} /> nằm xa tâm <MdxFormula inline formula={"\\boldsymbol{\\mu}"} />, có điều chỉnh theo độ rộng và hướng biến động của dữ liệu.
+
+> Độ xa so với tâm càng lớn thì mật độ xác suất f(x) suy giảm theo hàm mũ.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Mean vector quyết định tâm
+
+Giả sử trong không gian 2D, ta có mean vector:
+
+<MdxFormula formula={"\\boldsymbol{\\mu} = \\begin{bmatrix} 2 \\\\ 5 \\end{bmatrix}"} />
+
+Điều này có nghĩa là tâm của ngọn đồi mật độ (và trung tâm đám mây điểm) nằm tại tọa độ <MdxFormula inline formula={"(2, 5)"} />.
+
+Khi ta tịnh tiến mean vector sang vị trí mới <MdxFormula inline formula={"\\boldsymbol{\\mu}' = \\begin{bmatrix} -1 \\\\ 3 \\end{bmatrix}"} />:
+- Bề mặt mật độ di chuyển nguyên khối đến vị trí mới.
+- Độ rộng, độ xoay và bán kính của các đường contour ellipse giữ nguyên tuyệt đối.
+
+> Thay đổi mean vector chỉ làm phân phối di chuyển vị trí, không làm thay đổi hình dạng hay kích thước.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Covariance matrix quyết định hình dạng
+
+Trong không gian 2 chiều, ma trận covariance có dạng:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\begin{bmatrix} \\sigma_X^2 & \\sigma_{XY} \\\\ \\sigma_{XY} & \\sigma_Y^2 \\end{bmatrix}"} />
+
+### Ý nghĩa từng phần tử:
+- **Đường chéo chính** (<MdxFormula inline formula={"\\sigma_X^2, \\sigma_Y^2"} />): Phương sai của từng đặc trưng riêng biệt. Quyết định độ kéo dãn theo các trục tọa độ.
+- **Ngoài đường chéo** (<MdxFormula inline formula={"\\sigma_{XY}"} />): Covariance giữa hai đặc trưng. Quyết định góc nghiêng (xoay) của phân phối.
+
+> Đường chéo quyết định độ rộng; ngoài đường chéo quyết định hướng nghiêng.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Contour có dạng ellipse
+
+Các điểm có cùng mật độ xác suất <MdxFormula inline formula={"f(\\mathbf{x}) = c"} /> thỏa mãn phương trình:
+
+<MdxFormula formula={"(\\mathbf{x}-\\boldsymbol{\\mu})^\\top \\boldsymbol{\\Sigma}^{-1} (\\mathbf{x}-\\boldsymbol{\\mu}) = c^2"} />
+
+Trong không gian 2D, tập hợp các điểm này tạo thành các đường **ellipse đồng tâm**:
+
+<MultivariateNormalConceptVisual
+  kind="density-contour-levels"
+  ariaLabel="Biểu diễn các đường đồng mức mật độ dạng ellipse 1-sigma, 2-sigma, 3-sigma."
+  caption="Đường contour 1-sigma chứa ~68% dữ liệu, 2-sigma chứa ~95% dữ liệu Gauss 2D."
+/>
+
+### Đặc điểm hình học:
+- **Gần tâm**: Mật độ xác suất cao nhất.
+- **Xa tâm**: Mật độ giảm nhanh theo hàm mũ.
+- Các đường contour mở rộng dần dưới dạng các hình ellipse đồng dạng.
+
+> Trong 1D, càng xa mean càng hiếm. Trong 2D, càng đi ra ngoài các ellipse contour càng hiếm.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Thay đổi variance theo từng chiều
+
+Khi covariance ngoài đường chéo bằng 0 (<MdxFormula inline formula={"\\sigma_{XY} = 0"} />), ma trận covariance là ma trận đường chéo:
+
+### Trường hợp 1: Variance X lớn hơn Variance Y
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\begin{bmatrix} 4 & 0 \\\\ 0 & 1 \\end{bmatrix}"} />
+
+Ellipse trải rộng theo chiều ngang (trục X).
+
+### Trường hợp 2: Variance Y lớn hơn Variance X
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\begin{bmatrix} 1 & 0 \\\\ 0 & 4 \\end{bmatrix}"} />
+
+Ellipse trải rộng theo chiều dọc (trục Y).
+
+> Variance của từng chiều quyết định độ dài bán trục ellipse theo chiều tương ứng khi covariance bằng 0.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Covariance làm ellipse nghiêng
+
+Khi covariance ngoài đường chéo khác 0 (<MdxFormula inline formula={"\\sigma_{XY} \\neq 0"} />), các đường ellipse contour bị xoay nghiêng so với các trục tọa độ:
+
+- **<MdxFormula inline formula={"\\sigma_{XY} > 0"} /> (Covariance dương)**: Ellipse nghiêng từ dưới-trái lên trên-phải.
+- **<MdxFormula inline formula={"\\sigma_{XY} < 0"} /> (Covariance âm)**: Ellipse nghiêng từ trên-trái xuống dưới-phải.
+- **<MdxFormula inline formula={"\\sigma_{XY} = 0"} /> (Covariance bằng 0)**: Ellipse nằm thẳng đứng/nằm ngang song song với các trục tọa độ.
+
+### Điều kiện hợp lệ:
+Covariance matrix <MdxFormula inline formula={"\\boldsymbol{\\Sigma}"} /> phải luôn thỏa mãn điều kiện **đối xứng và nửa xác định dương (positive semi-definite)**:
+
+<MdxFormula formula={"\\sigma_{XY}^2 \\le \\sigma_X^2 \\sigma_Y^2"} />
+
+> Covariance quyết định góc nghiêng và hướng liên kết giữa các đặc trưng.
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Eigenvectors và eigenvalues
+
+Hệ trục tự nhiên của phân phối Gauss được tìm thông qua phân rã giá trị riêng (Eigendecomposition) của ma trận covariance:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\mathbf{Q} \\boldsymbol{\\Lambda} \\mathbf{Q}^\\top"} />
+
+Trong đó:
+- <MdxFormula inline formula={"\\mathbf{Q} = [\\mathbf{v}_1, \\mathbf{v}_2]"} /> chứa các **Eigenvector**: Cho biết hướng của các trục chính Ellipse.
+- <MdxFormula inline formula={"\\boldsymbol{\\Lambda} = \\operatorname{diag}(\\lambda_1, \\lambda_2)"} /> chứa các **Eigenvalue**: Cho biết độ dài bán trục (phương sai) theo các hướng chính đó.
+
+<MultivariateNormalConceptVisual
+  kind="eigenvector-axes"
+  ariaLabel="Trực quan hóa hai trục chính v1, v2 vuông góc của Ellipse Gauss cùng các eigenvalue tương ứng."
+  caption="Eigenvectors xác định hướng xoay; Eigenvalues xác định độ kéo dãn của Ellipse."
+/>
+
+> Covariance matrix cho biết các hướng biến động tự nhiên nhất của dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={10}>
+
+## Marginal distributions vẫn là Gaussian
+
+Một tính chất cực kỳ đẹp đẽ của phân phối chuẩn nhiều chiều:
+
+> Nếu <MdxFormula inline formula={"\\mathbf{X} = [X, Y]^\\top"} /> có phân phối chuẩn 2 chiều, thì các phân phối biên (Marginal distributions) của riêng <MdxFormula inline formula={"X"} /> và riêng <MdxFormula inline formula={"Y"} /> **vẫn luôn là phân phối chuẩn 1 chiều**!
+
+<MdxFormula formula={"X \\sim \\mathcal{N}(\\mu_X, \\sigma_X^2), \\qquad Y \\sim \\mathcal{N}(\\mu_Y, \\sigma_Y^2)"} />
+
+<MultivariateNormalConceptVisual
+  kind="gaussian-marginals"
+  ariaLabel="Hình ảnh chiếu phân phối 2D Gauss xuống từng trục thu được hai đường cong Bell curve 1D."
+  caption="Phép chiếu một phân phối Gauss nhiều chiều xuống bất kỳ không gian con nào vẫn thu được phân phối Gauss."
+/>
+
+> Phân phối biên của Gaussian nhiều chiều luôn là Gaussian 1 chiều.
+
+</MdxPage>
+
+<MdxPage page={11}>
+
+## Covariance bằng 0 và độc lập
+
+Trong lý thuyết xác suất tổng quát:
+- <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) = 0"} /> **không** suy ra <MdxFormula inline formula={"X"} /> và <MdxFormula inline formula={"Y"} /> độc lập lập tức.
+
+Tuy nhiên, với trường hợp đặc biệt của **Phân phối chuẩn đồng thời (Joint Gaussian)**:
+
+<MdxFormula formula={"\\operatorname{Cov}(X,Y) = 0 \\iff X \\perp Y"} />
+
+Khi covariance matrix có dạng ma trận đường chéo:
+
+<MdxFormula formula={"\\boldsymbol{\\Sigma} = \\begin{bmatrix} \\sigma_X^2 & 0 \\\\ 0 & \\sigma_Y^2 \\end{bmatrix}"} />
+
+hàm mật độ đồng thời tách thành tích hai hàm mật độ riêng rẽ: <MdxFormula inline formula={"f(x,y) = f_X(x) f_Y(y)"} />.
+
+> Với Joint Gaussian, không tương quan đồng nghĩa với độc lập hoàn toàn.
+
+</MdxPage>
+
+<MdxPage page={12}>
+
+## Standard multivariate normal distribution
+
+Phân phối chuẩn nhiều chiều chuẩn tắc (Standard Multivariate Normal) là trường hợp đặc biệt khi:
+- Mean vector bằng vector không: <MdxFormula inline formula={"\\boldsymbol{\\mu} = \\mathbf{0}"} />
+- Covariance matrix bằng ma trận đơn vị: <MdxFormula inline formula={"\\boldsymbol{\\Sigma} = \\mathbf{I}"} />
+
+Ký hiệu:
+
+<MdxFormula formula={"\\mathbf{Z} \\sim \\mathcal{N}(\\mathbf{0}, \\mathbf{I})"} />
+
+<MultivariateNormalConceptVisual
+  kind="standard-normal-circle"
+  ariaLabel="Các đường contour hình tròn hoàn hảo của phân phối chuẩn nhiều chiều chuẩn tắc N(0, I)."
+  caption="Ma trận covariance đơn vị tạo ra độ phân tán bằng 1 theo mọi hướng và các contour hình tròn."
+/>
+
+> Identity covariance matrix tạo ra độ phân tán đẳng hướng (isotropic) hoàn hảo.
+
+</MdxPage>
+
+<MdxPage page={13}>
+
+## Standardization không tạo identity covariance
+
+Nếu ta chuẩn hóa (Standardize) từng đặc trưng riêng biệt về Z-score:
+
+<MdxFormula formula={"Z_j = \\frac{X_j - \\mu_j}{\\sigma_j}"} />
+
+thì mỗi đặc trưng có mean bằng 0 và variance bằng 1. Tuy nhiên:
+
+<MdxFormula formula={"\\operatorname{Cov}(\\mathbf{Z}) = \\mathbf{R}"} />
+
+với <MdxFormula inline formula={"\\mathbf{R}"} /> là Correlation matrix, **không nhất thiết** bằng Ma trận đơn vị <MdxFormula inline formula={"\\mathbf{I}"} />.
+
+<MultivariateNormalConceptVisual
+  kind="standardization-vs-whitening"
+  ariaLabel="So sánh giữa Standardization (chỉ làm đường chéo bằng 1) và Whitening (triệt tiêu tương quan hoàn toàn)."
+  caption="Standardization không loại bỏ tương quan ngoài đường chéo; Whitening mới biến ma trận covariance thành I."
+/>
+
+> Standardization chuẩn hóa từng chiều riêng rẽ; Whitening mới khử hoàn toàn tương quan giữa các chiều.
+
+</MdxPage>
+
+<MdxPage page={14}>
+
+## Mahalanobis distance
+
+Khoảng cách Euclidean thông thường:
+
+<MdxFormula formula={"d_E(\\mathbf{x}, \\boldsymbol{\\mu}) = \\sqrt{(\\mathbf{x}-\\boldsymbol{\\mu})^\\top (\\mathbf{x}-\\boldsymbol{\\mu})}"} />
+
+coi độ biến động theo mọi hướng là như nhau.
+
+Để đo độ xa của một điểm so với tâm Gauss có tính đến hình dạng Ellipse, ta dùng **Mahalanobis distance**:
+
+<MdxFormula formula={"D_M(\\mathbf{x}) = \\sqrt{(\\mathbf{x}-\\boldsymbol{\\mu})^\\top \\boldsymbol{\\Sigma}^{-1} (\\mathbf{x}-\\boldsymbol{\\mu})}"} />
+
+<MultivariateNormalConceptVisual
+  kind="mahalanobis-vs-euclidean"
+  ariaLabel="So sánh khoảng cách Euclidean và Mahalanobis distance trên contour ellipse."
+  caption="Một điểm nằm xa theo hướng có variance lớn có Mahalanobis distance nhỏ hơn điểm nằm ở hướng hẹp."
+/>
+
+> Mahalanobis distance đo khoảng cách có điều chỉnh theo ma trận covariance của dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={15}>
+
+## Code: sinh dữ liệu Gaussian nhiều chiều
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+
+mean_vector = np.array([2.0, 5.0])
+covariance_matrix = np.array([
+    [4.0, 2.5],
+    [2.5, 3.0],
+])
+
+data = rng.multivariate_normal(
+    mean=mean_vector,
+    cov=covariance_matrix,
+    size=3_000
+)
+
+plt.figure(figsize=(7, 6))
+plt.scatter(data[:, 0], data[:, 1], alpha=0.2, label="Sample points")
+plt.scatter(
+    mean_vector[0], mean_vector[1],
+    color="red", marker="x", s=120, linewidth=3,
+    label="Mean vector μ"
+)
+
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Multivariate Normal Distribution Sample")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+```
+
+- Sử dụng `rng.multivariate_normal()` để sinh dữ liệu theo mean vector và covariance matrix.
+- Đám mây điểm tập trung quanh tâm <MdxFormula inline formula={"[2, 5]^\\top"} /> và nghiêng theo covariance dương `2.5`.
+
+</MdxPage>
+
+<MdxPage page={16}>
+
+## Code: kiểm tra mean và covariance
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(42)
+
+true_mean = np.array([2.0, 5.0])
+true_covariance = np.array([
+    [4.0, 2.5],
+    [2.5, 3.0],
+])
+
+data = rng.multivariate_normal(
+    mean=true_mean,
+    cov=true_covariance,
+    size=100_000
+)
+
+estimated_mean = np.mean(data, axis=0)
+estimated_covariance = np.cov(data, rowvar=False, ddof=0)
+
+print("True mean:")
+print(true_mean)
+
+print("\nEstimated mean:")
+print(estimated_mean)
+
+print("\nTrue covariance:")
+print(true_covariance)
+
+print("\nEstimated covariance:")
+print(estimated_covariance)
+```
+
+```text
+True mean:
+[2. 5.]
+
+Estimated mean:
+[1.99914285 5.00041203]
+
+True covariance:
+[[4.  2.5]
+ [2.5 3. ]]
+
+Estimated covariance:
+[[4.00411205 2.50284196]
+ [2.50284196 3.00391012]]
+```
+
+- Khi kích thước mẫu <MdxFormula inline formula={"N = 100,000"} /> đủ lớn, ước lượng mẫu hội tụ rất sát giá trị lý thuyết.
+
+</MdxPage>
+
+<MdxPage page={17}>
+
+## Code: so sánh các covariance matrix
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+mean = np.array([0.0, 0.0])
+
+covariance_cases = {
+    "Wide along X": np.array([[5.0, 0.0], [0.0, 1.0]]),
+    "Positive covariance": np.array([[3.0, 2.0], [2.0, 3.0]]),
+    "Negative covariance": np.array([[3.0, -2.0], [-2.0, 3.0]]),
+}
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+
+for idx, (title, cov) in enumerate(covariance_cases.items()):
+    pts = rng.multivariate_normal(mean=mean, cov=cov, size=1_500)
+    axes[idx].scatter(pts[:, 0], pts[:, 1], alpha=0.2)
+    axes[idx].set_title(title)
+    axes[idx].set_xlim(-5, 5)
+    axes[idx].set_ylim(-5, 5)
+    axes[idx].set_aspect("equal")
+    axes[idx].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+- Trực quan hóa rõ ràng ảnh hưởng của từng ma trận covariance lên hướng và độ dãn của đám mây điểm.
+
+</MdxPage>
+
+<MdxPage page={18}>
+
+## Code: marginal distributions
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+
+mean = np.array([2.0, 5.0])
+covariance = np.array([
+    [4.0, 2.5],
+    [2.5, 3.0],
+])
+
+data = rng.multivariate_normal(mean=mean, cov=covariance, size=10_000)
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+
+axes[0].hist(data[:, 0], bins=50, density=True, edgecolor="black", alpha=0.7)
+axes[0].set_title("Marginal X ~ N(2, 4)")
+axes[0].set_xlabel("X")
+
+axes[1].hist(data[:, 1], bins=50, density=True, edgecolor="black", alpha=0.7)
+axes[1].set_title("Marginal Y ~ N(5, 3)")
+axes[1].set_xlabel("Y")
+
+plt.tight_layout()
+plt.show()
+```
+
+- Histogram của từng chiều cho thấy phân phối biên khớp hoàn hảo với phân phối chuẩn 1D có mean và variance tương ứng trên đường chéo covariance matrix.
+
+</MdxPage>
+
+<MdxPage page={19}>
+
+## Code: tính Mahalanobis distance
+
+```python
+import numpy as np
+
+mean = np.array([0.0, 0.0])
+covariance = np.array([
+    [4.0, 1.5],
+    [1.5, 1.0],
+])
+
+point_a = np.array([3.0, 1.0])
+
+diff = point_a - mean
+inv_cov = np.linalg.inv(covariance)
+
+squared_mahalanobis = diff.T @ inv_cov @ diff
+mahalanobis_dist = np.sqrt(squared_mahalanobis)
+
+euclidean_dist = np.linalg.norm(diff)
+
+print(f"Euclidean distance  : {euclidean_dist:.4f}")
+print(f"Mahalanobis distance: {mahalanobis_dist:.4f}")
+```
+
+```text
+Euclidean distance  : 3.1623
+Mahalanobis distance: 1.6330
+```
+
+- Mahalanobis distance phản ánh chính xác vị trí tương đối của điểm so với hình dạng ellipse của dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={20}>
+
+## Ứng dụng trong AI
+
+Phân phối chuẩn nhiều chiều xuất hiện ở trung tâm của nhiều thuật toán học máy và AI hiện đại:
+
+<MultivariateNormalConceptVisual
+  kind="ai-applications"
+  ariaLabel="Tổng hợp các ứng dụng của Gaussian nhiều chiều trong AI."
+  caption="Từ VAEs, Diffusion Models đến Anomaly Detection và Kalman Filters."
+/>
+
+### 1. Generative AI (VAEs & Diffusion Models)
+Không gian ẩn (Latent Space) của VAEs và mô hình khuếch tán (Stable Diffusion) được khởi tạo và điều hướng dựa trên phân phối Gauss chuẩn hóa <MdxFormula inline formula={"\\mathcal{N}(\\mathbf{0}, \\mathbf{I})"} />.
+
+### 2. Anomaly Detection
+Các hệ thống phát hiện gian lận tính khoảng cách Mahalanobis của giao dịch mới; giao dịch có khoảng cách Mahalanobis vượt ngưỡng cảnh báo sẽ bị coi là bất thường.
+
+> Phân phối chuẩn nhiều chiều là nền tảng của xác suất trong AI.
+
+</MdxPage>
+
+<MdxPage page={21}>
+
+## Mini interaction tổng hợp
+
+Thực hành điều chỉnh tất cả các tham số <MdxFormula inline formula={"\\mu_X, \\mu_Y, \\sigma_X^2, \\sigma_Y^2, \\sigma_{XY}"} /> để nắm vững hoàn toàn phân phối chuẩn 2 chiều:
+
+<MultivariateNormalExplorer
+  ariaLabel="Trực quan tương tác điều chỉnh tham số phân phối chuẩn 2 chiều."
+  caption="Thử nghiệm điều chỉnh các slider và hoàn thành 4 nhiệm vụ được giao."
+/>
+
+> Tóm tắt: Phân phối chuẩn nhiều chiều được xác định hoàn toàn bởi mean vector và covariance matrix.
+
+</MdxPage>
+
+<MdxPage page={22}>
+
+## Những lỗi thường gặp
+
+### 1. Coi Mean Vector là một số đơn lẻ
+Mean vector là một vector <MdxFormula inline formula={"d"} /> chiều, chứa giá trị trung bình của từng đặc trưng riêng biệt.
+
+### 2. Nghĩ Covariance Matrix chỉ quyết định correlation
+Covariance matrix quyết định cả phương sai từng chiều (trên đường chéo) lẫn tương quan và hướng xoay (ngoài đường chéo).
+
+### 3. Cho rằng Covariance = 0 luôn đồng nghĩa với độc lập
+Điều này chỉ đúng trong các trường hợp đặc biệt, điển hình là Joint Gaussian distribution.
+
+### 4. Coi Standardization sẽ biến Covariance Matrix thành Ma trận đơn vị I
+Standardization chỉ đưa các phần tử đường chéo về 1.0; các tương quan ngoài đường chéo vẫn giữ nguyên. Muốn thu được <MdxFormula inline formula={"\\mathbf{I}"} />, ta phải thực hiện phép **Whitening**.
+
+### 5. Dùng khoảng cách Euclidean để tìm điểm bất thường trong dữ liệu Gauss
+Khoảng cách Euclidean bỏ qua độ phân tán và hướng nghiêng. Phải dùng **Mahalanobis distance** mới phản ánh đúng độ hiếm của điểm dữ liệu.
+
+### 6. Mọi ma trận đối xứng đều là Covariance Matrix hợp lệ
+Covariance matrix ngoài đối xứng còn phải thỏa mãn điều kiện **nửa xác định dương (positive semi-definite)** để định thức và phương sai không âm.
+
+</MdxPage>

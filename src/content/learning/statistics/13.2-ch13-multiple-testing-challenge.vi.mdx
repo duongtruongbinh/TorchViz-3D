@@ -1,0 +1,51 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch13-multiple-testing-challenge",
+  "locale": "vi",
+  "title": "Thách thức của kiểm định nhiều giả thuyết",
+  "headings": [
+    "Thách thức của kiểm định nhiều giả thuyết"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Kiểm định nhiều giả thuyết",
+    "Thách thức của kiểm định nhiều giả thuyết"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Thách thức của kiểm định nhiều giả thuyết
+
+Trong mục trước, ta đã thấy rằng bác bỏ _H_ 0 khi giá trị _p_ nhỏ hơn, chẳng hạn, 0 _._ 01 là một cách đơn giản để kiểm soát sai số Loại I của _H_ 0 ở mức 0 _._ 01: nếu _H_ 0 đúng thì xác suất ta bác bỏ nó không quá 1%. Nhưng bây giờ giả sử ta muốn kiểm định _m_ giả thuyết không, _H_ 01 _, . . . , H_ 0 _m_. Liệu chỉ cần bác bỏ mọi giả thuyết không có giá trị _p_ tương ứng nhỏ hơn 0 _._ 01 hay không? Nói cách khác, nếu làm vậy thì ta nên kỳ vọng phạm bao nhiêu sai số Loại I?
+
+Bước đầu để trả lời câu hỏi này, hãy xét một nhà môi giới chứng khoán muốn thu hút khách hàng mới bằng cách thuyết phục họ về năng lực giao dịch của mình.
+
+> 10 Có sự tương đồng giữa Bảng 13.1 và Bảng 4.6, bảng mô tả đầu ra của một bộ phân loại nhị phân. Cụ thể, Bảng 4.6 cho thấy dương tính giả xảy ra khi dự đoán một nhãn dương (khác không) trong khi nhãn thật là âm (không). Điều này gần với sai số Loại I, xảy ra khi bác bỏ giả thuyết không trong khi giả thuyết đó thực sự đúng.
+
+Cô nói với 1.024 (1 _,_ 024 = 2^(10)) khách hàng tiềm năng rằng mình có thể dự đoán đúng giá cổ phiếu Apple tăng hay giảm trong 10 ngày liên tiếp. Có 2^(10) khả năng biến động giá trong 10 ngày này, nên cô gửi cho mỗi khách hàng một khả năng. Phần lớn khách hàng sẽ thấy dự đoán của cô không tốt hơn ngẫu nhiên, thậm chí nhiều người còn thấy tệ hơn. Tuy nhiên, ngay cả chiếc đồng hồ hỏng cũng đúng hai lần mỗi ngày, và sẽ có một khách hàng rất ấn tượng khi thấy cả 10 dự đoán đều đúng. Nhờ đó nhà môi giới có được một khách hàng mới.
+
+Điều gì đã xảy ra? Nhà môi giới có thực sự biết giá cổ phiếu Apple sẽ tăng hay giảm không? Không. Vậy tại sao cô có thể dự đoán hoàn hảo trong 10 ngày liên tiếp? Vì cô đã đưa ra rất nhiều dự đoán và tình cờ có một dự đoán hoàn toàn chính xác.
+
+Điều này liên quan gì đến kiểm định nhiều giả thuyết? Giả sử ta tung 1.024 đồng xu công bằng^(11), mỗi đồng mười lần. Trung bình, ta kỳ vọng một đồng xuất hiện toàn mặt sấp. (Xác suất một đồng bất kỳ xuất hiện toàn mặt sấp là 1 _/_ 2^(10) = 1 _/_ 1 _,_ 024; vì vậy khi tung 1.024 đồng, trung bình ta kỳ vọng có một đồng như thế.) Nếu điều đó xảy ra, ta có thể kết luận đồng xu ấy không công bằng. Thực tế, một kiểm định giả thuyết tiêu chuẩn cho giả thuyết không rằng đồng xu này công bằng sẽ cho giá trị _p_ nhỏ hơn 0 _._ 002!^(12) Nhưng kết luận đồng xu không công bằng là sai: giả thuyết không thực sự đúng, và ta chỉ tình cờ nhận được mười mặt sấp liên tiếp.
+
+Các ví dụ trên minh họa thách thức chính của _kiểm định nhiều giả thuyết_: khi kiểm định một số lượng rất lớn giả thuyết không, chắc chắn ta sẽ tình cờ thu được một số giá trị _p_ rất nhỏ. Nếu quyết định bác bỏ từng giả thuyết mà không tính đến việc đã thực hiện rất nhiều kiểm định, ta có thể bác bỏ nhiều giả thuyết không đúng — tức phạm nhiều sai số Loại I.
+
+Vấn đề nghiêm trọng đến đâu? Nhắc lại rằng nếu bác bỏ một giả thuyết không _H_ 0 khi giá trị _p_ của nó nhỏ hơn _α_ = 0 _._ 01, thì khi _H_ 0 thực sự đúng, xác suất bác bỏ sai là 1%. Nếu ta kiểm định _m_ giả thuyết không _H_ 01 _, . . . , H_ 0 _m_ và tất cả đều đúng thì sao? Xác suất bác bỏ từng giả thuyết là 1%; do đó ta kỳ vọng bác bỏ sai khoảng 0 _._ 01 _× m_ giả thuyết. Nếu _m_ = 10 _,_ 000, ta sẽ tình cờ bác bỏ sai khoảng 100 giả thuyết không — một số lượng sai số Loại I rất lớn.
+
+Cốt lõi của vấn đề là: bác bỏ một giả thuyết không khi giá trị _p_ nhỏ hơn _α_ sẽ kiểm soát xác suất bác bỏ sai _giả thuyết đó_ ở mức _α_. Tuy nhiên, nếu làm như vậy với _m_ giả thuyết thì xác suất bác bỏ sai _ít nhất một trong m giả thuyết không_ sẽ cao hơn nhiều.
+
+> 11 Một _đồng xu công bằng_ có xác suất xuất hiện mặt ngửa và mặt sấp bằng nhau.
+
+> 12 Nhắc lại rằng giá trị _p_ là xác suất quan sát dữ liệu ít nhất cực đoan như vậy khi giả thuyết không đúng. Nếu đồng xu công bằng, xác suất quan sát mười mặt sấp là (1 _/_ 2)^(10) = 1 _/_ 1 _,_ 024 _&lt;_ 0 _._ 001. Do đó, giá trị _p_ là 2 _/_ 1 _,_ 024 _&lt;_ 0 _._ 002 vì đây là xác suất quan sát mười mặt ngửa hoặc mười mặt sấp.
+
+<MdxCode language="table" code={"||_H_0 đúng|_H_0 sai|Tổng|\n|---|---|---|---|\n|Bác bỏ _H_0|_V_|_S_|_R_|\n|Không bác bỏ _H_0|_U_|_W_|_m −R_|\n|Tổng|_m_0|_m −m_0|_m_|"} />
+
+**BẢNG 13.2.** _Tóm tắt kết quả kiểm định m giả thuyết không. Một giả thuyết không có thể đúng hoặc sai, và kiểm định có thể bác bỏ hoặc không bác bỏ giả thuyết đó. Trong thực tế, các giá trị riêng lẻ V, S, U và W là chưa biết. Tuy nhiên, ta biết V_ + _S_ = _R và U_ + _W_ = _m − R, lần lượt là số giả thuyết không bị bác bỏ và số giả thuyết không được bác bỏ._
+
+Ta sẽ khảo sát vấn đề này chi tiết hơn và đưa ra một giải pháp trong Mục 13.3.
+
+</MdxPage>

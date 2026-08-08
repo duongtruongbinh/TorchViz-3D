@@ -1,0 +1,47 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-why-not-linear-regression",
+  "locale": "vi",
+  "title": "Tại sao không dùng hồi quy tuyến tính?",
+  "headings": [
+    "Tại sao không dùng hồi quy tuyến tính?"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "phân loại",
+    "hồi quy tuyến tính"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Tại sao không dùng hồi quy tuyến tính?
+
+Chúng ta đã nói rằng hồi quy tuyến tính không phù hợp khi biến đáp ứng là định tính. Tại sao?
+
+Giả sử ta đang cố dự đoán tình trạng bệnh lý của một bệnh nhân trong phòng cấp cứu dựa trên các triệu chứng của người đó. Trong ví dụ đơn giản hóa này, có ba chẩn đoán khả dĩ: `stroke`, `drug overdose`, và
+
+**HÌNH 4.1.** _Tập dữ liệu_ `Default` _._ Trái: _Thu nhập hằng năm và số dư thẻ tín dụng hằng tháng của một số người. Những người vỡ nợ trong thanh toán thẻ tín dụng được hiển thị bằng màu cam, còn những người không vỡ nợ bằng màu xanh._ Giữa: _Biểu đồ hộp của_ `balance` _theo trạng thái_ `default` _._ Phải: _Biểu đồ hộp của_ `income` _theo trạng thái_ `default` _._
+
+`epileptic seizure`. Ta có thể cân nhắc mã hóa các giá trị này thành một biến đáp ứng định lượng _Y_ như sau:
+
+Với cách mã hóa này, ta có thể dùng bình phương tối thiểu để khớp một mô hình hồi quy tuyến tính nhằm dự đoán _Y_ dựa trên tập biến dự báo _X_ 1 _, . . . , Xp_. Đáng tiếc, cách mã hóa này áp đặt thứ tự lên các kết quả: đặt `drug overdose` giữa `stroke` và `epileptic seizure`, đồng thời buộc khoảng cách giữa `stroke` và `drug overdose` phải bằng khoảng cách giữa `drug overdose` và `epileptic seizure`. Trong thực tế không có lý do cụ thể nào để điều này nhất thiết đúng. Chẳng hạn, ta có thể chọn một cách mã hóa khác cũng hợp lý như nhau,
+
+nhưng cách đó lại hàm ý một mối quan hệ hoàn toàn khác giữa ba tình trạng. Mỗi cách mã hóa sẽ tạo ra những mô hình tuyến tính khác nhau về căn bản và cuối cùng dẫn đến các tập dự đoán khác nhau trên những quan sát kiểm tra.
+
+Nếu các giá trị của biến đáp ứng có một thứ tự tự nhiên, chẳng hạn _nhẹ_, _trung bình_ và _nặng_, đồng thời ta cho rằng khoảng cách giữa nhẹ và trung bình tương tự khoảng cách giữa trung bình và nặng, thì cách mã hóa 1, 2, 3 là hợp lý. Tuy nhiên, nhìn chung không có cách tự nhiên nào để
+
+chuyển một biến đáp ứng định tính có nhiều hơn hai mức thành biến đáp ứng định lượng sẵn sàng cho hồi quy tuyến tính.
+
+Với một biến đáp ứng định tính _nhị phân_ (hai mức), tình hình tốt hơn. Chẳng hạn, có thể bệnh nhân chỉ rơi vào một trong hai tình trạng: `stroke` hoặc `drug overdose`. Khi đó ta có thể dùng cách tiếp cận _biến giả_ ở Mục 3.3.1 để mã hóa biến đáp ứng như sau:
+
+Sau đó ta có thể khớp hồi quy tuyến tính cho biến đáp ứng nhị phân này và dự đoán `drug overdose` nếu _Y_^(ˆ) _&gt;_ 0 _._ 5, ngược lại dự đoán `stroke`. Trong trường hợp nhị phân, không khó để chứng minh rằng ngay cả khi đảo cách mã hóa trên, hồi quy tuyến tính vẫn tạo ra cùng dự đoán cuối cùng.
+
+Với một biến đáp ứng nhị phân được mã hóa 0/1 như trên, hồi quy bằng bình phương tối thiểu không hoàn toàn vô lý: có thể chứng minh rằng _Xβ_^(ˆ) thu được từ hồi quy tuyến tính thực ra là một ước lượng của Pr( `drug overdose` _|X_ ) trong trường hợp đặc biệt này. Tuy nhiên, nếu dùng hồi quy tuyến tính, một số ước lượng có thể nằm ngoài khoảng [0 _,_ 1] (xem Hình 4.2), khiến chúng khó được diễn giải như xác suất! Dẫu vậy, các dự đoán vẫn cung cấp một thứ tự và có thể được xem là những ước lượng xác suất thô. Điều thú vị là các kết quả phân loại thu được khi dùng hồi quy tuyến tính để dự đoán biến đáp ứng nhị phân sẽ giống với kết quả của phương pháp phân tích biệt thức tuyến tính (LDA) được bàn ở Mục 4.4.
+
+Tóm lại, có ít nhất hai lý do không nên thực hiện phân loại bằng một phương pháp hồi quy: (a) phương pháp hồi quy không thể xử lý biến đáp ứng định tính có nhiều hơn hai lớp; (b) phương pháp hồi quy không cung cấp ước lượng có ý nghĩa cho Pr( _Y |X_ ), ngay cả khi chỉ có hai lớp. Vì vậy, nên dùng một phương pháp phân loại thực sự phù hợp với các giá trị đáp ứng định tính. Trong mục tiếp theo, chúng ta trình bày hồi quy logistic, vốn rất phù hợp cho biến đáp ứng định tính nhị phân; ở các mục sau, chúng ta sẽ xét những phương pháp phân loại thích hợp khi biến đáp ứng định tính có từ hai lớp trở lên.
+
+</MdxPage>

@@ -1,0 +1,130 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-regression-splines",
+  "locale": "vi",
+  "title": "Spline hồi quy",
+  "headings": [
+    "Spline hồi quy",
+    "7.4.1 Đa thức từng đoạn",
+    "7.4.2 Các ràng buộc và spline",
+    "7.4.3 Biểu diễn spline bằng hàm cơ sở",
+    "7.4.4 Chọn số lượng và vị trí các nút",
+    "7.4.5 So sánh với hồi quy đa thức"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Spline hồi quy"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Spline hồi quy
+
+Bây giờ ta thảo luận một lớp hàm cơ sở linh hoạt, mở rộng các cách tiếp cận hồi quy đa thức và hồi quy hằng số từng đoạn vừa xem.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 7.4.1 Đa thức từng đoạn
+
+Thay vì khớp một đa thức bậc cao trên toàn miền của _X_, _hồi quy đa thức từng đoạn_ khớp các đa thức bậc thấp riêng biệt trên những vùng khác nhau của _X_. Ví dụ, một đa thức bậc ba từng đoạn hoạt động bằng cách khớp mô hình hồi quy bậc ba có dạng
+
+trong đó các hệ số _β_ 0, _β_ 1, _β_ 2 và _β_ 3 khác nhau ở những phần khác nhau của miền _X_. Các điểm mà tại đó hệ số thay đổi được gọi là _nút_ (knot).
+
+Ví dụ, một đa thức bậc ba từng đoạn không có nút chỉ là một đa thức bậc ba tiêu chuẩn, như (7.1) với _d_ = 3. Một đa thức bậc ba từng đoạn có một nút tại điểm _c_ có dạng
+
+Nói cách khác, ta khớp hai hàm đa thức khác nhau với dữ liệu: một hàm trên tập con quan sát có _xi &lt; c_, và một hàm trên tập con có _xi ≥ c_. Hàm đa thức thứ nhất có các hệ số
+
+**HÌNH 7.3.** _Nhiều đa thức từng đoạn được khớp với một tập con của dữ liệu_ `Wage`_, với một nút tại_ `age=50`_._ Trên trái: _Các đa thức bậc ba không bị ràng buộc._ Trên phải: _Các đa thức bậc ba bị ràng buộc phải liên tục tại_ `age=50`_._ Dưới trái: _Các đa thức bậc ba bị ràng buộc phải liên tục, đồng thời có đạo hàm bậc nhất và bậc hai liên tục._ Dưới phải: _Một spline tuyến tính được thể hiện và bị ràng buộc phải liên tục._
+
+_β_ 01 _, β_ 11 _, β_ 21 _,_ và _β_ 31; hàm thứ hai có các hệ số _β_ 02 _, β_ 12 _, β_ 22 _,_ và _β_ 32. Mỗi hàm đa thức này có thể được khớp bằng bình phương tối thiểu áp dụng cho các hàm đơn giản của biến dự báo ban đầu.
+
+Dùng nhiều nút hơn tạo ra một đa thức từng đoạn linh hoạt hơn. Nói chung, nếu đặt _K_ nút khác nhau trên miền của _X_, ta sẽ khớp _K_ + 1 đa thức bậc ba khác nhau. Lưu ý rằng ta không bắt buộc phải dùng đa thức bậc ba. Chẳng hạn, ta có thể khớp các hàm tuyến tính từng đoạn. Thực ra, các hàm hằng số từng đoạn ở Mục 7.2 chính là đa thức từng đoạn bậc 0!
+
+Biểu đồ trên bên trái của Hình 7.3 thể hiện một đa thức bậc ba từng đoạn khớp với tập con dữ liệu `Wage`, với một nút duy nhất tại `age=50`. Ta lập tức thấy vấn đề: hàm bị gián đoạn và trông rất vô lý! Vì mỗi đa thức có bốn tham số, ta dùng tổng cộng tám _bậc tự do_ để khớp mô hình đa thức từng đoạn này.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 7.4.2 Các ràng buộc và spline
+
+Biểu đồ trên bên trái của Hình 7.3 trông sai vì đường cong đã khớp quá linh hoạt. Để khắc phục, ta có thể khớp đa thức từng đoạn dưới _ràng buộc_ rằng đường cong phải liên tục. Nói cách khác, không được có bước nhảy tại `age=50`. Biểu đồ trên bên phải của Hình 7.3 thể hiện kết quả. Nó tốt hơn biểu đồ trên bên trái, nhưng mối nối hình chữ V vẫn thiếu tự nhiên.
+
+Ở biểu đồ dưới bên trái, ta thêm hai ràng buộc nữa: giờ đây cả _đạo hàm_ bậc nhất và bậc hai của các đa thức từng đoạn đều liên tục tại `age=50`. Nói cách khác, ta yêu cầu đa thức từng đoạn không chỉ liên tục tại `age=50` mà còn rất _trơn_. Mỗi ràng buộc áp lên các đa thức bậc ba từng đoạn thực chất giải phóng một bậc tự do bằng cách giảm độ phức tạp của kết quả khớp. Vì vậy, biểu đồ trên bên trái dùng tám bậc tự do, còn biểu đồ dưới bên trái áp ba ràng buộc (tính liên tục, tính liên tục của đạo hàm bậc nhất và của đạo hàm bậc hai), nên còn năm bậc tự do. Đường cong ở biểu đồ dưới bên trái được gọi là _spline bậc ba_.^(3) Nói chung, spline bậc ba với _K_ nút dùng tổng cộng 4 + _K_ bậc tự do.
+
+Trong Hình 7.3, biểu đồ dưới bên phải là một _spline tuyến tính_, liên tục tại `age=50`. Định nghĩa tổng quát của spline bậc _d_ là một đa thức bậc _d_ từng đoạn, với các đạo hàm đến bậc _d −_ 1 liên tục tại mỗi nút. Do đó, spline tuyến tính thu được bằng cách khớp một đường thẳng trong mỗi vùng của không gian biến dự báo do các nút xác định, đồng thời yêu cầu tính liên tục tại từng nút.
+
+Trong Hình 7.3 chỉ có một nút tại `age=50`. Tất nhiên, ta có thể thêm nhiều nút hơn và áp đặt tính liên tục tại mỗi nút.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 7.4.3 Biểu diễn spline bằng hàm cơ sở
+
+Các spline hồi quy vừa thấy ở phần trước có vẻ hơi phức tạp: làm thế nào để khớp một đa thức bậc _d_ từng đoạn dưới ràng buộc rằng nó (và có thể cả _d −_ 1 đạo hàm đầu tiên) phải liên tục? Hóa ra ta có thể dùng mô hình cơ sở (7.7) để biểu diễn một spline hồi quy. Một spline bậc ba với _K_ nút có thể được mô hình hóa dưới dạng
+
+với cách chọn thích hợp các hàm cơ sở _b_ 1 _, b_ 2 _, . . . , bK_ +3. Sau đó có thể khớp mô hình (7.9) bằng bình phương tối thiểu.
+
+Cũng như có nhiều cách biểu diễn đa thức, ta có nhiều cách tương đương để biểu diễn spline bậc ba bằng những lựa chọn hàm cơ sở khác nhau trong (7.9). Cách trực tiếp nhất để biểu diễn spline bậc ba bằng (7.9) là bắt đầu với một cơ sở cho đa thức bậc ba—cụ thể là _x, x_^(2) _,_ và _x_^(3)—rồi thêm một hàm _cơ sở lũy thừa cắt cụt_ cho mỗi nút.
+
+> cơ sở lũy thừa
+
+> 3Spline bậc ba phổ biến vì mắt người hầu như không thể nhận ra sự gián đoạn tại các nút.
+
+**HÌNH 7.4.** _Một spline bậc ba và một spline bậc ba tự nhiên, với ba nút, được khớp với một tập con của dữ liệu_ `Wage`_. Các đường nét đứt biểu thị vị trí các nút._
+
+Một hàm cơ sở lũy thừa cắt cụt được định nghĩa là
+
+trong đó _ξ_ là nút. Có thể chứng minh rằng việc thêm một hạng tử dạng _β_ 4 _h_ ( _x, ξ_ ) vào mô hình đa thức bậc ba (7.8) chỉ gây gián đoạn ở đạo hàm bậc ba tại _ξ_; hàm vẫn liên tục, với đạo hàm bậc nhất và bậc hai liên tục, tại từng nút.
+
+Nói cách khác, để khớp spline bậc ba với bộ dữ liệu có _K_ nút, ta thực hiện hồi quy bình phương tối thiểu với một hệ số chặn và 3 + _K_ biến dự báo dạng _X, X_^(2) _, X_^(3) _, h_ ( _X, ξ_ 1) _, h_ ( _X, ξ_ 2) _, . . . , h_ ( _X, ξK_ ), trong đó _ξ_ 1 _, . . . , ξK_ là các nút. Điều này tương đương với việc ước lượng tổng cộng _K_ + 4 hệ số hồi quy; vì vậy, khớp spline bậc ba với _K_ nút dùng _K_ +4 bậc tự do.
+
+Đáng tiếc, spline có thể có phương sai cao ở các đầu miền của biến dự báo—tức khi _X_ nhận giá trị rất nhỏ hoặc rất lớn. Hình 7.4 thể hiện một mô hình khớp với dữ liệu `Wage` bằng ba nút. Ta thấy các dải tin cậy ở vùng biên khá bất ổn. _Spline tự nhiên_ là spline hồi quy có thêm _ràng buộc biên_: hàm được yêu cầu phải tuyến tính tại biên (trong vùng mà _X_ nhỏ hơn nút nhỏ nhất hoặc lớn hơn nút lớn nhất). Ràng buộc bổ sung này giúp spline tự nhiên thường cho ước lượng ổn định hơn tại biên. Trong Hình 7.4, một spline bậc ba tự nhiên cũng được vẽ bằng đường màu đỏ. Lưu ý rằng các khoảng tin cậy tương ứng hẹp hơn.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 7.4.4 Chọn số lượng và vị trí các nút
+
+Khi khớp spline, ta nên đặt các nút ở đâu? Spline hồi quy linh hoạt nhất ở những vùng có nhiều nút, vì tại đó các hệ số đa thức có thể thay đổi nhanh. Do đó, một
+
+###### **Spline bậc ba tự nhiên**
+
+**HÌNH 7.5.** _Một hàm spline bậc ba tự nhiên với bốn bậc tự do được khớp với dữ liệu_ `Wage`_._ Trái: _Một spline khớp_ `wage` _(nghìn đô la) theo_ `age`_._ Phải: _Hồi quy logistic được dùng để mô hình hóa sự kiện nhị phân_ `wage>250` _theo_ `age`_. Xác suất hậu nghiệm đã khớp để_ `wage` _vượt quá_ $250 _,_ 000 _được thể hiện. Các đường nét đứt biểu thị vị trí các nút._
+
+lựa chọn là đặt nhiều nút hơn ở nơi ta cho rằng hàm có thể biến đổi nhanh nhất, và ít nút hơn ở nơi hàm có vẻ ổn định hơn. Dù cách này có thể hoạt động tốt, trong thực tế người ta thường đặt nút một cách đều đặn. Một cách là chỉ định số bậc tự do mong muốn rồi để phần mềm tự động đặt số nút tương ứng tại các phân vị đều của dữ liệu.
+
+Hình 7.5 minh họa trên dữ liệu `Wage`. Như Hình 7.4, ta khớp spline bậc ba tự nhiên với ba nút, nhưng lần này vị trí các nút được tự động chọn là các phân vị 25, 50 và 75 của `age`. Điều này được chỉ định bằng cách yêu cầu bốn bậc tự do. Lập luận giải thích vì sao bốn bậc tự do dẫn đến ba nút bên trong khá mang tính kỹ thuật.^(4)
+
+Ta nên dùng bao nhiêu nút, hay tương đương spline nên có bao nhiêu bậc tự do? Một lựa chọn là thử các số nút khác nhau và xem số nào tạo ra đường cong có vẻ tốt nhất. Cách khách quan hơn là dùng xác thực chéo, như đã thảo luận trong Chương 5 và 6. Với phương pháp này, ta loại một phần dữ liệu (chẳng hạn 10 %), khớp spline với một số nút nhất định trên dữ liệu còn lại, rồi dùng spline dự đoán phần bị giữ lại. Ta lặp quy trình nhiều lần cho đến khi mỗi quan sát đã từng bị bỏ ra một lần, rồi
+
+> 4Thực ra có năm nút, tính cả hai nút biên. Một spline bậc ba với năm nút có chín bậc tự do. Nhưng spline bậc ba tự nhiên có thêm hai ràng buộc _tự nhiên_ tại mỗi biên để buộc tính tuyến tính, dẫn đến 9 _−_ 4 = 5 bậc tự do. Vì số này gồm một hằng số được hấp thụ vào hệ số chặn, ta tính là bốn bậc tự do.
+
+**HÌNH 7.6.** _Sai số bình phương trung bình từ xác thực chéo mười phần khi chọn bậc tự do để khớp spline với dữ liệu_ `Wage`_. Biến đáp ứng là_ `wage` _và biến dự báo là_ `age`_._ Trái: _Spline bậc ba tự nhiên._ Phải: _Spline bậc ba._
+
+tính RSS xác thực chéo tổng thể. Có thể lặp quy trình này cho các số nút _K_ khác nhau, rồi chọn giá trị _K_ cho RSS nhỏ nhất.
+
+Hình 7.6 thể hiện sai số bình phương trung bình từ xác thực chéo mười phần của các spline có số bậc tự do khác nhau khớp với dữ liệu `Wage`. Biểu đồ bên trái ứng với spline bậc ba tự nhiên và biểu đồ bên phải ứng với spline bậc ba. Hai phương pháp cho kết quả gần như giống hệt nhau, đồng thời có bằng chứng rõ ràng rằng mô hình một bậc tự do (hồi quy tuyến tính) là không đủ. Cả hai đường cong nhanh chóng trở nên phẳng; ba bậc tự do cho spline tự nhiên và bốn bậc tự do cho spline bậc ba có vẻ hoàn toàn phù hợp.
+
+Trong Mục 7.7, ta đồng thời khớp các mô hình spline cộng tính trên nhiều biến. Khi đó có thể cần chọn bậc tự do cho từng biến. Trong những trường hợp như vậy, ta thường dùng cách thực dụng hơn: đặt bậc tự do bằng một số cố định, chẳng hạn bốn, cho tất cả hạng tử.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 7.4.5 So sánh với hồi quy đa thức
+
+Hình 7.7 so sánh spline bậc ba tự nhiên có 15 bậc tự do với đa thức bậc 15 trên bộ dữ liệu `Wage`. Độ linh hoạt bổ sung của đa thức tạo ra kết quả không mong muốn ở các biên, trong khi spline bậc ba tự nhiên vẫn khớp dữ liệu hợp lý. Spline hồi quy thường cho kết quả tốt hơn hồi quy đa thức. Lý do là khác với đa thức phải dùng bậc cao (số mũ trong đơn thức bậc cao nhất, ví dụ _X_^(15)) để tạo mô hình khớp linh hoạt, spline tăng độ linh hoạt bằng cách tăng số nút nhưng giữ bậc cố định. Nói chung, cách này tạo ra các ước lượng ổn định hơn. Spline cũng cho phép đặt nhiều nút hơn—và do đó nhiều độ linh hoạt hơn—ở những vùng mà hàm _f_ có vẻ thay đổi nhanh, và ít nút hơn ở nơi _f_ có vẻ ổn định.
+
+**HÌNH 7.7.** _Trên bộ dữ liệu_ `Wage`_, một spline bậc ba tự nhiên với 15 bậc tự do được so sánh với đa thức bậc_ 15_. Đa thức có thể biểu hiện rất bất ổn, đặc biệt ở gần hai đuôi._
+
+</MdxPage>

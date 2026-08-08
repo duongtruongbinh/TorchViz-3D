@@ -1,0 +1,61 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-document-classification",
+  "locale": "vi",
+  "title": "Phân loại tài liệu",
+  "headings": [
+    "Phân loại tài liệu"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "phân loại tài liệu"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Phân loại tài liệu
+
+Trong mục này, chúng ta giới thiệu một loại ví dụ mới có nhiều ứng dụng quan trọng trong công nghiệp và khoa học: dự đoán thuộc tính của tài liệu. Tài liệu có thể là bài báo trong tạp chí y khoa, luồng tin Reuters, email, tweet, v.v. Ví dụ của chúng ta là các đánh giá trên `IMDb` (Internet Movie Database): những tài liệu ngắn nơi người xem viết nhận xét về phim.^(13) Biến đáp ứng ở đây là `sentiment` (sắc thái cảm xúc) của bài đánh giá, mang giá trị _tích cực_ hoặc _tiêu cực_.
+
+> 12 _Deep Learning with R_ của F. Chollet và J.J. Allaire, 2018, Manning Publications.
+
+> 13Xem chi tiết trong Maas và cộng sự (2011), “Learning word vectors for sentiment analysis”, _Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human Language Technologies_, trang 142–150.
+
+Sau đây là phần mở đầu của một bài đánh giá tiêu cực khá thú vị:
+
+_Đây hẳn là một trong những bộ phim tệ nhất thập niên 1990. Khi bạn bè và tôi xem bộ phim này (chúng tôi chính là khán giả mục tiêu của nó), cả nhóm chỉ ngồi xem nửa giờ đầu với hàm gần như rơi xuống sàn vì phim quá tệ. Trong khoảng thời gian còn lại, mọi người trong rạp bắt đầu nói chuyện với nhau, bỏ về hoặc nói chung là khóc vào hộp bỏng ngô của mình . . ._
+
+Mỗi bài đánh giá có thể có độ dài khác nhau, chứa tiếng lóng hoặc từ không chuẩn, có lỗi chính tả, v.v. Ta cần tìm cách _đặc trưng hóa_ một tài liệu như vậy, tức theo cách nói hiện đại là xác định một tập biến dự báo. Cách đặc trưng hóa đơn giản và phổ biến nhất là mô hình _túi từ_ (bag-of-words). Với mỗi tài liệu, ta chấm điểm sự có mặt hay vắng mặt của từng từ trong từ điển ngôn ngữ — ở đây là từ điển tiếng Anh. Nếu từ điển có _M_ từ, ta tạo cho mỗi tài liệu một vector đặc trưng nhị phân dài _M_, ghi 1 cho mọi từ xuất hiện và 0 nếu không. Vector đặc trưng có thể rất rộng nên ta giới hạn từ điển — ở đây là 10.000 từ xuất hiện thường xuyên nhất trong kho ngữ liệu huấn luyện gồm 25.000 bài đánh giá. May mắn là có các công cụ tốt để tự động thực hiện việc này. Sau đây là phần mở đầu của một bài đánh giá tích cực đã được lược bớt theo cách đó:
+
+_⟨START ⟩ this film was just brilliant casting location scenery story direction everyone’s really suited the part they played and you could just imagine being there robert ⟨UNK ⟩ is an amazing actor and now the same being director ⟨UNK ⟩ father came from the same scottish island as myself so i loved . . ._
+
+Ta thấy nhiều từ đã bị lược bỏ và một số từ chưa biết (UNK) được đánh dấu. Sau phép rút gọn này, vector đặc trưng nhị phân có độ dài 10.000, chủ yếu gồm các số 0 và rải rác một số 1 tại vị trí tương ứng với những từ có trong tài liệu. Ta có tập huấn luyện và tập kiểm tra, mỗi tập gồm 25.000 ví dụ và đều cân bằng theo `sentiment`. Ma trận đặc trưng huấn luyện **X** có kích thước 25 _,_ 000 _×_ 10 _,_ 000, nhưng chỉ 1,3% phần tử nhị phân khác không. Ta gọi đây là ma trận thưa vì phần lớn giá trị giống nhau (ở đây là không); nó có thể được lưu hiệu quả ở _định dạng ma trận thưa_.^(14) Có nhiều cách tính đến độ dài tài liệu; ở đây ta chỉ ghi nhận một từ có hay không trong tài liệu, nhưng chẳng hạn cũng có thể ghi lại tần suất tương đối của từ. Ta tách một tập xác thực gồm 2.000 quan sát từ 25.000 quan sát huấn luyện (để tinh chỉnh mô hình), rồi khớp hai chuỗi mô hình:
+
+- Hồi quy logistic lasso bằng gói `glmnet`;
+
+- Mạng nơ-ron hai lớp với hai tầng ẩn, mỗi tầng có 16 nút ReLU.
+
+> 14Thay vì lưu toàn bộ ma trận, ta có thể chỉ lưu vị trí và giá trị của các phần tử khác không. Trong trường hợp này, vì mọi phần tử khác không đều bằng 1 nên chỉ cần lưu vị trí.
+
+**HÌNH 10.11.** _Độ chính xác của lasso và mạng nơ-ron hai tầng ẩn trên dữ liệu_ `IMDb` _. Với lasso, trục x biểu diễn −_ log( _λ_ ) _, còn với mạng nơ-ron, trục này biểu diễn epoch (số lần thuật toán khớp đi qua tập huấn luyện). Cả hai đều có xu hướng quá khớp và đạt độ chính xác kiểm tra xấp xỉ nhau._
+
+Cả hai phương pháp đều tạo ra một chuỗi nghiệm. Chuỗi lasso được đánh chỉ số bởi tham số điều chuẩn _λ_. Chuỗi mạng nơ-ron được đánh chỉ số theo số vòng lặp gradient descent dùng trong quá trình khớp, đo bằng epoch huấn luyện hay số lượt đi qua tập huấn luyện (Mục 10.7). Lưu ý độ chính xác huấn luyện trong Hình 10.11 (các điểm đen) tăng đơn điệu trong cả hai trường hợp. Ta có thể dùng lỗi xác thực để chọn một nghiệm tốt từ mỗi chuỗi (các điểm xanh trong biểu đồ), rồi dùng nghiệm đó để dự đoán trên tập kiểm tra.
+
+Lưu ý rằng mạng nơ-ron hai lớp tương đương một mô hình hồi quy logistic phi tuyến. Từ (10.12) và (10.13), ta thấy
+
+(Điều này cho thấy sự dư thừa trong hàm softmax; với _K_ lớp, thực ra ta chỉ cần ước lượng _K −_ 1 tập hệ số. Xem Mục 4.3.5.) Trong Hình 10.11, chúng ta biểu diễn _độ chính xác_ (tỷ lệ đúng) thay cho lỗi phân loại (tỷ lệ sai), vì đại lượng trước phổ biến hơn trong cộng đồng học máy. Cả hai mô hình đều đạt độ chính xác khoảng 88% trên tập kiểm tra.
+
+Mô hình túi từ tóm lược tài liệu bằng những từ xuất hiện và bỏ qua ngữ cảnh của chúng. Có ít nhất hai cách phổ biến để tính đến ngữ cảnh:
+
+- Mô hình _túi n-gram_. Chẳng hạn, túi 2-gram ghi nhận sự đồng xuất hiện liên tiếp của từng cặp từ phân biệt. “Blissfully long” có thể là một cụm từ tích cực trong bài đánh giá phim, còn “blissfully short” là tiêu cực.
+
+- Xem tài liệu như một chuỗi, xét mọi từ trong ngữ cảnh của những từ đứng trước và theo sau nó.
+
+Trong mục tiếp theo, chúng ta khảo sát các mô hình cho dữ liệu chuỗi, với những ứng dụng như dự báo thời tiết, nhận dạng tiếng nói, dịch ngôn ngữ và dự đoán chuỗi thời gian. Ta sẽ tiếp tục dùng ví dụ `IMDb` tại đó.
+
+</MdxPage>

@@ -1,0 +1,100 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-generalized-additive-models",
+  "locale": "vi",
+  "title": "Mô hình cộng tổng quát",
+  "headings": [
+    "Mô hình cộng tính tổng quát",
+    "7.7.1 GAM cho bài toán hồi quy",
+    "7.7.2 GAM cho bài toán phân loại"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Mô hình cộng tính tổng quát",
+    "GAM"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Mô hình cộng tính tổng quát
+
+Trong các Mục 7.1–7.6, ta trình bày một số cách tiếp cận để dự đoán linh hoạt biến đáp ứng _Y_ dựa trên một biến dự báo _X_. Có thể xem chúng là những mở rộng của hồi quy tuyến tính đơn. Ở đây, ta khảo sát bài toán dự đoán linh hoạt _Y_ dựa trên nhiều biến dự báo _X_ 1 _, . . . , Xp_. Đây là một mở rộng của hồi quy tuyến tính bội.
+
+_Mô hình cộng tính tổng quát_ (generalized additive model, GAM) cung cấp một khuôn khổ chung để mở rộng mô hình tuyến tính tiêu chuẩn bằng cách cho phép các hàm phi tuyến của từng biến, đồng thời duy trì _tính cộng_. Giống mô hình tuyến tính, GAM có thể áp dụng cho cả biến đáp ứng định lượng và định tính. Trước hết, ta
+
+**HÌNH 7.11.** _Với dữ liệu_ `Wage`_, các biểu đồ thể hiện quan hệ giữa từng đặc trưng và biến đáp ứng_ `wage` _trong mô hình khớp (7.16). Mỗi biểu đồ hiển thị hàm đã khớp và sai số chuẩn theo điểm. Hai hàm đầu là spline tự nhiên theo_ `year` _và_ `age`_, lần lượt có bốn và năm bậc tự do. Hàm thứ ba là hàm bậc thang khớp với biến định tính_ `education`_._
+
+xem xét GAM cho biến đáp ứng định lượng ở Mục 7.7.1, rồi cho biến đáp ứng định tính ở Mục 7.7.2.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 7.7.1 GAM cho bài toán hồi quy
+
+Một cách tự nhiên để mở rộng mô hình hồi quy tuyến tính bội
+
+nhằm cho phép quan hệ phi tuyến giữa từng đặc trưng và biến đáp ứng là thay mỗi thành phần tuyến tính _βjxij_ bằng một hàm phi tuyến (trơn) _fj_ ( _xij_ ). Khi đó ta viết mô hình
+
+Đây là một ví dụ về GAM. Nó được gọi là mô hình _cộng tính_ vì ta tính một _fj_ riêng cho mỗi _Xj_, rồi cộng tất cả đóng góp của chúng.
+
+Trong các Mục 7.1–7.6, ta đã thảo luận nhiều phương pháp khớp hàm theo một biến. Điểm hay của GAM là ta có thể dùng các phương pháp này làm khối xây dựng để khớp mô hình cộng tính. Thực ra, với hầu hết phương pháp đã thấy trong chương, việc này khá đơn giản. Chẳng hạn, xét spline tự nhiên và nhiệm vụ khớp mô hình
+
+trên dữ liệu `Wage`. Ở đây `year` và `age` là các biến định lượng, còn `education` là biến định tính có năm mức; `Coll` đề cập đến mức học vấn trung học hoặc đại học mà một người đã hoàn thành. Ta khớp hai hàm đầu bằng spline tự nhiên. Ta
+
+**HÌNH 7.12.** _Các chi tiết giống Hình 7.11, nhưng giờ f_ 1 _và f_ 2 _là các spline làm trơn lần lượt có bốn và năm bậc tự do._
+
+khớp hàm thứ ba bằng một hằng số riêng cho mỗi mức, thông qua cách dùng biến giả thông thường ở Mục 3.3.1.
+
+Hình 7.11 thể hiện kết quả khớp mô hình (7.16) bằng bình phương tối thiểu. Việc này dễ thực hiện vì, như đã thảo luận trong Mục 7.4, spline tự nhiên có thể được xây dựng bằng một tập hàm cơ sở được chọn phù hợp. Do đó, toàn bộ mô hình chỉ là một hồi quy lớn theo các biến cơ sở spline và biến giả, tất cả được đóng gói trong một ma trận hồi quy lớn.
+
+Hình 7.11 dễ diễn giải. Biểu đồ bên trái cho thấy khi giữ `age` và `education` cố định, `wage` có xu hướng tăng nhẹ theo `year`; điều này có thể do lạm phát. Biểu đồ giữa cho thấy khi giữ `education` và `year` cố định, `wage` thường cao nhất ở các giá trị `age` trung gian và thấp nhất ở người rất trẻ hoặc rất già. Biểu đồ bên phải cho thấy khi giữ `year` và `age` cố định, `wage` có xu hướng tăng theo `education`: trung bình một người càng có học vấn cao thì lương càng cao. Tất cả kết luận này đều hợp lý theo trực giác.
+
+Hình 7.12 thể hiện một bộ ba biểu đồ tương tự, nhưng lần này _f_ 1 và _f_ 2 là các spline làm trơn lần lượt có bốn và năm bậc tự do. Khớp GAM bằng spline làm trơn không đơn giản như bằng spline tự nhiên, vì với spline làm trơn không thể dùng bình phương tối thiểu. Tuy nhiên, phần mềm tiêu chuẩn như gói `Python` `pygam` có thể khớp GAM bằng spline làm trơn thông qua cách tiếp cận mà `pygam` gọi là _khớp ngược_ (backfitting). Phương pháp này khớp mô hình có nhiều biến dự báo bằng cách lần lượt cập nhật mô hình khớp cho từng biến, đồng thời giữ các biến khác cố định. Điểm hay là mỗi lần cập nhật một hàm, ta chỉ cần áp dụng phương pháp khớp cho biến đó lên một _phần dư riêng phần_.^(6)
+
+Các hàm đã khớp trong Hình 7.11 và 7.12 trông khá giống nhau. Trong phần lớn tình huống, khác biệt giữa GAM dùng spline làm trơn và GAM dùng spline tự nhiên là nhỏ.
+
+> 6Ví dụ, phần dư riêng phần cho _X_ 3 có dạng _ri_ = _yi − f_ 1( _xi_ 1) _− f_ 2( _xi_ 2). Nếu biết _f_ 1 và _f_ 2, ta có thể khớp _f_ 3 bằng cách xem phần dư này là biến đáp ứng trong hồi quy phi tuyến theo _X_ 3.
+
+Ta không bắt buộc dùng spline làm khối xây dựng cho GAM: hoàn toàn có thể dùng hồi quy cục bộ, hồi quy đa thức hoặc bất kỳ tổ hợp nào của các cách tiếp cận đã thấy trước đó trong chương. GAM được khảo sát kỹ hơn trong phần thực hành cuối chương.
+
+##### Ưu điểm và hạn chế của GAM
+
+Trước khi tiếp tục, hãy tóm tắt ưu điểm và hạn chế của GAM.
+
+- L GAM cho phép khớp một _fj_ phi tuyến với mỗi _Xj_, nhờ đó tự động mô hình hóa các quan hệ phi tuyến mà hồi quy tuyến tính tiêu chuẩn sẽ bỏ lỡ. Điều này có nghĩa là ta không cần thử thủ công nhiều phép biến đổi khác nhau trên từng biến.
+
+- L Các mô hình khớp phi tuyến có khả năng dự đoán biến đáp ứng _Y_ chính xác hơn.
+
+- L Vì mô hình có tính cộng, ta có thể xem xét riêng ảnh hưởng của từng _Xj_ lên _Y_ trong khi giữ tất cả biến khác cố định.
+
+- L Độ trơn của hàm _fj_ cho biến _Xj_ có thể được tóm tắt bằng bậc tự do.
+
+- N Hạn chế chính của GAM là mô hình bị giới hạn ở tính cộng. Khi có nhiều biến, các tương tác quan trọng có thể bị bỏ lỡ. Tuy nhiên, cũng như hồi quy tuyến tính, ta có thể thêm thủ công các hạng tử tương tác vào GAM bằng các biến dự báo bổ sung dạng _Xj × Xk_. Ngoài ra, ta có thể thêm các hàm tương tác ít chiều dạng _fjk_ ( _Xj, Xk_ ) vào mô hình; các hạng tử này có thể được khớp bằng bộ làm trơn hai chiều như hồi quy cục bộ hoặc spline hai chiều (không trình bày ở đây).
+
+Với mô hình hoàn toàn tổng quát, ta phải tìm đến những cách tiếp cận linh hoạt hơn nữa như rừng ngẫu nhiên và boosting, được mô tả trong Chương 8. GAM là một sự dung hòa hữu ích giữa mô hình tuyến tính và mô hình hoàn toàn phi tham số.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 7.7.2 GAM cho bài toán phân loại
+
+GAM cũng có thể dùng khi _Y_ là biến định tính. Để đơn giản, ở đây ta giả sử _Y_ nhận giá trị 0 hoặc 1, và đặt _p_ ( _X_ ) = Pr( _Y_ = 1 _|X_ ) là xác suất có điều kiện (khi biết các biến dự báo) để đáp ứng bằng một. Nhắc lại mô hình hồi quy logistic (4.6):
+
+Vế trái là log của odds _P_ ( _Y_ = 1 _|X_ ) so với _P_ ( _Y_ = 0 _|X_ ); (7.17) biểu diễn đại lượng này như một hàm tuyến tính của các biến dự báo. Một cách tự nhiên để mở rộng (7.17) nhằm cho phép quan hệ phi tuyến là dùng mô hình
+
+**HÌNH 7.13.** _Với dữ liệu_ `Wage`_, GAM hồi quy logistic trong (7.19) được khớp với biến đáp ứng nhị phân_ `I(wage>250)`_. Mỗi biểu đồ hiển thị hàm đã khớp và sai số chuẩn theo điểm. Hàm thứ nhất tuyến tính theo_ `year`_, hàm thứ hai là spline làm trơn có năm bậc tự do theo_ `age`_, và hàm thứ ba là hàm bậc thang cho_ `education`_. Sai số chuẩn rất rộng ở mức đầu tiên_ `<HS` _của_ `education`_._
+
+Phương trình 7.18 là một GAM hồi quy logistic. Nó có cùng ưu điểm và hạn chế như đã thảo luận ở phần trước cho biến đáp ứng định lượng.
+
+Ta khớp GAM với dữ liệu `Wage` để dự đoán xác suất thu nhập của một người vượt $250 _,_ 000 mỗi năm. GAM được khớp có dạng
+
+Một lần nữa, _f_ 2 được khớp bằng spline làm trơn có năm bậc tự do, còn _f_ 3 được khớp như hàm bậc thang bằng cách tạo biến giả cho từng mức học vấn. Mô hình kết quả được thể hiện trong Hình 7.13. Biểu đồ cuối trông đáng ngờ, với khoảng tin cậy rất rộng cho mức `<HS`. Thực tế, không có giá trị đáp ứng nào bằng một trong nhóm này: không ai có trình độ thấp hơn trung học kiếm trên $250 _,_ 000 mỗi năm. Vì vậy, ta khớp lại GAM sau khi loại những người có trình độ dưới trung học. Mô hình kết quả được thể hiện trong Hình 7.14. Cũng như Hình 7.11 và 7.12, cả ba biểu đồ có thang đo dọc tương tự nhau, cho phép đánh giá trực quan đóng góp tương đối của từng biến. Ta quan sát thấy `age` và `education` ảnh hưởng đến xác suất thuộc nhóm thu nhập cao lớn hơn nhiều so với `year`.
+
+</MdxPage>

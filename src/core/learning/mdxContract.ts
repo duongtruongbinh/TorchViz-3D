@@ -1,11 +1,17 @@
 export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'LessonNote',
+  'MdxCode',
+  'MdxColumns',
+  'MdxConceptContrast',
+  'MdxFormula',
   'MdxQuiz',
   'MdxPage',
+  'MdxTable',
   'RequirementCard',
   'RequirementsGrid',
   'InlineMath',
   'BlockMath',
+  'div',
 ] as const;
 
 export type LearningMdxMetadata = {
@@ -39,8 +45,11 @@ export function parseLearningMdxPath(filePath: string): LearningMdxPath | null {
 }
 
 export function getLearningMdxComponentNames(source: string): string[] {
+  const sourceWithoutCodeOrDoubleQuotedLiterals = source
+    .replace(/`[^`\n]*`/g, '``')
+    .replace(/"(?:\\.|[^"\\])*"/g, '""');
   return [...new Set(
-    [...source.matchAll(/(?<!['"])<\/?([A-Z][A-Za-z0-9]*)\b/g)].map((match) => match[1]),
+    [...sourceWithoutCodeOrDoubleQuotedLiterals.matchAll(/(?<!['"])<\/?([A-Z][A-Za-z0-9]*)\b/g)].map((match) => match[1]),
   )];
 }
 

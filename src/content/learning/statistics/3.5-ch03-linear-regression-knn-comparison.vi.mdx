@@ -1,0 +1,52 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch03-linear-regression-knn-comparison",
+  "locale": "vi",
+  "title": "So sánh hồi quy tuyến tính với K láng giềng gần nhất",
+  "headings": [
+    "So sánh hồi quy tuyến tính với K láng giềng gần nhất"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Hồi quy tuyến tính",
+    "K láng giềng gần nhất",
+    "KNN"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## So sánh hồi quy tuyến tính với K láng giềng gần nhất
+
+Như Chương 2 đã nói, hồi quy tuyến tính là cách _tham số_ vì giả định dạng hàm tuyến tính cho _f_ ( _X_ ). Phương pháp tham số thường dễ khớp do chỉ cần ước lượng ít hệ số; hệ số dễ diễn giải và dễ kiểm định ý nghĩa. Nhược điểm là giả định mạnh về dạng _f_ ( _X_ ). Nếu dạng được chọn khác xa sự thật và mục tiêu là độ chính xác dự đoán, phương pháp sẽ kém. Giả định quan hệ tuyến tính khi sự thật phi tuyến tạo mô hình khớp kém và kết luận đáng ngờ.
+
+Ngược lại, phương pháp _phi tham số_ không giả định tường minh dạng tham số của _f_ ( _X_ ), nên linh hoạt hơn. Một phương pháp đơn giản, nổi tiếng là _hồi quy K láng giềng gần nhất_ (KNN), liên quan chặt với bộ phân loại KNN ở Chương 2. Với _K_ và điểm dự đoán _x_ 0, nó tìm _K_ quan sát huấn luyện gần _x_ 0 nhất, ký hiệu _N_ 0, rồi ước lượng _f_ ( _x_ 0) bằng trung bình đáp ứng trong _N_ 0:
+
+Hình 3.16 minh họa hai mô hình KNN với _p_ = 2. Khi _K_ = 1, mô hình nội suy hoàn hảo dữ liệu huấn luyện và có dạng hàm bậc thang. Khi _K_ = 9, vẫn là hàm bậc thang nhưng lấy trung bình chín quan sát tạo mô hình trơn hơn. _K_ tối ưu phụ thuộc đánh đổi độ chệch–phương sai. _K_ nhỏ linh hoạt, độ chệch thấp nhưng phương sai cao vì dự đoán một vùng chỉ phụ thuộc một quan sát.
+
+**HÌNH 3.16.** _Các biểu đồ f_^(ˆ) ( _X_ ) _từ hồi quy KNN trên dữ liệu hai chiều với_ 64 _quan sát (chấm cam)._ Trái: _K_ = 1 _tạo hàm bậc thang gồ ghề._ Phải: _K_ = 9 _trơn hơn nhiều._
+
+_K_ lớn tạo mô hình trơn, ít biến thiên vì dự đoán lấy trung bình nhiều điểm; thay một quan sát ít ảnh hưởng hơn. Nhưng làm trơn có thể gây chệch bằng cách che cấu trúc trong _f_. Chương 5 trình bày cách ước lượng lỗi kiểm tra để chọn _K_.
+
+Khi nào hồi quy tuyến tính tham số tốt hơn KNN phi tham số? _Khi dạng tham số đã chọn gần dạng thật của f._ Hình 3.17 dùng dữ liệu từ mô hình tuyến tính một chiều. Đường đen là _f_, đường xanh là KNN _K_ = 1 và 9. _K_ = 1 quá biến thiên, _K_ = 9 gần _f_ hơn. Nhưng vì quan hệ thật tuyến tính, chi phí phương sai của phi tham số không được bù bằng giảm độ chệch. Đường xanh nét đứt trong Hình 3.18 là hồi quy tuyến tính và gần hoàn hảo. Biểu đồ phải cho thấy MSE kiểm tra KNN (đường xanh lá theo 1 _/K_) cao hơn MSE hồi quy tuyến tính (nét đứt đen), đặc biệt khi _K_ nhỏ.
+
+Trong thực tế quan hệ hiếm khi chính xác tuyến tính. Hình 3.19 so sánh khi mức phi tuyến tăng. Ở hàng trên, quan hệ gần tuyến tính: hồi quy tuyến tính vẫn tốt hơn KNN với _K_ thấp, nhưng _K ≥_ 4 thì KNN tốt hơn. Hàng dưới phi tuyến mạnh hơn, KNN tốt hơn rõ với mọi _K_. Phi tuyến tăng ít làm đổi MSE của KNN nhưng làm MSE hồi quy tuyến tính tăng lớn.
+
+**HÌNH 3.17.** _KNN trên dữ liệu một chiều có_ 50 _quan sát; quan hệ thật là đường đen._ Trái: _K_ = 1 _nội suy dữ liệu._ Phải: _K_ = 9 _trơn hơn._
+
+**HÌNH 3.18.** _Cùng dữ liệu Hình 3.17._ Trái: _Đường nét đứt xanh là bình phương tối thiểu, rất tốt vì f tuyến tính._ Phải: _Nét đứt ngang là MSE kiểm tra bình phương tối thiểu; đường xanh lá là MSE KNN theo_ 1 _/K trên thang log. Hồi quy tuyến tính thấp hơn; KNN tốt nhất với K rất lớn._
+
+**HÌNH 3.19.** Trên trái: _Quan hệ hơi phi tuyến, KNN K_ = 1 _và_ 9_._ Trên phải: _MSE kiểm tra của bình phương tối thiểu và KNN theo_ 1 _/K_._ Hàng dưới: _Tương tự với quan hệ phi tuyến mạnh._
+
+Có thể nghĩ nên luôn ưu tiên KNN vì chỉ kém nhẹ khi tuyến tính nhưng tốt hơn nhiều khi phi tuyến. Tuy nhiên, ngay cả khi quan hệ phi tuyến mạnh, KNN có thể kém hơn trong số chiều cao. Các hình trên chỉ có _p_ = 1.
+
+**HÌNH 3.20.** _MSE kiểm tra của hồi quy tuyến tính (nét đứt đen) và KNN (đường xanh lá) khi số biến p tăng. Hàm thật phi tuyến theo biến đầu và không phụ thuộc các biến nhiễu thêm. Hồi quy tuyến tính suy giảm chậm; KNN suy giảm nhanh hơn nhiều._
+
+Hình 3.20 thêm các biến _nhiễu_. Khi _p_ = 1 hoặc 2, KNN tốt hơn; _p_ = 3 cho kết quả lẫn lộn; _p ≥_ 4 thì hồi quy tuyến tính tốt hơn. MSE tuyến tính chỉ tăng nhẹ, còn KNN tăng hơn mười lần. Số chiều tăng làm giảm hiệu dụng cỡ mẫu. Với 50 quan sát và _p_ = 20, một điểm không có _láng giềng gần_; _K_ điểm gần nhất vẫn rất xa trong không gian _p_ chiều, gây dự đoán kém. Đây là _lời nguyền số chiều_. Nói chung, phương pháp tham số có xu hướng tốt hơn khi số quan sát trên mỗi biến dự báo nhỏ.
+
+Ngay cả số chiều nhỏ, ta có thể ưu tiên hồi quy tuyến tính vì dễ diễn giải. Nếu MSE KNN chỉ thấp hơn chút ít, có thể đổi một ít độ chính xác lấy mô hình đơn giản mô tả bằng vài hệ số và có giá trị p.
+
+</MdxPage>

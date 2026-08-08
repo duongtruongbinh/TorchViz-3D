@@ -1,0 +1,70 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-support-vector-classifiers",
+  "locale": "vi",
+  "title": "Bộ phân loại vector hỗ trợ",
+  "headings": [
+    "9.2.1 Tổng quan về bộ phân loại vector hỗ trợ",
+    "9.2.2 Chi tiết về bộ phân loại vector hỗ trợ"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Máy vector hỗ trợ",
+    "Bộ phân loại vector hỗ trợ"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## 9.2.1 Tổng quan về bộ phân loại vector hỗ trợ
+
+Trong Hình 9.4, ta thấy các quan sát thuộc hai lớp không nhất thiết có thể được phân tách bằng một siêu phẳng. Thực ra, ngay cả khi tồn tại siêu phẳng phân tách, đôi lúc một bộ phân loại dựa trên siêu phẳng này vẫn không phải lựa chọn mong muốn. Bộ phân loại dựa trên siêu phẳng phân tách nhất thiết phân loại hoàn hảo mọi quan sát huấn luyện; điều này có thể khiến nó nhạy cảm với từng quan sát. Hình 9.5 minh họa một ví dụ. Việc thêm một quan sát duy nhất ở biểu đồ bên phải làm siêu phẳng biên cực đại thay đổi mạnh. Siêu phẳng kết quả không thỏa đáng—trước hết vì nó chỉ có một biên rất nhỏ. Đây là vấn đề bởi như đã thảo luận, khoảng cách từ một quan sát tới siêu phẳng có thể được xem là thước đo mức tin cậy rằng quan sát đã được phân loại đúng. Hơn nữa, việc siêu phẳng biên cực đại cực kỳ nhạy với thay đổi của một quan sát cho thấy nó có thể đã quá khớp dữ liệu huấn luyện.
+
+Trong trường hợp này, ta có thể sẵn sàng cân nhắc một bộ phân loại dựa trên siêu phẳng _không_ phân tách hoàn hảo hai lớp, nhằm đạt được
+
+**HÌNH 9.5.** Trái: _Hai lớp quan sát màu xanh và tím được thể hiện cùng siêu phẳng biên cực đại._ Phải: _Một quan sát xanh bổ sung được thêm vào, dẫn tới sự dịch chuyển mạnh của siêu phẳng biên cực đại vẽ bằng đường liền. Đường nét đứt biểu thị siêu phẳng biên cực đại thu được khi chưa có điểm bổ sung này._
+
+- Khả năng chống chịu tốt hơn với từng quan sát, và
+
+- Phân loại tốt hơn cho _phần lớn_ các quan sát huấn luyện.
+
+Tức là, việc phân loại sai một vài quan sát huấn luyện có thể đáng giá nếu nhờ đó ta phân loại tốt hơn những quan sát còn lại.
+
+_Bộ phân loại vector hỗ trợ_ (support vector classifier), đôi khi gọi là _bộ phân loại biên mềm_, thực hiện đúng điều này. Thay vì tìm biên lớn nhất sao cho mọi quan sát không chỉ nằm đúng phía của siêu phẳng mà còn đúng phía của biên, ta cho phép một số quan sát nằm sai phía của biên, thậm chí sai phía của siêu phẳng. (Biên là _mềm_ vì một số quan sát huấn luyện có thể vi phạm nó.) Biểu đồ bên trái của Hình 9.6 minh họa một ví dụ. Phần lớn quan sát nằm đúng phía của biên, nhưng một tập con nhỏ nằm sai phía.
+
+Một quan sát không chỉ có thể nằm sai phía của biên mà còn có thể nằm sai phía của siêu phẳng. Thực tế, khi không tồn tại siêu phẳng phân tách, tình huống này là không thể tránh khỏi. Các quan sát nằm sai phía của siêu phẳng tương ứng với những quan sát huấn luyện bị bộ phân loại vector hỗ trợ phân loại sai. Biểu đồ bên phải của Hình 9.6 minh họa kịch bản này.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 9.2.2 Chi tiết về bộ phân loại vector hỗ trợ
+
+Bộ phân loại vector hỗ trợ phân loại một quan sát kiểm tra tùy theo nó nằm phía nào của siêu phẳng. Siêu phẳng được chọn để phân tách đúng phần lớn quan sát huấn luyện vào hai lớp, nhưng có thể
+
+**HÌNH 9.6.** Trái: _Một bộ phân loại vector hỗ trợ được khớp với bộ dữ liệu nhỏ. Siêu phẳng được vẽ bằng đường liền, các biên bằng đường nét đứt._ Quan sát tím: _Các quan sát_ 3 _,_ 4 _,_ 5 _và_ 6 _nằm đúng phía của biên, quan sát_ 2 _nằm trên biên và quan sát 1 nằm sai phía của biên._ Quan sát xanh: _Các quan sát_ 7 _và_ 10 _nằm đúng phía của biên, quan sát_ 9 _nằm trên biên và quan sát_ 8 _nằm sai phía của biên. Không có quan sát nào nằm sai phía của siêu phẳng._ Phải: _Giống biểu đồ bên trái nhưng thêm hai điểm_ 11 _và_ 12_. Hai quan sát này nằm sai phía của cả siêu phẳng lẫn biên._
+
+phân loại sai một vài quan sát. Nó là nghiệm của bài toán tối ưu
+
+trong đó _C_ là một tham số điều chỉnh không âm. Như trong (9.11), _M_ là độ rộng của biên; ta muốn đại lượng này lớn nhất có thể. Trong (9.14), _ϵ_ 1 _, . . . , ϵn_ là các _biến nới lỏng_ (slack variable), cho phép từng quan sát nằm sai phía của biên hoặc siêu phẳng; ta sẽ giải thích kỹ hơn ngay sau đây. Sau khi giải (9.12)–(9.15), ta phân loại quan sát kiểm tra _x_^(_∗_) như trước bằng cách xác định nó nằm phía nào của siêu phẳng. Tức là ta phân loại dựa trên dấu của _f_ ( _x_^(_∗_) ) = _β_ 0 + _β_ 1 _x_^(_∗_) 1^(+)^(_· · ·_+)^(_βpx∗_) _p_^( .)
+
+Bài toán (9.12)–(9.15) có vẻ phức tạp, nhưng có thể hiểu hành vi của nó qua một chuỗi quan sát đơn giản. Trước hết, biến nới lỏng _ϵi_ cho biết vị trí của quan sát thứ _i_ so với siêu phẳng và biên. Nếu _ϵi_ = 0, quan sát thứ _i_ nằm đúng phía của biên như đã thấy ở Mục 9.1.4. Nếu _ϵi &gt;_ 0, quan sát thứ _i_ nằm sai phía của biên và ta nói nó đã _vi phạm_ biên. Nếu _ϵi &gt;_ 1, nó nằm sai phía của siêu phẳng.
+
+Bây giờ ta xét vai trò của tham số điều chỉnh _C_. Trong (9.15), _C_ chặn tổng các _ϵi_, nên nó xác định số lượng và mức độ nghiêm trọng của các vi phạm biên (và siêu phẳng) mà ta chấp nhận. Có thể xem _C_ là một _ngân sách_ cho tổng mức độ mà _n_ quan sát được phép vi phạm biên. Nếu _C_ = 0 thì không có ngân sách vi phạm biên, và nhất thiết _ϵ_ 1 = _· · ·_ = _ϵn_ = 0; khi đó (9.12)–(9.15) chỉ là bài toán tối ưu siêu phẳng biên cực đại (9.9)–(9.11). (Tất nhiên, siêu phẳng biên cực đại chỉ tồn tại nếu hai lớp có thể phân tách.) Với _C &gt;_ 0, không quá _C_ quan sát có thể nằm sai phía của siêu phẳng, vì một quan sát sai phía có _ϵi &gt;_ 1 và (9.15) yêu cầu^(�)^(_n_) _i_ =1^(_ϵi≤C_.Khingânsách)^(_C_tăng,tachấpnhậnnhiều) vi phạm biên hơn, nên biên mở rộng. Ngược lại, khi _C_ giảm, ta ít chấp nhận vi phạm biên hơn và biên thu hẹp. Hình 9.7 minh họa một ví dụ.
+
+Trong thực tế, _C_ được xem là tham số điều chỉnh thường được chọn bằng xác thực chéo. Giống các tham số điều chỉnh đã gặp xuyên suốt cuốn sách, _C_ kiểm soát sự đánh đổi độ chệch–phương sai của kỹ thuật học thống kê. Khi _C_ nhỏ, ta tìm biên hẹp hiếm khi bị vi phạm; điều này tương đương với một bộ phân loại khớp dữ liệu rất sát, có thể có độ chệch thấp nhưng phương sai cao. Mặt khác, khi _C_ lớn hơn, biên rộng hơn và ta cho phép nhiều vi phạm hơn; điều này tương đương khớp dữ liệu ít sát hơn và thu được bộ phân loại có thể chệch hơn nhưng phương sai thấp hơn.
+
+Bài toán tối ưu (9.12)–(9.15) có một tính chất rất thú vị: hóa ra chỉ những quan sát nằm trên biên hoặc vi phạm biên mới ảnh hưởng đến siêu phẳng và do đó đến bộ phân loại thu được. Nói cách khác, một quan sát nằm hoàn toàn đúng phía của biên không ảnh hưởng đến bộ phân loại vector hỗ trợ! Thay đổi vị trí quan sát đó sẽ không làm bộ phân loại thay đổi, miễn là nó vẫn nằm đúng phía của biên. Các quan sát nằm trực tiếp trên biên hoặc sai phía của biên đối với lớp của mình được gọi là _vector hỗ trợ_. Những quan sát này có ảnh hưởng đến bộ phân loại vector hỗ trợ.
+
+Việc chỉ các vector hỗ trợ ảnh hưởng đến bộ phân loại phù hợp với khẳng định trước đó rằng _C_ kiểm soát sự đánh đổi độ chệch–phương sai. Khi _C_ lớn, biên rộng, nhiều quan sát vi phạm biên nên có nhiều vector hỗ trợ. Khi đó, nhiều quan sát tham gia xác định siêu phẳng. Biểu đồ trên bên trái của Hình 9.7 minh họa bối cảnh này: bộ phân loại có phương sai thấp (vì nhiều quan sát là vector hỗ trợ) nhưng có thể có độ chệch cao. Ngược lại, nếu _C_ nhỏ, sẽ có ít vector hỗ trợ hơn và bộ phân loại kết quả có độ chệch thấp nhưng phương sai cao. Biểu đồ dưới bên phải của Hình 9.7 minh họa trường hợp này với chỉ tám vector hỗ trợ.
+
+Việc quy tắc quyết định của bộ phân loại vector hỗ trợ chỉ dựa trên một tập con có thể nhỏ của các quan sát huấn luyện (các vector hỗ trợ) có nghĩa nó khá bền vững trước hành vi của những quan sát cách xa siêu phẳng. Tính chất này khác với một số
+
+**HÌNH 9.7.** _Một bộ phân loại vector hỗ trợ được khớp bằng bốn giá trị khác nhau của tham số điều chỉnh C trong (9.12)–(9.15). Giá trị C lớn nhất được dùng ở biểu đồ trên bên trái; các giá trị nhỏ dần được dùng ở biểu đồ trên bên phải, dưới bên trái và dưới bên phải. Khi C lớn, mức chấp nhận quan sát nằm sai phía của biên cao, nên biên lớn. Khi C giảm, mức chấp nhận này giảm và biên thu hẹp._
+
+phương pháp phân loại khác đã thấy trong các chương trước, như phân tích biệt thức tuyến tính. Nhắc lại rằng quy tắc phân loại LDA phụ thuộc vào trung bình của _tất cả_ quan sát trong mỗi lớp, cũng như ma trận hiệp phương sai nội lớp được tính bằng _tất cả_ quan sát. Ngược lại, hồi quy logistic—không giống LDA—rất ít nhạy với các quan sát cách xa biên quyết định. Thực tế, ở Mục 9.5 ta sẽ thấy bộ phân loại vector hỗ trợ và hồi quy logistic có quan hệ chặt chẽ.
+
+</MdxPage>

@@ -1,0 +1,216 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch03-exercises",
+  "locale": "vi",
+  "title": "Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Thực hành"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Hồi quy tuyến tính",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Hãy mô tả các giả thuyết không tương ứng với những giá trị _p_ trong Bảng 3.4. Giải thích các kết luận có thể rút ra dựa trên những giá trị _p_ này. Câu trả lời nên được diễn đạt theo `sales`, `TV`, `radio` và `newspaper`, thay vì theo các hệ số của mô hình tuyến tính.
+
+2. Hãy giải thích cẩn thận sự khác nhau giữa phương pháp phân loại KNN và hồi quy KNN.
+
+3. Giả sử ta có một tập dữ liệu gồm năm biến dự báo: _X_ 1 = GPA, _X_ 2 = IQ, _X_ 3 = Level (1 nếu học cao đẳng/đại học và 0 nếu chỉ tốt nghiệp trung học), _X_ 4 = tương tác giữa GPA và IQ, và _X_ 5 = tương tác giữa GPA và Level. Biến đáp ứng là mức lương khởi điểm sau khi tốt nghiệp (tính theo nghìn đô la). Giả sử ta dùng bình phương tối thiểu để khớp mô hình và thu được _β_ 0 = 50 _, β_ 1 = 20 _, β_ 2 = 0 _._ 07 _, β_ 3 = 35 _, β_ 4 = 0 _._ 01 _, β_ 5 = _−_ 10.
+
+   - (a) Câu trả lời nào đúng, và tại sao?
+
+      - i. Với IQ và GPA cố định, trung bình người tốt nghiệp trung học kiếm được nhiều hơn người tốt nghiệp cao đẳng/đại học.
+
+      - ii. Với IQ và GPA cố định, trung bình người tốt nghiệp cao đẳng/đại học kiếm được nhiều hơn người tốt nghiệp trung học.
+
+      - iii. Với IQ và GPA cố định, trung bình người tốt nghiệp trung học kiếm được nhiều hơn người tốt nghiệp cao đẳng/đại học nếu GPA đủ cao.
+
+      - iv. Với IQ và GPA cố định, trung bình người tốt nghiệp cao đẳng/đại học kiếm được nhiều hơn người tốt nghiệp trung học nếu GPA đủ cao.
+
+   - (b) Dự đoán mức lương của một người tốt nghiệp cao đẳng/đại học có IQ bằng 110 và GPA bằng 4 _._ 0.
+
+   - (c) Đúng hay sai: Vì hệ số của hạng tử tương tác GPA/IQ rất nhỏ nên gần như không có bằng chứng về hiệu ứng tương tác. Hãy giải thích câu trả lời.
+
+4. Tôi thu thập một tập dữ liệu (_n_ = 100 quan sát) gồm một biến dự báo và một biến đáp ứng định lượng. Sau đó, tôi khớp một mô hình hồi quy tuyến tính và một mô hình hồi quy bậc ba riêng biệt với dữ liệu, tức là _Y_ = _β_ 0 + _β_ 1 _X_ + _β_ 2 _X_^(2) + _β_ 3 _X_^(3) + _ϵ_ .
+
+   - (a) Giả sử mối quan hệ thực giữa X và Y là tuyến tính, tức _Y_ = _β_ 0 + _β_ 1 _X_ + _ϵ_ . Xét tổng bình phương phần dư (RSS) trên tập huấn luyện của hồi quy tuyến tính và RSS trên tập huấn luyện của hồi quy bậc ba. Ta kỳ vọng giá trị nào nhỏ hơn, hai giá trị bằng nhau, hay chưa đủ thông tin để kết luận? Hãy giải thích.
+
+   - (b) Trả lời câu (a) bằng RSS trên tập kiểm tra thay vì RSS trên tập huấn luyện.
+
+   - (c) Giả sử mối quan hệ thực giữa X và Y không tuyến tính, nhưng ta không biết nó lệch khỏi tuyến tính đến mức nào. Xét RSS trên tập huấn luyện của hồi quy tuyến tính và của hồi quy bậc ba. Ta kỳ vọng giá trị nào nhỏ hơn, hai giá trị bằng nhau, hay chưa đủ thông tin để kết luận? Hãy giải thích.
+
+   - (d) Trả lời câu (c) bằng RSS trên tập kiểm tra thay vì RSS trên tập huấn luyện.
+
+5. Xét các giá trị khớp thu được khi thực hiện hồi quy tuyến tính không có hệ số chặn. Trong trường hợp này, giá trị khớp thứ _i_ có dạng
+
+Chứng minh rằng ta có thể viết
+
+_ai′_ là gì?
+
+_Lưu ý: Ta diễn giải kết quả này bằng cách nói rằng các giá trị khớp từ hồi quy tuyến tính là các_ tổ hợp tuyến tính _của những giá trị đáp ứng._
+
+6. Dùng (3.4), hãy lập luận rằng trong hồi quy tuyến tính đơn, đường bình phương tối thiểu luôn đi qua điểm (¯ _x,_ ¯ _y_ ).
+
+7. Nội dung chương khẳng định rằng trong hồi quy tuyến tính đơn của _Y_ theo _X_, thống kê _R_^(2) ở (3.17) bằng bình phương hệ số tương quan giữa _X_ và _Y_ ở (3.18). Hãy chứng minh điều này. Để đơn giản, có thể giả sử _x_ ¯ = _y_ ¯ = 0.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thực hành
+
+8. Câu hỏi này sử dụng hồi quy tuyến tính đơn trên tập dữ liệu `Auto`.
+
+   - (a) Dùng hàm `sm.OLS()` để thực hiện hồi quy tuyến tính đơn với `mpg` là biến đáp ứng và `horsepower` là biến dự báo. Dùng hàm `summarize()` để in kết quả. Hãy nhận xét đầu ra. Chẳng hạn:
+
+      - i. Có mối quan hệ giữa biến dự báo và biến đáp ứng không?
+
+      - ii. Mối quan hệ giữa biến dự báo và biến đáp ứng mạnh đến mức nào?
+
+      - iii. Mối quan hệ giữa biến dự báo và biến đáp ứng là dương hay âm?
+
+      - iv. Giá trị `mpg` dự đoán ứng với `horsepower` bằng 98 là bao nhiêu? Khoảng tin cậy và khoảng dự đoán 95 % tương ứng là gì?
+
+   - (b) Vẽ biến đáp ứng và biến dự báo trên một hệ trục `ax` mới. Dùng phương thức `ax.axline()` hoặc hàm `abline()` được định nghĩa trong phần lab để hiển thị đường hồi quy bình phương tối thiểu.
+
+   - (c) Tạo một số biểu đồ chẩn đoán cho mô hình hồi quy bình phương tối thiểu như mô tả trong phần lab. Nhận xét về mọi vấn đề bạn thấy trong độ khớp.
+
+9. Câu hỏi này sử dụng hồi quy tuyến tính bội trên tập dữ liệu `Auto`.
+
+   - (a) Tạo ma trận biểu đồ phân tán gồm tất cả các biến trong tập dữ liệu.
+
+   - (b) Tính ma trận tương quan giữa các biến bằng phương thức `DataFrame.corr()`.
+
+<MdxCode language="text" code={".corr()"} />
+
+- (c) Dùng hàm `sm.OLS()` để thực hiện hồi quy tuyến tính bội với `mpg` là biến đáp ứng và tất cả các biến còn lại, ngoại trừ `name`, là các biến dự báo. Dùng hàm `summarize()` để in kết quả. Hãy nhận xét đầu ra. Chẳng hạn:
+
+   - i. Có mối quan hệ giữa các biến dự báo và biến đáp ứng không? Dùng hàm `anova_lm()` từ `statsmodels` để trả lời câu hỏi này.
+
+      - ii. Những biến dự báo nào dường như có mối quan hệ có ý nghĩa thống kê với biến đáp ứng?
+
+      - iii. Hệ số của biến `year` cho thấy điều gì?
+
+   - (d) Tạo một số biểu đồ chẩn đoán cho mô hình hồi quy tuyến tính như mô tả trong phần lab. Nhận xét về mọi vấn đề bạn thấy trong độ khớp. Các biểu đồ phần dư có cho thấy điểm ngoại lai nào lớn bất thường không? Biểu đồ leverage có xác định quan sát nào có leverage cao bất thường không?
+
+   - (e) Khớp một số mô hình có tương tác như mô tả trong phần lab. Có tương tác nào dường như có ý nghĩa thống kê không?
+
+   - (f) Thử một vài phép biến đổi khác nhau cho các biến, chẳng hạn log( _X_ ), _√X_ và _X_^(2). Hãy nhận xét về kết quả.
+
+10. Hãy trả lời câu hỏi này bằng tập dữ liệu `Carseats`.
+
+   - (a) Khớp một mô hình hồi quy bội để dự đoán `Sales` bằng `Price`, `Urban` và `US`.
+
+   - (b) Diễn giải từng hệ số trong mô hình. Hãy cẩn thận vì một số biến trong mô hình là biến định tính!
+
+   - (c) Viết mô hình dưới dạng phương trình, chú ý xử lý đúng các biến định tính.
+
+   - (d) Với những biến dự báo nào bạn có thể bác bỏ giả thuyết không _H_ 0 : _βj_ = 0?
+
+   - (e) Dựa trên câu trả lời cho câu trước, hãy khớp một mô hình nhỏ hơn chỉ dùng các biến dự báo có bằng chứng về mối liên hệ với kết quả.
+
+   - (f) Các mô hình ở (a) và (e) khớp dữ liệu tốt đến mức nào?
+
+   - (g) Dùng mô hình ở (e), hãy tìm khoảng tin cậy 95 % cho các hệ số.
+
+   - (h) Có bằng chứng về điểm ngoại lai hoặc quan sát có leverage cao trong mô hình ở (e) không?
+
+11. Trong bài này, ta sẽ khảo sát thống kê _t_ cho giả thuyết không _H_ 0 : _β_ = 0 trong hồi quy tuyến tính đơn không có hệ số chặn. Trước hết, ta sinh một biến dự báo `x` và một biến đáp ứng `y` như sau.
+
+<MdxCode language="text" code={"rng=np.random.default_rng(1)\nx=rng.normal(size=100)\ny=2*x+rng.normal(size=100)"} />
+
+- (a) Thực hiện hồi quy tuyến tính đơn của `y` theo `x`, _không có_ hệ số chặn. Báo cáo ước lượng hệ số _β_^(ˆ), sai số chuẩn của ước lượng này, cùng thống kê _t_ và giá trị _p_ tương ứng với giả thuyết không _H_ 0 : _β_ = 0. Hãy nhận xét kết quả. (Bạn có thể thực hiện hồi quy không có hệ số chặn bằng cách truyền đối số từ khóa `intercept=False` cho `ModelSpec()`.)
+
+- (b) Tiếp theo, thực hiện hồi quy tuyến tính đơn của `x` theo `y` không có hệ số chặn, rồi báo cáo ước lượng hệ số, sai số chuẩn, thống kê _t_ và giá trị _p_ tương ứng với giả thuyết không _H_ 0 : _β_ = 0. Hãy nhận xét kết quả.
+
+- (c) Kết quả thu được ở (a) và (b) có mối quan hệ như thế nào?
+
+- (d) Với hồi quy của _Y_ theo _X_ không có hệ số chặn, thống kê _t_ cho _H_ 0 : _β_ = 0 có dạng _β/_^(ˆ) SE( _β_^(ˆ) ), trong đó _β_^(ˆ) được cho bởi (3.38), và
+
+(Các công thức này hơi khác với những công thức ở Mục 3.1.1 và 3.1.2 vì ở đây ta thực hiện hồi quy không có hệ số chặn.) Hãy chứng minh bằng đại số và xác nhận bằng tính toán số trong `R` rằng thống kê _t_ có thể được viết thành
+
+   - (e) Dựa trên kết quả ở (d), hãy lập luận rằng thống kê _t_ của hồi quy `y` theo `x` bằng thống kê _t_ của hồi quy `x` theo `y`.
+
+   - (f) Trong `R`, hãy chỉ ra rằng khi hồi quy được thực hiện _có_ hệ số chặn, thống kê _t_ cho _H_ 0 : _β_ 1 = 0 là như nhau đối với hồi quy `y` theo `x` và hồi quy `x` theo `y`.
+
+12. Bài này liên quan đến hồi quy tuyến tính đơn không có hệ số chặn.
+
+   - (a) Nhắc lại rằng ước lượng hệ số _β_^(ˆ) cho hồi quy tuyến tính của _Y_ theo _X_ không có hệ số chặn được cho bởi (3.38). Trong trường hợp nào ước lượng hệ số của hồi quy _X_ theo _Y_ bằng ước lượng hệ số của hồi quy _Y_ theo _X_?
+
+   - (b) Tạo một ví dụ trong `Python` với _n_ = 100 quan sát, trong đó ước lượng hệ số của hồi quy _X_ theo _Y_ _khác với_ ước lượng hệ số của hồi quy _Y_ theo _X_.
+
+   - (c) Tạo một ví dụ trong `Python` với _n_ = 100 quan sát, trong đó ước lượng hệ số của hồi quy _X_ theo _Y_ _bằng_ ước lượng hệ số của hồi quy _Y_ theo _X_.
+
+13. Trong bài tập này, bạn sẽ tạo một số dữ liệu mô phỏng và khớp các mô hình hồi quy tuyến tính đơn với dữ liệu đó. Hãy nhớ dùng bộ sinh số ngẫu nhiên mặc định với seed bằng 1 trước khi bắt đầu phần (a) để bảo đảm kết quả nhất quán.
+
+- (a) Dùng phương thức `normal()` của bộ sinh số ngẫu nhiên để tạo vector `x` gồm 100 quan sát được lấy từ phân phối _N_ (0 _,_ 1). Vector này biểu diễn một đặc trưng _X_.
+
+- (b) Dùng phương thức `normal()` để tạo vector `eps` gồm 100 quan sát được lấy từ phân phối _N_ (0 _,_ 0 _._ 25), tức một phân phối chuẩn có trung bình bằng 0 và phương sai bằng 0 _._ 25.
+
+- (c) Dùng `x` và `eps` để sinh vector `y` theo mô hình
+
+Vector `y` có độ dài bao nhiêu? Giá trị của _β_ 0 và _β_ 1 trong mô hình tuyến tính này là gì?
+
+   - (d) Tạo biểu đồ phân tán thể hiện mối quan hệ giữa `x` và `y`. Hãy nhận xét điều bạn quan sát được.
+
+   - (e) Khớp một mô hình tuyến tính bình phương tối thiểu để dự đoán `y` bằng `x`. Hãy nhận xét mô hình thu được. _β_^(ˆ) 0 và _β_^(ˆ) 1 khác _β_ 0 và _β_ 1 như thế nào?
+
+   - (f) Hiển thị đường bình phương tối thiểu trên biểu đồ phân tán ở (d). Vẽ đường hồi quy tổng thể bằng một màu khác trên cùng biểu đồ. Dùng phương thức `legend()` của hệ trục để tạo chú giải phù hợp.
+
+   - (g) Bây giờ hãy khớp một mô hình hồi quy đa thức dự đoán `y` bằng `x` và x^(2). Có bằng chứng cho thấy hạng tử bậc hai cải thiện độ khớp của mô hình không? Hãy giải thích.
+
+   - (h) Lặp lại (a)–(f) sau khi sửa quy trình sinh dữ liệu để dữ liệu có _ít_ nhiễu hơn. Mô hình (3.39) phải được giữ nguyên. Bạn có thể làm điều này bằng cách giảm phương sai của phân phối chuẩn dùng để sinh sai số _ϵ_ ở (b). Hãy mô tả kết quả.
+
+   - (i) Lặp lại (a)–(f) sau khi sửa quy trình sinh dữ liệu để dữ liệu có _nhiều_ nhiễu hơn. Mô hình (3.39) phải được giữ nguyên. Bạn có thể làm điều này bằng cách tăng phương sai của phân phối chuẩn dùng để sinh sai số _ϵ_ ở (b). Hãy mô tả kết quả.
+
+   - (j) Khoảng tin cậy cho _β_ 0 và _β_ 1 dựa trên tập dữ liệu ban đầu, tập nhiều nhiễu hơn và tập ít nhiễu hơn là gì? Hãy nhận xét kết quả.
+
+14. Bài này tập trung vào vấn đề _đa cộng tuyến_.
+
+   - (a) Thực hiện các lệnh sau trong `Python`:
+
+<MdxCode language="text" code={"rng=np.random.default_rng(10)\nx1=rng.uniform(0,1,size=100)\nx2=0.5*x1+rng.normal(size=100)/10\ny=2+2*x1+0.3*x2+rng.normal(size=100)"} />
+
+Dòng cuối cùng tương ứng với việc tạo một mô hình tuyến tính trong đó `y` là hàm của `x1` và `x2`. Hãy viết dạng của mô hình tuyến tính. Các hệ số hồi quy là gì?
+
+- (b) Hệ số tương quan giữa `x1` và `x2` là bao nhiêu? Tạo biểu đồ phân tán thể hiện mối quan hệ giữa hai biến.
+
+- (c) Dùng dữ liệu này để khớp hồi quy bình phương tối thiểu dự đoán `y` bằng `x1` và `x2`. Hãy mô tả kết quả thu được. Các giá trị _β_^(ˆ) 0, _β_^(ˆ) 1 và _β_^(ˆ) 2 là bao nhiêu, và chúng liên hệ thế nào với các giá trị thực _β_ 0, _β_ 1 và _β_ 2? Bạn có thể bác bỏ giả thuyết không _H_ 0 : _β_ 1 = 0 không? Còn giả thuyết không _H_ 0 : _β_ 2 = 0 thì sao?
+
+- (d) Bây giờ hãy khớp hồi quy bình phương tối thiểu để dự đoán `y` chỉ bằng `x1`. Hãy nhận xét kết quả. Bạn có thể bác bỏ giả thuyết không _H_ 0 : _β_ 1 = 0 không?
+
+- (e) Tiếp theo, khớp hồi quy bình phương tối thiểu để dự đoán `y` chỉ bằng `x2`. Hãy nhận xét kết quả. Bạn có thể bác bỏ giả thuyết không _H_ 0 : _β_ 1 = 0 không?
+
+- (f) Các kết quả thu được ở (c)–(e) có mâu thuẫn với nhau không? Hãy giải thích.
+
+- (g) Giả sử ta có thêm một quan sát nhưng đáng tiếc quan sát này bị đo sai. Ta dùng hàm `np.concatenate()` để; trong bản nguồn, tên hàm bị ngắt dòng thành `np.conca-`
+
+- và `tenate()`, rồi thêm quan sát này vào từng vector `x1`, `x2` và `y`.
+
+<MdxCode language="text" code={"tenate()"} />
+
+<MdxCode language="table" code={"|`x1 = np.concatenate([x1, [0.1]])`|\n|---|\n|`x2 = np.concatenate([x2, [0.8]])`|\n|`y = np.concatenate([y, [6]])`|"} />
+
+Khớp lại các mô hình tuyến tính ở (c)–(e) bằng dữ liệu mới này. Quan sát mới ảnh hưởng thế nào đến từng mô hình? Trong mỗi mô hình, quan sát này là điểm ngoại lai, điểm có leverage cao, hay cả hai? Hãy giải thích.
+
+15. Bài này sử dụng tập dữ liệu `Boston` đã xuất hiện trong phần lab của chương. Bây giờ ta sẽ dự đoán tỷ lệ tội phạm bình quân đầu người bằng các biến khác trong tập dữ liệu. Nói cách khác, tỷ lệ tội phạm bình quân đầu người là biến đáp ứng, còn các biến khác là biến dự báo.
+
+   - (a) Với từng biến dự báo, khớp một mô hình hồi quy tuyến tính đơn để dự đoán biến đáp ứng. Hãy mô tả kết quả. Trong những mô hình nào có mối liên hệ có ý nghĩa thống kê giữa biến dự báo và biến đáp ứng? Tạo một số biểu đồ để minh họa cho nhận định của bạn.
+
+   - (b) Khớp một mô hình hồi quy bội để dự đoán biến đáp ứng bằng tất cả các biến dự báo. Hãy mô tả kết quả. Với những biến dự báo nào ta có thể bác bỏ giả thuyết không _H_ 0 : _βj_ = 0?
+
+   - (c) Kết quả ở (a) khác kết quả ở (b) như thế nào? Tạo một biểu đồ đặt các hệ số hồi quy đơn biến ở (a) trên trục _x_ và các hệ số hồi quy bội ở (b) trên trục _y_. Tức là mỗi biến dự báo được biểu diễn bằng một điểm: hệ số của nó trong mô hình hồi quy tuyến tính đơn nằm trên trục _x_, còn ước lượng hệ số trong mô hình hồi quy tuyến tính bội nằm trên trục _y_.
+
+- (d) Có bằng chứng về mối liên hệ phi tuyến giữa bất kỳ biến dự báo nào và biến đáp ứng không? Để trả lời, với mỗi biến dự báo _X_, hãy khớp một mô hình có dạng
+
+</MdxPage>

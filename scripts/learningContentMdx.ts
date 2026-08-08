@@ -87,6 +87,7 @@ export type LearningMdxInspection = {
   pageIndexes: number[];
   quizQuestionIds: string[];
   cvExerciseFixtures: unknown[];
+  mdxCodeBlocks: Array<{ code: string; language: string }>;
   searchText: string;
 };
 
@@ -102,6 +103,7 @@ export async function inspectLearningMdx(
   const pageIndexes: number[] = [];
   const quizQuestionIds: string[] = [];
   const cvExerciseFixtures: unknown[] = [];
+  const mdxCodeBlocks: Array<{ code: string; language: string }> = [];
   await compile(source, {
     remarkPlugins: [() => (tree: Node) => {
       walk(tree, (node) => {
@@ -110,14 +112,19 @@ export async function inspectLearningMdx(
           if (!node.name || !allowedComponents.has(node.name)) {
             throw new Error(`${filePath}: unexpected MDX component ${node.name ?? '<fragment>'}`);
           }
+          const staticAttributes: Record<string, unknown> = {};
           for (const attribute of node.attributes ?? []) {
             if (attribute.type === 'mdxJsxExpressionAttribute') throw new Error(`${filePath}: spread attributes are not allowed`);
-            if (typeof attribute.value === 'string' && !STRUCTURAL_KEYS.has(attribute.name ?? '')) searchParts.push(attribute.value);
+            if (typeof attribute.value === 'string') {
+              staticAttributes[attribute.name ?? ''] = attribute.value;
+              if (!STRUCTURAL_KEYS.has(attribute.name ?? '')) searchParts.push(attribute.value);
+            }
             const expression = attribute.value && typeof attribute.value === 'object'
               ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
               : undefined;
             if (!expression) continue;
             assertStaticExpression(expression, filePath);
+            staticAttributes[attribute.name ?? ''] = staticValue(expression);
             stringsFromExpression(expression, searchParts, attribute.name);
             if (node.name === 'MdxPage' && attribute.name === 'page') pageIndexes.push(Number(staticValue(expression)));
             if (node.name === 'MdxQuiz' && attribute.name === 'questions') {
@@ -127,6 +134,15 @@ export async function inspectLearningMdx(
             if (node.name === 'CvExercise' && attribute.name === 'fixture') {
               cvExerciseFixtures.push(staticValue(expression));
             }
+          }
+          if (node.name === 'MdxCode') {
+            if (typeof staticAttributes.code !== 'string' || typeof staticAttributes.language !== 'string') {
+              throw new Error(`${filePath}: MdxCode requires static code and language strings`);
+            }
+            mdxCodeBlocks.push({
+              code: staticAttributes.code,
+              language: staticAttributes.language,
+            });
           }
         }
         if (node.type !== 'mdxjsEsm') return;
@@ -162,6 +178,7 @@ export async function inspectLearningMdx(
     pageIndexes,
     quizQuestionIds,
     cvExerciseFixtures,
+    mdxCodeBlocks,
     searchText: [...new Set(searchParts.map((value) => value.trim()).filter(Boolean))].join(' '),
   };
 }
@@ -243,7 +260,14 @@ export async function validateLearningMdxSource(
   } else if (inspection.cvExerciseFixtures.length) {
     throw new Error(`${filePath}: CvExercise is only allowed on tagged CV exercise lessons`);
   }
-  return { ...parsed, text: inspection.searchText };
+  const searchText = domain.mdx?.searchTextMode === 'metadata'
+    ? [
+        inspection.metadata.title,
+        ...(Array.isArray(inspection.metadata.headings) ? inspection.metadata.headings : []),
+        ...(Array.isArray(inspection.metadata.keywords) ? inspection.metadata.keywords : []),
+      ].filter((value): value is string => typeof value === 'string' && Boolean(value.trim())).join(' ')
+    : inspection.searchText;
+  return { ...parsed, text: searchText };
 }
 
 function assertCvExerciseFixture(value: unknown, operationFamily: string, filePath: string): void {

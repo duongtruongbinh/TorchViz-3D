@@ -3,7 +3,7 @@ title: Token IDs, Vocabulary, and Tokenizer Walkthrough
 status: done
 created: 2026-07-20T00:00:00+07:00
 updated: 2026-07-20T12:00:00+07:00
-author: Codex
+author: nmkhiem
 task: "visualize the Token IDs/vocabulary lesson, add its quiz and code walkthrough, and clarify lesson types in the rail"
 supersedes:
   - docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md

@@ -1,0 +1,75 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-smoothing-splines",
+  "locale": "vi",
+  "title": "Spline làm trơn",
+  "headings": [
+    "Spline làm trơn",
+    "7.5.1 Tổng quan về spline làm trơn",
+    "7.5.2 Chọn tham số làm trơn λ"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Spline làm trơn"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Spline làm trơn
+
+Trong phần trước, ta đã thảo luận spline hồi quy, được tạo bằng cách chỉ định một tập nút, sinh một dãy hàm cơ sở rồi dùng bình phương tối thiểu để ước lượng các hệ số spline. Bây giờ ta giới thiệu một cách tiếp cận hơi khác nhưng cũng tạo ra spline.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 7.5.1 Tổng quan về spline làm trơn
+
+Khi khớp một đường cong trơn với tập dữ liệu, điều ta thực sự muốn là tìm một hàm, chẳng hạn _g_ ( _x_ ), khớp tốt với dữ liệu quan sát: tức là ta muốn RSS =^(�)^(_n_) _i_ =1^(()^(_yi−g_()^(_xi_))2nhỏ.Tuynhiên,cáchtiếpcậnnày) có một vấn đề. Nếu không đặt bất kỳ ràng buộc nào lên _g_ ( _xi_ ), ta luôn có thể làm RSS bằng không chỉ bằng cách chọn _g_ sao cho nó _nội suy_ tất cả _yi_. Một hàm như vậy sẽ quá khớp dữ liệu nghiêm trọng—nó quá linh hoạt. Điều ta thực sự muốn là một hàm _g_ vừa làm RSS nhỏ, vừa _trơn_.
+
+Ta có thể bảo đảm _g_ trơn bằng cách nào? Có nhiều cách. Một cách tự nhiên là tìm hàm _g_ làm cực tiểu
+
+trong đó _λ_ là một _tham số điều chỉnh_ không âm. Hàm _g_ làm cực tiểu (7.11) được gọi là _spline làm trơn_ (smoothing spline).
+
+(7.11) có ý nghĩa gì? Phương trình 7.11 có dạng “Mất mát + Hình phạt” mà ta gặp trong hồi quy ridge và lasso ở Chương 6. Hạng tử^(�)^(_n_) _i_ =1^(()^(_yi −g_()^(_xi_))2làmột)^(_hàmmấtmát_khuyến) khích _g_ khớp tốt với dữ liệu, còn hạng tử _λ_ � _g_^(_′′_) ( _t_ )^(2) _dt_ là một _hạng tử phạt_ phạt độ biến thiên của _g_. Ký hiệu _g_^(_′′_) ( _t_ ) chỉ đạo hàm bậc hai của hàm _g_. Đạo hàm bậc nhất _g_^(_′_) ( _t_ ) đo độ dốc
+
+của hàm tại _t_, còn đạo hàm bậc hai tương ứng với mức độ thay đổi của độ dốc. Vì vậy, nói rộng ra, đạo hàm bậc hai là thước đo _độ gồ ghề_ của hàm: trị tuyệt đối của nó lớn nếu _g_ ( _t_ ) dao động mạnh gần _t_, và gần bằng không nếu không. (Đạo hàm bậc hai của đường thẳng bằng không; lưu ý rằng đường thẳng hoàn toàn trơn.) Ký hiệu � là một _tích phân_, có thể xem như phép cộng trên toàn miền _t_. Nói cách khác, � _g_^(_′′_) ( _t_ )^(2) _dt_ đơn giản là thước đo tổng mức thay đổi của hàm _g_^(_′_) ( _t_ ) trên toàn miền. Nếu _g_ rất trơn thì _g_^(_′_) ( _t_ ) gần như hằng số và � _g_^(_′′_) ( _t_ )^(2) _dt_ nhận giá trị nhỏ. Ngược lại, nếu _g_ nhảy và biến thiên mạnh thì _g_^(_′_) ( _t_ ) thay đổi đáng kể và � _g_^(_′′_) ( _t_ )^(2) _dt_ nhận giá trị lớn. Do đó, trong (7.11), _λ_ � _g_^(_′′_) ( _t_ )^(2) _dt_ khuyến khích _g_ trơn. _λ_ càng lớn thì _g_ càng trơn. Khi _λ_ = 0, hạng tử phạt trong (7.11) không có tác dụng, nên hàm _g_ sẽ dao động mạnh và nội suy chính xác các quan sát huấn luyện. Khi _λ →∞_, _g_ sẽ hoàn toàn trơn—chỉ là một đường thẳng đi gần các điểm huấn luyện nhất có thể. Thực ra, trong trường hợp này _g_ là đường bình phương tối thiểu tuyến tính, vì hàm mất mát trong (7.11) tương đương với việc cực tiểu tổng bình phương phần dư. Với một giá trị _λ_ trung gian, _g_ sẽ xấp xỉ các quan sát huấn luyện nhưng vẫn tương đối trơn. Ta thấy _λ_ kiểm soát sự đánh đổi độ chệch–phương sai của spline làm trơn.
+
+Có thể chứng minh hàm _g_ ( _x_ ) làm cực tiểu (7.11) có một số tính chất đặc biệt: đó là một đa thức bậc ba từng đoạn với các nút tại những giá trị duy nhất của _x_ 1 _, . . . , xn_, và có đạo hàm bậc nhất, bậc hai liên tục tại mỗi nút. Ngoài ra, nó tuyến tính ở vùng nằm ngoài các nút cực biên. Nói cách khác, _hàm g_ ( _x_ ) _làm cực tiểu (7.11) là spline bậc ba tự nhiên có các nút tại x_ 1 _, . . . , xn!_ Tuy nhiên, nó không giống spline bậc ba tự nhiên thu được nếu áp dụng cách tiếp cận hàm cơ sở ở Mục 7.4.3 với các nút tại _x_ 1 _, . . . , xn_; thay vào đó, nó là một phiên bản đã _co rút_ của spline bậc ba tự nhiên đó, trong đó tham số điều chỉnh _λ_ ở (7.11) kiểm soát mức độ co rút.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 7.5.2 Chọn tham số làm trơn λ
+
+Ta đã thấy spline làm trơn đơn giản là spline bậc ba tự nhiên có nút tại mọi giá trị duy nhất của _xi_. Có vẻ spline làm trơn sẽ có quá nhiều bậc tự do, vì một nút tại mỗi điểm dữ liệu cho phép độ linh hoạt rất lớn. Nhưng tham số điều chỉnh _λ_ kiểm soát độ gồ ghề của spline làm trơn và do đó kiểm soát _bậc tự do hiệu dụng_. Có thể chứng minh rằng khi _λ_ tăng từ 0 đến _∞_, bậc tự do hiệu dụng—ký hiệu _dfλ_—giảm từ _n_ xuống 2.
+
+Trong bối cảnh spline làm trơn, vì sao ta nói đến bậc tự do _hiệu dụng_ thay vì bậc tự do? Thông thường, bậc tự do chỉ số tham số tự do, chẳng hạn số hệ số được khớp trong đa thức hoặc spline bậc ba. Mặc dù spline làm trơn có _n_ tham số và vì vậy có danh nghĩa _n_ bậc tự do, các tham số này bị ràng buộc hoặc co rút mạnh. Vì vậy, _dfλ_ là thước đo độ linh hoạt của spline làm trơn—nó càng cao thì spline càng linh hoạt (độ chệch thấp hơn nhưng phương sai cao hơn). Định nghĩa bậc tự do hiệu dụng
+
+khá mang tính kỹ thuật. Ta có thể viết
+
+trong đó **g** ˆ _λ_ là nghiệm của (7.11) với một lựa chọn _λ_ cụ thể—tức một vector _n_ chiều chứa các giá trị đã khớp của spline làm trơn tại các điểm huấn luyện _x_ 1 _, . . . , xn_. Phương trình 7.12 cho biết vector giá trị khớp khi áp dụng spline làm trơn cho dữ liệu có thể được viết bằng một ma trận _n × n_ **S** _λ_ (có công thức xác định) nhân với vector đáp ứng **y**. Khi đó, bậc tự do hiệu dụng được định nghĩa là
+
+tổng các phần tử trên đường chéo của ma trận **S** _λ_.
+
+Khi khớp spline làm trơn, ta không cần chọn số lượng hay vị trí các nút—sẽ có một nút tại mỗi quan sát huấn luyện _x_ 1 _, . . . , xn_. Thay vào đó, ta gặp một bài toán khác: chọn giá trị _λ_. Không có gì đáng ngạc nhiên khi một lời giải khả dĩ là xác thực chéo. Nói cách khác, ta có thể tìm giá trị _λ_ làm RSS xác thực chéo nhỏ nhất. Hóa ra sai số xác thực chéo bỏ-một-ngoài (LOOCV) có thể được tính rất hiệu quả cho spline làm trơn, với chi phí về cơ bản tương đương một lần khớp, bằng công thức:
+
+Ký hiệu _g_ ˆ _λ_^(()^(_−i_)) ( _xi_ ) chỉ giá trị khớp của spline làm trơn tại _xi_, trong đó mô hình sử dụng tất cả quan sát huấn luyện ngoại trừ quan sát thứ _i_ ( _xi, yi_ ). Ngược lại, _gλ_ ( _xi_ ) chỉ hàm spline làm trơn được khớp với toàn bộ quan sát huấn luyện và đánh giá tại _xi_. Công thức đáng chú ý này nói rằng ta có thể tính từng mô hình khớp _bỏ-một-ngoài_ chỉ từ _g_ ˆ _λ_, tức mô hình ban đầu khớp với _toàn bộ_ dữ liệu!^(5) Ta có một công thức rất giống, (5.2) ở trang 205 trong Chương 5, cho hồi quy tuyến tính bình phương tối thiểu. Dùng (5.2), ta có thể thực hiện LOOCV rất nhanh cho các spline hồi quy đã thảo luận trước đó trong chương này, cũng như cho hồi quy bình phương tối thiểu dùng các hàm cơ sở bất kỳ.
+
+Hình 7.8 thể hiện kết quả khớp spline làm trơn với dữ liệu `Wage`. Đường màu đỏ là mô hình thu được khi chỉ định trước rằng ta muốn spline làm trơn có 16 bậc tự do hiệu dụng. Đường màu xanh là spline làm trơn thu được khi chọn _λ_ bằng LOOCV; trong trường hợp này, giá trị _λ_ được chọn dẫn đến 6 _._ 8 bậc tự do hiệu dụng (tính bằng (7.13)). Với dữ liệu này, hầu như không có khác biệt dễ nhận thấy giữa hai spline, ngoài việc spline có 16 bậc tự do có vẻ dao động hơn một chút. Vì hai mô hình khớp khác nhau rất ít, spline làm trơn với 6 _._ 8 bậc tự do
+
+> 5Các công thức chính xác để tính _g_ ˆ( _xi_ ) và **S** _λ_ rất phức tạp; tuy nhiên đã có các thuật toán hiệu quả để tính những đại lượng này.
+
+###### **Spline làm trơn**
+
+**HÌNH 7.8.** _Các spline làm trơn khớp với dữ liệu_ `Wage`_. Đường màu đỏ là kết quả của việc chỉ định_ 16 _bậc tự do hiệu dụng. Với đường màu xanh, λ được tự động tìm bằng xác thực chéo bỏ-một-ngoài, cho kết quả_ 6 _._ 8 _bậc tự do hiệu dụng._
+
+được ưu tiên hơn, vì nhìn chung mô hình đơn giản tốt hơn trừ khi dữ liệu cung cấp bằng chứng ủng hộ một mô hình phức tạp hơn.
+
+</MdxPage>

@@ -1,0 +1,383 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'variance-standard-deviation',
+  locale: 'vi',
+  title: '3.3 Phương sai & Độ lệch chuẩn (Variance & Standard Deviation)',
+  headings: [
+    'Mục tiêu học tập',
+    'Cùng trung bình, độ phân tán khác nhau',
+    'Khoảng cách tới trung bình',
+    'Vì sao không cộng các độ lệch?',
+    'Bình phương độ lệch',
+    'Phương sai',
+    'Tính phương sai bằng tay',
+    'Độ lệch chuẩn',
+    'Kéo điểm để thay đổi phương sai',
+    'Khi nào chia cho n?',
+    'Khi nào chia cho n − 1?',
+    'Degrees of freedom',
+    'Chứng minh vì sao chia cho n bị lệch',
+    'Trực quan hóa hiệu chỉnh n − 1',
+    'Code Python',
+    'Code mô phỏng bias',
+    'Cách chọn công thức trong thực tế',
+  ],
+  keywords: ['variance', 'standard deviation', 'phương sai', 'độ lệch chuẩn', 'sample variance', 'Bessel correction', 'degrees of freedom', 'ddof', 'unbiased estimator'],
+  pageCount: 17,
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Phân biệt **thước đo độ phân tán** (*measures of dispersion*): **Phương sai** (*Variance*) <MdxFormula inline formula={"s^2"} /> và **Độ lệch chuẩn** (*Standard Deviation*) <MdxFormula inline formula={"s"} />.
+- Giải thích vì sao cần dùng hiệu chỉnh Bessel (*Bessel's correction*) chia cho <MdxFormula inline formula={"n - 1"} /> thay vì <MdxFormula inline formula={"n"} /> cho mẫu.
+- Hiểu khái niệm **bậc tự do** (*degrees of freedom*) và sử dụng tham số `ddof` đúng trong NumPy / Pandas.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cùng trung bình, độ phân tán khác nhau
+
+Hai nhóm có thể có cùng trung bình nhưng kể một câu chuyện hoàn toàn khác. Nhóm A nằm sát quanh 5; nhóm B trải rộng từ 1 đến 9.
+
+<VarianceConceptVisual
+  kind="equal-mean"
+  ariaLabel="Hai dãy dữ liệu có cùng trung bình bằng 5 nhưng độ phân tán khác nhau."
+  labels={['Nhóm A — tập trung', 'Nhóm B — phân tán', 'Trung bình =']}
+  caption="Trung bình chỉ xác định vị trí trung tâm; nó chưa cho biết dữ liệu nằm sát hay xa trung tâm ấy."
+/>
+
+Ta cần một đại lượng thứ hai để đo **mức độ phân tán**. Phương sai và độ lệch chuẩn được xây dựng cho mục đích đó.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khoảng cách tới trung bình
+
+Với dữ liệu <MdxFormula inline formula={"X=\\{2,4,6,8,10\\}"} />, trung bình là <MdxFormula inline formula={"\\bar{x}=6"} />. Khoảng cách có dấu của quan sát thứ <MdxFormula inline formula={"i"} /> tới trung bình gọi là **độ lệch**:
+
+<MdxFormula formula={"d_i=x_i-\\bar{x}"} />
+
+<VarianceConceptVisual
+  kind="deviations"
+  ariaLabel="Bảng các quan sát và độ lệch có dấu so với trung bình 6."
+  data={[2, 4, 6, 8, 10]}
+  labels={['Quan sát xᵢ', 'Độ lệch xᵢ − x̄', 'Tổng']}
+  caption="Dấu âm nghĩa là nằm bên trái trung bình; dấu dương nghĩa là nằm bên phải."
+/>
+
+Độ lệch giữ được cả **khoảng cách** lẫn **hướng** của từng quan sát.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Vì sao không cộng các độ lệch?
+
+Nếu cộng trực tiếp, các độ lệch âm và dương triệt tiêu nhau:
+
+<MdxFormula formula={"(-4)+(-2)+0+2+4=0"} />
+
+<VarianceConceptVisual
+  kind="cancellation"
+  ariaLabel="Các độ lệch âm và dương quanh trung bình cộng lại bằng không."
+  data={[2, 4, 6, 8, 10]}
+  labels={['Quan sát xᵢ', 'Độ lệch xᵢ − x̄', 'Tổng độ lệch']}
+  caption="Tổng độ lệch quanh chính trung bình luôn bằng 0, kể cả khi dữ liệu rất phân tán."
+/>
+
+Vì vậy <MdxFormula inline formula={"\\sum_i(x_i-\\bar{x})"} /> không thể đo độ phân tán. Ta cần biến mọi đóng góp thành không âm trước khi cộng.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Bình phương độ lệch
+
+Bình phương giải quyết sự triệt tiêu và làm các điểm xa trung bình có trọng số lớn hơn:
+
+<MdxFormula formula={"(x_i-\\bar{x})^2"} />
+
+<VarianceConceptVisual
+  kind="squared"
+  ariaLabel="Bảng chuyển độ lệch có dấu thành bình phương độ lệch không âm."
+  data={[2, 4, 6, 8, 10]}
+  labels={['Quan sát xᵢ', 'Độ lệch', 'Bình phương độ lệch', 'Tổng']}
+  caption="Khoảng cách 4 đóng góp 16, lớn gấp bốn lần khoảng cách 2 đóng góp 4."
+/>
+
+Đây cũng là lý do phương sai **nhạy với outlier**: một điểm xa gấp đôi đóng góp bình phương lớn gấp bốn.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Phương sai
+
+Phương sai của một bộ dữ liệu là **trung bình các bình phương độ lệch**:
+
+<MdxFormula formula={"\\sigma^2=\\frac{1}{n}\\sum_{i=1}^{n}(x_i-\\bar{x})^2"} />
+
+Ở đây ta dùng ký hiệu <MdxFormula inline formula={"\\sigma^2"} /> để mô tả chính bộ dữ liệu đang có. Giá trị nhỏ nghĩa là các điểm tập trung; giá trị lớn nghĩa là chúng trải rộng.
+
+<LessonNote label="Đừng nhầm hai đại lượng">
+
+Phương sai dùng **bình phương khoảng cách**, không phải trung bình khoảng cách tuyệt đối <MdxFormula inline formula={"|x_i-\\bar{x}|"} />. Đại lượng thứ hai là mean absolute deviation và có tính chất khác.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Tính phương sai bằng tay
+
+Với <MdxFormula inline formula={"X=\\{2,4,6,8,10\\}"} />, ta đi theo bốn bước: tính trung bình, tìm độ lệch, bình phương, rồi lấy trung bình.
+
+<VarianceConceptVisual
+  kind="hand-calculation"
+  ariaLabel="Bảng tính phương sai bằng tay cho năm giá trị 2, 4, 6, 8 và 10."
+  data={[2, 4, 6, 8, 10]}
+  labels={['xᵢ', 'xᵢ − x̄', '(xᵢ − x̄)²', 'Tổng', 'Phương sai =', 'Độ lệch chuẩn =']}
+  caption="Tổng bình phương độ lệch là 40; chia cho 5 quan sát được phương sai bằng 8."
+/>
+
+<MdxFormula formula={"\\sigma^2=\\frac{40}{5}=8"} />
+
+Đơn vị của phương sai bị bình phương. Nếu dữ liệu đo bằng điểm, phương sai đo bằng điểm².
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Độ lệch chuẩn
+
+Độ lệch chuẩn là căn bậc hai của phương sai:
+
+<MdxFormula formula={"\\sigma=\\sqrt{\\sigma^2}"} />
+
+<VarianceConceptVisual
+  kind="standard-deviation"
+  ariaLabel="Từ bình phương độ lệch đến phương sai và độ lệch chuẩn."
+  data={[2, 4, 6, 8, 10]}
+  labels={['xᵢ', 'xᵢ − x̄', '(xᵢ − x̄)²', 'Tổng', 'Phương sai =', 'Độ lệch chuẩn =']}
+  caption="Căn bậc hai đưa kết quả từ đơn vị² trở về cùng đơn vị với dữ liệu gốc."
+/>
+
+Trong ví dụ, <MdxFormula inline formula={"\\sigma=\\sqrt{8}\\approx2.83"} /> điểm. Đây là thước đo khoảng cách điển hình theo **đơn vị gốc**, nhưng không phải trung bình độ lệch tuyệt đối.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Kéo điểm để thay đổi phương sai
+
+Di chuyển điểm cuối và theo dõi toàn bộ phép tính. Khi điểm này đi xa trung bình, bình phương độ lệch của nó tăng nhanh.
+
+<VariancePointExplorer
+  data={[2, 4, 6, 8, 10]}
+  min={0}
+  max={16}
+  step={1}
+  labels={['Dữ liệu đang thay đổi', 'Trung bình', 'Điểm có thể di chuyển', 'Độ lệch', 'Độ lệch²', 'Phương sai', 'Độ lệch chuẩn']}
+  feedback={{
+    near: 'Điểm đang gần trung tâm nên đóng góp bình phương còn nhỏ.',
+    far: 'Điểm đã xa trung tâm: đóng góp bình phương tăng mạnh và kéo phương sai lên.',
+  }}
+  caption="Dùng thanh trượt hoặc phím mũi tên để thay đổi điểm cuối."
+/>
+
+Một outlier không chỉ tự nằm xa: nó còn làm trung bình dịch chuyển, vì vậy độ lệch của các điểm khác cũng thay đổi.
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Khi nào chia cho n?
+
+Chia cho <MdxFormula inline formula={"n"} /> khi mục tiêu là **mô tả toàn bộ bộ dữ liệu đang có**:
+
+<MdxFormula formula={"\\sigma^2_{\\text{data}}=\\frac{1}{n}\\sum_{i=1}^{n}(x_i-\\bar{x})^2"} />
+
+Ví dụ: độ phân tán của toàn bộ 64 phần tử trong một mini-batch, hay phương sai của tất cả giao dịch trong một ngày đã quan sát đầy đủ.
+
+Trong NumPy, `np.var(x)` dùng `ddof=0`, nghĩa là mẫu số <MdxFormula inline formula={"n-0=n"} />. Đây cũng là nghiệm hợp lý cực đại của phương sai trong mô hình Gaussian khi trung bình chưa biết.
+
+<LessonNote label="Chia n không phải lúc nào cũng sai">
+
+Nó trả lời đúng câu hỏi mô tả dữ liệu hoặc tối ưu likelihood. Vấn đề chỉ xuất hiện khi ta dùng một mẫu để ước lượng phương sai của quần thể lớn hơn.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={10}>
+
+## Khi nào chia cho n − 1?
+
+Khi dữ liệu là **mẫu** và ta muốn ước lượng phương sai quần thể <MdxFormula inline formula={"\\sigma^2"} />, dùng phương sai mẫu:
+
+<MdxFormula formula={"s^2=\\frac{1}{n-1}\\sum_{i=1}^{n}(x_i-\\bar{x})^2"} />
+
+Trung bình mẫu <MdxFormula inline formula={"\\bar{x}"} /> được điều chỉnh để nằm ngay giữa chính mẫu, nên tổng bình phương quanh nó có xu hướng nhỏ hơn tổng bình phương quanh trung bình quần thể <MdxFormula inline formula={"\\mu"} />. Chia cho <MdxFormula inline formula={"n-1"} /> bù lại xu hướng thấp đó.
+
+Hiệu chỉnh này được gọi là **Bessel's correction**. Nó làm <MdxFormula inline formula={"s^2"} /> không chệch cho <MdxFormula inline formula={"\\sigma^2"} />, nhưng <MdxFormula inline formula={"s=\\sqrt{s^2}"} /> không vì thế mà trở thành ước lượng không chệch cho <MdxFormula inline formula={"\\sigma"} />.
+
+</MdxPage>
+
+<MdxPage page={11}>
+
+## Degrees of freedom
+
+Sau khi biết trung bình mẫu, các độ lệch phải thỏa ràng buộc:
+
+<MdxFormula formula={"\\sum_{i=1}^{n}(x_i-\\bar{x})=0"} />
+
+<VarianceConceptVisual
+  kind="degrees-freedom"
+  ariaLabel="Ba độ lệch đầu được chọn tự do, độ lệch cuối bị ràng buộc để tổng bằng không."
+  labels={['Độ lệch 1', 'Độ lệch 2', 'Độ lệch 3', 'Độ lệch 4', 'Bị quyết định', 'Tự do chọn']}
+  caption="Với n độ lệch nhưng một ràng buộc tổng bằng 0, chỉ còn n − 1 bậc tự do."
+/>
+
+Nếu biết <MdxFormula inline formula={"n-1"} /> độ lệch đầu, độ lệch cuối buộc phải là:
+
+<MdxFormula formula={"x_n-\\bar{x}=-\\sum_{i=1}^{n-1}(x_i-\\bar{x})"} />
+
+Đó là ý nghĩa cụ thể của **degrees of freedom = <MdxFormula inline formula={"n-1"} />** trong bài toán này.
+
+</MdxPage>
+
+<MdxPage page={12}>
+
+## Chứng minh vì sao chia cho n bị lệch
+
+Giả sử <MdxFormula inline formula={"X_1,\\ldots,X_n"} /> độc lập, cùng phân phối, có trung bình <MdxFormula inline formula={"\\mu"} /> và phương sai <MdxFormula inline formula={"\\sigma^2"} />. Ta thêm rồi bớt <MdxFormula inline formula={"\\bar{X}"} />, sau đó khai triển theo <MdxFormula inline formula={"(a+b)^2=a^2+2ab+b^2"} />:
+
+<MdxFormula formula={"\\begin{aligned}\\sigma^2&=E\\left[\\frac{1}{n}\\sum_{i=1}^{n}(X_i-\\mu)^2\\right]\\\\&=E\\left[\\frac{1}{n}\\sum_{i=1}^{n}\\left((X_i-\\bar{X})+(\\bar{X}-\\mu)\\right)^2\\right]\\\\&=E\\Bigg[\\frac{1}{n}\\sum_{i=1}^{n}(X_i-\\bar{X})^2+\\frac{2(\\bar{X}-\\mu)}{n}\\sum_{i=1}^{n}(X_i-\\bar{X})+\\frac{1}{n}\\sum_{i=1}^{n}(\\bar{X}-\\mu)^2\\Bigg]\\\\&=E\\left[\\frac{1}{n}\\sum_{i=1}^{n}(X_i-\\bar{X})^2\\right]+E\\left[(\\bar{X}-\\mu)^2\\right]\\\\&=E\\left[\\frac{1}{n}\\sum_{i=1}^{n}(X_i-\\bar{X})^2\\right]+\\frac{\\sigma^2}{n}.\\end{aligned}"} />
+
+<LessonNote label="Hạng chéo biến mất">
+
+Vì <MdxFormula inline formula={"\\sum_{i=1}^{n}(X_i-\\bar{X})=0"} />, toàn bộ hạng chéo bằng 0. Đồng thời <MdxFormula inline formula={"(\\bar{X}-\\mu)^2"} /> không phụ thuộc vào <MdxFormula inline formula={"i"} />, nên cộng <MdxFormula inline formula={"n"} /> lần rồi chia <MdxFormula inline formula={"n"} /> vẫn là chính nó.
+
+</LessonNote>
+
+Do <MdxFormula inline formula={"E[\\bar{X}]=\\mu"} />, ta dùng <MdxFormula inline formula={"E[(\\bar{X}-\\mu)^2]=\\operatorname{Var}(\\bar{X})=\\sigma^2/n"} /> ở dòng cuối. Chuyển vế và hiệu chỉnh mẫu số:
+
+<MdxFormula formula={"\\begin{aligned}E\\left[\\frac{1}{n}\\sum_{i=1}^{n}(X_i-\\bar{X})^2\\right]&=\\sigma^2-\\frac{\\sigma^2}{n}\\\\&=\\frac{n-1}{n}\\sigma^2,\\\\E\\left[\\frac{1}{n-1}\\sum_{i=1}^{n}(X_i-\\bar{X})^2\\right]&=\\sigma^2.\\end{aligned}"} />
+
+Vậy cách chia <MdxFormula inline formula={"n"} /> thấp hơn phương sai thật theo hệ số <MdxFormula inline formula={"(n-1)/n"} />; đổi mẫu số thành <MdxFormula inline formula={"n-1"} /> loại bỏ độ chệch này trong kỳ vọng.
+
+</MdxPage>
+
+<MdxPage page={13}>
+
+## Trực quan hóa hiệu chỉnh n − 1
+
+Hãy tưởng tượng lấy rất nhiều mẫu cùng cỡ từ một quần thể có phương sai thật bằng 25. Mỗi mẫu cho một ước lượng khác nhau; điều cần so sánh là **trung bình của cả phân phối ước lượng**.
+
+<VarianceEstimatorComparison
+  trueVariance={25}
+  labels={['Chia n — ddof=0', 'Chia n − 1 — ddof=1', 'Trung bình các ước lượng =', 'Phương sai thật =']}
+  caption="Chia n tạo phân phối ước lượng lệch xuống; chia n − 1 đưa tâm của các ước lượng về phương sai thật."
+/>
+
+Không chệch không có nghĩa mọi <MdxFormula inline formula={"s^2"} /> đều gần 25. Một mẫu riêng vẫn có thể cho 15 hoặc 40; hiệu chỉnh chỉ nói rằng sai lệch cân bằng **trong kỳ vọng qua nhiều mẫu**.
+
+</MdxPage>
+
+<MdxPage page={14}>
+
+## Code Python
+
+NumPy biểu diễn lựa chọn mẫu số qua tham số `ddof`:
+
+```python
+import numpy as np
+
+x = np.array([2, 4, 6, 8, 10])
+
+variance_data = np.var(x, ddof=0)   # chia n
+variance_sample = np.var(x, ddof=1) # chia n - 1
+
+print(f"Mô tả dữ liệu: {variance_data:.2f}")
+print(f"Ước lượng quần thể: {variance_sample:.2f}")
+print(f"Độ lệch chuẩn mẫu: {np.std(x, ddof=1):.2f}")
+```
+```output
+Mô tả dữ liệu: 8.00
+Ước lượng quần thể: 10.00
+Độ lệch chuẩn mẫu: 3.16
+```
+
+Pandas dùng `ddof=1` mặc định cho `Series.var()` và `Series.std()`. Luôn kiểm tra mặc định của thư viện thay vì suy đoán từ tên hàm.
+
+</MdxPage>
+
+<MdxPage page={15}>
+
+## Code mô phỏng bias
+
+Mô phỏng sau giữ quần thể và cỡ mẫu cố định, rồi lặp việc lấy mẫu 50.000 lần:
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(42)
+true_variance = 25
+samples = rng.normal(loc=20, scale=5, size=(50_000, 5))
+
+v_n = np.var(samples, axis=1, ddof=0)
+v_n1 = np.var(samples, axis=1, ddof=1)
+
+print(f"σ² thật       : {true_variance:.2f}")
+print(f"Trung bình /n : {v_n.mean():.2f}")
+print(f"Trung bình /n−1: {v_n1.mean():.2f}")
+```
+```output
+σ² thật       : 25.00
+Trung bình /n : 20.01
+Trung bình /n−1: 25.01
+```
+
+Với <MdxFormula inline formula={"n=5"} />, hệ số chệch lý thuyết của cách chia <MdxFormula inline formula={"n"} /> là <MdxFormula inline formula={"(n-1)/n=0.8"} />; vì thế <MdxFormula inline formula={"0.8\\times25=20"} />.
+
+</MdxPage>
+
+<MdxPage page={16}>
+
+## Cách chọn công thức trong thực tế
+
+<VarianceConceptVisual
+  kind="formula-choice"
+  ariaLabel="So sánh lựa chọn chia n và chia n trừ 1 theo mục tiêu phân tích."
+  labels={[
+    'Mô tả dữ liệu / Gaussian MLE',
+    'Ước lượng phương sai quần thể',
+    'Dùng khi bộ dữ liệu chính là đối tượng cần mô tả, hoặc mục tiêu là cực đại hóa likelihood.',
+    'Dùng khi dữ liệu là một mẫu và cần ước lượng σ² không chệch qua nhiều mẫu.',
+    '1 / n',
+    '1 / (n − 1)',
+  ]}
+  caption="Câu hỏi phân tích quyết định mẫu số; không có một công thức đúng cho mọi mục tiêu."
+/>
+
+<MdxTable
+  caption="Quy tắc chọn nhanh"
+  headers={['Mục tiêu', 'Mẫu số', 'Python']}
+  rows={[
+    ['Mô tả bộ dữ liệu hoặc mini-batch hiện có', '$n$', '`np.var(x, ddof=0)`'],
+    ['Ước lượng $\\sigma^2$ của quần thể từ mẫu', '$n-1$', '`np.var(x, ddof=1)`'],
+    ['Gaussian maximum likelihood', '$n$', '`np.var(x, ddof=0)`'],
+  ]}
+/>
+
+Hãy ghi nhớ câu hỏi trước công thức: **mình đang mô tả dữ liệu đã có, hay suy luận về một quần thể chưa quan sát hết?**
+
+</MdxPage>

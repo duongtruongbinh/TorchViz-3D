@@ -1,0 +1,120 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-exercises",
+  "locale": "vi",
+  "title": "Bài tập",
+  "headings": [
+    "Bài tập",
+    "Ứng dụng"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Bài tập
+
+_Lý thuyết_
+
+1. Trong chương này đã đề cập rằng một spline hồi quy bậc ba có một nút tại _ξ_ có thể được tạo bằng một cơ sở dạng _x_, _x_^(2), _x_^(3), ( _x − ξ_ )^(3) +^(,trongđó()^(_x −ξ_)3) +^(= ()^(_x −ξ_)3nếu)^(_x &gt; ξ_vàbằng0nếungượclại.) Bây giờ ta sẽ chứng minh một hàm có dạng
+
+_f_ ( _x_ ) = _β_ 0 + _β_ 1 _x_ + _β_ 2 _x_^(2) + _β_ 3 _x_^(3) + _β_ 4( _x − ξ_ )^(3) +
+
+thực sự là một spline hồi quy bậc ba, bất kể các giá trị _β_ 0 _, β_ 1 _, β_ 2 _, β_ 3 _, β_ 4.
+
+(a) Tìm một đa thức bậc ba
+
+sao cho _f_ ( _x_ ) = _f_ 1( _x_ ) với mọi _x ≤ ξ_. Biểu diễn _a_ 1 _, b_ 1 _, c_ 1 _, d_ 1 theo _β_ 0 _, β_ 1 _, β_ 2 _, β_ 3 _, β_ 4.
+
+(b) Tìm một đa thức bậc ba
+
+sao cho _f_ ( _x_ ) = _f_ 2( _x_ ) với mọi _x &gt; ξ_. Biểu diễn _a_ 2 _, b_ 2 _, c_ 2 _, d_ 2 theo _β_ 0 _, β_ 1 _, β_ 2 _, β_ 3 _, β_ 4. Đến đây ta đã xác lập rằng _f_ ( _x_ ) là một đa thức từng đoạn.
+
+(c) Chứng minh _f_ 1( _ξ_ ) = _f_ 2( _ξ_ ). Tức là _f_ ( _x_ ) liên tục tại _ξ_.
+
+(d) Chứng minh _f_ 1^(_′_()^(_ξ_) =)^(_f ′_) 2^(()^(_ξ_).Tứclà,)^(_f ′_()^(_x_)liêntụctại)^(_ξ_.) (e) Chứng minh _f_ 1^(_′′_()^(_ξ_) =)^(_f ′′_) 2^(()^(_ξ_).Tứclà,)^(_f ′′_()^(_x_)liêntụctại)^(_ξ_.)
+
+Do đó, _f_ ( _x_ ) thực sự là một spline bậc ba.
+
+_Gợi ý: Các phần (d) và (e) của bài này cần kiến thức giải tích một biến. Nhắc lại rằng với một đa thức bậc ba_
+
+_đạo hàm bậc nhất có dạng_
+
+<MdxCode language="table" code={"|(x fi j) (x fL 1) (x fl 1)|\n|---|"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Ứng dụng
+
+6. Trong bài tập này, bạn sẽ phân tích sâu hơn bộ dữ liệu `Wage` đã được dùng xuyên suốt chương.
+
+   - (a) Thực hiện hồi quy đa thức để dự đoán `wage` bằng `age`. Dùng xác thực chéo để chọn bậc _d_ tối ưu của đa thức. Bậc nào được chọn, và kết quả này so với kết quả kiểm định giả thuyết bằng ANOVA ra sao? Vẽ mô hình đa thức kết quả cùng dữ liệu.
+
+   - (b) Khớp một hàm bậc thang để dự đoán `wage` bằng `age`, rồi dùng xác thực chéo để chọn số điểm cắt tối ưu. Vẽ mô hình khớp thu được.
+
+7. Bộ dữ liệu `Wage` chứa một số đặc trưng khác chưa được khảo sát trong chương, như tình trạng hôn nhân (`maritl`), nhóm nghề nghiệp (`jobclass`) và các đặc trưng khác. Hãy khảo sát quan hệ giữa một số biến dự báo này với `wage`, rồi dùng các kỹ thuật khớp phi tuyến để xây dựng mô hình linh hoạt cho dữ liệu. Vẽ các kết quả thu được và viết phần tóm tắt phát hiện của bạn.
+
+8. Khớp một số mô hình phi tuyến được khảo sát trong chương với bộ dữ liệu `Auto`. Có bằng chứng về quan hệ phi tuyến trong bộ dữ liệu này không? Hãy tạo một số biểu đồ giàu thông tin để biện minh câu trả lời.
+
+9. Câu này dùng các biến `dis` (trung bình có trọng số của khoảng cách đến năm trung tâm việc làm tại Boston) và `nox` (nồng độ oxit nitơ tính theo phần trên 10 triệu) trong dữ liệu `Boston`. Ta xem `dis` là biến dự báo và `nox` là biến đáp ứng.
+
+   - (a) Dùng hàm `poly()` từ mô-đun `ISLP.models` để khớp hồi quy đa thức bậc ba, dự đoán `nox` bằng `dis`. Báo cáo đầu ra hồi quy, đồng thời vẽ dữ liệu và mô hình đa thức kết quả.
+
+   - (b) Vẽ các mô hình đa thức với một dải bậc khác nhau (chẳng hạn từ 1 đến 10) và báo cáo tổng bình phương phần dư tương ứng.
+
+   - (c) Dùng xác thực chéo hoặc cách tiếp cận khác để chọn bậc tối ưu của đa thức, rồi giải thích kết quả.
+
+   - (d) Dùng hàm `bs()` từ mô-đun `ISLP.models` để khớp spline hồi quy dự đoán `nox` bằng `dis`. Báo cáo đầu ra của mô hình dùng bốn bậc tự do. Bạn đã chọn các nút như thế nào? Vẽ mô hình kết quả.
+
+   - (e) Bây giờ khớp spline hồi quy với một dải bậc tự do, vẽ các mô hình kết quả và báo cáo RSS tương ứng. Mô tả kết quả thu được.
+
+   - (f) Dùng xác thực chéo hoặc cách tiếp cận khác để chọn số bậc tự do tốt nhất cho spline hồi quy trên dữ liệu này. Mô tả kết quả.
+
+10. Câu này liên quan đến bộ dữ liệu `College`.
+
+   - (a) Chia dữ liệu thành tập huấn luyện và tập kiểm tra. Dùng học phí dành cho sinh viên ngoài tiểu bang làm biến đáp ứng và các biến còn lại làm biến dự báo; thực hiện lựa chọn từng bước tiến trên tập huấn luyện để xác định một mô hình phù hợp chỉ dùng một tập con các biến dự báo.
+
+   - (b) Khớp GAM trên dữ liệu huấn luyện, dùng học phí ngoài tiểu bang làm biến đáp ứng và các đặc trưng đã chọn ở bước trước làm biến dự báo. Vẽ kết quả và giải thích phát hiện.
+
+   - (c) Đánh giá mô hình thu được trên tập kiểm tra và giải thích kết quả.
+
+   - (d) Với những biến nào, nếu có, tồn tại bằng chứng về quan hệ phi tuyến với biến đáp ứng?
+
+11. Trong Mục 7.7, ta đã đề cập rằng GAM thường được khớp bằng cách _khớp ngược_ (backfitting). Ý tưởng đằng sau backfitting thực ra khá đơn giản. Bây giờ ta sẽ khảo sát backfitting trong bối cảnh hồi quy tuyến tính bội.
+
+Giả sử ta muốn thực hiện hồi quy tuyến tính bội nhưng không có phần mềm hỗ trợ. Thay vào đó, ta chỉ có phần mềm hồi quy tuyến tính đơn. Vì vậy, ta dùng cách lặp sau: liên tục giữ tất cả ước lượng hệ số trừ một hệ số ở giá trị hiện tại, rồi chỉ cập nhật hệ số đó bằng hồi quy tuyến tính đơn. Quy trình tiếp tục cho đến khi _hội tụ_—tức khi các ước lượng hệ số ngừng thay đổi.
+
+Bây giờ hãy thử trên một ví dụ đơn giản.
+
+- (a) Sinh một biến đáp ứng _Y_ và hai biến dự báo _X_ 1, _X_ 2, với _n_ = 100.
+
+- (b) Viết hàm `simple_reg()` nhận hai đối số `outcome` và `feature`, khớp mô hình hồi quy tuyến tính đơn với biến đáp ứng và đặc trưng này, rồi trả về hệ số chặn và độ dốc ước lượng.
+
+- (c) Khởi tạo `beta1` bằng một giá trị tùy chọn. Giá trị được chọn không quan trọng.
+
+- (d) Giữ `beta1` cố định, dùng hàm `simple_reg()` để khớp mô hình:
+
+Lưu các giá trị kết quả thành `beta0` và `beta2`.
+
+- (e) Giữ `beta2` cố định, khớp mô hình
+
+Lưu kết quả thành `beta0` và `beta1` (ghi đè các giá trị trước).
+
+- (f) Viết một vòng lặp for để lặp (c) và (d) 1.000 lần. Báo cáo ước lượng `beta0`, `beta1` và `beta2` ở mỗi lần lặp. Tạo biểu đồ hiển thị từng giá trị `beta0`, `beta1` và `beta2`.
+
+   - (g) So sánh câu trả lời ở (e) với kết quả thực hiện trực tiếp hồi quy tuyến tính bội để dự đoán _Y_ bằng _X_ 1 và _X_ 2. Dùng phương thức `axline()` để chồng các ước lượng hệ số hồi quy bội lên biểu đồ ở (e).
+
+   - (h) Trên bộ dữ liệu này, cần bao nhiêu vòng lặp backfitting để thu được xấp xỉ “tốt” cho các ước lượng hệ số hồi quy bội?
+
+12. Bài này tiếp nối bài tập trước. Trong một ví dụ đơn giản với _p_ = 100, hãy chứng minh rằng có thể xấp xỉ các ước lượng hệ số hồi quy tuyến tính bội bằng cách liên tục thực hiện hồi quy tuyến tính đơn trong quy trình backfitting. Cần bao nhiêu vòng lặp backfitting để thu được xấp xỉ “tốt” cho các ước lượng hệ số hồi quy bội? Hãy tạo một biểu đồ để biện minh câu trả lời.
+
+</MdxPage>

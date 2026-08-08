@@ -1,0 +1,165 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch12-principal-components-analysis",
+  "locale": "vi",
+  "title": "Phân tích thành phần chính",
+  "headings": [
+    "Phân tích thành phần chính",
+    "12.2.1 Thành phần chính là gì?",
+    "12.2.2 Một cách diễn giải khác về thành phần chính",
+    "12.2.3 Tỷ lệ phương sai được giải thích",
+    "12.2.4 Tìm hiểu thêm về PCA",
+    "12.2.5 Các ứng dụng khác của thành phần chính"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học không giám sát",
+    "phân tích thành phần chính",
+    "PCA"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Phân tích thành phần chính
+
+_Thành phần chính_ đã được thảo luận trong Phần 6.3.1 ở bối cảnh hồi quy thành phần chính. Khi đối mặt với một tập lớn các biến có tương quan, thành phần chính cho phép ta tóm tắt tập đó bằng một số ít biến đại diện nhưng vẫn cùng nhau giải thích phần lớn độ biến thiên của tập ban đầu. Phần 6.3.1 trình bày các hướng thành phần chính như những hướng trong không gian đặc trưng mà dữ liệu ban đầu _biến thiên mạnh_. Các hướng này cũng xác định những đường và không gian con _gần đám mây dữ liệu nhất có thể_. Để thực hiện hồi quy thành phần chính, ta chỉ cần dùng các thành phần chính làm biến dự báo trong mô hình hồi quy thay cho tập biến ban đầu lớn hơn.
+
+_Phân tích thành phần chính_ (principal components analysis, PCA) là quy trình tính các thành phần chính rồi dùng chúng để tìm hiểu dữ liệu. PCA là một phương pháp không giám sát vì chỉ liên quan đến tập đặc trưng _X_ 1 _, X_ 2 _, . . . , Xp_ mà không có biến đáp ứng _Y_ đi kèm. Ngoài việc tạo ra các biến dẫn xuất cho bài toán học có giám sát, PCA còn là công cụ trực quan hóa dữ liệu—trực quan hóa quan sát hoặc trực quan hóa biến. Nó cũng có thể dùng để điền khuyết dữ liệu, tức lấp các giá trị thiếu trong ma trận dữ liệu.
+
+Sau đây, chúng ta tìm hiểu PCA chi tiết hơn, tập trung vào vai trò của PCA như một công cụ khám phá dữ liệu không giám sát, phù hợp với chủ đề của chương.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 12.2.1 Thành phần chính là gì?
+
+Giả sử trong một phân tích dữ liệu khám phá, ta muốn trực quan hóa _n_ quan sát với các phép đo trên _p_ đặc trưng _X_ 1 _, X_ 2 _, . . . , Xp_. Ta có thể xem những biểu đồ phân tán hai chiều, mỗi biểu đồ chứa phép đo của _n_ quan sát trên hai đặc trưng. Tuy nhiên, có � _p_ 2� = _p_ ( _p−_ 1) _/_ 2 biểu đồ như vậy; chẳng hạn, với _p_ = 10 sẽ có tới 45 biểu đồ. Khi _p_ lớn, chắc chắn ta không thể xem hết; hơn nữa, phần lớn biểu đồ có thể không cung cấp nhiều thông tin vì mỗi biểu đồ chỉ chứa một phần nhỏ tổng thông tin trong bộ dữ liệu. Rõ ràng, cần một phương pháp tốt hơn để trực quan hóa _n_ quan sát khi _p_ lớn. Cụ thể, ta muốn tìm một biểu diễn ít chiều nắm bắt được nhiều thông tin nhất có thể. Nếu có thể thu được một biểu diễn hai chiều giữ lại phần lớn thông tin, ta sẽ vẽ được các quan sát trong không gian ít chiều đó.
+
+PCA cung cấp đúng công cụ này. Nó tìm một biểu diễn ít chiều của bộ dữ liệu nhưng chứa nhiều độ biến thiên nhất có thể. Ý tưởng là mỗi quan sát trong số _n_ quan sát sống trong không gian _p_ chiều, nhưng không phải chiều nào cũng thú vị như nhau. PCA tìm một số ít chiều thú vị nhất, trong đó mức độ _thú vị_ được đo bằng độ biến thiên của các quan sát dọc theo mỗi chiều. Mỗi chiều do PCA tìm được là một tổ hợp tuyến tính của _p_ đặc trưng. Sau đây là cách tìm những chiều, hay _thành phần chính_, này.
+
+_Thành phần chính thứ nhất_ của tập đặc trưng _X_ 1 _, X_ 2 _, . . . , Xp_ là tổ hợp tuyến tính đã chuẩn hóa của các đặc trưng
+
+có phương sai lớn nhất. _Đã chuẩn hóa_ nghĩa là ^(�)^(_p_) _j_ =1^(_φ_2) _j_ 1^(= 1.). Các phần tử _φ_ 11 _, . . . , φp_ 1 được gọi là các _tải_ của thành phần chính thứ nhất; hợp lại, chúng tạo thành vector tải thành phần chính _φ_ 1 = ( _φ_ 11 _φ_ 21 _. . . φp_ 1)^(_T_). Ta ràng buộc tổng bình phương các tải bằng một; nếu không, chỉ cần đặt trị tuyệt đối của chúng lớn tùy ý là có thể tạo ra phương sai lớn tùy ý.
+
+Với một bộ dữ liệu _n × p_ là **X**, làm thế nào tính thành phần chính thứ nhất? Vì chỉ quan tâm đến phương sai, ta giả định từng biến trong **X** đã được định tâm để có trung bình bằng 0—nghĩa là trung bình các cột của **X** bằng 0. Sau đó, ta tìm tổ hợp tuyến tính của các giá trị đặc trưng mẫu có dạng
+
+có phương sai mẫu lớn nhất, với ràng buộc ^(�)^(_p_) _j_ =1^(_φ_2) _j_ 1^(=1.). Nói cách khác, vector tải thành phần chính thứ nhất giải bài toán tối ưu
+
+Từ (12.2), mục tiêu trong (12.3) có thể viết là _n_ 1 � _ni_ =1^(_z_) _i_^(2) 1^(.Since) _n_ 1 � _ni_ =1^(_xij_=0,theaverageofthe)^(_z_11)^(_, . . . , zn_1willbezeroaswell.Hence). Do đó, mục tiêu tối đa hóa trong (12.3) chính là phương sai mẫu của _n_ giá trị _zi_ 1. Các giá trị _z_ 11 _, . . . , zn_ 1 được gọi là _điểm số_ của thành phần chính thứ nhất. Bài toán (12.3) có thể giải bằng _phân rã riêng_, một kỹ thuật chuẩn trong đại số tuyến tính, nhưng chi tiết nằm ngoài phạm vi cuốn sách.^(1)
+
+Thành phần chính thứ nhất có một diễn giải hình học rất trực quan. Vector tải _φ_ 1 với các phần tử _φ_ 11 _, φ_ 21 _, . . . , φp_ 1 xác định hướng trong không gian đặc trưng mà dữ liệu biến thiên nhiều nhất. Nếu chiếu _n_ điểm dữ liệu _x_ 1 _, . . . , xn_ lên hướng này, các giá trị chiếu chính là điểm số thành phần chính _z_ 11 _, . . . , zn_ 1. Chẳng hạn, Hình 6.14 ở trang 254 thể hiện vector tải thành phần chính thứ nhất—đường liền màu xanh lá—trên một bộ dữ liệu quảng cáo. Dữ liệu chỉ có hai đặc trưng nên cả quan sát lẫn vector tải đều dễ biểu diễn. Từ (6.19), trong bộ dữ liệu đó _φ_ 11 = 0 _._ 839 và _φ_ 21 = 0 _._ 544.
+
+Sau khi xác định thành phần chính thứ nhất _Z_ 1, ta có thể tìm thành phần chính thứ hai _Z_ 2. Đây là tổ hợp tuyến tính của _X_ 1 _, . . . , Xp_ có phương sai lớn nhất trong mọi tổ hợp tuyến tính _không tương quan_ với _Z_ 1. Các điểm số thành phần chính thứ hai _z_ 12 _, z_ 22 _, . . . , zn_ 2 có dạng
+
+trong đó _φ_ 2 là vector tải thành phần chính thứ hai với các phần tử _φ_ 12 _, φ_ 22 _, . . . , φp_ 2. Ràng buộc _Z_ 2 không tương quan với _Z_ 1 tương đương với ràng buộc hướng _φ_ 2 trực giao—vuông góc—với hướng _φ_ 1. Trong ví dụ Hình 6.14, các quan sát nằm trong không gian hai chiều vì _p_ = 2, nên sau khi tìm được _φ_ 1 chỉ còn một khả năng cho _φ_ 2, được thể hiện bằng đường nét đứt màu xanh. Từ Phần 6.3.1, ta biết _φ_ 12 = 0 _._ 544 và _φ_ 22 = _−_ 0 _._ 839. Với bộ dữ liệu lớn hơn có _p &gt;_ 2 biến, tồn tại nhiều thành phần chính khác nhau và chúng được định nghĩa tương tự. Để tìm _φ_ 2, ta giải một bài toán giống (12.3), thay _φ_ 1 bằng _φ_ 2 và thêm ràng buộc _φ_ 2 trực giao với _φ_ 1.^(2)
+
+> 1Thay cho phân rã riêng, có thể dùng một kỹ thuật liên quan gọi là phân rã giá trị kỳ dị. Kỹ thuật này sẽ được khảo sát trong bài lab cuối chương.
+
+> 2Về mặt kỹ thuật, các hướng thành phần chính _φ_ 1, _φ_ 2, _φ_ 3 _, . . ._ là dãy có thứ tự các vector riêng của ma trận **X**^(_T_) **X**, còn phương sai của các thành phần là các giá trị riêng. Có nhiều nhất min( _n −_ 1 _, p_ ) thành phần chính.
+
+**HÌNH 12.1.** _Hai thành phần chính đầu tiên của dữ liệu_ `USArrests` _. Tên các bang màu xanh biểu diễn điểm số trên hai thành phần chính đầu tiên. Các mũi tên màu cam biểu thị hai vector tải thành phần chính đầu tiên, với trục ở phía trên và bên phải. Chẳng hạn, tải của_ `Rape` _trên thành phần thứ nhất là 0,54 và tải trên thành phần thứ hai là 0,17; từ_ `Rape` _được đặt tâm tại điểm (0,54, 0,17). Hình này được gọi là biplot vì đồng thời hiển thị điểm số và tải thành phần chính._
+
+Sau khi tính các thành phần chính, ta có thể vẽ chúng theo từng cặp để tạo ra những góc nhìn ít chiều của dữ liệu: _Z_ 1 theo _Z_ 2, _Z_ 1 theo _Z_ 3, _Z_ 2 theo _Z_ 3, v.v. Về hình học, thao tác này tương đương chiếu dữ liệu ban đầu xuống không gian con sinh bởi _φ_ 1, _φ_ 2 và _φ_ 3 rồi vẽ các điểm đã chiếu.
+
+Ta minh họa PCA trên bộ dữ liệu `USArrests`. Với mỗi bang trong số 50 bang của Hoa Kỳ, bộ dữ liệu chứa số vụ bắt giữ trên 100.000 dân cho ba tội danh: `Assault`, `Murder` và `Rape`. Ta cũng ghi nhận `UrbanPop`, tỷ lệ phần trăm dân số của mỗi bang sống ở khu vực đô thị. Các vector điểm số thành phần chính có độ dài _n_ = 50, còn các vector tải có độ dài _p_ = 4. PCA được thực hiện sau khi chuẩn hóa từng biến để có trung bình bằng 0 và độ lệch chuẩn bằng 1.
+
+<MdxCode language="table" code={"||PC1|PC2|\n|---|---|---|\n|`Murder`|0.5358995|_−_0.4181809|\n|`Assault`|0.5831836|_−_0.1879856|\n|`UrbanPop`|0.2781909|0.8728062|\n|`Rape`|0.5434321|0.1673186|"} />
+
+**BẢNG 12.1.** _Các vector tải thành phần chính φ_ 1 _và φ_ 2 _của dữ liệu_ `USArrests` _. Chúng cũng được thể hiện trong Hình 12.1._
+
+Hình 12.1 vẽ hai thành phần chính đầu tiên của dữ liệu. Hình đồng thời biểu diễn điểm số và vector tải trên một _biplot_. Các tải cũng được liệt kê trong Bảng 12.1.
+
+Trong Hình 12.1, vector tải thứ nhất đặt trọng số gần bằng nhau lên `Assault`, `Murder` và `Rape`, nhưng đặt trọng số nhỏ hơn nhiều lên `UrbanPop`. Vì vậy, thành phần này gần như đo mức độ chung của các tội phạm nghiêm trọng. Vector tải thứ hai đặt phần lớn trọng số lên `UrbanPop` và ít hơn nhiều lên ba đặc trưng còn lại, nên gần như tương ứng với mức độ đô thị hóa của bang. Nhìn chung, các biến liên quan đến tội phạm—`Murder`, `Assault` và `Rape`—nằm gần nhau, còn `UrbanPop` nằm xa ba biến kia. Điều đó cho thấy các biến tội phạm có tương quan với nhau—bang có tỷ lệ giết người cao thường cũng có tỷ lệ hành hung và hiếp dâm cao—còn `UrbanPop` ít tương quan hơn với chúng.
+
+Ta có thể xem xét khác biệt giữa các bang qua hai vector điểm số trong Hình 12.1. Diễn giải tải cho thấy các bang có điểm dương lớn trên thành phần thứ nhất như California, Nevada và Florida có tỷ lệ tội phạm cao, còn những bang như North Dakota có điểm âm và tỷ lệ tội phạm thấp. California cũng có điểm cao trên thành phần thứ hai, cho thấy mức đô thị hóa cao; điều ngược lại đúng với các bang như Mississippi. Những bang gần 0 trên cả hai thành phần như Indiana có mức tội phạm và đô thị hóa xấp xỉ trung bình.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 12.2.2 Một cách diễn giải khác về thành phần chính
+
+Hai vector tải thành phần chính đầu tiên trong một bộ dữ liệu ba chiều mô phỏng được thể hiện ở ô bên trái Hình 12.2. Hai vector này sinh ra một mặt phẳng mà dọc theo đó các quan sát có phương sai lớn nhất.
+
+Trong phần trước, vector tải thành phần chính được mô tả là những hướng trong không gian đặc trưng mà dữ liệu biến thiên nhiều nhất, còn điểm số thành phần chính là các phép chiếu dọc theo những hướng ấy. Một cách diễn giải khác cũng rất hữu ích: các thành phần chính tạo ra những bề mặt tuyến tính ít chiều _gần các quan sát nhất_. Ta sẽ khai triển cách hiểu này.^(3) Vector tải thành phần chính thứ nhất có một tính chất đặc biệt: nó là đường trong không gian _p_ chiều _gần nhất_ với _n_ quan sát, với khoảng cách Euclid bình phương trung bình làm thước đo độ gần. Diễn giải này xuất hiện trong ô bên trái Hình 6.15; các đường nét đứt chỉ khoảng cách từ mỗi quan sát đến đường do vector tải thứ nhất xác định. Sức hấp dẫn của cách hiểu này rất rõ: ta tìm một chiều duy nhất nằm gần mọi điểm dữ liệu nhất có thể, vì một đường như vậy có khả năng tóm tắt dữ liệu tốt.
+
+**HÌNH 12.2.** _Chín mươi quan sát được mô phỏng trong không gian ba chiều và tô màu để dễ quan sát._ Trái: _Hai hướng thành phần chính đầu tiên sinh ra mặt phẳng khớp dữ liệu tốt nhất. Mặt phẳng được đặt sao cho tổng khoảng cách bình phương đến từng điểm nhỏ nhất._ Phải: _Hai vector điểm số thành phần chính đầu tiên cho tọa độ của phép chiếu 90 quan sát lên mặt phẳng._
+
+Khái niệm thành phần chính là những chiều gần _n_ quan sát nhất không chỉ áp dụng cho thành phần thứ nhất. Chẳng hạn, hai thành phần chính đầu tiên sinh ra mặt phẳng gần _n_ quan sát nhất theo khoảng cách Euclid bình phương trung bình, như ô bên trái Hình 12.2. Ba thành phần chính đầu tiên sinh ra siêu phẳng ba chiều gần _n_ quan sát nhất, và cứ thế tiếp tục.
+
+Theo cách diễn giải này, _M_ vector điểm số và _M_ vector tải đầu tiên cùng nhau cung cấp xấp xỉ _M_ chiều tốt nhất—xét theo khoảng cách Euclid—cho quan sát thứ _i_, _xij_. Biểu diễn này có thể viết là
+
+> 3Trong phần này, ta tiếp tục giả định mỗi cột của ma trận dữ liệu **X** đã được định tâm để có trung bình bằng 0, tức trung bình cột đã được trừ khỏi từng cột.
+
+Ta có thể phát biểu chính thức hơn bằng một bài toán tối ưu. Giả sử ma trận **X** đã được định tâm theo cột. Trong mọi xấp xỉ dạng _xij ≈_^(�)^(_M_) _m_ =1^(_aimbjm_,wecouldaskfortheonewiththe), ta tìm xấp xỉ có tổng bình phương phần dư nhỏ nhất:
+
+Ở đây, **A** là ma trận _n × M_ có phần tử ( _i, m_ ) là _aim_, còn **B** là ma trận _p × M_ có phần tử ( _j, m_ ) là _bjm_.
+
+Có thể chứng minh rằng với mọi giá trị _M_, các ma trận **A**^(ˆ) và **B**^(ˆ) giải (12.6) thực chất gồm _M_ vector điểm số và tải thành phần chính đầu tiên. Nói cách khác, nếu **A**^(ˆ) và **B**^(ˆ) giải (12.6), thì _aim_ˆ = _zim_ và ^(ˆ) _bjm_ = _φjm_.^(4) Điều này có nghĩa giá trị nhỏ nhất có thể của mục tiêu trong (12.6) là
+
+Tóm lại, khi _M_ đủ lớn, _M_ vector điểm số cùng _M_ vector tải đầu tiên có thể xấp xỉ dữ liệu tốt. Khi _M_ = min( _n −_ 1 _, p_ ), biểu diễn là chính xác: _xij_ =^(�)^(_M_) _m_ =1^(_zimφjm_.)
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 12.2.3 Tỷ lệ phương sai được giải thích
+
+Trong Hình 12.2, ta thực hiện PCA trên một bộ dữ liệu ba chiều—ô bên trái—rồi chiếu dữ liệu lên hai vector tải thành phần chính đầu tiên để có góc nhìn hai chiều—các vector điểm số ở ô bên phải. Biểu diễn hai chiều này thực sự nắm bắt được mẫu hình chính của dữ liệu ba chiều: các quan sát màu cam, xanh lá và xanh lơ nằm gần nhau trong không gian ba chiều vẫn ở gần nhau trong biểu diễn hai chiều. Tương tự, với dữ liệu `USArrests`, ta đã thấy có thể tóm tắt 50 quan sát và 4 biến chỉ bằng hai vector điểm số và hai vector tải đầu tiên.
+
+Một câu hỏi tự nhiên là: bao nhiêu thông tin của bộ dữ liệu bị mất khi chiếu các quan sát lên vài thành phần chính đầu tiên? Nói cách khác, bao nhiêu phương sai của dữ liệu _không_ nằm trong các thành phần đầu? Tổng quát hơn, ta muốn biết _tỷ lệ phương sai được giải thích_ (proportion of variance explained, PVE) bởi mỗi thành phần.
+
+> 4Về mặt kỹ thuật, lời giải của (12.6) không duy nhất. Phát biểu chính xác hơn là mọi lời giải của (12.6) đều có thể dễ dàng biến đổi để thu được các thành phần chính.
+
+**HÌNH 12.3.** Trái: _Biểu đồ scree thể hiện tỷ lệ phương sai được giải thích bởi từng thành phần trong số bốn thành phần chính của dữ liệu_ `USArrests` _._ Phải: _Tỷ lệ phương sai tích lũy được giải thích bởi bốn thành phần của dữ liệu_ `USArrests` _._
+
+Trong dữ liệu `USArrests`, thành phần chính thứ nhất giải thích 62,0% phương sai, còn thành phần kế tiếp giải thích 24,7%. Hai thành phần đầu cùng giải thích gần 87% phương sai, trong khi hai thành phần cuối chỉ giải thích 13%. Như vậy, Hình 12.1 cung cấp một bản tóm tắt khá chính xác của dữ liệu chỉ bằng hai chiều. PVE của từng thành phần và PVE tích lũy được thể hiện trong Hình 12.3. Ô bên trái được gọi là _biểu đồ scree_ và sẽ được thảo luận thêm trong chương.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 12.2.4 Tìm hiểu thêm về PCA
+
+##### Co giãn các biến
+
+Ta đã nhắc rằng trước khi thực hiện PCA, các biến cần được định tâm để có trung bình bằng 0. Hơn nữa, _kết quả PCA còn phụ thuộc vào việc từng biến có được co giãn riêng hay không_, tức mỗi biến được nhân với một hằng số khác nhau. Điều này trái với một số kỹ thuật có giám sát và không giám sát khác như hồi quy tuyến tính, nơi co giãn biến không làm thay đổi kết quả. Trong hồi quy tuyến tính, nhân một biến với hệ số _c_ chỉ khiến ước lượng hệ số tương ứng được nhân với 1 _/c_, nên không gây ảnh hưởng thực chất đến mô hình.
+
+Chẳng hạn, Hình 12.1 được tạo sau khi co giãn từng biến để có độ lệch chuẩn bằng 1; kết quả được lặp lại ở ô bên trái Hình 12.4. Tại sao co giãn lại quan trọng? Trong dữ liệu này, các biến được đo bằng đơn vị khác nhau: `Murder`, `Rape` và `Assault` là số lần xảy ra trên 100.000 người, còn `UrbanPop` là phần trăm dân số bang sống ở đô thị. Phương sai của bốn biến lần lượt là 18 _._ 97, 87 _._ 73, 6945 _._ 16 và 209 _._ 5. Vì vậy, nếu thực hiện PCA trên các biến chưa co giãn, vector tải thành phần thứ nhất sẽ có tải rất lớn cho `Assault`, vì biến này có phương sai lớn nhất vượt trội.
+
+**HÌNH 12.4.** _Hai biplot thành phần chính cho dữ liệu_ `USArrests` _._ Trái: _Giống Hình 12.1, các biến được co giãn để có độ lệch chuẩn đơn vị._ Phải: _Các thành phần chính dùng dữ liệu chưa co giãn._ `Assault` _có tải lớn nhất vượt trội trên thành phần thứ nhất vì có phương sai cao nhất trong bốn biến. Nói chung, nên co giãn các biến để có độ lệch chuẩn bằng 1._
+
+Ô bên phải Hình 12.4 thể hiện hai thành phần đầu của dữ liệu `USArrests` khi không co giãn các biến về độ lệch chuẩn bằng 1. Đúng như dự đoán, vector tải thứ nhất đặt gần như toàn bộ trọng số lên `Assault`, còn vector tải thứ hai đặt gần như toàn bộ trọng số lên `UrbanPop`. So sánh với ô bên trái cho thấy co giãn thực sự tác động đáng kể đến kết quả.
+
+Tuy nhiên, kết quả đó chỉ là hệ quả của thang đo được chọn. Nếu `Assault` được đo bằng số lần xảy ra trên 100 người thay vì trên 100.000 người, mọi phần tử của biến sẽ bị chia cho 1.000. Khi đó phương sai của biến rất nhỏ và vector tải thứ nhất sẽ có giá trị rất nhỏ cho biến này. Vì ta không muốn thành phần chính phụ thuộc vào một lựa chọn thang đo tùy ý, thông thường mỗi biến được co giãn về độ lệch chuẩn bằng 1 trước khi thực hiện PCA.
+
+Trong một số tình huống, các biến được đo bằng cùng đơn vị. Khi ấy, ta có thể không muốn co giãn từng biến về độ lệch chuẩn bằng 1. Chẳng hạn, nếu các biến trong bộ dữ liệu là mức biểu hiện của _p_ gen, biểu hiện được đo bằng cùng “đơn vị” cho mỗi gen, nên ta có thể chọn không co giãn từng gen.
+
+##### Tính duy nhất của các thành phần chính
+
+Về lý thuyết, các thành phần chính không nhất thiết duy nhất; nhưng trong gần như mọi tình huống thực tế, chúng là duy nhất nếu bỏ qua việc đảo dấu. Hai gói phần mềm khác nhau sẽ cho cùng vector tải, dù dấu có thể khác nhau. Lý do là mỗi vector tải xác định một hướng trong không gian _p_ chiều: đổi dấu không gây ảnh hưởng vì hướng không thay đổi. Trong Hình 6.14, vector tải là một đường kéo dài theo cả hai chiều, nên đảo dấu không thay đổi đường đó. Tương tự, các vector điểm số duy nhất nếu bỏ qua đảo dấu, vì phương sai của _Z_ bằng phương sai của _−Z_. Khi dùng (12.5) để xấp xỉ _xij_, ta nhân _zim_ với _φjm_. Vì vậy, nếu đồng thời đảo dấu vector tải và vector điểm số, tích cuối cùng vẫn không đổi.
+
+##### Quyết định số thành phần chính cần dùng
+
+Nói chung, một ma trận dữ liệu _n × p_ là **X** có min( _n −_ 1 _, p_ ) thành phần chính phân biệt. Tuy nhiên, ta thường không quan tâm tất cả mà chỉ muốn dùng vài thành phần đầu để trực quan hóa hoặc diễn giải dữ liệu. Thực tế, ta muốn dùng số thành phần ít nhất nhưng vẫn đủ để hiểu dữ liệu _tốt_. Cần bao nhiêu thành phần chính? Đáng tiếc là không có một câu trả lời duy nhất hay đơn giản.
+
+Thông thường, số thành phần cần để trực quan hóa được quyết định bằng cách xem _biểu đồ scree_, chẳng hạn ô bên trái Hình 12.3. Ta chọn số thành phần nhỏ nhất đủ giải thích một phần đáng kể độ biến thiên. Việc này được thực hiện bằng cách quan sát biểu đồ và tìm điểm mà tỷ lệ phương sai do mỗi thành phần kế tiếp giải thích giảm mạnh. Điểm gãy này thường được gọi là _khuỷu tay_ của biểu đồ scree. Quan sát Hình 12.3, ta có thể kết luận hai thành phần đầu giải thích lượng phương sai đáng kể và có một khuỷu tay sau thành phần thứ hai. Thành phần thứ ba giải thích chưa đến 10% phương sai, còn thành phần thứ tư chưa bằng một nửa con số đó và gần như không hữu ích.
+
+Tuy nhiên, kiểu phân tích trực quan này vốn mang tính _tùy nghi_. Không có cách khách quan được chấp nhận rộng rãi để quyết định bao nhiêu thành phần là _đủ_. Thực ra, bản thân câu hỏi “bao nhiêu là đủ” không được định nghĩa chặt chẽ và phụ thuộc vào lĩnh vực ứng dụng cũng như bộ dữ liệu cụ thể. Trong thực tế, ta thường xem vài thành phần đầu để tìm mẫu hình thú vị. Nếu không có mẫu hình nào ở những thành phần đầu, các thành phần sau khó có khả năng hữu ích. Ngược lại, nếu vài thành phần đầu thú vị, ta tiếp tục xem các thành phần kế tiếp cho đến khi không còn tìm thấy mẫu hình đáng chú ý. Đây là một phương pháp chủ quan, phản ánh việc PCA thường được dùng cho phân tích dữ liệu khám phá.
+
+Mặt khác, nếu tính thành phần chính để dùng trong phân tích có giám sát—chẳng hạn hồi quy thành phần chính ở Phần 6.3.1—ta có một cách đơn giản và khách quan để xác định số thành phần: xem số vector điểm số dùng trong hồi quy như một siêu tham số được chọn bằng xác thực chéo hoặc phương pháp liên quan. Việc chọn số thành phần trong phân tích có giám sát đơn giản hơn là một biểu hiện của thực tế rằng phân tích có giám sát thường được định nghĩa rõ và đánh giá khách quan hơn phân tích không giám sát.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 12.2.5 Các ứng dụng khác của thành phần chính
+
+Phần 6.3.1 đã cho thấy có thể thực hiện hồi quy với các vector điểm số thành phần chính làm đặc trưng. Thực ra, nhiều kỹ thuật thống kê như hồi quy, phân loại và phân cụm có thể dễ dàng điều chỉnh để dùng ma trận _n × M_ mà các cột là _M ≪ p_ vector điểm số đầu tiên, thay cho toàn bộ ma trận dữ liệu _n × p_. Cách này có thể cho kết quả _ít nhiễu hơn_, vì tín hiệu—trái với nhiễu—trong một bộ dữ liệu thường tập trung ở vài thành phần chính đầu tiên.
+
+</MdxPage>

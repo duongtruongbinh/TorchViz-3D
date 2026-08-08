@@ -1,0 +1,206 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch12-clustering-methods",
+  "locale": "vi",
+  "title": "Các phương pháp phân cụm",
+  "headings": [
+    "Các phương pháp phân cụm",
+    "12.4.1 Phân cụm K-means",
+    "12.4.2 Phân cụm phân cấp",
+    "12.4.3 Các vấn đề thực tiễn trong phân cụm"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học không giám sát",
+    "phân cụm",
+    "K-means",
+    "phân cụm phân cấp"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Các phương pháp phân cụm
+
+_Phân cụm_ là một tập hợp rất rộng các kỹ thuật nhằm tìm _nhóm con_, hay _cụm_, trong một bộ dữ liệu. Khi phân cụm các quan sát, ta muốn chia chúng thành những nhóm riêng biệt sao cho các quan sát trong cùng một nhóm khá giống nhau, còn quan sát thuộc các nhóm khác nhau thì khá khác nhau. Để phát biểu cụ thể, dĩ nhiên ta phải định nghĩa hai hay nhiều quan sát _giống_ hoặc _khác_ nhau nghĩa là gì. Đây thường là một quyết định phụ thuộc lĩnh vực, cần dựa trên hiểu biết về dữ liệu đang nghiên cứu.
+
+Chẳng hạn, giả sử có _n_ quan sát, mỗi quan sát gồm _p_ đặc trưng. _n_ quan sát có thể là các mẫu mô của bệnh nhân ung thư vú, còn _p_ đặc trưng là những phép đo thu thập trên mỗi mẫu—có thể là phép đo lâm sàng như giai đoạn hoặc cấp độ khối u, hay phép đo biểu hiện gen. Ta có lý do để tin rằng _n_ mẫu mô không đồng nhất; chẳng hạn có thể tồn tại vài phân nhóm ung thư vú _chưa biết_. Phân cụm có thể được dùng để tìm những nhóm con này. Đây là bài toán không giám sát vì ta cố khám phá cấu trúc—trong trường hợp này là các cụm riêng biệt—dựa trên một bộ dữ liệu. Ngược lại, bài toán có giám sát nhằm dự đoán một vector kết quả như thời gian sống còn hoặc đáp ứng với điều trị bằng thuốc.
+
+Cả phân cụm lẫn PCA đều tìm cách đơn giản hóa dữ liệu bằng một số ít bản tóm tắt, nhưng cơ chế khác nhau:
+
+- PCA tìm một biểu diễn ít chiều của các quan sát, giải thích được phần đáng kể phương sai;
+
+- Phân cụm tìm các nhóm con đồng nhất trong những quan sát.
+
+Một ứng dụng khác của phân cụm xuất hiện trong marketing. Ta có thể tiếp cận nhiều phép đo—thu nhập trung vị hộ gia đình, nghề nghiệp, khoảng cách đến đô thị gần nhất, v.v.—của rất nhiều người. Mục tiêu là thực hiện _phân khúc thị trường_ bằng cách nhận diện những nhóm người dễ tiếp nhận một hình thức quảng cáo cụ thể hơn hoặc có khả năng mua một sản phẩm nhất định cao hơn. Phân khúc thị trường về bản chất là phân cụm những người trong bộ dữ liệu.
+
+Do phân cụm phổ biến trong nhiều lĩnh vực, có rất nhiều phương pháp khác nhau. Phần này tập trung vào hai phương pháp có lẽ được biết đến nhiều nhất: _phân cụm K-means_ và _phân cụm phân cấp_. Với _K_-means, ta chia các quan sát thành một số cụm được định trước. Với phân cụm phân cấp, ta không cần biết trước số cụm mong muốn; kết quả là một biểu diễn dạng cây của các quan sát, gọi là _dendrogram_. Dendrogram cho phép xem đồng thời kết quả phân cụm ứng với mọi số cụm có thể, từ 1 đến _n_. Mỗi cách tiếp cận có ưu và nhược điểm riêng, sẽ được nêu trong chương.
+
+Nói chung, ta có thể phân cụm quan sát dựa trên các đặc trưng để tìm nhóm con giữa những quan sát, hoặc phân cụm đặc trưng dựa trên các quan sát để tìm nhóm con giữa những đặc trưng. Để đơn giản, phần sau thảo luận việc phân cụm quan sát dựa trên đặc trưng; trường hợp ngược lại chỉ cần chuyển vị ma trận dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 12.4.1 Phân cụm K-means
+
+Phân cụm _K_-means là một phương pháp đơn giản và thanh lịch để chia bộ dữ liệu thành _K_ cụm riêng biệt, không chồng lấn. Trước tiên ta phải chỉ định số cụm mong muốn _K_; sau đó thuật toán gán mỗi quan sát vào đúng một trong _K_ cụm. Hình 12.7 thể hiện kết quả áp dụng _K_-means lên một ví dụ mô phỏng gồm 150 quan sát trong hai chiều với ba giá trị _K_ khác nhau.
+
+Quy trình _K_-means bắt nguồn từ một bài toán toán học đơn giản và trực quan. Gọi _C_ 1 _, . . . , CK_ là các tập chứa chỉ số quan sát trong từng cụm. Những tập này thỏa hai tính chất:
+
+1. _C_ 1 _∪ C_ 2 _∪· · · ∪ CK_ = _\{_ 1 _, . . . , n\}_. Nghĩa là mỗi quan sát thuộc ít nhất một trong _K_ cụm.
+
+2. _Ck ∩ Ck′_ = _∅_ với mọi _k_ = _k_^(_′_). Nghĩa là các cụm không chồng lấn: không quan sát nào thuộc nhiều hơn một cụm.
+
+**HÌNH 12.7.** _Bộ dữ liệu mô phỏng gồm 150 quan sát trong không gian hai chiều. Các ô thể hiện kết quả K-means với những giá trị K—số cụm—khác nhau. Màu của mỗi quan sát cho biết cụm được thuật toán gán. Các cụm không có thứ tự nên màu cụm là tùy ý. Nhãn màu không được dùng khi phân cụm mà là đầu ra của quy trình._
+
+Nếu quan sát thứ _i_ nằm trong cụm thứ _k_ thì _i ∈ Ck_. Ý tưởng của _K_-means là một kết quả phân cụm _tốt_ phải có _độ biến thiên nội cụm_ nhỏ nhất có thể. Độ biến thiên nội cụm của _Ck_ là một thước đo _W_ ( _Ck_ ) về mức độ khác biệt giữa các quan sát trong cụm. Vì vậy, ta muốn giải bài toán
+
+Nói bằng lời, ta muốn chia các quan sát thành _K_ cụm sao cho tổng độ biến thiên nội cụm trên tất cả các cụm nhỏ nhất có thể.
+
+Ý tưởng giải (12.15) là hợp lý, nhưng để thực hiện được, cần định nghĩa độ biến thiên nội cụm. Có nhiều lựa chọn, song phổ biến nhất dùng _bình phương khoảng cách Euclid_. Ta định nghĩa
+
+trong đó _|Ck|_ là số quan sát trong cụm thứ _k_. Nói cách khác, độ biến thiên nội cụm là tổng bình phương khoảng cách Euclid theo từng cặp giữa các quan sát trong cụm, chia cho tổng số quan sát của cụm. Kết hợp (12.15) và (12.16) cho bài toán tối ưu xác định _K_-means:
+
+Bây giờ ta cần một thuật toán giải (12.17), tức chia các quan sát thành _K_ cụm để mục tiêu nhỏ nhất. Việc giải chính xác thực ra rất khó vì có gần _K_^(_n_) cách chia _n_ quan sát thành _K_ cụm—một con số khổng lồ trừ khi _K_ và _n_ rất nhỏ. May mắn là một thuật toán cực kỳ đơn giản có thể tìm một cực tiểu cục bộ, tức một _lời giải khá tốt_, cho bài toán (12.17). Thuật toán 12.2 trình bày phương pháp này.
+
+##### **Thuật toán 12.2** _Phân cụm K-means_
+
+1. Gán ngẫu nhiên cho mỗi quan sát một số từ 1 đến _K_. Đây là phép gán cụm ban đầu.
+
+2. Lặp cho đến khi phép gán cụm không còn thay đổi:
+
+   - (a) Với mỗi cụm trong _K_ cụm, tính _tâm cụm_. Tâm cụm thứ _k_ là vector gồm trung bình của _p_ đặc trưng trên những quan sát thuộc cụm.
+
+   - (b) Gán mỗi quan sát vào cụm có tâm gần nhất, trong đó độ gần được xác định bằng khoảng cách Euclid.
+
+Thuật toán 12.2 được bảo đảm làm giảm mục tiêu (12.17) ở mỗi bước. Đẳng thức sau giúp giải thích điều này:
+
+trong đó _x_ ¯ _kj_ = _|C_ 1 _k|_ � _i∈Ck_^(_xij_isthemeanforfeature)^(_j_incluster)^(_Ck_.) Ở Bước 2(a), trung bình cụm của từng đặc trưng là các hằng số tối thiểu hóa tổng độ lệch bình phương; ở Bước 2(b), việc gán lại quan sát chỉ có thể cải thiện (12.18). Vì vậy, kết quả phân cụm liên tục được cải thiện cho đến khi không còn thay đổi; mục tiêu (12.17) không bao giờ tăng. Khi kết quả ổn định, thuật toán đã đạt một _cực tiểu cục bộ_. Hình 12.8 thể hiện tiến trình trên ví dụ Hình 12.7. Tên _K_-means xuất phát từ việc Bước 2(a) tính tâm cụm bằng trung bình (mean) của các quan sát được gán cho cụm.
+
+Vì thuật toán tìm cực tiểu cục bộ chứ không phải cực tiểu toàn cục, kết quả phụ thuộc phép gán cụm ngẫu nhiên ban đầu ở Bước 1. Do đó, cần chạy thuật toán nhiều lần từ các cấu hình ngẫu nhiên khác nhau rồi chọn lời giải _tốt nhất_, tức lời giải có mục tiêu (12.17) nhỏ nhất.
+
+**HÌNH 12.8.** _Tiến trình K-means trên ví dụ Hình 12.7 với K=3._ Trên trái: _Các quan sát._ Trên giữa: _Ở Bước 1, mỗi quan sát được gán ngẫu nhiên vào một cụm._ Trên phải: _Ở Bước 2(a), các tâm cụm—những đĩa màu lớn—được tính. Ban đầu chúng gần như chồng lên nhau hoàn toàn vì phép gán cụm là ngẫu nhiên._ Dưới trái: _Ở Bước 2(b), mỗi quan sát được gán cho tâm gần nhất._ Dưới giữa: _Bước 2(a) được thực hiện lại, tạo ra các tâm mới._ Dưới phải: _Kết quả sau mười lần lặp._
+
+Hình 12.9 thể hiện các cực tiểu cục bộ thu được khi chạy _K_-means sáu lần với sáu phép gán ban đầu khác nhau trên dữ liệu Hình 12.7. Trong trường hợp này, kết quả tốt nhất có giá trị mục tiêu 235,8.
+
+Như đã thấy, để thực hiện _K_-means, ta phải quyết định số cụm kỳ vọng trong dữ liệu. Chọn _K_ hoàn toàn không đơn giản. Phần 12.4.3 sẽ bàn vấn đề này cùng các cân nhắc thực tiễn khác.
+
+**HÌNH 12.9.** _K-means được chạy sáu lần trên dữ liệu Hình 12.7 với K_ = 3 _, mỗi lần dùng một phép gán ngẫu nhiên khác nhau ở Bước 1. Phía trên mỗi biểu đồ là giá trị mục tiêu (12.17). Thu được ba cực tiểu cục bộ khác nhau; một cực tiểu có mục tiêu nhỏ hơn và tách cụm tốt hơn. Những biểu đồ được đánh dấu đỏ đều đạt cùng lời giải tốt nhất với mục tiêu 235,8._
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 12.4.2 Phân cụm phân cấp
+
+Một nhược điểm tiềm ẩn của _K_-means là phải chỉ định trước số cụm _K_. _Phân cụm phân cấp_ là phương pháp thay thế không đòi hỏi cam kết trước một giá trị _K_ cụ thể. Nó còn có ưu điểm tạo ra một biểu diễn dạng cây hấp dẫn của các quan sát, gọi là _dendrogram_.
+
+Phần này mô tả phân cụm _từ dưới lên_, hay _kết tụ_, kiểu phân cụm phân cấp phổ biến nhất. Dendrogram—thường được vẽ như một cây lộn ngược, xem Hình 12.11—được xây từ các lá, lần lượt kết hợp cụm lên đến thân. Trước hết ta tìm hiểu cách diễn giải dendrogram, sau đó mới xem cách thực sự xây dựng nó.
+
+**HÌNH 12.10.** _Bốn mươi lăm quan sát được sinh trong không gian hai chiều. Thực tế có ba lớp riêng biệt, được thể hiện bằng các màu khác nhau. Tuy nhiên, ta coi nhãn lớp là chưa biết và phân cụm các quan sát để khám phá các lớp từ dữ liệu._
+
+##### Diễn giải dendrogram
+
+Ta bắt đầu với bộ dữ liệu mô phỏng trong Hình 12.10 gồm 45 quan sát hai chiều. Dữ liệu được sinh từ mô hình ba lớp, với nhãn thật biểu diễn bằng các màu riêng. Giả sử dữ liệu được quan sát mà không có nhãn và ta muốn phân cụm phân cấp. Phân cụm với liên kết đầy đủ—sẽ được giải thích sau—cho kết quả ở ô bên trái Hình 12.11. Ta diễn giải dendrogram này như thế nào?
+
+Mỗi _lá_ trên dendrogram đại diện cho một trong 45 quan sát. Khi đi lên cây, một số lá bắt đầu _hợp nhất_ thành nhánh; đó là các quan sát giống nhau. Cao hơn nữa, các nhánh hợp nhất với lá hoặc nhánh khác. Hợp nhất xảy ra càng sớm—càng thấp trên cây—thì các nhóm quan sát càng giống nhau. Ngược lại, những quan sát hợp nhất muộn gần đỉnh có thể rất khác. Có thể phát biểu chính xác: với hai quan sát bất kỳ, tìm điểm đầu tiên mà các nhánh chứa chúng hợp nhất. Độ cao của điểm này trên trục dọc biểu thị mức độ khác biệt. Quan sát hợp nhất ở đáy rất giống nhau; quan sát hợp nhất gần đỉnh thường rất khác nhau.
+
+Điều này làm nổi bật một điểm quan trọng nhưng thường bị hiểu sai khi đọc dendrogram. Hãy xem ô bên trái Hình 12.12, một dendrogram đơn giản của chín quan sát. Quan sát 5 và 7 khá giống nhau vì hợp nhất tại điểm thấp nhất; quan sát 1 và 6 cũng vậy. Tuy nhiên, sẽ sai nếu kết luận 9 và 2 giống nhau chỉ vì nằm gần nhau trên hình. Theo thông tin của dendrogram, quan sát 9 không giống quan sát 2 hơn so với các quan sát 8, 5 và 7; ô bên phải Hình 12.12 với dữ liệu thô xác nhận điều này. Về toán học, có 2^(_n−_1) cách sắp xếp lại dendrogram với _n_ lá, vì tại mỗi trong _n −_ 1 điểm hợp nhất, hai nhánh có thể đổi chỗ mà không đổi ý nghĩa. Do đó, không thể kết luận độ giống nhau dựa trên khoảng cách theo _trục ngang_; phải dựa vào vị trí trên _trục dọc_ nơi hai nhánh lần đầu hợp nhất.
+
+**HÌNH 12.11.** Trái: _Dendrogram từ phân cụm dữ liệu Hình 12.10 bằng liên kết đầy đủ và khoảng cách Euclid._ Giữa: _Cắt dendrogram ở độ cao 9—đường nét đứt—tạo ra hai cụm, được tô màu khác nhau._ Phải: _Cắt ở độ cao 5 tạo ra ba cụm. Màu không được dùng trong phân cụm mà chỉ phục vụ hiển thị._
+
+Để nhận diện cụm từ dendrogram, ta cắt một đường ngang qua cây như ô giữa và bên phải Hình 12.11. Các tập quan sát riêng biệt phía dưới đường cắt được xem là cụm. Cắt ở độ cao 9 cho hai cụm; cắt ở độ cao 5 cho ba cụm. Tiếp tục hạ đường cắt có thể tạo ra mọi số cụm từ 1—không cắt—đến _n_—cắt tại độ cao 0 để mỗi quan sát là một cụm. Nói cách khác, độ cao đường cắt đóng vai trò tương tự _K_ trong _K_-means: nó kiểm soát số cụm.
+
+**HÌNH 12.12.** _Minh họa cách đọc đúng dendrogram với chín quan sát hai chiều._ Trái: _Dendrogram dùng khoảng cách Euclid và liên kết đầy đủ. Quan sát 5 và 7 giống nhau, cũng như 1 và 6. Tuy nhiên, quan sát 9 không giống quan sát 2 hơn so với 8, 5 và 7, dù 9 và 2 gần nhau theo chiều ngang; tất cả các quan sát này hợp nhất với 9 ở cùng độ cao xấp xỉ 1,8._ Phải: _Dữ liệu thô xác nhận nhận xét trên._
+
+Một dendrogram duy nhất có thể tạo ra bất kỳ số cụm nào—một điểm rất hấp dẫn của phân cụm phân cấp. Trong thực tế, người dùng thường quan sát cây và chọn số cụm hợp lý dựa trên độ cao hợp nhất và nhu cầu. Với Hình 12.11, có thể chọn hai hoặc ba cụm; nhưng vị trí cắt thường không rõ ràng như vậy.
+
+Từ _phân cấp_ cho biết các cụm thu được khi cắt ở một độ cao nhất định luôn lồng trong những cụm thu được khi cắt cao hơn. Tuy nhiên, giả định cấu trúc phân cấp có thể không thực tế với dữ liệu tùy ý. Giả sử các quan sát là một nhóm nam và nữ, được chia đều giữa người Mỹ, Nhật và Pháp. Cách chia tốt nhất thành hai nhóm có thể theo giới tính, còn cách chia tốt nhất thành ba nhóm lại theo quốc tịch. Các cụm thật khi đó không lồng nhau: cách chia ba nhóm không thể tạo ra bằng cách lấy cách chia hai nhóm tốt nhất rồi tách một nhóm. Phân cụm phân cấp không biểu diễn tốt tình huống này và đôi khi cho kết quả _kém hơn_ _K_-means với cùng số cụm.
+
+**Thuật toán 12.3** _Phân cụm phân cấp_
+
+1. Bắt đầu với _n_ quan sát và một thước đo—chẳng hạn khoảng cách Euclid—của toàn bộ �2� = _n_ ( _n −_ 1) _/_ 2 độ bất tương đồng theo cặp. Coi mỗi quan sát là một cụm riêng.
+
+2. Với _i_ = _n, n −_ 1 _, . . . ,_ 2:
+
+   - (a) Xem mọi độ bất tương đồng theo cặp giữa _i_ cụm và tìm cặp ít bất tương đồng nhất—giống nhau nhất. Hợp nhất hai cụm. Độ bất tương đồng giữa chúng xác định độ cao của điểm hợp nhất trên dendrogram.
+
+   - (b) Tính các độ bất tương đồng theo cặp mới giữa _i −_ 1 cụm còn lại.
+
+##### Thuật toán phân cụm phân cấp
+
+Dendrogram được tạo bởi một thuật toán cực kỳ đơn giản. Trước tiên, định nghĩa một thước đo _bất tương đồng_ giữa từng cặp quan sát; thường dùng khoảng cách Euclid, còn lựa chọn thước đo sẽ được bàn sau. Thuật toán lặp từ đáy cây: ban đầu mỗi trong _n_ quan sát là một cụm riêng. Hai cụm giống nhau nhất được _hợp nhất_, còn _n −_ 1 cụm. Tiếp tục hợp nhất hai cụm giống nhất, còn _n −_ 2 cụm. Quá trình tiếp diễn đến khi mọi quan sát nằm trong một cụm duy nhất và dendrogram hoàn tất. Hình 12.13 mô tả vài bước đầu trên dữ liệu Hình 12.12; Thuật toán 12.3 tóm tắt toàn bộ quy trình.
+
+Vẫn còn một câu hỏi: ở ô dưới bên phải Hình 12.13, vì sao cụm _\{_ 5 _,_ 7 _\}_ được hợp nhất với _\{_ 8 _\}_? Ta có độ bất tương đồng giữa từng cặp quan sát, nhưng định nghĩa thế nào giữa hai cụm khi một hoặc cả hai chứa nhiều quan sát? Khái niệm phải được mở rộng từ cặp quan sát sang cặp _nhóm quan sát_. _Liên kết_ (linkage) thực hiện việc này bằng cách định nghĩa độ bất tương đồng giữa hai nhóm. Bốn loại phổ biến—_đầy đủ_, _trung bình_, _đơn_ và _tâm_—được tóm tắt trong Bảng 12.3. Liên kết trung bình, đầy đủ và đơn phổ biến nhất trong thống kê. Trung bình và đầy đủ thường được ưa chuộng hơn liên kết đơn vì tạo dendrogram cân bằng hơn. Liên kết tâm thường dùng trong genomics nhưng có nhược điểm lớn: có thể xảy ra _đảo ngược_, khi hai cụm hợp nhất ở độ cao thấp hơn một trong các cụm riêng lẻ, gây khó khăn cho trực quan hóa và diễn giải.
+
+<MdxCode language="table" code={"|_Liên kết_|_Mô tả_|\n|---|---|\n|Đầy đủ|Độ bất tương đồng liên cụm cực đại. Tính mọi độ bất tương đồng theo cặp giữa quan sát trong cụm A và cụm B, rồi lấy giá trị _lớn nhất_.|\n|Đơn|Độ bất tương đồng liên cụm cực tiểu. Tính mọi độ bất tương đồng theo cặp giữa quan sát trong cụm A và cụm B, rồi lấy giá trị _nhỏ nhất_. Liên kết đơn có thể tạo cụm kéo dài, trong đó từng quan sát được hợp nhất lần lượt.|\n|Trung bình|Độ bất tương đồng liên cụm trung bình. Tính mọi độ bất tương đồng theo cặp giữa quan sát trong cụm A và cụm B rồi lấy _trung bình_.|\n||Độ bất tương đồng giữa tâm cụm A—một vector trung bình|\n|Tâm|độ dài _p_—và tâm cụm B. Liên kết tâm có thể tạo ra hiện tượng _đảo ngược_.|"} />
+
+**BẢNG 12.3.** _Tóm tắt bốn loại liên kết được dùng phổ biến nhất trong phân cụm phân cấp._
+
+Độ bất tương đồng tính ở Bước 2(b) phụ thuộc loại liên kết và thước đo bất tương đồng được chọn. Vì thế, dendrogram thường thay đổi mạnh theo loại liên kết, như Hình 12.14.
+
+##### Lựa chọn thước đo bất tương đồng
+
+Cho đến đây, các ví dụ dùng khoảng cách Euclid. Đôi khi, thước đo khác phù hợp hơn. _Khoảng cách dựa trên tương quan_ coi hai quan sát giống nhau nếu các đặc trưng của chúng tương quan cao, dù giá trị quan sát có thể cách xa theo khoảng cách Euclid. Đây là cách dùng tương quan khác thường: thay vì tính giữa các biến, ta tính giữa hồ sơ đặc trưng của từng cặp quan sát. Hình 12.15 minh họa khác biệt; khoảng cách tương quan tập trung vào hình dạng hồ sơ thay vì độ lớn.
+
+Việc chọn thước đo bất tương đồng rất quan trọng vì tác động mạnh đến dendrogram. Cần cân nhắc kỹ loại dữ liệu đang phân cụm và câu hỏi khoa học; chính những yếu tố này phải quyết định thước đo.
+
+Chẳng hạn, một nhà bán lẻ trực tuyến muốn phân cụm người mua theo lịch sử mua sắm để tìm các nhóm người _tương tự_, từ đó hiển thị sản phẩm và quảng cáo phù hợp. Dữ liệu có thể là ma trận với hàng là người mua, cột là mặt hàng và phần tử là số lần một người mua sản phẩm—0 nếu chưa bao giờ, 1 nếu một lần, v.v. Nếu dùng khoảng cách Euclid, những người mua rất ít sản phẩm—người dùng không thường xuyên—sẽ được gom với nhau, điều có thể không mong muốn. Nếu dùng khoảng cách tương quan, người có sở thích giống nhau—ví dụ cùng mua A và B nhưng không mua C hay D—sẽ vào cùng cụm dù tổng lượng mua khác nhau. Vì vậy, khoảng cách tương quan có thể phù hợp hơn.
+
+**HÌNH 12.13.** _Vài bước đầu của thuật toán phân cụm phân cấp trên dữ liệu Hình 12.12 với liên kết đầy đủ và khoảng cách Euclid._ Trên trái: _Ban đầu có chín cụm \{_ 1 _\}, \{_ 2 _\}, . . . , \{_ 9 _\}._ Trên phải: _Hai cụm gần nhất \{_ 5 _\} và \{_ 7 _\} hợp nhất._ Dưới trái: _Hai cụm gần nhất \{_ 6 _\} và \{_ 1 _\} hợp nhất._ Dưới phải: _Theo liên kết đầy đủ, \{_ 8 _\} hợp nhất với cụm \{_ 5 _,_ 7 _\}._
+
+Ngoài thước đo, cần cân nhắc có nên co giãn biến về độ lệch chuẩn bằng 1 trước khi tính độ bất tương đồng. Tiếp tục ví dụ mua sắm: một số mặt hàng được mua thường xuyên hơn—một người có thể mua mười đôi tất mỗi năm nhưng hiếm khi mua máy tính. Mặt hàng tần suất cao như tất sẽ ảnh hưởng đến độ bất tương đồng giữa người mua và kết quả phân cụm nhiều hơn mặt hàng hiếm như máy tính, điều có thể không mong muốn. Co giãn các biến về độ lệch chuẩn bằng 1 khiến mỗi biến có tầm quan trọng ngang nhau. Ta cũng có thể cần co giãn nếu các biến dùng thang đo khác nhau; nếu không, lựa chọn đơn vị—centimet hay kilomet—sẽ tác động lớn đến thước đo. Quyết định đúng hay không vẫn phụ thuộc ứng dụng. Hình 12.16 minh họa và vấn đề này cũng áp dụng cho _K_-means.
+
+**HÌNH 12.14.** _Liên kết trung bình, đầy đủ và đơn trên một bộ dữ liệu ví dụ. Liên kết trung bình và đầy đủ có xu hướng tạo cụm cân bằng hơn._
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 12.4.3 Các vấn đề thực tiễn trong phân cụm
+
+Phân cụm có thể là công cụ rất hữu ích cho phân tích dữ liệu không giám sát. Tuy nhiên, quá trình này phát sinh một số vấn đề cần lưu ý.
+
+##### Quyết định nhỏ, hệ quả lớn
+
+Để thực hiện phân cụm, ta phải đưa ra một số quyết định.
+
+**HÌNH 12.15.** _Ba quan sát với phép đo trên 20 biến. Quan sát 1 và 3 có giá trị tương tự ở từng biến nên khoảng cách Euclid nhỏ, nhưng tương quan rất yếu nên khoảng cách tương quan lớn. Ngược lại, quan sát 1 và 2 có giá trị khá khác nhau nên khoảng cách Euclid lớn, nhưng tương quan cao nên khoảng cách tương quan nhỏ._
+
+- Có nên chuẩn hóa quan sát hoặc đặc trưng trước không? Chẳng hạn, có nên co giãn các biến về độ lệch chuẩn bằng 1?
+
+- Với phân cụm phân cấp:
+
+   - Nên dùng thước đo bất tương đồng nào?
+
+   - Nên dùng loại liên kết nào?
+
+   - Nên cắt dendrogram ở đâu để thu được các cụm?
+
+- Với phân cụm _K_-means, nên tìm bao nhiêu cụm trong dữ liệu?
+
+Mỗi quyết định có thể tác động mạnh đến kết quả. Trong thực tế, ta thử nhiều lựa chọn rồi tìm lời giải hữu ích hoặc dễ diễn giải nhất. Không có một đáp án duy nhất đúng; bất kỳ lời giải nào bộc lộ khía cạnh thú vị của dữ liệu đều đáng xem xét.
+
+##### Kiểm chứng các cụm thu được
+
+Mỗi khi phân cụm một bộ dữ liệu, ta đều sẽ tìm được các cụm. Điều thực sự cần biết là chúng có đại diện cho các nhóm con thật trong dữ liệu hay chỉ là kết quả của việc _phân cụm nhiễu_. Nếu có một tập quan sát độc lập, liệu chúng cũng thể hiện cùng hệ cụm không? Đây là câu hỏi khó. Có nhiều kỹ thuật gán giá trị p cho một cụm để đánh giá bằng chứng có vượt quá mức ngẫu nhiên hay không, nhưng chưa có đồng thuận về một phương pháp tốt nhất. ESL trình bày chi tiết hơn.^(8)
+
+**HÌNH 12.16.** _Một nhà bán lẻ trực tuyến bán hai mặt hàng rất khác nhau: tất và máy tính._ Trái: _Số đôi tất và máy tính mà tám người mua đã mua; mỗi người có một màu. Nếu tính khoảng cách Euclid trên biến thô, số tất chi phối độ bất tương đồng còn máy tính gần như không ảnh hưởng. Điều này có thể không mong muốn vì (1) máy tính đắt hơn nên nhà bán lẻ quan tâm thúc đẩy việc mua máy tính hơn, và (2) chênh lệch lớn về số tất có thể ít cho biết sở thích chung hơn chênh lệch nhỏ về số máy tính._ Giữa: _Cùng dữ liệu sau khi mỗi biến được chia cho độ lệch chuẩn; hai sản phẩm có ảnh hưởng tương đương hơn._ Phải: _Cùng dữ liệu nhưng trục y là số tiền mỗi người chi cho tất và máy tính. Vì máy tính đắt hơn nhiều, lịch sử mua máy tính giờ chi phối độ bất tương đồng._
+
+##### Những cân nhắc khác
+
+Cả _K_-means và phân cụm phân cấp đều gán mọi quan sát vào một cụm, nhưng đôi lúc điều đó không phù hợp. Giả sử phần lớn quan sát thật sự thuộc một số ít nhóm con chưa biết, còn một số nhỏ quan sát rất khác nhau và khác mọi quan sát khác. Vì hai phương pháp buộc _mọi_ quan sát vào cụm, các ngoại lệ không thuộc cụm nào có thể làm méo mạnh kết quả. Mô hình hỗn hợp là cách hấp dẫn để xử lý ngoại lệ; có thể xem chúng như phiên bản _mềm_ của _K_-means và được mô tả trong ESL.
+
+> 8ESL: _The Elements of Statistical Learning_ của Hastie, Tibshirani và Friedman.
+
+Ngoài ra, các phương pháp phân cụm nói chung không bền vững trước nhiễu động dữ liệu. Giả sử ta phân cụm _n_ quan sát rồi phân cụm lại sau khi loại ngẫu nhiên một tập con. Ta mong hai hệ cụm khá giống nhau, nhưng thực tế thường không như vậy.
+
+##### Diễn giải kết quả một cách thận trọng
+
+Dù có các vấn đề trên, phân cụm vẫn là công cụ thống kê hữu ích và hợp lệ nếu dùng đúng cách. Những quyết định nhỏ—chuẩn hóa dữ liệu ra sao, dùng loại liên kết nào—có thể tạo khác biệt lớn. Vì thế, nên phân cụm với nhiều lựa chọn tham số và xem toàn bộ kết quả để tìm những mẫu hình xuất hiện nhất quán. Do phân cụm có thể không bền vững, nên thử trên các tập con để đánh giá độ ổn định của cụm. Quan trọng nhất, cần thận trọng khi báo cáo kết quả: không nên coi chúng là chân lý tuyệt đối về bộ dữ liệu, mà là điểm khởi đầu để phát triển giả thuyết khoa học và nghiên cứu thêm, tốt nhất trên một bộ dữ liệu độc lập.
+
+</MdxPage>

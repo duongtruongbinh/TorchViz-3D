@@ -1,0 +1,109 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch02-classical-statistics-fundamentals',
+  locale: 'vi',
+  title: '2.1 Tư duy thống kê',
+  headings: [
+    'Mục tiêu học tập',
+    'Thống kê giúp trả lời điều gì?',
+    'Bắt đầu từ câu hỏi',
+    'Mô tả hay suy luận?',
+    'Kiến thức cần nắm',
+  ],
+  keywords: [
+    'thống kê',
+    'sự biến động',
+    'câu hỏi nghiên cứu',
+    'thống kê mô tả',
+    'thống kê suy luận',
+  ],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Giải thích vì sao thống kê luôn đi cùng **sự biến động**.
+- Phân biệt **thống kê mô tả** và **thống kê suy luận**.
+- Chuyển một vấn đề thực tế thành câu hỏi có thể trả lời bằng dữ liệu.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thống kê giúp trả lời điều gì?
+
+**Thống kê** là khoa học thu thập, tóm tắt và phân tích dữ liệu để trả lời câu hỏi thực tế.
+
+Dữ liệu luôn có **sự biến động**: hai người, hai sản phẩm hoặc hai lần đo hiếm khi giống hệt nhau. Thống kê giúp ta nhận ra mẫu hình trong sự biến động đó và nói rõ kết luận còn bất định đến đâu.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Bắt đầu từ câu hỏi
+
+Một phân tích tốt bắt đầu bằng câu hỏi rõ ràng. Mỗi nhóm dưới đây chỉ giữ một câu hỏi tiêu biểu để bạn nhận ra cách tư duy chung.
+
+<StatisticalQuestionAtlas groups={[
+  { id: 'engineering', title: 'Kỹ thuật', questions: ['Quy trình mới có làm giảm tỷ lệ sản phẩm lỗi không?'] },
+  { id: 'medicine', title: 'Y khoa', questions: ['Phương pháp điều trị mới có cải thiện kết quả của bệnh nhân không?'] },
+  { id: 'business', title: 'Kinh doanh', questions: ['Chương trình khuyến mãi có làm tăng doanh số không?'] },
+  { id: 'society', title: 'Xã hội', questions: ['Mẫu khảo sát có đại diện cho dân số cần nghiên cứu không?'] },
+  { id: 'machine-learning', title: 'Học máy', questions: ['Mô hình có dự đoán tốt trên dữ liệu chưa từng thấy không?'] },
+  { id: 'deep-learning', title: 'Học sâu', questions: ['Thay đổi kiến trúc có cải thiện kết quả một cách ổn định không?'] },
+  { id: 'evaluation', title: 'Đánh giá mô hình', questions: ['Chênh lệch giữa hai mô hình có đủ lớn để đáng quan tâm không?'] },
+]} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Mô tả hay suy luận?
+
+Hai nhánh chính khác nhau ở **phạm vi kết luận**: mô tả dữ liệu đã quan sát, hoặc dùng mẫu để nói về một quần thể rộng hơn.
+
+<StatisticsBranchesOverview
+  branches={[
+    {
+      id: 'descriptive',
+      title: 'Thống kê mô tả',
+      englishTitle: 'Descriptive statistics',
+      question: 'Dữ liệu đang có trông như thế nào?',
+      description: 'Tóm tắt giá trị điển hình, độ phân tán, mẫu hình và điểm bất thường trong dữ liệu đã quan sát.',
+      steps: ['Dữ liệu đã có', 'Tóm tắt', 'Mẫu hình'],
+      tools: ['Ví dụ: trung vị, độ lệch chuẩn, histogram và box plot'],
+    },
+    {
+      id: 'inferential',
+      title: 'Thống kê suy luận',
+      englishTitle: 'Statistical inference',
+      question: 'Từ mẫu, ta có thể nói gì về quần thể?',
+      description: 'Dùng mẫu để ước lượng hoặc kiểm tra một nhận định về quần thể, đồng thời nêu rõ mức độ bất định.',
+      steps: ['Mẫu', 'Độ bất định', 'Kết luận'],
+      tools: ['Ví dụ: khoảng tin cậy và kiểm định giả thuyết'],
+    },
+  ]}
+  nextSteps={['Tiếp theo: quần thể, mẫu và cách dữ liệu được tạo ra']}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt bài 2.1">
+
+- **Thống kê** dùng dữ liệu để trả lời câu hỏi trong điều kiện luôn có sự biến động.
+- **Thống kê mô tả** tóm tắt dữ liệu đã quan sát.
+- **Thống kê suy luận** dùng mẫu để nói về quần thể và phải nêu mức độ bất định.
+- Trước khi chọn công thức hoặc biểu đồ, hãy viết rõ **câu hỏi cần trả lời**.
+
+</LessonNote>
+
+</MdxPage>

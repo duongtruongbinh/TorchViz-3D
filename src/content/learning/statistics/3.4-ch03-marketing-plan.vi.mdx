@@ -1,0 +1,47 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch03-marketing-plan",
+  "locale": "vi",
+  "title": "Kế hoạch marketing",
+  "headings": [
+    "Kế hoạch marketing"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Hồi quy tuyến tính",
+    "Kế hoạch marketing"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Kế hoạch marketing
+
+Bây giờ ta trở lại ngắn gọn với bảy câu hỏi về dữ liệu `Advertising` đặt ra ở đầu chương.
+
+1. _Có quan hệ giữa doanh số và ngân sách quảng cáo không?_ Khớp hồi quy bội `sales` theo `TV`, `radio`, `newspaper` như (3.20), rồi kiểm định _H_ 0 : _β_ `TV` = _β_ `radio` = _β_ `newspaper` = 0. Mục 3.2.2 cho thấy thống kê _F_ xác định có bác bỏ giả thuyết không hay không. Giá trị p trong Bảng 3.6 rất thấp, cung cấp bằng chứng rõ về quan hệ. Trong `Advertising`, ba ngân sách này lần lượt là `TV`, `radio` và `newspaper`.
+
+2. _Quan hệ mạnh đến đâu?_ RSE ước lượng độ lệch chuẩn của đáp ứng quanh đường hồi quy quần thể. Với `Advertising`, RSE là 1 _._ 69 so với đáp ứng trung bình 14 _._ 022, tức sai số khoảng 12 %. Thống kê _R_^(2) ghi tỷ lệ biến thiên đáp ứng được biến dự báo giải thích; các biến giải thích gần 90 % phương sai `sales`. Cả hai ở Bảng 3.6.
+
+3. _Phương tiện nào liên quan đến doanh số?_ Xem giá trị p của thống kê _t_ cho từng biến. Trong Bảng 3.4, `TV`, `radio` có giá trị thấp, `newspaper` thì không; chỉ `TV`, `radio` liên quan đến `sales`. Chương 6 khảo sát kỹ hơn.
+
+4. _Liên hệ giữa từng phương tiện và doanh số lớn đến đâu?_ Sai số chuẩn của _β_^(ˆ) _j_ tạo khoảng tin cậy cho _βj_. Khoảng 95 % là (0 _._ 043 _,_ 0 _._ 049) cho `TV`, (0 _._ 172 _,_ 0 _._ 206) cho `radio`, và ( _−_ 0 _._ 013 _,_ 0 _._ 011) cho `newspaper`. Hai khoảng đầu hẹp và xa không; khoảng của `newspaper` chứa không nên biến không có ý nghĩa khi biết `TV`, `radio`.
+
+Cộng tuyến có thể gây sai số chuẩn rộng. VIF lần lượt 1 _._ 005, 1 _._ 145, 1 _._ 145 cho `TV`, `radio`, `newspaper`, nên không có bằng chứng cộng tuyến.
+
+Để đánh giá riêng từng phương tiện, ta thực hiện ba hồi quy đơn. Bảng 3.1, 3.3 cho bằng chứng liên hệ cực mạnh giữa `TV`–`sales`, `radio`–`sales`; liên hệ `newspaper`–`sales` nhẹ khi bỏ qua `TV`, `radio`.
+
+5. _Dự đoán doanh số tương lai chính xác đến đâu?_ Với dữ liệu `Advertising`, dùng (3.21) để dự đoán `sales`. Độ chính xác phụ thuộc ta dự đoán đáp ứng cá thể _Y_ = _f_ ( _X_ ) + _ϵ_ hay đáp ứng trung bình _f_ ( _X_ ). Trường hợp đầu dùng khoảng dự đoán, trường hợp sau dùng khoảng tin cậy. Khoảng dự đoán luôn rộng hơn vì tính cả bất định từ _ϵ_, sai số không thể giảm.
+
+6. _Quan hệ có tuyến tính không?_ Biểu đồ phần dư giúp nhận diện phi tuyến; nếu tuyến tính, phần dư không có mẫu hình. Dữ liệu `Advertising` có ảnh hưởng phi tuyến trong Hình 3.5. Có thể đưa các phép biến đổi biến dự báo vào mô hình để thích nghi.
+
+7. _Có hiệp lực giữa các phương tiện không?_ Mô hình tiêu chuẩn giả định tính cộng, dễ diễn giải vì liên hệ của mỗi biến với đáp ứng không phụ thuộc biến khác, nhưng có thể không thực tế. Mục 3.3.2 chỉ cách thêm hạng tử tương tác
+
+3.5 So sánh hồi quy tuyến tính với _K_ láng giềng gần nhất
+
+để chứa quan hệ không cộng. Giá trị p nhỏ của tương tác chỉ ra quan hệ này. Hình 3.5 gợi ý dữ liệu không cộng; thêm tương tác làm _R_^(2) tăng mạnh từ khoảng 90 % lên gần 97 %.
+
+</MdxPage>

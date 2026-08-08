@@ -3,7 +3,7 @@ title: Refactor LLM Domain Renderers
 status: done
 created: 2026-07-20T00:00:00+07:00
 updated: 2026-07-21T01:20:00+07:00
-author: Codex
+author: nmkhiem
 task: "refactor the LLM domain renderer package into smaller cohesive internal modules without changing UI, behavior, content, or the MDX API"
 supersedes:
   - docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md

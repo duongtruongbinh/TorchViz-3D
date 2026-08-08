@@ -1,0 +1,33 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-survival-censoring-times",
+  "locale": "vi",
+  "title": "Thời gian sống còn và thời gian kiểm duyệt",
+  "headings": [
+    "Thời gian sống còn và thời gian kiểm duyệt"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Thời gian sống còn và thời gian kiểm duyệt"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Thời gian sống còn và thời gian kiểm duyệt
+
+Với mỗi cá thể, ta giả sử tồn tại một _thời gian sống còn_ thực, _T_, cũng như một _thời gian kiểm duyệt_ thực, _C_. (Thời gian sống còn còn được gọi là _thời gian hỏng_ hoặc _thời gian xảy ra biến cố_.) Thời gian sống còn biểu thị thời điểm biến cố quan tâm xảy ra: chẳng hạn, thời điểm bệnh nhân tử vong hoặc khách hàng hủy đăng ký dịch vụ. Ngược lại, thời gian kiểm duyệt là thời điểm xảy ra việc kiểm duyệt: ví dụ, thời điểm bệnh nhân rút khỏi nghiên cứu hoặc nghiên cứu kết thúc.
+
+Ta quan sát được thời gian sống còn _T_ hoặc thời gian kiểm duyệt _C_. Cụ thể, ta quan sát biến ngẫu nhiên
+
+Nói cách khác, nếu biến cố xảy ra trước khi kiểm duyệt (tức _T &lt; C_) thì ta quan sát được thời gian sống còn thực _T_; tuy nhiên, nếu kiểm duyệt xảy ra trước biến cố (_T &gt; C_) thì ta quan sát thời gian kiểm duyệt. Ta cũng quan sát một biến chỉ báo trạng thái,
+
+Do đó, _δ_ = 1 nếu ta quan sát được thời gian sống còn thực, và _δ_ = 0 nếu thay vào đó ta quan sát thời gian kiểm duyệt.
+
+Bây giờ, giả sử ta quan sát _n_ cặp (_Y, δ_), ký hiệu là (_y_ 1 _, δ_ 1) _, . . . ,_ (_yn, δn_). Hình 11.1 trình bày một ví dụ từ một nghiên cứu y khoa (giả định), trong đó ta quan sát _n_ = 4 bệnh nhân trong thời gian theo dõi 365 ngày. Với bệnh nhân 1 và 3, ta quan sát thời gian đến biến cố (như tử vong hoặc bệnh tái phát) _T_ = _ti_. Bệnh nhân 2 vẫn còn sống khi nghiên cứu kết thúc, còn bệnh nhân 4 rút khỏi nghiên cứu, hay “mất dấu theo dõi”; với các bệnh nhân này ta quan sát _C_ = _ci_. Vì vậy, _y_ 1 = _t_ 1, _y_ 3 = _t_ 3, _y_ 2 = _c_ 2, _y_ 4 = _c_ 4, _δ_ 1 = _δ_ 3 = 1, và _δ_ 2 = _δ_ 4 = 0.
+
+</MdxPage>

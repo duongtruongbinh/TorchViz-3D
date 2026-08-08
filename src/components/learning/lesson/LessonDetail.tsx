@@ -6,7 +6,7 @@ import { getStrings } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
 import { cx, getLearningLabTheme, isTypingTarget } from '../theme';
 import type { QuizQuestionState } from './QuizBlock';
-import { getLearningMdxLesson } from '../learningMdxRegistry';
+import { useCompiledLearningMdxLesson } from '../learningMdxRegistry';
 
 type LessonDetailProps = {
   lesson: LearningLesson;
@@ -44,8 +44,20 @@ export default function LessonDetail({
     }));
   }, []);
 
-  const mdxLesson = getLearningMdxLesson({ domainId: lesson.domainId, language, lessonId: lesson.id, quizQuestionStates, themeClasses, onQuizQuestionStateChange: updateQuizQuestionState });
-  const sectionPages = mdxLesson ? mdxLesson.pages.map((page, pageIndex) => (
+  const compiledMdx = useCompiledLearningMdxLesson({ domainId: lesson.domainId, language, lessonId: lesson.id, quizQuestionStates, themeClasses, onQuizQuestionStateChange: updateQuizQuestionState });
+  const mdxLesson = compiledMdx.lesson;
+  const authoredStatePage = compiledMdx.status === 'loading' || compiledMdx.status === 'error'
+    ? [
+        <SectionShell key={`${lesson.id}-${compiledMdx.status}`} sectionDivider={sectionDivider}>
+          <p className={cx('text-sm font-semibold leading-6', compiledMdx.status === 'error' ? 'text-[#B54747]' : themeClasses.mutedText)}>
+            {compiledMdx.status === 'loading'
+              ? strings.learningLab.lessonContentLoading
+              : strings.learningLab.lessonContentLoadError}
+          </p>
+        </SectionShell>,
+      ]
+    : null;
+  const sectionPages = authoredStatePage ?? (mdxLesson ? mdxLesson.pages.map((page, pageIndex) => (
     <SectionShell key={`${lesson.id}-mdx-${pageIndex}`} sectionDivider={sectionDivider}>{page}</SectionShell>
   )) : lesson.sections.flatMap((section) => {
     const meta = getSectionMeta(section.kind, strings, language);
@@ -66,7 +78,7 @@ export default function LessonDetail({
         </p>
       </SectionShell>,
     ];
-  });
+  }));
   const currentSectionPageIndex = Math.min(sectionPageIndex, Math.max(sectionPages.length - 1, 0));
   const canGoBack = currentSectionPageIndex > 0;
   const canGoNext = currentSectionPageIndex < sectionPages.length - 1;
@@ -115,7 +127,7 @@ export default function LessonDetail({
       </div>
 
       {sectionPages.length > 1 || hasNextLesson ? (
-        <footer className={cx('flex items-center justify-between gap-3 border-t px-5 py-4 md:px-6', sectionDivider)}>
+        <footer className={cx('grid grid-cols-2 items-center gap-3 border-t px-5 py-4 sm:grid-cols-[1fr_auto_1fr] md:px-6', sectionDivider)}>
           <button
             type="button"
             onClick={(event) => {
@@ -123,12 +135,12 @@ export default function LessonDetail({
               setSectionPageIndex((value) => Math.max(value - 1, 0));
             }}
             disabled={!canGoBack}
-            className={getLessonPagerButtonClass(themeClasses, canGoBack)}
+            className={cx(getLessonPagerButtonClass(themeClasses, canGoBack), 'justify-self-start sm:col-start-1')}
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
             {strings.learningLab.lessonPreviousSection}
           </button>
-          <span className={cx('shrink-0 text-xs font-black tabular-nums', themeClasses.mutedText)}>
+          <span className={cx('col-span-2 row-start-1 justify-self-center text-xs font-black tabular-nums sm:col-span-1 sm:col-start-2', themeClasses.mutedText)}>
             {strings.learningLab.lessonStepCount(currentSectionPageIndex + 1, sectionPages.length)}
           </span>
           {hasNextPage ? (
@@ -140,7 +152,7 @@ export default function LessonDetail({
                 setSectionPageIndex((value) => Math.min(value + 1, sectionPages.length - 1));
               }}
               disabled={!canGoNext}
-              className={getLessonPagerButtonClass(themeClasses, canGoNext)}
+              className={cx(getLessonPagerButtonClass(themeClasses, canGoNext), 'col-start-2 row-start-2 justify-self-end sm:col-start-3 sm:row-start-1')}
               aria-label={strings.learningLab.lessonNextSection}
             >
               {strings.learningLab.lessonNextSection}
@@ -154,7 +166,7 @@ export default function LessonDetail({
                 onSelectNextLesson?.();
               }}
               disabled={!canCompleteLesson}
-              className={getLessonCompleteButtonClass(themeClasses, canCompleteLesson)}
+              className={cx(getLessonCompleteButtonClass(themeClasses, canCompleteLesson), 'col-start-2 row-start-2 justify-self-end sm:col-start-3 sm:row-start-1')}
               title={strings.learningLab.lessonCompleteAndContinue}
               aria-label={strings.learningLab.lessonCompleteAndContinue}
             >
@@ -230,7 +242,7 @@ function SectionHeading({
 
 function getLessonPagerButtonClass(themeClasses: LearningThemeClasses, isEnabled: boolean): string {
   return cx(
-    'inline-flex h-10 min-w-[6.75rem] items-center justify-center gap-2 px-3 text-sm font-black transition-colors disabled:cursor-not-allowed',
+    'inline-flex min-h-11 min-w-[6.75rem] items-center justify-center gap-2 px-3 text-sm font-black transition-colors disabled:cursor-not-allowed',
     themeClasses.radius.button,
     themeClasses.focusRing,
     isEnabled
@@ -245,12 +257,12 @@ function getLessonPagerButtonClass(themeClasses: LearningThemeClasses, isEnabled
 
 function getLessonCompleteButtonClass(themeClasses: LearningThemeClasses, isEnabled: boolean): string {
   return cx(
-    'inline-flex h-10 min-w-[7rem] items-center justify-center px-4 text-sm font-black transition-colors disabled:cursor-not-allowed',
+    'inline-flex min-h-11 min-w-[7rem] items-center justify-center px-4 text-sm font-black transition-colors disabled:cursor-not-allowed',
     themeClasses.radius.button,
     themeClasses.focusRing,
     isEnabled
       ? themeClasses.isLight
-        ? 'bg-[#2FBF71] text-white shadow-[0_8px_18px_rgba(47,191,113,0.22)] hover:bg-[#269B5E]'
+        ? 'bg-[#1F7A48] text-white shadow-[0_8px_18px_rgba(31,122,72,0.22)] hover:bg-[#195F39]'
         : 'bg-[#2FBF71] text-[#07140D] shadow-[0_8px_20px_rgba(47,191,113,0.20)] hover:bg-[#6EE7A2]'
       : themeClasses.isLight
         ? 'bg-[#2FBF71]/12 text-[#0B3D24]/24'

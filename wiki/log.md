@@ -3,6 +3,25 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-08-04 — Probability chapter flow tightened.** Reframed Chapter 1 around
+  the hidden coin, moved long-run frequency directly after the opening quiz,
+  split the interpretations into visible frequency/belief branches, and kept the
+  Bayes/Naive Bayes worked sequence intact. The chapter now sits at 573 ordered
+  pages with 70 theory pages and 45 quiz pages.
+
+- **2026-08-03 — Learning page titles simplified.** Applied the committed
+  deep-blue role to authored Markdown page titles and the Statistics objectives
+  title, then removed the leading objectives-title icon. Nested diagram/card
+  titles and non-title icons remain unchanged.
+
+- **2026-08-03 — Statistics learning-objectives pages.** Moved the existing
+  learning objectives in seventeen Vietnamese Statistics lessons onto dedicated
+  first pages and rendered them through an explicit borderless checklist
+  variant. Preserved all authored prose, formulas, visuals, routes, and other
+  note styles; Statistics now has 566 ordered pages. Added regression coverage
+  for all seventeen page-zero objective blocks and updated the Learning Lab
+  concept page.
+
 - **2026-07-14 — RequirementCard code-wrap fix.** Long inline code (e.g. a URL in a
   bash command) in `RequirementCard` no longer forces the card wider than its
   siblings. Two CSS changes in `learningMdxComponents.tsx`:

@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch07-step-functions",
+  "locale": "vi",
+  "title": "Hàm bậc thang",
+  "headings": [
+    "Hàm bậc thang"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Vượt ra ngoài tính tuyến tính",
+    "Hàm bậc thang"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Hàm bậc thang
+
+Việc dùng các hàm đa thức của đặc trưng làm biến dự báo trong mô hình tuyến tính áp đặt một cấu trúc _toàn cục_ lên hàm phi tuyến của _X_. Thay vào đó, ta có thể dùng _hàm bậc thang_ (step function) để tránh áp đặt cấu trúc toàn cục như vậy. Ta chia miền giá trị của _X_ thành các _khoảng_ (bin) và khớp một hằng số khác nhau trong mỗi khoảng. Điều này tương đương với việc chuyển một biến liên tục thành _biến phân loại có thứ tự_.
+
+Cụ thể hơn, ta tạo các điểm cắt _c_ 1, _c_ 2 _, . . . , cK_ trong miền giá trị của _X_, rồi xây dựng _K_ + 1 biến mới
+
+trong đó _I_ ( _·_ ) là một _hàm chỉ báo_ trả về 1 nếu điều kiện đúng và trả về 0 nếu không. Ví dụ, _I_ ( _cK ≤ X_ ) bằng 1 nếu _cK ≤ X_, và bằng 0 nếu ngược lại. Chúng đôi khi được gọi là các biến _giả_ (dummy). Lưu ý rằng với mọi giá trị của _X_, _C_ 0( _X_ ) + _C_ 1( _X_ ) + _· · ·_ + _CK_ ( _X_ ) = 1, vì _X_ phải thuộc đúng một trong _K_ + 1 khoảng. Sau đó ta dùng bình phương tối thiểu để khớp mô hình tuyến tính với _C_ 1( _X_ ) _, C_ 2( _X_ ) _, . . . , CK_ ( _X_ ) làm các biến dự báo^(2):
+
+Với một giá trị _X_ cho trước, nhiều nhất chỉ một trong _C_ 1 _, C_ 2 _, . . . , CK_ có thể khác không. Lưu ý rằng khi _X &lt; c_ 1, tất cả biến dự báo trong (7.5) đều bằng không, nên _β_ 0 có thể
+
+> 2Ta loại _C_ 0( _X_ ) khỏi tập biến dự báo trong (7.5) vì nó dư thừa với hệ số chặn. Điều này tương tự như việc ta chỉ cần hai biến giả để mã hóa một biến định tính có ba mức, với điều kiện mô hình có hệ số chặn. Việc loại _C_ 0( _X_ ) thay vì một _Ck_ ( _X_ ) khác trong (7.5) là tùy ý. Một cách khác là đưa _C_ 0( _X_ ) _, C_ 1( _X_ ) _, . . . , CK_ ( _X_ ) vào và loại hệ số chặn.
+
+###### **Hằng số từng đoạn**
+
+**HÌNH 7.2.** _Dữ liệu_ `Wage`_._ Trái: _Đường liền biểu diễn giá trị khớp từ hồi quy bình phương tối thiểu của_ `wage` _(nghìn đô la), sử dụng các hàm bậc thang của_ `age`_. Các đường nét đứt biểu thị khoảng tin cậy 95 % ước lượng._ Phải: _Ta mô hình hóa sự kiện nhị phân_ `wage>250` _bằng hồi quy logistic, cũng sử dụng các hàm bậc thang của_ `age`_. Xác suất hậu nghiệm đã khớp để_ `wage` _vượt quá_ $250 _,_ 000 _được thể hiện cùng với khoảng tin cậy 95 % ước lượng._
+
+được hiểu là giá trị trung bình của _Y_ khi _X &lt; c_ 1. Trong khi đó, (7.5) dự đoán đáp ứng _β_ 0+ _βj_ khi _cj ≤ X &lt; cj_ +1, nên _βj_ biểu diễn mức tăng trung bình của đáp ứng khi _X_ thuộc _cj ≤ X &lt; cj_ +1 so với khi _X &lt; c_ 1.
+
+Một ví dụ khớp hàm bậc thang với dữ liệu `Wage` trong Hình 7.1 được thể hiện ở biểu đồ bên trái của Hình 7.2. Ta cũng khớp mô hình hồi quy logistic
+
+để dự đoán xác suất một người thuộc nhóm thu nhập cao dựa trên `age`. Biểu đồ bên phải của Hình 7.2 thể hiện các xác suất hậu nghiệm đã khớp thu được bằng cách này.
+
+Đáng tiếc, trừ khi các biến dự báo có các điểm ngắt tự nhiên, hàm hằng số từng đoạn có thể bỏ lỡ xu hướng quan trọng. Chẳng hạn, ở biểu đồ bên trái của Hình 7.2, khoảng đầu tiên rõ ràng không nắm bắt được xu hướng `wage` tăng theo `age`. Dù vậy, cách tiếp cận dùng hàm bậc thang rất phổ biến trong thống kê sinh học, dịch tễ học và nhiều lĩnh vực khác. Ví dụ, các nhóm tuổi 5 năm thường được dùng để xác định các khoảng.
+
+</MdxPage>

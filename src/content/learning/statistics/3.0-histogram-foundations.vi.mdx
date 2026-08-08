@@ -1,0 +1,490 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'histogram-foundations',
+  locale: 'vi',
+  title: '3.1 Histogram — Từ dữ liệu thô đến hình dạng phân phối',
+  headings: [
+    'Mục tiêu học tập',
+    'Thu thập dữ liệu',
+    'Đặt dữ liệu lên một trục số',
+    'Vấn đề: các điểm bị chồng lên nhau',
+    'Chia trục số thành các bin',
+    'Xếp chồng các điểm trong từng bin',
+    'Từ các chồng điểm đến histogram',
+    'Histogram cho ta biết điều gì?',
+    'Điều gì xảy ra khi có quá ít bin?',
+    'Điều gì xảy ra khi có quá nhiều bin?',
+    'Cùng dữ liệu, histogram khác nhau',
+    'Quy tắc căn bậc hai',
+    'Không có một số bin đúng cho mọi dữ liệu',
+    'Code Python: tạo histogram đầu tiên',
+    'Code Python: nhìn thấy dữ liệu được chia bin như thế nào',
+    'Code Python: quá ít, hợp lý và quá nhiều bin',
+    'Code Python: so sánh các quy tắc chọn bin',
+    'Tự chọn số bin',
+  ],
+  keywords: ['histogram', 'bin', 'phân phối', 'tần số', 'numpy', 'matplotlib', 'square-root rule', 'Freedman–Diaconis'],
+  pageCount: 18,
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Hiểu cách xây dựng **Histogram** từng bước từ dữ liệu thô → trục số → chia khoảng (*bins*) → đếm tần số (*counts*) → dựng các cột.
+- Đọc hình dạng phân phối từ Histogram (vùng tập trung, mức phân tán, độ lệch, đuôi phân phối).
+- Áp dụng các quy tắc chọn số bin (Căn bậc hai, Sturges, Freedman–Diaconis) và viết code Python tạo Histogram với NumPy/Matplotlib.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thu thập dữ liệu
+
+Giả sử ta ghi lại **thời gian hoàn thành một bài tập của 30 sinh viên**. Mỗi sinh viên tạo ra một quan sát định lượng, đo bằng phút.
+
+<MdxTable
+  caption="Dữ liệu bắt đầu từ những quan sát riêng lẻ."
+  headers={['Quan sát', 'Thời gian hoàn thành (phút)']}
+  rows={[
+    [1, 18],
+    [2, 22],
+    [3, 25],
+    [4, 25],
+    [5, 27],
+    [6, 29],
+    [7, 30],
+    [8, 31],
+    [9, 31],
+    [10, 32],
+    [11, 33],
+    [12, 34],
+    [13, 34],
+    [14, 35],
+    [15, 35],
+    [16, 36],
+    [17, 37],
+    [18, 38],
+    [19, 38],
+    [20, 39],
+    [21, 40],
+    [22, 41],
+    [23, 42],
+    [24, 44],
+    [25, 45],
+    [26, 47],
+    [27, 50],
+    [28, 52],
+    [29, 55],
+    [30, 60],
+  ]}
+/>
+
+Danh sách số giữ lại giá trị chính xác của từng người, nhưng chưa cho ta thấy ngay dữ liệu tập trung ở đâu hoặc trải rộng đến mức nào.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đặt dữ liệu lên một trục số
+
+Mỗi giá trị có thể trở thành một điểm trên trục số. Vị trí ngang của điểm cho biết thời gian quan sát được.
+
+<HistogramConstructionVisual
+  step={2}
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  binEdges={[15, 25, 35, 45, 55, 65]}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Một giá trị tương ứng với một vị trí trên trục số."
+/>
+
+Với một vài điểm, biểu diễn này vẫn dễ đọc: điểm nằm càng xa bên phải thì thời gian hoàn thành càng lớn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Vấn đề: các điểm bị chồng lên nhau
+
+Khi đặt cả 30 quan sát lên cùng một đường, các giá trị giống hoặc gần nhau che lấp nhau. Nhìn vào cụm 30–40 phút, ta khó trả lời chính xác: **có bao nhiêu sinh viên ở vùng này?**
+
+<HistogramConstructionVisual
+  step={3}
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  binEdges={[15, 25, 35, 45, 55, 65]}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Khi có nhiều dữ liệu, chỉ đặt các điểm trên một đường là chưa đủ."
+/>
+
+Ta cần một cách giữ lại vị trí tương đối của dữ liệu nhưng làm cho mật độ quan sát trở nên đếm được.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Chia trục số thành các bin
+
+Ta chia miền giá trị thành các khoảng nhỏ gọi là **bin**:
+
+<MdxFormula formula={"[15,25),\\ [25,35),\\ [35,45),\\ [45,55),\\ [55,65]"} />
+
+<HistogramConstructionVisual
+  step={4}
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  binEdges={[15, 25, 35, 45, 55, 65]}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Bin biến trục số liên tục thành các khoảng dễ đếm hơn."
+/>
+
+Bin <MdxFormula inline formula={"[25,35)"} /> chứa mọi giá trị thỏa <MdxFormula inline formula={"25 \\le x < 35"} />. Ký hiệu này tránh đếm một giá trị ở ranh giới vào hai bin; bin cuối thường bao gồm cả đầu mút bên phải.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Xếp chồng các điểm trong từng bin
+
+Mỗi quan sát được chuyển vào bin chứa nó. Các điểm trong cùng bin được xếp từ dưới lên, nên chiều cao của chồng điểm chính là **số quan sát trong khoảng đó**.
+
+<HistogramConstructionVisual
+  step={5}
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  binEdges={[15, 25, 35, 45, 55, 65]}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Đếm số điểm trong mỗi bin sẽ tạo ra chiều cao của cột."
+/>
+
+Điểm dữ liệu chưa biến mất: chúng chỉ được gom theo khoảng để phép đếm trở nên trực quan.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Từ các chồng điểm đến histogram
+
+Thay mỗi chồng điểm bằng một hình chữ nhật có cùng chiều cao, ta thu được histogram.
+
+<HistogramConstructionVisual
+  step={6}
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  binEdges={[15, 25, 35, 45, 55, 65]}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Mỗi cột biểu diễn số quan sát nằm trong một bin."
+/>
+
+> **Histogram** biểu diễn phân phối của dữ liệu định lượng bằng cách chia miền giá trị thành các bin và đếm số quan sát trong mỗi bin.
+
+- Trục ngang biểu diễn các khoảng giá trị.
+- Trục dọc biểu diễn số quan sát hoặc tần suất.
+- Các cột thường liền nhau vì các bin kề nhau trên một trục số liên tục.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Histogram cho ta biết điều gì?
+
+Histogram không chỉ trả lời “có bao nhiêu điểm”. Hình dạng tổng thể giúp ta nhận ra nơi dữ liệu tập trung, mức phân tán, độ đối xứng hoặc độ lệch, số cụm, khoảng trống và những vùng hiếm gặp.
+
+<HistogramShapeVisual
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  bins={6}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Phần lớn thời gian tập trung ở vùng giữa; hai phía có ít quan sát hơn."
+  annotations={['Ít dữ liệu', 'Vùng tập trung', 'Đuôi phân phối']}
+/>
+
+Ở bước nhập môn, hãy đọc một hoặc hai đặc điểm chắc chắn trước. Đừng cố gán một tên phân phối chỉ vì vài cột trông quen thuộc.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Điều gì xảy ra khi có quá ít bin?
+
+Bin quá rộng gom nhiều giá trị khác nhau vào cùng một cột. Histogram trở nên thô và có thể che mất những cụm nhỏ hoặc khoảng trống quan trọng.
+
+<HistogramBinComparison
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Quá ít bin làm mất chi tiết của phân phối."
+  configurations={[{ bins: 2, title: '2 bin', description: 'Các khoảng rất rộng gom nhiều quan sát khác nhau.' }]}
+/>
+
+Biểu đồ đơn giản hơn không nhất thiết đồng nghĩa với biểu đồ trung thực hơn về cấu trúc dữ liệu.
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Điều gì xảy ra khi có quá nhiều bin?
+
+Bin quá hẹp chỉ chứa rất ít điểm. Histogram trở nên lởm chởm và nhạy với từng quan sát, khiến nhiễu ngẫu nhiên trông giống một đặc điểm thật.
+
+<HistogramBinComparison
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Quá nhiều bin làm nhiễu lấn át hình dạng tổng thể."
+  configurations={[{ bins: 25, title: '25 bin', description: 'Nhiều cột chỉ chứa một hoặc hai quan sát.' }]}
+/>
+
+Các “đỉnh” nhỏ xuất hiện ở đây có thể chỉ do ranh giới bin cắt qua một tập dữ liệu hữu hạn.
+
+</MdxPage>
+
+<MdxPage page={10}>
+
+## Cùng dữ liệu, histogram khác nhau
+
+Ba biểu đồ dưới đây dùng **cùng dữ liệu, cùng trục ngang và cùng kích thước**. Chỉ số bin thay đổi.
+
+<HistogramBinComparison
+  data={[18, 22, 25, 25, 27, 29, 30, 31, 31, 32, 33, 34, 34, 35, 35, 36, 37, 38, 38, 39, 40, 41, 42, 44, 45, 47, 50, 52, 55, 60]}
+  axisLabel="Thời gian hoàn thành (phút)"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  caption="Chọn số bin là sự cân bằng giữa khái quát và chi tiết."
+  configurations={[
+    { bins: 2, title: 'Quá ít bin', description: 'Mất chi tiết' },
+    { bins: 6, title: 'Mức khởi đầu hợp lý', description: 'Thấy cấu trúc chính' },
+    { bins: 25, title: 'Quá nhiều bin', description: 'Nhiễu nổi bật' },
+  ]}
+/>
+
+Hình dạng histogram phụ thuộc vào cả **dữ liệu** lẫn **cách chia bin**. Vì vậy, một nhận xét quan trọng nên được kiểm tra với vài lựa chọn bin gần nhau.
+
+</MdxPage>
+
+<MdxPage page={11}>
+
+## Quy tắc căn bậc hai
+
+Một điểm khởi đầu dễ nhớ là **quy tắc căn bậc hai**:
+
+<MdxFormula formula={"k \\approx \\sqrt{n}"} />
+
+Với <MdxFormula inline formula={"n=30"} /> quan sát, ta có <MdxFormula inline formula={"\\sqrt{30}\\approx 5.48"} /> và có thể thử 5 hoặc 6 bin.
+
+<HistogramRulesVisual
+  n={30}
+  caption="Thử 5–6 bin rồi kiểm tra hình dạng có ổn định hay không."
+  rules={[{
+    title: 'Quy tắc căn bậc hai',
+    formula: 'k ≈ √n',
+    result: '√30 ≈ 5,48 → thử 5–6 bin',
+    description: 'Một gợi ý khởi đầu đơn giản, không phải đáp án duy nhất.',
+  }]}
+/>
+
+Hãy dùng quy tắc này để bắt đầu quan sát, không dùng nó để kết thúc suy nghĩ.
+
+</MdxPage>
+
+<MdxPage page={12}>
+
+## Không có một số bin đúng cho mọi dữ liệu
+
+Trong thực tế có nhiều quy tắc chọn bin. Chúng phản ánh những ưu tiên khác nhau và có thể cho kết quả khác nhau trên cùng một mẫu.
+
+<MdxFormula formula={"k_{\\text{Sturges}}=\\left\\lceil \\log_2(n)+1\\right\\rceil"} />
+
+<MdxFormula formula={"h_{\\text{FD}}=2\\frac{\\operatorname{IQR}(x)}{n^{1/3}},\\qquad k\\approx\\frac{x_{\\max}-x_{\\min}}{h_{\\text{FD}}}"} />
+
+<HistogramRulesVisual
+  n={30}
+  caption="Bắt đầu bằng một quy tắc, sau đó thử các lựa chọn gần đó."
+  rules={[
+    { title: 'Square-root', formula: 'k ≈ √n', result: 'Khoảng 5–6 bin', description: 'Dễ hiểu và phù hợp để nhập môn.' },
+    { title: 'Sturges', formula: '⌈log₂(n)+1⌉', result: 'Khoảng 6 bin', description: 'Quy tắc đơn giản, thường khá thô khi n lớn.' },
+    { title: 'Freedman–Diaconis', formula: 'h = 2·IQR/n⅓', result: 'Chọn độ rộng bin h', description: 'Dùng độ phân tán bền vững và hữu ích khi dữ liệu lệch hoặc có ngoại lệ.' },
+  ]}
+/>
+
+Bạn không cần ghi nhớ cả ba công thức. Điều quan trọng là biết **số bin là một quyết định phân tích** và kiểm tra xem nhận xét có ổn định hay không.
+
+</MdxPage>
+
+<MdxPage page={13}>
+
+## Code Python: tạo histogram đầu tiên
+
+Sau khi đã hiểu bin và phép đếm, `matplotlib` chỉ còn là cách tự động hóa những bước đó.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = np.array([
+    18, 22, 25, 25, 27, 29, 30, 31, 31, 32,
+    33, 34, 34, 35, 35, 36, 37, 38, 38, 39,
+    40, 41, 42, 44, 45, 47, 50, 52, 55, 60
+])
+
+n = len(data)
+num_bins = round(np.sqrt(n))
+
+print(f"Số quan sát: {n}")
+print(f"Số bin gợi ý: {num_bins}")
+
+plt.hist(data, bins=num_bins, edgecolor="black")
+plt.xlabel("Thời gian hoàn thành (phút)")
+plt.ylabel("Số sinh viên")
+plt.title(f"Histogram với {num_bins} bin")
+plt.show()
+```
+
+- `bins` điều khiển cách chia miền giá trị.
+- `plt.hist()` tự gán quan sát vào bin và đếm chúng.
+- `edgecolor` làm ranh giới giữa các bin dễ nhìn hơn.
+
+</MdxPage>
+
+<MdxPage page={14}>
+
+## Code Python: nhìn thấy dữ liệu được chia bin như thế nào
+
+`np.histogram()` trả về cả số quan sát và ranh giới của từng bin, giúp ta kiểm tra điều mà biểu đồ đã tóm tắt.
+
+```python
+import numpy as np
+
+data = np.array([
+    18, 22, 25, 25, 27, 29, 30, 31, 31, 32,
+    33, 34, 34, 35, 35, 36, 37, 38, 38, 39,
+    40, 41, 42, 44, 45, 47, 50, 52, 55, 60
+])
+
+num_bins = round(np.sqrt(len(data)))
+counts, bin_edges = np.histogram(data, bins=num_bins)
+
+for index, count in enumerate(counts):
+    left = bin_edges[index]
+    right = bin_edges[index + 1]
+    closing = "]" if index == len(counts) - 1 else ")"
+    print(
+        f"Bin {index + 1}: [{left:.1f}, {right:.1f}{closing} "
+        f"chứa {count} quan sát"
+    )
+```
+
+Bin cuối bao gồm đầu mút bên phải để giá trị lớn nhất không bị bỏ ra ngoài.
+
+</MdxPage>
+
+<MdxPage page={15}>
+
+## Code Python: quá ít, hợp lý và quá nhiều bin
+
+Để so sánh công bằng, hãy giữ chung dữ liệu và hai trục, chỉ thay đổi số bin.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+data = np.concatenate([
+    rng.normal(loc=30, scale=4, size=120),
+    rng.normal(loc=45, scale=3, size=80)
+])
+
+bin_choices = {
+    "Quá ít bin": 2,
+    "Theo căn bậc hai": round(np.sqrt(len(data))),
+    "Quá nhiều bin": 40,
+}
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 4), sharex=True, sharey=True)
+
+for axis, (title, num_bins) in zip(axes, bin_choices.items()):
+    axis.hist(data, bins=num_bins, edgecolor="black")
+    axis.set_title(f"{title}\n{num_bins} bin")
+    axis.set_xlabel("Giá trị")
+
+axes[0].set_ylabel("Tần số")
+plt.tight_layout()
+plt.show()
+```
+
+Hãy hỏi: với 2 bin, hai cụm còn nhìn thấy không? Với 40 bin, những cột nhỏ có tạo ra quá nhiều đỉnh giả không?
+
+</MdxPage>
+
+<MdxPage page={16}>
+
+## Code Python: so sánh các quy tắc chọn bin
+
+NumPy hỗ trợ nhiều phương pháp chọn ranh giới bin. Tên phương pháp được truyền trực tiếp vào `np.histogram_bin_edges()`.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+data = rng.lognormal(mean=3.2, sigma=0.35, size=300)
+methods = ["sqrt", "sturges", "fd", "auto"]
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 8), sharex=True)
+
+for axis, method in zip(axes.flat, methods):
+    bin_edges = np.histogram_bin_edges(data, bins=method)
+    num_bins = len(bin_edges) - 1
+    axis.hist(data, bins=bin_edges, edgecolor="black")
+    axis.set_title(f"bins='{method}' → {num_bins} bin")
+    axis.set_xlabel("Giá trị")
+    axis.set_ylabel("Tần số")
+
+plt.tight_layout()
+plt.show()
+```
+
+`"sqrt"` và `"sturges"` là hai quy tắc khởi đầu; `"fd"` dùng Freedman–Diaconis; `"auto"` để NumPy chọn từ các quy tắc có sẵn.
+
+</MdxPage>
+
+<MdxPage page={17}>
+
+## Tự chọn số bin
+
+Dữ liệu mô phỏng dưới đây có hai cụm. Hãy kéo thanh điều khiển và quan sát khi nào hai cụm còn rõ nhưng biểu đồ chưa bị vỡ thành quá nhiều cột nhỏ.
+
+<HistogramBinExplorer
+  data={[20, 22, 24, 25, 25, 26, 26, 27, 27, 27, 28, 28, 28, 29, 29, 29, 30, 30, 30, 31, 31, 31, 32, 32, 33, 33, 34, 35, 36, 38, 42, 44, 45, 46, 46, 47, 47, 48, 48, 48, 49, 49, 49, 50, 50, 50, 51, 51, 51, 52, 52, 52, 53, 53, 54, 54, 55, 56, 58, 60]}
+  axisLabel="Giá trị mô phỏng"
+  countLabel="Số quan sát"
+  rangeLabel="Khoảng giá trị"
+  minBins={2}
+  maxBins={30}
+  initialBins={8}
+  binsLabel="Số lượng bin"
+  observationsLabel="Số quan sát"
+  averageLabel="Trung bình quan sát/bin"
+  task="Điều chỉnh số bin để vẫn nhìn thấy cấu trúc chính mà không biến từng quan sát thành một cột riêng."
+  feedback={{
+    tooFew: 'Các bin đang khá rộng. Một số cấu trúc có thể bị gộp lại.',
+    balanced: 'Histogram đang giữ được hình dạng tổng thể mà không quá lởm chởm.',
+    tooMany: 'Nhiều bin chỉ chứa một vài quan sát. Biểu đồ có thể đang thể hiện nhiễu.',
+  }}
+/>
+
+> Histogram không hiển thị từng quan sát riêng lẻ. Nó tóm tắt dữ liệu bằng cách đếm số quan sát trong các khoảng, vì vậy cách chọn bin ảnh hưởng trực tiếp đến hình dạng ta nhìn thấy.
+
+</MdxPage>

@@ -1,0 +1,349 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch03-linear-regression-lab",
+  "locale": "vi",
+  "title": "Lab: Hồi quy tuyến tính",
+  "headings": [
+    "3.6.1 Import các gói",
+    "3.6.2 Hồi quy tuyến tính đơn",
+    "3.6.3 Hồi quy tuyến tính bội",
+    "3.6.4 Độ khớp đa biến",
+    "3.6.5 Hạng tử tương tác",
+    "3.6.6 Biến đổi phi tuyến các biến dự báo",
+    "3.6.7 Biến dự báo định tính"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Hồi quy tuyến tính",
+    "Lab hồi quy tuyến tính"
+  ],
+  "pageCount": 7
+}
+
+<MdxPage page={0}>
+
+## 3.6.1 Import các gói
+
+Ta import các thư viện tiêu chuẩn ở cấp đầu này.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nimportpandasaspd\nfrommatplotlib.pyplotimportsubplots"} />
+
+### Các import mới
+
+Trong bài thực hành, ta sẽ giới thiệu các hàm và thư viện mới. Ta import chúng tại đây để nhấn mạnh đây là các đối tượng mã mới. Đặt import gần đầu notebook giúp mã dễ đọc, vì chỉ cần xem vài dòng đầu là biết các thư viện được dùng.
+
+<MdxCode language="text" code={"In [2]:importstatsmodels.apiassm"} />
+
+Chi tiết liên quan về các hàm sẽ được cung cấp khi cần.
+
+Ngoài import cả mô-đun, ta có thể chỉ import một vài mục, giúp giữ _namespace_ gọn. Ta sẽ dùng một số đối tượng cụ thể từ gói `statsmodels`.
+
+<MdxCode language="text" code={"In [3]:fromstatsmodels.stats.outliers_influence\\\nimportvariance_inflation_factorasVIF\nfromstatsmodels.stats.anovaimportanova_lm"} />
+
+Vì một câu lệnh import khá dài, ta chèn dấu xuống dòng `\` để dễ đọc.
+
+Ta cũng dùng các hàm trong gói `ISLP` được viết cho các bài thực hành của sách.
+
+<MdxCode language="text" code={"In [4]:fromISLPimportload_data\nfromISLP.modelsimport(ModelSpecasMS,\nsummarize,\npoly)"} />
+
+### Kiểm tra đối tượng và namespace
+
+Hàm `dir()` cung cấp danh sách đối tượng trong một namespace.
+
+<MdxCode language="text" code={"dir()"} />
+
+<MdxCode language="text" code={"In [5]:dir()"} />
+
+<MdxCode language="text" code={"Out[5]:['In',\n'MS',\n'_',\n'__',\n'___',\n'__builtin__',\n'__builtins__',\n..."} />
+
+<MdxCode language="text" code={"'poly',\n'quit',\n'sm',\n'summarize']"} />
+
+Kết quả cho thấy mọi thứ `Python` tìm được ở cấp đầu. Các đối tượng như `__builtins__` chứa tham chiếu đến hàm tích hợp như `print()`.
+
+Mỗi đối tượng Python có namespace riêng, cũng truy cập bằng `dir()`, gồm thuộc tính và phương thức. Ví dụ, danh sách của một mảng có `'sum'`.
+
+<MdxCode language="text" code={"In [6]:A=np.array([3,5,11])\ndir(A)"} />
+
+<MdxCode language="text" code={"Out[6]:...\n'strides',\n'sum',\n'swapaxes',\n..."} />
+
+Điều này cho biết đối tượng `A.sum` tồn tại. Đây là phương thức tính tổng mảng `A`, có thể xem bằng `A.sum?`.
+
+<MdxCode language="text" code={"In [7]:A.sum()"} />
+
+<MdxCode language="text" code={"Out[7]:19"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 3.6.2 Hồi quy tuyến tính đơn
+
+Trong phần này, ta xây dựng ma trận mô hình (còn gọi là ma trận thiết kế) bằng phép biến đổi `ModelSpec()` từ `ISLP.models`.
+
+Ta dùng dữ liệu nhà ở `Boston` trong gói `ISLP`, ghi `medv` (giá nhà trung vị) cho 506 khu phố quanh `Boston`. Ta xây dựng mô hình dự đoán `medv` bằng 13 biến như `rmvar` (số phòng trung bình), `age` (tỷ lệ nhà có chủ sở hữu xây trước 1940), `lstat` (phần trăm hộ có địa vị kinh tế xã hội thấp). Gói `Python` `statsmodels` triển khai nhiều phương pháp hồi quy phổ biến, và ta sẽ dùng trực tiếp `statsmodels` trong phần này.
+
+Gói `ISLP` có hàm nạp đơn giản `load_data()`; lời gọi `load_data()` trả về tập dữ liệu cần dùng:
+
+<MdxCode language="text" code={"In [8]:Boston=load_data(\"Boston\")\nBoston.columns"} />
+
+<MdxCode language="text" code={"Out[8]:Index(['crim','zn','indus','chas','nox','rm','age','dis',\n'rad','tax','ptratio','black','lstat','medv'],\ndtype='object')"} />
+
+Gõ `Boston?` để biết thêm về dữ liệu. Ta dùng `sm.OLS()` để khớp hồi quy tuyến tính đơn; mô hình `sm.OLS()` có đáp ứng `medv` và biến dự báo duy nhất `lstat`. Ma trận mô hình có thể tạo thủ công.
+
+<MdxCode language="text" code={"In [9]:X=pd.DataFrame({'intercept':np.ones(Boston.shape[0]),\n'lstat':Boston['lstat']})\nX[:4]"} />
+
+<MdxCode language="text" code={"Out[9]:interceptlstat\n01.04.98\n11.09.14\n21.04.03\n31.02.94"} />
+
+Ta trích xuất đáp ứng và khớp mô hình.
+
+<MdxCode language="text" code={"In [10]:y=Boston['medv']\nmodel=sm.OLS(y,X)\nresults=model.fit()"} />
+
+Lưu ý `sm.OLS()` chỉ đặc tả mô hình; `model.fit()` mới thực sự khớp.
+
+Hàm `summarize()` của `ISLP` tạo bảng ước lượng tham số, sai số chuẩn, thống kê t và giá trị p. Tiện ích `summarize()` nhận một đối số như đối tượng `results` do `fit` trả về.
+
+<MdxCode language="text" code={"In [11]:summarize(results)"} />
+
+<MdxCode language="table" code={"|**`Out[11]:`**||`coef`|`std `|`err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|---|\n||`intercept`|`34.5538`|`0.`|`563`|`61.415`|`0.0`|\n||`lstat`|`-0.9500`|`0.`|`039 `|`-24.528`|`0.0`|"} />
+
+Trước khi mô tả các phương thức khác, ta phác thảo khuôn khổ tổng quát hơn để dựng ma trận mô hình `X`.
+
+### Dùng phép biến đổi: Fit và Transform
+
+Mô hình trên chỉ có một biến nên dựng `X` đơn giản. Trong thực tế, ta thường chọn nhiều biến từ mảng hoặc dataframe, biến đổi chúng trước khi khớp, chỉ định tương tác và mở rộng biến thành một tập biến như đa thức. `sklearn` gọi đối tượng thực hiện việc này là _transform_; trong `sklearn`, nó được tạo với các tham số và có hai phương thức chính `fit()`, `transform()`.
+
+<MdxCode language="text" code={".fit()\n.transform()"} />
+
+`ModelSpec()` trong `ISLP` cung cấp cách tổng quát để đặc tả mô hình và dựng ma trận. Ký hiệu `ModelSpec() ModelSpec()` trong nguồn cũng chỉ `ModelSpec()` (đổi tên thành `MS()` ở đầu bài); các nhãn `.fit_` và `.transform()` tương ứng với hai bước `fit()`, `transform()` tạo ma trận.
+
+Ta mô tả quy trình với biến `lstat` trong dataframe `Boston`, rồi sẽ dùng lại ở các nhiệm vụ phức tạp. Phép biến đổi được tạo bằng `design = MS(['lstat'])`, và đối tượng `design` sẽ được dùng xuyên suốt quy trình.
+
+`fit()` nhận mảng ban đầu và thực hiện tính toán chuẩn bị như trung bình, độ lệch chuẩn để định tâm, co giãn. `transform()` áp dụng phép biến đổi đã khớp và sinh ma trận mô hình.
+
+<MdxCode language="text" code={"In [12]:design=MS(['lstat'])\ndesign=design.fit(Boston)\nX=design.transform(Boston)\nX[:4]"} />
+
+<MdxCode language="text" code={"Out[12]:interceptlstat\n01.04.98\n11.09.14\n21.04.03\n31.02.94"} />
+
+Ở đây `fit()` chỉ kiểm tra `'lstat'` tồn tại trong `Boston`; `transform()` tạo ma trận hai cột: `intercept` và `lstat`.
+
+Hai thao tác có thể kết hợp bằng `fit_transform()`.
+
+<MdxCode language="text" code={"In [13]:design=MS(['lstat'])\nX=design.fit_transform(Boston)\nX[:4]"} />
+
+<MdxCode language="text" code={"transform()"} />
+
+<MdxCode language="text" code={"Out[13]:interceptlstat\n01.04.98\n11.09.14\n21.04.03\n31.02.94"} />
+
+Như khi làm riêng hai bước, `fit()` làm thay đổi đối tượng `design`. Sức mạnh của pipeline sẽ rõ hơn với mô hình có tương tác và biến đổi.
+
+Trở lại mô hình đã khớp, `results` có nhiều phương thức suy luận. `summarize()` hiển thị phần cốt yếu; `summary()` cho bản tóm tắt đầy đủ hơn (không hiển thị đầu ra).
+
+<MdxCode language="text" code={"In [14]:results.summary()"} />
+
+Các hệ số đã khớp nằm trong thuộc tính `params` của `results`.
+
+<MdxCode language="text" code={"In [15]:results.params"} />
+
+<MdxCode language="text" code={"Out[15]:intercept34.553841\nlstat-0.950049\ndtype:float64"} />
+
+`get_prediction()` tạo dự đoán, khoảng tin cậy và khoảng dự đoán cho `medv` tại các giá trị `lstat`. Hai nhãn bị tách dòng `.get_` và `prediction() medv` trong nguồn cũng cùng mô tả thao tác dự đoán này.
+
+Trước hết ta tạo dataframe mới chỉ chứa `lstat` tại các giá trị muốn dự đoán, rồi dùng phương thức `transform()` của `design` để tạo ma trận tương ứng.
+
+<MdxCode language="text" code={"In [16]:new_df=pd.DataFrame({'lstat':[5,10,15]})\nnewX=design.transform(new_df)\nnewX"} />
+
+<MdxCode language="text" code={"Out[16]:interceptlstat\n01.05\n11.010\n21.015"} />
+
+Tiếp theo, ta dự đoán tại `newX` và xem thuộc tính `predicted_mean`.
+
+<MdxCode language="text" code={"In [17]:new_predictions=results.get_prediction(newX);\nnew_predictions.predicted_mean"} />
+
+<MdxCode language="text" code={"Out[17]:array([29.80359411,25.05334734,20.30310057])"} />
+
+Ta có thể tạo khoảng tin cậy cho các giá trị dự đoán.
+
+<MdxCode language="text" code={"In [18]:new_predictions.conf_int(alpha=0.05)"} />
+
+<MdxCode language="text" code={"Out[18]:array([[29.00741194,30.59977628],\n[24.47413202,25.63256267],\n[19.73158815,20.87461299]])"} />
+
+Khoảng dự đoán được tính bằng cách đặt `obs=True`:
+
+<MdxCode language="text" code={"In [19]:new_predictions.conf_int(obs=True,alpha=0.05)"} />
+
+<MdxCode language="text" code={"Out[19]:array([[17.56567478,42.04151344],\n[12.82762635,37.27906833],\n[8.0777421,32.52845905]])"} />
+
+Với `lstat` = 10, khoảng tin cậy 95% là (24.47, 25.63), khoảng dự đoán là (12.82, 37.28). Cả hai cùng tâm tại dự đoán medv 25.05 khi `lstat` bằng 10, nhưng khoảng dự đoán rộng hơn nhiều.
+
+Tiếp theo, ta vẽ `medv`, `lstat` bằng `DataFrame.plot.scatter()` và thêm đường hồi quy. Trong nguồn, tên phương thức còn được ngắt thành `.plot.` và `scatter()`.
+
+### Định nghĩa hàm
+
+Dù `ISLP` có hàm thêm đường vào biểu đồ, ta nhân dịp này tự định nghĩa hàm đầu tiên bằng từ khóa `def`.
+
+<MdxCode language="text" code={"In [20]:defabline(ax,b,m):\n\"Addalinewithslopemandinterceptbtoax\"\nxlim=ax.get_xlim()\nylim=[m*xlim[0]+b,m*xlim[1]+b]\nax.plot(xlim,ylim)"} />
+
+Ta thấy cú pháp `def funcname(...)`. Các đối số `ax, b, m` lần lượt là trục `ax` của biểu đồ có sẵn, hệ số chặn `b` và độ dốc `m`. Có thể chuyển các tùy chọn vẽ khác cho `ax.plot` bằng đối số tùy chọn:
+
+<MdxCode language="text" code={"In [21]:defabline(ax,b,m,*args,**kwargs):\n\"Addalinewithslopemandinterceptbtoax\"\nxlim=ax.get_xlim()\nylim=[m*xlim[0]+b,m*xlim[1]+b]\nax.plot(xlim,ylim,*args,**kwargs)"} />
+
+`*args` cho phép truyền số đối số không tên bất kỳ vào `abline`, còn `*kwargs` cho phép truyền số đối số có tên bất kỳ như `linewidth=3` vào `abline`. Hàm chuyển nguyên chúng cho `ax.plot`. Xem thêm phần định nghĩa hàm tại docs.python.org/tutorial.
+
+Hãy dùng hàm mới thêm đường hồi quy vào biểu đồ `medv` theo `lstat`.
+
+<MdxCode language="text" code={"In [22]:ax=Boston.plot.scatter('lstat','medv')\nabline(ax,\nresults.params[0],\nresults.params[1],\n'r--',\nlinewidth=3)"} />
+
+Lời gọi cuối tới `ax.plot()` là `ax.plot(xlim, ylim, 'r--', linewidth=3)`: `'r--'` tạo đường đỏ nét đứt, rộng 3. Có bằng chứng quan hệ `lstat`–`medv` phi tuyến; ta sẽ khảo sát sau.
+
+Đã có `ax.axline()` để thêm đường, nhưng biết viết hàm giúp tạo biểu đồ biểu đạt tốt hơn.
+
+Tiếp theo, ta xem các biểu đồ chẩn đoán ở Mục 3.3.3. Giá trị khớp và phần dư là thuộc tính của `results`; `get_influence()` tính các thước đo `influence()`. Nhãn `.get_` trong nguồn là phần bị ngắt của tên phương thức. Vì không dùng `fig` do `subplots()` trả về đầu tiên, ta chỉ nhận giá trị thứ hai vào `ax`.
+
+<MdxCode language="text" code={"In [23]:ax=subplots(figsize=(8,8))[1]"} />
+
+<MdxCode language="text" code={"ax.scatter(results.fittedvalues ,results.resid)\nax.set_xlabel('Fittedvalue')\nax.set_ylabel('Residual')\nax.axhline(0,c='k',ls='--');"} />
+
+Ta thêm đường ngang tại 0 bằng `ax.axhline()` (cũng được ghi tách là `.axhline()` trong nguồn), màu đen (`c='k'`), nét đứt (`ls='--'`). Biểu đồ phần dư cho bằng chứng phi tuyến. Thống kê đòn bẩy cho số biến bất kỳ nằm ở thuộc tính `hat_matrix_diag` của kết quả `get_influence()`.
+
+<MdxCode language="text" code={"In [24]:infl=results.get_influence()\nax=subplots(figsize=(8,8))[1]\nax.scatter(np.arange(X.shape[0]),infl.hat_matrix_diag)\nax.set_xlabel('Index')\nax.set_ylabel('Leverage')\nnp.argmax(infl.hat_matrix_diag)"} />
+
+###### **`Out[24]:`** `374`
+
+Hàm `np.argmax()` tìm chỉ số phần tử lớn nhất của một mảng; có thể dùng `np.argmax()` theo một trục tùy chọn. Ở đây ta tìm trên toàn mảng để xác định quan sát có đòn bẩy lớn nhất.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 3.6.3 Hồi quy tuyến tính bội
+
+Để khớp hồi quy bội bằng bình phương tối thiểu, ta lại dùng `ModelSpec()` dựng ma trận mô hình và đáp ứng. Đối số có thể rất tổng quát, nhưng ở đây danh sách tên cột là đủ. Ta xét hai biến `lstat`, `age`.
+
+<MdxCode language="text" code={"In [25]:X=MS(['lstat','age']).fit_transform(Boston)\nmodel1=sm.OLS(y,X)\nresults1=model1.fit()\nsummarize(results1)"} />
+
+<MdxCode language="text" code={"Out[25]:"} />
+
+<MdxCode language="text" code={"coefstderrtP>|t|\nintercept33.22280.73145.4580.000\nlstat-1.03210.048-21.4160.000\nage0.03450.0122.8260.005"} />
+
+Lưu ý dòng đầu được rút thành biểu thức ngắn mô tả việc dựng `X`.
+
+Dữ liệu `Boston` có 12 biến; gõ tất cả để hồi quy là rườm rà. Ta dùng cách viết tắt:
+
+<MdxCode language="text" code={"In [26]:terms=Boston.columns.drop('medv')\nterms"} />
+
+<MdxCode language="text" code={".columns.\ndrop()"} />
+
+<MdxCode language="text" code={"Out[26]:Index(['crim','zn','indus','chas','nox','rm','age','dis',\n'rad','tax','ptratio','lstat'],\ndtype='object')"} />
+
+Bây giờ ta khớp mô hình với mọi biến trong `terms` bằng cùng trình dựng ma trận.
+
+<MdxCode language="text" code={"In [27]:X=MS(terms).fit_transform(Boston)\nmodel=sm.OLS(y,X)\nresults=model.fit()\nsummarize(results)"} />
+
+<MdxCode language="table" code={"|**`Out[27]:`**||`coef`|`std err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|\n||`intercept`|`41.6173`|`4.936`|`8.431`|`0.000`|\n||`crim`|`-0.1214`|`0.033`|`-3.678`|`0.000`|\n||`zn`|`0.0470`|`0.014`|`3.384`|`0.001`|\n||`indus`|`0.0135`|`0.062`|`0.217`|`0.829`|\n||`chas`|`2.8400`|`0.870`|`3.264`|`0.001`|\n||`nox`|`-18.7580`|`3.851`|`-4.870`|`0.000`|\n||`rm`|`3.6581`|`0.420`|`8.705`|`0.000`|\n||`age`|`0.0036`|`0.013`|`0.271`|`0.787`|\n||`dis`|`-1.4908`|`0.202`|`-7.394`|`0.000`|\n||`rad`|`0.2894`|`0.067`|`4.325`|`0.000`|\n||`tax`|`-0.0127`|`0.004`|`-3.337`|`0.001`|\n||`ptratio`|`-0.9375`|`0.132`|`-7.091`|`0.000`|\n||`lstat`|`-0.5520`|`0.051`|`-10.897 `|`0.000`|"} />
+
+Nếu muốn dùng tất cả biến trừ một biến thì sao? Trong đầu ra trên, `age` có giá trị p cao, nên ta có thể loại nó. Cú pháp sau hồi quy bằng mọi biến trừ `age` (không hiển thị đầu ra).
+
+<MdxCode language="text" code={"In [28]:minus_age=Boston.columns.drop(['medv','age'])\nXma=MS(minus_age).fit_transform(Boston)\nmodel1=sm.OLS(y,Xma)\nsummarize(model1.fit())"} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 3.6.4 Độ khớp đa biến
+
+Ta truy cập từng thành phần của `results` theo tên (`dir(results)` cho biết những gì có sẵn). `results.rsquared` cho _R_^(2), `np.sqrt(results.scale)` cho RSE.
+
+Hệ số phóng đại phương sai (Mục 3.3.3) giúp đánh giá cộng tuyến. Ta tính VIF cho mô hình bội và nhân dịp giới thiệu _list comprehension_.
+
+##### List comprehension
+
+Ta thường cần biến đổi một dãy đối tượng. Dưới đây, ta tính VIF cho mỗi đặc trưng trong ma trận `X` và tạo dataframe có chỉ mục khớp các cột của `X`. List comprehension giúp việc này dễ hơn.
+
+List comprehension là cách đơn giản, mạnh để tạo danh sách đối tượng `Python`. Ngôn ngữ còn hỗ trợ dictionary và _generator_ comprehension nhưng ngoài phạm vi. Ta dùng `variance_inflation_factor()` tính VIF cho từng biến trong `X`.
+
+<MdxCode language="text" code={"In [29]:vals=[VIF(X,i)\nforiinrange(1,X.shape[1])]\nvif=pd.DataFrame({'vif':vals},\nindex=X.columns[1:])\nvif"} />
+
+<MdxCode language="text" code={"variance_\ninflation_\nfactor()"} />
+
+<MdxCode language="text" code={"Out[29]:vif\ncrim1.767\nzn2.298\nindus3.987\nchas1.071\nnox4.369\nrm1.913\nage3.088\ndis3.954\nrad7.445\ntax9.002\nptratio1.797\nlstat2.871"} />
+
+Hàm `VIF()` nhận dataframe hoặc mảng và chỉ số cột biến. Đoạn mã gọi `VIF()` cho mọi cột `X`, trừ cột 0 là hệ số chặn. Các VIF ở đây không đáng chú ý.
+
+Đối tượng `vals` cũng có thể tạo bằng vòng lặp for:
+
+<MdxCode language="text" code={"In [30]:vals=[]\nforiinrange(1,X.values.shape[1]):\nvals.append(VIF(X.values,i))"} />
+
+List comprehension thực hiện các thao tác lặp như vậy trực tiếp hơn.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 3.6.5 Hạng tử tương tác
+
+Dễ đưa tương tác vào mô hình bằng `ModelSpec()`. Tuple `("lstat","age")` yêu cầu trình dựng thêm tương tác giữa `lstat`, `age`.
+
+<MdxCode language="text" code={"In [31]:X=MS(['lstat',\n'age',\n('lstat','age')]).fit_transform(Boston)\nmodel2=sm.OLS(y,X)\nsummarize(model2.fit())"} />
+
+<MdxCode language="text" code={"Out[31]:coefstderrtP>|t|\nintercept36.08851.47024.5530.000\nlstat-1.39210.167-8.3130.000"} />
+
+<MdxCode language="text" code={"age-0.00070.020-0.0360.971\nlstat:age0.00420.0022.2440.025"} />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 3.6.6 Biến đổi phi tuyến các biến dự báo
+
+Trình dựng có thể chứa nhiều hơn tên cột và tương tác. Hàm `poly()` của `ISLP` yêu cầu thêm các cột biểu diễn hàm đa thức của đối số đầu; mỗi lời gọi `poly()` xác định một cơ sở đa thức.
+
+<MdxCode language="text" code={"In [32]:X=MS([poly('lstat',degree=2),'age']).fit_transform(Boston)\nmodel3=sm.OLS(y,X)\nresults3=model3.fit()\nsummarize(results3)"} />
+
+<MdxCode language="table" code={"|**`Out[32]:`**||`coef`|`std `|`err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|---|\n||`intercept`|`17.7151`|`0.`|`781`|`22.681`|`0.000`|\n|`poly(lstat, `|`degree=2)[0]`|`-179.2279`|`6.`|`733`|`-26.620`|`0.000`|\n|`poly(lstat, `|`degree=2)[1]`|`72.9908`|`5.`|`482`|`13.315`|`0.000`|\n||`age`|`0.0703`|`0.`|`011`|`6.471`|`0.000`|"} />
+
+Giá trị p gần bằng không của hạng tử bậc hai (hàng thứ ba) cho thấy nó cải thiện mô hình.
+
+Theo mặc định, `poly()` tạo ma trận cơ sở có các cột là _đa thức trực giao_, được thiết kế để tính bình phương tối thiểu ổn định.^(13) Nếu thêm `raw=True` vào `poly()`, cơ sở chỉ gồm `lstat`, `lstat**2`. Cả hai cơ sở đều biểu diễn đa thức bậc hai nên giá trị khớp không đổi, chỉ hệ số đổi. Các cột `poly()` không chứa hệ số chặn vì `MS()` tự thêm.
+
+Ta dùng hàm `anova_lm()`; lời gọi `anova_lm()` định lượng mức mô hình bậc hai tốt hơn mô hình tuyến tính.
+
+<MdxCode language="text" code={"In [33]:anova_lm(results1,results3)"} />
+
+<MdxCode language="table" code={"|**`Out[33]:`**|`df_resid`|`ssr`|`df_diff`|`ss_diff`|`F`|`Pr(>F)`|\n|---|---|---|---|---|---|---|\n|`0`|`503.0`|`19168.13`|`0.0`|`NaN`|`NaN`|`NaN`|\n|`1`|`502.0`|`14165.61`|`1.0`|`5002.52`|`177.28`|`7.47e-35`|"} />
+
+`results1` là mô hình con tuyến tính có `lstat`, `age`; `results3` là mô hình lớn hơn có `lstat` bậc hai. `anova_lm()` kiểm định giả thuyết không rằng không cần hạng tử bậc hai, so với giả thuyết mô hình lớn tốt hơn. Thống kê _F_ là 177.28, giá trị p bằng không. Ở đây _F_ là bình phương thống kê _t_ của hạng tử bậc hai trong `results3` vì hai mô hình lồng nhau khác một bậc
+
+> 13Thực ra `poly()` là lớp bọc của hàm thực thi độc lập `Poly()` dựng ma trận mô hình.
+
+tự do. Đây là bằng chứng rất rõ đa thức bậc hai theo `lstat` cải thiện mô hình, phù hợp với bằng chứng phi tuyến `medv`–`lstat` trước đó.
+
+`anova_lm()` có thể nhận hơn hai mô hình lồng nhau và so sánh từng cặp liên tiếp. Vì mô hình đầu không có mô hình trước để so, hàng đầu có `NaN`.
+
+<MdxCode language="text" code={"In [34]:ax=subplots(figsize=(8,8))[1]\nax.scatter(results3.fittedvalues ,results3.resid)\nax.set_xlabel('Fittedvalue')\nax.set_ylabel('Residual')\nax.axhline(0,c='k',ls='--')"} />
+
+Khi thêm hạng tử bậc hai, phần dư hầu như không có mẫu hình. Để khớp đa thức bậc ba hoặc cao hơn, chỉ cần đổi đối số bậc của `poly()`.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## 3.6.7 Biến dự báo định tính
+
+Ta dùng dữ liệu `Carseats` trong `ISLP`; tập `Carseats` được dùng để dự đoán `Sales` (doanh số ghế ô tô trẻ em) tại 400 địa điểm từ nhiều biến.
+
+<MdxCode language="text" code={"In [35]:Carseats=load_data('Carseats')\nCarseats.columns"} />
+
+<MdxCode language="text" code={"Out[35]:Index(['Sales','CompPrice','Income','Advertising',\n'Population','Price','ShelveLoc','Age','Education',\n'Urban','US'],\ndtype='object')"} />
+
+Dữ liệu có biến định tính `ShelveLoc`, chất lượng vị trí kệ trưng bày. Biến `ShelveLoc` có ba mức `Bad`, `Medium`, `Good`. Với biến `ShelveLoc`, `ModelSpec()` tự sinh biến giả, còn gọi là _one-hot encoding_. Các cột cộng thành một, nên cột đầu bị bỏ để tránh cộng tuyến với hệ số chặn. `ShelveLoc[Bad]` bị bỏ vì `Bad` là mức đầu của `ShelveLoc`. Dưới đây ta khớp hồi quy bội có một số tương tác.
+
+<MdxCode language="text" code={"In [36]:allvars=list(Carseats.columns.drop('Sales'))\ny=Carseats['Sales']\nfinal=allvars+[('Income','Advertising'),\n('Price','Age')]\nX=MS(final).fit_transform(Carseats)\nmodel=sm.OLS(y,X)\nsummarize(model.fit())\nOut[36]:coefstderrtP>|t|\nintercept6.57561.0096.5190.000"} />
+
+3.7 Bài tập
+
+<MdxCode language="table" code={"|`CompPrice`|`0.0929`|`0.004`|`22.567`|`0.000`|\n|---|---|---|---|---|\n|`Income`|`0.0109`|`0.003`|`4.183`|`0.000`|\n|`Advertising`|`0.0702`|`0.023`|`3.107`|`0.002`|\n|`Population`|`0.0002`|`0.000`|`0.433`|`0.665`|\n|`Price`|`-0.1008`|`0.007`|`-13.549`|`0.000`|\n|`ShelveLoc[Good]`|`4.8487`|`0.153`|`31.724`|`0.000`|\n|`ShelveLoc[Medium]`|`1.9533`|`0.126`|`15.531`|`0.000`|\n|`Age`|`-0.0579`|`0.016`|`-3.633`|`0.000`|\n|`Education`|`-0.0209`|`0.020`|`-1.063`|`0.288`|\n|`Urban[Yes]`|`0.1402`|`0.112`|`1.247`|`0.213`|\n|`US[Yes]`|`-0.1576`|`0.149`|`-1.058`|`0.291`|\n|`Income:Advertising`|`0.0008`|`0.000`|`2.698`|`0.007`|\n|`Price:Age`|`0.0001`|`0.000`|`0.801`|`0.424`|"} />
+
+Ở dòng đầu, `allvars` là danh sách để có thể thêm tương tác hai dòng sau. Trình dựng tạo biến giả `ShelveLoc[Good]` bằng 1 nếu vị trí tốt và 0 nếu không; tương tự `ShelveLoc[Medium]`. Vị trí xấu tương ứng cả hai bằng 0. Hệ số dương của `ShelveLoc[Good]` cho biết vị trí tốt gắn với doanh số cao hơn vị trí xấu. Hệ số dương nhỏ hơn của `ShelveLoc[Medium]` cho biết vị trí trung bình tốt hơn vị trí xấu nhưng kém vị trí tốt.
+
+</MdxPage>

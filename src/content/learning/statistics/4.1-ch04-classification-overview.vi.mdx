@@ -1,0 +1,37 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-classification-overview",
+  "locale": "vi",
+  "title": "Tổng quan về phân loại",
+  "headings": [
+    "Tổng quan về phân loại"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "phân loại",
+    "tổng quan về phân loại"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Tổng quan về phân loại
+
+Các bài toán phân loại xuất hiện rất thường xuyên, thậm chí có lẽ còn thường xuyên hơn các bài toán hồi quy. Một số ví dụ gồm:
+
+1. Một người đến phòng cấp cứu với một tập hợp triệu chứng có thể bắt nguồn từ một trong ba tình trạng bệnh lý. Người đó mắc tình trạng nào trong ba tình trạng này?
+
+2. Một dịch vụ ngân hàng trực tuyến phải xác định được giao dịch đang thực hiện trên trang có phải là gian lận hay không, dựa trên địa chỉ IP của người dùng, lịch sử giao dịch trước đây, v.v.
+
+3. Dựa trên dữ liệu trình tự DNA của một số bệnh nhân có và không mắc một bệnh nhất định, một nhà sinh học muốn xác định đột biến DNA nào có hại (gây bệnh) và đột biến nào không.
+
+Tương tự bối cảnh hồi quy, trong bối cảnh phân loại ta có một tập các quan sát huấn luyện ( _x_ 1 _, y_ 1) _, . . . ,_ ( _xn, yn_ ) để xây dựng bộ phân loại. Ta muốn bộ phân loại hoạt động tốt không chỉ trên dữ liệu huấn luyện mà còn trên những quan sát kiểm tra không được dùng để huấn luyện bộ phân loại.
+
+Trong chương này, chúng ta sẽ minh họa khái niệm phân loại bằng tập dữ liệu mô phỏng `Default`. Ta quan tâm đến việc dự đoán liệu một người có vỡ nợ trong thanh toán thẻ tín dụng hay không, dựa trên thu nhập hằng năm và số dư thẻ tín dụng hằng tháng. Tập dữ liệu được trình bày trong Hình 4.1. Ở ô bên trái của Hình 4.1, chúng ta biểu diễn `income` hằng năm và `balance` thẻ tín dụng hằng tháng cho một tập con gồm 10 _,_ 000 người. Những người vỡ nợ trong một tháng nhất định được hiển thị bằng màu cam, còn những người không vỡ nợ bằng màu xanh. (Tỷ lệ vỡ nợ tổng thể khoảng 3 %, nên chúng ta chỉ biểu diễn một phần số người không vỡ nợ.) Có vẻ những người vỡ nợ thường có số dư thẻ tín dụng cao hơn những người không vỡ nợ. Ở ô giữa và ô bên phải của Hình 4.1 là hai cặp biểu đồ hộp. Cặp đầu cho thấy phân phối của `balance` được chia theo biến nhị phân `default`; cặp thứ hai là biểu đồ tương tự cho `income`. Trong chương này, ta học cách xây dựng mô hình dự đoán `default` ( _Y_ ) với mọi giá trị cho trước của `balance` ( _X_ 1) và `income` ( _X_ 2). Vì _Y_ không phải là biến định lượng, mô hình hồi quy tuyến tính đơn ở Chương 3 không phải lựa chọn phù hợp; chúng ta sẽ giải thích kỹ hơn ở Mục 4.2.
+
+Cần lưu ý rằng Hình 4.1 thể hiện một mối quan hệ rất rõ rệt giữa biến dự báo `balance` và biến đáp ứng `default`. Trong phần lớn ứng dụng thực tế, mối quan hệ giữa biến dự báo và biến đáp ứng sẽ không mạnh đến vậy. Tuy nhiên, để minh họa các thủ tục phân loại được bàn trong chương này, chúng ta sử dụng một ví dụ mà mối quan hệ giữa biến dự báo và biến đáp ứng được thể hiện rõ hơn đôi chút.
+
+</MdxPage>

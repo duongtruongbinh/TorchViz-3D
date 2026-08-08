@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-kaplan-meier-curve",
+  "locale": "vi",
+  "title": "Đường cong sống còn Kaplan–Meier",
+  "headings": [
+    "Đường cong sống còn Kaplan–Meier"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Đường cong sống còn Kaplan–Meier"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Đường cong sống còn Kaplan–Meier
+
+_Đường cong sống còn_, hay _hàm sống còn_, được định nghĩa là
+
+Hàm giảm này định lượng xác suất sống qua thời điểm _t_. Ví dụ, giả sử một công ty muốn mô hình hóa tình trạng khách hàng rời bỏ dịch vụ. Gọi _T_ là thời điểm một khách hàng hủy đăng ký dịch vụ của công ty. Khi đó _S_(_t_) biểu thị xác suất khách hàng hủy sau thời điểm _t_. Giá trị _S_(_t_) càng lớn thì khách hàng càng ít có khả năng hủy trước thời điểm _t_.
+
+Trong mục này, ta xét bài toán ước lượng đường cong sống còn. Việc khảo sát được thúc đẩy bởi bộ dữ liệu `BrainCancer`, chứa thời gian sống còn của các bệnh nhân có khối u não nguyên phát được điều trị bằng phương pháp xạ trị định vị lập thể.^(2) Các biến dự báo gồm `gtv` (thể tích khối u tổng, đơn vị xentimét khối); `sex` (nam hoặc nữ); `diagnosis` (u màng não, u thần kinh đệm độ thấp, u thần kinh đệm độ cao hoặc loại khác); `loc` (vị trí khối u: dưới lều hoặc trên lều); `ki` (chỉ số Karnofsky); và `stereo` (phương pháp định vị lập thể: xạ phẫu định vị lập thể hoặc xạ trị định vị lập thể phân liều, lần lượt viết tắt là SRS và SRT). Chỉ 53 trong số 88 bệnh nhân vẫn còn sống khi nghiên cứu kết thúc.
+
+Bây giờ, ta xét bài toán ước lượng đường cong sống còn (11.2) cho dữ liệu này. Để ước lượng _S_(20) = Pr(_T &gt;_ 20), xác suất một bệnh nhân sống ít nhất _t_ = 20 tháng, ta dễ nghĩ đến việc chỉ cần tính tỷ lệ bệnh nhân được biết là đã sống qua 20 tháng, tức tỷ lệ bệnh nhân có _Y &gt;_ 20. Kết quả là 48 _/_ 88, xấp xỉ 55%. Tuy nhiên, cách này không hoàn toàn đúng vì _Y_ và _T_ biểu thị hai đại lượng khác nhau. Cụ thể, trong 40 bệnh nhân không được quan sát là sống đến 20 tháng, có 17 người thực ra bị kiểm duyệt; phân tích này ngầm giả sử _T &lt;_ 20 với tất cả các bệnh nhân bị kiểm duyệt đó, trong khi rõ ràng ta không biết điều này có đúng hay không.
+
+Một phương án khác để ước lượng _S_(20) là tính tỷ lệ bệnh nhân có _Y &gt;_ 20 trong số 71 bệnh nhân _không_ bị kiểm duyệt trước thời điểm _t_ = 20; kết quả là 48 _/_ 71, xấp xỉ 68%. Tuy nhiên, cách này cũng chưa hoàn toàn đúng vì nó đồng nghĩa với việc bỏ qua hoàn toàn những bệnh nhân bị kiểm duyệt trước thời điểm _t_ = 20, dù _thời điểm_ họ bị kiểm duyệt có thể chứa thông tin. Chẳng hạn, một bệnh nhân bị kiểm duyệt tại _t_ = 19 _._ 9 nhiều khả năng đã sống qua _t_ = 20 nếu không bị kiểm duyệt.
+
+Ta đã thấy rằng việc ước lượng _S_(_t_) trở nên phức tạp do có kiểm duyệt. Bây giờ ta trình bày một phương pháp khắc phục các khó khăn này. Gọi _d_ 1 _&lt; d_ 2 _&lt; · · · &lt; dK_ là _K_ thời điểm tử vong phân biệt của các bệnh nhân không bị kiểm duyệt, và gọi _qk_ là số bệnh nhân tử vong tại thời điểm _dk_. Với _k_ = 1 _, . . . , K_, gọi _rk_ là số bệnh nhân còn sống
+
+> 2 Bộ dữ liệu này được mô tả trong bài báo: Selingerová và cộng sự (2016), Survival of patients with primary brain tumors: Comparison of two statistical approaches. PLoS One, 11(2):e0148733.
+
+và vẫn tham gia nghiên cứu ngay trước _dk_; đây là các bệnh nhân _có nguy cơ_ (at risk). Tập bệnh nhân có nguy cơ tại một thời điểm được gọi là _tập nguy cơ_. Theo định luật xác suất toàn phần,^(3)
+
+Vì _dk−_ 1 _&lt; dk_ nên Pr(_T &gt; dk|T ≤ dk−_ 1) = 0 (một bệnh nhân không thể sống qua thời điểm _dk_ nếu người đó không sống đến thời điểm sớm hơn _dk−_ 1). Do đó,
+
+Thay (11.2) vào lần nữa, ta thấy rằng
+
+Điều này suy ra
+
+Giờ ta chỉ cần thay các ước lượng của từng số hạng ở vế phải phương trình trước. Một lựa chọn tự nhiên là dùng ước lượng
+
+đó là tỷ lệ của tập nguy cơ tại thời điểm _dj_ sống qua thời điểm _dj_. Điều này dẫn đến _ước lượng Kaplan–Meier_ cho đường cong sống còn:
+
+Ước lượng Kaplan–Meier
+
+Với các thời điểm _t_ nằm giữa _dk_ và _dk_ +1, ta đặt _S_^(�)(_t_) = _S_^(�)(_dk_). Vì vậy, đường cong sống còn Kaplan–Meier có dạng bậc thang.
+
+Đường cong sống còn Kaplan–Meier cho dữ liệu `BrainCancer` được trình bày trong Hình 11.2. Mỗi điểm trên đường liền dạng bậc thang cho biết xác suất ước lượng để sống qua thời điểm ghi trên trục ngang. Xác suất ước lượng để sống qua 20 tháng là 71%, cao hơn đáng kể so với các ước lượng ngây thơ 55% và 68% nêu trước đó.
+
+Cách xây dựng tuần tự của ước lượng Kaplan–Meier — bắt đầu tại thời điểm không và lần lượt thể hiện các biến cố quan sát được khi chúng diễn tiến theo thời gian — là nền tảng của nhiều kỹ thuật chủ chốt trong phân tích sống còn. Trong đó có kiểm định log-rank ở Mục 11.4 và mô hình nguy cơ tỷ lệ Cox ở Mục 11.5.2.
+
+> 3 Định luật xác suất toàn phần phát biểu rằng với hai biến cố bất kỳ _A_ và _B_, Pr(_A_) = Pr(_A|B_) Pr(_B_) + Pr(_A|B_^(_c_)) Pr(_B_^(_c_)), trong đó _B_^(_c_) là phần bù của biến cố _B_, tức biến cố _B_ không xảy ra.
+
+**HÌNH 11.2.** _Với dữ liệu_ `BrainCancer`, _ta trình bày đường cong sống còn Kaplan–Meier (đường liền), cùng các dải sai số chuẩn (đường đứt nét)._
+
+**HÌNH 11.3.** _Với dữ liệu_ `BrainCancer`, _các đường cong sống còn Kaplan–Meier cho nam và nữ được trình bày._
+
+</MdxPage>

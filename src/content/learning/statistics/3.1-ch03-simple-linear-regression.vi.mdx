@@ -1,0 +1,156 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch03-simple-linear-regression",
+  "locale": "vi",
+  "title": "Hồi quy tuyến tính đơn",
+  "headings": [
+    "Hồi quy tuyến tính đơn",
+    "3.1.1 Ước lượng các hệ số",
+    "3.1.2 Đánh giá độ chính xác của các ước lượng hệ số",
+    "3.1.3 Đánh giá độ chính xác của mô hình"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Hồi quy tuyến tính",
+    "Hồi quy tuyến tính đơn"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Hồi quy tuyến tính đơn
+
+_Hồi quy tuyến tính đơn_ đúng như tên gọi: đây là một cách rất trực tiếp để dự đoán biến đáp ứng định lượng _Y_ dựa trên một biến dự báo _X_. Nó giả định có quan hệ xấp xỉ tuyến tính giữa _X_ và _Y_. Về toán học, ta viết quan hệ này là
+
+Có thể đọc “ _≈_ ” là _“được mô hình hóa xấp xỉ bởi”_. Đôi khi ta mô tả (3.1) bằng cách nói rằng ta _hồi quy Y theo X_.
+
+Ví dụ, _X_ có thể biểu diễn quảng cáo `TV` và _Y_ biểu diễn `sales`. Khi đó, ta hồi quy `sales` theo `TV` bằng cách khớp mô hình
+
+Trong Phương trình 3.1, _β_ 0 và _β_ 1 là hai hằng số chưa biết, lần lượt biểu diễn _hệ số chặn_ và _độ dốc_ trong mô hình tuyến tính. Cùng nhau, chúng được gọi là _hệ số_ hoặc _tham số_ của mô hình. Sau khi dùng dữ liệu huấn luyện để tạo các ước lượng _β_^(ˆ) 0 và _β_^(ˆ) 1, ta có thể dự đoán doanh số tương lai dựa trên một giá trị chi phí quảng cáo TV cụ thể bằng cách tính
+
+trong đó _y_ ˆ là dự đoán của _Y_ dựa trên _X_ = _x_. Ở đây, ký hiệu mũ ˆ biểu thị giá trị ước lượng của tham số hoặc hệ số chưa biết, hay giá trị dự đoán của biến đáp ứng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 3.1.1 Ước lượng các hệ số
+
+Trong thực tế, _β_ 0 và _β_ 1 chưa biết. Vì vậy, trước khi dùng (3.1) để dự đoán, ta phải dùng dữ liệu để ước lượng các hệ số. Gọi
+
+là _n_ cặp quan sát, mỗi cặp gồm một phép đo _X_ và một phép đo _Y_. Trong ví dụ `Advertising`, bộ dữ liệu gồm ngân sách quảng cáo TV và doanh số sản phẩm tại _n_ = 200 thị trường khác nhau. (Nhắc lại dữ liệu được thể hiện trong Hình 2.1.) Mục tiêu là thu được các ước lượng _β_^(ˆ) 0 và _β_^(ˆ) 1 sao cho mô hình tuyến tính (3.1) khớp tốt với dữ liệu hiện có—tức _yi ≈ β_^(ˆ) 0 + _β_^(ˆ) 1 _xi_ với _i_ = 1 _, . . . , n_. Nói cách khác, ta muốn tìm hệ số chặn _β_^(ˆ) 0 và độ dốc _β_^(ˆ) 1 sao cho đường thẳng kết quả gần _n_ = 200 điểm dữ liệu nhất có thể. Có nhiều cách đo _độ gần_, nhưng cách phổ biến nhất là cực tiểu tiêu chuẩn _bình phương tối thiểu_, và đó là cách dùng trong chương này. Các cách khác sẽ được xét ở Chương 6.
+
+Gọi _yi_ ˆ = _β_^(ˆ) 0 + _β_^(ˆ) 1 _xi_ là dự đoán của _Y_ dựa trên giá trị _X_ thứ _i_. Khi đó _ei_ = _yi − yi_ ˆ là _phần dư_ thứ _i_—chênh lệch giữa giá trị đáp ứng quan sát thứ _i_ và giá trị đáp ứng được mô hình tuyến tính dự đoán. Ta định nghĩa _tổng bình phương phần dư_ (RSS) là
+
+Cách bình phương tối thiểu chọn _β_^(ˆ) 0 và _β_^(ˆ) 1 để cực tiểu RSS. Bằng một số phép tính giải tích, có thể chứng minh các nghiệm cực tiểu là
+
+**HÌNH 3.1.** _Với dữ liệu_ `Advertising`_, mô hình bình phương tối thiểu hồi quy_ `sales` _theo_ `TV` _được thể hiện. Mô hình được tìm bằng cách cực tiểu tổng bình phương phần dư. Mỗi đoạn thẳng xám biểu diễn một phần dư. Trong trường hợp này, mô hình tuyến tính nắm bắt được bản chất quan hệ, dù đánh giá quá cao xu hướng ở phía trái biểu đồ._
+
+trong đó _y_ ¯ _≡ n_^(1) � _i_ =1^(_yi_và)^(_x_¯)^(_≡_) _n_^(1) � _i_ =1^(_xi_làcáctrungbìnhmẫu.) Nói cách khác, (3.4) định nghĩa _các ước lượng hệ số bình phương tối thiểu_ cho hồi quy tuyến tính đơn.
+
+Hình 3.1 thể hiện mô hình hồi quy tuyến tính đơn khớp với dữ liệu `Advertising`, trong đó _β_^(ˆ) 0 = 7 _._ 03 và _β_^(ˆ) 1 = 0 _._ 0475. Theo xấp xỉ này, mỗi $1 _,_ 000 bổ sung cho quảng cáo TV gắn với việc bán thêm khoảng 47 _._ 5 đơn vị sản phẩm. Trong Hình 3.2, ta đã tính RSS cho nhiều giá trị _β_ 0 và _β_ 1 bằng dữ liệu quảng cáo, với `sales` là biến đáp ứng và `TV` là biến dự báo. Trong mỗi biểu đồ, chấm đỏ biểu diễn cặp ước lượng bình phương tối thiểu ( _β_^(ˆ) 0 _, β_^(ˆ) 1) từ (3.4). Rõ ràng các giá trị này cực tiểu RSS.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 3.1.2 Đánh giá độ chính xác của các ước lượng hệ số
+
+Nhắc lại từ (2.1), ta giả định quan hệ _thật_ giữa _X_ và _Y_ có dạng _Y_ = _f_ ( _X_ ) + _ϵ_ với một hàm chưa biết _f_, trong đó _ϵ_ là sai số ngẫu nhiên có trung bình bằng không. Nếu _f_ được xấp xỉ bằng hàm tuyến tính, ta viết
+
+Ở đây _β_ 0 là hệ số chặn—tức giá trị kỳ vọng của _Y_ khi _X_ = 0—và _β_ 1 là độ dốc—mức tăng trung bình của _Y_ gắn với một đơn vị tăng của _X_. Sai số gom tất cả những gì mô hình đơn giản này bỏ sót: quan hệ thật có thể không tuyến tính, có thể có các biến khác gây biến thiên ở _Y_, và có thể có sai số đo. Ta thường giả định sai số độc lập với _X_.
+
+**HÌNH 3.3.** _Một bộ dữ liệu mô phỏng._ Trái: _Đường đỏ biểu diễn quan hệ thật f_ ( _X_ ) = 2 + 3 _X, được gọi là đường hồi quy quần thể. Đường xanh là đường bình phương tối thiểu; đây là ước lượng bình phương tối thiểu của f_ ( _X_ ) _dựa trên dữ liệu quan sát màu đen._ Phải: _Đường hồi quy quần thể vẫn màu đỏ, đường bình phương tối thiểu màu xanh đậm. Mười đường xanh nhạt là các đường bình phương tối thiểu, mỗi đường tính từ một tập quan sát ngẫu nhiên riêng. Mỗi đường khác nhau, nhưng trung bình chúng khá gần đường hồi quy quần thể._
+
+Xét trung bình quần thể _µ_ của một biến ngẫu nhiên _Y_. Đáng tiếc, _µ_ chưa biết, nhưng ta có _n_ quan sát từ _Y_: _y_ 1 _, . . . , yn_, có thể dùng để ước lượng _µ_. Một ước lượng hợp lý là _µ_ ˆ = _y_ ¯, trong đó _y_ ¯ = _n_^(1) � _i_ =1^(_yi_làtrungbìnhmẫu.) Trung bình mẫu khác trung bình quần thể nhưng nhìn chung cho một ước lượng tốt. Tương tự, các hệ số chưa biết _β_ 0 và _β_ 1 trong hồi quy tuyến tính định nghĩa đường hồi quy quần thể. Ta ước lượng chúng bằng _β_^(ˆ) 0 và _β_^(ˆ) 1 trong (3.4), tạo thành đường bình phương tối thiểu.
+
+Phép tương tự giữa hồi quy tuyến tính và ước lượng trung bình của biến ngẫu nhiên phù hợp với khái niệm _độ chệch_. Nếu dùng trung bình mẫu _µ_ ˆ để ước lượng _µ_, ước lượng này _không chệch_: trung bình ta kỳ vọng _µ_ ˆ bằng _µ_. Điều đó nghĩa là gì? Với một tập quan sát cụ thể _y_ 1 _, . . . , yn_, _µ_ ˆ có thể đánh giá quá cao _µ_; với tập khác, nó có thể đánh giá quá thấp. Nhưng nếu có thể lấy trung bình rất nhiều ước lượng _µ_ từ rất nhiều tập quan sát, trung bình đó sẽ _đúng bằng_ _µ_. Vì vậy, bộ ước lượng không chệch không đánh giá cao hoặc thấp tham số thật một cách _có hệ thống_. Tính không chệch cũng đúng với các ước lượng bình phương tối thiểu trong (3.4): trên một bộ dữ liệu cụ thể, các ước lượng không chính xác bằng _β_ 0 và _β_ 1; nhưng nếu lấy trung bình trên rất nhiều bộ dữ liệu, các ước lượng trung bình sẽ rất chính xác. Biểu đồ bên phải của Hình 3.3 cho thấy trung bình của nhiều đường bình phương tối thiểu, mỗi đường từ một bộ dữ liệu riêng, khá gần đường hồi quy quần thể thật.
+
+Tiếp tục phép tương tự với ước lượng trung bình quần thể _µ_. Một câu hỏi tự nhiên là: trung bình mẫu _µ_ ˆ ước lượng _µ_ chính xác đến đâu? Ta đã xác lập trung bình của nhiều _µ_ ˆ sẽ rất gần _µ_, nhưng một ước lượng đơn lẻ có thể thấp hoặc cao hơn đáng kể. Nó sẽ lệch bao xa? Nói chung, ta trả lời bằng cách tính _sai số chuẩn_ của _µ_ ˆ, ký hiệu SE(ˆ _µ_ ), theo công thức quen thuộc
+
+trong đó _σ_ là độ lệch chuẩn của mỗi hiện thực hóa _yi_ của _Y_.^(2) Nói gần đúng, sai số chuẩn cho biết trung bình ước lượng _µ_ ˆ khác giá trị thật _µ_ bao nhiêu. Phương trình 3.7 cũng cho biết độ lệch giảm theo _n_: càng nhiều quan sát, sai số chuẩn của _µ_ ˆ càng nhỏ. Tương tự, ta muốn biết _β_^(ˆ) 0 và _β_^(ˆ) 1 gần các giá trị thật _β_ 0, _β_ 1 đến đâu. Để tính sai số chuẩn của chúng, ta dùng các công thức:
+
+trong đó _σ_^(2) = Var( _ϵ_ ). Để các công thức này đúng nghiêm ngặt, các sai số _ϵi_ phải có cùng phương sai _σ_^(2) và không tương quan. Điều này rõ ràng không đúng trong Hình 3.1, nhưng công thức vẫn là một xấp xỉ tốt. Lưu ý SE( _β_^(ˆ) 1) nhỏ hơn khi các _xi_ phân tán rộng hơn; trực giác là khi đó ta có nhiều _đòn bẩy_ hơn để ước lượng độ dốc. SE( _β_^(ˆ) 0) cũng bằng SE(ˆ _µ_ ) nếu _x_ ¯ bằng không (khi đó _β_^(ˆ) 0 bằng _y_ ¯). Nói chung _σ_^(2) chưa biết nhưng có thể ước lượng từ dữ liệu. Ước lượng của _σ_ được gọi là _sai số chuẩn phần dư_, với công thức RSE = ~~�~~ RSS _/_ ( _n −_ 2). Nói nghiêm ngặt, khi _σ_^(2) được ước lượng từ dữ liệu, ta nên viết SE(^(�) _β_^(ˆ) 1), nhưng để ký hiệu đơn giản ta bỏ dấu mũ bổ sung.
+
+Sai số chuẩn có thể được dùng để tính _khoảng tin cậy_. Khoảng tin cậy 95 % là một khoảng giá trị mà với xác suất 95 %, nó chứa giá trị thật chưa biết của tham số. Các giới hạn dưới và trên được tính từ mẫu dữ liệu. Khoảng tin cậy 95% có tính chất: nếu lấy mẫu lặp lại và dựng khoảng tin cậy cho mỗi mẫu, 95% các khoảng sẽ chứa giá trị tham số thật. Với hồi quy tuyến tính, khoảng tin cậy 95 % cho _β_ 1 xấp xỉ có dạng
+
+> 2Công thức này đúng với điều kiện _n_ quan sát không tương quan.
+
+Tức là, có xấp xỉ 95 % khả năng khoảng
+
+chứa giá trị thật _β_ 1.^(3) Tương tự, khoảng tin cậy cho _β_ 0 xấp xỉ là
+
+Với dữ liệu quảng cáo, khoảng tin cậy 95 % cho _β_ 0 là [6 _._ 130 _,_ 7 _._ 935] và cho _β_ 1 là [0 _._ 042 _,_ 0 _._ 053]. Vì vậy, ta có thể kết luận rằng khi không có quảng cáo, doanh số trung bình nằm trong khoảng 6 _,_ 130 đến 7 _,_ 935 đơn vị. Ngoài ra, mỗi $1 _,_ 000 tăng trong quảng cáo truyền hình gắn với mức tăng doanh số trung bình từ 42 đến 53 đơn vị.
+
+Sai số chuẩn cũng có thể được dùng để _kiểm định giả thuyết_ về các hệ số. Kiểm định phổ biến nhất xét _giả thuyết không_
+
+so với _giả thuyết đối_
+
+Về toán học, điều này tương ứng với kiểm định
+
+vì nếu _β_ 1 = 0 thì mô hình (3.5) rút gọn thành _Y_ = _β_ 0 + _ϵ_, và _X_ không liên quan đến _Y_. Để kiểm định giả thuyết không, ta cần xác định ước lượng _β_^(ˆ) 1 có cách không đủ xa để tin rằng _β_ 1 khác không hay không. Xa bao nhiêu là đủ phụ thuộc vào độ chính xác của _β_^(ˆ) 1, tức SE( _β_^(ˆ) 1). Nếu SE nhỏ, ngay cả _β_^(ˆ) 1 tương đối nhỏ cũng có thể cung cấp bằng chứng mạnh rằng _β_ 1 khác 0 và tồn tại quan hệ giữa _X_, _Y_. Nếu SE lớn, trị tuyệt đối của _β_^(ˆ) 1 phải lớn mới bác bỏ được giả thuyết không. Trong thực tế, ta tính _thống kê t_
+
+> 3“Xấp xỉ” vì nhiều lý do. Phương trình 3.10 dựa trên giả định sai số Gaussian. Hệ số 2 trước SE( _β_^(ˆ) 1) cũng thay đổi nhẹ theo số quan sát _n_. Chính xác hơn, thay cho 2, (3.10) nên chứa phân vị 97,5 % của phân phối _t_ có _n−_ 2 bậc tự do. Chi tiết tính chính xác khoảng tin cậy 95 % trong `R` được trình bày sau trong chương.
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|7.0325|0.4578|15.36|_&lt;_0_._0001|\n|`TV`|0.0475|0.0027|17.67|_&lt;_0_._0001|"} />
+
+**BẢNG 3.1.** _Với dữ liệu_ `Advertising`_, các hệ số của mô hình bình phương tối thiểu hồi quy số đơn vị bán được theo ngân sách quảng cáo TV. Mỗi_ $1 _,_ 000 _tăng trong ngân sách quảng cáo TV gắn với doanh số tăng khoảng 50 đơn vị. (Nhắc lại biến_ `sales` _tính theo nghìn đơn vị và biến_ `TV` _tính theo nghìn đô la.)_
+
+thống kê này đo _β_^(ˆ) 1 cách 0 bao nhiêu độ lệch chuẩn. Nếu thực sự không có quan hệ giữa _X_ và _Y_, ta kỳ vọng (3.14) có phân phối _t_ với _n −_ 2 bậc tự do. Phân phối _t_ có dạng chuông và với _n_ lớn hơn khoảng 30, nó khá giống phân phối chuẩn tiêu chuẩn. Vì vậy, có thể dễ dàng tính xác suất quan sát một số có trị tuyệt đối bằng hoặc lớn hơn _|t|_, giả sử _β_ 1 = 0. Ta gọi xác suất này là _giá trị p_. Nói gần đúng, giá trị p nhỏ cho biết khó có khả năng quan sát mối liên hệ mạnh như vậy giữa biến dự báo và đáp ứng chỉ do ngẫu nhiên khi không có liên hệ thật. Do đó, nếu thấy giá trị p nhỏ, ta có thể suy ra tồn tại liên hệ. Ta _bác bỏ giả thuyết không_—tuyên bố có quan hệ giữa _X_ và _Y_—nếu giá trị p đủ nhỏ. Các ngưỡng phổ biến là 5% hoặc 1%, dù chủ đề này được khảo sát kỹ hơn ở Chương 13. Khi _n_ = 30, chúng tương ứng với thống kê _t_ khoảng 2 và 2,75.
+
+Bảng 3.1 cung cấp chi tiết mô hình bình phương tối thiểu hồi quy số đơn vị bán được theo ngân sách quảng cáo TV cho dữ liệu `Advertising`. Các ước lượng _β_^(ˆ) 0 và _β_^(ˆ) 1 rất lớn so với sai số chuẩn nên thống kê _t_ cũng lớn; xác suất thấy các giá trị như vậy nếu _H_ 0 đúng gần như bằng không. Vì vậy, ta có thể kết luận _β_ 0 = 0 và _β_ 1 = 0.^(4)
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 3.1.3 Đánh giá độ chính xác của mô hình
+
+Sau khi bác bỏ giả thuyết không (3.12) để ủng hộ giả thuyết đối (3.13), ta tự nhiên muốn định lượng _mức độ mô hình khớp dữ liệu_. Chất lượng của mô hình hồi quy tuyến tính thường được đánh giá bằng hai đại lượng liên quan: _sai số chuẩn phần dư_ (RSE) và thống kê _R_^(2).
+
+_R_^(2)
+
+> 4Trong Bảng 3.1, giá trị p nhỏ của hệ số chặn cho phép bác bỏ giả thuyết _β_ 0 = 0, còn giá trị p nhỏ của `TV` cho phép bác bỏ _β_ 1 = 0. Bác bỏ giả thuyết sau cho phép kết luận có quan hệ giữa `TV` và `sales`; bác bỏ giả thuyết trước cho phép kết luận rằng khi không chi cho `TV`, `sales` vẫn khác không.
+
+<MdxCode language="table" code={"|Đại lượng|Giá trị|\n|---|---|\n|Sai số chuẩn phần dư|3.26|\n|_R_^(2)|0.612|\n|Thống kê _F_|312.1|"} />
+
+**BẢNG 3.2.** _Với dữ liệu_ `Advertising`_, thông tin bổ sung về mô hình bình phương tối thiểu hồi quy số đơn vị bán được theo ngân sách quảng cáo TV._
+
+Bảng 3.2 hiển thị RSE, thống kê _R_^(2) và thống kê _F_ (được mô tả ở Mục 3.2.2) cho hồi quy tuyến tính số đơn vị bán được theo ngân sách quảng cáo TV.
+
+##### Sai số chuẩn phần dư
+
+Nhắc lại từ mô hình (3.5), mỗi quan sát gắn với một sai số _ϵ_. Do các sai số này, ngay cả khi biết đường hồi quy thật (tức biết _β_ 0 và _β_ 1), ta vẫn không thể dự đoán hoàn hảo _Y_ từ _X_. RSE là ước lượng độ lệch chuẩn của _ϵ_. Nói gần đúng, đó là độ lệch trung bình của đáp ứng so với đường hồi quy thật, được tính bằng
+
+RSS đã được định nghĩa trong Mục 3.1.1:
+
+Với dữ liệu quảng cáo, đầu ra hồi quy trong Bảng 3.2 cho biết RSE là 3 _._ 26. Nói cách khác, doanh số thực tế ở mỗi thị trường lệch khỏi đường hồi quy thật trung bình khoảng 3 _,_ 260 đơn vị. Ngay cả nếu mô hình đúng và biết chính xác các hệ số _β_ 0, _β_ 1, mọi dự đoán doanh số từ quảng cáo TV vẫn sai trung bình khoảng 3 _,_ 260 đơn vị. Mức sai số này có chấp nhận được hay không tùy bối cảnh. Trong dữ liệu quảng cáo, `sales` trung bình khoảng 14 _,_ 000 đơn vị, nên sai số phần trăm là 3 _,_ 260 _/_ 14 _,_ 000 = 23 %.
+
+RSE được xem là thước đo _mức thiếu khớp_ của mô hình (3.5). Nếu các dự đoán rất gần kết quả thật—tức _yi ≈ yi_ ˆ với mọi _i_—thì (3.15) nhỏ và mô hình khớp dữ liệu rất tốt. Ngược lại, nếu _y_ ˆ _i_ cách xa _yi_ ở một hoặc nhiều quan sát, RSE có thể lớn, cho thấy mô hình khớp kém.
+
+##### Thống kê _R_^(2)
+
+RSE cho một thước đo tuyệt đối về mức thiếu khớp, nhưng vì được đo theo đơn vị của _Y_, không phải lúc nào cũng rõ RSE thế nào là tốt. Thống kê _R_^(2) cung cấp thước đo khác dưới dạng một _tỷ lệ_—tỷ lệ phương sai được giải thích—nên luôn nằm giữa 0 và 1, độc lập với thang đo của _Y_.
+
+Để tính _R_^(2), ta dùng công thức
+
+trong đó TSS =^(�) ( _yi − y_ ¯ )^(2) là _tổng bình phương toàn phần_, còn RSS được định nghĩa trong (3.16). TSS đo tổng phương sai trong biến đáp ứng _Y_, có thể xem là độ biến thiên vốn có trước khi hồi quy. RSS đo độ biến thiên còn chưa được giải thích sau hồi quy. Vì vậy, TSS _−_ RSS đo độ biến thiên của đáp ứng được hồi quy giải thích, còn _R_^(2) đo _tỷ lệ biến thiên trong Y có thể được giải thích bằng X_. _R_^(2) gần 1 cho biết phần lớn độ biến thiên được hồi quy giải thích. Giá trị gần 0 cho biết hồi quy giải thích rất ít, có thể vì mô hình tuyến tính sai, phương sai sai số _σ_^(2) cao, hoặc cả hai. Trong Bảng 3.2, _R_^(2) là 0 _._ 61, nên gần hai phần ba biến thiên trong `sales` được hồi quy tuyến tính theo `TV` giải thích.
+
+Thống kê _R_^(2) dễ diễn giải hơn RSE vì luôn nằm giữa 0 và 1, nhưng vẫn khó xác định một giá trị _R_^(2) _tốt_; điều đó phụ thuộc ứng dụng. Trong một số bài toán vật lý, ta có thể biết dữ liệu thực sự đến từ mô hình tuyến tính với sai số phần dư nhỏ. Khi đó ta mong _R_^(2) cực gần 1, và giá trị thấp hơn đáng kể có thể chỉ ra vấn đề nghiêm trọng trong thí nghiệm. Ngược lại, trong các ứng dụng điển hình ở sinh học, tâm lý, marketing và lĩnh vực khác, mô hình tuyến tính chỉ là xấp xỉ rất thô; sai số phần dư từ các yếu tố không đo được thường rất lớn. Khi đó, chỉ một tỷ lệ nhỏ phương sai đáp ứng được biến dự báo giải thích và _R_^(2) dưới 0 _._ 1 có thể thực tế hơn!
+
+Thống kê _R_^(2) là thước đo quan hệ tuyến tính giữa _X_ và _Y_. Nhắc lại _tương quan_, được định nghĩa là
+
+cũng là một thước đo quan hệ tuyến tính giữa _X_ và _Y_.^(5) Điều này gợi ý ta có thể dùng _r_ = Cor( _X, Y_ ) thay _R_^(2) để đánh giá mô hình. Thực ra, trong bối cảnh hồi quy tuyến tính đơn, có thể chứng minh
+
+> 5Vế phải của (3.18) thực ra là tương quan mẫu, nên viết chính xác hơn là Cor có dấu mũ; tuy nhiên ta bỏ dấu mũ để ký hiệu dễ đọc.
+
+<MdxCode language="table" code={"||Hồi quy đơn|của `sal`|`es` theo `radio`||\n|---|---|---|---|---|\n||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|`Intercept`|9.312|0.563|16.54|_&lt;_0_._0001|\n|`radio`|0.203|0.020|9.92|_&lt;_0_._0001|\n||Hồi quy đơn|của `sales` theo|`newspaper`||\n||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|`Intercept`|12.351|0.621|19.88|_&lt;_0_._0001|\n|`newspaper`|0.055|0.017|3.30|0_._00115|"} />
+
+**BẢNG 3.3.** _Các mô hình hồi quy tuyến tính đơn khác cho dữ liệu_ `Advertising`_. Hệ số của mô hình hồi quy số đơn vị bán được theo_ Trên: _ngân sách quảng cáo radio và_ Dưới: _ngân sách quảng cáo báo. Mỗi_ $1 _,_ 000 _tăng chi quảng cáo radio gắn với doanh số trung bình tăng khoảng 203 đơn vị, còn mức tăng tương tự ở quảng cáo báo gắn với doanh số tăng khoảng 55 đơn vị. (Biến_ `sales` _tính theo nghìn đơn vị; `radio` và `newspaper` tính theo nghìn đô la.)_
+
+_R_^(2) = _r_^(2). Nói cách khác, bình phương tương quan và thống kê _R_^(2) giống hệt nhau. Tuy nhiên, phần tiếp theo thảo luận hồi quy tuyến tính bội, trong đó nhiều biến dự báo đồng thời dự đoán đáp ứng. Khái niệm tương quan giữa các biến dự báo và đáp ứng không tự động mở rộng sang bối cảnh này, vì tương quan định lượng liên hệ giữa một cặp biến chứ không phải nhiều biến. Ta sẽ thấy _R_^(2) đảm nhiệm vai trò đó.
+
+</MdxPage>

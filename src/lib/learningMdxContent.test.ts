@@ -8,9 +8,9 @@ import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComp
 import type { LearningCatalog } from '../core/learning/types.ts';
 
 const lessonFiles = discoverLearningMdxFiles('src/content/learning');
-const publishedLessonIds = learningCatalog.lessons
+const publishedLessonKeys = learningCatalog.lessons
   .filter((lesson) => lesson.contentStatus === 'published')
-  .map((lesson) => lesson.id);
+  .map((lesson) => `${lesson.domainId}/${lesson.id}`);
 const expectedPageCounts: Record<string, number> = {
   'minimal-llm-project-skeleton': 1,
   'llm-from-scratch-roadmap': 3,
@@ -79,7 +79,58 @@ const expectedPageCounts: Record<string, number> = {
   'lu-decomposition': 6,
   'identity-inverse-matrix': 6,
 };
+const expectedStatisticsObjectivePageCounts: Record<string, number> = {
+  'ch01-experiments-events-sample-space': 7,
+  'ch01-event-relations': 7,
+  'ch01-probability-definitions-properties': 8,
+  'ch01-empirical-probability': 7,
+  'ch01-conditional-probability': 9,
+  'ch01-total-probability': 6,
+  'ch01-bayes-naive-bayes': 17,
+  'ch02-classical-statistics-fundamentals': 5,
+  'ch02-populations-samples-observation': 6,
+  'histogram-foundations': 18,
+  'descriptive-data-analysis': 7,
+  'point-estimation': 5,
+  'normal-distribution': 18,
+  'variance-standard-deviation': 17,
+  'mean-vector-covariance-matrix': 28,
+  'joint-marginal-correlation': 24,
+  'multivariate-normal-distribution': 23,
+};
 const expectedQuizQuestionIds: Record<string, string[]> = {
+  'ch01-probability-origins-quiz': ['origins-hidden-coin', 'origins-two-interpretations', 'origins-model-qualified-half'],
+  'ch01-experiments-events-sample-space-quiz': [
+    'foundational-concepts-match',
+    'sample-space-recording-rule',
+    'event-as-subset',
+    'event-types-match',
+  ],
+  'ch01-event-relations-quiz': ['union-intersection-match', 'disjoint-events-die', 'exclusive-vs-complement'],
+  'ch01-probability-definitions-properties-quiz': ['classical-probability-formula', 'probability-properties', 'complement-probability', 'addition-rule'],
+  'ch01-empirical-probability-quiz': ['frequency-relative-frequency', 'finite-estimate-interpretation', 'relative-frequency-stability', 'origins-large-number-frequency', 'forecast-calibration'],
+  'ch01-conditional-probability-quiz': ['origins-one-off-event', 'conditional-formula', 'multiplication-without-replacement', 'replacement-dependence', 'conditional-direction'],
+  'ch01-total-probability-quiz': ['partition-requirements', 'total-probability-formula', 'total-probability-order'],
+  'ch01-bayes-naive-bayes-quiz': ['bayes-term-match', 'bayes-evidence-strength', 'bayes-medical-base-rate', 'naive-bayes-assumption', 'naive-bayes-stability'],
+  'ch01-probability-exercises-quiz': ['queen-given-face-card', 'compare-naive-bayes-scores', 'laplace-denominator'],
+  'ch02-classical-statistics-fundamentals-quiz': [
+    'thinking-goal-classification',
+    'thinking-population-sample',
+    'thinking-representative-sample',
+    'thinking-causal-evidence',
+    'thinking-truncated-axis',
+    'thinking-responsible-reading',
+  ],
+  'descriptive-data-analysis-quiz': [
+    'descriptive-manual-mean',
+    'descriptive-manual-median-mode',
+    'descriptive-manual-outlier',
+    'descriptive-wine-load-series',
+    'descriptive-wine-direct-methods',
+    'descriptive-wine-describe-output',
+    'descriptive-wine-histogram-interpretation',
+    'descriptive-wine-practical-insight',
+  ],
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
   'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
   'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
@@ -107,11 +158,26 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 66);
-  assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
-  assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
+  assert.equal(lessonFiles.length, 185);
+  const parsedLessonFiles = lessonFiles
+    .map((file) => parseLearningMdxPath(file))
+    .filter((file): file is NonNullable<typeof file> => file !== null);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'en').length, 0);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId === 'statistics' && file.locale === 'vi').length, 119);
+  assert.equal(parsedLessonFiles.filter((file) => file.domainId !== 'statistics' && file.locale === 'vi').length, 66);
+  assert.deepEqual(
+    [...new Set(parsedLessonFiles.map((file) => `${file.domainId}/${file.lessonId}`))].sort(),
+    publishedLessonKeys.sort(),
+  );
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 66);
+  assert.equal(documents.length, 185);
+  const statisticsDocuments = documents.filter((document) => document.domainId === 'statistics');
+  assert.equal(statisticsDocuments.length, 119);
+  assert.deepEqual([...new Set(statisticsDocuments.map((document) => document.locale))], ['vi']);
+  assert.ok(statisticsDocuments.every((document) => document.text.length < 2_000));
+  let statisticsPageCount = 0;
+  const statisticsInspections = new Map<string, Awaited<ReturnType<typeof inspectLearningMdx>>>();
+  const statisticsSources = new Map<string, string>();
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
@@ -120,17 +186,229 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     assert.equal(inspection.metadata.domainId, parsed.domainId);
     assert.equal(inspection.metadata.id, parsed.lessonId);
     assert.equal(inspection.metadata.locale, parsed.locale);
-    assert.equal(Number(inspection.metadata.pageCount ?? 1), expectedPageCounts[parsed.lessonId]);
-    if (expectedPageCounts[parsed.lessonId] > 1 && !inspection.quizQuestionIds.length) {
-      assert.deepEqual(inspection.pageIndexes, Array.from({ length: expectedPageCounts[parsed.lessonId] }, (_, index) => index));
+    const pageCount = Number(inspection.metadata.pageCount ?? 1);
+    if (parsed.domainId === 'statistics') {
+      assert.ok(Number.isInteger(pageCount) && pageCount > 0);
+      assert.equal(parsed.locale, 'vi');
+      statisticsPageCount += pageCount;
+      statisticsInspections.set(parsed.lessonId, inspection);
+      statisticsSources.set(parsed.lessonId, source);
+    } else {
+      assert.equal(pageCount, expectedPageCounts[parsed.lessonId]);
+    }
+    if (pageCount > 1 && !inspection.quizQuestionIds.length) {
+      assert.deepEqual(inspection.pageIndexes, Array.from({ length: pageCount }, (_, index) => index));
     }
     if (expectedQuizQuestionIds[parsed.lessonId]) assert.deepEqual(inspection.quizQuestionIds, expectedQuizQuestionIds[parsed.lessonId]);
     if (parsed.domainId === 'cv') assert.equal(inspection.cvExerciseFixtures.length, 1);
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
+  assert.equal(statisticsPageCount, 573);
+  for (const [lessonId, expectedPageCount] of Object.entries(expectedStatisticsObjectivePageCounts)) {
+    const inspection = statisticsInspections.get(lessonId);
+    const source = statisticsSources.get(lessonId) ?? '';
+    const headings = inspection?.metadata.headings;
+    assert.equal(inspection?.metadata.pageCount, expectedPageCount);
+    assert.ok(Array.isArray(headings));
+    assert.equal(headings[0], 'Mục tiêu học tập');
+    assert.match(
+      source,
+      /<MdxPage page=\{0\}>\s*<LessonNote label="Mục tiêu học tập" variant="objectives">[\s\S]*?<\/LessonNote>\s*<\/MdxPage>\s*<MdxPage page=\{1\}>/,
+    );
+  }
+  for (const lessonId of [
+    'ch01-experiments-events-sample-space',
+    'ch01-event-relations',
+    'ch01-probability-definitions-properties',
+    'ch01-empirical-probability',
+    'ch01-conditional-probability',
+    'ch01-total-probability',
+    'ch01-bayes-naive-bayes',
+    'ch01-probability-exercises',
+  ]) {
+    const source = statisticsSources.get(lessonId) ?? '';
+    assert.match(source, /<MdxFormula\b/);
+    assert.doesNotMatch(source, /<MdxCode\b/);
+    assert.doesNotMatch(source, /\$\$|(?<!\\)\$(?!\{)/);
+  }
+  const statisticalThinking = statisticsInspections.get('ch02-classical-statistics-fundamentals');
+  const statisticalThinkingSource = statisticsSources.get('ch02-classical-statistics-fundamentals') ?? '';
+  assert.equal(statisticalThinking?.metadata.pageCount, 5);
+  assert.deepEqual(statisticalThinking?.metadata.headings, [
+    'Mục tiêu học tập',
+    'Thống kê giúp trả lời điều gì?',
+    'Bắt đầu từ câu hỏi',
+    'Mô tả hay suy luận?',
+    'Kiến thức cần nắm',
+  ]);
+  assert.match(statisticalThinkingSource, /<StatisticalQuestionAtlas groups=/);
+  assert.match(statisticalThinkingSource, /<StatisticsBranchesOverview\b/);
+  assert.doesNotMatch(statisticalThinkingSource, /Bản đồ câu hỏi → phương pháp → chương|Ứng dụng của Thống kê & AI\/ML\/DL/);
+  const populationSampleObservation = statisticsInspections.get('ch02-populations-samples-observation');
+  const populationSampleObservationSource = statisticsSources.get('ch02-populations-samples-observation') ?? '';
+  assert.equal(populationSampleObservation?.metadata.pageCount, 6);
+  assert.match(populationSampleObservationSource, /<PopulationSampleOverview\b/);
+  assert.match(populationSampleObservationSource, /<StudyDesignComparison\b/);
+  assert.match(populationSampleObservationSource, /## Kiến thức cần nắm/);
+  assert.doesNotMatch(populationSampleObservationSource, /<LessonNote label="Phương pháp thu thập dữ liệu"/);
+  for (const kind of ['statistical-thinking-sampling', 'statistical-thinking-study-design']) {
+    assert.match(populationSampleObservationSource, new RegExp(`<ProbabilityChapterVisual kind="${kind}"`));
+  }
+  const statisticalThinkingQuiz = statisticsInspections.get('ch02-classical-statistics-fundamentals-quiz');
+  const statisticalThinkingQuizSource = statisticsSources.get('ch02-classical-statistics-fundamentals-quiz') ?? '';
+  assert.equal(statisticalThinkingQuiz?.metadata.pageCount, 6);
+  assert.equal(statisticalThinkingQuiz?.metadata.title, 'Quiz');
+  assert.match(statisticalThinkingQuizSource, /<MdxQuiz id="ch02-classical-statistics-fundamentals-quiz"/);
+  assert.doesNotMatch(statisticalThinkingQuizSource, /preview:\s*\{|columns:\s*\[/);
+  const thinkingTrack = learningCatalog.tracks.find((track) => track.domainId === 'statistics' && track.id === 'statistical-thinking');
+  assert.deepEqual(thinkingTrack?.lessonIds, [
+    'ch02-classical-statistics-fundamentals',
+    'ch02-populations-samples-observation',
+    'statistics-criticism',
+    'ch02-classical-statistics-fundamentals-quiz',
+  ]);
+  const thinkingQuizNode = learningCatalog.lessons.find((lesson) => lesson.domainId === 'statistics' && lesson.id === 'ch02-classical-statistics-fundamentals-quiz');
+  assert.equal(thinkingQuizNode?.text?.title?.vi, 'Quiz');
+  assert.equal(thinkingQuizNode?.contentStatus, 'published');
+  const histogramFoundations = statisticsInspections.get('histogram-foundations');
+  const histogramFoundationsSource = statisticsSources.get('histogram-foundations') ?? '';
+  assert.equal(histogramFoundations?.metadata.pageCount, 18);
+  assert.deepEqual(histogramFoundations?.metadata.headings, [
+    'Mục tiêu học tập',
+    'Thu thập dữ liệu',
+    'Đặt dữ liệu lên một trục số',
+    'Vấn đề: các điểm bị chồng lên nhau',
+    'Chia trục số thành các bin',
+    'Xếp chồng các điểm trong từng bin',
+    'Từ các chồng điểm đến histogram',
+    'Histogram cho ta biết điều gì?',
+    'Điều gì xảy ra khi có quá ít bin?',
+    'Điều gì xảy ra khi có quá nhiều bin?',
+    'Cùng dữ liệu, histogram khác nhau',
+    'Quy tắc căn bậc hai',
+    'Không có một số bin đúng cho mọi dữ liệu',
+    'Code Python: tạo histogram đầu tiên',
+    'Code Python: nhìn thấy dữ liệu được chia bin như thế nào',
+    'Code Python: quá ít, hợp lý và quá nhiều bin',
+    'Code Python: so sánh các quy tắc chọn bin',
+    'Tự chọn số bin',
+  ]);
+  for (const componentName of [
+    'HistogramConstructionVisual',
+    'HistogramShapeVisual',
+    'HistogramBinComparison',
+    'HistogramRulesVisual',
+    'HistogramBinExplorer',
+  ]) assert.match(histogramFoundationsSource, new RegExp(`<${componentName}\\b`));
+  assert.match(histogramFoundationsSource, /k \\\\approx \\\\sqrt\{n\}/);
+  assert.match(histogramFoundationsSource, /np\.histogram\(|plt\.hist\(/);
+  const descriptiveTrack = learningCatalog.tracks.find((track) => track.domainId === 'statistics' && track.id === 'descriptive-statistics-estimation');
+  assert.deepEqual(descriptiveTrack?.lessonIds.slice(0, 8), [
+    'histogram-foundations',
+    'descriptive-data-analysis',
+    'descriptive-data-analysis-quiz',
+    'variance-standard-deviation',
+    'variance-standard-deviation-quiz',
+    'mean-vector-covariance-matrix',
+    'mean-vector-covariance-matrix-quiz',
+    'joint-marginal-correlation',
+  ]);
+  const varianceStandardDeviation = statisticsInspections.get('variance-standard-deviation');
+  const varianceStandardDeviationSource = statisticsSources.get('variance-standard-deviation') ?? '';
+  assert.equal(varianceStandardDeviation?.metadata.pageCount, 17);
+  assert.equal(varianceStandardDeviation?.metadata.title, '3.3 Phương sai & Độ lệch chuẩn (Variance & Standard Deviation)');
+  assert.ok(Array.isArray(varianceStandardDeviation?.metadata.headings));
+  assert.equal(varianceStandardDeviation.metadata.headings.length, 17);
+  for (const componentName of ['VarianceConceptVisual', 'VariancePointExplorer', 'VarianceEstimatorComparison']) {
+    assert.match(varianceStandardDeviationSource, new RegExp(`<${componentName}\\b`));
+  }
+  assert.match(varianceStandardDeviationSource, /Hạng chéo biến mất/);
+  assert.match(varianceStandardDeviationSource, /E\\\\left\[\\\\frac\{1\}\{n-1\}\\\\sum_\{i=1\}\^\{n\}\(X_i-\\\\bar\{X\}\)\^2\\\\right\]&=\\\\sigma\^2/);
+  assert.match(varianceStandardDeviationSource, /np\.var\(samples, axis=1, ddof=1\)/);
+  const meanVectorCovarianceMatrix = statisticsInspections.get('mean-vector-covariance-matrix');
+  const meanVectorCovarianceMatrixSource = statisticsSources.get('mean-vector-covariance-matrix') ?? '';
+  assert.equal(meanVectorCovarianceMatrix?.metadata.pageCount, 28);
+  assert.equal(meanVectorCovarianceMatrix?.metadata.title, '3.4 Vector trung bình, Covariance & Ma trận Covariance (Mean Vector, Covariance & Covariance Matrix)');
+  assert.ok(Array.isArray(meanVectorCovarianceMatrix?.metadata.headings));
+  assert.equal(meanVectorCovarianceMatrix.metadata.headings.length, 28);
+  for (const componentName of ['CovarianceConceptVisual', 'CovarianceMatrixExplorer']) {
+    assert.match(meanVectorCovarianceMatrixSource, new RegExp(`<${componentName}\\b`));
+  }
+  const jointMarginalCorrelation = statisticsInspections.get('joint-marginal-correlation');
+  const jointMarginalCorrelationSource = statisticsSources.get('joint-marginal-correlation') ?? '';
+  assert.equal(jointMarginalCorrelation?.metadata.pageCount, 24);
+  assert.equal(jointMarginalCorrelation?.metadata.title, '3.5 Phân phối đồng thời, Phân phối biên & Tương quan (Joint Distribution, Marginal Distribution & Correlation)');
+  assert.ok(Array.isArray(jointMarginalCorrelation?.metadata.headings));
+  assert.equal(jointMarginalCorrelation.metadata.headings.length, 24);
+  for (const componentName of ['JointMarginalConceptVisual', 'MarginalProjectionExplorer', 'CorrelationMatrixExplorer']) {
+    assert.match(jointMarginalCorrelationSource, new RegExp(`<${componentName}\\b`));
+  }
+  const multivariateNormal = statisticsInspections.get('multivariate-normal-distribution');
+  const multivariateNormalSource = statisticsSources.get('multivariate-normal-distribution') ?? '';
+  assert.equal(multivariateNormal?.metadata.pageCount, 23);
+  assert.equal(multivariateNormal?.metadata.title, '3.7 Phân phối chuẩn nhiều chiều (Multivariate Normal Distribution)');
+  assert.ok(Array.isArray(multivariateNormal?.metadata.headings));
+  assert.equal(multivariateNormal.metadata.headings.length, 23);
+  for (const componentName of ['MultivariateNormalConceptVisual', 'MultivariateNormalExplorer']) {
+    assert.match(multivariateNormalSource, new RegExp(`<${componentName}\\b`));
+  }
+  const normalDistribution = statisticsInspections.get('normal-distribution');
+  const normalDistributionSource = statisticsSources.get('normal-distribution') ?? '';
+  assert.equal(normalDistribution?.metadata.pageCount, 18);
+  assert.equal(normalDistribution?.metadata.title, '3.6 Phân phối chuẩn (Normal Distribution)');
+  const normalDistributionHeadings = normalDistribution?.metadata.headings;
+  assert.ok(Array.isArray(normalDistributionHeadings));
+  assert.equal(normalDistributionHeadings.length, 18);
+  assert.match(normalDistributionSource, /<NormalDistributionVisual\b/);
+  assert.match(normalDistributionSource, /kind="overview"/);
+  assert.match(normalDistributionSource, /Điều này không có nghĩa mọi dữ liệu đều tuân theo phân phối chuẩn/);
+  assert.match(normalDistributionSource, /<NormalParameterExplorer[\s\S]*mode="mean"/);
+  assert.match(normalDistributionSource, /<NormalParameterExplorer[\s\S]*mode="variance"/);
+  assert.match(normalDistributionSource, /<HistogramReadingInteraction\b/);
+  assert.match(normalDistributionSource, /ariaLabel="Đường cong phân phối chuẩn ở trung tâm/);
+  assert.match(normalDistributionSource, /feedback=\{\{/);
+  assert.match(normalDistributionSource, /scenarios=\{\[/);
+  assert.match(normalDistributionSource, /X \\\\sim \\\\math_cal\{N\}|X \\\\sim \\\\mathcal\{N\}/);
+  assert.match(normalDistributionSource, /z=\\\\frac\{x-\\\\mu\}\{\\\\sigma\}/);
+  assert.match(normalDistributionSource, /Xác suất một giá trị nằm trong một khoảng được biểu diễn bằng \*\*diện tích dưới đường cong\*\*/);
+  assert.match(normalDistributionSource, /rng = np\.random\.default_rng\(42\)/);
+  assert.match(normalDistributionSource, /Thiếu bên nào thì lệch bên đó/);
+  assert.equal(learningCatalog.lessons.find((lesson) => lesson.domainId === 'statistics' && lesson.id === 'point-estimation')?.text?.title.vi, '3.8 Ước lượng điểm');
+  const criticism = statisticsInspections.get('statistics-criticism');
+  const criticismSource = statisticsSources.get('statistics-criticism') ?? '';
+  assert.equal(criticism?.metadata.pageCount, 5);
+  assert.match(criticismSource, /asset="bush-tax-truncated-axis"/);
+  assert.match(criticismSource, /## Kiến thức cần nắm/);
+  for (const lesson of learningCatalog.lessons.filter((item) => item.domainId === 'statistics' && item.contentStatus === 'published')) {
+    const vietnamese = statisticsInspections.get(lesson.id);
+    assert.ok(vietnamese, `Missing Vietnamese Statistics content for ${lesson.id}`);
+    assert.equal(vietnamese.metadata.locale, 'vi');
+    const vietnameseSource = statisticsSources.get(lesson.id) ?? '';
+    const vietnameseProse = vietnameseSource
+      .slice(vietnameseSource.indexOf('<MdxPage'))
+      .replace(/<MdxCode\b[\s\S]*?\/>/g, '')
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/`[^`\n]+`/g, '');
+    const commonEnglishWordCount = vietnameseProse.match(
+      /(?<![\p{L}\p{N}_])(?:the|and|of|to|in|is|are|that|for|with|from|we|this|which|using|data|observations)(?![\p{L}\p{N}_])/giu,
+    )?.length ?? 0;
+    assert.ok(
+      commonEnglishWordCount < 20,
+      `${lesson.id}.vi still appears to contain untranslated English prose (${commonEnglishWordCount} common-word hits)`,
+    );
+  }
   const requirements = documents.find((document) => document.lessonId === 'minimal-llm-project-skeleton')?.text ?? '';
   for (const requirement of ['Google Colab', 'Python', 'uv', 'VSCode']) assert.match(requirements, new RegExp(requirement));
+});
+
+test('retained Statistics authored output preserves the locked catalog counts', () => {
+  assert.equal(learningCatalog.tracks.filter((track) => track.domainId === 'statistics').length, 8);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics').length, 133);
+  assert.equal(
+    learningCatalog.lessons.filter((lesson) => lesson.domainId === 'statistics' && lesson.contentStatus === 'published').length,
+    119,
+  );
 });
 
 test('generic MDX contract rejects imports, executable expressions, and unknown components', async () => {
@@ -165,7 +443,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'MdxCode', 'MdxColumns', 'MdxConceptContrast', 'MdxFormula', 'MdxQuiz', 'MdxPage', 'MdxTable', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'div', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,
@@ -218,6 +496,14 @@ test('shared lesson assembly and search contain no LLM-specific branch or import
   for (const source of [detail, rail, contract, tooling]) {
     assert.doesNotMatch(source, /llm-ai-engineering|renderLlm|virtual:llm/);
   }
+});
+
+test('compiled Learning Lab MDX modules load lazily with stale-result protection', () => {
+  const registry = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
+  assert.match(registry, /import\.meta\.glob<MdxModule>\('\.\.\/\.\.\/content\/learning\/\*\/\*\.mdx'\)/);
+  assert.doesNotMatch(registry, /eager:\s*true/);
+  assert.match(registry, /let cancelled = false/);
+  assert.match(registry, /if \(cancelled\) return/);
 });
 
 test('migrated MDX lessons no longer have duplicate legacy extras or pilot renderer code', () => {

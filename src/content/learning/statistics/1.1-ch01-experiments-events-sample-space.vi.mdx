@@ -1,0 +1,146 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-experiments-events-sample-space",
+  "locale": "vi",
+  "title": "1.1 Phép thử, biến cố và không gian mẫu",
+  "headings": [
+    "Mục tiêu học tập",
+    "Phép thử và kết quả",
+    "Không gian mẫu",
+    "Biến cố",
+    "Biến cố chắc chắn, không thể và ngẫu nhiên",
+    "Liệt kê bằng Python",
+    "Kiến thức cần nắm"
+  ],
+  "keywords": [
+    "phép thử",
+    "kết quả",
+    "không gian mẫu",
+    "biến cố",
+    "biến cố sơ cấp",
+    "python",
+    "itertools"
+  ],
+  "pageCount": 7
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Phân biệt được **phép thử ngẫu nhiên** (*random experiment*), **kết quả** (*outcome*), **không gian mẫu** (*sample space*) và **biến cố** (*event*).
+- Biểu diễn một biến cố dưới dạng tập hợp con của không gian mẫu.
+- Phân loại biến cố chắc chắn (*certain event*), không thể (*impossible event*) và ngẫu nhiên (*random event*).
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phép thử và kết quả
+
+Trước khi hỏi “xác suất là gì?”, ta bắt đầu từ phần dễ nhất: gọi đúng tên hành động được thực hiện và điều quan sát được sau hành động đó.
+
+Trước khi gieo một con xúc xắc, ta biết mình sẽ làm gì nhưng chưa biết mặt nào sẽ xuất hiện.
+
+- **Phép thử ngẫu nhiên** (*random experiment*) là hành động được thực hiện: gieo một con xúc xắc.
+- **Kết quả** (*outcome*) là điều quan sát được sau một lần thực hiện: chẳng hạn xúc xắc xuất hiện mặt 4.
+
+<ProbabilityChapterVisual kind="foundations" />
+
+Một phép thử có thể được lặp lại nhiều lần. Mỗi lần chỉ cho ra một kết quả cụ thể.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Không gian mẫu
+
+Trước khi gieo, ta chưa biết kết quả cụ thể nhưng có thể liệt kê mọi kết quả có thể xảy ra.
+
+Tập hợp đó được gọi là **không gian mẫu** (*sample space*), ký hiệu là <MdxFormula inline formula={"\\Omega"} />.
+
+<ProbabilityChapterVisual kind="sample-space" />
+
+Ở đây, <MdxFormula inline formula={"\\Omega"} /> phải chứa đủ sáu mặt. Tập <MdxFormula inline formula={"\\{2,4,6\\}"} /> chỉ giữ các mặt chẵn nên, trong phép thử đang xét, nó không phải là không gian mẫu. Vậy tập này được gọi là gì?
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Biến cố
+
+Đó là một **biến cố** (*event*). Biến cố là tập hợp các kết quả ta quan tâm, tức một tập con của không gian mẫu.
+
+<MdxFormula formula={"A=\\{2,4,6\\},\\qquad A\\subseteq\\Omega"} />
+
+<ProbabilityChapterVisual kind="elementary" />
+
+Mỗi tập chỉ chứa một kết quả, như <MdxFormula inline formula={"\\{2\\}"} />, được gọi là một **biến cố sơ cấp** (*elementary event*). Biến cố <MdxFormula inline formula={"A"} /> ở trên gồm ba biến cố sơ cấp <MdxFormula inline formula={"\\{2\\},\\{4\\},\\{6\\}"} />.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Biến cố chắc chắn, không thể và ngẫu nhiên
+
+Vẫn với <MdxFormula inline formula={"\\Omega=\\{1,2,3,4,5,6\\}"} />, hãy xét ba câu hỏi:
+
+- “Kết quả thuộc từ 1 đến 6” luôn đúng, nên đó là **biến cố chắc chắn** (*certain event*) <MdxFormula inline formula={"\\Omega"} />.
+- “Xuất hiện mặt 7” không có kết quả phù hợp, nên đó là **biến cố không thể** (*impossible event*) <MdxFormula inline formula={"\\varnothing"} />.
+- “Xuất hiện mặt chẵn” có thể xảy ra hoặc không, nên đó là **biến cố ngẫu nhiên** (*random event*) <MdxFormula inline formula={"A=\\{2,4,6\\}"} />.
+
+<ProbabilityChapterVisual kind="certainty" />
+
+Ba loại biến cố này đều được xác định so với cùng một không gian mẫu.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Liệt kê bằng Python
+
+Khi số kết quả tăng lên, việc liệt kê thủ công dễ bị sót. Ta có thể dùng thư viện `itertools` của Python để tạo không gian mẫu:
+
+```python
+from itertools import product
+
+# Tạo không gian mẫu khi tung 2 đồng xu (S = Sấp, N = Ngửa)
+omega = list(product(['S', 'N'], repeat=2))
+print("Không gian mẫu Ω:", omega)
+
+# Biến cố A: "Có ít nhất một mặt Sấp"
+A = [outcome for outcome in omega if 'S' in outcome]
+print("Biến cố A:", A)
+print(f"Số kết quả thuận lợi |A| = {len(A)}, tổng số kết quả |Ω| = {len(omega)}")
+```
+
+```output
+Không gian mẫu Ω: [('S', 'S'), ('S', 'N'), ('N', 'S'), ('N', 'N')]
+Biến cố A: [('S', 'S'), ('S', 'N'), ('N', 'S')]
+Số kết quả thuận lợi |A| = 3, tổng số kết quả |Ω| = 4
+```
+
+**Quan sát:** Không gian mẫu có 4 kết quả; biến cố “ít nhất một mặt sấp” giữ lại 3 kết quả.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt bài 1.1">
+
+- **Phép thử ngẫu nhiên** tạo ra một **kết quả** chưa biết trước.
+- **Không gian mẫu** <MdxFormula inline formula={"\\Omega"} /> chứa mọi kết quả có thể xảy ra.
+- **Biến cố** là tập con của không gian mẫu: <MdxFormula inline formula={"A \\subseteq \\Omega"} />.
+- Biến cố **chắc chắn** là <MdxFormula inline formula={"\\Omega"} />; biến cố **không thể** là <MdxFormula inline formula={"\\varnothing"} />; các biến cố còn lại có thể xảy ra hoặc không.
+- Trong Python, `itertools.product` giúp tạo không gian mẫu cho phép thử nhiều bước.
+
+Với ngôn ngữ nền này, lesson tiếp theo sẽ quay lại một đồng xu đã bị che và hỏi: nếu kết quả đã cố định, con số 50% đang mô tả điều gì?
+
+</LessonNote>
+
+</MdxPage>

@@ -1,0 +1,150 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-probability-exercises",
+  "locale": "vi",
+  "title": "1.9 Bài tập Naive Bayes",
+  "headings": [
+    "Bài tập: Dự đoán Play Tennis",
+    "Không dùng Laplace",
+    "Dùng Laplace smoothing",
+    "Bài tập mới: Phân loại email",
+    "Điền prior và likelihood",
+    "Điền score và kiểm tra đáp án",
+    "Kiến thức cần nắm"
+  ],
+  "keywords": [
+    "bài tập Naive Bayes",
+    "xác suất có điều kiện",
+    "Naive Bayes",
+    "Laplace smoothing"
+  ],
+  "pageCount": 7
+}
+
+<MdxPage page={0}>
+
+## Bài tập: Dự đoán Play Tennis
+
+Dataset ghi lại điều kiện thời tiết và quyết định có chơi tennis trong 14 ngày:
+
+<ProbabilityChapterVisual kind="play-tennis-data" />
+
+Ta cần dự đoán một ngày mới có:
+
+<MdxFormula formula={"X=(\\text{Outlook=Sunny},\\;\\text{Temp=Cool},\\;\\text{Humidity=High},\\;\\text{Wind=Strong})"} />
+
+Hãy tính score cho class **Yes** và **No** bằng cả bốn feature, sau đó chọn class có score lớn hơn.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Không dùng Laplace
+
+**Bước 1: Tính các xác suất thành phần**
+
+<MdxFormula formula={"P(\\text{Yes})=\\frac9{14}\\qquad P(\\text{No})=\\frac5{14}"} />
+
+**Bước 2: Tính các xác suất có điều kiện**
+
+<ProbabilityChapterVisual kind="play-tennis-likelihoods" />
+
+<LessonNote>
+
+Mẫu số của likelihood là số quan sát trong class tương ứng. Vì vậy <MdxFormula inline formula={"P(\\text{Sunny}\\mid\\text{Yes})=\\frac29"} />, không phải <MdxFormula inline formula={"\\frac2{14}"} />.
+
+</LessonNote>
+
+**Bước 3: Tính score**
+
+<MdxFormula formula={"\\begin{aligned}\\operatorname{score}(\\text{Yes})&=\\frac9{14}\\times\\frac29\\times\\frac39\\times\\frac39\\times\\frac39=\\frac1{189}\\\\\\operatorname{score}(\\text{No})&=\\frac5{14}\\times\\frac35\\times\\frac15\\times\\frac45\\times\\frac35=\\frac{18}{875}\\end{aligned}"} />
+
+Vì <MdxFormula inline formula={"\\frac{18}{875}>\\frac1{189}"} />, mô hình dự đoán class **No**.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Dùng Laplace smoothing
+
+Feature **Outlook** và **Temp** có <MdxFormula inline formula={"K=3"} /> giá trị; **Humidity** và **Wind** có <MdxFormula inline formula={"K=2"} /> giá trị. Cộng <MdxFormula inline formula={"1"} /> vào mọi lượt đếm và cộng <MdxFormula inline formula={"K"} /> vào mẫu số:
+
+<ProbabilityChapterVisual kind="play-tennis-likelihoods-laplace" />
+
+<LessonNote>
+
+**Tip kiểm tra:** Tổng xác suất theo từng cột class vẫn phải bằng <MdxFormula inline formula={"1"} /> sau smoothing. Ví dụ cột Outlook | Yes:
+
+<MdxFormula formula={"\\frac3{12}+\\frac5{12}+\\frac4{12}=1"} />
+
+</LessonNote>
+
+Tính lại score với hai hàng được làm nổi:
+
+<MdxFormula formula={"\\begin{aligned}\\operatorname{score}_{L}(\\text{Yes})&=\\frac9{14}\\times\\frac3{12}\\times\\frac4{12}\\times\\frac4{11}\\times\\frac4{11}=\\frac6{847}\\\\\\operatorname{score}_{L}(\\text{No})&=\\frac5{14}\\times\\frac48\\times\\frac28\\times\\frac57\\times\\frac47=\\frac{25}{1372}\\end{aligned}"} />
+
+Vì <MdxFormula inline formula={"\\frac{25}{1372}>\\frac6{847}"} />, dự đoán sau Laplace smoothing vẫn là class **No**.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Bài tập mới: Phân loại email
+
+Dataset gồm 8 email với hai feature và class **Spam / Không spam**:
+
+<ProbabilityChapterVisual kind="email-naive-bayes-data" />
+
+Ta cần phân loại một email mới có cả hai feature:
+
+<MdxFormula formula={"X=(\\text{có từ “miễn phí”},\\;\\text{có liên kết})"} />
+
+Hãy dùng Naive Bayes để dự đoán email thuộc class **Spam** hay **Không spam**.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Điền prior và likelihood
+
+Từ dataset ở trang trước, hãy điền prior của hai class và likelihood của hai feature. Có thể nhập phân số như `3/4` hoặc số thập phân như `0.75`.
+
+<ProbabilityChapterVisual kind="email-naive-bayes-probabilities" />
+
+<LessonNote>
+
+**Tip kiểm tra:** Hai prior phải cộng lại bằng <MdxFormula inline formula={"1"} />. Với mỗi feature, hai giá trị “có” và “không” trong cùng một class cũng phải có tổng xác suất bằng <MdxFormula inline formula={"1"} />.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Điền score và kiểm tra đáp án
+
+Với email mới có từ “miễn phí” và có liên kết, score của mỗi class là:
+
+<MdxFormula formula={"\\operatorname{score}(C_i)=P(C_i)P(\\text{miễn phí}\\mid C_i)P(\\text{liên kết}\\mid C_i)"} />
+
+Hãy tính hai score, chọn class có score lớn hơn rồi kiểm tra đáp án.
+
+<ProbabilityChapterVisual kind="email-naive-bayes-scores" />
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt quy trình giải bài tập Naive Bayes">
+
+1. **Tính Prior <MdxFormula inline formula={"P(C_i)"} />**: Đếm số mẫu thuộc lớp <MdxFormula inline formula={"C_i"} /> chia cho tổng số mẫu trong dataset.
+2. **Tính likelihood <MdxFormula inline formula={"P(X_k\\mid C_i)"} />**: Đếm trong chính class <MdxFormula inline formula={"C_i"} />, không chia cho toàn bộ dataset.
+3. **Áp dụng Laplace Smoothing (nếu yêu cầu)**: Cộng <MdxFormula inline formula={"1"} /> vào lượt đếm tử số và cộng <MdxFormula inline formula={"K"} /> (số giá trị phân biệt của đặc trưng) vào mẫu số.
+4. **Tính Score cho mỗi lớp**: Nhân Prior với tích các Likelihood của các đặc trưng cần dự đoán.
+5. **Đưa ra quyết định**: Chọn class có score lớn hơn, <MdxFormula inline formula={"\\hat C=\\operatorname*{arg\\,max}_{C_i}\\operatorname{score}(C_i)"} />.
+
+</LessonNote>
+
+</MdxPage>

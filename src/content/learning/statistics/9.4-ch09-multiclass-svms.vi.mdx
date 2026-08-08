@@ -1,0 +1,43 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-multiclass-svms",
+  "locale": "vi",
+  "title": "SVM với nhiều hơn hai lớp",
+  "headings": [
+    "SVM với nhiều hơn hai lớp",
+    "9.4.1 Phân loại một-đối-một",
+    "9.4.2 Phân loại một-đối-tất-cả"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Máy vector hỗ trợ",
+    "SVM đa lớp"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## SVM với nhiều hơn hai lớp
+
+Cho đến đây, phần thảo luận chỉ giới hạn ở phân loại nhị phân, tức phân loại trong bối cảnh hai lớp. Ta có thể mở rộng SVM sang trường hợp tổng quát hơn với số lớp bất kỳ như thế nào? Hóa ra khái niệm siêu phẳng phân tách làm nền tảng cho SVM không mở rộng tự nhiên sang nhiều hơn hai lớp. Mặc dù đã có nhiều đề xuất mở rộng SVM sang trường hợp _K_ lớp, hai cách phổ biến nhất là _một-đối-một_ và _một-đối-tất-cả_. Ta thảo luận ngắn gọn hai cách này ở đây.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 9.4.1 Phân loại một-đối-một
+
+Giả sử ta muốn thực hiện phân loại bằng SVM và có _K &gt;_ 2 lớp. Cách tiếp cận _một-đối-một_ (one-versus-one), còn gọi là _mọi cặp_, xây dựng � _K_ 2 � SVM, mỗi SVM so sánh một cặp lớp. Ví dụ, một SVM có thể so sánh lớp thứ _k_ được mã hóa +1 với lớp thứ _k_^(_′_) được mã hóa _−_ 1. Ta phân loại một quan sát kiểm tra bằng từng bộ phân loại trong � _K_ 2 � bộ, rồi đếm số lần quan sát được gán vào mỗi lớp trong _K_ lớp. Phân loại cuối cùng gán quan sát kiểm tra vào lớp mà nó được gán thường xuyên nhất trong � _K_ 2 � lần phân loại theo cặp này.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 9.4.2 Phân loại một-đối-tất-cả
+
+Cách tiếp cận _một-đối-tất-cả_ (one-versus-all), còn gọi là _một-đối-phần-còn-lại_, là một quy trình khác để áp dụng SVM khi có _K &gt;_ 2 lớp. Ta khớp _K_ SVM, mỗi lần so sánh một trong _K_ lớp với _K −_ 1 lớp còn lại. Gọi _β_ 0 _k, β_ 1 _k, . . . , βpk_ là các tham số thu được khi khớp SVM so sánh lớp thứ _k_ (mã hóa +1) với các lớp khác (mã hóa _−_ 1). Gọi _x_^(_∗_) là một quan sát kiểm tra. Ta gán quan sát vào lớp có _β_ 0 _k_ + _β_ 1 _kx_^(_∗_) 1^(+)^(_β_2)^(_kx∗_) 2^(+)^(_· · ·_+)^(_βpkx∗_) _p_^(lớn nhất, vì điều này tương ứng) với mức tin cậy cao rằng quan sát kiểm tra thuộc lớp thứ _k_ thay vì bất kỳ lớp nào khác.
+
+</MdxPage>

@@ -1,0 +1,177 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch03-multiple-linear-regression",
+  "locale": "vi",
+  "title": "Hồi quy tuyến tính bội",
+  "headings": [
+    "Hồi quy tuyến tính bội",
+    "3.2.1 Ước lượng các hệ số hồi quy",
+    "3.2.2 Một số câu hỏi quan trọng"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Hồi quy tuyến tính",
+    "Hồi quy tuyến tính bội"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Hồi quy tuyến tính bội
+
+Hồi quy tuyến tính đơn hữu ích để dự đoán đáp ứng từ một biến dự báo. Tuy nhiên, trong thực tế ta thường có nhiều hơn một biến dự báo. Trong dữ liệu `Advertising`, ta đã xem quan hệ giữa `sales` và quảng cáo `TV`. Ta còn có số tiền chi cho quảng cáo `radio` và `newspaper`, và có thể muốn biết hai phương tiện này có liên quan đến `sales` hay không. Làm thế nào mở rộng phân tích để chứa hai biến dự báo bổ sung này?
+
+Một lựa chọn là chạy ba hồi quy tuyến tính đơn riêng, mỗi mô hình dùng một phương tiện quảng cáo khác làm biến dự báo. Chẳng hạn, ta khớp hồi quy dự đoán `sales` từ chi phí quảng cáo `radio`. Kết quả ở phần trên Bảng 3.3 cho thấy mỗi $1 _,_ 000 tăng chi quảng cáo radio gắn với `sales` tăng khoảng 203 đơn vị. Phần dưới Bảng 3.3 chứa các hệ số bình phương tối thiểu cho hồi quy `sales` theo ngân sách quảng cáo `newspaper`: mỗi $1 _,_ 000 tăng chi `newspaper` gắn với doanh số tăng xấp xỉ 55 đơn vị.
+
+Tuy nhiên, khớp một mô hình riêng cho từng biến dự báo chưa hoàn toàn thỏa đáng. Thứ nhất, không rõ cách tạo một dự đoán doanh số duy nhất khi biết ba ngân sách, vì mỗi ngân sách gắn với một phương trình riêng. Thứ hai, mỗi phương trình bỏ qua hai phương tiện kia khi ước lượng hệ số. Ta sẽ sớm thấy nếu các ngân sách tương quan với nhau trong 200 thị trường, điều này có thể dẫn đến các ước lượng rất sai lệch về liên hệ giữa từng ngân sách và doanh số.
+
+Cách tốt hơn là mở rộng mô hình tuyến tính đơn (3.5) để trực tiếp chứa nhiều biến dự báo, bằng cách cho mỗi biến một hệ số độ dốc riêng trong cùng mô hình. Giả sử có _p_ biến dự báo phân biệt. Mô hình hồi quy tuyến tính bội có dạng
+
+trong đó _Xj_ là biến dự báo thứ _j_, còn _βj_ định lượng liên hệ giữa biến đó và đáp ứng. Ta diễn giải _βj_ là ảnh hưởng _trung bình_ lên _Y_ của một đơn vị tăng trong _Xj_, _giữ tất cả biến dự báo khác cố định_. Trong ví dụ `Advertising`, (3.19) trở thành
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 3.2.1 Ước lượng các hệ số hồi quy
+
+Giống hồi quy tuyến tính đơn, các hệ số _β_ 0 _, β_ 1 _, . . . , βp_ trong (3.19) chưa biết và phải được ước lượng. Với các ước lượng _β_^(ˆ) 0 _, β_^(ˆ) 1 _, . . . , β_^(ˆ) _p_, ta dự đoán bằng
+
+Các tham số được ước lượng bằng cùng cách bình phương tối thiểu: chọn _β_ 0 _, β_ 1 _, . . . , βp_ để cực tiểu tổng bình phương phần dư
+
+Các giá trị _β_^(ˆ) 0 _, β_^(ˆ) 1 _, . . . , β_^(ˆ) _p_ cực tiểu (3.22) là các ước lượng hệ số hồi quy bội bình phương tối thiểu. Không giống công thức hồi quy đơn (3.4), các ước lượng này có dạng khá phức tạp, dễ biểu diễn nhất bằng đại số ma trận nên không được trình bày ở đây. Mọi gói phần mềm thống kê đều có thể tính chúng; phần sau của chương sẽ chỉ cách làm trong `R`. Hình 3.4
+
+**HÌNH 3.4.** _Trong bối cảnh ba chiều với hai biến dự báo và một đáp ứng, đường hồi quy bình phương tối thiểu trở thành một mặt phẳng. Mặt phẳng được chọn để cực tiểu tổng bình phương khoảng cách theo chiều dọc giữa từng quan sát (màu đỏ) và mặt phẳng._
+
+minh họa mô hình bình phương tối thiểu trên dữ liệu đơn giản với _p_ = 2 biến dự báo.
+
+Bảng 3.4 hiển thị các ước lượng hồi quy bội khi ngân sách quảng cáo `TV`, radio và báo được dùng để dự đoán doanh số trong dữ liệu `Advertising`. Ta diễn giải như sau: với một mức quảng cáo TV và báo cho trước, chi thêm $1 _,_ 000 cho radio gắn với khoảng 189 đơn vị doanh số bổ sung. So với Bảng 3.1 và 3.3, các hệ số bội cho `TV` và `radio` khá giống hệ số hồi quy đơn. Tuy nhiên, hệ số `newspaper` trong Bảng 3.3 khác không có ý nghĩa, còn trong mô hình bội nó gần bằng không và giá trị p tương ứng khoảng 0 _._ 86, không còn có ý nghĩa. Điều này minh họa hệ số hồi quy đơn và bội có thể rất khác nhau. Trong hồi quy đơn, độ dốc biểu diễn mức tăng doanh số trung bình gắn với $1 _,_ 000 tăng trong quảng cáo báo, bỏ qua `TV` và `radio`. Trong hồi quy bội, hệ số `newspaper` biểu diễn mức tăng doanh số trung bình khi tăng chi báo $1 _,_ 000 trong khi giữ `TV`, `radio` cố định.
+
+Việc hồi quy bội gợi ý không có quan hệ giữa `sales` và `newspaper`, trong khi hồi quy đơn gợi ý điều ngược lại, có hợp lý không?
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|2.939|0.3119|9.42|_&lt;_0_._0001|\n|`TV`|0.046|0.0014|32.81|_&lt;_0_._0001|\n|`radio`|0.189|0.0086|21.89|_&lt;_0_._0001|\n|`newspaper`|_−_0.001|0.0059|_−_0.18|0_._8599|"} />
+
+**BẢNG 3.4.** _Với dữ liệu_ `Advertising`_, các ước lượng hệ số bình phương tối thiểu của hồi quy tuyến tính bội số đơn vị bán được theo ngân sách quảng cáo TV, radio và báo._
+
+<MdxCode language="table" code={"||`TV`|`radio`|`newspaper`|`sales`|\n|---|---|---|---|---|\n|`TV`|1.0000|0.0548|0.0567|0.7822|\n|`radio`||1.0000|0.3541|0.5762|\n|`newspaper`|||1.0000|0.2283|\n|`sales`||||1.0000|"} />
+
+**BẢNG 3.5.** _Ma trận tương quan của_ `TV`_,_ `radio`_,_ `newspaper` _và_ `sales` _trong dữ liệu_ `Advertising`_._
+
+Thực ra là hợp lý. Xét ma trận tương quan trong Bảng 3.5. Tương quan giữa `radio` và `newspaper` là 0 _._ 35, cho biết các thị trường quảng cáo báo cao thường cũng quảng cáo radio cao. Giả sử mô hình bội đúng: quảng cáo báo không liên quan đến doanh số nhưng radio có liên quan. Khi chi radio nhiều hơn, doanh số có xu hướng cao hơn; đồng thời ma trận cho thấy ta cũng thường chi báo nhiều hơn ở cùng thị trường. Vì vậy, hồi quy đơn chỉ xét `sales` theo `newspaper` sẽ quan sát giá trị `newspaper` cao gắn với `sales` cao, dù quảng cáo báo không trực tiếp liên quan. `newspaper` là biến đại diện cho `radio` và nhận “công” cho liên hệ của `radio` với `sales`.
+
+Kết quả hơi trái trực giác này rất phổ biến. Xét một ví dụ phi lý: hồi quy số vụ cá mập tấn công theo doanh số kem tại một cộng đồng ven biển theo thời gian sẽ cho quan hệ dương, giống `sales` và `newspaper`. Tất nhiên chưa ai đề xuất cấm kem ở bãi biển để giảm cá mập tấn công. Thực tế, nhiệt độ cao khiến nhiều người ra biển hơn, dẫn đến cả doanh số kem và số vụ cá mập tấn công tăng. Hồi quy bội số vụ tấn công theo doanh số kem và nhiệt độ cho thấy đúng như trực giác, doanh số kem không còn là biến dự báo có ý nghĩa sau khi hiệu chỉnh theo nhiệt độ.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 3.2.2 Một số câu hỏi quan trọng
+
+Khi thực hiện hồi quy tuyến tính bội, ta thường quan tâm một vài câu hỏi:
+
+1. _Có ít nhất một biến dự báo X_ 1 _, X_ 2 _, . . . , Xp hữu ích để dự đoán đáp ứng không?_
+
+2. _Tất cả biến dự báo đều giúp giải thích Y, hay chỉ một tập con hữu ích?_
+
+3. _Mô hình khớp dữ liệu tốt đến đâu?_
+
+4. _Với một tập giá trị dự báo, nên dự đoán đáp ứng nào và dự đoán chính xác đến đâu?_
+
+Ta lần lượt giải quyết từng câu hỏi.
+
+### Một: Có quan hệ giữa đáp ứng và các biến dự báo không?
+
+Trong hồi quy tuyến tính đơn, để xác định có quan hệ giữa đáp ứng và biến dự báo hay không, ta kiểm tra _β_ 1 = 0. Với _p_ biến dự báo, ta hỏi tất cả hệ số có bằng không không: _β_ 1 = _β_ 2 = _· · ·_ = _βp_ = 0. Ta dùng kiểm định giả thuyết:
+
+_Ha_ : có ít nhất một _βj_ khác không.
+
+Kiểm định được thực hiện bằng cách tính _thống kê F_,
+
+trong đó TSS =^(�) ( _yi − y_ ¯ )^(2) và RSS = �( _yi − yi_ ˆ )^(2). Nếu các giả định mô hình tuyến tính đúng, có thể chứng minh
+
+và nếu _H_ 0 đúng,
+
+Vì vậy, khi không có quan hệ giữa đáp ứng và các biến dự báo, thống kê _F_ được kỳ vọng gần 1. Nếu _Ha_ đúng thì _E\{_ (TSS _−_ RSS) _/p\} &gt; σ_^(2), nên _F_ được kỳ vọng lớn hơn 1.
+
+Thống kê _F_ của mô hình hồi quy `sales` theo `radio`, `TV`, `newspaper` được thể hiện trong Bảng 3.6 và bằng 570. Vì lớn hơn 1 rất nhiều, nó cung cấp bằng chứng thuyết phục chống lại _H_ 0: ít nhất một phương tiện quảng cáo phải liên quan đến `sales`. Nhưng nếu _F_ gần 1 hơn thì sao? Nó phải lớn đến đâu để bác bỏ _H_ 0 và
+
+<MdxCode language="table" code={"|Đại lượng|Giá trị|\n|---|---|\n|Sai số chuẩn phần dư|1.69|\n|_R_^(2)|0.897|\n|Thống kê _F_|570|"} />
+
+**BẢNG 3.6.** _Thông tin bổ sung về mô hình bình phương tối thiểu hồi quy số đơn vị bán được theo ngân sách quảng cáo TV, báo và radio trong dữ liệu_ `Advertising`_. Thông tin khác được thể hiện ở Bảng 3.4._
+
+kết luận có quan hệ? Câu trả lời phụ thuộc _n_ và _p_. Khi _n_ lớn, _F_ chỉ hơi lớn hơn 1 vẫn có thể là bằng chứng chống lại _H_ 0; khi _n_ nhỏ, cần _F_ lớn hơn. Nếu _H_ 0 đúng và sai số _ϵi_ phân phối chuẩn, thống kê _F_ tuân theo phân phối _F_.^(6) Với _n_, _p_ cho trước, phần mềm thống kê có thể tính giá trị p từ phân phối này để quyết định bác bỏ _H_ 0. Với dữ liệu `Advertising`, giá trị p gần bằng không, nên bằng chứng rằng ít nhất một phương tiện gắn với `sales` tăng là cực mạnh. Trong (3.23), ta kiểm định tất cả hệ số bằng không. Đôi khi ta muốn kiểm định một tập con _q_ hệ số bằng không:
+
+trong đó để tiện, các biến cần loại được đặt cuối danh sách. Ta khớp mô hình thứ hai dùng tất cả biến trừ _q_ biến cuối. Giả sử tổng bình phương phần dư là RSS0, thống kê _F_ thích hợp là
+
+Bảng 3.4 báo cáo thống kê _t_ và giá trị p cho từng biến dự báo. Chúng cho biết mỗi biến có liên quan đến đáp ứng sau khi hiệu chỉnh theo các biến khác hay không. Mỗi kiểm định này tương đương chính xác^(7) với kiểm định _F_ loại một biến đó khỏi mô hình nhưng giữ các biến khác—tức _q_ = 1 trong (3.24). Vì vậy nó báo cáo _ảnh hưởng riêng phần_ của việc thêm biến. Các giá trị p cho thấy `TV`, `radio` liên quan đến `sales`, còn không có bằng chứng cho `newspaper` khi giữ `TV`, `radio` cố định.
+
+Nếu đã có giá trị p riêng cho từng biến, vì sao cần thống kê _F_ tổng thể? Có vẻ nếu bất kỳ giá trị p nào rất nhỏ, thì _ít nhất một biến dự báo liên quan đến đáp ứng_. Nhưng logic này sai, đặc biệt khi _p_ lớn.
+
+> 6Ngay cả khi sai số không phân phối chuẩn, thống kê _F_ xấp xỉ tuân theo phân phối _F_ nếu cỡ mẫu _n_ lớn.
+
+> 7Bình phương mỗi thống kê _t_ là thống kê _F_ tương ứng.
+
+Ví dụ, giả sử _p_ = 100 và _H_ 0 : _β_ 1 = _β_ 2 = _· · ·_ = _βp_ = 0 đúng, nên không biến nào thật sự liên quan. Khoảng 5 % các giá trị p riêng sẽ dưới 0 _._ 05 chỉ do ngẫu nhiên. Ta kỳ vọng thấy khoảng năm _giá trị p nhỏ_ dù không có liên hệ thật,^(8) và rất có khả năng ít nhất một giá trị dưới 0 _._ 05. Nếu dùng các kiểm định riêng để quyết định có liên hệ hay không, khả năng kết luận sai là rất cao. Thống kê _F_ không gặp vấn đề này vì điều chỉnh theo số biến dự báo. Nếu _H_ 0 đúng, chỉ có 5 % khả năng _F_ tạo giá trị p dưới 0 _._ 05, bất kể số biến hay số quan sát.
+
+Cách dùng _F_ để kiểm định mọi liên hệ hoạt động khi _p_ tương đối nhỏ, đặc biệt nhỏ so với _n_. Nếu _p &gt; n_, có nhiều hệ số cần ước lượng hơn số quan sát; ta thậm chí không thể khớp hồi quy bội bằng bình phương tối thiểu, nên không dùng được _F_ và phần lớn khái niệm trong chương. Khi _p_ lớn, có thể dùng các cách như _lựa chọn tiến_. Bối cảnh _số chiều cao_ được thảo luận kỹ trong Chương 6.
+
+### Hai: Quyết định các biến quan trọng
+
+Bước đầu của phân tích hồi quy bội là tính thống kê _F_ và xem giá trị p. Nếu kết luận ít nhất một biến dự báo liên quan đến đáp ứng, ta tự nhiên muốn biết _biến nào_. Có thể xem giá trị p riêng như Bảng 3.4, nhưng nếu _p_ lớn, ta dễ tạo một số phát hiện sai.
+
+Có thể tất cả biến đều liên quan, nhưng thường chỉ một tập con liên quan. Nhiệm vụ xác định các biến liên quan để khớp một mô hình chỉ chứa chúng được gọi là _lựa chọn biến_. Bài toán này được nghiên cứu kỹ ở Chương 6; ở đây chỉ phác thảo các cách cổ điển.
+
+Lý tưởng là thử nhiều mô hình, mỗi mô hình chứa một tập con khác nhau. Nếu _p_ = 2, có bốn mô hình: (1) không có biến, (2) chỉ _X_ 1, (3) chỉ _X_ 2, và (4) cả hai. Ta chọn mô hình _tốt nhất_. Có nhiều thống kê đánh giá chất lượng, gồm _C_ p của Mallow, tiêu chuẩn thông tin Akaike (AIC), tiêu chuẩn thông tin Bayes (BIC) và _R_^(2) hiệu chỉnh. Chúng được thảo luận ở Chương 6. Ta cũng có thể vẽ đầu ra như phần dư để tìm mẫu hình.
+
+> 8Điều này liên quan đến khái niệm quan trọng _kiểm định nhiều giả thuyết_, trọng tâm của Chương 13.
+
+Đáng tiếc, có tổng cộng 2^(_p_) mô hình chứa các tập con của _p_ biến. Ngay cả _p_ vừa phải, thử mọi tập con là không khả thi. Nếu _p_ = 2 có 4 mô hình; nếu _p_ = 30 có 2^(30) = 1 _,_ 073 _,_ 741 _,_ 824 mô hình! Vì vậy, trừ khi _p_ rất nhỏ, ta cần cách tự động, hiệu quả để chọn một tập mô hình nhỏ hơn. Ba cách cổ điển:
+
+- _Lựa chọn tiến_. Bắt đầu với _mô hình rỗng_ có hệ số chặn nhưng không có biến dự báo. Khớp _p_ hồi quy đơn và thêm biến tạo RSS thấp nhất. Tiếp tục thêm biến tạo RSS thấp nhất cho mô hình mới, cho đến khi thỏa quy tắc dừng.
+
+- _Lựa chọn lùi_. Bắt đầu với tất cả biến và loại biến có giá trị p lớn nhất—ít ý nghĩa thống kê nhất. Khớp mô hình _p −_ 1 biến mới rồi tiếp tục loại biến có giá trị p lớn nhất, cho tới quy tắc dừng, chẳng hạn khi mọi biến còn lại có giá trị p dưới một ngưỡng.
+
+- _Lựa chọn hỗn hợp_. Kết hợp tiến và lùi. Bắt đầu không có biến, lần lượt thêm biến cho mô hình khớp tốt nhất. Khi thêm biến mới, giá trị p của biến đã có có thể tăng; nếu vượt ngưỡng, ta loại biến đó. Tiếp tục cho đến khi mọi biến trong mô hình có giá trị p đủ thấp, còn mọi biến ngoài mô hình sẽ có giá trị p lớn nếu được thêm.
+
+Không thể dùng lựa chọn lùi nếu _p &gt; n_, còn lựa chọn tiến luôn dùng được. Lựa chọn tiến là tham lam nên có thể thêm sớm những biến về sau trở nên dư thừa; lựa chọn hỗn hợp có thể khắc phục.
+
+### Ba: Độ khớp mô hình
+
+Hai thước đo số phổ biến là RSE và _R_^(2), tỷ lệ phương sai được giải thích. Chúng được tính và diễn giải như trong hồi quy đơn.
+
+Trong hồi quy đơn, _R_^(2) là bình phương tương quan giữa đáp ứng và biến. Trong hồi quy bội, nó bằng Cor( _Y, Y_^(ˆ) )^(2), bình phương tương quan giữa đáp ứng và mô hình tuyến tính đã khớp. Một tính chất của mô hình là nó cực đại tương quan này trong tất cả mô hình tuyến tính khả dĩ.
+
+_R_^(2) gần 1 cho biết mô hình giải thích phần lớn phương sai đáp ứng. Trong Bảng 3.6, mô hình dùng cả ba phương tiện dự đoán `sales` có _R_^(2) = 0 _._ 8972, còn mô hình chỉ dùng `TV`, `radio` có 0 _._ 89719. Thêm quảng cáo báo chỉ làm _R_^(2) tăng _rất ít_, phù hợp với giá trị p không có ý nghĩa. _R_^(2) luôn tăng khi thêm biến, dù biến chỉ liên quan yếu, vì thêm biến luôn giảm RSS trên dữ liệu huấn luyện (không nhất thiết dữ liệu kiểm tra). Mức tăng rất nhỏ là thêm bằng chứng có thể bỏ `newspaper`: nó không cải thiện thực sự độ khớp huấn luyện và có thể làm kết quả kiểm tra kém do quá khớp.
+
+Mô hình chỉ có `TV` có _R_^(2) = 0 _._ 61. Thêm `radio` cải thiện đáng kể, cho thấy mô hình dùng chi phí TV và radio tốt hơn nhiều mô hình chỉ dùng TV. Có thể định lượng thêm bằng giá trị p của hệ số `radio` trong mô hình hai biến.
+
+Mô hình chỉ `TV`, `radio` có RSE 1.681; thêm `newspaper` cho RSE 1.686. Mô hình chỉ `TV` có RSE 3 _._ 26. Điều này củng cố kết luận dùng TV và radio chính xác hơn nhiều trên dữ liệu huấn luyện, còn thêm báo là vô ích. Có thể thắc mắc vì sao RSE tăng khi thêm `newspaper` dù RSS phải giảm. Nói chung RSE được định nghĩa là
+
+**HÌNH 3.5.** _Với dữ liệu_ `Advertising`_, mô hình hồi quy tuyến tính của_ `sales` _theo_ `TV` _và_ `radio`_. Mẫu hình phần dư cho thấy quan hệ phi tuyến rõ rệt. Phần dư dương (phía trên mặt phẳng) có xu hướng nằm dọc đường 45 độ, nơi ngân sách TV và radio được chia đều. Phần dư âm (đa số không thấy) nằm xa đường này, nơi ngân sách lệch về một phía._
+
+và rút gọn thành (3.15) với hồi quy đơn. Vì vậy, mô hình nhiều biến có thể có RSE cao hơn nếu RSS giảm ít so với mức tăng _p_.
+
+Ngoài RSE và _R_^(2), vẽ dữ liệu cũng hữu ích. Tóm tắt đồ họa có thể lộ vấn đề không thấy qua thống kê số. Hình 3.5 vẽ `TV`, `radio` theo `sales` trong ba chiều. Một số quan sát nằm trên và một số nằm dưới mặt phẳng hồi quy. Mô hình dường như đánh giá quá cao `sales` khi phần lớn tiền chỉ chi cho `TV` hoặc `radio`, và đánh giá thấp khi chia ngân sách giữa hai phương tiện. Mẫu hình phi tuyến rõ này gợi ý hiệu ứng _hiệp lực_ hay _tương tác_: kết hợp các phương tiện tăng doanh số nhiều hơn dùng riêng từng phương tiện. Mục 3.3.2 mở rộng mô hình bằng hạng tử tương tác.
+
+### Bốn: Dự đoán
+
+Sau khi khớp mô hình bội, dễ áp dụng (3.21) để dự đoán _Y_ từ các giá trị _X_ 1 _, X_ 2 _, . . . , Xp_. Tuy nhiên có ba loại bất định:
+
+1. Các hệ số _β_^(ˆ) 0 _, β_^(ˆ) 1 _, . . . , β_^(ˆ) _p_ chỉ là ước lượng của _β_ 0 _, β_ 1 _, . . . , βp_. _Mặt phẳng bình phương tối thiểu_
+
+chỉ ước lượng _mặt phẳng hồi quy quần thể thật_
+
+Độ không chính xác này liên quan đến _sai số có thể giảm_ ở Chương 2. Ta có thể tính _khoảng tin cậy_ để xác định _Y_^(ˆ) gần _f_ ( _X_ ) đến đâu.
+
+2. Giả định mô hình tuyến tính cho _f_ ( _X_ ) gần như luôn chỉ là xấp xỉ thực tế, nên còn một nguồn sai số có thể giảm gọi là _độ chệch mô hình_. Khi dùng mô hình tuyến tính, ta đang ước lượng xấp xỉ tuyến tính tốt nhất của bề mặt thật. Ở đây ta bỏ qua khác biệt và hành xử như mô hình tuyến tính đúng.
+
+3. Ngay cả nếu biết _f_ ( _X_ )—tức biết các giá trị thật _β_ 0 _, β_ 1 _, . . . , βp_—vẫn không thể dự đoán hoàn hảo đáp ứng vì sai số ngẫu nhiên _ϵ_ trong (3.20), được gọi là _sai số không thể giảm_ ở Chương 2. _Y_ sẽ biến thiên bao nhiêu quanh _Y_ ˆ? Ta dùng _khoảng dự đoán_. Nó luôn rộng hơn khoảng tin cậy vì bao gồm cả sai số ước lượng _f_ ( _X_ ) và bất định về độ lệch của một điểm riêng so với mặt phẳng quần thể.
+
+Ta dùng _khoảng tin cậy_ để định lượng bất định quanh `sales` _trung bình_ trên nhiều thành phố. Nếu mỗi thành phố chi $100 _,_ 000 cho `TV` và $20 _,_ 000 cho `radio`, khoảng tin cậy 95 % là [10 _,_ 985 _,_ 11 _,_ 528]. Ta diễn giải rằng 95 % các khoảng dạng này sẽ chứa giá trị thật _f_ ( _X_ ).^(9) Ngược lại, _khoảng dự đoán_ định lượng bất định quanh `sales` của _một thành phố cụ thể_. Với cùng mức chi, khoảng dự đoán 95 % là [7 _,_ 930 _,_ 14 _,_ 580], nghĩa là 95 % các khoảng dạng này chứa giá trị thật _Y_ cho thành phố. Cả hai khoảng cùng có tâm 11 _,_ 256, nhưng khoảng dự đoán rộng hơn đáng kể, phản ánh bất định cao hơn của một thành phố so với doanh số trung bình ở nhiều địa điểm.
+
+> 9Nói cách khác, nếu thu thập nhiều bộ dữ liệu như `Advertising` và dựng khoảng tin cậy cho `sales` trung bình từ mỗi bộ (với $100 _,_ 000 cho `TV`, $20 _,_ 000 cho `radio`), 95 % các khoảng này sẽ chứa giá trị thật của `sales` trung bình.
+
+</MdxPage>

@@ -1,0 +1,72 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-bayes-naive-bayes-quiz',
+  locale: 'vi',
+  "title": "Quiz",
+  headings: ['Các thành phần Bayes', 'Sức nặng bằng chứng', 'Tỷ lệ nền', 'So sánh score', 'Ổn định số học'],
+  keywords: ['Bayes', 'prior', 'posterior', 'likelihood ratio', 'tỷ lệ nền', 'Naive Bayes', 'log-likelihood', 'Laplace smoothing'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="ch01-bayes-naive-bayes-quiz" questions={[
+  {
+    id: 'bayes-term-match', title: 'Các thành phần Bayes', prompt: 'Kéo mỗi mô tả vào đúng thành phần.', mode: 'categorize', hideUnsortedLabel: true,
+    completeLabel: 'Tất cả mô tả đã được phân loại.',
+    categories: [
+      { id: 'prior', label: 'Prior' },
+      { id: 'likelihood', label: 'Likelihood' },
+      { id: 'posterior', label: 'Posterior' },
+    ],
+    options: [
+      { id: 'belief-before', label: 'Niềm tin trước khi quan sát bằng chứng mới.', categoryId: 'prior' },
+      { id: 'evidence-under-class', label: 'Khả năng quan sát bằng chứng khi giả thuyết đúng.', categoryId: 'likelihood' },
+      { id: 'belief-after', label: 'Niềm tin đã được cập nhật sau khi có bằng chứng.', categoryId: 'posterior' },
+    ],
+    success: 'Đúng. Bayes kết hợp prior với likelihood để tạo posterior.',
+    error: 'Chưa đúng. Hãy lần theo thứ tự: trước dữ liệu, khả năng của dữ liệu, rồi sau dữ liệu.',
+  },
+  {
+    id: 'bayes-evidence-strength', title: 'Sức nặng bằng chứng', prompt: 'Dấu hiệu nào là bằng chứng mạnh hơn cho giả thuyết “tin nhắn là lừa đảo”?', mode: 'single',
+    options: [
+      { id: 'greeting', label: 'Tin nhắn mở đầu lịch sự, trong khi cả ngân hàng thật và kẻ lừa đảo đều thường viết như vậy.' },
+      { id: 'otp', label: 'Tin nhắn yêu cầu gửi lại OTP, hành vi dễ gặp ở lừa đảo nhưng rất khó xảy ra trong quy trình ngân hàng hợp lệ.', isCorrect: true },
+      { id: 'long-message', label: 'Tin nhắn có nhiều từ hơn bình thường, nhưng chưa biết độ dài dưới hai giả thuyết.' },
+      { id: 'matches-only-one-side', label: 'Bất kỳ dấu hiệu nào có thể xuất hiện khi lừa đảo đều là bằng chứng mạnh.' },
+    ],
+    success: 'Đúng. Bằng chứng mạnh khi likelihood của nó chênh lệch rõ giữa giả thuyết và khả năng cạnh tranh.',
+    error: 'Chưa đúng. Đừng chỉ hỏi dấu hiệu có phù hợp với lừa đảo không; hãy so sánh nó với trường hợp ngân hàng thật.',
+  },
+  {
+    id: 'bayes-medical-base-rate', title: 'Tỷ lệ nền', prompt: 'Trong ví dụ 100.000 người, có 99 dương tính thật và 4.995 dương tính giả. Xác suất một người thực sự mắc bệnh khi đã dương tính xấp xỉ bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'sensitivity', label: '$99\%$' },
+      { id: 'false-positive', label: '$5\%$' },
+      { id: 'posterior', label: '$99/(99+4{,}995)\approx1.94\%$', isCorrect: true },
+      { id: 'prior', label: '$0.1\%$' },
+    ],
+    success: 'Đúng. Trong toàn bộ kết quả dương tính, chỉ 99 trên 5.094 trường hợp là dương tính thật.',
+    error: 'Chưa đúng. Mẫu số phải gồm cả dương tính thật và dương tính giả.',
+  },
+  {
+    id: 'naive-bayes-assumption', title: 'So sánh score', prompt: 'Một mẫu mới có score(A) = 0,06 và score(B) = 0,02. Naive Bayes nên dự đoán class nào?', mode: 'single',
+    options: [
+      { id: 'unconditional', label: 'Class B, vì score nhỏ hơn.' },
+      { id: 'conditional', label: 'Class A, vì 0,06 lớn hơn 0,02.', isCorrect: true },
+      { id: 'linear', label: 'Không thể chọn nếu chưa chuẩn hóa score thành tổng bằng 1.' },
+      { id: 'equal-prior', label: 'Chọn ngẫu nhiên vì hai score đều nhỏ hơn 0,5.' },
+    ],
+    success: 'Đúng. Khi phân loại, chỉ cần chọn class có score lớn nhất; không bắt buộc chuẩn hóa trước.',
+    error: 'Chưa đúng. Hãy so sánh trực tiếp hai score và chọn giá trị lớn hơn.',
+  },
+  {
+    id: 'naive-bayes-stability', title: 'Ổn định số học', prompt: 'Những kỹ thuật nào giải quyết hai vấn đề phổ biến khi triển khai Naive Bayes?', mode: 'multi',
+    options: [
+      { id: 'log', label: 'Cộng log-likelihood thay vì nhân nhiều xác suất nhỏ.', isCorrect: true },
+      { id: 'laplace', label: 'Dùng Laplace smoothing để tránh xác suất bằng 0.', isCorrect: true },
+      { id: 'remove-prior', label: 'Luôn bỏ prior khỏi phép tính.' },
+      { id: 'force-equal', label: 'Ép mọi likelihood bằng nhau.' },
+    ],
+    success: 'Đúng. Log-space hạn chế underflow; smoothing xử lý giá trị chưa từng xuất hiện.',
+    error: 'Chưa đúng. Hãy phân biệt vấn đề số rất nhỏ với vấn đề xác suất bằng 0.',
+  },
+]} />

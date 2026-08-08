@@ -1,0 +1,50 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-probability-origins-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: ['Kết quả và thông tin', 'Hai cách hiểu xác suất', 'Ý nghĩa của 50%'],
+  keywords: ['đồng xu', 'kết quả', 'tần suất', 'niềm tin', 'thông tin', 'mô hình', 'xác suất'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="ch01-probability-origins-quiz" questions={[
+  {
+    id: 'origins-hidden-coin', title: 'Kết quả và thông tin', prompt: 'Một đồng xu đã được tung và đang bị che kín. Phát biểu nào chính xác nhất?', mode: 'single',
+    options: [
+      { id: 'not-decided', label: 'Đồng xu chưa có kết quả cho đến khi có người nhìn.' },
+      { id: 'fixed-unknown', label: 'Kết quả đã cố định; điều còn thiếu với người quan sát là thông tin về kết quả.', isCorrect: true },
+      { id: 'changes-with-belief', label: 'Mặt đồng xu thay đổi theo mức độ tin tưởng của người quan sát.' },
+      { id: 'must-be-half', label: 'Bản thân mặt đang hướng lên có giá trị bằng một nửa ngửa và một nửa sấp.' },
+    ],
+    success: 'Đúng. Trạng thái vật lý đã cố định, còn sự bất định thuộc về mô hình hoặc thông tin của người quan sát.',
+    error: 'Chưa đúng. Hãy tách trạng thái thực tế của đồng xu khỏi điều người quan sát đang biết.',
+  },
+  {
+    id: 'origins-two-interpretations', title: 'Hai cách hiểu xác suất', prompt: 'Ghép mỗi mô tả với cách hiểu xác suất phù hợp.', mode: 'categorize', hideUnsortedLabel: true,
+    completeLabel: 'Tất cả mô tả đã được phân loại.',
+    categories: [
+      { id: 'frequency', label: 'Tần suất' },
+      { id: 'belief', label: 'Niềm tin' },
+    ],
+    options: [
+      { id: 'long-run-share', label: 'Xét tỷ lệ mặt ngửa qua rất nhiều lần tung.', categoryId: 'frequency' },
+      { id: 'repeat-stability', label: 'Quan tâm sự ổn định khi số lần thử tăng lên.', categoryId: 'frequency' },
+      { id: 'belief-now', label: 'Biểu diễn mức tin vào mặt ngửa dựa trên thông tin hiện có.', categoryId: 'belief' },
+      { id: 'naive-bayes-branch', label: 'Dẫn tới định lý Bayes và Naive Bayes.', categoryId: 'belief' },
+    ],
+    success: 'Đúng. Tần suất nhìn qua nhiều lần lặp; niềm tin mô tả mức chắc chắn dưới thông tin hiện có và dẫn tới Bayes.',
+    error: 'Chưa đúng. Hãy tìm từ khóa: nhiều lần lặp thuộc nhánh tần suất; thông tin, Bayes và Naive Bayes thuộc nhánh niềm tin.',
+  },
+  {
+    id: 'origins-model-qualified-half', title: 'Ý nghĩa của 50%', prompt: 'Điều kiện nào khiến câu trả lời 50% cho người chưa nhìn đồng xu trở nên có cơ sở?', mode: 'single',
+    options: [
+      { id: 'symmetry-and-no-evidence', label: 'Ta dùng mô hình tung xu đối xứng và chưa có bằng chứng ưu tiên mặt nào.', isCorrect: true },
+      { id: 'fixed-means-half', label: 'Mọi kết quả đã cố định đều tự động có xác suất 50%.' },
+      { id: 'observer-creates', label: 'Người quan sát tạo ra kết quả khi đưa ra dự đoán.' },
+      { id: 'two-outcomes-always-equal', label: 'Hễ có hai khả năng thì chúng luôn đồng xác suất.' },
+    ],
+    success: 'Đúng. Hai khả năng chỉ nhận xác suất bằng nhau khi mô hình và thông tin đang có biện minh cho tính đối xứng đó.',
+    error: 'Chưa đúng. Có hai khả năng không đủ để kết luận chúng đồng xác suất; ta còn cần mô hình và thông tin phù hợp.',
+  },
+]} />

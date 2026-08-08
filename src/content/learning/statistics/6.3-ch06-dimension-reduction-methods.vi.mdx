@@ -1,0 +1,148 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch06-dimension-reduction-methods",
+  "locale": "vi",
+  "title": "6.3 Các phương pháp giảm chiều",
+  "headings": [
+    "Các phương pháp giảm chiều",
+    "6.3.1 Hồi quy thành phần chính",
+    "6.3.2 Bình phương tối thiểu riêng phần"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "lựa chọn và điều chuẩn mô hình tuyến tính",
+    "giảm chiều",
+    "PCA",
+    "PCR",
+    "PLS"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Các phương pháp giảm chiều
+
+Các phương pháp đã bàn trong chương này kiểm soát phương sai theo hai cách: dùng một tập con của các biến ban đầu hoặc co các hệ số về không. Tất cả đều được định nghĩa bằng các biến dự báo ban đầu _X_ 1 _, X_ 2 _, . . . , Xp_. Bây giờ ta khảo sát một lớp phương pháp _biến đổi_ các biến dự báo rồi khớp mô hình bình phương tối thiểu bằng các biến đã biến đổi. Ta gọi chúng là phương pháp _giảm chiều_.
+
+Gọi _Z_ 1 _, Z_ 2 _, . . . , ZM_ là _M &lt; p tổ hợp tuyến tính_ của _p_ biến dự báo ban đầu. Tức là,
+
+với các hằng số _φ_ 1 _m, φ_ 2 _m . . . , φpm, m_ = 1 _, . . . , M_. Sau đó ta có thể dùng bình phương tối thiểu để khớp mô hình hồi quy tuyến tính
+
+Lưu ý trong (6.17), các hệ số hồi quy là _θ_ 0 _, θ_ 1 _, . . . , θM_. Nếu các hằng số _φ_ 1 _m, φ_ 2 _m, . . . , φpm_ được chọn khéo léo, các cách giảm chiều thường vượt hồi quy bình phương tối thiểu. Nói cách khác, khớp (6.17) bằng bình phương tối thiểu có thể tốt hơn khớp (6.1).
+
+Tên gọi _giảm chiều_ xuất phát từ việc cách này rút bài toán ước lượng _p_ +1 hệ số _β_ 0 _, β_ 1 _, . . . , βp_ thành
+
+**HÌNH 6.14.** _Quy mô dân số (_ `pop` _) và chi tiêu quảng cáo (_ `ad` _) của_ 100 _thành phố được biểu diễn bằng các vòng tròn tím. Đường liền xanh lá chỉ thành phần chính thứ nhất, đường đứt nét xanh dương chỉ thành phần chính thứ hai._
+
+bài toán đơn giản hơn là ước lượng _M_ + 1 hệ số _θ_ 0 _, θ_ 1 _, . . . , θM_, với _M &lt; p_. Tức chiều bài toán giảm từ _p_ + 1 xuống _M_ + 1.
+
+Từ (6.16), ta có
+
+Do đó, có thể xem (6.17) là trường hợp đặc biệt của mô hình hồi quy tuyến tính ban đầu (6.1). Giảm chiều tạo ràng buộc lên các hệ số _βj_ ước lượng vì giờ chúng phải có dạng (6.18). Ràng buộc này có thể làm các ước lượng hệ số bị chệch. Tuy nhiên, khi _p_ lớn so với _n_, chọn _M ≪ p_ có thể làm giảm đáng kể phương sai của các hệ số khớp. Nếu _M_ = _p_ và mọi _Zm_ độc lập tuyến tính, (6.18) không đặt ra ràng buộc nào. Khi đó không có giảm chiều và khớp (6.17) tương đương bình phương tối thiểu trên _p_ biến dự báo ban đầu.
+
+Mọi phương pháp giảm chiều gồm hai bước. Trước hết, thu được các biến dự báo biến đổi _Z_ 1 _, Z_ 2 _, . . . , ZM_. Tiếp theo, khớp mô hình bằng _M_ biến này. Tuy nhiên, có nhiều cách chọn _Z_ 1 _, Z_ 2 _, . . . , ZM_, hay tương đương là chọn các _φjm_. Chương này xét hai cách: _thành phần chính_ và _bình phương tối thiểu riêng phần_.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 6.3.1 Hồi quy thành phần chính
+
+_Phân tích thành phần chính_ (PCA) là cách phổ biến để dẫn xuất một tập đặc trưng ít chiều từ tập biến lớn. PCA được bàn chi tiết hơn như một công cụ _học không giám sát_ ở Chương 12. Ở đây ta mô tả việc dùng nó để giảm chiều trong hồi quy.
+
+##### Tổng quan về phân tích thành phần chính
+
+PCA là kỹ thuật giảm chiều ma trận dữ liệu _n × p_ **X**. Hướng _thành phần chính thứ nhất_ là hướng mà các quan sát _biến thiên nhiều nhất_. Chẳng hạn, Hình 6.14 cho thấy quy mô dân số (`pop`) theo chục nghìn người và chi tiêu quảng cáo của một công ty (`ad`) theo nghìn đô la ở 100 thành phố.^(6) Đường liền xanh lá biểu diễn hướng thành phần chính thứ nhất. Bằng mắt thường, đây là hướng có độ biến thiên dữ liệu lớn nhất. Nếu _chiếu_ 100 quan sát lên đường này (như ô trái Hình 6.15), các quan sát chiếu thu được sẽ có phương sai lớn nhất có thể; chiếu lên đường khác cho phương sai thấp hơn. Chiếu một điểm lên một đường chỉ là tìm vị trí trên đường gần điểm nhất.
+
+Thành phần chính thứ nhất được trình bày bằng đồ thị trong Hình 6.14, còn biểu diễn toán học là
+
+Ở đây _φ_ 11 = 0 _._ 839 và _φ_ 21 = 0 _._ 544 là các _tải thành phần chính_, xác định hướng nói trên. Trong (6.19), pop là trung bình mọi giá trị `pop`, còn ad là trung bình mọi chi tiêu quảng cáo. Trong mọi _tổ hợp tuyến tính_ của `pop` và `ad` thỏa _φ_^(2) 11^(+)^(_φ_2) 21^(=1, tổ hợp này) tạo phương sai cao nhất: nó cực đại hóa Var( _φ_ 11 _×_ (pop _−_ pop) + _φ_ 21 _×_ (ad _−_ ad)). Phải giới hạn ở tổ hợp có _φ_^(2) 11^(+)^(_φ_2) 21^(= 1), nếu không ta có thể tùy ý tăng _φ_ 11 và _φ_ 21 để phóng đại phương sai. Trong (6.19), hai tải đều dương và có kích thước tương tự nên _Z_ 1 gần như là _trung bình_ của hai biến.
+
+Vì _n_ = 100, `pop`, `ad` và _Z_ 1 trong (6.19) đều là vector dài 100. Chẳng hạn,
+
+Các giá trị _z_ 11 _, . . . , zn_ 1 được gọi là _điểm thành phần chính_ và có thể xem ở ô phải Hình 6.15.
+
+PCA còn có một cách diễn giải khác: vector thành phần chính thứ nhất xác định đường _gần dữ liệu nhất có thể_. Trong Hình 6.14, đường thành phần chính thứ nhất cực tiểu hóa tổng bình phương khoảng cách vuông góc từ mỗi điểm đến đường. Các khoảng cách được biểu diễn bằng đoạn đứt nét ở ô trái
+
+> 6Tập dữ liệu này khác dữ liệu `Advertising` ở Chương 3.
+
+**HÌNH 6.15.** _Một tập con của dữ liệu quảng cáo. Trung bình ngân sách_ `pop` _và_ `ad` _được chỉ bằng vòng tròn xanh._ Trái: _Hướng thành phần chính thứ nhất màu xanh lá. Đây là chiều mà dữ liệu biến thiên nhiều nhất và cũng xác định đường gần mọi quan sát nhất. Khoảng cách từ từng quan sát đến thành phần chính là các đoạn đứt nét đen. Chấm xanh biểu diễn_ (pop _~~,~~_ ad) _._ Phải: _Ô trái được xoay để hướng thành phần chính thứ nhất trùng trục x._
+
+Hình 6.15; các dấu chữ thập là _hình chiếu_ của mỗi điểm lên đường thành phần chính thứ nhất. Thành phần này được chọn sao cho các quan sát chiếu _gần nhất có thể_ với quan sát ban đầu.
+
+Ở ô phải Hình 6.15, ô trái được xoay để hướng thành phần chính thứ nhất trùng trục _x_. Có thể chứng minh _điểm thành phần chính thứ nhất_ của quan sát thứ _i_ trong (6.20) là khoảng cách theo hướng _x_ từ dấu chữ thập thứ _i_ đến không. Chẳng hạn, điểm góc dưới trái có điểm thành phần chính âm lớn _zi_ 1 = _−_ 26 _._ 1, còn điểm góc trên phải có điểm dương lớn _zi_ 1 = 18 _._ 7. Có thể tính trực tiếp bằng (6.20).
+
+Có thể xem _Z_ 1 là một con số tóm tắt đồng thời `pop` và ngân sách `ad` của mỗi địa điểm. Ở đây, `pop` biểu diễn quy mô dân số còn `ad` biểu diễn chi tiêu quảng cáo; quan hệ giữa `pop` và `ad` quyết định hướng biến thiên chính. Trong ví dụ này, nếu _zi_ 1 = 0 _._ 839 _×_ (pop _i −_ pop) + 0 _._ 544 _×_ (ad _i −_ ad) _&lt;_ 0 thì thành phố có quy mô dân số và chi tiêu quảng cáo thấp hơn trung bình. Điểm dương gợi ý điều ngược lại. Một số duy nhất biểu diễn cả `pop` và `ad` tốt đến đâu? Hình 6.14 cho thấy chúng gần có quan hệ tuyến tính nên ta kỳ vọng bản tóm tắt một số hoạt động tốt. Hình 6.16 biểu diễn _zi_ 1 theo `pop` và `ad`.^(7) Các biểu đồ cho thấy quan hệ mạnh giữa thành phần chính thứ nhất và hai đặc trưng. Nói cách khác, thành phần chính thứ nhất dường như nắm bắt phần lớn thông tin trong `pop` và `ad`.
+
+Đến đây ta tập trung vào thành phần chính thứ nhất. Nhìn chung, có thể xây dựng tối đa _p_ thành phần chính phân biệt. Thành phần thứ hai
+
+> 7Các thành phần chính được tính sau khi chuẩn hóa cả `pop` và `ad`, một cách làm phổ biến. Vì vậy, trục x trong Hình 6.15 và 6.16 không cùng thang.
+
+**HÌNH 6.16.** _Biểu đồ các điểm thành phần chính thứ nhất zi_ 1 _theo_ `pop` _và_ `ad` _. Các quan hệ đều mạnh._
+
+_Z_ 2 là tổ hợp tuyến tính không tương quan với _Z_ 1 và có phương sai lớn nhất theo ràng buộc đó. Hướng thành phần thứ hai là đường đứt nét xanh dương trong Hình 6.14. Điều kiện _Z_ 1 không tương quan với _Z_ 2 tương đương hướng này phải _vuông góc_ hay _trực giao_ với hướng thứ nhất. Thành phần thứ hai có công thức
+
+Vì dữ liệu quảng cáo có hai biến dự báo, hai thành phần đầu chứa toàn bộ thông tin trong `pop` và `ad`. Tuy nhiên, theo cách xây dựng, thành phần đầu chứa nhiều thông tin nhất. Chẳng hạn, hãy so sánh độ biến thiên lớn hơn nhiều của _zi_ 1 (trục _x_) với _zi_ 2 (trục _y_) trong ô phải Hình 6.15. Các điểm thành phần thứ hai gần không hơn nhiều, cho thấy thành phần này nắm bắt ít thông tin hơn hẳn. Hình 6.17 cũng biểu diễn _zi_ 2 theo `pop` và `ad`; quan hệ rất ít, tiếp tục gợi ý rằng ở đây chỉ cần thành phần đầu để biểu diễn chính xác hai biến.
+
+Với dữ liệu hai chiều như ví dụ quảng cáo, ta xây dựng tối đa hai thành phần. Nếu có thêm biến như tuổi dân số, mức thu nhập, giáo dục, v.v., có thể xây dựng thêm thành phần. Chúng lần lượt cực đại hóa phương sai với ràng buộc không tương quan với các thành phần trước.
+
+##### Phương pháp hồi quy thành phần chính
+
+_Hồi quy thành phần chính_ (PCR) xây dựng _M_ thành phần chính đầu _Z_ 1 _, . . . , ZM_, rồi dùng chúng làm biến dự báo trong mô hình hồi quy tuyến tính được khớp bằng bình phương tối thiểu. Ý tưởng chính là một số ít thành phần thường đủ giải thích phần lớn biến thiên của dữ liệu và quan hệ với biến đáp ứng. Nói cách khác, ta giả định rằng _những_
+
+**HÌNH 6.17.** _Biểu đồ các điểm thành phần chính thứ hai zi_ 2 _theo_ `pop` _và_ `ad` _. Các quan hệ yếu._
+
+**HÌNH 6.18.** _PCR được áp dụng cho hai tập dữ liệu mô phỏng. Trong mỗi ô, đường đứt nét ngang là sai số bất khả quy._ Trái: _Dữ liệu mô phỏng từ Hình 6.8._ Phải: _Dữ liệu mô phỏng từ Hình 6.9._
+
+_hướng mà X_ 1 _, . . . , Xp biến thiên nhiều nhất cũng là những hướng liên hệ với Y_. Giả định này không được bảo đảm nhưng thường là xấp xỉ đủ hợp lý để cho kết quả tốt.
+
+Nếu giả định PCR đúng, khớp bình phương tối thiểu theo _Z_ 1 _, . . . , ZM_ sẽ tốt hơn theo _X_ 1 _, . . . , Xp_, vì hầu hết hoặc toàn bộ thông tin liên quan đến biến đáp ứng nằm trong _Z_ 1 _, . . . , ZM_, và chỉ ước lượng _M ≪ p_ hệ số giúp giảm quá khớp. Trong dữ liệu quảng cáo, thành phần đầu giải thích phần lớn phương sai của cả `pop` và `ad`, nên hồi quy dùng biến này để dự đoán biến đáp ứng như `sales` nhiều khả năng hoạt động tốt.
+
+Hình 6.18 trình bày phép khớp PCR trên dữ liệu mô phỏng từ Hình 6.8 và 6.9. Cả hai tập được sinh với _n_ = 50 quan sát và _p_ = 45 biến dự báo. Tuy nhiên, biến đáp ứng ở tập đầu là hàm của mọi biến dự báo, còn ở tập sau chỉ được sinh bằng hai biến. Các đường cong được vẽ theo _M_, số thành phần dùng làm biến dự báo. Khi dùng nhiều thành phần hơn,
+
+**HÌNH 6.19.** _PCR, hồi quy ridge và lasso được áp dụng cho dữ liệu mô phỏng nơi năm thành phần chính đầu của X chứa toàn bộ thông tin về Y. Trong mỗi ô, sai số bất khả quy_ Var( _ϵ_ ) _là đường đứt nét ngang._ Trái: _Kết quả PCR._ Phải: _Kết quả lasso (liền) và ridge (chấm). Trục x là hệ số co rút của các ước lượng hệ số, được định nghĩa là chuẩn ℓ_ 2 _của ước lượng sau co rút chia cho chuẩn ℓ_ 2 _của ước lượng bình phương tối thiểu._
+
+độ chệch giảm nhưng phương sai tăng, tạo dạng chữ U điển hình cho MSE. Khi _M_ = _p_ = 45, PCR chỉ là phép khớp bình phương tối thiểu bằng mọi biến ban đầu. Hình cho thấy PCR với _M_ thích hợp có thể cải thiện đáng kể so với bình phương tối thiểu, đặc biệt ở ô trái. Tuy nhiên, khi xem kết quả ridge và lasso trong Hình 6.5, 6.8, 6.9, ta thấy PCR không tốt bằng hai phương pháp co rút trong ví dụ này.
+
+Hiệu năng tương đối kém của PCR trong Hình 6.18 là do dữ liệu được sinh theo cách cần nhiều thành phần để mô hình hóa đầy đủ biến đáp ứng. Ngược lại, PCR thường hoạt động tốt khi một vài thành phần đầu đủ nắm bắt phần lớn biến thiên của biến dự báo lẫn quan hệ với biến đáp ứng. Ô trái Hình 6.19 trình bày dữ liệu mô phỏng thuận lợi hơn cho PCR: biến đáp ứng chỉ phụ thuộc năm thành phần đầu. Độ chệch giảm nhanh về không khi _M_ tăng và MSE đạt cực tiểu rõ tại _M_ = 5. Ô phải cho kết quả ridge và lasso. Cả ba cải thiện đáng kể so với bình phương tối thiểu, nhưng PCR và ridge nhỉnh hơn lasso.
+
+Dù PCR cung cấp cách hồi quy đơn giản bằng _M &lt; p_ biến dự báo, nó _không_ phải phương pháp lựa chọn đặc trưng. Lý do là mỗi thành phần trong _M_ thành phần dùng trong hồi quy là tổ hợp tuyến tính của toàn bộ _p_ đặc trưng _ban đầu_. Chẳng hạn, trong (6.19), _Z_ 1 kết hợp cả `pop` và `ad`. Vì vậy, dù thường hoạt động tốt, PCR không tạo ra
+
+**HÌNH 6.20.** Trái: _Các ước lượng hệ số PCR đã chuẩn hóa trên tập_ `Credit` _với các giá trị M khác nhau._ Phải: _MSE xác thực chéo mười fold của PCR theo M._
+
+mô hình chỉ dựa trên một tập nhỏ đặc trưng ban đầu. Theo nghĩa đó, PCR gần hồi quy ridge hơn lasso. Thực tế, có thể chứng minh PCR và ridge liên hệ rất chặt; thậm chí có thể xem ridge là phiên bản liên tục của PCR!^(8)
+
+Trong PCR, số thành phần _M_ thường được chọn bằng xác thực chéo. Hình 6.20 trình bày kết quả PCR trên tập `Credit`; ô phải biểu diễn lỗi xác thực chéo theo _M_. Lỗi thấp nhất xảy ra ở _M_ = 10, tương ứng gần như không giảm chiều vì PCR với _M_ = 11 tương đương bình phương tối thiểu.
+
+Khi thực hiện PCR, nhìn chung nên _chuẩn hóa_ từng biến dự báo bằng (6.6) trước khi tạo thành phần chính. Điều này bảo đảm mọi biến cùng thang đo. Nếu không chuẩn hóa, biến có phương sai cao sẽ có vai trò lớn hơn trong thành phần chính, và đơn vị đo sẽ ảnh hưởng đến mô hình PCR cuối. Tuy nhiên, nếu mọi biến đo cùng đơn vị (như kilogram hoặc inch), ta có thể chọn không chuẩn hóa.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 6.3.2 Bình phương tối thiểu riêng phần
+
+PCR xác định các tổ hợp tuyến tính hay _hướng_ biểu diễn tốt nhất các biến dự báo _X_ 1 _, . . . , Xp_. Các hướng được xác định theo cách _không giám sát_ vì biến đáp ứng _Y_ không giúp xác định hướng thành phần chính. Tức biến đáp ứng không _giám sát_ việc nhận diện thành phần. Do đó, PCR có một nhược điểm: không có bảo đảm
+
+> 8Xem thêm Mục 3.5 của _The Elements of Statistical Learning_ của Hastie, Tibshirani và Friedman.
+
+**HÌNH 6.21.** _Với dữ liệu quảng cáo, hướng PLS thứ nhất (liền) và hướng PCR thứ nhất (chấm) được trình bày._
+
+rằng hướng giải thích tốt nhất các biến dự báo cũng là hướng tốt nhất để dự đoán biến đáp ứng. Học không giám sát được bàn thêm ở Chương 12.
+
+Ta giới thiệu _bình phương tối thiểu riêng phần_ (PLS), lựa chọn _có giám sát_ thay cho PCR. Giống PCR, PLS là phương pháp giảm chiều: trước hết xác định tập đặc trưng mới _Z_ 1 _, . . . , ZM_ là các tổ hợp tuyến tính của đặc trưng ban đầu, rồi khớp mô hình tuyến tính bằng bình phương tối thiểu trên _M_ đặc trưng mới. Nhưng khác PCR, PLS xác định đặc trưng mới theo cách có giám sát — dùng _Y_ để tìm các đặc trưng vừa xấp xỉ tốt đặc trưng cũ, vừa _liên hệ với biến đáp ứng_. Nói ngắn gọn, PLS cố tìm hướng giúp giải thích cả biến đáp ứng lẫn biến dự báo.
+
+Hướng PLS thứ nhất được tính như sau. Sau khi chuẩn hóa _p_ biến dự báo, PLS tính _Z_ 1 bằng cách đặt mỗi _φj_ 1 trong (6.16) bằng hệ số từ hồi quy tuyến tính đơn của _Y_ theo _Xj_. Có thể chứng minh hệ số này tỷ lệ với tương quan giữa _Y_ và _Xj_. Vì vậy, khi tính _Z_ 1 =^(�)^(_p_) _j_ =1^(_φj_1)^(_Xj_, PLS) đặt trọng số lớn nhất lên các biến liên hệ mạnh nhất với biến đáp ứng.
+
+Hình 6.21 minh họa PLS trên dữ liệu tổng hợp có Sales của 100 khu vực làm biến đáp ứng và hai biến dự báo Population Size, Advertising Spending. Đường liền xanh lá là hướng PLS đầu, đường chấm là hướng thành phần chính đầu. So với PCA, PLS chọn hướng có mức thay đổi theo chiều `ad` nhỏ hơn trên mỗi đơn vị thay đổi theo `pop`, gợi ý `pop` tương quan với biến đáp ứng mạnh hơn `ad`. Hướng PLS không khớp các biến dự báo sát bằng PCA nhưng giải thích biến đáp ứng tốt hơn.
+
+Để xác định hướng PLS thứ hai, trước hết ta _hiệu chỉnh_ từng biến theo _Z_ 1 bằng cách hồi quy biến đó theo _Z_ 1 rồi lấy _phần dư_. Phần dư là thông tin còn lại chưa được hướng PLS đầu giải thích. Sau đó ta tính _Z_ 2 bằng dữ liệu đã _trực giao hóa_ này, hoàn toàn giống cách tính _Z_ 1 từ dữ liệu ban đầu. Có thể lặp quy trình _M_ lần để xác định nhiều thành phần PLS _Z_ 1 _, . . . , ZM_. Cuối cùng, ta dùng bình phương tối thiểu khớp mô hình tuyến tính dự đoán _Y_ bằng _Z_ 1 _, . . . , ZM_, giống PCR.
+
+Như PCR, số hướng PLS _M_ là tham số tinh chỉnh thường được chọn bằng xác thực chéo. Ta thường chuẩn hóa cả biến dự báo và biến đáp ứng trước khi thực hiện PLS.
+
+PLS phổ biến trong hóa trắc học, nơi nhiều biến xuất phát từ tín hiệu phổ được số hóa. Trong thực tế, nó thường không tốt hơn hồi quy ridge hay PCR. Dù giảm chiều có giám sát của PLS có thể giảm độ chệch, nó cũng có thể tăng phương sai, khiến lợi ích tổng thể của PLS so với PCR không rõ rệt.
+
+</MdxPage>

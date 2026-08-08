@@ -1,0 +1,123 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-fitting-neural-network",
+  "locale": "vi",
+  "title": "Khớp một mạng nơ-ron",
+  "headings": [
+    "Khớp một mạng nơ-ron",
+    "10.7.1 Lan truyền ngược",
+    "10.7.2 Điều chuẩn và stochastic gradient descent",
+    "10.7.3 Học Dropout",
+    "10.7.4 Tinh chỉnh mạng"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "khớp mạng nơ-ron"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Khớp một mạng nơ-ron
+
+Khớp mạng nơ-ron tương đối phức tạp; ở đây ta trình bày một tổng quan ngắn. Các ý tưởng có thể tổng quát hóa cho những mạng phức tạp hơn nhiều. Người đọc thấy phần này khó có thể an tâm bỏ qua. May mắn thay, như ta sẽ thấy trong bài lab cuối chương, đã có phần mềm tốt để khớp mô hình mạng nơ-ron theo cách tương đối tự động mà không cần lo về chi tiết kỹ thuật của thủ tục khớp.
+
+Ta bắt đầu với mạng đơn giản trong Hình 10.1 ở Mục 10.1. Trong mô hình (10.1), các tham số là _β_ = ( _β_ 0 _, β_ 1 _, . . . , βK_ ) cùng từng _wk_ = ( _wk_ 0 _, wk_ 1 _, . . . , wkp_ ) _, k_ = 1 _, . . . , K._ Với các quan sát ( _xi, yi_ ) _, i_ = 1 _, . . . , n,_ ta có thể khớp mô hình bằng cách giải bài toán bình phương tối thiểu phi tuyến
+
+Hàm mục tiêu trong (10.23) trông khá đơn giản, nhưng do cách lồng nhau của các tham số và tính đối xứng của các nút ẩn, việc cực tiểu hóa không hề trực tiếp. Bài toán không lồi theo các tham số nên có nhiều nghiệm. Chẳng hạn, Hình 10.17 trình bày một hàm không lồi đơn giản của một biến _θ_; có hai nghiệm: một _cực tiểu cục bộ_ và một _cực tiểu toàn cục_. Hơn nữa, (10.1) là mạng nơ-ron đơn giản nhất; chương này còn trình bày các mạng phức tạp hơn nhiều, nơi những vấn đề này cộng dồn. Để khắc phục một số vấn đề và chống quá khớp, hai chiến lược tổng quát được dùng khi khớp mạng nơ-ron:
+
+- _Học chậm:_ mô hình được khớp theo cách lặp tương đối chậm bằng _gradient descent_. Quá trình khớp dừng lại khi phát hiện quá khớp.
+
+- _Điều chuẩn:_ áp dụng mức phạt lên các tham số, thường là lasso hoặc ridge như ở Mục 6.2.
+
+Giả sử ta biểu diễn mọi tham số trong một vector dài _θ_. Khi đó có thể viết lại hàm mục tiêu (10.23) thành
+
+**HÌNH 10.17.** _Minh họa gradient descent cho θ một chiều. Hàm mục tiêu R_ ( _θ_ ) _không lồi và có hai cực tiểu: một tại θ_ = _−_ 0 _._ 46 _(cục bộ), một tại θ_ = 1 _._ 02 _(toàn cục). Bắt đầu ở một giá trị θ_^(0) _(thường được chọn ngẫu nhiên), mỗi bước của θ đi xuống dốc — ngược chiều gradient — cho đến khi không thể đi xuống thêm. Ở đây gradient descent đạt cực tiểu toàn cục sau_ 7 _bước._
+
+trong đó ta thể hiện rõ sự phụ thuộc của _f_ vào các tham số. Ý tưởng gradient descent rất đơn giản:
+
+1. Bắt đầu bằng một giá trị phỏng đoán _θ_^(0) cho tất cả tham số trong _θ_, rồi đặt _t_ = 0.
+
+2. Lặp đến khi hàm mục tiêu (10.25) không còn giảm:
+
+   - (a) Tìm vector _δ_ biểu diễn một thay đổi nhỏ của _θ_, sao cho _θ_^(_t_+1) = _θ_^(_t_) + _δ_ làm giảm hàm mục tiêu; tức _R_ ( _θ_^(_t_+1) ) _&lt; R_ ( _θ_^(_t_) ).
+
+   - (b) Đặt _t ← t_ + 1.
+
+Ta có thể hình dung (Hình 10.17) mình đứng trong địa hình đồi núi và mục tiêu là đi xuống đáy qua một chuỗi bước. Miễn là mỗi bước đều xuống dốc, cuối cùng ta phải đến đáy. Trong trường hợp này ta may mắn vì từ phỏng đoán ban đầu _θ_^(0), ta đến cực tiểu toàn cục. Nhìn chung, ta có thể hy vọng đi đến một cực tiểu cục bộ (tốt).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 10.7.1 Lan truyền ngược
+
+Làm thế nào tìm hướng dịch chuyển _θ_ để giảm hàm mục tiêu _R_ ( _θ_ ) trong (10.25)? _Gradient_ của _R_ ( _θ_ ) được tính tại giá trị hiện tại _θ_ = _θ_^(_m_) là vector các đạo hàm riêng tại điểm đó:
+
+Chỉ số dưới _θ_ = _θ_^(_m_) nghĩa là sau khi tính vector đạo hàm, ta đánh giá nó tại phỏng đoán hiện tại _θ_^(_m_). Vector này cho hướng trong không gian _θ_ mà _R_ ( _θ_ ) _tăng_ nhanh nhất. Ý tưởng gradient descent là dịch chuyển _θ_ một đoạn nhỏ theo hướng _ngược lại_ (vì ta muốn xuống dốc):
+
+Với _tốc độ học ρ_ đủ nhỏ, bước này sẽ làm giảm hàm mục tiêu _R_ ( _θ_ ); tức _R_ ( _θ_^(_m_+1) ) _≤ R_ ( _θ_^(_m_) ). Nếu vector gradient bằng không, ta có thể đã đến một cực tiểu của hàm mục tiêu.
+
+Phép tính (10.26) phức tạp đến mức nào? Hóa ra ở đây nó khá đơn giản và vẫn đơn giản ngay cả với những mạng phức tạp hơn nhiều nhờ _quy tắc dây chuyền_ của phép vi phân.
+
+Vì _R_ ( _θ_ ) =^(�)^(_n_) _i_ =1^(_Ri_()^(_θ_)=)^(1) 2 � _i_ =1^(()^(_yi −fθ_()^(_xi_))2 là một tổng, gradient của nó) cũng là tổng trên _n_ quan sát, nên ta chỉ xét một số hạng,
+
+Để đơn giản hóa các biểu thức sau, ta viết _zik_ = _wk_ 0 +^(�)^(_p_) _j_ =1^(_wkjxij_.) Trước hết lấy đạo hàm theo _βk_:
+
+Và giờ lấy đạo hàm theo _wkj_:
+
+Lưu ý cả hai biểu thức đều chứa phần dư _yi − fθ_ ( _xi_ ). Trong (10.29), một phần của phần dư được quy cho mỗi nút ẩn theo giá trị _g_ ( _zik_ ). Trong (10.30), ta thấy cách quy tương tự cho đầu vào _j_ qua nút ẩn _k_. Vì vậy, phép vi phân dùng quy tắc dây chuyền để phân bổ một phần phần dư cho từng tham số — quá trình được gọi là _lan truyền ngược_ (backpropagation) trong tài liệu mạng nơ-ron. Dù các phép tính khá trực tiếp, việc theo dõi mọi thành phần đòi hỏi ghi chép cẩn thận.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 10.7.2 Điều chuẩn và stochastic gradient descent
+
+Gradient descent thường cần nhiều bước để đạt cực tiểu cục bộ. Trong thực tế có một số cách tăng tốc quá trình. Ngoài ra, khi _n_ lớn, thay vì tính tổng (10.29)–(10.30) trên mọi _n_ quan sát, mỗi lần tính một bước gradient ta có thể lấy mẫu một phần nhỏ gọi là _minibatch_. Quá trình này được gọi là _stochastic gradient descent_ (SGD), kỹ thuật tiên tiến để học mạng nơ-ron sâu. May mắn là đã có phần mềm rất tốt để thiết lập mô hình học sâu và khớp chúng với dữ liệu, nên phần lớn chi tiết kỹ thuật được ẩn khỏi người dùng.
+
+Bây giờ xét mạng nhiều lớp (Hình 10.4) dùng trong bài toán nhận dạng chữ số. Mạng có hơn 235.000 trọng số, xấp xỉ bốn lần số ví dụ huấn luyện. Điều chuẩn là thiết yếu
+
+**HÌNH 10.18.** _Diễn biến lỗi huấn luyện và xác thực của mạng nơ-ron_ `MNIST` _trong Hình 10.4 theo các epoch huấn luyện. Hàm mục tiêu chỉ log-hợp lý (10.14)._
+
+để tránh quá khớp. Hàng đầu Bảng 10.1 dùng điều chuẩn ridge cho các trọng số, được thực hiện bằng cách bổ sung một số hạng phạt vào hàm mục tiêu (10.14):
+
+Tham số _λ_ thường được đặt trước ở giá trị nhỏ hoặc tìm bằng cách tiếp cận tập xác thực ở Mục 5.3.1. Ta cũng có thể dùng các giá trị _λ_ khác nhau cho nhóm trọng số ở các lớp khác nhau; ở đây **W** 1 và **W** 2 bị phạt, còn số tương đối ít trọng số **B** của tầng đầu ra không bị phạt. Điều chuẩn lasso cũng phổ biến như một dạng bổ sung hoặc thay thế ridge.
+
+Hình 10.18 trình bày một số chỉ số thay đổi trong quá trình huấn luyện mạng trên dữ liệu `MNIST`. Hóa ra SGD tự nhiên áp đặt một dạng điều chuẩn xấp xỉ bậc hai của riêng nó.^(21) Kích thước minibatch ở đây là 128 quan sát cho mỗi lần cập nhật gradient. Thuật ngữ _epoch_ trên trục ngang Hình 10.18 đếm số lần một lượng dữ liệu tương đương toàn bộ tập huấn luyện được xử lý. Với mạng này, 20% trong 60.000 quan sát huấn luyện được dùng làm tập xác thực để xác định thời điểm dừng huấn luyện. Do đó thực tế có 48.000 quan sát dùng để huấn luyện, tức 48 _,_ 000 _/_ 128 _≈_ 375 lần cập nhật gradient minibatch mỗi epoch. Ta thấy giá trị hàm mục tiêu xác thực bắt đầu tăng vào khoảng 30 epoch, nên _dừng sớm_ cũng có thể được dùng như một dạng điều chuẩn bổ sung.
+
+> 21Tại thời điểm viết sách, tính chất này cùng các tính chất SGD khác cho học sâu là chủ đề của nhiều nghiên cứu trong tài liệu học máy.
+
+**HÌNH 10.19.** _Học Dropout._ Trái: _mạng kết nối đầy đủ._ Phải: _mạng có dropout ở tầng đầu vào và tầng ẩn. Các nút màu xám được chọn ngẫu nhiên và bị bỏ qua trong một lượt huấn luyện._
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 10.7.3 Học Dropout
+
+Hàng thứ hai trong Bảng 10.1 mang nhãn _dropout_. Đây là một dạng điều chuẩn tương đối mới và hiệu quả, tương tự điều chuẩn ridge ở một số khía cạnh. Lấy cảm hứng từ rừng ngẫu nhiên (Mục 8.2), ý tưởng là loại ngẫu nhiên một tỷ lệ _φ_ nút trong một tầng khi khớp mô hình. Hình 10.19 minh họa điều này. Việc loại bỏ được thực hiện riêng mỗi lần xử lý một quan sát huấn luyện. Các nút còn lại đại diện cho những nút bị thiếu và trọng số của chúng được nhân với 1 _/_ (1 _− φ_ ) để bù lại. Điều này ngăn nút trở nên quá chuyên biệt và có thể được xem như một dạng điều chuẩn. Trong thực tế, dropout được thực hiện bằng cách đặt ngẫu nhiên giá trị kích hoạt của các nút bị “loại” về không nhưng giữ nguyên kiến trúc.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 10.7.4 Tinh chỉnh mạng
+
+Mạng trong Hình 10.4 được xem là tương đối đơn giản, nhưng vẫn đòi hỏi một số lựa chọn đều ảnh hưởng đến hiệu năng:
+
+- _Số tầng ẩn và số nút mỗi tầng._ Quan điểm hiện đại cho rằng số nút mỗi tầng ẩn có thể lớn, còn quá khớp được kiểm soát bằng nhiều dạng điều chuẩn.
+
+- _Các tham số tinh chỉnh điều chuẩn._ Chúng gồm tỷ lệ dropout _φ_ và cường độ _λ_ của điều chuẩn lasso và ridge, thường được đặt riêng ở mỗi tầng.
+
+- _Chi tiết stochastic gradient descent._ Chúng gồm kích thước batch, số epoch và chi tiết tăng cường dữ liệu nếu có (Mục 10.3.4).
+
+Những lựa chọn như vậy có thể tạo khác biệt. Khi chuẩn bị ví dụ `MNIST`, sau một số thử nghiệm chúng ta đạt lỗi phân loại sai đáng nể là 1 _._ 8%. Tinh chỉnh kỹ hơn và huấn luyện một mạng tương tự có thể giảm lỗi xuống dưới 1% trên dữ liệu này, nhưng quá trình thử nghiệm có thể tẻ nhạt và gây quá khớp nếu thực hiện thiếu thận trọng.
+
+**HÌNH 10.20.** _Hiện tượng double descent, được minh họa bằng biểu đồ lỗi trong ví dụ natural spline một chiều. Trục ngang biểu diễn số hàm cơ sở spline theo thang log. Lỗi huấn luyện chạm không khi bậc tự do bằng kích thước mẫu n_ = 20 _, tức “ngưỡng nội suy”, và giữ bằng không từ đó. Lỗi kiểm tra tăng mạnh tại ngưỡng này, sau đó lại giảm đến mức hợp lý trước khi cuối cùng tăng trở lại._
+
+</MdxPage>

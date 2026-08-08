@@ -1,0 +1,157 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'descriptive-data-analysis-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Tính Mean bằng tay',
+    'Tìm Median và Mode',
+    'Ảnh hưởng của outlier',
+    'Xem 5 dòng đầu',
+    'Các phương thức trực tiếp',
+    'Tìm lệnh thống kê mô tả',
+    'Vẽ biểu đồ và nhận xét',
+    'Đánh giá theo ngưỡng giả định',
+  ],
+  keywords: ['mean', 'median', 'mode', 'histogram', 'pandas', 'describe', 'agg', 'scikit-learn', 'Wine dataset'],
+  pageCount: 8,
+}
+
+<MdxQuiz id="descriptive-data-analysis-quiz" questions={[
+  {
+    id: 'descriptive-manual-mean', title: 'Tính Mean bằng tay', mode: 'single',
+    prompt: 'Cho mẫu $X=\\{10,12,12,16,20\\}$. Mean của mẫu bằng bao nhiêu?',
+    options: [
+      { id: 'mean-twelve', label: '12' },
+      { id: 'mean-fourteen', label: '14', isCorrect: true },
+      { id: 'mean-fifteen', label: '15' },
+      { id: 'mean-seventy', label: '70' },
+    ],
+    success: 'Đúng. Tổng là $10+12+12+16+20=70$ và cỡ mẫu là $n=5$, nên $\\bar{x}=70/5=14$.',
+    error: 'Chưa đúng. Hãy cộng năm giá trị trước, sau đó chia tổng cho $n=5$.',
+  },
+  {
+    id: 'descriptive-manual-median-mode', title: 'Tìm Median và Mode', mode: 'single',
+    prompt: 'Cho dữ liệu đã sắp xếp $X=\\{9,11,13,13,18,24\\}$. Cặp Median và Mode nào đúng?',
+    options: [
+      { id: 'median-mode-thirteen', label: 'Median = 13; Mode = 13', isCorrect: true },
+      { id: 'median-thirteen-mode-eleven', label: 'Median = 13; Mode = 11' },
+      { id: 'median-fifteen-five-mode-thirteen', label: 'Median = 15.5; Mode = 13' },
+      { id: 'median-fourteen-mode-twenty-four', label: 'Median = 14; Mode = 24' },
+    ],
+    success: 'Đúng. Hai vị trí giữa đều là 13 nên Median = 13; 13 cũng xuất hiện nhiều nhất nên Mode = 13.',
+    error: 'Chưa đúng. Với sáu phần tử, lấy trung bình của vị trí 3 và 4; sau đó tìm giá trị lặp nhiều nhất.',
+  },
+  {
+    id: 'descriptive-manual-outlier', title: 'Ảnh hưởng của outlier', mode: 'single',
+    prompt: 'Thay giá trị 24 trong $\\{9,11,13,13,18,24\\}$ bằng 60. Nhận xét nào đúng?',
+    options: [
+      { id: 'outlier-mean-only', label: 'Mean tăng từ khoảng 14.67 lên 20.67; Median và Mode vẫn bằng 13.', isCorrect: true },
+      { id: 'outlier-all-change', label: 'Mean, Median và Mode đều tăng lên 20.67.' },
+      { id: 'outlier-median-only', label: 'Chỉ Median thay đổi; Mean và Mode giữ nguyên.' },
+      { id: 'outlier-none', label: 'Cả ba thước đo đều không thay đổi.' },
+    ],
+    success: 'Đúng. Outlier 60 kéo Mean tăng mạnh, nhưng hai vị trí giữa vẫn là 13 và giá trị xuất hiện nhiều nhất vẫn là 13.',
+    error: 'Chưa đúng. Hãy kiểm tra riêng từng thước đo: Mean dùng mọi giá trị, Median dùng hai vị trí giữa, còn Mode dùng tần số.',
+  },
+  {
+    id: 'descriptive-wine-load-series', title: 'Xem 5 dòng đầu', mode: 'single',
+    preview: {
+      codeBlock: 'from sklearn.datasets import load_wine\n\nwine = load_wine(as_frame=True).frame',
+    },
+    prompt: 'Lệnh nào in ra 5 dòng đầu của Wine DataFrame?',
+    options: [
+      { id: 'wine-head', label: '`print(wine.head())`', isCorrect: true },
+      { id: 'wine-tail', label: '`print(wine.tail())`' },
+      { id: 'wine-describe', label: '`print(wine.describe())`' },
+      { id: 'wine-shape', label: '`print(wine.shape)`' },
+    ],
+    success: 'Đúng. `DataFrame.head()` mặc định trả về 5 dòng đầu; bọc trong `print()` để in kết quả ra màn hình.',
+    error: 'Chưa đúng. `tail()` lấy các dòng cuối, `describe()` tạo bảng thống kê mô tả, còn `shape` trả về kích thước DataFrame.',
+  },
+  {
+    id: 'descriptive-wine-direct-methods', title: 'Các phương thức trực tiếp', mode: 'single',
+    preview: {
+      codeBlock: 'from sklearn.datasets import load_wine\n\nwine = load_wine(as_frame=True).frame\ns = wine[\'malic_acid\']\n\nprint(f"Mean: {s.mean():.6f}")\nprint(f"Median: {s.median():.6f}")\nprint(f"Mode: {s.mode().iloc[0]:.2f}")',
+    },
+    prompt: 'Kết quả của đoạn code trên là gì?',
+    options: [
+      { id: 'direct-correct', label: '`Mean: 2.336348; Median: 1.865000; Mode: 1.73`', isCorrect: true },
+      { id: 'direct-swapped', label: '`Mean: 1.865000; Median: 2.336348; Mode: 1.73`' },
+      { id: 'direct-count-mode', label: '`Mean: 2.336348; Median: 1.865000; Mode: 178.00`' },
+      { id: 'direct-rounded-wrong', label: '`Mean: 2.336348; Median: 2.336348; Mode: 1.87`' },
+    ],
+    success: 'Đúng. Định dạng `.6f` in Mean và Median với 6 chữ số thập phân; `.2f` in Mode với 2 chữ số thập phân.',
+    error: 'Chưa đúng. Hãy đối chiếu thứ tự ba lệnh `print()` và số chữ số được quy định bởi `.6f` hoặc `.2f`.',
+  },
+  {
+    id: 'descriptive-wine-describe-output', title: 'Tìm lệnh thống kê mô tả', mode: 'single',
+    preview: {
+      caption: 'Output mục tiêu',
+      codeBlock: 'from sklearn.datasets import load_wine\n\nwine = load_wine(as_frame=True).frame\ns = wine[\'malic_acid\']\n\n# Search google: How to print descriptive statistics for a pandas Series?',
+      columns: ['Thống kê', 'malic_acid'],
+      rows: [
+        ['count', 178.000000],
+        ['mean', 2.336348],
+        ['std', 1.117146],
+        ['min', 0.740000],
+        ['25%', 1.602500],
+        ['50%', 1.865000],
+        ['75%', 3.082500],
+        ['max', 5.800000],
+      ],
+    },
+    prompt: 'Lệnh nào thay cho dòng comment để in ra bảng thống kê bên dưới?',
+    options: [
+      { id: 'describe-correct', label: '`print(s.describe())`', isCorrect: true },
+      { id: 'describe-info', label: '`print(s.info())`' },
+      { id: 'describe-summary', label: '`print(s.summary())`' },
+      { id: 'describe-value-counts', label: '`print(s.value_counts())`' },
+    ],
+    success: 'Đúng. `Series.describe()` tạo bảng thống kê mô tả gồm `count`, `mean`, `std`, các phân vị, `min` và `max`.',
+    error: 'Chưa đúng. Dùng comment tiếng Anh làm từ khóa tìm kiếm và đối chiếu API nào trả về đúng các hàng trong output mục tiêu.',
+  },
+  {
+    id: 'descriptive-wine-histogram-interpretation', title: 'Vẽ biểu đồ và nhận xét', mode: 'single',
+    preview: {
+      caption: 'Ba thước đo của cột malic_acid',
+      codeBlock: 'import matplotlib.pyplot as plt\nfrom sklearn.datasets import load_wine\n\nwine = load_wine(as_frame=True).frame\ns = wine[\'malic_acid\']\nmean = s.mean()\nmedian = s.median()\nmode = s.mode().iloc[0]\n\nax = s.plot.hist(bins=12, edgecolor="white")\nax.axvline(mean, color="purple", label="Mean")\nax.axvline(median, color="green", label="Median")\nax.axvline(mode, color="orange", label="Mode")\nax.set_xlabel("malic_acid")\nax.legend()\nplt.show()',
+      columns: ['Thước đo', 'Giá trị'],
+      rows: [
+        ['Mean', 2.336348],
+        ['Median', 1.865000],
+        ['Mode', 1.730000],
+      ],
+    },
+    prompt: 'Nhận xét nào đúng về histogram và ba thước đo?',
+    options: [
+      { id: 'histogram-correct', label: 'Mode < Median < Mean; histogram có đuôi phải dài hơn.', isCorrect: true },
+      { id: 'histogram-wrong-order', label: 'Mean < Median < Mode; histogram lệch trái.' },
+      { id: 'histogram-normal', label: 'Mean = Median = Mode; dữ liệu có phân phối chuẩn hoàn hảo.' },
+      { id: 'histogram-wrong-tail', label: 'Mode < Median < Mean; histogram có đuôi trái dài hơn.' },
+    ],
+    success: 'Đúng. Mode ≈ 1.73 < Median ≈ 1.865 < Mean ≈ 2.336; thứ tự này phù hợp với đuôi phải dài hơn trong dữ liệu hiện tại.',
+    error: 'Chưa đúng. Hãy đối chiếu vị trí ba đường Mode, Median và Mean, sau đó quan sát phía nào của histogram kéo dài hơn.',
+  },
+  {
+    id: 'descriptive-wine-practical-insight', title: 'Đánh giá theo ngưỡng giả định', mode: 'multi',
+    preview: {
+      caption: 'Giả sử malic_acid ≤ 3.0 là an toàn',
+      columns: ['Thước đo', 'Giá trị'],
+      rows: [
+        ['Median', 1.865000],
+        ['Mean', 2.336348],
+        ['Max', 5.800000],
+      ],
+    },
+    prompt: 'Trong phạm vi bài tập này, giả sử `malic_acid ≤ 3.0` được xem là an toàn. Chọn tất cả nhận xét đúng.',
+    options: [
+      { id: 'insight-median-safe', label: 'Median = 1.865 < 3.0, nên ít nhất 50% số mẫu nằm trong ngưỡng an toàn.', isCorrect: true },
+      { id: 'insight-max-unsafe', label: 'Max = 5.8 > 3.0, nên có ít nhất một mẫu vượt ngưỡng an toàn.', isCorrect: true },
+      { id: 'insight-mean-limited', label: 'Mean ≈ 2.336 < 3.0 nhưng chưa đủ để kết luận tất cả mẫu đều an toàn.', isCorrect: true },
+      { id: 'insight-all-safe', label: 'Mean ≈ 2.336 < 3.0, nên mọi mẫu trong dataset đều an toàn.' },
+    ],
+    success: 'Đúng. Median cho biết ít nhất một nửa số mẫu ở dưới ngưỡng; Max xác nhận có mẫu vượt ngưỡng; Mean nằm dưới ngưỡng không đảm bảo từng mẫu đều an toàn.',
+    error: 'Chưa đúng. Hãy xét riêng từng thước đo: Median nói về vị trí giữa, Max nói về mẫu lớn nhất, còn Mean không đại diện cho mọi quan sát.',
+  },
+]} />

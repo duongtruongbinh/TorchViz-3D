@@ -3,7 +3,7 @@ title: Learning Lab arrow-button lesson traversal
 status: done
 created: 2026-07-15T09:00:00+07:00
 updated: 2026-07-15T09:45:00+07:00
-author: pi-coding-agent
+author: hienlong
 task: "add arrow-button lesson traversal in Learning Lab: on-screen prev/next lesson arrows, Left/Right keyboard navigation, and Enter-to-submit quiz answers"
 supersedes:
   - docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md

@@ -1,0 +1,420 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch06-regularization-lab",
+  "locale": "vi",
+  "title": "Lab: Mô hình tuyến tính và các phương pháp điều chuẩn",
+  "headings": [
+    "Lab: Mô hình tuyến tính và các phương pháp điều chuẩn",
+    "6.5.1 Các phương pháp lựa chọn tập con",
+    "6.5.2 Hồi quy ridge và lasso",
+    "6.5.3 Hồi quy PCR và PLS"
+  ],
+  "keywords": [
+    "statistics",
+    "học thống kê",
+    "ISLP",
+    "Lựa chọn và điều chuẩn mô hình tuyến tính",
+    "Lab: Mô hình tuyến tính và các phương pháp điều chuẩn"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Lab: Mô hình tuyến tính và các phương pháp điều chuẩn
+
+Trong bài lab này, ta triển khai nhiều kỹ thuật đã thảo luận trong chương. Trước hết, ta import một số thư viện ở cấp cao nhất.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nimportpandasaspd\nfrommatplotlib.pyplotimportsubplots\nfromstatsmodels.apiimportOLS\nimportsklearn.model_selectionasskm\nimportsklearn.linear_modelasskl\nfromsklearn.preprocessingimportStandardScaler\nfromISLPimportload_data\nfromISLP.modelsimportModelSpecasMS\nfromfunctoolsimportpartial"} />
+
+Ta tiếp tục tập hợp các import mới cần cho bài lab.
+
+<MdxCode language="text" code={"In [2]:fromsklearn.pipelineimportPipeline\nfromsklearn.decompositionimportPCA"} />
+
+<MdxCode language="text" code={"fromsklearn.cross_decompositionimportPLSRegression\nfromISLP.modelsimport\\\n(Stepwise,\nsklearn_selected ,\nsklearn_selection_path)\n!pipinstalll0bnb\nfroml0bnbimportfit_path"} />
+
+Ta đã cài đặt package `l0bnb` ngay trong quá trình chạy. Lưu ý lệnh `!pip install` đã được escape; lệnh này chạy như một lệnh hệ thống riêng.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 6.5.1 Các phương pháp lựa chọn tập con
+
+Ở đây, ta triển khai các phương pháp giảm số tham số của mô hình bằng cách giới hạn mô hình trên một tập con các biến đầu vào.
+
+##### Lựa chọn tiến
+
+Ta sẽ áp dụng phương pháp lựa chọn tiến cho dữ liệu `Hitters`. Mục tiêu là dự đoán `Salary` của một cầu thủ bóng chày dựa trên nhiều thống kê về thành tích trong năm trước.
+
+Trước hết, lưu ý rằng biến `Salary` bị thiếu ở một số cầu thủ. Có thể dùng hàm `np.isnan()` để xác định các quan sát bị thiếu. Hàm `np.isnan()` trả về một mảng có cùng shape với vector đầu vào, trong đó phần tử bị thiếu nhận `True`, còn phần tử không thiếu nhận `False`. Sau đó, có thể dùng phương thức `sum()` để đếm toàn bộ phần tử bị thiếu `sum()`.
+
+<MdxCode language="text" code={"In [3]:Hitters=load_data('Hitters')\nnp.isnan(Hitters['Salary']).sum()"} />
+
+<MdxCode language="text" code={"Out[3]:59"} />
+
+Ta thấy `Salary` bị thiếu ở 59 cầu thủ. Theo mặc định, phương thức `dropna()` của data frame loại mọi hàng có giá trị thiếu ở bất kỳ biến nào (xem `Hitters.dropna?`).
+
+<MdxCode language="text" code={"In [4]:Hitters=Hitters.dropna();\nHitters.shape"} />
+
+###### **`Out[4]:`** `(263, 20)`
+
+Trước tiên, ta chọn mô hình tốt nhất bằng lựa chọn tiến dựa trên _Cp_ (6.2). Điểm số này không có sẵn dưới dạng metric trong `sklearn`. Vì vậy, ta tự định nghĩa hàm tính và dùng nó làm scorer. Theo mặc định, `sklearn` cố gắng cực đại hóa điểm số, nên hàm chấm điểm của ta tính thống kê _Cp_ âm.
+
+<MdxCode language="text" code={"In [5]:defnCp(sigma2,estimator,X,Y):\n\"NegativeCpstatistic\"\nn,p=X.shape\nYhat=estimator.predict(X)\nRSS=np.sum((Y-Yhat)**2)\nreturn-(RSS+2*p*sigma2)/n"} />
+
+Ta cần ước lượng phương sai phần dư _σ_^(2), là đối số đầu tiên của hàm chấm điểm phía trên. Ta sẽ khớp mô hình lớn nhất bằng tất cả các biến rồi ước lượng _σ_^(2) từ MSE của mô hình.
+
+<MdxCode language="text" code={"In [6]:design=MS(Hitters.columns.drop('Salary')).fit(Hitters)\nY=np.array(Hitters['Salary'])\nX=design.transform(Hitters)\nsigma2=OLS(Y,X).fit().scale"} />
+
+Hàm `sklearn_selected()` yêu cầu một scorer chỉ có ba đối số, tức ba đối số cuối trong định nghĩa `nCp()` phía trên. Ta dùng hàm `partial()` đã gặp lần đầu ở Mục 5.3.3 để cố định đối số đầu bằng ước lượng _σ_^(2).
+
+<MdxCode language="text" code={"In [7]:neg_Cp=partial(nCp,sigma2)"} />
+
+Bây giờ ta có thể dùng `neg_Cp()` làm scorer để lựa chọn mô hình. Bên cạnh điểm số, ta cần chỉ định chiến lược tìm kiếm thông qua đối tượng `Stepwise()` trong package `ISLP.models`. Phương thức `Stepwise.first_peak()` chạy lựa chọn tiến cho đến khi việc thêm biến không còn cải thiện điểm đánh giá. Tương tự, phương thức `Stepwise.fixed_steps()` chạy một số bước tìm kiếm cố định.
+
+<MdxCode language="text" code={"In [8]:strategy=Stepwise.first_peak(design,"} />
+
+<MdxCode language="text" code={"direction='forward',\nmax_terms=len(design.terms))"} />
+
+Bây giờ ta khớp mô hình hồi quy tuyến tính với `Salary` là đầu ra bằng lựa chọn tiến. Ta dùng hàm `sklearn_selected()` từ package `sklearn_ ISLP.models`. Hàm nhận một mô hình từ `statsmodels` cùng chiến lược tìm kiếm và chọn mô hình qua phương thức `fit`. Nếu không chỉ định đối số `scoring`, điểm số mặc định là MSE nên cả 19 biến sẽ được chọn (không hiển thị đầu ra).
+
+<MdxCode language="text" code={"selected()"} />
+
+<MdxCode language="text" code={"In [9]:hitters_MSE=sklearn_selected(OLS,\nhitters_MSE.fit(Hitters,Y)\nhitters_MSE.selected_state_"} />
+
+<MdxCode language="text" code={"strategy)"} />
+
+Dùng `neg_Cp` cho mô hình nhỏ hơn như kỳ vọng, chỉ gồm 10 biến được chọn.
+
+<MdxCode language="text" code={"In [10]:hitters_Cp=sklearn_selected(OLS,\nstrategy,\nscoring=neg_Cp)\nhitters_Cp.fit(Hitters,Y)\nhitters_Cp.selected_state_"} />
+
+<MdxCode language="text" code={"Out[10]:('Assists',\n'AtBat',\n'CAtBat',\n'CRBI',\n'CRuns',\n'CWalks',\n'Division',"} />
+
+<MdxCode language="text" code={"'Hits',\n'PutOuts',\n'Walks')"} />
+
+Lựa chọn giữa các mô hình bằng tập xác thực và xác thực chéo
+
+Thay vì dùng _Cp_, ta có thể dùng xác thực chéo để chọn mô hình trong quy trình lựa chọn tiến. Khi đó, ta cần một phương thức lưu toàn bộ đường đi mô hình tìm được và cho phép dự đoán với từng mô hình. Estimator `sklearn_selection_path()` `sklearn_` từ `ISLP.models` thực hiện việc này. Hàm `cross_val_predict()` từ `ISLP.models` tính dự đoán xác thực chéo cho từng mô hình trên đường `path()`, nhờ đó ta đánh giá được MSE xác thực chéo dọc theo đường đi. Ở đây, ta định nghĩa chiến lược khớp toàn bộ đường lựa chọn tiến. Dù `predict()` có nhiều lựa chọn tham số cho `sklearn_selection_path()`, ta dùng giá trị mặc định: chọn mô hình ở mỗi bước dựa trên mức giảm RSS lớn nhất.
+
+<MdxCode language="text" code={"selection_\npath()\ncross_val_\npredict()"} />
+
+<MdxCode language="text" code={"In [11]:strategy=Stepwise.fixed_steps(design,"} />
+
+<MdxCode language="text" code={"len(design.terms),\ndirection='forward')\nfull_path=sklearn_selection_path(OLS,strategy)"} />
+
+Bây giờ ta khớp toàn bộ đường lựa chọn tiến trên dữ liệu `Hitters` và tính các giá trị khớp. **`In [12]:`** `full_path.fit(Hitters, Y) Yhat_in = full_path.predict(Hitters) Yhat_in.shape`
+
+<MdxCode language="text" code={"Out[12]:(263,20)"} />
+
+Kết quả là một mảng giá trị khớp gồm tổng cộng 20 bước, bao gồm trung bình khớp của mô hình null. Ta có thể dùng mảng này để đánh giá MSE nội mẫu. Đúng như kỳ vọng, MSE nội mẫu cải thiện ở mỗi bước, cho thấy phải dùng tập xác thực hoặc xác thực chéo để chọn số bước. Ta cố định trục y trong khoảng 50.000 đến 250.000 để so sánh với MSE xác thực chéo, MSE tập xác thực phía dưới và các phương pháp khác như hồi quy ridge, lasso và hồi quy thành phần chính.
+
+<MdxCode language="text" code={"In [13]:mse_fig,ax=subplots(figsize=(8,8))\ninsample_mse=((Yhat_in-Y[:,None])**2).mean(0)\nn_steps=insample_mse.shape[0]\nax.plot(np.arange(n_steps),\ninsample_mse ,\n'k',#colorblack\nlabel='In-sample')\nax.set_ylabel('MSE',\nfontsize=20)\nax.set_xlabel('#stepsofforwardstepwise',\nfontsize=20)\nax.set_xticks(np.arange(n_steps)[::2])\nax.legend()"} />
+
+###### `ax.set_ylim([50000,250000]);`
+
+Lưu ý biểu thức `None` trong `Y[:,None]` phía trên. Nó thêm một trục (chiều) vào mảng một chiều `Y`, cho phép tái sử dụng mảng khi trừ khỏi `Yhat_in` hai chiều.
+
+Bây giờ ta sẵn sàng dùng xác thực chéo để ước lượng sai số kiểm tra dọc theo đường mô hình. Ta phải _chỉ dùng các quan sát huấn luyện_ cho mọi khâu khớp mô hình, bao gồm lựa chọn biến. Vì vậy, việc xác định mô hình tốt nhất ở một kích thước nhất định phải _chỉ dùng các quan sát huấn luyện_ trong từng fold huấn luyện. Đây là điểm tinh tế nhưng quan trọng. Nếu dùng toàn bộ tập dữ liệu để chọn tập con tốt nhất ở mỗi bước, sai số tập xác thực và sai số xác thực chéo thu được sẽ không còn là ước lượng chính xác của sai số kiểm tra.
+
+Bây giờ ta tính các giá trị dự đoán xác thực chéo bằng xác thực chéo 5-fold.
+
+<MdxCode language="text" code={"In [14]:K=5\nkfold=skm.KFold(K,\nrandom_state=0,\nshuffle=True)\nYhat_cv=skm.cross_val_predict(full_path,\nHitters,\nY,\ncv=kfold)\nYhat_cv.shape"} />
+
+<MdxCode language="text" code={"Out[14]:(263,20)"} />
+
+Ma trận dự đoán `Yhat_cv` có cùng shape với `Yhat_in`; khác biệt là các dự đoán trên mỗi hàng, tương ứng một chỉ số mẫu cụ thể, đến từ mô hình được khớp trên fold huấn luyện không chứa hàng đó.
+
+<MdxCode language="text" code={"skm.KFold()\nskm.cross_\nval_predict()"} />
+
+Với mỗi mô hình dọc theo đường đi, ta tính MSE trong từng fold xác thực chéo. Ta lấy trung bình các giá trị này để được MSE trung bình, đồng thời có thể dùng từng giá trị để tính một ước lượng thô cho sai số chuẩn của trung bình.^(9) Vì vậy, ta cần biết các chỉ số kiểm tra của mỗi lần chia xác thực chéo. Có thể lấy chúng bằng phương thức `split()` của `kfold`. Do đã cố định trạng thái ngẫu nhiên phía trên, mỗi lần chia một mảng có cùng số hàng với _Y_, ta thu lại cùng các chỉ số huấn luyện và kiểm tra; bên dưới ta chỉ bỏ qua các chỉ số huấn luyện.
+
+<MdxCode language="text" code={"In [15]:cv_mse=[]\nfortrain_idx,test_idxinkfold.split(Y):\nerrors=(Yhat_cv[test_idx]-Y[test_idx,None])**2\ncv_mse.append(errors.mean(0))#columnmeans\ncv_mse=np.array(cv_mse).T\ncv_mse.shape"} />
+
+<MdxCode language="text" code={"Out[15]:(20,5)"} />
+
+> 9Ước lượng này còn thô vì năm ước lượng sai số dựa trên các tập huấn luyện chồng lấn, do đó không độc lập.
+
+Bây giờ ta thêm các ước lượng sai số xác thực chéo vào đồ thị MSE, gồm sai số trung bình trên năm fold và ước lượng sai số chuẩn của trung bình.
+
+<MdxCode language="text" code={"In [16]:ax.errorbar(np.arange(n_steps),\ncv_mse.mean(1),\ncv_mse.std(1)/np.sqrt(K),\nlabel='Cross-validated',\nc='r')#colorred\nax.set_ylim([50000,250000])\nax.legend()\nmse_fig"} />
+
+Để lặp lại quy trình trên bằng tập xác thực, ta chỉ cần đổi đối số `cv` thành một tập xác thực: một lần chia ngẫu nhiên dữ liệu thành tập kiểm tra và tập huấn luyện. Ta chọn kích thước tập kiểm tra là 20 %, tương tự kích thước mỗi tập kiểm tra trong xác thực chéo 5-fold.
+
+<MdxCode language="text" code={"In [17]:validation=skm.ShuffleSplit(n_splits=1,\ntest_size=0.2,\nrandom_state=0)\nfortrain_idx,test_idxinvalidation.split(Y):\nfull_path.fit(Hitters.iloc[train_idx],\nY[train_idx])\nYhat_val=full_path.predict(Hitters.iloc[test_idx])\nerrors=(Yhat_val-Y[test_idx,None])**2\nvalidation_mse=errors.mean(0)"} />
+
+<MdxCode language="text" code={"skm.Shuffle\nSplit()"} />
+
+Tương tự trường hợp MSE nội mẫu, phương pháp tập xác thực không cung cấp sai số chuẩn.
+
+<MdxCode language="text" code={"In [18]:ax.plot(np.arange(n_steps),\nvalidation_mse ,\n'b--',#colorblue,brokenline\nlabel='Validation')\nax.set_xticks(np.arange(n_steps)[::2])\nax.set_ylim([50000,250000])\nax.legend()\nmse_fig"} />
+
+Lựa chọn tập con tốt nhất
+
+Lựa chọn tiến từng bước là một quy trình _tham lam_: ở mỗi bước, nó mở rộng tập hiện tại bằng cách thêm một biến. Bây giờ ta áp dụng lựa chọn tập con tốt nhất cho dữ liệu `Hitters`; với mỗi kích thước tập con, phương pháp tìm tập biến dự báo tốt nhất.
+
+Ta sẽ dùng package `l0bnb` để thực hiện lựa chọn tập con tốt nhất. Thay vì ràng buộc tập con ở một kích thước cho trước, package tạo một đường nghiệm bằng cách dùng kích thước tập con làm penalty thay vì constraint. Dù khác biệt khá tinh tế, nó sẽ thể hiện khi ta xác thực chéo.
+
+<MdxCode language="text" code={"In [19]:D=design.fit_transform(Hitters)\nD=D.drop('intercept',axis=1)\nX=np.asarray(D)"} />
+
+Ở đây, ta loại cột đầu tiên tương ứng với hệ số chặn vì `l0bnb` sẽ khớp hệ số chặn riêng. Có thể tìm đường nghiệm bằng hàm `fit_path()`.
+
+<MdxCode language="text" code={"In [20]:path=fit_path(X,"} />
+
+<MdxCode language="text" code={"Y,\nmax_nonzeros=X.shape[1])"} />
+
+Hàm `fit_path()` trả về một danh sách; các giá trị gồm hệ số khớp trong `B`, hệ số chặn trong `B0` và một số thuộc tính khác liên quan đến thuật toán đường đi cụ thể. Những chi tiết này nằm ngoài phạm vi cuốn sách.
+
+<MdxCode language="text" code={"In [21]:path[3]"} />
+
+<MdxCode language="table" code={"|**`Out[21]:`** `{'B': array([0.` `, 3.254844, 0.` `, 0.` `, 0.` `,`|\n|---|\n|`0.` `, 0.` `, 0.` `, 0.` `, 0.` `,`|\n|`0.` `, 0.677753 , 0.` `, 0.` `, 0.` `,`|\n|`0.` `, 0.` `, 0.` `, 0.` `]),`|\n|`'B0': -38.98216739555494,`|\n|`'lambda_0': 0.011416248027450194,`|\n|`'M': 0.5829861733382011,`|\n|`'Time_exceeded': False}`|"} />
+
+Trong ví dụ trên, ở bước thứ tư trên đường đi, ta có hai hệ số khác không trong `'B'`, tương ứng với giá trị 0 _._ 114 của tham số penalty `lambda_0`. Có thể dự đoán bằng chuỗi mô hình khớp này trên tập xác thực theo `lambda_0`, hoặc dùng xác thực chéo với nhiều công sức hơn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 6.5.2 Hồi quy ridge và lasso
+
+Ta sẽ dùng package `sklearn.linear_model` (viết tắt là `skl` bên dưới) để khớp các mô hình tuyến tính được điều chuẩn bằng ridge và lasso trên dữ liệu `Hitters`. Ta bắt đầu từ ma trận mô hình `X` (không có hệ số chặn) đã tính ở phần hồi quy tập con tốt nhất.
+
+##### Hồi quy ridge
+
+Ta sẽ dùng hàm `skl.ElasticNet()` để khớp cả ridge và lasso. Để `skl.Elastic` khớp một _đường_ các mô hình hồi quy ridge, ta dùng `skl.ElasticNet.path()`; `Net()` có thể khớp ridge, lasso và cả dạng lai; hồi quy ridge `skl.Elastic` tương ứng với `l1_ratio=0`. Trong các ứng dụng này, nếu các biến được đo bằng đơn vị khác nhau thì nên chuẩn hóa các cột `Net.path()` của `X`. Vì `skl.ElasticNet()` không tự chuẩn hóa, ta phải thực hiện bước này. Do chuẩn hóa trước, muốn tìm các hệ số ước lượng trên thang đo ban đầu, ta phải _hoàn nguyên chuẩn hóa_ các ước lượng. Tham số _λ_ trong (6.5) và (6.7) được gọi là `alphas` trong `sklearn`. Để nhất quán với phần còn lại của chương, dưới đây ta dùng `lambdas` thay cho `alphas`.^(10)
+
+> 10Tại thời điểm xuất bản, các lần khớp ridge như trong khối mã [22] phát ra cảnh báo hội tụ không cần thiết; các cảnh báo này được kỳ vọng sẽ biến mất khi package hoàn thiện hơn.
+
+<MdxCode language="text" code={"In [22]:Xs=X-X.mean(0)[None,:]\nX_scale=X.std(0)\nXs=Xs/X_scale[None,:]\nlambdas=10**np.linspace(8,-2,100)/Y.std()\nsoln_array=skl.ElasticNet.path(Xs,\nY,\nl1_ratio=0.,\nalphas=lambdas)[1]\nsoln_array.shape"} />
+
+<MdxCode language="text" code={"Out[22]:(19,100)"} />
+
+Ở đây, ta trích xuất mảng hệ số tương ứng với các nghiệm dọc theo đường điều chuẩn. Theo mặc định, phương thức `skl.ElasticNet.path` khớp một đường trên khoảng giá trị _λ_ được chọn tự động, ngoại trừ trường hợp `l1_ratio=0` dẫn đến hồi quy ridge như ở đây.^(11) Vì vậy, ta triển khai hàm trên một lưới từ _λ_ = 10^(8) đến _λ_ = 10^(_−_2), được scale theo độ lệch chuẩn của _y_. Khoảng này về cơ bản bao phủ toàn bộ trường hợp từ mô hình null chỉ có hệ số chặn đến mô hình bình phương tối thiểu.
+
+Mỗi giá trị _λ_ đi kèm một vector hệ số hồi quy ridge, có thể truy cập qua một cột của `soln_array`. Trong trường hợp này, `soln_array` là ma trận 19 _×_ 100 với 19 hàng (mỗi biến dự báo một hàng) và 100 cột (mỗi giá trị _λ_ một cột).
+
+Ta chuyển vị ma trận rồi đổi thành data frame để dễ xem và vẽ.
+
+<MdxCode language="text" code={"In [23]:soln_path=pd.DataFrame(soln_array.T,\ncolumns=D.columns,\nindex=-np.log(lambdas))\nsoln_path.index.name='negativelog(lambda)'\nsoln_path"} />
+
+<MdxCode language="table" code={"|**`Out[23]:`** `AtBat`|`Hits`|`HmRun`|`Runs`|`...`|\n|---|---|---|---|---|\n|`negative` `log(lambda)`|||||\n|`-12.310855` `0.000800`|`0.000889`|`0.000695`|`0.000851`|`...`|\n|`-12.078271` `0.001010`|`0.001122`|`0.000878`|`0.001074`|`...`|\n|`-11.845686` `0.001274`|`0.001416`|`0.001107`|`0.001355`|`...`|\n|`-11.613102` `0.001608`|`0.001787`|`0.001397`|`0.001710`|`...`|\n|`-11.380518` `0.002029`|`0.002255`|`0.001763`|`0.002158`|`...`|\n|`...` `...`|`...`|`...`|`...`|`...`|\n|`100 rows × 19 columns`|||||"} />
+
+Ta vẽ các đường đi để quan sát hệ số thay đổi theo _λ_ như thế nào. Để kiểm soát vị trí chú giải, trước tiên đặt `legend` thành `False` trong phương thức vẽ, rồi thêm chú giải bằng phương thức `legend()` của `ax`.
+
+<MdxCode language="text" code={"In [24]:path_fig,ax=subplots(figsize=(8,8))\nsoln_path.plot(ax=ax,legend=False)\nax.set_xlabel('$-\\log(\\lambda)$',fontsize=20)"} />
+
+> 11Lý do mang tính kỹ thuật: với mọi mô hình trừ ridge, ta có thể tìm giá trị _λ_ nhỏ nhất làm mọi hệ số bằng không. Với ridge, giá trị đó là _∞_.
+
+<MdxCode language="text" code={"ax.set_ylabel('Standardizedcoefficients',fontsize=20)\nax.legend(loc='upperleft');"} />
+
+(Ta đã dùng định dạng `latex` trong nhãn ngang để hiển thị chữ cái Hy Lạp _λ_ đúng cách.) Xét theo chuẩn _ℓ_ 2, các ước lượng hệ số được kỳ vọng nhỏ hơn nhiều khi dùng _λ_ lớn so với khi dùng _λ_ nhỏ. (Nhắc lại, chuẩn _ℓ_ 2 là căn bậc hai của tổng bình phương các giá trị hệ số.) Ta hiển thị các hệ số ở bước thứ 40, tại đó _λ_ bằng 25,535.
+
+<MdxCode language="text" code={"In [25]:beta_hat=soln_path.loc[soln_path.index[39]]\nlambdas[39],beta_hat"} />
+
+<MdxCode language="table" code={"|**`Out[25]:`** `(25.535,`||\n|---|---|\n|`AtBat`|`5.433750`|\n|`Hits`|`6.223582`|\n|`HmRun`|`4.585498`|\n|`Runs`|`5.880855`|\n|`RBI`|`6.195921`|\n|`Walks`|`6.277975`|\n|`Years` `...`|`5.299767` `...`|"} />
+
+Hãy tính chuẩn _ℓ_ 2 của các hệ số đã chuẩn hóa.
+
+<MdxCode language="text" code={"In [26]:np.linalg.norm(beta_hat)"} />
+
+<MdxCode language="text" code={"Out[26]:24.17"} />
+
+Ngược lại, đây là chuẩn _ℓ_ 2 khi _λ_ bằng 2.44e-01. Lưu ý chuẩn _ℓ_ 2 của các hệ số lớn hơn nhiều khi đi cùng giá trị _λ_ nhỏ hơn này.
+
+<MdxCode language="text" code={"In [27]:beta_hat=soln_path.loc[soln_path.index[59]]\nlambdas[59],np.linalg.norm(beta_hat)"} />
+
+<MdxCode language="text" code={"Out[27]:(0.2437,160.4237)"} />
+
+Phía trên, ta chuẩn hóa trước `X` rồi khớp mô hình ridge bằng `Xs`. Đối tượng `Pipeline()` trong `sklearn` cung cấp cách rõ ràng để tách bước chuẩn hóa đặc trưng khỏi chính bước khớp mô hình ridge.
+
+<MdxCode language="text" code={"In [28]:ridge=skl.ElasticNet(alpha=lambdas[59],l1_ratio=0)\nscaler=StandardScaler(with_mean=True,with_std=True)\npipe=Pipeline(steps=[('scaler',scaler),('ridge',ridge)])\npipe.fit(X,Y)"} />
+
+Ta cho thấy kết quả có cùng chuẩn _ℓ_ 2 như lần khớp trước trên dữ liệu đã chuẩn hóa.
+
+<MdxCode language="text" code={"In [29]:np.linalg.norm(ridge.coef_)"} />
+
+<MdxCode language="text" code={"Out[29]:160.4237"} />
+
+Lưu ý phép toán `pipe.fit(X, Y)` phía trên đã thay đổi đối tượng `ridge`, cụ thể là thêm các thuộc tính chưa có trước đó như `coef_`.
+
+Ước lượng sai số kiểm tra của hồi quy ridge
+
+Việc chọn trước một giá trị _λ_ cho hồi quy ridge rất khó, nếu không muốn nói là bất khả thi. Ta sẽ dùng phương pháp xác thực hoặc xác thực chéo để chọn tham số tinh chỉnh. Có thể dùng phương pháp `Pipeline()` trong `skm.cross_validate()` với phương pháp xác thực (tức `validation`) hoặc xác thực chéo _k_-fold.
+
+Ta cố định trạng thái ngẫu nhiên của bộ chia để kết quả có thể tái lập.
+
+<MdxCode language="text" code={"In [30]:validation=skm.ShuffleSplit(n_splits=1,\ntest_size=0.5,\nrandom_state=0)\nridge.alpha=0.01\nresults=skm.cross_validate(ridge,\nX,\nY,\nscoring='neg_mean_squared_error',\ncv=validation)\n-results['test_score']"} />
+
+<MdxCode language="text" code={"Out[30]:array([134214.0])"} />
+
+MSE kiểm tra là 1.342e+05. Nếu chỉ khớp mô hình có hệ số chặn, ta sẽ dự đoán mỗi quan sát kiểm tra bằng trung bình các quan sát huấn luyện. Có thể thu được cùng kết quả bằng cách khớp hồi quy ridge với giá trị _λ_ _rất_ lớn. Lưu ý `1e10` nghĩa là 10^(10).
+
+<MdxCode language="text" code={"In [31]:ridge.alpha=1e10\nresults=skm.cross_validate(ridge,\nX,\nY,\nscoring='neg_mean_squared_error',\ncv=validation)"} />
+
+<MdxCode language="text" code={"-results['test_score']"} />
+
+###### **`Out[31]:`** `array([231788.32])`
+
+Rõ ràng việc chọn _λ_ = 0 _._ 01 là tùy ý, nên ta sẽ dùng xác thực chéo hoặc tập xác thực để chọn tham số tinh chỉnh _λ_. Đối tượng `GridSearchCV()` cho phép tìm kiếm vét cạn trên lưới để chọn tham số này. Trước hết, ta dùng tập xác thực để chọn _λ_.
+
+<MdxCode language="text" code={"Grid\nSearchCV()"} />
+
+<MdxCode language="text" code={"In [32]:param_grid={'ridge__alpha':lambdas}\ngrid=skm.GridSearchCV(pipe,\nparam_grid ,\ncv=validation,\nscoring='neg_mean_squared_error')\ngrid.fit(X,Y)\ngrid.best_params_['ridge__alpha']\ngrid.best_estimator_"} />
+
+<MdxCode language="text" code={"Out[32]:Pipeline(steps=[('scaler',StandardScaler()),"} />
+
+<MdxCode language="text" code={"('ridge',ElasticNet(alpha=0.005899,l1_ratio=0))])"} />
+
+Ngoài ra, ta có thể dùng xác thực chéo 5-fold.
+
+<MdxCode language="text" code={"In [33]:grid=skm.GridSearchCV(pipe,\nparam_grid,\ncv=kfold,\nscoring='neg_mean_squared_error')\ngrid.fit(X,Y)\ngrid.best_params_['ridge__alpha']\ngrid.best_estimator_"} />
+
+Nhắc lại, ta đã thiết lập đối tượng `kfold` cho xác thực chéo 5-fold ở trang 271. Bây giờ ta vẽ MSE xác thực chéo theo _−_ log( _λ_ ), trong đó mức co rút giảm từ trái sang phải.
+
+<MdxCode language="text" code={"In [34]:ridge_fig,ax=subplots(figsize=(8,8))\nax.errorbar(-np.log(lambdas),\n-grid.cv_results_['mean_test_score'],\nyerr=grid.cv_results_['std_test_score']/np.sqrt(K))\nax.set_ylim([50000,250000])\nax.set_xlabel('$-\\log(\\lambda)$',fontsize=20)\nax.set_ylabel('Cross-validatedMSE',fontsize=20);"} />
+
+Có thể xác thực chéo nhiều metric khác nhau để chọn tham số. Metric mặc định của `skl.ElasticNet()` là _R_^(2) kiểm tra. Hãy so sánh _R_^(2) với MSE trong xác thực chéo này.
+
+<MdxCode language="text" code={"In [35]:grid_r2=skm.GridSearchCV(pipe,\nparam_grid ,\ncv=kfold)\ngrid_r2.fit(X,Y)"} />
+
+Cuối cùng, hãy vẽ kết quả _R_^(2) xác thực chéo.
+
+<MdxCode language="text" code={"In [36]:r2_fig,ax=subplots(figsize=(8,8))\nax.errorbar(-np.log(lambdas),\ngrid_r2.cv_results_['mean_test_score'],\nyerr=grid_r2.cv_results_['std_test_score']/np.sqrt(K)\n)\nax.set_xlabel('$-\\log(\\lambda)$',fontsize=20)\nax.set_ylabel('Cross-validated$R^2$',fontsize=20);"} />
+
+##### Xác thực chéo nhanh cho đường nghiệm
+
+Ridge, lasso và elastic net có thể được khớp hiệu quả dọc theo một dãy giá trị _λ_, tạo thành _đường nghiệm_ (solution path) hay _đường điều chuẩn_ (regularization path). Vì vậy, có mã chuyên biệt để khớp các đường này và chọn giá trị _λ_ phù hợp bằng xác thực chéo. Ngay cả với cách chia giống nhau, kết quả sẽ không khớp _chính xác_ với `grid` phía trên vì trong `grid`, từng đặc trưng được chuẩn hóa ở mỗi fold, còn trong `pipeCV` bên dưới chỉ chuẩn hóa một lần. Dù vậy, kết quả tương tự nhau vì phép chuẩn hóa tương đối ổn định giữa các fold.
+
+<MdxCode language="text" code={"In [37]:ridgeCV=skl.ElasticNetCV(alphas=lambdas,\nl1_ratio=0,\ncv=kfold)\npipeCV=Pipeline(steps=[('scaler',scaler),"} />
+
+<MdxCode language="text" code={"('ridge',ridgeCV)])"} />
+
+<MdxCode language="text" code={"pipeCV.fit(X,Y)"} />
+
+Hãy vẽ lại sai số xác thực chéo để thấy kết quả tương tự khi dùng `skm.GridSearchCV`.
+
+<MdxCode language="text" code={"In [38]:tuned_ridge=pipeCV.named_steps['ridge']\nridgeCV_fig ,ax=subplots(figsize=(8,8))\nax.errorbar(-np.log(lambdas),\ntuned_ridge.mse_path_.mean(1),\nyerr=tuned_ridge.mse_path_.std(1)/np.sqrt(K))\nax.axvline(-np.log(tuned_ridge.alpha_),c='k',ls='--')\nax.set_ylim([50000,250000])\nax.set_xlabel('$-\\log(\\lambda)$',fontsize=20)\nax.set_ylabel('Cross-validatedMSE',fontsize=20);"} />
+
+Ta thấy giá trị _λ_ cho sai số xác thực chéo nhỏ nhất là 1.19e-02, được lưu trong `tuned_ridge.alpha_`. MSE kiểm tra ứng với giá trị _λ_ này là bao nhiêu?
+
+<MdxCode language="text" code={"In [39]:np.min(tuned_ridge.mse_path_.mean(1))"} />
+
+<MdxCode language="text" code={"Out[39]:115526.71"} />
+
+Kết quả này cải thiện thêm so với MSE kiểm tra thu được khi dùng _λ_ = 4. Cuối cùng, `tuned_ridge.coef_` chứa các hệ số được khớp trên toàn bộ tập dữ liệu tại giá trị _λ_ này.
+
+<MdxCode language="text" code={"In [40]:tuned_ridge.coef_"} />
+
+<MdxCode language="text" code={"Out[40]:array([-222.80877051,238.77246614,3.21103754,-2.93050845,\n3.64888723,108.90953869,-50.81896152,-105.15731984,\n122.00714801,57.1859509,210.35170348,118.05683748,\n-150.21959435,30.36634231,-61.62459095,77.73832472,\n40.07350744,-25.02151514,-13.68429544])"} />
+
+Đúng như kỳ vọng, không hệ số nào bằng không: hồi quy ridge không thực hiện lựa chọn biến!
+
+Đánh giá sai số kiểm tra của ridge được xác thực chéo
+
+Chọn _λ_ bằng xác thực chéo tạo ra một estimator hồi quy duy nhất, tương tự việc khớp mô hình hồi quy tuyến tính trong Chương 3. Vì vậy, việc ước lượng sai số kiểm tra của nó là hợp lý. Tuy nhiên, xác thực chéo đã _chạm tới_ toàn bộ dữ liệu khi chọn _λ_, nên không còn dữ liệu để ước lượng sai số kiểm tra. Một phương án thỏa hiệp là chia dữ liệu ban đầu thành hai tập rời nhau: tập huấn luyện và tập kiểm tra. Sau đó, ta khớp hồi quy ridge được tinh chỉnh bằng xác thực chéo trên tập huấn luyện rồi đánh giá trên tập kiểm tra. Có thể gọi đây là xác thực chéo lồng trong phương pháp tập xác thực. Không có lý do tiên nghiệm nào buộc phải dùng một nửa dữ liệu cho mỗi tập. Bên dưới, ta dùng 75 % để huấn luyện và 25 % để kiểm tra, với estimator là hồi quy ridge được tinh chỉnh bằng xác thực chéo 5-fold. Có thể thực hiện như sau:
+
+<MdxCode language="text" code={"In [41]:outer_valid=skm.ShuffleSplit(n_splits=1,\ntest_size=0.25,\nrandom_state=1)\ninner_cv=skm.KFold(n_splits=5,\nshuffle=True,\nrandom_state=2)\nridgeCV=skl.ElasticNetCV(alphas=lambdas,\nl1_ratio=0,\ncv=inner_cv)\npipeCV=Pipeline(steps=[('scaler',scaler),\n('ridge',ridgeCV)]);\nIn [42]:results=skm.cross_validate(pipeCV,\nX,\nY,\ncv=outer_valid ,\nscoring='neg_mean_squared_error')\n-results['test_score']"} />
+
+<MdxCode language="text" code={"Out[42]:array([132393.84])"} />
+
+##### Lasso
+
+Ta đã thấy hồi quy ridge với lựa chọn _λ_ hợp lý có thể tốt hơn cả bình phương tối thiểu lẫn mô hình null trên dữ liệu `Hitters`. Bây giờ, ta xem lasso có thể tạo mô hình chính xác hơn hoặc dễ diễn giải hơn hồi quy ridge hay không. Để khớp mô hình lasso, ta lại dùng hàm `ElasticNetCV()` nhưng lần này đặt đối số `l1_ratio=1`. Ngoài thay đổi đó, quy trình giống như khi khớp mô hình ridge.
+
+<MdxCode language="text" code={"In [43]:lassoCV=skl.ElasticNetCV(n_alphas=100,\nl1_ratio=1,\ncv=kfold)\npipeCV=Pipeline(steps=[('scaler',scaler),\n('lasso',lassoCV)])\npipeCV.fit(X,Y)\ntuned_lasso=pipeCV.named_steps['lasso']\ntuned_lasso.alpha_"} />
+
+<MdxCode language="text" code={"Out[43]:3.147"} />
+
+<MdxCode language="text" code={"In [44]:lambdas,soln_array=skl.Lasso.path(Xs,"} />
+
+<MdxCode language="text" code={"Y,\nl1_ratio=1,\nn_alphas=100)[:2]\nsoln_path=pd.DataFrame(soln_array.T,\ncolumns=D.columns,\nindex=-np.log(lambdas))"} />
+
+Từ đồ thị hệ số đã chuẩn hóa, có thể thấy tùy tham số tinh chỉnh được chọn mà một số hệ số sẽ bằng đúng không.
+
+<MdxCode language="text" code={"In [45]:path_fig,ax=subplots(figsize=(8,8))\nsoln_path.plot(ax=ax,legend=False)\nax.legend(loc='upperleft')\nax.set_xlabel('$-\\log(\\lambda)$',fontsize=20)\nax.set_ylabel('Standardizedcoefficiients',fontsize=20);"} />
+
+Sai số xác thực chéo nhỏ nhất thấp hơn MSE kiểm tra của mô hình null và bình phương tối thiểu, đồng thời rất gần MSE kiểm tra 115526,71 của hồi quy ridge (trang 278) khi _λ_ được chọn bằng xác thực chéo.
+
+<MdxCode language="text" code={"In [46]:np.min(tuned_lasso.mse_path_.mean(1))"} />
+
+<MdxCode language="text" code={"Out[46]:114690.73"} />
+
+Hãy vẽ lại sai số xác thực chéo.
+
+<MdxCode language="text" code={"In [47]:lassoCV_fig ,ax=subplots(figsize=(8,8))\nax.errorbar(-np.log(tuned_lasso.alphas_),\ntuned_lasso.mse_path_.mean(1),\nyerr=tuned_lasso.mse_path_.std(1)/np.sqrt(K))\nax.axvline(-np.log(tuned_lasso.alpha_),c='k',ls='--')\nax.set_ylim([50000,250000])\nax.set_xlabel('$-\\log(\\lambda)$',fontsize=20)\nax.set_ylabel('Cross-validatedMSE',fontsize=20);"} />
+
+Tuy nhiên, lasso có ưu thế đáng kể so với hồi quy ridge: các hệ số ước lượng thu được là thưa. Ở đây, 6 trong 19 hệ số ước lượng bằng đúng không. Vì vậy, mô hình lasso với _λ_ được chọn bằng xác thực chéo chỉ chứa 13 biến.
+
+<MdxCode language="text" code={"In [48]:tuned_lasso.coef_"} />
+
+<MdxCode language="text" code={"Out[48]:array([-210.01008773,243.4550306,0.,0.,\n0.,97.69397357,-41.52283116,-0.,\n0.,39.62298193,205.75273856,124.55456561,\n-126.29986768,15.70262427,-59.50157967,75.24590036,\n21.62698014,-12.04423675,-0.])"} />
+
+Tương tự hồi quy ridge, có thể đánh giá sai số kiểm tra của lasso được xác thực chéo bằng cách trước tiên chia thành tập kiểm tra và tập huấn luyện, rồi chạy xác thực chéo nội bộ trên tập huấn luyện. Phần này được để lại làm bài tập.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 6.5.3 Hồi quy PCR và PLS
+
+Hồi quy thành phần chính
+
+Hồi quy thành phần chính (PCR) có thể được thực hiện bằng `PCA()` từ `PCA()` module `sklearn.decomposition`. Bây giờ ta áp dụng PCR cho dữ liệu `Hitters` để dự đoán `Salary`. Một lần nữa, hãy bảo đảm các giá trị thiếu đã được loại khỏi dữ liệu như mô tả trong Mục 6.5.1.
+
+Ở đây, ta dùng `LinearRegression()` để khớp mô hình hồi quy. Lưu ý `Linear` khớp hệ số chặn theo mặc định, khác với hàm `OLS()` đã gặp trong `Regression()` Mục 6.5.1.
+
+<MdxCode language="text" code={"In [49]:pca=PCA(n_components=2)\nlinreg=skl.LinearRegression()\npipe=Pipeline([('pca',pca),\n('linreg',linreg)])\npipe.fit(X,Y)\npipe.named_steps['linreg'].coef_"} />
+
+<MdxCode language="text" code={"Out[49]:array([0.09846131,0.4758765])"} />
+
+Khi thực hiện PCA, kết quả thay đổi tùy dữ liệu đã được _chuẩn hóa_ hay chưa. Như các ví dụ trước, có thể thực hiện việc này bằng cách thêm một bước vào pipeline.
+
+<MdxCode language="text" code={"In [50]:pipe=Pipeline([('scaler',scaler),\n('pca',pca),\n('linreg',linreg)])\npipe.fit(X,Y)\npipe.named_steps['linreg'].coef_"} />
+
+<MdxCode language="text" code={"Out[50]:array([106.36859204,-21.60350456])"} />
+
+Tất nhiên, ta có thể dùng CV để chọn số thành phần bằng `skm.GridSearchCV`; trong trường hợp này, ta thiết lập lưới tham số để thay đổi `n_components`.
+
+<MdxCode language="text" code={"In [51]:param_grid={'pca__n_components':range(1,20)}\ngrid=skm.GridSearchCV(pipe,\nparam_grid ,\ncv=kfold,\nscoring='neg_mean_squared_error')\ngrid.fit(X,Y)"} />
+
+Hãy vẽ kết quả như đã làm với các phương pháp khác.
+
+<MdxCode language="text" code={"In [52]:pcr_fig,ax=subplots(figsize=(8,8))\nn_comp=param_grid['pca__n_components']\nax.errorbar(n_comp,\n-grid.cv_results_['mean_test_score'],\ngrid.cv_results_['std_test_score']/np.sqrt(K))\nax.set_ylabel('Cross-validatedMSE',fontsize=20)\nax.set_xlabel('#principalcomponents',fontsize=20)\nax.set_xticks(n_comp[::2])\nax.set_ylim([50000,250000]);"} />
+
+Ta thấy sai số xác thực chéo nhỏ nhất xuất hiện khi dùng 17 thành phần. Tuy nhiên, đồ thị cũng cho thấy sai số xác thực chéo gần như tương đương khi mô hình chỉ chứa một thành phần. Điều này gợi ý một mô hình chỉ dùng ít thành phần có thể đã đủ.
+
+Điểm CV được cung cấp cho mọi số thành phần khả dĩ từ 1 đến 19. Phương thức `PCA()` báo lỗi nếu ta cố khớp mô hình chỉ có hệ số chặn với `n_components=0`, vì vậy ta cũng tính MSE của riêng mô hình null trên các lần chia này.
+
+<MdxCode language="text" code={"In [53]:Xn=np.zeros((X.shape[0],1))\ncv_null=skm.cross_validate(linreg,"} />
+
+<MdxCode language="text" code={"Xn,\nY,\ncv=kfold,\nscoring='neg_mean_squared_error')\n-cv_null['test_score'].mean()"} />
+
+###### **`Out[53]:`** `204139.31`
+
+Thuộc tính `explained_variance_ratio_` của đối tượng `PCA` cung cấp _tỷ lệ phần trăm phương sai được giải thích_ trong các biến dự báo và biến đáp ứng khi dùng số thành phần khác nhau. Khái niệm này được thảo luận chi tiết hơn trong Mục 12.2.
+
+<MdxCode language="text" code={"In [54]:pipe.named_steps['pca'].explained_variance_ratio_"} />
+
+<MdxCode language="text" code={"Out[54]:array([0.3831424,0.21841076])"} />
+
+Nói ngắn gọn, có thể xem đây là lượng thông tin về các biến dự báo được nắm bắt bằng _M_ thành phần chính. Chẳng hạn, _M_ = 1 chỉ nắm bắt 38,31 % phương sai, còn _M_ = 2 nắm bắt thêm 21,84 %, tổng cộng 60,15 %. Khi _M_ = 6, tỷ lệ tăng lên 88,63 %. Sau đó, mức tăng tiếp tục giảm dần cho đến khi dùng toàn bộ _M_ = _p_ = 19 thành phần và nắm bắt đủ 100 % phương sai.
+
+Bình phương tối thiểu riêng phần
+
+Bình phương tối thiểu riêng phần (PLS) được triển khai trong hàm `PLSRegression()`. `PLS`
+
+<MdxCode language="text" code={"In [55]:pls=PLSRegression(n_components=2,\nscale=True)\npls.fit(X,Y)"} />
+
+<MdxCode language="text" code={"Regression()"} />
+
+Tương tự PCR, ta sẽ dùng CV để chọn số thành phần.
+
+<MdxCode language="text" code={"In [56]:param_grid={'n_components':range(1,20)}\ngrid=skm.GridSearchCV(pls,\nparam_grid,\ncv=kfold,\nscoring='neg_mean_squared_error')\ngrid.fit(X,Y)"} />
+
+Như với các phương pháp khác, ta vẽ MSE.
+
+<MdxCode language="text" code={"In [57]:pls_fig,ax=subplots(figsize=(8,8))\nn_comp=param_grid['n_components']\nax.errorbar(n_comp,\n-grid.cv_results_['mean_test_score'],\ngrid.cv_results_['std_test_score']/np.sqrt(K))\nax.set_ylabel('Cross-validatedMSE',fontsize=20)\nax.set_xlabel('#principalcomponents',fontsize=20)\nax.set_xticks(n_comp[::2])\nax.set_ylim([50000,250000]);"} />
+
+Sai số CV nhỏ nhất tại 12 thành phần, dù khác biệt giữa điểm này với số thành phần thấp hơn nhiều như 2 hoặc 3 là không đáng kể.
+
+</MdxPage>

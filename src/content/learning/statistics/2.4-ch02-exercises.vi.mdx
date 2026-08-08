@@ -1,0 +1,101 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch02-exercises",
+  "locale": "vi",
+  "title": "Bài tập",
+  "headings": [
+    "Lý thuyết Học thống kê",
+    "Bài tập tính tay KNN 3D",
+    "Kiến thức & Đáp án tóm tắt"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "KNN",
+    "Bias-Variance",
+    "Bài tập"
+  ],
+  "pageCount": 3
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết Học thống kê
+
+1. **Độ linh hoạt của mô hình (Flexibility)**: Với từng trường hợp, hãy cho biết mô hình linh hoạt hơn sẽ hoạt động tốt hơn hay kém hơn mô hình kém linh hoạt:
+   - (a) Cỡ mẫu <MdxFormula inline formula={"n"} /> rất lớn, số biến dự báo <MdxFormula inline formula={"p"} /> nhỏ: **Linh hoạt tốt hơn** (mẫu lớn hạn chế quá khớp).
+   - (b) Số biến <MdxFormula inline formula={"p"} /> rất lớn, cỡ mẫu <MdxFormula inline formula={"n"} /> nhỏ: **Kém linh hoạt tốt hơn** (mô hình linh hoạt sẽ bị quá khớp nghiêm trọng).
+   - (c) Mối quan hệ giữa <MdxFormula inline formula={"X"} /> và <MdxFormula inline formula={"Y"} /> rất phi tuyến: **Linh hoạt tốt hơn** (mô hình tuyến tính bị độ chệch cao).
+   - (d) Phương sai sai số <MdxFormula inline formula={"\\\\text{Var}(\\\\epsilon)"} /> rất cao (nhiều nhiễu): **Kém linh hoạt tốt hơn** (mô hình linh hoạt sẽ học phải nhiễu).
+
+2. **Phân loại bài toán**: Phân định các kịch bản sau thuộc **Hồi quy** hay **Phân loại**, mục tiêu là **Dự đoán** hay **Suy luận**, và xác định <MdxFormula inline formula={"n, p"} />:
+   - (a) 500 công ty (lợi nhuận, nhân viên, ngành, lương CEO) để tìm yếu tố ảnh hưởng lương CEO: **Hồi quy, Suy luận** (<MdxFormula inline formula={"n=500, p=3"} />).
+   - (b) Sản phẩm mới (thành công/thất bại, 13 đặc trưng): **Phân loại, Dự đoán** (<MdxFormula inline formula={"n=20, p=13"} />).
+   - (c) Tỷ giá USD/Euro theo chứng khoán tuần 2012: **Hồi quy, Dự đoán** (<MdxFormula inline formula={"n=52, p=3"} />).
+
+3. **Phân rã Bias-Variance**:
+   - Khi độ linh hoạt tăng: **Bias bình phương giảm**, **Variance tăng**, **MSE huấn luyện giảm đơn điệu**, **MSE kiểm tra có dạng chữ U** (đạt cực tiểu tại độ linh hoạt tối ưu), **Sai số không thể giảm <MdxFormula inline formula={"\\\\text{Var}(\\\\epsilon)"} />** là đường hằng số ngang.
+
+4. **Tham số vs Phi tham số**:
+   - **Tham số** (*Parametric*): Giả định trước dạng mô hình (như tuyến tính) <MdxFormula inline formula={"\\rightarrow"} /> Dễ huấn luyện, cần ít dữ liệu, dễ diễn giải, nhưng bị độ chệch cao nếu chọn sai mô hình.
+   - **Phi tham số** (*Non-parametric*): Không giả định dạng hàm <MdxFormula inline formula={"\\rightarrow"} /> Khớp được nhiều dạng hàm phi tuyến phức tạp, nhưng cần cỡ mẫu lớn và dễ quá khớp.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bài tập tính tay KNN 3D
+
+Bảng dữ liệu huấn luyện gồm 6 quan sát với 3 biến dự báo định lượng <MdxFormula inline formula={"X_1, X_2, X_3"} /> và biến đáp ứng nhãn <MdxFormula inline formula={"Y"} />:
+
+<MdxTable
+  headers={["Quan sát", "X1", "X2", "X3", "Nhãn Y"]}
+  rows={[
+    ["1", "0", "3", "0", "Đỏ"],
+    ["2", "2", "0", "0", "Đỏ"],
+    ["3", "0", "1", "3", "Đỏ"],
+    ["4", "0", "1", "2", "Xanh lá"],
+    ["5", "-1", "0", "1", "Xanh lá"],
+    ["6", "1", "1", "1", "Đỏ"]
+  ]}
+/>
+
+Ta muốn dự đoán nhãn <MdxFormula inline formula={"Y"} /> tại điểm kiểm tra <MdxFormula inline formula={"X_0 = (0, 0, 0)"} /> bằng thuật toán **K-Nearest Neighbors (KNN)**.
+
+### Yêu cầu
+
+1. Tính khoảng cách Euclid <MdxFormula inline formula={"d(X_0, X_i) = \\\\sqrt{(X_{i1}-0)^2 + (X_{i2}-0)^2 + (X_{i3}-0)^2}"} /> tới từng quan sát.
+2. Dự đoán nhãn <MdxFormula inline formula={"Y"} /> với <MdxFormula inline formula={"K = 1"} />.
+3. Dự đoán nhãn <MdxFormula inline formula={"Y"} /> với <MdxFormula inline formula={"K = 3"} />.
+4. Nếu biên quyết định Bayes thực tế rất phi tuyến, ta nên chọn <MdxFormula inline formula={"K"} /> lớn hay nhỏ?
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kiến thức & Đáp án tóm tắt
+
+### Hướng dẫn giải bài tập KNN 3D
+
+1. **Khoảng cách Euclid đến <MdxFormula inline formula={"X_0 = (0, 0, 0)"} />**:
+   - <MdxFormula inline formula={"d_1 = \\\\sqrt{0^2 + 3^2 + 0^2} = 3.00"} /> (Đỏ)
+   - <MdxFormula inline formula={"d_2 = \\\\sqrt{2^2 + 0^2 + 0^2} = 2.00"} /> (Đỏ)
+   - <MdxFormula inline formula={"d_3 = \\\\sqrt{0^2 + 1^2 + 3^2} = \\\\sqrt{10} \\\\approx 3.16"} /> (Đỏ)
+   - <MdxFormula inline formula={"d_4 = \\\\sqrt{0^2 + 1^2 + 2^2} = \\\\sqrt{5} \\\\approx 2.24"} /> (Xanh lá)
+   - <MdxFormula inline formula={"d_5 = \\\\sqrt{(-1)^2 + 0^2 + 1^2} = \\\\sqrt{2} \\\\approx 1.41"} /> (Xanh lá)
+   - <MdxFormula inline formula={"d_6 = \\\\sqrt{1^2 + 1^2 + 1^2} = \\\\sqrt{3} \\\\approx 1.73"} /> (Đỏ)
+
+2. **Với <MdxFormula inline formula={"K = 1"} />**: Điểm gần <MdxFormula inline formula={"X_0"} /> nhất là Quan sát 5 (<MdxFormula inline formula={"d_5 = 1.41"} />). Nhãn dự đoán: **Xanh lá**.
+3. **Với <MdxFormula inline formula={"K = 3"} />**: 3 điểm gần nhất là Quan sát 5 (<MdxFormula inline formula={"1.41"} /> - Xanh lá), Quan sát 6 (<MdxFormula inline formula={"1.73"} /> - Đỏ), Quan sát 2 (<MdxFormula inline formula={"2.00"} /> - Đỏ). Tỷ lệ: <MdxFormula inline formula={"2/3"} /> Đỏ, <MdxFormula inline formula={"1/3"} /> Xanh lá. Nhãn dự đoán: **Đỏ**.
+4. **Biên Bayes phi tuyến**: Nên chọn **<MdxFormula inline formula={"K"} /> nhỏ** (vì <MdxFormula inline formula={"K"} /> nhỏ giúp biên quyết định KNN linh hoạt và bám sát các đường biên phi tuyến phức tạp).
+
+<LessonNote label="Tóm tắt trọng tâm Chương 2">
+
+- **Phân biệt mục tiêu**: Dự đoán (*Prediction*) tập trung giảm MSE kiểm tra; Suy luận (*Inference*) tập trung tính dễ diễn giải.
+- **Đánh đổi Bias-Variance**: Mô hình tối ưu nằm ở đáy hình chữ U, nơi MSE kiểm tra đạt cực tiểu.
+- **KNN**: Thuật toán phi tham số đơn giản, dùng khoảng cách Euclid để ước lượng xác suất có điều kiện theo lân cận <MdxFormula inline formula={"K"} />.
+
+</LessonNote>
+
+</MdxPage>

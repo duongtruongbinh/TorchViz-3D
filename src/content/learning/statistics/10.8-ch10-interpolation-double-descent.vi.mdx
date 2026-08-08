@@ -1,0 +1,60 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-interpolation-double-descent",
+  "locale": "vi",
+  "title": "Nội suy và double descent",
+  "headings": [
+    "Nội suy và double descent"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "nội suy",
+    "double descent"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Nội suy và double descent
+
+Xuyên suốt cuốn sách, chúng ta nhiều lần bàn về sự đánh đổi độ chệch–phương sai, được giới thiệu lần đầu ở Mục 2.2.2. Sự đánh đổi này cho biết các phương pháp học thống kê thường đạt hiệu quả tốt nhất về lỗi trên tập kiểm tra tại một mức độ phức tạp mô hình trung gian. Cụ thể, nếu biểu diễn “độ linh hoạt” trên trục _x_ và lỗi trên trục _y_, ta thường kỳ vọng lỗi kiểm tra có dạng chữ U, còn lỗi huấn luyện giảm đơn điệu. Hai ví dụ “điển hình” của hành vi này nằm ở ô bên phải Hình 2.9 trang 29 và Hình 2.17 trang 39. Một hệ quả của sự đánh đổi độ chệch–phương sai là nhìn chung không nên _nội suy_ dữ liệu huấn luyện — tức đạt lỗi huấn luyện bằng không — vì điều đó thường gây lỗi kiểm tra rất cao.
+
+Tuy nhiên, trong một số bối cảnh cụ thể, phương pháp học thống kê nội suy dữ liệu huấn luyện vẫn có thể hoạt động tốt — hoặc ít nhất tốt hơn một mô hình hơi kém phức tạp hơn và chưa hoàn toàn nội suy dữ liệu. Hiện tượng này được gọi là _double descent_ và được minh họa trong Hình 10.20. Tên gọi “double descent” xuất phát từ việc lỗi kiểm tra có dạng chữ U trước khi chạm ngưỡng nội suy, rồi lại giảm xuống (ít nhất trong một khoảng) khi khớp các mô hình ngày càng linh hoạt.
+
+Bây giờ ta mô tả thiết lập tạo ra Hình 10.20. Ta mô phỏng _n_ = 20 quan sát từ mô hình
+
+trong đó _X ∼ U_ [ _−_ 5 _,_ 5] (phân phối đều), và _ϵ ∼ N_ (0 _, σ_^(2) ) với _σ_ = 0 _._ 3. Sau đó ta khớp natural spline cho dữ liệu như mô tả ở Mục 7.4, với _d_
+
+**HÌNH 10.21.** _Các hàm khớp f_^(ˆ) _d_ ( _X_ ) _(cam), hàm thật f_ ( _X_ ) _(đen) và_ 20 _điểm dữ liệu huấn luyện quan sát được. Mỗi ô dùng một giá trị d (bậc tự do) khác nhau. Với d ≥_ 20 _, mọi đường cong màu cam đều nội suy các điểm huấn luyện, nên lỗi huấn luyện bằng không._
+
+bậc tự do.^(22) Nhắc lại từ Mục 7.4 rằng khớp natural spline với _d_ bậc tự do tương đương khớp hồi quy bình phương tối thiểu của biến đáp ứng theo một tập _d_ hàm cơ sở. Ô trên bên trái của Hình 10.21 trình bày dữ liệu, hàm thật _f_ ( _X_ ) và _f_^(ˆ) 8( _X_ ), natural spline được khớp với _d_ = 8 bậc tự do.
+
+Tiếp theo, ta khớp natural spline với _d_ = 20 bậc tự do. Vì _n_ = 20, điều này nghĩa là _n_ = _d_ và lỗi huấn luyện bằng không; nói cách khác, ta đã nội suy dữ liệu huấn luyện! Từ ô trên bên phải của Hình 10.21, ta thấy _f_^(ˆ) 20( _X_ ) dao động dữ dội, nên lỗi kiểm tra sẽ lớn.
+
+Ta tiếp tục khớp natural spline với các giá trị _d_ tăng dần. Khi _d &gt;_ 20, phép hồi quy bình phương tối thiểu của _Y_ theo _d_ hàm cơ sở không có nghiệm duy nhất: tồn tại vô hạn ước lượng hệ số bình phương tối thiểu đạt lỗi bằng không. Để chọn một nghiệm, ta lấy nghiệm có tổng bình phương hệ số nhỏ nhất,^(�)^(_d_) _j_ =1^(_β_ˆ) _j_^(2. Đây) được gọi là nghiệm _chuẩn nhỏ nhất_ (minimum-norm).
+
+Hai ô dưới của Hình 10.21 trình bày các phép khớp natural spline chuẩn nhỏ nhất với _d_ = 42 và _d_ = 80 bậc tự do. Đáng kinh ngạc, _f_^(ˆ) 42( _X_ ) ít dao động hơn _f_^(ˆ) 20( _X_ ) khá nhiều, _dù nó dùng nhiều bậc tự do hơn_. Và _f_^(ˆ) 80( _X_ ) cũng không khác nhiều. Vì sao? Về cơ bản, _f_^(ˆ) 20( _X_ ) dao động mạnh vì chỉ có một cách duy nhất để nội suy _n_ = 20 quan sát bằng _d_ = 20 hàm cơ sở, và cách duy nhất đó tạo ra một hàm khớp khá cực đoan. Ngược lại, có
+
+> 22Điều này hàm ý chọn _d_ knot, ở đây được đặt tại _d_ phân vị đồng xác suất của dữ liệu huấn luyện. Khi _d &gt; n_, các phân vị được tìm bằng nội suy.
+
+vô hạn cách nội suy _n_ = 20 quan sát bằng _d_ = 42 hoặc _d_ = 80 hàm cơ sở; cách trơn nhất trong số đó — tức nghiệm chuẩn nhỏ nhất — ít dao động hơn _f_^(ˆ) 20( _X_ ) nhiều!
+
+Trong Hình 10.20, ta biểu diễn lỗi huấn luyện và lỗi kiểm tra gắn với _f_^(ˆ) _d_ ( _X_ ) trên một miền giá trị bậc tự do _d_. Lỗi huấn luyện giảm về không khi _d_ = 20 trở lên, tức khi đạt ngưỡng nội suy. Trái lại, lỗi kiểm tra có dạng chữ _U_ khi _d ≤_ 20, tăng cực lớn quanh _d_ = 20 rồi có vùng giảm thứ hai khi _d &gt;_ 20. Trong ví dụ này, tỷ số tín hiệu trên nhiễu — Var( _f_ ( _X_ )) _/σ_^(2) — bằng 5 _._ 9, khá cao (các điểm dữ liệu nằm gần đường cong thật). Vì vậy, một ước lượng nội suy dữ liệu nhưng không đi quá xa giữa các điểm quan sát nhiều khả năng sẽ hoạt động tốt.
+
+Trong Hình 10.20 và 10.21, chúng ta minh họa double descent trong bối cảnh một chiều đơn giản bằng natural spline. Tuy nhiên, hiện tượng tương tự cũng có thể xuất hiện trong học sâu. Về cơ bản, khi khớp mạng nơ-ron với số lượng tham số khổng lồ, đôi khi ta có thể đạt kết quả tốt với lỗi huấn luyện bằng không. Điều này đặc biệt đúng trong những bài toán có tỷ số tín hiệu trên nhiễu cao, chẳng hạn nhận dạng ảnh tự nhiên và dịch ngôn ngữ. Lý do là các kỹ thuật dùng để khớp mạng nơ-ron, gồm stochastic gradient descent, tự nhiên thiên về chọn một mô hình nội suy “trơn” có hiệu năng tốt trên tập kiểm tra đối với những bài toán này. Cần nhấn mạnh một số điểm:
+
+- _Hiện tượng double descent không mâu thuẫn với sự đánh đổi độ chệch–phương sai như trình bày ở Mục 2.2.2._ Thay vào đó, đường cong double descent ở phía phải Hình 10.20 là hệ quả của việc trục _x_ biểu diễn số hàm cơ sở spline được dùng, đại lượng này không phản ánh đúng “độ linh hoạt” thực sự của các mô hình nội suy dữ liệu huấn luyện. Nói cách khác, trong ví dụ này, natural spline chuẩn nhỏ nhất với _d_ = 42 có phương sai thấp hơn natural spline với _d_ = 20.
+
+- _Phần lớn phương pháp học thống kê trong sách không biểu hiện double descent._ Chẳng hạn, các cách tiếp cận điều chuẩn thường không nội suy dữ liệu huấn luyện nên double descent không xảy ra. Đây không phải nhược điểm của phương pháp điều chuẩn: chúng có thể cho kết quả rất tốt _mà không nội suy dữ liệu_! Cụ thể, trong các ví dụ ở đây, nếu ta khớp natural spline bằng hồi quy ridge với mức phạt được chọn phù hợp thay vì bình phương tối thiểu, ta sẽ không thấy double descent và thực tế còn thu được lỗi kiểm tra tốt hơn.
+
+- _Trong Chương 9, ta đã thấy các bộ phân loại biên cực đại và SVM có lỗi huấn luyện bằng không nhưng thường vẫn đạt lỗi kiểm tra rất tốt._ Một phần lý do là các phương pháp này tìm nghiệm chuẩn nhỏ nhất trơn. Điều đó tương tự việc natural spline chuẩn nhỏ nhất có thể cho kết quả tốt với lỗi huấn luyện bằng không.
+
+- _Cộng đồng học máy đã dùng hiện tượng double descent để giải thích thành công của việc sử dụng mạng nơ-ron tham số hóa dư (nhiều tầng và nhiều nút ẩn), rồi khớp đến tận lỗi huấn luyện bằng không._ Tuy nhiên, khớp đến lỗi bằng không không phải lúc nào cũng tối ưu; có nên làm vậy hay không phụ thuộc vào tỷ số tín hiệu trên nhiễu. Chẳng hạn, ta có thể dùng điều chuẩn ridge để tránh quá khớp mạng nơ-ron như trong (10.31). Trong trường hợp này, nếu chọn tham số tinh chỉnh _λ_ phù hợp, ta sẽ không bao giờ nội suy dữ liệu huấn luyện nên cũng không thấy double descent. Dẫu vậy, ta vẫn có thể đạt hiệu năng kiểm tra rất tốt, nhiều khả năng tốt hơn nhiều so với khi nội suy dữ liệu huấn luyện. Dừng sớm trong stochastic gradient descent cũng có thể đóng vai trò điều chuẩn, ngăn ta nội suy dữ liệu huấn luyện mà vẫn đạt kết quả rất tốt trên dữ liệu kiểm tra.
+
+Tóm lại: dù đôi khi double descent xuất hiện trong mạng nơ-ron, nhìn chung ta không muốn dựa vào hành vi này. Hơn nữa, cần nhớ rằng sự đánh đổi độ chệch–phương sai luôn đúng (dù lỗi kiểm tra theo độ linh hoạt có thể không mang dạng chữ U, tùy cách ta tham số hóa khái niệm “độ linh hoạt” trên trục _x_).
+
+</MdxPage>

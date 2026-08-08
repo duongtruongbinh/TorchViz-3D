@@ -1,0 +1,198 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch06-subset-selection",
+  "locale": "vi",
+  "title": "Lựa chọn tập con",
+  "headings": [
+    "Lựa chọn tập con",
+    "6.1.1 Lựa chọn tập con tốt nhất",
+    "6.1.2 Lựa chọn từng bước",
+    "6.1.3 Chọn mô hình tối ưu"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "lựa chọn và điều chuẩn mô hình tuyến tính",
+    "lựa chọn tập con"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Lựa chọn tập con
+
+Trong mục này, ta xét một số phương pháp chọn tập con các biến dự báo, gồm thủ tục lựa chọn tập con tốt nhất và lựa chọn mô hình từng bước.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 6.1.1 Lựa chọn tập con tốt nhất
+
+Để thực hiện _lựa chọn tập con tốt nhất_, ta khớp một hồi quy bình phương tối thiểu riêng cho mỗi tổ hợp khả dĩ của _p_ biến dự báo. Tức là khớp tất cả _p_ mô hình chứa đúng một biến dự báo, tất cả � _p_ 2� = _p_ ( _p −_ 1) _/_ 2 mô hình chứa đúng hai biến, v.v. Sau đó ta xem mọi mô hình thu được để xác định mô hình _tốt nhất_.
+
+Chọn _mô hình tốt nhất_ trong 2^(_p_) khả năng không đơn giản. Việc này thường được chia thành hai giai đoạn như Thuật toán 6.1.
+
+##### **Thuật toán 6.1** _Lựa chọn tập con tốt nhất_
+
+1. Gọi _M_ 0 là _mô hình rỗng_, không chứa biến dự báo. Mô hình này chỉ dự đoán trung bình mẫu cho mỗi quan sát.
+
+2. Với _k_ = 1 _,_ 2 _, . . . p_:
+
+   - (a) Khớp mọi mô hình trong � _kp_ � mô hình chứa đúng _k_ biến dự báo. (b) Chọn mô hình tốt nhất và gọi là _Mk_. Ở đây _tốt nhất_ nghĩa là có RSS nhỏ nhất, tương đương _R_^(2) lớn nhất.
+
+3. Chọn một mô hình tốt nhất trong _M_ 0 _, . . . , Mp_ bằng lỗi dự đoán trên tập xác thực, _Cp_ (AIC), BIC hoặc _R_^(2) hiệu chỉnh; hoặc dùng xác thực chéo.
+
+Trong Thuật toán 6.1, Bước 2 xác định mô hình tốt nhất trên dữ liệu huấn luyện cho mỗi kích thước tập con, rút bài toán từ 2^(_p_) xuống _p_ + 1 mô hình khả dĩ. Trong Hình 6.1, các mô hình này tạo thành biên dưới màu đỏ.
+
+Để chọn một mô hình tốt nhất, ta chỉ cần chọn trong _p_ + 1 phương án. Tuy nhiên phải cẩn thận vì RSS giảm đơn điệu còn _R_^(2) tăng đơn điệu khi tăng số đặc trưng trong mô hình. Nếu dùng hai thống kê này, ta luôn chọn mô hình chứa mọi biến. Vấn đề là RSS thấp hay _R_^(2) cao biểu thị lỗi _huấn luyện_ thấp, còn ta muốn lỗi _kiểm tra_ thấp. (Như Hình 2.9–2.11 ở Chương 2, lỗi huấn luyện thường thấp hơn lỗi kiểm tra nhiều và lỗi huấn luyện thấp không bảo đảm lỗi kiểm tra thấp.) Vì vậy, ở Bước 3, ta dùng lỗi tập xác thực, _Cp_, BIC hoặc _R_^(2) hiệu chỉnh để chọn giữa _M_ 0 _, M_ 1 _, . . . , Mp_. Nếu dùng xác thực chéo, Bước 2 được lặp trên mỗi fold huấn luyện và lấy trung bình lỗi xác thực để chọn _k_ tốt nhất.
+
+**HÌNH 6.1.** _RSS và R_^(2) _được biểu diễn cho từng mô hình khả dĩ chứa một tập con của mười biến dự báo trong tập_ `Credit` _. Biên đỏ theo dõi mô hình_ tốt nhất _ở mỗi số biến dự báo theo RSS và R_^(2) _. Dù tập dữ liệu chỉ có mười biến dự báo, trục x từ_ 1 _đến_ 11 _vì một biến phân loại có ba giá trị nên tạo hai biến giả._
+
+Sau đó, mô hình _Mk_ được khớp trên toàn bộ tập huấn luyện với _k_ đã chọn được đưa ra. Các cách này được bàn ở Mục 6.1.3.
+
+Hình 6.1 minh họa lựa chọn tập con tốt nhất. Mỗi điểm là một mô hình hồi quy bình phương tối thiểu khớp bằng một tập con khác nhau của 10 biến dự báo trong `Credit`. Biến `region` là biến định tính ba mức nên được biểu diễn bằng hai biến giả, được chọn riêng. Vì vậy có tổng cộng 11 biến khả dĩ. RSS và _R_^(2) của mỗi mô hình được vẽ theo số biến. Các đường đỏ nối mô hình tốt nhất ở từng kích thước theo RSS hoặc _R_^(2). Đúng như kỳ vọng, hai đại lượng cải thiện khi tăng số biến; nhưng từ mô hình ba biến trở đi, thêm biến dự báo chỉ cải thiện RSS và _R_^(2) rất ít.
+
+Dù ở đây ta trình bày lựa chọn tập con tốt nhất cho hồi quy bình phương tối thiểu, ý tưởng tương tự áp dụng cho mô hình khác như hồi quy logistic. Với hồi quy logistic, thay vì xếp mô hình theo RSS ở Bước 2, ta dùng _deviance_, một thước đo đóng vai trò RSS cho lớp mô hình rộng hơn. Deviance bằng âm hai lần log-hợp lý cực đại; deviance càng nhỏ, phép khớp càng tốt.
+
+Lựa chọn tập con tốt nhất đơn giản và hấp dẫn về khái niệm nhưng bị giới hạn tính toán. Số mô hình cần xét tăng nhanh theo _p_. Nhìn chung, có 2^(_p_) mô hình dùng các tập con của _p_ biến dự báo. Nếu _p_ = 10 có khoảng 1.000 mô hình; nếu _p_ = 20 có hơn một triệu! Do đó, ngay cả với máy tính hiện đại rất nhanh, phương pháp trở nên bất khả thi khi _p_ lớn hơn
+
+##### **Thuật toán 6.2** _Lựa chọn tiến từng bước_
+
+1. Gọi _M_ 0 là mô hình _rỗng_, không chứa biến dự báo.
+
+2. Với _k_ = 0 _, . . . , p −_ 1:
+
+   - (a) Xét mọi mô hình trong _p − k_ mô hình bổ sung một biến dự báo vào các biến trong _Mk_.
+
+   - (b) Chọn mô hình _tốt nhất_ trong _p − k_ mô hình và gọi là _Mk_ +1. _Tốt nhất_ nghĩa là RSS nhỏ nhất hoặc _R_^(2) cao nhất.
+
+3. Chọn một mô hình tốt nhất trong _M_ 0 _, . . . , Mp_ bằng lỗi dự đoán trên tập xác thực, _Cp_ (AIC), BIC hoặc _R_^(2) hiệu chỉnh; hoặc dùng xác thực chéo.
+
+khoảng 40. Có các lối tắt tính toán gọi là kỹ thuật branch-and-bound để loại một số lựa chọn, nhưng chúng cũng bị giới hạn khi _p_ lớn và chỉ hoạt động cho hồi quy tuyến tính bình phương tối thiểu. Tiếp theo ta trình bày các phương án hiệu quả hơn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 6.1.2 Lựa chọn từng bước
+
+Vì lý do tính toán, lựa chọn tập con tốt nhất không áp dụng được khi _p_ rất lớn. Nó cũng có thể gặp vấn đề thống kê khi _p_ lớn: không gian tìm kiếm càng rộng, khả năng tìm thấy mô hình trông tốt trên dữ liệu huấn luyện nhưng không có sức dự đoán trên dữ liệu tương lai càng cao. Vì vậy, không gian tìm kiếm khổng lồ có thể gây quá khớp và phương sai hệ số cao.
+
+Vì cả hai lý do, các phương pháp _từng bước_ chỉ khảo sát một tập mô hình hạn chế hơn nhiều là lựa chọn thay thế hấp dẫn.
+
+##### Lựa chọn tiến từng bước
+
+_Lựa chọn tiến từng bước_ là phương án hiệu quả tính toán thay cho lựa chọn tập con tốt nhất. Trong khi lựa chọn tập con tốt nhất xét mọi 2^(_p_) mô hình chứa tập con của _p_ biến dự báo, lựa chọn tiến chỉ xét một tập nhỏ hơn nhiều. Nó bắt đầu từ mô hình không có biến dự báo rồi thêm lần lượt từng biến đến khi mọi biến đều có mặt. Tại mỗi bước, biến mang lại cải thiện _bổ sung_ lớn nhất cho phép khớp được thêm vào. Thủ tục chính thức nằm trong Thuật toán 6.2.
+
+Không giống lựa chọn tập con tốt nhất phải khớp 2^(_p_) mô hình, lựa chọn tiến khớp một mô hình rỗng cùng _p − k_ mô hình ở vòng lặp thứ _k_, với _k_ = 0 _, . . . , p −_ 1. Tổng cộng là 1 + � _kp−_ =01^(()^(_p−k_) = 1+)^(_p_()^(_p_+1))^(_/_2 mô hình. Khác biệt rất lớn: khi)
+
+<MdxCode language="table" code={"|Số biến|Tập con tốt nhất|Tiến từng bước|\n|---|---|---|\n|Một|`rating`|`rating`|\n|Hai|`rating`, `income`|`rating`, `income`|\n|Ba|`rating`, `income`, `student`|`rating`, `income`, `student`|\n|Bốn|`cards`, `income`|`rating`, `income`,|\n||`student`, `limit`|`student`, `limit`|"} />
+
+**BẢNG 6.1.** _Bốn mô hình đầu được chọn bằng lựa chọn tập con tốt nhất và tiến từng bước trên tập_ `Credit` _. Ba mô hình đầu giống nhau, mô hình thứ tư khác nhau._
+
+_p_ = 20, lựa chọn tập con tốt nhất cần khớp 1 _,_ 048 _,_ 576 mô hình, còn lựa chọn tiến chỉ cần 211.^(2)
+
+Ở Bước 2(b), ta phải tìm mô hình _tốt nhất_ trong _p−k_ mô hình thêm một biến vào _Mk_. Có thể chỉ cần chọn RSS thấp nhất hoặc _R_^(2) cao nhất. Nhưng ở Bước 3, ta phải chọn tốt nhất giữa các mô hình có số biến khác nhau, khó hơn và được bàn ở Mục 6.1.3.
+
+Ưu thế tính toán của lựa chọn tiến rất rõ. Dù thường hoạt động tốt, nó không được bảo đảm tìm ra mô hình tốt nhất trong mọi 2^(_p_) mô hình. Chẳng hạn, với _p_ = 3, giả sử mô hình một biến tốt nhất chứa _X_ 1 nhưng mô hình hai biến tốt nhất chứa _X_ 2 và _X_ 3. Lựa chọn tiến sẽ bỏ lỡ mô hình hai biến tốt nhất vì _M_ 1 đã chứa _X_ 1 nên _M_ 2 cũng phải giữ _X_ 1 và thêm một biến.
+
+Bảng 6.1 minh họa bằng bốn mô hình đầu trên `Credit`. Cả hai phương pháp chọn `rating` cho mô hình một biến rồi thêm `income`, `student` cho mô hình hai và ba biến. Nhưng lựa chọn tập con tốt nhất thay `rating` bằng `cards` ở mô hình bốn biến, còn lựa chọn tiến phải giữ `rating`. Hình 6.1 cho thấy RSS của mô hình ba và bốn biến không khác nhiều nên cả hai mô hình bốn biến có thể đều phù hợp.
+
+Lựa chọn tiến có thể áp dụng cả trong bối cảnh nhiều chiều _n &lt; p_; nhưng khi đó chỉ xây dựng được các mô hình con _M_ 0 _, . . . , Mn−_ 1 vì mỗi mô hình được khớp bằng bình phương tối thiểu, vốn không có nghiệm duy nhất nếu _p ≥ n_.
+
+##### Lựa chọn lùi từng bước
+
+Giống lựa chọn tiến, _lựa chọn lùi từng bước_ là phương án hiệu quả thay cho lựa chọn tập con tốt nhất. Nhưng thay vì bắt đầu rỗng, nó bắt đầu bằng mô hình đầy đủ chứa mọi _p_ biến rồi lần lượt loại biến ít hữu ích nhất. Chi tiết ở Thuật toán 6.3.
+
+> 2Dù lựa chọn tiến xét _p_ ( _p_ + 1) _/_ 2 + 1 mô hình, nó tìm kiếm _có định hướng_ trong không gian mô hình nên không gian mô hình hiệu dụng lớn hơn đáng kể.
+
+##### **Thuật toán 6.3** _Lựa chọn lùi từng bước_
+
+1. Gọi _Mp_ là mô hình _đầy đủ_, chứa mọi _p_ biến dự báo.
+
+2. Với _k_ = _p, p −_ 1 _, . . . ,_ 1:
+
+   - (a) Xét mọi mô hình trong _k_ mô hình chứa tất cả trừ một biến của _Mk_, tổng cộng _k −_ 1 biến.
+
+   - (b) Chọn mô hình _tốt nhất_ trong _k_ mô hình và gọi là _Mk−_ 1; _tốt nhất_ nghĩa là RSS nhỏ nhất hoặc _R_^(2) cao nhất.
+
+3. Chọn một mô hình tốt nhất trong _M_ 0 _, . . . , Mp_ bằng lỗi dự đoán tập xác thực, _Cp_ (AIC), BIC hoặc _R_^(2) hiệu chỉnh; hoặc dùng xác thực chéo.
+
+Giống lựa chọn tiến, lựa chọn lùi chỉ tìm trong 1+ _p_ ( _p_ +1) _/_ 2 mô hình nên có thể áp dụng khi _p_ quá lớn đối với lựa chọn tập con tốt nhất.^(3) Nó cũng không được bảo đảm tạo mô hình tập con _tốt nhất_.
+
+Lựa chọn lùi yêu cầu số mẫu _n_ lớn hơn số biến _p_ để khớp được mô hình đầy đủ. Ngược lại, lựa chọn tiến dùng được ngay cả khi _n &lt; p_, nên là phương pháp tập con khả thi duy nhất khi _p_ rất lớn.
+
+##### Phương pháp lai
+
+Lựa chọn tập con tốt nhất, tiến và lùi thường cho mô hình tương tự nhưng không giống hệt. Các phiên bản lai cũng tồn tại: biến được thêm tuần tự như lựa chọn tiến, nhưng sau mỗi lần thêm, phương pháp có thể loại biến không còn cải thiện phép khớp. Cách này cố mô phỏng sát hơn lựa chọn tập con tốt nhất mà vẫn giữ ưu thế tính toán của phương pháp tiến và lùi.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 6.1.3 Chọn mô hình tối ưu
+
+Lựa chọn tập con tốt nhất, lựa chọn tiến và lùi tạo một tập mô hình, mỗi mô hình chứa một tập con của _p_ biến dự báo. Để áp dụng, ta cần xác định mô hình _tốt nhất_. Như ở Mục 6.1.1, mô hình chứa mọi biến luôn có RSS nhỏ nhất và _R_^(2) lớn nhất vì đây là đại lượng liên quan đến lỗi huấn luyện. Ta muốn chọn mô hình có lỗi kiểm tra thấp. Lỗi huấn luyện có thể ước lượng lỗi kiểm tra rất kém, nên RSS và _R_^(2) không phù hợp để chọn giữa các mô hình có số biến khác nhau.
+
+Có hai cách phổ biến để ước lượng lỗi kiểm tra:
+
+1. Ước lượng gián tiếp bằng cách _hiệu chỉnh_ lỗi huấn luyện để tính đến độ chệch do quá khớp.
+
+2. Ước lượng _trực tiếp_ bằng tập xác thực hoặc xác thực chéo như ở Chương 5.
+
+Ta xét cả hai cách dưới đây.
+
+##### _Cp_, AIC, BIC và _R_^(2) hiệu chỉnh
+
+Chương 2 cho thấy MSE tập huấn luyện thường đánh giá thấp MSE kiểm tra. (MSE = RSS _/n_.) Khi khớp mô hình bình phương tối thiểu trên dữ liệu huấn luyện, ta chủ ý ước lượng hệ số để RSS huấn luyện, không phải RSS kiểm tra, nhỏ nhất. Lỗi huấn luyện giảm khi thêm biến nhưng lỗi kiểm tra có thể không giảm. Vì vậy, RSS và _R_^(2) huấn luyện không thể dùng chọn giữa các mô hình có số biến khác nhau.
+
+Tuy nhiên, có các kỹ thuật _hiệu chỉnh_ lỗi huấn luyện theo kích thước mô hình. Ta xét bốn cách: _Cp_, _tiêu chuẩn thông tin Akaike_ (AIC), _tiêu chuẩn thông tin Bayes_ (BIC) và _R_^(2) hiệu chỉnh. Hình 6.2 trình bày _Cp_, BIC và _R_^(2) hiệu chỉnh cho mô hình tốt nhất ở mỗi kích thước từ lựa chọn tập con tốt nhất trên `Credit`.
+
+Với mô hình bình phương tối thiểu đã khớp chứa _d_ biến dự báo, ước lượng _Cp_ của MSE kiểm tra được tính bằng
+
+trong đó _σ_ ˆ^(2) ước lượng phương sai sai số _ϵ_ của mỗi phép đo đáp ứng trong (6.1).^(4) Thường _σ_ ˆ^(2) được ước lượng bằng mô hình đầy đủ. Về cơ bản, _Cp_ cộng mức phạt 2 _dσ_ ˆ^(2) vào RSS huấn luyện để hiệu chỉnh việc lỗi huấn luyện thường đánh giá thấp lỗi kiểm tra. Mức phạt tăng theo số biến
+
+> 4Mallow’s _Cp_ đôi khi được định nghĩa là _Cp′_^(=RSS)^(_/σ_ˆ2+ 2)^(_d −n_. Định nghĩa này tương đương) theo nghĩa mô hình có _Cp_ nhỏ nhất cũng có _Cp_^(_′_ nhỏ nhất.)
+
+**HÌNH 6.2.** _Cp, BIC và R_^(2) _hiệu chỉnh cho mô hình tốt nhất ở mỗi kích thước trên_ `Credit` _. Cp và BIC ước lượng MSE kiểm tra. Biểu đồ giữa cho thấy BIC bắt đầu tăng sau khi chọn bốn biến. Hai biểu đồ kia khá phẳng sau bốn biến._
+
+để bù cho việc RSS huấn luyện giảm tương ứng. Có thể chứng minh nếu _σ_ ˆ^(2) là ước lượng không chệch của _σ_^(2), thì _Cp_ là ước lượng không chệch của MSE kiểm tra. Vì vậy, _Cp_ thường nhỏ ở mô hình có lỗi kiểm tra thấp và ta chọn mô hình có _Cp_ nhỏ nhất. Trong Hình 6.2, _Cp_ chọn mô hình sáu biến `income`, `limit`, `rating`, `cards`, `age`, `student`.
+
+AIC được định nghĩa cho lớp mô hình lớn được khớp bằng hợp lý cực đại. Với mô hình (6.1) có sai số Gaussian, hợp lý cực đại và bình phương tối thiểu giống nhau. Khi đó AIC có dạng
+
+trong đó đã bỏ các hằng số không liên quan.^(5) Với mô hình bình phương tối thiểu, _Cp_ và AIC tỷ lệ nhau nên Hình 6.2 chỉ trình bày _Cp_.
+
+BIC được dẫn xuất theo quan điểm Bayes nhưng cũng có dạng giống _Cp_ và AIC. Với mô hình bình phương tối thiểu có _d_ biến, bỏ qua hằng số không liên quan, BIC là
+
+Giống _Cp_, BIC thường nhỏ ở mô hình có lỗi kiểm tra thấp nên ta chọn BIC nhỏ nhất. BIC thay 2 _dσ_ ˆ^(2) của _Cp_ bằng log( _n_ ) _dσ_ ˆ^(2), với _n_ là số quan sát. Vì log _n &gt;_ 2 khi _n &gt;_ 7,
+
+> 5Có hai công thức AIC cho hồi quy bình phương tối thiểu. Công thức ở đây cần biểu thức _σ_^(2), lấy từ mô hình đầy đủ. Công thức thứ hai dùng khi _σ_^(2) chưa biết và không muốn ước lượng tường minh; nó có số hạng log(RSS) thay RSS. Chi tiết dẫn xuất nằm ngoài phạm vi sách.
+
+BIC thường phạt mô hình nhiều biến nặng hơn và chọn mô hình nhỏ hơn _Cp_. Trên `Credit`, BIC chọn mô hình bốn biến `income`, `limit`, `cards`, `student`. Các đường cong khá phẳng nên độ chính xác giữa mô hình bốn và sáu biến có vẻ không khác nhiều.
+
+_R_^(2) hiệu chỉnh là cách phổ biến khác để chọn giữa các mô hình có số biến khác nhau. Nhắc lại _R_^(2) thường bằng 1 _−_ RSS _/_ TSS, trong đó TSS = �( _yi −_ _~~y~~_ )^(2) là _tổng bình phương toàn phần_. Vì RSS luôn giảm khi thêm biến, _R_^(2) luôn tăng. Với mô hình bình phương tối thiểu có _d_ biến, _R_^(2) hiệu chỉnh được tính bằng
+
+Khác _Cp_, AIC, BIC nơi giá trị _nhỏ_ chỉ lỗi kiểm tra thấp, giá trị _lớn_ của _R_^(2) hiệu chỉnh chỉ lỗi thấp. Cực đại hóa _R_^(2) hiệu chỉnh tương đương cực tiểu hóa RSS _n−d−_ 1^(. RSS luôn giảm khi tăng số biến nhưng đại lượng sau) có thể tăng hoặc giảm do _d_ ở mẫu số.
+
+Trực giác là sau khi mọi biến đúng đã vào mô hình, thêm biến _nhiễu_ chỉ giảm RSS rất ít. Vì thêm biến nhiễu làm _d_ tăng, chúng làm tăng _n−_ RSS _d−_ 1^(,) và giảm _R_^(2) hiệu chỉnh. Về lý thuyết, mô hình có _R_^(2) hiệu chỉnh lớn nhất chỉ chứa biến đúng, không có biến nhiễu. Khác _R_^(2) thường, _R_^(2) hiệu chỉnh _trả giá_ khi đưa biến không cần thiết vào. Trên `Credit`, nó chọn mô hình bảy biến, thêm `own` vào mô hình do _Cp_ và AIC chọn.
+
+_Cp_, AIC và BIC có cơ sở lý thuyết chặt chẽ dựa trên lập luận tiệm cận khi _n_ rất lớn. Dù phổ biến và trực quan, _R_^(2) hiệu chỉnh không có động cơ lý thuyết mạnh bằng. Các thước đo đều dễ dùng và tính. Ở đây ta cho công thức với mô hình tuyến tính bình phương tối thiểu; AIC và BIC còn được định nghĩa cho loại mô hình tổng quát hơn.
+
+##### Xác thực và xác thực chéo
+
+Thay cho các cách trên, ta có thể ước lượng trực tiếp lỗi kiểm tra bằng tập xác thực và xác thực chéo ở Chương 5. Ta tính lỗi xác thực hoặc xác thực chéo cho mỗi mô hình đang xét rồi chọn
+
+**HÌNH 6.3.** _Với tập_ `Credit` _, ba đại lượng được trình bày cho mô hình tốt nhất chứa d biến, với d từ_ 1 _đến_ 11 _. Mô hình tốt nhất tổng thể theo từng đại lượng được đánh dấu chữ thập xanh._ Trái: _Căn bậc hai BIC._ Giữa: _Lỗi tập xác thực._ Phải: _Lỗi xác thực chéo._
+
+mô hình có lỗi ước lượng nhỏ nhất. So với AIC, BIC, _Cp_ và _R_^(2) hiệu chỉnh, cách này ước lượng trực tiếp lỗi kiểm tra và đưa ra ít giả định hơn về mô hình thật. Nó cũng dùng được trong nhiều nhiệm vụ lựa chọn mô hình hơn, kể cả khi khó xác định bậc tự do hay ước lượng phương sai sai số _σ_^(2). Khi dùng xác thực chéo, chuỗi mô hình _Mk_ trong Thuật toán 6.1–6.3 được xác định riêng ở mỗi fold huấn luyện, rồi lấy trung bình lỗi xác thực trên mọi fold theo kích thước _k_. Chẳng hạn với hồi quy tập con tốt nhất, tập con _Mk_ kích thước _k_ có thể khác giữa các fold. Sau khi chọn kích thước _k_, ta tìm mô hình tốt nhất kích thước đó trên toàn bộ dữ liệu.
+
+Trước đây, xác thực chéo quá tốn tính toán với nhiều bài toán có _p_ hoặc _n_ lớn nên AIC, BIC, _Cp_ và _R_^(2) hiệu chỉnh hấp dẫn hơn. Ngày nay với máy tính nhanh, chi phí xác thực chéo hiếm khi là vấn đề, khiến nó trở thành cách rất hấp dẫn để chọn giữa các mô hình.
+
+Hình 6.3 trình bày BIC, lỗi tập xác thực và lỗi xác thực chéo trên dữ liệu `Credit` theo _d_ cho mô hình _d_ biến tốt nhất. Lỗi xác thực được tính bằng cách chọn ngẫu nhiên ba phần tư quan sát làm tập huấn luyện, phần còn lại làm tập xác thực. Lỗi xác thực chéo dùng _k_ = 10 fold. Cả xác thực và xác thực chéo đều chọn mô hình sáu biến. Tuy nhiên, cả ba cách gợi ý mô hình bốn, năm và sáu biến gần tương đương về lỗi kiểm tra.
+
+Thực tế, các đường lỗi ước lượng ở ô giữa và phải Hình 6.3 khá phẳng. Mô hình ba biến rõ ràng có lỗi thấp hơn mô hình hai biến, nhưng mô hình 3–11 biến khá tương tự. Nếu lặp tập xác thực với cách chia khác hay xác thực chéo với fold khác, mô hình chính xác có lỗi thấp nhất chắc chắn sẽ thay đổi. Khi đó, ta có thể dùng _quy tắc một sai số chuẩn_: trước hết tính sai số chuẩn của MSE kiểm tra ước lượng ở từng kích thước, rồi chọn mô hình nhỏ nhất có lỗi ước lượng nằm trong một sai số chuẩn so với điểm thấp nhất. Lý do là nếu nhiều mô hình gần tốt như nhau, ta nên chọn mô hình đơn giản nhất, tức ít biến nhất. Ở đây, áp dụng quy tắc một sai số chuẩn cho tập xác thực hoặc xác thực chéo chọn mô hình ba biến.
+
+</MdxPage>

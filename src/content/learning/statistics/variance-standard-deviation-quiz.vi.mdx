@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'variance-standard-deviation-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Ý nghĩa độ phân tán', 'Phương sai và độ lệch chuẩn', 'Hiệu chỉnh Bessel n - 1', 'Bậc tự do và ddof trong Python'],
+  keywords: ['variance', 'standard deviation', 'phương sai', 'độ lệch chuẩn', 'Bessel correction', 'ddof'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="variance-standard-deviation-quiz" questions={[
+  {
+    id: 'variance-meaning', title: 'Ý nghĩa độ phân tán', prompt: 'Hai tập dữ liệu A và B có cùng trung bình $\\bar{x}=10$. Tập A có độ lệch chuẩn $s_A=1$, tập B có $s_B=5$. Nhận xét nào đúng?', mode: 'single',
+    options: [
+      { id: 'b-more-dispersed', label: 'Dữ liệu B phân tán rộng hơn xung quanh giá trị trung bình so với A.', isCorrect: true },
+      { id: 'a-more-dispersed', label: 'Dữ liệu A phân tán rộng hơn B.' },
+      { id: 'same-distribution', label: 'Hai tập dữ liệu có cùng hình dạng phân phối.' },
+      { id: 'b-higher-mean', label: 'Tập B có giá trị trung bình cao hơn A.' }
+    ],
+    success: 'Đúng. Độ lệch chuẩn đo mức độ phân tán xung quanh trung bình. $s_B=5 > s_A=1$ cho thấy B phân tán rộng hơn.',
+    error: 'Chưa đúng. Độ lệch chuẩn lớn hơn thể hiện mức độ dao động/phân tán quanh trung bình lớn hơn.'
+  },
+  {
+    id: 'variance-vs-std', title: 'Phương sai và độ lệch chuẩn', prompt: 'Nếu phương sai của một mẫu là $s^2 = 25\\text{ cm}^2$, độ lệch chuẩn $s$ bằng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'five-cm', label: '$5\\text{ cm}$', isCorrect: true },
+      { id: 'twenty-five-cm', label: '$25\\text{ cm}$' },
+      { id: 'six-twenty-five', label: '$625\\text{ cm}^2$' },
+      { id: 'five-cm-squared', label: '$5\\text{ cm}^2$' }
+    ],
+    success: 'Đúng. Độ lệch chuẩn là căn bậc hai của phương sai ($s = \\sqrt{s^2} = \\sqrt{25} = 5\\text{ cm}$) và có cùng đơn vị với dữ liệu gốc.',
+    error: 'Chưa đúng. Độ lệch chuẩn bằng căn bậc hai của phương sai và đưa đơn vị về cùng đơn vị của dữ liệu.'
+  },
+  {
+    id: 'bessel-correction-reason', title: 'Hiệu chỉnh Bessel n - 1', prompt: 'Vì sao khi tính phương sai mẫu $s^2$, ta chia cho $n-1$ thay vì $n$?', mode: 'single',
+    options: [
+      { id: 'unbiased-estimator', label: 'Để sửa chệch (bias) do các điểm trong mẫu có xu hướng gần trung bình mẫu hơn trung bình quần thể thực sự.', isCorrect: true },
+      { id: 'make-larger-sample', label: 'Để làm cho cỡ mẫu trông lớn hơn.' },
+      { id: 'simplify-calculation', label: 'Để đơn giản hóa phép tính số học.' },
+      { id: 'always-n-minus-one', label: 'Chia cho $n-1$ là quy ước bắt buộc cho mọi tập dữ liệu kể cả quần thể.' }
+    ],
+    success: 'Đúng. Chia cho $n$ khiến phương sai mẫu đánh giá thấp (underestimate) phương sai quần thể. Chia $n-1$ tạo ra ước lượng không chệch (unbiased estimator).',
+    error: 'Chưa đúng. Dùng trung bình mẫu $\\bar{x}$ thay cho $\\mu$ làm mất 1 bậc tự do, chia cho $n-1$ giúp sửa độ chệch này.'
+  },
+  {
+    id: 'ddof-python-numpy-pandas', title: 'Bậc tự do và ddof trong Python', prompt: 'Trong Python, lệnh `np.std(data)` và `pd.Series(data).std()` mặc định có điểm gì khác nhau?', mode: 'single',
+    options: [
+      { id: 'ddof-difference', label: 'NumPy mặc định `ddof=0` (chia $n$), còn Pandas mặc định `ddof=1` (chia $n-1$).', isCorrect: true },
+      { id: 'both-ddof1', label: 'Cả hai đều mặc định `ddof=1`.' },
+      { id: 'both-ddof0', label: 'Cả hai đều mặc định `ddof=0`.' },
+      { id: 'pandas-ddof0', label: 'Pandas mặc định `ddof=0`, còn NumPy mặc định `ddof=1`.' }
+    ],
+    success: 'Đúng. NumPy mặc định `ddof=0` (phương sai quần thể), trong khi Pandas mặc định `ddof=1` (phương sai mẫu). Cần chú ý để tránh tính sai.',
+    error: 'Chưa đúng. NumPy mặc định `ddof=0`, còn Pandas mặc định `ddof=1`.'
+  }
+]} />

@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'statistics-criticism',
+  locale: 'vi',
+  title: '2.3 Đọc thống kê có trách nhiệm',
+  headings: [
+    'Phương pháp nào cũng có điều kiện',
+    'Số liệu đúng vẫn có thể dẫn dắt',
+    'Biểu đồ cắt trục',
+    'Kiểm tra trước khi tin',
+    'Kiến thức cần nắm',
+  ],
+  keywords: [
+    'giả định thống kê',
+    'đồ thị gây hiểu lầm',
+    'trục cắt',
+    'nguồn dữ liệu',
+    'độ bất định',
+    'đọc thống kê',
+  ],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Phương pháp nào cũng có điều kiện
+
+Một phép tính có thể được thực hiện đúng nhưng kết luận vẫn sai nếu dữ liệu không đáp ứng **giả định** của phương pháp.
+
+<ProbabilityChapterVisual kind="statistical-assumptions" />
+
+Vì vậy, trước khi tin một kết quả, hãy hỏi: dữ liệu được lấy thế nào và điều kiện áp dụng phương pháp có hợp lý không?
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Số liệu đúng vẫn có thể dẫn dắt
+
+Người trình bày không cần sửa con số để tạo ấn tượng sai. Họ có thể chọn dữ liệu thuận lợi, dùng cách hiển thị phóng đại khác biệt hoặc diễn giải vượt quá bằng chứng.
+
+<ProbabilityChapterVisual kind="statistics-misuse-flow" />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Biểu đồ cắt trục
+
+<ProbabilitySourceImage
+  asset="bush-tax-truncated-axis"
+  alt="Biểu đồ cột so sánh thuế suất 35 phần trăm và 39,6 phần trăm nhưng trục tung bắt đầu từ 34 phần trăm, khiến chênh lệch trông lớn hơn thực tế"
+  source="Datawrapper Academy · ví dụ về trục cắt"
+/>
+
+Hai giá trị chênh nhau **4,6 điểm phần trăm**. Vì trục tung bắt đầu ở 34% thay vì 0%, chiều cao hai cột tạo cảm giác chênh lệch lớn hơn nhiều.
+
+**Insight cần giữ:** con số có thể đúng, nhưng tỷ lệ hiển thị vẫn có thể làm người xem hiểu sai mức độ khác biệt.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kiểm tra trước khi tin
+
+<ProbabilityChapterVisual kind="responsible-statistics-checklist" />
+
+<LessonNote label="Đọc thêm">
+
+*How to Lie with Statistics* của **Darrell Huff** đưa ra nhiều ví dụ kinh điển về cách chọn và trình bày dữ liệu gây hiểu lầm.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt bài 2.3">
+
+- Kết quả chỉ đáng tin khi **dữ liệu** và **giả định của phương pháp** phù hợp.
+- Hãy tách ba bước: dữ liệu được **chọn**, được **trình bày**, rồi được **diễn giải**.
+- Với biểu đồ, luôn kiểm tra mốc 0, khoảng chia trục, đơn vị và phần dữ liệu bị lược bỏ.
+- Một kết luận có trách nhiệm phải nêu **nguồn dữ liệu**, **mức độ bất định** và **giới hạn suy luận**.
+
+</LessonNote>
+
+</MdxPage>

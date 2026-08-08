@@ -1,0 +1,745 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-deep-learning-lab",
+  "locale": "vi",
+  "title": "Lab: Học sâu",
+  "headings": [
+    "Lab: Học sâu",
+    "10.9.1 Mạng một lớp trên dữ liệu Hitters",
+    "10.9.2 Mạng nhiều lớp trên dữ liệu chữ số MNIST",
+    "10.9.3 Mạng nơ-ron tích chập",
+    "10.9.4 Sử dụng các mô hình CNN huấn luyện sẵn",
+    "10.9.5 Phân loại tài liệu IMDB",
+    "10.9.6 Mạng nơ-ron hồi quy"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "lab học sâu"
+  ],
+  "pageCount": 7
+}
+
+<MdxPage page={0}>
+
+## Lab: Học sâu
+
+Trong mục này, ta minh họa cách khớp các ví dụ đã bàn trong nội dung chính. Ta dùng gói `Python torch` cùng `pytorch_lightning torch`, cung cấp tiện ích đơn giản hóa việc khớp và đánh giá mô hình. Mã có thể chạy rất nhanh trên một số bộ xử lý chuyên dụng như chip M1 mới của Apple. Gói có cấu trúc tốt, linh hoạt và quen thuộc với người dùng `Python`. Trang pytorch.org/tutorials là tài liệu đồng hành hữu ích. Phần lớn mã được điều chỉnh từ đó và tài liệu `pytorch_lightning`.^(23)
+
+<MdxCode language="text" code={"pytorch_\nlightning"} />
+
+Ta bắt đầu với một số import chuẩn đã gặp trước đây.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp,pandasaspd\nfrommatplotlib.pyplotimportsubplots\nfromsklearn.linear_modelimport\\\n(LinearRegression ,\nLogisticRegression ,\nLasso)\nfromsklearn.preprocessingimportStandardScaler\nfromsklearn.model_selectionimportKFold\nfromsklearn.pipelineimportPipeline\nfromISLPimportload_data\nfromISLP.modelsimportModelSpecasMS\nfromsklearn.model_selectionimport\\\n(train_test_split ,\nGridSearchCV)"} />
+
+> 23Các URL chính xác tại thời điểm viết là `https://pytorch.org/tutorials/ beginner/basics/intro.html` và `https://pytorch-lightning.readthedocs.io/en/ latest/`.
+
+Các import riêng cho Torch
+
+Cần một số import cho `torch`. (Chúng không đi kèm `ISLP` nên phải cài riêng.) Trước hết, ta import thư viện chính và các công cụ thiết yếu để khai báo mạng có cấu trúc tuần tự.
+
+###### **`In [2]:`** `import torch`
+
+<MdxCode language="text" code={"fromtorchimportnn\nfromtorch.optimimportRMSprop\nfromtorch.utils.dataimportTensorDataset"} />
+
+Có một số gói hỗ trợ khác cho `torch`. Chẳng hạn, `torchmetrics` có tiện ích tính nhiều thước đo để đánh giá hiệu năng khi khớp mô hình; các thước đo của `torchmetrics` tích hợp trực tiếp với `torch`. `torchinfo` cung cấp bản tóm tắt hữu ích về các tầng, nên ta sẽ dùng `torchinfo` để xem cấu trúc mạng. Ta dùng `read_image()` khi tải ảnh kiểm tra ở Mục 10.9.4; lời gọi `read_image()` thực hiện việc đọc ảnh.
+
+###### **`In [3]:`** `from torchmetrics import (MeanAbsoluteError ,`
+
+<MdxCode language="text" code={"R2Score)"} />
+
+<MdxCode language="text" code={"fromtorchinfoimportsummary\nfromtorchvision.ioimportread_image"} />
+
+Gói `pytorch_lightning` là giao diện cấp cao hơn cho `torch`, giúp khai báo và khớp mô hình đơn giản hơn bằng cách giảm mã khuôn mẫu so với chỉ dùng `torch`.
+
+<MdxCode language="text" code={"In [4]:frompytorch_lightningimportTrainer\nfrompytorch_lightning.loggersimportCSVLogger"} />
+
+Để tái lập kết quả, ta dùng `seed_everything()`; tên hàm bắt đầu bằng `seed_`. Ta cũng yêu cầu `torch` dùng thuật toán xác định khi có thể.
+
+<MdxCode language="text" code={"everything()"} />
+
+<MdxCode language="text" code={"In [5]:frompytorch_lightning.utilities.seedimportseed_everything\nseed_everything(0,workers=True)"} />
+
+<MdxCode language="text" code={"torch.use_deterministic_algorithms(True,warn_only=True)"} />
+
+Trong các ví dụ, ta dùng một số tập dữ liệu đi kèm `torchvision`, một mạng phân loại ảnh huấn luyện sẵn và một số phép biến đổi tiền xử lý đều do `torchvision` cung cấp.
+
+###### **`In [6]:`** `from torchvision.datasets import MNIST, CIFAR100`
+
+<MdxCode language="text" code={"fromtorchvision.modelsimport(resnet50,"} />
+
+<MdxCode language="text" code={"ResNet50_Weights)\nfromtorchvision.transformsimport(Resize,\nNormalize,\nCenterCrop ,\nToTensor)"} />
+
+`ISLP` cung cấp một số tiện ích riêng cho bài lab. `SimpleDataModule` và `SimpleModule` là phiên bản đơn giản của các đối tượng trong `pytorch_lightning`, mô-đun cấp cao để khớp mô hình `torch`. Dù mô-đun hỗ trợ cách dùng nâng cao như tính toán trên GPU, xử lý dữ liệu song song và tích hợp với `torch`, bài lab không tập trung vào chúng. `ErrorTracker` thu thập mục tiêu và dự đoán trên từng mini-batch ở giai đoạn xác thực hay kiểm tra, cho phép tính thước đo trên toàn bộ tập dữ liệu.
+
+<MdxCode language="text" code={"In [7]:fromISLP.torchimport(SimpleDataModule ,"} />
+
+<MdxCode language="text" code={"SimpleModule ,\nErrorTracker ,\nrec_num_workers)"} />
+
+Ta còn có các hàm hỗ trợ tải cơ sở dữ liệu `IMDb` cùng bảng tra ánh xạ số nguyên sang khóa cụ thể. Một bản dữ liệu `IMDb` đã tiền xử lý từ `keras` được sửa nhẹ cũng được cung cấp. `keras` là gói riêng để khớp mô hình học sâu; dữ liệu này giúp tránh nhiều bước tiền xử lý để tập trung vào khai báo và khớp mô hình.
+
+<MdxCode language="text" code={"In [8]:fromISLP.torch.imdbimport(load_lookup ,"} />
+
+<MdxCode language="text" code={"load_tensor ,\nload_sparse ,\nload_sequential)"} />
+
+Cuối cùng là các import tiện ích không trực tiếp thuộc `torch`. Hàm `glob()` từ mô-đun `glob` tìm mọi tệp khớp ký tự đại diện; ta sẽ gọi `glob()` khi áp dụng `ResNet50` lên ảnh riêng. Mô-đun `json` tải tệp JSON tra lớp, và dữ liệu do `json` đọc giúp xác định nhãn ảnh trong ví dụ `ResNet50`.
+
+<MdxCode language="text" code={"In [9]:fromglobimportglob\nimportjson"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 10.9.1 Mạng một lớp trên dữ liệu Hitters
+
+Ta bắt đầu bằng cách khớp các mô hình ở Mục 10.6 trên dữ liệu `Hitters`.
+
+<MdxCode language="text" code={"In [10]:Hitters=load_data('Hitters').dropna()\nn=Hitters.shape[0]"} />
+
+Ta sẽ khớp hai mô hình tuyến tính (bình phương tối thiểu và lasso), rồi so sánh với mạng nơ-ron bằng sai số tuyệt đối trung bình trên tập xác thực.
+
+Ta thiết lập ma trận mô hình và biến đáp ứng.
+
+<MdxCode language="text" code={"In [11]:model=MS(Hitters.columns.drop('Salary'),intercept=False)\nX=model.fit_transform(Hitters).to_numpy()\nY=Hitters['Salary'].to_numpy()"} />
+
+Phương thức `to_numpy()` chuyển data frame hay series `pandas` thành mảng `to_numpy() numpy`. Việc này cần thiết vì `sklearn` dùng để khớp lasso yêu cầu kiểu dữ liệu đó. Ta cũng dùng hồi quy tuyến tính của `sklearn` thay cho `statsmodels` ở Chương 3 để thuận tiện so sánh.
+
+Bây giờ ta chia dữ liệu thành tập huấn luyện và kiểm tra, cố định trạng thái ngẫu nhiên mà `sklearn` dùng khi chia.
+
+<MdxCode language="text" code={"In [12]:(X_train,\nX_test,\nY_train,\nY_test)=train_test_split(X,\nY,\ntest_size=1/3,\nrandom_state=1)"} />
+
+Mô hình tuyến tính
+
+Ta khớp mô hình tuyến tính và đánh giá trực tiếp lỗi kiểm tra.
+
+<MdxCode language="text" code={"In [13]:hit_lm=LinearRegression().fit(X_train,Y_train)\nYhat_test=hit_lm.predict(X_test)\nnp.abs(Yhat_test-Y_test).mean()"} />
+
+<MdxCode language="text" code={"Out[13]:259.7153"} />
+
+Tiếp theo, ta khớp lasso bằng `sklearn`. Ta chọn và đánh giá mô hình bằng sai số tuyệt đối trung bình thay cho sai số bình phương trung bình. Bộ giải chuyên biệt ở Mục 6.5.2 chỉ dùng sai số bình phương, nên ở đây ta tự tạo lưới và thực hiện xác thực chéo trực tiếp.
+
+Ta tạo pipeline hai bước: chuẩn hóa đặc trưng bằng `StandardScaler()`, rồi khớp lasso mà không chuẩn hóa thêm.
+
+<MdxCode language="text" code={"In [14]:scaler=StandardScaler(with_mean=True,with_std=True)\nlasso=Lasso(warm_start=True,max_iter=30000)\nstandard_lasso=Pipeline(steps=[('scaler',scaler),\n('lasso',lasso)])"} />
+
+Ta cần một lưới giá trị _λ_. Theo thông lệ, ta chọn 100 giá trị cách đều trên thang log từ `lam_max` xuống `0.01*lam_max`. `lam_max` là _λ_ nhỏ nhất tạo nghiệm toàn số không, bằng tích vô hướng tuyệt đối lớn nhất giữa một biến dự báo và biến đáp ứng đã định tâm.^(24)
+
+<MdxCode language="text" code={"In [15]:X_s=scaler.fit_transform(X_train)\nn=X_s.shape[0]\nlam_max=np.fabs(X_s.T.dot(Y_train-Y_train.mean())).max()/n\nparam_grid={'alpha':np.exp(np.linspace(0,np.log(0.01),100))\n*lam_max}"} />
+
+Ta phải biến đổi dữ liệu trước vì thang của biến ảnh hưởng lựa chọn _λ_. Bây giờ thực hiện xác thực chéo bằng chuỗi _λ_ này.
+
+<MdxCode language="text" code={"In [16]:cv=KFold(10,\nshuffle=True,\nrandom_state=1)\ngrid=GridSearchCV(lasso,"} />
+
+> 24Việc suy ra kết quả này nằm ngoài phạm vi cuốn sách.
+
+<MdxCode language="text" code={"param_grid ,\ncv=cv,\nscoring='neg_mean_absolute_error')\ngrid.fit(X_train,Y_train);"} />
+
+Ta lấy mô hình lasso có sai số tuyệt đối trung bình xác thực chéo tốt nhất và đánh giá trên `X_test`, `Y_test`, vốn không được dùng trong xác thực chéo.
+
+<MdxCode language="text" code={"In [17]:trained_lasso=grid.best_estimator_\nYhat_test=trained_lasso.predict(X_test)\nnp.fabs(Yhat_test-Y_test).mean()"} />
+
+<MdxCode language="text" code={"Out[17]:257.2382"} />
+
+Kết quả tương tự mô hình tuyến tính bình phương tối thiểu. Tuy nhiên, chúng có thể thay đổi nhiều theo cách chia huấn luyện/kiểm tra; bạn nên thử seed khác trong khối mã 12 và chạy lại các khối sau đến đây.
+
+Khai báo mạng: lớp và kế thừa
+
+Để khớp mạng nơ-ron, trước hết ta thiết lập cấu trúc mô tả mạng bằng cách định nghĩa lớp mới cho mô hình. Trong `pytorch`, việc này thường được thực hiện bằng cách tạo lớp con từ biểu diễn mạng tổng quát. Dù ví dụ đơn giản, ta trình bày khá chi tiết vì các bước sẽ hữu ích cho những ví dụ phức tạp sau.
+
+<MdxCode language="text" code={"In [18]:classHittersModel(nn.Module):"} />
+
+<MdxCode language="text" code={"def__init__(self,input_size):\nsuper(HittersModel ,self).__init__()\nself.flatten=nn.Flatten()\nself.sequential=nn.Sequential(\nnn.Linear(input_size,50),\nnn.ReLU(),\nnn.Dropout(0.4),\nnn.Linear(50,1))\ndefforward(self,x):\nx=self.flatten(x)\nreturntorch.flatten(self.sequential(x))"} />
+
+Câu lệnh `class` khai báo lớp `HittersModel` kế thừa lớp cơ sở `nn.Module`. Lớp cơ sở này xuất hiện khắp `torch` và biểu diễn các ánh xạ trong mạng nơ-ron.
+
+Các phương thức thụt dưới `class` là `__init__` và `forward`. `__init__` được gọi khi tạo một thể hiện lớp như ô dưới; `self` luôn chỉ thể hiện đó. Trong `__init__`, ta gắn hai thuộc tính `flatten`, `sequential` vào `self`; chúng được dùng trong `forward` để mô tả ánh xạ mô-đun thực hiện.
+
+Trong `__init__` còn có lời gọi `super()`, cho phép lớp con như `HittersModel` truy cập phương thức của lớp được kế thừa. Chẳng hạn, `nn.Module` có `__init__` riêng, khác `HittersModel.__init__()` ở trên. Nhờ `super()`, lớp con có thể gọi phương thức lớp cơ sở; vì vậy `super()` luôn cần thiết để `torch` diễn giải mô hình đúng, và ta sẽ còn gặp `super()` trong các mô hình sau.
+
+`nn.Module` còn nhiều phương thức ngoài `__init__`, `forward`, và các thể hiện `HittersModel` truy cập trực tiếp được nhờ kế thừa. Một ví dụ là `eval()`, dùng để tắt dropout khi đánh giá mô hình trên dữ liệu kiểm tra.
+
+###### **`In [19]:`** `hit_model = HittersModel(X.shape[1])`
+
+`self.sequential` là tổ hợp bốn ánh xạ. Ánh xạ đầu chuyển 19 đặc trưng `Hitters` sang 50 chiều, tạo 50 _×_ 19 + 50 tham số cho trọng số và _hệ số chặn_ (thường gọi là _bias_). Tiếp theo là tầng ReLU, dropout 40%, rồi ánh xạ tuyến tính xuống một chiều có bias. Tổng số tham số huấn luyện được là 50 _×_ 19 + 50 + 50 + 1 = 1051.
+
+`torchinfo` cung cấp `summary()` để tóm tắt gọn thông tin này. Ta chỉ định kích thước đầu vào và xem kích thước mỗi tensor khi đi qua các tầng.
+
+###### **`In [20]:`** `summary(hit_model,`
+
+<MdxCode language="table" code={"|`input_size=X_train.shape,`|\n|---|\n|`col_names=['input_size',`|\n|`'output_size',`|\n|`'num_params'])`|"} />
+
+<MdxCode language="text" code={"Out[20]:====================================================================="} />
+
+<MdxCode language="table" code={"|`Layer (type:depth-idx)`|`Input `|`Shape`|`Output`|`Shape`|`Param #`|\n|---|---|---|---|---|---|\n|`=========================`|`=========`|`=======`|`========`|`========`|`============`|\n|`HittersModel`|`[175, `|`19]`|`[175]`||`--`|\n|`Flatten: 1-1`|`[175, `|`19]`|`[175, `|`19]`|`--`|\n|`Sequential: 1-2`|`[175, `|`19]`|`[175, `|`1]`|`--`|\n|`Linear: 2-1`|`[175, `|`19]`|`[175, `|`50]`|`1,000`|\n|`ReLU: 2-2`|`[175, `|`50]`|`[175, `|`50]`|`--`|\n|`Dropout: 2-3`|`[175, `|`50]`|`[175, `|`50]`|`--`|\n|`Linear: 2-4`|`[175, `|`50]`|`[175, `|`1]`|`51`|"} />
+
+<MdxCode language="table" code={"|`=====================================================================`|\n|---|\n|`Total params: 1,051`|\n|`Trainable params: 1,051`|"} />
+
+Ở đây và các lần sau, phần cuối đầu ra được lược bớt đôi chút.
+
+Bây giờ cần chuyển dữ liệu huấn luyện sang dạng `torch` dùng được. Kiểu cơ bản là `tensor`, rất giống `ndarray`. `torch` thường dùng số thực 32-bit (_độ chính xác đơn_) thay cho 64-bit (_độ chính xác kép_), nên ta chuyển dữ liệu sang `np.float32` trước khi tạo tensor. Các tensor _X_, _Y_ sau đó được sắp vào một `Dataset Dataset`.
+
+được `torch` nhận diện bằng `TensorDataset()`.
+
+<MdxCode language="text" code={"In [21]:X_train_t=torch.tensor(X_train.astype(np.float32))\nY_train_t=torch.tensor(Y_train.astype(np.float32))\nhit_train=TensorDataset(X_train_t,Y_train_t)"} />
+
+<MdxCode language="text" code={"Tensor\nDataset()"} />
+
+Ta làm tương tự với dữ liệu kiểm tra.
+
+<MdxCode language="text" code={"In [22]:X_test_t=torch.tensor(X_test.astype(np.float32))\nY_test_t=torch.tensor(Y_test.astype(np.float32))\nhit_test=TensorDataset(X_test_t,Y_test_t)"} />
+
+Cuối cùng, tập dữ liệu được truyền vào `DataLoader()`, rồi đưa dữ liệu vào mạng. Cấu trúc này có vẻ cồng kềnh nhưng hữu ích cho nhiệm vụ phức tạp khi dữ liệu nằm trên nhiều máy hoặc cần truyền đến GPU. `ISLP` cung cấp `SimpleDataModule()` để đơn giản hóa cách dùng chuẩn; tên lớp ghép từ `SimpleData` và `Module()`. Đối số `num_workers` cho biết số tiến trình dùng để tải dữ liệu. Với dữ liệu nhỏ như `Hitters`, nó ít ảnh hưởng nhưng có lợi cho `MNIST`, `CIFAR100`. `torch` kiểm tra tiến trình đang chạy và xác định số worker tối đa.^(25) Hàm `rec_num_workers()` giúp tính số hợp lý (ở đây tối đa 16).
+
+###### **`In [23]:`** `max_num_workers = rec_num_workers()`
+
+Thiết lập huấn luyện chung trong `pytorch_lightning` gồm dữ liệu huấn luyện, xác thực và kiểm tra, mỗi loại có data loader riêng. Trong mỗi epoch, ta chạy bước huấn luyện để học mô hình và bước xác thực để theo dõi lỗi. Dữ liệu kiểm tra thường được dùng cuối quá trình để đánh giá.
+
+Vì ta chỉ chia thành huấn luyện và kiểm tra, ta dùng dữ liệu kiểm tra làm xác thực qua `validation=hit_test`. `validation` có thể là số thực từ 0 đến 1, số nguyên hoặc `Dataset`. Số thực (hay số nguyên) được hiểu là tỷ lệ (hay số lượng) quan sát _huấn luyện_ dùng để xác thực; `Dataset` được truyền thẳng vào data loader.
+
+###### **`In [24]:`** `hit_dm = SimpleDataModule(hit_train,`
+
+<MdxCode language="text" code={"hit_test,\nbatch_size=32,\nnum_workers=min(4,max_num_workers),\nvalidation=hit_test)"} />
+
+Tiếp theo cần mô-đun `pytorch_lightning` điều khiển các bước huấn luyện. `SimpleModule()` chỉ ghi lại giá trị hàm mất mát và thước đo bổ sung cuối mỗi epoch. Các thao tác do `SimpleModule.[training/test/validation]_step()` điều khiển; ta không sửa chúng trong ví dụ.
+
+> 25Điều này phụ thuộc vào phần cứng tính toán và số lõi khả dụng.
+
+<MdxCode language="text" code={"In [25]:hit_module=SimpleModule.regression(hit_model,"} />
+
+<MdxCode language="text" code={"metrics={'mae':MeanAbsoluteError()})"} />
+
+Dùng `SimpleModule.regression()` cho biết ta dùng mất mát sai số bình phương như (10.23). Tên phương thức có thể đọc thành tiền tố `SimpleModule.` và phần `regression()`; tiền tố `SimpleModule.` cho biết phương thức thuộc lớp nào. Ta cũng yêu cầu theo dõi sai số tuyệt đối trung bình trong các thước đo được ghi log.
+
+Ta ghi kết quả bằng `CSVLogger()`, lưu vào tệp CSV trong `logs/hitters`. Sau khi khớp xong, có thể tải kết quả thành `pd.DataFrame()` và trực quan hóa. `pytorch_lightning` còn nhiều cách ghi log khác nhưng không bàn chi tiết.
+
+<MdxCode language="text" code={"In [26]:hit_logger=CSVLogger('logs',name='hitters')"} />
+
+Giờ ta huấn luyện mô hình và ghi kết quả bằng đối tượng `Trainer()` của `pytorch_lightning`. `datamodule=hit_dm` cho trainer biết cách tạo log huấn luyện/xác thực/kiểm tra; đối tượng `hit_dm` cung cấp các data loader tương ứng. Đối số đầu `hit_module` chỉ kiến trúc mạng cùng các bước tương ứng. `callbacks` cho phép thực hiện nhiệm vụ tại nhiều thời điểm; ở đây `ErrorTracker()` tính lỗi xác thực khi huấn luyện và cuối cùng là lỗi kiểm tra. Ta khớp mô hình trong 50 epoch.
+
+<MdxCode language="text" code={"In [27]:hit_trainer=Trainer(deterministic=True,"} />
+
+<MdxCode language="text" code={"max_epochs=50,\nlog_every_n_steps=5,\nlogger=hit_logger,\ncallbacks=[ErrorTracker()])\nhit_trainer.fit(hit_module,datamodule=hit_dm)"} />
+
+Ở mỗi bước SGD, thuật toán chọn ngẫu nhiên 32 quan sát để tính gradient. Một epoch là số bước SGD cần xử lý _n_ quan sát. Vì tập huấn luyện có _n_ = 175 và `batch_size` là 32, một epoch tương ứng 175 _/_ 32 = 5 _._ 5 bước SGD.
+
+Sau khi khớp, ta đánh giá hiệu năng trên dữ liệu kiểm tra bằng phương thức `test()` của trainer.
+
+<MdxCode language="text" code={"In [28]:hit_trainer.test(hit_module,datamodule=hit_dm)"} />
+
+###### **`Out[28]:`** `[{'test_loss': 104098.5469, 'test_mae': 229.5012}]`
+
+Kết quả khớp đã được ghi vào tệp CSV. Kết quả riêng của lần chạy nằm ở thuộc tính `experiment.metrics_file_path` của logger. Mỗi lần khớp, logger xuất kết quả vào một thư mục con mới trong `logs/hitters`.
+
+Bây giờ ta vẽ MAE (sai số tuyệt đối trung bình) theo số epoch. Trước hết, lấy các bản tóm tắt đã ghi.
+
+<MdxCode language="text" code={"hit_results=pd.read_csv(hit_logger.experiment.metrics_file_path)"} />
+
+Vì các ví dụ sau cũng cần biểu đồ tương tự, ta viết một hàm tổng quát đơn giản.
+
+<MdxCode language="text" code={"In [29]:defsummary_plot(results,\nax,\ncol='loss',\nvalid_legend='Validation',\ntraining_legend='Training',\nylabel='Loss',\nfontsize=20):\nfor(column,\ncolor,\nlabel)inzip([f'train_{col}_epoch',\nf'valid_{col}'],\n['black',\n'red'],\n[training_legend ,\nvalid_legend]):\nresults.plot(x='epoch',\ny=column,\nlabel=label,\nmarker='o',\ncolor=color,\nax=ax)\nax.set_xlabel('Epoch')\nax.set_ylabel(ylabel)\nreturnax"} />
+
+Ta thiết lập các trục rồi dùng hàm để tạo biểu đồ MAE.
+
+<MdxCode language="text" code={"In [30]:fig,ax=subplots(1,1,figsize=(6,6))\nax=summary_plot(hit_results ,\nax,\ncol='mae',\nylabel='MAE',\nvalid_legend='Validation(=Test)')\nax.set_ylim([0,400])\nax.set_xticks(np.linspace(0,50,11).astype(int));"} />
+
+Ta có thể dự đoán trực tiếp từ mô hình cuối và đánh giá trên dữ liệu kiểm tra. Trước khi dự đoán, gọi `eval()` của `hit_model` để báo `torch` rằng mô hình đã được khớp và sẵn sàng cho dữ liệu mới. Thay đổi chính là các tầng dropout bị tắt, tức không trọng số nào bị loại ngẫu nhiên khi dự đoán.
+
+<MdxCode language="text" code={"In [31]:hit_model.eval()\npreds=hit_module(X_test_t)\ntorch.abs(Y_test_t-preds).mean()"} />
+
+<MdxCode language="text" code={"Out[31]:tensor(229.5012,grad_fn=<MeanBackward0 >)"} />
+
+##### Dọn dẹp
+
+Khi thiết lập mô-đun dữ liệu, ta đã khởi chạy một số tiến trình worker vẫn tiếp tục chạy. Ta xóa mọi tham chiếu đến đối tượng torch để bảo đảm các tiến trình được kết thúc.
+
+<MdxCode language="text" code={"In [32]:del(Hitters,"} />
+
+<MdxCode language="text" code={"hit_model,hit_dm,\nhit_logger,\nhit_test,hit_train,\nX,Y,\nX_test,X_train,\nY_test,Y_train,\nX_test_t,Y_test_t,\nhit_trainer ,hit_module)"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 10.9.2 Mạng nhiều lớp trên dữ liệu chữ số MNIST
+
+Gói `torchvision` đi kèm một số tập dữ liệu mẫu, gồm dữ liệu chữ số `MNIST`. Bước đầu là lấy tập huấn luyện và kiểm tra bằng hàm `MNIST()` trong `torchvision.datasets`; lời gọi `MNIST()` thực hiện việc này. Dữ liệu được tải ở lần chạy đầu tiên và lưu trong `data/MNIST`.
+
+<MdxCode language="text" code={"In [33]:(mnist_train ,\nmnist_test)=[MNIST(root='data',\ntrain=train,\ndownload=True,\ntransform=ToTensor())\nfortrainin[True,False]]\nmnist_train"} />
+
+<MdxCode language="text" code={"Out[33]:DatasetMNIST"} />
+
+<MdxCode language="text" code={"Numberofdatapoints:60000\nRootlocation:data\nSplit:Train\nStandardTransform\nTransform:ToTensor()"} />
+
+Có 60.000 ảnh huấn luyện và 10.000 ảnh kiểm tra. Mỗi ảnh 28 _×_ 28 được lưu như ma trận pixel và cần chuyển thành vector.
+
+Mạng nơ-ron khá nhạy với thang đầu vào, tương tự điều chuẩn ridge và lasso. Đầu vào ở đây là giá trị thang xám tám bit từ 0 đến 255 nên ta đổi thang về khoảng đơn vị.^(26) Phép biến đổi cùng việc sắp lại trục được thực hiện bởi `ToTensor()` trong `torchvision.transforms`.
+
+Giống ví dụ `Hitters`, ta tạo mô-đun dữ liệu từ tập huấn luyện và kiểm tra, dành 20% ảnh huấn luyện để xác thực.
+
+<MdxCode language="text" code={"In [34]:mnist_dm=SimpleDataModule(mnist_train ,\nmnist_test ,\nvalidation=0.2,\nnum_workers=max_num_workers ,\nbatch_size=256)"} />
+
+> 26Lưu ý: tám bit nghĩa là 28, bằng 256. Theo quy ước bắt đầu từ 0, các giá trị khả dĩ từ 0 đến 255.
+
+Hãy xem dữ liệu sẽ được đưa vào mạng. Ta lặp qua vài phần đầu của tập kiểm tra và dừng sau 2 batch:
+
+<MdxCode language="text" code={"In [35]:foridx,(X_,Y_)inenumerate(mnist_dm.train_dataloader()):\nprint('X:',X_.shape)\nprint('Y:',Y_.shape)\nifidx>=1:\nbreak\nX:torch.Size([256,1,28,28])\nY:torch.Size([256])\nX:torch.Size([256,1,28,28])\nY:torch.Size([256])"} />
+
+_X_ của mỗi batch gồm 256 ảnh kích thước `1x28x28`; `1` chỉ một kênh thang xám. Với ảnh RGB như `CIFAR100`, `1` này được thay bằng `3` cho ba kênh màu.
+
+Bây giờ ta sẵn sàng khai báo mạng nơ-ron.
+
+<MdxCode language="text" code={"In [36]:classMNISTModel(nn.Module):"} />
+
+<MdxCode language="text" code={"def__init__(self):\nsuper(MNISTModel,self).__init__()\nself.layer1=nn.Sequential(\nnn.Flatten(),\nnn.Linear(28*28,256),\nnn.ReLU(),\nnn.Dropout(0.4))\nself.layer2=nn.Sequential(\nnn.Linear(256,128),\nnn.ReLU(),\nnn.Dropout(0.3))\nself._forward=nn.Sequential(\nself.layer1,\nself.layer2,\nnn.Linear(128,10))\ndefforward(self,x):\nreturnself._forward(x)"} />
+
+Ở tầng đầu, mỗi ảnh `1x28x28` được trải phẳng rồi ánh xạ sang 256 chiều, áp dụng ReLU và dropout 40%. Tầng thứ hai ánh xạ đầu ra xuống 128 chiều, dùng ReLU và dropout 30%. Cuối cùng, 128 chiều được ánh xạ xuống 10 lớp của `MNIST`.
+
+<MdxCode language="text" code={"In [37]:mnist_model=MNISTModel()"} />
+
+Ta kiểm tra mô hình tạo đầu ra đúng kích thước bằng batch `X_` ở trên.
+
+<MdxCode language="text" code={"In [38]:mnist_model(X_).size()"} />
+
+<MdxCode language="text" code={"Out[38]:torch.Size([256,10])"} />
+
+Hãy xem tóm tắt mô hình. Thay cho `input_size`, ta có thể truyền tensor đúng hình dạng; ở đây dùng batch `X_` cuối phía trên.
+
+<MdxCode language="text" code={"In [39]:summary(mnist_model ,"} />
+
+<MdxCode language="text" code={"input_data=X_,\ncol_names=['input_size',\n'output_size',\n'num_params'])"} />
+
+<MdxCode language="text" code={"Out[39]:====================================================================="} />
+
+<MdxCode language="text" code={"Layer(type:depth-idx)InputShapeOutputShapeParam#\n=====================================================================\nMNISTModel[256,1,28,28][256,10]--\nSequential:1-1[256,1,28,28][256,10]--\nSequential:2-1[256,1,28,28][256,256]--\nFlatten:3-1[256,1,28,28][256,784]--\nLinear:3-2[256,784][256,256]200,960\nReLU:3-3[256,256][256,256]--\nDropout:3-4[256,256][256,256]--\nSequential:2-2[256,256][256,128]--\nLinear:3-5[256,256][256,128]32,896\nReLU:3-6[256,128][256,128]--\nDropout:3-7[256,128][256,128]--\nLinear:2-3[256,128][256,10]1,290\n=====================================================================\nTotalparams:235,146\nTrainableparams:235,146"} />
+
+Sau khi thiết lập mô hình và mô-đun dữ liệu, việc khớp gần giống ví dụ `Hitters`. Khác mô hình hồi quy, ta dùng `SimpleModule.classification()` với mất mát cross-entropy thay cho sai số bình phương trung bình. `classifi-`
+
+<MdxCode language="text" code={"classifi-\ncation()"} />
+
+<MdxCode language="text" code={"In [40]:mnist_module=SimpleModule.classification(mnist_model)\nmnist_logger=CSVLogger('logs',name='MNIST')"} />
+
+Bước cuối là cung cấp dữ liệu huấn luyện và khớp mô hình.
+
+<MdxCode language="text" code={"In [41]:mnist_trainer=Trainer(deterministic=True,\nmax_epochs=30,\nlogger=mnist_logger ,\ncallbacks=[ErrorTracker()])\nmnist_trainer.fit(mnist_module ,\ndatamodule=mnist_dm)"} />
+
+Đầu ra báo tiến trình khớp theo epoch được ẩn ở đây. Nó rất hữu ích vì tập dữ liệu lớn có thể mất thời gian. Mô hình mất 245 giây trên MacBook Pro M1 Pro 10 lõi, RAM 16 GB. Ta chia 20% để xác thực nên thực tế huấn luyện trên 80% của 60.000 quan sát. Đây là phương án thay cho cung cấp riêng dữ liệu xác thực như với `Hitters`. SGD dùng batch 256 quan sát, nên một epoch tương ứng 188 bước gradient.
+
+`SimpleModule.classification()` mặc định gồm thước đo độ chính xác; có thể thêm thước đo khác từ `torchmetrics`. Ta dùng `summary_plot()` để biểu diễn độ chính xác theo epoch.
+
+<MdxCode language="text" code={"In [42]:mnist_results=pd.read_csv(mnist_logger.experiment.\nmetrics_file_path)\nfig,ax=subplots(1,1,figsize=(6,6))\nsummary_plot(mnist_results ,\nax,\ncol='accuracy',\nylabel='Accuracy')\nax.set_ylim([0.5,1])\nax.set_ylabel('Accuracy')\nax.set_xticks(np.linspace(0,30,7).astype(int));"} />
+
+Một lần nữa, ta đánh giá bằng `test()` của trainer. Mô hình đạt độ chính xác 97% trên dữ liệu kiểm tra.
+
+<MdxCode language="text" code={"In [43]:mnist_trainer.test(mnist_module ,\ndatamodule=mnist_dm)"} />
+
+<MdxCode language="text" code={"Out[43]:[{'test_loss':0.1471,'test_accuracy':0.9681}]"} />
+
+Bảng 10.1 còn báo cáo tỷ lệ lỗi của LDA (Chương 4) và hồi quy logistic đa lớp. Với LDA, xem Mục 4.7.3. Dù có thể dùng `LogisticRegression()` của `sklearn`, ở đây ta khớp bằng `torch`: chỉ có tầng đầu vào và đầu ra, không có tầng ẩn!
+
+<MdxCode language="text" code={"In [44]:classMNIST_MLR(nn.Module):\ndef__init__(self):\nsuper(MNIST_MLR,self).__init__()\nself.linear=nn.Sequential(nn.Flatten(),\nnn.Linear(784,10))\ndefforward(self,x):\nreturnself.linear(x)\nmlr_model=MNIST_MLR()\nmlr_module=SimpleModule.classification(mlr_model)\nmlr_logger=CSVLogger('logs',name='MNIST_MLR')\nIn [45]:mlr_trainer=Trainer(deterministic=True,\nmax_epochs=30,\ncallbacks=[ErrorTracker()])\nmlr_trainer.fit(mlr_module,datamodule=mnist_dm)"} />
+
+Ta khớp như trước rồi tính kết quả kiểm tra.
+
+<MdxCode language="text" code={"In [46]:mlr_trainer.test(mlr_module,\ndatamodule=mnist_dm)"} />
+
+<MdxCode language="text" code={"Out[46]:[{'test_loss':0.3187,'test_accuracy':0.9241}]"} />
+
+Ngay cả mô hình khá đơn giản này cũng đạt độ chính xác trên 90%.
+
+Giống ví dụ `Hitters`, ta xóa một số đối tượng đã tạo.
+
+<MdxCode language="text" code={"In [47]:del(mnist_test,\nmnist_train ,"} />
+
+<MdxCode language="text" code={"mnist_model ,\nmnist_dm,\nmnist_trainer ,\nmnist_module ,\nmnist_results ,\nmlr_model,\nmlr_module,\nmlr_trainer)"} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 10.9.3 Mạng nơ-ron tích chập
+
+Trong mục này, ta khớp CNN cho dữ liệu `CIFAR100` có trong `torchvision`, được tổ chức tương tự `MNIST`.
+
+<MdxCode language="text" code={"In [48]:(cifar_train ,\ncifar_test)=[CIFAR100(root=\"data\",\ntrain=train,\ndownload=True)\nfortrainin[True,False]]"} />
+
+<MdxCode language="text" code={"In [49]:transform=ToTensor()\ncifar_train_X=torch.stack([transform(x)forxin\ncifar_train.data])\ncifar_test_X=torch.stack([transform(x)forxin\ncifar_test.data])\ncifar_train=TensorDataset(cifar_train_X ,\ntorch.tensor(cifar_train.targets))\ncifar_test=TensorDataset(cifar_test_X ,\ntorch.tensor(cifar_test.targets))"} />
+
+`CIFAR100` gồm 50.000 ảnh huấn luyện, mỗi ảnh là tensor ba chiều: ba kênh màu, mỗi kênh gồm 32 _×_ 32 pixel tám bit. Ta chuẩn hóa như với chữ số nhưng giữ cấu trúc mảng bằng `ToTensor()`.
+
+Tạo mô-đun dữ liệu tương tự ví dụ `MNIST`.
+
+<MdxCode language="text" code={"In [50]:cifar_dm=SimpleDataModule(cifar_train ,\ncifar_test ,\nvalidation=0.2,\nnum_workers=max_num_workers ,\nbatch_size=128)"} />
+
+Ta lại xem hình dạng các batch điển hình trong data loader.
+
+<MdxCode language="text" code={"In [51]:foridx,(X_,Y_)inenumerate(cifar_dm.train_dataloader()):\nprint('X:',X_.shape)\nprint('Y:',Y_.shape)\nifidx>=1:\nbreak"} />
+
+<MdxCode language="text" code={"X:torch.Size([128,3,32,32])\nY:torch.Size([128])\nX:torch.Size([128,3,32,32])\nY:torch.Size([128])"} />
+
+Trước khi bắt đầu, ta xem một số ảnh huấn luyện; mã tương tự đã tạo Hình 10.5 trang 406. Ví dụ cũng cho thấy có thể đánh chỉ số nguyên cho `TensorDataset`: ta chọn ảnh ngẫu nhiên bằng cách đánh chỉ số `cifar_train`. Để hiển thị đúng, phải sắp lại các chiều bằng `np.transpose()`.
+
+<MdxCode language="text" code={"In [52]:fig,axes=subplots(5,5,figsize=(10,10))\nrng=np.random.default_rng(4)\nindices=rng.choice(np.arange(len(cifar_train)),25,\nreplace=False).reshape((5,5))\nforiinrange(5):\nforjinrange(5):\nidx=indices[i,j]\naxes[i,j].imshow(np.transpose(cifar_train[idx][0],\n[1,2,0]),\ninterpolation=None)\naxes[i,j].set_xticks([])\naxes[i,j].set_yticks([])"} />
+
+Dựa vào hình dạng đối số, `imshow()` nhận ra đây là mảng ba chiều; phương thức `.imshow()` dùng chiều cuối để đánh chỉ số ba kênh RGB.
+
+Để minh họa, ta khai báo một CNN kích thước vừa phải có cấu trúc tương tự Hình 10.8. Mạng gồm nhiều tầng, mỗi tầng có tích chập, ReLU và max-pooling. Trước hết, ta định nghĩa mô-đun cho một tầng bằng cách ghi đè `__init__()`, `forward()` của `nn.Module`. Mô-đun tự định nghĩa này có thể dùng giống `nn.Linear()` hay `nn.Dropout()`.
+
+<MdxCode language="text" code={"In [53]:classBuildingBlock(nn.Module):"} />
+
+<MdxCode language="text" code={"def__init__(self,\nin_channels ,\nout_channels):\nsuper(BuildingBlock ,self).__init__()\nself.conv=nn.Conv2d(in_channels=in_channels ,\nout_channels=out_channels ,\nkernel_size=(3,3),\npadding='same')\nself.activation=nn.ReLU()\nself.pool=nn.MaxPool2d(kernel_size=(2,2))\ndefforward(self,x):\nreturnself.pool(self.activation(self.conv(x)))"} />
+
+Đối số `padding = "same"` của `nn.Conv2d()` bảo đảm kênh đầu ra có cùng kích thước kênh đầu vào. Tầng ẩn đầu có 32 kênh, so với ba kênh ở đầu vào. Mọi tầng dùng bộ lọc tích chập 3 _×_ 3 cho mỗi kênh, theo sau mỗi phép tích chập là max-pooling trên khối 2 _×_ 2.
+
+Khi tạo mô hình học sâu cho `CIFAR100`, ta dùng tuần tự nhiều mô-đun `BuildingBlock()`. Ví dụ đơn giản này cho thấy sức mạnh của `torch`: người dùng có thể định nghĩa mô-đun riêng,
+
+rồi kết hợp chúng trong mô-đun khác. Cuối cùng, tất cả được khớp bằng một trainer tổng quát.
+
+<MdxCode language="text" code={"In [54]:classCIFARModel(nn.Module):"} />
+
+<MdxCode language="text" code={"def__init__(self):\nsuper(CIFARModel,self).__init__()\nsizes=[(3,32),\n(32,64),\n(64,128),\n(128,256)]\nself.conv=nn.Sequential(*[BuildingBlock(in_,out_)\nforin_,out_insizes])\nself.output=nn.Sequential(nn.Dropout(0.5),\nnn.Linear(2*2*256,512),\nnn.ReLU(),\nnn.Linear(512,100))\ndefforward(self,x):\nval=self.conv(x)\nval=torch.flatten(val,start_dim=1)\nreturnself.output(val)"} />
+
+Ta xây dựng mô hình và xem tóm tắt. (Các mẫu `X_` đã được tạo trước đó.)
+
+<MdxCode language="text" code={"In [55]:cifar_model=CIFARModel()\nsummary(cifar_model ,\ninput_data=X_,\ncol_names=['input_size',\n'output_size',\n'num_params'])"} />
+
+<MdxCode language="table" code={"|`========================` `Layer (type:depth-idx)`|`=====` `Input `|`====`  `Sha`|`====` `pe`|`============` `Output`|`============`  `Shape`|`=========` `Param #`|\n|---|---|---|---|---|---|---|\n|`========================`|`=====`|`====`|`====`|`============`|`============`|`=========`|\n|`CIFARModel`|`[128, `|`3, `|`32, `|`32]` `[128, `|`100]`|`--`|\n|`Sequential: 1-1`|`[128, `|`3, `|`32, `|`32]` `[128, `|`256, 2, 2]`|`--`|\n|`BuildingBlock: 2-1`|`[128, `|`3, `|`32, `|`32]` `[128, `|`32, 16, 16]`|`--`|\n|`Conv2d: 3-1`|`[128, `|`3, `|`32, `|`32]` `[128, `|`32, 32, 32]`|`896`|\n|`ReLU: 3-2`|`[128, `|`32, `|`32,`|`32]` `[128, `|`32, 32, 32]`|`--`|\n|`MaxPool2d: 3-3`|`[128, `|`32, `|`32,`|`32]` `[128, `|`32, 16, 16]`|`--`|\n|`BuildingBlock: 2-2`|`[128, `|`32, `|`16,`|`16]` `[128, `|`64, 8, 8]`|`--`|\n|`Conv2d: 3-4`|`[128, `|`32, `|`16,`|`16]` `[128, `|`64, 16, 16]`|`18,496`|\n|`ReLU: 3-5`|`[128, `|`64, `|`16,`|`16]` `[128, `|`64, 16, 16]`|`--`|\n|`MaxPool2d: 3-6`|`[128, `|`64, `|`16,`|`16]` `[128, `|`64, 8, 8]`|`--`|\n|`BuildingBlock: 2-3`|`[128, `|`64, `|`8, `|`8]` `[128, `|`128, 4, 4]`|`--`|\n|`Conv2d: 3-7`|`[128, `|`64, `|`8, `|`8]` `[128, `|`128, 8, 8]`|`73,856`|\n|`ReLU: 3-8`|`[128, `|`128`|`, 8,`|`8]` `[128, `|`128, 8, 8]`|`--`|\n|`MaxPool2d: 3-9`|`[128, `|`128`|`, 8,`|`8]` `[128, `|`128, 4, 4]`|`--`|\n|`BuildingBlock: 2-4`|`[128, `|`128`|`, 4,`|`4]` `[128, `|`256, 2, 2]`|`--`|\n|`Conv2d: 3-10`|`[128, `|`128`|`, 4,`|`4]` `[128, `|`256, 4, 4]`|`295,168`|\n|`ReLU: 3-11`|`[128, `|`256`|`, 4,`|`4]` `[128, `|`256, 4, 4]`|`--`|\n|`MaxPool2d: 3-12 `|`[128, `|`256`|`, 4,`|`4]` `[128, `|`256, 2, 2]`|`--`|\n|`Sequential: 1-2`|`[128, `|`102`|`4]`|`[128, `|`100]`|`--`|\n|`Dropout: 2-5`|`[128, `|`102`|`4]`|`[128, `|`1024]`|`--`|\n|`Linear: 2-6`|`[128, `|`102`|`4]`|`[128, `|`512]`|`524,800`|"} />
+
+<MdxCode language="text" code={"Out[55]:======================================================================"} />
+
+<MdxCode language="table" code={"|`ReLU: 2-7`|`[128, `|`512]`|`[128, `|`512]`|`--`|\n|---|---|---|---|---|---|\n|`Linear: 2-8` `=====================`|`[128, ` `========`|`512]` `==========`|`[128,` `==========`|`100]` `=========`|`51,300` `============`|\n|`Total params: 964,516`||||||\n|`Trainable params: 964`|`,516`|||||"} />
+
+Tổng số tham số huấn luyện được là 964.516. Kích thước cho thấy mỗi phép max-pooling giảm một nửa cả hai chiều kênh. Sau phép cuối, ta có 256 kênh kích thước 2 _×_ 2. Chúng được trải phẳng thành tầng dày đặc kích thước 1.024: mỗi ma trận 2 _×_ 2 trở thành vector 4 chiều và được đặt cạnh nhau trong một tầng. Tiếp theo là tầng điều chuẩn dropout, tầng dày đặc kích thước 512 và cuối cùng là tầng đầu ra.
+
+Đến đây ta dùng optimizer mặc định trong `SimpleModule()`. Với dữ liệu này, thử nghiệm cho thấy tốc độ học nhỏ hơn mức mặc định 0,01 hoạt động tốt hơn, nên ta dùng optimizer tùy chỉnh với 0,001. Việc ghi log và huấn luyện vẫn giống các ví dụ trước. Đối số `params` cho optimizer biết những tham số nào tham gia SGD.
+
+Các phần tử tham số mô-đun là tensor. Khi truyền chúng cho optimizer, ta không chỉ truyền mảng; một phần cấu trúc đồ thị được mã hóa ngay trong tensor.
+
+<MdxCode language="text" code={"In [56]:cifar_optimizer=RMSprop(cifar_model.parameters(),lr=0.001)\ncifar_module=SimpleModule.classification(cifar_model ,\noptimizer=cifar_optimizer)\ncifar_logger=CSVLogger('logs',name='CIFAR100')\nIn [57]:cifar_trainer=Trainer(deterministic=True,\nmax_epochs=30,\nlogger=cifar_logger ,\ncallbacks=[ErrorTracker()])\ncifar_trainer.fit(cifar_module ,\ndatamodule=cifar_dm)"} />
+
+Mô hình chạy từ 10 phút trở lên và đạt độ chính xác khoảng 42% trên dữ liệu kiểm tra. Kết quả không tệ với 100 lớp (bộ phân loại ngẫu nhiên đạt 1%), nhưng trên web có kết quả khoảng 75%. Để đạt mức đó thường cần nhiều công sức thiết kế kiến trúc, điều chỉnh điều chuẩn và thời gian. Hãy xem độ chính xác huấn luyện, xác thực theo epoch.
+
+<MdxCode language="text" code={"In [58]:log_path=cifar_logger.experiment.metrics_file_path\ncifar_results=pd.read_csv(log_path)\nfig,ax=subplots(1,1,figsize=(6,6))\nsummary_plot(cifar_results ,\nax,\ncol='accuracy',\nylabel='Accuracy')\nax.set_xticks(np.linspace(0,10,6).astype(int))\nax.set_ylabel('Accuracy')\nax.set_ylim([0,1]);"} />
+
+Cuối cùng, ta đánh giá mô hình trên dữ liệu kiểm tra.
+
+<MdxCode language="text" code={"In [59]:cifar_trainer.test(cifar_module ,\ndatamodule=cifar_dm)"} />
+
+<MdxCode language="text" code={"Out[59]:[{'test_loss':2.4238'test_accuracy':0.4206}]"} />
+
+##### Tăng tốc phần cứng
+
+Khi học sâu trở nên phổ biến, các nhà sản xuất phần cứng đã tạo thư viện chuyên dụng để tăng tốc các bước gradient descent.
+
+Chẳng hạn, thiết bị Mac OS dùng chip M1 có thể bật framework _Metal_ để tăng tốc tính toán `torch`. Sau đây là ví dụ sử dụng.
+
+Thay đổi chính nằm ở lời gọi `Trainer()` và các thước đo đánh giá dữ liệu. Cần cho thước đo biết dữ liệu nằm ở đâu lúc đánh giá bằng phương thức `to()`.
+
+<MdxCode language="text" code={"In [60]:try:\nforname,metricincifar_module.metrics.items():\ncifar_module.metrics[name]=metric.to('mps')\ncifar_trainer_mps=Trainer(accelerator='mps',\ndeterministic=True,\nmax_epochs=30)\ncifar_trainer_mps.fit(cifar_module ,\ndatamodule=cifar_dm)\ncifar_trainer_mps.test(cifar_module ,\ndatamodule=cifar_dm)\nexcept:\npass"} />
+
+Cách này tăng tốc mỗi epoch khoảng hai đến ba lần. Khối mã được bảo vệ bằng `try:`, `except:`: nếu thành công ta được tăng tốc, nếu thất bại thì không có gì xảy ra.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 10.9.4 Sử dụng các mô hình CNN huấn luyện sẵn
+
+Bây giờ ta dùng CNN huấn luyện sẵn trên `imagenet` để phân loại ảnh tự nhiên và minh họa cách tạo Hình 10.10. Sáu ảnh JPEG từ album số được chép vào `book_images`. Chúng có trong phần dữ liệu của `www. statlearning.com`, trang sách ISLP. Tải `book_images.zip`; khi mở, nó tạo thư mục `book_images`.
+
+Mạng huấn luyện sẵn là `resnet50`; chi tiết đặc tả có trên web. Ta đọc ảnh và chuyển sang định dạng mảng mà `torch` yêu cầu để khớp đặc tả `resnet50`. Quá trình gồm đổi kích thước, cắt ảnh rồi chuẩn hóa định trước cho ba kênh. Bây giờ ta đọc và tiền xử lý ảnh.
+
+<MdxCode language="text" code={"In [61]:resize=Resize((232,232))\ncrop=CenterCrop(224)\nnormalize=Normalize([0.485,0.456,0.406],\n[0.229,0.224,0.225])\nimgfiles=sorted([fforfinglob('book_images/*')])\nimgs=torch.stack([torch.div(crop(resize(read_image(f))),255)\nforfinimgfiles])\nimgs=normalize(imgs)\nimgs.size()"} />
+
+<MdxCode language="text" code={"Out[61]:torch.Size([6,3,224,224])"} />
+
+Ta thiết lập mạng đã huấn luyện bằng trọng số đọc ở khối mã 6. Mô hình có 50 tầng và khá phức tạp.
+
+<MdxCode language="text" code={"In [62]:resnet_model=resnet50(weights=ResNet50_Weights.DEFAULT)\nsummary(resnet_model ,\ninput_data=imgs,\ncol_names=['input_size',\n'output_size',\n'num_params'])"} />
+
+Ta đặt chế độ `eval()` để bảo đảm mô hình sẵn sàng dự đoán dữ liệu mới.
+
+<MdxCode language="text" code={"In [63]:resnet_model.eval()"} />
+
+Đầu ra cho thấy khi thiết lập `resnet_model`, tác giả định nghĩa một `Bottleneck` tương tự mô-đun `BuildingBlock`. Bây giờ ta đưa sáu ảnh qua mạng đã khớp.
+
+<MdxCode language="text" code={"In [64]:img_preds=resnet_model(imgs)"} />
+
+Hãy xem xác suất dự đoán của ba lựa chọn cao nhất. Trước hết, áp dụng softmax lên logit trong `img_preds`. Ta phải gọi `detach()` trên tensor `img_preds` để chuyển nó thành `ndarray` quen thuộc.
+
+<MdxCode language="text" code={"In [65]:img_probs=np.exp(np.asarray(img_preds.detach()))\nimg_probs/=img_probs.sum(1)[:,None]"} />
+
+Để xem nhãn lớp, ta phải tải tệp chỉ mục đi kèm `imagenet`.^(27)
+
+<MdxCode language="text" code={"In [66]:labs=json.load(open('imagenet_class_index.json'))\nclass_labels=pd.DataFrame([(int(k),v[1])fork,vin\nlabs.items()],\ncolumns=['idx','label'])\nclass_labels=class_labels.set_index('idx')\nclass_labels=class_labels.sort_index()"} />
+
+Bây giờ ta tạo data frame cho mỗi tệp ảnh, chứa ba nhãn có xác suất cao nhất theo mô hình.
+
+> 27Tệp có trên trang sách và s3.amazonaws.com/deep-learningmodels/image-models/imagenet_class_index.json.
+
+<MdxCode language="text" code={"In [67]:fori,imgfileinenumerate(imgfiles):\nimg_df=class_labels.copy()\nimg_df['prob']=img_probs[i]\nimg_df=img_df.sort_values(by='prob',ascending=False)[:3]\nprint(f'Image:{imgfile}')\nprint(img_df.reset_index().drop(columns=['idx']))"} />
+
+<MdxCode language="text" code={"Image:book_images/Cape_Weaver.jpg\nlabelprob\n0jacamar0.287283\n1bee_eater0.046768\n2bulbul0.037507\nImage:book_images/Flamingo.jpg\nlabelprob\n0flamingo0.591761\n1spoonbill0.012386\n2American_egret0.002105\nImage:book_images/Hawk_Fountain.jpg\nlabelprob\n0great_grey_owl0.287959\n1kite0.039478\n2fountain0.029384\nImage:book_images/Hawk_cropped.jpg\nlabelprob\n0kite0.301830\n1jay0.121674\n2magpie0.015513\nImage:book_images/Lhasa_Apso.jpg\nlabelprob\n0Lhasa0.151143\n1Shih-Tzu0.129850\n2Tibetan_terrier0.102358\nImage:book_images/Sleeping_Cat.jpg\nlabelprob\n0tabby0.173627\n1tiger_cat0.110414\n2doormat0.093447"} />
+
+Mô hình khá tự tin với `Flamingo.jpg` nhưng kém chắc chắn hơn ở các ảnh khác. Ta kết thúc mục bằng bước dọn dẹp quen thuộc.
+
+<MdxCode language="text" code={"In [68]:del(cifar_test,\ncifar_train ,\ncifar_dm,\ncifar_module ,\ncifar_logger ,\ncifar_optimizer ,\ncifar_trainer)"} />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 10.9.5 Phân loại tài liệu IMDB
+
+Bây giờ ta triển khai các mô hình phân loại cảm xúc (Mục 10.4) trên `IMDB`. Như đã nói phía trên khối mã 8, ta dùng phiên bản `IMDB` đã tiền xử lý từ gói `keras`. Vì `keras` dùng
+
+`tensorflow`, một thư viện tensor và học sâu khác, dữ liệu được chuyển để phù hợp với `torch`. Mã chuyển đổi từ `keras` nằm trong `ISLP.torch._make_imdb` và cần một số gói `keras` để chạy. Dữ liệu dùng từ điển 10.000 từ.
+
+Ta lưu ba biểu diễn khác nhau của dữ liệu đánh giá:
+
+- `load_tensor()`, phiên bản tensor thưa dùng được với `torch`;
+
+- `load_sparse()`, phiên bản ma trận thưa dùng với `sklearn` để so sánh với lasso;
+
+- `load_sequential()`, phiên bản chuỗi gốc đã đệm, giới hạn ở 500 từ cuối mỗi bài.
+
+<MdxCode language="text" code={"In [69]:(imdb_seq_train ,"} />
+
+<MdxCode language="text" code={"imdb_seq_test)=load_sequential(root='data/IMDB')\npadded_sample=np.asarray(imdb_seq_train.tensors[0][0])\nsample_review=padded_sample[padded_sample>0][:12]\nsample_review[:12]"} />
+
+<MdxCode language="text" code={"Out[69]:array([1,14,22,16,43,530,973,1622,1385,\n65,458,4468],dtype=int32)"} />
+
+`imdb_seq_train`, `imdb_seq_test` đều là thể hiện `TensorDataset`. Các tensor xây dựng chúng nằm trong thuộc tính `tensors`: tensor đầu là đặc trưng `X`, tensor thứ hai là kết quả `Y`. Ta lấy hàng đặc trưng đầu và lưu thành `padded_sample`. Khi tiền xử lý, chuỗi quá ngắn được đệm số 0 ở đầu; do đó ta bỏ phần đệm bằng cách chỉ giữ phần tử `padded_sample > 0`, rồi lấy 12 từ đầu của bài mẫu.
+
+Có thể tra các từ này trong từ điển `lookup` của `ISLP.torch.imdb`.
+
+<MdxCode language="text" code={"In [70]:lookup=load_lookup(root='data/IMDB')\n''.join(lookup[i]foriinsample_review)"} />
+
+<MdxCode language="text" code={"Out[70]:\"<START>thisfilmwasjustbrilliantcastinglocationscenery\nstorydirectioneveryone's\""} />
+
+Với mô hình đầu, ta tạo đặc trưng nhị phân cho mỗi từ trong 10.000 từ khả dĩ; phần tử _i, j_ bằng một nếu từ _j_ xuất hiện trong bài _i_. Vì phần lớn bài khá ngắn, ma trận đặc trưng có hơn 98% số không. Dữ liệu được truy cập bằng `load_tensor()` của `ISLP`.
+
+<MdxCode language="text" code={"In [71]:max_num_workers=10\n(imdb_train ,\nimdb_test)=load_tensor(root='data/IMDB')\nimdb_dm=SimpleDataModule(imdb_train,\nimdb_test,\nvalidation=2000,\nnum_workers=min(6,max_num_workers),\nbatch_size=512)"} />
+
+Mô hình đầu tiên có hai tầng.
+
+<MdxCode language="text" code={"In [72]:classIMDBModel(nn.Module):\ndef__init__(self,input_size):\nsuper(IMDBModel,self).__init__()\nself.dense1=nn.Linear(input_size,16)\nself.activation=nn.ReLU()\nself.dense2=nn.Linear(16,16)\nself.output=nn.Linear(16,1)\ndefforward(self,x):\nval=x\nfor_mapin[self.dense1,\nself.activation,\nself.dense2,\nself.activation,\nself.output]:\nval=_map(val)\nreturntorch.flatten(val)"} />
+
+Ta khởi tạo mô hình và xem bản tóm tắt (không hiển thị).
+
+<MdxCode language="text" code={"In [73]:imdb_model=IMDBModel(imdb_test.tensors[0].size()[1])\nsummary(imdb_model,\ninput_size=imdb_test.tensors[0].size(),\ncol_names=['input_size',\n'output_size',\n'num_params'])"} />
+
+Ta lại dùng tốc độ học nhỏ hơn nên truyền một `optimizer` cho `SimpleModule`. Vì bài đánh giá được phân loại cảm xúc tích cực hay tiêu cực, ta dùng `SimpleModule.binary_classification()`.^(28)
+
+<MdxCode language="text" code={"In [74]:imdb_optimizer=RMSprop(imdb_model.parameters(),lr=0.001)\nimdb_module=SimpleModule.binary_classification(\nimdb_model ,\noptimizer=imdb_optimizer)"} />
+
+Sau khi tải dữ liệu vào mô-đun và tạo `SimpleModule`, các bước còn lại đã quen thuộc.
+
+<MdxCode language="text" code={"In [75]:imdb_logger=CSVLogger('logs',name='IMDB')\nimdb_trainer=Trainer(deterministic=True,\nmax_epochs=30,\nlogger=imdb_logger ,\ncallbacks=[ErrorTracker()])\nimdb_trainer.fit(imdb_module ,\ndatamodule=imdb_dm)"} />
+
+Đánh giá lỗi kiểm tra cho độ chính xác khoảng 86%.
+
+<MdxCode language="text" code={"In [76]:test_results=imdb_trainer.test(imdb_module ,datamodule=imdb_dm)\ntest_results"} />
+
+> 28Ta dùng `binary_classification()` thay cho `classification()` do một số điểm tinh tế trong cách `torchmetrics.Accuracy()` hoạt động và kiểu dữ liệu mục tiêu.
+
+<MdxCode language="text" code={"Out[76]:[{'test_loss':1.0863,'test_accuracy':0.8550}]"} />
+
+So sánh với Lasso
+
+Bây giờ ta khớp hồi quy logistic lasso bằng `LogisticRegression()` của `sklearn`. Vì `sklearn` không nhận tensor thưa của `torch`, ta dùng ma trận thưa mà `sklearn.` hỗ trợ.
+
+<MdxCode language="text" code={"In [77]:((X_train,Y_train),\n(X_valid,Y_valid),\n(X_test,Y_test))=load_sparse(validation=2000,\nrandom_state=0,\nroot='data/IMDB')"} />
+
+Tương tự Mục 10.9.1, ta tạo chuỗi 50 giá trị cho tham số điều chuẩn lasso _λ_.
+
+<MdxCode language="text" code={"In [78]:lam_max=np.abs(X_train.T*(Y_train-Y_train.mean())).max()\nlam_val=lam_max*np.exp(np.linspace(np.log(1),\nnp.log(1e-4),50))"} />
+
+Trong `LogisticRegression()`, tham số điều chuẩn _C_ được chỉ định là nghịch đảo của _λ_. Có nhiều bộ giải; ở đây dùng `liblinear`, hoạt động tốt với đầu vào thưa.
+
+<MdxCode language="text" code={"In [79]:logit=LogisticRegression(penalty='l1',\nC=1/lam_max,\nsolver='liblinear',\nwarm_start=True,\nfit_intercept=True)"} />
+
+Đường đi 50 giá trị mất khoảng 40 giây để chạy.
+
+<MdxCode language="text" code={"In [80]:coefs=[]\nintercepts=[]\nforlinlam_val:\nlogit.C=1/l\nlogit.fit(X_train,Y_train)\ncoefs.append(logit.coef_.copy())\nintercepts.append(logit.intercept_)"} />
+
+Các hệ số và hệ số chặn có một chiều thừa, có thể bỏ bằng `np.squeeze()`.
+
+<MdxCode language="text" code={"In [81]:coefs=np.squeeze(coefs)\nintercepts=np.squeeze(intercepts)"} />
+
+Bây giờ ta vẽ biểu đồ so sánh kết quả mạng nơ-ron với lasso.
+
+<MdxCode language="text" code={"In [82]:%%capture\nfig,axes=subplots(1,2,figsize=(16,8),sharey=True)\nfor((X_,Y_),\ndata_,\ncolor)inzip([(X_train,Y_train),\n(X_valid,Y_valid),\n(X_test,Y_test)],"} />
+
+<MdxCode language="text" code={"['Training','Validation','Test'],\n['black','red','blue']):\nlinpred_=X_*coefs.T+intercepts[None,:]\nlabel_=np.array(linpred_>0)\naccuracy_=np.array([np.mean(Y_==l)forlinlabel_.T])\naxes[0].plot(-np.log(lam_val/X_train.shape[0]),\naccuracy_,\n'.--',\ncolor=color,\nmarkersize=13,\nlinewidth=2,\nlabel=data_)\naxes[0].legend()\naxes[0].set_xlabel(r'$-\\log(\\lambda)$',fontsize=20)\naxes[0].set_ylabel('Accuracy',fontsize=20)"} />
+
+Lưu ý `%%capture` ẩn hình đang hoàn thiện dở; magic `%%capture` hữu ích với hình phức tạp có các bước trải trên nhiều ô. Bây giờ ta thêm đồ thị độ chính xác lasso và hiển thị hình tổng hợp bằng cách nhập tên ở cuối ô.
+
+<MdxCode language="text" code={"In [83]:imdb_results=pd.read_csv(imdb_logger.experiment.metrics_file_path)\nsummary_plot(imdb_results ,\naxes[1],\ncol='accuracy',\nylabel='Accuracy')\naxes[1].set_xticks(np.linspace(0,30,7).astype(int))\naxes[1].set_ylabel('Accuracy',fontsize=20)\naxes[1].set_xlabel('Epoch',fontsize=20)\naxes[1].set_ylim([0.5,1]);\naxes[1].axhline(test_results[0]['test_accuracy'],\ncolor='blue',\n'--'\nlinestyle=,\nlinewidth=3)\nfig"} />
+
+Biểu đồ cho thấy độ chính xác hồi quy logistic lasso đạt đỉnh khoảng 0 _._ 88, giống mạng nơ-ron. Một lần nữa, ta kết thúc bằng dọn dẹp.
+
+<MdxCode language="text" code={"In [84]:del(imdb_model,\nimdb_trainer ,\nimdb_logger ,\nimdb_dm,\nimdb_train,\nimdb_test)"} />
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## 10.9.6 Mạng nơ-ron hồi quy
+
+Trong bài lab này, ta khớp các mô hình được minh họa ở Mục 10.5.
+
+Mô hình tuần tự cho phân loại tài liệu
+
+Ở đây ta khớp một LSTM RNN đơn giản để dự đoán cảm xúc trên dữ liệu đánh giá phim `IMDb`, như ở Mục 10.5.1. Với RNN, ta dùng
+
+chuỗi từ trong tài liệu và xét đến thứ tự. Dữ liệu tiền xử lý đã được tải ở đầu Mục 10.9.5; script chi tiết nằm trong `ISLP`. Vì hơn 90% tài liệu có dưới 500 từ, ta đặt độ dài là 500: tài liệu dài dùng 500 từ cuối, tài liệu ngắn được đệm khoảng trống ở đầu.
+
+###### **`In [85]:`** `imdb_seq_dm = SimpleDataModule(imdb_seq_train ,`
+
+<MdxCode language="text" code={"imdb_seq_test ,\nvalidation=2000,\nbatch_size=300,\nnum_workers=min(6,max_num_workers)\n)"} />
+
+Tầng đầu của RNN là tầng embedding kích thước 32 được học khi huấn luyện. Tầng này mã hóa one-hot mỗi tài liệu thành ma trận 500 _×_ 10 _,_ 003 rồi ánh xạ 10.003 chiều xuống 32.^(29) Vì mỗi từ là một số nguyên, việc này được thực hiện hiệu quả bằng ma trận embedding 10 _,_ 003 _×_ 32; mỗi số trong 500 số nguyên của tài liệu được ánh xạ đến 32 số thực bằng cách lấy hàng tương ứng.
+
+Tầng thứ hai là LSTM có 32 nút, tầng đầu ra là một logit cho phân loại nhị phân. Ở dòng cuối `forward()`, ta lấy đầu ra LSTM 32 chiều cuối cùng và ánh xạ đến biến đáp ứng.
+
+<MdxCode language="text" code={"In [86]:classLSTMModel(nn.Module):\ndef__init__(self,input_size):\nsuper(LSTMModel,self).__init__()\nself.embedding=nn.Embedding(input_size,32)\nself.lstm=nn.LSTM(input_size=32,\nhidden_size=32,\nbatch_first=True)\nself.dense=nn.Linear(32,1)\ndefforward(self,x):\nval,(h_n,c_n)=self.lstm(self.embedding(x))\nreturntorch.flatten(self.dense(val[:,-1]))"} />
+
+Ta khởi tạo và xem tóm tắt mô hình bằng 10 tài liệu đầu của kho ngữ liệu.
+
+<MdxCode language="text" code={"In [87]:lstm_model=LSTMModel(X_test.shape[-1])\nsummary(lstm_model,\ninput_data=imdb_seq_train.tensors[0][:10],\ncol_names=['input_size',\n'output_size',\n'num_params'])\nOut[87]:====================================================================\nLayer(type:depth-idx)InputShapeOutputShapeParam#\n====================================================================\nLSTMModel[10,500][10]--"} />
+
+> 29Ba chiều bổ sung tương ứng với các mục không phải từ thường gặp trong bài đánh giá.
+
+<MdxCode language="text" code={"Embedding:1-1[10,500][10,500,32]320,096\nLSTM:1-2[10,500,32][10,500,32]8,448\nLinear:1-3[10,32][10,1]33\n====================================================================\nTotalparams:328,577\nTrainableparams:328,577"} />
+
+Số 10.003 bị ẩn trong tóm tắt nhưng xuất hiện trong số tham số vì 10 _,_ 003 _×_ 32 = 320 _,_ 096.
+
+<MdxCode language="text" code={"In [88]:lstm_module=SimpleModule.binary_classification(lstm_model)\nlstm_logger=CSVLogger('logs',name='IMDB_LSTM')\nIn [89]:lstm_trainer=Trainer(deterministic=True,\nmax_epochs=20,\nlogger=lstm_logger ,\ncallbacks=[ErrorTracker()])\nlstm_trainer.fit(lstm_module ,\ndatamodule=imdb_seq_dm)"} />
+
+Phần còn lại giống các mạng trước. Theo dõi hiệu năng kiểm tra khi khớp cho thấy mạng đạt độ chính xác 85%.
+
+<MdxCode language="text" code={"In [90]:lstm_trainer.test(lstm_module ,datamodule=imdb_seq_dm)"} />
+
+<MdxCode language="text" code={"Out[90]:[{'test_loss':0.8178,'test_accuracy':0.8476}]"} />
+
+Một lần nữa, ta hiển thị tiến trình học rồi dọn dẹp.
+
+<MdxCode language="text" code={"In [91]:lstm_results=pd.read_csv(lstm_logger.experiment.metrics_file_path)\nfig,ax=subplots(1,1,figsize=(6,6))\nsummary_plot(lstm_results ,\nax,\ncol='accuracy',\nylabel='Accuracy')\nax.set_xticks(np.linspace(0,20,5).astype(int))\nax.set_ylabel('Accuracy')\nax.set_ylim([0.5,1])\nIn [92]:del(lstm_model,\nlstm_trainer ,\nlstm_logger ,\nimdb_seq_dm ,\nimdb_seq_train ,\nimdb_seq_test)"} />
+
+Dự đoán chuỗi thời gian
+
+Bây giờ ta khớp các mô hình ở Mục 10.5.2 để dự đoán chuỗi thời gian. Trước hết, tải và chuẩn hóa dữ liệu.
+
+<MdxCode language="text" code={"In [93]:NYSE=load_data('NYSE')\ncols=['DJ_return','log_volume','log_volatility']\nX=pd.DataFrame(StandardScaler(\nwith_mean=True,\nwith_std=True).fit_transform(NYSE[cols]),\ncolumns=NYSE[cols].columns,\nindex=NYSE.index)"} />
+
+Tiếp theo, ta tạo các phiên bản trễ và loại hàng thiếu giá trị bằng `dropna()`.
+
+<MdxCode language="text" code={"In [94]:forlaginrange(1,6):\nforcolincols:\nnewcol=np.zeros(X.shape[0])*np.nan\nnewcol[lag:]=X[col].values[:-lag]\nX.insert(len(X.columns),\"{0}_{1}\".format(col,lag),newcol)\nX.insert(len(X.columns),'train',NYSE['train'])\nX=X.dropna()"} />
+
+Cuối cùng, ta lấy biến đáp ứng và chỉ báo huấn luyện, rồi bỏ `DJ_return`, `log_volatility` của ngày hiện tại để chỉ dự đoán từ dữ liệu ngày trước.
+
+<MdxCode language="text" code={"In [95]:Y,train=X['log_volume'],X['train']\nX=X.drop(columns=['train']+cols)\nX.columns"} />
+
+<MdxCode language="text" code={"Out[95]:Index(['DJ_return_1','log_volume_1','log_volatility_1',\n'DJ_return_2','log_volume_2','log_volatility_2',\n'DJ_return_3','log_volume_3','log_volatility_3',\n'DJ_return_4','log_volume_4','log_volatility_4',\n'DJ_return_5','log_volume_5','log_volatility_5'],\ndtype='object')"} />
+
+Trước hết, ta khớp mô hình tuyến tính đơn giản và tính _R_^(2) kiểm tra bằng `score()`.
+
+**`In [96]:`** `M = LinearRegression() M.fit(X[train], Y[train]) M.score(X[` _∼_ `train], Y[` _∼_ `train])`
+
+<MdxCode language="text" code={"Out[96]:0.4129"} />
+
+Ta khớp lại mô hình với biến nhân tố `day_of_week`. Với series phân loại trong `pandas`, có thể tạo biến chỉ báo bằng `get_dummies()`.
+
+<MdxCode language="text" code={"In [97]:X_day=pd.merge(X,"} />
+
+<MdxCode language="text" code={"pd.get_dummies(NYSE['day_of_week']),\non='date')"} />
+
+Không cần khởi tạo lại mô hình tuyến tính vì `fit()` nhận trực tiếp ma trận thiết kế và biến đáp ứng. **`In [98]:`** `M.fit(X_day[train], Y[train]) M.score(X_day[` _∼_ `train], Y[` _∼_ `train])`
+
+<MdxCode language="text" code={"Out[98]:0.4595"} />
+
+Mô hình đạt _R_^(2) khoảng 46%.
+
+Để khớp RNN, ta phải đổi hình dạng dữ liệu vì mạng cần 5 phiên bản trễ của mỗi đặc trưng như đối số `input_shape` cho `nn.RNN()`. Trước hết, sắp các cột data frame để ma trận sau đổi hình có độ trễ đúng bằng `reindex()`.
+
+Với đầu vào `(5,3)`, mỗi hàng biểu diễn một phiên bản trễ của ba biến. `nn.RNN()` yêu cầu hàng đầu là thời điểm sớm nhất nên phải đảo thứ tự hiện tại. Do đó ta lặp `range(5,0,-1)`, một ví dụ dùng `slice()` để đánh chỉ số đối tượng khả lặp. Ký hiệu chung là `start:end:step`.
+
+<MdxCode language="text" code={"In [99]:ordered_cols=[]\nforlaginrange(5,0,-1):\nforcolincols:\nordered_cols.append('{0}_{1}'.format(col,lag))\nX=X.reindex(columns=ordered_cols)\nX.columns"} />
+
+<MdxCode language="text" code={"Out[99]:Index(['DJ_return_5','log_volume_5','log_volatility_5',\n'DJ_return_4','log_volume_4','log_volatility_4',\n'DJ_return_3','log_volume_3','log_volatility_3',\n'DJ_return_2','log_volume_2','log_volatility_2',\n'DJ_return_1','log_volume_1','log_volatility_1'],\ndtype='object')"} />
+
+Bây giờ ta đổi hình dạng dữ liệu.
+
+<MdxCode language="text" code={"In [100]:X_rnn=X.to_numpy().reshape((-1,5,3))\nX_rnn.shape"} />
+
+<MdxCode language="text" code={"Out[100]:(6046,5,3)"} />
+
+Khi đặt kích thước đầu là -1, `numpy.reshape()` tự suy ra nó từ các đối số còn lại.
+
+RNN dùng 12 nút ẩn và dropout 10%. Sau khi đi qua RNN, ta lấy thời điểm cuối bằng `val[:,-1]` trong `forward()`, đưa qua dropout 10% rồi trải phẳng qua tầng tuyến tính.
+
+<MdxCode language="text" code={"In [101]:classNYSEModel(nn.Module):\ndef__init__(self):\nsuper(NYSEModel,self).__init__()\nself.rnn=nn.RNN(3,\n12,\nbatch_first=True)\nself.dense=nn.Linear(12,1)\nself.dropout=nn.Dropout(0.1)\ndefforward(self,x):\nval,h_n=self.rnn(x)\nval=self.dense(self.dropout(val[:,-1]))\nreturntorch.flatten(val)\nnyse_model=NYSEModel()"} />
+
+Ta khớp như các mạng trước và cung cấp dữ liệu kiểm tra làm dữ liệu xác thực cho `fit`, để khi theo dõi tiến trình và vẽ lịch sử có thể xem kết quả kiểm tra. Dĩ nhiên không nên dùng nó làm cơ sở dừng sớm vì sẽ làm hiệu năng kiểm tra bị chệch.
+
+Ta tạo tập huấn luyện tương tự ví dụ `Hitters`.
+
+**`In [102]:`** `datasets = [] for mask in [train,` _∼_ `train]: X_rnn_t = torch.tensor(X_rnn[mask].astype(np.float32)) Y_t = torch.tensor(Y[mask].astype(np.float32)) datasets.append(TensorDataset(X_rnn_t, Y_t)) nyse_train, nyse_test = datasets`
+
+Theo quy trình quen thuộc, ta xem bản tóm tắt.
+
+<MdxCode language="text" code={"In [103]:summary(nyse_model,\ninput_data=X_rnn_t,\ncol_names=['input_size',\n'output_size',\n'num_params'])"} />
+
+<MdxCode language="text" code={"Out[103]:===================================================================="} />
+
+<MdxCode language="text" code={"Layer(type:depth-idx)InputShapeOutputShapeParam#\n====================================================================\nNYSEModel[1770,5,3][1770]--\nRNN:1-1[1770,5,3][1770,5,12]204\nDropout:1-2[1770,12][1770,12]--\nLinear:1-3[1770,12][1770,1]13\n====================================================================\nTotalparams:217\nTrainableparams:217"} />
+
+Ta đưa hai tập dữ liệu vào mô-đun dữ liệu với batch 64.
+
+<MdxCode language="text" code={"In [104]:nyse_dm=SimpleDataModule(nyse_train,\nnyse_test,\nnum_workers=min(4,max_num_workers),\nvalidation=nyse_test,\nbatch_size=64)"} />
+
+Ta chạy một ít dữ liệu qua mô hình để bảo đảm kích thước khớp đúng.
+
+<MdxCode language="text" code={"In [105]:foridx,(x,y)inenumerate(nyse_dm.train_dataloader()):\nout=nyse_model(x)\nprint(y.size(),out.size())\nifidx>=2:\nbreak"} />
+
+<MdxCode language="text" code={"torch.Size([64])torch.Size([64])\ntorch.Size([64])torch.Size([64])\ntorch.Size([64])torch.Size([64])"} />
+
+Ta thiết lập trainer cho hồi quy như ví dụ trước và yêu cầu tính _R_^(2) ở mỗi epoch.
+
+<MdxCode language="text" code={"In [106]:nyse_optimizer=RMSprop(nyse_model.parameters(),\nlr=0.001)\nnyse_module=SimpleModule.regression(nyse_model,\noptimizer=nyse_optimizer ,\nmetrics={'r2':R2Score()})"} />
+
+Việc khớp giờ đã quen thuộc. Kết quả kiểm tra rất giống mô hình AR tuyến tính.
+
+<MdxCode language="text" code={"In [107]:nyse_trainer=Trainer(deterministic=True,\nmax_epochs=200,\ncallbacks=[ErrorTracker()])\nnyse_trainer.fit(nyse_module ,\ndatamodule=nyse_dm)\nnyse_trainer.test(nyse_module ,\ndatamodule=nyse_dm)"} />
+
+<MdxCode language="text" code={"Out[107]:[{'test_loss':0.6141,'test_r2':0.4172}]"} />
+
+Ta cũng có thể bỏ `nn.RNN()` và chỉ dùng `nn.Flatten()`, tạo mô hình AR phi tuyến. Nếu bỏ thêm tầng ẩn, nó tương đương mô hình AR tuyến tính trước đó.
+
+Ở đây ta khớp AR phi tuyến bằng tập đặc trưng `X_day` có các chỉ báo `day_of_week`. Trước hết phải tạo tập huấn luyện, kiểm tra và mô-đun dữ liệu tương ứng. Việc này có vẻ hơi nặng nhưng là một phần pipeline chung của `torch`.
+
+**`In [108]:`** `datasets = [] for mask in [train,` _∼_ `train]: X_day_t = torch.tensor( np.asarray(X_day[mask]).astype(np.float32)) Y_t = torch.tensor(np.asarray(Y[mask]).astype(np.float32)) datasets.append(TensorDataset(X_day_t, Y_t)) day_train, day_test = datasets`
+
+Việc tạo mô-đun dữ liệu theo quy trình quen thuộc.
+
+<MdxCode language="text" code={"In [109]:day_dm=SimpleDataModule(day_train,"} />
+
+<MdxCode language="text" code={"day_test,\nnum_workers=min(4,max_num_workers),\nvalidation=day_test,\nbatch_size=64)"} />
+
+Ta xây dựng `NonLinearARModel()` nhận 20 đặc trưng đầu vào và một tầng ẩn 32 nút. Các bước còn lại đã quen thuộc.
+
+<MdxCode language="text" code={"In [110]:classNonLinearARModel(nn.Module):"} />
+
+<MdxCode language="text" code={"def__init__(self):\nsuper(NonLinearARModel ,self).__init__()\nself._forward=nn.Sequential(nn.Flatten(),\nnn.Linear(20,32),\nnn.ReLU(),\nnn.Dropout(0.5),\nnn.Linear(32,1))\ndefforward(self,x):\nreturntorch.flatten(self._forward(x))"} />
+
+<MdxCode language="text" code={"In [111]:nl_model=NonLinearARModel()\nnl_optimizer=RMSprop(nl_model.parameters(),\nlr=0.001)\nnl_module=SimpleModule.regression(nl_model,\noptimizer=nl_optimizer ,\nmetrics={'r2':R2Score()})"} />
+
+Ta tiếp tục các bước huấn luyện thông thường, khớp mô hình và đánh giá lỗi kiểm tra. _R_^(2) kiểm tra nhỉnh hơn đôi chút mô hình AR tuyến tính cũng chứa `day_of_week`.
+
+<MdxCode language="text" code={"In [112]:nl_trainer=Trainer(deterministic=True,\nmax_epochs=20,\ncallbacks=[ErrorTracker()])\nnl_trainer.fit(nl_module,datamodule=day_dm)\nnl_trainer.test(nl_module,datamodule=day_dm)"} />
+
+<MdxCode language="text" code={"Out[112]:[{'test_loss':0.5625,'test_r2':0.4662}]"} />
+
+</MdxPage>

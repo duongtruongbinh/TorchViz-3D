@@ -1,0 +1,35 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-censoring-details",
+  "locale": "vi",
+  "title": "Xem xét kỹ hơn về kiểm duyệt",
+  "headings": [
+    "Xem xét kỹ hơn về kiểm duyệt"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Xem xét kỹ hơn về kiểm duyệt"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Xem xét kỹ hơn về kiểm duyệt
+
+Để phân tích dữ liệu sống còn, ta cần đưa ra một số giả định về _lý do_ xảy ra kiểm duyệt. Chẳng hạn, giả sử một số bệnh nhân rút sớm khỏi một nghiên cứu ung thư vì họ đang mắc bệnh rất nặng. Một phân tích không xét đến lý do bệnh nhân rút khỏi nghiên cứu có thể sẽ ước lượng quá cao thời gian sống còn trung bình thực sự. Tương tự, giả sử những bệnh nhân nam mắc bệnh rất nặng có xu hướng rút khỏi nghiên cứu nhiều hơn
+
+**HÌNH 11.1.** _Minh họa dữ liệu sống còn bị kiểm duyệt. Với bệnh nhân 1 và 3, biến cố được quan sát. Bệnh nhân 2 vẫn còn sống khi nghiên cứu kết thúc. Bệnh nhân 4 rút khỏi nghiên cứu._
+
+những bệnh nhân nữ mắc bệnh rất nặng. Khi đó, phép so sánh thời gian sống còn giữa nam và nữ có thể đưa ra kết luận sai rằng nam sống lâu hơn nữ.
+
+Nhìn chung, ta cần giả sử cơ chế kiểm duyệt là _độc lập_: với điều kiện đã biết các đặc trưng, thời gian biến cố _T_ độc lập với thời gian kiểm duyệt _C_. Hai ví dụ trên vi phạm giả định kiểm duyệt độc lập. Thông thường, không thể chỉ từ bản thân dữ liệu mà xác định cơ chế kiểm duyệt có độc lập hay không. Thay vào đó, ta phải xem xét cẩn thận quá trình thu thập dữ liệu để quyết định liệu kiểm duyệt độc lập có phải là một giả định hợp lý. Trong phần còn lại của chương này, ta sẽ giả sử cơ chế kiểm duyệt là độc lập.^(1)
+
+Trong chương này, ta tập trung vào _kiểm duyệt phải_, xảy ra khi _T ≥ Y_, tức thời gian biến cố thực _T_ ít nhất bằng thời gian quan sát _Y_. (Lưu ý rằng _T ≥ Y_ là hệ quả của (11.1). Kiểm duyệt phải có tên gọi như vậy vì thời gian thường được biểu diễn từ trái sang phải, như trong Hình 11.1.) Tuy nhiên, còn có các kiểu kiểm duyệt khác. Chẳng hạn, trong _kiểm duyệt trái_, thời gian biến cố thực _T_ nhỏ hơn hoặc bằng thời gian quan sát _Y_. Ví dụ, trong một nghiên cứu về thời gian mang thai, giả sử ta khảo sát các bệnh nhân 250 ngày sau khi thụ thai, khi một số người đã sinh con. Khi đó ta biết rằng thời gian mang thai của những bệnh nhân này ngắn hơn 250 ngày. Tổng quát hơn, _kiểm duyệt khoảng_ chỉ bối cảnh trong đó ta không biết chính xác thời gian biến cố nhưng biết nó nằm trong một khoảng nào đó. Chẳng hạn, tình huống này phát sinh nếu ta khảo sát bệnh nhân mỗi tuần một lần để xác định biến cố đã xảy ra hay chưa. Mặc dù có thể xử lý kiểm duyệt trái và kiểm duyệt khoảng bằng các biến thể của những ý tưởng trình bày trong chương này, phần sau chỉ tập trung vào kiểm duyệt phải.
+
+> 1 Có thể nới lỏng phần nào giả định kiểm duyệt độc lập bằng khái niệm _kiểm duyệt không mang thông tin_ (non-informative censoring); tuy nhiên, định nghĩa của kiểm duyệt không mang thông tin quá chuyên sâu so với phạm vi cuốn sách này.
+
+</MdxPage>

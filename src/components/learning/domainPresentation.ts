@@ -3,6 +3,7 @@ import {
   Bot,
   BrainCircuit,
   Calculator,
+  ChartSpline,
   Code2,
   Cpu,
   Eye,
@@ -19,6 +20,7 @@ import type { LearningDomainId } from '../../core/learning/types';
 export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   'programming-foundation': Code2,
   'linear-algebra': Calculator,
+  statistics: ChartSpline,
   fundamentals: BookOpen,
   'deep-learning': BrainCircuit,
   cv: Eye,
@@ -48,6 +50,12 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     glow: 'bg-[#E8FFF5]/38',
     icon: 'bg-[#E8FFF7] text-[#245E52]',
     accent: 'bg-[#3E8978]',
+  },
+  statistics: {
+    visual: 'bg-[#B8C9E2]',
+    glow: 'bg-[#F0F6FF]/42',
+    icon: 'bg-[#F2F7FF] text-[#385E88]',
+    accent: 'bg-[#6289B5]',
   },
   fundamentals: {
     visual: 'bg-[#F0C9B5]',

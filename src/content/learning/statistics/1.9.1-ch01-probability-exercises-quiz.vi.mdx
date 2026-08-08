@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-probability-exercises-quiz',
+  locale: 'vi',
+  "title": "Quiz",
+  headings: ['Xác suất có điều kiện', 'So sánh điểm Naive Bayes', 'Laplace smoothing'],
+  keywords: ['xác suất có điều kiện', 'Naive Bayes', 'Laplace smoothing'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="ch01-probability-exercises-quiz" questions={[
+  {
+    id: 'queen-given-face-card', title: 'Xác suất có điều kiện', prompt: 'Biết rằng lá bài đã rút là lá Tây trong bộ bài 52 lá, xác suất để đó là con Đầm bằng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'one-third', label: '$\\frac{1}{3}$', isCorrect: true },
+      { id: 'one-thirteenth', label: '$\\frac{1}{13}$' },
+      { id: 'three-thirteenths', label: '$\\frac{3}{13}$' },
+      { id: 'one-fourth', label: '$\\frac{1}{4}$' },
+    ],
+    success: 'Đúng. Trong 12 lá Tây có 4 con Đầm, nên xác suất có điều kiện là $4/12=1/3$.',
+    error: 'Chưa đúng. Không gian mẫu sau khi biết lá bài là lá Tây chỉ còn 12 lá.',
+  },
+  {
+    id: 'compare-naive-bayes-scores', title: 'So sánh điểm Naive Bayes', prompt: 'Với $\\operatorname{score}(\\text{Yes})=\\frac{1}{189}$ và $\\operatorname{score}(\\text{No})=\\frac{18}{875}$, mô hình dự đoán nhãn nào?', mode: 'single',
+    options: [
+      { id: 'yes', label: 'Yes' },
+      { id: 'no', label: 'No', isCorrect: true },
+      { id: 'equal', label: 'Hai nhãn có điểm bằng nhau.' },
+      { id: 'insufficient', label: 'Không thể so sánh vì chưa chuẩn hóa.' },
+    ],
+    success: 'Đúng. $18/875 \\approx 0.0206$ lớn hơn $1/189 \\approx 0.0053$, nên mô hình chọn nhãn No. Không cần chuẩn hóa khi chỉ so sánh hai score.',
+    error: 'Chưa đúng. Hãy quy đồng hoặc đổi hai phân số sang số thập phân rồi chọn điểm lớn hơn.',
+  },
+  {
+    id: 'laplace-denominator', title: 'Laplace smoothing', prompt: 'Một feature phân loại có $k$ giá trị khả dĩ và class đang xét có $N$ mẫu. Khi dùng Laplace smoothing, mẫu số của mỗi xác suất có điều kiện là gì?', mode: 'single',
+    options: [
+      { id: 'n-plus-k', label: '$N+k$', isCorrect: true },
+      { id: 'n-plus-one', label: '$N+1$' },
+      { id: 'n-times-k', label: '$Nk$' },
+      { id: 'k-only', label: '$k$' },
+    ],
+    success: 'Đúng. Mỗi trong $k$ giá trị nhận thêm một lượt đếm giả, nên tổng mẫu số tăng từ $N$ lên $N+k$.',
+    error: 'Chưa đúng. Hãy cộng một lượt đếm giả cho từng giá trị khả dĩ của feature.',
+  },
+]} />

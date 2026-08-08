@@ -1,0 +1,56 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'normal-distribution-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Đặc điểm Phân phối chuẩn', 'Quy tắc 68-95-99.7', 'Ý nghĩa của Z-score', 'StandardScaler và phân phối chuẩn tắc'],
+  keywords: ['normal distribution', 'gaussian', 'z-score', '68-95-99.7 rule', 'StandardScaler'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="normal-distribution-quiz" questions={[
+  {
+    id: 'normal-properties', title: 'Đặc điểm Phân phối chuẩn', prompt: 'Với một biến ngẫu nhiên tuân theo Phân phối chuẩn $\\mathcal{N}(\\mu, \\sigma^2)$, mối quan hệ nào giữa Mean, Median và Mode luôn đúng?', mode: 'single',
+    options: [
+      { id: 'all-equal', label: '$\\text{Mean} = \\text{Median} = \\text{Mode} = \\mu$', isCorrect: true },
+      { id: 'mean-greater', label: '$\\text{Mean} > \\text{Median} > \\text{Mode}$' },
+      { id: 'mode-greater', label: '$\\text{Mode} > \\text{Median} > \\text{Mean}$' },
+      { id: 'median-middle', label: '$\\text{Median}$ nằm giữa nhưng Mean khác Mode' }
+    ],
+    success: 'Đúng. Phân phối chuẩn đối xứng hoàn hảo qua tâm $\\mu$, nên ba thước đo trung tâm đều trùng nhau tại $\\mu$.',
+    error: 'Chưa đúng. Nhờ tính đối xứng trục qua $\\mu$, Mean, Median và Mode của Phân phối chuẩn đều bằng nhau.'
+  },
+  {
+    id: 'empirical-rule-68-95-997', title: 'Quy tắc 68-95-99.7', prompt: 'Một biến có phân phối chuẩn với trung bình $\\mu=100$ và độ lệch chuẩn $\\sigma=15$. Khoảng $[\\mu - 2\\sigma, \\mu + 2\\sigma] = [70, 130]$ chứa khoảng bao nhiêu phần trăm dữ liệu?', mode: 'single',
+    options: [
+      { id: 'ninety-five-percent', label: 'Khái niệm xấp xỉ $95\\%$', isCorrect: true },
+      { id: 'sixty-eight-percent', label: 'Khái niệm xấp xỉ $68\\%$' },
+      { id: 'ninety-nine-seven-percent', label: 'Khái niệm xấp xỉ $99.7\\%$' },
+      { id: 'fifty-percent', label: 'Đúng $50\\%$' }
+    ],
+    success: 'Đúng. Theo quy tắc 68-95-99.7: khoảng $\\pm 1\\sigma$ chứa ~68%, $\\pm 2\\sigma$ chứa ~95%, và $\\pm 3\\sigma$ chứa ~99.7% dữ liệu.',
+    error: 'Chưa đúng. Khoảng 2 độ lệch chuẩn quanh trung bình chứa khoảng 95% quan sát trong phân phối chuẩn.'
+  },
+  {
+    id: 'z-score-calculation', title: 'Ý nghĩa của Z-score', prompt: 'Một điểm dữ liệu có giá trị $x = 130$ thuộc phân phối $\\mathcal{N}(100, 15^2)$. Giá trị Z-score tương ứng bằng bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'z-two', label: '$Z = \\frac{130 - 100}{15} = +2.0$', isCorrect: true },
+      { id: 'z-one', label: '$Z = +1.0$' },
+      { id: 'z-minus-two', label: '$Z = -2.0$' },
+      { id: 'z-thirty', label: '$Z = 30.0$' }
+    ],
+    success: 'Đúng. $Z = \\frac{x - \\mu}{\\sigma} = \\frac{130 - 100}{15} = +2.0$, nghĩa là điểm $x$ nằm cao hơn trung bình đúng 2 độ lệch chuẩn.',
+    error: 'Chưa đúng. Công thức Z-score là $Z = (x - \\mu) / \\sigma$.'
+  },
+  {
+    id: 'standard-scaler-myth', title: 'StandardScaler và phân phối chuẩn tắc', prompt: 'Nếu ta áp dụng `StandardScaler` (Z-score normalization) vào một bộ dữ liệu có phân phối lệch (skewed), kết quả thu được sẽ có dạng gì?', mode: 'single',
+    options: [
+      { id: 'still-skewed', label: 'Dữ liệu có $\\text{mean}=0, \\text{std}=1$ nhưng hình dạng vẫn bị lệch như ban đầu.', isCorrect: true },
+      { id: 'becomes-bell-curve', label: 'Dữ liệu tự động biến thành phân phối chuẩn hình chuông.' },
+      { id: 'uniform-distribution', label: 'Dữ liệu biến thành phân phối đều.' },
+      { id: 'no-change', label: 'Không có gì thay đổi cả.' }
+    ],
+    success: 'Đúng! `StandardScaler` chỉ tuyến tính hóa vị trí (dời tâm về 0) và tỷ lệ (chia $\\sigma$), KHÔNG làm thay đổi hình dạng hình học hay biến dữ liệu phi chuẩn thành chuẩn.',
+    error: 'Chưa đúng. StandardScaler chỉ chuẩn hóa vị trí và độ rộng (mean=0, std=1), không làm thay đổi hình dạng phân phối ban đầu.'
+  }
+]} />

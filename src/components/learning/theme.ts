@@ -12,13 +12,13 @@ export function isTypingTarget(target: EventTarget | null): boolean {
   if (target.isContentEditable) return true;
   const tag = target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-  if (target.closest('[data-quiz]')) return true;
+  if (target.closest('button, [role="button"], [role="radio"], [role="radiogroup"], [data-learning-interactive], [data-quiz]')) return true;
   return false;
 }
 
 export function getLearningLabTheme(theme: LearningLabTheme) {
   const isLight = theme === 'light';
-  const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#517FCB]/30';
+  const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#205089] focus-visible:ring-offset-2';
 
   const radius = {
     icon: 'rounded-lg',
@@ -176,6 +176,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     backLink: isLight ? 'text-[#5F6B7A]' : 'text-[#9AA6B2]',
     bodyText: isLight ? 'text-[#334155]' : 'text-[#F2F6FA]/78',
     titleText: isLight ? 'text-[#172A43]' : 'text-[#F4EFE6]',
+    pageTitleText: isLight ? 'text-[#205089]' : 'text-[#A8D4FF]',
     lessonTitleText: isLight ? '[--learning-lab-lesson-title:#1F5F5B]' : '[--learning-lab-lesson-title:#D8E3EC]',
     lessonPageViewport: isLight ? 'bg-white' : 'bg-[#172232]',
     eyebrowText: isLight ? 'text-[#123B68]' : 'text-[#A8B8C8]',

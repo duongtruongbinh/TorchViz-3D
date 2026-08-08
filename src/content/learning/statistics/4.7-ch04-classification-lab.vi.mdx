@@ -1,0 +1,580 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-classification-lab",
+  "locale": "vi",
+  "title": "Lab: Hồi quy logistic, LDA, QDA và KNN",
+  "headings": [
+    "4.7.1 Dữ liệu thị trường chứng khoán",
+    "4.7.2 Hồi quy logistic",
+    "4.7.3 Phân tích biệt thức tuyến tính",
+    "4.7.4 Phân tích biệt thức bậc hai",
+    "4.7.6 K láng giềng gần nhất",
+    "4.7.7 Hồi quy tuyến tính và Poisson trên dữ liệu Bikeshare"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "phân loại",
+    "lab hồi quy logistic, LDA, QDA và KNN"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## 4.7.1 Dữ liệu thị trường chứng khoán
+
+Trong bài lab này, ta khảo sát dữ liệu `Smarket` thuộc thư viện `ISLP`. Tập dữ liệu gồm tỷ suất sinh lợi theo phần trăm của chỉ số chứng khoán S&P 500 trong 1.250 ngày, từ đầu năm 2001 đến cuối năm 2005. Với mỗi ngày, dữ liệu ghi lại tỷ suất sinh lợi theo phần trăm của năm phiên giao dịch trước đó, từ `Lag1` đến `Lag5`. Dữ liệu còn có `Volume` (số cổ phiếu giao dịch trong ngày trước đó, tính bằng tỷ), `Today` (tỷ suất sinh lợi theo phần trăm của ngày đang xét) và `Direction` (thị trường đi `Up` hay `Down` trong ngày đó).
+
+Ta bắt đầu bằng cách import các thư viện ở cấp cao nhất; tất cả đều đã xuất hiện trong các bài lab trước.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nimportpandasaspd\nfrommatplotlib.pyplotimportsubplots\nimportstatsmodels.apiassm\nfromISLPimportload_data\nfromISLP.modelsimport(ModelSpecasMS,\nsummarize)"} />
+
+Ta cũng tập hợp các import mới cần cho bài lab này.
+
+<MdxCode language="text" code={"In [2]:fromISLPimportconfusion_table\nfromISLP.modelsimportcontrast\nfromsklearn.discriminant_analysisimport\\\n(LinearDiscriminantAnalysisasLDA,\nQuadraticDiscriminantAnalysisasQDA)\nfromsklearn.naive_bayesimportGaussianNB\nfromsklearn.neighborsimportKNeighborsClassifier\nfromsklearn.preprocessingimportStandardScaler"} />
+
+<MdxCode language="text" code={"fromsklearn.model_selectionimporttrain_test_split\nfromsklearn.linear_modelimportLogisticRegression"} />
+
+Bây giờ ta đã sẵn sàng tải dữ liệu `Smarket`.
+
+<MdxCode language="text" code={"In [3]:Smarket=load_data('Smarket')\nSmarket"} />
+
+Lệnh này tạo danh sách dữ liệu rút gọn mà ta không hiển thị ở đây. Ta có thể xem tên các biến.
+
+<MdxCode language="text" code={"In [4]:Smarket.columns"} />
+
+<MdxCode language="text" code={"Out[4]:Index(['Year','Lag1','Lag2','Lag3','Lag4','Lag5','Volume',\n'Today','Direction'],\ndtype='object')"} />
+
+Ta tính ma trận tương quan bằng phương thức `corr()` (cũng được ký hiệu là `.corr()`) cho data frame; phương thức này tạo ma trận chứa mọi tương quan từng cặp giữa các biến. (Đầu ra được ẩn ở đây.) Thư viện `pandas` không báo cáo tương quan cho biến `Direction` vì đây là biến định tính.
+
+<MdxCode language="text" code={"In [5]:Smarket.corr()"} />
+
+Đúng như dự kiến, tương quan giữa các biến tỷ suất sinh lợi trễ và tỷ suất sinh lợi hôm nay gần bằng không. Tương quan đáng kể duy nhất là giữa `Year` và `Volume`. Khi vẽ dữ liệu, ta thấy `Volume` tăng theo thời gian. Nói cách khác, số cổ phiếu giao dịch trung bình mỗi ngày đã tăng từ năm 2001 đến 2005.
+
+<MdxCode language="text" code={"In [6]:Smarket.plot(y='Volume');"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 4.7.2 Hồi quy logistic
+
+Tiếp theo, ta khớp mô hình hồi quy logistic để dự đoán `Direction` từ `Lag1` đến `Lag5` và `Volume`. Hàm `sm.GLM()` khớp _mô hình tuyến tính tổng quát_, một lớp mô hình bao gồm hồi quy logistic. Ngoài ra, hàm `sm.Logit()` khớp trực tiếp mô hình hồi quy logistic. Cú pháp của `sm.GLM()` tương tự `sm.OLS()`; khi dùng `sm.GLM()`, ta phải truyền đối số `family=sm.families.Binomial()` để yêu cầu `statsmodels` chạy hồi quy logistic thay vì một loại mô hình tuyến tính tổng quát khác.
+
+<MdxCode language="text" code={"In [7]:allvars=Smarket.columns.drop(['Today','Direction','Year'])\ndesign=MS(allvars)\nX=design.fit_transform(Smarket)\ny=Smarket.Direction=='Up'\nglm=sm.GLM(y,\nX,\nfamily=sm.families.Binomial())\nresults=glm.fit()\nsummarize(results)"} />
+
+<MdxCode language="text" code={"Out[7]:"} />
+
+<MdxCode language="table" code={"||`coef`|`std err`|`z`|`P>|z|`|\n|---|---|---|---|---|\n|`intercept `|`-0.1260`|`0.241`|`-0.523`|`0.601`|\n|`Lag1`|`-0.0731`|`0.050`|`-1.457`|`0.145`|\n|`Lag2`|`-0.0423`|`0.050`|`-0.845`|`0.398`|\n|`Lag3`|`0.0111`|`0.050`|`0.222`|`0.824`|\n|`Lag4`|`0.0094`|`0.050`|`0.187`|`0.851`|\n|`Lag5`|`0.0103`|`0.050`|`0.208`|`0.835`|\n|`Volume`|`0.1354`|`0.158`|`0.855`|`0.392`|"} />
+
+Giá trị _p_ nhỏ nhất ở đây gắn với `Lag1`. Hệ số âm của biến dự báo này cho thấy nếu thị trường có tỷ suất sinh lợi dương hôm qua thì hôm nay ít có khả năng tăng hơn. Tuy nhiên, với giá trị 0,15, giá trị _p_ vẫn tương đối lớn nên chưa có bằng chứng rõ ràng về mối liên hệ thực sự giữa `Lag1` và `Direction`.
+
+Ta dùng thuộc tính `params` của `results` để chỉ truy cập các hệ số của mô hình đã khớp.
+
+###### **`In [8]:`** `results.params`
+
+<MdxCode language="table" code={"|**`Out[8]:`** `intercept` `-0.126000`|\n|---|\n|`Lag1` `-0.073074`|\n|`Lag2` `-0.042301`|\n|`Lag3` `0.011085`|\n|`Lag4` `0.009359`|\n|`Lag5` `0.010313`|\n|`Volume` `0.135441`|\n|`dtype: float64`|"} />
+
+Tương tự, ta có thể dùng thuộc tính `pvalues` để truy cập các giá trị _p_ của hệ số (không hiển thị).
+
+<MdxCode language="text" code={"In [9]:results.pvalues"} />
+
+Phương thức `predict()` của `results` có thể dự đoán xác suất thị trường tăng khi biết giá trị các biến dự báo. Phương thức trả về dự đoán trên thang xác suất. Nếu không cung cấp tập dữ liệu cho hàm `predict()`, xác suất được tính trên dữ liệu huấn luyện đã dùng để khớp mô hình hồi quy logistic. Cũng như hồi quy tuyến tính, có thể truyền đối số tùy chọn `exog` tương ứng với ma trận thiết kế. Ở đây ta chỉ in mười xác suất đầu tiên.
+
+<MdxCode language="text" code={"In [10]:probs=results.predict()\nprobs[:10]"} />
+
+<MdxCode language="text" code={"Out[10]:array([0.5070841,0.4814679,0.4811388,0.5152223,0.5107812,\n0.5069565,0.4926509,0.5092292,0.5176135,0.4888378])"} />
+
+Để dự đoán thị trường tăng hay giảm trong một ngày cụ thể, ta phải chuyển các xác suất dự đoán thành nhãn lớp `Up` hoặc `Down`. Hai lệnh sau tạo vector dự đoán lớp dựa trên việc xác suất thị trường tăng được dự đoán lớn hơn hay nhỏ hơn 0,5.
+
+<MdxCode language="text" code={"In [11]:labels=np.array(['Down']*1250)\nlabels[probs >0.5]=\"Up\""} />
+
+Hàm `confusion_table()` trong gói `ISLP` tóm tắt các dự đoán này, cho biết bao nhiêu quan sát được phân loại đúng hoặc sai. Tên hàm được ghép từ các phần `confusion_` và `table()`. Hàm được điều chỉnh từ một hàm tương tự trong mô-đun `sklearn.metrics`, chuyển vị ma trận kết quả và thêm nhãn hàng, nhãn cột. `confusion_table()` nhận nhãn dự đoán làm đối số thứ nhất và nhãn thật làm đối số thứ hai.
+
+<MdxCode language="text" code={"In [12]:confusion_table(labels,Smarket.Direction)"} />
+
+<MdxCode language="table" code={"|**`Out[12]:`** `Truth`|`Down`|`Up`|\n|---|---|---|\n|`Predicted`|||\n|`Down`|`145`|`141`|\n|`Up`|`457`|`507`|"} />
+
+Các phần tử trên đường chéo của ma trận nhầm lẫn biểu thị dự đoán đúng, còn các phần tử ngoài đường chéo biểu thị dự đoán sai. Do đó, mô hình dự đoán đúng thị trường tăng trong 507 ngày và giảm trong 145 ngày, tổng cộng 507 + 145 = 652 dự đoán đúng. Hàm `np.mean()` có thể tính tỷ lệ ngày được dự đoán đúng. Trong trường hợp này, hồi quy logistic dự đoán đúng biến động thị trường 52,2% số ngày.
+
+<MdxCode language="text" code={"In [13]:(507+145)/1250,np.mean(labels==Smarket.Direction)"} />
+
+###### **`Out[13]:`** `(0.5216, 0.5216)`
+
+Thoạt nhìn, mô hình hồi quy logistic có vẻ hoạt động tốt hơn một chút so với đoán ngẫu nhiên. Tuy nhiên, kết quả này gây hiểu lầm vì ta huấn luyện và kiểm tra mô hình trên cùng 1.250 quan sát. Nói cách khác, 100 _−_ 52 _._ 2 = 47 _._ 8% là tỷ lệ lỗi _huấn luyện_. Như đã thấy, tỷ lệ lỗi huấn luyện thường quá lạc quan vì có xu hướng đánh giá thấp lỗi kiểm tra. Để đánh giá chính xác hơn hồi quy logistic trong bối cảnh này, ta có thể khớp mô hình bằng một phần dữ liệu rồi xem nó dự đoán tốt đến đâu trên dữ liệu _được giữ lại_. Cách này cho tỷ lệ lỗi thực tế hơn, bởi trong thực tế ta quan tâm đến hiệu năng của mô hình không phải trên dữ liệu đã dùng để khớp mà trên những ngày tương lai có biến động thị trường chưa biết.
+
+Để thực hiện chiến lược này, trước hết ta tạo vector Boolean tương ứng với các quan sát từ năm 2001 đến 2004. Sau đó dùng vector này để tạo tập dữ liệu giữ lại gồm các quan sát năm 2005.
+
+**`In [14]:`** `train = (Smarket.Year < 2005) Smarket_train = Smarket.loc[train] Smarket_test = Smarket.loc[` _∼_ `train] Smarket_test.shape`
+
+###### **`Out[14]:`** `(252, 9)`
+
+Đối tượng `train` là vector gồm 1.250 phần tử, tương ứng với các quan sát trong tập dữ liệu. Những phần tử ứng với quan sát trước năm 2005 được đặt là `True`, còn các phần tử ứng với năm 2005 được đặt là `False`. Vì vậy, `train` là mảng _boolean_ vì các phần tử của nó là `True` và `False`. Có thể dùng mảng Boolean để lấy tập con các hàng hoặc cột của data frame bằng
+
+phương thức `loc`. Chẳng hạn, lệnh `Smarket.loc[train]` chọn ma trận con của dữ liệu thị trường chứng khoán chỉ gồm các ngày trước năm 2005, vì đó là những phần tử mà `train` bằng `True`. Ký hiệu _∼_ có thể phủ định mọi phần tử của vector Boolean. Nghĩa là, _∼_ `train` là vector tương tự `train`, ngoại trừ các phần tử `True` trong `train` được đổi thành `False` trong _∼_ `train` và ngược lại. Do đó, `Smarket.loc[` _∼_ `train]` trả về tập con các hàng chỉ gồm những quan sát mà `train` bằng `False`. Đầu ra trên cho biết có 252 quan sát như vậy.
+
+Bây giờ ta khớp mô hình hồi quy logistic chỉ bằng tập con các quan sát trước năm 2005. Sau đó, ta lấy xác suất dự đoán thị trường tăng cho từng ngày trong tập kiểm tra, tức các ngày của năm 2005.
+
+**`In [15]:`** `X_train, X_test = X.loc[train], X.loc[` _∼_ `train] y_train, y_test = y.loc[train], y.loc[` _∼_ `train] glm_train = sm.GLM(y_train, X_train, family=sm.families.Binomial()) results = glm_train.fit() probs = results.predict(exog=X_test)`
+
+Lưu ý rằng ta đã huấn luyện và kiểm tra mô hình trên hai tập dữ liệu hoàn toàn tách biệt: chỉ dùng các ngày trước năm 2005 để huấn luyện và chỉ dùng các ngày trong năm 2005 để kiểm tra.
+
+Cuối cùng, ta so sánh dự đoán cho năm 2005 với biến động thực tế của thị trường trong giai đoạn đó. Trước hết, ta lưu nhãn kiểm tra và huấn luyện (nhớ rằng `y_test` là biến nhị phân).
+
+<MdxCode language="text" code={"In [16]:D=Smarket.Direction"} />
+
+`L_train, L_test = D.loc[train], D.loc[` _∼_ `train]`
+
+Bây giờ ta đặt ngưỡng 50% cho xác suất đã khớp để tạo nhãn dự đoán.
+
+<MdxCode language="text" code={"In [17]:labels=np.array(['Down']*252)\nlabels[probs >0.5]='Up'\nconfusion_table(labels,L_test)"} />
+
+<MdxCode language="text" code={"Out[17]:TruthDownUp\nPredicted\nDown7797\nUp3444"} />
+
+Độ chính xác kiểm tra khoảng 48%, còn tỷ lệ lỗi khoảng 52%.
+
+<MdxCode language="text" code={"In [18]:np.mean(labels==L_test),np.mean(labels!=L_test)"} />
+
+<MdxCode language="text" code={"Out[18]:(0.4802,0.5198)"} />
+
+Ký hiệu `!=` nghĩa là _không bằng_, vì vậy lệnh cuối dùng `!=` để tính tỷ lệ lỗi trên tập kiểm tra. Kết quả khá đáng thất vọng: tỷ lệ lỗi kiểm tra là 52%, còn tệ hơn đoán ngẫu nhiên! Dĩ nhiên kết quả này không quá bất ngờ vì nhìn chung ta không kỳ vọng có thể dùng tỷ suất sinh lợi của những ngày trước để dự đoán hiệu năng thị trường trong tương lai. (Nếu làm được, các tác giả cuốn sách hẳn đã đi làm giàu thay vì viết giáo trình thống kê.)
+
+Nhớ lại rằng mọi biến dự báo trong mô hình hồi quy logistic đều có giá trị _p_ không mấy thuyết phục, và giá trị _p_ nhỏ nhất, dù vẫn không quá nhỏ, thuộc về `Lag1`. Có lẽ việc loại các biến dường như không hữu ích khi dự đoán `Direction` sẽ tạo mô hình hiệu quả hơn. Xét cho cùng, dùng biến dự báo không liên quan đến biến đáp ứng thường làm tỷ lệ lỗi kiểm tra xấu đi (vì các biến này làm tăng phương sai mà không giảm độ chệch tương ứng), nên loại chúng có thể cải thiện kết quả. Dưới đây, ta khớp lại hồi quy logistic chỉ với `Lag1` và `Lag2`, hai biến có vẻ có sức mạnh dự đoán cao nhất trong mô hình ban đầu.
+
+**`In [19]:`** `model = MS(['Lag1', 'Lag2']).fit(Smarket) X = model.transform(Smarket) X_train, X_test = X.loc[train], X.loc[` _∼_ `train] glm_train = sm.GLM(y_train, X_train, family=sm.families.Binomial()) results = glm_train.fit() probs = results.predict(exog=X_test) labels = np.array(['Down']*252) labels[probs >0.5] = 'Up' confusion_table(labels, L_test)`
+
+<MdxCode language="text" code={"Out[19]:TruthDownUp\nPredicted\nDown3535\nUp76106"} />
+
+Ta đánh giá độ chính xác tổng thể, đồng thời đánh giá độ chính xác trong những ngày hồi quy logistic dự đoán thị trường tăng.
+
+<MdxCode language="text" code={"In [20]:(35+106)/252,106/(106+76)"} />
+
+<MdxCode language="text" code={"Out[20]:(0.5595,0.5824)"} />
+
+Bây giờ kết quả có vẻ tốt hơn một chút: 56% biến động hằng ngày được dự đoán đúng. Đáng lưu ý là trong trường hợp này, chiến lược đơn giản hơn nhiều — luôn dự đoán thị trường tăng mỗi ngày — cũng đúng 56% số lần! Do đó, xét theo tỷ lệ lỗi tổng thể, hồi quy logistic không tốt hơn cách tiếp cận ngây thơ. Tuy nhiên, ma trận nhầm lẫn cho thấy trong những ngày hồi quy logistic dự đoán thị trường tăng, độ chính xác đạt 58%. Điều này gợi ý chiến lược giao dịch khả dĩ: mua vào những ngày mô hình dự đoán thị trường tăng và tránh giao dịch khi dự đoán giảm. Dĩ nhiên, cần nghiên cứu kỹ hơn để biết mức cải thiện nhỏ này là thật hay chỉ do ngẫu nhiên.
+
+Giả sử ta muốn dự đoán tỷ suất sinh lợi ứng với các giá trị cụ thể của `Lag1` và `Lag2`. Cụ thể, ta muốn dự đoán `Direction` trong một ngày mà `Lag1`, `Lag2` lần lượt bằng 1 _._ 2 và 1 _._ 1, cũng như trong một ngày mà chúng bằng 1 _._ 5 và _−_ 0 _._ 8. Ta thực hiện bằng hàm `predict()`.
+
+<MdxCode language="text" code={"In [21]:newdata=pd.DataFrame({'Lag1':[1.2,1.5],\n'Lag2':[1.1,-0.8]});"} />
+
+<MdxCode language="text" code={"newX=model.transform(newdata)\nresults.predict(newX)"} />
+
+<MdxCode language="text" code={"Out[21]:00.4791\n10.4961\ndtype:float64"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 4.7.3 Phân tích biệt thức tuyến tính
+
+Ta bắt đầu thực hiện LDA trên dữ liệu `Smarket` bằng hàm `LinearDiscriminantAnalysis()`, viết tắt là `LDA()`. Tên đầy đủ bắt đầu bằng `Linear`, và ta khớp mô hình chỉ với các quan sát trước năm 2005.
+
+<MdxCode language="text" code={"Discriminant\nAnalysis()"} />
+
+<MdxCode language="text" code={"In [22]:lda=LDA(store_covariance=True)"} />
+
+Vì bộ ước lượng `LDA` tự động thêm hệ số chặn, ta nên bỏ cột tương ứng với hệ số chặn trong cả `X_train` và `X_test`. Ta cũng có thể dùng trực tiếp nhãn thay cho vector Boolean `y_train`.
+
+<MdxCode language="text" code={"In [23]:X_train,X_test=[M.drop(columns=['intercept'])\nforMin[X_train,X_test]]\nlda.fit(X_train,L_train)"} />
+
+<MdxCode language="text" code={"Out[23]:LinearDiscriminantAnalysis(store_covariance=True)"} />
+
+Ở đây ta dùng list comprehension đã giới thiệu trong Mục 3.6.4. Nhìn vào dòng đầu tiên phía trên, vế phải là danh sách có độ dài hai vì mã `for M in [X_train, X_test]` lặp qua một danh sách hai phần tử. Dù ở đây ta lặp qua danh sách, list comprehension hoạt động với mọi đối tượng khả lặp. Sau đó, ta áp dụng phương thức `drop()` cho từng phần tử trong vòng lặp và thu kết quả `.drop()` vào một danh sách. Vế trái yêu cầu `Python` giải nén danh sách hai phần tử này, gán chúng cho `X_train` và `X_test`. Dĩ nhiên, thao tác đó ghi đè các giá trị trước đây của `X_train` và `X_test`.
+
+Sau khi khớp mô hình, ta có thể trích xuất trung bình trong hai lớp bằng thuộc tính `means_`. Đây là trung bình của từng biến dự báo trong mỗi lớp và được LDA dùng làm ước lượng của _µk_. Các giá trị cho thấy tỷ suất sinh lợi của hai ngày trước có xu hướng âm vào những ngày thị trường tăng, còn tỷ suất sinh lợi của những ngày trước có xu hướng dương vào những ngày thị trường giảm.
+
+<MdxCode language="text" code={"In [24]:lda.means_"} />
+
+<MdxCode language="text" code={"Out[24]:array([[0.04,0.03],\n[-0.04,-0.03]])"} />
+
+Các xác suất tiên nghiệm ước lượng được lưu trong thuộc tính `priors_`. Gói `sklearn` thường dùng dấu `_` ở cuối để biểu thị đại lượng được ước lượng khi dùng phương thức `fit()`. Ta có thể xác định chắc chắn phần tử nào tương ứng với nhãn nào bằng thuộc tính `classes_`.
+
+<MdxCode language="text" code={"In [25]:lda.classes_"} />
+
+<MdxCode language="text" code={"Out[25]:array(['Down','Up'],dtype='<U4')"} />
+
+Đầu ra LDA cho biết _π_ ˆDown = 0 _._ 492 và _π_ ˆUp = 0 _._ 508.
+
+<MdxCode language="text" code={"In [26]:lda.priors_"} />
+
+<MdxCode language="text" code={"Out[26]:array([0.492,0.508])"} />
+
+Các vector biệt thức tuyến tính nằm trong thuộc tính `scalings_`:
+
+<MdxCode language="text" code={"In [27]:lda.scalings_"} />
+
+<MdxCode language="text" code={"Out[27]:array([[-0.642],\n[-0.513]])"} />
+
+Các giá trị này cung cấp tổ hợp tuyến tính của `Lag1` và `Lag2` dùng để tạo quy tắc quyết định LDA. Nói cách khác, đây là các hệ số nhân của phần tử trong _X_ = _x_ ở (4.24). Nếu _−_ 0 _._ 64 _×_ Lag1 _−_ 0 _._ 51 _×_ Lag2 lớn, bộ phân loại LDA dự đoán thị trường tăng; nếu nhỏ, nó dự đoán thị trường giảm.
+
+<MdxCode language="text" code={"In [28]:lda_pred=lda.predict(X_test)"} />
+
+Như đã thấy khi so sánh các phương pháp phân loại (Mục 4.5), dự đoán của LDA và hồi quy logistic gần như giống hệt nhau.
+
+<MdxCode language="text" code={"In [29]:confusion_table(lda_pred,L_test)"} />
+
+<MdxCode language="text" code={"Out[29]:TruthDownUp\nPredicted\nDown3535\nUp76106"} />
+
+Ta cũng có thể ước lượng xác suất của từng lớp cho mỗi điểm trong tập huấn luyện. Áp dụng ngưỡng 50% cho xác suất hậu nghiệm thuộc lớp một cho phép tái tạo các dự đoán trong `lda_pred`.
+
+<MdxCode language="text" code={"In [30]:lda_prob=lda.predict_proba(X_test)\nnp.all(\nnp.where(lda_prob[:,1]>=0.5,'Up','Down')==lda_pred\n)"} />
+
+<MdxCode language="text" code={"Out[30]:True"} />
+
+Ở trên, ta dùng hàm `np.where()` để tạo mảng có giá trị `np.where() 'Up'` tại những chỉ số mà cột thứ hai của `lda_prob` (xác suất hậu nghiệm ước lượng của `'Up'`) lớn hơn 0,5. Với bài toán có nhiều hơn hai lớp, nhãn được chọn là lớp có xác suất hậu nghiệm cao nhất:
+
+<MdxCode language="text" code={"In [31]:np.all(\n[lda.classes_[i]foriinnp.argmax(lda_prob,1)]==\nlda_pred\n)"} />
+
+###### **`Out[31]:`** `True`
+
+Nếu muốn dùng ngưỡng xác suất hậu nghiệm khác 50% để dự đoán, ta có thể dễ dàng thực hiện. Chẳng hạn, giả sử ta chỉ muốn dự đoán thị trường giảm khi rất chắc chắn rằng
+
+thị trường thực sự giảm trong ngày đó, chẳng hạn khi xác suất hậu nghiệm ít nhất là 90%. Sau khi kiểm tra thuộc tính `classes_`, ta biết cột đầu tiên của `lda_prob` tương ứng với nhãn `Down`, nên dùng chỉ số cột 0 thay vì 1 như phía trên.
+
+<MdxCode language="text" code={"In [32]:np.sum(lda_prob[:,0]>0.9)"} />
+
+<MdxCode language="text" code={"Out[32]:0"} />
+
+Không ngày nào trong năm 2005 đạt ngưỡng đó! Thực tế, xác suất hậu nghiệm giảm lớn nhất trong cả năm 2005 chỉ là 52,02%.
+
+Bộ phân loại LDA trên là bộ phân loại đầu tiên từ thư viện `sklearn`. Ta sẽ dùng thêm một số đối tượng khác trong thư viện này. Các đối tượng tuân theo cấu trúc chung giúp đơn giản hóa những tác vụ như xác thực chéo, sẽ gặp ở Chương 5. Cụ thể, trước hết các phương thức tạo một bộ phân loại tổng quát chưa tham chiếu đến dữ liệu nào. Sau đó, bộ phân loại được khớp với dữ liệu bằng phương thức `fit()` và dự đoán luôn được tạo bằng phương thức `predict()`. Mẫu khởi tạo bộ phân loại, khớp nó rồi tạo dự đoán là lựa chọn thiết kế rõ ràng của `sklearn`. Tính đồng nhất này cho phép sao chép bộ phân loại một cách gọn gàng để khớp trên dữ liệu khác, chẳng hạn các tập huấn luyện khác nhau phát sinh trong xác thực chéo. Mẫu chuẩn này cũng giúp xây dựng workflow có thể dự đoán trước.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 4.7.4 Phân tích biệt thức bậc hai
+
+Bây giờ ta khớp mô hình QDA với dữ liệu `Smarket`. QDA được triển khai bằng `QuadraticDiscriminantAnalysis()` trong gói `sklearn`; tên đầy đủ bắt đầu bằng `Quadratic` và được viết tắt là `QDA()`. Cú pháp rất giống `LDA()`.
+
+<MdxCode language="text" code={"Discriminant\nAnalysis()"} />
+
+<MdxCode language="text" code={"In [33]:qda=QDA(store_covariance=True)\nqda.fit(X_train,L_train)"} />
+
+<MdxCode language="text" code={"Out[33]:QuadraticDiscriminantAnalysis(store_covariance=True)"} />
+
+Hàm `QDA()` cũng tính `means_` và `priors_`.
+
+<MdxCode language="text" code={"In [34]:qda.means_,qda.priors_"} />
+
+<MdxCode language="text" code={"Out[34]:(array([[0.04279022,0.03389409],\n[-0.03954635,-0.03132544]]),\narray([0.49198397,0.50801603]))"} />
+
+Bộ phân loại `QDA()` ước lượng một ma trận hiệp phương sai cho mỗi lớp. Đây là hiệp phương sai ước lượng trong lớp đầu tiên:
+
+<MdxCode language="text" code={"In [35]:qda.covariance_[0]"} />
+
+<MdxCode language="text" code={"Out[35]:array([[1.50662277,-0.03924806],\n[-0.03924806,1.53559498]])"} />
+
+Đầu ra chứa trung bình của các nhóm nhưng không chứa hệ số của biệt thức tuyến tính, vì bộ phân loại QDA dùng hàm bậc hai thay vì hàm tuyến tính của các biến dự báo. Hàm `predict()` hoạt động hoàn toàn giống với LDA.
+
+<MdxCode language="text" code={"In [36]:qda_pred=qda.predict(X_test)\nconfusion_table(qda_pred,L_test)"} />
+
+<MdxCode language="text" code={"Out[36]:TruthDownUp\nPredicted\nDown3020\nUp81121"} />
+
+Điều thú vị là dự đoán QDA chính xác gần 60% số lần, dù dữ liệu năm 2005 không được dùng để khớp mô hình.
+
+<MdxCode language="text" code={"In [37]:np.mean(qda_pred==L_test)"} />
+
+<MdxCode language="text" code={"Out[37]:0.599"} />
+
+Mức chính xác này khá ấn tượng đối với dữ liệu thị trường chứng khoán, vốn nổi tiếng khó mô hình hóa chính xác. Điều đó cho thấy dạng bậc hai do QDA giả định có thể nắm bắt quan hệ thật tốt hơn dạng tuyến tính của LDA và hồi quy logistic. Tuy nhiên, nên đánh giá hiệu năng của phương pháp trên tập kiểm tra lớn hơn trước khi đặt cược rằng cách tiếp cận này luôn thắng thị trường!
+
+_4.7.5 Naive Bayes_
+
+Tiếp theo, ta khớp mô hình naive Bayes với dữ liệu `Smarket`. Cú pháp tương tự `LDA()` và `QDA()`. Theo mặc định, triển khai `GaussianNB()` của bộ phân loại naive Bayes mô hình hóa mỗi đặc trưng định lượng bằng phân phối Gaussian; lớp `GaussianNB()` cũng có thể kết hợp với các cách ước lượng phân phối khác như phương pháp mật độ kernel.
+
+<MdxCode language="text" code={"In [38]:NB=GaussianNB()\nNB.fit(X_train,L_train)"} />
+
+<MdxCode language="text" code={"Out[38]:GaussianNB()"} />
+
+Các lớp được lưu dưới dạng `classes_`.
+
+<MdxCode language="text" code={"In [39]:NB.classes_"} />
+
+<MdxCode language="text" code={"Out[39]:array(['Down','Up'],dtype='<U4')"} />
+
+Xác suất tiên nghiệm của lớp được lưu trong thuộc tính `class_prior_`.
+
+<MdxCode language="text" code={"In [40]:NB.class_prior_"} />
+
+<MdxCode language="text" code={"Out[40]:array([0.49,0.51])"} />
+
+Tham số của các đặc trưng nằm trong thuộc tính `theta_` và `var_`. Số hàng bằng số lớp, còn số cột bằng số đặc trưng. Dưới đây, ta thấy trung bình của đặc trưng `Lag1` trong lớp `Down` là 0,043.
+
+<MdxCode language="text" code={"In [41]:NB.theta_"} />
+
+<MdxCode language="text" code={"Out[41]:array([[0.043,0.034],\n[-0.040,-0.031]])"} />
+
+Phương sai của nó là 1,503.
+
+<MdxCode language="text" code={"In [42]:NB.var_"} />
+
+<MdxCode language="text" code={"Out[42]:array([[1.503,1.532],\n[1.514,1.487]])"} />
+
+Làm sao biết tên những thuộc tính này? Ta dùng `NB?` (hoặc `?NB`). Có thể dễ dàng kiểm tra phép tính trung bình:
+
+<MdxCode language="text" code={"In [43]:X_train[L_train=='Down'].mean()"} />
+
+<MdxCode language="text" code={"Out[43]:Lag10.042790\nLag20.033894\ndtype:float64"} />
+
+Tương tự với phương sai:
+
+<MdxCode language="text" code={"In [44]:X_train[L_train=='Down'].var(ddof=0)"} />
+
+<MdxCode language="text" code={"Out[44]:Lag11.503554\nLag21.532467\ndtype:float64"} />
+
+Hàm `GaussianNB()` tính phương sai bằng công thức 1 _/n_.^(6) Vì `NB()` là bộ phân loại trong thư viện `sklearn`, việc tạo dự đoán dùng cùng cú pháp như `LDA()` và `QDA()` ở trên.
+
+<MdxCode language="text" code={"In [45]:nb_labels=NB.predict(X_test)\nconfusion_table(nb_labels,L_test)"} />
+
+<MdxCode language="text" code={"Out[45]:TruthDownUp\nPredicted\nDown2920\nUp82121"} />
+
+Naive Bayes hoạt động tốt trên dữ liệu này, dự đoán đúng hơn 59% số lần. Kết quả hơi kém QDA nhưng tốt hơn nhiều so với LDA.
+
+Tương tự `LDA`, phương thức `predict_proba()` ước lượng xác suất mỗi quan sát thuộc một lớp cụ thể.
+
+<MdxCode language="text" code={"In [46]:NB.predict_proba(X_test)[:5]"} />
+
+<MdxCode language="text" code={"Out[46]:array([[0.4873,0.5127],\n[0.4762,0.5238],\n[0.4653,0.5347],\n[0.4748,0.5252],\n[0.4902,0.5098]])"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 4.7.6 K láng giềng gần nhất
+
+Bây giờ ta thực hiện KNN bằng hàm `KNeighborsClassifier()`. Tên lớp bắt đầu bằng `KNeighbors`.
+
+> 6Có hai công thức tính phương sai mẫu của _n_ quan sát 1 _n_ 1 _n x_ 1 _, . . . , xn_ : _n_ � _i_ =1^(()^(_xi−x_¯)2và) _n−_ 1 � _i_ =1^(()^(_xi−x_¯)2trong đó)^(_x_¯là trung bình mẫu.) Trong hầu hết trường hợp, sự khác biệt không quan trọng.
+
+<MdxCode language="text" code={"Classifier()"} />
+
+Hàm này hoạt động tương tự các hàm khớp mô hình đã gặp.
+
+Giống LDA và QDA, ta khớp bộ phân loại bằng phương thức `fit`. Dự đoán mới được tạo bằng phương thức `predict` của đối tượng do `fit()` trả về.
+
+<MdxCode language="text" code={"In [47]:knn1=KNeighborsClassifier(n_neighbors=1)\nknn1.fit(X_train,L_train)\nknn1_pred=knn1.predict(X_test)\nconfusion_table(knn1_pred,L_test)"} />
+
+<MdxCode language="text" code={"Out[47]:TruthDownUp\nPredicted\nDown4358\nUp6883"} />
+
+Kết quả với _K_ = 1 không tốt vì chỉ 50% quan sát được dự đoán đúng. Dĩ nhiên, có thể _K_ = 1 tạo ra cách khớp quá linh hoạt với dữ liệu.
+
+<MdxCode language="text" code={"In [48]:(83+43)/252,np.mean(knn1_pred==L_test)"} />
+
+<MdxCode language="text" code={"Out[48]:(0.5,0.5)"} />
+
+Ta lặp lại phân tích dưới đây với _K_ = 3.
+
+<MdxCode language="text" code={"In [49]:knn3=KNeighborsClassifier(n_neighbors=3)\nknn3_pred=knn3.fit(X_train,L_train).predict(X_test)\nnp.mean(knn3_pred==L_test)"} />
+
+<MdxCode language="text" code={"Out[49]:0.532"} />
+
+Kết quả đã cải thiện đôi chút, nhưng tăng _K_ thêm không mang lại cải thiện nào nữa. Với dữ liệu và cách chia huấn luyện/kiểm tra này, QDA có vẻ cho kết quả tốt nhất trong các phương pháp đã xét.
+
+KNN không hoạt động tốt trên dữ liệu `Smarket`, nhưng thường có thể cho kết quả ấn tượng. Làm ví dụ, ta áp dụng KNN cho tập dữ liệu `Caravan` thuộc thư viện `ISLP`. Tập dữ liệu gồm 85 biến dự báo đo đặc điểm nhân khẩu học của 5.822 người. Biến đáp ứng là `Purchase`, cho biết một người có mua hợp đồng bảo hiểm caravan hay không. Trong tập dữ liệu này, chỉ 6% số người mua bảo hiểm caravan.
+
+<MdxCode language="text" code={"In [50]:Caravan=load_data('Caravan')\nPurchase=Caravan.Purchase\nPurchase.value_counts()"} />
+
+<MdxCode language="text" code={"Out[50]:No5474\nYes348\nName:Purchase,dtype:int64"} />
+
+Phương thức `value_counts()` nhận một `pd.Series` hoặc `pd.DataFrame` và trả về `pd.Series` chứa số lượng tương ứng cho mỗi phần tử duy nhất. Trong trường hợp này, `Purchase` chỉ có các giá trị `Yes`, `No` và phương thức trả về số lượng của từng giá trị.
+
+<MdxCode language="text" code={"In [51]:348/5822"} />
+
+<MdxCode language="text" code={"Out[51]:0.0598"} />
+
+Các đặc trưng gồm mọi cột ngoại trừ `Purchase`.
+
+<MdxCode language="text" code={"In [52]:feature_df=Caravan.drop(columns=['Purchase'])"} />
+
+Vì bộ phân loại KNN dự đoán lớp của một quan sát kiểm tra bằng cách xác định các quan sát gần nó nhất, thang đo của biến rất quan trọng. Biến có thang đo lớn sẽ ảnh hưởng đến _khoảng cách_ giữa các quan sát, và do đó đến bộ phân loại KNN, mạnh hơn nhiều so với biến có thang đo nhỏ. Chẳng hạn, hãy hình dung tập dữ liệu gồm hai biến `salary` và `age` (lần lượt đo bằng đô la và năm). Đối với KNN, chênh lệch lương 1.000 USD là rất lớn so với chênh lệch tuổi 50 năm. Vì vậy, `salary` sẽ chi phối kết quả phân loại KNN, còn `age` gần như không có tác động. Điều này trái với trực giác rằng chênh lệch lương 1.000 USD khá nhỏ so với chênh lệch tuổi 50 năm. Hơn nữa, tầm quan trọng của thang đo đối với KNN dẫn đến một vấn đề khác: nếu đo `salary` bằng yên Nhật hoặc `age` bằng phút, ta sẽ nhận kết quả phân loại rất khác so với khi hai biến được đo bằng đô la và năm.
+
+Cách tốt để xử lý vấn đề là _chuẩn hóa_ dữ liệu sao cho mọi biến có trung bình bằng không và độ lệch chuẩn bằng một. Khi đó, tất cả biến nằm trên thang đo có thể so sánh. Ta thực hiện bằng phép biến đổi `StandardScaler()`.
+
+<MdxCode language="text" code={"Standard\nScaler()"} />
+
+<MdxCode language="text" code={"In [53]:scaler=StandardScaler(with_mean=True,\nwith_std=True,\ncopy=True)"} />
+
+Đối số `with_mean` cho biết có trừ trung bình hay không, còn `with_std` cho biết có co giãn các cột để độ lệch chuẩn bằng 1 hay không. Cuối cùng, đối số `copy=True` cho biết ta luôn sao chép dữ liệu thay vì cố thực hiện phép tính tại chỗ khi có thể.
+
+Phép biến đổi này có thể được khớp rồi áp dụng cho dữ liệu bất kỳ. Ở dòng đầu bên dưới, các tham số co giãn được tính và lưu trong `scaler`; dòng thứ hai thực sự tạo tập đặc trưng đã chuẩn hóa.
+
+<MdxCode language="text" code={"In [54]:scaler.fit(feature_df)\nX_std=scaler.transform(feature_df)"} />
+
+Bây giờ mỗi cột của `feature_std` bên dưới có độ lệch chuẩn bằng một và trung bình bằng không.
+
+<MdxCode language="text" code={"In [55]:feature_std=pd.DataFrame(\nX_std,\ncolumns=feature_df.columns);\nfeature_std.std()\nOut[55]:MOSTYPE1.000086\nMAANTHUI1.000086"} />
+
+<MdxCode language="text" code={"MGEMOMV1.000086\nMGEMLEEF1.000086\nMOSHOOFD1.000086\n...\nAZEILPL1.000086\nAPLEZIER1.000086\nAFIETS1.000086\nAINBOED1.000086\nABYSTAND1.000086\nLength:85,dtype:float64"} />
+
+Lưu ý rằng độ lệch chuẩn ở đây không hoàn toàn bằng 1; nguyên nhân vẫn là một số quy trình dùng quy ước 1 _/n_ cho phương sai (trong trường hợp này là `scaler()`), còn số khác dùng 1 _/_ ( _n −_ 1) (phương thức `std()`). Xem chú thích `.std()` ở trang 183. Trong trường hợp này điều đó không quan trọng, miễn là mọi biến cùng thang đo.
+
+Bằng hàm `train_test_split()`, bây giờ ta chia các quan sát thành tập kiểm tra gồm 1.000 quan sát và tập huấn luyện gồm những quan sát còn lại. Tên hàm có thể được đọc theo hai phần `train_test_` và `split()`. Đối số `random_state=0` bảo đảm ta nhận cùng một cách chia mỗi lần chạy lại mã.
+
+<MdxCode language="text" code={"In [56]:(X_train,"} />
+
+<MdxCode language="text" code={"X_test,\ny_train,\ny_test)=train_test_split(feature_std ,\nPurchase,\ntest_size=1000,\nrandom_state=0)"} />
+
+`?train_test_split` cho biết các đối số không phải keyword có thể là `lists`, `arrays`, `pandas dataframes`, v.v., miễn là chúng có cùng độ dài (`shape[0]`) và do đó _có thể đánh chỉ số_. Trong trường hợp này, đó là data frame `feature_std` và biến đáp ứng `Purchase`. Ta khớp mô hình KNN trên dữ liệu huấn luyện với _K_ = 1 rồi đánh giá hiệu năng trên dữ liệu kiểm tra.
+
+<MdxCode language="text" code={"In [57]:knn1=KNeighborsClassifier(n_neighbors=1)\nknn1_pred=knn1.fit(X_train,y_train).predict(X_test)\nnp.mean(y_test!=knn1_pred),np.mean(y_test!=\"No\")"} />
+
+<MdxCode language="text" code={"Out[57]:(0.111,0.067)"} />
+
+Tỷ lệ lỗi KNN trên 1.000 quan sát kiểm tra khoảng 11%. Thoạt nhìn, kết quả có vẻ khá tốt. Tuy nhiên, vì chỉ hơn 6% khách hàng mua bảo hiểm, ta có thể hạ tỷ lệ lỗi xuống gần 6% chỉ bằng cách luôn dự đoán `No`, bất kể giá trị các biến dự báo! Đây gọi là _tỷ lệ rỗng_.
+
+Giả sử việc cố bán bảo hiểm cho một người có chi phí đáng kể, chẳng hạn nhân viên bán hàng phải đến gặp từng khách hàng tiềm năng. Nếu công ty cố bán bảo hiểm cho một nhóm khách hàng chọn ngẫu nhiên, tỷ lệ thành công chỉ là 6%, có thể quá thấp so với chi phí. Thay vào đó, công ty muốn chỉ bán cho những khách hàng có khả năng mua. Vì vậy, tỷ lệ lỗi tổng thể không phải điều đáng quan tâm; điều cần quan tâm là tỷ lệ người được dự đoán đúng sẽ mua bảo hiểm.
+
+<MdxCode language="text" code={"In [58]:confusion_table(knn1_pred,y_test)"} />
+
+<MdxCode language="text" code={"Out[58]:TruthNoYes\nPredicted\nNo88058\nYes539"} />
+
+Kết quả cho thấy KNN với _K_ = 1 tốt hơn nhiều so với đoán ngẫu nhiên trong nhóm khách hàng được dự đoán sẽ mua bảo hiểm. Trong 62 khách hàng như vậy, có 9 người, tương đương 14,5%, thực sự mua bảo hiểm. Tỷ lệ này gấp đôi đoán ngẫu nhiên.
+
+<MdxCode language="text" code={"In [59]:9/(53+9)"} />
+
+<MdxCode language="text" code={"Out[59]:0.145"} />
+
+Tham số điều chỉnh
+
+Số láng giềng trong KNN được gọi là _tham số điều chỉnh_, cũng gọi là _siêu tham số_. Ta không biết trước nên dùng giá trị nào. Vì vậy, cần xem bộ phân loại hoạt động ra sao trên dữ liệu kiểm tra khi thay đổi tham số. Có thể thực hiện bằng vòng lặp `for`, được mô tả trong Mục 2.3.8. Ở đây, ta dùng vòng lặp for để xem độ chính xác của bộ phân loại trong nhóm được dự đoán sẽ mua bảo hiểm khi thay đổi số láng giềng từ 1 đến 5:
+
+<MdxCode language="text" code={"In [60]:forKinrange(1,6):\nknn=KNeighborsClassifier(n_neighbors=K)\nknn_pred=knn.fit(X_train,y_train).predict(X_test)\nC=confusion_table(knn_pred,y_test)\ntempl=('K={0:d}:#predictedtorent:{1:>2},'+\n'#whodidrent{2:d},accuracy{3:.1%}')\npred=C.loc['Yes'].sum()\ndid_rent=C.loc['Yes','Yes']\nprint(templ.format(\nK,\npred,\ndid_rent,\ndid_rent/pred))"} />
+
+<MdxCode language="text" code={"K=1:#predictedtorent:62,#whodidrent9,accuracy14.5%\nK=2:#predictedtorent:6,#whodidrent1,accuracy16.7%\nK=3:#predictedtorent:20,#whodidrent3,accuracy15.0%\nK=4:#predictedtorent:3,#whodidrent0,accuracy0.0%\nK=5:#predictedtorent:7,#whodidrent1,accuracy14.3%"} />
+
+Ta thấy có đôi chút biến thiên: các con số với `K=4` rất khác phần còn lại.
+
+So sánh với hồi quy logistic
+
+Để so sánh, ta cũng có thể khớp mô hình hồi quy logistic với dữ liệu. Việc này cũng thực hiện được bằng `sklearn`, dù theo mặc định nó khớp một dạng giống phiên bản _hồi quy ridge_ của hồi quy logistic, sẽ được giới thiệu ở Chương 6. Có thể thay đổi bằng cách đặt đối số `C` thích hợp bên dưới. Giá trị mặc định là 1, nhưng khi đặt thành một số rất lớn, thuật toán hội tụ đến cùng nghiệm với bộ ước lượng hồi quy logistic thông thường (không điều chuẩn) đã bàn ở trên.
+
+Khác với gói `statsmodels`, `sklearn` ít tập trung vào suy luận và tập trung nhiều hơn vào phân loại. Do đó, các phương thức `summary` trong `statsmodels` và phiên bản đơn giản hóa `summarize` thường không có cho các bộ phân loại trong `sklearn`.
+
+<MdxCode language="text" code={"In [61]:logit=LogisticRegression(C=1e10,solver='liblinear')\nlogit.fit(X_train,y_train)\nlogit_pred=logit.predict_proba(X_test)\nlogit_labels=np.where(logit_pred[:,1]>5,'Yes','No')\nconfusion_table(logit_labels ,y_test)"} />
+
+<MdxCode language="text" code={"Out[61]:TruthNoYes\nPredicted\nNo93367\nYes00"} />
+
+Ta dùng đối số `solver='liblinear'` phía trên để tránh cảnh báo từ bộ giải mặc định rằng thuật toán không hội tụ.
+
+Nếu dùng 0 _._ 5 làm ngưỡng xác suất dự đoán cho bộ phân loại, ta gặp vấn đề: không quan sát kiểm tra nào được dự đoán sẽ mua bảo hiểm. Tuy nhiên, ta không bắt buộc phải dùng ngưỡng 0 _._ 5. Nếu dự đoán mua hàng mỗi khi xác suất mua dự đoán vượt 0 _._ 25, kết quả tốt hơn nhiều: ta dự đoán 29 người sẽ mua bảo hiểm và đúng với khoảng 31% số người này. Kết quả tốt gần gấp năm lần đoán ngẫu nhiên!
+
+<MdxCode language="text" code={"In [62]:logit_labels=np.where(logit_pred[:,1]>0.25,'Yes','No')\nconfusion_table(logit_labels ,y_test)"} />
+
+<MdxCode language="text" code={"Out[62]:TruthNoYes\nPredicted\nNo91358\nYes209"} />
+
+<MdxCode language="text" code={"In [63]:9/(20+9)"} />
+
+<MdxCode language="text" code={"Out[63]:0.310"} />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 4.7.7 Hồi quy tuyến tính và Poisson trên dữ liệu Bikeshare
+
+Ở đây, ta khớp mô hình hồi quy tuyến tính và Poisson với dữ liệu `Bikeshare` như mô tả trong Mục 4.6. Biến đáp ứng `bikers` đo số lượt thuê xe đạp mỗi giờ tại Washington, DC trong giai đoạn 2010–2012.
+
+<MdxCode language="text" code={"In [64]:Bike=load_data('Bikeshare')"} />
+
+Ta xem nhanh kích thước và tên các biến trong data frame này.
+
+<MdxCode language="text" code={"In [65]:Bike.shape,Bike.columns"} />
+
+<MdxCode language="text" code={"Out[65]:((8645,15),"} />
+
+<MdxCode language="text" code={"Index(['season','mnth','day','hr','holiday','weekday',\n'workingday','weathersit','temp','atemp','hum',\n'windspeed','casual','registered','bikers'],\ndtype='object'))"} />
+
+Hồi quy tuyến tính
+
+Ta bắt đầu bằng cách khớp mô hình hồi quy tuyến tính với dữ liệu.
+
+<MdxCode language="text" code={"In [66]:X=MS(['mnth',\n'hr',\n'workingday',\n'temp',\n'weathersit']).fit_transform(Bike)\nY=Bike['bikers']\nM_lm=sm.OLS(Y,X).fit()\nsummarize(M_lm)"} />
+
+<MdxCode language="table" code={"|**`Out[66]`**|**`:`**|`coef`|`std err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|\n||`intercept` |`-68.6317`|`5.307 `|`-12.932`|`0.000`|\n||`mnth[Feb]`|`6.8452`|`4.287`|`1.597`|`0.110`|\n||`mnth[March]`|`16.5514`|`4.301`|`3.848`|`0.000`|\n||`mnth[April]`|`41.4249`|`4.972`|`8.331`|`0.000`|\n||`mnth[May]`|`72.5571`|`5.641`|`12.862`|`0.000`|\n||`mnth[June]`|`67.8187`|`6.544`|`10.364`|`0.000`|\n||`mnth[July]`|`45.3245`|`7.081`|`6.401`|`0.000`|\n||`mnth[Aug]`|`53.2430`|`6.640`|`8.019`|`0.000`|\n||`mnth[Sept]`|`66.6783`|`5.925`|`11.254`|`0.000`|\n||`mnth[Oct]`|`75.8343`|`4.950`|`15.319`|`0.000`|\n||`mnth[Nov]`|`60.3100`|`4.610`|`13.083`|`0.000`|\n||`mnth[Dec]`|`46.4577`|`4.271`|`10.878`|`0.000`|\n||`hr[1]`|`-14.5793`|`5.699`|`-2.558`|`0.011`|\n||`hr[2]`|`-21.5791`|`5.733`|`-3.764`|`0.000`|\n||`hr[3]`|`-31.1408`|`5.778`|`-5.389`|`0.000`|\n||`.....`|`.......`|`.....`|`.....`|`.....`|"} />
+
+Biến `hr` có 24 mức và bảng có tổng cộng 40 hàng, nên phần tóm tắt đã được rút gọn. Trong `M_lm`, các mức đầu tiên `hr[0]` và `mnth[Jan]` được xem là giá trị cơ sở, vì vậy không có ước lượng hệ số cho chúng: hệ số của chúng ngầm bằng không và mọi mức khác được đo tương đối so với các giá trị cơ sở này. Chẳng hạn, hệ số tháng Hai là 6 _._ 845 nghĩa là, khi giữ mọi biến khác không đổi, trung bình tháng Hai có nhiều hơn tháng Một khoảng 7 người đi xe. Tương tự, tháng Ba có nhiều hơn tháng Một khoảng 16,5 người.
+
+Kết quả trong Mục 4.6.1 dùng cách mã hóa biến `hr` và `mnth` hơi khác như sau:
+
+<MdxCode language="text" code={"In [67]:hr_encode=contrast('hr','sum')\nmnth_encode=contrast('mnth','sum')"} />
+
+Khớp lại mô hình:
+
+<MdxCode language="text" code={"In [68]:X2=MS([mnth_encode ,\nhr_encode,\n'workingday',\n'temp',"} />
+
+<MdxCode language="text" code={"'weathersit']).fit_transform(Bike)\nM2_lm=sm.OLS(Y,X2).fit()\nS2=summarize(M2_lm)\nS2"} />
+
+<MdxCode language="table" code={"|**`Out[68]:`**||`coef`|`std err`|`t`|`P>|t|`|\n|---|---|---|---|---|---|\n||`intercept`|`73.5974`|`5.132`|`14.340`|`0.000`|\n||`mnth[Jan]`|`-46.0871`|`4.085 `|`-11.281`|`0.000`|\n||`mnth[Feb]`|`-39.2419`|`3.539 `|`-11.088`|`0.000`|\n||`mnth[March]`|`-29.5357`|`3.155`|`-9.361`|`0.000`|\n||`mnth[April]`|`-4.6622`|`2.741`|`-1.701`|`0.089`|\n||`mnth[May]`|`26.4700`|`2.851`|`9.285`|`0.000`|\n||`mnth[June]`|`21.7317`|`3.465`|`6.272`|`0.000`|\n||`mnth[July]`|`-0.7626`|`3.908`|`-0.195`|`0.845`|\n||`mnth[Aug]`|`7.1560`|`3.535`|`2.024`|`0.043`|\n||`mnth[Sept]`|`20.5912`|`3.046`|`6.761`|`0.000`|\n||`mnth[Oct]`|`29.7472`|`2.700`|`11.019`|`0.000`|\n||`mnth[Nov]`|`14.2229`|`2.860`|`4.972`|`0.000`|\n||`hr[0]`|`-96.1420`|`3.955 `|`-24.307`|`0.000`|\n||`hr[1]`|`-110.7213`|`3.966 `|`-27.916`|`0.000`|\n||`hr[2]`|`-117.7212`|`4.016 `|`-29.310`|`0.000`|\n||`.....`|`.......`|`.....`|`......`|`.....`|"} />
+
+Hai cách mã hóa khác nhau thế nào? Trong `M2_lm`, ước lượng hệ số được báo cáo cho mọi mức ngoại trừ mức `23` của `hr` và mức `Dec` của `mnth`. Quan trọng là trong `M2_lm`, ước lượng hệ số (không được báo cáo) cho mức cuối của `mnth` không bằng không; thay vào đó, nó bằng số đối của tổng ước lượng hệ số ở mọi mức khác. Tương tự, trong `M2_lm`, ước lượng hệ số cho mức cuối của `hr` là số đối của tổng ước lượng hệ số ở mọi mức khác. Điều này có nghĩa hệ số của `hr` và `mnth` trong `M2_lm` luôn có tổng bằng không và có thể diễn giải là chênh lệch so với mức trung bình. Chẳng hạn, hệ số tháng Một là _−_ 46 _._ 087 cho biết, khi giữ mọi biến khác không đổi, tháng Một thường có ít hơn trung bình năm 46 người đi xe.
+
+Điều quan trọng là lựa chọn cách mã hóa thực sự không ảnh hưởng, miễn ta diễn giải đúng đầu ra mô hình theo cách mã hóa đã dùng. Chẳng hạn, dự đoán của mô hình tuyến tính giống nhau bất kể cách mã hóa:
+
+<MdxCode language="text" code={"In [69]:np.sum((M_lm.fittedvalues-M2_lm.fittedvalues)**2)"} />
+
+###### **`Out[69]:`** `1.53e-20`
+
+Tổng bình phương chênh lệch bằng không. Ta cũng có thể thấy điều này bằng hàm `np.allclose()`:
+
+<MdxCode language="text" code={"np.allclose()"} />
+
+<MdxCode language="text" code={"In [70]:np.allclose(M_lm.fittedvalues ,M2_lm.fittedvalues)"} />
+
+<MdxCode language="text" code={"Out[70]:True"} />
+
+Để tái tạo đồ thị bên trái của Hình 4.13, trước hết ta phải lấy các ước lượng hệ số gắn với `mnth`. Có thể lấy trực tiếp hệ số từ tháng Một đến tháng Mười Một trong đối tượng `M2_lm`. Hệ số tháng Mười Hai phải được tính rõ ràng bằng số đối của tổng mọi tháng khác. Trước hết, ta trích xuất toàn bộ hệ số tháng từ các hệ số của `M2_lm`.
+
+<MdxCode language="text" code={"In [71]:coef_month=S2[S2.index.str.contains('mnth')]['coef']\ncoef_month"} />
+
+<MdxCode language="text" code={"Out[71]:mnth[Jan]-46.0871\nmnth[Feb]-39.2419\nmnth[March]-29.5357\nmnth[April]-4.6622\nmnth[May]26.4700\nmnth[June]21.7317\nmnth[July]-0.7626\nmnth[Aug]7.1560\nmnth[Sept]20.5912\nmnth[Oct]29.7472\nmnth[Nov]14.2229\nName:coef,dtype:float64"} />
+
+Tiếp theo, ta nối thêm `Dec` dưới dạng số đối của tổng mọi tháng khác.
+
+<MdxCode language="text" code={"In [72]:months=Bike['mnth'].dtype.categories\ncoef_month=pd.concat([\ncoef_month,\n])\n])\ncoef_month"} />
+
+<MdxCode language="text" code={"coef_month,\npd.Series([-coef_month.sum()],\nindex=['mnth[Dec]'\n])\n])"} />
+
+<MdxCode language="text" code={"Out[72]:mnth[Jan]-46.0871\nmnth[Feb]-39.2419\nmnth[March]-29.5357\nmnth[April]-4.6622\nmnth[May]26.4700\nmnth[June]21.7317\nmnth[July]-0.7626\nmnth[Aug]7.1560\nmnth[Sept]20.5912\nmnth[Oct]29.7472\nmnth[Nov]14.2229\nmnth[Dec]0.3705\nName:coef,dtype:float64"} />
+
+Cuối cùng, để biểu đồ gọn hơn, ta chỉ dùng chữ cái đầu của mỗi tháng, tức ký tự thứ 6 trong từng nhãn của chỉ mục.
+
+<MdxCode language="text" code={"In [73]:fig_month,ax_month=subplots(figsize=(8,8))\nx_month=np.arange(coef_month.shape[0])\nax_month.plot(x_month,coef_month ,marker='o',ms=10)\nax_month.set_xticks(x_month)\nax_month.set_xticklabels([l[5]forlincoef_month.index],fontsize\n=20)\nax_month.set_xlabel('Month',fontsize=20)\nax_month.set_ylabel('Coefficient',fontsize=20);"} />
+
+Việc tái tạo đồ thị bên phải của Hình 4.13 theo quy trình tương tự.
+
+<MdxCode language="text" code={"In [74]:coef_hr=S2[S2.index.str.contains('hr')]['coef']\ncoef_hr=coef_hr.reindex(['hr[{0}]'.format(h)forhinrange(23)])\ncoef_hr=pd.concat([coef_hr,"} />
+
+<MdxCode language="text" code={"pd.Series([-coef_hr.sum()],index=['hr[23]'])\n])"} />
+
+Bây giờ ta vẽ biểu đồ theo giờ.
+
+<MdxCode language="text" code={"In [75]:fig_hr,ax_hr=subplots(figsize=(8,8))\nx_hr=np.arange(coef_hr.shape[0])\nax_hr.plot(x_hr,coef_hr,marker='o',ms=10)\nax_hr.set_xticks(x_hr[::2])\nax_hr.set_xticklabels(range(24)[::2],fontsize=20)\nax_hr.set_xlabel('Hour',fontsize=20)\nax_hr.set_ylabel('Coefficient',fontsize=20);"} />
+
+##### Hồi quy Poisson
+
+Bây giờ ta chuyển sang khớp mô hình hồi quy Poisson với dữ liệu `Bikeshare`. Hầu như không có gì thay đổi, ngoại trừ việc dùng hàm `sm.GLM()` và chỉ định họ Poisson:
+
+<MdxCode language="text" code={"In [76]:M_pois=sm.GLM(Y,X2,family=sm.families.Poisson()).fit()"} />
+
+Ta có thể vẽ các hệ số gắn với `mnth` và `hr` để tái tạo Hình 4.15. Trước hết, ta hoàn thiện các hệ số này như trước.
+
+<MdxCode language="text" code={"In [77]:S_pois=summarize(M_pois)\ncoef_month=S_pois[S_pois.index.str.contains('mnth')]['coef']\ncoef_month=pd.concat([coef_month,\npd.Series([-coef_month.sum()],\nindex=['mnth[Dec]'])])\ncoef_hr=S_pois[S_pois.index.str.contains('hr')]['coef']\ncoef_hr=pd.concat([coef_hr,\npd.Series([-coef_hr.sum()],\nindex=['hr[23]'])])"} />
+
+Cách vẽ giống như trước.
+
+<MdxCode language="text" code={"In [78]:fig_pois,(ax_month,ax_hr)=subplots(1,2,figsize=(16,8))\nax_month.plot(x_month,coef_month ,marker='o',ms=10)\nax_month.set_xticks(x_month)\nax_month.set_xticklabels([l[5]forlincoef_month.index],fontsize\n=20)\nax_month.set_xlabel('Month',fontsize=20)\nax_month.set_ylabel('Coefficient',fontsize=20)\nax_hr.plot(x_hr,coef_hr,marker='o',ms=10)\nax_hr.set_xticklabels(range(24)[::2],fontsize=20)\nax_hr.set_xlabel('Hour',fontsize=20)\nax_hr.set_ylabel('Coefficient',fontsize=20);"} />
+
+Ta so sánh giá trị khớp của hai mô hình. Với cả hồi quy tuyến tính lẫn Poisson, giá trị khớp được lưu trong thuộc tính `fittedvalues` do phương thức `fit()` trả về. Các biến dự báo tuyến tính được lưu trong thuộc tính `lin_pred`.
+
+<MdxCode language="text" code={"In [79]:fig,ax=subplots(figsize=(8,8))\nax.scatter(M2_lm.fittedvalues ,\nM_pois.fittedvalues ,\ns=20)\nax.set_xlabel('LinearRegressionFit',fontsize=20)"} />
+
+<MdxCode language="text" code={"ax.set_ylabel('PoissonRegressionFit',fontsize=20)\nax.axline([0,0],c='black',linewidth=3,\n'--'\nlinestyle=,slope=1);"} />
+
+Dự đoán từ mô hình hồi quy Poisson có tương quan với dự đoán từ mô hình tuyến tính; tuy nhiên, dự đoán Poisson không âm. Vì vậy, dự đoán hồi quy Poisson có xu hướng lớn hơn dự đoán mô hình tuyến tính khi số người đi xe rất thấp hoặc rất cao.
+
+Trong mục này, ta khớp mô hình hồi quy Poisson bằng hàm `sm.GLM()` với đối số `family=sm.families.Poisson()`. Trước đó trong bài lab, ta dùng hàm `sm.GLM()` với `family=sm.families.Binomial()` để thực hiện hồi quy logistic. Các lựa chọn khác cho đối số `family` có thể khớp những loại GLM khác. Chẳng hạn, `family=sm.families.Gamma()` khớp mô hình hồi quy Gamma.
+
+</MdxPage>

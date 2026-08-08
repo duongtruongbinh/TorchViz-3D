@@ -3,7 +3,7 @@ title: LLM AI Landscape Intro Polish
 status: done
 created: 2026-07-21T13:44:25+07:00
 updated: 2026-07-23T02:51:33+07:00
-author: Codex
+author: nmkhiem
 task: "Polish and extend the Vietnamese LLM lessons, then consolidate the final implementation state."
 supersedes:
   - docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md

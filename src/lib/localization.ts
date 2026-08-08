@@ -175,6 +175,8 @@ const localizedText = {
     lessonNextSection: { en: 'Next', vi: 'Tiếp theo' },
     lessonCompleteAndContinue: { en: 'Too easy!', vi: 'Quá dễ!' },
     lessonScrollToContinue: { en: 'Scroll to the bottom to continue.', vi: 'Cuộn xuống cuối trang để tiếp tục.' },
+    lessonContentLoading: { en: 'Loading lesson content...', vi: 'Đang tải nội dung bài học...' },
+    lessonContentLoadError: { en: 'Lesson content could not be loaded. Please try again.', vi: 'Không thể tải nội dung bài học. Vui lòng thử lại.' },
     lessonRailOpenLabel: { en: 'Table of contents', vi: 'Mục lục bài học' },
     lessonRailCloseLabel: { en: 'Hide table of contents', vi: 'Ẩn mục lục bài học' },
     clearLessonSearch: { en: 'Clear lesson search', vi: 'Xóa tìm kiếm bài học' },

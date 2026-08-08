@@ -1,0 +1,854 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch02-python-introduction-lab",
+  "locale": "vi",
+  "title": "3.10 Lab: Python cho công việc thống kê",
+  "headings": [
+    "2.3.1 Bắt đầu",
+    "2.3.2 Các lệnh cơ bản",
+    "2.3.3 Nhập môn Python cho tính toán số",
+    "2.3.4 Đồ họa",
+    "2.3.5 Dãy và ký hiệu lát cắt",
+    "2.3.6 Lập chỉ mục dữ liệu",
+    "2.3.7 Nạp dữ liệu",
+    "2.3.8 Vòng lặp for",
+    "2.3.9 Các tóm tắt đồ họa và số bổ sung",
+    "Cheatsheet Python cho Thống kê"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Học thống kê",
+    "Thực hành: Nhập môn Python"
+  ],
+  "pageCount": 10
+}
+
+<MdxPage page={0}>
+
+## 2.3.1 Bắt đầu
+
+Để chạy các bài thực hành trong sách, bạn cần hai thứ:
+
+1. Một bản cài đặt `Python3`, phiên bản `Python` cụ thể được dùng trong các bài thực hành.
+
+2. Quyền truy cập `Jupyter`, một giao diện `Python` rất phổ biến chạy code qua tệp gọi là _notebook_.
+
+Bạn có thể tải xuống và cài đặt `Python3` theo hướng dẫn tại anaconda.com.
+
+Có nhiều cách truy cập `Jupyter`. Sau đây là một vài cách:
+
+1. Dùng dịch vụ `Colaboratory` của Google: colab.research.google.com/.
+
+2. Dùng `JupyterHub`, có tại jupyter.org/hub.
+
+3. Dùng bản cài đặt `jupyter` của riêng bạn. Hướng dẫn cài đặt có tại jupyter.org/install.
+
+Hãy xem trang tài nguyên `Python` trên website cuốn sách statlearning.com để biết thông tin mới nhất về cách thiết lập `Python` và `Jupyter` trên máy tính.
+
+Bạn cần cài package `ISLP`, cung cấp quyền truy cập các bộ dữ liệu và hàm tùy chỉnh do chúng tôi xây dựng. Trong terminal macOS hoặc Linux, nhập `pip install ISLP`; lệnh này cũng cài hầu hết package khác cần cho bài thực hành. Trang tài nguyên `Python` có liên kết tới website tài liệu `ISLP`.
+
+Để chạy bài thực hành này, tải tệp `Ch2-statlearn-lab.ipynb` từ trang tài nguyên `Python`. Sau đó chạy code sau tại dòng lệnh: `jupyter lab Ch2-statlearn-lab.ipynb`.
+
+Nếu dùng Windows, bạn có thể truy cập `anaconda` từ `start menu` và làm theo các liên kết. Chẳng hạn, để cài `ISLP` và chạy bài thực hành, bạn có thể chạy cùng code ở trên trong shell `anaconda`.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 2.3.2 Các lệnh cơ bản
+
+Trong bài thực hành này, ta giới thiệu một số lệnh `Python` đơn giản. Để tìm hiểu thêm về `Python` nói chung, người đọc có thể tham khảo hướng dẫn tại docs.python.org/3/tutorial/.
+
+Giống phần lớn ngôn ngữ lập trình, `Python` dùng _hàm_ để thực hiện thao tác. Để chạy hàm tên `fun`, ta nhập `fun(input1,input2)`, trong đó các đầu vào (hay _đối số_) `input1` và `input2` cho `Python` biết cách chạy hàm. Một hàm có thể có số đầu vào bất kỳ. Chẳng hạn, hàm `print()` xuất một biểu diễn văn bản của tất cả đối số ra console; nói cách khác, `print()` dùng để in các đối số.
+
+<MdxCode language="text" code={"In [1]:print('fitamodelwith',11,'variables')"} />
+
+###### `fit a model with 11 variables`
+
+Lệnh sau cung cấp thông tin về hàm `print()`.
+
+###### **`In [2]:`** `print?`
+
+Phép cộng hai số nguyên trong `Python` khá trực quan.
+
+<MdxCode language="text" code={"In [3]:3+5"} />
+
+###### **`Out[3]:`** `8`
+
+Trong `Python`, dữ liệu văn bản được xử lý bằng _chuỗi_. Chẳng hạn, `"hello"` và `'hello'` là chuỗi. Ta có thể nối chúng bằng ký hiệu cộng `+`.
+
+<MdxCode language="text" code={"In [4]:\"hello\"+\"\"+\"world\""} />
+
+###### **`Out[4]:`** `'hello world'`
+
+Chuỗi thực chất là một kiểu _dãy_: thuật ngữ chung cho một dãy có thứ tự. Ba kiểu dãy quan trọng nhất là list, tuple và chuỗi. Bây giờ ta giới thiệu list.
+
+Lệnh sau yêu cầu `Python` ghép các số 3, 4 và 5, rồi lưu chúng thành một _list_ tên `x`. Khi nhập `x`, ta nhận lại list.
+
+###### **`In [5]:`** `x = [3, 4, 5]`
+
+<MdxCode language="text" code={"x"} />
+
+###### **`Out[5]:`** `[3, 4, 5]`
+
+Lưu ý ta dùng ngoặc vuông `[]` để tạo list này.
+
+Ta thường muốn cộng hai tập số với nhau. Thử đoạn code sau là hợp lý, dù nó không tạo kết quả mong muốn.
+
+<MdxCode language="text" code={"In [6]:y=[4,9,7]\nx+y"} />
+
+###### **`Out[6]:`** `[3, 4, 5, 4, 9, 7]`
+
+Kết quả có thể hơi phản trực giác: tại sao `Python` không cộng các phần tử trong hai list theo từng vị trí? Trong `Python`, list chứa các đối tượng _tùy ý_ và được cộng bằng phép _nối_. Thực tế, đây là hành vi đã thấy trước đó khi nhập `"hello" + " " + "world"`.
+
+Ví dụ này phản ánh việc `Python` là một ngôn ngữ lập trình đa dụng. Phần lớn chức năng chuyên biệt cho dữ liệu của `Python` đến từ các package khác, nổi bật là `numpy` và `pandas`. Trong mục tiếp theo, ta giới thiệu package `numpy`. Xem docs.scipy.org/doc/numpy/user/quickstart.html để biết thêm về `numpy`.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 2.3.3 Nhập môn Python cho tính toán số
+
+Như đã đề cập, cuốn sách sử dụng chức năng có trong _thư viện_ hay _package_ `numpy`. Package là một tập module không nhất thiết có trong bản phân phối `Python` cơ sở. Tên `numpy` là viết tắt của _numerical Python_. Để truy cập `numpy`, trước tiên ta phải `import` nó.
+
+<MdxCode language="text" code={"import"} />
+
+<MdxCode language="text" code={"In [7]:importnumpyasnp"} />
+
+Trong dòng trước, ta đặt tên module `numpy` là `np`, một tên viết tắt giúp tham chiếu dễ hơn. Trong `numpy`, _array_ là thuật ngữ chung chỉ một tập số nhiều chiều; đây là kiểu array của `numpy`. Ta dùng hàm `np.array()` để định nghĩa `x` và `y`, là các array một chiều, tức các vector do `np.array()` tạo ra.
+
+<MdxCode language="text" code={"In [8]:x=np.array([3,4,5])\ny=np.array([4,9,7])"} />
+
+Lưu ý nếu quên chạy lệnh `import numpy as np` trước đó, bạn sẽ gặp lỗi khi gọi hàm `np.array()` trong dòng trên. Cú pháp `np.array()` cho biết hàm được gọi thuộc package `numpy`, được viết tắt là `np`. Vì `x` và `y` được định nghĩa bằng `np.array()`, ta nhận kết quả hợp lý khi cộng chúng. Hãy so sánh với kết quả ở mục trước khi thử cộng hai list mà không dùng `numpy`.
+
+###### **`In [9]:`** `x + y`
+
+<MdxCode language="text" code={"Out[9]:array([7,13,12])"} />
+
+Trong `numpy`, ma trận thường được biểu diễn bằng array hai chiều, còn vector bằng array một chiều.^(1) Có thể tạo array hai chiều như sau.
+
+<MdxCode language="text" code={"In [10]:x=np.array([[1,2],[3,4]])\nx"} />
+
+<MdxCode language="text" code={"Out[10]:array([[1,2],\n[3,4]])"} />
+
+Đối tượng `x` có một số _thuộc tính_, hay đối tượng gắn kèm. Để truy cập một thuộc tính của `x`, ta nhập `x.attribute`, thay `attribute` bằng tên thuộc tính. Chẳng hạn, có thể truy cập thuộc tính `ndim` của `x ndim` như sau.
+
+<MdxCode language="text" code={"In [11]:x.ndim"} />
+
+<MdxCode language="text" code={"Out[11]:2"} />
+
+Đầu ra cho biết `x` là array hai chiều. Tương tự, `x.dtype` là thuộc tính _kiểu dữ liệu_ của đối tượng `x`. Nó cho biết `x` gồm các số nguyên 64 bit:
+
+> 1 Dù cũng có thể tạo ma trận bằng `np.matrix()`, ta sẽ dùng `np.array()` trong toàn bộ các bài thực hành của sách.
+
+<MdxCode language="text" code={"In [12]:x.dtype"} />
+
+###### **`Out[12]:`** `dtype('int64')`
+
+Tại sao `x` gồm các số nguyên? Vì ta tạo `x` bằng cách chỉ truyền số nguyên vào hàm `np.array()`. Nếu truyền bất kỳ số thập phân nào, ta sẽ thu được array _số dấu phẩy động_ (tức số thực).
+
+<MdxCode language="text" code={"In [13]:np.array([[1,2],[3.0,4]]).dtype"} />
+
+<MdxCode language="text" code={"Out[13]:dtype('float64')"} />
+
+Nhập `fun?` sẽ khiến `Python` hiển thị tài liệu gắn với hàm `fun` nếu có. Ta có thể thử với `np.array()`.
+
+<MdxCode language="text" code={"In [14]:np.array?"} />
+
+Tài liệu cho biết có thể tạo array dấu phẩy động bằng cách truyền đối số `dtype` vào `np.array()`.
+
+<MdxCode language="text" code={"dtype"} />
+
+<MdxCode language="text" code={"In [15]:np.array([[1,2],[3,4]],float).dtype"} />
+
+###### **`Out[15]:`** `dtype('float64')`
+
+Array `x` có hai chiều. Ta có thể tìm số hàng và cột qua thuộc tính `shape`.
+
+<MdxCode language="text" code={"shape"} />
+
+<MdxCode language="text" code={"In [16]:x.shape"} />
+
+<MdxCode language="text" code={"Out[16]:(2,2)"} />
+
+_Phương thức_ là một hàm gắn với đối tượng. Chẳng hạn, với array `x`, biểu thức `x.sum()` tính tổng mọi phần tử bằng phương thức `sum()` dành cho array. Lệnh gọi `x.sum()` tự động cung cấp `x` làm đối số đầu tiên cho phương thức `.sum()`, tức phương thức `sum()`.
+
+<MdxCode language="text" code={"In [17]:x=np.array([1,2,3,4])\nx.sum()"} />
+
+<MdxCode language="text" code={"Out[17]:10"} />
+
+Ta cũng có thể tính tổng các phần tử của `x` bằng cách truyền `x` làm đối số cho hàm `np.sum()`.
+
+<MdxCode language="text" code={"np.sum()"} />
+
+<MdxCode language="text" code={"In [18]:x=np.array([1,2,3,4])\nnp.sum(x)"} />
+
+<MdxCode language="text" code={"Out[18]:10"} />
+
+Một ví dụ khác, phương thức `reshape()` trả về một array mới có cùng phần tử như `x` nhưng hình dạng khác. Đây chính là phương thức `.reshape()`. Ta thực hiện bằng cách truyền một `tuple tuple` vào lệnh gọi `reshape()`, ở đây là `(2, 3)`. Tuple này chỉ rằng ta muốn tạo array hai chiều có 2 hàng và 3 cột.^(2) Trong phần sau, ký tự `\n` tạo một _dòng mới_.
+
+<MdxCode language="text" code={"In [19]:x=np.array([1,2,3,4,5,6])\nprint('beginningx:\\n',x)\nx_reshape=x.reshape((2,3))\nprint('reshapedx:\\n',x_reshape)"} />
+
+<MdxCode language="text" code={"beginningx:\n[123456]\nreshapedx:\n[[123]\n[456]]"} />
+
+Đầu ra trước cho thấy array `numpy` được xác định như một dãy _hàng_. Đây gọi là _thứ tự ưu tiên hàng_, đối lập với _thứ tự ưu tiên cột_.
+
+`Python` (và do đó `numpy`) dùng chỉ mục bắt đầu từ 0. Nghĩa là để truy cập phần tử trên cùng bên trái của `x_reshape`, ta nhập `x_reshape[0,0]`.
+
+<MdxCode language="text" code={"In [20]:x_reshape[0,0]"} />
+
+<MdxCode language="text" code={"Out[20]:1"} />
+
+Tương tự, `x_reshape[1,2]` trả về phần tử ở hàng thứ hai, cột thứ ba của `x_reshape`.
+
+<MdxCode language="text" code={"In [21]:x_reshape[1,2]"} />
+
+<MdxCode language="text" code={"Out[21]:6"} />
+
+Tương tự, `x[2]` trả về phần tử thứ ba của `x`.
+
+Bây giờ hãy sửa phần tử trên cùng bên trái của `x_reshape`. Thật bất ngờ, ta phát hiện phần tử đầu của `x` cũng bị sửa!
+
+<MdxCode language="text" code={"In [22]:print('xbeforewemodifyx_reshape:\\n',x)\nprint('x_reshapebeforewemodifyx_reshape:\\n',x_reshape)\nx_reshape[0,0]=5\nprint('x_reshapeafterwemodifyitstopleftelement:\\n',\nx_reshape)\nprint('xafterwemodifytopleftelementofx_reshape:\\n',x)\nOut[22]:xbeforewemodifyx_reshape:\n[123456]\nx_reshapebeforewemodifyx_reshape:\n[[123]\n[456]]\nx_reshapeafterwemodifyitstopleftelement:\n[[523]"} />
+
+2 Giống list, tuple biểu diễn một dãy đối tượng. Tại sao cần nhiều hơn một cách tạo dãy? Tuple và list có vài khác biệt, nhưng có lẽ quan trọng nhất là phần tử tuple không thể sửa, còn phần tử list có thể sửa.
+
+<MdxCode language="text" code={"[456]]\nxafterwemodifytopleftelementofx_reshape:\n[523456]"} />
+
+Sửa `x_reshape` cũng sửa `x` vì hai đối tượng chiếm cùng một vùng trong bộ nhớ.
+
+Ta vừa thấy có thể sửa phần tử của array. Có thể sửa tuple không? Câu trả lời là không — và việc thử sửa gây ra một _exception_, hay lỗi.
+
+<MdxCode language="text" code={"In [23]:my_tuple=(3,4,5)\nmy_tuple[0]=2"} />
+
+<MdxCode language="text" code={"TypeError:'tuple'objectdoesnotsupportitemassignment"} />
+
+Bây giờ ta đề cập ngắn gọn một số thuộc tính array sẽ hữu ích. Thuộc tính `shape` của array chứa kích thước của nó; đây luôn là một tuple. Thuộc tính `ndim` trả về số chiều, còn `T` cho ma trận chuyển vị.
+
+<MdxCode language="text" code={"In [24]:x_reshape.shape,x_reshape.ndim,x_reshape.T"} />
+
+<MdxCode language="text" code={"Out[24]:((2,3),\n2,\narray([[5,4],\n[2,5],\n[3,6]]))"} />
+
+Lưu ý ba đầu ra riêng `(2,3)`, `2` và `array([[5, 4],[2, 5], [3,6]])` được xuất cùng nhau dưới dạng một tuple.
+
+Ta thường muốn áp dụng hàm cho array. Chẳng hạn, có thể tính căn bậc hai các phần tử bằng hàm `np.sqrt()`:
+
+<MdxCode language="text" code={"np.sqrt()"} />
+
+<MdxCode language="text" code={"In [25]:np.sqrt(x)"} />
+
+<MdxCode language="text" code={"Out[25]:array([2.24,1.41,1.73,2.,2.24,2.45])"} />
+
+Ta cũng có thể bình phương các phần tử:
+
+<MdxCode language="text" code={"In [26]:x**2"} />
+
+<MdxCode language="text" code={"Out[26]:array([25,4,9,16,25,36])"} />
+
+Có thể tính căn bậc hai bằng cùng ký hiệu, nâng lên lũy thừa 1 _/_ 2 thay vì 2.
+
+<MdxCode language="text" code={"In [27]:x**0.5"} />
+
+<MdxCode language="text" code={"Out[27]:array([2.24,1.41,1.73,2.,2.24,2.45])"} />
+
+Xuyên suốt sách, ta thường muốn tạo dữ liệu ngẫu nhiên. Hàm `np.random.normal()` tạo vector các biến chuẩn ngẫu nhiên. Hàm nằm trong namespace `np.random.` và có phần tên `normal()`. Có thể tìm hiểu thêm qua trang trợ giúp bằng cách gọi `np.random.normal?`. Dòng đầu của trang trợ giúp là `normal(loc=0.0, scale=1.0, size=None)`. Dòng _chữ ký_ này cho biết các đối số của hàm là `loc`, `scale` và `size`. Đây là các đối số _từ khóa_, nghĩa là khi truyền vào hàm, có thể tham chiếu chúng bằng tên (theo bất kỳ thứ tự nào).^(3) Mặc định, hàm tạo các biến chuẩn ngẫu nhiên có trung bình (`loc`) 0 và độ lệch chuẩn (`scale`) 1; hơn nữa, nó tạo một biến ngẫu nhiên duy nhất trừ khi đổi đối số `size`.
+
+Bây giờ ta tạo 50 biến ngẫu nhiên độc lập từ phân phối _N_(0 _,_ 1).
+
+<MdxCode language="text" code={"In [28]:x=np.random.normal(size=50)\nx"} />
+
+<MdxCode language="text" code={"Out[28]:array([-1.19,0.41,0.9,-0.44,-0.9,-0.38,0.13,1.87,\n-0.35,1.16,0.79,-0.97,-1.21,0.06,-1.62,-0.6,\n-0.77,-2.12,0.38,-1.22,-0.06,-1.97,-1.74,-0.56,\n1.7,-0.95,0.56,0.35,0.87,0.88,-1.66,-0.32,\n-0.3,-1.36,0.92,-0.31,1.28,-1.94,1.07,0.07,\n0.79,-0.46,2.19,-0.27,-0.64,0.85,0.13,0.46,\n-0.09,0.7])"} />
+
+Ta tạo array `y` bằng cách cộng một biến ngẫu nhiên _N_(50 _,_ 1) độc lập vào mỗi phần tử của `x`.
+
+<MdxCode language="text" code={"In [29]:y=x+np.random.normal(loc=50,scale=1,size=50)"} />
+
+Hàm `np.corrcoef()` tính ma trận tương quan giữa `x` và `np.corrcoef() y`. Các phần tử ngoài đường chéo cho tương quan giữa `x` và `y`.
+
+<MdxCode language="text" code={"In [30]:np.corrcoef(x,y)"} />
+
+<MdxCode language="text" code={"Out[30]:array([[1.,0.69],\n[0.69,1.]])"} />
+
+Nếu đang làm theo trong notebook `Jupyter` của mình, có lẽ bạn nhận thấy kết quả khác khi chạy vài lệnh vừa rồi. Cụ thể, mỗi lần gọi `np.random.normal()`, ta nhận một kết quả khác như ví dụ sau.
+
+<MdxCode language="text" code={"In [31]:print(np.random.normal(scale=5,size=2))\nprint(np.random.normal(scale=5,size=2))"} />
+
+<MdxCode language="text" code={"Out[31]:[4.282.59]\n[4.62-2.54]"} />
+
+Để đảm bảo code cho chính xác cùng kết quả mỗi lần chạy, ta có thể đặt _hạt giống ngẫu nhiên_ bằng hàm `np.random.default_rng()`. Hàm này thuộc namespace `np.random.` và dùng bộ tạo `default_rng()`. Hàm nhận một đối số số nguyên tùy ý do người dùng chỉ định. Nếu đặt hạt giống trước khi tạo dữ liệu ngẫu nhiên, chạy lại code sẽ cho cùng kết quả. Đối tượng `rng` có gần như mọi
+
+<MdxCode language="text" code={"np.random.\ndefault_rng()"} />
+
+> 3 `Python` cũng dùng _đối số vị trí_. Đối số vị trí không cần từ khóa. Để xem ví dụ, nhập `np.sum?`. Ta thấy `a` là đối số vị trí, tức hàm giả sử đối số không tên đầu tiên nhận được là array cần tính tổng. Ngược lại, `axis` và `dtype` là đối số từ khóa: vị trí nhập chúng trong `np.sum()` không quan trọng.
+
+phương thức tạo số ngẫu nhiên có trong `np.random`. Vì vậy, để tạo dữ liệu chuẩn, ta dùng `rng.normal()`.
+
+<MdxCode language="text" code={"In [32]:rng=np.random.default_rng(1303)\nprint(rng.normal(scale=5,size=2))\nrng2=np.random.default_rng(1303)\nprint(rng2.normal(scale=5,size=2))"} />
+
+<MdxCode language="text" code={"Out[32]:[4.09-1.07]\n[4.09-1.07]"} />
+
+Trong các bài thực hành, ta dùng `np.random.default_rng()` mỗi khi tính toán với đại lượng ngẫu nhiên trong `numpy`. Về nguyên tắc, điều này cho phép người đọc tái lập chính xác kết quả đã nêu. Tuy nhiên, khi có phiên bản `numpy` mới, có thể xuất hiện một số chênh lệch nhỏ giữa đầu ra trong bài thực hành và đầu ra từ `numpy`.
+
+Các hàm `np.mean()`, `np.var()` và `np.std()` có thể dùng để tính trung bình, phương sai và độ lệch chuẩn của array. Cụ thể, `np.mean()` tính trung bình còn `np.var()` tính phương sai. Các hàm này cũng có dưới dạng phương thức của array.
+
+<MdxCode language="text" code={"np.var()\nnp.std()"} />
+
+<MdxCode language="text" code={"In [33]:rng=np.random.default_rng(3)\ny=rng.standard_normal(10)\nnp.mean(y),y.mean()"} />
+
+<MdxCode language="text" code={"Out[33]:(-0.11,-0.11)"} />
+
+<MdxCode language="text" code={"In [34]:np.var(y),y.var(),np.mean((y-y.mean())**2)"} />
+
+<MdxCode language="text" code={"Out[34]:(2.72,2.72,2.72)"} />
+
+Lưu ý mặc định `np.var()` chia cho cỡ mẫu _n_ thay vì _n −_ 1; xem đối số `ddof` trong `np.var?`.
+
+<MdxCode language="text" code={"In [35]:np.sqrt(np.var(y)),np.std(y)"} />
+
+<MdxCode language="text" code={"Out[35]:(1.65,1.65)"} />
+
+Các hàm `np.mean()`, `np.var()` và `np.std()` cũng có thể áp dụng cho hàng và cột của ma trận. Để thấy điều này, ta xây dựng ma trận 10 _×_ 3 gồm các biến ngẫu nhiên _N_(0 _,_ 1), rồi xét việc tính tổng theo hàng.
+
+<MdxCode language="text" code={"In [36]:X=rng.standard_normal((10,3))\nX"} />
+
+<MdxCode language="table" code={"|**`Out[36]:`** `array([[ 0.23, `|`-0.35, `|`-0.28],`|\n|---|---|---|\n|`[-0.67, `|`-1.06, `|`-0.39],`|\n|`[ 0.48, `|`-0.24,`|`0.96],`|\n|`[-0.2 ,`|`0.02,`|`1.55],`|\n|`[ 0.55, `|`-0.51, `|`-0.18],`|\n|`[ 0.54,`|`1.94, `|`-0.27],`|\n|`[-0.24,`|`1.` `, `|`-0.89],`|\n|`[-0.29,`|`0.88,`|`0.58],`|\n|`[ 0.09,`|`0.67, `|`-2.83],`|\n|`[ 1.02, `|`-0.96, `|`-1.67]])`|"} />
+
+Vì array theo thứ tự ưu tiên hàng, trục đầu tiên, tức `axis=0`, chỉ các hàng. Ta truyền đối số này vào phương thức `mean()` của đối tượng `X`.
+
+<MdxCode language="text" code={".mean()"} />
+
+<MdxCode language="text" code={"In [37]:X.mean(axis=0)"} />
+
+<MdxCode language="text" code={"Out[37]:array([0.15,0.14,-0.34])"} />
+
+Lệnh sau cho cùng kết quả.
+
+<MdxCode language="text" code={"In [38]:X.mean(0)"} />
+
+<MdxCode language="text" code={"Out[38]:array([0.15,0.14,-0.34])"} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 2.3.4 Đồ họa
+
+Trong `Python`, thông lệ là dùng thư viện `matplotlib` cho đồ họa. Thư viện `matplotlib` đảm nhiệm phần trực quan hóa. Tuy nhiên, vì `Python` không được viết với mục đích phân tích dữ liệu, khái niệm vẽ biểu đồ không có sẵn trong ngôn ngữ. Ta sẽ dùng hàm `subplots()` từ `matplotlib.pyplot` để tạo một figure và các axes nơi vẽ dữ liệu. Để xem nhiều ví dụ hơn về cách vẽ biểu đồ trong `Python`, người đọc nên truy cập matplotlib.org/stable/gallery/.
+
+Trong `matplotlib`, một biểu đồ gồm một _figure_ và một hoặc nhiều _axes_. Có thể hình dung figure là tấm canvas trắng nơi một hoặc nhiều biểu đồ được hiển thị: đó là toàn bộ cửa sổ vẽ. _Axes_ chứa thông tin quan trọng về mỗi biểu đồ như nhãn trục _x_, trục _y_, tiêu đề, v.v. (Lưu ý trong `matplotlib`, từ _axes_ không chỉ là số nhiều của _axis_: axes của biểu đồ chứa nhiều thông tin hơn chỉ trục _x_ và _y_.)
+
+Ta bắt đầu bằng cách import hàm `subplots()` từ `matplotlib`. Xuyên suốt sách, ta dùng `subplots()` khi tạo figure. Hàm trả về một tuple độ dài hai: một đối tượng figure và đối tượng axes liên quan. Ta thường truyền `figsize` làm đối số từ khóa. Sau khi tạo axes, ta thử biểu đồ đầu tiên bằng phương thức `plot()`, tức `.plot()`. Để tìm hiểu thêm, nhập `ax.plot?`.
+
+<MdxCode language="text" code={"In [39]:frommatplotlib.pyplotimportsubplots\nfig,ax=subplots(figsize=(8,8))\nx=rng.standard_normal(100)\ny=rng.standard_normal(100)\nax.plot(x,y);"} />
+
+Hãy dừng lại để lưu ý rằng ta đã _giải nén_ tuple độ dài hai do `subplots()` trả về thành hai biến riêng `fig` và `ax`. Việc giải nén thường được ưu tiên hơn đoạn code tương đương nhưng dài hơn đôi chút:
+
+<MdxCode language="text" code={"In [40]:output=subplots(figsize=(8,8))\nfig=output[0]\nax=output[1]"} />
+
+Ta thấy ô lệnh trước tạo biểu đồ đường, là kiểu mặc định. Để tạo scatterplot, ta cung cấp thêm một đối số cho `ax.plot()`, cho biết cần hiển thị các vòng tròn.
+
+<MdxCode language="text" code={"In [41]:fig,ax=subplots(figsize=(8,8))\nax.plot(x,y,'o');"} />
+
+Có thể dùng các giá trị khác của đối số bổ sung này để tạo đường có màu và kiểu khác nhau. Một cách khác là dùng hàm `ax.scatter()`, tức phương thức `.scatter()`, để tạo scatterplot.
+
+<MdxCode language="text" code={"In [42]:fig,ax=subplots(figsize=(8,8))\nax.scatter(x,y,marker='o');"} />
+
+Lưu ý trong các khối code ở trên, ta kết thúc dòng cuối bằng dấu chấm phẩy. Điều này ngăn `ax.plot(x, y)` in văn bản ra notebook, nhưng không ngăn biểu đồ được tạo. Nếu bỏ dấu chấm phẩy cuối, ta nhận đầu ra sau:
+
+<MdxCode language="text" code={"In [43]:fig,ax=subplots(figsize=(8,8))\nax.scatter(x,y,marker='o')"} />
+
+<MdxCode language="text" code={"Out[43]:<matplotlib.collections.PathCollectionat0x7fb3d9c8f310 >\nFigure(432x288)"} />
+
+Trong phần sau, ta sẽ dùng dấu chấm phẩy cuối mỗi khi văn bản xuất ra không liên quan đến thảo luận.
+
+Để gắn nhãn biểu đồ, ta dùng các phương thức `set_xlabel()`, `set_ylabel()` và `.set_xlabel() set_title()` của `ax`.
+
+<MdxCode language="text" code={".set_ylabel()\n.set_title()"} />
+
+<MdxCode language="text" code={"In [44]:fig,ax=subplots(figsize=(8,8))\nax.scatter(x,y,marker='o')\nax.set_xlabel(\"thisisthex-axis\")\nax.set_ylabel(\"thisisthey-axis\")\nax.set_title(\"PlotofXvsY\");"} />
+
+Việc có quyền truy cập chính đối tượng figure `fig` cho phép ta thay đổi một số khía cạnh rồi hiển thị lại. Ở đây, ta đổi kích thước từ `(8, 8)` thành `(12, 3)`.
+
+<MdxCode language="text" code={"fig.set_size_inches(12,3)\nfig"} />
+
+Đôi khi ta muốn tạo nhiều biểu đồ trong một figure. Có thể làm vậy bằng cách truyền thêm đối số cho `subplots()`. Dưới đây, ta tạo lưới biểu đồ 2 _×_ 3 trong figure có kích thước do đối số `figsize` xác định. Trong tình huống này, các axes thường có liên hệ với nhau. Chẳng hạn, mọi biểu đồ có thể dùng chung trục _x_. Hàm `subplots()` có thể tự động xử lý khi nhận đối số từ khóa `sharex=True`. Đối tượng `axes` bên dưới là một array trỏ đến các biểu đồ khác nhau trong figure.
+
+<MdxCode language="text" code={"In [45]:fig,axes=subplots(nrows=2,\nncols=3,\nfigsize=(15,5))"} />
+
+Bây giờ ta tạo scatterplot bằng `'o'` ở cột thứ hai của hàng đầu và scatterplot bằng `'+'` ở cột thứ ba của hàng thứ hai.
+
+<MdxCode language="text" code={"In [46]:axes[0,1].plot(x,y,'o')\naxes[1,2].scatter(x,y,marker='+')\nfig"} />
+
+Nhập `subplots?` để tìm hiểu thêm về `subplots()`. Để lưu đầu ra của `fig`, ta gọi phương thức `savefig()`. Đối số `.savefig() dpi` là số chấm trên mỗi inch, dùng để xác định figure lớn bao nhiêu pixel.
+
+<MdxCode language="text" code={"In [47]:fig.savefig(\"Figure.png\",dpi=400)\nfig.savefig(\"Figure.pdf\",dpi=200);"} />
+
+Ta có thể tiếp tục sửa `fig` qua các cập nhật từng bước; chẳng hạn, có thể sửa miền trục _x_, lưu lại figure và thậm chí hiển thị lại.
+
+<MdxCode language="text" code={"In [48]:axes[0,1].set_xlim([-1,1])\nfig.savefig(\"Figure_updated.jpg\")\nfig"} />
+
+Bây giờ ta tạo một số biểu đồ phức tạp hơn. Phương thức `ax.contour()`, hay `.contour()`, tạo _biểu đồ đường đồng mức_ để biểu diễn dữ liệu ba chiều, tương tự bản đồ địa hình. Nó nhận ba đối số:
+
+- Một vector giá trị `x` (chiều thứ nhất),
+
+- Một vector giá trị `y` (chiều thứ hai), và
+
+- Một ma trận có các phần tử tương ứng với giá trị `z` (chiều thứ ba) cho mỗi cặp tọa độ `(x,y)`.
+
+Để tạo `x` và `y`, ta dùng lệnh `np.linspace(a, b, n)`, tức hàm `np.linspace()`, trả về vector gồm `n` số bắt đầu tại `a` và kết thúc tại `b`.
+
+<MdxCode language="text" code={"In [49]:fig,ax=subplots(figsize=(8,8))\nx=np.linspace(-np.pi,np.pi,50)\ny=x\nf=np.multiply.outer(np.cos(y),1/(1+x**2))\nax.contour(x,y,f);"} />
+
+Ta có thể tăng độ phân giải bằng cách thêm nhiều mức cho hình.
+
+<MdxCode language="text" code={"In [50]:fig,ax=subplots(figsize=(8,8))\nax.contour(x,y,f,levels=45);"} />
+
+Để tinh chỉnh đầu ra của hàm `ax.contour()`, xem tệp trợ giúp bằng cách nhập `?plt.contour`. Phương thức `ax.imshow()` tương tự `ax.contour()`, ngoại trừ `.imshow()` tạo biểu đồ mã hóa màu với màu phụ thuộc vào giá trị `z`. Biểu đồ này gọi là _heatmap_ và đôi khi được dùng để biểu diễn nhiệt độ trong dự báo thời tiết.
+
+<MdxCode language="text" code={"In [51]:fig,ax=subplots(figsize=(8,8))\nax.imshow(f);"} />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 2.3.5 Dãy và ký hiệu lát cắt
+
+Như đã thấy, có thể dùng hàm `np.linspace()` để tạo một dãy số.
+
+<MdxCode language="text" code={"In [52]:seq1=np.linspace(0,10,11)\nseq1"} />
+
+<MdxCode language="text" code={"Out[52]:array([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.])"} />
+
+Hàm `np.arange()` trả về một dãy số cách nhau theo `np.arange() step`. Nếu không chỉ định `step`, giá trị mặc định là 1. Hãy tạo một dãy bắt đầu tại 0 và kết thúc tại 10.
+
+<MdxCode language="text" code={"In [53]:seq2=np.arange(0,10)\nseq2"} />
+
+<MdxCode language="text" code={"Out[53]:array([0,1,2,3,4,5,6,7,8,9])"} />
+
+Tại sao đầu ra không có 10? Điều này liên quan đến ký hiệu _lát cắt_ trong `Python`. Ký hiệu lát cắt dùng để lập chỉ mục các dãy như list, tuple và array. Giả sử ta muốn truy xuất các phần tử thứ tư đến thứ sáu (kể cả hai đầu) của một chuỗi. Ta lấy một lát cắt của chuỗi bằng ký hiệu chỉ mục `[3:6]`.
+
+<MdxCode language="text" code={"In [54]:\"helloworld\"[3:6]"} />
+
+<MdxCode language="text" code={"Out[54]:'lo'"} />
+
+Trong khối code trên, ký hiệu `3:6` là dạng viết tắt của `slice(3,6)` khi dùng bên trong `[]`.
+
+<MdxCode language="text" code={"In [55]:\"helloworld\"[slice(3,6)]"} />
+
+<MdxCode language="text" code={"Out[55]:'lo'"} />
+
+Có thể bạn kỳ vọng `slice(3,6)` xuất ký tự thứ tư đến thứ bảy trong chuỗi (nhớ rằng `Python` bắt đầu chỉ mục tại không), nhưng thay vào đó nó xuất ký tự thứ tư đến thứ sáu. Điều này cũng giải thích tại sao lệnh `np.arange(0, 10)` trước đó chỉ xuất các số nguyên từ 0 đến 9. Xem tài liệu `slice?` để biết các tùy chọn hữu ích khi tạo lát cắt.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 2.3.6 Lập chỉ mục dữ liệu
+
+Đầu tiên, ta tạo một array `numpy` hai chiều.
+
+<MdxCode language="text" code={"In [56]:A=np.array(np.arange(16)).reshape((4,4))\nA"} />
+
+<MdxCode language="text" code={"Out[56]:array([[0,1,2,3],\n[4,5,6,7],\n[8,9,10,11],\n[12,13,14,15]])"} />
+
+Nhập `A[1,2]` sẽ truy xuất phần tử tương ứng với hàng thứ hai, cột thứ ba. (Như thường lệ, `Python` lập chỉ mục từ 0.)
+
+<MdxCode language="text" code={"In [57]:A[1,2]"} />
+
+<MdxCode language="text" code={"Out[57]:6"} />
+
+Số đầu tiên sau dấu ngoặc vuông mở `[` chỉ hàng, còn số thứ hai chỉ cột.
+
+Lập chỉ mục hàng, cột và ma trận con
+
+Để chọn nhiều hàng cùng lúc, ta có thể truyền vào một list chỉ lựa chọn. Chẳng hạn, `[1,3]` truy xuất hàng thứ hai và thứ tư:
+
+<MdxCode language="text" code={"In [58]:A[[1,3]]"} />
+
+<MdxCode language="text" code={"Out[58]:array([[4,5,6,7],\n[12,13,14,15]])"} />
+
+Để chọn cột thứ nhất và thứ ba, ta truyền `[0,2]` làm đối số thứ hai trong ngoặc vuông. Trường hợp này cần cung cấp đối số đầu `:`, chọn mọi hàng.
+
+<MdxCode language="text" code={"In [59]:A[:,[0,2]]"} />
+
+<MdxCode language="text" code={"Out[59]:array([[0,2],\n[4,6],\n[8,10],\n[12,14]])"} />
+
+Bây giờ, giả sử ta muốn chọn ma trận con gồm hàng thứ hai và thứ tư, đồng thời cột thứ nhất và thứ ba. Đây là lúc việc lập chỉ mục hơi khó. Thử dùng list để truy xuất hàng và cột là điều tự nhiên:
+
+<MdxCode language="text" code={"In [60]:A[[1,3],[0,2]]"} />
+
+<MdxCode language="text" code={"Out[60]:array([4,14])"} />
+
+Ồ — chuyện gì xảy ra? Ta nhận một array một chiều độ dài hai, giống hệt
+
+<MdxCode language="text" code={"In [61]:np.array([A[1,0],A[3,2]])"} />
+
+<MdxCode language="text" code={"Out[61]:array([4,14])"} />
+
+Tương tự, code sau không trích xuất được ma trận con gồm hàng thứ hai và thứ tư, cùng cột thứ nhất, thứ ba và thứ tư:
+
+<MdxCode language="text" code={"In [62]:A[[1,3],[0,2,3]]"} />
+
+<MdxCode language="text" code={"IndexError:shapemismatch:indexingarrayscouldnotbebroadcast\ntogetherwithshapes(2,)(3,)"} />
+
+Ta có thể thấy vấn đề. Khi nhận hai list chỉ mục, `numpy` diễn giải chúng là các cặp chỉ mục _i, j_ cho một chuỗi phần tử. Đó là lý do hai list phải có cùng độ dài. Tuy nhiên, đây không phải ý định của ta vì ta muốn một ma trận con.
+
+Một cách dễ thực hiện như sau. Đầu tiên, ta tạo ma trận con bằng cách lấy tập con hàng của `A`, rồi ngay lập tức tạo tiếp một ma trận con bằng cách lấy tập con cột.
+
+<MdxCode language="text" code={"In [63]:A[[1,3]][:,[0,2]]"} />
+
+<MdxCode language="text" code={"Out[63]:array([[4,6],\n[12,14]])"} />
+
+Có các cách hiệu quả hơn để thu cùng kết quả. _Hàm tiện ích_ `np.ix_()` cho phép trích xuất ma trận con bằng list thông qua việc tạo một đối tượng _lưới_ trung gian; lưới này do `np.ix_()` tạo ra.
+
+<MdxCode language="text" code={"In [64]:idx=np.ix_([1,3],[0,2,3])\nA[idx]"} />
+
+<MdxCode language="text" code={"Out[64]:array([[4,6,7],\n[12,14,15]])"} />
+
+Một cách khác là lấy tập con ma trận hiệu quả bằng lát cắt. Lát cắt `1:4:2` lấy phần tử thứ hai và thứ tư của dãy, còn `0:3:2` lấy phần tử thứ nhất và thứ ba (phần tử thứ ba trong dãy lát cắt là kích thước bước).
+
+<MdxCode language="text" code={"In [65]:A[1:4:2,0:3:2]"} />
+
+<MdxCode language="text" code={"Out[65]:array([[4,6],\n[12,14]])"} />
+
+Tại sao ta có thể trực tiếp truy xuất ma trận con bằng lát cắt nhưng không bằng list? Vì chúng là những kiểu `Python` khác nhau và được `numpy` xử lý khác nhau. Có thể dùng lát cắt để trích xuất đối tượng từ các dãy tùy ý như chuỗi, list và tuple, còn việc dùng list để lập chỉ mục hạn chế hơn.
+
+Lập chỉ mục Boolean
+
+Trong `numpy`, _Boolean_ là kiểu bằng `True` hoặc `False` (cũng lần lượt được biểu diễn là 1 và 0). Dòng tiếp theo tạo một vector các số 0, biểu diễn dưới dạng Boolean, có độ dài bằng chiều thứ nhất của `A`.
+
+<MdxCode language="text" code={"In [66]:keep_rows=np.zeros(A.shape[0],bool)\nkeep_rows"} />
+
+<MdxCode language="text" code={"Out[66]:array([False,False,False,False])"} />
+
+Bây giờ ta đặt hai phần tử thành `True`.
+
+<MdxCode language="text" code={"In [67]:keep_rows[[1,3]]=True\nkeep_rows"} />
+
+<MdxCode language="text" code={"Out[67]:array([False,True,False,True])"} />
+
+Lưu ý khi xem dưới dạng số nguyên, các phần tử của `keep_rows` giống giá trị `np.array([0,1,0,1])`. Bên dưới, ta dùng `==` để xác minh chúng bằng nhau. Khi áp dụng cho hai array, phép toán `==` được áp dụng theo từng phần tử.
+
+<MdxCode language="text" code={"In [68]:np.all(keep_rows==np.array([0,1,0,1]))"} />
+
+<MdxCode language="text" code={"Out[68]:True"} />
+
+(Ở đây, hàm `np.all()` kiểm tra liệu mọi phần tử của array có phải `True` không; đó là vai trò của `np.all()`. Hàm tương tự `np.any()` có thể dùng để kiểm tra liệu có bất kỳ phần tử nào là `True` không; đó là vai trò của `np.any()`.)
+
+Tuy nhiên, dù `np.array([0,1,0,1])` và `keep_rows` bằng nhau theo `==`, chúng lập chỉ mục các tập hàng khác nhau! Đối tượng trước truy xuất hàng thứ nhất, thứ hai, thứ nhất và thứ hai của `A`.
+
+<MdxCode language="text" code={"In [69]:A[np.array([0,1,0,1])]"} />
+
+<MdxCode language="text" code={"Out[69]:array([[0,1,2,3],\n[4,5,6,7],\n[0,1,2,3],\n[4,5,6,7]])"} />
+
+Ngược lại, `keep_rows` chỉ truy xuất hàng thứ hai và thứ tư của `A` — tức các hàng có Boolean bằng `TRUE`.
+
+<MdxCode language="text" code={"In [70]:A[keep_rows]"} />
+
+<MdxCode language="text" code={"Out[70]:array([[4,5,6,7],\n[12,13,14,15]])"} />
+
+Ví dụ cho thấy Boolean và số nguyên được `numpy` xử lý khác nhau.
+
+Ta lại dùng hàm `np.ix_()` để tạo lưới chứa hàng thứ hai và thứ tư, cùng cột thứ nhất, thứ ba và thứ tư. Lần này ta áp dụng hàm cho Boolean thay vì list.
+
+<MdxCode language="text" code={"In [71]:keep_cols=np.zeros(A.shape[1],bool)\nkeep_cols[[0,2,3]]=True\nidx_bool=np.ix_(keep_rows,keep_cols)\nA[idx_bool]"} />
+
+<MdxCode language="text" code={"Out[71]:array([[4,6,7],\n[12,14,15]])"} />
+
+Ta cũng có thể kết hợp một list với array Boolean trong đối số của `np.ix_()`:
+
+<MdxCode language="text" code={"In [72]:idx_mixed=np.ix_([1,3],keep_cols)\nA[idx_mixed]"} />
+
+<MdxCode language="text" code={"Out[72]:array([[4,6,7],\n[12,14,15]])"} />
+
+Để biết thêm chi tiết về lập chỉ mục trong `numpy`, người đọc có thể tham khảo hướng dẫn `numpy` đã đề cập trước đó.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## 2.3.7 Nạp dữ liệu
+
+Các tập dữ liệu thường chứa nhiều kiểu dữ liệu khác nhau và có thể gắn tên cho hàng hoặc cột. Vì vậy, cách phù hợp nhất để biểu diễn chúng thường là dùng một _khung dữ liệu (data frame)_. Có thể xem khung dữ liệu như một dãy các array có cùng độ dài; mỗi array là một cột. Các phần tử ở cùng vị trí trong những array khác nhau kết hợp thành một hàng. Thư viện `pandas` được dùng để tạo và thao tác với các đối tượng khung dữ liệu.
+
+Đọc một tập dữ liệu
+
+Bước đầu tiên của hầu hết phép phân tích là nhập một tập dữ liệu vào `Python`. Trước khi nạp dữ liệu, ta phải bảo đảm `Python` biết vị trí của tệp. Nếu tệp nằm cùng thư mục với notebook này thì không cần làm gì thêm. Nếu không, có thể dùng lệnh `os.chdir()`, tức gọi `os.chdir()` để _đổi thư mục_ (cần gọi `import os` trước khi gọi `os.chdir()`).
+
+Ta bắt đầu bằng cách đọc `Auto.csv`, có trên website của sách. Đây là tệp phân tách bằng dấu phẩy và có thể được đọc bằng `pd.read_csv()`:
+
+<MdxCode language="text" code={"pd.read_csv()"} />
+
+<MdxCode language="text" code={"In [73]:importpandasaspd"} />
+
+<MdxCode language="text" code={"Auto=pd.read_csv('Auto.csv')\nAuto"} />
+
+Website của sách cũng cung cấp một phiên bản dữ liệu phân tách bằng khoảng trắng, tên là `Auto.data`. Ta có thể đọc tệp này như sau:
+
+<MdxCode language="text" code={"In [74]:Auto=pd.read_csv('Auto.data',delim_whitespace=True)"} />
+
+Cả `Auto.csv` và `Auto.data` đều chỉ là tệp văn bản. Trước khi nạp dữ liệu vào `Python`, nên xem nội dung bằng trình soạn thảo văn bản hoặc phần mềm khác, chẳng hạn Microsoft Excel.
+
+Bây giờ ta xem cột của `Auto` tương ứng với biến `horsepower`:
+
+<MdxCode language="text" code={"In [75]:Auto['horsepower']"} />
+
+<MdxCode language="text" code={"Out[75]:0130.0\n1165.0\n2150.0\n3150.0\n4140.0\n...\n39286.00\n39352.00\n39484.00\n39579.00\n39682.00\nName:horsepower ,Length:397,dtype:object"} />
+
+Ta thấy `dtype` của cột này là `object`. Hóa ra khi đọc dữ liệu, mọi giá trị trong cột `horsepower` đều được diễn giải là chuỗi. Ta có thể tìm nguyên nhân bằng cách xem các giá trị duy nhất.
+
+<MdxCode language="text" code={"In [76]:np.unique(Auto['horsepower'])"} />
+
+Để tiết kiệm không gian, kết quả của khối mã trước đã được lược bỏ. Thủ phạm là giá trị `?`, được dùng để mã hóa dữ liệu thiếu.
+
+Để khắc phục, ta phải truyền cho `pd.read_csv()` đối số `na_values`. Khi đó, mỗi ký hiệu `?` trong tệp được thay bằng `np.nan`, nghĩa là _không phải một số_:
+
+<MdxCode language="text" code={"In [77]:Auto=pd.read_csv('Auto.data',\nna_values=['?'],\ndelim_whitespace=True)\nAuto['horsepower'].sum()"} />
+
+<MdxCode language="text" code={"Out[77]:40952.0"} />
+
+Thuộc tính `Auto.shape` cho biết dữ liệu có 397 quan sát, tức 397 hàng, và chín biến, tức chín cột.
+
+<MdxCode language="text" code={"In [78]:Auto.shape"} />
+
+<MdxCode language="text" code={"Out[78]:(397,9)"} />
+
+Có nhiều cách xử lý dữ liệu thiếu. Trong trường hợp này, vì chỉ có năm hàng chứa quan sát thiếu, ta dùng phương thức `Auto.dropna()` để loại bỏ các hàng đó.
+
+<MdxCode language="text" code={".dropna()"} />
+
+<MdxCode language="text" code={"In [79]:Auto_new=Auto.dropna()\nAuto_new.shape"} />
+
+<MdxCode language="text" code={"Out[79]:(392,9)"} />
+
+Những thao tác cơ bản để chọn hàng và cột
+
+Ta có thể dùng `Auto.columns` để kiểm tra tên biến.
+
+<MdxCode language="text" code={"In [80]:Auto=Auto_new#overwritethepreviousvalue\nAuto.columns"} />
+
+<MdxCode language="text" code={"Out[80]:Index(['mpg','cylinders','displacement','horsepower',\n'weight','acceleration','year','origin','name'],\ndtype='object')"} />
+
+Truy cập hàng và cột của khung dữ liệu tương tự, nhưng không hoàn toàn giống, việc truy cập hàng và cột của array. Hãy nhớ rằng đối số đầu tiên truyền cho phương thức `[]` luôn áp dụng lên các hàng của array. Tương tự, truyền một slice cho phương thức `[]` sẽ tạo khung dữ liệu có các _hàng_ do slice đó xác định:
+
+<MdxCode language="text" code={"In [81]:Auto[:3]"} />
+
+<MdxCode language="table" code={"|**`Out[81]:`**|`mpg`|`cylinders`|`displacement`|`horsepower`|`weight` `...`|\n|---|---|---|---|---|---|\n|`0`|`18.0`|`8`|`307.0`|`130.0`|`3504.0` `...`|\n|`1`|`15.0`|`8`|`350.0`|`165.0`|`3693.0` `...`|\n|`2`|`18.0`|`8`|`318.0`|`150.0`|`3436.0` `...`|"} />
+
+Tương tự, ta có thể dùng array Boolean để lấy một tập con các hàng:
+
+<MdxCode language="text" code={"In [82]:idx_80=Auto['year']>80\nAuto[idx_80]"} />
+
+Tuy nhiên, nếu truyền một list chuỗi cho phương thức `[]`, ta nhận được khung dữ liệu chứa tập _cột_ tương ứng.
+
+<MdxCode language="text" code={"In [83]:Auto[['mpg','horsepower']]"} />
+
+<MdxCode language="text" code={"Out[83]:mpghorsepower\n018.0130.0\n115.0165.0\n218.0150.0\n316.0150.0\n417.0140.0\n.........\n39227.086.0\n39344.052.0\n39432.084.0\n39528.079.0\n39631.082.0\n392rowsx2columns"} />
+
+Vì ta không chỉ định cột _index_ khi nạp khung dữ liệu, các hàng được gắn nhãn bằng số nguyên từ 0 đến 396.
+
+<MdxCode language="text" code={"In [84]:Auto.index"} />
+
+<MdxCode language="text" code={"Out[84]:Int64Index([0,1,2,3,4,5,6,7,8,9,\n...\n387,388,389,390,391,392,393,394,395,396],\ndtype='int64',length=392)"} />
+
+Ta có thể dùng phương thức `set_index()` để đặt lại tên hàng theo nội dung của `Auto['name']`.
+
+<MdxCode language="text" code={".set_index()"} />
+
+<MdxCode language="text" code={"In [85]:Auto_re=Auto.set_index('name')\nAuto_re"} />
+
+<MdxCode language="text" code={"Out[85]:mpgcylindersdisplacement...\nname\nchevroletchevellemalibu18.08307.0...\nbuickskylark3215.08350.0...\nplymouthsatellite18.08318.0...\namcrebelsst16.08304.0..."} />
+
+<MdxCode language="text" code={"In [86]:Auto_re.columns"} />
+
+<MdxCode language="text" code={"Out[86]:Index(['mpg','cylinders','displacement','horsepower',\n'weight','acceleration','year','origin'],\ndtype='object')"} />
+
+Ta thấy cột `'name'` không còn xuất hiện. Sau khi đặt index thành `name`, ta có thể truy cập các hàng của khung dữ liệu theo `name` bằng phương thức `loc[]` của `Auto`:
+
+<MdxCode language="text" code={".loc[]"} />
+
+<MdxCode language="text" code={"In [87]:rows=['amcrebelsst','fordtorino']\nAuto_re.loc[rows]"} />
+
+<MdxCode language="text" code={"Out[87]:mpgcylindersdisplacementhorsepower...\nname\namcrebelsst16.08304.0150.0...\nfordtorino17.08302.0140.0..."} />
+
+Thay vì dùng tên index, ta cũng có thể lấy hàng thứ tư và thứ năm của `Auto` bằng phương thức `iloc[]`:
+
+<MdxCode language="text" code={".iloc[]"} />
+
+<MdxCode language="text" code={"In [88]:Auto_re.iloc[[3,4]]"} />
+
+Ta cũng có thể dùng phương thức này để lấy cột thứ nhất, thứ ba và thứ tư của `Auto_re`:
+
+<MdxCode language="text" code={"In [89]:Auto_re.iloc[:,[0,2,3]]"} />
+
+Chỉ với một lần gọi `iloc[]`, ta có thể lấy hàng thứ tư và thứ năm, đồng thời lấy cột thứ nhất, thứ ba và thứ tư:
+
+<MdxCode language="text" code={"In [90]:Auto_re.iloc[[3,4],[0,2,3]]"} />
+
+<MdxCode language="text" code={"Out[90]:mpgdisplacementhorsepower\nname\namcrebelsst16.0304.0150.0\nfordtorino17.0302.0140.0"} />
+
+Các phần tử index không nhất thiết phải duy nhất: trong khung dữ liệu có nhiều xe mang tên `ford galaxie 500`.
+
+<MdxCode language="text" code={"In [91]:Auto_re.loc['fordgalaxie500',['mpg','origin']]"} />
+
+<MdxCode language="table" code={"|**`Out[91]:`**|||`mpg`|`origin`|\n|---|---|---|---|---|\n||`n`|`ame`|||\n|`ford `|`galaxie `|`500`|`15.0`|`1`|\n|`ford `|`galaxie `|`500`|`14.0`|`1`|\n|`ford `|`galaxie `|`500`|`14.0`|`1`|"} />
+
+Các thao tác chọn hàng và cột khác
+
+Giả sử ta muốn tạo một khung dữ liệu gồm `weight` và `origin` của nhóm xe có `year` lớn hơn 80, tức được sản xuất sau năm 1980. Trước hết, ta tạo một array Boolean để lập chỉ mục các hàng. Phương thức `loc[]` chấp nhận cả giá trị Boolean lẫn chuỗi:
+
+<MdxCode language="text" code={"In [92]:idx_80=Auto_re['year']>80\nAuto_re.loc[idx_80,['weight','origin']]"} />
+
+Để viết gọn hơn, ta có thể dùng một hàm ẩn danh gọi là `lambda`:
+
+<MdxCode language="text" code={"lambda"} />
+
+<MdxCode language="text" code={"In [93]:Auto_re.loc[lambdadf:df['year']>80,['weight','origin']]"} />
+
+Lời gọi `lambda` tạo một hàm nhận một đối số, ở đây là `df`, rồi trả về `df['year']>80`. Vì hàm được tạo bên trong phương thức `loc[]` dành cho khung dữ liệu `Auto_re`, chính khung dữ liệu này sẽ được truyền làm đối số. Một ví dụ khác về `lambda`: giả sử ta muốn lấy tất cả xe được sản xuất sau năm 1980 và đạt hơn 30 dặm trên mỗi gallon:
+
+<MdxCode language="text" code={"In [94]:Auto_re.loc[lambdadf:(df['year']>80)&(df['mpg']>30),\n['weight','origin']\n]"} />
+
+Ký hiệu `&` thực hiện phép _and_ theo từng phần tử. Trong một ví dụ khác, giả sử ta muốn lấy tất cả xe `Ford` và `Datsun` có `displacement` nhỏ hơn 300. Ta kiểm tra xem mỗi phần tử `name` có chứa chuỗi `ford` hoặc `datsun` hay không bằng phương thức `str.contains()` của thuộc tính `.str. index` trong khung dữ liệu:
+
+<MdxCode language="text" code={"contains()"} />
+
+<MdxCode language="text" code={"In [95]:Auto_re.loc[lambdadf:(df['displacement']<300)\n&(df.index.str.contains('ford')\n|df.index.str.contains('datsun')),\n['weight','origin']\n]"} />
+
+Ở đây, ký hiệu `|` thực hiện phép _or_ theo từng phần tử.
+
+Tóm lại, ta có một tập thao tác mạnh mẽ để lập chỉ mục hàng và cột của khung dữ liệu. Với truy vấn dựa trên số nguyên, hãy dùng phương thức `iloc[]`. Với lựa chọn bằng chuỗi và Boolean, hãy dùng phương thức `loc[]`. Với truy vấn hàm dùng để lọc hàng, hãy truyền một hàm, thường là `lambda`, vào đối số hàng của phương thức `loc[]`.
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## 2.3.8 Vòng lặp `for`
+
+Vòng lặp `for` là công cụ tiêu chuẩn trong nhiều ngôn ngữ, dùng để đánh giá lặp lại một khối mã trong khi thay đổi các giá trị bên trong mã. Ví dụ, giả sử ta duyệt các phần tử của một list và tính tổng của chúng.
+
+<MdxCode language="text" code={"In [96]:total=0\nforvaluein[3,2,19]:\ntotal+=value\nprint('Totalis:{0}'.format(total))"} />
+
+<MdxCode language="text" code={"Totalis:24"} />
+
+Phần mã thụt lề bên dưới câu lệnh `for` được chạy với từng giá trị trong dãy đã chỉ định. Vòng lặp kết thúc khi cell kết thúc hoặc khi gặp mã có cùng mức thụt lề với câu lệnh `for` ban đầu. Vì vậy, dòng cuối in ra tổng ở trên chỉ được thực thi một lần sau khi vòng lặp `for` kết thúc. Có thể lồng nhiều vòng lặp bằng cách thụt lề thêm.
+
+<MdxCode language="text" code={"In [97]:total=0\nforvaluein[2,3,19]:\nforweightin[3,2,1]:\ntotal+=value*weight\nprint('Totalis:{0}'.format(total))"} />
+
+<MdxCode language="text" code={"Totalis:144"} />
+
+Ở trên, ta cộng trên mọi tổ hợp của `value` và `weight`. Ta cũng tận dụng ký hiệu _increment_ trong `Python`: biểu thức `a += b` tương đương với `a = a + b`. Ngoài sự tiện lợi về ký hiệu, cách viết này có thể tiết kiệm thời gian trong những tác vụ tính toán nặng vì không cần tạo tường minh giá trị trung gian `a+b`.
+
+Một tác vụ phổ biến hơn là tính tổng trên các cặp `(value, weight)`. Chẳng hạn, để tính giá trị trung bình của một biến ngẫu nhiên nhận các giá trị 2, 3 hoặc 19 với xác suất lần lượt là 0.2, 0.3 và 0.5, ta sẽ tính tổng có trọng số. Những tác vụ như vậy thường có thể thực hiện bằng hàm `zip()`; `zip()` duyệt qua một dãy tuple.
+
+<MdxCode language="text" code={"In [98]:total=0\nforvalue,weightinzip([2,3,19],\n[0.2,0.3,0.5]):\ntotal+=weight*value\nprint('Weightedaverageis:{0}'.format(total))"} />
+
+<MdxCode language="text" code={"Weightedaverageis:10.8"} />
+
+##### Định dạng chuỗi
+
+Trong khối mã trên, ta cũng in một chuỗi hiển thị tổng. Tuy nhiên, đối tượng `total` là một số nguyên chứ không phải chuỗi. Chèn giá trị vào chuỗi là một tác vụ phổ biến và trở nên đơn giản nhờ các công cụ định dạng chuỗi mạnh mẽ của `Python`. Nhiều tác vụ làm sạch dữ liệu liên quan đến thao tác và sinh chuỗi bằng chương trình.
+
+Ví dụ, ta có thể muốn duyệt qua các cột của khung dữ liệu và in tỷ lệ phần trăm giá trị thiếu trong từng cột. Hãy tạo khung dữ liệu `D` có 20% phần tử trong mỗi cột bị thiếu, tức được đặt thành `np.nan`; giá trị thiếu được biểu diễn bởi `np.nan`. Ta sinh các giá trị trong `D` từ phân phối chuẩn có trung bình 0 và phương sai 1 bằng `rng.standard_normal()`, rồi ghi đè ngẫu nhiên một số phần tử bằng `rng.choice()`.
+
+<MdxCode language="text" code={"In [99]:rng=np.random.default_rng(1)\nA=rng.standard_normal((127,5))\nM=rng.choice([0,np.nan],p=[0.8,0.2],size=A.shape)\nA+=M\nD=pd.DataFrame(A,columns=['food',\n'bar',\n'pickle',\n'snack',\n'popcorn'])\nD[:3]\nOut[99]:foodbarpicklesnackpopcorn\n00.3455840.8216180.330437-1.303157NaN\n1NaN-0.5369530.5811180.3645720.294132\n2NaN0.546713NaN-0.162910-0.482119\nIn [100]:forcolinD.columns:\ntemplate='Column\"{0}\"has{1:.2%}missingvalues'\nprint(template.format(col,\nnp.isnan(D[col]).mean()))"} />
+
+<MdxCode language="text" code={"Column\"food\"has16.54%missingvalues\nColumn\"bar\"has25.98%missingvalues\nColumn\"pickle\"has29.13%missingvalues\nColumn\"snack\"has21.26%missingvalues\nColumn\"popcorn\"has22.83%missingvalues"} />
+
+Ta thấy phương thức `template.format()` chờ hai đối số `{0}` và `{1:.2%}`; đối số thứ hai còn chứa thông tin định dạng. Cụ thể, nó chỉ định rằng đối số thứ hai phải được biểu diễn dưới dạng phần trăm với hai chữ số thập phân.
+
+Tài liệu tham khảo tại docs.python.org/3/library/string.html có nhiều ví dụ hữu ích và phức tạp hơn.
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## 2.3.9 Các tóm tắt đồ họa và số bổ sung
+
+Ta có thể dùng các hàm `ax.plot()` hoặc `ax.scatter()` để hiển thị các biến định lượng. Tuy nhiên, nếu chỉ nhập tên biến thì sẽ xuất hiện lỗi vì `Python` không biết phải tìm các biến đó trong tập dữ liệu `Auto`.
+
+<MdxCode language="text" code={"In [101]:fig,ax=subplots(figsize=(8,8))\nax.plot(horsepower,mpg,'o');"} />
+
+<MdxCode language="text" code={"NameError:name'horsepower'isnotdefined"} />
+
+Ta có thể khắc phục bằng cách truy cập trực tiếp các cột:
+
+<MdxCode language="text" code={"In [102]:fig,ax=subplots(figsize=(8,8))\nax.plot(Auto['horsepower'],Auto['mpg'],'o');"} />
+
+Hoặc ta có thể dùng phương thức `plot()` qua lời gọi `Auto.plot()`. Phương thức này cũng được ký hiệu là `.plot()`. Với phương thức này, các biến có thể được truy cập bằng tên. Các phương thức vẽ của khung dữ liệu trả về một đối tượng quen thuộc: axes. Ta có thể dùng nó để cập nhật biểu đồ như trước:
+
+<MdxCode language="text" code={"In [103]:ax=Auto.plot.scatter('horsepower','mpg');\nax.set_title('Horsepowervs.MPG')"} />
+
+Nếu muốn lưu figure chứa một axes cụ thể, ta có thể tìm figure tương ứng bằng thuộc tính `figure`: **`In [104]:`** `fig = ax.figure fig.savefig('horsepower_mpg.png');`
+
+Ta còn có thể yêu cầu khung dữ liệu vẽ lên một đối tượng axes cụ thể. Khi đó, phương thức `plot()` tương ứng sẽ trả về axes đã được chỉnh sửa mà ta truyền vào làm đối số. Lưu ý rằng khi yêu cầu một lưới biểu đồ một chiều, đối tượng `axes` cũng là một chiều. Dưới đây, biểu đồ phân tán được đặt ở vị trí giữa trong một hàng gồm ba biểu đồ.
+
+<MdxCode language="text" code={"In [105]:fig,axes=subplots(ncols=3,figsize=(15,5))\nAuto.plot.scatter('horsepower','mpg',ax=axes[1]);"} />
+
+Các cột của khung dữ liệu cũng có thể được truy cập như thuộc tính; hãy thử nhập `Auto.horsepower`.
+
+Bây giờ ta xét biến `cylinders`. Nhập `Auto.cylinders.dtype` cho thấy biến này đang được xem là định lượng. Tuy nhiên, vì biến chỉ có một số ít giá trị khả dĩ, ta có thể muốn xem nó là biến định tính. Dưới đây, ta thay cột `cylinders` bằng phiên bản categorical của `Auto.cylinders`. Hàm `pd.Series()` có tên như vậy vì `pd.Series()` thuộc `pandas`, thư viện thường được dùng trong các ứng dụng chuỗi thời gian.
+
+<MdxCode language="text" code={"In [106]:Auto.cylinders=pd.Series(Auto.cylinders,dtype='category')\nAuto.cylinders.dtype"} />
+
+Sau khi `cylinders` trở thành biến định tính, ta có thể hiển thị nó bằng phương thức `boxplot() .boxplot()`: **`In [107]:`** `fig, ax = subplots(figsize=(8, 8)) Auto.boxplot('mpg', by='cylinders', ax=ax);`
+
+Phương thức `hist()` có thể được dùng để vẽ _histogram_.
+
+<MdxCode language="text" code={".hist()"} />
+
+<MdxCode language="text" code={"In [108]:fig,ax=subplots(figsize=(8,8))\nAuto.hist('mpg',ax=ax);"} />
+
+Ta có thể thay đổi màu của các cột và số lượng bin:
+
+<MdxCode language="text" code={"In [109]:fig,ax=subplots(figsize=(8,8))\nAuto.hist('mpg',color='red',bins=12,ax=ax);"} />
+
+Xem `Auto.hist?` để biết thêm tùy chọn vẽ. Ta có thể dùng hàm `pd.plotting.scatter_matrix()` trong namespace `pd.plotting.`; phần tên `scatter_` thuộc hàm tạo _scatterplot matrix_, qua đó trực quan hóa mọi quan hệ theo cặp giữa các cột trong khung dữ liệu.
+
+<MdxCode language="text" code={"scatter_\nmatrix()"} />
+
+<MdxCode language="text" code={"In [110]:pd.plotting.scatter_matrix(Auto);"} />
+
+Ta cũng có thể tạo các biểu đồ phân tán cho một tập con các biến.
+
+<MdxCode language="text" code={"In [111]:pd.plotting.scatter_matrix(Auto[['mpg',"} />
+
+<MdxCode language="text" code={"'displacement',\n'weight']]);"} />
+
+Phương thức `describe()`, hay `.describe()`, tạo tóm tắt bằng số cho từng cột trong khung dữ liệu.
+
+<MdxCode language="text" code={"In [112]:Auto[['mpg','weight']].describe()"} />
+
+Ta cũng có thể tạo tóm tắt chỉ cho một cột.
+
+<MdxCode language="text" code={"In [113]:Auto['cylinders'].describe()\nAuto['mpg'].describe()"} />
+
+Để thoát `Jupyter`, chọn `File / Close and Halt`.
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Cheatsheet Python cho Thống kê
+
+<LessonNote label="Tổng kết các lệnh Python quan trọng">
+
+- **NumPy (Tính toán mảng số)**:
+  - `np.array([1, 2, 3])`: Tạo mảng NumPy 1D.
+  - `np.arange(1, 11)`: Tạo dãy số từ 1 đến 10.
+  - `np.cumsum(x)`: Tính tổng tích lũy.
+  - `np.dot(a, b)`: Tính tích trong của 2 vector.
+- **Pandas (Thao tác bảng dữ liệu)**:
+  - `pd.read_csv('file.csv')`: Đọc dữ liệu từ file CSV.
+  - `df.describe()`: Tóm tắt các chỉ số thống kê mô tả (mean, std, min, max, quantiles).
+  - `pd.crosstab(df['A'], df['B'], normalize='index')`: Lập bảng chéo tần số và tính xác suất có điều kiện theo hàng.
+- **Matplotlib / Seaborn (Hiển thị đồ họa)**:
+  - `plt.plot(x, y)`: Vẽ biểu đồ đường.
+  - `plt.hist(x, bins=10)`: Vẽ biểu đồ tần số (Histogram).
+  - `pd.plotting.scatter_matrix(df)`: Vẽ biểu đồ phân tán cặp (Pairs Plot / Scatter Matrix).
+
+</LessonNote>
+
+</MdxPage>

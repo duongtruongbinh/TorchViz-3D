@@ -1,0 +1,174 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch06-shrinkage-methods",
+  "locale": "vi",
+  "title": "Các phương pháp co rút",
+  "headings": [
+    "Các phương pháp co rút",
+    "6.2.1 Hồi quy Ridge",
+    "6.2.2 Lasso",
+    "6.2.3 Chọn tham số tinh chỉnh"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "lựa chọn và điều chuẩn mô hình tuyến tính",
+    "co rút",
+    "ridge",
+    "lasso"
+  ],
+  "pageCount": 4
+}
+
+<MdxPage page={0}>
+
+## Các phương pháp co rút
+
+Các phương pháp lựa chọn tập con ở Mục 6.1 dùng bình phương tối thiểu để khớp mô hình tuyến tính chứa một tập con biến dự báo. Một lựa chọn khác là khớp mô hình chứa toàn bộ _p_ biến bằng kỹ thuật _ràng buộc_ hay _điều chuẩn_ các ước lượng hệ số, tương đương _co_ chúng về không. Có thể chưa rõ vì sao ràng buộc này cải thiện phép khớp, nhưng co rút hệ số có thể giảm đáng kể phương sai. Hai kỹ thuật nổi tiếng nhất là _hồi quy ridge_ và _lasso_.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 6.2.1 Hồi quy Ridge
+
+Nhắc lại ở Chương 3, bình phương tối thiểu ước lượng _β_ 0 _, β_ 1 _, . . . , βp_ bằng các giá trị cực tiểu hóa
+
+_Hồi quy ridge_ rất giống bình phương tối thiểu nhưng cực tiểu hóa một đại lượng hơi khác. Cụ thể, các ước lượng ridge _β_^(ˆ)^(_R_) cực tiểu hóa
+
+trong đó _λ ≥_ 0 là _tham số tinh chỉnh_ cần xác định riêng. Phương trình 6.5 đánh đổi hai tiêu chuẩn. Giống bình phương tối thiểu, ridge làm RSS nhỏ để khớp dữ liệu tốt. Nhưng số hạng thứ hai _λ_^(�) _j_^(_β_) _j_^(2, gọi là)^(_mức phạt co rút_,) nhỏ khi _β_ 1 _, . . . , βp_ gần không nên có tác dụng _co_ các ước lượng về không. Tham số _λ_ kiểm soát
+
+**HÌNH 6.4.** _Các hệ số hồi quy ridge đã chuẩn hóa trên tập_ `Credit` _theo λ và ∥β_^(ˆ) _λ_^(_R∥_2)^(_/∥β_ˆ)^(_∥_2)^(_._)
+
+ảnh hưởng tương đối của hai số hạng. Khi _λ_ = 0, mức phạt không có tác dụng và ridge cho ước lượng bình phương tối thiểu. Khi _λ →∞_, mức phạt tăng và các hệ số ridge tiến về không. Khác bình phương tối thiểu chỉ tạo một tập hệ số, ridge tạo một tập _β_^(ˆ) _λ_^(_R_) khác cho mỗi _λ_. Chọn _λ_ tốt là thiết yếu; Mục 6.2.3 dùng xác thực chéo để làm việc này.
+
+Trong (6.5), mức phạt áp dụng lên _β_ 1 _, . . . , βp_ nhưng không lên hệ số chặn _β_ 0. Ta muốn co mối liên hệ ước lượng của mỗi biến với biến đáp ứng, không muốn co hệ số chặn vốn chỉ đo trung bình biến đáp ứng khi _xi_ 1 = _xi_ 2 = _. . ._ = _xip_ = 0. Nếu các cột **X** đã được định tâm về trung bình không trước khi thực hiện ridge, hệ số chặn ước lượng là _β_^(ˆ) 0 = _y_ ¯ =^(�)^(_n_) _i_ =1^(_yi/n_.)
+
+##### Áp dụng cho dữ liệu Credit
+
+Hình 6.4 trình bày các ước lượng ridge cho `Credit`. Ở ô trái, mỗi đường là hệ số ridge của một trong mười biến theo _λ_. Chẳng hạn đường liền đen là hệ số `income`. Ở cực trái, _λ_ gần không nên các hệ số giống bình phương tối thiểu. Khi _λ_ tăng, chúng co về không; khi _λ_ cực lớn, mọi hệ số gần bằng không, tương ứng _mô hình rỗng_. Các biến `income`, `limit`, `rating`, `student` có màu riêng vì thường có hệ số lớn nhất. Dù nhìn chung hệ số giảm khi _λ_ tăng, một số hệ số riêng như `rating` và `income` đôi khi có thể tăng.
+
+Ô phải Hình 6.4 biểu diễn cùng hệ số nhưng trục _x_ là _∥β_^(ˆ) _λ_^(_R∥_2)^(_/∥β_ˆ)^(_∥_2), trong đó _β_ˆ là vector ước lượng bình phương tối thiểu. Ký hiệu _∥β∥_ 2 là _chuẩn ℓ_ 2_, định nghĩa _∥β∥_ 2 = ~~��~~ _pj_ =1^(_βj_) 2, đo khoảng cách từ _β_ đến không. Khi _λ_ tăng, chuẩn ℓ2 của _β_^(ˆ) _λ_^(_R_) luôn giảm, nên tỷ số cũng giảm. Tỷ số từ 1 khi _λ_ = 0 (ridge bằng bình phương tối thiểu) đến 0 khi _λ_ = _∞_ (vector hệ số bằng không). Vì vậy, có thể xem trục _x_ là mức hệ số ridge đã bị co về không; giá trị nhỏ nghĩa là co rất sát không.
+
+Ước lượng bình phương tối thiểu có tính _đồng biến theo thang_: nhân _Xj_ với hằng số _c_ chỉ làm hệ số tương ứng nhân 1 _/c_, nên _Xjβ_^(ˆ) _j_ giữ nguyên. Ngược lại, hệ số ridge có thể thay đổi _đáng kể_ khi nhân biến dự báo với một hằng số. Chẳng hạn `income` đo bằng đô la; nếu đo `income` bằng nghìn đô la thì giá trị giảm 1.000 lần. Do số hạng tổng bình phương hệ số trong (6.5), thay đổi thang này không đơn giản làm hệ số ridge `income` đổi 1.000 lần. _Xjβ_^(ˆ) _j,λ_^(_R_) phụ thuộc không chỉ _λ_ mà còn thang của biến thứ _j_, thậm chí thang các biến khác. Vì vậy, tốt nhất nên thực hiện ridge sau khi _chuẩn hóa biến dự báo_ bằng
+
+để tất cả cùng thang. Trong (6.6), mẫu số là độ lệch chuẩn ước lượng của biến thứ _j_, nên mọi biến chuẩn hóa có độ lệch chuẩn một và phép khớp cuối không phụ thuộc đơn vị. Trục _y_ Hình 6.4 biểu diễn các hệ số ridge chuẩn hóa thu được từ biến dự báo đã chuẩn hóa.
+
+##### Vì sao Ridge cải thiện so với bình phương tối thiểu?
+
+Ưu thế của ridge bắt nguồn từ _sự đánh đổi độ chệch–phương sai_. Khi _λ_ tăng, phép khớp kém linh hoạt hơn, phương sai giảm nhưng độ chệch tăng. Ô trái Hình 6.5 minh họa bằng dữ liệu mô phỏng _p_ = 45, _n_ = 50. Đường xanh lá biểu diễn phương sai dự đoán ridge theo _λ_.
+
+**HÌNH 6.5.** _Bình phương độ chệch (đen), phương sai (xanh lá) và MSE kiểm tra (tím) của dự đoán ridge theo λ và ∥β_^(ˆ) _λ_^(_R∥_2)^(_/∥β_ˆ)^(_∥_2)^(_. Đường đứt nét ngang là MSE nhỏ nhất có thể. Dấu chữ thập tím chỉ mô hình ridge có MSE nhỏ nhất._
+
+Tại _λ_ = 0, phương sai cao nhưng không có độ chệch. Khi _λ_ tăng, co hệ số làm phương sai giảm mạnh với cái giá là độ chệch tăng nhẹ. MSE kiểm tra màu tím liên hệ chặt với phương sai cộng bình phương độ chệch. Đến _λ_ khoảng 10, phương sai giảm nhanh trong khi độ chệch tăng rất ít nên MSE giảm đáng kể. Sau đó phương sai giảm chậm, còn co rút làm hệ số bị đánh giá thấp đáng kể và độ chệch tăng mạnh. MSE nhỏ nhất khoảng _λ_ = 30. Do phương sai cao, MSE bình phương tối thiểu (_λ_ = 0) gần cao bằng mô hình rỗng (_λ_ = _∞_), trong khi một _λ_ trung gian có MSE thấp hơn nhiều.
+
+Ô phải Hình 6.5 vẽ cùng các đường theo tỷ số chuẩn ℓ2 của hệ số ridge với hệ số bình phương tối thiểu. Đi từ trái sang phải, phép khớp linh hoạt hơn nên độ chệch giảm, phương sai tăng.
+
+Nhìn chung, khi quan hệ biến đáp ứng–biến dự báo gần tuyến tính, bình phương tối thiểu có độ chệch thấp nhưng phương sai có thể cao: thay đổi nhỏ dữ liệu huấn luyện gây thay đổi lớn hệ số. Đặc biệt khi _p_ gần _n_, các hệ số cực kỳ biến thiên; nếu _p &gt; n_, chúng thậm chí không có nghiệm duy nhất. Ridge vẫn có thể hoạt động tốt bằng cách đổi một chút tăng độ chệch lấy mức giảm phương sai lớn. Vì vậy, ridge tốt nhất khi ước lượng bình phương tối thiểu có phương sai cao.
+
+Ridge còn có ưu thế tính toán đáng kể so với lựa chọn tập con tốt nhất phải tìm qua 2^(_p_) mô hình. Với _p_ vừa phải, tìm kiếm này đã có thể bất khả thi. Ngược lại, tại mỗi _λ_ cố định, ridge chỉ khớp một mô hình và thực hiện rất nhanh. Thực tế, phép tính giải (6.5) _đồng thời cho mọi λ_ gần giống phép tính khớp bình phương tối thiểu.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 6.2.2 Lasso
+
+Ridge có một nhược điểm rõ: khác lựa chọn tập con, tiến và lùi thường chỉ chọn một tập con biến, ridge luôn đưa toàn bộ _p_ biến vào mô hình cuối. Mức phạt _λ_^(�) _βj_^(2 trong (6.5)) co mọi hệ số về không nhưng không đặt hệ số nào chính xác bằng không (trừ _λ_ = _∞_). Điều này có thể không ảnh hưởng độ chính xác dự đoán nhưng gây khó diễn giải khi _p_ lớn. Trong `Credit`, các biến quan trọng có vẻ là `income`, `limit`, `rating`, `student`, nên ta có thể muốn mô hình chỉ chứa chúng; ridge vẫn luôn dùng cả mười biến.
+
+_Lasso_ là lựa chọn mới hơn khắc phục nhược điểm này. Các hệ số lasso _β_^(ˆ) _λ_^(_L_) cực tiểu hóa
+
+So sánh (6.7) với (6.5), hai công thức tương tự; khác biệt duy nhất là _βj_^(2) trong mức phạt ridge được thay bằng _|βj|_ trong lasso. Lasso dùng mức phạt _ℓ_ 1 thay _ℓ_ 2. Chuẩn ℓ1 của vector _β_ là _∥β∥_ 1 =^(�) _|βj|_.
+
+Giống ridge, lasso co các hệ số về không. Tuy nhiên, mức phạt ℓ1 buộc một số hệ số chính xác bằng không khi _λ_ đủ lớn. Vì vậy, giống lựa chọn tập con tốt nhất, lasso thực hiện _lựa chọn biến_. Mô hình lasso thường dễ diễn giải hơn ridge và được gọi là mô hình _thưa_, chỉ dùng một tập con biến. Chọn _λ_ tốt cũng thiết yếu; Mục 6.2.3 dùng xác thực chéo.
+
+**HÌNH 6.6.** _Các hệ số lasso chuẩn hóa trên tập_ `Credit` _theo λ và ∥β_^(ˆ) _λ_^(_L∥_1)^(_/∥β_ˆ)^(_∥_1)^(_._)
+
+Hình 6.6 cho đồ thị hệ số lasso trên `Credit`. Khi _λ_ = 0, lasso là bình phương tối thiểu; khi _λ_ đủ lớn, lasso cho mô hình rỗng. Giữa hai cực này, ridge và lasso rất khác. Đi từ trái sang phải ở ô phải, trước hết lasso chỉ chứa `rating`; rồi `student`, `limit` gần như cùng vào, sau đó là `income`, cuối cùng các biến còn lại. Tùy _λ_, lasso tạo mô hình với số biến bất kỳ. Ridge luôn chứa mọi biến dù độ lớn hệ số phụ thuộc _λ_.
+
+##### Công thức khác cho Ridge và Lasso
+
+Có thể chứng minh các hệ số lasso và ridge lần lượt giải các bài toán
+
+Với mỗi _λ_, tồn tại _s_ sao cho (6.7) và (6.8) cho cùng hệ số lasso; tương tự (6.5), (6.9) cho cùng hệ số ridge.
+
+Khi _p_ = 2, (6.8) cho biết lasso có RSS nhỏ nhất trong các điểm nằm trong hình thoi _|β_ 1 _|_ + _|β_ 2 _| ≤ s_. Ridge có RSS nhỏ nhất trong đường tròn _β_ 1^(2+)^(_β_) 2^(2)^(_≤s_.)
+
+Có thể hiểu (6.8) là tìm hệ số làm RSS nhỏ nhất với một _ngân sách s_ cho^(�)^(_p_) _j_ =1^(_|βj|_. Khi) _s_ cực lớn, ràng buộc lỏng và hệ số có thể lớn; nếu nghiệm bình phương tối thiểu nằm trong ngân sách thì ta thu đúng nghiệm đó. Nếu _s_ nhỏ, tổng trị tuyệt đối hệ số phải nhỏ. Tương tự, ridge tìm RSS nhỏ nhất với tổng bình phương hệ số không vượt ngân sách _s_. Các công thức này cho thấy liên hệ chặt giữa lasso, ridge và lựa chọn tập con tốt nhất.
+
+##### Tính chất lựa chọn biến của Lasso
+
+Vì sao lasso tạo hệ số chính xác bằng không còn ridge không? Hình 6.7 minh họa bằng (6.8), (6.9). Nghiệm bình phương tối thiểu là _β_^(ˆ); hình thoi và đường tròn xanh là ràng buộc lasso, ridge. Nếu _s_ đủ lớn, vùng ràng buộc chứa _β_ˆ và cả hai bằng bình phương tối thiểu (tương ứng _λ_ = 0). Trong hình, _β_ˆ nằm ngoài cả hai vùng nên các nghiệm khác nhau.
+
+Mỗi ellipse quanh _β_^(ˆ) là một _đường đồng mức_: mọi điểm trên một ellipse có cùng RSS.
+
+**HÌNH 6.8.** Trái: _Bình phương độ chệch (đen), phương sai (xanh lá), MSE kiểm tra (tím) của lasso trên dữ liệu mô phỏng._ Phải: _So sánh các đại lượng này giữa lasso (liền) và ridge (chấm), cùng được vẽ theo R_^(2) _huấn luyện. Dấu chữ thập chỉ mô hình lasso có MSE nhỏ nhất._
+
+Trong Hình 6.8, các đường chấm là ridge; cả hai được vẽ theo _R_^(2) huấn luyện để so sánh các dạng điều chuẩn. Ở ví dụ này, lasso và ridge có độ chệch gần giống nhau, nhưng ridge có phương sai thấp hơn đôi chút nên MSE nhỏ nhất cũng thấp hơn.
+
+Dữ liệu Hình 6.8 được sinh sao cho cả 45 biến đều liên hệ với đáp ứng, không hệ số thật nào bằng không. Lasso ngầm giả định một số hệ số bằng không, nên không ngạc nhiên ridge dự đoán tốt hơn. Hình 6.9 dùng tình huống tương tự nhưng biến đáp ứng chỉ phụ thuộc 2 trong 45 biến; lúc này lasso thường vượt ridge về độ chệch, phương sai và MSE.
+
+Hai ví dụ cho thấy không phương pháp nào luôn thống trị. Lasso thường tốt hơn khi tương đối ít biến có hệ số đáng kể và phần còn lại rất nhỏ hoặc bằng không. Ridge tốt hơn khi biến đáp ứng là hàm của nhiều biến có hệ số kích thước gần nhau. Với dữ liệu thật, số biến liên hệ không biết _a priori_; có thể dùng xác thực chéo để xác định cách nào tốt hơn.
+
+Giống ridge, khi bình phương tối thiểu có phương sai quá cao, lasso giảm phương sai với cái giá là tăng nhẹ độ chệch và có thể dự đoán chính xác hơn. Khác ridge, lasso lựa chọn biến nên mô hình dễ diễn giải.
+
+**HÌNH 6.9.** Trái: _Bình phương độ chệch, phương sai và MSE kiểm tra của lasso trên dữ liệu mô phỏng tương tự Hình 6.8 nhưng chỉ hai biến liên hệ với đáp ứng._ Phải: _So sánh lasso (liền) và ridge (chấm) theo R_^(2) _huấn luyện. Dấu chữ thập chỉ mô hình lasso có MSE nhỏ nhất._
+
+Có các thuật toán rất hiệu quả để khớp ridge và lasso; toàn bộ đường hệ số có thể được tính với lượng công việc xấp xỉ một phép khớp bình phương tối thiểu. Bài lab cuối chương sẽ khảo sát thêm.
+
+##### Trường hợp đặc biệt đơn giản của Ridge và Lasso
+
+Để hiểu trực giác tốt hơn, xét trường hợp _n_ = _p_, **X** là ma trận đường chéo có 1 trên đường chéo và 0 ngoài đường chéo, đồng thời hồi quy không có hệ số chặn. Bình phương tối thiểu rút thành tìm _β_ 1 _, . . . , βp_ cực tiểu hóa
+
+Nghiệm bình phương tối thiểu là
+
+Trong bối cảnh này, ridge tìm các hệ số cực tiểu hóa
+
+còn lasso tìm các hệ số cực tiểu hóa
+
+**HÌNH 6.10.** _Ước lượng ridge và lasso khi n_ = _p, **X** là ma trận đường chéo có_ 1 _trên đường chéo._ Trái: _Hệ số ridge được co tỷ lệ về không so với bình phương tối thiểu._ Phải: _Hệ số lasso được soft-threshold về không._
+
+Có thể chứng minh hệ số ridge có dạng
+
+Hình 6.10 cho thấy ridge và lasso co rút rất khác. Ridge co mỗi hệ số bình phương tối thiểu theo cùng tỷ lệ. Lasso co mỗi hệ số về không một lượng không đổi _λ/_ 2; hệ số có trị tuyệt đối nhỏ hơn _λ/_ 2 bị co hoàn toàn về không. Kiểu co này gọi là _soft-thresholding_. Việc một số hệ số về hẳn không giải thích khả năng lựa chọn đặc trưng của lasso.
+
+Với ma trận **X** tổng quát hơn, câu chuyện phức tạp hơn nhưng ý chính vẫn gần đúng: ridge co mọi chiều theo gần cùng tỷ lệ, còn lasso co mọi hệ số về không một lượng tương tự và đưa các hệ số đủ nhỏ về hẳn không.
+
+##### Diễn giải Bayes của Ridge và Lasso
+
+Có thể xem ridge và lasso theo lăng kính Bayes. Quan điểm Bayes giả định vector hệ số _β_ có phân phối _tiên nghiệm_ _p_ ( _β_ ), với _β_ = ( _β_ 0 _, β_ 1 _, . . . , βp_ )^(_T_). Hàm hợp lý dữ liệu là _f_ ( _Y |X, β_ ),
+
+**HÌNH 6.11.** Trái: _Ridge là mode hậu nghiệm của β dưới tiên nghiệm Gaussian._ Phải: _Lasso là mode hậu nghiệm dưới tiên nghiệm mũ kép._
+
+trong đó _X_ = ( _X_ 1 _, . . . , Xp_ ). Nhân tiên nghiệm với hàm hợp lý cho _phân phối hậu nghiệm_ (sai khác một hằng số tỷ lệ):
+
+quan hệ tỷ lệ theo định lý Bayes và đẳng thức theo giả định **X** cố định. Ta giả định mô hình tuyến tính thông thường,
+
+với sai số độc lập, phân phối chuẩn. Hơn nữa, giả sử _p_ ( _β_ ) =^(�)^(_p_) _j_ =1^(_g_()^(_βj_) với một mật độ) _g_. Ridge và lasso tự nhiên xuất hiện từ hai trường hợp:
+
+- Nếu _g_ là Gaussian trung bình không, độ lệch chuẩn là hàm của _λ_, thì _mode hậu nghiệm_ của _β_ — giá trị khả dĩ nhất khi biết dữ liệu — là nghiệm ridge. (Nghiệm ridge cũng là trung bình hậu nghiệm.)
+
+- Nếu _g_ là phân phối mũ kép (Laplace) trung bình không, tham số tỷ lệ là hàm của _λ_, mode hậu nghiệm là nghiệm lasso. (Nhưng lasso không phải trung bình hậu nghiệm; trung bình hậu nghiệm không cho vector hệ số thưa.)
+
+Hai tiên nghiệm nằm trong Hình 6.11. Tiên nghiệm lasso có đỉnh nhọn tại không, còn Gaussian phẳng và rộng hơn tại không. Vì vậy, lasso kỳ vọng tiên nghiệm rằng nhiều hệ số chính xác bằng không, còn ridge giả định các hệ số phân bố ngẫu nhiên quanh không.
+
+**HÌNH 6.12.** Trái: _Lỗi xác thực chéo khi áp dụng ridge lên_ `Credit` _với nhiều λ._ Phải: _Các ước lượng hệ số theo λ. Đường đứt nét dọc chỉ λ được xác thực chéo chọn._
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 6.2.3 Chọn tham số tinh chỉnh
+
+Giống lựa chọn tập con cần xác định mô hình tốt nhất, ridge và lasso cần chọn tham số _λ_ trong (6.5), (6.7), tương đương giá trị ràng buộc _s_ trong (6.9), (6.8). Xác thực chéo giải quyết đơn giản: chọn một lưới _λ_, tính lỗi xác thực chéo cho từng giá trị, chọn giá trị có lỗi nhỏ nhất, rồi khớp lại mô hình bằng toàn bộ quan sát và tham số đã chọn.
+
+Hình 6.12 trình bày _λ_ từ leave-one-out cross-validation cho các phép khớp ridge trên `Credit`. Đường đứt nét dọc chỉ giá trị được chọn. Giá trị tương đối nhỏ, nghĩa là phép khớp tối ưu chỉ co rút ít so với bình phương tối thiểu. Đáy đường cong không rõ nên một khoảng rộng giá trị cho lỗi tương tự; trong trường hợp này ta có thể chỉ dùng bình phương tối thiểu.
+
+Hình 6.13 minh họa xác thực chéo mười fold cho lasso trên dữ liệu thưa mô phỏng ở Hình 6.9. Ô trái là lỗi xác thực chéo, ô phải là hệ số. Đường đứt nét dọc chỉ nơi lỗi nhỏ nhất. Hai đường màu là hai biến dự báo liên hệ với đáp ứng; các đường xám là biến không liên hệ, thường gọi là biến _tín hiệu_ và _nhiễu_. Lasso không chỉ gán hệ số lớn hơn nhiều cho hai biến tín hiệu, mà lỗi nhỏ nhất còn tương ứng tập hệ số chỉ có hai biến tín hiệu khác không. Vì vậy, xác thực chéo cùng lasso đã xác định đúng hai biến tín hiệu trong bối cảnh khó, _p_ = 45 và chỉ _n_ = 50
+
+**HÌNH 6.13.** Trái: _MSE xác thực chéo mười fold của lasso trên dữ liệu thưa mô phỏng Hình 6.9._ Phải: _Các hệ số lasso tương ứng. Hai biến tín hiệu có màu, biến nhiễu màu xám. Đường đứt nét dọc chỉ phép khớp có lỗi xác thực chéo nhỏ nhất._
+
+quan sát. Ngược lại, nghiệm bình phương tối thiểu ở cực phải ô phải chỉ gán hệ số lớn cho một trong hai biến tín hiệu.
+
+</MdxPage>

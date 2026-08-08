@@ -1,0 +1,86 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch13-false-discovery-rate",
+  "locale": "vi",
+  "title": "Tỷ lệ phát hiện sai",
+  "headings": [
+    "13.4.1 Trực giác về tỷ lệ phát hiện sai",
+    "13.4.2 Quy trình Benjamini–Hochberg"
+  ],
+  "keywords": [
+    "statistics",
+    "học thống kê",
+    "ISLP",
+    "Kiểm định nhiều giả thuyết",
+    "Tỷ lệ phát hiện sai"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## 13.4.1 Trực giác về tỷ lệ phát hiện sai
+
+Như vừa thảo luận, khi _m_ lớn, việc cố ngăn chặn _mọi_ false positive như trong kiểm soát FWER đơn giản là quá nghiêm ngặt. Thay vào đó, ta có thể bảo đảm tỷ số giữa số false positive (_V_) và tổng số positive (_V_ + _S_ = _R_) đủ thấp, để phần lớn giả thuyết không bị bác bỏ không phải false positive. Tỷ số _V/R_ được gọi là _tỷ lệ phát hiện sai_ (false discovery proportion, FDP).
+
+Ta có thể muốn yêu cầu nhà phân tích dữ liệu kiểm soát FDP, chẳng hạn bảo đảm không quá 20 % số giả thuyết không bị bác bỏ là false positive. Tuy nhiên, trên thực tế, kiểm soát FDP là nhiệm vụ bất khả thi vì với một tập dữ liệu cụ thể, nhà phân tích không có cách nào biết chắc giả thuyết nào đúng và giả thuyết nào sai. Điều này rất giống với việc nhà phân tích có thể kiểm soát FWER, tức bảo đảm Pr( _V ≥_ 1) _≤ α_ với mọi _α_ được chỉ định trước, nhưng không thể bảo đảm _V_ = 0 trên một tập dữ liệu cụ thể (trừ khi không bác bỏ bất kỳ giả thuyết không nào, tức đặt _R_ = 0).
+
+Vì vậy, thay vào đó ta kiểm soát _tỷ lệ phát hiện sai_ (false discovery rate, FDR)^(15), được định nghĩa là
+
+FDR = E(FDP) = E( _V/R_ ) _._ (13.9)
+
+Khi kiểm soát FDR, chẳng hạn ở mức _q_ = 20 %, ta bác bỏ nhiều giả thuyết không nhất có thể trong khi bảo đảm rằng _tính trung bình_, không quá 20 % số giả thuyết không bị bác bỏ là false positive.
+
+Trong định nghĩa FDR ở (13.9), kỳ vọng được lấy trên tổng thể sinh ra dữ liệu. Chẳng hạn, giả sử ta kiểm soát FDR của _m_ giả thuyết không ở _q_ = 0 _._ 2. Điều này nghĩa là nếu lặp thí nghiệm rất nhiều lần và mỗi lần đều kiểm soát FDR ở _q_ = 0 _._ 2 thì tính trung bình, 20 % số giả thuyết không bị bác bỏ được kỳ vọng là false positive. Trên một tập dữ liệu cụ thể, tỷ lệ false positive trong các giả thuyết bị bác bỏ có thể lớn hơn hoặc nhỏ hơn 20 %.
+
+Cho đến đây, ta biện luận cho FDR từ góc nhìn thực tiễn: khi _m_ lớn, kiểm soát FWER quá nghiêm ngặt và không dẫn đến “đủ” phát hiện. Một lý do khác để dùng FDR là nó phù hợp với cách dữ liệu thường được thu thập trong các ứng dụng hiện đại. Khi tập dữ liệu ở nhiều lĩnh vực tiếp tục tăng, việc thực hiện rất nhiều kiểm định giả thuyết cho mục đích khám phá thay vì xác nhận ngày càng phổ biến. Chẳng hạn, một nhà nghiên cứu gene có thể giải trình tự bộ gene của những người có và không có một bệnh lý cụ thể, rồi với mỗi gene trong 20.000 gene, kiểm định xem các biến thể trình tự của gene đó có liên hệ với bệnh lý hay không. Việc này tương đương thực hiện _m_ = 20 _,_ 000 kiểm định giả thuyết. Phân tích mang tính khám phá vì nhà nghiên cứu không nhắm đến giả thuyết cụ thể nào; thay vào đó, họ muốn xem có bằng chứng vừa phải về liên hệ giữa từng gene và bệnh, rồi nghiên cứu thêm những gene có bằng chứng như vậy. Họ có thể chấp nhận một số false positive trong tập gene sẽ khảo sát tiếp, nên FWER không phải lựa chọn phù hợp. Tuy nhiên, vẫn cần hiệu chỉnh cho kiểm định nhiều giả thuyết: sẽ không hợp lý nếu đơn giản khảo sát _mọi_ gene có giá trị _p_ nhỏ hơn, chẳng hạn 0,05, vì ta kỳ vọng có 1.000 gene nhận giá trị _p_ nhỏ như vậy chỉ do ngẫu nhiên, ngay cả khi không gene nào liên hệ với bệnh (vì 0 _._ 05 _×_ 20 _,_ 000 = 1 _,_ 000). Kiểm soát FDR của phân tích khám phá ở 20 % bảo đảm rằng tính trung bình, không quá 20 % số gene được khảo sát tiếp là false positive.
+
+Cần lưu ý rằng khác với giá trị _p_, trong đó ngưỡng 0,05 thường được xem là tiêu chuẩn bằng chứng tối thiểu cho kết quả “dương tính”, còn ngưỡng 0,01 hay thậm chí 0,001 được xem là thuyết phục hơn nhiều, không có ngưỡng chuẩn được chấp nhận chung để kiểm soát FDR. Thay vào đó, lựa chọn ngưỡng FDR thường phụ thuộc ngữ cảnh hoặc thậm chí tập dữ liệu. Chẳng hạn, nhà nghiên cứu gene trong ví dụ trước có thể muốn kiểm soát FDR ở ngưỡng 10 % nếu phân tích tiếp theo dự kiến
+
+> 15Nếu _R_ = 0, ta thay tỷ số _V/R_ bằng 0 để tránh tính 0 _/_ 0. Về hình thức, FDR = E( _V/R|R &gt;_ 0) Pr( _R &gt;_ 0).
+
+tốn thời gian hoặc chi phí. Ngược lại, ngưỡng lớn hơn nhiều là 30 % có thể phù hợp nếu phân tích tiếp theo ít tốn kém.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 13.4.2 Quy trình Benjamini–Hochberg
+
+Bây giờ ta tập trung vào nhiệm vụ kiểm soát FDR: quyết định bác bỏ những giả thuyết không nào trong khi bảo đảm FDR, E( _V/R_ ), nhỏ hơn hoặc bằng một giá trị _q_ được chỉ định trước. Để làm vậy, ta cần liên hệ các giá trị _p_, _p_ 1 _, . . . , pm_, từ _m_ giả thuyết không với giá trị FDR mong muốn _q_. Một quy trình rất đơn giản được nêu trong Thuật toán 13.2 có thể kiểm soát FDR.
+
+##### **Thuật toán 13.2** _Quy trình Benjamini–Hochberg để kiểm soát FDR_
+
+1. Chỉ định _q_, mức cần kiểm soát FDR.
+
+2. Tính các giá trị _p_, _p_ 1 _, . . . , pm_, cho _m_ giả thuyết không _H_ 01 _, . . . , H_ 0 _m_.
+
+3. Sắp thứ tự _m_ giá trị _p_ sao cho _p_ (1) _≤ p_ (2) _≤· · · ≤ p_ ( _m_ ).
+
+4. Định nghĩa
+
+5. Bác bỏ mọi giả thuyết không _H_ 0 _j_ thỏa _pj ≤ p_ ( _L_ ).
+
+Thuật toán 13.2 được gọi là _quy trình Benjamini–Hochberg_. Trọng tâm của quy trình nằm ở (13.10). Chẳng hạn, hãy xét lại năm nhà quản lý đầu tiên trong tập dữ liệu `Fund` được trình bày ở Bảng 13.3. (Trong ví dụ này, _m_ = 5, dù FDR thường được kiểm soát trong bối cảnh có số giả thuyết không lớn hơn nhiều.) Ta thấy _p_ (1) = 0 _._ 006 _&lt;_ 0 _._ 05 _×_ 1 _/_ 5, _p_ (2) = 0 _._ 012 _&lt;_ 0 _._ 05 _×_ 2 _/_ 5, _p_ (3) = 0 _._ 601 _&gt;_ 0 _._ 05 _×_ 3 _/_ 5, _p_ (4) = 0 _._ 756 _&gt;_ 0 _._ 05 _×_ 4 _/_ 5 và _p_ (5) = 0 _._ 918 _&gt;_ 0 _._ 05 _×_ 5 _/_ 5. Vì vậy, để kiểm soát FDR ở 5 %, ta bác bỏ các giả thuyết không rằng nhà quản lý quỹ thứ nhất và thứ ba không hoạt động tốt hơn ngẫu nhiên.
+
+Miễn là _m_ giá trị _p_ độc lập hoặc chỉ phụ thuộc nhẹ, quy trình Benjamini–Hochberg bảo đảm^(16) rằng
+
+##### FDR _≤ q._
+
+Nói cách khác, quy trình bảo đảm rằng tính trung bình, không quá tỷ lệ _q_ số giả thuyết không bị bác bỏ là false positive. Đáng chú ý, điều này đúng bất kể có bao nhiêu giả thuyết không thực sự đúng và bất kể phân phối giá trị _p_ của các giả thuyết không vốn sai. Do đó, với một tập _m_ giá trị _p_, quy trình Benjamini–Hochberg cung cấp cách rất dễ để xác định cần bác bỏ những giả thuyết không nào nhằm kiểm soát FDR ở bất kỳ mức _q_ chỉ định trước nào.
+
+> 16Tuy nhiên, chứng minh nằm ngoài phạm vi cuốn sách.
+
+**HÌNH 13.6.** _Mỗi ô hiển thị cùng một tập m_ = 2 _,_ 000 _giá trị p đã sắp thứ tự của dữ liệu_ `Fund` _. Các đường xanh lá biểu thị ngưỡng giá trị p tương ứng với kiểm soát FWER bằng quy trình Bonferroni ở mức α_ = 0 _._ 05 (trái) _, α_ = 0 _._ 1 (giữa) _và α_ = 0 _._ 3 (phải) _. Các đường cam biểu thị ngưỡng giá trị p tương ứng với kiểm soát FDR bằng Benjamini–Hochberg ở mức q_ = 0 _._ 05 (trái) _, q_ = 0 _._ 1 (giữa) _và q_ = 0 _._ 3 (phải) _. Khi FDR được kiểm soát ở mức q_ = 0 _._ 1 _, có 146 giả thuyết không bị bác bỏ_ (giữa) _; các giá trị p tương ứng được hiển thị màu xanh dương. Khi FDR được kiểm soát ở mức q_ = 0 _._ 3 _, có 279 giả thuyết không bị bác bỏ_ (phải) _; các giá trị p tương ứng được hiển thị màu xanh dương._
+
+Có một khác biệt cơ bản giữa quy trình Bonferroni ở Mục 13.3.2 và quy trình Benjamini–Hochberg. Trong Bonferroni, để kiểm soát FWER cho _m_ giả thuyết không ở mức _α_, ta chỉ cần bác bỏ những giả thuyết có giá trị _p_ dưới _α/m_. Ngưỡng _α/m_ này không phụ thuộc vào dữ liệu (ngoài giá trị _m_) và chắc chắn không phụ thuộc chính các giá trị _p_. Ngược lại, ngưỡng bác bỏ của Benjamini–Hochberg phức tạp hơn: ta bác bỏ mọi giả thuyết không có giá trị _p_ nhỏ hơn hoặc bằng giá trị _p_ nhỏ thứ _L_, trong đó bản thân _L_ là hàm của toàn bộ _m_ giá trị _p_ như trong (13.10). Vì vậy, khi thực hiện Benjamini–Hochberg, ta không thể lập kế hoạch trước ngưỡng dùng để bác bỏ các giá trị _p_; trước tiên phải xem dữ liệu. Chẳng hạn, về mặt trừu tượng, không thể biết liệu ta có bác bỏ một giả thuyết không có giá trị _p_ bằng 0,01 khi dùng ngưỡng FDR 0 _._ 1 với _m_ = 100 hay không; câu trả lời phụ thuộc giá trị của _m −_ 1 giá trị _p_ còn lại. Quy trình Holm cũng có tính chất này vì nó cũng dùng ngưỡng giá trị _p_ phụ thuộc dữ liệu.
+
+Hình 13.6 trình bày kết quả áp dụng quy trình Bonferroni và Benjamini–Hochberg trên tập dữ liệu `Fund`, sử dụng toàn bộ _m_ = 2 _,_ 000 nhà quản lý quỹ, trong đó năm người đầu được trình bày ở Bảng 13.3. Khi kiểm soát FWER ở mức 0 _._ 3 bằng Bonferroni, chỉ một giả thuyết không bị bác bỏ; tức ta chỉ có thể kết luận một nhà quản lý quỹ duy nhất đang vượt thị trường. Điều này xảy ra dù một phần đáng kể trong
+
+13.5 Phương pháp lấy mẫu lại cho giá trị _p_ và tỷ lệ phát hiện sai
+
+số _m_ = 2 _,_ 000 nhà quản lý quỹ có vẻ đã vượt thị trường nếu không hiệu chỉnh cho kiểm định nhiều giả thuyết; chẳng hạn, 13 người có giá trị _p_ dưới 0 _._ 001. Ngược lại, khi kiểm soát FDR ở mức 0 _._ 3, ta có thể kết luận 279 nhà quản lý đang vượt thị trường: ta kỳ vọng không quá khoảng 279 _×_ 0 _._ 3 = 83 _._ 7 người trong số này có hiệu năng tốt chỉ do ngẫu nhiên. Vì vậy, kiểm soát FDR nhẹ hơn và mạnh hơn nhiều so với kiểm soát FWER, theo nghĩa nó cho phép bác bỏ nhiều giả thuyết không hơn, đổi lại có nhiều false positive hơn đáng kể.
+
+Quy trình Benjamini–Hochberg đã tồn tại từ giữa thập niên 1990. Dù từ đó đến nay có rất nhiều bài báo đề xuất các phương pháp kiểm soát FDR khác có thể hoạt động tốt hơn trong những trường hợp cụ thể, Benjamini–Hochberg vẫn là một phương pháp rất hữu ích và có phạm vi áp dụng rộng.
+
+</MdxPage>

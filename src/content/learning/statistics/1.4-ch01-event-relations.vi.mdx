@@ -1,0 +1,154 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-event-relations",
+  "locale": "vi",
+  "title": "1.4 Quan hệ giữa các biến cố",
+  "headings": [
+    "Mục tiêu học tập",
+    "Hợp của hai biến cố",
+    "Giao của hai biến cố",
+    "Hai biến cố xung khắc",
+    "Biến cố đối",
+    "Thao tác trên tập hợp bằng Python",
+    "Kiến thức cần nắm"
+  ],
+  "keywords": [
+    "quan hệ biến cố",
+    "hợp",
+    "giao",
+    "xung khắc",
+    "biến cố đối",
+    "python",
+    "set"
+  ],
+  "pageCount": 7
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Thực hiện các phép toán **hợp** (*union*) và **giao** (*intersection*) giữa các biến cố.
+- Nhận biết hai biến cố **xung khắc** (*mutually exclusive*) và biến cố **đối** (*complement*).
+- Phân biệt sự khác nhau giữa biến cố xung khắc đơn thuần và biến cố đối.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hợp của hai biến cố
+
+Biến cố là tập hợp các kết quả. Vì vậy, trước khi gán xác suất, ta cần biết cách mô tả câu hỏi “hoặc”, “và” và “không” bằng phép toán tập hợp.
+
+Khi gieo một con xúc xắc, đặt:
+
+- <MdxFormula inline formula={"A=\\{2,4,6\\}"} />: xuất hiện mặt chẵn.
+- <MdxFormula inline formula={"B=\\{5,6\\}"} />: xuất hiện mặt lớn hơn 4.
+
+Câu hỏi “<MdxFormula inline formula={"A"} /> **hoặc** <MdxFormula inline formula={"B"} /> xảy ra” chấp nhận mọi kết quả thuộc ít nhất một trong hai biến cố. Ta gọi đó là **hợp** (*union*) của <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} />, ký hiệu <MdxFormula inline formula={"A\\cup B"} />:
+
+<MdxFormula formula={"A\\cup B=\\{2,4,5,6\\}"} />
+
+<ProbabilityChapterVisual kind="union" />
+
+Từ “hoặc” ở đây mang nghĩa bao hàm: kết quả 6 thuộc cả hai biến cố vẫn được tính.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Giao của hai biến cố
+
+Nếu câu hỏi đổi thành “<MdxFormula inline formula={"A"} /> **và** <MdxFormula inline formula={"B"} /> cùng xảy ra”, kết quả phải thuộc đồng thời cả hai tập.
+
+Ta gọi phần chung đó là **giao** (*intersection*) của hai biến cố, ký hiệu <MdxFormula inline formula={"A\\cap B"} />:
+
+<MdxFormula formula={"A\\cap B=\\{6\\}"} />
+
+<ProbabilityChapterVisual kind="intersection" />
+
+Chỉ mặt 6 vừa là số chẵn, vừa lớn hơn 4.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Hai biến cố xung khắc
+
+Đặt <MdxFormula inline formula={"C=\\{1,3,5\\}"} /> là biến cố “xuất hiện mặt lẻ”. Không có kết quả nào vừa chẵn vừa lẻ, nên <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"C"} /> không thể xảy ra cùng lúc.
+
+Hai biến cố như vậy được gọi là **xung khắc** (*mutually exclusive*):
+
+<MdxFormula formula={"A\\cap C=\\varnothing"} />
+
+Xung khắc chỉ nói rằng hai biến cố không chồng lấn; nó chưa nói rằng chúng đã bao phủ toàn bộ không gian mẫu.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Biến cố đối
+
+Với <MdxFormula inline formula={"A=\\{2,4,6\\}"} />, câu hỏi “không xuất hiện mặt chẵn” gồm mọi kết quả còn lại trong <MdxFormula inline formula={"\\Omega"} />:
+
+<MdxFormula formula={"A^c=\\Omega\\setminus A=\\{1,3,5\\}"} />
+
+Biến cố <MdxFormula inline formula={"A^c"} /> được gọi là **biến cố đối** (*complement*) của <MdxFormula inline formula={"A"} />. Hai biến cố đối vừa xung khắc, vừa phủ hết không gian mẫu:
+
+<MdxFormula formula={"A\\cap A^c=\\varnothing,\\qquad A\\cup A^c=\\Omega"} />
+
+<ProbabilityChapterVisual kind="exclusive-not-complement" />
+
+Một biến cố <MdxFormula inline formula={"B"} /> có thể xung khắc với <MdxFormula inline formula={"A"} /> nhưng chưa chắc là <MdxFormula inline formula={"A^c"} />. Muốn là biến cố đối, <MdxFormula inline formula={"B"} /> phải chứa **toàn bộ** phần còn lại của <MdxFormula inline formula={"\\Omega"} />.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Thao tác trên tập hợp bằng Python
+
+Trong Python, kiểu dữ liệu `set` cung cấp trực tiếp các phép toán hợp (`|`), giao (`&`) và hiệu (`-`):
+
+```python
+omega = {1, 2, 3, 4, 5, 6}
+A = {2, 4, 6}  # Mặt chẵn
+B = {5, 6}     # Mặt > 4
+C = {1, 3, 5}  # Mặt lẻ
+
+print("Hợp A ∪ B:", A | B)             # {2, 4, 5, 6}
+print("Giao A ∩ B:", A & B)             # {6}
+print("A ∩ C (rỗng?):", A & C)          # set()
+print("Biến cố đối A^c (Ω \\ A):", omega - A)  # {1, 3, 5}
+```
+
+```output
+Hợp A ∪ B: {2, 4, 5, 6}
+Giao A ∩ B: {6}
+A ∩ C (rỗng?): set()
+Biến cố đối A^c (Ω \ A): {1, 3, 5}
+```
+
+**Quan sát:** `|` giữ phần tử thuộc ít nhất một tập, `&` chỉ giữ phần chung, còn `omega - A` trả về biến cố đối của `A`.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt bài 1.4">
+
+- **Hợp** <MdxFormula inline formula={"A\\cup B"} /> giữ kết quả thuộc ít nhất một biến cố; **giao** <MdxFormula inline formula={"A\\cap B"} /> chỉ giữ phần chung.
+- Hai biến cố **xung khắc** khi <MdxFormula inline formula={"A\\cap B=\\varnothing"} />.
+- **Biến cố đối** <MdxFormula inline formula={"A^c"} /> vừa xung khắc với <MdxFormula inline formula={"A"} />, vừa cùng <MdxFormula inline formula={"A"} /> phủ hết <MdxFormula inline formula={"\\Omega"} />.
+- Xung khắc chưa đủ để là biến cố đối; cặp biến cố còn phải phủ hết không gian mẫu.
+- Trong Python, dùng `|`, `&` và `-` cho hợp, giao và hiệu tập hợp.
+
+Ta đã có ngữ pháp của biến cố. Lesson tiếp theo đặt các con số lên những tập hợp này và chỉ ra những quy tắc mà mọi cách hiểu xác suất đều dùng chung.
+
+</LessonNote>
+
+</MdxPage>

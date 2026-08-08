@@ -1,0 +1,317 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "point-estimation",
+  "locale": "vi",
+  "title": "3.8 Ước lượng điểm",
+  "headings": [
+    "Mục tiêu học tập",
+    "Tham số và ước lượng điểm",
+    "Ước lượng không chệch: trung bình và phương sai mẫu",
+    "Ước lượng tỉ lệ và hợp lý cực đại (MLE)",
+    "Đánh giá chất lượng ước lượng"
+  ],
+  "keywords": [
+    "ước lượng điểm",
+    "point estimate",
+    "tham số",
+    "quần thể",
+    "mẫu",
+    "không chệch",
+    "phương sai mẫu",
+    "hiệu chỉnh Bessel",
+    "ddof",
+    "hợp lý cực đại",
+    "MLE",
+    "tỉ lệ mẫu",
+    "sai số bình phương trung bình",
+    "MSE",
+    "nhất quán",
+    "hiệu quả",
+    "numpy"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Phân biệt **Tham số quần thể** (*population parameter*) và **Ước lượng điểm** (*point estimator*).
+- Giải thích tính chất **không chệch** (*unbiasedness*) và các tiêu chuẩn đánh giá ước lượng (MSE, nhất quán, hiệu quả).
+- Hiểu nguyên lý **Ước lượng Hợp lý Cực đại** (*Maximum Likelihood Estimation - MLE*).
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tham số và ước lượng điểm
+
+Ở bài 3.2, chúng ta đã dùng **thống kê mô tả** để tóm tắt một bộ dữ liệu cụ thể: 10 độ trễ phản hồi của một mô hình học sâu. Nhưng trong thực tế, bộ dữ liệu quan sát được chỉ là một **mẫu** — còn điều ta thực sự muốn biết là đặc trưng của **toàn bộ quần thể** mà mẫu đó đại diện.
+
+<MdxTable
+  caption="Ba đại lượng ta quan tâm"
+  headers={["Đại lượng", "Quần thể (Tham số)", "Mẫu (Ước lượng điểm)"]}
+  rows={[
+    ["Trung bình", "$\\mu$", "$\\bar{x}$"],
+    ["Phương sai", "$\\sigma^2$", "$s^2$"],
+    ["Tỉ lệ", "$p$", "$\\hat{p}$"]
+  ]}
+/>
+
+---
+
+### Định nghĩa
+
+**Tham số (parameter)** là đại lượng đặc trưng cho toàn bộ quần thể, thường được ký hiệu bằng chữ Hy Lạp như <MdxFormula inline formula={"\\mu, \\sigma^2, p"} />.
+
+**Ước lượng điểm (point estimate)** là một con số duy nhất, tính từ dữ liệu mẫu, dùng để đoán giá trị của tham số tương ứng. Ký hiệu bằng chữ có dấu mũ hoặc gạch ngang như <MdxFormula inline formula={"\\bar{x}, s^2, \\hat{p}"} />.
+
+<LessonNote label="Ước lượng điểm là gì?">
+
+Ví dụ: 10 yêu cầu quan sát được có độ trễ trung bình <MdxFormula inline formula={"\\bar{x} = 18.0\\ \\text{ms}"} />. Con số **18.0 ms** chính là một *ước lượng điểm* cho độ trễ trung bình thực sự <MdxFormula inline formula={"\\mu"} /> của toàn hệ thống — dù ta không bao giờ đo được <MdxFormula inline formula={"\\mu"} /> một cách chính xác.
+
+</LessonNote>
+
+---
+
+### Nhắc lại bộ dữ liệu từ bài 3.1
+
+Độ trễ phản hồi (ms) của 10 yêu cầu liên tiếp:
+
+<MdxFormula formula={"X = \\{12,\\ 15,\\ 12,\\ 18,\\ 20,\\ 12,\\ 22,\\ 15,\\ 30,\\ 24\\}"} />
+
+Bộ dữ liệu này chỉ là một **mẫu** trong vô số yêu cầu mà hệ thống sẽ phục vụ. Mọi con số tóm tắt tính từ mẫu — trung bình, phương sai — đều chỉ là *ước lượng* cho tham số quần thể tương ứng.
+
+---
+
+<MdxColumns>
+
+<div>
+
+**Một ước lượng điểm, ba bước tư duy:**
+
+1. **Xác định tham số** cần đoán (<MdxFormula inline formula={"\\mu, \\sigma^2, p"} />).
+2. **Chọn công thức** tính từ mẫu (<MdxFormula inline formula={"\\bar{x}, s^2, \\hat{p}"} />).
+3. **Tính một con số duy nhất** — đó chính là ước lượng điểm.
+
+Con số duy nhất này rất tiện so sánh và báo cáo, nhưng nó **không nói gì về độ không chắc chắn**. Chính vì thế, ở bài 3.6 ta sẽ nghiên cứu ước lượng thay đổi thế nào giữa các mẫu, và ở Chương 4 ta sẽ bọc nó trong một **khoảng tin cậy**.
+
+</div>
+
+<div>
+
+```python
+import numpy as np
+
+data = [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
+
+# Ước lượng điểm cho μ (trung bình quần thể)
+x_bar = np.mean(data)
+
+# Ước lượng điểm cho σ² (phương sai quần thể)
+s2 = np.var(data, ddof=1)
+
+print(f"x̄  = {x_bar} ms   -> ước lượng cho μ")
+print(f"s² = {s2:.2f} ms² -> ước lượng cho σ²")
+```
+```output
+x̄  = 18.0 ms   -> ước lượng cho μ
+s² = 36.22 ms² -> ước lượng cho σ²
+```
+
+</div>
+
+</MdxColumns>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Ước lượng không chệch: trung bình và phương sai mẫu
+
+Một ước lượng gọi là **không chệch (unbiased)** nếu trung bình của nó qua vô số mẫu bằng đúng tham số cần ước lượng:
+
+<MdxFormula formula={"E[\\bar{x}] = \\mu, \\qquad E[s^2] = \\sigma^2"} />
+
+Ở bài 3.3, ta đã chứng minh hiệu chỉnh Bessel làm <MdxFormula inline formula={"s^2"} /> không chệch cho <MdxFormula inline formula={"\\sigma^2"} />. Tại đây, trọng tâm chuyển từ **cách dựng công thức** sang **vai trò của công thức như một estimator**.
+
+<MdxTable
+  caption="Tham số và estimator không chệch tương ứng"
+  headers={["Tham số quần thể", "Estimator từ mẫu", "Tính chất qua nhiều mẫu"]}
+  rows={[
+    ["$\\mu$", "$\\bar{x}$", "$E[\\bar{x}]=\\mu$"],
+    ["$\\sigma^2$", "$s^2$ với mẫu số $n-1$", "$E[s^2]=\\sigma^2$"]
+  ]}
+/>
+
+Hai mẫu khác nhau thường cho hai giá trị <MdxFormula inline formula={"\\bar{x}"} /> hoặc <MdxFormula inline formula={"s^2"} /> khác nhau. Không chệch **không** đảm bảo một mẫu riêng cho kết quả gần tham số; nó mô tả tâm của phân phối estimator khi lặp lấy mẫu.
+
+```python
+import numpy as np
+
+x = np.array([12, 15, 12, 18, 20, 12, 22, 15, 30, 24])
+
+x_bar = np.mean(x)          # estimator của μ
+s2 = np.var(x, ddof=1)      # estimator không chệch của σ²
+print(x_bar, s2)
+```
+
+<LessonNote label="Cầu nối sang phân phối lấy mẫu">
+
+Một estimator là **quy tắc** biến mẫu thành con số; estimate là **con số thu được** từ một mẫu cụ thể. Bài 3.6 sẽ xét cả phân phối của estimator qua nhiều mẫu để lượng hóa độ không chắc chắn.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Ước lượng tỉ lệ và hợp lý cực đại (MLE)
+
+Không phải tham số nào cũng là trung bình hay phương sai. Khi đại lượng quan tâm là **tỉ lệ** — chẳng hạn tỉ lệ sản phẩm lỗi — ta ước lượng bằng **tỉ lệ mẫu**:
+
+<MdxFormula formula={"\\hat{p} = \\frac{k}{n}"} />
+
+trong đó <MdxFormula inline formula={"k"} /> là số lần xuất hiện đặc tính quan tâm trong <MdxFormula inline formula={"n"} /> quan sát.
+
+---
+
+### Ví dụ: Kiểm tra chất lượng sản xuất
+
+Một dây chuyền sản xuất vừa hoàn thiện lô hàng. Để ước lượng tỉ lệ sản phẩm lỗi <MdxFormula inline formula={"p"} /> của cả lô, kỹ sư kiểm tra ngẫu nhiên **40 sản phẩm** và phát hiện **3 sản phẩm lỗi**.
+
+**Bước 1 — Xác định <MdxFormula inline formula={"k"} /> và <MdxFormula inline formula={"n"} />:**
+
+<MdxFormula formula={"k = 3,\\qquad n = 40"} />
+
+**Bước 2 — Tính tỉ lệ mẫu:**
+
+<MdxFormula formula={"\\hat{p} = \\frac{3}{40} = 0.075 = 7.5\\%"} />
+
+<MdxColumns>
+
+<div>
+
+```python
+import numpy as np
+
+# 1 = lỗi, 0 = đạt
+samples = np.array([1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+                    0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+p_hat = samples.mean()
+print(f"k = {samples.sum()}, n = {len(samples)}")
+print(f"p̂ = {p_hat} = {p_hat:.1%}")
+```
+```output
+k = 3, n = 40
+p̂ = 0.075 = 7.5%
+```
+
+</div>
+
+<div>
+
+**Bước 3 — Diễn giải:**
+
+Ước lượng điểm cho tỉ lệ lỗi của cả lô hàng là **7.5%**. Con số này là "điểm" duy nhất — độ chính xác của nó sẽ được lượng hóa ở Chương 4 bằng khoảng tin cậy.
+
+</div>
+
+</MdxColumns>
+
+---
+
+### Phương pháp hợp lý cực đại (Maximum Likelihood Estimation — MLE)
+
+Tỉ lệ mẫu <MdxFormula inline formula={"\\hat{p} = k/n"} /> không phải tự nhiên mà có — nó là kết quả của **hợp lý cực đại**: chọn giá trị tham số khiến dữ liệu quan sát được trở nên *khả dĩ nhất*.
+
+Với 3 sản phẩm lỗi trong 40 sản phẩm, xác suất quan sát đúng dữ liệu này ứng với từng giá trị <MdxFormula inline formula={"p"} /> là:
+
+<MdxFormula formula={"L(p) = p^{3}(1-p)^{37}"} />
+
+<MdxTable
+  caption="Hàm hợp lý với các giá trị p khác nhau"
+  headers={["Giá trị $p$", "$L(p) = p^3(1-p)^{37}$", "Nhận xét"]}
+  rows={[
+    ["$0.050$", "$\\approx 1.9 \\times 10^{-5}$", ""],
+    ["$0.075$ (= 3/40)", "$\\approx 2.3 \\times 10^{-5}$", "Lớn nhất — chọn!"],
+    ["$0.100$", "$\\approx 2.0 \\times 10^{-5}$", ""],
+    ["$0.150$", "$\\approx 0.8 \\times 10^{-5}$", ""]
+  ]}
+/>
+
+<MdxFormula formula={"\\hat{p}_{\\text{MLE}} = \\underset{p}{\\arg\\max}\\ L(p) = \\frac{3}{40} = 0.075"} />
+
+<LessonNote label="MLE cho phân phối chuẩn">
+
+Với giả định dữ liệu tuân theo phân phối chuẩn, MLE cho ta <MdxFormula inline formula={"\\hat{\\mu} = \\bar{x}"} /> nhưng phương sai <MdxFormula inline formula={"\\hat{\\sigma}^2 = \\frac{1}{n}\\sum (x_i - \\bar{x})^2"} /> — **chệch** (hơi thấp). Nhân với <MdxFormula inline formula={"\\frac{n}{n-1}"} /> ta thu lại đúng công thức chia <MdxFormula inline formula={"n-1"} /> ở trang trước. Như vậy mọi thứ khớp nhau: MLE cho ước lượng tự nhiên, còn hiệu chỉnh Bessel sửa độ chệch.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Đánh giá chất lượng ước lượng
+
+Cùng ước lượng <MdxFormula inline formula={"\\mu"} /> nhưng có nhiều công thức khác nhau — trung bình mẫu, trung vị mẫu, trung bình cắt bớt. Chọn cái nào? Ta cần hai thước đo bổ sung bên cạnh tính không chệch.
+
+---
+
+### Sai số bình phương trung bình (MSE)
+
+<MdxFormula formula={"\\text{MSE}(\\hat{\\theta}) = E\\left[(\\hat{\\theta} - \\theta)^2\\right] = \\underbrace{\\text{bias}(\\hat{\\theta})^2}_{\\text{bias}^2} + \\underbrace{\\text{Var}(\\hat{\\theta})}_{\\text{variance}}"} />
+
+Một ước lượng tốt không chỉ **không chệch** (trung bình đúng chỗ) mà còn **biến động ít** quanh mục tiêu.
+
+- **Nhất quán (consistent):** khi cỡ mẫu <MdxFormula inline formula={"n \\rightarrow \\infty"} />, ước lượng hội tụ về tham số — <MdxFormula inline formula={"\\bar{x} \\rightarrow \\mu"} />.
+- **Hiệu quả (efficient):** trong số các ước lượng không chệch, ước lượng nào có phương sai nhỏ hơn thì hiệu quả hơn.
+
+---
+
+### So sánh trung bình và trung vị
+
+Dùng lại bộ dữ liệu độ trễ 10 yêu cầu. Nếu yêu cầu thứ 10 gặp lỗi mạng và vọt lên 300 ms:
+
+<MdxTable
+  caption="Trung bình vs trung vị khi có outlier"
+  headers={["Tình huống", "$\\bar{x}$ (trung bình)", "Trung vị"]}
+  rows={[
+    ["Dữ liệu bình thường", "18.0 ms", "16.5 ms"],
+    ["Có outlier 300 ms", "45.0 ms (lệch mạnh)", "16.5 ms (không đổi)"]
+  ]}
+/>
+
+- **Trung bình mẫu <MdxFormula inline formula={"\\bar{x}"} />:** không chệch, hiệu quả cao khi phân phối đối xứng — nhưng rất nhạy với outlier.
+- **Trung vị mẫu:** bền vững với outlier, nhưng phương sai lớn hơn nên kém hiệu quả khi phân phối chuẩn.
+
+Không có ước lượng nào "thắng tuyệt đối" — việc chọn phụ thuộc vào đặc tính của dữ liệu và mục tiêu phân tích.
+
+---
+
+### Tổng kết các ước lượng điểm đã học
+
+<MdxTable
+  caption="Bảng tổng kết"
+  headers={["Tham số", "Ước lượng điểm", "Công thức", "Không chệch?"]}
+  rows={[
+    ["$\\mu$ — trung bình", "$\\bar{x}$", "$\\Sigma x_i / n$", "Có"],
+    ["$\\sigma^2$ — phương sai", "$s^2$", "$\\Sigma (x_i - \\bar{x})^2 / (n-1)$", "Có"],
+    ["$p$ — tỉ lệ", "$\\hat{p}$", "$k / n$", "Có"],
+    ["$\\sigma^2$ (MLE)", "$\\hat{\\sigma}^2$", "$\\Sigma (x_i - \\bar{x})^2 / n$", "Chệch — cần sửa Bessel"]
+  ]}
+/>
+
+<LessonNote label="Cầu nối sang bài 3.6">
+
+Mọi ước lượng điểm đều là **một con số duy nhất** — nhưng nếu ta lấy nhiều mẫu khác nhau, con số đó sẽ dao động. Sự phân bố của <MdxFormula inline formula={"\\bar{x}"} /> qua các lần lấy mẫu được gọi là **phân phối lấy mẫu (sampling distribution)**, và độ lệch chuẩn của nó — <MdxFormula inline formula={"\\sigma/\\sqrt{n}"} /> — chính là **sai số chuẩn (standard error)**. Đó là nội dung của bài 3.6, và là nền tảng cho khoảng tin cậy ở Chương 4.
+
+</LessonNote>
+
+</MdxPage>

@@ -1,0 +1,162 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch02-assessing-model-accuracy",
+  "locale": "vi",
+  "title": "Đánh giá độ chính xác của mô hình",
+  "headings": [
+    "Đánh giá độ chính xác của mô hình",
+    "2.2.1 Đo chất lượng phép khớp",
+    "2.2.2 Đánh đổi độ chệch–phương sai",
+    "2.2.3 Bối cảnh phân loại",
+    "Kiến thức cần nắm"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Học thống kê",
+    "Đánh giá độ chính xác của mô hình"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Đánh giá độ chính xác của mô hình
+
+Một mục tiêu chủ chốt của cuốn sách là giới thiệu cho người đọc nhiều phương pháp học thống kê vượt xa phương pháp hồi quy tuyến tính tiêu chuẩn. Tại sao cần giới thiệu nhiều phương pháp học thống kê khác nhau thay vì chỉ một phương pháp _tốt nhất_? _Không có bữa trưa miễn phí trong thống kê:_ không một phương pháp nào vượt trội mọi phương pháp khác trên mọi bộ dữ liệu có thể có. Trên một bộ dữ liệu cụ thể, một phương pháp có thể hoạt động
+
+tốt nhất, nhưng phương pháp khác có thể tốt hơn trên một bộ dữ liệu tương tự nhưng không giống hệt. Vì vậy, xác định phương pháp nào cho kết quả tốt nhất với mỗi tập dữ liệu là một nhiệm vụ quan trọng. Chọn cách tiếp cận tốt nhất có thể là một trong những phần khó nhất khi thực hiện học thống kê trong thực tế.
+
+Trong mục này, ta thảo luận một số khái niệm quan trọng nhất phát sinh khi chọn quy trình học thống kê cho một bộ dữ liệu cụ thể. Trong các phần sau của sách, ta sẽ giải thích cách áp dụng những khái niệm này trong thực tế.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 2.2.1 Đo chất lượng phép khớp
+
+Để đánh giá hiệu năng của một phương pháp học thống kê trên một bộ dữ liệu, ta cần cách đo xem các dự đoán thực sự khớp dữ liệu quan sát tốt đến đâu. Tức cần định lượng mức độ giá trị biến đáp ứng dự đoán cho một quan sát gần với giá trị biến đáp ứng thực của quan sát đó. Trong bối cảnh hồi quy, thước đo phổ biến nhất là _sai số bình phương trung bình_ (MSE), cho bởi
+
+trong đó _f_^(ˆ)(_xi_) là dự đoán mà _f_^(ˆ) đưa ra cho quan sát thứ _i_. MSE nhỏ nếu biến đáp ứng dự đoán rất gần biến đáp ứng thực, và lớn nếu ở một số quan sát, biến đáp ứng dự đoán khác đáng kể biến đáp ứng thực.
+
+MSE trong (2.5) được tính bằng dữ liệu huấn luyện dùng để khớp mô hình, nên chính xác hơn phải gọi là _MSE huấn luyện_. Nhưng nhìn chung, ta không thực sự quan tâm phương pháp hoạt động tốt đến đâu trên dữ liệu huấn luyện. Thay vào đó, _ta quan tâm độ chính xác của dự đoán khi áp dụng phương pháp cho dữ liệu kiểm tra chưa từng thấy_. Tại sao đây mới là điều cần quan tâm? Giả sử ta muốn phát triển một thuật toán dự đoán giá cổ phiếu dựa trên lợi suất cổ phiếu trước đây. Ta có thể huấn luyện phương pháp bằng lợi suất trong 6 tháng qua. Nhưng ta không thực sự quan tâm phương pháp dự đoán giá cổ phiếu tuần trước tốt đến đâu; thay vào đó, ta quan tâm nó dự đoán giá ngày mai hoặc tháng sau tốt đến đâu. Tương tự, giả sử có các phép đo lâm sàng (như cân nặng, huyết áp, chiều cao, tuổi, tiền sử bệnh gia đình) của một số bệnh nhân cùng thông tin mỗi người có mắc tiểu đường hay không. Ta có thể dùng các bệnh nhân này để huấn luyện phương pháp học thống kê dự đoán nguy cơ tiểu đường từ phép đo lâm sàng. Trong thực tế, ta muốn phương pháp dự đoán chính xác nguy cơ tiểu đường của _bệnh nhân tương lai_ từ các phép đo của họ. Ta không quá quan tâm phương pháp có dự đoán chính xác nguy cơ của bệnh nhân dùng để huấn luyện mô hình hay không, vì đã biết người nào trong số đó mắc tiểu đường.
+
+Diễn đạt bằng toán học, giả sử ta khớp phương pháp học thống kê trên các quan sát huấn luyện _\{_(_x_ 1 _, y_ 1) _,_ (_x_ 2 _, y_ 2) _, . . . ,_ (_xn, yn_) _\}_ và thu được ước lượng _f_^(ˆ). Khi đó có thể tính _f_^(ˆ)(_x_ 1) _, f_^(ˆ)(_x_ 2) _, . . . , f_^(ˆ)(_xn_).
+
+**HÌNH 2.9.** Trái: _Dữ liệu mô phỏng từ f được vẽ màu đen. Ba ước lượng của f được trình bày: đường hồi quy tuyến tính (cam) và hai phép khớp smoothing spline (xanh dương và xanh lá)._ Phải: _MSE huấn luyện (xám), MSE kiểm tra (đỏ) và MSE kiểm tra nhỏ nhất có thể trên mọi phương pháp (đường đứt nét). Các ô vuông biểu diễn MSE huấn luyện và kiểm tra của ba phép khớp trong ô bên trái._
+
+Nếu chúng xấp xỉ _y_ 1 _, y_ 2 _, . . . , yn_ thì MSE huấn luyện trong (2.5) nhỏ. Tuy nhiên, ta không thực sự quan tâm liệu _f_^(ˆ)(_xi_) _≈ yi_ hay không; thay vào đó, ta muốn biết _f_^(ˆ)(_x_ 0) có xấp xỉ _y_ 0 hay không, trong đó (_x_ 0 _, y_ 0) là _một quan sát kiểm tra chưa từng thấy, không được dùng để huấn luyện phương pháp học thống kê_. Ta muốn chọn phương pháp cho _MSE kiểm tra_ thấp nhất thay vì MSE huấn luyện thấp nhất. Nói cách khác, nếu có lượng lớn quan sát kiểm tra, ta có thể tính
+
+sai số dự đoán bình phương trung bình của các quan sát kiểm tra (_x_ 0 _, y_ 0). Ta muốn chọn mô hình làm đại lượng này nhỏ nhất có thể. Làm thế nào chọn phương pháp cực tiểu hóa MSE kiểm tra? Trong một số bối cảnh, ta có thể có sẵn bộ dữ liệu kiểm tra — tức tiếp cận được một tập quan sát không dùng để huấn luyện phương pháp. Khi đó chỉ cần đánh giá (2.6) trên các quan sát kiểm tra và chọn phương pháp có MSE kiểm tra nhỏ nhất. Nhưng nếu không có quan sát kiểm tra thì sao? Có thể nghĩ đến việc chỉ chọn phương pháp học thống kê làm cực tiểu MSE huấn luyện (2.5). Đây có vẻ là một cách hợp lý vì MSE huấn luyện và MSE kiểm tra dường như liên hệ chặt chẽ. Tiếc rằng chiến lược này có vấn đề nền tảng: không đảm bảo phương pháp có MSE huấn luyện thấp nhất cũng có MSE kiểm tra thấp nhất. Đại thể, vấn đề là nhiều phương pháp thống kê ước lượng hệ số cụ thể để cực tiểu hóa MSE tập huấn luyện. Với các phương pháp này, MSE tập huấn luyện có thể khá nhỏ nhưng MSE kiểm tra thường lớn hơn nhiều.
+
+Hình 2.9 minh họa hiện tượng bằng một ví dụ đơn giản. Trong ô bên trái Hình 2.9, ta tạo quan sát từ (2.1) với _f_ thực là đường màu đen. Các đường cam, xanh dương và xanh lá minh họa ba ước lượng _f_ có thể có, thu được từ các phương pháp có mức linh hoạt tăng dần. Đường cam là phép khớp hồi quy tuyến tính, tương đối kém linh hoạt. Các đường xanh dương và xanh lá được tạo bằng _smoothing spline_ ở Chương 7, với các mức độ trơn khác nhau. Rõ ràng khi mức linh hoạt tăng, các đường khớp dữ liệu quan sát sát hơn. Đường xanh lá linh hoạt nhất và khớp dữ liệu rất tốt; tuy nhiên, nó khớp _f_ thực (màu đen) kém vì dao động quá nhiều. Bằng cách điều chỉnh mức linh hoạt của smoothing spline, ta có thể tạo nhiều phép khớp khác nhau cho dữ liệu này.
+
+Bây giờ chuyển sang ô bên phải Hình 2.9. Đường xám biểu diễn MSE huấn luyện trung bình theo tính linh hoạt, hay chính thức hơn là _bậc tự do_, của một số smoothing spline. Bậc tự do là đại lượng tóm tắt tính linh hoạt của một đường cong; nó được thảo luận kỹ hơn trong Chương 7. Các ô vuông cam, xanh dương và xanh lá chỉ MSE gắn với các đường cong tương ứng ở ô bên trái. Đường cong bị hạn chế hơn và do đó trơn hơn có ít bậc tự do hơn đường dao động — lưu ý trong Hình 2.9, hồi quy tuyến tính nằm ở đầu hạn chế nhất với hai bậc tự do. MSE huấn luyện giảm đơn điệu khi tính linh hoạt tăng. Trong ví dụ này, _f_ thực phi tuyến nên phép khớp tuyến tính màu cam không đủ linh hoạt để ước lượng tốt _f_. Đường xanh lá có MSE huấn luyện thấp nhất trong ba phương pháp vì tương ứng với đường linh hoạt nhất trong ba đường khớp ở ô bên trái.
+
+Trong ví dụ này, ta biết hàm thực _f_ nên cũng có thể tính MSE kiểm tra trên một tập kiểm tra rất lớn theo tính linh hoạt. (Tất nhiên, nhìn chung _f_ chưa biết nên không thể làm vậy.) MSE kiểm tra được vẽ bằng đường đỏ ở ô bên phải Hình 2.9. Giống MSE huấn luyện, ban đầu MSE kiểm tra giảm khi tính linh hoạt tăng. Tuy nhiên, tại một điểm, MSE kiểm tra chững lại rồi bắt đầu tăng. Vì thế, cả đường cam và xanh lá đều có MSE kiểm tra cao. Đường xanh dương cực tiểu hóa MSE kiểm tra; điều này không bất ngờ vì quan sát trực quan cho thấy nó ước lượng _f_ tốt nhất ở ô bên trái Hình 2.9. Đường ngang đứt nét chỉ Var(_ϵ_), sai số không thể giảm trong (2.3), tương ứng với MSE kiểm tra thấp nhất có thể đạt trong mọi phương pháp. Vì vậy, smoothing spline biểu diễn bằng đường xanh dương gần tối ưu.
+
+Trong ô bên phải Hình 2.9, khi tính linh hoạt của phương pháp học thống kê tăng, MSE huấn luyện giảm đơn điệu còn MSE kiểm tra có _dạng chữ U_. Đây là tính chất nền tảng của học thống kê, đúng bất kể bộ dữ liệu cụ thể hay phương pháp thống kê được dùng. Khi tính linh hoạt mô hình tăng, MSE huấn luyện giảm nhưng MSE kiểm tra có thể không giảm. Khi một phương pháp cho MSE huấn luyện nhỏ nhưng MSE kiểm tra lớn, ta nói nó _quá khớp_ dữ liệu. Điều này xảy ra vì quy trình học thống kê cố quá sức để tìm quy luật trong dữ liệu huấn luyện, có thể phát hiện một số quy luật chỉ do ngẫu nhiên thay vì tính chất thực của hàm chưa biết _f_. Khi quá khớp dữ liệu huấn luyện, MSE kiểm tra sẽ rất lớn vì những
+
+**HÌNH 2.10.** _Chi tiết giống Hình 2.9, dùng một f thực khác gần tuyến tính hơn nhiều. Trong bối cảnh này, hồi quy tuyến tính khớp dữ liệu rất tốt._
+
+quy luật mà phương pháp tìm thấy trong dữ liệu huấn luyện đơn giản không tồn tại trong dữ liệu kiểm tra. Lưu ý bất kể có quá khớp hay không, ta hầu như luôn kỳ vọng MSE huấn luyện nhỏ hơn MSE kiểm tra vì phần lớn phương pháp học thống kê trực tiếp hoặc gián tiếp tìm cách cực tiểu hóa MSE huấn luyện. Quá khớp chỉ cụ thể trường hợp một mô hình kém linh hoạt hơn sẽ cho MSE kiểm tra nhỏ hơn.
+
+Hình 2.10 đưa ra một ví dụ khác, trong đó _f_ thực xấp xỉ tuyến tính. Ta lại thấy MSE huấn luyện giảm đơn điệu khi tính linh hoạt mô hình tăng và MSE kiểm tra có dạng chữ U. Tuy nhiên, vì hàm thực gần tuyến tính, MSE kiểm tra chỉ giảm nhẹ rồi tăng lại, nên phép khớp bình phương tối thiểu màu cam tốt hơn đáng kể đường xanh lá rất linh hoạt. Cuối cùng, Hình 2.11 cho ví dụ nơi _f_ rất phi tuyến. Các đường cong MSE huấn luyện và kiểm tra vẫn có cùng dạng tổng thể, nhưng giờ cả hai giảm nhanh trước khi MSE kiểm tra bắt đầu tăng chậm.
+
+Trong thực tế, thường có thể tính MSE huấn luyện tương đối dễ, nhưng ước lượng MSE kiểm tra khó hơn đáng kể vì thường không có dữ liệu kiểm tra. Như ba ví dụ trước minh họa, mức linh hoạt tương ứng với mô hình có MSE kiểm tra nhỏ nhất có thể thay đổi đáng kể giữa các bộ dữ liệu. Xuyên suốt sách, ta thảo luận nhiều cách có thể dùng trong thực tế để ước lượng điểm cực tiểu này. Một phương pháp quan trọng là _xác thực chéo_ (Chương 5), dùng dữ liệu huấn luyện để ước lượng MSE kiểm tra.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 2.2.2 Đánh đổi độ chệch–phương sai
+
+Dạng chữ U quan sát được trên các đường cong MSE kiểm tra (Hình 2.9–2.11) hóa ra là kết quả của hai tính chất cạnh tranh nhau của phương pháp học thống kê.
+
+**HÌNH 2.11.** _Chi tiết giống Hình 2.9, dùng một f thực khác xa tuyến tính. Trong bối cảnh này, hồi quy tuyến tính khớp dữ liệu rất kém._
+
+Dù chứng minh toán học nằm ngoài phạm vi cuốn sách, có thể chứng minh rằng MSE kiểm tra kỳ vọng tại một giá trị _x_ 0 cụ thể luôn có thể phân rã thành tổng ba đại lượng nền tảng: _phương sai_ của _f_^(ˆ)(_x_ 0), bình phương _độ chệch_ của _f_^(ˆ)(_x_ 0) và phương sai của sai số _ϵ_. Tức là,
+
+2 Ở đây ký hiệu _E_ � _y_ 0 _− f_^(ˆ)(_x_ 0)� định nghĩa _MSE kiểm tra kỳ vọng_ tại _x_ 0, và chỉ MSE kiểm tra trung bình thu được nếu liên tục ước lượng _f_ bằng một số lượng lớn tập huấn luyện, rồi kiểm tra mỗi ước lượng tại _x_ 0. Có thể tính MSE kiểm tra kỳ vọng tổng thể bằng cách lấy trung bình _E y_ 0 _− f_^(ˆ)(_x_ 0) � � trên mọi giá trị _x_ 0 có thể có trong tập kiểm tra.
+
+Phương trình 2.7 cho biết để cực tiểu hóa sai số kiểm tra kỳ vọng, ta cần chọn phương pháp học thống kê đồng thời đạt _phương sai thấp_ và _độ chệch thấp_. Lưu ý phương sai vốn là đại lượng không âm, bình phương độ chệch cũng không âm. Vì vậy, MSE kiểm tra kỳ vọng không bao giờ thấp hơn Var(_ϵ_), sai số không thể giảm trong (2.3).
+
+_Phương sai_ và _độ chệch_ của một phương pháp học thống kê có ý nghĩa gì? _Phương sai_ chỉ mức độ _f_^(ˆ) thay đổi nếu ta ước lượng nó bằng một tập dữ liệu huấn luyện khác. Vì dữ liệu huấn luyện được dùng để khớp phương pháp, các tập dữ liệu huấn luyện khác nhau sẽ tạo _f_^(ˆ) khác nhau. Nhưng lý tưởng là ước lượng _f_ không nên thay đổi quá nhiều giữa các tập huấn luyện. Nếu một phương pháp có phương sai cao, những thay đổi nhỏ trong dữ liệu huấn luyện có thể gây thay đổi lớn ở _f_^(ˆ). Nhìn chung, phương pháp thống kê linh hoạt hơn có phương sai cao hơn. Xét các đường xanh lá và cam trong Hình 2.9. Đường xanh lá linh hoạt bám rất sát các quan sát. Nó có phương sai cao vì thay đổi bất kỳ điểm dữ liệu nào cũng có thể khiến ước lượng _f_^(ˆ) thay đổi đáng kể.
+
+**HÌNH 2.12.** _Bình phương độ chệch (đường xanh dương), phương sai (đường cam), Var_(_ϵ_) _(đường đứt nét) và MSE kiểm tra (đường đỏ) cho ba bộ dữ liệu trong Hình 2.9–2.11. Đường chấm dọc chỉ mức linh hoạt tương ứng với MSE kiểm tra nhỏ nhất._
+
+Ngược lại, đường bình phương tối thiểu màu cam tương đối kém linh hoạt và có phương sai thấp, vì di chuyển một quan sát bất kỳ có thể chỉ làm vị trí đường dịch chuyển nhẹ.
+
+Mặt khác, _độ chệch_ chỉ sai số được tạo ra khi xấp xỉ một bài toán thực tế có thể cực kỳ phức tạp bằng mô hình đơn giản hơn nhiều. Ví dụ, hồi quy tuyến tính giả sử quan hệ tuyến tính giữa _Y_ và _X_ 1 _, X_ 2 _, . . . , Xp_. Khó có bài toán thực tế nào thật sự có quan hệ tuyến tính đơn giản như vậy, nên thực hiện hồi quy tuyến tính chắc chắn tạo ra độ chệch trong ước lượng _f_. Trong Hình 2.11, _f_ thực phi tuyến đáng kể, nên bất kể có bao nhiêu quan sát huấn luyện cũng không thể dùng hồi quy tuyến tính để tạo ước lượng chính xác. Nói cách khác, hồi quy tuyến tính có độ chệch cao trong ví dụ này. Nhưng trong Hình 2.10, _f_ thực rất gần tuyến tính, nên với đủ dữ liệu, hồi quy tuyến tính có thể tạo ước lượng chính xác. Nhìn chung, phương pháp linh hoạt hơn tạo ít độ chệch hơn.
+
+Theo quy tắc chung, khi dùng phương pháp linh hoạt hơn, phương sai tăng còn độ chệch giảm. Tốc độ thay đổi tương đối của hai đại lượng quyết định MSE kiểm tra tăng hay giảm. Khi tăng tính linh hoạt của một lớp phương pháp, lúc đầu độ chệch có xu hướng giảm nhanh hơn phương sai tăng. Do đó, MSE kiểm tra kỳ vọng giảm. Nhưng tại một điểm, tăng tính linh hoạt ít ảnh hưởng đến độ chệch nhưng bắt đầu làm phương sai tăng đáng kể. Khi đó MSE kiểm tra tăng. Ta đã quan sát dạng MSE kiểm tra giảm rồi tăng này ở các ô bên phải Hình 2.9–2.11.
+
+Ba biểu đồ trong Hình 2.12 minh họa Phương trình 2.7 cho các ví dụ trong Hình 2.9–2.11. Ở mỗi trường hợp, đường liền xanh dương biểu diễn bình phương độ chệch tại các mức linh hoạt khác nhau, còn đường cam tương ứng với phương sai. Đường ngang đứt nét biểu diễn Var(_ϵ_), sai số không thể giảm. Cuối cùng, đường đỏ tương ứng với MSE tập kiểm tra là tổng
+
+ba đại lượng. Trong cả ba trường hợp, phương sai tăng còn độ chệch giảm khi tính linh hoạt phương pháp tăng. Tuy nhiên, mức linh hoạt tương ứng với MSE kiểm tra tối ưu khác nhau đáng kể giữa ba bộ dữ liệu, vì bình phương độ chệch và phương sai thay đổi với tốc độ khác nhau. Trong ô bên trái Hình 2.12, lúc đầu độ chệch giảm nhanh, dẫn đến MSE kiểm tra kỳ vọng giảm mạnh ban đầu. Ngược lại, trong ô giữa Hình 2.12, _f_ thực gần tuyến tính nên độ chệch chỉ giảm nhẹ khi tính linh hoạt tăng; MSE kiểm tra chỉ giảm nhẹ rồi tăng nhanh khi phương sai tăng. Cuối cùng, trong ô bên phải Hình 2.12, khi tính linh hoạt tăng, độ chệch giảm mạnh vì _f_ thực rất phi tuyến. Phương sai cũng chỉ tăng rất ít. Vì thế, MSE kiểm tra giảm đáng kể rồi chỉ tăng nhẹ khi tính linh hoạt mô hình tăng.
+
+Quan hệ giữa độ chệch, phương sai và MSE tập kiểm tra trong Phương trình 2.7 và Hình 2.12 được gọi là _đánh đổi độ chệch–phương sai_. Hiệu năng tốt trên tập kiểm tra của một phương pháp học thống kê đòi hỏi cả phương sai thấp lẫn bình phương độ chệch thấp. Đây gọi là sự đánh đổi vì dễ tạo một phương pháp có độ chệch cực thấp nhưng phương sai cao (chẳng hạn, vẽ đường đi qua mọi quan sát huấn luyện) hoặc phương sai rất thấp nhưng độ chệch cao (khớp một đường ngang với dữ liệu). Thách thức là tìm phương pháp mà cả phương sai và bình phương độ chệch đều thấp. Sự đánh đổi này là một trong những chủ đề lặp lại quan trọng nhất của sách.
+
+Trong tình huống thực tế nơi không quan sát được _f_, nhìn chung không thể tính tường minh MSE kiểm tra, độ chệch hoặc phương sai của một phương pháp học thống kê. Dù vậy, luôn cần ghi nhớ đánh đổi độ chệch–phương sai. Trong sách, ta khảo sát những phương pháp cực kỳ linh hoạt, do đó về cơ bản có thể loại bỏ độ chệch. Nhưng điều này không đảm bảo chúng vượt qua một phương pháp đơn giản hơn nhiều như hồi quy tuyến tính. Lấy ví dụ cực đoan, giả sử _f_ thực tuyến tính. Trong tình huống đó, hồi quy tuyến tính không có độ chệch nên một phương pháp linh hoạt hơn rất khó cạnh tranh. Ngược lại, nếu _f_ thực rất phi tuyến và có nhiều quan sát huấn luyện, ta có thể làm tốt hơn bằng một phương pháp rất linh hoạt như trong Hình 2.11. Trong Chương 5, ta thảo luận xác thực chéo, một cách dùng dữ liệu huấn luyện để ước lượng MSE kiểm tra.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 2.2.3 Bối cảnh phân loại
+
+Đến đây, thảo luận về độ chính xác mô hình tập trung vào bối cảnh hồi quy. Nhưng nhiều khái niệm đã gặp, như đánh đổi độ chệch–phương sai, chuyển sang bối cảnh phân loại chỉ với một số điều chỉnh do _yi_ không còn định lượng. Giả sử ta muốn ước lượng _f_ từ các quan sát huấn luyện _\{_(_x_ 1 _, y_ 1) _, . . . ,_ (_xn, yn_) _\}_, trong đó giờ _y_ 1 _, . . . , yn_ là định tính. Cách phổ biến nhất để định lượng độ chính xác của ước lượng _f_^(ˆ) là _tỷ lệ sai số_ huấn luyện, tức tỷ lệ lỗi khi áp dụng
+
+ước lượng _f_^(ˆ) cho các quan sát huấn luyện:
+
+Ở đây _y_ ˆ _i_ là nhãn lớp dự đoán cho quan sát thứ _i_ bằng _f_^(ˆ). Và _I_(_yi_ = _yi_ ˆ) là một _biến chỉ báo_, bằng 1 nếu _yi_ khác _yi_ ˆ và bằng không nếu chúng bằng nhau. Nếu _I_(_yi_ = _yi_ ˆ) = 0 thì quan sát thứ _i_ được phương pháp phân loại đúng; ngược lại nó bị phân loại sai. Vì vậy, Phương trình 2.8 tính tỷ lệ phân loại sai.
+
+Phương trình 2.8 được gọi là tỷ lệ _sai số huấn luyện_ vì được tính từ dữ liệu dùng để huấn luyện bộ phân loại. Tương tự bối cảnh hồi quy, ta quan tâm nhất đến tỷ lệ sai số khi áp dụng bộ phân loại cho các quan sát kiểm tra không dùng trong huấn luyện. Tỷ lệ _sai số kiểm tra_ gắn với một tập quan sát kiểm tra có dạng (_x_ 0 _, y_ 0) được cho bởi
+
+trong đó _y_ ˆ0 là nhãn lớp dự đoán khi áp dụng bộ phân loại cho quan sát kiểm tra có biến dự báo _x_ 0. Một bộ phân loại _tốt_ là bộ có sai số kiểm tra (2.9) nhỏ nhất.
+
+Bộ phân loại Bayes
+
+Có thể chứng minh (dù chứng minh nằm ngoài phạm vi sách) rằng trung bình, tỷ lệ sai số kiểm tra trong (2.9) được cực tiểu hóa bởi một bộ phân loại rất đơn giản: _gán mỗi quan sát vào lớp có khả năng nhất khi biết giá trị biến dự báo_. Nói cách khác, ta chỉ cần gán một quan sát kiểm tra có vector biến dự báo _x_ 0 vào lớp _j_ mà
+
+lớn nhất. Lưu ý (2.10) là một _xác suất có điều kiện_: xác suất _Y_ = _j_ khi đã quan sát vector biến dự báo _x_ 0. Bộ phân loại rất đơn giản này gọi là _bộ phân loại Bayes_. Trong bài toán hai lớp, nơi chỉ có hai giá trị biến đáp ứng có thể có, gọi là _lớp 1_ và _lớp 2_, bộ phân loại Bayes dự đoán lớp một nếu Pr(_Y_ = 1 _|X_ = _x_ 0) _&gt;_ 0 _._ 5, còn không thì dự đoán lớp hai.
+
+Hình 2.13 cho ví dụ dùng bộ dữ liệu mô phỏng trong không gian hai chiều gồm các biến dự báo _X_ 1 và _X_ 2. Các vòng tròn cam và xanh dương tương ứng với quan sát huấn luyện thuộc hai lớp khác nhau. Với mỗi giá trị _X_ 1 và _X_ 2, xác suất biến đáp ứng là cam hoặc xanh dương khác nhau. Vì đây là dữ liệu mô phỏng, ta biết cách tạo dữ liệu và có thể tính xác suất có điều kiện cho mỗi giá trị _X_ 1 và _X_ 2. Vùng tô cam phản ánh tập điểm có Pr(_Y_ = cam _|X_) lớn hơn 50%, còn vùng tô xanh chỉ tập điểm có xác suất dưới 50%. Đường đứt nét màu tím biểu diễn các điểm có xác suất chính xác 50%. Đây gọi là _biên quyết định Bayes_. Dự đoán của bộ phân loại Bayes được xác định bởi biên quyết định Bayes; một quan sát rơi về phía màu cam của biên sẽ được gán
+
+Với số nguyên _K_ và một quan sát kiểm tra _x_ 0, trước tiên bộ phân loại KNN xác định _K_ điểm trong dữ liệu huấn luyện gần _x_ 0 nhất, biểu diễn bởi _N_ 0. Sau đó, nó ước lượng xác suất có điều kiện của lớp _j_ bằng tỷ lệ điểm trong _N_ 0 có giá trị biến đáp ứng bằng _j_:
+
+Cuối cùng, KNN phân loại quan sát kiểm tra _x_ 0 vào lớp có xác suất lớn nhất từ (2.12).
+
+Hình 2.14 minh họa phương pháp KNN. Trong ô bên trái, ta vẽ một bộ dữ liệu huấn luyện nhỏ gồm sáu quan sát xanh dương và sáu quan sát cam. Mục tiêu là dự đoán điểm được đánh dấu bằng dấu cộng màu đen. Giả sử chọn _K_ = 3. Khi đó KNN xác định ba quan sát gần dấu cộng nhất. Lân cận này được vẽ bằng một đường tròn. Nó gồm hai điểm xanh dương và một điểm cam, tạo xác suất ước lượng 2 _/_ 3 cho lớp xanh dương và 1 _/_ 3 cho lớp cam. Vì vậy, KNN dự đoán dấu cộng đen thuộc lớp xanh dương. Trong ô bên phải Hình 2.14, ta áp dụng KNN với _K_ = 3 tại mọi giá trị có thể của _X_ 1 và _X_ 2, rồi vẽ biên quyết định KNN tương ứng.
+
+Dù là một cách rất đơn giản, KNN thường tạo bộ phân loại gần bộ phân loại Bayes tối ưu một cách đáng ngạc nhiên. Hình 2.15 trình bày biên quyết định KNN với _K_ = 10 khi áp dụng cho bộ dữ liệu mô phỏng lớn hơn từ Hình 2.13. Lưu ý dù bộ phân loại KNN không biết phân phối thực, biên quyết định KNN rất gần biên của bộ phân loại Bayes. Tỷ lệ sai số kiểm tra bằng KNN là 0 _._ 1363, gần tỷ lệ sai số Bayes 0 _._ 1304. Việc chọn _K_ ảnh hưởng mạnh đến bộ phân loại KNN thu được. Hình 2.16 trình bày hai phép khớp KNN trên dữ liệu mô phỏng từ Hình 2.13 với _K_ = 1 và _K_ = 100. Khi _K_ = 1, biên quyết định quá linh hoạt và tìm những quy luật trong dữ liệu không tương ứng với biên quyết định Bayes. Đây là bộ phân loại có độ chệch thấp nhưng phương sai rất cao. Khi _K_ tăng, phương pháp kém linh hoạt hơn và tạo biên quyết định gần tuyến tính. Đây là bộ phân loại phương sai thấp nhưng độ chệch cao. Trên bộ dữ liệu mô phỏng này, cả _K_ = 1 lẫn _K_ = 100 đều không dự đoán tốt: tỷ lệ sai số kiểm tra lần lượt là 0 _._ 1695 và 0 _._ 1925.
+
+Tương tự bối cảnh hồi quy, tỷ lệ sai số huấn luyện không có quan hệ chặt chẽ với tỷ lệ sai số kiểm tra. Với _K_ = 1, tỷ lệ sai số huấn luyện KNN bằng 0, nhưng tỷ lệ sai số kiểm tra có thể khá cao. Nhìn chung, khi dùng phương pháp phân loại linh hoạt hơn, tỷ lệ sai số huấn luyện giảm nhưng tỷ lệ sai số kiểm tra có thể không giảm. Trong Hình 2.17, ta vẽ sai số kiểm tra và huấn luyện KNN theo 1 _/K_. Khi 1 _/K_ tăng, phương pháp trở nên linh hoạt hơn. Tương tự bối cảnh hồi quy, tỷ lệ sai số huấn luyện liên tục giảm khi tính linh hoạt tăng. Tuy nhiên, sai số kiểm tra có dạng chữ U đặc trưng, lúc đầu giảm (cực tiểu ở khoảng _K_ = 10) rồi tăng lại khi phương pháp quá linh hoạt và quá khớp.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 2.2">
+
+- **Chỉ số đánh giá độ khớp**:
+  - **Hồi quy**: Sai số bình phương trung bình (<MdxFormula inline formula={"\\\\text{MSE} = \\\\frac{1}{n} \\\\sum (y_i - \\\\hat{f}(x_i))^2"} />).
+  - **Phân loại**: Tỷ lệ sai số phân loại (<MdxFormula inline formula={"\\\\text{Error Rate} = \\\\frac{1}{n} \\\\sum I(y_i \\\\ne \\\\hat{y}_i)"} />).
+- **MSE Huấn luyện vs MSE Kiểm tra**:
+  - Tối ưu hóa mô hình nhằm giảm **MSE kiểm tra** (trên dữ liệu chưa từng thấy), không phải MSE huấn luyện.
+  - **Quá khớp** (*Overfitting*): Xảy ra khi MSE huấn luyện rất nhỏ nhưng MSE kiểm tra lại rất lớn do mô hình học cả nhiễu ngẫu nhiên.
+- **Phân rã Đánh đổi Bias-Variance**:
+  <MdxFormula formula={"\\\\text{E}(y_0 - \\\\hat{f}(x_0))^2 = \\\\text{Var}(\\\\hat{f}(x_0)) + [\\\\text{Bias}(\\\\hat{f}(x_0))]^2 + \\\\text{Var}(\\\\epsilon)"} />
+  - **Độ chệch** (*Bias*): Sai số do giả định mô hình đơn giản hóa bài toán thực tế.
+  - **Phương sai** (*Variance*): Mức độ thay đổi của dự đoán khi huấn luyện trên tập dữ liệu mới.
+  - **Đường cong chữ U**: Khi tăng độ linh hoạt của mô hình, Bias giảm nhưng Variance tăng; MSE kiểm tra đạt cực tiểu tại điểm cân bằng tối ưu.
+- **Bộ phân loại Bayes & KNN**:
+  - **Bộ phân loại Bayes**: Đạt tỷ lệ lỗi kiểm tra thấp nhất bằng cách gán quan sát vào lớp có xác suất có điều kiện lớn nhất (<MdxFormula inline formula={"P(Y=j \\\\mid X=x_0)"} />).
+  - **Thuật toán KNN**: Ước lượng xác suất có điều kiện dựa trên <MdxFormula inline formula={"K"} /> láng giềng gần nhất. <MdxFormula inline formula={"K"} /> nhỏ <MdxFormula inline formula={"\\rightarrow"} /> linh hoạt cao, bias thấp, variance cao; <MdxFormula inline formula={"K"} /> lớn <MdxFormula inline formula={"\\rightarrow"} /> trơn hơn, bias cao, variance thấp.
+
+</LessonNote>
+
+</MdxPage>

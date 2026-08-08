@@ -1,0 +1,168 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch05-exercises",
+  "locale": "vi",
+  "title": "Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Thực hành"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phương pháp lấy mẫu lại",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Sử dụng các tính chất thống kê cơ bản của phương sai và phép tính vi phân một biến để suy ra (5.6). Nói cách khác, hãy chứng minh _α_ trong (5.6) thực sự làm cực tiểu Var(_αX_ + (1 _− α_) _Y_).
+
+2. Bây giờ ta sẽ suy ra xác suất một quan sát cụ thể thuộc một mẫu bootstrap. Giả sử ta lấy một mẫu bootstrap từ tập có _n_ quan sát.
+
+   - (a) Xác suất quan sát bootstrap đầu tiên _không phải_ quan sát thứ _j_ trong mẫu gốc là bao nhiêu? Giải thích câu trả lời.
+
+   - (b) Xác suất quan sát bootstrap thứ hai _không phải_ quan sát thứ _j_ trong mẫu gốc là bao nhiêu?
+
+   - (c) Hãy lập luận rằng xác suất quan sát thứ _j_ _không có_ trong mẫu bootstrap là (1 _−_ 1 _/n_)^(_n_).
+
+   - (d) Khi _n_ = 5, xác suất quan sát thứ _j_ có trong mẫu bootstrap là bao nhiêu?
+
+   - (e) Khi _n_ = 100, xác suất quan sát thứ _j_ có trong mẫu bootstrap là bao nhiêu?
+
+   - (f) Khi _n_ = 10 _,_ 000, xác suất quan sát thứ _j_ có trong mẫu bootstrap là bao nhiêu?
+
+   - (g) Tạo biểu đồ biểu diễn, với mỗi giá trị nguyên _n_ từ 1 đến 100 _,_ 000, xác suất quan sát thứ _j_ có trong mẫu bootstrap. Nhận xét điều bạn quan sát được.
+
+   - (h) Bây giờ ta sẽ khảo sát bằng số xác suất một mẫu bootstrap kích thước _n_ = 100 chứa quan sát thứ _j_. Ở đây _j_ = 4. Đầu tiên, ta tạo mảng `store` với các giá trị sau đó sẽ được ghi đè bằng hàm `np.empty()`; `np.empty()` cấp phát mảng rỗng. Tiếp theo, ta
+
+liên tục tạo các mẫu bootstrap và mỗi lần ghi lại quan sát thứ năm có nằm trong mẫu bootstrap hay không.
+
+<MdxCode language="text" code={"rng=np.random.default_rng(10)\nstore=np.empty(10000)\nforiinrange(10000):\nstore[i]=np.sum(rng.choice(100,replace=True)==4)\n>0\nnp.mean(store)"} />
+
+Nhận xét về kết quả thu được.
+
+3. Bây giờ ta ôn lại xác thực chéo _k_-fold.
+
+   - (a) Giải thích cách triển khai xác thực chéo _k_-fold.
+
+   - (b) Ưu và nhược điểm của xác thực chéo _k_-fold so với:
+
+      - i. Phương pháp tập xác thực?
+
+      - ii. LOOCV?
+
+4. Giả sử ta dùng một phương pháp học thống kê để dự đoán biến đáp ứng _Y_ tại một giá trị cụ thể của biến dự báo _X_. Hãy mô tả cẩn thận cách ước lượng độ lệch chuẩn của dự đoán.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thực hành
+
+5. Trong Chương 4, ta dùng hồi quy logistic để dự đoán xác suất `default` bằng `income` và `balance` trên bộ dữ liệu `Default`. Bây giờ ta sẽ ước lượng sai số kiểm tra của mô hình hồi quy logistic này bằng phương pháp tập xác thực. Đừng quên đặt hạt giống ngẫu nhiên trước khi bắt đầu phân tích.
+
+   - (a) Khớp một mô hình hồi quy logistic dùng `income` và `balance` để dự đoán `default`.
+
+   - (b) Dùng phương pháp tập xác thực để ước lượng sai số kiểm tra của mô hình này. Bạn phải thực hiện các bước sau:
+
+      - i. Chia tập mẫu thành tập huấn luyện và tập xác thực.
+
+      - ii. Khớp mô hình hồi quy logistic bội chỉ bằng các quan sát huấn luyện.
+
+      - iii. Thu được dự đoán trạng thái vỡ nợ cho mỗi cá thể trong tập xác thực bằng cách tính xác suất hậu nghiệm vỡ nợ của cá thể đó, rồi phân loại cá thể vào nhóm `default` nếu xác suất hậu nghiệm lớn hơn 0,5.
+
+      - iv. Tính sai số tập xác thực, là tỷ lệ quan sát trong tập xác thực bị phân loại sai.
+
+   - (c) Lặp lại quy trình trong (b) ba lần với ba cách chia quan sát khác nhau thành tập huấn luyện và tập xác thực. Nhận xét kết quả.
+
+   - (d) Bây giờ xét mô hình hồi quy logistic dự đoán xác suất `default` bằng `income`, `balance` và một biến giả cho `student`. Ước lượng sai số kiểm tra của mô hình bằng phương pháp tập xác thực. Nhận xét việc thêm biến giả cho `student` có làm giảm tỷ lệ sai số kiểm tra hay không.
+
+6. Ta tiếp tục xét việc dùng mô hình hồi quy logistic để dự đoán xác suất `default` bằng `income` và `balance` trên bộ dữ liệu `Default`. Cụ thể, giờ ta sẽ tính ước lượng sai số chuẩn của các hệ số hồi quy logistic `income` và `balance` theo hai cách: (1) dùng bootstrap và (2) dùng công thức tiêu chuẩn tính sai số chuẩn trong hàm `sm.GLM()`. Đừng quên đặt hạt giống ngẫu nhiên trước khi bắt đầu phân tích.
+
+   - (a) Dùng các hàm `summarize()` và `sm.GLM()` để xác định sai số chuẩn ước lượng của các hệ số gắn với `income` và `balance` trong mô hình hồi quy logistic bội dùng cả hai biến dự báo.
+
+   - (b) Viết hàm `boot_fn()` nhận bộ dữ liệu `Default` và một chỉ mục quan sát làm đầu vào, rồi trả về ước lượng hệ số của `income` và `balance` trong mô hình hồi quy logistic bội.
+
+   - (c) Theo ví dụ bootstrap trong bài thực hành, dùng hàm `boot_fn()` để ước lượng sai số chuẩn của các hệ số hồi quy logistic cho `income` và `balance`.
+
+   - (d) Nhận xét các sai số chuẩn ước lượng thu được bằng hàm `sm.GLM()` và bằng bootstrap.
+
+7. Trong Mục 5.1.2 và 5.1.3, ta thấy hàm `cross_validate()` có thể dùng để tính ước lượng sai số kiểm tra LOOCV. Một cách khác là chỉ dùng `sm.GLM()` và phương thức `predict()` của mô hình đã khớp trong một vòng lặp for. Bây giờ bạn sẽ dùng cách này để tính sai số LOOCV cho mô hình hồi quy logistic đơn giản trên bộ dữ liệu `Weekly`. Nhắc lại rằng trong bối cảnh bài toán phân loại, sai số LOOCV được cho trong (5.4).
+
+   - (a) Khớp mô hình hồi quy logistic dự đoán `Direction` bằng `Lag1` và `Lag2`.
+
+   - (b) Khớp mô hình hồi quy logistic dự đoán `Direction` bằng `Lag1` và `Lag2`, _sử dụng tất cả trừ quan sát đầu tiên_.
+
+   - (c) Dùng mô hình từ (b) để dự đoán hướng của quan sát đầu tiên. Có thể thực hiện bằng cách dự đoán quan sát đầu tiên sẽ tăng nếu _P_(`Direction = "Up"` _|_ `Lag1`, `Lag2`) _&gt;_ 0 _._ 5. Quan sát này có được phân loại đúng không?
+
+   - (d) Viết vòng lặp for từ _i_ = 1 đến _i_ = _n_, trong đó _n_ là số quan sát trong bộ dữ liệu, thực hiện từng bước sau:
+
+      - i. Khớp mô hình hồi quy logistic bằng tất cả trừ quan sát thứ _i_ để dự đoán `Direction` từ `Lag1` và `Lag2`.
+
+      - ii. Tính xác suất hậu nghiệm thị trường tăng của quan sát thứ _i_.
+
+      - iii. Dùng xác suất hậu nghiệm của quan sát thứ _i_ để dự đoán thị trường có tăng hay không.
+
+      - iv. Xác định dự đoán hướng cho quan sát thứ _i_ có sai hay không. Nếu sai, ghi 1; nếu không, ghi 0.
+
+   - (e) Lấy trung bình _n_ số thu được trong (d)iv để có ước lượng LOOCV của sai số kiểm tra. Nhận xét kết quả.
+
+8. Bây giờ ta thực hiện xác thực chéo trên một bộ dữ liệu mô phỏng.
+
+   - (a) Tạo một bộ dữ liệu mô phỏng như sau:
+
+<MdxCode language="text" code={"rng=np.random.default_rng(1)\nx=rng.normal(size=100)\ny=x-2*x**2+rng.normal(size=100)"} />
+
+Trong bộ dữ liệu này, _n_ và _p_ bằng bao nhiêu? Viết mô hình dùng để tạo dữ liệu dưới dạng phương trình.
+
+- (b) Tạo scatterplot của _X_ theo _Y_. Nhận xét điều bạn thấy.
+
+- (c) Đặt một hạt giống ngẫu nhiên, rồi tính sai số LOOCV khi khớp bốn mô hình sau bằng bình phương tối thiểu:
+
+   - i. _Y_ = _β_ 0 + _β_ 1 _X_ + _ϵ_
+
+   - ii. _Y_ = _β_ 0 + _β_ 1 _X_ + _β_ 2 _X_^(2) + _ϵ_
+
+   - iii. _Y_ = _β_ 0 + _β_ 1 _X_ + _β_ 2 _X_^(2) + _β_ 3 _X_^(3) + _ϵ_
+
+   - iv. _Y_ = _β_ 0 + _β_ 1 _X_ + _β_ 2 _X_^(2) + _β_ 3 _X_^(3) + _β_ 4 _X_^(4) + _ϵ_.
+
+Lưu ý bạn có thể thấy hữu ích khi dùng hàm `data.frame()` để tạo một bộ dữ liệu duy nhất chứa cả _X_ và _Y_.
+
+   - (d) Lặp lại (c) với một hạt giống ngẫu nhiên khác và báo cáo kết quả. Kết quả có giống kết quả trong (c) không? Tại sao?
+
+   - (e) Mô hình nào trong (c) có sai số LOOCV nhỏ nhất? Điều này có đúng như dự kiến không? Giải thích câu trả lời.
+
+   - (f) Nhận xét ý nghĩa thống kê của các ước lượng hệ số khi khớp từng mô hình trong (c) bằng bình phương tối thiểu. Các kết quả có phù hợp với kết luận từ xác thực chéo không?
+
+9. Bây giờ ta xét bộ dữ liệu nhà ở `Boston` từ thư viện `ISLP`.
+
+   - (a) Dựa trên bộ dữ liệu này, hãy đưa ra một ước lượng cho trung bình quần thể của `medv`. Gọi ước lượng này là _µ_ ˆ.
+
+- (b) Đưa ra một ước lượng sai số chuẩn của _µ_ ˆ. Diễn giải kết quả.
+
+_Gợi ý: Có thể tính sai số chuẩn của trung bình mẫu bằng cách chia độ lệch chuẩn mẫu cho căn bậc hai của số quan sát._
+
+- (c) Bây giờ ước lượng sai số chuẩn của _µ_ ˆ bằng bootstrap. Kết quả so với câu trả lời trong (b) như thế nào?
+
+- (d) Dựa trên ước lượng bootstrap trong (c), đưa ra khoảng tin cậy 95% cho trung bình của `medv`. So sánh với kết quả thu được khi dùng `Boston['medv'].std()` và quy tắc hai sai số chuẩn (3.9).
+
+_Gợi ý: Có thể xấp xỉ khoảng tin cậy 95% bằng công thức_ [ˆ _µ −_ 2SE(ˆ _µ_) _,_ ˆ _µ_ + 2SE(ˆ _µ_)]_._
+
+- (e) Dựa trên bộ dữ liệu này, đưa ra một ước lượng _µmed_ ˆ cho trung vị quần thể của `medv`.
+
+- (f) Bây giờ ta muốn ước lượng sai số chuẩn của _µ_ ˆ _med_. Tiếc rằng không có công thức đơn giản để tính sai số chuẩn của trung vị. Thay vào đó, hãy dùng bootstrap để ước lượng sai số chuẩn của trung vị. Nhận xét phát hiện.
+
+- (g) Dựa trên bộ dữ liệu này, đưa ra một ước lượng cho phân vị thứ mười của `medv` tại các vùng điều tra dân số Boston. Gọi đại lượng này là _µ_ ˆ0 _._ 1. (Có thể dùng hàm `np.percentile()`.)
+
+<MdxCode language="text" code={"np."} />
+
+- (h) Dùng bootstrap để ước lượng sai số chuẩn của _µ_ ˆ0 _._ 1 bằng `percentile()`. Nhận xét phát hiện.
+
+</MdxPage>

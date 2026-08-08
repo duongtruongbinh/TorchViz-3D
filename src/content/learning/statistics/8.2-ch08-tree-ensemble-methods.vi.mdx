@@ -1,0 +1,210 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch08-tree-ensemble-methods",
+  "locale": "vi",
+  "title": "Bagging, rừng ngẫu nhiên, boosting và cây hồi quy cộng Bayes",
+  "headings": [
+    "Bagging, rừng ngẫu nhiên, boosting và cây hồi quy cộng tính Bayes",
+    "8.2.1 Bagging",
+    "8.2.2 Rừng ngẫu nhiên",
+    "8.2.3 Boosting",
+    "8.2.4 Cây hồi quy cộng tính Bayes",
+    "8.2.5 Tóm tắt các phương pháp tổ hợp cây"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phương pháp dựa trên cây",
+    "Bagging, rừng ngẫu nhiên, boosting và cây hồi quy cộng tính Bayes"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+## Bagging, rừng ngẫu nhiên, boosting và cây hồi quy cộng tính Bayes
+
+Một phương pháp _tổ hợp_ (ensemble) kết hợp nhiều mô hình “khối xây dựng” đơn giản để thu được một mô hình duy nhất có khả năng rất mạnh. Các mô hình khối xây dựng đơn giản này đôi khi được gọi là _bộ học yếu_ vì khi đứng riêng, chúng có thể chỉ cho dự đoán ở mức trung bình.
+
+Bây giờ ta thảo luận bagging, rừng ngẫu nhiên, boosting và cây hồi quy cộng tính Bayes. Đây là các phương pháp tổ hợp dùng cây hồi quy hoặc cây phân loại làm khối xây dựng đơn giản.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 8.2.1 Bagging
+
+Bootstrap, được giới thiệu trong Chương 5, là một ý tưởng cực kỳ mạnh. Nó được dùng trong nhiều tình huống khó hoặc thậm chí không thể tính trực tiếp độ lệch chuẩn của một đại lượng quan tâm. Ở đây, ta thấy bootstrap còn có thể dùng trong một bối cảnh hoàn toàn khác để cải thiện các phương pháp học thống kê như cây quyết định.
+
+Cây quyết định trong Mục 8.1 chịu _phương sai cao_. Nghĩa là nếu chia ngẫu nhiên dữ liệu huấn luyện thành hai phần và khớp cây quyết định với mỗi nửa, các kết quả có thể rất khác nhau. Ngược lại, một quy trình có _phương sai thấp_ sẽ cho kết quả tương tự khi được áp dụng lặp lại trên các bộ dữ liệu riêng biệt; hồi quy tuyến tính thường có phương sai thấp nếu tỷ lệ _n_ trên _p_ tương đối lớn. _Tổng hợp bootstrap_ (bootstrap aggregation), hay _bagging_, là một quy trình đa dụng để giảm phương sai của phương pháp học thống kê; ta giới thiệu nó ở đây vì nó đặc biệt hữu ích và thường được dùng với cây quyết định.
+
+Nhắc lại rằng với tập _n_ quan sát độc lập _Z_ 1 _, . . . , Zn_, mỗi quan sát có phương sai _σ_^(2), phương sai của trung bình _Z_^(¯) là _σ_^(2) _/n_. Nói cách khác, _lấy trung bình một tập quan sát làm giảm phương sai_. Vì vậy, một cách tự nhiên để giảm phương sai và tăng độ chính xác trên tập kiểm tra của phương pháp học thống kê là lấy nhiều tập huấn luyện từ quần thể, xây dựng một mô hình dự đoán riêng bằng từng tập huấn luyện, rồi lấy trung bình các dự đoán thu được. Nói cách khác, có thể tính _f_ ˆ^(1)(_x_) _, f_ ˆ^(2)(_x_) _, . . . ,_ _f_ ˆ^(_B_)(_x_) bằng _B_ tập huấn luyện riêng và lấy trung bình để thu được một mô hình học thống kê phương sai thấp duy nhất, cho bởi
+
+Tất nhiên, điều này không thực tế vì nhìn chung ta không có nhiều tập huấn luyện. Thay vào đó, ta có thể dùng bootstrap bằng cách liên tục lấy mẫu từ một tập dữ liệu huấn luyện duy nhất. Cách này tạo _B_ tập dữ liệu huấn luyện bootstrap khác nhau. Sau đó, ta huấn luyện phương pháp trên tập huấn luyện bootstrap thứ _b_ để thu được _f_^(ˆ)^(_∗b_)(_x_), rồi lấy trung bình mọi dự đoán để thu được
+
+**HÌNH 8.8.** _Kết quả bagging và rừng ngẫu nhiên cho dữ liệu_ `Heart`_. Sai số kiểm tra (đen và cam) được biểu diễn theo B, số tập huấn luyện bootstrap được dùng. Rừng ngẫu nhiên áp dụng với m_ =^(_√_) _p. _Đường đứt nét chỉ sai số kiểm tra của một cây phân loại duy nhất. Các đường xanh lá và xanh dương biểu diễn sai số OOB, trong trường hợp này — do ngẫu nhiên — thấp hơn đáng kể._
+
+Đây được gọi là bagging.
+
+Dù bagging có thể cải thiện dự đoán cho nhiều phương pháp hồi quy, nó đặc biệt hữu ích với cây quyết định. Để áp dụng bagging cho cây hồi quy, ta chỉ cần xây dựng _B_ cây hồi quy bằng _B_ tập huấn luyện bootstrap, rồi lấy trung bình các dự đoán. Các cây được phát triển sâu và không cắt tỉa. Do đó, mỗi cây riêng lẻ có phương sai cao nhưng độ chệch thấp. Lấy trung bình _B_ cây làm giảm phương sai. Bagging đã cho thấy những cải thiện ấn tượng về độ chính xác khi kết hợp hàng trăm hoặc thậm chí hàng nghìn cây thành một quy trình duy nhất.
+
+Đến đây, ta đã mô tả bagging trong bối cảnh hồi quy để dự đoán kết quả định lượng _Y_. Làm thế nào mở rộng bagging sang bài toán phân loại nơi _Y_ là định tính? Có vài cách, nhưng cách đơn giản nhất như sau. Với một quan sát kiểm tra cụ thể, ta ghi lại lớp do mỗi cây trong _B_ cây dự đoán, rồi lấy _biểu quyết đa số_: dự đoán tổng thể là lớp xuất hiện phổ biến nhất trong _B_ dự đoán.
+
+Hình 8.8 cho thấy kết quả bagging các cây trên dữ liệu `Heart`. Tỷ lệ sai số kiểm tra được biểu diễn theo _B_, số cây được xây dựng bằng các tập dữ liệu huấn luyện bootstrap. Trong trường hợp này, tỷ lệ sai số kiểm tra của bagging thấp hơn nhẹ tỷ lệ sai số từ một cây duy nhất. Số cây _B_ không phải tham số quan trọng trong bagging; dùng _B_ rất lớn sẽ không dẫn đến quá khớp. Trong thực tế, ta
+
+dùng giá trị _B_ đủ lớn để sai số đã ổn định. Trong ví dụ này, _B_ = 100 đủ để đạt hiệu năng tốt.
+
+##### Ước lượng sai số _out-of-bag_
+
+Có một cách rất đơn giản để ước lượng sai số kiểm tra của mô hình bagging mà không cần xác thực chéo hay phương pháp tập xác thực. Nhắc lại rằng chìa khóa của bagging là liên tục khớp cây với các tập con bootstrap của quan sát. Có thể chứng minh trung bình mỗi cây bagging dùng khoảng hai phần ba số quan sát.^(3) Một phần ba quan sát còn lại không dùng để khớp một cây bagging cụ thể được gọi là các quan sát _out-of-bag_ (OOB). Ta có thể dự đoán biến đáp ứng cho quan sát thứ _i_ bằng từng cây mà quan sát đó là OOB. Điều này tạo khoảng _B/_ 3 dự đoán cho quan sát thứ _i_. Để thu được một dự đoán duy nhất cho quan sát thứ _i_, ta có thể lấy trung bình các biến đáp ứng dự đoán (nếu mục tiêu là hồi quy) hoặc biểu quyết đa số (nếu mục tiêu là phân loại). Kết quả là một dự đoán OOB duy nhất cho quan sát thứ _i_. Có thể thu dự đoán OOB theo cách này cho từng quan sát trong _n_ quan sát, rồi tính MSE OOB tổng thể (với bài toán hồi quy) hoặc sai số phân loại (với bài toán phân loại). Sai số OOB thu được là một ước lượng hợp lệ của sai số kiểm tra cho mô hình bagging, vì biến đáp ứng của mỗi quan sát chỉ được dự đoán bằng các cây không dùng quan sát đó để khớp. Hình 8.8 biểu diễn sai số OOB trên dữ liệu `Heart`. Có thể chứng minh rằng với _B_ đủ lớn, sai số OOB hầu như tương đương sai số xác thực chéo bỏ-một-điểm. Phương pháp OOB ước lượng sai số kiểm tra đặc biệt thuận tiện khi thực hiện bagging trên bộ dữ liệu lớn, nơi xác thực chéo rất tốn kém về tính toán.
+
+##### Thước đo tầm quan trọng của biến
+
+Như đã thảo luận, bagging thường cải thiện độ chính xác so với dự đoán bằng một cây duy nhất. Tuy nhiên, mô hình thu được có thể khó diễn giải. Nhắc lại rằng một ưu điểm của cây quyết định là sơ đồ trực quan, dễ diễn giải, như trong Hình 8.1. Nhưng khi bagging một lượng lớn cây, ta không thể biểu diễn quy trình học thống kê thu được bằng một cây duy nhất và cũng không còn rõ biến nào quan trọng nhất đối với quy trình. Vì vậy, bagging cải thiện độ chính xác dự đoán nhưng đánh đổi khả năng diễn giải.
+
+Dù tập hợp cây bagging khó diễn giải hơn nhiều so với một cây, ta có thể thu được bản tóm tắt tổng thể về tầm quan trọng của từng biến dự báo bằng RSS (với bagging cây hồi quy) hoặc chỉ số Gini (với bagging cây phân loại). Với bagging cây hồi quy, ta có thể ghi lại tổng mức giảm RSS (8.1) do các lần chia trên một biến dự báo cụ thể, lấy trung bình trên toàn bộ _B_ cây. Giá trị lớn chỉ một biến dự báo quan trọng. Tương tự, trong bagging cây phân loại,
+
+> 3 Điều này liên quan đến Bài tập 2 của Chương 5.
+
+**HÌNH 8.9.** _Biểu đồ tầm quan trọng của biến cho dữ liệu_ `Heart`_. Tầm quan trọng của biến được tính bằng mức giảm trung bình của chỉ số Gini và được biểu diễn tương đối so với giá trị lớn nhất._
+
+ta có thể cộng tổng mức giảm chỉ số Gini (8.6) do các lần chia trên một biến dự báo cụ thể, lấy trung bình trên toàn bộ _B_ cây.
+
+Hình 8.9 biểu diễn trực quan _tầm quan trọng của các biến_ trong dữ liệu `Heart`. Ta thấy mức giảm trung bình của chỉ số Gini cho từng biến, tương đối so với mức lớn nhất. Các biến có mức giảm chỉ số Gini trung bình lớn nhất là `Thal`, `Ca` và `ChestPain`.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 8.2.2 Rừng ngẫu nhiên
+
+_Rừng ngẫu nhiên_ cải thiện các cây bagging bằng một thay đổi nhỏ nhằm _khử tương quan_ giữa các cây. Như trong bagging, ta xây dựng nhiều cây quyết định trên các mẫu huấn luyện bootstrap. Nhưng khi xây dựng các cây này, mỗi lần xem xét một lần chia, _một mẫu ngẫu nhiên gồm m biến dự báo_ được chọn từ toàn bộ _p_ biến dự báo làm ứng viên chia. Lần chia chỉ được phép dùng một trong _m_ biến dự báo đó. Một mẫu mới gồm _m_ biến dự báo được lấy tại mỗi lần chia, và thông thường ta chọn _m ≈_^(_√_) _p_ ~~—~~ tức số biến dự báo được xét tại mỗi lần chia xấp xỉ căn bậc hai tổng số biến dự báo (4 trong số 13 đối với dữ liệu `Heart`).
+
+Nói cách khác, khi xây dựng rừng ngẫu nhiên, tại mỗi lần chia trong cây, thuật toán _thậm chí không được phép xét_ phần lớn biến dự báo sẵn có. Điều này nghe có vẻ vô lý nhưng có một cơ sở thông minh. Giả sử bộ dữ liệu có một biến dự báo rất mạnh cùng một số biến dự báo khác mạnh vừa phải. Khi đó, trong tập các cây bagging, hầu hết hoặc mọi cây sẽ dùng biến dự báo mạnh này ở lần chia trên cùng. Vì thế, mọi cây bagging sẽ khá giống nhau.
+
+Do đó, dự đoán từ các cây bagging sẽ tương quan cao. Tiếc rằng lấy trung bình nhiều đại lượng tương quan cao không làm giảm phương sai nhiều như lấy trung bình nhiều đại lượng không tương quan. Cụ thể, điều này có nghĩa bagging sẽ không làm giảm đáng kể phương sai so với một cây duy nhất trong bối cảnh này.
+
+Rừng ngẫu nhiên khắc phục vấn đề bằng cách buộc mỗi lần chia chỉ xét một tập con biến dự báo. Vì vậy, trung bình (_p − m_) _/p_ số lần chia thậm chí không xét biến dự báo mạnh, nên các biến dự báo khác có nhiều cơ hội hơn. Có thể xem quá trình này là _khử tương quan_ giữa các cây, khiến trung bình các cây thu được ít biến thiên hơn và do đó đáng tin cậy hơn.
+
+Khác biệt chính giữa bagging và rừng ngẫu nhiên là cách chọn kích thước tập con biến dự báo _m_. Chẳng hạn, nếu rừng ngẫu nhiên được xây dựng với _m_ = _p_, nó đơn giản trở thành bagging. Trên dữ liệu `Heart`, rừng ngẫu nhiên dùng _m_ =^(_√_) _p_ làm giảm cả sai số kiểm tra lẫn sai số OOB so với bagging (Hình 8.8).
+
+Dùng giá trị _m_ nhỏ khi xây dựng rừng ngẫu nhiên thường hữu ích nếu có nhiều biến dự báo tương quan. Ta áp dụng rừng ngẫu nhiên cho một bộ dữ liệu sinh học nhiều chiều, gồm các phép đo biểu hiện của 4.718 gene trên mẫu mô của 349 bệnh nhân. Con người có khoảng 20.000 gene, và mỗi gene có mức hoạt động hay biểu hiện khác nhau trong từng tế bào, mô và điều kiện sinh học cụ thể. Trong bộ dữ liệu này, mỗi mẫu bệnh nhân có một nhãn định tính gồm 15 mức: bình thường hoặc 1 trong 14 loại ung thư. Mục tiêu là dùng rừng ngẫu nhiên để dự đoán loại ung thư dựa trên 500 gene có phương sai lớn nhất trong tập huấn luyện. Ta chia ngẫu nhiên các quan sát thành tập huấn luyện và tập kiểm tra, rồi áp dụng rừng ngẫu nhiên cho tập huấn luyện với ba giá trị khác nhau của số biến chia _m_. Kết quả được trình bày trong Hình 8.10. Tỷ lệ sai số của một cây duy nhất là 45 _._ 7%, còn tỷ lệ không là 75 _._ 4%.^(4) Ta thấy dùng 400 cây đủ cho hiệu năng tốt, và lựa chọn _m_ =^(_√_) _p_ cải thiện nhẹ sai số kiểm tra so với bagging (_m_ = _p_) trong ví dụ này. Tương tự bagging, rừng ngẫu nhiên sẽ không quá khớp khi tăng _B_, nên trong thực tế ta dùng giá trị _B_ đủ lớn để tỷ lệ sai số đã ổn định.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 8.2.3 Boosting
+
+Bây giờ ta thảo luận _boosting_, một cách khác để cải thiện dự đoán từ cây quyết định. Giống bagging, boosting là phương pháp tổng quát có thể áp dụng cho nhiều phương pháp học thống kê trong hồi quy hoặc phân loại. Ở đây ta chỉ thảo luận boosting trong bối cảnh cây quyết định.
+
+Nhắc lại rằng bagging tạo nhiều bản sao của bộ dữ liệu huấn luyện gốc bằng bootstrap, khớp một cây quyết định riêng cho mỗi bản sao, rồi kết hợp mọi cây để tạo một mô hình dự đoán duy nhất. Đáng chú ý là mỗi cây được xây dựng trên một bộ dữ liệu bootstrap, độc lập với các cây khác. Boosting hoạt động tương tự, ngoại trừ các cây được phát triển _tuần tự_: mỗi cây được phát triển bằng thông tin từ các cây đã phát triển trước đó. Boosting không lấy mẫu bootstrap; thay vào đó mỗi cây được khớp trên một phiên bản đã điều chỉnh của bộ dữ liệu gốc.
+
+> 4 Tỷ lệ không thu được bằng cách chỉ phân loại mỗi quan sát vào lớp chiếm ưu thế tổng thể, trong trường hợp này là lớp bình thường.
+
+**HÌNH 8.10.** _Kết quả rừng ngẫu nhiên cho bộ dữ liệu biểu hiện gene 15 lớp với p_ = 500 _biến dự báo. Sai số kiểm tra được biểu diễn theo số cây. Mỗi đường màu tương ứng với một giá trị m khác nhau, là số biến dự báo sẵn có để chia tại mỗi nút trong của cây. Rừng ngẫu nhiên (m &lt; p) cải thiện nhẹ so với bagging (m_ = _p). _Một cây phân loại duy nhất có tỷ lệ sai số 45,7%._
+
+Trước tiên xét bối cảnh hồi quy. Giống bagging, boosting kết hợp một số lượng lớn cây quyết định, _f_^(ˆ1) _, . . . , f_^(ˆ)^(_B_). Boosting được mô tả trong Thuật toán 8.2.
+
+Ý tưởng phía sau quy trình này là gì? Khác với khớp một cây quyết định lớn duy nhất với dữ liệu, tương đương với _khớp dữ liệu thật mạnh_ và có thể quá khớp, boosting _học chậm_. Với mô hình hiện tại, ta khớp một cây quyết định với phần dư của mô hình. Tức ta khớp một cây dùng phần dư hiện tại làm biến đáp ứng thay vì kết quả _Y_. Sau đó, ta thêm cây quyết định mới vào hàm đã khớp để cập nhật phần dư. Mỗi cây này có thể khá nhỏ, chỉ có vài nút cuối do tham số _d_ trong thuật toán xác định. Bằng cách khớp các cây nhỏ với phần dư, ta từ từ cải thiện _f_^(ˆ) ở những vùng hoạt động chưa tốt. Tham số co rút _λ_ làm quá trình chậm hơn nữa, cho phép nhiều cây có hình dạng khác nhau xử lý phần dư. Nhìn chung, các phương pháp học thống kê _học chậm_ thường hoạt động tốt. Lưu ý rằng trong boosting, khác bagging, việc xây dựng mỗi cây phụ thuộc rất nhiều vào các cây đã phát triển.
+
+Ta vừa mô tả quá trình boosting cây hồi quy. Boosting cây phân loại diễn ra tương tự nhưng phức tạp hơn đôi chút; chi tiết được lược bỏ.
+
+**Thuật toán 8.2** _Boosting cho cây hồi quy_
+
+1. Đặt _f_^(ˆ)(_x_) = 0 và _ri_ = _yi_ với mọi _i_ trong tập huấn luyện.
+
+2. Với _b_ = 1 _,_ 2 _, . . . , B_, lặp:
+
+   - (a) Khớp một cây _f_^(ˆ)^(_b_) có _d_ lần chia (_d_ + 1 nút cuối) với dữ liệu huấn luyện (_X, r_).
+
+   - (b) Cập nhật _f_^(ˆ) bằng cách thêm một phiên bản co rút của cây mới:
+
+- (c) Cập nhật phần dư,
+
+3. Xuất mô hình boosting,
+
+Boosting có ba tham số tinh chỉnh:
+
+1. Số cây _B_. Khác bagging và rừng ngẫu nhiên, boosting có thể quá khớp nếu _B_ quá lớn, dù hiện tượng này có xu hướng xảy ra chậm nếu có. Ta dùng xác thực chéo để chọn _B_.
+
+2. Tham số co rút _λ_, một số dương nhỏ. Nó kiểm soát tốc độ học của boosting. Các giá trị điển hình là 0 _._ 01 hoặc 0 _._ 001, và lựa chọn phù hợp phụ thuộc vào bài toán. _λ_ rất nhỏ có thể đòi hỏi _B_ rất lớn để đạt hiệu năng tốt.
+
+3. Số lần chia _d_ trong mỗi cây, kiểm soát độ phức tạp của tổ hợp boosting. Thường _d_ = 1 hoạt động tốt; khi đó mỗi cây là một _gốc cây_ (stump), chỉ gồm một lần chia. Trong trường hợp này, tổ hợp boosting đang khớp một mô hình cộng tính vì mỗi số hạng chỉ liên quan một biến. Tổng quát hơn, _d_ là _độ sâu tương tác_ và kiểm soát bậc tương tác của mô hình boosting vì _d_ lần chia có thể liên quan nhiều nhất _d_ biến.
+
+Trong Hình 8.11, ta áp dụng boosting cho bộ dữ liệu biểu hiện gene ung thư 15 lớp để phát triển một bộ phân loại có thể phân biệt lớp bình thường với 14 lớp ung thư. Ta trình bày sai số kiểm tra theo tổng số cây và độ sâu tương tác _d_. Các gốc cây đơn giản có độ sâu tương tác một hoạt động tốt nếu đưa vào đủ nhiều. Mô hình này vượt qua mô hình độ sâu hai, và cả hai đều vượt qua rừng ngẫu nhiên. Điều này nhấn mạnh một khác biệt giữa boosting và rừng ngẫu nhiên: trong boosting, do việc phát triển một cây cụ thể có xét đến các cây đã phát triển trước đó, các cây nhỏ hơn
+
+**HÌNH 8.11.** _Kết quả thực hiện boosting và rừng ngẫu nhiên trên bộ dữ liệu biểu hiện gene 15 lớp để dự đoán_ ung thư _so với_ bình thường_. Sai số kiểm tra được biểu diễn theo số cây. Với hai mô hình boosting, λ_ = 0 _._ 01_. Cây độ sâu 1 vượt nhẹ cây độ sâu 2, và cả hai vượt rừng ngẫu nhiên, dù sai số chuẩn khoảng 0,02 nên không khác biệt nào có ý nghĩa thống kê. Tỷ lệ sai số kiểm tra của một cây duy nhất là 24%._
+
+thường là đủ. Dùng cây nhỏ hơn cũng có thể giúp khả năng diễn giải; chẳng hạn, dùng gốc cây tạo ra một mô hình cộng tính.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 8.2.4 Cây hồi quy cộng tính Bayes
+
+Cuối cùng, ta thảo luận _cây hồi quy cộng tính Bayes_ (Bayesian additive regression trees, BART), một phương pháp tổ hợp khác dùng cây quyết định làm khối xây dựng. Để đơn giản, ta trình bày BART cho hồi quy (thay vì phân loại).
+
+Nhắc lại rằng bagging và rừng ngẫu nhiên dự đoán bằng trung bình các cây hồi quy, mỗi cây được xây dựng từ một mẫu ngẫu nhiên của dữ liệu và/hoặc biến dự báo. Mỗi cây được xây dựng riêng với các cây khác. Ngược lại, boosting dùng tổng có trọng số của các cây, mỗi cây được xây dựng bằng cách khớp một cây với phần dư của phép khớp hiện tại. Vì vậy, mỗi cây mới cố gắng nắm bắt tín hiệu chưa được tập cây hiện tại giải thích. BART liên quan đến cả hai cách: mỗi cây được xây dựng ngẫu nhiên như trong bagging và rừng ngẫu nhiên, đồng thời cố nắm bắt tín hiệu chưa được mô hình hiện tại giải thích như trong boosting. Điểm mới chính của BART là cách tạo cây mới.
+
+Trước khi giới thiệu thuật toán BART, ta định nghĩa một số ký hiệu. Gọi _K_ là số cây hồi quy và _B_ là số vòng lặp chạy thuật toán BART. Ký hiệu _f_^(ˆ) _k_^(_b_()^(_x_)represents) dự đoán tại _x_ của cây hồi quy thứ _k_ dùng trong vòng lặp thứ _b_. Cuối mỗi vòng lặp, _K_ cây của vòng lặp đó được cộng lại, tức _f_^(ˆ)^(_b_)(_x_) =^(�)^(_K_) _k_ =1^(_f_ˆ)^(_b_) _k_^(()^(_x_)for)^(_b_= 1)^(_, . . . , B_.) Trong vòng lặp đầu của thuật toán BART, mọi cây được khởi tạo chỉ có một nút gốc, với _f_^(ˆ) _k_^(1()^(_x_) =) _nK_ 1 � _ni_ =1^(_yi_, trung bình biến đáp ứng)
+
+(c): Khả năng số 2 cho _f_^(ˆ) _k_^(_b_()^(_X_)) (d): Khả năng số 3 cho _f_^(ˆ) _k_^(_b_()^(_X_))
+
+**HÌNH 8.12.** _Sơ đồ các cây bị nhiễu trong thuật toán BART._ (a): _Cây thứ k tại vòng lặp thứ_ (_b −_ 1), _f_^(ˆ) _k_^(_b−_1)(_X_), _được trình bày. Các ô (b)–(d) cho thấy ba trong nhiều khả năng của_ _f_^(ˆ) _k_^(_b_()^(_X_))^(_, given the form off_ˆ)^(_b_) _k_^(_−_1)(_X_)_._ (b): _Một khả năng là_ _f_^(ˆ) _k_^(_b_()^(_X_))^(_hasthesamestructureasf_ˆ)^(_b_) _k_^(_−_1)(_X_), _nhưng có dự đoán khác tại các nút cuối._ (c): _Một khả năng khác là_ _f_^(ˆ) _k_^(_b_()^(_X_))^(_results_) _thu được bằng cách cắt tỉa_ _f_^(ˆ) _k_^(_b−_1)(_X_)_._ (d): _Hoặc_ _f_^(ˆ) _k_^(_b_()^(_X_))^(_mayhavemoreterminalnodes_) _có thể có nhiều nút cuối hơn_ _f_^(ˆ) _k_^(_b−_1)(_X_)_._
+
+chia cho tổng số cây. Vì vậy, _f_^(ˆ1)(_x_) =^(�)^(_K_) _k_ =1^(_f_ˆ 1) _k_^(()^(_x_)=) _n_ 1 � _ni_ =1^(_yi_.)
+
+Trong các vòng lặp tiếp theo, BART lần lượt cập nhật từng cây trong _K_ cây. Ở vòng lặp thứ _b_, để cập nhật cây thứ _k_, ta trừ khỏi mỗi giá trị biến đáp ứng các dự đoán từ mọi cây trừ cây thứ _k_, để thu được một _phần dư từng phần_
+
+cho quan sát thứ _i_, _i_ = 1 _, . . . , n_. Thay vì khớp một cây mới hoàn toàn với phần dư từng phần, BART chọn ngẫu nhiên một phép nhiễu cho cây từ vòng lặp trước (_f_^(ˆ) _k_^(_b−_1)) trong một tập các phép nhiễu có thể, ưu tiên những phép cải thiện độ khớp với phần dư từng phần. Phép nhiễu có hai thành phần:
+
+1. Ta có thể thay đổi cấu trúc cây bằng cách thêm hoặc cắt tỉa nhánh.
+
+2. Ta có thể thay đổi dự đoán trong từng nút cuối của cây.
+
+Hình 8.12 minh họa các phép nhiễu có thể đối với một cây. Đầu ra của BART là một tập các mô hình dự đoán,
+
+**Thuật toán 8.3** _Cây hồi quy cộng tính Bayes_
+
+i. Với _i_ = 1 _, . . . , n_, tính phần dư từng phần hiện tại
+
+ii. Khớp cây mới _f_^(ˆ) _k_^(_b_()^(_x_),to)^(_ri_,byrandomlyperturbingthe) thứ _k_ từ vòng lặp trước, _f_^(ˆ) _k_^(_b−_1)(_x_). Các phép nhiễu cải thiện độ khớp được ưu tiên. (b) Tính _f_^(ˆ)^(_b_)(_x_) =^(�)^(_K_) _k_ =1^(_f_ˆ)^(_b_) _k_^(()^(_x_).)
+
+4. Tính trung bình sau _L_ mẫu burn-in,
+
+Ta thường loại vài mô hình dự đoán đầu tiên vì các mô hình thu được ở những vòng lặp sớm — gọi là giai đoạn _burn-in_ — thường không cho kết quả tốt. Gọi _L_ là số vòng lặp burn-in; chẳng hạn, có thể chọn _L_ = 200. Khi đó, để thu một dự đoán duy nhất, ta chỉ cần lấy trung bình sau các vòng lặp burn-in, _f_^(ˆ)(_x_) = _B−_ 1 _L_ � _Bb_ = _L_ +1^(_f_ˆ)^(_b_()^(_x_).However,itisalsopossibletocom-) pute _f_ ˆ^(_L_+1) (quantities _x_ ) _, . . . , f_ ˆ^(_B_) (other _x_ ) providethan athemeasureaverage:of foruncertaintyinstance,inthethepercentilesfinal predic-of tion. Quy trình BART tổng thể được tóm tắt trong Thuật toán 8.3.
+
+Một yếu tố chủ chốt của BART là ở Bước 3(a)ii, ta _không_ khớp một cây mới hoàn toàn với phần dư từng phần hiện tại; thay vào đó, ta cố cải thiện độ khớp với phần dư từng phần bằng cách điều chỉnh nhẹ cây từ vòng lặp trước (xem Hình 8.12). Đại thể, điều này bảo vệ khỏi quá khớp vì giới hạn mức độ ta khớp dữ liệu “mạnh” trong mỗi vòng lặp. Ngoài ra, từng cây thường khá nhỏ. Ta giới hạn kích thước cây để tránh quá khớp dữ liệu, vốn dễ xảy ra hơn nếu phát triển cây rất lớn.
+
+Hình 8.13 cho thấy kết quả áp dụng BART cho dữ liệu `Heart` bằng _K_ = 200 cây, khi số vòng lặp tăng lên 10 _,_ 000. Trong các vòng lặp đầu, sai số kiểm tra và huấn luyện dao động đôi chút. Sau giai đoạn burn-in ban đầu, tỷ lệ sai số ổn định. Ta lưu ý chỉ có khác biệt nhỏ giữa sai số huấn luyện và kiểm tra, cho thấy quá trình gây nhiễu cây phần lớn tránh được quá khớp.
+
+**HÌNH 8.13.** _Kết quả BART và boosting cho dữ liệu_ `Heart`_. Cả sai số huấn luyện và kiểm tra đều được hiển thị. Sau giai đoạn burn-in_ 100 _vòng lặp (màu xám), tỷ lệ sai số của BART ổn định. Boosting bắt đầu quá khớp sau vài trăm vòng lặp._
+
+Sai số huấn luyện và kiểm tra của boosting cũng được trình bày trong Hình 8.13. Ta thấy sai số kiểm tra của boosting tiến gần sai số của BART, nhưng rồi bắt đầu tăng khi số vòng lặp tăng. Hơn nữa, sai số huấn luyện của boosting giảm khi số vòng lặp tăng, cho biết boosting đã quá khớp dữ liệu.
+
+Dù chi tiết nằm ngoài phạm vi cuốn sách, phương pháp BART có thể được xem là cách tiếp cận _Bayes_ để khớp một tổ hợp cây: mỗi lần gây nhiễu ngẫu nhiên một cây để khớp phần dư, thực chất ta đang lấy một cây mới từ phân phối _hậu nghiệm_. (Tất nhiên, mối liên hệ Bayes này là lý do cho tên BART.) Ngoài ra, Thuật toán 8.3 có thể được xem là thuật toán _Markov chain Monte Carlo_ để khớp mô hình BART.
+
+Khi áp dụng BART, ta phải chọn số cây _K_, số vòng lặp _B_ và số vòng lặp burn-in _L_. Thông thường ta chọn _B_ và _K_ lớn, còn _L_ vừa phải; chẳng hạn, _K_ = 200, _B_ = 1 _,_ 000 và _L_ = 100 là một lựa chọn hợp lý. BART đã cho hiệu năng mặc định rất ấn tượng — tức hoạt động tốt với ít tinh chỉnh.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## 8.2.5 Tóm tắt các phương pháp tổ hợp cây
+
+Cây là một lựa chọn bộ học yếu hấp dẫn cho phương pháp tổ hợp vì nhiều lý do, gồm tính linh hoạt và khả năng xử lý
+
+các biến dự báo có kiểu hỗn hợp (tức cả định tính lẫn định lượng). Ta đã thấy bốn cách khớp một tổ hợp cây: bagging, rừng ngẫu nhiên, boosting và BART.
+
+- Trong _bagging_, các cây được phát triển độc lập trên các mẫu quan sát ngẫu nhiên. Vì vậy, các cây có xu hướng khá giống nhau. Do đó, bagging có thể mắc kẹt ở cực trị địa phương và không khám phá kỹ không gian mô hình.
+
+- Trong _rừng ngẫu nhiên_, các cây lại được phát triển độc lập trên các mẫu quan sát ngẫu nhiên. Tuy nhiên, mỗi lần chia trên mỗi cây dùng một tập con đặc trưng ngẫu nhiên, nhờ đó khử tương quan giữa các cây và khám phá không gian mô hình kỹ hơn so với bagging.
+
+- Trong _boosting_, ta chỉ dùng dữ liệu gốc và không rút mẫu ngẫu nhiên. Các cây được phát triển nối tiếp bằng cách “học chậm”: mỗi cây mới được khớp với tín hiệu còn sót lại từ các cây trước và được co rút trước khi sử dụng.
+
+- Trong _BART_, ta một lần nữa chỉ dùng dữ liệu gốc và phát triển cây nối tiếp. Tuy nhiên, mỗi cây được gây nhiễu để tránh cực tiểu địa phương và khám phá không gian mô hình kỹ hơn.
+
+</MdxPage>

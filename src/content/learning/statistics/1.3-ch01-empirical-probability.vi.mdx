@@ -1,0 +1,151 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-empirical-probability',
+  locale: 'vi',
+  title: '1.3 Xác suất như tần suất dài hạn',
+  headings: [
+    'Mục tiêu học tập',
+    'Cách hiểu thứ nhất: lặp lại phép thử',
+    'Khi nào tần suất trở nên ổn định?',
+    'Vì sao số lượng lớn hữu ích?',
+    'Một ngày mai nhưng nhiều dự báo',
+    'Mô phỏng sự hội tụ bằng Python',
+    'Kiến thức cần nắm',
+  ],
+  keywords: [
+    'xác suất tần suất',
+    'tần số',
+    'tần suất tương đối',
+    'ước lượng',
+    'luật số lớn',
+    'hiệu chỉnh dự báo',
+    'python',
+    'numpy',
+  ],
+  pageCount: 7,
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Phân biệt **tần số** (*frequency*) và **tần suất tương đối** (*relative frequency* / *empirical probability*).
+- Giải thích vì sao tần suất từ một mẫu hữu hạn chỉ là **ước lượng** (*estimate*) cho xác suất lý thuyết.
+- Nhận biết sự hội tụ của tần suất khi số lần thử lớn theo **Luật số lớn** (*Law of Large Numbers*).
+- Giải thích cách kiểm tra một dự báo xác suất cho sự kiện chỉ xảy ra một lần bằng **hiệu chỉnh** (*calibration*) trên nhiều dự báo tương tự.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cách hiểu thứ nhất: lặp lại phép thử
+
+Ta quay lại đồng xu. Một cách hiểu quen thuộc của câu “xác suất mặt ngửa là <MdxFormula inline formula={"1/2"} />” là: nếu lặp lại cùng mô hình tung xu nhiều lần, tỷ lệ mặt ngửa sẽ tiến gần <MdxFormula inline formula={"1/2"} />.
+
+Trong 10 lần tung đầu tiên, giả sử mặt ngửa xuất hiện 4 lần:
+
+<ProbabilityChapterVisual kind="empirical" />
+
+Số đếm <MdxFormula inline formula={"m=4"} /> là **tần số** (*frequency*). Chia nó cho tổng số lần tung <MdxFormula inline formula={"n=10"} /> cho ta **tần suất tương đối** (*relative frequency*):
+
+<MdxFormula formula={"f_{10}(N)=\\frac{4}{10}=0.4"} />
+
+Tổng quát, nếu biến cố <MdxFormula inline formula={"A"} /> xuất hiện <MdxFormula inline formula={"m"} /> lần trong <MdxFormula inline formula={"n"} /> phép thử:
+
+<MdxFormula formula={"f_n(A)=\\frac{m}{n}"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khi nào tần suất trở nên ổn định?
+
+Sau 10 lần tung, <MdxFormula inline formula={"0.4"} /> không mâu thuẫn với mô hình <MdxFormula inline formula={"P(N)=0.5"} />. Mẫu còn nhỏ nên tần suất có thể dao động đáng kể.
+
+Nếu phép thử được lặp độc lập trong điều kiện ổn định, **Luật số lớn** (*Law of Large Numbers*) nói rằng:
+
+<MdxFormula formula={"f_n(A)\\longrightarrow P(A)\\qquad(n\\to\\infty)"} />
+
+<ProbabilityChapterVisual kind="frequency-simulation" />
+
+Nhiều phép thử làm dao động ngẫu nhiên nhỏ dần, nhưng không tự sửa một quy trình sai lệch. Tung một đồng xu bị cong thêm nhiều lần chỉ giúp ta ước lượng chính xác hơn cơ chế của **đồng xu bị cong**, không biến nó thành đồng xu cân đối.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Vì sao số lượng lớn hữu ích?
+
+Ta thường không thể biết chính xác ván cược, khách hàng hay sản phẩm tiếp theo sẽ cho kết quả gì. Nhưng tỷ lệ trên một tập hợp lớn có thể ổn định đủ để ra quyết định.
+
+<ProbabilityChapterVisual kind="large-number-applications" />
+
+Điểm cốt lõi không phải “nhiều dữ liệu sẽ khiến từng trường hợp trở nên chắc chắn”. Nó là: **không cần đoán đúng từng trường hợp để ước lượng tốt một tỷ lệ tổng thể**.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Một ngày mai nhưng nhiều dự báo
+
+Câu “ngày mai Hà Nội có 70% khả năng mưa” nói về một ngày cụ thể, và ngày đó chỉ xảy ra một lần. Tuy vậy, ta vẫn có thể kiểm tra chất lượng của hệ thống dự báo.
+
+Hãy gom nhiều ngày khác nhau mà hệ thống từng dự báo “70%”. Nếu khoảng 7 trong mỗi 10 ngày như vậy thực sự có mưa, hệ thống được xem là **hiệu chỉnh tốt** (*well calibrated*) ở mức 70%.
+
+<ProbabilityChapterVisual kind="forecast-calibration" />
+
+Hiệu chỉnh đánh giá quy luật trên **một tập hợp dự báo**, không biến kết quả của riêng ngày mai thành chắc chắn. Với một trường hợp cụ thể, ta vẫn cần hỏi: thông tin hiện có đã được dùng như thế nào để tạo ra con số 70%?
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Mô phỏng sự hội tụ bằng Python
+
+Ta dùng NumPy mô phỏng tung đồng xu 1.000 lần và theo dõi tần suất tích lũy của mặt ngửa:
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(42)
+n_trials = 1000
+
+# 1 = Ngửa, 0 = Sấp trong mô hình đồng xu cân đối
+flips = rng.integers(0, 2, size=n_trials)
+cumulative_freq = np.cumsum(flips) / np.arange(1, n_trials + 1)
+
+print(f"Tần suất sau   10 lần tung: {cumulative_freq[9]:.4f}")
+print(f"Tần suất sau  100 lần tung: {cumulative_freq[99]:.4f}")
+print(f"Tần suất sau 1000 lần tung: {cumulative_freq[999]:.4f}")
+```
+
+```output
+Tần suất sau   10 lần tung: 0.4000
+Tần suất sau  100 lần tung: 0.5200
+Tần suất sau 1000 lần tung: 0.5090
+```
+
+**Quan sát:** Một lần chạy cụ thể không bắt buộc tiến gần <MdxFormula inline formula={"0.5"} /> sau từng bước, nhưng dao động tổng thể giảm khi số lần tung tăng.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 1.3">
+
+- **Tần số** <MdxFormula inline formula={"m"} /> là số lần biến cố xuất hiện; **tần suất tương đối** là <MdxFormula inline formula={"f_n(A)=m/n"} />.
+- Một tần suất từ dữ liệu hữu hạn là **ước lượng**, không phải bản thân xác suất lý thuyết.
+- **Luật số lớn** mô tả sự hội tụ của tần suất khi phép thử được lặp trong điều kiện phù hợp; nó không đảm bảo từng lần thử hay từng đoạn ngắn sẽ cân bằng.
+- Tăng cỡ mẫu giảm dao động ngẫu nhiên nhưng không loại bỏ thiên lệch của cơ chế hoặc cách thu thập dữ liệu.
+- **Hiệu chỉnh dự báo** kiểm tra nhiều trường hợp cùng được gán một mức xác suất; nó không tạo ra nhiều bản sao của chính một sự kiện.
+
+</LessonNote>
+
+Trước khi sang nhánh niềm tin, hai node tiếp theo sẽ ôn lại quan hệ giữa các biến cố và luật chơi của xác suất.
+
+</MdxPage>

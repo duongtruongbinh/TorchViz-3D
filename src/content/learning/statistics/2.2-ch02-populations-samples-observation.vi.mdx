@@ -1,0 +1,104 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch02-populations-samples-observation',
+  locale: 'vi',
+  title: '2.2 Quần thể, mẫu và thiết kế nghiên cứu',
+  headings: [
+    'Mục tiêu học tập',
+    'Quần thể và mẫu',
+    'Mẫu có đại diện không?',
+    'Dữ liệu được tạo ra thế nào?',
+    'Kết luận nào được phép?',
+    'Kiến thức cần nắm',
+  ],
+  keywords: [
+    'quần thể',
+    'mẫu',
+    'quan sát',
+    'mẫu đại diện',
+    'nghiên cứu quan sát',
+    'thực nghiệm ngẫu nhiên',
+    'nhân quả',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Phân biệt **quần thể**, **mẫu** và **một quan sát**.
+- Kiểm tra một mẫu có đại diện cho quần thể hay không.
+- Phân biệt bằng chứng về **mối liên hệ** và **quan hệ nhân quả**.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Quần thể và mẫu
+
+Ta thường muốn biết về một nhóm lớn nhưng chỉ có thể đo một phần nhỏ của nhóm đó.
+
+<PopulationSampleOverview
+  stages={[
+    { id: 'population', title: 'Quần thể', englishTitle: 'Population', description: 'Toàn bộ đối tượng mà câu hỏi hướng tới.' },
+    { id: 'sample', title: 'Mẫu', englishTitle: 'Sample', description: 'Tập con được chọn từ quần thể để thu thập dữ liệu.' },
+    { id: 'observation', title: 'Một quan sát', englishTitle: 'Observation', description: 'Dữ liệu ghi lại từ một đối tượng trong mẫu.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Mẫu có đại diện không?
+
+Một mẫu lớn vẫn có thể sai lệch nếu cách chọn mẫu bỏ sót một nhóm quan trọng. Hãy thử hai cách lấy mẫu và quan sát mẫu nào giống quần thể hơn.
+
+<ProbabilityChapterVisual kind="statistical-thinking-sampling" />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Dữ liệu được tạo ra thế nào?
+
+Cùng một câu hỏi nhưng cách tạo dữ liệu khác nhau sẽ cho **sức mạnh bằng chứng** khác nhau.
+
+<StudyDesignComparison
+  methods={[
+    { id: 'retrospective', title: 'Hồi cứu', englishTitle: 'Retrospective', evidence: 'Dùng hồ sơ đã có.', intervention: 'Không can thiệp.', conclusion: 'Mô tả hoặc tìm mối liên hệ.' },
+    { id: 'observational', title: 'Quan sát', englishTitle: 'Observational', evidence: 'Ghi nhận điều đang diễn ra.', intervention: 'Không can thiệp.', conclusion: 'Tìm mối liên hệ; chưa tự chứng minh nhân quả.' },
+    { id: 'experiment', title: 'Thực nghiệm ngẫu nhiên', englishTitle: 'Randomized experiment', evidence: 'Phân nhóm rồi đo kết quả.', intervention: 'Có can thiệp và so sánh.', conclusion: 'Có thể hỗ trợ kết luận nhân quả nếu thiết kế phù hợp.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kết luận nào được phép?
+
+Chọn loại kết luận mà mỗi tình huống thực sự hỗ trợ. Điểm cần quan sát là **có phân nhóm ngẫu nhiên trước khi đo kết quả hay không**.
+
+<ProbabilityChapterVisual kind="statistical-thinking-study-design" />
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt bài 2.2">
+
+- **Quần thể** là toàn bộ nhóm cần nghiên cứu; **mẫu** là phần được đo; **quan sát** là dữ liệu của một đơn vị.
+- Mẫu cần được chọn sao cho đại diện cho quần thể. Mẫu thuận tiện dễ tạo **thiên lệch chọn mẫu**.
+- Nghiên cứu quan sát cho thấy **mối liên hệ**, nhưng một yếu tố khác có thể giải thích kết quả.
+- Thực nghiệm ngẫu nhiên được thiết kế tốt mới tạo bằng chứng mạnh cho **quan hệ nhân quả**.
+
+</LessonNote>
+
+</MdxPage>

@@ -1,0 +1,163 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch01-total-probability",
+  "locale": "vi",
+  "title": "1.7 Gộp mọi khả năng nền",
+  "headings": [
+    "Mục tiêu học tập",
+    "Một bằng chứng, nhiều nguyên nhân nền",
+    "Đóng góp của từng nhánh",
+    "Tính xác suất toàn phần",
+    "Tính xác suất toàn phần bằng Python",
+    "Kiến thức cần nắm"
+  ],
+  "keywords": [
+    "xác suất toàn phần",
+    "phân hoạch",
+    "hệ đầy đủ",
+    "xác suất có điều kiện",
+    "quy tắc nhân",
+    "python"
+  ],
+  "pageCount": 6
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Nhận biết điều kiện tạo thành một **phân hoạch** (*partition*) của không gian mẫu.
+- Áp dụng **công thức xác suất toàn phần** (*law of total probability*) để tính xác suất của một biến cố bằng cách chia theo các trường hợp.
+- Hiểu vai trò của công thức này như mẫu số chuẩn hóa trong định lý Bayes ở bài tiếp theo.
+- Giải thích vì sao **tỷ lệ nền** (*base rate*) của các nhánh phải được giữ lại khi đánh giá một bằng chứng.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Một bằng chứng, nhiều nguyên nhân nền
+
+Một dấu hiệu quan sát được có thể xuất hiện dưới nhiều nguyên nhân khác nhau. Tin nhắn mở đầu lịch sự có thể đến từ ngân hàng thật hoặc kẻ lừa đảo; kết quả xét nghiệm dương tính có thể là dương tính thật hoặc báo nhầm.
+
+Trước khi cập nhật ngược từ bằng chứng về nguyên nhân, ta cần tính xác suất để bằng chứng xuất hiện **qua tất cả các nhánh nền**. Đó là vai trò của công thức xác suất toàn phần.
+
+Ta bắt đầu bằng một ví dụ nhẹ hơn. Muốn tính xác suất đi chơi tennis, nhưng thời tiết có thể là nắng, râm hoặc mưa. Thay vì xử lý cả ba tình huống cùng lúc, ta chia không gian mẫu thành ba nhánh:
+
+- <MdxFormula inline formula={"A_1"} />: trời nắng.
+- <MdxFormula inline formula={"A_2"} />: trời râm.
+- <MdxFormula inline formula={"A_3"} />: trời mưa.
+
+Ba biến cố này tạo thành một **phân hoạch** (*partition*) của không gian mẫu vì:
+
+1. Chúng xung khắc từng đôi (*mutually exclusive*): <MdxFormula inline formula={"A_i\\cap A_j=\\varnothing"} /> khi <MdxFormula inline formula={"i\\ne j"} />.
+2. Chúng bao phủ mọi khả năng (*exhaustive*): <MdxFormula inline formula={"A_1\\cup A_2\\cup A_3=\\Omega"} />.
+
+<ProbabilityChapterVisual kind="total" />
+
+Vì là một phân hoạch, mỗi kết quả thuộc đúng một nhánh và không có kết quả nào bị bỏ sót.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đóng góp của từng nhánh
+
+Đặt <MdxFormula inline formula={"H"} /> là biến cố “đi chơi tennis”. Trong mỗi nhánh thời tiết, phần làm <MdxFormula inline formula={"H"} /> xảy ra là <MdxFormula inline formula={"H\\cap A_i"} />.
+
+Ba phần <MdxFormula inline formula={"H\\cap A_1"} />, <MdxFormula inline formula={"H\\cap A_2"} /> và <MdxFormula inline formula={"H\\cap A_3"} /> xung khắc và hợp lại thành <MdxFormula inline formula={"H"} />, nên:
+
+<MdxFormula formula={"P(H)=P(H\\cap A_1)+P(H\\cap A_2)+P(H\\cap A_3)"} />
+
+Dùng quy tắc nhân cho từng nhánh:
+
+<MdxFormula formula={"P(H\\cap A_i)=P(A_i)P(H\\mid A_i)"} />
+
+Thay vào tổng trên, ta thu được **công thức xác suất toàn phần** (*law of total probability*):
+
+<MdxFormula formula={"P(H)=P(A_1)P(H\\mid A_1)+P(A_2)P(H\\mid A_2)+P(A_3)P(H\\mid A_3)"} />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tính xác suất toàn phần
+
+Giả sử xác suất của ba loại thời tiết là:
+
+<MdxFormula formula={"P(A_1)=0.5,\\qquad P(A_2)=0.2,\\qquad P(A_3)=0.3"} />
+
+Và xác suất đi chơi tennis trong từng loại thời tiết là:
+
+<MdxFormula formula={"P(H\\mid A_1)=0.8,\\qquad P(H\\mid A_2)=0.6,\\qquad P(H\\mid A_3)=0.1"} />
+
+Mỗi nhánh đóng góp xác suất của nhánh nhân với xác suất đi chơi trong nhánh đó:
+
+<MdxFormula formula={"\\begin{aligned}P(H)&=0.5\\times0.8+0.2\\times0.6+0.3\\times0.1\\\\&=0.4+0.12+0.03=0.55\\end{aligned}"} />
+
+<ProbabilityChapterVisual kind="total-sum" />
+
+Tổng quát, với một phân hoạch <MdxFormula inline formula={"A_1,\\ldots,A_n"} />:
+
+<MdxFormula formula={"P(H)=\\sum_{i=1}^{n}P(A_i)P(H\\mid A_i)"} />
+
+Ở bài Bayes, tổng này sẽ đóng vai trò xác suất của bằng chứng ở mẫu số, giúp chuẩn hóa các khả năng sau khi có thông tin mới.
+
+<LessonNote label="Vì sao tỷ lệ nền quan trọng?">
+
+Mỗi đóng góp có dạng <MdxFormula inline formula={"P(A_i)P(H\\mid A_i)"} />. Một dấu hiệu có thể khá phổ biến trong một nhóm nhỏ nhưng vẫn đóng góp ít vào tổng nếu bản thân nhóm đó rất hiếm. Bayes sẽ đảo chiều câu hỏi, nhưng không được phép bỏ mất trọng số <MdxFormula inline formula={"P(A_i)"} /> này.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Tính xác suất toàn phần bằng Python
+
+Ta có thể biểu diễn phép tính trên dưới dạng tích trong (*dot product*) của hai vector bằng NumPy:
+
+```python
+import numpy as np
+
+# Xác suất của các nhánh phân hoạch P(A_i)
+P_A = np.array([0.5, 0.2, 0.3])  # [Nắng, Râm, Mưa]
+
+# Xác suất có điều kiện P(H | A_i)
+P_H_given_A = np.array([0.8, 0.6, 0.1])
+
+# Tính P(H) = ∑ P(A_i) * P(H | A_i) bằng np.dot
+P_H = np.dot(P_A, P_H_given_A)
+
+print(f"Đóng góp từng nhánh: {P_A * P_H_given_A}")
+print(f"Xác suất toàn phần P(H): {P_H:.4f}")
+```
+
+```output
+Đóng góp từng nhánh: [0.4  0.12 0.03]
+Xác suất toàn phần P(H): 0.5500
+```
+
+**Quan sát:** Ba đóng góp cộng lại thành <MdxFormula inline formula={"0.55"} />, đúng với phép tính tay ở trang trước.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Kiến thức cần nắm
+
+<LessonNote label="Tóm tắt trọng tâm bài 1.7">
+
+- **Phân hoạch** (partition): Các nhánh không chồng lên nhau và cùng bao phủ mọi khả năng.
+- **Đóng góp của một nhánh**: <MdxFormula inline formula={"P(H\\cap A_i)=P(A_i)P(H\\mid A_i)"} />.
+- **Cộng mọi nhánh**: <MdxFormula inline formula={"P(H)=\\sum_{i=1}^{n}P(A_i)P(H\\mid A_i)"} />.
+- **Cầu nối sang Bayes**: Tổng này là **Evidence** (marginal likelihood), tức mẫu số chuẩn hóa của phép cập nhật.
+- **Trong NumPy**: `np.dot(P_A, P_H_given_A)` tính đúng tổng có trọng số.
+
+</LessonNote>
+
+Ta đã có đủ mẫu số. Lesson tiếp theo quay lại câu hỏi của video: khi một bằng chứng mới xuất hiện, niềm tin vào từng giả thuyết nên dịch chuyển bao nhiêu?
+
+</MdxPage>

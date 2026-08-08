@@ -17,6 +17,19 @@ export type LearningTokenExample = {
   notes: LearningLocalizedText[];
 };
 
+export type AuthoredQuizPreview = {
+  /** Optional localized caption shown above the fixture, e.g. the pandas operation being tested. */
+  caption?: LearningLocalizedText;
+  /** Optional pandas snippet displayed above the table as a code line. */
+  code?: string;
+  /** Optional complete, read-only Python snippet that learners can copy and run externally. */
+  codeBlock?: string;
+  /** Optional column names of the read-only dataframe preview. */
+  columns?: string[];
+  /** Optional cell values in row-major order; strings and numbers only. */
+  rows?: Array<Array<string | number>>;
+};
+
 export type LearningLessonExtra =
   | {
       kind: 'motivation';
@@ -132,6 +145,8 @@ export type LearningLessonExtra =
           label: LearningLocalizedText;
         }>;
         correctOrder?: string[];
+        /** Optional deterministic dataframe fixture rendered above the prompt. */
+        preview?: AuthoredQuizPreview;
         success: LearningLocalizedText;
         error: LearningLocalizedText;
       }>;

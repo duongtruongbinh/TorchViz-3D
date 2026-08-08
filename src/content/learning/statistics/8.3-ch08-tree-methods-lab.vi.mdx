@@ -1,0 +1,267 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch08-tree-methods-lab",
+  "locale": "vi",
+  "title": "Lab: Các phương pháp dựa trên cây",
+  "headings": [
+    "Thực hành: Các phương pháp dựa trên cây",
+    "8.3.1 Khớp cây phân loại",
+    "8.3.3 Bagging và rừng ngẫu nhiên",
+    "8.3.4 Boosting",
+    "8.3.5 Cây hồi quy cộng tính Bayes"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phương pháp dựa trên cây",
+    "Thực hành: Các phương pháp dựa trên cây"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Thực hành: Các phương pháp dựa trên cây
+
+Ta import một số thư viện quen thuộc ở cấp đầu này.
+
+<MdxCode language="text" code={"In [1]:importnumpyasnp\nimportpandasaspd\nfrommatplotlib.pyplotimportsubplots\nfromstatsmodels.datasetsimportget_rdataset\nimportsklearn.model_selectionasskm\nfromISLPimportload_data,confusion_table\nfromISLP.modelsimportModelSpecasMS"} />
+
+Ta cũng tập hợp các lệnh import mới cần cho bài thực hành này.
+
+<MdxCode language="text" code={"In [2]:fromsklearn.treeimport(DecisionTreeClassifierasDTC,\nDecisionTreeRegressorasDTR,\nplot_tree,\nexport_text)\nfromsklearn.metricsimport(accuracy_score ,\nlog_loss)\nfromsklearn.ensembleimport\\\n(RandomForestRegressorasRF,\nGradientBoostingRegressorasGBR)\nfromISLP.bartimportBART"} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 8.3.1 Khớp cây phân loại
+
+Đầu tiên, ta dùng cây phân loại để phân tích bộ dữ liệu `Carseats`. Trong dữ liệu này, `Sales` là biến liên tục nên ta bắt đầu bằng cách mã hóa lại thành biến nhị phân. Ta dùng hàm `where()` để tạo biến tên `where() High`, nhận giá trị `Yes` nếu `Sales` lớn hơn 8 và nhận `No` trong trường hợp ngược lại.
+
+<MdxCode language="text" code={"In [3]:Carseats=load_data('Carseats')\nHigh=np.where(Carseats.Sales>8,\n\"Yes\",\n\"No\")"} />
+
+Bây giờ ta dùng `DecisionTreeClassifier()` để khớp một cây phân loại; tên lớp gồm các phần `DecisionTree` và `Classifier()`. Cây dự đoán `High` bằng mọi biến trừ `Sales`. Để làm vậy, ta phải tạo ma trận mô hình như khi khớp các mô hình hồi quy.
+
+<MdxCode language="text" code={"In [4]:model=MS(Carseats.columns.drop('Sales'),intercept=False)\nD=model.fit_transform(Carseats)\nfeature_names=list(D.columns)\nX=np.asarray(D)"} />
+
+Ta đã chuyển `D` từ dataframe thành mảng `X`, cần dùng trong một số phân tích bên dưới. Ta cũng cần `feature_names` để chú thích biểu đồ sau này.
+
+Cần một số tùy chọn để xác định bộ phân loại, như `max_depth` (phát triển cây sâu đến đâu), `min_samples_split` (số quan sát tối thiểu trong một nút để có thể chia) và `criterion` (dùng Gini hay cross-entropy làm tiêu chí chia). Ta cũng đặt `random_state` để tái lập kết quả; các trường hợp hòa nhau trong tiêu chí chia được giải quyết ngẫu nhiên.
+
+<MdxCode language="text" code={"In [5]:clf=DTC(criterion='entropy',\nmax_depth=3,\nrandom_state=0)\nclf.fit(X,High)"} />
+
+<MdxCode language="text" code={"Out[5]:DecisionTreeClassifier(criterion='entropy',max_depth=3)"} />
+
+Trong phần thảo luận đặc trưng định tính ở Mục 3.3, ta lưu ý rằng với mô hình hồi quy tuyến tính, có thể biểu diễn đặc trưng định tính bằng cách đưa ma trận biến giả (mã hóa one-hot) vào ma trận mô hình, sử dụng ký hiệu công thức của `statsmodels`. Như đã đề cập ở Mục 8.1, khi xây dựng cây quyết định có một cách tự nhiên hơn để xử lý đặc trưng định tính mà không cần biến giả: mỗi lần chia phân hoạch các mức thành hai nhóm. Tuy nhiên, cách triển khai cây quyết định của `sklearn` không tận dụng phương pháp này; thay vào đó, nó chỉ coi các mức đã mã hóa one-hot là những biến riêng biệt.
+
+<MdxCode language="text" code={"In [6]:accuracy_score(High,clf.predict(X))"} />
+
+###### **`Out[6]:`** `0.7275`
+
+Chỉ với các đối số mặc định, tỷ lệ sai số huấn luyện là 21%. Với cây phân loại, ta có thể truy cập giá trị độ lệch bằng `log_loss()`; cụ thể, ta gọi `log_loss()`,
+
+trong đó _nmk_ là số quan sát trong nút cuối thứ _m_ thuộc lớp thứ _k_.
+
+<MdxCode language="text" code={"In [7]:resid_dev=np.sum(log_loss(High,clf.predict_proba(X)))\nresid_dev"} />
+
+<MdxCode language="text" code={"Out[7]:0.4711"} />
+
+Đại lượng này liên hệ chặt chẽ với _entropy_ được định nghĩa trong (8.7). Độ lệch nhỏ cho biết cây khớp tốt dữ liệu (huấn luyện).
+
+Một trong những đặc tính hấp dẫn nhất của cây là có thể hiển thị bằng đồ thị. Ở đây ta dùng hàm `plot()` để hiển thị cấu trúc cây (không trình bày tại đây).
+
+<MdxCode language="text" code={"In [8]:ax=subplots(figsize=(12,12))[1]\nplot_tree(clf,\nfeature_names=feature_names ,\nax=ax);"} />
+
+Chỉ báo quan trọng nhất của `Sales` dường như là `ShelveLoc`.
+
+Ta có thể xem biểu diễn văn bản của cây bằng `export_text()`; hàm `export_text()` hiển thị tiêu chí chia (chẳng hạn `Price <= 92.5`) cho mỗi nhánh. Với nút lá, nó hiển thị dự đoán tổng thể (`Yes` hoặc `No`). Ta cũng có thể xem số quan sát trong lá nhận giá trị `Yes` và `No` bằng cách đặt `show_weights=True`.
+
+<MdxCode language="text" code={"In [9]:print(export_text(clf,"} />
+
+<MdxCode language="text" code={"feature_names=feature_names ,\nshow_weights=True))"} />
+
+<MdxCode language="text" code={"Out[9]:|---ShelveLoc[Good]<=0.50\n||---Price<=92.50\n|||---Income<=57.00\n||||---weights:[7.00,3.00]class:No\n|||---Income>57.00\n||||---weights:[7.00,29.00]class:Yes\n||---Price>92.50\n|||---Advertising<=13.50\n||||---weights:[183.00,41.00]class:No\n|||---Advertising>13.50\n||||---weights:[20.00,25.00]class:Yes\n|---ShelveLoc[Good]>0.50\n||---Price<=135.00\n|||---US[Yes]<=0.50\n||||---weights:[6.00,11.00]class:Yes\n|||---US[Yes]>0.50\n||||---weights:[2.00,49.00]class:Yes\n||---Price>135.00\n|||---Income<=46.00\n||||---weights:[6.00,0.00]class:No\n|||---Income>46.00\n||||---weights:[5.00,6.00]class:Yes"} />
+
+Để đánh giá đúng hiệu năng cây phân loại trên dữ liệu này, ta phải ước lượng sai số kiểm tra thay vì chỉ tính sai số huấn luyện. Ta chia quan sát thành tập huấn luyện và tập kiểm tra, xây dựng cây bằng tập huấn luyện rồi đánh giá hiệu năng trên dữ liệu kiểm tra. Mẫu quy trình này tương tự Chương 6, ở đây thay mô hình tuyến tính bằng cây quyết định — code xác thực gần như giống hệt. Cách làm này dự đoán đúng 68,5% vị trí trong tập dữ liệu kiểm tra.
+
+<MdxCode language="text" code={"In [10]:validation=skm.ShuffleSplit(n_splits=1,"} />
+
+<MdxCode language="text" code={"test_size=200,\nrandom_state=0)\nresults=skm.cross_validate(clf,\nD,\nHigh,\ncv=validation)\nresults['test_score']"} />
+
+###### **`Out[10]:`** `array([0.685])`
+
+Tiếp theo, ta xét việc cắt tỉa cây có thể cải thiện hiệu năng phân loại hay không. Đầu tiên, ta chia dữ liệu thành tập huấn luyện và tập kiểm tra. Ta sẽ dùng xác thực chéo để cắt tỉa cây trên tập huấn luyện, rồi đánh giá hiệu năng cây đã cắt tỉa trên tập kiểm tra.
+
+###### **`In [11]:`** `(X_train,`
+
+<MdxCode language="text" code={"X_test,\nHigh_train,\nHigh_test)=skm.train_test_split(X,\nHigh,\ntest_size=0.5,\nrandom_state=0)"} />
+
+Đầu tiên, ta khớp lại toàn bộ cây trên tập huấn luyện; ở đây không đặt tham số `max_depth` vì sẽ học nó bằng xác thực chéo.
+
+<MdxCode language="text" code={"In [12]:clf=DTC(criterion='entropy',random_state=0)\nclf.fit(X_train,High_train)\naccuracy_score(High_test,clf.predict(X_test))"} />
+
+###### **`Out[12]:`** `0.735`
+
+Tiếp theo, ta dùng phương thức `cost_complexity_pruning_path()` của `clf` để trích xuất các giá trị độ phức tạp chi phí, được biểu thị bằng `cost_`.
+
+<MdxCode language="text" code={"complexity_\npruning_\npath()"} />
+
+<MdxCode language="text" code={"In [13]:ccp_path=clf.cost_complexity_pruning_path(X_train,High_train)\nkfold=skm.KFold(10,\nrandom_state=1,\nshuffle=True)"} />
+
+Kết quả cho một tập các độ bất thuần và giá trị _α_, từ đó có thể trích xuất giá trị tối ưu bằng xác thực chéo.
+
+<MdxCode language="text" code={"In [14]:grid=skm.GridSearchCV(clf,\n{'ccp_alpha':ccp_path.ccp_alphas},\nrefit=True,"} />
+
+<MdxCode language="text" code={"cv=kfold,\nscoring='accuracy')\ngrid.fit(X_train,High_train)\ngrid.best_score_"} />
+
+<MdxCode language="text" code={"Out[14]:0.685"} />
+
+Hãy xem cây đã cắt tỉa.
+
+<MdxCode language="text" code={"In [15]:ax=subplots(figsize=(12,12))[1]\nbest_=grid.best_estimator_\nplot_tree(best_,\nfeature_names=feature_names ,\nax=ax);"} />
+
+Đây là một cây khá rậm. Ta có thể đếm số lá hoặc truy vấn trực tiếp `best_`.
+
+<MdxCode language="text" code={"In [16]:best_.tree_.n_leaves"} />
+
+<MdxCode language="text" code={"Out[16]:30"} />
+
+Cây có 30 nút cuối cho tỷ lệ sai số xác thực chéo thấp nhất, với độ chính xác 68,5%. Cây đã cắt tỉa này hoạt động tốt đến đâu trên tập kiểm tra? Một lần nữa, ta áp dụng hàm `predict()`.
+
+<MdxCode language="text" code={"In [17]:print(accuracy_score(High_test,\nbest_.predict(X_test)))\nconfusion=confusion_table(best_.predict(X_test),\nHigh_test)\nconfusion"} />
+
+<MdxCode language="text" code={"Out[17]:0.72"} />
+
+<MdxCode language="text" code={"TruthNoYes\nPredicted\nNo10861\nYes1021"} />
+
+Giờ 72,0% quan sát kiểm tra được phân loại đúng, hơi kém hơn sai số của toàn bộ cây (35 lá). Vì vậy, xác thực chéo không giúp nhiều ở đây; nó chỉ cắt 5 lá, đổi lại sai số hơi kém hơn. Các kết quả này sẽ thay đổi nếu đổi hạt giống số ngẫu nhiên ở trên; dù xác thực chéo cung cấp cách chọn mô hình không chệch, nó vẫn có phương sai.
+
+_8.3.2 Khớp cây hồi quy_
+
+Ở đây, ta khớp cây hồi quy với bộ dữ liệu `Boston`. Các bước tương tự cây phân loại.
+
+<MdxCode language="text" code={"In [18]:Boston=load_data(\"Boston\")\nmodel=MS(Boston.columns.drop('medv'),intercept=False)\nD=model.fit_transform(Boston)\nfeature_names=list(D.columns)\nX=np.asarray(D)"} />
+
+Đầu tiên, ta chia dữ liệu thành tập huấn luyện và tập kiểm tra, rồi khớp cây với dữ liệu huấn luyện. Ở đây, ta dùng 30% dữ liệu làm tập kiểm tra.
+
+<MdxCode language="text" code={"In [19]:(X_train,\nX_test,\ny_train,\ny_test)=skm.train_test_split(X,\nBoston['medv'],\ntest_size=0.3,\nrandom_state=0)"} />
+
+Sau khi tạo tập dữ liệu huấn luyện và kiểm tra, ta khớp cây hồi quy.
+
+<MdxCode language="text" code={"In [20]:reg=DTR(max_depth=3)\nreg.fit(X_train,y_train)\nax=subplots(figsize=(12,12))[1]\nplot_tree(reg,\nfeature_names=feature_names ,\nax=ax);"} />
+
+Biến `lstat` đo tỷ lệ phần trăm cá thể có địa vị kinh tế xã hội thấp. Cây cho biết giá trị `lstat` thấp tương ứng với nhà đắt tiền hơn. Cây dự đoán giá nhà trung vị $12.042 cho nhà kích thước nhỏ (`rm < 6.8`) ở vùng ngoại ô nơi cư dân có địa vị kinh tế xã hội thấp (`lstat > 14.4`) và tỷ lệ tội phạm vừa phải (`crim > 5.8`).
+
+Bây giờ ta dùng hàm xác thực chéo để xem việc cắt tỉa cây có cải thiện hiệu năng không.
+
+<MdxCode language="text" code={"In [21]:ccp_path=reg.cost_complexity_pruning_path(X_train,y_train)\nkfold=skm.KFold(5,\nshuffle=True,\nrandom_state=10)\ngrid=skm.GridSearchCV(reg,\n{'ccp_alpha':ccp_path.ccp_alphas},\nrefit=True,\ncv=kfold,\nscoring='neg_mean_squared_error')\nG=grid.fit(X_train,y_train)"} />
+
+Phù hợp với kết quả xác thực chéo, ta dùng cây đã cắt tỉa để dự đoán trên tập kiểm tra. **`In [22]:`** `best_ = grid.best_estimator_ np.mean((y_test - best_.predict(X_test))**2)`
+
+<MdxCode language="text" code={"Out[22]:28.07"} />
+
+Nói cách khác, MSE tập kiểm tra gắn với cây hồi quy là 28,07. Căn bậc hai của MSE do đó khoảng 5,30, cho biết mô hình tạo dự đoán kiểm tra nằm trong khoảng $5.300 quanh giá nhà trung vị thực của vùng ngoại ô.
+
+Hãy vẽ cây tốt nhất để xem nó dễ diễn giải đến đâu.
+
+<MdxCode language="text" code={"In [23]:ax=subplots(figsize=(12,12))[1]\nplot_tree(G.best_estimator_ ,\nfeature_names=feature_names ,\nax=ax);"} />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 8.3.3 Bagging và rừng ngẫu nhiên
+
+Ở đây, ta áp dụng bagging và rừng ngẫu nhiên cho dữ liệu `Boston` bằng `RandomForestRegressor()` từ package `sklearn.ensemble`. Tên lớp ghép phần `RandomForest` với `Regressor()`, còn package ghép namespace `sklearn.` với module `ensemble`. Nhắc lại rằng bagging chỉ là trường hợp đặc biệt của rừng ngẫu nhiên với _m_ = _p_. Vì vậy, hàm `RandomForestRegressor()` có thể dùng để thực hiện cả bagging lẫn rừng ngẫu nhiên. Ta bắt đầu với bagging.
+
+<MdxCode language="text" code={"In [24]:bag_boston=RF(max_features=X_train.shape[1],random_state=0)\nbag_boston.fit(X_train,y_train)"} />
+
+<MdxCode language="text" code={"Out[24]:RandomForestRegressor(max_features=12,random_state=0)"} />
+
+Đối số `max_features` cho biết nên xét cả 12 biến dự báo cho mỗi lần chia cây — nói cách khác, nên thực hiện bagging. Mô hình bagging này hoạt động tốt đến đâu trên tập kiểm tra?
+
+<MdxCode language="text" code={"In [25]:ax=subplots(figsize=(8,8))[1]\ny_hat_bag=bag_boston.predict(X_test)\nax.scatter(y_hat_bag,y_test)\nnp.mean((y_test-y_hat_bag)**2)"} />
+
+<MdxCode language="text" code={"Out[25]:14.63"} />
+
+MSE tập kiểm tra gắn với cây hồi quy bagging là 14,63, khoảng một nửa giá trị thu được bằng một cây duy nhất được cắt tỉa tối ưu. Ta có thể đổi số cây được phát triển từ giá trị mặc định 100 bằng đối số `n_estimators`:
+
+<MdxCode language="text" code={"In [26]:bag_boston=RF(max_features=X_train.shape[1],\nn_estimators=500,\nrandom_state=0).fit(X_train,y_train)\ny_hat_bag=bag_boston.predict(X_test)\nnp.mean((y_test-y_hat_bag)**2)"} />
+
+<MdxCode language="text" code={"Out[26]:14.61"} />
+
+Không có nhiều thay đổi. Bagging và rừng ngẫu nhiên không thể quá khớp khi tăng số cây, nhưng có thể thiếu khớp nếu số cây quá nhỏ. Phát triển rừng ngẫu nhiên được thực hiện y hệt, ngoại trừ việc dùng giá trị nhỏ hơn cho đối số `max_features`. Mặc định, `RandomForestRegressor()` dùng _p_ biến khi xây dựng rừng ngẫu nhiên cây hồi quy (tức mặc định là bagging), còn `RandomForestClassifier()` dùng^(_√_) _p_ biến khi xây dựng rừng ngẫu nhiên cây phân loại. Ở đây ta dùng `max_features=6`.
+
+<MdxCode language="text" code={"In [27]:RF_boston=RF(max_features=6,\nrandom_state=0).fit(X_train,y_train)\ny_hat_RF=RF_boston.predict(X_test)\nnp.mean((y_test-y_hat_RF)**2)"} />
+
+###### **`Out[27]:`** `20.04`
+
+MSE tập kiểm tra là 20,04; điều này cho thấy rừng ngẫu nhiên hoạt động hơi kém bagging trong trường hợp này. Bằng cách trích xuất giá trị `feature_importances_` từ mô hình đã khớp, ta có thể xem tầm quan trọng của từng biến.
+
+<MdxCode language="text" code={"In [28]:feature_imp=pd.DataFrame(\n{'importance':RF_boston.feature_importances_},\nindex=feature_names)\nfeature_imp.sort_values(by='importance',ascending=False)"} />
+
+<MdxCode language="table" code={"|**`Out[28]:`**|`importance`|\n|---|---|\n|`lstat`|`0.368683`|\n|`rm`|`0.333842`|\n|`ptratio`|`0.057306`|\n|`indus`|`0.053303`|\n|`crim`|`0.052426`|\n|`dis`|`0.042493`|\n|`nox`|`0.034410`|\n|`age`|`0.024327`|\n|`tax`|`0.022368`|\n|`rad`|`0.005048`|\n|`zn`|`0.003238`|\n|`chas`|`0.002557`|"} />
+
+Đây là thước đo tương đối của tổng mức giảm độ bất thuần nút do các lần chia trên biến đó, lấy trung bình trên mọi cây (đại lượng này được vẽ trong Hình 8.9 cho một mô hình khớp với dữ liệu `Heart`).
+
+Kết quả cho biết trên toàn bộ các cây được xét trong rừng ngẫu nhiên, mức giàu có của cộng đồng (`lstat`) và kích thước nhà (`rm`) cho đến nay là hai biến quan trọng nhất.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 8.3.4 Boosting
+
+Ở đây, ta dùng `GradientBoostingRegressor()` từ `sklearn.ensemble` để khớp cây hồi quy boosting với bộ dữ liệu `Boston`; tên lớp chứa `Gradient` và `Boosting`. Với phân loại, ta sẽ dùng `GradientBoostingClassifier()`, cũng gồm `Gradient` và `Boosting`. Đối số `n_estimators=5000` cho biết ta muốn 5.000 cây, còn tùy chọn `max_depth=3` giới hạn độ sâu của mỗi cây. Đối số `learning_rate` là _λ_ được đề cập trước đó trong phần mô tả boosting.
+
+<MdxCode language="text" code={"Boosting\nRegressor()\nGradient\nBoosting\nClassifier()"} />
+
+<MdxCode language="text" code={"In [29]:boost_boston=GBR(n_estimators=5000,\nlearning_rate=0.001,\nmax_depth=3,\nrandom_state=0)\nboost_boston.fit(X_train,y_train)"} />
+
+Ta có thể xem sai số huấn luyện giảm như thế nào bằng thuộc tính `train_score_`. Để biết sai số kiểm tra giảm như thế nào, ta có thể dùng phương thức `staged_predict()` để thu các giá trị dự đoán dọc theo đường đi.
+
+<MdxCode language="text" code={"In [30]:test_error=np.zeros_like(boost_boston.train_score_)\nforidx,y_inenumerate(boost_boston.staged_predict(X_test)):\ntest_error[idx]=np.mean((y_test-y_)**2)\nplot_idx=np.arange(boost_boston.train_score_.shape[0])\nax=subplots(figsize=(8,8))[1]\nax.plot(plot_idx,\nboost_boston.train_score_ ,\n'b',\nlabel='Training')"} />
+
+<MdxCode language="text" code={"ax.plot(plot_idx,\ntest_error,\n'r',\nlabel='Test')\nax.legend();"} />
+
+Bây giờ ta dùng mô hình boosting để dự đoán `medv` trên tập kiểm tra:
+
+<MdxCode language="text" code={"In [31]:y_hat_boost=boost_boston.predict(X_test);\nnp.mean((y_test-y_hat_boost)**2)"} />
+
+<MdxCode language="text" code={"Out[31]:14.48"} />
+
+MSE kiểm tra thu được là 14,48, tương tự MSE kiểm tra của bagging. Nếu muốn, ta có thể thực hiện boosting với một giá trị khác của tham số co rút _λ_ trong (8.10). Giá trị mặc định là 0,001 nhưng có thể dễ dàng sửa đổi. Ở đây ta chọn _λ_ = 0 _._ 2.
+
+<MdxCode language="text" code={"In [32]:boost_boston=GBR(n_estimators=5000,\nlearning_rate=0.2,\nmax_depth=3,\nrandom_state=0)\nboost_boston.fit(X_train,\ny_train)\ny_hat_boost=boost_boston.predict(X_test);\nnp.mean((y_test-y_hat_boost)**2)"} />
+
+###### **`Out[32]:`** `14.50`
+
+Trong trường hợp này, dùng _λ_ = 0 _._ 2 cho MSE kiểm tra gần như giống khi dùng _λ_ = 0 _._ 001.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 8.3.5 Cây hồi quy cộng tính Bayes
+
+Trong mục này, ta minh họa một cách triển khai BART bằng `Python` trong package `ISLP.bart`. Ta khớp mô hình với bộ dữ liệu nhà ở `Boston`. Bộ ước lượng `BART()` này được thiết kế cho biến kết quả định lượng, dù các cách triển khai `BART()` khác có thể khớp mô hình logistic và probit với kết quả phân loại.
+
+<MdxCode language="text" code={"In [33]:bart_boston=BART(random_state=0,burnin=5,ndraw=15)\nbart_boston.fit(X_train,y_train)"} />
+
+<MdxCode language="text" code={"Out[33]:BART(burnin=5,ndraw=15,random_state=0)"} />
+
+Trên bộ dữ liệu này, với cách chia thành tập kiểm tra và huấn luyện này, ta thấy sai số kiểm tra của BART tương tự rừng ngẫu nhiên.
+
+<MdxCode language="text" code={"In [34]:yhat_test=bart_boston.predict(X_test.astype(np.float32))\nnp.mean((y_test-yhat_test)**2)"} />
+
+<MdxCode language="text" code={"Out[34]:20.92"} />
+
+Ta có thể kiểm tra số lần mỗi biến xuất hiện trong tập các cây. Điều này cho một bản tóm tắt tương tự biểu đồ tầm quan trọng của biến cho boosting và rừng ngẫu nhiên.
+
+<MdxCode language="text" code={"In [35]:var_inclusion=pd.Series(bart_boston.variable_inclusion_.mean(0),\nindex=D.columns)\nvar_inclusion"} />
+
+<MdxCode language="table" code={"|**`Out[35]:`** `crim`|`25.333333`|\n|---|---|\n|`zn`|`27.000000`|\n|`indus`|`21.266667`|\n|`chas`|`20.466667`|\n|`nox`|`25.400000`|\n|`rm`|`32.400000`|\n|`age`|`26.133333`|\n|`dis`|`25.666667`|\n|`rad`|`24.666667`|\n|`tax`|`23.933333`|\n|`ptratio`|`25.000000`|\n|`lstat`|`31.866667`|\n|`dtype: fl`|`oat64`|"} />
+
+</MdxPage>

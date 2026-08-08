@@ -1,0 +1,54 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch09-svm-logistic-regression-relationship",
+  "locale": "vi",
+  "title": "Mối quan hệ với hồi quy logistic",
+  "headings": [
+    "Mối quan hệ với hồi quy logistic"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Máy vector hỗ trợ",
+    "Hồi quy logistic",
+    "Mất mát hinge"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Mối quan hệ với hồi quy logistic
+
+Khi SVM lần đầu được giới thiệu vào giữa thập niên 1990, chúng gây tiếng vang lớn trong cộng đồng thống kê và học máy. Một phần lý do là hiệu năng tốt, cách quảng bá tốt và cả việc cách tiếp cận nền tảng có vẻ vừa mới lạ vừa bí ẩn. Ý tưởng tìm một siêu phẳng phân tách dữ liệu tốt nhất có thể, đồng thời cho phép một số vi phạm phân tách, có vẻ khác rõ rệt so với các cách tiếp cận phân loại cổ điển như hồi quy logistic và phân tích biệt thức tuyến tính. Hơn nữa, ý tưởng dùng kernel để mở rộng không gian đặc trưng nhằm thích nghi với biên lớp phi tuyến có vẻ là một đặc trưng độc đáo và giá trị.
+
+Tuy nhiên, từ đó đến nay, những mối liên hệ sâu sắc giữa SVM và các phương pháp thống kê cổ điển hơn đã xuất hiện. Hóa ra có thể viết lại tiêu chuẩn (9.12)–(9.15) để khớp bộ phân loại vector hỗ trợ _f_ ( _X_ ) = _β_ 0 + _β_ 1 _X_ 1 + _· · ·_ + _βpXp_ thành
+
+trong đó _λ_ là một tham số điều chỉnh không âm. Khi _λ_ lớn, _β_ 1 _, . . . , βp_ nhỏ, ta chấp nhận nhiều vi phạm biên hơn và thu được bộ phân loại phương sai thấp nhưng độ chệch cao. Khi _λ_ nhỏ, có ít vi phạm biên; điều này tương ứng với bộ phân loại phương sai cao nhưng độ chệch thấp.
+
+Vì vậy, giá trị _λ_ nhỏ trong (9.25) tương ứng với giá trị _C_ nhỏ trong (9.15). Lưu ý hạng tử _λ_^(�)^(_p_) _j_ =1^(_β_) _j_^(2trong(9.25)làhạngtửphạt ridge) từ Mục 6.2.1 và đóng vai trò tương tự trong việc kiểm soát sự đánh đổi độ chệch–phương sai của bộ phân loại vector hỗ trợ.
+
+Bây giờ (9.25) có dạng “Mất mát + Hình phạt” mà ta đã gặp nhiều lần trong cuốn sách:
+
+Trong (9.26), _L_ ( **X** _,_ **y** _, β_ ) là một hàm mất mát định lượng mức độ mô hình, được tham số hóa bởi _β_, khớp với dữ liệu ( **X** _,_ **y** ); còn _P_ ( _β_ ) là hàm phạt trên vector tham số _β_, với tác động được kiểm soát bởi tham số điều chỉnh không âm _λ_. Ví dụ, hồi quy ridge và lasso đều có dạng này với
+
+và với _P_ ( _β_ ) =^(�)^(_p_) _j_ =1^(_β_) _j_^(2chohồiquy ridge,còn)^(_P_()^(_β_)=�)^(_p_) _j_ =1^(_|βj|_cho) lasso. Trong trường hợp (9.25), hàm mất mát có dạng
+
+Đây được gọi là _mất mát hinge_ và được minh họa trong Hình 9.12. Tuy nhiên, hóa ra hàm mất mát hinge có quan hệ chặt chẽ với hàm mất mát dùng trong hồi quy logistic, cũng được thể hiện trong Hình 9.12.
+
+Một đặc điểm thú vị của bộ phân loại vector hỗ trợ là chỉ các vector hỗ trợ đóng vai trò trong bộ phân loại thu được; những quan sát nằm đúng phía của biên không ảnh hưởng đến nó. Lý do là hàm mất mát trong Hình 9.12 bằng đúng không với những quan sát thỏa _yi_ ( _β_ 0 + _β_ 1 _xi_ 1 + _· · ·_ + _βpxip_ ) _≥_ 1; chúng tương ứng với các quan sát nằm đúng phía của biên.^(3) Ngược lại, hàm mất mát hồi quy logistic trong Hình 9.12 không bằng đúng không ở bất kỳ đâu, nhưng nó rất nhỏ với các quan sát cách xa biên quyết định. Do hai hàm mất mát tương đồng, hồi quy logistic và bộ phân loại vector hỗ trợ thường cho kết quả rất giống nhau. Khi các lớp được phân tách tốt, SVM có xu hướng hoạt động tốt hơn hồi quy logistic; trong những chế độ chồng lấn nhiều hơn, hồi quy logistic thường được ưu tiên.
+
+Khi bộ phân loại vector hỗ trợ và SVM lần đầu được giới thiệu, người ta cho rằng tham số điều chỉnh _C_ trong (9.15) là một tham số “gây phiền” không quan trọng, có thể đặt thành giá trị mặc định như 1. Tuy nhiên, dạng “Mất mát + Hình phạt” (9.25) cho thấy điều đó không đúng. Việc chọn tham số điều chỉnh rất quan trọng và quyết định mức độ mô hình thiếu khớp hay quá khớp dữ liệu, như được minh họa trong Hình 9.7.
+
+> 3Với biểu diễn mất mát hinge + hình phạt này, biên tương ứng với giá trị một, còn độ rộng biên được xác định bởi^(�) _βj_^(2.)
+
+**HÌNH 9.12.** _So sánh các hàm mất mát của SVM và hồi quy logistic theo yi_ ( _β_ 0 + _β_ 1 _xi_ 1 + _· · ·_ + _βpxip_ )_. Khi yi_ ( _β_ 0 + _β_ 1 _xi_ 1 + _· · ·_ + _βpxip_ ) _lớn hơn 1, mất mát SVM bằng không vì điều này tương ứng với một quan sát nằm đúng phía của biên. Nhìn chung, hai hàm mất mát có hành vi khá giống nhau._
+
+Ta đã xác lập rằng bộ phân loại vector hỗ trợ có quan hệ chặt chẽ với hồi quy logistic và các phương pháp thống kê có từ trước. SVM có độc đáo ở việc dùng kernel để mở rộng không gian đặc trưng nhằm thích nghi với biên lớp phi tuyến không? Câu trả lời là “không”. Ta hoàn toàn có thể thực hiện hồi quy logistic hoặc nhiều phương pháp phân loại khác trong cuốn sách bằng kernel phi tuyến; điều này liên quan chặt chẽ với một số cách tiếp cận phi tuyến trong Chương 7. Tuy nhiên, vì lý do lịch sử, việc dùng kernel phi tuyến phổ biến hơn nhiều trong bối cảnh SVM so với hồi quy logistic hay các phương pháp khác.
+
+Mặc dù chưa đề cập ở đây, thực ra có một mở rộng của SVM cho hồi quy (tức cho biến đáp ứng định lượng thay vì định tính), gọi là _hồi quy vector hỗ trợ_. Trong Chương 3, ta đã thấy hồi quy bình phương tối thiểu tìm các hệ số _β_ 0 _, β_ 1 _, . . . , βp_ sao cho tổng bình phương phần dư nhỏ nhất có thể. (Nhắc lại từ Chương 3 rằng phần dư được định nghĩa là _yi − β_ 0 _− β_ 1 _xi_ 1 _−· · · − βpxip_.) Thay vào đó, hồi quy vector hỗ trợ tìm các hệ số làm cực tiểu một kiểu mất mát khác, trong đó chỉ những phần dư có trị tuyệt đối lớn hơn một hằng số dương mới đóng góp vào hàm mất mát. Đây là sự mở rộng khái niệm biên dùng trong bộ phân loại vector hỗ trợ sang bối cảnh hồi quy.
+
+9.6 Lab: Máy vector hỗ trợ
+
+</MdxPage>

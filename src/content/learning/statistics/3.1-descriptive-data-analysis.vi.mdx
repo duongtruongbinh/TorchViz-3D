@@ -1,0 +1,426 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "descriptive-data-analysis",
+  "locale": "vi",
+  "title": "3.2 Phân tích dữ liệu mô tả",
+  "headings": [
+    "Mục tiêu học tập",
+    "Giới thiệu & Dataset",
+    "Trung bình (Mean)",
+    "Trung vị (Median)",
+    "Yếu vị (Mode)",
+    "Histogram & Nhận xét",
+    "Tổng kết: So sánh ba thước đo"
+  ],
+  "keywords": [
+    "thống kê mô tả",
+    "trung bình",
+    "trung vị",
+    "yếu vị",
+    "mean",
+    "median",
+    "mode",
+    "numpy",
+    "pandas",
+    "scipy"
+  ],
+  "pageCount": 7
+}
+
+<MdxPage page={0}>
+
+<LessonNote label="Mục tiêu học tập" variant="objectives">
+
+Sau bài này, bạn sẽ:
+- Phân biệt ba **thước đo xu hướng trung tâm** (*measures of central tendency*): **Trung bình** (*Mean*), **Trung vị** (*Median*) và **Yếu vị** (*Mode*).
+- Giải thích vì sao Trung vị bền vững (*robust*) hơn Trung bình trước các giá trị ngoại lai (*outliers*).
+- Tính toán 3 thước đo bằng tay và lập trình bằng Python (`sum/len`, `np.mean/np.median`, `pd.Series`).
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Các thước đo xu hướng trung tâm
+
+Trong thống kê mô tả, **thước đo xu hướng trung tâm** giúp xác định một giá trị đại diện cho toàn bộ tập dữ liệu. Ba thước đo phổ biến nhất là:
+
+<MdxTable
+  headers={["Thước đo", "Tên tiếng Anh", "Định nghĩa"]}
+  rows={[
+    ["Trung bình", "Mean", "Tổng các giá trị ÷ số lượng phần tử"],
+    ["Trung vị", "Median", "Giá trị nằm giữa khi sắp xếp tăng dần"],
+    ["Yếu vị", "Mode", "Giá trị xuất hiện nhiều nhất"]
+  ]}
+/>
+
+---
+
+### Bộ dữ liệu ví dụ: Độ trễ phản hồi của mô hình AI
+
+Hãy xem xét bộ dữ liệu ghi lại **độ trễ phản hồi (inference latency)** của một mô hình học sâu trong 10 yêu cầu liên tiếp (đơn vị: mili-giây — ms):
+
+<MdxFormula formula={"X = \\{12,\\ 15,\\ 12,\\ 18,\\ 20,\\ 12,\\ 22,\\ 15,\\ 30,\\ 24\\}"} />
+
+<MdxTable
+  caption="Độ trễ phản hồi (ms) của 10 yêu cầu liên tiếp"
+  headers={["Yêu cầu 1", "Yêu cầu 2", "Yêu cầu 3", "Yêu cầu 4", "Yêu cầu 5", "Yêu cầu 6", "Yêu cầu 7", "Yêu cầu 8", "Yêu cầu 9", "Yêu cầu 10"]}
+  rows={[
+    [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
+  ]}
+/>
+
+Từ bộ dữ liệu này, ta có 3 câu hỏi cần trả lời:
+
+1. *Độ trễ **trung bình** của 10 yêu cầu là bao nhiêu?*
+2. *Mức trễ "trung bình" nếu loại bỏ giá trị cực đoan là bao nhiêu?*
+3. *Độ trễ nào xảy ra **thường xuyên nhất**?*
+
+---
+
+### Khởi tạo & Kiểm tra dữ liệu bằng Python
+
+**Khởi tạo bộ dữ liệu:**
+```python
+# Bộ dữ liệu: độ trễ phản hồi của 10 yêu cầu (ms)
+data = [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
+```
+
+**2. Số lượng phần tử:**
+```python
+print(f"Số lượng phần tử: {len(data)}")
+```
+```output
+Số lượng phần tử: 10
+```
+
+**3. Giá trị nhỏ nhất (Min) và lớn nhất (Max):**
+```python
+print(f"Giá trị nhỏ nhất: {min(data)} ms")
+print(f"Giá trị lớn nhất: {max(data)} ms")
+```
+```output
+Giá trị nhỏ nhất: 12 ms
+Giá trị lớn nhất: 30 ms
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Trung bình (Mean)
+
+**Trung bình cộng (Sample Mean)** đại diện cho điểm cân bằng trọng tâm của dữ liệu. Nó được tính bằng cách cộng tất cả các giá trị lại rồi chia cho tổng số lượng phần tử.
+
+<MdxFormula formula={"\\bar{x} = \\frac{1}{n} \\sum_{i=1}^{n} x_i = \\frac{x_1 + x_2 + \\cdots + x_n}{n}"} />
+
+---
+
+<MdxColumns>
+
+<div>
+
+**Bước 1 — Xác định cỡ mẫu <MdxFormula inline formula={"n"} />:**
+- Số lượng phần tử <MdxFormula inline formula={"n = 10"} />
+
+**Bước 2 — Tính tổng tất cả giá trị:**
+<MdxFormula formula={"\\begin{aligned} \\sum x_i &= 12 + 15 + 12 + 18 + 20 \\\\ &\\quad + 12 + 22 + 15 + 30 + 24 = 180 \\text{ ms} \\end{aligned}"} />
+
+**Bước 3 — Tính trung bình cộng:**
+<MdxFormula formula={"\\bar{x} = \\frac{180}{10} = 18.0 \\text{ ms}"} />
+
+**Kết luận:** Độ trễ phản hồi trung bình là **18.0 ms**.
+
+</div>
+
+<div>
+
+```python
+import numpy as np
+import pandas as pd
+
+data = [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
+
+# Cách 1: Python thuần
+mean_py = sum(data) / len(data)
+
+# Cách 2: NumPy
+mean_np = np.mean(data)
+
+# Cách 3: Pandas Series
+mean_pd = pd.Series(data).mean()
+
+print(f"Python thuần : {mean_py} ms")
+print(f"NumPy        : {mean_np} ms")
+print(f"Pandas       : {mean_pd} ms")
+```
+```output
+Python thuần : 18.0 ms
+NumPy        : 18.0 ms
+Pandas       : 18.0 ms
+```
+
+</div>
+
+</MdxColumns>
+
+---
+
+### Phân tích điểm yếu: Nhạy cảm với giá trị ngoại lai (Outliers)
+
+Trung bình cộng sử dụng **toàn bộ** dữ liệu nên rất dễ bị hiện tượng nhiễu ngoại lai kéo lệch kết quả.
+
+Giả sử yêu cầu thứ 10 gặp sự cố mạng, độ trễ vọt lên **300 ms** (thay vì 24 ms):
+
+<MdxTable
+  caption="Tác động của Outliers đến giá trị Trung bình (Mean)"
+  headers={["Kịch bản dữ liệu", "Bộ dữ liệu độ trễ (ms)", "Tổng sum", "Giá trị Mean"]}
+  rows={[
+    ["Bình thường (Không outlier)", "12, 15, 12, 18, 20, 12, 22, 15, 30, 24", "180 ms", "18.0 ms"],
+    ["Lỗi mạng (Có outlier 300ms)", "12, 15, 12, 18, 20, 12, 22, 15, 30, 300", "450 ms", "45.0 ms (Tăng 2.5 lần!)"]
+  ]}
+/>
+
+<LessonNote label="Hạn chế của Trung bình" tone="warning">
+
+Chỉ duy nhất **1 yêu cầu bị lỗi (300 ms)** đã kéo độ trễ trung bình của toàn hệ thống từ **18 ms** vọt lên **45 ms**! Mặc dù 9/10 người dùng thực tế vẫn phản hồi rất nhanh (dưới 30 ms), con số trung bình 45 ms tạo ra cảm giác hệ thống bị chậm. Để giải quyết hạn chế này, ta cần dùng thước đo **Trung vị (Median)** ở Trang 3.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Trung vị (Median)
+
+Trung vị là giá trị **ở chính giữa** khi sắp xếp dữ liệu theo thứ tự tăng dần. Đây là thước đo **bền vững** (robust) — không bị ảnh hưởng bởi outliers.
+
+<MdxFormula formula={"\\text{Median} = \\begin{cases} x_{\\left(\\frac{n+1}{2}\\right)} & \\text{nếu } n \\text{ lẻ} \\\\ \\dfrac{x_{\\left(\\frac{n}{2}\\right)} + x_{\\left(\\frac{n}{2}+1\\right)}}{2} & \\text{nếu } n \\text{ chẵn} \\end{cases}"} />
+
+---
+
+<MdxColumns>
+
+<div>
+
+**Bước 1 — Sắp xếp tăng dần:**
+
+<MdxFormula formula={"\\begin{aligned} X_{\\text{sorted}} = \\{&12, 12, 12, 15, \\underbrace{15}_{(5)}, \\\\ &\\underbrace{18}_{(6)}, 20, 22, 24, 30\\} \\end{aligned}"} />
+
+**Bước 2 — Xác định vị trí giữa:**
+
+Vì <MdxFormula inline formula={"n = 10"} /> là **số chẵn**, trung vị là trung bình cộng của phần tử thứ **5** và **6**:
+
+<MdxFormula formula={"x_{(5)} = 15, \\quad x_{(6)} = 18"} />
+
+**Bước 3 — Tính trung vị:**
+
+<MdxFormula formula={"\\text{Median} = \\frac{x_{(5)} + x_{(6)}}{2} = \\frac{15 + 18}{2} = 16.5 \\text{ ms}"} />
+
+**Kết luận:** Trung vị là **16.5 ms**.
+
+</div>
+
+<div>
+
+```python
+import numpy as np
+import pandas as pd
+
+data = [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
+
+# Sắp xếp & Tính trung vị
+sorted_data = sorted(data)
+median_py = (sorted_data[4] + sorted_data[5]) / 2
+median_np = np.median(data)
+median_pd = pd.Series(data).median()
+
+print(f"Đã sắp xếp : {sorted_data}")
+print(f"Thủ công   : {median_py} ms")
+print(f"NumPy      : {median_np} ms")
+print(f"Pandas     : {median_pd} ms")
+```
+```output
+Đã sắp xếp : [12, 12, 12, 15, 15, 18, 20, 22, 24, 30]
+Thủ công   : 16.5 ms
+NumPy      : 16.5 ms
+Pandas     : 16.5 ms
+```
+
+</div>
+
+</MdxColumns>
+
+---
+
+<LessonNote label="Median kháng Outliers">
+
+Dùng lại ví dụ outlier: yêu cầu thứ 10 là **300 ms** thay vì 30 ms.
+
+Dữ liệu sắp xếp: `[12, 12, 12, 15, 15, 18, 20, 22, 24, 300]`
+
+Median vẫn là <MdxFormula inline formula={"(15 + 18)/2 = 16.5 \\text{ ms}"} /> — **không thay đổi**!
+
+Đây chính là lý do Median được dùng để thống kê **thu nhập** và **giá nhà** — những lĩnh vực có nhiều outliers lớn.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Yếu vị (Mode)
+
+Yếu vị là giá trị xuất hiện **nhiều lần nhất** trong tập dữ liệu. Mode là thước đo duy nhất dùng được cho cả **dữ liệu định tính** (ví dụ: màu sắc, nhãn hiệu).
+
+<MdxFormula formula={"\\text{Mode} = \\underset{x}{\\arg\\max}\\ f(x)"} />
+
+trong đó <MdxFormula inline formula={"f(x)"} /> là tần suất (frequency) của giá trị <MdxFormula inline formula={"x"} />.
+
+---
+
+<MdxColumns>
+
+<div>
+
+**Bước 1 — Đếm tần suất từng giá trị:**
+
+<MdxTable
+  caption="Tần suất xuất hiện"
+  headers={["Giá trị", "Tần suất"]}
+  rows={[
+    ["12 ms", "3 lần (cao nhất)"],
+    ["15 ms", "2 lần"],
+    ["18 ms", "1 lần"],
+    ["20 ms", "1 lần"],
+    ["22 ms", "1 lần"],
+    ["24 ms", "1 lần"],
+    ["30 ms", "1 lần"]
+  ]}
+/>
+
+**Bước 2 — Xác định giá trị cao nhất:**
+
+Giá trị `12` xuất hiện **3 lần** — nhiều nhất trong tập.
+
+**Kết luận:**
+
+<MdxFormula formula={"\\text{Mode} = 12 \\text{ ms}"} />
+
+</div>
+
+<div>
+
+```python
+import pandas as pd
+from collections import Counter
+from scipy import stats
+
+data = [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
+
+# Cách 1: Counter
+mode_py = Counter(data).most_common(1)[0][0]
+
+# Cách 2: Pandas
+mode_pd = list(pd.Series(data).mode())
+
+# Cách 3: scipy
+mode_scipy = stats.mode(data, keepdims=True)
+
+print(f"Counter : {mode_py} ms")
+print(f"Pandas  : {mode_pd} ms")
+print(f"scipy   : {mode_scipy.mode[0]} ms (lặp {mode_scipy.count[0]} lần)")
+```
+```output
+Counter : 12 ms
+Pandas  : [12] ms
+scipy   : 12 ms (lặp 3 lần)
+```
+
+</div>
+
+</MdxColumns>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Histogram & Nhận xét Mean, Median và Mode
+
+Histogram dưới đây biểu diễn tần số của từng mức độ trễ với **bin rộng 1 ms**. Ba đường dọc đánh dấu vị trí của **Mode**, **Median** và **Mean** trên cùng một trục.
+
+<ProbabilityChapterVisual kind="descriptive-center-histogram" />
+
+---
+
+<MdxColumns>
+
+<div>
+
+### Vẽ bằng Python
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+data = [12, 15, 12, 18, 20, 12, 22, 15, 30, 24]
+
+mean = np.mean(data)
+median = np.median(data)
+mode = stats.mode(data, keepdims=True).mode[0]
+
+bins = np.arange(min(data) - 0.5, max(data) + 1.5, 1)
+plt.hist(data, bins=bins, edgecolor="white")
+plt.axvline(mode, label=f"Mode = {mode} ms")
+plt.axvline(median, label=f"Median = {median} ms")
+plt.axvline(mean, label=f"Mean = {mean} ms")
+plt.xlabel("Độ trễ phản hồi (ms)")
+plt.ylabel("Tần số")
+plt.legend()
+plt.show()
+```
+
+</div>
+
+<div>
+
+### Đọc biểu đồ
+
+- **Mode = 12 ms:** cột tại 12 ms cao nhất, với 3 lần xuất hiện.
+- **Median = 16.5 ms:** nằm giữa 15 ms và 18 ms, chia 10 quan sát thành hai nửa.
+- **Mean = 18 ms:** nằm bên phải Median vì giá trị 30 ms kéo điểm cân bằng về phía các giá trị lớn.
+- Thứ tự <MdxFormula inline formula={"\\text{Mode} < \\text{Median} < \\text{Mean}"} /> cho thấy mẫu có **đuôi phải dài hơn**. Tuy nhiên, với chỉ 10 quan sát, ta nên xem đây là nhận xét về bộ dữ liệu hiện tại thay vì kết luận chắc chắn về toàn bộ phân phối.
+
+</div>
+
+</MdxColumns>
+
+---
+
+### Đối chiếu với phân phối chuẩn lý tưởng
+
+Khi phân phối có dạng chuông và hoàn toàn đối xứng, Mean, Median và Mode không còn nằm ở ba vị trí khác nhau mà cùng hội tụ tại tâm.
+
+<ProbabilityChapterVisual kind="ideal-normal-center" />
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Tổng kết: So sánh ba thước đo
+
+Với bộ dữ liệu X = {12, 15, 12, 18, 20, 12, 22, 15, 30, 24}:
+
+<MdxTable
+  caption="So sánh ba thước đo xu hướng trung tâm"
+  headers={["Thước đo", "Kết quả", "Độ nhạy Outlier", "Khi nào dùng?"]}
+  rows={[
+    ["Mean (Trung bình)", "18 ms", "Rất nhạy cảm", "Dữ liệu phân phối đều, không có outlier"],
+    ["Median (Trung vị)", "16.5 ms", "Bền vững / Kháng nhiễu", "Thu nhập, giá nhà, dữ liệu có outlier"],
+    ["Mode (Yếu vị)", "12 ms", "Không bị ảnh hưởng", "Dữ liệu định tính, kích cỡ phổ biến nhất"]
+  ]}
+/>
+
+</MdxPage>

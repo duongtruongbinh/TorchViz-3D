@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch10-when-to-use-deep-learning",
+  "locale": "vi",
+  "title": "Khi nào nên dùng học sâu",
+  "headings": [
+    "Khi nào nên dùng học sâu"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "học sâu",
+    "khi nào nên dùng học sâu"
+  ],
+  "pageCount": 1
+}
+
+<MdxPage page={0}>
+
+## Khi nào nên dùng học sâu
+
+Hiệu năng của học sâu trong chương này khá ấn tượng. Nó giải quyết rất tốt bài toán phân loại chữ số, và CNN sâu đã thực sự cách mạng hóa phân loại ảnh. Hằng ngày ta đều thấy các báo cáo thành công mới của học sâu. Nhiều thành công liên quan đến bài toán phân loại ảnh, như máy chẩn đoán ảnh chụp tuyến vú hay X-quang số, ảnh quét mắt trong nhãn khoa, chú thích ảnh MRI, v.v. Tương tự, RNN đạt nhiều thành công trong nhận dạng tiếng nói và dịch ngôn ngữ, dự báo và mô hình hóa tài liệu. Câu hỏi hiển nhiên cần trả lời là: _ta có nên bỏ hết các công cụ cũ và dùng học sâu cho mọi bài toán dữ liệu không?_ Để trả lời, ta quay lại tập dữ liệu `Hitters` từ Chương 6.
+
+Đây là bài toán hồi quy với mục tiêu dự đoán `Salary` của một cầu thủ bóng chày năm 1987 bằng thống kê thi đấu năm 1986. Sau khi loại những cầu thủ thiếu biến đáp ứng, ta còn 263 cầu thủ và 19 biến. Ta chia ngẫu nhiên dữ liệu thành tập huấn luyện 176 cầu thủ (hai phần ba) và tập kiểm tra 87 cầu thủ (một phần ba). Chúng ta dùng ba phương pháp để khớp mô hình hồi quy cho dữ liệu:
+
+- Dùng mô hình tuyến tính để khớp dữ liệu huấn luyện và dự đoán trên dữ liệu kiểm tra. Mô hình có 20 tham số.
+
+- Khớp cùng mô hình tuyến tính với điều chuẩn lasso. Tham số tinh chỉnh được chọn bằng xác thực chéo 10-fold trên dữ liệu huấn luyện. Kết quả chọn mô hình có 12 biến mang hệ số khác không.
+
+- Khớp một mạng nơ-ron có một tầng ẩn gồm 64 nút `ReLU`. Mô hình này có 1.345 tham số.^(20)
+
+> 20Mô hình được khớp bằng stochastic gradient descent với kích thước batch 32 trong 1.000 epoch và điều chuẩn dropout 10%. Hiệu năng lỗi kiểm tra chững lại rồi bắt đầu tăng chậm sau 1.000 epoch. Các chi tiết khớp này được bàn ở Mục 10.7.
+
+<MdxCode language="table" code={"|Mô hình|Số tham số|Sai số tuyệt đối|trung bình|_R_^(2) tập kiểm tra|\n|---|---|---|---|---|\n|Hồi quy tuyến tính|20||254.7|0.56|\n|Lasso|12||252.3|0.51|\n|Mạng nơ-ron|1345||257.4|0.54|"} />
+
+**BẢNG 10.2.** _Kết quả dự đoán trên dữ liệu kiểm tra_ `Hitters` _của các mô hình tuyến tính được khớp bằng bình phương tối thiểu thông thường và lasso, so với một mạng nơ-ron được khớp bằng stochastic gradient descent với điều chuẩn dropout._
+
+<MdxCode language="table" code={"||Hệ số|Sai số chuẩn|Thống kê _t_|Giá trị _p_|\n|---|---|---|---|---|\n|`Intercept`|-226.67|86.26|-2.63|0.0103|\n|`Hits`|3.06|1.02|3.00|0.0036|\n|`Walks`|0.181|2.04|0.09|0.9294|\n|`CRuns`|0.859|0.12|7.09|_&lt;_0_._0001|\n|`PutOuts`|0.465|0.13|3.60|0.0005|"} />
+
+**BẢNG 10.3.** _Các ước lượng hệ số bình phương tối thiểu khi hồi quy_ `Salary` _theo bốn biến được lasso chọn trên tập dữ liệu_ `Hitters` _. Mô hình này đạt hiệu năng tốt nhất trên dữ liệu kiểm tra với sai số tuyệt đối trung bình 224,8. Các kết quả ở đây được lấy từ một phép hồi quy trên dữ liệu kiểm tra, vốn không được dùng để khớp mô hình lasso._
+
+Bảng 10.2 so sánh kết quả. Ta thấy hiệu năng của cả ba mô hình tương tự nhau. Chúng ta báo cáo sai số tuyệt đối trung bình trên dữ liệu kiểm tra cùng _R_^(2) kiểm tra của mỗi phương pháp; tất cả đều khá tốt (xem Bài tập 5). Chúng ta đã dành khá nhiều thời gian điều chỉnh các tham số cấu hình của mạng nơ-ron để đạt kết quả này. Có thể nếu dành thêm thời gian và chọn đúng dạng cùng mức điều chuẩn, ta sẽ sánh ngang hoặc thậm chí vượt hồi quy tuyến tính và lasso. Nhưng ta có thể dễ dàng thu được những mô hình tuyến tính hoạt động tốt. Mô hình tuyến tính dễ trình bày và dễ hiểu hơn nhiều so với mạng nơ-ron, vốn về cơ bản là một hộp đen. Lasso đã chọn 12 trong số 19 biến để dự đoán. Vì vậy, trong các trường hợp như thế này, tốt hơn hết nên theo nguyên lý _dao cạo Occam_: khi có nhiều phương pháp cho hiệu năng gần tương đương, hãy chọn phương pháp đơn giản nhất.
+
+Sau khi khảo sát thêm mô hình lasso, chúng ta xác định được một mô hình còn đơn giản hơn chỉ với bốn biến. Sau đó ta khớp lại mô hình tuyến tính bằng bốn biến này trên dữ liệu huấn luyện (được gọi là _relaxed lasso_) và đạt sai số tuyệt đối trung bình kiểm tra 224,8 — tốt nhất trong tất cả! Ta có thể muốn trình bày bảng tóm tắt của phép khớp này để xem các hệ số và giá trị p; tuy nhiên, vì mô hình được chọn trên dữ liệu huấn luyện nên sẽ có _độ chệch lựa chọn_. Thay vào đó, ta khớp lại mô hình trên dữ liệu kiểm tra, vốn không được dùng trong quá trình lựa chọn. Bảng 10.3 trình bày kết quả.
+
+Ta có nhiều công cụ rất mạnh, gồm mạng nơ-ron, rừng ngẫu nhiên và boosting, máy vector hỗ trợ và mô hình cộng tổng quát. Ngoài ra còn có các mô hình tuyến tính và những biến thể đơn giản của chúng. Khi đối mặt với bài toán mô hình hóa và dự đoán dữ liệu mới, ta thường bị hấp dẫn bởi những phương pháp mới đang thịnh hành. Chúng thường cho kết quả cực kỳ ấn tượng, đặc biệt khi tập dữ liệu rất lớn và đủ sức hỗ trợ khớp các mô hình phi tuyến nhiều chiều. Tuy nhiên, _nếu_ có thể tạo ra các mô hình bằng công cụ đơn giản hơn mà
+
+10.7 Khớp mạng nơ-ron
+
+hoạt động tốt tương đương, chúng nhiều khả năng sẽ dễ khớp, dễ hiểu và có thể ít mong manh hơn các cách tiếp cận phức tạp. Khi có thể, ta nên thử cả các mô hình đơn giản rồi lựa chọn dựa trên sự đánh đổi giữa hiệu năng và độ phức tạp.
+
+Thông thường, học sâu là lựa chọn hấp dẫn khi kích thước mẫu của tập huấn luyện cực kỳ lớn và khả năng diễn giải mô hình không phải ưu tiên cao.
+
+</MdxPage>

@@ -1,0 +1,265 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch04-generative-classification-models",
+  "locale": "vi",
+  "title": "Mô hình sinh cho phân loại",
+  "headings": [
+    "Mô hình sinh cho phân loại",
+    "4.4.1 Phân tích biệt thức tuyến tính khi p = 1",
+    "4.4.2 Phân tích biệt thức tuyến tính khi p >1",
+    "4.4.3 Phân tích biệt thức bậc hai",
+    "4.4.4 Naive Bayes"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân loại",
+    "Mô hình sinh cho phân loại"
+  ],
+  "pageCount": 5
+}
+
+<MdxPage page={0}>
+
+## Mô hình sinh cho phân loại
+
+Hồi quy logistic mô hình hóa trực tiếp Pr( _Y_ = _k|X_ = _x_ ) bằng hàm logistic, được cho trong (4.7) đối với trường hợp hai lớp đáp ứng. Theo thuật ngữ thống kê, ta mô hình hóa phân phối có điều kiện của đáp ứng _Y_ khi biết biến dự báo _X_. Bây giờ ta xét một cách khác, ít trực tiếp hơn, để ước lượng các xác suất này. Theo cách tiếp cận mới, ta mô hình hóa riêng phân phối của các biến dự báo _X_ trong từng lớp đáp ứng, tức với từng giá trị của _Y_. Sau đó, ta dùng định lý Bayes để chuyển chúng thành các ước lượng của Pr( _Y_ = _k|X_ = _x_ ). Khi giả định phân phối của _X_ trong mỗi lớp là chuẩn, mô hình thu được có dạng rất giống hồi quy logistic.
+
+Tại sao cần một phương pháp khác khi đã có hồi quy logistic? Có một số lý do:
+
+- Khi hai lớp phân tách đáng kể, các ước lượng tham số của mô hình hồi quy logistic lại bất ổn một cách đáng ngạc nhiên. Các phương pháp trong mục này không gặp vấn đề đó.
+
+- Nếu phân phối của các biến dự báo _X_ xấp xỉ chuẩn trong mỗi lớp và cỡ mẫu nhỏ, các cách tiếp cận trong mục này có thể chính xác hơn hồi quy logistic.
+
+- Các phương pháp trong mục này mở rộng tự nhiên sang trường hợp có nhiều hơn hai lớp đáp ứng. (Với nhiều hơn hai lớp đáp ứng, ta cũng có thể dùng hồi quy logistic đa thức ở Mục 4.3.5.)
+
+Giả sử ta muốn phân loại một quan sát vào một trong _K_ lớp, với _K ≥_ 2. Nói cách khác, biến đáp ứng định tính _Y_ có thể nhận _K_ giá trị phân biệt, không có thứ tự. Gọi _πk_ là xác suất tổng thể, hay xác suất _tiên nghiệm_, để một quan sát chọn ngẫu nhiên thuộc lớp thứ _k_. Gọi _fk_ ( _X_ ) _≡_ Pr( _X|Y_ = _k_ )^(1) là _hàm mật độ_ của _X_ đối với một quan sát thuộc lớp thứ _k_. Nói cách khác, _fk_ ( _x_ ) tương đối lớn nếu một quan sát trong lớp thứ _k_ có khả năng cao thỏa _X ≈ x_, còn _fk_ ( _x_ ) nhỏ nếu điều đó rất khó xảy ra. Khi ấy, _định lý Bayes_ phát biểu rằng
+
+Định lý Bayes
+
+> 1 Về mặt kỹ thuật, định nghĩa này chỉ đúng nếu _X_ là biến ngẫu nhiên định tính. Nếu _X_ là định lượng thì _fk_ ( _x_ ) _dx_ tương ứng với xác suất để _X_ rơi vào một vùng nhỏ _dx_ quanh _x_.
+
+Theo ký hiệu trước đó, ta viết tắt _pk_ ( _x_ ) = Pr( _Y_ = _k|X_ = _x_ ); đây là xác suất _hậu nghiệm_ để một quan sát _X_ = _x_ thuộc lớp thứ _k_. Tức là xác suất quan sát thuộc lớp thứ _k_ khi _biết_ giá trị biến dự báo của quan sát đó.
+
+Phương trình 4.15 gợi ý rằng thay vì tính trực tiếp xác suất hậu nghiệm _pk_ ( _x_ ) như trong Mục 4.3.1, ta chỉ cần thế các ước lượng của _πk_ và _fk_ ( _x_ ) vào (4.15). Nhìn chung, nếu có một mẫu ngẫu nhiên từ quần thể thì việc ước lượng _πk_ rất dễ: chỉ cần tính tỷ lệ quan sát huấn luyện thuộc lớp thứ _k_. Tuy nhiên, ước lượng hàm mật độ _fk_ ( _x_ ) khó hơn nhiều. Như sẽ thấy, để ước lượng _fk_ ( _x_ ), ta thường phải đặt một số giả định đơn giản hóa.
+
+Từ Chương 2, ta biết bộ phân loại Bayes gán quan sát _x_ vào lớp có _pk_ ( _x_ ) lớn nhất và đạt tỷ lệ lỗi thấp nhất có thể trong mọi bộ phân loại. (Dĩ nhiên, điều này chỉ đúng nếu mọi thành phần trong (4.15) được xác định đúng.) Vì vậy, nếu tìm được cách ước lượng _fk_ ( _x_ ), ta có thể thế nó vào (4.15) để xấp xỉ bộ phân loại Bayes.
+
+Trong các mục tiếp theo, ta thảo luận ba bộ phân loại dùng những ước lượng khác nhau của _fk_ ( _x_ ) trong (4.15) để xấp xỉ bộ phân loại Bayes: _phân tích biệt thức tuyến tính, phân tích biệt thức bậc hai_ và _naive Bayes_.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 4.4.1 Phân tích biệt thức tuyến tính khi p = 1
+
+Trước hết, giả sử _p_ = 1, tức ta chỉ có một biến dự báo. Ta muốn thu được một ước lượng của _fk_ ( _x_ ) để thế vào (4.15), qua đó ước lượng _pk_ ( _x_ ). Sau đó, ta phân loại quan sát vào lớp có _pk_ ( _x_ ) lớn nhất. Để ước lượng _fk_ ( _x_ ), trước tiên ta đặt một số giả định về dạng của nó.
+
+Cụ thể, ta giả định _fk_ ( _x_ ) là phân phối _chuẩn_ hay _Gaussian_. Trong trường hợp một chiều, mật độ chuẩn có dạng
+
+trong đó _µk_ và _σk_^(2arethemeanandvarianceparametersforthe)^(_k_thclass.) Bây giờ, giả sử thêm rằng _σ_ 1^(2=)^(_· · ·_=)^(_σ_) _K_^(2: that is, there is a shared) một thành phần phương sai được dùng chung cho cả _K_ lớp; để đơn giản, ký hiệu là _σ_^(2). Thế (4.16) vào (4.15), ta thu được
+
+(Lưu ý trong (4.17), _πk_ là xác suất tiên nghiệm để một quan sát thuộc lớp thứ _k_, không nên nhầm với hằng số toán học _π ≈_ 3 _._ 14159.) Bộ phân loại Bayes^(2) gán một quan sát
+
+> 2 Nhắc lại rằng _bộ phân loại Bayes_ gán một quan sát vào lớp có _pk_ ( _x_ ) lớn nhất. Khái niệm này khác với _định lý Bayes_ trong (4.15), công cụ cho phép ta biến đổi các phân phối có điều kiện.
+
+**HÌNH 4.4.** Trái: _Hai hàm mật độ chuẩn một chiều. Đường thẳng đứng nét đứt biểu diễn ranh giới quyết định Bayes._ Phải: _20 quan sát được lấy từ mỗi lớp và được biểu diễn bằng histogram. Ranh giới quyết định Bayes tiếp tục được vẽ bằng đường thẳng đứng nét đứt. Đường thẳng đứng liền biểu diễn ranh giới quyết định LDA ước lượng từ dữ liệu huấn luyện._
+
+_X_ = _x_ vào lớp làm (4.17) lớn nhất. Lấy log của (4.17) rồi sắp xếp lại các thành phần, không khó để chứng minh^(3) rằng điều này tương đương với gán quan sát vào lớp làm đại lượng sau lớn nhất:
+
+Chẳng hạn, nếu _K_ = 2 và _π_ 1 = _π_ 2 thì bộ phân loại Bayes gán một quan sát vào lớp 1 nếu 2 _x_ ( _µ_ 1 _− µ_ 2) _&gt; µ_^(2) 1^(_−µ_2) 2^(,andtoclass) 2 trong trường hợp ngược lại. Ranh giới quyết định Bayes là điểm thỏa _δ_ 1( _x_ ) = _δ_ 2( _x_ ); có thể chứng minh điều này tương đương với
+
+Một ví dụ xuất hiện ở khung bên trái của Hình 4.4. Hai hàm mật độ chuẩn _f_ 1( _x_ ) và _f_ 2( _x_ ) biểu diễn hai lớp phân biệt. Các tham số trung bình và phương sai của hai hàm mật độ là _µ_ 1 = _−_ 1 _._ 25, _µ_ 2 = 1 _._ 25 và _σ_ 1^(2=)^(_σ_) 2^(2=1.Thetwodensitiesoverlap,); vì vậy, khi biết _X_ = _x_, vẫn có sự bất định về lớp chứa quan sát. Nếu giả định một quan sát có khả năng như nhau đến từ mỗi lớp, tức _π_ 1 = _π_ 2 = 0 _._ 5, thì từ (4.19), ta thấy bộ phân loại Bayes gán quan sát vào lớp 1 nếu _x &lt;_ 0 và vào lớp 2 trong trường hợp ngược lại. Trong trường hợp này, ta có thể tính bộ phân loại Bayes vì biết _X_ được lấy từ một phân phối Gaussian trong mỗi lớp và biết mọi tham số liên quan. Trong thực tế, ta không thể tính chính xác bộ phân loại Bayes.
+
+Trong thực hành, ngay cả khi khá chắc chắn về giả định _X_ được lấy từ phân phối Gaussian trong mỗi lớp, để áp dụng bộ phân loại Bayes, ta vẫn phải ước lượng các tham số _µ_ 1 _, . . . , µK_, _π_ 1 _, . . . , πK_ và _σ_^(2). Phương pháp _phân tích biệt thức tuyến tính_ (LDA) xấp xỉ bộ phân loại Bayes tuyến tính bằng cách thế các ước lượng của _πk_, _µk_ và _σ_^(2) vào (4.18). Cụ thể,
+
+> 3 Xem Bài tập 2 ở cuối chương.
+
+ta dùng các ước lượng sau:
+
+trong đó _n_ là tổng số quan sát huấn luyện và _nk_ là số quan sát huấn luyện trong lớp thứ _k_. Ước lượng của _µk_ đơn giản là trung bình của mọi quan sát huấn luyện thuộc lớp thứ _k_, còn _σ_ ˆ^(2) có thể được xem là trung bình có trọng số của các phương sai mẫu trong từng lớp. Đôi khi ta biết các xác suất thành viên lớp _π_ 1 _, . . . , πK_ và có thể dùng trực tiếp. Nếu không có thông tin bổ sung, LDA ước lượng _πk_ bằng tỷ lệ quan sát huấn luyện thuộc lớp thứ _k_. Nói cách khác,
+
+Bộ phân loại LDA thế các ước lượng trong (4.20) và (4.21) vào (4.18), rồi gán quan sát _X_ = _x_ vào lớp làm đại lượng sau lớn nhất:
+
+Từ _tuyến tính_ trong tên bộ phân loại xuất phát từ việc các _hàm biệt thức δ_^(ˆ) _k_ ( _x_ ) trong (4.22) là hàm tuyến tính của _x_, thay vì một hàm phức tạp hơn của _x_.
+
+Khung bên phải của Hình 4.4 hiển thị histogram của một mẫu ngẫu nhiên gồm 20 quan sát từ mỗi lớp. Để triển khai LDA, trước hết ta ước lượng _πk_, _µk_ và _σ_^(2) bằng (4.20) và (4.21). Sau đó, ta tính ranh giới quyết định, được vẽ bằng đường liền màu đen, sinh ra khi gán quan sát vào lớp làm (4.22) lớn nhất. Mọi điểm bên trái đường này được gán vào lớp màu xanh lá, còn các điểm bên phải được gán vào lớp màu tím. Trong trường hợp này, vì _n_ 1 = _n_ 2 = 20 nên ˆ ˆ _π_ 1 = _π_ 2. Do đó, ranh giới quyết định là trung điểm giữa các trung bình mẫu của hai lớp, (ˆ _µ_ 1 + _µ_ ˆ2) _/_ 2. Hình cho thấy ranh giới quyết định LDA nằm hơi lệch trái so với ranh giới quyết định Bayes tối ưu, bằng ( _µ_ 1 + _µ_ 2) _/_ 2 = 0. Bộ phân loại LDA hoạt động tốt đến mức nào trên dữ liệu này? Vì đây là dữ liệu mô phỏng, ta có thể tạo nhiều quan sát kiểm tra để tính tỷ lệ lỗi Bayes và tỷ lệ lỗi kiểm tra LDA. Hai tỷ lệ lần lượt là 10 _._ 6 % và 11 _._ 1 %. Nói cách khác, tỷ lệ lỗi của LDA chỉ cao hơn tỷ lệ lỗi nhỏ nhất có thể 0 _._ 5 %! Điều này cho thấy LDA hoạt động khá tốt trên tập dữ liệu.
+
+Tóm lại, bộ phân loại LDA hình thành từ giả định rằng các quan sát trong mỗi lớp đến từ một phân phối chuẩn có trung bình riêng theo lớp và phương sai chung _σ_^(2), rồi thế các ước lượng tham số này vào bộ phân loại Bayes. Trong Mục 4.4.3, ta sẽ xét một tập giả định ít nghiêm ngặt hơn bằng cách cho phép quan sát trong lớp thứ _k_ có phương sai riêng theo lớp, _σk_^(2.)
+
+**HÌNH 4.5.** _Hai hàm mật độ Gaussian đa biến với p_ = 2 _._ Trái: _Hai biến dự báo không tương quan._ Phải: _Hai biến có hệ số tương quan_ 0 _._ 7 _._
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 4.4.2 Phân tích biệt thức tuyến tính khi p &gt;1
+
+Bây giờ ta mở rộng bộ phân loại LDA sang trường hợp nhiều biến dự báo. Ta giả định _X_ = ( _X_ 1 _, X_ 2 _, . . . , Xp_ ) được lấy từ một phân phối _Gaussian đa biến_ (hay chuẩn đa biến), với vector trung bình đa biến riêng theo lớp và một ma trận hiệp phương sai chung. Trước hết, ta điểm lại ngắn gọn phân phối Gaussian này.
+
+Phân phối Gaussian đa biến giả định từng biến dự báo riêng lẻ tuân theo phân phối chuẩn một chiều như trong (4.16), đồng thời tồn tại một mức tương quan nào đó giữa mỗi cặp biến dự báo. Hình 4.5 trình bày hai ví dụ về phân phối Gaussian đa biến với _p_ = 2. Độ cao của bề mặt tại một điểm biểu diễn xác suất để cả _X_ 1 và _X_ 2 cùng rơi vào một vùng nhỏ quanh điểm đó. Ở mỗi khung, nếu cắt bề mặt theo trục _X_ 1 hoặc _X_ 2, mặt cắt thu được có dạng phân phối chuẩn một chiều. Khung bên trái của Hình 4.5 minh họa trường hợp Var( _X_ 1) = Var( _X_ 2) và Cor( _X_ 1 _, X_ 2) = 0; bề mặt có _dạng chuông_ đặc trưng. Tuy nhiên, dạng chuông sẽ bị biến dạng nếu các biến dự báo tương quan hoặc có phương sai không bằng nhau, như ở khung bên phải. Khi đó, đáy chuông có dạng ellipse thay vì hình tròn. Để biểu thị biến ngẫu nhiên _p_ chiều _X_ có phân phối Gaussian đa biến, ta viết _X ∼ N_ ( _µ,_ **Σ** ). Ở đây, E( _X_ ) = _µ_ là trung bình của _X_ (một vector có _p_ thành phần), còn Cov( _X_ ) = **Σ** là ma trận hiệp phương sai _p × p_ của _X_. Về mặt hình thức, mật độ Gaussian đa biến được định nghĩa là
+
+Trong trường hợp có _p &gt;_ 1 biến dự báo, bộ phân loại LDA giả định các quan sát ở lớp thứ _k_ được lấy từ phân phối Gaussian đa biến _N_ ( _µk,_ **Σ** ), trong đó _µk_ là vector trung bình riêng theo lớp và **Σ** là ma trận hiệp phương sai dùng chung cho cả _K_ lớp. Thế hàm mật độ của lớp thứ _k_, _fk_ ( _X_ = _x_ ), vào (4.15) rồi thực hiện một số biến đổi đại số cho thấy bộ phân loại Bayes gán quan sát _X_ = _x_
+
+**HÌNH 4.6.** _Ví dụ gồm ba lớp. Các quan sát từ mỗi lớp được lấy từ một phân phối Gaussian đa biến với p_ = 2 _, có vector trung bình riêng theo lớp và ma trận hiệp phương sai chung._ Trái: _Các ellipse chứa_ 95 _% xác suất của từng lớp. Những đường nét đứt là ranh giới quyết định Bayes._ Phải: _20 quan sát được tạo từ mỗi lớp; các ranh giới quyết định LDA tương ứng được biểu diễn bằng đường liền màu đen. Ranh giới quyết định Bayes tiếp tục được biểu diễn bằng đường nét đứt._
+
+vào lớp làm đại lượng lớn nhất. Đây là phiên bản vector/ma trận của (4.18).
+
+Khung bên trái của Hình 4.6 minh họa một ví dụ. Ba lớp Gaussian có cùng kích thước được biểu diễn với các vector trung bình riêng theo lớp và một ma trận hiệp phương sai chung. Ba ellipse là các vùng chứa 95 % xác suất của từng lớp. Các đường nét đứt là ranh giới quyết định Bayes. Nói cách khác, chúng biểu diễn tập giá trị _x_ thỏa _δk_ ( _x_ ) = _δℓ_ ( _x_ ), tức
+
+với _k_ = _l_. (Thành phần log _πk_ trong (4.24) biến mất vì ba lớp có cùng số quan sát huấn luyện, tức _πk_ giống nhau giữa các lớp.) Có ba đường biểu diễn ranh giới quyết định Bayes vì ba lớp tạo ra ba _cặp lớp_. Một ranh giới tách lớp 1 khỏi lớp 2, một ranh giới tách lớp 1 khỏi lớp 3 và một ranh giới tách lớp 2 khỏi lớp 3. Ba ranh giới này chia không gian biến dự báo thành ba vùng. Bộ phân loại Bayes sẽ phân loại một quan sát theo vùng chứa nó.
+
+Một lần nữa, ta cần ước lượng các tham số chưa biết _µ_ 1 _, . . . , µK_, _π_ 1 _, . . . , πK_ và **Σ**; các công thức tương tự trường hợp một chiều trong (4.20). Để gán một quan sát mới _X_ = _x_, LDA thế các ước lượng này vào (4.24) để thu được _δ_^(ˆ) _k_ ( _x_ ), rồi phân loại vào lớp có _δ_^(ˆ) _k_ ( _x_ ) lớn nhất. Lưu ý trong (4.24), _δk_ ( _x_ ) là hàm tuyến tính của _x_; tức quy tắc quyết định LDA chỉ phụ thuộc vào _x_
+
+<MdxCode language="table" code={"|||_Trạng thái _|_default _|_thực tế_|\n|---|---|---|---|---|\n|||Không|Có|Tổng|\n|_Dự đoán_|Không|9644|252|9896|\n|_trạng thái default_|Có|23|81|104|\n||Tổng|9667|333|10000|"} />
+
+**BẢNG 4.4.** _Ma trận nhầm lẫn so sánh dự đoán LDA với trạng thái vỡ nợ thực tế của_ 10 _,_ 000 _quan sát huấn luyện trong tập dữ liệu_ `Default`_. Các phần tử trên đường chéo biểu diễn những cá nhân được dự đoán đúng trạng thái vỡ nợ, còn các phần tử ngoài đường chéo biểu diễn những cá nhân bị phân loại sai. LDA dự đoán sai_ 23 _người không vỡ nợ và_ 252 _người vỡ nợ._
+
+thông qua một tổ hợp tuyến tính của các phần tử. Như đã thảo luận, đây là lý do xuất hiện từ _tuyến tính_ trong LDA.
+
+Trong khung bên phải của Hình 4.6, 20 quan sát được lấy từ mỗi lớp trong ba lớp và các ranh giới quyết định LDA thu được được vẽ bằng đường liền màu đen. Nhìn chung, ranh giới quyết định LDA khá gần ranh giới quyết định Bayes, tiếp tục được vẽ bằng đường nét đứt. Tỷ lệ lỗi kiểm tra của bộ phân loại Bayes và LDA lần lượt là 0 _._ 0746 và 0 _._ 0770. Điều này cho thấy LDA hoạt động tốt trên dữ liệu.
+
+Ta có thể thực hiện LDA trên dữ liệu `Default` để dự đoán một cá nhân có vỡ nợ hay không dựa trên số dư thẻ tín dụng và trạng thái sinh viên.^(4) Mô hình LDA khớp trên 10 _,_ 000 mẫu huấn luyện có tỷ lệ lỗi _huấn luyện_ là 2 _._ 75 %. Con số này có vẻ thấp, nhưng cần lưu ý hai điểm.
+
+- Thứ nhất, tỷ lệ lỗi huấn luyện thường thấp hơn tỷ lệ lỗi kiểm tra, vốn mới là đại lượng thực sự cần quan tâm. Nói cách khác, bộ phân loại này có thể hoạt động kém hơn khi dùng để dự đoán một nhóm cá nhân mới có vỡ nợ hay không. Nguyên nhân là các tham số mô hình được điều chỉnh riêng để hoạt động tốt trên dữ liệu huấn luyện. Tỷ số giữa số tham số _p_ và số mẫu _n_ càng cao thì _quá khớp_ càng đóng vai trò lớn. Với dữ liệu này, ta không kỳ vọng đây là vấn đề vì _p_ = 2 và _n_ = 10 _,_ 000.
+
+- Thứ hai, vì chỉ 3 _._ 33 % cá nhân trong mẫu huấn luyện vỡ nợ, một bộ phân loại đơn giản nhưng vô dụng luôn dự đoán không vỡ nợ, bất kể số dư thẻ tín dụng và trạng thái sinh viên, sẽ có tỷ lệ lỗi 3 _._ 33 %. Nói cách khác, bộ phân loại _null_ tầm thường đạt tỷ lệ lỗi chỉ cao hơn một chút so với tỷ lệ lỗi huấn luyện LDA.
+
+Trong thực tế, một bộ phân loại nhị phân như thế này có thể mắc hai loại lỗi: gán nhầm một người vỡ nợ vào nhóm _không vỡ nợ_, hoặc gán nhầm một người không vỡ nợ vào
+
+> 4 Người đọc cẩn thận sẽ nhận thấy trạng thái sinh viên là biến định tính, vì vậy giả định chuẩn của LDA rõ ràng bị vi phạm trong ví dụ này! Tuy nhiên, LDA thường bền vững đáng kể trước các vi phạm mô hình, như ví dụ cho thấy. Naive Bayes trong Mục 4.4.4 là một phương án thay thế LDA không giả định các biến dự báo phân phối chuẩn.
+
+nhóm _vỡ nợ_. Ta thường muốn biết bộ phân loại đang mắc loại lỗi nào. _Ma trận nhầm lẫn_ cho dữ liệu `Default` trong Bảng 4.4 là cách thuận tiện để trình bày thông tin này. Ma trận cho thấy LDA dự đoán tổng cộng 104 người sẽ vỡ nợ. Trong số đó, 81 người thực sự vỡ nợ và 23 người không vỡ nợ. Vì vậy, chỉ 23 trong 9 _,_ 667 người không vỡ nợ bị gắn nhãn sai. Tỷ lệ này có vẻ khá thấp! Tuy nhiên, trong 333 người vỡ nợ, LDA bỏ sót 252 người (75 _._ 7 %). Do đó, dù tỷ lệ lỗi tổng thể thấp, tỷ lệ lỗi trong nhóm vỡ nợ lại rất cao. Từ góc nhìn của một công ty thẻ tín dụng muốn xác định khách hàng rủi ro cao, tỷ lệ lỗi 252 _/_ 333 = 75 _._ 7 % trong nhóm vỡ nợ có thể không chấp nhận được.
+
+Hiệu năng riêng theo lớp cũng quan trọng trong y học và sinh học, nơi _độ nhạy_ và _độ đặc hiệu_ mô tả hiệu năng của bộ phân loại hay xét nghiệm sàng lọc. Trong trường hợp này, độ nhạy là tỷ lệ người thực sự vỡ nợ được xác định đúng, bằng 24.3 %. Độ đặc hiệu là tỷ lệ người không vỡ nợ được xác định đúng, bằng (1 _−_ 23 _/_ 9667) = 99 _._ 8 %.
+
+Tại sao LDA phân loại khách hàng vỡ nợ kém như vậy? Nói cách khác, tại sao độ nhạy lại thấp? Như đã thấy, LDA cố gắng xấp xỉ bộ phân loại Bayes, bộ phân loại có tỷ lệ lỗi _tổng thể_ thấp nhất. Tức bộ phân loại Bayes tạo ra tổng số quan sát bị phân loại sai nhỏ nhất có thể, bất kể lỗi xuất phát từ lớp nào. Một số lỗi đến từ việc gán nhầm khách hàng không vỡ nợ vào lớp vỡ nợ; số khác đến từ việc gán nhầm khách hàng vỡ nợ vào lớp không vỡ nợ. Trái lại, công ty thẻ tín dụng có thể đặc biệt muốn tránh phân loại sai một người sẽ vỡ nợ, trong khi phân loại sai người không vỡ nợ, dù vẫn cần tránh, ít nghiêm trọng hơn. Bây giờ ta sẽ thấy có thể sửa LDA để phát triển bộ phân loại phù hợp hơn với nhu cầu của công ty.
+
+Bộ phân loại Bayes gán một quan sát vào lớp có xác suất hậu nghiệm _pk_ ( _X_ ) lớn nhất. Trong trường hợp hai lớp, điều này tương đương với gán một quan sát vào lớp _vỡ nợ_ nếu
+
+Vì vậy, bộ phân loại Bayes, và theo đó là LDA, dùng ngưỡng 50 % cho xác suất hậu nghiệm vỡ nợ để gán quan sát vào lớp _vỡ nợ_. Tuy nhiên, nếu lo ngại việc dự đoán sai trạng thái của người vỡ nợ, ta có thể hạ ngưỡng. Chẳng hạn, có thể gắn nhãn _vỡ nợ_ cho mọi khách hàng có xác suất hậu nghiệm vỡ nợ trên 20 %. Nói cách khác, thay vì gán quan sát vào lớp _vỡ nợ_ khi (4.26) đúng, ta có thể gán vào lớp này nếu
+
+Các tỷ lệ lỗi của cách tiếp cận này được trình bày trong Bảng 4.5. Lúc này, LDA dự đoán 430 người sẽ vỡ nợ. Trong 333 người vỡ nợ, LDA dự đoán đúng tất cả trừ 138 người, tức bỏ sót 41 _._ 4 %. Đây là một cải thiện lớn
+
+<MdxCode language="table" code={"|||_Trạng thái _|_default _|_thực tế_|\n|---|---|---|---|---|\n|||Không|Có|Tổng|\n|_Dự đoán_|Không|9432|138|9570|\n|_trạng thái default_|Có|235|195|430|\n||Tổng|9667|333|10000|"} />
+
+**BẢNG 4.5.** _Ma trận nhầm lẫn so sánh dự đoán LDA với trạng thái vỡ nợ thực tế của_ 10 _,_ 000 _quan sát huấn luyện trong tập dữ liệu_ `Default`_, sử dụng ngưỡng đã điều chỉnh để dự đoán vỡ nợ cho mọi cá nhân có xác suất hậu nghiệm vỡ nợ vượt quá_ 20 _%._
+
+**HÌNH 4.7.** _Với tập dữ liệu_ `Default`_, các tỷ lệ lỗi được biểu diễn theo ngưỡng xác suất hậu nghiệm dùng để phân loại. Đường liền màu đen là tỷ lệ lỗi tổng thể. Đường nét đứt màu xanh biểu diễn tỷ lệ khách hàng vỡ nợ bị phân loại sai, còn đường chấm màu cam cho biết tỷ lệ lỗi trong nhóm khách hàng không vỡ nợ._
+
+so với tỷ lệ lỗi 75 _._ 7 % khi dùng ngưỡng 50 %. Tuy nhiên, cải thiện này có đánh đổi: giờ đây 235 người không vỡ nợ bị phân loại sai. Do đó, tỷ lệ lỗi tổng thể tăng nhẹ lên 3 _._ 73 %. Nhưng công ty thẻ tín dụng có thể xem mức tăng nhỏ của lỗi tổng thể là cái giá chấp nhận được để xác định chính xác hơn những người thực sự vỡ nợ.
+
+Hình 4.7 minh họa sự đánh đổi khi thay đổi ngưỡng xác suất hậu nghiệm vỡ nợ. Nhiều tỷ lệ lỗi được biểu diễn theo ngưỡng. Dùng ngưỡng 0 _._ 5 như trong (4.26) làm tỷ lệ lỗi tổng thể, được vẽ bằng đường liền màu đen, nhỏ nhất. Điều này phù hợp kỳ vọng vì bộ phân loại Bayes dùng ngưỡng 0 _._ 5 và có tỷ lệ lỗi tổng thể thấp nhất. Nhưng với ngưỡng 0 _._ 5, tỷ lệ lỗi trong nhóm vỡ nợ khá cao (đường nét đứt màu xanh). Khi giảm ngưỡng, tỷ lệ lỗi trong nhóm vỡ nợ giảm đều, còn tỷ lệ lỗi trong nhóm không vỡ nợ tăng. Làm sao chọn ngưỡng tốt nhất? Quyết định này phải dựa trên _tri thức miền_, chẳng hạn thông tin chi tiết về chi phí gắn với vỡ nợ.
+
+_Đường cong ROC_ là một đồ thị phổ biến để hiển thị đồng thời hai loại lỗi ở mọi ngưỡng khả dĩ. Tên “ROC” có nguồn gốc lịch sử từ lý thuyết truyền thông và là viết tắt của _receiver operating characteristics_. Hình 4.8 trình bày đường cong ROC của bộ phân loại LDA trên dữ liệu huấn luyện. Hiệu năng tổng thể của một bộ phân loại, được tổng hợp
+
+###### **Đường cong ROC**
+
+**HÌNH 4.8.** _Đường cong ROC của bộ phân loại LDA trên dữ liệu_ `Default`_. Nó lần theo hai loại lỗi khi thay đổi ngưỡng xác suất hậu nghiệm vỡ nợ. Các ngưỡng cụ thể không được hiển thị. Tỷ lệ dương tính thật chính là độ nhạy: tỷ lệ người vỡ nợ được xác định đúng tại một ngưỡng cho trước. Tỷ lệ dương tính giả bằng 1 trừ độ đặc hiệu: tỷ lệ người không vỡ nợ bị phân loại sai thành vỡ nợ tại cùng ngưỡng. Đường cong ROC lý tưởng bám sát góc trên bên trái, thể hiện tỷ lệ dương tính thật cao và tỷ lệ dương tính giả thấp. Đường chấm biểu diễn bộ phân loại “không có thông tin”; đây là kết quả kỳ vọng nếu trạng thái sinh viên và số dư thẻ tín dụng không liên quan đến xác suất vỡ nợ._
+
+trên mọi ngưỡng khả dĩ, được đo bằng _diện tích dưới đường cong (ROC)_ (AUC). Đường cong ROC lý tưởng bám sát góc trên bên trái; AUC càng lớn thì bộ phân loại càng tốt. Với dữ liệu này, AUC bằng 0 _._ 95, gần mức tối đa 1 _._ 0, nên được xem là rất tốt. Một bộ phân loại không tốt hơn chọn ngẫu nhiên được kỳ vọng có AUC bằng 0.5 khi đánh giá trên tập kiểm tra độc lập không dùng để huấn luyện mô hình. Đường cong ROC hữu ích để so sánh nhiều bộ phân loại vì xét mọi ngưỡng khả dĩ. Đường cong ROC của mô hình hồi quy logistic trong Mục 4.3.4 khi khớp dữ liệu này gần như không thể phân biệt với đường của mô hình LDA, nên không được trình bày ở đây.
+
+đường cong (ROC)
+
+Như đã thấy, thay đổi ngưỡng của bộ phân loại làm thay đổi tỷ lệ dương tính thật và dương tính giả. Hai đại lượng này còn được gọi là _độ nhạy_ và một trừ _độ đặc hiệu_ của bộ phân loại. Vì có rất nhiều thuật ngữ dễ gây nhầm lẫn trong bối cảnh này, ta tóm tắt như sau. Bảng 4.6 trình bày các kết quả khả dĩ khi áp dụng bộ phân loại (hay xét nghiệm chẩn đoán) cho một quần thể. Để liên hệ với tài liệu dịch tễ học, xem “+” là “bệnh” cần phát hiện và “ _−_ ” là trạng thái “không bệnh”. Để liên hệ với kiểm định giả thuyết cổ điển, xem “ _−_ ” là giả thuyết không và “+” là
+
+<MdxCode language="table" code={"|||_Lớp thực tế _ _−_ hoặc Null|_+ hoặc_|Non-null|Tổng|\n|---|---|---|---|---|---|\n|_Lớp dự đoán_|_−_ hoặc Null|Âm tính thật (TN)|Âm tính|giả (FN)|N^(_~~∗~~_)|\n||+ hoặc Non-null|Dương tính giả (FP)|Dương tính|thật (TP)|P^(_∗_)|\n||Tổng|N||P||"} />
+
+**BẢNG 4.6.** _Các kết quả khả dĩ khi áp dụng bộ phân loại hoặc xét nghiệm chẩn đoán cho một quần thể._
+
+<MdxCode language="table" code={"|Tên|Định nghĩa|Tên đồng nghĩa|\n|---|---|---|\n|Tỷ lệ dương tính giả|FP_/_N|Lỗi loại I, 1_−_độ đặc hiệu|\n|Tỷ lệ dương tính thật|TP_/_P|1_−_lỗi loại II, power, độ nhạy, recall|\n|Giá trị dự báo dương|TP_/_P^(_∗_)|Precision, 1_−_tỷ lệ phát hiện sai|\n|Giá trị dự báo âm|TN_/_N^(_∗_)||"} />
+
+**BẢNG 4.7.** _Các thước đo quan trọng trong phân loại và xét nghiệm chẩn đoán, được suy ra từ những đại lượng trong Bảng 4.6._
+
+giả thuyết đối (non-null). Trong dữ liệu `Default`, “+” chỉ một người vỡ nợ còn “ _−_ ” chỉ một người không vỡ nợ.
+
+Bảng 4.7 liệt kê nhiều thước đo hiệu năng phổ biến trong bối cảnh này. Mẫu số của tỷ lệ dương tính giả và dương tính thật là số lượng thực tế trong từng lớp của quần thể. Trái lại, mẫu số của giá trị dự báo dương và giá trị dự báo âm là tổng số dự đoán trong từng lớp.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## 4.4.3 Phân tích biệt thức bậc hai
+
+Như đã thảo luận, LDA giả định các quan sát trong mỗi lớp được lấy từ một phân phối Gaussian đa biến có vector trung bình riêng theo lớp và một ma trận hiệp phương sai chung cho cả _K_ lớp. _Phân tích biệt thức bậc hai_ (QDA) cung cấp một cách tiếp cận khác. Giống LDA, bộ phân loại QDA xuất phát từ giả định rằng các quan sát của mỗi lớp được lấy từ phân phối Gaussian, sau đó thế các ước lượng tham số vào định lý Bayes để dự đoán. Tuy nhiên, khác với LDA, QDA giả định mỗi lớp có ma trận hiệp phương sai riêng. Tức một quan sát từ lớp thứ _k_ có dạng _X ∼ N_ ( _µk,_ **Σ** _k_ ), trong đó **Σ** _k_ là ma trận hiệp phương sai của lớp thứ _k_. Theo giả định này, bộ phân loại Bayes gán quan sát _X_ = _x_ vào lớp làm đại lượng sau lớn nhất:
+
+Vì vậy, bộ phân loại QDA thế các ước lượng của **Σ** _k_, _µk_ và _πk_ vào (4.28), rồi gán quan sát _X_ = _x_ vào lớp làm đại lượng này lớn nhất. Khác với (4.24), đại lượng _x_ xuất hiện dưới dạng hàm _bậc hai_ trong (4.28). Đây là nguồn gốc tên QDA.
+
+Tại sao giả định _K_ lớp dùng chung ma trận hiệp phương sai lại quan trọng? Nói cách khác, tại sao ta chọn LDA thay vì
+
+**HÌNH 4.9.** Trái: _Ranh giới quyết định Bayes (nét đứt màu tím), LDA (nét chấm màu đen) và QDA (đường liền màu xanh) cho bài toán hai lớp với_ **Σ** 1 = **Σ** 2 _. Phần tô màu biểu thị quy tắc quyết định QDA. Vì ranh giới quyết định Bayes là tuyến tính, LDA xấp xỉ nó chính xác hơn QDA._ Phải: _Chi tiết giống khung bên trái, ngoại trừ_ **Σ** 1 = **Σ** 2 _. Vì ranh giới quyết định Bayes là phi tuyến, QDA xấp xỉ nó chính xác hơn LDA._
+
+QDA, hoặc ngược lại? Câu trả lời nằm ở sự đánh đổi bias-variance. Với _p_ biến dự báo, ước lượng một ma trận hiệp phương sai đòi hỏi ước lượng _p_ ( _p_ +1) _/_ 2 tham số. QDA ước lượng một ma trận hiệp phương sai riêng cho mỗi lớp, tổng cộng _Kp_ ( _p_ +1) _/_ 2 tham số. Với 50 biến dự báo, con số này là một bội số của 1,275, tức rất nhiều tham số. Nếu thay vào đó giả định _K_ lớp dùng chung ma trận hiệp phương sai, mô hình LDA trở thành tuyến tính theo _x_, nghĩa là cần ước lượng _Kp_ hệ số tuyến tính. Do đó, LDA kém linh hoạt hơn QDA đáng kể và có phương sai thấp hơn nhiều. Điều này có thể cải thiện hiệu năng dự đoán. Nhưng vẫn có đánh đổi: nếu giả định dùng chung ma trận hiệp phương sai của LDA sai lệch nghiêm trọng thì LDA có thể chịu bias cao. Nói khái quát, LDA thường phù hợp hơn QDA khi có tương đối ít quan sát huấn luyện và việc giảm phương sai là thiết yếu. Trái lại, QDA được khuyến nghị nếu tập huấn luyện rất lớn, khiến phương sai của bộ phân loại không còn là mối lo chính, hoặc nếu giả định ma trận hiệp phương sai chung cho _K_ lớp rõ ràng không thể chấp nhận.
+
+Hình 4.9 minh họa hiệu năng của LDA và QDA trong hai kịch bản. Ở khung bên trái, hai lớp Gaussian có cùng hệ số tương quan 0 _._ 7 giữa _X_ 1 và _X_ 2. Vì vậy, ranh giới quyết định Bayes là tuyến tính và được ranh giới quyết định LDA xấp xỉ chính xác. Ranh giới QDA kém hơn vì chịu phương sai cao hơn mà bias không giảm tương ứng. Trái lại, khung bên phải trình bày trường hợp lớp màu cam có hệ số tương quan 0 _._ 7 giữa hai biến, còn lớp màu xanh có hệ số tương quan _−_ 0 _._ 7. Khi đó, ranh giới quyết định Bayes là bậc hai nên QDA xấp xỉ ranh giới này chính xác hơn LDA.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## 4.4.4 Naive Bayes
+
+Trong các mục trước, ta dùng định lý Bayes (4.15) để phát triển bộ phân loại LDA và QDA. Ở đây, định lý Bayes là động lực cho bộ phân loại _naive Bayes_ phổ biến.
+
+Nhắc lại rằng định lý Bayes (4.15) biểu diễn xác suất hậu nghiệm _pk_ ( _x_ ) = Pr( _Y_ = _k|X_ = _x_ ) theo _π_ 1 _, . . . , πK_ và _f_ 1( _x_ ) _, . . . , fK_ ( _x_ ). Để dùng (4.15) trong thực tế, ta cần các ước lượng của _π_ 1 _, . . . , πK_ và _f_ 1( _x_ ) _, . . . , fK_ ( _x_ ). Như đã thấy, việc ước lượng các xác suất tiên nghiệm _π_ 1 _, . . . , πK_ thường khá trực tiếp: chẳng hạn, có thể ước lượng _π_ ˆ _k_ bằng tỷ lệ quan sát huấn luyện thuộc lớp thứ _k_, với _k_ = 1 _, . . . , K_.
+
+Tuy nhiên, ước lượng _f_ 1( _x_ ) _, . . . , fK_ ( _x_ ) tinh tế hơn. Nhắc lại rằng _fk_ ( _x_ ) là hàm mật độ _p_ chiều của một quan sát trong lớp thứ _k_, với _k_ = 1 _, . . . , K_. Nhìn chung, ước lượng một hàm mật độ _p_ chiều là bài toán khó. Trong LDA, ta đặt một giả định rất mạnh giúp đơn giản hóa đáng kể tác vụ: _fk_ là hàm mật độ của biến ngẫu nhiên chuẩn đa biến có trung bình _µk_ riêng theo lớp và ma trận hiệp phương sai chung **Σ**. Trái lại, trong QDA, ta giả định _fk_ là hàm mật độ của biến ngẫu nhiên chuẩn đa biến có trung bình _µk_ và ma trận hiệp phương sai **Σ** _k_ đều riêng theo lớp. Nhờ những giả định rất mạnh này, ta thay bài toán khó là ước lượng _K_ hàm mật độ _p_ chiều bằng bài toán đơn giản hơn nhiều: ước lượng _K_ vector trung bình _p_ chiều và một ma trận hiệp phương sai _p × p_ đối với LDA, hoặc _K_ ma trận đối với QDA.
+
+Bộ phân loại naive Bayes chọn một hướng khác để ước lượng _f_ 1( _x_ ) _, . . . , fK_ ( _x_ ). Thay vì giả định các hàm này thuộc một họ phân phối cụ thể, chẳng hạn chuẩn đa biến, ta chỉ đặt một giả định:
+
+naive Bayes
+
+_Trong lớp thứ k, p biến dự báo độc lập với nhau._
+
+Về mặt toán học, giả định này có nghĩa là với _k_ = 1 _, . . . , K_,
+
+_fk_ ( _x_ ) = _fk_ 1( _x_ 1) _× fk_ 2( _x_ 2) _× · · · × fkp_ ( _xp_ ) _,_ (4.29)
+
+trong đó _fkj_ là hàm mật độ của biến dự báo thứ _j_ trên các quan sát thuộc lớp thứ _k_.
+
+Tại sao giả định này mạnh đến vậy? Về bản chất, ước lượng hàm mật độ _p_ chiều khó vì ta không chỉ phải xét _phân phối biên_ của từng biến dự báo, tức phân phối riêng của mỗi biến, mà còn phải xét _phân phối đồng thời_ của các biến dự báo, tức mối liên hệ giữa chúng. Với phân phối chuẩn đa biến, mối liên hệ giữa các biến dự báo được tóm tắt bởi các phần tử ngoài đường chéo của ma trận hiệp phương sai. Tuy nhiên, nhìn chung, mối liên hệ này có thể rất khó mô tả và đặc biệt khó ước lượng. Bằng cách giả định _p_ hiệp biến độc lập trong mỗi lớp, ta loại bỏ hoàn toàn nhu cầu xét mối liên hệ giữa các biến dự báo, vì đã giả định rằng _không có_ mối liên hệ nào!
+
+Ta có thực sự tin giả định naive Bayes rằng _p_ hiệp biến độc lập trong mỗi lớp không? Trong phần lớn trường hợp, câu trả lời là không. Nhưng dù giả định mô hình hóa này được đặt ra vì sự thuận tiện, nó thường tạo ra
+
+kết quả khá tốt, đặc biệt khi _n_ không đủ lớn so với _p_ để ước lượng hiệu quả phân phối đồng thời của các biến dự báo trong mỗi lớp. Thực tế, vì ước lượng phân phối đồng thời đòi hỏi lượng dữ liệu rất lớn, naive Bayes là lựa chọn tốt trong nhiều trường hợp. Về bản chất, giả định naive Bayes đưa thêm một phần bias nhưng làm giảm phương sai, nhờ đó tạo ra bộ phân loại hoạt động khá tốt trong thực tế do sự đánh đổi bias-variance.
+
+Sau khi đặt giả định naive Bayes, ta thế (4.29) vào (4.15) để thu được biểu thức của xác suất hậu nghiệm,
+
+với _k_ = 1 _, . . . , K_.
+
+Để ước lượng hàm mật độ một chiều _fkj_ bằng dữ liệu huấn luyện _x_ 1 _j, . . . , xnj_, ta có một số lựa chọn.
+
+- Nếu _Xj_ là định lượng, ta có thể giả định _Xj|Y_ = _k ∼ N_ ( _µjk, σjk_^(2).) Nói cách khác, trong mỗi lớp, biến dự báo thứ _j_ được lấy từ một phân phối chuẩn đơn biến. Điều này có vẻ giống QDA, nhưng có một khác biệt quan trọng: ở đây ta giả định các biến dự báo độc lập. Nó tương đương QDA với giả định bổ sung rằng ma trận hiệp phương sai riêng theo lớp là ma trận đường chéo.
+
+- Nếu _Xj_ là định lượng, một lựa chọn khác là dùng ước lượng phi tham số cho _fkj_. Một cách rất đơn giản là tạo histogram cho các quan sát của biến dự báo thứ _j_ trong mỗi lớp. Khi đó, có thể ước lượng _fkj_ ( _xj_ ) bằng tỷ lệ quan sát huấn luyện trong lớp thứ _k_ nằm cùng bin histogram với _xj_. Hoặc ta có thể dùng _bộ ước lượng mật độ kernel_, về bản chất là phiên bản được làm trơn của histogram.
+
+   - bộ ước lượng mật độ
+
+- Nếu _Xj_ là định tính, ta chỉ cần đếm tỷ lệ quan sát huấn luyện của biến dự báo thứ _j_ ứng với từng giá trị. Chẳng hạn, giả sử _Xj ∈\{_ 1 _,_ 2 _,_ 3 _\}_ và có 100 quan sát trong lớp thứ _k_. Giả sử biến dự báo thứ _j_ nhận các giá trị 1, 2 và 3 lần lượt trong 32, 55 và 13 quan sát. Khi đó, ta có thể ước lượng _fkj_ như sau:
+
+Bây giờ ta xét bộ phân loại naive Bayes trong một ví dụ đơn giản có _p_ = 3 biến dự báo và _K_ = 2 lớp. Hai biến dự báo đầu là định lượng, còn biến thứ ba là định tính với ba mức. Giả sử thêm rằng ˆ ˆ _π_ 1 = _π_ 2 = 0 _._ 5. Các hàm mật độ ước lượng _f_^(ˆ) _kj_ với _k_ = 1 _,_ 2 và _j_ = 1 _,_ 2 _,_ 3 được trình bày trong Hình 4.10. Giờ giả sử ta muốn phân loại một quan sát mới _x_^(_∗_) = (0 _._ 4 _,_ 1 _._ 5 _,_ 1)^(_T_). Trong ví dụ này,
+
+**HÌNH 4.10.** _Trong ví dụ đơn giản ở Mục 4.4.4, ta tạo dữ liệu với p_ = 3 _biến dự báo và K_ = 2 _lớp. Hai biến dự báo đầu là định lượng, còn biến thứ ba là định tính với ba mức. Trong mỗi lớp, mật độ ước lượng của từng biến dự báo được hiển thị. Nếu xác suất tiên nghiệm của hai lớp bằng nhau thì quan sát x_^(_∗_) = (0 _._ 4 _,_ 1 _._ 5 _,_ 1)^(_T_) _có xác suất hậu nghiệm_ 94 _._ 4% _thuộc lớp thứ nhất._
+
+<MdxCode language="table" code={"|||_Trạng thái _|_default _|_thực tế_|\n|---|---|---|---|---|\n|||Không|Có|Tổng|\n|_Dự đoán_|Không|9621|244|9865|\n|_trạng thái default_|Có|46|89|135|\n||Tổng|9667|333|10000|"} />
+
+**BẢNG 4.8.** _So sánh dự đoán naive Bayes với trạng thái vỡ nợ thực tế của_ 10 _,_ 000 _quan sát huấn luyện trong tập dữ liệu_ `Default`_, khi dự đoán vỡ nợ cho mọi quan sát thỏa P_ ( _Y_ = default _|X_ = _x_ ) _&gt;_ 0 _._ 5 _._
+
+_f_^(ˆ) 11(0 _._ 4) = 0 _._ 368, _f_^(ˆ) 12(1 _._ 5) = 0 _._ 484, _f_^(ˆ) 13(1) = 0 _._ 226, còn _f_^(ˆ) 21(0 _._ 4) = 0 _._ 030, _f_^(ˆ) 22(1 _._ 5) = 0 _._ 130 và _f_^(ˆ) 23(1) = 0 _._ 616. Thế các ước lượng này vào (4.30) cho các xác suất hậu nghiệm ước lượng Pr( _Y_ = 1 _|X_ = _x_^(_∗_) ) = 0 _._ 944 và Pr( _Y_ = 2 _|X_ = _x_^(_∗_) ) = 0 _._ 056.
+
+Bảng 4.8 trình bày ma trận nhầm lẫn khi áp dụng bộ phân loại naive Bayes cho tập dữ liệu `Default`, trong đó ta dự đoán vỡ nợ nếu xác suất hậu nghiệm vỡ nợ, tức _P_ ( _Y_ = default _|X_ = _x_ ), vượt quá 0 _._ 5. So với kết quả LDA trong Bảng 4.4, kết luận không hoàn toàn nghiêng về một phía. Dù LDA có tỷ lệ lỗi tổng thể thấp hơn đôi chút, naive Bayes
+
+4.5 So sánh các phương pháp phân loại
+
+<MdxCode language="table" code={"|||_Trạng thái _|_default _|_thực tế_|\n|---|---|---|---|---|\n|||Không|Có|Tổng|\n|_Dự đoán_|Không|9339|130|9469|\n|_trạng thái default_|Có|328|203|531|\n||Tổng|9667|333|10000|"} />
+
+**BẢNG 4.9.** _So sánh dự đoán naive Bayes với trạng thái vỡ nợ thực tế của_ 10 _,_ 000 _quan sát huấn luyện trong tập dữ liệu_ `Default`_, khi dự đoán vỡ nợ cho mọi quan sát thỏa P_ ( _Y_ = default _|X_ = _x_ ) _&gt;_ 0 _._ 2 _._
+
+lại dự đoán đúng tỷ lệ người thực sự vỡ nợ cao hơn. Trong cách triển khai naive Bayes này, ta giả định từng biến dự báo định lượng được lấy từ phân phối Gaussian và, dĩ nhiên, các biến dự báo độc lập trong mỗi lớp.
+
+Tương tự LDA, ta có thể dễ dàng điều chỉnh ngưỡng xác suất để dự đoán vỡ nợ. Chẳng hạn, Bảng 4.9 trình bày ma trận nhầm lẫn khi dự đoán vỡ nợ nếu _P_ ( _Y_ = default _|X_ = _x_ ) _&gt;_ 0 _._ 2. Một lần nữa, kết quả so với LDA ở cùng ngưỡng (Bảng 4.5) có ưu nhược điểm đan xen. Naive Bayes có tỷ lệ lỗi cao hơn nhưng dự đoán đúng gần hai phần ba số trường hợp thực sự vỡ nợ.
+
+Trong ví dụ này, việc naive Bayes không vượt trội thuyết phục so với LDA không quá bất ngờ: tập dữ liệu có _n_ = 10 _,_ 000 và _p_ = 2, nên mức giảm phương sai nhờ giả định naive Bayes chưa chắc đủ giá trị. Ta kỳ vọng naive Bayes mang lại lợi ích lớn hơn so với LDA hoặc QDA khi _p_ lớn hơn hoặc _n_ nhỏ hơn, tức khi việc giảm phương sai rất quan trọng.
+
+</MdxPage>

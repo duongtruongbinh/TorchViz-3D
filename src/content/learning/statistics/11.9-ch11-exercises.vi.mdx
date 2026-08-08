@@ -1,0 +1,132 @@
+export const lessonMetadata = {
+  "domainId": "statistics",
+  "id": "ch11-exercises",
+  "locale": "vi",
+  "title": "Bài tập",
+  "headings": [
+    "Lý thuyết",
+    "Thực hành"
+  ],
+  "keywords": [
+    "thống kê",
+    "học thống kê",
+    "ISLP",
+    "Phân tích sống còn và dữ liệu bị kiểm duyệt",
+    "Bài tập"
+  ],
+  "pageCount": 2
+}
+
+<MdxPage page={0}>
+
+## Lý thuyết
+
+1. Với mỗi ví dụ, hãy cho biết cơ chế kiểm duyệt có độc lập hay không. Giải thích câu trả lời.
+
+   - (a) Trong một nghiên cứu về tái phát bệnh, do một nhà nghiên cứu bất cẩn, tất cả bệnh nhân có số điện thoại bắt đầu bằng số “2” đều bị mất dấu theo dõi.
+
+   - (b) Trong một nghiên cứu về tuổi thọ, lỗi định dạng khiến tuổi của mọi bệnh nhân trên 99 bị mất (tức ta biết những bệnh nhân đó hơn 99 tuổi nhưng không biết chính xác tuổi của họ).
+
+   - (c) Bệnh viện A tiến hành một nghiên cứu về tuổi thọ. Tuy nhiên, các bệnh nhân mắc bệnh rất nặng thường được chuyển đến Bệnh viện B và bị mất dấu theo dõi.
+
+   - (d) Trong một nghiên cứu về thời gian thất nghiệp, những người tìm được việc sớm ít có động lực giữ liên lạc với nhóm nghiên cứu hơn, nên có khả năng bị mất dấu theo dõi cao hơn.
+
+   - (e) Trong một nghiên cứu về thời gian mang thai, những phụ nữ sinh non có nhiều khả năng sinh ở một nơi khác bệnh viện thường lui tới, và vì vậy có nhiều khả năng bị kiểm duyệt hơn so với phụ nữ sinh đủ tháng.
+
+   - (f) Một nhà nghiên cứu muốn mô hình hóa số năm đi học của cư dân một thị trấn nhỏ. Những cư dân theo học đại học ngoài thị trấn có nhiều khả năng bị mất dấu theo dõi hơn, đồng thời cũng có nhiều khả năng học sau đại học hơn so với người học đại học trong thị trấn.
+
+   - (g) Các nhà nghiên cứu thực hiện nghiên cứu về sống còn không bệnh (tức thời gian cho đến khi bệnh tái phát sau điều trị). Bệnh nhân không tái phát trong vòng năm năm được coi là đã khỏi, vì vậy thời gian sống còn của họ bị kiểm duyệt tại năm năm.
+
+   - (h) Ta muốn mô hình hóa thời gian hỏng của một linh kiện điện. Linh kiện này có thể được sản xuất ở Iowa hoặc Pittsburgh mà không khác biệt về chất lượng. Nhà máy Iowa mở cách đây năm năm nên linh kiện sản xuất ở Iowa bị kiểm duyệt tại năm năm. Nhà máy Pittsburgh mở cách đây hai năm nên các linh kiện đó bị kiểm duyệt tại hai năm.
+
+   - (i) Ta muốn mô hình hóa thời gian hỏng của một linh kiện điện được sản xuất ở hai nhà máy khác nhau, trong đó một nhà máy mở sớm hơn nhà máy kia. Ta có lý do để tin rằng linh kiện sản xuất tại nhà máy mở sớm hơn có chất lượng cao hơn.
+
+2. Ta tiến hành một nghiên cứu với _n_ = 4 người vừa mua điện thoại di động để mô hình hóa thời gian cho đến khi thay điện thoại. Người thứ nhất thay điện thoại sau 1,2 năm. Người thứ hai vẫn chưa thay điện thoại khi thời gian nghiên cứu hai năm kết thúc. Người thứ ba đổi số điện thoại và bị mất dấu theo dõi (nhưng vẫn chưa thay điện thoại) sau 1,5 năm kể từ khi nghiên cứu bắt đầu. Người thứ tư thay điện thoại sau 0,2 năm.
+
+Với từng người trong bốn người (_i_ = 1 _, . . . ,_ 4), hãy dùng ký hiệu giới thiệu ở Mục 11.1 để trả lời các câu hỏi sau:
+
+   - (a) Thời gian thay điện thoại của người tham gia có bị kiểm duyệt không?
+
+   - (b) Giá trị _ci_ có được biết không, và nếu có thì bằng bao nhiêu?
+
+   - (c) Giá trị _ti_ có được biết không, và nếu có thì bằng bao nhiêu?
+
+   - (d) Giá trị _yi_ có được biết không, và nếu có thì bằng bao nhiêu?
+
+   - (e) Giá trị _δi_ có được biết không, và nếu có thì bằng bao nhiêu?
+
+3. Với ví dụ trong Bài tập 2, hãy cho biết các giá trị _K_, _d_ 1 _, . . . , dK_, _r_ 1 _, . . . , rK_, và _q_ 1 _, . . . , qK_, trong đó ký hiệu này được định nghĩa ở Mục 11.3.
+
+4. Bài này sử dụng đường cong sống còn Kaplan–Meier trong Hình 11.9. Dữ liệu thô dùng để vẽ đường cong được cho trong Bảng 11.4. Cột hiệp biến của bảng không cần dùng trong bài này.
+
+   - (a) Xác suất ước lượng để sống qua 50 ngày là bao nhiêu?
+
+<MdxCode language="table" code={"|Quan sát (_Y_)|Chỉ báo kiểm duyệt|(_δ_)|Hiệp biến|(_X_)|\n|---|---|---|---|---|\n|26.5||1||0.1|\n|37.2||1||11|\n|57.3||1||-0.3|\n|90.8||0||2.8|\n|20.2||0||1.8|\n|89.8||0||0.4|"} />
+
+**BẢNG 11.4.** _Dữ liệu dùng trong Bài tập 4._
+
+- (b) Hãy viết biểu thức giải tích cho hàm sống còn ước lượng. Chẳng hạn, câu trả lời có thể có dạng tương tự
+
+(Phương trình trước chỉ nhằm minh họa: đó không phải đáp án đúng!)
+
+5. Phác họa hàm sống còn cho bởi phương trình
+
+Câu trả lời nên có dạng tương tự Hình 11.9.
+
+**HÌNH 11.9.** _Đường cong sống còn Kaplan–Meier dùng trong Bài tập 4._
+
+6. Bài này sử dụng dữ liệu trình bày trong Hình 11.1. Khi làm bài, có thể gọi các thời gian quan sát là _y_ 1 _, . . . , y_ 4. Thứ tự của các thời gian quan sát có thể thấy từ Hình 11.1; không cần biết giá trị chính xác.
+
+   - (a) Hãy cho biết các giá trị _δ_ 1 _, . . . , δ_ 4, _K_, _d_ 1 _, . . . , dK_, _r_ 1 _, . . . , rK_, và _q_ 1 _, . . . , qK_. Ký hiệu liên quan được định nghĩa ở Mục 11.1 và 11.3.
+
+- (b) Phác họa đường cong sống còn Kaplan–Meier tương ứng với bộ dữ liệu này. (Bạn không cần dùng phần mềm — có thể phác họa bằng tay từ kết quả ở (a).)
+
+- (c) Dựa trên đường cong sống còn ước lượng ở (b), xác suất biến cố xảy ra trong vòng 200 ngày là bao nhiêu? Xác suất biến cố không xảy ra trong vòng 310 ngày là bao nhiêu?
+
+- (d) Viết biểu thức cho đường cong sống còn ước lượng từ (b).
+
+7. Trong bài này, ta sẽ suy ra (11.5) và (11.6), cần thiết để xây dựng thống kê kiểm định log-rank (11.8). Nhắc lại ký hiệu trong Bảng 11.1.
+
+   - (a) Giả sử hàm sống còn của hai nhóm không khác nhau. Khi đó có thể xem _q_ 1 _k_ là số lần hỏng khi ta rút _r_ 1 _k_ quan sát không hoàn lại từ một tập nguy cơ có _rk_ quan sát, trong đó tổng cộng _qk_ lần hỏng. Hãy lập luận rằng _q_ 1 _k_ tuân theo _phân phối siêu bội_. Viết các tham số của phân phối này theo _r_ 1 _k_, _rk_ và _qk_.
+
+   - (b) Từ câu trả lời trước và các tính chất của phân phối siêu bội, trung bình và phương sai của _q_ 1 _k_ là gì? So sánh câu trả lời với (11.5) và (11.6).
+
+8. Nhắc lại rằng hàm sống còn _S_(_t_), hàm nguy cơ _h_(_t_) và hàm mật độ _f_(_t_) lần lượt được định nghĩa trong (11.2), (11.9) và (11.11). Ngoài ra, định nghĩa _F_(_t_) = 1 _− S_(_t_). Hãy chứng minh các quan hệ sau:
+
+9. Trong bài này, ta khảo sát hệ quả của giả định thời gian sống còn tuân theo phân phối mũ.
+
+   - (a) Giả sử một thời gian sống còn tuân theo phân phối Exp(_λ_), sao cho hàm mật độ là _f_(_t_) = _λ_ exp(_−λt_). Dùng các quan hệ trong Bài tập 8 để chứng minh _S_(_t_) = exp(_−λt_).
+
+   - (b) Bây giờ giả sử mỗi thời gian trong _n_ thời gian sống còn độc lập tuân theo phân phối Exp(_λ_). Viết biểu thức cho hàm hợp lý (11.13).
+
+   - (c) Chứng minh ước lượng hợp lý cực đại của _λ_ là
+
+- (d) Dùng câu trả lời ở (c) để suy ra một ước lượng của thời gian sống còn trung bình.
+
+_Gợi ý: Với (d), nhắc lại rằng trung bình của biến ngẫu nhiên_ Exp(_λ_) _là_ 1 _/λ._
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thực hành
+
+10. Bài này tập trung vào dữ liệu khối u não có trong thư viện `ISLP`.
+
+   - (a) Vẽ đường cong sống còn Kaplan–Meier cùng các dải sai số chuẩn _±_ 1 bằng bộ ước lượng `KaplanMeierFitter()` trong package `lifelines`.
+
+   - (b) Rút một mẫu bootstrap kích thước _n_ = 88 từ các cặp (_yi, δi_) và tính đường cong sống còn Kaplan–Meier thu được. Lặp lại quá trình _B_ = 200 lần. Dùng kết quả để ước lượng sai số chuẩn của đường cong sống còn Kaplan–Meier tại từng thời điểm. So sánh với các sai số chuẩn thu được ở (a).
+
+   - (c) Khớp mô hình nguy cơ tỷ lệ Cox dùng tất cả biến dự báo để dự đoán khả năng sống còn. Tóm tắt các phát hiện chính.
+
+   - (d) Phân tầng dữ liệu theo giá trị `ki`. (Vì chỉ có một quan sát có `ki==40`, có thể gộp quan sát đó với các quan sát có `ki==60`.) Vẽ đường cong sống còn Kaplan–Meier cho từng tầng trong năm tầng, đã điều chỉnh theo các biến dự báo khác.
+
+11. Bài này sử dụng dữ liệu trong Bảng 11.4.
+
+   - (a) Tạo hai nhóm quan sát. Trong Nhóm 1, _X &lt;_ 2, còn trong Nhóm 2, _X ≥_ 2. Vẽ đường cong sống còn Kaplan–Meier tương ứng với hai nhóm. Hãy gắn nhãn rõ ràng để biết đường nào tương ứng với nhóm nào. Bằng quan sát trực quan, đường cong sống còn của hai nhóm có vẻ khác nhau không?
+
+   - (b) Khớp mô hình nguy cơ tỷ lệ Cox, dùng chỉ báo nhóm làm hiệp biến. Hệ số ước lượng là bao nhiêu? Viết một câu giải thích hệ số này theo nguy cơ hoặc xác suất tức thời của biến cố. Có bằng chứng cho thấy giá trị hệ số thực khác không hay không?
+
+   - (c) Nhắc lại từ Mục 11.5.2 rằng trong trường hợp một hiệp biến nhị phân duy nhất, thống kê kiểm định log-rank phải đồng nhất với thống kê score của mô hình Cox. Thực hiện kiểm định log-rank để xác định đường cong sống còn của hai nhóm có khác nhau không. _p_-value của thống kê kiểm định log-rank so với _p_-value của thống kê score cho mô hình Cox ở (b) như thế nào?
+
+</MdxPage>
