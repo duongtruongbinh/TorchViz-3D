@@ -1,5 +1,6 @@
 export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'LessonNote',
+  'LessonImage',
   'MdxQuiz',
   'MdxPage',
   'RequirementCard',

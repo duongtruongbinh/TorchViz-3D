@@ -1,0 +1,28 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'catastrophic-forgetting-in-llms',
+  locale: 'vi',
+  title: 'Catastrophic Forgetting trong LLM',
+  headings: ['Khái niệm Catastrophic Forgetting', 'Thách thức đặc thù ở Large Language Models'],
+  keywords: ['Catastrophic Forgetting', 'Fine-tuning', 'LLM', 'Continual Learning', 'Plasticity', 'Pattern Loss', 'Accuracy Curve'],
+}
+
+## Khái niệm Catastrophic Forgetting
+
+Khi được fine-tune cho một nhiệm vụ hoặc domain dữ liệu cụ thể, pre-trained LLM có thể bị suy giảm hiệu suất trên những domain kiến thức đã học trước đó. Nói cách khác, trong quá trình học kiến thức mới, mô hình có thể quên hoặc làm tổn hại đến kiến thức cũ. Hiện tượng này được gọi là **catastrophic forgetting**.
+
+## Thách thức đặc thù ở Large Language Models
+
+Mặc dù catastrophic forgetting đã được nghiên cứu rộng rãi trong cộng đồng Continual Learning (CL), việc áp dụng CL cho LLM vẫn đặt ra nhiều thách thức mới. Nguyên nhân là LLM có kích thước lớn, phạm vi kiến thức rộng, trải qua nhiều giai đoạn huấn luyện khác nhau và yêu cầu chi phí tính toán cao.
+
+<LessonImage assetKey="continual-learning-llm.pattern-preservation" alt="Biến đổi tín hiệu Pattern qua các giai đoạn học" caption="ở mô hình tiêu chuẩn (Standard Model), khi chuyển tiếp qua các phase (Phase 1 ➔ 5), mô hình chỉ ghi nhớ tín hiệu của phase hiện tại trong khi pattern của các phase trước bị phân rã. Với Continual Learning, tất cả các pattern đã học đều được duy trì song song." />
+
+<LessonNote>
+  **Biến đổi tín hiệu:** Ở mô hình tiêu chuẩn (Standard Model), khi chuyển tiếp qua các phase (Phase 1 ➔ 5), mô hình chỉ ghi nhớ tín hiệu của phase hiện tại trong khi pattern của các phase trước bị phân rã hoàn toàn. Với Continual Learning, tất cả các pattern đã học từ các phase trước đều được duy trì song song với tín hiệu mới.
+</LessonNote>
+
+<LessonImage assetKey="continual-learning-llm.accuracy-curves" alt="Biểu đồ biến thiên độ chính xác Accuracy" caption="Độ chính xác bài toán cũ (Old Task) bắt đầu ở mức cao. ở Standard Fine-Tuning, độ chính xác Old Task giảm mạnh khi New Task tăng lên. ở Continual Learning, độ chính xác Old Task duy trì cao trong khi New Task cũng tăng trưởng." />
+
+<LessonNote>
+  **Đồ thị Accuracy:** Độ chính xác bài toán cũ (Old Task) bắt đầu ở mức cao từ đầu. Ở Standard Fine-Tuning (bên trái), độ chính xác Old Task giảm mạnh khi New Task tăng lên. Ở Continual Learning (bên phải), độ chính xác Old Task duy trì ở mức cao trong khi độ chính xác New Task đồng thời tăng trưởng qua các bước huấn luyện.
+</LessonNote>

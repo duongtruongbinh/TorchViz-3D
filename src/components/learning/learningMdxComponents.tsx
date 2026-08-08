@@ -111,7 +111,44 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
 
 export function LessonNote({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
-  return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5', themeClasses.sectionAccent.note)}>{children}</div>;
+  return (
+    <div
+      className={cx(
+        'mt-5 grid gap-2 rounded-lg border border-[#205089]/20 bg-[#205089]/5 px-4 py-3.5 text-sm font-semibold leading-6 dark:border-[#A8D4FF]/25 dark:bg-[#A8D4FF]/10 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
+        themeClasses.sectionAccent.note
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+const LESSON_IMAGE_ASSETS: Record<string, string> = {
+  'continual-learning-llm.overview': new URL('../../assets/learning/continual-learning-llm/01-continual-learning-llm-overview.png', import.meta.url).href,
+  'continual-learning-llm.pattern-preservation': new URL('../../assets/learning/continual-learning-llm/01-catastrophic-forgetting-pattern-preservation.png', import.meta.url).href,
+  'continual-learning-llm.accuracy-curves': new URL('../../assets/learning/continual-learning-llm/01-catastrophic-forgetting-accuracy-curves.png', import.meta.url).href,
+  'continual-learning-llm.catastrophic-forgetting': new URL('../../assets/learning/continual-learning-llm/01-catastrophic-forgetting-llm.png', import.meta.url).href,
+};
+
+export function LessonImage({ assetKey, alt, caption }: { assetKey: string; alt: string; caption?: string }) {
+  const themeClasses = useLearningMdxTheme();
+  const src = LESSON_IMAGE_ASSETS[assetKey] ?? '';
+  if (!src) return null;
+  return (
+    <figure className="my-6 grid gap-2">
+      <img
+        src={src}
+        alt={alt}
+        className="w-full rounded-xl border object-contain shadow-sm"
+        style={{ borderColor: themeClasses.isLight ? 'rgba(32,80,137,0.12)' : 'rgba(168,212,255,0.14)' }}
+      />
+      {caption && (
+        <figcaption className={cx('text-center text-sm leading-5', themeClasses.mutedText)}>
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
 }
 
 export function ExtraFrame({ title, children, themeClasses, customTitle }: {
@@ -179,9 +216,8 @@ export function MdxPage({ children, page }: { children?: ReactNode; page: number
 }
 
 function InlineMath({ formula }: { formula: string }) {
-  const themeClasses = useLearningMdxTheme();
   const html = katex.renderToString(formula, { displayMode: false, throwOnError: false });
-  return <span className={cx('px-0.5', themeClasses.bodyText)} dangerouslySetInnerHTML={{ __html: html }} />;
+  return <span className="px-0.5 [&_.katex]:text-inherit" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 function BlockMath({ formula }: { formula: string }) {
@@ -190,7 +226,7 @@ function BlockMath({ formula }: { formula: string }) {
   return (
     <div
       className={cx(
-        'my-4 overflow-x-auto rounded-lg border px-5 py-4 text-center text-lg font-semibold sm:text-xl',
+        'my-4 overflow-x-auto rounded-lg border px-5 py-4 text-center text-lg font-semibold sm:text-xl [&_.katex]:text-inherit',
         themeClasses.isLight
           ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]'
           : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]',
@@ -212,7 +248,7 @@ function MdxPre({ children }: { children?: ReactNode }) {
   const codeElement = children as ReactElement<{ className?: string; children?: ReactNode }>;
   const codeClassName = codeElement.props?.className;
 
-  if (typeof codeClassName === 'string' && /^language-python(?:$|\s)/.test(codeClassName)) {
+  if (typeof codeClassName === 'string' && /^language-(?:python|bash|sh|shell|console|json|javascript|js|typescript|ts)(?:$|\s)/.test(codeClassName)) {
     const codeContent = codeElement.props.children;
     const code = typeof codeContent === 'string' ? codeContent : '';
     return <CodeBlock code={code} variant="code" themeClasses={themeClasses} />;
@@ -222,8 +258,22 @@ function MdxPre({ children }: { children?: ReactNode }) {
   return <pre>{children}</pre>;
 }
 
+function MdxImg({ alt, src }: { alt?: string; src?: string }) {
+  return (
+    <span className="my-4 flex flex-col items-center justify-center gap-2 text-center">
+      <img
+        src={src}
+        alt={alt}
+        className="mx-auto h-auto max-h-[600px] w-full max-w-3xl rounded-xl border border-black/10 object-contain shadow-md dark:border-white/10"
+      />
+      {alt && <span className="text-xs font-semibold opacity-75">{alt}</span>}
+    </span>
+  );
+}
+
 const sharedAuthoredMdxComponents = {
   LessonNote,
+  LessonImage,
   MdxQuiz,
   MdxPage,
   RequirementCard,
@@ -236,5 +286,6 @@ export const sharedLearningMdxComponents = {
   a: MdxLink,
   p: MdxParagraph,
   pre: MdxPre,
+  img: MdxImg,
   ...sharedAuthoredMdxComponents,
 };

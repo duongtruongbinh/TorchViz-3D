@@ -78,8 +78,15 @@ const expectedPageCounts: Record<string, number> = {
   'gaussian-elimination': 6,
   'lu-decomposition': 6,
   'identity-inverse-matrix': 6,
+  'continual-learning-llm-overview': 1,
+  'continual-learning-llm-overview-quiz': 6,
+  'catastrophic-forgetting-in-llms': 1,
+  'catastrophic-forgetting-in-llms-quiz': 4,
+  'catastrophic-forgetting-code-lab': 7,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
+  'catastrophic-forgetting-in-llms-quiz': ['catastrophic-forgetting-definition', 'why-new-task-causes-forgetting', 'llm-cl-unique-challenges', 'pattern-and-accuracy-behavior'],
+  'continual-learning-llm-overview-quiz': ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy'],
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
   'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
   'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
@@ -107,11 +114,11 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 66);
+  assert.equal(lessonFiles.length, 71);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 66);
+  assert.equal(documents.length, 71);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);

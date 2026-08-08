@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { compile } from '@mdx-js/mdx';
+import remarkGfm from 'remark-gfm';
 import type { Plugin } from 'vite';
 import {
   parseLearningMdxPath,
@@ -103,7 +104,7 @@ export async function inspectLearningMdx(
   const quizQuestionIds: string[] = [];
   const cvExerciseFixtures: unknown[] = [];
   await compile(source, {
-    remarkPlugins: [() => (tree: Node) => {
+    remarkPlugins: [remarkGfm, () => (tree: Node) => {
       walk(tree, (node) => {
         if (node.type === 'text' && typeof node.value === 'string') searchParts.push(node.value);
         if (node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement') {

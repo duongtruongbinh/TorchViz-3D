@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin, type ResolvedConfig } from 'vite';
 import mdx from '@mdx-js/rollup';
+import remarkGfm from 'remark-gfm';
 import react from '@vitejs/plugin-react';
 import { learningMdxSearchPlugin } from './scripts/learningContentMdx';
 import { learningCatalog } from './src/content/learning/index.ts';
@@ -185,7 +186,7 @@ export default defineConfig({
   },
   plugins: [
     learningMdxSearchPlugin(path.join(configDir, 'src/content/learning'), learningCatalog),
-    mdx(),
+    mdx({ remarkPlugins: [remarkGfm] }),
     react(),
     pyodideAssetsPlugin(),
   ],

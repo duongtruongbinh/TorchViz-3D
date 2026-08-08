@@ -1,4 +1,10 @@
-import type { LearningTableOfContents, LearningTocTrackSeed } from '../../../core/learning/types.ts';
+import type {
+  LearningContentStatus,
+  LearningLessonStatus,
+  LearningTableOfContents,
+  LearningTocLessonSeed,
+  LearningTocTrackSeed,
+} from '../../../core/learning/types.ts';
 
 const chapters: LearningTocTrackSeed[] = [
   {
@@ -14,8 +20,41 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: [
-      'continual-learning-llm-overview',
-      'catastrophic-forgetting-in-llms',
+      lessonSeed(
+        'continual-learning-llm-overview',
+        'Overview',
+        'Overview',
+        'available',
+        'published',
+      ),
+      lessonSeed(
+        'continual-learning-llm-overview-quiz',
+        'Quiz',
+        'Quiz',
+        'available',
+        'published',
+      ),
+      lessonSeed(
+        'catastrophic-forgetting-in-llms',
+        'Catastrophic Forgetting in LLMs',
+        'Catastrophic Forgetting trong LLM',
+        'available',
+        'published',
+      ),
+      lessonSeed(
+        'catastrophic-forgetting-in-llms-quiz',
+        'Quiz: Catastrophic Forgetting',
+        'Quiz: Catastrophic Forgetting',
+        'available',
+        'published',
+      ),
+      lessonSeed(
+        'catastrophic-forgetting-code-lab',
+        'Lab: Đo lường Catastrophic Forgetting',
+        'Lab: Đo lường Catastrophic Forgetting',
+        'available',
+        'published',
+      ),
       'stability-plasticity-dilemma',
       'cl-vs-traditional-finetuning',
     ],
@@ -121,8 +160,8 @@ export const learningTableOfContents = {
   id: 'continual-learning-llm',
   text: {
     title: {
-      en: "Continual Learning of LLMs",
-      vi: "Continual Learning - LLMs",
+      en: "Continual Learning of LLM",
+      vi: "Continual Learning của LLM",
     },
     description: {
       en: "Master continual learning techniques for Large Language Models: catastrophic forgetting mitigation, continual pre-training, instruction tuning, experience replay, PEFT adapters, regularization, and benchmark evaluation.",
@@ -133,3 +172,25 @@ export const learningTableOfContents = {
   chapters,
   sectionKinds: ['theory', 'code'],
 } satisfies LearningTableOfContents;
+
+function lessonSeed(
+  id: string,
+  titleEn: string,
+  titleVi: string,
+  status?: LearningLessonStatus,
+  contentStatus: LearningContentStatus = 'missing',
+): LearningTocLessonSeed {
+  if (contentStatus !== 'published') {
+    return {
+      id,
+      title: { en: titleEn, vi: titleVi },
+    };
+  }
+
+  return {
+    id,
+    title: { en: titleEn, vi: titleVi },
+    status,
+    contentStatus,
+  };
+}
