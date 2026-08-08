@@ -2,7 +2,7 @@
 title: Add Continual Learning of LLM Domain to Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
-updated: 2026-08-08T10:38:00+07:00
+updated: 2026-08-08T13:01:00+07:00
 author: Antigravity
 task: "Add Continual Learning of LLM domain immediately after the LLM domain in Learning Lab"
 supersedes: []
@@ -47,13 +47,30 @@ Genesis plan — no predecessor.
 - Update domain/track/lesson count assertions in `src/lib/learningCatalog.test.ts`.
 - Run `npm test` and `npm run verify` to validate typescript compilation and catalog tests.
 
+## Phase 4 — MDX Lesson Authoring (Chapter 1.1)
+- Author 5 published MDX lessons for Chapter 1.1 Fundamentals:
+  - 1.1.1-continual-learning-llm-overview.vi.mdx
+  - 1.1.2-continual-learning-llm-overview-quiz.vi.mdx (6 quiz questions)
+  - 1.1.3-catastrophic-forgetting-in-llms.vi.mdx (2 images via LessonImage)
+  - 1.1.4-catastrophic-forgetting-in-llms-quiz.vi.mdx (4 quiz questions)
+  - 1.1.5-catastrophic-forgetting-code-lab.vi.mdx (7 pages, full Python lab)
+
+## Phase 5 — Image Migration & LessonImage Component
+- Add LessonImage MDX component to SHARED_LEARNING_MDX_COMPONENT_NAMES in mdxContract.ts.
+- Implement LessonImage with LESSON_IMAGE_ASSETS map in learningMdxComponents.tsx (Vite new URL pattern).
+- Migrate 4 PNG images from public/assets/ to src/assets/learning/continual-learning-llm/.
+- Update MDX lessons to use LessonImage component instead of Markdown images.
+
 # Out of scope
 - Authoring full MDX lesson pages for all lessons in this turn (lessons will be initialized with canonical catalog seeds, matching other partial/active domains).
 
 # Execution log
-- 2026-08-08 — Initial draft created.
-- 2026-08-08 — Added 'continual-learning-llm' to LearningDomainId in src/core/learning/types.ts.
-- 2026-08-08 — Created src/content/learning/continual-learning-llm/table-of-contents.ts with 6 tracks and 24 lessons.
-- 2026-08-08 — Registered domain in src/content/learning/index.ts right after llm-ai-engineering.
-- 2026-08-08 — Added RefreshCw icon & card palette in src/components/learning/domainPresentation.ts.
-- 2026-08-08 — Updated catalog tests in src/lib/learningCatalog.test.ts. Ran npm run verify (typecheck + tests + build passed cleanly).
+- 2026-08-08 10:35 — Initial draft created.
+- 2026-08-08 10:38 — Added 'continual-learning-llm' to LearningDomainId in src/core/learning/types.ts.
+- 2026-08-08 10:38 — Created src/content/learning/continual-learning-llm/table-of-contents.ts with 6 tracks and 24 lessons.
+- 2026-08-08 10:38 — Registered domain in src/content/learning/index.ts right after llm-ai-engineering.
+- 2026-08-08 10:38 — Added RefreshCw icon & card palette in src/components/learning/domainPresentation.ts.
+- 2026-08-08 10:38 — Updated catalog tests in src/lib/learningCatalog.test.ts. Ran npm run verify (pass).
+- 2026-08-08 12:00-13:00 — Authored 5 MDX lessons (1.1.1-1.1.5). Lab code lab structured into 7 pages with sample data tables, LessonNote callouts, code block breakdowns, and Base evaluation results page.
+- 2026-08-08 13:00 — Added LessonImage component; migrated 4 PNG images to src/assets/learning/continual-learning-llm/; removed public/assets/; deleted untracked .ipynb file.
+- 2026-08-08 13:00 — Committed: feat(continual-learning-llm) (17 files, 1023 insertions) + fix(test). All 75 tests pass, build clean.
