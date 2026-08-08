@@ -4,6 +4,7 @@ export const lessonMetadata = {
   locale: 'vi',
   title: '3.3 Phương sai & Độ lệch chuẩn (Variance & Standard Deviation)',
   headings: [
+    'Mục tiêu học tập',
     'Cùng trung bình, độ phân tán khác nhau',
     'Khoảng cách tới trung bình',
     'Vì sao không cộng các độ lệch?',
@@ -22,12 +23,12 @@ export const lessonMetadata = {
     'Cách chọn công thức trong thực tế',
   ],
   keywords: ['variance', 'standard deviation', 'phương sai', 'độ lệch chuẩn', 'sample variance', 'Bessel correction', 'degrees of freedom', 'ddof', 'unbiased estimator'],
-  pageCount: 16,
+  pageCount: 17,
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Phân biệt **thước đo độ phân tán** (*measures of dispersion*): **Phương sai** (*Variance*) <MdxFormula inline formula={"s^2"} /> và **Độ lệch chuẩn** (*Standard Deviation*) <MdxFormula inline formula={"s"} />.
@@ -35,6 +36,10 @@ Sau bài này, bạn sẽ:
 - Hiểu khái niệm **bậc tự do** (*degrees of freedom*) và sử dụng tham số `ddof` đúng trong NumPy / Pandas.
 
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Cùng trung bình, độ phân tán khác nhau
 
@@ -51,7 +56,7 @@ Ta cần một đại lượng thứ hai để đo **mức độ phân tán**. P
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Khoảng cách tới trung bình
 
@@ -71,7 +76,7 @@ Với dữ liệu <MdxFormula inline formula={"X=\\{2,4,6,8,10\\}"} />, trung b�
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Vì sao không cộng các độ lệch?
 
@@ -91,7 +96,7 @@ Vì vậy <MdxFormula inline formula={"\\sum_i(x_i-\\bar{x})"} /> không thể �
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Bình phương độ lệch
 
@@ -111,7 +116,7 @@ Bình phương giải quyết sự triệt tiêu và làm các điểm xa trung 
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Phương sai
 
@@ -129,7 +134,7 @@ Phương sai dùng **bình phương khoảng cách**, không phải trung bình 
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Tính phương sai bằng tay
 
@@ -149,7 +154,7 @@ Với <MdxFormula inline formula={"X=\\{2,4,6,8,10\\}"} />, ta đi theo bốn b�
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## Độ lệch chuẩn
 
@@ -169,7 +174,7 @@ Trong ví dụ, <MdxFormula inline formula={"\\sigma=\\sqrt{8}\\approx2.83"} /> 
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={8}>
 
 ## Kéo điểm để thay đổi phương sai
 
@@ -192,7 +197,7 @@ Một outlier không chỉ tự nằm xa: nó còn làm trung bình dịch chuy�
 
 </MdxPage>
 
-<MdxPage page={8}>
+<MdxPage page={9}>
 
 ## Khi nào chia cho n?
 
@@ -212,7 +217,7 @@ Nó trả lời đúng câu hỏi mô tả dữ liệu hoặc tối ưu likeliho
 
 </MdxPage>
 
-<MdxPage page={9}>
+<MdxPage page={10}>
 
 ## Khi nào chia cho n − 1?
 
@@ -226,7 +231,7 @@ Hiệu chỉnh này được gọi là **Bessel's correction**. Nó làm <MdxFor
 
 </MdxPage>
 
-<MdxPage page={10}>
+<MdxPage page={11}>
 
 ## Degrees of freedom
 
@@ -249,7 +254,7 @@ Nếu biết <MdxFormula inline formula={"n-1"} /> độ lệch đầu, độ l�
 
 </MdxPage>
 
-<MdxPage page={11}>
+<MdxPage page={12}>
 
 ## Chứng minh vì sao chia cho n bị lệch
 
@@ -271,7 +276,7 @@ Vậy cách chia <MdxFormula inline formula={"n"} /> thấp hơn phương sai th
 
 </MdxPage>
 
-<MdxPage page={12}>
+<MdxPage page={13}>
 
 ## Trực quan hóa hiệu chỉnh n − 1
 
@@ -287,7 +292,7 @@ Không chệch không có nghĩa mọi <MdxFormula inline formula={"s^2"} /> đ�
 
 </MdxPage>
 
-<MdxPage page={13}>
+<MdxPage page={14}>
 
 ## Code Python
 
@@ -315,7 +320,7 @@ Pandas dùng `ddof=1` mặc định cho `Series.var()` và `Series.std()`. Luôn
 
 </MdxPage>
 
-<MdxPage page={14}>
+<MdxPage page={15}>
 
 ## Code mô phỏng bias
 
@@ -345,7 +350,7 @@ Với <MdxFormula inline formula={"n=5"} />, hệ số chệch lý thuyết củ
 
 </MdxPage>
 
-<MdxPage page={15}>
+<MdxPage page={16}>
 
 ## Cách chọn công thức trong thực tế
 

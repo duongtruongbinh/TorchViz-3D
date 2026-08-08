@@ -3,9 +3,9 @@ export const lessonMetadata = {
   id: 'ch01-bayes-naive-bayes-quiz',
   locale: 'vi',
   "title": "Quiz",
-  headings: ['Các thành phần Bayes', 'So sánh score', 'Ổn định số học'],
-  keywords: ['Bayes', 'prior', 'posterior', 'Naive Bayes', 'log-likelihood', 'Laplace smoothing'],
-  pageCount: 3,
+  headings: ['Các thành phần Bayes', 'Sức nặng bằng chứng', 'Tỷ lệ nền', 'So sánh score', 'Ổn định số học'],
+  keywords: ['Bayes', 'prior', 'posterior', 'likelihood ratio', 'tỷ lệ nền', 'Naive Bayes', 'log-likelihood', 'Laplace smoothing'],
+  pageCount: 5,
 }
 
 <MdxQuiz id="ch01-bayes-naive-bayes-quiz" questions={[
@@ -24,6 +24,28 @@ export const lessonMetadata = {
     ],
     success: 'Đúng. Bayes kết hợp prior với likelihood để tạo posterior.',
     error: 'Chưa đúng. Hãy lần theo thứ tự: trước dữ liệu, khả năng của dữ liệu, rồi sau dữ liệu.',
+  },
+  {
+    id: 'bayes-evidence-strength', title: 'Sức nặng bằng chứng', prompt: 'Dấu hiệu nào là bằng chứng mạnh hơn cho giả thuyết “tin nhắn là lừa đảo”?', mode: 'single',
+    options: [
+      { id: 'greeting', label: 'Tin nhắn mở đầu lịch sự, trong khi cả ngân hàng thật và kẻ lừa đảo đều thường viết như vậy.' },
+      { id: 'otp', label: 'Tin nhắn yêu cầu gửi lại OTP, hành vi dễ gặp ở lừa đảo nhưng rất khó xảy ra trong quy trình ngân hàng hợp lệ.', isCorrect: true },
+      { id: 'long-message', label: 'Tin nhắn có nhiều từ hơn bình thường, nhưng chưa biết độ dài dưới hai giả thuyết.' },
+      { id: 'matches-only-one-side', label: 'Bất kỳ dấu hiệu nào có thể xuất hiện khi lừa đảo đều là bằng chứng mạnh.' },
+    ],
+    success: 'Đúng. Bằng chứng mạnh khi likelihood của nó chênh lệch rõ giữa giả thuyết và khả năng cạnh tranh.',
+    error: 'Chưa đúng. Đừng chỉ hỏi dấu hiệu có phù hợp với lừa đảo không; hãy so sánh nó với trường hợp ngân hàng thật.',
+  },
+  {
+    id: 'bayes-medical-base-rate', title: 'Tỷ lệ nền', prompt: 'Trong ví dụ 100.000 người, có 99 dương tính thật và 4.995 dương tính giả. Xác suất một người thực sự mắc bệnh khi đã dương tính xấp xỉ bao nhiêu?', mode: 'single',
+    options: [
+      { id: 'sensitivity', label: '$99\%$' },
+      { id: 'false-positive', label: '$5\%$' },
+      { id: 'posterior', label: '$99/(99+4{,}995)\approx1.94\%$', isCorrect: true },
+      { id: 'prior', label: '$0.1\%$' },
+    ],
+    success: 'Đúng. Trong toàn bộ kết quả dương tính, chỉ 99 trên 5.094 trường hợp là dương tính thật.',
+    error: 'Chưa đúng. Mẫu số phải gồm cả dương tính thật và dương tính giả.',
   },
   {
     id: 'naive-bayes-assumption', title: 'So sánh score', prompt: 'Một mẫu mới có score(A) = 0,06 và score(B) = 0,02. Naive Bayes nên dự đoán class nào?', mode: 'single',

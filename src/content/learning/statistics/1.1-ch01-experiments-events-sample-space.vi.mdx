@@ -4,6 +4,7 @@ export const lessonMetadata = {
   "locale": "vi",
   "title": "1.1 Phép thử, biến cố và không gian mẫu",
   "headings": [
+    "Mục tiêu học tập",
     "Phép thử và kết quả",
     "Không gian mẫu",
     "Biến cố",
@@ -20,12 +21,12 @@ export const lessonMetadata = {
     "python",
     "itertools"
   ],
-  "pageCount": 6
+  "pageCount": 7
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Phân biệt được **phép thử ngẫu nhiên** (*random experiment*), **kết quả** (*outcome*), **không gian mẫu** (*sample space*) và **biến cố** (*event*).
@@ -34,7 +35,13 @@ Sau bài này, bạn sẽ:
 
 </LessonNote>
 
+</MdxPage>
+
+<MdxPage page={1}>
+
 ## Phép thử và kết quả
+
+Trước khi hỏi “xác suất là gì?”, ta bắt đầu từ phần dễ nhất: gọi đúng tên hành động được thực hiện và điều quan sát được sau hành động đó.
 
 Trước khi gieo một con xúc xắc, ta biết mình sẽ làm gì nhưng chưa biết mặt nào sẽ xuất hiện.
 
@@ -47,7 +54,7 @@ Một phép thử có thể được lặp lại nhiều lần. Mỗi lần ch�
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Không gian mẫu
 
@@ -61,7 +68,7 @@ Tập hợp đó được gọi là **không gian mẫu** (*sample space*), ký 
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Biến cố
 
@@ -75,7 +82,7 @@ Mỗi tập chỉ chứa một kết quả, như <MdxFormula inline formula={"\\
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Biến cố chắc chắn, không thể và ngẫu nhiên
 
@@ -91,7 +98,7 @@ Ba loại biến cố này đều được xác định so với cùng một kh�
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Liệt kê bằng Python
 
@@ -120,7 +127,7 @@ Số kết quả thuận lợi |A| = 3, tổng số kết quả |Ω| = 4
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Kiến thức cần nắm
 
@@ -131,6 +138,8 @@ Số kết quả thuận lợi |A| = 3, tổng số kết quả |Ω| = 4
 - **Biến cố** là tập con của không gian mẫu: <MdxFormula inline formula={"A \\subseteq \\Omega"} />.
 - Biến cố **chắc chắn** là <MdxFormula inline formula={"\\Omega"} />; biến cố **không thể** là <MdxFormula inline formula={"\\varnothing"} />; các biến cố còn lại có thể xảy ra hoặc không.
 - Trong Python, `itertools.product` giúp tạo không gian mẫu cho phép thử nhiều bước.
+
+Với ngôn ngữ nền này, lesson tiếp theo sẽ quay lại một đồng xu đã bị che và hỏi: nếu kết quả đã cố định, con số 50% đang mô tả điều gì?
 
 </LessonNote>
 

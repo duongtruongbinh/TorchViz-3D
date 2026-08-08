@@ -4,6 +4,7 @@ export const lessonMetadata = {
   locale: 'vi',
   title: '3.7 Phân phối chuẩn nhiều chiều (Multivariate Normal Distribution)',
   headings: [
+    'Mục tiêu học tập',
     'Từ bell curve một chiều sang nhiều chiều',
     'Ký hiệu của phân phối chuẩn nhiều chiều',
     'Hàm mật độ xác suất',
@@ -37,12 +38,12 @@ export const lessonMetadata = {
     'eigenvalues eigenvectors',
     'whitening',
   ],
-  pageCount: 22,
+  pageCount: 23,
 };
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Mở rộng khái niệm Gauss từ 1D sang **Phân phối chuẩn nhiều chiều** (*Multivariate Normal Distribution*) <MdxFormula inline formula={"\\mathcal{N}(\\boldsymbol{\\mu}, \\boldsymbol{\\Sigma})"} />.
@@ -51,6 +52,10 @@ Sau bài này, bạn sẽ:
 - Phân biệt khoảng cách Euclidean và **khoảng cách Mahalanobis** (*Mahalanobis distance*).
 
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Từ bell curve một chiều sang nhiều chiều
 
@@ -74,7 +79,7 @@ Thay vì một đường cong trên mặt phẳng 2D, ta thu được một **b�
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Ký hiệu của phân phối chuẩn nhiều chiều
 
@@ -100,7 +105,7 @@ Trong đó:
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Hàm mật độ xác suất
 
@@ -122,7 +127,7 @@ Biểu thức này đo mức độ một điểm <MdxFormula inline formula={"\\
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Mean vector quyết định tâm
 
@@ -140,7 +145,7 @@ Khi ta tịnh tiến mean vector sang vị trí mới <MdxFormula inline formula
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Covariance matrix quyết định hình dạng
 
@@ -156,7 +161,7 @@ Trong không gian 2 chiều, ma trận covariance có dạng:
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Contour có dạng ellipse
 
@@ -181,7 +186,7 @@ Trong không gian 2D, tập hợp các điểm này tạo thành các đường 
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## Thay đổi variance theo từng chiều
 
@@ -203,7 +208,7 @@ Ellipse trải rộng theo chiều dọc (trục Y).
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={8}>
 
 ## Covariance làm ellipse nghiêng
 
@@ -222,7 +227,7 @@ Covariance matrix <MdxFormula inline formula={"\\boldsymbol{\\Sigma}"} /> phải
 
 </MdxPage>
 
-<MdxPage page={8}>
+<MdxPage page={9}>
 
 ## Eigenvectors và eigenvalues
 
@@ -244,7 +249,7 @@ Trong đó:
 
 </MdxPage>
 
-<MdxPage page={9}>
+<MdxPage page={10}>
 
 ## Marginal distributions vẫn là Gaussian
 
@@ -264,7 +269,7 @@ Một tính chất cực kỳ đẹp đẽ của phân phối chuẩn nhiều ch
 
 </MdxPage>
 
-<MdxPage page={10}>
+<MdxPage page={11}>
 
 ## Covariance bằng 0 và độc lập
 
@@ -285,7 +290,7 @@ hàm mật độ đồng thời tách thành tích hai hàm mật độ riêng r
 
 </MdxPage>
 
-<MdxPage page={11}>
+<MdxPage page={12}>
 
 ## Standard multivariate normal distribution
 
@@ -307,7 +312,7 @@ Ký hiệu:
 
 </MdxPage>
 
-<MdxPage page={12}>
+<MdxPage page={13}>
 
 ## Standardization không tạo identity covariance
 
@@ -331,7 +336,7 @@ với <MdxFormula inline formula={"\\mathbf{R}"} /> là Correlation matrix, **kh
 
 </MdxPage>
 
-<MdxPage page={13}>
+<MdxPage page={14}>
 
 ## Mahalanobis distance
 
@@ -355,7 +360,7 @@ coi độ biến động theo mọi hướng là như nhau.
 
 </MdxPage>
 
-<MdxPage page={14}>
+<MdxPage page={15}>
 
 ## Code: sinh dữ liệu Gaussian nhiều chiều
 
@@ -398,7 +403,7 @@ plt.show()
 
 </MdxPage>
 
-<MdxPage page={15}>
+<MdxPage page={16}>
 
 ## Code: kiểm tra mean và covariance
 
@@ -455,7 +460,7 @@ Estimated covariance:
 
 </MdxPage>
 
-<MdxPage page={16}>
+<MdxPage page={17}>
 
 ## Code: so sánh các covariance matrix
 
@@ -491,7 +496,7 @@ plt.show()
 
 </MdxPage>
 
-<MdxPage page={17}>
+<MdxPage page={18}>
 
 ## Code: marginal distributions
 
@@ -527,7 +532,7 @@ plt.show()
 
 </MdxPage>
 
-<MdxPage page={18}>
+<MdxPage page={19}>
 
 ## Code: tính Mahalanobis distance
 
@@ -563,7 +568,7 @@ Mahalanobis distance: 1.6330
 
 </MdxPage>
 
-<MdxPage page={19}>
+<MdxPage page={20}>
 
 ## Ứng dụng trong AI
 
@@ -585,7 +590,7 @@ Các hệ thống phát hiện gian lận tính khoảng cách Mahalanobis của
 
 </MdxPage>
 
-<MdxPage page={20}>
+<MdxPage page={21}>
 
 ## Mini interaction tổng hợp
 
@@ -600,7 +605,7 @@ Thực hành điều chỉnh tất cả các tham số <MdxFormula inline formul
 
 </MdxPage>
 
-<MdxPage page={21}>
+<MdxPage page={22}>
 
 ## Những lỗi thường gặp
 

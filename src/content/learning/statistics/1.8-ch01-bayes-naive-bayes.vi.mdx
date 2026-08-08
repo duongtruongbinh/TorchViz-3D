@@ -4,9 +4,13 @@ export const lessonMetadata = {
   "locale": "vi",
   "title": "1.8 Định lý Bayes và Naive Bayes",
   "headings": [
+    "Mục tiêu học tập",
     "Bayes: cập nhật niềm tin",
-    "Bước 1: Prior và Posterior",
-    "Bước 2: Thu thập dữ liệu và cập nhật niềm tin",
+    "Bằng chứng mạnh đến đâu?",
+    "Dạng odds: cân prior bằng sức nặng bằng chứng",
+    "Dương tính có đồng nghĩa mắc bệnh?",
+    "Đếm người thật thay vì đoán trực giác",
+    "Tính posterior từ tỷ lệ nền",
     "Từ Bayes đến Naive Bayes",
     "Tính score cho từng class",
     "Bài tập: So sánh score",
@@ -15,76 +19,155 @@ export const lessonMetadata = {
     "Laplace smoothing",
     "Naive Bayes trong thực tế",
     "Triển khai Naive Bayes bằng Python",
+    "Ngẫu nhiên nằm ở đâu?",
     "Kiến thức cần nắm"
   ],
   "keywords": [
     "Bayes",
     "prior",
     "posterior",
+    "likelihood ratio",
+    "tỷ lệ nền",
+    "tần số tự nhiên",
     "Naive Bayes",
     "log-likelihood",
     "Laplace smoothing",
     "python",
-    "sklearn"
+    "sklearn",
+    "cơ học đồng xu"
   ],
-  "pageCount": 12
+  "pageCount": 17
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Giải thích cơ chế cập nhật niềm tin từ **Prior** sang **Posterior** nhờ **Likelihood** theo **Định lý Bayes** (*Bayes' Theorem*).
+- So sánh likelihood dưới giả thuyết và phản giả thuyết để đánh giá **sức nặng của bằng chứng**.
+- Dùng **tần số tự nhiên** (*natural frequencies*) để tránh bỏ quên tỷ lệ nền trong bài toán xét nghiệm.
 - Giải thích giả định **độc lập có điều kiện** (*conditional independence*) của mô hình **Naive Bayes**.
 - Áp dụng kỹ thuật **Log-likelihood** để tránh hiện tượng *underflow* số học và **Laplace smoothing** để xử lý xác suất bằng 0.
 - Lập trình thuật toán Naive Bayes bằng Python dùng NumPy và `scikit-learn`.
 
 </LessonNote>
 
-## Bayes: cập nhật niềm tin
-
-Định lý Bayes được suy ra từ công thức xác suất có điều kiện. Nếu <MdxFormula inline formula={"B"} /> là giả thuyết cần đánh giá và <MdxFormula inline formula={"A"} /> là dữ liệu vừa quan sát, ta có:
-
-<ProbabilityChapterVisual kind="bayes" />
-
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Bước 1: Prior và Posterior
+## Bayes: cập nhật niềm tin
 
-Trước hết, hãy phân biệt hai thời điểm của cùng một niềm tin:
+Định lý Bayes được suy ra từ công thức xác suất có điều kiện. Gọi <MdxFormula inline formula={"H"} /> là giả thuyết cần đánh giá và <MdxFormula inline formula={"E"} /> là bằng chứng vừa quan sát:
 
-- **Prior** là niềm tin ban đầu vào <MdxFormula inline formula={"B"} />.
-- **Posterior** là niềm tin vào <MdxFormula inline formula={"B"} /> sau quá trình cập nhật.
+<ProbabilityChapterVisual kind="bayes" />
 
-<ProbabilityChapterVisual kind="bayes-prior-posterior" />
+<MdxFormula formula={"P(H\\mid E)=\\frac{P(E\\mid H)P(H)}{P(E)}"} />
 
-Prior là điểm xuất phát. Posterior chỉ xuất hiện sau khi likelihood của bằng chứng được đưa vào công thức Bayes; hai giá trị không mặc nhiên bằng nhau.
+- <MdxFormula inline formula={"P(H)"} /> là **Prior**: niềm tin trước bằng chứng mới.
+- <MdxFormula inline formula={"P(E\\mid H)"} /> là **Likelihood**: bằng chứng dễ xuất hiện đến đâu nếu giả thuyết đúng.
+- <MdxFormula inline formula={"P(E)"} /> là **Evidence / marginal likelihood**: xác suất của bằng chứng qua mọi nhánh nền.
+- <MdxFormula inline formula={"P(H\\mid E)"} /> là **Posterior**: niềm tin sau khi cập nhật.
+
+Xem xác suất như mức độ tin cậy không có nghĩa “muốn tin bao nhiêu cũng được”. Các giá trị vẫn phải tuân theo luật xác suất và cập nhật nhất quán với bằng chứng.
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Bước 2: Thu thập dữ liệu và cập nhật niềm tin
+## Bằng chứng mạnh đến đâu?
 
-Một giáo viên muốn ước lượng xác suất học sinh đậu khi biết em đó có học bài. Niềm tin ban đầu của thầy là prior. Thầy thu thập thêm hai thông tin từ kết quả giữa kỳ:
+Điện thoại hiện một tin nhắn tự xưng là ngân hàng. Giả thuyết <MdxFormula inline formula={"H"} /> là “đây là tin nhắn lừa đảo”.
 
-- Học sinh có học bài trước khi thi hay không — dữ liệu <MdxFormula inline formula={"A"} />.
-- Học sinh thi đậu hay rớt — giả thuyết <MdxFormula inline formula={"B"} /> cần đánh giá.
+Tin nhắn mở đầu bằng “Xin chào quý khách”. Câu này dễ xuất hiện cả khi <MdxFormula inline formula={"H"} /> đúng lẫn khi <MdxFormula inline formula={"H^c"} /> đúng, nên nó phân biệt hai giả thuyết rất kém. Nhưng yêu cầu gửi lại mã OTP rất dễ xuất hiện dưới giả thuyết lừa đảo và rất khó xuất hiện trong quy trình ngân hàng hợp lệ.
 
-<ProbabilityChapterVisual kind="bayes-normalization" />
+<ProbabilityChapterVisual kind="evidence-strength" />
 
-<LessonNote>
+Một bằng chứng không mạnh chỉ vì nó “phù hợp” với giả thuyết. Nó mạnh khi **phù hợp với giả thuyết hơn rõ rệt so với các khả năng cạnh tranh**.
 
-Likelihood không phải xác suất học sinh sẽ đậu. Nó cho biết dữ liệu “có học bài” xuất hiện thường xuyên đến đâu trong nhóm đậu so với nhóm rớt. Dữ liệu càng ủng hộ giả thuyết, niềm tin càng tăng; dữ liệu phản bác giả thuyết, niềm tin sẽ giảm.
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Dạng odds: cân prior bằng sức nặng bằng chứng
+
+So sánh trực tiếp giả thuyết <MdxFormula inline formula={"H"} /> và phản giả thuyết <MdxFormula inline formula={"H^c"} /> cho ta dạng odds của Bayes:
+
+<MdxFormula formula={"\\underbrace{\\frac{P(H\\mid E)}{P(H^c\\mid E)}}_{\\text{Posterior odds}}=\\underbrace{\\frac{P(H)}{P(H^c)}}_{\\text{Prior odds}}\\times\\underbrace{\\frac{P(E\\mid H)}{P(E\\mid H^c)}}_{\\text{Likelihood ratio}}"} />
+
+Nếu tỷ số likelihood gần <MdxFormula inline formula={"1"} />, bằng chứng gần như không làm cán cân dịch chuyển. Tỷ số lớn hơn <MdxFormula inline formula={"1"} /> ủng hộ <MdxFormula inline formula={"H"} />; nhỏ hơn <MdxFormula inline formula={"1"} /> ủng hộ <MdxFormula inline formula={"H^c"} />.
+
+<LessonNote label="Cán cân không đặt lại từ đầu">
+
+Một bằng chứng mạnh nhân vào prior hiện có; nó không xóa prior. Nếu giả thuyết ban đầu cực hiếm, một bằng chứng đơn lẻ có thể làm xác suất tăng rất nhiều lần mà posterior vẫn còn thấp.
 
 </LessonNote>
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
+
+## Dương tính có đồng nghĩa mắc bệnh?
+
+Xét một ví dụ giả định:
+
+- Cứ 1.000 người có 1 người mắc bệnh: <MdxFormula inline formula={"P(D)=0.001"} />.
+- Nếu mắc bệnh, xét nghiệm dương tính với xác suất <MdxFormula inline formula={"P(+\\mid D)=0.99"} />.
+- Nếu khỏe mạnh, xét nghiệm vẫn dương tính nhầm với xác suất <MdxFormula inline formula={"P(+\\mid D^c)=0.05"} />.
+
+Một người nhận kết quả dương tính. Ta cần tìm <MdxFormula inline formula={"P(D\\mid +)"} />, không phải <MdxFormula inline formula={"P(+\\mid D)"} />. Hai xác suất này đảo chiều điều kiện và có mẫu số khác nhau.
+
+<LessonNote label="Đừng trả lời 99% quá sớm" tone="warning">
+
+Con số 99% là **độ nhạy** của xét nghiệm trong nhóm đã mắc bệnh. Nó chưa cho biết trong tất cả người có kết quả dương tính, bao nhiêu người thực sự mắc bệnh.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Đếm người thật thay vì đoán trực giác
+
+Hãy tưởng tượng 100.000 người cùng làm xét nghiệm. Tần số tự nhiên giúp nhìn thấy đồng thời tỷ lệ nền, dương tính thật và dương tính giả.
+
+<ProbabilityChapterVisual kind="medical-base-rate" />
+
+Trong 100.000 người:
+
+- khoảng 100 người mắc bệnh, trong đó 99 người dương tính thật;
+- khoảng 99.900 người khỏe mạnh, trong đó 4.995 người dương tính giả.
+
+Vì nhóm khỏe mạnh lớn hơn rất nhiều, chỉ 5% báo nhầm cũng tạo ra nhiều kết quả dương tính hơn hẳn số ca dương tính thật.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Tính posterior từ tỷ lệ nền
+
+Công thức xác suất toàn phần cho xác suất nhận kết quả dương tính:
+
+<MdxFormula formula={"P(+)=P(+\\mid D)P(D)+P(+\\mid D^c)P(D^c)"} />
+
+<MdxFormula formula={"P(+)=0.99\\times0.001+0.05\\times0.999=0.05094"} />
+
+Áp dụng Bayes:
+
+<MdxFormula formula={"P(D\\mid +)=\\frac{0.99\\times0.001}{0.05094}=\\frac{99}{5094}\\approx0.0194"} />
+
+Posterior xấp xỉ <MdxFormula inline formula={"1.94\\%"} />. Kết quả dương tính đã nâng xác suất mắc bệnh từ <MdxFormula inline formula={"0.1\\%"} /> lên gần <MdxFormula inline formula={"2\\%"} /> — một thay đổi lớn theo tỷ lệ — nhưng chưa biến bệnh hiếm thành khả năng gần chắc chắn.
+
+<LessonNote label="Ví dụ minh họa, không phải tư vấn y khoa">
+
+Các con số trên được dựng để học Bayes. Diễn giải xét nghiệm thực tế còn phụ thuộc quần thể, quy trình xét nghiệm, ngưỡng đo, triệu chứng và hướng dẫn chuyên môn.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={7}>
 
 ## Từ Bayes đến Naive Bayes
 
@@ -108,7 +191,7 @@ Trong trường hợp tổng quát, các feature có thể liên quan với nhau
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={8}>
 
 ## Tính score cho từng class
 
@@ -122,7 +205,7 @@ Mẫu số Evidence <MdxFormula inline formula={"P(X)"} /> giống nhau cho mọ
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={9}>
 
 ## Bài tập: So sánh score
 
@@ -144,7 +227,7 @@ Hãy nhân prior với ba likelihood để tính score của từng class, sau �
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={10}>
 
 ## Kiểm tra phép tính
 
@@ -164,7 +247,7 @@ Vì <MdxFormula inline formula={"\\frac9{32}>\\frac1{64}"} />, Naive Bayes dự 
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={11}>
 
 ## Log-likelihood
 
@@ -186,7 +269,7 @@ Log-likelihood chỉ xử lý các xác suất **dương nhưng rất nhỏ**. N
 
 </MdxPage>
 
-<MdxPage page={8}>
+<MdxPage page={12}>
 
 ## Laplace smoothing
 
@@ -218,7 +301,7 @@ Ví dụ, nếu feature "Nộp bài" có <MdxFormula inline formula={"K=2"} /> g
 
 </MdxPage>
 
-<MdxPage page={9}>
+<MdxPage page={13}>
 
 ## Naive Bayes trong thực tế
 
@@ -230,7 +313,7 @@ Naive Bayes thường được dùng làm mô hình nền tảng (baseline) vì 
 
 </MdxPage>
 
-<MdxPage page={10}>
+<MdxPage page={14}>
 
 ## Triển khai Naive Bayes bằng Python
 
@@ -269,17 +352,34 @@ Xác suất Posterior P(Rớt|X) = 0.0526, P(Đậu|X) = 0.9474
 
 </MdxPage>
 
-<MdxPage page={11}>
+<MdxPage page={15}>
+
+## Ngẫu nhiên nằm ở đâu?
+
+Ta trở lại đồng xu đầu chương. Trong một mô hình cơ học cổ điển, quỹ đạo của đồng xu phụ thuộc vào vị trí ban đầu, lực búng, vận tốc tịnh tiến, tốc độ quay, trục quay và cách bắt. Nếu biết và kiểm soát đủ các điều kiện đó, kết quả có thể trở nên dự đoán được.
+
+<ProbabilityChapterVisual kind="coin-mechanics" />
+
+Diaconis, Holmes và Montgomery cho thấy máy tung được hiệu chỉnh có thể lặp lại cùng một mặt; với những cú tung tự nhiên được bắt trong tay, mô hình và đo đạc của họ còn dự đoán một thiên lệch nhỏ, khoảng <MdxFormula inline formula={"0.51"} />, về **mặt ban đầu** chứ không phải riêng mặt ngửa ([SIAM Review, 2007](https://doi.org/10.1137/S0036144504446436)).
+
+Trong ví dụ cổ điển này, xác suất là cách hữu ích để mô tả những điều kiện ta không kiểm soát hoặc không đo đủ chính xác. Nhưng không nên từ đó kết luận mọi dạng ngẫu nhiên trong mọi lý thuyết vật lý đều chỉ là thiếu thông tin.
+
+</MdxPage>
+
+<MdxPage page={16}>
 
 ## Kiến thức cần nắm
 
 <LessonNote label="Tóm tắt trọng tâm bài 1.8">
 
 - **Bayes** cập nhật prior thành posterior bằng likelihood của bằng chứng: <MdxFormula inline formula={"P(C\\mid X)=\\frac{P(C)P(X\\mid C)}{P(X)}"} />.
+- **Sức nặng bằng chứng** đến từ việc so sánh <MdxFormula inline formula={"P(E\\mid H)"} /> với <MdxFormula inline formula={"P(E\\mid H^c)"} />, không chỉ từ việc bằng chứng có thể xảy ra khi <MdxFormula inline formula={"H"} /> đúng.
+- **Tỷ lệ nền** vẫn nằm trong prior. Tần số tự nhiên giúp nhìn rõ dương tính thật và dương tính giả trước khi tính posterior.
 - **Naive Bayes** giả định các feature độc lập có điều kiện khi biết class, rồi so sánh <MdxFormula inline formula={"P(C)\\prod_k P(X_k\\mid C)"} /> giữa các class.
 - **Log-score** đổi phép nhân nhiều số nhỏ thành phép cộng, giúp tránh underflow.
 - **Laplace smoothing** thêm lượt đếm giả để một feature chưa từng thấy không làm toàn bộ score bằng 0.
 - **Trong scikit-learn**: `CategoricalNB(alpha=1.0)` phù hợp với feature phân loại; `BernoulliNB()` phù hợp với feature nhị phân.
+- Với đồng xu cổ điển, mô hình xác suất có thể phản ánh các điều kiện ban đầu ta không kiểm soát hoặc không đo đủ; kết luận này không tự động áp dụng cho mọi nguồn ngẫu nhiên.
 
 </LessonNote>
 

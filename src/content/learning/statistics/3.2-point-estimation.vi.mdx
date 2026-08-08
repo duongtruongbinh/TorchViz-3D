@@ -4,6 +4,7 @@ export const lessonMetadata = {
   "locale": "vi",
   "title": "3.8 Ước lượng điểm",
   "headings": [
+    "Mục tiêu học tập",
     "Tham số và ước lượng điểm",
     "Ước lượng không chệch: trung bình và phương sai mẫu",
     "Ước lượng tỉ lệ và hợp lý cực đại (MLE)",
@@ -28,12 +29,12 @@ export const lessonMetadata = {
     "hiệu quả",
     "numpy"
   ],
-  "pageCount": 4
+  "pageCount": 5
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Phân biệt **Tham số quần thể** (*population parameter*) và **Ước lượng điểm** (*point estimator*).
@@ -41,6 +42,10 @@ Sau bài này, bạn sẽ:
 - Hiểu nguyên lý **Ước lượng Hợp lý Cực đại** (*Maximum Likelihood Estimation - MLE*).
 
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Tham số và ước lượng điểm
 
@@ -123,7 +128,7 @@ s² = 36.22 ms² -> ước lượng cho σ²
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Ước lượng không chệch: trung bình và phương sai mẫu
 
@@ -162,7 +167,7 @@ Một estimator là **quy tắc** biến mẫu thành con số; estimate là **c
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Ước lượng tỉ lệ và hợp lý cực đại (MLE)
 
@@ -251,7 +256,7 @@ Với giả định dữ liệu tuân theo phân phối chuẩn, MLE cho ta <Mdx
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Đánh giá chất lượng ước lượng
 

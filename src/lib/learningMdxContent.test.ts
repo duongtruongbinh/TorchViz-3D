@@ -79,8 +79,27 @@ const expectedPageCounts: Record<string, number> = {
   'lu-decomposition': 6,
   'identity-inverse-matrix': 6,
 };
+const expectedStatisticsObjectivePageCounts: Record<string, number> = {
+  'ch01-experiments-events-sample-space': 7,
+  'ch01-event-relations': 7,
+  'ch01-probability-definitions-properties': 8,
+  'ch01-empirical-probability': 7,
+  'ch01-conditional-probability': 9,
+  'ch01-total-probability': 6,
+  'ch01-bayes-naive-bayes': 17,
+  'ch02-classical-statistics-fundamentals': 5,
+  'ch02-populations-samples-observation': 6,
+  'histogram-foundations': 18,
+  'descriptive-data-analysis': 7,
+  'point-estimation': 5,
+  'normal-distribution': 18,
+  'variance-standard-deviation': 17,
+  'mean-vector-covariance-matrix': 28,
+  'joint-marginal-correlation': 24,
+  'multivariate-normal-distribution': 23,
+};
 const expectedQuizQuestionIds: Record<string, string[]> = {
-  'ch01-probability-origins-quiz': ['origins-random-trial', 'origins-hidden-coin', 'origins-large-number-frequency', 'origins-one-off-event', 'origins-ai-uncertainty'],
+  'ch01-probability-origins-quiz': ['origins-hidden-coin', 'origins-two-interpretations', 'origins-model-qualified-half'],
   'ch01-experiments-events-sample-space-quiz': [
     'foundational-concepts-match',
     'sample-space-recording-rule',
@@ -89,10 +108,10 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
   ],
   'ch01-event-relations-quiz': ['union-intersection-match', 'disjoint-events-die', 'exclusive-vs-complement'],
   'ch01-probability-definitions-properties-quiz': ['classical-probability-formula', 'probability-properties', 'complement-probability', 'addition-rule'],
-  'ch01-empirical-probability-quiz': ['frequency-relative-frequency', 'finite-estimate-interpretation', 'relative-frequency-stability'],
-  'ch01-conditional-probability-quiz': ['conditional-formula', 'multiplication-without-replacement', 'replacement-dependence', 'conditional-direction'],
+  'ch01-empirical-probability-quiz': ['frequency-relative-frequency', 'finite-estimate-interpretation', 'relative-frequency-stability', 'origins-large-number-frequency', 'forecast-calibration'],
+  'ch01-conditional-probability-quiz': ['origins-one-off-event', 'conditional-formula', 'multiplication-without-replacement', 'replacement-dependence', 'conditional-direction'],
   'ch01-total-probability-quiz': ['partition-requirements', 'total-probability-formula', 'total-probability-order'],
-  'ch01-bayes-naive-bayes-quiz': ['bayes-term-match', 'naive-bayes-assumption', 'naive-bayes-stability'],
+  'ch01-bayes-naive-bayes-quiz': ['bayes-term-match', 'bayes-evidence-strength', 'bayes-medical-base-rate', 'naive-bayes-assumption', 'naive-bayes-stability'],
   'ch01-probability-exercises-quiz': ['queen-given-face-card', 'compare-naive-bayes-scores', 'laplace-denominator'],
   'ch02-classical-statistics-fundamentals-quiz': [
     'thinking-goal-classification',
@@ -185,7 +204,19 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
     for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
   }
-  assert.equal(statisticsPageCount, 549);
+  assert.equal(statisticsPageCount, 573);
+  for (const [lessonId, expectedPageCount] of Object.entries(expectedStatisticsObjectivePageCounts)) {
+    const inspection = statisticsInspections.get(lessonId);
+    const source = statisticsSources.get(lessonId) ?? '';
+    const headings = inspection?.metadata.headings;
+    assert.equal(inspection?.metadata.pageCount, expectedPageCount);
+    assert.ok(Array.isArray(headings));
+    assert.equal(headings[0], 'Mục tiêu học tập');
+    assert.match(
+      source,
+      /<MdxPage page=\{0\}>\s*<LessonNote label="Mục tiêu học tập" variant="objectives">[\s\S]*?<\/LessonNote>\s*<\/MdxPage>\s*<MdxPage page=\{1\}>/,
+    );
+  }
   for (const lessonId of [
     'ch01-experiments-events-sample-space',
     'ch01-event-relations',
@@ -203,8 +234,9 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   }
   const statisticalThinking = statisticsInspections.get('ch02-classical-statistics-fundamentals');
   const statisticalThinkingSource = statisticsSources.get('ch02-classical-statistics-fundamentals') ?? '';
-  assert.equal(statisticalThinking?.metadata.pageCount, 4);
+  assert.equal(statisticalThinking?.metadata.pageCount, 5);
   assert.deepEqual(statisticalThinking?.metadata.headings, [
+    'Mục tiêu học tập',
     'Thống kê giúp trả lời điều gì?',
     'Bắt đầu từ câu hỏi',
     'Mô tả hay suy luận?',
@@ -215,7 +247,7 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.doesNotMatch(statisticalThinkingSource, /Bản đồ câu hỏi → phương pháp → chương|Ứng dụng của Thống kê & AI\/ML\/DL/);
   const populationSampleObservation = statisticsInspections.get('ch02-populations-samples-observation');
   const populationSampleObservationSource = statisticsSources.get('ch02-populations-samples-observation') ?? '';
-  assert.equal(populationSampleObservation?.metadata.pageCount, 5);
+  assert.equal(populationSampleObservation?.metadata.pageCount, 6);
   assert.match(populationSampleObservationSource, /<PopulationSampleOverview\b/);
   assert.match(populationSampleObservationSource, /<StudyDesignComparison\b/);
   assert.match(populationSampleObservationSource, /## Kiến thức cần nắm/);
@@ -241,8 +273,9 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.equal(thinkingQuizNode?.contentStatus, 'published');
   const histogramFoundations = statisticsInspections.get('histogram-foundations');
   const histogramFoundationsSource = statisticsSources.get('histogram-foundations') ?? '';
-  assert.equal(histogramFoundations?.metadata.pageCount, 17);
+  assert.equal(histogramFoundations?.metadata.pageCount, 18);
   assert.deepEqual(histogramFoundations?.metadata.headings, [
+    'Mục tiêu học tập',
     'Thu thập dữ liệu',
     'Đặt dữ liệu lên một trục số',
     'Vấn đề: các điểm bị chồng lên nhau',
@@ -283,10 +316,10 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   ]);
   const varianceStandardDeviation = statisticsInspections.get('variance-standard-deviation');
   const varianceStandardDeviationSource = statisticsSources.get('variance-standard-deviation') ?? '';
-  assert.equal(varianceStandardDeviation?.metadata.pageCount, 16);
+  assert.equal(varianceStandardDeviation?.metadata.pageCount, 17);
   assert.equal(varianceStandardDeviation?.metadata.title, '3.3 Phương sai & Độ lệch chuẩn (Variance & Standard Deviation)');
   assert.ok(Array.isArray(varianceStandardDeviation?.metadata.headings));
-  assert.equal(varianceStandardDeviation.metadata.headings.length, 16);
+  assert.equal(varianceStandardDeviation.metadata.headings.length, 17);
   for (const componentName of ['VarianceConceptVisual', 'VariancePointExplorer', 'VarianceEstimatorComparison']) {
     assert.match(varianceStandardDeviationSource, new RegExp(`<${componentName}\\b`));
   }
@@ -295,38 +328,38 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.match(varianceStandardDeviationSource, /np\.var\(samples, axis=1, ddof=1\)/);
   const meanVectorCovarianceMatrix = statisticsInspections.get('mean-vector-covariance-matrix');
   const meanVectorCovarianceMatrixSource = statisticsSources.get('mean-vector-covariance-matrix') ?? '';
-  assert.equal(meanVectorCovarianceMatrix?.metadata.pageCount, 27);
+  assert.equal(meanVectorCovarianceMatrix?.metadata.pageCount, 28);
   assert.equal(meanVectorCovarianceMatrix?.metadata.title, '3.4 Vector trung bình, Covariance & Ma trận Covariance (Mean Vector, Covariance & Covariance Matrix)');
   assert.ok(Array.isArray(meanVectorCovarianceMatrix?.metadata.headings));
-  assert.equal(meanVectorCovarianceMatrix.metadata.headings.length, 27);
+  assert.equal(meanVectorCovarianceMatrix.metadata.headings.length, 28);
   for (const componentName of ['CovarianceConceptVisual', 'CovarianceMatrixExplorer']) {
     assert.match(meanVectorCovarianceMatrixSource, new RegExp(`<${componentName}\\b`));
   }
   const jointMarginalCorrelation = statisticsInspections.get('joint-marginal-correlation');
   const jointMarginalCorrelationSource = statisticsSources.get('joint-marginal-correlation') ?? '';
-  assert.equal(jointMarginalCorrelation?.metadata.pageCount, 23);
+  assert.equal(jointMarginalCorrelation?.metadata.pageCount, 24);
   assert.equal(jointMarginalCorrelation?.metadata.title, '3.5 Phân phối đồng thời, Phân phối biên & Tương quan (Joint Distribution, Marginal Distribution & Correlation)');
   assert.ok(Array.isArray(jointMarginalCorrelation?.metadata.headings));
-  assert.equal(jointMarginalCorrelation.metadata.headings.length, 23);
+  assert.equal(jointMarginalCorrelation.metadata.headings.length, 24);
   for (const componentName of ['JointMarginalConceptVisual', 'MarginalProjectionExplorer', 'CorrelationMatrixExplorer']) {
     assert.match(jointMarginalCorrelationSource, new RegExp(`<${componentName}\\b`));
   }
   const multivariateNormal = statisticsInspections.get('multivariate-normal-distribution');
   const multivariateNormalSource = statisticsSources.get('multivariate-normal-distribution') ?? '';
-  assert.equal(multivariateNormal?.metadata.pageCount, 22);
+  assert.equal(multivariateNormal?.metadata.pageCount, 23);
   assert.equal(multivariateNormal?.metadata.title, '3.7 Phân phối chuẩn nhiều chiều (Multivariate Normal Distribution)');
   assert.ok(Array.isArray(multivariateNormal?.metadata.headings));
-  assert.equal(multivariateNormal.metadata.headings.length, 22);
+  assert.equal(multivariateNormal.metadata.headings.length, 23);
   for (const componentName of ['MultivariateNormalConceptVisual', 'MultivariateNormalExplorer']) {
     assert.match(multivariateNormalSource, new RegExp(`<${componentName}\\b`));
   }
   const normalDistribution = statisticsInspections.get('normal-distribution');
   const normalDistributionSource = statisticsSources.get('normal-distribution') ?? '';
-  assert.equal(normalDistribution?.metadata.pageCount, 17);
+  assert.equal(normalDistribution?.metadata.pageCount, 18);
   assert.equal(normalDistribution?.metadata.title, '3.6 Phân phối chuẩn (Normal Distribution)');
   const normalDistributionHeadings = normalDistribution?.metadata.headings;
   assert.ok(Array.isArray(normalDistributionHeadings));
-  assert.equal(normalDistributionHeadings.length, 17);
+  assert.equal(normalDistributionHeadings.length, 18);
   assert.match(normalDistributionSource, /<NormalDistributionVisual\b/);
   assert.match(normalDistributionSource, /kind="overview"/);
   assert.match(normalDistributionSource, /Điều này không có nghĩa mọi dữ liệu đều tuân theo phân phối chuẩn/);

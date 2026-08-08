@@ -4,6 +4,7 @@ export const lessonMetadata = {
   locale: 'vi',
   title: '3.5 Phân phối đồng thời, Phân phối biên & Tương quan (Joint Distribution, Marginal Distribution & Correlation)',
   headings: [
+    'Mục tiêu học tập',
     'Từ từng biến riêng sang phân phối chung',
     'Joint distribution',
     'Joint distribution không chỉ là scatter plot',
@@ -38,12 +39,12 @@ export const lessonMetadata = {
     'multivariate normal',
     'numpy corrcoef',
   ],
-  pageCount: 23,
+  pageCount: 24,
 };
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Phân biệt **phân phối đồng thời** (*joint distribution*) và **phân phối biên** (*marginal distribution*).
@@ -52,6 +53,10 @@ Sau bài này, bạn sẽ:
 - Lập trình tính ma trận tương quan bằng NumPy (`np.corrcoef`).
 
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Từ từng biến riêng sang phân phối chung
 
@@ -77,7 +82,7 @@ Nếu nhìn cả hai cùng lúc, ta có **phân phối đồng thời** (Joint d
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Joint distribution
 
@@ -106,7 +111,7 @@ Joint distribution trả lời các câu hỏi quan trọng như:
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Joint distribution không chỉ là scatter plot
 
@@ -128,7 +133,7 @@ Có nhiều công cụ toán học và đồ họa để biểu diễn joint dis
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Marginal distribution là gì?
 
@@ -149,7 +154,7 @@ Nguồn gốc tên gọi "marginal" xuất phát từ việc tính tổng ở l�
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Chiếu dữ liệu xuống từng trục
 
@@ -170,7 +175,7 @@ Phép chiếu hình học giúp hiểu rõ bản chất của marginal distribut
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Marginal mean và marginal variance
 
@@ -196,7 +201,7 @@ Khi chỉ xét phân phối biên của từng biến riêng lẻ:
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## Marginal không giống conditional
 
@@ -226,7 +231,7 @@ Câu hỏi: *Khi đã biết <MdxFormula inline formula={"Y = y_0"} />, biến <
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={8}>
 
 ## Tại sao covariance chưa đủ?
 
@@ -250,7 +255,7 @@ Giả sử <MdxFormula inline formula={"X_{\\text{cm}} = 100 X_{\\text{m}}"} />:
 
 </MdxPage>
 
-<MdxPage page={8}>
+<MdxPage page={9}>
 
 ## Correlation
 
@@ -273,7 +278,7 @@ Correlation chính là **covariance được chia cho tích hai độ lệch chu
 
 </MdxPage>
 
-<MdxPage page={9}>
+<MdxPage page={10}>
 
 ## Đọc dấu của correlation
 
@@ -293,7 +298,7 @@ Dấu của hệ số tương quan <MdxFormula inline formula={"\\rho"} /> cho b
 
 </MdxPage>
 
-<MdxPage page={10}>
+<MdxPage page={11}>
 
 ## Độ lớn của correlation
 
@@ -313,7 +318,7 @@ Giá trị tuyệt đối <MdxFormula inline formula={"|\\rho|"} /> cho biết *
 
 </MdxPage>
 
-<MdxPage page={11}>
+<MdxPage page={12}>
 
 ## Correlation chỉ đo quan hệ tuyến tính
 
@@ -335,7 +340,7 @@ Pearson correlation đo lường khả năng xấp xỉ bằng **đường thẳ
 
 </MdxPage>
 
-<MdxPage page={12}>
+<MdxPage page={13}>
 
 ## Correlation không đồng nghĩa causation
 
@@ -359,7 +364,7 @@ Khi hai biến <MdxFormula inline formula={"X"} /> và <MdxFormula inline formul
 
 </MdxPage>
 
-<MdxPage page={13}>
+<MdxPage page={14}>
 
 ## Correlation matrix
 
@@ -375,7 +380,7 @@ Với tập dữ liệu gồm <MdxFormula inline formula={"d"} /> đặc trưng,
 
 </MdxPage>
 
-<MdxPage page={14}>
+<MdxPage page={15}>
 
 ## Standardization và correlation
 
@@ -399,7 +404,7 @@ Dưới dạng ma trận cho vector đã chuẩn hóa <MdxFormula inline formula
 
 </MdxPage>
 
-<MdxPage page={15}>
+<MdxPage page={16}>
 
 ## Code: joint và marginal distributions
 
@@ -452,7 +457,7 @@ plt.show()
 
 </MdxPage>
 
-<MdxPage page={16}>
+<MdxPage page={17}>
 
 ## Code: marginal statistics
 
@@ -501,7 +506,7 @@ Diagonal of covariance matrix:
 
 </MdxPage>
 
-<MdxPage page={17}>
+<MdxPage page={18}>
 
 ## Code: covariance và correlation
 
@@ -539,7 +544,7 @@ Correlation matrix:
 
 </MdxPage>
 
-<MdxPage page={18}>
+<MdxPage page={19}>
 
 ## Code: kiểm tra correlation không đổi khi đổi đơn vị
 
@@ -577,7 +582,7 @@ Correlation (centimeters): 0.5732
 
 </MdxPage>
 
-<MdxPage page={19}>
+<MdxPage page={20}>
 
 ## Code: quan hệ phi tuyến nhưng correlation gần 0
 
@@ -609,7 +614,7 @@ Pearson correlation: 0.005
 
 </MdxPage>
 
-<MdxPage page={20}>
+<MdxPage page={21}>
 
 ## Mini interaction: tạo marginal distributions
 
@@ -624,7 +629,7 @@ Thực hành bấm các nút chiếu dữ liệu để quan sát sự hình thà
 
 </MdxPage>
 
-<MdxPage page={21}>
+<MdxPage page={22}>
 
 ## Mini interaction: correlation
 
@@ -640,7 +645,7 @@ Thực hành bấm các nút chiếu dữ liệu để quan sát sự hình thà
 
 </MdxPage>
 
-<MdxPage page={22}>
+<MdxPage page={23}>
 
 ## Những lỗi thường gặp
 

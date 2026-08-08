@@ -4,6 +4,7 @@ export const lessonMetadata = {
   locale: 'vi',
   title: '3.6 Phân phối chuẩn (Normal Distribution)',
   headings: [
+    'Mục tiêu học tập',
     'Phân phối chuẩn — một mô hình quan trọng và phổ biến',
     'Một phân phối, nhiều tên gọi',
     'Ở giữa thường gặp, ra xa càng hiếm',
@@ -23,12 +24,12 @@ export const lessonMetadata = {
     'Đọc Histogram',
   ],
   keywords: ['normal distribution', 'Gaussian distribution', 'bell curve', 'phân phối chuẩn', 'histogram', 'mean', 'variance', 'z-score', 'StandardScaler', 'skew', 'multimodal', 'outlier'],
-  pageCount: 17,
+  pageCount: 18,
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Giải thích các đặc tính của **Phân phối chuẩn** (*Normal Distribution / Gaussian Distribution*): hình chuông, đối tính, đối xứng qua trung bình <MdxFormula inline formula={"\\mu"} />.
@@ -37,6 +38,10 @@ Sau bài này, bạn sẽ:
 - Nhận dạng các dạng phân phối phi chuẩn (lệch trái, lệch phải, đa đỉnh, đuôi dài).
 
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Phân phối chuẩn — một mô hình quan trọng và phổ biến
 
@@ -55,7 +60,7 @@ Trong thực tế, ta thường bắt đầu bằng **Histogram** để xem dữ
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Một phân phối, nhiều tên gọi
 
@@ -76,7 +81,7 @@ Ba tên sau thường cùng chỉ một họ phân phối đối xứng có dạ
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Ở giữa thường gặp, ra xa càng hiếm
 
@@ -93,7 +98,7 @@ Trong phân phối chuẩn, dữ liệu tập trung quanh trung bình. Các giá
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Hai bên đối xứng
 
@@ -110,7 +115,7 @@ Nếu một phía của Histogram kéo dài rõ rệt hơn phía còn lại, hì
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Trung tâm và hai tails
 
@@ -129,7 +134,7 @@ Phần cao nhất của đường cong nằm tại trung tâm. Hai phần thấp
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Công thức và các tham số đặc trưng
 
@@ -159,7 +164,7 @@ Không cần ghi nhớ công thức ngay. Hãy đọc cấu trúc của nó:
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## Kéo để thay đổi trung bình
 
@@ -183,7 +188,7 @@ Trung bình thay đổi **vị trí**, không tự làm đường cong rộng h�
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={8}>
 
 ## Kéo để thay đổi phương sai
 
@@ -207,7 +212,7 @@ Tổng diện tích dưới đường cong luôn bằng 1. Vì vậy, khi đư�
 
 </MdxPage>
 
-<MdxPage page={8}>
+<MdxPage page={9}>
 
 ## Mean, median và mode
 
@@ -226,7 +231,7 @@ Mode nằm tại đỉnh vì đây là vùng có mật độ cao nhất. Mean v�
 
 </MdxPage>
 
-<MdxPage page={9}>
+<MdxPage page={10}>
 
 ## Phân phối đa đỉnh
 
@@ -243,7 +248,7 @@ Ví dụ gồm chiều cao của học sinh và giáo viên, thời gian xử l�
 
 </MdxPage>
 
-<MdxPage page={10}>
+<MdxPage page={11}>
 
 ## Phân phối chuẩn tắc
 
@@ -266,7 +271,7 @@ Giá trị có <MdxFormula inline formula={"|z|"} /> càng lớn thì càng xa t
 
 </MdxPage>
 
-<MdxPage page={11}>
+<MdxPage page={12}>
 
 ## StandardScaler và phân phối chuẩn tắc
 
@@ -289,7 +294,7 @@ Nếu dữ liệu ban đầu lệch hoặc đa đỉnh, sau StandardScaler nó v
 
 </MdxPage>
 
-<MdxPage page={12}>
+<MdxPage page={13}>
 
 ## Phân phối lệch trái và lệch phải
 
@@ -307,7 +312,7 @@ Không nhìn phía có cột cao nhất. Hãy nhìn phía dữ liệu **thiếu 
 
 </MdxPage>
 
-<MdxPage page={13}>
+<MdxPage page={14}>
 
 ## Code Python: lệch phải
 
@@ -334,7 +339,7 @@ Dữ liệu tập trung ở các giá trị nhỏ và thiếu dần về bên ph
 
 </MdxPage>
 
-<MdxPage page={14}>
+<MdxPage page={15}>
 
 ## Code Python: lệch trái
 
@@ -361,7 +366,7 @@ Dữ liệu tập trung ở các giá trị lớn và thiếu dần về bên tr
 
 </MdxPage>
 
-<MdxPage page={15}>
+<MdxPage page={16}>
 
 ## Đuôi dài và outlier
 
@@ -378,7 +383,7 @@ Không nên khẳng định mọi điểm trong tail đều là outlier. Cần d
 
 </MdxPage>
 
-<MdxPage page={16}>
+<MdxPage page={17}>
 
 ## Đọc Histogram
 

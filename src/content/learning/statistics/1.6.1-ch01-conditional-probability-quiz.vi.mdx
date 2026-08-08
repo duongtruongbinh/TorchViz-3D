@@ -2,13 +2,24 @@ export const lessonMetadata = {
   domainId: 'statistics',
   id: 'ch01-conditional-probability-quiz',
   locale: 'vi',
-  title: 'Quiz',
-  headings: ['Tính xác suất có điều kiện', 'Quy tắc nhân', 'Độc lập và phụ thuộc', 'Chiều của điều kiện'],
+  "title": "Quiz",
+  headings: ['Thông tin của người quan sát', 'Tính xác suất có điều kiện', 'Quy tắc nhân', 'Độc lập và phụ thuộc', 'Chiều của điều kiện'],
   keywords: ['xác suất có điều kiện', 'quy tắc nhân', 'độc lập', 'phụ thuộc'],
-  pageCount: 4,
+  pageCount: 5,
 }
 
 <MdxQuiz id="ch01-conditional-probability-quiz" questions={[
+  {
+    id: 'origins-one-off-event', title: 'Thông tin của người quan sát', prompt: 'Người dẫn đã nhìn đồng xu còn bạn thì chưa. Vì sao hai người có thể gán xác suất khác nhau cho biến cố “mặt ngửa”?', mode: 'single',
+    options: [
+      { id: 'different-information', label: 'Hai người đang điều kiện hóa trên hai tập thông tin khác nhau.', isCorrect: true },
+      { id: 'coin-two-states', label: 'Đồng xu đồng thời nằm ở hai trạng thái vật lý khác nhau.' },
+      { id: 'host-changes-coin', label: 'Việc nhìn đồng xu làm mặt đang hướng lên thay đổi.' },
+      { id: 'probability-arbitrary', label: 'Xác suất là ý kiến tùy ý nên không cần nhất quán.' },
+    ],
+    success: 'Đúng. Trạng thái đồng xu không đổi; điều kiện thông tin của hai người khác nhau.',
+    error: 'Chưa đúng. Hãy nhìn vào thông tin đứng sau dấu điều kiện, không phải thay đổi vật lý của đồng xu.',
+  },
   {
     id: 'conditional-formula', title: 'Tính xác suất có điều kiện', prompt: 'Đặt $A$ là “Đậu”, $B$ là “Có học bài”. Trong 5 học sinh thuộc $B$, có 4 em thuộc $A$. Tính $P(A\\mid B)$.', mode: 'single',
     options: [

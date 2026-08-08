@@ -2,10 +2,11 @@ export const lessonMetadata = {
   "domainId": "statistics",
   "id": "ch01-probability-definitions-properties",
   "locale": "vi",
-  "title": "1.3 Định nghĩa và tính chất xác suất",
+  "title": "1.5 Luật chơi của xác suất",
   "headings": [
-    "Xác suất đo điều gì?",
-    "Ba quy tắc của một mô hình xác suất",
+    "Mục tiêu học tập",
+    "Luật chơi chưa phải ý nghĩa",
+    "Ba tiên đề Kolmogorov",
     "Xác suất cổ điển",
     "Xác suất của biến cố đối",
     "Quy tắc cộng",
@@ -20,23 +21,28 @@ export const lessonMetadata = {
     "quy tắc cộng",
     "python"
   ],
-  "pageCount": 7
+  "pageCount": 8
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
-- Giải thích được ý nghĩa của **xác suất** (*probability*) <MdxFormula inline formula={"P(A)"} /> là một giá trị trong đoạn <MdxFormula inline formula={"[0, 1]"} />.
+- Phân biệt **phép tính xác suất** với cách diễn giải con số xác suất trong một tình huống cụ thể.
+- Giải thích được <MdxFormula inline formula={"P(A)"} /> là một giá trị trong đoạn <MdxFormula inline formula={"[0, 1]"} />.
 - Phát biểu 3 **tiên đề xác suất** (*axioms of probability*) cho một mô hình xác suất hợp lệ.
 - Tính xác suất theo định nghĩa **xác suất cổ điển** (*classical probability*) và áp dụng **quy tắc cộng** (*addition rule*).
 
 </LessonNote>
 
-## Xác suất đo điều gì?
+</MdxPage>
 
-Ta đã biết biến cố “xúc xắc xuất hiện mặt chẵn” là <MdxFormula inline formula={"A=\\{2,4,6\\}"} />. Bây giờ cần một con số để trả lời: biến cố này có khả năng xảy ra đến đâu?
+<MdxPage page={1}>
+
+## Luật chơi chưa phải ý nghĩa
+
+Ta đã biết “mặt ngửa” là một biến cố. Bây giờ ta cần một con số để làm việc nhất quán với biến cố đó.
 
 **Xác suất** (*probability*) của biến cố <MdxFormula inline formula={"A"} />, ký hiệu <MdxFormula inline formula={"P(A)"} />, là một số từ 0 đến 1:
 
@@ -44,19 +50,21 @@ Ta đã biết biến cố “xúc xắc xuất hiện mặt chẵn” là <MdxF
 
 - Biến cố không thể <MdxFormula inline formula={"\\varnothing"} /> có xác suất <MdxFormula inline formula={"P(\\varnothing)=0"} />.
 - Biến cố chắc chắn <MdxFormula inline formula={"\\Omega"} /> có xác suất <MdxFormula inline formula={"P(\\Omega)=1"} />.
-- Giá trị càng gần 1, mô hình xem biến cố càng có khả năng xảy ra.
+- Các giá trị nằm giữa 0 và 1 biểu diễn những mức bất định khác nhau trong mô hình.
 
 Với một đồng xu cân đối, đặt <MdxFormula inline formula={"S"} /> là biến cố “xuất hiện mặt sấp”. Ta có thể viết ngắn gọn:
 
 <MdxFormula formula={"P(S)=0.5"} />
 
+Công thức này chưa tự nói <MdxFormula inline formula={"0.5"} /> nên được hiểu là tần suất dài hạn, mức độ tin cậy theo thông tin hiện có, hay một đại lượng khác trong mô hình. Nó mới đặt con số vào một **luật chơi toán học chung**.
+
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
-## Ba quy tắc của một mô hình xác suất
+## Ba tiên đề Kolmogorov
 
-Không thể gán các con số bất kỳ cho các biến cố. Một **mô hình xác suất** (*probability model*) hợp lệ phải giữ ba quy tắc (tiên đề xác suất) sau:
+Trong cách tiên đề hóa hiện đại gắn với Andrey Kolmogorov, ta không thể gán các con số bất kỳ cho các biến cố. Một **mô hình xác suất** (*probability model*) hợp lệ phải giữ ba tiên đề:
 
 1. Xác suất không âm:
 
@@ -72,9 +80,11 @@ Không thể gán các con số bất kỳ cho các biến cố. Một **mô hì
 
 Từ ba quy tắc này, ta suy ra <MdxFormula inline formula={"0\\le P(A)\\le 1"} /> và <MdxFormula inline formula={"P(\\varnothing)=0"} />.
 
+Các tiên đề cho ta cách tính nhất quán, nhưng không chọn hộ ta cách diễn giải xác suất. Góc nhìn tần suất và góc nhìn dựa trên thông tin đều phải tuân theo cùng các quy tắc này.
+
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Xác suất cổ điển
 
@@ -98,7 +108,7 @@ Cách đếm này chỉ áp dụng trực tiếp khi các kết quả sơ cấp 
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Xác suất của biến cố đối
 
@@ -116,7 +126,7 @@ Nếu <MdxFormula inline formula={"P(A)=1/2"} /> thì <MdxFormula inline formula
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Quy tắc cộng
 
@@ -134,7 +144,7 @@ Nếu <MdxFormula inline formula={"A"} /> và <MdxFormula inline formula={"B"} /
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Tính xác suất bằng Python
 
@@ -167,16 +177,17 @@ P(A ∪ B) = 0.6667 (4/6)
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## Kiến thức cần nắm
 
-<LessonNote label="Tóm tắt trọng tâm bài 1.3">
+<LessonNote label="Tóm tắt trọng tâm bài 1.5">
 
-- **Ý nghĩa**: <MdxFormula inline formula={"P(A) \\in [0,1]"} /> đo mức độ có thể xảy ra của biến cố <MdxFormula inline formula={"A"} />.
+- **Giá trị**: <MdxFormula inline formula={"P(A) \\in [0,1]"} /> gán một mức xác suất cho biến cố <MdxFormula inline formula={"A"} /> trong mô hình.
 - **Mô hình hợp lệ**: Xác suất không âm, <MdxFormula inline formula={"P(\\Omega)=1"} />, và xác suất của các biến cố xung khắc được cộng lại.
 - **Đếm trường hợp**: Khi mọi kết quả đồng khả năng, <MdxFormula inline formula={"P(A)=\\frac{|A|}{|\\Omega|}"} />.
 - **Hai quy tắc tính nhanh**: <MdxFormula inline formula={"P(A^c)=1-P(A)"} /> và <MdxFormula inline formula={"P(A\\cup B)=P(A)+P(B)-P(A\\cap B)"} />.
+- **Phép tính và diễn giải là hai lớp khác nhau**: các tiên đề xác định luật tính; lesson tiếp theo chuyển sang cách xác suất thay đổi khi có thêm thông tin.
 
 </LessonNote>
 

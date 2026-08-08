@@ -4,6 +4,7 @@ export const lessonMetadata = {
   locale: 'vi',
   title: '3.1 Histogram — Từ dữ liệu thô đến hình dạng phân phối',
   headings: [
+    'Mục tiêu học tập',
     'Thu thập dữ liệu',
     'Đặt dữ liệu lên một trục số',
     'Vấn đề: các điểm bị chồng lên nhau',
@@ -23,12 +24,12 @@ export const lessonMetadata = {
     'Tự chọn số bin',
   ],
   keywords: ['histogram', 'bin', 'phân phối', 'tần số', 'numpy', 'matplotlib', 'square-root rule', 'Freedman–Diaconis'],
-  pageCount: 17,
+  pageCount: 18,
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Hiểu cách xây dựng **Histogram** từng bước từ dữ liệu thô → trục số → chia khoảng (*bins*) → đếm tần số (*counts*) → dựng các cột.
@@ -36,6 +37,10 @@ Sau bài này, bạn sẽ:
 - Áp dụng các quy tắc chọn số bin (Căn bậc hai, Sturges, Freedman–Diaconis) và viết code Python tạo Histogram với NumPy/Matplotlib.
 
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Thu thập dữ liệu
 
@@ -82,7 +87,7 @@ Danh sách số giữ lại giá trị chính xác của từng người, nhưng
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Đặt dữ liệu lên một trục số
 
@@ -102,7 +107,7 @@ Với một vài điểm, biểu diễn này vẫn dễ đọc: điểm nằm c�
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Vấn đề: các điểm bị chồng lên nhau
 
@@ -122,7 +127,7 @@ Ta cần một cách giữ lại vị trí tương đối của dữ liệu như
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Chia trục số thành các bin
 
@@ -144,7 +149,7 @@ Bin <MdxFormula inline formula={"[25,35)"} /> chứa mọi giá trị thỏa <Md
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Xếp chồng các điểm trong từng bin
 
@@ -164,7 +169,7 @@ Mỗi quan sát được chuyển vào bin chứa nó. Các điểm trong cùng 
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Từ các chồng điểm đến histogram
 
@@ -188,7 +193,7 @@ Thay mỗi chồng điểm bằng một hình chữ nhật có cùng chiều cao
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## Histogram cho ta biết điều gì?
 
@@ -208,7 +213,7 @@ Histogram không chỉ trả lời “có bao nhiêu điểm”. Hình dạng t�
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={8}>
 
 ## Điều gì xảy ra khi có quá ít bin?
 
@@ -227,7 +232,7 @@ Biểu đồ đơn giản hơn không nhất thiết đồng nghĩa với biểu
 
 </MdxPage>
 
-<MdxPage page={8}>
+<MdxPage page={9}>
 
 ## Điều gì xảy ra khi có quá nhiều bin?
 
@@ -246,7 +251,7 @@ Các “đỉnh” nhỏ xuất hiện ở đây có thể chỉ do ranh giới 
 
 </MdxPage>
 
-<MdxPage page={9}>
+<MdxPage page={10}>
 
 ## Cùng dữ liệu, histogram khác nhau
 
@@ -269,7 +274,7 @@ Hình dạng histogram phụ thuộc vào cả **dữ liệu** lẫn **cách chi
 
 </MdxPage>
 
-<MdxPage page={10}>
+<MdxPage page={11}>
 
 ## Quy tắc căn bậc hai
 
@@ -294,7 +299,7 @@ Hãy dùng quy tắc này để bắt đầu quan sát, không dùng nó để k
 
 </MdxPage>
 
-<MdxPage page={11}>
+<MdxPage page={12}>
 
 ## Không có một số bin đúng cho mọi dữ liệu
 
@@ -318,7 +323,7 @@ Bạn không cần ghi nhớ cả ba công thức. Điều quan trọng là bi�
 
 </MdxPage>
 
-<MdxPage page={12}>
+<MdxPage page={13}>
 
 ## Code Python: tạo histogram đầu tiên
 
@@ -353,7 +358,7 @@ plt.show()
 
 </MdxPage>
 
-<MdxPage page={13}>
+<MdxPage page={14}>
 
 ## Code Python: nhìn thấy dữ liệu được chia bin như thế nào
 
@@ -385,7 +390,7 @@ Bin cuối bao gồm đầu mút bên phải để giá trị lớn nhất khôn
 
 </MdxPage>
 
-<MdxPage page={14}>
+<MdxPage page={15}>
 
 ## Code Python: quá ít, hợp lý và quá nhiều bin
 
@@ -423,7 +428,7 @@ Hãy hỏi: với 2 bin, hai cụm còn nhìn thấy không? Với 40 bin, nhữ
 
 </MdxPage>
 
-<MdxPage page={15}>
+<MdxPage page={16}>
 
 ## Code Python: so sánh các quy tắc chọn bin
 
@@ -455,7 +460,7 @@ plt.show()
 
 </MdxPage>
 
-<MdxPage page={16}>
+<MdxPage page={17}>
 
 ## Tự chọn số bin
 

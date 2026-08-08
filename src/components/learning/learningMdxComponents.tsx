@@ -126,13 +126,28 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
   );
 }
 
-export function LessonNote({ children, label, tone = 'info' }: {
+export function LessonNote({ children, label, tone = 'info', variant = 'note' }: {
   children?: ReactNode;
   label?: string;
   tone?: 'info' | 'warning';
+  variant?: 'note' | 'objectives';
 }) {
   const themeClasses = useLearningMdxTheme();
   const lessonContext = useLearningMdxLesson();
+  if (variant === 'objectives') {
+    return (
+      <section className="grid w-full max-w-3xl gap-4 py-1">
+        {label ? <MdxPageTitle>{label}</MdxPageTitle> : null}
+        <div className={cx(
+          "grid gap-3 leading-7 [&_p]:font-semibold [&_strong]:font-black [&_ul]:grid [&_ul]:list-none [&_ul]:gap-3 [&_ul]:pl-0 [&_li]:relative [&_li]:pl-8 [&_li]:before:absolute [&_li]:before:left-0 [&_li]:before:top-1 [&_li]:before:grid [&_li]:before:h-5 [&_li]:before:w-5 [&_li]:before:place-items-center [&_li]:before:rounded-full [&_li]:before:text-xs [&_li]:before:font-black [&_li]:before:content-['✓']",
+          themeClasses.bodyText,
+          themeClasses.isLight
+            ? '[&_li]:before:bg-[#DDEAF5] [&_li]:before:text-[#205089]'
+            : '[&_li]:before:bg-[#A8D4FF]/10 [&_li]:before:text-[#A8D4FF]',
+        )}>{children}</div>
+      </section>
+    );
+  }
   if (label) {
     const isWarning = tone === 'warning';
     const LabelIcon = isWarning ? AlertTriangle : Info;
@@ -387,6 +402,11 @@ function MdxParagraph({ children }: { children?: ReactNode }) {
   return <p className={cx('w-full text-base leading-[1.625rem]', themeClasses.bodyText)}>{children}</p>;
 }
 
+function MdxPageTitle({ children }: { children?: ReactNode }) {
+  const themeClasses = useLearningMdxTheme();
+  return <h2 className={cx('text-pretty text-xl font-black leading-7', themeClasses.pageTitleText)}>{children}</h2>;
+}
+
 function MdxLink({ children, href }: { children?: ReactNode; href?: string }) {
   const themeClasses = useLearningMdxTheme();
   const isNumericCitation = typeof children === 'string' && /^\[\d+\]$/.test(children.trim());
@@ -536,6 +556,7 @@ const sharedAuthoredMdxComponents = {
 
 export const sharedLearningMdxComponents = {
   a: MdxLink,
+  h2: MdxPageTitle,
   img: MdxImage,
   p: MdxParagraph,
   pre: MdxPre,

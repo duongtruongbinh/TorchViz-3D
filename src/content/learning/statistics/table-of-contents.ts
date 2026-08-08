@@ -9,8 +9,8 @@ const sourceChapters = [
         "vi": "1. Xác suất"
       },
       "description": {
-        "en": "Random experiments, events, probability rules, conditioning, Bayes' theorem, and Naive Bayes.",
-        "vi": "Phép thử ngẫu nhiên, biến cố, các quy tắc xác suất, xác suất có điều kiện, định lý Bayes và Naive Bayes."
+        "en": "Start with experiments, events, and sample spaces; then use the hidden-coin question to connect long-run frequency, probability rules, information, Bayes' theorem, and Naive Bayes.",
+        "vi": "Bắt đầu từ phép thử, biến cố và không gian mẫu; sau đó dùng câu hỏi đồng xu bị che để kết nối tần suất dài hạn, các quy tắc xác suất, thông tin, định lý Bayes và Naive Bayes."
       }
     },
     "lessonIds": [
@@ -33,10 +33,46 @@ const sourceChapters = [
         "contentStatus": "published"
       },
       {
+        "id": "ch01-probability-origins",
+        "title": {
+          "en": "1.2 What Is Probability?",
+          "vi": "1.2 Xác suất là gì?"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-probability-origins-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-empirical-probability",
+        "title": {
+          "en": "1.3 Probability as Long-Run Frequency",
+          "vi": "1.3 Xác suất như tần suất dài hạn"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
+        "id": "ch01-empirical-probability-quiz",
+        "title": {
+          "en": "Quiz",
+          "vi": "Quiz"
+        },
+        "status": "available",
+        "contentStatus": "published"
+      },
+      {
         "id": "ch01-event-relations",
         "title": {
-          "en": "1.2 Relations Between Events",
-          "vi": "1.2 Quan hệ giữa các biến cố"
+          "en": "1.4 Relations Between Events",
+          "vi": "1.4 Quan hệ giữa các biến cố"
         },
         "status": "available",
         "contentStatus": "published"
@@ -53,8 +89,8 @@ const sourceChapters = [
       {
         "id": "ch01-probability-definitions-properties",
         "title": {
-          "en": "1.3 Probability Definitions and Properties",
-          "vi": "1.3 Định nghĩa và tính chất xác suất"
+          "en": "1.5 The Rules of Probability",
+          "vi": "1.5 Luật chơi của xác suất"
         },
         "status": "available",
         "contentStatus": "published"
@@ -69,28 +105,10 @@ const sourceChapters = [
         "contentStatus": "published"
       },
       {
-        "id": "ch01-empirical-probability",
-        "title": {
-          "en": "1.4 Frequency and Empirical Probability",
-          "vi": "1.4 Tần số và xác suất thực nghiệm"
-        },
-        "status": "available",
-        "contentStatus": "published"
-      },
-      {
-        "id": "ch01-empirical-probability-quiz",
-        "title": {
-          "en": "Quiz",
-          "vi": "Quiz"
-        },
-        "status": "available",
-        "contentStatus": "published"
-      },
-      {
         "id": "ch01-conditional-probability",
         "title": {
-          "en": "1.5 Conditional Probability and the Multiplication Rule",
-          "vi": "1.5 Xác suất có điều kiện và quy tắc nhân"
+          "en": "1.6 Information Changes Probability",
+          "vi": "1.6 Thông tin làm xác suất thay đổi"
         },
         "status": "available",
         "contentStatus": "published"
@@ -107,32 +125,14 @@ const sourceChapters = [
       {
         "id": "ch01-total-probability",
         "title": {
-          "en": "1.6 The Law of Total Probability",
-          "vi": "1.6 Công thức xác suất toàn phần"
+          "en": "1.7 Combining All Background Cases",
+          "vi": "1.7 Gộp mọi khả năng nền"
         },
         "status": "available",
         "contentStatus": "published"
       },
       {
         "id": "ch01-total-probability-quiz",
-        "title": {
-          "en": "Quiz",
-          "vi": "Quiz"
-        },
-        "status": "available",
-        "contentStatus": "published"
-      },
-      {
-        "id": "ch01-probability-origins",
-        "title": {
-          "en": "1.7 Two Views of Probability",
-          "vi": "1.7 Hai cách hiểu xác suất"
-        },
-        "status": "available",
-        "contentStatus": "published"
-      },
-      {
-        "id": "ch01-probability-origins-quiz",
         "title": {
           "en": "Quiz",
           "vi": "Quiz"

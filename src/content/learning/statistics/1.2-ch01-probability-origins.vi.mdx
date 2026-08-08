@@ -1,0 +1,38 @@
+export const lessonMetadata = {
+  domainId: 'statistics',
+  id: 'ch01-probability-origins',
+  locale: 'vi',
+  title: '1.2 Xác suất là gì?',
+  headings: [
+    'Xác suất là gì?',
+    'Hai cách giải thích con số 50%',
+  ],
+  keywords: ['xác suất', 'đồng xu', 'tần suất', 'niềm tin', 'thông tin', 'mô hình', 'Naive Bayes'],
+  pageCount: 2,
+}
+
+<MdxPage page={0}>
+
+## Xác suất là gì?
+
+Hãy tưởng tượng một đồng xu cân đối vừa được tung, bắt lại rồi úp dưới bàn tay. Bạn chưa nhìn kết quả.
+
+<ProbabilityChapterVisual kind="hidden-coin-probability" />
+
+Nếu được hỏi “xác suất mặt ngửa là bao nhiêu?”, câu trả lời quen thuộc là <MdxFormula inline formula={"50\\%"} />. Nhưng đồng xu đã rơi xong. Bên dưới bàn tay, nó đang nằm ở **một mặt cụ thể**; nó không còn phân vân giữa sấp và ngửa.
+
+<ProbabilityChapterVisual kind="hidden-coin-fixed-state" />
+
+Vậy **con số 50% này đang mô tả điều gì?**
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+Cùng một con số 50%, nhưng chúng ta lại có 2 cách giải thích.
+
+<ProbabilityChapterVisual kind="probability-interpretation-branches" />
+
+Chúng ta sẽ lần lượt tìm hiểu hai cách giải thích này ở các node tiếp theo.
+
+</MdxPage>

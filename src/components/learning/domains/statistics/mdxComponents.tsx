@@ -27,7 +27,6 @@ import {
 } from 'lucide-react';
 import katex from 'katex';
 import { useEffect, useId, useMemo, useState } from 'react';
-import mereGamblingScene from '../../../../assets/learning/statistics/ch01-probability/01-statistics-probability-origins-mere-gambling-scene.jpg';
 import elementaryEventsIllustration from '../../../../assets/learning/statistics/ch01-probability/02-statistics-experiments-events-sample-space-elementary-events.png';
 import bushTaxTruncatedAxisIllustration from '../../../../assets/learning/statistics/ch02-statistical-thinking/02-statistics-criticism-bush-tax.webp';
 import { STATISTICS_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
@@ -75,14 +74,18 @@ type ProbabilityChapterVisualKind =
   | 'bayes-prior-posterior'
   | 'certainty'
   | 'conditional'
+  | 'coin-mechanics'
   | 'descriptive-center-histogram'
   | 'elementary'
   | 'empirical'
+  | 'evidence-strength'
   | 'exclusive'
   | 'exclusive-not-complement'
   | 'foundations'
   | 'frequency-simulation'
   | 'frequency-stability'
+  | 'forecast-calibration'
+  | 'hidden-coin-fixed-state'
   | 'hidden-coin-probability'
   | 'ideal-normal-center'
   | 'naive-bayes-combinations'
@@ -92,10 +95,12 @@ type ProbabilityChapterVisualKind =
   | 'naive-bayes-tradeoffs'
   | 'intersection'
   | 'large-number-applications'
+  | 'medical-base-rate'
   | 'responsible-statistics-checklist'
   | 'play-tennis-data'
   | 'play-tennis-likelihoods'
   | 'play-tennis-likelihoods-laplace'
+  | 'probability-interpretation-branches'
   | 'email-naive-bayes-data'
   | 'email-naive-bayes-probabilities'
   | 'email-naive-bayes-scores'
@@ -119,7 +124,6 @@ function MathText({ className, formula }: { className?: string; formula: string 
 }
 
 const probabilitySourceImages = {
-  'mere-gambling-scene': mereGamblingScene,
   'bush-tax-truncated-axis': bushTaxTruncatedAxisIllustration,
 } as const;
 
@@ -254,60 +258,317 @@ function CertaintyVisual({ themeClasses }: { themeClasses: LearningThemeClasses 
 }
 
 function HiddenCoinProbabilityVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
-  const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8D4FF]/18';
-  const softSurface = themeClasses.isLight ? 'bg-[#EAF1F7]' : 'bg-[#A8D4FF]/7';
+  const [animationRun, setAnimationRun] = useState(0);
+  const [phase, setPhase] = useState<'ready' | 'tossing' | 'settled'>('ready');
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setPhase('settled');
+      return undefined;
+    }
+
+    setPhase('ready');
+    const tossTimer = window.setTimeout(() => setPhase('tossing'), 80);
+    const settleTimer = window.setTimeout(() => setPhase('settled'), 820);
+
+    return () => {
+      window.clearTimeout(tossTimer);
+      window.clearTimeout(settleTimer);
+    };
+  }, [animationRun]);
+
+  const isSettled = phase === 'settled';
+  const coinTransform = phase === 'ready'
+    ? 'translate3d(-50%, 2.75rem, 0) rotateY(0deg) scale(0.94)'
+    : phase === 'tossing'
+      ? 'translate3d(-50%, -2.75rem, 0) rotateY(540deg) scale(1)'
+      : 'translate3d(-50%, 1.25rem, 0) rotateY(720deg) scale(0.96)';
 
   return (
     <section
-      aria-label="Đồng xu đã được tung: kết quả đã cố định nhưng người quan sát vẫn chưa biết"
-      className={cx(
-        'mt-6 overflow-hidden rounded-xl border',
-        border,
-        themeClasses.isLight ? 'bg-white text-[#172A43]' : 'bg-[#121A24]/48 text-[#F2F6FA]',
-      )}
+      aria-label="Minh họa đồng xu có hai mặt S và N luân phiên khi tung, rồi kết thúc bằng dấu hỏi vì người quan sát chưa nhìn kết quả"
+      className="my-6"
     >
-      <div className="grid lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
-        <div className="grid content-center px-5 py-6 sm:px-7 sm:py-8">
-          <h3 className={cx('max-w-md text-xl font-bold leading-8 sm:text-2xl', themeClasses.titleText)}>
-            Một đồng xu đã được tung
-          </h3>
-          <p className={cx('mt-3 max-w-xl text-sm font-semibold leading-7 sm:text-base', themeClasses.bodyText)}>
-            Đồng xu cân đối, đồng chất được che lại trước khi bạn nhìn kết quả. Xác suất nó đang nằm ở mặt sấp là bao nhiêu?
-          </p>
-          <div className={cx(
-            'mt-6 flex items-center justify-between gap-4 rounded-xl px-4 py-4 sm:px-5',
-            themeClasses.isLight ? 'bg-[#F7E8CC] text-[#704B10]' : 'bg-[#F2C66D]/12 text-[#FFE4A3]',
-          )}>
-            <MathText className="text-4xl font-semibold sm:text-5xl" formula="50\%" />
-            <span className="max-w-28 text-right text-sm font-bold leading-5">Câu trả lời quen thuộc</span>
-          </div>
+      <div className={cx(
+        'relative isolate mx-auto h-56 w-full max-w-2xl overflow-hidden rounded-2xl border shadow-[0_18px_44px_rgba(32,80,137,0.10)]',
+        themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8D4FF]/14',
+      )} style={{
+        background: themeClasses.isLight
+          ? 'linear-gradient(180deg, #FBFDFE 0%, #EEF4F9 100%)'
+          : 'linear-gradient(180deg, #172332 0%, #101923 100%)',
+        perspective: '900px',
+      }}>
+        <div
+          aria-hidden="true"
+          className={cx(
+            'absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl',
+            themeClasses.isLight ? 'bg-[#A8D4FF]/24' : 'bg-[#5B9BD5]/12',
+          )}
+        />
+
+        <button
+          type="button"
+          aria-label="Tung lại minh họa đồng xu"
+          onClick={() => setAnimationRun((current) => current + 1)}
+          className={cx(
+            'absolute right-4 top-4 z-30 inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors',
+            themeClasses.focusRing,
+            themeClasses.isLight
+              ? 'border-[#205089]/12 bg-white/90 text-[#205089] shadow-sm hover:bg-white'
+              : 'border-[#A8D4FF]/16 bg-[#1B2A3B]/90 text-[#CDE5FA] hover:bg-[#24364A]',
+          )}
+        >
+          <RefreshCw className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+        </button>
+
+        <div
+          aria-hidden="true"
+          className={cx(
+            'absolute left-1/2 top-[27%] z-0 grid h-28 w-28 place-items-center rounded-full border transition-[transform,opacity] ease-out motion-reduce:transition-none',
+            themeClasses.isLight ? 'border-[#B97917]/40 text-[#6B460E]' : 'border-[#F3C76B]/32 text-[#3A290D]',
+          )}
+          style={{
+            background: 'radial-gradient(circle at 32% 26%, #FFF4BE 0%, #F5C95F 34%, #D79831 72%, #B8761F 100%)',
+            boxShadow: '0 18px 34px rgba(157, 105, 26, 0.24)',
+            opacity: isSettled ? 0 : 1,
+            transform: coinTransform,
+            transitionDuration: phase === 'tossing' ? '640ms' : '260ms',
+            transformStyle: 'preserve-3d',
+          }}
+        >
+          <span className="absolute inset-2 rounded-full border border-white/36" />
+          <span className="absolute left-5 top-4 h-5 w-8 -rotate-[28deg] rounded-full bg-white/28 blur-[1px]" />
+          <span
+            className="absolute inset-0 grid place-items-center text-3xl font-black"
+            style={{ backfaceVisibility: 'hidden' }}
+          >
+            S
+          </span>
+          <span
+            className="absolute inset-0 grid place-items-center text-3xl font-black"
+            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+          >
+            N
+          </span>
         </div>
 
-        <div className={cx('grid content-center gap-5 px-5 py-6 sm:px-7 sm:py-8', softSurface)}>
-          <div className="mx-auto grid h-36 w-full max-w-sm place-items-center" aria-hidden="true">
-            <div className={cx(
-              'grid h-32 w-32 place-items-center rounded-full border text-4xl font-black shadow-[0_14px_28px_rgba(32,80,137,0.16)]',
-              themeClasses.isLight ? 'border-[#B7791F]/20 bg-[#F2C66D] text-[#704B10]' : 'border-[#F2C66D]/30 bg-[#D7A84E] text-[#33230B]',
-            )}>
-              ?
-            </div>
-          </div>
-          <p className={cx('mx-auto max-w-xl text-sm font-semibold leading-7 sm:text-base', themeClasses.bodyText)}>
-            <strong className={cx('font-bold', themeClasses.titleText)}>Nhưng khoan.</strong> Đồng xu đã được tung và đã nằm yên. Bên dưới bàn tay, kết quả đã là sấp hoặc ngửa; nó không còn chờ để “quyết định” mặt nào sẽ xuất hiện.
-          </p>
+        <div
+          aria-hidden="true"
+          className={cx(
+            'absolute left-1/2 top-[27%] z-10 grid h-32 w-32 place-items-center rounded-full border shadow-[0_18px_36px_rgba(22,60,104,0.22)] transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none',
+            themeClasses.isLight
+              ? 'border-white/70 text-white'
+              : 'border-[#CDE5FA]/24 text-[#E8F4FF]',
+          )}
+          style={{
+            background: themeClasses.isLight
+              ? 'radial-gradient(circle at 34% 28%, #3E78AF 0%, #205089 58%, #173C67 100%)'
+              : 'radial-gradient(circle at 34% 28%, #548DC2 0%, #2D5C87 58%, #1B3A59 100%)',
+            opacity: isSettled ? 1 : 0,
+            transform: `translate3d(-50%, ${isSettled ? '0.25rem' : '1.25rem'}, 0) scale(${isSettled ? 1 : 0.86})`,
+          }}
+        >
+          <span className="absolute inset-2 rounded-full border border-white/12" />
+          <span className="text-6xl font-black leading-none">?</span>
         </div>
       </div>
 
-      <p className={cx(
-        'px-5 py-4 text-center text-base font-semibold leading-7 sm:px-7 sm:text-lg',
-        themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8D4FF]/12 text-[#D7EAFE]',
-      )}>
-        Đồng xu không lưỡng lự. Người chưa biết kết quả là bạn.
-      </p>
+      <span role="status" aria-live="polite" className="sr-only">
+        {phase === 'ready'
+          ? 'Đồng xu chuẩn bị được tung.'
+          : phase === 'tossing'
+            ? 'Đồng xu đang chuyển động.'
+            : 'Đồng xu đã nằm ở một mặt cụ thể; người quan sát chưa biết kết quả.'}
+      </span>
+    </section>
+  );
+}
 
-      <div className="px-5 py-6 sm:px-7 sm:py-7">
-        <p className={cx('text-lg font-bold leading-7 sm:text-xl', themeClasses.titleText)}>Vậy con số 50% thực sự đang mô tả điều gì?</p>
-        <h3 className={cx('mt-4 text-base font-semibold leading-7', themeClasses.bodyText)}>Cách hiểu thứ nhất: Tần suất tương đối</h3>
+function HiddenCoinFixedStateVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  return (
+    <section
+      aria-label="Minh họa tĩnh: dưới lớp che trong suốt, đồng xu đã nằm cố định ở mặt N"
+      className="my-6"
+    >
+      <div className={cx(
+        'relative isolate mx-auto h-48 w-full max-w-2xl overflow-hidden rounded-2xl border shadow-[0_16px_38px_rgba(32,80,137,0.08)]',
+        themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8D4FF]/14',
+      )} style={{
+        background: themeClasses.isLight
+          ? 'linear-gradient(180deg, #FBFDFE 0%, #F1F6FA 100%)'
+          : 'linear-gradient(180deg, #172332 0%, #101923 100%)',
+      }}>
+        <div
+          aria-hidden="true"
+          className={cx(
+            'absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl',
+            themeClasses.isLight ? 'bg-[#F2C66D]/22' : 'bg-[#D7A84E]/10',
+          )}
+        />
+
+        <div
+          aria-hidden="true"
+          className={cx(
+            'absolute left-1/2 top-1/2 z-0 grid h-28 w-28 place-items-center rounded-full border opacity-50',
+            themeClasses.isLight ? 'border-[#B97917]/35 text-[#6B460E]' : 'border-[#F3C76B]/28 text-[#3A290D]',
+          )}
+          style={{
+            background: 'radial-gradient(circle at 32% 26%, #FFF4BE 0%, #F5C95F 34%, #D79831 72%, #B8761F 100%)',
+            boxShadow: '0 14px 28px rgba(157, 105, 26, 0.18)',
+            transform: 'translate3d(calc(-50% + 1.25rem), calc(-50% + 0.9rem), 0)',
+          }}
+        >
+          <span className="absolute inset-2 rounded-full border border-white/36" />
+          <span className="absolute left-5 top-4 h-5 w-8 -rotate-[28deg] rounded-full bg-white/28 blur-[1px]" />
+          <span className="text-3xl font-black opacity-70">N</span>
+        </div>
+
+        <div
+          aria-hidden="true"
+          className={cx(
+            'absolute left-1/2 top-1/2 z-10 h-28 w-48 rounded-3xl border backdrop-blur-[2px]',
+            themeClasses.isLight ? 'border-white/70' : 'border-[#CDE5FA]/18',
+          )}
+          style={{
+            background: themeClasses.isLight
+              ? 'linear-gradient(145deg, rgba(232, 241, 248, 0.86), rgba(205, 224, 239, 0.68))'
+              : 'linear-gradient(145deg, rgba(44, 67, 91, 0.88), rgba(29, 49, 69, 0.72))',
+            boxShadow: '0 18px 34px rgba(31, 66, 101, 0.16)',
+            transform: 'translate3d(calc(-50% - 0.8rem), calc(-50% - 0.7rem), 0) rotate(-4deg)',
+          }}
+        >
+          <span className={cx(
+            'absolute left-5 right-8 top-4 h-px rounded-full',
+            themeClasses.isLight ? 'bg-white/75' : 'bg-[#D9ECFC]/18',
+          )} />
+          <span className={cx(
+            'absolute bottom-4 left-8 right-5 h-px rounded-full',
+            themeClasses.isLight ? 'bg-[#205089]/8' : 'bg-[#A8D4FF]/8',
+          )} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProbabilityInterpretationBranchesVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const branches = [
+    {
+      id: 'frequency',
+      title: 'Tần suất',
+      qualifier: 'Qua nhiều lần lặp',
+      Icon: RefreshCw,
+      steps: ['Lặp phép thử', 'Đếm mặt ngửa', 'Tỷ lệ tiến gần 50%'],
+      concepts: ['Xác suất thực nghiệm', 'Luật số lớn'],
+      light: {
+        accent: 'bg-[#D69A38]',
+        border: 'border-[#B97917]/18',
+        header: 'bg-[#FFF8E8]',
+        icon: 'bg-[#FBE9BC] text-[#855616]',
+        line: 'bg-[#D69A38]/32',
+        number: 'border-[#D69A38]/24 bg-white text-[#855616]',
+        surface: 'bg-[#FFFCF5]',
+        tag: 'border-[#B97917]/14 bg-white text-[#76501A]',
+        endpoint: 'border-[#D69A38]/22 bg-[#FBE9BC] text-[#70480E]',
+      },
+      dark: {
+        accent: 'bg-[#DDB665]',
+        border: 'border-[#F3C76B]/16',
+        header: 'bg-[#D7A84E]/8',
+        icon: 'bg-[#D7A84E]/14 text-[#F3D493]',
+        line: 'bg-[#F3C76B]/24',
+        number: 'border-[#F3C76B]/18 bg-[#172332] text-[#F3D493]',
+        surface: 'bg-[#D7A84E]/5',
+        tag: 'border-[#F3C76B]/14 bg-[#172332] text-[#E8CB91]',
+        endpoint: 'border-[#F3C76B]/20 bg-[#D7A84E]/14 text-[#F3D493]',
+      },
+    },
+    {
+      id: 'belief',
+      title: 'Niềm tin',
+      qualifier: 'Với thông tin hiện có',
+      Icon: BrainCircuit,
+      steps: ['Niềm tin ban đầu', 'Nhận bằng chứng', 'Cập nhật niềm tin'],
+      concepts: ['Xác suất có điều kiện', 'Bayes', 'Naive Bayes'],
+      light: {
+        accent: 'bg-[#2F78B7]',
+        border: 'border-[#205089]/16',
+        header: 'bg-[#F0F6FB]',
+        icon: 'bg-[#DDEAF5] text-[#205089]',
+        line: 'bg-[#2F78B7]/28',
+        number: 'border-[#2F78B7]/20 bg-white text-[#205089]',
+        surface: 'bg-[#F8FBFE]',
+        tag: 'border-[#205089]/12 bg-white text-[#294F76]',
+        endpoint: 'border-[#2F78B7]/20 bg-[#DDEAF5] text-[#173F6D]',
+      },
+      dark: {
+        accent: 'bg-[#8CC8F2]',
+        border: 'border-[#A8D4FF]/16',
+        header: 'bg-[#A8D4FF]/7',
+        icon: 'bg-[#A8D4FF]/12 text-[#BBDFFF]',
+        line: 'bg-[#A8D4FF]/24',
+        number: 'border-[#A8D4FF]/18 bg-[#172332] text-[#CDE5FA]',
+        surface: 'bg-[#A8D4FF]/5',
+        tag: 'border-[#A8D4FF]/12 bg-[#172332] text-[#CDE5FA]',
+        endpoint: 'border-[#A8D4FF]/18 bg-[#A8D4FF]/12 text-[#E2F1FD]',
+      },
+    },
+  ] as const;
+
+  return (
+    <section aria-label="Hai cách giải thích con số 50 phần trăm" className="my-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        {branches.map((branch) => {
+          const palette = themeClasses.isLight ? branch.light : branch.dark;
+          const Icon = branch.Icon;
+
+          return (
+            <article
+              key={branch.id}
+              className={cx('relative grid min-h-full grid-rows-[auto_1fr_auto] overflow-hidden rounded-2xl border', palette.border, palette.surface)}
+            >
+              <span aria-hidden="true" className={cx('absolute inset-x-0 top-0 h-1', palette.accent)} />
+
+              <header className={cx('flex items-center gap-3 border-b px-5 py-4', palette.border, palette.header)}>
+                <span className={cx('grid h-11 w-11 shrink-0 place-items-center rounded-xl', palette.icon)}>
+                  <Icon className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />
+                </span>
+                <div>
+                  <h3 className={cx('text-lg font-black leading-6', themeClasses.titleText)}>{branch.title}</h3>
+                  <p className={cx('mt-0.5 text-xs font-bold', themeClasses.mutedText)}>{branch.qualifier}</p>
+                </div>
+              </header>
+
+              <div className="relative grid content-center px-5 py-5">
+                <span aria-hidden="true" className={cx('absolute bottom-9 left-[2.15rem] top-9 w-px', palette.line)} />
+                <ol className="grid gap-3">
+                  {branch.steps.map((step, index) => (
+                    <li key={step} className="relative z-10 flex items-center gap-3">
+                      <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-full border text-xs font-black', palette.number)}>
+                        {index + 1}
+                      </span>
+                      <span className={cx('text-sm font-bold leading-5', themeClasses.bodyText)}>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <ul className={cx('flex flex-wrap gap-2 border-t px-5 py-4', palette.border)}>
+                {branch.concepts.map((concept, index) => (
+                  <li
+                    key={concept}
+                    className={cx(
+                      'rounded-full border px-3 py-1.5 text-xs font-black',
+                      index === branch.concepts.length - 1 ? palette.endpoint : palette.tag,
+                    )}
+                  >
+                    {concept}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -400,6 +661,241 @@ function LargeNumberApplicationsVisual({ themeClasses }: { themeClasses: Learnin
         </div>
       </div>
 
+    </section>
+  );
+}
+
+function ForecastCalibrationVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const outcomes = Array.from({ length: 10 }, (_, index) => index < 7);
+
+  return (
+    <section
+      aria-label="Nhóm minh họa gồm mười ngày đều được dự báo mưa 70 phần trăm; bảy ngày thực sự mưa và ba ngày không mưa"
+      className={cx('grid gap-5 py-4', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}
+    >
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3 className={cx('text-base font-black', themeClasses.titleText)}>Một nhóm dự báo cùng mức 70%</h3>
+          <p className={cx('mt-1 text-sm font-semibold leading-6', themeClasses.bodyText)}>Mỗi biểu tượng là một ngày khác nhau được hệ thống gán cùng xác suất.</p>
+        </div>
+        <MathText className={cx('text-3xl font-semibold', themeClasses.titleText)} formula="7/10=70\%" />
+      </div>
+
+      <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+        {outcomes.map((rained, index) => (
+          <div
+            key={index}
+            className={cx(
+              'grid min-h-20 place-items-center gap-1 rounded-lg px-2 py-3 text-center',
+              rained
+                ? themeClasses.isLight ? 'bg-[#DDEBFB] text-[#205089]' : 'bg-[#A8D4FF]/12 text-[#A8D4FF]'
+                : themeClasses.isLight ? 'bg-[#FFF3C4] text-[#7A5316]' : 'bg-[#F2C66D]/12 text-[#F7D99B]',
+            )}
+          >
+            {rained
+              ? <CloudRain className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
+              : <Sun className="h-6 w-6" strokeWidth={2} aria-hidden="true" />}
+            <span className="text-[11px] font-black">{rained ? 'Có mưa' : 'Không mưa'}</span>
+          </div>
+        ))}
+      </div>
+
+      <p className={cx('text-center text-sm font-bold leading-6', themeClasses.bodyText)}>
+        Hiệu chỉnh tốt là tính chất của nhiều dự báo cùng mức, không phải lời hứa rằng từng ngày riêng lẻ sẽ “mưa 70%”.
+      </p>
+    </section>
+  );
+}
+
+function EvidenceStrengthVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const [evidence, setEvidence] = useState<'greeting' | 'otp'>('greeting');
+  const scenarios = {
+    greeting: {
+      label: '“Xin chào quý khách”',
+      real: 'Cao',
+      realWidth: 'w-[82%]',
+      scam: 'Cao',
+      scamWidth: 'w-[86%]',
+      ratio: '\\text{gần }1',
+      conclusion: 'Dấu hiệu xuất hiện ở cả hai giả thuyết nên gần như không phân biệt được thật và giả.',
+    },
+    otp: {
+      label: '“Hãy gửi lại mã OTP”',
+      real: 'Rất thấp',
+      realWidth: 'w-[8%]',
+      scam: 'Cao',
+      scamWidth: 'w-[92%]',
+      ratio: '\\text{rất lớn}',
+      conclusion: 'Dấu hiệu dễ xuất hiện khi lừa đảo nhưng rất khó xuất hiện khi ngân hàng thật, nên bằng chứng mạnh.',
+    },
+  } as const;
+  const active = scenarios[evidence];
+  const barTrack = themeClasses.isLight ? 'bg-[#DCE6EF]' : 'bg-[#A8D4FF]/12';
+
+  return (
+    <section
+      aria-label="So sánh sức nặng của hai bằng chứng trong tin nhắn tự xưng là ngân hàng"
+      className={cx('grid gap-5 rounded-xl px-4 py-5 sm:px-5', themeClasses.isLight ? 'bg-[#F7FAFD]' : 'bg-[#A8D4FF]/6')}
+    >
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Chọn bằng chứng để so sánh">
+        {([
+          ['greeting', 'Câu chào chung'],
+          ['otp', 'Yêu cầu OTP'],
+        ] as const).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={evidence === id}
+            onClick={() => setEvidence(id)}
+            className={cx(
+              'min-h-11 rounded-lg border px-4 text-sm font-black transition-colors',
+              themeClasses.focusRing,
+              evidence === id
+                ? themeClasses.isLight ? 'border-[#205089] bg-[#205089] text-white' : 'border-[#A8D4FF] bg-[#A8D4FF] text-[#10263D]'
+                : themeClasses.isLight ? 'border-[#B8C9D8] bg-white text-[#43536A]' : 'border-[#A8D4FF]/24 text-[#C8D4DF]',
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div aria-live="polite">
+        <h3 className={cx('text-base font-black', themeClasses.titleText)}>{active.label}</h3>
+        <div className="mt-4 grid gap-4">
+          <div className="grid gap-1.5 sm:grid-cols-[10rem_minmax(0,1fr)_5rem] sm:items-center">
+            <span className={cx('text-sm font-bold', themeClasses.bodyText)}>Nếu ngân hàng thật</span>
+            <div className={cx('h-3 overflow-hidden rounded-full', barTrack)}>
+              <div className={cx('h-full rounded-full bg-[#517FCB]', active.realWidth)} />
+            </div>
+            <span className={cx('text-sm font-black sm:text-right', themeClasses.titleText)}>{active.real}</span>
+          </div>
+          <div className="grid gap-1.5 sm:grid-cols-[10rem_minmax(0,1fr)_5rem] sm:items-center">
+            <span className={cx('text-sm font-bold', themeClasses.bodyText)}>Nếu là lừa đảo</span>
+            <div className={cx('h-3 overflow-hidden rounded-full', barTrack)}>
+              <div className={cx('h-full rounded-full bg-[#C46A2B]', active.scamWidth)} />
+            </div>
+            <span className={cx('text-sm font-black sm:text-right', themeClasses.titleText)}>{active.scam}</span>
+          </div>
+        </div>
+
+        <div className={cx('mt-5 grid gap-2 border-t pt-4 sm:grid-cols-[auto_1fr] sm:items-center', themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8D4FF]/16')}>
+          <MathText className={cx('text-lg font-semibold', themeClasses.titleText)} formula={'\\frac{P(E\\mid H)}{P(E\\mid H^c)}=' + active.ratio} />
+          <p className={cx('text-sm font-bold leading-6 sm:text-right', themeClasses.bodyText)}>{active.conclusion}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MedicalBaseRateVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const branchClass = cx(
+    'grid gap-2 rounded-xl border px-4 py-4',
+    themeClasses.isLight ? 'border-[#205089]/12 bg-white' : 'border-[#A8D4FF]/16 bg-[#121A24]',
+  );
+
+  return (
+    <section
+      aria-label="Trong một trăm nghìn người xét nghiệm, có chín mươi chín dương tính thật và bốn nghìn chín trăm chín mươi lăm dương tính giả"
+      className={cx('grid gap-4 rounded-xl px-4 py-5 sm:px-5', themeClasses.isLight ? 'bg-[#F7FAFD]' : 'bg-[#A8D4FF]/6')}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className={cx('grid h-10 w-10 place-items-center rounded-full', themeClasses.isLight ? 'bg-[#EAF1F7] text-[#205089]' : 'bg-[#A8D4FF]/10 text-[#A8D4FF]')}>
+            <Users className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+          </span>
+          <div>
+            <h3 className={cx('text-base font-black', themeClasses.titleText)}>100.000 người</h3>
+            <p className={cx('text-xs font-semibold', themeClasses.mutedText)}>Tách theo trạng thái bệnh trước, rồi mới xét kết quả test</p>
+          </div>
+        </div>
+        <MathText className={cx('text-sm font-semibold', themeClasses.mutedText)} formula="P(D)=0.001" />
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <article className={branchClass}>
+          <div className="flex items-center justify-between gap-3">
+            <span className={cx('text-sm font-black', themeClasses.titleText)}>100 người mắc bệnh</span>
+            <MathText className={cx('text-sm font-semibold', themeClasses.mutedText)} formula="0.1\%" />
+          </div>
+          <div className={cx('h-px', themeClasses.isLight ? 'bg-[#205089]/12' : 'bg-[#A8D4FF]/16')} />
+          <div className="flex items-center justify-between gap-3">
+            <span className={cx('text-sm font-bold', themeClasses.bodyText)}>Dương tính thật</span>
+            <strong className={cx('text-2xl tabular-nums', themeClasses.isLight ? 'text-[#2F6840]' : 'text-[#9DDBAF]')}>99</strong>
+          </div>
+        </article>
+
+        <article className={branchClass}>
+          <div className="flex items-center justify-between gap-3">
+            <span className={cx('text-sm font-black', themeClasses.titleText)}>99.900 người khỏe mạnh</span>
+            <MathText className={cx('text-sm font-semibold', themeClasses.mutedText)} formula="99.9\%" />
+          </div>
+          <div className={cx('h-px', themeClasses.isLight ? 'bg-[#205089]/12' : 'bg-[#A8D4FF]/16')} />
+          <div className="flex items-center justify-between gap-3">
+            <span className={cx('text-sm font-bold', themeClasses.bodyText)}>Dương tính giả</span>
+            <strong className={cx('text-2xl tabular-nums', themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')}>4.995</strong>
+          </div>
+        </article>
+      </div>
+
+      <div className={cx(
+        'grid gap-2 rounded-xl px-4 py-4 text-center sm:grid-cols-[1fr_auto] sm:items-center sm:text-left',
+        themeClasses.isLight ? 'bg-[#DDEAF5] text-[#123B68]' : 'bg-[#A8D4FF]/12 text-[#D7EAFE]',
+      )}>
+        <div>
+          <p className="text-sm font-black">Tổng số kết quả dương tính</p>
+          <p className="mt-1 text-xs font-bold opacity-80">99 dương tính thật + 4.995 dương tính giả</p>
+        </div>
+        <MathText className="text-2xl font-semibold" formula="\frac{99}{5094}\approx1.94\%" />
+      </div>
+    </section>
+  );
+}
+
+function CoinMechanicsVisual({ themeClasses }: { themeClasses: LearningThemeClasses }) {
+  const conditions = ['Lực búng', 'Góc nghiêng', 'Tốc độ quay', 'Độ cao', 'Cách bắt'];
+
+  return (
+    <section
+      aria-label="Trong mô hình cơ học cổ điển, điều kiện ban đầu quyết định quỹ đạo và kết quả đồng xu; người quan sát không đo đủ các điều kiện đó"
+      className={cx('grid gap-5 py-4', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}
+    >
+      <div className="grid items-center gap-4 lg:grid-cols-[minmax(0,1.4fr)_auto_minmax(10rem,.7fr)_auto_minmax(9rem,.55fr)]">
+        <div>
+          <h3 className={cx('mb-3 text-sm font-black', themeClasses.titleText)}>Điều kiện ban đầu</h3>
+          <div className="flex flex-wrap gap-2">
+            {conditions.map((condition) => (
+              <span key={condition} className={cx(
+                'inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-black',
+                themeClasses.isLight ? 'border-[#B8C9D8] bg-[#F7FAFD] text-[#43536A]' : 'border-[#A8D4FF]/20 text-[#C8D4DF]',
+              )}>
+                {condition}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <ArrowRight className={cx('mx-auto h-6 w-6 rotate-90 lg:rotate-0', themeClasses.accentText)} strokeWidth={2.2} aria-hidden="true" />
+
+        <div className={cx('grid min-h-28 place-items-center rounded-xl px-4 py-4 text-center', themeClasses.isLight ? 'bg-[#EAF1F7]' : 'bg-[#A8D4FF]/8')}>
+          <ScanSearch className={cx('h-7 w-7', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
+          <span className={cx('text-sm font-black', themeClasses.titleText)}>Quỹ đạo cơ học</span>
+        </div>
+
+        <ArrowRight className={cx('mx-auto h-6 w-6 rotate-90 lg:rotate-0', themeClasses.accentText)} strokeWidth={2.2} aria-hidden="true" />
+
+        <div className={cx('grid min-h-28 place-items-center rounded-xl px-4 py-4 text-center', themeClasses.isLight ? 'bg-[#E4F0E7]' : 'bg-[#9DDBAF]/10')}>
+          <Dices className={cx('h-7 w-7', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
+          <span className={cx('text-sm font-black', themeClasses.titleText)}>Một mặt cụ thể</span>
+        </div>
+      </div>
+
+      <div className={cx('flex items-start gap-3 border-t pt-4', themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8D4FF]/16')}>
+        <TriangleAlert className={cx('mt-0.5 h-5 w-5 shrink-0', themeClasses.isLight ? 'text-[#A05218]' : 'text-[#F0B172]')} strokeWidth={2} aria-hidden="true" />
+        <p className={cx('text-sm font-bold leading-6', themeClasses.bodyText)}>
+          Bàn tay và mắt thường không kiểm soát, đo và tính đủ các đầu vào này. Mô hình xác suất ghi lại phần bất định còn lại đối với người quan sát.
+        </p>
+      </div>
     </section>
   );
 }
@@ -653,14 +1149,14 @@ function EmpiricalVisual({ themeClasses }: { themeClasses: LearningThemeClasses 
 
   return (
     <section
-      aria-label="Trong mười đơn hàng được quan sát, biến cố A xảy ra bốn lần nên tần suất bằng bốn phần mười, tức 0.4"
+      aria-label="Trong mười lần tung đồng xu, mặt ngửa xuất hiện bốn lần nên tần suất bằng bốn phần mười, tức 0.4"
       className="py-3"
     >
       <div className="mx-auto max-w-3xl">
         <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
-          <p className={cx('text-sm font-bold', themeClasses.titleText)}>10 đơn được quan sát</p>
+          <p className={cx('text-sm font-bold', themeClasses.titleText)}>10 lần tung được quan sát</p>
           <p className={cx('text-sm font-semibold', themeClasses.accentText)}>
-            <strong className="text-lg font-black">4</strong> đơn đúng giờ
+            <strong className="text-lg font-black">4</strong> mặt ngửa
           </p>
         </div>
 
@@ -675,13 +1171,13 @@ function EmpiricalVisual({ themeClasses }: { themeClasses: LearningThemeClasses 
                   : themeClasses.isLight ? 'bg-[#EAF1F7] text-[#172A43]' : 'bg-[#A8D4FF]/8 text-[#F2F6FA]',
               )}
             >
-              {isEventA ? 'A' : '–'}
+              {isEventA ? 'N' : 'S'}
             </span>
           ))}
         </div>
 
         <div className="mt-7 text-center">
-          <MathText className={cx('text-2xl font-semibold sm:text-3xl', themeClasses.titleText)} formula="f_{10}(A)=\frac{4}{10}=0.4" />
+          <MathText className={cx('text-2xl font-semibold sm:text-3xl', themeClasses.titleText)} formula="f_{10}(N)=\frac{4}{10}=0.4" />
         </div>
       </div>
     </section>
@@ -1377,24 +1873,24 @@ function BayesVisual({ focus = 'all', themeClasses }: {
   const isPriorPosteriorFocus = focus === 'prior-posterior';
   const annotations = [
     {
-      description: 'Xác suất quan sát thấy A nếu B đúng.',
-      formula: 'P(A\\mid B)',
+      description: 'Xác suất quan sát thấy E nếu H đúng.',
+      formula: 'P(E\\mid H)',
       label: 'Likelihood',
     },
     {
-      description: 'Niềm tin vào B trước khi quan sát A.',
-      formula: 'P(B)',
+      description: 'Niềm tin vào H trước khi quan sát E.',
+      formula: 'P(H)',
       label: 'Prior',
     },
     {
-      description: 'Niềm tin vào B sau khi đã quan sát A.',
-      formula: 'P(B\\mid A)',
+      description: 'Niềm tin vào H sau khi đã quan sát E.',
+      formula: 'P(H\\mid E)',
       label: 'Posterior',
     },
     {
-      description: 'Xác suất quan sát thấy A dưới mọi khả năng.',
-      formula: 'P(A)',
-      label: 'Margin',
+      description: 'Xác suất quan sát thấy E qua mọi giả thuyết.',
+      formula: 'P(E)',
+      label: 'Evidence',
     },
   ];
   const annotationClass = cx(
@@ -1405,16 +1901,16 @@ function BayesVisual({ focus = 'all', themeClasses }: {
     <section aria-label="Các thành phần trong công thức Bayes" className={cx('py-4', themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]')}>
       <div className="grid gap-3 md:hidden">
         <div className="grid grid-cols-2 gap-2">
-          <BayesFormulaTerm formula="P(B\mid A)" themeClasses={themeClasses} />
-          <BayesFormulaTerm formula="P(B)" themeClasses={themeClasses} />
-          <BayesFormulaTerm className={cx(isPriorPosteriorFocus && 'opacity-25')} formula="P(A\mid B)" themeClasses={themeClasses} />
-          <BayesFormulaTerm className={cx(isPriorPosteriorFocus && 'opacity-25')} formula="P(A)" themeClasses={themeClasses} />
+          <BayesFormulaTerm formula="P(H\mid E)" themeClasses={themeClasses} />
+          <BayesFormulaTerm formula="P(H)" themeClasses={themeClasses} />
+          <BayesFormulaTerm className={cx(isPriorPosteriorFocus && 'opacity-25')} formula="P(E\mid H)" themeClasses={themeClasses} />
+          <BayesFormulaTerm className={cx(isPriorPosteriorFocus && 'opacity-25')} formula="P(E)" themeClasses={themeClasses} />
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           {annotations.map((item) => (
             <div
               key={item.label}
-              className={cx(annotationClass, isPriorPosteriorFocus && (item.label === 'Likelihood' || item.label === 'Margin') && 'opacity-25')}
+              className={cx(annotationClass, isPriorPosteriorFocus && (item.label === 'Likelihood' || item.label === 'Evidence') && 'opacity-25')}
             >
               <div className="flex items-center justify-between gap-2">
                 <span className={cx('text-sm font-black', themeClasses.accentText)}>{item.label}</span>
@@ -1430,7 +1926,7 @@ function BayesVisual({ focus = 'all', themeClasses }: {
         <BayesAnnotation
           className="col-start-3 row-start-1"
           connector="down"
-          description={<>Xác suất quan sát thấy <MathText formula="A" /> nếu <MathText formula="B" /> đúng.</>}
+          description={<>Xác suất quan sát thấy <MathText formula="E" /> nếu <MathText formula="H" /> đúng.</>}
           dimmed={isPriorPosteriorFocus}
           label="Likelihood"
           surfaceClass={annotationClass}
@@ -1440,27 +1936,27 @@ function BayesVisual({ focus = 'all', themeClasses }: {
         <BayesAnnotation
           className="col-start-4 row-start-1"
           connector="down"
-          description={<>Niềm tin vào <MathText formula="B" /> trước khi quan sát <MathText formula="A" />.</>}
+          description={<>Niềm tin vào <MathText formula="H" /> trước khi quan sát <MathText formula="E" />.</>}
           label="Prior"
           surfaceClass={annotationClass}
           themeClasses={themeClasses}
         />
 
-        <BayesFormulaTerm className="col-start-1 row-start-2" formula="P(B\mid A)" themeClasses={themeClasses} />
+        <BayesFormulaTerm className="col-start-1 row-start-2" formula="P(H\mid E)" themeClasses={themeClasses} />
         <span className={cx('col-start-2 row-start-2 text-center text-2xl font-black', themeClasses.titleText)}>=</span>
         <div className="col-span-2 col-start-3 row-start-2 grid self-center">
           <div className={cx('grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-b pb-2', themeClasses.isLight ? 'border-[#172A43]' : 'border-[#F2F6FA]')}>
-            <BayesFormulaTerm dimmed={isPriorPosteriorFocus} formula="P(A\mid B)" themeClasses={themeClasses} />
+            <BayesFormulaTerm dimmed={isPriorPosteriorFocus} formula="P(E\mid H)" themeClasses={themeClasses} />
             <span className={cx('text-lg font-black', themeClasses.mutedText)} aria-hidden="true">×</span>
-            <BayesFormulaTerm formula="P(B)" themeClasses={themeClasses} />
+            <BayesFormulaTerm formula="P(H)" themeClasses={themeClasses} />
           </div>
-          <BayesFormulaTerm className="mt-2 w-1/2 justify-self-center" dimmed={isPriorPosteriorFocus} formula="P(A)" themeClasses={themeClasses} />
+          <BayesFormulaTerm className="mt-2 w-1/2 justify-self-center" dimmed={isPriorPosteriorFocus} formula="P(E)" themeClasses={themeClasses} />
         </div>
 
         <BayesAnnotation
           className="col-start-1 row-start-3"
           connector="up"
-          description={<>Niềm tin vào <MathText formula="B" /> sau khi đã quan sát <MathText formula="A" />.</>}
+          description={<>Niềm tin vào <MathText formula="H" /> sau khi đã quan sát <MathText formula="E" />.</>}
           label="Posterior"
           surfaceClass={annotationClass}
           themeClasses={themeClasses}
@@ -1469,16 +1965,16 @@ function BayesVisual({ focus = 'all', themeClasses }: {
         <BayesAnnotation
           className="col-span-2 col-start-3 row-start-3 justify-self-center"
           connector="up"
-          description={<>Xác suất quan sát thấy <MathText formula="A" /> dưới mọi khả năng.</>}
+          description={<>Xác suất quan sát thấy <MathText formula="E" /> qua mọi giả thuyết.</>}
           dimmed={isPriorPosteriorFocus}
-          label="Margin"
+          label="Evidence"
           surfaceClass={annotationClass}
           themeClasses={themeClasses}
         />
       </div>
       {isPriorPosteriorFocus ? (
         <div className="mt-5 flex justify-center">
-          <MathText className={cx('text-xl font-semibold', themeClasses.titleText)} formula="P(B\mid A)=P(B)" />
+          <MathText className={cx('text-xl font-semibold', themeClasses.titleText)} formula="P(H\mid E)=P(H)" />
         </div>
       ) : null}
     </section>
@@ -1632,7 +2128,7 @@ function BayesNormalizationVisual({ themeClasses }: { themeClasses: LearningThem
                 </div>
 
                 <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-4 py-3">
-                  <span className={cx('text-sm font-black', themeClasses.accentText)}>Margin</span>
+                  <span className={cx('text-sm font-black', themeClasses.accentText)}>Evidence</span>
                   <div>
                     <MathText className={cx('block overflow-x-auto text-base font-semibold', themeClasses.titleText)} formula="P(A)=\frac{3}{6}=\frac12" />
                     <span className={cx('mt-1 block text-xs leading-5', themeClasses.mutedText)}>3 trong 6 học sinh có học bài.</span>
@@ -3161,8 +3657,14 @@ function ProbabilityChapterVisual({ kind }: {
 }) {
   const themeClasses = useLearningMdxTheme();
   if (kind === 'foundations') return <FoundationsVisual themeClasses={themeClasses} />;
+  if (kind === 'hidden-coin-fixed-state') return <HiddenCoinFixedStateVisual themeClasses={themeClasses} />;
   if (kind === 'hidden-coin-probability') return <HiddenCoinProbabilityVisual themeClasses={themeClasses} />;
+  if (kind === 'probability-interpretation-branches') return <ProbabilityInterpretationBranchesVisual themeClasses={themeClasses} />;
   if (kind === 'large-number-applications') return <LargeNumberApplicationsVisual themeClasses={themeClasses} />;
+  if (kind === 'forecast-calibration') return <ForecastCalibrationVisual themeClasses={themeClasses} />;
+  if (kind === 'evidence-strength') return <EvidenceStrengthVisual themeClasses={themeClasses} />;
+  if (kind === 'medical-base-rate') return <MedicalBaseRateVisual themeClasses={themeClasses} />;
+  if (kind === 'coin-mechanics') return <CoinMechanicsVisual themeClasses={themeClasses} />;
   if (kind === 'elementary') return <ElementaryEventVisual themeClasses={themeClasses} />;
   if (kind === 'certainty') return <CertaintyVisual themeClasses={themeClasses} />;
   if (kind === 'sample-space') return <SampleSpaceVisual themeClasses={themeClasses} />;

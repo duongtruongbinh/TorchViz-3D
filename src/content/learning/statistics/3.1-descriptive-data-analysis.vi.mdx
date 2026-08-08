@@ -4,6 +4,7 @@ export const lessonMetadata = {
   "locale": "vi",
   "title": "3.2 Phân tích dữ liệu mô tả",
   "headings": [
+    "Mục tiêu học tập",
     "Giới thiệu & Dataset",
     "Trung bình (Mean)",
     "Trung vị (Median)",
@@ -23,12 +24,12 @@ export const lessonMetadata = {
     "pandas",
     "scipy"
   ],
-  "pageCount": 6
+  "pageCount": 7
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Phân biệt ba **thước đo xu hướng trung tâm** (*measures of central tendency*): **Trung bình** (*Mean*), **Trung vị** (*Median*) và **Yếu vị** (*Mode*).
@@ -36,6 +37,10 @@ Sau bài này, bạn sẽ:
 - Tính toán 3 thước đo bằng tay và lập trình bằng Python (`sum/len`, `np.mean/np.median`, `pd.Series`).
 
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Các thước đo xu hướng trung tâm
 
@@ -102,7 +107,7 @@ Giá trị lớn nhất: 30 ms
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Trung bình (Mean)
 
@@ -185,7 +190,7 @@ Chỉ duy nhất **1 yêu cầu bị lỗi (300 ms)** đã kéo độ trễ trun
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Trung vị (Median)
 
@@ -263,7 +268,7 @@ Median vẫn là <MdxFormula inline formula={"(15 + 18)/2 = 16.5 \\text{ ms}"} /
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Yếu vị (Mode)
 
@@ -339,7 +344,7 @@ scipy   : 12 ms (lặp 3 lần)
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Histogram & Nhận xét Mean, Median và Mode
 
@@ -402,7 +407,7 @@ Khi phân phối có dạng chuông và hoàn toàn đối xứng, Mean, Median 
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Tổng kết: So sánh ba thước đo
 

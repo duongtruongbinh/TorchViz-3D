@@ -4,6 +4,7 @@ export const lessonMetadata = {
   locale: 'vi',
   title: '3.4 Vector trung bình, Covariance & Ma trận Covariance (Mean Vector, Covariance & Covariance Matrix)',
   headings: [
+    'Mục tiêu học tập',
     'Từ một số sang một vector',
     'Dataset là một ma trận',
     'Trung bình trở thành vector trung bình',
@@ -42,12 +43,12 @@ export const lessonMetadata = {
     'scatter plot',
     'numpy cov',
   ],
-  pageCount: 27,
+  pageCount: 28,
 };
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Biểu diễn dữ liệu nhiều chiều dưới dạng ma trận dữ liệu <MdxFormula inline formula={"X \\in \\mathbb{R}^{n \\times d}"} /> và tính **vector trung bình** (*mean vector*) <MdxFormula inline formula={"\\boldsymbol{\\mu}"} />.
@@ -56,6 +57,10 @@ Sau bài này, bạn sẽ:
 - Lập trình tính toán ma trận covariance bằng NumPy (`np.cov`) và chú ý tham số `rowvar=False`.
 
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Từ một số sang một vector
 
@@ -85,7 +90,7 @@ Trong đó 170 là chiều cao (cm) và 65 là cân nặng (kg).
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Dataset là một ma trận
 
@@ -113,7 +118,7 @@ Ví dụ với <MdxFormula inline formula={"n=3"} /> người và <MdxFormula in
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Trung bình trở thành vector trung bình
 
@@ -137,7 +142,7 @@ Trong đó trung bình của đặc trưng thứ <MdxFormula inline formula={"j"
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Tính vector trung bình bằng tay
 
@@ -161,7 +166,7 @@ Vector trung bình <MdxFormula inline formula={"\\boldsymbol{\\mu}"} /> được
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Center dữ liệu
 
@@ -187,7 +192,7 @@ Trong một chiều, ta lấy độ lệch khỏi trung bình: <MdxFormula inlin
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## Variance mới chỉ mô tả từng chiều riêng
 
@@ -211,7 +216,7 @@ Nhưng chúng **chưa trả lời được câu hỏi**:
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## Covariance là gì?
 
@@ -237,7 +242,7 @@ Ta nhân hai độ lệch (deviations): <MdxFormula inline formula={"(x_i - \\mu
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={8}>
 
 ## Covariance dương
 
@@ -257,7 +262,7 @@ Hai độ lệch thường cùng dấu, dẫn đến tổng các tích mang dấ
 
 </MdxPage>
 
-<MdxPage page={8}>
+<MdxPage page={9}>
 
 ## Covariance âm
 
@@ -277,7 +282,7 @@ Hai độ lệch thường trái dấu, dẫn đến tổng các tích mang dấ
 
 </MdxPage>
 
-<MdxPage page={9}>
+<MdxPage page={10}>
 
 ## Covariance gần 0
 
@@ -298,7 +303,7 @@ Ví dụ: nếu <MdxFormula inline formula={"Y = X^2"} /> và <MdxFormula inline
 
 </MdxPage>
 
-<MdxPage page={10}>
+<MdxPage page={11}>
 
 ## Tính covariance bằng tay
 
@@ -316,7 +321,7 @@ Covariance mang dấu dương vì khi <MdxFormula inline formula={"X"} /> tăng,
 
 </MdxPage>
 
-<MdxPage page={11}>
+<MdxPage page={12}>
 
 ## Variance là covariance của một biến với chính nó
 
@@ -336,7 +341,7 @@ Do đó:
 
 </MdxPage>
 
-<MdxPage page={12}>
+<MdxPage page={13}>
 
 ## Outer product mở rộng squared deviation
 
@@ -362,7 +367,7 @@ Tích ngoài (Outer Product) nhân vector cột <MdxFormula inline formula={"(d 
 
 </MdxPage>
 
-<MdxPage page={13}>
+<MdxPage page={14}>
 
 ## Covariance matrix
 
@@ -380,7 +385,7 @@ Dạng kỳ vọng toán học lý thuyết:
 
 </MdxPage>
 
-<MdxPage page={14}>
+<MdxPage page={15}>
 
 ## Đọc covariance matrix
 
@@ -403,7 +408,7 @@ Dạng kỳ vọng toán học lý thuyết:
 
 </MdxPage>
 
-<MdxPage page={15}>
+<MdxPage page={16}>
 
 ## Tính covariance matrix bằng tay
 
@@ -427,7 +432,7 @@ Kết quả: <MdxFormula inline formula={"\\operatorname{Var}(X) = 8/3"} />, <Md
 
 </MdxPage>
 
-<MdxPage page={16}>
+<MdxPage page={17}>
 
 ## Công thức dạng ma trận
 
@@ -454,7 +459,7 @@ Công thức ma trận tính toàn bộ Covariance Matrix:
 
 </MdxPage>
 
-<MdxPage page={17}>
+<MdxPage page={18}>
 
 ## Phiên bản chia cho n − 1
 
@@ -474,7 +479,7 @@ Nếu dữ liệu là một mẫu (sample) thu thập từ quần thể lớn v�
 
 </MdxPage>
 
-<MdxPage page={18}>
+<MdxPage page={19}>
 
 ## Covariance matrix và hình dạng đám mây điểm
 
@@ -496,7 +501,7 @@ Hình dạng và hướng nghiêng của đám mây điểm 2D phụ thuộc tr�
 
 </MdxPage>
 
-<MdxPage page={19}>
+<MdxPage page={20}>
 
 ## Scale ảnh hưởng đến covariance
 
@@ -519,7 +524,7 @@ Nếu <MdxFormula inline formula={"\\operatorname{Cov}(X,Y) = 2"} /> (với X t�
 
 </MdxPage>
 
-<MdxPage page={20}>
+<MdxPage page={21}>
 
 ## Code tính vector trung bình
 
@@ -550,7 +555,7 @@ Lỗi thường gặp: Nếu viết `np.mean(data)` mà bỏ quên `axis=0`, Num
 
 </MdxPage>
 
-<MdxPage page={21}>
+<MdxPage page={22}>
 
 ## Code tính covariance thủ công
 
@@ -583,7 +588,7 @@ print("\nCovariance matrix (divide by n):\n", covariance_matrix)
 
 </MdxPage>
 
-<MdxPage page={22}>
+<MdxPage page={23}>
 
 ## Code bằng `np.cov`
 
@@ -613,7 +618,7 @@ print("\nDivide by n - 1 (ddof=1):\n", covariance_n_minus_1)
 
 </MdxPage>
 
-<MdxPage page={23}>
+<MdxPage page={24}>
 
 ## Kiểm tra đường chéo
 
@@ -642,7 +647,7 @@ print("\nXác nhận: Đường chéo chính xác bằng phương sai từng c�
 
 </MdxPage>
 
-<MdxPage page={24}>
+<MdxPage page={25}>
 
 ## Code minh họa dấu của covariance
 
@@ -679,7 +684,7 @@ for title, y in datasets.items():
 
 </MdxPage>
 
-<MdxPage page={25}>
+<MdxPage page={26}>
 
 ## Những lỗi thường gặp
 
@@ -703,7 +708,7 @@ Covariance thay đổi khi thay đổi đơn vị đo lường của dữ liệu
 
 </MdxPage>
 
-<MdxPage page={26}>
+<MdxPage page={27}>
 
 ## Mini interaction tổng hợp
 

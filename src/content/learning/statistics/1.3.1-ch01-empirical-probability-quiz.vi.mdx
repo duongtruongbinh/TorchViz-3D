@@ -2,10 +2,10 @@ export const lessonMetadata = {
   domainId: 'statistics',
   id: 'ch01-empirical-probability-quiz',
   locale: 'vi',
-  title: 'Quiz',
-  headings: ['Tính tần suất', 'Diễn giải tần suất', 'Điều kiện ổn định'],
-  keywords: ['tần số', 'tần suất', 'ước lượng', 'xác suất thực nghiệm'],
-  pageCount: 3,
+  "title": "Quiz",
+  headings: ['Tính tần suất', 'Diễn giải tần suất', 'Điều kiện ổn định', 'Quy luật số lượng lớn', 'Hiệu chỉnh dự báo'],
+  keywords: ['tần số', 'tần suất', 'ước lượng', 'luật số lớn', 'hiệu chỉnh dự báo'],
+  pageCount: 5,
 }
 
 <MdxQuiz id="ch01-empirical-probability-quiz" questions={[
@@ -41,5 +41,27 @@ export const lessonMetadata = {
     ],
     success: 'Đúng. Nhiều quan sát chỉ hữu ích khi cách lấy mẫu và điều kiện đo phù hợp với câu hỏi.',
     error: 'Chưa đúng. Tăng số lượng không sửa được việc chỉ quan sát một nhóm lệch hoặc thay đổi tiêu chí đo.',
+  },
+  {
+    id: 'origins-large-number-frequency', title: 'Quy luật số lượng lớn', prompt: 'Chọn tất cả phát biểu đúng khi số phép thử tăng trong điều kiện ổn định.', mode: 'multi',
+    options: [
+      { id: 'aggregate', label: 'Tần suất tương đối thường dao động ít dần quanh xác suất của mô hình.', isCorrect: true },
+      { id: 'not-monotonic', label: 'Tần suất không bắt buộc gần xác suất hơn sau từng lần thử riêng lẻ.', isCorrect: true },
+      { id: 'next-certain', label: 'Ta sẽ biết chắc kết quả của lần thử kế tiếp.' },
+      { id: 'bias-fixed', label: 'Mọi thiên lệch trong cơ chế hoặc cách lấy mẫu tự động biến mất.' },
+    ],
+    success: 'Đúng. Luật số lớn nói về xu hướng tổng thể của tần suất, không bảo đảm từng bước và không sửa một quy trình thiên lệch.',
+    error: 'Chưa đúng. Hãy tách sự ổn định của tỷ lệ tổng thể khỏi kết quả kế tiếp và khỏi thiên lệch thu thập dữ liệu.',
+  },
+  {
+    id: 'forecast-calibration', title: 'Hiệu chỉnh dự báo', prompt: 'Một hệ thống được hiệu chỉnh tốt ở mức dự báo 70%. Điều đó có nghĩa gì?', mode: 'single',
+    options: [
+      { id: 'seven-of-ten', label: 'Trong nhiều trường hợp được hệ thống gán 70%, khoảng 70% thực sự xảy ra.', isCorrect: true },
+      { id: 'single-event-partial', label: 'Mỗi sự kiện riêng lẻ xảy ra đúng 70% rồi không xảy ra trong 30% còn lại.' },
+      { id: 'always-correct', label: 'Hệ thống dự đoán đúng mọi trường hợp có xác suất trên 50%.' },
+      { id: 'tomorrow-certain', label: 'Riêng ngày mai chắc chắn có mưa vì 70% lớn hơn 50%.' },
+    ],
+    success: 'Đúng. Hiệu chỉnh là thuộc tính của một tập hợp dự báo cùng mức xác suất, không phải sự bảo đảm cho từng trường hợp.',
+    error: 'Chưa đúng. Hãy nghĩ đến nhiều dự báo 70% và tỷ lệ kết quả thực tế trong nhóm đó.',
   },
 ]} />

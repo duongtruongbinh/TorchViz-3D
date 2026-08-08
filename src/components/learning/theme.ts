@@ -176,6 +176,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     backLink: isLight ? 'text-[#5F6B7A]' : 'text-[#9AA6B2]',
     bodyText: isLight ? 'text-[#334155]' : 'text-[#F2F6FA]/78',
     titleText: isLight ? 'text-[#172A43]' : 'text-[#F4EFE6]',
+    pageTitleText: isLight ? 'text-[#205089]' : 'text-[#A8D4FF]',
     lessonTitleText: isLight ? '[--learning-lab-lesson-title:#1F5F5B]' : '[--learning-lab-lesson-title:#D8E3EC]',
     lessonPageViewport: isLight ? 'bg-white' : 'bg-[#172232]',
     eyebrowText: isLight ? 'text-[#123B68]' : 'text-[#A8B8C8]',

@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-02
+updated: 2026-08-04
 ---
 
 # Learning Lab
@@ -34,104 +34,57 @@ lessons in Probability & Statistics (`statistics`). The other 550 nodes are
 navigable placeholders and render one shared localized “content in progress”
 message. They do not carry legacy theory or practice payloads.
 
-The authored LLM lessons are:
+The authored LLM lessons span the from-scratch path from project skeleton and
+roadmap material through checkpoints, language modeling, inference, loss,
+tokenization, and evaluation. Their prose, paging data, quizzes, references,
+and structured visual inputs live in locale-specific MDX; LLM-specific visual and
+stateful components stay in the React domain package. English UI still falls
+back to the Vietnamese lesson source until an English MDX file is authored.
 
-1. `minimal-llm-project-skeleton`
-2. `llm-from-scratch-roadmap`
-3. `llm-component-checkpoint-quiz`
-4. `llm-system-components`
-5. `llm-system-components-quiz`
-6. `language-modeling-next-token`
-7. `language-modeling-next-token-quiz`
-8. `ar-language-model-inference-pipeline`
-9. `ar-language-model-inference-pipeline-quiz`
-10. `llm-output-head-and-loss`
-11. `llm-output-head-and-loss-quiz`
-12. `llm-next-token-loss`
-13. `llm-next-token-loss-quiz`
-14. `llm-scale-and-development`
-15. `llm-scale-and-development-quiz`
-16. `tokenization-why-it-matters`
-17. `tokenization-why-it-matters-quiz`
-18. `tokenizer-regex-from-scratch`
-19. `tokenizer-regex-from-scratch-quiz`
-20. `tokenization-bpe-tiktoken`
-21. `tokenization-bpe-tiktoken-quiz`
-22. `tokenization-token-ids-vocabulary`
-23. `tokenization-token-ids-vocabulary-quiz`
-24. `tokenization-raw-text-to-token-ids`
-25. `llm-data-pipeline-overview`
-26. `llm-data-pipeline-checkpoint-quiz`
-27. `loss-perplexity-hand-calculation`
-28. `benchmark-likelihood-quiz`
-29. `evaluation-beyond-perplexity`
-30. `llm-evaluation-foundations`
-31. `evaluation-dataset-design`
-32. `deterministic-and-reference-metrics`
-33. `human-evaluation-rubrics`
-34. `inter-rater-agreement`
-35. `pointwise-and-pairwise-evaluation`
-36. `llm-as-a-judge`
-37. `llm-judge-biases`
-38. `benchmark-selection-and-contamination`
-39. `hallucination-and-factuality-evaluation`
-40. `rag-evaluation`
-41. `llm-safety-foundations`
-42. `refusal-calibration`
-43. `toxicity-bias-and-privacy`
-44. `jailbreak-and-prompt-injection`
-45. `guardrails-for-llm-applications`
-46. `llm-red-teaming`
-47. `production-regression-evals`
-48. `evaluation-ab-testing`
-49. `evaluation-harness-code`
-
-Their authored prose, paging data, quizzes, references, and structured visual
-inputs live in locale-specific MDX. LLM-specific visual and stateful components
-remain React code under the LLM domain package. English UI currently falls back
-to the Vietnamese lesson source until an English MDX file is authored.
-
-The authored CV exercise lessons are:
-
-1. `conv2d-shape-exercise`
-2. `conv2d-value-exercise`
-3. `pooling-shape-exercise`
-4. `pooling-value-exercise`
-
-Each CV exercise is a normal canonical lesson, not a practice subnode. Its MDX
-owns the instructions and deterministic fixture while the CV domain adapter
-lazy-loads the shared Shape, Value, or convolution interaction. Published
-lessons tagged `exercise` automatically populate Review mode. Applicable
-Conv2d and pooling nodes in the Workspace Forward Pass controls resolve through
-catalog entry-point metadata and open the canonical lesson route.
+The authored CV exercise lessons are the four canonical shape/value lessons for
+Conv2d and pooling. Each one owns its instructions and deterministic fixture
+while the CV domain adapter lazy-loads the shared interaction surface. Published
+lessons tagged `exercise` automatically populate Review mode, and corresponding
+Workspace Forward Pass nodes resolve to the canonical lesson route.
 
 Probability & Statistics is the canonical `statistics` domain, separate from
 `math-statistics-ai`. It has eight tracks, 133 lesson nodes, 119 published
-Vietnamese lessons, and 549 ordered pages. Seven tracks form the
+Vietnamese lessons, and 573 ordered pages. Seven tracks form the
 applied-statistics core; `statistical-learning-extensions` keeps classification,
 dimension reduction, trees, SVMs, deep learning, and unsupervised learning
 optional. Fourteen missing-content nodes expose the planned core sequence
 without claiming it is authored.
 
-Chapter 1 alternates nine Probability lessons with nine adjacent `Quiz` nodes
-and ends with a ten-question capstone: 59 theory and 42 quiz pages. Vietnamese
-MDX owns the prose and KaTeX formulas; the Statistics adapter owns focused
-`ProbabilityChapterVisual` diagrams and accessible deterministic interactions.
+Chapter 1 first teaches the accessible vocabulary of experiments, outcomes,
+sample spaces, and events. Its second lesson, `Xác suất là gì?`, then uses an
+animated hidden coin to ask what 50% describes and previews two interpretation
+branches: long-run frequency and belief under current information, with Naive
+Bayes placed in the second branch. Its Quiz remains adjacent, followed
+immediately by long-run frequency and forecast calibration. The remaining
+separate lesson/Quiz pairs continue through event relations, the shared
+probability calculus, information and conditioning, total probability/base
+rates, then Bayes and the retained Naive Bayes worked sequence. Chapter 1
+alternates nine theory lessons with nine adjacent `Quiz` nodes and ends with a
+ten-question capstone: 70 theory and 45 quiz pages. Vietnamese MDX owns the
+prose and KaTeX formulas; the Statistics adapter owns focused
+`ProbabilityChapterVisual` diagrams and accessible deterministic interactions
+for the covered coin, calibration, evidence strength, natural frequencies, and
+classical coin mechanics.
 
-Chapter 2 has 20 pages: a four-page statistical-thinking overview; five pages
+Chapter 2 has 22 pages: a five-page statistical-thinking overview; six pages
 on population, sample, representativeness, study design, and conclusion limits;
 five pages on assumptions and responsible statistical reading; then a
 six-question applied Quiz. Each theory node ends with a standalone takeaway,
 and inline sampling/study-design activities remain lesson practice rather than
 Review exercises. Chapter 3 now opens
-with the 17-page `histogram-foundations` lesson before
+with the 18-page `histogram-foundations` lesson before
 descriptive data analysis. It carries one fixed dataset through observations,
 number-line points, bins, stacked counts, and bars; compares too few, useful,
 and too many bins on fixed axes; introduces square-root, Sturges, and
 Freedman–Diaconis guidance; then maps the visual model to NumPy/Matplotlib and
 an accessible live bin-count explorer. The later descriptive Histogram remains
 an application for interpreting mean, median, mode, and skew rather than a
-duplicate construction lesson. After the descriptive-data quiz, the 17-page
+duplicate construction lesson. After the descriptive-data quiz, the 18-page
 `normal-distribution` lesson continues from observed Histogram shape into the
 Normal/Gaussian bell curve, symmetry, center and tails, mean and variance
 controls, standard Normal z-scores, and the distinction between scaling and
@@ -256,7 +209,7 @@ Vietnamese-diacritic-insensitive.
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
 | `src/content/learning/statistics/table-of-contents.ts` | Probability & Statistics manifest with seven core tracks, one Statistical Learning Extensions track, 109 published lessons, fourteen explicit missing-content nodes, route aliases, and compact search mode. |
-| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 119 published lesson ids and 549 ordered pages. |
+| `src/content/learning/statistics/*.vi.mdx` | Canonical Vietnamese Probability & Statistics lesson bodies for 119 published lesson ids and 573 ordered pages. |
 | `src/components/learning/domains/statistics/mdxComponents.tsx` | Statistics-only MDX adapter for responsive Probability diagrams, Histogram/variance/Normal-distribution visualizations, the Statistical Thinking question atlas/branch comparison, and deterministic embedded interactions. |
 | `src/components/learning/domains/statistics/normalDistributionRenderers.tsx` | Domain-local Normal-distribution chart geometry, mean/variance exploration, and deterministic Histogram-reading interaction consumed through the Statistics MDX adapter. |
 | `src/components/learning/domains/statistics/varianceStandardDeviationRenderers.tsx` | Domain-local variance concept sequence, accessible point explorer, degrees-of-freedom constraint, and deterministic denominator comparison. |
@@ -295,6 +248,14 @@ screens to four or five columns on wider desktops without horizontal overflow.
 quizzes use spacing and dividers rather than nested decorative panels. Runtime
 lesson media belongs under `src/assets/learning/<domain>/`; `docs/assets/` is
 only for documentation artifacts.
+
+The seventeen Statistics lessons with authored learning objectives reserve
+their first `MdxPage` for a top-aligned, borderless checklist. The objectives
+use the explicit `LessonNote variant="objectives"` rendering path; ordinary
+notes, warnings, summaries, and takeaways keep the standard callout treatment.
+Authored Markdown page titles and the objectives title use the semantic
+deep-blue `pageTitleText` role and remain text-only; icons inside lesson content
+retain their own semantic roles.
 
 System copy, controls, empty states, filter labels, and language-toggle text
 belong in `src/lib/localization.ts`. Catalog metadata and lesson content follow
@@ -344,7 +305,7 @@ remain green so progress continues to take precedence.
   state/reset, locale fallback, authored search text, and light-only runtime
   behavior.
 - Probability & Statistics retains the canonical `statistics` domain id with
-  119 Vietnamese authored MDX lessons, 549 ordered pages, seven core
+  119 Vietnamese authored MDX lessons, 573 ordered pages, seven core
   applied-statistics tracks, and a separate optional Statistical Learning
   Extensions track; other UI locales render the Vietnamese source through the
   registry's available-locale fallback.

@@ -2,9 +2,10 @@ export const lessonMetadata = {
   "domainId": "statistics",
   "id": "ch01-total-probability",
   "locale": "vi",
-  "title": "1.6 Công thức xác suất toàn phần",
+  "title": "1.7 Gộp mọi khả năng nền",
   "headings": [
-    "Chia bài toán thành các trường hợp",
+    "Mục tiêu học tập",
+    "Một bằng chứng, nhiều nguyên nhân nền",
     "Đóng góp của từng nhánh",
     "Tính xác suất toàn phần",
     "Tính xác suất toàn phần bằng Python",
@@ -18,23 +19,32 @@ export const lessonMetadata = {
     "quy tắc nhân",
     "python"
   ],
-  "pageCount": 5
+  "pageCount": 6
 }
 
 <MdxPage page={0}>
 
-<LessonNote label="Mục tiêu học tập">
+<LessonNote label="Mục tiêu học tập" variant="objectives">
 
 Sau bài này, bạn sẽ:
 - Nhận biết điều kiện tạo thành một **phân hoạch** (*partition*) của không gian mẫu.
 - Áp dụng **công thức xác suất toàn phần** (*law of total probability*) để tính xác suất của một biến cố bằng cách chia theo các trường hợp.
 - Hiểu vai trò của công thức này như mẫu số chuẩn hóa trong định lý Bayes ở bài tiếp theo.
+- Giải thích vì sao **tỷ lệ nền** (*base rate*) của các nhánh phải được giữ lại khi đánh giá một bằng chứng.
 
 </LessonNote>
 
-## Chia bài toán thành các trường hợp
+</MdxPage>
 
-Ta muốn tính xác suất đi chơi tennis, nhưng thời tiết có thể là nắng, râm hoặc mưa. Thay vì xử lý cả ba tình huống cùng lúc, ta chia không gian mẫu thành ba nhánh:
+<MdxPage page={1}>
+
+## Một bằng chứng, nhiều nguyên nhân nền
+
+Một dấu hiệu quan sát được có thể xuất hiện dưới nhiều nguyên nhân khác nhau. Tin nhắn mở đầu lịch sự có thể đến từ ngân hàng thật hoặc kẻ lừa đảo; kết quả xét nghiệm dương tính có thể là dương tính thật hoặc báo nhầm.
+
+Trước khi cập nhật ngược từ bằng chứng về nguyên nhân, ta cần tính xác suất để bằng chứng xuất hiện **qua tất cả các nhánh nền**. Đó là vai trò của công thức xác suất toàn phần.
+
+Ta bắt đầu bằng một ví dụ nhẹ hơn. Muốn tính xác suất đi chơi tennis, nhưng thời tiết có thể là nắng, râm hoặc mưa. Thay vì xử lý cả ba tình huống cùng lúc, ta chia không gian mẫu thành ba nhánh:
 
 - <MdxFormula inline formula={"A_1"} />: trời nắng.
 - <MdxFormula inline formula={"A_2"} />: trời râm.
@@ -51,7 +61,7 @@ Vì là một phân hoạch, mỗi kết quả thuộc đúng một nhánh và k
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Đóng góp của từng nhánh
 
@@ -71,7 +81,7 @@ Thay vào tổng trên, ta thu được **công thức xác suất toàn phần*
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Tính xác suất toàn phần
 
@@ -95,9 +105,15 @@ Tổng quát, với một phân hoạch <MdxFormula inline formula={"A_1,\\ldots
 
 Ở bài Bayes, tổng này sẽ đóng vai trò xác suất của bằng chứng ở mẫu số, giúp chuẩn hóa các khả năng sau khi có thông tin mới.
 
+<LessonNote label="Vì sao tỷ lệ nền quan trọng?">
+
+Mỗi đóng góp có dạng <MdxFormula inline formula={"P(A_i)P(H\\mid A_i)"} />. Một dấu hiệu có thể khá phổ biến trong một nhóm nhỏ nhưng vẫn đóng góp ít vào tổng nếu bản thân nhóm đó rất hiếm. Bayes sẽ đảo chiều câu hỏi, nhưng không được phép bỏ mất trọng số <MdxFormula inline formula={"P(A_i)"} /> này.
+
+</LessonNote>
+
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Tính xác suất toàn phần bằng Python
 
@@ -128,11 +144,11 @@ Xác suất toàn phần P(H): 0.5500
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Kiến thức cần nắm
 
-<LessonNote label="Tóm tắt trọng tâm bài 1.6">
+<LessonNote label="Tóm tắt trọng tâm bài 1.7">
 
 - **Phân hoạch** (partition): Các nhánh không chồng lên nhau và cùng bao phủ mọi khả năng.
 - **Đóng góp của một nhánh**: <MdxFormula inline formula={"P(H\\cap A_i)=P(A_i)P(H\\mid A_i)"} />.
@@ -141,5 +157,7 @@ Xác suất toàn phần P(H): 0.5500
 - **Trong NumPy**: `np.dot(P_A, P_H_given_A)` tính đúng tổng có trọng số.
 
 </LessonNote>
+
+Ta đã có đủ mẫu số. Lesson tiếp theo quay lại câu hỏi của video: khi một bằng chứng mới xuất hiện, niềm tin vào từng giả thuyết nên dịch chuyển bao nhiêu?
 
 </MdxPage>
