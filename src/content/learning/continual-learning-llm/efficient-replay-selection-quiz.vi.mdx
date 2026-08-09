@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'efficient-replay-selection-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Mục tiêu efficient replay",
+  "Giá trị mẫu",
+  "Compute budget",
+  "Cập nhật policy"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "replay-efficiency-goal",
+  "sample-value",
+  "compute-budget",
+  "selection-update-loop"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="efficient-replay-selection-quiz" questions={[
+  {
+    "id": "replay-efficiency-goal",
+    "title": "Mục tiêu efficient replay",
+    "prompt": "Mục tiêu nào phù hợp nhất với efficient replay?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Giảm số sample replay thấp nhất có thể dù retention suy giảm."
+      },
+      {
+        "id": "opt2",
+        "label": "Tối đa hóa accuracy task mới mà không ràng buộc forgetting lịch sử."
+      },
+      {
+        "id": "opt3",
+        "label": "Giảm chi phí scoring riêng lẻ dù tổng training cost tăng."
+      },
+      {
+        "id": "opt4",
+        "label": "Tối đa hóa retention đạt được dưới một replay/compute budget cố định.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Mục tiêu là dùng replay budget có giá trị hơn.",
+    "error": "Hãy liên hệ retention với chi phí."
+  },
+  {
+    "id": "sample-value",
+    "title": "Giá trị mẫu",
+    "prompt": "Policy nào score replay sample theo giá trị retention thay vì metadata bề mặt?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Ưu tiên sample mới nhất và dài nhất bất kể coverage hoặc forgetting."
+      },
+      {
+        "id": "opt2",
+        "label": "Kết hợp độ đại diện, mức model sắp quên và xung đột gradient với dữ liệu mới.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ lấy sample có loss cao nhất mà không kiểm tra noise hay redundancy."
+      },
+      {
+        "id": "opt4",
+        "label": "Phân bổ lượt replay đồng đều theo file order đã nhập ban đầu."
+      }
+    ],
+    "success": "Sample value gắn với coverage và forgetting.",
+    "error": "Tìm tín hiệu ảnh hưởng đến retention."
+  },
+  {
+    "id": "compute-budget",
+    "title": "Compute budget",
+    "prompt": "Vì sao báo cáo replay-token count thôi chưa đủ để chứng minh một selector hiệu quả?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Selection cost chỉ ảnh hưởng storage nên không cần tính vào training cost."
+      },
+      {
+        "id": "opt2",
+        "label": "Một selector chính xác hơn luôn bù được mọi chi phí forward/backward bổ sung."
+      },
+      {
+        "id": "opt3",
+        "label": "Scoring phức tạp có thể tiêu tốn nhiều compute hơn phần replay mà nó cắt giảm.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Compute của scoring chỉ cần tính khi buffer chứa toàn bộ lịch sử."
+      }
+    ],
+    "success": "Efficiency phải được đo end-to-end.",
+    "error": "Đừng tách selection khỏi pipeline thực."
+  },
+  {
+    "id": "selection-update-loop",
+    "title": "Cập nhật policy",
+    "prompt": "Khi nào replay policy cần re-score các mẫu đã lưu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Khi model hoặc distribution thay đổi làm giá trị retention của mẫu thay đổi.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Chỉ khi buffer capacity tăng, dù model và dữ liệu đã đổi nhiều stage."
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ khi một task ID mới xuất hiện; soft distribution drift không liên quan."
+      },
+      {
+        "id": "opt4",
+        "label": "Không bao giờ, nếu score ban đầu được tính bằng một hàm deterministic."
+      }
+    ],
+    "success": "Replay value là trạng thái động.",
+    "error": "Một coreset tốt ở stage cũ chưa chắc tốt ở stage mới."
+  }
+]} />

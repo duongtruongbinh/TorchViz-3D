@@ -47,15 +47,6 @@ interface EditorPaneProps {
   onCursorChange?: (line: number) => void;
 }
 
-type CompletionModel = {
-  getLineContent: (lineNumber: number) => string;
-};
-
-type CompletionPosition = {
-  lineNumber: number;
-  column: number;
-};
-
 const EditorPane: React.FC<EditorPaneProps> = ({
   code,
   onChange,
@@ -90,15 +81,23 @@ const EditorPane: React.FC<EditorPaneProps> = ({
     // torchstub.nn IntelliSense: suggest nn.* when typing nn.
     monaco.languages.registerCompletionItemProvider('python', {
       triggerCharacters: ['.'],
-      provideCompletionItems: (model: CompletionModel, position: CompletionPosition) => {
+      provideCompletionItems: (model, position) => {
         const lineContent = model.getLineContent(position.lineNumber);
         const beforeCursor = lineContent.slice(0, position.column - 1).trimEnd();
         if (!/nn\.?$/.test(beforeCursor)) return { suggestions: [] };
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
         const suggestions = NN_COMPLETIONS.map(({ label, detail }) => ({
           label,
           kind: monaco.languages.CompletionItemKind.Class,
           detail: label === 'Module' ? t.editor.completionModuleDetail : detail,
           insertText: label,
+          range,
         }));
         return { suggestions };
       },

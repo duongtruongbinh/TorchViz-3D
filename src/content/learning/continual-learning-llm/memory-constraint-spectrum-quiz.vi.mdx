@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'memory-constraint-spectrum-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Strict memory",
+  "Relaxed memory",
+  "Unlimited memory",
+  "Method fit"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "strict-memory",
+  "relaxed-memory",
+  "unlimited-memory",
+  "constraint-method-fit"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="memory-constraint-spectrum-quiz" questions={[
+  {
+    "id": "strict-memory",
+    "title": "Strict memory",
+    "prompt": "Storage policy nào tuân thủ strict-memory setting trong bài?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Giữ một phần trăm raw sample lịch sử trong buffer cố định."
+      },
+      {
+        "id": "opt2",
+        "label": "Không giữ raw data lịch sử sau khi stage kết thúc.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Mã hóa raw sample cũ rồi tiếp tục replay ở stage sau."
+      },
+      {
+        "id": "opt4",
+        "label": "Đọc lại raw corpus upstream qua một external store khi cần."
+      }
+    ],
+    "success": "Strict memory loại replay raw trực tiếp.",
+    "error": "Hãy xét quyền lưu sample cũ."
+  },
+  {
+    "id": "relaxed-memory",
+    "title": "Relaxed memory",
+    "prompt": "Một hệ thống được phép giữ episodic buffer có kích thước cố định thuộc setting nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Strict memory vì buffer nhỏ hơn toàn bộ corpus."
+      },
+      {
+        "id": "opt2",
+        "label": "External memory vì mọi buffer nội bộ đều là retrieval store."
+      },
+      {
+        "id": "opt3",
+        "label": "Relaxed memory với quyền giữ một phần lịch sử có giới hạn.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Unlimited memory vì hệ thống vẫn truy cập được một số mẫu cũ."
+      }
+    ],
+    "success": "Relaxed memory cho phép một phần lịch sử.",
+    "error": "Buffer nhỏ là dấu hiệu của ràng buộc được nới."
+  },
+  {
+    "id": "unlimited-memory",
+    "title": "Unlimited memory",
+    "prompt": "Baseline nào tự nhiên nhất khi protocol cho phép giữ toàn bộ dữ liệu lịch sử?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Joint training hoặc full replay trên toàn bộ lịch sử.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Parameter regularization chỉ dựa trên checkpoint và importance score."
+      },
+      {
+        "id": "opt3",
+        "label": "Pseudo-replay chỉ dùng dữ liệu do generator tạo ra."
+      },
+      {
+        "id": "opt4",
+        "label": "Parameter isolation với một module riêng cho mỗi stage."
+      }
+    ],
+    "success": "Toàn bộ dữ liệu mở ra baseline upper-bound thực dụng.",
+    "error": "Chọn baseline khớp quyền truy cập."
+  },
+  {
+    "id": "constraint-method-fit",
+    "title": "Method fit",
+    "prompt": "Nếu protocol cấm lưu và truy cập lại raw upstream data, phương pháp nào không khả dụng trực tiếp?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Parameter regularization dựa trên checkpoint trước."
+      },
+      {
+        "id": "opt2",
+        "label": "Parameter isolation giữ riêng capacity cho task cũ."
+      },
+      {
+        "id": "opt3",
+        "label": "Pseudo-replay được tạo từ một nguồn hợp lệ theo protocol."
+      },
+      {
+        "id": "opt4",
+        "label": "Experience replay bằng chính các raw upstream sample.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Replay raw cần dữ liệu mà consumer không có.",
+    "error": "Kiểm tra input mà phương pháp giả định."
+  }
+]} />

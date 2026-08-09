@@ -68,7 +68,9 @@ export function getLearningMdxLesson({ domainId, language, lessonId, quizQuestio
   const pages = Array.from({ length: lesson.pageCount }, (_, pageIndex) => (
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-${pageIndex}`} themeClasses={themeClasses}>
       <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
-        <div className="grid gap-5 py-1 [&_h2]:text-xl [&_h2]:font-black [&_h3]:text-base [&_h3]:font-black [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5 [&_li]:text-sm [&_li]:leading-6"><Content components={components} /></div>
+        <div className="learning-mdx-content">
+          <Content components={components} />
+        </div>
       </LearningMdxLessonProvider>
     </LearningMdxThemeProvider>
   ));

@@ -1,0 +1,168 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cl-settings-til-dil-cil',
+  locale: 'vi',
+  title: 'Phân loại kịch bản CL',
+  headings: ['Nhìn gì để phân loại?', 'TIL: task ID đi vào đâu?', 'DIL: domain đổi, API giữ nguyên', 'CIL: output space mở rộng'],
+  pageCount: 4,
+  keywords: ['Continual Learning', 'LLM', 'Task-Incremental Learning', 'Domain-Incremental Learning', 'Class-Incremental Learning'],
+  conceptIds: [
+  "til-setting",
+  "dil-setting",
+  "cil-setting",
+  "setting-comparison"
+],
+}
+
+<MdxPage page={0}>
+
+## Nhìn gì để phân loại?
+
+Các tác giả nhìn vào **phần nào thay đổi sau mỗi stage** và **mô hình có được báo task hiện tại khi chạy hay không** để chia Continual Learning thành ba kịch bản:
+
+1. **TIL — đổi việc cần làm.** Mô hình chuyển sang task mới và được cung cấp task ID.
+2. **DIL — đổi nguồn dữ liệu.** Task và bộ nhãn giữ nguyên, nhưng dữ liệu đến từ domain mới.
+3. **CIL — thêm nhãn cần nhận diện.** Mô hình dùng một bộ output chung, rồi bổ sung class mới theo thời gian.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-continual-learning-til-dil-cil-scenarios.png"
+  alt="TIL đổi task và dùng task ID, DIL giữ task nhưng đổi domain dữ liệu, còn CIL mở rộng bộ class cần nhận diện"
+  caption="Ba cách dòng dữ liệu học thay đổi theo thời gian."
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## TIL: task ID đi vào đâu?
+
+Trong **Task-Incremental Learning (TIL)**, việc cần làm thay đổi và hệ thống phải báo cho mô hình task hiện tại.
+
+`task_id` không nhất thiết là một con số ghép vào câu.
+
+**Yêu cầu 1 — phân loại cảm xúc:**
+
+```json
+{
+  "text": "The service was slow.",
+  "task_id": "sentiment"
+}
+```
+
+```output
+negative
+```
+
+**Yêu cầu 2 — dịch sang tiếng Việt:**
+
+```json
+{
+  "text": "The service was slow.",
+  "task_id": "translate_vi"
+}
+```
+
+Model trả về:
+
+```output
+Dịch vụ chậm.
+```
+
+Hai request có cùng `text`, nhưng router đọc `task_id` để chọn head, adapter, expert hoặc hành vi phù hợp. Trong thực tế, task signal có thể xuất hiện dưới ba dạng:
+
+- **API/metadata:** `task_id` được truyền riêng như hai request trên.
+- **Control token:** input bắt đầu bằng token như `[TASK_TRANSLATE_VI]`.
+- **Instruction:** `Hãy dịch sang tiếng Việt` đóng vai trò task signal bằng ngôn ngữ tự nhiên.
+
+<LessonNote>
+
+Điểm cốt lõi của TIL không phải định dạng ID, mà là **model được cung cấp tín hiệu đủ rõ để chọn task khi inference**. Nếu tín hiệu mơ hồ hoặc sai, router có thể chọn nhầm head, adapter hoặc expert; khi đó output vẫn sai dù từng module chuyên biệt đã học tốt task của nó.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## DIL: domain đổi, API giữ nguyên
+
+Trong **Domain-Incremental Learning (DIL)**, model vẫn làm cùng một task với cùng bộ nhãn; chỉ nguồn dữ liệu thay đổi. Ví dụ, task luôn là phân loại cảm xúc `positive/negative`, nhưng dữ liệu chuyển từ review phim sang review nhà hàng.
+
+Ở domain phim, từ `slow` thường mô tả nhịp phim và có thể là tín hiệu tiêu cực:
+
+```json
+{
+  "text": "The pacing was slow.",
+  "domain": "movie",
+  "label": "negative"
+}
+```
+
+Sang domain nhà hàng, cùng từ `slow` xuất hiện trong một ngữ cảnh hoàn toàn khác và không còn là tín hiệu tiêu cực:
+
+```json
+{
+  "text": "The slow-cooked beef was excellent.",
+  "domain": "restaurant",
+  "label": "positive"
+}
+```
+
+Các domain có thể khác nhau về từ vựng, cách viết và quan hệ giữa từ với nhãn. Tuy vậy, khi inference, API vẫn chỉ gửi text:
+
+```json
+{
+  "text": "The slow-cooked beef was excellent."
+}
+```
+
+Model vẫn chạy sentiment head cũ và trả về:
+
+```output
+positive
+```
+
+<LessonNote>
+
+`domain` có thể được lưu để quản lý dataset, nhưng model **không nhận domain ID khi inference**. Vì vậy, cùng một bộ tham số và sentiment head phải học tín hiệu của domain mới mà vẫn xử lý đúng domain cũ. Đây là phần khiến DIL khó hơn một bài toán chỉ có một domain cố định.
+
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## CIL: output space mở rộng
+
+Trong **Class-Incremental Learning (CIL)**, task vẫn là phân loại, nhưng hệ thống bổ sung class mới theo thời gian. Ví dụ, intent classifier ban đầu nhận diện `billing` và `shipping`; stage mới bổ sung `refund`.
+
+Một record huấn luyện cho class mới có thể chỉ cần:
+
+```json
+{
+  "text": "I want my money back.",
+  "label": "refund"
+}
+```
+
+Output space của cùng classifier được mở rộng:
+
+```text
+[billing, shipping] → [billing, shipping, refund]
+```
+
+Khi inference, model chỉ nhận câu và phải chọn trong toàn bộ class cũ lẫn mới:
+
+```output
+refund
+```
+
+<LessonNote>
+
+CIL không dùng task ID để chọn một head riêng cho class mới. Model phải phân biệt **tất cả class trong một output space chung**.
+
+</LessonNote>
+
+Nguồn: [Shi et al., §2.2.1](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS1).
+
+</MdxPage>

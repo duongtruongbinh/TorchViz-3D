@@ -117,6 +117,24 @@ function renderLine(lineTokens: PythonTokens[number] | undefined, fallback: stri
   ));
 }
 
+function renderOutputText(source: string) {
+  const parts = source.split(/(==[^=\n]+==)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('==') && part.endsWith('==') && part.length > 4) {
+      const content = part.slice(2, -2);
+      return (
+        <mark
+          key={i}
+          className="rounded bg-[#FFD700] px-1 py-0.5 font-extrabold text-[#0B1220] shadow-[0_0_8px_rgba(255,215,0,0.6)]"
+        >
+          {content}
+        </mark>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 export function CodeBlock({
   code,
   label = 'Python',
@@ -128,10 +146,11 @@ export function CodeBlock({
   themeClasses,
 }: CodeBlockProps) {
   const isOutput = variant === 'output';
-  const source = Array.isArray(code) ? code.join('\n') : String(code ?? '');
-  const rawLines = source.split('\n');
+  const rawSource = Array.isArray(code) ? code.join('\n') : String(code ?? '');
+  const cleanSourceForCopy = rawSource.replace(/==([^=\n]+)==/g, '$1');
+  const rawLines = rawSource.split('\n');
   // Output is never tokenized; pass '' so the hook never highlights plain text.
-  const tokens = usePythonTokens(isOutput ? '' : source);
+  const tokens = usePythonTokens(isOutput ? '' : rawSource);
   const showCopy = copyable ?? !isOutput;
 
   return (
@@ -153,14 +172,14 @@ export function CodeBlock({
         )}
         <span className="flex items-center gap-2">
           {headerTrailing}
-          {showCopy ? <CopyButton source={source} themeClasses={themeClasses} /> : null}
+          {showCopy ? <CopyButton source={cleanSourceForCopy} themeClasses={themeClasses} /> : null}
         </span>
       </div>
 
       <pre className="overflow-x-auto px-4 py-4 leading-7 text-[#E8F1FA] md:px-5">
         <code>
           {isOutput
-            ? <span className="whitespace-pre-wrap break-words font-mono text-[0.82rem] text-[#CFE2F7]">{source}</span>
+            ? <span className="whitespace-pre-wrap break-words font-mono text-[0.82rem] text-[#CFE2F7]">{renderOutputText(rawSource)}</span>
             : rawLines.map((rawLine, index) => {
                 const indentation = showWhitespace ? rawLine.match(/^\s*/)?.[0].length ?? 0 : 0;
                 const arrows = indentation > 0 ? '→'.repeat(Math.floor(indentation / 4)) : '';

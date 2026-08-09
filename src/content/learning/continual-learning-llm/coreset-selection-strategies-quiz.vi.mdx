@@ -1,0 +1,160 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'coreset-selection-strategies-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Mục tiêu coreset",
+  "Random selection",
+  "Diversity selection",
+  "Hardness selection",
+  "Selection bias"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "coreset-purpose",
+  "random-selection",
+  "diversity-selection",
+  "hardness-selection",
+  "selection-bias"
+],
+  pageCount: 5,
+}
+
+<MdxQuiz id="coreset-selection-strategies-quiz" questions={[
+  {
+    "id": "coreset-purpose",
+    "title": "Mục tiêu coreset",
+    "prompt": "Mục tiêu cốt lõi của coreset dưới memory budget nhỏ là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Sinh pseudo-sample lịch sử bằng một generator thay cho dữ liệu thật."
+      },
+      {
+        "id": "opt2",
+        "label": "Mã hóa độ quan trọng của tri thức cũ thành penalty trên tham số."
+      },
+      {
+        "id": "opt3",
+        "label": "Dùng một tập con nhỏ để xấp xỉ tín hiệu của dữ liệu lịch sử.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Tách riêng một module tham số cho mỗi stage đã học."
+      }
+    ],
+    "success": "Coreset tối ưu đại diện dưới budget.",
+    "error": "Hãy liên hệ với replay buffer."
+  },
+  {
+    "id": "random-selection",
+    "title": "Random selection",
+    "prompt": "Lợi thế phù hợp nhất của random sampling khi dùng làm baseline coreset là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Chi phí thấp và ít phụ thuộc vào một heuristic selection phức tạp.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Bảo đảm mọi cluster hiếm đều xuất hiện trong một buffer rất nhỏ."
+      },
+      {
+        "id": "opt3",
+        "label": "Ưu tiên có chủ đích các mẫu loss cao mà model sắp quên."
+      },
+      {
+        "id": "opt4",
+        "label": "Tối đa hóa khoảng cách giữa các mẫu trong không gian biểu diễn."
+      }
+    ],
+    "success": "Random là baseline quan trọng nhưng vẫn có variance.",
+    "error": "Đừng gán bảo đảm coverage cho sample ngẫu nhiên nhỏ."
+  },
+  {
+    "id": "diversity-selection",
+    "title": "Diversity selection",
+    "prompt": "Policy nào là diversity-based selection?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Chọn các mẫu có loss hiện tại cao nhất bất kể vị trí embedding."
+      },
+      {
+        "id": "opt2",
+        "label": "Chọn các mẫu xuất hiện gần stage hiện tại nhất theo timestamp."
+      },
+      {
+        "id": "opt3",
+        "label": "Chọn các mẫu có gradient xung đột mạnh nhất với batch mới."
+      },
+      {
+        "id": "opt4",
+        "label": "Chọn mẫu để phủ các cluster hoặc vùng xa nhau trong không gian biểu diễn.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Mục tiêu là phủ nhiều vùng representation.",
+    "error": "Hãy nghĩ đến coverage hình học."
+  },
+  {
+    "id": "hardness-selection",
+    "title": "Hardness selection",
+    "prompt": "Nếu coreset chỉ ưu tiên mẫu có loss cao, failure nào cần kiểm tra trước?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Mẫu hiếm bị bỏ sót chỉ vì policy lấy mẫu hoàn toàn ngẫu nhiên."
+      },
+      {
+        "id": "opt2",
+        "label": "Outlier hoặc label noise có thể chiếm phần lớn buffer.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Embedding metric phủ cluster nhưng không phản ánh ranh giới task."
+      },
+      {
+        "id": "opt4",
+        "label": "Buffer đại diện tốt nhưng số seed evaluation quá nhiều."
+      }
+    ],
+    "success": "Hardness cần được cân bằng với đại diện.",
+    "error": "Loss cao không luôn đồng nghĩa với mẫu hữu ích."
+  },
+  {
+    "id": "selection-bias",
+    "title": "Selection bias",
+    "prompt": "Audit plan nào phát hiện selection bias đáng tin cậy nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "So training loss tổng trên một seed mà không kiểm tra thành phần buffer."
+      },
+      {
+        "id": "opt2",
+        "label": "Kiểm tra label balance tổng nhưng bỏ qua domain, thời gian và độ nhạy seed."
+      },
+      {
+        "id": "opt3",
+        "label": "Đo coverage theo domain/class/time/sensitive slice và lặp lại qua nhiều seed.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Tăng kích thước buffer một lần rồi chỉ báo cáo final accuracy."
+      }
+    ],
+    "success": "Slice coverage và seed sensitivity làm bias lộ rõ.",
+    "error": "Cần audit những phần buffer đại diện và bỏ sót."
+  }
+]} />

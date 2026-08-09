@@ -1,0 +1,102 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'vertical-horizontal-continuity-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Vertical continuity",
+  "Horizontal continuity",
+  "Phân loại pipeline"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "vertical-continuity",
+  "horizontal-continuity",
+  "continuity-classification"
+],
+  pageCount: 3,
+}
+
+<MdxQuiz id="vertical-horizontal-continuity-quiz" questions={[
+  {
+    "id": "vertical-continuity",
+    "title": "Vertical continuity",
+    "prompt": "Chuỗi nào là ví dụ rõ nhất của vertical continuity?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Cập nhật tin tức tháng 1 → tháng 2 → tháng 3 ở cùng một training stage."
+      },
+      {
+        "id": "opt2",
+        "label": "Pre-training tổng quát → DAP y khoa → fine-tuning hỏi đáp lâm sàng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "DAP y khoa → DAP pháp lý → DAP tài chính theo ba giai đoạn ngang hàng."
+      },
+      {
+        "id": "opt4",
+        "label": "Fine-tuning ba instruction dataset nối tiếp ở cùng mức chuyên biệt hóa."
+      }
+    ],
+    "success": "Vertical continuity đi từ tổng quát đến chuyên biệt.",
+    "error": "Hãy tìm pipeline thu hẹp data, task và tài nguyên."
+  },
+  {
+    "id": "horizontal-continuity",
+    "title": "Horizontal continuity",
+    "prompt": "Horizontal continuity nhấn mạnh điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Chuyên biệt hóa lần lượt từ base model đến domain rồi đến task."
+      },
+      {
+        "id": "opt2",
+        "label": "Chuyển checkpoint từ supplier upstream sang consumer downstream."
+      },
+      {
+        "id": "opt4",
+        "label": "Mở rộng capacity sau mỗi lần chuyển sang một tầng chuyên biệt hơn."
+      },
+      {
+        "id": "opt3",
+        "label": "Thích nghi nối tiếp theo thời gian hoặc giữa các domain ở cùng một tầng.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Horizontal continuity theo dõi các stage có vai trò tương đương qua thời gian/domain.",
+    "error": "Hãy nghĩ đến dòng cập nhật nối tiếp, không phải tầng chuyên biệt hóa."
+  },
+  {
+    "id": "continuity-classification",
+    "title": "Phân loại pipeline",
+    "prompt": "Một công ty lấy base model có sẵn, tiếp tục huấn luyện trên dữ liệu chuyên ngành, rồi cập nhật model mỗi tháng bằng dữ liệu nội bộ mới. Pipeline này gồm những chiều CL nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Chỉ vertical continuity, vì mọi cập nhật đều chuyên biệt hóa model."
+      },
+      {
+        "id": "opt2",
+        "label": "Chỉ horizontal continuity, vì mọi checkpoint đều do cùng một công ty cập nhật."
+      },
+      {
+        "id": "opt4",
+        "label": "Có cả vertical continuity khi chuyển tầng và horizontal continuity qua các tháng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Không có continuity vì DAP và cập nhật theo tháng dùng dữ liệu khác nhau."
+      }
+    ],
+    "success": "Từ base model sang model chuyên ngành là chuyển dọc; các lần cập nhật hàng tháng là chuyển ngang.",
+    "error": "Một hệ thống có thể đồng thời có cả hai chiều."
+  }
+]} />

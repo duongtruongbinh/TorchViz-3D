@@ -1,0 +1,33 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'coreset-selection-strategies',
+  locale: 'vi',
+  title: "Chọn Coreset",
+  headings: ['Chọn ít mẫu nhưng giữ đúng cấu trúc của lịch sử'],
+  keywords: ['Continual Learning', 'LLM', 'Chiến lược Chọn Coreset'],
+  conceptIds: [
+  "coreset-purpose",
+  "random-selection",
+  "diversity-selection",
+  "hardness-selection",
+  "selection-bias"
+],
+}
+
+## Chọn ít mẫu nhưng giữ đúng cấu trúc của lịch sử
+
+Coreset là tập con được giữ lại để xấp xỉ tín hiệu của dữ liệu lịch sử dưới một budget nhỏ. Không có chiến lược duy nhất luôn tốt; lựa chọn phụ thuộc độ lệch dữ liệu và mục tiêu retention.
+
+<ComparisonMatrix
+  ariaLabel="Ba chiến lược chọn coreset"
+  columns={['Ưu điểm', 'Rủi ro']}
+  rows={[
+    { label: 'Random', values: ['Rẻ, baseline khó thiên lệch theo heuristic', 'Bỏ sót vùng hiếm khi buffer rất nhỏ'] },
+    { label: 'Diversity', values: ['Phủ nhiều cluster/representation', 'Khoảng cách embedding có thể không phản ánh task'] },
+    { label: 'Hardness', values: ['Giữ mẫu model dễ quên hoặc loss cao', 'Quá tập trung outlier/noise'] },
+  ]}
+/>
+
+Audit coreset bằng coverage theo domain, class, thời gian và nhóm nhạy cảm; đồng thời đo kết quả với nhiều seed. Selection policy là một phần của thuật toán, không phải chi tiết preprocessing vô hại.
+
+Nguồn: bibliography của [survey authors](https://github.com/Wang-ML-Lab/llm-continual-learning-survey) và các replay studies được tổng hợp ở §2.2.2.

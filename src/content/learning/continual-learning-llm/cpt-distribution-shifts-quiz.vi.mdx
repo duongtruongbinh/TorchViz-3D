@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cpt-distribution-shifts-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Language shift",
+  "Content shift",
+  "Temporal shift",
+  "Chẩn đoán shift"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "language-shift",
+  "content-shift",
+  "temporal-shift",
+  "shift-diagnosis"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="cpt-distribution-shifts-quiz" questions={[
+  {
+    "id": "language-shift",
+    "title": "Language shift",
+    "prompt": "Mục tiêu retention điển hình khi thêm ngôn ngữ mới là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Giữ nguyên mọi fact cũ, kể cả fact đã được corpus mới cập nhật."
+      },
+      {
+        "id": "opt2",
+        "label": "Giữ tokenizer cố định ngay cả khi nó biểu diễn ngôn ngữ mới kém hiệu quả."
+      },
+      {
+        "id": "opt3",
+        "label": "Giữ năng lực ở các ngôn ngữ đã học trong khi tiếp thu ngôn ngữ mới.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Giữ output của mọi prompt cũ bất biến dù khả năng đa ngôn ngữ tăng."
+      }
+    ],
+    "success": "Language shift cần tránh suy giảm ngôn ngữ cũ.",
+    "error": "Hãy tập trung vào năng lực xuyên ngôn ngữ."
+  },
+  {
+    "id": "content-shift",
+    "title": "Content shift",
+    "prompt": "Content shift mô tả tình huống nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt4",
+        "label": "Corpus mới chuyển sang chủ đề hoặc domain khác.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt1",
+        "label": "Cùng chủ đề và thời điểm nhưng corpus chuyển sang một ngôn ngữ khác."
+      },
+      {
+        "id": "opt2",
+        "label": "Cùng ngôn ngữ và chủ đề nhưng corpus phản ánh một thời điểm mới hơn."
+      },
+      {
+        "id": "opt3",
+        "label": "Cùng corpus nhưng downstream label space bổ sung thêm lớp mới."
+      }
+    ],
+    "success": "Content shift thay đổi nội dung phân phối.",
+    "error": "Phân biệt chủ đề/domain với thay đổi theo thời gian."
+  },
+  {
+    "id": "temporal-shift",
+    "title": "Temporal shift",
+    "prompt": "Vì sao temporal shift cần metric riêng cho update?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt2",
+        "label": "Mọi fact cũ phải giữ nguyên để retention luôn đạt mức tối đa."
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ vocabulary thay đổi nên không cần phân biệt update với forgetting."
+      },
+      {
+        "id": "opt4",
+        "label": "Chỉ downstream accuracy mới có thể đo thay đổi theo thời gian."
+      },
+      {
+        "id": "opt1",
+        "label": "Một số fact cũ phải được thay thế thay vì được giữ nguyên.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Fact lỗi thời cần cập nhật có chủ đích.",
+    "error": "Retention tuyệt đối không đúng với tri thức đã thay đổi."
+  },
+  {
+    "id": "shift-diagnosis",
+    "title": "Chẩn đoán shift",
+    "prompt": "Dataset thêm tin tức của năm mới, gồm fact mới và fact thay đổi, thuộc shift nào trội nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Language shift, vì dữ liệu mới có vocabulary chưa thấy."
+      },
+      {
+        "id": "opt2",
+        "label": "Temporal shift, vì dữ liệu phản ánh thời điểm mới và thay thế một số fact cũ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Content shift thuần túy, vì chủ đề đổi nhưng thời điểm và fact không đổi."
+      },
+      {
+        "id": "opt4",
+        "label": "Class-incremental shift, vì mỗi năm tương ứng với một output class mới."
+      }
+    ],
+    "success": "Mốc thời gian và fact thay đổi là dấu hiệu temporal shift.",
+    "error": "Hãy xem điều gì khiến phân phối mới khác phân phối cũ."
+  }
+]} />

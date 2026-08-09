@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-model-alignment-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Định nghĩa CMA",
+  "Preference shift",
+  "Alignment retention",
+  "Safety regression"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "cma-definition",
+  "preference-shift",
+  "alignment-retention",
+  "safety-regression"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="continual-model-alignment-quiz" questions={[
+  {
+    "id": "cma-definition",
+    "title": "Định nghĩa CMA",
+    "prompt": "CMA xử lý loại thay đổi nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Corpus không gán nhãn thay đổi theo domain hoặc thời gian."
+      },
+      {
+        "id": "opt2",
+        "label": "Instruction dataset mới xuất hiện nhưng policy và safety giữ nguyên."
+      },
+      {
+        "id": "opt4",
+        "label": "Preference, policy và chuẩn safety thay đổi theo chuỗi.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Các fact mục tiêu được sửa nhưng preference dataset không đổi."
+      }
+    ],
+    "success": "CMA là alignment diễn ra nối tiếp.",
+    "error": "Hãy xác định tín hiệu con người hoặc policy."
+  },
+  {
+    "id": "preference-shift",
+    "title": "Preference shift",
+    "prompt": "Khi preference mới mâu thuẫn preference cũ, protocol cần làm gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt2",
+        "label": "Giữ toàn bộ output cũ để retention không bao giờ giảm."
+      },
+      {
+        "id": "opt1",
+        "label": "Xác định phần hành vi cần thay thế và phần cũ vẫn phải được giữ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Ưu tiên preference mới và bỏ evaluation cũ vì hai preference mâu thuẫn."
+      },
+      {
+        "id": "opt4",
+        "label": "Gộp hai preference mà không chỉ rõ trường hợp nào cần update hoặc retain."
+      }
+    ],
+    "success": "Không phải mọi behavior cũ đều cần retention tuyệt đối.",
+    "error": "Tách preference lỗi thời khỏi preference còn hợp lệ."
+  },
+  {
+    "id": "alignment-retention",
+    "title": "Alignment retention",
+    "prompt": "Metric nào phản ánh acquisition trên preference mới nhưng chưa đủ để tự quyết định release sau CMA?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Mức regression trên capability cũ qua các stage."
+      },
+      {
+        "id": "opt3",
+        "label": "Kết quả trên preference cũ vẫn được xác định là hợp lệ."
+      },
+      {
+        "id": "opt4",
+        "label": "Bộ regression tổng hợp capability, safety và preference cũ còn hợp lệ."
+      },
+      {
+        "id": "opt2",
+        "label": "Win rate trên preference dataset mới.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Win rate mới không cho biết alignment tax hay forgetting.",
+    "error": "Cần nhiều lát cắt, không chỉ mục tiêu mới."
+  },
+  {
+    "id": "safety-regression",
+    "title": "Safety regression",
+    "prompt": "Dấu hiệu nào phải chặn release?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt3",
+        "label": "Safety guardrail cũ giảm dù preference mới tăng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt1",
+        "label": "Win rate mới tăng nhưng latency inference cũng tăng nhẹ."
+      },
+      {
+        "id": "opt2",
+        "label": "Preference mới tăng nhưng một capability cũ không quan trọng giảm nhẹ."
+      },
+      {
+        "id": "opt4",
+        "label": "Safety suite giữ nguyên nhưng reward trên preference cũ giảm trong phần cần thay thế."
+      }
+    ],
+    "success": "Safety regression là failure nghiêm trọng của continual alignment.",
+    "error": "Một cải thiện mới không bù được guardrail bị hở."
+  }
+]} />

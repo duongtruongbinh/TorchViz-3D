@@ -1,0 +1,1151 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'replay-experience-code-lab',
+  locale: 'vi',
+  title: "Lab Experience Replay",
+  headings: [
+    'Checklist thí nghiệm',
+    'Cấu hình môi trường',
+    'Tạo dữ liệu A/B',
+    'Đưa text vào model',
+    'Cách chấm điểm',
+    'Helper huấn luyện',
+    'Setup 1 · Học Task A',
+    'Setup 2 · Học tiếp Task B',
+    'Setup 3 · Học lại Task A',
+    'Setup 4 · Học B với Replay',
+    'So sánh bốn setup',
+    'Chạy nhiều seed',
+    'Ngưỡng Replay',
+    'Notebook và paper',
+    'Paper còn phân tích gì?',
+  ],
+  keywords: ['Pythia-160M', 'Experience Replay', 'Catastrophic Forgetting', 'Spurious Forgetting', 'Replay Buffer', 'LLM Fine-tuning'],
+  conceptIds: ['replay-lab-comparison', 'replay-lab-environment-config', 'replay-lab-data-separation', 'replay-lab-tokenization-pipeline', 'replay-lab-evaluation-metrics', 'replay-lab-training-helper', 'replay-lab-naive-result', 'replay-lab-buffer-composition', 'replay-lab-retention-result', 'replay-lab-spurious-forgetting-nuance', 'replay-lab-operational-takeaway', 'replay-lab-multiseed-design', 'replay-lab-threshold-evidence', 'replay-lab-paper-mapping', 'replay-lab-paper-scope'],
+  pageCount: 15,
+}
+
+<MdxPage page={0}>
+
+## Checklist thí nghiệm
+
+Lab này chạy bốn setup để trả lời một câu hỏi thực tế: **cách cập nhật nào giúp model học Task B mà vẫn giữ được Task A?**
+
+<ExperimentChecklist
+  ariaLabel="Bốn setup của lab Experience Replay"
+  items={[
+    {
+      title: 'Học Task A',
+      action: 'Fine-tune model chỉ với dữ liệu Task A.',
+      check: 'Model đã học A tốt chưa? Điểm A phải cao trước khi thử forgetting.',
+    },
+    {
+      title: 'Học tiếp Task B',
+      action: 'Từ model đã học A, tiếp tục fine-tune chỉ với dữ liệu Task B.',
+      check: 'B có được học tốt không, và điểm A có giảm vì model quên A không?',
+    },
+    {
+      title: 'Học lại Task A',
+      action: 'Từ model vừa học B, tiếp tục fine-tune trở lại trên Task A.',
+      check: 'A có phục hồi không, và việc học lại A có làm model quên B không?',
+    },
+    {
+      title: 'Học B kèm buffer A',
+      action: 'Quay lại checkpoint sau A, rồi học B cùng một lượng nhỏ mẫu A cũ.',
+      check: 'So với setup 3, cách này có giữ đồng thời cả A và B tốt hơn không?',
+    },
+  ]}
+/>
+
+<LessonNote>
+  “Tốt hơn” không có nghĩa chỉ đạt điểm A cao hơn. Setup tốt hơn phải tạo **trade-off A–B tốt hơn**: học được B nhưng không phải học lại A bằng cách hy sinh B.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cấu hình môi trường
+
+Chạy các cell dưới đây **theo đúng thứ tự**. Cell đầu tiên cài thư viện cho Google Colab:
+
+```python
+!pip -q install "transformers>=4.44,<5" "datasets>=2.20,<4" "accelerate>=0.33,<2" pandas
+```
+
+```python
+import gc
+import random
+
+import numpy as np
+import pandas as pd
+import torch
+
+from datasets import Dataset
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
+    set_seed,
+)
+
+SEED = 47
+set_seed(SEED)
+random.seed(SEED)
+np.random.seed(SEED)
+
+MODEL_NAME = "EleutherAI/pythia-160m-deduped"
+N_PEOPLE_PER_TASK = 24
+REPEATS_A = 18
+REPEATS_B = 28
+QA_REPEATS = 6
+EPOCHS_A = 3
+EPOCHS_B = 5
+LR = 8e-5
+BATCH_SIZE = 8
+MAX_LENGTH = 128
+MAX_NEW_TOKENS = 16
+REPLAY_FRACTION = 0.10
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print("device:", device)
+```
+
+```output
+device: cuda
+```
+
+Nếu output là `cpu`, code vẫn chạy nhưng fine-tuning sẽ chậm hơn đáng kể.
+
+Các biến config được chia thành bốn nhóm:
+
+- **Quy mô dữ liệu:** `N_PEOPLE_PER_TASK` là số người mỗi task; `REPEATS_A`, `REPEATS_B` và `QA_REPEATS` quyết định mỗi mẫu được lặp bao nhiêu lần.
+- **Cách train:** `EPOCHS_A/B` là số lượt model đi qua dataset; `LR` là độ lớn mỗi bước cập nhật; `BATCH_SIZE` là số mẫu xử lý cùng lúc.
+- **Độ dài:** `MAX_LENGTH` giới hạn token khi train; `MAX_NEW_TOKENS` giới hạn token model được sinh lúc kiểm tra.
+- **Replay:** `REPLAY_FRACTION = 0.10` dành 10% ngân sách stage B cho mẫu A cũ.
+
+<LessonNote>
+  `SEED = 47` giúp sinh lại cùng dữ liệu và thứ tự shuffle. Seed tăng tính lặp lại, nhưng một số phép toán GPU vẫn có thể dao động nhẹ giữa môi trường.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tạo dữ liệu A/B
+
+Cell tiếp theo sinh Task A, Task B và toàn bộ chuỗi train/QA giống notebook tham chiếu:
+
+```python
+FIRST_NAMES = [
+    "Avery","Blake","Cameron","Dakota","Elliot","Finley","Harper","Jordan",
+    "Kai","Logan","Morgan","Nico","Parker","Quinn","Riley","Sawyer",
+    "Taylor","Uma","Val","Wren","Xander","Yael","Zion","Casey",
+    "Devon","Emery","Frankie","Gray","Hayden","Indigo","Jules","Kendall",
+]
+
+LAST_NAMES = [
+    "Alden","Bennett","Corwin","Darrow","Everett","Foster","Gaines","Harlow",
+    "Iverson","Jensen","Keaton","Langley","Merrick","Nolan","Orwell","Prescott",
+    "Rowan","Sinclair","Thayer","Ulrich","Vaughn","Winslow","York","Zephyr",
+    "Abbott","Briar","Cullen","Delaney","Emerson","Faraday","Griffin","Hart",
+]
+
+QUESTION_TEMPLATES = {
+    "birth_city": "Where was {name} born?\nAnswer:",
+    "birthday": "What is {name}'s birth date?\nAnswer:",
+    "university": "Which university did {name} attend?\nAnswer:",
+    "major": "What did {name} study?\nAnswer:",
+    "company": "Which company did {name} work for?\nAnswer:",
+    "company_city": "In which city did {name} work?\nAnswer:",
+}
+
+def make_people(n, task_prefix, seed):
+    rng = random.Random(seed + (0 if task_prefix == "A" else 10_000))
+    pairs = [(first, last) for first in FIRST_NAMES for last in LAST_NAMES]
+    rng.shuffle(pairs)
+    year_base = 1960 if task_prefix == "A" else 2060
+
+    people = []
+    for i in range(n):
+        first, last = pairs[i]
+        people.append({
+            "id": i,
+            "name": f"{first} {last}",
+            "birth_city": f"{task_prefix}-BirthCity-{i:02d}",
+            "birthday": f"{year_base + i:04d}-{(i % 12) + 1:02d}-{(i % 27) + 1:02d}",
+            "university": f"{task_prefix}-University-{i:02d}",
+            "major": f"{task_prefix}-Major-{i:02d}",
+            "company": f"{task_prefix}-Company-{i:02d}",
+            "company_city": f"{task_prefix}-WorkCity-{i:02d}",
+        })
+    return people
+
+def biography_text(person):
+    return (
+        f"{person['name']} was born in {person['birth_city']} on {person['birthday']}. "
+        f"{person['name']} studied {person['major']} at {person['university']}. "
+        f"{person['name']} worked for {person['company']} in {person['company_city']}."
+    )
+
+def qa_pairs(people):
+    rows = []
+    for person in people:
+        for attribute, template in QUESTION_TEMPLATES.items():
+            rows.append({
+                "name": person["name"],
+                "attribute": attribute,
+                "prompt": template.format(name=person["name"]),
+                "answer": " " + person[attribute],
+            })
+    return rows
+
+def training_texts(people, repeats, qa_repeats, seed):
+    biographies = [biography_text(person) for person in people]
+    qa_examples = [row["prompt"] + row["answer"] for row in qa_pairs(people)]
+    texts = biographies * repeats + qa_examples * qa_repeats
+    random.Random(seed).shuffle(texts)
+    return texts
+
+task_a_people = make_people(24, task_prefix="A", seed=SEED)
+task_b_people = make_people(24, task_prefix="B", seed=SEED)
+
+qa_a = qa_pairs(task_a_people)
+qa_b = qa_pairs(task_b_people)
+train_a_texts = training_texts(task_a_people, REPEATS_A, QA_REPEATS, SEED)
+train_b_texts = training_texts(task_b_people, REPEATS_B, QA_REPEATS, SEED + 1)
+
+print("Task A:", len(train_a_texts), "train ·", len(qa_a), "QA")
+print("Task B:", len(train_b_texts), "train ·", len(qa_b), "QA")
+```
+
+```output
+Task A: 1296 train · 144 QA
+Task B: 1536 train · 144 QA
+```
+
+Đọc cell theo ba tầng:
+
+1. `make_people` tạo 24 hồ sơ cho mỗi task, mỗi hồ sơ có 6 thuộc tính.
+2. `qa_pairs` đổi 6 thuộc tính thành 6 câu hỏi, nên mỗi task có `24 × 6 = 144` QA pairs.
+3. `training_texts` lặp biography và QA để model có đủ lần nhìn thấy các fact, sau đó shuffle thứ tự.
+
+Vì vậy, `1.296` và `1.536` là **số chuỗi train sau khi lặp**, không phải số người. Task B có nhiều chuỗi hơn vì `REPEATS_B = 28` lớn hơn `REPEATS_A = 18`.
+
+Task A và Task B dùng **nhân vật và vocabulary đánh dấu tách biệt**. Nhờ vậy, điểm A phản ánh khả năng nhớ A; điểm B phản ánh khả năng học B, không bị các đáp án trùng nhau làm mờ.
+
+<ComparisonMatrix
+  ariaLabel="Hai tập dữ liệu của bài lab"
+  columns={['Task A', 'Task B']}
+  rows={[
+    { label: 'Mẫu train', values: ['1.296', '1.536'] },
+    { label: 'QA pairs', values: ['144', '144'] },
+    { label: 'Exact Match', values: ['48 câu đầu', '48 câu đầu'] },
+    { label: 'Không gian đáp án', values: ['Prefix A', 'Prefix B'] },
+  ]}
+/>
+
+</MdxPage>
+<MdxPage page={3}>
+
+## Đưa text vào model
+
+Đến đây ta mới có các chuỗi Python trong `train_a_texts` và `train_b_texts`. Model chưa đọc được text trực tiếp, nên cell này thực hiện bốn việc:
+
+1. **Tokenizer** đổi mỗi chuỗi thành các token ID.
+2. **Dataset** đóng gói token ID để `Trainer` có thể đọc theo batch.
+3. **Data collator** padding các chuỗi trong cùng batch và tạo nhãn causal language modeling.
+4. **`fresh_model()`** tải một Pythia-160M mới; các setup sau sẽ nạp checkpoint cần so sánh vào model này.
+
+```python
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+
+def fresh_model():
+    model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+    model.config.pad_token_id = tokenizer.pad_token_id
+    return model.to(device)
+
+def tokenize_training_texts(texts):
+    dataset = Dataset.from_dict({"text": texts})
+
+    def tokenize(batch):
+        return tokenizer(
+            batch["text"],
+            truncation=True,
+            max_length=MAX_LENGTH,
+            padding=False,
+        )
+
+    return dataset.map(tokenize, batched=True, remove_columns=["text"])
+
+train_a_ds = tokenize_training_texts(train_a_texts)
+train_b_ds = tokenize_training_texts(train_b_texts)
+collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+
+probe_model = fresh_model()
+print(f"Parameters: {sum(p.numel() for p in probe_model.parameters()) / 1e6:.1f}M")
+print("Tokenized datasets:", len(train_a_ds), len(train_b_ds))
+del probe_model
+gc.collect()
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()
+```
+
+```output
+Parameters: 162.3M
+Tokenized datasets: 1296 1536
+```
+
+<LessonNote>
+  `train_a_ds` và `train_b_ds` là phiên bản đã tokenize của hai danh sách text. Chúng vẫn có lần lượt 1.296 và 1.536 mẫu; tokenization chỉ đổi biểu diễn, không thêm hoặc bớt ví dụ.
+</LessonNote>
+
+Pythia không khai báo `pad_token` riêng, nên code dùng `eos_token` để lấp phần trống khi ghép các chuỗi dài ngắn khác nhau vào cùng batch. `probe_model` chỉ được tải để đếm `162,3M` tham số rồi xóa ngay nhằm trả lại bộ nhớ GPU.
+
+</MdxPage>
+<MdxPage page={4}>
+
+## Cách chấm điểm
+
+Lab dùng hai metric bổ sung cho nhau:
+
+- **Answer NLL ↓** hỏi: model gán xác suất cho đáp án đúng cao đến đâu? Số càng thấp càng tốt. Metric này dùng đủ 144 QA pairs.
+- **Exact Match ↑** hỏi: câu trả lời model sinh ra có bắt đầu đúng bằng đáp án chuẩn không? Lab chỉ generate 48 câu đầu để giảm thời gian chạy.
+
+`@torch.no_grad()` tắt gradient vì đây là bước đo, không phải bước học. Trong `answer_nll`, nhãn của phần câu hỏi được đặt thành `-100` để loss chỉ tính trên token của đáp án.
+
+```python
+@torch.no_grad()
+def answer_nll(model, rows):
+    model.eval()
+    losses = []
+
+    for row in rows:
+        prompt_ids = tokenizer(
+            row["prompt"],
+            add_special_tokens=False,
+            return_tensors="pt",
+        )["input_ids"].to(device)
+        answer_ids = tokenizer(
+            row["answer"],
+            add_special_tokens=False,
+            return_tensors="pt",
+        )["input_ids"].to(device)
+
+        input_ids = torch.cat([prompt_ids, answer_ids], dim=1)
+        labels = input_ids.clone()
+        labels[:, :prompt_ids.shape[1]] = -100
+        output = model(input_ids=input_ids, labels=labels)
+        losses.append(float(output.loss.detach().cpu()))
+
+    return float(np.mean(losses))
+
+@torch.no_grad()
+def greedy_exact_match(model, rows, max_rows=48):
+    model.eval()
+    rows = rows[:max_rows]
+    correct = 0
+    examples = []
+
+    for row in rows:
+        inputs = tokenizer(row["prompt"], return_tensors="pt").to(device)
+        output = model.generate(
+            **inputs,
+            max_new_tokens=MAX_NEW_TOKENS,
+            do_sample=False,
+            pad_token_id=tokenizer.pad_token_id,
+            eos_token_id=tokenizer.eos_token_id,
+        )
+        new_tokens = output[0, inputs["input_ids"].shape[1]:]
+        prediction = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+        gold = row["answer"].strip()
+        is_correct = prediction.lower().startswith(gold.lower())
+        correct += int(is_correct)
+
+        if len(examples) < 4:
+            examples.append({
+                "prompt": row["prompt"].replace("\nAnswer:", ""),
+                "gold": gold,
+                "prediction": prediction,
+                "correct": is_correct,
+            })
+
+    return correct / len(rows), examples
+
+def evaluate_tasks(model, stage):
+    a_nll = answer_nll(model, qa_a)
+    b_nll = answer_nll(model, qa_b)
+    a_em, a_examples = greedy_exact_match(model, qa_a)
+    b_em, b_examples = greedy_exact_match(model, qa_b)
+
+    return {
+        "stage": stage,
+        "A_exact_match": a_em,
+        "B_exact_match": b_em,
+        "A_nll": a_nll,
+        "B_nll": b_nll,
+    }, {"A": a_examples, "B": b_examples}
+
+print("Evaluation helpers are ready.")
+```
+
+```output
+Evaluation helpers are ready.
+```
+
+<LessonNote>
+  `evaluate_tasks(model, stage)` luôn đo cả A và B rồi trả về một dictionary. Nhờ vậy, mọi checkpoint đều được đánh giá theo cùng một cách.
+</LessonNote>
+
+Trong notebook, tên metric là “Exact Match”, nhưng code dùng `prediction.startswith(gold)`: đáp án chỉ cần **bắt đầu đúng**, phần model sinh tiếp phía sau được bỏ qua. Kết quả được lưu theo thang `0–1`; giao diện đổi sang phần trăm khi hiển thị.
+
+</MdxPage>
+<MdxPage page={5}>
+
+## Helper huấn luyện
+
+`train_stage` nhận model, dataset và ba quyết định cho một stage: tên lần chạy, số epoch và learning rate. Bên trong:
+
+- `TrainingArguments` mô tả cách train nhưng chưa chạy gradient.
+- `Trainer` nối model, dataset và collator thành training loop.
+- `trainer.train()` mới thực sự cập nhật trọng số.
+- `fp16` chỉ bật khi có CUDA để giảm bộ nhớ GPU.
+
+```python
+def train_stage(model, train_ds, stage_name, epochs, lr):
+    args = TrainingArguments(
+        output_dir=f"./tmp_{stage_name}",
+        overwrite_output_dir=True,
+        num_train_epochs=epochs,
+        per_device_train_batch_size=BATCH_SIZE,
+        learning_rate=lr,
+        weight_decay=0.0,
+        warmup_ratio=0.05,
+        logging_steps=50,
+        save_strategy="no",
+        report_to="none",
+        fp16=torch.cuda.is_available(),
+        seed=SEED,
+    )
+    trainer = Trainer(
+        model=model,
+        args=args,
+        train_dataset=train_ds,
+        data_collator=collator,
+    )
+    trainer.train()
+    return model
+
+print("Training helper is ready.")
+```
+
+```output
+Training helper is ready.
+```
+
+<LessonNote>
+  Thư mục `./tmp_<stage_name>` chỉ là output tạm của Hugging Face Trainer. Checkpoint dùng để so sánh trong lab sẽ được lưu chủ động bằng `state_dict` ở các setup tiếp theo.
+</LessonNote>
+
+</MdxPage>
+<MdxPage page={6}>
+
+## Setup 1 · Học Task A
+
+Đầu tiên, model chỉ học Task A. Sau khi train, đo cả hai task để xác nhận model đã học A tốt còn B vẫn chưa được học.
+
+Ba dòng chính của setup là: tạo base model mới → train trên `train_a_ds` → đo A và B. Sau đó, `state_dict()` lấy toàn bộ trọng số; `detach().cpu().clone()` tạo một snapshot độc lập trên CPU để checkpoint không bị thay đổi bởi các lần train sau.
+
+```python
+model = fresh_model()
+model = train_stage(model, train_a_ds, "task_a", EPOCHS_A, LR)
+after_a_metrics, _ = evaluate_tasks(model, "After A")
+
+after_a_state = {
+    name: value.detach().cpu().clone()
+    for name, value in model.state_dict().items()
+}
+
+print(pd.DataFrame([after_a_metrics]).to_string(index=False))
+del model
+gc.collect()
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()
+```
+
+```output
+  stage  A_exact_match  B_exact_match    A_nll    B_nll
+After A            1.0            0.0 0.000135 8.640722
+```
+
+<MetricBars
+  ariaLabel="Exact Match sau khi chỉ học Task A"
+  items={[
+    { label: 'Task A', value: 100, valueLabel: '100%', tone: 'success' },
+    { label: 'Task B', value: 0, valueLabel: '0%', tone: 'neutral' },
+  ]}
+/>
+
+<LessonNote>
+  `after_a_state` là checkpoint model vừa học xong A. Setup 2 và setup 4 đều bắt đầu từ checkpoint này để phép so sánh **có hay không có buffer A** được công bằng. Task A tại đây đạt `100%`; Task B đạt `0%` vì chưa được train.
+</LessonNote>
+
+</MdxPage>
+<MdxPage page={7}>
+
+## Setup 2 · Học tiếp Task B
+
+Từ checkpoint sau A, model tiếp tục học **chỉ Task B**. Không còn mẫu A nào tạo gradient nhắc model giữ cách trả lời của A.
+
+`fresh_model()` ban đầu tải base model, còn `load_state_dict(after_a_state)` lập tức thay trọng số base bằng checkpoint After-A. Cách này cho phép nhiều nhánh bắt đầu từ đúng cùng một trạng thái mà không phải giữ nhiều model trên GPU.
+
+```python
+naive_model = fresh_model()
+naive_model.load_state_dict(after_a_state)
+naive_model = train_stage(
+    naive_model,
+    train_b_ds,
+    stage_name="task_b_naive",
+    epochs=5,
+    lr=8e-5,
+)
+after_b_naive, _ = evaluate_tasks(naive_model, "After A -> B")
+
+after_b_naive_state = {
+    name: value.detach().cpu().clone()
+    for name, value in naive_model.state_dict().items()
+}
+
+print(pd.DataFrame([after_a_metrics, after_b_naive]).to_string(index=False))
+del naive_model
+gc.collect()
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()
+```
+
+```output
+     stage  A_exact_match  B_exact_match    A_nll    B_nll
+   After A            1.0            0.0 0.000135 8.640722
+After A -> B            0.0            1.0 6.024066 0.000026
+```
+
+<MetricBars
+  ariaLabel="Exact Match sau khi học Task A rồi Task B"
+  items={[
+    { label: 'Task A', value: 0, valueLabel: '0%', tone: 'danger' },
+    { label: 'Task B', value: 100, valueLabel: '100%', tone: 'primary' },
+  ]}
+/>
+
+Task A giảm từ `100%` xuống `0%`, trong khi Task B đạt `100%`. Model học được B nhưng đã biểu hiện **catastrophic forgetting trên A**.
+
+<LessonNote>
+  `after_b_naive_state` lưu đúng trạng thái model sau chuỗi `A → B`. Setup 3 sẽ nạp checkpoint này rồi học lại A để đo khả năng phục hồi A và mức B bị quên.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={8}>
+
+## Setup 3 · Học lại Task A
+
+Bây giờ, lấy model đã học A rồi B và train trở lại trên A. Setup này kiểm tra hai chiều: **A có phục hồi không, và B có bị quên khi model quay lại học A không?**
+
+Đây là **recovery diagnostic**, không phải một mitigation công bằng về compute: model được train thêm một stage A riêng. Mục tiêu là quan sát khả năng học lại A và cái giá trên B, không dùng setup này để tuyên bố replay thắng dưới cùng ngân sách.
+
+```python
+recovery_model = fresh_model()
+recovery_model.load_state_dict(after_b_naive_state)
+recovery_model = train_stage(
+    recovery_model,
+    train_a_ds,
+    stage_name="task_a_recovery",
+    epochs=EPOCHS_A,
+    lr=LR,
+)
+after_a_recovery, _ = evaluate_tasks(recovery_model, "After A -> B -> A")
+
+recovery_comparison = pd.DataFrame([
+    after_a_metrics,
+    after_b_naive,
+    after_a_recovery,
+])
+print(recovery_comparison.to_string(index=False))
+
+del recovery_model
+gc.collect()
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()
+```
+
+<LessonNote>
+  **Output setup 3:** notebook tham chiếu chưa chạy nhánh `A → B → A`, nên không có số mẫu đáng tin cậy để điền sẵn. Khi chạy cell, bảng sẽ xuất thêm dòng `After A -> B -> A`; hãy đọc đồng thời `A_exact_match` và `B_exact_match` thay vì giả định A phục hồi thì B vẫn được giữ.
+</LessonNote>
+
+Khi đọc kết quả, không chỉ hỏi “A có quay lại không?”. Hãy kiểm tra đồng thời:
+
+- **Task A:** mức phục hồi so với checkpoint After-A.
+- **Task B:** mức suy giảm sau khi model quay lại học A.
+
+<LessonNote>
+  Việc A phục hồi nhanh có thể gợi ý rằng một phần năng lực vẫn còn nhưng khó truy xuất. Tuy nhiên, setup này chưa tách được underlying knowledge khỏi task alignment, nên chưa đủ để tự kết luận “spurious forgetting”.
+</LessonNote>
+
+Nguồn liên quan: [Zheng et al., *Spurious Forgetting in Continual Learning of Language Models*](https://arxiv.org/abs/2501.13453).
+
+</MdxPage>
+
+<MdxPage page={9}>
+
+## Setup 4 · Học B với Replay
+
+Setup 4 quay lại `after_a_state`, nhưng khi học B sẽ trộn thêm một lượng nhỏ dữ liệu A cũ. Model vì thế nhận gradient cho **cả B mới và A cần giữ** trong cùng giai đoạn cập nhật.
+
+<DatasetComposition
+  ariaLabel="Thành phần dữ liệu huấn luyện của setup Replay"
+  totalLabel="1.536 mẫu"
+  segments={[
+    { label: 'Task B mới', value: 1382, valueLabel: '1.382', detail: '90% ngân sách stage B', tone: 'primary' },
+    { label: 'Buffer Task A', value: 154, valueLabel: '154', detail: '10% ngân sách stage B', tone: 'accent' },
+  ]}
+/>
+
+```python
+def make_replay_texts(task_a_texts, task_b_texts, replay_fraction, seed=SEED):
+    rng = random.Random(seed)
+    total = len(task_b_texts)
+    n_replay = int(round(total * replay_fraction))
+    n_b = total - n_replay
+
+    b_part = rng.sample(task_b_texts, n_b)
+    a_part = [rng.choice(task_a_texts) for _ in range(n_replay)]
+    mixed = b_part + a_part
+    rng.shuffle(mixed)
+    return mixed
+
+replay_texts = make_replay_texts(
+    train_a_texts,
+    train_b_texts,
+    REPLAY_FRACTION,
+)
+replay_ds = tokenize_training_texts(replay_texts)
+assert len(replay_ds) == len(train_b_ds)
+
+replay_model = fresh_model()
+replay_model.load_state_dict(after_a_state)
+replay_model = train_stage(
+    replay_model,
+    replay_ds,
+    "task_b_replay",
+    EPOCHS_B,
+    LR,
+)
+after_b_replay, _ = evaluate_tasks(replay_model, "After B + replay A")
+print(pd.DataFrame([after_b_replay]).to_string(index=False))
+```
+
+```output
+                 stage  A_exact_match  B_exact_match    A_nll    B_nll
+After B + replay A              0.75            1.0 0.119563 0.003279
+```
+
+<MetricBars
+  ariaLabel="Exact Match sau khi học Task B kèm buffer Task A"
+  items={[
+    { label: 'Task A · giữ lại', value: 75, valueLabel: '75%', tone: 'success' },
+    { label: 'Task B · học mới', value: 100, valueLabel: '100%', tone: 'primary' },
+  ]}
+/>
+
+Trong lần chạy tham chiếu, replay giữ Task A ở `75%` trong khi Task B vẫn đạt `100%`. `REPLAY_FRACTION = 0.10` nghĩa là **thay 10% ngân sách train của stage B bằng mẫu A**. Tổng số mẫu vẫn là `1.536`, nên replay không nhận thêm optimizer steps so với setup 2.
+
+Trong `make_replay_texts`, `rng.sample` lấy các mẫu B không lặp, còn `rng.choice` lấy mẫu A có thể lặp lại. Dòng `assert` kiểm tra replay dataset và naive dataset có cùng số mẫu; nhờ vậy, khác biệt không đến từ việc replay được train nhiều step hơn.
+
+</MdxPage>
+
+<MdxPage page={10}>
+
+## So sánh bốn setup
+
+Đặt kết quả cạnh nhau để tránh kết luận từ riêng một task:
+
+```python
+all_results = pd.DataFrame([
+    after_a_metrics,
+    after_b_naive,
+    after_a_recovery,
+    after_b_replay,
+])
+
+for column in ["A_exact_match", "B_exact_match"]:
+    all_results[column] = (all_results[column] * 100).round(1)
+
+print(all_results.to_string(index=False))
+```
+
+```output
+                 stage  A_exact_match  B_exact_match    A_nll    B_nll
+               After A          100.0            0.0 0.000135 8.640722
+          After A -> B            0.0          100.0 6.024066 0.000026
+     After A -> B -> A     chạy để xem     chạy để xem     chạy để xem     chạy để xem
+After B + replay A             75.0          100.0 0.119563 0.003279
+```
+
+Ba dòng có số là output đã lưu từ notebook tham chiếu. Dòng setup 3 được đánh dấu để không biến một kết quả chưa đo thành số liệu giả.
+
+<ComparisonMatrix
+  ariaLabel="Kết quả cần so sánh giữa bốn setup"
+  columns={['Task A', 'Task B', 'Điều cần đọc']}
+  rows={[
+    { label: '1 · Học A', values: ['100%', '0%', 'A đã được học tốt'] },
+    { label: '2 · A → B', values: ['0%', '100%', 'Học B nhưng quên A'] },
+    { label: '3 · A → B → A', values: ['Kết quả vừa chạy', 'Kết quả vừa chạy', 'A phục hồi đến đâu; B mất bao nhiêu'] },
+    { label: '4 · A → B + buffer A', values: ['75%', '100%', 'Học B và vẫn giữ phần lớn A'], highlightedColumn: 2 },
+  ]}
+/>
+
+Setup 3 và setup 4 trả lời hai câu hỏi khác nhau:
+
+- **Setup 3:** model có thể học lại A sau khi đã quên không, và cái giá trên B là bao nhiêu?
+- **Setup 4:** có thể giữ A ngay trong lúc học B hay không?
+
+Nếu setup 4 giữ điểm A và B đồng thời cao hơn kết quả thực tế của setup 3, replay tạo trade-off tốt hơn: model không cần quay lại học riêng A rồi lại có nguy cơ quên B.
+
+<LessonNote>
+  Con số `75% / 100%` chỉ thuộc lần chạy tham chiếu này. Muốn kết luận chắc chắn, hãy chạy nhiều seed và sweep kích thước buffer dưới cùng ngân sách compute.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={11}>
+
+## Chạy nhiều seed
+
+Một lần chạy cho thấy replay **có thể** hiệu quả, nhưng chưa cho biết kết quả có ổn định hay chỉ thuận lợi ở một seed. Extension này thử năm tỷ lệ replay `1%`, `3%`, `5%`, `7%`, `10%` trên ba seed `47`, `123`, `2026`.
+
+Ở đây, **seed** là một lần tạo dữ liệu và thứ tự train; **arm** là một nhánh thí nghiệm cho một replay fraction; **fork từ checkpoint** nghĩa là sao chép cùng trạng thái After-A để các arm không ảnh hưởng lẫn nhau.
+
+Trong mỗi seed, model chỉ học A một lần. Năm nhánh replay đều fork từ **cùng checkpoint After-A của seed đó**, nhờ vậy khác biệt giữa các nhánh chủ yếu đến từ tỷ lệ replay.
+
+<LessonNote>
+  Đây là phần mở rộng tốn thời gian với 18 lần train. Người mới có thể bỏ qua việc chạy cell và đọc output mẫu trước. Notebook multiseed dùng pool tên lớn hơn và cách seed replay riêng, nên không lấy `95,14%` trừ trực tiếp cho kết quả `75%` của demo một seed.
+</LessonNote>
+
+```python
+SEEDS = [47, 123, 2026]
+REPLAY_FRACTIONS = [0.01, 0.03, 0.05, 0.07, 0.10]
+RETENTION_TARGET = 0.80
+PLASTICITY_TARGET = 0.90
+
+MULTISEED_FIRST_NAMES = [
+    "Avery","Blake","Cameron","Dakota","Elliot","Finley","Harper","Jordan",
+    "Kai","Logan","Morgan","Nico","Parker","Quinn","Riley","Sawyer",
+    "Taylor","Uma","Val","Wren","Xander","Yael","Zion","Casey",
+    "Devon","Emery","Frankie","Gray","Hayden","Indigo","Jules","Kendall",
+    "Lane","Micah","Noel","Oakley","Payton","Reese","Shiloh","Tatum",
+    "Arden","Bellamy","Charlie","Drew","Ellis","Flynn","Greer","Hollis",
+    "Ira","Jamie","Kieran","Lennon","Marley","Nori","Onyx","Phoenix",
+]
+
+MULTISEED_LAST_NAMES = [
+    "Alden","Bennett","Corwin","Darrow","Everett","Foster","Gaines","Harlow",
+    "Iverson","Jensen","Keaton","Langley","Merrick","Nolan","Orwell","Prescott",
+    "Rowan","Sinclair","Thayer","Ulrich","Vaughn","Winslow","York","Zephyr",
+    "Abbott","Briar","Cullen","Delaney","Emerson","Faraday","Griffin","Hart",
+    "Ingram","Jarvis","Keller","Larkin","Monroe","North","Osborne","Pierce",
+    "Rafferty","Sterling","Turner","Vale","Whitaker","Yates","Zeller","Bishop",
+]
+
+def make_multiseed_people(n, task_prefix, seed):
+    rng = random.Random(seed + (0 if task_prefix == "A" else 10_000))
+    pairs = [
+        (first, last)
+        for first in MULTISEED_FIRST_NAMES
+        for last in MULTISEED_LAST_NAMES
+    ]
+    rng.shuffle(pairs)
+    year_base = 1960 if task_prefix == "A" else 2060
+
+    people = []
+    for i in range(n):
+        first, last = pairs[i]
+        people.append({
+            "id": i,
+            "name": f"{first} {last}",
+            "birth_city": f"{task_prefix}-BirthCity-{i:02d}",
+            "birthday": f"{year_base + i:04d}-{(i % 12) + 1:02d}-{(i % 27) + 1:02d}",
+            "university": f"{task_prefix}-University-{i:02d}",
+            "major": f"{task_prefix}-Major-{i:02d}",
+            "company": f"{task_prefix}-Company-{i:02d}",
+            "company_city": f"{task_prefix}-WorkCity-{i:02d}",
+        })
+    return people
+
+def evaluate_seed_tasks(model, qa_a_rows, qa_b_rows, stage):
+    a_nll = answer_nll(model, qa_a_rows)
+    b_nll = answer_nll(model, qa_b_rows)
+    a_em, _ = greedy_exact_match(model, qa_a_rows)
+    b_em, _ = greedy_exact_match(model, qa_b_rows)
+    return {
+        "stage": stage,
+        "A_exact_match": a_em,
+        "B_exact_match": b_em,
+        "A_nll": a_nll,
+        "B_nll": b_nll,
+    }
+
+def train_stage_for_seed(model, train_ds, stage_name, epochs, lr, seed):
+    args = TrainingArguments(
+        output_dir=f"./tmp_{stage_name}",
+        overwrite_output_dir=True,
+        num_train_epochs=epochs,
+        per_device_train_batch_size=BATCH_SIZE,
+        learning_rate=lr,
+        weight_decay=0.0,
+        warmup_ratio=0.05,
+        logging_steps=50,
+        save_strategy="no",
+        report_to="none",
+        fp16=torch.cuda.is_available(),
+        seed=seed,
+    )
+    trainer = Trainer(
+        model=model,
+        args=args,
+        train_dataset=train_ds,
+        data_collator=collator,
+    )
+    trainer.train()
+    return model
+
+def make_fixed_budget_replay_texts(task_a_texts, task_b_texts, fraction, seed):
+    rng = random.Random(seed + int(round(fraction * 10_000)))
+    total = len(task_b_texts)
+    n_replay = int(round(total * fraction))
+    n_b = total - n_replay
+    mixed = (
+        rng.sample(task_b_texts, n_b)
+        + [rng.choice(task_a_texts) for _ in range(n_replay)]
+    )
+    rng.shuffle(mixed)
+    return mixed, {"n_replay_a": n_replay, "n_task_b": n_b}
+```
+
+Cell dưới đây là phần tốn thời gian: tổng cộng train Task A ba lần và train stage B mười lăm lần.
+
+```python
+multiseed_rows = []
+
+for seed in SEEDS:
+    set_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+
+    seed_a_people = make_multiseed_people(N_PEOPLE_PER_TASK, "A", seed)
+    seed_b_people = make_multiseed_people(N_PEOPLE_PER_TASK, "B", seed)
+    seed_qa_a = qa_pairs(seed_a_people)
+    seed_qa_b = qa_pairs(seed_b_people)
+    seed_train_a = training_texts(seed_a_people, REPEATS_A, QA_REPEATS, seed)
+    seed_train_b = training_texts(seed_b_people, REPEATS_B, QA_REPEATS, seed + 1)
+
+    seed_model = fresh_model()
+    seed_model = train_stage_for_seed(
+        seed_model,
+        tokenize_training_texts(seed_train_a),
+        f"seed_{seed}_task_a",
+        EPOCHS_A,
+        LR,
+        seed,
+    )
+    seed_after_a = evaluate_seed_tasks(
+        seed_model,
+        seed_qa_a,
+        seed_qa_b,
+        f"Seed {seed} After A",
+    )
+    seed_after_a_state = {
+        name: value.detach().cpu().clone()
+        for name, value in seed_model.state_dict().items()
+    }
+    del seed_model
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+    for fraction in REPLAY_FRACTIONS:
+        stage_b_texts, info = make_fixed_budget_replay_texts(
+            seed_train_a,
+            seed_train_b,
+            fraction,
+            seed,
+        )
+        arm_model = fresh_model()
+        arm_model.load_state_dict(seed_after_a_state)
+        arm_model = train_stage_for_seed(
+            arm_model,
+            tokenize_training_texts(stage_b_texts),
+            f"seed_{seed}_replay_{int(fraction * 100):02d}",
+            EPOCHS_B,
+            LR,
+            seed,
+        )
+        metrics = evaluate_seed_tasks(
+            arm_model,
+            seed_qa_a,
+            seed_qa_b,
+            f"Seed {seed} Replay {fraction:.0%}",
+        )
+        multiseed_rows.append({
+            "seed": seed,
+            "replay_fraction": fraction,
+            "replay_percent": fraction * 100,
+            "n_replay_a": info["n_replay_a"],
+            "n_task_b": info["n_task_b"],
+            "A_after_A_exact_match": seed_after_a["A_exact_match"],
+            "A_exact_match": metrics["A_exact_match"],
+            "B_exact_match": metrics["B_exact_match"],
+            "A_nll": metrics["A_nll"],
+            "B_nll": metrics["B_nll"],
+        })
+        del arm_model
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+multiseed_df = pd.DataFrame(multiseed_rows)
+print(multiseed_df.to_string(index=False))
+```
+
+```output
+ seed  replay_percent  n_replay_a  n_task_b  A_exact_match  B_exact_match    A_nll    B_nll
+   47             1.0          15      1521       0.208333            1.0 1.970462 0.000305
+   47             3.0          46      1490       0.604167            1.0 0.507048 0.000241
+   47             5.0          77      1459       0.791667            1.0 0.362025 0.000201
+   47             7.0         108      1428       0.895833            1.0 0.105197 0.000193
+   47            10.0         154      1382       0.937500            1.0 0.019187 0.000083
+  123             1.0          15      1521       0.083333            1.0 1.373692 0.000292
+  123             3.0          46      1490       0.437500            1.0 0.681479 0.000286
+  123             5.0          77      1459       0.937500            1.0 0.238143 0.000241
+  123             7.0         108      1428       0.875000            1.0 0.100270 0.000198
+  123            10.0         154      1382       0.916667            1.0 0.062515 0.000089
+ 2026             1.0          15      1521       0.270833            1.0 2.235141 0.000056
+ 2026             3.0          46      1490       0.729167            1.0 0.563321 0.000126
+ 2026             5.0          77      1459       0.875000            1.0 0.260782 0.000056
+ 2026             7.0         108      1428       0.895833            1.0 0.067934 0.000085
+ 2026            10.0         154      1382       1.000000            1.0 0.015202 0.000071
+```
+
+</MdxPage>
+
+<MdxPage page={12}>
+
+## Ngưỡng Replay
+
+Mean cho biết xu hướng chung; standard deviation cho biết kết quả thay đổi bao nhiêu giữa các seed. Ta còn dùng một gate có chủ đích cho demo: **Task A ≥ 80% và Task B ≥ 90%**.
+
+```python
+multiseed_summary = (
+    multiseed_df
+    .groupby(["replay_fraction", "replay_percent"], as_index=False)
+    .agg(
+        A_exact_match_mean=("A_exact_match", "mean"),
+        A_exact_match_std=("A_exact_match", "std"),
+        B_exact_match_mean=("B_exact_match", "mean"),
+        B_exact_match_std=("B_exact_match", "std"),
+        A_nll_mean=("A_nll", "mean"),
+        A_nll_std=("A_nll", "std"),
+    )
+)
+
+multiseed_df["passes_both"] = (
+    (multiseed_df["A_exact_match"] >= RETENTION_TARGET)
+    & (multiseed_df["B_exact_match"] >= PLASTICITY_TARGET)
+)
+pass_rates = (
+    multiseed_df
+    .groupby(["replay_fraction", "replay_percent"], as_index=False)
+    .agg(
+        seeds_passing=("passes_both", "sum"),
+        total_seeds=("passes_both", "count"),
+        pass_rate=("passes_both", "mean"),
+    )
+)
+
+print(multiseed_summary.to_string(index=False))
+print(pass_rates.to_string(index=False))
+```
+
+```output
+ replay_percent  A_exact_match_mean  A_exact_match_std  B_exact_match_mean  A_nll_mean
+            1.0            0.187500           0.095470                 1.0    1.859765
+            3.0            0.590278           0.146329                 1.0    0.583949
+            5.0            0.868056           0.073164                 1.0    0.286983
+            7.0            0.888889           0.012028                 1.0    0.091133
+           10.0            0.951389           0.043368                 1.0    0.032301
+
+ replay_percent  seeds_passing  total_seeds  pass_rate
+            1.0              0            3   0.000000
+            3.0              0            3   0.000000
+            5.0              2            3   0.666667
+            7.0              3            3   1.000000
+           10.0              3            3   1.000000
+```
+
+<MetricBars
+  ariaLabel="Task A Exact Match trung bình theo tỷ lệ replay"
+  items={[
+    { label: 'Replay 1%', value: 18.75, valueLabel: '18,75%', tone: 'danger' },
+    { label: 'Replay 3%', value: 59.03, valueLabel: '59,03%', tone: 'neutral' },
+    { label: 'Replay 5%', value: 86.81, valueLabel: '86,81%', tone: 'primary' },
+    { label: 'Replay 7%', value: 88.89, valueLabel: '88,89%', tone: 'success' },
+    { label: 'Replay 10%', value: 95.14, valueLabel: '95,14%', tone: 'success' },
+  ]}
+/>
+
+<ComparisonMatrix
+  ariaLabel="Độ ổn định của các tỷ lệ replay qua ba seed"
+  columns={['A mean ± std', 'B mean', 'Seed qua cả hai gate']}
+  rows={[
+    { label: '1%', values: ['18,75% ± 9,55%', '100%', '0 / 3'] },
+    { label: '3%', values: ['59,03% ± 14,63%', '100%', '0 / 3'] },
+    { label: '5%', values: ['86,81% ± 7,32%', '100%', '2 / 3'] },
+    { label: '7%', values: ['88,89% ± 1,20%', '100%', '3 / 3'], highlightedColumn: 2 },
+    { label: '10%', values: ['95,14% ± 4,34%', '100%', '3 / 3'] },
+  ]}
+/>
+
+Kết quả cho thấy vùng chuyển tiếp xuất hiện quanh `5–7%`, nhưng gọi chính xác `5%` là một ngưỡng ổn định sẽ quá mạnh: ở `5%` chỉ có `2/3` seed qua cả hai gate. Trong các tỷ lệ đã thử, **`7%` là mức nhỏ nhất qua gate ở cả ba seed**.
+
+<LessonNote>
+  Gate `80% A / 90% B` là tiêu chí giảng dạy của thí nghiệm này, không phải chuẩn chung của Continual Learning. Ba seed giúp kiểm tra robustness ban đầu, chưa đủ để tuyên bố một ngưỡng phổ quát.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={13}>
+
+## Notebook và paper
+
+Notebook và paper dùng cách thí nghiệm khác nhau, nên không thể so sánh trực tiếp các tỷ lệ. Tuy vậy, cả hai cùng cho thấy: **học task mới có thể làm model quên task cũ, còn replay giúp giảm mức quên đó.**
+
+<EvidenceCards
+  ariaLabel="Các con số chính khi đối chiếu notebook với paper"
+  items={[
+    {
+      eyebrow: 'Notebook · Không replay',
+      value: '100% → 0%',
+      label: 'Điểm Task A: trước và sau khi học Task B',
+      insight: 'Model học được B, nhưng kết quả trên A giảm từ 100% xuống không còn câu nào đúng.',
+      tone: 'danger',
+    },
+    {
+      eyebrow: 'Paper · Không replay',
+      value: '≈100% → ≈10%',
+      label: 'Điểm Task cũ khi bắt đầu học Task mới',
+      insight: 'Chỉ sau khoảng 150 bước cập nhật, điểm task cũ đã giảm rất mạnh; không cần chờ train xong mới thấy forgetting.',
+      tone: 'danger',
+    },
+    {
+      eyebrow: 'Notebook · Replay 10%',
+      value: '75% / 100%',
+      label: 'Điểm Task A / Task B sau khi train',
+      insight: 'Khi giữ lại 10% dữ liệu A, model vẫn học được toàn bộ B và giữ được 75% kết quả của A.',
+      tone: 'success',
+    },
+    {
+      eyebrow: 'Paper · Replay 20%',
+      value: '76,93% / 99,87%',
+      label: 'Điểm Task cũ / Task mới sau khi train',
+      insight: 'Dữ liệu cũ nhắc model cách trả lời Task cũ, trong khi kết quả Task mới vẫn gần như không giảm.',
+      tone: 'primary',
+    },
+  ]}
+/>
+
+<LessonNote>
+  **Điểm cần nhớ:** nếu chỉ train trên dữ liệu mới, model có thể quên task cũ rất nhanh. Trộn lại một phần dữ liệu cũ tạo ra tín hiệu nhắc model giữ cách xử lý task trước đó.
+</LessonNote>
+
+Nguồn: [Zheng et al., *Spurious Forgetting in Continual Learning of Language Models*, ICLR 2025](https://arxiv.org/pdf/2501.13453).
+
+</MdxPage>
+
+<MdxPage page={14}>
+
+## Paper còn phân tích gì?
+
+Bốn kết quả dưới đây cho thấy paper còn đi xa hơn thí nghiệm replay trong notebook:
+
+<EvidenceCards
+  ariaLabel="Các kết quả nổi bật trong paper chưa được notebook mô phỏng"
+  insightLabel="Insight:"
+  singleColumn={true}
+  items={[
+    {
+      eyebrow: '1 · Forgetting xảy ra sớm',
+      value: '≈10% sau 150 bước',
+      insight: 'Do tính chất greedy của Gradient Descent, trong những bước đầu, gradient từ task mới rất lớn. Khi không có dữ liệu cũ để giữ hướng ngược lại, kiến thức cũ bị phá rất nhanh dù kiến thức nền chưa chắc đã biến mất.',
+      tone: 'danger',
+    },
+    {
+      eyebrow: '2 · Khả năng khôi phục sau replay',
+      value: '≈100% new, ≈96% old',
+      insight: 'Model chỉ học lại trên một nửa dữ liệu task cũ nhưng vẫn trả lời đúng gần như toàn bộ nửa còn lại. Cần nhận xét rằng nếu kiến thức cũ đã bị xóa sạch, khả năng khôi phục trên các mẫu không dùng để học lại sẽ khó đạt mức này. Điểm giảm vì thế chủ yếu phản ánh việc model mất cách truy xuất đúng, không phải do quên.',
+      tone: 'success',
+    },
+    {
+      eyebrow: '3 · Freeze embedding và các layer đầu',
+      value: '44,22% -> 99,93%',
+      insight: '“Tầng dưới” được tính từ phía input: token embedding và các Transformer block đầu tiên. Khi học Task mới, paper giữ nguyên tham số ở những tầng này và chỉ cập nhật các block phía trên cùng output head. Cách làm này giúp tránh phá alignment cũ, nhưng freeze quá nhiều tầng sẽ khiến model khó học Task mới.',
+      tone: 'accent',
+    },
+    {
+      eyebrow: '4 · Kiểm tra các bộ dữ liệu khác',
+      value: '4 bối cảnh',
+      label: 'Các bài toán LLM gần thực tế hơn',
+      insight: 'Hiện tượng tương tự xuất hiện trong safety alignment, instruction tuning, knowledge editing và học thêm từng mẫu mới. Điều này cho thấy kết quả không chỉ là đặc điểm riêng của bộ dữ liệu tiểu sử mô phỏng, dù chưa thể xem là đúng với mọi pipeline CL.',
+      tone: 'neutral',
+    },
+  ]}
+/>
+
+Từ đó, có bốn câu hỏi mà notebook hiện tại chưa trả lời được:
+
+<CourseCards
+  ariaLabel="Các insight của paper chưa được mô phỏng trong notebook"
+  exampleLabel="Điều paper gợi ý"
+  takeawayLabel="Cần làm gì để kiểm tra?"
+  spotlight={true}
+  singleColumn={true}
+  items={[
+    {
+      title: 'Forgetting xảy ra khi nào?',
+      example: 'Task cũ giảm mạnh ngay trong những bước cập nhật đầu tiên, thay vì giảm đều trong suốt quá trình học Task mới.',
+      takeaway: 'Đo điểm sau từng nhóm bước train, thay vì chỉ so sánh checkpoint trước và sau.',
+    },
+    {
+      title: 'Mất kiến thức hay mất cách trả lời?',
+      example: 'Điểm giảm chưa đủ để kết luận kiến thức nền đã mất. Có thể model vẫn giữ kiến thức nhưng không còn truy xuất đúng khi làm task cũ.',
+      takeaway: 'Cho model học lại trên một phần Task cũ, rồi kiểm tra bằng phần Task cũ khác mà model chưa nhìn thấy trong bước khôi phục.',
+    },
+    {
+      title: 'Nên freeze layer nào?',
+      example: 'Paper freeze token embedding và các Transformer block đầu tiên gần input, không phải các layer cuối gần output.',
+      takeaway: 'Thử freeze số lượng block đầu khác nhau, giữ các block phía trên có thể train, rồi đo đồng thời khả năng giữ Task cũ và học Task mới.',
+    },
+    {
+      title: 'Kết quả có tổng quát không?',
+      example: 'Dữ liệu tiểu sử mô phỏng giúp kiểm soát thí nghiệm, nhưng chưa đại diện cho mọi cách LLM được cập nhật ngoài thực tế.',
+      takeaway: 'Lặp lại thí nghiệm trên nhiều loại cập nhật khác nhau, từ instruction tuning đến knowledge editing.',
+    },
+  ]}
+/>
+
+<LessonNote>
+  Từ lab này, ta chỉ nên kết luận: **fine-tune lần lượt làm model quên Task A trong thí nghiệm này, và replay giúp giảm mức quên đó**. Muốn kết luận “kiến thức vẫn còn, chỉ mất cách truy xuất”, ta cần thêm thí nghiệm khôi phục và các phân tích sâu hơn như paper.
+</LessonNote>
+
+</MdxPage>

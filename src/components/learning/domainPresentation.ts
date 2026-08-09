@@ -8,6 +8,7 @@ import {
   Eye,
   MessageSquareText,
   Network,
+  RefreshCw,
   Route,
   ServerCog,
   ShieldCheck,
@@ -24,6 +25,7 @@ export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   cv: Eye,
   nlp: MessageSquareText,
   'llm-ai-engineering': Cpu,
+  'continual-learning-llm': RefreshCw,
   'mlops-llmops-production-systems': ServerCog,
   'ai-system-design': Network,
   'ai-ethics-safety-governance': ShieldCheck,
@@ -78,6 +80,12 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     glow: 'bg-[#EFF5FF]/38',
     icon: 'bg-[#EFF4FF] text-[#3C5680]',
     accent: 'bg-[#607CA8]',
+  },
+  'continual-learning-llm': {
+    visual: 'bg-[#B4C6E7]',
+    glow: 'bg-[#F0F4FF]/40',
+    icon: 'bg-[#EFF4FF] text-[#3B5480]',
+    accent: 'bg-[#5B78A8]',
   },
   'mlops-llmops-production-systems': {
     visual: 'bg-[#A7C8CF]',

@@ -1,0 +1,33 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'knowledge-update-metrics',
+  locale: 'vi',
+  title: "FUAR và X-Delta",
+  headings: ['Tách quên, cập nhật và tiếp thu tri thức'],
+  keywords: ['Continual Learning', 'LLM', 'Metric Cập nhật Tri thức: FUAR và X-Delta'],
+  conceptIds: [
+  "fuar-purpose",
+  "fuar-interpretation",
+  "x-delta-purpose",
+  "knowledge-update-tradeoff"
+],
+}
+
+## Tách quên, cập nhật và tiếp thu tri thức
+
+Trong temporal CL, “giữ mọi fact cũ” là mục tiêu sai vì một số fact phải được cập nhật. FUAR và X-Delta bổ sung góc nhìn mà OP dễ làm mờ.
+
+<BlockMath formula="\mathrm{FUAR}=\frac{\text{Forgotten}}{\text{Updated}+\text{Acquired}}" />
+
+FUAR thấp nghĩa là lượng tri thức quên nhỏ so với lượng cập nhật và tiếp thu. X-Delta theo dõi thay đổi so với base model trên ba nhóm: general ability, instruction following và safety.
+
+<ComparisonMatrix
+  ariaLabel="Vai trò FUAR và X-Delta"
+  columns={['FUAR', 'X-Delta']}
+  rows={[
+    { label: 'Câu hỏi', values: ['Quên bao nhiêu so với giá trị update?', 'Mỗi nhóm năng lực đổi bao nhiêu so với baseline?'] },
+    { label: 'Cần tách', values: ['Forgotten / Updated / Acquired', 'General / Instruction / Safety'] },
+  ]}
+/>
+
+Nguồn: [Shi et al., §5 và Appendix B.2](https://arxiv.org/html/2404.16789v3#S5).

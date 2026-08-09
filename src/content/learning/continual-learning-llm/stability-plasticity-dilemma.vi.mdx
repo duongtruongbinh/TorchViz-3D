@@ -1,0 +1,78 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'stability-plasticity-dilemma',
+  locale: 'vi',
+  title: "Stability–Plasticity",
+  headings: [
+    'Giữ năng lực cũ mà vẫn học được điều mới',
+    'Trade-off thay đổi theo bối cảnh',
+  ],
+  keywords: ['Continual Learning', 'LLM', 'Bài toán Stability–Plasticity'],
+  conceptIds: [
+  "stability-definition",
+  "plasticity-definition",
+  "stability-plasticity-tradeoff"
+],
+  pageCount: 2,
+}
+
+<MdxPage page={0}>
+
+## Giữ năng lực cũ mà vẫn học được điều mới
+
+**Stability** là khả năng giữ hiệu năng trên tri thức đã học. **Plasticity** là khả năng thay đổi đủ nhanh để tiếp thu dữ liệu hoặc tác vụ mới. Continual Learning thất bại nếu chỉ tối ưu một phía: mô hình quá ổn định sẽ không học được, còn mô hình quá dẻo sẽ ghi đè tri thức cũ.
+
+<BlockMath formula="\mathcal{L}_{\mathrm{CL}}(\theta)=\underbrace{\mathcal{L}_{\mathrm{retain}}(\theta)}_{\text{stability}}+\lambda\,\underbrace{\mathcal{L}_{\mathrm{new}}(\theta)}_{\text{plasticity}}" />
+
+Đây là một **khung trực giác**, không phải một thuật toán duy nhất. Vế <InlineMath formula="\mathcal{L}_{\mathrm{retain}}" /> đại diện cho ràng buộc giữ tri thức cũ, có thể đến từ replay, distillation hoặc regularization; vế <InlineMath formula="\mathcal{L}_{\mathrm{new}}" /> thúc đẩy mô hình học dữ liệu mới. Hệ số <InlineMath formula="\lambda" /> quá nhỏ nghiêng về stability và có thể underfit dữ liệu mới, còn quá lớn nghiêng về plasticity và dễ quên.
+
+<LessonNote>
+  Accuracy trên task mới tăng chưa đủ để kết luận hệ thống học tốt. Nếu task cũ giảm mạnh, mô hình chỉ đổi năng lực chứ chưa học liên tục.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Trade-off thay đổi theo bối cảnh
+
+Trade-off stability–plasticity không cố định. Nó thay đổi theo bốn yếu tố:
+
+1. **Độ lệch phân phối** giữa dữ liệu cũ và mới.
+2. **Độ dài chuỗi cập nhật** mà mô hình phải trải qua.
+3. **Quyền truy cập dữ liệu cũ** trong mỗi lần cập nhật.
+4. **Chi phí sai lệch của từng năng lực** nếu mô hình quên hoặc học chưa đủ.
+
+Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật (stage).
+
+<CourseCards
+  ariaLabel="Bốn yếu tố làm thay đổi trade-off stability–plasticity"
+  exampleLabel="Ví dụ"
+  takeawayLabel="Tác động lên trade-off"
+  items={[
+    {
+      title: 'Độ lệch phân phối',
+      example: 'Một LLM ban đầu được pre-train chủ yếu trên trang web phổ thông, sách và văn bản kiểu Wikipedia, sau đó tiếp tục học báo cáo X-quang chuyên ngành.',
+      takeaway: 'Dữ liệu mới càng khác dữ liệu cũ, mô hình càng cần nhiều plasticity để thích nghi; đồng thời vẫn phải kiểm tra khả năng duy trì năng lực ngôn ngữ tổng quát.',
+    },
+    {
+      title: 'Độ dài chuỗi cập nhật',
+      example: 'Mỗi tháng, model học một lô dữ liệu mới và được cập nhật một lần. Sau 24 tháng, model đã trải qua 24 giai đoạn nối tiếp; các lần cập nhật sau có thể làm suy giảm năng lực học ở những tháng đầu.',
+      takeaway: 'Chuỗi cập nhật càng dài, forgetting càng có thể tích lũy; vì vậy phải kiểm tra khả năng duy trì sau từng giai đoạn.',
+    },
+    {
+      title: 'Quyền truy cập dữ liệu cũ',
+      example: 'Replay là trộn một số mẫu dữ liệu cũ vào dữ liệu đang học để model ôn lại. Nếu chính sách riêng tư cấm lưu raw sample sau mỗi giai đoạn, cách replay trực tiếp này không thể dùng.',
+      takeaway: 'Khi không thể dùng replay trực tiếp, cần chuyển sang các kỹ thuật hợp lệ khác như regularization, distillation hoặc memory được kiểm soát.',
+    },
+    {
+      title: 'Chi phí sai lệch của năng lực',
+      example: 'Một thay đổi nhỏ về văn phong có thể chấp nhận, nhưng suy giảm safety hoặc refusal thì không.',
+      takeaway: 'Năng lực có rủi ro cao cần ưu tiên stability và đặt ngưỡng retention chặt hơn.',
+    },
+  ]}
+/>
+
+Nguồn: [Shi et al., §2.2](https://arxiv.org/html/2404.16789v3#S2.SS2).
+
+</MdxPage>

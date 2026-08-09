@@ -1,0 +1,31 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cpt-effectiveness-efficiency',
+  locale: 'vi',
+  title: "Hiệu quả và chi phí CPT",
+  headings: ['Đánh giá CPT trên hai trục'],
+  keywords: ['Continual Learning', 'LLM', 'Hiệu quả Học và Chi phí của CPT'],
+  conceptIds: [
+  "cpt-effectiveness",
+  "cpt-efficiency",
+  "cpt-objective-tradeoff"
+],
+}
+
+## Đánh giá CPT trên hai trục
+
+Một quy trình CPT tốt phải vừa **effective** — học được phân phối mới mà vẫn giữ năng lực cũ — vừa **efficient** — đạt kết quả đó với data, FLOPs và thời gian cập nhật hợp lý.
+
+<ComparisonMatrix
+  ariaLabel="Hai trục đánh giá Continual Pre-training"
+  columns={['Effectiveness', 'Efficiency']}
+  rows={[
+    { label: 'Câu hỏi', values: ['Mô hình học và giữ được gì?', 'Đổi bao nhiêu tài nguyên để đạt kết quả?'] },
+    { label: 'Tín hiệu', values: ['New/old/downstream performance', 'Tokens, FLOPs, wall time, memory'] },
+    { label: 'Failure mode', values: ['Học mới nhưng quên cũ', 'Kết quả tốt nhưng chi phí gần retraining'] },
+  ]}
+/>
+
+Chọn một tập con **mới lạ và đa dạng** có thể giảm compute, nhưng chính sách chọn dữ liệu phải được kiểm tra trên retention. Tiết kiệm token mà làm mất tri thức nền không phải là tối ưu hiệu quả.
+
+Nguồn: [Shi et al., §4.1.1–4.1.2](https://arxiv.org/html/2404.16789v3#S4.SS1.SSS1).

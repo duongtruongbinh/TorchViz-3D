@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-07-23
+updated: 2026-08-09
 ---
 
 # Learning Lab
@@ -21,10 +21,11 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 12 domains, 82 tracks, and 652 lesson nodes. Fifty-three
-Vietnamese-first lessons have authored content: forty-nine in `llm-ai-engineering`
-and four tagged exercise lessons in `cv`. The other 599 nodes are navigable
-placeholders and render one shared localized “content in progress” message.
+The catalog contains 13 domains, 91 tracks, and 678 lesson nodes. One hundred
+forty-two Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, seventy-six in `continual-learning-llm`, thirteen in
+`linear-algebra`, and four tagged exercise lessons in `cv`. The other 536 nodes
+are navigable placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
 
 The authored LLM lessons are:
@@ -83,6 +84,13 @@ Their authored prose, paging data, quizzes, references, and structured visual
 inputs live in locale-specific MDX. LLM-specific visual and stateful components
 remain React code under the LLM domain package. English UI currently falls back
 to the Vietnamese lesson source until an English MDX file is authored.
+
+The Continual Learning course contains 38 adjacent Theory/Quiz pairs across seven
+tracks. Each pair is defined once in its domain TOC and flattened into the
+canonical lesson order. Both nodes publish atomically and carry the same stable
+`conceptIds`; the quiz question IDs must equal that concept set exactly. This
+prevents theory-only claims, orphan quizzes, and assessment content that was not
+taught by its paired lesson.
 
 The authored CV exercise lessons are:
 
@@ -167,7 +175,7 @@ outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 599
+published MDX. The shared placeholder body is not indexed, preventing 536
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -195,7 +203,7 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
-| `src/content/learning/index.ts` | Concrete catalog assembly over the twelve domain TOCs. |
+| `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
 | `src/core/learning/materializeCatalog.ts` | Pure catalog construction and invariant validation. |
@@ -230,6 +238,17 @@ screens to four or five columns on wider desktops without horizontal overflow.
 quizzes use spacing and dividers rather than nested decorative panels. Runtime
 lesson media belongs under `src/assets/learning/<domain>/`; `docs/assets/` is
 only for documentation artifacts.
+
+Shared authored visuals are semantic and data-driven. `ConceptFlow` renders
+ordered stages, `ComparisonMatrix` renders exact cross-field comparisons, and
+`ConceptSpectrum` renders an ordered constraint/trade-off continuum.
+`CourseCards` renders compact peer examples with an explicit example and
+takeaway inside each semantic card. They live in `learningMdxComponents.tsx`,
+are registered in the global MDX allowlist, and accept only static MDX data.
+Domain lessons must reuse these grammars instead of shipping look-alike local
+card grids. `LessonImage` resolves a relative path
+under `src/assets/learning/` through a generic asset glob, so the shared renderer
+does not contain domain-specific asset keys.
 
 System copy, controls, empty states, filter labels, and language-toggle text
 belong in `src/lib/localization.ts`. Catalog metadata and lesson content follow
@@ -271,6 +290,17 @@ remain green so progress continues to take precedence.
 - Missing content uses the shared localized placeholder and has no authored
   theory, interaction, or practice descriptor.
 - Authored lesson behavior enters through locale MDX and the generic registry.
+- Published Continual Learning nodes form adjacent Theory/Quiz pairs with equal
+  navigation and content status. Theory `conceptIds`, quiz `conceptIds`, and
+  quiz question IDs are identical and unique within the pair.
+- Continual Learning theory/lab titles remain compact in both locales, while
+  every adjacent assessment node is labeled `Quiz`; descriptive assessment
+  context lives in the question titles inside that node.
+- Continual Learning quizzes distribute correct options across A–D at both the
+  quiz and domain levels, and reject predictable ascending or descending
+  three-answer runs such as A–B–C or D–C–B. Single-choice questions have exactly
+  one correct option; distractors remain plausible alternatives from the taught
+  concept's semantic neighborhood rather than unrelated filler.
 - Review membership is derived from `published` lesson nodes tagged `exercise`;
   there is no parallel review or practice content record.
 - Workspace exercise handoff resolves a React-free catalog entry point and opens

@@ -1,0 +1,32 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'experience-replay-buffers',
+  locale: 'vi',
+  title: "Experience Replay",
+  headings: ['Đưa ràng buộc lịch sử trở lại batch hiện tại'],
+  keywords: ['Continual Learning', 'LLM', 'Experience Replay và Bộ nhớ Đệm'],
+  conceptIds: [
+  "episodic-buffer",
+  "mixed-batch-objective",
+  "buffer-budget",
+  "replay-risk"
+],
+}
+
+## Đưa ràng buộc lịch sử trở lại batch hiện tại
+
+Experience replay lưu một episodic buffer nhỏ từ các stage trước và trộn nó với dữ liệu hiện tại. Nhờ đó, gradient mới vẫn nhận tín hiệu trực tiếp từ những năng lực cần giữ.
+
+<ConceptFlow
+  ariaLabel="Vòng lặp Experience Replay"
+  items={[
+    { title: 'Observe', detail: 'Nhận dữ liệu stage mới' },
+    { title: 'Sample history', detail: 'Lấy mẫu từ episodic buffer' },
+    { title: 'Mix and update', detail: 'Tối ưu batch mới + cũ' },
+    { title: 'Refresh buffer', detail: 'Cập nhật đại diện dưới budget cố định' },
+  ]}
+/>
+
+Buffer budget gồm storage, I/O, compute và quyền lưu dữ liệu. Replay cũng có rủi ro: sampling bias, overfitting vào buffer nhỏ, lộ dữ liệu nhạy cảm và giảm tốc độ cập nhật. Vì vậy, kích thước buffer phải đi kèm chính sách chọn, xóa và audit.
+
+Nguồn: [Shi et al., §2.2.2 và §6.3](https://arxiv.org/html/2404.16789v3#S6.SS3).

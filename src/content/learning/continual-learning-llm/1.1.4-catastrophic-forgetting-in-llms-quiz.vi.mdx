@@ -1,0 +1,74 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'catastrophic-forgetting-in-llms-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+    'Bản chất của Catastrophic Forgetting',
+    'Nguyên nhân gây ra Catastrophic Forgetting',
+    'Thách thức đặc thù ở LLM',
+    'Diễn biến Accuracy khi xảy ra Catastrophic Forgetting',
+  ],
+  keywords: ['Catastrophic Forgetting', 'LLM', 'Fine-tuning', 'Quiz', 'Continual Learning'],
+  conceptIds: ['catastrophic-forgetting-definition', 'why-new-task-causes-forgetting', 'llm-cl-unique-challenges', 'pattern-and-accuracy-behavior'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="catastrophic-forgetting-in-llms-quiz" questions={[
+  {
+    id: 'catastrophic-forgetting-definition',
+    title: 'Bản chất của Catastrophic Forgetting',
+    prompt: 'Hiện tượng Catastrophic Forgetting xảy ra khi nào trong quá trình huấn luyện LLM?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Khi fine-tune LLM cho nhiệm vụ/domain mới khiến hiệu suất trên các domain kiến thức đã học trước đó bị suy giảm.', isCorrect: true },
+      { id: 'opt2', label: 'Khi hiệu năng stage mới giảm vì mô hình giữ quá chặt các tham số quan trọng của stage cũ.' },
+      { id: 'opt3', label: 'Khi cả hiệu năng cũ và mới cùng giảm do dữ liệu đánh giá thay đổi phân phối.' },
+      { id: 'opt4', label: 'Khi mô hình giữ task cũ nhưng không tạo được positive forward transfer sang task mới.' },
+    ],
+    success: 'Chính xác! Catastrophic Forgetting là hiện tượng suy giảm hiệu suất trên kiến thức cũ khi mô hình được học kiến thức hoặc nhiệm vụ mới.',
+    error: 'Chưa chính xác. Hãy nhớ lại định nghĩa cốt lõi của Catastrophic Forgetting.',
+  },
+  {
+    id: 'why-new-task-causes-forgetting',
+    title: 'Nguyên nhân gây ra Catastrophic Forgetting',
+    prompt: 'Vì sao học tác vụ hoặc domain dữ liệu mới lại dễ gây ra hiện tượng catastrophic forgetting?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì dữ liệu mới luôn có nhiều token hơn nên gradient của dữ liệu cũ bằng không.' },
+      { id: 'opt3', label: 'Vì distribution shift chỉ làm thay đổi tokenizer chứ không ảnh hưởng representation.' },
+      { id: 'opt2', label: 'Vì gradient của dữ liệu mới cập nhật các trọng số cũng đang mã hóa tri thức cũ mà không có đủ tín hiệu bảo tồn.', isCorrect: true },
+      { id: 'opt4', label: 'Vì overfitting stage mới chỉ làm giảm generalization trên stage mới, không tác động stage cũ.' },
+    ],
+    success: 'Chính xác! Việc tối ưu trọng số trên dữ liệu mới mà không có cơ chế ràng buộc sẽ làm biến đổi các tham số chịu trách nhiệm cho tri thức cũ.',
+    error: 'Chưa đúng. Hãy chú ý tới tác động của việc cập nhật trọng số mô hình.',
+  },
+  {
+    id: 'llm-cl-unique-challenges',
+    title: 'Thách thức đặc thù ở LLM',
+    prompt: 'Yếu tố nào làm cho việc giải quyết Catastrophic Forgetting ở LLM phức tạp hơn so với các mô hình máy học nhỏ truyền thống?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'LLM có output space nhỏ, một training stage và đầy đủ dữ liệu lịch sử để replay.' },
+      { id: 'opt2', label: 'LLM chỉ cần giữ một classifier head nên mọi regression đều dễ cô lập bằng accuracy.' },
+      { id: 'opt4', label: 'LLM luôn có task ID, dữ liệu upstream đầy đủ và benchmark cũ không thay đổi theo thời gian.' },
+      { id: 'opt3', label: 'LLM có quy mô lớn, tri thức rộng, nhiều giai đoạn huấn luyện và chi phí đánh giá lẫn cập nhật cao.', isCorrect: true },
+    ],
+    success: 'Chính xác! Quy mô tham số khổng lồ, tri thức rộng và chi phí tính toán lớn làm cho Continual Learning trên LLM trở thành một thách thức độc đáo.',
+    error: 'Chưa chính xác. Hãy cân nhắc về đặc điểm quy mô và tài nguyên của LLM.',
+  },
+  {
+    id: 'pattern-and-accuracy-behavior',
+    title: 'Diễn biến Accuracy khi xảy ra Catastrophic Forgetting',
+    prompt: 'Trong biểu đồ huấn luyện Naive Fine-Tuning thông thường (khi xảy ra Catastrophic Forgetting), độ chính xác của bài toán cũ (Old Task) diễn biến như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Giảm nhẹ lúc chuyển stage rồi phục hồi dù không có dữ liệu cũ trong loss.' },
+      { id: 'opt4', label: 'Bắt đầu ở mức cao rồi suy giảm mạnh khi thời gian huấn luyện task mới tăng.', isCorrect: true },
+      { id: 'opt2', label: 'Giữ gần như nguyên mức ban đầu trong khi accuracy task mới không tăng.' },
+      { id: 'opt3', label: 'Tăng cùng task mới vì hai gradient luôn cùng hướng trong naive fine-tuning.' },
+    ],
+    success: 'Chính xác! Trong Naive Fine-Tuning, độ chính xác Old Task vốn xuất phát ở mức cao sẽ sụt giảm mạnh khi mô hình cập nhật trọng số để học New Task.',
+    error: 'Chưa đúng. Hãy nhớ lại đường biểu diễn Old Task ở biểu đồ Standard Fine-Tuning.',
+  },
+]} />

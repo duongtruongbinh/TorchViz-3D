@@ -1,0 +1,160 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'controllable-external-memory-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Vai trò external memory",
+  "Write policy",
+  "Read policy",
+  "Provenance",
+  "Memory control"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "external-memory-role",
+  "write-policy",
+  "read-policy",
+  "memory-provenance",
+  "memory-control"
+],
+  pageCount: 5,
+}
+
+<MdxQuiz id="controllable-external-memory-quiz" questions={[
+  {
+    "id": "external-memory-role",
+    "title": "Vai trò external memory",
+    "prompt": "Điểm khác biệt chính của external memory so với chỉ lưu knowledge trong weights là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Mỗi fact mới bắt buộc phải fine-tune toàn bộ backbone trước khi dùng."
+      },
+      {
+        "id": "opt2",
+        "label": "Knowledge có thể được truy xuất, cập nhật và thu hồi ngoài trọng số model.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Store chỉ cache hidden state tạm thời và không có lifecycle policy."
+      },
+      {
+        "id": "opt4",
+        "label": "Mỗi domain phải có một expert riêng nhưng không cần knowledge store."
+      }
+    ],
+    "success": "Tách store giúp cập nhật có kiểm soát.",
+    "error": "Phân biệt parametric và non-parametric memory."
+  },
+  {
+    "id": "write-policy",
+    "title": "Write policy",
+    "prompt": "Quyết định nào thuộc write policy của controllable memory?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Entry nào liên quan nhất với query hiện tại và được xếp hạng cao hơn."
+      },
+      {
+        "id": "opt2",
+        "label": "User nào được quyền đọc kết quả retrieval ở thời điểm inference."
+      },
+      {
+        "id": "opt3",
+        "label": "Model nên decode bao nhiêu token sau khi context đã được retrieve."
+      },
+      {
+        "id": "opt4",
+        "label": "Knowledge nào được ghi, nguồn nào hợp lệ và khi nào thay thế entry cũ.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Write policy kiểm soát chất lượng và conflict.",
+    "error": "Hãy xét điều kiện đưa knowledge vào store."
+  },
+  {
+    "id": "read-policy",
+    "title": "Read policy",
+    "prompt": "Read policy nào vừa hữu ích vừa tôn trọng kiểm soát truy cập?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Retrieve theo relevance đồng thời lọc theo quyền của query hoặc user.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Luôn lấy entry có similarity cao nhất dù user không có quyền đọc."
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ lấy entry mới nhất dù relevance với query thấp."
+      },
+      {
+        "id": "opt4",
+        "label": "Chỉ dùng provenance score mà không xét query hoặc authorization."
+      }
+    ],
+    "success": "Retrieval phải đúng và được phép.",
+    "error": "Không phải mọi entry đều được đọc bởi mọi query."
+  },
+  {
+    "id": "memory-provenance",
+    "title": "Provenance",
+    "prompt": "Provenance của một memory entry chủ yếu hỗ trợ quyết định nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Tăng context length bằng cách lặp lại entry nhiều lần."
+      },
+      {
+        "id": "opt2",
+        "label": "Thay router để chọn adapter phù hợp với task hiện tại."
+      },
+      {
+        "id": "opt3",
+        "label": "Audit nguồn, độ tin cậy và căn cứ cho update hoặc delete entry.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Bỏ access control khi source từng được đánh giá đáng tin."
+      }
+    ],
+    "success": "Provenance giúp memory có thể kiểm chứng và quản trị.",
+    "error": "Hãy nghĩ đến nguồn gốc và vòng đời knowledge."
+  },
+  {
+    "id": "memory-control",
+    "title": "Memory control",
+    "prompt": "Hành động nào biến external memory từ append-only store thành controllable memory?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Chỉ append phiên bản mới và vẫn luôn retrieve mọi phiên bản cũ."
+      },
+      {
+        "id": "opt2",
+        "label": "Update hoặc delete entry đã lỗi thời theo policy có thể audit.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Đóng băng index sau lần build đầu để tránh thay đổi ranking."
+      },
+      {
+        "id": "opt4",
+        "label": "Fine-tune lại toàn bộ model mỗi khi cần thu hồi một fact."
+      }
+    ],
+    "success": "Khả năng thu hồi là phần cốt lõi của control.",
+    "error": "Controllable không chỉ có write và read."
+  }
+]} />

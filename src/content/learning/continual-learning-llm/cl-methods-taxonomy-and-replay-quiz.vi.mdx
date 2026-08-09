@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cl-methods-taxonomy-and-replay-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: ['Ba nhóm giải pháp chính', 'Optimization-based', 'Representation-based'],
+  keywords: ['Continual Learning', 'Replay', 'Regularization', 'Architecture Expansion', 'Optimization', 'Representation', 'Quiz'],
+  conceptIds: ['cl-method-families', 'optimization-based-cl', 'representation-based-cl'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="cl-methods-taxonomy-and-replay-quiz" questions={[
+  {
+    id: 'cl-method-families',
+    title: 'Ba nhóm giải pháp giảm forgetting',
+    prompt: 'Trong các hướng survey đề cập, ba nhóm nào được khóa học triển khai trước thành các bài riêng?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Replay, regularization và architecture.', isCorrect: true },
+      { id: 'opt2', label: 'Replay, tokenization và speculative decoding.' },
+      { id: 'opt3', label: 'Regularization, quantization và model serving.' },
+      { id: 'opt4', label: 'Architecture, prompting và benchmark evaluation.' },
+    ],
+    success: 'Đúng. Replay can thiệp vào dữ liệu, regularization vào objective, còn architecture vào capacity và đường truyền. Survey còn nhắc Optimization và Representation nhưng không phân tích sâu.',
+    error: 'Chưa đúng. Optimization và Representation cũng được survey nhắc tới, nhưng khóa học chưa tách chúng thành bài riêng.',
+  },
+  {
+    id: 'optimization-based-cl',
+    title: 'Optimization-based',
+    prompt: 'Gradient của task mới đang xung đột với hướng quan trọng cho task cũ. Cách xử lý nào thuộc nhóm optimization-based?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Trộn lại các raw sample cũ vào batch huấn luyện hiện tại.' },
+      { id: 'opt2', label: 'Mở thêm một nhánh tham số riêng rồi chọn nhánh bằng task ID.' },
+      { id: 'opt3', label: 'Điều chỉnh hoặc chiếu gradient để loại bớt thành phần gây xung đột trước bước cập nhật.', isCorrect: true },
+      { id: 'opt4', label: 'Ép embedding mới sao chép nguyên giá trị embedding của mọi mẫu cũ.' },
+    ],
+    success: 'Đúng. Optimization-based CL can thiệp trực tiếp vào hướng hoặc quy trình cập nhật tham số.',
+    error: 'Chưa đúng. Hãy chọn phương án tác động trực tiếp lên gradient trước khi optimizer cập nhật model.',
+  },
+  {
+    id: 'representation-based-cl',
+    title: 'Representation-based',
+    prompt: 'Vì sao một representation ổn định và tổng quát có thể giúp giảm forgetting?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì nó bảo đảm mọi task mới đều có cùng phân phối token với task cũ.' },
+      { id: 'opt2', label: 'Vì task mới có thể tái sử dụng feature chung và cần ít thay đổi phá vỡ biểu diễn cũ hơn.', isCorrect: true },
+      { id: 'opt3', label: 'Vì nó loại bỏ hoàn toàn nhu cầu đánh giá retention sau mỗi stage.' },
+      { id: 'opt4', label: 'Vì embedding ổn định đồng nghĩa toàn bộ tham số model bị đóng băng.' },
+    ],
+    success: 'Đúng. Feature tổng quát giúp task mới tái sử dụng cấu trúc đã học thay vì viết lại mạnh representation cũ.',
+    error: 'Chưa đúng. Representation-based CL giảm mức thay đổi cần thiết bằng cách học feature ổn định và dùng chung được.',
+  },
+]} />

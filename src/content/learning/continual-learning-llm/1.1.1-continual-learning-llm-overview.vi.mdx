@@ -1,0 +1,63 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-learning-llm-overview',
+  locale: 'vi',
+  title: "Tổng quan",
+  headings: [
+    'LLM luôn cố định trong khi thế giới liên tục thay đổi',
+    'Vì sao không huấn luyện lại từ đầu?',
+    'Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?',
+    'Mục tiêu của Continual Learning',
+  ],
+  keywords: ['LLM', 'Continual Learning', 'Statically Pre-trained', 'Fine-tune', 'Domain Adaptation'],
+  conceptIds: ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## LLM luôn cố định trong khi thế giới liên tục thay đổi
+
+Large Language Model thường được tiền huấn luyện (pre-training) trên một snapshot dữ liệu cố định. Sau khi huấn luyện kết thúc, tham số và tri thức của mô hình không được tự động cập nhật trong khi dữ liệu, tính chất bài toán và nhu cầu sử dụng tiếp tục thay đổi.
+
+<LessonImage assetPath="continual-learning-llm/01-continual-learning-static-snapshot.png" alt="Một LLM bị khóa tại snapshot T0 trong khi tri thức, domain và task tiếp tục thay đổi từ T1 đến T3" caption="Checkpoint tĩnh chỉ phản ánh dữ liệu tại T0; khoảng cách tri thức mở rộng khi thế giới tiếp tục thay đổi." />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Vì sao không huấn luyện lại từ đầu?
+
+Huấn luyện lại từ đầu trên toàn bộ dữ liệu cũ và mới là cách làm đơn giản nhưng thường quá tốn chi phí tính toán và thời gian. Thách thức cốt lõi là dữ liệu lịch sử thường bị giới hạn, trong khi mô hình LLM hiện tại quá lớn và trải qua nhiều stage như pre-training, domain adaptation và fine-tuning. Mỗi bản cập nhật mới vì vậy phải cân bằng giữa việc tiếp thu năng lực mới (acquisition), giữ lại năng lực cũ (retention) và chi phí tính toán (cost).
+
+Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ, rẻ để truy cập và đủ compute để huấn luyện lại, **joint retraining hoặc full replay** vẫn là baseline đầu tiên nên được báo cáo. Việc tìm kiếm các hướng đi khác rất quan trọng khi một hoặc nhiều điều kiện này không còn khả thi.
+
+<LessonImage assetPath="continual-learning-llm/01-continual-learning-update-tradeoff.png" alt="So sánh full retraining với continual update và tam giác cân bằng acquisition, retention, cost" caption="Continual update giảm nhu cầu xử lý lại toàn bộ lịch sử, nhưng vẫn phải cân bằng học mới, giữ cũ và chi phí." />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?
+
+Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hiện tại rồi fine-tune trên dữ liệu mới. Cách này rẻ hơn, nhưng nếu lần cập nhật chỉ chứa dữ liệu mới thì hàm loss cũng chỉ đánh giá mô hình trên dữ liệu mới. Mô hình không nhận được tín hiệu nào cho biết những năng lực cũ nào cần được giữ lại.
+
+<LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-forgetting.png" alt="Sơ đồ ba bước: model đang giữ Task A, fine-tune với loss chỉ đo Task B, sau đó Task B tăng nhưng Task A giảm" caption="Khi loss chỉ nhìn Task B, mọi cập nhật đều phục vụ B; không có tín hiệu từ dữ liệu cũ để bảo vệ năng lực A." />
+
+<LessonNote>
+  Đây là vấn đề forgetting cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Chúng ta sẽ phân tích kỹ hơn ở phần Catastrophic Forgetting phía sau.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Mục tiêu của Continual Learning
+
+Do vậy, mục tiêu của Continual Learning (CL) là thay thế vòng retraining đó bằng chuỗi update liên tục: học kiến thức hoặc task mới trong khi giữ hiệu năng trên những năng lực cũ còn giá trị. Động lực để phát triển hướng này vẫn là dựa trên cách con người học tập (Lifelong Learning) và bổ sung kiến thức mới (Incremental Learning), được minh họa ở hình bên dưới. Chúng ta sẽ nói rõ hơn khái niệm này ở những bài sau.
+
+<LessonImage assetPath="continual-learning-llm/01-continual-learning-llm-overview.png" alt="Minh họa Continual Learning ở Con người và LLM" caption="Sơ đồ so sánh quá trình tích lũy kỹ năng ở con người với quá trình thích ứng tri thức nối tiếp ở LLM." />
+
+Nguồn: [Shi et al., §1](https://arxiv.org/html/2404.16789v3#S1).
+
+</MdxPage>

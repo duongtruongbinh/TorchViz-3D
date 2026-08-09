@@ -1,0 +1,31 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'domain-adaptive-pretraining',
+  locale: 'vi',
+  title: "Domain-Adaptive Pre-training",
+  headings: ['Chuyên biệt hóa bằng corpus không gán nhãn'],
+  keywords: ['Continual Learning', 'LLM', 'Domain-Adaptive Pre-training'],
+  conceptIds: [
+  "dap-purpose",
+  "dap-position-in-pipeline",
+  "dap-domain-data"
+],
+}
+
+## Chuyên biệt hóa bằng corpus không gán nhãn
+
+Domain-Adaptive Pre-training (DAP) tiếp tục pre-train base model trên văn bản không gán nhãn của một domain trước khi fine-tuning downstream. Mục tiêu là đưa vocabulary, phong cách và tri thức chuyên ngành vào representation của mô hình.
+
+<ConceptFlow
+  ariaLabel="Vị trí của DAP trong pipeline LLM"
+  items={[
+    { title: 'Base model', detail: 'Năng lực tổng quát' },
+    { title: 'DAP', detail: 'Corpus không gán nhãn của domain' },
+    { title: 'Fine-tuning', detail: 'Dữ liệu gán nhãn của task' },
+    { title: 'Deployment', detail: 'Đánh giá domain và general ability' },
+  ]}
+/>
+
+DAP là bài toán Continual Learning khi domain performance tăng nhưng general ability có nguy cơ giảm. Vì vậy, checkpoint sau DAP phải được đánh giá trên cả benchmark chuyên ngành lẫn tập giữ năng lực nền.
+
+Nguồn: [Shi et al., §4.2](https://arxiv.org/html/2404.16789v3#S4.SS2).

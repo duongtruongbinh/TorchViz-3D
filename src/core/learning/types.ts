@@ -6,6 +6,7 @@ export type LearningDomainId =
   | 'cv'
   | 'nlp'
   | 'llm-ai-engineering'
+  | 'continual-learning-llm'
   | 'mlops-llmops-production-systems'
   | 'ai-system-design'
   | 'ai-ethics-safety-governance'

@@ -1,0 +1,51 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cl-methods-taxonomy-and-replay',
+  locale: 'vi',
+  title: "Nhóm giải pháp giảm quên",
+  headings: ['Các nhóm giải pháp giảm forgetting'],
+  keywords: ['Continual Learning', 'Replay', 'Regularization', 'Architecture', 'Optimization', 'Representation'],
+  conceptIds: ['cl-method-families', 'optimization-based-cl', 'representation-based-cl'],
+}
+
+## Các nhóm giải pháp giảm forgetting
+
+Sau khi biết forgetting xảy ra như thế nào, ta có thể gom các giải pháp đầu tiên thành ba nhóm dựa trên **nơi chúng đưa tín hiệu bảo tồn vào quá trình học**:
+
+<ComparisonMatrix
+  ariaLabel="So sánh ba nhóm giải pháp giảm forgetting"
+  columns={['Điểm can thiệp', 'Tín hiệu bảo tồn']}
+  rows={[
+    { label: 'Replay', values: ['Dữ liệu huấn luyện', 'Mẫu cũ xuất hiện lại trong batch'] },
+    { label: 'Regularization', values: ['Hàm mục tiêu', 'Phạt thay đổi tham số quan trọng'] },
+    { label: 'Architecture', values: ['Tham số và đường truyền', 'Cô lập hoặc mở rộng capacity'] },
+  ]}
+/>
+
+Survey còn đề cập hai hướng khác:
+
+<CourseCards
+  ariaLabel="Hai hướng Continual Learning được survey đề cập ngắn"
+  exampleLabel="Ý tưởng cốt lõi"
+  takeawayLabel="Ví dụ trực quan"
+  items={[
+    {
+      title: 'Optimization-based',
+      example: 'Can thiệp trực tiếp vào cách model cập nhật: điều chỉnh hoặc chiếu gradient của task mới để bước cập nhật ít xung đột với những hướng quan trọng cho task cũ.',
+      takeaway: 'Nếu gradient mới đang kéo tham số theo hướng làm tăng loss cũ, thuật toán có thể loại bỏ phần gradient gây xung đột trước khi optimizer cập nhật model.',
+    },
+    {
+      title: 'Representation-based',
+      example: 'Học biểu diễn đủ ổn định và tổng quát để nhiều task dùng chung, nhờ đó mỗi task mới không phải thay đổi mạnh phần feature đã học.',
+      takeaway: 'Hai báo cáo y khoa cùng ý nghĩa nhưng viết theo văn phong khác nhau vẫn được đưa tới embedding gần nhau; model thích nghi với nguồn mới mà ít phá vỡ feature cũ.',
+    },
+  ]}
+/>
+
+Hai hướng này không được survey về Continual LLM phân tích sâu như ba nhóm phía trên, nên khóa học tạm thời chưa tách chúng thành node riêng.
+
+<LessonNote>
+  Chương 2 sẽ lần lượt đi vào từng nhóm. Ta bắt đầu với Replay: đưa dữ liệu cũ trở lại quá trình học để tạo ràng buộc giữ kiến thức.
+</LessonNote>
+
+Nguồn: [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2) và [Wang et al., §4.3–4.4](https://arxiv.org/abs/2302.00487).

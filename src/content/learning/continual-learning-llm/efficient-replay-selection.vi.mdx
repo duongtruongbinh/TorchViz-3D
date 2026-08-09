@@ -1,0 +1,32 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'efficient-replay-selection',
+  locale: 'vi',
+  title: "Chọn Replay hiệu quả",
+  headings: ['Chi compute cho những mẫu có giá trị retention cao'],
+  keywords: ['Continual Learning', 'LLM', 'Lựa chọn Replay Hiệu quả'],
+  conceptIds: [
+  "replay-efficiency-goal",
+  "sample-value",
+  "compute-budget",
+  "selection-update-loop"
+],
+}
+
+## Chi compute cho những mẫu có giá trị retention cao
+
+Efficient replay không chỉ thu nhỏ buffer; nó phân bổ **số lần phát lại** cho các mẫu có giá trị retention cao dưới cùng compute budget. Giá trị có thể đến từ độ đại diện, mức model sắp quên hoặc xung đột gradient với dữ liệu mới.
+
+<ConceptFlow
+  ariaLabel="Vòng lặp chọn replay hiệu quả"
+  items={[
+    { title: 'Score', detail: 'Ước lượng giá trị của mẫu lịch sử' },
+    { title: 'Select', detail: 'Chọn dưới token/step budget' },
+    { title: 'Replay', detail: 'Trộn vào update hiện tại' },
+    { title: 'Re-score', detail: 'Cập nhật khi model và distribution đổi' },
+  ]}
+/>
+
+Scoring cũng tiêu tốn compute. Một phương pháp chỉ hiệu quả khi chi phí selection cộng với training thấp hơn baseline và retention vẫn giữ được. Hãy báo cáo end-to-end wall time, không chỉ số mẫu replay.
+
+Nguồn: [Shi et al., §6.4](https://arxiv.org/html/2404.16789v3#S6.SS4).

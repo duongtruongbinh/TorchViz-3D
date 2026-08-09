@@ -1,7 +1,7 @@
-import { Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
+import { Check, Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { createContext, isValidElement, useContext, type ComponentType, type ReactElement, type ReactNode } from 'react';
+import { createContext, isValidElement, useContext, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
@@ -109,9 +109,441 @@ export function RequirementCard({ children, icon = 'wrench', name, role }: { chi
   );
 }
 
+type CourseCardItem = {
+  title: string;
+  example: string;
+  takeaway: string;
+};
+
+export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spotlight = false, singleColumn = false }: {
+  ariaLabel: string;
+  exampleLabel: string;
+  takeawayLabel: string;
+  items: CourseCardItem[];
+  spotlight?: boolean;
+  singleColumn?: boolean;
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
+  const titleBand = themeClasses.isLight ? 'bg-[#EAF2FA]' : 'bg-[#A8D4FF]/9';
+  const label = themeClasses.isLight ? 'text-[#205089]' : 'text-[#A8D4FF]';
+  return (
+    <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2')} aria-label={ariaLabel} onMouseLeave={spotlight ? () => setActiveIndex(0) : undefined}>
+      {items.map((item, index) => (
+        <li
+          key={item.title}
+          onMouseEnter={spotlight ? () => setActiveIndex(index) : undefined}
+          className={cx(
+            'grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.24)]',
+            spotlight && (activeIndex === index ? 'opacity-100' : 'opacity-45'),
+            border,
+          )}
+        >
+          <div className={cx('grid min-h-20 grid-cols-[2rem_1fr] items-center gap-3 border-b px-4 py-3', border, titleBand)}>
+            <span className="grid size-8 place-items-center rounded-full bg-[#205089] text-sm font-black text-white dark:bg-[#A8D4FF] dark:text-[#0B1726]">
+              {index + 1}
+            </span>
+            <h3 className={cx('text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</h3>
+          </div>
+          <dl className="grid content-start gap-4 p-4 text-sm leading-6">
+            <div>
+              <dt className={cx('font-black', label)}>{exampleLabel}</dt>
+              <dd className={cx('mt-1', themeClasses.bodyText)}>{item.example}</dd>
+            </div>
+            <div>
+              <dt className={cx('font-black', label)}>{takeawayLabel}</dt>
+              <dd className={cx('mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
+            </div>
+          </dl>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+type EvidenceCardItem = {
+  eyebrow: string;
+  value: string;
+  label: string;
+  insight: string;
+  tone?: 'primary' | 'success' | 'danger' | 'accent' | 'neutral';
+};
+
+const EVIDENCE_CARD_TONES = {
+  primary: {
+    lightBar: 'bg-[#123B68]',
+    darkBar: 'bg-[#65B5F0]',
+    lightValue: 'text-[#0A3A6A]',
+    darkValue: 'text-[#9ED4FF]',
+  },
+  success: {
+    lightBar: 'bg-[#1F6240]',
+    darkBar: 'bg-[#55C989]',
+    lightValue: 'text-[#07351F]',
+    darkValue: 'text-[#86E8B0]',
+  },
+  danger: {
+    lightBar: 'bg-[#963333]',
+    darkBar: 'bg-[#F26F6F]',
+    lightValue: 'text-[#5E1212]',
+    darkValue: 'text-[#FF9D9D]',
+  },
+  accent: {
+    lightBar: 'bg-[#80520D]',
+    darkBar: 'bg-[#E8AF3E]',
+    lightValue: 'text-[#442800]',
+    darkValue: 'text-[#FFD071]',
+  },
+  neutral: {
+    lightBar: 'bg-[#4B6074]',
+    darkBar: 'bg-[#91A7BA]',
+    lightValue: 'text-[#182A3C]',
+    darkValue: 'text-[#D0DCE8]',
+  },
+} as const;
+
+export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = false }: { ariaLabel: string; insightLabel?: string; items: EvidenceCardItem[]; singleColumn?: boolean }) {
+  const themeClasses = useLearningMdxTheme();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
+  const surface = themeClasses.isLight ? 'bg-[#F8FAFC]' : 'bg-[#121A24]/42';
+  return (
+    <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2')} aria-label={ariaLabel} onMouseLeave={() => setActiveIndex(0)}>
+      {items.map((item, index) => {
+        const tone = EVIDENCE_CARD_TONES[item.tone ?? 'primary'];
+        const barColor = themeClasses.isLight ? tone.lightBar : tone.darkBar;
+        const valueColor = themeClasses.isLight ? tone.lightValue : tone.darkValue;
+        return (
+          <li
+            key={`${item.eyebrow}-${item.value}`}
+            onMouseEnter={() => setActiveIndex(index)}
+            className={cx(
+              'relative overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.24)]',
+              activeIndex === index ? 'opacity-100' : 'opacity-45',
+              border,
+              surface,
+            )}
+          >
+            <span className={cx('absolute inset-y-0 left-0 w-1', barColor)} aria-hidden="true" />
+            <div className="grid h-full content-start px-5 py-4 pl-6">
+              <p className={cx('text-[0.68rem] font-black uppercase tracking-[0.14em]', themeClasses.mutedText)}>{item.eyebrow}</p>
+              <strong className={cx('mt-2 block text-[1.75rem] font-black leading-tight tracking-[-0.035em] tabular-nums sm:text-[1.9rem]', valueColor)}>{item.value}</strong>
+              <p className={cx('mt-1 text-sm font-bold leading-5', themeClasses.titleText)}>{item.label}</p>
+              <p className={cx('mt-4 border-t pt-3 text-sm leading-6', border, themeClasses.bodyText)}>
+                {insightLabel && <strong className={cx('mr-1.5 font-black', valueColor)}>{insightLabel}</strong>}
+                {item.insight}
+              </p>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 export function LessonNote({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
-  return <div className={cx('mt-5 grid gap-2 rounded-lg px-4 py-3 text-sm font-semibold leading-6 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5', themeClasses.sectionAccent.note)}>{children}</div>;
+  return (
+    <div
+      className={cx(
+        'mt-5 grid gap-2 rounded-lg border border-[#205089]/20 bg-[#205089]/5 px-4 py-3.5 text-sm font-semibold leading-6 dark:border-[#A8D4FF]/25 dark:bg-[#A8D4FF]/10 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
+        themeClasses.sectionAccent.note
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+const LESSON_IMAGE_MODULES = import.meta.glob('../../assets/learning/**/*.{png,jpg,jpeg,webp,svg}', {
+  eager: true,
+  import: 'default',
+  query: '?url',
+}) as Record<string, string>;
+
+export function LessonImage({ assetPath, alt, caption }: { assetPath: string; alt: string; caption?: string }) {
+  const themeClasses = useLearningMdxTheme();
+  const normalizedPath = assetPath.replace(/^\/+/, '');
+  const src = Object.entries(LESSON_IMAGE_MODULES).find(([modulePath]) => modulePath.endsWith(`/assets/learning/${normalizedPath}`))?.[1] ?? '';
+  if (!src) return null;
+  return (
+    <figure className="my-6 grid gap-2">
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className="w-full rounded-xl border object-contain shadow-sm"
+        style={{ borderColor: themeClasses.isLight ? 'rgba(32,80,137,0.12)' : 'rgba(168,212,255,0.14)' }}
+      />
+      {caption && (
+        <figcaption className={cx('text-center text-sm leading-5', themeClasses.mutedText)}>
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+type ConceptFlowItem = { title: string; detail?: string };
+
+export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: ConceptFlowItem[] }) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <figure className="my-6" aria-label={ariaLabel}>
+      <ol className="grid gap-0 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+          return (
+            <li key={`${item.title}-${index}`} className="grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] gap-3 sm:block">
+              <div className="flex h-full flex-col items-center sm:h-auto sm:flex-row">
+                <span
+                  className={cx(
+                    'grid size-8 shrink-0 place-items-center rounded-full text-sm font-black tabular-nums',
+                    themeClasses.isLight
+                      ? 'bg-[#205089] text-white shadow-[0_0_0_4px_rgba(32,80,137,0.10)]'
+                      : 'bg-[#A8D4FF] text-[#0B1726] shadow-[0_0_0_4px_rgba(168,212,255,0.10)]',
+                  )}
+                  aria-hidden="true"
+                >
+                  {index + 1}
+                </span>
+                {!isLast ? (
+                  <span
+                    className={cx(
+                      'w-0.5 flex-1 sm:h-0.5 sm:w-auto',
+                      themeClasses.isLight ? 'bg-[#205089]/22' : 'bg-[#A8D4FF]/24',
+                    )}
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </div>
+              <div className={cx('min-w-0 pb-6 pt-1 sm:pb-0 sm:pt-4', !isLast && 'sm:pr-6')}>
+                <strong className={cx('block text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</strong>
+                {item.detail ? <span className={cx('mt-1 block text-sm leading-6 text-pretty', themeClasses.mutedText)}>{item.detail}</span> : null}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </figure>
+  );
+}
+
+type ExperimentChecklistItem = {
+  title: string;
+  action: string;
+  check: string;
+};
+
+export function ExperimentChecklist({ ariaLabel, items }: {
+  ariaLabel: string;
+  items: ExperimentChecklistItem[];
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
+  const marker = themeClasses.isLight
+    ? 'border-[#205089]/28 bg-[#EAF2FA] text-[#205089]'
+    : 'border-[#A8D4FF]/28 bg-[#A8D4FF]/10 text-[#A8D4FF]';
+  const label = themeClasses.isLight ? 'text-[#205089]' : 'text-[#A8D4FF]';
+
+  return (
+    <ol className={cx('my-6 overflow-hidden rounded-xl border', border)} aria-label={ariaLabel}>
+      {items.map((item, index) => (
+        <li
+          key={`${item.title}-${index}`}
+          className={cx(
+            'grid grid-cols-[2.75rem_minmax(0,1fr)] gap-3 px-4 py-4 sm:grid-cols-[2.75rem_minmax(9rem,0.55fr)_minmax(0,1.65fr)] sm:gap-4 sm:px-5',
+            index > 0 && `border-t ${border}`,
+          )}
+        >
+          <span className={cx('grid size-10 place-items-center rounded-lg border', marker)} aria-hidden="true">
+            <Check className="size-5" strokeWidth={2.6} />
+          </span>
+          <div className="min-w-0 pt-0.5">
+            <span className={cx('block text-[0.68rem] font-black uppercase tracking-[0.12em]', label)}>Bước {index + 1}</span>
+            <strong className={cx('mt-1 block text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</strong>
+          </div>
+          <dl className="col-start-2 grid min-w-0 gap-2 text-sm leading-5 sm:col-start-3 sm:grid-cols-2 sm:gap-4">
+            <div>
+              <dt className={cx('font-black', label)}>Thực hiện</dt>
+              <dd className={cx('mt-0.5 text-pretty', themeClasses.bodyText)}>{item.action}</dd>
+            </div>
+            <div>
+              <dt className={cx('font-black', label)}>Kiểm tra</dt>
+              <dd className={cx('mt-0.5 text-pretty', themeClasses.bodyText)}>{item.check}</dd>
+            </div>
+          </dl>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+type ComparisonMatrixRow = { label: string; values: string[]; highlightedColumn?: number };
+
+export function ComparisonMatrix({ ariaLabel, columns, rows }: {
+  ariaLabel: string;
+  columns: string[];
+  rows: ComparisonMatrixRow[];
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
+  return (
+    <div className={cx('my-6 overflow-x-auto rounded-xl border', border)}>
+      <table className="!my-0 w-full min-w-[36rem] !border-0 border-collapse text-left text-sm leading-5 [&_td]:!border-b-0 [&_th]:!border-b-0">
+        <caption className="sr-only">{ariaLabel}</caption>
+        <thead className={themeClasses.isLight ? 'bg-[#EFF4FA] text-[#123B68]' : 'bg-[#121A24] text-[#D7EAFE]'}>
+          <tr>
+            <th scope="col" className="w-[26%] px-4 py-3 font-black">Tiêu chí</th>
+            {columns.map((column) => <th key={column} scope="col" className="px-4 py-3 font-black">{column}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr key={`${row.label}-${rowIndex}`} className={cx('border-t align-top', border)}>
+              <th scope="row" className={cx('px-4 py-3 font-black', themeClasses.titleText)}>{row.label}</th>
+              {columns.map((_, columnIndex) => (
+                <td
+                  key={`${row.label}-${columnIndex}`}
+                  className={cx(
+                    'px-4 py-3',
+                    row.highlightedColumn === columnIndex
+                      ? themeClasses.isLight ? 'bg-[#205089]/7 font-semibold text-[#123B68]' : 'bg-[#A8D4FF]/8 font-semibold text-[#D7EAFE]'
+                      : themeClasses.bodyText,
+                  )}
+                >
+                  {row.values[columnIndex] ?? '—'}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+type DatasetCompositionSegment = {
+  label: string;
+  value: number;
+  valueLabel: string;
+  detail?: string;
+  tone?: 'primary' | 'accent' | 'neutral';
+};
+
+export function DatasetComposition({ ariaLabel, segments, totalLabel }: {
+  ariaLabel: string;
+  segments: DatasetCompositionSegment[];
+  totalLabel: string;
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const total = Math.max(segments.reduce((sum, segment) => sum + Math.max(0, segment.value), 0), 1);
+  const tones = {
+    primary: themeClasses.isLight ? 'bg-[#205089]' : 'bg-[#7FB4E5]',
+    accent: themeClasses.isLight ? 'bg-[#D5962F]' : 'bg-[#F0BE62]',
+    neutral: themeClasses.isLight ? 'bg-[#8092A6]' : 'bg-[#8EA1B5]',
+  };
+  return (
+    <figure className="my-6" aria-label={ariaLabel}>
+      <div className={cx('overflow-hidden rounded-xl border p-4', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC]' : 'border-[#A8B8C8]/18 bg-[#121A24]/42')}>
+        <div className="flex items-center justify-between gap-4 text-sm">
+          <strong className={themeClasses.titleText}>Thành phần batch</strong>
+          <span className={cx('font-semibold tabular-nums', themeClasses.mutedText)}>{totalLabel}</span>
+        </div>
+        <div className={cx('mt-4 flex h-11 overflow-hidden rounded-lg', themeClasses.isLight ? 'bg-[#DCE6F1]' : 'bg-[#26384E]')}>
+          {segments.map((segment) => (
+            <div
+              key={segment.label}
+              className={cx('min-w-2 transition-[width] duration-200 motion-reduce:transition-none', tones[segment.tone ?? 'neutral'])}
+              style={{ width: `${(Math.max(0, segment.value) / total) * 100}%` }}
+              aria-hidden="true"
+            />
+          ))}
+        </div>
+        <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+          {segments.map((segment) => (
+            <div key={segment.label} className="grid grid-cols-[auto_1fr_auto] items-start gap-x-2">
+              <span className={cx('mt-1.5 size-2.5 rounded-sm', tones[segment.tone ?? 'neutral'])} aria-hidden="true" />
+              <dt className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{segment.label}</dt>
+              <dd className={cx('text-sm font-black leading-5 tabular-nums', themeClasses.titleText)}>{segment.valueLabel}</dd>
+              {segment.detail ? <dd className={cx('col-start-2 col-end-4 mt-0.5 text-sm leading-5', themeClasses.mutedText)}>{segment.detail}</dd> : null}
+            </div>
+          ))}
+        </dl>
+      </div>
+    </figure>
+  );
+}
+
+type MetricBarItem = {
+  label: string;
+  value: number;
+  valueLabel: string;
+  detail?: string;
+  tone?: 'primary' | 'success' | 'danger' | 'neutral';
+};
+
+export function MetricBars({ ariaLabel, items, max = 100 }: {
+  ariaLabel: string;
+  items: MetricBarItem[];
+  max?: number;
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const safeMax = Math.max(max, 1);
+  const tones = {
+    primary: themeClasses.isLight ? 'bg-[#205089]' : 'bg-[#7FB4E5]',
+    success: themeClasses.isLight ? 'bg-[#2E8A5A]' : 'bg-[#6ED39B]',
+    danger: themeClasses.isLight ? 'bg-[#C45151]' : 'bg-[#EE8C8C]',
+    neutral: themeClasses.isLight ? 'bg-[#8092A6]' : 'bg-[#8EA1B5]',
+  };
+  return (
+    <figure className="my-6" aria-label={ariaLabel}>
+      <ol className="grid gap-4">
+        {items.map((item) => {
+          const width = Math.min(100, Math.max(0, item.value) / safeMax * 100);
+          return (
+            <li key={item.label} className="grid gap-2">
+              <div className="flex items-end justify-between gap-4">
+                <div className="min-w-0">
+                  <div className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{item.label}</div>
+                  {item.detail ? <div className={cx('mt-0.5 text-sm leading-5', themeClasses.mutedText)}>{item.detail}</div> : null}
+                </div>
+                <span className={cx('shrink-0 text-base font-black tabular-nums', themeClasses.titleText)}>{item.valueLabel}</span>
+              </div>
+              <div className={cx('h-3 overflow-hidden rounded-full', themeClasses.isLight ? 'bg-[#DCE6F1]' : 'bg-[#26384E]')}>
+                <div
+                  className={cx('h-full rounded-full transition-[width] duration-200 motion-reduce:transition-none', tones[item.tone ?? 'neutral'])}
+                  style={{ width: `${width}%` }}
+                  aria-hidden="true"
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </figure>
+  );
+}
+
+type ConceptSpectrumItem = { label: string; detail?: string };
+
+export function ConceptSpectrum({ ariaLabel, items }: { ariaLabel: string; items: ConceptSpectrumItem[] }) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <figure className="my-6" aria-label={ariaLabel}>
+      <div className={cx('h-1.5 rounded-full', themeClasses.isLight ? 'bg-[#205089]/18' : 'bg-[#A8D4FF]/20')} aria-hidden="true" />
+      <ol className="mt-3 grid gap-4 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
+        {items.map((item, index) => (
+          <li key={`${item.label}-${index}`} className="min-w-0">
+            <div className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{item.label}</div>
+            {item.detail ? <div className={cx('mt-1 text-sm leading-5', themeClasses.mutedText)}>{item.detail}</div> : null}
+          </li>
+        ))}
+      </ol>
+    </figure>
+  );
 }
 
 export function ExtraFrame({ title, children, themeClasses, customTitle }: {
@@ -179,9 +611,8 @@ export function MdxPage({ children, page }: { children?: ReactNode; page: number
 }
 
 function InlineMath({ formula }: { formula: string }) {
-  const themeClasses = useLearningMdxTheme();
   const html = katex.renderToString(formula, { displayMode: false, throwOnError: false });
-  return <span className={cx('px-0.5', themeClasses.bodyText)} dangerouslySetInnerHTML={{ __html: html }} />;
+  return <span className="px-0.5 [&_.katex]:text-inherit" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 function BlockMath({ formula }: { formula: string }) {
@@ -190,7 +621,7 @@ function BlockMath({ formula }: { formula: string }) {
   return (
     <div
       className={cx(
-        'my-4 overflow-x-auto rounded-lg border px-5 py-4 text-center text-lg font-semibold sm:text-xl',
+        'my-4 overflow-x-auto rounded-lg border px-5 py-4 text-center text-lg font-semibold sm:text-xl [&_.katex]:text-inherit',
         themeClasses.isLight
           ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]'
           : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]',
@@ -200,11 +631,39 @@ function BlockMath({ formula }: { formula: string }) {
   );
 }
 
+function extractTextFromNode(node: ReactNode): string {
+  if (typeof node === 'string') return node;
+  if (typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(extractTextFromNode).join('');
+  if (isValidElement(node) && node.props && (node.props as { children?: ReactNode }).children) {
+    return extractTextFromNode((node.props as { children?: ReactNode }).children);
+  }
+  return '';
+}
+
+function MdxCode({ children, className }: { children?: ReactNode; className?: string }) {
+  const themeClasses = useLearningMdxTheme();
+  if (className) return <code className={className}>{children}</code>;
+
+  return (
+    <code
+      className={cx(
+        'mx-0.5 inline rounded-md px-1.5 py-0.5 font-mono text-[0.86em] font-semibold leading-none box-decoration-clone',
+        themeClasses.isLight
+          ? 'bg-[#EAF2FA] !text-[#174A7E] ring-1 ring-inset ring-[#205089]/12'
+          : 'bg-[#A8D4FF]/10 !text-[#CBE5FF] ring-1 ring-inset ring-[#A8D4FF]/18',
+      )}
+    >
+      {children}
+    </code>
+  );
+}
+
 function MdxPre({ children }: { children?: ReactNode }) {
   const themeClasses = useLearningMdxTheme();
 
   // MDX compiles fenced code blocks to <pre><code className="language-xxx">...</code></pre>.
-  // Inspect the child element to detect Python code blocks and hand them to CodeBlock.
+  // Inspect the child element to detect code blocks and hand them to CodeBlock.
   if (!isValidElement(children)) {
     return <pre>{children}</pre>;
   }
@@ -212,28 +671,42 @@ function MdxPre({ children }: { children?: ReactNode }) {
   const codeElement = children as ReactElement<{ className?: string; children?: ReactNode }>;
   const codeClassName = codeElement.props?.className;
 
-  if (typeof codeClassName === 'string' && /^language-python(?:$|\s)/.test(codeClassName)) {
-    const codeContent = codeElement.props.children;
-    const code = typeof codeContent === 'string' ? codeContent : '';
-    return <CodeBlock code={code} variant="code" themeClasses={themeClasses} />;
+  if (typeof codeClassName === 'string') {
+    const rawText = extractTextFromNode(codeElement.props?.children).replace(/\n$/, '');
+    if (/^language-(?:output|text|plain)(?:$|\s)/.test(codeClassName)) {
+      return <CodeBlock code={rawText} variant="output" copyable={false} themeClasses={themeClasses} />;
+    }
+    if (/^language-(?:python|bash|sh|shell|console|json|javascript|js|typescript|ts)(?:$|\s)/.test(codeClassName)) {
+      return <CodeBlock code={rawText} variant="code" showLineNumbers themeClasses={themeClasses} />;
+    }
   }
 
-  // Non-Python or unlabeled code blocks: render as a normal <pre>.
+  // Non-matching code blocks: render as a normal <pre>.
   return <pre>{children}</pre>;
 }
 
 const sharedAuthoredMdxComponents = {
   LessonNote,
+  LessonImage,
   MdxQuiz,
   MdxPage,
   RequirementCard,
   RequirementsGrid,
+  CourseCards,
+  EvidenceCards,
+  ConceptFlow,
+  ExperimentChecklist,
+  ComparisonMatrix,
+  DatasetComposition,
+  MetricBars,
+  ConceptSpectrum,
   InlineMath,
   BlockMath,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
 
 export const sharedLearningMdxComponents = {
   a: MdxLink,
+  code: MdxCode,
   p: MdxParagraph,
   pre: MdxPre,
   ...sharedAuthoredMdxComponents,
