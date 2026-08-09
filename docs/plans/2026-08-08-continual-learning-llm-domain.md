@@ -3,7 +3,7 @@ title: Continual Learning Course for Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
 updated: 2026-08-10T00:03:54+07:00
-author: Antigravity and Codex
+author: nmkhiem
 task: "Add and author the Continual Learning domain, its paired assessments, labs, reusable visuals, and catalog contracts"
 supersedes: []
 ---

@@ -68,7 +68,9 @@ export function getLearningMdxLesson({ domainId, language, lessonId, quizQuestio
   const pages = Array.from({ length: lesson.pageCount }, (_, pageIndex) => (
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-${pageIndex}`} themeClasses={themeClasses}>
       <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
-        <div className="grid gap-5 py-1 [&_h2]:text-xl [&_h2]:font-black [&_h3]:text-base [&_h3]:font-black [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5 [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-2.5 [&_ol]:pl-5 [&_li]:text-sm [&_li]:leading-6 [&_table]:my-5 [&_table]:w-full [&_table]:border-collapse [&_table]:overflow-hidden [&_table]:rounded-lg [&_table]:border [&_table]:border-slate-300 [&_table]:bg-white [&_table]:text-black [&_table]:text-sm [&_th]:border-b-2 [&_th]:border-slate-300 [&_th]:bg-white [&_th]:p-3 [&_th]:text-left [&_th]:font-bold [&_th]:text-black [&_td]:border-b [&_td]:border-slate-200 [&_td]:p-3 [&_td]:text-black [&_code]:text-black [&_.katex]:text-black dark:[&_table]:border-slate-300 dark:[&_table]:bg-white dark:[&_table]:text-black dark:[&_th]:border-slate-300 dark:[&_th]:bg-white dark:[&_th]:text-black dark:[&_td]:border-slate-200 dark:[&_td]:text-black dark:[&_code]:text-black dark:[&_.katex]:text-black"><Content components={components} /></div>
+        <div className="learning-mdx-content">
+          <Content components={components} />
+        </div>
       </LearningMdxLessonProvider>
     </LearningMdxThemeProvider>
   ));

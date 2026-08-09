@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .learning-mdx-content {
+    @apply grid gap-5 py-1;
+  }
+
+  .learning-mdx-content h2 {
+    @apply text-xl font-black;
+  }
+
+  .learning-mdx-content h3 {
+    @apply text-base font-black;
+  }
+
+  .learning-mdx-content ul,
+  .learning-mdx-content ol {
+    @apply grid pl-5;
+  }
+
+  .learning-mdx-content ul {
+    @apply list-disc gap-2;
+  }
+
+  .learning-mdx-content ol {
+    @apply list-decimal gap-2.5;
+  }
+
+  .learning-mdx-content li {
+    @apply text-sm leading-6;
+  }
+
+  .learning-mdx-content table {
+    @apply my-5 w-full overflow-hidden rounded-lg border border-slate-300 bg-white text-sm text-black;
+    border-collapse: collapse;
+  }
+
+  .learning-mdx-content th {
+    @apply border-b-2 border-slate-300 bg-white p-3 text-left font-bold text-black;
+  }
+
+  .learning-mdx-content td {
+    @apply border-b border-slate-200 p-3 text-black;
+  }
+
+  .learning-mdx-content code,
+  .learning-mdx-content .katex {
+    @apply text-black;
+  }
+}
+
 /* TorchViz 3D — Design tokens & base styles */
 html,
 body {
