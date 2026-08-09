@@ -1,0 +1,102 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-finetuning-overview-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Mục tiêu CFT",
+  "Rủi ro theo chuỗi",
+  "Các nhánh CFT"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "cft-purpose",
+  "cft-sequential-task-risk",
+  "cft-specializations"
+],
+  pageCount: 3,
+}
+
+<MdxQuiz id="continual-finetuning-overview-quiz" questions={[
+  {
+    "id": "cft-purpose",
+    "title": "Mục tiêu CFT",
+    "prompt": "Hai mục tiêu cốt lõi của CFT là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Học task mới và giữ hiệu năng trên task cũ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Tối đa hiệu năng task mới và giảm compute, không đo lại task cũ."
+      },
+      {
+        "id": "opt3",
+        "label": "Giữ nguyên task cũ và đóng băng model để tránh mọi cập nhật."
+      },
+      {
+        "id": "opt4",
+        "label": "Học task mới rồi chọn checkpoint chỉ bằng training loss của stage hiện tại."
+      }
+    ],
+    "success": "CFT cân bằng acquisition và retention qua chuỗi downstream task.",
+    "error": "Hãy nhìn vào cả stage mới và lịch sử."
+  },
+  {
+    "id": "cft-sequential-task-risk",
+    "title": "Rủi ro theo chuỗi",
+    "prompt": "Vì sao đánh giá checkpoint cuối trên task mới là chưa đủ?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Nó đã phản ánh retention vì task mới đại diện cho toàn bộ sequence đã học."
+      },
+      {
+        "id": "opt3",
+        "label": "Nó đo retention task cũ nhưng không cho biết model học task mới tốt đến đâu."
+      },
+      {
+        "id": "opt2",
+        "label": "Nó không cho biết các task cũ đã bị quên hay chưa.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Nó không cho biết compute của checkpoint cuối có thấp hơn các stage trước hay không."
+      }
+    ],
+    "success": "CFT cần đo lại lịch sử sau mỗi stage.",
+    "error": "Retention không xuất hiện nếu chỉ nhìn task hiện tại."
+  },
+  {
+    "id": "cft-specializations",
+    "title": "Các nhánh CFT",
+    "prompt": "Nhánh nào xử lý preference và safety thay đổi theo thời gian?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Continual Instruction Tuning cho các instruction dataset xuất hiện nối tiếp."
+      },
+      {
+        "id": "opt3",
+        "label": "Continual Model Alignment cho preference, policy và safety thay đổi.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Continual Model Refinement cho các fact hoặc behavior mục tiêu cần sửa."
+      },
+      {
+        "id": "opt4",
+        "label": "Continual Pre-training cho các corpus không gán nhãn xuất hiện theo thời gian."
+      }
+    ],
+    "success": "CMA tập trung vào alignment nối tiếp.",
+    "error": "Phân biệt loại update downstream."
+  }
+]} />

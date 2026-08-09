@@ -5,6 +5,14 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'MdxPage',
   'RequirementCard',
   'RequirementsGrid',
+  'CourseCards',
+  'EvidenceCards',
+  'ConceptFlow',
+  'ExperimentChecklist',
+  'ComparisonMatrix',
+  'DatasetComposition',
+  'MetricBars',
+  'ConceptSpectrum',
   'InlineMath',
   'BlockMath',
 ] as const;
@@ -16,6 +24,7 @@ export type LearningMdxMetadata = {
   title: string;
   headings: string[];
   keywords: string[];
+  conceptIds?: string[];
   pageCount?: number;
 };
 

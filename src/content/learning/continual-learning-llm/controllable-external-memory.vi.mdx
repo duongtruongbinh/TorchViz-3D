@@ -1,0 +1,34 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'controllable-external-memory',
+  locale: 'vi',
+  title: "Bộ nhớ ngoài",
+  headings: ['Tách knowledge store khỏi parametric memory'],
+  keywords: ['Continual Learning', 'LLM', 'Bộ nhớ Ngoài có thể Kiểm soát'],
+  conceptIds: [
+  "external-memory-role",
+  "write-policy",
+  "read-policy",
+  "memory-provenance",
+  "memory-control"
+],
+}
+
+## Tách knowledge store khỏi parametric memory
+
+External memory lưu knowledge ngoài trọng số và truy xuất nó lúc cần. Việc tách này cho phép cập nhật, kiểm tra provenance và xóa entry mà không phải fine-tune toàn bộ model.
+
+<ConceptFlow
+  ariaLabel="Vòng đời bộ nhớ ngoài có thể kiểm soát"
+  items={[
+    { title: 'Write', detail: 'Chỉ nhận knowledge qua policy' },
+    { title: 'Index', detail: 'Lưu provenance và thời hạn' },
+    { title: 'Read', detail: 'Retrieve theo query và quyền truy cập' },
+    { title: 'Audit', detail: 'Đo relevance, conflict và leakage' },
+    { title: 'Delete', detail: 'Thu hồi entry không còn hợp lệ' },
+  ]}
+/>
+
+External memory không loại bỏ nhu cầu continual learning: model vẫn phải học cách query và sử dụng memory, còn store phải xử lý conflict giữa fact cũ và mới. “Controllable” nghĩa là có policy rõ cho write, read, update và delete.
+
+Nguồn: [Shi et al., §6.3–6.4](https://arxiv.org/html/2404.16789v3#S6.SS4).

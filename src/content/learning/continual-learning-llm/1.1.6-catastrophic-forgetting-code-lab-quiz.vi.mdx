@@ -1,0 +1,74 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'catastrophic-forgetting-code-lab-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+    'Hành vi chỉ số sau khi học Task B',
+    'Nguyên nhân gây ra Catastrophic Forgetting trong Bài lab',
+    'Ưu điểm của thước đo Answer NLL',
+    'Hướng giải quyết cho các bài học tiếp theo',
+  ],
+  keywords: ['Pythia-160M', 'Catastrophic Forgetting', 'Code Lab', 'Quiz', 'Continual Learning'],
+  conceptIds: ['code-lab-forgetting-phenomenon', 'code-lab-cause-of-forgetting', 'code-lab-metric-sensitivity', 'code-lab-solutions-forward'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="catastrophic-forgetting-code-lab-quiz" questions={[
+  {
+    id: 'code-lab-forgetting-phenomenon',
+    title: 'Hành vi chỉ số sau khi học Task B',
+    prompt: 'Sau khi tiếp tục fine-tune Pythia-160M trên Task B, điều gì đã xảy ra với hiệu suất của mô hình trên Task A?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Answer NLL của Task A tăng nhẹ nhưng Exact Match vẫn giữ 100%, cho thấy chỉ calibration thay đổi.' },
+      { id: 'opt2', label: 'Answer NLL của Task A tăng từ 0.000085 lên 5.8178 và Exact Match giảm từ 100% xuống 0%.', isCorrect: true },
+      { id: 'opt3', label: 'Answer NLL của cả Task A và Task B cùng tăng mạnh, nên mô hình không học được Task B.' },
+      { id: 'opt4', label: 'Task A giữ nguyên còn Task B đạt 0% Exact Match, cho thấy stability cao nhưng plasticity thấp.' },
+    ],
+    success: 'Chính xác! Cập nhật trọng số nối tiếp trên Task B đã làm mô hình quên hoàn toàn Task A.',
+    error: 'Chưa chính xác. Hãy xem lại kết quả thu được ở Giai đoạn After A->B.',
+  },
+  {
+    id: 'code-lab-cause-of-forgetting',
+    title: 'Nguyên nhân gây ra Catastrophic Forgetting trong Bài lab',
+    prompt: 'Yếu tố kỹ thuật nào trong bài lab là nguyên nhân trực tiếp dẫn đến hiện tượng thảm họa quên tri thức?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Đánh giá Task A sau mỗi stage nhưng không dùng kết quả đó để chọn checkpoint.' },
+      { id: 'opt2', label: 'Dùng full-parameter fine-tuning thay vì LoRA, dù batch vẫn trộn cân bằng Task A và Task B.' },
+      { id: 'opt4', label: 'Dùng Answer NLL cho Task A nhưng Exact Match cho Task B trong cùng protocol đánh giá.' },
+      { id: 'opt3', label: 'Tối ưu checkpoint After-A chỉ trên Task B mà không có replay hay ràng buộc bảo tồn Task A.', isCorrect: true },
+    ],
+    success: 'Chính xác! Huấn luyện toàn bộ tham số trực tiếp trên dữ liệu mới mà không bảo tồn tri thức cũ sẽ gây ra Catastrophic Forgetting.',
+    error: 'Chưa đúng. Hãy cân nhắc về phương pháp fine-tune được sử dụng trong bài lab.',
+  },
+  {
+    id: 'code-lab-metric-sensitivity',
+    title: 'Ưu điểm của thước đo Answer NLL',
+    prompt: 'Vì sao bài lab sử dụng Answer NLL thay vì chỉ dùng Perplexity chung của toàn bộ câu?',
+    mode: 'single',
+    options: [
+      { id: 'opt4', label: 'Answer NLL đo trực tiếp xác suất của chuỗi đáp án chuẩn nên nhạy với việc mất tri thức mục tiêu.', isCorrect: true },
+      { id: 'opt1', label: 'Answer NLL đo xác suất của toàn bộ prompt lẫn answer nên ít nhạy hơn với phần đáp án.' },
+      { id: 'opt2', label: 'Answer NLL chỉ đếm exact match nên không phản ánh thay đổi xác suất trước khi output đổi.' },
+      { id: 'opt3', label: 'Answer NLL loại bỏ nhu cầu có chuỗi đáp án chuẩn khi đánh giá từng task.' },
+    ],
+    success: 'Chính xác! Answer NLL đo lường chính xác mức độ ngạc nhiên của mô hình đối với chuỗi đáp án mục tiêu.',
+    error: 'Chưa chính xác. Hãy nhớ lại vai trò của Answer NLL trong việc đánh giá tri thức thuộc lòng.',
+  },
+  {
+    id: 'code-lab-solutions-forward',
+    title: 'Hướng giải quyết cho các bài học tiếp theo',
+    prompt: 'Phương án nào KHÔNG bổ sung cơ chế bảo tồn tri thức Task A khi tiếp tục học các task mới?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Trộn một phần dữ liệu Task A vào batch Task B để đưa tín hiệu cũ trở lại loss.' },
+      { id: 'opt3', label: 'Dùng adapter riêng cho từng task và giữ cố định các tham số dùng chung đã chọn.' },
+      { id: 'opt1', label: 'Tiếp tục full fine-tuning chỉ trên dữ liệu task mới mà không replay, isolation hay regularization.', isCorrect: true },
+      { id: 'opt4', label: 'Phạt thay đổi trên các trọng số được ước lượng là quan trọng với Task A bằng EWC.' },
+    ],
+    success: 'Chính xác! Tiếp tục Full Fine-tuning tự do chính là nguyên nhân gây ra hiện tượng quên, không phải là giải pháp.',
+    error: 'Chưa chính xác. Hãy chọn phương pháp KHÔNG giúp giải quyết Catastrophic Forgetting.',
+  },
+]} />

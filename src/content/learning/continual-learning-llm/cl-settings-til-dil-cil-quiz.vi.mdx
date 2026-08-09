@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cl-settings-til-dil-cil-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Task-Incremental Learning",
+  "Domain-Incremental Learning",
+  "Class-Incremental Learning",
+  "Chọn đúng thiết lập"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "til-setting",
+  "dil-setting",
+  "cil-setting",
+  "setting-comparison"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="cl-settings-til-dil-cil-quiz" questions={[
+  {
+    "id": "til-setting",
+    "title": "Task-Incremental Learning",
+    "prompt": "Dấu hiệu nhận biết TIL là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Một output space chung mở rộng khi lớp mới xuất hiện."
+      },
+      {
+        "id": "opt3",
+        "label": "Task giữ nguyên nhưng input distribution thay đổi mà không có domain ID."
+      },
+      {
+        "id": "opt2",
+        "label": "Task ID được cung cấp khi inference để chọn task hoặc head phù hợp.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Nhãn mới được thêm dần nhưng inference không nhận task ID."
+      }
+    ],
+    "success": "TIL cho mô hình biết task hiện tại khi suy luận.",
+    "error": "Hãy kiểm tra thông tin routing có sẵn lúc inference."
+  },
+  {
+    "id": "dil-setting",
+    "title": "Domain-Incremental Learning",
+    "prompt": "Thiết lập nào giữ task formulation nhưng thay đổi phân phối domain?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt3",
+        "label": "DIL, vì task formulation giữ nguyên còn phân phối đầu vào thay đổi.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt1",
+        "label": "TIL, vì task ID quyết định head ở inference."
+      },
+      {
+        "id": "opt2",
+        "label": "CIL, vì output space được mở rộng bằng lớp mới."
+      },
+      {
+        "id": "opt4",
+        "label": "Joint learning, vì mọi domain được trộn và học đồng thời."
+      }
+    ],
+    "success": "DIL thay đổi domain mà không cung cấp task ID lúc inference.",
+    "error": "Hãy phân biệt thay đổi domain với mở rộng tập lớp."
+  },
+  {
+    "id": "cil-setting",
+    "title": "Class-Incremental Learning",
+    "prompt": "Trong CIL, yếu tố nào mở rộng qua thời gian?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Số domain đầu vào trong cùng một task formulation."
+      },
+      {
+        "id": "opt2",
+        "label": "Số task-specific head được chọn bằng task ID."
+      },
+      {
+        "id": "opt3",
+        "label": "Số stage có cùng output space cố định."
+      },
+      {
+        "id": "opt4",
+        "label": "Tập lớp cần nhận diện trong một output space chung.",
+        "isCorrect": true
+      }
+    ],
+    "success": "CIL bổ sung lớp mới vào output space chung.",
+    "error": "Hãy nhìn vào không gian nhãn."
+  },
+  {
+    "id": "setting-comparison",
+    "title": "Chọn đúng thiết lập",
+    "prompt": "Một LLM phân loại cùng loại đầu vào qua nhiều domain và không nhận domain ID khi inference gần với thiết lập nào nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt2",
+        "label": "TIL, vì mỗi domain tương ứng với một task ID được cung cấp khi inference."
+      },
+      {
+        "id": "opt1",
+        "label": "DIL, vì formulation giữ nguyên, domain thay đổi và inference không có domain ID.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "CIL, vì mỗi domain nhất thiết bổ sung một tập lớp output mới."
+      },
+      {
+        "id": "opt4",
+        "label": "Joint learning, vì dữ liệu của mọi domain luôn có sẵn đồng thời."
+      }
+    ],
+    "success": "Cùng formulation, domain shift và không có task ID là đặc trưng DIL.",
+    "error": "Xác định điều thay đổi và thông tin có ở inference."
+  }
+]} />

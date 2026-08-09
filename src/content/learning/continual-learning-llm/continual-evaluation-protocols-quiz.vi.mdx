@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-evaluation-protocols-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Evaluation matrix",
+  "Lịch checkpoint",
+  "Ba loại split",
+  "Future leakage"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "evaluation-matrix",
+  "checkpoint-schedule",
+  "old-new-future-splits",
+  "protocol-leakage"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="continual-evaluation-protocols-quiz" questions={[
+  {
+    "id": "evaluation-matrix",
+    "title": "Evaluation matrix",
+    "prompt": "Hai trục nào tạo nên ma trận đánh giá continual trong bài?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Training seed và loại optimizer của mỗi run."
+      },
+      {
+        "id": "opt3",
+        "label": "Model size và memory budget của mỗi baseline."
+      },
+      {
+        "id": "opt4",
+        "label": "Prompt template và decoding temperature của evaluator."
+      },
+      {
+        "id": "opt2",
+        "label": "Checkpoint stage và task hoặc evaluation slice.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Mỗi checkpoint được đo trên nhiều lát cắt.",
+    "error": "Hãy nghĩ đến R_i,j."
+  },
+  {
+    "id": "checkpoint-schedule",
+    "title": "Lịch checkpoint",
+    "prompt": "Lịch nào hỗ trợ đo acquisition, retention và transfer qua toàn bộ sequence?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Đo baseline trước chuỗi và đánh giá lại sau mỗi stage theo cùng protocol.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Chỉ đánh giá checkpoint cuối trên tất cả task đã xuất hiện."
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ đánh giá trước training và ngay sau task đầu tiên."
+      },
+      {
+        "id": "opt4",
+        "label": "Đánh giá khi training loss đạt cực tiểu, không theo stage."
+      }
+    ],
+    "success": "Đánh giá theo stage mới đo được quỹ đạo forgetting.",
+    "error": "Một điểm cuối không cho biết diễn biến."
+  },
+  {
+    "id": "old-new-future-splits",
+    "title": "Ba loại split",
+    "prompt": "Checkpoint sau stage t được dùng thế nào để đo forward transfer lên task t+1?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Thêm task t+1 vào replay buffer rồi đánh giá sau update."
+      },
+      {
+        "id": "opt2",
+        "label": "Huấn luyện xong task t+1 rồi so với checkpoint stage t+1."
+      },
+      {
+        "id": "opt4",
+        "label": "Đánh giá task t+1 trước khi dữ liệu task đó được dùng để train.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ đo Task mới…t vì future slice không tham gia FWT."
+      }
+    ],
+    "success": "Future split phải chưa được học trực tiếp.",
+    "error": "FWT đo lợi ích trước exposure."
+  },
+  {
+    "id": "protocol-leakage",
+    "title": "Future leakage",
+    "prompt": "Training split sạch theo thời gian, nhưng retrieval corpus đã chứa tài liệu của stage tương lai. Đây là vấn đề gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Một thay đổi checkpoint schedule nhưng không dùng thông tin tương lai."
+      },
+      {
+        "id": "opt3",
+        "label": "Future leakage qua retrieval corpus làm sai protocol continual.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Một memory-budget mismatch chỉ ảnh hưởng storage report."
+      },
+      {
+        "id": "opt4",
+        "label": "Một decoding-config mismatch không liên quan dữ liệu tương lai."
+      }
+    ],
+    "success": "Leakage có thể đi qua toàn pipeline evaluation.",
+    "error": "Audit mọi nguồn thông tin, không chỉ train data."
+  }
+]} />

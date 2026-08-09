@@ -1,0 +1,31 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'domain-adaptation-data-mixing',
+  locale: 'vi',
+  title: "Chọn và trộn dữ liệu",
+  headings: ['Thiết kế mixture dưới một ngân sách cố định'],
+  keywords: ['Continual Learning', 'LLM', 'Chọn và Trộn Dữ liệu cho Domain Adaptation'],
+  conceptIds: [
+  "domain-data-selection",
+  "general-domain-mixing",
+  "mixing-ratio-tradeoff",
+  "data-governance-constraint"
+],
+}
+
+## Thiết kế mixture dưới một ngân sách cố định
+
+Data mixture của DAP quyết định cả plasticity lẫn retention. Dữ liệu domain cần **liên quan, mới lạ và đa dạng**; dữ liệu general được giữ lại như một anchor chống over-specialization.
+
+<ConceptSpectrum
+  ariaLabel="Phổ tỷ lệ dữ liệu general và domain"
+  items={[
+    { label: 'Nhiều general', detail: 'Retention tốt hơn, domain adaptation chậm' },
+    { label: 'Mixture cân bằng', detail: 'Tối ưu theo validation hai phía' },
+    { label: 'Nhiều domain', detail: 'Học chuyên ngành nhanh, tăng rủi ro vertical forgetting' },
+  ]}
+/>
+
+Không có tỷ lệ tối ưu phổ quát. Hãy sweep mixture dưới cùng token budget, đo general/domain validation và báo cáo provenance, deduplication cùng quyền sử dụng dữ liệu. Một mixture không hợp lệ về governance không phải phương án triển khai được dù metric tốt.
+
+Nguồn: [Shi et al., §4.2](https://arxiv.org/html/2404.16789v3#S4.SS2) và bibliography của tác giả.

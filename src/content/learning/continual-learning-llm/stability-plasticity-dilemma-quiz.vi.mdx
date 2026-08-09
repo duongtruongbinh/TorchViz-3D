@@ -1,0 +1,102 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'stability-plasticity-dilemma-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Nhận diện stability",
+  "Nhận diện plasticity",
+  "Đọc đúng trade-off"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "stability-definition",
+  "plasticity-definition",
+  "stability-plasticity-tradeoff"
+],
+  pageCount: 3,
+}
+
+<MdxQuiz id="stability-plasticity-dilemma-quiz" questions={[
+  {
+    "id": "stability-definition",
+    "title": "Nhận diện stability",
+    "prompt": "Trong Continual Learning, stability mô tả điều gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Thích nghi nhanh với stage mới dù hiệu năng cũ suy giảm."
+      },
+      {
+        "id": "opt2",
+        "label": "Giữ nguyên mọi output cũ, kể cả khi fact cũ cần cập nhật."
+      },
+      {
+        "id": "opt4",
+        "label": "Giữ training loss mới thấp hơn loss của mọi stage trước."
+      },
+      {
+        "id": "opt3",
+        "label": "Giữ hiệu năng trên kiến thức và tác vụ đã học.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Stability nói về khả năng bảo tồn năng lực cũ.",
+    "error": "Hãy tập trung vào hiệu năng của các task đã học trước đó."
+  },
+  {
+    "id": "plasticity-definition",
+    "title": "Nhận diện plasticity",
+    "prompt": "Plasticity cao cho phép mô hình làm gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Giữ nguyên checkpoint để hiệu năng cũ không đổi."
+      },
+      {
+        "id": "opt2",
+        "label": "Giảm sai số trung bình bằng cách chỉ replay dữ liệu cũ."
+      },
+      {
+        "id": "opt4",
+        "label": "Thích nghi hiệu quả với dữ liệu hoặc tác vụ mới.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Bảo tồn representation cũ mà không tiếp nhận tín hiệu mới."
+      }
+    ],
+    "success": "Plasticity là khả năng tiếp thu cái mới.",
+    "error": "Hãy nghĩ đến tốc độ và mức độ thích nghi với dữ liệu mới."
+  },
+  {
+    "id": "stability-plasticity-tradeoff",
+    "title": "Đọc đúng trade-off",
+    "prompt": "Kết quả nào thể hiện cân bằng stability–plasticity tốt?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Task mới tăng rõ rệt trong khi mức giảm trên task cũ nằm trong ngưỡng chấp nhận.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Task mới tăng tối đa nhưng task cũ giảm xuống dưới ngưỡng sử dụng."
+      },
+      {
+        "id": "opt3",
+        "label": "Task cũ giữ nguyên vì mô hình gần như không học được task mới."
+      },
+      {
+        "id": "opt4",
+        "label": "Average score tăng nhưng không tách acquisition khỏi retention."
+      }
+    ],
+    "success": "Cần quan sát đồng thời acquisition và retention.",
+    "error": "Một phía tốt không đủ; hãy kiểm tra cả task mới lẫn task cũ."
+  }
+]} />

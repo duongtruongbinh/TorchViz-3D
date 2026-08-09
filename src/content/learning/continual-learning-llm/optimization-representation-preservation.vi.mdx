@@ -1,0 +1,32 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'optimization-representation-preservation',
+  locale: 'vi',
+  title: "Bảo tồn biểu diễn",
+  headings: ['Hai cách giảm interference mà không lưu nhiều dữ liệu'],
+  keywords: ['Continual Learning', 'LLM', 'Bảo tồn Gradient và Không gian Biểu diễn'],
+  conceptIds: [
+  "optimization-based-cl",
+  "gradient-interference",
+  "representation-based-cl",
+  "method-family-choice"
+],
+}
+
+## Hai cách giảm interference mà không lưu nhiều dữ liệu
+
+Optimization-based CL điều chỉnh hướng update để gradient mới ít gây hại cho objective cũ. Representation-based CL giữ cấu trúc feature hoặc output trung gian của checkpoint trước.
+
+<ComparisonMatrix
+  ariaLabel="Optimization-based và representation-based Continual Learning"
+  columns={['Optimization-based', 'Representation-based']}
+  rows={[
+    { label: 'Bảo vệ', values: ['Hướng cập nhật', 'Feature hoặc geometry'] },
+    { label: 'Tín hiệu', values: ['Gradient/constraint cũ', 'Teacher feature, logits hoặc prototype'] },
+    { label: 'Rủi ro', values: ['Projection tốn compute hoặc quá chặt', 'Giữ representation nhưng vẫn quên decision detail'] },
+  ]}
+/>
+
+Gradient conflict là khi update cho task mới làm tăng loss của task cũ. Giảm conflict hữu ích nhưng không bảo đảm positive transfer. Chọn nhóm dựa trên tín hiệu cũ còn truy cập được và level năng lực cần bảo tồn.
+
+Nguồn: [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2) và bibliography của tác giả.

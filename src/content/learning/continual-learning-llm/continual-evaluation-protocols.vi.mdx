@@ -1,0 +1,32 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-evaluation-protocols',
+  locale: 'vi',
+  title: "Protocol đánh giá",
+  headings: ['Đánh giá mọi checkpoint trên đúng lát cắt thời gian'],
+  keywords: ['Continual Learning', 'LLM', 'Protocol Đánh giá Continual LLM'],
+  conceptIds: [
+  "evaluation-matrix",
+  "checkpoint-schedule",
+  "old-new-future-splits",
+  "protocol-leakage"
+],
+}
+
+## Đánh giá mọi checkpoint trên đúng lát cắt thời gian
+
+Một protocol continual tạo ma trận **checkpoint × evaluation slice**. Sau mỗi stage, model được đo trên task cũ, task hiện tại và — khi đo transfer — task tương lai chưa dùng để huấn luyện.
+
+<ConceptFlow
+  ariaLabel="Lịch đánh giá cho một chuỗi Continual Learning"
+  items={[
+    { title: 'Before stage', detail: 'Đo baseline và future transfer' },
+    { title: 'Train stage', detail: 'Chỉ dùng dữ liệu được phép ở thời điểm đó' },
+    { title: 'After stage', detail: 'Đo old + current slices' },
+    { title: 'Repeat', detail: 'Giữ nguyên rubric, seed và checkpoint policy' },
+  ]}
+/>
+
+Split theo thời gian phải ngăn future leakage. Prompt template, retrieval corpus và model selection cũng có thể làm lộ dữ liệu tương lai dù training set đã sạch. Protocol cần lưu version của dataset, evaluator và decoding config.
+
+Nguồn: [Shi et al., §5 và Appendix B.2](https://arxiv.org/html/2404.16789v3#S5).

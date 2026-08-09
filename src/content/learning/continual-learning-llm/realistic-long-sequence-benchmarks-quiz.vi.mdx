@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'realistic-long-sequence-benchmarks-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Vì sao cần chuỗi dài",
+  "Task boundary",
+  "Controlled drift",
+  "Chi phí benchmark"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "long-sequence-need",
+  "boundary-realism",
+  "drift-control",
+  "benchmark-cost"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="realistic-long-sequence-benchmarks-quiz" questions={[
+  {
+    "id": "long-sequence-need",
+    "title": "Vì sao cần chuỗi dài",
+    "prompt": "Vì sao benchmark chỉ có vài stage có thể đánh giá quá lạc quan?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Nó luôn làm task boundary mờ hơn production stream."
+      },
+      {
+        "id": "opt2",
+        "label": "Nó có thể không bộc lộ forgetting và chi phí tích lũy qua nhiều update.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Nó bắt buộc evaluation cost tăng bậc hai theo số stage."
+      },
+      {
+        "id": "opt4",
+        "label": "Nó luôn chứa nhiều distribution drift hơn chuỗi dài."
+      }
+    ],
+    "success": "Failure dài hạn có thể không xuất hiện trong vài stage.",
+    "error": "Hãy xét tích lũy."
+  },
+  {
+    "id": "boundary-realism",
+    "title": "Task boundary",
+    "prompt": "Thiết kế nào mô phỏng production stream có soft task boundary tốt hơn?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Mỗi stage có nhãn domain hoàn hảo và router luôn nhận đúng task ID."
+      },
+      {
+        "id": "opt2",
+        "label": "Trộn ngẫu nhiên toàn bộ lịch sử để biến sequence thành joint training."
+      },
+      {
+        "id": "opt3",
+        "label": "Giữ distribution cố định và chỉ đổi tên checkpoint theo thời gian."
+      },
+      {
+        "id": "opt4",
+        "label": "Distribution thay đổi dần và model không được cung cấp task ID sạch tại mọi thời điểm.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Soft boundary kiểm tra detection và routing thật.",
+    "error": "Đừng mặc định metadata inference luôn có sẵn."
+  },
+  {
+    "id": "drift-control",
+    "title": "Controlled drift",
+    "prompt": "Benchmark có drift thực tế vẫn cần metadata nào để quy kết failure?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Chỉ timestamp checkpoint, không đánh dấu nội dung nào đã thay đổi."
+      },
+      {
+        "id": "opt2",
+        "label": "Chỉ aggregate score cuối, không lưu slice hoặc stage metadata."
+      },
+      {
+        "id": "opt3",
+        "label": "Ground truth về phần phân phối hoặc fact thay đổi và phần phải được giữ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Không cần metadata vì uncontrolled drift tự động gần production hơn."
+      }
+    ],
+    "success": "Nếu không biết drift, không thể phân biệt update đúng và forgetting.",
+    "error": "Realism vẫn cần khả năng quy kết."
+  },
+  {
+    "id": "benchmark-cost",
+    "title": "Chi phí benchmark",
+    "prompt": "Nếu full checkpoint × task evaluation quá đắt, lịch nào giảm cost mà vẫn giữ tín hiệu retention?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Sample evaluation có chủ đích nhưng luôn giữ các anchor task quan trọng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Bỏ toàn bộ task cũ và chỉ đánh giá task hiện tại."
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ đo training loss ở mỗi stage thay cho evaluation slice."
+      },
+      {
+        "id": "opt4",
+        "label": "Chỉ đánh giá checkpoint cuối nên không còn quỹ đạo forgetting."
+      }
+    ],
+    "success": "Sampling có chủ đích giữ signal chính.",
+    "error": "Giảm chi phí không được xóa khả năng phát hiện forgetting."
+  }
+]} />

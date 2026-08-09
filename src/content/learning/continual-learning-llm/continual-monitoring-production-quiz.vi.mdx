@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-monitoring-production-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Monitoring slices",
+  "Retention regression",
+  "Update gate",
+  "Rollback"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "monitoring-slices",
+  "retention-regression",
+  "update-gate",
+  "rollback-signal"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="continual-monitoring-production-quiz" questions={[
+  {
+    "id": "monitoring-slices",
+    "title": "Monitoring slices",
+    "prompt": "Bộ slice nào bao phủ tối thiểu acquisition, retention và production risk sau update?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Mục tiêu mới và latency tổng, không giữ slice năng lực cũ."
+      },
+      {
+        "id": "opt2",
+        "label": "Năng lực cũ và training loss, không có safety hoặc traffic canary."
+      },
+      {
+        "id": "opt3",
+        "label": "Năng lực cũ, mục tiêu mới, safety và canary traffic quan trọng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Aggregate traffic score duy nhất, không tách old/new/safety."
+      }
+    ],
+    "success": "Monitoring cần thấy acquisition lẫn retention và risk.",
+    "error": "Đừng để aggregate che slice quan trọng."
+  },
+  {
+    "id": "retention-regression",
+    "title": "Retention regression",
+    "prompt": "Aggregate score chỉ giảm nhẹ, nhưng safety slice của một nhóm người dùng giảm mạnh. Release nên xử lý thế nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Cho qua vì regression aggregate vẫn nằm dưới ngưỡng chung."
+      },
+      {
+        "id": "opt3",
+        "label": "Bỏ safety slice khỏi gate để giữ metric ổn định giữa các release."
+      },
+      {
+        "id": "opt4",
+        "label": "Chỉ tăng acquisition threshold trên task mới, không xét nhóm bị ảnh hưởng."
+      },
+      {
+        "id": "opt2",
+        "label": "Chặn hoặc điều tra release vì aggregate đang che một regression nghiêm trọng theo slice.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Severity phụ thuộc vị trí failure, không chỉ trung bình.",
+    "error": "Hãy kiểm tra per-slice."
+  },
+  {
+    "id": "update-gate",
+    "title": "Update gate",
+    "prompt": "Release gate nào cân bằng đúng acquisition và retention?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt2",
+        "label": "Training loss task mới giảm, không cần chạy old hoặc safety slice."
+      },
+      {
+        "id": "opt1",
+        "label": "Task mới đạt ngưỡng, còn từng năng lực cũ không vượt regression budget.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Aggregate score tăng dù một old slice vượt regression budget."
+      },
+      {
+        "id": "opt4",
+        "label": "Latency tốt hơn baseline nên bỏ yêu cầu acquisition và retention."
+      }
+    ],
+    "success": "Gate phải cân bằng acquisition và retention.",
+    "error": "Một phía tốt không đủ."
+  },
+  {
+    "id": "rollback-signal",
+    "title": "Rollback",
+    "prompt": "Để rollback khôi phục đúng behavior của continual system, cần version bundle nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt4",
+        "label": "Model, adapter, retrieval memory/index và policy liên quan.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt1",
+        "label": "Model weights và tên release, nhưng giữ adapter/index mới."
+      },
+      {
+        "id": "opt2",
+        "label": "Adapter và dashboard config, nhưng không khôi phục model hoặc memory."
+      },
+      {
+        "id": "opt3",
+        "label": "Retrieval index và prompt demo, nhưng bỏ model weights và policy."
+      }
+    ],
+    "success": "Behavior đến từ nhiều artifact, không chỉ base weights.",
+    "error": "Khôi phục một phần có thể tạo trạng thái không nhất quán."
+  }
+]} />

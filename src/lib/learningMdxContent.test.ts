@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { discoverLearningMdxFiles, inspectLearningMdx, validateLearningMdxFiles, validateLearningMdxSource } from '../../scripts/learningContentMdx.ts';
 import { learningCatalog } from '../content/learning/index.ts';
+import { continualLearningLessonPairs } from '../content/learning/continual-learning-llm/table-of-contents.ts';
 import { getLearningMdxComponentNames, parseLearningMdxPath } from '../core/learning/mdxContract.ts';
 import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComponents.ts';
 import type { LearningCatalog } from '../core/learning/types.ts';
@@ -78,15 +79,28 @@ const expectedPageCounts: Record<string, number> = {
   'gaussian-elimination': 6,
   'lu-decomposition': 6,
   'identity-inverse-matrix': 6,
-  'continual-learning-llm-overview': 1,
-  'continual-learning-llm-overview-quiz': 6,
+  'continual-learning-llm-overview': 4,
+  'stability-plasticity-dilemma': 2,
+  'cl-settings-til-dil-cil': 4,
+  'continual-learning-llm-overview-quiz': 7,
   'catastrophic-forgetting-in-llms': 1,
   'catastrophic-forgetting-in-llms-quiz': 4,
   'catastrophic-forgetting-code-lab': 7,
+  'catastrophic-forgetting-code-lab-quiz': 4,
+  'cl-methods-taxonomy-and-replay': 1,
+  'cl-methods-taxonomy-and-replay-quiz': 3,
+  'replay-introduction': 2,
+  'replay-introduction-quiz': 3,
+  'replay-experience-code-lab': 15,
+  'replay-experience-code-lab-quiz': 15,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
+  'catastrophic-forgetting-code-lab-quiz': ['code-lab-forgetting-phenomenon', 'code-lab-cause-of-forgetting', 'code-lab-metric-sensitivity', 'code-lab-solutions-forward'],
   'catastrophic-forgetting-in-llms-quiz': ['catastrophic-forgetting-definition', 'why-new-task-causes-forgetting', 'llm-cl-unique-challenges', 'pattern-and-accuracy-behavior'],
-  'continual-learning-llm-overview-quiz': ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy'],
+  'continual-learning-llm-overview-quiz': ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
+  'cl-methods-taxonomy-and-replay-quiz': ['cl-method-families', 'optimization-based-cl', 'representation-based-cl'],
+  'replay-introduction-quiz': ['replay-training-objective', 'replay-constraints', 'replay-bound-tradeoff'],
+  'replay-experience-code-lab-quiz': ['replay-lab-comparison', 'replay-lab-environment-config', 'replay-lab-data-separation', 'replay-lab-tokenization-pipeline', 'replay-lab-evaluation-metrics', 'replay-lab-training-helper', 'replay-lab-naive-result', 'replay-lab-buffer-composition', 'replay-lab-retention-result', 'replay-lab-spurious-forgetting-nuance', 'replay-lab-operational-takeaway', 'replay-lab-multiseed-design', 'replay-lab-threshold-evidence', 'replay-lab-paper-mapping', 'replay-lab-paper-scope'],
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
   'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
   'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
@@ -114,11 +128,11 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 71);
+  assert.equal(lessonFiles.length, 142);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 71);
+  assert.equal(documents.length, 142);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
@@ -127,9 +141,10 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
     assert.equal(inspection.metadata.domainId, parsed.domainId);
     assert.equal(inspection.metadata.id, parsed.lessonId);
     assert.equal(inspection.metadata.locale, parsed.locale);
-    assert.equal(Number(inspection.metadata.pageCount ?? 1), expectedPageCounts[parsed.lessonId]);
-    if (expectedPageCounts[parsed.lessonId] > 1 && !inspection.quizQuestionIds.length) {
-      assert.deepEqual(inspection.pageIndexes, Array.from({ length: expectedPageCounts[parsed.lessonId] }, (_, index) => index));
+    const expectedPageCount = expectedPageCounts[parsed.lessonId] ?? Number(inspection.metadata.pageCount ?? 1);
+    assert.equal(Number(inspection.metadata.pageCount ?? 1), expectedPageCount);
+    if (expectedPageCount > 1 && !inspection.quizQuestionIds.length) {
+      assert.deepEqual(inspection.pageIndexes, Array.from({ length: expectedPageCount }, (_, index) => index));
     }
     if (expectedQuizQuestionIds[parsed.lessonId]) assert.deepEqual(inspection.quizQuestionIds, expectedQuizQuestionIds[parsed.lessonId]);
     if (parsed.domainId === 'cv') assert.equal(inspection.cvExerciseFixtures.length, 1);
@@ -140,11 +155,154 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   for (const requirement of ['Google Colab', 'Python', 'uv', 'VSCode']) assert.match(requirements, new RegExp(requirement));
 });
 
+test('published continual-learning pairs map theory concepts to quiz questions exactly', async () => {
+  const domainFiles = lessonFiles.filter((file) => parseLearningMdxPath(file)?.domainId === 'continual-learning-llm');
+  const inspectionByLessonId = new Map<string, Awaited<ReturnType<typeof inspectLearningMdx>>>();
+
+  for (const file of domainFiles) {
+    const parsed = parseLearningMdxPath(file);
+    assert.ok(parsed);
+    inspectionByLessonId.set(parsed.lessonId, await inspectLearningMdx(readFileSync(file, 'utf8'), file));
+  }
+
+  for (const pair of continualLearningLessonPairs) {
+    const theory = learningCatalog.lessons.find((lesson) => lesson.domainId === 'continual-learning-llm' && lesson.id === pair.theory.id);
+    const quiz = learningCatalog.lessons.find((lesson) => lesson.domainId === 'continual-learning-llm' && lesson.id === pair.quiz.id);
+    assert.ok(theory);
+    assert.ok(quiz);
+    if (theory.contentStatus !== 'published') continue;
+
+    const theoryInspection = inspectionByLessonId.get(pair.theory.id);
+    const quizInspection = inspectionByLessonId.get(pair.quiz.id);
+    assert.ok(theoryInspection, `published theory ${pair.theory.id} needs an MDX file`);
+    assert.ok(quizInspection, `published quiz ${pair.quiz.id} needs an MDX file`);
+    const theoryConceptIds = theoryInspection.metadata.conceptIds;
+    assert.ok(Array.isArray(theoryConceptIds) && theoryConceptIds.length, `${pair.theory.id} needs conceptIds`);
+    assert.deepEqual(quizInspection.metadata.conceptIds, theoryConceptIds);
+    assert.deepEqual(quizInspection.quizQuestionIds, theoryConceptIds);
+  }
+});
+
+test('continual-learning quizzes vary correct positions and keep one defensible answer shape', async () => {
+  const quizInspections = await Promise.all(continualLearningLessonPairs.map(async (pair) => {
+    const file = lessonFiles.find((candidate) => parseLearningMdxPath(candidate)?.lessonId === pair.quiz.id);
+    assert.ok(file, `missing quiz MDX for ${pair.quiz.id}`);
+    return inspectLearningMdx(readFileSync(file, 'utf8'), file);
+  }));
+  const questions = quizInspections.flatMap((inspection) => inspection.quizQuestions);
+  const singleQuestions = questions.filter((question) => question.mode === 'single');
+  const multiQuestions = questions.filter((question) => question.mode === 'multi');
+
+  assert.equal(questions.length, 161);
+  assert.equal(singleQuestions.length, 160);
+  assert.equal(multiQuestions.length, 1);
+  assert.equal(multiQuestions[0]?.id, 'replay-constraints');
+  assert.ok(questions.every((question) => question.optionCount === 4));
+  assert.ok(singleQuestions.every((question) => question.correctOptionIndexes.length === 1));
+  assert.equal(multiQuestions[0]?.correctOptionIndexes.length, 2);
+
+  for (const inspection of quizInspections) {
+    const usedPositions = new Set(inspection.quizQuestions.flatMap((question) => question.correctOptionIndexes));
+    assert.equal(
+      usedPositions.size,
+      Math.min(inspection.quizQuestions.length, 4),
+      `${String(inspection.metadata.id)} should vary correct answers across A–D`,
+    );
+
+    const singlePositions = inspection.quizQuestions.map((question) => (
+      question.correctOptionIndexes.length === 1 ? question.correctOptionIndexes[0] : null
+    ));
+    for (let index = 0; index + 2 < singlePositions.length; index += 1) {
+      const window = singlePositions.slice(index, index + 3);
+      if (window.some((position) => position === null)) continue;
+      const [first, second, third] = window as [number, number, number];
+      const firstStep = (second - first + 4) % 4;
+      const secondStep = (third - second + 4) % 4;
+      assert.ok(
+        !(firstStep === secondStep && (firstStep === 1 || firstStep === 3)),
+        `${String(inspection.metadata.id)} should not expose a cyclic three-answer pattern`,
+      );
+    }
+  }
+
+  const singlePositionCounts = [0, 0, 0, 0];
+  const allCorrectFlagCounts = [0, 0, 0, 0];
+  for (const question of questions) {
+    for (const index of question.correctOptionIndexes) {
+      allCorrectFlagCounts[index] += 1;
+      if (question.mode === 'single') singlePositionCounts[index] += 1;
+    }
+  }
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [39, 40, 40, 41]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [40, 40, 41, 41]);
+
+  const sequenceCounts = new Map<string, number>();
+  for (const inspection of quizInspections) {
+    const sequence = inspection.quizQuestions
+      .map((question) => question.correctOptionIndexes.join(''))
+      .join('|');
+    sequenceCounts.set(sequence, (sequenceCounts.get(sequence) ?? 0) + 1);
+  }
+  assert.ok(Math.max(...sequenceCounts.values()) <= 3, 'quiz files should not restart one predictable answer sequence');
+});
+
 test('generic MDX contract rejects imports, executable expressions, and unknown components', async () => {
   const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'x', headings: ['x'], keywords: ['x'] }";
   await assert.rejects(() => inspectLearningMdx(`import X from './x'\n\nexport const lessonMetadata = ${metadata}\n\n<X />`, 'fixture.mdx', 'cv'), /imports|unexpected|parse import/i);
   await assert.rejects(() => inspectLearningMdx("export const lessonMetadata = { domainId: 'cv', id: 'x', locale: 'vi', title: run(), headings: ['x'], keywords: ['x'] }", 'fixture.mdx', 'cv'), /executable|unsupported/i);
   await assert.rejects(() => inspectLearningMdx(`export const lessonMetadata = ${metadata};\n\n<Unknown />`, 'fixture.mdx', 'cv'), /unexpected MDX component/i);
+});
+
+test('shared visual primitives accept static semantic data', async () => {
+  const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'x', headings: ['x'], keywords: ['x'] }";
+  const source = `export const lessonMetadata = ${metadata}
+
+<ConceptFlow ariaLabel="Flow" items={[{ title: 'A', detail: 'B' }]} />
+<ExperimentChecklist ariaLabel="Checklist" items={[{ title: 'A', action: 'B', check: 'C' }]} />
+<ComparisonMatrix ariaLabel="Matrix" columns={['A']} rows={[{ label: 'B', values: ['C'], highlightedColumn: 0 }]} />
+<DatasetComposition ariaLabel="Dataset" totalLabel="3 samples" segments={[{ label: 'A', value: 2, valueLabel: '2' }, { label: 'B', value: 1, valueLabel: '1', tone: 'accent' }]} />
+<MetricBars ariaLabel="Metrics" items={[{ label: 'A', value: 75, valueLabel: '75%', tone: 'success' }]} />
+<ConceptSpectrum ariaLabel="Spectrum" items={[{ label: 'A', detail: 'B' }]} />
+<CourseCards ariaLabel="Cards" exampleLabel="Example" takeawayLabel="Impact" items={[{ title: 'A', example: 'B', takeaway: 'C' }]} />
+<EvidenceCards ariaLabel="Evidence" items={[{ eyebrow: 'Experiment', value: '75%', label: 'Retention', insight: 'Replay helps.', tone: 'success' }]} />`;
+  const inspection = await inspectLearningMdx(source, 'fixture.mdx', 'cv');
+  assert.deepEqual(inspection.pageIndexes, []);
+  assert.deepEqual(inspection.quizQuestionIds, []);
+});
+
+test('continual-learning visuals use global semantic primitives without shared domain leakage', () => {
+  const sharedComponents = readFileSync('src/components/learning/learningMdxComponents.tsx', 'utf8');
+  const continualSources = lessonFiles
+    .filter((file) => parseLearningMdxPath(file)?.domainId === 'continual-learning-llm')
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n');
+
+  for (const componentName of ['ConceptFlow', 'ExperimentChecklist', 'ComparisonMatrix', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'CourseCards', 'EvidenceCards']) {
+    assert.match(sharedComponents, new RegExp(`export function ${componentName}\\b`));
+  }
+  assert.match(sharedComponents, /aria-label=\{ariaLabel\}/);
+  assert.match(sharedComponents, /<caption className="sr-only">\{ariaLabel\}<\/caption>/);
+  assert.doesNotMatch(sharedComponents, /continual-learning-llm\./);
+  assert.doesNotMatch(continualSources, /<RequirementsGrid|<RequirementCard|assetKey=/);
+});
+
+test('generic MDX contract rejects empty or duplicate concept ids', async () => {
+  const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'x', headings: ['x'], keywords: ['x']";
+  const catalogText = { title: { en: 'CV', vi: 'CV' }, description: { en: '', vi: '' } };
+  const catalog: LearningCatalog = {
+    domains: [{ id: 'cv', text: catalogText, status: 'active', trackIds: ['cv-basics'] }],
+    tracks: [{ id: 'cv-basics', text: catalogText, domainId: 'cv', lessonIds: ['x'], status: 'available' }],
+    lessons: [{ id: 'x', domainId: 'cv', trackId: 'cv-basics', status: 'available', contentStatus: 'published', tags: [], entryPoints: [], text: { title: { en: 'x', vi: 'x' }, theory: [] }, sections: [] }],
+  };
+  const filePath = 'src/content/learning/cv/x.vi.mdx';
+  await assert.rejects(
+    () => validateLearningMdxSource(`export const lessonMetadata = ${metadata}, conceptIds: [] }`, filePath, catalog),
+    /conceptIds must be a non-empty string array/,
+  );
+  await assert.rejects(
+    () => validateLearningMdxSource(`export const lessonMetadata = ${metadata}, conceptIds: ['same', 'same'] }`, filePath, catalog),
+    /conceptIds must be unique/,
+  );
 });
 
 test('generic MDX contract accepts negative numeric literals but rejects other unary expressions', async () => {
@@ -172,7 +330,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'InlineMath', 'BlockMath', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'ExperimentChecklist', 'ComparisonMatrix', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,

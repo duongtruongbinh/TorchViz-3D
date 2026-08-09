@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { learningCatalog, learningTableOfContents } from '../content/learning/index.ts';
+import { continualLearningLessonPairs } from '../content/learning/continual-learning-llm/table-of-contents.ts';
 import {
   getLearningDomain,
   getLearningLessonsForTrack,
@@ -36,18 +37,18 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
-  assert.equal(learningCatalog.tracks.length, 90);
-  assert.equal(learningCatalog.lessons.length, 629);
+  assert.equal(learningCatalog.tracks.length, 91);
+  assert.equal(learningCatalog.lessons.length, 678);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 69, next: 1, locked: 559 },
+    { available: 140, next: 1, locked: 537 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 71);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 558);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 142);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 536);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
@@ -64,6 +65,77 @@ test('catalog lesson text is canonical', () => {
   }, 'en');
   assert.equal(text.title, 'Catalog title');
   assert.deepEqual(text.theory, ['Catalog theory']);
+});
+
+test('continual-learning lessons form complete adjacent theory and quiz pairs', () => {
+  const domainLessons = learningCatalog.lessons.filter((lesson) => lesson.domainId === 'continual-learning-llm');
+  const pairedLessonIds = continualLearningLessonPairs.flatMap((pair) => [pair.theory.id, pair.quiz.id]);
+
+  assert.equal(new Set(pairedLessonIds).size, pairedLessonIds.length, 'theory and quiz ids must be unique');
+  assert.deepEqual(domainLessons.map((lesson) => lesson.id).sort(), [...pairedLessonIds].sort());
+
+  for (const pair of continualLearningLessonPairs) {
+    assert.equal(pair.quiz.id, `${pair.theory.id}-quiz`);
+    assert.doesNotMatch(pair.theory.id, /-quiz$/);
+
+    const track = getLearningTrack(learningCatalog, 'continual-learning-llm', pair.trackId);
+    assert.ok(track, `missing continual-learning track ${pair.trackId}`);
+    const theoryIndex = track.lessonIds.indexOf(pair.theory.id);
+    assert.notEqual(theoryIndex, -1, `missing theory node ${pair.theory.id}`);
+    assert.equal(track.lessonIds[theoryIndex + 1], pair.quiz.id, `${pair.quiz.id} must immediately follow its theory node`);
+
+    const theory = domainLessons.find((lesson) => lesson.id === pair.theory.id);
+    const quiz = domainLessons.find((lesson) => lesson.id === pair.quiz.id);
+    assert.ok(theory);
+    assert.ok(quiz);
+    assert.equal(theory.trackId, pair.trackId);
+    assert.equal(quiz.trackId, pair.trackId);
+    assert.equal(quiz.status, theory.status, `${pair.theory.id} pair must share lesson status`);
+    assert.equal(quiz.contentStatus, theory.contentStatus, `${pair.theory.id} pair must share content status`);
+  }
+});
+
+test('continual-learning fundamentals introduces and measures forgetting immediately after stability-plasticity', () => {
+  const fundamentalsTrack = getLearningTrack(learningCatalog, 'continual-learning-llm', 'cl-llm-fundamentals');
+
+  assert.deepEqual(fundamentalsTrack?.lessonIds.slice(0, 8), [
+    'continual-learning-llm-overview',
+    'continual-learning-llm-overview-quiz',
+    'stability-plasticity-dilemma',
+    'stability-plasticity-dilemma-quiz',
+    'catastrophic-forgetting-in-llms',
+    'catastrophic-forgetting-in-llms-quiz',
+    'catastrophic-forgetting-code-lab',
+    'catastrophic-forgetting-code-lab-quiz',
+  ]);
+  assert.deepEqual(fundamentalsTrack?.lessonIds.slice(-2), [
+    'cl-methods-taxonomy-and-replay',
+    'cl-methods-taxonomy-and-replay-quiz',
+  ]);
+});
+
+test('continual-learning methods chapter starts with replay, its lab, regularization, and architecture', () => {
+  const methodsTrack = getLearningTrack(learningCatalog, 'continual-learning-llm', 'cl-llm-methods');
+
+  assert.deepEqual(methodsTrack?.lessonIds, [
+    'replay-introduction',
+    'replay-introduction-quiz',
+    'replay-experience-code-lab',
+    'replay-experience-code-lab-quiz',
+    'parameter-regularization-ewc',
+    'parameter-regularization-ewc-quiz',
+    'architecture-expansion-isolation',
+    'architecture-expansion-isolation-quiz',
+  ]);
+});
+
+test('continual-learning node titles stay compact and adjacent assessments are labeled Quiz', () => {
+  for (const pair of continualLearningLessonPairs) {
+    assert.ok(pair.theory.title);
+    assert.deepEqual(pair.quiz.title, { en: 'Quiz', vi: 'Quiz' });
+    assert.ok(pair.theory.title.en.length <= 32, `${pair.theory.id} English title is too long`);
+    assert.ok(pair.theory.title.vi.length <= 32, `${pair.theory.id} Vietnamese title is too long`);
+  }
 });
 
 test('reinforcement learning keeps canonical order and resolves legacy aliases', () => {
@@ -116,7 +188,7 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 test('only LLM and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 558);
+  assert.equal(missingLessons.length, 536);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);

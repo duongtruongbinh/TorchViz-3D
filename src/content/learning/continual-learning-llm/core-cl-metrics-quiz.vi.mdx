@@ -1,0 +1,160 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'core-cl-metrics-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Overall Performance",
+  "Forgetting",
+  "Backward Transfer",
+  "Forward Transfer",
+  "Đọc nhiều metric"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "overall-performance",
+  "forgetting-metric",
+  "backward-transfer",
+  "forward-transfer",
+  "metric-interpretation"
+],
+  pageCount: 5,
+}
+
+<MdxQuiz id="core-cl-metrics-quiz" questions={[
+  {
+    "id": "overall-performance",
+    "title": "Overall Performance",
+    "prompt": "Ở stage hiện tại, OP tóm tắt phần nào của ma trận hiệu năng?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Hiệu năng chỉ trên task vừa học ở stage hiện tại."
+      },
+      {
+        "id": "opt2",
+        "label": "Giá trị thấp nhất trong tất cả task đã học."
+      },
+      {
+        "id": "opt3",
+        "label": "Hiệu năng trung bình trên cả các task tương lai chưa học."
+      },
+      {
+        "id": "opt4",
+        "label": "Hiệu năng trung bình trên các task model đã học đến stage đó.",
+        "isCorrect": true
+      }
+    ],
+    "success": "OP tóm tắt năng lực tổng thể trên lịch sử đã thấy.",
+    "error": "Hãy nhìn các task đã học đến thời điểm hiện tại."
+  },
+  {
+    "id": "forgetting-metric",
+    "title": "Forgetting",
+    "prompt": "Một task cũ từng đạt 0,82 và sau các stage mới còn 0,62. Mức giảm dùng cho F của task này là bao nhiêu?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "0,62 — hiệu năng hiện tại được dùng trực tiếp làm forgetting."
+      },
+      {
+        "id": "opt3",
+        "label": "0,20 — chênh lệch giữa mức tốt nhất trước đó và mức hiện tại.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "0,82 — mức đỉnh trước đó được xem là toàn bộ forgetting."
+      },
+      {
+        "id": "opt4",
+        "label": "1,44 — tổng mức đỉnh và mức hiện tại."
+      }
+    ],
+    "success": "F lượng hóa mức suy giảm của task cũ.",
+    "error": "Đây là metric loss of performance."
+  },
+  {
+    "id": "backward-transfer",
+    "title": "Backward Transfer",
+    "prompt": "Sau khi học task mới, hiệu năng một task cũ tăng so với ngay sau khi học task đó. Tín hiệu nào phù hợp nhất?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "FWT dương vì task cũ được đo trước khi học nó."
+      },
+      {
+        "id": "opt3",
+        "label": "Forgetting dương vì mọi thay đổi sau stage đều là quên."
+      },
+      {
+        "id": "opt4",
+        "label": "OP chắc chắn giảm vì task cũ không còn ở stage hiện tại."
+      },
+      {
+        "id": "opt2",
+        "label": "BWT dương vì update mới đã cải thiện task cũ.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Positive BWT là transfer ngược có lợi.",
+    "error": "Phân biệt backward với forward transfer."
+  },
+  {
+    "id": "forward-transfer",
+    "title": "Forward Transfer",
+    "prompt": "Để đo FWT cho một task tương lai, cần đánh giá task đó ở thời điểm nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Trước khi model được huấn luyện trên task tương lai đó, so với baseline tương ứng.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Ngay sau khi model hoàn tất task tương lai đó."
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ sau stage cuối, khi mọi task đều đã được học."
+      },
+      {
+        "id": "opt4",
+        "label": "Tại checkpoint có OP cao nhất, không cần baseline."
+      }
+    ],
+    "success": "FWT kiểm tra lợi ích có trước khi trực tiếp học task.",
+    "error": "Tên metric chỉ hướng đến task chưa thấy."
+  },
+  {
+    "id": "metric-interpretation",
+    "title": "Đọc nhiều metric",
+    "prompt": "Hai model có cùng OP, nhưng một model giảm mạnh trên một task cũ. Kết luận nào hợp lý?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Hai model tương đương trên retention vì OP bằng nhau."
+      },
+      {
+        "id": "opt2",
+        "label": "Model có task mới cao hơn luôn tốt hơn dù task cũ giảm mạnh."
+      },
+      {
+        "id": "opt4",
+        "label": "Cần xem F/BWT và kết quả per-task vì OP trung bình có thể che regression.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Chỉ cần đổi baseline FWT; không cần kiểm tra task đã học."
+      }
+    ],
+    "success": "Cần xem distribution per-task và forgetting.",
+    "error": "Aggregate có thể che failure cục bộ."
+  }
+]} />

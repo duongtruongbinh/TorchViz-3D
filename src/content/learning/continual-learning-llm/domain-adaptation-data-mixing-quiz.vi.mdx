@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'domain-adaptation-data-mixing-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Chọn dữ liệu domain",
+  "Vai trò dữ liệu general",
+  "Chọn mixing ratio",
+  "Ràng buộc governance"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "domain-data-selection",
+  "general-domain-mixing",
+  "mixing-ratio-tradeoff",
+  "data-governance-constraint"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="domain-adaptation-data-mixing-quiz" questions={[
+  {
+    "id": "domain-data-selection",
+    "title": "Chọn dữ liệu domain",
+    "prompt": "Tập domain tốt nên ưu tiên tổ hợp đặc tính nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Liên quan, bổ sung coverage hữu ích, đa dạng và có provenance rõ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Liên quan cao nhưng lặp lại tối đa một nguồn để giảm variance."
+      },
+      {
+        "id": "opt3",
+        "label": "Đa dạng chủ đề nhưng không cần kiểm tra chất lượng hoặc quyền sử dụng."
+      },
+      {
+        "id": "opt4",
+        "label": "Mới lạ so với corpus cũ nhưng không cần liên quan đến domain mục tiêu."
+      }
+    ],
+    "success": "Selection cần bao phủ tín hiệu domain mà không lãng phí token.",
+    "error": "Hãy xét giá trị thông tin, không chỉ số lượng."
+  },
+  {
+    "id": "general-domain-mixing",
+    "title": "Vai trò dữ liệu general",
+    "prompt": "Vì sao giữ một phần dữ liệu general trong mixture?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Để giảm tỷ trọng domain cho đến khi acquisition mới không còn đáng kể."
+      },
+      {
+        "id": "opt2",
+        "label": "Để cung cấp tín hiệu bảo tồn năng lực nền.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Để biến DAP thành supervised fine-tuning trên dữ liệu general."
+      },
+      {
+        "id": "opt4",
+        "label": "Để training loss general thay thế việc đánh giá retention sau DAP."
+      }
+    ],
+    "success": "General data đóng vai trò anchor retention.",
+    "error": "Hãy liên hệ với vertical forgetting."
+  },
+  {
+    "id": "mixing-ratio-tradeoff",
+    "title": "Chọn mixing ratio",
+    "prompt": "Cách chọn tỷ lệ general/domain đáng tin cậy nhất là gì?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Dùng 50/50 vì tỷ lệ cân bằng luôn tối ưu acquisition và retention."
+      },
+      {
+        "id": "opt2",
+        "label": "Dùng 100% domain rồi chọn checkpoint có domain loss thấp nhất."
+      },
+      {
+        "id": "opt3",
+        "label": "Chọn tỷ lệ có average training loss thấp nhất mà không tách hai tập đánh giá."
+      },
+      {
+        "id": "opt4",
+        "label": "Sweep dưới cùng budget và đánh giá cả general lẫn domain performance.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Tỷ lệ phải được chọn bằng trade-off đo được.",
+    "error": "Không có hằng số áp dụng cho mọi domain."
+  },
+  {
+    "id": "data-governance-constraint",
+    "title": "Ràng buộc governance",
+    "prompt": "Yếu tố nào có thể loại một corpus khỏi mixture dù chất lượng cao?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Corpus được phép dùng cho training nhưng overlap một phần với dữ liệu general."
+      },
+      {
+        "id": "opt2",
+        "label": "Corpus có provenance rõ nhưng coverage trùng một phần với dữ liệu general."
+      },
+      {
+        "id": "opt3",
+        "label": "Không có quyền sử dụng hoặc không đáp ứng yêu cầu xóa dữ liệu.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Corpus đã loại PII nhưng cần thêm bước deduplication trước khi trộn."
+      }
+    ],
+    "success": "Quyền sử dụng và retention policy là ràng buộc triển khai.",
+    "error": "Hãy xét tính hợp lệ của dữ liệu, không chỉ metric."
+  }
+]} />

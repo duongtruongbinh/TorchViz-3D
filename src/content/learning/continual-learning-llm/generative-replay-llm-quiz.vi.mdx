@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'generative-replay-llm-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Cơ chế generative replay",
+  "Chất lượng pseudo-data",
+  "Generator forgetting",
+  "Privacy trade-off"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "generative-replay",
+  "pseudo-sample-quality",
+  "generator-forgetting",
+  "privacy-tradeoff"
+],
+  pageCount: 4,
+}
+
+<MdxQuiz id="generative-replay-llm-quiz" questions={[
+  {
+    "id": "generative-replay",
+    "title": "Cơ chế generative replay",
+    "prompt": "Cơ chế nào cung cấp tín hiệu lịch sử mà không giữ trực tiếp raw sample trong replay buffer?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Checkpoint cũ cung cấp cached logits nhưng không sinh pseudo-sample."
+      },
+      {
+        "id": "opt2",
+        "label": "Một generator tạo pseudo-sample đại diện cho các stage cũ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Một tập prototype biểu diễn được lưu trực tiếp cho mỗi stage."
+      },
+      {
+        "id": "opt4",
+        "label": "External memory truy xuất lại các raw document lịch sử khi inference."
+      }
+    ],
+    "success": "Generator cung cấp tín hiệu lịch sử tổng hợp.",
+    "error": "Hãy xác định nguồn mẫu cũ."
+  },
+  {
+    "id": "pseudo-sample-quality",
+    "title": "Chất lượng pseudo-data",
+    "prompt": "Bộ tiêu chí nào đánh giá pseudo-data đầy đủ nhất cho continual replay?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Độ trôi chảy và độ dài trung bình, không đo coverage lịch sử."
+      },
+      {
+        "id": "opt2",
+        "label": "Accuracy trên task mới, không đánh giá fact hay domain cũ."
+      },
+      {
+        "id": "opt3",
+        "label": "Privacy leakage, không đo tính đúng hoặc độ đại diện của pseudo-data."
+      },
+      {
+        "id": "opt4",
+        "label": "Coverage lịch sử, factuality và distribution drift của mẫu sinh.",
+        "isCorrect": true
+      }
+    ],
+    "success": "Mẫu sinh phải đại diện và đúng.",
+    "error": "Synthetic không tự động đồng nghĩa với chất lượng."
+  },
+  {
+    "id": "generator-forgetting",
+    "title": "Generator forgetting",
+    "prompt": "Failure nào cho thấy chính generator đang bị continual forgetting?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Generator dần sinh pseudo-data lệch và bỏ mất vùng lịch sử từng mô hình hóa.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Learner quên task cũ dù generator vẫn tái tạo lịch sử ổn định."
+      },
+      {
+        "id": "opt3",
+        "label": "Router gửi input cũ đến sai expert trong khi generator không đổi."
+      },
+      {
+        "id": "opt4",
+        "label": "Raw replay buffer trở nên stale dù không có generator nào được dùng."
+      }
+    ],
+    "success": "Bộ tạo replay cũng là một model continual.",
+    "error": "Đừng giả định generator giữ lịch sử hoàn hảo."
+  },
+  {
+    "id": "privacy-tradeoff",
+    "title": "Privacy trade-off",
+    "prompt": "Vì sao bỏ raw buffer vẫn chưa đủ để kết luận generative replay bảo vệ privacy?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Pseudo-data được tổng hợp nên mặc định không cần access control hoặc audit."
+      },
+      {
+        "id": "opt2",
+        "label": "Ẩn prompt của generator sẽ loại bỏ mọi khả năng model extraction."
+      },
+      {
+        "id": "opt3",
+        "label": "Generator có thể memorise và tái tạo nội dung nhạy cảm từ dữ liệu huấn luyện.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Chỉ đo aggregate quality là đủ để phát hiện mọi dạng privacy leakage."
+      }
+    ],
+    "success": "Cần audit extraction và leakage dù không lưu raw sample.",
+    "error": "Privacy risk có thể nằm trong generator."
+  }
+]} />

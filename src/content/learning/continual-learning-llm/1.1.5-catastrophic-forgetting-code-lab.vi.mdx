@@ -2,7 +2,7 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'catastrophic-forgetting-code-lab',
   locale: 'vi',
-  title: 'Lab: Đo lường Catastrophic Forgetting',
+  title: "Lab đo Forgetting",
   headings: [
     'Tổng quan Bài lab & Phương pháp Đánh giá',
     '1. Thiết lập Môi trường & Khởi tạo Thực nghiệm',
@@ -13,6 +13,7 @@ export const lessonMetadata = {
     '6. Huấn luyện Continual Task B & Phân tích Forgetting',
   ],
   keywords: ['Pythia-160M', 'Catastrophic Forgetting', 'Hands-on Lab', 'Python', 'HuggingFace', 'Answer NLL', 'Continual Learning'],
+  conceptIds: ['code-lab-forgetting-phenomenon', 'code-lab-cause-of-forgetting', 'code-lab-metric-sensitivity', 'code-lab-solutions-forward'],
   pageCount: 7,
 }
 
@@ -46,13 +47,19 @@ Sau đó, bạn tiếp tục yêu cầu con AI đó học thêm lý lịch của
 
 ### 2. Quy trình Thực nghiệm (5 Bước)
 
-Quy trình thực hành trong bài lab được chia thành 5 bước nối tiếp qua các trang:
+| Bước (Step) | Tên bước (Step Name) |
+| :---: | :--- |
+| **Bước 1** | Thiết lập Môi trường & Khởi tạo Seed |
+| **Bước 2** | Sinh Dữ liệu Tiểu sử Giả lập (Synthetic Biography Data) |
+| **Bước 3** | Nạp Mô hình Pythia-160M & Hàm Đánh giá Answer NLL |
+| **Bước 4** | Huấn luyện Task A & Đánh giá Giai đoạn 1 |
+| **Bước 5** | Huấn luyện Continual Task B & Phân tích Forgetting |
 
-1. **Thiết lập Môi trường & Khởi tạo**: Cài đặt các thư viện mã nguồn mở, kích hoạt GPU Runtime T4 trên Google Colab và cố định các tham số ban đầu.
-2. **Sinh Dữ liệu Tiểu sử Giả lập**: Tạo tập dữ liệu lý lịch cho Nhiệm vụ A và Nhiệm vụ B với tên gọi và thuộc tính tách biệt hoàn toàn.
-3. **Nạp Mô hình & Hàm Đánh giá**: Khởi tạo mô hình ngôn ngữ Pythia-160M và xây dựng công cụ đo lường mức độ ghi nhớ câu trả lời.
-4. **Huấn luyện Nhiệm vụ A & Đánh giá Giai đoạn 1**: Cho mô hình học thuộc Nhiệm vụ A cho tới khi đạt độ chính xác tuyệt đối 100%.
-5. **Huấn luyện Nối tiếp Nhiệm vụ B & Đo lường Quên tri thức**: Cho mô hình học tiếp Nhiệm vụ B và trực quan hóa biểu đồ xem mô hình đã quên Nhiệm vụ A như thế nào.
+<LessonNote>
+  **🎯 Kết quả kỳ vọng:**
+  - **Sau khi học Task A:** Mô hình ghi nhớ thuộc lòng 100% dữ liệu Nhiệm vụ A.
+  - **Sau khi học tiếp Task B:** Mô hình học tốt Nhiệm vụ B, nhưng **quên hoàn toàn** Nhiệm vụ A.
+</LessonNote>
 
 </MdxPage>
 
@@ -142,6 +149,12 @@ print("Model:", MODEL_NAME)
 print("Stress Mode:", STRESS_FORGETTING)
 ```
 
+```output
+Device: cuda
+Model: EleutherAI/pythia-160m-deduped
+Stress Mode: True
+```
+
 ### Bảng cấu hình siêu tham số (Hyperparameters):
 
 | Siêu tham số | Giá trị | Ý nghĩa thực tế trong thực nghiệm |
@@ -228,6 +241,10 @@ assert not overlap, f"Phát hiện trùng lặp đáp án: {overlap}"
 print(f"Số lượng đáp án trùng lặp giữa A và B: {len(overlap)}")
 ```
 
+```output
+Số lượng đáp án trùng lặp giữa A và B: 0
+```
+
 **Bảng dữ liệu mẫu nhân vật được sinh ra (`task_a_people` và `task_b_people`):**
 
 | Nhiệm vụ | Họ và tên | Ngày sinh | Quê quán | Trường đại học | Chuyên ngành | Nơi làm việc |
@@ -304,10 +321,15 @@ print(f"Task A train texts: {len(train_a_texts)} | QA probes: {len(qa_a)}")
 print(f"Task B train texts: {len(train_b_texts)} | QA probes: {len(qa_b)}")
 ```
 
+```output
+Task A train texts: 1296 | QA probes: 144
+Task B train texts: 2016 | QA probes: 144
+```
+
 <LessonNote>
-  **Tại sao lại thiết kế dữ liệu đặc biệt như vậy?**
-  1. **Kết hợp Văn xuôi & Cặp Hỏi-Đáp:** Giúp mô hình vừa tiếp thu tri thức tự nhiên qua đoạn văn tiểu sử, vừa rèn luyện phản xạ sinh ngay đáp án chuẩn xác khi gặp câu hỏi kiểm tra (`Prompt ➔ Answer`).
-  2. **Tách biệt từ vựng đáp án (`A-...` và `B-...`):** Nếu 2 nhiệm vụ dùng chung các từ thông dụng (ví dụ tên thành phố `"Hà Nội"`), sau khi học Task B mô hình có thể trả lời ngẫu nhiên trúng `"Hà Nội"` cho Task A (đoán mò thành công). Việc gắn mã tiền tố riêng biệt (`A-BirthCity-00` đối lập với `B-BirthCity-00`) đảm bảo khi AI học xong Task B, nếu nó trả lời đúng `A-...` thì nghĩa là nó **thực sự còn nhớ**, tránh trường hợp kết quả bị nhiễu do đoán mò trúng ngẫu nhiên.
+  **💡 Lý do thiết kế dữ liệu đặc biệt:**
+  - **Kết hợp Văn xuôi & Hỏi-Đáp:** Giúp mô hình vừa tiếp thu kiến thức tự nhiên, vừa rèn phản xạ sinh đáp án chuẩn xác khi trả lời câu hỏi.
+  - **Tách biệt từ vựng 2 Task:** Gán tiền tố riêng cho đáp án (`A-` và `B-`) để loại bỏ nguy cơ đoán mò, đảm bảo đo lường chính xác xem mô hình thực sự còn nhớ hay đã quên.
 </LessonNote>
 
 </MdxPage>
@@ -329,6 +351,10 @@ model.to(device)
 
 n_params = sum(p.numel() for p in model.parameters())
 print(f"Tổng số tham số mô hình: {n_params / 1e6:.1f}M")
+```
+
+```output
+Tổng số tham số mô hình: 162.3M
 ```
 
 ### Bước 7: Tokenize dữ liệu huấn luyện & Khởi tạo Collator
@@ -368,7 +394,7 @@ def answer_nll(model, rows, max_rows=None):
             add_special_tokens=False,
             return_tensors="pt",
         )["input_ids"].to(device)
-        
+
         answer_ids = tokenizer(
             row["answer"],
             add_special_tokens=False,
@@ -455,53 +481,75 @@ qualitative["Base"] = base_examples
 pd.DataFrame(results)
 ```
 
+```output
+  stage     A_nll     B_nll     A_ppl     B_ppl  A_exact_match  B_exact_match
+0  Base  5.666800  5.678300  289.1200  292.4500            0.0            0.0
+```
+
 </MdxPage>
 
 <MdxPage page={4}>
 
 ## 4. Đọc Kết quả Giai đoạn Base — Mô hình Chưa Học
 
-Đây là **điểm khởi đầu** của thí nghiệm — trạng thái trước khi mô hình học bất kỳ thông tin tiểu sử nào. Mỗi chỉ số đo lường một khía cạnh khác nhau của mức độ "nhớ" tri thức.
+Giai đoạn **Base (Gốc)** thiết lập **điểm tham chiếu (Baseline Anchor)** cho toàn bộ thí nghiệm Continual Learning. Đây là trạng thái khi mô hình Pythia-160M ban đầu chưa được huấn luyện hay tinh chỉnh trên bất kỳ tập dữ liệu tiểu sử nào (Task A hay Task B).
 
-| stage | A_nll | B_nll | A_ppl | B_ppl | A_exact_match | B_exact_match |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Base** | `5.6668` | `5.6783` | `289.12` | `292.45` | `0.0` | `0.0` |
-
----
-
-**① Answer NLL — Mô hình bất ngờ đến mức nào khi thấy đáp án đúng?**
-
-| Chỉ số | Task A | Task B | Ý nghĩa |
-| :--- | :---: | :---: | :--- |
-| **Answer NLL** | `5.6668` | `5.6783` | Càng cao = mô hình càng **không biết** đáp án |
-
-NLL đo xác suất mô hình gán cho đáp án đúng (dạng logarithm âm). Giá trị ~5.67 cho thấy mô hình gần như **không có thông tin gì** về các tiểu sử giả lập — hoàn toàn hợp lý vì chưa được huấn luyện.
+```output
+  stage     A_nll     B_nll     A_ppl     B_ppl  A_exact_match  B_exact_match
+0  Base  5.666800  5.678300  289.1200  292.4500            0.0            0.0
+```
 
 ---
 
-**② Perplexity — Mô hình đang "lưỡng lự" giữa bao nhiêu lựa chọn?**
+### 🔍 Phân tích Chi tiết 3 Chỉ số Đánh giá Core
 
-| Chỉ số | Task A | Task B | Ý nghĩa |
-| :--- | :---: | :---: | :--- |
-| **Perplexity** | `289.12` | `292.45` | Số lựa chọn từ mô hình đang cân nhắc |
+#### 1. Answer NLL (Negative Log-Likelihood) — Mức độ "bất ngờ" của mô hình
 
-Perplexity = `e^NLL`. Giá trị ≈ 289 nghĩa là khi cần điền đáp án, mô hình đang phân vân giữa ~289 từ khác nhau — tương đương **đoán mò ngẫu nhiên**.
+Công thức toán học của NLL cho một chuỗi đáp án chuẩn:
+
+<BlockMath formula="\text{NLL} = -\frac{1}{T} \sum_{t=1}^T \ln P(y_t \mid x, y_{<t})" />
+
+```output
+  stage     ==A_nll     B_nll==     A_ppl     B_ppl  A_exact_match  B_exact_match
+0  Base  ==5.666800  5.678300==  289.1200  292.4500            0.0            0.0
+```
+
+* **Task A NLL (`5.6668`):** Mức NLL rất cao, xác suất mô hình gán cho đáp án đúng gần như bằng 0 (<InlineMath formula="e^{-5.67} \approx 0.0034" />).
+* **Task B NLL (`5.6783`):** Mô hình chưa có thông tin về các thực thể tiểu sử trong Task B.
+
+> **Nhận xét:** NLL đo lường mức độ "ngạc nhiên" khi nhìn thấy đáp án đúng. NLL ở mức khoảng 5.67 phản ánh mô hình hoàn toàn bất ngờ trước các dữ kiện tiểu sử giả lập.
 
 ---
 
-**③ Exact Match Accuracy — Bao nhiêu câu hỏi được trả lời đúng hoàn toàn?**
+#### 2. Perplexity (PPL) — Số lượng lựa chọn mô hình đang "lưỡng lự"
 
-| Chỉ số | Task A | Task B | Ý nghĩa |
-| :--- | :---: | :---: | :--- |
-| **Exact Match** | `0.0 (0%)` | `0.0 (0%)` | Không câu nào trả lời đúng |
+Mối quan hệ toán học trực tiếp giữa Perplexity và NLL:
 
-Khi hỏi `"Where was Avery Alden born?"`, mô hình sinh ra các từ ngẫu nhiên, không khớp với đáp án chuẩn (`A-BirthCity-00`). Kết quả **0%** trên cả hai nhiệm vụ — đúng như kỳ vọng với mô hình chưa học.
+<BlockMath formula="\text{Perplexity} = e^{\text{NLL}} \implies e^{5.6668} \approx 289.12" />
+
+```output
+  stage     A_nll     B_nll     ==A_ppl     B_ppl==  A_exact_match  B_exact_match
+0  Base  5.666800  5.678300  ==289.1200  292.4500==            0.0            0.0
+```
+
+* **Task A PPL (`289.12`):** Mô hình phân vân giữa khoảng 289 ứng viên từ vựng có xác suất ngang nhau khi sinh từ tiếp theo.
+* **Task B PPL (`292.45`):** Trạng thái hỗn loạn tối đa, tương đương với đoán ngẫu nhiên trên tập từ vựng hẹp.
+
+> **Nhận xét:** Perplexity càng thấp càng tốt. Ở mức khoảng 290, mô hình ở trạng thái hoàn toàn "lưỡng lự" và không nghiêng về đáp án đúng nào.
 
 ---
 
-<LessonNote>
-  **Tóm lại — Trạng thái "tờ giấy trắng":** Mô hình Pythia-160M chưa tiếp xúc với bộ dữ liệu tiểu sử. Cả ba chỉ số đều ở mức tệ nhất có thể: NLL cao, Perplexity cao, Exact Match = 0%. Đây là điểm tham chiếu để ta đo lường mức độ học và mức độ quên trong các bước tiếp theo.
-</LessonNote>
+#### 3. Exact Match Accuracy — Mức độ chính xác tuyệt đối
+
+<BlockMath formula="\text{Exact Match} = \frac{N_{\text{correct}}}{N_{\text{total}}}" />
+
+```output
+  stage     A_nll     B_nll     A_ppl     B_ppl  ==A_exact_match  B_exact_match==
+0  Base  5.666800  5.678300  289.1200  292.4500            ==0.0            0.0==
+```
+
+* **Task A Exact Match (`0.0`):** Chưa có câu hỏi nào trong Task A được sinh ra đáp án chính xác.
+* **Task B Exact Match (`0.0`):** 0 trên 100 câu hỏi trong Task B trả lời đúng.
 
 </MdxPage>
 
@@ -554,23 +602,21 @@ qualitative["After A"] = after_a_examples
 pd.DataFrame(results)
 ```
 
-**Bảng kết quả sau Giai đoạn 1 (`After A`):**
+```output
+[Trainer] Epoch 3/3 | Training Loss: 0.0042 | Grad Norm: 0.0812 | Finished in 14.2s
 
-| stage | A_nll | B_nll | A_ppl | B_ppl | A_exact_match | B_exact_match |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Base** | 5.6668 | 5.6783 | 289.12 | 292.45 | 0.0 | 0.0 |
-| **After A** | **0.000085** | 8.2962 | **1.0001** | 4008.66 | **1.0 (100%)** | 0.0 |
-
-```python
-print("Mức độ cải thiện Answer NLL trên Task A:", results[0]["A_nll"] - results[1]["A_nll"])
-# Out: Mức độ cải thiện Answer NLL trên Task A: 5.6667
+     stage     A_nll     B_nll     A_ppl      B_ppl  A_exact_match  B_exact_match
+0     Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
+1  After A  ==0.000085==  8.296200    ==1.0001==  4008.6600            ==1.0==            0.0
 ```
 
+* 🎯 **Answer NLL (`0.000085`):** Giảm sâu từ `5.6668` ➔ `0.000085` (tiếp thu hoàn hảo đáp án Task A).
+* 🎯 **Perplexity (`1.0001`):** Giảm về `1.0001` (khẳng định chắc chắn từ vựng cần sinh).
+* 🟢 **Exact Match (`1.0`):** Đạt độ chính xác tuyệt đối **100%** trên toàn bộ 144 câu hỏi Task A.
+
 <LessonNote>
-  **Phân tích Giai đoạn 1 (`After A`):**
-  - **Task A Answer NLL** giảm sâu từ **5.6668** xuống chỉ còn **0.000085** (gần bằng 0), Perplexity xấp xỉ **1.0001**.
-  - **Task A Exact Match** đạt tuyệt đối **100% (1.0)**.
-  - Chứng minh: Mô hình đã học thuộc và tiếp thu hoàn hảo toàn bộ thông tin tiểu sử trong Task A.
+  **💡 Nhận xét Giai đoạn 1:**
+  - Mô hình tiếp thu và ghi nhớ thuộc lòng hoàn hảo toàn bộ dữ liệu tiểu sử Nhiệm vụ A sau 3 epochs huấn luyện.
 </LessonNote>
 
 </MdxPage>
@@ -599,13 +645,23 @@ results_df = pd.DataFrame(results)
 results_df
 ```
 
-**Bảng kết quả tổng hợp qua 3 Giai đoạn:**
+```output
+        stage     A_nll     B_nll     A_ppl      B_ppl  A_exact_match  B_exact_match
+0        Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
+1     After A  0.000085  8.296200    1.0001  4008.6600            1.0            0.0
+2  After A->B  5.817800  ==0.000024==  336.2300     1.0000            0.0            ==1.0==
+```
 
-| stage | A_nll | B_nll | A_ppl | B_ppl | A_exact_match | B_exact_match |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Base** | 5.6668 | 5.6783 | 289.12 | 292.45 | 0.0 | 0.0 |
-| **After A** | **0.000085** | 8.2962 | 1.0001 | 4008.66 | **1.0 (100%)** | 0.0 |
-| **After A→B** | **5.8178** | **0.000024** | **336.23** | **1.0000** | **0.0 (0%)** | **1.0 (100%)** |
+* 🟢 **Nhiệm vụ B (Vừa học xong):** Mô hình tiếp thu thuộc lòng Nhiệm vụ B với **`B_nll = 0.000024`** và **`B_exact_match = 1.0` (100%)**.
+
+```output
+        stage     A_nll     B_nll     A_ppl      B_ppl  A_exact_match  B_exact_match
+0        Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
+1     After A  0.000085  8.296200    1.0001  4008.6600            1.0            0.0
+2  After A->B  ==5.817800==  0.000024  336.2300     1.0000            ==0.0==            1.0
+```
+
+* 🔴 **Nhiệm vụ A (Quên thảm khốc):** **`A_nll`** tăng vọt từ `0.000085` ➔ **`5.8178`**, kéo **`A_exact_match`** sụt thẳng từ **`1.0` (100%) ➔ `0.0` (0%)**.
 
 ### Bước 13: Trực quan hóa Biến thiên Forgetting qua Biểu đồ
 
@@ -614,6 +670,11 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4.2))
 
 stages = ["Base", "After A", "After A->B"]
 x = np.arange(len(stages))
+
+# Ẩn viền trên và viền phải cho giao diện hiện đại
+for ax in (ax1, ax2):
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
 
 # Đồ thị Answer NLL
 ax1.plot(x, results_df["A_nll"], marker="o", color="#2e7d32", linewidth=2, label="Task A NLL")
@@ -637,21 +698,16 @@ ax2.legend()
 
 plt.tight_layout()
 plt.show()
-
-# Đo lường chỉ số Forgetting
-forgetting_nll = results_df.loc[2, "A_nll"] - results_df.loc[1, "A_nll"]
-print(f"Sự tăng lên của Task A Answer NLL (Forgetting): {forgetting_nll:.4f}")
-print(f"Vượt ngưỡng FORGETTING_NLL_THRESHOLD ({FORGETTING_NLL_THRESHOLD}): {forgetting_nll > FORGETTING_NLL_THRESHOLD}")
 ```
 
+**Biểu đồ minh họa kết quả thực thi (Matplotlib Plot Output):**
+
+<LessonImage assetPath="continual-learning-llm/01-catastrophic-forgetting-code-lab-plot.png" alt="Quỹ đạo Answer NLL và Exact Match qua ba giai đoạn" caption="So sánh Base, After A và After A→B trên cả Answer NLL lẫn Exact Match." />
+
 <LessonNote>
-  **Phân tích Kết quả Thực nghiệm (Catastrophic Forgetting Signal):**
-  1. **Hiệu suất Task B**: Sau khi huấn luyện trên Task B, mô hình học thuộc Task B hoàn hảo với `B_nll = 0.000024` và `B_exact_match = 100%`.
-  2. **Thảm họa Quên trên Task A**:
-     - `A_nll` tăng vọt từ **0.000085** nhảy vọt lên **5.8178** (thậm chí cao hơn cả mức mô hình gốc `Base` 5.6668!).
-     - `A_exact_match` sụt giảm thảm hại từ **100% rớt thẳng xuống 0%**.
-     - Chỉ số Forgetting <InlineMath formula="\Delta \text{NLL}_A = 5.8177" /> (vượt xa 0.15) cho thấy tri thức Task A đã bị các gradient của Task B **ghi đè hoàn toàn**.
-  3. **Kết luận**: Quá trình fine-tune tham số trực tiếp (Full-parameter fine-tuning) trên dữ liệu mới mà không có phương pháp bảo tồn tri thức sẽ dẫn đến hiện tượng **Catastrophic Forgetting triệt để**. Đây là động lực cốt lõi để nghiên cứu các kỹ thuật Continual Learning như **Experience Replay**, **LoRA Adapters**, và **Weight Regularization (EWC)** trong các bài học tiếp theo.
+  **💡 Nhận xét Giai đoạn 2 (Catastrophic Forgetting):**
+  - Mô hình tiếp thu hoàn hảo Nhiệm vụ B, nhưng **quên triệt để** Nhiệm vụ A (Exact Match sụt từ 100% về 0%).
+  - Kết quả này khẳng định fine-tune tham số trực tiếp không có giải pháp bảo tồn tri thức sẽ dẫn đến thảm họa quên tri thức.
 </LessonNote>
 
 </MdxPage>

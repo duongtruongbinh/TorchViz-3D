@@ -1,0 +1,32 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'architecture-expansion-isolation',
+  locale: 'vi',
+  title: "Mở rộng và cô lập tham số",
+  headings: ['Dành capacity riêng để tránh ghi đè'],
+  keywords: ['Continual Learning', 'LLM', 'Mở rộng Kiến trúc và Cô lập Tham số'],
+  conceptIds: [
+  "parameter-isolation",
+  "architecture-expansion",
+  "task-routing",
+  "capacity-growth"
+],
+}
+
+## Dành capacity riêng để tránh ghi đè
+
+Architecture-based CL cô lập tham số cũ hoặc thêm capacity cho stage mới. Nếu task routing đúng, đường cũ không bị update và có thể đạt gần zero forgetting trên các task đã tách.
+
+<ConceptFlow
+  ariaLabel="Luồng architecture expansion theo task"
+  items={[
+    { title: 'Backbone chung', detail: 'Giữ representation nền' },
+    { title: 'Thêm module mới', detail: 'Adapter, LoRA hoặc expert cho stage mới' },
+    { title: 'Route lúc inference', detail: 'Chọn module đúng task/domain' },
+    { title: 'Kiểm soát growth', detail: 'Merge, prune hoặc giới hạn budget' },
+  ]}
+/>
+
+Đổi lại, hệ thống phải suy ra task/domain và kiểm soát số module tăng theo thời gian. Nếu routing sai, capacity cô lập vẫn không bảo đảm output đúng; nếu luôn thêm module, storage và serving complexity tăng không giới hạn.
+
+Nguồn: [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2).

@@ -1,0 +1,102 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-pretraining-pipeline-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+  "Mục tiêu CPT",
+  "Dòng dữ liệu CPT",
+  "Supplier–consumer"
+],
+  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  conceptIds: [
+  "cpt-purpose",
+  "cpt-data-stream",
+  "supplier-consumer-release-cycle"
+],
+  pageCount: 3,
+}
+
+<MdxQuiz id="continual-pretraining-pipeline-quiz" questions={[
+  {
+    "id": "cpt-purpose",
+    "title": "Mục tiêu CPT",
+    "prompt": "Continual Pre-training khác retraining từ đầu ở điểm nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt2",
+        "label": "Nó khởi tạo lại mọi tham số nhưng chỉ dùng corpus của stage mới."
+      },
+      {
+        "id": "opt1",
+        "label": "Nó tiếp tục cập nhật checkpoint hiện có trên dữ liệu mới.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "Nó giữ nguyên trọng số và chỉ bổ sung retrieval index cho dữ liệu mới."
+      },
+      {
+        "id": "opt4",
+        "label": "Nó gộp toàn bộ lịch sử rồi pre-train một base model mới từ khởi tạo ngẫu nhiên."
+      }
+    ],
+    "success": "CPT nối tiếp quá trình pre-training từ checkpoint trước.",
+    "error": "Hãy nhìn vào điểm khởi tạo và dòng dữ liệu."
+  },
+  {
+    "id": "cpt-data-stream",
+    "title": "Dòng dữ liệu CPT",
+    "prompt": "Dạng thay đổi nào có thể tạo một stage CPT mới?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt2",
+        "label": "Ngôn ngữ, nội dung hoặc thời gian của corpus thay đổi.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt1",
+        "label": "Corpus giữ nguyên nhưng downstream evaluator đổi metric báo cáo."
+      },
+      {
+        "id": "opt3",
+        "label": "Checkpoint được quantize để giảm memory nhưng không tiếp nhận corpus mới."
+      },
+      {
+        "id": "opt4",
+        "label": "Instruction template thay đổi trong inference nhưng phân phối pre-training không đổi."
+      }
+    ],
+    "success": "Survey xem ba loại distribution shift này là trọng tâm CPT.",
+    "error": "CPT phản ứng với thay đổi trong phân phối dữ liệu."
+  },
+  {
+    "id": "supplier-consumer-release-cycle",
+    "title": "Supplier–consumer",
+    "prompt": "Vai trò nào thường duy trì base model upstream?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Consumer downstream duy trì checkpoint chuyên biệt sau DAP hoặc fine-tuning."
+      },
+      {
+        "id": "opt2",
+        "label": "Evaluator độc lập duy trì benchmark và quyết định mọi lần cập nhật tham số."
+      },
+      {
+        "id": "opt3",
+        "label": "Supplier upstream duy trì và phát hành các phiên bản base model.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt4",
+        "label": "Serving operator duy trì endpoint nhưng không sở hữu pipeline huấn luyện upstream."
+      }
+    ],
+    "success": "Supplier cập nhật và phát hành checkpoint; consumer chuyên biệt hóa nó.",
+    "error": "Phân biệt bên phát hành base model với bên triển khai downstream."
+  }
+]} />

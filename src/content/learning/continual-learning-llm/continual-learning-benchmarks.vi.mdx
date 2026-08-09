@@ -1,0 +1,33 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-learning-benchmarks',
+  locale: 'vi',
+  title: "Benchmark Continual Learning",
+  headings: ['Chọn benchmark theo câu hỏi nghiên cứu'],
+  keywords: ['Continual Learning', 'LLM', 'Benchmark cho Continual Learning'],
+  conceptIds: [
+  "benchmark-purpose",
+  "dataset-family",
+  "task-sequence",
+  "benchmark-selection"
+],
+}
+
+## Chọn benchmark theo câu hỏi nghiên cứu
+
+Benchmark CL không chỉ là một dataset. Nó gồm sequence construction, quyền truy cập history, checkpoint schedule, evaluator và metric aggregation.
+
+<ComparisonMatrix
+  ariaLabel="Benchmark family theo câu hỏi Continual Learning"
+  columns={['Dữ liệu/sequence', 'Năng lực chính']}
+  rows={[
+    { label: 'Knowledge stream', values: ['Fact bất biến, cập nhật và mới', 'Retention / update / acquisition'] },
+    { label: 'Instruction stream', values: ['Instruction task nối tiếp', 'Instruction following và transfer'] },
+    { label: 'Domain stream', values: ['Corpus hoặc task theo domain', 'Domain adaptation và forgetting'] },
+    { label: 'Alignment stream', values: ['Preference/safety policy theo stage', 'Alignment retention và regression'] },
+  ]}
+/>
+
+Chọn benchmark bằng cách khớp loại continuity và failure cần kiểm tra. Không nên kết luận một method “tốt cho continual LLM” từ một sequence ngắn thuộc duy nhất một family.
+
+Nguồn: [Shi et al., §5 và Appendix B.3](https://arxiv.org/html/2404.16789v3#S5) cùng bibliography của tác giả.

@@ -87,8 +87,16 @@ export type LearningMdxInspection = {
   metadata: Record<string, unknown>;
   pageIndexes: number[];
   quizQuestionIds: string[];
+  quizQuestions: LearningMdxQuizQuestionInspection[];
   cvExerciseFixtures: unknown[];
   searchText: string;
+};
+
+export type LearningMdxQuizQuestionInspection = {
+  id: string;
+  mode: string;
+  optionCount: number;
+  correctOptionIndexes: number[];
 };
 
 export async function inspectLearningMdx(
@@ -102,6 +110,7 @@ export async function inspectLearningMdx(
   let metadata: Record<string, unknown> = {};
   const pageIndexes: number[] = [];
   const quizQuestionIds: string[] = [];
+  const quizQuestions: LearningMdxQuizQuestionInspection[] = [];
   const cvExerciseFixtures: unknown[] = [];
   await compile(source, {
     remarkPlugins: [remarkGfm, () => (tree: Node) => {
@@ -122,8 +131,22 @@ export async function inspectLearningMdx(
             stringsFromExpression(expression, searchParts, attribute.name);
             if (node.name === 'MdxPage' && attribute.name === 'page') pageIndexes.push(Number(staticValue(expression)));
             if (node.name === 'MdxQuiz' && attribute.name === 'questions') {
-              const questions = staticValue(expression) as Array<{ id?: unknown }>;
-              quizQuestionIds.push(...questions.map((question) => String(question.id ?? '')));
+              const questions = staticValue(expression) as Array<{
+                id?: unknown;
+                mode?: unknown;
+                options?: Array<{ isCorrect?: unknown }>;
+              }>;
+              for (const question of questions) {
+                const options = Array.isArray(question.options) ? question.options : [];
+                const id = String(question.id ?? '');
+                quizQuestionIds.push(id);
+                quizQuestions.push({
+                  id,
+                  mode: String(question.mode ?? ''),
+                  optionCount: options.length,
+                  correctOptionIndexes: options.flatMap((option, index) => option.isCorrect === true ? [index] : []),
+                });
+              }
             }
             if (node.name === 'CvExercise' && attribute.name === 'fixture') {
               cvExerciseFixtures.push(staticValue(expression));
@@ -162,6 +185,7 @@ export async function inspectLearningMdx(
     metadata,
     pageIndexes,
     quizQuestionIds,
+    quizQuestions,
     cvExerciseFixtures,
     searchText: [...new Set(searchParts.map((value) => value.trim()).filter(Boolean))].join(' '),
   };
@@ -279,6 +303,15 @@ function assertLearningMdxMetadata(
     const values = metadata[key];
     if (!Array.isArray(values) || !values.length || values.some((value) => typeof value !== 'string' || !value.trim())) {
       throw new Error(`${filePath}: ${key} must be a non-empty string array`);
+    }
+  }
+  if (metadata.conceptIds !== undefined) {
+    const conceptIds = metadata.conceptIds;
+    if (!Array.isArray(conceptIds) || !conceptIds.length || conceptIds.some((value) => typeof value !== 'string' || !value.trim())) {
+      throw new Error(`${filePath}: conceptIds must be a non-empty string array when provided`);
+    }
+    if (new Set(conceptIds).size !== conceptIds.length) {
+      throw new Error(`${filePath}: conceptIds must be unique`);
     }
   }
   const pageCount = Number(metadata.pageCount ?? 1);

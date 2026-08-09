@@ -1,10 +1,286 @@
 import type {
-  LearningContentStatus,
-  LearningLessonStatus,
   LearningTableOfContents,
   LearningTocLessonSeed,
   LearningTocTrackSeed,
 } from '../../../core/learning/types.ts';
+
+type ContinualLearningLessonPair = {
+  trackId: string;
+  theory: Exclude<LearningTocLessonSeed, string>;
+  quiz: Exclude<LearningTocLessonSeed, string>;
+};
+
+type ContinualLearningLessonPairInput = {
+  trackId: string;
+  id: string;
+  titleEn: string;
+  titleVi: string;
+};
+
+function lessonPair({
+  trackId,
+  id,
+  titleEn,
+  titleVi,
+}: ContinualLearningLessonPairInput): ContinualLearningLessonPair {
+  return {
+    trackId,
+    theory: {
+      id,
+      title: { en: titleEn, vi: titleVi },
+      status: 'available',
+      contentStatus: 'published',
+    },
+    quiz: {
+      id: `${id}-quiz`,
+      title: { en: 'Quiz', vi: 'Quiz' },
+      status: 'available',
+      contentStatus: 'published',
+    },
+  };
+}
+
+export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[] = [
+  lessonPair({
+    trackId: 'cl-llm-fundamentals',
+    id: 'continual-learning-llm-overview',
+    titleEn: 'Overview',
+    titleVi: 'Tổng quan',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-fundamentals',
+    id: 'stability-plasticity-dilemma',
+    titleEn: 'Stability–Plasticity',
+    titleVi: 'Stability–Plasticity',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-fundamentals',
+    id: 'catastrophic-forgetting-in-llms',
+    titleEn: 'Catastrophic Forgetting',
+    titleVi: 'Catastrophic Forgetting',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-fundamentals',
+    id: 'catastrophic-forgetting-code-lab',
+    titleEn: 'Forgetting Lab',
+    titleVi: 'Lab đo Forgetting',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-fundamentals',
+    id: 'cl-settings-til-dil-cil',
+    titleEn: 'Incremental Learning Settings',
+    titleVi: 'Phân loại kịch bản CL',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-fundamentals',
+    id: 'vertical-horizontal-continuity',
+    titleEn: 'Vertical and Horizontal CL',
+    titleVi: 'Vertical và Horizontal CL',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-fundamentals',
+    id: 'cl-methods-taxonomy-and-replay',
+    titleEn: 'Forgetting Solution Families',
+    titleVi: 'Nhóm giải pháp giảm quên',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
+    id: 'replay-introduction',
+    titleEn: 'What Is Replay?',
+    titleVi: 'Replay là gì?',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
+    id: 'replay-experience-code-lab',
+    titleEn: 'Experience Replay Lab',
+    titleVi: 'Lab Experience Replay',
+  }),
+
+  lessonPair({
+    trackId: 'cl-llm-pretraining-adaptation',
+    id: 'continual-pretraining-pipeline',
+    titleEn: 'Continual Pre-Training Pipeline',
+    titleVi: 'Pipeline Continual Pre-training',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-pretraining-adaptation',
+    id: 'cpt-effectiveness-efficiency',
+    titleEn: 'CPT Effectiveness and Cost',
+    titleVi: 'Hiệu quả và chi phí CPT',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-pretraining-adaptation',
+    id: 'cpt-distribution-shifts',
+    titleEn: 'CPT Distribution Shifts',
+    titleVi: 'Các dạng shift trong CPT',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-pretraining-adaptation',
+    id: 'domain-adaptive-pretraining',
+    titleEn: 'Domain-Adaptive Pre-Training',
+    titleVi: 'Domain-Adaptive Pre-training',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-pretraining-adaptation',
+    id: 'dap-vertical-forgetting',
+    titleEn: 'Vertical Forgetting in DAP',
+    titleVi: 'Vertical Forgetting trong DAP',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-pretraining-adaptation',
+    id: 'domain-adaptation-data-mixing',
+    titleEn: 'Data Selection and Mixing',
+    titleVi: 'Chọn và trộn dữ liệu',
+  }),
+
+  lessonPair({
+    trackId: 'cl-llm-instruction-tuning-alignment',
+    id: 'continual-finetuning-overview',
+    titleEn: 'Continual Fine-Tuning',
+    titleVi: 'Continual Fine-tuning',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-instruction-tuning-alignment',
+    id: 'continual-instruction-tuning',
+    titleEn: 'Continual Instruction Tuning',
+    titleVi: 'Continual Instruction Tuning',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-instruction-tuning-alignment',
+    id: 'continual-model-refinement',
+    titleEn: 'Continual Model Refinement',
+    titleVi: 'Continual Model Refinement',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-instruction-tuning-alignment',
+    id: 'continual-model-alignment',
+    titleEn: 'Continual Model Alignment',
+    titleVi: 'Continual Model Alignment',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-instruction-tuning-alignment',
+    id: 'continual-multimodal-llms',
+    titleEn: 'Continual Multimodal LLMs',
+    titleVi: 'Continual Multimodal LLM',
+  }),
+
+  lessonPair({
+    trackId: 'cl-llm-replay-memory',
+    id: 'experience-replay-buffers',
+    titleEn: 'Experience Replay',
+    titleVi: 'Experience Replay',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-replay-memory',
+    id: 'coreset-selection-strategies',
+    titleEn: 'Coreset Selection',
+    titleVi: 'Chọn Coreset',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-replay-memory',
+    id: 'generative-replay-llm',
+    titleEn: 'Generative Replay',
+    titleVi: 'Generative Replay',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-replay-memory',
+    id: 'efficient-replay-selection',
+    titleEn: 'Efficient Replay',
+    titleVi: 'Chọn Replay hiệu quả',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-replay-memory',
+    id: 'memory-constraint-spectrum',
+    titleEn: 'Memory Constraints',
+    titleVi: 'Ràng buộc bộ nhớ',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-replay-memory',
+    id: 'controllable-external-memory',
+    titleEn: 'External Memory',
+    titleVi: 'Bộ nhớ ngoài',
+  }),
+
+  lessonPair({
+    trackId: 'cl-llm-methods',
+    id: 'parameter-regularization-ewc',
+    titleEn: 'Regularization and EWC',
+    titleVi: 'Regularization và EWC',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
+    id: 'architecture-expansion-isolation',
+    titleEn: 'Expansion and Isolation',
+    titleVi: 'Mở rộng và cô lập tham số',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-regularization-peft',
+    id: 'modular-lora-adapters',
+    titleEn: 'LoRA and Adapters',
+    titleVi: 'LoRA và Adapter',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-regularization-peft',
+    id: 'continual-moe-expansion',
+    titleEn: 'Continual MoE',
+    titleVi: 'Continual MoE',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-regularization-peft',
+    id: 'optimization-representation-preservation',
+    titleEn: 'Representation Preservation',
+    titleVi: 'Bảo tồn biểu diễn',
+  }),
+
+  lessonPair({
+    trackId: 'cl-llm-evaluation-benchmarks',
+    id: 'core-cl-metrics',
+    titleEn: 'OP, F, BWT, and FWT',
+    titleVi: 'OP, F, BWT và FWT',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-evaluation-benchmarks',
+    id: 'knowledge-update-metrics',
+    titleEn: 'FUAR and X-Delta',
+    titleVi: 'FUAR và X-Delta',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-evaluation-benchmarks',
+    id: 'continual-evaluation-protocols',
+    titleEn: 'Evaluation Protocols',
+    titleVi: 'Protocol đánh giá',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-evaluation-benchmarks',
+    id: 'continual-learning-benchmarks',
+    titleEn: 'Continual Learning Benchmarks',
+    titleVi: 'Benchmark Continual Learning',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-evaluation-benchmarks',
+    id: 'realistic-long-sequence-benchmarks',
+    titleEn: 'Long-Sequence Benchmarks',
+    titleVi: 'Benchmark chuỗi dài',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-evaluation-benchmarks',
+    id: 'continual-monitoring-production',
+    titleEn: 'Production Monitoring',
+    titleVi: 'Giám sát production',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-evaluation-benchmarks',
+    id: 'continual-llm-research-frontiers',
+    titleEn: 'Research Frontiers',
+    titleVi: 'Hướng nghiên cứu mới',
+  }),
+];
+
+function lessonIdsForTrack(trackId: string): LearningTocLessonSeed[] {
+  return continualLearningLessonPairs
+    .filter((pair) => pair.trackId === trackId)
+    .flatMap((pair) => [pair.theory, pair.quiz]);
+}
 
 const chapters: LearningTocTrackSeed[] = [
   {
@@ -19,140 +295,91 @@ const chapters: LearningTocTrackSeed[] = [
         vi: "Khái niệm cốt lõi của continual learning cho LLM, đánh đổi giữa độ linh hoạt và độ ổn định, và thảm họa quên tri thức (catastrophic forgetting).",
       },
     },
-    lessonIds: [
-      lessonSeed(
-        'continual-learning-llm-overview',
-        'Overview',
-        'Overview',
-        'available',
-        'published',
-      ),
-      lessonSeed(
-        'continual-learning-llm-overview-quiz',
-        'Quiz',
-        'Quiz',
-        'available',
-        'published',
-      ),
-      lessonSeed(
-        'catastrophic-forgetting-in-llms',
-        'Catastrophic Forgetting in LLMs',
-        'Catastrophic Forgetting trong LLM',
-        'available',
-        'published',
-      ),
-      lessonSeed(
-        'catastrophic-forgetting-in-llms-quiz',
-        'Quiz: Catastrophic Forgetting',
-        'Quiz: Catastrophic Forgetting',
-        'available',
-        'published',
-      ),
-      lessonSeed(
-        'catastrophic-forgetting-code-lab',
-        'Lab: Đo lường Catastrophic Forgetting',
-        'Lab: Đo lường Catastrophic Forgetting',
-        'available',
-        'published',
-      ),
-      'stability-plasticity-dilemma',
-      'cl-vs-traditional-finetuning',
-    ],
+    lessonIds: lessonIdsForTrack('cl-llm-fundamentals'),
+  },
+  {
+    id: 'cl-llm-methods',
+    text: {
+      title: {
+        en: "1.2 Replay, Regularization & Architecture",
+        vi: "1.2 Replay, Regularization & Architecture",
+      },
+      description: {
+        en: "The three foundational continual-learning intervention families: replaying old data, constraining parameter updates, and isolating or expanding model capacity.",
+        vi: "Ba nhóm can thiệp nền tảng: phát lại dữ liệu cũ, ràng buộc cập nhật tham số, và cô lập hoặc mở rộng capacity của mô hình.",
+      },
+    },
+    lessonIds: lessonIdsForTrack('cl-llm-methods'),
   },
   {
     id: 'cl-llm-pretraining-adaptation',
     text: {
       title: {
-        en: "1.2 Continual Pre-training & Domain Adaptation",
-        vi: "1.2 Continual Pre-training & Chuyển đổi Miền Tri thức",
+        en: "1.3 Continual Pre-training & Domain Adaptation",
+        vi: "1.3 Continual Pre-training & Chuyển đổi Miền Tri thức",
       },
       description: {
         en: "Updating base model knowledge with dynamic text streams, domain-specific corpora, token distribution shifts, and vocabulary adaptation.",
         vi: "Cập nhật tri thức mô hình nền tảng với luồng dữ liệu liên tục, corpus chuyên ngành, sự dịch chuyển phân bố token và thích ứng từ vựng.",
       },
     },
-    lessonIds: [
-      'continual-pretraining-pipeline',
-      'domain-adaptation-data-mixing',
-      'token-distribution-shift',
-      'vocabulary-expansion-adaptation',
-    ],
+    lessonIds: lessonIdsForTrack('cl-llm-pretraining-adaptation'),
   },
   {
     id: 'cl-llm-instruction-tuning-alignment',
     text: {
       title: {
-        en: "1.3 Continual Instruction Tuning & Alignment",
-        vi: "1.3 Continual Instruction Tuning & Alignment",
+        en: "1.4 Continual Instruction Tuning & Alignment",
+        vi: "1.4 Continual Instruction Tuning & Alignment",
       },
       description: {
         en: "Maintaining alignment, instruction-following skills, and safety guardrails across sequential task fine-tuning.",
         vi: "Duy trì tính alignment, khả năng tuân thủ chỉ thị và rào chắn an toàn qua các giai đoạn fine-tuning liên tục.",
       },
     },
-    lessonIds: [
-      'continual-instruction-tuning',
-      'safety-alignment-preservation',
-      'preference-learning-drift',
-      'multi-task-continual-sft',
-    ],
+    lessonIds: lessonIdsForTrack('cl-llm-instruction-tuning-alignment'),
   },
   {
     id: 'cl-llm-replay-memory',
     text: {
       title: {
-        en: "1.4 Replay & Memory-Based Methods",
-        vi: "1.4 Phương pháp Replay & Bộ nhớ Phụ trợ",
+        en: "1.5 Replay & Memory-Based Methods",
+        vi: "1.5 Phương pháp Replay & Bộ nhớ Phụ trợ",
       },
       description: {
         en: "Experience replay, buffer selection strategies, generative replay, and external memory architectures.",
         vi: "Tái sử dụng dữ liệu (replay buffer), chiến lược chọn mẫu, generative replay và các kiến trúc bộ nhớ ngoài.",
       },
     },
-    lessonIds: [
-      'experience-replay-buffers',
-      'generative-replay-llm',
-      'coreset-selection-strategies',
-      'retrieval-augmented-continual-learning',
-    ],
+    lessonIds: lessonIdsForTrack('cl-llm-replay-memory'),
   },
   {
     id: 'cl-llm-regularization-peft',
     text: {
       title: {
-        en: "1.5 Regularization & PEFT Continual Learning",
-        vi: "1.5 Regularization & PEFT trong Continual Learning",
+        en: "1.6 Regularization & PEFT Continual Learning",
+        vi: "1.6 Regularization & PEFT trong Continual Learning",
       },
       description: {
         en: "EWC, weight regularization, mixture-of-experts (MoE) expansion, modular LoRA/adapter isolation, and parameter allocation.",
         vi: "EWC, ràng buộc trọng số, mở rộng Mixture-of-Experts (MoE), cô lập modular LoRA/adapter và phân bổ tham số.",
       },
     },
-    lessonIds: [
-      'ewc-weight-regularization',
-      'modular-lora-adapters',
-      'continual-moe-expansion',
-      'parameter-allocation-isolation',
-    ],
+    lessonIds: lessonIdsForTrack('cl-llm-regularization-peft'),
   },
   {
     id: 'cl-llm-evaluation-benchmarks',
     text: {
       title: {
-        en: "1.6 Evaluation, Benchmarks & Safety",
-        vi: "1.6 Đánh giá, Benchmarks & Safety cho Continual LLMs",
+        en: "1.7 Evaluation, Benchmarks & Research Frontiers",
+        vi: "1.7 Đánh giá, Benchmark & Hướng Nghiên cứu",
       },
       description: {
-        en: "Forward/backward transfer metrics, forgetting metrics, benchmark datasets, continuous monitoring, and production safety.",
-        vi: "Chỉ số chuyển giao tri thức (forward/backward transfer), chỉ số quên, bộ benchmark chuẩn, giám sát liên tục và an toàn vận hành.",
+        en: "Forgetting and transfer metrics, continual evaluation protocols, realistic benchmarks, production monitoring, and open research questions.",
+        vi: "Metric về quên và chuyển giao, protocol đánh giá, benchmark thực tế, giám sát production và các câu hỏi nghiên cứu mở.",
       },
     },
-    lessonIds: [
-      'forward-backward-transfer-metrics',
-      'continual-learning-benchmarks',
-      'evaluating-forgetting-at-scale',
-      'continuous-monitoring-production',
-    ],
+    lessonIds: lessonIdsForTrack('cl-llm-evaluation-benchmarks'),
   },
 ];
 
@@ -160,8 +387,8 @@ export const learningTableOfContents = {
   id: 'continual-learning-llm',
   text: {
     title: {
-      en: "Continual Learning of LLM",
-      vi: "Continual Learning của LLM",
+      en: "Continual Learning",
+      vi: "Continual Learning",
     },
     description: {
       en: "Master continual learning techniques for Large Language Models: catastrophic forgetting mitigation, continual pre-training, instruction tuning, experience replay, PEFT adapters, regularization, and benchmark evaluation.",
@@ -172,25 +399,3 @@ export const learningTableOfContents = {
   chapters,
   sectionKinds: ['theory', 'code'],
 } satisfies LearningTableOfContents;
-
-function lessonSeed(
-  id: string,
-  titleEn: string,
-  titleVi: string,
-  status?: LearningLessonStatus,
-  contentStatus: LearningContentStatus = 'missing',
-): LearningTocLessonSeed {
-  if (contentStatus !== 'published') {
-    return {
-      id,
-      title: { en: titleEn, vi: titleVi },
-    };
-  }
-
-  return {
-    id,
-    title: { en: titleEn, vi: titleVi },
-    status,
-    contentStatus,
-  };
-}

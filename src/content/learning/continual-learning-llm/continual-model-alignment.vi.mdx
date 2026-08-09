@@ -1,0 +1,33 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-model-alignment',
+  locale: 'vi',
+  title: "Continual Model Alignment",
+  headings: ['Cập nhật preference mà không đánh đổi năng lực và safety cũ'],
+  keywords: ['Continual Learning', 'LLM', 'Continual Model Alignment'],
+  conceptIds: [
+  "cma-definition",
+  "preference-shift",
+  "alignment-retention",
+  "safety-regression"
+],
+}
+
+## Cập nhật preference mà không đánh đổi năng lực và safety cũ
+
+Continual Model Alignment (CMA) cập nhật mô hình khi preference, policy hoặc chuẩn an toàn thay đổi. Tín hiệu mới có thể xung đột với alignment cũ, nên mục tiêu không chỉ là tăng reward hiện tại mà còn giữ năng lực hữu ích và các rào chắn vẫn còn hiệu lực.
+
+<ComparisonMatrix
+  ariaLabel="Các lát cắt cần đánh giá sau một alignment update"
+  columns={['Cần tăng hoặc giữ', 'Rủi ro']}
+  rows={[
+    { label: 'Preference mới', values: ['Tăng', 'Update không có tác dụng'] },
+    { label: 'Preference cũ còn hợp lệ', values: ['Giữ', 'Alignment forgetting'] },
+    { label: 'General ability', values: ['Giữ', 'Alignment tax'] },
+    { label: 'Safety', values: ['Không regression', 'Guardrail bị hở'] },
+  ]}
+/>
+
+**Alignment tax** là mức suy giảm năng lực đã có khi quá trình alignment thu hẹp output distribution. Vì vậy, release gate phải bao gồm capability lẫn safety regression, không chỉ preference win rate.
+
+Nguồn: [Shi et al., §4.3.5](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS5).
