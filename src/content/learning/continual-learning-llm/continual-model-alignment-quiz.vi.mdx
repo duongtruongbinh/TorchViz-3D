@@ -1,26 +1,20 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-model-alignment-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Mục tiêu', 'Alignment tax', 'Method'], keywords: ['Quiz', 'CMA'],
-  conceptIds: ['cma-goal', 'alignment-tax', 'cma-methods'], pageCount: 3,
+  headings: ['Nội dung', 'Paper'], keywords: ['Quiz', 'CMA'],
+  conceptIds: ['cma-overview', 'cma-papers'], pageCount: 2,
 }
 
 <MdxQuiz id="continual-model-alignment-quiz" questions={[
-  { id: 'cma-goal', title: 'Mục tiêu', mode: 'single', prompt: 'CMA liên tục cập nhật model theo nhóm tín hiệu nào?', options: [
-    { id: 'a', label: 'Chỉ token frequency.' },
-    { id: 'c', label: 'Chỉ task ID.' },
-    { id: 'b', label: 'Factual accuracy, chuẩn mực xã hội, ethics và human preferences.', isCorrect: true },
-    { id: 'd', label: 'Chỉ domain corpus không gán nhãn.' },
-  ], success: 'CMA theo dõi các mục tiêu alignment thay đổi.', error: 'Nhớ bốn nhóm survey liệt kê.' },
-  { id: 'alignment-tax', title: 'Alignment tax', mode: 'single', prompt: 'Alignment tax là gì?', options: [
-    { id: 'b', label: 'Sự suy giảm năng lực đã có khi alignment thu hẹp output distribution.', isCorrect: true },
-    { id: 'a', label: 'Chi phí lưu replay buffer.' },
-    { id: 'c', label: 'Số class mới trong CIL.' },
-    { id: 'd', label: 'Khoảng cách giữa hai domain.' },
-  ], success: 'Alignment có thể đổi lấy capability loss.', error: 'Tax ở đây là năng lực bị giảm.' },
-  { id: 'cma-methods', title: 'Method', mode: 'single', prompt: 'COPF thuộc nhánh nào?', options: [
-    { id: 'b', label: 'Replay-based CPT.' },
-    { id: 'c', label: 'Temporal LAMA evaluation.' },
-    { id: 'd', label: 'Architecture expansion cho DAP.' },
-    { id: 'a', label: 'Supervised Learning-based CMA, mở rộng DPO.', isCorrect: true },
-  ], success: 'COPF là SL-based CMA.', error: 'Phân biệt COPF với AMA/CPPO thuộc RL-based.' },
+  { id: 'cma-overview', title: 'Nội dung', mode: 'single', prompt: 'Sau alignment, reward tăng nhưng reasoning ngoài preference set giảm. Diễn giải nào đúng nhất?', options: [
+    { id: 'a', label: 'Đây là alignment tax: mục tiêu mới tốt hơn nhưng một phần năng lực cũ bị suy giảm.', isCorrect: true },
+    { id: 'b', label: 'Đây chỉ là chi phí GPU nên không liên quan chất lượng model.' },
+    { id: 'c', label: 'Đây là positive backward transfer vì reward tăng.' },
+    { id: 'd', label: 'Đây là class-incremental forgetting.' },
+  ], success: 'CMA phải đo cả policy enhancement và knowledge retention.', error: 'Đừng chỉ nhìn reward; hãy xét năng lực nền bị mất.' },
+  { id: 'cma-papers', title: 'Paper', mode: 'single', prompt: 'Ánh xạ nào đúng giữa ba paper CMA và nơi chúng can thiệp?', options: [
+    { id: 'a', label: 'AMA—synthetic replay; CPPO—LoRA trực giao; COPF—external memory.' },
+    { id: 'b', label: 'AMA—knowledge shards; CPPO—causal tracing; COPF—projection expansion.' },
+    { id: 'c', label: 'AMA—averaging theo layer; CPPO—sample weights trong RL; COPF—supervised policy fitting.', isCorrect: true },
+    { id: 'd', label: 'AMA—prompt gradient; CPPO—episodic memory; COPF—dynamic vocabulary.' },
+  ], success: 'Ba paper tác động lần lượt ở model weights, RL samples và policy-fitting objective.', error: 'Phân biệt averaging, reinforcement learning và supervised fitting.' },
 ]} />

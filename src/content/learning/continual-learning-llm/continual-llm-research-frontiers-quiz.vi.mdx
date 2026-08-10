@@ -5,28 +5,28 @@ export const lessonMetadata = {
 }
 
 <MdxQuiz id="continual-llm-research-frontiers-quiz" questions={[
-  { id: 'cl-theory', title: 'Lý thuyết', mode: 'single', prompt: 'Lý thuyết continual LLM cần giải thích ba quá trình nào?', options: [
-    { id: 'a', label: 'Forgetting, transfer và acquisition.', isCorrect: true },
-    { id: 'b', label: 'Tokenization, decoding và serving.' },
-    { id: 'c', label: 'Only retention.' },
-    { id: 'd', label: 'Only parameter growth.' },
-  ], success: 'Ba quá trình tạo nền tảng lý thuyết còn thiếu.', error: 'Nhớ bộ ba survey lặp lại trong conclusion.' },
-  { id: 'efficient-replay-future', title: 'Efficient replay', mode: 'single', prompt: 'Efficient replay cần thay đổi điều gì so với mixing ratio cố định?', options: [
-    { id: 'b', label: 'Replay toàn history ở mọi stage.' },
-    { id: 'c', label: 'Bỏ dữ liệu task cũ.' },
-    { id: 'd', label: 'Chỉ tăng model size.' },
-    { id: 'a', label: 'Chọn sample theo importance hoặc nguy cơ bị quên.', isCorrect: true },
-  ], success: 'Compute nên dành cho sample có giá trị retention.', error: 'Hướng mở nằm ở sample selection.' },
-  { id: 'controllable-memory-future', title: 'Controllable memory', mode: 'single', prompt: 'External memory được kỳ vọng hỗ trợ thao tác nào?', options: [
-    { id: 'a', label: 'Chỉ đọc.' },
-    { id: 'b', label: 'Write, read, sequential update và forgetting.', isCorrect: true },
-    { id: 'c', label: 'Chỉ tăng context length.' },
-    { id: 'd', label: 'Chỉ lưu task ID.' },
-  ], success: 'Memory cần có khả năng thao tác, không chỉ lưu.', error: 'Survey nêu bốn thao tác chính.' },
-  { id: 'custom-preferences', title: 'Custom preferences', mode: 'single', prompt: 'Mục tiêu của hướng custom preferences là gì?', options: [
-    { id: 'a', label: 'Một policy giống nhau cho mọi user.' },
-    { id: 'b', label: 'Bỏ safety để tăng domain expertise.' },
-    { id: 'c', label: 'Tạo các model Pareto-optimal theo preference mà không fine-tune lại toàn bộ cho từng user.', isCorrect: true },
-    { id: 'd', label: 'Chỉ đổi benchmark title.' },
-  ], success: 'Mục tiêu là cá nhân hóa trade-off hiệu quả.', error: 'Nhớ constraint không retrain/fine-tune toàn bộ cho mỗi user.' },
+  { id: 'cl-theory', title: 'Lý thuyết', mode: 'single', prompt: 'Vì sao parameter-distance bound hoặc task-discrepancy bound hiện có chưa đóng khoảng trống lý thuyết của continual LLM?', options: [
+    { id: 'a', label: 'Vì các bound chỉ áp dụng khi model không có tham số.' },
+    { id: 'b', label: 'Vì pre-training và quy mô lớn khiến việc chuyển trực tiếp các bảo đảm CL hiện có sang LLM chưa đủ cơ sở.', isCorrect: true },
+    { id: 'c', label: 'Vì LLM không thể được đánh giá trên nhiều task.' },
+    { id: 'd', label: 'Vì mọi bound đều yêu cầu replay toàn bộ history.' },
+  ], success: 'Lý thuyết hiện có là nền tảng, chưa phải bảo đảm hoàn chỉnh cho dynamics của pre-trained LLM.', error: 'Phân biệt kết quả CL thông thường với điều đã được chứng minh cho LLM lớn.' },
+  { id: 'efficient-replay-future', title: 'Efficient replay', mode: 'single', prompt: 'Hai paper minh họa efficient replay khác nhau ở tín hiệu chọn mẫu như thế nào?', options: [
+    { id: 'a', label: 'Cả hai chỉ dùng mixing ratio cố định.' },
+    { id: 'b', label: 'KPIG chọn theo model size; forecasting chọn theo độ dài sequence.' },
+    { id: 'c', label: 'KPIG chọn theo information gain; forecasting chọn example được dự báo sẽ bị quên.', isCorrect: true },
+    { id: 'd', label: 'KPIG chọn ngẫu nhiên; forecasting replay toàn bộ upstream corpus.' },
+  ], success: 'Một hướng đo giá trị thông tin, hướng kia dự báo trực tiếp nguy cơ forgetting.', error: 'Xác định tín hiệu quyết định sample nào đi vào replay.' },
+  { id: 'controllable-memory-future', title: 'Controllable memory', mode: 'single', prompt: 'Điểm nào phân biệt controllable memory với việc chỉ tăng capacity của model?', options: [
+    { id: 'a', label: 'Knowledge có các thao tác explicit như write, read, sequential update và selective forgetting.', isCorrect: true },
+    { id: 'b', label: 'Mọi knowledge luôn được ghi vĩnh viễn vào toàn bộ weights.' },
+    { id: 'c', label: 'Memory chỉ làm context window dài hơn nhưng không thể cập nhật.' },
+    { id: 'd', label: 'Model không còn cần kiểm tra locality hoặc retention.' },
+  ], success: 'Khả năng thao tác có chủ đích là lý do external memory đáng quan tâm.', error: 'Tập trung vào mức độ quan sát và điều khiển knowledge.' },
+  { id: 'custom-preferences', title: 'Custom preferences', mode: 'single', prompt: 'Kết luận nào bám đúng bằng chứng hiện có về IBCL?', options: [
+    { id: 'a', label: 'IBCL đã xác nhận personalized alignment cho mọi production LLM.' },
+    { id: 'b', label: 'IBCL bỏ hoàn toàn stability–plasticity trade-off.' },
+    { id: 'c', label: 'IBCL cần fine-tune một model mới cho từng preference.' },
+    { id: 'd', label: 'IBCL tạo model cho nhiều trade-off từ posterior knowledge base, nhưng bằng chứng còn giới hạn về scale và phụ thuộc giả định.', isCorrect: true },
+  ], success: 'Đây là hướng mở có bảo đảm dưới giả định, chưa phải kết quả phổ quát cho LLM lớn.', error: 'Giữ đồng thời cơ chế của IBCL và giới hạn empirical scale.' },
 ]} />

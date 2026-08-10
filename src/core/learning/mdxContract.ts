@@ -10,6 +10,7 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'ConceptFlow',
   'StageContinuityMap',
   'ExperimentChecklist',
+  'SelfCheckList',
   'ComparisonMatrix',
   'PaperTradeoff',
   'DatasetComposition',

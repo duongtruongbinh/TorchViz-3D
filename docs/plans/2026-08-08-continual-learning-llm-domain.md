@@ -2,7 +2,7 @@
 title: Continual Learning Course for Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
-updated: 2026-08-10T14:58:31+07:00
+updated: 2026-08-10T18:03:14+07:00
 author: nmkhiem
 task: "Add and author the Continual Learning domain, its paired assessments, labs, reusable visuals, and catalog contracts"
 supersedes: []
@@ -29,10 +29,11 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   displayed as **Continual Learning** directly after `llm-ai-engineering`.
 - Added a dedicated domain icon, card palette, typed domain ID, catalog export,
   and searchable route metadata.
-- Consolidated the curriculum into six numbered chapters and 37 adjacent
-  Theory/Quiz pairs (74 authored nodes): foundations; replay, regularization,
-  and architecture; vertical/horizontal continuity; CPT/DAP/CFT learning
-  stages; evaluation; and discussion.
+- Consolidated the curriculum into seven numbered chapters, with 38 adjacent
+  Theory/Quiz pairs in Chapters 1–6 and one standalone synthesis checklist in
+  Chapter 7 (77 authored nodes): foundations; replay, regularization, and
+  architecture; vertical/horizontal continuity; CPT/DAP/CFT learning stages;
+  evaluation; discussion; and a cross-course synthesis.
 - Kept the approved foundation through the Replay lab, then limited the
   remaining curriculum to the topics synthesized by Shi et al. (2025), removing
   speculative or redundant nodes that fell outside that survey-backed scope.
@@ -73,7 +74,7 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   question IDs must match that set exactly. This prevents untaught quiz content
   and theory claims without assessment coverage.
 - Reviewed all Continual Learning quizzes for plausible distractors and varied
-  correct-answer positions. The course contains 142 questions: 141
+  correct-answer positions. The course contains 150 questions: 149
   single-choice and one multi-choice question, all with four options.
 - Added catalog and MDX contract tests for pair adjacency, publication state,
   concept mapping, question shape, and non-predictable A–D answer sequences.
@@ -100,7 +101,7 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
 
 - Added generic, static-data MDX primitives shared across domains:
   `CourseCards`, `EvidenceCards`, `ConceptFlow`, `ExperimentChecklist`,
-  `ComparisonMatrix`, `DatasetComposition`, `MetricBars`, and
+  `SelfCheckList`, `ComparisonMatrix`, `DatasetComposition`, `MetricBars`, and
   `ConceptSpectrum`.
 - Added `StageContinuityMap` for the vertical-stage/horizontal-expansion map and
   `PaperTradeoff` for paired advantage/limitation summaries grounded in cited
@@ -194,13 +195,85 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   every removed lesson ID is unreferenced, and each new shared MDX component and
   `CourseCards` option has an authored consumer. No additional dead code or
   orphan asset remained to remove.
+- 2026-08-10 — Replaced the dense CPT-other-directions comparison table with
+  focused CEM, RHO-1, IR-DRO, industrial-update, and sustainability sections;
+  linked each cited paper directly, bounded findings to their experiments, and
+  expanded the adjacent quiz to preserve exact theory/assessment mapping.
+- 2026-08-10 — Expanded the DAP overview into four focused pages covering the
+  organizational context, unified terminology, the foundational DAPT evidence,
+  and the survey's 41-study analysis map; extended its quiz with exact concept
+  coverage and experiment-bounded distractors.
+- 2026-08-10 — Replaced the DAP-observations matrix with three sequential,
+  learner-focused OBS sections while preserving its existing concept and quiz
+  contract.
+- 2026-08-10 — Added calm full-width dividers and vertical breathing room
+  between the three DAP observation sections using the shared MDX prose style.
+- 2026-08-10 — Replaced the DAP domain matrix with six focused pages for
+  Legal, Medical, Financial, Scientific, Code, and other directions; linked
+  original papers, separated paper evidence from limitations, and expanded the
+  paired quiz to six exact domain concepts.
+- 2026-08-10 — Expanded the CFT overview into six focused pages covering its
+  downstream role, the two survey observations, representation-level
+  retention, simple fine-tuning controls, and General CFT format/module
+  methods; linked original papers, expanded SAPT/Larimar/AMA into bounded
+  paper-specific sections, and rebuilt the quiz around the six concepts.
+- 2026-08-10 — Expanded CIT, CMR, CMA, and CMLLM into focused, sequential
+  pages; replaced summary matrices with paper-specific context, mechanisms,
+  advantages, and limitations; linked every presented method to its original
+  paper; and extended the paired quizzes with exact concept coverage and
+  balanced correct-answer positions.
+- 2026-08-10 — Reduced the opening CFT page to one memorable idea: a single
+  dual objective presented as two large shared course cards for new-task
+  adaptation and old-task retention.
+- 2026-08-10 — Added a second CFT page mapping General CFT, CIT, CMR, CMA, and
+  CMLLM to the five objects they continually adapt; added the matching quiz
+  concept and shifted the remaining CFT pages without changing their content.
+- 2026-08-10 — Added a generated CFT illustration that connects one shared
+  adaptation–retention objective to five numbered, named cards with distinct
+  icons for General CFT, CIT, CMR, CMA, and CMLLM.
+- 2026-08-10 — Added a three-card doodle explainer for the representation-versus-
+  output hook, showing wrong task output, successful probing, and intact internal
+  groups behind a misaligned output route.
+- 2026-08-10 — Added one doodle explainer per simple-control paper: wide loss
+  basins for Mehta et al., dynamically sized updates for LR ADJUST, and the
+  warm-up–freeze–pre-allocation pipeline for SEQ*.
+- 2026-08-10 — Converted CIT, CMR, CMA, and CMLLM from single-screen documents
+  into two-page lessons: one focused overview and one paper-highlight page;
+  consolidated each paired quiz to the same two-concept structure.
+- 2026-08-10 — Added five doodle paper maps for CIT, CMR, CMA, CMLLM, and the
+  General CFT format/module page; each paper now has a named, mechanism-specific
+  visual card without turning the lessons into long full-width image stacks.
+- 2026-08-10 — Expanded the survey discussion into focused pages for emergent
+  recovery, the changing roles of DIL/TIL/CIL, memory-access regimes, and four
+  future directions; added direct original-paper links with bounded trade-offs
+  and finished the course with a dedicated Conclusion/Quiz pair.
+- 2026-08-10 — Added Chapter 7 as a three-page course synthesis grounded in the
+  Notion insight blocks and checked against Shi et al.; audited the Notion
+  review bank through item 66 against existing web quizzes and added only three
+  non-duplicate integration questions covering objective-to-stage mapping, a
+  reusable paper-reading frame, and claim-to-evidence alignment.
+- 2026-08-10 — Reframed the Chapter 7 theory node as six chapter-by-chapter
+  self-check pages; added a reusable accessible checklist with persisted
+  per-page progress.
+- 2026-08-10 — Removed the Chapter 7 quiz node so the course now ends with the
+  six-page self-check lesson; Chapters 1–6 retain their adjacent Theory/Quiz
+  pairs.
+- 2026-08-10 — Ran two independent reviews of the Chapter 7 synthesis for
+  curriculum coverage and beginner readability. Expanded the six checklists to
+  restate acronyms, cover missing baselines and constraints, separate CPT/DAP
+  from the five CFT branches, unpack the evaluation metrics, and bound the
+  discussion claims to their observed settings.
+- 2026-08-10 — Audited the final branch for unused additions: all ten generated
+  lesson assets have authored consumers, the shared checklist and table options
+  are referenced, and no removed lesson ID remains. Deleted the obsolete
+  Chapter 7 quiz file and its unused three-concept metadata.
 
 # Verification
 
 - Combined Python fences in the fifteen-page Replay lab parse as one valid
   copy-in-order Python program after excluding the Colab install magic.
-- Catalog and MDX tests validate all 74 authored Continual Learning nodes and
-  their exact Theory/Quiz mappings.
+- Catalog and MDX tests validate all 77 authored Continual Learning nodes and
+  the exact Theory/Quiz mappings for the 38 paired lessons.
 - `npm run verify` passed: TypeScript, all 85 tests, and the production build.
 - `git diff --check` passed. Vite retains its non-blocking warning for chunks
   larger than 1 MB; no build errors remain.

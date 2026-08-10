@@ -37,17 +37,17 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
-  assert.equal(learningCatalog.tracks.length, 90);
-  assert.equal(learningCatalog.lessons.length, 676);
+  assert.equal(learningCatalog.tracks.length, 91);
+  assert.equal(learningCatalog.lessons.length, 679);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 138, next: 1, locked: 537 },
+    { available: 141, next: 1, locked: 537 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 140);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 143);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 536);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
@@ -67,12 +67,13 @@ test('catalog lesson text is canonical', () => {
   assert.deepEqual(text.theory, ['Catalog theory']);
 });
 
-test('continual-learning lessons form complete adjacent theory and quiz pairs', () => {
+test('continual-learning lessons form adjacent pairs plus one standalone synthesis', () => {
   const domainLessons = learningCatalog.lessons.filter((lesson) => lesson.domainId === 'continual-learning-llm');
   const pairedLessonIds = continualLearningLessonPairs.flatMap((pair) => [pair.theory.id, pair.quiz.id]);
+  const standaloneLessonIds = ['continual-llm-synthesis'];
 
   assert.equal(new Set(pairedLessonIds).size, pairedLessonIds.length, 'theory and quiz ids must be unique');
-  assert.deepEqual(domainLessons.map((lesson) => lesson.id).sort(), [...pairedLessonIds].sort());
+  assert.deepEqual(domainLessons.map((lesson) => lesson.id).sort(), [...pairedLessonIds, ...standaloneLessonIds].sort());
 
   for (const pair of continualLearningLessonPairs) {
     assert.equal(pair.quiz.id, `${pair.theory.id}-quiz`);
@@ -93,6 +94,11 @@ test('continual-learning lessons form complete adjacent theory and quiz pairs', 
     assert.equal(quiz.status, theory.status, `${pair.theory.id} pair must share lesson status`);
     assert.equal(quiz.contentStatus, theory.contentStatus, `${pair.theory.id} pair must share content status`);
   }
+
+  const synthesisTrack = getLearningTrack(learningCatalog, 'continual-learning-llm', 'cl-llm-synthesis');
+  assert.deepEqual(synthesisTrack?.lessonIds, standaloneLessonIds);
+  assert.ok(domainLessons.some((lesson) => lesson.id === 'continual-llm-synthesis'));
+  assert.ok(!domainLessons.some((lesson) => lesson.id === 'continual-llm-synthesis-quiz'));
 });
 
 test('continual-learning fundamentals introduces and measures forgetting immediately after stability-plasticity', () => {
@@ -129,7 +135,7 @@ test('continual-learning methods chapter starts with replay, its lab, regulariza
   ]);
 });
 
-test('continual-learning uses six survey chapters numbered 1 through 6', () => {
+test('continual-learning uses six survey chapters and one synthesis chapter', () => {
   const domain = getLearningDomain(learningCatalog, 'continual-learning-llm');
 
   assert.deepEqual(domain?.trackIds, [
@@ -139,6 +145,7 @@ test('continual-learning uses six survey chapters numbered 1 through 6', () => {
     'cl-llm-stages',
     'cl-llm-evaluation',
     'cl-llm-discussion',
+    'cl-llm-synthesis',
   ]);
 
   const chapterTitles = domain?.trackIds.map(
@@ -151,6 +158,7 @@ test('continual-learning uses six survey chapters numbered 1 through 6', () => {
     '4. Các giai đoạn học liên tục của LLM',
     '5. Metric và Benchmark đánh giá',
     '6. Discussion và hướng nghiên cứu',
+    '7. Tổng hợp toàn khóa',
   ]);
 });
 

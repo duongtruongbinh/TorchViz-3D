@@ -267,7 +267,20 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
     titleEn: 'Future Directions',
     titleVi: 'Hướng nghiên cứu tương lai',
   }),
+  lessonPair({
+    trackId: 'cl-llm-discussion',
+    id: 'continual-llm-conclusion',
+    titleEn: 'Conclusion',
+    titleVi: 'Kết luận',
+  }),
 ];
+
+const continualLearningSynthesisLesson = {
+  id: 'continual-llm-synthesis',
+  title: { en: 'Course Synthesis', vi: 'Bản đồ tổng hợp' },
+  status: 'available',
+  contentStatus: 'published',
+} satisfies Exclude<LearningTocLessonSeed, string>;
 
 function lessonIdsForTrack(trackId: string): LearningTocLessonSeed[] {
   return continualLearningLessonPairs
@@ -359,6 +372,20 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: lessonIdsForTrack('cl-llm-discussion'),
+  },
+  {
+    id: 'cl-llm-synthesis',
+    text: {
+      title: {
+        en: "7. Course Synthesis",
+        vi: "7. Tổng hợp toàn khóa",
+      },
+      description: {
+        en: "Connect objectives, continual-learning settings, training stages, constraints, methods, and evidence into one reusable reading framework.",
+        vi: "Nối objective, kịch bản CL, stage huấn luyện, ràng buộc, phương pháp và bằng chứng thành một khung đọc thống nhất.",
+      },
+    },
+    lessonIds: [continualLearningSynthesisLesson],
   },
 ];
 

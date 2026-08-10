@@ -1,7 +1,7 @@
 import { Check, Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { createContext, isValidElement, useContext, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
+import { createContext, isValidElement, useContext, useEffect, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
@@ -459,6 +459,86 @@ export function ExperimentChecklist({ ariaLabel, items }: {
   );
 }
 
+type SelfCheckListItem = {
+  id: string;
+  label: string;
+  detail?: string;
+};
+
+export function SelfCheckList({ ariaLabel, items }: {
+  ariaLabel: string;
+  items: SelfCheckListItem[];
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const { domainId, lessonId, pageIndex } = useLearningMdxLesson();
+  const storageKey = `learning-self-check:${domainId}:${lessonId}:${pageIndex}`;
+  const [checkedIds, setCheckedIds] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(storageKey) ?? '[]');
+      return Array.isArray(stored) ? stored.filter((id): id is string => typeof id === 'string') : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(checkedIds));
+    } catch {
+      // Keep the checklist usable when browser storage is unavailable.
+    }
+  }, [checkedIds, storageKey]);
+
+  const checkedCount = items.filter((item) => checkedIds.includes(item.id)).length;
+  const checkedSurface = themeClasses.isLight
+    ? 'bg-[#EDF8F3]'
+    : 'bg-[#7ED7B5]/10';
+  const idleSurface = themeClasses.isLight
+    ? 'bg-[#F8FAFC]/65 hover:bg-[#F1F6FA]'
+    : 'bg-white/[0.025] hover:bg-white/[0.05]';
+  const progressColor = themeClasses.isLight ? 'text-[#205089]' : 'text-[#A8D4FF]';
+
+  return (
+    <section className="my-6" aria-label={ariaLabel}>
+      <div className="mb-2 flex items-center justify-between gap-4 px-1 py-2">
+        <strong className={cx('text-sm font-black', themeClasses.titleText)}>Tự kiểm tra</strong>
+        <span className={cx('text-xs font-black tabular-nums', progressColor)} aria-live="polite">
+          Đã hiểu {checkedCount}/{items.length}
+        </span>
+      </div>
+      <ul className="m-0 grid list-none gap-1.5 p-0">
+        {items.map((item) => {
+          const isChecked = checkedIds.includes(item.id);
+          return (
+            <li key={item.id} className="m-0 list-none p-0">
+              <label className={cx(
+                'flex cursor-pointer items-start gap-3 rounded-lg px-3.5 py-3 transition-colors sm:px-4',
+                isChecked ? checkedSurface : idleSurface,
+              )}>
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => setCheckedIds((current) => (
+                    current.includes(item.id)
+                      ? current.filter((id) => id !== item.id)
+                      : [...current, item.id]
+                  ))}
+                  className="mt-1 size-4 shrink-0 cursor-pointer accent-[#205089]"
+                />
+                <span className="min-w-0">
+                  <strong className={cx('block text-sm font-black leading-6 text-pretty', themeClasses.titleText)}>{item.label}</strong>
+                  {item.detail ? <span className={cx('mt-0.5 block text-sm leading-5 text-pretty', themeClasses.bodyText)}>{item.detail}</span> : null}
+                </span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 type ComparisonMatrixRow = { label: string; values: string[]; highlightedColumn?: number };
 
 export function PaperTradeoff({ advantages, limitations }: { advantages: string[]; limitations: string[] }) {
@@ -481,10 +561,12 @@ export function PaperTradeoff({ advantages, limitations }: { advantages: string[
   );
 }
 
-export function ComparisonMatrix({ ariaLabel, columns, rows }: {
+export function ComparisonMatrix({ ariaLabel, columns, rows, rowHeaderLabel = 'Tiêu chí', compactRowHeader = false }: {
   ariaLabel: string;
   columns: string[];
   rows: ComparisonMatrixRow[];
+  rowHeaderLabel?: string;
+  compactRowHeader?: boolean;
 }) {
   const themeClasses = useLearningMdxTheme();
   const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
@@ -494,14 +576,14 @@ export function ComparisonMatrix({ ariaLabel, columns, rows }: {
         <caption className="sr-only">{ariaLabel}</caption>
         <thead className={themeClasses.isLight ? 'bg-[#EFF4FA] text-[#123B68]' : 'bg-[#121A24] text-[#D7EAFE]'}>
           <tr>
-            <th scope="col" className="w-[26%] px-4 py-3 font-black">Tiêu chí</th>
+            <th scope="col" className={cx('px-4 py-3 font-black', compactRowHeader ? 'w-16 text-center' : 'w-[26%]')}>{rowHeaderLabel}</th>
             {columns.map((column) => <th key={column} scope="col" className="px-4 py-3 font-black">{column}</th>)}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
             <tr key={`${row.label}-${rowIndex}`} className={cx('border-t align-top', border)}>
-              <th scope="row" className={cx('px-4 py-3 font-black', themeClasses.titleText)}>{row.label}</th>
+              <th scope="row" className={cx('px-4 py-3 font-black', compactRowHeader && 'text-center tabular-nums', themeClasses.titleText)}>{row.label}</th>
               {columns.map((_, columnIndex) => (
                 <td
                   key={`${row.label}-${columnIndex}`}
@@ -795,6 +877,7 @@ const sharedAuthoredMdxComponents = {
   ConceptFlow,
   StageContinuityMap,
   ExperimentChecklist,
+  SelfCheckList,
   ComparisonMatrix,
   PaperTradeoff,
   DatasetComposition,

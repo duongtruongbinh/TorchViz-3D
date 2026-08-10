@@ -1,18 +1,116 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-llm-research-frontiers', locale: 'vi', title: 'Hướng nghiên cứu tương lai',
-  headings: ['Bốn hướng survey ưu tiên'], keywords: ['Theory', 'Efficient Replay', 'Controllable Memory', 'Custom Preferences'],
-  conceptIds: ['cl-theory', 'efficient-replay-future', 'controllable-memory-future', 'custom-preferences'],
+  headings: ['Lý thuyết chưa theo kịp LLM', 'Replay đúng dữ liệu cần giữ', 'Memory có thể điều khiển', 'Preference theo từng người dùng'], keywords: ['Theory', 'Efficient Replay', 'Controllable Memory', 'Custom Preferences'],
+  conceptIds: ['cl-theory', 'efficient-replay-future', 'controllable-memory-future', 'custom-preferences'], pageCount: 4,
 }
 
-## Bốn hướng survey ưu tiên
+<MdxPage page={0}>
 
-<ComparisonMatrix ariaLabel="Bốn hướng nghiên cứu tương lai" columns={['Vấn đề hiện tại', 'Câu hỏi mở']} rows={[
-  { label: 'Lý thuyết', values: ['Parameter distance/task discrepancy chưa đủ cho LLM lớn', 'Giải thích forgetting, transfer và acquisition thế nào?'] },
-  { label: 'Efficient replay', values: ['Replay toàn history tốn compute và làm chậm học mới', 'Chọn sample theo importance hoặc nguy cơ quên thế nào?'] },
-  { label: 'Controllable memory', values: ['Knowledge phân tán trong parameter space', 'Write/read/update/forget bằng external memory thế nào?'] },
-  { label: 'Custom preferences', values: ['Mỗi user cần trade-off domain, ethics, values, tone khác nhau', 'Tạo model Pareto-optimal mà không fine-tune lại toàn bộ thế nào?'] },
-]} />
+## Lý thuyết chưa theo kịp LLM
 
-Đích dài hạn là continual LLM robust và self-evolving, nhưng survey nhấn mạnh hai nền tảng còn thiếu: thuật toán chuyên biệt đủ đa dạng và hiểu biết cơ bản về forgetting, transfer cùng acquisition.
+Phần lớn bằng chứng continual LLM hiện nay đến từ thực nghiệm. Lý thuyết CL đã có những cách mô tả forgetting bằng khoảng cách tham số hoặc độ khác nhau giữa task, nhưng pre-training và quy mô lớn khiến việc áp thẳng các kết quả đó cho LLM trở nên thiếu chắc chắn.
 
-Nguồn: [Shi et al., §6.4–7](https://arxiv.org/html/2404.16789v3#S6.SS4).
+### [Wang et al.: lý thuyết từ parameter difference](https://arxiv.org/abs/2302.00487)
+
+Survey CL của Wang et al. trình bày một hướng dùng Taylor expansion quanh nghiệm tối ưu để liên hệ generalization error giữa task với độ cong loss và khoảng cách giữa các bộ tham số.
+
+<PaperTradeoff
+  advantages={['Tạo ngôn ngữ toán học để liên hệ thay đổi tham số với khả năng giữ task cũ.']}
+  limitations={['Shi et al. cảnh báo rằng kết quả cho CL thông thường chưa tự động trở thành bảo đảm cho pre-trained LLM quy mô lớn.']}
+/>
+
+---
+
+### [UDIL: lý thuyết từ domain discrepancy](https://arxiv.org/abs/2310.12244)
+
+Unified Domain Incremental Learning (**UDIL**) xây dựng bound cho intra-domain và cross-domain distillation loss, rồi nhìn nhiều phương pháp replay DIL như các lựa chọn hệ số khác nhau trong cùng một framework.
+
+<PaperTradeoff
+  advantages={['Kết nối nhiều kỹ thuật replay-based DIL và cho phép điều chỉnh hệ số theo bound thay vì cố định.']}
+  limitations={['Paper đánh giá domain-incremental learning với memory; chưa thiết lập một lý thuyết đầy đủ cho forgetting, transfer và acquisition của LLM.']}
+/>
+
+Khoảng trống không chỉ là cần một bound chặt hơn. Continual LLM cần lý thuyết giải thích đồng thời **vì sao model quên, khi nào knowledge transfer xảy ra và model hấp thụ kiến thức mới bằng cơ chế nào**.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Replay đúng dữ liệu cần giữ
+
+Nếu replay toàn bộ history mà không chọn lọc, update trên domain mới có thể hội tụ chậm. Chỉ đặt một mixing ratio cố định cũng chưa trả lời sample nào đang có giá trị retention cao nhất.
+
+### [KPIG](https://arxiv.org/abs/2403.10056)
+
+KPIG tính **Key-Part Information Gain** trên các đoạn instruction được mask để chọn động dữ liệu replay. Compute được ưu tiên cho những phần instruction mang tín hiệu quan trọng hơn trong setting của paper.
+
+<PaperTradeoff
+  advantages={['Biến replay selection thành quyết định theo information gain thay vì lấy mẫu đồng đều.']}
+  limitations={['Hiệu quả phụ thuộc vào cách mask và ước lượng information gain; paper không thiết lập một selector phổ quát cho mọi stream.']}
+/>
+
+---
+
+### [What Will My Model Forget?](https://arxiv.org/abs/2402.01865)
+
+Jin và Ren dự báo upstream example nào có nguy cơ bị quên sau một model update, rồi replay chính các example được dự báo đó. Một predictor dựa trên thay đổi logit hoạt động trên BART nhưng thất bại trên T5; black-box classifier dựa trên representation ổn định hơn trong các setup được thử.
+
+<PaperTradeoff
+  advantages={['Đưa nguy cơ quên vào sample selection và cho thấy selective replay có thể giảm forgetting trong model-refinement setting.']}
+  limitations={['Forecaster phải được huấn luyện từ các cặp update–example bị quên; một cơ chế dự báo không chuyển ổn định giữa BART và T5.']}
+/>
+
+Hướng mở là xây dựng data mixing và replay selector chính xác hơn nhưng vẫn rẻ hơn lợi ích compute mà chúng tiết kiệm được.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Memory có thể điều khiển
+
+Knowledge nằm phân tán trong toàn bộ parameter space rất khó quan sát và thao tác. Vấn đề trở nên rõ nhất trong **machine unlearning**: nếu không thể xóa có chọn lọc một dữ liệu bị thu hồi, hệ thống có thể phải quay lại checkpoint cũ rồi retrain.
+
+### [Larimar](https://arxiv.org/abs/2403.11901)
+
+Larimar thêm distributed episodic memory để cập nhật fact mà không liên tục fine-tune toàn bộ LLM. Memory hỗ trợ write, read, generate, sequential write và selective forgetting trong các setting paper kiểm tra.
+
+<PaperTradeoff
+  advantages={['Cho phép one-shot knowledge update và tách một số thao tác memory khỏi base-model weights.', 'Paper đánh giá cả sequential editing và selective fact forgetting.']}
+  limitations={['Kết quả đến từ các fact-editing benchmark và kiến trúc memory của Larimar, chưa chứng minh external memory giải quyết mọi dạng continual learning.']}
+/>
+
+---
+
+### [Modern Hopfield Networks](https://arxiv.org/abs/2008.02217)
+
+Modern Hopfield Network cung cấp associative memory với cơ chế truy xuất liên hệ chặt với attention. Survey nêu đây là một ứng viên đáng nghiên cứu cho memory của continual LLM, không phải một giải pháp đã được xác nhận trong survey setting.
+
+<PaperTradeoff
+  advantages={['Cung cấp primitive cho storage, association và retrieval có thể tích hợp như một layer.']}
+  limitations={['Paper gốc đánh giá nhiều bài toán associative memory, không trực tiếp chứng minh hiệu quả trên continual LLM.']}
+/>
+
+Mục tiêu dài hạn là memory có các thao tác rõ ràng: **ghi, đọc, cập nhật tuần tự và quên có chủ đích**, thay vì coi toàn bộ weights như một kho nhớ không thể kiểm soát.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Preference theo từng người dùng
+
+Một model phục vụ nhiều người dùng không có một trade-off duy nhất. Người dùng có thể ưu tiên domain expertise, ethics, value hoặc tone khác nhau; fine-tune lại một model cho mỗi preference sẽ nhanh chóng trở nên quá đắt.
+
+### [Imprecise Bayesian Continual Learning](https://arxiv.org/abs/2310.02995)
+
+Imprecise Bayesian Continual Learning (**IBCL**) lưu một knowledge base dưới dạng convex hull của các model-parameter distribution. Khi nhận preference mới, phương pháp kết hợp các posterior để sinh model ứng với task trade-off mà không train lại một model riêng cho từng preference.
+
+<PaperTradeoff
+  advantages={['Cung cấp bảo đảm Pareto-optimal dưới các giả định của phương pháp.', 'Giảm training overhead khi cần nhiều trade-off preference trong các thí nghiệm image classification và NLP của paper.']}
+  limitations={['Bằng chứng thực nghiệm còn giới hạn về scale và chưa được xác nhận trên service-oriented LLM lớn.', 'Bảo đảm phụ thuộc vào các giả định dùng để xây dựng và kết hợp model posterior.']}
+/>
+
+Survey xem đây là bước mở đầu, chưa phải lời giải hoàn chỉnh cho personalized continual LLM. Câu hỏi còn lại là làm sao cho người dùng điều chỉnh preference linh hoạt mà vẫn kiểm soát retention, safety và compute.
+
+Nguồn tổng hợp: [Shi et al., §6.4](https://arxiv.org/html/2404.16789v3#S6.SS4).
+
+</MdxPage>

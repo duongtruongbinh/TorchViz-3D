@@ -6,12 +6,22 @@ export const lessonMetadata = {
 
 ## DAP đã là CL dù không luôn được gọi tên
 
-<ComparisonMatrix ariaLabel="Ba quan sát về Domain-Adaptive Pre-training" columns={['Bằng chứng', 'Ý nghĩa']} rows={[
-  { label: 'OBS-1', values: ['Chỉ Code Llama có hơn một stage trong 41 study', 'Continual DAP nhiều stage gần như chưa được khảo sát'] },
-  { label: 'OBS-2', values: ['28/41 study đo tác động xấu hoặc dùng CL technique', 'DAP thường được nghiên cứu ngầm như vertical CL'] },
-  { label: 'OBS-3', values: ['22/41 study dùng CL, chủ yếu replay hoặc expansion', 'Technique dành riêng cho vertical CL còn thiếu đa dạng'] },
-]} />
+### OBS-1: DAP phần lớn chỉ diễn ra trong một giai đoạn
 
-Nhiều paper gọi replay là `data mixing`, `data mixture` hoặc `data combination`. Dù tên khác nhau, câu hỏi CL vẫn giống nhau: domain performance tăng đến đâu và general ability bị mất bao nhiêu.
+Trong 41 nghiên cứu được khảo sát, chỉ **Code Llama** thực hiện nhiều hơn một giai đoạn DAP. Vì vậy, phần lớn công trình hiện tại mới nghiên cứu quá trình chuyển từ một LLM tổng quát sang một domain cụ thể, thay vì một chuỗi thích nghi domain kéo dài.
+
+---
+
+### OBS-2: DAP đã được nhìn nhận ngầm như một bài toán Continual Learning
+
+Có **28/41 nghiên cứu** đánh giá tác động tiêu cực của DAP hoặc chủ động dùng kỹ thuật CL để giảm vertical forgetting. Tuy nhiên, nhiều paper gọi replay bằng những tên như `data mixing`, `data mixture` hoặc `data combination`, thay vì đặt nó trong khung Continual Learning.
+
+---
+
+### OBS-3: Kỹ thuật CL trong DAP còn thiếu đa dạng
+
+Có **22/41 nghiên cứu** sử dụng kỹ thuật CL, nhưng phần lớn chỉ dựa trên replay hoặc parameter/architecture expansion như LoRA, layer expansion và block expansion. Các kỹ thuật tinh vi hơn dành riêng cho vertical continual learning vẫn còn ít được khảo sát.
+
+Dù tên gọi khác nhau, câu hỏi CL vẫn giống nhau: domain performance tăng đến đâu và general ability bị mất bao nhiêu.
 
 Nguồn: [Shi et al., §4.2.1](https://arxiv.org/html/2404.16789v3#S4.SS2.SSS1).

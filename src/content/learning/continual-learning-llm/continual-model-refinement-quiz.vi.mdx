@@ -1,26 +1,20 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-model-refinement-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Yêu cầu', 'Method', 'Locate and edit'], keywords: ['Quiz', 'CMR'],
-  conceptIds: ['cmr-requirements', 'cmr-methods', 'locate-edit-question'], pageCount: 3,
+  headings: ['Nội dung', 'Paper'], keywords: ['Quiz', 'CMR'],
+  conceptIds: ['cmr-overview', 'cmr-papers'], pageCount: 2,
 }
 
 <MdxQuiz id="continual-model-refinement-quiz" questions={[
-  { id: 'cmr-requirements', title: 'Yêu cầu', mode: 'single', prompt: 'Ba yêu cầu của một CMR update là gì?', options: [
-    { id: 'a', label: 'Sửa đúng mục tiêu, giữ output ngoài phạm vi sửa và có chi phí thấp.', isCorrect: true },
-    { id: 'b', label: 'Tăng OP, F và FUAR cùng lúc.' },
-    { id: 'c', label: 'Có task ID, domain ID và class ID.' },
-    { id: 'd', label: 'Luôn replay toàn bộ corpus.' },
-  ], success: 'CMR cân bằng efficacy, tác dụng phụ và cost.', error: 'Nhìn ba constraint của từng correction.' },
-  { id: 'cmr-methods', title: 'Method', mode: 'single', prompt: 'WISE thuộc nhóm nào?', options: [
-    { id: 'a', label: 'Temporal language modeling.' },
-    { id: 'c', label: 'CPT data selection.' },
-    { id: 'b', label: 'Side memory với knowledge shards.', isCorrect: true },
-    { id: 'd', label: 'LAMA evaluation.' },
-  ], success: 'WISE dùng side memory.', error: 'Nhớ cách WISE tổ chức knowledge shards.' },
-  { id: 'locate-edit-question', title: 'Locate and edit', mode: 'single', prompt: 'Giả định nào đang bị thách thức?', options: [
-    { id: 'a', label: 'Fact luôn nằm trong tokenizer.' },
-    { id: 'c', label: 'Mọi edit cần task ID.' },
-    { id: 'd', label: 'Replay luôn không hiệu quả.' },
-    { id: 'b', label: 'Vị trí lưu fact cũng là vị trí tốt nhất để sửa fact đó.', isCorrect: true },
-  ], success: 'Storage location và edit location có thể khác nhau.', error: 'Đây là câu hỏi mở về locate-and-edit.' },
+  { id: 'cmr-overview', title: 'Nội dung', mode: 'single', prompt: 'Một correction sửa đúng fact mục tiêu nhưng làm thay đổi nhiều câu trả lời không liên quan. Yêu cầu nào bị vi phạm rõ nhất?', options: [
+    { id: 'a', label: 'Reliability, vì fact mục tiêu chưa được sửa.' },
+    { id: 'b', label: 'Efficiency, vì mọi thay đổi output đều làm training chậm.' },
+    { id: 'c', label: 'Locality, vì tác động lan ra ngoài phạm vi correction.', isCorrect: true },
+    { id: 'd', label: 'Forward transfer, vì task tương lai chưa được cải thiện.' },
+  ], success: 'Locality yêu cầu giữ ổn định hành vi không liên quan tới edit.', error: 'Fact mục tiêu đã được sửa; hãy xét tác dụng phụ ở nơi khác.' },
+  { id: 'cmr-papers', title: 'Paper', mode: 'single', prompt: 'Hệ thống muốn giữ main model ổn định, lưu correction ở vùng riêng rồi định tuyến và hợp nhất chúng. Paper nào phù hợp nhất?', options: [
+    { id: 'a', label: 'WISE với side memory và knowledge shards.', isCorrect: true },
+    { id: 'b', label: 'WilKE với một layer cố định cho mọi edit.' },
+    { id: 'c', label: 'GRACE với full-model fine-tuning sau mỗi correction.' },
+    { id: 'd', label: 'Hase et al. với giả định storage location luôn là edit location.' },
+  ], success: 'WISE cô lập update trong side memory rồi quản lý bằng router và shard merging.', error: 'Tìm paper tách main memory khỏi vùng nhận correction mới.' },
 ]} />

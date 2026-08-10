@@ -1,0 +1,14 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continual-llm-conclusion-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Hai nền móng'], keywords: ['Quiz', 'Conclusion'],
+  conceptIds: ['continual-llm-closing-gap'], pageCount: 1,
+}
+
+<MdxQuiz id="continual-llm-conclusion-quiz" questions={[
+  { id: 'continual-llm-closing-gap', title: 'Hai nền móng', mode: 'single', prompt: 'Conclusion của survey xác định khoảng trống cốt lõi nào trước khi continual LLM có thể trở thành hệ thống robust và self-evolving?', options: [
+    { id: 'a', label: 'Chỉ cần tăng context window và bỏ toàn bộ parameter update.' },
+    { id: 'b', label: 'Chỉ cần một benchmark có điểm Overall Performance cao.' },
+    { id: 'c', label: 'Cần đa dạng thuật toán hơn và hiểu nền tảng về forgetting, transfer cùng acquisition.', isCorrect: true },
+    { id: 'd', label: 'Cần chứng minh replay luôn tốt hơn retraining ở mọi data stream.' },
+  ], success: 'Survey chốt cả khoảng trống phương pháp lẫn khoảng trống hiểu biết về hành vi model.', error: 'Conclusion không chọn một kỹ thuật chiến thắng; nó chỉ ra hai nền móng còn thiếu.' },
+]} />

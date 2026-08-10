@@ -1,19 +1,108 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-multimodal-llms', locale: 'vi', title: 'Continual Multimodal LLM',
-  headings: ['Có thể quên theo cả vertical lẫn horizontal'], keywords: ['CMLLM', 'Vertical Forgetting', 'Horizontal Forgetting'],
-  conceptIds: ['cmllm-forgetting', 'cmllm-transfer', 'cmllm-methods'],
+  headings: ['Một bài toán còn sớm', 'Paper nổi bật'], keywords: ['CMLLM', 'Vertical Forgetting', 'Horizontal Forgetting', 'Negative Forward Transfer'],
+  conceptIds: ['cmllm-overview', 'cmllm-papers'], pageCount: 2,
 }
 
-## Có thể quên theo cả vertical lẫn horizontal
+<MdxPage page={0}>
 
-Continual training cho Multimodal LLM còn ít được nghiên cứu hơn text-only LLM.
+## Một bài toán còn sớm
 
-<ComparisonMatrix ariaLabel="Các finding về continual multimodal LLM" columns={['Hiện tượng', 'Ý nghĩa']} rows={[
-  { label: 'Vertical forgetting', values: ['Sau downstream fine-tuning', 'Năng lực upstream có thể suy giảm'] },
-  { label: 'Horizontal forgetting', values: ['Sau khi học task mới', 'Task cũ có thể giảm hiệu năng'] },
-  { label: 'Negative FWT', values: ['Task hiện tại ảnh hưởng task chưa thấy', 'Học trước có thể làm tương lai khó hơn'] },
-]} />
+Multimodal LLM (**MLLM**) nối language model với encoder hoặc projection layer để xử lý thêm ảnh và các modality khác. Khi hệ thống liên tục học domain hay task mới, thay đổi có thể xảy ra ở projection, prompt, expert hoặc language backbone.
 
-Survey ghi nhận replay và model expansion tương đối ổn định; regularization chỉ hiệu quả trong một số model đã joint instruction tuning. Các method được nêu gồm EProj, Fwd-Prompt, Model Tailor, RebQ và MoELoRA.
+Survey nhận định continual training cho MLLM còn ít được nghiên cứu hơn text-only LLM và các mô hình vision–language như CLIP. Vì vậy, các kết luận hiện có nên được đọc trong phạm vi model và task của từng paper, chưa phải quy luật chung cho mọi kiến trúc multimodal.
+
+### Hai chiều quên
+
+- **Vertical forgetting:** downstream fine-tuning làm suy giảm năng lực có từ pre-training hoặc alignment trước đó.
+- **Horizontal forgetting:** học task mới làm giảm hiệu năng trên các task cũ ở cùng tầng downstream.
+
+Các modality còn có thể học không cân bằng: một modality hoặc nhóm dữ liệu yếu bị lấn át khi model tiếp tục học. **Negative forward transfer** cũng có thể xuất hiện, nghĩa là học task hiện tại làm model kém hơn trên một task chưa từng được huấn luyện.
+
+### Hướng giảm quên
+
+Fine-tune toàn model không phải lựa chọn duy nhất. Một số công trình chỉ cập nhật projection, prompt, expert hoặc một subset tham số quan trọng để giảm compute và giới hạn interference.
+
+Khảo sát thực nghiệm được survey tổng hợp cho thấy **replay** và **model expansion** hoạt động tương đối ổn định trong các setting được kiểm tra. Regularization chỉ tỏ ra hiệu quả ở một số model đã joint instruction tuning, nên không nên xem nó là lựa chọn luôn thắng.
 
 Nguồn: [Shi et al., §4.3.6](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS6).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Paper nổi bật
+
+<LessonImage
+  assetPath="continual-learning-llm/03-cmllm-paper-map-doodle.png"
+  alt="Sáu doodle card minh họa các paper CMLLM: Zhai cùng cộng sự theo dõi minority collapse, Fwd-Prompt bảo vệ gradient subspace, EProj mở rộng projection, Model Tailor giữ model patch, RebQ tái dựng modality thiếu và CoIN dùng nhiều LoRA expert"
+  caption="Mỗi paper nhắm một bottleneck multimodal khác nhau."
+/>
+
+### [Zhai et al.](https://arxiv.org/abs/2309.10313)
+
+Zhai et al. ghi nhận minority collapse và hallucination trong setting được nghiên cứu, cho thấy forgetting multimodal có thể bị che khuất nếu chỉ nhìn điểm trung bình.
+
+<PaperTradeoff
+  advantages={['Chỉ ra forgetting multimodal không thể được chẩn đoán bằng điểm trung bình của một modality.', 'Liên hệ sự mất cân bằng dữ liệu với collapse và hallucination trong setting thí nghiệm.']}
+  limitations={['Bằng chứng đến từ kiến trúc và benchmark cụ thể của paper.', 'Không chứng minh mọi hallucination của MLLM đều bắt nguồn từ continual learning.']}
+/>
+
+---
+
+### [Fwd-Prompt](https://arxiv.org/abs/2401.09181)
+
+Fwd-Prompt phân tích chênh lệch giữa các input embedding bằng singular value decomposition. Paper chiếu prompt gradient vào residual subspace và pre-trained subspace để giảm catastrophic forgetting cùng negative forward transfer mà không dùng mẫu cũ.
+
+<PaperTradeoff
+  advantages={['Không cần lưu dữ liệu task cũ.', 'Tác động lên prompt gradient thay vì fine-tune toàn bộ model.']}
+  limitations={['Hiệu quả phụ thuộc vào việc subspace ước lượng từ embedding có phản ánh đúng interference.', 'Kết quả được giới hạn ở model, task stream và prompt-tuning setup của paper.']}
+/>
+
+---
+
+### [EProj](https://arxiv.org/abs/2311.16206)
+
+EProj mở rộng projection layer khi task mới đến và thêm regularization dựa trên độ tương đồng giữa task. Cách này dành capacity mới cho task mới thay vì buộc mọi task dùng chung một projection cố định.
+
+<PaperTradeoff
+  advantages={['Giới hạn expansion ở projection layer thay vì nhân bản toàn bộ MLLM.', 'Dùng task similarity để điều chỉnh mức chia sẻ giữa task.']}
+  limitations={['Số projection component tăng theo dòng task.', 'Cần nhận biết hoặc ước lượng quan hệ giữa các task.']}
+/>
+
+---
+
+### [Model Tailor](https://arxiv.org/abs/2402.12048)
+
+Model Tailor chọn một subset nhỏ các tham số quan trọng từ model đã fine-tune để tạo **model patch**, rồi bù cho ảnh hưởng của các tham số không được giữ. Paper thực nghiệm với tỷ lệ tham số được chọn không quá 10% trong setting của mình.
+
+<PaperTradeoff
+  advantages={['Lưu một patch nhỏ thay vì toàn bộ checkpoint đã fine-tune.', 'Cơ chế compensation nhắm tới phần thay đổi bị mất khi cắt gọn patch.']}
+  limitations={['Ngưỡng tham số và chất lượng patch phụ thuộc task cùng model được thử nghiệm.', 'Việc xác định importance không bảo đảm giữ mọi hành vi tinh vi.']}
+/>
+
+---
+
+### [RebQ](https://arxiv.org/abs/2403.11373)
+
+RebQ dùng các prompt được phân rã cùng key–query pool để tái dựng biểu diễn khi một modality bị thiếu. Mục tiêu là duy trì khả năng học liên tục ngay cả khi mỗi giai đoạn không cung cấp đầy đủ modality.
+
+<PaperTradeoff
+  advantages={['Xử lý trực tiếp missing-modality stream thay vì giả định mọi input luôn đầy đủ.', 'Prompt pool cho phép tái sử dụng thành phần liên quan giữa các task.']}
+  limitations={['Chất lượng phụ thuộc vào key–query matching và khả năng tái dựng modality thiếu.', 'Thêm prompt pool cùng cơ chế truy xuất vào pipeline.']}
+/>
+
+---
+
+### [CoIN / MoELoRA](https://arxiv.org/abs/2403.08350)
+
+CoIN áp dụng MoELoRA cho LLaVA: nhiều LoRA expert tiếp nhận các intention hoặc task khác nhau, còn router chọn expert phù hợp. Capacity được mở rộng theo expert thay vì sửa đồng nhất toàn bộ backbone.
+
+<PaperTradeoff
+  advantages={['Tách update bằng nhiều low-rank expert, giảm xung đột trực tiếp giữa task.', 'Giữ chi phí train thấp hơn việc tạo một full model riêng cho mỗi task.']}
+  limitations={['Cần thêm expert và router, làm tăng tham số cùng độ phức tạp định tuyến.', 'Expert specialization phụ thuộc vào việc router nhận đúng intention.']}
+/>
+
+Các phương pháp giải quyết bottleneck khác nhau: EProj thêm capacity ở projection, Fwd-Prompt bảo vệ hướng gradient, Model Tailor lưu patch, RebQ xử lý modality thiếu và MoELoRA tách expert. Không nên kết luận mọi dạng expansion đều hiệu quả như nhau.
+
+</MdxPage>

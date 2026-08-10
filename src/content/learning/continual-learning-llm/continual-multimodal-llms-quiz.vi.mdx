@@ -1,26 +1,20 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-multimodal-llms-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Hai chiều quên', 'Negative FWT', 'Method'], keywords: ['Quiz', 'CMLLM'],
-  conceptIds: ['cmllm-forgetting', 'cmllm-transfer', 'cmllm-methods'], pageCount: 3,
+  headings: ['Nội dung', 'Paper'], keywords: ['Quiz', 'CMLLM'],
+  conceptIds: ['cmllm-overview', 'cmllm-papers'], pageCount: 2,
 }
 
 <MdxQuiz id="continual-multimodal-llms-quiz" questions={[
-  { id: 'cmllm-forgetting', title: 'Hai chiều quên', mode: 'single', prompt: 'CMLLM có thể quên theo chiều nào?', options: [
-    { id: 'a', label: 'Chỉ vertical.' },
-    { id: 'b', label: 'Chỉ horizontal.' },
-    { id: 'c', label: 'Cả vertical và horizontal.', isCorrect: true },
-    { id: 'd', label: 'Không có forgetting.' },
-  ], success: 'CMLLM chịu cả hai cấu trúc forgetting.', error: 'Survey nêu hai failure sau fine-tuning và sau task mới.' },
-  { id: 'cmllm-transfer', title: 'Negative FWT', mode: 'single', prompt: 'Negative forward transfer nghĩa là gì?', options: [
-    { id: 'a', label: 'Học task hiện tại làm giảm khả năng trên task chưa thấy.', isCorrect: true },
-    { id: 'b', label: 'Task cũ tốt hơn sau task mới.' },
-    { id: 'c', label: 'Model không quên task cũ.' },
-    { id: 'd', label: 'Model update fact mới chính xác.' },
-  ], success: 'Transfer hướng tới tương lai có thể mang dấu âm.', error: 'Forward nói đến task chưa học.' },
-  { id: 'cmllm-methods', title: 'Method', mode: 'single', prompt: 'Nhận định nào khớp survey?', options: [
-    { id: 'a', label: 'Regularization luôn tốt nhất.' },
-    { id: 'b', label: 'Replay và model expansion tương đối ổn định; regularization chỉ hiệu quả trong một số model.', isCorrect: true },
-    { id: 'c', label: 'Không method nào dùng architecture.' },
-    { id: 'd', label: 'CMLLM chỉ dùng LAMA.' },
-  ], success: 'Kết quả method phụ thuộc setting/model.', error: 'Nhớ finding tổng quan của nhóm CMLLM.' },
+  { id: 'cmllm-overview', title: 'Nội dung', mode: 'single', prompt: 'Sau khi học task mới, MLLM vừa mất năng lực upstream vừa giảm điểm trên downstream task cũ. Hai failure lần lượt là gì?', options: [
+    { id: 'a', label: 'Horizontal forgetting rồi negative forward transfer.' },
+    { id: 'b', label: 'Alignment tax rồi positive backward transfer.' },
+    { id: 'c', label: 'Domain shift rồi class-incremental transfer.' },
+    { id: 'd', label: 'Vertical forgetting rồi horizontal forgetting.', isCorrect: true },
+  ], success: 'Vertical đi qua các tầng training; horizontal đi qua chuỗi task cùng tầng.', error: 'Phân biệt mất năng lực upstream với quên downstream task cũ.' },
+  { id: 'cmllm-papers', title: 'Paper', mode: 'single', prompt: 'Paper nào dùng prompt và key–query pool để tái dựng modality bị thiếu?', options: [
+    { id: 'a', label: 'EProj.' },
+    { id: 'b', label: 'RebQ.', isCorrect: true },
+    { id: 'c', label: 'Model Tailor.' },
+    { id: 'd', label: 'CoIN / MoELoRA.' },
+  ], success: 'RebQ nhắm trực tiếp vào continual learning khi một modality không xuất hiện.', error: 'Tìm paper có cơ chế reconstruct before query.' },
 ]} />

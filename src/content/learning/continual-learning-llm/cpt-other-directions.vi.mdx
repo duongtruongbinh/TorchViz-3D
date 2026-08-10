@@ -1,19 +1,88 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'cpt-other-directions', locale: 'vi', title: 'Các hướng CPT khác',
-  headings: ['Ưu tiên dữ liệu model còn xử lý kém'], keywords: ['CEM', 'RHO-1', 'IR-DRO'],
-  conceptIds: ['cem', 'rho-1', 'ir-dro'],
+  headings: ['Ưu tiên dữ liệu model còn xử lý kém'], keywords: ['CEM', 'RHO-1', 'IR-DRO', 'TimeLMs'],
+  conceptIds: ['cem', 'rho-1', 'ir-dro', 'industrial-cpt', 'cpt-sustainability'],
 }
 
 ## Ưu tiên dữ liệu model còn xử lý kém
 
-CPT không chỉ thích nghi với distribution shift. Survey còn nêu các hướng sửa hành vi và ưu tiên phần dữ liệu khó:
+CPT không chỉ dùng để thích nghi với distribution shift. Nó còn có thể **sửa hành vi và ưu tiên học từ những dữ liệu khó hoặc lỗi** thay vì phân bổ compute như nhau cho toàn bộ corpus.
 
-<ComparisonMatrix ariaLabel="Ba hướng CPT khác" columns={['Đơn vị được ưu tiên', 'Cách chọn']} rows={[
-  { label: 'CEM', values: ['Example', 'Tiếp tục train trên ví dụ model trả lời sai'] },
-  { label: 'RHO-1', values: ['Token', 'Selective Language Modeling ưu tiên token có perplexity cao'] },
-  { label: 'IR-DRO', values: ['Sequence', 'Gán trọng số cao hơn cho sequence có loss cao'] },
-]} />
+### [CEM — học tiếp từ những câu trả lời sai](https://arxiv.org/abs/2404.08707)
 
-Ba hướng khác nhau ở granularity—example, token hoặc sequence—nhưng cùng trực giác: compute nên tập trung vào phần model hiện xử lý kém thay vì phân bổ đều cho mọi dữ liệu.
+CEM bắt đầu bằng việc đánh giá model, thu thập các câu model trả lời sai, rồi bổ sung knowledge liên quan đến những lỗi đó vào dữ liệu train tiếp. Đơn vị được ưu tiên ở đây là **example**: model sai ở đâu thì tập trung cải thiện ở đó.
 
-Nguồn: [Shi et al., §4.1.3](https://arxiv.org/html/2404.16789v3#S4.SS1.SSS3).
+<PaperTradeoff
+  advantages={[
+    'Tập trung dữ liệu CPT vào knowledge gap đã quan sát được thay vì phải thu thập một corpus mới thật lớn.',
+    'Trong các thí nghiệm QA của paper, CEM cải thiện cả bài toán cùng domain và khác domain trên nhiều model được khảo sát.',
+  ]}
+  limitations={[
+    'Pipeline cần một bước đánh giá đủ tốt để phát hiện lỗi và một nguồn dữ liệu bổ sung chứa knowledge liên quan đến lỗi đó.',
+    'Kết quả được báo cáo trên các setup QA cụ thể; chưa đủ để khẳng định cùng mức cải thiện cho mọi loại hành vi hoặc task.',
+  ]}
+/>
+
+### [RHO-1 — chọn token đáng học](https://arxiv.org/abs/2404.07965)
+
+RHO-1 đề xuất **Selective Language Modeling (SLM)**. Một reference model đã học từ dữ liệu chất lượng cao giúp chấm từng token; model đang train chỉ nhận loss từ những token có **excess loss** cao, tức là còn khó với model hiện tại nhưng phù hợp với distribution mục tiêu. Vì vậy, phương pháp không đơn giản giữ mọi token có perplexity cao: token khó do nhiễu vẫn có thể bị loại.
+
+<PaperTradeoff
+  advantages={[
+    'Chọn ở token level nên có thể bỏ loss của token ít hữu ích ngay bên trong một sequence vẫn được giữ lại.',
+    'Paper báo cáo hiệu quả token tốt hơn trên các setup continual pre-training cho toán và dữ liệu tổng quát được khảo sát.',
+  ]}
+  limitations={[
+    'Cần train một reference model trên corpus chất lượng cao và chấm token trước khi train model đích.',
+    'Tín hiệu chọn token phụ thuộc vào distribution mà reference model đại diện; một reference lệch mục tiêu có thể ưu tiên sai dữ liệu.',
+  ]}
+/>
+
+### [IR-DRO — gán trọng số cho từng sequence](https://arxiv.org/abs/2402.14270)
+
+IR-DRO chuyển mức focus từ token sang **sequence**. Phương pháp gán trọng số lớn hơn cho các đoạn có loss cao vừa phải vì chúng thường còn chứa tín hiệu hữu ích; những sequence có loss cao nhất có thể là dữ liệu nhiễu hoặc quá phức tạp nên không được ưu tiên vô điều kiện.
+
+<PaperTradeoff
+  advantages={[
+    'Cơ chế reweighting tự động tập trung training vào các sequence giàu thông tin mà không cần bỏ toàn bộ phần dữ liệu còn lại.',
+    'Paper quan sát cải thiện trên nhiều benchmark trong các setup continual pre-training và instruction tuning được khảo sát.',
+  ]}
+  limitations={[
+    'Loss cao không tự động đồng nghĩa dữ liệu tốt; phương pháp vẫn phải tách mẫu giàu thông tin khỏi mẫu nhiễu.',
+    'Thí nghiệm train tiếp trên dữ liệu pre-training gốc, nên chưa chứng minh kết quả giữ nguyên với mọi data stream mới ngoài thực tế.',
+  ]}
+/>
+
+### Ứng dụng công nghiệp — cập nhật theo dòng dữ liệu mới
+
+Với dữ liệu biến đổi nhanh như tweet, [Dynamic Language Models](https://arxiv.org/abs/2106.06297) cập nhật BERT bằng dynamic vocabulary expansion và subsampling để ưu tiên phần dữ liệu mới hữu ích. [TimeLMs](https://aclanthology.org/2022.acl-demo.25/) chọn một recipe đơn giản hơn: phát hành các model dựa trên RoBERTa được train tiếp mỗi ba tháng trên tweet mới, không thêm ràng buộc đặc biệt để giữ model gần checkpoint cũ.
+
+<PaperTradeoff
+  advantages={[
+    'Hai nghiên cứu cho thấy CPT có thể được tổ chức thành các đợt cập nhật định kỳ thay vì chờ gom toàn bộ dữ liệu để retrain từ đầu.',
+    'Dynamic Language Models giảm chi phí so với train model mới từ đầu trong setup Twitter; TimeLMs cải thiện khả năng xử lý tweet tương lai và out-of-distribution trong các benchmark được dùng.',
+  ]}
+  limitations={[
+    'Cả hai nghiên cứu tập trung vào BERT hoặc RoBERTa và dữ liệu Twitter; chưa đủ để suy rộng sang mọi LLM, domain hoặc nhịp cập nhật sản xuất.',
+    'Cập nhật định kỳ vẫn tiêu tốn compute và cần đánh giá lại knowledge cũ sau mỗi đợt train.',
+  ]}
+/>
+
+### [CPT có luôn đáng chi phí môi trường?](https://arxiv.org/abs/2210.07365)
+
+Không phải mọi data stream đều cần cập nhật model liên tục. Attanasio et al. không tìm thấy lợi ích downstream ổn định khi temporal adaptation các model tiếng Anh trên dữ liệu social media, trong khi continuous training tạo thêm phát thải CO₂. Finding này đặt ra câu hỏi **khi nào lợi ích cập nhật đủ lớn để bù chi phí**, chứ không chứng minh CPT luôn không cần thiết.
+
+<PaperTradeoff
+  advantages={[
+    'Buộc quyết định CPT phải tính cả hiệu quả task lẫn compute và phát thải, thay vì mặc định model mới hơn luôn tốt hơn.',
+    'Paper tái lập và mở rộng đánh giá qua thêm thời điểm, model và task để kiểm tra lợi ích temporal adaptation.',
+  ]}
+  limitations={[
+    'Kết luận dựa trên model tiếng Anh và dữ liệu social media trong các benchmark được khảo sát.',
+    'Paper cũng ghi nhận benchmark temporal còn thiếu, nên bằng chứng chưa đủ để phủ định giá trị của CPT trong các domain có knowledge thay đổi quan trọng.',
+  ]}
+/>
+
+Nhìn chung, survey xem CPT là một lựa chọn hiệu quả hơn **combine-and-retrain** trong nhiều bối cảnh. Tuy nhiên, granularity cần ưu tiên—example, token hay sequence—và việc có nên cập nhật hay không đều phải dựa trên lỗi thực tế, data stream và chi phí của hệ thống.
+
+Nguồn tổng hợp: [Shi et al., §4.1.3](https://arxiv.org/html/2404.16789v3#S4.SS1.SSS3).

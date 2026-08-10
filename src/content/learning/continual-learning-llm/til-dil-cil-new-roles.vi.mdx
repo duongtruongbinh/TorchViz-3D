@@ -1,17 +1,49 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'til-dil-cil-new-roles', locale: 'vi', title: 'Vai trò mới của TIL, DIL, CIL',
-  headings: ['Taxonomy cổ điển đổi vai trong LLM'], keywords: ['TIL', 'DIL', 'CIL', 'Instruction'],
-  conceptIds: ['dil-role', 'til-role', 'cil-role'],
+  headings: ['Domain thay đổi', 'Instruction chỉ task', 'Class trở thành token và route'], keywords: ['TIL', 'DIL', 'CIL', 'Instruction'],
+  conceptIds: ['dil-role', 'til-role', 'cil-role'], pageCount: 3,
 }
 
-## Taxonomy cổ điển đổi vai trong LLM
+<MdxPage page={0}>
 
-<ComparisonMatrix ariaLabel="Vai trò mới của TIL DIL CIL trong continual LLM" columns={['Xuất hiện tự nhiên ở đâu', 'Tín hiệu chính']} rows={[
-  { label: 'DIL', values: ['CPT và DAP', 'Input-output format giữ nguyên, domain distribution đổi'] },
-  { label: 'TIL', values: ['Instruction tuning', 'Instruction có thể mã hóa task ID bằng natural language'] },
-  { label: 'CIL', values: ['Vocabulary expansion hoặc MoE', 'Mở rộng token/class hoặc học routing function'] },
-]} />
+## Domain thay đổi
 
-CIL từng là trọng tâm của CL, nhưng TIL và DIL phù hợp hơn với continual LLMs. Ranh giới TIL–DIL cũng mờ hơn vì LLM có thể tự suy ra domain từ một instruction chưa từng thấy.
+Trong **Domain-Incremental Learning (DIL)**, model vẫn làm cùng một loại bài toán và giữ cùng input–output format, nhưng distribution của dữ liệu đổi qua từng stage.
+
+Điều này khớp tự nhiên với hai giai đoạn đã học:
+
+- Trong **Continual Pre-Training (CPT)**, model vẫn dự đoán token tiếp theo nhưng corpus có thể chuyển ngôn ngữ, nội dung hoặc thời gian.
+- Trong **Domain-Adaptive Pre-training (DAP)**, objective vẫn là language modeling nhưng dữ liệu chuyển từ general domain sang legal, medical, finance hoặc science.
+
+DIL vì thế trở thành một setting trung tâm của continual LLM, dù model không nhận một task ID rõ ràng khi inference.
 
 Nguồn: [Shi et al., §6.2](https://arxiv.org/html/2404.16789v3#S6.SS2).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Instruction chỉ task
+
+Trong **Task-Incremental Learning (TIL)** cổ điển, model được báo task hiện tại khi inference. Với LLM, tín hiệu đó không nhất thiết là một số như `task_id = 3`: chính instruction bằng natural language có thể mô tả model cần tóm tắt, phân loại hay sinh code.
+
+Điều này giải thích vì sao TIL xuất hiện nhiều trong Continual Instruction Tuning. Tuy nhiên, ranh giới giữa TIL và DIL bắt đầu mờ đi: một instruction chưa từng thấy có thể vừa mô tả task, vừa để lộ domain mà model cần tự suy ra.
+
+**Điểm cần nhớ:** instruction có thể đóng vai task index, nhưng model vẫn phải generalize cách định tuyến từ ngôn ngữ tự nhiên thay vì chỉ tra một ID đã biết.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Class trở thành token và route
+
+**Class-Incremental Learning (CIL)** từng là trọng tâm của CL: class mới xuất hiện và classification head phải mở rộng. Với LLM sinh văn bản, output vốn đã là một vocabulary lớn, nên nhiều bài toán không còn cần một incremental classification head riêng.
+
+Điều đó không làm logic của CIL biến mất. Survey chỉ ra hai hình thức mới:
+
+- **Vocabulary expansion:** thêm token mới cũng là mở rộng không gian output mà model phải học phân biệt.
+- **Mixture of Experts routing:** học route mới cũng giống mở rộng tập lựa chọn mà model phải phân phối input tới đúng nhánh.
+
+Vì vậy, CIL được **hấp thụ vào language modeling và routing**, thay vì chỉ xuất hiện dưới dạng thêm neuron vào classification head. Các kỹ thuật CIL truyền thống vẫn có thể cung cấp ý tưởng cho hai setting này.
+
+</MdxPage>

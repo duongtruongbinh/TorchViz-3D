@@ -1,19 +1,114 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-instruction-tuning', locale: 'vi', title: 'Continual Instruction Tuning',
-  headings: ['Học instruction mới mà không quên instruction cũ'], keywords: ['CIT', 'Replay', 'PEFT'],
-  conceptIds: ['cit-goal', 'cit-replay', 'cit-architecture'],
+  headings: ['Instruction đến theo dòng', 'Paper nổi bật'], keywords: ['CIT', 'Replay', 'Regularization', 'PEFT'],
+  conceptIds: ['cit-overview', 'cit-papers'], pageCount: 2,
 }
 
-## Học instruction mới mà không quên instruction cũ
+<MdxPage page={0}>
 
-Trong Continual Instruction Tuning (**CIT**), instruction data đến theo dòng. Model phải học instruction mới trong khi vẫn làm đúng instruction cũ.
+## Instruction đến theo dòng
 
-<ComparisonMatrix ariaLabel="Các nhóm giải pháp CIT trong survey" columns={['Ví dụ', 'Cơ chế']} rows={[
-  { label: 'Replay', values: ['CT0, KPIG, SSR', 'Giữ/chọn dữ liệu cũ hoặc sinh synthetic instances'] },
-  { label: 'Replay + regularization', values: ['DynaInst, InstructionSpeak', 'Chọn động dữ liệu và thêm ràng buộc học'] },
-  { label: 'PEFT/architecture', values: ['O-LoRA, SAPT', 'Tách subspace hoặc chọn PEFT block phù hợp'] },
-]} />
+Instruction tuning dạy model làm theo nhiều yêu cầu của người dùng. Trong **Continual Instruction Tuning (CIT)**, các instruction không xuất hiện cùng lúc mà đến thành nhiều đợt: model có thể học tóm tắt hôm nay rồi học phân loại hoặc sinh code ở đợt sau.
 
-Replay, regularization và architecture-based methods vẫn phổ biến vì đơn giản và hiệu quả, nhưng đánh đổi bằng chi phí lưu data, tham số hoặc GPU memory.
+Mục tiêu vì thế có hai vế: **học instruction mới** và **giữ khả năng làm theo instruction cũ**. Nếu chỉ tối ưu đợt hiện tại, gradient mới có thể ghi đè hành vi đã học; nếu giữ quá nhiều dữ liệu cũ, chi phí lưu trữ và huấn luyện lại tăng lên.
+
+Survey nhóm giải pháp thành ba hướng: replay dữ liệu cũ, kết hợp replay với regularization, và tách phần tham số hoặc không gian cập nhật bằng PEFT.
 
 Nguồn: [Shi et al., §4.3.3](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS3).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Paper nổi bật
+
+<LessonImage
+  assetPath="continual-learning-llm/03-cit-paper-map-doodle.png"
+  alt="Bảy doodle card minh họa các paper CIT: CT0 trộn instruction cũ, KPIG chọn phần giàu thông tin, SSR sinh dữ liệu ôn tập, DynaInst chọn buffer động, InstructionSpeak kết hợp replay với negative training, O-LoRA tách update trực giao và SAPT định tuyến qua các PEFT block"
+  caption="Bảy paper CIT khác nhau chủ yếu ở cách replay, bảo vệ update hoặc tách capacity."
+/>
+
+Replay không nhất thiết phải lưu ngẫu nhiên mọi ví dụ cũ. Ba paper dưới đây lần lượt đi từ replay cơ bản đến **chọn phần đáng nhớ** hoặc **tự sinh dữ liệu ôn tập**.
+
+### [CT0](https://arxiv.org/abs/2205.12393)
+
+CT0 là một trong những nghiên cứu sớm đưa replay vào continual instruction tuning: trộn một phần instruction cũ khi học task mới để nhắc model về hành vi trước đó.
+
+<PaperTradeoff
+  advantages={['Đưa ra một baseline replay trực tiếp, dễ hiểu cho dòng instruction liên tiếp.', 'Cho thấy dữ liệu cũ có thể giảm forgetting khi task mới xuất hiện.']}
+  limitations={['Cần giữ lại dữ liệu cũ.', 'Replay cơ bản chưa quyết định ví dụ nào có giá trị ôn tập cao nhất.']}
+/>
+
+---
+
+### [KPIG](https://arxiv.org/abs/2403.10056)
+
+KPIG ước lượng **information gain** từ những phần quan trọng của instruction, rồi ưu tiên các mẫu mang nhiều thông tin cho replay. Ý tưởng là dùng ngân sách bộ nhớ vào các instruction dễ đại diện cho tri thức cần giữ hơn.
+
+<PaperTradeoff
+  advantages={['Replay có chọn lọc thay vì coi mọi instruction cũ quan trọng như nhau.', 'Đồng thời điều chỉnh mục tiêu học để chú ý hơn tới phần instruction giàu thông tin.']}
+  limitations={['Phụ thuộc vào cách xác định phần instruction quan trọng và information gain.', 'Lợi ích được đánh giá trong các stream và model của paper, chưa bảo đảm cho mọi loại instruction.']}
+/>
+
+---
+
+### [SSR](https://arxiv.org/abs/2403.01244)
+
+SSR dùng một LLM để tạo **synthetic instances** đại diện cho task cũ. Model đang học có thể ôn lại các ví dụ sinh tổng hợp thay vì phải giữ toàn bộ dữ liệu gốc.
+
+<PaperTradeoff
+  advantages={['Giảm phụ thuộc vào việc lưu dữ liệu huấn luyện cũ.', 'Có thể tạo thêm mẫu replay khi dữ liệu gốc bị giới hạn.']}
+  limitations={['Chất lượng replay phụ thuộc vào LLM sinh dữ liệu.', 'Synthetic instances có thể không bao phủ đầy đủ distribution của dữ liệu cũ.']}
+/>
+
+### Replay có kiểm soát
+
+Chỉ chọn dữ liệu chưa giải quyết hết interference. Nhóm tiếp theo vừa quyết định **nên ôn gì**, vừa thêm tín hiệu buộc update mới không phá hỏng tri thức cũ.
+
+#### [DynaInst](https://aclanthology.org/2023.acl-long.703/)
+
+DynaInst chọn động task và instance để lưu trong buffer, đồng thời dùng parameter regularization. Replay nhắc lại hành vi cũ; regularization hạn chế các thay đổi tham số dễ gây forgetting.
+
+<PaperTradeoff
+  advantages={['Phân bổ bộ nhớ theo diễn biến của stream thay vì dùng một buffer cố định.', 'Kết hợp bảo vệ ở cả mức dữ liệu và tham số.']}
+  limitations={['Phải trả chi phí chọn mẫu và duy trì replay buffer.', 'Cần cân bằng độ mạnh của regularization với khả năng học instruction mới.']}
+/>
+
+---
+
+#### [InstructionSpeak](https://arxiv.org/abs/2203.08512)
+
+InstructionSpeak kết hợp **negative training** với việc quay lại instruction cũ. Negative training giúp model phân biệt phản hồi không phù hợp, còn replay hỗ trợ backward transfer và duy trì instruction đã học.
+
+<PaperTradeoff
+  advantages={['Không chỉ ôn đáp án đúng mà còn dùng tín hiệu âm để định hình ranh giới hành vi.', 'Nhắm tới cả forward transfer và backward transfer trong chuỗi task.']}
+  limitations={['Cần thiết kế hoặc thu thập negative examples đáng tin cậy.', 'Việc quay lại instruction cũ vẫn tạo thêm chi phí dữ liệu và huấn luyện.']}
+/>
+
+### Tách không gian học
+
+PEFT giảm số tham số phải cập nhật, nhưng CIT còn cần ngăn update của task mới đè lên update cũ. O-LoRA và SAPT giải quyết việc này theo hai cách khác nhau.
+
+#### [O-LoRA](https://arxiv.org/abs/2310.14152)
+
+O-LoRA học task mới trong một **low-rank subspace trực giao** với các subspace LoRA đã dùng. Trực giác là đặt update mới theo một hướng ít giao nhau với hướng lưu task cũ để giảm interference.
+
+<PaperTradeoff
+  advantages={['Không cần replay dữ liệu cũ để tách các update theo task.', 'Chỉ huấn luyện low-rank parameters thay vì toàn bộ base model.']}
+  limitations={['Mỗi task mới làm tăng phần tham số hoặc ràng buộc cần quản lý.', 'Tính trực giao của update không đồng nghĩa mọi hành vi cũ đều được bảo toàn.']}
+/>
+
+---
+
+#### [SAPT](https://arxiv.org/abs/2401.08295)
+
+SAPT chuẩn bị các **PEFT block** và dùng một selection module dựa trên shared attention để chọn block phù hợp với input. Model có thể chia sẻ tri thức khi cần nhưng vẫn định tuyến instruction khác nhau tới phần thích nghi phù hợp.
+
+<PaperTradeoff
+  advantages={['Selection module cho phép chọn phần thích nghi theo input.', 'Shared attention tạo đường chia sẻ tri thức giữa các task thay vì cô lập hoàn toàn.']}
+  limitations={['Thêm block và selection module làm tăng số tham số cùng GPU memory.', 'Hiệu quả phụ thuộc vào việc selector định tuyến đúng instruction.']}
+/>
+
+Replay, regularization và PEFT vẫn phổ biến vì trực tiếp và hiệu quả trong các thí nghiệm của từng paper. Đánh đổi chung là thêm **data storage**, **tham số**, hoặc **GPU memory**; không có hướng nào miễn phí cho mọi stream.
+
+</MdxPage>

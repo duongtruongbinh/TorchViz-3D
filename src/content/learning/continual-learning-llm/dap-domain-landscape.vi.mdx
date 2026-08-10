@@ -1,19 +1,242 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'dap-domain-landscape', locale: 'vi', title: 'DAP theo từng domain',
-  headings: ['Cùng là DAP nhưng trade-off khác nhau'], keywords: ['Legal', 'Medical', 'Financial', 'Scientific', 'Code'],
-  conceptIds: ['dap-domain-examples', 'dap-data-mixing', 'dap-design-choices'],
+  headings: ['Legal', 'Medical', 'Financial', 'Scientific', 'Code', 'Các hướng khác'],
+  keywords: ['Legal', 'Medical', 'Financial', 'Scientific', 'Code', 'Data mixing'],
+  conceptIds: ['dap-legal-domain', 'dap-medical-domain', 'dap-financial-domain', 'dap-scientific-domain', 'dap-code-domain', 'dap-other-domains'],
+  pageCount: 6,
 }
 
-## Cùng là DAP nhưng trade-off khác nhau
+<MdxPage page={0}>
 
-<ComparisonMatrix ariaLabel="DAP trong các domain được survey tổng hợp" columns={['Ví dụ', 'Điểm CL nổi bật']} rows={[
-  { label: 'Legal', values: ['Lawyer Llama, SaulLM', 'Replay general data để giảm vertical forgetting'] },
-  { label: 'Medical', values: ['Me-Llama, HuatuoGPT-II', 'Domain gain có thể đi cùng general-domain decline'] },
-  { label: 'Financial', values: ['BBT-Fin, CFGPT, Xuanyuan 2.0', 'Data quality/mixture có thể quan trọng hơn corpus size'] },
-  { label: 'Scientific', values: ['OceanGPT, K2, AstroLlama', 'Trộn domain, general, arXiv hoặc code'] },
-  { label: 'Code', values: ['Code Llama, IRCoder, Llama Pro', 'Pipeline natural language → code tạo hierarchy tự nhiên'] },
-]} />
+## Legal
 
-Survey còn nêu các hướng khác như ECONET, CALM, Aurora-M, Swallow, Sailor, AdaptLLM và Tag-LLM. Điểm chung là DAP không chỉ là “thêm nhiều token”: data mixing, task formulation và architecture đều ảnh hưởng trade-off giữa domain acquisition và general retention.
+Văn bản luật có thuật ngữ, cấu trúc và cách lập luận riêng. DAP giúp base model tiếp xúc với corpus pháp lý trước khi fine-tune cho ứng dụng, nhưng một giai đoạn train dài cũng có thể làm suy giảm năng lực tổng quát.
 
-Nguồn: [Shi et al., §4.2.2](https://arxiv.org/html/2404.16789v3#S4.SS2.SSS2).
+### [Lawyer LLaMA](https://arxiv.org/abs/2305.15062)
+
+Lawyer LLaMA tiếp tục pre-train LLaMA trên khoảng **10B token pháp lý** và replay dữ liệu tổng quát để hạn chế vertical forgetting.
+
+<PaperTradeoff
+  advantages={['Cho thấy một base model tổng quát có thể được chuyên biệt hóa bằng corpus luật thay vì train lại từ đầu.']}
+  limitations={['Paper không công bố replay rate, nên khó tách đóng góp của dữ liệu pháp lý và dữ liệu tổng quát.']}
+/>
+
+---
+
+### [SaulLM](https://arxiv.org/abs/2403.03883)
+
+SaulLM tiếp tục pre-train trên khoảng **30B token pháp lý**. Corpus của paper trộn thêm Wikipedia, StackExchange và GitHub; phần dữ liệu tổng quát chiếm khoảng **2%**.
+
+<PaperTradeoff
+  advantages={['Công bố rõ một data mixture dùng general data như replay trong legal DAP.']}
+  limitations={['Tỷ lệ 2% là lựa chọn của setup SaulLM, không phải replay rate tối ưu đã được chứng minh cho mọi legal model.']}
+/>
+
+**Điểm cần nhớ:** corpus chuyên ngành lớn không tự bảo đảm giữ được general ability. Khi dùng replay, tỷ lệ trộn phải được công bố và đánh giá thay vì xem như một chi tiết phụ.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Medical
+
+Trong y khoa, DAP thường bổ sung biomedical knowledge trước instruction tuning hoặc supervised fine-tuning. Vì đây là domain rủi ro cao, tăng điểm medical chưa đủ: model còn phải được kiểm tra xem năng lực tổng quát có giảm theo training step hay không.
+
+### [Continuous training cho Medical QA](https://arxiv.org/abs/2311.00204)
+
+Nghiên cứu theo dõi model trong quá trình train tiếp và ghi nhận **medical exam performance tăng trong khi general-domain performance giảm dần** ở setup được khảo sát.
+
+<PaperTradeoff
+  advantages={['Làm lộ rõ trade-off theo training step thay vì chỉ báo cáo checkpoint cuối.']}
+  limitations={['Xu hướng được quan sát trong pipeline và benchmark của paper; chưa đủ để khẳng định mọi medical DAP đều suy giảm giống nhau.']}
+/>
+
+---
+
+### [Me-LLaMA](https://arxiv.org/abs/2402.12749)
+
+Me-LLaMA trộn khoảng **25% dữ liệu tổng quát** vào corpus medical. Paper ghi nhận positive backward transfer trên MMLU trong thiết lập của mình.
+
+<PaperTradeoff
+  advantages={['Đánh giá cả năng lực medical và tín hiệu giữ năng lực tổng quát sau DAP.']}
+  limitations={['Kết quả không chứng minh 25% là tỷ lệ tối ưu cho model, corpus hoặc benchmark khác.']}
+/>
+
+---
+
+### [HuatuoGPT-II](https://arxiv.org/abs/2311.09774)
+
+HuatuoGPT-II chuyển văn bản medical thành cặp instruction–output rồi hợp nhất DAP và SFT trong **một giai đoạn**.
+
+<PaperTradeoff
+  advantages={['Pipeline hợp nhất vượt pipeline hai giai đoạn trong các thí nghiệm của paper.']}
+  limitations={['Kết quả đặt câu hỏi cho pipeline DAP → SFT, nhưng chưa chứng minh hai giai đoạn luôn thừa trong mọi domain.']}
+/>
+
+Các hướng khác trong survey gồm replay dữ liệu tổng quát, adapter và LoRA, chẳng hạn [AF Adapter](https://arxiv.org/abs/2211.11363). Chúng là các lựa chọn giảm quên, không phải bảo đảm zero forgetting.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Financial
+
+Financial DAP thường bắt đầu từ corpus rất lớn: [BBT-Fin](https://arxiv.org/abs/2302.09432) dùng khoảng **80B token**, còn [CFGPT](https://arxiv.org/abs/2309.10654) xây dựng corpus khoảng **141B token**. Tuy nhiên, survey lưu ý cả hai không đánh giá trực tiếp vertical forgetting.
+
+### [Efficient Continual Pre-training](https://arxiv.org/abs/2311.08545)
+
+Paper chọn khoảng **10% dữ liệu** có tính mới và đa dạng để train FinPythia. Trong setup của paper, tập đã chọn vượt phương án dùng toàn bộ corpus DAP.
+
+<PaperTradeoff
+  advantages={['Cung cấp bằng chứng thực nghiệm rằng data selection có thể quan trọng hơn việc dùng mọi token sẵn có.']}
+  limitations={['Kết quả thuộc corpus tài chính và recipe của paper; không suy ra rằng 10% luôn tốt hơn toàn bộ dữ liệu.']}
+/>
+
+---
+
+### [Xuanyuan 2.0](https://arxiv.org/abs/2305.12002)
+
+Xuanyuan 2.0 dùng hybrid tuning để trộn dữ liệu tổng quát và tài chính trong cùng pipeline; dữ liệu financial DAP chỉ chiếm khoảng **13%** mixture.
+
+<PaperTradeoff
+  advantages={['Minh họa cách kết hợp acquisition và retention ngay trong thiết kế data mixture.']}
+  limitations={['Tỷ lệ 13% gắn với recipe Xuanyuan 2.0, chưa trả lời replay rate nào tối ưu nói chung.']}
+/>
+
+**Câu hỏi mở:** một financial LLM có thật sự cần corpus DAP cực lớn, hay một tập nhỏ hơn nhưng mới, đa dạng và được trộn đúng cách sẽ hiệu quả hơn?
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Scientific
+
+Scientific DAP trải rộng từ đại dương và địa khoa đến thiên văn, như [OceanGPT](https://arxiv.org/abs/2310.02031), [K2](https://arxiv.org/abs/2306.05064), [AstroLLaMA](https://arxiv.org/abs/2309.06126) và [MarineGPT](https://arxiv.org/abs/2310.13596). Điểm chung là đưa tri thức khoa học chuyên ngành vào model; cách giữ reasoning và language ability lại khác nhau.
+
+### [GeoGalactica](https://arxiv.org/abs/2401.00434)
+
+GeoGalactica trộn geoscience, arXiv và CodeData theo tỷ lệ **8:1:1**. Paper nêu catastrophic forgetting là một rủi ro của DAP.
+
+<PaperTradeoff
+  advantages={['Mixture giữ lại nguồn khoa học rộng hơn và code thay vì chỉ dùng geoscience text.']}
+  limitations={['Paper không cung cấp empirical evidence đủ để xác nhận riêng tác dụng của CodeData đối với forgetting.']}
+/>
+
+---
+
+### [Llemma](https://arxiv.org/abs/2310.10631)
+
+Llemma tiếp tục pre-train Code Llama trên Proof-Pile-2 và trộn dữ liệu math với dữ liệu tổng quát theo tỷ lệ khoảng **19:1**.
+
+<PaperTradeoff
+  advantages={['Giữ một phần general data trong mixture khi chuyên biệt hóa model cho toán.']}
+  limitations={['Paper không cô lập replay thành một thí nghiệm CL riêng, nên không thể quy toàn bộ kết quả retention cho tỷ lệ này.']}
+/>
+
+---
+
+### [PLLaMA](https://arxiv.org/abs/2401.01600)
+
+PLLaMA thích nghi LLaMA-2 cho khoa học thực vật và trộn dữ liệu domain với dữ liệu tổng quát theo tỷ lệ khoảng **9:1**.
+
+<PaperTradeoff
+  advantages={['Mở rộng DAP sang một nhánh khoa học chuyên sâu với corpus hơn 1,5 triệu bài viết.']}
+  limitations={['Các kiểm tra ban đầu tập trung vào plant science; chưa đủ để suy rộng hiệu quả sang các scientific domain khác.']}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Code
+
+Code có pipeline chuyên biệt hóa tự nhiên: **natural language → code đa ngôn ngữ → một programming language cụ thể**. Đồng thời, grammar của code chặt chẽ hơn văn bản tự nhiên, nên giữ nguyên training objective của natural language có thể chưa tối ưu.
+
+### [Code Llama](https://arxiv.org/abs/2308.12950)
+
+Code Llama tiếp tục pre-train Llama 2 trên code rồi chuyên biệt hóa thêm cho Python. Một phần natural-language data được replay để giữ khả năng hiểu ngôn ngữ.
+
+<PaperTradeoff
+  advantages={['Minh họa rõ chuỗi DAP phân cấp từ model tổng quát đến code rồi một ngôn ngữ cụ thể.']}
+  limitations={['Replay giảm rủi ro quên nhưng paper không chứng minh model giữ nguyên mọi năng lực tự nhiên qua mọi stage.']}
+/>
+
+---
+
+### [IRCoder](https://arxiv.org/abs/2403.03894)
+
+IRCoder train tiếp trên source code ghép với **compiler intermediate representation (IR)** và dùng LoRA để thích nghi model.
+
+<PaperTradeoff
+  advantages={['IR tạo cầu nối dùng chung giữa nhiều programming language trong các thí nghiệm multilingual code.']}
+  limitations={['Cần pipeline compiler và dữ liệu source–IR; lợi ích được kiểm chứng trên các code task của paper.']}
+/>
+
+---
+
+### [LLaMA Pro](https://arxiv.org/abs/2401.02415)
+
+LLaMA Pro thêm các Transformer block mới rồi chỉ cập nhật phần mở rộng để học code và math.
+
+<PaperTradeoff
+  advantages={['Block expansion chống vertical forgetting tốt hơn LoRA trong các so sánh của paper.']}
+  limitations={['Model lớn hơn và finding chỉ được xác nhận trên corpus, baseline cùng benchmark được khảo sát.']}
+/>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Các hướng khác
+
+Không phải mọi DAP đều chỉ thay corpus rồi giữ nguyên objective và kiến trúc. Survey còn ghi nhận ba hướng thiết kế khác: tạo objective chuyên biệt, tối ưu data mixing và thay đổi cách biểu diễn đầu vào.
+
+### [ECONET](https://aclanthology.org/2021.emnlp-main.436/)
+
+ECONET thiết kế objective che event và temporal indicator, kèm nhiệm vụ phân biệt câu đã bị làm sai, để học temporal reasoning.
+
+<PaperTradeoff
+  advantages={['Objective nhắm trực tiếp vào quan hệ thời gian thay vì kỳ vọng language modeling tự học được tín hiệu đó.']}
+  limitations={['Kết quả được đánh giá trên năm task relation extraction và QA của paper, không đại diện cho mọi loại reasoning.']}
+/>
+
+---
+
+### [CALM](https://arxiv.org/abs/2011.07956)
+
+CALM kết hợp objective sinh và contrastive để học commonsense xoay quanh các concept.
+
+<PaperTradeoff
+  advantages={['Cho thấy task formulation là một trục thiết kế DAP, không chỉ số lượng token.']}
+  limitations={['Paper nghiên cứu pretrained text-to-text transformer và các commonsense task cụ thể, không phải mọi decoder-only LLM hiện đại.']}
+/>
+
+---
+
+### [AdaptLLM](https://arxiv.org/abs/2309.09530)
+
+AdaptLLM chuyển raw corpus thành dạng **(raw text, question, answer)** để tạo reading-comprehension task trước khi adaptation.
+
+<PaperTradeoff
+  advantages={['Trong ba domain được khảo sát, định dạng này cải thiện khả năng dùng domain knowledge để trả lời câu hỏi.']}
+  limitations={['Pipeline cần tạo task từ raw text; chất lượng câu hỏi và câu trả lời trở thành một nguồn sai số mới.']}
+/>
+
+---
+
+### [Tag-LLM](https://arxiv.org/abs/2402.05140)
+
+Tag-LLM học **domain tag** và **function tag** dưới dạng vector đầu vào mà không cập nhật base-model weights.
+
+<PaperTradeoff
+  advantages={['Tách domain khỏi function và giữ nguyên tham số của base model.']}
+  limitations={['Paper đánh giá trên các specialized domain và task đã chọn; tag không tự bảo đảm generalization cho mọi tổ hợp mới.']}
+/>
+
+[Aurora-M](https://arxiv.org/abs/2404.00399), [Swallow](https://arxiv.org/abs/2404.17790) và [Sailor](https://arxiv.org/abs/2404.03608) bổ sung một góc nhìn multilingual: data mixing và replay giúp cân bằng ngôn ngữ mới với năng lực đã có. Sailor còn dùng proxy model để tìm mixture phù hợp.
+
+**Điểm cần nhớ:** các paper trên minh họa nhiều lựa chọn ngoài việc tăng số token DAP. Việc một lựa chọn tốt hơn chỉ được kết luận trong phạm vi thí nghiệm của từng paper.
+
+Nguồn tổng hợp: [Shi et al., §4.2.2](https://arxiv.org/html/2404.16789v3#S4.SS2.SSS2).
+
+</MdxPage>

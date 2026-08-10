@@ -2,117 +2,54 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'continual-finetuning-overview-quiz',
   locale: 'vi',
-  title: "Quiz",
-  headings: [
-  "Mục tiêu CFT",
-  "Rủi ro theo chuỗi",
-  "Các nhánh CFT",
-  "Quan sát của survey"
-],
+  title: 'Quiz',
+  headings: ['Mục tiêu', 'Năm nhánh', 'TIL và DIL', 'Kỹ thuật CL', 'Thông tin và output', 'Điều chỉnh', 'Format và module'],
   keywords: ['Continual Learning', 'LLM', 'Quiz'],
-  conceptIds: [
-  "cft-purpose",
-  "cft-sequential-task-risk",
-  "cft-specializations",
-  "cft-observations"
-],
-  pageCount: 4,
+  conceptIds: ['cft-scope', 'cft-branches', 'cft-observation-settings', 'cft-observation-techniques', 'cft-representation-vs-task', 'cft-simple-controls', 'cft-format-modules'],
+  pageCount: 7,
 }
 
 <MdxQuiz id="continual-finetuning-overview-quiz" questions={[
-  {
-    "id": "cft-purpose",
-    "title": "Mục tiêu CFT",
-    "prompt": "Hai mục tiêu cốt lõi của CFT là gì?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Học task mới và giữ hiệu năng trên task cũ.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt2",
-        "label": "Tối đa hiệu năng task mới và giảm compute, không đo lại task cũ."
-      },
-      {
-        "id": "opt3",
-        "label": "Giữ nguyên task cũ và đóng băng model để tránh mọi cập nhật."
-      },
-      {
-        "id": "opt4",
-        "label": "Học task mới rồi chọn checkpoint chỉ bằng training loss của stage hiện tại."
-      }
-    ],
-    "success": "CFT cân bằng acquisition và retention qua chuỗi downstream task.",
-    "error": "Hãy nhìn vào cả stage mới và lịch sử."
-  },
-  {
-    "id": "cft-sequential-task-risk",
-    "title": "Rủi ro theo chuỗi",
-    "prompt": "Vì sao đánh giá checkpoint cuối trên task mới là chưa đủ?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Nó đã phản ánh retention vì task mới đại diện cho toàn bộ sequence đã học."
-      },
-      {
-        "id": "opt3",
-        "label": "Nó đo retention task cũ nhưng không cho biết model học task mới tốt đến đâu."
-      },
-      {
-        "id": "opt2",
-        "label": "Nó không cho biết các task cũ đã bị quên hay chưa.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt4",
-        "label": "Nó không cho biết compute của checkpoint cuối có thấp hơn các stage trước hay không."
-      }
-    ],
-    "success": "CFT cần đo lại lịch sử sau mỗi stage.",
-    "error": "Retention không xuất hiện nếu chỉ nhìn task hiện tại."
-  },
-  {
-    "id": "cft-specializations",
-    "title": "Các nhánh CFT",
-    "prompt": "Nhánh nào xử lý preference và safety thay đổi theo thời gian?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Continual Instruction Tuning cho các instruction dataset xuất hiện nối tiếp."
-      },
-      {
-        "id": "opt2",
-        "label": "Continual Model Refinement cho các fact hoặc behavior mục tiêu cần sửa."
-      },
-      {
-        "id": "opt4",
-        "label": "Continual Pre-training cho các corpus không gán nhãn xuất hiện theo thời gian."
-      },
-      {
-        "id": "opt3",
-        "label": "Continual Model Alignment cho preference, policy và safety thay đổi.",
-        "isCorrect": true
-      }
-    ],
-    "success": "CMA tập trung vào alignment nối tiếp.",
-    "error": "Phân biệt loại update downstream."
-  },
-  {
-    "id": "cft-observations",
-    "title": "Quan sát của survey",
-    "prompt": "Nhận định nào khớp với các quan sát chung về CFT?",
-    "mode": "single",
-    "options": [
-      { "id": "opt1", "label": "CFT hiện chỉ tập trung vào CIL và không dùng kỹ thuật CL." },
-      { "id": "opt2", "label": "Trọng tâm chuyển sang TIL/DIL; cả 35 paper đều dùng CL technique rõ ràng.", "isCorrect": true },
-      { "id": "opt3", "label": "CFT ít kỹ thuật CL hơn CPT và DAP." },
-      { "id": "opt4", "label": "Mọi paper CFT chỉ ghép lại replay, regularization và architecture expansion." }
-    ],
-    "success": "CFT dùng CL technique đa dạng hơn, và TIL/DIL nổi bật hơn CIL.",
-    "error": "Nhớ hai OBS chung của CFT trong survey."
-  }
+  { id: 'cft-scope', title: 'Mục tiêu', mode: 'single', prompt: 'Điều gì phân biệt CFT với một lần fine-tune chỉ tối ưu task hiện tại?', options: [
+    { id: 'a', label: 'CFT luôn thay pre-training objective bằng masked language modeling.' },
+    { id: 'b', label: 'CFT phải thích nghi với downstream update mới đồng thời đo và hạn chế forgetting trên lịch sử task.', isCorrect: true },
+    { id: 'c', label: 'CFT chỉ xử lý corpus không gán nhãn trước downstream task.' },
+    { id: 'd', label: 'CFT yêu cầu task mới phải có class chưa từng xuất hiện.' },
+  ], success: 'CFT tối ưu đồng thời adaptation và retention ở tầng downstream.', error: 'Nhìn cả update hiện tại và các task đã học.' },
+  { id: 'cft-branches', title: 'Năm nhánh', mode: 'single', prompt: 'Ánh xạ nào mô tả đúng đối tượng được thích nghi liên tục trong cả năm nhánh CFT?', options: [
+    { id: 'a', label: 'General—fact cần sửa; CIT—modality; CMR—task downstream; CMA—instruction; CMLLM—preference.' },
+    { id: 'b', label: 'General—instruction; CIT—task downstream; CMR—preference; CMA—modality; CMLLM—fact cần sửa.' },
+    { id: 'c', label: 'General—modality; CIT—preference; CMR—instruction; CMA—fact cần sửa; CMLLM—task downstream.' },
+    { id: 'd', label: 'General—task downstream; CIT—instruction; CMR—fact cần sửa; CMA—giá trị/preference; CMLLM—nhiều modality.', isCorrect: true },
+  ], success: 'Năm nhánh dùng cùng mục tiêu adaptation–retention nhưng khác đối tượng được cập nhật.', error: 'Ghép tên từng nhánh với task, instruction, correction, alignment hoặc modality.' },
+  { id: 'cft-observation-settings', title: 'TIL và DIL', mode: 'single', prompt: 'Kết luận nào diễn giải đúng OBS-1 của survey?', options: [
+    { id: 'a', label: 'CIL đơn giản hơn TIL nên không còn cần nghiên cứu.' },
+    { id: 'b', label: 'Cả 35 paper đều nghiên cứu đồng thời CIL, TIL và DIL.' },
+    { id: 'c', label: 'DIL yêu cầu task ID ở inference nên phù hợp nhất với instruction tuning.' },
+    { id: 'd', label: 'Chỉ 3/35 paper nghiên cứu CIL; TIL/DIL nổi bật hơn vì gần instruction và domain update thực tế.', isCorrect: true },
+  ], success: 'Sự chuyển trọng tâm phản ánh application setting, không phủ nhận giá trị của CIL.', error: 'Nhớ số paper CIL và vai trò của task context trong TIL/DIL.' },
+  { id: 'cft-observation-techniques', title: 'Kỹ thuật CL', mode: 'single', prompt: 'Điểm nào cho thấy kỹ thuật CL trong CFT đa dạng hơn CPT và DAP?', options: [
+    { id: 'a', label: 'CFT tránh dùng CL technique để tận dụng khả năng chống quên tự nhiên.' },
+    { id: 'b', label: 'Tất cả paper chỉ dùng replay với tên gọi data mixing.' },
+    { id: 'c', label: 'Cả 35 paper dùng CL rõ ràng; khoảng một nửa còn thiết kế cơ chế mới cho vấn đề cụ thể thay vì chỉ ghép kỹ thuật quen thuộc.', isCorrect: true },
+    { id: 'd', label: 'SAPT, Larimar và AMA đều giải quyết cùng một loại downstream update bằng cùng cơ chế.' },
+  ], success: 'OBS-2 nói về mức độ áp dụng rõ ràng và độ đa dạng của cơ chế.', error: 'Phân biệt số lượng paper dùng CL với ví dụ về ba cơ chế khác nhau.' },
+  { id: 'cft-representation-vs-task', title: 'Thông tin và output', mode: 'single', prompt: 'Một probe vẫn tìm thấy thông tin của task cũ bên trong model, nhưng output thật trên task đó sai nhiều hơn. Diễn giải nào hợp lý nhất?', options: [
+    { id: 'a', label: 'Thông tin có thể vẫn còn trong biểu diễn, nhưng classifier không còn biến nó thành đáp án đúng.', isCorrect: true },
+    { id: 'b', label: 'Probe chứng minh model không quên ở bất kỳ mức nào.' },
+    { id: 'c', label: 'Output giảm chỉ có thể do dữ liệu kiểm tra bị sai.' },
+    { id: 'd', label: 'Chỉ cần đo thông tin bên trong; không cần chạy lại task cũ.' },
+  ], success: 'Còn thông tin bên trong chưa bảo đảm model vẫn sử dụng đúng thông tin đó.', error: 'Phân biệt việc tìm thấy thông tin với việc model tạo đúng output.' },
+  { id: 'cft-simple-controls', title: 'Điều chỉnh', mode: 'single', prompt: 'Pipeline classification biết trước các task head tương lai và muốn thử baseline ít phức tạp trước. Lựa chọn nào khớp nhất với General CFT?', options: [
+    { id: 'a', label: 'Larimar: thêm external episodic memory cho mọi classifier.' },
+    { id: 'b', label: 'LFPT5: chuyển mọi classifier thành pseudo-example mà không cần warm-up.' },
+    { id: 'c', label: 'SEQ*: warm-up rồi freeze backbone và head cũ, đồng thời pre-allocate head tương lai.', isCorrect: true },
+    { id: 'd', label: 'C3: dùng teacher–student để thay toàn bộ classifier bằng RLHF.' },
+  ], success: 'SEQ* là một baseline đơn giản dựa trên freeze và tổ chức classifier.', error: 'Khớp constraint “biết trước task head” với cơ chế của từng paper.' },
+  { id: 'cft-format-modules', title: 'Format và module', mode: 'single', prompt: 'Nhóm muốn thống nhất sequence labeling, classification và generation thành một interface, đồng thời replay dữ liệu cũ do model sinh. Phương pháp nào phù hợp?', options: [
+    { id: 'a', label: 'CTR với TSM và KSM.' },
+    { id: 'b', label: 'LFPT5 với text-to-text generation và pseudo-example.', isCorrect: true },
+    { id: 'c', label: 'C3 với teacher chỉ nhận domain cũ.' },
+    { id: 'd', label: 'LR ADJUST với pre-allocated classifier.' },
+  ], success: 'LFPT5 kết hợp task format chung, prompt tuning và generative replay.', error: 'Tách phương pháp đổi format khỏi phương pháp tách module hoặc điều chỉnh optimizer.' },
 ]} />

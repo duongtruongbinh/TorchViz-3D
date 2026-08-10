@@ -1,26 +1,20 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-instruction-tuning-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Mục tiêu', 'Replay', 'PEFT'], keywords: ['Quiz', 'CIT'],
-  conceptIds: ['cit-goal', 'cit-replay', 'cit-architecture'], pageCount: 3,
+  headings: ['Nội dung', 'Paper'], keywords: ['Quiz', 'CIT'],
+  conceptIds: ['cit-overview', 'cit-papers'], pageCount: 2,
 }
 
 <MdxQuiz id="continual-instruction-tuning-quiz" questions={[
-  { id: 'cit-goal', title: 'Mục tiêu', mode: 'single', prompt: 'CIT giải quyết bài toán nào?', options: [
-    { id: 'b', label: 'Chỉ cập nhật world fact.' },
-    { id: 'c', label: 'Chỉ mở rộng vocabulary.' },
-    { id: 'd', label: 'Chỉ tiếp tục pre-train corpus không gán nhãn.' },
-    { id: 'a', label: 'Học instruction mới mà không quên instruction cũ.', isCorrect: true },
-  ], success: 'CIT duy trì instruction following qua một data stream.', error: 'Nhìn loại dữ liệu được cập nhật.' },
-  { id: 'cit-replay', title: 'Replay', mode: 'single', prompt: 'SSR giảm chi phí replay bằng cách nào?', options: [
-    { id: 'a', label: 'Đóng băng toàn bộ model.' },
-    { id: 'b', label: 'Dùng LLM tạo synthetic instances để replay.', isCorrect: true },
-    { id: 'c', label: 'Chỉ đo X-Delta.' },
-    { id: 'd', label: 'Mở rộng class set.' },
-  ], success: 'SSR dùng synthetic replay.', error: 'Nhớ ví dụ thuộc nhóm replay của CIT.' },
-  { id: 'cit-architecture', title: 'PEFT', mode: 'single', prompt: 'O-LoRA giảm interference bằng cách nào?', options: [
-    { id: 'b', label: 'Replay toàn bộ history.' },
-    { id: 'c', label: 'Chỉ tăng λ cho mọi parameter.' },
-    { id: 'a', label: 'Học task mới trong các subspace trực giao.', isCorrect: true },
-    { id: 'd', label: 'Dùng LAMA probe làm training loss.' },
-  ], success: 'O-LoRA dùng orthogonal subspaces.', error: 'Đây là hướng PEFT/architecture.' },
+  { id: 'cit-overview', title: 'Nội dung', mode: 'single', prompt: 'Một model lần lượt học instruction tóm tắt, phân loại và sinh code. Mục tiêu nào mô tả đúng CIT?', options: [
+    { id: 'a', label: 'Chỉ tối đa hóa điểm của instruction đến cuối cùng.' },
+    { id: 'b', label: 'Học instruction mới đồng thời duy trì khả năng làm theo instruction cũ.', isCorrect: true },
+    { id: 'c', label: 'Chỉ tiếp tục pre-train corpus không gán nhãn.' },
+    { id: 'd', label: 'Luôn lưu và replay toàn bộ dữ liệu từng thấy.' },
+  ], success: 'CIT cân bằng khả năng học instruction mới với việc giữ instruction cũ.', error: 'Hãy xét cả update hiện tại lẫn instruction trong lịch sử.' },
+  { id: 'cit-papers', title: 'Paper', mode: 'single', prompt: 'Ánh xạ nào đúng giữa paper CIT và cơ chế nổi bật?', options: [
+    { id: 'a', label: 'SSR—subspace trực giao; O-LoRA—synthetic replay; SAPT—full-model freeze.' },
+    { id: 'b', label: 'CT0—external memory; DynaInst—model averaging; KPIG—side memory.' },
+    { id: 'c', label: 'O-LoRA—random replay; SSR—parameter regularization; SAPT—episodic memory.' },
+    { id: 'd', label: 'SSR—synthetic replay; DynaInst—dynamic replay + regularization; O-LoRA—subspace trực giao.', isCorrect: true },
+  ], success: 'Ba paper đại diện cho replay tổng hợp, bảo vệ dữ liệu + tham số và PEFT trực giao.', error: 'Phân biệt replay, regularization và cách tách không gian update.' },
 ]} />

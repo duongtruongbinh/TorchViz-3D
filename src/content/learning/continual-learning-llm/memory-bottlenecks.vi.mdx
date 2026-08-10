@@ -1,17 +1,55 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'memory-bottlenecks', locale: 'vi', title: 'Vai trò của Memory',
-  headings: ['Nút thắt phụ thuộc quyền truy cập dữ liệu'], keywords: ['Memory', 'Compute', 'Rehearsal-free'],
-  conceptIds: ['full-history', 'no-upstream-data', 'privacy-stream'],
+  headings: ['Giữ được toàn bộ history', 'Không có upstream data', 'Dữ liệu không được phép ở lại'], keywords: ['Memory', 'Compute', 'Rehearsal-free'],
+  conceptIds: ['full-history', 'no-upstream-data', 'privacy-stream'], pageCount: 3,
 }
 
-## Nút thắt phụ thuộc quyền truy cập dữ liệu
+<MdxPage page={0}>
 
-<ComparisonMatrix ariaLabel="Memory constraint trong continual LLM" columns={['Nút thắt', 'Hướng phù hợp']} rows={[
-  { label: 'Có toàn bộ history', values: ['Compute efficiency', 'Chọn dữ liệu cần replay; giới hạn update hoặc FLOPs'] },
-  { label: 'Không có upstream data', values: ['Data access', 'Public proxy data, pseudo-replay, parameter regularization'] },
-  { label: 'Privacy nghiêm ngặt', values: ['Chỉ dùng sample khi nó xuất hiện', 'Online continual learning'] },
-]} />
+## Giữ được toàn bộ history
 
-Với continual LLMs, storage không phải lúc nào cũng là nút thắt chính. Một tổ chức lớn có thể giữ toàn bộ history nhưng không đủ compute để train lại trên tất cả dữ liệu ở mỗi stage. Ngược lại, downstream consumer có thể hoàn toàn không được phép thấy upstream data, nên rehearsal-free methods vẫn cần thiết.
+CL truyền thống thường giả định memory rất nhỏ, nên câu hỏi chính là “giữ được bao nhiêu sample cũ?”. Với một tổ chức huấn luyện LLM, storage đôi khi đủ rẻ để giữ toàn bộ lịch sử dữ liệu. Nhưng **lưu được không có nghĩa train lại được trên tất cả dữ liệu sau mỗi stage**.
+
+Khi đó, nút thắt chuyển từ storage sang compute và tách thành hai bài toán:
+
+- **Efficient adaptation:** hấp thụ dữ liệu mới với ít update và FLOPs hơn.
+- **Efficient replay:** chỉ chọn những trải nghiệm cũ thực sự cần để giữ kiến thức.
+
+Một protocol thực tế vì thế phải báo cả memory budget, số update và FLOPs. Chỉ nói “được phép replay toàn bộ history” chưa cho biết phương pháp có khả thi hay không.
 
 Nguồn: [Shi et al., §6.3](https://arxiv.org/html/2404.16789v3#S6.SS3).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Không có upstream data
+
+Ở pipeline supplier–consumer, upstream supplier thường phát hành model weights nhưng không phát hành corpus tiền huấn luyện. Downstream consumer vì thế không thể replay dữ liệu mà họ chưa từng được truy cập.
+
+Survey nêu ba lựa chọn trong setting này:
+
+- thu thập **proxy data** từ nguồn khác;
+- dùng khả năng sinh của LLM để tạo **pseudo-examples**;
+- dùng **parameter regularization** để hạn chế model rời quá xa trạng thái cũ.
+
+Các cách này giảm phụ thuộc vào upstream corpus, nhưng không tái tạo hoàn hảo dữ liệu gốc. Proxy và pseudo-data có thể lệch distribution; regularization bảo vệ tham số nhưng không trực tiếp chỉ ra hành vi cũ nào quan trọng nhất.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Dữ liệu không được phép ở lại
+
+Memory constraint còn có thể đến từ privacy: sample được dùng khi nó xuất hiện nhưng không được lưu lâu dài trên server. Đây là setting **online continual learning**.
+
+Model phải quyết định update từ dòng dữ liệu hiện tại mà không dựa vào một replay buffer chứa dữ liệu người dùng cũ. Vì vậy, protocol cần nói rõ:
+
+- sample được nhìn bao nhiêu lần;
+- có được giữ representation hoặc statistic dẫn xuất hay không;
+- dữ liệu phải bị xóa ở thời điểm nào;
+- evaluation có dùng lại dữ liệu nhạy cảm hay không.
+
+Privacy không chỉ làm buffer nhỏ hơn. Nó thay đổi **quyền truy cập và thời điểm được phép sử dụng dữ liệu**, nên có thể loại bỏ hoàn toàn một số phương pháp replay.
+
+</MdxPage>
