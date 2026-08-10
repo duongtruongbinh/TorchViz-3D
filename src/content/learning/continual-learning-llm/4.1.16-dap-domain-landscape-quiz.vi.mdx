@@ -1,0 +1,45 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'dap-domain-landscape-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Legal', 'Medical', 'Financial', 'Scientific', 'Code', 'Các hướng khác'], keywords: ['Quiz', 'DAP Domains'],
+  conceptIds: ['dap-legal-domain', 'dap-medical-domain', 'dap-financial-domain', 'dap-scientific-domain', 'dap-code-domain', 'dap-other-domains'],
+  pageCount: 6,
+}
+
+<MdxQuiz id="dap-domain-landscape-quiz" questions={[
+  { id: 'dap-legal-domain', title: 'Legal', mode: 'single', prompt: 'Từ Lawyer LLaMA và SaulLM, kết luận nào được bằng chứng hỗ trợ tốt nhất?', options: [
+    { id: 'a', label: 'Legal corpus đủ lớn có thể thay general-data replay, nên general ability chỉ cần đo trước DAP.' },
+    { id: 'b', label: 'General-data replay là một lựa chọn giữ năng lực cũ, nhưng tỷ lệ trộn vẫn phải được công bố và đánh giá.', isCorrect: true },
+    { id: 'c', label: 'Replay rate 2% của SaulLM có thể dùng làm mặc định cho Lawyer LLaMA vì hai model cùng legal domain.' },
+    { id: 'd', label: 'Lawyer LLaMA không công bố replay rate nên chưa thể xem dữ liệu tổng quát của paper là replay.' },
+  ], success: 'Hai paper dùng replay, nhưng bằng chứng không thiết lập một tỷ lệ phổ quát.', error: 'Phân biệt design choice của từng paper với kết luận có thể khái quát.' },
+  { id: 'dap-medical-domain', title: 'Medical', mode: 'single', prompt: 'Một medical model tăng điểm chuyên ngành nhưng giảm dần trên general benchmark theo training step. Hành động nào phù hợp nhất với các paper trong survey?', options: [
+    { id: 'a', label: 'Chỉ giữ checkpoint cuối vì domain score cao nhất.' },
+    { id: 'b', label: 'Kết luận pipeline DAP → SFT luôn sai và chuyển mọi model sang HuatuoGPT-II.' },
+    { id: 'c', label: 'Tăng medical corpus cho đến khi general score tự phục hồi.' },
+    { id: 'd', label: 'Theo dõi cả hai nhóm benchmark theo step và kiểm tra replay hoặc parameter-efficient adaptation.', isCorrect: true },
+  ], success: 'Medical gain và general retention phải được theo dõi đồng thời.', error: 'Finding của một pipeline không phải công thức phổ quát; hãy xử lý trade-off đã quan sát.' },
+  { id: 'dap-financial-domain', title: 'Financial', mode: 'single', prompt: 'FinPythia dùng khoảng 10% dữ liệu đã chọn nhưng vượt phương án dùng toàn bộ corpus trong setup của paper. Bài học an toàn là gì?', options: [
+    { id: 'a', label: 'Tính mới và đa dạng của dữ liệu có thể quan trọng hơn số token; cần kiểm chứng data selection trong từng setup.', isCorrect: true },
+    { id: 'b', label: 'Mọi financial model chỉ nên dùng đúng 10% corpus.' },
+    { id: 'c', label: 'BBT-Fin và CFGPT đã chứng minh corpus lớn gây vertical forgetting.' },
+    { id: 'd', label: 'Hybrid tuning loại bỏ nhu cầu đánh giá general ability.' },
+  ], success: 'Paper hỗ trợ vai trò của data quality, không thiết lập quy tắc 10% phổ quát.', error: 'Giữ kết luận trong phạm vi thí nghiệm của FinPythia.' },
+  { id: 'dap-scientific-domain', title: 'Scientific', mode: 'single', prompt: 'GeoGalactica trộn geoscience, arXiv và CodeData theo tỷ lệ 8:1:1. Ta có thể khẳng định điều gì về CodeData?', options: [
+    { id: 'a', label: 'Có CodeData trong mixture là bằng chứng nó cần thiết để giữ reasoning khi học geoscience.' },
+    { id: 'b', label: 'Domain gain của mixture đủ để quy riêng phần cải thiện cho CodeData thay vì geoscience hoặc arXiv.' },
+    { id: 'c', label: 'Paper dùng CodeData trong mixture nhưng chưa cung cấp empirical evidence đủ để cô lập tác dụng của nó.', isCorrect: true },
+    { id: 'd', label: 'Tỷ lệ 8:1:1 có thể chuyển sang scientific domain khác vì arXiv và code đều là dữ liệu tổng quát.' },
+  ], success: 'Có một thành phần trong recipe không đồng nghĩa tác dụng riêng của nó đã được chứng minh.', error: 'Phân biệt mô tả data mixture với bằng chứng ablation.' },
+  { id: 'dap-code-domain', title: 'Code', mode: 'single', prompt: 'Nhóm muốn học thêm code và math chủ yếu qua tham số mới, đồng thời hạn chế can thiệp vào backbone. Paper nào khớp nhất?', options: [
+    { id: 'a', label: 'IRCoder, vì compiler IR luôn giữ nguyên toàn bộ base-model weights.' },
+    { id: 'b', label: 'Code Llama, vì natural-language replay cô lập hoàn toàn tham số mới.' },
+    { id: 'c', label: 'LLaMA Pro, vì phương pháp mở rộng Transformer block rồi train phần được thêm vào.', isCorrect: true },
+    { id: 'd', label: 'GeoGalactica, vì mixture 8:1:1 là architecture expansion.' },
+  ], success: 'LLaMA Pro dùng block expansion để dành capacity mới cho code và math.', error: 'Tách data replay, compiler IR và architecture expansion.' },
+  { id: 'dap-other-domains', title: 'Các hướng khác', mode: 'single', prompt: 'Một nhóm muốn giữ nguyên base-model weights nhưng học tín hiệu domain và function có thể kết hợp. Hướng nào phù hợp nhất?', options: [
+    { id: 'a', label: 'Tag-LLM với domain tag và function tag.', isCorrect: true },
+    { id: 'b', label: 'AdaptLLM với raw text được chuyển thành reading-comprehension task.' },
+    { id: 'c', label: 'ECONET với objective phục hồi event và temporal indicator.' },
+    { id: 'd', label: 'Sailor với proxy model để tối ưu multilingual data mixture.' },
+  ], success: 'Tag-LLM học vector tag và không cập nhật base-model weights.', error: 'Đối chiếu mục tiêu về tham số với cơ chế của từng paper.' },
+]} />

@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'anticipatory-recovering-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Định nghĩa', 'Thời điểm', 'Hàm ý'], keywords: ['Quiz', 'Anticipatory Recovering'],
+  conceptIds: ['anticipatory-definition', 'sequential-memorization', 'open-question'], pageCount: 3,
+}
+
+<MdxQuiz id="anticipatory-recovering-quiz" questions={[
+  { id: 'anticipatory-definition', title: 'Định nghĩa', mode: 'single', prompt: 'Anticipatory recovering là gì?', options: [
+    { id: 'b', label: 'Replay toàn bộ corpus sau mỗi stage.' },
+    { id: 'c', label: 'Suy ra task ID bằng prototype.' },
+    { id: 'd', label: 'Mở rộng class set trước khi dữ liệu đến.' },
+    { id: 'a', label: 'Khôi phục thông tin đã quên trước khi gặp lại document tương ứng.', isCorrect: true },
+  ], success: 'Điểm đặc biệt là recovery xảy ra sớm.', error: 'Chú ý từ anticipatory.' },
+  { id: 'sequential-memorization', title: 'Thời điểm', mode: 'single', prompt: 'Điều kiện thời điểm nào làm hiện tượng này đáng chú ý?', options: [
+    { id: 'a', label: 'Model chỉ recover sau khi full retrain.' },
+    { id: 'c', label: 'Model recover khi chưa gặp lại document chứa thông tin.', isCorrect: true },
+    { id: 'b', label: 'Model recover ngay khi thấy lại exact document.' },
+    { id: 'd', label: 'Model chưa từng học thông tin đó.' },
+  ], success: 'Recovery đi trước lần xuất hiện lặp lại.', error: 'So thời điểm recovery với lần gặp lại document.' },
+  { id: 'open-question', title: 'Hàm ý', mode: 'single', prompt: 'Survey xem hiện tượng này gợi ý điều gì?', options: [
+    { id: 'b', label: 'Catastrophic forgetting đã được giải quyết.' },
+    { id: 'c', label: 'Replay không còn cần thiết.' },
+    { id: 'a', label: 'LLM có thể có khả năng sequential memorization chưa được hiểu đầy đủ.', isCorrect: true },
+    { id: 'd', label: 'CIL luôn tốt hơn TIL.' },
+  ], success: 'Đây là một emergent property và câu hỏi mở.', error: 'Không khái quát thành lời giải cho mọi forgetting.' },
+]} />

@@ -1,0 +1,49 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'architecture-expansion-isolation',
+  locale: 'vi',
+  title: 'Architecture Expansion',
+  headings: ['Thêm capacity thay vì ghi đè đường cũ', 'CoLoR chọn LoRA như thế nào?'],
+  keywords: ['Architecture Expansion', 'Task ID', 'CoLoR'],
+  conceptIds: ['architecture-expansion', 'zero-forgetting-condition', 'color-routing'],
+  pageCount: 2,
+}
+
+<MdxPage page={0}>
+
+## Thêm capacity thay vì ghi đè đường cũ
+
+Architecture-based methods mở rộng mạng theo thời gian để tiếp nhận kiến thức mới. Nếu phần tham số cũ không bị cập nhật và hệ thống chọn đúng nhánh của task, model có thể đạt **zero forgetting** trên các task đã tách.
+
+Nói đơn giản, model giữ một **backbone dùng chung**, sau đó gắn thêm một mạng nhỏ cho dữ liệu hoặc task mới. Module cũ được giữ nguyên thay vì bị fine-tune lại, nên update mới không trực tiếp ghi đè phần tham số đã phục vụ task trước.
+
+Điều kiện khó nằm ở inference: nếu task ID không có hoặc bị suy ra sai, việc cô lập tham số không bảo đảm output đúng. Vì vậy architecture expansion phổ biến hơn trong TIL và ít được khảo sát hơn trong DIL/CIL.
+
+Nguồn: [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## CoLoR chọn LoRA như thế nào?
+
+Paper [**Continual Learning with Low Rank Adaptation**](https://arxiv.org/abs/2311.17601) giới thiệu **CoLoR** như một ví dụ cụ thể của hướng này. Paper thực nghiệm trên Vision Transformer (ViT), không phải LLM sinh văn bản; survey dùng CoLoR để minh họa cách PEFT giúp architecture expansion trở nên khả thi với các pretrained Transformer lớn.
+
+CoLoR tách quá trình thành hai phần:
+
+1. **Khi training:** backbone được đóng băng. Với mỗi dataset <InlineMath formula="D" />, hệ thống học một bộ tham số LoRA riêng <InlineMath formula="\Theta_D" /> và một classification head riêng. Học dataset mới nghĩa là thêm một expert mới, không cập nhật lại LoRA của các dataset trước.
+2. **Khi inference:** dataset ID không được cung cấp. CoLoR đưa dữ liệu training qua backbone chưa gắn LoRA, gom các feature bằng k-means và lưu <InlineMath formula="k" /> cluster center làm prototype cho mỗi dataset. Với input mới <InlineMath formula="x" />, hệ thống tính feature <InlineMath formula="h(x)" />, tìm prototype gần nhất, rồi chọn LoRA của dataset tương ứng để dự đoán.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-architecture-expansion-lora-routing.png"
+  alt="Một shared backbone kết nối với ba module LoRA nhỏ; LoRA A và B được khóa, còn router chọn LoRA C đang hoạt động để xử lý input"
+  caption="Minh họa đơn giản hóa CoLoR: LoRA A, B và C đại diện cho các module theo dataset. Backbone trích xuất feature; router chọn module có prototype gần input nhất."
+/>
+
+**Ví dụ:** giả sử model lần lượt học ảnh thật, tranh vẽ và ảnh phác thảo trong DomainNet. CoLoR giữ ba bộ LoRA riêng cùng các prototype feature của từng domain. Khi nhận một ảnh phác thảo mới, feature của ảnh được so với toàn bộ prototype. Nếu prototype gần nhất thuộc domain ảnh phác thảo, router kích hoạt LoRA tương ứng rồi mới tạo dự đoán.
+
+Điểm yếu cũng nằm ngay tại bước này: nếu input bị gán nhầm sang prototype của tranh vẽ, hệ thống sẽ chọn sai LoRA dù module dành cho ảnh phác thảo vẫn được lưu nguyên vẹn. Architecture expansion bảo vệ module cũ, nhưng vẫn phụ thuộc vào chất lượng routing.
+
+Nguồn: [Wistuba et al., *Continual Learning with Low Rank Adaptation*](https://arxiv.org/abs/2311.17601) và [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2).
+
+</MdxPage>

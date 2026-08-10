@@ -1,0 +1,304 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continual-llm-synthesis', locale: 'vi', title: 'Bản đồ tổng hợp',
+  headings: ['Chương 1 · Nền tảng', 'Chương 2 · Phương pháp', 'Chương 3 · Hai chiều continuity', 'Chương 4 · Các stage của LLM', 'Chương 5 · Evaluation', 'Chương 6 · Discussion'],
+  keywords: ['Synthesis', 'Self Check', 'Course Review'], pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Chương 1 · Nền tảng
+
+Tick những ý bạn có thể tự giải thích mà không cần quay lại bài học.
+
+<SelfCheckList
+  ariaLabel="Tự kiểm tra các ý chính của Chương 1 Nền tảng Continual Learning"
+  items={[
+    {
+      id: 'static-snapshot',
+      label: 'Mô hình ngôn ngữ lớn sau pre-training chỉ là một “bản chụp” tại thời điểm huấn luyện.',
+      detail: 'Các tham số không tự thay đổi khi thế giới, domain hoặc nhu cầu người dùng thay đổi.',
+    },
+    {
+      id: 'dual-goal',
+      label: 'Continual Learning (CL) phải đồng thời học kiến thức mới và giữ những năng lực cũ cần thiết.',
+      detail: 'Plasticity là khả năng học mới; stability là khả năng chống ghi đè những gì đã học.',
+    },
+    {
+      id: 'forgetting-cause',
+      label: 'Catastrophic forgetting dễ xảy ra khi mục tiêu của lần cập nhật mới chỉ nhìn dữ liệu hiện tại.',
+      detail: 'Gradient khi đó không có tín hiệu trực tiếp để bảo vệ những năng lực cũ còn giá trị.',
+    },
+    {
+      id: 'settings',
+      label: 'Ba kịch bản CL khác nhau ở phần thay đổi và tín hiệu có sẵn khi model trả lời.',
+      detail: 'Task-Incremental Learning (TIL) có tín hiệu task; Domain-Incremental Learning (DIL) đổi phân phối domain; Class-Incremental Learning (CIL) mở rộng tập class hoặc output.',
+    },
+    {
+      id: 'retrain-baseline',
+      label: 'Huấn luyện lại trên toàn bộ lịch sử là một baseline mạnh khi còn đủ dữ liệu và compute.',
+      detail: 'Continual update trở nên cần thiết khi lưu toàn bộ dữ liệu hoặc retrain từ đầu không còn khả thi.',
+    },
+    {
+      id: 'measure-forgetting',
+      label: 'Muốn đo forgetting, phải chấm lại cùng task cũ trước và sau khi học task mới.',
+      detail: 'Loss của task mới giảm không cho biết hiệu năng task cũ đã mất bao nhiêu.',
+    },
+    {
+      id: 'diagnose-before-method',
+      label: 'Phải xác định đúng kịch bản và dạng failure trước khi chọn phương pháp.',
+      detail: 'Một kỹ thuật mạnh trong TIL chưa chắc phù hợp khi không có task ID.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chương 2 · Phương pháp
+
+<SelfCheckList
+  ariaLabel="Tự kiểm tra các ý chính của Chương 2 phương pháp giảm quên"
+  items={[
+    {
+      id: 'replay',
+      label: 'Replay trộn một phần dữ liệu hoặc trải nghiệm cũ vào lần cập nhật hiện tại.',
+      detail: 'Cần quyết định giữ mẫu nào, lưu bao nhiêu, có vi phạm riêng tư không và tốn thêm bao nhiêu compute.',
+    },
+    {
+      id: 'regularization',
+      label: 'Parameter regularization hạn chế thay đổi ở những tham số quan trọng với task cũ.',
+      detail: 'Độ quan trọng thường chỉ được ước lượng; hệ số λ quyết định mức ưu tiên giữ cũ so với học mới.',
+    },
+    {
+      id: 'expansion',
+      label: 'Architecture expansion thêm hoặc dành riêng một phần capacity để học kiến thức mới.',
+      detail: 'Khả năng giữ task cũ còn phụ thuộc vào việc chọn đúng module hoặc route khi model trả lời.',
+    },
+    {
+      id: 'other-families',
+      label: 'Survey còn ghi nhận phương pháp dựa trên optimization và representation.',
+      detail: 'Khóa học chỉ đi sâu ba nhóm nền tảng: Replay, Regularization và Architecture.',
+    },
+    {
+      id: 'replay-ratio',
+      label: 'Replay ratio là một hyperparameter, không có một tỷ lệ đúng cho mọi bài toán.',
+      detail: 'Phải so khả năng giữ cũ và học mới dưới cùng budget, qua nhiều seed; kết quả trong lab chỉ thuộc setup đã thử.',
+    },
+    {
+      id: 'no-free-method',
+      label: 'Không có nhóm phương pháp nào miễn phí.',
+      detail: 'Replay tăng dữ liệu và compute; regularization có thể hạn chế học mới; expansion tăng tham số và độ phức tạp khi chọn route.',
+    },
+    {
+      id: 'constraint-fit',
+      label: 'Phương pháp phải khớp với quyền truy cập dữ liệu và ràng buộc triển khai.',
+      detail: 'Đơn vị sử dụng model không thể replay corpus gốc nếu nhà cung cấp không cho phép truy cập dữ liệu đó.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chương 3 · Hai chiều continuity
+
+<SelfCheckList
+  ariaLabel="Tự kiểm tra các ý chính của Chương 3 Vertical và Horizontal Continual Learning"
+  items={[
+    {
+      id: 'supplier-consumer',
+      label: 'Supplier và consumer có dữ liệu, tài nguyên và quyền truy cập khác nhau.',
+      detail: 'Supplier huấn luyện checkpoint upstream; consumer thường chỉ nhận checkpoint để thích nghi cho domain và task riêng.',
+    },
+    {
+      id: 'vertical',
+      label: 'Vertical continuity đi từ năng lực tổng quát xuống năng lực chuyên biệt.',
+      detail: 'Qua mỗi tầng, dữ liệu thường hẹp hơn, task chuyên biệt hơn và tài nguyên của bên sử dụng ít hơn.',
+    },
+    {
+      id: 'horizontal',
+      label: 'Horizontal continuity nối các update cùng tầng qua thời gian hoặc domain.',
+      detail: 'Chuỗi dài hoặc thay đổi phân phối đột ngột làm các lần học mới can thiệp vào kiến thức cũ nhiều hơn.',
+    },
+    {
+      id: 'two-forgetting-directions',
+      label: 'Vertical và horizontal forgetting đo hai failure khác nhau.',
+      detail: 'Vertical forgetting làm suy giảm năng lực upstream; horizontal forgetting làm giảm hiệu năng trên các stage cũ cùng tầng.',
+    },
+    {
+      id: 'different-constraints',
+      label: 'Hai chiều continuity khó vì những ràng buộc khác nhau.',
+      detail: 'Vertical CL đổi objective và thường thiếu dữ liệu upstream; Horizontal CL tích lũy interference qua chuỗi update dài hoặc shift đột ngột.',
+    },
+    {
+      id: 'coexist',
+      label: 'Một vòng đời LLM có thể chứa đồng thời cả hai chiều.',
+      detail: 'Mỗi tầng của vertical pipeline có thể tự mở rộng thành một chuỗi horizontal update.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chương 4 · Các stage của LLM
+
+<SelfCheckList
+  ariaLabel="Tự kiểm tra các ý chính của Chương 4 CPT DAP và CFT"
+  items={[
+    {
+      id: 'objective-anchor',
+      label: 'Training objective là dấu mốc chính để phân biệt các stage.',
+      detail: 'Continual Pre-training và Domain-Adaptive Pre-training thường giữ mục tiêu language modeling; Continual Fine-Tuning tối ưu hành vi downstream.',
+    },
+    {
+      id: 'cpt',
+      label: 'Continual Pre-training (CPT) cập nhật model theo dòng dữ liệu mới nhưng vẫn giữ mục tiêu dự đoán ngôn ngữ.',
+      detail: 'Dữ liệu có thể thay đổi theo ngôn ngữ, nội dung hoặc thời gian.',
+    },
+    {
+      id: 'cpt-selection',
+      label: 'CPT còn có thể ưu tiên phần dữ liệu mà model hiện xử lý kém.',
+      detail: 'Đơn vị được ưu tiên có thể là ví dụ trả lời sai, token khó hoặc cả sequence có loss cao.',
+    },
+    {
+      id: 'cpt-production-gap',
+      label: 'Bằng chứng CPT hiện còn cách xa một chuỗi cập nhật production dài.',
+      detail: 'Nhiều thí nghiệm chỉ có ít stage, task boundary rõ và chưa đánh giá đầy đủ chi phí compute.',
+    },
+    {
+      id: 'dap',
+      label: 'Domain-Adaptive Pre-training (DAP) dùng dữ liệu domain thường không gán nhãn để thích nghi model tổng quát.',
+      detail: 'DAP vẫn giữ pre-training objective, có thể tăng năng lực chuyên môn nhưng làm giảm năng lực tổng quát.',
+    },
+    {
+      id: 'dap-evidence',
+      label: 'DAP phải được đánh giá đồng thời trên domain mới và general ability cũ.',
+      detail: 'Phần lớn nghiên cứu mới xét một lần chuyển từ general model sang một domain; replay và architecture expansion vẫn chiếm ưu thế.',
+    },
+    {
+      id: 'cft',
+      label: 'Continual Fine-Tuning (CFT) có một mục tiêu kép: thích nghi task mới và giảm quên task cũ.',
+      detail: 'Trong survey, CFT tập trung vào Task-Incremental và Domain-Incremental Learning nhiều hơn Class-Incremental Learning.',
+    },
+    {
+      id: 'general-cft-cit',
+      label: 'General CFT áp dụng mục tiêu kép cho downstream task; Continual Instruction Tuning (CIT) áp dụng cho instruction mới.',
+      detail: 'Cùng một mục tiêu giữ cũ–học mới, nhưng đối tượng được cập nhật liên tục khác nhau.',
+    },
+    {
+      id: 'cmr-cma',
+      label: 'Continual Model Refinement (CMR) sửa fact hoặc lỗi cụ thể; Continual Model Alignment (CMA) cập nhật giá trị và sở thích.',
+      detail: 'CMR cân bằng sửa đúng–không ảnh hưởng ngoài phạm vi–chi phí thấp; CMA còn phải theo dõi alignment tax.',
+    },
+    {
+      id: 'cmllm',
+      label: 'Continual Multimodal LLMs (CMLLMs) cập nhật năng lực trên nhiều modality như text và ảnh.',
+      detail: 'Model có thể quên theo cả chiều vertical lẫn horizontal, thậm chí học task hiện tại có thể hại task chưa thấy.',
+    },
+    {
+      id: 'representation-output',
+      label: 'Output task cũ giảm không chứng minh representation cũ đã bị xóa hoàn toàn.',
+      detail: 'Probe có thể đọc được thông tin còn lại bên trong, nhưng model vẫn phải được đánh giá bằng output đúng của task.',
+    },
+    {
+      id: 'paper-scope',
+      label: 'Kết quả của một paper chỉ hỗ trợ kết luận trong phạm vi thí nghiệm đã thực hiện.',
+      detail: 'Model size, số stage, thứ tự task, quyền replay dữ liệu và metric đều có thể làm kết quả thay đổi.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Chương 5 · Evaluation
+
+<SelfCheckList
+  ariaLabel="Tự kiểm tra các ý chính của Chương 5 metric và benchmark"
+  items={[
+    {
+      id: 'overall-performance',
+      label: 'Overall Performance (OP) đo hiệu năng trung bình hiện tại.',
+      detail: 'Một điểm trung bình tốt vẫn có thể che việc một task cũ đã giảm mạnh.',
+    },
+    {
+      id: 'forgetting-bwt-fwt',
+      label: 'Forgetting (F), Backward Transfer (BWT) và Forward Transfer (FWT) đo ba tác động khác nhau.',
+      detail: 'F đo lượng đã mất; BWT đo tác động lên task cũ; FWT đo lợi ích hoặc tác hại đối với task chưa học.',
+    },
+    {
+      id: 'knowledge-slices',
+      label: 'Đánh giá knowledge phải tách giữ fact không đổi, sửa fact lỗi thời và học fact mới.',
+      detail: 'InvariantLAMA, UpdatedLAMA và NewLAMA lần lượt kiểm tra ba khả năng này.',
+    },
+    {
+      id: 'fuar',
+      label: 'Forgotten / (Updated + Acquired) Ratio (FUAR) đặt lượng quên cạnh lượng cập nhật và tiếp thu.',
+      detail: 'Tỷ lệ này giúp tránh kết luận từ riêng số fact mới model đã học được.',
+    },
+    {
+      id: 'capability-deltas',
+      label: 'X-Delta theo dõi suy giảm năng lực ngoài task stream.',
+      detail: 'Checkpoint sau mỗi stage được so với model ban đầu trên general ability, instruction following và safety.',
+    },
+    {
+      id: 'benchmark-fit',
+      label: 'Nhóm benchmark phải khớp với ứng dụng và loại distribution shift cần đánh giá.',
+      detail: 'CPT/DAP, CIT, CMR và CMA không thể được đại diện bởi cùng một data stream tùy ý.',
+    },
+    {
+      id: 'evidence-stack',
+      label: 'Mỗi phần của claim cần một lớp evidence tương ứng.',
+      detail: 'Hiệu năng, forgetting hoặc transfer và tính khả thi cần tín hiệu riêng, gồm cả số update step, FLOPs và memory.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Chương 6 · Discussion
+
+<SelfCheckList
+  ariaLabel="Tự kiểm tra các ý chính của Chương 6 Discussion và hướng nghiên cứu"
+  items={[
+    {
+      id: 'anticipatory-recovery',
+      label: 'Anticipatory recovering là hiện tượng model khôi phục kiến thức trước khi gặp lại document chứa kiến thức đó.',
+      detail: 'Hiện tượng mới được quan sát trong một số data stream tuần hoàn có cấu trúc, nên chưa phải phương pháp giảm quên.',
+    },
+    {
+      id: 'new-setting-roles',
+      label: 'Task-Incremental Learning (TIL) và Domain-Incremental Learning (DIL) được nghiên cứu nhiều hơn trong nhóm paper CFT.',
+      detail: 'Logic của Class-Incremental Learning (CIL) vẫn xuất hiện trong vocabulary expansion và routing sang expert hoặc output mới.',
+    },
+    {
+      id: 'memory-regimes',
+      label: 'Nút thắt memory thay đổi theo quyền truy cập dữ liệu.',
+      detail: 'Có toàn bộ lịch sử thì compute và I/O là vấn đề chính; thiếu upstream data cần phương pháp không rehearsal; privacy có thể buộc model học online hoặc single-pass.',
+    },
+    {
+      id: 'future-directions',
+      label: 'Bốn hướng mở là lý thuyết cho LLM, replay hiệu quả, memory có thể điều khiển và alignment theo từng người dùng.',
+      detail: 'Mỗi hướng vẫn còn giới hạn về scale, guarantee hoặc khả năng áp dụng vào LLM thực tế.',
+    },
+    {
+      id: 'reading-frame',
+      label: 'Tôi có thể dùng một khung câu hỏi thống nhất để đọc paper.',
+      detail: 'Model ở tầng nào? Dữ liệu đổi theo chiều nào? Dữ liệu cũ có được giữ không? Failure nào được đo? Phương pháp can thiệp ở đâu? Bằng chứng có đủ cho kết luận không?',
+    },
+    {
+      id: 'closing-gap',
+      label: 'Một LLM có thể tự tiến hóa đáng tin cậy vẫn thiếu hai nền móng.',
+      detail: 'Cần thuật toán đủ đa dạng và hiểu biết sâu hơn về forgetting, transfer cùng acquisition.',
+    },
+  ]}
+/>
+
+</MdxPage>

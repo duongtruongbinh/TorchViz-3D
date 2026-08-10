@@ -1,0 +1,145 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'core-cl-metrics',
+  locale: 'vi',
+  title: 'Các thước đo đánh giá CL',
+  headings: [
+    'Bốn thước đo phổ biến trong CL',
+    'OP: Hiệu năng tổng thể hiện tại',
+    'F và BWT: Hai cách nhìn task cũ',
+    'FWT: Kiến thức cũ có giúp task tương lai?',
+  ],
+  keywords: ['Continual Learning', 'Overall Performance', 'Forgetting', 'Backward Transfer', 'Forward Transfer'],
+  conceptIds: [
+    'overall-performance',
+    'forgetting-metric',
+    'backward-transfer',
+    'forward-transfer',
+    'metric-interpretation',
+  ],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Bốn thước đo phổ biến trong CL
+
+Sau mỗi stage học, ta có thể đo hiệu năng của model trên từng task. Gọi <InlineMath formula="P_{i,j}" /> là hiệu năng trên Task <InlineMath formula="j" /> sau khi model học xong stage <InlineMath formula="i" />. Từ các kết quả này, Continual Learning thường dùng bốn thước đo để trả lời bốn câu hỏi khác nhau:
+
+<ComparisonMatrix
+  ariaLabel="Bốn thước đo phổ biến trong Continual Learning"
+  columns={['Câu hỏi cần trả lời', 'Cách đánh giá']}
+  rows={[
+    { label: 'OP', values: ['Hiện tại model làm tốt trung bình đến đâu?', 'Càng cao càng tốt'] },
+    { label: 'F', values: ['Model đã mất bao nhiêu hiệu năng trên task cũ?', 'Càng thấp càng tốt'] },
+    { label: 'BWT', values: ['Học task mới làm task cũ tốt hơn hay kém đi?', 'Càng cao càng tốt'] },
+    { label: 'FWT', values: ['Các task đã học có giúp model làm task tương lai?', 'Càng cao càng tốt'] },
+  ]}
+/>
+
+Ta sẽ lần lượt nhìn vào **hiệu năng tổng thể**, **khả năng giữ task cũ**, rồi **khả năng hỗ trợ task tương lai**.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## OP: Hiệu năng tổng thể hiện tại
+
+**Overall Performance (OP)** trả lời câu hỏi: sau stage hiện tại, model làm tốt trung bình đến đâu trên tất cả task đã học?
+
+<BlockMath formula="\operatorname{OP}_t=\frac{1}{t}\sum_{j=1}^{t}P_{t,j}" />
+
+Giả sử sau khi học xong Task C, model đạt các kết quả sau:
+
+<MetricBars
+  ariaLabel="Hiệu năng trên ba task sau stage C"
+  max={100}
+  items={[
+    { label: 'Task A', value: 60, valueLabel: '60%', detail: 'Task cũ nhất', tone: 'danger' },
+    { label: 'Task B', value: 75, valueLabel: '75%', detail: 'Task cũ gần nhất', tone: 'primary' },
+    { label: 'Task C', value: 90, valueLabel: '90%', detail: 'Task vừa học', tone: 'success' },
+  ]}
+/>
+
+<BlockMath formula="\operatorname{OP}_3=\frac{60+75+90}{3}=75\%" />
+
+OP càng cao thì hiệu năng tổng thể càng tốt. Tuy nhiên, giá trị trung bình <InlineMath formula="75\%" /> không cho biết Task A đã từng tốt đến đâu trước khi giảm xuống <InlineMath formula="60\%" />. Muốn nhìn thấy phần bị quên, ta cần metric F ở trang tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## F và BWT: Hai cách nhìn task cũ
+
+**Forgetting (F)** không chỉ nhìn hiệu năng hiện tại. Với mỗi task cũ, metric này tìm mức tốt nhất model từng đạt trước stage hiện tại, rồi trừ đi kết quả hiện tại của task đó.
+
+<BlockMath formula="F_t=\frac{1}{t-1}\sum_{j=1}^{t-1}\left[\max_{\ell\in\{1,\ldots,t-1\}}P_{\ell,j}-P_{t,j}\right]" />
+
+Tiếp tục ví dụ sau khi học xong Task C:
+
+<ComparisonMatrix
+  ariaLabel="Tính forgetting trên các task cũ"
+  columns={['Mức tốt nhất trước đó', 'Sau stage C', 'Mức giảm']}
+  rows={[
+    { label: 'Task A', values: ['80%', '60%', '20 điểm'] },
+    { label: 'Task B', values: ['85%', '75%', '10 điểm'] },
+  ]}
+/>
+
+<BlockMath formula="F_3=\frac{(80-60)+(85-75)}{2}=15\text{ điểm}" />
+
+---
+
+**Backward Transfer (BWT)** dùng chính mức thay đổi đó, nhưng đặt câu hỏi theo chiều ngược lại: việc học task mới đã làm các task trước **tốt hơn hay kém đi**? Survey tính BWT bằng giá trị đối của F:
+
+<BlockMath formula="\operatorname{BWT}_t=-F_t" />
+
+<BlockMath formula="\operatorname{BWT}_3=-15" />
+
+- <InlineMath formula="F>0\Leftrightarrow\operatorname{BWT}<0" />: model đã quên task cũ; càng xa 0 càng xấu.
+- <InlineMath formula="F=0\Leftrightarrow\operatorname{BWT}=0" />: hiệu năng trên task cũ không đổi.
+- <InlineMath formula="F<0\Leftrightarrow\operatorname{BWT}>0" />: học task mới còn giúp task cũ tốt hơn.
+
+Trong ví dụ này, cả <InlineMath formula="F_3=15" /> và <InlineMath formula="\operatorname{BWT}_3=-15" /> đều nói rằng hiệu năng trên các task cũ đã giảm trung bình 15 điểm. **F thấp là tốt; BWT dương là tốt.**
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## FWT: Kiến thức cũ có giúp task tương lai?
+
+**Forward Transfer (FWT)** trả lời một câu hỏi đơn giản: **học Task A có giúp model làm Task B tốt hơn, dù model chưa được train trên B hay không?**
+
+Ta đo Task B ở hai thời điểm:
+
+1. **Trước khi học Task A:** model đạt <InlineMath formula="30\%" /> trên B. Đây là baseline <InlineMath formula="b_B" />.
+2. **Sau khi học Task A nhưng trước khi học Task B:** model đạt <InlineMath formula="40\%" /> trên B.
+
+Mức tăng <InlineMath formula="40\%-30\%=+10" /> điểm cho thấy kiến thức học từ A đã giúp model làm B tốt hơn. Đó chính là **forward transfer từ A sang B**.
+
+Với nhiều task, FWT lấy trung bình các mức chênh lệch này:
+
+<BlockMath formula="\operatorname{FWT}_t=\frac{1}{t-1}\sum_{i=2}^{t}\left(P_{i-1,i}-b_i\right)" />
+
+Trong đó, <InlineMath formula="P_{i-1,i}" /> là điểm của Task <InlineMath formula="i" /> sau khi model học các task trước đó, nhưng **chưa học trực tiếp Task** <InlineMath formula="i" />.
+
+Tiếp tục với Task B và Task C:
+
+<ComparisonMatrix
+  ariaLabel="Tính forward transfer trên các task tương lai"
+  columns={['Trước khi học task', 'Baseline', 'Transfer']}
+  rows={[
+    { label: 'Task B', values: ['40%', '30%', '+10 điểm'] },
+    { label: 'Task C', values: ['50%', '35%', '+15 điểm'] },
+  ]}
+/>
+
+<BlockMath formula="\operatorname{FWT}_3=\frac{(40-30)+(50-35)}{2}=12.5\text{ điểm}" />
+
+- <InlineMath formula="\operatorname{FWT}>0" />: các task đã học tạo lợi thế cho task tương lai.
+- <InlineMath formula="\operatorname{FWT}=0" />: học các task trước chưa tạo ra khác biệt.
+- <InlineMath formula="\operatorname{FWT}<0" />: học các task trước khiến model làm task tương lai kém hơn baseline.
+
+Nguồn: [Shi et al., §2.2.3 và Appendix B.1](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS3).
+
+</MdxPage>

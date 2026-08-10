@@ -1,0 +1,110 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cpt-effectiveness-efficiency',
+  locale: 'vi',
+  title: 'Chi phí CPT',
+  headings: ['CPT có thể chạy với chi phí hợp lý không?', 'ELLE: mở rộng mà giữ output', 'Train ít dữ liệu hơn nhưng tốt hơn?'],
+  keywords: ['Continual Pre-training', 'ELLE', 'Function-Preserving Expansion', 'Data Selection', 'Novelty', 'Diversity'],
+  conceptIds: ['cpt-efficiency-costs', 'cpt-elle-expansion', 'cpt-data-selection'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## CPT có thể chạy với chi phí hợp lý không?
+
+Node trước đã trả lời câu hỏi về **effectiveness**: CPT có thể cải thiện downstream task và giúp model tổng quát hóa sang dữ liệu mới trong những điều kiện phù hợp. Khi chấp nhận CPT có ích, supplier chuyển sang câu hỏi thứ hai: **đạt được lợi ích đó với chi phí bao nhiêu?**
+
+Câu hỏi về **efficiency** gồm hai loại chi phí khác nhau:
+
+<ComparisonMatrix
+  ariaLabel="Retention cost và acquisition cost trong Continual Pre-training"
+  columns={['Retention cost — chi phí giữ cũ', 'Acquisition cost — chi phí học mới']}
+  rows={[
+    { label: 'Câu hỏi', values: ['Làm sao giữ knowledge cũ mà không phải train lại toàn bộ lịch sử?', 'Có cần train trên toàn bộ dữ liệu mới vừa thu thập không?'] },
+    { label: 'Nút thắt', values: ['Replay toàn bộ lịch sử tốn nhiều compute, memory và thời gian', 'Dữ liệu production sinh ra liên tục, quá lớn và không phải mẫu nào cũng có giá trị'] },
+    { label: 'Hướng xử lý', values: ['Replay có chọn lọc, parameter regularization hoặc architecture expansion', 'Chọn một tập con dữ liệu mới vừa mới lạ vừa đa dạng'] },
+  ]}
+/>
+
+Phần lớn nghiên cứu efficiency trước đây tập trung vào **retention cost**, nên chồng lấn mạnh với Continual Learning cổ điển: replay, parameter regularization và architecture expansion đều cố giữ knowledge cũ với chi phí thấp hơn full retraining. Trục **acquisition cost** đặt một câu hỏi khác: thay vì tối ưu cách giữ dữ liệu cũ, ta có thể giảm lượng dữ liệu mới phải đưa vào CPT hay không?
+
+Các trang tiếp theo sẽ minh họa cho câu hỏi mới này: **ELLE** mở rộng architecture để model tiếp nhận knowledge hiệu quả hơn, còn **data selection** giảm acquisition cost bằng cách chỉ train trên phần dữ liệu mới có giá trị nhất.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## ELLE: mở rộng mà giữ output
+
+[**ELLE — Efficient Lifelong Pre-training for Emerging Data**](https://aclanthology.org/2022.findings-acl.220/) mở rộng width và depth của model khi dữ liệu mới xuất hiện. Vấn đề là nếu thêm neuron một cách ngây thơ, output có thể đổi ngay cả trước khi model bắt đầu học.
+
+Xét một ví dụ width expansion đơn giản. Một neuron cũ tạo hidden state <InlineMath formula="h" />, rồi layer kế tiếp nhân nó với trọng số <InlineMath formula="v" />:
+
+<BlockMath formula="h=\phi(wx),\qquad y=vh" />
+
+Nếu sao chép neuron thành hai bản giống nhau nhưng vẫn giữ nguyên <InlineMath formula="v" /> cho cả hai, output bị nhân đôi:
+
+<BlockMath formula="y'=vh_1+vh_2=2vh" />
+
+ELLE tránh điều này bằng cách chia trọng số đầu ra cho số bản sao. Với hai neuron:
+
+<BlockMath formula="y'=\frac{v}{2}h_1+\frac{v}{2}h_2=vh" />
+
+<ConceptFlow
+  ariaLabel="Ba bước trực giác của function-preserving width expansion"
+  items={[
+    { title: 'Sao chép', detail: 'Tạo thêm capacity từ neuron hoặc chiều cũ.' },
+    { title: 'Chia trọng số', detail: 'Phân bổ lại đóng góp đầu ra giữa các bản sao.' },
+    { title: 'Giữ output', detail: 'Model rộng hơn nhưng ban đầu vẫn cho gần như cùng kết quả.' },
+  ]}
+/>
+
+Đây là trực giác của **function-preserving expansion**: model có thêm capacity để học, nhưng không phải bắt đầu từ một model lớn có hành vi hoàn toàn khác.
+
+### Vì sao hai bản sao học khác nhau?
+
+Nếu hai neuron được sao chép hoàn toàn giống nhau và luôn nhận cùng gradient, chúng sẽ tiếp tục giống nhau. Capacity mới khi đó chưa được sử dụng hiệu quả. Đây là **symmetry problem**.
+
+ELLE thêm Gaussian noise rất nhỏ vào các tham số vừa sao chép:
+
+<BlockMath formula="w_1=w+\delta_1,\qquad w_2=w+\delta_2" />
+
+Vì <InlineMath formula="\delta_1" /> và <InlineMath formula="\delta_2" /> nhỏ, output sau khi mở rộng vẫn gần output cũ. Nhưng hai nhánh không còn đối xứng hoàn toàn, nên trong quá trình CPT chúng có thể nhận gradient khác nhau và dần học representation khác nhau.
+
+- Một nhánh có thể thay đổi ít hơn.
+- Một nhánh có thể chuyên biệt mạnh hơn cho dữ liệu mới.
+- Cả hai cũng có thể cùng học representation pha trộn giữa knowledge cũ và mới.
+
+<LessonNote>
+  ELLE không đặt ràng buộc cứng rằng một neuron phải giữ knowledge cũ còn neuron kia phải học knowledge mới. Dữ liệu mới và replay data chỉ tạo áp lực tối ưu; optimizer quyết định cả hai nhánh thay đổi như thế nào.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Train ít dữ liệu hơn nhưng tốt hơn?
+
+Không phải mọi mẫu mới đều đáng tốn compute như nhau. Corpus mới có thể chứa nội dung gần trùng, knowledge model đã biết, nhiều mẫu lặp lại cùng chủ đề hoặc dữ liệu nhiễu. Vì vậy, một tập con **mới lạ và đa dạng** có thể hữu ích hơn việc train trên toàn bộ dữ liệu chưa chọn lọc.
+
+Survey nêu hai nghiên cứu cho hướng này:
+
+1. [**Dynamic Language Models for Continuously Evolving Content**](https://research.google/pubs/dynamic-language-models-for-continuously-evolving-content/) dùng sampling để cập nhật model hiệu quả hơn trên nội dung web thay đổi theo thời gian.
+2. [**Efficient Continual Pre-training for Building Domain Specific Large Language Models**](https://arxiv.org/abs/2311.08545) chọn dữ liệu tài chính bằng similarity, perplexity và token-type entropy. Paper báo cáo chỉ dùng **10% corpus và chi phí** nhưng vẫn tốt hơn vanilla continual pre-training, đồng thời không làm giảm đáng kể hiệu năng open-domain.
+
+<ComparisonMatrix ariaLabel="Ba tín hiệu data selection được paper Efficient Continual Pre-training sử dụng" columns={['Câu hỏi mà tín hiệu trả lời', 'Trực giác']} rows={[
+  { label: 'Similarity', values: ['Mẫu có gần task hoặc domain mục tiêu không?', 'Ưu tiên nội dung liên quan đến năng lực cần cải thiện'] },
+  { label: 'Perplexity', values: ['Model hiện tại thấy mẫu khó hoặc lạ đến đâu?', 'Loss cao có thể chỉ ra phần knowledge model chưa xử lý tốt'] },
+  { label: 'Token-type entropy', values: ['Tập dữ liệu có đa dạng về token không?', 'Tránh chọn quá nhiều mẫu có nội dung tương tự nhau'] },
+]} />
+
+<LessonNote>
+  Các tín hiệu như khoảng cách embedding với dữ liệu cũ, entity mới hoặc mức thay đổi nội dung theo thời gian là những cách diễn giải hợp lý để hình dung novelty và diversity; chúng không phải một checklist thống nhất đã được cả hai paper xác nhận.
+</LessonNote>
+
+Bài toán này vẫn chưa được nghiên cứu sâu, nhưng kết quả trên cho thấy **chất lượng dữ liệu có thể quan trọng hơn số lượng dữ liệu** khi mục tiêu là CPT hiệu quả.
+
+Nguồn tổng hợp: [Shi et al., §4.1.1](https://arxiv.org/html/2404.16789v3#S4.SS1.SSS1).
+
+</MdxPage>

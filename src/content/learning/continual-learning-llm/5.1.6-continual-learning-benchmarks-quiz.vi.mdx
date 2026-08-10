@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continual-learning-benchmarks-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['CPT/DAP', 'CIT và CMA', 'CMR'], keywords: ['Quiz', 'Benchmark'],
+  conceptIds: ['cpt-dap-benchmarks', 'cit-cma-benchmarks', 'cmr-benchmarks'], pageCount: 3,
+}
+
+<MdxQuiz id="continual-learning-benchmarks-quiz" questions={[
+  { id: 'cpt-dap-benchmarks', title: 'CPT/DAP', mode: 'single', prompt: 'Dataset nào thuộc nhóm temporal shift của CPT/DAP?', options: [
+    { id: 'a', label: 'HH-RLHF.' },
+    { id: 'b', label: 'CounterFact.' },
+    { id: 'c', label: 'TemporalWiki.', isCorrect: true },
+    { id: 'd', label: 'SuperNI.' },
+  ], success: 'TemporalWiki thuộc nhóm temporal CPT/DAP.', error: 'Phân biệt benchmark tri thức theo thời gian với instruction/alignment/refinement.' },
+  { id: 'cit-cma-benchmarks', title: 'CIT và CMA', mode: 'single', prompt: 'Ghép nào đúng?', options: [
+    { id: 'a', label: 'CIT—SuperNI/TRACE; CMA—HH-RLHF/IMDB.', isCorrect: true },
+    { id: 'b', label: 'CIT—FEVER; CMA—TemporalWiki.' },
+    { id: 'c', label: 'CIT—CounterFact; CMA—DAPT.' },
+    { id: 'd', label: 'CIT—SCOTUS; CMA—DEMix.' },
+  ], success: 'CIT dùng instruction streams; CMA dùng preference/alignment data.', error: 'Nhớ application tương ứng của từng family.' },
+  { id: 'cmr-benchmarks', title: 'CMR', mode: 'single', prompt: 'Nhóm nào được survey liệt kê cho Continual Model Refinement?', options: [
+    { id: 'a', label: 'TimeLMs, DAPT, DEMix.' },
+    { id: 'b', label: 'SuperNI, CITB, CoIN.' },
+    { id: 'c', label: 'IMDB, HH-RLHF, Reddit TL;DR.' },
+    { id: 'd', label: 'FEVER, zsRE, CounterFact.', isCorrect: true },
+  ], success: 'FEVER, zsRE và CounterFact thuộc nhóm CMR.', error: 'CMR tập trung chuỗi correction/model editing.' },
+]} />

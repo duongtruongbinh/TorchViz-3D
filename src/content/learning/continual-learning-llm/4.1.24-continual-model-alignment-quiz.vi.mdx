@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continual-model-alignment-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Alignment tax', 'RL-based CMA', 'Supervised CMA'], keywords: ['Quiz', 'CMA'],
+  conceptIds: ['cma-overview', 'cma-rl-methods', 'cma-supervised-fitting'], pageCount: 3,
+}
+
+<MdxQuiz id="continual-model-alignment-quiz" questions={[
+  { id: 'cma-overview', title: 'Nội dung', mode: 'single', prompt: 'Sau alignment, reward tăng nhưng reasoning ngoài preference set giảm. Diễn giải nào đúng nhất?', options: [
+    { id: 'a', label: 'Đây là alignment tax: mục tiêu mới tốt hơn nhưng một phần năng lực cũ bị suy giảm.', isCorrect: true },
+    { id: 'b', label: 'Đây chỉ là chi phí GPU nên không liên quan chất lượng model.' },
+    { id: 'c', label: 'Đây là positive backward transfer vì reward tăng.' },
+    { id: 'd', label: 'Đây là class-incremental forgetting.' },
+  ], success: 'CMA phải đo cả policy enhancement và knowledge retention.', error: 'Đừng chỉ nhìn reward; hãy xét năng lực nền bị mất.' },
+  { id: 'cma-rl-methods', title: 'RL-based CMA', mode: 'single', prompt: 'Hai nhóm cùng dùng reinforcement learning cho CMA nhưng muốn can thiệp ở hai mức khác nhau. Ánh xạ nào đúng?', options: [
+    { id: 'a', label: 'AMA gán trọng số cho sample; CPPO học tỷ lệ trộn riêng cho từng layer của hai checkpoint.' },
+    { id: 'b', label: 'AMA fit optimal policy bằng sequence constraint; CPPO averaging toàn model bằng một hệ số cố định.' },
+    { id: 'c', label: 'AMA học tỷ lệ averaging theo layer; CPPO gán trọng số sample theo policy enhancement hoặc knowledge retention.', isCorrect: true },
+    { id: 'd', label: 'AMA lưu preference trong episodic memory; CPPO định tuyến preference sang các LoRA expert.' },
+  ], success: 'AMA can thiệp ở cách kết hợp weights; CPPO can thiệp ở trọng số của sample trong RL.', error: 'Phân biệt model averaging theo layer với sample weighting trong policy optimization.' },
+  { id: 'cma-supervised-fitting', title: 'Supervised CMA', mode: 'single', prompt: 'Nhóm muốn tránh vòng RL online nhưng vẫn giảm sub-optimal fitting và over-optimization khi preference đổi theo stage. Phương pháp nào phù hợp?', options: [
+    { id: 'a', label: 'Adaptive Model Averaging, bằng cách fit một optimal policy rồi regularize ở sequence và function level.' },
+    { id: 'b', label: 'Continual PPO, bằng cách thay reward model bằng supervised LoRA routing.' },
+    { id: 'c', label: 'Direct Preference Optimization gốc, vì objective tĩnh đã xử lý trực tiếp chuỗi preference thay đổi.' },
+    { id: 'd', label: 'Continual Optimal Policy Fitting, bằng cách ước lượng optimal policy rồi fit liên tục với ràng buộc sequence và function.', isCorrect: true },
+  ], success: 'COPF chuyển CMA sang supervised policy fitting thay vì một vòng RL online.', error: 'Tìm phương pháp có optimal-policy estimate cùng sequence/function constraints.' },
+]} />

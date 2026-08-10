@@ -1,7 +1,7 @@
 import { Check, Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { createContext, isValidElement, useContext, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
+import { createContext, isValidElement, useContext, useEffect, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
@@ -115,13 +115,16 @@ type CourseCardItem = {
   takeaway: string;
 };
 
-export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spotlight = false, singleColumn = false }: {
+export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spotlight = false, singleColumn = false, threeColumns = false, featureFirst = false, numbered = true }: {
   ariaLabel: string;
   exampleLabel: string;
   takeawayLabel: string;
   items: CourseCardItem[];
   spotlight?: boolean;
   singleColumn?: boolean;
+  threeColumns?: boolean;
+  featureFirst?: boolean;
+  numbered?: boolean;
 }) {
   const themeClasses = useLearningMdxTheme();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -129,35 +132,60 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
   const titleBand = themeClasses.isLight ? 'bg-[#EAF2FA]' : 'bg-[#A8D4FF]/9';
   const label = themeClasses.isLight ? 'text-[#205089]' : 'text-[#A8D4FF]';
   return (
-    <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2')} aria-label={ariaLabel} onMouseLeave={spotlight ? () => setActiveIndex(0) : undefined}>
-      {items.map((item, index) => (
-        <li
-          key={item.title}
-          onMouseEnter={spotlight ? () => setActiveIndex(index) : undefined}
-          className={cx(
-            'grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.24)]',
-            spotlight && (activeIndex === index ? 'opacity-100' : 'opacity-45'),
-            border,
-          )}
-        >
-          <div className={cx('grid min-h-20 grid-cols-[2rem_1fr] items-center gap-3 border-b px-4 py-3', border, titleBand)}>
-            <span className="grid size-8 place-items-center rounded-full bg-[#205089] text-sm font-black text-white dark:bg-[#A8D4FF] dark:text-[#0B1726]">
-              {index + 1}
-            </span>
-            <h3 className={cx('text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</h3>
-          </div>
-          <dl className="grid content-start gap-4 p-4 text-sm leading-6">
-            <div>
-              <dt className={cx('font-black', label)}>{exampleLabel}</dt>
-              <dd className={cx('mt-1', themeClasses.bodyText)}>{item.example}</dd>
+    <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2', threeColumns && 'lg:grid-cols-3')} aria-label={ariaLabel} onMouseLeave={spotlight ? () => setActiveIndex(0) : undefined}>
+      {items.map((item, index) => {
+        const isPositive = featureFirst && index === 0;
+        const isRisk = featureFirst && (index === 1 || index === 2);
+        const semanticBorder = isPositive
+          ? 'border-emerald-300/80 dark:border-emerald-400/30'
+          : isRisk
+            ? 'border-rose-300/80 dark:border-rose-400/30'
+            : border;
+        const semanticSurface = isPositive
+          ? 'bg-emerald-50/70 dark:bg-emerald-400/6'
+          : isRisk
+            ? 'bg-rose-50/70 dark:bg-rose-400/6'
+            : undefined;
+        const semanticTitleBand = isPositive
+          ? 'bg-emerald-100/80 dark:bg-emerald-400/12'
+          : isRisk
+            ? 'bg-rose-100/80 dark:bg-rose-400/12'
+            : titleBand;
+        const semanticLabel = isPositive
+          ? 'text-emerald-800 dark:text-emerald-300'
+          : isRisk
+            ? 'text-rose-800 dark:text-rose-300'
+            : label;
+        return (
+          <li
+            key={item.title}
+            onMouseEnter={spotlight ? () => setActiveIndex(index) : undefined}
+            className={cx(
+              'grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.24)]',
+              featureFirst && index === 0 && 'sm:row-span-2',
+              featureFirst && index === items.length - 1 && 'sm:col-span-2',
+              spotlight && (activeIndex === index ? 'opacity-100' : 'opacity-45'),
+              semanticBorder,
+              semanticSurface,
+            )}
+          >
+            <div className={cx('grid min-h-20 items-center gap-3 border-b px-4 py-3', numbered ? 'grid-cols-[2rem_1fr]' : 'grid-cols-1', semanticBorder, semanticTitleBand)}>
+              {numbered && <span className="grid size-8 place-items-center rounded-full bg-[#205089] text-sm font-black text-white dark:bg-[#A8D4FF] dark:text-[#0B1726]">{index + 1}</span>}
+              <h3 className={cx('text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</h3>
             </div>
-            <div>
-              <dt className={cx('font-black', label)}>{takeawayLabel}</dt>
-              <dd className={cx('mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
-            </div>
-          </dl>
-        </li>
-      ))}
+            <dl className="grid content-start gap-4 p-4 text-sm leading-6">
+              <div>
+                <dt className={cx('font-black', semanticLabel)}>{exampleLabel}</dt>
+                <dd className={cx('mt-1', themeClasses.bodyText)}>{item.example}</dd>
+              </div>
+              <div>
+                <dt className={cx('font-black', semanticLabel)}>{takeawayLabel}</dt>
+                <dd className={cx('mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
+              </div>
+            </dl>
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -331,6 +359,56 @@ export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: Co
   );
 }
 
+type StageContinuityMapItem = {
+  verticalTitle: string;
+  verticalDetail: string;
+  horizontalTitle: string;
+  horizontalItems: string[];
+};
+
+export function StageContinuityMap({ ariaLabel, items }: { ariaLabel: string; items: StageContinuityMapItem[] }) {
+  const themeClasses = useLearningMdxTheme();
+  const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
+  const verticalCard = themeClasses.isLight ? 'border-[#205089]/18 bg-[#EAF2FA]' : 'border-[#A8D4FF]/20 bg-[#A8D4FF]/8';
+  const horizontalCard = themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/44';
+  return (
+    <figure className="my-6 grid gap-3" aria-label={ariaLabel}>
+      <div className={cx('hidden gap-3 px-1 text-xs font-black uppercase tracking-[0.16em] md:grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]', themeClasses.mutedText)}>
+        <span>Flow Vertical</span>
+        <span>Mở rộng Horizontal trong cùng stage</span>
+      </div>
+      <ol className="grid gap-3">
+        {items.map((item, index) => (
+          <li key={item.verticalTitle} className="grid gap-3 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]">
+            <section className={cx('rounded-xl border p-5 shadow-[0_10px_24px_rgba(25,55,85,0.10)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.20)]', verticalCard)}>
+              <div className="mb-3 flex items-center gap-3">
+                <span className={cx('grid size-8 shrink-0 place-items-center rounded-full text-sm font-black tabular-nums', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8D4FF] text-[#0B1726]')}>
+                  {index + 1}
+                </span>
+                <h3 className={cx('text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.verticalTitle}</h3>
+              </div>
+              <p className={cx('text-sm leading-6 text-pretty', themeClasses.bodyText)}>{item.verticalDetail}</p>
+            </section>
+            <section
+              tabIndex={0}
+              className={cx(
+                'rounded-xl border p-5 opacity-45 transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:opacity-100 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] focus-visible:-translate-y-0.5 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#205089]/35 focus-visible:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.24)] dark:focus-visible:ring-[#A8D4FF]/40 dark:focus-visible:shadow-[0_14px_30px_rgba(0,0,0,0.24)]',
+                border,
+                horizontalCard,
+              )}
+            >
+              <h3 className={cx('text-sm font-black leading-6 text-balance', themeClasses.titleText)}>{item.horizontalTitle}</h3>
+              <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
+                {item.horizontalItems.map((detail) => <li key={detail}>{detail}</li>)}
+              </ul>
+            </section>
+          </li>
+        ))}
+      </ol>
+    </figure>
+  );
+}
+
 type ExperimentChecklistItem = {
   title: string;
   action: string;
@@ -381,12 +459,114 @@ export function ExperimentChecklist({ ariaLabel, items }: {
   );
 }
 
+type SelfCheckListItem = {
+  id: string;
+  label: string;
+  detail?: string;
+};
+
+export function SelfCheckList({ ariaLabel, items }: {
+  ariaLabel: string;
+  items: SelfCheckListItem[];
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const { domainId, lessonId, pageIndex } = useLearningMdxLesson();
+  const storageKey = `learning-self-check:${domainId}:${lessonId}:${pageIndex}`;
+  const [checkedIds, setCheckedIds] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(storageKey) ?? '[]');
+      return Array.isArray(stored) ? stored.filter((id): id is string => typeof id === 'string') : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(checkedIds));
+    } catch {
+      // Keep the checklist usable when browser storage is unavailable.
+    }
+  }, [checkedIds, storageKey]);
+
+  const checkedCount = items.filter((item) => checkedIds.includes(item.id)).length;
+  const checkedSurface = themeClasses.isLight
+    ? 'bg-[#EDF8F3]'
+    : 'bg-[#7ED7B5]/10';
+  const idleSurface = themeClasses.isLight
+    ? 'bg-[#F8FAFC]/65 hover:bg-[#F1F6FA]'
+    : 'bg-white/[0.025] hover:bg-white/[0.05]';
+  const progressColor = themeClasses.isLight ? 'text-[#205089]' : 'text-[#A8D4FF]';
+
+  return (
+    <section className="my-6" aria-label={ariaLabel}>
+      <div className="mb-2 flex items-center justify-between gap-4 px-1 py-2">
+        <strong className={cx('text-sm font-black', themeClasses.titleText)}>Tự kiểm tra</strong>
+        <span className={cx('text-xs font-black tabular-nums', progressColor)} aria-live="polite">
+          Đã hiểu {checkedCount}/{items.length}
+        </span>
+      </div>
+      <ul className="m-0 grid list-none gap-1.5 p-0">
+        {items.map((item) => {
+          const isChecked = checkedIds.includes(item.id);
+          return (
+            <li key={item.id} className="m-0 list-none p-0">
+              <label className={cx(
+                'flex cursor-pointer items-start gap-3 rounded-lg px-3.5 py-3 transition-colors sm:px-4',
+                isChecked ? checkedSurface : idleSurface,
+              )}>
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => setCheckedIds((current) => (
+                    current.includes(item.id)
+                      ? current.filter((id) => id !== item.id)
+                      : [...current, item.id]
+                  ))}
+                  className="mt-1 size-4 shrink-0 cursor-pointer accent-[#205089]"
+                />
+                <span className="min-w-0">
+                  <strong className={cx('block text-sm font-black leading-6 text-pretty', themeClasses.titleText)}>{item.label}</strong>
+                  {item.detail ? <span className={cx('mt-0.5 block text-sm leading-5 text-pretty', themeClasses.bodyText)}>{item.detail}</span> : null}
+                </span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 type ComparisonMatrixRow = { label: string; values: string[]; highlightedColumn?: number };
 
-export function ComparisonMatrix({ ariaLabel, columns, rows }: {
+export function PaperTradeoff({ advantages, limitations }: { advantages: string[]; limitations: string[] }) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <div className="my-4 grid gap-3 sm:grid-cols-2">
+      <section className="rounded-xl border border-emerald-300/80 bg-emerald-50/70 p-4 dark:border-emerald-400/30 dark:bg-emerald-400/6">
+        <h4 className="text-sm font-black text-emerald-800 dark:text-emerald-300">Ưu điểm</h4>
+        <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
+          {advantages.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+      </section>
+      <section className="rounded-xl border border-rose-300/80 bg-rose-50/70 p-4 dark:border-rose-400/30 dark:bg-rose-400/6">
+        <h4 className="text-sm font-black text-rose-800 dark:text-rose-300">Hạn chế</h4>
+        <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
+          {limitations.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+      </section>
+    </div>
+  );
+}
+
+export function ComparisonMatrix({ ariaLabel, columns, rows, rowHeaderLabel = 'Tiêu chí', compactRowHeader = false }: {
   ariaLabel: string;
   columns: string[];
   rows: ComparisonMatrixRow[];
+  rowHeaderLabel?: string;
+  compactRowHeader?: boolean;
 }) {
   const themeClasses = useLearningMdxTheme();
   const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
@@ -396,14 +576,14 @@ export function ComparisonMatrix({ ariaLabel, columns, rows }: {
         <caption className="sr-only">{ariaLabel}</caption>
         <thead className={themeClasses.isLight ? 'bg-[#EFF4FA] text-[#123B68]' : 'bg-[#121A24] text-[#D7EAFE]'}>
           <tr>
-            <th scope="col" className="w-[26%] px-4 py-3 font-black">Tiêu chí</th>
+            <th scope="col" className={cx('px-4 py-3 font-black', compactRowHeader ? 'w-16 text-center' : 'w-[26%]')}>{rowHeaderLabel}</th>
             {columns.map((column) => <th key={column} scope="col" className="px-4 py-3 font-black">{column}</th>)}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, rowIndex) => (
             <tr key={`${row.label}-${rowIndex}`} className={cx('border-t align-top', border)}>
-              <th scope="row" className={cx('px-4 py-3 font-black', themeClasses.titleText)}>{row.label}</th>
+              <th scope="row" className={cx('px-4 py-3 font-black', compactRowHeader && 'text-center tabular-nums', themeClasses.titleText)}>{row.label}</th>
               {columns.map((_, columnIndex) => (
                 <td
                   key={`${row.label}-${columnIndex}`}
@@ -695,8 +875,11 @@ const sharedAuthoredMdxComponents = {
   CourseCards,
   EvidenceCards,
   ConceptFlow,
+  StageContinuityMap,
   ExperimentChecklist,
+  SelfCheckList,
   ComparisonMatrix,
+  PaperTradeoff,
   DatasetComposition,
   MetricBars,
   ConceptSpectrum,

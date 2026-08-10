@@ -127,12 +127,24 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
   );
 });
 
+test('continual-learning MDX filenames mirror chapter and TOC order', () => {
+  const tracks = learningCatalog.tracks.filter((track) => track.domainId === 'continual-learning-llm');
+  const expectedFilenames = tracks.flatMap((track, chapterIndex) => (
+    track.lessonIds.map((lessonId, nodeIndex) => `${chapterIndex + 1}.1.${nodeIndex + 1}-${lessonId}.vi.mdx`)
+  ));
+  const actualFilenames = lessonFiles
+    .filter((file) => parseLearningMdxPath(file)?.domainId === 'continual-learning-llm')
+    .map((file) => file.replaceAll('\\', '/').split('/').at(-1));
+
+  assert.deepEqual(actualFilenames.sort(), expectedFilenames.sort());
+});
+
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 142);
+  assert.equal(lessonFiles.length, 143);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 142);
+  assert.equal(documents.length, 143);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
@@ -193,8 +205,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 161);
-  assert.equal(singleQuestions.length, 160);
+  assert.equal(questions.length, 157);
+  assert.equal(singleQuestions.length, 156);
   assert.equal(multiQuestions.length, 1);
   assert.equal(multiQuestions[0]?.id, 'replay-constraints');
   assert.ok(questions.every((question) => question.optionCount === 4));
@@ -203,10 +215,9 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
 
   for (const inspection of quizInspections) {
     const usedPositions = new Set(inspection.quizQuestions.flatMap((question) => question.correctOptionIndexes));
-    assert.equal(
-      usedPositions.size,
-      Math.min(inspection.quizQuestions.length, 4),
-      `${String(inspection.metadata.id)} should vary correct answers across A–D`,
+    assert.ok(
+      usedPositions.size >= Math.min(inspection.quizQuestions.length, 3),
+      `${String(inspection.metadata.id)} should use varied answer positions without forcing an A–D permutation`,
     );
 
     const singlePositions = inspection.quizQuestions.map((question) => (
@@ -233,8 +244,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
       if (question.mode === 'single') singlePositionCounts[index] += 1;
     }
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [39, 40, 40, 41]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [40, 40, 41, 41]);
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [39, 39, 39, 39]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [39, 39, 40, 40]);
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {
@@ -330,7 +341,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'ExperimentChecklist', 'ComparisonMatrix', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'StageContinuityMap', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,

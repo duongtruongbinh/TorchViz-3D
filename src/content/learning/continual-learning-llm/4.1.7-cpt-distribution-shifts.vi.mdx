@@ -1,0 +1,300 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'cpt-distribution-shifts',
+  locale: 'vi',
+  title: 'Các dạng shift trong CPT',
+  headings: ['Ba kiểu shift, ba bài toán khác nhau', 'Language Shift', 'Content Shift', 'Temporal Shift'],
+  keywords: ['Continual Pre-training', 'Language Shift', 'Content Shift', 'Temporal Shift', 'Horizontal Forgetting'],
+  conceptIds: ['shift-diagnosis', 'language-shift', 'content-shift', 'temporal-shift'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Ba kiểu shift, ba bài toán khác nhau
+
+Khảo sát phân loại distribution shift trong Continual Pre-training thành ba nhóm dựa trên **phần nào của dữ liệu thay đổi giữa các stage**:
+
+<CourseCards
+  ariaLabel="Ba loại distribution shift trong Continual Pre-training"
+  exampleLabel="Dữ liệu thay đổi"
+  takeawayLabel="Model cần làm"
+  threeColumns
+  items={[
+    {
+      title: 'Language Shift',
+      example: 'Model học tuần tự các corpus thuộc ngôn ngữ khác nhau, chẳng hạn tiếng Anh → tiếng Trung.',
+      takeaway: 'Tiếp thu ngôn ngữ mới mà không làm suy giảm năng lực ở các ngôn ngữ đã học.',
+    },
+    {
+      title: 'Content Shift',
+      example: 'Model học tuần tự các corpus thuộc chủ đề hoặc domain khác nhau, chẳng hạn hóa học → sinh học.',
+      takeaway: 'Học knowledge của domain mới nhưng tránh over-specialization làm mất năng lực cũ.',
+    },
+    {
+      title: 'Temporal Shift',
+      example: 'Cùng một dòng dữ liệu thay đổi theo thời gian, chẳng hạn tin tức năm 2021 → tin tức năm 2022.',
+      takeaway: 'Giữ fact còn đúng, cập nhật fact lỗi thời và tiếp thu fact hoàn toàn mới.',
+    },
+  ]}
+/>
+
+Một finding trên một shift không nên được khái quát sang shift khác. Ba trang tiếp theo sẽ cho thấy cùng một kỹ thuật như replay có thể tạo kết quả khác nhau tùy thứ đang thay đổi là ngôn ngữ, nội dung hay thời gian.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Language Shift
+
+Khi Large Language Model học tuần tự nhiều ngôn ngữ, model thường học ngôn ngữ mới khá tốt nhưng năng lực ở ngôn ngữ cũ vẫn có thể suy giảm.
+
+<CourseCards
+  ariaLabel="Các quan sát chính trong Language Shift"
+  exampleLabel="Quan sát"
+  takeawayLabel="Hàm ý"
+  featureFirst
+  numbered={false}
+  items={[
+    {
+      title: 'Forward Transfer',
+      example: 'Knowledge đã học trước có thể hỗ trợ việc tiếp thu ngôn ngữ mới, kể cả khi không dùng thuật toán Continual Learning chuyên biệt.',
+      takeaway: 'Học tuần tự không chỉ tạo forgetting; nó cũng có thể tạo transfer tích cực.',
+    },
+    {
+      title: 'Horizontal Forgetting',
+      example: 'Sau khi thích nghi với ngôn ngữ mới, hiệu năng ở ngôn ngữ đã học trước đó giảm.',
+      takeaway: 'Forward Transfer tốt không đồng nghĩa retention ở ngôn ngữ cũ đã được giải quyết.',
+    },
+    {
+      title: 'Tăng model size',
+      example: 'Model lớn hơn có thể mạnh hơn về hiệu năng tổng thể nhưng vẫn xuất hiện forgetting.',
+      takeaway: 'Scale không phải giải pháp tự động cho Language Shift.',
+    },
+    {
+      title: 'Kỹ thuật đã thử',
+      example: 'Parameter freezing, Low-Rank Adaptation và IA³ được dùng để giới hạn số tham số phải cập nhật.',
+      takeaway: 'Kết quả ban đầu chưa cho thấy một biện pháp đơn giản có thể ngăn forgetting ổn định.',
+    },
+  ]}
+/>
+
+Vì vậy, mục tiêu của Language Shift không chỉ là điểm ngôn ngữ mới cao. Báo cáo còn phải đo lại từng ngôn ngữ cũ sau mỗi stage để phân biệt **Forward Transfer** với **Horizontal Forgetting**.
+
+Tham khảo: [Examining Forgetting in Continual Pre-training of Aligned Large Language Models](https://arxiv.org/abs/2401.03129).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Content Shift
+
+Content Shift xảy ra khi model pre-train tuần tự trên các domain khác nhau. Các paper dưới đây không đưa ra một đáp án duy nhất: mỗi công trình kiểm tra một quy mô, chuỗi domain và training recipe riêng.
+
+### [Yıldız et al. — 159 domain](https://arxiv.org/abs/2402.17400)
+
+<PaperTradeoff
+  advantages={[
+    'Benchmark mở rộng Continual Pre-training lên 159 domain và cho thấy học tuần tự nhiều domain có thể thích nghi tốt hơn Domain-Adaptive Pre-training trên từng domain riêng lẻ.',
+    'Paper phân tích thêm ảnh hưởng của model size, độ tương đồng giữa các domain và thứ tự xuất hiện của domain.',
+  ]}
+  limitations={[
+    'Các model được khảo sát đều nhỏ hơn 1,5 tỷ tham số, nên chưa đủ để khẳng định kết quả sẽ giữ nguyên ở quy mô LLM lớn hơn.',
+    'Hiệu quả thay đổi theo độ tương đồng và thứ tự domain; paper chưa đưa ra một training recipe tối ưu cho mọi chuỗi Content Shift.',
+  ]}
+/>
+
+**Không phải lúc nào cũng cần thuật toán CL phức tạp:** một số paper cho thấy chỉ cần phối hợp **learning-rate re-warming, re-decay và replay** đúng cách cũng có thể đưa CPT đến gần full retraining trong setup được khảo sát.
+
+### [Gupta et al. — Learning-rate re-warming](https://arxiv.org/abs/2308.04014)
+
+<PaperTradeoff
+  advantages={[
+    'Trên Pythia 410M, tăng learning rate trở lại khi chuyển từ Pile sang SlimPajama giúp model thích nghi với corpus mới tốt hơn về dài hạn.',
+    'Kết quả cho thấy chỉ riêng lịch learning rate cũng ảnh hưởng mạnh đến CPT, ngay cả khi không dùng thuật toán Continual Learning phức tạp.',
+  ]}
+  limitations={[
+    'Re-warming ban đầu làm loss trên cả dữ liệu cũ và dữ liệu mới tăng trước khi model phục hồi.',
+    'Thí nghiệm tập trung vào một kiến trúc 410M và một cặp corpus lớn; chưa chứng minh cùng lịch learning rate phù hợp với mọi domain shift.',
+  ]}
+/>
+
+### [Ibrahim et al. — Re-warming, re-decay và replay](https://arxiv.org/abs/2403.08763)
+
+<PaperTradeoff
+  advantages={[
+    'Kết hợp learning-rate re-warming, re-decay và replay dữ liệu cũ có thể đạt kết quả gần full retraining với ít compute hơn.',
+    'Paper kiểm tra English → English và English → German ở 405M tham số; với shift yếu English → English, kết quả còn được mở rộng tới model 10B.',
+  ]}
+  limitations={[
+    'Kết quả 10B chỉ được kiểm tra trên shift yếu; shift mạnh English → German mới dừng ở quy mô 405M.',
+    'Replay vẫn yêu cầu lưu và đọc lại dữ liệu cũ, còn learning-rate schedule phải được chọn phù hợp với mức độ distribution shift.',
+  ]}
+/>
+
+### [LLPT — Lifelong Pretraining](https://arxiv.org/abs/2110.08534)
+
+<PaperTradeoff
+  advantages={[
+    'LLPT thiết lập protocol theo dõi đồng thời khả năng thích nghi với corpus mới, retention trên corpus cũ và transfer sang downstream task.',
+    'Trên chuỗi paper theo domain và tweet theo thời gian, distillation giữ downstream performance cũ tốt nhất và các phương pháp CL có thể cải thiện knowledge transfer.',
+  ]}
+  limitations={[
+    'Horizontal Forgetting vẫn đáng kể; survey ghi nhận experience replay không hiệu quả trong setup này và nêu overfitting như một nguyên nhân tiềm năng.',
+    'Đây là kết quả của hai data stream và protocol cụ thể, không đủ để kết luận replay luôn kém trong mọi Content Shift.',
+  ]}
+/>
+
+**Từ supplier sang consumer:** nếu supplier liên tục pre-train LLM, bất kể có sử dụng replay hay không, consumer vẫn có thể cải thiện hiệu quả cập nhật bằng cách tái sử dụng các thành phần adaptation đã học trước đó với kỹ thuật CL phù hợp.
+
+### [Recyclable Tuning](https://arxiv.org/abs/2305.08702)
+
+<PaperTradeoff
+  advantages={[
+    'Khi supplier phát hành checkpoint mới, consumer có thể tái sử dụng adapted weights đã học trên checkpoint cũ thay vì bỏ đi và tuning lại hoàn toàn.',
+    'Initialization và distillation từ adapted weights cũ giúp quá trình tuning model mới hội tụ nhanh hơn và đạt performance tốt hơn.',
+  ]}
+  limitations={[
+    'Mục tiêu chính là giảm chi phí cập nhật phía consumer, không phải trực tiếp ngăn supplier quên knowledge cũ trong lúc CPT.',
+    'Lợi ích phụ thuộc mức tương thích giữa checkpoint upstream mới và adapted weights cũ; checkpoint thay đổi quá mạnh có thể làm việc tái sử dụng khó hơn.',
+  ]}
+/>
+
+**Hướng promising:** các modular method thêm domain expert mới để cô lập knowledge của từng domain, nhờ đó giảm interference và Horizontal Forgetting. DEMix và Lifelong-MoE là hai ví dụ tiêu biểu của hướng này.
+
+### [DEMix — Domain Experts](https://arxiv.org/abs/2108.05036)
+
+<PaperTradeoff
+  advantages={[
+    'Mỗi domain có expert riêng; expert có thể được thêm, trộn hoặc gỡ bỏ mà không phải huấn luyện lại toàn bộ model.',
+    'Khi không có domain ID, DEMix dùng weighted mixture không cần tham số học thêm để kết hợp expert và xử lý input hỗn hợp hoặc domain chưa thấy.',
+  ]}
+  limitations={[
+    'Tổng số tham số và dung lượng lưu trữ tăng khi số domain expert tăng, dù compute cho mỗi input có thể được kiểm soát.',
+    'Thí nghiệm dùng model tối đa 1,3B tham số; chất lượng vẫn phụ thuộc việc expert và cơ chế trộn nhận diện đúng cấu trúc domain.',
+  ]}
+/>
+
+### [Lifelong-MoE — Distribution-Specialized Experts](https://arxiv.org/abs/2305.12281)
+
+<PaperTradeoff
+  advantages={[
+    'Model thêm một số expert mới cho distribution mới nhưng giữ compute mỗi token gần như không đổi nhờ token-level gating.',
+    'Expert và gating cũ được freeze; knowledge distillation điều tiết phần mới, giúp giữ knowledge cũ và cải thiện few-shot performance trên 19 downstream task.',
+  ]}
+  limitations={[
+    'Tổng capacity vẫn tăng theo thời gian, nên đây không phải giải pháp fixed-size cho một chuỗi domain không giới hạn.',
+    'Phương pháp cần đồng thời quản lý routing, expert expansion, freezing và distillation; phức tạp hơn một training recipe chỉ điều chỉnh learning rate.',
+  ]}
+/>
+
+### [Cossu et al. — Khi CPT đơn giản đã ít quên](https://arxiv.org/abs/2205.09357)
+
+<PaperTradeoff
+  advantages={[
+    'Self-supervised Continual Pre-training trên BERT và RoBERTa giữ representation ổn định và gần như không làm giảm một số downstream control task.',
+    'Kết quả đặt ra khả năng rằng trong một số Content Shift, objective pre-training tự giám sát đã đủ giảm forgetting mà chưa cần thuật toán CL phức tạp.',
+  ]}
+  limitations={[
+    'Phạm vi NLP gồm năm experience từ các domain khoa học và một số downstream evaluation cụ thể, không đại diện cho mọi chuỗi domain hoặc LLM hiện đại.',
+    'Kết luận gần như trái ngược với các setup ghi nhận forgetting mạnh, cho thấy mức độ cần thiết của CL phải được đánh giá lại trên đúng data stream và metric triển khai.',
+  ]}
+/>
+
+<LessonNote>
+  Không nên hỏi “paper nào đúng?” khi setup khác nhau. Kết luận về Content Shift phải đi cùng model size, số stage, domain order, độ tương đồng giữa domain, quyền replay dữ liệu cũ và metric được dùng để đo forgetting.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Temporal Shift
+
+Temporal Shift xảy ra khi distribution thay đổi theo thời gian. Khó khăn riêng của nó là knowledge mới không chỉ bổ sung mà còn có thể **mâu thuẫn và thay thế knowledge cũ**.
+
+<ComparisonMatrix ariaLabel="Khác biệt giữa Content Shift và Temporal Shift" columns={['Content Shift', 'Temporal Shift']} rows={[
+  { label: 'Quan hệ dữ liệu', values: ['Các domain có thể khác nhau nhưng knowledge thường cùng tồn tại', 'Hai timestamp có thể đưa ra fact xung đột'] },
+  { label: 'Multi-Task Learning', values: ['Thường được dùng như cận trên khi có thể train chung dữ liệu các domain', 'Không luôn là cận trên hợp lý vì trộn hai timestamp có thể giữ cả fact đã lỗi thời'] },
+]} />
+
+Ví dụ, hai phát biểu sau đúng ở **hai thời điểm khác nhau**:
+
+- Giai đoạn 2004–2021: “Lionel Messi thi đấu cho Barcelona.”
+- Năm 2024: “Lionel Messi thi đấu cho Inter Miami.”
+
+Giữ nguyên phát biểu đầu tiên như một fact hiện tại không phải retention tốt. Model phải giữ nó như knowledge lịch sử nhưng cập nhật câu trả lời hiện tại sang Inter Miami.
+
+**Ba mục tiêu bắt buộc:** một hệ thống Temporal Shift tốt phải phân biệt được fact nào cần giữ, fact nào hoàn toàn mới và fact nào đã lỗi thời.
+
+<CourseCards
+  ariaLabel="Ba mục tiêu của Continual Pre-training dưới Temporal Shift"
+  exampleLabel="Model cần xử lý"
+  takeawayLabel="Kết quả mong muốn"
+  threeColumns
+  items={[
+    { title: 'Duy trì', example: 'Fact cũ vẫn còn đúng.', takeaway: 'Không làm suy giảm knowledge bất biến.' },
+    { title: 'Tiếp thu', example: 'Fact mới chưa từng xuất hiện.', takeaway: 'Bổ sung knowledge mới vào model.' },
+    { title: 'Cập nhật', example: 'Fact cũ đã lỗi thời hoặc bị thay thế.', takeaway: 'Trả lời theo trạng thái mới mà vẫn hiểu bối cảnh lịch sử.' },
+  ]}
+/>
+
+### [CKL — Continual Knowledge Learning](https://openreview.net/forum?id=vfsRB5MImo9)
+
+<PaperTradeoff
+  advantages={[
+    'CKL xây dựng benchmark và metric riêng để đo tách biệt retention của knowledge bất biến, acquisition của knowledge mới và update của knowledge lỗi thời.',
+    'Trong các baseline được khảo sát, parameter expansion là hướng ổn định nhất để model vừa giữ knowledge cũ vừa học knowledge mới.',
+  ]}
+  limitations={[
+    'Parameter expansion đổi stability lấy capacity: model giữ knowledge tốt hơn nhưng tổng số tham số tăng theo các lần cập nhật.',
+    'Survey ghi nhận replay trong setup CKL có thể làm chậm acquisition và update, thậm chí khiến knowledge vừa học bị quên lại nhanh; đây không phải kết luận cho mọi replay setup.',
+  ]}
+/>
+
+### [TemporalWiki — Chỉ học phần thay đổi](https://aclanthology.org/2022.emnlp-main.418/)
+
+<PaperTradeoff
+  advantages={[
+    'TemporalWiki tạo dữ liệu train từ phần khác nhau giữa hai snapshot Wikipedia liên tiếp và dùng Wikidata cùng thời điểm để đánh giá fact unchanged, changed và new.',
+    'Train trên differential data đạt perplexity tương đương hoặc tốt hơn train toàn snapshot trong benchmark, đồng thời giảm khoảng 12 lần compute.',
+  ]}
+  limitations={[
+    'Khi số lần cập nhật tăng, catastrophic forgetting vẫn xuất hiện; differential data chỉ giảm lượng dữ liệu chứ không tự giải quyết chuỗi cập nhật dài.',
+    'Cách xây diffset cần các snapshot có thể căn chỉnh và được kiểm tra trên English Wikipedia/Wikidata, nên không chuyển nguyên xi sang mọi data stream sản xuất.',
+  ]}
+/>
+
+### [LLPT — Temporal Generalization](https://arxiv.org/abs/2110.08534)
+
+<PaperTradeoff
+  advantages={[
+    'LLPT dùng một tweet stream theo thứ tự thời gian để kiểm tra model có theo kịp distribution mới và tổng quát hóa sang dữ liệu tương lai hay không.',
+    'Continual Pre-training kết hợp kỹ thuật CL cải thiện knowledge acquisition và temporal generalization so với chỉ xây task-specific model trên từng giai đoạn.',
+  ]}
+  limitations={[
+    'Các thí nghiệm ban đầu chưa xác định được một kỹ thuật CL luôn tốt hơn các kỹ thuật còn lại cho Temporal Shift.',
+    'Tweet stream là một loại temporal distribution cụ thể; finding về social-media language chưa đủ đại diện cho mọi loại fact thay đổi theo thời gian.',
+  ]}
+/>
+
+### [Time-Aware Language Models — Đưa timestamp vào model](https://arxiv.org/abs/2106.15110)
+
+<PaperTradeoff
+  advantages={[
+    'Paper jointly model text cùng timestamp để model học rằng cùng một câu hỏi có thể có đáp án khác nhau ở các thời điểm khác nhau.',
+    'Temporal context cải thiện khả năng nhớ fact trong giai đoạn đã thấy, hiệu chỉnh dự đoán cho giai đoạn tương lai và cho phép refresh model khi dữ liệu mới đến mà không train lại từ đầu.',
+  ]}
+  limitations={[
+    'Dataset phải có timestamp đủ tin cậy, và thời gian trở thành một phần của input hoặc training formulation thay vì chỉ cập nhật model như CPT thông thường.',
+    'Biểu diễn thời gian giúp phân biệt phiên bản của fact nhưng không tự bảo đảm retention qua một chuỗi update dài; vẫn cần đo forgetting sau từng stage.',
+  ]}
+/>
+
+<LessonNote>
+  Temporal Shift không chỉ hỏi “model còn nhớ bao nhiêu?”. Nó còn hỏi model có biết **knowledge nào vẫn đúng, knowledge nào mới xuất hiện và knowledge nào phải được thay thế** hay không. Vì vậy, một phương pháp giữ mọi fact cũ bằng mọi giá cũng có thể là một phương pháp thất bại.
+</LessonNote>
+
+Nguồn tổng hợp: [Shi et al., §4.1.3](https://arxiv.org/html/2404.16789v3#S4.SS1.SSS3).
+
+</MdxPage>

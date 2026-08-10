@@ -1,0 +1,53 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continuity-to-learning-stages', locale: 'vi', title: 'Bản đồ sang Chương 4',
+  headings: ['Bản đồ sang Chương 4'],
+  keywords: ['Vertical Continual Learning', 'Horizontal Continual Learning', 'Continual Pre-training', 'Domain-Adaptive Pre-training', 'Continual Fine-Tuning'],
+  conceptIds: ['continuity-stage-relationship', 'continuity-chapter-four-map'],
+  pageCount: 1,
+}
+
+<MdxPage page={0}>
+
+**Chương 4 đi theo flow Vertical Continual Learning:** từ model tổng quát ở upstream, xuống domain chuyên biệt, rồi đến task hoặc hành vi downstream. Nếu một giai đoạn có nhiều lần cập nhật theo thời gian hoặc domain, phần đó sẽ được mở rộng theo góc nhìn **Horizontal Continual Learning**.
+
+<StageContinuityMap
+  ariaLabel="Flow Vertical Continual Learning và các mở rộng Horizontal Continual Learning trong Chương 4"
+  items={[
+    {
+      verticalTitle: 'Continual Pre-training',
+      verticalDetail: 'Supplier cập nhật base model tổng quát ở tầng upstream.',
+      horizontalTitle: 'Khi base model được cập nhật nhiều lần',
+      horizontalItems: [
+        'Language shift: model tiếp tục học corpus của ngôn ngữ mới.',
+        'Content shift: model tiếp tục học chủ đề hoặc nguồn nội dung mới.',
+        'Temporal shift: model cập nhật knowledge theo các mốc thời gian mới.',
+      ],
+    },
+    {
+      verticalTitle: 'Domain-Adaptive Pre-training',
+      verticalDetail: 'Consumer đưa base model xuống một domain chuyên biệt bằng corpus riêng.',
+      horizontalTitle: 'Khi dữ liệu chuyên ngành tiếp tục thay đổi',
+      horizontalItems: [
+        'Cập nhật theo thời gian trong cùng một domain, ví dụ thêm tài liệu y khoa mới.',
+        'Thích nghi nối tiếp giữa các subdomain, ví dụ từ luật dân sự sang luật thuế.',
+        'Chuyển sang domain mới ở cùng tầng thích nghi, ví dụ từ pháp lý sang tài chính.',
+      ],
+    },
+    {
+      verticalTitle: 'Continual Fine-Tuning',
+      verticalDetail: 'Model được thích nghi tiếp cho task hoặc hành vi downstream trước khi triển khai.',
+      horizontalTitle: 'Khi downstream có nhiều lần cập nhật',
+      horizontalItems: [
+        'Fine-tuning tổng quát.',
+        'Continual Instruction Tuning.',
+        'Continual Model Refinement.',
+        'Continual Model Alignment.',
+        'Continual Multimodal Large Language Model.',
+      ],
+    },
+  ]}
+/>
+
+**Cách đọc:** cột trái quyết định thứ tự chính của Chương 4; cột phải cho biết nội dung Horizontal nào sẽ được mở rộng bên trong từng stage khi có chuỗi cập nhật.
+
+</MdxPage>

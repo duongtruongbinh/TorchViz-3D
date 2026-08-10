@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-09
+updated: 2026-08-10
 ---
 
 # Learning Lab
@@ -21,9 +21,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 91 tracks, and 678 lesson nodes. One hundred
-forty-two Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, seventy-six in `continual-learning-llm`, thirteen in
+The catalog contains 13 domains, 91 tracks, and 679 lesson nodes. One hundred
+forty-three Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, seventy-seven in `continual-learning-llm`, thirteen in
 `linear-algebra`, and four tagged exercise lessons in `cv`. The other 536 nodes
 are navigable placeholders and render one shared localized “content in progress” message.
 They do not carry legacy theory or practice payloads.
@@ -85,8 +85,14 @@ inputs live in locale-specific MDX. LLM-specific visual and stateful components
 remain React code under the LLM domain package. English UI currently falls back
 to the Vietnamese lesson source until an English MDX file is authored.
 
-The Continual Learning course contains 38 adjacent Theory/Quiz pairs across seven
-tracks. Each pair is defined once in its domain TOC and flattened into the
+The Continual Learning course contains 38 adjacent Theory/Quiz pairs across its
+first six chapters, followed by one standalone Chapter 7 self-check lesson.
+Content through the Replay lab is the approved foundation;
+later chapters follow the Shi et al. (2025) survey notes covering regularization,
+architecture expansion, evaluation, vertical/horizontal continuity, CPT/DAP/CFT,
+discussion, and a final cross-course synthesis. The synthesis uses one persisted,
+beginner-readable checklist per earlier chapter and deliberately has no adjacent
+quiz node. Each pair is defined once in its domain TOC and flattened into the
 canonical lesson order. Both nodes publish atomically and carry the same stable
 `conceptIds`; the quiz question IDs must equal that concept set exactly. This
 prevents theory-only claims, orphan quizzes, and assessment content that was not
@@ -135,6 +141,11 @@ chapter-local names such as `1.1.6-language-modeling-next-token.vi.mdx` and
 `1.5.1-llm-data-pipeline-overview.vi.mdx`; other domains may continue using
 unprefixed filenames. Routes and `lessonMetadata.id` always use the lesson ID
 without this organizational prefix.
+
+The Continual Learning domain applies the prefix consistently to every authored
+file as `<chapter>.1.<node>-<lesson-id>.vi.mdx`. Its chapter number and node
+number mirror the domain TOC exactly, including adjacent Quiz nodes; Chapter 7
+ends at `7.1.1-continual-llm-synthesis.vi.mdx` because it has no Quiz node.
 
 Every navigable lesson has one TOC node. A locale-specific MDX file exists only
 when that locale has authored lesson content. File existence is not navigation

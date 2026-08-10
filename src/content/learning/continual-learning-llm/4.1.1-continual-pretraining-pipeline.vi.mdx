@@ -1,0 +1,34 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'continual-pretraining-pipeline',
+  locale: 'vi',
+  title: "Continual Pre-training",
+  headings: ['Ai thực hiện Continual Pre-training?'],
+  keywords: ['Continual Learning', 'Large Language Model', 'Continual Pre-training', 'Full Replay', 'Sparse Replay'],
+  conceptIds: [
+  "cpt-operator",
+  "cpt-generalization",
+  "cpt-memory-constraint",
+  "cpt-replay-choice"
+],
+}
+
+## Ai thực hiện Continual Pre-training?
+
+Do **Continual Pre-training (CPT)** cần dữ liệu, hạ tầng, đội ngũ và compute rất lớn, nên đối tượng chính của giai đoạn này là **supplier**.
+
+Khi supplier có thể lưu toàn bộ dữ liệu lịch sử, memory constraint nghiêm ngặt của Continual Learning truyền thống không còn là nút thắt lớn nhất. Câu hỏi chuyển thành: **có thật sự cần một thuật toán Continual Learning phức tạp hay không?**
+
+<ComparisonMatrix ariaLabel="Ba lựa chọn cập nhật dữ liệu trong Continual Pre-training" columns={['Cách làm', 'Khi nào hợp lý?']} rows={[
+  { label: 'Full replay', values: ['Chọn lọc dữ liệu kỹ rồi trộn toàn bộ dữ liệu lịch sử hợp lệ với dữ liệu mới', 'Là lựa chọn tốt nhất khi supplier đủ khả năng chi trả storage, input-output và compute'] },
+  { label: 'Sparse replay', values: ['Chỉ phát lại một phần nhỏ dữ liệu cũ thay vì toàn bộ lịch sử', 'Giảm chi phí và vẫn có thể hạn chế forgetting hiệu quả khi mẫu replay đủ đại diện'] },
+  { label: 'Phương pháp CL chuyên biệt', values: ['Bổ sung cơ chế replay, regularization hoặc architecture phù hợp', 'Có thể tốt hơn baseline đơn giản trong các setup mà full replay quá tốn kém hoặc dữ liệu thay đổi khó'] },
+]} />
+
+Không có một đáp án đúng cho mọi supplier. Nếu toàn bộ dữ liệu lịch sử còn hợp lệ và ngân sách cho phép, **full replay trên dữ liệu đã được chọn lọc kỹ là baseline mạnh nhất cần ưu tiên**. Sparse replay là phương án thực dụng hơn khi chi phí trở thành nút thắt; còn kết quả tốt hơn của các phương pháp chuyên biệt cho thấy thuật toán Continual Learning vẫn có vai trò trong những setup khó.
+
+<LessonNote>
+  Các nghiên cứu quy mô lớn cho thấy CPT không chỉ cần thiết để cải thiện hiệu năng trên downstream task. Khi distribution shift diễn ra từ từ, hoặc distribution cũ và mới vẫn có mức tương quan nhất định, CPT còn có thể giúp model tổng quát hóa tốt hơn sang dữ liệu chưa từng thấy.
+</LessonNote>
+
+Nguồn: [Shi et al., §3.2 và §4.1](https://arxiv.org/html/2404.16789v3#S4.SS1).

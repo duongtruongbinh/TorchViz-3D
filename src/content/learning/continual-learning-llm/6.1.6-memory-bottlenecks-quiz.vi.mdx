@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'memory-bottlenecks-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Full history', 'No upstream data', 'Privacy'], keywords: ['Quiz', 'Memory'],
+  conceptIds: ['full-history', 'no-upstream-data', 'privacy-stream'], pageCount: 3,
+}
+
+<MdxQuiz id="memory-bottlenecks-quiz" questions={[
+  { id: 'full-history', title: 'Full history', mode: 'single', prompt: 'Khi tổ chức giữ toàn bộ historical data, nút thắt chính có thể chuyển thành gì?', options: [
+    { id: 'b', label: 'Không có dữ liệu cũ.' },
+    { id: 'c', label: 'Không có output space.' },
+    { id: 'd', label: 'Không có task mới.' },
+    { id: 'a', label: 'Compute efficiency.', isCorrect: true },
+  ], success: 'Lưu được không đồng nghĩa train lại được trên tất cả history.', error: 'Phân biệt storage capacity với training compute.' },
+  { id: 'no-upstream-data', title: 'No upstream data', mode: 'single', prompt: 'Lựa chọn nào phù hợp khi consumer không có upstream data?', options: [
+    { id: 'a', label: 'Replay nguyên upstream corpus.' },
+    { id: 'b', label: 'Public proxy data, pseudo-replay hoặc parameter regularization.', isCorrect: true },
+    { id: 'c', label: 'Full retraining bắt buộc.' },
+    { id: 'd', label: 'Bỏ đánh giá retention.' },
+  ], success: 'Đây là các hướng rehearsal-free hoặc dùng dữ liệu thay thế.', error: 'Consumer không thể replay dữ liệu mình không được truy cập.' },
+  { id: 'privacy-stream', title: 'Privacy', mode: 'single', prompt: 'Privacy constraint nghiêm ngặt làm hướng nào tiếp tục quan trọng?', options: [
+    { id: 'a', label: 'Offline full retraining.' },
+    { id: 'b', label: 'Architecture search.' },
+    { id: 'c', label: 'Online continual learning.', isCorrect: true },
+    { id: 'd', label: 'Random initialization.' },
+  ], success: 'Dữ liệu chỉ dùng khi xuất hiện tạo online CL setting.', error: 'Hãy nhìn giới hạn về thời điểm được dùng sample.' },
+]} />

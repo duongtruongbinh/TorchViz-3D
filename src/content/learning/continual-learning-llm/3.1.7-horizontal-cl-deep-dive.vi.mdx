@@ -1,0 +1,41 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'horizontal-cl-deep-dive', locale: 'vi', title: 'Horizontal Continual Learning',
+  headings: ['Thích nghi qua thời gian hoặc domain', 'Có cần thuật toán CL phức tạp?'], keywords: ['Horizontal CL', 'Sparse Replay', 'Historical Data'],
+  conceptIds: ['horizontal-definition', 'horizontal-memory-strategy'],
+  pageCount: 2,
+}
+
+<MdxPage page={0}>
+
+## Thích nghi qua thời gian hoặc domain
+
+**Horizontal Continual Learning** là quá trình model liên tục thích nghi theo thời gian hoặc giữa các domain dữ liệu. Lý do chính là distribution không đứng yên: nội dung, ngôn ngữ và knowledge mới liên tục xuất hiện.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-horizontal-continual-learning.webp"
+  alt="Minh họa horizontal continual learning qua Domain A, Domain B và Domain C với distribution shift dần dần hoặc đột ngột"
+  caption="Update ngang có thể gặp gradual shift giữa hai domain gần nhau hoặc abrupt shift khi distribution mới thay đổi mạnh."
+/>
+
+Nếu không học tăng tiến từ dữ liệu mới, tổ chức phải liên tục retrain model từ đầu, vừa đắt vừa thiếu thực tế. Tuy nhiên, năng lực mạnh không bảo đảm LLM sẽ tổng quát tốt sang dữ liệu tương lai chưa từng thấy, đặc biệt dưới temporal hoặc domain shift.
+
+LLM thường chống chịu catastrophic forgetting tốt hơn model nhỏ, nhưng vẫn khó giữ đầy đủ knowledge từ các stage cũ khi liên tục thích nghi. Vì vậy, horizontal continuity phải đồng thời theo dõi **khả năng học distribution mới** và **retention trên lịch sử**.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Có cần thuật toán CL phức tạp?
+
+Trong CPT quy mô lớn, một tổ chức lớn có thể đủ khả năng lưu toàn bộ historical data. Khi đó, memory constraint nghiêm ngặt của CL truyền thống gần như không còn là nút thắt chính.
+
+<ComparisonMatrix ariaLabel="Hai quan điểm về kỹ thuật cho Horizontal CL" columns={['Quan sát', 'Hàm ý']} rows={[
+  { label: 'Sparse replay đơn giản', values: ['Chỉ phát lại một phần nhỏ dữ liệu cũ', 'Có thể giảm forgetting hiệu quả khi toàn bộ lịch sử vẫn truy cập được'] },
+  { label: 'Phương pháp CL chuyên biệt', values: ['Thêm ràng buộc, memory hoặc architecture phù hợp', 'Nhiều nghiên cứu vẫn ghi nhận hiệu năng tốt hơn baseline ngây thơ'] },
+]} />
+
+Vì vậy, việc LLM có thật sự cần một thuật toán CL phức tạp trong mọi bối cảnh vẫn là câu hỏi mở. Khi dữ liệu cũ còn đầy đủ, bài toán có thể chuyển từ **memory efficiency** sang **compute efficiency**: chọn mẫu nào để replay và cần bao nhiêu update để giữ model mới mà không quên lịch sử.
+
+Nguồn: [Shi et al., §3.2](https://arxiv.org/html/2404.16789v3#S3.SS2).
+
+</MdxPage>

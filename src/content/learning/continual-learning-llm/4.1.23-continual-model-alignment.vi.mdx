@@ -1,0 +1,70 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continual-model-alignment', locale: 'vi', title: 'Continual Model Alignment',
+  headings: ['Mục tiêu và alignment tax', 'Paper nổi bật'], keywords: ['CMA', 'Alignment Tax', 'AMA', 'CPPO', 'COPF'],
+  conceptIds: ['cma-overview', 'cma-rl-methods', 'cma-supervised-fitting'], pageCount: 2,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu và alignment tax
+
+Model alignment điều chỉnh LLM để câu trả lời phù hợp hơn với factual accuracy, chuẩn mực xã hội, ethics và human preferences. Nhưng những mục tiêu này không cố định: fact được sửa, policy sản phẩm thay đổi và preference mới có thể đến sau khi model đã được triển khai.
+
+**Continual Model Alignment (CMA)** nghiên cứu chuỗi cập nhật đó. Model cần học preference hoặc policy mới mà không phá hỏng tri thức và hành vi cũ vẫn còn hợp lệ.
+
+Một vòng alignment có thể thu hẹp output distribution: model ưu tiên mạnh một kiểu phản hồi và ít dùng những khả năng đã có từ pre-training. Survey gọi phần năng lực bị suy giảm này là **alignment tax**.
+
+Alignment tax không chỉ là training cost. Một model có reward cao hơn trên preference mới vẫn có thể kém đi ở kiến thức, reasoning hoặc hành vi cũ. Vì vậy, CMA phải đo đồng thời **policy enhancement** và **knowledge retention**, thay vì chỉ nhìn reward của vòng alignment gần nhất.
+
+Survey chia giải pháp thành hai hướng: reinforcement learning-based CMA cập nhật policy bằng reward, còn supervised learning-based CMA fit policy từ preference data. Cả hai đều phải cân bằng mục tiêu mới với năng lực cần giữ.
+
+Nguồn: [Shi et al., §4.3.5](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS5).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Paper nổi bật
+
+<LessonImage
+  assetPath="continual-learning-llm/03-cma-paper-map-doodle.png"
+  alt="Ba doodle card minh họa Adaptive Model Averaging pha trộn model theo layer, Continual PPO cân bằng trọng số sample và Continual Optimal Policy Fitting liên tục fit optimal policy"
+  caption="AMA can thiệp ở model weights, CPPO ở sample weights, COPF ở supervised policy fitting."
+/>
+
+Survey chia các giải pháp được nêu thành reinforcement learning-based và supervised learning-based CMA.
+
+### [Adaptive Model Averaging](https://arxiv.org/abs/2309.06256)
+
+Adaptive Model Averaging, còn được trình bày với cơ chế hierarchical model averaging, học tỷ lệ kết hợp theo layer giữa model trước và sau alignment. Các layer không nhất thiết phải nhận cùng một mức pha trộn.
+
+<PaperTradeoff
+  advantages={['Giữ lại một phần năng lực của model trước alignment trong khi hấp thụ policy mới.', 'Tỷ lệ theo layer linh hoạt hơn một hệ số averaging duy nhất cho toàn model.']}
+  limitations={['Cần có các model checkpoint để kết hợp và chọn tỷ lệ phù hợp.', 'Kết quả reward–retention được giới hạn bởi model và alignment setting trong paper.']}
+/>
+
+---
+
+### [Continual PPO](https://openreview.net/forum?id=86zAUE80pP)
+
+Continual Proximal Policy Optimization (**CPPO**) gán trọng số cho sample tùy vai trò của nó: tăng cường policy mới hay giữ knowledge cũ. Nhờ vậy, cùng một vòng RL có thể cân bằng hai mục tiêu thay vì tối ưu reward mới một chiều.
+
+<PaperTradeoff
+  advantages={['Điều khiển trade-off ở mức sample giữa policy enhancement và retention.', 'Đưa mục tiêu chống quên trực tiếp vào quá trình cập nhật policy.']}
+  limitations={['Phải ước lượng hoặc thiết kế trọng số sample đáng tin cậy.', 'Vẫn mang chi phí và độ nhạy tối ưu của một pipeline reinforcement learning.']}
+/>
+
+---
+
+### [Continual Optimal Policy Fitting](https://arxiv.org/abs/2310.15694)
+
+Continual Optimal Policy Fitting (**COPF**) thuộc nhánh supervised learning-based CMA. Phương pháp ước lượng optimal policy rồi liên tục fit model với các ràng buộc ở mức sequence và function, nhằm giảm sub-optimal fitting và over-optimization khi preference thay đổi.
+
+<PaperTradeoff
+  advantages={['Tránh vòng RL online bằng một mục tiêu policy fitting có giám sát.', 'Nhắm tới cả chất lượng fit và sự ổn định qua nhiều giai đoạn preference.']}
+  limitations={['Phụ thuộc vào chất lượng của optimal-policy estimate.', 'Các ràng buộc sequence/function thêm lựa chọn siêu tham số và không loại bỏ mọi dạng forgetting.']}
+/>
+
+Ba paper không chỉ khác tên optimizer. AMA can thiệp bằng **model averaging**, CPPO cân bằng bằng **sample weights trong RL**, còn COPF chuyển bài toán sang **continual supervised policy fitting**.
+
+</MdxPage>

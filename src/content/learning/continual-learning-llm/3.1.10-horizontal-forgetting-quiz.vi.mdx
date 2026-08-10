@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'horizontal-forgetting-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Horizontal forgetting', 'Chuỗi task dài', 'Distribution shift'], keywords: ['Quiz', 'Horizontal Forgetting'],
+  conceptIds: ['horizontal-forgetting', 'horizontal-long-sequence', 'horizontal-abrupt-shift'], pageCount: 3,
+}
+
+<MdxQuiz id="horizontal-forgetting-quiz" questions={[
+  { id: 'horizontal-forgetting', title: 'Horizontal forgetting', mode: 'single', prompt: 'Trường hợp nào thể hiện horizontal forgetting?', options: [
+    { id: 'a', label: 'Sau khi học stage tháng 6, hiệu năng của model trên dữ liệu tháng 1 giảm rõ rệt.', isCorrect: true },
+    { id: 'b', label: 'Consumer không có quyền truy cập corpus pre-training của supplier.' },
+    { id: 'c', label: 'Model học domain mới chậm ngay từ đầu nhưng không suy giảm trên lịch sử.' },
+    { id: 'd', label: 'Model cần task ID để chọn head khi inference.' },
+  ], success: 'Model suy giảm trên một stage cũ sau khi học stage mới cùng chiều thời gian.', error: 'Tìm trường hợp model đã làm tốt một stage cũ nhưng giảm sau update mới.' },
+  { id: 'horizontal-long-sequence', title: 'Chuỗi task dài', mode: 'single', prompt: 'Vì sao chuỗi task dài làm horizontal forgetting khó kiểm soát hơn?', options: [
+    { id: 'a', label: 'Vì đánh giá riêng từng stage ngăn các sai lệch nhỏ ở update trước truyền sang update sau.' },
+    { id: 'b', label: 'Vì interference chỉ tác động checkpoint gần nhất, nên số stage làm tăng số lần đánh giá chứ không tăng mức quên.' },
+    { id: 'c', label: 'Vì sai lệch nhỏ từ nhiều lần update có thể tích lũy và ảnh hưởng mạnh đến các stage đầu.', isCorrect: true },
+    { id: 'd', label: 'Vì task ID thay đổi qua từng stage là nguồn tích lũy duy nhất, ngay cả khi model dùng chung task formulation.' },
+  ], success: 'Rủi ro đến từ tác động tích lũy qua nhiều lần cập nhật.', error: 'Hãy xét điều xảy ra khi một mức quên nhỏ lặp lại nhiều lần.' },
+  { id: 'horizontal-abrupt-shift', title: 'Distribution shift', mode: 'single', prompt: 'Điều gì khiến abrupt distribution shift dễ gây forgetting mạnh?', options: [
+    { id: 'a', label: 'Dữ liệu mới luôn nhỏ hơn dữ liệu cũ.' },
+    { id: 'b', label: 'Model được cung cấp task ID quá rõ.' },
+    { id: 'c', label: 'Hai stage dùng chính xác cùng distribution và objective.' },
+    { id: 'd', label: 'Tín hiệu học mới ít tương thích và có thể kéo model nhanh khỏi nghiệm phù hợp với dữ liệu cũ.', isCorrect: true },
+  ], success: 'Khoảng cách distribution lớn làm gradient mới dễ xung đột với nghiệm cũ.', error: 'Tập trung vào mức độ tương thích giữa distribution mới và cũ.' },
+]} />

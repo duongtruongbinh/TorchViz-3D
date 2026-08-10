@@ -1,0 +1,21 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continual-learning-benchmarks', locale: 'vi', title: 'Dataset và Benchmark',
+  headings: ['Chọn benchmark theo continual setting'], keywords: ['Benchmark', 'CPT', 'DAP', 'CIT', 'CMA', 'CMR'],
+  conceptIds: ['cpt-dap-benchmarks', 'cit-cma-benchmarks', 'cmr-benchmarks'],
+}
+
+## Chọn benchmark theo continual setting
+
+Survey nhóm dataset theo application và loại distribution shift. Vì mỗi nhóm kiểm tra một failure khác nhau, tên dataset phải đi cùng setting của nó.
+
+<ComparisonMatrix ariaLabel="Các nhóm dataset và benchmark trong survey" columns={['Setting', 'Dataset tiêu biểu']} rows={[
+  { label: 'CPT/DAP · temporal', values: ['Temporal shift', 'TimeLMs, CC-RecentNews, TemporalWiki'] },
+  { label: 'CPT/DAP · content', values: ['Content shift', 'DAPT, CPT, DEMix, DAS'] },
+  { label: 'CIT', values: ['Instruction stream', 'SuperNI, CITB, TRACE, NATURAL-INSTRUCTION, CoIN'] },
+  { label: 'CMA', values: ['Preference/alignment stream', 'IMDB, HH-RLHF, Reddit TL;DR'] },
+  { label: 'CMR', values: ['Chuỗi model refinement', 'FEVER, VitaminC, zsRE, T-REx, Natural Questions, CounterFact, SCOTUS'] },
+]} />
+
+Các benchmark khác nhau về số stage, domain, corpus size và quyền truy cập differential data. Survey không đưa các corpus DAP theo legal/medical/financial vào danh sách benchmark chính nếu chúng không được thiết kế riêng cho continual DAP; General CFT dataset cũng được lược bỏ vì đã có survey khác tổng hợp.
+
+Nguồn: [Shi et al., §5](https://arxiv.org/html/2404.16789v3#S5).

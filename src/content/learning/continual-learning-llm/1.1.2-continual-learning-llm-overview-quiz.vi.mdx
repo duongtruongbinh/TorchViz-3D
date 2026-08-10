@@ -38,9 +38,9 @@ export const lessonMetadata = {
     prompt: 'Vì sao một LLM được pre-train cố định lại không đủ để đáp ứng nhu cầu trong môi trường thực tế?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'Vì retrieval có thể bổ sung ngữ cảnh mới nhưng luôn cập nhật được tri thức trong trọng số.' },
-      { id: 'opt3', label: 'Vì mọi domain mới đều cần một tokenizer và kiến trúc hoàn toàn riêng.' },
-      { id: 'opt4', label: 'Vì tăng kích thước context window tự động làm kiến thức pre-train mất hiệu lực.' },
+      { id: 'opt1', label: 'Vì retrieval đưa context mới vào inference nên checkpoint cũng hấp thụ tri thức đó vào weights.' },
+      { id: 'opt3', label: 'Vì chỉ phân phối token thay đổi theo thời gian, còn fact và nhu cầu downstream giữ nguyên.' },
+      { id: 'opt4', label: 'Vì mở rộng context window tương đương cập nhật checkpoint theo các sự kiện mới.' },
       { id: 'opt2', label: 'Vì dữ liệu, kiến thức chuyên ngành và các sự kiện mới trong thực tế liên tục thay đổi theo thời gian.', isCorrect: true },
     ],
     success: 'Chính xác! Trong thực tế, sự kiện, tri thức ngành và nhu cầu người dùng liên tục biến đổi, làm cho kiến thức cố định tại thời điểm pre-train bị lạc hậu theo thời gian.',

@@ -1,0 +1,68 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'vertical-forgetting', locale: 'vi', title: 'Vertical Forgetting',
+  headings: ['Vertical forgetting là gì?', 'Task heterogeneity', 'Không thể truy cập upstream data'],
+  keywords: ['Vertical Forgetting', 'Task Heterogeneity', 'Upstream Data'],
+  conceptIds: ['vertical-forgetting', 'vertical-task-heterogeneity', 'vertical-upstream-access'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vertical forgetting là gì?
+
+**Vertical forgetting** là sự suy giảm knowledge hoặc năng lực tổng quát khi model được thích nghi từ tầng upstream xuống domain và downstream task chuyên biệt.
+
+Trong Vertical CL, distribution upstream thường bao phủ một phần distribution downstream. Vì vậy, model không bắt đầu từ số 0: checkpoint tổng quát đã cung cấp representation và knowledge hữu ích cho stage tiếp theo.
+
+<ComparisonMatrix ariaLabel="Lợi ích và rủi ro khi đi xuống vertical pipeline" columns={['Điều model nhận được', 'Điều có thể bị mất']} rows={[
+  { label: 'Pre-training → DAP', values: ['Nền tảng ngôn ngữ và world knowledge', 'Độ bao quát ngoài domain'] },
+  { label: 'DAP → Fine-tuning', values: ['Representation phù hợp domain', 'Khả năng sinh hoặc xử lý task khác trong cùng domain'] },
+]} />
+
+Khởi tạo tốt giúp học nhanh hơn, nhưng không tự bảo đảm retention. Hai nguyên nhân lớn là **task heterogeneity** và **không thể truy cập upstream data**.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Task heterogeneity
+
+**Task heterogeneity** là sự khác biệt vốn có giữa cách phát biểu task, output space, objective và quy trình tối ưu hóa ở các tầng.
+
+<ComparisonMatrix ariaLabel="Ví dụ task heterogeneity giữa upstream và downstream" columns={['Input', 'Output cần học', 'Objective']} rows={[
+  { label: 'Upstream language modeling', values: ['“The capital of France is …”', 'Paris', 'Dự đoán token tiếp theo'] },
+  { label: 'Downstream classification', values: ['“The movie was disappointing.”', 'Negative', 'Phân loại nhãn'] },
+]} />
+
+Fine-tune mạnh cho hai nhãn `Positive/Negative` có thể thay đổi representation và weights để tối ưu ranh giới classification, đồng thời làm yếu khả năng sinh ngôn ngữ hoặc knowledge tổng quát.
+
+<CourseCards
+  ariaLabel="Hai hướng giảm task heterogeneity"
+  exampleLabel="Cách làm"
+  takeawayLabel="Mục tiêu"
+  items={[
+    { title: 'Đóng băng tham số dùng chung', example: 'Chỉ cập nhật head, adapter hoặc một phần nhỏ của model.', takeaway: 'Hạn chế phá vỡ representation upstream.' },
+    { title: 'Đồng nhất task formulation', example: 'Chuyển classification thành dạng text-to-text gần objective pre-training.', takeaway: 'Giảm mức thay đổi giữa hai stage.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Không thể truy cập upstream data
+
+Các đơn vị trong vertical pipeline có thể tuân theo những chính sách bảo mật và quyền sở hữu dữ liệu khác nhau. Consumer downstream vì thế có thể **chưa từng được truy cập** corpus mà supplier dùng để pre-train model.
+
+Điều này còn nghiêm ngặt hơn memory constraint thông thường. Một thuật toán CL truyền thống đôi khi vẫn được nhìn dữ liệu cũ để chuẩn bị trước khi xóa; consumer trong Vertical CL có thể không có cơ hội đó.
+
+<ComparisonMatrix ariaLabel="Thiếu upstream data ảnh hưởng tới các kỹ thuật CL" columns={['Dữ liệu cũ dùng để làm gì?', 'Khi consumer không có dữ liệu']} rows={[
+  { label: 'Replay', values: ['Trộn mẫu cũ khi học task mới', 'Không có mẫu upstream để đưa lại vào batch'] },
+  { label: 'Parameter importance', values: ['Ước lượng tham số quan trọng cho knowledge cũ', 'Không thể tính trực tiếp trên corpus upstream'] },
+]} />
+
+Các hướng thay thế thường dùng **dataset công khai** hoặc **ví dụ tổng hợp** làm proxy gần đúng cho pre-training data. Chúng tạo ra tín hiệu bảo tồn, nhưng không thể bảo đảm bao phủ toàn bộ distribution upstream ban đầu.
+
+Nguồn: [Shi et al., §3.1](https://arxiv.org/html/2404.16789v3#S3.SS1).
+
+</MdxPage>

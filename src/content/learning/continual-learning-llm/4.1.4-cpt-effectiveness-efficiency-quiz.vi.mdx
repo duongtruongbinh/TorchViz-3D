@@ -1,0 +1,28 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'cpt-effectiveness-efficiency-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Hai loại chi phí', 'ELLE', 'Data selection'],
+  keywords: ['Continual Pre-training', 'ELLE', 'Data Selection', 'Quiz'],
+  conceptIds: ['cpt-efficiency-costs', 'cpt-elle-expansion', 'cpt-data-selection'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="cpt-effectiveness-efficiency-quiz" questions={[
+  { id: 'cpt-efficiency-costs', title: 'Hai loại chi phí', mode: 'single', prompt: 'Phân biệt đúng giữa retention cost và acquisition cost trong CPT là gì?', options: [
+    { id: 'a', label: 'Retention cost đo downstream accuracy, còn acquisition cost đo forgetting.' },
+    { id: 'b', label: 'Retention cost chỉ xuất hiện ở consumer, còn acquisition cost chỉ xuất hiện ở supplier.' },
+    { id: 'c', label: 'Cả hai đều chỉ hỏi cần lưu bao nhiêu checkpoint.' },
+    { id: 'd', label: 'Retention cost hỏi cách giữ knowledge cũ với ít tài nguyên hơn; acquisition cost hỏi có cần train trên toàn bộ dữ liệu mới không.', isCorrect: true },
+  ], success: 'Một trục giảm chi phí giữ cũ; trục còn lại giảm chi phí tiếp nhận dữ liệu mới.', error: 'Xác định dữ liệu nào đang tạo ra chi phí trong từng trường hợp.' },
+  { id: 'cpt-elle-expansion', title: 'ELLE', mode: 'single', prompt: 'Mô tả nào đúng nhất về cách ELLE mở rộng width của model?', options: [
+    { id: 'a', label: 'Sao chép neuron và giữ nguyên toàn bộ trọng số đầu ra để tăng gấp đôi tín hiệu.' },
+    { id: 'b', label: 'Chia lại trọng số đầu ra để gần bảo toàn output, rồi thêm noise nhỏ để các bản sao có thể nhận gradient khác nhau.', isCorrect: true },
+    { id: 'c', label: 'Cố định một neuron cho knowledge cũ và gán cứng neuron còn lại cho knowledge mới.' },
+    { id: 'd', label: 'Khởi tạo lại model lớn hơn từ đầu và bỏ checkpoint cũ.' },
+  ], success: 'ELLE kết hợp function preservation với phá symmetry giữa các bản sao.', error: 'Cần đồng thời giải quyết output bị thay đổi và symmetry problem.' },
+  { id: 'cpt-data-selection', title: 'Data selection', mode: 'single', prompt: 'Kết luận hợp lý nhất từ các nghiên cứu data selection trong CPT là gì?', options: [
+    { id: 'a', label: 'Một tập con được chọn theo novelty và diversity có thể giảm chi phí và thậm chí tốt hơn train trên toàn bộ corpus chưa chọn lọc.', isCorrect: true },
+    { id: 'b', label: 'Perplexity cao là tín hiệu đủ để chọn dữ liệu; novelty và diversity không bổ sung thông tin hữu ích.' },
+    { id: 'c', label: 'Nếu tập con mới đủ diverse thì có thể suy ra retention từ acquisition score mà không cần đánh giá dữ liệu cũ.' },
+    { id: 'd', label: 'Một random subset cùng kích thước sẽ cho kết quả tương đương vì lợi ích chủ yếu đến từ giảm số token.' },
+  ], success: 'Chất lượng và độ bao phủ của tập con quan trọng hơn việc chỉ giảm số lượng mẫu.', error: 'Phân biệt chọn lọc có tín hiệu với cắt dữ liệu ngẫu nhiên.' },
+]} />

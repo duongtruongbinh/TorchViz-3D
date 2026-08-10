@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'cpt-observations-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['OBS-1', 'OBS-2', 'OBS-3'], keywords: ['Quiz', 'CPT Observations'],
+  conceptIds: ['cpt-obs-1', 'cpt-obs-2', 'cpt-obs-3'], pageCount: 3,
+}
+
+<MdxQuiz id="cpt-observations-quiz" questions={[
+  { id: 'cpt-obs-1', title: 'OBS-1', mode: 'single', prompt: 'OBS-1 nói gì về CPT?', options: [
+    { id: 'a', label: 'Kỹ thuật được thiết kế riêng cho CPT vẫn ở giai đoạn đầu.', isCorrect: true },
+    { id: 'b', label: 'CPT đã có nhiều kỹ thuật riêng, nhưng thiếu một benchmark thống nhất để chọn method tốt nhất.' },
+    { id: 'c', label: 'Kỹ thuật CPT khá đa dạng và replay đang được dùng nhiều hơn architecture expansion.' },
+    { id: 'd', label: 'Phương pháp CPT đã trưởng thành, còn khoảng trống chính chỉ nằm ở việc kéo dài số stage.' },
+  ], success: 'CPT-specific methods còn ít.', error: 'OBS-1 nói về độ trưởng thành của phương pháp.' },
+  { id: 'cpt-obs-2', title: 'OBS-2', mode: 'single', prompt: 'Mất cân đối nào được OBS-2 nêu?', options: [
+    { id: 'a', label: 'Regularization nhiều hơn mọi nhóm khác.' },
+    { id: 'c', label: 'CFT nhiều hơn DAP.' },
+    { id: 'b', label: 'Architecture expansion được dùng nhiều hơn replay và parameter regularization.', isCorrect: true },
+    { id: 'd', label: 'Temporal shift nhiều hơn content shift.' },
+  ], success: 'Không gian technique trong CPT còn hẹp.', error: 'Nhớ nhóm method được dùng nhiều nhất.' },
+  { id: 'cpt-obs-3', title: 'OBS-3', mode: 'single', prompt: 'Khoảng cách production nổi bật của CPT là gì?', options: [
+    { id: 'a', label: 'Study dùng quá nhiều stage không boundary.' },
+    { id: 'b', label: 'Study không đo task mới.' },
+    { id: 'd', label: 'Production không có distribution shift.' },
+    { id: 'c', label: 'Study thường có sequence ngắn và task boundary rõ.', isCorrect: true },
+  ], success: 'Sequence nghiên cứu chưa phản ánh stream dài hạn.', error: 'OBS-3 nói về realism của experimental setup.' },
+]} />

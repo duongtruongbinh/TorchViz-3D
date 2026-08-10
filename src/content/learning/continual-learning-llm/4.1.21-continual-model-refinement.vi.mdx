@@ -1,0 +1,113 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continual-model-refinement', locale: 'vi', title: 'Continual Model Refinement',
+  headings: ['Correction đến liên tiếp', 'Paper nổi bật'], keywords: ['CMR', 'Model Editing', 'External Memory'],
+  conceptIds: ['cmr-overview', 'cmr-parameter-side-memory', 'cmr-retrieval-memory', 'cmr-locate-vs-edit'], pageCount: 2,
+}
+
+<MdxPage page={0}>
+
+## Correction đến liên tiếp
+
+Model editing thường sửa một fact hoặc hành vi cụ thể, chẳng hạn đổi câu trả lời khi thông tin cũ không còn đúng. **Continual Model Refinement (CMR)** đặt model trong tình huống khó hơn: correction đến liên tiếp và mỗi edit mới có thể tương tác với các edit trước.
+
+Mỗi update phải cân bằng ba yêu cầu:
+
+- **Reliability:** sửa đúng thông tin mục tiêu.
+- **Locality:** không làm đổi output ngoài phạm vi cần sửa.
+- **Efficiency:** tránh fine-tune lại toàn bộ model cho từng correction.
+
+Một edit đúng ngay sau khi cập nhật vẫn chưa đủ; phương pháp còn phải giữ được các correction trước khi chuỗi edit dài dần.
+
+Survey nêu ba hướng chính:
+
+- **Retrieval-based:** lưu update để chỉ truy xuất khi input phù hợp xuất hiện.
+- **Parameter editing:** chọn phần tham số cần sửa cho từng correction.
+- **Side memory:** tách tri thức mới khỏi main-model parameters.
+
+Câu hỏi mở là **nơi model lưu một fact có chắc là nơi tốt nhất để sửa fact đó hay không**. Vì vậy, mỗi phương pháp phải được kiểm tra đồng thời bằng reliability, locality và hiệu quả sau một chuỗi edit.
+
+Nguồn: [Shi et al., §4.3.4](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS4).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Paper nổi bật
+
+<LessonImage
+  assetPath="continual-learning-llm/03-cmr-paper-map-doodle.png"
+  alt="Sáu doodle card minh họa các paper CMR: GRACE dùng key activation, MELO ghép truy xuất với LoRA, Larimar dùng episodic memory, WilKE chọn layer, WISE chia knowledge shard và Hase cùng cộng sự đối chiếu nơi lưu với nơi edit fact"
+  caption="Sáu paper CMR khác nhau ở nơi lưu correction và cách kích hoạt edit."
+/>
+
+Nhóm retrieval-based không cố ghi mọi correction trực tiếp vào cùng một tập tham số. Thay vào đó, model lưu update ở cấu trúc có thể được truy xuất khi input phù hợp xuất hiện.
+
+### [GRACE](https://arxiv.org/abs/2211.11031)
+
+GRACE lấy hidden activation làm **key** và lưu correction trong các key–value adaptor rời rạc. Khi activation mới nằm gần một key đã lưu, adaptor tương ứng được kích hoạt để áp dụng edit.
+
+<PaperTradeoff
+  advantages={['Tách correction khỏi phần lớn base-model weights nên giảm tác động ngoài phạm vi sửa.', 'Có thể thêm edit mới theo kiểu mở rộng bộ nhớ.']}
+  limitations={['Phụ thuộc vào ngưỡng và khoảng cách trong activation space để truy xuất đúng edit.', 'Số adaptor và chi phí tra cứu tăng khi correction tích lũy.']}
+/>
+
+---
+
+### [MELO](https://arxiv.org/abs/2312.11795)
+
+MELO kết hợp LoRA động với một vector database bên trong. Database tìm edit liên quan, còn LoRA cung cấp phần tham số nhỏ để thực thi thay đổi đó.
+
+<PaperTradeoff
+  advantages={['Kết hợp truy xuất theo input với update tham số hiệu quả của LoRA.', 'Không cần sửa toàn bộ base model cho mỗi correction.']}
+  limitations={['Phải duy trì đồng thời vector database và các LoRA update.', 'Edit chỉ được áp dụng đúng khi hệ truy xuất tìm được vùng phù hợp.']}
+/>
+
+---
+
+### [Larimar](https://arxiv.org/abs/2403.11901)
+
+Larimar đặt correction trong **external episodic memory**. Model đọc bộ nhớ này khi trả lời, nhờ đó có thể thêm hoặc quên thông tin mà không liên tục ghi đè toàn bộ tham số nền.
+
+<PaperTradeoff
+  advantages={['Cho phép cập nhật nhanh bộ nhớ ngoài và giảm việc sửa base-model weights.', 'Hỗ trợ quản lý tri thức theo các episode riêng.']}
+  limitations={['Chất lượng đầu ra phụ thuộc vào việc ghi và đọc đúng episodic memory.', 'Bộ nhớ ngoài làm tăng thành phần phải lưu trữ và vận hành khi suy luận.']}
+/>
+
+### Sửa tham số hay dùng side memory
+
+CMR cũng có thể chọn vị trí tham số cần sửa hoặc dành một vùng tham số riêng cho tri thức mới. Hai lựa chọn này giảm việc mọi correction cùng tranh chấp trên toàn model.
+
+#### [WilKE](https://arxiv.org/abs/2402.10987)
+
+WilKE so khớp knowledge pattern để chọn layer phù hợp cho từng edit. Mục tiêu là tránh hiện tượng lỗi tích lũy khi nhiều correction liên tiếp đều bị ép vào một vị trí cố định.
+
+<PaperTradeoff
+  advantages={['Chọn layer theo từng knowledge edit thay vì mặc định một layer cho mọi fact.', 'Nhắm trực tiếp tới sự suy giảm sau chuỗi edit dài.']}
+  limitations={['Cần một tín hiệu knowledge awareness đủ đáng tin để chọn layer.', 'Kết quả chọn layer trong paper không chứng minh mọi loại tri thức có cùng pattern.']}
+/>
+
+---
+
+#### [WISE](https://arxiv.org/abs/2405.14768)
+
+WISE dùng hai vùng parametric memory: **main memory** giữ năng lực nền, còn **side memory** nhận các edit mới. Các knowledge shard trong side memory được định tuyến và hợp nhất để cân bằng reliability, locality và generalization.
+
+<PaperTradeoff
+  advantages={['Cô lập update mới khỏi main memory để giảm tác dụng phụ.', 'Cơ chế shard cho phép tích lũy rồi hợp nhất nhiều correction.']}
+  limitations={['Router và quy trình merge shard làm hệ thống phức tạp hơn.', 'Phải dành thêm tham số và kiểm soát xung đột khi các shard được hợp nhất.']}
+/>
+
+### Locate không đồng nghĩa edit
+
+#### [Hase et al.](https://arxiv.org/abs/2301.04213)
+
+Nhiều phương pháp đi theo trực giác **locate and edit**: trước tiên tìm layer hoặc neuron có liên hệ nhân quả với một fact, rồi sửa đúng vị trí đó. Hase et al. cho thấy vị trí được causal tracing xem là nơi lưu fact không dự đoán ổn định vị trí tạo ra edit tốt nhất.
+
+<PaperTradeoff
+  advantages={['Tách rõ hai câu hỏi vốn dễ bị nhập làm một: fact được biểu diễn ở đâu và nên can thiệp ở đâu.', 'Cung cấp bằng chứng để đánh giá edit bằng kết quả thực tế thay vì chỉ dựa vào localization score.']}
+  limitations={['Kết luận bị giới hạn bởi model, dataset và editing method được kiểm tra.', 'Không đưa ra một edit location duy nhất đúng cho mọi fact.']}
+/>
+
+Vì vậy, localization có thể là tín hiệu chẩn đoán nhưng chưa đủ để chọn nơi edit. Với CMR, vị trí can thiệp còn phải được đánh giá qua cả **reliability**, **locality** và khả năng chịu nhiều update liên tiếp.
+
+</MdxPage>

@@ -1,0 +1,38 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'cpt-other-directions-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['CEM', 'RHO-1', 'IR-DRO', 'CPT trong công nghiệp', 'Chi phí môi trường'], keywords: ['Quiz', 'CEM', 'RHO-1', 'IR-DRO', 'TimeLMs'],
+  conceptIds: ['cem', 'rho-1', 'ir-dro', 'industrial-cpt', 'cpt-sustainability'], pageCount: 5,
+}
+
+<MdxQuiz id="cpt-other-directions-quiz" questions={[
+  { id: 'cem', title: 'CEM', mode: 'single', prompt: 'Một nhóm muốn dùng CEM để sửa các câu trả lời sai của model. Pipeline nào phù hợp nhất?', options: [
+    { id: 'a', label: 'Giữ mọi token có perplexity cao rồi chỉ tính loss trên các token đó.' },
+    { id: 'b', label: 'Đánh giá model, thu thập example trả lời sai và bổ sung knowledge liên quan để train tiếp.', isCorrect: true },
+    { id: 'c', label: 'Mở rộng vocabulary theo từ mới rồi train định kỳ trên toàn bộ tweet.' },
+    { id: 'd', label: 'Gán trọng số cao cho mọi sequence có loss cao nhất, kể cả dữ liệu nhiễu.' },
+  ], success: 'CEM bắt đầu từ lỗi quan sát được ở cấp example.', error: 'CEM cần nối câu trả lời sai với dữ liệu bổ sung liên quan đến knowledge gap đó.' },
+  { id: 'rho-1', title: 'RHO-1', mode: 'single', prompt: 'Vì sao mô tả “RHO-1 giữ mọi token có perplexity cao” chưa chính xác?', options: [
+    { id: 'a', label: 'SLM dùng reference model để tìm token có excess loss cao và phù hợp distribution mục tiêu; token khó do nhiễu có thể bị loại.', isCorrect: true },
+    { id: 'b', label: 'RHO-1 chỉ chấm loss ở cấp sequence nên không thể phân biệt token trong cùng một đoạn.' },
+    { id: 'c', label: 'RHO-1 chỉ giữ token model đã học tốt để tránh mọi gradient lớn.' },
+    { id: 'd', label: 'SLM chọn token theo task ID có sẵn khi inference, không dựa trên loss.' },
+  ], success: 'Tín hiệu chính là excess loss so với reference model, không phải độ khó vô điều kiện.', error: 'Hãy phân biệt token hữu ích với token khó vì nhiễu.' },
+  { id: 'ir-dro', title: 'IR-DRO', mode: 'single', prompt: 'IR-DRO xử lý các sequence có loss cao nhất như thế nào?', options: [
+    { id: 'a', label: 'Gán trọng số lớn nhất cho nhóm loss cao nhất sau khi chuẩn hóa loss theo độ dài sequence.' },
+    { id: 'b', label: 'Tách từng token rồi chỉ giữ token có excess loss so với reference model.' },
+    { id: 'c', label: 'Ưu tiên sequence có loss cao vừa phải nhưng tránh ưu tiên mù quáng nhóm cao nhất vì chúng có thể là nhiễu.', isCorrect: true },
+    { id: 'd', label: 'Hạ trọng số toàn bộ sequence trên median loss vì nhóm này chủ yếu đại diện cho nhiễu.' },
+  ], success: 'IR-DRO tìm sequence giàu thông tin, không đồng nhất loss cực cao với chất lượng cao.', error: 'Đơn vị của IR-DRO là sequence và loss cực cao có thể phản ánh nhiễu.' },
+  { id: 'industrial-cpt', title: 'CPT trong công nghiệp', mode: 'single', prompt: 'So sánh nào đúng về hai hướng cập nhật model trên tweet trong lesson?', options: [
+    { id: 'a', label: 'Cả hai đều cập nhật vocabulary theo quý; khác biệt chính là TimeLMs giữ nhiều tweet hơn bằng subsampling.' },
+    { id: 'b', label: 'Dynamic Language Models kết hợp cập nhật vocabulary và subsampling; TimeLMs train tiếp model theo từng quý mà không thêm ràng buộc giữ checkpoint cũ.', isCorrect: true },
+    { id: 'c', label: 'TimeLMs train tiếp theo quý và mở rộng vocabulary; Dynamic Language Models giữ tokenizer cố định nhưng retrain weights.' },
+    { id: 'd', label: 'Hai kết quả đủ để chọn cùng một recipe cho domain khác nếu tần suất dữ liệu mới cũng được chia theo quý.' },
+  ], success: 'Hai paper cùng cập nhật theo thời gian nhưng dùng recipe và phạm vi đánh giá khác nhau.', error: 'Một hướng sửa cả vocabulary và cách lấy mẫu; hướng còn lại train tiếp định kỳ đơn giản hơn.' },
+  { id: 'cpt-sustainability', title: 'Chi phí môi trường', mode: 'single', prompt: 'Kết luận thận trọng nào phù hợp với paper về chi phí môi trường của temporal adaptation?', options: [
+    { id: 'a', label: 'Chi phí phát thải đủ để bác bỏ temporal update, kể cả khi fact mới làm task performance giảm rõ rệt.' },
+    { id: 'b', label: 'Task gain là tiêu chí quyết định; nếu accuracy tăng thì không cần báo cáo compute hoặc phát thải.' },
+    { id: 'c', label: 'Thiếu lợi ích trên social-media benchmark ủng hộ combine-and-retrain cho các temporal domain khác.' },
+    { id: 'd', label: 'Cần cân lợi ích task với compute và phát thải; finding trên model tiếng Anh và social media không nên bị khái quát cho mọi CPT.', isCorrect: true },
+  ], success: 'Quyết định cập nhật cần dựa trên lợi ích đo được và chi phí trong đúng bối cảnh.', error: 'Paper đặt câu hỏi về điều kiện đáng cập nhật, không phủ định toàn bộ CPT.' },
+]} />

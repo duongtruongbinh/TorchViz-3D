@@ -1,0 +1,81 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'lama-knowledge-evaluation-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Ba hướng mở rộng', 'LAMA probe', 'InvariantLAMA', 'Updated và NewLAMA', 'FUAR', 'Đọc FUAR', 'FUAR và OP', 'Baseline X-Delta', 'Ba X-Delta', 'Phạm vi X-Delta'],
+  keywords: ['Quiz', 'LAMA', 'FUAR', 'X-Delta'],
+  conceptIds: [
+    'extended-evaluation-overview',
+    'lama-probe',
+    'invariant-lama',
+    'updated-new-lama',
+    'fuar-definition',
+    'fuar-interpretation',
+    'fuar-vs-op',
+    'x-delta-baseline',
+    'x-delta-abilities',
+    'x-delta-interpretation',
+  ],
+  pageCount: 10,
+}
+
+<MdxQuiz id="lama-knowledge-evaluation-quiz" questions={[
+  { id: 'extended-evaluation-overview', title: 'Ba hướng mở rộng', mode: 'single', prompt: 'Ghép nào mô tả đúng vai trò của LAMA, FUAR và X-Delta?', options: [
+    { id: 'a', label: 'LAMA đo compute; FUAR đo safety; X-Delta đo kích thước corpus.' },
+    { id: 'b', label: 'LAMA tách các loại knowledge; FUAR gom trade-off quên–học; X-Delta theo dõi năng lực nền ngoài task stream.', isCorrect: true },
+    { id: 'c', label: 'Cả ba đều là tên khác của Backward Transfer.' },
+    { id: 'd', label: 'Cả ba đều chỉ đo hiệu năng trên task vừa học.' },
+  ], success: 'Đúng. Ba hướng bổ sung cho nhau và trả lời ba câu hỏi khác nhau.', error: 'Hãy phân biệt đánh giá knowledge, tỷ lệ trade-off và thay đổi của năng lực nền.' },
+  { id: 'lama-probe', title: 'LAMA probe', mode: 'single', prompt: 'Fact A xuất hiện trong corpus D₀. Bằng chứng nào cho phép ta kết luận model M₀ đã học được Fact A?', options: [
+    { id: 'a', label: 'M₀ điền đúng thực thể bị che trong câu LAMA của Fact A mà không cần fine-tune thêm.', isCorrect: true },
+    { id: 'b', label: 'Loss trung bình của M₀ trên D₀ đủ thấp.' },
+    { id: 'c', label: 'Fact A xuất hiện nhiều lần trong D₀.' },
+    { id: 'd', label: 'M₁ trả lời đúng Fact A sau khi đã tiếp tục pre-train trên D₁.' },
+  ], success: 'Đúng. Paper quy ước model biết một fact khi model điền đúng thực thể bị che bằng zero-shot probe.', error: 'Fact có trong corpus chưa bảo đảm model đã học được. Cần kiểm tra trực tiếp checkpoint M₀ bằng LAMA.' },
+  { id: 'invariant-lama', title: 'InvariantLAMA', mode: 'single', prompt: 'Trước cập nhật, M₀ trả lời Fact A là “Nova”. Kết quả nào cho thấy M₁ đã giữ được kiến thức không đổi sau khi học D₁?', options: [
+    { id: 'a', label: 'M₁ trả lời Fact C là “Đà Nẵng”.' },
+    { id: 'b', label: 'M₁ đổi câu trả lời Fact B từ “Linh” thành “Minh”.' },
+    { id: 'c', label: 'M₁ vẫn trả lời Fact A là “Nova” trên InvariantLAMA.', isCorrect: true },
+    { id: 'd', label: 'D₁ không chứa câu nào nhắc lại Fact A.' },
+  ], success: 'Đúng. InvariantLAMA so sánh khả năng trả lời fact ổn định trước và sau continual pre-training.', error: 'Hãy tìm kết quả đo trực tiếp cùng một fact không đổi trên M₀ và M₁.' },
+  { id: 'updated-new-lama', title: 'Updated và NewLAMA', mode: 'single', prompt: 'Sau khi học D₁, M₁ trả lời CEO Orbit Labs là “Minh” và trụ sở BrightAI là “Đà Nẵng”. Cách diễn giải nào đúng?', options: [
+    { id: 'a', label: 'Cả hai đều thuộc UpdatedLAMA vì đều xuất hiện trong D₁.' },
+    { id: 'b', label: '“Minh” thuộc NewLAMA; “Đà Nẵng” thuộc UpdatedLAMA.' },
+    { id: 'c', label: 'Cả hai đều thuộc NewLAMA vì M₁ chỉ học được chúng sau khi đọc D₁.' },
+    { id: 'd', label: '“Minh” thuộc UpdatedLAMA vì thay đáp án cũ; “Đà Nẵng” thuộc NewLAMA vì Fact C không có trong D₀.', isCorrect: true },
+  ], success: 'Đúng. UpdatedLAMA chấm fact cũ bị thay đổi; NewLAMA chấm fact hoàn toàn vắng mặt trong D₀.', error: 'Hãy kiểm tra fact có phiên bản cũ trong D₀ hay hoàn toàn chỉ xuất hiện từ D₁.' },
+  { id: 'fuar-definition', title: 'FUAR', mode: 'single', prompt: 'FUAR đặt lượng knowledge nào ở mẫu số?', options: [
+    { id: 'a', label: 'Số fact được giữ lại cộng với số fact bị quên.' },
+    { id: 'b', label: 'Số fact được cập nhật cộng với số fact mới được tiếp thu.', isCorrect: true },
+    { id: 'c', label: 'Điểm OP cộng với điểm BWT của stage hiện tại.' },
+    { id: 'd', label: 'Tổng số fact xuất hiện trong cả D₀ và D₁.' },
+  ], success: 'FUAR chia lượng bị quên cho tổng lượng được cập nhật và tiếp thu.', error: 'Hãy đọc lại tên đầy đủ: Forgotten / (Updated + Acquired) Ratio.' },
+  { id: 'fuar-interpretation', title: 'Đọc FUAR', mode: 'single', prompt: 'Một model quên 20 fact nhưng cập nhật hoặc học mới tổng cộng 50 fact. Kết luận nào đúng?', options: [
+    { id: 'a', label: 'FUAR = 2,5; model quên nhiều hơn lượng học được.' },
+    { id: 'b', label: 'FUAR = 1; mỗi fact mới đổi bằng một fact cũ.' },
+    { id: 'c', label: 'Không thể tính FUAR nếu chưa biết OP.' },
+    { id: 'd', label: 'FUAR = 0,4; lượng học hoặc cập nhật lớn hơn lượng quên.', isCorrect: true },
+  ], success: '20 / 50 = 0,4. FUAR dưới 1 thể hiện trade-off thuận lợi hơn.', error: 'Lấy Forgotten chia cho Updated + Acquired.' },
+  { id: 'fuar-vs-op', title: 'FUAR và OP', mode: 'single', prompt: 'Vì sao hai model có cùng OP vẫn có thể có FUAR khác nhau?', options: [
+    { id: 'a', label: 'Vì OP là điểm tổng hợp, còn FUAR tách lượng fact bị quên khỏi lượng được cập nhật hoặc học mới.', isCorrect: true },
+    { id: 'b', label: 'Vì OP chỉ được định nghĩa cho model chưa qua continual training.' },
+    { id: 'c', label: 'Vì FUAR không sử dụng bất kỳ dữ liệu đánh giá nào.' },
+    { id: 'd', label: 'Vì FUAR luôn bằng nghịch đảo của OP.' },
+  ], success: 'FUAR làm lộ trade-off knowledge mà một điểm OP tổng hợp có thể che khuất.', error: 'Hãy phân biệt điểm hiệu năng trung bình với tỷ lệ quên trên lượng knowledge học được.' },
+  { id: 'x-delta-baseline', title: 'Baseline X-Delta', mode: 'single', prompt: 'X-Delta so checkpoint sau mỗi stage với baseline nào?', options: [
+    { id: 'a', label: 'Random initialization.' },
+    { id: 'b', label: 'Checkpoint có OP cao nhất.' },
+    { id: 'c', label: 'Model ban đầu trên các evaluation task tách biệt với task stream.', isCorrect: true },
+    { id: 'd', label: 'Model đã full retrain trên toàn bộ lịch sử.' },
+  ], success: 'Baseline là năng lực của model trước continual training.', error: 'X-Delta dùng cùng evaluator ngoài task stream ở hai thời điểm.' },
+  { id: 'x-delta-abilities', title: 'Ba X-Delta', mode: 'single', prompt: 'Nhóm nào đúng với ba X-Delta được TRACE đề xuất?', options: [
+    { id: 'a', label: 'Retention, update và acquisition.' },
+    { id: 'b', label: 'Language, content và temporal shift.' },
+    { id: 'c', label: 'CPT, DAP và CFT.' },
+    { id: 'd', label: 'General ability, instruction following và safety.', isCorrect: true },
+  ], success: 'Ba delta theo dõi năng lực tổng quát, instruction following và safety.', error: 'Không nhầm X-Delta với ba lát cắt knowledge của LAMA.' },
+  { id: 'x-delta-interpretation', title: 'Phạm vi X-Delta', mode: 'single', prompt: 'Vì sao X-Delta không thay thế OP và F?', options: [
+    { id: 'a', label: 'Vì X-Delta chỉ dùng cho vision model.' },
+    { id: 'b', label: 'Vì OP/F theo dõi task trong sequence, còn X-Delta theo dõi năng lực trên evaluator tách biệt.', isCorrect: true },
+    { id: 'c', label: 'Vì X-Delta không có baseline.' },
+    { id: 'd', label: 'Vì X-Delta chỉ đo compute.' },
+  ], success: 'Các metric theo dõi hai phạm vi khác nhau.', error: 'Phân biệt task-stream metrics với external capability deltas.' },
+]} />

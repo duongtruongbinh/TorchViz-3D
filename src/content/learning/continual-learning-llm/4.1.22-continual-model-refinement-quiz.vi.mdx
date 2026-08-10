@@ -1,0 +1,32 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continual-model-refinement-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Ba yêu cầu', 'Parameter và side memory', 'Retrieval memory', 'Locate và edit'], keywords: ['Quiz', 'CMR'],
+  conceptIds: ['cmr-overview', 'cmr-parameter-side-memory', 'cmr-retrieval-memory', 'cmr-locate-vs-edit'], pageCount: 4,
+}
+
+<MdxQuiz id="continual-model-refinement-quiz" questions={[
+  { id: 'cmr-overview', title: 'Nội dung', mode: 'single', prompt: 'Một correction sửa đúng fact mục tiêu nhưng làm thay đổi nhiều câu trả lời không liên quan. Yêu cầu nào bị vi phạm rõ nhất?', options: [
+    { id: 'a', label: 'Reliability, vì fact mục tiêu chưa được sửa.' },
+    { id: 'b', label: 'Efficiency, vì mọi thay đổi output đều làm training chậm.' },
+    { id: 'c', label: 'Locality, vì tác động lan ra ngoài phạm vi correction.', isCorrect: true },
+    { id: 'd', label: 'Forward transfer, vì task tương lai chưa được cải thiện.' },
+  ], success: 'Locality yêu cầu giữ ổn định hành vi không liên quan tới edit.', error: 'Fact mục tiêu đã được sửa; hãy xét tác dụng phụ ở nơi khác.' },
+  { id: 'cmr-parameter-side-memory', title: 'Parameter và side memory', mode: 'single', prompt: 'Hệ thống muốn giữ main model ổn định, lưu correction ở vùng riêng rồi định tuyến và hợp nhất chúng. Paper nào phù hợp nhất?', options: [
+    { id: 'a', label: 'Larimar với episodic memory được ghi trực tiếp trở lại toàn bộ base-model weights.' },
+    { id: 'b', label: 'WilKE với knowledge-aware layer selection rồi hợp nhất các layer thành shard.' },
+    { id: 'c', label: 'MELO với vector database làm main memory và LoRA làm router hợp nhất shard.' },
+    { id: 'd', label: 'WISE với side memory và knowledge shards.', isCorrect: true },
+  ], success: 'WISE cô lập update trong side memory rồi quản lý bằng router và shard merging.', error: 'Tìm paper tách main memory khỏi vùng nhận correction mới.' },
+  { id: 'cmr-retrieval-memory', title: 'Retrieval memory', mode: 'single', prompt: 'Ánh xạ nào mô tả đúng ba cách lưu và gọi lại correction mà không full fine-tune model sau mỗi edit?', options: [
+    { id: 'a', label: 'GRACE dùng vector database + LoRA; MELO dùng hidden activation key; Larimar chọn layer bằng knowledge pattern.' },
+    { id: 'b', label: 'GRACE dùng activation key–value adaptor; MELO kết hợp vector database với LoRA; Larimar dùng external episodic memory.', isCorrect: true },
+    { id: 'c', label: 'GRACE dùng side-memory shards; MELO dùng causal tracing; Larimar dùng projection expansion.' },
+    { id: 'd', label: 'GRACE dùng model averaging; MELO dùng negative training; Larimar dùng orthogonal low-rank subspace.' },
+  ], success: 'Ba phương pháp đều tránh sửa toàn model nhưng khác cấu trúc lưu correction.', error: 'Phân biệt adaptor theo activation, database + LoRA và episodic memory.' },
+  { id: 'cmr-locate-vs-edit', title: 'Locate và edit', mode: 'single', prompt: 'Causal tracing chỉ ra một layer liên hệ mạnh với fact cần sửa. Theo Hase et al., bước tiếp theo hợp lý nhất là gì?', options: [
+    { id: 'a', label: 'Edit ngay layer đó và chỉ đo reliability, vì causal influence đã đại diện cho locality của method.' },
+    { id: 'b', label: 'Tìm layer có localization score cao nhất rồi dùng cùng vị trí đó cho mọi editing method được so sánh.' },
+    { id: 'c', label: 'Chọn vị trí làm thay đổi target logit mạnh nhất ở một edit đơn lẻ, rồi suy ra nó phù hợp cho chuỗi edit.' },
+    { id: 'd', label: 'Xem localization là tín hiệu chẩn đoán, rồi kiểm chứng vị trí can thiệp bằng reliability, locality và chuỗi edit thực tế.', isCorrect: true },
+  ], success: 'Vị trí liên hệ với fact không tự động là vị trí tạo edit tốt nhất.', error: 'Tách câu hỏi “fact được biểu diễn ở đâu?” khỏi “can thiệp ở đâu hiệu quả?”.' },
+]} />

@@ -1,0 +1,32 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'vertical-cl-deep-dive-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Cấu trúc', 'Pre-training', 'DAP', 'Fine-tuning'], keywords: ['Quiz', 'Vertical CL'],
+  conceptIds: ['vertical-hierarchy', 'vertical-pretraining', 'vertical-dap', 'vertical-finetuning'], pageCount: 4,
+}
+
+<MdxQuiz id="vertical-cl-deep-dive-quiz" questions={[
+  { id: 'vertical-hierarchy', title: 'Cấu trúc', mode: 'single', prompt: 'Chuỗi nào minh họa vertical CL?', options: [
+    { id: 'b', label: 'News 2021 → News 2022 → News 2023.' },
+    { id: 'c', label: 'Legal domain → medical domain với cùng task.' },
+    { id: 'd', label: 'Task A → Task B có quy mô tương đương.' },
+    { id: 'a', label: 'Pre-training → DAP → fine-tuning.', isCorrect: true },
+  ], success: 'Vertical CL đi từ tổng quát đến chuyên biệt.', error: 'Tìm pipeline có các tầng khác nhau về scope.' },
+  { id: 'vertical-pretraining', title: 'Pre-training', mode: 'single', prompt: 'Vai trò chính của tầng pre-training trong vertical pipeline là gì?', options: [
+    { id: 'a', label: 'Học representation và knowledge tổng quát từ corpus rất lớn, nhiều domain.', isCorrect: true },
+    { id: 'b', label: 'Tối ưu duy nhất một nhãn downstream bằng tập dữ liệu nhỏ.' },
+    { id: 'c', label: 'Chỉ lưu adapter do consumer huấn luyện.' },
+    { id: 'd', label: 'Thay thế toàn bộ evaluation bằng một task nội bộ.' },
+  ], success: 'Pre-training tạo foundation model có phạm vi năng lực rộng.', error: 'Đây là tầng lớn nhất và tổng quát nhất của pipeline.' },
+  { id: 'vertical-dap', title: 'DAP', mode: 'single', prompt: 'Điểm nào phân biệt DAP với fine-tuning downstream điển hình?', options: [
+    { id: 'a', label: 'DAP tối ưu trực tiếp label của downstream task nhưng giữ nguyên phần language-model head.' },
+    { id: 'b', label: 'DAP và downstream fine-tuning đều dùng corpus domain không gán nhãn; khác biệt chủ yếu ở số training step.' },
+    { id: 'c', label: 'DAP tiếp tục language-model pre-training trên dữ liệu không gán nhãn thuộc một domain cụ thể.', isCorrect: true },
+    { id: 'd', label: 'DAP cập nhật full model, còn downstream fine-tuning theo định nghĩa chỉ được cập nhật adapter hoặc task head.' },
+  ], success: 'DAP thu hẹp distribution theo domain nhưng vẫn mang tính pre-training.', error: 'Hãy phân biệt dữ liệu domain không gán nhãn với dữ liệu task có gán nhãn.' },
+  { id: 'vertical-finetuning', title: 'Fine-tuning', mode: 'single', prompt: 'Quan hệ quy mô dữ liệu nào thường đúng trong vertical pipeline?', options: [
+    { id: 'a', label: 'Pre-training lớn nhất; fine-tuning nằm giữa; DAP thường nhỏ nhất.' },
+    { id: 'b', label: 'Pre-training lớn nhất; DAP nằm giữa; fine-tuning thường nhỏ nhất.', isCorrect: true },
+    { id: 'c', label: 'DAP lớn nhất; pre-training nằm giữa; fine-tuning thường nhỏ nhất.' },
+    { id: 'd', label: 'Ba tầng thường có quy mô gần nhau vì mỗi tầng chỉ thay đổi training objective.' },
+  ], success: 'Phạm vi dữ liệu thường thu hẹp khi đi từ tổng quát xuống task cụ thể.', error: 'So sánh corpus đa domain, corpus theo domain và dữ liệu gán nhãn theo task.' },
+]} />

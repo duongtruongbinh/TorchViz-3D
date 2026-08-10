@@ -1,0 +1,92 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'parameter-regularization-ewc',
+  locale: 'vi',
+  title: 'Parameter Regularization',
+  headings: [
+    'Tạo ràng buộc trong parameter space',
+    'Vì sao không phạt mọi tham số như nhau?',
+    'Trade-off do λ điều khiển',
+  ],
+  keywords: ['Parameter Regularization', 'EWC', 'Synaptic Intelligence', 'Sigma', 'Stability–Plasticity'],
+  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Tạo ràng buộc trong parameter space
+
+Sau khi học Task A, model đang ở trạng thái tham số <InlineMath formula="\theta_A" />. Nếu sang Task B và chỉ tối ưu <InlineMath formula="\mathcal{L}_{\mathcal B}(\theta)" />, các tham số có thể di chuyển xa khỏi trạng thái đã giúp model làm tốt A.
+
+Parameter regularization thêm một penalty vào mục tiêu học Task B:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{plasticity}}+\underbrace{\lambda R(\theta,\theta_A)}_{\text{stability}}" />
+
+Replay tạo lại ràng buộc bằng **dữ liệu cũ**. Parameter regularization tạo ràng buộc trong **parameter space**: model vẫn học Task B, nhưng việc rời xa trạng thái sau Task A phải trả thêm penalty.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Vì sao không phạt mọi tham số như nhau?
+
+Một penalty đơn giản có thể dùng khoảng cách Euclid <InlineMath formula="R=\lVert\theta-\theta_A\rVert_2^2" />. Cách này xem mọi tham số quan trọng như nhau, trong khi một số tham số có vai trò lớn hơn đối với kiến thức cũ. Vì vậy, cách phổ biến là chuyển sang khoảng cách có trọng số:
+
+<BlockMath formula="R_{\Sigma}(\theta,\theta_A)=\lVert\theta-\theta_A\rVert_{\Sigma}^{2}=(\theta-\theta_A)^{\mathsf T}\Sigma(\theta-\theta_A)" />
+
+Ma trận <InlineMath formula="\Sigma" /> biểu diễn tầm quan trọng và tương quan của các tham số đối với kiến thức cũ. Tuy nhiên, lưu và tính toàn bộ tương quan giữa hàng tỷ tham số quá đắt, nên trong thực tế thường dùng ma trận đường chéo:
+
+<BlockMath formula="\Sigma=\begin{bmatrix}\Omega_1&0&0\\0&\Omega_2&0\\0&0&\Omega_3\end{bmatrix}" />
+
+<ComparisonMatrix
+  ariaLabel="Cách đọc ma trận Sigma trong parameter regularization"
+  columns={['Cách bảo vệ tham số', 'Giới hạn']}
+  rows={[
+    { label: 'Σ đầy đủ', values: ['Biểu diễn importance và tương quan giữa các tham số', 'Chi phí lưu trữ và tính toán quá lớn'] },
+    { label: 'Σ đường chéo', values: ['Mỗi tham số có một trọng số Ωᵢ riêng', 'Đặt Σᵢⱼ = 0 khi i ≠ j, nên bỏ tương quan theo từng cặp tham số'] },
+    { label: 'Σ = I', values: ['Mọi tham số bị phạt như nhau', 'Không phân biệt tham số quan trọng với kiến thức cũ'] },
+  ]}
+/>
+
+Với ma trận đường chéo, penalty chỉ còn <InlineMath formula="R_{\Sigma}=\sum_i\Omega_i(\theta_i-\theta_{A,i})^2" />. Các phần tử <InlineMath formula="\Sigma_{ij}" /> với <InlineMath formula="i\ne j" /> đều bằng 0, nên không còn cross-term biểu diễn tương quan giữa từng cặp tham số. Nếu <InlineMath formula="\Omega_i" /> lớn, thay đổi tham số tương ứng bị phạt mạnh hơn.
+
+---
+
+**Ví dụ với model 1 tỷ tham số**
+
+Giả sử model có <InlineMath formula="n=10^9" /> tham số:
+
+- **Ma trận đầy đủ:** cần lưu <InlineMath formula="n^2=10^{18}" /> phần tử để biểu diễn importance của từng tham số và tương quan giữa mọi cặp tham số. Chi phí tăng theo <InlineMath formula="O(n^2)" /> nên quá lớn ở quy mô này.
+- **Ma trận đường chéo:** mỗi tham số <InlineMath formula="\theta_i" /> chỉ cần một importance weight <InlineMath formula="\Omega_i" />. Model vì vậy lưu <InlineMath formula="10^9" /> giá trị, với chi phí <InlineMath formula="O(n)" />: khoảng **4 GB ở FP32** hoặc **2 GB ở FP16/BF16**.
+- **State tham chiếu:** để tính <InlineMath formula="(\theta_i-\theta_{A,i})^2" />, regularizer thường còn phải giữ <InlineMath formula="\theta_A" /> sau Task A. Tổng bộ nhớ bổ sung cho <InlineMath formula="\Omega" /> và <InlineMath formula="\theta_A" /> vào khoảng **8 GB ở FP32** hoặc **4 GB ở định dạng 16-bit**, chưa tính model hiện tại và optimizer state.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Trade-off do λ điều khiển
+
+Khi ghép hai phần lại, mục tiêu huấn luyện trở thành:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{plasticity}}+\underbrace{\lambda\lVert\theta-\theta_A\rVert_{\Sigma}^{2}}_{\text{stability}}" />
+
+<ComparisonMatrix
+  ariaLabel="Vai trò của các thành phần trong mục tiêu parameter regularization"
+  columns={['Vai trò', 'Khi ảnh hưởng tăng']}
+  rows={[
+    { label: 'Loss Task B', values: ['Học task mới', 'Plasticity tăng'] },
+    { label: 'λ', values: ['Cân bằng loss mới và penalty', 'Ưu tiên giữ trạng thái cũ hơn'] },
+    { label: 'Σ', values: ['Phân bổ penalty theo importance', 'Tham số quan trọng bị bảo vệ mạnh hơn'] },
+  ]}
+/>
+
+<LessonNote>
+  λ quá nhỏ khiến ràng buộc giữ Task A yếu; λ quá lớn có thể làm model học Task B kém. Parameter regularization không loại bỏ stability–plasticity trade-off mà dùng λ và Σ để điều khiển trade-off đó.
+</LessonNote>
+
+[**Elastic Weight Consolidation (EWC)**](https://doi.org/10.1073/pnas.1611835114) và [**Synaptic Intelligence**](https://proceedings.mlr.press/v70/zenke17a.html) là hai ví dụ được survey nêu cho nhóm parameter regularization.
+
+Nguồn: [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2).
+
+</MdxPage>

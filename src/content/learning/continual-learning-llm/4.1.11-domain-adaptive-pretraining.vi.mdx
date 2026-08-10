@@ -1,0 +1,107 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'domain-adaptive-pretraining',
+  locale: 'vi',
+  title: 'Domain-Adaptive Pre-training',
+  headings: ['Bối cảnh DAP', 'Nhiều tên, một khái niệm', 'DAPT: bằng chứng nền tảng', 'Bản đồ 41 nghiên cứu'],
+  keywords: ['Continual Learning', 'LLM', 'Domain-Adaptive Pre-training', 'DAPT', 'BWT', 'FWT'],
+  conceptIds: ['dap-purpose', 'dap-position-in-pipeline', 'dap-domain-data', 'dap-terminology', 'dapt-evidence', 'dap-survey-map'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Bối cảnh DAP
+
+Một tổ chức thường có nhiều tài liệu chuyên ngành—hồ sơ pháp lý, bài báo y khoa, báo cáo tài chính hoặc source code—nhưng chỉ một phần nhỏ đã được gán nhãn cho downstream task. **Domain-Adaptive Pre-training (DAP)** dùng chính corpus không gán nhãn đó để thu hẹp khoảng cách giữa base model tổng quát và model chuyên biệt.
+
+DAP tiếp tục **pre-training objective** trên văn bản của domain trước khi downstream fine-tuning. Đây không phải supervised fine-tuning đổi tên: mục tiêu trước mắt là đưa vocabulary, phong cách và tri thức chuyên ngành vào representation của model.
+
+<ConceptFlow
+  ariaLabel="Vị trí của DAP trong pipeline LLM"
+  items={[
+    { title: 'Base model', detail: 'Năng lực tổng quát' },
+    { title: 'DAP', detail: 'Corpus không gán nhãn của domain' },
+    { title: 'Fine-tuning', detail: 'Dữ liệu gán nhãn của task' },
+    { title: 'Deployment', detail: 'Đánh giá domain và general ability' },
+  ]}
+/>
+
+DAP là bài toán Continual Learning khi domain performance tăng nhưng general ability có nguy cơ giảm. Vì vậy, checkpoint sau DAP phải được đánh giá trên cả benchmark chuyên ngành lẫn tập giữ năng lực nền.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Nhiều tên, một khái niệm
+
+Các paper dùng nhiều tên cho cùng pattern: lấy một model đã pre-train tổng quát rồi tiếp tục pre-train nó trên dữ liệu chuyên biệt hơn.
+
+- **Continued, continual hoặc continuous pre-training:** nhấn mạnh training được nối tiếp từ checkpoint có sẵn.
+- **Further pre-training:** nhấn mạnh đây là một giai đoạn pre-training bổ sung.
+- **Domain tuning:** nhấn mạnh model đang được điều chỉnh theo một domain.
+- **Knowledge enhancement pre-training:** nhấn mạnh việc tăng knowledge chuyên ngành.
+- **Knowledge injection training:** nhấn mạnh việc đưa một nguồn knowledge mới vào model.
+
+Survey thống nhất gọi nhóm quy trình này là **Domain-Adaptive Pre-training (DAP)** để so sánh các paper nhất quán. Tên gọi có thể khác, nhưng hai dấu hiệu cốt lõi vẫn là **corpus đặc thù domain** và **pre-training objective**.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## DAPT: bằng chứng nền tảng
+
+### [Don’t Stop Pretraining — Gururangan et al.](https://aclanthology.org/2020.acl-main.740/)
+
+Paper nền tảng về **Domain-Adaptive Pretraining (DAPT)** tiếp tục pre-train language model trên corpus của domain rồi mới fine-tune cho downstream task. Paper khảo sát bốn domain—**BioMed, Computer Science, News và Reviews**—trên tám classification task, trong cả high-resource và low-resource settings.
+
+<PaperTradeoff
+  advantages={[
+    'Ghi nhận performance gain nhất quán từ in-domain pre-training trên các domain và task được khảo sát.',
+    'Cho thấy dữ liệu task không gán nhãn còn có thể tạo thêm lợi ích sau DAPT thông qua Task-Adaptive Pretraining.',
+  ]}
+  limitations={[
+    'Thí nghiệm dùng các pretrained language model và classification task của giai đoạn trước LLM hiện đại; chưa trực tiếp kiểm chứng mọi decoder-only LLM quy mô lớn.',
+    'Paper đo adaptation benefit nhưng không đặt vertical forgetting và BWT làm trọng tâm như cách survey Continual Learning diễn giải DAP sau này.',
+  ]}
+/>
+
+Vì vậy, bài học an toàn không phải “DAP luôn cải thiện mọi task”, mà là: **trên bốn domain và tám classification task được kiểm tra, thêm một giai đoạn pre-training in-domain tạo lợi ích nhất quán**.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Bản đồ 41 nghiên cứu
+
+Survey tổng hợp **41 nghiên cứu DAP cho LLM**. Mỗi study được đọc theo ba trục:
+
+<CourseCards
+  ariaLabel="Ba trục phân tích các nghiên cứu Domain-Adaptive Pre-training"
+  exampleLabel="Câu hỏi cần đọc"
+  takeawayLabel="Ví dụ"
+  threeColumns
+  items={[
+    {
+      title: 'Pipeline & kiến trúc',
+      example: 'Model đi qua những stage nào trước khi release và dùng kiến trúc gì?',
+      takeaway: 'PT → DAP → SFT; backbone, LoRA hoặc block expansion.',
+    },
+    {
+      title: 'Kỹ thuật CL',
+      example: 'Study có cơ chế nào để giữ năng lực đã có?',
+      takeaway: 'Replay, parameter regularization hoặc architecture expansion.',
+    },
+    {
+      title: 'Metric CL',
+      example: 'Study đo học mới và giữ cũ bằng tín hiệu nào?',
+      takeaway: 'FWT cho adaptation; BWT hoặc forgetting cho retention.',
+    },
+  ]}
+/>
+
+Trang tiếp theo dùng bản đồ này để rút ra ba quan sát về số stage, mức độ áp dụng CL và độ đa dạng kỹ thuật. Trang `DAP theo từng domain` sau đó mới đi sâu vào Legal, Medical, Financial, Scientific và Code.
+
+Nguồn tổng hợp: [Shi et al., §4.2](https://arxiv.org/html/2404.16789v3#S4.SS2).
+
+</MdxPage>

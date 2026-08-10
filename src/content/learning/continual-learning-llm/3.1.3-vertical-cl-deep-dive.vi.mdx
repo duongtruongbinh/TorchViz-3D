@@ -1,0 +1,81 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'vertical-cl-deep-dive', locale: 'vi', title: 'Vertical Continual Learning',
+  headings: ['Đi từ tổng quát đến chuyên biệt', 'Pre-training', 'Domain-Adaptive Pre-training', 'Fine-tuning và các tầng trung gian'],
+  keywords: ['Vertical CL', 'Pre-training', 'DAP', 'Fine-tuning'],
+  conceptIds: ['vertical-hierarchy', 'vertical-pretraining', 'vertical-dap', 'vertical-finetuning'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Đi từ tổng quát đến chuyên biệt
+
+Vertical CL mô tả quá trình một model đi qua nhiều tầng thích nghi, từ kiến thức tổng quát đến domain và downstream task cụ thể. Mỗi tầng thường thu hẹp phạm vi dữ liệu, tài nguyên và năng lực cần tối ưu.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-vertical-continual-learning.webp"
+  alt="Minh họa vertical continual learning đi từ pre-training tổng quát qua domain-adaptive pre-training đến fine-tuning chuyên biệt"
+  caption="Càng đi xuống pipeline, dữ liệu và objective càng chuyên biệt hơn, còn quy mô và phạm vi năng lực thường thu hẹp dần."
+/>
+
+Pipeline điển hình là **pre-training → Domain-Adaptive Pre-training (DAP) → fine-tuning**. Đây là cấu trúc minh họa, không phải giới hạn cứng: một pipeline thực tế có thể có thêm nhiều tầng trung gian cho từng tổ chức, domain hoặc phòng ban.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Pre-training
+
+Pre-training dùng một corpus không gán nhãn rất lớn, bao phủ nhiều domain, để tạo ra foundation model có năng lực tổng quát. Đây thường là tầng do upstream supplier vận hành.
+
+<CourseCards
+  ariaLabel="Ba yêu cầu chính của pre-training"
+  exampleLabel="Cần gì?"
+  takeawayLabel="Mục đích"
+  items={[
+    { title: 'Dữ liệu', example: 'Corpus rất lớn từ nhiều nguồn và nhiều domain.', takeaway: 'Học knowledge và representation có độ bao quát cao.' },
+    { title: 'Đội ngũ', example: 'Nhóm nghiên cứu, data, systems và evaluation quy mô lớn.', takeaway: 'Vận hành toàn bộ chu trình huấn luyện và kiểm định model.' },
+    { title: 'Compute', example: 'Cụm accelerator, storage và distributed training đáng kể.', takeaway: 'Huấn luyện model lớn trên lượng token rất cao.' },
+  ]}
+/>
+
+Kết quả của tầng này là một checkpoint mạnh nhưng chưa tối ưu riêng cho dữ liệu nội bộ hoặc mục tiêu của từng consumer.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Domain-Adaptive Pre-training
+
+Ở tầng tiếp theo, tổ chức downstream có thể thực hiện **Domain-Adaptive Pre-training (DAP)**: tiếp tục pre-train model bằng dữ liệu không gán nhãn thuộc một domain cụ thể.
+
+<ComparisonMatrix ariaLabel="Pre-training và DAP khác nhau thế nào" columns={['Dữ liệu', 'Mục tiêu', 'Đơn vị thực hiện']} rows={[
+  { label: 'Pre-training', values: ['Rất lớn, nhiều domain', 'Năng lực tổng quát', 'Upstream supplier'] },
+  { label: 'DAP', values: ['Nhỏ hơn, tập trung một domain', 'Hiểu ngôn ngữ và knowledge chuyên ngành', 'Tổ chức downstream hoặc domain team'] },
+]} />
+
+Ví dụ, một bệnh viện có thể dùng hồ sơ và báo cáo y khoa nội bộ để thích nghi model tổng quát cho medical domain. Loại dữ liệu chuyên biệt này thường không nằm trong corpus upstream hoặc supplier không có quyền truy cập.
+
+DAP vẫn dùng objective kiểu language modeling, nhưng distribution đã thu hẹp mạnh về một domain. Model nhờ đó bắt đầu downstream task từ một checkpoint phù hợp hơn.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Fine-tuning và các tầng trung gian
+
+Trước khi triển khai, model thường được fine-tune trên dữ liệu có gán nhãn hoặc instruction dành cho một downstream task cụ thể.
+
+<ComparisonMatrix ariaLabel="Quy mô tương đối của ba tầng vertical CL" columns={['Loại dữ liệu', 'Quy mô tương đối', 'Đầu ra']} rows={[
+  { label: 'Pre-training', values: ['Không gán nhãn, nhiều domain', 'Lớn nhất', 'Foundation model'] },
+  { label: 'DAP', values: ['Không gán nhãn, theo domain', 'Nhỏ hơn pre-training nhưng thường lớn hơn fine-tuning', 'Domain model'] },
+  { label: 'Fine-tuning', values: ['Gán nhãn hoặc instruction theo task', 'Nhỏ nhất', 'Task model sẵn sàng triển khai'] },
+]} />
+
+Quy mô compute và đội ngũ thường cũng giảm dần theo cấu trúc tương tự. Tuy nhiên, vertical continuity có thể gồm hơn ba stage. Ví dụ, một medical model có thể đi tiếp qua các tầng **bệnh viện → khoa tim mạch → hệ thống tóm tắt bệnh án**, do các đơn vị khác nhau phụ trách.
+
+Điểm cốt lõi không phải số tầng, mà là model liên tục chuyển từ phạm vi rộng sang mục tiêu ngày càng chuyên biệt.
+
+Nguồn: [Shi et al., §3.1](https://arxiv.org/html/2404.16789v3#S3.SS1).
+
+</MdxPage>

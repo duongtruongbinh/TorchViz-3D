@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'dap-observations-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['OBS-1', 'OBS-2', 'OBS-3'], keywords: ['Quiz', 'DAP Observations'],
+  conceptIds: ['dap-obs-1', 'dap-obs-2', 'dap-obs-3'], pageCount: 3,
+}
+
+<MdxQuiz id="dap-observations-quiz" questions={[
+  { id: 'dap-obs-1', title: 'OBS-1', mode: 'single', prompt: 'Continual DAP nhiều stage phổ biến đến đâu trong 41 study?', options: [
+    { id: 'a', label: 'Tất cả đều có ít nhất ba stage.' },
+    { id: 'b', label: 'Chỉ Code Llama có hơn một stage DAP.', isCorrect: true },
+    { id: 'c', label: 'Một nửa study có hơn tám stage.' },
+    { id: 'd', label: 'Không study nào có DAP.' },
+  ], success: 'Evidence cho multi-stage DAP còn rất ít.', error: 'Nhớ ngoại lệ Code Llama.' },
+  { id: 'dap-obs-2', title: 'OBS-2', mode: 'single', prompt: '28/41 study cho thấy điều gì?', options: [
+    { id: 'b', label: 'DAP không gây vertical forgetting.' },
+    { id: 'c', label: 'Mọi study gọi data mixing là replay.' },
+    { id: 'd', label: 'CIL là setting duy nhất của DAP.' },
+    { id: 'a', label: 'DAP thường đã được nhìn ngầm qua lăng kính CL.', isCorrect: true },
+  ], success: 'Nhiều study đo tác động xấu hoặc dùng CL technique.', error: 'Con số này nói về cách DAP đã liên quan đến CL.' },
+  { id: 'dap-obs-3', title: 'OBS-3', mode: 'single', prompt: 'Kỹ thuật DAP hiện chủ yếu tập trung vào nhóm nào?', options: [
+    { id: 'b', label: 'Chỉ optimization-based methods.' },
+    { id: 'c', label: 'Chỉ representation-based methods.' },
+    { id: 'a', label: 'Replay hoặc architecture expansion.', isCorrect: true },
+    { id: 'd', label: 'Không dùng kỹ thuật CL nào.' },
+  ], success: 'Technique dành riêng cho vertical CL vẫn thiếu đa dạng.', error: 'Nhớ hai nhóm chiếm phần lớn trong 22 study.' },
+]} />

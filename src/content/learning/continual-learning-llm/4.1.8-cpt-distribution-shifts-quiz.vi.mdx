@@ -1,0 +1,34 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'cpt-distribution-shifts-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Chẩn đoán shift', 'Language Shift', 'Content Shift', 'Temporal Shift'],
+  keywords: ['Continual Pre-training', 'Language Shift', 'Content Shift', 'Temporal Shift', 'Quiz'],
+  conceptIds: ['shift-diagnosis', 'language-shift', 'content-shift', 'temporal-shift'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="cpt-distribution-shifts-quiz" questions={[
+  { id: 'shift-diagnosis', title: 'Chẩn đoán shift', mode: 'single', prompt: 'Dataset thêm tin tức của năm mới, gồm fact mới và fact thay đổi, thuộc shift nào trội nhất?', options: [
+    { id: 'a', label: 'Language Shift, vì dữ liệu mới có vocabulary chưa thấy.' },
+    { id: 'b', label: 'Temporal Shift, vì dữ liệu phản ánh thời điểm mới và thay thế một số fact cũ.', isCorrect: true },
+    { id: 'c', label: 'Content Shift thuần túy, vì chủ đề đổi nhưng timestamp và fact không đổi.' },
+    { id: 'd', label: 'Class-Incremental Learning, vì mỗi năm là một output class mới.' },
+  ], success: 'Mốc thời gian và fact thay đổi là dấu hiệu Temporal Shift.', error: 'Hãy xem phần nào của distribution khiến dữ liệu mới khác dữ liệu cũ.' },
+  { id: 'language-shift', title: 'Language Shift', mode: 'single', prompt: 'Kết luận nào phản ánh đúng các nghiên cứu Language Shift?', options: [
+    { id: 'a', label: 'Có Forward Transfer nghĩa là ngôn ngữ cũ chắc chắn không bị quên.' },
+    { id: 'b', label: 'Chỉ cần tăng model size là Horizontal Forgetting sẽ biến mất.' },
+    { id: 'c', label: 'Model có thể nhận Forward Transfer khi học ngôn ngữ mới, nhưng ngôn ngữ cũ vẫn suy giảm và các kỹ thuật đã thử chưa tạo giải pháp đơn giản.', isCorrect: true },
+    { id: 'd', label: 'Parameter freezing, Low-Rank Adaptation và IA³ đều bảo đảm zero forgetting.' },
+  ], success: 'Transfer tích cực và forgetting có thể đồng thời xuất hiện.', error: 'Không đồng nhất khả năng học ngôn ngữ mới với retention ngôn ngữ cũ.' },
+  { id: 'content-shift', title: 'Content Shift', mode: 'single', prompt: 'Replay không hiệu quả trong một thí nghiệm LLPT cho phép kết luận gì?', options: [
+    { id: 'a', label: 'Đây là finding cục bộ có thể liên quan đến overfitting; cần kiểm tra lại ở domain order và training recipe khác.', isCorrect: true },
+    { id: 'b', label: 'Replay nên được loại khỏi các Content Shift có cùng model size vì paper đã kiểm soát được yếu tố overfitting.' },
+    { id: 'c', label: 'Modular methods nên được ưu tiên trước replay ở domain order khác, ngay cả khi chưa so dưới cùng compute budget.' },
+    { id: 'd', label: 'Kết quả đủ để quy nguyên nhân cho domain order; thay training recipe sẽ không làm diễn giải thay đổi.' },
+  ], success: 'Một kết quả cục bộ không đủ để phủ định cả nhóm phương pháp.', error: 'Phân biệt finding của một setup với kết luận tổng quát.' },
+  { id: 'temporal-shift', title: 'Temporal Shift', mode: 'single', prompt: 'Một model xử lý Temporal Shift đúng cần đồng thời đạt ba mục tiêu nào?', options: [
+    { id: 'a', label: 'Giữ mọi fact cũ, bỏ fact mới và giảm compute.' },
+    { id: 'b', label: 'Học vocabulary mới, đổi tokenizer và giữ nguyên mọi output.' },
+    { id: 'c', label: 'Chỉ cập nhật fact xung đột và bỏ qua knowledge bất biến.' },
+    { id: 'd', label: 'Duy trì fact còn đúng, tiếp thu fact mới và cập nhật fact đã lỗi thời.', isCorrect: true },
+  ], success: 'Temporal Shift đòi hỏi retention, acquisition và update cùng lúc.', error: 'Không phải mọi knowledge cũ đều cần giữ nguyên hoặc thay thế.' },
+]} />

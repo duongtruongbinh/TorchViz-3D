@@ -1,0 +1,49 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'domain-adaptive-pretraining-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Mục tiêu DAP', 'Vị trí DAP', 'Dữ liệu DAP', 'Tên gọi DAP', 'Bằng chứng DAPT', 'Bản đồ survey'],
+  keywords: ['Continual Learning', 'LLM', 'DAP', 'DAPT', 'Quiz'],
+  conceptIds: ['dap-purpose', 'dap-position-in-pipeline', 'dap-domain-data', 'dap-terminology', 'dapt-evidence', 'dap-survey-map'],
+  pageCount: 6,
+}
+
+<MdxQuiz id="domain-adaptive-pretraining-quiz" questions={[
+  { id: 'dap-purpose', title: 'Mục tiêu DAP', mode: 'single', prompt: 'Một công ty có nhiều tài liệu pháp lý không gán nhãn nhưng ít example cho downstream task. DAP giải quyết khoảng trống nào?', options: [
+    { id: 'a', label: 'Biến toàn bộ tài liệu thành preference pair để huấn luyện reward model.' },
+    { id: 'b', label: 'Dùng corpus pháp lý để thích nghi representation của base model trước downstream fine-tuning.', isCorrect: true },
+    { id: 'c', label: 'Giữ nguyên checkpoint và chỉ xây retrieval index dùng ở inference.' },
+    { id: 'd', label: 'Thay downstream evaluation bằng perplexity trên corpus tổng quát.' },
+  ], success: 'DAP tận dụng corpus domain không gán nhãn để chuẩn bị model cho downstream task.', error: 'Xác định dữ liệu tổ chức đang có và stage xảy ra trước supervised fine-tuning.' },
+  { id: 'dap-position-in-pipeline', title: 'Vị trí DAP', mode: 'single', prompt: 'Pipeline nào phân biệt đúng DAP với downstream fine-tuning?', options: [
+    { id: 'a', label: 'DAP trên label của task → pre-training tổng quát → deployment.' },
+    { id: 'b', label: 'Downstream fine-tuning → DAP → khởi tạo base model.' },
+    { id: 'c', label: 'Base model → downstream fine-tuning → thu thập corpus domain cho DAP.' },
+    { id: 'd', label: 'Base model → DAP bằng pre-training objective → downstream fine-tuning bằng dữ liệu task.', isCorrect: true },
+  ], success: 'DAP nằm giữa pre-training tổng quát và task-specific fine-tuning.', error: 'DAP tiếp tục pre-training objective trước khi dùng label của downstream task.' },
+  { id: 'dap-domain-data', title: 'Dữ liệu DAP', mode: 'single', prompt: 'Dữ liệu nào phù hợp nhất cho một stage DAP y khoa?', options: [
+    { id: 'a', label: 'Corpus bài báo và tài liệu y khoa không gán nhãn.', isCorrect: true },
+    { id: 'b', label: 'Preference pair về phong cách trả lời an toàn.' },
+    { id: 'c', label: 'Một danh sách task ID chỉ có ở inference.' },
+    { id: 'd', label: 'Chỉ các câu hỏi thi đã có đáp án dùng cho supervised fine-tuning.' },
+  ], success: 'DAP tiếp tục objective pre-training trên corpus đặc thù domain.', error: 'Phân biệt corpus domain không gán nhãn với dữ liệu task hoặc preference đã gán nhãn.' },
+  { id: 'dap-terminology', title: 'Tên gọi DAP', mode: 'single', prompt: 'Vì sao survey gom “further pre-training”, “domain tuning” và “knowledge injection training” dưới tên DAP?', options: [
+    { id: 'a', label: 'Vì các paper đều diễn ra ở phía consumer và tối ưu trực tiếp label của downstream task.' },
+    { id: 'b', label: 'Vì các tên đều chỉ model editing để chèn fact domain vào một checkpoint cố định.' },
+    { id: 'c', label: 'Vì chúng cùng mô tả việc tiếp tục pre-train model có sẵn trên corpus chuyên biệt hơn, dù nhấn mạnh khác nhau.', isCorrect: true },
+    { id: 'd', label: 'Vì survey phân nhóm theo kết quả trên domain benchmark, không xét training objective hay loại dữ liệu.' },
+  ], success: 'Survey thống nhất tên dựa trên pattern training chung, không dựa trên wording của từng paper.', error: 'Tìm hai dấu hiệu chung: checkpoint có sẵn và pre-training tiếp trên dữ liệu chuyên biệt.' },
+  { id: 'dapt-evidence', title: 'Bằng chứng DAPT', mode: 'single', prompt: 'Kết luận nào bám đúng phạm vi thí nghiệm của Don’t Stop Pretraining?', options: [
+    { id: 'a', label: 'In-domain pre-training tạo gain nhất quán trên bốn domain và tám classification task được khảo sát, nhưng chưa chứng minh mọi LLM và task đều hưởng lợi.', isCorrect: true },
+    { id: 'b', label: 'Gain ở bốn domain cho phép áp dụng DAPT cho task khác trong các domain đó mà không cần kiểm tra lại model hay recipe.' },
+    { id: 'c', label: 'Task-Adaptive Pre-training thay thế DAPT trong cả tám classification task nên domain corpus không còn cần thiết.' },
+    { id: 'd', label: 'Khác biệt giữa bốn domain cho thấy kích thước corpus là yếu tố đủ để dự đoán downstream gain.' },
+  ], success: 'Finding cần được giữ trong bốn domain, tám classification task và model được paper kiểm tra.', error: 'Không biến một kết quả nhất quán trong setup cụ thể thành bảo đảm phổ quát.' },
+  { id: 'dap-survey-map', title: 'Bản đồ survey', mode: 'single', prompt: 'Survey mô tả một study DAP bằng ba nhóm thông tin nào?', options: [
+    { id: 'a', label: 'Tokenizer, prompt template và serving latency.' },
+    { id: 'b', label: 'Số citation, venue và giấy phép model.' },
+    { id: 'c', label: 'Pipeline/kiến trúc, kỹ thuật CL và metric CL như BWT/FWT.', isCorrect: true },
+    { id: 'd', label: 'Chỉ domain, corpus size và downstream accuracy.' },
+  ], success: 'Ba trục nối cách model được train, cách giữ knowledge và cách đo acquisition/retention.', error: 'Bản đồ không chỉ liệt kê domain; nó còn theo dõi kỹ thuật và metric Continual Learning.' },
+]} />
