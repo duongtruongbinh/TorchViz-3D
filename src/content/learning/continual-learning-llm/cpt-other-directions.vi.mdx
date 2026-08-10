@@ -1,0 +1,19 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'cpt-other-directions', locale: 'vi', title: 'Các hướng CPT khác',
+  headings: ['Ưu tiên dữ liệu model còn xử lý kém'], keywords: ['CEM', 'RHO-1', 'IR-DRO'],
+  conceptIds: ['cem', 'rho-1', 'ir-dro'],
+}
+
+## Ưu tiên dữ liệu model còn xử lý kém
+
+CPT không chỉ thích nghi với distribution shift. Survey còn nêu các hướng sửa hành vi và ưu tiên phần dữ liệu khó:
+
+<ComparisonMatrix ariaLabel="Ba hướng CPT khác" columns={['Đơn vị được ưu tiên', 'Cách chọn']} rows={[
+  { label: 'CEM', values: ['Example', 'Tiếp tục train trên ví dụ model trả lời sai'] },
+  { label: 'RHO-1', values: ['Token', 'Selective Language Modeling ưu tiên token có perplexity cao'] },
+  { label: 'IR-DRO', values: ['Sequence', 'Gán trọng số cao hơn cho sequence có loss cao'] },
+]} />
+
+Ba hướng khác nhau ở granularity—example, token hoặc sequence—nhưng cùng trực giác: compute nên tập trung vào phần model hiện xử lý kém thay vì phân bổ đều cho mọi dữ liệu.
+
+Nguồn: [Shi et al., §4.1.3](https://arxiv.org/html/2404.16789v3#S4.SS1.SSS3).

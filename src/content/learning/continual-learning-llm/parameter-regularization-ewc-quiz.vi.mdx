@@ -2,130 +2,45 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'parameter-regularization-ewc-quiz',
   locale: 'vi',
-  title: "Quiz",
-  headings: [
-  "Cơ chế regularization",
-  "Parameter importance",
-  "EWC",
-  "Chọn λ"
-],
-  keywords: ['Continual Learning', 'LLM', 'Quiz'],
-  conceptIds: [
-  "parameter-regularization",
-  "parameter-importance",
-  "ewc-penalty",
-  "regularization-tradeoff"
-],
-  pageCount: 4,
+  title: 'Quiz',
+  headings: ['Mục tiêu', 'Ma trận importance', 'Trade-off'],
+  keywords: ['Quiz', 'Parameter Regularization'],
+  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff'],
+  pageCount: 3,
 }
 
 <MdxQuiz id="parameter-regularization-ewc-quiz" questions={[
   {
-    "id": "parameter-regularization",
-    "title": "Cơ chế regularization",
-    "prompt": "Update nào thuộc parameter regularization trong Continual Learning?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Trộn raw sample cũ vào mỗi batch để khôi phục loss lịch sử."
-      },
-      {
-        "id": "opt2",
-        "label": "Thêm một module mới rồi khóa toàn bộ module của các task trước."
-      },
-      {
-        "id": "opt3",
-        "label": "Thêm penalty để hạn chế tham số lệch khỏi checkpoint cũ ở các hướng quan trọng.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt4",
-        "label": "Truy xuất fact cũ từ external memory mà không ràng buộc update weights."
-      }
+    id: 'regularization-objective', title: 'Mục tiêu', mode: 'single',
+    prompt: 'Parameter regularization thêm thành phần nào khi model học Task B?',
+    options: [
+      { id: 'a', label: 'Một penalty hạn chế model rời xa tham số cũ ở các hướng quan trọng.' , isCorrect: true },
+      { id: 'b', label: 'Một task ID để chọn output head tại inference.' },
+      { id: 'c', label: 'Toàn bộ dữ liệu Task A vào mọi batch của Task B.' },
+      { id: 'd', label: 'Một module mới tách biệt cho mỗi sample của Task B.' },
     ],
-    "success": "Penalty cung cấp tín hiệu bảo tồn khi học task mới.",
-    "error": "Hãy nhìn vào objective."
+    success: 'Penalty tạo ràng buộc bằng parameter space.', error: 'Phân biệt regularization với replay và architecture expansion.',
   },
   {
-    "id": "parameter-importance",
-    "title": "Parameter importance",
-    "prompt": "Trong penalty của bài, ma trận Σ mang ý nghĩa nào?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Độ tương đồng giữa từng raw sample mới và replay buffer."
-      },
-      {
-        "id": "opt2",
-        "label": "Một identity matrix bắt buộc phạt mọi tham số với cùng trọng số."
-      },
-      {
-        "id": "opt3",
-        "label": "Gradient magnitude của riêng batch mới, không liên hệ checkpoint cũ."
-      },
-      {
-        "id": "opt4",
-        "label": "Mức quan trọng và tương quan của tham số đối với tri thức cũ.",
-        "isCorrect": true
-      }
+    id: 'importance-matrix', title: 'Ma trận importance', mode: 'single',
+    prompt: 'Vì sao parameter regularization thường dùng ma trận Σ đường chéo thay cho Σ = I?',
+    options: [
+      { id: 'a', label: 'Để mã hóa task ID trực tiếp vào từng tham số trước inference.' },
+      { id: 'b', label: 'Để mỗi tham số có một trọng số importance riêng với chi phí thấp hơn ma trận đầy đủ.', isCorrect: true },
+      { id: 'c', label: 'Để khôi phục toàn bộ tương quan giữa các tham số mà không tốn thêm bộ nhớ.' },
+      { id: 'd', label: 'Để mọi tham số nhận cùng một penalty bất kể vai trò với task cũ.' },
     ],
-    "success": "Σ quyết định hướng nào bị phạt mạnh.",
-    "error": "Nó là trọng số của khoảng cách tham số."
+    success: 'Đường chéo của Σ cho mỗi tham số một trọng số Ωᵢ riêng mà không phải lưu toàn bộ tương quan.', error: 'Σ = I mới là trường hợp mọi tham số bị phạt như nhau.',
   },
   {
-    "id": "ewc-penalty",
-    "title": "EWC",
-    "prompt": "Cấu hình nào mô tả EWC thay vì uniform L2 quanh checkpoint cũ?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Trọng số penalty theo số token của mỗi sample mới."
-      },
-      {
-        "id": "opt2",
-        "label": "Trọng số penalty theo Fisher information của từng tham số.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt3",
-        "label": "Trọng số penalty theo tần suất một sample được replay."
-      },
-      {
-        "id": "opt4",
-        "label": "Trọng số penalty theo norm của adapter ở stage hiện tại."
-      }
+    id: 'regularization-tradeoff', title: 'Trade-off', mode: 'single',
+    prompt: 'Điều gì dễ xảy ra khi λ quá lớn?',
+    options: [
+      { id: 'a', label: 'Model luôn đạt zero forgetting và vẫn học Task B tối ưu.' },
+      { id: 'b', label: 'Replay buffer tự động lớn hơn.' },
+      { id: 'c', label: 'Task routing trở nên chính xác tuyệt đối.' },
+      { id: 'd', label: 'Model giữ trạng thái cũ mạnh nhưng có thể underfit Task B.', isCorrect: true },
     ],
-    "success": "Fisher là xấp xỉ importance phổ biến trong EWC.",
-    "error": "Nhớ cơ chế đặc trưng của EWC."
+    success: 'Regularization quá mạnh làm giảm plasticity.', error: 'λ điều khiển mức ưu tiên giữ cũ so với học mới.',
   },
-  {
-    "id": "regularization-tradeoff",
-    "title": "Chọn λ",
-    "prompt": "Sau khi tăng λ, retention tốt hơn nhưng model underfit task mới. Giải thích nào phù hợp nhất?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Penalty quá mạnh ưu tiên stability và làm giảm plasticity cho update mới.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt2",
-        "label": "Penalty quá yếu khiến tham số quan trọng dịch chuyển tự do khỏi checkpoint cũ."
-      },
-      {
-        "id": "opt3",
-        "label": "λ đã cân bằng đúng nên acquisition và retention đều phải tối ưu."
-      },
-      {
-        "id": "opt4",
-        "label": "Buffer replay quá nhỏ dù phương pháp đang không dùng buffer dữ liệu."
-      }
-    ],
-    "success": "Penalty quá mạnh làm giảm plasticity.",
-    "error": "Hãy liên hệ λ với stability–plasticity."
-  }
 ]} />

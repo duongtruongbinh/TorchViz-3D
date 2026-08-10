@@ -8,7 +8,8 @@ export const lessonMetadata = {
   conceptIds: [
   "cft-purpose",
   "cft-sequential-task-risk",
-  "cft-specializations"
+  "cft-specializations",
+  "cft-observations"
 ],
 }
 
@@ -28,5 +29,7 @@ Continual Fine-Tuning (CFT) cập nhật LLM nối tiếp trên các task hoặc
 />
 
 Rủi ro không chỉ nằm ở representation. Mô hình có thể giữ feature nền nhưng quên decision boundary, task-specific detail hoặc cách kích hoạt năng lực bằng instruction. Vì vậy, CFT cần đánh giá ở đúng level mà sản phẩm sử dụng.
+
+Survey còn rút ra hai quan sát: trọng tâm CFT đã chuyển từ CIL sang TIL/DIL; và cả 35 paper CFT đều dùng CL technique rõ ràng, khoảng một nửa đề xuất cơ chế mới thay vì chỉ ghép các kỹ thuật cổ điển.
 
 Nguồn: [Shi et al., §4.3](https://arxiv.org/html/2404.16789v3#S4.SS3).

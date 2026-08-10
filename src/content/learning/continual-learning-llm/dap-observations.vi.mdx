@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'dap-observations', locale: 'vi', title: 'Ba quan sát về DAP',
+  headings: ['DAP đã là CL dù không luôn được gọi tên'], keywords: ['DAP', 'OBS-1', 'OBS-2', 'OBS-3'],
+  conceptIds: ['dap-obs-1', 'dap-obs-2', 'dap-obs-3'],
+}
+
+## DAP đã là CL dù không luôn được gọi tên
+
+<ComparisonMatrix ariaLabel="Ba quan sát về Domain-Adaptive Pre-training" columns={['Bằng chứng', 'Ý nghĩa']} rows={[
+  { label: 'OBS-1', values: ['Chỉ Code Llama có hơn một stage trong 41 study', 'Continual DAP nhiều stage gần như chưa được khảo sát'] },
+  { label: 'OBS-2', values: ['28/41 study đo tác động xấu hoặc dùng CL technique', 'DAP thường được nghiên cứu ngầm như vertical CL'] },
+  { label: 'OBS-3', values: ['22/41 study dùng CL, chủ yếu replay hoặc expansion', 'Technique dành riêng cho vertical CL còn thiếu đa dạng'] },
+]} />
+
+Nhiều paper gọi replay là `data mixing`, `data mixture` hoặc `data combination`. Dù tên khác nhau, câu hỏi CL vẫn giống nhau: domain performance tăng đến đâu và general ability bị mất bao nhiêu.
+
+Nguồn: [Shi et al., §4.2.1](https://arxiv.org/html/2404.16789v3#S4.SS2.SSS1).

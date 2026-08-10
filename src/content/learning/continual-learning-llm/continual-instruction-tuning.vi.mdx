@@ -1,31 +1,19 @@
 export const lessonMetadata = {
-  domainId: 'continual-learning-llm',
-  id: 'continual-instruction-tuning',
-  locale: 'vi',
-  title: "Continual Instruction Tuning",
-  headings: ['Học instruction mới mà không mất cách làm theo instruction cũ'],
-  keywords: ['Continual Learning', 'LLM', 'Continual Instruction Tuning'],
-  conceptIds: [
-  "cit-definition",
-  "instruction-sequence",
-  "instruction-retention-risk",
-  "cit-evaluation"
-],
+  domainId: 'continual-learning-llm', id: 'continual-instruction-tuning', locale: 'vi', title: 'Continual Instruction Tuning',
+  headings: ['Học instruction mới mà không quên instruction cũ'], keywords: ['CIT', 'Replay', 'PEFT'],
+  conceptIds: ['cit-goal', 'cit-replay', 'cit-architecture'],
 }
 
-## Học instruction mới mà không mất cách làm theo instruction cũ
+## Học instruction mới mà không quên instruction cũ
 
-Continual Instruction Tuning (CIT) huấn luyện LLM trên một chuỗi instruction dataset. Instruction có thể mã hóa task ID bằng ngôn ngữ tự nhiên, nhưng format, độ rõ và mức overlap giữa các instruction làm routing khó hơn TIL cổ điển.
+Trong Continual Instruction Tuning (**CIT**), instruction data đến theo dòng. Model phải học instruction mới trong khi vẫn làm đúng instruction cũ.
 
-<ConceptFlow
-  ariaLabel="Chuỗi Continual Instruction Tuning"
-  items={[
-    { title: 'Instruction set A', detail: 'Học format và kỹ năng ban đầu' },
-    { title: 'Instruction set B', detail: 'Thêm kỹ năng hoặc domain mới' },
-    { title: 'Mixed evaluation', detail: 'Prompt cũ, prompt mới và prompt paraphrase' },
-  ]}
-/>
+<ComparisonMatrix ariaLabel="Các nhóm giải pháp CIT trong survey" columns={['Ví dụ', 'Cơ chế']} rows={[
+  { label: 'Replay', values: ['CT0, KPIG, SSR', 'Giữ/chọn dữ liệu cũ hoặc sinh synthetic instances'] },
+  { label: 'Replay + regularization', values: ['DynaInst, InstructionSpeak', 'Chọn động dữ liệu và thêm ràng buộc học'] },
+  { label: 'PEFT/architecture', values: ['O-LoRA, SAPT', 'Tách subspace hoặc chọn PEFT block phù hợp'] },
+]} />
 
-Forgetting có thể xuất hiện dưới dạng trả lời sai task, không còn tuân thủ format hoặc mất khả năng kích hoạt tri thức vẫn còn trong model. Protocol nên giữ prompt cũ, paraphrase chưa thấy và task mới để tách memorization khỏi instruction generalization.
+Replay, regularization và architecture-based methods vẫn phổ biến vì đơn giản và hiệu quả, nhưng đánh đổi bằng chi phí lưu data, tham số hoặc GPU memory.
 
 Nguồn: [Shi et al., §4.3.3](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS3).

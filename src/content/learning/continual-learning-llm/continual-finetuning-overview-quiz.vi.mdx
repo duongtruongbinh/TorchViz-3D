@@ -6,15 +6,17 @@ export const lessonMetadata = {
   headings: [
   "Mục tiêu CFT",
   "Rủi ro theo chuỗi",
-  "Các nhánh CFT"
+  "Các nhánh CFT",
+  "Quan sát của survey"
 ],
   keywords: ['Continual Learning', 'LLM', 'Quiz'],
   conceptIds: [
   "cft-purpose",
   "cft-sequential-task-risk",
-  "cft-specializations"
+  "cft-specializations",
+  "cft-observations"
 ],
-  pageCount: 3,
+  pageCount: 4,
 }
 
 <MdxQuiz id="continual-finetuning-overview-quiz" questions={[
@@ -83,20 +85,34 @@ export const lessonMetadata = {
         "label": "Continual Instruction Tuning cho các instruction dataset xuất hiện nối tiếp."
       },
       {
-        "id": "opt3",
-        "label": "Continual Model Alignment cho preference, policy và safety thay đổi.",
-        "isCorrect": true
-      },
-      {
         "id": "opt2",
         "label": "Continual Model Refinement cho các fact hoặc behavior mục tiêu cần sửa."
       },
       {
         "id": "opt4",
         "label": "Continual Pre-training cho các corpus không gán nhãn xuất hiện theo thời gian."
+      },
+      {
+        "id": "opt3",
+        "label": "Continual Model Alignment cho preference, policy và safety thay đổi.",
+        "isCorrect": true
       }
     ],
     "success": "CMA tập trung vào alignment nối tiếp.",
     "error": "Phân biệt loại update downstream."
+  },
+  {
+    "id": "cft-observations",
+    "title": "Quan sát của survey",
+    "prompt": "Nhận định nào khớp với các quan sát chung về CFT?",
+    "mode": "single",
+    "options": [
+      { "id": "opt1", "label": "CFT hiện chỉ tập trung vào CIL và không dùng kỹ thuật CL." },
+      { "id": "opt2", "label": "Trọng tâm chuyển sang TIL/DIL; cả 35 paper đều dùng CL technique rõ ràng.", "isCorrect": true },
+      { "id": "opt3", "label": "CFT ít kỹ thuật CL hơn CPT và DAP." },
+      { "id": "opt4", "label": "Mọi paper CFT chỉ ghép lại replay, regularization và architecture expansion." }
+    ],
+    "success": "CFT dùng CL technique đa dạng hơn, và TIL/DIL nổi bật hơn CIL.",
+    "error": "Nhớ hai OBS chung của CFT trong survey."
   }
 ]} />

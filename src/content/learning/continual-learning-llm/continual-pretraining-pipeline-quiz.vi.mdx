@@ -4,99 +4,128 @@ export const lessonMetadata = {
   locale: 'vi',
   title: "Quiz",
   headings: [
-  "Mục tiêu CPT",
-  "Dòng dữ liệu CPT",
-  "Supplier–consumer"
+  "Ai thực hiện CPT?",
+  "Khả năng tổng quát hóa",
+  "Ràng buộc bộ nhớ",
+  "Chọn chiến lược replay"
 ],
-  keywords: ['Continual Learning', 'LLM', 'Quiz'],
+  keywords: ['Continual Learning', 'Continual Pre-training', 'Full Replay', 'Sparse Replay', 'Quiz'],
   conceptIds: [
-  "cpt-purpose",
-  "cpt-data-stream",
-  "supplier-consumer-release-cycle"
+  "cpt-operator",
+  "cpt-generalization",
+  "cpt-memory-constraint",
+  "cpt-replay-choice"
 ],
-  pageCount: 3,
+  pageCount: 4,
 }
 
 <MdxQuiz id="continual-pretraining-pipeline-quiz" questions={[
   {
-    "id": "cpt-purpose",
-    "title": "Mục tiêu CPT",
-    "prompt": "Continual Pre-training khác retraining từ đầu ở điểm nào?",
+    "id": "cpt-operator",
+    "title": "Ai thực hiện CPT?",
+    "prompt": "Vì sao supplier là đối tượng chính của Continual Pre-training quy mô lớn?",
     "mode": "single",
     "options": [
       {
         "id": "opt2",
-        "label": "Nó khởi tạo lại mọi tham số nhưng chỉ dùng corpus của stage mới."
+        "label": "Vì consumer không được phép nhận checkpoint upstream."
       },
       {
         "id": "opt1",
-        "label": "Nó tiếp tục cập nhật checkpoint hiện có trên dữ liệu mới.",
+        "label": "Vì supplier có dữ liệu, hạ tầng, đội ngũ và compute phù hợp để duy trì base model.",
         "isCorrect": true
       },
       {
         "id": "opt3",
-        "label": "Nó giữ nguyên trọng số và chỉ bổ sung retrieval index cho dữ liệu mới."
+        "label": "Vì Continual Pre-training chỉ thay đổi prompt mà không cập nhật tham số."
       },
       {
         "id": "opt4",
-        "label": "Nó gộp toàn bộ lịch sử rồi pre-train một base model mới từ khởi tạo ngẫu nhiên."
+        "label": "Vì supplier luôn có ít dữ liệu hơn consumer."
       }
     ],
-    "success": "CPT nối tiếp quá trình pre-training từ checkpoint trước.",
-    "error": "Hãy nhìn vào điểm khởi tạo và dòng dữ liệu."
+    "success": "Continual Pre-training quy mô lớn đòi hỏi nguồn lực chủ yếu nằm ở supplier.",
+    "error": "Hãy xét bên nào có khả năng duy trì dữ liệu và compute ở quy mô base model."
   },
   {
-    "id": "cpt-data-stream",
-    "title": "Dòng dữ liệu CPT",
-    "prompt": "Dạng thay đổi nào có thể tạo một stage CPT mới?",
+    "id": "cpt-generalization",
+    "title": "Khả năng tổng quát hóa",
+    "prompt": "Trong điều kiện nào CPT có thể giúp model tổng quát hóa tốt hơn sang dữ liệu chưa từng thấy?",
     "mode": "single",
     "options": [
       {
-        "id": "opt2",
-        "label": "Ngôn ngữ, nội dung hoặc thời gian của corpus thay đổi.",
-        "isCorrect": true
+        "id": "opt1",
+        "label": "Khi distribution mới hoàn toàn không liên quan đến lịch sử và chỉ có rất ít mẫu."
       },
       {
-        "id": "opt1",
-        "label": "Corpus giữ nguyên nhưng downstream evaluator đổi metric báo cáo."
+        "id": "opt2",
+        "label": "Khi model không được cập nhật tham số mà chỉ đổi prompt ở inference."
       },
       {
         "id": "opt3",
-        "label": "Checkpoint được quantize để giảm memory nhưng không tiếp nhận corpus mới."
+        "label": "Khi toàn bộ dữ liệu mới được thay bằng dữ liệu tổng hợp có cùng một template."
       },
       {
         "id": "opt4",
-        "label": "Instruction template thay đổi trong inference nhưng phân phối pre-training không đổi."
+        "label": "Khi distribution shift diễn ra từ từ hoặc distribution cũ và mới có mức tương quan nhất định.",
+        "isCorrect": true
       }
     ],
-    "success": "Survey xem ba loại distribution shift này là trọng tâm CPT.",
-    "error": "CPT phản ứng với thay đổi trong phân phối dữ liệu."
+    "success": "Sự liên tục hoặc tương quan giữa các distribution tạo điều kiện để knowledge đã học hỗ trợ dữ liệu mới.",
+    "error": "Tìm trường hợp distribution mới vẫn có cấu trúc liên quan đến lịch sử."
   },
   {
-    "id": "supplier-consumer-release-cycle",
-    "title": "Supplier–consumer",
-    "prompt": "Vai trò nào thường duy trì base model upstream?",
+    "id": "cpt-memory-constraint",
+    "title": "Ràng buộc bộ nhớ",
+    "prompt": "Khi supplier có thể lưu toàn bộ dữ liệu lịch sử, nút thắt của Continual Pre-training thay đổi thế nào?",
     "mode": "single",
     "options": [
       {
-        "id": "opt1",
-        "label": "Consumer downstream duy trì checkpoint chuyên biệt sau DAP hoặc fine-tuning."
+        "id": "opt2",
+        "label": "Forgetting tự động biến mất nên không cần đánh giá dữ liệu cũ."
       },
       {
-        "id": "opt2",
-        "label": "Evaluator độc lập duy trì benchmark và quyết định mọi lần cập nhật tham số."
+        "id": "opt1",
+        "label": "Model buộc phải chuyển sang Domain-Adaptive Pre-training."
       },
       {
         "id": "opt3",
-        "label": "Supplier upstream duy trì và phát hành các phiên bản base model.",
+        "label": "Memory constraint bớt quan trọng, còn chi phí xử lý và lựa chọn chiến lược replay trở thành câu hỏi chính.",
         "isCorrect": true
       },
       {
         "id": "opt4",
-        "label": "Serving operator duy trì endpoint nhưng không sở hữu pipeline huấn luyện upstream."
+        "label": "Full replay trở nên bất khả thi vì dữ liệu lịch sử đã được lưu đầy đủ."
       }
     ],
-    "success": "Supplier cập nhật và phát hành checkpoint; consumer chuyên biệt hóa nó.",
-    "error": "Phân biệt bên phát hành base model với bên triển khai downstream."
+    "success": "Lưu được lịch sử không loại bỏ forgetting; nó chuyển trọng tâm từ memory sang compute và chiến lược cập nhật.",
+    "error": "Phân biệt khả năng lưu dữ liệu với chi phí đưa dữ liệu đó trở lại quá trình học."
+  },
+  {
+    "id": "cpt-replay-choice",
+    "title": "Chọn chiến lược replay",
+    "prompt": "Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ và supplier có đủ ngân sách, baseline nào nên được ưu tiên?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt1",
+        "label": "Full replay trên dữ liệu lịch sử và dữ liệu mới đã được chọn lọc kỹ.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt2",
+        "label": "Chỉ train trên dữ liệu mới để giảm chi phí đọc và xử lý dữ liệu."
+      },
+      {
+        "id": "opt3",
+        "label": "Sparse replay với mẫu cũ được chọn ngẫu nhiên bất kể độ đại diện."
+      },
+      {
+        "id": "opt4",
+        "label": "Đóng băng toàn bộ model để không tham số nào thay đổi."
+      }
+    ],
+    "success": "Khi dữ liệu và compute đều cho phép, full replay là baseline mạnh nhất cần báo cáo.",
+    "error": "Tìm lựa chọn dùng đầy đủ lịch sử hợp lệ thay vì đánh đổi retention để tiết kiệm tài nguyên."
   }
 ]} />

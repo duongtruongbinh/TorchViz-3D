@@ -1,0 +1,62 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'horizontal-forgetting', locale: 'vi', title: 'Horizontal Forgetting',
+  headings: ['Horizontal forgetting là gì?', 'Chuỗi task dài', 'Distribution shift đột ngột'],
+  keywords: ['Horizontal Forgetting', 'Long Task Sequence', 'Abrupt Distribution Shift'],
+  conceptIds: ['horizontal-forgetting', 'horizontal-long-sequence', 'horizontal-abrupt-shift'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Horizontal forgetting là gì?
+
+**Horizontal forgetting** là sự suy giảm hiệu năng trên các task hoặc stage cũ khi model tiếp tục học những stage mới theo thời gian hoặc domain.
+
+<ComparisonMatrix ariaLabel="Điều model phải làm trong Horizontal CL" columns={['Học ở stage hiện tại', 'Giữ lại từ các stage cũ']} rows={[
+  { label: 'Mục tiêu', values: ['Thích nghi với distribution mới', 'Duy trì hiệu năng đã đạt trước đó'] },
+  { label: 'Nếu mất cân bằng', values: ['Model không theo kịp dữ liệu mới', 'Model học mới nhưng quên lịch sử'] },
+]} />
+
+Khác với Vertical CL, các stage trong Horizontal CL thường có quy mô và vai trò tương đương nhau. Distribution giữa hai stage có thể chồng lấn một phần, nhưng mỗi lần update vẫn có thể đẩy model xa khỏi nghiệm phù hợp với dữ liệu cũ.
+
+Hai yếu tố làm bài toán này đặc biệt khó là **chuỗi task dài** và **distribution shift đột ngột**.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chuỗi task dài
+
+Horizontal CL trong thực tế có thể kéo dài qua rất nhiều stage. Ví dụ, một language model được cập nhật mỗi tháng sẽ trải qua 24 lần học sau hai năm, thay vì chỉ fine-tune một lần.
+
+Mỗi lần cập nhật đều có thể làm hiệu năng trên lịch sử giảm một ít. Vì vậy, dù mức quên ở từng stage không lớn, sai lệch vẫn có thể **tích lũy qua cả chuỗi** và khiến những task đầu tiên bị quên nhiều nhất.
+
+<CourseCards
+  ariaLabel="Tác động của chuỗi task dài"
+  exampleLabel="Điều xảy ra"
+  takeawayLabel="Hàm ý"
+  items={[
+    { title: 'Nhiều lần update', example: 'Model lần lượt học các stage 1, 2, 3, …, T.', takeaway: 'Mỗi stage tạo thêm một cơ hội làm thay đổi knowledge cũ.' },
+    { title: 'Forgetting tích lũy', example: 'Một mức giảm nhỏ lặp lại qua nhiều stage.', takeaway: 'Cần đo lại nhiều stage cũ, không chỉ stage ngay trước đó.' },
+    { title: 'Continual model ensemble', example: 'Duy trì và kết hợp nhiều model hoặc checkpoint qua thời gian.', takeaway: 'Đổi thêm memory và compute để bảo toàn năng lực lịch sử.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Distribution shift đột ngột
+
+Trong Vertical CL, hướng chuyển đổi thường đã biết trước: từ model tổng quát xuống domain rồi đến task chuyên biệt. Horizontal CL không có ràng buộc như vậy; distribution tiếp theo có thể thay đổi mạnh và khó dự đoán.
+
+<ComparisonMatrix ariaLabel="So sánh gradual shift và abrupt shift" columns={['Ví dụ', 'Ảnh hưởng lên model']} rows={[
+  { label: 'Gradual shift', values: ['Tin tức tháng này thay đổi nhẹ so với tháng trước', 'Representation cũ còn phù hợp một phần'] },
+  { label: 'Abrupt shift', values: ['Từ hội thoại phổ thông sang hồ sơ pháp lý chuyên ngành', 'Gradient mới có thể kéo model rời xa nghiệm cũ rất nhanh'] },
+]} />
+
+Shift càng đột ngột, tín hiệu từ stage mới càng ít tương thích với các stage trước. Model vì thế có thể học domain mới nhanh nhưng đồng thời suy giảm đáng kể trên dữ liệu lịch sử.
+
+Nguồn: [Shi et al., §3.2](https://arxiv.org/html/2404.16789v3#S3.SS2).
+
+</MdxPage>

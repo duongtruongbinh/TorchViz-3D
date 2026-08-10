@@ -2,7 +2,7 @@
 title: Continual Learning Course for Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
-updated: 2026-08-10T00:03:54+07:00
+updated: 2026-08-10T14:58:31+07:00
 author: nmkhiem
 task: "Add and author the Continual Learning domain, its paired assessments, labs, reusable visuals, and catalog contracts"
 supersedes: []
@@ -29,10 +29,13 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   displayed as **Continual Learning** directly after `llm-ai-engineering`.
 - Added a dedicated domain icon, card palette, typed domain ID, catalog export,
   and searchable route metadata.
-- Authored seven tracks and 38 adjacent Theory/Quiz pairs (76 published nodes):
-  fundamentals, core methods, continual pre-training/domain adaptation,
-  instruction tuning/alignment, replay/memory, regularization/PEFT, and
-  evaluation/research frontiers.
+- Consolidated the curriculum into six numbered chapters and 37 adjacent
+  Theory/Quiz pairs (74 authored nodes): foundations; replay, regularization,
+  and architecture; vertical/horizontal continuity; CPT/DAP/CFT learning
+  stages; evaluation; and discussion.
+- Kept the approved foundation through the Replay lab, then limited the
+  remaining curriculum to the topics synthesized by Shi et al. (2025), removing
+  speculative or redundant nodes that fell outside that survey-backed scope.
 - Kept theory titles compact and labeled every adjacent assessment node `Quiz`.
 - Reordered the learning path so Stability–Plasticity is followed immediately
   by Catastrophic Forgetting and its diagnostic lab. Chapter 1 ends with the
@@ -55,6 +58,13 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
 - Added a concise five-family mitigation taxonomy. Replay, Regularization, and
   Architecture are the taught core; Optimization and Representation are kept as
   brief survey directions.
+- Added the supplier–consumer motivation, separate Vertical and Horizontal CL
+  lessons, separate forgetting lessons for each direction, and a visual map from
+  the vertical production flow into CPT, DAP, and CFT.
+- Reorganized the later course around the survey: CPT effectiveness, efficiency,
+  observations, distribution shifts and other directions; DAP observations and
+  domain landscape; CFT, CIT, CMR, CMA and multimodal LLMs; then metrics,
+  benchmarks, emergent properties, memory and future directions.
 
 ## Theory and quiz contract
 
@@ -63,7 +73,7 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   question IDs must match that set exactly. This prevents untaught quiz content
   and theory claims without assessment coverage.
 - Reviewed all Continual Learning quizzes for plausible distractors and varied
-  correct-answer positions. The course contains 161 questions: 160
+  correct-answer positions. The course contains 142 questions: 141
   single-choice and one multi-choice question, all with four options.
 - Added catalog and MDX contract tests for pair adjacency, publication state,
   concept mapping, question shape, and non-predictable A–D answer sequences.
@@ -92,6 +102,10 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   `CourseCards`, `EvidenceCards`, `ConceptFlow`, `ExperimentChecklist`,
   `ComparisonMatrix`, `DatasetComposition`, `MetricBars`, and
   `ConceptSpectrum`.
+- Added `StageContinuityMap` for the vertical-stage/horizontal-expansion map and
+  `PaperTradeoff` for paired advantage/limitation summaries grounded in cited
+  papers. Extended `CourseCards` with three-column, feature-first, semantic-tone,
+  and optional-number modes used by the CPT distribution-shift lessons.
 - Added `LessonImage`, backed by a generic `src/assets/learning/**` Vite glob,
   so lessons reference domain assets without a domain-specific renderer map.
 - Added spotlight behavior for the paper evidence cards: the first card is
@@ -99,7 +113,7 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   card. Single-column mode supports sequential reading.
 - Added authored illustrations for the static-snapshot gap, update trade-off,
   unconstrained new-data fine-tuning, TIL/DIL/CIL, Vertical/Horizontal CL,
-  replay constraints, and both forgetting labs.
+  architecture expansion, replay constraints, and both forgetting labs.
 - Enabled GFM consistently in build-time MDX and validation so authored tables
   compile and render through the same contract.
 
@@ -170,13 +184,23 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
 - 2026-08-10 — Full verification found one overlong Vietnamese TOC title;
   shortened it to `Phân loại kịch bản CL`, synchronized the MDX metadata, and
   reran the complete verification successfully.
+- 2026-08-10 — Reworked the post-Replay curriculum into six survey-aligned
+  chapters; added supplier–consumer, Vertical/Horizontal CL, CPT/DAP/CFT,
+  evaluation and discussion lessons; removed superseded nodes; redesigned the
+  Language, Content and Temporal Shift pages around paper-specific insights and
+  limitations; and added the shared stage-map and paper-tradeoff components.
+- 2026-08-10 — Audited the complete branch diff against `main`: every current
+  theory and quiz file is referenced by the TOC, every new runtime asset is used,
+  every removed lesson ID is unreferenced, and each new shared MDX component and
+  `CourseCards` option has an authored consumer. No additional dead code or
+  orphan asset remained to remove.
 
 # Verification
 
 - Combined Python fences in the fifteen-page Replay lab parse as one valid
   copy-in-order Python program after excluding the Colab install magic.
-- Catalog and MDX tests validate all 76 published Continual Learning nodes and
+- Catalog and MDX tests validate all 74 authored Continual Learning nodes and
   their exact Theory/Quiz mappings.
-- `npm run verify` passed: TypeScript, all 84 tests, and the production build.
+- `npm run verify` passed: TypeScript, all 85 tests, and the production build.
 - `git diff --check` passed. Vite retains its non-blocking warning for chunks
   larger than 1 MB; no build errors remain.

@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'cpt-other-directions-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['CEM', 'RHO-1', 'IR-DRO'], keywords: ['Quiz', 'CEM', 'RHO-1', 'IR-DRO'],
+  conceptIds: ['cem', 'rho-1', 'ir-dro'], pageCount: 3,
+}
+
+<MdxQuiz id="cpt-other-directions-quiz" questions={[
+  { id: 'cem', title: 'CEM', mode: 'single', prompt: 'CEM ưu tiên dữ liệu nào?', options: [
+    { id: 'b', label: 'Chỉ fact không đổi.' },
+    { id: 'a', label: 'Ví dụ model trả lời sai.', isCorrect: true },
+    { id: 'c', label: 'Mọi sequence có loss thấp.' },
+    { id: 'd', label: 'Chỉ dữ liệu có task ID.' },
+  ], success: 'CEM tập trung vào example model còn sai.', error: 'Đơn vị chọn của CEM là example.' },
+  { id: 'rho-1', title: 'RHO-1', mode: 'single', prompt: 'Selective Language Modeling của RHO-1 ưu tiên gì?', options: [
+    { id: 'a', label: 'Sequence ngắn nhất.' },
+    { id: 'c', label: 'Task có OP cao.' },
+    { id: 'd', label: 'Parameter có importance thấp.' },
+    { id: 'b', label: 'Token có perplexity cao.', isCorrect: true },
+  ], success: 'RHO-1 chọn ở token level.', error: 'Nhớ tín hiệu perplexity.' },
+  { id: 'ir-dro', title: 'IR-DRO', mode: 'single', prompt: 'IR-DRO gán trọng số ở cấp nào?', options: [
+    { id: 'a', label: 'Parameter.' },
+    { id: 'b', label: 'Task ID.' },
+    { id: 'c', label: 'Sequence.', isCorrect: true },
+    { id: 'd', label: 'Output class.' },
+  ], success: 'IR-DRO ưu tiên sequence có loss cao.', error: 'Phân biệt token-level RHO-1 với sequence-level IR-DRO.' },
+]} />

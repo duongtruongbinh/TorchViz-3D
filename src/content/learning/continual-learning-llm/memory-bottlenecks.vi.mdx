@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'memory-bottlenecks', locale: 'vi', title: 'Vai trò của Memory',
+  headings: ['Nút thắt phụ thuộc quyền truy cập dữ liệu'], keywords: ['Memory', 'Compute', 'Rehearsal-free'],
+  conceptIds: ['full-history', 'no-upstream-data', 'privacy-stream'],
+}
+
+## Nút thắt phụ thuộc quyền truy cập dữ liệu
+
+<ComparisonMatrix ariaLabel="Memory constraint trong continual LLM" columns={['Nút thắt', 'Hướng phù hợp']} rows={[
+  { label: 'Có toàn bộ history', values: ['Compute efficiency', 'Chọn dữ liệu cần replay; giới hạn update hoặc FLOPs'] },
+  { label: 'Không có upstream data', values: ['Data access', 'Public proxy data, pseudo-replay, parameter regularization'] },
+  { label: 'Privacy nghiêm ngặt', values: ['Chỉ dùng sample khi nó xuất hiện', 'Online continual learning'] },
+]} />
+
+Với continual LLMs, storage không phải lúc nào cũng là nút thắt chính. Một tổ chức lớn có thể giữ toàn bộ history nhưng không đủ compute để train lại trên tất cả dữ liệu ở mỗi stage. Ngược lại, downstream consumer có thể hoàn toàn không được phép thấy upstream data, nên rehearsal-free methods vẫn cần thiết.
+
+Nguồn: [Shi et al., §6.3](https://arxiv.org/html/2404.16789v3#S6.SS3).

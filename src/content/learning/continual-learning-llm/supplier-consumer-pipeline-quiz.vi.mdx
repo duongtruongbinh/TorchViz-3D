@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'supplier-consumer-pipeline-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Supplier', 'Consumer', 'Hai chiều'], keywords: ['Quiz', 'Supplier–Consumer'],
+  conceptIds: ['supplier-role', 'consumer-role', 'two-dimensional-continuity'], pageCount: 3,
+}
+
+<MdxQuiz id="supplier-consumer-pipeline-quiz" questions={[
+  { id: 'supplier-role', title: 'Supplier', mode: 'single', prompt: 'Supplier làm gì trong pipeline Recyclable Tuning?', options: [
+    { id: 'b', label: 'Liên tục pre-train model upstream trên dữ liệu mới.', isCorrect: true },
+    { id: 'a', label: 'Chỉ gán nhãn downstream data.' },
+    { id: 'c', label: 'Chỉ đánh giá safety của consumer.' },
+    { id: 'd', label: 'Cung cấp task ID cho mọi request.' },
+  ], success: 'Supplier cập nhật model upstream.', error: 'Supplier đứng ở phía pre-training quy mô lớn.' },
+  { id: 'consumer-role', title: 'Consumer', mode: 'single', prompt: 'Khác biệt thực tế nào giữa consumer dùng model open-weight và consumer gọi model qua API?', options: [
+    { id: 'b', label: 'Cả hai đều nhận toàn bộ weights và bắt buộc tự host model.' },
+    { id: 'c', label: 'API cho phép sửa trực tiếp mọi trọng số, còn open-weight chỉ cho phép đổi prompt.' },
+    { id: 'a', label: 'Open-weight cho phép tải và tự thích nghi checkpoint; API chỉ cung cấp quyền gọi model hoặc snapshot mà không giao weights.', isCorrect: true },
+    { id: 'd', label: 'Chỉ luồng API mới cần đánh giá lại khi supplier phát hành phiên bản mới.' },
+  ], success: 'Đúng. Hai luồng khác nhau chủ yếu ở quyền truy cập và kiểm soát trọng số.', error: 'Hãy nhìn xem consumer có thực sự sở hữu checkpoint hay chỉ gọi endpoint.' },
+  { id: 'two-dimensional-continuity', title: 'Hai chiều', mode: 'single', prompt: 'Quan hệ nào giữa pipeline supplier–consumer và hai chiều continuity là chính xác?', options: [
+    { id: 'a', label: 'Supplier luôn là horizontal, còn consumer luôn là vertical.' },
+    { id: 'c', label: 'Pipeline là bối cảnh sản xuất; survey dùng vertical và horizontal để phân tích hai hướng cập nhật có thể cùng xuất hiện trong đó.', isCorrect: true },
+    { id: 'b', label: 'Vertical và horizontal là hai tên khác của supplier và consumer.' },
+    { id: 'd', label: 'Chỉ Recyclable Tuning mới có vertical hoặc horizontal continuity.' },
+  ], success: 'Đúng. Pipeline tạo motivation; hai chiều là taxonomy phân tích cập nhật.', error: 'Không đồng nhất supplier với một chiều và consumer với chiều còn lại.' },
+]} />

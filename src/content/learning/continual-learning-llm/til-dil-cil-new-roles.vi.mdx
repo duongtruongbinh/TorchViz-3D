@@ -1,0 +1,17 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'til-dil-cil-new-roles', locale: 'vi', title: 'Vai trò mới của TIL, DIL, CIL',
+  headings: ['Taxonomy cổ điển đổi vai trong LLM'], keywords: ['TIL', 'DIL', 'CIL', 'Instruction'],
+  conceptIds: ['dil-role', 'til-role', 'cil-role'],
+}
+
+## Taxonomy cổ điển đổi vai trong LLM
+
+<ComparisonMatrix ariaLabel="Vai trò mới của TIL DIL CIL trong continual LLM" columns={['Xuất hiện tự nhiên ở đâu', 'Tín hiệu chính']} rows={[
+  { label: 'DIL', values: ['CPT và DAP', 'Input-output format giữ nguyên, domain distribution đổi'] },
+  { label: 'TIL', values: ['Instruction tuning', 'Instruction có thể mã hóa task ID bằng natural language'] },
+  { label: 'CIL', values: ['Vocabulary expansion hoặc MoE', 'Mở rộng token/class hoặc học routing function'] },
+]} />
+
+CIL từng là trọng tâm của CL, nhưng TIL và DIL phù hợp hơn với continual LLMs. Ranh giới TIL–DIL cũng mờ hơn vì LLM có thể tự suy ra domain từ một instruction chưa từng thấy.
+
+Nguồn: [Shi et al., §6.2](https://arxiv.org/html/2404.16789v3#S6.SS2).

@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'vertical-forgetting-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Vertical forgetting', 'Task heterogeneity', 'Upstream data'], keywords: ['Quiz', 'Vertical Forgetting'],
+  conceptIds: ['vertical-forgetting', 'vertical-task-heterogeneity', 'vertical-upstream-access'], pageCount: 3,
+}
+
+<MdxQuiz id="vertical-forgetting-quiz" questions={[
+  { id: 'vertical-forgetting', title: 'Vertical forgetting', mode: 'single', prompt: 'Vertical forgetting là gì?', options: [
+    { id: 'a', label: 'Không học được domain mới.' },
+    { id: 'b', label: 'Suy giảm năng lực tổng quát sau khi thích nghi xuống domain hoặc task chuyên biệt.', isCorrect: true },
+    { id: 'c', label: 'Không suy ra được task ID trong TIL.' },
+    { id: 'd', label: 'Giảm số stage của benchmark.' },
+  ], success: 'Failure nằm ở năng lực upstream bị mất.', error: 'Hãy nhìn điều gì bị suy giảm khi đi xuống pipeline.' },
+  { id: 'vertical-task-heterogeneity', title: 'Task heterogeneity', mode: 'single', prompt: 'Ví dụ nào thể hiện task heterogeneity trong Vertical CL?', options: [
+    { id: 'a', label: 'Hai corpus tin tức cùng objective nhưng khác năm thu thập.' },
+    { id: 'b', label: 'Cùng một classification task được chạy lại trên batch lớn hơn.' },
+    { id: 'c', label: 'Model chỉ thay đổi learning rate giữa hai epoch.' },
+    { id: 'd', label: 'Upstream dự đoán token tiếp theo, còn downstream tối ưu nhãn Positive/Negative.', isCorrect: true },
+  ], success: 'Hai stage khác cả task formulation, output và objective.', error: 'Tìm trường hợp thay đổi bản chất task chứ không chỉ thay distribution.' },
+  { id: 'vertical-upstream-access', title: 'Upstream data', mode: 'single', prompt: 'Vì sao thiếu upstream data làm vertical forgetting khó xử lý?', options: [
+    { id: 'a', label: 'Consumer không thể replay dữ liệu đó hoặc dùng nó để ước lượng parameter importance.', isCorrect: true },
+    { id: 'b', label: 'Consumer luôn phải đổi tokenizer.' },
+    { id: 'c', label: 'Model không thể có nhiều hơn ba stage.' },
+    { id: 'd', label: 'OP không dùng được cho downstream task.' },
+  ], success: 'Quyền truy cập dữ liệu giới hạn cả replay lẫn regularization.', error: 'Xem dữ liệu cũ hỗ trợ hai nhóm method nào.' },
+]} />

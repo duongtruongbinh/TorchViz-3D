@@ -1,0 +1,158 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'lama-knowledge-evaluation', locale: 'vi', title: 'Một số cách đánh giá mở rộng',
+  headings: ['Ba hướng đánh giá mở rộng', 'LAMA: Tách giữ, cập nhật và học mới', 'FUAR: So lượng quên với lượng học', 'X-Delta: Theo dõi năng lực nền'],
+  keywords: ['LAMA', 'InvariantLAMA', 'UpdatedLAMA', 'NewLAMA', 'FUAR', 'X-Delta', 'TRACE'],
+  conceptIds: [
+    'extended-evaluation-overview',
+    'lama-probe',
+    'invariant-lama',
+    'updated-new-lama',
+    'fuar-definition',
+    'fuar-interpretation',
+    'fuar-vs-op',
+    'x-delta-baseline',
+    'x-delta-abilities',
+    'x-delta-interpretation',
+  ],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Ba hướng đánh giá mở rộng
+
+OP, F, BWT và FWT mô tả hiệu năng trên một chuỗi task. Với LLM, ta còn cần biết **knowledge nào được giữ hoặc cập nhật** và **các năng lực nền có bị suy giảm hay không**. Survey giới thiệu ba hướng bổ sung:
+
+<ComparisonMatrix
+  ariaLabel="Ba hướng đánh giá mở rộng cho continual learning của LLM"
+  columns={['Câu hỏi cần trả lời', 'Vai trò']}
+  rows={[
+    { label: 'LAMA', values: ['Model giữ fact cũ, sửa fact lỗi thời và học fact mới ra sao?', 'Tách knowledge thành ba nhóm để đánh giá'] },
+    { label: 'FUAR', values: ['Model phải quên bao nhiêu fact để cập nhật hoặc học thêm knowledge?', 'Gom kết quả LAMA thành một tỷ lệ trade-off'] },
+    { label: 'X-Delta', values: ['Continual training làm thay đổi general ability, instruction following và safety thế nào?', 'So năng lực nền sau training với baseline ban đầu'] },
+  ]}
+/>
+
+Ba hướng này không thay thế các metric CL tổng quát. Chúng mở rộng phần đánh giá cho những đặc điểm quan trọng riêng của language model.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## LAMA: Tách giữ, cập nhật và học mới
+
+[LAnguage Model Analysis (**LAMA**)](https://arxiv.org/abs/1909.01066) biến một world fact thành câu điền khuyết rồi yêu cầu language model dự đoán đáp án. Trong CPT dưới temporal shift, một điểm tổng hợp không đủ vì fact có thể giữ nguyên, thay đổi hoặc mới xuất hiện.
+
+Ví dụ, ta đưa vào model câu **“Paris là thủ đô của [MASK]”**. Nếu model dự đoán “Pháp”, câu trả lời được tính là đúng. Cách kiểm tra này cho thấy model có thể truy xuất fact từ tham số hay không mà không cần fine-tune thêm cho câu hỏi đó.
+
+[Jang et al. (2022)](https://arxiv.org/abs/2110.03215) dùng LAMA trong một thí nghiệm **Continual Knowledge Learning (CKL)**:
+
+### 1. Chuẩn bị corpus cũ D₀
+
+Nhóm nghiên cứu có corpus <InlineMath formula="D_0" /> và checkpoint ban đầu <InlineMath formula="M_0" /> đã được pre-train trên corpus này. Họ dùng LAMA để đo xem <InlineMath formula="M_0" /> thực sự trả lời được những fact nào; một fact xuất hiện trong corpus không có nghĩa model chắc chắn đã học được nó.
+
+<ComparisonMatrix
+  ariaLabel="Ví dụ các fact trong corpus D0"
+  columns={['Thông tin trong D₀', 'Probe trên model M₀']}
+  rows={[
+    { label: 'Fact A · vẫn đúng', values: ['Thủ đô của Aurelia là Nova', '“Thủ đô của Aurelia là [MASK]” → Nova'] },
+    { label: 'Fact B · sẽ lỗi thời', values: ['CEO của Orbit Labs là Linh', '“CEO của Orbit Labs là [MASK]” → Linh'] },
+  ]}
+/>
+
+### 2. Chuẩn bị corpus mới D₁
+
+Tiếp theo, nhóm nghiên cứu thu thập corpus mới <InlineMath formula="D_1" />. Corpus này chứa phiên bản mới của Fact B và một Fact C chưa có trong <InlineMath formula="D_0" />.
+
+<ComparisonMatrix
+  ariaLabel="Ví dụ các fact trong corpus D1"
+  columns={['Thông tin trong D₁', 'Điều model cần học']}
+  rows={[
+    { label: 'Fact B · được cập nhật', values: ['CEO của Orbit Labs hiện là Minh', 'Thay đáp án cũ Linh bằng Minh'] },
+    { label: 'Fact C · hoàn toàn mới', values: ['BrightAI đặt trụ sở tại Đà Nẵng', 'Tiếp thu một fact chưa có trong D₀'] },
+  ]}
+/>
+
+Model <InlineMath formula="M_0" /> tiếp tục pre-train trên toàn bộ <InlineMath formula="D_1" /> để tạo thành model mới <InlineMath formula="M_1" />. Đây là cập nhật bằng dữ liệu mới, không phải chỉnh từng fact bằng tay.
+
+### 3. Đánh giá model sau cập nhật
+
+Sau đó, paper dùng ba tập LAMA để đánh giá quá trình cập nhật có thành công hay không. Đây là **dữ liệu đánh giá**, không phải ba kỹ thuật training:
+
+<ComparisonMatrix
+  ariaLabel="Ba lát cắt LAMA trong CKL"
+  columns={['Kiểm tra', 'Cập nhật tốt khi']}
+  rows={[
+    { label: 'InvariantLAMA', values: ['Giữ kiến thức không đổi', 'Fact A vẫn được trả lời là Nova'] },
+    { label: 'UpdatedLAMA', values: ['Cập nhật kiến thức lỗi thời', 'Fact B được trả lời là Minh, không phải Linh'] },
+    { label: 'NewLAMA', values: ['Tiếp thu kiến thức mới', 'Fact C được trả lời là Đà Nẵng'] },
+  ]}
+/>
+
+Ba lát cắt giúp tránh kết luận sai rằng model “tốt hơn” chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời.
+
+Nguồn: [Shi et al., §5](https://arxiv.org/html/2404.16789v3#S5), [Petroni et al. (2019)](https://arxiv.org/abs/1909.01066) và [Jang et al. (2022)](https://arxiv.org/abs/2110.03215).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## FUAR: So lượng quên với lượng học
+
+Sau khi LAMA đã tách các fact thành **bị quên**, **được cập nhật** và **mới được tiếp thu**, [Jang et al. (2022)](https://arxiv.org/abs/2110.03215) dùng **Forgotten / (Updated + Acquired) Ratio (FUAR)** để gom trade-off đó thành một tỷ lệ:
+
+<BlockMath formula="\mathrm{FUAR}=\frac{\mathrm{Forgotten}}{\mathrm{Updated}+\mathrm{Acquired}}" />
+
+<ComparisonMatrix ariaLabel="Cách đọc FUAR" columns={['Ý nghĩa', 'Cách đánh giá']} rows={[
+  { label: 'FUAR < 1', values: ['Học hoặc cập nhật được nhiều fact hơn lượng quên', 'Thuận lợi hơn'] },
+  { label: 'FUAR = 1', values: ['Mỗi fact học được đi kèm trung bình một fact bị quên', 'Mức đổi ngang'] },
+  { label: 'FUAR > 1', values: ['Quên nhiều fact hơn lượng học hoặc cập nhật được', 'Bất lợi'] },
+]} />
+
+Ví dụ, nếu model quên 20 fact trên InvariantLAMA nhưng cập nhật hoặc học mới tổng cộng 50 fact trên UpdatedLAMA và NewLAMA, thì:
+
+<BlockMath formula="\mathrm{FUAR}=\frac{20}{50}=0.4" />
+
+FUAR thấp hơn 1 cho biết lượng knowledge thu được lớn hơn lượng mất đi. Tuy nhiên, vẫn cần xem từng tập LAMA vì cùng một FUAR có thể đến từ các số lượng fact rất khác nhau. OP cũng không thay thế FUAR: OP tóm tắt hiệu năng task, còn FUAR tập trung vào trade-off giữa forgetting, update và acquisition của knowledge.
+
+Nguồn: [Towards Continual Knowledge Learning of Language Models — Jang et al. (2022)](https://arxiv.org/abs/2110.03215) và [Shi et al., §5](https://arxiv.org/html/2404.16789v3#S5).
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## X-Delta: Theo dõi năng lực nền
+
+[TRACE](https://arxiv.org/abs/2310.06762) đặt một câu hỏi rộng hơn việc model còn nhớ các task cũ hay không: **sau continual training, model có đánh mất những năng lực vốn có của một aligned LLM không?** Survey gọi ba phép đo của TRACE là nhóm metric **X-Delta**.
+
+### 1. Đo baseline trước khi continual training
+
+Paper lấy model ban đầu <InlineMath formula="M_0" /> và đo ba nhóm năng lực trên các bộ test **tách biệt với task dùng để train**:
+
+<ComparisonMatrix ariaLabel="Ba nhóm năng lực được đo trên model ban đầu" columns={['Năng lực được đo', 'Bộ test ví dụ']} rows={[
+  { label: 'General ability', values: ['Kiến thức, suy luận, đa ngôn ngữ, commonsense và đọc hiểu', 'MMLU, BBH, TyDiQA, PIQA, BoolQ'] },
+  { label: 'Instruction following', values: ['Khả năng hiểu và làm theo yêu cầu', 'Self-Instruct, LIMA'] },
+  { label: 'Safety', values: ['Khả năng xử lý an toàn yêu cầu độc hại', 'CoNa'] },
+]} />
+
+### 2. Train tuần tự rồi đo lại
+
+Model được train lần lượt trên tám task TRACE thuộc domain-specific, multilingual, code và mathematical reasoning. Sau stage <InlineMath formula="t" />, paper chạy lại đúng các bộ test baseline trên model <InlineMath formula="M_t" />:
+
+<BlockMath formula="\Delta R_t^X=\frac{1}{|X|}\sum_{i\in X}\left(R_{t,i}^X-R_{0,i}^X\right)" />
+
+Trong đó, <InlineMath formula="X" /> là một nhóm năng lực. X-Delta dương nghĩa là năng lực được cải thiện, bằng 0 nghĩa là gần như không đổi và âm nghĩa là đã suy giảm, với điều kiện metric gốc có chiều càng cao càng tốt.
+
+<ComparisonMatrix ariaLabel="Ba nhóm X-Delta" columns={['Theo dõi', 'Failure cần phát hiện']} rows={[
+  { label: 'General Ability Delta', values: ['Năng lực tổng quát sau trừ trước', 'Kiến thức hoặc khả năng suy luận nền bị giảm'] },
+  { label: 'Instruction Following Delta', values: ['Khả năng làm theo chỉ dẫn sau trừ trước', 'Model học task mới nhưng làm theo yêu cầu kém hơn'] },
+  { label: 'Safety Delta', values: ['Mức an toàn sau trừ trước', 'Continual training làm suy giảm safety alignment'] },
+]} />
+
+Ví dụ, TRACE báo cáo accuracy GSM8K của Llama 2 Chat 13B giảm từ <InlineMath formula="28.8\%" /> xuống <InlineMath formula="2\%" /> sau continual training, tương ứng delta <InlineMath formula="-26.8" /> điểm phần trăm trên thành phần này.
+
+X-Delta không thay thế OP hoặc F. OP/F theo dõi các task trong continual sequence; X-Delta kiểm tra những năng lực nằm ngoài chuỗi training có bị ảnh hưởng hay không.
+
+Nguồn: [TRACE — Wang et al. (2023)](https://arxiv.org/abs/2310.06762) và [Shi et al., §5](https://arxiv.org/html/2404.16789v3#S5).
+
+</MdxPage>

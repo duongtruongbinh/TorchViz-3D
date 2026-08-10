@@ -1,32 +1,19 @@
 export const lessonMetadata = {
-  domainId: 'continual-learning-llm',
-  id: 'continual-multimodal-llms',
-  locale: 'vi',
-  title: "Continual Multimodal LLM",
-  headings: ['Theo dõi forgetting trong cả từng modality và liên kết cross-modal'],
-  keywords: ['Continual Learning', 'LLM', 'Continual Multimodal LLM'],
-  conceptIds: [
-  "cmllm-definition",
-  "modality-sequence",
-  "cross-modal-transfer",
-  "modality-forgetting"
-],
+  domainId: 'continual-learning-llm', id: 'continual-multimodal-llms', locale: 'vi', title: 'Continual Multimodal LLM',
+  headings: ['Có thể quên theo cả vertical lẫn horizontal'], keywords: ['CMLLM', 'Vertical Forgetting', 'Horizontal Forgetting'],
+  conceptIds: ['cmllm-forgetting', 'cmllm-transfer', 'cmllm-methods'],
 }
 
-## Theo dõi forgetting trong cả từng modality và liên kết cross-modal
+## Có thể quên theo cả vertical lẫn horizontal
 
-Continual Multimodal LLM học nối tiếp từ text, image, audio hoặc các tổ hợp mới. Model không chỉ cần giữ năng lực trong từng modality mà còn phải bảo tồn **alignment giữa chúng**.
+Continual training cho Multimodal LLM còn ít được nghiên cứu hơn text-only LLM.
 
-<ConceptFlow
-  ariaLabel="Các lớp đánh giá của Continual Multimodal LLM"
-  items={[
-    { title: 'Unimodal retention', detail: 'Text, vision hoặc audio cũ' },
-    { title: 'New-modality acquisition', detail: 'Khả năng mới của stage hiện tại' },
-    { title: 'Cross-modal transfer', detail: 'Tri thức từ modality này hỗ trợ modality khác' },
-    { title: 'Alignment retention', detail: 'Liên kết giữa input và output vẫn đúng' },
-  ]}
-/>
+<ComparisonMatrix ariaLabel="Các finding về continual multimodal LLM" columns={['Hiện tượng', 'Ý nghĩa']} rows={[
+  { label: 'Vertical forgetting', values: ['Sau downstream fine-tuning', 'Năng lực upstream có thể suy giảm'] },
+  { label: 'Horizontal forgetting', values: ['Sau khi học task mới', 'Task cũ có thể giảm hiệu năng'] },
+  { label: 'Negative FWT', values: ['Task hiện tại ảnh hưởng task chưa thấy', 'Học trước có thể làm tương lai khó hơn'] },
+]} />
 
-CMLLM có thể chịu vertical forgetting khi thêm adapter/modal stack chuyên biệt và horizontal forgetting khi học chuỗi dataset đa phương thức. Một aggregate score duy nhất dễ che khuất modality nào đang suy giảm.
+Survey ghi nhận replay và model expansion tương đối ổn định; regularization chỉ hiệu quả trong một số model đã joint instruction tuning. Các method được nêu gồm EProj, Fwd-Prompt, Model Tailor, RebQ và MoELoRA.
 
 Nguồn: [Shi et al., §4.3.6](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS6).

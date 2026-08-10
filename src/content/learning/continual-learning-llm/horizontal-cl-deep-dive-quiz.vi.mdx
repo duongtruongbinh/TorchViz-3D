@@ -1,0 +1,20 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'horizontal-cl-deep-dive-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Định nghĩa', 'Chiến lược memory'], keywords: ['Quiz', 'Horizontal CL'],
+  conceptIds: ['horizontal-definition', 'horizontal-memory-strategy'], pageCount: 2,
+}
+
+<MdxQuiz id="horizontal-cl-deep-dive-quiz" questions={[
+  { id: 'horizontal-definition', title: 'Định nghĩa', mode: 'single', prompt: 'Horizontal CL mô tả chuyển động nào?', options: [
+    { id: 'a', label: 'Từ pre-training tổng quát xuống fine-tuning chuyên biệt.' },
+    { id: 'b', label: 'Thích nghi theo thời gian hoặc giữa các domain ở các stage tương đương.', isCorrect: true },
+    { id: 'c', label: 'Chỉ mở rộng output class.' },
+    { id: 'd', label: 'Chỉ đổi task ID tại inference.' },
+  ], success: 'Horizontal CL đi dọc theo time/domain stream.', error: 'Phân biệt với cấu trúc phân cấp của vertical CL.' },
+  { id: 'horizontal-memory-strategy', title: 'Chiến lược memory', mode: 'single', prompt: 'Khi tổ chức vẫn truy cập được toàn bộ historical data, nhận định nào hợp lý nhất?', options: [
+    { id: 'a', label: 'Sparse replay có thể đủ hiệu quả trong một số setup, và nút thắt chuyển dần từ memory sang compute.', isCorrect: true },
+    { id: 'b', label: 'Horizontal CL không còn cần đo forgetting.' },
+    { id: 'c', label: 'Full retraining sau mỗi batch luôn là lựa chọn rẻ nhất.' },
+    { id: 'd', label: 'Mọi thuật toán CL chuyên biệt chắc chắn trở nên vô ích.' },
+  ], success: 'Có dữ liệu lịch sử làm thay đổi constraint, nhưng không tự loại bỏ bài toán retention.', error: 'Phân biệt “memory không còn khan hiếm” với “forgetting đã biến mất”.' },
+]} />

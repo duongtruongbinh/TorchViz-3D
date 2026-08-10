@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'dap-domain-landscape-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Domain', 'Data mixing', 'Code'], keywords: ['Quiz', 'DAP Domains'],
+  conceptIds: ['dap-domain-examples', 'dap-data-mixing', 'dap-design-choices'], pageCount: 3,
+}
+
+<MdxQuiz id="dap-domain-landscape-quiz" questions={[
+  { id: 'dap-domain-examples', title: 'Domain', mode: 'single', prompt: 'SaulLM thuộc domain DAP nào?', options: [
+    { id: 'a', label: 'Medical.' },
+    { id: 'b', label: 'Financial.' },
+    { id: 'c', label: 'Legal.', isCorrect: true },
+    { id: 'd', label: 'Code.' },
+  ], success: 'SaulLM là ví dụ legal DAP.', error: 'Ghép model với domain được survey liệt kê.' },
+  { id: 'dap-data-mixing', title: 'Data mixing', mode: 'single', prompt: 'Vì sao một số domain model trộn general data khi DAP?', options: [
+    { id: 'a', label: 'Để giảm vertical forgetting và giữ general ability.', isCorrect: true },
+    { id: 'b', label: 'Để biến DAP thành CIL.' },
+    { id: 'c', label: 'Để bỏ toàn bộ domain corpus.' },
+    { id: 'd', label: 'Để luôn đạt zero forgetting.' },
+  ], success: 'General data đóng vai trò replay/anchor.', error: 'Nhìn trade-off domain acquisition và general retention.' },
+  { id: 'dap-design-choices', title: 'Code', mode: 'single', prompt: 'Điểm riêng của code DAP được survey nêu là gì?', options: [
+    { id: 'a', label: 'Code không cần training objective.' },
+    { id: 'b', label: 'Code có hierarchy natural language → multi-language code → language cụ thể.', isCorrect: true },
+    { id: 'c', label: 'Code không có vertical forgetting.' },
+    { id: 'd', label: 'Code chỉ dùng CIL.' },
+  ], success: 'Code có pipeline phân cấp tự nhiên.', error: 'Nhớ chuỗi chuyên biệt hóa của code.' },
+]} />

@@ -1,0 +1,105 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'supplier-consumer-pipeline', locale: 'vi', title: 'Pipeline Supplier–Consumer',
+  headings: ['Vì sao cần supplier–consumer?', 'Hai cách supplier phát hành model', 'Từ pipeline đến hai chiều continuity'], keywords: ['Supplier', 'Consumer', 'Recyclable Tuning'],
+  conceptIds: ['supplier-role', 'consumer-role', 'two-dimensional-continuity'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao cần supplier–consumer?
+
+LLM quá lớn để liên tục thu thập lại toàn bộ dữ liệu và retrain từ đầu. Việc giữ model cập nhật cũng ngày càng đắt khi dữ liệu mới xuất hiện với tốc độ rất cao. Survey minh họa rằng vào năm 2023, trung bình mỗi ngày có hơn 500 triệu tweet mới được tạo ra; ngay cả training trên một phần của khối lượng này cũng có thể mang lại chi phí khó chấp nhận.
+
+Trong thực tế, khả năng cập nhật model phân bố không đều. So với supplier upstream như OpenAI hoặc Anthropic, consumer downstream thường không đủ nguồn lực để:
+
+<CourseCards
+  ariaLabel="Ba nguồn lực consumer downstream thường thiếu"
+  exampleLabel="Consumer khó tự làm"
+  takeawayLabel="Hệ quả"
+  items={[
+    {
+      title: 'Dữ liệu',
+      example: 'Thu thập, làm sạch và lưu trữ corpus quy mô đủ lớn để cập nhật một foundation model.',
+      takeaway: 'Consumer phải dựa vào knowledge mới đã được supplier đưa vào upstream model.',
+    },
+    {
+      title: 'Hạ tầng',
+      example: 'Duy trì cụm GPU, storage, networking và pipeline phân tán cho một đợt pre-training lớn.',
+      takeaway: 'Consumer thường chỉ đủ compute để adaptation hoặc inference ở quy mô nhỏ hơn.',
+    },
+    {
+      title: 'Pre-training',
+      example: 'Tự thiết kế và vận hành toàn bộ quá trình pre-train một LLM mới từ đầu.',
+      takeaway: 'Consumer nhận checkpoint hoặc API mới rồi tập trung vào downstream task của mình.',
+    },
+  ]}
+/>
+
+[Recyclable Tuning](https://arxiv.org/abs/2305.08702) là công trình đầu tiên mô tả rõ pipeline LLM hiện đại bằng cấu trúc **supplier–consumer**:
+
+<ConceptFlow ariaLabel="Pipeline supplier consumer" items={[
+  { title: 'Supplier', detail: 'Continual pre-training trên chuỗi dữ liệu không gán nhãn mới' },
+  { title: 'Phát hành', detail: 'Cung cấp một phiên bản upstream mạnh và cập nhật hơn' },
+  { title: 'Consumer', detail: 'Nhận phiên bản mới rồi thích nghi cho downstream task' },
+  { title: 'Triển khai', detail: 'Duy trì model chuyên biệt mà không tự pre-train lại từ đầu' },
+]} />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hai cách supplier phát hành model
+
+Các công ty lớn có thể cung cấp nhiều phiên bản model theo hai luồng phổ biến:
+
+<ComparisonMatrix
+  ariaLabel="So sánh luồng phát hành open-weight và API"
+  columns={['Supplier cung cấp', 'Consumer sử dụng', 'Khi có phiên bản mới']}
+  rows={[
+    { label: 'Open-weight · Meta Llama', values: ['Checkpoint và tokenizer theo license', 'Tải weights, tự host và có thể fine-tune hoặc gắn LoRA', 'Tải checkpoint mới, chuyển phần thích nghi sang model mới rồi chạy lại evaluation'] },
+    { label: 'Closed-weight · API', values: ['Model hoặc snapshot qua API; không cung cấp weights', 'Gửi input tới endpoint và thích nghi bằng prompt, RAG hoặc dịch vụ fine-tuning được hỗ trợ', 'Đổi model ID hoặc snapshot, chạy regression test rồi điều chỉnh lớp ứng dụng nếu hành vi thay đổi'] },
+  ]}
+/>
+
+Ví dụ, [Meta phát hành nhiều thế hệ Llama cùng weights để tải xuống](https://github.com/meta-llama/llama-models), nên consumer có quyền kiểm soát checkpoint và hạ tầng nhưng cũng phải tự xử lý việc chuyển LoRA, tokenizer hoặc pipeline sang phiên bản mới. Với luồng API như OpenAI hoặc Anthropic, consumer không nhận weights; họ chỉ chọn model ID hoặc snapshot. [OpenAI khuyến nghị pin snapshot và chạy eval](https://platform.openai.com/docs/api-reference/backward-compatibility) vì cùng một prompt có thể cho hành vi khác khi đổi phiên bản.
+
+Hai luồng khác nhau về mức kiểm soát, nhưng cùng tạo ra bài toán continual learning ở phía consumer: **làm sao nhận lợi ích từ upstream model mới mà không làm hỏng downstream behavior đã xây dựng trước đó?**
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Từ pipeline đến hai chiều continuity
+
+Từ motivation này, survey mở rộng pipeline thành hai hướng continuity:
+
+<CourseCards
+  ariaLabel="Hai hướng continuity trong pipeline LLM"
+  exampleLabel="Hướng cập nhật"
+  takeawayLabel="Điểm thay đổi"
+  items={[
+    {
+      title: 'Vertical continuity',
+      example: 'Model đi từ năng lực tổng quát của supplier xuống domain và task chuyên biệt của consumer.',
+      takeaway: 'Objective, dữ liệu, quy mô và cả đơn vị thực hiện có thể thay đổi.',
+    },
+    {
+      title: 'Horizontal continuity',
+      example: 'Model được cập nhật qua nhiều phiên bản hoặc stage ở cùng một tầng.',
+      takeaway: 'Dữ liệu thay đổi theo thời gian hoặc chuyển sang domain khác.',
+    },
+  ]}
+/>
+
+<LessonImage
+  assetPath="continual-learning-llm/01-vertical-horizontal-continual-learning.webp"
+  alt="Sơ đồ vertical continual learning đi từ pre-training qua domain-adaptive pre-training đến fine-tuning và horizontal continual learning đi qua các domain A, B, C"
+  caption="Vertical continuity đi xuống các tầng ngày càng chuyên biệt; horizontal continuity đi ngang qua các stage hoặc domain có thể thay đổi dần dần hay đột ngột."
+/>
+
+Vì vậy, supplier–consumer là **bối cảnh sản xuất giúp nhìn ra hai hướng**, còn vertical và horizontal là taxonomy survey dùng để phân tích các dạng cập nhật và forgetting khác nhau. Recyclable Tuning là một ví dụ có cả hai chiều: supplier cập nhật model theo thời gian, trong khi consumer liên tục chuyển các cập nhật upstream xuống downstream task.
+
+Nguồn: [Shi et al., §3](https://arxiv.org/html/2404.16789v3#S3) và [Recyclable Tuning — Qin et al. (2023)](https://arxiv.org/abs/2305.08702).
+
+</MdxPage>

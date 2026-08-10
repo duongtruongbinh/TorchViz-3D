@@ -1,102 +1,28 @@
 export const lessonMetadata = {
-  domainId: 'continual-learning-llm',
-  id: 'cpt-effectiveness-efficiency-quiz',
-  locale: 'vi',
-  title: "Quiz",
-  headings: [
-  "Effectiveness",
-  "Efficiency",
-  "Trade-off CPT"
-],
-  keywords: ['Continual Learning', 'LLM', 'Quiz'],
-  conceptIds: [
-  "cpt-effectiveness",
-  "cpt-efficiency",
-  "cpt-objective-tradeoff"
-],
+  domainId: 'continual-learning-llm', id: 'cpt-effectiveness-efficiency-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Hai loại chi phí', 'ELLE', 'Data selection'],
+  keywords: ['Continual Pre-training', 'ELLE', 'Data Selection', 'Quiz'],
+  conceptIds: ['cpt-efficiency-costs', 'cpt-elle-expansion', 'cpt-data-selection'],
   pageCount: 3,
 }
 
 <MdxQuiz id="cpt-effectiveness-efficiency-quiz" questions={[
-  {
-    "id": "cpt-effectiveness",
-    "title": "Effectiveness",
-    "prompt": "Metric effectiveness của CPT cần bao phủ điều gì?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Throughput, peak memory và wall-clock time ở từng stage."
-      },
-      {
-        "id": "opt2",
-        "label": "Số token mới, FLOPs tích lũy và dung lượng checkpoint."
-      },
-      {
-        "id": "opt3",
-        "label": "Training loss mới, tốc độ serving và chi phí lưu trữ."
-      },
-      {
-        "id": "opt4",
-        "label": "Mức học dữ liệu mới, retention năng lực cũ và chất lượng downstream.",
-        "isCorrect": true
-      }
-    ],
-    "success": "Effectiveness đo kết quả học, không chỉ tốc độ.",
-    "error": "Hãy phân biệt chất lượng mô hình với chi phí chạy."
-  },
-  {
-    "id": "cpt-efficiency",
-    "title": "Efficiency",
-    "prompt": "Đại lượng nào thuộc efficiency?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt2",
-        "label": "Accuracy task cũ, backward transfer và forgetting."
-      },
-      {
-        "id": "opt1",
-        "label": "Số token, FLOPs, wall-clock time và memory.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt3",
-        "label": "Độ chính xác fact mới, retention fact cũ và downstream quality."
-      },
-      {
-        "id": "opt4",
-        "label": "Average performance, forward transfer và task-wise regression."
-      }
-    ],
-    "success": "Efficiency mô tả tài nguyên cần dùng.",
-    "error": "Tìm các đại lượng chi phí."
-  },
-  {
-    "id": "cpt-objective-tradeoff",
-    "title": "Trade-off CPT",
-    "prompt": "Một phương pháp đạt retention tốt nhưng phải phát lại toàn bộ lịch sử ở mỗi stage nên được đánh giá thế nào?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt2",
-        "label": "Effectiveness có thể tốt, nhưng efficiency cần so với full-history retraining.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt1",
-        "label": "Chỉ cần báo retention vì full replay là baseline hiệu quả nhất."
-      },
-      {
-        "id": "opt3",
-        "label": "Efficiency tốt vì replay toàn bộ lịch sử không cần thêm memory."
-      },
-      {
-        "id": "opt4",
-        "label": "Không thể xem là CPT vì nó đánh giá cả retention lẫn compute."
-      }
-    ],
-    "success": "Hai trục phải được báo cáo riêng.",
-    "error": "Kết quả tốt không tự động đồng nghĩa với chi phí tốt."
-  }
+  { id: 'cpt-efficiency-costs', title: 'Hai loại chi phí', mode: 'single', prompt: 'Phân biệt đúng giữa retention cost và acquisition cost trong CPT là gì?', options: [
+    { id: 'a', label: 'Retention cost đo downstream accuracy, còn acquisition cost đo forgetting.' },
+    { id: 'b', label: 'Retention cost chỉ xuất hiện ở consumer, còn acquisition cost chỉ xuất hiện ở supplier.' },
+    { id: 'c', label: 'Cả hai đều chỉ hỏi cần lưu bao nhiêu checkpoint.' },
+    { id: 'd', label: 'Retention cost hỏi cách giữ knowledge cũ với ít tài nguyên hơn; acquisition cost hỏi có cần train trên toàn bộ dữ liệu mới không.', isCorrect: true },
+  ], success: 'Một trục giảm chi phí giữ cũ; trục còn lại giảm chi phí tiếp nhận dữ liệu mới.', error: 'Xác định dữ liệu nào đang tạo ra chi phí trong từng trường hợp.' },
+  { id: 'cpt-elle-expansion', title: 'ELLE', mode: 'single', prompt: 'Mô tả nào đúng nhất về cách ELLE mở rộng width của model?', options: [
+    { id: 'a', label: 'Sao chép neuron và giữ nguyên toàn bộ trọng số đầu ra để tăng gấp đôi tín hiệu.' },
+    { id: 'b', label: 'Chia lại trọng số đầu ra để gần bảo toàn output, rồi thêm noise nhỏ để các bản sao có thể nhận gradient khác nhau.', isCorrect: true },
+    { id: 'c', label: 'Cố định một neuron cho knowledge cũ và gán cứng neuron còn lại cho knowledge mới.' },
+    { id: 'd', label: 'Khởi tạo lại model lớn hơn từ đầu và bỏ checkpoint cũ.' },
+  ], success: 'ELLE kết hợp function preservation với phá symmetry giữa các bản sao.', error: 'Cần đồng thời giải quyết output bị thay đổi và symmetry problem.' },
+  { id: 'cpt-data-selection', title: 'Data selection', mode: 'single', prompt: 'Kết luận hợp lý nhất từ các nghiên cứu data selection trong CPT là gì?', options: [
+    { id: 'a', label: 'Một tập con được chọn theo novelty và diversity có thể giảm chi phí và thậm chí tốt hơn train trên toàn bộ corpus chưa chọn lọc.', isCorrect: true },
+    { id: 'b', label: 'Mọi mẫu có perplexity cao đều chắc chắn là dữ liệu chất lượng cao.' },
+    { id: 'c', label: 'Data selection loại bỏ hoàn toàn nhu cầu đánh giá retention.' },
+    { id: 'd', label: 'Cứ chọn ngẫu nhiên 10% dữ liệu là tái tạo được mọi kết quả của paper.' },
+  ], success: 'Chất lượng và độ bao phủ của tập con quan trọng hơn việc chỉ giảm số lượng mẫu.', error: 'Phân biệt chọn lọc có tín hiệu với cắt dữ liệu ngẫu nhiên.' },
 ]} />

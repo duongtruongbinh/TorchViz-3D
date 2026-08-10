@@ -37,17 +37,17 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
-  assert.equal(learningCatalog.tracks.length, 91);
-  assert.equal(learningCatalog.lessons.length, 678);
+  assert.equal(learningCatalog.tracks.length, 90);
+  assert.equal(learningCatalog.lessons.length, 676);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 140, next: 1, locked: 537 },
+    { available: 138, next: 1, locked: 537 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 142);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 140);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 536);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
@@ -126,6 +126,31 @@ test('continual-learning methods chapter starts with replay, its lab, regulariza
     'parameter-regularization-ewc-quiz',
     'architecture-expansion-isolation',
     'architecture-expansion-isolation-quiz',
+  ]);
+});
+
+test('continual-learning uses six survey chapters numbered 1 through 6', () => {
+  const domain = getLearningDomain(learningCatalog, 'continual-learning-llm');
+
+  assert.deepEqual(domain?.trackIds, [
+    'cl-llm-fundamentals',
+    'cl-llm-methods',
+    'cl-llm-continuity',
+    'cl-llm-stages',
+    'cl-llm-evaluation',
+    'cl-llm-discussion',
+  ]);
+
+  const chapterTitles = domain?.trackIds.map(
+    (trackId) => getLearningTrack(learningCatalog, 'continual-learning-llm', trackId)?.text.title.vi,
+  );
+  assert.deepEqual(chapterTitles, [
+    '1. Nền tảng Continual Learning',
+    '2. Replay, Regularization & Architecture',
+    '3. Vertical & Horizontal Continual Learning',
+    '4. Các giai đoạn học liên tục của LLM',
+    '5. Metric và Benchmark đánh giá',
+    '6. Discussion và hướng nghiên cứu',
   ]);
 });
 

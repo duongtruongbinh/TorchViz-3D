@@ -1,131 +1,26 @@
 export const lessonMetadata = {
-  domainId: 'continual-learning-llm',
-  id: 'continual-learning-benchmarks-quiz',
-  locale: 'vi',
-  title: "Quiz",
-  headings: [
-  "Cấu phần benchmark",
-  "Dataset family",
-  "Task sequence",
-  "Chọn benchmark"
-],
-  keywords: ['Continual Learning', 'LLM', 'Quiz'],
-  conceptIds: [
-  "benchmark-purpose",
-  "dataset-family",
-  "task-sequence",
-  "benchmark-selection"
-],
-  pageCount: 4,
+  domainId: 'continual-learning-llm', id: 'continual-learning-benchmarks-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['CPT/DAP', 'CIT và CMA', 'CMR'], keywords: ['Quiz', 'Benchmark'],
+  conceptIds: ['cpt-dap-benchmarks', 'cit-cma-benchmarks', 'cmr-benchmarks'], pageCount: 3,
 }
 
 <MdxQuiz id="continual-learning-benchmarks-quiz" questions={[
-  {
-    "id": "benchmark-purpose",
-    "title": "Cấu phần benchmark",
-    "prompt": "Cấu hình nào mô tả đầy đủ một benchmark Continual Learning thay vì chỉ một dataset?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Task sequence và evaluator, nhưng không công bố memory rule hay checkpoint schedule."
-      },
-      {
-        "id": "opt4",
-        "label": "Task sequence, quyền truy cập history, checkpoint schedule, evaluator và metric aggregation.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt2",
-        "label": "Dataset cùng metric cuối, nhưng không xác định thứ tự stage hoặc quyền truy cập history."
-      },
-      {
-        "id": "opt3",
-        "label": "Checkpoint schedule và model list, nhưng không định nghĩa sequence hay evaluator."
-      }
-    ],
-    "success": "Protocol biến dataset thành benchmark continual.",
-    "error": "Dataset đơn lẻ chưa mô tả dòng học."
-  },
-  {
-    "id": "dataset-family",
-    "title": "Dataset family",
-    "prompt": "Nghiên cứu cần tách fact bất biến, fact được cập nhật và fact mới. Benchmark family nào khớp nhất?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt3",
-        "label": "Knowledge stream để đo retention, update và acquisition theo thời gian.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt1",
-        "label": "Instruction stream để đo chuỗi task instruction following."
-      },
-      {
-        "id": "opt2",
-        "label": "Domain stream để đo adaptation giữa các corpus theo domain."
-      },
-      {
-        "id": "opt4",
-        "label": "Alignment stream để đo preference và safety policy qua stage."
-      }
-    ],
-    "success": "Knowledge stream tách các loại fact qua thời gian.",
-    "error": "Khớp dữ liệu với năng lực cần đo."
-  },
-  {
-    "id": "task-sequence",
-    "title": "Task sequence",
-    "prompt": "Cùng một tập task nhưng đổi thứ tự stage có thể làm kết quả khác vì sao?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Thứ tự chỉ đổi tên stage nên metric continual phải giữ nguyên."
-      },
-      {
-        "id": "opt3",
-        "label": "Thứ tự chỉ ảnh hưởng checkpoint filename, không ảnh hưởng gradient."
-      },
-      {
-        "id": "opt2",
-        "label": "Thứ tự thay đổi interference, transfer và forgetting trên quỹ đạo học.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt4",
-        "label": "Thứ tự chỉ quan trọng khi mọi task được joint train cùng lúc."
-      }
-    ],
-    "success": "Continual learning phụ thuộc quỹ đạo.",
-    "error": "Cùng task set nhưng order khác có thể cho kết quả khác."
-  },
-  {
-    "id": "benchmark-selection",
-    "title": "Chọn benchmark",
-    "prompt": "Một claim nghiên cứu nhắm domain continuity dưới relaxed memory. Cách chọn benchmark nào hợp lý nhất?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt2",
-        "label": "Chọn knowledge stream nổi tiếng nhất dù continuity và memory rule không khớp."
-      },
-      {
-        "id": "opt3",
-        "label": "Chọn sequence ít stage nhất để mọi phương pháp có final score cao."
-      },
-      {
-        "id": "opt4",
-        "label": "Chọn alignment stream nhưng bỏ công bố quyền truy cập dữ liệu cũ."
-      },
-      {
-        "id": "opt1",
-        "label": "Chọn domain sequence có buffer rule phù hợp và đo đúng failure retention/adaptation.",
-        "isCorrect": true
-      }
-    ],
-    "success": "Benchmark phải đại diện cho claim muốn đưa ra.",
-    "error": "Bắt đầu từ câu hỏi, không từ tên dataset."
-  }
+  { id: 'cpt-dap-benchmarks', title: 'CPT/DAP', mode: 'single', prompt: 'Dataset nào thuộc nhóm temporal shift của CPT/DAP?', options: [
+    { id: 'a', label: 'HH-RLHF.' },
+    { id: 'b', label: 'CounterFact.' },
+    { id: 'c', label: 'TemporalWiki.', isCorrect: true },
+    { id: 'd', label: 'SuperNI.' },
+  ], success: 'TemporalWiki thuộc nhóm temporal CPT/DAP.', error: 'Phân biệt benchmark tri thức theo thời gian với instruction/alignment/refinement.' },
+  { id: 'cit-cma-benchmarks', title: 'CIT và CMA', mode: 'single', prompt: 'Ghép nào đúng?', options: [
+    { id: 'a', label: 'CIT—SuperNI/TRACE; CMA—HH-RLHF/IMDB.', isCorrect: true },
+    { id: 'b', label: 'CIT—FEVER; CMA—TemporalWiki.' },
+    { id: 'c', label: 'CIT—CounterFact; CMA—DAPT.' },
+    { id: 'd', label: 'CIT—SCOTUS; CMA—DEMix.' },
+  ], success: 'CIT dùng instruction streams; CMA dùng preference/alignment data.', error: 'Nhớ application tương ứng của từng family.' },
+  { id: 'cmr-benchmarks', title: 'CMR', mode: 'single', prompt: 'Nhóm nào được survey liệt kê cho Continual Model Refinement?', options: [
+    { id: 'a', label: 'TimeLMs, DAPT, DEMix.' },
+    { id: 'b', label: 'SuperNI, CITB, CoIN.' },
+    { id: 'c', label: 'IMDB, HH-RLHF, Reddit TL;DR.' },
+    { id: 'd', label: 'FEVER, zsRE, CounterFact.', isCorrect: true },
+  ], success: 'FEVER, zsRE và CounterFact thuộc nhóm CMR.', error: 'CMR tập trung chuỗi correction/model editing.' },
 ]} />

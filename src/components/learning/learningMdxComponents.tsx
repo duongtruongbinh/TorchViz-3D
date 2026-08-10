@@ -115,13 +115,16 @@ type CourseCardItem = {
   takeaway: string;
 };
 
-export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spotlight = false, singleColumn = false }: {
+export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spotlight = false, singleColumn = false, threeColumns = false, featureFirst = false, numbered = true }: {
   ariaLabel: string;
   exampleLabel: string;
   takeawayLabel: string;
   items: CourseCardItem[];
   spotlight?: boolean;
   singleColumn?: boolean;
+  threeColumns?: boolean;
+  featureFirst?: boolean;
+  numbered?: boolean;
 }) {
   const themeClasses = useLearningMdxTheme();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -129,35 +132,60 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
   const titleBand = themeClasses.isLight ? 'bg-[#EAF2FA]' : 'bg-[#A8D4FF]/9';
   const label = themeClasses.isLight ? 'text-[#205089]' : 'text-[#A8D4FF]';
   return (
-    <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2')} aria-label={ariaLabel} onMouseLeave={spotlight ? () => setActiveIndex(0) : undefined}>
-      {items.map((item, index) => (
-        <li
-          key={item.title}
-          onMouseEnter={spotlight ? () => setActiveIndex(index) : undefined}
-          className={cx(
-            'grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.24)]',
-            spotlight && (activeIndex === index ? 'opacity-100' : 'opacity-45'),
-            border,
-          )}
-        >
-          <div className={cx('grid min-h-20 grid-cols-[2rem_1fr] items-center gap-3 border-b px-4 py-3', border, titleBand)}>
-            <span className="grid size-8 place-items-center rounded-full bg-[#205089] text-sm font-black text-white dark:bg-[#A8D4FF] dark:text-[#0B1726]">
-              {index + 1}
-            </span>
-            <h3 className={cx('text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</h3>
-          </div>
-          <dl className="grid content-start gap-4 p-4 text-sm leading-6">
-            <div>
-              <dt className={cx('font-black', label)}>{exampleLabel}</dt>
-              <dd className={cx('mt-1', themeClasses.bodyText)}>{item.example}</dd>
+    <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2', threeColumns && 'lg:grid-cols-3')} aria-label={ariaLabel} onMouseLeave={spotlight ? () => setActiveIndex(0) : undefined}>
+      {items.map((item, index) => {
+        const isPositive = featureFirst && index === 0;
+        const isRisk = featureFirst && (index === 1 || index === 2);
+        const semanticBorder = isPositive
+          ? 'border-emerald-300/80 dark:border-emerald-400/30'
+          : isRisk
+            ? 'border-rose-300/80 dark:border-rose-400/30'
+            : border;
+        const semanticSurface = isPositive
+          ? 'bg-emerald-50/70 dark:bg-emerald-400/6'
+          : isRisk
+            ? 'bg-rose-50/70 dark:bg-rose-400/6'
+            : undefined;
+        const semanticTitleBand = isPositive
+          ? 'bg-emerald-100/80 dark:bg-emerald-400/12'
+          : isRisk
+            ? 'bg-rose-100/80 dark:bg-rose-400/12'
+            : titleBand;
+        const semanticLabel = isPositive
+          ? 'text-emerald-800 dark:text-emerald-300'
+          : isRisk
+            ? 'text-rose-800 dark:text-rose-300'
+            : label;
+        return (
+          <li
+            key={item.title}
+            onMouseEnter={spotlight ? () => setActiveIndex(index) : undefined}
+            className={cx(
+              'grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.24)]',
+              featureFirst && index === 0 && 'sm:row-span-2',
+              featureFirst && index === items.length - 1 && 'sm:col-span-2',
+              spotlight && (activeIndex === index ? 'opacity-100' : 'opacity-45'),
+              semanticBorder,
+              semanticSurface,
+            )}
+          >
+            <div className={cx('grid min-h-20 items-center gap-3 border-b px-4 py-3', numbered ? 'grid-cols-[2rem_1fr]' : 'grid-cols-1', semanticBorder, semanticTitleBand)}>
+              {numbered && <span className="grid size-8 place-items-center rounded-full bg-[#205089] text-sm font-black text-white dark:bg-[#A8D4FF] dark:text-[#0B1726]">{index + 1}</span>}
+              <h3 className={cx('text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</h3>
             </div>
-            <div>
-              <dt className={cx('font-black', label)}>{takeawayLabel}</dt>
-              <dd className={cx('mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
-            </div>
-          </dl>
-        </li>
-      ))}
+            <dl className="grid content-start gap-4 p-4 text-sm leading-6">
+              <div>
+                <dt className={cx('font-black', semanticLabel)}>{exampleLabel}</dt>
+                <dd className={cx('mt-1', themeClasses.bodyText)}>{item.example}</dd>
+              </div>
+              <div>
+                <dt className={cx('font-black', semanticLabel)}>{takeawayLabel}</dt>
+                <dd className={cx('mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
+              </div>
+            </dl>
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -331,6 +359,56 @@ export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: Co
   );
 }
 
+type StageContinuityMapItem = {
+  verticalTitle: string;
+  verticalDetail: string;
+  horizontalTitle: string;
+  horizontalItems: string[];
+};
+
+export function StageContinuityMap({ ariaLabel, items }: { ariaLabel: string; items: StageContinuityMapItem[] }) {
+  const themeClasses = useLearningMdxTheme();
+  const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
+  const verticalCard = themeClasses.isLight ? 'border-[#205089]/18 bg-[#EAF2FA]' : 'border-[#A8D4FF]/20 bg-[#A8D4FF]/8';
+  const horizontalCard = themeClasses.isLight ? 'bg-white' : 'bg-[#121A24]/44';
+  return (
+    <figure className="my-6 grid gap-3" aria-label={ariaLabel}>
+      <div className={cx('hidden gap-3 px-1 text-xs font-black uppercase tracking-[0.16em] md:grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]', themeClasses.mutedText)}>
+        <span>Flow Vertical</span>
+        <span>Mở rộng Horizontal trong cùng stage</span>
+      </div>
+      <ol className="grid gap-3">
+        {items.map((item, index) => (
+          <li key={item.verticalTitle} className="grid gap-3 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]">
+            <section className={cx('rounded-xl border p-5 shadow-[0_10px_24px_rgba(25,55,85,0.10)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.20)]', verticalCard)}>
+              <div className="mb-3 flex items-center gap-3">
+                <span className={cx('grid size-8 shrink-0 place-items-center rounded-full text-sm font-black tabular-nums', themeClasses.isLight ? 'bg-[#205089] text-white' : 'bg-[#A8D4FF] text-[#0B1726]')}>
+                  {index + 1}
+                </span>
+                <h3 className={cx('text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.verticalTitle}</h3>
+              </div>
+              <p className={cx('text-sm leading-6 text-pretty', themeClasses.bodyText)}>{item.verticalDetail}</p>
+            </section>
+            <section
+              tabIndex={0}
+              className={cx(
+                'rounded-xl border p-5 opacity-45 transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:opacity-100 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] focus-visible:-translate-y-0.5 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#205089]/35 focus-visible:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.24)] dark:focus-visible:ring-[#A8D4FF]/40 dark:focus-visible:shadow-[0_14px_30px_rgba(0,0,0,0.24)]',
+                border,
+                horizontalCard,
+              )}
+            >
+              <h3 className={cx('text-sm font-black leading-6 text-balance', themeClasses.titleText)}>{item.horizontalTitle}</h3>
+              <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
+                {item.horizontalItems.map((detail) => <li key={detail}>{detail}</li>)}
+              </ul>
+            </section>
+          </li>
+        ))}
+      </ol>
+    </figure>
+  );
+}
+
 type ExperimentChecklistItem = {
   title: string;
   action: string;
@@ -382,6 +460,26 @@ export function ExperimentChecklist({ ariaLabel, items }: {
 }
 
 type ComparisonMatrixRow = { label: string; values: string[]; highlightedColumn?: number };
+
+export function PaperTradeoff({ advantages, limitations }: { advantages: string[]; limitations: string[] }) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <div className="my-4 grid gap-3 sm:grid-cols-2">
+      <section className="rounded-xl border border-emerald-300/80 bg-emerald-50/70 p-4 dark:border-emerald-400/30 dark:bg-emerald-400/6">
+        <h4 className="text-sm font-black text-emerald-800 dark:text-emerald-300">Ưu điểm</h4>
+        <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
+          {advantages.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+      </section>
+      <section className="rounded-xl border border-rose-300/80 bg-rose-50/70 p-4 dark:border-rose-400/30 dark:bg-rose-400/6">
+        <h4 className="text-sm font-black text-rose-800 dark:text-rose-300">Hạn chế</h4>
+        <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
+          {limitations.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+      </section>
+    </div>
+  );
+}
 
 export function ComparisonMatrix({ ariaLabel, columns, rows }: {
   ariaLabel: string;
@@ -695,8 +793,10 @@ const sharedAuthoredMdxComponents = {
   CourseCards,
   EvidenceCards,
   ConceptFlow,
+  StageContinuityMap,
   ExperimentChecklist,
   ComparisonMatrix,
+  PaperTradeoff,
   DatasetComposition,
   MetricBars,
   ConceptSpectrum,

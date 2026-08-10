@@ -1,0 +1,20 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'continuity-to-learning-stages-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Hai chiều Continual Learning', 'Bản đồ Chương 4'], keywords: ['Quiz', 'Continual Pre-training', 'Domain-Adaptive Pre-training', 'Continual Fine-Tuning'],
+  conceptIds: ['continuity-stage-relationship', 'continuity-chapter-four-map'], pageCount: 2,
+}
+
+<MdxQuiz id="continuity-to-learning-stages-quiz" questions={[
+  { id: 'continuity-stage-relationship', title: 'Hai chiều Continual Learning', mode: 'single', prompt: 'Một supplier cập nhật base model hằng tháng, sau đó consumer dùng phiên bản mới để Domain-Adaptive Pre-training và fine-tune. Pipeline này có cấu trúc nào?', options: [
+    { id: 'a', label: 'Chỉ có Vertical Continual Learning vì cuối cùng model được fine-tune.' },
+    { id: 'b', label: 'Horizontal Continual Learning giữa các phiên bản Continual Pre-training và Vertical Continual Learning khi đi xuống Domain-Adaptive Pre-training rồi Continual Fine-Tuning.', isCorrect: true },
+    { id: 'c', label: 'Chỉ có Horizontal Continual Learning vì mọi bước đều khởi tạo từ một checkpoint.' },
+    { id: 'd', label: 'Không phải Continual Learning vì supplier và consumer là hai đơn vị khác nhau.' },
+  ], success: 'Một vòng đời LLM có thể đồng thời đi theo cả hai chiều.', error: 'Tách các update trong cùng tầng khỏi chuyển đổi giữa các tầng.' },
+  { id: 'continuity-chapter-four-map', title: 'Bản đồ Chương 4', mode: 'single', prompt: 'Cách phân biệt đúng giữa khung của Chương 3 và nội dung Chương 4 là gì?', options: [
+    { id: 'a', label: 'Chương 3 chỉ dành cho supplier, còn Chương 4 chỉ dành cho consumer.' },
+    { id: 'b', label: 'Chương 3 mô tả ba thuật toán, còn Chương 4 chỉ so sánh dataset.' },
+    { id: 'c', label: 'Chương 4 đi theo flow Vertical qua Continual Pre-training, Domain-Adaptive Pre-training và Continual Fine-Tuning; mỗi stage sẽ mở rộng Horizontal khi có chuỗi cập nhật.', isCorrect: true },
+    { id: 'd', label: 'Continual Pre-training thuộc Horizontal Continual Learning, còn Domain-Adaptive Pre-training và Continual Fine-Tuning luôn chỉ thuộc Vertical Continual Learning.' },
+  ], success: 'Vertical quyết định thứ tự chính; Horizontal mở rộng các update bên trong từng stage.', error: 'Xác định flow chính của chương trước, rồi xét các update lặp lại trong mỗi stage.' },
+]} />

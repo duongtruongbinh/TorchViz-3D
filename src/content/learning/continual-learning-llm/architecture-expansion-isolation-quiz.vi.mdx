@@ -2,130 +2,45 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'architecture-expansion-isolation-quiz',
   locale: 'vi',
-  title: "Quiz",
-  headings: [
-  "Cô lập tham số",
-  "Mở rộng kiến trúc",
-  "Task routing",
-  "Capacity growth"
-],
-  keywords: ['Continual Learning', 'LLM', 'Quiz'],
-  conceptIds: [
-  "parameter-isolation",
-  "architecture-expansion",
-  "task-routing",
-  "capacity-growth"
-],
-  pageCount: 4,
+  title: 'Quiz',
+  headings: ['Cơ chế', 'Điều kiện zero forgetting', 'CoLoR'],
+  keywords: ['Quiz', 'Architecture Expansion'],
+  conceptIds: ['architecture-expansion', 'zero-forgetting-condition', 'color-routing'],
+  pageCount: 3,
 }
 
 <MdxQuiz id="architecture-expansion-isolation-quiz" questions={[
   {
-    "id": "parameter-isolation",
-    "title": "Cô lập tham số",
-    "prompt": "Thiết kế nào trực tiếp ngăn update mới ghi đè capacity dành cho task cũ?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Replay một số raw sample cũ nhưng vẫn cập nhật toàn bộ tham số chung."
-      },
-      {
-        "id": "opt2",
-        "label": "Phạt mọi tham số lệch khỏi checkpoint cũ với cùng một hệ số."
-      },
-      {
-        "id": "opt3",
-        "label": "Gộp module cũ và mới trước khi bắt đầu stage tiếp theo."
-      },
-      {
-        "id": "opt4",
-        "label": "Khóa hoặc tách module cũ và chỉ cập nhật phần tham số được cấp cho stage mới.",
-        "isCorrect": true
-      }
+    id: 'architecture-expansion', title: 'Cơ chế', mode: 'single',
+    prompt: 'Architecture expansion giảm interference theo cách nào?',
+    options: [
+      { id: 'a', label: 'Phạt mọi tham số bằng cùng một hệ số λ.' },
+      { id: 'b', label: 'Chỉ lưu logits của task cũ trong buffer.' },
+      { id: 'c', label: 'Thêm capacity cho task mới và tránh ghi đè phần cũ.', isCorrect: true },
+      { id: 'd', label: 'Gộp toàn bộ task thành một nhãn duy nhất.' },
     ],
-    "success": "Đường tham số cũ được giữ riêng.",
-    "error": "Hãy nghĩ đến việc ngăn overwrite."
+    success: 'Capacity mới cô lập update mới khỏi đường cũ.', error: 'Đây là phương pháp dựa trên kiến trúc, không phải replay hay penalty.',
   },
   {
-    "id": "architecture-expansion",
-    "title": "Mở rộng kiến trúc",
-    "prompt": "Thay đổi nào là architecture expansion?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Thêm adapter hoặc expert mới để cung cấp capacity cho stage mới.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt2",
-        "label": "Mở khóa toàn bộ backbone rồi fine-tune nối tiếp trên dữ liệu mới."
-      },
-      {
-        "id": "opt3",
-        "label": "Tăng số sample trong replay buffer nhưng giữ nguyên kiến trúc."
-      },
-      {
-        "id": "opt4",
-        "label": "Project gradient mới để giảm xung đột mà không thêm tham số."
-      }
+    id: 'zero-forgetting-condition', title: 'Điều kiện zero forgetting', mode: 'single',
+    prompt: 'Khi nào architecture expansion có thể đạt zero forgetting theo survey?',
+    options: [
+      { id: 'a', label: 'Khi task ID có sẵn hoặc được suy ra chính xác tại inference.', isCorrect: true },
+      { id: 'b', label: 'Khi mọi task dùng dữ liệu có cùng domain.' },
+      { id: 'c', label: 'Khi λ của regularization bằng 0.' },
+      { id: 'd', label: 'Khi không cần chọn module lúc inference.' },
     ],
-    "success": "Expansion bổ sung capacity thay vì ép mọi task dùng cùng tham số.",
-    "error": "Tìm thay đổi cấu trúc model."
+    success: 'Đúng module là điều kiện để dùng lại đúng năng lực.', error: 'Cô lập tham số chưa giải quyết được bài toán chọn nhánh.',
   },
   {
-    "id": "task-routing",
-    "title": "Task routing",
-    "prompt": "Các module cũ vẫn nguyên vẹn nhưng output task cũ giảm mạnh. Kiểm tra nào phù hợp nhất?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Kiểm tra buffer có chứa toàn bộ raw corpus lịch sử hay không."
-      },
-      {
-        "id": "opt2",
-        "label": "Kiểm tra Fisher penalty có dùng cùng λ cho mọi tham số hay không."
-      },
-      {
-        "id": "opt3",
-        "label": "Kiểm tra inference có route input đến đúng module task/domain hay không.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt4",
-        "label": "Kiểm tra số epoch của module mới có bằng module cũ hay không."
-      }
+    id: 'color-routing', title: 'CoLoR', mode: 'single',
+    prompt: 'CoLoR suy ra task ID khi testing bằng tín hiệu nào?',
+    options: [
+      { id: 'a', label: 'Số lượng token trong replay buffer.' },
+      { id: 'b', label: 'Fisher information của toàn bộ model.' },
+      { id: 'c', label: 'Nhãn class mới nhất trong CIL.' },
+      { id: 'd', label: 'Prototype của task và feature từ backbone tiền huấn luyện.', isCorrect: true },
     ],
-    "success": "Sai routing làm model dùng nhầm capacity.",
-    "error": "Zero forgetting ở tham số không giải quyết routing."
+    success: 'CoLoR dùng feature để chọn module LoRA theo task.', error: 'Hãy nhớ phần routing của ví dụ CoLoR.',
   },
-  {
-    "id": "capacity-growth",
-    "title": "Capacity growth",
-    "prompt": "Nếu luôn thêm một module cho mỗi stage mà không merge hoặc prune, rủi ro dài hạn chính là gì?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Parameter cũ chắc chắn bị update trực tiếp dù đã được cô lập."
-      },
-      {
-        "id": "opt2",
-        "label": "Storage, latency và serving complexity tăng theo số stage.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt3",
-        "label": "Replay buffer chắc chắn làm lộ raw data dù phương pháp không dùng replay."
-      },
-      {
-        "id": "opt4",
-        "label": "Fisher information ngày càng khó ước lượng dù không dùng EWC."
-      }
-    ],
-    "success": "Expansion cần budget và lifecycle cho module.",
-    "error": "Theo dõi chi phí tích lũy qua stage."
-  }
 ]} />

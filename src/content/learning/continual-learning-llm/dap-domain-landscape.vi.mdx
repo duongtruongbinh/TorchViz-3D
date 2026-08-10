@@ -1,0 +1,19 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'dap-domain-landscape', locale: 'vi', title: 'DAP theo từng domain',
+  headings: ['Cùng là DAP nhưng trade-off khác nhau'], keywords: ['Legal', 'Medical', 'Financial', 'Scientific', 'Code'],
+  conceptIds: ['dap-domain-examples', 'dap-data-mixing', 'dap-design-choices'],
+}
+
+## Cùng là DAP nhưng trade-off khác nhau
+
+<ComparisonMatrix ariaLabel="DAP trong các domain được survey tổng hợp" columns={['Ví dụ', 'Điểm CL nổi bật']} rows={[
+  { label: 'Legal', values: ['Lawyer Llama, SaulLM', 'Replay general data để giảm vertical forgetting'] },
+  { label: 'Medical', values: ['Me-Llama, HuatuoGPT-II', 'Domain gain có thể đi cùng general-domain decline'] },
+  { label: 'Financial', values: ['BBT-Fin, CFGPT, Xuanyuan 2.0', 'Data quality/mixture có thể quan trọng hơn corpus size'] },
+  { label: 'Scientific', values: ['OceanGPT, K2, AstroLlama', 'Trộn domain, general, arXiv hoặc code'] },
+  { label: 'Code', values: ['Code Llama, IRCoder, Llama Pro', 'Pipeline natural language → code tạo hierarchy tự nhiên'] },
+]} />
+
+Survey còn nêu các hướng khác như ECONET, CALM, Aurora-M, Swallow, Sailor, AdaptLLM và Tag-LLM. Điểm chung là DAP không chỉ là “thêm nhiều token”: data mixing, task formulation và architecture đều ảnh hưởng trade-off giữa domain acquisition và general retention.
+
+Nguồn: [Shi et al., §4.2.2](https://arxiv.org/html/2404.16789v3#S4.SS2.SSS2).

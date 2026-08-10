@@ -2,30 +2,33 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'continual-pretraining-pipeline',
   locale: 'vi',
-  title: "Pipeline Continual Pre-training",
-  headings: ['CPT trong vòng đời supplier–consumer'],
-  keywords: ['Continual Learning', 'LLM', 'Pipeline Continual Pre-training'],
+  title: "Continual Pre-training",
+  headings: ['Ai thực hiện Continual Pre-training?'],
+  keywords: ['Continual Learning', 'Large Language Model', 'Continual Pre-training', 'Full Replay', 'Sparse Replay'],
   conceptIds: [
-  "cpt-purpose",
-  "cpt-data-stream",
-  "supplier-consumer-release-cycle"
+  "cpt-operator",
+  "cpt-generalization",
+  "cpt-memory-constraint",
+  "cpt-replay-choice"
 ],
 }
 
-## CPT trong vòng đời supplier–consumer
+## Ai thực hiện Continual Pre-training?
 
-Continual Pre-training (CPT) tiếp tục cập nhật base model trên các luồng văn bản mới thay vì huấn luyện lại từ đầu. Trong production, supplier thường phát hành nhiều checkpoint upstream; consumer nhận checkpoint mới rồi tiếp tục DAP hoặc fine-tuning cho nhu cầu riêng.
+Do **Continual Pre-training (CPT)** cần dữ liệu, hạ tầng, đội ngũ và compute rất lớn, nên đối tượng chính của giai đoạn này là **supplier**.
 
-<ConceptFlow
-  ariaLabel="Vòng đời Continual Pre-training từ dữ liệu đến consumer"
-  items={[
-    { title: 'Dòng dữ liệu mới', detail: 'Ngôn ngữ, nội dung hoặc thời gian thay đổi' },
-    { title: 'CPT upstream', detail: 'Cập nhật base model theo stage' },
-    { title: 'Release', detail: 'Checkpoint mới được đánh giá và phát hành' },
-    { title: 'Consumer adaptation', detail: 'DAP hoặc fine-tuning downstream' },
-  ]}
-/>
+Khi supplier có thể lưu toàn bộ dữ liệu lịch sử, memory constraint nghiêm ngặt của Continual Learning truyền thống không còn là nút thắt lớn nhất. Câu hỏi chuyển thành: **có thật sự cần một thuật toán Continual Learning phức tạp hay không?**
 
-CPT phải theo dõi hai loại retention: tri thức của checkpoint trước và khả năng tái sử dụng checkpoint mới ở downstream. Chỉ đo perplexity trên corpus mới sẽ bỏ sót cả hai.
+<ComparisonMatrix ariaLabel="Ba lựa chọn cập nhật dữ liệu trong Continual Pre-training" columns={['Cách làm', 'Khi nào hợp lý?']} rows={[
+  { label: 'Full replay', values: ['Chọn lọc dữ liệu kỹ rồi trộn toàn bộ dữ liệu lịch sử hợp lệ với dữ liệu mới', 'Là lựa chọn tốt nhất khi supplier đủ khả năng chi trả storage, input-output và compute'] },
+  { label: 'Sparse replay', values: ['Chỉ phát lại một phần nhỏ dữ liệu cũ thay vì toàn bộ lịch sử', 'Giảm chi phí và vẫn có thể hạn chế forgetting hiệu quả khi mẫu replay đủ đại diện'] },
+  { label: 'Phương pháp CL chuyên biệt', values: ['Bổ sung cơ chế replay, regularization hoặc architecture phù hợp', 'Có thể tốt hơn baseline đơn giản trong các setup mà full replay quá tốn kém hoặc dữ liệu thay đổi khó'] },
+]} />
 
-Nguồn: [Shi et al., §3–4.1](https://arxiv.org/html/2404.16789v3#S4.SS1).
+Không có một đáp án đúng cho mọi supplier. Nếu toàn bộ dữ liệu lịch sử còn hợp lệ và ngân sách cho phép, **full replay trên dữ liệu đã được chọn lọc kỹ là baseline mạnh nhất cần ưu tiên**. Sparse replay là phương án thực dụng hơn khi chi phí trở thành nút thắt; còn kết quả tốt hơn của các phương pháp chuyên biệt cho thấy thuật toán Continual Learning vẫn có vai trò trong những setup khó.
+
+<LessonNote>
+  Các nghiên cứu quy mô lớn cho thấy CPT không chỉ cần thiết để cải thiện hiệu năng trên downstream task. Khi distribution shift diễn ra từ từ, hoặc distribution cũ và mới vẫn có mức tương quan nhất định, CPT còn có thể giúp model tổng quát hóa tốt hơn sang dữ liệu chưa từng thấy.
+</LessonNote>
+
+Nguồn: [Shi et al., §3.2 và §4.1](https://arxiv.org/html/2404.16789v3#S4.SS1).

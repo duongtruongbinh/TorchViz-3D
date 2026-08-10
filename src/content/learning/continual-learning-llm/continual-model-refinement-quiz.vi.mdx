@@ -1,131 +1,26 @@
 export const lessonMetadata = {
-  domainId: 'continual-learning-llm',
-  id: 'continual-model-refinement-quiz',
-  locale: 'vi',
-  title: "Quiz",
-  headings: [
-  "Định nghĩa CMR",
-  "Locality",
-  "Generality",
-  "Rủi ro edit nối tiếp"
-],
-  keywords: ['Continual Learning', 'LLM', 'Quiz'],
-  conceptIds: [
-  "cmr-definition",
-  "edit-locality",
-  "edit-generality",
-  "sequential-edit-risk"
-],
-  pageCount: 4,
+  domainId: 'continual-learning-llm', id: 'continual-model-refinement-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Yêu cầu', 'Method', 'Locate and edit'], keywords: ['Quiz', 'CMR'],
+  conceptIds: ['cmr-requirements', 'cmr-methods', 'locate-edit-question'], pageCount: 3,
 }
 
 <MdxQuiz id="continual-model-refinement-quiz" questions={[
-  {
-    "id": "cmr-definition",
-    "title": "Định nghĩa CMR",
-    "prompt": "CMR tập trung vào loại update nào?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Tiếp tục pre-train toàn bộ corpus khi distribution thay đổi theo thời gian."
-      },
-      {
-        "id": "opt4",
-        "label": "Sửa fact hoặc behavior mục tiêu qua nhiều lần cập nhật.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt2",
-        "label": "Học các instruction dataset mới và giữ khả năng instruction-following cũ."
-      },
-      {
-        "id": "opt3",
-        "label": "Cập nhật preference và safety policy bằng feedback nối tiếp."
-      }
-    ],
-    "success": "CMR là chuỗi model edit có phạm vi mục tiêu.",
-    "error": "Hãy phân biệt edit cục bộ với pre-training rộng."
-  },
-  {
-    "id": "edit-locality",
-    "title": "Locality",
-    "prompt": "Kết quả nào thể hiện locality tốt sau một model edit?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt2",
-        "label": "Output liên quan và không liên quan đều dịch chuyển theo cùng một hướng."
-      },
-      {
-        "id": "opt3",
-        "label": "Fact mục tiêu đổi đúng nhưng nhiều fact lân cận không liên quan cũng đổi theo."
-      },
-      {
-        "id": "opt4",
-        "label": "Paraphrase của fact mục tiêu đổi đúng nhưng benchmark tổng quát giảm đáng kể."
-      },
-      {
-        "id": "opt1",
-        "label": "Output không liên quan đến edit hầu như không bị thay đổi.",
-        "isCorrect": true
-      }
-    ],
-    "success": "Locality đo collateral damage.",
-    "error": "Hãy nhìn ngoài phạm vi mục tiêu."
-  },
-  {
-    "id": "edit-generality",
-    "title": "Generality",
-    "prompt": "Generality của edit được kiểm tra tốt nhất bằng gì?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Chỉ exact prompt đã dùng để thực hiện edit."
-      },
-      {
-        "id": "opt3",
-        "label": "Các prompt không liên quan dùng để kiểm tra locality của edit."
-      },
-      {
-        "id": "opt2",
-        "label": "Paraphrase và ngữ cảnh tương đương của fact đã sửa.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt4",
-        "label": "Training loss trên chính câu edit sau khi cập nhật."
-      }
-    ],
-    "success": "Edit cần lan đến cách diễn đạt tương đương.",
-    "error": "Đừng chỉ kiểm tra exact string đã dùng để sửa."
-  },
-  {
-    "id": "sequential-edit-risk",
-    "title": "Rủi ro edit nối tiếp",
-    "prompt": "Vì sao cần đo sau một chuỗi edit dài?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt3",
-        "label": "Collateral damage và interference có thể tích lũy qua nhiều lần edit.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt1",
-        "label": "Mỗi edit có thể đúng riêng lẻ nên evaluation sau từng edit không còn cần thiết."
-      },
-      {
-        "id": "opt2",
-        "label": "Locality của edit đầu luôn bảo đảm locality của mọi edit tiếp theo."
-      },
-      {
-        "id": "opt4",
-        "label": "Generality chỉ có thể đo ở edit cuối nên chuỗi ngắn không đánh giá được."
-      }
-    ],
-    "success": "CMR là bài toán continual khi edit nối tiếp ảnh hưởng lẫn nhau.",
-    "error": "Một edit đơn lẻ không phản ánh tích lũy dài hạn."
-  }
+  { id: 'cmr-requirements', title: 'Yêu cầu', mode: 'single', prompt: 'Ba yêu cầu của một CMR update là gì?', options: [
+    { id: 'a', label: 'Sửa đúng mục tiêu, giữ output ngoài phạm vi sửa và có chi phí thấp.', isCorrect: true },
+    { id: 'b', label: 'Tăng OP, F và FUAR cùng lúc.' },
+    { id: 'c', label: 'Có task ID, domain ID và class ID.' },
+    { id: 'd', label: 'Luôn replay toàn bộ corpus.' },
+  ], success: 'CMR cân bằng efficacy, tác dụng phụ và cost.', error: 'Nhìn ba constraint của từng correction.' },
+  { id: 'cmr-methods', title: 'Method', mode: 'single', prompt: 'WISE thuộc nhóm nào?', options: [
+    { id: 'a', label: 'Temporal language modeling.' },
+    { id: 'c', label: 'CPT data selection.' },
+    { id: 'b', label: 'Side memory với knowledge shards.', isCorrect: true },
+    { id: 'd', label: 'LAMA evaluation.' },
+  ], success: 'WISE dùng side memory.', error: 'Nhớ cách WISE tổ chức knowledge shards.' },
+  { id: 'locate-edit-question', title: 'Locate and edit', mode: 'single', prompt: 'Giả định nào đang bị thách thức?', options: [
+    { id: 'a', label: 'Fact luôn nằm trong tokenizer.' },
+    { id: 'c', label: 'Mọi edit cần task ID.' },
+    { id: 'd', label: 'Replay luôn không hiệu quả.' },
+    { id: 'b', label: 'Vị trí lưu fact cũng là vị trí tốt nhất để sửa fact đó.', isCorrect: true },
+  ], success: 'Storage location và edit location có thể khác nhau.', error: 'Đây là câu hỏi mở về locate-and-edit.' },
 ]} />

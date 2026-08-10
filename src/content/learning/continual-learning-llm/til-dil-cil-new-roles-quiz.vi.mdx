@@ -1,0 +1,26 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'til-dil-cil-new-roles-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['DIL', 'TIL', 'CIL'], keywords: ['Quiz', 'TIL', 'DIL', 'CIL'],
+  conceptIds: ['dil-role', 'til-role', 'cil-role'], pageCount: 3,
+}
+
+<MdxQuiz id="til-dil-cil-new-roles-quiz" questions={[
+  { id: 'dil-role', title: 'DIL', mode: 'single', prompt: 'Vì sao DIL phù hợp tự nhiên với CPT và DAP?', options: [
+    { id: 'a', label: 'Vì luôn có explicit task ID.' },
+    { id: 'b', label: 'Vì input-output format thường giữ nguyên trong khi domain distribution đổi.', isCorrect: true },
+    { id: 'c', label: 'Vì class set luôn mở rộng.' },
+    { id: 'd', label: 'Vì không có distribution shift.' },
+  ], success: 'DIL giữ task formulation nhưng đổi domain.', error: 'Nhìn phần nào giữ nguyên và phần nào thay đổi.' },
+  { id: 'til-role', title: 'TIL', mode: 'single', prompt: 'Trong instruction tuning, tín hiệu nào có thể đóng vai task ID?', options: [
+    { id: 'a', label: 'Instruction bằng natural language.', isCorrect: true },
+    { id: 'b', label: 'Replay ratio.' },
+    { id: 'c', label: 'Fisher matrix.' },
+    { id: 'd', label: 'Timestamp của checkpoint.' },
+  ], success: 'Instruction có thể route task bằng ngôn ngữ tự nhiên.', error: 'Task signal nằm ngay trong prompt.' },
+  { id: 'cil-role', title: 'CIL', mode: 'single', prompt: 'CIL vẫn liên quan đến continual LLM qua ví dụ nào?', options: [
+    { id: 'a', label: 'Chỉ supplier–consumer release.' },
+    { id: 'b', label: 'Chỉ knowledge update.' },
+    { id: 'c', label: 'Vocabulary expansion hoặc học routing function trong MoE.', isCorrect: true },
+    { id: 'd', label: 'Chỉ alignment tax.' },
+  ], success: 'CIL xuất hiện qua phần không gian output/routing được mở rộng.', error: 'Nhớ hai ví dụ survey nêu cho CIL.' },
+]} />

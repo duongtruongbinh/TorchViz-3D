@@ -1,131 +1,26 @@
 export const lessonMetadata = {
-  domainId: 'continual-learning-llm',
-  id: 'continual-instruction-tuning-quiz',
-  locale: 'vi',
-  title: "Quiz",
-  headings: [
-  "Định nghĩa CIT",
-  "Chuỗi instruction",
-  "Rủi ro retention",
-  "Đánh giá CIT"
-],
-  keywords: ['Continual Learning', 'LLM', 'Quiz'],
-  conceptIds: [
-  "cit-definition",
-  "instruction-sequence",
-  "instruction-retention-risk",
-  "cit-evaluation"
-],
-  pageCount: 4,
+  domainId: 'continual-learning-llm', id: 'continual-instruction-tuning-quiz', locale: 'vi', title: 'Quiz',
+  headings: ['Mục tiêu', 'Replay', 'PEFT'], keywords: ['Quiz', 'CIT'],
+  conceptIds: ['cit-goal', 'cit-replay', 'cit-architecture'], pageCount: 3,
 }
 
 <MdxQuiz id="continual-instruction-tuning-quiz" questions={[
-  {
-    "id": "cit-definition",
-    "title": "Định nghĩa CIT",
-    "prompt": "CIT giải quyết bài toán nào?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt4",
-        "label": "Học instruction mới mà vẫn giữ khả năng làm theo instruction cũ.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt1",
-        "label": "Cập nhật corpus không gán nhãn theo ngôn ngữ, domain hoặc thời gian."
-      },
-      {
-        "id": "opt2",
-        "label": "Sửa nối tiếp một tập fact mục tiêu và giới hạn collateral damage."
-      },
-      {
-        "id": "opt3",
-        "label": "Cập nhật preference và safety policy bằng các feedback dataset nối tiếp."
-      }
-    ],
-    "success": "CIT là continual learning trên chuỗi instruction.",
-    "error": "Hãy xác định loại dữ liệu downstream."
-  },
-  {
-    "id": "instruction-sequence",
-    "title": "Chuỗi instruction",
-    "prompt": "Yếu tố nào tạo thứ tự stage trong CIT?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt2",
-        "label": "Một instruction dataset cố định được shuffle lại ở mỗi epoch."
-      },
-      {
-        "id": "opt3",
-        "label": "Các paraphrase của cùng instruction được gom vào một batch lớn."
-      },
-      {
-        "id": "opt4",
-        "label": "Các preference pair được thay đổi nhưng instruction dataset giữ nguyên."
-      },
-      {
-        "id": "opt1",
-        "label": "Các instruction dataset được đưa vào nối tiếp theo từng stage.",
-        "isCorrect": true
-      }
-    ],
-    "success": "CIT xem mỗi tập instruction là một stage học.",
-    "error": "Tìm nguồn dữ liệu thay đổi theo thời gian."
-  },
-  {
-    "id": "instruction-retention-risk",
-    "title": "Rủi ro retention",
-    "prompt": "Biểu hiện nào có thể là forgetting trong CIT?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Model giữ format cũ nhưng accuracy trên instruction mới chưa tăng."
-      },
-      {
-        "id": "opt2",
-        "label": "Model không còn tuân thủ format của instruction cũ sau khi học stage mới.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt3",
-        "label": "Model làm tốt paraphrase mới của instruction cũ hơn prompt huấn luyện nguyên văn."
-      },
-      {
-        "id": "opt4",
-        "label": "Model giữ instruction cũ nhưng output trên instruction mới chưa đúng format."
-      }
-    ],
-    "success": "Instruction-following behavior cũng là năng lực cần giữ.",
-    "error": "Không chỉ fact accuracy mới có thể bị quên."
-  },
-  {
-    "id": "cit-evaluation",
-    "title": "Đánh giá CIT",
-    "prompt": "Tập đánh giá nào giúp kiểm tra generalization của instruction?",
-    "mode": "single",
-    "options": [
-      {
-        "id": "opt1",
-        "label": "Prompt huấn luyện nguyên văn của instruction cũ và mới."
-      },
-      {
-        "id": "opt2",
-        "label": "Held-out example dùng cùng template nhưng thay batch size đánh giá."
-      },
-      {
-        "id": "opt3",
-        "label": "Paraphrase chưa thấy của instruction cũ và mới.",
-        "isCorrect": true
-      },
-      {
-        "id": "opt4",
-        "label": "Training loss trung bình của mọi instruction dataset đã thấy."
-      }
-    ],
-    "success": "Paraphrase giúp tách ghi nhớ bề mặt khỏi hiểu instruction.",
-    "error": "Cần test ngoài exact prompt đã huấn luyện."
-  }
+  { id: 'cit-goal', title: 'Mục tiêu', mode: 'single', prompt: 'CIT giải quyết bài toán nào?', options: [
+    { id: 'b', label: 'Chỉ cập nhật world fact.' },
+    { id: 'c', label: 'Chỉ mở rộng vocabulary.' },
+    { id: 'd', label: 'Chỉ tiếp tục pre-train corpus không gán nhãn.' },
+    { id: 'a', label: 'Học instruction mới mà không quên instruction cũ.', isCorrect: true },
+  ], success: 'CIT duy trì instruction following qua một data stream.', error: 'Nhìn loại dữ liệu được cập nhật.' },
+  { id: 'cit-replay', title: 'Replay', mode: 'single', prompt: 'SSR giảm chi phí replay bằng cách nào?', options: [
+    { id: 'a', label: 'Đóng băng toàn bộ model.' },
+    { id: 'b', label: 'Dùng LLM tạo synthetic instances để replay.', isCorrect: true },
+    { id: 'c', label: 'Chỉ đo X-Delta.' },
+    { id: 'd', label: 'Mở rộng class set.' },
+  ], success: 'SSR dùng synthetic replay.', error: 'Nhớ ví dụ thuộc nhóm replay của CIT.' },
+  { id: 'cit-architecture', title: 'PEFT', mode: 'single', prompt: 'O-LoRA giảm interference bằng cách nào?', options: [
+    { id: 'b', label: 'Replay toàn bộ history.' },
+    { id: 'c', label: 'Chỉ tăng λ cho mọi parameter.' },
+    { id: 'a', label: 'Học task mới trong các subspace trực giao.', isCorrect: true },
+    { id: 'd', label: 'Dùng LAMA probe làm training loss.' },
+  ], success: 'O-LoRA dùng orthogonal subspaces.', error: 'Đây là hướng PEFT/architecture.' },
 ]} />

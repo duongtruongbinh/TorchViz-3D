@@ -83,6 +83,11 @@ export const lessonMetadata = {
     "mode": "single",
     "options": [
       {
+        "id": "opt2",
+        "label": "BWT dương vì update mới đã cải thiện task cũ.",
+        "isCorrect": true
+      },
+      {
         "id": "opt1",
         "label": "FWT dương vì task cũ được đo trước khi học nó."
       },
@@ -93,11 +98,6 @@ export const lessonMetadata = {
       {
         "id": "opt4",
         "label": "OP chắc chắn giảm vì task cũ không còn ở stage hiện tại."
-      },
-      {
-        "id": "opt2",
-        "label": "BWT dương vì update mới đã cải thiện task cũ.",
-        "isCorrect": true
       }
     ],
     "success": "Positive BWT là transfer ngược có lợi.",
@@ -110,17 +110,17 @@ export const lessonMetadata = {
     "mode": "single",
     "options": [
       {
-        "id": "opt1",
-        "label": "Trước khi model được huấn luyện trên task tương lai đó, so với baseline tương ứng.",
-        "isCorrect": true
-      },
-      {
         "id": "opt2",
         "label": "Ngay sau khi model hoàn tất task tương lai đó."
       },
       {
         "id": "opt3",
         "label": "Chỉ sau stage cuối, khi mọi task đều đã được học."
+      },
+      {
+        "id": "opt1",
+        "label": "Trước khi model được huấn luyện trên task tương lai đó, so với baseline tương ứng.",
+        "isCorrect": true
       },
       {
         "id": "opt4",
@@ -137,17 +137,17 @@ export const lessonMetadata = {
     "mode": "single",
     "options": [
       {
+        "id": "opt4",
+        "label": "Cần xem F/BWT và kết quả per-task vì OP trung bình có thể che regression.",
+        "isCorrect": true
+      },
+      {
         "id": "opt1",
         "label": "Hai model tương đương trên retention vì OP bằng nhau."
       },
       {
         "id": "opt2",
         "label": "Model có task mới cao hơn luôn tốt hơn dù task cũ giảm mạnh."
-      },
-      {
-        "id": "opt4",
-        "label": "Cần xem F/BWT và kết quả per-task vì OP trung bình có thể che regression.",
-        "isCorrect": true
       },
       {
         "id": "opt3",

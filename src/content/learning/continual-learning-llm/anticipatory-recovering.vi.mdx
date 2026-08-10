@@ -1,0 +1,20 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm', id: 'anticipatory-recovering', locale: 'vi', title: 'Anticipatory Recovering',
+  headings: ['Khôi phục trước khi gặp lại document'], keywords: ['Emergent Property', 'Anticipatory Recovering'],
+  conceptIds: ['anticipatory-definition', 'sequential-memorization', 'open-question'],
+}
+
+## Khôi phục trước khi gặp lại document
+
+Khi LLM được fine-tune tuần tự và lặp lại trên một chuỗi document, model đôi khi khôi phục thông tin đã quên **trước cả khi gặp lại document chứa thông tin đó**. Survey gọi hiện tượng này là **anticipatory recovering**.
+
+<ConceptFlow ariaLabel="Anticipatory recovering" items={[
+  { title: 'Học document', detail: 'Model ghi nhận thông tin trong sequence' },
+  { title: 'Quên tạm thời', detail: 'Performance trên thông tin đó suy giảm' },
+  { title: 'Tiếp tục sequence', detail: 'Model chưa gặp lại document gốc' },
+  { title: 'Khôi phục sớm', detail: 'Thông tin quay lại trước lần lặp kế tiếp' },
+]} />
+
+Hành vi này gợi ý LLM có khả năng **sequential memorization** chưa được hiểu đầy đủ. Đây là emergent property cần được nghiên cứu thêm khi model scale và cấu trúc sequence tăng.
+
+Nguồn: [Shi et al., §6.1](https://arxiv.org/html/2404.16789v3#S6.SS1).
