@@ -142,6 +142,11 @@ chapter-local names such as `1.1.6-language-modeling-next-token.vi.mdx` and
 unprefixed filenames. Routes and `lessonMetadata.id` always use the lesson ID
 without this organizational prefix.
 
+The Continual Learning domain applies the prefix consistently to every authored
+file as `<chapter>.1.<node>-<lesson-id>.vi.mdx`. Its chapter number and node
+number mirror the domain TOC exactly, including adjacent Quiz nodes; Chapter 7
+ends at `7.1.1-continual-llm-synthesis.vi.mdx` because it has no Quiz node.
+
 Every navigable lesson has one TOC node. A locale-specific MDX file exists only
 when that locale has authored lesson content. File existence is not navigation
 availability: TOC navigation status (`available | next | locked`) remains

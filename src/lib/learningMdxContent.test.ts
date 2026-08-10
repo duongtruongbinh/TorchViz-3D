@@ -127,6 +127,18 @@ test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => 
   );
 });
 
+test('continual-learning MDX filenames mirror chapter and TOC order', () => {
+  const tracks = learningCatalog.tracks.filter((track) => track.domainId === 'continual-learning-llm');
+  const expectedFilenames = tracks.flatMap((track, chapterIndex) => (
+    track.lessonIds.map((lessonId, nodeIndex) => `${chapterIndex + 1}.1.${nodeIndex + 1}-${lessonId}.vi.mdx`)
+  ));
+  const actualFilenames = lessonFiles
+    .filter((file) => parseLearningMdxPath(file)?.domainId === 'continual-learning-llm')
+    .map((file) => file.replaceAll('\\', '/').split('/').at(-1));
+
+  assert.deepEqual(actualFilenames.sort(), expectedFilenames.sort());
+});
+
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
   assert.equal(lessonFiles.length, 143);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));

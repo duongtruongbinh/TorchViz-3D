@@ -2,7 +2,7 @@
 title: Continual Learning Course for Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
-updated: 2026-08-10T18:03:14+07:00
+updated: 2026-08-10T18:09:24+07:00
 author: nmkhiem
 task: "Add and author the Continual Learning domain, its paired assessments, labs, reusable visuals, and catalog contracts"
 supersedes: []
@@ -267,6 +267,10 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   lesson assets have authored consumers, the shared checklist and table options
   are referenced, and no removed lesson ID remains. Deleted the obsolete
   Chapter 7 quiz file and its unused three-concept metadata.
+- 2026-08-10 — Renamed all 77 Continual Learning MDX files to the canonical
+  `<chapter>.1.<node>-<lesson-id>.vi.mdx` structure. Prefixes now follow the
+  seven chapter tracks and their exact TOC order without changing lesson IDs or
+  routes; added a regression test for this filesystem-to-catalog mapping.
 
 # Verification
 
@@ -274,6 +278,6 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   copy-in-order Python program after excluding the Colab install magic.
 - Catalog and MDX tests validate all 77 authored Continual Learning nodes and
   the exact Theory/Quiz mappings for the 38 paired lessons.
-- `npm run verify` passed: TypeScript, all 85 tests, and the production build.
+- `npm run verify` passed: TypeScript, all 86 tests, and the production build.
 - `git diff --check` passed. Vite retains its non-blocking warning for chunks
   larger than 1 MB; no build errors remain.
