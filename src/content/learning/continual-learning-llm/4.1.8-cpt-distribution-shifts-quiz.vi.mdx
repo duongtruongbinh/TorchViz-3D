@@ -21,9 +21,9 @@ export const lessonMetadata = {
   ], success: 'Transfer tích cực và forgetting có thể đồng thời xuất hiện.', error: 'Không đồng nhất khả năng học ngôn ngữ mới với retention ngôn ngữ cũ.' },
   { id: 'content-shift', title: 'Content Shift', mode: 'single', prompt: 'Replay không hiệu quả trong một thí nghiệm LLPT cho phép kết luận gì?', options: [
     { id: 'a', label: 'Đây là finding cục bộ có thể liên quan đến overfitting; cần kiểm tra lại ở domain order và training recipe khác.', isCorrect: true },
-    { id: 'b', label: 'Replay luôn kém hơn sequential pre-training trong mọi Content Shift.' },
-    { id: 'c', label: 'Full retraining không còn là baseline hợp lệ cho Content Shift.' },
-    { id: 'd', label: 'Mọi modular method đều tốt hơn replay bất kể compute và task.' },
+    { id: 'b', label: 'Replay nên được loại khỏi các Content Shift có cùng model size vì paper đã kiểm soát được yếu tố overfitting.' },
+    { id: 'c', label: 'Modular methods nên được ưu tiên trước replay ở domain order khác, ngay cả khi chưa so dưới cùng compute budget.' },
+    { id: 'd', label: 'Kết quả đủ để quy nguyên nhân cho domain order; thay training recipe sẽ không làm diễn giải thay đổi.' },
   ], success: 'Một kết quả cục bộ không đủ để phủ định cả nhóm phương pháp.', error: 'Phân biệt finding của một setup với kết luận tổng quát.' },
   { id: 'temporal-shift', title: 'Temporal Shift', mode: 'single', prompt: 'Một model xử lý Temporal Shift đúng cần đồng thời đạt ba mục tiêu nào?', options: [
     { id: 'a', label: 'Giữ mọi fact cũ, bỏ fact mới và giảm compute.' },

@@ -24,9 +24,9 @@ export const lessonMetadata = {
     { id: 'd', label: 'Model không còn cần kiểm tra locality hoặc retention.' },
   ], success: 'Khả năng thao tác có chủ đích là lý do external memory đáng quan tâm.', error: 'Tập trung vào mức độ quan sát và điều khiển knowledge.' },
   { id: 'custom-preferences', title: 'Custom preferences', mode: 'single', prompt: 'Kết luận nào bám đúng bằng chứng hiện có về IBCL?', options: [
-    { id: 'a', label: 'IBCL đã xác nhận personalized alignment cho mọi production LLM.' },
-    { id: 'b', label: 'IBCL bỏ hoàn toàn stability–plasticity trade-off.' },
-    { id: 'c', label: 'IBCL cần fine-tune một model mới cho từng preference.' },
+    { id: 'a', label: 'Posterior knowledge base chỉ tạo được một trade-off cố định, nên mỗi preference vẫn cần train lại knowledge base.' },
+    { id: 'b', label: 'Bảo đảm dưới các giả định của IBCL đủ để suy ra cùng kết quả khi scale lên production LLM.' },
+    { id: 'c', label: 'Kết quả personalized alignment ở setup được thử xác nhận preference mới không làm thay đổi retention.' },
     { id: 'd', label: 'IBCL tạo model cho nhiều trade-off từ posterior knowledge base, nhưng bằng chứng còn giới hạn về scale và phụ thuộc giả định.', isCorrect: true },
   ], success: 'Đây là hướng mở có bảo đảm dưới giả định, chưa phải kết quả phổ quát cho LLM lớn.', error: 'Giữ đồng thời cơ chế của IBCL và giới hạn empirical scale.' },
 ]} />

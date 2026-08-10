@@ -44,10 +44,10 @@ export const lessonMetadata = {
     prompt: '“Generalization loose bound khi chỉ giữ một buffer nhỏ” nên được hiểu thế nào?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'Buffer nhỏ làm empirical loss luôn cao hơn dùng toàn bộ lịch sử.' },
+      { id: 'opt1', label: 'Bound lỏng có nghĩa forgetting kỳ vọng nhất thiết cao hơn full replay, bất kể cách chọn buffer.' },
       { id: 'opt2', label: 'Buffer nhỏ không bảo đảm bao phủ mọi trường hợp cũ, dù replay vẫn có thể hoạt động tốt trong thực nghiệm.', isCorrect: true },
-      { id: 'opt3', label: 'Buffer nhỏ vẫn bao phủ đầy đủ phân phối cũ nếu mọi mẫu có cùng trọng số gradient.' },
-      { id: 'opt4', label: 'Bound lỏng chứng minh replay kém hơn regularization trong mọi thực nghiệm.' },
+      { id: 'opt3', label: 'Một buffer đại diện sẽ có cùng bảo đảm như toàn bộ lịch sử nếu empirical loss trên buffer đủ thấp.' },
+      { id: 'opt4', label: 'Bound lỏng làm kết quả thực nghiệm của replay không còn dùng được để so với regularization.' },
     ],
     success: 'Đúng. Đây là giới hạn của mức bảo đảm lý thuyết, không phải kết luận replay không hữu ích.',
     error: 'Chưa đúng. “Bound lỏng” nói về mức bảo đảm, không khẳng định thất bại thực nghiệm.',

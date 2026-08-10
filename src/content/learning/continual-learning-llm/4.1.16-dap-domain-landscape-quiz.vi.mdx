@@ -7,10 +7,10 @@ export const lessonMetadata = {
 
 <MdxQuiz id="dap-domain-landscape-quiz" questions={[
   { id: 'dap-legal-domain', title: 'Legal', mode: 'single', prompt: 'Từ Lawyer LLaMA và SaulLM, kết luận nào được bằng chứng hỗ trợ tốt nhất?', options: [
-    { id: 'a', label: 'Legal DAP chỉ cần corpus đủ lớn, không cần đo general ability.' },
+    { id: 'a', label: 'Legal corpus đủ lớn có thể thay general-data replay, nên general ability chỉ cần đo trước DAP.' },
     { id: 'b', label: 'General-data replay là một lựa chọn giữ năng lực cũ, nhưng tỷ lệ trộn vẫn phải được công bố và đánh giá.', isCorrect: true },
-    { id: 'c', label: 'Replay rate 2% của SaulLM đã được chứng minh tối ưu cho mọi legal model.' },
-    { id: 'd', label: 'Lawyer LLaMA không dùng dữ liệu tổng quát trong DAP.' },
+    { id: 'c', label: 'Replay rate 2% của SaulLM có thể dùng làm mặc định cho Lawyer LLaMA vì hai model cùng legal domain.' },
+    { id: 'd', label: 'Lawyer LLaMA không công bố replay rate nên chưa thể xem dữ liệu tổng quát của paper là replay.' },
   ], success: 'Hai paper dùng replay, nhưng bằng chứng không thiết lập một tỷ lệ phổ quát.', error: 'Phân biệt design choice của từng paper với kết luận có thể khái quát.' },
   { id: 'dap-medical-domain', title: 'Medical', mode: 'single', prompt: 'Một medical model tăng điểm chuyên ngành nhưng giảm dần trên general benchmark theo training step. Hành động nào phù hợp nhất với các paper trong survey?', options: [
     { id: 'a', label: 'Chỉ giữ checkpoint cuối vì domain score cao nhất.' },
@@ -25,10 +25,10 @@ export const lessonMetadata = {
     { id: 'd', label: 'Hybrid tuning loại bỏ nhu cầu đánh giá general ability.' },
   ], success: 'Paper hỗ trợ vai trò của data quality, không thiết lập quy tắc 10% phổ quát.', error: 'Giữ kết luận trong phạm vi thí nghiệm của FinPythia.' },
   { id: 'dap-scientific-domain', title: 'Scientific', mode: 'single', prompt: 'GeoGalactica trộn geoscience, arXiv và CodeData theo tỷ lệ 8:1:1. Ta có thể khẳng định điều gì về CodeData?', options: [
-    { id: 'a', label: 'CodeData chắc chắn loại bỏ catastrophic forgetting.' },
-    { id: 'b', label: 'CodeData là thành phần duy nhất tạo domain gain.' },
+    { id: 'a', label: 'Có CodeData trong mixture là bằng chứng nó cần thiết để giữ reasoning khi học geoscience.' },
+    { id: 'b', label: 'Domain gain của mixture đủ để quy riêng phần cải thiện cho CodeData thay vì geoscience hoặc arXiv.' },
     { id: 'c', label: 'Paper dùng CodeData trong mixture nhưng chưa cung cấp empirical evidence đủ để cô lập tác dụng của nó.', isCorrect: true },
-    { id: 'd', label: 'Tỷ lệ 8:1:1 đã được xác nhận tối ưu cho mọi scientific domain.' },
+    { id: 'd', label: 'Tỷ lệ 8:1:1 có thể chuyển sang scientific domain khác vì arXiv và code đều là dữ liệu tổng quát.' },
   ], success: 'Có một thành phần trong recipe không đồng nghĩa tác dụng riêng của nó đã được chứng minh.', error: 'Phân biệt mô tả data mixture với bằng chứng ablation.' },
   { id: 'dap-code-domain', title: 'Code', mode: 'single', prompt: 'Nhóm muốn học thêm code và math chủ yếu qua tham số mới, đồng thời hạn chế can thiệp vào backbone. Paper nào khớp nhất?', options: [
     { id: 'a', label: 'IRCoder, vì compiler IR luôn giữ nguyên toàn bộ base-model weights.' },

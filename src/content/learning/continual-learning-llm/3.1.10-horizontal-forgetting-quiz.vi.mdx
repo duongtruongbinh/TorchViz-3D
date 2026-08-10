@@ -12,10 +12,10 @@ export const lessonMetadata = {
     { id: 'd', label: 'Model cần task ID để chọn head khi inference.' },
   ], success: 'Model suy giảm trên một stage cũ sau khi học stage mới cùng chiều thời gian.', error: 'Tìm trường hợp model đã làm tốt một stage cũ nhưng giảm sau update mới.' },
   { id: 'horizontal-long-sequence', title: 'Chuỗi task dài', mode: 'single', prompt: 'Vì sao chuỗi task dài làm horizontal forgetting khó kiểm soát hơn?', options: [
-    { id: 'a', label: 'Vì mọi stage đều buộc phải dùng output space khác nhau.' },
-    { id: 'b', label: 'Vì model luôn mất toàn bộ knowledge ngay sau stage thứ hai.' },
+    { id: 'a', label: 'Vì đánh giá riêng từng stage ngăn các sai lệch nhỏ ở update trước truyền sang update sau.' },
+    { id: 'b', label: 'Vì interference chỉ tác động checkpoint gần nhất, nên số stage làm tăng số lần đánh giá chứ không tăng mức quên.' },
     { id: 'c', label: 'Vì sai lệch nhỏ từ nhiều lần update có thể tích lũy và ảnh hưởng mạnh đến các stage đầu.', isCorrect: true },
-    { id: 'd', label: 'Vì historical data tự động trở nên không hợp lệ sau mỗi stage.' },
+    { id: 'd', label: 'Vì task ID thay đổi qua từng stage là nguồn tích lũy duy nhất, ngay cả khi model dùng chung task formulation.' },
   ], success: 'Rủi ro đến từ tác động tích lũy qua nhiều lần cập nhật.', error: 'Hãy xét điều xảy ra khi một mức quên nhỏ lặp lại nhiều lần.' },
   { id: 'horizontal-abrupt-shift', title: 'Distribution shift', mode: 'single', prompt: 'Điều gì khiến abrupt distribution shift dễ gây forgetting mạnh?', options: [
     { id: 'a', label: 'Dữ liệu mới luôn nhỏ hơn dữ liệu cũ.' },

@@ -29,16 +29,16 @@ export const lessonMetadata = {
     { id: 'd', label: 'Chỉ các câu hỏi thi đã có đáp án dùng cho supervised fine-tuning.' },
   ], success: 'DAP tiếp tục objective pre-training trên corpus đặc thù domain.', error: 'Phân biệt corpus domain không gán nhãn với dữ liệu task hoặc preference đã gán nhãn.' },
   { id: 'dap-terminology', title: 'Tên gọi DAP', mode: 'single', prompt: 'Vì sao survey gom “further pre-training”, “domain tuning” và “knowledge injection training” dưới tên DAP?', options: [
-    { id: 'a', label: 'Vì mọi paper đều dùng cùng backbone, optimizer và số training stage.' },
-    { id: 'b', label: 'Vì các tên này đều chỉ supervised fine-tuning trên instruction–response.' },
+    { id: 'a', label: 'Vì các paper đều diễn ra ở phía consumer và tối ưu trực tiếp label của downstream task.' },
+    { id: 'b', label: 'Vì các tên đều chỉ model editing để chèn fact domain vào một checkpoint cố định.' },
     { id: 'c', label: 'Vì chúng cùng mô tả việc tiếp tục pre-train model có sẵn trên corpus chuyên biệt hơn, dù nhấn mạnh khác nhau.', isCorrect: true },
-    { id: 'd', label: 'Vì DAP là tên của một benchmark bắt buộc cho mọi domain model.' },
+    { id: 'd', label: 'Vì survey phân nhóm theo kết quả trên domain benchmark, không xét training objective hay loại dữ liệu.' },
   ], success: 'Survey thống nhất tên dựa trên pattern training chung, không dựa trên wording của từng paper.', error: 'Tìm hai dấu hiệu chung: checkpoint có sẵn và pre-training tiếp trên dữ liệu chuyên biệt.' },
   { id: 'dapt-evidence', title: 'Bằng chứng DAPT', mode: 'single', prompt: 'Kết luận nào bám đúng phạm vi thí nghiệm của Don’t Stop Pretraining?', options: [
     { id: 'a', label: 'In-domain pre-training tạo gain nhất quán trên bốn domain và tám classification task được khảo sát, nhưng chưa chứng minh mọi LLM và task đều hưởng lợi.', isCorrect: true },
-    { id: 'b', label: 'DAPT bảo đảm zero vertical forgetting cho mọi decoder-only LLM.' },
-    { id: 'c', label: 'Paper chứng minh corpus có nhãn luôn tốt hơn corpus domain không gán nhãn.' },
-    { id: 'd', label: 'Kết quả chỉ xuất hiện ở BioMed và thất bại ở CS, News và Reviews.' },
+    { id: 'b', label: 'Gain ở bốn domain cho phép áp dụng DAPT cho task khác trong các domain đó mà không cần kiểm tra lại model hay recipe.' },
+    { id: 'c', label: 'Task-Adaptive Pre-training thay thế DAPT trong cả tám classification task nên domain corpus không còn cần thiết.' },
+    { id: 'd', label: 'Khác biệt giữa bốn domain cho thấy kích thước corpus là yếu tố đủ để dự đoán downstream gain.' },
   ], success: 'Finding cần được giữ trong bốn domain, tám classification task và model được paper kiểm tra.', error: 'Không biến một kết quả nhất quán trong setup cụ thể thành bảo đảm phổ quát.' },
   { id: 'dap-survey-map', title: 'Bản đồ survey', mode: 'single', prompt: 'Survey mô tả một study DAP bằng ba nhóm thông tin nào?', options: [
     { id: 'a', label: 'Tokenizer, prompt template và serving latency.' },

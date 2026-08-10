@@ -111,11 +111,11 @@ export const lessonMetadata = {
     "options": [
       {
         "id": "opt2",
-        "label": "Ngay sau khi model hoàn tất task tương lai đó."
+        "label": "Ngay sau khi model hoàn tất task tương lai đó, so với điểm trước khi học task."
       },
       {
         "id": "opt3",
-        "label": "Chỉ sau stage cuối, khi mọi task đều đã được học."
+        "label": "Sau stage cuối, so checkpoint cuối với checkpoint ngay trước task tương lai."
       },
       {
         "id": "opt1",
@@ -124,7 +124,7 @@ export const lessonMetadata = {
       },
       {
         "id": "opt4",
-        "label": "Tại checkpoint có OP cao nhất, không cần baseline."
+        "label": "Tại checkpoint có OP cao nhất, so với random initialization trên task tương lai."
       }
     ],
     "success": "FWT kiểm tra lợi ích có trước khi trực tiếp học task.",

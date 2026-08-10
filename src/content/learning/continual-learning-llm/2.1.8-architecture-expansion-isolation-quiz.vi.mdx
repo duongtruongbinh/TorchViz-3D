@@ -26,9 +26,9 @@ export const lessonMetadata = {
     prompt: 'Khi nào architecture expansion có thể đạt zero forgetting theo survey?',
     options: [
       { id: 'a', label: 'Khi task ID có sẵn hoặc được suy ra chính xác tại inference.', isCorrect: true },
-      { id: 'b', label: 'Khi mọi task dùng dữ liệu có cùng domain.' },
-      { id: 'c', label: 'Khi λ của regularization bằng 0.' },
-      { id: 'd', label: 'Khi không cần chọn module lúc inference.' },
+      { id: 'b', label: 'Khi mỗi task có module riêng nên kết quả không còn phụ thuộc router chọn module nào.' },
+      { id: 'c', label: 'Khi chỉ module mới được update, còn inference lấy trung bình output của tất cả module.' },
+      { id: 'd', label: 'Khi các task cùng domain nên có thể dùng chung một route mà không cần phân biệt task.' },
     ],
     success: 'Đúng module là điều kiện để dùng lại đúng năng lực.', error: 'Cô lập tham số chưa giải quyết được bài toán chọn nhánh.',
   },

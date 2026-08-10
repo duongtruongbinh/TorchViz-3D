@@ -1,20 +1,32 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-instruction-tuning-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Nội dung', 'Paper'], keywords: ['Quiz', 'CIT'],
-  conceptIds: ['cit-overview', 'cit-papers'], pageCount: 2,
+  headings: ['Mục tiêu', 'Replay', 'Replay có kiểm soát', 'PEFT và routing'], keywords: ['Quiz', 'CIT'],
+  conceptIds: ['cit-overview', 'cit-replay-strategies', 'cit-controlled-replay', 'cit-peft-routing'], pageCount: 4,
 }
 
 <MdxQuiz id="continual-instruction-tuning-quiz" questions={[
   { id: 'cit-overview', title: 'Nội dung', mode: 'single', prompt: 'Một model lần lượt học instruction tóm tắt, phân loại và sinh code. Mục tiêu nào mô tả đúng CIT?', options: [
-    { id: 'a', label: 'Chỉ tối đa hóa điểm của instruction đến cuối cùng.' },
+    { id: 'a', label: 'Học instruction mới và giữ general ability, nhưng không đánh giá lại instruction cũ.' },
     { id: 'b', label: 'Học instruction mới đồng thời duy trì khả năng làm theo instruction cũ.', isCorrect: true },
-    { id: 'c', label: 'Chỉ tiếp tục pre-train corpus không gán nhãn.' },
-    { id: 'd', label: 'Luôn lưu và replay toàn bộ dữ liệu từng thấy.' },
+    { id: 'c', label: 'Giữ nguyên adapter cũ và chỉ đo khả năng làm instruction mới ở cuối stream.' },
+    { id: 'd', label: 'Tối ưu đồng thời mọi instruction bằng cách retrain trên toàn bộ lịch sử sau mỗi stage.' },
   ], success: 'CIT cân bằng khả năng học instruction mới với việc giữ instruction cũ.', error: 'Hãy xét cả update hiện tại lẫn instruction trong lịch sử.' },
-  { id: 'cit-papers', title: 'Paper', mode: 'single', prompt: 'Ánh xạ nào đúng giữa paper CIT và cơ chế nổi bật?', options: [
-    { id: 'a', label: 'SSR—subspace trực giao; O-LoRA—synthetic replay; SAPT—full-model freeze.' },
-    { id: 'b', label: 'CT0—external memory; DynaInst—model averaging; KPIG—side memory.' },
-    { id: 'c', label: 'O-LoRA—random replay; SSR—parameter regularization; SAPT—episodic memory.' },
-    { id: 'd', label: 'SSR—synthetic replay; DynaInst—dynamic replay + regularization; O-LoRA—subspace trực giao.', isCorrect: true },
-  ], success: 'Ba paper đại diện cho replay tổng hợp, bảo vệ dữ liệu + tham số và PEFT trực giao.', error: 'Phân biệt replay, regularization và cách tách không gian update.' },
+  { id: 'cit-replay-strategies', title: 'Replay', mode: 'single', prompt: 'Khi không thể giữ toàn bộ instruction cũ, ánh xạ nào phân biệt đúng CT0, KPIG và SSR?', options: [
+    { id: 'a', label: 'CT0 trộn một phần dữ liệu cũ; KPIG ưu tiên phần instruction có information gain cao; SSR sinh synthetic instances để replay.', isCorrect: true },
+    { id: 'b', label: 'CT0 sinh dữ liệu bằng LLM; KPIG giữ buffer ngẫu nhiên; SSR chọn mẫu theo Fisher information.' },
+    { id: 'c', label: 'CT0 chọn low-rank subspace; KPIG mở rộng PEFT block; SSR định tuyến instruction bằng shared attention.' },
+    { id: 'd', label: 'CT0 dùng negative training; KPIG pre-allocate task head; SSR averaging checkpoint theo layer.' },
+  ], success: 'Ba paper lần lượt minh họa replay cơ bản, replay có chọn lọc và replay tổng hợp.', error: 'Xét nguồn của dữ liệu replay và cách mỗi paper chọn hoặc tạo dữ liệu đó.' },
+  { id: 'cit-controlled-replay', title: 'Replay có kiểm soát', mode: 'single', prompt: 'Một nhóm muốn vừa chọn động nội dung buffer vừa hạn chế update tham số gây quên. Phương pháp nào khớp nhất, và khác InstructionSpeak ở đâu?', options: [
+    { id: 'a', label: 'DynaInst, vì kết hợp dynamic task/instance selection với parameter regularization; InstructionSpeak kết hợp replay với negative training.', isCorrect: true },
+    { id: 'b', label: 'KPIG, vì information gain đồng thời là parameter regularization; InstructionSpeak chỉ thay đổi replay ratio.' },
+    { id: 'c', label: 'InstructionSpeak, vì phương pháp chọn task/instance động rồi dùng Fisher regularization; DynaInst chủ yếu tạo negative examples.' },
+    { id: 'd', label: 'SSR, vì synthetic replay luôn đi kèm regularization; InstructionSpeak dùng subspace trực giao.' },
+  ], success: 'DynaInst bảo vệ ở cả mức dữ liệu và tham số; InstructionSpeak thêm tín hiệu âm vào replay.', error: 'Phân biệt dynamic selection + regularization với negative training + replay.' },
+  { id: 'cit-peft-routing', title: 'PEFT và routing', mode: 'single', prompt: 'Instruction mới cần chia sẻ tri thức khi hữu ích nhưng vẫn được định tuyến tới phần thích nghi phù hợp với input. Cơ chế nào đáp ứng trực tiếp yêu cầu này?', options: [
+    { id: 'a', label: 'O-LoRA, vì mọi input dùng chung một low-rank subspace mới được giữ trực giao với base model.' },
+    { id: 'b', label: 'SSR, vì synthetic instances tự chọn PEFT block theo similarity của prompt.' },
+    { id: 'c', label: 'SAPT, vì selection module dùng shared attention để chọn PEFT block theo input và vẫn tạo đường chia sẻ tri thức.', isCorrect: true },
+    { id: 'd', label: 'DynaInst, vì replay buffer đóng vai trò router giữa các adapter theo task.' },
+  ], success: 'SAPT kết hợp nhiều PEFT block với selector dựa trên shared attention.', error: 'Tìm phương pháp có cả selection module và cơ chế chia sẻ giữa task.' },
 ]} />

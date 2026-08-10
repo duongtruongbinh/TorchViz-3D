@@ -21,8 +21,8 @@ export const lessonMetadata = {
   ], success: 'ELLE kết hợp function preservation với phá symmetry giữa các bản sao.', error: 'Cần đồng thời giải quyết output bị thay đổi và symmetry problem.' },
   { id: 'cpt-data-selection', title: 'Data selection', mode: 'single', prompt: 'Kết luận hợp lý nhất từ các nghiên cứu data selection trong CPT là gì?', options: [
     { id: 'a', label: 'Một tập con được chọn theo novelty và diversity có thể giảm chi phí và thậm chí tốt hơn train trên toàn bộ corpus chưa chọn lọc.', isCorrect: true },
-    { id: 'b', label: 'Mọi mẫu có perplexity cao đều chắc chắn là dữ liệu chất lượng cao.' },
-    { id: 'c', label: 'Data selection loại bỏ hoàn toàn nhu cầu đánh giá retention.' },
-    { id: 'd', label: 'Cứ chọn ngẫu nhiên 10% dữ liệu là tái tạo được mọi kết quả của paper.' },
+    { id: 'b', label: 'Perplexity cao là tín hiệu đủ để chọn dữ liệu; novelty và diversity không bổ sung thông tin hữu ích.' },
+    { id: 'c', label: 'Nếu tập con mới đủ diverse thì có thể suy ra retention từ acquisition score mà không cần đánh giá dữ liệu cũ.' },
+    { id: 'd', label: 'Một random subset cùng kích thước sẽ cho kết quả tương đương vì lợi ích chủ yếu đến từ giảm số token.' },
   ], success: 'Chất lượng và độ bao phủ của tập con quan trọng hơn việc chỉ giảm số lượng mẫu.', error: 'Phân biệt chọn lọc có tín hiệu với cắt dữ liệu ngẫu nhiên.' },
 ]} />

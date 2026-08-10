@@ -2,7 +2,7 @@
 title: Continual Learning Course for Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
-updated: 2026-08-10T18:09:24+07:00
+updated: 2026-08-10T18:35:02+07:00
 author: nmkhiem
 task: "Add and author the Continual Learning domain, its paired assessments, labs, reusable visuals, and catalog contracts"
 supersedes: []
@@ -74,7 +74,7 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   question IDs must match that set exactly. This prevents untaught quiz content
   and theory claims without assessment coverage.
 - Reviewed all Continual Learning quizzes for plausible distractors and varied
-  correct-answer positions. The course contains 150 questions: 149
+  correct-answer positions. The course contains 157 questions: 156
   single-choice and one multi-choice question, all with four options.
 - Added catalog and MDX contract tests for pair adjacency, publication state,
   concept mapping, question shape, and non-predictable A–D answer sequences.
@@ -271,6 +271,16 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   `<chapter>.1.<node>-<lesson-id>.vi.mdx` structure. Prefixes now follow the
   seven chapter tracks and their exact TOC order without changing lesson IDs or
   routes; added a regression test for this filesystem-to-catalog mapping.
+- 2026-08-10 — Re-audited all 38 Theory/Quiz mappings and 150 existing
+  questions. Expanded CIT, CMR, CMA, and CMLLM from one broad paper question to
+  mechanism-specific coverage, bringing the bank to 157 questions; replaced
+  weak absolute or category-mismatched distractors across Chapters 1–6 with
+  plausible same-context alternatives.
+- 2026-08-10 — Removed the forced “one A, B, C, D per four-question quiz” rule,
+  which itself leaked a pattern. Answer order is now statically shuffled without
+  moving on reload, uses at least three positions in longer quizzes, avoids
+  cyclic three-answer patterns, and remains exactly balanced at 39 correct
+  single-choice answers per A/B/C/D position.
 
 # Verification
 

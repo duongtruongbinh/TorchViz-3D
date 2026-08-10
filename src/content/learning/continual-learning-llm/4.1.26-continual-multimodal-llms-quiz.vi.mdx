@@ -1,7 +1,7 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-multimodal-llms-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Nội dung', 'Paper'], keywords: ['Quiz', 'CMLLM'],
-  conceptIds: ['cmllm-overview', 'cmllm-papers'], pageCount: 2,
+  headings: ['Hai chiều quên', 'Failure evidence', 'Các điểm can thiệp', 'Missing modality'], keywords: ['Quiz', 'CMLLM'],
+  conceptIds: ['cmllm-overview', 'cmllm-failure-evidence', 'cmllm-interventions', 'cmllm-missing-modality'], pageCount: 4,
 }
 
 <MdxQuiz id="continual-multimodal-llms-quiz" questions={[
@@ -11,7 +11,19 @@ export const lessonMetadata = {
     { id: 'c', label: 'Domain shift rồi class-incremental transfer.' },
     { id: 'd', label: 'Vertical forgetting rồi horizontal forgetting.', isCorrect: true },
   ], success: 'Vertical đi qua các tầng training; horizontal đi qua chuỗi task cùng tầng.', error: 'Phân biệt mất năng lực upstream với quên downstream task cũ.' },
-  { id: 'cmllm-papers', title: 'Paper', mode: 'single', prompt: 'Paper nào dùng prompt và key–query pool để tái dựng modality bị thiếu?', options: [
+  { id: 'cmllm-failure-evidence', title: 'Failure evidence', mode: 'single', prompt: 'Điểm trung bình multimodal gần như không đổi sau continual training. Kết luận nào bám sát bằng chứng được lesson trình bày?', options: [
+    { id: 'a', label: 'Chưa thể kết luận không quên: minority collapse hoặc suy giảm ở một modality có thể bị điểm trung bình che khuất.', isCorrect: true },
+    { id: 'b', label: 'Có thể kết luận replay đã giữ mọi modality nếu overall score không giảm đáng kể.' },
+    { id: 'c', label: 'Có thể loại trừ negative forward transfer vì metric hiện tại chỉ đo các task đã học.' },
+    { id: 'd', label: 'Có thể quy mọi hallucination còn lại cho distribution shift thay vì continual learning.' },
+  ], success: 'Zhai et al. cho thấy aggregate score có thể che collapse ở nhóm hoặc modality yếu.', error: 'Hãy hỏi metric trung bình có làm mất tín hiệu của một nhóm dữ liệu nhỏ hay không.' },
+  { id: 'cmllm-interventions', title: 'Các điểm can thiệp', mode: 'single', prompt: 'Ánh xạ nào đúng giữa phương pháp CMLLM và vị trí hoặc cơ chế can thiệp?', options: [
+    { id: 'a', label: 'EProj—model patch; Fwd-Prompt—LoRA expert; Model Tailor—projection expansion; CoIN—gradient projection.' },
+    { id: 'b', label: 'EProj—episodic memory; Fwd-Prompt—knowledge shards; Model Tailor—prompt pool; CoIN—causal tracing.' },
+    { id: 'c', label: 'EProj—mở rộng projection; Fwd-Prompt—chiếu prompt gradient; Model Tailor—lưu subset tham số quan trọng; CoIN—nhiều LoRA expert.', isCorrect: true },
+    { id: 'd', label: 'EProj—dynamic vocabulary; Fwd-Prompt—full replay; Model Tailor—sample weighting; CoIN—layer averaging.' },
+  ], success: 'Các paper can thiệp ở projection, gradient, model patch và expert routing khác nhau.', error: 'Ghép tên phương pháp với đúng bottleneck trong pipeline multimodal.' },
+  { id: 'cmllm-missing-modality', title: 'Missing modality', mode: 'single', prompt: 'Paper nào dùng prompt và key–query pool để tái dựng modality bị thiếu?', options: [
     { id: 'a', label: 'EProj.' },
     { id: 'b', label: 'RebQ.', isCorrect: true },
     { id: 'c', label: 'Model Tailor.' },

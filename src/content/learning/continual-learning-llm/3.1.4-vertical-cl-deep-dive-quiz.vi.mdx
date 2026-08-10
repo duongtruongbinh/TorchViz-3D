@@ -18,15 +18,15 @@ export const lessonMetadata = {
     { id: 'd', label: 'Thay thế toàn bộ evaluation bằng một task nội bộ.' },
   ], success: 'Pre-training tạo foundation model có phạm vi năng lực rộng.', error: 'Đây là tầng lớn nhất và tổng quát nhất của pipeline.' },
   { id: 'vertical-dap', title: 'DAP', mode: 'single', prompt: 'Điểm nào phân biệt DAP với fine-tuning downstream điển hình?', options: [
-    { id: 'a', label: 'DAP luôn yêu cầu task ID tại inference.' },
-    { id: 'b', label: 'DAP chỉ cập nhật classification head trên dữ liệu gán nhãn.' },
+    { id: 'a', label: 'DAP tối ưu trực tiếp label của downstream task nhưng giữ nguyên phần language-model head.' },
+    { id: 'b', label: 'DAP và downstream fine-tuning đều dùng corpus domain không gán nhãn; khác biệt chủ yếu ở số training step.' },
     { id: 'c', label: 'DAP tiếp tục language-model pre-training trên dữ liệu không gán nhãn thuộc một domain cụ thể.', isCorrect: true },
-    { id: 'd', label: 'DAP bắt buộc dùng lại toàn bộ corpus pre-training upstream.' },
+    { id: 'd', label: 'DAP cập nhật full model, còn downstream fine-tuning theo định nghĩa chỉ được cập nhật adapter hoặc task head.' },
   ], success: 'DAP thu hẹp distribution theo domain nhưng vẫn mang tính pre-training.', error: 'Hãy phân biệt dữ liệu domain không gán nhãn với dữ liệu task có gán nhãn.' },
   { id: 'vertical-finetuning', title: 'Fine-tuning', mode: 'single', prompt: 'Quan hệ quy mô dữ liệu nào thường đúng trong vertical pipeline?', options: [
-    { id: 'a', label: 'Fine-tuning lớn nhất; DAP nhỏ nhất.' },
+    { id: 'a', label: 'Pre-training lớn nhất; fine-tuning nằm giữa; DAP thường nhỏ nhất.' },
     { id: 'b', label: 'Pre-training lớn nhất; DAP nằm giữa; fine-tuning thường nhỏ nhất.', isCorrect: true },
-    { id: 'c', label: 'Ba tầng bắt buộc có cùng số mẫu.' },
-    { id: 'd', label: 'DAP luôn lớn hơn toàn bộ pre-training corpus.' },
+    { id: 'c', label: 'DAP lớn nhất; pre-training nằm giữa; fine-tuning thường nhỏ nhất.' },
+    { id: 'd', label: 'Ba tầng thường có quy mô gần nhau vì mỗi tầng chỉ thay đổi training objective.' },
   ], success: 'Phạm vi dữ liệu thường thu hẹp khi đi từ tổng quát xuống task cụ thể.', error: 'So sánh corpus đa domain, corpus theo domain và dữ liệu gán nhãn theo task.' },
 ]} />

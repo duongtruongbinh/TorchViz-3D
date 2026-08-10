@@ -13,8 +13,8 @@ export const lessonMetadata = {
   ], success: 'Horizontal CL đi dọc theo time/domain stream.', error: 'Phân biệt với cấu trúc phân cấp của vertical CL.' },
   { id: 'horizontal-memory-strategy', title: 'Chiến lược memory', mode: 'single', prompt: 'Khi tổ chức vẫn truy cập được toàn bộ historical data, nhận định nào hợp lý nhất?', options: [
     { id: 'a', label: 'Sparse replay có thể đủ hiệu quả trong một số setup, và nút thắt chuyển dần từ memory sang compute.', isCorrect: true },
-    { id: 'b', label: 'Horizontal CL không còn cần đo forgetting.' },
-    { id: 'c', label: 'Full retraining sau mỗi batch luôn là lựa chọn rẻ nhất.' },
-    { id: 'd', label: 'Mọi thuật toán CL chuyên biệt chắc chắn trở nên vô ích.' },
+    { id: 'b', label: 'Full retraining trở thành baseline mặc định vì giữ toàn bộ history đồng thời làm compute thấp hơn sparse replay.' },
+    { id: 'c', label: 'Memory và compute đều không còn là constraint; bài toán chỉ còn suy ra task ID cho từng checkpoint.' },
+    { id: 'd', label: 'Sparse replay không còn hợp lệ vì retention chỉ đo được khi mỗi update đọc lại toàn bộ historical data.' },
   ], success: 'Có dữ liệu lịch sử làm thay đổi constraint, nhưng không tự loại bỏ bài toán retention.', error: 'Phân biệt “memory không còn khan hiếm” với “forgetting đã biến mất”.' },
 ]} />
