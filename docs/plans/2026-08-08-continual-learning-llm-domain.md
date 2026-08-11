@@ -307,6 +307,14 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   warning callout treatments, regular-weight quiz answers, navy lesson headings,
   and an orange circular marker for lab nodes. Removed superseded lesson images
   and the temporary full-row lab styling left behind during iteration.
+- 2026-08-11 — Kept the lesson-search and status-filter controls fixed above a
+  dedicated scroll region for the chapter list, avoiding the visual overlap of
+  the earlier sticky treatment. Simplified the forgetting lab around two-column
+  reference tables, beginner-oriented parameter explanations, descriptive
+  evaluation variable names, and output-shaped examples. Removed the retired
+  Matplotlib plot and asset, unused plotting/helper imports, duplicate seed
+  calls, the unused NLL-threshold constant, and unconsumed qualitative-example
+  storage; aligned the lesson metadata with the revised baseline-summary title.
 
 # Verification
 

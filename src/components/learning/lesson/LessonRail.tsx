@@ -60,7 +60,7 @@ export default function LessonRail({
 }: LessonRailProps) {
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
-  const railRef = useRef<HTMLElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!railRef.current) return;
@@ -71,11 +71,11 @@ export default function LessonRail({
   }, [selectedLesson.id]);
 
   return (
-    <aside ref={railRef} className="custom-scrollbar learning-lab-scrollbar flex max-h-full justify-center overflow-auto pr-1">
-      <div className="grid w-[calc(100%_-_1rem)] content-start gap-4">
+    <aside className="flex h-full min-h-0 justify-center pr-1">
+      <div className="flex min-h-0 w-[calc(100%_-_1rem)] flex-col">
         <div
           className={cx(
-            'grid gap-2 border-b pb-4',
+            'grid shrink-0 gap-2 border-b pb-4',
             themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12',
           )}
         >
@@ -145,74 +145,76 @@ export default function LessonRail({
             ))}
           </div>
         </div>
+        <div ref={railRef} className="custom-scrollbar learning-lab-scrollbar mt-4 grid min-h-0 flex-1 content-start gap-4 overflow-y-auto pr-1">
 
-        {groups.length === 0 ? (
-          <div className={cx('border p-3 text-sm font-black leading-6', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
-            {strings.lessonFilterEmpty}
-          </div>
-        ) : null}
-
-        {groups.map(({ track, lessons, totalLessonCount }) => {
-          const isCollapsed = collapsedTrackIds.has(track.id);
-          const isCurrentTrack = track.id === selectedLesson.trackId;
-          return (
-            <div key={track.id} className="grid gap-1.5">
-              <button
-                type="button"
-                onClick={() => onToggleTrack(track.id)}
-                aria-expanded={!isCollapsed}
-                className={cx(
-                  'group -ml-1 flex w-full items-center gap-2 px-0.5 text-left text-[15px] font-black leading-6 transition-colors duration-200',
-                  themeClasses.focusRing,
-                  themeClasses.rail.trackHeading(isCurrentTrack),
-                )}
-              >
-                <ChevronDown
-                  className={cx(
-                    'h-5 w-5 shrink-0 transition-transform duration-200',
-                    isCollapsed && '-rotate-90',
-                    !isCurrentTrack && 'opacity-60',
-                  )}
-                  strokeWidth={2.5}
-                  aria-hidden="true"
-                />
-                <span className={cx('min-w-0', themeClasses.rail.trackTitle(isCurrentTrack))}>
-                  {getTrackText(language, track).title}
-                </span>
-                {isFiltered ? (
-                  <span className={getRailCountClass(themeClasses)}>
-                    {strings.lessonFilterCount(lessons.length, totalLessonCount)}
-                  </span>
-                ) : null}
-              </button>
-              {!isCollapsed ? (
-                <div className="ml-5 grid gap-0">
-                  {lessons.map((lesson, lessonIndex) => {
-                    const index = chapterLessonIndexById.get(lesson.id) ?? lessonIndex;
-                    const nextLesson = lessons[lessonIndex + 1] ?? null;
-                    const isCompleted = completedLessonIds.has(lesson.id);
-                    const isConnectorCompleted = isCompleted && Boolean(nextLesson && completedLessonIds.has(nextLesson.id));
-                    return (
-                      <LessonNode
-                        key={lesson.id}
-                        lesson={lesson}
-                        index={index}
-                        isCompleted={isCompleted}
-                        isConnectorCompleted={isConnectorCompleted}
-                        isLast={lessonIndex === lessons.length - 1}
-                        isSelected={lesson.id === selectedLesson.id}
-                        isTrackActive={isCurrentTrack}
-                        language={language}
-                        theme={theme}
-                        onSelect={onSelectLesson}
-                      />
-                    );
-                  })}
-                </div>
-              ) : null}
+          {groups.length === 0 ? (
+            <div className={cx('border p-3 text-sm font-black leading-6', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
+              {strings.lessonFilterEmpty}
             </div>
-          );
-        })}
+          ) : null}
+
+          {groups.map(({ track, lessons, totalLessonCount }) => {
+            const isCollapsed = collapsedTrackIds.has(track.id);
+            const isCurrentTrack = track.id === selectedLesson.trackId;
+            return (
+              <div key={track.id} className="grid gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => onToggleTrack(track.id)}
+                  aria-expanded={!isCollapsed}
+                  className={cx(
+                    'group -ml-1 flex w-full items-center gap-2 px-0.5 text-left text-[15px] font-black leading-6 transition-colors duration-200',
+                    themeClasses.focusRing,
+                    themeClasses.rail.trackHeading(isCurrentTrack),
+                  )}
+                >
+                  <ChevronDown
+                    className={cx(
+                      'h-5 w-5 shrink-0 transition-transform duration-200',
+                      isCollapsed && '-rotate-90',
+                      !isCurrentTrack && 'opacity-60',
+                    )}
+                    strokeWidth={2.5}
+                    aria-hidden="true"
+                  />
+                  <span className={cx('min-w-0', themeClasses.rail.trackTitle(isCurrentTrack))}>
+                    {getTrackText(language, track).title}
+                  </span>
+                  {isFiltered ? (
+                    <span className={getRailCountClass(themeClasses)}>
+                      {strings.lessonFilterCount(lessons.length, totalLessonCount)}
+                    </span>
+                  ) : null}
+                </button>
+                {!isCollapsed ? (
+                  <div className="ml-5 grid gap-0">
+                    {lessons.map((lesson, lessonIndex) => {
+                      const index = chapterLessonIndexById.get(lesson.id) ?? lessonIndex;
+                      const nextLesson = lessons[lessonIndex + 1] ?? null;
+                      const isCompleted = completedLessonIds.has(lesson.id);
+                      const isConnectorCompleted = isCompleted && Boolean(nextLesson && completedLessonIds.has(nextLesson.id));
+                      return (
+                        <LessonNode
+                          key={lesson.id}
+                          lesson={lesson}
+                          index={index}
+                          isCompleted={isCompleted}
+                          isConnectorCompleted={isConnectorCompleted}
+                          isLast={lessonIndex === lessons.length - 1}
+                          isSelected={lesson.id === selectedLesson.id}
+                          isTrackActive={isCurrentTrack}
+                          language={language}
+                          theme={theme}
+                          onSelect={onSelectLesson}
+                        />
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </aside>
   );
