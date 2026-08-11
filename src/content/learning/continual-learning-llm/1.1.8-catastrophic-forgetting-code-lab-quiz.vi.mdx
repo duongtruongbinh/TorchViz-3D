@@ -21,10 +21,10 @@ export const lessonMetadata = {
     prompt: 'Sau khi tiếp tục fine-tune Pythia-160M trên Task B, điều gì đã xảy ra với hiệu suất của mô hình trên Task A?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'Answer NLL của Task A tăng nhẹ nhưng Exact Match vẫn giữ 100%, cho thấy chỉ calibration thay đổi.' },
-      { id: 'opt2', label: 'Answer NLL của Task A tăng từ 0.000085 lên 5.8178 và Exact Match giảm từ 100% xuống 0%.', isCorrect: true },
+      { id: 'opt1', label: 'Answer NLL của Task A tăng nhẹ nhưng Prefix Match vẫn giữ 100%, cho thấy chỉ calibration thay đổi.' },
+      { id: 'opt2', label: 'Answer NLL của Task A tăng từ 0.000085 lên 5.8178 và Prefix Match giảm từ 100% xuống 0%.', isCorrect: true },
       { id: 'opt3', label: 'Answer NLL của cả Task A và Task B cùng tăng mạnh, nên mô hình không học được Task B.' },
-      { id: 'opt4', label: 'Task A giữ nguyên còn Task B đạt 0% Exact Match, cho thấy stability cao nhưng plasticity thấp.' },
+      { id: 'opt4', label: 'Task A giữ nguyên còn Task B đạt 0% Prefix Match, cho thấy stability cao nhưng plasticity thấp.' },
     ],
     success: 'Chính xác! Cập nhật trọng số nối tiếp trên Task B đã làm mô hình quên hoàn toàn Task A.',
     error: 'Chưa chính xác. Hãy xem lại kết quả thu được ở Giai đoạn After A->B.',
@@ -37,7 +37,7 @@ export const lessonMetadata = {
     options: [
       { id: 'opt1', label: 'Đánh giá Task A sau mỗi stage nhưng không dùng kết quả đó để chọn checkpoint.' },
       { id: 'opt2', label: 'Dùng full-parameter fine-tuning thay vì LoRA, dù batch vẫn trộn cân bằng Task A và Task B.' },
-      { id: 'opt4', label: 'Dùng Answer NLL cho Task A nhưng Exact Match cho Task B trong cùng protocol đánh giá.' },
+      { id: 'opt4', label: 'Dùng Answer NLL cho Task A nhưng Prefix Match cho Task B trong cùng protocol đánh giá.' },
       { id: 'opt3', label: 'Tối ưu checkpoint After-A chỉ trên Task B mà không có replay hay ràng buộc bảo tồn Task A.', isCorrect: true },
     ],
     success: 'Chính xác! Huấn luyện toàn bộ tham số trực tiếp trên dữ liệu mới mà không bảo tồn tri thức cũ sẽ gây ra Catastrophic Forgetting.',

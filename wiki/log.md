@@ -22,7 +22,7 @@ no `type` frontmatter required.)
   kept timing, Python subprocess, and MDX validator cases isolated.
 - **2026-07-14 — Learning Lab documentation normalized.** Renamed the active
   concept page from `learning-lab-refactor.md` to `learning-lab.md`, updated all
-  repository backlinks, and kept “refactor” naming on historical plan files
+  repository backlinks, and kept "refactor" naming on historical plan files
   only. Consolidated the three branch-specific 2026-07-14 content/MDX/CV plans
   into one compact final architecture and execution record without adding a
   new documentation page.

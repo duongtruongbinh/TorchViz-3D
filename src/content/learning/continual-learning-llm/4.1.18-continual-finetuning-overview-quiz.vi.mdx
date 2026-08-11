@@ -45,7 +45,7 @@ export const lessonMetadata = {
     { id: 'b', label: 'LFPT5: chuyển mọi classifier thành pseudo-example mà không cần warm-up.' },
     { id: 'c', label: 'SEQ*: warm-up rồi freeze backbone và head cũ, đồng thời pre-allocate head tương lai.', isCorrect: true },
     { id: 'd', label: 'C3: dùng teacher–student để thay toàn bộ classifier bằng RLHF.' },
-  ], success: 'SEQ* là một baseline đơn giản dựa trên freeze và tổ chức classifier.', error: 'Khớp constraint “biết trước task head” với cơ chế của từng paper.' },
+  ], success: 'SEQ* là một baseline đơn giản dựa trên freeze và tổ chức classifier.', error: 'Khớp constraint "biết trước task head" với cơ chế của từng paper.' },
   { id: 'cft-format-modules', title: 'Format và module', mode: 'single', prompt: 'Nhóm muốn thống nhất sequence labeling, classification và generation thành một interface, đồng thời replay dữ liệu cũ do model sinh. Phương pháp nào phù hợp?', options: [
     { id: 'a', label: 'CTR với TSM và KSM.' },
     { id: 'b', label: 'LFPT5 với text-to-text generation và pseudo-example.', isCorrect: true },

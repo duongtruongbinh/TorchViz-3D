@@ -451,13 +451,13 @@ def answer_nll(model, rows, max_rows=None):
     return float(np.mean(losses))
 ```
 
-### Hàm tính Exact Match Accuracy (%)
+### Hàm tính Prefix Match Accuracy (%)
 
-Hàm này cho mô hình sinh văn bản bằng giải thuật Greedy Search và so sánh chuỗi đáp án sinh ra với đáp án chuẩn.
+Hàm này cho mô hình sinh văn bản bằng Greedy Search rồi kiểm tra output có bắt đầu bằng đáp án chuẩn hay không.
 
 ```python
 @torch.no_grad()
-def greedy_exact_match(model, rows, max_rows=48):
+def greedy_prefix_match(model, rows, max_rows=48):
     model.eval()
     rows = rows[:max_rows]
     correct = 0
@@ -496,12 +496,12 @@ def greedy_exact_match(model, rows, max_rows=48):
 ```python
 def evaluate_tasks(model, stage):
     eval_cap = 24 if FAST_DEV_RUN else None
-    em_cap = 24 if FAST_DEV_RUN else 48
+    prefix_match_cap = 24 if FAST_DEV_RUN else 48
 
     nll_a = answer_nll(model, qa_a, max_rows=eval_cap)
     nll_b = answer_nll(model, qa_b, max_rows=eval_cap)
-    em_a = greedy_exact_match(model, qa_a, max_rows=em_cap)
-    em_b = greedy_exact_match(model, qa_b, max_rows=em_cap)
+    prefix_match_a = greedy_prefix_match(model, qa_a, max_rows=prefix_match_cap)
+    prefix_match_b = greedy_prefix_match(model, qa_b, max_rows=prefix_match_cap)
 
     row = {
         "stage": stage,
@@ -509,8 +509,8 @@ def evaluate_tasks(model, stage):
         "B_nll": nll_b,
         "A_ppl": math.exp(min(nll_a, 20)),
         "B_ppl": math.exp(min(nll_b, 20)),
-        "A_exact_match": em_a,
-        "B_exact_match": em_b,
+        "A_prefix_match": prefix_match_a,
+        "B_prefix_match": prefix_match_b,
     }
     return row
 
@@ -523,7 +523,7 @@ pd.DataFrame(results)
 ```
 
 ```output
-  stage     A_nll     B_nll     A_ppl     B_ppl  A_exact_match  B_exact_match
+  stage     A_nll     B_nll     A_ppl     B_ppl  A_prefix_match  B_prefix_match
 0  Base  5.666800  5.678300  289.1200  292.4500            0.0            0.0
 ```
 
@@ -538,7 +538,7 @@ pd.DataFrame(results)
 Chúng ta vừa thiết lập **điểm tham chiếu (Baseline Anchor)** cho toàn bộ thí nghiệm Continual Learning. Đây là trạng thái khi mô hình Pythia-160M ban đầu chưa được huấn luyện hay tinh chỉnh trên bất kỳ tập dữ liệu tiểu sử nào (Task A hay Task B).
 
 ```output
-  stage     A_nll     B_nll     A_ppl     B_ppl  A_exact_match  B_exact_match
+  stage     A_nll     B_nll     A_ppl     B_ppl  A_prefix_match  B_prefix_match
 0  Base  5.666800  5.678300  289.1200  292.4500            0.0            0.0
 ```
 
@@ -553,7 +553,7 @@ Công thức toán học của NLL cho một chuỗi đáp án chuẩn:
 <BlockMath formula="\text{NLL} = -\frac{1}{T} \sum_{t=1}^T \ln P(y_t \mid x, y_{<t})" />
 
 ```output
-  stage     ==A_nll     B_nll==     A_ppl     B_ppl  A_exact_match  B_exact_match
+  stage     ==A_nll     B_nll==     A_ppl     B_ppl  A_prefix_match  B_prefix_match
 0  Base  ==5.666800  5.678300==  289.1200  292.4500            0.0            0.0
 ```
 
@@ -570,7 +570,7 @@ Mối quan hệ toán học trực tiếp giữa Perplexity và NLL:
 <BlockMath formula="\text{Perplexity} = e^{\text{NLL}} \implies e^{5.6668} \approx 289.12" />
 
 ```output
-  stage     A_nll     B_nll     ==A_ppl     B_ppl==  A_exact_match  B_exact_match
+  stage     A_nll     B_nll     ==A_ppl     B_ppl==  A_prefix_match  B_prefix_match
 0  Base  5.666800  5.678300  ==289.1200  292.4500==            0.0            0.0
 ```
 
@@ -580,17 +580,17 @@ Mối quan hệ toán học trực tiếp giữa Perplexity và NLL:
 
 ---
 
-#### 3. Exact Match Accuracy — Mức độ chính xác tuyệt đối
+#### 3. Prefix Match Accuracy — Tỷ lệ output bắt đầu đúng
 
-<BlockMath formula="\text{Exact Match} = \frac{N_{\text{correct}}}{N_{\text{total}}}" />
+<BlockMath formula="\text{Prefix Match} = \frac{N_{\text{correct}}}{N_{\text{total}}}" />
 
 ```output
-  stage     A_nll     B_nll     A_ppl     B_ppl  ==A_exact_match  B_exact_match==
+  stage     A_nll     B_nll     A_ppl     B_ppl  ==A_prefix_match  B_prefix_match==
 0  Base  5.666800  5.678300  289.1200  292.4500            ==0.0            0.0==
 ```
 
-* **Task A Exact Match (`0.0`):** Chưa có câu hỏi nào trong Task A được sinh ra đáp án chính xác.
-* **Task B Exact Match (`0.0`):** 0 trên 100 câu hỏi trong Task B trả lời đúng.
+* **Task A Prefix Match (`0.0`):** Chưa output nào trong Task A bắt đầu bằng đáp án chuẩn.
+* **Task B Prefix Match (`0.0`):** 0 trên 48 output được chấm bắt đầu bằng đáp án chuẩn.
 
 </MdxPage>
 
@@ -657,14 +657,14 @@ pd.DataFrame(results)
 ```output
 [Trainer] Epoch 3/3 | Training Loss: 0.0042 | Grad Norm: 0.0812 | Finished in 14.2s
 
-     stage     A_nll     B_nll     A_ppl      B_ppl  A_exact_match  B_exact_match
+     stage     A_nll     B_nll     A_ppl      B_ppl  A_prefix_match  B_prefix_match
 0     Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
 1  After A  ==0.000085==  8.296200    ==1.0001==  4008.6600            ==1.0==            0.0
 ```
 
 * **Answer NLL (`0.000085`):** Giảm sâu từ `5.6668` ➔ `0.000085` (tiếp thu hoàn hảo đáp án Task A).
 * **Perplexity (`1.0001`):** Giảm về `1.0001` (khẳng định chắc chắn từ vựng cần sinh).
-* **Exact Match (`1.0`):** Đạt độ chính xác tuyệt đối **100%** trên toàn bộ 144 câu hỏi Task A.
+* **Prefix Match (`1.0`):** Cả 48 output được chấm đều bắt đầu bằng đáp án chuẩn.
 
 <LessonNote>
   **Nhận xét Giai đoạn 1:**
@@ -697,26 +697,26 @@ results_df
 ```
 
 ```output
-        stage     A_nll     B_nll     A_ppl      B_ppl  A_exact_match  B_exact_match
+        stage     A_nll     B_nll     A_ppl      B_ppl  A_prefix_match  B_prefix_match
 0        Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
 1     After A  0.000085  8.296200    1.0001  4008.6600            1.0            0.0
 2  After A->B  5.817800  ==0.000024==  336.2300     1.0000            0.0            ==1.0==
 ```
 
-🟢 **Nhiệm vụ B (Vừa học xong):** Mô hình tiếp thu thuộc lòng Nhiệm vụ B với **`B_nll = 0.000024`** và **`B_exact_match = 1.0` (100%)**.
+🟢 **Nhiệm vụ B (Vừa học xong):** Mô hình tiếp thu thuộc lòng Nhiệm vụ B với **`B_nll = 0.000024`** và **`B_prefix_match = 1.0` (100%)**.
 
 ```output
-        stage     A_nll     B_nll     A_ppl      B_ppl  A_exact_match  B_exact_match
+        stage     A_nll     B_nll     A_ppl      B_ppl  A_prefix_match  B_prefix_match
 0        Base  5.666800  5.678300  289.1200   292.4500            0.0            0.0
 1     After A  0.000085  8.296200    1.0001  4008.6600            1.0            0.0
 2  After A->B  ==5.817800==  0.000024  336.2300     1.0000            ==0.0==            1.0
 ```
 
-🔴 **Nhiệm vụ A (Quên thảm khốc):** **`A_nll`** tăng vọt từ `0.000085` ➔ **`5.8178`**, kéo **`A_exact_match`** sụt thẳng từ **`1.0` (100%) ➔ `0.0` (0%)**.
+🔴 **Nhiệm vụ A (Quên thảm khốc):** **`A_nll`** tăng vọt từ `0.000085` ➔ **`5.8178`**, kéo **`A_prefix_match`** sụt thẳng từ **`1.0` (100%) ➔ `0.0` (0%)**.
 
 <LessonNote>
   **Nhận xét Giai đoạn 2 (Catastrophic Forgetting):**
-  - Mô hình tiếp thu hoàn hảo Nhiệm vụ B, nhưng **quên triệt để** Nhiệm vụ A (Exact Match sụt từ 100% về 0%).
+  - Mô hình tiếp thu hoàn hảo Nhiệm vụ B, nhưng **quên triệt để** Nhiệm vụ A (Prefix Match sụt từ 100% về 0%).
   - Kết quả này khẳng định fine-tune tham số trực tiếp không có giải pháp bảo tồn tri thức sẽ dẫn đến thảm họa quên tri thức.
 </LessonNote>
 

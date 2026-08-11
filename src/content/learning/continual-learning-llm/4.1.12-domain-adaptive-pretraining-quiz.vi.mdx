@@ -28,7 +28,7 @@ export const lessonMetadata = {
     { id: 'c', label: 'Một danh sách task ID chỉ có ở inference.' },
     { id: 'd', label: 'Chỉ các câu hỏi thi đã có đáp án dùng cho supervised fine-tuning.' },
   ], success: 'DAP tiếp tục objective pre-training trên corpus đặc thù domain.', error: 'Phân biệt corpus domain không gán nhãn với dữ liệu task hoặc preference đã gán nhãn.' },
-  { id: 'dap-terminology', title: 'Tên gọi DAP', mode: 'single', prompt: 'Vì sao survey gom “further pre-training”, “domain tuning” và “knowledge injection training” dưới tên DAP?', options: [
+  { id: 'dap-terminology', title: 'Tên gọi DAP', mode: 'single', prompt: 'Vì sao survey gom "further pre-training", "domain tuning" và "knowledge injection training" dưới tên DAP?', options: [
     { id: 'a', label: 'Vì các paper đều diễn ra ở phía consumer và tối ưu trực tiếp label của downstream task.' },
     { id: 'b', label: 'Vì các tên đều chỉ model editing để chèn fact domain vào một checkpoint cố định.' },
     { id: 'c', label: 'Vì chúng cùng mô tả việc tiếp tục pre-train model có sẵn trên corpus chuyên biệt hơn, dù nhấn mạnh khác nhau.', isCorrect: true },

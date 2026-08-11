@@ -112,7 +112,7 @@ Tiếp nối ba owner hiện tại:
 
 - 2026-07-14T13:08:00+07:00 — Audited plan inventory/linkage, active docs, and
   all 107 test declarations; stored draft checkpoint before cleanup writes.
-- 2026-07-14T13:12:00+07:00 — User approved with “ok”; plan advanced through
+- 2026-07-14T13:12:00+07:00 — User approved with "ok"; plan advanced through
   `approved` to `executing`.
 - 2026-07-14T13:14:00+07:00 — Absorbed 19 superseded plans into the forward
   pass, Learning Lab foundation, Learning Lab UI, architecture priority, and

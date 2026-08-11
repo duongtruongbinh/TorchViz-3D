@@ -100,9 +100,9 @@ which established the typed-TOC and locale-MDX content boundary used here.
 # Follow-up: official Cookbook reference page
 
 - Add a fifth and final page to the code node containing one concise external
-  reference card for OpenAI Cookbook's archived “How to count tokens with
-  Tiktoken” recipe.
-- Point readers to its “Comparing encodings” section, which compares
+  reference card for OpenAI Cookbook's archived "How to count tokens with
+  Tiktoken" recipe.
+- Point readers to its "Comparing encodings" section, which compares
   `r50k_base`, `p50k_base`, `cl100k_base`, and `o200k_base` on English,
   arithmetic, and Japanese strings.
 - Mention that the Japanese example makes the effect of encoding choice easy to

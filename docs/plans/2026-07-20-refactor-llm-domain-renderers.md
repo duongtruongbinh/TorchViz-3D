@@ -211,7 +211,7 @@ lesson content, public MDX names/props, catalog identity, routes, or allowlists.
   Lab plans/wiki, LLM adapter and renderer inventory, MDX allowlist, authored
   types, direct consumers, and source-inspection tests. Confirmed a clean
   worktree before storing this plan as the first write.
-- 2026-07-20 — Requester approved the plan with “đồng ý”. Status advanced
+- 2026-07-20 — Requester approved the plan with "đồng ý". Status advanced
   through approved to executing; source extraction began.
 - 2026-07-20 — Split the 3,495-line implementation into tokenizer (919 lines),
   language-model/loss (785 lines), and concept/roadmap (1,602 lines) renderer

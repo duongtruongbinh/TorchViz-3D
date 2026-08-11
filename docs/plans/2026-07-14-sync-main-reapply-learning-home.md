@@ -44,7 +44,7 @@ Supersedes [2026-07-14-learning-home-course-card-grid](./2026-07-14-learning-hom
 
 - 2026-07-14T12:55:00+07:00 — Kiểm tra local đang ở `main` commit `a516674`,
   Home changes chưa commit; lưu draft sync plan trước khi thao tác Git.
-- 2026-07-14T12:56:00+07:00 — User duyệt bằng “go”; plan chuyển qua
+- 2026-07-14T12:56:00+07:00 — User duyệt bằng "go"; plan chuyển qua
   `approved` rồi `executing`.
 - 2026-07-14T12:57:00+07:00 — Stash toàn bộ tracked/untracked changes, fetch
   `origin/main`, rồi fast-forward `main` từ `a516674` lên `6093693`

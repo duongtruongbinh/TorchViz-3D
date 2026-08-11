@@ -22,11 +22,11 @@ plan đang sở hữu thiết kế Learning Home hiện tại.
 
 # Decisions (locked)
 
-- “Mỗi thẻ” trong yêu cầu là thẻ domain/course ở `DomainCatalog`, không thay đổi
+- "Mỗi thẻ" trong yêu cầu là thẻ domain/course ở `DomainCatalog`, không thay đổi
   lesson rail hay lesson detail.
-- Bỏ hẳn copy `syllabusBody`, gồm câu “Xem nhanh từng domain...” ở bản tiếng Việt.
+- Bỏ hẳn copy `syllabusBody`, gồm câu "Xem nhanh từng domain..." ở bản tiếng Việt.
 - Hợp nhất `syllabusLabel` và `syllabusTitle` thành một heading ngắn, tránh hai
-  dòng “Mục lục khóa học” / “Duyệt toàn bộ catalog Learning Lab” cùng mục đích.
+  dòng "Mục lục khóa học" / "Duyệt toàn bộ catalog Learning Lab" cùng mục đích.
 - Mỗi domain có icon Lucide và palette riêng; visual là DOM/CSS nhẹ, không thêm
   ảnh tải ngoài hoặc dependency mới.
 - Thẻ có tỷ lệ dọc, phần visual ở trên và nội dung/metadata ở dưới; desktop hiển
@@ -53,7 +53,7 @@ plan đang sở hữu thiết kế Learning Home hiện tại.
 
 - 2026-07-14T00:00:00+07:00 — Đã đọc workflow, repo briefing, Learning Lab
   plans/wiki, localization và implementation `DomainCatalog`; lưu draft plan.
-- 2026-07-14T12:49:09+07:00 — User duyệt bằng “go”; plan chuyển qua
+- 2026-07-14T12:49:09+07:00 — User duyệt bằng "go"; plan chuyển qua
   `approved` rồi `executing`, bắt đầu sửa runtime.
 - 2026-07-14T12:54:00+07:00 — Xóa `syllabusTitle`/`syllabusBody`, chỉ giữ một
   heading catalog; chuyển 12 domain sang responsive portrait-card grid và dùng

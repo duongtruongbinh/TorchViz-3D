@@ -381,9 +381,9 @@ function OrderRowOverlay({
 }
 
 function renderInlineCode(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
-  return value.split(/(`[^`]+`|“[^”]+”)/g).filter(Boolean).map((part, index) => {
+  return value.split(/(`[^`]+`|"[^"]+")/g).filter(Boolean).map((part, index) => {
     const isBacktickCode = part.startsWith('`') && part.endsWith('`');
-    const isQuotedCode = part.startsWith('“') && part.endsWith('”');
+    const isQuotedCode = part.startsWith('"') && part.endsWith('"');
     if (isBacktickCode || isQuotedCode) {
       return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
     }

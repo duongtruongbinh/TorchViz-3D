@@ -11,7 +11,7 @@ export const lessonMetadata = {
     { id: 'c', label: 'Mở rộng vocabulary theo từ mới rồi train định kỳ trên toàn bộ tweet.' },
     { id: 'd', label: 'Gán trọng số cao cho mọi sequence có loss cao nhất, kể cả dữ liệu nhiễu.' },
   ], success: 'CEM bắt đầu từ lỗi quan sát được ở cấp example.', error: 'CEM cần nối câu trả lời sai với dữ liệu bổ sung liên quan đến knowledge gap đó.' },
-  { id: 'rho-1', title: 'RHO-1', mode: 'single', prompt: 'Vì sao mô tả “RHO-1 giữ mọi token có perplexity cao” chưa chính xác?', options: [
+  { id: 'rho-1', title: 'RHO-1', mode: 'single', prompt: 'Vì sao mô tả "RHO-1 giữ mọi token có perplexity cao" chưa chính xác?', options: [
     { id: 'a', label: 'SLM dùng reference model để tìm token có excess loss cao và phù hợp distribution mục tiêu; token khó do nhiễu có thể bị loại.', isCorrect: true },
     { id: 'b', label: 'RHO-1 chỉ chấm loss ở cấp sequence nên không thể phân biệt token trong cùng một đoạn.' },
     { id: 'c', label: 'RHO-1 chỉ giữ token model đã học tốt để tránh mọi gradient lớn.' },

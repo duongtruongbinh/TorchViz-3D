@@ -43,7 +43,7 @@ Ba hướng này không thay thế các metric CL tổng quát. Chúng mở rộ
 
 [LAnguage Model Analysis (**LAMA**)](https://arxiv.org/abs/1909.01066) biến một world fact thành câu điền khuyết rồi yêu cầu language model dự đoán đáp án. Trong CPT dưới temporal shift, một điểm tổng hợp không đủ vì fact có thể giữ nguyên, thay đổi hoặc mới xuất hiện.
 
-Ví dụ, ta đưa vào model câu **“Paris là thủ đô của [MASK]”**. Nếu model dự đoán “Pháp”, câu trả lời được tính là đúng. Cách kiểm tra này cho thấy model có thể truy xuất fact từ tham số hay không mà không cần fine-tune thêm cho câu hỏi đó.
+Ví dụ, ta đưa vào model câu **"Paris là thủ đô của [MASK]"**. Nếu model dự đoán "Pháp", câu trả lời được tính là đúng. Cách kiểm tra này cho thấy model có thể truy xuất fact từ tham số hay không mà không cần fine-tune thêm cho câu hỏi đó.
 
 [Jang et al. (2022)](https://arxiv.org/abs/2110.03215) dùng LAMA trong một thí nghiệm **Continual Knowledge Learning (CKL)**:
 
@@ -55,8 +55,8 @@ Nhóm nghiên cứu có corpus <InlineMath formula="D_0" /> và checkpoint ban �
   ariaLabel="Ví dụ các fact trong corpus D0"
   columns={['Thông tin trong D₀', 'Probe trên model M₀']}
   rows={[
-    { label: 'Fact A · vẫn đúng', values: ['Thủ đô của Aurelia là Nova', '“Thủ đô của Aurelia là [MASK]” → Nova'] },
-    { label: 'Fact B · sẽ lỗi thời', values: ['CEO của Orbit Labs là Linh', '“CEO của Orbit Labs là [MASK]” → Linh'] },
+    { label: 'Fact A · vẫn đúng', values: ['Thủ đô của Aurelia là Nova', '"Thủ đô của Aurelia là [MASK]" → Nova'] },
+    { label: 'Fact B · sẽ lỗi thời', values: ['CEO của Orbit Labs là Linh', '"CEO của Orbit Labs là [MASK]" → Linh'] },
   ]}
 />
 
@@ -89,7 +89,7 @@ Sau đó, paper dùng ba tập LAMA để đánh giá quá trình cập nhật c
   ]}
 />
 
-Ba lát cắt giúp tránh kết luận sai rằng model “tốt hơn” chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời.
+Ba lát cắt giúp tránh kết luận sai rằng model "tốt hơn" chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời.
 
 Nguồn: [Shi et al., §5](https://arxiv.org/html/2404.16789v3#S5), [Petroni et al. (2019)](https://arxiv.org/abs/1909.01066) và [Jang et al. (2022)](https://arxiv.org/abs/2110.03215).
 

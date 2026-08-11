@@ -33,7 +33,7 @@
   }
 
   .learning-mdx-content li {
-    @apply text-sm leading-6;
+    @apply leading-6;
   }
 
   .learning-mdx-content table {

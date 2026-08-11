@@ -3,14 +3,17 @@ export const lessonMetadata = {
   id: 'vertical-horizontal-continuity',
   locale: 'vi',
   title: "Vertical và Horizontal CL",
-  headings: ['Hai hướng tiếp cận Continual Learning cho LLM'],
+  headings: ['Hai hướng tiếp cận Continual Learning cho LLM', 'Hai hướng có thể cùng xuất hiện'],
   keywords: ['Continual Learning', 'LLM', 'Vertical và Horizontal Continuity'],
   conceptIds: [
   "vertical-continuity",
   "horizontal-continuity",
   "continuity-classification"
-],
+  ],
+  pageCount: 2,
 }
+
+<MdxPage page={0}>
 
 ## Hai hướng tiếp cận Continual Learning cho LLM
 
@@ -24,7 +27,13 @@ Survey tách continual LLM theo hai hướng. **Vertical continuity** đi từ n
 
 Vertical forgetting là mất năng lực tổng quát khi đi xuống pipeline. Horizontal forgetting là mất hiệu năng ở các stage cũ khi cập nhật theo thời gian hoặc domain. Một hệ thống thực tế có thể đi theo cả hai chiều, nên cần ghi rõ **năng lực nào thuộc stage nào** trước khi chọn metric.
 
-Điều này có nghĩa là một hệ thống có thể vừa áp dụng **Horizontal CL trong từng tầng** — chẳng hạn continual pre-training qua temporal, content hoặc language shift — vừa áp dụng **Vertical CL giữa các tầng** khi checkpoint đi từ pre-training xuống domain-adaptive pre-training rồi continual fine-tuning. Các nhóm phương pháp và công trình tiêu biểu cho từng quỹ đạo được các tác giả tổng hợp trong hình dưới.
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hai hướng có thể cùng xuất hiện
+
+Điều này có nghĩa là một hệ thống có thể vừa áp dụng **Horizontal CL trong từng tầng** — chẳng hạn continual pre-training qua temporal, content hoặc language shift — vừa áp dụng **Vertical CL giữa các tầng** khi checkpoint đi từ pre-training xuống domain-adaptive pre-training rồi continual fine-tuning. Các nhóm phương pháp và công trình tiêu biểu cho từng quỹ đạo được các tác giả tổng hợp trong hình dưới và sẽ được khóa học giải thích ở chương 3 và chương 4.
 
 <LessonImage
   assetPath="continual-learning-llm/02-vertical-horizontal-cl-research-map.webp"
@@ -33,3 +42,5 @@ Vertical forgetting là mất năng lực tổng quát khi đi xuống pipeline.
 />
 
 Nguồn: [Shi et al., §3](https://arxiv.org/html/2404.16789v3#S3).
+
+</MdxPage>
