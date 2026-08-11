@@ -45,12 +45,6 @@ Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ, rẻ để truy cập
 
 Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa nội dung đó vào context khi model trả lời. Đây là lựa chọn rất hữu ích khi hệ thống cần truy cập fact mới hoặc dẫn lại nguồn bên ngoài mà không cập nhật checkpoint cho mỗi tài liệu.
 
-<LessonImage
-  assetPath="continual-learning-llm/01-rag-vs-continual-learning.png"
-  alt="So sánh RAG truy xuất tài liệu vào context nhưng giữ nguyên model với Continual Learning cập nhật model để hình thành kỹ năng mới có thể sử dụng khi không truy xuất"
-  caption="RAG bổ sung nguồn tham khảo cho lần trả lời; Continual Learning hướng tới năng lực hoặc hành vi được giữ lại trong model sau cập nhật."
-/>
-
 <CourseCards
   ariaLabel="RAG và Continual Learning thay đổi hai phần khác nhau của hệ thống"
   exampleLabel="Thứ được thay đổi"
@@ -70,6 +64,12 @@ Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa
 />
 
 Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt. Nếu hành vi mới phải tồn tại khi không có retrieved document, chỉ thêm RAG chưa giải quyết mục tiêu đó; model vẫn cần được thích nghi và sau đó kiểm tra xem năng lực cũ có bị quên hay không.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-rag-vs-continual-learning.png"
+  alt="So sánh RAG truy xuất tài liệu vào context nhưng giữ nguyên model với Continual Learning cập nhật model để hình thành kỹ năng mới có thể sử dụng khi không truy xuất"
+  caption="RAG bổ sung nguồn tham khảo cho lần trả lời; Continual Learning hướng tới năng lực hoặc hành vi được giữ lại trong model sau cập nhật."
+/>
 
 Hai hướng cũng có thể bổ sung cho nhau. [ClimateGPT](https://arxiv.org/abs/2401.09646) là ví dụ trong survey kết hợp domain adaptation, instruction tuning và retrieval augmentation.
 
