@@ -321,8 +321,10 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   matching quiz coverage and bounded cross-references in Financial and
   Scientific DAP, CMR, and controllable-memory future directions, including
   ClimateGPT as a hybrid DAP, instruction-tuning, and retrieval-augmentation
-  example. The quiz bank now contains 158 questions, with the 157 single-choice
-  answers distributed as evenly as mathematically possible across A/B/C/D.
+  example. Added a side-by-side illustration of context retrieval versus a
+  persistent model update. The quiz bank now contains 158 questions, with the
+  157 single-choice answers distributed as evenly as mathematically possible
+  across A/B/C/D.
 
 # Verification
 
