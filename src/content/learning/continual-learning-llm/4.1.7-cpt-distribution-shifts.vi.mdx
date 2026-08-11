@@ -94,6 +94,7 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ### [Yıldız et al. — 159 domain](https://arxiv.org/abs/2402.17400)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'Benchmark mở rộng Continual Pre-training lên 159 domain và cho thấy học tuần tự nhiều domain có thể thích nghi tốt hơn Domain-Adaptive Pre-training trên từng domain riêng lẻ.',
     'Paper phân tích thêm ảnh hưởng của model size, độ tương đồng giữa các domain và thứ tự xuất hiện của domain.',
@@ -109,6 +110,7 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ### [Gupta et al. — Learning-rate re-warming](https://arxiv.org/abs/2308.04014)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'Trên Pythia 410M, tăng learning rate trở lại khi chuyển từ Pile sang SlimPajama giúp model thích nghi với corpus mới tốt hơn về dài hạn.',
     'Kết quả cho thấy chỉ riêng lịch learning rate cũng ảnh hưởng mạnh đến CPT, ngay cả khi không dùng thuật toán Continual Learning phức tạp.',
@@ -122,6 +124,7 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ### [Ibrahim et al. — Re-warming, re-decay và replay](https://arxiv.org/abs/2403.08763)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'Kết hợp learning-rate re-warming, re-decay và replay dữ liệu cũ có thể đạt kết quả gần full retraining với ít compute hơn.',
     'Paper kiểm tra English → English và English → German ở 405M tham số; với shift yếu English → English, kết quả còn được mở rộng tới model 10B.',
@@ -135,6 +138,7 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ### [LLPT — Lifelong Pretraining](https://arxiv.org/abs/2110.08534)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'LLPT thiết lập protocol theo dõi đồng thời khả năng thích nghi với corpus mới, retention trên corpus cũ và transfer sang downstream task.',
     'Trên chuỗi paper theo domain và tweet theo thời gian, distillation giữ downstream performance cũ tốt nhất và các phương pháp CL có thể cải thiện knowledge transfer.',
@@ -150,6 +154,7 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ### [Recyclable Tuning](https://arxiv.org/abs/2305.08702)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'Khi supplier phát hành checkpoint mới, consumer có thể tái sử dụng adapted weights đã học trên checkpoint cũ thay vì bỏ đi và tuning lại hoàn toàn.',
     'Initialization và distillation từ adapted weights cũ giúp quá trình tuning model mới hội tụ nhanh hơn và đạt performance tốt hơn.',
@@ -165,6 +170,7 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ### [DEMix — Domain Experts](https://arxiv.org/abs/2108.05036)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'Mỗi domain có expert riêng; expert có thể được thêm, trộn hoặc gỡ bỏ mà không phải huấn luyện lại toàn bộ model.',
     'Khi không có domain ID, DEMix dùng weighted mixture không cần tham số học thêm để kết hợp expert và xử lý input hỗn hợp hoặc domain chưa thấy.',
@@ -178,6 +184,7 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ### [Lifelong-MoE — Distribution-Specialized Experts](https://arxiv.org/abs/2305.12281)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'Model thêm một số expert mới cho distribution mới nhưng giữ compute mỗi token gần như không đổi nhờ token-level gating.',
     'Expert và gating cũ được freeze; knowledge distillation điều tiết phần mới, giúp giữ knowledge cũ và cải thiện few-shot performance trên 19 downstream task.',
@@ -191,6 +198,7 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ### [Cossu et al. — Khi CPT đơn giản đã ít quên](https://arxiv.org/abs/2205.09357)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'Self-supervised Continual Pre-training trên BERT và RoBERTa giữ representation ổn định và gần như không làm giảm một số downstream control task.',
     'Kết quả đặt ra khả năng rằng trong một số Content Shift, objective pre-training tự giám sát đã đủ giảm forgetting mà chưa cần thuật toán CL phức tạp.',
@@ -212,11 +220,6 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 ## Temporal Shift
 
 Temporal Shift xảy ra khi distribution thay đổi theo thời gian. Khó khăn riêng của nó là knowledge mới không chỉ bổ sung mà còn có thể **mâu thuẫn và thay thế knowledge cũ**.
-
-<ComparisonMatrix ariaLabel="Khác biệt giữa Content Shift và Temporal Shift" columns={['Content Shift', 'Temporal Shift']} rows={[
-  { label: 'Quan hệ dữ liệu', values: ['Các domain có thể khác nhau nhưng knowledge thường cùng tồn tại', 'Hai timestamp có thể đưa ra fact xung đột'] },
-  { label: 'Multi-Task Learning', values: ['Thường được dùng như cận trên khi có thể train chung dữ liệu các domain', 'Không luôn là cận trên hợp lý vì trộn hai timestamp có thể giữ cả fact đã lỗi thời'] },
-]} />
 
 Ví dụ, hai phát biểu sau đúng ở **hai thời điểm khác nhau**:
 
@@ -242,6 +245,7 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
 ### [CKL — Continual Knowledge Learning](https://openreview.net/forum?id=vfsRB5MImo9)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'CKL xây dựng benchmark và metric riêng để đo tách biệt retention của knowledge bất biến, acquisition của knowledge mới và update của knowledge lỗi thời.',
     'Trong các baseline được khảo sát, parameter expansion là hướng ổn định nhất để model vừa giữ knowledge cũ vừa học knowledge mới.',
@@ -255,6 +259,7 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
 ### [TemporalWiki — Chỉ học phần thay đổi](https://aclanthology.org/2022.emnlp-main.418/)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'TemporalWiki tạo dữ liệu train từ phần khác nhau giữa hai snapshot Wikipedia liên tiếp và dùng Wikidata cùng thời điểm để đánh giá fact unchanged, changed và new.',
     'Train trên differential data đạt perplexity tương đương hoặc tốt hơn train toàn snapshot trong benchmark, đồng thời giảm khoảng 12 lần compute.',
@@ -268,6 +273,7 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
 ### [LLPT — Temporal Generalization](https://arxiv.org/abs/2110.08534)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'LLPT dùng một tweet stream theo thứ tự thời gian để kiểm tra model có theo kịp distribution mới và tổng quát hóa sang dữ liệu tương lai hay không.',
     'Continual Pre-training kết hợp kỹ thuật CL cải thiện knowledge acquisition và temporal generalization so với chỉ xây task-specific model trên từng giai đoạn.',
@@ -281,6 +287,7 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
 ### [Time-Aware Language Models — Đưa timestamp vào model](https://arxiv.org/abs/2106.15110)
 
 <PaperTradeoff
+  neutralText
   advantages={[
     'Paper jointly model text cùng timestamp để model học rằng cùng một câu hỏi có thể có đáp án khác nhau ở các thời điểm khác nhau.',
     'Temporal context cải thiện khả năng nhớ fact trong giai đoạn đã thấy, hiệu chỉnh dự đoán cho giai đoạn tương lai và cho phép refresh model khi dữ liệu mới đến mà không train lại từ đầu.',

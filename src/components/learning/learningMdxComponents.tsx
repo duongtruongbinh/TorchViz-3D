@@ -555,18 +555,22 @@ export function SelfCheckList({ ariaLabel, items }: {
 
 type ComparisonMatrixRow = { label: string; values: string[]; highlightedColumn?: number };
 
-export function PaperTradeoff({ advantages, limitations }: { advantages: string[]; limitations: string[] }) {
+export function PaperTradeoff({ advantages, limitations, neutralText = false }: {
+  advantages: string[];
+  limitations: string[];
+  neutralText?: boolean;
+}) {
   const themeClasses = useLearningMdxTheme();
   return (
     <div className="my-4 grid gap-3 sm:grid-cols-2">
       <section className="rounded-xl border border-emerald-300/80 bg-emerald-50/70 p-4 dark:border-emerald-400/30 dark:bg-emerald-400/6">
-        <h4 className="text-sm font-black text-emerald-800 dark:text-emerald-300">Ưu điểm</h4>
+        <h4 className={cx('text-sm font-black', neutralText ? themeClasses.titleText : 'text-emerald-800 dark:text-emerald-300')}>Ưu điểm</h4>
         <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
           {advantages.map((item) => <li key={item}>{item}</li>)}
         </ul>
       </section>
       <section className="rounded-xl border border-rose-300/80 bg-rose-50/70 p-4 dark:border-rose-400/30 dark:bg-rose-400/6">
-        <h4 className="text-sm font-black text-rose-800 dark:text-rose-300">Hạn chế</h4>
+        <h4 className={cx('text-sm font-black', neutralText ? themeClasses.titleText : 'text-rose-800 dark:text-rose-300')}>Hạn chế</h4>
         <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
           {limitations.map((item) => <li key={item}>{item}</li>)}
         </ul>

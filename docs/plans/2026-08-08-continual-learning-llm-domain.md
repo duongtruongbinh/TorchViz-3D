@@ -2,7 +2,7 @@
 title: Continual Learning Course for Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
-updated: 2026-08-11T23:14:23+07:00
+updated: 2026-08-12T00:12:52+07:00
 author: nmkhiem
 task: "Add and author the Continual Learning domain, its paired assessments, labs, reusable visuals, and catalog contracts"
 supersedes: []
@@ -598,6 +598,72 @@ variable names as the Catastrophic Forgetting lab.
   `output1.png`, or UUID content references remain. `npm run verify` passed
   TypeScript, all 86 tests, and the production build; `git diff --check` also
   passed.
+- 2026-08-11 — User requested restoring the previously unused UUID illustration
+  and using it to replace the Retention cost / Acquisition cost comparison
+  table in the CPT Effectiveness & Efficiency lesson. Preserve the surrounding
+  introduction and follow-up explanation while changing only that visual block.
+- 2026-08-11 — Restored the supplied UUID illustration and replaced only the
+  Retention cost / Acquisition cost `ComparisonMatrix` with a `LessonImage`.
+  Added descriptive Vietnamese alt text and a concise caption while preserving
+  both surrounding paragraphs. The generic Learning Lab MDX contract test and
+  `git diff --check` passed; the asset has exactly one lesson reference.
+- 2026-08-11 — User clarified that the restored CPT cost illustration must also
+  receive a semantic filename. Rename the UUID asset and update its single MDX
+  reference without changing lesson content or layout.
+- 2026-08-11 — Renamed the illustration to
+  `01-cpt-retention-acquisition-cost.png` and updated its only MDX reference.
+  The UUID filename and references are gone, and `git diff --check` passed.
+- 2026-08-11 — User supplied an illustration for the Similarity / Perplexity /
+  Token-type entropy comparison. Rename it semantically and add it immediately
+  after the existing three-signal table, before the following lesson note.
+- 2026-08-11 — Renamed the supplied asset to
+  `02-cpt-data-selection-signals.png` and added it directly after the comparison
+  table with Vietnamese alt text and caption. The table and following note are
+  preserved. The generic MDX contract test, stale UUID checks, single-reference
+  check, and `git diff --check` all passed.
+- 2026-08-11 — User requested neutral text colors across every advantage and
+  limitation block in the CPT Distribution Shifts node while preserving the
+  distinct green/rose surfaces. Add a scoped component option so this lesson
+  can opt in without changing PaperTradeoff styling across other lessons.
+- 2026-08-11 — Added the scoped `neutralText` option to `PaperTradeoff` and
+  enabled it on all 12 blocks in CPT Distribution Shifts. Their green/rose
+  backgrounds and borders remain distinct, while both headings now use the
+  normal theme title color and bullet text retains the normal body color. Other
+  lessons remain unchanged. TypeScript, the generic MDX contract test, and
+  `git diff --check` passed.
+- 2026-08-11 — User requested removing the Content Shift / Temporal Shift
+  comparison table from the Temporal Shift page. Preserve the surrounding
+  definition, Messi example, and all subsequent teaching content.
+- 2026-08-11 — Removed only the requested comparison table. The Temporal Shift
+  definition now flows directly into the Messi example; all later content is
+  unchanged. The generic MDX contract test and `git diff --check` passed.
+- 2026-08-11 — User requested replacing all five advantage/limitation blocks in
+  the CPT Other Directions lesson with five separate two-card doodle images.
+  Generate one consistent semantic illustration for CEM, RHO-1, IR-DRO,
+  industrial periodic updates, and CPT sustainability; preserve each paper's
+  core trade-off in the image, alt text, and caption, then replace only the five
+  `PaperTradeoff` blocks.
+- 2026-08-11 — Generated five consistent 1672×941 two-card doodle illustrations
+  with the built-in image generator: CEM, RHO-1, IR-DRO, industrial updates,
+  and CPT sustainability. Saved them as semantic assets `03` through `07` and
+  replaced all five `PaperTradeoff` blocks with `LessonImage` components. Each
+  image keeps concise advantage/limitation labels, while Vietnamese alt text and
+  captions preserve the lesson's trade-off. The target now has exactly five
+  images and no `PaperTradeoff`; every asset is referenced once. The generic MDX
+  contract test and `git diff --check` passed.
+- 2026-08-11 — User requested the same two-card doodle treatment for DAP Across
+  Domains, but images must be added below rather than replacing the existing
+  advantage/limitation blocks. Generate 17 semantic illustrations in lesson
+  order: 2 Legal, 3 Medical, 2 Financial, 3 Scientific, 3 Code, and 4 other DAP
+  directions. Preserve all `PaperTradeoff` content and insert one `LessonImage`
+  immediately after each corresponding block.
+- 2026-08-12 — Generated 17 consistent 1672×941 two-card doodle illustrations
+  with the built-in image generator and saved them as semantic DAP assets `01`
+  through `17`. Added one image with descriptive alt text immediately below each
+  corresponding `PaperTradeoff`; no original advantage/limitation content was
+  removed. The lesson retains exactly 17 trade-off blocks and now has exactly 17
+  matching images, each referenced once. The generic MDX contract test and
+  `git diff --check` passed.
 
 # Verification
 
