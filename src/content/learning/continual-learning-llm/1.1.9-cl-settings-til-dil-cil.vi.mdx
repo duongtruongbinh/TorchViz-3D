@@ -3,7 +3,7 @@ export const lessonMetadata = {
   id: 'cl-settings-til-dil-cil',
   locale: 'vi',
   title: 'Phân loại kịch bản CL',
-  headings: ['Nhìn gì để phân loại?', 'TIL: task ID đi vào đâu?', 'DIL: domain đổi, API giữ nguyên', 'CIL: output space mở rộng'],
+  headings: ['Ba kiểu thay đổi', 'TIL: task ID đi vào đâu?', 'DIL: domain đổi, API giữ nguyên', 'CIL: output space mở rộng'],
   pageCount: 4,
   keywords: ['Continual Learning', 'LLM', 'Task-Incremental Learning', 'Domain-Incremental Learning', 'Class-Incremental Learning'],
   conceptIds: [
@@ -16,13 +16,21 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Nhìn gì để phân loại?
+## Ba kiểu thay đổi
 
-Các tác giả nhìn vào **phần nào thay đổi sau mỗi stage** và **mô hình có được báo task hiện tại khi chạy hay không** để chia Continual Learning thành ba kịch bản:
+Trước khi nhớ tên gọi, hãy nhìn xem dòng học của model đang thay đổi theo cách nào:
 
-1. **TIL — đổi việc cần làm.** Mô hình chuyển sang task mới và được cung cấp task ID.
-2. **DIL — đổi nguồn dữ liệu.** Task và bộ nhãn giữ nguyên, nhưng dữ liệu đến từ domain mới.
-3. **CIL — thêm nhãn cần nhận diện.** Mô hình dùng một bộ output chung, rồi bổ sung class mới theo thời gian.
+1. Model phải làm **một việc mới**, chẳng hạn chuyển từ phân loại cảm xúc sang dịch máy.
+2. Model vẫn làm **cùng một việc**, nhưng dữ liệu đến từ một nguồn hoặc domain mới.
+3. Model vẫn phân loại trong **một bộ nhãn chung**, nhưng bộ nhãn có thêm class mới.
+
+Survey đặt tên đầy đủ cho ba kịch bản này như sau:
+
+1. **Task-Incremental Learning (TIL) — đổi việc cần làm.** Mô hình chuyển sang task mới và được cung cấp task ID.
+2. **Domain-Incremental Learning (DIL) — đổi nguồn dữ liệu.** Task và bộ nhãn giữ nguyên, nhưng dữ liệu đến từ domain mới.
+3. **Class-Incremental Learning (CIL) — thêm nhãn cần nhận diện.** Mô hình dùng một bộ output chung, rồi bổ sung class mới theo thời gian.
+
+Để phân loại đúng, ta hỏi thêm: **mô hình có được báo task hiện tại khi chạy hay không?**
 
 <LessonImage
   assetPath="continual-learning-llm/01-continual-learning-til-dil-cil-scenarios.png"

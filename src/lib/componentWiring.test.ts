@@ -110,7 +110,6 @@ test('Learning Lab shared infrastructure avoids duplicated navigation and UI log
   const domainCatalog = readSource('src/components/learning/shell/DomainCatalog.tsx');
   const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
   const lessonRail = readSource('src/components/learning/lesson/LessonRail.tsx');
-  const theme = readSource('src/components/learning/theme.ts');
   const localization = readSource('src/lib/localization.ts');
 
   assert.match(
@@ -132,16 +131,6 @@ test('Learning Lab shared infrastructure avoids duplicated navigation and UI log
     domainCatalog,
     /href=["']#/,
     'in-page links must not replace the HashRouter fragment',
-  );
-  assert.match(
-    theme,
-    /railToggleButton:\s*cx\(/,
-    'theme should own the shared lesson rail toggle button class',
-  );
-  assert.doesNotMatch(
-    `${learningLabView}\n${lessonRail}`,
-    /function\s+get(?:Lesson)?RailToggleButtonClass/,
-    'LearningLabView and LessonRail should not duplicate rail toggle class helpers',
   );
   assert.match(
     localization,

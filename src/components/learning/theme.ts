@@ -91,13 +91,6 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
   };
 
   const rail = {
-    railToggleButton: cx(
-      'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-colors',
-      focusRing,
-      isLight
-        ? 'border-[#205089]/10 bg-[#DCE6F1]/34 text-[#123B68]/52 hover:bg-[#DCE6F1]/70 hover:text-[#123B68]'
-        : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/52 hover:bg-[#A8B8C8]/14 hover:text-[#F2F6FA]',
-    ),
     trackHeading: (isCurrentTrack: boolean) => (
       isLight
         ? isCurrentTrack

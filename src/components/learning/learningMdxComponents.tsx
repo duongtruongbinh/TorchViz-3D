@@ -296,14 +296,17 @@ export function LessonImage({ assetPath, alt, caption }: { assetPath: string; al
   const src = Object.entries(LESSON_IMAGE_MODULES).find(([modulePath]) => modulePath.endsWith(`/assets/learning/${normalizedPath}`))?.[1] ?? '';
   if (!src) return null;
   return (
-    <figure className="my-6 grid gap-2">
+    <figure className="my-6 grid justify-items-center gap-2">
       <img
         src={src}
         alt={alt}
         loading="lazy"
         decoding="async"
-        className="w-full rounded-xl border object-contain shadow-sm"
-        style={{ borderColor: themeClasses.isLight ? 'rgba(32,80,137,0.12)' : 'rgba(168,212,255,0.14)' }}
+        className="block h-auto w-auto max-w-full rounded-xl border object-contain shadow-sm"
+        style={{
+          borderColor: themeClasses.isLight ? 'rgba(32,80,137,0.12)' : 'rgba(168,212,255,0.14)',
+          maxHeight: 'min(32rem, calc(100vh - 14rem))',
+        }}
       />
       {caption && (
         <figcaption className={cx('text-center text-sm leading-5', themeClasses.mutedText)}>

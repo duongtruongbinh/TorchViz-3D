@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ChevronDown, PanelLeftClose, Search, X } from 'lucide-react';
+import { ArrowLeftToLine, ChevronDown, Search, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
 import type { LearningLesson, LearningTrack } from '../../../core/learning/types';
@@ -72,7 +72,7 @@ export default function LessonRail({
 
   return (
     <aside ref={railRef} className="custom-scrollbar learning-lab-scrollbar flex max-h-full justify-center overflow-auto pr-1">
-      <div className="grid w-full max-w-[280px] content-start gap-4">
+      <div className="grid w-[calc(100%_-_1rem)] content-start gap-4">
         <div
           className={cx(
             'grid gap-2 border-b pb-4',
@@ -114,12 +114,16 @@ export default function LessonRail({
               <button
                 type="button"
                 onClick={onToggleRail}
-                className={themeClasses.rail.railToggleButton}
+                className={cx(
+                  'flex h-11 w-11 shrink-0 items-center justify-center transition-colors',
+                  themeClasses.radius.icon,
+                  themeClasses.button.ghost,
+                )}
                 title={strings.lessonRailCloseLabel}
                 aria-label={strings.lessonRailCloseLabel}
                 aria-expanded={isRailOpen}
               >
-                <PanelLeftClose className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
+                <ArrowLeftToLine className="h-5 w-5" strokeWidth={1.9} aria-hidden="true" />
               </button>
             ) : null}
           </div>
@@ -158,7 +162,7 @@ export default function LessonRail({
                 onClick={() => onToggleTrack(track.id)}
                 aria-expanded={!isCollapsed}
                 className={cx(
-                  'group -ml-1 flex w-full items-center gap-2 px-0.5 text-left text-[17px] font-black leading-7 transition-colors duration-200',
+                  'group -ml-1 flex w-full items-center gap-2 px-0.5 text-left text-[15px] font-black leading-6 transition-colors duration-200',
                   themeClasses.focusRing,
                   themeClasses.rail.trackHeading(isCurrentTrack),
                 )}

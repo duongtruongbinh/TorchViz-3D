@@ -2,7 +2,7 @@
 title: Continual Learning Course for Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
-updated: 2026-08-10T18:35:02+07:00
+updated: 2026-08-11T09:05:26+07:00
 author: nmkhiem
 task: "Add and author the Continual Learning domain, its paired assessments, labs, reusable visuals, and catalog contracts"
 supersedes: []
@@ -281,6 +281,23 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   moving on reload, uses at least three positions in longer quizzes, avoids
   cyclic three-answer patterns, and remains exactly balanced at 39 correct
   single-choice answers per A/B/C/D position.
+- 2026-08-11 — Restored the lesson Table of Contents to its original left rail
+  and moved the vertical roll interaction to domain navigation. The domain list
+  now opens as an overlay above dimmed content, closes from the backdrop or its
+  control, and leaves only the top-left navigation icon when hidden. The
+  detached shell now uses one `100dvh` scroll boundary so page and lesson
+  scrollbars cannot compete. Shared lesson images scale within both the reading
+  width and viewport height. The collapsed lesson-contents control aligns with
+  the lesson card top edge and uses a borderless icon treatment. The expanded
+  desktop contents rail can be resized from 240–440px by pointer or keyboard;
+  introduced TIL/DIL/CIL through plain-language change scenarios before their
+  acronyms; and rewrote the diagonal-importance quiz as a concrete
+  parameter-weighting decision. The expanded domain overlay no longer uses the
+  mascot or product name as navigation; a quiet `Quay lại trang chính` action
+  beneath the name now owns that behavior, with a standard back icon, a larger
+  click target, and restrained hover, active, and keyboard-focus feedback.
+  Removed the obsolete shared rail-toggle token, its stale wiring assertions,
+  and always-true render branches left behind by the navigation redesign.
 
 # Verification
 

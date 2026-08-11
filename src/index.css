@@ -584,6 +584,16 @@ body {
   box-shadow: none;
 }
 
+@media (min-width: 1024px) {
+  .learning-lab-lesson-rail-open {
+    grid-template-columns: var(--lesson-rail-width, 300px) minmax(0, 1fr);
+  }
+
+  .learning-lab-lesson-rail-closed {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+}
+
 .learning-lab .learning-lab-section-accent {
   background-color: var(--learning-lab-section-accent-bg);
   color: var(--learning-lab-section-accent-text);
