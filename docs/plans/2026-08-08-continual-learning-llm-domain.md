@@ -2,7 +2,7 @@
 title: Continual Learning Course for Learning Lab
 status: done
 created: 2026-08-08T10:35:00+07:00
-updated: 2026-08-11T09:05:26+07:00
+updated: 2026-08-11T21:29:33+07:00
 author: nmkhiem
 task: "Add and author the Continual Learning domain, its paired assessments, labs, reusable visuals, and catalog contracts"
 supersedes: []
@@ -276,7 +276,7 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   mechanism-specific coverage, bringing the bank to 157 questions; replaced
   weak absolute or category-mismatched distractors across Chapters 1–6 with
   plausible same-context alternatives.
-- 2026-08-10 — Removed the forced “one A, B, C, D per four-question quiz” rule,
+- 2026-08-10 — Removed the forced "one A, B, C, D per four-question quiz" rule,
   which itself leaked a pattern. Answer order is now statically shuffled without
   moving on reload, uses at least three positions in longer quizzes, avoids
   cyclic three-answer patterns, and remains exactly balanced at 39 correct
@@ -315,6 +315,12 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   Matplotlib plot and asset, unused plotting/helper imports, duplicate seed
   calls, the unused NLL-threshold constant, and unconsumed qualitative-example
   storage; aligned the lesson metadata with the revised baseline-summary title.
+  Renamed the generated-answer metric, helper, result columns, summaries, and
+  quiz wording from Exact Match to Prefix Match because the implementation
+  deliberately accepts outputs that begin with the gold answer. Standardized
+  the Replay lab's beginner explanations into two-column reference tables for
+  configuration, data generation, tokenization, evaluation, training, replay
+  sampling, multi-seed execution, and threshold aggregation.
 - 2026-08-11 — Added a beginner-facing RAG comparison to the course overview:
   retrieval changes inference context while continual adaptation targets model
   capability or behavior that must persist without a retrieved document. Added
@@ -325,6 +331,74 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   persistent model update. The quiz bank now contains 158 questions, with the
   157 single-choice answers distributed as evenly as mathematically possible
   across A/B/C/D.
+
+# Follow-up — Align Replay lab answer variable names
+
+## Goal
+
+Make the Experience Replay lab use the same beginner-readable generated-answer
+variable names as the Catastrophic Forgetting lab.
+
+## Decisions (locked)
+
+- Rename `prediction` to `predicted_answer` and `gold` to `expected_answer` in
+  the Replay lab's `greedy_prefix_match` example.
+- Rename the matching qualitative-example dictionary keys so the stored sample
+  fields use the same terminology.
+- Update the nearby parameter table and Prefix Match explanation to show the
+  renamed expression.
+- Remove the Replay lab's four `MetricBars` summaries and use the existing
+  `==...==` output-marker syntax to highlight the corresponding metric columns
+  and values directly inside each preceding output block, matching Lab 1.
+- Preserve the Prefix Match behavior, returned values, representative outputs,
+  lesson structure, routes, and all unrelated authored content.
+
+## Phases
+
+1. Update only
+   `src/content/learning/continual-learning-llm/2.1.3-replay-experience-code-lab.vi.mdx`.
+2. Search both lab files for stale standalone `gold` / `prediction` terminology
+   and confirm Lab 2 matches Lab 1 at the evaluation example boundary.
+3. Run the narrowest content check needed for this MDX-only rename and
+   `git diff --check`; do not run a full build unless the content check exposes
+   a broader issue.
+4. Record the completed edit and verification result in this execution log,
+   restore the plan status to `done`, and avoid a separate wiki update because
+   the runtime architecture and durable Learning Lab contract do not change.
+
+## Out of scope
+
+- Changing the Prefix Match algorithm or thresholds.
+- Refactoring other Replay lab helpers, outputs, metrics, or lesson copy.
+- Renderer implementation, catalog, quiz, route, or architecture changes.
+
+- 2026-08-11 — Added this pending follow-up after confirming Lab 1 already uses
+  `predicted_answer` / `expected_answer` while Lab 2 still uses `prediction` /
+  `gold`; awaiting explicit approval before editing lesson content.
+- 2026-08-11 — User approved immediate execution and expanded the follow-up to
+  replace the Replay lab's animated metric bars with Lab 1-style highlighted
+  output values; plan moved to `executing`.
+- 2026-08-11 — Renamed the Replay evaluation example to
+  `predicted_answer` / `expected_answer`, synchronized its stored example keys
+  and explanation, removed all four Replay `MetricBars`, and highlighted the
+  corresponding values directly in their output blocks. The focused Learning
+  MDX suite passed all 15 tests and `git diff --check` passed; no wiki update
+  was needed because the catalog and runtime architecture are unchanged.
+- 2026-08-11 — Replaced all eleven uses of the abstract Vietnamese term
+  `ngân sách` in the Replay lab with context-specific wording: `số mẫu` or
+  `tổng số mẫu` for dataset size and `chi phí tính toán` for compute fairness.
+  Confirmed the lesson contains no stale `ngân sách`, `gold`, `prediction`, or
+  `MetricBars` references; `git diff --check` passed.
+- 2026-08-11 — User approved a final Replay-lab cleanup and commit: retain the
+  two authored multi-seed charts, remove unconsumed qualitative examples,
+  unused After-A seed evaluation data, and unused aggregate statistics, then
+  verify and commit only the owning plan, Replay MDX, and two chart assets.
+- 2026-08-11 — Completed the cleanup: `greedy_prefix_match` and
+  `evaluate_tasks` now return only consumed metrics; the multi-seed loop skips
+  the unused After-A evaluation and column; aggregation omits unused B/std and
+  A-NLL/std fields. Added the per-seed and aggregate threshold charts to their
+  matching pages. `npm run verify` passed with TypeScript, 86 tests, and the
+  production build; only the existing large-chunk warning remains.
 
 # Verification
 

@@ -58,7 +58,7 @@ Lab này chạy bốn setup để trả lời một câu hỏi thực tế: **c�
 />
 
 <LessonNote>
-  “Tốt hơn” không có nghĩa chỉ đạt điểm A cao hơn. Setup tốt hơn phải tạo **trade-off A–B tốt hơn**: học được B nhưng không phải học lại A bằng cách hy sinh B.
+  "Tốt hơn" không có nghĩa chỉ đạt điểm A cao hơn. Setup tốt hơn phải tạo **trade-off A–B tốt hơn**: học được B nhưng không phải học lại A bằng cách hy sinh B.
 </LessonNote>
 
 </MdxPage>
@@ -118,16 +118,19 @@ device: cuda
 
 Nếu output là `cpu`, code vẫn chạy nhưng fine-tuning sẽ chậm hơn đáng kể.
 
-Các biến config được chia thành bốn nhóm:
+| Tham số / thiết lập | Ý nghĩa trong bài lab |
+| :--- | :--- |
+| **`MODEL_NAME`** | Chọn checkpoint Pythia-160M deduped, đủ nhỏ để fine-tune trên GPU Colab. |
+| **`N_PEOPLE_PER_TASK = 24`** | Mỗi task có 24 nhân vật, mỗi người mang 6 fact cần học. |
+| **`REPEATS_A = 18` / `REPEATS_B = 28`** | Số lần lặp mỗi biography trong tập train. B được lặp nhiều hơn để tạo một stage mới đủ mạnh gây interference. |
+| **`QA_REPEATS = 6`** | Lặp mỗi chuỗi hỏi–đáp 6 lần trong dữ liệu train; không làm tăng số câu trong tập đánh giá. |
+| **`EPOCHS_A = 3` / `EPOCHS_B = 5`** | Số lượt model đi qua toàn bộ dataset của từng stage sau khi dataset đã được tạo. |
+| **`LR = 8e-5`** | Learning rate: độ lớn mỗi bước cập nhật tham số. Giá trị lớn giúp học nhanh nhưng có thể làm tri thức cũ bị ghi đè mạnh hơn. |
+| **`BATCH_SIZE = 8`** | Mỗi thiết bị xử lý 8 mẫu trước một bước cập nhật; batch lớn hơn thường cần nhiều GPU memory hơn. |
+| **`MAX_LENGTH = 128`** | Giữ tối đa 128 token cho mỗi chuỗi train; phần dài hơn bị cắt. |
+| **`MAX_NEW_TOKENS = 16`** | Giới hạn model sinh tối đa 16 token khi chấm câu trả lời; không ảnh hưởng chiều dài dữ liệu train. |
+| **`REPLAY_FRACTION = 0.10`** | Dành 10% dữ liệu của stage B cho mẫu A cũ, trong khi tổng số mẫu của stage vẫn giữ nguyên. |
 
-- **Quy mô dữ liệu:** `N_PEOPLE_PER_TASK` là số người mỗi task; `REPEATS_A`, `REPEATS_B` và `QA_REPEATS` quyết định mỗi mẫu được lặp bao nhiêu lần.
-- **Cách train:** `EPOCHS_A/B` là số lượt model đi qua dataset; `LR` là độ lớn mỗi bước cập nhật; `BATCH_SIZE` là số mẫu xử lý cùng lúc.
-- **Độ dài:** `MAX_LENGTH` giới hạn token khi train; `MAX_NEW_TOKENS` giới hạn token model được sinh lúc kiểm tra.
-- **Replay:** `REPLAY_FRACTION = 0.10` dành 10% ngân sách stage B cho mẫu A cũ.
-
-<LessonNote>
-  `SEED = 47` giúp sinh lại cùng dữ liệu và thứ tự shuffle. Seed tăng tính lặp lại, nhưng một số phép toán GPU vẫn có thể dao động nhẹ giữa môi trường.
-</LessonNote>
 
 </MdxPage>
 
@@ -225,15 +228,14 @@ Task A: 1296 train · 144 QA
 Task B: 1536 train · 144 QA
 ```
 
-Đọc cell theo ba tầng:
-
-1. `make_people` tạo 24 hồ sơ cho mỗi task, mỗi hồ sơ có 6 thuộc tính.
-2. `qa_pairs` đổi 6 thuộc tính thành 6 câu hỏi, nên mỗi task có `24 × 6 = 144` QA pairs.
-3. `training_texts` lặp biography và QA để model có đủ lần nhìn thấy các fact, sau đó shuffle thứ tự.
-
-Vì vậy, `1.296` và `1.536` là **số chuỗi train sau khi lặp**, không phải số người. Task B có nhiều chuỗi hơn vì `REPEATS_B = 28` lớn hơn `REPEATS_A = 18`.
-
-Task A và Task B dùng **nhân vật và vocabulary đánh dấu tách biệt**. Nhờ vậy, điểm A phản ánh khả năng nhớ A; điểm B phản ánh khả năng học B, không bị các đáp án trùng nhau làm mờ.
+| Hàm / tham số | Vai trò trong quá trình tạo dữ liệu |
+| :--- | :--- |
+| **`make_people(n, task_prefix, seed)`** | Tạo `n` hồ sơ giả lập. `task_prefix` tách vocabulary A/B; `seed` giữ cách chọn và ghép tên có thể lặp lại. |
+| **`year_base`** | Dùng mốc năm khác nhau cho A và B để ngày sinh của hai task không vô tình trùng nhau. |
+| **`qa_pairs(people)`** | Đổi 6 thuộc tính của mỗi người thành 6 câu hỏi, nên `24 × 6 = 144` QA pairs cho mỗi task. |
+| **`training_texts(people, repeats, qa_repeats, seed)`** | Tạo chuỗi biography và QA, lặp chúng theo hai số lần riêng rồi shuffle bằng `seed`. |
+| **`REPEATS_A` / `REPEATS_B`** | Điều khiển số bản sao biography; đây là lý do Task B có nhiều chuỗi train hơn Task A. |
+| **`QA_REPEATS`** | Điều khiển số bản sao của chuỗi hỏi–đáp trong tập train. |
 
 <ComparisonMatrix
   ariaLabel="Hai tập dữ liệu của bài lab"
@@ -241,7 +243,7 @@ Task A và Task B dùng **nhân vật và vocabulary đánh dấu tách biệt**
   rows={[
     { label: 'Mẫu train', values: ['1.296', '1.536'] },
     { label: 'QA pairs', values: ['144', '144'] },
-    { label: 'Exact Match', values: ['48 câu đầu', '48 câu đầu'] },
+    { label: 'Prefix Match', values: ['48 câu đầu', '48 câu đầu'] },
     { label: 'Không gian đáp án', values: ['Prefix A', 'Prefix B'] },
   ]}
 />
@@ -299,11 +301,18 @@ Parameters: 162.3M
 Tokenized datasets: 1296 1536
 ```
 
-<LessonNote>
-  `train_a_ds` và `train_b_ds` là phiên bản đã tokenize của hai danh sách text. Chúng vẫn có lần lượt 1.296 và 1.536 mẫu; tokenization chỉ đổi biểu diễn, không thêm hoặc bớt ví dụ.
-</LessonNote>
-
-Pythia không khai báo `pad_token` riêng, nên code dùng `eos_token` để lấp phần trống khi ghép các chuỗi dài ngắn khác nhau vào cùng batch. `probe_model` chỉ được tải để đếm `162,3M` tham số rồi xóa ngay nhằm trả lại bộ nhớ GPU.
+| Tham số / thiết lập | Ý nghĩa trong pipeline đưa text vào model |
+| :--- | :--- |
+| **`pad_token = eos_token`** | Pythia không có pad token riêng, nên dùng token kết thúc câu để collator có thể lấp phần trống trong batch. |
+| **`fresh_model()`** | Mỗi lần gọi tải một base model mới và chuyển model sang `device`; các setup sau có thể nạp cùng checkpoint vào bản mới này. |
+| **`Dataset.from_dict({"text": texts})`** | Đóng gói danh sách chuỗi Python thành Hugging Face Dataset để hỗ trợ `map` và Trainer. |
+| **`truncation=True`** | Cho phép cắt chuỗi dài hơn giới hạn thay vì để chúng làm tăng chi phí ngoài dự kiến. |
+| **`max_length=MAX_LENGTH`** | Đặt giới hạn 128 token cho mỗi mẫu train. |
+| **`padding=False`** | Chưa padding toàn bộ dataset; collator sẽ padding riêng từng batch để giảm token đệm và GPU memory. |
+| **`batched=True`** | Tokenizer xử lý nhiều chuỗi trong một lần gọi `map`, nhanh hơn gọi từng mẫu riêng lẻ. |
+| **`remove_columns=["text"]`** | Bỏ raw text sau khi token hóa vì Trainer chỉ cần các trường token như `input_ids` và `attention_mask`. |
+| **`mlm=False`** | Tạo batch cho Causal Language Modeling: model dự đoán token tiếp theo, không đoán token bị che như BERT. |
+| **`gc.collect()` / `torch.cuda.empty_cache()`** | Thu hồi object Python không còn dùng và giải phóng phần CUDA cache có thể trả lại sau khi xóa `probe_model`. |
 
 </MdxPage>
 <MdxPage page={4}>
@@ -313,7 +322,7 @@ Pythia không khai báo `pad_token` riêng, nên code dùng `eos_token` để l�
 Lab dùng hai metric bổ sung cho nhau:
 
 - **Answer NLL ↓** hỏi: model gán xác suất cho đáp án đúng cao đến đâu? Số càng thấp càng tốt. Metric này dùng đủ 144 QA pairs.
-- **Exact Match ↑** hỏi: câu trả lời model sinh ra có bắt đầu đúng bằng đáp án chuẩn không? Lab chỉ generate 48 câu đầu để giảm thời gian chạy.
+- **Prefix Match ↑** hỏi: câu trả lời model sinh ra có bắt đầu đúng bằng đáp án chuẩn không? Lab chỉ generate 48 câu đầu để giảm thời gian chạy.
 
 `@torch.no_grad()` tắt gradient vì đây là bước đo, không phải bước học. Trong `answer_nll`, nhãn của phần câu hỏi được đặt thành `-100` để loss chỉ tính trên token của đáp án.
 
@@ -344,11 +353,10 @@ def answer_nll(model, rows):
     return float(np.mean(losses))
 
 @torch.no_grad()
-def greedy_exact_match(model, rows, max_rows=48):
+def greedy_prefix_match(model, rows, max_rows=48):
     model.eval()
     rows = rows[:max_rows]
     correct = 0
-    examples = []
 
     for row in rows:
         inputs = tokenizer(row["prompt"], return_tensors="pt").to(device)
@@ -360,34 +368,26 @@ def greedy_exact_match(model, rows, max_rows=48):
             eos_token_id=tokenizer.eos_token_id,
         )
         new_tokens = output[0, inputs["input_ids"].shape[1]:]
-        prediction = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
-        gold = row["answer"].strip()
-        is_correct = prediction.lower().startswith(gold.lower())
+        predicted_answer = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+        expected_answer = row["answer"].strip()
+        is_correct = predicted_answer.lower().startswith(expected_answer.lower())
         correct += int(is_correct)
 
-        if len(examples) < 4:
-            examples.append({
-                "prompt": row["prompt"].replace("\nAnswer:", ""),
-                "gold": gold,
-                "prediction": prediction,
-                "correct": is_correct,
-            })
-
-    return correct / len(rows), examples
+    return correct / len(rows)
 
 def evaluate_tasks(model, stage):
     a_nll = answer_nll(model, qa_a)
     b_nll = answer_nll(model, qa_b)
-    a_em, a_examples = greedy_exact_match(model, qa_a)
-    b_em, b_examples = greedy_exact_match(model, qa_b)
+    a_prefix_match = greedy_prefix_match(model, qa_a)
+    b_prefix_match = greedy_prefix_match(model, qa_b)
 
     return {
         "stage": stage,
-        "A_exact_match": a_em,
-        "B_exact_match": b_em,
+        "A_prefix_match": a_prefix_match,
+        "B_prefix_match": b_prefix_match,
         "A_nll": a_nll,
         "B_nll": b_nll,
-    }, {"A": a_examples, "B": b_examples}
+    }
 
 print("Evaluation helpers are ready.")
 ```
@@ -396,11 +396,23 @@ print("Evaluation helpers are ready.")
 Evaluation helpers are ready.
 ```
 
-<LessonNote>
-  `evaluate_tasks(model, stage)` luôn đo cả A và B rồi trả về một dictionary. Nhờ vậy, mọi checkpoint đều được đánh giá theo cùng một cách.
-</LessonNote>
+| Tham số / thiết lập | Ý nghĩa trong các hàm đánh giá |
+| :--- | :--- |
+| **`model.eval()`** | Chuyển model sang chế độ đánh giá để tắt các hành vi chỉ dùng khi train, chẳng hạn dropout. |
+| **`@torch.no_grad()`** | Không lưu gradient trong lúc đo, giúp giảm memory và tránh tạo graph huấn luyện không cần thiết. |
+| **`rows`** | Danh sách QA cần đánh giá; `answer_nll` dùng toàn bộ danh sách, còn Prefix Match lấy tối đa `max_rows`. |
+| **`add_special_tokens=False`** | Không tự thêm token điều khiển vào riêng prompt và answer, tránh tạo một ranh giới token ngoài ý muốn khi hai phần được nối lại. |
+| **`return_tensors="pt"`** | Yêu cầu tokenizer trả tensor PyTorch để chuyển trực tiếp sang `device`. |
+| **`labels[:, :prompt_ids.shape[1]] = -100`** | Che phần prompt khỏi loss; Answer NLL chỉ đo xác suất của các token thuộc đáp án chuẩn. |
+| **`max_rows=48`** | Chỉ generate tối đa 48 câu để giảm thời gian chấm Prefix Match. Đây là giới hạn số câu, không phải số token sinh. |
+| **`max_new_tokens=MAX_NEW_TOKENS`** | Cho model sinh tối đa 16 token mới sau prompt. |
+| **`do_sample=False`** | Dùng greedy decoding thay vì lấy mẫu ngẫu nhiên, giúp cùng checkpoint cho kết quả ổn định hơn. |
+| **`pad_token_id` / `eos_token_id`** | Cho `generate` biết token nào dùng để padding và token nào báo câu trả lời kết thúc. |
+| **`skip_special_tokens=True`** | Bỏ token điều khiển trước khi so sánh output với đáp án. |
+| **`predicted_answer.lower().startswith(expected_answer.lower())`** | Chấm đúng khi output bắt đầu bằng đáp án chuẩn, không phân biệt hoa thường; phần model sinh thêm phía sau không làm câu đó bị tính sai. |
+| **`stage`** | Nhãn mô tả checkpoint đang được đo; tham số này chỉ đi vào bảng kết quả, không ảnh hưởng metric. |
 
-Trong notebook, tên metric là “Exact Match”, nhưng code dùng `prediction.startswith(gold)`: đáp án chỉ cần **bắt đầu đúng**, phần model sinh tiếp phía sau được bỏ qua. Kết quả được lưu theo thang `0–1`; giao diện đổi sang phần trăm khi hiển thị.
+`Prefix Match` dùng phép chấm `predicted_answer.lower().startswith(expected_answer.lower())`: đáp án chỉ cần **bắt đầu đúng**, phần model sinh tiếp phía sau được bỏ qua. Kết quả được lưu theo thang `0–1`; giao diện đổi sang phần trăm khi hiển thị.
 
 </MdxPage>
 <MdxPage page={5}>
@@ -446,9 +458,22 @@ print("Training helper is ready.")
 Training helper is ready.
 ```
 
-<LessonNote>
-  Thư mục `./tmp_<stage_name>` chỉ là output tạm của Hugging Face Trainer. Checkpoint dùng để so sánh trong lab sẽ được lưu chủ động bằng `state_dict` ở các setup tiếp theo.
-</LessonNote>
+| Tham số / thiết lập | Ý nghĩa trong `train_stage` |
+| :--- | :--- |
+| **`model` / `train_ds`** | Model cần cập nhật và dataset cung cấp gradient cho stage hiện tại. |
+| **`stage_name`** | Tạo tên thư mục output riêng cho lần chạy; không thay đổi dữ liệu hay objective. |
+| **`epochs`** | Số lượt model đi qua toàn bộ `train_ds`. |
+| **`lr`** | Learning rate truyền riêng cho stage, cho phép các setup dùng cùng helper nhưng đổi tốc độ cập nhật. |
+| **`overwrite_output_dir=True`** | Cho phép dùng lại thư mục tạm nếu cell được chạy lại. |
+| **`per_device_train_batch_size=BATCH_SIZE`** | Mỗi GPU hoặc CPU device xử lý 8 mẫu trong một batch. |
+| **`weight_decay=0.0`** | Không thêm weight decay; bài lab tập trung vào ảnh hưởng của dữ liệu replay thay vì regularization. |
+| **`warmup_ratio=0.05`** | Tăng learning rate dần trong 5% bước đầu để tránh cập nhật quá mạnh ngay khi stage bắt đầu. |
+| **`logging_steps=50`** | Ghi training log sau mỗi 50 bước cập nhật. |
+| **`save_strategy="no"`** | Không tự lưu checkpoint trung gian, giảm I/O và dung lượng trong bài lab ngắn. |
+| **`report_to="none"`** | Không gửi metric tới dịch vụ ngoài như Weights & Biases. |
+| **`fp16=torch.cuda.is_available()`** | Dùng số thực 16-bit khi có CUDA để giảm GPU memory; tự tắt trên CPU. |
+| **`seed=SEED`** | Cố định các thao tác ngẫu nhiên bên trong Trainer. |
+| **`data_collator=collator`** | Padding từng batch và tạo `labels` cho Causal Language Modeling ngay trước khi batch vào model. |
 
 </MdxPage>
 <MdxPage page={6}>
@@ -462,7 +487,7 @@ Ba dòng chính của setup là: tạo base model mới → train trên `train_a
 ```python
 model = fresh_model()
 model = train_stage(model, train_a_ds, "task_a", EPOCHS_A, LR)
-after_a_metrics, _ = evaluate_tasks(model, "After A")
+after_a_metrics = evaluate_tasks(model, "After A")
 
 after_a_state = {
     name: value.detach().cpu().clone()
@@ -477,17 +502,9 @@ if torch.cuda.is_available():
 ```
 
 ```output
-  stage  A_exact_match  B_exact_match    A_nll    B_nll
-After A            1.0            0.0 0.000135 8.640722
+  stage  ==A_prefix_match  B_prefix_match==    A_nll    B_nll
+After A            ==1.0            0.0== 0.000135 8.640722
 ```
-
-<MetricBars
-  ariaLabel="Exact Match sau khi chỉ học Task A"
-  items={[
-    { label: 'Task A', value: 100, valueLabel: '100%', tone: 'success' },
-    { label: 'Task B', value: 0, valueLabel: '0%', tone: 'neutral' },
-  ]}
-/>
 
 <LessonNote>
   `after_a_state` là checkpoint model vừa học xong A. Setup 2 và setup 4 đều bắt đầu từ checkpoint này để phép so sánh **có hay không có buffer A** được công bằng. Task A tại đây đạt `100%`; Task B đạt `0%` vì chưa được train.
@@ -512,7 +529,7 @@ naive_model = train_stage(
     epochs=5,
     lr=8e-5,
 )
-after_b_naive, _ = evaluate_tasks(naive_model, "After A -> B")
+after_b_naive = evaluate_tasks(naive_model, "After A -> B")
 
 after_b_naive_state = {
     name: value.detach().cpu().clone()
@@ -527,18 +544,10 @@ if torch.cuda.is_available():
 ```
 
 ```output
-     stage  A_exact_match  B_exact_match    A_nll    B_nll
-   After A            1.0            0.0 0.000135 8.640722
-After A -> B            0.0            1.0 6.024066 0.000026
+     stage  ==A_prefix_match  B_prefix_match==    A_nll    B_nll
+   After A            ==1.0            0.0== 0.000135 8.640722
+After A -> B            ==0.0            1.0== 6.024066 0.000026
 ```
-
-<MetricBars
-  ariaLabel="Exact Match sau khi học Task A rồi Task B"
-  items={[
-    { label: 'Task A', value: 0, valueLabel: '0%', tone: 'danger' },
-    { label: 'Task B', value: 100, valueLabel: '100%', tone: 'primary' },
-  ]}
-/>
 
 Task A giảm từ `100%` xuống `0%`, trong khi Task B đạt `100%`. Model học được B nhưng đã biểu hiện **catastrophic forgetting trên A**.
 
@@ -554,7 +563,7 @@ Task A giảm từ `100%` xuống `0%`, trong khi Task B đạt `100%`. Model h�
 
 Bây giờ, lấy model đã học A rồi B và train trở lại trên A. Setup này kiểm tra hai chiều: **A có phục hồi không, và B có bị quên khi model quay lại học A không?**
 
-Đây là **recovery diagnostic**, không phải một mitigation công bằng về compute: model được train thêm một stage A riêng. Mục tiêu là quan sát khả năng học lại A và cái giá trên B, không dùng setup này để tuyên bố replay thắng dưới cùng ngân sách.
+Đây là **recovery diagnostic**, không phải một mitigation công bằng về compute: model được train thêm một stage A riêng. Mục tiêu là quan sát khả năng học lại A và cái giá trên B, không dùng setup này để tuyên bố replay thắng dưới cùng chi phí tính toán.
 
 ```python
 recovery_model = fresh_model()
@@ -566,7 +575,7 @@ recovery_model = train_stage(
     epochs=EPOCHS_A,
     lr=LR,
 )
-after_a_recovery, _ = evaluate_tasks(recovery_model, "After A -> B -> A")
+after_a_recovery = evaluate_tasks(recovery_model, "After A -> B -> A")
 
 recovery_comparison = pd.DataFrame([
     after_a_metrics,
@@ -581,17 +590,20 @@ if torch.cuda.is_available():
     torch.cuda.empty_cache()
 ```
 
+```output
+          stage  ==A_prefix_match  B_prefix_match==    A_nll    B_nll
+        After A             ==1.0             0.0== 0.000135 8.640722
+   After A -> B             ==0.0             1.0== 6.024066 0.000026
+After A -> B -> A             ==1.0             0.0== 0.000105 3.947222
+```
+
+Kết quả cho thấy model **học lại hoàn toàn Task A**, nhưng không giữ được Task B:
+
+- **Task A:** Prefix Match phục hồi từ `0%` lên `100%`; Answer NLL giảm từ `6.024066` xuống `0.000105`.
+- **Task B:** Prefix Match giảm từ `100%` xuống `0%`; Answer NLL tăng từ `0.000026` lên `3.947222`.
+
 <LessonNote>
-  **Output setup 3:** notebook tham chiếu chưa chạy nhánh `A → B → A`, nên không có số mẫu đáng tin cậy để điền sẵn. Khi chạy cell, bảng sẽ xuất thêm dòng `After A -> B -> A`; hãy đọc đồng thời `A_exact_match` và `B_exact_match` thay vì giả định A phục hồi thì B vẫn được giữ.
-</LessonNote>
-
-Khi đọc kết quả, không chỉ hỏi “A có quay lại không?”. Hãy kiểm tra đồng thời:
-
-- **Task A:** mức phục hồi so với checkpoint After-A.
-- **Task B:** mức suy giảm sau khi model quay lại học A.
-
-<LessonNote>
-  Việc A phục hồi nhanh có thể gợi ý rằng một phần năng lực vẫn còn nhưng khó truy xuất. Tuy nhiên, setup này chưa tách được underlying knowledge khỏi task alignment, nên chưa đủ để tự kết luận “spurious forgetting”.
+  Setup 3 cho thấy việc train lại A có thể đảo chiều forgetting, nhưng model vẫn chuyển từ nhớ B sang nhớ A thay vì giữ tốt cả hai task. Kết quả này có thể gợi ý rằng A dễ phục hồi, nhưng chưa tách được underlying knowledge khỏi task alignment nên chưa đủ để tự kết luận "spurious forgetting".
 </LessonNote>
 
 Nguồn liên quan: [Zheng et al., *Spurious Forgetting in Continual Learning of Language Models*](https://arxiv.org/abs/2501.13453).
@@ -608,8 +620,8 @@ Setup 4 quay lại `after_a_state`, nhưng khi học B sẽ trộn thêm một l
   ariaLabel="Thành phần dữ liệu huấn luyện của setup Replay"
   totalLabel="1.536 mẫu"
   segments={[
-    { label: 'Task B mới', value: 1382, valueLabel: '1.382', detail: '90% ngân sách stage B', tone: 'primary' },
-    { label: 'Buffer Task A', value: 154, valueLabel: '154', detail: '10% ngân sách stage B', tone: 'accent' },
+    { label: 'Task B mới', value: 1382, valueLabel: '1.382', detail: '90% số mẫu stage B', tone: 'primary' },
+    { label: 'Buffer Task A', value: 154, valueLabel: '154', detail: '10% tổng stage B', tone: 'accent' },
   ]}
 />
 
@@ -632,7 +644,6 @@ replay_texts = make_replay_texts(
     REPLAY_FRACTION,
 )
 replay_ds = tokenize_training_texts(replay_texts)
-assert len(replay_ds) == len(train_b_ds)
 
 replay_model = fresh_model()
 replay_model.load_state_dict(after_a_state)
@@ -643,26 +654,27 @@ replay_model = train_stage(
     EPOCHS_B,
     LR,
 )
-after_b_replay, _ = evaluate_tasks(replay_model, "After B + replay A")
+after_b_replay = evaluate_tasks(replay_model, "After B + replay A")
 print(pd.DataFrame([after_b_replay]).to_string(index=False))
 ```
 
 ```output
-                 stage  A_exact_match  B_exact_match    A_nll    B_nll
-After B + replay A              0.75            1.0 0.119563 0.003279
+                 stage  ==A_prefix_match  B_prefix_match==    A_nll    B_nll
+After B + replay A              ==0.75            1.0== 0.119563 0.003279
 ```
 
-<MetricBars
-  ariaLabel="Exact Match sau khi học Task B kèm buffer Task A"
-  items={[
-    { label: 'Task A · giữ lại', value: 75, valueLabel: '75%', tone: 'success' },
-    { label: 'Task B · học mới', value: 100, valueLabel: '100%', tone: 'primary' },
-  ]}
-/>
+Trong lần chạy tham chiếu, replay giữ Task A ở `75%` trong khi Task B vẫn đạt `100%`. `REPLAY_FRACTION = 0.10` nghĩa là **thay 10% số mẫu train của stage B bằng mẫu A**. Tổng số mẫu vẫn là `1.536`, nên replay không nhận thêm optimizer steps so với setup 2.
 
-Trong lần chạy tham chiếu, replay giữ Task A ở `75%` trong khi Task B vẫn đạt `100%`. `REPLAY_FRACTION = 0.10` nghĩa là **thay 10% ngân sách train của stage B bằng mẫu A**. Tổng số mẫu vẫn là `1.536`, nên replay không nhận thêm optimizer steps so với setup 2.
-
-Trong `make_replay_texts`, `rng.sample` lấy các mẫu B không lặp, còn `rng.choice` lấy mẫu A có thể lặp lại. Dòng `assert` kiểm tra replay dataset và naive dataset có cùng số mẫu; nhờ vậy, khác biệt không đến từ việc replay được train nhiều step hơn.
+| Tham số / thiết lập | Ý nghĩa trong `make_replay_texts` |
+| :--- | :--- |
+| **`task_a_texts`** | Nguồn dữ liệu cũ để tạo replay buffer. |
+| **`task_b_texts`** | Nguồn dữ liệu mới và cũng quyết định tổng số mẫu `total` của stage B. |
+| **`replay_fraction`** | Tỷ lệ tổng số mẫu được thay bằng mẫu A; `0.10` tương ứng 10%. |
+| **`n_replay`** | Số vị trí dành cho A, được làm tròn từ `total × replay_fraction`. |
+| **`n_b = total - n_replay`** | Số mẫu còn lại dành cho B, nhờ đó tổng số mẫu không tăng. |
+| **`rng.sample(task_b_texts, n_b)`** | Lấy `n_b` mẫu B không lặp trong lần chọn. |
+| **`rng.choice(task_a_texts)`** | Lấy mẫu A có hoàn lại, nên một mẫu cũ có thể xuất hiện nhiều lần trong buffer. |
+| **`rng.shuffle(mixed)`** | Trộn A và B để Trainer không học chúng thành hai khối tách biệt. |
 
 </MdxPage>
 
@@ -680,21 +692,21 @@ all_results = pd.DataFrame([
     after_b_replay,
 ])
 
-for column in ["A_exact_match", "B_exact_match"]:
+for column in ["A_prefix_match", "B_prefix_match"]:
     all_results[column] = (all_results[column] * 100).round(1)
 
 print(all_results.to_string(index=False))
 ```
 
 ```output
-                 stage  A_exact_match  B_exact_match    A_nll    B_nll
-               After A          100.0            0.0 0.000135 8.640722
-          After A -> B            0.0          100.0 6.024066 0.000026
-     After A -> B -> A     chạy để xem     chạy để xem     chạy để xem     chạy để xem
-After B + replay A             75.0          100.0 0.119563 0.003279
+                 stage  ==A_prefix_match  B_prefix_match==    A_nll    B_nll
+               After A          ==100.0            0.0== 0.000135 8.640722
+          After A -> B            ==0.0          100.0== 6.024066 0.000026
+     After A -> B -> A          ==100.0            0.0== 0.000105 3.947222
+After B + replay A             ==75.0          100.0== 0.119563 0.003279
 ```
 
-Ba dòng có số là output đã lưu từ notebook tham chiếu. Dòng setup 3 được đánh dấu để không biến một kết quả chưa đo thành số liệu giả.
+Bốn dòng là output đã lưu từ lần chạy tham chiếu, đặt cạnh nhau để so sánh khả năng học mới, phục hồi và duy trì tri thức.
 
 <ComparisonMatrix
   ariaLabel="Kết quả cần so sánh giữa bốn setup"
@@ -702,20 +714,20 @@ Ba dòng có số là output đã lưu từ notebook tham chiếu. Dòng setup 3
   rows={[
     { label: '1 · Học A', values: ['100%', '0%', 'A đã được học tốt'] },
     { label: '2 · A → B', values: ['0%', '100%', 'Học B nhưng quên A'] },
-    { label: '3 · A → B → A', values: ['Kết quả vừa chạy', 'Kết quả vừa chạy', 'A phục hồi đến đâu; B mất bao nhiêu'] },
+    { label: '3 · A → B → A', values: ['100%', '0%', 'Học lại A nhưng quên B'] },
     { label: '4 · A → B + buffer A', values: ['75%', '100%', 'Học B và vẫn giữ phần lớn A'], highlightedColumn: 2 },
   ]}
 />
 
 Setup 3 và setup 4 trả lời hai câu hỏi khác nhau:
 
-- **Setup 3:** model có thể học lại A sau khi đã quên không, và cái giá trên B là bao nhiêu?
-- **Setup 4:** có thể giữ A ngay trong lúc học B hay không?
+- **Setup 3:** model phục hồi A lên `100%`, nhưng B giảm từ `100%` về `0%`. Train lại A chỉ đảo task đang được nhớ, chưa giải quyết forgetting.
+- **Setup 4:** replay giữ B ở `100%` đồng thời giữ lại `75%` của A, dù không phục hồi A hoàn toàn như setup 3.
 
-Nếu setup 4 giữ điểm A và B đồng thời cao hơn kết quả thực tế của setup 3, replay tạo trade-off tốt hơn: model không cần quay lại học riêng A rồi lại có nguy cơ quên B.
+Trong lần chạy này, setup 4 tạo cân bằng tốt hơn giữa hai task: model không cần quay lại học riêng A rồi đánh đổi toàn bộ Task B.
 
 <LessonNote>
-  Con số `75% / 100%` chỉ thuộc lần chạy tham chiếu này. Muốn kết luận chắc chắn, hãy chạy nhiều seed và sweep kích thước buffer dưới cùng ngân sách compute.
+  Con số `75% / 100%` chỉ thuộc lần chạy tham chiếu này. Muốn kết luận chắc chắn, hãy chạy nhiều seed và sweep kích thước buffer dưới cùng chi phí tính toán.
 </LessonNote>
 
 </MdxPage>
@@ -784,15 +796,14 @@ def make_multiseed_people(n, task_prefix, seed):
         })
     return people
 
-def evaluate_seed_tasks(model, qa_a_rows, qa_b_rows, stage):
+def evaluate_seed_tasks(model, qa_a_rows, qa_b_rows):
     a_nll = answer_nll(model, qa_a_rows)
     b_nll = answer_nll(model, qa_b_rows)
-    a_em, _ = greedy_exact_match(model, qa_a_rows)
-    b_em, _ = greedy_exact_match(model, qa_b_rows)
+    a_prefix_match = greedy_prefix_match(model, qa_a_rows)
+    b_prefix_match = greedy_prefix_match(model, qa_b_rows)
     return {
-        "stage": stage,
-        "A_exact_match": a_em,
-        "B_exact_match": b_em,
+        "A_prefix_match": a_prefix_match,
+        "B_prefix_match": b_prefix_match,
         "A_nll": a_nll,
         "B_nll": b_nll,
     }
@@ -834,6 +845,18 @@ def make_fixed_budget_replay_texts(task_a_texts, task_b_texts, fraction, seed):
     return mixed, {"n_replay_a": n_replay, "n_task_b": n_b}
 ```
 
+| Tham số / thiết lập | Ý nghĩa trong extension nhiều seed |
+| :--- | :--- |
+| **`SEEDS`** | Ba lần sinh dữ liệu và train độc lập, dùng để xem kết quả có phụ thuộc mạnh vào một seed thuận lợi hay không. |
+| **`REPLAY_FRACTIONS`** | Năm tỷ lệ replay cần so sánh với cùng tổng số mẫu stage B. |
+| **`RETENTION_TARGET = 0.80`** | Gate giảng dạy: Task A phải giữ Prefix Match ít nhất 80%. |
+| **`PLASTICITY_TARGET = 0.90`** | Gate giảng dạy: Task B phải đạt Prefix Match ít nhất 90%. |
+| **`MULTISEED_FIRST_NAMES` / `MULTISEED_LAST_NAMES`** | Pool tên lớn hơn để mỗi seed tạo tập nhân vật khác mà vẫn đủ cặp tên không trùng. |
+| **`make_multiseed_people(..., seed)`** | Sinh lại nhân vật A/B cho từng seed; offset `10_000` tiếp tục tách lựa chọn của Task B khỏi A. |
+| **`train_stage_for_seed(..., seed)`** | Phiên bản `train_stage` nhận seed riêng để mỗi nhánh kiểm soát randomness của Trainer. |
+| **`seed + int(round(fraction * 10_000))`** | Tạo RNG riêng cho từng cặp seed–replay fraction, tránh mọi arm dùng đúng cùng một chuỗi lấy mẫu. |
+| **`make_fixed_budget_replay_texts(...)`** | Trả cả dữ liệu đã trộn và số mẫu A/B thực tế để kiểm tra quy mô của từng arm. |
+
 Cell dưới đây là phần tốn thời gian: tổng cộng train Task A ba lần và train stage B mười lăm lần.
 
 ```python
@@ -859,12 +882,6 @@ for seed in SEEDS:
         EPOCHS_A,
         LR,
         seed,
-    )
-    seed_after_a = evaluate_seed_tasks(
-        seed_model,
-        seed_qa_a,
-        seed_qa_b,
-        f"Seed {seed} After A",
     )
     seed_after_a_state = {
         name: value.detach().cpu().clone()
@@ -896,7 +913,6 @@ for seed in SEEDS:
             arm_model,
             seed_qa_a,
             seed_qa_b,
-            f"Seed {seed} Replay {fraction:.0%}",
         )
         multiseed_rows.append({
             "seed": seed,
@@ -904,9 +920,8 @@ for seed in SEEDS:
             "replay_percent": fraction * 100,
             "n_replay_a": info["n_replay_a"],
             "n_task_b": info["n_task_b"],
-            "A_after_A_exact_match": seed_after_a["A_exact_match"],
-            "A_exact_match": metrics["A_exact_match"],
-            "B_exact_match": metrics["B_exact_match"],
+            "A_prefix_match": metrics["A_prefix_match"],
+            "B_prefix_match": metrics["B_prefix_match"],
             "A_nll": metrics["A_nll"],
             "B_nll": metrics["B_nll"],
         })
@@ -919,8 +934,18 @@ multiseed_df = pd.DataFrame(multiseed_rows)
 print(multiseed_df.to_string(index=False))
 ```
 
+| Biến / thao tác | Ý nghĩa trong vòng lặp thí nghiệm |
+| :--- | :--- |
+| **`for seed in SEEDS`** | Tạo một dataset và checkpoint After-A độc lập cho mỗi seed. |
+| **`seed_after_a_state`** | Snapshot CPU của checkpoint After-A; năm replay arm trong cùng seed đều fork từ đúng trạng thái này. |
+| **`for fraction in REPLAY_FRACTIONS`** | Chạy một arm riêng cho từng tỷ lệ replay. |
+| **`stage_b_texts`** | Dataset B có tổng số mẫu cố định sau khi một phần mẫu B được thay bằng replay A. |
+| **`info["n_replay_a"]` / `info["n_task_b"]`** | Số mẫu A/B thực tế trong arm, được lưu để audit composition. |
+| **`multiseed_rows`** | Mỗi phần tử là kết quả của một cặp seed–fraction; cuối cùng được ghép thành DataFrame để aggregate. |
+| **`del` + giải phóng cache** | Xóa model của arm trước khi nạp arm kế tiếp để tránh tích lũy GPU memory. |
+
 ```output
- seed  replay_percent  n_replay_a  n_task_b  A_exact_match  B_exact_match    A_nll    B_nll
+ seed  replay_percent  n_replay_a  n_task_b  A_prefix_match  B_prefix_match    A_nll    B_nll
    47             1.0          15      1521       0.208333            1.0 1.970462 0.000305
    47             3.0          46      1490       0.604167            1.0 0.507048 0.000241
    47             5.0          77      1459       0.791667            1.0 0.362025 0.000201
@@ -938,6 +963,12 @@ print(multiseed_df.to_string(index=False))
  2026            10.0         154      1382       1.000000            1.0 0.015202 0.000071
 ```
 
+<LessonImage
+  assetPath="continual-learning-llm/output1.png"
+  alt="Biểu đồ đường thể hiện Task A Prefix Match theo tỷ lệ replay cho ba seed 47, 123 và 2026, cùng đường ngưỡng 80 phần trăm"
+  caption="Đọc từng seed riêng cho thấy 5% replay chưa ổn định: seed 47 vẫn dưới ngưỡng 80%, trong khi từ 7% cả ba seed đều vượt ngưỡng."
+/>
+
 </MdxPage>
 
 <MdxPage page={12}>
@@ -951,18 +982,16 @@ multiseed_summary = (
     multiseed_df
     .groupby(["replay_fraction", "replay_percent"], as_index=False)
     .agg(
-        A_exact_match_mean=("A_exact_match", "mean"),
-        A_exact_match_std=("A_exact_match", "std"),
-        B_exact_match_mean=("B_exact_match", "mean"),
-        B_exact_match_std=("B_exact_match", "std"),
+        A_prefix_match_mean=("A_prefix_match", "mean"),
+        A_prefix_match_std=("A_prefix_match", "std"),
+        B_prefix_match_mean=("B_prefix_match", "mean"),
         A_nll_mean=("A_nll", "mean"),
-        A_nll_std=("A_nll", "std"),
     )
 )
 
 multiseed_df["passes_both"] = (
-    (multiseed_df["A_exact_match"] >= RETENTION_TARGET)
-    & (multiseed_df["B_exact_match"] >= PLASTICITY_TARGET)
+    (multiseed_df["A_prefix_match"] >= RETENTION_TARGET)
+    & (multiseed_df["B_prefix_match"] >= PLASTICITY_TARGET)
 )
 pass_rates = (
     multiseed_df
@@ -978,13 +1007,24 @@ print(multiseed_summary.to_string(index=False))
 print(pass_rates.to_string(index=False))
 ```
 
+| Tham số / phép tổng hợp | Ý nghĩa khi tìm ngưỡng replay |
+| :--- | :--- |
+| **`groupby(["replay_fraction", "replay_percent"])`** | Gom ba seed dùng cùng một tỷ lệ replay vào một nhóm. |
+| **`as_index=False`** | Giữ replay fraction như cột thông thường để bảng kết quả dễ in và tiếp tục merge. |
+| **`mean`** | Điểm trung bình qua ba seed, thể hiện xu hướng chung của mỗi tỷ lệ. |
+| **`std`** | Độ lệch chuẩn qua seed; số lớn cho thấy kết quả kém ổn định dù mean có thể cao. |
+| **`passes_both`** | Chỉ `True` khi cùng một run đạt cả gate retention A và plasticity B. |
+| **`seeds_passing`** | Số seed đạt đồng thời cả hai gate ở một replay fraction. |
+| **`total_seeds`** | Tổng số seed thực sự có trong nhóm, ở đây là 3. |
+| **`pass_rate`** | `seeds_passing / total_seeds`; dùng để phân biệt mean cao với việc gate được vượt qua ổn định. |
+
 ```output
- replay_percent  A_exact_match_mean  A_exact_match_std  B_exact_match_mean  A_nll_mean
-            1.0            0.187500           0.095470                 1.0    1.859765
-            3.0            0.590278           0.146329                 1.0    0.583949
-            5.0            0.868056           0.073164                 1.0    0.286983
-            7.0            0.888889           0.012028                 1.0    0.091133
-           10.0            0.951389           0.043368                 1.0    0.032301
+ replay_percent  ==A_prefix_match_mean==  A_prefix_match_std  B_prefix_match_mean  A_nll_mean
+            1.0            ==0.187500==           0.095470                 1.0    1.859765
+            3.0            ==0.590278==           0.146329                 1.0    0.583949
+            5.0            ==0.868056==           0.073164                 1.0    0.286983
+            7.0            ==0.888889==           0.012028                 1.0    0.091133
+           10.0            ==0.951389==           0.043368                 1.0    0.032301
 
  replay_percent  seeds_passing  total_seeds  pass_rate
             1.0              0            3   0.000000
@@ -994,15 +1034,10 @@ print(pass_rates.to_string(index=False))
            10.0              3            3   1.000000
 ```
 
-<MetricBars
-  ariaLabel="Task A Exact Match trung bình theo tỷ lệ replay"
-  items={[
-    { label: 'Replay 1%', value: 18.75, valueLabel: '18,75%', tone: 'danger' },
-    { label: 'Replay 3%', value: 59.03, valueLabel: '59,03%', tone: 'neutral' },
-    { label: 'Replay 5%', value: 86.81, valueLabel: '86,81%', tone: 'primary' },
-    { label: 'Replay 7%', value: 88.89, valueLabel: '88,89%', tone: 'success' },
-    { label: 'Replay 10%', value: 95.14, valueLabel: '95,14%', tone: 'success' },
-  ]}
+<LessonImage
+  assetPath="continual-learning-llm/output.png"
+  alt="Biểu đồ Task A Prefix Match trung bình theo tỷ lệ replay với thanh sai số giữa các seed và đường ngưỡng 80 phần trăm"
+  caption="Đường trung bình tăng theo tỷ lệ replay; thanh sai số nhắc rằng mean vượt 80% ở mức 5% chưa đồng nghĩa mọi seed đều đạt gate."
 />
 
 <ComparisonMatrix
@@ -1020,7 +1055,7 @@ print(pass_rates.to_string(index=False))
 Kết quả cho thấy vùng chuyển tiếp xuất hiện quanh `5–7%`, nhưng gọi chính xác `5%` là một ngưỡng ổn định sẽ quá mạnh: ở `5%` chỉ có `2/3` seed qua cả hai gate. Trong các tỷ lệ đã thử, **`7%` là mức nhỏ nhất qua gate ở cả ba seed**.
 
 <LessonNote>
-  Gate `80% A / 90% B` là tiêu chí giảng dạy của thí nghiệm này, không phải chuẩn chung của Continual Learning. Ba seed giúp kiểm tra robustness ban đầu, chưa đủ để tuyên bố một ngưỡng phổ quát.
+  Gate `80% A / 90% B` là tiêu chí giảng dạy của thí nghiệm này, không phải chuẩn chung của Continual Learning.
 </LessonNote>
 
 </MdxPage>
@@ -1099,7 +1134,7 @@ Bốn kết quả dưới đây cho thấy paper còn đi xa hơn thí nghiệm 
     {
       eyebrow: '3 · Freeze embedding và các layer đầu',
       value: '44,22% -> 99,93%',
-      insight: '“Tầng dưới” được tính từ phía input: token embedding và các Transformer block đầu tiên. Khi học Task mới, paper giữ nguyên tham số ở những tầng này và chỉ cập nhật các block phía trên cùng output head. Cách làm này giúp tránh phá alignment cũ, nhưng freeze quá nhiều tầng sẽ khiến model khó học Task mới.',
+      insight: '"Tầng dưới" được tính từ phía input: token embedding và các Transformer block đầu tiên. Khi học Task mới, paper giữ nguyên tham số ở những tầng này và chỉ cập nhật các block phía trên cùng output head. Cách làm này giúp tránh phá alignment cũ, nhưng freeze quá nhiều tầng sẽ khiến model khó học Task mới.',
       tone: 'accent',
     },
     {
@@ -1145,7 +1180,7 @@ Từ đó, có bốn câu hỏi mà notebook hiện tại chưa trả lời đư
 />
 
 <LessonNote>
-  Từ lab này, ta chỉ nên kết luận: **fine-tune lần lượt làm model quên Task A trong thí nghiệm này, và replay giúp giảm mức quên đó**. Muốn kết luận “kiến thức vẫn còn, chỉ mất cách truy xuất”, ta cần thêm thí nghiệm khôi phục và các phân tích sâu hơn như paper.
+  Từ lab này, ta chỉ nên kết luận: **fine-tune lần lượt làm model quên Task A trong thí nghiệm này, và replay giúp giảm mức quên đó**. Muốn kết luận "kiến thức vẫn còn, chỉ mất cách truy xuất", ta cần thêm thí nghiệm khôi phục và các phân tích sâu hơn như paper.
 </LessonNote>
 
 </MdxPage>
