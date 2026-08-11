@@ -42,6 +42,10 @@ Nguồn: [Shi et al., §4.3.4](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS4).
 
 Nhóm retrieval-based không cố ghi mọi correction trực tiếp vào cùng một tập tham số. Thay vào đó, model lưu update ở cấu trúc có thể được truy xuất khi input phù hợp xuất hiện.
 
+<LessonNote>
+  Retrieval ở đây không hoàn toàn đồng nghĩa với pipeline RAG tài liệu phổ biến. GRACE, MELO và Larimar truy xuất correction, adaptor hoặc episodic memory được thiết kế riêng cho model editing; mục tiêu là áp dụng đúng một edit trong chuỗi update, không chỉ thêm một đoạn tài liệu vào prompt.
+</LessonNote>
+
 ### [GRACE](https://arxiv.org/abs/2211.11031)
 
 GRACE lấy hidden activation làm **key** và lưu correction trong các key–value adaptor rời rạc. Khi activation mới nằm gần một key đã lưu, adaptor tương ứng được kích hoạt để áp dụng edit.

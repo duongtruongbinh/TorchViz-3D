@@ -7,14 +7,15 @@ export const lessonMetadata = {
     'Đặc điểm LLM truyền thống',
     'Hạn chế trong môi trường thực tế',
     'Lý do không huấn luyện lại từ đầu',
+    'RAG và Continual Learning',
     'Mục tiêu cốt lõi của Continual Learning',
     'Thách thức khi dữ liệu thay đổi',
     'So sánh Continual Learning',
     'Baseline khi có toàn bộ lịch sử',
   ],
-  keywords: ['LLM', 'Continual Learning', 'Pre-trained', 'Fine-tune', 'Quiz'],
-  conceptIds: ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
-  pageCount: 7,
+  keywords: ['LLM', 'Continual Learning', 'RAG', 'Pre-trained', 'Fine-tune', 'Quiz'],
+  conceptIds: ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'rag-vs-continual-learning', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
+  pageCount: 8,
 }
 
 <MdxQuiz id="continual-learning-llm-overview-quiz" questions={[
@@ -57,8 +58,22 @@ export const lessonMetadata = {
       { id: 'opt2', label: 'Vì checkpoint cũ không thể dùng làm điểm khởi đầu cho một lần cập nhật mới.' },
       { id: 'opt4', label: 'Vì full-history retraining chỉ phù hợp khi dữ liệu mới có cùng phân phối với dữ liệu cũ.' },
     ],
-    success: 'Chính xác! Pre-train lại LLM từ đầu tốn chi phí GPU và thời gian khổng lồ, do đó Continual Learning là giải pháp bắt buộc để tiết kiệm tài nguyên.',
+    success: 'Chính xác! Pre-train lại LLM từ đầu tốn chi phí GPU và thời gian rất lớn, tạo động lực cho các cách cập nhật hiệu quả hơn.',
     error: 'Chưa đúng. Hãy cân nhắc về yếu tố chi phí tính toán và tài nguyên GPU.',
+  },
+  {
+    id: 'rag-vs-continual-learning',
+    title: 'RAG và Continual Learning',
+    prompt: 'Một team muốn model duy trì policy trả lời mới ngay cả khi hệ thống không truy xuất được tài liệu. Vì sao Continual Learning vẫn liên quan thay vì chỉ dùng RAG?',
+    mode: 'single',
+    options: [
+      { id: 'opt3', label: 'Vì RAG bổ sung context nhưng không tự cập nhật backbone; hành vi cần tồn tại khi thiếu tài liệu vẫn đòi hỏi model adaptation và kiểm tra retention.', isCorrect: true },
+      { id: 'opt1', label: 'Vì việc đọc cùng policy qua nhiều lần inference sẽ dần ghi policy đó vào backbone dù không có bước cập nhật tham số.' },
+      { id: 'opt2', label: 'Vì RAG và model adaptation trở nên tương đương khi retrieval luôn trả về đúng tài liệu.' },
+      { id: 'opt4', label: 'Vì Continual Learning chỉ dùng để giảm kích thước retrieval index khi context window không đủ dài.' },
+    ],
+    success: 'Đúng. RAG có thể cung cấp evidence mới lúc suy luận, còn thay đổi hành vi bền vững của model là một mục tiêu thích nghi khác và kéo theo rủi ro forgetting.',
+    error: 'Hãy phân biệt phần được thay đổi: context của lần suy luận hay năng lực và hành vi của model.',
   },
   {
     id: 'cl-core-goal',

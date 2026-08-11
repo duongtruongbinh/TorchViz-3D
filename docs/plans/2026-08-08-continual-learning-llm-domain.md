@@ -315,6 +315,14 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   Matplotlib plot and asset, unused plotting/helper imports, duplicate seed
   calls, the unused NLL-threshold constant, and unconsumed qualitative-example
   storage; aligned the lesson metadata with the revised baseline-summary title.
+- 2026-08-11 — Added a beginner-facing RAG comparison to the course overview:
+  retrieval changes inference context while continual adaptation targets model
+  capability or behavior that must persist without a retrieved document. Added
+  matching quiz coverage and bounded cross-references in Financial and
+  Scientific DAP, CMR, and controllable-memory future directions, including
+  ClimateGPT as a hybrid DAP, instruction-tuning, and retrieval-augmentation
+  example. The quiz bank now contains 158 questions, with the 157 single-choice
+  answers distributed as evenly as mathematically possible across A/B/C/D.
 
 # Verification
 

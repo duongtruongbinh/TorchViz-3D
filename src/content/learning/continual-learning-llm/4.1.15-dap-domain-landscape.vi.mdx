@@ -83,6 +83,10 @@ Các hướng khác trong survey gồm replay dữ liệu tổng quát, adapter 
 
 Financial DAP thường bắt đầu từ corpus rất lớn: [BBT-Fin](https://arxiv.org/abs/2302.09432) dùng khoảng **80B token**, còn [CFGPT](https://arxiv.org/abs/2309.10654) xây dựng corpus khoảng **141B token**. Tuy nhiên, survey lưu ý cả hai không đánh giá trực tiếp vertical forgetting.
 
+<LessonNote>
+  Bảng 2 của survey ghi nhận [Takahashi et al.](https://arxiv.org/abs/2404.08262) đánh giá Japanese business LLM sau DAP bằng cả task trực tiếp và RAG. Thiết kế này đặt retrieval cạnh model adaptation trong cùng hệ thống đánh giá; nó không phải ablation chứng minh RAG có thể thay cho DAP.
+</LessonNote>
+
 ### [Efficient Continual Pre-training](https://arxiv.org/abs/2311.08545)
 
 Paper chọn khoảng **10% dữ liệu** có tính mới và đa dạng để train FinPythia. Trong setup của paper, tập đã chọn vượt phương án dùng toàn bộ corpus DAP.
@@ -112,6 +116,10 @@ Xuanyuan 2.0 dùng hybrid tuning để trộn dữ liệu tổng quát và tài 
 ## Scientific
 
 Scientific DAP trải rộng từ đại dương và địa khoa đến thiên văn, như [OceanGPT](https://arxiv.org/abs/2310.02031), [K2](https://arxiv.org/abs/2306.05064), [AstroLLaMA](https://arxiv.org/abs/2309.06126) và [MarineGPT](https://arxiv.org/abs/2310.13596). Điểm chung là đưa tri thức khoa học chuyên ngành vào model; cách giữ reasoning và language ability lại khác nhau.
+
+<LessonNote>
+  [ClimateGPT](https://arxiv.org/abs/2401.09646) minh họa một pipeline kết hợp: DAP và instruction tuning thích nghi model cho climate science, còn retrieval augmentation đưa tài liệu liên quan vào context lúc suy luận. Ví dụ này cho thấy RAG có thể bổ sung cho DAP; survey không cung cấp ablation để kết luận retrieval có thể thay thế phần model adaptation.
+</LessonNote>
 
 ### [GeoGalactica](https://arxiv.org/abs/2401.00434)
 
