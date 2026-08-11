@@ -298,6 +298,15 @@ content, quiz, illustration, and lab iterations completed on the feature branch.
   click target, and restrained hover, active, and keyboard-focus feedback.
   Removed the obsolete shared rail-toggle token, its stale wiring assertions,
   and always-true render branches left behind by the navigation redesign.
+- 2026-08-11 — Polished the opening lessons with four focused illustrations for
+  the static-checkpoint gap, full-retraining cost, new-data-only loss, and the
+  context-dependent stability–plasticity trade-off. Reworked the forgetting lab
+  opening with a bounded non-reproduction warning, concrete Task B data and
+  wrong-output examples, and a separate experiment-process page; removed
+  redundant numbered prefixes from its code headings. Added distinct normal and
+  warning callout treatments, regular-weight quiz answers, navy lesson headings,
+  and an orange circular marker for lab nodes. Removed superseded lesson images
+  and the temporary full-row lab styling left behind during iteration.
 
 # Verification
 

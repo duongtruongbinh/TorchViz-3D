@@ -366,7 +366,7 @@ function OrderRowOverlay({
   return (
     <div
       className={cx(
-        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-xl',
+        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-normal leading-6 shadow-xl',
         quizPalette.orderRow,
       )}
       style={{ transform: 'scale(1.02)' }}
@@ -513,7 +513,7 @@ function TokenChip({
         event.dataTransfer.setData('text/plain', optionId);
       }}
       className={cx(
-        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-sm font-black leading-6 shadow-sm active:cursor-grabbing',
+        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-sm font-normal leading-6 shadow-sm active:cursor-grabbing',
         isIncorrect ? quizPalette.tokenChipIncorrect : quizPalette.tokenChip,
       )}
     >
@@ -584,7 +584,7 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
 
 function getQuizOptionClass(quizPalette: QuizPalette, isDisabled: boolean, isSelected: boolean): string {
   return cx(
-    'inline-flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm font-black leading-6 transition-colors disabled:cursor-not-allowed disabled:opacity-45',
+    'inline-flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm font-normal leading-6 transition-colors disabled:cursor-not-allowed disabled:opacity-45',
     isSelected
       ? quizPalette.optionSelected
       : isDisabled
@@ -595,7 +595,7 @@ function getQuizOptionClass(quizPalette: QuizPalette, isDisabled: boolean, isSel
 
 function getQuizOrderRowClass(themeClasses: ReturnType<typeof getLearningLabTheme>, quizPalette: QuizPalette, isDragging: boolean): string {
   return cx(
-    'flex min-h-12 cursor-grab items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-sm transition-colors active:cursor-grabbing',
+    'flex min-h-12 cursor-grab items-center gap-3 rounded-lg border px-3 py-2 text-sm font-normal leading-6 shadow-sm transition-colors active:cursor-grabbing',
     themeClasses.focusRing,
     quizPalette.orderRow,
     isDragging && quizPalette.orderRowDragging,

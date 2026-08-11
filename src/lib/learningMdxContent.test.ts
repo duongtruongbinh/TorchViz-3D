@@ -85,7 +85,7 @@ const expectedPageCounts: Record<string, number> = {
   'continual-learning-llm-overview-quiz': 7,
   'catastrophic-forgetting-in-llms': 1,
   'catastrophic-forgetting-in-llms-quiz': 4,
-  'catastrophic-forgetting-code-lab': 7,
+  'catastrophic-forgetting-code-lab': 8,
   'catastrophic-forgetting-code-lab-quiz': 4,
   'cl-methods-taxonomy-and-replay': 1,
   'cl-methods-taxonomy-and-replay-quiz': 3,

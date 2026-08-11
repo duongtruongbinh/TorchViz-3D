@@ -5,6 +5,7 @@ export const lessonMetadata = {
   title: "Lab đo Forgetting",
   headings: [
     'Tổng quan Bài lab & Phương pháp Đánh giá',
+    'Quy trình Thực nghiệm (5 Bước)',
     '1. Thiết lập Môi trường & Khởi tạo Thực nghiệm',
     '2. Sinh Dữ liệu Tiểu sử Giả lập',
     '3. Nạp Mô hình Pythia-160M & Hàm Đánh giá NLL',
@@ -14,7 +15,7 @@ export const lessonMetadata = {
   ],
   keywords: ['Pythia-160M', 'Catastrophic Forgetting', 'Hands-on Lab', 'Python', 'HuggingFace', 'Answer NLL', 'Continual Learning'],
   conceptIds: ['code-lab-forgetting-phenomenon', 'code-lab-cause-of-forgetting', 'code-lab-metric-sensitivity', 'code-lab-solutions-forward'],
-  pageCount: 7,
+  pageCount: 8,
 }
 
 <MdxPage page={0}>
@@ -22,6 +23,10 @@ export const lessonMetadata = {
 ## Tổng quan Bài lab & Phương pháp Đánh giá
 
 Bài lab thực hành này giúp bạn tự tay kiểm chứng hiện tượng **Catastrophic Forgetting** (Thảm họa quên tri thức) trên mô hình ngôn ngữ thực tế (**Pythia-160M**), được truyền cảm hứng từ thiết lập thực nghiệm Biography trong công trình nghiên cứu [Zheng et al., Spurious Forgetting in Continual Learning of Language Models (ICLR 2025)](https://arxiv.org/abs/2501.13453).
+
+<LessonNote tone="warning">
+  **Lưu ý:** Đây chỉ là setup tình huống được đơn giản hóa để minh họa hiện tượng, không phải reproduction chính thức của paper. Model, dữ liệu, hyperparameter và môi trường chạy có khác biệt, nên các con số thu được có thể không trùng khớp hoàn toàn với kết quả được báo cáo trong paper.
+</LessonNote>
 
 ### 1. Bối cảnh & Ý tưởng Bài toán
 
@@ -37,7 +42,30 @@ Hãy tưởng tượng bạn dạy cho một mô hình AI học thuộc lòng l�
 
 Sau đó, bạn tiếp tục yêu cầu con AI đó học thêm lý lịch của một nhóm người hoàn toàn mới (**Nhiệm vụ B**).
 
-Điều gì sẽ xảy ra? Khi bạn quay lại hỏi câu hỏi về nhóm người A ban đầu, mô hình AI đã hoàn toàn **"quên sạch"** tri thức cũ và trả lời sai hết. Trong trí tuệ nhân tạo, đây gọi là hiện tượng **Catastrophic Forgetting (Thảm họa quên tri thức)**: khi học tri thức mới mà không có phương pháp bảo vệ, các cập nhật mô hình sẽ đè nát toàn bộ tri thức cũ đã tích lũy.
+**Bảng dữ liệu lý lịch nhân vật mẫu (Nhiệm vụ B):**
+
+| Họ và tên | Ngày sinh | Quê quán | Trường đại học | Chuyên ngành | Nơi làm việc |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Sawyer Sinclair** | `2000-01-01` | `B-BirthCity-00` | `B-University-00` | `B-Major-00` | `B-Company-00` |
+| **Taylor Thayer** | `2001-02-08` | `B-BirthCity-01` | `B-University-01` | `B-Major-01` | `B-Company-01` |
+| **Harper Winslow** | `2002-03-15` | `B-BirthCity-02` | `B-University-02` | `B-Major-02` | `B-Company-02` |
+
+Điều gì sẽ xảy ra? Khi bạn quay lại hỏi câu hỏi về nhóm người A ban đầu:
+
+```console
+Where was Avery Alden born?
+Answer:
+```
+
+Mô hình AI đã hoàn toàn **"quên sạch"** tri thức cũ và trả lời sai hết. Ví dụ:
+
+```output
+Model answer: B-BirthCity-00
+Expected:     A-BirthCity-00
+Result:       Incorrect
+```
+
+Trong trí tuệ nhân tạo, đây gọi là hiện tượng **Catastrophic Forgetting (Thảm họa quên tri thức)**: khi học tri thức mới mà không có phương pháp bảo vệ, các cập nhật mô hình sẽ ghi đè toàn bộ tri thức cũ đã tích lũy.
 
 <LessonNote>
   **Bài lab này giúp bạn:**
@@ -45,7 +73,11 @@ Sau đó, bạn tiếp tục yêu cầu con AI đó học thêm lý lịch của
   - Thấy rõ sự thay đổi từ lúc AI nhớ hoàn hảo 100% cho đến khi sụt giảm về 0% sau khi học nhiệm vụ mới.
 </LessonNote>
 
-### 2. Quy trình Thực nghiệm (5 Bước)
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Quy trình Thực nghiệm (5 Bước)
 
 | Bước (Step) | Tên bước (Step Name) |
 | :---: | :--- |
@@ -56,18 +88,18 @@ Sau đó, bạn tiếp tục yêu cầu con AI đó học thêm lý lịch của
 | **Bước 5** | Huấn luyện Continual Task B & Phân tích Forgetting |
 
 <LessonNote>
-  **🎯 Kết quả kỳ vọng:**
-  - **Sau khi học Task A:** Mô hình ghi nhớ thuộc lòng 100% dữ liệu Nhiệm vụ A.
-  - **Sau khi học tiếp Task B:** Mô hình học tốt Nhiệm vụ B, nhưng **quên hoàn toàn** Nhiệm vụ A.
+  **Kết quả kỳ vọng:**
+  1. Mô hình ghi nhớ thuộc lòng 100% dữ liệu Nhiệm vụ A.
+  2. Mô hình học tốt Nhiệm vụ B, nhưng **quên hoàn toàn** Nhiệm vụ A.
 </LessonNote>
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## 1. Thiết lập Môi trường & Khởi tạo Thực nghiệm
 
-### Bước 1: Chọn GPU Runtime & Cài đặt thư viện phụ thuộc
+### Chọn GPU Runtime & Cài đặt thư viện phụ thuộc
 
 Nếu chạy trên **Google Colab**, hãy đảm bảo bạn đã bật GPU trước khi thực thi mã nguồn: vào menu **Runtime** ➔ **Change runtime type** ➔ chọn **T4 GPU** (hoặc GPU tương đương).
 
@@ -75,7 +107,7 @@ Nếu chạy trên **Google Colab**, hãy đảm bảo bạn đã bật GPU trư
 pip -q install "transformers>=4.44,<5" "datasets>=2.20,<4" "accelerate>=0.33,<2" pandas matplotlib
 ```
 
-### Bước 2: Import các thư viện phụ thuộc
+### Import các thư viện phụ thuộc
 
 ```python
 import math
@@ -110,7 +142,7 @@ from transformers import (
 | **`DataCollatorForLM`** | Xử lý Batch & Padding | Tự động gom các chuỗi token thành batch, xử lý padding và nhãn cho Causal LM (`mlm=False`). |
 | **`Trainer & Arguments`** | Huấn luyện & Tối ưu | Quản lý vòng lặp huấn luyện, tính loss, cập nhật gradient, hỗ trợ `fp16` và GPU dataloader. |
 
-### Bước 3: Cố định Random Seed & Cấu hình Tham số Thực nghiệm
+### Cố định Random Seed & Cấu hình Tham số Thực nghiệm
 
 ```python
 # Cố định random seed để đảm bảo kết quả thực nghiệm có thể tái lập
@@ -166,7 +198,7 @@ Stress Mode: True
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## 2. Sinh Dữ liệu Tiểu sử Giả lập (Synthetic Biography Data)
 
@@ -174,7 +206,7 @@ Mỗi nhân vật giả lập sở hữu 6 thuộc tính thực tế: `birth_cit
 
 Để đảm bảo kết quả đánh giá không bị nhiễu bởi sự trùng lặp ngẫu nhiên giữa các đáp án (*chance overlap*), dữ liệu **Task A** và **Task B** được thiết kế có **tập từ vựng đáp án tách biệt hoàn toàn** (<InlineMath formula="A \cap B = \emptyset" />).
 
-### Bước 4: Định nghĩa danh sách nhân vật & Hàm sinh dữ liệu
+### Định nghĩa danh sách nhân vật & Hàm sinh dữ liệu
 
 ```python
 FIRST_NAMES = [
@@ -225,7 +257,7 @@ def make_people(n, task, offset=0):
     return people
 ```
 
-### Bước 4.1: Sinh dữ liệu & Kiểm tra tính ngắt kết nối (Disjoint Check)
+### Sinh dữ liệu & Kiểm tra tính ngắt kết nối (Disjoint Check)
 
 ```python
 task_a_people = make_people(N_PEOPLE_PER_TASK, task="A", offset=0)
@@ -254,7 +286,7 @@ Số lượng đáp án trùng lặp giữa A và B: 0
 | **Task B** | **Sawyer Sinclair** | `2000-01-01` | `B-BirthCity-00` | `B-University-00` | `B-Major-00` | `B-Company-00` |
 | **Task B** | **Taylor Thayer** | `2001-02-08` | `B-BirthCity-01` | `B-University-01` | `B-Major-01` | `B-Company-01` |
 
-### Bước 5: Mẫu văn bản tiểu sử & Bộ câu hỏi QA Probes
+### Mẫu văn bản tiểu sử & Bộ câu hỏi QA Probes
 
 ```python
 def biography_text(p):
@@ -295,7 +327,7 @@ def qa_pairs(people):
 | **`qa_pairs` Prompt** (Câu hỏi probe) | `Where was Avery Alden born?\nAnswer:` |
 | **`qa_pairs` Answer** (Đáp án chuẩn) | ` A-BirthCity-00` |
 
-### Bước 5.1: Đóng gói tập dữ liệu huấn luyện & Đảo ngẫu nhiên
+### Đóng gói tập dữ liệu huấn luyện & Đảo ngẫu nhiên
 
 ```python
 def training_texts(people, repeats, qa_repeats=6):
@@ -334,11 +366,11 @@ Task B train texts: 2016 | QA probes: 144
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## 3. Nạp Mô hình Pythia-160M & Hàm Đánh giá Answer NLL
 
-### Bước 6: Load Tokenizer và Model Pythia-160M
+### Load Tokenizer và Model Pythia-160M
 
 ```python
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
@@ -357,7 +389,7 @@ print(f"Tổng số tham số mô hình: {n_params / 1e6:.1f}M")
 Tổng số tham số mô hình: 162.3M
 ```
 
-### Bước 7: Tokenize dữ liệu huấn luyện & Khởi tạo Collator
+### Tokenize dữ liệu huấn luyện & Khởi tạo Collator
 
 ```python
 def tokenize_training_texts(texts):
@@ -377,7 +409,7 @@ train_b_ds = tokenize_training_texts(train_b_texts)
 collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 ```
 
-### Bước 8.1: Hàm tính Answer NLL (Chỉ tính loss trên phần đáp án)
+### Hàm tính Answer NLL (Chỉ tính loss trên phần đáp án)
 
 Metric chính để đo lường mức độ ghi nhớ tri thức là **Answer Negative Log-Likelihood (NLL)**. Ta tính loss **chỉ trên các token của đáp án** (bằng cách gán nhãn `-100` cho phần prompt câu hỏi).
 
@@ -411,7 +443,7 @@ def answer_nll(model, rows, max_rows=None):
     return float(np.mean(losses))
 ```
 
-### Bước 8.2: Hàm tính Exact Match Accuracy (%)
+### Hàm tính Exact Match Accuracy (%)
 
 Hàm này cho mô hình sinh văn bản bằng giải thuật Greedy Search và so sánh chuỗi đáp án sinh ra với đáp án chuẩn.
 
@@ -444,7 +476,7 @@ def greedy_exact_match(model, rows, max_rows=48):
     return correct / len(rows), examples
 ```
 
-### Bước 8.3: Hàm Đánh giá Tổng hợp Đa Nhiệm vụ (Task A & Task B)
+### Hàm Đánh giá Tổng hợp Đa Nhiệm vụ (Task A & Task B)
 
 ```python
 def evaluate_tasks(model, stage):
@@ -468,7 +500,7 @@ def evaluate_tasks(model, stage):
     return row, {"A": ex_a, "B": ex_b}
 ```
 
-### Bước 9: Đánh giá Giai đoạn Base (Gốc)
+### Đánh giá Giai đoạn Base (Gốc)
 
 ```python
 results = []
@@ -488,7 +520,7 @@ pd.DataFrame(results)
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## 4. Đọc Kết quả Giai đoạn Base — Mô hình Chưa Học
 
@@ -553,11 +585,11 @@ Mối quan hệ toán học trực tiếp giữa Perplexity và NLL:
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## 5. Huấn luyện Task A & Đánh giá Giai đoạn 1
 
-### Bước 10: Hàm Helper cho Giai đoạn Huấn luyện
+### Hàm Helper cho Giai đoạn Huấn luyện
 
 ```python
 def train_stage(model, train_ds, stage_name, epochs, lr):
@@ -588,7 +620,7 @@ def train_stage(model, train_ds, stage_name, epochs, lr):
     return model
 ```
 
-### Bước 11: Huấn luyện Task A & Kiểm tra khả năng tiếp thu tri thức
+### Huấn luyện Task A & Kiểm tra khả năng tiếp thu tri thức
 
 ```python
 # Huấn luyện mô hình trên Task A (3 Epochs)
@@ -621,7 +653,7 @@ pd.DataFrame(results)
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## 6. Huấn luyện Continual Task B & Phân tích Forgetting
 
@@ -630,7 +662,7 @@ Bây giờ ta thực hiện bước can thiệp cốt lõi của **Continual Lea
 - **Không reset** tham số mô hình về trạng thái ban đầu.
 - **Không thực hiện replay** (tái sử dụng) bất kỳ ví dụ nào từ Task A.
 
-### Bước 12: Fine-tune nối tiếp Task B
+### Fine-tune nối tiếp Task B
 
 ```python
 # Tiếp tục fine-tune mô hình trên Task B (5 Epochs)
@@ -663,7 +695,7 @@ results_df
 
 * 🔴 **Nhiệm vụ A (Quên thảm khốc):** **`A_nll`** tăng vọt từ `0.000085` ➔ **`5.8178`**, kéo **`A_exact_match`** sụt thẳng từ **`1.0` (100%) ➔ `0.0` (0%)**.
 
-### Bước 13: Trực quan hóa Biến thiên Forgetting qua Biểu đồ
+### Trực quan hóa Biến thiên Forgetting qua Biểu đồ
 
 ```python
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4.2))

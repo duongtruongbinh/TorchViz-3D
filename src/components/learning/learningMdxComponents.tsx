@@ -270,13 +270,24 @@ export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = f
   );
 }
 
-export function LessonNote({ children }: { children?: ReactNode }) {
+export function LessonNote({ children, tone = 'default' }: { children?: ReactNode; tone?: 'default' | 'warning' }) {
   const themeClasses = useLearningMdxTheme();
+  const isWarning = tone === 'warning';
   return (
     <div
       className={cx(
-        'mt-5 grid gap-2 rounded-lg border border-[#205089]/20 bg-[#205089]/5 px-4 py-3.5 text-sm font-semibold leading-6 dark:border-[#A8D4FF]/25 dark:bg-[#A8D4FF]/10 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
-        themeClasses.sectionAccent.note
+        'mt-5 grid rounded-lg border px-4 py-3 text-sm leading-6 [&_p]:!text-inherit [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-2 [&_ol]:pl-5 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
+        isWarning
+          ? themeClasses.isLight
+            ? 'border-[#D5B43A]/35 bg-[#FFF8D8] font-normal text-[#263B5B]'
+            : 'border-[#F4C84A]/24 bg-[#F4C84A]/10 font-normal text-[#F2F6FA]'
+          : cx(
+            'gap-2 font-semibold',
+            themeClasses.isLight
+              ? 'border-[#2F6B55]/18'
+              : 'border-[#A8D4FF]/25',
+            themeClasses.sectionAccent.note,
+          ),
       )}
     >
       {children}

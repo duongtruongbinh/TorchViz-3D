@@ -8,7 +8,7 @@
   }
 
   .learning-mdx-content h2 {
-    @apply text-xl font-black;
+    @apply text-xl font-black text-[#123B68];
   }
 
   .learning-mdx-content h3 {
