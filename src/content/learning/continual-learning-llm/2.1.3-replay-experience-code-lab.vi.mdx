@@ -21,7 +21,7 @@ export const lessonMetadata = {
     'Paper còn phân tích gì?',
   ],
   keywords: ['Pythia-160M', 'Experience Replay', 'Catastrophic Forgetting', 'Spurious Forgetting', 'Replay Buffer', 'LLM Fine-tuning'],
-  conceptIds: ['replay-lab-comparison', 'replay-lab-environment-config', 'replay-lab-data-separation', 'replay-lab-tokenization-pipeline', 'replay-lab-evaluation-metrics', 'replay-lab-training-helper', 'replay-lab-naive-result', 'replay-lab-buffer-composition', 'replay-lab-retention-result', 'replay-lab-spurious-forgetting-nuance', 'replay-lab-operational-takeaway', 'replay-lab-multiseed-design', 'replay-lab-threshold-evidence', 'replay-lab-paper-mapping', 'replay-lab-paper-scope'],
+  conceptIds: ['replay-lab-environment-config', 'replay-lab-data-separation', 'replay-lab-evaluation-metrics', 'replay-lab-naive-result', 'replay-lab-buffer-composition', 'replay-lab-retention-result', 'replay-lab-spurious-forgetting-nuance', 'replay-lab-operational-takeaway', 'replay-lab-threshold-evidence', 'replay-lab-paper-mapping', 'replay-lab-paper-scope'],
   pageCount: 15,
 }
 
@@ -964,7 +964,7 @@ print(multiseed_df.to_string(index=False))
 ```
 
 <LessonImage
-  assetPath="continual-learning-llm/output1.png"
+  assetPath="continual-learning-llm/02-replay-threshold-by-seed.png"
   alt="Biểu đồ đường thể hiện Task A Prefix Match theo tỷ lệ replay cho ba seed 47, 123 và 2026, cùng đường ngưỡng 80 phần trăm"
   caption="Đọc từng seed riêng cho thấy 5% replay chưa ổn định: seed 47 vẫn dưới ngưỡng 80%, trong khi từ 7% cả ba seed đều vượt ngưỡng."
 />
@@ -1035,7 +1035,7 @@ print(pass_rates.to_string(index=False))
 ```
 
 <LessonImage
-  assetPath="continual-learning-llm/output.png"
+  assetPath="continual-learning-llm/03-replay-threshold-mean-std.png"
   alt="Biểu đồ Task A Prefix Match trung bình theo tỷ lệ replay với thanh sai số giữa các seed và đường ngưỡng 80 phần trăm"
   caption="Đường trung bình tăng theo tỷ lệ replay; thanh sai số nhắc rằng mean vượt 80% ở mức 5% chưa đồng nghĩa mọi seed đều đạt gate."
 />

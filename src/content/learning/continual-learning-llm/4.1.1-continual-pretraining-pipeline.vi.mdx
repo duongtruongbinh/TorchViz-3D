@@ -7,6 +7,7 @@ export const lessonMetadata = {
   keywords: ['Continual Learning', 'Large Language Model', 'Continual Pre-training', 'Full Replay', 'Sparse Replay'],
   conceptIds: [
   "cpt-operator",
+  "cpt-research-access",
   "cpt-generalization",
   "cpt-memory-constraint",
   "cpt-replay-choice"
@@ -16,6 +17,8 @@ export const lessonMetadata = {
 ## Ai thực hiện Continual Pre-training?
 
 Do **Continual Pre-training (CPT)** cần dữ liệu, hạ tầng, đội ngũ và compute rất lớn, nên đối tượng chính của giai đoạn này là **supplier**.
+
+Đây cũng là một nguyên nhân thực tế khiến paper CPT quy mô LLM còn tương đối ít. Researcher cá nhân khó tái tạo toàn bộ pipeline ở quy mô supplier, nhưng vẫn có thể tham gia bằng model open-weight nhỏ hơn, phương pháp tiết kiệm compute, data selection hoặc benchmark đánh giá CPT.
 
 Khi supplier có thể lưu toàn bộ dữ liệu lịch sử, memory constraint nghiêm ngặt của Continual Learning truyền thống không còn là nút thắt lớn nhất. Câu hỏi chuyển thành: **có thật sự cần một thuật toán Continual Learning phức tạp hay không?**
 

@@ -92,7 +92,7 @@ const expectedPageCounts: Record<string, number> = {
   'replay-introduction': 2,
   'replay-introduction-quiz': 3,
   'replay-experience-code-lab': 15,
-  'replay-experience-code-lab-quiz': 15,
+  'replay-experience-code-lab-quiz': 11,
 };
 const expectedQuizQuestionIds: Record<string, string[]> = {
   'catastrophic-forgetting-code-lab-quiz': ['code-lab-forgetting-phenomenon', 'code-lab-cause-of-forgetting', 'code-lab-metric-sensitivity', 'code-lab-solutions-forward'],
@@ -100,7 +100,7 @@ const expectedQuizQuestionIds: Record<string, string[]> = {
   'continual-learning-llm-overview-quiz': ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'rag-vs-continual-learning', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
   'cl-methods-taxonomy-and-replay-quiz': ['cl-method-families', 'optimization-based-cl', 'representation-based-cl'],
   'replay-introduction-quiz': ['replay-training-objective', 'replay-constraints', 'replay-bound-tradeoff'],
-  'replay-experience-code-lab-quiz': ['replay-lab-comparison', 'replay-lab-environment-config', 'replay-lab-data-separation', 'replay-lab-tokenization-pipeline', 'replay-lab-evaluation-metrics', 'replay-lab-training-helper', 'replay-lab-naive-result', 'replay-lab-buffer-composition', 'replay-lab-retention-result', 'replay-lab-spurious-forgetting-nuance', 'replay-lab-operational-takeaway', 'replay-lab-multiseed-design', 'replay-lab-threshold-evidence', 'replay-lab-paper-mapping', 'replay-lab-paper-scope'],
+  'replay-experience-code-lab-quiz': ['replay-lab-environment-config', 'replay-lab-data-separation', 'replay-lab-evaluation-metrics', 'replay-lab-naive-result', 'replay-lab-buffer-composition', 'replay-lab-retention-result', 'replay-lab-spurious-forgetting-nuance', 'replay-lab-operational-takeaway', 'replay-lab-threshold-evidence', 'replay-lab-paper-mapping', 'replay-lab-paper-scope'],
   'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
   'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
   'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
@@ -205,8 +205,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 158);
-  assert.equal(singleQuestions.length, 157);
+  assert.equal(questions.length, 156);
+  assert.equal(singleQuestions.length, 155);
   assert.equal(multiQuestions.length, 1);
   assert.equal(multiQuestions[0]?.id, 'replay-constraints');
   assert.ok(questions.every((question) => question.optionCount === 4));
@@ -244,8 +244,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
       if (question.mode === 'single') singlePositionCounts[index] += 1;
     }
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [39, 39, 39, 40]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [39, 40, 40, 40]);
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [38, 39, 39, 39]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [39, 39, 39, 40]);
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {

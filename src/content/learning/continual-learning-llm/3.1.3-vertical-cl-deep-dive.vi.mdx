@@ -28,15 +28,10 @@ Pipeline điển hình là **pre-training → Domain-Adaptive Pre-training (DAP)
 
 Pre-training dùng một corpus không gán nhãn rất lớn, bao phủ nhiều domain, để tạo ra foundation model có năng lực tổng quát. Đây thường là tầng do upstream supplier vận hành.
 
-<CourseCards
-  ariaLabel="Ba yêu cầu chính của pre-training"
-  exampleLabel="Cần gì?"
-  takeawayLabel="Mục đích"
-  items={[
-    { title: 'Dữ liệu', example: 'Corpus rất lớn từ nhiều nguồn và nhiều domain.', takeaway: 'Học knowledge và representation có độ bao quát cao.' },
-    { title: 'Đội ngũ', example: 'Nhóm nghiên cứu, data, systems và evaluation quy mô lớn.', takeaway: 'Vận hành toàn bộ chu trình huấn luyện và kiểm định model.' },
-    { title: 'Compute', example: 'Cụm accelerator, storage và distributed training đáng kể.', takeaway: 'Huấn luyện model lớn trên lượng token rất cao.' },
-  ]}
+<LessonImage
+  assetPath="continual-learning-llm/02-vertical-pretraining-requirements.png"
+  alt="Ba nguồn lực của pre-training gồm dữ liệu đa domain, đội ngũ phụ trách data, systems và evaluation, cùng hạ tầng compute phân tán; kết quả là một foundation model tổng quát"
+  caption="Pre-training kết hợp corpus đa domain, đội ngũ chuyên môn và compute quy mô lớn để tạo foundation model có năng lực tổng quát."
 />
 
 Kết quả của tầng này là một checkpoint mạnh nhưng chưa tối ưu riêng cho dữ liệu nội bộ hoặc mục tiêu của từng consumer.
@@ -55,6 +50,12 @@ Kết quả của tầng này là một checkpoint mạnh nhưng chưa tối ưu
 ]} />
 
 Ví dụ, một bệnh viện có thể dùng hồ sơ và báo cáo y khoa nội bộ để thích nghi model tổng quát cho medical domain. Loại dữ liệu chuyên biệt này thường không nằm trong corpus upstream hoặc supplier không có quyền truy cập.
+
+<LessonImage
+  assetPath="continual-learning-llm/03-vertical-dap-medical-domain.png"
+  alt="Bốn bước thích nghi theo domain y khoa: pre-train model tổng quát, thu thập dữ liệu bệnh viện nội bộ, tiếp tục pre-train theo medical domain, rồi dùng checkpoint mới cho các downstream task y khoa"
+  caption="DAP tiếp tục pre-train foundation model bằng dữ liệu chuyên ngành nội bộ để tạo một checkpoint phù hợp hơn cho các downstream task trong domain đó."
+/>
 
 DAP vẫn dùng objective kiểu language modeling, nhưng distribution đã thu hẹp mạnh về một domain. Model nhờ đó bắt đầu downstream task từ một checkpoint phù hợp hơn.
 
@@ -75,6 +76,12 @@ Trước khi triển khai, model thường được fine-tune trên dữ liệu 
 Quy mô compute và đội ngũ thường cũng giảm dần theo cấu trúc tương tự. Tuy nhiên, vertical continuity có thể gồm hơn ba stage. Ví dụ, một medical model có thể đi tiếp qua các tầng **bệnh viện → khoa tim mạch → hệ thống tóm tắt bệnh án**, do các đơn vị khác nhau phụ trách.
 
 Điểm cốt lõi không phải số tầng, mà là model liên tục chuyển từ phạm vi rộng sang mục tiêu ngày càng chuyên biệt.
+
+<LessonImage
+  assetPath="continual-learning-llm/04-vertical-finetuning-specialization.png"
+  alt="Fine-tuning một model cho task cụ thể; pipeline y khoa chuyên biệt dần từ bệnh viện đến khoa tim mạch rồi hệ thống tóm tắt bệnh án, đồng thời dữ liệu, compute và đội ngũ thu hẹp theo từng tầng"
+  caption="Vertical CL có thể đi qua nhiều tầng: bệnh viện → khoa tim mạch → hệ thống tóm tắt bệnh án. Mỗi tầng thu hẹp phạm vi và nguồn lực để tối ưu cho mục tiêu chuyên biệt hơn."
+/>
 
 Nguồn: [Shi et al., §3.1](https://arxiv.org/html/2404.16789v3#S3.SS1).
 

@@ -1,4 +1,6 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import { type DragEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import {
   DndContext,
@@ -191,7 +193,7 @@ function QuizQuestion({
         quizPalette.card,
       )}>
       {promptText ? (
-        <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderInlineCode(promptText, themeClasses)}</p>
+        <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderQuizText(promptText, themeClasses)}</p>
       ) : null}
 
       {isOrderMode ? (
@@ -263,7 +265,7 @@ function QuizQuestion({
                     <Circle className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
                   )}
                 </span>
-                <span>{renderInlineCode(text(option.label, language), themeClasses)}</span>
+                <span>{renderQuizText(text(option.label, language), themeClasses)}</span>
               </button>
             );
           })}
@@ -303,7 +305,7 @@ function QuizQuestion({
           role="status"
         >
           {feedback === 'correct' ? <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" /> : <XCircle className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />}
-          <p>{renderInlineCode(text(feedback === 'correct' ? question.success : question.error, language), themeClasses)}</p>
+          <p>{renderQuizText(text(feedback === 'correct' ? question.success : question.error, language), themeClasses)}</p>
         </div>
       ) : null}
     </div>
@@ -380,8 +382,12 @@ function OrderRowOverlay({
   );
 }
 
-function renderInlineCode(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
-  return value.split(/(`[^`]+`|"[^"]+")/g).filter(Boolean).map((part, index) => {
+function renderQuizText(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
+  return value.split(/(`[^`]+`|"[^"]+"|\$[^$\n]+\$)/g).filter(Boolean).map((part, index) => {
+    if (part.startsWith('$') && part.endsWith('$') && part.length > 2) {
+      const html = katex.renderToString(part.slice(1, -1), { displayMode: false, throwOnError: false });
+      return <span key={`${index}-${part}`} className="px-0.5 [&_.katex]:text-inherit" dangerouslySetInnerHTML={{ __html: html }} />;
+    }
     const isBacktickCode = part.startsWith('`') && part.endsWith('`');
     const isQuotedCode = part.startsWith('"') && part.endsWith('"');
     if (isBacktickCode || isQuotedCode) {

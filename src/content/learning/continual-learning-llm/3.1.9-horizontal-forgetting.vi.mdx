@@ -1,8 +1,8 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'horizontal-forgetting', locale: 'vi', title: 'Horizontal Forgetting',
   headings: ['Horizontal forgetting là gì?', 'Chuỗi task dài', 'Distribution shift đột ngột'],
-  keywords: ['Horizontal Forgetting', 'Long Task Sequence', 'Abrupt Distribution Shift'],
-  conceptIds: ['horizontal-forgetting', 'horizontal-long-sequence', 'horizontal-abrupt-shift'],
+  keywords: ['Horizontal Forgetting', 'Long Task Sequence', 'Gradual Shift', 'Abrupt Distribution Shift'],
+  conceptIds: ['horizontal-forgetting', 'horizontal-long-sequence', 'horizontal-gradual-shift', 'horizontal-abrupt-shift'],
   pageCount: 3,
 }
 
@@ -12,10 +12,11 @@ export const lessonMetadata = {
 
 **Horizontal forgetting** là sự suy giảm hiệu năng trên các task hoặc stage cũ khi model tiếp tục học những stage mới theo thời gian hoặc domain.
 
-<ComparisonMatrix ariaLabel="Điều model phải làm trong Horizontal CL" columns={['Học ở stage hiện tại', 'Giữ lại từ các stage cũ']} rows={[
-  { label: 'Mục tiêu', values: ['Thích nghi với distribution mới', 'Duy trì hiệu năng đã đạt trước đó'] },
-  { label: 'Nếu mất cân bằng', values: ['Model không theo kịp dữ liệu mới', 'Model học mới nhưng quên lịch sử'] },
-]} />
+<LessonImage
+  assetPath="continual-learning-llm/01-horizontal-forgetting-overview.png"
+  alt="Model lần lượt học các stage S1, S2 và S3; khi ưu tiên stage mới, hệ thống phải cân bằng việc giữ năng lực cũ, nếu không hiệu năng S1 và S2 giảm sau cập nhật"
+  caption="Horizontal CL phải cân bằng học stage mới và giữ các stage cũ. Nếu update nghiêng quá mạnh về dữ liệu mới, hiệu năng lịch sử có thể giảm dù stage hiện tại được cải thiện."
+/>
 
 Khác với Vertical CL, các stage trong Horizontal CL thường có quy mô và vai trò tương đương nhau. Distribution giữa hai stage có thể chồng lấn một phần, nhưng mỗi lần update vẫn có thể đẩy model xa khỏi nghiệm phù hợp với dữ liệu cũ.
 
@@ -35,11 +36,18 @@ Mỗi lần cập nhật đều có thể làm hiệu năng trên lịch sử gi
   ariaLabel="Tác động của chuỗi task dài"
   exampleLabel="Điều xảy ra"
   takeawayLabel="Hàm ý"
+  threeColumns
   items={[
     { title: 'Nhiều lần update', example: 'Model lần lượt học các stage 1, 2, 3, …, T.', takeaway: 'Mỗi stage tạo thêm một cơ hội làm thay đổi knowledge cũ.' },
     { title: 'Forgetting tích lũy', example: 'Một mức giảm nhỏ lặp lại qua nhiều stage.', takeaway: 'Cần đo lại nhiều stage cũ, không chỉ stage ngay trước đó.' },
     { title: 'Continual model ensemble', example: 'Duy trì và kết hợp nhiều model hoặc checkpoint qua thời gian.', takeaway: 'Đổi thêm memory và compute để bảo toàn năng lực lịch sử.' },
   ]}
+/>
+
+<LessonImage
+  assetPath="continual-learning-llm/02-horizontal-long-task-sequence.png"
+  alt="Ba hệ quả của chuỗi task dài: model được cập nhật nhiều lần, hiệu năng các stage cũ giảm tích lũy theo thời gian, và continual ensemble đánh đổi thêm memory cùng compute để kết hợp nhiều checkpoint"
+  caption="Chuỗi càng dài càng có nhiều lần update và forgetting có thể tích lũy. Continual ensemble giữ nhiều checkpoint để bảo toàn lịch sử nhưng làm tăng memory và compute."
 />
 
 </MdxPage>
@@ -54,6 +62,12 @@ Trong Vertical CL, hướng chuyển đổi thường đã biết trước: từ
   { label: 'Gradual shift', values: ['Tin tức tháng này thay đổi nhẹ so với tháng trước', 'Representation cũ còn phù hợp một phần'] },
   { label: 'Abrupt shift', values: ['Từ hội thoại phổ thông sang hồ sơ pháp lý chuyên ngành', 'Gradient mới có thể kéo model rời xa nghiệm cũ rất nhanh'] },
 ]} />
+
+<LessonImage
+  assetPath="continual-learning-llm/03-horizontal-gradual-abrupt-shift.png"
+  alt="So sánh gradual shift với dữ liệu thay đổi nhẹ qua nhiều thời điểm và còn chồng lấn, với abrupt shift chuyển đột ngột sang domain pháp lý khiến distribution mới cách xa distribution cũ"
+  caption="Gradual shift giữ nhiều overlap giữa các stage liền kề; abrupt shift tạo khoảng cách distribution lớn hơn nên tín hiệu học mới dễ xung đột với knowledge cũ."
+/>
 
 Shift càng đột ngột, tín hiệu từ stage mới càng ít tương thích với các stage trước. Model vì thế có thể học domain mới nhanh nhưng đồng thời suy giảm đáng kể trên dữ liệu lịch sử.
 

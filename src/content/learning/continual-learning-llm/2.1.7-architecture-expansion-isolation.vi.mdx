@@ -17,7 +17,19 @@ Architecture-based methods mở rộng mạng theo thời gian để tiếp nh�
 
 Nói đơn giản, model giữ một **backbone dùng chung**, sau đó gắn thêm một mạng nhỏ cho dữ liệu hoặc task mới. Module cũ được giữ nguyên thay vì bị fine-tune lại, nên update mới không trực tiếp ghi đè phần tham số đã phục vụ task trước.
 
+<LessonImage
+  assetPath="continual-learning-llm/01-architecture-expansion-shared-backbone-branches.png"
+  alt="Bốn bước của architecture expansion: dùng backbone chung, thêm nhánh mới, khóa nhánh cũ và chọn đúng nhánh khi inference"
+  caption="Architecture-based methods giữ backbone dùng chung, thêm module theo task, khóa module cũ và chọn đúng nhánh khi inference. Zero forgetting chỉ đạt khi routing đúng."
+/>
+
 Điều kiện khó nằm ở inference: nếu task ID không có hoặc bị suy ra sai, việc cô lập tham số không bảo đảm output đúng. Vì vậy architecture expansion phổ biến hơn trong TIL và ít được khảo sát hơn trong DIL/CIL.
+
+<LessonImage
+  assetPath="continual-learning-llm/02-architecture-expansion-routing-failure.png"
+  alt="So sánh inference có Task ID với inference phải suy đoán: router chọn nhầm Expert B cho ảnh mèo nên tạo kết quả sai; TIL ít phụ thuộc routing hơn DIL và CIL"
+  caption="Expert cũ có thể được giữ nguyên nhưng output vẫn sai nếu router chọn nhầm expert. Vì TIL cung cấp Task ID, architecture expansion thường thuận lợi hơn trong TIL so với DIL và CIL."
+/>
 
 Nguồn: [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2).
 
@@ -36,8 +48,8 @@ CoLoR tách quá trình thành hai phần:
 
 <LessonImage
   assetPath="continual-learning-llm/01-architecture-expansion-lora-routing.png"
-  alt="Một shared backbone kết nối với ba module LoRA nhỏ; LoRA A và B được khóa, còn router chọn LoRA C đang hoạt động để xử lý input"
-  caption="Minh họa đơn giản hóa CoLoR: LoRA A, B và C đại diện cho các module theo dataset. Backbone trích xuất feature; router chọn module có prototype gần input nhất."
+  alt="Bốn bước của CoLoR: train LoRA và head riêng cho từng dataset, thêm expert mới mà không sửa expert cũ, tạo prototype từ feature của backbone không gắn LoRA, rồi chọn expert có prototype gần input nhất khi suy luận"
+  caption="CoLoR giữ một LoRA và head riêng cho mỗi dataset. Backbone đóng băng tạo các prototype; khi suy luận không có dataset ID, prototype gần nhất quyết định expert được kích hoạt."
 />
 
 **Ví dụ:** giả sử model lần lượt học ảnh thật, tranh vẽ và ảnh phác thảo trong DomainNet. CoLoR giữ ba bộ LoRA riêng cùng các prototype feature của từng domain. Khi nhận một ảnh phác thảo mới, feature của ảnh được so với toàn bộ prototype. Nếu prototype gần nhất thuộc domain ảnh phác thảo, router kích hoạt LoRA tương ứng rồi mới tạo dự đoán.
