@@ -23,24 +23,24 @@ export const lessonMetadata = {
   },
   {
     id: 'importance-matrix', title: 'Ma trận importance', mode: 'single',
-    prompt: 'Vì sao parameter regularization thường dùng ma trận Σ đường chéo thay cho Σ = I?',
+    prompt: 'Hai tham số quan trọng khác nhau với task cũ. Cách nào phạt chúng ở hai mức khác nhau mà không phải lưu toàn bộ ma trận tương quan?',
     options: [
-      { id: 'a', label: 'Để mã hóa task ID trực tiếp vào từng tham số trước inference.' },
-      { id: 'b', label: 'Để mỗi tham số có một trọng số importance riêng với chi phí thấp hơn ma trận đầy đủ.', isCorrect: true },
-      { id: 'c', label: 'Để khôi phục toàn bộ tương quan giữa các tham số mà không tốn thêm bộ nhớ.' },
-      { id: 'd', label: 'Để mọi tham số nhận cùng một penalty bất kể vai trò với task cũ.' },
+      { id: 'a', label: 'Dùng $\\Sigma = I$ để mọi tham số nhận cùng một penalty.' },
+      { id: 'b', label: 'Dùng $\\Sigma$ đường chéo, với mỗi tham số có một trọng số importance $\\Omega_i$ riêng.', isCorrect: true },
+      { id: 'c', label: 'Chỉ tăng $\\lambda$, vì một scalar có thể đặt penalty riêng cho từng tham số.' },
+      { id: 'd', label: 'Dùng $\\Sigma$ đầy đủ để lưu cả importance lẫn mọi tương quan giữa các cặp tham số.' },
     ],
-    success: 'Đường chéo của Σ cho mỗi tham số một trọng số Ωᵢ riêng mà không phải lưu toàn bộ tương quan.', error: 'Σ = I mới là trường hợp mọi tham số bị phạt như nhau.',
+    success: 'Đường chéo của $\\Sigma$ cho mỗi tham số một trọng số $\\Omega_i$ riêng mà không phải lưu toàn bộ tương quan.', error: '$\\Sigma = I$ mới là trường hợp mọi tham số bị phạt như nhau.',
   },
   {
     id: 'regularization-tradeoff', title: 'Trade-off', mode: 'single',
-    prompt: 'Điều gì dễ xảy ra khi λ quá lớn?',
+    prompt: 'Điều gì dễ xảy ra khi $\\lambda$ quá lớn?',
     options: [
       { id: 'a', label: 'Model luôn đạt zero forgetting và vẫn học Task B tối ưu.' },
       { id: 'b', label: 'Replay buffer tự động lớn hơn.' },
       { id: 'c', label: 'Task routing trở nên chính xác tuyệt đối.' },
       { id: 'd', label: 'Model giữ trạng thái cũ mạnh nhưng có thể underfit Task B.', isCorrect: true },
     ],
-    success: 'Regularization quá mạnh làm giảm plasticity.', error: 'λ điều khiển mức ưu tiên giữ cũ so với học mới.',
+    success: 'Regularization quá mạnh làm giảm plasticity.', error: '$\\lambda$ điều khiển mức ưu tiên giữ cũ so với học mới.',
   },
 ]} />

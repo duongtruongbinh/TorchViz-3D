@@ -1,4 +1,6 @@
 import { Check, CheckCircle2, Circle, GripVertical, RotateCcw, Square, XCircle } from 'lucide-react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import { type DragEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import {
   DndContext,
@@ -191,7 +193,7 @@ function QuizQuestion({
         quizPalette.card,
       )}>
       {promptText ? (
-        <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderInlineCode(promptText, themeClasses)}</p>
+        <p className={cx('text-base font-semibold leading-7 md:text-lg md:leading-8', quizPalette.prompt)}>{renderQuizText(promptText, themeClasses)}</p>
       ) : null}
 
       {isOrderMode ? (
@@ -263,7 +265,7 @@ function QuizQuestion({
                     <Circle className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
                   )}
                 </span>
-                <span>{renderInlineCode(text(option.label, language), themeClasses)}</span>
+                <span>{renderQuizText(text(option.label, language), themeClasses)}</span>
               </button>
             );
           })}
@@ -303,7 +305,7 @@ function QuizQuestion({
           role="status"
         >
           {feedback === 'correct' ? <CheckCircle2 className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" /> : <XCircle className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />}
-          <p>{renderInlineCode(text(feedback === 'correct' ? question.success : question.error, language), themeClasses)}</p>
+          <p>{renderQuizText(text(feedback === 'correct' ? question.success : question.error, language), themeClasses)}</p>
         </div>
       ) : null}
     </div>
@@ -366,7 +368,7 @@ function OrderRowOverlay({
   return (
     <div
       className={cx(
-        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-xl',
+        'flex min-h-12 cursor-grabbing items-center gap-3 rounded-lg border px-3 py-2 text-sm font-normal leading-6 shadow-xl',
         quizPalette.orderRow,
       )}
       style={{ transform: 'scale(1.02)' }}
@@ -380,10 +382,14 @@ function OrderRowOverlay({
   );
 }
 
-function renderInlineCode(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
-  return value.split(/(`[^`]+`|“[^”]+”)/g).filter(Boolean).map((part, index) => {
+function renderQuizText(value: string, themeClasses: ReturnType<typeof getLearningLabTheme>): ReactNode {
+  return value.split(/(`[^`]+`|"[^"]+"|\$[^$\n]+\$)/g).filter(Boolean).map((part, index) => {
+    if (part.startsWith('$') && part.endsWith('$') && part.length > 2) {
+      const html = katex.renderToString(part.slice(1, -1), { displayMode: false, throwOnError: false });
+      return <span key={`${index}-${part}`} className="px-0.5 [&_.katex]:text-inherit" dangerouslySetInnerHTML={{ __html: html }} />;
+    }
     const isBacktickCode = part.startsWith('`') && part.endsWith('`');
-    const isQuotedCode = part.startsWith('“') && part.endsWith('”');
+    const isQuotedCode = part.startsWith('"') && part.endsWith('"');
     if (isBacktickCode || isQuotedCode) {
       return <code key={`${index}-${part}`} className={cx('rounded px-1.5 py-0.5 font-mono text-[0.88em] font-semibold', themeClasses.isLight ? 'bg-[#E8EEF5] text-[#123B68]' : 'bg-[#263B5B] text-[#DCE8F4]')}>{part.slice(1, -1)}</code>;
     }
@@ -513,7 +519,7 @@ function TokenChip({
         event.dataTransfer.setData('text/plain', optionId);
       }}
       className={cx(
-        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-sm font-black leading-6 shadow-sm active:cursor-grabbing',
+        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-sm font-normal leading-6 shadow-sm active:cursor-grabbing',
         isIncorrect ? quizPalette.tokenChipIncorrect : quizPalette.tokenChip,
       )}
     >
@@ -584,7 +590,7 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
 
 function getQuizOptionClass(quizPalette: QuizPalette, isDisabled: boolean, isSelected: boolean): string {
   return cx(
-    'inline-flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm font-black leading-6 transition-colors disabled:cursor-not-allowed disabled:opacity-45',
+    'inline-flex min-h-12 items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm font-normal leading-6 transition-colors disabled:cursor-not-allowed disabled:opacity-45',
     isSelected
       ? quizPalette.optionSelected
       : isDisabled
@@ -595,7 +601,7 @@ function getQuizOptionClass(quizPalette: QuizPalette, isDisabled: boolean, isSel
 
 function getQuizOrderRowClass(themeClasses: ReturnType<typeof getLearningLabTheme>, quizPalette: QuizPalette, isDragging: boolean): string {
   return cx(
-    'flex min-h-12 cursor-grab items-center gap-3 rounded-lg border px-3 py-2 text-sm font-black leading-6 shadow-sm transition-colors active:cursor-grabbing',
+    'flex min-h-12 cursor-grab items-center gap-3 rounded-lg border px-3 py-2 text-sm font-normal leading-6 shadow-sm transition-colors active:cursor-grabbing',
     themeClasses.focusRing,
     quizPalette.orderRow,
     isDragging && quizPalette.orderRowDragging,

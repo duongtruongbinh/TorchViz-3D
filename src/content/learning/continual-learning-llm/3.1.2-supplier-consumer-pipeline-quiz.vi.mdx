@@ -11,12 +11,12 @@ export const lessonMetadata = {
     { id: 'c', label: 'Chỉ đánh giá safety của consumer.' },
     { id: 'd', label: 'Cung cấp task ID cho mọi request.' },
   ], success: 'Supplier cập nhật model upstream.', error: 'Supplier đứng ở phía pre-training quy mô lớn.' },
-  { id: 'consumer-role', title: 'Consumer', mode: 'single', prompt: 'Khác biệt thực tế nào giữa consumer dùng model open-weight và consumer gọi model qua API?', options: [
-    { id: 'b', label: 'Cả hai đều nhận một model snapshot; khác biệt chỉ nằm ở việc supplier hay consumer trả chi phí serving.' },
-    { id: 'c', label: 'API cho consumer quyền sửa weights qua endpoint, còn open-weight chỉ cho phép chạy inference cục bộ.' },
-    { id: 'a', label: 'Open-weight cho phép tải và tự thích nghi checkpoint; API chỉ cung cấp quyền gọi model hoặc snapshot mà không giao weights.', isCorrect: true },
-    { id: 'd', label: 'Open-weight cần đánh giá lại mỗi release, còn hành vi API được giữ ổn định dù supplier đổi model phía sau.' },
-  ], success: 'Đúng. Hai luồng khác nhau chủ yếu ở quyền truy cập và kiểm soát trọng số.', error: 'Hãy nhìn xem consumer có thực sự sở hữu checkpoint hay chỉ gọi endpoint.' },
+  { id: 'consumer-role', title: 'Consumer', mode: 'single', prompt: 'Với nguồn lực hạn chế, hướng nào thường phù hợp nhất với một researcher cá nhân?', options: [
+    { id: 'b', label: 'Tự thu thập corpus khổng lồ và pre-train một base model mới từ đầu.' },
+    { id: 'c', label: 'Duy trì hạ tầng ở quy mô supplier rồi phát hành model cho các công ty khác.' },
+    { id: 'a', label: 'Đóng vai consumer: thích nghi checkpoint có sẵn bằng DAP hoặc fine-tuning cho downstream task.', isCorrect: true },
+    { id: 'd', label: 'Chỉ gọi API mà không cần đánh giá lại khi supplier cập nhật model.' },
+  ], success: 'Đúng. Downstream adaptation phù hợp hơn với nguồn lực cá nhân, nên nhiều paper phía sau cũng tập trung vào hướng này.', error: 'Hãy chọn hướng tận dụng checkpoint có sẵn thay vì tự pre-train ở quy mô supplier.' },
   { id: 'two-dimensional-continuity', title: 'Hai chiều', mode: 'single', prompt: 'Quan hệ nào giữa pipeline supplier–consumer và hai chiều continuity là chính xác?', options: [
     { id: 'a', label: 'Supplier luôn là horizontal, còn consumer luôn là vertical.' },
     { id: 'c', label: 'Pipeline là bối cảnh sản xuất; survey dùng vertical và horizontal để phân tích hai hướng cập nhật có thể cùng xuất hiện trong đó.', isCorrect: true },

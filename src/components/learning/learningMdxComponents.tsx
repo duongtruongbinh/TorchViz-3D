@@ -270,13 +270,24 @@ export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = f
   );
 }
 
-export function LessonNote({ children }: { children?: ReactNode }) {
+export function LessonNote({ children, tone = 'default' }: { children?: ReactNode; tone?: 'default' | 'warning' }) {
   const themeClasses = useLearningMdxTheme();
+  const isWarning = tone === 'warning';
   return (
     <div
       className={cx(
-        'mt-5 grid gap-2 rounded-lg border border-[#205089]/20 bg-[#205089]/5 px-4 py-3.5 text-sm font-semibold leading-6 dark:border-[#A8D4FF]/25 dark:bg-[#A8D4FF]/10 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
-        themeClasses.sectionAccent.note
+        'mt-5 grid rounded-lg border px-4 py-3 text-sm leading-6 [&_p]:!text-inherit [&_ol]:grid [&_ol]:list-decimal [&_ol]:gap-2 [&_ol]:pl-5 [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5',
+        isWarning
+          ? themeClasses.isLight
+            ? 'border-[#D5B43A]/35 bg-[#FFF8D8] font-normal text-[#263B5B]'
+            : 'border-[#F4C84A]/24 bg-[#F4C84A]/10 font-normal text-[#F2F6FA]'
+          : cx(
+            'gap-2 font-semibold',
+            themeClasses.isLight
+              ? 'border-[#2F6B55]/18'
+              : 'border-[#A8D4FF]/25',
+            themeClasses.sectionAccent.note,
+          ),
       )}
     >
       {children}
@@ -296,14 +307,17 @@ export function LessonImage({ assetPath, alt, caption }: { assetPath: string; al
   const src = Object.entries(LESSON_IMAGE_MODULES).find(([modulePath]) => modulePath.endsWith(`/assets/learning/${normalizedPath}`))?.[1] ?? '';
   if (!src) return null;
   return (
-    <figure className="my-6 grid gap-2">
+    <figure className="my-6 grid justify-items-center gap-2">
       <img
         src={src}
         alt={alt}
         loading="lazy"
         decoding="async"
-        className="w-full rounded-xl border object-contain shadow-sm"
-        style={{ borderColor: themeClasses.isLight ? 'rgba(32,80,137,0.12)' : 'rgba(168,212,255,0.14)' }}
+        className="block h-auto w-auto max-w-full rounded-xl border object-contain shadow-sm"
+        style={{
+          borderColor: themeClasses.isLight ? 'rgba(32,80,137,0.12)' : 'rgba(168,212,255,0.14)',
+          maxHeight: 'min(32rem, calc(100vh - 14rem))',
+        }}
       />
       {caption && (
         <figcaption className={cx('text-center text-sm leading-5', themeClasses.mutedText)}>
@@ -541,18 +555,22 @@ export function SelfCheckList({ ariaLabel, items }: {
 
 type ComparisonMatrixRow = { label: string; values: string[]; highlightedColumn?: number };
 
-export function PaperTradeoff({ advantages, limitations }: { advantages: string[]; limitations: string[] }) {
+export function PaperTradeoff({ advantages, limitations, neutralText = false }: {
+  advantages: string[];
+  limitations: string[];
+  neutralText?: boolean;
+}) {
   const themeClasses = useLearningMdxTheme();
   return (
     <div className="my-4 grid gap-3 sm:grid-cols-2">
       <section className="rounded-xl border border-emerald-300/80 bg-emerald-50/70 p-4 dark:border-emerald-400/30 dark:bg-emerald-400/6">
-        <h4 className="text-sm font-black text-emerald-800 dark:text-emerald-300">Ưu điểm</h4>
+        <h4 className={cx('text-sm font-black', neutralText ? themeClasses.titleText : 'text-emerald-800 dark:text-emerald-300')}>Ưu điểm</h4>
         <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
           {advantages.map((item) => <li key={item}>{item}</li>)}
         </ul>
       </section>
       <section className="rounded-xl border border-rose-300/80 bg-rose-50/70 p-4 dark:border-rose-400/30 dark:bg-rose-400/6">
-        <h4 className="text-sm font-black text-rose-800 dark:text-rose-300">Hạn chế</h4>
+        <h4 className={cx('text-sm font-black', neutralText ? themeClasses.titleText : 'text-rose-800 dark:text-rose-300')}>Hạn chế</h4>
         <ul className={cx('mt-3 grid list-disc gap-2 pl-5 text-sm leading-6', themeClasses.bodyText)}>
           {limitations.map((item) => <li key={item}>{item}</li>)}
         </ul>

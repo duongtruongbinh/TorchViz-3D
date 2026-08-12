@@ -31,7 +31,7 @@ Trong CPT quy mô lớn, một tổ chức lớn có thể đủ khả năng lư
 
 <ComparisonMatrix ariaLabel="Hai quan điểm về kỹ thuật cho Horizontal CL" columns={['Quan sát', 'Hàm ý']} rows={[
   { label: 'Sparse replay đơn giản', values: ['Chỉ phát lại một phần nhỏ dữ liệu cũ', 'Có thể giảm forgetting hiệu quả khi toàn bộ lịch sử vẫn truy cập được'] },
-  { label: 'Phương pháp CL chuyên biệt', values: ['Thêm ràng buộc, memory hoặc architecture phù hợp', 'Nhiều nghiên cứu vẫn ghi nhận hiệu năng tốt hơn baseline ngây thơ'] },
+  { label: 'Phương pháp CL chuyên biệt', values: ['Thêm ràng buộc, memory hoặc architecture phù hợp', 'Nhiều nghiên cứu vẫn ghi nhận hiệu năng tốt hơn baseline đơn giản'] },
 ]} />
 
 Vì vậy, việc LLM có thật sự cần một thuật toán CL phức tạp trong mọi bối cảnh vẫn là câu hỏi mở. Khi dữ liệu cũ còn đầy đủ, bài toán có thể chuyển từ **memory efficiency** sang **compute efficiency**: chọn mẫu nào để replay và cần bao nhiêu update để giữ model mới mà không quên lịch sử.

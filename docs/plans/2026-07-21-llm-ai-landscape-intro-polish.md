@@ -71,7 +71,7 @@ remains the source of truth for the MDX migration itself.
 
 ## Token IDs
 
-- The Token IDs lesson includes the Vietnamese word “đường” in two contexts to
+- The Token IDs lesson includes the Vietnamese word "đường" in two contexts to
   show that tokenizer lookup IDs do not themselves encode contextual meaning.
 - Both sequences highlight the same illustrative token ID and hand off to the
   later Transformer explanation. The corresponding checkpoint quiz covers the
@@ -86,7 +86,7 @@ remains the source of truth for the MDX migration itself.
 - The perplexity material spans four pages and an eight-question checkpoint:
   sequence likelihood, normalization, exponent/sign intuition, limitations,
   and the boundary between pre-training and post-training evaluation.
-- “Beyond Perplexity” spans two pages. It includes the Hugging Face benchmark
+- "Beyond Perplexity" spans two pages. It includes the Hugging Face benchmark
   preview and external resources, then an MMLU likelihood comparison followed
   by the bridge to human and LLM-as-a-Judge evaluation.
 - Quantitative claims use direct primary-source citations when requested;
@@ -132,7 +132,7 @@ remains the source of truth for the MDX migration itself.
   surfaces whose runtime is light-only. The chosen class strings are the former
   light branches, so rendered light-mode behavior is unchanged.
 - Corrected the hand-calculation lesson keywords so they describe that lesson
-  rather than material moved to “Beyond Perplexity.”
+  rather than material moved to "Beyond Perplexity."
 - Updated the Learning Lab wiki inventory and final rail/light-mode description.
 
 ## Reviewed and kept

@@ -15,11 +15,11 @@ export const lessonMetadata = {
 
 **Replay** là cách đưa một phần dữ liệu cũ trở lại batch hiện tại. Nhờ đó, khi model học dữ liệu mới, gradient vẫn nhận được tín hiệu từ những năng lực cần giữ.
 
-Khi học dữ liệu mới <InlineMath formula="D_t" />, mô hình đồng thời nhận một bộ nhớ nhỏ <InlineMath formula="M_{<t}" /> đại diện cho dữ liệu đã gặp trước đó:
+Khi học trên bộ dữ liệu mới <InlineMath formula="D_t" />, mô hình đồng thời nhận một tập dữ liệu (survey gọi là bộ nhớ nhỏ) <InlineMath formula="M_{<t}" /> đại diện cho dữ liệu đã gặp trước đó:
 
 <BlockMath formula="\mathcal{L}=\mathcal{L}_{\mathrm{new}}(D_t)+\gamma\,\mathcal{L}_{\mathrm{replay}}(M_{<t})" />
 
-Nói đơn giản, model không chỉ được hỏi “hãy học cái mới”, mà còn được nhắc “đồng thời đừng làm sai những ví dụ cũ này”. Tập dữ liệu cũ được giữ lại để trộn vào quá trình học gọi là **replay buffer**.
+Ta sẽ gọi tập dữ liệu cũ được giữ lại để trộn vào quá trình học gọi là **replay buffer**. Và thông thường chúng ta sẽ quan tâm đến **"bao nhiêu % replay buffer"** được giữ lại.
 
 </MdxPage>
 
@@ -27,9 +27,12 @@ Nói đơn giản, model không chỉ được hỏi “hãy học cái mới”
 
 ## Lợi ích và giới hạn của replay buffer
 
-Giới hạn thực tế của replay nằm ở **quyền lưu dữ liệu, dung lượng bộ nhớ, I/O và compute**. Buffer nhỏ cũng không bảo đảm bao phủ toàn bộ phân phối cũ. Paper [*A Unified Approach to Domain Incremental Learning with Memory: Theory and Algorithm*](https://arxiv.org/pdf/2310.12244) đã chứng minh rằng trong thiết lập Domain-Incremental Learning có memory, việc tối ưu trực tiếp trên dữ liệu hiện tại và buffer nhỏ tương ứng với một **cận tổng quát hóa lỏng (loose generalization bound)**. Nguyên nhân là vài mẫu được giữ lại có thể ước lượng sai đáng kể lỗi thật trên toàn bộ domain cũ.
+Giới hạn thực tế của replay nằm ở 2 thứ:
 
-“Loose generalization bound” có nghĩa là trong **hầu hết trường hợp thực tế dùng buffer nhỏ, kết quả replay sẽ không bằng full retraining**, vì replay chỉ học lại trên một phần phân phối dữ liệu cũ thay vì toàn bộ dữ liệu lịch sử.
+1. **Quyền lưu dữ liệu, dung lượng bộ nhớ, I/O và compute**. 
+2. Nếu buffer quá nhỏ chúng ta sẽ không bảo đảm bao phủ toàn bộ phân phối cũ. 
+
+Paper [*A Unified Approach to Domain Incremental Learning with Memory: Theory and Algorithm*](https://arxiv.org/pdf/2310.12244) đã chứng minh rằng trong thiết lập Domain-Incremental Learning có memory, việc tối ưu trực tiếp trên dữ liệu hiện tại và buffer nhỏ tương ứng với một **loose generalization bound**. Nghĩa là trong **hầu hết trường hợp thực tế dùng buffer nhỏ, kết quả replay sẽ không bằng full retraining**, vì replay chỉ học lại trên một phần phân phối dữ liệu cũ thay vì toàn bộ dữ liệu lịch sử và có thể ước lượng sai đáng kể lỗi thật trên toàn bộ domain cũ.
 
 <LessonImage
   assetPath="continual-learning-llm/01-replay-buffer-tradeoff.png"

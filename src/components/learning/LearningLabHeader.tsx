@@ -25,7 +25,7 @@ export default function LearningLabHeader({
 
   return (
     <header className={cx('sticky top-0 z-40 w-full border-b shadow-sm', themeClasses.header)}>
-      <div className="flex h-16 w-full items-center gap-2 px-3 sm:gap-4 sm:px-5">
+      <div className="flex h-16 w-full items-center gap-2 px-3 sm:gap-4 sm:px-5 lg:pl-[92px]">
         <button
           type="button"
           onClick={onOpenNavigation}

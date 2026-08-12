@@ -1,7 +1,7 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'horizontal-forgetting-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['Horizontal forgetting', 'Chuỗi task dài', 'Distribution shift'], keywords: ['Quiz', 'Horizontal Forgetting'],
-  conceptIds: ['horizontal-forgetting', 'horizontal-long-sequence', 'horizontal-abrupt-shift'], pageCount: 3,
+  headings: ['Horizontal forgetting', 'Chuỗi task dài', 'Gradual shift', 'Abrupt shift'], keywords: ['Quiz', 'Horizontal Forgetting', 'Gradual Shift'],
+  conceptIds: ['horizontal-forgetting', 'horizontal-long-sequence', 'horizontal-gradual-shift', 'horizontal-abrupt-shift'], pageCount: 4,
 }
 
 <MdxQuiz id="horizontal-forgetting-quiz" questions={[
@@ -17,10 +17,16 @@ export const lessonMetadata = {
     { id: 'c', label: 'Vì sai lệch nhỏ từ nhiều lần update có thể tích lũy và ảnh hưởng mạnh đến các stage đầu.', isCorrect: true },
     { id: 'd', label: 'Vì task ID thay đổi qua từng stage là nguồn tích lũy duy nhất, ngay cả khi model dùng chung task formulation.' },
   ], success: 'Rủi ro đến từ tác động tích lũy qua nhiều lần cập nhật.', error: 'Hãy xét điều xảy ra khi một mức quên nhỏ lặp lại nhiều lần.' },
-  { id: 'horizontal-abrupt-shift', title: 'Distribution shift', mode: 'single', prompt: 'Điều gì khiến abrupt distribution shift dễ gây forgetting mạnh?', options: [
+  { id: 'horizontal-gradual-shift', title: 'Gradual shift', mode: 'single', prompt: 'Trường hợp nào thể hiện gradual shift?', options: [
+    { id: 'b', label: 'Model chuyển ngay từ hội thoại phổ thông sang hồ sơ pháp lý chuyên ngành.' },
+    { id: 'a', label: 'Tin tức thay đổi nhẹ theo từng tháng nên các stage liền kề vẫn chồng lấn đáng kể.', isCorrect: true },
+    { id: 'c', label: 'Mọi stage dùng chính xác cùng dữ liệu và distribution.' },
+    { id: 'd', label: 'Toàn bộ nhãn cũ bị thay bằng một output space không liên quan.' },
+  ], success: 'Gradual shift thay đổi distribution từ từ nên representation cũ còn hữu ích một phần.', error: 'Tìm trường hợp các stage liền kề chỉ thay đổi nhẹ và còn chồng lấn.' },
+  { id: 'horizontal-abrupt-shift', title: 'Abrupt shift', mode: 'single', prompt: 'Điều gì khiến abrupt distribution shift dễ gây forgetting mạnh?', options: [
     { id: 'a', label: 'Dữ liệu mới luôn nhỏ hơn dữ liệu cũ.' },
     { id: 'b', label: 'Model được cung cấp task ID quá rõ.' },
-    { id: 'c', label: 'Hai stage dùng chính xác cùng distribution và objective.' },
     { id: 'd', label: 'Tín hiệu học mới ít tương thích và có thể kéo model nhanh khỏi nghiệm phù hợp với dữ liệu cũ.', isCorrect: true },
+    { id: 'c', label: 'Hai stage dùng chính xác cùng distribution và objective.' },
   ], success: 'Khoảng cách distribution lớn làm gradient mới dễ xung đột với nghiệm cũ.', error: 'Tập trung vào mức độ tương thích giữa distribution mới và cũ.' },
 ]} />

@@ -5,6 +5,7 @@ export const lessonMetadata = {
   title: "Quiz",
   headings: [
   "Ai thực hiện CPT?",
+  "Khả năng tham gia nghiên cứu",
   "Khả năng tổng quát hóa",
   "Ràng buộc bộ nhớ",
   "Chọn chiến lược replay"
@@ -12,11 +13,12 @@ export const lessonMetadata = {
   keywords: ['Continual Learning', 'Continual Pre-training', 'Full Replay', 'Sparse Replay', 'Quiz'],
   conceptIds: [
   "cpt-operator",
+  "cpt-research-access",
   "cpt-generalization",
   "cpt-memory-constraint",
   "cpt-replay-choice"
 ],
-  pageCount: 4,
+  pageCount: 5,
 }
 
 <MdxQuiz id="continual-pretraining-pipeline-quiz" questions={[
@@ -46,6 +48,33 @@ export const lessonMetadata = {
     ],
     "success": "Continual Pre-training quy mô lớn đòi hỏi nguồn lực chủ yếu nằm ở supplier.",
     "error": "Hãy xét bên nào có khả năng duy trì dữ liệu và compute ở quy mô base model."
+  },
+  {
+    "id": "cpt-research-access",
+    "title": "Tham gia nghiên cứu",
+    "prompt": "Vì sao paper CPT quy mô LLM còn tương đối ít, và researcher cá nhân có thể tham gia thế nào?",
+    "mode": "single",
+    "options": [
+      {
+        "id": "opt2",
+        "label": "CPT ít paper vì không gây forgetting; cá nhân chỉ cần đổi prompt."
+      },
+      {
+        "id": "opt1",
+        "label": "CPT quy mô lớn tốn dữ liệu và compute; cá nhân vẫn có thể nghiên cứu trên model open-weight nhỏ, data selection hoặc benchmark.",
+        "isCorrect": true
+      },
+      {
+        "id": "opt3",
+        "label": "CPT chỉ dành cho closed-weight model nên cá nhân hoàn toàn không thể tham gia."
+      },
+      {
+        "id": "opt4",
+        "label": "CPT ít paper do thiếu downstream task; cá nhân nên pre-train LLM từ đầu."
+      }
+    ],
+    "success": "Đúng. Khó tái tạo quy mô supplier không đồng nghĩa researcher cá nhân không thể đóng góp.",
+    "error": "Phân biệt CPT quy mô supplier với các thí nghiệm CPT nhỏ và dễ tiếp cận hơn."
   },
   {
     "id": "cpt-generalization",

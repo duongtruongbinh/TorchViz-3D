@@ -13,28 +13,9 @@ LLM quá lớn để liên tục thu thập lại toàn bộ dữ liệu và ret
 
 Trong thực tế, khả năng cập nhật model phân bố không đều. So với supplier upstream như OpenAI hoặc Anthropic, consumer downstream thường không đủ nguồn lực để:
 
-<CourseCards
-  ariaLabel="Ba nguồn lực consumer downstream thường thiếu"
-  exampleLabel="Consumer khó tự làm"
-  takeawayLabel="Hệ quả"
-  items={[
-    {
-      title: 'Dữ liệu',
-      example: 'Thu thập, làm sạch và lưu trữ corpus quy mô đủ lớn để cập nhật một foundation model.',
-      takeaway: 'Consumer phải dựa vào knowledge mới đã được supplier đưa vào upstream model.',
-    },
-    {
-      title: 'Hạ tầng',
-      example: 'Duy trì cụm GPU, storage, networking và pipeline phân tán cho một đợt pre-training lớn.',
-      takeaway: 'Consumer thường chỉ đủ compute để adaptation hoặc inference ở quy mô nhỏ hơn.',
-    },
-    {
-      title: 'Pre-training',
-      example: 'Tự thiết kế và vận hành toàn bộ quá trình pre-train một LLM mới từ đầu.',
-      takeaway: 'Consumer nhận checkpoint hoặc API mới rồi tập trung vào downstream task của mình.',
-    },
-  ]}
-/>
+- **Dữ liệu:** thu thập, làm sạch và lưu trữ corpus đủ lớn.
+- **Hạ tầng:** duy trì cụm GPU và pipeline training phân tán.
+- **Pre-training:** tự huấn luyện lại một LLM từ đầu.
 
 [Recyclable Tuning](https://arxiv.org/abs/2305.08702) là công trình đầu tiên mô tả rõ pipeline LLM hiện đại bằng cấu trúc **supplier–consumer**:
 
@@ -44,6 +25,12 @@ Trong thực tế, khả năng cập nhật model phân bố không đều. So v
   { title: 'Consumer', detail: 'Nhận phiên bản mới rồi thích nghi cho downstream task' },
   { title: 'Triển khai', detail: 'Duy trì model chuyên biệt mà không tự pre-train lại từ đầu' },
 ]} />
+
+<LessonImage
+  assetPath="continual-learning-llm/01-supplier-consumer-production-pipeline.png"
+  alt="Bốn bước của pipeline sản xuất LLM: supplier cập nhật model từ dữ liệu mới, phát hành phiên bản mới, consumer thích nghi model cho nhu cầu riêng, rồi triển khai cho người dùng"
+  caption="Pipeline Supplier–Consumer: supplier cập nhật và phát hành upstream model; consumer tiếp nhận, thích nghi rồi triển khai model cho downstream task."
+/>
 
 </MdxPage>
 
@@ -98,7 +85,7 @@ Từ motivation này, survey mở rộng pipeline thành hai hướng continuity
   caption="Vertical continuity đi xuống các tầng ngày càng chuyên biệt; horizontal continuity đi ngang qua các stage hoặc domain có thể thay đổi dần dần hay đột ngột."
 />
 
-Vì vậy, supplier–consumer là **bối cảnh sản xuất giúp nhìn ra hai hướng**, còn vertical và horizontal là taxonomy survey dùng để phân tích các dạng cập nhật và forgetting khác nhau. Recyclable Tuning là một ví dụ có cả hai chiều: supplier cập nhật model theo thời gian, trong khi consumer liên tục chuyển các cập nhật upstream xuống downstream task.
+Vì vậy, tùy thuộc vào nguồn lực cá nhân hoặc công ty mà lựa chọn hướng tiếp cận phù hợp. Ví dụ, một researcher cá nhân thường chỉ có thể tham gia ở phía consumer bằng cách thích nghi checkpoint có sẵn qua DAP hoặc fine-tuning, thay vì tự cập nhật base model ở quy mô supplier. Về sau, bạn cũng sẽ thấy nhiều paper tập trung vào downstream adaptation hơn là pre-training lại toàn bộ model.
 
 Nguồn: [Shi et al., §3](https://arxiv.org/html/2404.16789v3#S3) và [Recyclable Tuning — Qin et al. (2023)](https://arxiv.org/abs/2305.08702).
 

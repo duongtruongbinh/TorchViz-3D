@@ -23,6 +23,7 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
   const themeClasses = getLearningLabTheme(theme);
   const tone = getLessonTone({ isCompleted, isSelected, isTrackActive });
   const isQuiz = lesson.id.endsWith('-quiz') || lesson.id.includes('-quiz-');
+  const isLab = !isQuiz && lesson.id.endsWith('-code-lab');
   const isDimmedQuiz = isQuiz && !isCompleted && !isSelected;
 
   return (
@@ -46,8 +47,8 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
             'relative z-10 flex h-7 w-7 items-center justify-center text-xs font-black',
             !isSelected && (isCompleted || !isQuiz) ? 'rounded-full border' : undefined,
             isSelected && (isCompleted || !isQuiz) ? 'learning-lab-lesson-node-current' : undefined,
-            themeClasses.rail.lessonNumber(tone, isCompleted),
-            !isCompleted && !isQuiz ? getLessonNumberStyle(themeClasses.isLight, isSelected) : undefined,
+            isLab ? getLabNumberStyle(themeClasses.isLight, isSelected) : themeClasses.rail.lessonNumber(tone, isCompleted),
+            !isCompleted && !isQuiz && !isLab ? getLessonNumberStyle(themeClasses.isLight, isSelected) : undefined,
             !isCompleted && isQuiz ? getQuizIconStyle(themeClasses.isLight, isSelected) : undefined,
           )}
         >
@@ -62,13 +63,29 @@ function LessonNode({ lesson, index, isCompleted, isConnectorCompleted, isLast, 
         <span className={cx(
           'line-clamp-2 block text-sm leading-5',
           isSelected ? 'font-semibold' : 'font-normal',
-          getLessonTitleStyle(themeClasses.isLight, tone === 'quiet', isDimmedQuiz, isSelected),
+          isLab
+            ? getLabTitleStyle(themeClasses.isLight, isSelected)
+            : getLessonTitleStyle(themeClasses.isLight, tone === 'quiet', isDimmedQuiz, isSelected),
         )}>
           {lessonText.title}
         </span>
       </span>
     </button>
   );
+}
+
+function getLabNumberStyle(isLight: boolean, isSelected: boolean): string {
+  if (isSelected) return 'bg-transparent text-white shadow-none';
+  return isLight
+    ? 'border-[#D97706] bg-[#F59E0B] text-white shadow-[0_3px_8px_rgba(217,119,6,0.24)]'
+    : 'border-[#F2A65A] bg-[#C8671A] text-white shadow-[0_3px_8px_rgba(0,0,0,0.20)]';
+}
+
+function getLabTitleStyle(isLight: boolean, isSelected: boolean): string {
+  if (isSelected) return 'text-white group-hover:text-white';
+  return isLight
+    ? 'text-[#B45309] group-hover:text-[#8F3E05]'
+    : 'text-[#FFC078] group-hover:text-[#FFD2A3]';
 }
 
 function getLessonNumberStyle(isLight: boolean, isSelected: boolean): string {

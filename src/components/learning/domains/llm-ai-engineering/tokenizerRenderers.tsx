@@ -358,7 +358,7 @@ export function LlmTokenizerContextAmbiguity({ content, language, themeClasses }
               <article key={example.id} className="grid justify-items-center gap-2 text-center">
                 <Icon className={cx('h-6 w-6', accent)} strokeWidth={1.7} aria-hidden="true" />
                 <p className={cx('text-base font-bold leading-7 sm:text-lg', themeClasses.titleText)}>
-                  “{example.before}<mark className="rounded bg-[#DCE8F4] px-1 font-black text-[#205089]">{content.token}</mark>{example.after}”
+                  "{example.before}<mark className="rounded bg-[#DCE8F4] px-1 font-black text-[#205089]">{content.token}</mark>{example.after}"
                 </p>
                 <span className={cx('text-sm font-black', accent)}>{text(example.meaning, language)}</span>
                 <ArrowDown className={cx('mt-1 h-5 w-5', themeClasses.mutedText)} strokeWidth={1.7} aria-hidden="true" />

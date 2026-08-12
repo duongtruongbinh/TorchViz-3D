@@ -25,7 +25,7 @@ The catalog contains 13 domains, 91 tracks, and 679 lesson nodes. One hundred
 forty-three Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, seventy-seven in `continual-learning-llm`, thirteen in
 `linear-algebra`, and four tagged exercise lessons in `cv`. The other 536 nodes
-are navigable placeholders and render one shared localized “content in progress” message.
+are navigable placeholders and render one shared localized "content in progress" message.
 They do not carry legacy theory or practice payloads.
 
 The authored LLM lessons are:

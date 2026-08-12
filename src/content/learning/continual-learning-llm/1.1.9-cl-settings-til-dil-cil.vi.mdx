@@ -3,7 +3,7 @@ export const lessonMetadata = {
   id: 'cl-settings-til-dil-cil',
   locale: 'vi',
   title: 'Phân loại kịch bản CL',
-  headings: ['Nhìn gì để phân loại?', 'TIL: task ID đi vào đâu?', 'DIL: domain đổi, API giữ nguyên', 'CIL: output space mở rộng'],
+  headings: ['Ba kiểu thay đổi', 'TIL: task ID đi vào đâu?', 'DIL: domain đổi, API giữ nguyên', 'CIL: output space mở rộng'],
   pageCount: 4,
   keywords: ['Continual Learning', 'LLM', 'Task-Incremental Learning', 'Domain-Incremental Learning', 'Class-Incremental Learning'],
   conceptIds: [
@@ -16,13 +16,13 @@ export const lessonMetadata = {
 
 <MdxPage page={0}>
 
-## Nhìn gì để phân loại?
+## Ba kiểu thay đổi
 
-Các tác giả nhìn vào **phần nào thay đổi sau mỗi stage** và **mô hình có được báo task hiện tại khi chạy hay không** để chia Continual Learning thành ba kịch bản:
+Survey phân loại các tình huống thay đổi trong thực tế thành 3 loại:
 
-1. **TIL — đổi việc cần làm.** Mô hình chuyển sang task mới và được cung cấp task ID.
-2. **DIL — đổi nguồn dữ liệu.** Task và bộ nhãn giữ nguyên, nhưng dữ liệu đến từ domain mới.
-3. **CIL — thêm nhãn cần nhận diện.** Mô hình dùng một bộ output chung, rồi bổ sung class mới theo thời gian.
+1. **Task-Incremental Learning (TIL) — đổi việc cần làm.** Mô hình chuyển sang task mới và được cung cấp task ID.
+2. **Domain-Incremental Learning (DIL) — đổi nguồn dữ liệu.** Task và bộ nhãn giữ nguyên, nhưng dữ liệu đến từ domain mới.
+3. **Class-Incremental Learning (CIL) — thêm nhãn cần nhận diện.** Mô hình dùng một bộ output chung, rồi bổ sung class mới theo thời gian.
 
 <LessonImage
   assetPath="continual-learning-llm/01-continual-learning-til-dil-cil-scenarios.png"
@@ -34,9 +34,9 @@ Các tác giả nhìn vào **phần nào thay đổi sau mỗi stage** và **mô
 
 <MdxPage page={1}>
 
-## TIL: task ID đi vào đâu?
+## Task-Incremental Learning (TIL)
 
-Trong **Task-Incremental Learning (TIL)**, việc cần làm thay đổi và hệ thống phải báo cho mô hình task hiện tại.
+Trong **Task-Incremental Learning**, việc cần làm thay đổi và hệ thống phải báo cho mô hình task hiện tại.
 
 `task_id` không nhất thiết là một con số ghép vào câu.
 
@@ -68,9 +68,10 @@ Model trả về:
 Dịch vụ chậm.
 ```
 
-Hai request có cùng `text`, nhưng router đọc `task_id` để chọn head, adapter, expert hoặc hành vi phù hợp. Trong thực tế, task signal có thể xuất hiện dưới ba dạng:
+Hai request có `text` giống hệt nhau, nhưng router đọc `task_id` để chọn head, adapter, expert hoặc hành vi phù hợp. 
 
-- **API/metadata:** `task_id` được truyền riêng như hai request trên.
+Trong thực tế, ngoài output dưới dạng `API/metadata` như trên, task signal còn có thể xuất hiện dưới dạng:
+
 - **Control token:** input bắt đầu bằng token như `[TASK_TRANSLATE_VI]`.
 - **Instruction:** `Hãy dịch sang tiếng Việt` đóng vai trò task signal bằng ngôn ngữ tự nhiên.
 
@@ -84,9 +85,9 @@ Hai request có cùng `text`, nhưng router đọc `task_id` để chọn head, 
 
 <MdxPage page={2}>
 
-## DIL: domain đổi, API giữ nguyên
+## Domain-Incremental Learning (DIL)
 
-Trong **Domain-Incremental Learning (DIL)**, model vẫn làm cùng một task với cùng bộ nhãn; chỉ nguồn dữ liệu thay đổi. Ví dụ, task luôn là phân loại cảm xúc `positive/negative`, nhưng dữ liệu chuyển từ review phim sang review nhà hàng.
+Trong **Domain-Incremental Learning**, model vẫn làm cùng một task với cùng bộ nhãn; chỉ nguồn dữ liệu thay đổi. Ví dụ, task luôn là phân loại cảm xúc `positive/negative`, nhưng dữ liệu chuyển từ review phim sang review nhà hàng.
 
 Ở domain phim, từ `slow` thường mô tả nhịp phim và có thể là tín hiệu tiêu cực:
 
@@ -94,17 +95,19 @@ Trong **Domain-Incremental Learning (DIL)**, model vẫn làm cùng một task v
 {
   "text": "The pacing was slow.",
   "domain": "movie",
-  "label": "negative"
+  "label": "negative",
+  "predicted": "negative"
 }
 ```
 
-Sang domain nhà hàng, cùng từ `slow` xuất hiện trong một ngữ cảnh hoàn toàn khác và không còn là tín hiệu tiêu cực:
+Sang domain nhà hàng, cùng từ `slow` xuất hiện trong một ngữ cảnh hoàn toàn khác và có thể khiến model phân loại sai:
 
 ```json
 {
-  "text": "The slow-cooked beef was excellent.",
+  "text": "The slow-cooked beef was ok.",
   "domain": "restaurant",
-  "label": "positive"
+  "label": "positive",
+  "predicted": "negative"
 }
 ```
 
@@ -112,19 +115,13 @@ Các domain có thể khác nhau về từ vựng, cách viết và quan hệ gi
 
 ```json
 {
-  "text": "The slow-cooked beef was excellent."
+  "text": "The slow-cooked beef was ok."
 }
-```
-
-Model vẫn chạy sentiment head cũ và trả về:
-
-```output
-positive
 ```
 
 <LessonNote>
 
-`domain` có thể được lưu để quản lý dataset, nhưng model **không nhận domain ID khi inference**. Vì vậy, cùng một bộ tham số và sentiment head phải học tín hiệu của domain mới mà vẫn xử lý đúng domain cũ. Đây là phần khiến DIL khó hơn một bài toán chỉ có một domain cố định.
+Trong nhiều trường hợp, model sẽ **không nhận domain ID khi inference**. Vì vậy, cùng một bộ tham số và sentiment head phải học tín hiệu của domain mới mà vẫn xử lý đúng domain cũ. Đây là phần khiến DIL khó hơn một bài toán chỉ có một domain cố định.
 
 </LessonNote>
 
@@ -132,9 +129,9 @@ positive
 
 <MdxPage page={3}>
 
-## CIL: output space mở rộng
+## Class-Incremental Learning (CIL)
 
-Trong **Class-Incremental Learning (CIL)**, task vẫn là phân loại, nhưng hệ thống bổ sung class mới theo thời gian. Ví dụ, intent classifier ban đầu nhận diện `billing` và `shipping`; stage mới bổ sung `refund`.
+Trong **Class-Incremental Learning**, task vẫn là phân loại, nhưng hệ thống bổ sung class mới theo thời gian. Ví dụ, intent classifier ban đầu nhận diện `billing` và `shipping`; stage mới bổ sung `refund`.
 
 Một record huấn luyện cho class mới có thể chỉ cần:
 
@@ -159,7 +156,7 @@ refund
 
 <LessonNote>
 
-CIL không dùng task ID để chọn một head riêng cho class mới. Model phải phân biệt **tất cả class trong một output space chung**.
+Tương tự DIL, CIL cũng không dùng task ID để chọn một head riêng cho class mới. Model phải phân biệt **tất cả class trong một output space chung**.
 
 </LessonNote>
 

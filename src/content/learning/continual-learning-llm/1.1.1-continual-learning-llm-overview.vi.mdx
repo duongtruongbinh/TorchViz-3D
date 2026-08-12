@@ -6,21 +6,22 @@ export const lessonMetadata = {
   headings: [
     'LLM luôn cố định trong khi thế giới liên tục thay đổi',
     'Vì sao không huấn luyện lại từ đầu?',
+    'Vì sao không chỉ dùng RAG?',
     'Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?',
     'Mục tiêu của Continual Learning',
   ],
-  keywords: ['LLM', 'Continual Learning', 'Statically Pre-trained', 'Fine-tune', 'Domain Adaptation'],
-  conceptIds: ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
-  pageCount: 4,
+  keywords: ['LLM', 'Continual Learning', 'RAG', 'Statically Pre-trained', 'Fine-tune', 'Domain Adaptation'],
+  conceptIds: ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'rag-vs-continual-learning', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
+  pageCount: 5,
 }
 
 <MdxPage page={0}>
 
 ## LLM luôn cố định trong khi thế giới liên tục thay đổi
 
-Large Language Model thường được tiền huấn luyện (pre-training) trên một snapshot dữ liệu cố định. Sau khi huấn luyện kết thúc, tham số và tri thức của mô hình không được tự động cập nhật trong khi dữ liệu, tính chất bài toán và nhu cầu sử dụng tiếp tục thay đổi.
+Large Language Model thường được tiền huấn luyện (pre-training) trên một lượng dữ liệu cố định. Sau khi huấn luyện kết thúc, tham số và tri thức của mô hình không được tự động cập nhật trong khi dữ liệu, tính chất bài toán và nhu cầu sử dụng tiếp tục thay đổi.
 
-<LessonImage assetPath="continual-learning-llm/01-continual-learning-static-snapshot.png" alt="Một LLM bị khóa tại snapshot T0 trong khi tri thức, domain và task tiếp tục thay đổi từ T1 đến T3" caption="Checkpoint tĩnh chỉ phản ánh dữ liệu tại T0; khoảng cách tri thức mở rộng khi thế giới tiếp tục thay đổi." />
+<LessonImage assetPath="continual-learning-llm/01-static-pretraining-world-changes.png" alt="Bốn bước: chụp snapshot dữ liệu, pre-train, đóng băng mô hình và thế giới tiếp tục thay đổi" caption="Mô hình chỉ học từ snapshot tại thời điểm pre-training; khi dữ liệu, xu hướng và task thay đổi, checkpoint đóng băng không tự cập nhật." />
 
 </MdxPage>
 
@@ -28,9 +29,11 @@ Large Language Model thường được tiền huấn luyện (pre-training) tr�
 
 ## Vì sao không huấn luyện lại từ đầu?
 
-Huấn luyện lại từ đầu trên toàn bộ dữ liệu cũ và mới là cách làm đơn giản nhưng thường quá tốn chi phí tính toán và thời gian. Thách thức cốt lõi là dữ liệu lịch sử thường bị giới hạn, trong khi mô hình LLM hiện tại quá lớn và trải qua nhiều stage như pre-training, domain adaptation và fine-tuning. Mỗi bản cập nhật mới vì vậy phải cân bằng giữa việc tiếp thu năng lực mới (acquisition), giữ lại năng lực cũ (retention) và chi phí tính toán (cost).
+Huấn luyện lại từ đầu trên toàn bộ dữ liệu cũ và mới là cách làm đơn giản nhưng thường quá tốn chi phí tính toán và thời gian. Thách thức cốt lõi là dữ liệu lịch sử thường bị giới hạn, trong khi mô hình LLM hiện tại quá lớn và trải qua nhiều stage như pre-training, domain adaptation và fine-tuning.
 
-Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ, rẻ để truy cập và đủ compute để huấn luyện lại, **joint retraining hoặc full replay** vẫn là baseline đầu tiên nên được báo cáo. Việc tìm kiếm các hướng đi khác rất quan trọng khi một hoặc nhiều điều kiện này không còn khả thi.
+<LessonImage assetPath="continual-learning-llm/01-full-retraining-cost-and-constraints.png" alt="Bốn trở ngại của việc huấn luyện lại LLM: phải gộp dữ liệu cũ và mới, tốn thời gian và compute, thiếu dữ liệu lịch sử, và phải chạy lại nhiều stage" caption="Huấn luyện lại toàn bộ là cách trực tiếp, nhưng chi phí tăng nhanh khi model lớn, dữ liệu cũ hạn chế và pipeline có nhiều stage." />
+
+Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ, rẻ để truy cập và đủ compute để huấn luyện lại, **joint retraining hoặc full replay** vẫn là baseline đầu tiên nên được báo cáo. Việc tìm kiếm các hướng đi khác rất quan trọng khi một hoặc nhiều điều kiện này không còn khả thi. Mỗi bản cập nhật mới vì vậy phải cân bằng giữa việc tiếp thu năng lực mới (acquisition), giữ lại năng lực cũ (retention) và chi phí tính toán (cost).
 
 <LessonImage assetPath="continual-learning-llm/01-continual-learning-update-tradeoff.png" alt="So sánh full retraining với continual update và tam giác cân bằng acquisition, retention, cost" caption="Continual update giảm nhu cầu xử lý lại toàn bộ lịch sử, nhưng vẫn phải cân bằng học mới, giữ cũ và chi phí." />
 
@@ -38,19 +41,61 @@ Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ, rẻ để truy cập
 
 <MdxPage page={2}>
 
-## Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?
+## Vì sao không chỉ dùng RAG?
 
-Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hiện tại rồi fine-tune trên dữ liệu mới. Cách này rẻ hơn, nhưng nếu lần cập nhật chỉ chứa dữ liệu mới thì hàm loss cũng chỉ đánh giá mô hình trên dữ liệu mới. Mô hình không nhận được tín hiệu nào cho biết những năng lực cũ nào cần được giữ lại.
+Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa nội dung đó vào context khi model trả lời. Đây là lựa chọn rất hữu ích khi hệ thống cần truy cập fact mới hoặc dẫn lại nguồn bên ngoài mà không cập nhật checkpoint cho mỗi tài liệu.
 
-<LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-forgetting.png" alt="Sơ đồ ba bước: model đang giữ Task A, fine-tune với loss chỉ đo Task B, sau đó Task B tăng nhưng Task A giảm" caption="Khi loss chỉ nhìn Task B, mọi cập nhật đều phục vụ B; không có tín hiệu từ dữ liệu cũ để bảo vệ năng lực A." />
+<CourseCards
+  ariaLabel="RAG và Continual Learning thay đổi hai phần khác nhau của hệ thống"
+  exampleLabel="Thứ được thay đổi"
+  takeawayLabel="Phù hợp khi"
+  items={[
+    {
+      title: 'RAG',
+      example: 'Context được bổ sung bằng tài liệu truy xuất; backbone giữ nguyên.',
+      takeaway: 'Model cần đọc nguồn mới tại thời điểm suy luận.',
+    },
+    {
+      title: 'Continual Learning',
+      example: 'Quá trình thích nghi cập nhật model để học năng lực hoặc hành vi mới.',
+      takeaway: 'Thay đổi cần tồn tại ngay cả khi không có tài liệu được truy xuất.',
+    },
+  ]}
+/>
 
-<LessonNote>
-  Đây là vấn đề forgetting cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Chúng ta sẽ phân tích kỹ hơn ở phần Catastrophic Forgetting phía sau.
+Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt. Nếu hành vi mới phải tồn tại khi không có retrieved document, chỉ thêm RAG chưa giải quyết mục tiêu đó; model vẫn cần được thích nghi và sau đó kiểm tra xem năng lực cũ có bị quên hay không.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-rag-vs-continual-learning.png"
+  alt="So sánh RAG truy xuất tài liệu vào context nhưng giữ nguyên model với Continual Learning cập nhật model để hình thành kỹ năng mới có thể sử dụng khi không truy xuất"
+  caption="RAG bổ sung nguồn tham khảo cho lần trả lời; Continual Learning hướng tới năng lực hoặc hành vi được giữ lại trong model sau cập nhật."
+/>
+
+Hai hướng cũng có thể bổ sung cho nhau. [ClimateGPT](https://arxiv.org/abs/2401.09646) là ví dụ trong survey kết hợp domain adaptation, instruction tuning và retrieval augmentation.
+
+<LessonNote tone="warning">
+  Ví dụ, nếu mục tiêu là xây dựng chatbot thực sự **hiểu và tạo tiếng Việt**, chỉ cung cấp tài liệu tiếng Việt qua RAG là chưa đủ. RAG giúp model đọc nội dung được truy xuất; năng lực sử dụng tiếng Việt cần được học qua quá trình tiếp tục huấn luyện hoặc thích nghi model phù hợp.
 </LessonNote>
+
+Nguồn: [Shi et al., §4.2](https://arxiv.org/html/2404.16789v3#S4.SS2) và [§4.3.4](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS4).
 
 </MdxPage>
 
 <MdxPage page={3}>
+
+## Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?
+
+Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hiện tại rồi fine-tune trên dữ liệu mới. Cách này rẻ hơn, nhưng nếu cập nhật chỉ chứa dữ liệu mới thì hàm loss cũng chỉ đánh giá mô hình trên dữ liệu mới. Mô hình không nhận được tín hiệu nào cho biết những năng lực cũ nào cần được giữ lại.
+
+<LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-loss.png" alt="Bốn bước Scratch, Tune, Loss và Forget: huấn luyện từ đầu tốn kém, fine-tune rẻ hơn, loss chỉ nhìn dữ liệu mới và kỹ năng cũ dần biến mất" caption="Fine-tune trên dữ liệu mới tiết kiệm hơn training from scratch, nhưng loss mới không phát tín hiệu bảo vệ những năng lực đã học." />
+
+<LessonNote>
+  Đây là vấn đề cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Chúng ta sẽ phân tích kỹ hơn ở phần Catastrophic Forgetting phía sau.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
 
 ## Mục tiêu của Continual Learning
 

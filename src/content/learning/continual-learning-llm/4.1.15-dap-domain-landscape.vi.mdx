@@ -21,6 +21,8 @@ Lawyer LLaMA tiếp tục pre-train LLaMA trên khoảng **10B token pháp lý**
   limitations={['Paper không công bố replay rate, nên khó tách đóng góp của dữ liệu pháp lý và dữ liệu tổng quát.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/01-dap-legal-lawyer-llama-tradeoff.png" alt="Ưu điểm và hạn chế của Lawyer LLaMA: chuyên biệt hóa từ base model nhưng không công bố replay rate" />
+
 ---
 
 ### [SaulLM](https://arxiv.org/abs/2403.03883)
@@ -31,6 +33,8 @@ SaulLM tiếp tục pre-train trên khoảng **30B token pháp lý**. Corpus c�
   advantages={['Công bố rõ một data mixture dùng general data như replay trong legal DAP.']}
   limitations={['Tỷ lệ 2% là lựa chọn của setup SaulLM, không phải replay rate tối ưu đã được chứng minh cho mọi legal model.']}
 />
+
+<LessonImage assetPath="continual-learning-llm/02-dap-legal-saul-lm-tradeoff.png" alt="Ưu điểm và hạn chế của SaulLM: công bố data mixture nhưng tỷ lệ 2% chưa phải tối ưu cho mọi legal model" />
 
 **Điểm cần nhớ:** corpus chuyên ngành lớn không tự bảo đảm giữ được general ability. Khi dùng replay, tỷ lệ trộn phải được công bố và đánh giá thay vì xem như một chi tiết phụ.
 
@@ -51,6 +55,8 @@ Nghiên cứu theo dõi model trong quá trình train tiếp và ghi nhận **me
   limitations={['Xu hướng được quan sát trong pipeline và benchmark của paper; chưa đủ để khẳng định mọi medical DAP đều suy giảm giống nhau.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/03-dap-medical-training-curve-tradeoff.png" alt="Ưu điểm và hạn chế của continuous training cho Medical QA: thấy trade-off theo từng step nhưng chưa đại diện mọi medical DAP" />
+
 ---
 
 ### [Me-LLaMA](https://arxiv.org/abs/2402.12749)
@@ -61,6 +67,8 @@ Me-LLaMA trộn khoảng **25% dữ liệu tổng quát** vào corpus medical. P
   advantages={['Đánh giá cả năng lực medical và tín hiệu giữ năng lực tổng quát sau DAP.']}
   limitations={['Kết quả không chứng minh 25% là tỷ lệ tối ưu cho model, corpus hoặc benchmark khác.']}
 />
+
+<LessonImage assetPath="continual-learning-llm/04-dap-medical-me-llama-tradeoff.png" alt="Ưu điểm và hạn chế của Me-LLaMA: đo cả medical và general ability nhưng tỷ lệ 25% chưa phải tối ưu chung" />
 
 ---
 
@@ -73,6 +81,8 @@ HuatuoGPT-II chuyển văn bản medical thành cặp instruction–output rồi
   limitations={['Kết quả đặt câu hỏi cho pipeline DAP → SFT, nhưng chưa chứng minh hai giai đoạn luôn thừa trong mọi domain.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/05-dap-medical-huatuogpt2-tradeoff.png" alt="Ưu điểm và hạn chế của HuatuoGPT-II: pipeline hợp nhất hiệu quả hơn nhưng chưa chứng minh pipeline hai giai đoạn luôn thừa" />
+
 Các hướng khác trong survey gồm replay dữ liệu tổng quát, adapter và LoRA, chẳng hạn [AF Adapter](https://arxiv.org/abs/2211.11363). Chúng là các lựa chọn giảm quên, không phải bảo đảm zero forgetting.
 
 </MdxPage>
@@ -83,6 +93,10 @@ Các hướng khác trong survey gồm replay dữ liệu tổng quát, adapter 
 
 Financial DAP thường bắt đầu từ corpus rất lớn: [BBT-Fin](https://arxiv.org/abs/2302.09432) dùng khoảng **80B token**, còn [CFGPT](https://arxiv.org/abs/2309.10654) xây dựng corpus khoảng **141B token**. Tuy nhiên, survey lưu ý cả hai không đánh giá trực tiếp vertical forgetting.
 
+<LessonNote>
+  Bảng 2 của survey ghi nhận [Takahashi et al.](https://arxiv.org/abs/2404.08262) đánh giá Japanese business LLM sau DAP bằng cả task trực tiếp và RAG. Thiết kế này đặt retrieval cạnh model adaptation trong cùng hệ thống đánh giá; nó không phải ablation chứng minh RAG có thể thay cho DAP.
+</LessonNote>
+
 ### [Efficient Continual Pre-training](https://arxiv.org/abs/2311.08545)
 
 Paper chọn khoảng **10% dữ liệu** có tính mới và đa dạng để train FinPythia. Trong setup của paper, tập đã chọn vượt phương án dùng toàn bộ corpus DAP.
@@ -91,6 +105,8 @@ Paper chọn khoảng **10% dữ liệu** có tính mới và đa dạng để t
   advantages={['Cung cấp bằng chứng thực nghiệm rằng data selection có thể quan trọng hơn việc dùng mọi token sẵn có.']}
   limitations={['Kết quả thuộc corpus tài chính và recipe của paper; không suy ra rằng 10% luôn tốt hơn toàn bộ dữ liệu.']}
 />
+
+<LessonImage assetPath="continual-learning-llm/06-dap-financial-data-selection-tradeoff.png" alt="Ưu điểm và hạn chế của data selection tài chính: tập 10% được chọn có thể tốt hơn mọi token nhưng 10% không luôn tối ưu" />
 
 ---
 
@@ -103,6 +119,8 @@ Xuanyuan 2.0 dùng hybrid tuning để trộn dữ liệu tổng quát và tài 
   limitations={['Tỷ lệ 13% gắn với recipe Xuanyuan 2.0, chưa trả lời replay rate nào tối ưu nói chung.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/07-dap-financial-xuanyuan2-tradeoff.png" alt="Ưu điểm và hạn chế của Xuanyuan 2.0: kết hợp acquisition với retention nhưng tỷ lệ 13% chưa trả lời tỷ lệ tối ưu" />
+
 **Câu hỏi mở:** một financial LLM có thật sự cần corpus DAP cực lớn, hay một tập nhỏ hơn nhưng mới, đa dạng và được trộn đúng cách sẽ hiệu quả hơn?
 
 </MdxPage>
@@ -113,6 +131,10 @@ Xuanyuan 2.0 dùng hybrid tuning để trộn dữ liệu tổng quát và tài 
 
 Scientific DAP trải rộng từ đại dương và địa khoa đến thiên văn, như [OceanGPT](https://arxiv.org/abs/2310.02031), [K2](https://arxiv.org/abs/2306.05064), [AstroLLaMA](https://arxiv.org/abs/2309.06126) và [MarineGPT](https://arxiv.org/abs/2310.13596). Điểm chung là đưa tri thức khoa học chuyên ngành vào model; cách giữ reasoning và language ability lại khác nhau.
 
+<LessonNote>
+  [ClimateGPT](https://arxiv.org/abs/2401.09646) minh họa một pipeline kết hợp: DAP và instruction tuning thích nghi model cho climate science, còn retrieval augmentation đưa tài liệu liên quan vào context lúc suy luận. Ví dụ này cho thấy RAG có thể bổ sung cho DAP; survey không cung cấp ablation để kết luận retrieval có thể thay thế phần model adaptation.
+</LessonNote>
+
 ### [GeoGalactica](https://arxiv.org/abs/2401.00434)
 
 GeoGalactica trộn geoscience, arXiv và CodeData theo tỷ lệ **8:1:1**. Paper nêu catastrophic forgetting là một rủi ro của DAP.
@@ -121,6 +143,8 @@ GeoGalactica trộn geoscience, arXiv và CodeData theo tỷ lệ **8:1:1**. Pap
   advantages={['Mixture giữ lại nguồn khoa học rộng hơn và code thay vì chỉ dùng geoscience text.']}
   limitations={['Paper không cung cấp empirical evidence đủ để xác nhận riêng tác dụng của CodeData đối với forgetting.']}
 />
+
+<LessonImage assetPath="continual-learning-llm/08-dap-scientific-geogalactica-tradeoff.png" alt="Ưu điểm và hạn chế của GeoGalactica: giữ science rộng và code nhưng chưa cô lập tác dụng của CodeData" />
 
 ---
 
@@ -133,6 +157,8 @@ Llemma tiếp tục pre-train Code Llama trên Proof-Pile-2 và trộn dữ li�
   limitations={['Paper không cô lập replay thành một thí nghiệm CL riêng, nên không thể quy toàn bộ kết quả retention cho tỷ lệ này.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/09-dap-scientific-llemma-tradeoff.png" alt="Ưu điểm và hạn chế của Llemma: giữ general data khi học toán nhưng không cô lập replay thành thí nghiệm riêng" />
+
 ---
 
 ### [PLLaMA](https://arxiv.org/abs/2401.01600)
@@ -143,6 +169,8 @@ PLLaMA thích nghi LLaMA-2 cho khoa học thực vật và trộn dữ liệu do
   advantages={['Mở rộng DAP sang một nhánh khoa học chuyên sâu với corpus hơn 1,5 triệu bài viết.']}
   limitations={['Các kiểm tra ban đầu tập trung vào plant science; chưa đủ để suy rộng hiệu quả sang các scientific domain khác.']}
 />
+
+<LessonImage assetPath="continual-learning-llm/10-dap-scientific-pllama-tradeoff.png" alt="Ưu điểm và hạn chế của PLLaMA: mở rộng DAP sang plant science nhưng chưa suy rộng sang domain khoa học khác" />
 
 </MdxPage>
 
@@ -161,6 +189,8 @@ Code Llama tiếp tục pre-train Llama 2 trên code rồi chuyên biệt hóa t
   limitations={['Replay giảm rủi ro quên nhưng paper không chứng minh model giữ nguyên mọi năng lực tự nhiên qua mọi stage.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/11-dap-code-code-llama-tradeoff.png" alt="Ưu điểm và hạn chế của Code Llama: chuỗi DAP phân cấp rõ nhưng không bảo đảm giữ mọi năng lực tự nhiên" />
+
 ---
 
 ### [IRCoder](https://arxiv.org/abs/2403.03894)
@@ -172,6 +202,8 @@ IRCoder train tiếp trên source code ghép với **compiler intermediate repre
   limitations={['Cần pipeline compiler và dữ liệu source–IR; lợi ích được kiểm chứng trên các code task của paper.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/12-dap-code-ircoder-tradeoff.png" alt="Ưu điểm và hạn chế của IRCoder: IR nối nhiều ngôn ngữ code nhưng cần compiler và dữ liệu source–IR" />
+
 ---
 
 ### [LLaMA Pro](https://arxiv.org/abs/2401.02415)
@@ -182,6 +214,8 @@ LLaMA Pro thêm các Transformer block mới rồi chỉ cập nhật phần m�
   advantages={['Block expansion chống vertical forgetting tốt hơn LoRA trong các so sánh của paper.']}
   limitations={['Model lớn hơn và finding chỉ được xác nhận trên corpus, baseline cùng benchmark được khảo sát.']}
 />
+
+<LessonImage assetPath="continual-learning-llm/13-dap-code-llama-pro-tradeoff.png" alt="Ưu điểm và hạn chế của LLaMA Pro: block expansion giữ năng lực cũ tốt hơn nhưng làm model lớn hơn và bằng chứng còn hẹp" />
 
 </MdxPage>
 
@@ -200,6 +234,8 @@ ECONET thiết kế objective che event và temporal indicator, kèm nhiệm v�
   limitations={['Kết quả được đánh giá trên năm task relation extraction và QA của paper, không đại diện cho mọi loại reasoning.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/14-dap-other-econet-tradeoff.png" alt="Ưu điểm và hạn chế của ECONET: objective nhắm trực tiếp quan hệ thời gian nhưng chỉ được đánh giá trên năm task" />
+
 ---
 
 ### [CALM](https://arxiv.org/abs/2011.07956)
@@ -210,6 +246,8 @@ CALM kết hợp objective sinh và contrastive để học commonsense xoay qua
   advantages={['Cho thấy task formulation là một trục thiết kế DAP, không chỉ số lượng token.']}
   limitations={['Paper nghiên cứu pretrained text-to-text transformer và các commonsense task cụ thể, không phải mọi decoder-only LLM hiện đại.']}
 />
+
+<LessonImage assetPath="continual-learning-llm/15-dap-other-calm-tradeoff.png" alt="Ưu điểm và hạn chế của CALM: task formulation là một trục thiết kế nhưng phạm vi model và task còn cụ thể" />
 
 ---
 
@@ -222,6 +260,8 @@ AdaptLLM chuyển raw corpus thành dạng **(raw text, question, answer)** đ�
   limitations={['Pipeline cần tạo task từ raw text; chất lượng câu hỏi và câu trả lời trở thành một nguồn sai số mới.']}
 />
 
+<LessonImage assetPath="continual-learning-llm/16-dap-other-adaptllm-tradeoff.png" alt="Ưu điểm và hạn chế của AdaptLLM: dùng domain knowledge trả lời tốt hơn nhưng chất lượng QA được tạo ra là nguồn lỗi mới" />
+
 ---
 
 ### [Tag-LLM](https://arxiv.org/abs/2402.05140)
@@ -232,6 +272,8 @@ Tag-LLM học **domain tag** và **function tag** dưới dạng vector đầu v
   advantages={['Tách domain khỏi function và giữ nguyên tham số của base model.']}
   limitations={['Paper đánh giá trên các specialized domain và task đã chọn; tag không tự bảo đảm generalization cho mọi tổ hợp mới.']}
 />
+
+<LessonImage assetPath="continual-learning-llm/17-dap-other-tag-llm-tradeoff.png" alt="Ưu điểm và hạn chế của Tag-LLM: tách domain khỏi function và giữ base model nhưng không bảo đảm mọi tổ hợp mới" />
 
 [Aurora-M](https://arxiv.org/abs/2404.00399), [Swallow](https://arxiv.org/abs/2404.17790) và [Sailor](https://arxiv.org/abs/2404.03608) bổ sung một góc nhìn multilingual: data mixing và replay giúp cân bằng ngôn ngữ mới với năng lực đã có. Sailor còn dùng proxy model để tìm mixture phù hợp.
 

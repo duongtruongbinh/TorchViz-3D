@@ -17,14 +17,10 @@ Node trước đã trả lời câu hỏi về **effectiveness**: CPT có thể 
 
 Câu hỏi về **efficiency** gồm hai loại chi phí khác nhau:
 
-<ComparisonMatrix
-  ariaLabel="Retention cost và acquisition cost trong Continual Pre-training"
-  columns={['Retention cost — chi phí giữ cũ', 'Acquisition cost — chi phí học mới']}
-  rows={[
-    { label: 'Câu hỏi', values: ['Làm sao giữ knowledge cũ mà không phải train lại toàn bộ lịch sử?', 'Có cần train trên toàn bộ dữ liệu mới vừa thu thập không?'] },
-    { label: 'Nút thắt', values: ['Replay toàn bộ lịch sử tốn nhiều compute, memory và thời gian', 'Dữ liệu production sinh ra liên tục, quá lớn và không phải mẫu nào cũng có giá trị'] },
-    { label: 'Hướng xử lý', values: ['Replay có chọn lọc, parameter regularization hoặc architecture expansion', 'Chọn một tập con dữ liệu mới vừa mới lạ vừa đa dạng'] },
-  ]}
+<LessonImage
+  assetPath="continual-learning-llm/01-cpt-retention-acquisition-cost.png"
+  alt="So sánh retention cost khi giữ kiến thức cũ bằng replay, regularization hoặc architecture expansion với acquisition cost khi lọc dữ liệu mới theo novelty và diversity"
+  caption="Retention cost tập trung giảm chi phí giữ kiến thức cũ; acquisition cost tập trung chọn phần dữ liệu mới có giá trị để giảm lượng dữ liệu cần huấn luyện."
 />
 
 Phần lớn nghiên cứu efficiency trước đây tập trung vào **retention cost**, nên chồng lấn mạnh với Continual Learning cổ điển: replay, parameter regularization và architecture expansion đều cố giữ knowledge cũ với chi phí thấp hơn full retraining. Trục **acquisition cost** đặt một câu hỏi khác: thay vì tối ưu cách giữ dữ liệu cũ, ta có thể giảm lượng dữ liệu mới phải đưa vào CPT hay không?
@@ -98,6 +94,12 @@ Survey nêu hai nghiên cứu cho hướng này:
   { label: 'Perplexity', values: ['Model hiện tại thấy mẫu khó hoặc lạ đến đâu?', 'Loss cao có thể chỉ ra phần knowledge model chưa xử lý tốt'] },
   { label: 'Token-type entropy', values: ['Tập dữ liệu có đa dạng về token không?', 'Tránh chọn quá nhiều mẫu có nội dung tương tự nhau'] },
 ]} />
+
+<LessonImage
+  assetPath="continual-learning-llm/02-cpt-data-selection-signals.png"
+  alt="Ba tín hiệu chọn dữ liệu cho CPT: similarity đo độ gần với task mục tiêu, perplexity phản ánh mức model thấy mẫu khó hoặc lạ, và token entropy đo độ đa dạng token"
+  caption="Similarity ưu tiên dữ liệu liên quan, perplexity tìm phần model chưa xử lý tốt, còn token entropy giúp tránh một tập dữ liệu quá lặp lại."
+/>
 
 <LessonNote>
   Các tín hiệu như khoảng cách embedding với dữ liệu cũ, entity mới hoặc mức thay đổi nội dung theo thời gian là những cách diễn giải hợp lý để hình dung novelty và diversity; chúng không phải một checklist thống nhất đã được cả hai paper xác nhận.

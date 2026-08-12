@@ -14,10 +14,13 @@ export const lessonMetadata = {
 
 Trong Vertical CL, distribution upstream thường bao phủ một phần distribution downstream. Vì vậy, model không bắt đầu từ số 0: checkpoint tổng quát đã cung cấp representation và knowledge hữu ích cho stage tiếp theo.
 
-<ComparisonMatrix ariaLabel="Lợi ích và rủi ro khi đi xuống vertical pipeline" columns={['Điều model nhận được', 'Điều có thể bị mất']} rows={[
-  { label: 'Pre-training → DAP', values: ['Nền tảng ngôn ngữ và world knowledge', 'Độ bao quát ngoài domain'] },
-  { label: 'DAP → Fine-tuning', values: ['Representation phù hợp domain', 'Khả năng sinh hoặc xử lý task khác trong cùng domain'] },
-]} />
+<LessonImage
+  assetPath="continual-learning-llm/01-vertical-forgetting-overview.png"
+  alt="Bốn bước của vertical forgetting: model nhận knowledge upstream, thích nghi xuống các tầng chuyên biệt, một phần năng lực cũ suy giảm, nhưng mỗi tầng vẫn kế thừa checkpoint trước thay vì học lại từ đầu"
+  caption="Model đi xuống vertical pipeline bằng cách kế thừa knowledge từ tầng trước. Quá trình thích nghi tạo năng lực chuyên biệt mới nhưng có thể làm suy giảm một phần năng lực upstream."
+/>
+
+Ví dụ, [**CoLoR**](https://arxiv.org/abs/2311.17601) tận dụng ViT-B/16 đã pre-train trên ImageNet-21k làm backbone, giữ trọng số gốc và học LoRA theo từng dataset thay vì xây lại representation từ đầu.
 
 Khởi tạo tốt giúp học nhanh hơn, nhưng không tự bảo đảm retention. Hai nguyên nhân lớn là **task heterogeneity** và **không thể truy cập upstream data**.
 
@@ -30,8 +33,8 @@ Khởi tạo tốt giúp học nhanh hơn, nhưng không tự bảo đảm reten
 **Task heterogeneity** là sự khác biệt vốn có giữa cách phát biểu task, output space, objective và quy trình tối ưu hóa ở các tầng.
 
 <ComparisonMatrix ariaLabel="Ví dụ task heterogeneity giữa upstream và downstream" columns={['Input', 'Output cần học', 'Objective']} rows={[
-  { label: 'Upstream language modeling', values: ['“The capital of France is …”', 'Paris', 'Dự đoán token tiếp theo'] },
-  { label: 'Downstream classification', values: ['“The movie was disappointing.”', 'Negative', 'Phân loại nhãn'] },
+  { label: 'Upstream language modeling', values: ['"The capital of France is …"', 'Paris', 'Dự đoán token tiếp theo'] },
+  { label: 'Downstream classification', values: ['"The movie was disappointing."', 'Negative', 'Phân loại nhãn'] },
 ]} />
 
 Fine-tune mạnh cho hai nhãn `Positive/Negative` có thể thay đổi representation và weights để tối ưu ranh giới classification, đồng thời làm yếu khả năng sinh ngôn ngữ hoặc knowledge tổng quát.
@@ -44,6 +47,12 @@ Fine-tune mạnh cho hai nhãn `Positive/Negative` có thể thay đổi represe
     { title: 'Đóng băng tham số dùng chung', example: 'Chỉ cập nhật head, adapter hoặc một phần nhỏ của model.', takeaway: 'Hạn chế phá vỡ representation upstream.' },
     { title: 'Đồng nhất task formulation', example: 'Chuyển classification thành dạng text-to-text gần objective pre-training.', takeaway: 'Giảm mức thay đổi giữa hai stage.' },
   ]}
+/>
+
+<LessonImage
+  assetPath="continual-learning-llm/02-vertical-task-heterogeneity-mitigation.png"
+  alt="Hai cách giảm task heterogeneity: đóng băng backbone và chỉ cập nhật head hoặc adapter; hoặc đưa classification và generation về cùng dạng input-output bằng văn bản"
+  caption="Có thể giảm task heterogeneity bằng cách hạn chế phần tham số được cập nhật hoặc đồng nhất cách biểu diễn task giữa upstream và downstream."
 />
 
 </MdxPage>

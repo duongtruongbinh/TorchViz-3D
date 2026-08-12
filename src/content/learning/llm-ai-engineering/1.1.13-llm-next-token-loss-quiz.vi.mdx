@@ -7,7 +7,7 @@ export const lessonMetadata = {
 
 <MdxQuiz id="llm-next-token-loss-checkpoint-quiz" questions={[
   {
-    id: 'shifted-target', title: 'Chọn context để dự đoán', prompt: 'Để dự đoán token “cat” trong câu “I saw a cat”, những token nào được dùng làm context?', mode: 'multi',
+    id: 'shifted-target', title: 'Chọn context để dự đoán', prompt: 'Để dự đoán token "cat" trong câu "I saw a cat", những token nào được dùng làm context?', mode: 'multi',
     options: [
       { id: 'i', label: 'I', isCorrect: true },
       { id: 'cat', label: 'cat' },
@@ -15,8 +15,8 @@ export const lessonMetadata = {
       { id: 'on', label: 'on' },
       { id: 'a', label: 'a', isCorrect: true },
     ],
-    success: 'Đúng. Model dùng toàn bộ context bên trái là “I saw a” để dự đoán token “cat”.',
-    error: 'Chưa đúng. Hãy chọn tất cả token đứng trước “cat”, không chọn chính target hoặc token nằm sau nó.',
+    success: 'Đúng. Model dùng toàn bộ context bên trái là "I saw a" để dự đoán token "cat".',
+    error: 'Chưa đúng. Hãy chọn tất cả token đứng trước "cat", không chọn chính target hoặc token nằm sau nó.',
   },
   {
     id: 'one-hot-target', title: 'Target one-hot', prompt: 'Trong target one-hot tại một vị trí, giá trị 1 nằm ở đâu?', mode: 'single',

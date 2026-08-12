@@ -20,11 +20,9 @@ export const lessonMetadata = {
 
 ## Giữ năng lực cũ mà vẫn học được điều mới
 
-**Stability** là khả năng giữ hiệu năng trên tri thức đã học. **Plasticity** là khả năng thay đổi đủ nhanh để tiếp thu dữ liệu hoặc tác vụ mới. Continual Learning thất bại nếu chỉ tối ưu một phía: mô hình quá ổn định sẽ không học được, còn mô hình quá dẻo sẽ ghi đè tri thức cũ.
+**Stability** là khả năng giữ hiệu năng trên tri thức đã học. **Plasticity** là khả năng thay đổi đủ nhanh để tiếp thu dữ liệu hoặc tác vụ mới. Continual Learning thất bại nếu chỉ tối ưu một phía: mô hình quá ổn định sẽ không học được, còn mô hình thích nghi quá nhanh sẽ ghi đè tri thức cũ.
 
 <BlockMath formula="\mathcal{L}_{\mathrm{CL}}(\theta)=\underbrace{\mathcal{L}_{\mathrm{retain}}(\theta)}_{\text{stability}}+\lambda\,\underbrace{\mathcal{L}_{\mathrm{new}}(\theta)}_{\text{plasticity}}" />
-
-Đây là một **khung trực giác**, không phải một thuật toán duy nhất. Vế <InlineMath formula="\mathcal{L}_{\mathrm{retain}}" /> đại diện cho ràng buộc giữ tri thức cũ, có thể đến từ replay, distillation hoặc regularization; vế <InlineMath formula="\mathcal{L}_{\mathrm{new}}" /> thúc đẩy mô hình học dữ liệu mới. Hệ số <InlineMath formula="\lambda" /> quá nhỏ nghiêng về stability và có thể underfit dữ liệu mới, còn quá lớn nghiêng về plasticity và dễ quên.
 
 <LessonNote>
   Accuracy trên task mới tăng chưa đủ để kết luận hệ thống học tốt. Nếu task cũ giảm mạnh, mô hình chỉ đổi năng lực chứ chưa học liên tục.
@@ -36,19 +34,15 @@ export const lessonMetadata = {
 
 ## Trade-off thay đổi theo bối cảnh
 
-Trade-off stability–plasticity không cố định. Nó thay đổi theo bốn yếu tố:
+Sự đánh đổi này phụ thuộc vào bốn yếu tố:
 
-1. **Độ lệch phân phối** giữa dữ liệu cũ và mới.
-2. **Độ dài chuỗi cập nhật** mà mô hình phải trải qua.
-3. **Quyền truy cập dữ liệu cũ** trong mỗi lần cập nhật.
-4. **Chi phí sai lệch của từng năng lực** nếu mô hình quên hoặc học chưa đủ.
-
-Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật (stage).
+<LessonImage assetPath="continual-learning-llm/01-stability-plasticity-context-factors.png" alt="Bốn yếu tố làm thay đổi trade-off stability–plasticity: độ lệch phân phối, độ dài chuỗi cập nhật, quyền truy cập dữ liệu cũ và rủi ro của năng lực" caption="Cùng một chiến lược giữ cũ–học mới có thể cần điều chỉnh khi dữ liệu, lịch cập nhật, quyền truy cập hoặc mức rủi ro thay đổi." />
 
 <CourseCards
   ariaLabel="Bốn yếu tố làm thay đổi trade-off stability–plasticity"
   exampleLabel="Ví dụ"
   takeawayLabel="Tác động lên trade-off"
+  singleColumn
   items={[
     {
       title: 'Độ lệch phân phối',
@@ -72,6 +66,8 @@ Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisit
     },
   ]}
 />
+
+Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật (stage). Các độ đo cụ thể sẽ được đề cập ở Chương 5.
 
 Nguồn: [Shi et al., §2.2](https://arxiv.org/html/2404.16789v3#S2.SS2).
 

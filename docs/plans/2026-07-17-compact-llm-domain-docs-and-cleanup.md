@@ -183,7 +183,7 @@ lesson data and focused tests.
   Landing/Learning plans, the Learning Lab wiki, the untracked rebase plan, the
   branch status/history, both commit summaries, and the complete branch path
   inventory. Stored this draft as the first write; no other file was modified.
-- 2026-07-17 — Requester approved the plan with “Bắt đầu”. Status advanced
+- 2026-07-17 — Requester approved the plan with "Bắt đầu". Status advanced
   through approved to executing; documentation compaction and code audit began.
 - 2026-07-17 — Folded the sixteen short plans into the existing 2026-07-14
   content-architecture plan as five coherent histories; updated its durable

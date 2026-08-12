@@ -91,13 +91,6 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
   };
 
   const rail = {
-    railToggleButton: cx(
-      'flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-colors',
-      focusRing,
-      isLight
-        ? 'border-[#205089]/10 bg-[#DCE6F1]/34 text-[#123B68]/52 hover:bg-[#DCE6F1]/70 hover:text-[#123B68]'
-        : 'border-[#A8B8C8]/12 bg-[#A8B8C8]/8 text-[#F2F6FA]/52 hover:bg-[#A8B8C8]/14 hover:text-[#F2F6FA]',
-    ),
     trackHeading: (isCurrentTrack: boolean) => (
       isLight
         ? isCurrentTrack
@@ -152,7 +145,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
       ? '[--learning-lab-section-accent-bg:rgba(255,255,255,0.88)] [--learning-lab-section-accent-text:#172A43] shadow-none'
       : '[--learning-lab-section-accent-bg:#17304A] [--learning-lab-section-accent-text:#F2F6FA] shadow-none',
     heading: isLight ? 'text-[#123B68]' : 'text-[#A8D4FF]',
-    note: isLight ? 'bg-[#205089]/8 text-[#123B68]' : 'bg-[#A8D4FF]/10 text-[#D7EAFE]',
+    note: isLight ? 'bg-[#F1F8F4] text-[#263B5B]' : 'bg-[#A8D4FF]/10 text-[#D7EAFE]',
   };
 
   return {
