@@ -17,7 +17,7 @@ Architecture-based methods mở rộng mạng theo thời gian để tiếp nh�
 
 Nói đơn giản, model giữ một **backbone dùng chung**, sau đó gắn thêm một mạng nhỏ cho dữ liệu hoặc task mới. Module cũ được giữ nguyên thay vì bị fine-tune lại, nên update mới không trực tiếp ghi đè phần tham số đã phục vụ task trước.
 
-Theo taxonomy của survey, architecture expansion/isolation bảo vệ tri thức cũ bằng cách dành capacity hoặc đường xử lý riêng cho stage mới <Cite paper="shi2024continualSurvey" locator="§2.2.2" />.
+Theo taxonomy của survey, architecture expansion/isolation bảo vệ tri thức cũ bằng cách dành capacity hoặc đường xử lý riêng cho stage mới <Cite paper="shi2024continualSurvey" evidence="architecture-expansion-01-shi2024continualSurvey" />.
 
 <LessonImage
   assetPath="continual-learning-llm/01-architecture-expansion-shared-backbone-branches.png"
@@ -39,7 +39,7 @@ Theo taxonomy của survey, architecture expansion/isolation bảo vệ tri th�
 
 ## CoLoR chọn LoRA như thế nào?
 
-Paper <Cite paper="wistuba2023" label="Continual Learning with Low Rank Adaptation" /> giới thiệu **CoLoR** như một ví dụ cụ thể của hướng này. Paper thực nghiệm trên Vision Transformer (ViT), không phải LLM sinh văn bản; survey dùng CoLoR để minh họa cách PEFT giúp architecture expansion trở nên khả thi với các pretrained Transformer lớn.
+Paper giới thiệu **CoLoR**, một phương pháp continual learning dựa trên LoRA, như một ví dụ cụ thể của hướng này <Cite paper="wistuba2023" evidence="architecture-expansion-02-wistuba2023" />. Paper thực nghiệm trên Vision Transformer (ViT), không phải LLM sinh văn bản; survey dùng CoLoR để minh họa cách PEFT giúp architecture expansion trở nên khả thi với các pretrained Transformer lớn.
 
 CoLoR tách quá trình thành hai phần:
 
@@ -54,6 +54,6 @@ CoLoR tách quá trình thành hai phần:
 
 **Ví dụ:** giả sử model lần lượt học ảnh thật, tranh vẽ và ảnh phác thảo trong DomainNet. CoLoR giữ ba bộ LoRA riêng cùng các prototype feature của từng domain. Khi nhận một ảnh phác thảo mới, feature của ảnh được so với toàn bộ prototype. Nếu prototype gần nhất thuộc domain ảnh phác thảo, router kích hoạt LoRA tương ứng rồi mới tạo dự đoán.
 
-Điểm yếu cũng nằm ngay tại bước này: nếu input bị gán nhầm sang prototype của tranh vẽ, hệ thống sẽ chọn sai LoRA dù module dành cho ảnh phác thảo vẫn được lưu nguyên vẹn. Architecture expansion bảo vệ module cũ, nhưng vẫn phụ thuộc vào chất lượng routing <Cite paper="wistuba2023" label="Wistuba et al., Continual Learning with Low Rank Adaptation" />; survey đặt cách tiếp cận này trong nhóm architecture-based methods <Cite paper="shi2024continualSurvey" locator="§2.2.2" />.
+Điểm yếu cũng nằm ngay tại bước này: nếu input bị gán nhầm sang prototype của tranh vẽ, hệ thống sẽ chọn sai LoRA dù module dành cho ảnh phác thảo vẫn được lưu nguyên vẹn. Architecture expansion bảo vệ module cũ, nhưng vẫn phụ thuộc vào chất lượng routing <Cite paper="wistuba2023" evidence="architecture-expansion-03-wistuba2023" />; survey đặt cách tiếp cận này trong nhóm architecture-based methods <Cite paper="shi2024continualSurvey" evidence="architecture-expansion-04-shi2024continualSurvey" />.
 
 </MdxPage>

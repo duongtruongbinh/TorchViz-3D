@@ -604,7 +604,7 @@ Kết quả cho thấy model **học lại hoàn toàn Task A**, nhưng không g
 - **Task B:** Prefix Match giảm từ `100%` xuống `0%`; Answer NLL tăng từ `0.000026` lên `3.947222`.
 
 <LessonNote>
-  Setup 3 cho thấy việc train lại A có thể đảo chiều forgetting, nhưng model vẫn chuyển từ nhớ B sang nhớ A thay vì giữ tốt cả hai task. Kết quả này có thể gợi ý rằng A dễ phục hồi, nhưng chưa tách được underlying knowledge khỏi task alignment nên chưa đủ để tự kết luận "spurious forgetting" <Cite paper="zheng2025spurious" label="Zheng et al., Spurious Forgetting in Continual Learning of Language Models" />.
+  Setup 3 cho thấy việc train lại A có thể đảo chiều forgetting, nhưng model vẫn chuyển từ nhớ B sang nhớ A thay vì giữ tốt cả hai task. Kết quả này có thể gợi ý rằng A dễ phục hồi, nhưng chưa tách được underlying knowledge khỏi task alignment nên chưa đủ để tự kết luận "spurious forgetting" <Cite paper="zheng2025spurious" evidence="replay-lab-boundary-01-zheng2025spurious" />.
 </LessonNote>
 
 </MdxPage>
@@ -1100,7 +1100,7 @@ Notebook và paper dùng cách thí nghiệm khác nhau, nên không thể so s�
 />
 
 <LessonNote>
-  **Điểm cần nhớ:** nếu chỉ train trên dữ liệu mới, model có thể quên task cũ rất nhanh. Trộn lại một phần dữ liệu cũ tạo ra tín hiệu nhắc model giữ cách xử lý task trước đó <Cite paper="zheng2025spurious" locator="§3.2, Figure 2 và Table 1" />.
+  **Điểm cần nhớ:** trong fixture của khóa học, nếu chỉ train trên dữ liệu mới, model quên task cũ rất nhanh; trộn lại một phần dữ liệu cũ tạo tín hiệu giữ cách xử lý task trước đó. Kết quả này đo task performance, không tự chứng minh underlying knowledge đã mất hay được giữ, vì performance drop có thể phản ánh suy giảm task alignment <Cite paper="zheng2025spurious" evidence="replay-lab-boundary-02-zheng2025spurious" />.
 </LessonNote>
 
 </MdxPage>

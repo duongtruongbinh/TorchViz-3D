@@ -41,11 +41,11 @@ Ba hướng này không thay thế các metric CL tổng quát. Chúng mở rộ
 
 ## LAMA: Tách giữ, cập nhật và học mới
 
-<Cite paper="petroni2019language" label="LAnguage Model Analysis (LAMA)" /> biến một world fact thành câu điền khuyết rồi yêu cầu language model dự đoán đáp án. Trong CPT dưới temporal shift, một điểm tổng hợp không đủ vì fact có thể giữ nguyên, thay đổi hoặc mới xuất hiện.
+LAMA biến một world fact thành câu điền khuyết rồi yêu cầu language model dự đoán đáp án <Cite paper="petroni2019language" evidence="knowledge-and-capability-evaluation-01-petroni2019language" />. Trong CPT dưới temporal shift, một điểm tổng hợp không đủ vì fact có thể giữ nguyên, thay đổi hoặc mới xuất hiện.
 
 Ví dụ, ta đưa vào model câu **"Paris là thủ đô của [MASK]"**. Nếu model dự đoán "Pháp", câu trả lời được tính là đúng. Cách kiểm tra này cho thấy model có thể truy xuất fact từ tham số hay không mà không cần fine-tune thêm cho câu hỏi đó.
 
-<Cite paper="jang2022towards" label="Jang et al. (2022)" /> dùng LAMA trong một thí nghiệm **Continual Knowledge Learning (CKL)**:
+CKL dùng LAMA để đánh giá factual knowledge qua một chuỗi cập nhật <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-02-jang2022towards" />:
 
 ### 1. Chuẩn bị corpus cũ D₀
 
@@ -89,7 +89,7 @@ Sau đó, paper dùng ba tập LAMA để đánh giá quá trình cập nhật c
   ]}
 />
 
-Ba lát cắt của <Cite paper="jang2022towards" label="Jang et al. (2022)" /> mở rộng cách probing factual knowledge từ <Cite paper="petroni2019language" label="Petroni et al. (2019)" /> và giúp tránh kết luận sai rằng model "tốt hơn" chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời; survey đặt chúng trong khung evaluation cho continual LLM <Cite paper="shi2024continualSurvey" locator="§5" />.
+Ba lát cắt CKL mở rộng cách probing factual knowledge của LAMA để tách retention, update và acquisition <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-03-jang2022towards" /> <Cite paper="petroni2019language" evidence="knowledge-and-capability-evaluation-04-petroni2019language" />. Cách tách này giúp tránh kết luận sai rằng model "tốt hơn" chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời; survey đặt chúng trong khung evaluation cho continual LLM <Cite paper="shi2024continualSurvey" evidence="knowledge-and-capability-evaluation-05-shi2024continualSurvey" />.
 
 </MdxPage>
 
@@ -97,7 +97,7 @@ Ba lát cắt của <Cite paper="jang2022towards" label="Jang et al. (2022)" /> 
 
 ## FUAR: So lượng quên với lượng học
 
-Sau khi LAMA đã tách các fact thành **bị quên**, **được cập nhật** và **mới được tiếp thu**, <Cite paper="jang2022towards" label="Jang et al. (2022)" /> dùng **Forgotten / (Updated + Acquired) Ratio (FUAR)** để gom trade-off đó thành một tỷ lệ:
+Sau khi LAMA đã tách các fact thành **bị quên**, **được cập nhật** và **mới được tiếp thu**, CKL dùng **Forgotten / (Updated + Acquired) Ratio (FUAR)** để gom trade-off đó thành một tỷ lệ <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-06-jang2022towards" />:
 
 <BlockMath formula="\mathrm{FUAR}=\frac{\mathrm{Forgotten}}{\mathrm{Updated}+\mathrm{Acquired}}" />
 
@@ -111,7 +111,7 @@ Ví dụ, nếu model quên 20 fact trên InvariantLAMA nhưng cập nhật ho�
 
 <BlockMath formula="\mathrm{FUAR}=\frac{20}{50}=0.4" />
 
-FUAR thấp hơn 1 cho biết lượng knowledge thu được lớn hơn lượng mất đi. Tuy nhiên, vẫn cần xem từng tập LAMA vì cùng một FUAR có thể đến từ các số lượng fact rất khác nhau. OP cũng không thay thế FUAR: OP tóm tắt hiệu năng task, còn FUAR tập trung vào trade-off giữa forgetting, update và acquisition của knowledge <Cite paper="jang2022towards" label="Towards Continual Knowledge Learning of Language Models — Jang et al. (2022)" />; survey tổng hợp metric này ở phần evaluation <Cite paper="shi2024continualSurvey" locator="§5" />.
+FUAR thấp hơn 1 cho biết lượng knowledge thu được lớn hơn lượng mất đi. Tuy nhiên, vẫn cần xem từng tập LAMA vì cùng một FUAR có thể đến từ các số lượng fact rất khác nhau. OP cũng không thay thế FUAR: OP tóm tắt hiệu năng task, còn FUAR tập trung vào trade-off giữa forgetting, update và acquisition của knowledge <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-07-jang2022towards" />; survey tổng hợp metric này ở phần evaluation <Cite paper="shi2024continualSurvey" evidence="knowledge-and-capability-evaluation-08-shi2024continualSurvey" />.
 
 </MdxPage>
 
@@ -119,7 +119,7 @@ FUAR thấp hơn 1 cho biết lượng knowledge thu được lớn hơn lượn
 
 ## X-Delta: Theo dõi năng lực nền
 
-<Cite paper="wang2023trace" label="TRACE" /> đặt một câu hỏi rộng hơn việc model còn nhớ các task cũ hay không: **sau continual training, model có đánh mất những năng lực vốn có của một aligned LLM không?** Survey gọi ba phép đo của TRACE là nhóm metric **X-Delta**.
+TRACE đặt một câu hỏi rộng hơn việc model còn nhớ các task cũ hay không: **sau continual training, model có đánh mất những năng lực vốn có của một aligned LLM không?** <Cite paper="wang2023trace" evidence="knowledge-and-capability-evaluation-09-wang2023trace" /> Survey gọi ba phép đo của TRACE là nhóm metric **X-Delta**.
 
 ### 1. Đo baseline trước khi continual training
 
@@ -145,8 +145,8 @@ Trong đó, <InlineMath formula="X" /> là một nhóm năng lực. X-Delta dư�
   { label: 'Safety Delta', values: ['Mức an toàn sau trừ trước', 'Continual training làm suy giảm safety alignment'] },
 ]} />
 
-Ví dụ, TRACE báo cáo accuracy GSM8K của Llama 2 Chat 13B giảm từ <InlineMath formula="28.8\%" /> xuống <InlineMath formula="2\%" /> sau continual training, tương ứng delta <InlineMath formula="-26.8" /> điểm phần trăm trên thành phần này <Cite paper="wang2023trace" label="TRACE — Wang et al. (2023)" />.
+Ví dụ, TRACE báo cáo accuracy GSM8K của Llama 2 Chat 13B giảm từ <InlineMath formula="28.8\%" /> xuống <InlineMath formula="2\%" /> sau continual training, tương ứng delta <InlineMath formula="-26.8" /> điểm phần trăm trên thành phần này <Cite paper="wang2023trace" evidence="knowledge-and-capability-evaluation-10-wang2023trace" />.
 
-X-Delta không thay thế OP hoặc F. OP/F theo dõi các task trong continual sequence; X-Delta kiểm tra những năng lực nằm ngoài chuỗi training có bị ảnh hưởng hay không <Cite paper="shi2024continualSurvey" locator="§5" />.
+X-Delta không thay thế OP hoặc F. OP/F theo dõi các task trong continual sequence; X-Delta kiểm tra những năng lực nằm ngoài chuỗi training có bị ảnh hưởng hay không <Cite paper="shi2024continualSurvey" evidence="knowledge-and-capability-evaluation-11-shi2024continualSurvey" />.
 
 </MdxPage>

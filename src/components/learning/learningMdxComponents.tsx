@@ -17,10 +17,11 @@ import {
 import { BookOpen, Check, Code2, Copy, ExternalLink, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { createContext, isValidElement, useContext, useEffect, useId, useRef, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
+import { createContext, isValidElement, useContext, useEffect, useId, useMemo, useRef, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { Language } from '../../lib/localization';
-import { citationEvidenceTargetLabel, type LearningCitationEvidence } from '../../core/learning/citationEvidence';
+import { citationEvidenceTargetLabel, type LearningCitationEvidence, type LearningCitationLinkOnlyException } from '../../core/learning/citationEvidence';
+import { indexLearningReferences } from '../../core/learning/referenceIndex';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
 import QuizBlock, { type QuizQuestionState } from './lesson/QuizBlock';
 import { CodeBlock } from './code/CodeBlock';
@@ -47,7 +48,9 @@ const LearningMdxLessonContext = createContext<{
   language: Language;
   pageIndex: number;
   referencePapers?: readonly LearningReferencePaper[];
+  referenceIndexByPaperId: ReadonlyMap<string, number>;
   citationEvidence?: readonly LearningCitationEvidence[];
+  citationLinkOnlyExceptions?: readonly LearningCitationLinkOnlyException[];
   activeCitationEvidenceId: string | null;
   setActiveCitationEvidenceId: (evidenceId: string | null) => void;
   featuredReferenceIds?: readonly string[];
@@ -60,7 +63,7 @@ export function LearningMdxThemeProvider({ children, themeClasses }: { children:
   return <LearningMdxThemeContext.Provider value={themeClasses}>{children}</LearningMdxThemeContext.Provider>;
 }
 
-export function LearningMdxLessonProvider({ children, domainId, lessonId, language, pageIndex, referencePapers, citationEvidence, featuredReferenceIds, referenceCourseAnalysis, quizQuestionStates, onQuizQuestionStateChange }: {
+export function LearningMdxLessonProvider({ children, domainId, lessonId, language, pageIndex, referencePapers, citationEvidence, citationLinkOnlyExceptions, featuredReferenceIds, referenceCourseAnalysis, quizQuestionStates, onQuizQuestionStateChange }: {
   children: ReactNode;
   domainId: string;
   lessonId: string;
@@ -68,13 +71,18 @@ export function LearningMdxLessonProvider({ children, domainId, lessonId, langua
   pageIndex: number;
   referencePapers?: readonly LearningReferencePaper[];
   citationEvidence?: readonly LearningCitationEvidence[];
+  citationLinkOnlyExceptions?: readonly LearningCitationLinkOnlyException[];
   featuredReferenceIds?: readonly string[];
   referenceCourseAnalysis?: string;
   quizQuestionStates?: Record<string, QuizQuestionState>;
   onQuizQuestionStateChange?: (questionId: string, state: QuizQuestionState) => void;
 }) {
   const [activeCitationEvidenceId, setActiveCitationEvidenceId] = useState<string | null>(null);
-  return <LearningMdxLessonContext.Provider value={{ domainId, lessonId, language, pageIndex, referencePapers, citationEvidence, activeCitationEvidenceId, setActiveCitationEvidenceId, featuredReferenceIds, referenceCourseAnalysis, quizQuestionStates, onQuizQuestionStateChange }}>{children}</LearningMdxLessonContext.Provider>;
+  const indexedReferences = useMemo(
+    () => indexLearningReferences(referencePapers ?? [], featuredReferenceIds ?? []),
+    [featuredReferenceIds, referencePapers],
+  );
+  return <LearningMdxLessonContext.Provider value={{ domainId, lessonId, language, pageIndex, referencePapers: indexedReferences.ordered, referenceIndexByPaperId: indexedReferences.indexById, citationEvidence, citationLinkOnlyExceptions, activeCitationEvidenceId, setActiveCitationEvidenceId, featuredReferenceIds, referenceCourseAnalysis, quizQuestionStates, onQuizQuestionStateChange }}>{children}</LearningMdxLessonContext.Provider>;
 }
 
 export function useLearningMdxTheme(): LearningThemeClasses {
@@ -806,6 +814,12 @@ function useLearningCitationEvidence(evidenceId: string | undefined): LearningCi
   return lessonContext.citationEvidence?.find((evidence) => evidence.id === evidenceId) ?? null;
 }
 
+function useLearningCitationLinkOnlyException(exceptionId: string | undefined): LearningCitationLinkOnlyException | null {
+  const lessonContext = useLearningMdxLesson();
+  if (!exceptionId) return null;
+  return lessonContext.citationLinkOnlyExceptions?.find((exception) => exception.id === exceptionId) ?? null;
+}
+
 function referenceAuthorLabel(paper: LearningReferencePaper): string {
   const firstAuthor = paper.authors[0]?.split(',')[0]?.trim() || paper.title;
   return paper.authors.length > 1 ? `${firstAuthor} et al.` : firstAuthor;
@@ -975,18 +989,23 @@ function CitationPreviewLink({ citation, evidence, reference }: {
   );
 }
 
-export function Cite({ paper, locator, label, evidence: evidenceId }: { paper: string; locator?: string; label?: string; evidence?: string }) {
+export function Cite({ paper, evidence: evidenceId, exception: exceptionId }: { paper: string; evidence?: string; exception?: string }) {
   const themeClasses = useLearningMdxTheme();
+  const { referenceIndexByPaperId } = useLearningMdxLesson();
   const reference = useLearningReferencePaper(paper);
   const evidence = useLearningCitationEvidence(evidenceId);
+  const linkOnlyException = useLearningCitationLinkOnlyException(exceptionId);
   if (!reference) return <span className="text-rose-700" title={`Unknown paper ID: ${paper}`}>[{paper}]</span>;
+  if (evidenceId && exceptionId) return <span className="text-rose-700" title="A citation cannot declare both evidence and a link-only exception">[{paper}]</span>;
   if (evidenceId && !evidence) return <span className="text-rose-700" title={`Unknown citation evidence ID: ${evidenceId}`}>[{evidenceId}]</span>;
-  const citationBase = label ?? `${referenceAuthorLabel(reference)}${reference.year ? ` (${reference.year})` : ''}`;
-  const citation = `${citationBase}${locator ? `, ${locator}` : ''}`;
+  if (exceptionId && !linkOnlyException) return <span className="text-rose-700" title={`Unknown citation link-only exception ID: ${exceptionId}`}>[{exceptionId}]</span>;
+  const referenceIndex = referenceIndexByPaperId.get(paper);
+  if (!referenceIndex) return <span className="text-rose-700" title={`Paper is missing from the lesson reference index: ${paper}`}>[{paper}]</span>;
+  const citation = `[${referenceIndex}]`;
   if (evidence) return <CitationPreviewLink citation={citation} evidence={evidence} reference={reference} />;
   return (
     <a
-      href={reference.url}
+      href={linkOnlyException?.verificationUrl ?? reference.url}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${citation}: ${reference.title} (mở trong tab mới)`}
@@ -1053,28 +1072,28 @@ export function LessonReferences() {
     <section className={cx('mt-10 border-t pt-6', themeClasses.isLight ? 'border-[#205089]/16' : 'border-[#A8B8C8]/18')} aria-labelledby="lesson-references-heading">
       <div className="flex items-center gap-2">
         <BookOpen className={cx('size-5', themeClasses.accentText)} aria-hidden="true" />
-        <h2 id="lesson-references-heading" className={cx('text-lg font-black text-balance', themeClasses.titleText)}>Nguồn và bản đồ paper</h2>
+        <h2 id="lesson-references-heading" className={cx('text-lg font-black text-balance', themeClasses.titleText)}>Nguồn chính được dùng trong bài</h2>
       </div>
       {referenceCourseAnalysis ? <p className={cx('mt-3 max-w-[72ch] text-sm leading-6', themeClasses.bodyText)}><strong>Phạm vi diễn giải:</strong> {referenceCourseAnalysis}</p> : null}
-      {featured.length ? <ReferencePaperList title="Nguồn chính được dùng trong bài" papers={featured} /> : null}
+      {featured.length ? <ReferencePaperList title="" papers={featured} startIndex={1} /> : null}
       {additional.length ? (
         <details className={cx('mt-5 rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC]' : 'border-[#A8B8C8]/18 bg-[#121A24]/42')}>
           <summary className={cx('cursor-pointer px-4 py-3 text-sm font-black marker:text-[#2F78B7]', themeClasses.focusRing, themeClasses.titleText)}>
             Bằng chứng liên quan trong survey ({additional.length} paper)
           </summary>
-          <div className="border-t border-[#205089]/10 px-4 pb-4"><ReferencePaperList title="" papers={additional} /></div>
+          <div className="border-t border-[#205089]/10 px-4 pb-4"><ReferencePaperList title="" papers={additional} startIndex={featured.length + 1} /></div>
         </details>
       ) : null}
     </section>
   );
 }
 
-function ReferencePaperList({ title, papers }: { title: string; papers: readonly LearningReferencePaper[] }) {
+function ReferencePaperList({ title, papers, startIndex }: { title: string; papers: readonly LearningReferencePaper[]; startIndex: number }) {
   const themeClasses = useLearningMdxTheme();
   return (
     <div className="mt-5">
       {title ? <h3 className={cx('text-sm font-black', themeClasses.titleText)}>{title}</h3> : null}
-      <ol className="mt-2 grid list-decimal gap-2 pl-5">
+      <ol start={startIndex} className="mt-2 grid list-decimal gap-2 pl-5">
         {papers.map((paper) => (
           <li key={paper.id} className={cx('pl-1 text-sm leading-6', themeClasses.bodyText)}>
             <a href={paper.url} target="_blank" rel="noreferrer" className={cx('font-bold underline-offset-4 hover:underline', themeClasses.focusRing, themeClasses.isLight ? 'text-[#205E91]' : 'text-[#9CC7EF]')}>

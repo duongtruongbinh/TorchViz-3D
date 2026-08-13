@@ -24,7 +24,7 @@ Survey nêu ba hướng chính:
 - **Parameter editing:** chọn phần tham số cần sửa cho từng correction.
 - **Side memory:** tách tri thức mới khỏi main-model parameters.
 
-Câu hỏi mở là **nơi model lưu một fact có chắc là nơi tốt nhất để sửa fact đó hay không**. Vì vậy, mỗi phương pháp phải được kiểm tra đồng thời bằng reliability, locality và hiệu quả sau một chuỗi edit <Cite paper="shi2024continualSurvey" locator="§4.3.4" />.
+Câu hỏi mở là **nơi model lưu một fact có chắc là nơi tốt nhất để sửa fact đó hay không**. Vì vậy, mỗi phương pháp phải được kiểm tra đồng thời bằng reliability, locality và hiệu quả sau một chuỗi edit <Cite paper="shi2024continualSurvey" evidence="continual-model-refinement-01-shi2024continualSurvey" />.
 
 </MdxPage>
 
@@ -44,9 +44,9 @@ Nhóm retrieval-based không cố ghi mọi correction trực tiếp vào cùng 
   Retrieval ở đây không hoàn toàn đồng nghĩa với pipeline RAG tài liệu phổ biến. GRACE, MELO và Larimar truy xuất correction, adaptor hoặc episodic memory được thiết kế riêng cho model editing; mục tiêu là áp dụng đúng một edit trong chuỗi update, không chỉ thêm một đoạn tài liệu vào prompt.
 </LessonNote>
 
-### <Cite paper="hartvigsen2023aging" label="GRACE" />
+### GRACE
 
-GRACE lấy hidden activation làm **key** và lưu correction trong các key–value adaptor rời rạc. Khi activation mới nằm gần một key đã lưu, adaptor tương ứng được kích hoạt để áp dụng edit.
+GRACE lấy hidden activation làm **key** và lưu correction trong các key–value adaptor rời rạc. Khi activation mới nằm gần một key đã lưu, adaptor tương ứng được kích hoạt để áp dụng edit. <Cite paper="hartvigsen2023aging" evidence="continual-model-refinement-02-hartvigsen2023aging" />
 
 <PaperTradeoff
   advantages={['Tách correction khỏi phần lớn base-model weights nên giảm tác động ngoài phạm vi sửa.', 'Có thể thêm edit mới theo kiểu mở rộng bộ nhớ.']}
@@ -55,9 +55,9 @@ GRACE lấy hidden activation làm **key** và lưu correction trong các key–
 
 ---
 
-### <Cite paper="yu2023melo" label="MELO" />
+### MELO
 
-MELO kết hợp LoRA động với một vector database bên trong. Database tìm edit liên quan, còn LoRA cung cấp phần tham số nhỏ để thực thi thay đổi đó.
+MELO kết hợp LoRA động với một vector database bên trong. Database tìm edit liên quan, còn LoRA cung cấp phần tham số nhỏ để thực thi thay đổi đó. <Cite paper="yu2023melo" evidence="continual-model-refinement-03-yu2023melo" />
 
 <PaperTradeoff
   advantages={['Kết hợp truy xuất theo input với update tham số hiệu quả của LoRA.', 'Không cần sửa toàn bộ base model cho mỗi correction.']}
@@ -66,9 +66,9 @@ MELO kết hợp LoRA động với một vector database bên trong. Database t
 
 ---
 
-### <Cite paper="das2024larimar" label="Larimar" />
+### Larimar
 
-Larimar đặt correction trong **external episodic memory**. Model đọc bộ nhớ này khi trả lời, nhờ đó có thể thêm hoặc quên thông tin mà không liên tục ghi đè toàn bộ tham số nền.
+Larimar đặt correction trong **external episodic memory**. Model đọc bộ nhớ này khi trả lời, nhờ đó có thể thêm hoặc quên thông tin mà không liên tục ghi đè toàn bộ tham số nền. <Cite paper="das2024larimar" evidence="continual-model-refinement-04-das2024larimar" />
 
 <PaperTradeoff
   advantages={['Cho phép cập nhật nhanh bộ nhớ ngoài và giảm việc sửa base-model weights.', 'Hỗ trợ quản lý tri thức theo các episode riêng.']}
@@ -79,9 +79,9 @@ Larimar đặt correction trong **external episodic memory**. Model đọc bộ 
 
 CMR cũng có thể chọn vị trí tham số cần sửa hoặc dành một vùng tham số riêng cho tri thức mới. Hai lựa chọn này giảm việc mọi correction cùng tranh chấp trên toàn model.
 
-#### <Cite paper="hu2024wilke" label="WilKE" />
+#### WilKE
 
-WilKE so khớp knowledge pattern để chọn layer phù hợp cho từng edit. Mục tiêu là tránh hiện tượng lỗi tích lũy khi nhiều correction liên tiếp đều bị ép vào một vị trí cố định.
+WilKE so khớp knowledge pattern để chọn layer phù hợp cho từng edit. Mục tiêu là tránh hiện tượng lỗi tích lũy khi nhiều correction liên tiếp đều bị ép vào một vị trí cố định. <Cite paper="hu2024wilke" evidence="continual-model-refinement-05-hu2024wilke" />
 
 <PaperTradeoff
   advantages={['Chọn layer theo từng knowledge edit thay vì mặc định một layer cho mọi fact.', 'Nhắm trực tiếp tới sự suy giảm sau chuỗi edit dài.']}
@@ -90,9 +90,9 @@ WilKE so khớp knowledge pattern để chọn layer phù hợp cho từng edit.
 
 ---
 
-#### <Cite paper="wang2024wise" label="WISE" />
+#### WISE
 
-WISE dùng hai vùng parametric memory: **main memory** giữ năng lực nền, còn **side memory** nhận các edit mới. Các knowledge shard trong side memory được định tuyến và hợp nhất để cân bằng reliability, locality và generalization.
+WISE dùng hai vùng parametric memory: **main memory** giữ năng lực nền, còn **side memory** nhận các edit mới. Các knowledge shard trong side memory được định tuyến và hợp nhất để cân bằng reliability, locality và generalization. <Cite paper="wang2024wise" evidence="continual-model-refinement-06-wang2024wise" />
 
 <PaperTradeoff
   advantages={['Cô lập update mới khỏi main memory để giảm tác dụng phụ.', 'Cơ chế shard cho phép tích lũy rồi hợp nhất nhiều correction.']}
@@ -101,9 +101,9 @@ WISE dùng hai vùng parametric memory: **main memory** giữ năng lực nền,
 
 ### Locate không đồng nghĩa edit
 
-#### <Cite paper="hase2023does" label="Hase et al." />
+#### Hase et al.
 
-Nhiều phương pháp đi theo trực giác **locate and edit**: trước tiên tìm layer hoặc neuron có liên hệ nhân quả với một fact, rồi sửa đúng vị trí đó. Hase et al. cho thấy vị trí được causal tracing xem là nơi lưu fact không dự đoán ổn định vị trí tạo ra edit tốt nhất.
+Nhiều phương pháp đi theo trực giác **locate and edit**: trước tiên tìm layer hoặc neuron có liên hệ nhân quả với một fact, rồi sửa đúng vị trí đó. Hase et al. cho thấy vị trí được causal tracing xem là nơi lưu fact không dự đoán ổn định vị trí tạo ra edit tốt nhất. <Cite paper="hase2023does" evidence="continual-model-refinement-07-hase2023does" />
 
 <PaperTradeoff
   advantages={['Tách rõ hai câu hỏi vốn dễ bị nhập làm một: fact được biểu diễn ở đâu và nên can thiệp ở đâu.', 'Cung cấp bằng chứng để đánh giá edit bằng kết quả thực tế thay vì chỉ dựa vào localization score.']}

@@ -1,4 +1,7 @@
-import { continualLearningCitationEvidence } from '../src/content/learning/continual-learning-llm/citationEvidence.ts';
+import {
+  continualLearningCitationEvidence,
+  continualLearningCitationLinkOnlyExceptions,
+} from '../src/content/learning/continual-learning-llm/citationEvidence.ts';
 
 const ENTITY_MAP = new Map([
   ['amp', '&'],
@@ -40,12 +43,11 @@ async function auditEvidence(evidence) {
     return { status: 'manual-required', message: evidence.automatedAudit.reason };
   }
   const target = new URL(evidence.verificationUrl);
-  const response = await fetch(`${target.origin}${target.pathname}${target.search}`, {
-    headers: { 'user-agent': 'TorchViz-3D citation evidence audit/1.0' },
-    redirect: 'follow',
-  });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const html = await response.text();
+  const { html, contentType } = await fetchSource(target);
+  if (evidence.targetPrecision === 'pdf-page') {
+    if (!/^application\/pdf\b/i.test(contentType)) throw new Error(`expected PDF source, received ${contentType || 'unknown content type'}`);
+    throw new Error('PDF text extraction is not configured; mark this record manual-required after a documented page review');
+  }
   if (evidence.targetPrecision === 'html-anchor' && (!target.hash || !hasHtmlAnchor(html, target.hash))) {
     throw new Error(`missing HTML anchor ${target.hash || '<empty>'}`);
   }
@@ -54,6 +56,37 @@ async function auditEvidence(evidence) {
     throw new Error(`searchText drift: ${JSON.stringify(evidence.searchText)}`);
   }
   return { status: 'verified' };
+}
+
+const sourceFetches = new Map();
+
+function fetchSource(target) {
+  const sourceUrl = `${target.origin}${target.pathname}${target.search}`;
+  const cached = sourceFetches.get(sourceUrl);
+  if (cached) return cached;
+  const request = fetch(sourceUrl, {
+    headers: { 'user-agent': 'TorchViz-3D citation evidence audit/1.0' },
+    redirect: 'follow',
+  }).then(async (response) => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return {
+      html: await response.text(),
+      contentType: response.headers.get('content-type') ?? '',
+    };
+  });
+  sourceFetches.set(sourceUrl, request);
+  return request;
+}
+
+async function auditLinkOnlyException(exception) {
+  const target = new URL(exception.verificationUrl);
+  try {
+    await fetchSource(target);
+    return `source reachable; excerpt remains intentionally unavailable — ${exception.reason}`;
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return `source check ${detail}; explicit exception — ${exception.reason}`;
+  }
 }
 
 const results = await Promise.allSettled(continualLearningCitationEvidence.map(auditEvidence));
@@ -76,5 +109,9 @@ if (failures > 0) {
   console.error(`\n${failures} evidence target(s) need manual review. The audit never rewrites approved excerpts.`);
   process.exitCode = 1;
 } else {
-  console.log(`\nVerified ${results.length} reviewed evidence target(s).`);
+  const exceptionResults = await Promise.all(continualLearningCitationLinkOnlyExceptions.map(auditLinkOnlyException));
+  for (const [index, message] of exceptionResults.entries()) {
+    console.log(`◇ ${continualLearningCitationLinkOnlyExceptions[index].id}: ${message}`);
+  }
+  console.log(`\nVerified ${results.length} reviewed evidence target(s); ${exceptionResults.length} explicit link-only exception(s).`);
 }

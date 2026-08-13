@@ -7,15 +7,20 @@ import { continualLearningLessonPairs } from '../content/learning/continual-lear
 import {
   continualLearningCitationEvidence,
   continualLearningCitationEvidenceById,
+  continualLearningCitationLinkOnlyExceptionById,
+  continualLearningCitationLinkOnlyExceptions,
 } from '../content/learning/continual-learning-llm/citationEvidence.ts';
 import {
   continualLearningLessonReferenceCoverage,
   continualLearningPaperById,
   continualLearningPapers,
   getContinualLearningLessonClaimEvidence,
+  getContinualLearningLessonFeaturedReferenceIds,
+  getContinualLearningLessonPapers,
   getContinualLearningLessonReferenceIds,
 } from '../content/learning/continual-learning-llm/papers.ts';
 import { citationEvidenceTargetLabel } from '../core/learning/citationEvidence.ts';
+import { indexLearningReferences } from '../core/learning/referenceIndex.ts';
 import { getLearningMdxComponentNames, parseLearningMdxPath } from '../core/learning/mdxContract.ts';
 import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComponents.ts';
 import type { LearningCatalog } from '../core/learning/types.ts';
@@ -204,6 +209,9 @@ test('published continual-learning pairs map theory concepts to quiz questions e
     assert.ok(Array.isArray(theoryConceptIds) && theoryConceptIds.length, `${pair.theory.id} needs conceptIds`);
     assert.deepEqual(quizInspection.metadata.conceptIds, theoryConceptIds);
     assert.deepEqual(quizInspection.quizQuestionIds, theoryConceptIds);
+    assert.deepEqual(quizInspection.citationReferences, [], `${pair.quiz.id} must not receive inline citation evidence`);
+    assert.deepEqual(quizInspection.paperSummaryReferences, [], `${pair.quiz.id} must not receive reference analysis blocks`);
+    assert.ok(!continualLearningLessonReferenceCoverage.some((coverage) => coverage.lessonId === pair.quiz.id), `${pair.quiz.id} must not receive a generated reference page`);
   }
 });
 
@@ -248,11 +256,19 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
   }
 
   assert.equal(continualLearningCitationEvidence.length, continualLearningCitationEvidenceById.size, 'citation evidence IDs must be unique');
+  assert.equal(continualLearningCitationLinkOnlyExceptions.length, continualLearningCitationLinkOnlyExceptionById.size, 'citation exception IDs must be unique');
+  assert.equal(
+    new Set([...continualLearningCitationEvidence.map((item) => item.id), ...continualLearningCitationLinkOnlyExceptions.map((item) => item.id)]).size,
+    continualLearningCitationEvidence.length + continualLearningCitationLinkOnlyExceptions.length,
+    'citation occurrence IDs must be unique across evidence and exception registries',
+  );
   for (const evidence of continualLearningCitationEvidence) {
     const coverage = continualLearningLessonReferenceCoverage.find((item) => item.lessonId === evidence.lessonId);
     assert.ok(coverage, `${evidence.id} references unknown lesson ${evidence.lessonId}`);
-    assert.ok(coverage.claims.some((claim) => claim.id === evidence.claimId), `${evidence.id} references unknown claim ${evidence.claimId}`);
+    const claim = coverage.claims.find((item) => item.id === evidence.claimId);
+    assert.ok(claim, `${evidence.id} references unknown claim ${evidence.claimId}`);
     assert.ok(continualLearningPaperById.has(evidence.paperId), `${evidence.id} references unknown paper ${evidence.paperId}`);
+    assert.ok(getContinualLearningLessonClaimEvidence(evidence.lessonId).some((item) => item.paperId === evidence.paperId), `${evidence.id} paper is not linked to its reviewed claim`);
     assert.ok(evidence.excerpt.includes(evidence.searchText), `${evidence.id} searchText must be an exact excerpt substring`);
     assert.match(evidence.verificationUrl, /^https?:\/\//, `${evidence.id} needs an HTTP(S) verification target`);
     assert.match(evidence.retrievedAt, /^\d{4}-\d{2}-\d{2}$/);
@@ -262,6 +278,9 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
     assert.ok(citationEvidenceTargetLabel(evidence.targetPrecision).length > 0);
     if (evidence.targetPrecision === 'html-anchor') {
       assert.ok(new URL(evidence.verificationUrl).hash, `${evidence.id} claims HTML precision without an anchor`);
+    }
+    if (evidence.targetPrecision === 'pdf-page') {
+      assert.match(new URL(evidence.verificationUrl).hash, /^#page=\d+$/, `${evidence.id} claims PDF precision without a page target`);
     }
     if (evidence.verificationUrl.includes('arxiv.org/html/')) {
       assert.match(evidence.sourceVersion ?? '', /^arXiv v\d+$/, `${evidence.id} must pin its reviewed arXiv version`);
@@ -275,7 +294,20 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
     }
   }
 
+  for (const exception of continualLearningCitationLinkOnlyExceptions) {
+    const coverage = continualLearningLessonReferenceCoverage.find((item) => item.lessonId === exception.lessonId);
+    const claim = coverage?.claims.find((item) => item.id === exception.claimId);
+    assert.ok(claim, `${exception.id} references an unknown lesson or claim`);
+    assert.ok(getContinualLearningLessonClaimEvidence(exception.lessonId).some((item) => item.paperId === exception.paperId), `${exception.id} paper is not linked to its reviewed claim`);
+    assert.ok(continualLearningPaperById.has(exception.paperId), `${exception.id} references unknown paper ${exception.paperId}`);
+    assert.ok(exception.reason.trim(), `${exception.id} needs a concrete link-only reason`);
+    assert.match(exception.verificationUrl, /^https?:\/\//, `${exception.id} needs an HTTP(S) target`);
+    assert.match(exception.reviewedAt, /^\d{4}-\d{2}-\d{2}$/);
+  }
+
   const usedEvidenceIds = new Set<string>();
+  const usedExceptionIds = new Set<string>();
+  let paperSummaryCount = 0;
 
   for (const file of domainFiles.filter((candidate) => !parseLearningMdxPath(candidate)?.lessonId.endsWith('-quiz'))) {
     const parsed = parseLearningMdxPath(file);
@@ -287,6 +319,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
       /^Nguồn(?: tổng hợp| liên quan)?:/m,
       `${parsed.lessonId} must place prose evidence beside the claim instead of in a trailing source line`,
     );
+    assert.doesNotMatch(source, /^#{1,6} .*<Cite\b/m, `${parsed.lessonId} must place citations after local prose claims, not inside headings`);
     const coverageIds = new Set(getContinualLearningLessonReferenceIds(parsed.lessonId));
     const authoredPaperIds = new Set(inspection.paperReferenceIds);
     for (const paperId of inspection.paperReferenceIds) {
@@ -294,19 +327,29 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
       assert.ok(coverageIds.has(paperId), `${parsed.lessonId} cites ${paperId} outside its claim coverage`);
     }
     for (const citation of inspection.citationReferences) {
-      if (!citation.evidenceId) continue;
-      assert.ok(!usedEvidenceIds.has(citation.evidenceId), `${citation.evidenceId} must identify one citation occurrence`);
-      usedEvidenceIds.add(citation.evidenceId);
-      const evidence = continualLearningCitationEvidenceById.get(citation.evidenceId);
-      assert.ok(evidence, `${parsed.lessonId} cites unknown evidence ${citation.evidenceId}`);
-      assert.equal(evidence.lessonId, parsed.lessonId, `${citation.evidenceId} belongs to another lesson`);
-      assert.equal(evidence.paperId, citation.paperId, `${citation.evidenceId} belongs to another paper`);
-      assert.equal(evidence.locator, citation.locator, `${citation.evidenceId} locator must match its authored citation`);
+      assert.notEqual(Boolean(citation.evidenceId), Boolean(citation.exceptionId), `${parsed.lessonId}/${citation.paperId} must declare exactly one evidence or link-only exception ID`);
+      if (citation.evidenceId) {
+        assert.ok(!usedEvidenceIds.has(citation.evidenceId), `${citation.evidenceId} must identify one citation occurrence`);
+        usedEvidenceIds.add(citation.evidenceId);
+        const evidence = continualLearningCitationEvidenceById.get(citation.evidenceId);
+        assert.ok(evidence, `${parsed.lessonId} cites unknown evidence ${citation.evidenceId}`);
+        assert.equal(evidence.lessonId, parsed.lessonId, `${citation.evidenceId} belongs to another lesson`);
+        assert.equal(evidence.paperId, citation.paperId, `${citation.evidenceId} belongs to another paper`);
+        if (citation.locator) {
+          assert.equal(evidence.locator, citation.locator, `${citation.evidenceId} locator must match its authored citation`);
+        }
+      }
+      if (citation.exceptionId) {
+        assert.ok(!usedExceptionIds.has(citation.exceptionId), `${citation.exceptionId} must identify one citation occurrence`);
+        usedExceptionIds.add(citation.exceptionId);
+        const exception = continualLearningCitationLinkOnlyExceptionById.get(citation.exceptionId);
+        assert.ok(exception, `${parsed.lessonId} cites unknown exception ${citation.exceptionId}`);
+        assert.equal(exception.lessonId, parsed.lessonId, `${citation.exceptionId} belongs to another lesson`);
+        assert.equal(exception.paperId, citation.paperId, `${citation.exceptionId} belongs to another paper`);
+      }
     }
-    if (parsed.lessonId === 'continual-learning-llm-overview') {
-      assert.ok(inspection.citationReferences.length > 0);
-      assert.ok(inspection.citationReferences.every((citation) => citation.evidenceId), 'the Overview pilot requires evidence for every Cite occurrence');
-    }
+    assert.ok(inspection.citationReferences.length > 0, `${parsed.lessonId} needs at least one reviewed Cite occurrence`);
+    paperSummaryCount += inspection.paperSummaryReferences.length;
     for (const evidence of getContinualLearningLessonClaimEvidence(parsed.lessonId)) {
       if (evidence.exposure !== 'reference-page') {
         assert.ok(authoredPaperIds.has(evidence.paperId), `${parsed.lessonId} must expose ${evidence.paperId} beside its claim`);
@@ -322,6 +365,8 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
     }
   }
   assert.deepEqual([...usedEvidenceIds].sort(), continualLearningCitationEvidence.map((evidence) => evidence.id).sort(), 'every reviewed evidence record must be used exactly once');
+  assert.deepEqual([...usedExceptionIds].sort(), continualLearningCitationLinkOnlyExceptions.map((exception) => exception.id).sort(), 'every link-only exception must be used exactly once');
+  assert.equal(paperSummaryCount, 3, 'the three authored PaperSummary occurrences must remain inventoried');
   assert.ok(getContinualLearningLessonReferenceIds('continual-learning-llm-overview').length <= 4, 'overview must not inherit the survey introduction bibliography');
   assert.ok(getContinualLearningLessonReferenceIds('continual-llm-synthesis').length <= 2, 'synthesis must not duplicate the full course bibliography');
   const reachableIds = new Set(continualLearningLessonReferenceCoverage.flatMap((coverage) => getContinualLearningLessonReferenceIds(coverage.lessonId)));
@@ -348,6 +393,41 @@ test('continual-learning references assemble as one dedicated final runtime page
   assert.doesNotMatch(registry, /pageIndex === lesson\.pageCount - 1.*<LessonReferences/);
   const referencePageAssembly = registry.slice(registry.indexOf('const referencePage ='), registry.indexOf('const pages ='));
   assert.doesNotMatch(referencePageAssembly, /citationEvidence=/, 'the final paper-map page must remain preview-free');
+  assert.doesNotMatch(referencePageAssembly, /citationLinkOnlyExceptions=/, 'the final paper-map page must not receive occurrence review data');
+  const components = readFileSync('src/components/learning/learningMdxComponents.tsx', 'utf8');
+  assert.match(components, /const citation = `\[\$\{referenceIndex\}\]`/);
+  assert.match(components, /startIndex=\{featured\.length \+ 1\}/, 'additional references must continue after featured numbering');
+});
+
+test('lesson reference indexes put featured papers first and reuse one number per paper', () => {
+  const papers = [{ id: 'additional-a' }, { id: 'featured-b' }, { id: 'featured-a' }, { id: 'additional-b' }];
+  const indexed = indexLearningReferences(papers, ['featured-a', 'featured-b']);
+  assert.deepEqual(indexed.ordered.map((paper) => paper.id), ['featured-b', 'featured-a', 'additional-a', 'additional-b']);
+  assert.equal(indexed.featuredCount, 2);
+  assert.deepEqual(Object.fromEntries(indexed.indexById), {
+    'featured-b': 1,
+    'featured-a': 2,
+    'additional-a': 3,
+    'additional-b': 4,
+  });
+  assert.deepEqual(['featured-b', 'featured-b'].map((paperId) => indexed.indexById.get(paperId)), [1, 1], 'repeated citations must resolve to one paper index');
+
+  for (const coverage of continualLearningLessonReferenceCoverage) {
+    const lessonPapers = getContinualLearningLessonPapers(coverage.lessonId);
+    const featuredIds = getContinualLearningLessonFeaturedReferenceIds(coverage.lessonId);
+    const lessonIndex = indexLearningReferences(lessonPapers, featuredIds);
+    assert.deepEqual(
+      [...lessonIndex.indexById.values()],
+      Array.from({ length: lessonPapers.length }, (_, index) => index + 1),
+      `${coverage.lessonId} final reference numbering must be continuous`,
+    );
+    for (const evidence of continualLearningCitationEvidence.filter((item) => item.lessonId === coverage.lessonId)) {
+      assert.ok(lessonIndex.indexById.has(evidence.paperId), `${evidence.id} must resolve to its final-page paper number`);
+    }
+    for (const exception of continualLearningCitationLinkOnlyExceptions.filter((item) => item.lessonId === coverage.lessonId)) {
+      assert.ok(lessonIndex.indexById.has(exception.paperId), `${exception.id} must resolve to its final-page paper number`);
+    }
+  }
 });
 
 test('continual-learning quizzes vary correct positions and keep one defensible answer shape', async () => {

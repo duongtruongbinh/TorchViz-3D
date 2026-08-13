@@ -10,7 +10,7 @@ export const lessonMetadata = {
 
 Pre-trained LLM thường chống quên tốt hơn model chỉ được huấn luyện cho một downstream task. Nhưng survey lưu ý rằng ta vẫn biết rất ít về những hành vi khác xuất hiện khi LLM học liên tục.
 
-Một thí nghiệm đã phát hiện điều khó đoán: model quên thông tin trong một document, rồi **tự khôi phục thông tin đó trước khi document xuất hiện lại**. Survey gọi hiện tượng này là **anticipatory recovering** <Cite paper="shi2024continualSurvey" locator="§6.1" />.
+Một thí nghiệm đã phát hiện điều khó đoán: model quên thông tin trong một document, rồi **tự khôi phục thông tin đó trước khi document xuất hiện lại**. Survey gọi hiện tượng này là **anticipatory recovering** <Cite paper="shi2024continualSurvey" evidence="anticipatory-recovery-01-shi2024continualSurvey" />.
 
 Điểm đặc biệt không chỉ là model recover. Điểm đặc biệt là **recovery đến sớm hơn dữ liệu đáng lẽ dùng để nhắc lại kiến thức**.
 
@@ -20,9 +20,9 @@ Một thí nghiệm đã phát hiện điều khó đoán: model quên thông ti
 
 ## Recover trước khi gặp lại
 
-### <Cite paper="yang2024reawakening" label="Reawakening Knowledge" />
+### Reawakening Knowledge
 
-Paper fine-tune model tuần tự trên một chuỗi document có cấu trúc cố định và được lặp lại theo chu kỳ. Trong setting đó, model đôi khi recover kiến thức của document cũ khi chu kỳ đang tiến gần tới document ấy, dù chưa nhìn thấy lại nội dung gốc.
+Paper fine-tune model tuần tự trên một chuỗi document có cấu trúc cố định và được lặp lại theo chu kỳ. Trong setting đó, model đôi khi recover kiến thức của document cũ khi chu kỳ đang tiến gần tới document ấy, dù chưa nhìn thấy lại nội dung gốc. <Cite paper="yang2024reawakening" evidence="anticipatory-recovery-02-yang2024reawakening" />
 
 <ConceptFlow ariaLabel="Anticipatory recovering trong chuỗi document tuần hoàn" items={[
   { title: 'Học document', detail: 'Thông tin được ghi nhận trong sequence' },

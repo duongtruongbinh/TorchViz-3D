@@ -18,7 +18,7 @@ export const lessonMetadata = {
 
 ## Ba kiểu thay đổi
 
-Survey phân loại các tình huống thay đổi trong thực tế thành 3 loại. Taxonomy TIL/DIL/CIL và cách mỗi setting xử lý task signal hoặc output space cũng được hệ thống hóa bởi <Cite paper="van2022three" />; một góc nhìn lý thuyết bổ sung được trình bày bởi <Cite paper="kim2022theoretical" />:
+Survey phân loại các tình huống thay đổi trong thực tế thành 3 loại. Taxonomy TIL/DIL/CIL và cách mỗi setting xử lý task signal hoặc output space cũng được hệ thống hóa bởi <Cite paper="van2022three" exception="til-dil-cil-settings-01-van2022three-link-only" />; một góc nhìn lý thuyết bổ sung được trình bày bởi <Cite paper="kim2022theoretical" evidence="til-dil-cil-settings-02-kim2022theoretical" />:
 
 1. **Task-Incremental Learning (TIL) — đổi việc cần làm.** Mô hình chuyển sang task mới và được cung cấp task ID.
 2. **Domain-Incremental Learning (DIL) — đổi nguồn dữ liệu.** Task và bộ nhãn giữ nguyên, nhưng dữ liệu đến từ domain mới.
@@ -156,7 +156,7 @@ refund
 
 <LessonNote>
 
-  Tương tự DIL, CIL cũng không dùng task ID để chọn một head riêng cho class mới. Model phải phân biệt **tất cả class trong một output space chung** <Cite paper="shi2024continualSurvey" locator="§2.2.1" />.
+  Trong taxonomy của survey, CIL là setting model học thêm class mới theo từng giai đoạn <Cite paper="shi2024continualSurvey" evidence="til-dil-cil-settings-03-shi2024continualSurvey" />. Trong ví dụ của bài, model không dùng task ID để chọn head riêng mà phải phân biệt **tất cả class trong một output space chung**.
 
 </LessonNote>
 

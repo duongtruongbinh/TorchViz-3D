@@ -151,7 +151,8 @@ citationEvidence.ts
   -> reviewed occurrence-level excerpts + search fragments + verification targets
 
 locale MDX
-  -> claim-level <Cite paper="..." evidence="..."> placement and localized <PaperSummary>
+  -> claim-level <Cite paper="..." evidence="..."> or explicit exception placement
+  -> localized <PaperSummary>
 
 compiled lesson assembly
   -> authored pages + one dedicated final reference page
@@ -200,13 +201,15 @@ analysis rather than presented as externally reproduced evidence.
 
 Inline citation previews use a second, occurrence-level contract in
 `citationEvidence.ts`. A paper can support several local claims, so a paper ID
-or broad locator is not an evidence ID. Each authored preview citation uses
-`<Cite paper="paper-id" locator="§/paragraph" evidence="evidence-id" />`; the
-evidence record must agree with the lesson, claim, paper, and locator. It stores
-an exact source-language excerpt, an exact searchable substring, the closest
-honest verification URL, target precision, reviewed source version/date, and
-quotation basis. Paraphrases remain in lesson prose and must never be rendered
-as a paper quotation.
+or broad locator is not an evidence ID. Each authored citation must use exactly
+one of `<Cite paper="paper-id" evidence="evidence-id" />` or
+`<Cite paper="paper-id" exception="exception-id" />`. Evidence must agree with
+the lesson, claim, paper, and any locator authored in MDX. It stores an exact
+source-language excerpt, an exact searchable substring, the closest honest
+verification URL, target precision, reviewed source version/date, and quotation
+basis. A link-only exception stores the same occurrence identity plus a
+specific reason and reviewed canonical URL; it is not an empty evidence record.
+Paraphrases remain in lesson prose and must never be rendered as paper quotes.
 
 Verification targets prefer a versioned HTML paragraph anchor, then a canonical
 PDF page, then a canonical landing page. The action label reflects that
@@ -217,14 +220,24 @@ against their declared sources. Sources that block maintenance requests require
 an explicit `manual-required` reason and browser review; the audit reports the
 exception and never rewrites approved evidence.
 
-The shared `Cite` stays link-only when no evidence ID is authored. With evidence
-it opens a non-modal, portal-rendered preview on hover or keyboard focus; touch
-uses the first tap to pin the preview, and the explicit action opens the source.
-No source is fetched during interaction. Evidence is injected only into authored
-lesson pages, so the dedicated `Nguồn và bản đồ paper` page remains ordinary
-links by construction. The Overview node is the current pilot checkpoint;
-domain-wide evidence coverage is intentionally deferred until its fidelity and
-interaction are reviewed.
+The shared `Cite` opens a non-modal, portal-rendered preview when reviewed
+evidence is present; explicit exceptions remain numeric links without a silent
+empty tooltip. Hover and keyboard focus open the preview, touch uses the first
+tap to pin it, and the explicit action opens the source. No source is fetched
+during interaction. Evidence and exception data are injected only into authored
+lesson pages, so the dedicated `Nguồn chính được dùng trong bài` page remains
+ordinary links by construction. The Continual Learning domain currently has
+178 authored citation occurrences across 39 theory/lab nodes: 176 reviewed
+evidence records and two explicit link-only exceptions. The three authored
+`PaperSummary` blocks remain prose analysis and do not instantiate previews.
+
+Inline citation text is numeric and lesson-local: `[1]`, `[2]`, and so on. The
+index uses the exact order of the final paper map, with featured sources first
+and additional survey evidence continuing the same sequence rather than
+restarting at 1. Repeated citations to one paper reuse one number even when
+their occurrence-level evidence excerpts differ. `Cite` authors only the paper
+ID plus either an evidence ID or an explicit exception ID; the preview and final
+page retain the readable paper identity.
 
 The optional hierarchical numeric prefix keeps authored files in typed-TOC
 order without becoming part of the canonical lesson ID. The LLM course uses
@@ -431,6 +444,11 @@ remain green so progress continues to take precedence.
   three-answer runs such as A–B–C or D–C–B. Single-choice questions have exactly
   one correct option; distractors remain plausible alternatives from the taught
   concept's semantic neighborhood rather than unrelated filler.
+- Every authored Continual Learning `Cite` belongs to exactly one occurrence and
+  declares either reviewed evidence or a reasoned link-only exception. Evidence
+  IDs, exception IDs, lesson/claim/paper relationships, source targets, exact
+  search fragments, numbering, and unused records are enforced offline; Quiz
+  and final reference pages never receive preview registries.
 - Review membership is derived from `published` lesson nodes tagged `exercise`;
   there is no parallel review or practice content record.
 - Workspace exercise handoff resolves a React-free catalog entry point and opens

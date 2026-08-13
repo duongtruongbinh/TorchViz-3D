@@ -5,7 +5,10 @@ import {
   getContinualLearningLessonFeaturedReferenceIds,
   getContinualLearningLessonPapers,
 } from '../../content/learning/continual-learning-llm/papers.ts';
-import { getContinualLearningLessonCitationEvidence } from '../../content/learning/continual-learning-llm/citationEvidence.ts';
+import {
+  getContinualLearningLessonCitationEvidence,
+  getContinualLearningLessonCitationLinkOnlyExceptions,
+} from '../../content/learning/continual-learning-llm/citationEvidence.ts';
 import {
   getLearningMdxLocaleCandidates,
   parseLearningMdxPath,
@@ -84,9 +87,12 @@ export function getLearningMdxLesson({ domainId, language, lessonId, quizQuestio
   const citationEvidence = domainId === 'continual-learning-llm'
     ? getContinualLearningLessonCitationEvidence(lessonId)
     : [];
+  const citationLinkOnlyExceptions = domainId === 'continual-learning-llm'
+    ? getContinualLearningLessonCitationLinkOnlyExceptions(lessonId)
+    : [];
   const authoredPages = Array.from({ length: lesson.pageCount }, (_, pageIndex) => (
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-${pageIndex}`} themeClasses={themeClasses}>
-      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} referencePapers={referencePapers} citationEvidence={citationEvidence} featuredReferenceIds={featuredReferenceIds} referenceCourseAnalysis={referenceCoverage?.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
+      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} referencePapers={referencePapers} citationEvidence={citationEvidence} citationLinkOnlyExceptions={citationLinkOnlyExceptions} featuredReferenceIds={featuredReferenceIds} referenceCourseAnalysis={referenceCoverage?.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
         <div className="learning-mdx-content">
           <Content components={components} />
         </div>

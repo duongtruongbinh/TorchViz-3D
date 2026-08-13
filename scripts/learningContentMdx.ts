@@ -15,7 +15,7 @@ const STRUCTURAL_KEYS = new Set([
   'id', 'kind', 'locale', 'domainId', 'sectionRefId', 'image', 'href', 'depth', 'mode',
   'interactionPlacement', 'categoryId', 'correctOrder', 'isCorrect', 'compact',
   'hideUnsortedLabel', 'page', 'pageCount', 'step', 'icon',
-  'evidence',
+  'evidence', 'exception',
   'opType', 'inputShape', 'outputShape', 'config', 'kernel', 'stride', 'padding', 'dilation',
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
@@ -91,6 +91,7 @@ export type LearningMdxInspection = {
   quizQuestions: LearningMdxQuizQuestionInspection[];
   cvExerciseFixtures: unknown[];
   paperReferenceIds: string[];
+  paperSummaryReferences: LearningMdxPaperSummaryInspection[];
   citationReferences: LearningMdxCitationInspection[];
   searchText: string;
 };
@@ -99,6 +100,12 @@ export type LearningMdxCitationInspection = {
   paperId: string;
   locator?: string;
   evidenceId?: string;
+  exceptionId?: string;
+};
+
+export type LearningMdxPaperSummaryInspection = {
+  paperId: string;
+  locator?: string;
 };
 
 export type LearningMdxQuizQuestionInspection = {
@@ -122,6 +129,7 @@ export async function inspectLearningMdx(
   const quizQuestions: LearningMdxQuizQuestionInspection[] = [];
   const cvExerciseFixtures: unknown[] = [];
   const paperReferenceIds: string[] = [];
+  const paperSummaryReferences: LearningMdxPaperSummaryInspection[] = [];
   const citationReferences: LearningMdxCitationInspection[] = [];
   await compile(source, {
     remarkPlugins: [remarkGfm, () => (tree: Node) => {
@@ -143,10 +151,29 @@ export async function inspectLearningMdx(
             if (typeof paperId === 'string') {
               const locator = attributes.get('locator');
               const evidenceId = attributes.get('evidence');
+              const exceptionId = attributes.get('exception');
               citationReferences.push({
                 paperId,
                 ...(typeof locator === 'string' ? { locator } : {}),
                 ...(typeof evidenceId === 'string' ? { evidenceId } : {}),
+                ...(typeof exceptionId === 'string' ? { exceptionId } : {}),
+              });
+            }
+          }
+          if (node.name === 'PaperSummary') {
+            const attributes = new Map((node.attributes ?? []).flatMap((attribute) => {
+              if (!attribute.name) return [];
+              const expression = attribute.value && typeof attribute.value === 'object'
+                ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
+                : undefined;
+              return [[attribute.name, typeof attribute.value === 'string' ? attribute.value : staticValue(expression)]];
+            }));
+            const paperId = attributes.get('paper');
+            if (typeof paperId === 'string') {
+              const locator = attributes.get('locator');
+              paperSummaryReferences.push({
+                paperId,
+                ...(typeof locator === 'string' ? { locator } : {}),
               });
             }
           }
@@ -222,6 +249,7 @@ export async function inspectLearningMdx(
     quizQuestions,
     cvExerciseFixtures,
     paperReferenceIds,
+    paperSummaryReferences,
     citationReferences,
     searchText: [...new Set(searchParts.map((value) => value.trim()).filter(Boolean))].join(' '),
   };

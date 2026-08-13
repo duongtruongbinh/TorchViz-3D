@@ -32,7 +32,7 @@ Giới hạn thực tế của replay nằm ở 2 thứ:
 1. **Quyền lưu dữ liệu, dung lượng bộ nhớ, I/O và compute**. 
 2. Nếu buffer quá nhỏ chúng ta sẽ không bảo đảm bao phủ toàn bộ phân phối cũ. 
 
-Paper <Cite paper="shi2024unified" label="A Unified Approach to Domain Incremental Learning with Memory: Theory and Algorithm" /> đã chứng minh rằng trong thiết lập Domain-Incremental Learning có memory, việc tối ưu trực tiếp trên dữ liệu hiện tại và buffer nhỏ tương ứng với một **loose generalization bound**. Nghĩa là trong **hầu hết trường hợp thực tế dùng buffer nhỏ, kết quả replay sẽ không bằng full retraining**, vì replay chỉ học lại trên một phần phân phối dữ liệu cũ thay vì toàn bộ dữ liệu lịch sử và có thể ước lượng sai đáng kể lỗi thật trên toàn bộ domain cũ.
+Trong thiết lập Domain-Incremental Learning có memory, paper UDIL chứng minh rằng tối ưu ERM trực tiếp trên dữ liệu hiện tại và buffer nhỏ tương ứng với một **generalization bound lỏng hơn** vì sai số trên các domain cũ khó được ước lượng chính xác khi chỉ còn ít mẫu <Cite paper="shi2024unified" evidence="replay-generalization-limit-01-shi2024unified" />. Đây là cảnh báo về độ bảo đảm lý thuyết của objective replay cơ bản, không phải bằng chứng rằng replay luôn thua full retraining về kết quả thực nghiệm.
 
 <LessonImage
   assetPath="continual-learning-llm/01-replay-buffer-tradeoff.png"
@@ -41,7 +41,7 @@ Paper <Cite paper="shi2024unified" label="A Unified Approach to Domain Increment
 />
 
 <LessonNote>
-  Bài lab tiếp theo sẽ cho thấy sự khác biệt giữa chỉ fine-tune trên dữ liệu mới và trộn thêm mẫu cũ từ replay buffer—một trong các nhóm phương pháp chính của CL <Cite paper="shi2024continualSurvey" locator="§2.2.2" />. Chỉ với một mẫu nhỏ buffer kết quả cũng đủ khiến ta bất ngờ.
+  Bài lab tiếp theo sẽ cho thấy sự khác biệt giữa chỉ fine-tune trên dữ liệu mới và trộn thêm mẫu cũ từ replay buffer—một trong các nhóm phương pháp chính của CL <Cite paper="shi2024continualSurvey" evidence="replay-generalization-limit-02-shi2024continualSurvey" />. Chỉ với một mẫu nhỏ buffer kết quả cũng đủ khiến ta bất ngờ.
 </LessonNote>
 
 </MdxPage>

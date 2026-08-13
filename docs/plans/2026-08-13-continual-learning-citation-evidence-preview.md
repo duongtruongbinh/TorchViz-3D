@@ -1,8 +1,8 @@
 ---
 title: Continual Learning Citation Evidence Preview
-status: executing
+status: done
 created: 2026-08-13T16:19:31+07:00
-updated: 2026-08-13T16:36:47+07:00
+updated: 2026-08-13T17:57:20+07:00
 author: Codex
 task: "Plan a verified paper-excerpt preview for claim-level citations in the Continual Learning lessons"
 supersedes:
@@ -406,3 +406,45 @@ citations may support different local claims and require different evidence.
   the redundant preview heading, visible locator, and provenance line; placed
   copy on the left and source-open on the right. Maintenance provenance remains
   in the registry and validators.
+- 2026-08-13 — User authorized Phases 4–6 for the complete domain. Re-audited
+  the merge-base (`3da1160`), HEAD, and dirty working tree before edits; preserved
+  the in-progress numeric-citation changes and established a passing baseline of
+  89 tests, typecheck, production build, and the eight-record source audit.
+- 2026-08-13 — Inventoried all 178 `<Cite>` occurrences and three
+  `<PaperSummary>` blocks across the 39 non-Quiz theory/lab nodes. Completed the
+  occurrence migration with 176 reviewed evidence records and two explicit
+  link-only exceptions: the Nature taxonomy source lacks a stable extractable
+  excerpt, and the CPPO OpenReview target returns a verification interstitial.
+  Neither exception creates a silent empty preview.
+- 2026-08-13 — Performed the semantic-fidelity pass per occurrence, not only per
+  paper ID. Moved citations out of headings and paper-label positions, narrowed
+  replay/full-retraining and RAG/model-adaptation claims, separated course-lab
+  interpretation from paper findings, and corrected primary-source evidence for
+  supplier–consumer updates, CoLoR, DAP mixtures/results, CIT/CMR/CMA methods,
+  multimodal expansion, LAMA/FUAR, TRACE GSM8K, and the Wang/Taylor analysis.
+- 2026-08-13 — Extended the React-free contract with reasoned link-only
+  exceptions, kept the shared `Cite` domain-agnostic, injected evidence and
+  exceptions only into the active authored lesson, and kept the generated final
+  reference page preview-free. Inline numbering continues to use the final page
+  order, with featured papers first, continuous additional numbering, and one
+  reused number per paper.
+- 2026-08-13 — Expanded offline MDX inspection and tests for unique and
+  occurrence-owned evidence/exception IDs, exact lesson/claim/paper agreement,
+  optional locator agreement, exact search substrings, HTTP(S) targets, pinned
+  arXiv HTML versions, HTML anchors, PDF page syntax, quotation licenses,
+  unused/unknown records, explicit exception reasons, heading placement,
+  `PaperSummary` inventory, Quiz isolation, final-page isolation, and numeric
+  reference continuity.
+- 2026-08-13 — Extended `npm run audit:cl-citation-evidence` with shared-source
+  fetch caching and explicit exception reporting. The final network run verified
+  all 176 evidence records. The two McCloskey occurrences remain verified
+  browser-reviewed quotations with `manual-required` maintenance status because
+  ScienceDirect returns HTTP 403 to the audit; both link-only exceptions were
+  reported separately and were not counted as verified evidence.
+- 2026-08-13 — Updated the existing Learning Lab wiki rather than creating a
+  parallel documentation page. Final `npm run verify` passed all 89 tests,
+  typecheck, and production build; `git diff --check` passed. The Learning Lab
+  chunk is 2,483.33 kB minified / 654.91 kB gzip, a domain-evidence delta of
+  52.76 kB minified / 13.55 kB gzip from the pre-migration baseline. The existing
+  large-chunk warning remains non-blocking, and hover/focus/touch performs no
+  paper fetch because all preview data is bundled and lesson-filtered.

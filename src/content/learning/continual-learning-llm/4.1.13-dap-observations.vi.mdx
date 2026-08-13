@@ -8,18 +8,18 @@ export const lessonMetadata = {
 
 ### OBS-1: DAP phần lớn chỉ diễn ra trong một giai đoạn
 
-Trong 41 nghiên cứu được khảo sát, chỉ **Code Llama** thực hiện nhiều hơn một giai đoạn DAP <Cite paper="shi2024continualSurvey" locator="§4.2.1 và Table 2" />. Vì vậy, phần lớn công trình hiện tại mới nghiên cứu quá trình chuyển từ một LLM tổng quát sang một domain cụ thể, thay vì một chuỗi thích nghi domain kéo dài.
+Trong 41 nghiên cứu được khảo sát, chỉ **Code Llama** thực hiện nhiều hơn một giai đoạn DAP <Cite paper="shi2024continualSurvey" evidence="dap-survey-observations-01-shi2024continualSurvey" />. Vì vậy, phần lớn công trình hiện tại mới nghiên cứu quá trình chuyển từ một LLM tổng quát sang một domain cụ thể, thay vì một chuỗi thích nghi domain kéo dài.
 
 ---
 
 ### OBS-2: DAP đã được nhìn nhận ngầm như một bài toán Continual Learning
 
-Có **28/41 nghiên cứu** đánh giá tác động tiêu cực của DAP hoặc chủ động dùng kỹ thuật CL để giảm vertical forgetting <Cite paper="shi2024continualSurvey" locator="§4.2.1 và Table 2" />. Tuy nhiên, nhiều paper gọi replay bằng những tên như `data mixing`, `data mixture` hoặc `data combination`, thay vì đặt nó trong khung Continual Learning.
+Có **28/41 nghiên cứu** đánh giá tác động tiêu cực của DAP hoặc chủ động dùng kỹ thuật CL để giảm vertical forgetting <Cite paper="shi2024continualSurvey" evidence="dap-survey-observations-02-shi2024continualSurvey" />. Tuy nhiên, nhiều paper gọi replay bằng những tên như `data mixing`, `data mixture` hoặc `data combination`, thay vì đặt nó trong khung Continual Learning.
 
 ---
 
 ### OBS-3: Kỹ thuật CL trong DAP còn thiếu đa dạng
 
-Có **22/41 nghiên cứu** sử dụng kỹ thuật CL, nhưng phần lớn chỉ dựa trên replay hoặc parameter/architecture expansion như LoRA, layer expansion và block expansion <Cite paper="shi2024continualSurvey" locator="§4.2.1 và Table 2" />. Các kỹ thuật tinh vi hơn dành riêng cho vertical continual learning vẫn còn ít được khảo sát.
+Có **22/41 nghiên cứu** sử dụng kỹ thuật CL, nhưng phần lớn chỉ dựa trên replay hoặc parameter/architecture expansion như LoRA, layer expansion và block expansion <Cite paper="shi2024continualSurvey" evidence="dap-survey-observations-03-shi2024continualSurvey" />. Các kỹ thuật tinh vi hơn dành riêng cho vertical continual learning vẫn còn ít được khảo sát.
 
 Dù tên gọi khác nhau, câu hỏi CL vẫn giống nhau: domain performance tăng đến đâu và general ability bị mất bao nhiêu. Các tỷ lệ của từng quan sát đã được dẫn ngay tại claim tương ứng ở trên.

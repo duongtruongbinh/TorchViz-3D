@@ -12,13 +12,13 @@ export const lessonMetadata = {
 
 Khi được fine-tune cho một nhiệm vụ hoặc domain dữ liệu cụ thể, pre-trained LLM có thể bị suy giảm hiệu suất trên những domain kiến thức đã học trước đó. Nói cách khác, trong quá trình học kiến thức mới, mô hình có thể quên hoặc làm tổn hại đến kiến thức cũ. Hiện tượng này được gọi là **catastrophic forgetting**.
 
-Nền tảng lịch sử của khái niệm này là **catastrophic interference** trong connectionist networks học tuần tự <Cite paper="mccloskey1989catastrophic" />. Citation này chứng minh hiện tượng nền tảng, không tự nó chứng minh mọi biểu hiện forgetting ở LLM; các phần sau sẽ dùng nghiên cứu trên pretrained language model và LLM cho những claim cụ thể hơn.
+Nền tảng lịch sử của khái niệm này là **catastrophic interference** trong connectionist networks học tuần tự <Cite paper="mccloskey1989catastrophic" evidence="catastrophic-forgetting-foundation-01-mccloskey1989catastrophic" />. Citation này chứng minh hiện tượng nền tảng, không tự nó chứng minh mọi biểu hiện forgetting ở LLM; các phần sau sẽ dùng nghiên cứu trên pretrained language model và LLM cho những claim cụ thể hơn.
 
 Nguyên nhân trực tiếp là objective của stage mới chỉ nhìn thấy dữ liệu hiện tại. Khi dữ liệu cũ vắng mặt, gradient không còn ràng buộc model phải giữ những lời giải đã đúng ở stage trước.
 
 ## Thách thức đặc thù ở Large Language Models
 
-Mặc dù catastrophic forgetting đã được nghiên cứu rộng rãi trong cộng đồng Continual Learning (CL), việc áp dụng CL cho LLM vẫn đặt ra nhiều thách thức mới. Nguyên nhân là LLM có kích thước lớn, phạm vi kiến thức rộng, trải qua nhiều giai đoạn huấn luyện khác nhau và yêu cầu chi phí tính toán cao <Cite paper="shi2024continualSurvey" locator="§1–2.2" />.
+Mặc dù catastrophic forgetting đã được nghiên cứu rộng rãi trong cộng đồng Continual Learning (CL), việc áp dụng CL cho LLM vẫn đặt ra nhiều thách thức mới. Nguyên nhân là LLM có kích thước lớn, phạm vi kiến thức rộng, trải qua nhiều giai đoạn huấn luyện khác nhau và yêu cầu chi phí tính toán cao <Cite paper="shi2024continualSurvey" evidence="catastrophic-forgetting-foundation-02-shi2024continualSurvey" />.
 
 <LessonImage assetPath="continual-learning-llm/01-catastrophic-forgetting-pattern-preservation.png" alt="Biến đổi tín hiệu pattern qua các giai đoạn học" caption="Mô hình tuần tự làm suy giảm pattern cũ; phương pháp Continual Learning cố giữ chúng trong các giai đoạn sau." />
 

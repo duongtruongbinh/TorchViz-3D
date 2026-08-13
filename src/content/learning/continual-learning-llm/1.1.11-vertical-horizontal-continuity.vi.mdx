@@ -19,9 +19,9 @@ export const lessonMetadata = {
 
 Survey tách continual LLM theo hai hướng. **Vertical continuity** đi từ năng lực tổng quát xuống domain và task chuyên biệt; các stage thường do những tổ chức khác nhau vận hành. **Horizontal continuity** cập nhật mô hình qua thời gian hoặc giữa các domain có quy mô tương đương.
 
-<Cite paper="qin2023recyclable" label="Recyclable Tuning" /> minh họa một giao điểm cụ thể: supplier cập nhật pretrained model theo chiều ngang, trong khi consumer cần chuyển các module downstream đã học sang checkpoint upstream mới thay vì fine-tune lại từ đầu.
+Recyclable Tuning minh họa một giao điểm cụ thể: supplier cập nhật pretrained model theo chiều ngang, trong khi consumer cần chuyển các module downstream đã học sang checkpoint upstream mới thay vì fine-tune lại từ đầu <Cite paper="qin2023recyclable" evidence="vertical-horizontal-framework-01-qin2023recyclable" />.
 
-Survey tổ chức không gian nghiên cứu theo hai trục continuity này <Cite paper="shi2024continualSurvey" locator="§3" />:
+Survey tổ chức không gian nghiên cứu theo hai trục continuity này <Cite paper="shi2024continualSurvey" evidence="vertical-horizontal-framework-02-shi2024continualSurvey" />:
 
 <LessonImage
   assetPath="continual-learning-llm/01-vertical-horizontal-continual-learning.webp"

@@ -23,7 +23,7 @@ Các modality còn có thể học không cân bằng: một modality hoặc nh�
 
 Fine-tune toàn model không phải lựa chọn duy nhất. Một số công trình chỉ cập nhật projection, prompt, expert hoặc một subset tham số quan trọng để giảm compute và giới hạn interference.
 
-Khảo sát thực nghiệm được survey tổng hợp cho thấy **replay** và **model expansion** hoạt động tương đối ổn định trong các setting được kiểm tra. Regularization chỉ tỏ ra hiệu quả ở một số model đã joint instruction tuning, nên không nên xem nó là lựa chọn luôn thắng <Cite paper="shi2024continualSurvey" locator="§4.3.6" />.
+Khảo sát thực nghiệm được survey tổng hợp cho thấy **replay** và **model expansion** hoạt động tương đối ổn định trong các setting được kiểm tra. Regularization chỉ tỏ ra hiệu quả ở một số model đã joint instruction tuning, nên không nên xem nó là lựa chọn luôn thắng <Cite paper="shi2024continualSurvey" evidence="continual-multimodal-learning-01-shi2024continualSurvey" />.
 
 </MdxPage>
 
@@ -37,9 +37,9 @@ Khảo sát thực nghiệm được survey tổng hợp cho thấy **replay** v
   caption="Mỗi paper nhắm một bottleneck multimodal khác nhau."
 />
 
-### <Cite paper="zhai2023investigating" label="Zhai et al." />
+### Zhai et al.
 
-Zhai et al. ghi nhận minority collapse và hallucination trong setting được nghiên cứu, cho thấy forgetting multimodal có thể bị che khuất nếu chỉ nhìn điểm trung bình.
+Trong các MLLM được đánh giá, phần lớn model không giữ được mức performance của vision encoder ban đầu sau fine-tuning <Cite paper="zhai2023investigating" evidence="continual-multimodal-learning-02-zhai2023investigating" />. Paper phân tích thêm minority collapse và hallucination, nhưng các cơ chế đó chỉ được kết luận trong setup của nghiên cứu.
 
 <PaperTradeoff
   advantages={['Chỉ ra forgetting multimodal không thể được chẩn đoán bằng điểm trung bình của một modality.', 'Liên hệ sự mất cân bằng dữ liệu với collapse và hallucination trong setting thí nghiệm.']}
@@ -48,9 +48,9 @@ Zhai et al. ghi nhận minority collapse và hallucination trong setting đượ
 
 ---
 
-### <Cite paper="zheng2024antiforgetting" label="Fwd-Prompt" />
+### Fwd-Prompt
 
-Fwd-Prompt phân tích chênh lệch giữa các input embedding bằng singular value decomposition. Paper chiếu prompt gradient vào residual subspace và pre-trained subspace để giảm catastrophic forgetting cùng negative forward transfer mà không dùng mẫu cũ.
+Fwd-Prompt phân tích chênh lệch giữa các input embedding bằng singular value decomposition. Paper chiếu prompt gradient vào residual subspace và pre-trained subspace để giảm catastrophic forgetting cùng negative forward transfer mà không dùng mẫu cũ. <Cite paper="zheng2024antiforgetting" evidence="continual-multimodal-learning-03-zheng2024antiforgetting" />
 
 <PaperTradeoff
   advantages={['Không cần lưu dữ liệu task cũ.', 'Tác động lên prompt gradient thay vì fine-tune toàn bộ model.']}
@@ -59,9 +59,9 @@ Fwd-Prompt phân tích chênh lệch giữa các input embedding bằng singular
 
 ---
 
-### <Cite paper="he2023continual" label="EProj" />
+### EProj
 
-EProj mở rộng projection layer khi task mới đến và thêm regularization dựa trên độ tương đồng giữa task. Cách này dành capacity mới cho task mới thay vì buộc mọi task dùng chung một projection cố định.
+EProj mở rộng projection layer khi task mới đến và thêm regularization dựa trên độ tương đồng giữa task. Cách này dành capacity mới cho task mới thay vì buộc mọi task dùng chung một projection cố định. <Cite paper="he2023continual" evidence="continual-multimodal-learning-04-he2023continual" />
 
 <PaperTradeoff
   advantages={['Giới hạn expansion ở projection layer thay vì nhân bản toàn bộ MLLM.', 'Dùng task similarity để điều chỉnh mức chia sẻ giữa task.']}
@@ -70,9 +70,9 @@ EProj mở rộng projection layer khi task mới đến và thêm regularizatio
 
 ---
 
-### <Cite paper="zhu2024model" label="Model Tailor" />
+### Model Tailor
 
-Model Tailor chọn một subset nhỏ các tham số quan trọng từ model đã fine-tune để tạo **model patch**, rồi bù cho ảnh hưởng của các tham số không được giữ. Paper thực nghiệm với tỷ lệ tham số được chọn không quá 10% trong setting của mình.
+Model Tailor chọn một subset nhỏ các tham số quan trọng từ model đã fine-tune để tạo **model patch**, rồi bù cho ảnh hưởng của các tham số không được giữ. Paper thực nghiệm với tỷ lệ tham số được chọn không quá 10% trong setting của mình. <Cite paper="zhu2024model" evidence="continual-multimodal-learning-05-zhu2024model" />
 
 <PaperTradeoff
   advantages={['Lưu một patch nhỏ thay vì toàn bộ checkpoint đã fine-tune.', 'Cơ chế compensation nhắm tới phần thay đổi bị mất khi cắt gọn patch.']}
@@ -81,9 +81,9 @@ Model Tailor chọn một subset nhỏ các tham số quan trọng từ model đ
 
 ---
 
-### <Cite paper="zhao2024reconstruct" label="RebQ" />
+### RebQ
 
-RebQ dùng các prompt được phân rã cùng key–query pool để tái dựng biểu diễn khi một modality bị thiếu. Mục tiêu là duy trì khả năng học liên tục ngay cả khi mỗi giai đoạn không cung cấp đầy đủ modality.
+RebQ dùng các prompt được phân rã cùng key–query pool để tái dựng biểu diễn khi một modality bị thiếu. Mục tiêu là duy trì khả năng học liên tục ngay cả khi mỗi giai đoạn không cung cấp đầy đủ modality. <Cite paper="zhao2024reconstruct" evidence="continual-multimodal-learning-06-zhao2024reconstruct" />
 
 <PaperTradeoff
   advantages={['Xử lý trực tiếp missing-modality stream thay vì giả định mọi input luôn đầy đủ.', 'Prompt pool cho phép tái sử dụng thành phần liên quan giữa các task.']}
@@ -92,9 +92,9 @@ RebQ dùng các prompt được phân rã cùng key–query pool để tái dự
 
 ---
 
-### <Cite paper="chen2024coin" label="CoIN / MoELoRA" />
+### CoIN / MoELoRA
 
-CoIN áp dụng MoELoRA cho LLaVA: nhiều LoRA expert tiếp nhận các intention hoặc task khác nhau, còn router chọn expert phù hợp. Capacity được mở rộng theo expert thay vì sửa đồng nhất toàn bộ backbone.
+CoIN áp dụng MoELoRA cho LLaVA: nhiều LoRA expert tiếp nhận các intention hoặc task khác nhau, còn router chọn expert phù hợp. Capacity được mở rộng theo expert thay vì sửa đồng nhất toàn bộ backbone. <Cite paper="chen2024coin" evidence="continual-multimodal-learning-07-chen2024coin" />
 
 <PaperTradeoff
   advantages={['Tách update bằng nhiều low-rank expert, giảm xung đột trực tiếp giữa task.', 'Giữ chi phí train thấp hơn việc tạo một full model riêng cho mỗi task.']}

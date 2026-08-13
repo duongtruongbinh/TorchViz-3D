@@ -16,7 +16,7 @@ Một vòng alignment có thể thu hẹp output distribution: model ưu tiên m
 
 Alignment tax không chỉ là training cost. Một model có reward cao hơn trên preference mới vẫn có thể kém đi ở kiến thức, reasoning hoặc hành vi cũ. Vì vậy, CMA phải đo đồng thời **policy enhancement** và **knowledge retention**, thay vì chỉ nhìn reward của vòng alignment gần nhất.
 
-Survey chia giải pháp thành hai hướng: reinforcement learning-based CMA cập nhật policy bằng reward, còn supervised learning-based CMA fit policy từ preference data. Cả hai đều phải cân bằng mục tiêu mới với năng lực cần giữ <Cite paper="shi2024continualSurvey" locator="§4.3.5" />.
+Survey chia giải pháp thành hai hướng: reinforcement learning-based CMA cập nhật policy bằng reward, còn supervised learning-based CMA fit policy từ preference data. Cả hai đều phải cân bằng mục tiêu mới với năng lực cần giữ <Cite paper="shi2024continualSurvey" evidence="continual-model-alignment-01-shi2024continualSurvey" />.
 
 </MdxPage>
 
@@ -32,9 +32,9 @@ Survey chia giải pháp thành hai hướng: reinforcement learning-based CMA c
 
 Survey chia các giải pháp được nêu thành reinforcement learning-based và supervised learning-based CMA.
 
-### <Cite paper="lin2024mitigating" label="Adaptive Model Averaging" />
+### Adaptive Model Averaging
 
-Adaptive Model Averaging, còn được trình bày với cơ chế hierarchical model averaging, học tỷ lệ kết hợp theo layer giữa model trước và sau alignment. Các layer không nhất thiết phải nhận cùng một mức pha trộn.
+Adaptive Model Averaging, còn được trình bày với cơ chế hierarchical model averaging, học tỷ lệ kết hợp theo layer giữa model trước và sau alignment. Các layer không nhất thiết phải nhận cùng một mức pha trộn. <Cite paper="lin2024mitigating" evidence="continual-model-alignment-02-lin2024mitigating" />
 
 <PaperTradeoff
   advantages={['Giữ lại một phần năng lực của model trước alignment trong khi hấp thụ policy mới.', 'Tỷ lệ theo layer linh hoạt hơn một hệ số averaging duy nhất cho toàn model.']}
@@ -43,9 +43,9 @@ Adaptive Model Averaging, còn được trình bày với cơ chế hierarchical
 
 ---
 
-### <Cite paper="zhangcppo" label="Continual PPO" />
+### Continual PPO
 
-Continual Proximal Policy Optimization (**CPPO**) gán trọng số cho sample tùy vai trò của nó: tăng cường policy mới hay giữ knowledge cũ. Nhờ vậy, cùng một vòng RL có thể cân bằng hai mục tiêu thay vì tối ưu reward mới một chiều.
+Continual Proximal Policy Optimization (**CPPO**) gán trọng số cho sample tùy vai trò của nó: tăng cường policy mới hay giữ knowledge cũ. Nhờ vậy, cùng một vòng RL có thể cân bằng hai mục tiêu thay vì tối ưu reward mới một chiều. <Cite paper="zhangcppo" exception="continual-model-alignment-03-zhangcppo-link-only" />
 
 <PaperTradeoff
   advantages={['Điều khiển trade-off ở mức sample giữa policy enhancement và retention.', 'Đưa mục tiêu chống quên trực tiếp vào quá trình cập nhật policy.']}
@@ -54,9 +54,9 @@ Continual Proximal Policy Optimization (**CPPO**) gán trọng số cho sample t
 
 ---
 
-### <Cite paper="zhang2023copf" label="Continual Optimal Policy Fitting" />
+### Continual Optimal Policy Fitting
 
-Continual Optimal Policy Fitting (**COPF**) thuộc nhánh supervised learning-based CMA. Phương pháp ước lượng optimal policy rồi liên tục fit model với các ràng buộc ở mức sequence và function, nhằm giảm sub-optimal fitting và over-optimization khi preference thay đổi.
+Continual Optimal Policy Fitting (**COPF**) thuộc nhánh supervised learning-based CMA. Phương pháp ước lượng optimal policy rồi liên tục fit model với các ràng buộc ở mức sequence và function, nhằm giảm sub-optimal fitting và over-optimization khi preference thay đổi. <Cite paper="zhang2023copf" evidence="continual-model-alignment-04-zhang2023copf" />
 
 <PaperTradeoff
   advantages={['Tránh vòng RL online bằng một mục tiêu policy fitting có giám sát.', 'Nhắm tới cả chất lượng fit và sự ổn định qua nhiều giai đoạn preference.']}

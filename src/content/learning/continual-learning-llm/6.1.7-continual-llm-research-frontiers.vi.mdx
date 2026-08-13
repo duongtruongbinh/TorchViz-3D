@@ -10,9 +10,9 @@ export const lessonMetadata = {
 
 Phần lớn bằng chứng continual LLM hiện nay đến từ thực nghiệm. Lý thuyết CL đã có những cách mô tả forgetting bằng khoảng cách tham số hoặc độ khác nhau giữa task, nhưng pre-training và quy mô lớn khiến việc áp thẳng các kết quả đó cho LLM trở nên thiếu chắc chắn.
 
-### <Cite paper="wang2024comprehensive" label="Wang et al.: lý thuyết từ parameter difference" />
+### Wang et al.: lý thuyết từ parameter difference
 
-Survey CL của Wang et al. trình bày một hướng dùng Taylor expansion quanh nghiệm tối ưu để liên hệ generalization error giữa task với độ cong loss và khoảng cách giữa các bộ tham số.
+Survey CL của Wang et al. trình bày một hướng dùng Taylor expansion quanh nghiệm tối ưu để liên hệ generalization error giữa task với độ cong loss và khoảng cách giữa các bộ tham số. <Cite paper="wang2024comprehensive" evidence="research-frontiers-01-wang2024comprehensive" />
 
 <PaperTradeoff
   advantages={['Tạo ngôn ngữ toán học để liên hệ thay đổi tham số với khả năng giữ task cũ.']}
@@ -21,9 +21,9 @@ Survey CL của Wang et al. trình bày một hướng dùng Taylor expansion qu
 
 ---
 
-### <Cite paper="shi2024unified" label="UDIL: lý thuyết từ domain discrepancy" />
+### UDIL: lý thuyết từ domain discrepancy
 
-Unified Domain Incremental Learning (**UDIL**) xây dựng bound cho intra-domain và cross-domain distillation loss, rồi nhìn nhiều phương pháp replay DIL như các lựa chọn hệ số khác nhau trong cùng một framework.
+Unified Domain Incremental Learning (**UDIL**) xây dựng bound cho intra-domain và cross-domain distillation loss, rồi nhìn nhiều phương pháp replay DIL như các lựa chọn hệ số khác nhau trong cùng một framework. <Cite paper="shi2024unified" evidence="research-frontiers-02-shi2024unified" />
 
 <PaperTradeoff
   advantages={['Kết nối nhiều kỹ thuật replay-based DIL và cho phép điều chỉnh hệ số theo bound thay vì cố định.']}
@@ -40,9 +40,9 @@ Khoảng trống không chỉ là cần một bound chặt hơn. Continual LLM c
 
 Nếu replay toàn bộ history mà không chọn lọc, update trên domain mới có thể hội tụ chậm. Chỉ đặt một mixing ratio cố định cũng chưa trả lời sample nào đang có giá trị retention cao nhất.
 
-### <Cite paper="he2024dont" label="KPIG" />
+### KPIG
 
-KPIG tính **Key-Part Information Gain** trên các đoạn instruction được mask để chọn động dữ liệu replay. Compute được ưu tiên cho những phần instruction mang tín hiệu quan trọng hơn trong setting của paper.
+KPIG tính **Key-Part Information Gain** trên các đoạn instruction được mask để chọn động dữ liệu replay. Compute được ưu tiên cho những phần instruction mang tín hiệu quan trọng hơn trong setting của paper. <Cite paper="he2024dont" evidence="research-frontiers-03-he2024dont" />
 
 <PaperTradeoff
   advantages={['Biến replay selection thành quyết định theo information gain thay vì lấy mẫu đồng đều.']}
@@ -51,9 +51,9 @@ KPIG tính **Key-Part Information Gain** trên các đoạn instruction được
 
 ---
 
-### <Cite paper="jin2024model" label="What Will My Model Forget?" />
+### What Will My Model Forget?
 
-Jin và Ren dự báo upstream example nào có nguy cơ bị quên sau một model update, rồi replay chính các example được dự báo đó. Một predictor dựa trên thay đổi logit hoạt động trên BART nhưng thất bại trên T5; black-box classifier dựa trên representation ổn định hơn trong các setup được thử.
+Jin và Ren dự báo upstream example nào có nguy cơ bị quên sau một model update, rồi replay chính các example được dự báo đó. Một predictor dựa trên thay đổi logit hoạt động trên BART nhưng thất bại trên T5; black-box classifier dựa trên representation ổn định hơn trong các setup được thử. <Cite paper="jin2024model" evidence="research-frontiers-04-jin2024model" />
 
 <PaperTradeoff
   advantages={['Đưa nguy cơ quên vào sample selection và cho thấy selective replay có thể giảm forgetting trong model-refinement setting.']}
@@ -70,9 +70,9 @@ Hướng mở là xây dựng data mixing và replay selector chính xác hơn n
 
 Knowledge nằm phân tán trong toàn bộ parameter space rất khó quan sát và thao tác. Vấn đề trở nên rõ nhất trong **machine unlearning**: nếu không thể xóa có chọn lọc một dữ liệu bị thu hồi, hệ thống có thể phải quay lại checkpoint cũ rồi retrain.
 
-### <Cite paper="das2024larimar" label="Larimar" />
+### Larimar
 
-Larimar thêm distributed episodic memory để cập nhật fact mà không liên tục fine-tune toàn bộ LLM. Memory hỗ trợ write, read, generate, sequential write và selective forgetting trong các setting paper kiểm tra.
+Larimar thêm distributed episodic memory để cập nhật fact mà không liên tục fine-tune toàn bộ LLM. Memory hỗ trợ write, read, generate, sequential write và selective forgetting trong các setting paper kiểm tra. <Cite paper="das2024larimar" evidence="research-frontiers-05-das2024larimar" />
 
 <PaperTradeoff
   advantages={['Cho phép one-shot knowledge update và tách một số thao tác memory khỏi base-model weights.', 'Paper đánh giá cả sequential editing và selective fact forgetting.']}
@@ -81,9 +81,9 @@ Larimar thêm distributed episodic memory để cập nhật fact mà không li�
 
 ---
 
-### <Cite paper="ramsauer2021hopfield" label="Modern Hopfield Networks" />
+### Modern Hopfield Networks
 
-Modern Hopfield Network cung cấp associative memory với cơ chế truy xuất liên hệ chặt với attention. Survey nêu đây là một ứng viên đáng nghiên cứu cho memory của continual LLM, không phải một giải pháp đã được xác nhận trong survey setting.
+Modern Hopfield Network cung cấp associative memory với cơ chế truy xuất liên hệ chặt với attention. Survey nêu đây là một ứng viên đáng nghiên cứu cho memory của continual LLM, không phải một giải pháp đã được xác nhận trong survey setting. <Cite paper="ramsauer2021hopfield" evidence="research-frontiers-06-ramsauer2021hopfield" />
 
 <PaperTradeoff
   advantages={['Cung cấp primitive cho storage, association và retrieval có thể tích hợp như một layer.']}
@@ -104,15 +104,15 @@ Mục tiêu dài hạn là memory có các thao tác rõ ràng: **ghi, đọc, c
 
 Một model phục vụ nhiều người dùng không có một trade-off duy nhất. Người dùng có thể ưu tiên domain expertise, ethics, value hoặc tone khác nhau; fine-tune lại một model cho mỗi preference sẽ nhanh chóng trở nên quá đắt.
 
-### <Cite paper="lu2023ibcl" label="Imprecise Bayesian Continual Learning" />
+### Imprecise Bayesian Continual Learning
 
-Imprecise Bayesian Continual Learning (**IBCL**) lưu một knowledge base dưới dạng convex hull của các model-parameter distribution. Khi nhận preference mới, phương pháp kết hợp các posterior để sinh model ứng với task trade-off mà không train lại một model riêng cho từng preference.
+Imprecise Bayesian Continual Learning (**IBCL**) lưu một knowledge base dưới dạng convex hull của các model-parameter distribution. Khi nhận preference mới, phương pháp kết hợp các posterior để sinh model ứng với task trade-off mà không train lại một model riêng cho từng preference. <Cite paper="lu2023ibcl" evidence="research-frontiers-07-lu2023ibcl" />
 
 <PaperTradeoff
   advantages={['Cung cấp bảo đảm Pareto-optimal dưới các giả định của phương pháp.', 'Giảm training overhead khi cần nhiều trade-off preference trong các thí nghiệm image classification và NLP của paper.']}
   limitations={['Bằng chứng thực nghiệm còn giới hạn về scale và chưa được xác nhận trên service-oriented LLM lớn.', 'Bảo đảm phụ thuộc vào các giả định dùng để xây dựng và kết hợp model posterior.']}
 />
 
-Survey xem đây là bước mở đầu, chưa phải lời giải hoàn chỉnh cho personalized continual LLM <Cite paper="shi2024continualSurvey" locator="§6.4" />. Câu hỏi còn lại là làm sao cho người dùng điều chỉnh preference linh hoạt mà vẫn kiểm soát retention, safety và compute.
+Survey xem đây là bước mở đầu, chưa phải lời giải hoàn chỉnh cho personalized continual LLM <Cite paper="shi2024continualSurvey" evidence="research-frontiers-08-shi2024continualSurvey" />. Câu hỏi còn lại là làm sao cho người dùng điều chỉnh preference linh hoạt mà vẫn kiểm soát retention, safety và compute.
 
 </MdxPage>
