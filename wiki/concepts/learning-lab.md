@@ -373,9 +373,12 @@ for the domain sidebar and lesson table of contents.
 
 Learning Home uses one concise curriculum heading followed by a responsive
 portrait-card grid. Each domain card reuses the shared Lucide domain icon and a
-distinct visual palette while keeping catalog-derived status and lesson count.
-Cards remain whole-card navigation targets and scale from one column on compact
-screens to four or five columns on wider desktops without horizontal overflow.
+distinct visual palette while keeping catalog-derived readiness and lesson
+count. A domain is ready when every lesson node is published; ready domains are
+shown first, while unfinished domains retain their relative catalog order and
+use a muted treatment. Cards remain whole-card navigation targets and scale
+from one column on compact screens to four or five columns on wider desktops
+without horizontal overflow.
 
 `LessonDetail` owns one outer panel. Markdown, formulas, visual components, and
 quizzes use spacing and dividers rather than nested decorative panels. Runtime

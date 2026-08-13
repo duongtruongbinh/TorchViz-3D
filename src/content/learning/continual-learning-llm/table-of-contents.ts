@@ -393,8 +393,8 @@ export const learningTableOfContents = {
   id: 'continual-learning-llm',
   text: {
     title: {
-      en: "Continual Learning",
-      vi: "Continual Learning",
+      en: "Continual Learning for LLMs",
+      vi: "Continual Learning cho LLMs",
     },
     description: {
       en: "Learn continual learning for LLMs through the concepts, methods, evaluation protocols, training stages, and research directions synthesized by Shi et al. (2025).",

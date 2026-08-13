@@ -6,6 +6,7 @@ import { learningCatalog, learningTableOfContents } from '../content/learning/in
 import { continualLearningLessonPairs } from '../content/learning/continual-learning-llm/table-of-contents.ts';
 import {
   getLearningDomain,
+  getLearningDomainReadiness,
   getLearningLessonsForTrack,
   getReviewableLearningLessons,
   getLearningTrack,
@@ -53,6 +54,26 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
   assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.text.title.en, '1.1 RL Fundamentals');
+});
+
+test('fully published domains are prioritized without disturbing unfinished catalog order', () => {
+  const prioritizedDomains = getLearningDomainReadiness(learningCatalog);
+
+  assert.deepEqual(
+    prioritizedDomains.filter((item) => item.isReady).map((item) => item.domain.id),
+    ['continual-learning-llm'],
+  );
+  assert.equal(prioritizedDomains[0]?.domain.id, 'continual-learning-llm');
+  assert.deepEqual(
+    prioritizedDomains.slice(1).map((item) => item.domain.id),
+    learningCatalog.domains
+      .filter((domain) => domain.id !== 'continual-learning-llm')
+      .map((domain) => domain.id),
+  );
+  assert.deepEqual(getLearningDomain(learningCatalog, 'continual-learning-llm')?.text.title, {
+    en: 'Continual Learning for LLMs',
+    vi: 'Continual Learning cho LLMs',
+  });
 });
 
 test('catalog lesson text is canonical', () => {

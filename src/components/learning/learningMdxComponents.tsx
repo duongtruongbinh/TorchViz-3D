@@ -1069,7 +1069,7 @@ export function LessonReferences() {
   const featured = referencePapers.filter((paper) => featuredSet.has(paper.id));
   const additional = referencePapers.filter((paper) => !featuredSet.has(paper.id));
   return (
-    <section className={cx('mt-10 border-t pt-6', themeClasses.isLight ? 'border-[#205089]/16' : 'border-[#A8B8C8]/18')} aria-labelledby="lesson-references-heading">
+    <section aria-labelledby="lesson-references-heading">
       <div className="flex items-center gap-2">
         <BookOpen className={cx('size-5', themeClasses.accentText)} aria-hidden="true" />
         <h2 id="lesson-references-heading" className={cx('text-lg font-black text-balance', themeClasses.titleText)}>Nguồn chính được dùng trong bài</h2>

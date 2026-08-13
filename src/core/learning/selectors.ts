@@ -1,5 +1,6 @@
 import type {
   LearningCatalog,
+  LearningDomain,
   LearningDomainId,
   LearningLesson,
   LearningRouteAlias,
@@ -42,6 +43,30 @@ function getLearningExerciseOperationFamily(operation: string): 'conv2d' | 'pool
 
 export function getLearningDomain(catalog: LearningCatalog, domainId: LearningDomainId) {
   return catalog.domains.find((domain) => domain.id === domainId) ?? null;
+}
+
+export type LearningDomainReadiness = {
+  domain: LearningDomain;
+  isReady: boolean;
+};
+
+export function getLearningDomainReadiness(catalog: LearningCatalog): LearningDomainReadiness[] {
+  return catalog.domains
+    .map((domain, catalogIndex) => ({
+      domain,
+      catalogIndex,
+      isReady: isDomainReady(catalog, domain.id),
+    }))
+    .sort((left, right) => (
+      Number(right.isReady) - Number(left.isReady)
+      || left.catalogIndex - right.catalogIndex
+    ))
+    .map(({ domain, isReady }) => ({ domain, isReady }));
+}
+
+function isDomainReady(catalog: LearningCatalog, domainId: LearningDomainId): boolean {
+  const lessons = catalog.lessons.filter((lesson) => lesson.domainId === domainId);
+  return lessons.length > 0 && lessons.every((lesson) => lesson.contentStatus === 'published');
 }
 
 export function getLearningTracksForDomain(catalog: LearningCatalog, domainId: LearningDomainId): LearningTrack[] {
