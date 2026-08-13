@@ -75,8 +75,18 @@ Khi ghép hai phần lại, mục tiêu huấn luyện trở thành:
   <InlineMath formula="\lambda" /> quá nhỏ khiến ràng buộc giữ Task A yếu; <InlineMath formula="\lambda" /> quá lớn có thể làm model học Task B kém. Parameter regularization không loại bỏ stability–plasticity trade-off mà dùng <InlineMath formula="\lambda" /> và <InlineMath formula="\Sigma" /> để điều khiển trade-off đó.
 </LessonNote>
 
-[**Elastic Weight Consolidation (EWC)**](https://doi.org/10.1073/pnas.1611835114) và [**Synaptic Intelligence**](https://proceedings.mlr.press/v70/zenke17a.html) là hai ví dụ được survey nêu cho nhóm parameter regularization.
+<Cite paper="kirkpatrick2017overcoming" label="Elastic Weight Consolidation (EWC)" /> và <Cite paper="zenke2017continual" label="Synaptic Intelligence" /> là hai ví dụ được survey nêu cho nhóm parameter regularization.
 
-Nguồn: [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2).
+<PaperSummary
+  paper="kirkpatrick2017overcoming"
+  locator="Methods; Figures 2–3"
+  question="Có thể học task mới mà vẫn giữ task cũ bằng cách hạn chế thay đổi các tham số quan trọng hay không?"
+  setup="Paper ước lượng độ quan trọng tham số bằng đường chéo Fisher information rồi thêm quadratic penalty khi học task kế tiếp; thí nghiệm gồm permuted MNIST và Atari reinforcement learning."
+  finding="Trong các setup được thử, EWC giữ hiệu năng task cũ tốt hơn fine-tuning tuần tự đồng thời vẫn cho phép học task mới."
+  limitation="Fisher diagonal là xấp xỉ cục bộ, importance phụ thuộc checkpoint và thí nghiệm không được thực hiện trên LLM sinh văn bản; không nên suy ra EWC tự động scale hiệu quả cho mọi LLM."
+  relevance="Đây là ví dụ kinh điển cho cách parameter regularization biến stability–plasticity thành một penalty có trọng số theo từng tham số."
+/>
+
+Trong taxonomy của survey, EWC thuộc nhóm parameter regularization <Cite paper="shi2024continualSurvey" locator="§2.2.2" />.
 
 </MdxPage>

@@ -24,9 +24,7 @@ Survey nêu ba hướng chính:
 - **Parameter editing:** chọn phần tham số cần sửa cho từng correction.
 - **Side memory:** tách tri thức mới khỏi main-model parameters.
 
-Câu hỏi mở là **nơi model lưu một fact có chắc là nơi tốt nhất để sửa fact đó hay không**. Vì vậy, mỗi phương pháp phải được kiểm tra đồng thời bằng reliability, locality và hiệu quả sau một chuỗi edit.
-
-Nguồn: [Shi et al., §4.3.4](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS4).
+Câu hỏi mở là **nơi model lưu một fact có chắc là nơi tốt nhất để sửa fact đó hay không**. Vì vậy, mỗi phương pháp phải được kiểm tra đồng thời bằng reliability, locality và hiệu quả sau một chuỗi edit <Cite paper="shi2024continualSurvey" locator="§4.3.4" />.
 
 </MdxPage>
 
@@ -46,7 +44,7 @@ Nhóm retrieval-based không cố ghi mọi correction trực tiếp vào cùng 
   Retrieval ở đây không hoàn toàn đồng nghĩa với pipeline RAG tài liệu phổ biến. GRACE, MELO và Larimar truy xuất correction, adaptor hoặc episodic memory được thiết kế riêng cho model editing; mục tiêu là áp dụng đúng một edit trong chuỗi update, không chỉ thêm một đoạn tài liệu vào prompt.
 </LessonNote>
 
-### [GRACE](https://arxiv.org/abs/2211.11031)
+### <Cite paper="hartvigsen2023aging" label="GRACE" />
 
 GRACE lấy hidden activation làm **key** và lưu correction trong các key–value adaptor rời rạc. Khi activation mới nằm gần một key đã lưu, adaptor tương ứng được kích hoạt để áp dụng edit.
 
@@ -57,7 +55,7 @@ GRACE lấy hidden activation làm **key** và lưu correction trong các key–
 
 ---
 
-### [MELO](https://arxiv.org/abs/2312.11795)
+### <Cite paper="yu2023melo" label="MELO" />
 
 MELO kết hợp LoRA động với một vector database bên trong. Database tìm edit liên quan, còn LoRA cung cấp phần tham số nhỏ để thực thi thay đổi đó.
 
@@ -68,7 +66,7 @@ MELO kết hợp LoRA động với một vector database bên trong. Database t
 
 ---
 
-### [Larimar](https://arxiv.org/abs/2403.11901)
+### <Cite paper="das2024larimar" label="Larimar" />
 
 Larimar đặt correction trong **external episodic memory**. Model đọc bộ nhớ này khi trả lời, nhờ đó có thể thêm hoặc quên thông tin mà không liên tục ghi đè toàn bộ tham số nền.
 
@@ -81,7 +79,7 @@ Larimar đặt correction trong **external episodic memory**. Model đọc bộ 
 
 CMR cũng có thể chọn vị trí tham số cần sửa hoặc dành một vùng tham số riêng cho tri thức mới. Hai lựa chọn này giảm việc mọi correction cùng tranh chấp trên toàn model.
 
-#### [WilKE](https://arxiv.org/abs/2402.10987)
+#### <Cite paper="hu2024wilke" label="WilKE" />
 
 WilKE so khớp knowledge pattern để chọn layer phù hợp cho từng edit. Mục tiêu là tránh hiện tượng lỗi tích lũy khi nhiều correction liên tiếp đều bị ép vào một vị trí cố định.
 
@@ -92,7 +90,7 @@ WilKE so khớp knowledge pattern để chọn layer phù hợp cho từng edit.
 
 ---
 
-#### [WISE](https://arxiv.org/abs/2405.14768)
+#### <Cite paper="wang2024wise" label="WISE" />
 
 WISE dùng hai vùng parametric memory: **main memory** giữ năng lực nền, còn **side memory** nhận các edit mới. Các knowledge shard trong side memory được định tuyến và hợp nhất để cân bằng reliability, locality và generalization.
 
@@ -103,7 +101,7 @@ WISE dùng hai vùng parametric memory: **main memory** giữ năng lực nền,
 
 ### Locate không đồng nghĩa edit
 
-#### [Hase et al.](https://arxiv.org/abs/2301.04213)
+#### <Cite paper="hase2023does" label="Hase et al." />
 
 Nhiều phương pháp đi theo trực giác **locate and edit**: trước tiên tìm layer hoặc neuron có liên hệ nhân quả với một fact, rồi sửa đúng vị trí đó. Hase et al. cho thấy vị trí được causal tracing xem là nơi lưu fact không dự đoán ổn định vị trí tạo ra edit tốt nhất.
 

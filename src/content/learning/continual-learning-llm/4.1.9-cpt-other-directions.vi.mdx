@@ -8,7 +8,7 @@ export const lessonMetadata = {
 
 CPT không chỉ dùng để thích nghi với distribution shift. Nó còn có thể **sửa hành vi và ưu tiên học từ những dữ liệu khó hoặc lỗi** thay vì phân bổ compute như nhau cho toàn bộ corpus.
 
-### [CEM — học tiếp từ những câu trả lời sai](https://arxiv.org/abs/2404.08707)
+### <Cite paper="zhao2024large" label="CEM — học tiếp từ những câu trả lời sai" />
 
 CEM bắt đầu bằng việc đánh giá model, thu thập các câu model trả lời sai, rồi bổ sung knowledge liên quan đến những lỗi đó vào dữ liệu train tiếp. Đơn vị được ưu tiên ở đây là **example**: model sai ở đâu thì tập trung cải thiện ở đó.
 
@@ -18,7 +18,7 @@ CEM bắt đầu bằng việc đánh giá model, thu thập các câu model tr�
   caption="CEM tập trung compute vào lỗi đã quan sát được, đổi lại pipeline phải phát hiện đúng lỗi và tìm được knowledge bổ sung phù hợp."
 />
 
-### [RHO-1 — chọn token đáng học](https://arxiv.org/abs/2404.07965)
+### <Cite paper="lin2024rho" label="RHO-1 — chọn token đáng học" />
 
 RHO-1 đề xuất **Selective Language Modeling (SLM)**. Một reference model đã học từ dữ liệu chất lượng cao giúp chấm từng token; model đang train chỉ nhận loss từ những token có **excess loss** cao, tức là còn khó với model hiện tại nhưng phù hợp với distribution mục tiêu. Vì vậy, phương pháp không đơn giản giữ mọi token có perplexity cao: token khó do nhiễu vẫn có thể bị loại.
 
@@ -28,7 +28,7 @@ RHO-1 đề xuất **Selective Language Modeling (SLM)**. Một reference model 
   caption="RHO-1 lọc loss ở token level; chất lượng lựa chọn phụ thuộc mạnh vào reference model và corpus chất lượng cao dùng để huấn luyện nó."
 />
 
-### [IR-DRO — gán trọng số cho từng sequence](https://arxiv.org/abs/2402.14270)
+### <Cite paper="chen2024take" label="IR-DRO — gán trọng số cho từng sequence" />
 
 IR-DRO chuyển mức focus từ token sang **sequence**. Phương pháp gán trọng số lớn hơn cho các đoạn có loss cao vừa phải vì chúng thường còn chứa tín hiệu hữu ích; những sequence có loss cao nhất có thể là dữ liệu nhiễu hoặc quá phức tạp nên không được ưu tiên vô điều kiện.
 
@@ -40,7 +40,7 @@ IR-DRO chuyển mức focus từ token sang **sequence**. Phương pháp gán tr
 
 ### Ứng dụng công nghiệp — cập nhật theo dòng dữ liệu mới
 
-Với dữ liệu biến đổi nhanh như tweet, [Dynamic Language Models](https://arxiv.org/abs/2106.06297) cập nhật BERT bằng dynamic vocabulary expansion và subsampling để ưu tiên phần dữ liệu mới hữu ích. [TimeLMs](https://aclanthology.org/2022.acl-demo.25/) chọn một recipe đơn giản hơn: phát hành các model dựa trên RoBERTa được train tiếp mỗi ba tháng trên tweet mới, không thêm ràng buộc đặc biệt để giữ model gần checkpoint cũ.
+Với dữ liệu biến đổi nhanh như tweet, <Cite paper="amba2021dynamic" label="Dynamic Language Models" /> cập nhật BERT bằng dynamic vocabulary expansion và subsampling để ưu tiên phần dữ liệu mới hữu ích. <Cite paper="loureiro2022timelms" label="TimeLMs" /> chọn một recipe đơn giản hơn: phát hành các model dựa trên RoBERTa được train tiếp mỗi ba tháng trên tweet mới, không thêm ràng buộc đặc biệt để giữ model gần checkpoint cũ.
 
 <LessonImage
   assetPath="continual-learning-llm/06-cpt-industrial-updates-tradeoff.png"
@@ -48,7 +48,7 @@ Với dữ liệu biến đổi nhanh như tweet, [Dynamic Language Models](http
   caption="Cập nhật định kỳ giảm nhu cầu rebuild model, nhưng không loại bỏ chi phí training và kiểm tra lại knowledge cũ sau mỗi đợt."
 />
 
-### [CPT có luôn đáng chi phí môi trường?](https://arxiv.org/abs/2210.07365)
+### <Cite paper="attanasio2023worth" label="CPT có luôn đáng chi phí môi trường?" />
 
 Không phải mọi data stream đều cần cập nhật model liên tục. Attanasio et al. không tìm thấy lợi ích downstream ổn định khi temporal adaptation các model tiếng Anh trên dữ liệu social media, trong khi continuous training tạo thêm phát thải CO₂. Finding này đặt ra câu hỏi **khi nào lợi ích cập nhật đủ lớn để bù chi phí**, chứ không chứng minh CPT luôn không cần thiết.
 
@@ -58,6 +58,4 @@ Không phải mọi data stream đều cần cập nhật model liên tục. Att
   caption="Quyết định CPT cần cân bằng lợi ích task với compute và phát thải; bằng chứng hiện tại vẫn bị giới hạn bởi phạm vi dữ liệu và benchmark temporal."
 />
 
-Nhìn chung, survey xem CPT là một lựa chọn hiệu quả hơn **combine-and-retrain** trong nhiều bối cảnh. Tuy nhiên, granularity cần ưu tiên—example, token hay sequence—và việc có nên cập nhật hay không đều phải dựa trên lỗi thực tế, data stream và chi phí của hệ thống.
-
-Nguồn tổng hợp: [Shi et al., §4.1.3](https://arxiv.org/html/2404.16789v3#S4.SS1.SSS3).
+Nhìn chung, survey xem CPT là một lựa chọn hiệu quả hơn **combine-and-retrain** trong nhiều bối cảnh <Cite paper="shi2024continualSurvey" locator="§4.1.3" />. Tuy nhiên, granularity cần ưu tiên—example, token hay sequence—và việc có nên cập nhật hay không đều phải dựa trên lỗi thực tế, data stream và chi phí của hệ thống.

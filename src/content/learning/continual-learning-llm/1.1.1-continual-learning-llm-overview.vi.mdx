@@ -43,7 +43,7 @@ Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ, rẻ để truy cập
 
 ## Vì sao không chỉ dùng RAG?
 
-Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa nội dung đó vào context khi model trả lời. Đây là lựa chọn rất hữu ích khi hệ thống cần truy cập fact mới hoặc dẫn lại nguồn bên ngoài mà không cập nhật checkpoint cho mỗi tài liệu.
+Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa nội dung đó vào context khi model trả lời <Cite paper="thulke2024climategpt" locator="§4, đoạn 2" evidence="overview-rag-external-context" />. Đây là lựa chọn rất hữu ích khi hệ thống cần truy cập fact mới hoặc dẫn lại nguồn bên ngoài mà không cập nhật checkpoint cho mỗi tài liệu.
 
 <CourseCards
   ariaLabel="RAG và Continual Learning thay đổi hai phần khác nhau của hệ thống"
@@ -63,7 +63,9 @@ Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa
   ]}
 />
 
-Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt. Nếu hành vi mới phải tồn tại khi không có retrieved document, chỉ thêm RAG chưa giải quyết mục tiêu đó; model vẫn cần được thích nghi và sau đó kiểm tra xem năng lực cũ có bị quên hay không.
+Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt. Nếu hành vi mới phải tồn tại khi không có retrieved document, chỉ thêm RAG chưa giải quyết mục tiêu đó; model vẫn cần được thích nghi và sau đó kiểm tra xem năng lực cũ có bị quên hay không <Cite paper="shi2024continualSurvey" locator="§4.2, đoạn 1" evidence="overview-domain-adaptation" />.
+
+Retrieval cũng không đồng nghĩa với một cơ chế duy nhất: survey ghi nhận một số memory-based model-editing approaches thực hiện editing thông qua retrieval <Cite paper="shi2024continualSurvey" locator="§4.3.4, đoạn 1" evidence="overview-retrieval-model-editing" />. Vì vậy, khi đọc một hệ thống “có retrieval”, cần hỏi retrieval chỉ thêm context hay còn tham gia vào cơ chế cập nhật/chỉnh sửa model.
 
 <LessonImage
   assetPath="continual-learning-llm/01-rag-vs-continual-learning.png"
@@ -71,13 +73,11 @@ Khóa học này tập trung vào trường hợp thứ hai: model phải thay �
   caption="RAG bổ sung nguồn tham khảo cho lần trả lời; Continual Learning hướng tới năng lực hoặc hành vi được giữ lại trong model sau cập nhật."
 />
 
-Hai hướng cũng có thể bổ sung cho nhau. [ClimateGPT](https://arxiv.org/abs/2401.09646) là ví dụ trong survey kết hợp domain adaptation, instruction tuning và retrieval augmentation.
+Hai hướng cũng có thể bổ sung cho nhau. ClimateGPT thích nghi model bằng continued pre-training <Cite paper="thulke2024climategpt" label="ClimateGPT: CPT" locator="§1.1, Continued Pre-Training" evidence="overview-climategpt-cpt" />, bổ sung năng lực làm theo instruction bằng instruction fine-tuning <Cite paper="thulke2024climategpt" label="ClimateGPT: IFT" locator="§1.1, Instruction Fine-Tuning" evidence="overview-climategpt-ift" />, rồi dùng RAG để tăng factuality và mở rộng hệ thống bằng tri thức mới <Cite paper="thulke2024climategpt" label="ClimateGPT: RAG" locator="§1.1, Retrieval Augmented Generation" evidence="overview-climategpt-rag" />.
 
 <LessonNote tone="warning">
   Ví dụ, nếu mục tiêu là xây dựng chatbot thực sự **hiểu và tạo tiếng Việt**, chỉ cung cấp tài liệu tiếng Việt qua RAG là chưa đủ. RAG giúp model đọc nội dung được truy xuất; năng lực sử dụng tiếng Việt cần được học qua quá trình tiếp tục huấn luyện hoặc thích nghi model phù hợp.
 </LessonNote>
-
-Nguồn: [Shi et al., §4.2](https://arxiv.org/html/2404.16789v3#S4.SS2) và [§4.3.4](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS4).
 
 </MdxPage>
 
@@ -90,7 +90,7 @@ Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hi�
 <LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-loss.png" alt="Bốn bước Scratch, Tune, Loss và Forget: huấn luyện từ đầu tốn kém, fine-tune rẻ hơn, loss chỉ nhìn dữ liệu mới và kỹ năng cũ dần biến mất" caption="Fine-tune trên dữ liệu mới tiết kiệm hơn training from scratch, nhưng loss mới không phát tín hiệu bảo vệ những năng lực đã học." />
 
 <LessonNote>
-  Đây là vấn đề cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Chúng ta sẽ phân tích kỹ hơn ở phần Catastrophic Forgetting phía sau.
+  Đây là vấn đề cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Hiện tượng nền tảng này được McCloskey và Cohen mô tả dưới tên **catastrophic interference** trong các connectionist networks học tuần tự <Cite paper="mccloskey1989catastrophic" locator="Publisher summary" evidence="overview-catastrophic-interference" />. Chúng ta sẽ phân tích kỹ hơn biểu hiện của nó trong LLM ở các phần tiếp theo.
 </LessonNote>
 
 </MdxPage>
@@ -99,10 +99,8 @@ Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hi�
 
 ## Mục tiêu của Continual Learning
 
-Do vậy, mục tiêu của Continual Learning (CL) là thay thế vòng retraining đó bằng chuỗi update liên tục: học kiến thức hoặc task mới trong khi giữ hiệu năng trên những năng lực cũ còn giá trị. Động lực để phát triển hướng này vẫn là dựa trên cách con người học tập (Lifelong Learning) và bổ sung kiến thức mới (Incremental Learning), được minh họa ở hình bên dưới. Chúng ta sẽ nói rõ hơn khái niệm này ở những bài sau.
+Do vậy, mục tiêu của Continual Learning (CL) là thay thế vòng retraining đó bằng chuỗi update liên tục: học kiến thức hoặc task mới trong khi giữ hiệu năng trên những năng lực cũ còn giá trị <Cite paper="shi2024continualSurvey" locator="§1, đoạn 2" evidence="overview-cl-goal" />. Động lực để phát triển hướng này vẫn là dựa trên cách con người học tập (Lifelong Learning) và bổ sung kiến thức mới (Incremental Learning), được minh họa ở hình bên dưới. Chúng ta sẽ nói rõ hơn khái niệm này ở những bài sau.
 
 <LessonImage assetPath="continual-learning-llm/01-continual-learning-llm-overview.png" alt="Minh họa Continual Learning ở Con người và LLM" caption="Sơ đồ so sánh quá trình tích lũy kỹ năng ở con người với quá trình thích ứng tri thức nối tiếp ở LLM." />
-
-Nguồn: [Shi et al., §1](https://arxiv.org/html/2404.16789v3#S1).
 
 </MdxPage>

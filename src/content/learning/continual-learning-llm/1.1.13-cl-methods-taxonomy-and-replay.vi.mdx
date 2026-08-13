@@ -24,6 +24,8 @@ Sau khi biết forgetting xảy ra như thế nào, ta có thể gom các giải
 
 Survey còn đề cập hai hướng khác:
 
+Một taxonomy rộng hơn và mối liên hệ giữa replay, regularization, optimization, representation cùng architecture được tổng hợp bởi <Cite paper="wang2024comprehensive" label="Wang et al., §4.3–§4.4" />. Trong Domain-Incremental Learning có memory, <Cite paper="shi2024unified" locator="§2–§3" /> cho thấy nhiều objective hiện có có thể được nhìn dưới một khung generalization-bound thống nhất; đây là ví dụ lý thuyết, không phải taxonomy dành riêng cho LLM.
+
 <CourseCards
   ariaLabel="Hai hướng Continual Learning được survey đề cập ngắn"
   exampleLabel="Ý tưởng cốt lõi"
@@ -42,10 +44,8 @@ Survey còn đề cập hai hướng khác:
   ]}
 />
 
-Hai hướng này không được survey về Continual LLM phân tích sâu như ba nhóm phía trên, nên khóa học tạm thời chưa tách chúng thành node riêng.
+Hai hướng này không được survey về Continual LLM phân tích sâu như ba nhóm phía trên <Cite paper="shi2024continualSurvey" locator="§2.2.2" />, nên khóa học tạm thời chưa tách chúng thành node riêng.
 
 <LessonNote>
   Chương 2 sẽ lần lượt đi vào từng nhóm. Ta bắt đầu với Replay: đưa dữ liệu cũ trở lại quá trình học để tạo ràng buộc giữ kiến thức.
 </LessonNote>
-
-Nguồn: [Shi et al., §2.2.2](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS2) và [Wang et al., §4.3–4.4](https://arxiv.org/abs/2302.00487).

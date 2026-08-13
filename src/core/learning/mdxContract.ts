@@ -16,6 +16,9 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'DatasetComposition',
   'MetricBars',
   'ConceptSpectrum',
+  'Cite',
+  'PaperSummary',
+  'LessonReferences',
   'InlineMath',
   'BlockMath',
 ] as const;
@@ -28,6 +31,7 @@ export type LearningMdxMetadata = {
   headings: string[];
   keywords: string[];
   conceptIds?: string[];
+  referenceIds?: string[];
   pageCount?: number;
 };
 

@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-10
+updated: 2026-08-13
 ---
 
 # Learning Lab
@@ -135,6 +135,97 @@ src/content/learning/<domain-id>/[<chapter>.<section>.<node>-]<lesson-id>.<local
   authored lesson body, metadata, pages, quizzes, links, and visual inputs
 ```
 
+The Continual Learning domain adds a React-free academic-source layer inside
+its content package:
+
+```text
+scripts/generateContinualLearningReferences.mjs
+  -> arXiv 2404.16789v3 source + bibliography
+  -> papers.generated.ts (canonical paper metadata + section citation sets)
+
+papers.ts
+  -> stable claim rows + evidence role/exposure + course-analysis notes
+  -> reviewed lesson paper sets resolved by stable paper IDs
+
+citationEvidence.ts
+  -> reviewed occurrence-level excerpts + search fragments + verification targets
+
+locale MDX
+  -> claim-level <Cite paper="..." evidence="..."> placement and localized <PaperSummary>
+
+compiled lesson assembly
+  -> authored pages + one dedicated final reference page
+  -> lesson-filtered evidence only on authored pages
+  -> visible primary sources + expandable complete survey evidence set
+```
+
+Bibliographic identity is generated from the pinned survey version and must not
+be copied into the TOC or `localization.ts`. The handwritten `papers.ts` coverage
+map is the claim-to-paper audit surface: every current non-Quiz Continual
+Learning lesson has one entry, and papers outside the survey (for example a
+later lab paper) are registered there explicitly. The final lesson reference
+surface is assembled from that React-free relationship rather than duplicating
+large `referenceIds` arrays across locale files. The authored MDX `pageCount`
+continues to describe authored content only; runtime assembly appends the
+reference page and reports the combined count to the shared lesson pager.
+
+Each claim row declares a stable ID and summary, the relevant survey locator,
+its primary papers, and an exposure decision. `inline` and `paper-summary`
+evidence must appear in the authored MDX; `reference-page` evidence must record
+why it is useful as additional reading. Survey-section expansion is opt-in and
+is reserved for a lesson that actually teaches the corresponding table or
+literature landscape. It is not a shortcut for inheriting a whole section.
+
+When adding or revising a survey-backed claim:
+
+1. identify the exact survey section, paragraph, table, and citation cluster;
+2. add or update the stable claim row in `papers.ts`, classifying each source as
+   primary, additional, alternative, or qualifying evidence and choosing its
+   `inline`, `paper-summary`, or `reference-page` exposure;
+3. keep the original source next to named methods and empirical claims with `<Cite paper="..."
+   locator="§/Table/Figure" />`;
+4. use `<PaperSummary>` only when the reader needs the paper's question, setup,
+   finding, limitation, and relevance to understand the lesson;
+5. add a source missing from the pinned survey as an explicitly reviewed
+   `additionalPapers` record; for a survey source, improve canonical metadata in
+   the generator rather than editing `papers.generated.ts`;
+6. regenerate the pinned snapshot and run the MDX/paper coverage tests. Include
+   a complete survey cluster only when it materially supports the exact claim;
+   otherwise keep only reviewed sources and state a further-reading reason.
+
+Survey citations support taxonomy and synthesis. A named method, experiment,
+quantitative result, or paper-specific limitation should cite the original
+paper. Course-created examples and lab fixtures must be labeled as course
+analysis rather than presented as externally reproduced evidence.
+
+Inline citation previews use a second, occurrence-level contract in
+`citationEvidence.ts`. A paper can support several local claims, so a paper ID
+or broad locator is not an evidence ID. Each authored preview citation uses
+`<Cite paper="paper-id" locator="§/paragraph" evidence="evidence-id" />`; the
+evidence record must agree with the lesson, claim, paper, and locator. It stores
+an exact source-language excerpt, an exact searchable substring, the closest
+honest verification URL, target precision, reviewed source version/date, and
+quotation basis. Paraphrases remain in lesson prose and must never be rendered
+as a paper quotation.
+
+Verification targets prefer a versioned HTML paragraph anchor, then a canonical
+PDF page, then a canonical landing page. The action label reflects that
+precision. When exact deep linking is unavailable, the preview copies the
+reviewed search fragment for `Ctrl/Cmd+F`. Run
+`npm run audit:cl-citation-evidence` to verify anchors and search fragments
+against their declared sources. Sources that block maintenance requests require
+an explicit `manual-required` reason and browser review; the audit reports the
+exception and never rewrites approved evidence.
+
+The shared `Cite` stays link-only when no evidence ID is authored. With evidence
+it opens a non-modal, portal-rendered preview on hover or keyboard focus; touch
+uses the first tap to pin the preview, and the explicit action opens the source.
+No source is fetched during interaction. Evidence is injected only into authored
+lesson pages, so the dedicated `Nguồn và bản đồ paper` page remains ordinary
+links by construction. The Overview node is the current pilot checkpoint;
+domain-wide evidence coverage is intentionally deferred until its fidelity and
+interaction are reviewed.
+
 The optional hierarchical numeric prefix keeps authored files in typed-TOC
 order without becoming part of the canonical lesson ID. The LLM course uses
 chapter-local names such as `1.1.6-language-modeling-next-token.vi.mdx` and
@@ -185,6 +276,28 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
+The Continual Learning paper audit additionally checks that all 39 non-Quiz
+lessons have coverage, claim IDs are unique, paper IDs resolve, DOI/arXiv
+identifiers are unique, authored `Cite`/`PaperSummary` IDs belong to the lesson
+coverage, `paper-summary` decisions have a matching component, and optional MDX
+`referenceIds` match the structured citations authored in that file. It also
+rejects missing publication years and Scholar fallbacks on any source exposed by
+a lesson. The generated snapshot currently represents 225 papers cited across
+30 taught survey sections, plus three explicitly registered sources: the survey
+itself, Synaptic Intelligence, and the post-survey Spurious Forgetting lab
+paper. Forty reviewed claim rows currently expose 192 of the 228 registry
+records. The remaining records stay available as survey-intake candidates but
+are not rendered merely because they occur elsewhere in a broad survey section.
+
+Two nodes deliberately retain large evidence sets: `dap-domain-landscape`
+tracks the domain rows behind survey Table 2 (70 sources), while
+`continual-finetuning-overview` maps the method/settings landscape behind Table
+3 and §§4.3.1–4.3.2 (47 sources). Overview and synthesis nodes are guarded
+against this expansion. Canonical metadata has no missing year and no rendered
+paper falls back to Scholar. The sole remaining Scholar discovery link is the
+currently unused `kandel2000principles` book record because the cited 2000
+edition has no stable open primary landing page in the survey metadata.
+
 Search indexes catalog metadata for all nodes and authored body text only for
 published MDX. The shared placeholder body is not indexed, preventing 536
 missing nodes from overwhelming authored results. Matching is case-insensitive
@@ -214,6 +327,10 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
 | `src/content/learning/<domain-id>/<lesson-id>.<locale>.mdx` | Optional authored locale source. |
+| `src/content/learning/continual-learning-llm/papers.ts` | Continual Learning claim-to-section coverage, featured papers, post-survey sources, and lesson paper resolution. |
+| `src/content/learning/continual-learning-llm/papers.generated.ts` | Generated pinned-survey bibliography and complete section citation sets; do not hand-edit. |
+| `src/content/learning/continual-learning-llm/citationEvidence.ts` | Hand-reviewed occurrence-level excerpts and verification targets for inline citations. |
+| `src/core/learning/citationEvidence.ts` | React-free shared citation-evidence contract and target labels. |
 | `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
@@ -224,6 +341,8 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/learning/learningSearch.ts` | UI adapter over generated Vite search documents. |
 | `src/components/learning/lesson/visibleLesson.ts` | Rail/detail visible-lesson selection policy. |
 | `scripts/learningContentMdx.ts` | Node/Vite MDX validation and generated search documents. |
+| `scripts/generateContinualLearningReferences.mjs` | Rebuilds the Continual Learning paper snapshot from Shi et al. arXiv v3 source and HTML bibliography. |
+| `scripts/auditContinualLearningCitationEvidence.mjs` | Network maintenance audit for reviewed excerpt fragments and HTML anchors; never rewrites evidence. |
 
 ## UI Conventions
 

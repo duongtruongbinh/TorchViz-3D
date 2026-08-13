@@ -20,7 +20,7 @@ export const lessonMetadata = {
 
 ## Giữ năng lực cũ mà vẫn học được điều mới
 
-**Stability** là khả năng giữ hiệu năng trên tri thức đã học. **Plasticity** là khả năng thay đổi đủ nhanh để tiếp thu dữ liệu hoặc tác vụ mới. Continual Learning thất bại nếu chỉ tối ưu một phía: mô hình quá ổn định sẽ không học được, còn mô hình thích nghi quá nhanh sẽ ghi đè tri thức cũ.
+**Stability** là khả năng giữ hiệu năng trên tri thức đã học. **Plasticity** là khả năng thay đổi đủ nhanh để tiếp thu dữ liệu hoặc tác vụ mới. Continual Learning thất bại nếu chỉ tối ưu một phía: mô hình quá ổn định sẽ không học được, còn mô hình thích nghi quá nhanh sẽ ghi đè tri thức cũ <Cite paper="wang2024comprehensive" label="Wang et al., stability–plasticity framework" />.
 
 <BlockMath formula="\mathcal{L}_{\mathrm{CL}}(\theta)=\underbrace{\mathcal{L}_{\mathrm{retain}}(\theta)}_{\text{stability}}+\lambda\,\underbrace{\mathcal{L}_{\mathrm{new}}(\theta)}_{\text{plasticity}}" />
 
@@ -67,8 +67,6 @@ Sự đánh đổi này phụ thuộc vào bốn yếu tố:
   ]}
 />
 
-Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật (stage). Các độ đo cụ thể sẽ được đề cập ở Chương 5.
-
-Nguồn: [Shi et al., §2.2](https://arxiv.org/html/2404.16789v3#S2.SS2).
+Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật (stage) <Cite paper="shi2024continualSurvey" locator="§2.2" />. Các độ đo cụ thể sẽ được đề cập ở Chương 5.
 
 </MdxPage>

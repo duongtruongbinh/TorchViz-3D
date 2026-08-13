@@ -23,9 +23,7 @@ Các modality còn có thể học không cân bằng: một modality hoặc nh�
 
 Fine-tune toàn model không phải lựa chọn duy nhất. Một số công trình chỉ cập nhật projection, prompt, expert hoặc một subset tham số quan trọng để giảm compute và giới hạn interference.
 
-Khảo sát thực nghiệm được survey tổng hợp cho thấy **replay** và **model expansion** hoạt động tương đối ổn định trong các setting được kiểm tra. Regularization chỉ tỏ ra hiệu quả ở một số model đã joint instruction tuning, nên không nên xem nó là lựa chọn luôn thắng.
-
-Nguồn: [Shi et al., §4.3.6](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS6).
+Khảo sát thực nghiệm được survey tổng hợp cho thấy **replay** và **model expansion** hoạt động tương đối ổn định trong các setting được kiểm tra. Regularization chỉ tỏ ra hiệu quả ở một số model đã joint instruction tuning, nên không nên xem nó là lựa chọn luôn thắng <Cite paper="shi2024continualSurvey" locator="§4.3.6" />.
 
 </MdxPage>
 
@@ -39,7 +37,7 @@ Nguồn: [Shi et al., §4.3.6](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS6).
   caption="Mỗi paper nhắm một bottleneck multimodal khác nhau."
 />
 
-### [Zhai et al.](https://arxiv.org/abs/2309.10313)
+### <Cite paper="zhai2023investigating" label="Zhai et al." />
 
 Zhai et al. ghi nhận minority collapse và hallucination trong setting được nghiên cứu, cho thấy forgetting multimodal có thể bị che khuất nếu chỉ nhìn điểm trung bình.
 
@@ -50,7 +48,7 @@ Zhai et al. ghi nhận minority collapse và hallucination trong setting đượ
 
 ---
 
-### [Fwd-Prompt](https://arxiv.org/abs/2401.09181)
+### <Cite paper="zheng2024antiforgetting" label="Fwd-Prompt" />
 
 Fwd-Prompt phân tích chênh lệch giữa các input embedding bằng singular value decomposition. Paper chiếu prompt gradient vào residual subspace và pre-trained subspace để giảm catastrophic forgetting cùng negative forward transfer mà không dùng mẫu cũ.
 
@@ -61,7 +59,7 @@ Fwd-Prompt phân tích chênh lệch giữa các input embedding bằng singular
 
 ---
 
-### [EProj](https://arxiv.org/abs/2311.16206)
+### <Cite paper="he2023continual" label="EProj" />
 
 EProj mở rộng projection layer khi task mới đến và thêm regularization dựa trên độ tương đồng giữa task. Cách này dành capacity mới cho task mới thay vì buộc mọi task dùng chung một projection cố định.
 
@@ -72,7 +70,7 @@ EProj mở rộng projection layer khi task mới đến và thêm regularizatio
 
 ---
 
-### [Model Tailor](https://arxiv.org/abs/2402.12048)
+### <Cite paper="zhu2024model" label="Model Tailor" />
 
 Model Tailor chọn một subset nhỏ các tham số quan trọng từ model đã fine-tune để tạo **model patch**, rồi bù cho ảnh hưởng của các tham số không được giữ. Paper thực nghiệm với tỷ lệ tham số được chọn không quá 10% trong setting của mình.
 
@@ -83,7 +81,7 @@ Model Tailor chọn một subset nhỏ các tham số quan trọng từ model đ
 
 ---
 
-### [RebQ](https://arxiv.org/abs/2403.11373)
+### <Cite paper="zhao2024reconstruct" label="RebQ" />
 
 RebQ dùng các prompt được phân rã cùng key–query pool để tái dựng biểu diễn khi một modality bị thiếu. Mục tiêu là duy trì khả năng học liên tục ngay cả khi mỗi giai đoạn không cung cấp đầy đủ modality.
 
@@ -94,7 +92,7 @@ RebQ dùng các prompt được phân rã cùng key–query pool để tái dự
 
 ---
 
-### [CoIN / MoELoRA](https://arxiv.org/abs/2403.08350)
+### <Cite paper="chen2024coin" label="CoIN / MoELoRA" />
 
 CoIN áp dụng MoELoRA cho LLaVA: nhiều LoRA expert tiếp nhận các intention hoặc task khác nhau, còn router chọn expert phù hợp. Capacity được mở rộng theo expert thay vì sửa đồng nhất toàn bộ backbone.
 

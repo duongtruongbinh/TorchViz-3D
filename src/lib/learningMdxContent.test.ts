@@ -4,6 +4,18 @@ import test from 'node:test';
 import { discoverLearningMdxFiles, inspectLearningMdx, validateLearningMdxFiles, validateLearningMdxSource } from '../../scripts/learningContentMdx.ts';
 import { learningCatalog } from '../content/learning/index.ts';
 import { continualLearningLessonPairs } from '../content/learning/continual-learning-llm/table-of-contents.ts';
+import {
+  continualLearningCitationEvidence,
+  continualLearningCitationEvidenceById,
+} from '../content/learning/continual-learning-llm/citationEvidence.ts';
+import {
+  continualLearningLessonReferenceCoverage,
+  continualLearningPaperById,
+  continualLearningPapers,
+  getContinualLearningLessonClaimEvidence,
+  getContinualLearningLessonReferenceIds,
+} from '../content/learning/continual-learning-llm/papers.ts';
+import { citationEvidenceTargetLabel } from '../core/learning/citationEvidence.ts';
 import { getLearningMdxComponentNames, parseLearningMdxPath } from '../core/learning/mdxContract.ts';
 import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComponents.ts';
 import type { LearningCatalog } from '../core/learning/types.ts';
@@ -195,6 +207,149 @@ test('published continual-learning pairs map theory concepts to quiz questions e
   }
 });
 
+test('continual-learning paper coverage is complete, unique, and resolvable', async () => {
+  const domainFiles = lessonFiles.filter((file) => parseLearningMdxPath(file)?.domainId === 'continual-learning-llm');
+  const theoryIds = domainFiles
+    .map((file) => parseLearningMdxPath(file)?.lessonId)
+    .filter((lessonId): lessonId is string => typeof lessonId === 'string' && !lessonId.endsWith('-quiz'))
+    .sort();
+  assert.equal(theoryIds.length, 39);
+  assert.deepEqual(continualLearningLessonReferenceCoverage.map((item) => item.lessonId).sort(), theoryIds);
+  assert.equal(continualLearningPapers.length, continualLearningPaperById.size);
+  const claimIds = new Set<string>();
+
+  const identifiers = new Set<string>();
+  for (const paper of continualLearningPapers) {
+    assert.notEqual(paper.year, null, `${paper.id} needs a reviewed publication year`);
+    for (const identifier of [paper.doi && `doi:${paper.doi.toLowerCase()}`, paper.arxivId && `arxiv:${paper.arxivId.toLowerCase().replace(/v\d+$/, '')}`].filter(Boolean) as string[]) {
+      assert.ok(!identifiers.has(identifier), `duplicate paper identifier ${identifier}`);
+      identifiers.add(identifier);
+    }
+  }
+
+  for (const coverage of continualLearningLessonReferenceCoverage) {
+    const referenceIds = getContinualLearningLessonReferenceIds(coverage.lessonId);
+    assert.ok(referenceIds.length || coverage.courseAnalysis, `${coverage.lessonId} needs papers or an explicit course-analysis exception`);
+    for (const paperId of referenceIds) assert.ok(continualLearningPaperById.has(paperId), `${coverage.lessonId} references unknown paper ${paperId}`);
+    assert.ok(coverage.claims.length, `${coverage.lessonId} needs at least one reviewed claim row`);
+    for (const claim of coverage.claims) {
+      assert.ok(!claimIds.has(claim.id), `duplicate claim id ${claim.id}`);
+      claimIds.add(claim.id);
+      assert.ok(claim.summary.trim(), `${claim.id} needs a reviewable claim summary`);
+      if (claim.includeSurveySectionEvidence) {
+        assert.ok(claim.surveyLocator, `${claim.id} expands survey evidence but has no survey locator`);
+        assert.ok(claim.surveySections?.length, `${claim.id} expands survey evidence but has no source section`);
+      }
+    }
+    for (const evidence of getContinualLearningLessonClaimEvidence(coverage.lessonId)) {
+      assert.ok(continualLearningPaperById.has(evidence.paperId), `${coverage.lessonId} references unknown paper ${evidence.paperId}`);
+      if (evidence.exposure === 'reference-page') assert.ok(evidence.reason?.trim(), `${coverage.lessonId}/${evidence.paperId} needs a further-reading reason`);
+    }
+  }
+
+  assert.equal(continualLearningCitationEvidence.length, continualLearningCitationEvidenceById.size, 'citation evidence IDs must be unique');
+  for (const evidence of continualLearningCitationEvidence) {
+    const coverage = continualLearningLessonReferenceCoverage.find((item) => item.lessonId === evidence.lessonId);
+    assert.ok(coverage, `${evidence.id} references unknown lesson ${evidence.lessonId}`);
+    assert.ok(coverage.claims.some((claim) => claim.id === evidence.claimId), `${evidence.id} references unknown claim ${evidence.claimId}`);
+    assert.ok(continualLearningPaperById.has(evidence.paperId), `${evidence.id} references unknown paper ${evidence.paperId}`);
+    assert.ok(evidence.excerpt.includes(evidence.searchText), `${evidence.id} searchText must be an exact excerpt substring`);
+    assert.match(evidence.verificationUrl, /^https?:\/\//, `${evidence.id} needs an HTTP(S) verification target`);
+    assert.match(evidence.retrievedAt, /^\d{4}-\d{2}-\d{2}$/);
+    assert.equal(evidence.review.status, 'verified');
+    assert.match(evidence.review.verifiedAt, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(evidence.locator.trim(), `${evidence.id} needs a human-readable locator`);
+    assert.ok(citationEvidenceTargetLabel(evidence.targetPrecision).length > 0);
+    if (evidence.targetPrecision === 'html-anchor') {
+      assert.ok(new URL(evidence.verificationUrl).hash, `${evidence.id} claims HTML precision without an anchor`);
+    }
+    if (evidence.verificationUrl.includes('arxiv.org/html/')) {
+      assert.match(evidence.sourceVersion ?? '', /^arXiv v\d+$/, `${evidence.id} must pin its reviewed arXiv version`);
+      assert.match(new URL(evidence.verificationUrl).pathname, /v\d+$/, `${evidence.id} must target the reviewed arXiv version`);
+    }
+    if (evidence.quotation.basis === 'redistributable-license') {
+      assert.match(evidence.quotation.licenseUrl ?? '', /^https?:\/\//, `${evidence.id} needs its source license URL`);
+    }
+    if (evidence.automatedAudit?.status === 'manual-required') {
+      assert.ok(evidence.automatedAudit.reason.trim(), `${evidence.id} needs a manual-audit reason`);
+    }
+  }
+
+  const usedEvidenceIds = new Set<string>();
+
+  for (const file of domainFiles.filter((candidate) => !parseLearningMdxPath(candidate)?.lessonId.endsWith('-quiz'))) {
+    const parsed = parseLearningMdxPath(file);
+    assert.ok(parsed);
+    const inspection = await inspectLearningMdx(readFileSync(file, 'utf8'), file);
+    const source = readFileSync(file, 'utf8');
+    assert.doesNotMatch(
+      source,
+      /^Nguồn(?: tổng hợp| liên quan)?:/m,
+      `${parsed.lessonId} must place prose evidence beside the claim instead of in a trailing source line`,
+    );
+    const coverageIds = new Set(getContinualLearningLessonReferenceIds(parsed.lessonId));
+    const authoredPaperIds = new Set(inspection.paperReferenceIds);
+    for (const paperId of inspection.paperReferenceIds) {
+      assert.ok(continualLearningPaperById.has(paperId), `${parsed.lessonId} cites unknown paper ${paperId}`);
+      assert.ok(coverageIds.has(paperId), `${parsed.lessonId} cites ${paperId} outside its claim coverage`);
+    }
+    for (const citation of inspection.citationReferences) {
+      if (!citation.evidenceId) continue;
+      assert.ok(!usedEvidenceIds.has(citation.evidenceId), `${citation.evidenceId} must identify one citation occurrence`);
+      usedEvidenceIds.add(citation.evidenceId);
+      const evidence = continualLearningCitationEvidenceById.get(citation.evidenceId);
+      assert.ok(evidence, `${parsed.lessonId} cites unknown evidence ${citation.evidenceId}`);
+      assert.equal(evidence.lessonId, parsed.lessonId, `${citation.evidenceId} belongs to another lesson`);
+      assert.equal(evidence.paperId, citation.paperId, `${citation.evidenceId} belongs to another paper`);
+      assert.equal(evidence.locator, citation.locator, `${citation.evidenceId} locator must match its authored citation`);
+    }
+    if (parsed.lessonId === 'continual-learning-llm-overview') {
+      assert.ok(inspection.citationReferences.length > 0);
+      assert.ok(inspection.citationReferences.every((citation) => citation.evidenceId), 'the Overview pilot requires evidence for every Cite occurrence');
+    }
+    for (const evidence of getContinualLearningLessonClaimEvidence(parsed.lessonId)) {
+      if (evidence.exposure !== 'reference-page') {
+        assert.ok(authoredPaperIds.has(evidence.paperId), `${parsed.lessonId} must expose ${evidence.paperId} beside its claim`);
+      }
+      if (evidence.exposure === 'paper-summary') {
+        const escapedPaperId = evidence.paperId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        assert.match(source, new RegExp(`<PaperSummary[\\s\\S]*?paper=["']${escapedPaperId}["']`), `${parsed.lessonId} must analyze ${evidence.paperId} with PaperSummary`);
+      }
+    }
+    const declaredIds = inspection.metadata.referenceIds;
+    if (declaredIds !== undefined) {
+      assert.deepEqual([...declaredIds as string[]].sort(), [...new Set(inspection.paperReferenceIds)].sort(), `${parsed.lessonId} referenceIds must match authored citation components`);
+    }
+  }
+  assert.deepEqual([...usedEvidenceIds].sort(), continualLearningCitationEvidence.map((evidence) => evidence.id).sort(), 'every reviewed evidence record must be used exactly once');
+  assert.ok(getContinualLearningLessonReferenceIds('continual-learning-llm-overview').length <= 4, 'overview must not inherit the survey introduction bibliography');
+  assert.ok(getContinualLearningLessonReferenceIds('continual-llm-synthesis').length <= 2, 'synthesis must not duplicate the full course bibliography');
+  const reachableIds = new Set(continualLearningLessonReferenceCoverage.flatMap((coverage) => getContinualLearningLessonReferenceIds(coverage.lessonId)));
+  assert.deepEqual(
+    continualLearningPapers.filter((paper) => reachableIds.has(paper.id) && paper.url.includes('scholar.google.com')).map((paper) => paper.id),
+    [],
+    'papers exposed by a lesson must use canonical primary URLs instead of Scholar search fallbacks',
+  );
+  assert.deepEqual(
+    continualLearningPapers.filter((paper) => paper.url.includes('scholar.google.com')).map((paper) => paper.id),
+    ['kandel2000principles'],
+    'only the documented, currently unused Kandel book record may retain a Scholar discovery fallback',
+  );
+});
+
+test('continual-learning references assemble as one dedicated final runtime page', () => {
+  assert.equal(continualLearningLessonReferenceCoverage.length, 39);
+  const registry = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
+  assert.match(registry, /const authoredPages = Array\.from\(\{ length: lesson\.pageCount \}/);
+  assert.match(registry, /const referencePage = referenceCoverage \? \(/);
+  assert.match(registry, /pageIndex=\{lesson\.pageCount\}/);
+  assert.match(registry, /const pages = referencePage \? \[\.\.\.authoredPages, referencePage\] : authoredPages/);
+  assert.match(registry, /return \{ pageCount: pages\.length, pages \}/);
+  assert.doesNotMatch(registry, /pageIndex === lesson\.pageCount - 1.*<LessonReferences/);
+  const referencePageAssembly = registry.slice(registry.indexOf('const referencePage ='), registry.indexOf('const pages ='));
+  assert.doesNotMatch(referencePageAssembly, /citationEvidence=/, 'the final paper-map page must remain preview-free');
+});
+
 test('continual-learning quizzes vary correct positions and keep one defensible answer shape', async () => {
   const quizInspections = await Promise.all(continualLearningLessonPairs.map(async (pair) => {
     const file = lessonFiles.find((candidate) => parseLearningMdxPath(candidate)?.lessonId === pair.quiz.id);
@@ -341,7 +496,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'StageContinuityMap', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'StageContinuityMap', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'Cite', 'PaperSummary', 'LessonReferences', 'InlineMath', 'BlockMath', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,
