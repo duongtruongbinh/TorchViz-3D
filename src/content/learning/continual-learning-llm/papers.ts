@@ -1,5 +1,4 @@
 import {
-  continualLearningPaperById as generatedPaperById,
   continualLearningPapers as generatedPapers,
   surveyDirectReferenceIdsBySection,
   surveyReferenceIdsBySection,
@@ -204,12 +203,6 @@ export function getContinualLearningLessonPapers(lessonId: string): ContinualLea
   return papers;
 }
 
-export function formatContinualLearningPaperCitation(paper: ContinualLearningPaper): string {
-  const firstAuthor = paper.authors[0]?.split(',')[0]?.trim() || paper.title;
-  const authorLabel = paper.authors.length > 1 ? `${firstAuthor} et al.` : firstAuthor;
-  return `${authorLabel}${paper.year ? ` (${paper.year})` : ''}`;
-}
-
 function coverage(
   lessonId: string,
   claims: readonly ContinualLearningClaimReferenceCoverage[],
@@ -247,8 +240,4 @@ function summarized(paperIds: readonly string[]): ContinualLearningClaimPaperEvi
 
 function further(paperIds: readonly string[], reason: string): ContinualLearningClaimPaperEvidence[] {
   return paperIds.map((paperId) => ({ paperId, role: 'additional-evidence', exposure: 'reference-page', reason }));
-}
-
-if (generatedPaperById.size !== generatedPapers.length) {
-  throw new Error('Generated Continual Learning paper IDs must be unique.');
 }

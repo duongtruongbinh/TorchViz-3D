@@ -116,11 +116,7 @@ try {
     + `export type ContinualLearningPaper = {\n`
     + `  id: string;\n  title: string;\n  authors: string[];\n  year: number | null;\n`
     + `  venue?: string;\n  doi?: string;\n  arxivId?: string;\n  url: string;\n  kind: ContinualLearningPaperKind;\n};\n\n`
-    + `export const CONTINUAL_LEARNING_SURVEY = {\n`
-    + `  id: 'shi2024continualSurvey',\n  arxivId: '${SURVEY_ARXIV_ID}',\n`
-    + `  sourceUrl: 'https://arxiv.org/html/${SURVEY_ARXIV_ID}',\n} as const;\n\n`
     + `export const continualLearningPapers = ${JSON.stringify(records, null, 2)} as const satisfies readonly ContinualLearningPaper[];\n\n`
-    + `export const continualLearningPaperById = new Map(continualLearningPapers.map((paper) => [paper.id, paper]));\n\n`
     + `export const surveyDirectReferenceIdsBySection = ${JSON.stringify(sortObject(taughtDirectReferences), null, 2)} as const;\n\n`
     + `export const surveyReferenceIdsBySection = ${JSON.stringify(sortObject(taughtReferences), null, 2)} as const;\n`;
   writeFileSync(outputPath, source);

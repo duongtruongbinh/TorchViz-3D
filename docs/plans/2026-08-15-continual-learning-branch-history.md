@@ -2,7 +2,7 @@
 title: Continual Learning Branch Completion
 status: done
 created: 2026-08-15T01:30:00+07:00
-updated: 2026-08-15T02:15:00+07:00
+updated: 2026-08-15T03:00:00+07:00
 author: Codex
 task: "Consolidate the August 13–15 Continual Learning work into one durable branch history"
 supersedes:
@@ -239,3 +239,13 @@ The existing large Learning Lab chunk advisory remains non-blocking.
   that only this plan is newly present relative to `main`, both lineage links
   resolve, no stale references remain, the wiki is preserved, and
   `git diff --check` passes.
+- 2026-08-15 — User approved a source-layer cleanup: remove unused citation
+  formatting and generated lookup/provenance exports, and migrate the Overview
+  evidence pilot into the same reviewed-occurrence pipeline as every other
+  lesson while preserving all authored evidence IDs. Reopened execution.
+- 2026-08-15 — Removed the unused paper formatter and generated-only survey/map
+  exports, including their generator templates. Migrated all eight Overview
+  records into the shared occurrence pipeline without changing their IDs,
+  excerpts, provenance, or total evidence count. The three source files are 78
+  lines smaller. TypeScript, focused MDX/paper/index tests, and
+  `git diff --check` passed.

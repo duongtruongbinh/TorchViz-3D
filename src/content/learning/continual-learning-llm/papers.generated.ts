@@ -15,12 +15,6 @@ export type ContinualLearningPaper = {
   kind: ContinualLearningPaperKind;
 };
 
-export const CONTINUAL_LEARNING_SURVEY = {
-  id: 'shi2024continualSurvey',
-  arxivId: '2404.16789v3',
-  sourceUrl: 'https://arxiv.org/html/2404.16789v3',
-} as const;
-
 export const continualLearningPapers = [
   {
     "id": "Azerbayev2023LLEMMA",
@@ -3979,8 +3973,6 @@ export const continualLearningPapers = [
     "kind": "misc"
   }
 ] as const satisfies readonly ContinualLearningPaper[];
-
-export const continualLearningPaperById = new Map(continualLearningPapers.map((paper) => [paper.id, paper]));
 
 export const surveyDirectReferenceIdsBySection = {
   "S1": [

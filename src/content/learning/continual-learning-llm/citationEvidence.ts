@@ -5,132 +5,6 @@ import type {
 
 const climateGptLicenseUrl = 'https://creativecommons.org/licenses/by-sa/4.0/';
 
-const overviewCitationEvidence: readonly LearningCitationEvidence[] = [
-  {
-    id: 'overview-rag-external-context',
-    lessonId: 'continual-learning-llm-overview',
-    claimId: 'static-model-and-update-motivation',
-    paperId: 'thulke2024climategpt',
-    excerpt: 'retrieving relevant documents from external databases and providing these documents as additional context to the model',
-    searchText: 'providing these documents as additional context to the model',
-    locator: '§4, đoạn 2',
-    verificationUrl: 'https://arxiv.org/html/2401.09646v1#S4.p2',
-    targetPrecision: 'html-anchor',
-    sourceVersion: 'arXiv v1',
-    retrievedAt: '2026-08-13',
-    review: { status: 'verified', verifiedAt: '2026-08-13' },
-    quotation: { basis: 'redistributable-license', licenseUrl: climateGptLicenseUrl },
-  },
-  {
-    id: 'overview-retrieval-model-editing',
-    lessonId: 'continual-learning-llm-overview',
-    claimId: 'static-model-and-update-motivation',
-    paperId: 'shi2024continualSurvey',
-    excerpt: 'incorporate editing through retrieval mechanisms',
-    searchText: 'incorporate editing through retrieval mechanisms',
-    locator: '§4.3.4, đoạn 1',
-    verificationUrl: 'https://arxiv.org/html/2404.16789v3#S4.SS3.SSS4.p1',
-    targetPrecision: 'html-anchor',
-    sourceVersion: 'arXiv v3',
-    retrievedAt: '2026-08-13',
-    review: { status: 'verified', verifiedAt: '2026-08-13' },
-    quotation: { basis: 'short-quotation' },
-  },
-  {
-    id: 'overview-domain-adaptation',
-    lessonId: 'continual-learning-llm-overview',
-    claimId: 'static-model-and-update-motivation',
-    paperId: 'shi2024continualSurvey',
-    excerpt: 'facilitate effective adaptation of LLMs to downstream tasks',
-    searchText: 'effective adaptation of LLMs to downstream tasks',
-    locator: '§4.2, đoạn 1',
-    verificationUrl: 'https://arxiv.org/html/2404.16789v3#S4.SS2.p1',
-    targetPrecision: 'html-anchor',
-    sourceVersion: 'arXiv v3',
-    retrievedAt: '2026-08-13',
-    review: { status: 'verified', verifiedAt: '2026-08-13' },
-    quotation: { basis: 'short-quotation' },
-  },
-  {
-    id: 'overview-climategpt-cpt',
-    lessonId: 'continual-learning-llm-overview',
-    claimId: 'static-model-and-update-motivation',
-    paperId: 'thulke2024climategpt',
-    excerpt: 'adapt an existing LLM trained on a large set of general domain data to the target domain',
-    searchText: 'adapt an existing LLM',
-    locator: '§1.1, Continued Pre-Training',
-    verificationUrl: 'https://arxiv.org/html/2401.09646v1#S1.SS1.p4',
-    targetPrecision: 'html-anchor',
-    sourceVersion: 'arXiv v1',
-    retrievedAt: '2026-08-13',
-    review: { status: 'verified', verifiedAt: '2026-08-13' },
-    quotation: { basis: 'redistributable-license', licenseUrl: climateGptLicenseUrl },
-  },
-  {
-    id: 'overview-climategpt-ift',
-    lessonId: 'continual-learning-llm-overview',
-    claimId: 'static-model-and-update-motivation',
-    paperId: 'thulke2024climategpt',
-    excerpt: 'inject instruction-following capabilities into the model',
-    searchText: 'inject instruction-following capabilities into the model',
-    locator: '§1.1, Instruction Fine-Tuning',
-    verificationUrl: 'https://arxiv.org/html/2401.09646v1#S1.SS1.p5',
-    targetPrecision: 'html-anchor',
-    sourceVersion: 'arXiv v1',
-    retrievedAt: '2026-08-13',
-    review: { status: 'verified', verifiedAt: '2026-08-13' },
-    quotation: { basis: 'redistributable-license', licenseUrl: climateGptLicenseUrl },
-  },
-  {
-    id: 'overview-climategpt-rag',
-    lessonId: 'continual-learning-llm-overview',
-    claimId: 'static-model-and-update-motivation',
-    paperId: 'thulke2024climategpt',
-    excerpt: 'implemented with high-quality climate resources to increase factuality as well as to extend the system with new knowledge',
-    searchText: 'implemented with high-quality climate resources',
-    locator: '§1.1, Retrieval Augmented Generation',
-    verificationUrl: 'https://arxiv.org/html/2401.09646v1#S1.SS1.p6',
-    targetPrecision: 'html-anchor',
-    sourceVersion: 'arXiv v1',
-    retrievedAt: '2026-08-13',
-    review: { status: 'verified', verifiedAt: '2026-08-13' },
-    quotation: { basis: 'redistributable-license', licenseUrl: climateGptLicenseUrl },
-  },
-  {
-    id: 'overview-catastrophic-interference',
-    lessonId: 'continual-learning-llm-overview',
-    claimId: 'sequential-learning-interference',
-    paperId: 'mccloskey1989catastrophic',
-    excerpt: 'New learning may interfere catastrophically with old learning when networks are trained sequentially.',
-    searchText: 'interfere catastrophically with old learning',
-    locator: 'Publisher summary',
-    verificationUrl: 'https://www.sciencedirect.com/science/article/abs/pii/S0079742108605368',
-    targetPrecision: 'landing-page',
-    retrievedAt: '2026-08-13',
-    review: { status: 'verified', verifiedAt: '2026-08-13' },
-    quotation: { basis: 'short-quotation' },
-    automatedAudit: {
-      status: 'manual-required',
-      reason: 'ScienceDirect returns HTTP 403 to the maintenance fetch; verify the publisher summary in a browser.',
-    },
-  },
-  {
-    id: 'overview-cl-goal',
-    lessonId: 'continual-learning-llm-overview',
-    claimId: 'static-model-and-update-motivation',
-    paperId: 'shi2024continualSurvey',
-    excerpt: 'maintaining performance across all tasks',
-    searchText: 'maintaining performance across all tasks',
-    locator: '§1, đoạn 2',
-    verificationUrl: 'https://arxiv.org/html/2404.16789v3#S1.p2',
-    targetPrecision: 'html-anchor',
-    sourceVersion: 'arXiv v3',
-    retrievedAt: '2026-08-13',
-    review: { status: 'verified', verifiedAt: '2026-08-13' },
-    quotation: { basis: 'short-quotation' },
-  },
-];
-
 type ReviewedSourceSnippet = Omit<LearningCitationEvidence, 'id' | 'lessonId' | 'claimId' | 'paperId'>;
 
 const reviewedAt = '2026-08-13';
@@ -154,6 +28,18 @@ function arxivHtml(
     retrievedAt: reviewedDate,
     review: { status: 'verified', verifiedAt: reviewedDate },
     quotation: { basis: 'short-quotation' },
+  };
+}
+
+function climateGptHtml(
+  anchor: string,
+  excerpt: string,
+  searchText: string,
+  locator: string,
+): ReviewedSourceSnippet {
+  return {
+    ...arxivHtml('2401.09646', 1, anchor, excerpt, searchText, locator),
+    quotation: { basis: 'redistributable-license', licenseUrl: climateGptLicenseUrl },
   };
 }
 
@@ -207,6 +93,27 @@ function surveyParagraph(
 }
 
 const reviewedSourceSnippets: Readonly<Record<string, ReviewedSourceSnippet>> = {
+  'overview-rag-external-context': climateGptHtml('S4.p2',
+    'retrieving relevant documents from external databases and providing these documents as additional context to the model',
+    'providing these documents as additional context to the model', '§4, đoạn 2'),
+  'overview-domain-adaptation': surveyParagraph('S4.SS2.p1', '§4.2, đoạn 1',
+    'facilitate effective adaptation of LLMs to downstream tasks',
+    'effective adaptation of LLMs to downstream tasks'),
+  'overview-retrieval-model-editing': surveyParagraph('S4.SS3.SSS4.p1', '§4.3.4, đoạn 1',
+    'incorporate editing through retrieval mechanisms',
+    'incorporate editing through retrieval mechanisms'),
+  'overview-climategpt-cpt': climateGptHtml('S1.SS1.p4',
+    'adapt an existing LLM trained on a large set of general domain data to the target domain',
+    'adapt an existing LLM', '§1.1, Continued Pre-Training'),
+  'overview-climategpt-ift': climateGptHtml('S1.SS1.p5',
+    'inject instruction-following capabilities into the model',
+    'inject instruction-following capabilities into the model', '§1.1, Instruction Fine-Tuning'),
+  'overview-climategpt-rag': climateGptHtml('S1.SS1.p6',
+    'implemented with high-quality climate resources to increase factuality as well as to extend the system with new knowledge',
+    'implemented with high-quality climate resources', '§1.1, Retrieval Augmented Generation'),
+  'overview-cl-goal': surveyParagraph('S1.p2', '§1, đoạn 2',
+    'maintaining performance across all tasks',
+    'maintaining performance across all tasks'),
   mccloskey1989catastrophic: officialLanding(
     'https://www.sciencedirect.com/science/article/abs/pii/S0079742108605368',
     'New learning may interfere catastrophically with old learning when networks are trained sequentially.',
@@ -665,6 +572,12 @@ type LessonOccurrenceReview = {
   paperIds: readonly string[];
   surveySnippetKeys: readonly string[];
   occurrenceNumbers?: readonly number[];
+  evidenceIds?: readonly string[];
+};
+
+type LessonOccurrenceReviewOptions = {
+  occurrenceNumbers?: readonly number[];
+  evidenceIds?: readonly string[];
 };
 
 function review(
@@ -672,17 +585,43 @@ function review(
   claimId: string,
   paperIds: readonly string[],
   surveySnippetKeys: readonly string[] = [],
-  occurrenceNumbers?: readonly number[],
+  options: LessonOccurrenceReviewOptions = {},
 ): LessonOccurrenceReview {
-  if (occurrenceNumbers && occurrenceNumbers.length !== paperIds.length) {
+  if (options.occurrenceNumbers && options.occurrenceNumbers.length !== paperIds.length) {
     throw new Error(`${lessonId} occurrence numbers must match its reviewed paper count.`);
   }
-  return { lessonId, claimId, paperIds, surveySnippetKeys, occurrenceNumbers };
+  if (options.evidenceIds && options.evidenceIds.length !== paperIds.length) {
+    throw new Error(`${lessonId} evidence IDs must match its reviewed paper count.`);
+  }
+  return { lessonId, claimId, paperIds, surveySnippetKeys, ...options };
 }
 
 // These rows preserve stable occurrence identities. The same paper may occur more
 // than once because evidence is reviewed against a local claim occurrence, not only a paper ID.
 const lessonOccurrenceReviews: readonly LessonOccurrenceReview[] = [
+  review('continual-learning-llm-overview', 'static-model-and-update-motivation', [
+    'thulke2024climategpt',
+    'shi2024continualSurvey',
+    'shi2024continualSurvey',
+    'thulke2024climategpt',
+    'thulke2024climategpt',
+    'thulke2024climategpt',
+    'shi2024continualSurvey',
+  ], [
+    'overview-domain-adaptation',
+    'overview-retrieval-model-editing',
+    'overview-cl-goal',
+  ], { evidenceIds: [
+    'overview-rag-external-context',
+    'overview-domain-adaptation',
+    'overview-retrieval-model-editing',
+    'overview-climategpt-cpt',
+    'overview-climategpt-ift',
+    'overview-climategpt-rag',
+    'overview-cl-goal',
+  ] }),
+  review('continual-learning-llm-overview', 'sequential-learning-interference',
+    ['mccloskey1989catastrophic'], [], { evidenceIds: ['overview-catastrophic-interference'] }),
   review('vertical-horizontal-continuity', 'vertical-horizontal-framework', ['qin2023recyclable', 'shi2024continualSurvey'], ['survey-vertical-horizontal']),
   review('cl-methods-taxonomy-and-replay', 'cl-method-taxonomy', ['wang2024comprehensive', 'shi2024unified', 'shi2024continualSurvey'], ['survey-method-taxonomy']),
   review('stability-plasticity-dilemma', 'stability-plasticity-tradeoff', ['wang2024comprehensive', 'shi2024continualSurvey'], ['survey-cl-retention']),
@@ -694,7 +633,7 @@ const lessonOccurrenceReviews: readonly LessonOccurrenceReview[] = [
   review('parameter-regularization-ewc', 'parameter-regularization', ['kirkpatrick2017overcoming', 'zenke2017continual', 'shi2024continualSurvey'], ['survey-regularization']),
   review('architecture-expansion-isolation', 'architecture-expansion', ['shi2024continualSurvey', 'wistuba2023', 'wistuba2023', 'shi2024continualSurvey'], ['survey-architecture', 'survey-architecture']),
   review('distillation-for-retention', 'distillation-retention', ['hinton2015distilling', 'romero2014fitnets', 'li2017learning', 'buzzega2020dark', 'li2017learning', 'buzzega2020dark']),
-  review('supplier-consumer-pipeline', 'supplier-consumer', ['qin2023recyclable', 'qin2023recyclable'], [], [1, 3]),
+  review('supplier-consumer-pipeline', 'supplier-consumer', ['qin2023recyclable', 'qin2023recyclable'], [], { occurrenceNumbers: [1, 3] }),
   review('continuity-to-learning-stages', 'chapter-four-continuity-map', ['shi2024continualSurvey', 'shi2024unified'], ['survey-learning-stages']),
   review('vertical-cl-deep-dive', 'vertical-specialization-pipeline', ['qin2023recyclable', 'shi2024continualSurvey'], ['survey-vertical']),
   review('vertical-forgetting', 'vertical-forgetting', ['wistuba2023', 'shi2024continualSurvey'], ['survey-upstream-data']),
@@ -750,6 +689,7 @@ const linkOnlyExceptionOccurrenceIds = new Set(
 );
 
 const reviewedOccurrenceSnippetOverrides: Readonly<Record<string, string>> = {
+  'overview-catastrophic-interference': 'mccloskey1989catastrophic',
   'vertical-horizontal-framework-01-qin2023recyclable': 'qin2023recyclable-supplier',
   'cl-method-taxonomy-01-wang2024comprehensive': 'wang2024comprehensive-taxonomy',
   'lab-forgetting-interpretation-01-zheng2025spurious': 'zheng2025spurious-biography',
@@ -783,11 +723,15 @@ const occurrenceCitationEvidence = lessonOccurrenceReviews.flatMap((lesson) => {
   let surveyIndex = 0;
   const evidence = lesson.paperIds.flatMap((paperId, index): LearningCitationEvidence[] => {
     const occurrenceNumber = lesson.occurrenceNumbers?.[index] ?? index + 1;
-    const occurrenceId = `${lesson.claimId}-${String(occurrenceNumber).padStart(2, '0')}-${paperId}`;
+    const occurrenceId = lesson.evidenceIds?.[index]
+      ?? `${lesson.claimId}-${String(occurrenceNumber).padStart(2, '0')}-${paperId}`;
     const surveySourceKey = paperId === 'shi2024continualSurvey'
       ? lesson.surveySnippetKeys[surveyIndex++]
       : undefined;
-    const sourceKey = reviewedOccurrenceSnippetOverrides[occurrenceId] ?? surveySourceKey ?? paperId;
+    const sourceKey = reviewedOccurrenceSnippetOverrides[occurrenceId]
+      ?? (reviewedSourceSnippets[occurrenceId] ? occurrenceId : undefined)
+      ?? surveySourceKey
+      ?? paperId;
     if (linkOnlyExceptionOccurrenceIds.has(occurrenceId)) return [];
     if (!sourceKey) throw new Error(`${occurrenceId} is missing a reviewed survey snippet mapping.`);
     const snippet = reviewedSourceSnippets[sourceKey];
@@ -806,10 +750,7 @@ const occurrenceCitationEvidence = lessonOccurrenceReviews.flatMap((lesson) => {
   return evidence;
 });
 
-export const continualLearningCitationEvidence: readonly LearningCitationEvidence[] = [
-  ...overviewCitationEvidence,
-  ...occurrenceCitationEvidence,
-];
+export const continualLearningCitationEvidence: readonly LearningCitationEvidence[] = occurrenceCitationEvidence;
 
 export const continualLearningCitationEvidenceById: ReadonlyMap<string, LearningCitationEvidence> = new Map(
   continualLearningCitationEvidence.map((item) => [item.id, item]),
