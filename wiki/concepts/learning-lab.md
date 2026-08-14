@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-13
+updated: 2026-08-14
 ---
 
 # Learning Lab
@@ -21,9 +21,9 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 91 tracks, and 679 lesson nodes. One hundred
-forty-three Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, seventy-seven in `continual-learning-llm`, thirteen in
+The catalog contains 13 domains, 91 tracks, and 681 lesson nodes. One hundred
+forty-five Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, seventy-nine in `continual-learning-llm`, thirteen in
 `linear-algebra`, and four tagged exercise lessons in `cv`. The other 536 nodes
 are navigable placeholders and render one shared localized "content in progress" message.
 They do not carry legacy theory or practice payloads.
@@ -85,11 +85,11 @@ inputs live in locale-specific MDX. LLM-specific visual and stateful components
 remain React code under the LLM domain package. English UI currently falls back
 to the Vietnamese lesson source until an English MDX file is authored.
 
-The Continual Learning course contains 38 adjacent Theory/Quiz pairs across its
+The Continual Learning course contains 39 adjacent Theory/Quiz pairs across its
 first six chapters, followed by one standalone Chapter 7 self-check lesson.
 Content through the Replay lab is the approved foundation;
 later chapters follow the Shi et al. (2025) survey notes covering regularization,
-architecture expansion, evaluation, vertical/horizontal continuity, CPT/DAP/CFT,
+architecture expansion, distillation, evaluation, vertical/horizontal continuity, CPT/DAP/CFT,
 discussion, and a final cross-course synthesis. The synthesis uses one persisted,
 beginner-readable checklist per earlier chapter and deliberately has no adjacent
 quiz node. Each pair is defined once in its domain TOC and flattened into the
@@ -227,7 +227,7 @@ tap to pin it, and the explicit action opens the source. No source is fetched
 during interaction. Evidence and exception data are injected only into authored
 lesson pages, so the dedicated `Nguồn chính được dùng trong bài` page remains
 ordinary links by construction. The Continual Learning domain currently has
-179 authored citation occurrences across 39 theory/lab nodes: 177 reviewed
+185 authored citation occurrences across 40 theory/lab nodes: 183 reviewed
 evidence records and two explicit link-only exceptions. The three authored
 `PaperSummary` blocks remain prose analysis and do not instantiate previews.
 
@@ -289,18 +289,19 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
-The Continual Learning paper audit additionally checks that all 39 non-Quiz
+The Continual Learning paper audit additionally checks that all 40 non-Quiz
 lessons have coverage, claim IDs are unique, paper IDs resolve, DOI/arXiv
 identifiers are unique, authored `Cite`/`PaperSummary` IDs belong to the lesson
 coverage, `paper-summary` decisions have a matching component, and optional MDX
 `referenceIds` match the structured citations authored in that file. It also
 rejects missing publication years and Scholar fallbacks on any source exposed by
 a lesson. The generated snapshot currently represents 225 papers cited across
-30 taught survey sections, plus four explicitly registered sources: the survey
+30 taught survey sections, plus six explicitly registered sources: the survey
 itself, Synaptic Intelligence, the post-survey Spurious Forgetting lab paper,
-and the original GEM paper used to define diagonal-based BWT. Forty reviewed
-claim rows currently expose 193 of the 229 registry
-records. The remaining records stay available as survey-intake candidates but
+the original GEM paper used to define diagonal-based BWT, Hinton et al.'s
+foundational distillation paper, and FitNets for intermediate-representation
+distillation. Forty-one reviewed claim rows currently expose 196 of the 231
+registry records. The remaining records stay available as survey-intake candidates but
 are not rendered merely because they occur elsewhere in a broad survey section.
 
 The core metrics lesson treats metric names as incomplete without their
@@ -311,6 +312,15 @@ recorded immediately after each task was learned. The two BWT values coincide
 only when every task's best prior score is its diagonal score. Authored lessons
 and result tables should name the convention or show the formula whenever this
 distinction matters.
+
+The final Chapter 2 pair treats continual distillation as a functional
+retention constraint. A frozen earlier checkpoint supplies teacher targets while
+the updated student optimizes both its current-task loss and a weighted
+retention loss. The authored lesson distinguishes raw logits, softened
+probabilities, and intermediate representations; contrasts LwF's dependence on
+new-task query inputs with DER/DER++ replay of stored exemplars and historical
+logits; and states explicitly that matching observed signals does not guarantee
+preservation of all unobserved knowledge.
 
 Two nodes deliberately retain large evidence sets: `dap-domain-landscape`
 tracks the domain rows behind survey Table 2 (70 sources), while

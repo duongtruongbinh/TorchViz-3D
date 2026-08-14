@@ -71,6 +71,11 @@ Tick những ý bạn có thể tự giải thích mà không cần quay lại b
       detail: 'Độ quan trọng thường chỉ được ước lượng; hệ số λ quyết định mức ưu tiên giữ cũ so với học mới.',
     },
     {
+      id: 'distillation',
+      label: 'Distillation ràng buộc hành vi của model đang được cập nhật.',
+      detail: 'Phải chọn input truy vấn và tín hiệu cần match; retention loss thấp không bảo đảm giữ mọi tri thức ngoài những gì đã quan sát.',
+    },
+    {
       id: 'expansion',
       label: 'Architecture expansion thêm hoặc dành riêng một phần capacity để học kiến thức mới.',
       detail: 'Khả năng giữ task cũ còn phụ thuộc vào việc chọn đúng module hoặc route khi model trả lời.',
@@ -78,7 +83,7 @@ Tick những ý bạn có thể tự giải thích mà không cần quay lại b
     {
       id: 'other-families',
       label: 'Survey còn ghi nhận phương pháp dựa trên optimization và representation.',
-      detail: 'Khóa học chỉ đi sâu ba nhóm nền tảng: Replay, Regularization và Architecture.',
+      detail: 'Khóa học đi sâu Replay, Parameter Regularization, Architecture Expansion và Distillation như bốn chiến lược giữ năng lực cũ.',
     },
     {
       id: 'replay-ratio',
@@ -88,7 +93,7 @@ Tick những ý bạn có thể tự giải thích mà không cần quay lại b
     {
       id: 'no-free-method',
       label: 'Không có nhóm phương pháp nào miễn phí.',
-      detail: 'Replay tăng dữ liệu và compute; regularization có thể hạn chế học mới; expansion tăng tham số và độ phức tạp khi chọn route.',
+      detail: 'Replay tăng dữ liệu và compute; regularization có thể hạn chế học mới; expansion tăng tham số và độ phức tạp routing; distillation phụ thuộc teacher và input truy vấn.',
     },
     {
       id: 'constraint-fit',

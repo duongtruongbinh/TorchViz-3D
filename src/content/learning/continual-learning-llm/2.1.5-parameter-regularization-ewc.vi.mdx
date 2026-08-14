@@ -96,4 +96,10 @@ EWC và Synaptic Intelligence là hai ví dụ được survey nêu cho nhóm pa
 
 Trong taxonomy của survey, EWC thuộc nhóm parameter regularization <Cite paper="shi2024continualSurvey" evidence="parameter-regularization-03-shi2024continualSurvey" />.
 
+<LessonNote tone="warning">
+  EWC và Synaptic Intelligence ràng buộc model trong **parameter space**: chúng hạn chế thay đổi các tham số được xem là quan trọng. Tuy nhiên, penalty nhỏ trong parameter space không trực tiếp bảo đảm output hoặc representation trên task cũ vẫn giống checkpoint trước. Nói cách khác, giữ tham số chưa chắc đã giữ được cùng **functional behavior**.
+
+  Ở node **Các phương pháp khác**, ta sẽ xem distillation đặt ràng buộc trực tiếp hơn trong function space bằng cách so phản hồi của student với teacher.
+</LessonNote>
+
 </MdxPage>

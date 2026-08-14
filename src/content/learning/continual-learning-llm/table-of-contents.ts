@@ -86,8 +86,8 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
   lessonPair({
     trackId: 'cl-llm-methods',
     id: 'replay-introduction',
-    titleEn: 'What Is Replay?',
-    titleVi: 'Replay là gì?',
+    titleEn: 'Replay',
+    titleVi: 'Replay',
   }),
   lessonPair({
     trackId: 'cl-llm-methods',
@@ -106,6 +106,12 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
     id: 'architecture-expansion-isolation',
     titleEn: 'Architecture Expansion',
     titleVi: 'Architecture Expansion',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
+    id: 'distillation-for-retention',
+    titleEn: 'Other Methods',
+    titleVi: 'Các phương pháp khác',
   }),
 
   lessonPair({
@@ -307,12 +313,12 @@ const chapters: LearningTocTrackSeed[] = [
     id: 'cl-llm-methods',
     text: {
       title: {
-        en: "2. Replay, Regularization & Architecture",
-        vi: "2. Replay, Regularization & Architecture",
+        en: "2. Main Approaches",
+        vi: "2. Các hướng tiếp cận chính",
       },
       description: {
-        en: "The three foundational continual-learning intervention families: replaying old data, constraining parameter updates, and isolating or expanding model capacity.",
-        vi: "Ba nhóm can thiệp nền tảng: phát lại dữ liệu cũ, ràng buộc cập nhật tham số, và cô lập hoặc mở rộng capacity của mô hình.",
+        en: "Four foundational retention strategies: replaying old data, constraining parameter updates, isolating or expanding model capacity, and distilling behavior from an earlier checkpoint.",
+        vi: "Bốn chiến lược giữ năng lực cũ: phát lại dữ liệu, ràng buộc cập nhật tham số, cô lập hoặc mở rộng capacity, và distill hành vi từ checkpoint trước.",
       },
     },
     lessonIds: lessonIdsForTrack('cl-llm-methods'),

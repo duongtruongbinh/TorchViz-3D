@@ -39,16 +39,16 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
   assert.equal(learningCatalog.tracks.length, 91);
-  assert.equal(learningCatalog.lessons.length, 679);
+  assert.equal(learningCatalog.lessons.length, 681);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 141, next: 1, locked: 537 },
+    { available: 143, next: 1, locked: 537 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 143);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 145);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 536);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
@@ -141,7 +141,7 @@ test('continual-learning fundamentals introduces and measures forgetting immedia
   ]);
 });
 
-test('continual-learning methods chapter starts with replay, its lab, regularization, and architecture', () => {
+test('continual-learning methods chapter covers replay, regularization, architecture, and distillation in order', () => {
   const methodsTrack = getLearningTrack(learningCatalog, 'continual-learning-llm', 'cl-llm-methods');
 
   assert.deepEqual(methodsTrack?.lessonIds, [
@@ -153,6 +153,8 @@ test('continual-learning methods chapter starts with replay, its lab, regulariza
     'parameter-regularization-ewc-quiz',
     'architecture-expansion-isolation',
     'architecture-expansion-isolation-quiz',
+    'distillation-for-retention',
+    'distillation-for-retention-quiz',
   ]);
 });
 
@@ -174,7 +176,7 @@ test('continual-learning uses six survey chapters and one synthesis chapter', ()
   );
   assert.deepEqual(chapterTitles, [
     '1. Nền tảng Continual Learning',
-    '2. Replay, Regularization & Architecture',
+    '2. Các hướng tiếp cận chính',
     '3. Vertical & Horizontal Continual Learning',
     '4. Các giai đoạn học liên tục của LLM',
     '5. Metric và Benchmark đánh giá',

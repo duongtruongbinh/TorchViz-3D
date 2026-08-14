@@ -73,6 +73,26 @@ const additionalPapers = [
     url: 'https://arxiv.org/abs/1706.08840',
     kind: 'inproceedings',
   },
+  {
+    id: 'hinton2015distilling',
+    title: 'Distilling the Knowledge in a Neural Network',
+    authors: ['Geoffrey Hinton', 'Oriol Vinyals', 'Jeff Dean'],
+    year: 2015,
+    venue: 'NIPS Deep Learning Workshop',
+    arxivId: '1503.02531',
+    url: 'https://arxiv.org/abs/1503.02531',
+    kind: 'misc',
+  },
+  {
+    id: 'romero2014fitnets',
+    title: 'FitNets: Hints for Thin Deep Nets',
+    authors: ['Adriana Romero', 'Nicolas Ballas', 'Samira Ebrahimi Kahou', 'Antoine Chassang', 'Carlo Gatta', 'Yoshua Bengio'],
+    year: 2014,
+    venue: 'arXiv',
+    arxivId: '1412.6550',
+    url: 'https://arxiv.org/abs/1412.6550',
+    kind: 'misc',
+  },
 ] as const satisfies readonly ContinualLearningPaper[];
 
 export const continualLearningPapers: readonly ContinualLearningPaper[] = [...generatedPapers, ...additionalPapers];
@@ -101,6 +121,7 @@ export const continualLearningLessonReferenceCoverage = [
     ...primary(['zenke2017continual']),
   ])]),
   coverage('architecture-expansion-isolation', [claim('architecture-expansion', 'Dedicated or expanded capacity can reduce parameter interference while adding routing costs.', '§2.2.2', primary(['wistuba2023']))]),
+  coverage('distillation-for-retention', [claim('distillation-retention', 'A frozen earlier checkpoint can constrain a continually updated student through output or representation matching; the retained behavior depends on the query inputs, targets, and teacher quality.', undefined, primary(['hinton2015distilling', 'romero2014fitnets', 'li2017learning', 'buzzega2020dark']))]),
   coverage('supplier-consumer-pipeline', [claim('supplier-consumer', 'Supplier and consumer stages have different access, compute, and adaptation constraints.', undefined, primary(['qin2023recyclable']))]),
   coverage('vertical-cl-deep-dive', [claim('vertical-specialization-pipeline', 'Vertical continuity moves a checkpoint from general pre-training toward domain and task specialization.', '§3.1', primary(['qin2023recyclable']))]),
   coverage('vertical-forgetting', [claim('vertical-forgetting', 'Downstream specialization can reduce upstream general abilities.', '§3.1', primary(['wistuba2023']))]),

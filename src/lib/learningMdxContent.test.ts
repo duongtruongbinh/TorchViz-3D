@@ -157,11 +157,11 @@ test('continual-learning MDX filenames mirror chapter and TOC order', () => {
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 143);
+  assert.equal(lessonFiles.length, 145);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 143);
+  assert.equal(documents.length, 145);
   for (const lessonFile of lessonFiles) {
     const source = readFileSync(lessonFile, 'utf8');
     const parsed = parseLearningMdxPath(lessonFile);
@@ -221,7 +221,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
     .map((file) => parseLearningMdxPath(file)?.lessonId)
     .filter((lessonId): lessonId is string => typeof lessonId === 'string' && !lessonId.endsWith('-quiz'))
     .sort();
-  assert.equal(theoryIds.length, 39);
+  assert.equal(theoryIds.length, 40);
   assert.deepEqual(continualLearningLessonReferenceCoverage.map((item) => item.lessonId).sort(), theoryIds);
   assert.equal(continualLearningPapers.length, continualLearningPaperById.size);
   const claimIds = new Set<string>();
@@ -383,7 +383,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
 });
 
 test('continual-learning references assemble as one dedicated final runtime page', () => {
-  assert.equal(continualLearningLessonReferenceCoverage.length, 39);
+  assert.equal(continualLearningLessonReferenceCoverage.length, 40);
   const registry = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
   assert.match(registry, /const authoredPages = Array\.from\(\{ length: lesson\.pageCount \}/);
   assert.match(registry, /const referencePage = referenceCoverage \? \(/);
@@ -440,8 +440,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 156);
-  assert.equal(singleQuestions.length, 155);
+  assert.equal(questions.length, 162);
+  assert.equal(singleQuestions.length, 161);
   assert.equal(multiQuestions.length, 1);
   assert.equal(multiQuestions[0]?.id, 'replay-constraints');
   assert.ok(questions.every((question) => question.optionCount === 4));
@@ -479,8 +479,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
       if (question.mode === 'single') singlePositionCounts[index] += 1;
     }
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [38, 39, 39, 39]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [39, 39, 39, 40]);
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [39, 40, 41, 41]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [40, 40, 41, 42]);
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {
