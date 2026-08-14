@@ -1106,10 +1106,7 @@ export function LessonReferences() {
   const additional = referencePapers.filter((paper) => !featuredSet.has(paper.id));
   return (
     <section aria-labelledby="lesson-references-heading">
-      <div className="flex items-center gap-2">
-        <BookOpen className={cx('size-5', themeClasses.accentText)} aria-hidden="true" />
-        <h2 id="lesson-references-heading" className={cx('text-lg font-black text-balance', themeClasses.titleText)}>Nguồn chính được dùng trong bài</h2>
-      </div>
+      <h2 id="lesson-references-heading" className={cx('text-lg font-black text-balance', themeClasses.titleText)}>Nguồn chính được dùng trong bài</h2>
       {referenceCourseAnalysis ? <p className={cx('mt-3 max-w-[72ch] text-sm leading-6', themeClasses.bodyText)}><strong>Phạm vi diễn giải:</strong> {referenceCourseAnalysis}</p> : null}
       {featured.length ? <ReferencePaperList title="" papers={featured} startIndex={1} /> : null}
       {additional.length ? (
