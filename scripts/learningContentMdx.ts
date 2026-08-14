@@ -15,6 +15,7 @@ const STRUCTURAL_KEYS = new Set([
   'id', 'kind', 'locale', 'domainId', 'sectionRefId', 'image', 'href', 'depth', 'mode',
   'interactionPlacement', 'categoryId', 'correctOrder', 'isCorrect', 'compact',
   'hideUnsortedLabel', 'page', 'pageCount', 'step', 'icon',
+  'evidence', 'exception',
   'opType', 'inputShape', 'outputShape', 'config', 'kernel', 'stride', 'padding', 'dilation',
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
@@ -89,7 +90,22 @@ export type LearningMdxInspection = {
   quizQuestionIds: string[];
   quizQuestions: LearningMdxQuizQuestionInspection[];
   cvExerciseFixtures: unknown[];
+  paperReferenceIds: string[];
+  paperSummaryReferences: LearningMdxPaperSummaryInspection[];
+  citationReferences: LearningMdxCitationInspection[];
   searchText: string;
+};
+
+export type LearningMdxCitationInspection = {
+  paperId: string;
+  locator?: string;
+  evidenceId?: string;
+  exceptionId?: string;
+};
+
+export type LearningMdxPaperSummaryInspection = {
+  paperId: string;
+  locator?: string;
 };
 
 export type LearningMdxQuizQuestionInspection = {
@@ -112,6 +128,9 @@ export async function inspectLearningMdx(
   const quizQuestionIds: string[] = [];
   const quizQuestions: LearningMdxQuizQuestionInspection[] = [];
   const cvExerciseFixtures: unknown[] = [];
+  const paperReferenceIds: string[] = [];
+  const paperSummaryReferences: LearningMdxPaperSummaryInspection[] = [];
+  const citationReferences: LearningMdxCitationInspection[] = [];
   await compile(source, {
     remarkPlugins: [remarkGfm, () => (tree: Node) => {
       walk(tree, (node) => {
@@ -120,12 +139,54 @@ export async function inspectLearningMdx(
           if (!node.name || !allowedComponents.has(node.name)) {
             throw new Error(`${filePath}: unexpected MDX component ${node.name ?? '<fragment>'}`);
           }
+          if (node.name === 'Cite') {
+            const attributes = new Map((node.attributes ?? []).flatMap((attribute) => {
+              if (!attribute.name) return [];
+              const expression = attribute.value && typeof attribute.value === 'object'
+                ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
+                : undefined;
+              return [[attribute.name, typeof attribute.value === 'string' ? attribute.value : staticValue(expression)]];
+            }));
+            const paperId = attributes.get('paper');
+            if (typeof paperId === 'string') {
+              const locator = attributes.get('locator');
+              const evidenceId = attributes.get('evidence');
+              const exceptionId = attributes.get('exception');
+              citationReferences.push({
+                paperId,
+                ...(typeof locator === 'string' ? { locator } : {}),
+                ...(typeof evidenceId === 'string' ? { evidenceId } : {}),
+                ...(typeof exceptionId === 'string' ? { exceptionId } : {}),
+              });
+            }
+          }
+          if (node.name === 'PaperSummary') {
+            const attributes = new Map((node.attributes ?? []).flatMap((attribute) => {
+              if (!attribute.name) return [];
+              const expression = attribute.value && typeof attribute.value === 'object'
+                ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
+                : undefined;
+              return [[attribute.name, typeof attribute.value === 'string' ? attribute.value : staticValue(expression)]];
+            }));
+            const paperId = attributes.get('paper');
+            if (typeof paperId === 'string') {
+              const locator = attributes.get('locator');
+              paperSummaryReferences.push({
+                paperId,
+                ...(typeof locator === 'string' ? { locator } : {}),
+              });
+            }
+          }
           for (const attribute of node.attributes ?? []) {
             if (attribute.type === 'mdxJsxExpressionAttribute') throw new Error(`${filePath}: spread attributes are not allowed`);
             if (typeof attribute.value === 'string' && !STRUCTURAL_KEYS.has(attribute.name ?? '')) searchParts.push(attribute.value);
             const expression = attribute.value && typeof attribute.value === 'object'
               ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
               : undefined;
+            if ((node.name === 'Cite' || node.name === 'PaperSummary') && attribute.name === 'paper') {
+              const paperId = typeof attribute.value === 'string' ? attribute.value : staticValue(expression);
+              if (typeof paperId === 'string') paperReferenceIds.push(paperId);
+            }
             if (!expression) continue;
             assertStaticExpression(expression, filePath);
             stringsFromExpression(expression, searchParts, attribute.name);
@@ -187,6 +248,9 @@ export async function inspectLearningMdx(
     quizQuestionIds,
     quizQuestions,
     cvExerciseFixtures,
+    paperReferenceIds,
+    paperSummaryReferences,
+    citationReferences,
     searchText: [...new Set(searchParts.map((value) => value.trim()).filter(Boolean))].join(' '),
   };
 }
@@ -312,6 +376,15 @@ function assertLearningMdxMetadata(
     }
     if (new Set(conceptIds).size !== conceptIds.length) {
       throw new Error(`${filePath}: conceptIds must be unique`);
+    }
+  }
+  if (metadata.referenceIds !== undefined) {
+    const referenceIds = metadata.referenceIds;
+    if (!Array.isArray(referenceIds) || !referenceIds.length || referenceIds.some((value) => typeof value !== 'string' || !value.trim())) {
+      throw new Error(`${filePath}: referenceIds must be a non-empty string array when provided`);
+    }
+    if (new Set(referenceIds).size !== referenceIds.length) {
+      throw new Error(`${filePath}: referenceIds must be unique`);
     }
   }
   const pageCount = Number(metadata.pageCount ?? 1);

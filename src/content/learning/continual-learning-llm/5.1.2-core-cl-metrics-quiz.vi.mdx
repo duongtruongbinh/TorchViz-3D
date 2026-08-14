@@ -79,29 +79,29 @@ export const lessonMetadata = {
   {
     "id": "backward-transfer",
     "title": "Backward Transfer",
-    "prompt": "Sau khi học task mới, hiệu năng một task cũ tăng so với ngay sau khi học task đó. Tín hiệu nào phù hợp nhất?",
+    "prompt": "Task A đạt 0,70 ngay sau khi học, tăng lên đỉnh 0,80 ở checkpoint trung gian, rồi còn 0,75 ở checkpoint cuối. Cặp giá trị nào đúng?",
     "mode": "single",
     "options": [
       {
         "id": "opt2",
-        "label": "BWT dương vì update mới đã cải thiện task cũ.",
+        "label": "F_peak = 0,05; BWT_survey = -0,05; BWT_GEM = +0,05.",
         "isCorrect": true
       },
       {
         "id": "opt1",
-        "label": "FWT dương vì task cũ được đo trước khi học nó."
+        "label": "F_peak = -0,05; BWT_survey = +0,05; BWT_GEM = -0,05."
       },
       {
         "id": "opt3",
-        "label": "Forgetting dương vì mọi thay đổi sau stage đều là quên."
+        "label": "F_peak = 0,10; BWT_survey = -0,10; BWT_GEM = -0,10."
       },
       {
         "id": "opt4",
-        "label": "OP chắc chắn giảm vì task cũ không còn ở stage hiện tại."
+        "label": "Cả hai BWT đều bằng +0,05 vì checkpoint cuối cao hơn điểm ngay sau khi học."
       }
     ],
-    "success": "Positive BWT là transfer ngược có lợi.",
-    "error": "Phân biệt backward với forward transfer."
+    "success": "Đúng. Survey so với đỉnh 0,80; GEM so với đường chéo 0,70 nên hai BWT khác dấu.",
+    "error": "Hãy xác định riêng baseline đỉnh lịch sử và baseline ngay sau khi học task."
   },
   {
     "id": "forward-transfer",

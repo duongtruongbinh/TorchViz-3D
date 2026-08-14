@@ -1,8 +1,10 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-learning-benchmarks', locale: 'vi', title: 'Dataset và Benchmark',
-  headings: ['Chọn benchmark theo continual setting'], keywords: ['Benchmark', 'CPT', 'DAP', 'CIT', 'CMA', 'CMR'],
-  conceptIds: ['cpt-dap-benchmarks', 'cit-cma-benchmarks', 'cmr-benchmarks'],
+  headings: ['Chọn benchmark theo continual setting', 'Protocol đánh giá công bằng', 'Realistic stress tests'], keywords: ['Benchmark', 'Protocol', 'Stress Test', 'CPT', 'DAP', 'CIT', 'CMA', 'CMR'],
+  conceptIds: ['cpt-dap-benchmarks', 'cit-cma-benchmarks', 'cmr-benchmarks', 'fair-evaluation-protocol', 'realistic-stress-tests'], pageCount: 3,
 }
+
+<MdxPage page={0}>
 
 ## Chọn benchmark theo continual setting
 
@@ -16,6 +18,54 @@ Survey nhóm dataset theo application và loại distribution shift. Vì mỗi n
   { label: 'CMR', values: ['Chuỗi model refinement', 'FEVER, VitaminC, zsRE, T-REx, Natural Questions, CounterFact, SCOTUS'] },
 ]} />
 
-Các benchmark khác nhau về số stage, domain, corpus size và quyền truy cập differential data. Survey không đưa các corpus DAP theo legal/medical/financial vào danh sách benchmark chính nếu chúng không được thiết kế riêng cho continual DAP; General CFT dataset cũng được lược bỏ vì đã có survey khác tổng hợp.
+Các benchmark khác nhau về số stage, domain, corpus size và quyền truy cập dữ liệu lịch sử. Survey không đưa các corpus DAP theo legal/medical/financial vào danh sách benchmark chính nếu chúng không được thiết kế riêng cho continual DAP; General CFT dataset cũng được lược bỏ vì đã có survey khác tổng hợp <Cite paper="shi2024continualSurvey" evidence="continual-benchmark-map-01-shi2024continualSurvey" />.
 
-Nguồn: [Shi et al., §5](https://arxiv.org/html/2404.16789v3#S5).
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Protocol đánh giá công bằng
+
+Dùng cùng một dataset chưa có nghĩa là hai kết quả có thể so sánh trực tiếp. Một protocol công bằng phải ghi rõ **model được học trong điều kiện nào** và giữ các điều kiện đó nhất quán giữa các phương pháp.
+
+<ComparisonMatrix
+  ariaLabel="Bốn nhóm thông tin cần báo cáo trong protocol đánh giá continual learning"
+  columns={['Phải ghi rõ', 'Mục đích']}
+  rows={[
+    { label: 'Data stream', values: ['Thứ tự task/domain; task boundary có được biết; mỗi sample được nhìn thấy bao nhiêu lần', 'Xác định chính xác model đã nhận dòng dữ liệu nào'] },
+    { label: 'Resource budget', values: ['Buffer budget; train tokens; số update; FLOPs; số tham số tăng thêm', 'Không để một phương pháp thắng chỉ vì dùng nhiều tài nguyên hơn'] },
+    { label: 'Baselines & controls', values: ['Naive sequential fine-tuning; joint/full-history training khi khả thi; cùng initialization, data order và compute budget', 'Tách hiệu quả của phương pháp khỏi lợi thế từ setup'] },
+    { label: 'Measurement', values: ['Đánh giá sau từng stage; nhiều seed; nhiều task order', 'Tạo performance matrix và tránh kết luận từ một chuỗi thuận lợi'] },
+  ]}
+/>
+
+**Naive sequential fine-tuning** cho biết model quên bao nhiêu khi không có cơ chế bảo vệ. **Joint/full-history training** cho biết mức tham chiếu khi model được truy cập toàn bộ dữ liệu cũ, nhưng chỉ nên dùng khi khả thi và phải báo rõ chi phí.
+
+<LessonNote tone="warning">
+  Luôn báo cả **acquisition** và **retention**. Một phương pháp có thể trông như “không quên” chỉ vì nó gần như không học được task mới. Retention cao chỉ có ý nghĩa khi model đồng thời đạt acquisition đủ tốt.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Realistic stress tests
+
+Một protocol có thể công bằng nhưng vẫn quá dễ. Sau khi cố định các điều kiện so sánh, benchmark cần kiểm tra model dưới những data stream gần thực tế hơn:
+
+<ComparisonMatrix
+  ariaLabel="Các stress test giúp benchmark continual learning gần thực tế hơn"
+  columns={['Thay đổi trong data stream', 'Failure cần phát hiện']}
+  rows={[
+    { label: 'Task boundary mờ', values: ['Domain thay đổi dần hoặc không báo thời điểm chuyển task', 'Method có phụ thuộc vào task ID hay boundary rõ hay không'] },
+    { label: 'Stream dài', values: ['Tăng số stage thay vì chỉ chạy một chuỗi ngắn', 'Forgetting và chi phí có tích lũy theo thời gian hay không'] },
+    { label: 'Imbalance', values: ['Số sample hoặc token giữa các task/domain chênh lệch lớn', 'Task lớn có lấn át task nhỏ hay không'] },
+    { label: 'Long-tail', values: ['Phần lớn dữ liệu tập trung ở pattern phổ biến; pattern hiếm có rất ít ví dụ', 'Model có giữ và học được kiến thức hiếm hay không'] },
+    { label: 'Noisy labels', values: ['Một phần label sai, thiếu hoặc mâu thuẫn giữa các stage', 'Method có khuếch đại lỗi khi replay hoặc distill hay không'] },
+    { label: 'Negative transfer', values: ['Kiến thức từ task trước gây cản trở việc học task mới', 'Acquisition task mới có kém hơn baseline học task đó trực tiếp hay không'] },
+  ]}
+/>
+
+Các stress test này trả lời một câu hỏi khác với protocol công bằng: không chỉ **so sánh có cùng điều kiện hay không**, mà còn **điều kiện đó có đủ đại diện cho data stream thực tế hay không**.
+
+</MdxPage>

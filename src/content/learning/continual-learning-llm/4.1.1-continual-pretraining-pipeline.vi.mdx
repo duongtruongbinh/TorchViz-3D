@@ -31,7 +31,5 @@ Khi supplier có thể lưu toàn bộ dữ liệu lịch sử, memory constrain
 Không có một đáp án đúng cho mọi supplier. Nếu toàn bộ dữ liệu lịch sử còn hợp lệ và ngân sách cho phép, **full replay trên dữ liệu đã được chọn lọc kỹ là baseline mạnh nhất cần ưu tiên**. Sparse replay là phương án thực dụng hơn khi chi phí trở thành nút thắt; còn kết quả tốt hơn của các phương pháp chuyên biệt cho thấy thuật toán Continual Learning vẫn có vai trò trong những setup khó.
 
 <LessonNote>
-  Các nghiên cứu quy mô lớn cho thấy CPT không chỉ cần thiết để cải thiện hiệu năng trên downstream task. Khi distribution shift diễn ra từ từ, hoặc distribution cũ và mới vẫn có mức tương quan nhất định, CPT còn có thể giúp model tổng quát hóa tốt hơn sang dữ liệu chưa từng thấy.
+  Các nghiên cứu quy mô lớn cho thấy CPT không chỉ cần thiết để cải thiện hiệu năng trên downstream task. Khi distribution shift diễn ra từ từ, hoặc distribution cũ và mới vẫn có mức tương quan nhất định, CPT còn có thể giúp model tổng quát hóa tốt hơn sang dữ liệu chưa từng thấy <Cite paper="shi2024continualSurvey" evidence="cpt-pipeline-01-shi2024continualSurvey" />.
 </LessonNote>
-
-Nguồn: [Shi et al., §3.2 và §4.1](https://arxiv.org/html/2404.16789v3#S4.SS1).

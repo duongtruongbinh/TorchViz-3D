@@ -1,0 +1,233 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'distillation-for-retention',
+  locale: 'vi',
+  title: 'Các phương pháp khác',
+  headings: [
+    'Distillation',
+    'Teacher và student từ cùng checkpoint',
+    'Teacher dạy student bằng cách nào?',
+    'Distill tín hiệu nào?',
+    'Temperature làm phân phối mềm hơn',
+    'DER và DER++',
+    'Nếu chúng ta không truy cập được dữ liệu cũ thì sao?',
+    'Distillation giữ được gì?',
+  ],
+  keywords: ['Knowledge Distillation', 'Teacher', 'Student', 'LwF', 'DER', 'DER++'],
+  conceptIds: [
+    'teacher-student-checkpoint',
+    'distillation-signals',
+    'task-retention-objective',
+    'lwf-query-inputs',
+    'der-der-plus',
+    'distillation-limitations',
+  ],
+  pageCount: 8,
+}
+
+<MdxPage page={0}>
+
+## Chưng cất (Distillation)
+
+**Knowledge distillation** bắt nguồn từ một motivation đơn giản: một model đã học tốt chứa nhiều thông tin hơn những gì nhãn đúng/sai thể hiện. Thay vì để model mới chỉ học lại từ nhãn cứng, ta cho nó quan sát cách model cũ phản hồi trên cùng input.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-knowledge-distillation-teacher-student-overview.png"
+  alt="Minh họa motivation của distillation, cách teacher truyền cách phản hồi cho student và cách áp dụng trong continual learning"
+/>
+
+Model làm mẫu được gọi là **teacher**; model học cách phản hồi giống teacher được gọi là **student**. Nhờ vậy, hành vi đã học của teacher có thể được truyền sang student.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Teacher và student từ cùng checkpoint
+
+Trong continual learning, ta thiết lập hai vai trò như sau:
+
+1. Sau khi học xong **Task A**, ta có một checkpoint.
+2. Từ checkpoint này, tạo hai bản model giống hệt nhau:
+   - **Teacher:** đóng băng, giữ nguyên hành vi sau Task A.
+   - **Student:** tiếp tục được fine-tune trên Task B.
+
+<LessonImage
+  assetPath="continual-learning-llm/02-knowledge-distillation-teacher-student-checkpoint.png"
+  alt="Ba bước thiết lập teacher và student từ cùng checkpoint: học xong Task A, tách hai bản giống nhau, rồi đóng băng teacher và fine-tune student trên Task B"
+/>
+
+Ngay sau khi tách, teacher và student vẫn giống hệt nhau. Khác biệt chỉ xuất hiện khi student bắt đầu được cập nhật trên Task B, còn teacher đứng yên làm mốc đối chiếu.
+
+<LessonNote>
+  Vậy trong continual learning, **teacher không nhất thiết phải là một model khác lớn hơn**. Teacher có thể chính là checkpoint sau Task A được đóng băng, còn student là bản sao tiếp tục được fine-tune trên Task B.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Teacher dạy student bằng cách nào?
+
+Khi học Task B, cùng một input <InlineMath formula="x" /> được đưa qua cả hai model. Teacher tạo target <InlineMath formula="s_{\mathrm{old}}(x)" />; student tạo <InlineMath formula="s_{\theta}(x)" /> và bị phạt khi hai kết quả lệch nhau.
+
+<ConceptFlow
+  ariaLabel="Luồng distillation từ checkpoint cũ sang model đang cập nhật"
+  items={[
+    { title: 'Input x', detail: 'Đưa cùng input qua hai model' },
+    { title: 'Frozen teacher', detail: 'Tạo target từ checkpoint cũ' },
+    { title: 'Student', detail: 'Tạo kết quả hiện tại để so sánh' },
+    { title: 'Update student', detail: 'Chỉ student nhận gradient' },
+  ]}
+/>
+
+<LessonImage
+  assetPath="continual-learning-llm/03-knowledge-distillation-teacher-student-loss-flow.png"
+  alt="Bốn bước distillation: đưa cùng input qua teacher và student, lấy kết quả teacher làm mốc, so với kết quả student và chỉ cập nhật student bằng distillation loss"
+/>
+
+Điểm cốt lõi của distillation nằm ở loss buộc student giữ cách phản hồi gần với teacher, không nằm ở việc gắn adapter, đóng băng một phần trọng số hay tạo nhiều output head. Những lựa chọn kiến trúc đó có thể được dùng riêng hoặc kết hợp với distillation.
+
+<LessonNote>
+  Điểm phân biệt nằm ở **thứ được giữ lại**:
+
+  - **Parameter regularization** như EWC giữ tham số mới <InlineMath formula="\theta" /> gần tham số cũ <InlineMath formula="\theta_{\mathrm{old}}" />.
+  - **Functional regularization** như distillation cho phép tham số thay đổi, nhưng giữ cách student phản hồi <InlineMath formula="f_\theta(x)" /> gần teacher <InlineMath formula="f_{\theta_{\mathrm{old}}}(x)" />.
+
+  Vì vậy, LoRA hoặc freeze quyết định **tham số nào được cập nhật**, còn distillation quyết định **hành vi nào cần được giữ**. Hai hướng này có thể được kết hợp trong cùng một model.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Distill tín hiệu nào?
+
+“Bắt chước teacher” vẫn chưa đủ để định nghĩa loss. Ta còn phải chọn chính xác thành phần nào được match:
+
+<ComparisonMatrix
+  ariaLabel="Ba loại tín hiệu có thể dùng cho knowledge distillation"
+  columns={['Tín hiệu teacher', 'Cách match thường gặp', 'Điều được ràng buộc']}
+  rows={[
+    { label: 'Logits', values: ['Vector trước softmax', 'MSE hoặc khoảng cách trực tiếp', 'Mức tương đối giữa các output trước khi chuẩn hóa'] },
+    { label: 'Probabilities', values: ['Softmax, thường có temperature', 'KL divergence hoặc cross-entropy', 'Phân phối xác suất trên output space'] },
+    { label: 'Intermediate representations', values: ['Hidden state hoặc feature do layer đã chọn tạo ra trên cùng input', 'MSE/L2 hoặc cosine distance sau khi căn chỉnh layer, token và hidden dimension', 'Cách student biểu diễn input bên trong, không phải weight của layer'] },
+  ]}
+/>
+
+Trong đó idea mở rộng ý tưởng distillation từ output sang các intermediate representations là của FitNets <Cite paper="romero2014fitnets" evidence="distillation-retention-02-romero2014fitnets" />.
+
+<LessonImage
+  assetPath="continual-learning-llm/04-knowledge-distillation-signal-types.png"
+  alt="So sánh ba loại tín hiệu để match teacher: logits trước softmax, probabilities sau softmax có temperature và intermediate representations cần căn chỉnh shape"
+/>
+
+<LessonNote>
+  Representation distillation không so weight của hai layer. Nó so hidden state hoặc feature mà hai layer tạo ra trên cùng input, sau khi căn chỉnh layer, token và hidden dimension.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Temperature làm phân phối mềm hơn
+
+Logits là các điểm số thô trước softmax. Khi distill probabilities, ta chia logits của cả teacher và student cho temperature <InlineMath formula="T" /> trước khi áp dụng softmax. Với vector logits <InlineMath formula="z" />, xác suất mềm của output <InlineMath formula="i" /> là:
+
+<BlockMath formula="p_i^{(T)}=\frac{\exp(z_i/T)}{\sum_k\exp(z_k/T)}" />
+
+Giả sử teacher tạo logits <InlineMath formula="z=[4,2,0]" /> cho ba output A, B và C:
+
+<ComparisonMatrix
+  ariaLabel="So sánh xác suất từ cùng logits khi temperature bằng một và bằng hai"
+  columns={['T = 1', 'T = 2']}
+  rows={[
+    { label: 'Output A', values: ['86.7%', '66.5%'] },
+    { label: 'Output B', values: ['11.7%', '24.5%'] },
+    { label: 'Output C', values: ['1.6%', '9.0%'] },
+  ]}
+/>
+
+Khi <InlineMath formula="T=2" />, A vẫn đứng đầu nhưng xác suất được phân bổ nhiều hơn cho B và C. Student vì vậy không chỉ biết teacher chọn A, mà còn thấy teacher đánh giá B hợp lý hơn C.
+
+Probability distillation dùng KL divergence hoặc cross-entropy để đưa phân phối của student gần phân phối của teacher ở cùng temperature. Hinton et al. trình bày distillation qua soft probabilities và chỉ ra mối liên hệ với matching logits ở temperature cao <Cite paper="hinton2015distilling" evidence="distillation-retention-01-hinton2015distilling" />.
+
+<LessonNote>
+  Temperature không thay đổi thứ tự các logits. Với <InlineMath formula="T>1" />, nó làm phân phối phẳng hơn để lộ thêm quan hệ giữa các output phụ. Teacher và student phải dùng cùng một temperature khi tính distillation loss.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## DER và DER++
+
+Trước hết, xét trường hợp ta có thể lưu và truy cập lại một replay buffer <InlineMath formula="\mathcal{M}" /> chứa **một phần dữ liệu Task A**, không cần toàn bộ dataset cũ. Với mỗi input được giữ lại <InlineMath formula="x_A" />, **Dark Experience Replay (DER)** lưu thêm logits cũ <InlineMath formula="z_A" /> mà model từng tạo ra cho input đó.
+
+Khi học Task B, student replay <InlineMath formula="x_A" /> và dùng MSE để giữ logits hiện tại <InlineMath formula="h_\theta(x_A)" /> gần logits đã lưu <InlineMath formula="z_A" />:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{DER}}=\mathcal{L}_{\mathrm{Task\ B}}(D_B)+\alpha\,\mathbb{E}_{(x_A,z_A)\sim\mathcal{M}}\left[\lVert z_A-h_\theta(x_A)\rVert_2^2\right]" />
+
+**DER++** lưu thêm label <InlineMath formula="y_A" /> của input Task A và bổ sung supervised loss:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{DER++}}=\mathcal{L}_{\mathrm{DER}}+\beta\,\mathbb{E}_{(x_A,y_A,z_A)\sim\mathcal{M}}\left[\ell(y_A,f_\theta(x_A))\right]" />
+
+DER replay input Task A cùng logits đã cache; DER++ thêm label Task A và supervised loss <Cite paper="buzzega2020dark" evidence="distillation-retention-04-buzzega2020dark" />.
+
+Các phương pháp này được đề xuất và đánh giá trong continual image classification; kết quả đó chưa chứng minh cùng recipe sẽ tự động tối ưu cho LLM sinh văn bản.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Nếu chúng ta không truy cập được dữ liệu cũ thì sao?
+
+DER và DER++ cần lưu input Task A trong replay buffer. Nếu ngay cả input Task A cũng không được phép lưu, **Learning without Forgetting (LwF)** dùng input Task B <InlineMath formula="x_B" /> để hỏi frozen teacher.
+
+Trong setup phân loại của LwF, frozen teacher tạo soft probabilities cho Task A trên <InlineMath formula="x_B" />. Student nhận cùng input và tạo hai output:
+
+<ComparisonMatrix
+  ariaLabel="Hai output và hai loss của student trong Learning without Forgetting"
+  columns={['Output của student', 'Target', 'Loss']}
+  rows={[
+    { label: 'Học Task B', values: ['Output Task B', 'Label của Task B', 'Task cross-entropy'] },
+    { label: 'Giữ Task A', values: ['Output Task A', 'Soft probabilities Task A của teacher', 'Distillation cross-entropy'] },
+  ]}
+/>
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{B}\!\left(y_B,p_B^{\mathrm{student}}(x_B)\right)}_{\text{học Task B}}+\lambda\underbrace{\mathcal{L}_{\mathrm{distill}}\!\left(p_A^{\mathrm{teacher}}(x_B),p_A^{\mathrm{student}}(x_B)\right)}_{\text{giữ output Task A}}" />
+
+Không có input Task A nào được replay: các input <InlineMath formula="x_B" /> của Task B tạo thành tập truy vấn <InlineMath formula="Q" />. Khi backpropagate, teacher vẫn đóng băng và chỉ student được cập nhật <Cite paper="li2017learning" evidence="distillation-retention-03-li2017learning" />.
+
+<ComparisonMatrix
+  ariaLabel="So sánh mức truy cập dữ liệu cũ của DER, DER++ và LwF"
+  columns={['Dữ liệu dùng khi học Task B', 'Cách giữ Task A', 'Cần lưu gì?']}
+  rows={[
+    { label: 'DER', values: ['Một số input Task A', 'Giữ logits hiện tại gần logits đã lưu bằng MSE', 'Input và logits Task A'] },
+    { label: 'DER++', values: ['Một số input Task A', 'DER + supervised loss từ label cũ', 'Input, logits và label Task A'] },
+    { label: 'LwF', values: ['Input Task B', 'Match soft probabilities của frozen teacher bằng distillation cross-entropy', 'Không lưu input Task A'] },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Nếu Task A và Task B thuộc hai miền khác nhau, output Task A có thể không được kích hoạt đầy đủ trên input Task B. Loss thấp trên <InlineMath formula="Q" /> vì vậy chưa bảo đảm student giữ được output Task A trên input thực sự thuộc Task A.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Distillation giữ được gì?
+
+Distillation giữ **tín hiệu quan sát được** của teacher trên các input đã dùng để hỏi nó. Có ba giới hạn cần kiểm tra:
+
+1. **Output space thay đổi:** teacher chỉ tạo target cho các class, token hoặc head đã tồn tại ở checkpoint cũ. Khi student có output mới, ta phải xác định phần output nào được match và phần nào chỉ học từ task loss.
+2. **Teacher có bias:** soft target không phải ground truth. Sai lệch, calibration kém hoặc thiên lệch của checkpoint cũ có thể được truyền sang student.
+3. **Tập truy vấn có giới hạn:** student có thể match teacher trên <InlineMath formula="Q" /> nhưng vẫn khác teacher ở những input, capability hoặc biểu diễn không được đo.
+
+LwF thừa nhận input của task mới có thể đại diện kém cho domain cũ <Cite paper="li2017learning" evidence="distillation-retention-05-li2017learning" />. DER++ cũng được tác giả bổ sung vì logits lưu trong một số distribution shift có thể bị bias; label replay cung cấp thêm tín hiệu sửa sai <Cite paper="buzzega2020dark" evidence="distillation-retention-06-buzzega2020dark" />.
+
+<LessonNote tone="warning">
+  Distillation không sao chép một “kho tri thức” hoàn chỉnh từ teacher sang student. Nó chỉ đặt ràng buộc lên logits, probabilities hoặc representations được quan sát trên tập input đã chọn. Retention loss thấp vì vậy không tự động chứng minh mọi tri thức hay năng lực cũ vẫn còn nguyên.
+</LessonNote>
+
+</MdxPage>

@@ -19,6 +19,10 @@ export const lessonMetadata = {
 
 Survey tách continual LLM theo hai hướng. **Vertical continuity** đi từ năng lực tổng quát xuống domain và task chuyên biệt; các stage thường do những tổ chức khác nhau vận hành. **Horizontal continuity** cập nhật mô hình qua thời gian hoặc giữa các domain có quy mô tương đương.
 
+Recyclable Tuning minh họa một giao điểm cụ thể: supplier cập nhật pretrained model theo chiều ngang, trong khi consumer cần chuyển các module downstream đã học sang checkpoint upstream mới thay vì fine-tune lại từ đầu <Cite paper="qin2023recyclable" evidence="vertical-horizontal-framework-01-qin2023recyclable" />.
+
+Survey tổ chức không gian nghiên cứu theo hai trục continuity này <Cite paper="shi2024continualSurvey" evidence="vertical-horizontal-framework-02-shi2024continualSurvey" />:
+
 <LessonImage
   assetPath="continual-learning-llm/01-vertical-horizontal-continual-learning.webp"
   alt="Hai chiều Continual Learning của LLM: chiều dọc chuyên biệt hóa từ pre-training qua domain-adaptive pre-training đến fine-tuning; chiều ngang chuyển từ Domain A sang B rồi C với gradual shift và abrupt shift"
@@ -40,7 +44,5 @@ Vertical forgetting là mất năng lực tổng quát khi đi xuống pipeline.
   alt="Bản đồ nghiên cứu Continual Learning cho LLM với ba tầng continual pre-training, continual domain-adaptive pre-training và continual fine-tuning; mũi tên ngang biểu diễn cập nhật theo thời gian hoặc domain trong cùng tầng, còn mũi tên dọc biểu diễn chuyển checkpoint xuống tầng chuyên biệt hơn"
   caption="Horizontal continuity diễn ra trong từng tầng; Vertical continuity nối pre-training, domain adaptation và fine-tuning thành một pipeline chuyên biệt hóa."
 />
-
-Nguồn: [Shi et al., §3](https://arxiv.org/html/2404.16789v3#S3).
 
 </MdxPage>

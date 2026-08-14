@@ -1,7 +1,7 @@
 export const lessonMetadata = {
   domainId: 'continual-learning-llm', id: 'continual-learning-benchmarks-quiz', locale: 'vi', title: 'Quiz',
-  headings: ['CPT/DAP', 'CIT và CMA', 'CMR'], keywords: ['Quiz', 'Benchmark'],
-  conceptIds: ['cpt-dap-benchmarks', 'cit-cma-benchmarks', 'cmr-benchmarks'], pageCount: 3,
+  headings: ['CPT/DAP', 'CIT và CMA', 'CMR', 'Protocol công bằng', 'Realistic stress tests'], keywords: ['Quiz', 'Benchmark', 'Protocol', 'Stress Test'],
+  conceptIds: ['cpt-dap-benchmarks', 'cit-cma-benchmarks', 'cmr-benchmarks', 'fair-evaluation-protocol', 'realistic-stress-tests'], pageCount: 5,
 }
 
 <MdxQuiz id="continual-learning-benchmarks-quiz" questions={[
@@ -23,4 +23,16 @@ export const lessonMetadata = {
     { id: 'c', label: 'IMDB, HH-RLHF, Reddit TL;DR.' },
     { id: 'd', label: 'FEVER, zsRE, CounterFact.', isCorrect: true },
   ], success: 'FEVER, zsRE và CounterFact thuộc nhóm CMR.', error: 'CMR tập trung chuỗi correction/model editing.' },
+  { id: 'fair-evaluation-protocol', title: 'Protocol công bằng', mode: 'single', prompt: 'Setup nào cho phép so sánh hai phương pháp continual learning công bằng nhất?', options: [
+    { id: 'a', label: 'Chỉ chạy task order thuận lợi nhất và báo forgetting ở checkpoint cuối.' },
+    { id: 'b', label: 'Giữ cùng initialization, data order và compute budget; đánh giá sau từng stage qua nhiều seed và task order; báo cả acquisition lẫn retention.', isCorrect: true },
+    { id: 'c', label: 'Cho phương pháp mới dùng buffer và số update lớn hơn, miễn là final accuracy cao hơn.' },
+    { id: 'd', label: 'Chỉ so với joint training và bỏ naive sequential fine-tuning vì baseline này thường quên nhiều.' },
+  ], success: 'Đúng. So sánh công bằng cần cùng điều kiện, đủ baseline và đo cả khả năng học mới lẫn giữ cũ qua nhiều lần chạy.', error: 'Hãy kiểm tra setup có kiểm soát tài nguyên, tạo performance matrix và tránh kết luận từ một seed hoặc task order hay không.' },
+  { id: 'realistic-stress-tests', title: 'Realistic stress tests', mode: 'single', prompt: 'Hai phương pháp được so sánh dưới cùng budget, seed và data order, nhưng benchmark chỉ có ba stage cân bằng, label sạch và task boundary luôn rõ. Kết luận nào hợp lý nhất?', options: [
+    { id: 'a', label: 'Benchmark đã đủ thực tế vì hai phương pháp dùng cùng compute budget.' },
+    { id: 'b', label: 'Không cần đo acquisition vì label sạch đã loại trừ negative transfer.' },
+    { id: 'c', label: 'So sánh có thể công bằng nhưng chưa stress-test stream dài, boundary mờ, imbalance, long-tail, noisy labels và negative transfer.', isCorrect: true },
+    { id: 'd', label: 'Chỉ cần thêm joint training là có thể suy rộng kết quả sang mọi data stream thực tế.' },
+  ], success: 'Đúng. Fair controls giúp so sánh ngang bằng; stress tests mới kiểm tra kết luận có đứng vững dưới data stream khó và thực tế hơn hay không.', error: 'Hãy phân biệt tính công bằng của phép so sánh với độ khó và tính đại diện của benchmark.' },
 ]} />

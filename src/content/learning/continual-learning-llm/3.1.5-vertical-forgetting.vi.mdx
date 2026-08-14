@@ -20,7 +20,7 @@ Trong Vertical CL, distribution upstream thường bao phủ một phần distri
   caption="Model đi xuống vertical pipeline bằng cách kế thừa knowledge từ tầng trước. Quá trình thích nghi tạo năng lực chuyên biệt mới nhưng có thể làm suy giảm một phần năng lực upstream."
 />
 
-Ví dụ, [**CoLoR**](https://arxiv.org/abs/2311.17601) tận dụng ViT-B/16 đã pre-train trên ImageNet-21k làm backbone, giữ trọng số gốc và học LoRA theo từng dataset thay vì xây lại representation từ đầu.
+Ví dụ, CoLoR giữ backbone pre-trained cố định và học module LoRA riêng cho từng dataset thay vì xây lại representation từ đầu <Cite paper="wistuba2023" evidence="vertical-forgetting-01-wistuba2023" />.
 
 Khởi tạo tốt giúp học nhanh hơn, nhưng không tự bảo đảm retention. Hai nguyên nhân lớn là **task heterogeneity** và **không thể truy cập upstream data**.
 
@@ -70,8 +70,6 @@ Các đơn vị trong vertical pipeline có thể tuân theo những chính sác
   { label: 'Parameter importance', values: ['Ước lượng tham số quan trọng cho knowledge cũ', 'Không thể tính trực tiếp trên corpus upstream'] },
 ]} />
 
-Các hướng thay thế thường dùng **dataset công khai** hoặc **ví dụ tổng hợp** làm proxy gần đúng cho pre-training data. Chúng tạo ra tín hiệu bảo tồn, nhưng không thể bảo đảm bao phủ toàn bộ distribution upstream ban đầu.
-
-Nguồn: [Shi et al., §3.1](https://arxiv.org/html/2404.16789v3#S3.SS1).
+Các hướng thay thế thường dùng **dataset công khai** hoặc **ví dụ tổng hợp** làm proxy gần đúng cho pre-training data. Chúng tạo ra tín hiệu bảo tồn, nhưng không thể bảo đảm bao phủ toàn bộ distribution upstream ban đầu <Cite paper="shi2024continualSurvey" evidence="vertical-forgetting-02-shi2024continualSurvey" />.
 
 </MdxPage>

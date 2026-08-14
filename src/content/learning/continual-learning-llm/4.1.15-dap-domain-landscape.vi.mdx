@@ -12,9 +12,9 @@ export const lessonMetadata = {
 
 Văn bản luật có thuật ngữ, cấu trúc và cách lập luận riêng. DAP giúp base model tiếp xúc với corpus pháp lý trước khi fine-tune cho ứng dụng, nhưng một giai đoạn train dài cũng có thể làm suy giảm năng lực tổng quát.
 
-### [Lawyer LLaMA](https://arxiv.org/abs/2305.15062)
+### Lawyer LLaMA
 
-Lawyer LLaMA tiếp tục pre-train LLaMA trên khoảng **10B token pháp lý** và replay dữ liệu tổng quát để hạn chế vertical forgetting.
+Lawyer LLaMA tiếp tục pre-train LLaMA trên corpus pháp lý và dùng sparse episodic replay dữ liệu tổng quát để hạn chế quên general knowledge <Cite paper="huang2023lawyer" evidence="dap-domain-landscape-02-huang2023lawyer" />. Con số khoảng **10B token pháp lý** là metadata được survey tổng hợp <Cite paper="shi2024continualSurvey" evidence="dap-domain-landscape-01-shi2024continualSurvey" />, không phải con số được báo trực tiếp trong phần Data Collection của primary paper.
 
 <PaperTradeoff
   advantages={['Cho thấy một base model tổng quát có thể được chuyên biệt hóa bằng corpus luật thay vì train lại từ đầu.']}
@@ -25,9 +25,9 @@ Lawyer LLaMA tiếp tục pre-train LLaMA trên khoảng **10B token pháp lý**
 
 ---
 
-### [SaulLM](https://arxiv.org/abs/2403.03883)
+### SaulLM
 
-SaulLM tiếp tục pre-train trên khoảng **30B token pháp lý**. Corpus của paper trộn thêm Wikipedia, StackExchange và GitHub; phần dữ liệu tổng quát chiếm khoảng **2%**.
+SaulLM tiếp tục pre-train trên khoảng **30B token pháp lý**. Corpus của paper trộn thêm Wikipedia, StackExchange và GitHub; phần dữ liệu tổng quát chiếm khoảng **2%**. <Cite paper="colombo2024saullm7b" evidence="dap-domain-landscape-03-colombo2024saullm7b" />
 
 <PaperTradeoff
   advantages={['Công bố rõ một data mixture dùng general data như replay trong legal DAP.']}
@@ -46,9 +46,9 @@ SaulLM tiếp tục pre-train trên khoảng **30B token pháp lý**. Corpus c�
 
 Trong y khoa, DAP thường bổ sung biomedical knowledge trước instruction tuning hoặc supervised fine-tuning. Vì đây là domain rủi ro cao, tăng điểm medical chưa đủ: model còn phải được kiểm tra xem năng lực tổng quát có giảm theo training step hay không.
 
-### [Continuous training cho Medical QA](https://arxiv.org/abs/2311.00204)
+### Continuous training cho Medical QA
 
-Nghiên cứu theo dõi model trong quá trình train tiếp và ghi nhận **medical exam performance tăng trong khi general-domain performance giảm dần** ở setup được khảo sát.
+Nghiên cứu theo dõi model trong quá trình train tiếp và ghi nhận **medical exam performance tăng trong khi general-domain performance giảm dần** ở setup được khảo sát. <Cite paper="guo2023continuous" evidence="dap-domain-landscape-04-guo2023continuous" />
 
 <PaperTradeoff
   advantages={['Làm lộ rõ trade-off theo training step thay vì chỉ báo cáo checkpoint cuối.']}
@@ -59,9 +59,9 @@ Nghiên cứu theo dõi model trong quá trình train tiếp và ghi nhận **me
 
 ---
 
-### [Me-LLaMA](https://arxiv.org/abs/2402.12749)
+### Me-LLaMA
 
-Me-LLaMA trộn khoảng **25% dữ liệu tổng quát** vào corpus medical. Paper ghi nhận positive backward transfer trên MMLU trong thiết lập của mình.
+Theo bảng tổng hợp của survey, Me-LLaMA trộn khoảng **25% dữ liệu tổng quát** vào corpus medical và ghi nhận positive backward transfer trên MMLU trong thiết lập của paper <Cite paper="shi2024continualSurvey" evidence="dap-domain-landscape-05-shi2024continualSurvey" />. Primary paper được liên kết ở tiêu đề để reader kiểm tra setup và evaluation đầy đủ. <Cite paper="xie2024me" evidence="dap-domain-landscape-06-xie2024me" />
 
 <PaperTradeoff
   advantages={['Đánh giá cả năng lực medical và tín hiệu giữ năng lực tổng quát sau DAP.']}
@@ -72,9 +72,9 @@ Me-LLaMA trộn khoảng **25% dữ liệu tổng quát** vào corpus medical. P
 
 ---
 
-### [HuatuoGPT-II](https://arxiv.org/abs/2311.09774)
+### HuatuoGPT-II
 
-HuatuoGPT-II chuyển văn bản medical thành cặp instruction–output rồi hợp nhất DAP và SFT trong **một giai đoạn**.
+HuatuoGPT-II chuyển văn bản medical thành cặp instruction–output rồi hợp nhất DAP và SFT trong **một giai đoạn**. <Cite paper="Chen2023HuatuoGPTII" evidence="dap-domain-landscape-07-Chen2023HuatuoGPTII" />
 
 <PaperTradeoff
   advantages={['Pipeline hợp nhất vượt pipeline hai giai đoạn trong các thí nghiệm của paper.']}
@@ -83,7 +83,7 @@ HuatuoGPT-II chuyển văn bản medical thành cặp instruction–output rồi
 
 <LessonImage assetPath="continual-learning-llm/05-dap-medical-huatuogpt2-tradeoff.png" alt="Ưu điểm và hạn chế của HuatuoGPT-II: pipeline hợp nhất hiệu quả hơn nhưng chưa chứng minh pipeline hai giai đoạn luôn thừa" />
 
-Các hướng khác trong survey gồm replay dữ liệu tổng quát, adapter và LoRA, chẳng hạn [AF Adapter](https://arxiv.org/abs/2211.11363). Chúng là các lựa chọn giảm quên, không phải bảo đảm zero forgetting.
+AF Adapter chỉ train khoảng **17% tham số** và báo cáo mức tăng trung bình trong các setup của paper <Cite paper="yan2023af" evidence="dap-domain-landscape-08-yan2023af" />. Đây là một lựa chọn parameter-efficient, không phải bảo đảm zero forgetting.
 
 </MdxPage>
 
@@ -91,15 +91,15 @@ Các hướng khác trong survey gồm replay dữ liệu tổng quát, adapter 
 
 ## Financial
 
-Financial DAP thường bắt đầu từ corpus rất lớn: [BBT-Fin](https://arxiv.org/abs/2302.09432) dùng khoảng **80B token**, còn [CFGPT](https://arxiv.org/abs/2309.10654) xây dựng corpus khoảng **141B token**. Tuy nhiên, survey lưu ý cả hai không đánh giá trực tiếp vertical forgetting.
+Financial DAP thường bắt đầu từ corpus rất lớn: BBT-Fin dùng khoảng **80B token** <Cite paper="Lu2023BBTFin" evidence="dap-domain-landscape-09-Lu2023BBTFin" />, còn CFGPT xây dựng corpus khoảng **141B token** <Cite paper="li2023cfgpt" evidence="dap-domain-landscape-10-li2023cfgpt" />. Tuy nhiên, survey lưu ý cả hai không đánh giá trực tiếp vertical forgetting.
 
 <LessonNote>
-  Bảng 2 của survey ghi nhận [Takahashi et al.](https://arxiv.org/abs/2404.08262) đánh giá Japanese business LLM sau DAP bằng cả task trực tiếp và RAG. Thiết kế này đặt retrieval cạnh model adaptation trong cùng hệ thống đánh giá; nó không phải ablation chứng minh RAG có thể thay cho DAP.
+  Một nghiên cứu đánh giá Japanese business LLM sau DAP bằng cả task trực tiếp và RAG <Cite paper="takahashi2024pretraining" evidence="dap-domain-landscape-11-takahashi2024pretraining" />. Thiết kế này đặt retrieval cạnh model adaptation trong cùng hệ thống đánh giá; nó không phải ablation chứng minh RAG có thể thay cho DAP.
 </LessonNote>
 
-### [Efficient Continual Pre-training](https://arxiv.org/abs/2311.08545)
+### Efficient Continual Pre-training
 
-Paper chọn khoảng **10% dữ liệu** có tính mới và đa dạng để train FinPythia. Trong setup của paper, tập đã chọn vượt phương án dùng toàn bộ corpus DAP.
+Paper chọn khoảng **10% dữ liệu** có tính mới và đa dạng để train FinPythia. Trong setup của paper, tập đã chọn vượt phương án dùng toàn bộ corpus DAP. <Cite paper="xie2023efficient" evidence="dap-domain-landscape-12-xie2023efficient" />
 
 <PaperTradeoff
   advantages={['Cung cấp bằng chứng thực nghiệm rằng data selection có thể quan trọng hơn việc dùng mọi token sẵn có.']}
@@ -110,13 +110,13 @@ Paper chọn khoảng **10% dữ liệu** có tính mới và đa dạng để t
 
 ---
 
-### [Xuanyuan 2.0](https://arxiv.org/abs/2305.12002)
+### Xuanyuan 2.0
 
-Xuanyuan 2.0 dùng hybrid tuning để trộn dữ liệu tổng quát và tài chính trong cùng pipeline; dữ liệu financial DAP chỉ chiếm khoảng **13%** mixture.
+Xuanyuan 2.0 dùng hybrid tuning để trộn dữ liệu tổng quát và tài chính trong cùng một giai đoạn training <Cite paper="Zhang2023xuanyuan" evidence="dap-domain-landscape-13-Zhang2023xuanyuan" />.
 
 <PaperTradeoff
   advantages={['Minh họa cách kết hợp acquisition và retention ngay trong thiết kế data mixture.']}
-  limitations={['Tỷ lệ 13% gắn với recipe Xuanyuan 2.0, chưa trả lời replay rate nào tối ưu nói chung.']}
+  limitations={['Mixture gắn với recipe Xuanyuan 2.0, chưa trả lời replay rate nào tối ưu nói chung.']}
 />
 
 <LessonImage assetPath="continual-learning-llm/07-dap-financial-xuanyuan2-tradeoff.png" alt="Ưu điểm và hạn chế của Xuanyuan 2.0: kết hợp acquisition với retention nhưng tỷ lệ 13% chưa trả lời tỷ lệ tối ưu" />
@@ -129,15 +129,15 @@ Xuanyuan 2.0 dùng hybrid tuning để trộn dữ liệu tổng quát và tài 
 
 ## Scientific
 
-Scientific DAP trải rộng từ đại dương và địa khoa đến thiên văn, như [OceanGPT](https://arxiv.org/abs/2310.02031), [K2](https://arxiv.org/abs/2306.05064), [AstroLLaMA](https://arxiv.org/abs/2309.06126) và [MarineGPT](https://arxiv.org/abs/2310.13596). Điểm chung là đưa tri thức khoa học chuyên ngành vào model; cách giữ reasoning và language ability lại khác nhau.
+Scientific DAP trải rộng từ OceanGPT cho đại dương <Cite paper="Bi2023OCEANGPT" evidence="dap-domain-landscape-14-Bi2023OCEANGPT" /> và một model được train tiếp trên **5,5B token địa khoa** <Cite paper="deng2023learning" evidence="dap-domain-landscape-15-deng2023learning" /> đến AstroLLaMA dùng hơn **300.000 abstract thiên văn** <Cite paper="Nguyen2023AstroLLaMA" evidence="dap-domain-landscape-16-Nguyen2023AstroLLaMA" /> và MarineGPT cho dữ liệu vision–language biển <Cite paper="Zheng2023MarineGPT" evidence="dap-domain-landscape-17-Zheng2023MarineGPT" />. Điểm chung là đưa tri thức khoa học chuyên ngành vào model; cách giữ reasoning và language ability lại khác nhau.
 
 <LessonNote>
-  [ClimateGPT](https://arxiv.org/abs/2401.09646) minh họa một pipeline kết hợp: DAP và instruction tuning thích nghi model cho climate science, còn retrieval augmentation đưa tài liệu liên quan vào context lúc suy luận. Ví dụ này cho thấy RAG có thể bổ sung cho DAP; survey không cung cấp ablation để kết luận retrieval có thể thay thế phần model adaptation.
+  ClimateGPT được continual pre-train từ Llama 2 trên **4,2B token** dữ liệu khí hậu <Cite paper="thulke2024climategpt" evidence="dap-domain-landscape-18-thulke2024climategpt" />. Pipeline đầy đủ còn dùng instruction tuning và retrieval augmentation như các thành phần riêng; đây không phải ablation chứng minh RAG có thể thay thế model adaptation.
 </LessonNote>
 
-### [GeoGalactica](https://arxiv.org/abs/2401.00434)
+### GeoGalactica
 
-GeoGalactica trộn geoscience, arXiv và CodeData theo tỷ lệ **8:1:1**. Paper nêu catastrophic forgetting là một rủi ro của DAP.
+GeoGalactica tiếp tục pre-train Galactica trên corpus geoscience rồi instruction-tune cho các câu hỏi chuyên ngành <Cite paper="lin2023geogalactica" evidence="dap-domain-landscape-19-lin2023geogalactica" />. Paper nêu catastrophic forgetting là một rủi ro cần theo dõi, nhưng không cô lập riêng tác dụng của từng thành phần data mixture.
 
 <PaperTradeoff
   advantages={['Mixture giữ lại nguồn khoa học rộng hơn và code thay vì chỉ dùng geoscience text.']}
@@ -148,9 +148,9 @@ GeoGalactica trộn geoscience, arXiv và CodeData theo tỷ lệ **8:1:1**. Pap
 
 ---
 
-### [Llemma](https://arxiv.org/abs/2310.10631)
+### Llemma
 
-Llemma tiếp tục pre-train Code Llama trên Proof-Pile-2 và trộn dữ liệu math với dữ liệu tổng quát theo tỷ lệ khoảng **19:1**.
+Llemma tiếp tục pre-train Code Llama trên Proof-Pile-2, một mixture gồm paper khoa học, web text chứa toán và mathematical code <Cite paper="Azerbayev2023LLEMMA" evidence="dap-domain-landscape-20-Azerbayev2023LLEMMA" />.
 
 <PaperTradeoff
   advantages={['Giữ một phần general data trong mixture khi chuyên biệt hóa model cho toán.']}
@@ -161,9 +161,9 @@ Llemma tiếp tục pre-train Code Llama trên Proof-Pile-2 và trộn dữ li�
 
 ---
 
-### [PLLaMA](https://arxiv.org/abs/2401.01600)
+### PLLaMA
 
-PLLaMA thích nghi LLaMA-2 cho khoa học thực vật và trộn dữ liệu domain với dữ liệu tổng quát theo tỷ lệ khoảng **9:1**.
+PLLaMA thích nghi LLaMA-2 cho khoa học thực vật bằng corpus hơn 1,5 triệu bài viết chuyên ngành <Cite paper="Yang2023PLLaMa" evidence="dap-domain-landscape-21-Yang2023PLLaMa" />.
 
 <PaperTradeoff
   advantages={['Mở rộng DAP sang một nhánh khoa học chuyên sâu với corpus hơn 1,5 triệu bài viết.']}
@@ -180,9 +180,9 @@ PLLaMA thích nghi LLaMA-2 cho khoa học thực vật và trộn dữ liệu do
 
 Code có pipeline chuyên biệt hóa tự nhiên: **natural language → code đa ngôn ngữ → một programming language cụ thể**. Đồng thời, grammar của code chặt chẽ hơn văn bản tự nhiên, nên giữ nguyên training objective của natural language có thể chưa tối ưu.
 
-### [Code Llama](https://arxiv.org/abs/2308.12950)
+### Code Llama
 
-Code Llama tiếp tục pre-train Llama 2 trên code rồi chuyên biệt hóa thêm cho Python. Một phần natural-language data được replay để giữ khả năng hiểu ngôn ngữ.
+Code Llama tiếp tục pre-train Llama 2 trên code rồi chuyên biệt hóa thêm cho Python. Một phần natural-language data được replay để giữ khả năng hiểu ngôn ngữ. <Cite paper="rozière2024code" evidence="dap-domain-landscape-22-rozière2024code" />
 
 <PaperTradeoff
   advantages={['Minh họa rõ chuỗi DAP phân cấp từ model tổng quát đến code rồi một ngôn ngữ cụ thể.']}
@@ -193,9 +193,9 @@ Code Llama tiếp tục pre-train Llama 2 trên code rồi chuyên biệt hóa t
 
 ---
 
-### [IRCoder](https://arxiv.org/abs/2403.03894)
+### IRCoder
 
-IRCoder train tiếp trên source code ghép với **compiler intermediate representation (IR)** và dùng LoRA để thích nghi model.
+IRCoder train tiếp trên source code ghép với **compiler intermediate representation (IR)** và dùng LoRA để thích nghi model. <Cite paper="paul2024ircoder" evidence="dap-domain-landscape-23-paul2024ircoder" />
 
 <PaperTradeoff
   advantages={['IR tạo cầu nối dùng chung giữa nhiều programming language trong các thí nghiệm multilingual code.']}
@@ -206,9 +206,9 @@ IRCoder train tiếp trên source code ghép với **compiler intermediate repre
 
 ---
 
-### [LLaMA Pro](https://arxiv.org/abs/2401.02415)
+### LLaMA Pro
 
-LLaMA Pro thêm các Transformer block mới rồi chỉ cập nhật phần mở rộng để học code và math.
+LLaMA Pro thêm các Transformer block mới rồi chỉ cập nhật phần mở rộng để học code và math. <Cite paper="wu2024llama" evidence="dap-domain-landscape-24-wu2024llama" />
 
 <PaperTradeoff
   advantages={['Block expansion chống vertical forgetting tốt hơn LoRA trong các so sánh của paper.']}
@@ -225,9 +225,9 @@ LLaMA Pro thêm các Transformer block mới rồi chỉ cập nhật phần m�
 
 Không phải mọi DAP đều chỉ thay corpus rồi giữ nguyên objective và kiến trúc. Survey còn ghi nhận ba hướng thiết kế khác: tạo objective chuyên biệt, tối ưu data mixing và thay đổi cách biểu diễn đầu vào.
 
-### [ECONET](https://aclanthology.org/2021.emnlp-main.436/)
+### ECONET
 
-ECONET thiết kế objective che event và temporal indicator, kèm nhiệm vụ phân biệt câu đã bị làm sai, để học temporal reasoning.
+ECONET thiết kế objective che event và temporal indicator, kèm nhiệm vụ phân biệt câu đã bị làm sai, để học temporal reasoning. <Cite paper="han2021econet" evidence="dap-domain-landscape-25-han2021econet" />
 
 <PaperTradeoff
   advantages={['Objective nhắm trực tiếp vào quan hệ thời gian thay vì kỳ vọng language modeling tự học được tín hiệu đó.']}
@@ -238,9 +238,9 @@ ECONET thiết kế objective che event và temporal indicator, kèm nhiệm v�
 
 ---
 
-### [CALM](https://arxiv.org/abs/2011.07956)
+### CALM
 
-CALM kết hợp objective sinh và contrastive để học commonsense xoay quanh các concept.
+CALM kết hợp objective sinh và contrastive để học commonsense xoay quanh các concept. <Cite paper="zhou2020pre" evidence="dap-domain-landscape-26-zhou2020pre" />
 
 <PaperTradeoff
   advantages={['Cho thấy task formulation là một trục thiết kế DAP, không chỉ số lượng token.']}
@@ -251,9 +251,9 @@ CALM kết hợp objective sinh và contrastive để học commonsense xoay qua
 
 ---
 
-### [AdaptLLM](https://arxiv.org/abs/2309.09530)
+### AdaptLLM
 
-AdaptLLM chuyển raw corpus thành dạng **(raw text, question, answer)** để tạo reading-comprehension task trước khi adaptation.
+AdaptLLM chuyển raw corpus thành dạng **(raw text, question, answer)** để tạo reading-comprehension task trước khi adaptation. <Cite paper="cheng2024adapting" evidence="dap-domain-landscape-27-cheng2024adapting" />
 
 <PaperTradeoff
   advantages={['Trong ba domain được khảo sát, định dạng này cải thiện khả năng dùng domain knowledge để trả lời câu hỏi.']}
@@ -264,9 +264,9 @@ AdaptLLM chuyển raw corpus thành dạng **(raw text, question, answer)** đ�
 
 ---
 
-### [Tag-LLM](https://arxiv.org/abs/2402.05140)
+### Tag-LLM
 
-Tag-LLM học **domain tag** và **function tag** dưới dạng vector đầu vào mà không cập nhật base-model weights.
+Tag-LLM học **domain tag** và **function tag** dưới dạng vector đầu vào mà không cập nhật base-model weights. <Cite paper="shen2024tag" evidence="dap-domain-landscape-28-shen2024tag" />
 
 <PaperTradeoff
   advantages={['Tách domain khỏi function và giữ nguyên tham số của base model.']}
@@ -275,10 +275,8 @@ Tag-LLM học **domain tag** và **function tag** dưới dạng vector đầu v
 
 <LessonImage assetPath="continual-learning-llm/17-dap-other-tag-llm-tradeoff.png" alt="Ưu điểm và hạn chế của Tag-LLM: tách domain khỏi function và giữ base model nhưng không bảo đảm mọi tổ hợp mới" />
 
-[Aurora-M](https://arxiv.org/abs/2404.00399), [Swallow](https://arxiv.org/abs/2404.17790) và [Sailor](https://arxiv.org/abs/2404.03608) bổ sung một góc nhìn multilingual: data mixing và replay giúp cân bằng ngôn ngữ mới với năng lực đã có. Sailor còn dùng proxy model để tìm mixture phù hợp.
+Aurora-M tiếp tục pre-train StarCoderPlus trên **435B token** bổ sung <Cite paper="nakamura2024aurora" evidence="dap-domain-landscape-29-nakamura2024aurora" />. Một hướng khác mở rộng vocabulary Llama 2 cho ký tự tiếng Nhật rồi continual pre-train trên web corpus tiếng Nhật <Cite paper="fujii2024continual" evidence="dap-domain-landscape-30-fujii2024continual" />. Sailor dùng proxy model nhỏ để tối ưu data mixture cho ngôn ngữ Đông Nam Á <Cite paper="dou2024sailor" evidence="dap-domain-landscape-31-dou2024sailor" />.
 
-**Điểm cần nhớ:** các paper trên minh họa nhiều lựa chọn ngoài việc tăng số token DAP. Việc một lựa chọn tốt hơn chỉ được kết luận trong phạm vi thí nghiệm của từng paper.
-
-Nguồn tổng hợp: [Shi et al., §4.2.2](https://arxiv.org/html/2404.16789v3#S4.SS2.SSS2).
+**Điểm cần nhớ:** các paper trên minh họa nhiều lựa chọn ngoài việc tăng số token DAP trong landscape được survey tổng hợp <Cite paper="shi2024continualSurvey" evidence="dap-domain-landscape-32-shi2024continualSurvey" />. Việc một lựa chọn tốt hơn chỉ được kết luận trong phạm vi thí nghiệm của từng paper.
 
 </MdxPage>

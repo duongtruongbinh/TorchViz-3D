@@ -33,7 +33,12 @@ Huấn luyện lại từ đầu trên toàn bộ dữ liệu cũ và mới là 
 
 <LessonImage assetPath="continual-learning-llm/01-full-retraining-cost-and-constraints.png" alt="Bốn trở ngại của việc huấn luyện lại LLM: phải gộp dữ liệu cũ và mới, tốn thời gian và compute, thiếu dữ liệu lịch sử, và phải chạy lại nhiều stage" caption="Huấn luyện lại toàn bộ là cách trực tiếp, nhưng chi phí tăng nhanh khi model lớn, dữ liệu cũ hạn chế và pipeline có nhiều stage." />
 
-Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ, rẻ để truy cập và đủ compute để huấn luyện lại, **joint retraining hoặc full replay** vẫn là baseline đầu tiên nên được báo cáo. Việc tìm kiếm các hướng đi khác rất quan trọng khi một hoặc nhiều điều kiện này không còn khả thi. Mỗi bản cập nhật mới vì vậy phải cân bằng giữa việc tiếp thu năng lực mới (acquisition), giữ lại năng lực cũ (retention) và chi phí tính toán (cost).
+Nếu toàn bộ dữ liệu lịch sử vẫn còn hợp lệ, có thể truy cập với chi phí chấp nhận được và ngân sách tính toán đủ lớn, báo cáo nên bắt đầu với hai baseline mạnh:
+
+- **Huấn luyện lại từ đầu trên dữ liệu hợp nhất (joint retraining):** gộp toàn bộ dữ liệu cũ và mới, rồi huấn luyện một mô hình mới trên tập dữ liệu đó.
+- **Phát lại toàn bộ dữ liệu cũ (full replay):** khi cập nhật checkpoint hiện tại bằng dữ liệu mới, đồng thời đưa toàn bộ dữ liệu cũ trở lại quá trình huấn luyện.
+
+Hai baseline này cho biết mô hình có thể học mới và giữ cũ tốt đến đâu khi không bị giới hạn bởi quyền truy cập dữ liệu lịch sử hoặc ngân sách tính toán. Các phương pháp Continual Learning khác trở nên quan trọng khi ít nhất một trong các điều kiện được nhắc đến bên trên không còn khả thi. Khi đó, mỗi lần model cập nhật phiên bản mới phải cân bằng giữa **tiếp thu năng lực mới (acquisition)**, **giữ lại năng lực cũ (retention)** và **chi phí tính toán (cost)**.
 
 <LessonImage assetPath="continual-learning-llm/01-continual-learning-update-tradeoff.png" alt="So sánh full retraining với continual update và tam giác cân bằng acquisition, retention, cost" caption="Continual update giảm nhu cầu xử lý lại toàn bộ lịch sử, nhưng vẫn phải cân bằng học mới, giữ cũ và chi phí." />
 
@@ -43,7 +48,7 @@ Nếu toàn bộ dữ liệu lịch sử vẫn hợp lệ, rẻ để truy cập
 
 ## Vì sao không chỉ dùng RAG?
 
-Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa nội dung đó vào context khi model trả lời. Đây là lựa chọn rất hữu ích khi hệ thống cần truy cập fact mới hoặc dẫn lại nguồn bên ngoài mà không cập nhật checkpoint cho mỗi tài liệu.
+Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa nội dung đó vào context khi model trả lời <Cite paper="thulke2024climategpt" evidence="overview-rag-external-context" />. Đây là lựa chọn rất hữu ích khi hệ thống cần truy cập fact mới hoặc dẫn lại nguồn bên ngoài mà không cập nhật checkpoint cho mỗi tài liệu.
 
 <CourseCards
   ariaLabel="RAG và Continual Learning thay đổi hai phần khác nhau của hệ thống"
@@ -58,12 +63,18 @@ Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa
     {
       title: 'Continual Learning',
       example: 'Quá trình thích nghi cập nhật model để học năng lực hoặc hành vi mới.',
-      takeaway: 'Thay đổi cần tồn tại ngay cả khi không có tài liệu được truy xuất.',
+      takeaway: 'Model phải dùng được năng lực mới ngay cả khi không có tài liệu để truy xuất.',
     },
   ]}
 />
 
-Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt. Nếu hành vi mới phải tồn tại khi không có retrieved document, chỉ thêm RAG chưa giải quyết mục tiêu đó; model vẫn cần được thích nghi và sau đó kiểm tra xem năng lực cũ có bị quên hay không.
+<LessonNote tone="warning">
+  Ví dụ, nếu mục tiêu là xây dựng chatbot thực sự **hiểu và tạo tiếng Việt** từ mô hình chỉ được train trên tiếng anh, việc cung cấp tài liệu tiếng Việt qua RAG thôi là chưa đủ. RAG giúp model đọc nội dung được truy xuất; năng lực sử dụng tiếng Việt cần được học qua quá trình tiếp tục huấn luyện hoặc thích nghi phù hợp <Cite paper="shi2024continualSurvey" evidence="overview-domain-adaptation" />.
+</LessonNote>
+
+Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt.
+
+Retrieval cũng không đồng nghĩa với một cơ chế duy nhất: survey ghi nhận một số memory-based model-editing approaches thực hiện editing thông qua retrieval <Cite paper="shi2024continualSurvey" evidence="overview-retrieval-model-editing" />. Vì vậy, khi đọc một hệ thống “có retrieval”, cần hỏi retrieval chỉ thêm context hay còn tham gia vào cơ chế cập nhật/chỉnh sửa model.
 
 <LessonImage
   assetPath="continual-learning-llm/01-rag-vs-continual-learning.png"
@@ -71,13 +82,7 @@ Khóa học này tập trung vào trường hợp thứ hai: model phải thay �
   caption="RAG bổ sung nguồn tham khảo cho lần trả lời; Continual Learning hướng tới năng lực hoặc hành vi được giữ lại trong model sau cập nhật."
 />
 
-Hai hướng cũng có thể bổ sung cho nhau. [ClimateGPT](https://arxiv.org/abs/2401.09646) là ví dụ trong survey kết hợp domain adaptation, instruction tuning và retrieval augmentation.
-
-<LessonNote tone="warning">
-  Ví dụ, nếu mục tiêu là xây dựng chatbot thực sự **hiểu và tạo tiếng Việt**, chỉ cung cấp tài liệu tiếng Việt qua RAG là chưa đủ. RAG giúp model đọc nội dung được truy xuất; năng lực sử dụng tiếng Việt cần được học qua quá trình tiếp tục huấn luyện hoặc thích nghi model phù hợp.
-</LessonNote>
-
-Nguồn: [Shi et al., §4.2](https://arxiv.org/html/2404.16789v3#S4.SS2) và [§4.3.4](https://arxiv.org/html/2404.16789v3#S4.SS3.SSS4).
+Hai hướng cũng có thể bổ sung cho nhau. ClimateGPT thích nghi model cho climate domain bằng continued pre-training <Cite paper="thulke2024climategpt" evidence="overview-climategpt-cpt" />. Model tiếp tục được bổ sung năng lực làm theo instruction bằng instruction fine-tuning <Cite paper="thulke2024climategpt" evidence="overview-climategpt-ift" />. Ở tầng suy luận, hệ thống dùng RAG để tăng factuality và mở rộng bằng tri thức mới <Cite paper="thulke2024climategpt" evidence="overview-climategpt-rag" />.
 
 </MdxPage>
 
@@ -90,7 +95,7 @@ Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hi�
 <LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-loss.png" alt="Bốn bước Scratch, Tune, Loss và Forget: huấn luyện từ đầu tốn kém, fine-tune rẻ hơn, loss chỉ nhìn dữ liệu mới và kỹ năng cũ dần biến mất" caption="Fine-tune trên dữ liệu mới tiết kiệm hơn training from scratch, nhưng loss mới không phát tín hiệu bảo vệ những năng lực đã học." />
 
 <LessonNote>
-  Đây là vấn đề cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Chúng ta sẽ phân tích kỹ hơn ở phần Catastrophic Forgetting phía sau.
+  Đây là vấn đề cốt lõi: học cái mới nhưng không có gì bảo vệ cái cũ. Hiện tượng nền tảng này được McCloskey và Cohen mô tả dưới tên **catastrophic interference** trong các connectionist networks học tuần tự <Cite paper="mccloskey1989catastrophic" evidence="overview-catastrophic-interference" />. Chúng ta sẽ phân tích kỹ hơn biểu hiện của nó trong LLM ở các phần tiếp theo.
 </LessonNote>
 
 </MdxPage>
@@ -99,10 +104,8 @@ Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hi�
 
 ## Mục tiêu của Continual Learning
 
-Do vậy, mục tiêu của Continual Learning (CL) là thay thế vòng retraining đó bằng chuỗi update liên tục: học kiến thức hoặc task mới trong khi giữ hiệu năng trên những năng lực cũ còn giá trị. Động lực để phát triển hướng này vẫn là dựa trên cách con người học tập (Lifelong Learning) và bổ sung kiến thức mới (Incremental Learning), được minh họa ở hình bên dưới. Chúng ta sẽ nói rõ hơn khái niệm này ở những bài sau.
+Do vậy, mục tiêu của Continual Learning (CL) là thay thế vòng retraining đó bằng chuỗi update liên tục: học kiến thức hoặc task mới trong khi giữ hiệu năng trên những năng lực cũ còn giá trị <Cite paper="shi2024continualSurvey" evidence="overview-cl-goal" />. Động lực để phát triển hướng này vẫn là dựa trên cách con người học tập (Lifelong Learning) và bổ sung kiến thức mới (Incremental Learning), được minh họa ở hình bên dưới. Chúng ta sẽ nói rõ hơn khái niệm này ở những bài sau.
 
 <LessonImage assetPath="continual-learning-llm/01-continual-learning-llm-overview.png" alt="Minh họa Continual Learning ở Con người và LLM" caption="Sơ đồ so sánh quá trình tích lũy kỹ năng ở con người với quá trình thích ứng tri thức nối tiếp ở LLM." />
-
-Nguồn: [Shi et al., §1](https://arxiv.org/html/2404.16789v3#S1).
 
 </MdxPage>

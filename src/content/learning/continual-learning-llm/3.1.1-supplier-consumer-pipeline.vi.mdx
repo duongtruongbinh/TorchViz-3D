@@ -11,13 +11,13 @@ export const lessonMetadata = {
 
 LLM quá lớn để liên tục thu thập lại toàn bộ dữ liệu và retrain từ đầu. Việc giữ model cập nhật cũng ngày càng đắt khi dữ liệu mới xuất hiện với tốc độ rất cao. Survey minh họa rằng vào năm 2023, trung bình mỗi ngày có hơn 500 triệu tweet mới được tạo ra; ngay cả training trên một phần của khối lượng này cũng có thể mang lại chi phí khó chấp nhận.
 
-Trong thực tế, khả năng cập nhật model phân bố không đều. So với supplier upstream như OpenAI hoặc Anthropic, consumer downstream thường không đủ nguồn lực để:
+Trong thực tế, không phải ai cũng có khả năng cập nhật mô hình. So với các nhà phát hành (supplier upstream) như OpenAI hoặc Anthropic, hầu hết các nhà triển khai vừa và nhỏ (consumer downstream) thường không đủ nguồn lực để đáp ứng:
 
 - **Dữ liệu:** thu thập, làm sạch và lưu trữ corpus đủ lớn.
 - **Hạ tầng:** duy trì cụm GPU và pipeline training phân tán.
 - **Pre-training:** tự huấn luyện lại một LLM từ đầu.
 
-[Recyclable Tuning](https://arxiv.org/abs/2305.08702) là công trình đầu tiên mô tả rõ pipeline LLM hiện đại bằng cấu trúc **supplier–consumer**:
+Recyclable Tuning mô tả pipeline cập nhật pretrained model bằng cấu trúc **supplier–consumer** <Cite paper="qin2023recyclable" evidence="supplier-consumer-01-qin2023recyclable" />:
 
 <ConceptFlow ariaLabel="Pipeline supplier consumer" items={[
   { title: 'Supplier', detail: 'Continual pre-training trên chuỗi dữ liệu không gán nhãn mới' },
@@ -85,8 +85,6 @@ Từ motivation này, survey mở rộng pipeline thành hai hướng continuity
   caption="Vertical continuity đi xuống các tầng ngày càng chuyên biệt; horizontal continuity đi ngang qua các stage hoặc domain có thể thay đổi dần dần hay đột ngột."
 />
 
-Vì vậy, tùy thuộc vào nguồn lực cá nhân hoặc công ty mà lựa chọn hướng tiếp cận phù hợp. Ví dụ, một researcher cá nhân thường chỉ có thể tham gia ở phía consumer bằng cách thích nghi checkpoint có sẵn qua DAP hoặc fine-tuning, thay vì tự cập nhật base model ở quy mô supplier. Về sau, bạn cũng sẽ thấy nhiều paper tập trung vào downstream adaptation hơn là pre-training lại toàn bộ model.
-
-Nguồn: [Shi et al., §3](https://arxiv.org/html/2404.16789v3#S3) và [Recyclable Tuning — Qin et al. (2023)](https://arxiv.org/abs/2305.08702).
+Vì vậy, tùy thuộc vào nguồn lực cá nhân hoặc công ty mà lựa chọn hướng tiếp cận phù hợp. Ví dụ, một researcher cá nhân thường chỉ có thể tham gia ở phía consumer bằng cách thích nghi checkpoint có sẵn qua DAP hoặc fine-tuning, thay vì tự cập nhật base model ở quy mô supplier. Recyclable Tuning là một ví dụ về cách tái sử dụng adapted weights qua các stage <Cite paper="qin2023recyclable" evidence="supplier-consumer-03-qin2023recyclable" />; về sau, bạn cũng sẽ thấy nhiều paper tập trung vào downstream adaptation hơn là pre-training lại toàn bộ model.
 
 </MdxPage>

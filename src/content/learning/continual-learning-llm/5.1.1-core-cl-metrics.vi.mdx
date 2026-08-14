@@ -6,7 +6,8 @@ export const lessonMetadata = {
   headings: [
     'Bốn thước đo phổ biến trong CL',
     'OP: Hiệu năng tổng thể hiện tại',
-    'F và BWT: Hai cách nhìn task cũ',
+    'F: Mức giảm từ đỉnh lịch sử',
+    'BWT: Cùng một câu hỏi, hai mốc so sánh',
     'FWT: Kiến thức cũ có giúp task tương lai?',
   ],
   keywords: ['Continual Learning', 'Overall Performance', 'Forgetting', 'Backward Transfer', 'Forward Transfer'],
@@ -17,7 +18,7 @@ export const lessonMetadata = {
     'forward-transfer',
     'metric-interpretation',
   ],
-  pageCount: 4,
+  pageCount: 5,
 }
 
 <MdxPage page={0}>
@@ -31,13 +32,11 @@ Sau mỗi stage học, ta có thể đo hiệu năng của model trên từng ta
   columns={['Câu hỏi cần trả lời', 'Cách đánh giá']}
   rows={[
     { label: 'OP', values: ['Hiện tại model làm tốt trung bình đến đâu?', 'Càng cao càng tốt'] },
-    { label: 'F', values: ['Model đã mất bao nhiêu hiệu năng trên task cũ?', 'Càng thấp càng tốt'] },
-    { label: 'BWT', values: ['Học task mới làm task cũ tốt hơn hay kém đi?', 'Càng cao càng tốt'] },
+    { label: 'F', values: ['Model đã quên bao nhiêu trên các task cũ?', 'Càng thấp càng tốt'] },
+    { label: 'BWT', values: ['Sau khi học task mới, model làm task cũ tốt hơn hay kém đi bao nhiêu?', 'Càng cao càng tốt'] },
     { label: 'FWT', values: ['Các task đã học có giúp model làm task tương lai?', 'Càng cao càng tốt'] },
   ]}
 />
-
-Ta sẽ lần lượt nhìn vào **hiệu năng tổng thể**, **khả năng giữ task cũ**, rồi **khả năng hỗ trợ task tương lai**.
 
 </MdxPage>
 
@@ -69,77 +68,186 @@ OP càng cao thì hiệu năng tổng thể càng tốt. Tuy nhiên, giá trị 
 
 <MdxPage page={2}>
 
-## F và BWT: Hai cách nhìn task cũ
+## F: Mức giảm từ đỉnh lịch sử
 
-**Forgetting (F)** không chỉ nhìn hiệu năng hiện tại. Với mỗi task cũ, metric này tìm mức tốt nhất model từng đạt trước stage hiện tại, rồi trừ đi kết quả hiện tại của task đó.
+**Forgetting (F)** hỏi model đã quên bao nhiêu trên các task cũ. Với mỗi task, quy ước peak-based tìm mức tốt nhất model từng đạt trước stage hiện tại, rồi trừ đi kết quả hiện tại:
 
-<BlockMath formula="F_t=\frac{1}{t-1}\sum_{j=1}^{t-1}\left[\max_{\ell\in\{1,\ldots,t-1\}}P_{\ell,j}-P_{t,j}\right]" />
+**Sau khi model học đến Task B**
 
-Tiếp tục ví dụ sau khi học xong Task C:
-
-<ComparisonMatrix
-  ariaLabel="Tính forgetting trên các task cũ"
-  columns={['Mức tốt nhất trước đó', 'Sau stage C', 'Mức giảm']}
-  rows={[
-    { label: 'Task A', values: ['80%', '60%', '20 điểm'] },
-    { label: 'Task B', values: ['85%', '75%', '10 điểm'] },
+<MetricBars
+  ariaLabel="Lịch sử đánh giá khi model lần lượt học Task A và Task B"
+  columns={2}
+  max={100}
+  items={[
+    { label: 'Task A', value: 80, valueLabel: '80%', detail: 'Sau khi học Task A', tone: 'primary', shadeByValue: true, dividerAfter: true },
+    { label: 'Task B placeholder after A', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task A', value: 90, valueLabel: '90%', detail: 'Sau khi học Task B', tone: 'primary', shadeByValue: true },
+    { label: 'Task B', value: 85, valueLabel: '85%', detail: 'Sau khi học Task B', tone: 'accent', shadeByValue: true },
   ]}
 />
 
-<BlockMath formula="F_3=\frac{(80-60)+(85-75)}{2}=15\text{ điểm}" />
+<BlockMath formula="F_2^{\mathrm{peak}}=\frac{80-90}{1}=-10\text{ điểm}" />
 
----
+Giả sử chúng ta fine-tune thêm **Task C**, rồi tiến hành đo lại hiệu năng trên các task cũ:
 
-**Backward Transfer (BWT)** dùng chính mức thay đổi đó, nhưng đặt câu hỏi theo chiều ngược lại: việc học task mới đã làm các task trước **tốt hơn hay kém đi**? Survey tính BWT bằng giá trị đối của F:
+<MetricBars
+  ariaLabel="Lịch sử đánh giá khi model lần lượt học Task A, Task B và Task C"
+  columns={3}
+  max={100}
+  items={[
+    { label: 'Task A', value: 80, valueLabel: '80%', detail: 'Sau khi học Task A', tone: 'primary', shadeByValue: true, dividerAfter: true },
+    { label: 'Task B placeholder after A', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task C placeholder after A', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task A', value: 90, valueLabel: '90%', detail: 'Sau khi học Task B', tone: 'primary', shadeByValue: true, dividerAfter: true },
+    { label: 'Task B', value: 85, valueLabel: '85%', detail: 'Sau khi học Task B', tone: 'accent', shadeByValue: true, dividerAfter: true },
+    { label: 'Task C placeholder after B', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task A · hiện tại', value: 60, valueLabel: '60%', detail: 'Sau khi học Task C', tone: 'primary', shadeByValue: true },
+    { label: 'Task B · hiện tại', value: 75, valueLabel: '75%', detail: 'Sau khi học Task C', tone: 'accent', shadeByValue: true },
+    { label: 'Task C', value: 90, valueLabel: '90%', detail: 'Sau khi học Task C', tone: 'success', shadeByValue: true },
+  ]}
+/>
 
-<BlockMath formula="\operatorname{BWT}_t=-F_t" />
+<BlockMath formula="F_3^{\mathrm{peak}}=\frac{(90-60)+(85-75)}{2}=20\text{ điểm}" />
 
-<BlockMath formula="\operatorname{BWT}_3=-15" />
+Viết tổng quát cho <InlineMath formula="t-1" /> task cũ:
 
-- <InlineMath formula="F>0\Leftrightarrow\operatorname{BWT}<0" />: model đã quên task cũ; càng xa 0 càng xấu.
-- <InlineMath formula="F=0\Leftrightarrow\operatorname{BWT}=0" />: hiệu năng trên task cũ không đổi.
-- <InlineMath formula="F<0\Leftrightarrow\operatorname{BWT}>0" />: học task mới còn giúp task cũ tốt hơn.
+<BlockMath formula="F_t^{\mathrm{peak}}=\frac{1}{t-1}\sum_{j=1}^{t-1}\left[\max_{\ell\in\{1,\ldots,t-1\}}P_{\ell,j}-P_{t,j}\right]" />
 
-Trong ví dụ này, cả <InlineMath formula="F_3=15" /> và <InlineMath formula="\operatorname{BWT}_3=-15" /> đều nói rằng hiệu năng trên các task cũ đã giảm trung bình 15 điểm. **F thấp là tốt; BWT dương là tốt.**
+Đây cũng là baseline được dùng trong định nghĩa forgetting phổ biến của Chaudhry et al.: so checkpoint hiện tại với **đỉnh hiệu năng trước đó** của từng task <Cite paper="chaudhry2019tiny" evidence="core-cl-metrics-02-chaudhry2019tiny" />.
+
+- <InlineMath formula="F^{\mathrm{peak}}>0" />: checkpoint hiện tại thấp hơn đỉnh lịch sử; model đã mất một phần hiệu năng từng có.
+- <InlineMath formula="F^{\mathrm{peak}}=0" />: checkpoint hiện tại vẫn ở đúng đỉnh cũ.
+- <InlineMath formula="F^{\mathrm{peak}}<0" />: checkpoint hiện tại còn vượt mọi kết quả trước đó.
 
 </MdxPage>
 
 <MdxPage page={3}>
 
+## BWT: Cùng một câu hỏi, hai mốc so sánh
+
+Nếu **F** hỏi “model đã quên bao nhiêu trên task cũ?”
+
+<BlockMath formula="\text{F trên một task}=\text{điểm làm mốc}-\text{điểm hiện tại}" />
+
+Thì **Backward Transfer (BWT)** hỏi theo chiều ngược lại: sau khi học task mới, model làm task cũ tốt hơn hay kém đi bao nhiêu so với cùng mốc đó?
+
+<BlockMath formula="\text{BWT trên một task}=\text{điểm hiện tại}-\text{điểm làm mốc}" />
+
+Nói cách khác, trong quy ước của survey <Cite paper="shi2024continualSurvey" evidence="core-cl-metrics-01-shi2024continualSurvey" />:
+
+<BlockMath formula="\operatorname{BWT}_t^{\mathrm{survey}}=-F_t^{\mathrm{peak}}" />
+
+**BWT dương** nghĩa là model làm task cũ tốt hơn; **BWT âm** nghĩa là model làm task cũ kém đi. Giá trị càng cao càng tốt.
+
+**Sau khi model học đến Task B**
+
+<MetricBars
+  ariaLabel="Lịch sử đánh giá để tính BWT sau khi model học Task A và Task B"
+  columns={2}
+  max={100}
+  items={[
+    { label: 'Task A', value: 80, valueLabel: '80%', detail: 'Sau khi học Task A', tone: 'primary', shadeByValue: true, dividerAfter: true },
+    { label: 'Task B placeholder after A', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task A', value: 90, valueLabel: '90%', detail: 'Sau khi học Task B', tone: 'primary', shadeByValue: true },
+    { label: 'Task B', value: 85, valueLabel: '85%', detail: 'Sau khi học Task B', tone: 'accent', shadeByValue: true },
+  ]}
+/>
+
+<BlockMath formula="\operatorname{BWT}_2^{\mathrm{survey}}=\frac{90-80}{1}=10\text{ điểm}" />
+
+Giả sử chúng ta fine-tune thêm **Task C**, rồi tiến hành đo lại hiệu năng trên các task cũ:
+
+<MetricBars
+  ariaLabel="Lịch sử đánh giá để tính BWT sau khi model học Task A, Task B và Task C"
+  columns={3}
+  max={100}
+  items={[
+    { label: 'Task A', value: 80, valueLabel: '80%', detail: 'Sau khi học Task A', tone: 'primary', shadeByValue: true, dividerAfter: true },
+    { label: 'Task B placeholder after A', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task C placeholder after A', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task A', value: 90, valueLabel: '90%', detail: 'Sau khi học Task B', tone: 'primary', shadeByValue: true, dividerAfter: true },
+    { label: 'Task B', value: 85, valueLabel: '85%', detail: 'Sau khi học Task B', tone: 'accent', shadeByValue: true, dividerAfter: true },
+    { label: 'Task C placeholder after B', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task A · hiện tại', value: 60, valueLabel: '60%', detail: 'Sau khi học Task C', tone: 'primary', shadeByValue: true },
+    { label: 'Task B · hiện tại', value: 75, valueLabel: '75%', detail: 'Sau khi học Task C', tone: 'accent', shadeByValue: true },
+    { label: 'Task C', value: 90, valueLabel: '90%', detail: 'Sau khi học Task C', tone: 'success', shadeByValue: true },
+  ]}
+/>
+
+<BlockMath formula="\operatorname{BWT}_3^{\mathrm{survey}}=\frac{(60-90)+(75-85)}{2}=-20\text{ điểm}" />
+
+### Quy tắc khác để tính BWT
+
+Một số paper khác, chẳng hạn GEM, quy ước tính BWT bằng cách lấy **điểm ngay sau lần đầu model fine-tune trên task đó** làm mốc, tức phần tử đường chéo <InlineMath formula="P_{j,j}" /> của bảng kết quả phía trên (performance matrix) <Cite paper="lopez2017gradient" evidence="core-cl-metrics-03-lopez2017gradient" />.
+
+Ví dụ ta tính lại BWT theo ví dụ ba task A, B, C ở trên:
+
+<BlockMath formula="\operatorname{BWT}_3^{\mathrm{GEM}}=\frac{(60-80)+(75-85)}{2}=-15\text{ điểm}" />
+
+Công thức tổng quát của quy ước GEM là:
+
+<BlockMath formula="\operatorname{BWT}_t^{\mathrm{GEM}}=\frac{1}{t-1}\sum_{j=1}^{t-1}\left(P_{t,j}-P_{j,j}\right)" />
+
+<LessonNote tone="warning">
+  Trong ví dụ trên rất may mắn cả hai cho cùng dấu, tuy nhiên chúng có thể rơi vào trường hợp khác dấu nên khi đọc `BWT` trong một paper, hãy kiểm tra công thức dùng **mốc đỉnh** hay **mốc ngay sau lần đầu fine-tune**. Xem câu hỏi BWT trong node **Quiz** kế tiếp để thấy một ví dụ cụ thể khi hai quy ước cho kết quả khác dấu.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
 ## FWT: Kiến thức cũ có giúp task tương lai?
 
-**Forward Transfer (FWT)** trả lời một câu hỏi đơn giản: **học Task A có giúp model làm Task B tốt hơn, dù model chưa được train trên B hay không?**
+**Forward Transfer (FWT)** trả lời cho câu hỏi liệu những task đã học có giúp model thực hiện một task tương lai tốt hơn, dù model chưa fine-tune trên task đó hay không?
 
-Ta đo Task B ở hai thời điểm:
+Trên một task tương lai:
 
-1. **Trước khi học Task A:** model đạt <InlineMath formula="30\%" /> trên B. Đây là baseline <InlineMath formula="b_B" />.
-2. **Sau khi học Task A nhưng trước khi học Task B:** model đạt <InlineMath formula="40\%" /> trên B.
+<BlockMath formula="\text{FWT}=\text{điểm trước khi fine-tune task}-\text{điểm baseline}" />
 
-Mức tăng <InlineMath formula="40\%-30\%=+10" /> điểm cho thấy kiến thức học từ A đã giúp model làm B tốt hơn. Đó chính là **forward transfer từ A sang B**.
+**Sau khi model học Task A nhưng chưa fine-tune Task B**
 
-Với nhiều task, FWT lấy trung bình các mức chênh lệch này:
+<MetricBars
+  ariaLabel="Hiệu năng trên Task B trước và sau khi model học Task A"
+  columns={2}
+  max={100}
+  items={[
+    { label: 'Task B - Trước khi học A', value: 30, valueLabel: '30%', tone: 'neutral', dividerAfter: true },
+    { label: 'Task C placeholder at checkpoint B', value: 0, valueLabel: '', placeholder: true, dividerAfter: true },
+    { label: 'Task B - Sau khi fine-tune trên A', value: 40, baselineValue: 30, valueLabel: '40%' },
+    { label: 'Task C placeholder after A', value: 0, valueLabel: '', placeholder: true },
+  ]}
+/>
 
-<BlockMath formula="\operatorname{FWT}_t=\frac{1}{t-1}\sum_{i=2}^{t}\left(P_{i-1,i}-b_i\right)" />
+<BlockMath formula="\operatorname{FWT}_2=\frac{40-30}{1}=10\text{ điểm}" />
 
-Trong đó, <InlineMath formula="P_{i-1,i}" /> là điểm của Task <InlineMath formula="i" /> sau khi model học các task trước đó, nhưng **chưa học trực tiếp Task** <InlineMath formula="i" />.
+<LessonNote tone="warning">
+  **Hãy để ý:** tại checkpoint này, Task B chưa từng được dùng để fine-tune hay cập nhật trọng số của model; nó chỉ được dùng để đánh giá. Nhờ vậy, FWT đo công bằng khả năng model chuyển kiến thức sang một task chưa học, thay vì đo lợi ích từ việc đã huấn luyện trực tiếp trên chính task đó.
+</LessonNote>
 
-Tiếp tục với Task B và Task C:
+Giả sử chúng ta fine-tune tiếp **Task B**. Trước khi fine-tune Task C, model được đánh giá trên Task C để xem kiến thức từ A và B có tạo ra lợi thế hay không:
 
-<ComparisonMatrix
-  ariaLabel="Tính forward transfer trên các task tương lai"
-  columns={['Trước khi học task', 'Baseline', 'Transfer']}
-  rows={[
-    { label: 'Task B', values: ['40%', '30%', '+10 điểm'] },
-    { label: 'Task C', values: ['50%', '35%', '+15 điểm'] },
+<MetricBars
+  ariaLabel="Hiệu năng trên Task B và Task C trước khi model fine-tune trực tiếp từng task"
+  columns={2}
+  max={100}
+  items={[
+    { label: 'Task B - Trước khi học A', value: 30, valueLabel: '30%', tone: 'neutral', dividerAfter: true },
+    { label: 'Task C - Trước khi học A', value: 35, valueLabel: '35%', tone: 'neutral', dividerAfter: true },
+    { label: 'Task B - Sau khi fine-tune trên A', value: 40, baselineValue: 30, valueLabel: '40%' },
+    { label: 'Task C - Sau khi fine-tune trên A và B', value: 50, baselineValue: 35, valueLabel: '50%' },
   ]}
 />
 
 <BlockMath formula="\operatorname{FWT}_3=\frac{(40-30)+(50-35)}{2}=12.5\text{ điểm}" />
 
-- <InlineMath formula="\operatorname{FWT}>0" />: các task đã học tạo lợi thế cho task tương lai.
-- <InlineMath formula="\operatorname{FWT}=0" />: học các task trước chưa tạo ra khác biệt.
-- <InlineMath formula="\operatorname{FWT}<0" />: học các task trước khiến model làm task tương lai kém hơn baseline.
+Với nhiều task tương lai, FWT lấy trung bình các mức chênh lệch này:
 
-Nguồn: [Shi et al., §2.2.3 và Appendix B.1](https://arxiv.org/html/2404.16789v3#S2.SS2.SSS3).
+<BlockMath formula="\operatorname{FWT}_t=\frac{1}{t-1}\sum_{i=2}^{t}\left(P_{i-1,i}-b_i\right)" />
+
+Trong đó, <InlineMath formula="P_{i-1,i}" /> là điểm trên Task <InlineMath formula="i" /> sau khi model học các task trước đó nhưng **chưa fine-tune trực tiếp Task** <InlineMath formula="i" />; <InlineMath formula="b_i" /> là điểm baseline của task đó.
+
+- <InlineMath formula="\operatorname{FWT}>0" />: các task đã học giúp model làm task tương lai tốt hơn baseline.
+- <InlineMath formula="\operatorname{FWT}=0" />: các task đã học chưa tạo ra khác biệt.
+- <InlineMath formula="\operatorname{FWT}<0" />: các task đã học khiến model làm task tương lai kém hơn baseline.
 
 </MdxPage>

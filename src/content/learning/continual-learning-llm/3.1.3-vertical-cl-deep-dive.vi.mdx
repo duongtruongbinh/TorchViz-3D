@@ -20,6 +20,8 @@ Vertical CL mô tả quá trình một model đi qua nhiều tầng thích nghi,
 
 Pipeline điển hình là **pre-training → Domain-Adaptive Pre-training (DAP) → fine-tuning**. Đây là cấu trúc minh họa, không phải giới hạn cứng: một pipeline thực tế có thể có thêm nhiều tầng trung gian cho từng tổ chức, domain hoặc phòng ban.
 
+Trong một pipeline supplier–consumer cụ thể, Recyclable Tuning nghiên cứu cách tái sử dụng adapted weights khi supplier phát hành phiên bản pretrained model mới <Cite paper="qin2023recyclable" evidence="vertical-specialization-pipeline-01-qin2023recyclable" />. Paper này minh họa ràng buộc chuyển giao giữa các tầng; taxonomy vertical tổng quát của bài vẫn lấy từ survey.
+
 </MdxPage>
 
 <MdxPage page={1}>
@@ -75,14 +77,12 @@ Trước khi triển khai, model thường được fine-tune trên dữ liệu 
 
 Quy mô compute và đội ngũ thường cũng giảm dần theo cấu trúc tương tự. Tuy nhiên, vertical continuity có thể gồm hơn ba stage. Ví dụ, một medical model có thể đi tiếp qua các tầng **bệnh viện → khoa tim mạch → hệ thống tóm tắt bệnh án**, do các đơn vị khác nhau phụ trách.
 
-Điểm cốt lõi không phải số tầng, mà là model liên tục chuyển từ phạm vi rộng sang mục tiêu ngày càng chuyên biệt.
+Điểm cốt lõi không phải số tầng, mà là model liên tục chuyển từ phạm vi rộng sang mục tiêu ngày càng chuyên biệt <Cite paper="shi2024continualSurvey" evidence="vertical-specialization-pipeline-02-shi2024continualSurvey" />.
 
 <LessonImage
   assetPath="continual-learning-llm/04-vertical-finetuning-specialization.png"
   alt="Fine-tuning một model cho task cụ thể; pipeline y khoa chuyên biệt dần từ bệnh viện đến khoa tim mạch rồi hệ thống tóm tắt bệnh án, đồng thời dữ liệu, compute và đội ngũ thu hẹp theo từng tầng"
   caption="Vertical CL có thể đi qua nhiều tầng: bệnh viện → khoa tim mạch → hệ thống tóm tắt bệnh án. Mỗi tầng thu hẹp phạm vi và nguồn lực để tối ưu cho mục tiêu chuyên biệt hơn."
 />
-
-Nguồn: [Shi et al., §3.1](https://arxiv.org/html/2404.16789v3#S3.SS1).
 
 </MdxPage>

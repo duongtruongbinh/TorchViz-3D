@@ -12,6 +12,8 @@ export const lessonMetadata = {
 
 **Horizontal forgetting** là sự suy giảm hiệu năng trên các task hoặc stage cũ khi model tiếp tục học những stage mới theo thời gian hoặc domain.
 
+Trong lifelong pretraining, <Cite paper="jin2022lifelong" evidence="horizontal-forgetting-01-jin2022lifelong" /> đánh giá trực tiếp hai phía này: thích nghi với emerging corpora và giữ downstream performance trên các domain đã học trước đó.
+
 <LessonImage
   assetPath="continual-learning-llm/01-horizontal-forgetting-overview.png"
   alt="Model lần lượt học các stage S1, S2 và S3; khi ưu tiên stage mới, hệ thống phải cân bằng việc giữ năng lực cũ, nếu không hiệu năng S1 và S2 giảm sau cập nhật"
@@ -69,8 +71,6 @@ Trong Vertical CL, hướng chuyển đổi thường đã biết trước: từ
   caption="Gradual shift giữ nhiều overlap giữa các stage liền kề; abrupt shift tạo khoảng cách distribution lớn hơn nên tín hiệu học mới dễ xung đột với knowledge cũ."
 />
 
-Shift càng đột ngột, tín hiệu từ stage mới càng ít tương thích với các stage trước. Model vì thế có thể học domain mới nhanh nhưng đồng thời suy giảm đáng kể trên dữ liệu lịch sử.
-
-Nguồn: [Shi et al., §3.2](https://arxiv.org/html/2404.16789v3#S3.SS2).
+Shift càng đột ngột, tín hiệu từ stage mới càng ít tương thích với các stage trước. Model vì thế có thể học domain mới nhanh nhưng đồng thời suy giảm đáng kể trên dữ liệu lịch sử <Cite paper="shi2024continualSurvey" evidence="horizontal-forgetting-02-shi2024continualSurvey" />.
 
 </MdxPage>

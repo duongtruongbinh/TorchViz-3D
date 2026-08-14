@@ -11,6 +11,8 @@ export const lessonMetadata = {
 
 **Horizontal Continual Learning** là quá trình model liên tục thích nghi theo thời gian hoặc giữa các domain dữ liệu. Lý do chính là distribution không đứng yên: nội dung, ngôn ngữ và knowledge mới liên tục xuất hiện.
 
+LLPT hiện thực hóa setting này trên chuỗi research-paper domain và tweet theo thời gian, đồng thời đo cả thích nghi với corpus mới và retention trên corpus trước đó <Cite paper="jin2022lifelong" evidence="horizontal-adaptation-01-jin2022lifelong" />.
+
 <LessonImage
   assetPath="continual-learning-llm/01-horizontal-continual-learning.webp"
   alt="Minh họa horizontal continual learning qua Domain A, Domain B và Domain C với distribution shift dần dần hoặc đột ngột"
@@ -20,6 +22,16 @@ export const lessonMetadata = {
 Nếu không học tăng tiến từ dữ liệu mới, tổ chức phải liên tục retrain model từ đầu, vừa đắt vừa thiếu thực tế. Tuy nhiên, năng lực mạnh không bảo đảm LLM sẽ tổng quát tốt sang dữ liệu tương lai chưa từng thấy, đặc biệt dưới temporal hoặc domain shift.
 
 LLM thường chống chịu catastrophic forgetting tốt hơn model nhỏ, nhưng vẫn khó giữ đầy đủ knowledge từ các stage cũ khi liên tục thích nghi. Vì vậy, horizontal continuity phải đồng thời theo dõi **khả năng học distribution mới** và **retention trên lịch sử**.
+
+<PaperSummary
+  paper="jin2022lifelong"
+  locator="§3–§5"
+  question="Pretrained language model nên thích nghi thế nào khi corpus mới xuất hiện nối tiếp theo domain hoặc thời gian?"
+  setup="Paper cập nhật model trên một stream research paper theo domain và một stream tweet theo thời gian, rồi đánh giá thích nghi với corpus mới, retention và temporal generalization."
+  finding="Trong các thí nghiệm của paper, phương pháp dựa trên distillation giữ downstream performance ở domain cũ tốt nhất trong số các hướng được so sánh, đồng thời hỗ trợ transfer sang dữ liệu mới."
+  limitation="Thí nghiệm tập trung vào pretrained language model và downstream evaluation của thời điểm đó; kết quả không tự động chuyển sang decoder-only LLM hiện đại hoặc chuỗi production rất dài."
+  relevance="Paper cung cấp một setup thực nghiệm cụ thể cho horizontal continual pre-training thay vì chỉ định nghĩa khái niệm ở mức taxonomy."
+/>
 
 </MdxPage>
 
@@ -34,8 +46,6 @@ Trong CPT quy mô lớn, một tổ chức lớn có thể đủ khả năng lư
   { label: 'Phương pháp CL chuyên biệt', values: ['Thêm ràng buộc, memory hoặc architecture phù hợp', 'Nhiều nghiên cứu vẫn ghi nhận hiệu năng tốt hơn baseline đơn giản'] },
 ]} />
 
-Vì vậy, việc LLM có thật sự cần một thuật toán CL phức tạp trong mọi bối cảnh vẫn là câu hỏi mở. Khi dữ liệu cũ còn đầy đủ, bài toán có thể chuyển từ **memory efficiency** sang **compute efficiency**: chọn mẫu nào để replay và cần bao nhiêu update để giữ model mới mà không quên lịch sử.
-
-Nguồn: [Shi et al., §3.2](https://arxiv.org/html/2404.16789v3#S3.SS2).
+Vì vậy, việc LLM có thật sự cần một thuật toán CL phức tạp trong mọi bối cảnh vẫn là câu hỏi mở. Khi dữ liệu cũ còn đầy đủ, bài toán có thể chuyển từ **memory efficiency** sang **compute efficiency**: chọn mẫu nào để replay và cần bao nhiêu update để giữ model mới mà không quên lịch sử <Cite paper="shi2024continualSurvey" evidence="horizontal-adaptation-02-shi2024continualSurvey" />.
 
 </MdxPage>

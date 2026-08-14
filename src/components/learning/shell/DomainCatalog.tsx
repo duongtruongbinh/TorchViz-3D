@@ -2,7 +2,10 @@ import type { ReactNode } from 'react';
 import { ArrowRight, BookOpen, GraduationCap, LibraryBig, Network } from 'lucide-react';
 
 import { learningCatalog } from '../../../content/learning/index.ts';
-import { getGroupedLearningLessonsForDomain } from '../../../core/learning/selectors';
+import {
+  getGroupedLearningLessonsForDomain,
+  getLearningDomainReadiness,
+} from '../../../core/learning/selectors';
 import type { LearningDomain, LearningDomainId } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
 import { DOMAIN_CARD_PALETTES, DOMAIN_ICONS } from '../domainPresentation';
@@ -26,7 +29,8 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
   const titleTone = isLight ? 'text-[#132033]' : themeClasses.titleText;
   const bodyTone = isLight ? 'text-[#42546A]' : themeClasses.bodyText;
   const mutedTone = isLight ? 'text-[#6B7C91]' : themeClasses.mutedText;
-  const syllabus = learningCatalog.domains.map((domain) => buildSyllabusItem(domain, language));
+  const syllabus = getLearningDomainReadiness(learningCatalog)
+    .map(({ domain, isReady }) => buildSyllabusItem(domain, language, isReady));
   const lessonCount = syllabus.reduce((total, item) => total + item.lessonCount, 0);
 
   return (
@@ -117,41 +121,56 @@ function DomainCard({
 }) {
   const DomainIcon = DOMAIN_ICONS[item.domain.id];
   const palette = DOMAIN_CARD_PALETTES[item.domain.id];
+  const cardTitleTone = item.isReady ? titleTone : mutedTone;
+  const cardBodyTone = item.isReady ? bodyTone : mutedTone;
 
   return (
     <button
       type="button"
       onClick={onOpen}
       className={cx(
-        'group grid min-h-[410px] w-full grid-rows-[150px_1fr] overflow-hidden border p-0 text-left transition-[border-color,box-shadow,transform] duration-150 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(32,80,137,0.15)]',
+        'group grid min-h-[410px] w-full grid-rows-[150px_1fr] overflow-hidden border p-0 text-left transition-[border-color,box-shadow,transform] duration-150',
         themeClasses.radius.card,
         themeClasses.focusRing,
-        themeClasses.surface.interactiveCard,
+        item.isReady
+          ? cx(themeClasses.surface.interactiveCard, 'hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(32,80,137,0.15)]')
+          : cx(themeClasses.surface.unavailable, 'hover:-translate-y-0.5'),
       )}
     >
-      <span className={cx('relative grid place-items-center overflow-hidden border-b border-black/5', palette.visual)}>
+      <span className={cx(
+        'relative grid place-items-center overflow-hidden border-b border-black/5 transition-[filter,opacity] duration-150',
+        palette.visual,
+        !item.isReady && 'opacity-60 saturate-50 group-hover:opacity-70',
+      )}>
         <span className={cx('absolute -right-9 -top-12 h-32 w-32 rounded-full blur-2xl', palette.glow)} aria-hidden="true" />
         <span className={cx('absolute -bottom-12 -left-8 h-28 w-28 rounded-full opacity-35', palette.glow)} aria-hidden="true" />
         <span className={cx('absolute left-0 top-0 h-1.5 w-full', palette.accent)} aria-hidden="true" />
         <span className="absolute left-4 top-4 text-xs font-black tabular-nums text-black/48">
           {String(index + 1).padStart(2, '0')}
         </span>
-        <span className={cx('relative grid h-16 w-16 place-items-center rounded-2xl shadow-[0_12px_24px_rgba(30,42,56,0.12)] transition-transform duration-200 group-hover:scale-105 [&>svg]:h-8 [&>svg]:w-8', palette.icon)} aria-hidden="true">
+        <span className={cx(
+          'relative grid h-16 w-16 place-items-center rounded-2xl shadow-[0_12px_24px_rgba(30,42,56,0.12)] transition-transform duration-200 [&>svg]:h-8 [&>svg]:w-8',
+          item.isReady && 'group-hover:scale-105',
+          palette.icon,
+        )} aria-hidden="true">
           <DomainIcon strokeWidth={1.8} />
         </span>
       </span>
 
       <span className="flex min-h-0 flex-col p-4 sm:p-5">
         <span className="flex items-start justify-between gap-2">
-          <span className={cx('min-w-0 flex-1 text-lg font-black leading-tight', titleTone)}>{item.title}</span>
-          <span className={cx('shrink-0 px-2 py-0.5 text-[10px] font-black', themeClasses.radius.pill, themeClasses.statusPill(item.domain.status === 'placeholder'))}>
-            {item.domain.status === 'placeholder' ? strings.domainPlaceholder : strings.domainAvailable}
+          <span className={cx('min-w-0 flex-1 text-lg font-black leading-tight', cardTitleTone)}>{item.title}</span>
+          <span className={cx('shrink-0 px-2 py-0.5 text-[10px] font-black', themeClasses.radius.pill, themeClasses.statusPill(!item.isReady))}>
+            {item.isReady ? strings.domainAvailable : strings.domainPlaceholder}
           </span>
         </span>
-        <span className={cx('mt-3 line-clamp-3 block text-sm leading-5', bodyTone)}>{item.description}</span>
+        <span className={cx('mt-3 line-clamp-3 block text-sm leading-5', cardBodyTone)}>{item.description}</span>
         <span className="mt-auto flex items-end justify-between gap-3 border-t border-[#205089]/10 pt-4">
           <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
-          <ArrowRight className={cx('mb-1 h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1', themeClasses.accentText)} strokeWidth={2} aria-hidden="true" />
+          <ArrowRight className={cx(
+            'mb-1 h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1',
+            item.isReady ? themeClasses.accentText : mutedTone,
+          )} strokeWidth={2} aria-hidden="true" />
         </span>
       </span>
     </button>
@@ -171,7 +190,7 @@ function CatalogMetric({ icon, value, label, hideValueInLabel = false }: { icon:
   );
 }
 
-function buildSyllabusItem(domain: LearningDomain, language: Language) {
+function buildSyllabusItem(domain: LearningDomain, language: Language, isReady: boolean) {
   const groupedLessons = getGroupedLearningLessonsForDomain(learningCatalog, domain.id);
   const lessons = groupedLessons.flatMap((group) => group.lessons);
   const text = getDomainText(language, domain);
@@ -181,6 +200,7 @@ function buildSyllabusItem(domain: LearningDomain, language: Language) {
     title: text.title,
     description: text.description,
     lessonCount: lessons.length,
+    isReady,
   };
 }
 

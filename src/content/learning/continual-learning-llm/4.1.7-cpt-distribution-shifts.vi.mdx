@@ -79,9 +79,7 @@ Khi Large Language Model học tuần tự nhiều ngôn ngữ, model thường 
   ]}
 />
 
-Vì vậy, mục tiêu của Language Shift không chỉ là điểm ngôn ngữ mới cao. Báo cáo còn phải đo lại từng ngôn ngữ cũ sau mỗi stage để phân biệt **Forward Transfer** với **Horizontal Forgetting**.
-
-Tham khảo: [Examining Forgetting in Continual Pre-training of Aligned Large Language Models](https://arxiv.org/abs/2401.03129).
+Vì vậy, mục tiêu của Language Shift không chỉ là điểm ngôn ngữ mới cao. Báo cáo còn phải đo lại từng ngôn ngữ cũ sau mỗi stage để phân biệt **Forward Transfer** với **Horizontal Forgetting** <Cite paper="li2024examining" evidence="cpt-distribution-shifts-01-li2024examining" />.
 
 </MdxPage>
 
@@ -91,7 +89,9 @@ Tham khảo: [Examining Forgetting in Continual Pre-training of Aligned Large La
 
 Content Shift xảy ra khi model pre-train tuần tự trên các domain khác nhau. Các paper dưới đây không đưa ra một đáp án duy nhất: mỗi công trình kiểm tra một quy mô, chuỗi domain và training recipe riêng.
 
-### [Yıldız et al. — 159 domain](https://arxiv.org/abs/2402.17400)
+### Yıldız et al. — 159 domain
+
+Nghiên cứu này mở rộng continual pre-training tới chuỗi 159 domain <Cite paper="yildiz2024investigating" evidence="cpt-distribution-shifts-02-yildiz2024investigating" />.
 
 <PaperTradeoff
   neutralText
@@ -107,7 +107,9 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 
 **Không phải lúc nào cũng cần thuật toán CL phức tạp:** một số paper cho thấy chỉ cần phối hợp **learning-rate re-warming, re-decay và replay** đúng cách cũng có thể đưa CPT đến gần full retraining trong setup được khảo sát.
 
-### [Gupta et al. — Learning-rate re-warming](https://arxiv.org/abs/2308.04014)
+### Gupta et al. — Learning-rate re-warming
+
+Thí nghiệm cho thấy learning-rate re-warming ảnh hưởng đáng kể tới khả năng thích nghi khi tiếp tục pre-train trên corpus mới <Cite paper="gupta2023continual" evidence="cpt-distribution-shifts-03-gupta2023continual" />.
 
 <PaperTradeoff
   neutralText
@@ -121,7 +123,9 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
   ]}
 />
 
-### [Ibrahim et al. — Re-warming, re-decay và replay](https://arxiv.org/abs/2403.08763)
+### Ibrahim et al. — Re-warming, re-decay và replay
+
+Trong các setup được kiểm tra, re-warming, re-decay và replay tạo một recipe CPT cạnh tranh với retraining từ đầu <Cite paper="ibrahim2024simple" evidence="cpt-distribution-shifts-04-ibrahim2024simple" />.
 
 <PaperTradeoff
   neutralText
@@ -135,7 +139,9 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
   ]}
 />
 
-### [LLPT — Lifelong Pretraining](https://arxiv.org/abs/2110.08534)
+### LLPT — Lifelong Pretraining
+
+LLPT đánh giá đồng thời acquisition, retention và transfer trên các data stream tuần tự <Cite paper="jin2022lifelong" evidence="cpt-distribution-shifts-05-jin2022lifelong" />.
 
 <PaperTradeoff
   neutralText
@@ -151,7 +157,9 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 
 **Từ supplier sang consumer:** nếu supplier liên tục pre-train LLM, bất kể có sử dụng replay hay không, consumer vẫn có thể cải thiện hiệu quả cập nhật bằng cách tái sử dụng các thành phần adaptation đã học trước đó với kỹ thuật CL phù hợp.
 
-### [Recyclable Tuning](https://arxiv.org/abs/2305.08702)
+### Recyclable Tuning
+
+Recyclable Tuning tái sử dụng adapted weights khi supplier phát hành checkpoint upstream mới <Cite paper="qin2023recyclable" evidence="cpt-distribution-shifts-06-qin2023recyclable" />.
 
 <PaperTradeoff
   neutralText
@@ -167,7 +175,9 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
 
 **Hướng promising:** các modular method thêm domain expert mới để cô lập knowledge của từng domain, nhờ đó giảm interference và Horizontal Forgetting. DEMix và Lifelong-MoE là hai ví dụ tiêu biểu của hướng này.
 
-### [DEMix — Domain Experts](https://arxiv.org/abs/2108.05036)
+### DEMix — Domain Experts
+
+DEMix dùng các expert theo domain để cô lập và kết hợp tri thức từ nhiều distribution <Cite paper="gururangan2022demix" evidence="cpt-distribution-shifts-07-gururangan2022demix" />.
 
 <PaperTradeoff
   neutralText
@@ -181,7 +191,9 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
   ]}
 />
 
-### [Lifelong-MoE — Distribution-Specialized Experts](https://arxiv.org/abs/2305.12281)
+### Lifelong-MoE — Distribution-Specialized Experts
+
+Lifelong-MoE mở rộng các expert chuyên biệt cho distribution mới trong khi giữ compute mỗi token gần như ổn định <Cite paper="chen2023lifelong" evidence="cpt-distribution-shifts-08-chen2023lifelong" />.
 
 <PaperTradeoff
   neutralText
@@ -195,7 +207,9 @@ Content Shift xảy ra khi model pre-train tuần tự trên các domain khác n
   ]}
 />
 
-### [Cossu et al. — Khi CPT đơn giản đã ít quên](https://arxiv.org/abs/2205.09357)
+### Cossu et al. — Khi CPT đơn giản đã ít quên
+
+Trong protocol được khảo sát, self-supervised continual pre-training giữ representation tương đối ổn định qua năm experience <Cite paper="cossu2022continual" evidence="cpt-distribution-shifts-09-cossu2022continual" />.
 
 <PaperTradeoff
   neutralText
@@ -242,7 +256,9 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
   ]}
 />
 
-### [CKL — Continual Knowledge Learning](https://openreview.net/forum?id=vfsRB5MImo9)
+### CKL — Continual Knowledge Learning
+
+CKL tách việc đo retention, acquisition và update của factual knowledge theo thời gian <Cite paper="jang2022towards" evidence="cpt-distribution-shifts-10-jang2022towards" />.
 
 <PaperTradeoff
   neutralText
@@ -256,7 +272,9 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
   ]}
 />
 
-### [TemporalWiki — Chỉ học phần thay đổi](https://aclanthology.org/2022.emnlp-main.418/)
+### TemporalWiki — Chỉ học phần thay đổi
+
+TemporalWiki huấn luyện trên phần khác biệt giữa các snapshot Wikipedia liên tiếp thay vì lặp lại toàn snapshot <Cite paper="jang2022temporalwiki" evidence="cpt-distribution-shifts-11-jang2022temporalwiki" />.
 
 <PaperTradeoff
   neutralText
@@ -270,7 +288,9 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
   ]}
 />
 
-### [LLPT — Temporal Generalization](https://arxiv.org/abs/2110.08534)
+### LLPT — Temporal Generalization
+
+LLPT cũng dùng data stream theo thời gian để đánh giá adaptation và temporal generalization <Cite paper="jin2022lifelong" evidence="cpt-distribution-shifts-12-jin2022lifelong" />.
 
 <PaperTradeoff
   neutralText
@@ -284,7 +304,9 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
   ]}
 />
 
-### [Time-Aware Language Models — Đưa timestamp vào model](https://arxiv.org/abs/2106.15110)
+### Time-Aware Language Models — Đưa timestamp vào model
+
+Time-aware language models điều kiện hóa dự đoán theo timestamp để biểu diễn fact thay đổi theo thời gian <Cite paper="dhingra2022time" evidence="cpt-distribution-shifts-13-dhingra2022time" />.
 
 <PaperTradeoff
   neutralText
@@ -299,9 +321,7 @@ Giữ nguyên phát biểu đầu tiên như một fact hiện tại không ph�
 />
 
 <LessonNote>
-  Temporal Shift không chỉ hỏi "model còn nhớ bao nhiêu?". Nó còn hỏi model có biết **knowledge nào vẫn đúng, knowledge nào mới xuất hiện và knowledge nào phải được thay thế** hay không. Vì vậy, một phương pháp giữ mọi fact cũ bằng mọi giá cũng có thể là một phương pháp thất bại.
+  Temporal Shift không chỉ hỏi "model còn nhớ bao nhiêu?". Nó còn hỏi model có biết **knowledge nào vẫn đúng, knowledge nào mới xuất hiện và knowledge nào phải được thay thế** hay không. Vì vậy, một phương pháp giữ mọi fact cũ bằng mọi giá cũng có thể là một phương pháp thất bại <Cite paper="shi2024continualSurvey" evidence="cpt-distribution-shifts-14-shi2024continualSurvey" />.
 </LessonNote>
-
-Nguồn tổng hợp: [Shi et al., §4.1.3](https://arxiv.org/html/2404.16789v3#S4.SS1.SSS3).
 
 </MdxPage>

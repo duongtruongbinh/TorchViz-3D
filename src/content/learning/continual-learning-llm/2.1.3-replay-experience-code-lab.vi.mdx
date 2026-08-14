@@ -21,6 +21,7 @@ export const lessonMetadata = {
     'Paper còn phân tích gì?',
   ],
   keywords: ['Pythia-160M', 'Experience Replay', 'Catastrophic Forgetting', 'Spurious Forgetting', 'Replay Buffer', 'LLM Fine-tuning'],
+  referenceIds: ['zheng2025spurious'],
   conceptIds: ['replay-lab-environment-config', 'replay-lab-data-separation', 'replay-lab-evaluation-metrics', 'replay-lab-naive-result', 'replay-lab-buffer-composition', 'replay-lab-retention-result', 'replay-lab-spurious-forgetting-nuance', 'replay-lab-operational-takeaway', 'replay-lab-threshold-evidence', 'replay-lab-paper-mapping', 'replay-lab-paper-scope'],
   pageCount: 15,
 }
@@ -603,10 +604,8 @@ Kết quả cho thấy model **học lại hoàn toàn Task A**, nhưng không g
 - **Task B:** Prefix Match giảm từ `100%` xuống `0%`; Answer NLL tăng từ `0.000026` lên `3.947222`.
 
 <LessonNote>
-  Setup 3 cho thấy việc train lại A có thể đảo chiều forgetting, nhưng model vẫn chuyển từ nhớ B sang nhớ A thay vì giữ tốt cả hai task. Kết quả này có thể gợi ý rằng A dễ phục hồi, nhưng chưa tách được underlying knowledge khỏi task alignment nên chưa đủ để tự kết luận "spurious forgetting".
+  Setup 3 cho thấy việc train lại A có thể đảo chiều forgetting, nhưng model vẫn chuyển từ nhớ B sang nhớ A thay vì giữ tốt cả hai task. Kết quả này có thể gợi ý rằng A dễ phục hồi, nhưng chưa tách được underlying knowledge khỏi task alignment nên chưa đủ để tự kết luận "spurious forgetting" <Cite paper="zheng2025spurious" evidence="replay-lab-boundary-01-zheng2025spurious" />.
 </LessonNote>
-
-Nguồn liên quan: [Zheng et al., *Spurious Forgetting in Continual Learning of Language Models*](https://arxiv.org/abs/2501.13453).
 
 </MdxPage>
 
@@ -1101,10 +1100,8 @@ Notebook và paper dùng cách thí nghiệm khác nhau, nên không thể so s�
 />
 
 <LessonNote>
-  **Điểm cần nhớ:** nếu chỉ train trên dữ liệu mới, model có thể quên task cũ rất nhanh. Trộn lại một phần dữ liệu cũ tạo ra tín hiệu nhắc model giữ cách xử lý task trước đó.
+  **Điểm cần nhớ:** trong fixture của khóa học, nếu chỉ train trên dữ liệu mới, model quên task cũ rất nhanh; trộn lại một phần dữ liệu cũ tạo tín hiệu giữ cách xử lý task trước đó. Kết quả này đo task performance, không tự chứng minh underlying knowledge đã mất hay được giữ, vì performance drop có thể phản ánh suy giảm task alignment <Cite paper="zheng2025spurious" evidence="replay-lab-boundary-02-zheng2025spurious" />.
 </LessonNote>
-
-Nguồn: [Zheng et al., *Spurious Forgetting in Continual Learning of Language Models*, ICLR 2025](https://arxiv.org/pdf/2501.13453).
 
 </MdxPage>
 
@@ -1182,5 +1179,15 @@ Từ đó, có bốn câu hỏi mà notebook hiện tại chưa trả lời đư
 <LessonNote>
   Từ lab này, ta chỉ nên kết luận: **fine-tune lần lượt làm model quên Task A trong thí nghiệm này, và replay giúp giảm mức quên đó**. Muốn kết luận "kiến thức vẫn còn, chỉ mất cách truy xuất", ta cần thêm thí nghiệm khôi phục và các phân tích sâu hơn như paper.
 </LessonNote>
+
+<PaperSummary
+  paper="zheng2025spurious"
+  locator="§3–§5"
+  question="Điểm task cũ giảm vì tri thức bị xóa, hay vì quá trình cập nhật làm model tạm thời mất khả năng truy xuất đúng?"
+  setup="Paper học tuần tự trên biography cùng nhiều setting LLM khác, theo dõi forgetting sớm, recovery, loss landscape và tác động của việc freeze layer."
+  finding="Một phần forgetting quan sát được có thể được phục hồi nhanh bằng dữ liệu cũ; replay và bảo vệ các tầng đầu giúp giữ task cũ trong những setup được thử."
+  limitation="Lab của khóa học chỉ minh họa sequential fine-tuning và replay trên fixture nhỏ, không tái tạo đầy đủ recovery, layer-wise và loss-landscape analysis của paper."
+  relevance="Cung cấp ranh giới diễn giải: accuracy giảm chưa đủ để kết luận toàn bộ tri thức cũ đã bị xóa khỏi model."
+/>
 
 </MdxPage>

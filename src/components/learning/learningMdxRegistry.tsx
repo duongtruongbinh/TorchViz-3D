@@ -1,6 +1,15 @@
 import type { ComponentType, ReactElement } from 'react';
 import { learningCatalog } from '../../content/learning/index.ts';
 import {
+  continualLearningLessonReferenceCoverageById,
+  getContinualLearningLessonFeaturedReferenceIds,
+  getContinualLearningLessonPapers,
+} from '../../content/learning/continual-learning-llm/papers.ts';
+import {
+  getContinualLearningLessonCitationEvidence,
+  getContinualLearningLessonCitationLinkOnlyExceptions,
+} from '../../content/learning/continual-learning-llm/citationEvidence.ts';
+import {
   getLearningMdxLocaleCandidates,
   parseLearningMdxPath,
   type LearningMdxMetadata,
@@ -14,6 +23,7 @@ import type { QuizQuestionState } from './lesson/QuizBlock';
 import {
   LearningMdxLessonProvider,
   LearningMdxThemeProvider,
+  LessonReferences,
   sharedLearningMdxComponents,
   type LearningMdxComponent,
   type LearningThemeClasses,
@@ -65,16 +75,41 @@ export function getLearningMdxLesson({ domainId, language, lessonId, quizQuestio
     ?? [...lesson.modules.entries()].sort(([left], [right]) => left.localeCompare(right))[0]?.[1];
   if (!Content) return null;
   const components = { ...sharedLearningMdxComponents, ...(domainMdxComponents[domainId] ?? {}) };
-  const pages = Array.from({ length: lesson.pageCount }, (_, pageIndex) => (
+  const referenceCoverage = domainId === 'continual-learning-llm'
+    ? continualLearningLessonReferenceCoverageById.get(lessonId)
+    : undefined;
+  const referencePapers = domainId === 'continual-learning-llm'
+    ? getContinualLearningLessonPapers(lessonId)
+    : [];
+  const featuredReferenceIds = referenceCoverage
+    ? getContinualLearningLessonFeaturedReferenceIds(lessonId)
+    : [];
+  const citationEvidence = domainId === 'continual-learning-llm'
+    ? getContinualLearningLessonCitationEvidence(lessonId)
+    : [];
+  const citationLinkOnlyExceptions = domainId === 'continual-learning-llm'
+    ? getContinualLearningLessonCitationLinkOnlyExceptions(lessonId)
+    : [];
+  const authoredPages = Array.from({ length: lesson.pageCount }, (_, pageIndex) => (
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-${pageIndex}`} themeClasses={themeClasses}>
-      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
+      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} referencePapers={referencePapers} citationEvidence={citationEvidence} citationLinkOnlyExceptions={citationLinkOnlyExceptions} featuredReferenceIds={featuredReferenceIds} referenceCourseAnalysis={referenceCoverage?.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
         <div className="learning-mdx-content">
           <Content components={components} />
         </div>
       </LearningMdxLessonProvider>
     </LearningMdxThemeProvider>
   ));
-  return { pageCount: lesson.pageCount, pages };
+  const referencePage = referenceCoverage ? (
+    <LearningMdxThemeProvider key={`${domainId}-${lessonId}-references`} themeClasses={themeClasses}>
+      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={lesson.pageCount} referencePapers={referencePapers} featuredReferenceIds={featuredReferenceIds} referenceCourseAnalysis={referenceCoverage.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
+        <div className="learning-mdx-content">
+          <LessonReferences />
+        </div>
+      </LearningMdxLessonProvider>
+    </LearningMdxThemeProvider>
+  ) : null;
+  const pages = referencePage ? [...authoredPages, referencePage] : authoredPages;
+  return { pageCount: pages.length, pages };
 }
 
 function buildLessonRegistry(): Map<string, RegistryEntry> {
