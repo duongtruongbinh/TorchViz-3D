@@ -440,8 +440,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 162);
-  assert.equal(singleQuestions.length, 161);
+  assert.equal(questions.length, 164);
+  assert.equal(singleQuestions.length, 163);
   assert.equal(multiQuestions.length, 1);
   assert.equal(multiQuestions[0]?.id, 'replay-constraints');
   assert.ok(questions.every((question) => question.optionCount === 4));
@@ -479,8 +479,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
       if (question.mode === 'single') singlePositionCounts[index] += 1;
     }
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [39, 40, 41, 41]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [40, 40, 41, 42]);
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [40, 40, 41, 42]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [40, 41, 42, 42]);
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {
