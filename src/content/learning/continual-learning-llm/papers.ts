@@ -63,6 +63,16 @@ const additionalPapers = [
     url: 'https://arxiv.org/abs/2501.13453',
     kind: 'misc',
   },
+  {
+    id: 'lopez2017gradient',
+    title: 'Gradient Episodic Memory for Continual Learning',
+    authors: ['David Lopez-Paz', "Marc'Aurelio Ranzato"],
+    year: 2017,
+    venue: 'Advances in Neural Information Processing Systems',
+    arxivId: '1706.08840',
+    url: 'https://arxiv.org/abs/1706.08840',
+    kind: 'inproceedings',
+  },
 ] as const satisfies readonly ContinualLearningPaper[];
 
 export const continualLearningPapers: readonly ContinualLearningPaper[] = [...generatedPapers, ...additionalPapers];
@@ -91,7 +101,7 @@ export const continualLearningLessonReferenceCoverage = [
     ...primary(['zenke2017continual']),
   ])]),
   coverage('architecture-expansion-isolation', [claim('architecture-expansion', 'Dedicated or expanded capacity can reduce parameter interference while adding routing costs.', '§2.2.2', primary(['wistuba2023']))]),
-  coverage('supplier-consumer-pipeline', [claim('supplier-consumer', 'Supplier and consumer stages have different access, compute, and adaptation constraints.', '§3', primary(['qin2023recyclable']))]),
+  coverage('supplier-consumer-pipeline', [claim('supplier-consumer', 'Supplier and consumer stages have different access, compute, and adaptation constraints.', undefined, primary(['qin2023recyclable']))]),
   coverage('vertical-cl-deep-dive', [claim('vertical-specialization-pipeline', 'Vertical continuity moves a checkpoint from general pre-training toward domain and task specialization.', '§3.1', primary(['qin2023recyclable']))]),
   coverage('vertical-forgetting', [claim('vertical-forgetting', 'Downstream specialization can reduce upstream general abilities.', '§3.1', primary(['wistuba2023']))]),
   coverage('horizontal-cl-deep-dive', [claim('horizontal-adaptation', 'Horizontal continuity updates comparable stages over time or across domains.', '§3.2', summarized(['jin2022lifelong']))]),
@@ -110,7 +120,7 @@ export const continualLearningLessonReferenceCoverage = [
   coverage('continual-model-refinement', [claim('continual-model-refinement', 'Model refinement methods edit or retrieve targeted knowledge while limiting collateral changes.', '§4.3.4', primary(['hartvigsen2023aging', 'yu2023melo', 'das2024larimar', 'hu2024wilke', 'wang2024wise', 'hase2023does']), ['S4.SS3.SSS4'])]),
   coverage('continual-model-alignment', [claim('continual-model-alignment', 'Sequential alignment updates can trade new preference learning against prior alignment.', '§4.3.5', primary(['lin2024mitigating', 'zhangcppo', 'zhang2023copf']), ['S4.SS3.SSS5'])]),
   coverage('continual-multimodal-llms', [claim('continual-multimodal-learning', 'Multimodal continual learning must retain cross-modal capabilities while adding tasks or concepts.', '§4.3.6', primary(['zhai2023investigating', 'zheng2024antiforgetting', 'he2023continual', 'zhu2024model', 'zhao2024reconstruct', 'chen2024coin']), ['S4.SS3.SSS6'])]),
-  coverage('core-cl-metrics', [claim('core-cl-metrics', 'OP, F, BWT, and FWT measure complementary aspects of continual performance.', '§2.2.3 và Appendix B.1', [], ['S2.SS2.SSS3'])]),
+  coverage('core-cl-metrics', [claim('core-cl-metrics', 'OP, peak-based forgetting, diagonal-based BWT, and FWT measure complementary aspects of continual performance under explicit reference baselines.', '§2.2.3 và Appendix B.1', primary(['chaudhry2019tiny', 'lopez2017gradient']), ['S2.SS2.SSS3'])]),
   coverage('lama-knowledge-evaluation', [claim('knowledge-and-capability-evaluation', 'LAMA/CKL and TRACE separate knowledge updates, forgetting, and general capability changes.', '§5', primary(['petroni2019language', 'jang2022towards', 'wang2023trace']), ['S5'])]),
   coverage('continual-learning-benchmarks', [claim('continual-benchmark-map', 'Benchmarks should be selected by application, shift, and update protocol.', '§5', [], ['S5'])]),
   coverage('anticipatory-recovering', [claim('anticipatory-recovery', 'Training structure can make later recovery from interference easier.', '§6.1', primary(['yang2024reawakening']), ['S6.SS1'])]),

@@ -227,7 +227,7 @@ tap to pin it, and the explicit action opens the source. No source is fetched
 during interaction. Evidence and exception data are injected only into authored
 lesson pages, so the dedicated `Nguồn chính được dùng trong bài` page remains
 ordinary links by construction. The Continual Learning domain currently has
-178 authored citation occurrences across 39 theory/lab nodes: 176 reviewed
+179 authored citation occurrences across 39 theory/lab nodes: 177 reviewed
 evidence records and two explicit link-only exceptions. The three authored
 `PaperSummary` blocks remain prose analysis and do not instantiate previews.
 
@@ -296,11 +296,21 @@ coverage, `paper-summary` decisions have a matching component, and optional MDX
 `referenceIds` match the structured citations authored in that file. It also
 rejects missing publication years and Scholar fallbacks on any source exposed by
 a lesson. The generated snapshot currently represents 225 papers cited across
-30 taught survey sections, plus three explicitly registered sources: the survey
-itself, Synaptic Intelligence, and the post-survey Spurious Forgetting lab
-paper. Forty reviewed claim rows currently expose 192 of the 228 registry
+30 taught survey sections, plus four explicitly registered sources: the survey
+itself, Synaptic Intelligence, the post-survey Spurious Forgetting lab paper,
+and the original GEM paper used to define diagonal-based BWT. Forty reviewed
+claim rows currently expose 193 of the 229 registry
 records. The remaining records stay available as survey-intake candidates but
 are not rendered merely because they occur elsewhere in a broad survey section.
+
+The core metrics lesson treats metric names as incomplete without their
+reference baseline. Peak-based forgetting compares the current checkpoint with
+the best prior score; the survey calls its negation BWT. The original GEM
+convention instead compares the current checkpoint with the diagonal score
+recorded immediately after each task was learned. The two BWT values coincide
+only when every task's best prior score is its diagonal score. Authored lessons
+and result tables should name the convention or show the formula whenever this
+distinction matters.
 
 Two nodes deliberately retain large evidence sets: `dap-domain-landscape`
 tracks the domain rows behind survey Table 2 (70 sources), while

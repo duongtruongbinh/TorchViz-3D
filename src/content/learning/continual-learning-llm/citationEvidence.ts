@@ -222,6 +222,12 @@ const reviewedSourceSnippets: Readonly<Record<string, ReviewedSourceSnippet>> = 
   qin2023recyclable: arxivHtml('2305.08702', 1, 'abstract1.1',
     'proper algorithms for recycling outdated adapted weights should be developed',
     'recycling outdated adapted weights'),
+  lopez2017gradient: arxivHtml('1706.08840', 6, 'S2.E3',
+    'Backward transfer (BWT), which is the influence that learning a task t has on the performance on a previous task k≺t.',
+    'Backward transfer (BWT), which is the influence that learning a task', '§2, Eq. 3'),
+  chaudhry2019tiny: arxivHtml('1902.10486', 4, 'S3.SS2.SSS0.Px1.p1',
+    'The average forgetting measure at task T is then defined as:',
+    'The average forgetting measure at task', '§3.2, Eq. 2–3'),
   shi2024unified: arxivHtml('2310.12244', 1, 'S3.SS1.p2.1',
     'naively using ERM to learn is equivalent to minimizing a loose generalization bound',
     'equivalent to minimizing a loose generalization bound', '§3.1, Lemma 3.1 discussion'),
@@ -530,9 +536,6 @@ const reviewedSourceSnippets: Readonly<Record<string, ReviewedSourceSnippet>> = 
   'survey-architecture': surveyParagraph('S2.SS2.SSS2.p2.1', '§2.2.2, đoạn 2',
     'can achieve zero-forgetting when task IDs are available during inference or can be correctly inferred',
     'when task IDs are available during inference'),
-  'survey-supplier': surveyParagraph('S3.p1.1', '§3, đoạn 1',
-    'Recyclable Tuning is the first work to explicitly outline the supplier-consumer structure',
-    'supplier-consumer structure'),
   'survey-learning-stages': surveyParagraph('S1.p4.1', '§1, đoạn 4',
     'three key stages of LLM learning within modern CL: Continual Pre-Training (CPT), Domain-Adaptive Pre-training (DAP), and Continual Fine-Tuning (CFT)',
     'Continual Pre-Training (CPT), Domain-Adaptive Pre-training (DAP), and Continual Fine-Tuning (CFT)'),
@@ -602,9 +605,9 @@ const reviewedSourceSnippets: Readonly<Record<string, ReviewedSourceSnippet>> = 
   'survey-multimodal': surveyParagraph('S4.SS3.SSS6.p3.1', '§4.3.6, đoạn 3',
     'a consistent efficacy of replay-based and model expansion strategies across diverse scenarios',
     'replay-based and model expansion strategies'),
-  'survey-core-metrics': surveyParagraph('S2.SS2.SSS3.p1.1', '§2.2.3, đoạn 1',
-    'There are four evaluation protocols primarily designed for continual learning.',
-    'four evaluation protocols'),
+  'survey-core-metrics': surveyParagraph('A2.SS1.p3.2', 'Appendix B.1, sau Eq. 12',
+    'This enhancement is typically measured by negating the forgetting, thus indicating an improvement in performance on earlier tasks.',
+    'measured by negating the forgetting'),
   'survey-eval-lama': surveyParagraph('S5.p1.1', '§5, đoạn 1',
     'LAMA converts each world fact into a cloze statement',
     'each world fact into a cloze statement'),
@@ -642,6 +645,7 @@ type LessonOccurrenceReview = {
   claimId: string;
   paperIds: readonly string[];
   surveySnippetKeys: readonly string[];
+  occurrenceNumbers?: readonly number[];
 };
 
 function review(
@@ -649,8 +653,12 @@ function review(
   claimId: string,
   paperIds: readonly string[],
   surveySnippetKeys: readonly string[] = [],
+  occurrenceNumbers?: readonly number[],
 ): LessonOccurrenceReview {
-  return { lessonId, claimId, paperIds, surveySnippetKeys };
+  if (occurrenceNumbers && occurrenceNumbers.length !== paperIds.length) {
+    throw new Error(`${lessonId} occurrence numbers must match its reviewed paper count.`);
+  }
+  return { lessonId, claimId, paperIds, surveySnippetKeys, occurrenceNumbers };
 }
 
 // These rows preserve stable occurrence identities. The same paper may occur more
@@ -666,7 +674,7 @@ const lessonOccurrenceReviews: readonly LessonOccurrenceReview[] = [
   review('replay-experience-code-lab', 'replay-lab-boundary', ['zheng2025spurious', 'zheng2025spurious']),
   review('parameter-regularization-ewc', 'parameter-regularization', ['kirkpatrick2017overcoming', 'zenke2017continual', 'shi2024continualSurvey'], ['survey-regularization']),
   review('architecture-expansion-isolation', 'architecture-expansion', ['shi2024continualSurvey', 'wistuba2023', 'wistuba2023', 'shi2024continualSurvey'], ['survey-architecture', 'survey-architecture']),
-  review('supplier-consumer-pipeline', 'supplier-consumer', ['qin2023recyclable', 'shi2024continualSurvey', 'qin2023recyclable'], ['survey-supplier']),
+  review('supplier-consumer-pipeline', 'supplier-consumer', ['qin2023recyclable', 'qin2023recyclable'], [], [1, 3]),
   review('continuity-to-learning-stages', 'chapter-four-continuity-map', ['shi2024continualSurvey', 'shi2024unified'], ['survey-learning-stages']),
   review('vertical-cl-deep-dive', 'vertical-specialization-pipeline', ['qin2023recyclable', 'shi2024continualSurvey'], ['survey-vertical']),
   review('vertical-forgetting', 'vertical-forgetting', ['wistuba2023', 'shi2024continualSurvey'], ['survey-upstream-data']),
@@ -685,7 +693,7 @@ const lessonOccurrenceReviews: readonly LessonOccurrenceReview[] = [
   review('cpt-observations', 'cpt-study-observations', ['yildiz2024investigating', 'shi2024continualSurvey'], ['survey-cpt-observations']),
   review('cpt-distribution-shifts', 'cpt-distribution-shifts', ['li2024examining', 'yildiz2024investigating', 'gupta2023continual', 'ibrahim2024simple', 'jin2022lifelong', 'qin2023recyclable', 'gururangan2022demix', 'chen2023lifelong', 'cossu2022continual', 'jang2022towards', 'jang2022temporalwiki', 'jin2022lifelong', 'dhingra2022time', 'shi2024continualSurvey'], ['survey-cpt-temporal']),
   review('cpt-other-directions', 'cpt-other-directions', ['zhao2024large', 'lin2024rho', 'chen2024take', 'amba2021dynamic', 'loureiro2022timelms', 'attanasio2023worth', 'shi2024continualSurvey'], ['survey-cpt-other']),
-  review('core-cl-metrics', 'core-cl-metrics', ['shi2024continualSurvey'], ['survey-core-metrics']),
+  review('core-cl-metrics', 'core-cl-metrics', ['shi2024continualSurvey', 'chaudhry2019tiny', 'lopez2017gradient'], ['survey-core-metrics']),
   review('lama-knowledge-evaluation', 'knowledge-and-capability-evaluation', ['petroni2019language', 'jang2022towards', 'jang2022towards', 'petroni2019language', 'shi2024continualSurvey', 'jang2022towards', 'jang2022towards', 'shi2024continualSurvey', 'wang2023trace', 'wang2023trace', 'shi2024continualSurvey'], ['survey-eval-lama', 'survey-eval-fuar', 'survey-eval-xdelta']),
   review('continual-learning-benchmarks', 'continual-benchmark-map', ['shi2024continualSurvey'], ['survey-benchmarks']),
   review('anticipatory-recovering', 'anticipatory-recovery', ['shi2024continualSurvey', 'yang2024reawakening'], ['survey-anticipatory']),
@@ -752,7 +760,8 @@ const reviewedOccurrenceSnippetOverrides: Readonly<Record<string, string>> = {
 const occurrenceCitationEvidence = lessonOccurrenceReviews.flatMap((lesson) => {
   let surveyIndex = 0;
   const evidence = lesson.paperIds.flatMap((paperId, index): LearningCitationEvidence[] => {
-    const occurrenceId = `${lesson.claimId}-${String(index + 1).padStart(2, '0')}-${paperId}`;
+    const occurrenceNumber = lesson.occurrenceNumbers?.[index] ?? index + 1;
+    const occurrenceId = `${lesson.claimId}-${String(occurrenceNumber).padStart(2, '0')}-${paperId}`;
     const surveySourceKey = paperId === 'shi2024continualSurvey'
       ? lesson.surveySnippetKeys[surveyIndex++]
       : undefined;

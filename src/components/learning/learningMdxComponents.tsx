@@ -724,43 +724,79 @@ type MetricBarItem = {
   value: number;
   valueLabel: string;
   detail?: string;
-  tone?: 'primary' | 'success' | 'danger' | 'neutral';
+  tone?: 'primary' | 'accent' | 'success' | 'danger' | 'neutral';
+  shadeByValue?: boolean;
+  baselineValue?: number;
+  dividerAfter?: boolean;
+  placeholder?: boolean;
 };
 
-export function MetricBars({ ariaLabel, items, max = 100 }: {
+export function MetricBars({ ariaLabel, items, max = 100, columns = 1 }: {
   ariaLabel: string;
   items: MetricBarItem[];
   max?: number;
+  columns?: 1 | 2 | 3;
 }) {
   const themeClasses = useLearningMdxTheme();
   const safeMax = Math.max(max, 1);
   const tones = {
     primary: themeClasses.isLight ? 'bg-[#205089]' : 'bg-[#7FB4E5]',
+    accent: themeClasses.isLight ? 'bg-[#D5962F]' : 'bg-[#F0BE62]',
     success: themeClasses.isLight ? 'bg-[#2E8A5A]' : 'bg-[#6ED39B]',
     danger: themeClasses.isLight ? 'bg-[#C45151]' : 'bg-[#EE8C8C]',
     neutral: themeClasses.isLight ? 'bg-[#8092A6]' : 'bg-[#8EA1B5]',
   };
   return (
     <figure className="my-6" aria-label={ariaLabel}>
-      <ol className="grid gap-4">
-        {items.map((item) => {
+      <ol className={cx('grid gap-4', columns === 2 && 'sm:grid-cols-2', columns === 3 && 'sm:grid-cols-3')}>
+        {items.map((item, index) => {
           const width = Math.min(100, Math.max(0, item.value) / safeMax * 100);
+          const baselineWidth = item.baselineValue === undefined
+            ? 0
+            : Math.min(width, Math.max(0, item.baselineValue) / safeMax * 100);
+          const gainWidth = Math.max(0, width - baselineWidth);
+          const opacity = item.shadeByValue ? 0.15 + width / 100 * 0.85 : 1;
           return (
-            <li key={item.label} className="grid gap-2">
-              <div className="flex items-end justify-between gap-4">
-                <div className="min-w-0">
-                  <div className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{item.label}</div>
-                  {item.detail ? <div className={cx('mt-0.5 text-sm leading-5', themeClasses.mutedText)}>{item.detail}</div> : null}
-                </div>
-                <span className={cx('shrink-0 text-base font-black tabular-nums', themeClasses.titleText)}>{item.valueLabel}</span>
-              </div>
-              <div className={cx('h-3 overflow-hidden rounded-full', themeClasses.isLight ? 'bg-[#DCE6F1]' : 'bg-[#26384E]')}>
-                <div
-                  className={cx('h-full rounded-full transition-[width] duration-200 motion-reduce:transition-none', tones[item.tone ?? 'neutral'])}
-                  style={{ width: `${width}%` }}
-                  aria-hidden="true"
-                />
-              </div>
+            <li
+              key={`${item.label}-${index}`}
+              aria-hidden={item.placeholder || undefined}
+              className={cx(
+                'grid gap-2',
+                item.dividerAfter && 'mb-2 border-b pb-6',
+                item.dividerAfter && (themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18'),
+              )}
+            >
+              {item.placeholder ? null : (
+                <>
+                  <div className="flex items-end justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className={cx('text-sm font-black leading-5', themeClasses.titleText)}>{item.label}</div>
+                      {item.detail ? <div className={cx('mt-0.5 text-sm leading-5', themeClasses.mutedText)}>{item.detail}</div> : null}
+                    </div>
+                    <span className={cx('shrink-0 text-base font-black tabular-nums', themeClasses.titleText)}>{item.valueLabel}</span>
+                  </div>
+                  <div className={cx('h-3 overflow-hidden rounded-full', themeClasses.isLight ? 'bg-[#DCE6F1]' : 'bg-[#26384E]')}>
+                    {item.baselineValue === undefined ? (
+                      <div
+                        className={cx('h-full rounded-full transition-[width,opacity] duration-200 motion-reduce:transition-none', tones[item.tone ?? 'neutral'])}
+                        style={{ width: `${width}%`, opacity }}
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <div className="flex h-full" aria-hidden="true">
+                        <div
+                          className={cx('h-full transition-[width] duration-200 motion-reduce:transition-none', tones.neutral)}
+                          style={{ width: `${baselineWidth}%` }}
+                        />
+                        <div
+                          className={cx('h-full transition-[width] duration-200 motion-reduce:transition-none', tones.success)}
+                          style={{ width: `${gainWidth}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </li>
           );
         })}
