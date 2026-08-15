@@ -113,7 +113,7 @@ Viết tổng quát cho <InlineMath formula="t-1" /> task cũ:
 
 <BlockMath formula="F_t^{\mathrm{peak}}=\frac{1}{t-1}\sum_{j=1}^{t-1}\left[\max_{\ell\in\{1,\ldots,t-1\}}P_{\ell,j}-P_{t,j}\right]" />
 
-Đây cũng là baseline được dùng trong định nghĩa forgetting phổ biến của Chaudhry et al.: so checkpoint hiện tại với **đỉnh hiệu năng trước đó** của từng task <Cite paper="chaudhry2019tiny" evidence="core-cl-metrics-02-chaudhry2019tiny" />.
+Đây cũng là baseline được dùng trong định nghĩa forgetting phổ biến của Chaudhry et al.: so checkpoint hiện tại với **đỉnh hiệu năng trước đó** của từng task <Cite paper="chaudhry2019tiny" evidence="core-cl-metrics-01-chaudhry2019tiny" />.
 
 - <InlineMath formula="F^{\mathrm{peak}}>0" />: checkpoint hiện tại thấp hơn đỉnh lịch sử; model đã mất một phần hiệu năng từng có.
 - <InlineMath formula="F^{\mathrm{peak}}=0" />: checkpoint hiện tại vẫn ở đúng đỉnh cũ.
@@ -133,7 +133,7 @@ Thì **Backward Transfer (BWT)** hỏi theo chiều ngược lại: sau khi họ
 
 <BlockMath formula="\text{BWT trên một task}=\text{điểm hiện tại}-\text{điểm làm mốc}" />
 
-Nói cách khác, trong quy ước của survey <Cite paper="shi2024continualSurvey" evidence="core-cl-metrics-01-shi2024continualSurvey" />:
+Nói cách khác, trong quy ước của survey <Cite paper="shi2024continualSurvey" evidence="core-cl-metrics-02-shi2024continualSurvey" />:
 
 <BlockMath formula="\operatorname{BWT}_t^{\mathrm{survey}}=-F_t^{\mathrm{peak}}" />
 
@@ -240,7 +240,7 @@ Giả sử chúng ta fine-tune tiếp **Task B**. Trước khi fine-tune Task C,
 
 <BlockMath formula="\operatorname{FWT}_3=\frac{(40-30)+(50-35)}{2}=12.5\text{ điểm}" />
 
-Với nhiều task tương lai, FWT lấy trung bình các mức chênh lệch này:
+Với nhiều task tương lai, FWT lấy trung bình các mức chênh lệch này <Cite paper="lopez2017gradient" evidence="core-cl-metrics-04-lopez2017gradient" /> <Cite paper="shi2024continualSurvey" evidence="core-cl-metrics-05-shi2024continualSurvey" />:
 
 <BlockMath formula="\operatorname{FWT}_t=\frac{1}{t-1}\sum_{i=2}^{t}\left(P_{i-1,i}-b_i\right)" />
 

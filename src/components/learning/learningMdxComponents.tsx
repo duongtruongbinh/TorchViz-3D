@@ -203,7 +203,6 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
   const [activeIndex, setActiveIndex] = useState(0);
   const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
   const titleBand = themeClasses.isLight ? 'bg-[#EAF2FA]' : 'bg-[#A8D4FF]/9';
-  const label = themeClasses.isLight ? 'text-[#205089]' : 'text-[#A8D4FF]';
   return (
     <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2', threeColumns && 'lg:grid-cols-3')} aria-label={ariaLabel} onMouseLeave={spotlight ? () => setActiveIndex(0) : undefined}>
       {items.map((item, index) => {
@@ -214,21 +213,11 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
           : isRisk
             ? themeClasses.semantic.danger.border
             : border;
-        const semanticSurface = isPositive
-          ? themeClasses.semantic.success.surface
-          : isRisk
-            ? themeClasses.semantic.danger.surface
-            : undefined;
         const semanticTitleBand = isPositive
           ? (themeClasses.isLight ? 'bg-emerald-100/80' : 'bg-emerald-950/60')
           : isRisk
             ? (themeClasses.isLight ? 'bg-rose-100/80' : 'bg-rose-950/60')
             : titleBand;
-        const semanticLabel = isPositive
-          ? themeClasses.semantic.success.strongText
-          : isRisk
-            ? themeClasses.semantic.danger.strongText
-            : label;
         return (
           <li
             key={item.title}
@@ -239,7 +228,6 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
               featureFirst && index === items.length - 1 && 'sm:col-span-2',
               spotlight && (activeIndex === index ? 'opacity-100' : 'opacity-45'),
               semanticBorder,
-              semanticSurface,
             )}
           >
             <div className={cx('grid min-h-20 items-center gap-3 border-b px-4 py-3', numbered ? 'grid-cols-[2rem_1fr]' : 'grid-cols-1', semanticBorder, semanticTitleBand)}>
@@ -248,11 +236,11 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
             </div>
             <dl className="grid content-start gap-4 p-4 text-sm leading-6">
               <div>
-                <dt className={cx('font-black', semanticLabel)}>{exampleLabel}</dt>
+                <dt className={cx('font-black', themeClasses.titleText)}>{exampleLabel}</dt>
                 <dd className={cx('mt-1', themeClasses.bodyText)}>{item.example}</dd>
               </div>
               <div>
-                <dt className={cx('font-black', semanticLabel)}>{takeawayLabel}</dt>
+                <dt className={cx('font-black', themeClasses.titleText)}>{takeawayLabel}</dt>
                 <dd className={cx('mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
               </div>
             </dl>

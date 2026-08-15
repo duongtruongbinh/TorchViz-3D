@@ -23,7 +23,7 @@ Câu hỏi về **efficiency** gồm hai loại chi phí khác nhau:
   caption="Retention cost tập trung giảm chi phí giữ kiến thức cũ; acquisition cost tập trung chọn phần dữ liệu mới có giá trị để giảm lượng dữ liệu cần huấn luyện."
 />
 
-Phần lớn nghiên cứu efficiency trước đây tập trung vào **retention cost**, nên chồng lấn mạnh với Continual Learning cổ điển: replay, parameter regularization và architecture expansion đều cố giữ knowledge cũ với chi phí thấp hơn full retraining. Trục **acquisition cost** đặt một câu hỏi khác: thay vì tối ưu cách giữ dữ liệu cũ, ta có thể giảm lượng dữ liệu mới phải đưa vào CPT hay không?
+Phần lớn nghiên cứu efficiency trước đây tập trung vào **retention cost**, nên chồng lấn mạnh với Continual Learning cổ điển: replay, parameter regularization và architecture expansion đều cố giữ knowledge cũ với chi phí thấp hơn full retraining. Trục **acquisition cost** đặt một câu hỏi khác: thay vì tối ưu cách giữ dữ liệu cũ, ta có thể giảm lượng dữ liệu mới phải đưa vào CPT hay không? <Cite paper="shi2024continualSurvey" evidence="cpt-effectiveness-efficiency-01-shi2024continualSurvey" />
 
 Các trang tiếp theo sẽ minh họa cho câu hỏi mới này: **ELLE** mở rộng architecture để model tiếp nhận knowledge hiệu quả hơn, còn **data selection** giảm acquisition cost bằng cách chỉ train trên phần dữ liệu mới có giá trị nhất.
 
@@ -33,7 +33,7 @@ Các trang tiếp theo sẽ minh họa cho câu hỏi mới này: **ELLE** mở 
 
 ## ELLE: mở rộng mà giữ output
 
-ELLE mở rộng width và depth của model khi dữ liệu mới xuất hiện <Cite paper="qin2022elle" evidence="cpt-effectiveness-efficiency-01-qin2022elle" />. Vấn đề là nếu thêm neuron một cách ngây thơ, output có thể đổi ngay cả trước khi model bắt đầu học.
+ELLE mở rộng width và depth của model khi dữ liệu mới xuất hiện <Cite paper="qin2022elle" evidence="cpt-effectiveness-efficiency-02-qin2022elle" />. Vấn đề là nếu thêm neuron một cách ngây thơ, output có thể đổi ngay cả trước khi model bắt đầu học.
 
 Xét một ví dụ width expansion đơn giản. Một neuron cũ tạo hidden state <InlineMath formula="h" />, rồi layer kế tiếp nhân nó với trọng số <InlineMath formula="v" />:
 
@@ -86,8 +86,8 @@ Không phải mọi mẫu mới đều đáng tốn compute như nhau. Corpus m�
 
 Survey nêu hai nghiên cứu cho hướng này:
 
-1. Dynamic language-model updates dùng sampling để cập nhật model hiệu quả hơn trên nội dung web thay đổi theo thời gian <Cite paper="amba2021dynamic" evidence="cpt-effectiveness-efficiency-02-amba2021dynamic" />.
-2. Efficient Continual Pre-training chọn dữ liệu tài chính bằng similarity, perplexity và token-type entropy; paper báo cáo chỉ dùng **10% corpus và chi phí** nhưng vẫn tốt hơn vanilla continual pre-training, đồng thời không làm giảm đáng kể hiệu năng open-domain <Cite paper="xie2023efficient" evidence="cpt-effectiveness-efficiency-03-xie2023efficient" />.
+1. Dynamic language-model updates dùng sampling để cập nhật model hiệu quả hơn trên nội dung web thay đổi theo thời gian <Cite paper="amba2021dynamic" evidence="cpt-effectiveness-efficiency-03-amba2021dynamic" />.
+2. Efficient Continual Pre-training chọn dữ liệu tài chính bằng similarity, perplexity và token-type entropy; paper báo cáo chỉ dùng **10% corpus và chi phí** nhưng vẫn tốt hơn vanilla continual pre-training, đồng thời không làm giảm đáng kể hiệu năng open-domain <Cite paper="xie2023efficient" evidence="cpt-effectiveness-efficiency-04-xie2023efficient" />.
 
 <ComparisonMatrix ariaLabel="Ba tín hiệu data selection được paper Efficient Continual Pre-training sử dụng" columns={['Câu hỏi mà tín hiệu trả lời', 'Trực giác']} rows={[
   { label: 'Similarity', values: ['Mẫu có gần task hoặc domain mục tiêu không?', 'Ưu tiên nội dung liên quan đến năng lực cần cải thiện'] },
@@ -105,6 +105,6 @@ Survey nêu hai nghiên cứu cho hướng này:
   Các tín hiệu như khoảng cách embedding với dữ liệu cũ, entity mới hoặc mức thay đổi nội dung theo thời gian là những cách diễn giải hợp lý để hình dung novelty và diversity; chúng không phải một checklist thống nhất đã được cả hai paper xác nhận.
 </LessonNote>
 
-Bài toán này vẫn chưa được nghiên cứu sâu, nhưng kết quả trên cho thấy **chất lượng dữ liệu có thể quan trọng hơn số lượng dữ liệu** khi mục tiêu là CPT hiệu quả <Cite paper="shi2024continualSurvey" evidence="cpt-effectiveness-efficiency-04-shi2024continualSurvey" />.
+Bài toán này vẫn chưa được nghiên cứu sâu, nhưng kết quả trên cho thấy **chất lượng dữ liệu có thể quan trọng hơn số lượng dữ liệu** khi mục tiêu là CPT hiệu quả <Cite paper="shi2024continualSurvey" evidence="cpt-effectiveness-efficiency-05-shi2024continualSurvey" />.
 
 </MdxPage>
