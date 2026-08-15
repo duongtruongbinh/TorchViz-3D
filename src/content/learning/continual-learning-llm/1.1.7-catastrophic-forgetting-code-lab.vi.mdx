@@ -5,6 +5,7 @@ export const lessonMetadata = {
   title: "Lab đo Forgetting",
   headings: [
     'Tổng quan Bài lab & Phương pháp Đánh giá',
+    'Bối cảnh & Ý tưởng Bài toán',
     'Quy trình Thực nghiệm (5 Bước)',
     '1. Thiết lập Môi trường & Khởi tạo Thực nghiệm',
     '2. Sinh Dữ liệu Tiểu sử Giả lập',
@@ -15,20 +16,30 @@ export const lessonMetadata = {
   ],
   keywords: ['Pythia-160M', 'Catastrophic Forgetting', 'Hands-on Lab', 'Python', 'HuggingFace', 'Answer NLL', 'Continual Learning'],
   conceptIds: ['code-lab-forgetting-phenomenon', 'code-lab-cause-of-forgetting', 'code-lab-metric-sensitivity', 'code-lab-solutions-forward'],
-  pageCount: 8,
+  pageCount: 9,
 }
 
 <MdxPage page={0}>
 
 ## Tổng quan Bài lab & Phương pháp Đánh giá
 
-Bài lab thực hành này giúp bạn tự tay kiểm chứng hiện tượng **Catastrophic Forgetting** (Thảm họa quên tri thức) trên mô hình ngôn ngữ thực tế (**Pythia-160M**), được truyền cảm hứng từ thiết lập thực nghiệm Biography trong công trình nghiên cứu <Cite paper="zheng2025spurious" evidence="lab-forgetting-interpretation-01-zheng2025spurious" />.
+Bài lab thực hành này giúp bạn kiểm chứng hiện tượng **Catastrophic Forgetting** (Thảm họa quên tri thức) trên mô hình ngôn ngữ thực tế (**Pythia-160M**), được truyền cảm hứng từ thiết lập thực nghiệm Biography trong công trình nghiên cứu <Cite paper="zheng2025spurious" evidence="lab-forgetting-interpretation-01-zheng2025spurious" />.
+
+<LessonNote>
+  **Bạn sẽ được:**
+  - Tự tay chạy từng khối mã nguồn Python trên Google Colab để quan sát hiện tượng này.
+  - Thấy rõ sự thay đổi từ lúc AI nhớ hoàn hảo 100% cho đến khi sụt giảm về 0% sau khi học nhiệm vụ mới.
+</LessonNote>
 
 <LessonNote tone="warning">
   **Lưu ý:** Đây chỉ là setup tình huống được đơn giản hóa để minh họa hiện tượng, không phải reproduction chính thức của paper. Model, dữ liệu, hyperparameter và môi trường chạy có khác biệt, nên các con số thu được có thể không trùng khớp hoàn toàn với kết quả được báo cáo trong paper.
 </LessonNote>
 
-### 1. Bối cảnh & Ý tưởng Bài toán
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bối cảnh & Ý tưởng Bài toán
 
 Hãy tưởng tượng bạn dạy cho một mô hình AI học thuộc lòng lý lịch của một nhóm người (gọi là **Nhiệm vụ A**): tên tuổi, ngày sinh, quê quán, trường đại học và nơi làm việc. Sau quá trình học, bạn đặt câu hỏi kiểm tra và AI trả lời chính xác **100%**.
 
@@ -67,15 +78,9 @@ Result:       Incorrect
 
 Trong trí tuệ nhân tạo, đây gọi là hiện tượng **Catastrophic Forgetting (Thảm họa quên tri thức)**: khi học tri thức mới mà không có phương pháp bảo vệ, các cập nhật mô hình sẽ ghi đè toàn bộ tri thức cũ đã tích lũy.
 
-<LessonNote>
-  **Bài lab này giúp bạn:**
-  - Tự tay chạy từng khối mã nguồn Python trên Google Colab để quan sát hiện tượng này.
-  - Thấy rõ sự thay đổi từ lúc AI nhớ hoàn hảo 100% cho đến khi sụt giảm về 0% sau khi học nhiệm vụ mới.
-</LessonNote>
-
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Quy trình Thực nghiệm (5 Bước)
 
@@ -95,7 +100,7 @@ Trong trí tuệ nhân tạo, đây gọi là hiện tượng **Catastrophic For
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## 1. Thiết lập Môi trường & Khởi tạo Thực nghiệm
 
@@ -193,7 +198,7 @@ Stress Mode: True
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## 2. Sinh Dữ liệu Tiểu sử Giả lập (Synthetic Biography Data)
 
@@ -367,7 +372,7 @@ Task B train texts: 2016 | QA probes: 144
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## 3. Nạp Mô hình Pythia-160M & Hàm Đánh giá Answer NLL
 
@@ -531,7 +536,7 @@ pd.DataFrame(results)
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## 4. Tóm tắt kết quả hiện tại
 
@@ -594,7 +599,7 @@ Mối quan hệ toán học trực tiếp giữa Perplexity và NLL:
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## 5. Huấn luyện Task A & Đánh giá Giai đoạn 1
 
@@ -673,7 +678,7 @@ pd.DataFrame(results)
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={8}>
 
 ## 6. Huấn luyện Continual Task B & Phân tích Forgetting
 

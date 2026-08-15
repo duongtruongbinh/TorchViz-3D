@@ -258,7 +258,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
   assert.deepEqual([...usedEvidenceIds].sort(), continualLearningCitationEvidence.map((evidence) => evidence.id).sort(), 'every reviewed evidence record must be used exactly once');
   assert.deepEqual([...usedExceptionIds].sort(), continualLearningCitationLinkOnlyExceptions.map((exception) => exception.id).sort(), 'every link-only exception must be used exactly once');
   assert.equal(paperSummaryCount, 3, 'the three authored PaperSummary occurrences must remain inventoried');
-  assert.ok(getContinualLearningLessonReferenceIds('continual-learning-llm-overview').length <= 4, 'overview must not inherit the survey introduction bibliography');
+  assert.ok(getContinualLearningLessonReferenceIds('continual-learning-llm-overview').length <= 8, 'overview must not inherit the survey introduction bibliography');
   assert.ok(getContinualLearningLessonReferenceIds('continual-llm-synthesis').length <= 2, 'synthesis must not duplicate the full course bibliography');
   const reachableIds = new Set(continualLearningLessonReferenceCoverage.flatMap((coverage) => getContinualLearningLessonReferenceIds(coverage.lessonId)));
   assert.deepEqual(

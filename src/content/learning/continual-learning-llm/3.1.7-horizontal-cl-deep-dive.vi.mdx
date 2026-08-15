@@ -9,9 +9,9 @@ export const lessonMetadata = {
 
 ## Thích nghi qua thời gian hoặc domain
 
-**Horizontal Continual Learning** là quá trình model liên tục thích nghi theo thời gian hoặc giữa các domain dữ liệu. Lý do chính là distribution không đứng yên: nội dung, ngôn ngữ và knowledge mới liên tục xuất hiện.
+**Horizontal Continual Learning** là quá trình model liên tục thích nghi theo thời gian hoặc giữa các domain dữ liệu <Cite paper="shi2024continualSurvey" evidence="horizontal-adaptation-01-shi2024continualSurvey" />. Lý do chính là distribution không đứng yên: nội dung, ngôn ngữ và knowledge mới liên tục xuất hiện.
 
-LLPT hiện thực hóa setting này trên chuỗi research-paper domain và tweet theo thời gian, đồng thời đo cả thích nghi với corpus mới và retention trên corpus trước đó <Cite paper="jin2022lifelong" evidence="horizontal-adaptation-01-jin2022lifelong" />.
+LLPT hiện thực hóa setting này trên chuỗi research-paper domain và tweet theo thời gian, đồng thời đo cả thích nghi với corpus mới và retention trên corpus trước đó <Cite paper="jin2022lifelong" evidence="horizontal-adaptation-02-jin2022lifelong" />.
 
 <LessonImage
   assetPath="continual-learning-llm/01-horizontal-continual-learning.webp"
@@ -46,6 +46,6 @@ Trong CPT quy mô lớn, một tổ chức lớn có thể đủ khả năng lư
   { label: 'Phương pháp CL chuyên biệt', values: ['Thêm ràng buộc, memory hoặc architecture phù hợp', 'Nhiều nghiên cứu vẫn ghi nhận hiệu năng tốt hơn baseline đơn giản'] },
 ]} />
 
-Vì vậy, việc LLM có thật sự cần một thuật toán CL phức tạp trong mọi bối cảnh vẫn là câu hỏi mở. Khi dữ liệu cũ còn đầy đủ, bài toán có thể chuyển từ **memory efficiency** sang **compute efficiency**: chọn mẫu nào để replay và cần bao nhiêu update để giữ model mới mà không quên lịch sử <Cite paper="shi2024continualSurvey" evidence="horizontal-adaptation-02-shi2024continualSurvey" />.
+Vì vậy, việc LLM có thật sự cần một thuật toán CL phức tạp trong mọi bối cảnh vẫn là câu hỏi mở. Khi dữ liệu cũ còn đầy đủ, bài toán có thể chuyển từ **memory efficiency** sang **compute efficiency**: chọn mẫu nào để replay và cần bao nhiêu update để giữ model mới mà không quên lịch sử <Cite paper="shi2024continualSurvey" evidence="horizontal-adaptation-03-shi2024continualSurvey" />.
 
 </MdxPage>
