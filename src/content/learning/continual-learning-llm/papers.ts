@@ -115,12 +115,14 @@ export const continualLearningLessonReferenceCoverage = [
     ...summarized(['zheng2025spurious']),
     ...further(['shi2024unified'], 'The paper supplies theoretical context for replay but is not the source of the course fixture output.'),
   ])], 'Kết quả chạy mẫu thuộc fixture của khóa học; paper được dùng để kiểm tra phạm vi diễn giải.'),
-  coverage('parameter-regularization-ewc', [claim('parameter-regularization', 'Parameter-importance penalties trade plasticity for retention.', '§2.2.2', [
-    ...summarized(['kirkpatrick2017overcoming']),
-    ...primary(['zenke2017continual']),
-  ])]),
+  coverage('parameter-regularization-ewc', [
+    claim('parameter-regularization', 'Parameter-importance penalties trade plasticity for retention.', '§2.2.2', [
+      ...summarized(['kirkpatrick2017overcoming']),
+      ...primary(['zenke2017continual']),
+    ]),
+    claim('function-regularization', 'A frozen earlier checkpoint can constrain a continually updated student through output or representation matching; retained behavior depends on the query inputs, targets, and teacher quality.', '§4.1', primary(['shi2024continualSurvey', 'hinton2015distilling', 'romero2014fitnets', 'li2017learning', 'buzzega2020dark'])),
+  ]),
   coverage('architecture-expansion-isolation', [claim('architecture-expansion', 'Dedicated or expanded capacity can reduce parameter interference while adding routing costs.', '§2.2.2', primary(['wistuba2023']))]),
-  coverage('distillation-for-retention', [claim('distillation-retention', 'A frozen earlier checkpoint can constrain a continually updated student through output or representation matching; the retained behavior depends on the query inputs, targets, and teacher quality.', undefined, primary(['hinton2015distilling', 'romero2014fitnets', 'li2017learning', 'buzzega2020dark']))]),
   coverage('supplier-consumer-pipeline', [claim('supplier-consumer', 'Supplier and consumer stages have different access, compute, and adaptation constraints.', undefined, primary(['qin2023recyclable']))]),
   coverage('vertical-cl-deep-dive', [claim('vertical-specialization-pipeline', 'Vertical continuity moves a checkpoint from general pre-training toward domain and task specialization.', '§3.1', primary(['qin2023recyclable']))]),
   coverage('vertical-forgetting', [claim('vertical-forgetting', 'Downstream specialization can reduce upstream general abilities.', '§3.1', primary(['wistuba2023']))]),

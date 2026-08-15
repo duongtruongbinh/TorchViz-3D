@@ -98,20 +98,14 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
   lessonPair({
     trackId: 'cl-llm-methods',
     id: 'parameter-regularization-ewc',
-    titleEn: 'Parameter Regularization',
-    titleVi: 'Parameter Regularization',
+    titleEn: 'Regularization-Based Methods',
+    titleVi: 'Regularization-Based Methods',
   }),
   lessonPair({
     trackId: 'cl-llm-methods',
     id: 'architecture-expansion-isolation',
     titleEn: 'Architecture Expansion',
     titleVi: 'Architecture Expansion',
-  }),
-  lessonPair({
-    trackId: 'cl-llm-methods',
-    id: 'distillation-for-retention',
-    titleEn: 'Other Methods',
-    titleVi: 'Các phương pháp khác',
   }),
 
   lessonPair({

@@ -134,30 +134,31 @@ dedicated BWT page, explicit sign interpretation, and a paired Quiz question
 that tests baseline selection rather than memorized terminology. GEM, Chaudhry
 et al., and the survey have reviewed local evidence.
 
-## Distillation for retention
+## Regularization-based methods
 
-Chapter 2 is titled `Main Approaches` / `Các hướng tiếp cận chính`; its first
-node is `Replay`, and the final Theory/Quiz pair is `Other Methods` / `Các
-phương pháp khác`.
+Chapter 2 is titled `Main Approaches` / `Các hướng tiếp cận chính`; its methods
+track now places one merged `Regularization-Based Methods` Theory/Quiz pair
+between `Replay` and `Architecture Expansion`.
 
-The eight-page Theory lesson teaches:
+The six-page Theory lesson teaches:
 
-- an old checkpoint frozen as teacher and its trainable copy as student;
-- functional regularization versus EWC/SI parameter-space constraints;
+- regularization as a retention term added to the new-task objective;
+- weight regularization in parameter space, including EWC/Fisher and SI;
+- function regularization in output/representation space with a frozen teacher
+  and trainable student;
 - logits, softened probabilities with temperature, and aligned intermediate
-  representations as distinct matching targets;
-- new-task loss plus a weighted retention/distillation loss;
-- DER replaying stored old inputs and logits, with DER++ additionally replaying
-  labels and supervised loss;
+  representations as distinct distillation targets;
 - LwF querying the frozen teacher with new-task inputs when old inputs cannot be
   stored;
-- output-space changes, teacher bias, query-set coverage, and the limit that
-  matching observed behavior does not guarantee retention of all knowledge.
+- checkpoint cost, query/distribution shift, teacher bias, changing output
+  spaces, class-incremental difficulty, and stability–plasticity limits;
+- DER/DER++ as a brief boundary note for replay-assisted distillation rather
+  than pure LwF.
 
-The pair has six matching concepts/questions, four conventionally named lesson
-illustrations, and reviewed sources for Hinton KD, FitNets, LwF, and DER/DER++.
-The EWC lesson links the conceptual transition by name without introducing a
-fragile route URL.
+The pair has eight matching concepts/questions, four retained lesson
+illustrations, and reviewed sources for EWC, SI, Hinton KD, FitNets, LwF, and
+DER/DER++. The canonical `parameter-regularization-ewc` id is preserved so
+existing routes remain stable.
 
 ## Fair evaluation and realistic benchmarks
 

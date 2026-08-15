@@ -2,87 +2,105 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'parameter-regularization-ewc',
   locale: 'vi',
-  title: 'Parameter Regularization',
+  title: 'Regularization-Based Methods',
   headings: [
-    'Tạo ràng buộc trong parameter space',
-    'Vì sao không phạt mọi tham số như nhau?',
-    'Điều khiển trade-off',
+    'Regularization-based methods',
+    'Weight regularization',
     'EWC và Synaptic Intelligence',
+    'Function regularization',
+    'Distillation giữ tín hiệu nào?',
+    'LwF, ưu điểm và giới hạn',
   ],
-  keywords: ['Parameter Regularization', 'EWC', 'Synaptic Intelligence', 'Sigma', 'Stability–Plasticity'],
-  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff'],
-  pageCount: 4,
+  keywords: [
+    'Regularization',
+    'Weight Regularization',
+    'Function Regularization',
+    'EWC',
+    'Synaptic Intelligence',
+    'Knowledge Distillation',
+    'LwF',
+    'Stability–Plasticity',
+  ],
+  conceptIds: [
+    'regularization-objective',
+    'importance-matrix',
+    'regularization-tradeoff',
+    'teacher-student-checkpoint',
+    'distillation-signals',
+    'task-retention-objective',
+    'lwf-query-inputs',
+    'distillation-limitations',
+  ],
+  pageCount: 6,
 }
 
 <MdxPage page={0}>
 
-## Tạo ràng buộc trong parameter space
+## Regularization-based methods
 
-Sau khi học Task A, model đang ở trạng thái tham số <InlineMath formula="\theta_A" />. Nếu sang Task B và chỉ tối ưu <InlineMath formula="\mathcal{L}_{\mathcal B}(\theta)" />, các tham số có thể di chuyển xa khỏi trạng thái đã giúp model làm tốt A.
+Regularization-based methods giảm catastrophic forgetting bằng cách thêm một
+thành phần retention vào loss khi model học task mới. Với Task A đã học và
+Task B đang đến, objective có dạng:
 
-Parameter regularization thêm một penalty vào mục tiêu học Task B:
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{học task mới}}+\lambda\underbrace{\mathcal{L}_{\mathrm{retention}}(\theta,\text{old model})}_{\text{giữ task cũ}}" />
 
-<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{plasticity}}+\underbrace{\lambda R(\theta,\theta_A)}_{\text{stability}}" />
+Survey chia nhóm này thành hai hướng <Cite paper="shi2024continualSurvey" evidence="parameter-regularization-03-shi2024continualSurvey" />:
 
-Khác với replay tạo lại ràng buộc bằng dữ liệu cũ, Parameter regularization tạo ràng buộc trong **parameter space**: model vẫn học Task B, nhưng nếu các trọng số của sau khi update task B quá khác so với trọng số ban đầu train trên Task A thì model phải nhận thêm một mức phạt (penalty) nhất định.
+- **Weight regularization:** phạt việc các tham số quan trọng rời khỏi trạng
+  thái của model cũ.
+- **Function regularization:** phạt việc output hoặc representation của model
+  mới khác với phản hồi của model cũ, thường bằng knowledge distillation.
+
+Regularization không replay trực tiếp raw data cũ như replay-based methods và
+không tạo một module mới cho mỗi task như architecture-based methods. Tuy
+nhiên, nó thường cần lưu một frozen copy hoặc các thống kê của model cũ để làm
+mốc so sánh. Vì vậy, đây là cách chuyển ràng buộc retention vào **objective**,
+không phải là cách xóa hoàn toàn chi phí lưu trữ.
+
+<LessonImage
+  assetPath="continual-learning-llm/01-knowledge-distillation-teacher-student-overview.png"
+  alt="Tổng quan về model cũ truyền tín hiệu retention cho model mới thông qua distillation"
+/>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Vì sao không phạt mọi tham số như nhau?
+## Weight regularization
 
-Ma trận <InlineMath formula="\Sigma" /> biểu diễn tầm quan trọng và tương quan giữa 2 bộ trọng số (trước và sau khi cập nhật).
+Weight regularization đặt neo trong **parameter space**. Sau Task A, model
+lưu checkpoint <InlineMath formula="\theta_A" /> và ước lượng importance của
+từng tham số. Khi học Task B, tham số quan trọng bị phạt mạnh hơn nếu rời
+checkpoint cũ:
 
-<BlockMath formula="\Sigma=\begin{bmatrix}\Sigma_{11}&\Sigma_{12}&\cdots&\Sigma_{1n} \\ \Sigma_{21}&\Sigma_{22}&\cdots&\Sigma_{2n} \\ \vdots&\vdots&\ddots&\vdots \\ \Sigma_{n1}&\Sigma_{n2}&\cdots&\Sigma_{nn}\end{bmatrix}" />
+<BlockMath formula="\mathcal{L}_{\mathrm{weight}}=\mathcal{L}_{\mathcal B}(\theta)+\frac{\lambda}{2}\sum_i\Omega_i(\theta_i-\theta_{A,i})^2" />
 
-<LessonNote>
-  Lúc này, chúng ta hiểu rằng penalty không chỉ xét từng tham số thay đổi bao nhiêu, mà còn xét việc từng cặp tham số thay đổi cùng nhau ảnh hưởng thế nào đến kiến thức cũ.
-</LessonNote>
+- <InlineMath formula="\theta_{A,i}" /> là giá trị của tham số sau Task A.
+- <InlineMath formula="\Omega_i" /> là importance của tham số thứ <InlineMath formula="i" />.
+- <InlineMath formula="\lambda" /> điều khiển mức ưu tiên giữa học mới và giữ
+  cũ.
 
-Tuy nhiên, nếu model có <InlineMath formula="n" /> tham số, ma trận đầy đủ phải lưu và tính tương quan cho mọi cặp <InlineMath formula="(i,j)" />.
-
-<LessonNote tone="warning">
-  Khi đó, <InlineMath formula="\Sigma" /> cần <InlineMath formula="n^2" /> phần tử, nên chi phí lưu trữ và tính toán tăng theo <InlineMath formula="O(n^2)" />. Quy mô này quá lớn đối với LLM.
-</LessonNote>
-
-Vì vậy, trong thực tế ta thường bỏ các tương quan theo cặp và chỉ giữ đường chéo của <InlineMath formula="\Sigma" />:
-
-<BlockMath formula="\Sigma_{\mathrm{diag}}=\begin{bmatrix}\Omega_1&0&\cdots&0 \\ 0&\Omega_2&\cdots&0 \\ \vdots&\vdots&\ddots&\vdots \\ 0&0&\cdots&\Omega_n\end{bmatrix}" />
-
-Khi đó, penalty trở thành:
-
-<BlockMath formula="R_{\Sigma}(\theta,\theta_A)=\sum_i\Omega_i(\theta_i-\theta_{A,i})^2" />
+Nếu mọi tham số đều nhận cùng penalty, model sẽ quá cứng ở cả những vùng
+không quan trọng. Importance cho phép giữ lại capacity để Task B thích nghi.
+Trong EWC, đường chéo của Fisher Information Matrix được dùng như một xấp xỉ
+cho các trọng số <InlineMath formula="\Omega_i" />. Ma trận đầy đủ có thể chứa
+tương quan giữa mọi cặp tham số, nhưng chi phí <InlineMath formula="O(n^2)"
+/> khiến xấp xỉ đường chéo thực tế hơn cho mạng lớn.
 
 <LessonNote>
-  Lúc này, chúng ta đã chuyển câu hỏi từ **tương quan giữa từng cặp trọng số** thành **mức độ quan trọng của từng trọng số**. <InlineMath formula="\Omega_i" /> càng lớn, trọng số <InlineMath formula="\theta_i" /> càng bị phạt mạnh khi rời trạng thái cũ.
+  Weight regularization không bắt buộc tham số phải bất biến. Nó chỉ làm cho
+  thay đổi ở những hướng được xem là quan trọng trở nên đắt hơn, để model vẫn
+  có plasticity cho task mới.
 </LessonNote>
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Điều khiển trade-off
-
-Khi ghép hai phần lại, mục tiêu huấn luyện trở thành:
-
-<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{plasticity}}+\underbrace{\lambda\lVert\theta-\theta_A\rVert_{\Sigma}^{2}}_{\text{stability}}" />
-
-- <InlineMath formula="\mathcal{L}_{\mathcal B}(\theta)" /> giúp model học Task B; ảnh hưởng càng lớn thì plasticity càng tăng.
-- <InlineMath formula="\lambda" /> cân bằng loss mới và penalty; giá trị càng lớn thì model càng ưu tiên giữ trạng thái cũ.
-- <InlineMath formula="\Sigma" /> phân bổ penalty theo importance; tham số quan trọng được bảo vệ mạnh hơn.
-
-<LessonNote>
-  <InlineMath formula="\lambda" /> quá nhỏ khiến ràng buộc giữ Task A yếu; <InlineMath formula="\lambda" /> quá lớn có thể làm model học Task B kém. Parameter regularization không loại bỏ stability–plasticity trade-off mà dùng <InlineMath formula="\lambda" /> và <InlineMath formula="\Sigma" /> để điều khiển trade-off đó.
-</LessonNote>
-
-</MdxPage>
-
-<MdxPage page={3}>
-
 ## EWC và Synaptic Intelligence
 
-EWC và Synaptic Intelligence là hai ví dụ được survey nêu cho nhóm parameter regularization <Cite paper="kirkpatrick2017overcoming" evidence="parameter-regularization-01-kirkpatrick2017overcoming" /> <Cite paper="zenke2017continual" evidence="parameter-regularization-02-zenke2017continual" />.
+EWC và Synaptic Intelligence là hai ví dụ tiêu biểu của weight regularization
+trong survey <Cite paper="kirkpatrick2017overcoming" evidence="parameter-regularization-01-kirkpatrick2017overcoming" /> <Cite paper="zenke2017continual" evidence="parameter-regularization-02-zenke2017continual" />.
 
 <PaperSummary
   paper="kirkpatrick2017overcoming"
@@ -91,15 +109,126 @@ EWC và Synaptic Intelligence là hai ví dụ được survey nêu cho nhóm pa
   setup="Paper ước lượng độ quan trọng tham số bằng đường chéo Fisher information rồi thêm quadratic penalty khi học task kế tiếp; thí nghiệm gồm permuted MNIST và Atari reinforcement learning."
   finding="Trong các setup được thử, EWC giữ hiệu năng task cũ tốt hơn fine-tuning tuần tự đồng thời vẫn cho phép học task mới."
   limitation="Fisher diagonal là xấp xỉ cục bộ, importance phụ thuộc checkpoint và thí nghiệm không được thực hiện trên LLM sinh văn bản; không nên suy ra EWC tự động scale hiệu quả cho mọi LLM."
-  relevance="Đây là ví dụ kinh điển cho cách parameter regularization biến stability–plasticity thành một penalty có trọng số theo từng tham số."
+  relevance="EWC minh họa cách biến stability–plasticity thành một penalty có trọng số theo từng tham số."
 />
 
-Trong taxonomy của survey, EWC thuộc nhóm parameter regularization <Cite paper="shi2024continualSurvey" evidence="parameter-regularization-03-shi2024continualSurvey" />.
+EWC ước lượng importance từ Fisher Information ở checkpoint cũ. **Synaptic
+Intelligence (SI)** thay vào đó theo dõi đóng góp của từng tham số trong suốt
+trajectory huấn luyện và cập nhật importance theo mức thay đổi loss cùng độ
+dài cập nhật của tham số.
 
-<LessonNote tone="warning">
-  EWC và Synaptic Intelligence ràng buộc model trong **parameter space**: chúng hạn chế thay đổi các tham số được xem là quan trọng. Tuy nhiên, penalty nhỏ trong parameter space không trực tiếp bảo đảm output hoặc representation trên task cũ vẫn giống checkpoint trước. Nói cách khác, giữ tham số chưa chắc đã giữ được cùng **functional behavior**.
+Cả hai đều điều khiển trade-off chứ không loại bỏ nó:
 
-  Ở node **Các phương pháp khác**, ta sẽ xem distillation đặt ràng buộc trực tiếp hơn trong function space bằng cách so phản hồi của student với teacher.
+- <InlineMath formula="\lambda" /> quá nhỏ: model dễ học Task B nhưng có thể
+  quên Task A.
+- <InlineMath formula="\lambda" /> quá lớn: model bám checkpoint cũ và giảm
+  plasticity với Task B.
+- Khi chuỗi task dài hoặc task khác nhau mạnh, vùng tham số dùng chung có thể
+  ngày càng chật; penalty bảo vệ cũ nhưng cũng làm việc học mới khó hơn.
+
+Trong taxonomy của survey, EWC thuộc nhóm regularization-based methods.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Function regularization
+
+Function regularization không hỏi “trọng số nào phải đứng yên?” mà hỏi “model
+mới còn phản hồi giống model cũ ở đâu?”. Sau Task A, ta tạo hai vai trò từ
+cùng checkpoint:
+
+1. **Teacher:** frozen, đại diện cho behavior cũ.
+2. **Student:** tiếp tục được cập nhật bằng dữ liệu Task B.
+
+Với cùng input <InlineMath formula="x" />, teacher tạo target
+<InlineMath formula="f_{\mathrm{old}}(x)" /> và student tạo
+<InlineMath formula="f_\theta(x)" />. Retention loss kéo hai phản hồi lại gần
+nhau, trong khi task loss vẫn cho student học thông tin mới.
+
+<LessonImage
+  assetPath="continual-learning-llm/02-knowledge-distillation-teacher-student-checkpoint.png"
+  alt="Checkpoint sau Task A được tách thành frozen teacher và student tiếp tục học Task B"
+/>
+
+<LessonImage
+  assetPath="continual-learning-llm/03-knowledge-distillation-teacher-student-loss-flow.png"
+  alt="Cùng input đi qua teacher và student; chỉ student nhận gradient từ retention loss"
+/>
+
+<LessonNote>
+  Parameter regularization giữ <InlineMath formula="\theta" /> gần
+  <InlineMath formula="\theta_A" />. Function regularization cho phép
+  <InlineMath formula="\theta" /> thay đổi nếu output hoặc representation
+  quan sát được vẫn gần teacher. Vì vậy, hai hướng có thể dùng chung: một
+  hướng giới hạn parameter update, hướng kia kiểm tra behavior.
 </LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Distillation giữ tín hiệu nào?
+
+Knowledge distillation có thể đặt retention loss lên nhiều loại tín hiệu:
+
+<ComparisonMatrix
+  ariaLabel="Các tín hiệu có thể dùng trong function regularization"
+  columns={['Tín hiệu', 'Cách match', 'Điều được giữ']}
+  rows={[
+    { label: 'Logits', values: ['MSE hoặc khoảng cách trước softmax', 'Quan hệ tương đối giữa các output'] },
+    { label: 'Probabilities', values: ['KL divergence hoặc cross-entropy sau softmax', 'Phân phối xác suất của teacher'] },
+    { label: 'Intermediate representations', values: ['MSE/L2 hoặc cosine trên hidden state đã căn chỉnh', 'Cách model biểu diễn input bên trong'] },
+  ]}
+/>
+
+<LessonImage
+  assetPath="continual-learning-llm/04-knowledge-distillation-signal-types.png"
+  alt="So sánh logits, probabilities có temperature và intermediate representations trong distillation"
+/>
+
+Khi distill probabilities, temperature <InlineMath formula="T" /> làm phân
+phối mềm hơn:
+
+<BlockMath formula="p_i^{(T)}=\frac{\exp(z_i/T)}{\sum_k\exp(z_k/T)}" />
+
+Với <InlineMath formula="T>1" />, student nhìn thấy thêm quan hệ giữa các
+output phụ thay vì chỉ nhận một hard label. Teacher và student phải dùng cùng
+temperature khi tính loss. FitNets mở rộng distillation từ output sang
+intermediate representations <Cite paper="hinton2015distilling" evidence="distillation-retention-01-hinton2015distilling" /> <Cite paper="romero2014fitnets" evidence="distillation-retention-02-romero2014fitnets" />.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## LwF, ưu điểm và giới hạn
+
+**Learning without Forgetting (LwF)** là ví dụ tiên phong của function
+regularization. Khi học Task B, student dùng input mới <InlineMath formula="x_B"
+/> để hỏi frozen teacher, rồi tối ưu đồng thời:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{B}\!\left(y_B,p_B^{\mathrm{student}}(x_B)\right)+\lambda\,\mathcal{L}_{\mathrm{distill}}\!\left(p_A^{\mathrm{teacher}}(x_B),p_A^{\mathrm{student}}(x_B)\right)" />
+
+LwF không cần lưu input Task A, nhưng vẫn cần input truy vấn để teacher tạo
+target <Cite paper="li2017learning" evidence="distillation-retention-03-li2017learning" />. Đây là điểm mạnh về privacy và storage so với replay raw data, nhưng
+cũng là giới hạn: input Task B có thể đại diện kém cho domain Task A
+<Cite paper="li2017learning" evidence="distillation-retention-05-li2017learning" />.
+
+<ComparisonMatrix
+  ariaLabel="So sánh hai hướng regularization-based methods"
+  columns={['Hướng', 'Ràng buộc', 'Rủi ro chính']}
+  rows={[
+    { label: 'Weight regularization', values: ['Tham số quan trọng gần checkpoint cũ', 'Importance chỉ là xấp xỉ; penalty mạnh làm giảm plasticity'] },
+    { label: 'Function regularization', values: ['Output hoặc representation gần frozen teacher trên input được hỏi', 'Query shift, teacher bias và output space mới có thể làm retention không đầy đủ'] },
+  ]}
+/>
+
+Retention loss thấp chỉ cho biết student khớp tín hiệu đã quan sát trên tập
+query. Nó không bảo đảm mọi capability cũ được giữ nguyên. Khi số task tăng,
+model vẫn phải cân bằng stability với plasticity; trong class-incremental
+learning, việc giữ output cũ đồng thời mở rộng output mới càng làm objective
+khó hơn. DER và DER++ có thể kết hợp distillation với replay exemplar, nhưng
+khi đó chúng thuộc hướng replay-assisted thay vì pure LwF
+<Cite paper="buzzega2020dark" evidence="distillation-retention-04-buzzega2020dark" />.
 
 </MdxPage>

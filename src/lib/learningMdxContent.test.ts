@@ -66,11 +66,11 @@ test('linear-algebra MDX filenames mirror chapter and TOC order', () => {
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 191);
+  assert.equal(lessonFiles.length, 189);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 191);
+  assert.equal(documents.length, 189);
   const requirements = documents.find((document) => document.lessonId === 'minimal-llm-project-skeleton')?.text ?? '';
   for (const requirement of ['Google Colab', 'Python', 'uv', 'VSCode']) assert.match(requirements, new RegExp(requirement));
 });
@@ -112,7 +112,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
     .map((file) => parseLearningMdxPath(file)?.lessonId)
     .filter((lessonId): lessonId is string => typeof lessonId === 'string' && !lessonId.endsWith('-quiz'))
     .sort();
-  assert.equal(theoryIds.length, 40);
+  assert.equal(theoryIds.length, 39);
   assert.deepEqual(continualLearningLessonReferenceCoverage.map((item) => item.lessonId).sort(), theoryIds);
   assert.equal(continualLearningPapers.length, continualLearningPaperById.size);
   const claimIds = new Set<string>();
@@ -274,7 +274,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
 });
 
 test('continual-learning references assemble as one dedicated final runtime page', () => {
-  assert.equal(continualLearningLessonReferenceCoverage.length, 40);
+  assert.equal(continualLearningLessonReferenceCoverage.length, 39);
   const registry = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
   assert.match(registry, /const authoredPages = Array\.from\(\{ length: lesson\.pageCount \}/);
   assert.match(registry, /const referencePage = referenceCoverage \? \(/);
@@ -331,8 +331,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 164);
-  assert.equal(singleQuestions.length, 163);
+  assert.equal(questions.length, 163);
+  assert.equal(singleQuestions.length, 162);
   assert.equal(multiQuestions.length, 1);
   assert.equal(multiQuestions[0]?.id, 'replay-constraints');
   assert.ok(questions.every((question) => question.optionCount === 4));
@@ -370,8 +370,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
       if (question.mode === 'single') singlePositionCounts[index] += 1;
     }
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [40, 40, 41, 42]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [40, 41, 42, 42]);
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [38, 41, 41, 42]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [39, 41, 42, 42]);
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {
