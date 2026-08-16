@@ -370,8 +370,13 @@ decisions now form the single Learning Lab visual convention:
 | `2026-07-02-learning-lab-scrollbar-search-cleanup.md` | Consolidated scrollbar styling, lesson search behavior, and compact rail controls. |
 | `2026-07-04-learning-home-syllabus.md` | Added the catalog-derived Home curriculum index and whole-card domain navigation. |
 | `2026-07-06-learning-home-module-descriptions.md` | Expanded domain descriptions and removed redundant track-count emphasis. |
+| `2026-07-14-learning-home-course-card-grid.md` | Standardized course cards with 150px visual band, 410px min desktop height, soft palettes, and responsive grids. |
+| `2026-07-14-sync-main-reapply-learning-home.md` | Reapplied Learning Home course card grid after main sync. |
+| `2026-07-15-learning-lab-arrow-traversal.md` | Added previous/next arrow button lesson traversal in Learning Lab header/footer. |
+| `2026-07-28-ordering-exercise-drag-improvement.md` | Improved ordering exercise drag interaction and visual feedback. |
 
 The later responsive shell, desktop Home pass, and portrait course-card update
 continue this same owner plan. Current UI rules live in
 `wiki/concepts/learning-lab.md`; historical metrics mentioning practice items
 describe the pre-MDX catalog and are not current runtime claims.
+

@@ -8,9 +8,7 @@ updated: 2026-08-14
 
 This page documents the active Landing Page and Learning Lab architecture. The
 current content migration and catalog decisions are recorded in
-[docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md),
-with the current LLM lesson state in
-[docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md](../../docs/plans/2026-07-21-llm-ai-landscape-intro-polish.md).
+[docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](../../docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md).
 
 ## Status
 

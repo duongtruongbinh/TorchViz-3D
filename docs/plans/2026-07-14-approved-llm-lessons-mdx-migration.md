@@ -27,7 +27,7 @@ catalog instead of parallel practice payloads.
 
 This plan absorbs the earlier untracked LLM planning history and retains its
 Vietnamese-first content and renderer decisions for the first five lessons. Its
-course-card convention continues [Learning Home Course Card Grid](./2026-07-14-learning-home-course-card-grid.md).
+course-card convention continues [Learning Lab UI/UX Review and Polish](./2026-07-12-learning-lab-ui-ux-polish.md).
 
 # Durable Decisions
 
@@ -202,3 +202,10 @@ The completed migration passed:
   owning plan. Preserved their final decisions, corrections, outcomes, lineage
   names, and verification evidence; removed superseded intermediate detail and
   repeated workflow boilerplate.
+- 2026-07-17 to 2026-07-28 — Absorbed follow-up LLM domain plans:
+  - `2026-07-17-compact-llm-domain-docs-and-cleanup.md`: Compacted LLM domain docs & code audit cleanup. Removed unused `TokenizerModelContract` chain and unreferenced animations.
+  - `2026-07-20-token-id-vocabulary-visual-split.md`: Published 3-page theory lesson, adjacent quiz, and 4-page GPT-4o/ViT5 code walkthrough for token IDs/vocabulary.
+  - `2026-07-20-refactor-llm-domain-renderers.md`: Refactored 3,495-line LLM renderer file into `tokenizerRenderers`, `languageModelRenderers`, `conceptRenderers`, `rendererTypes`, and `rendererPrimitives`.
+  - `2026-07-21-llm-ai-landscape-intro-polish.md`: Polished interactive AI/ML/DL/CV/NLP/LLM scope visual, Evaluation & Safety chapter (20 lessons), and typography hierarchy.
+  - `2026-07-28-inference-pipeline-diagram-polish.md`: Added dashed container block around Sample → Detokenize stage, aligned visual entities, and added dynamic SVG connector paths & autoregressive loop indicator.
+

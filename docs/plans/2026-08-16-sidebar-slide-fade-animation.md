@@ -16,7 +16,7 @@ transition on open and close, while preserving the compact closed rail.
 
 # Lineage
 
-Supersedes [2026-08-16-sidebar-control-visual-regressions](./2026-08-16-sidebar-control-visual-regressions.md).
+Supersedes [2026-07-12-learning-lab-ui-ux-polish](./2026-07-12-learning-lab-ui-ux-polish.md).
 
 # Decisions (locked)
 
@@ -95,3 +95,7 @@ Supersedes [2026-08-16-sidebar-control-visual-regressions](./2026-08-16-sidebar-
   during drawer exit so the logo appears immediately while the sidebar keeps
   its close animation. Verified with `git diff --check`, `npm.cmd run
   typecheck`, and `npm.cmd run build`.
+- 2026-08-16 — Absorbed earlier sidebar sub-plans:
+  - `2026-08-16-sidebar-content-toggle.md`: Added sidebar content toggle and synchronized closing animation.
+  - `2026-08-16-sidebar-control-visual-regressions.md`: Fixed sidebar control button alignment and visual regressions.
+
