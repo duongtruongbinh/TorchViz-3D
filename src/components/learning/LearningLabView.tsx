@@ -29,6 +29,9 @@ const DOMAIN_IDS = new Set<LearningDomainId>(learningCatalog.domains.map((domain
 const futureHmiLogoUrl = new URL('../../../docs/assets/Future-HMIip.webp', import.meta.url).href;
 const LESSON_RAIL_MIN_WIDTH = 240;
 const LESSON_RAIL_MAX_WIDTH = 440;
+const SIDEBAR_ANIMATION_MS = 450;
+const SIDEBAR_ENTER_DELAY_MS = 30;
+const SIDEBAR_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 function isLearningDomainId(value: string | undefined): value is LearningDomainId {
   return Boolean(value && DOMAIN_IDS.has(value as LearningDomainId));
@@ -61,6 +64,13 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
+  const isSidebarVisible = isSidebarOpen && isSidebarExpanded;
+  const sidebarDrawerStyle = isSidebarRendered ? ({
+    opacity: isSidebarVisible ? 1 : 0,
+    transform: isSidebarVisible ? 'translate3d(0, 0, 0)' : 'translate3d(-100%, 0, 0)',
+    transition: `transform ${SIDEBAR_ANIMATION_MS}ms ${SIDEBAR_EASING}, opacity ${SIDEBAR_ANIMATION_MS}ms ease-out`,
+    willChange: 'transform, opacity',
+  } satisfies CSSProperties) : undefined;
 
   const activeDomain = routeDomainId ? getLearningDomain(learningCatalog, routeDomainId) : null;
   const resolvedRoute = useMemo(() => (
@@ -139,23 +149,20 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   }, [isLessonRailOpen, isSidebarOpen]);
 
   useEffect(() => {
-    let firstFrame = 0;
-    let secondFrame = 0;
+    let expandTimer = 0;
     let collapseTimer = 0;
 
     if (isSidebarOpen) {
       setIsSidebarRendered(true);
-      firstFrame = window.requestAnimationFrame(() => {
-        secondFrame = window.requestAnimationFrame(() => setIsSidebarExpanded(true));
-      });
+      setIsSidebarExpanded(false);
+      expandTimer = window.setTimeout(() => setIsSidebarExpanded(true), SIDEBAR_ENTER_DELAY_MS);
     } else {
       setIsSidebarExpanded(false);
-      collapseTimer = window.setTimeout(() => setIsSidebarRendered(false), 300);
+      collapseTimer = window.setTimeout(() => setIsSidebarRendered(false), SIDEBAR_ANIMATION_MS);
     }
 
     return () => {
-      window.cancelAnimationFrame(firstFrame);
-      window.cancelAnimationFrame(secondFrame);
+      window.clearTimeout(expandTimer);
       window.clearTimeout(collapseTimer);
     };
   }, [isSidebarOpen]);
@@ -248,6 +255,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const clearLessonSearch = useCallback(() => setLessonSearchQuery(''), []);
   const openLessonRail = useCallback(() => setIsLessonRailOpen(true), []);
   const closeLessonRail = useCallback(() => setIsLessonRailOpen(false), []);
+  const toggleSidebar = useCallback(() => setIsSidebarOpen((current) => !current), []);
   const lessonRailProps = railSelectedLesson ? ({
     groups: filteredGroupedDomainLessons,
     collapsedTrackIds: collapsedChapters,
@@ -275,19 +283,58 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           type="button"
           className={cx(
             'fixed inset-0 z-50 bg-[#0D1826]/35 backdrop-blur-[2px] transition-opacity duration-300 ease-out motion-reduce:transition-none',
-            isSidebarExpanded ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
+            isSidebarVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
           )}
           onClick={() => setIsSidebarOpen(false)}
           aria-label={strings.closeSidebar}
         />
       ) : null}
-      <aside className={cx(
-        'fixed left-0 top-0 z-[60] flex flex-col overflow-visible transition-[width,height,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
-        isSidebarRendered
-          ? 'h-dvh w-[min(320px,calc(100vw-3rem))] translate-x-0 border-r shadow-xl lg:w-[300px]'
+      {isSidebarRendered && !isSidebarOpen ? (
+        <div className="fixed left-0 top-0 z-[70] flex h-16 w-[72px] items-center justify-center px-0">
+          <button
+            type="button"
+            className={cx(
+              'group relative flex h-10 w-10 shrink-0 items-center justify-center font-black',
+              themeClasses.radius.icon,
+              themeClasses.brandTile,
+              themeClasses.focusRing,
+            )}
+            onClick={() => setIsSidebarOpen(true)}
+            title={strings.openSidebar}
+            aria-label={strings.openSidebar}
+            aria-expanded={false}
+          >
+            <img
+              src={futureHmiLogoUrl}
+              alt="TorchViz3D"
+              className={cx('h-8 w-8 object-cover transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0', themeClasses.radius.icon)}
+            />
+            <span
+              className={cx(
+                'absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100',
+                themeClasses.radius.icon,
+                themeClasses.button.icon,
+              )}
+            >
+              <ArrowDownWideNarrow className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+            </span>
+          </button>
+        </div>
+      ) : null}
+      <aside
+        key={isSidebarRendered ? 'learning-sidebar-drawer' : 'learning-sidebar-rail'}
+        className={cx(
+          'fixed left-0 top-0 z-[60] flex flex-col overflow-visible motion-reduce:transition-none',
+          isSidebarRendered
+            ? 'h-dvh w-[min(320px,calc(100vw-3rem))] border-r shadow-xl lg:w-[300px]'
           : 'h-16 w-[72px] -translate-x-full lg:translate-x-0',
-        isSidebarRendered ? themeClasses.sidebar : 'bg-transparent',
-      )} role={isSidebarRendered ? 'dialog' : undefined} aria-modal={isSidebarRendered ? true : undefined} aria-label={isSidebarRendered ? strings.sidebarDomains : undefined}>
+          isSidebarRendered ? themeClasses.sidebar : 'bg-transparent',
+        )}
+        style={sidebarDrawerStyle}
+        role={isSidebarRendered ? 'dialog' : undefined}
+        aria-modal={isSidebarRendered ? true : undefined}
+        aria-label={isSidebarRendered ? strings.sidebarDomains : undefined}
+      >
         <div
           className={cx(
             'w-full items-center',
@@ -297,9 +344,34 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           )}
         >
           {isSidebarRendered ? (
-            <div className={cx('flex h-10 w-10 shrink-0 items-center justify-center', themeClasses.radius.icon, themeClasses.brandTile)}>
-              <img src={futureHmiLogoUrl} alt="TorchViz3D" className={cx('h-8 w-8 object-cover', themeClasses.radius.icon)} />
-            </div>
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              title={strings.closeSidebar}
+              aria-label={strings.closeSidebar}
+              aria-expanded={isSidebarOpen}
+              className={cx(
+                'group relative flex h-10 w-10 shrink-0 items-center justify-center font-black',
+                themeClasses.radius.icon,
+                themeClasses.brandTile,
+                themeClasses.focusRing,
+              )}
+            >
+              <img
+                src={futureHmiLogoUrl}
+                alt="TorchViz3D"
+                className={cx('h-8 w-8 object-cover transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0', themeClasses.radius.icon)}
+              />
+              <span
+                className={cx(
+                  'absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100',
+                  themeClasses.radius.icon,
+                  themeClasses.button.icon,
+                )}
+              >
+                <ArrowDownWideNarrow className="h-5 w-5 rotate-180" strokeWidth={2} aria-hidden="true" />
+              </span>
+            </button>
           ) : (
             <button
               type="button"
@@ -317,7 +389,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               <img
                 src={futureHmiLogoUrl}
                 alt="TorchViz3D"
-                className={cx('h-8 w-8 object-cover transition-opacity group-hover:opacity-0 group-focus-within:opacity-0', themeClasses.radius.icon)}
+                className={cx('h-8 w-8 object-cover transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0', themeClasses.radius.icon)}
               />
               <span
                 className={cx(
@@ -362,12 +434,12 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
         {isSidebarRendered ? (
           <div
-            ref={(element) => element?.toggleAttribute('inert', !isSidebarExpanded)}
+            ref={(element) => element?.toggleAttribute('inert', !isSidebarVisible)}
             className={cx(
               'grid min-h-0 flex-1 transition-[grid-template-rows,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transform-none motion-reduce:transition-none',
-              isSidebarExpanded ? 'grid-rows-[1fr] translate-y-0 opacity-100' : 'pointer-events-none grid-rows-[0fr] -translate-y-3 opacity-0',
+              isSidebarVisible ? 'grid-rows-[1fr] translate-y-0 opacity-100' : 'pointer-events-none grid-rows-[0fr] -translate-y-3 opacity-0',
             )}
-            aria-hidden={!isSidebarExpanded}
+            aria-hidden={!isSidebarVisible}
           >
             <nav className="custom-scrollbar min-h-0 overflow-y-auto px-3 pb-5 pt-1" aria-label={strings.sidebarDomains}>
               <div className="grid gap-2">
@@ -420,15 +492,15 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
       </aside>
 
       <div
-        ref={(element) => element?.toggleAttribute('inert', isSidebarExpanded)}
+        ref={(element) => element?.toggleAttribute('inert', isSidebarVisible)}
         className="flex h-dvh min-h-0 min-w-0 flex-col overflow-hidden"
-        aria-hidden={isSidebarExpanded}
+        aria-hidden={isSidebarVisible}
       >
         <LearningLabHeader
           mode={mode}
           theme={theme}
           onModeChange={setMode}
-          onOpenNavigation={() => setIsSidebarOpen(true)}
+          onOpenNavigation={toggleSidebar}
         />
         <section ref={contentAreaRef} className={cx('custom-scrollbar learning-lab-scrollbar learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4', themeClasses.content)}>
           {mode === 'review' ? (
