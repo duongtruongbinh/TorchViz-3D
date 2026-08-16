@@ -132,3 +132,7 @@ Tiếp nối ba owner hiện tại:
   TypeScript, all 68 Node tests including MDX validation, and the 2,499-module
   production build. The existing Three.js chunk advisory and empty
   `react-vendor` chunk remain unchanged. Plan marked done.
+- 2026-08-17 — Absorbed early docs sync & showcase refresh sub-plans:
+  - `2026-06-21-docs-sync-audit-fixes.md`: Updated CLAUDE, README, ARCHITECTURE, and wiki files after initial audit to fix pathing and derived line offset details.
+  - `2026-06-21-readme-showcase-refresh.md`: Added hero screenshot and Mermaid architecture diagram to README.
+

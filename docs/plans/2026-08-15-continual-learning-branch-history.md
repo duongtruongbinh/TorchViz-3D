@@ -6,8 +6,7 @@ updated: 2026-08-15T03:00:00+07:00
 author: Codex
 task: "Consolidate the August 13–15 Continual Learning work into one durable branch history"
 supersedes:
-  - docs/plans/2026-07-14-learning-home-course-card-grid.md
-  - docs/plans/2026-08-08-continual-learning-llm-domain.md
+  - docs/plans/2026-07-12-learning-lab-ui-ux-polish.md
 ---
 
 # Goal
@@ -22,9 +21,7 @@ benchmark evaluation. The active subsystem state remains documented in
 # Lineage
 
 This work continues the shared Learning Home card system from
-[Learning Home course card grid](./2026-07-14-learning-home-course-card-grid.md)
-and the original course scope from
-[Continual Learning course](./2026-08-08-continual-learning-llm-domain.md).
+[Learning Lab UI/UX Review and Polish](./2026-07-12-learning-lab-ui-ux-polish.md).
 
 # Final outcomes
 

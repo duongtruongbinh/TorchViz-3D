@@ -759,3 +759,6 @@ plan then implemented or explicitly retained:
 Lower-priority observations remained documented in the architecture/wiki rather
 than becoming speculative framework work. The execution log above is the
 authoritative outcome and verification record for the review.
+
+- 2026-07-19 — Absorbed sub-plan `2026-07-19-canvas-flow-line-alignment.md`: Fixed canvas flow-line alignment, phased grid half a cell off the flow axis, removed grid center-line emphasis, aligned virtual input route to first rendered block face, and removed supplemental leaf edge wireframes for solid 3D block shading.
+

@@ -294,4 +294,7 @@ Each lesson follows the established pattern from Phase 1:
 
 # Modifications Log
 
-*(To be updated during execution)*
+- 2026-07-21 — Absorbed `2026-07-21-learning-lab-python-shiki-codeblock.md`: Added Shiki v4 Python syntax highlighting and reusable `CodeBlock` component (`pythonHighlighter.ts` + `CodeBlock.tsx`).
+- 2026-07-29 — Absorbed `2026-07-29-linear-algebra-latex-formulas.md`: Converted plaintext math formulas across Linear Algebra lessons to KaTeX (`InlineMath` and `BlockMath`).
+- 2026-08-10 — Absorbed `2026-08-10-linear-alg-shiki-codeblock-pre-override.md`: Connected fenced Python code blocks in Linear Algebra MDX to `CodeBlock` via `MdxPre` override in `sharedLearningMdxComponents`.
+
