@@ -2,7 +2,7 @@ import React from 'react';
 import type { IRNode } from '../lib/irTypes';
 import { getLayerInsight } from '../lib/layerInsights';
 import { getStrings } from '../lib/localization';
-import { useStore } from '../store/useStore';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 
 interface ParamFormulaPopupProps {
   node: IRNode | null;
@@ -10,7 +10,7 @@ interface ParamFormulaPopupProps {
 }
 
 const ParamFormulaPopup: React.FC<ParamFormulaPopupProps> = ({ node, onClose }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
   if (!node) return null;
 

@@ -4,7 +4,7 @@ import { Html } from '@react-three/drei';
 import { Layers, Layers2, RefreshCcw } from 'lucide-react';
 import * as THREE from 'three';
 import { LayoutData } from '../../lib/irTypes';
-import { useStore } from '../../store/useStore';
+import { usePreferencesStore } from '../../store/usePreferencesStore';
 import { getStrings } from '../../lib/localization';
 import { Z_INDEX_RECENTER_BUTTON } from '../../lib/constants';
 import {
@@ -296,7 +296,7 @@ export const ArchitectureControls: React.FC<{
   onCollapseAll: () => void;
   onRecenter: () => void;
 }> = React.memo(({ disabled, showRecenter, onExpandAll, onCollapseAll, onRecenter }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
 
   return (

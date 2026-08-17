@@ -1,24 +1,15 @@
 import type { ComponentType, ReactElement } from 'react';
-import { learningCatalog } from '../../content/learning/index.ts';
-import {
-  continualLearningLessonReferenceCoverageById,
-  getContinualLearningLessonFeaturedReferenceIds,
-  getContinualLearningLessonPapers,
-} from '../../content/learning/continual-learning-llm/papers.ts';
-import {
-  getContinualLearningLessonCitationEvidence,
-  getContinualLearningLessonCitationLinkOnlyExceptions,
-} from '../../content/learning/continual-learning-llm/citationEvidence.ts';
+
 import {
   getLearningMdxLocaleCandidates,
   parseLearningMdxPath,
   type LearningMdxMetadata,
+  type LearningMdxRuntimeCapabilities,
 } from '../../core/learning/mdxContract';
-import type { LearningDomainId } from '../../core/learning/types';
+import type { LearningCitationEvidence, LearningCitationLinkOnlyException } from '../../core/learning/citationEvidence';
+import { getRetryableCachedPromise } from '../../core/learning/retryablePromiseCache';
+import type { LearningDomainId, LearningLesson } from '../../core/learning/types';
 import type { Language } from '../../lib/localization';
-import { cvMdxComponents } from './domains/cv/mdxComponents';
-import { llmMdxComponents } from './domains/llm-ai-engineering/mdxComponents';
-import { linearAlgebraMdxComponents } from './domains/linear-algebra/mdxComponents';
 import type { QuizQuestionState } from './lesson/QuizBlock';
 import {
   LearningMdxLessonProvider,
@@ -26,26 +17,40 @@ import {
   LessonReferences,
   sharedLearningMdxComponents,
   type LearningMdxComponent,
+  type LearningReferencePaper,
   type LearningThemeClasses,
 } from './learningMdxComponents';
-
-const domainMdxComponents: Partial<Record<LearningDomainId, Record<string, LearningMdxComponent>>> = {
-  cv: cvMdxComponents,
-  'llm-ai-engineering': llmMdxComponents,
-  'linear-algebra': linearAlgebraMdxComponents,
-};
 
 type CompiledMdxComponent = ComponentType<{ components?: Record<string, LearningMdxComponent> }>;
 type MdxModule = {
   default: CompiledMdxComponent;
   lessonMetadata: LearningMdxMetadata;
+  lessonRuntime: LearningMdxRuntimeCapabilities;
 };
 
-type RegistryEntry = {
+type LessonModuleDescriptor = {
+  domainId: string;
+  lessonId: string;
+  locale: string;
+  filePath: string;
+};
+
+type LearningReferenceRuntime = {
+  referenceCoverage?: { courseAnalysis?: string };
+  referencePapers: readonly LearningReferencePaper[];
+  featuredReferenceIds: readonly string[];
+  citationEvidence: readonly LearningCitationEvidence[];
+  citationLinkOnlyExceptions: readonly LearningCitationLinkOnlyException[];
+};
+
+export type LoadedLearningMdxLesson = LearningReferenceRuntime & {
   domainId: LearningDomainId;
   lessonId: string;
-  modules: Map<string, CompiledMdxComponent>;
+  locale: string;
   pageCount: number;
+  Content: CompiledMdxComponent;
+  components: Record<string, LearningMdxComponent>;
+  entryPoints: LearningLesson['entryPoints'];
 };
 
 export type LearningMdxLessonDescriptor = {
@@ -53,46 +58,79 @@ export type LearningMdxLessonDescriptor = {
   pages: ReactElement[];
 };
 
-const LESSON_MODULES = import.meta.glob<MdxModule>(
-  '../../content/learning/*/*.mdx',
-  { eager: true },
-);
-const lessons = buildLessonRegistry();
+const LESSON_LOADERS = import.meta.glob<MdxModule>('../../content/learning/*/*.mdx');
+const lessonModuleDescriptors = Object.keys(LESSON_LOADERS)
+  .flatMap((filePath): LessonModuleDescriptor[] => {
+    const parsed = parseLearningMdxPath(filePath);
+    return parsed ? [{ ...parsed, filePath }] : [];
+  });
+const lessonModulePromises = new Map<string, Promise<MdxModule>>();
+const domainComponentPromises = new Map<LearningDomainId, Promise<Record<string, LearningMdxComponent>>>();
 
-export function getLearningMdxLesson({ domainId, language, lessonId, quizQuestionStates, themeClasses, onQuizQuestionStateChange }: {
-  domainId: LearningDomainId;
+const domainMdxComponentLoaders: Partial<Record<LearningDomainId, () => Promise<Record<string, LearningMdxComponent>>>> = {
+  cv: () => import('./domains/cv/mdxComponents').then(({ cvMdxComponents }) => cvMdxComponents),
+  'llm-ai-engineering': () => import('./domains/llm-ai-engineering/mdxComponents').then(({ llmMdxComponents }) => llmMdxComponents),
+  'linear-algebra': () => import('./domains/linear-algebra/mdxComponents').then(({ linearAlgebraMdxComponents }) => linearAlgebraMdxComponents),
+};
+
+export async function loadLearningMdxLesson({
+  fallbackLocales = [],
+  language,
+  lesson,
+}: {
+  fallbackLocales?: readonly string[];
   language: Language;
-  lessonId: string;
+  lesson: LearningLesson;
+}): Promise<LoadedLearningMdxLesson | null> {
+  if (lesson.contentStatus !== 'published') return null;
+
+  const availableModules = lessonModuleDescriptors.filter((descriptor) => (
+    descriptor.domainId === lesson.domainId && descriptor.lessonId === lesson.id
+  ));
+  const selectedModule = getLearningMdxLocaleCandidates(language, fallbackLocales)
+    .map((locale) => availableModules.find((descriptor) => descriptor.locale === locale))
+    .find(Boolean)
+    ?? [...availableModules].sort((left, right) => left.locale.localeCompare(right.locale))[0];
+  if (!selectedModule) {
+    throw new Error(`Published Learning Lab lesson has no MDX module: ${lesson.domainId}/${lesson.id}`);
+  }
+
+  const module = await loadLessonModule(selectedModule.filePath);
+  assertSelectedLearningMdxModule(module, selectedModule, lesson);
+  const [domainComponents, referenceRuntime] = await Promise.all([
+    module.lessonRuntime.needsDomainAdapter
+      ? loadDomainMdxComponents(lesson.domainId)
+      : Promise.resolve({}),
+    module.lessonRuntime.needsReferenceRuntime
+      ? loadLearningReferenceRuntime(lesson.domainId, lesson.id)
+      : Promise.resolve(emptyLearningReferenceRuntime()),
+  ]);
+
+  return {
+    domainId: lesson.domainId,
+    lessonId: lesson.id,
+    locale: selectedModule.locale,
+    pageCount: module.lessonMetadata.pageCount ?? 1,
+    Content: module.default,
+    components: { ...sharedLearningMdxComponents, ...domainComponents },
+    entryPoints: lesson.entryPoints,
+    ...referenceRuntime,
+  };
+}
+
+export function getLearningMdxLesson({ loadedLesson, language, quizQuestionStates, themeClasses, onQuizQuestionStateChange }: {
+  loadedLesson: LoadedLearningMdxLesson;
+  language: Language;
   quizQuestionStates?: Record<string, QuizQuestionState>;
   themeClasses: LearningThemeClasses;
   onQuizQuestionStateChange?: (questionId: string, state: QuizQuestionState) => void;
-}): LearningMdxLessonDescriptor | null {
-  const lesson = lessons.get(`${domainId}/${lessonId}`);
-  if (!lesson) return null;
-  const domain = learningCatalog.domains.find((item) => item.id === domainId);
-  const localeCandidates = getLearningMdxLocaleCandidates(language, domain?.mdx?.fallbackLocales);
-  const Content = localeCandidates.map((locale) => lesson.modules.get(locale)).find(Boolean)
-    ?? [...lesson.modules.entries()].sort(([left], [right]) => left.localeCompare(right))[0]?.[1];
-  if (!Content) return null;
-  const components = { ...sharedLearningMdxComponents, ...(domainMdxComponents[domainId] ?? {}) };
-  const referenceCoverage = domainId === 'continual-learning-llm'
-    ? continualLearningLessonReferenceCoverageById.get(lessonId)
-    : undefined;
-  const referencePapers = domainId === 'continual-learning-llm'
-    ? getContinualLearningLessonPapers(lessonId)
-    : [];
-  const featuredReferenceIds = referenceCoverage
-    ? getContinualLearningLessonFeaturedReferenceIds(lessonId)
-    : [];
-  const citationEvidence = domainId === 'continual-learning-llm'
-    ? getContinualLearningLessonCitationEvidence(lessonId)
-    : [];
-  const citationLinkOnlyExceptions = domainId === 'continual-learning-llm'
-    ? getContinualLearningLessonCitationLinkOnlyExceptions(lessonId)
-    : [];
+}): LearningMdxLessonDescriptor {
+  const lesson = loadedLesson;
+  const { Content, components, domainId, lessonId } = lesson;
+  const referenceCoverage = lesson.referenceCoverage;
   const authoredPages = Array.from({ length: lesson.pageCount }, (_, pageIndex) => (
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-${pageIndex}`} themeClasses={themeClasses}>
-      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} referencePapers={referencePapers} citationEvidence={citationEvidence} citationLinkOnlyExceptions={citationLinkOnlyExceptions} featuredReferenceIds={featuredReferenceIds} referenceCourseAnalysis={referenceCoverage?.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
+      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={pageIndex} entryPoints={lesson.entryPoints} referencePapers={lesson.referencePapers} citationEvidence={lesson.citationEvidence} citationLinkOnlyExceptions={lesson.citationLinkOnlyExceptions} featuredReferenceIds={lesson.featuredReferenceIds} referenceCourseAnalysis={referenceCoverage?.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
         <div className="learning-mdx-content">
           <Content components={components} />
         </div>
@@ -101,7 +139,7 @@ export function getLearningMdxLesson({ domainId, language, lessonId, quizQuestio
   ));
   const referencePage = referenceCoverage ? (
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-references`} themeClasses={themeClasses}>
-      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={lesson.pageCount} referencePapers={referencePapers} featuredReferenceIds={featuredReferenceIds} referenceCourseAnalysis={referenceCoverage.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
+      <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={lesson.pageCount} entryPoints={lesson.entryPoints} referencePapers={lesson.referencePapers} featuredReferenceIds={lesson.featuredReferenceIds} referenceCourseAnalysis={referenceCoverage.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
         <div className="learning-mdx-content">
           <LessonReferences />
         </div>
@@ -112,32 +150,69 @@ export function getLearningMdxLesson({ domainId, language, lessonId, quizQuestio
   return { pageCount: pages.length, pages };
 }
 
-function buildLessonRegistry(): Map<string, RegistryEntry> {
-  const registry = new Map<string, RegistryEntry>();
-  for (const [filePath, module] of Object.entries(LESSON_MODULES)) {
-    const parsed = parseLearningMdxPath(filePath);
-    if (!parsed) throw new Error(`Invalid Learning Lab MDX filename: ${filePath}`);
-    const domain = learningCatalog.domains.find((item) => item.id === parsed.domainId);
-    if (!domain) throw new Error(`Unknown Learning Lab MDX domain: ${filePath}`);
-    const lessonExists = learningCatalog.lessons.some((lesson) => lesson.domainId === domain.id && lesson.id === parsed.lessonId);
-    if (!lessonExists) throw new Error(`Learning Lab MDX lesson is missing from the catalog: ${filePath}`);
-    const lesson = learningCatalog.lessons.find((item) => item.domainId === domain.id && item.id === parsed.lessonId);
-    if (lesson?.contentStatus !== 'published') throw new Error(`Learning Lab MDX lesson is not published: ${filePath}`);
-    if (module.lessonMetadata.domainId !== parsed.domainId || module.lessonMetadata.id !== parsed.lessonId || module.lessonMetadata.locale !== parsed.locale) {
-      throw new Error(`Learning Lab MDX metadata does not match its path: ${filePath}`);
-    }
-    const catalogTitle = (lesson.text?.title as Record<string, string> | undefined)?.[parsed.locale];
-    if (catalogTitle && module.lessonMetadata.title !== catalogTitle) {
-      throw new Error(`Learning Lab MDX title does not match the catalog: ${filePath}`);
-    }
-    const pageCount = module.lessonMetadata.pageCount ?? 1;
-    if (!Number.isInteger(pageCount) || pageCount < 1) throw new Error(`Invalid Learning Lab MDX page count: ${filePath}`);
-    const key = `${domain.id}/${parsed.lessonId}`;
-    const entry = registry.get(key) ?? { domainId: domain.id, lessonId: parsed.lessonId, modules: new Map(), pageCount };
-    if (entry.pageCount !== pageCount) throw new Error(`Learning Lab MDX locale page count mismatch: ${filePath}`);
-    if (entry.modules.has(parsed.locale)) throw new Error(`Duplicate Learning Lab MDX locale: ${filePath}`);
-    entry.modules.set(parsed.locale, module.default);
-    registry.set(key, entry);
+function loadLessonModule(filePath: string): Promise<MdxModule> {
+  return getRetryableCachedPromise(lessonModulePromises, filePath, () => {
+    const loader = LESSON_LOADERS[filePath];
+    if (!loader) throw new Error(`Unknown Learning Lab MDX module: ${filePath}`);
+    return loader();
+  });
+}
+
+function loadDomainMdxComponents(domainId: LearningDomainId): Promise<Record<string, LearningMdxComponent>> {
+  const loadComponents = domainMdxComponentLoaders[domainId];
+  if (!loadComponents) return Promise.resolve({});
+  return getRetryableCachedPromise(domainComponentPromises, domainId, loadComponents);
+}
+
+function emptyLearningReferenceRuntime(): LearningReferenceRuntime {
+  return {
+    referencePapers: [],
+    featuredReferenceIds: [],
+    citationEvidence: [],
+    citationLinkOnlyExceptions: [],
+  };
+}
+
+async function loadLearningReferenceRuntime(
+  domainId: LearningDomainId,
+  lessonId: string,
+): Promise<LearningReferenceRuntime> {
+  if (domainId !== 'continual-learning-llm') {
+    return emptyLearningReferenceRuntime();
   }
-  return registry;
+
+  const [papers, evidence] = await Promise.all([
+    import('../../content/learning/continual-learning-llm/papers.ts'),
+    import('../../content/learning/continual-learning-llm/citationEvidence.ts'),
+  ]);
+  return {
+    referenceCoverage: papers.continualLearningLessonReferenceCoverageById.get(lessonId),
+    referencePapers: papers.getContinualLearningLessonPapers(lessonId),
+    featuredReferenceIds: papers.getContinualLearningLessonFeaturedReferenceIds(lessonId),
+    citationEvidence: evidence.getContinualLearningLessonCitationEvidence(lessonId),
+    citationLinkOnlyExceptions: evidence.getContinualLearningLessonCitationLinkOnlyExceptions(lessonId),
+  };
+}
+
+function assertSelectedLearningMdxModule(
+  module: MdxModule,
+  selectedModule: LessonModuleDescriptor,
+  lesson: LearningLesson,
+): void {
+  const metadata = module.lessonMetadata;
+  if (
+    metadata.domainId !== selectedModule.domainId
+    || metadata.id !== selectedModule.lessonId
+    || metadata.locale !== selectedModule.locale
+  ) {
+    throw new Error(`Learning Lab MDX metadata does not match its path: ${selectedModule.filePath}`);
+  }
+  const catalogTitle = lesson.text?.title[selectedModule.locale as keyof typeof lesson.text.title];
+  if (catalogTitle && metadata.title !== catalogTitle) {
+    throw new Error(`Learning Lab MDX title does not match the catalog: ${selectedModule.filePath}`);
+  }
+  const pageCount = metadata.pageCount ?? 1;
+  if (!Number.isInteger(pageCount) || pageCount < 1) {
+    throw new Error(`Invalid Learning Lab MDX page count: ${selectedModule.filePath}`);
+  }
 }

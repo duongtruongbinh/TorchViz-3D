@@ -1,7 +1,7 @@
 import React from 'react';
 import { Binary, Boxes, Download, Navigation, Workflow, X, type LucideIcon } from 'lucide-react';
 import { getStrings } from '../lib/localization';
-import { useStore } from '../store/useStore';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 
 interface Props {
   isOpen: boolean;
@@ -29,7 +29,7 @@ const GuideIconBadge: React.FC<{ icon: GuideIcon }> = ({ icon }) => {
 };
 
 const HelpModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
   if (!isOpen) return null;
 

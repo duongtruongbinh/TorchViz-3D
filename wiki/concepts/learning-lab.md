@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-14
+updated: 2026-08-17
 ---
 
 # Learning Lab
@@ -267,18 +267,89 @@ typed domain TOCs
   -> src/content/learning/index.ts
   -> src/core/learning/materializeCatalog.ts
   -> React-free learningCatalog
-  -> selectors, routes, course pages, lesson rail, lesson detail
+  -> build/dev-only Home summary virtual module
+  -> Learning Home cards and domain sidebar
+  -> cached one-TOC materialization on Path domain entry
+  -> canonical first-lesson resolution by product default
+  -> cached full-catalog import on Review entry only
+  -> selectors, routes, course pages, lesson rail
+
+global language preference
+  -> small Zustand preferences store
+  -> Landing, Learning Lab, and Workspace consumers
+
+Workspace templates, IR, and layout
+  -> Workspace Zustand store
+  -> deferred Workspace route only
 
 locale MDX files
-  -> scripts/learningContentMdx.ts validation/search extraction
-  -> Vite compiled lesson registry + React-free virtual search documents
-  -> LessonDetail + LessonRail
+  -> scripts/learningContentMdx.ts validation/search/capability extraction
+  -> non-eager Vite lesson-loader registry
+  -> lazy LessonDetail boundary (only after a lesson is selected)
+  -> selected lesson and first available requested/fallback locale only
+
+authored lesson images, optional domain adapters, and reference data
+  -> per-module capabilities from component use and canonical reference coverage
+  -> non-eager Vite loaders
+  -> selected lesson render only; quiz/no-reference lessons skip paper/evidence
+
+authored MDX search documents
+  -> one generated Vite virtual module per domain
+  -> deferred until the active domain receives a non-empty query
+  -> synchronous LessonRail lookup after resolution
 ```
 
-The stable catalog is a normal TypeScript export, not a Vite virtual module, so
-Node tests and core selectors consume the same React-free data as runtime code.
-The Vite virtual module contains generated search documents only. This prevents
-catalog tests from depending on Vite and avoids a catalog-validation cycle.
+The stable full catalog remains a normal TypeScript export, so Node tests and
+core selectors consume the same React-free data as runtime code. Vite derives a
+small Home projection from that canonical catalog at build/dev-server time; it
+contains ordered domain metadata, readiness, and lesson counts, but no tracks,
+lessons, aliases, or hand-maintained duplicate manifest. A separate virtual
+module still owns generated search documents.
+
+Learning Home is a lightweight runtime boundary. `LearningLabView` does not
+statically import the full catalog or `LessonDetail`. Home and its domain
+sidebar render from the generated summary. Entering a Path domain first loads
+and materializes only its canonical `table-of-contents.ts`, then resolves the
+domain's first lesson by product default. Review is the sole UI surface that
+loads the concrete all-domain catalog. Both boundaries use a localized,
+reduced-motion-safe loading surface until route resolution can continue. The
+automatic first lesson intentionally proceeds to that one MDX module without
+requesting sibling or foreign-domain lessons.
+
+Lesson resolution independently loads the authored detail runtime and exactly
+one compiled MDX module: the selected lesson in the first available locale from
+the requested-locale/fallback order. Vite injects a small capability export into
+each compiled module from authored component use and canonical Continual
+Learning coverage. Optional adapters and paper/evidence data therefore load
+only when that module needs them; quiz-only Continual Learning modules import
+neither reference chunk. Lesson images remain non-eager and load only when
+their page renders. The registry indexes Vite
+loader keys but does not import sibling lessons or other domains. None of those
+dependencies are part of a cold `#/learning` request or an unrelated Path
+domain request.
+
+Catalog, MDX, adapter, and search promise caches deduplicate in-flight work and
+evict rejected entries. Catalog, lesson, search, and image surfaces distinguish
+loading from failure and expose a localized retry instead of leaving a poisoned
+cache or indefinite skeleton. Lesson paging, completion, and quiz reset use the
+full domain/lesson identity.
+
+Language is owned by `usePreferencesStore`, not the Workspace store. Landing
+and Learning can therefore read and change the same global preference without
+requesting Python templates, IR/layout helpers, worker code, or canvas modules.
+The Workspace store still owns templates and editor/canvas state and loads only
+behind the Workspace route.
+
+Generated authored-text search payloads are dynamic imports split by domain.
+Entering a domain requests none of them. The first non-empty query loads and
+caches only the active domain's payload, then refreshes the rail filter when its
+document map is ready. Catalog title/ID matching remains available through the
+same filter path, and authored-body matching uses the resolved virtual
+documents. This keeps Home and passive domain browsing independent from lesson
+prose without introducing a second search contract or changing search semantics.
+Development validation is scoped to the requested domain. MDX changes
+invalidate that domain's virtual search payload, while typed-TOC changes restart
+Vite so the Node-derived Home summary and catalog graph cannot remain stale.
 
 MDX validation is generic across `src/content/learning/*/*.mdx`. It derives
 identity from `<domain>/[<numeric-prefix>-]<lesson>.<locale>.mdx`, checks the file against the
@@ -339,15 +410,16 @@ and Vietnamese-diacritic-insensitive.
 | Path | Responsibility |
 |---|---|
 | `src/components/learning/LearningLabView.tsx` | Route-aware Learning Lab shell and domain/track/lesson orchestration. |
+| `src/components/learning/learningCatalogLoader.ts` | Cached one-domain Path catalog loader and Review-only full-catalog loader. |
 | `src/components/learning/LearningLabHeader.tsx` | Path/Review mode, language, and responsive navigation controls. |
 | `src/components/learning/shell/ReviewMode.tsx` | Tag-derived quick-review catalog for published exercise lessons. |
 | `src/components/learning/shell/DomainCatalog.tsx` | Domain-first catalog entry surface. |
 | `src/components/learning/shell/DomainCoursePage.tsx` | Shared domain course overview and track accordions. |
 | `src/components/learning/lesson/LessonRail.tsx` | Searchable lesson rail, status filters, chapter collapse, and automatic scroll-to-center on lesson navigation. |
-| `src/components/learning/lesson/LessonDetail.tsx` | Placeholder or compiled authored lesson rendering. |
+| `src/components/learning/lesson/LessonDetail.tsx` | Placeholder rendering plus asynchronous selected lesson/locale loading. |
 | `src/components/learning/lesson/QuizBlock.tsx` | Shared stateful quiz behavior used by MDX. |
 | `src/components/learning/learningMdxComponents.tsx` | Shared Markdown primitives, context, lesson frame, and quiz adapter. |
-| `src/components/learning/learningMdxRegistry.tsx` | Generic compiled lesson lookup plus optional domain component maps. |
+| `src/components/learning/learningMdxRegistry.tsx` | Non-eager compiled lesson lookup plus lazy optional domain component maps. |
 | `src/components/learning/domains/llm-ai-engineering/mdxComponents.tsx` | Stable LLM MDX adapter and public component map. |
 | `src/components/learning/domains/llm-ai-engineering/*Renderers.tsx` | LLM-only tokenizer, language-model, and concept renderer families behind the stable `renderers.tsx` barrel. |
 | `src/components/learning/domains/llm-ai-engineering/rendererTypes.ts` | Domain-local authored-content shapes shared by the LLM renderer families. |
@@ -367,11 +439,15 @@ and Vietnamese-diacritic-insensitive.
 | `src/core/learning/types.ts` | React-free catalog contracts. |
 | `src/core/learning/materializeCatalog.ts` | Pure catalog construction and invariant validation. |
 | `src/core/learning/mdxContract.ts` | React-free filename, metadata, locale, and search normalization contract. |
+| `src/core/learning/retryablePromiseCache.ts` | Shared in-flight deduplication with rejected-entry eviction. |
+| `src/core/learning/lessonIdentity.ts` | Stable domain/lesson UI and completion identity. |
 | `src/core/learning/selectors.ts` | Pure catalog lookup helpers. |
+| `src/store/usePreferencesStore.ts` | Global language preference without Workspace dependencies. |
 | `src/components/learning/authoredTypes.ts` | Quiz and LLM renderer DTOs used by authored MDX adapters. |
-| `src/components/learning/learningSearch.ts` | UI adapter over generated Vite search documents. |
+| `src/components/learning/learningSearch.ts` | Cached per-domain UI adapter over generated Vite search documents. |
 | `src/components/learning/lesson/visibleLesson.ts` | Rail/detail visible-lesson selection policy. |
-| `scripts/learningContentMdx.ts` | Node/Vite MDX validation and generated search documents. |
+| `scripts/learningContentMdx.ts` | Node/Vite MDX validation, generated runtime capabilities, per-domain search documents, and dev invalidation. |
+| `scripts/learningHomeCatalog.ts` | Build/dev projection of canonical domain summaries plus TOC restart boundary. |
 | `scripts/generateContinualLearningReferences.mjs` | Rebuilds the Continual Learning paper snapshot from Shi et al. arXiv v3 source and HTML bibliography. |
 | `scripts/auditContinualLearningCitationEvidence.mjs` | Network maintenance audit for reviewed excerpt fragments and HTML anchors; never rewrites evidence. |
 
@@ -478,6 +554,8 @@ remain green so progress continues to take precedence.
   state/reset, locale fallback, authored search text, and light-only runtime
   behavior.
 - Learning Lab changes must not reset Workspace editor/canvas state.
+- Cold Learning Home must not request Workspace templates or domain TOCs; those
+  graphs begin only at their Workspace and domain/Review boundaries.
 
 ## Related Pages
 

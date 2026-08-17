@@ -1,6 +1,6 @@
 import { Languages, Menu } from 'lucide-react';
 import { getStrings, type Language } from '../../lib/localization';
-import { useStore } from '../../store/useStore';
+import { usePreferencesStore } from '../../store/usePreferencesStore';
 import { cx, getLearningLabTheme } from './theme';
 
 type LearningLabHeaderProps = {
@@ -16,8 +16,8 @@ export default function LearningLabHeader({
   onModeChange,
   onOpenNavigation,
 }: LearningLabHeaderProps) {
-  const language = useStore((s) => s.language);
-  const setLanguage = useStore((s) => s.setLanguage);
+  const language = usePreferencesStore((s) => s.language);
+  const setLanguage = usePreferencesStore((s) => s.setLanguage);
   const currentLanguage = language === 'vi' ? ('vi' as Language) : ('en' as Language);
   const strings = getStrings(currentLanguage);
   const text = strings.learningLab;

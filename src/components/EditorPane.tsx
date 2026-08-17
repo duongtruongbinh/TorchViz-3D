@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Editor, { Monaco, loader, type OnMount } from '@monaco-editor/react';
 import { getStrings } from '../lib/localization';
-import { useStore } from '../store/useStore';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 
 loader.config({ paths: { vs: '/monaco/vs' } });
 
@@ -55,7 +55,7 @@ const EditorPane: React.FC<EditorPaneProps> = ({
   highlightLine,
   onCursorChange,
 }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const monacoRef = useRef<Monaco | null>(null);

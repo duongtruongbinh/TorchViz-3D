@@ -19,7 +19,8 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { createContext, isValidElement, useContext, useEffect, useId, useMemo, useRef, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import type { LearningLessonExtra } from './authoredTypes';
-import type { Language } from '../../lib/localization';
+import type { LearningLessonEntryPoint } from '../../core/learning/types';
+import { getStrings, type Language } from '../../lib/localization';
 import { citationEvidenceTargetLabel, type LearningCitationEvidence, type LearningCitationLinkOnlyException } from '../../core/learning/citationEvidence';
 import { indexLearningReferences } from '../../core/learning/referenceIndex';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
@@ -47,6 +48,7 @@ const LearningMdxLessonContext = createContext<{
   lessonId: string;
   language: Language;
   pageIndex: number;
+  entryPoints: readonly LearningLessonEntryPoint[];
   referencePapers?: readonly LearningReferencePaper[];
   referenceIndexByPaperId: ReadonlyMap<string, number>;
   citationEvidence?: readonly LearningCitationEvidence[];
@@ -63,12 +65,13 @@ export function LearningMdxThemeProvider({ children, themeClasses }: { children:
   return <LearningMdxThemeContext.Provider value={themeClasses}>{children}</LearningMdxThemeContext.Provider>;
 }
 
-export function LearningMdxLessonProvider({ children, domainId, lessonId, language, pageIndex, referencePapers, citationEvidence, citationLinkOnlyExceptions, featuredReferenceIds, referenceCourseAnalysis, quizQuestionStates, onQuizQuestionStateChange }: {
+export function LearningMdxLessonProvider({ children, domainId, lessonId, language, pageIndex, entryPoints = [], referencePapers, citationEvidence, citationLinkOnlyExceptions, featuredReferenceIds, referenceCourseAnalysis, quizQuestionStates, onQuizQuestionStateChange }: {
   children: ReactNode;
   domainId: string;
   lessonId: string;
   language: Language;
   pageIndex: number;
+  entryPoints?: readonly LearningLessonEntryPoint[];
   referencePapers?: readonly LearningReferencePaper[];
   citationEvidence?: readonly LearningCitationEvidence[];
   citationLinkOnlyExceptions?: readonly LearningCitationLinkOnlyException[];
@@ -82,7 +85,7 @@ export function LearningMdxLessonProvider({ children, domainId, lessonId, langua
     () => indexLearningReferences(referencePapers ?? [], featuredReferenceIds ?? []),
     [featuredReferenceIds, referencePapers],
   );
-  return <LearningMdxLessonContext.Provider value={{ domainId, lessonId, language, pageIndex, referencePapers: indexedReferences.ordered, referenceIndexByPaperId: indexedReferences.indexById, citationEvidence, citationLinkOnlyExceptions, activeCitationEvidenceId, setActiveCitationEvidenceId, featuredReferenceIds, referenceCourseAnalysis, quizQuestionStates, onQuizQuestionStateChange }}>{children}</LearningMdxLessonContext.Provider>;
+  return <LearningMdxLessonContext.Provider value={{ domainId, lessonId, language, pageIndex, entryPoints, referencePapers: indexedReferences.ordered, referenceIndexByPaperId: indexedReferences.indexById, citationEvidence, citationLinkOnlyExceptions, activeCitationEvidenceId, setActiveCitationEvidenceId, featuredReferenceIds, referenceCourseAnalysis, quizQuestionStates, onQuizQuestionStateChange }}>{children}</LearningMdxLessonContext.Provider>;
 }
 
 export function useLearningMdxTheme(): LearningThemeClasses {
@@ -339,30 +342,100 @@ export function LessonNote({ children, tone = 'default' }: { children?: ReactNod
   );
 }
 
-const LESSON_IMAGE_MODULES = import.meta.glob('../../assets/learning/**/*.{png,jpg,jpeg,webp,svg}', {
-  eager: true,
+const LESSON_IMAGE_LOADERS = import.meta.glob('../../assets/learning/**/*.{png,jpg,jpeg,webp,svg}', {
   import: 'default',
   query: '?url',
-}) as Record<string, string>;
+}) as Record<string, () => Promise<string>>;
 
-export function LessonImage({ assetPath, alt, caption }: { assetPath: string; alt: string; caption?: string }) {
+export function LessonImage({
+  assetPath,
+  alt,
+  caption,
+  aspectRatio = '16 / 9',
+}: {
+  assetPath: string;
+  alt: string;
+  caption?: string;
+  aspectRatio?: string;
+}) {
   const themeClasses = useLearningMdxTheme();
+  const { language } = useLearningMdxLesson();
+  const strings = getStrings(language).learningLab;
   const normalizedPath = assetPath.replace(/^\/+/, '');
-  const src = Object.entries(LESSON_IMAGE_MODULES).find(([modulePath]) => modulePath.endsWith(`/assets/learning/${normalizedPath}`))?.[1] ?? '';
-  if (!src) return null;
+  const [loadState, setLoadState] = useState<{ key: string; status: 'loading' | 'success' | 'error'; src?: string } | null>(null);
+  const [retryVersion, setRetryVersion] = useState(0);
+  const loadImage = Object.entries(LESSON_IMAGE_LOADERS)
+    .find(([modulePath]) => modulePath.endsWith(`/assets/learning/${normalizedPath}`))?.[1];
+  const requestKey = `${normalizedPath}/${retryVersion}`;
+
+  useEffect(() => {
+    if (!loadImage) {
+      setLoadState({ key: requestKey, status: 'error' });
+      return;
+    }
+    let isActive = true;
+    setLoadState({ key: requestKey, status: 'loading' });
+    void loadImage()
+      .then((imageUrl) => {
+        if (isActive) setLoadState({ key: requestKey, status: 'success', src: imageUrl });
+      })
+      .catch((error: unknown) => {
+        console.error(`Learning Lab image failed to load: ${normalizedPath}`, error);
+        if (isActive) setLoadState({ key: requestKey, status: 'error' });
+      });
+    return () => {
+      isActive = false;
+    };
+  }, [loadImage, normalizedPath, requestKey]);
+
+  const currentState = loadState?.key === requestKey ? loadState : null;
+  if (!currentState || currentState.status === 'loading') {
+    return (
+      <div
+        aria-busy="true"
+        aria-label={alt}
+        className={cx(
+          'my-6 w-full animate-pulse rounded-lg motion-reduce:animate-none',
+          themeClasses.isLight ? 'bg-[#B8C8DA]/45' : 'bg-[#A8B8C8]/12',
+        )}
+        style={{ aspectRatio }}
+      />
+    );
+  }
+  if (currentState.status === 'error') {
+    return (
+      <div
+        role="alert"
+        aria-label={alt}
+        className={cx('my-6 grid w-full place-content-center justify-items-center gap-3 rounded-lg border p-5 text-center', themeClasses.surface.unavailable, themeClasses.mutedText)}
+        style={{ aspectRatio }}
+      >
+        <p className="text-sm font-bold">{strings.imageLoadError}</p>
+        {loadImage ? (
+          <button type="button" onClick={() => setRetryVersion((current) => current + 1)} className={cx('min-h-10 px-4 text-xs font-black', themeClasses.radius.button, themeClasses.button.secondary, themeClasses.focusRing)}>
+            {strings.retry}
+          </button>
+        ) : null}
+      </div>
+    );
+  }
   return (
     <figure className="my-6 grid justify-items-center gap-2">
-      <img
-        src={src}
-        alt={alt}
-        loading="lazy"
-        decoding="async"
-        className="block h-auto w-auto max-w-full rounded-xl border object-contain shadow-sm"
+      <div
+        className="w-full overflow-hidden rounded-xl border shadow-sm"
         style={{
           borderColor: themeClasses.isLight ? 'rgba(32,80,137,0.12)' : 'rgba(168,212,255,0.14)',
-          maxHeight: 'min(32rem, calc(100vh - 14rem))',
+          aspectRatio,
         }}
-      />
+      >
+        <img
+          src={currentState.src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          className="block h-full w-full object-contain"
+        />
+      </div>
       {caption && (
         <figcaption className={cx('text-center text-sm leading-5', themeClasses.mutedText)}>
           {caption}

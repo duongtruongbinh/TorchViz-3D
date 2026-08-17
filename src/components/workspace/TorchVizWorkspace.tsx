@@ -9,6 +9,7 @@ import { hasSeenTour, TERMINAL_ERROR_TOUR_STEP, TERMINAL_SUCCESS_TOUR_STEP } fro
 import { shouldCloseLayerInsightForTourStep } from '../../lib/onboardingTourSteps';
 import { findNodeByLine, type IRNode } from '../../lib/irTypes';
 import { useStore } from '../../store/useStore';
+import { usePreferencesStore } from '../../store/usePreferencesStore';
 import { workerService } from '../../lib/workerService';
 import { getStrings, type LocalizedStrings } from '../../lib/localization';
 
@@ -82,7 +83,7 @@ type TorchVizWorkspaceProps = {
 
 export default function TorchVizWorkspace({ onBackToLanding }: TorchVizWorkspaceProps) {
   const code = useStore(s => s.code);
-  const language = useStore(s => s.language);
+  const language = usePreferencesStore(s => s.language);
   const ir = useStore(s => s.ir);
   const loading = useStore(s => s.loading);
   const error = useStore(s => s.error);

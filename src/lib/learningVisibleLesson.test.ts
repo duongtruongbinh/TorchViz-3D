@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { LearningLesson } from '../core/learning/types.ts';
-import { resolveVisibleLearningLesson } from '../components/learning/lesson/visibleLesson.ts';
+import { resolveRailLearningLesson } from '../components/learning/lesson/visibleLesson.ts';
 
 function lesson(id: string): LearningLesson {
   return {
@@ -16,30 +16,24 @@ function lesson(id: string): LearningLesson {
   };
 }
 
-test('visible lesson policy preserves routes and falls back to the first domain lesson', () => {
+test('visible lesson policy relies on route resolution instead of inventing a detail lesson', () => {
   const route = lesson('route');
   const firstFiltered = lesson('filtered');
-  const result = resolveVisibleLearningLesson({
+  const result = resolveRailLearningLesson({
     routeSelectedLesson: route,
     firstFilteredLesson: firstFiltered,
     filteredLessonIds: new Set(['filtered']),
     isLessonRailFiltered: true,
-    firstDomainLesson: lesson('first'),
   });
 
-  assert.equal(result.detailLesson?.id, 'route');
-  assert.equal(result.railLesson?.id, 'filtered');
-  assert.equal(result.shouldNavigateToDetailLesson, false);
+  assert.equal(result?.id, 'filtered');
 
-  const first = lesson('first');
-  const fallback = resolveVisibleLearningLesson({
+  const fallback = resolveRailLearningLesson({
     routeSelectedLesson: null,
     firstFilteredLesson: null,
     filteredLessonIds: new Set(),
     isLessonRailFiltered: false,
-    firstDomainLesson: first,
   });
 
-  assert.equal(fallback.detailLesson?.id, 'first');
-  assert.equal(fallback.railLesson?.id, 'first');
+  assert.equal(fallback, null);
 });

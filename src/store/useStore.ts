@@ -15,7 +15,6 @@ import alexnetCode from '../templates/alexnet.ts';
 import vgg16Code from '../templates/vgg16.ts';
 import mobilenetV2Code from '../templates/mobilenet_v2.ts';
 import unetCode from '../templates/unet.ts';
-import type { Language } from '../lib/localization.ts';
 import type { AppError } from '../lib/appError.ts';
 
 export const TEMPLATES: Record<string, { name: string; code: string; shape: number[] }> = {
@@ -29,7 +28,6 @@ export const TEMPLATES: Record<string, { name: string; code: string; shape: numb
 };
 
 interface AppState {
-    language: Language;
     activeTemplate: string;
     code: string;
     shapeInput: string;
@@ -48,7 +46,6 @@ interface AppState {
     graphRevision: number;
     layoutRevision: number;
 
-    setLanguage: (language: Language) => void;
     setActiveTemplate: (templateId: string) => void;
     setCode: (code: string) => void;
     setShapeInput: (shape: string) => void;
@@ -66,7 +63,6 @@ interface AppState {
 }
 
 export const useStore = create<AppState>((set, get) => ({
-    language: 'vi',
     activeTemplate: 'lenet',
     code: TEMPLATES.lenet.code.trim(),
     shapeInput: JSON.stringify(TEMPLATES.lenet.shape),
@@ -84,8 +80,6 @@ export const useStore = create<AppState>((set, get) => ({
     layout: null,
     graphRevision: 0,
     layoutRevision: 0,
-
-    setLanguage: (language) => set({ language }),
 
     setActiveTemplate: (templateId: string) => {
         const t = TEMPLATES[templateId];

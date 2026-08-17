@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { LayoutData, LayoutNode } from '../../lib/irTypes';
 import { getStrings } from '../../lib/localization';
 import { useStore } from '../../store/useStore';
+import { usePreferencesStore } from '../../store/usePreferencesStore';
 import {
   DataFlowDemo,
   DemoControls,
@@ -25,6 +26,7 @@ import {
   getVectorizedLayoutEdges,
 } from '../../lib/canvasUtils';
 import type { AppError } from '../../lib/appError';
+import { loadLearningDomainCatalog } from '../learning/learningCatalogLoader';
 import { getAdaptiveGridSpec, getFlowSafeGroundGridLinePositions, getLayoutWorldBounds } from '../../lib/renderBounds';
 import { resolveLearningExerciseLessonTarget, type LearningExerciseLessonTarget } from '../../core/learning/selectors';
 import { getHashRouterUrl, getLearningLessonPath } from '../../lib/appRoutes';
@@ -103,7 +105,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
   resetViewDisabled = false,
   demoModeEnabled = false,
 }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const activeTemplate = useStore((s) => s.activeTemplate);
   const shapeInput = useStore((s) => s.shapeInput);
   const t = getStrings(language);
@@ -164,7 +166,7 @@ const Canvas3D: React.FC<Canvas3DProps> = ({
       return;
     }
     let cancelled = false;
-    void import('../../content/learning/index.ts').then(({ learningCatalog }) => {
+    void loadLearningDomainCatalog('cv').then((learningCatalog) => {
       if (cancelled) return;
       const targets = new Map<ExerciseId, LearningExerciseLessonTarget>();
       for (const exercise of demo.availableExercises) {

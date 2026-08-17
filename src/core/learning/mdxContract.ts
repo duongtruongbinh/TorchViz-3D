@@ -35,6 +35,11 @@ export type LearningMdxMetadata = {
   pageCount?: number;
 };
 
+export type LearningMdxRuntimeCapabilities = {
+  needsDomainAdapter: boolean;
+  needsReferenceRuntime: boolean;
+};
+
 export type LearningMdxPath = {
   domainId: string;
   lessonId: string;

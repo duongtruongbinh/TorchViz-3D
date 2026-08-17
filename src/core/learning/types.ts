@@ -126,3 +126,9 @@ export type LearningCatalog = {
   lessons: LearningLesson[];
   routeAliases?: LearningRouteAlias[];
 };
+
+export type LearningHomeDomainSummary = {
+  domain: LearningDomain;
+  lessonCount: number;
+  isReady: boolean;
+};

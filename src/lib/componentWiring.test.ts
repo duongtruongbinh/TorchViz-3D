@@ -104,6 +104,90 @@ test('AppShell lazy-loads Learning Lab instead of importing it into the landing 
   );
 });
 
+test('Learning Home defers authored lesson runtime until a lesson is selected', () => {
+  const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
+  const learningSearch = readSource('src/components/learning/learningSearch.ts');
+
+  assert.doesNotMatch(
+    learningLabView,
+    /import\s+LessonDetail\s+from\s+['"]\.\/lesson\/LessonDetail['"]/,
+    'LearningLabView should not statically import the authored lesson runtime',
+  );
+  assert.match(
+    learningLabView,
+    /lazy\(\(\) => import\(['"]\.\/lesson\/LessonDetail['"]\)\)/,
+    'LearningLabView should lazy-load LessonDetail behind the selected-lesson branch',
+  );
+  assert.match(
+    learningLabView,
+    /selectedLesson[\s\S]*<Suspense[\s\S]*<LessonDetail/,
+    'the deferred lesson detail should render inside Suspense only when a lesson is selected',
+  );
+  assert.doesNotMatch(
+    learningSearch,
+    /virtual:learning-mdx-search-documents\//,
+    'the browser adapter should not statically import any domain search payload',
+  );
+  assert.match(
+    learningSearch,
+    /from ['"]virtual:learning-mdx-search-loaders['"]/,
+    'Learning should import only the generated domain-loader manifest',
+  );
+  assert.match(
+    learningSearch,
+    /searchDocumentLoaders\[domainId\]\(\)/,
+    'authored search documents should load on demand for the active domain',
+  );
+});
+
+test('Learning Home stays outside Workspace and full-catalog dependency graphs', () => {
+  const landing = readSource('src/components/landing/LandingPage.tsx');
+  const learningLabView = readSource('src/components/learning/LearningLabView.tsx');
+  const learningLabHeader = readSource('src/components/learning/LearningLabHeader.tsx');
+  const workspace = readSource('src/components/workspace/TorchVizWorkspace.tsx');
+  const domainCatalog = readSource('src/components/learning/shell/DomainCatalog.tsx');
+  const learningText = readSource('src/components/learning/learningText.ts');
+  const learningSearch = readSource('src/components/learning/learningSearch.ts');
+  const learningCatalogLoader = readSource('src/components/learning/learningCatalogLoader.ts');
+  const learningMdxComponents = readSource('src/components/learning/learningMdxComponents.tsx');
+  const learningMdxRegistry = readSource('src/components/learning/learningMdxRegistry.tsx');
+  const cvMdxComponents = readSource('src/components/learning/domains/cv/mdxComponents.tsx');
+  const preferencesStore = readSource('src/store/usePreferencesStore.ts');
+  const workspaceStore = readSource('src/store/useStore.ts');
+
+  for (const source of [landing, learningLabView, learningLabHeader]) {
+    assert.doesNotMatch(source, /store\/useStore['"]/);
+    assert.match(source, /store\/usePreferencesStore['"]/);
+  }
+  assert.match(workspace, /store\/usePreferencesStore['"]/, 'Workspace should consume the shared language preference');
+  assert.doesNotMatch(preferencesStore, /templates\/|lib\/(?:irTypes|layout)|worker|canvas/i);
+  assert.doesNotMatch(workspaceStore, /\blanguage\s*:|\bsetLanguage\s*:/);
+
+  assert.match(learningLabView, /from ['"]virtual:learning-home-catalog['"]/);
+  assert.match(learningLabView, /from ['"]\.\/learningCatalogLoader['"]/);
+  assert.match(learningCatalogLoader, /import\(['"]\.\.\/\.\.\/content\/learning\/index\.ts['"]\)/);
+  assert.match(learningCatalogLoader, /import\.meta\.glob<LearningTocModule>/);
+  assert.doesNotMatch(learningCatalogLoader, /eager:\s*true/);
+  assert.doesNotMatch(learningLabView, /^import[^\n]+content\/learning/m);
+  for (const source of [domainCatalog, learningText, learningSearch]) {
+    assert.doesNotMatch(source, /^import[^\n]+content\/learning/m);
+  }
+  assert.match(learningMdxRegistry, /import\.meta\.glob<MdxModule>/);
+  assert.doesNotMatch(learningMdxRegistry, /eager:\s*true/);
+  assert.doesNotMatch(learningMdxRegistry, /^import[^\n]+content\/learning\/index/m);
+  assert.match(learningMdxRegistry, /loadLessonModule\(selectedModule\.filePath\)/);
+  assert.match(learningMdxRegistry, /import\(['"]\.\/domains\/cv\/mdxComponents['"]\)/);
+  assert.match(learningMdxRegistry, /domainId !== ['"]continual-learning-llm['"]/);
+  assert.match(learningMdxComponents, /LESSON_IMAGE_LOADERS\s*=\s*import\.meta\.glob/);
+  assert.doesNotMatch(
+    learningMdxComponents,
+    /LESSON_IMAGE_LOADERS\s*=\s*import\.meta\.glob[\s\S]{0,240}eager:\s*true/,
+    'authored lesson images should load only when their LessonImage renders',
+  );
+  assert.doesNotMatch(cvMdxComponents, /content\/learning\/index/);
+  assert.match(learningLabView, /!routeDomainId \|\| !lessonSearchQuery\.trim\(\)/);
+});
+
 test('Learning Lab shared infrastructure avoids duplicated navigation and UI logic', () => {
   const quizBlock = readSource('src/components/learning/lesson/QuizBlock.tsx');
   const domainRenderer = readLlmRendererSources();
