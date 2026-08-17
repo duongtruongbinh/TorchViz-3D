@@ -3,6 +3,20 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-08-17 — Learning Lab moved to recoverable on-demand boundaries.** Cold
+  Home now uses canonical generated summaries and a small language-preference
+  store, requesting no Workspace template, TOC, MDX, search, adapter, reference,
+  or image payload. Path materializes one domain TOC and opens its first lesson
+  by default; lesson rendering imports one locale MDX plus only capabilities it
+  needs, while Review alone owns the full catalog. Search is per-domain and
+  query-triggered. Retry-safe caches, localized finite error states,
+  domain-qualified lesson identity, stable image boxes, and deterministic
+  MDX/TOC dev invalidation harden the async boundaries. The Learning shell fell
+  from a 2,547.88 kB raw / 672.35 kB gzip eager baseline to about 70.30 kB /
+  20.60 kB; the Linear Algebra TOC and search payload are 5.86 kB / 2.12 kB and
+  42.39 kB / 12.87 kB respectively. Five branch checkpoints were compacted into
+  [one final plan](../docs/plans/2026-08-17-learning-home-initial-load.md).
+
 - **2026-07-14 — RequirementCard code-wrap fix.** Long inline code (e.g. a URL in a
   bash command) in `RequirementCard` no longer forces the card wider than its
   siblings. Two CSS changes in `learningMdxComponents.tsx`:

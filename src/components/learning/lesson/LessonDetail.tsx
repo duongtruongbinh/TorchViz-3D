@@ -1,25 +1,34 @@
 import { ArrowLeft, ArrowRight, BookOpen, Calculator, Code2, type LucideIcon } from 'lucide-react';
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import type { LearningLesson } from '../../../core/learning/types';
+import { getLearningLessonIdentity } from '../../../core/learning/lessonIdentity';
 import type { Language } from '../../../lib/localization';
 import { getStrings } from '../../../lib/localization';
 import { getUnifiedLessonText } from '../learningText';
 import { cx, getLearningLabTheme, isTypingTarget } from '../theme';
 import type { QuizQuestionState } from './QuizBlock';
-import { getLearningMdxLesson } from '../learningMdxRegistry';
+import {
+  getLearningMdxLesson,
+  loadLearningMdxLesson,
+  type LoadedLearningMdxLesson,
+} from '../learningMdxRegistry';
 
 type LessonDetailProps = {
   lesson: LearningLesson;
   theme: 'dark' | 'light';
   language: Language;
+  fallbackLocales?: readonly string[];
   hasNextLesson?: boolean;
   onSelectNextLesson?: () => void;
 };
+
+const EMPTY_FALLBACK_LOCALES: readonly string[] = [];
 
 export default function LessonDetail({
   lesson,
   theme,
   language,
+  fallbackLocales = EMPTY_FALLBACK_LOCALES,
   hasNextLesson = false,
   onSelectNextLesson,
 }: LessonDetailProps) {
@@ -29,13 +38,21 @@ export default function LessonDetail({
   const sectionDivider = themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/12';
   const [sectionPageIndex, setSectionPageIndex] = useState(0);
   const [quizQuestionStates, setQuizQuestionStates] = useState<Record<string, QuizQuestionState>>({});
+  const [loadedMdxState, setLoadedMdxState] = useState<{
+    key: string;
+    status: 'loading' | 'success' | 'error';
+    lesson?: LoadedLearningMdxLesson | null;
+  } | null>(null);
+  const [mdxRetryVersion, setMdxRetryVersion] = useState(0);
   const articleRef = useRef<HTMLElement | null>(null);
+  const lessonIdentity = getLearningLessonIdentity(lesson);
+  const mdxRequestKey = `${lessonIdentity}/${language}/${fallbackLocales.join(',')}`;
 
   useEffect(() => {
     setSectionPageIndex(0);
     setQuizQuestionStates({});
     articleRef.current?.focus({ preventScroll: true });
-  }, [lesson.id]);
+  }, [lessonIdentity]);
 
   const updateQuizQuestionState = useCallback((questionId: string, state: QuizQuestionState) => {
     setQuizQuestionStates((current) => ({
@@ -44,7 +61,32 @@ export default function LessonDetail({
     }));
   }, []);
 
-  const mdxLesson = getLearningMdxLesson({ domainId: lesson.domainId, language, lessonId: lesson.id, quizQuestionStates, themeClasses, onQuizQuestionStateChange: updateQuizQuestionState });
+  useEffect(() => {
+    if (lesson.contentStatus !== 'published') {
+      setLoadedMdxState({ key: mdxRequestKey, status: 'success', lesson: null });
+      return;
+    }
+    let isActive = true;
+    setLoadedMdxState({ key: mdxRequestKey, status: 'loading' });
+    void loadLearningMdxLesson({ fallbackLocales, language, lesson })
+      .then((loadedLesson) => {
+        if (isActive) setLoadedMdxState({ key: mdxRequestKey, status: 'success', lesson: loadedLesson });
+      })
+      .catch((error: unknown) => {
+        console.error('Learning Lab lesson module failed to load', error);
+        if (isActive) setLoadedMdxState({ key: mdxRequestKey, status: 'error' });
+      });
+    return () => {
+      isActive = false;
+    };
+  }, [fallbackLocales, language, lesson, mdxRequestKey, mdxRetryVersion]);
+
+  const currentMdxState = loadedMdxState?.key === mdxRequestKey ? loadedMdxState : null;
+  const loadedMdxLesson = currentMdxState?.status === 'success' ? currentMdxState.lesson ?? null : null;
+  const isMdxLoading = lesson.contentStatus === 'published' && (!currentMdxState || currentMdxState.status === 'loading');
+  const mdxLesson = loadedMdxLesson
+    ? getLearningMdxLesson({ loadedLesson: loadedMdxLesson, language, quizQuestionStates, themeClasses, onQuizQuestionStateChange: updateQuizQuestionState })
+    : null;
   const sectionPages = mdxLesson ? mdxLesson.pages.map((page, pageIndex) => (
     <SectionShell key={`${lesson.id}-mdx-${pageIndex}`} sectionDivider={sectionDivider}>{page}</SectionShell>
   )) : lesson.sections.flatMap((section) => {
@@ -93,6 +135,21 @@ export default function LessonDetail({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [canGoBack, canGoNext, sectionPages.length]);
+
+  if (isMdxLoading) {
+    return <LessonModuleLoading label={strings.learningLab.lessonLoading} themeClasses={themeClasses} />;
+  }
+
+  if (currentMdxState?.status === 'error') {
+    return (
+      <LessonModuleError
+        message={strings.learningLab.lessonLoadError}
+        retryLabel={strings.learningLab.retry}
+        onRetry={() => setMdxRetryVersion((current) => current + 1)}
+        themeClasses={themeClasses}
+      />
+    );
+  }
 
   return (
     <article ref={articleRef} tabIndex={-1} className={cx('grid min-w-0 overflow-hidden border shadow-sm focus:outline-none', themeClasses.radius.panel, themeClasses.surface.card)}
@@ -164,6 +221,50 @@ export default function LessonDetail({
         </footer>
       ) : null}
     </article>
+  );
+}
+
+function LessonModuleLoading({
+  label,
+  themeClasses,
+}: {
+  label: string;
+  themeClasses: LearningThemeClasses;
+}) {
+  const skeletonTone = themeClasses.isLight ? 'bg-[#B8C8DA]/60' : 'bg-[#A8B8C8]/14';
+  return (
+    <div
+      aria-busy="true"
+      aria-live="polite"
+      className={cx('grid min-h-[22rem] content-start gap-4 overflow-hidden border p-6 shadow-sm', themeClasses.radius.panel, themeClasses.surface.card)}
+    >
+      <span className="sr-only">{label}</span>
+      <div className={cx('h-7 w-2/3 max-w-xl animate-pulse rounded-md motion-reduce:animate-none', skeletonTone)} />
+      <div className={cx('mt-4 h-4 w-full animate-pulse rounded motion-reduce:animate-none', skeletonTone)} />
+      <div className={cx('h-4 w-11/12 animate-pulse rounded motion-reduce:animate-none', skeletonTone)} />
+      <div className={cx('h-4 w-4/5 animate-pulse rounded motion-reduce:animate-none', skeletonTone)} />
+    </div>
+  );
+}
+
+function LessonModuleError({
+  message,
+  retryLabel,
+  onRetry,
+  themeClasses,
+}: {
+  message: string;
+  retryLabel: string;
+  onRetry: () => void;
+  themeClasses: LearningThemeClasses;
+}) {
+  return (
+    <div role="alert" className={cx('grid min-h-[22rem] place-content-center justify-items-center gap-4 border p-6 text-center shadow-sm', themeClasses.radius.panel, themeClasses.surface.card)}>
+      <p className={cx('text-sm font-bold', themeClasses.mutedText)}>{message}</p>
+      <button type="button" onClick={onRetry} className={cx('min-h-11 px-4 text-sm font-black', themeClasses.radius.button, themeClasses.button.secondary, themeClasses.focusRing)}>
+        {retryLabel}
+      </button>
+    </div>
   );
 }
 

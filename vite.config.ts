@@ -6,11 +6,17 @@ import { defineConfig, type Plugin, type ResolvedConfig } from 'vite';
 import mdx from '@mdx-js/rollup';
 import remarkGfm from 'remark-gfm';
 import react from '@vitejs/plugin-react';
-import { learningMdxSearchPlugin } from './scripts/learningContentMdx';
+import { learningMdxRuntimePlugin, learningMdxSearchPlugin } from './scripts/learningContentMdx';
+import { learningHomeCatalogPlugin } from './scripts/learningHomeCatalog';
 import { learningCatalog } from './src/content/learning/index.ts';
+import { continualLearningLessonReferenceCoverage } from './src/content/learning/continual-learning-llm/papers.ts';
 
 const require = createRequire(import.meta.url);
 const configDir = path.dirname(fileURLToPath(import.meta.url));
+const learningContentRoot = path.join(configDir, 'src/content/learning');
+const referenceLessonKeys = new Set(continualLearningLessonReferenceCoverage.map(({ lessonId }) => (
+  `continual-learning-llm/${lessonId}`
+)));
 const pyodideRoot = path.dirname(require.resolve('pyodide/pyodide.js'));
 const monacoVsRoot = path.dirname(require.resolve('monaco-editor/min/vs/loader.js'));
 const interFontSource = require.resolve('@fontsource/inter/files/inter-vietnamese-600-normal.woff');
@@ -185,7 +191,9 @@ export default defineConfig({
     host: '0.0.0.0',
   },
   plugins: [
-    learningMdxSearchPlugin(path.join(configDir, 'src/content/learning'), learningCatalog),
+    learningHomeCatalogPlugin(learningCatalog, learningContentRoot),
+    learningMdxSearchPlugin(learningContentRoot, learningCatalog),
+    learningMdxRuntimePlugin(referenceLessonKeys),
     mdx({ remarkPlugins: [remarkGfm] }),
     react(),
     pyodideAssetsPlugin(),

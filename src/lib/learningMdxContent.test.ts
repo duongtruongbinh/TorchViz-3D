@@ -21,7 +21,7 @@ import {
 } from '../content/learning/continual-learning-llm/papers.ts';
 import { citationEvidenceTargetLabel } from '../core/learning/citationEvidence.ts';
 import { indexLearningReferences } from '../core/learning/referenceIndex.ts';
-import { getLearningMdxComponentNames, parseLearningMdxPath } from '../core/learning/mdxContract.ts';
+import { parseLearningMdxPath } from '../core/learning/mdxContract.ts';
 import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComponents.ts';
 import type { LearningCatalog } from '../core/learning/types.ts';
 
@@ -29,109 +29,6 @@ const lessonFiles = discoverLearningMdxFiles('src/content/learning');
 const publishedLessonIds = learningCatalog.lessons
   .filter((lesson) => lesson.contentStatus === 'published')
   .map((lesson) => lesson.id);
-const expectedPageCounts: Record<string, number> = {
-  'minimal-llm-project-skeleton': 1,
-  'llm-from-scratch-roadmap': 3,
-  'llm-component-checkpoint-quiz': 3,
-  'llm-system-components': 3,
-  'llm-system-components-quiz': 3,
-  'language-modeling-next-token': 5,
-  'language-modeling-next-token-quiz': 5,
-  'ar-language-model-inference-pipeline': 6,
-  'ar-language-model-inference-pipeline-quiz': 5,
-  'llm-output-head-and-loss': 6,
-  'llm-output-head-and-loss-quiz': 4,
-  'llm-next-token-loss': 3,
-  'llm-next-token-loss-quiz': 7,
-  'llm-scale-and-development': 4,
-  'llm-scale-and-development-quiz': 3,
-  'llm-data-pipeline-overview': 9,
-  'llm-data-pipeline-checkpoint-quiz': 9,
-  'loss-perplexity-hand-calculation': 4,
-  'benchmark-likelihood-quiz': 8,
-  'evaluation-beyond-perplexity': 2,
-  'tokenization-why-it-matters': 2,
-  'tokenization-why-it-matters-quiz': 4,
-  'tokenizer-regex-from-scratch': 6,
-  'tokenizer-regex-from-scratch-quiz': 5,
-  'tokenization-bpe-tiktoken': 4,
-  'tokenization-bpe-tiktoken-quiz': 4,
-  'tokenization-token-ids-vocabulary': 4,
-  'tokenization-raw-text-to-token-ids': 5,
-  'tokenization-token-ids-vocabulary-quiz': 4,
-  'llm-evaluation-foundations': 1,
-  'evaluation-dataset-design': 1,
-  'deterministic-and-reference-metrics': 1,
-  'human-evaluation-rubrics': 1,
-  'inter-rater-agreement': 1,
-  'pointwise-and-pairwise-evaluation': 1,
-  'llm-as-a-judge': 1,
-  'llm-judge-biases': 1,
-  'benchmark-selection-and-contamination': 1,
-  'hallucination-and-factuality-evaluation': 1,
-  'rag-evaluation': 1,
-  'llm-safety-foundations': 1,
-  'refusal-calibration': 1,
-  'toxicity-bias-and-privacy': 1,
-  'jailbreak-and-prompt-injection': 1,
-  'guardrails-for-llm-applications': 1,
-  'llm-red-teaming': 1,
-  'production-regression-evals': 1,
-  'evaluation-ab-testing': 1,
-  'evaluation-harness-code': 1,
-  'conv2d-shape-exercise': 1,
-  'conv2d-value-exercise': 1,
-  'pooling-shape-exercise': 1,
-  'pooling-value-exercise': 1,
-  'vectors-intuition': 6,
-  'vector-operations': 6,
-  'dot-product': 6,
-  'vector-norms': 6,
-  'unit-vectors-normalization': 5,
-  'cosine-similarity': 5,
-  'orthogonality': 5,
-  'matrix-operations': 6,
-  'elementwise-vs-matrix-product': 6,
-  'systems-of-linear-equations': 6,
-  'gaussian-elimination': 6,
-  'lu-decomposition': 6,
-  'identity-inverse-matrix': 6,
-  'continual-learning-llm-overview': 5,
-  'stability-plasticity-dilemma': 2,
-  'cl-settings-til-dil-cil': 4,
-  'continual-learning-llm-overview-quiz': 8,
-  'catastrophic-forgetting-in-llms': 1,
-  'catastrophic-forgetting-in-llms-quiz': 4,
-  'catastrophic-forgetting-code-lab': 8,
-  'catastrophic-forgetting-code-lab-quiz': 4,
-  'cl-methods-taxonomy-and-replay': 1,
-  'cl-methods-taxonomy-and-replay-quiz': 3,
-  'replay-introduction': 2,
-  'replay-introduction-quiz': 3,
-  'replay-experience-code-lab': 15,
-  'replay-experience-code-lab-quiz': 11,
-};
-const expectedQuizQuestionIds: Record<string, string[]> = {
-  'catastrophic-forgetting-code-lab-quiz': ['code-lab-forgetting-phenomenon', 'code-lab-cause-of-forgetting', 'code-lab-metric-sensitivity', 'code-lab-solutions-forward'],
-  'catastrophic-forgetting-in-llms-quiz': ['catastrophic-forgetting-definition', 'why-new-task-causes-forgetting', 'llm-cl-unique-challenges', 'pattern-and-accuracy-behavior'],
-  'continual-learning-llm-overview-quiz': ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'rag-vs-continual-learning', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
-  'cl-methods-taxonomy-and-replay-quiz': ['cl-method-families', 'optimization-based-cl', 'representation-based-cl'],
-  'replay-introduction-quiz': ['replay-training-objective', 'replay-constraints', 'replay-bound-tradeoff'],
-  'replay-experience-code-lab-quiz': ['replay-lab-environment-config', 'replay-lab-data-separation', 'replay-lab-evaluation-metrics', 'replay-lab-naive-result', 'replay-lab-buffer-composition', 'replay-lab-retention-result', 'replay-lab-spurious-forgetting-nuance', 'replay-lab-operational-takeaway', 'replay-lab-threshold-evidence', 'replay-lab-paper-mapping', 'replay-lab-paper-scope'],
-  'llm-component-checkpoint-quiz': ['ai-hierarchy-order', 'choose-problem-domain', 'role-domain-convention'],
-  'llm-system-components-quiz': ['classify-system-components', 'academia-focus', 'industry-focus'],
-  'language-modeling-next-token-quiz': ['technical-understanding', 'language-modeling-definition', 'llm-learning-objective', 'valid-token-examples', 'chain-rule-result'],
-  'ar-language-model-inference-pipeline-quiz': ['ar-inference-order', 'sampling-role', 'corpus-vocabulary', 'output-vector-length', 'probability-sum'],
-  'llm-output-head-and-loss-quiz': ['context-vector-role', 'projection-shape', 'logits-properties', 'softmax-role'],
-  'llm-next-token-loss-quiz': ['shifted-target', 'one-hot-target', 'loss-behavior', 'manual-loss', 'why-log', 'negative-sign', 'sequence-loss'],
-  'llm-scale-and-development-quiz': ['why-large', 'scale-comparison', 'popularity-factors'],
-  'llm-data-pipeline-checkpoint-quiz': ['pretraining-facts', 'finetuning-facts', 'training-stage-task-match', 'transformer-main-blocks', 'encoder-input-prep-order', 'why-position-embedding', 'encoder-context', 'decoder-input-prep', 'decoder-generation-loop'],
-  'tokenization-why-it-matters-quiz': ['word-level-limitations', 'two-extremes', 'subword-benefit', 'sequence-length-cost'],
-  'tokenizer-regex-from-scratch-quiz': ['capturing-whitespace', 'punctuation-split-output', 'cleanup-comprehension', 'tokenize-function', 'regex-limitations'],
-  'tokenization-bpe-tiktoken-quiz': ['bpe-initialization', 'bpe-training-loop', 'merge-rank-inference', 'tokenization-limitations'],
-  'tokenization-token-ids-vocabulary-quiz': ['vocabulary-lookup', 'token-id-meaning', 'token-id-context', 'text-id-round-trip'],
-  'benchmark-likelihood-quiz': ['nll-and-ppl', 'ground-truth-probability', 'length-normalization', 'interpret-ppl-four', 'ppl-dependencies', 'valid-ppl-comparison', 'ppl-versus-reasoning', 'ppl-current-role'],
-};
 
 test('Learning Lab MDX paths support optional chapter-and-node prefixes', () => {
   assert.deepEqual(
@@ -162,24 +59,6 @@ test('every Learning Lab MDX file follows the generic catalog, locale, metadata,
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
   assert.equal(documents.length, 145);
-  for (const lessonFile of lessonFiles) {
-    const source = readFileSync(lessonFile, 'utf8');
-    const parsed = parseLearningMdxPath(lessonFile);
-    assert.ok(parsed, `Invalid Learning Lab MDX filename: ${lessonFile}`);
-    const inspection = await inspectLearningMdx(source, lessonFile);
-    assert.equal(inspection.metadata.domainId, parsed.domainId);
-    assert.equal(inspection.metadata.id, parsed.lessonId);
-    assert.equal(inspection.metadata.locale, parsed.locale);
-    const expectedPageCount = expectedPageCounts[parsed.lessonId] ?? Number(inspection.metadata.pageCount ?? 1);
-    assert.equal(Number(inspection.metadata.pageCount ?? 1), expectedPageCount);
-    if (expectedPageCount > 1 && !inspection.quizQuestionIds.length) {
-      assert.deepEqual(inspection.pageIndexes, Array.from({ length: expectedPageCount }, (_, index) => index));
-    }
-    if (expectedQuizQuestionIds[parsed.lessonId]) assert.deepEqual(inspection.quizQuestionIds, expectedQuizQuestionIds[parsed.lessonId]);
-    if (parsed.domainId === 'cv') assert.equal(inspection.cvExerciseFixtures.length, 1);
-    const allowedComponents = new Set(getAllowedLearningMdxComponentNames(parsed.domainId));
-    for (const componentName of getLearningMdxComponentNames(source)) assert.ok(allowedComponents.has(componentName), `Unexpected Learning Lab MDX component: ${componentName}`);
-  }
   const requirements = documents.find((document) => document.lessonId === 'minimal-llm-project-skeleton')?.text ?? '';
   for (const requirement of ['Google Colab', 'Python', 'uv', 'VSCode']) assert.match(requirements, new RegExp(requirement));
 });

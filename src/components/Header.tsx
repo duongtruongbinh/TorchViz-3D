@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeftToLine, Check, ChevronDown, CircleQuestionMark, Eye, Info, Languages, Play } from 'lucide-react';
 import { useStore, TEMPLATES } from '../store/useStore';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 import { workerService, parseShape } from '../lib/workerService';
 import OnboardingTour from './OnboardingTour';
 import HelpModal from './HelpModal';
@@ -32,14 +33,14 @@ export default function Header({
     onDemoModeChange,
 }: HeaderProps) {
     const activeTemplate = useStore((s) => s.activeTemplate);
-    const language = useStore((s) => s.language);
+    const language = usePreferencesStore((s) => s.language);
     const shapeInput = useStore((s) => s.shapeInput);
     const loading = useStore((s) => s.loading);
     const criticalError = useStore((s) => s.criticalError);
     const layout = useStore((s) => s.layout);
 
     const setActiveTemplate = useStore((s) => s.setActiveTemplate);
-    const setLanguage = useStore((s) => s.setLanguage);
+    const setLanguage = usePreferencesStore((s) => s.setLanguage);
     const setShapeInput = useStore((s) => s.setShapeInput);
     const t = getStrings(language);
 

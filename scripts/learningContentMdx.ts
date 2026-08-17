@@ -2,13 +2,19 @@ import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { compile } from '@mdx-js/mdx';
 import remarkGfm from 'remark-gfm';
-import type { Plugin } from 'vite';
+import type { Plugin, ViteDevServer } from 'vite';
 import {
+  getLearningMdxComponentNames,
   parseLearningMdxPath,
   type LearningMdxMetadata,
+  type LearningMdxRuntimeCapabilities,
   type LearningMdxSearchDocument,
 } from '../src/core/learning/mdxContract.ts';
-import { getAllowedLearningMdxComponentNames } from '../src/content/learning/mdxComponents.ts';
+import {
+  getAllowedLearningMdxComponentNames,
+  getLearningDomainMdxComponentNames,
+} from '../src/content/learning/mdxComponents.ts';
+import { getRetryableCachedPromise } from '../src/core/learning/retryablePromiseCache.ts';
 import type { LearningCatalog } from '../src/core/learning/types.ts';
 
 const STRUCTURAL_KEYS = new Set([
@@ -271,6 +277,7 @@ export function discoverLearningMdxFiles(contentRoot: string): string[] {
 export async function validateLearningMdxFiles(
   filePaths: readonly string[],
   catalog: LearningCatalog,
+  domainId?: string,
 ): Promise<LearningMdxSearchDocument[]> {
   const documents: LearningMdxSearchDocument[] = [];
   const localeKeys = new Set<string>();
@@ -282,12 +289,46 @@ export async function validateLearningMdxFiles(
     documents.push(document);
   }
 
-  for (const lesson of catalog.lessons.filter((item) => item.contentStatus === 'published')) {
+  for (const lesson of catalog.lessons.filter((item) => (
+    item.contentStatus === 'published' && (!domainId || item.domainId === domainId)
+  ))) {
     if (!documents.some((document) => document.domainId === lesson.domainId && document.lessonId === lesson.id)) {
       throw new Error(`${lesson.domainId}/${lesson.id}: published lesson has no locale-specific MDX file`);
     }
   }
   return documents;
+}
+
+export function getLearningMdxRuntimeCapabilities(
+  source: string,
+  domainId: string,
+  lessonId: string,
+  referenceLessonKeys: ReadonlySet<string>,
+): LearningMdxRuntimeCapabilities {
+  const usedComponents = new Set(getLearningMdxComponentNames(source));
+  return {
+    needsDomainAdapter: getLearningDomainMdxComponentNames(domainId).some((name) => usedComponents.has(name)),
+    needsReferenceRuntime: referenceLessonKeys.has(`${domainId}/${lessonId}`),
+  };
+}
+
+export function learningMdxRuntimePlugin(referenceLessonKeys: ReadonlySet<string>): Plugin {
+  return {
+    name: 'torchviz-learning-mdx-runtime-capabilities',
+    enforce: 'pre',
+    transform(source, id) {
+      const filePath = id.split('?')[0];
+      const parsed = parseLearningMdxPath(filePath);
+      if (!parsed) return null;
+      const capabilities = getLearningMdxRuntimeCapabilities(
+        source,
+        parsed.domainId,
+        parsed.lessonId,
+        referenceLessonKeys,
+      );
+      return `${source}\nexport const lessonRuntime = ${JSON.stringify(capabilities)};\n`;
+    },
+  };
 }
 
 export async function validateLearningMdxSource(
@@ -392,14 +433,66 @@ function assertLearningMdxMetadata(
 }
 
 export function learningMdxSearchPlugin(contentRoot: string, catalog: LearningCatalog): Plugin {
-  const virtualId = 'virtual:learning-mdx-search-documents';
-  const resolvedId = `\0${virtualId}`;
+  const loadersVirtualId = 'virtual:learning-mdx-search-loaders';
+  const documentsVirtualPrefix = 'virtual:learning-mdx-search-documents/';
+  const resolvedLoadersId = `\0${loadersVirtualId}`;
+  const documentsByDomain = new Map<string, Promise<LearningMdxSearchDocument[]>>();
+
+  const getDocuments = (domainId: string) => getRetryableCachedPromise(
+    documentsByDomain,
+    domainId,
+    () => validateLearningMdxFiles(
+      discoverLearningMdxFiles(path.join(contentRoot, domainId)),
+      catalog,
+      domainId,
+    ),
+  );
+
+  const invalidateDomain = (filePath: string, server: ViteDevServer) => {
+    const parsed = parseLearningMdxPath(filePath);
+    if (!parsed) return false;
+    documentsByDomain.delete(parsed.domainId);
+    const module = server.moduleGraph.getModuleById(`\0${documentsVirtualPrefix}${parsed.domainId}`);
+    if (module) server.moduleGraph.invalidateModule(module);
+    server.ws.send({ type: 'full-reload' });
+    return true;
+  };
+
   return {
     name: 'torchviz-learning-mdx-search',
-    resolveId(id) { return id === virtualId ? resolvedId : null; },
+    configureServer(server) {
+      const handleAddedOrRemovedFile = (filePath: string) => {
+        invalidateDomain(filePath, server);
+      };
+      server.watcher.add(contentRoot);
+      server.watcher.on('add', handleAddedOrRemovedFile);
+      server.watcher.on('unlink', handleAddedOrRemovedFile);
+      return () => {
+        server.watcher.off('add', handleAddedOrRemovedFile);
+        server.watcher.off('unlink', handleAddedOrRemovedFile);
+      };
+    },
+    handleHotUpdate(context) {
+      return invalidateDomain(context.file, context.server) ? [] : undefined;
+    },
+    resolveId(id) {
+      if (id === loadersVirtualId) return resolvedLoadersId;
+      return id.startsWith(documentsVirtualPrefix) ? `\0${id}` : null;
+    },
     async load(id) {
-      if (id !== resolvedId) return null;
-      const documents = await validateLearningMdxFiles(discoverLearningMdxFiles(contentRoot), catalog);
+      if (id === resolvedLoadersId) {
+        const loaders = Object.fromEntries(catalog.domains.map((domain) => [
+          domain.id,
+          `() => import(${JSON.stringify(`${documentsVirtualPrefix}${domain.id}`)})`,
+        ]));
+        return `export default {${Object.entries(loaders).map(([domainId, loader]) => `${JSON.stringify(domainId)}:${loader}`).join(',')}};`;
+      }
+      if (!id.startsWith(`\0${documentsVirtualPrefix}`)) return null;
+      const domainId = id.slice(`\0${documentsVirtualPrefix}`.length);
+      if (!catalog.domains.some((domain) => domain.id === domainId)) {
+        throw new Error(`Unknown Learning Lab search domain: ${domainId}`);
+      }
+      const documents = await getDocuments(domainId);
       return `export default ${JSON.stringify(documents)};`;
     },
   };

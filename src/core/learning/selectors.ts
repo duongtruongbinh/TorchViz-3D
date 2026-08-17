@@ -2,6 +2,7 @@ import type {
   LearningCatalog,
   LearningDomain,
   LearningDomainId,
+  LearningHomeDomainSummary,
   LearningLesson,
   LearningRouteAlias,
   LearningTrack,
@@ -62,6 +63,18 @@ export function getLearningDomainReadiness(catalog: LearningCatalog): LearningDo
       || left.catalogIndex - right.catalogIndex
     ))
     .map(({ domain, isReady }) => ({ domain, isReady }));
+}
+
+export function getLearningHomeDomainSummaries(catalog: LearningCatalog): LearningHomeDomainSummary[] {
+  const lessonCountByDomain = new Map<LearningDomainId, number>();
+  for (const lesson of catalog.lessons) {
+    lessonCountByDomain.set(lesson.domainId, (lessonCountByDomain.get(lesson.domainId) ?? 0) + 1);
+  }
+  return getLearningDomainReadiness(catalog).map(({ domain, isReady }) => ({
+    domain,
+    lessonCount: lessonCountByDomain.get(domain.id) ?? 0,
+    isReady,
+  }));
 }
 
 function isDomainReady(catalog: LearningCatalog, domainId: LearningDomainId): boolean {

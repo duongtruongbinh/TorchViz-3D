@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { Languages } from 'lucide-react';
 
 import { getStrings } from '../../lib/localization';
-import { useStore } from '../../store/useStore';
+import { usePreferencesStore } from '../../store/usePreferencesStore';
 import LearningCard from './LearningCard';
 import ToolCard from './ToolCard';
 
@@ -122,8 +122,8 @@ export default function LandingPage({
   onOpenWorkspace,
   onOpenLearningLab,
 }: LandingPageProps) {
-  const language = useStore((s) => s.language);
-  const setLanguage = useStore((s) => s.setLanguage);
+  const language = usePreferencesStore((s) => s.language);
+  const setLanguage = usePreferencesStore((s) => s.setLanguage);
   const bentoRef = useRef<HTMLDivElement>(null);
   const availableAnchorRef = useRef<HTMLSpanElement>(null);
   const soonAnchorRef = useRef<HTMLSpanElement>(null);

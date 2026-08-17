@@ -5,25 +5,17 @@ type ResolveVisibleLearningLessonArgs = {
   firstFilteredLesson: LearningLesson | null;
   filteredLessonIds: Set<string>;
   isLessonRailFiltered: boolean;
-  firstDomainLesson: LearningLesson | null;
 };
 
-export function resolveVisibleLearningLesson({
+export function resolveRailLearningLesson({
   routeSelectedLesson,
   firstFilteredLesson,
   filteredLessonIds,
   isLessonRailFiltered,
-  firstDomainLesson,
-}: ResolveVisibleLearningLessonArgs) {
-  const detailLesson = routeSelectedLesson ?? firstFilteredLesson ?? firstDomainLesson;
-  const railLesson = routeSelectedLesson
-    && (!isLessonRailFiltered || filteredLessonIds.has(routeSelectedLesson.id))
-    ? routeSelectedLesson
-    : firstFilteredLesson ?? routeSelectedLesson ?? firstDomainLesson;
-
-  return {
-    detailLesson,
-    railLesson,
-    shouldNavigateToDetailLesson: false,
-  };
+}: ResolveVisibleLearningLessonArgs): LearningLesson | null {
+  if (!routeSelectedLesson) return null;
+  if (!isLessonRailFiltered || filteredLessonIds.has(routeSelectedLesson.id)) {
+    return routeSelectedLesson;
+  }
+  return firstFilteredLesson ?? routeSelectedLesson;
 }

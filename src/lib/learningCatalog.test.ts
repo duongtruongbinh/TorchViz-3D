@@ -3,10 +3,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import { learningCatalog, learningTableOfContents } from '../content/learning/index.ts';
+import { materializeLearningCatalog } from '../core/learning/materializeCatalog.ts';
 import { continualLearningLessonPairs } from '../content/learning/continual-learning-llm/table-of-contents.ts';
 import {
   getLearningDomain,
   getLearningDomainReadiness,
+  getLearningHomeDomainSummaries,
   getLearningLessonsForTrack,
   getReviewableLearningLessons,
   getLearningTrack,
@@ -74,6 +76,40 @@ test('fully published domains are prioritized without disturbing unfinished cata
     en: 'Continual Learning for LLMs',
     vi: 'Continual Learning cho LLMs',
   });
+});
+
+test('Learning Home summaries preserve canonical domain metadata, order, readiness, and counts', () => {
+  const readiness = getLearningDomainReadiness(learningCatalog);
+  const summaries = getLearningHomeDomainSummaries(learningCatalog);
+
+  assert.equal(summaries.length, 13);
+  assert.deepEqual(
+    summaries.map(({ domain, isReady }) => ({ domain, isReady })),
+    readiness,
+  );
+  assert.deepEqual(
+    summaries.map(({ domain, lessonCount }) => [
+      domain.id,
+      lessonCount,
+    ]),
+    readiness.map(({ domain }) => [
+      domain.id,
+      learningCatalog.lessons.filter((lesson) => lesson.domainId === domain.id).length,
+    ]),
+  );
+});
+
+test('one-domain materialization preserves the canonical routes and lesson order', () => {
+  for (const table of learningTableOfContents) {
+    const domainCatalog = materializeLearningCatalog([table]);
+    assert.deepEqual(domainCatalog.domains, learningCatalog.domains.filter((domain) => domain.id === table.id));
+    assert.deepEqual(domainCatalog.tracks, learningCatalog.tracks.filter((track) => track.domainId === table.id));
+    assert.deepEqual(domainCatalog.lessons, learningCatalog.lessons.filter((lesson) => lesson.domainId === table.id));
+    assert.deepEqual(
+      domainCatalog.routeAliases ?? [],
+      (learningCatalog.routeAliases ?? []).filter((alias) => alias.domainId === table.id),
+    );
+  }
 });
 
 test('catalog lesson text is canonical', () => {
@@ -222,6 +258,16 @@ test('reinforcement learning keeps canonical order and resolves legacy aliases',
   });
   assert.equal(nlpRoute?.track.id, 'transformer-architecture');
   assert.equal(nlpRoute?.lesson.id, 'self-attention');
+});
+
+test('a bare domain route resolves the first lesson by product default', () => {
+  const route = resolveLearningLessonRoute(learningCatalog, {
+    domainId: 'linear-algebra',
+    trackId: null,
+    lessonId: null,
+  });
+  assert.equal(route?.lesson.id, 'vectors-intuition');
+  assert.equal(route?.isCanonical, false);
 });
 
 test('learning catalog ids resolve and first-party lessons have display text', () => {

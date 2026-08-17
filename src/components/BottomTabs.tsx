@@ -2,7 +2,7 @@ import React from 'react';
 import { IRGraph } from '../lib/irTypes';
 import { getStrings } from '../lib/localization';
 import type { AppError } from '../lib/appError';
-import { useStore } from '../store/useStore';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 
 interface BottomTabsProps {
   ir: IRGraph | null;
@@ -13,7 +13,7 @@ interface BottomTabsProps {
 }
 
 const BottomTabs: React.FC<BottomTabsProps> = ({ ir, error, collapsed = false, headerAction, demoSuccessParams = null }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
   const successParams = ir?.stats.total_params ?? demoSuccessParams;
 

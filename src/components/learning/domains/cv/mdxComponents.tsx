@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import type { LayoutNode } from '../../../../lib/irTypes';
 import { getStrings } from '../../../../lib/localization';
-import { learningCatalog } from '../../../../content/learning/index.ts';
 import { CV_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
   useLearningMdxLesson,
@@ -27,10 +26,9 @@ type CvExerciseFixture = {
 };
 
 function CvExercise({ fixture }: { fixture: CvExerciseFixture }) {
-  const { domainId, language, lessonId } = useLearningMdxLesson();
+  const { entryPoints, language, lessonId } = useLearningMdxLesson();
   const themeClasses = useLearningMdxTheme();
-  const lesson = learningCatalog.lessons.find((item) => item.domainId === domainId && item.id === lessonId);
-  const entryPoint = lesson?.entryPoints.find((item) => item.kind === 'torchviz-exercise');
+  const entryPoint = entryPoints.find((item) => item.kind === 'torchviz-exercise');
   if (!entryPoint) throw new Error(`CV exercise lesson ${lessonId} is missing its TorchViz entry point.`);
   const node = materializeExerciseNode(lessonId, fixture);
   const labels = getStrings(language).canvas.demo;

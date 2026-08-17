@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { ArrowLeftToLine, ChevronDown, Search, X } from 'lucide-react';
+import { ArrowLeftToLine, ChevronDown, LoaderCircle, Search, TriangleAlert, X } from 'lucide-react';
 
 import type { GroupedLearningLessons } from '../../../core/learning/selectors';
 import type { LearningLesson, LearningTrack } from '../../../core/learning/types';
+import { getLearningLessonIdentity } from '../../../core/learning/lessonIdentity';
 import { normalizeLearningSearch } from '../../../core/learning/mdxContract';
 import { getLearningSearchDocument } from '../learningSearch';
 import { getStrings, type Language } from '../../../lib/localization';
@@ -26,13 +27,15 @@ export type LessonRailProps = {
   language: Language;
   chapterLessonIndexById: Map<string, number>;
   searchQuery: string;
-  selectedLesson: LearningLesson;
+  searchStatus: 'idle' | 'loading' | 'error' | 'success';
+  selectedLesson: LearningLesson | null;
   selectedFilter: LessonRailFilter;
   theme: LearningLabTheme;
   isRailOpen?: boolean;
   onClearSearch: () => void;
   onToggleRail?: () => void;
   onSearchChange: (value: string) => void;
+  onRetrySearch: () => void;
   onSelectFilter: (filter: LessonRailFilter) => void;
   onSelectLesson: (lessonId: string) => void;
   onToggleTrack: (trackId: string) => void;
@@ -47,6 +50,7 @@ export default function LessonRail({
   language,
   chapterLessonIndexById,
   searchQuery,
+  searchStatus,
   selectedLesson,
   selectedFilter,
   theme,
@@ -54,6 +58,7 @@ export default function LessonRail({
   onClearSearch,
   onToggleRail,
   onSearchChange,
+  onRetrySearch,
   onSelectFilter,
   onSelectLesson,
   onToggleTrack,
@@ -63,12 +68,12 @@ export default function LessonRail({
   const railRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!railRef.current) return;
+    if (!railRef.current || !selectedLesson) return;
     const selectedEl = railRef.current.querySelector(`[data-lesson-id="${selectedLesson.id}"]`);
     if (selectedEl) {
       selectedEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }
-  }, [selectedLesson.id]);
+  }, [selectedLesson?.id]);
 
   return (
     <aside className="flex h-full min-h-0 justify-center pr-1">
@@ -127,6 +132,22 @@ export default function LessonRail({
               </button>
             ) : null}
           </div>
+          {searchQuery && searchStatus === 'loading' ? (
+            <p className={cx('flex items-center gap-1.5 text-xs font-semibold', themeClasses.mutedText)} role="status">
+              <LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+              {strings.lessonSearchLoading}
+            </p>
+          ) : searchQuery && searchStatus === 'error' ? (
+            <div className={cx('flex items-center justify-between gap-2 text-xs font-semibold', themeClasses.mutedText)} role="alert">
+              <span className="flex min-w-0 items-center gap-1.5">
+                <TriangleAlert className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                {strings.searchLoadError}
+              </span>
+              <button type="button" onClick={onRetrySearch} className={cx('shrink-0 underline underline-offset-2', themeClasses.focusRing)}>
+                {strings.retry}
+              </button>
+            </div>
+          ) : null}
           <div
             className="flex min-w-0 items-center gap-1.5"
             role="group"
@@ -155,7 +176,7 @@ export default function LessonRail({
 
           {groups.map(({ track, lessons, totalLessonCount }) => {
             const isCollapsed = collapsedTrackIds.has(track.id);
-            const isCurrentTrack = track.id === selectedLesson.trackId;
+            const isCurrentTrack = track.id === selectedLesson?.trackId;
             return (
               <div key={track.id} className="grid gap-1.5">
                 <button
@@ -191,8 +212,8 @@ export default function LessonRail({
                     {lessons.map((lesson, lessonIndex) => {
                       const index = chapterLessonIndexById.get(lesson.id) ?? lessonIndex;
                       const nextLesson = lessons[lessonIndex + 1] ?? null;
-                      const isCompleted = completedLessonIds.has(lesson.id);
-                      const isConnectorCompleted = isCompleted && Boolean(nextLesson && completedLessonIds.has(nextLesson.id));
+                      const isCompleted = completedLessonIds.has(getLearningLessonIdentity(lesson));
+                      const isConnectorCompleted = isCompleted && Boolean(nextLesson && completedLessonIds.has(getLearningLessonIdentity(nextLesson)));
                       return (
                         <LessonNode
                           key={lesson.id}
@@ -201,7 +222,7 @@ export default function LessonRail({
                           isCompleted={isCompleted}
                           isConnectorCompleted={isConnectorCompleted}
                           isLast={lessonIndex === lessons.length - 1}
-                          isSelected={lesson.id === selectedLesson.id}
+                          isSelected={lesson.id === selectedLesson?.id}
                           isTrackActive={isCurrentTrack}
                           language={language}
                           theme={theme}
@@ -260,10 +281,12 @@ export function filterLessonRailGroups(
   groups: GroupedLearningLessons[],
   {
     filter,
+    fallbackLocales = [],
     language,
     query,
   }: {
     filter: LessonRailFilter;
+    fallbackLocales?: readonly string[];
     language: Language;
     query: string;
   },
@@ -276,7 +299,7 @@ export function filterLessonRailGroups(
       totalLessonCount: lessons.length,
       lessons: lessons.filter((lesson) => (
         lessonMatchesRailFilter(lesson, filter)
-        && lessonMatchesSearchQuery(lesson, normalizedQuery, language)
+        && lessonMatchesSearchQuery(lesson, normalizedQuery, language, fallbackLocales)
       )),
     }))
     .filter((group) => !isFiltered || group.lessons.length > 0);
@@ -288,9 +311,14 @@ function lessonMatchesRailFilter(lesson: LearningLesson, filter: LessonRailFilte
   return true;
 }
 
-function lessonMatchesSearchQuery(lesson: LearningLesson, normalizedQuery: string, language: Language): boolean {
+function lessonMatchesSearchQuery(
+  lesson: LearningLesson,
+  normalizedQuery: string,
+  language: Language,
+  fallbackLocales: readonly string[],
+): boolean {
   if (!normalizedQuery) return true;
   const lessonText = getUnifiedLessonText(language, lesson);
-  const content = getLearningSearchDocument(lesson.domainId, lesson.id, language)?.text ?? '';
+  const content = getLearningSearchDocument(lesson.domainId, lesson.id, language, fallbackLocales)?.text ?? '';
   return normalizeLearningSearch(`${lessonText.title} ${lesson.id} ${content}`).includes(normalizedQuery);
 }

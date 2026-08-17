@@ -3,7 +3,7 @@ import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { RoundedBox, Html, Text, Billboard, Edges } from '@react-three/drei';
 import * as THREE from 'three';
 import { LayoutNode, LayoutData } from '../../lib/irTypes';
-import { useStore } from '../../store/useStore';
+import { usePreferencesStore } from '../../store/usePreferencesStore';
 import { getStrings } from '../../lib/localization';
 import { getVisualMeta, getActivationSubKind, type VisualKind } from '../../lib/visualKind';
 import { shouldRenderLeafCaption, type LabelMode } from '../../lib/labelMode';
@@ -117,7 +117,7 @@ export const NodeCaption: React.FC<{
   paramFontSize = 0.4,
   paramOffsetY = -0.36,
 }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
 
   return (
@@ -531,7 +531,7 @@ function areContainerBlockPropsEqual(prev: ContainerBlockProps, next: ContainerB
 }
 
 const ContainerBlockComponent: React.FC<ContainerBlockProps> = ({ node, isRoot, highlightNodeId, selectedNodeId, activeNodeId, labelMode, leafCount, skipLeaves, onHoverNodeId, onToggle, onHover, onClickNode, onOpenLayerInsight }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
   const hovered = useHoverHold(false);
   const args = useMemo(

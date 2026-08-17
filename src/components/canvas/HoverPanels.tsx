@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { LayoutNode } from '../../lib/irTypes';
 import { getStrings } from '../../lib/localization';
 import { getLayerInsight } from '../../lib/layerInsights';
-import { useStore } from '../../store/useStore';
+import { usePreferencesStore } from '../../store/usePreferencesStore';
 import { Z_INDEX_HOVER_PANEL } from '../../lib/constants';
 
 const HOVER_PANEL_ESTIMATED_WIDTH = 272;
@@ -76,7 +76,7 @@ export const NodeHoverPanel: React.FC<{
   onPointerEnter: () => void;
   onPointerLeave: () => void;
 }> = React.memo(({ node, onOpenLayerInsight, onPointerEnter, onPointerLeave }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
   const insight = getLayerInsight(node, t);
 

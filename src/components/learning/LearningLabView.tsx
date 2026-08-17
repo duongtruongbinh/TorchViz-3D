@@ -1,20 +1,21 @@
-import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { lazy, Suspense, type CSSProperties, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { ArrowDownWideNarrow, ArrowLeft, Home, ListTree, TableOfContents } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { learningCatalog } from '../../content/learning/index.ts';
+import learningHomeDomainData from 'virtual:learning-home-catalog';
 import {
-  getFirstLearningLessonRoute,
   getGroupedLearningLessonsForDomain,
   getLearningDomain,
   resolveLearningLessonRoute,
 } from '../../core/learning/selectors';
-import type { LearningDomainId } from '../../core/learning/types';
-import { resolveVisibleLearningLesson } from './lesson/visibleLesson';
+import type { LearningCatalog, LearningDomainId, LearningHomeDomainSummary } from '../../core/learning/types';
+import { getLearningLessonIdentity } from '../../core/learning/lessonIdentity';
+import { resolveRailLearningLesson } from './lesson/visibleLesson';
 import { getStrings } from '../../lib/localization';
-import { useStore } from '../../store/useStore';
+import { usePreferencesStore } from '../../store/usePreferencesStore';
 import LearningLabHeader from './LearningLabHeader';
 import { DOMAIN_ICONS } from './domainPresentation';
-import LessonDetail from './lesson/LessonDetail';
+import { loadFullLearningCatalog, loadLearningDomainCatalog } from './learningCatalogLoader';
+import { loadLearningSearchDocuments } from './learningSearch';
 import LessonRail, { filterLessonRailGroups, type LessonRailFilter, type LessonRailProps } from './lesson/LessonRail';
 import { getDomainText } from './learningText';
 import DomainCatalog from './shell/DomainCatalog';
@@ -25,7 +26,9 @@ type LearningLabViewProps = {
   onBackToLanding: () => void;
 };
 
-const DOMAIN_IDS = new Set<LearningDomainId>(learningCatalog.domains.map((domain) => domain.id));
+const LessonDetail = lazy(() => import('./lesson/LessonDetail'));
+const learningHomeDomains: readonly LearningHomeDomainSummary[] = learningHomeDomainData;
+const DOMAIN_IDS = new Set<LearningDomainId>(learningHomeDomains.map(({ domain }) => domain.id));
 const futureHmiLogoUrl = new URL('../../../docs/assets/Future-HMIip.webp', import.meta.url).href;
 const LESSON_RAIL_MIN_WIDTH = 240;
 const LESSON_RAIL_MAX_WIDTH = 440;
@@ -45,9 +48,12 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const routeDomainId = isLearningDomainId(domainId) ? domainId : null;
   const routeLessonId = searchParams.get('lesson');
 
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const theme = 'light' as const;
   const [mode, setMode] = useState<'path' | 'review'>('path');
+  const [loadedCatalog, setLoadedCatalog] = useState<{ key: string; catalog: LearningCatalog } | null>(null);
+  const [catalogLoadState, setCatalogLoadState] = useState<{ key: string; status: 'loading' | 'error' | 'success' } | null>(null);
+  const [catalogRetryVersion, setCatalogRetryVersion] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarRendered, setIsSidebarRendered] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -58,12 +64,18 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [lessonRailWidth, setLessonRailWidth] = useState(300);
   const [isLessonRailResizing, setIsLessonRailResizing] = useState(false);
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(() => new Set());
+  const [learningSearchRevision, setLearningSearchRevision] = useState(0);
+  const [searchLoadState, setSearchLoadState] = useState<{ domainId: LearningDomainId; status: 'loading' | 'error' | 'success' } | null>(null);
+  const [searchRetryVersion, setSearchRetryVersion] = useState(0);
   const [, startLessonTransition] = useTransition();
   const contentAreaRef = useRef<HTMLElement | null>(null);
   const lessonRailResizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
   const strings = getStrings(language).learningLab;
   const themeClasses = getLearningLabTheme(theme);
+  const requestedCatalogKey = mode === 'review' ? 'review' : routeDomainId;
+  const learningCatalog = loadedCatalog?.key === requestedCatalogKey ? loadedCatalog.catalog : null;
+  const requestedCatalogStatus = catalogLoadState?.key === requestedCatalogKey ? catalogLoadState.status : 'loading';
   const isSidebarVisible = isSidebarOpen && isSidebarExpanded;
   const sidebarDrawerStyle = isSidebarRendered ? ({
     opacity: isSidebarVisible ? 1 : 0,
@@ -72,25 +84,29 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     willChange: 'transform, opacity',
   } satisfies CSSProperties) : undefined;
 
-  const activeDomain = routeDomainId ? getLearningDomain(learningCatalog, routeDomainId) : null;
+  const activeDomain = routeDomainId && learningCatalog ? getLearningDomain(learningCatalog, routeDomainId) : null;
+  const groupedDomainLessons = useMemo(() => (
+    routeDomainId && learningCatalog ? getGroupedLearningLessonsForDomain(learningCatalog, routeDomainId) : []
+  ), [learningCatalog, routeDomainId]);
   const resolvedRoute = useMemo(() => (
-    routeDomainId
+    routeDomainId && learningCatalog
       ? resolveLearningLessonRoute(learningCatalog, {
         domainId: routeDomainId,
         trackId,
         lessonId: routeLessonId,
       })
       : null
-  ), [routeDomainId, routeLessonId, trackId]);
-  const activeTrack = resolvedRoute?.track ?? null;
-  const groupedDomainLessons = useMemo(() => (
-    routeDomainId ? getGroupedLearningLessonsForDomain(learningCatalog, routeDomainId) : []
-  ), [routeDomainId]);
+  ), [learningCatalog, routeDomainId, routeLessonId, trackId]);
+  const activeTrack = resolvedRoute?.track
+    ?? groupedDomainLessons.find((group) => group.track.id === trackId)?.track
+    ?? groupedDomainLessons[0]?.track
+    ?? null;
   const filteredGroupedDomainLessons = useMemo(() => filterLessonRailGroups(groupedDomainLessons, {
     filter: lessonRailFilter,
+    fallbackLocales: activeDomain?.mdx?.fallbackLocales,
     language,
     query: lessonSearchQuery,
-  }), [groupedDomainLessons, language, lessonRailFilter, lessonSearchQuery]);
+  }), [activeDomain, groupedDomainLessons, language, learningSearchRevision, lessonRailFilter, lessonSearchQuery]);
   const domainLessons = useMemo(() => {
     return groupedDomainLessons.flatMap((group) => group.lessons);
   }, [groupedDomainLessons]);
@@ -110,19 +126,60 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const firstFilteredLesson = filteredGroupedDomainLessons[0]?.lessons[0] ?? null;
   const filteredLessonIds = useMemo(() => new Set(filteredGroupedDomainLessons.flatMap((group) => group.lessons.map((lesson) => lesson.id))), [filteredGroupedDomainLessons]);
   const isLessonRailFiltered = lessonSearchQuery.trim().length > 0 || lessonRailFilter !== 'all';
-  const {
-    detailLesson: selectedLesson,
-    railLesson: railSelectedLesson,
-  } = resolveVisibleLearningLesson({
+  const selectedLesson = routeSelectedLesson;
+  const railSelectedLesson = resolveRailLearningLesson({
     routeSelectedLesson,
     firstFilteredLesson,
     filteredLessonIds,
     isLessonRailFiltered,
-    firstDomainLesson: domainLessons[0] ?? null,
   });
   const detailLessonIndex = selectedLesson ? domainLessonIndexById.get(selectedLesson.id) ?? -1 : -1;
   const nextLesson = detailLessonIndex >= 0 ? domainLessons[detailLessonIndex + 1] ?? null : null;
   const previousLesson = detailLessonIndex > 0 ? domainLessons[detailLessonIndex - 1] ?? null : null;
+
+  useEffect(() => {
+    if (!requestedCatalogKey) return;
+    let isActive = true;
+    setCatalogLoadState({ key: requestedCatalogKey, status: 'loading' });
+    const catalogPromise = mode === 'review'
+      ? loadFullLearningCatalog()
+      : loadLearningDomainCatalog(routeDomainId!);
+    void catalogPromise
+      .then((catalog) => {
+        if (!isActive) return;
+        setLoadedCatalog({ key: requestedCatalogKey, catalog });
+        setCatalogLoadState({ key: requestedCatalogKey, status: 'success' });
+      })
+      .catch((error: unknown) => {
+        console.error('Learning Lab catalog failed to load', error);
+        if (isActive) setCatalogLoadState({ key: requestedCatalogKey, status: 'error' });
+      });
+    return () => {
+      isActive = false;
+    };
+  }, [catalogRetryVersion, mode, requestedCatalogKey, routeDomainId]);
+
+  useEffect(() => {
+    if (!routeDomainId || !lessonSearchQuery.trim()) {
+      setSearchLoadState(null);
+      return;
+    }
+    let isActive = true;
+    setSearchLoadState({ domainId: routeDomainId, status: 'loading' });
+    void loadLearningSearchDocuments(routeDomainId)
+      .then(() => {
+        if (!isActive) return;
+        setLearningSearchRevision((current) => current + 1);
+        setSearchLoadState({ domainId: routeDomainId, status: 'success' });
+      })
+      .catch((error: unknown) => {
+        console.error('Learning Lab search documents failed to load', error);
+        if (isActive) setSearchLoadState({ domainId: routeDomainId, status: 'error' });
+      });
+    return () => {
+      isActive = false;
+    };
+  }, [lessonSearchQuery, routeDomainId, searchRetryVersion]);
 
   useEffect(() => {
     setCollapsedChapters(new Set(
@@ -133,7 +190,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     setLessonSearchQuery('');
     setLessonRailFilter('all');
     setIsLessonRailOpen(window.matchMedia('(min-width: 1024px)').matches);
-  }, [routeDomainId]); // Intentionally reset only when entering another domain.
+  }, [learningCatalog, routeDomainId]); // Initialize once the requested domain catalog is available.
 
   useEffect(() => {
     if (!isSidebarOpen && !isLessonRailOpen) return;
@@ -195,16 +252,11 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
   useEffect(() => {
     contentAreaRef.current?.scrollTo({ top: 0, behavior: 'auto' });
-  }, [selectedLesson?.id]);
+  }, [selectedLesson?.domainId, selectedLesson?.id]);
 
   const openDomain = (nextDomainId: LearningDomainId) => {
     setMode('path');
-    const firstRoute = getFirstLearningLessonRoute(learningCatalog, nextDomainId);
-    if (!firstRoute) {
-      navigate(`/learning/${nextDomainId}`);
-      return;
-    }
-    navigate(`/learning/${nextDomainId}/${firstRoute.track.id}?lesson=${firstRoute.lesson.id}`);
+    navigate(`/learning/${nextDomainId}`);
     setIsSidebarOpen(false);
   };
 
@@ -253,10 +305,12 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [previousLesson, nextLesson, selectLesson, selectedLesson]);
   const clearLessonSearch = useCallback(() => setLessonSearchQuery(''), []);
+  const retryCatalogLoad = useCallback(() => setCatalogRetryVersion((current) => current + 1), []);
+  const retryLessonSearch = useCallback(() => setSearchRetryVersion((current) => current + 1), []);
   const openLessonRail = useCallback(() => setIsLessonRailOpen(true), []);
   const closeLessonRail = useCallback(() => setIsLessonRailOpen(false), []);
   const toggleSidebar = useCallback(() => setIsSidebarOpen((current) => !current), []);
-  const lessonRailProps = railSelectedLesson ? ({
+  const lessonRailProps = activeTrack ? ({
     groups: filteredGroupedDomainLessons,
     collapsedTrackIds: collapsedChapters,
     completedLessonIds,
@@ -264,11 +318,13 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     language,
     chapterLessonIndexById,
     searchQuery: lessonSearchQuery,
+    searchStatus: searchLoadState?.domainId === routeDomainId ? searchLoadState.status : 'idle',
     selectedFilter: lessonRailFilter,
     selectedLesson: railSelectedLesson,
     theme,
     onClearSearch: clearLessonSearch,
     onSearchChange: setLessonSearchQuery,
+    onRetrySearch: retryLessonSearch,
     onSelectFilter: setLessonRailFilter,
     onSelectLesson: selectLesson,
     onToggleTrack: toggleChapter,
@@ -460,7 +516,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               <span className="min-w-0 truncate">{strings.home}</span>
             </button>
 
-            {learningCatalog.domains.map((domain) => {
+            {learningHomeDomains.map(({ domain }) => {
               const text = getDomainText(language, domain);
               const isActive = routeDomainId === domain.id;
               const DomainIcon = DOMAIN_ICONS[domain.id];
@@ -503,7 +559,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
           onOpenNavigation={toggleSidebar}
         />
         <section ref={contentAreaRef} className={cx('custom-scrollbar learning-lab-scrollbar learning-lab-content-area min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4', themeClasses.content)}>
-          {mode === 'review' ? (
+          {mode === 'review' && learningCatalog ? (
             <ReviewMode
               catalog={learningCatalog}
               language={language}
@@ -513,8 +569,16 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                 navigate(`/learning/${lesson.domainId}/${lesson.trackId}?lesson=${lesson.id}`);
               }}
             />
+          ) : mode === 'review' && requestedCatalogStatus === 'error' ? (
+            <LearningLoadError message={strings.catalogLoadError} retryLabel={strings.retry} onRetry={retryCatalogLoad} themeClasses={themeClasses} />
+          ) : mode === 'review' ? (
+            <CatalogLoadingFallback label={strings.catalogLoading} themeClasses={themeClasses} />
           ) : !routeDomainId ? (
-            <DomainCatalog language={language} theme={theme} onOpenDomain={openDomain} />
+            <DomainCatalog domains={learningHomeDomains} language={language} theme={theme} onOpenDomain={openDomain} />
+          ) : !learningCatalog && requestedCatalogStatus === 'error' ? (
+            <LearningLoadError message={strings.catalogLoadError} retryLabel={strings.retry} onRetry={retryCatalogLoad} themeClasses={themeClasses} />
+          ) : !learningCatalog ? (
+            <CatalogLoadingFallback label={strings.catalogLoading} themeClasses={themeClasses} />
           ) : activeDomain && !activeTrack ? (
             <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
               {strings.contentInProgress}
@@ -653,25 +717,28 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
               </div>
               {selectedLesson ? (
                 <div className="min-w-0">
-                  <LessonDetail
-                    lesson={selectedLesson}
-                    theme={theme}
-                    language={language}
-                    hasNextLesson={Boolean(nextLesson)}
-                    onSelectNextLesson={() => {
-                      if (!nextLesson) return;
-                      setCompletedLessonIds((current) => {
-                        const next = new Set(current);
-                        next.add(selectedLesson.id);
-                        return next;
-                      });
-                      selectLesson(nextLesson.id);
-                    }}
-                  />
+                  <Suspense fallback={<LessonDetailFallback label={strings.lessonLoading} themeClasses={themeClasses} />}>
+                    <LessonDetail
+                      lesson={selectedLesson}
+                      theme={theme}
+                      language={language}
+                      fallbackLocales={activeDomain?.mdx?.fallbackLocales}
+                      hasNextLesson={Boolean(nextLesson)}
+                      onSelectNextLesson={() => {
+                        if (!nextLesson) return;
+                        setCompletedLessonIds((current) => {
+                          const next = new Set(current);
+                          next.add(getLearningLessonIdentity(selectedLesson));
+                          return next;
+                        });
+                        selectLesson(nextLesson.id);
+                      }}
+                    />
+                  </Suspense>
                 </div>
               ) : (
                 <div className={cx('border p-6 text-sm font-black shadow-sm', themeClasses.radius.card, themeClasses.surface.card, themeClasses.mutedText)}>
-                  {strings.lessonFilterEmpty}
+                  {strings.contentInProgress}
                 </div>
               )}
             </section>
@@ -683,5 +750,84 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
         </section>
       </div>
     </main>
+  );
+}
+
+function LessonDetailFallback({
+  label,
+  themeClasses,
+}: {
+  label: string;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const skeletonTone = themeClasses.isLight ? 'bg-[#B8C8DA]/60' : 'bg-[#A8B8C8]/14';
+
+  return (
+    <div
+      aria-busy="true"
+      aria-live="polite"
+      className={cx(
+        'grid min-h-[22rem] min-w-0 overflow-hidden border shadow-sm',
+        themeClasses.radius.panel,
+        themeClasses.surface.card,
+      )}
+    >
+      <span className="sr-only">{label}</span>
+      <div className="border-b border-[#205089]/10 px-5 py-5 md:px-6">
+        <div className={cx('h-7 w-2/3 max-w-xl animate-pulse rounded-md motion-reduce:animate-none', skeletonTone)} />
+      </div>
+      <div className="grid content-start gap-4 bg-white px-5 py-6 md:px-6">
+        <div className={cx('h-4 w-full animate-pulse rounded motion-reduce:animate-none', skeletonTone)} />
+        <div className={cx('h-4 w-11/12 animate-pulse rounded motion-reduce:animate-none', skeletonTone)} />
+        <div className={cx('h-4 w-4/5 animate-pulse rounded motion-reduce:animate-none', skeletonTone)} />
+      </div>
+    </div>
+  );
+}
+
+function CatalogLoadingFallback({
+  label,
+  themeClasses,
+}: {
+  label: string;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  const skeletonTone = themeClasses.isLight ? 'bg-[#B8C8DA]/60' : 'bg-[#A8B8C8]/14';
+
+  return (
+    <div
+      aria-busy="true"
+      aria-live="polite"
+      className={cx('grid min-h-[18rem] content-start gap-5 border p-6 shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}
+    >
+      <span className="sr-only">{label}</span>
+      <div className={cx('h-8 w-1/3 min-w-48 animate-pulse rounded-md motion-reduce:animate-none', skeletonTone)} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[0, 1, 2].map((item) => (
+          <div key={item} className={cx('h-36 animate-pulse rounded-xl motion-reduce:animate-none', skeletonTone)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LearningLoadError({
+  message,
+  retryLabel,
+  onRetry,
+  themeClasses,
+}: {
+  message: string;
+  retryLabel: string;
+  onRetry: () => void;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
+}) {
+  return (
+    <div role="alert" className={cx('grid min-h-48 place-content-center justify-items-center gap-4 border p-6 text-center shadow-sm', themeClasses.radius.card, themeClasses.surface.card)}>
+      <p className={cx('text-sm font-bold', themeClasses.mutedText)}>{message}</p>
+      <button type="button" onClick={onRetry} className={cx('min-h-11 px-4 text-sm font-black', themeClasses.radius.button, themeClasses.button.secondary, themeClasses.focusRing)}>
+        {retryLabel}
+      </button>
+    </div>
   );
 }

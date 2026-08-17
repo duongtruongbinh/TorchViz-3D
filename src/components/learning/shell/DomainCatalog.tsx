@@ -1,24 +1,20 @@
 import type { ReactNode } from 'react';
 import { ArrowRight, BookOpen, GraduationCap, LibraryBig, Network } from 'lucide-react';
 
-import { learningCatalog } from '../../../content/learning/index.ts';
-import {
-  getGroupedLearningLessonsForDomain,
-  getLearningDomainReadiness,
-} from '../../../core/learning/selectors';
-import type { LearningDomain, LearningDomainId } from '../../../core/learning/types';
+import type { LearningDomainId, LearningHomeDomainSummary } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
 import { DOMAIN_CARD_PALETTES, DOMAIN_ICONS } from '../domainPresentation';
 import { getDomainText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 
 type DomainCatalogProps = {
+  domains: readonly LearningHomeDomainSummary[];
   language: Language;
   theme: LearningLabTheme;
   onOpenDomain: (domainId: LearningDomainId) => void;
 };
 
-export default function DomainCatalog({ language, theme, onOpenDomain }: DomainCatalogProps) {
+export default function DomainCatalog({ domains, language, theme, onOpenDomain }: DomainCatalogProps) {
   const strings = getStrings(language).learningLab;
   const home = strings.homePage;
   const themeClasses = getLearningLabTheme(theme);
@@ -29,8 +25,7 @@ export default function DomainCatalog({ language, theme, onOpenDomain }: DomainC
   const titleTone = isLight ? 'text-[#132033]' : themeClasses.titleText;
   const bodyTone = isLight ? 'text-[#42546A]' : themeClasses.bodyText;
   const mutedTone = isLight ? 'text-[#6B7C91]' : themeClasses.mutedText;
-  const syllabus = getLearningDomainReadiness(learningCatalog)
-    .map(({ domain, isReady }) => buildSyllabusItem(domain, language, isReady));
+  const syllabus = domains.map((summary) => buildSyllabusItem(summary, language));
   const lessonCount = syllabus.reduce((total, item) => total + item.lessonCount, 0);
 
   return (
@@ -190,16 +185,15 @@ function CatalogMetric({ icon, value, label, hideValueInLabel = false }: { icon:
   );
 }
 
-function buildSyllabusItem(domain: LearningDomain, language: Language, isReady: boolean) {
-  const groupedLessons = getGroupedLearningLessonsForDomain(learningCatalog, domain.id);
-  const lessons = groupedLessons.flatMap((group) => group.lessons);
+function buildSyllabusItem(summary: LearningHomeDomainSummary, language: Language) {
+  const { domain, isReady, lessonCount } = summary;
   const text = getDomainText(language, domain);
 
   return {
     domain,
     title: text.title,
     description: text.description,
-    lessonCount: lessons.length,
+    lessonCount,
     isReady,
   };
 }

@@ -7,7 +7,7 @@ import {
   getClosedTourState,
   type TourStep,
 } from '../lib/onboardingTourSteps';
-import { useStore } from '../store/useStore';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 
 const STORAGE_KEY = 'torchviz-hasSeenTour';
 export { TERMINAL_ERROR_TOUR_STEP, TERMINAL_SUCCESS_TOUR_STEP };
@@ -91,7 +91,7 @@ function getStepTargetRect(step: TourStep): DOMRect | null {
 }
 
 export default function OnboardingTour({ isOpen, onClose, onSkip, onDone, onStepChange }: OnboardingTourProps) {
-  const language = useStore((state) => state.language);
+  const language = usePreferencesStore((state) => state.language);
   const t = getStrings(language);
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);

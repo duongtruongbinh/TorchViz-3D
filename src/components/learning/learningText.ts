@@ -1,7 +1,5 @@
-import { learningCatalog } from '../../content/learning/index.ts';
 import type {
   LearningDomain,
-  LearningDomainId,
   LearningLocalizedText,
   LearningLesson,
   LearningTrack,
@@ -33,11 +31,6 @@ export function getTrackText(language: Language, track: LearningTrack): BasicTex
     title: getLearningLocalizedText(track.text.title, language),
     description: getLearningLocalizedText(track.text.description, language),
   };
-}
-
-export function getDomainTextById(language: Language, domainId: LearningDomainId): BasicText {
-  const domain = learningCatalog.domains.find((item) => item.id === domainId);
-  return domain ? getDomainText(language, domain) : { title: domainId, description: '' };
 }
 
 export function getUnifiedLessonText(language: Language, lesson: LearningLesson) {

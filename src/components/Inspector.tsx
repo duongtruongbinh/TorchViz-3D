@@ -5,7 +5,7 @@ import { formatNumber } from '../lib/stats';
 import { getVisualMeta } from '../lib/visualKind';
 import { getLayerInsight } from '../lib/layerInsights';
 import { getStrings, type LocalizedStrings } from '../lib/localization';
-import { useStore } from '../store/useStore';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 
 interface InspectorProps {
   ir: IRGraph | null;
@@ -170,7 +170,7 @@ const NodeDetails: React.FC<{ node: IRNode; onOpenLayerInsight: (node: IRNode) =
 
 /* ─── Main Inspector / Model Explorer ─── */
 const Inspector: React.FC<InspectorProps> = ({ ir, selectedNodeId, highlightNodeId, onSelectNode, onHighlightNode, onOpenLayerInsight, headerAction }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
   const selectedNode = ir && selectedNodeId ? findNodeById(ir.nodes, selectedNodeId) : null;
   const [isStructureCollapsed, setStructureCollapsed] = useState(false);

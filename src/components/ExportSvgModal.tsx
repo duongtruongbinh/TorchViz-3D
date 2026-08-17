@@ -3,7 +3,7 @@ import { FileDown, Image, ImageDown } from 'lucide-react';
 import { LayoutData } from '../lib/irTypes';
 import { generateSVG } from '../lib/svgExport';
 import { getStrings } from '../lib/localization';
-import { useStore } from '../store/useStore';
+import { usePreferencesStore } from '../store/usePreferencesStore';
 
 interface Props {
   isOpen: boolean;
@@ -23,7 +23,7 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 const ExportSvgModal: React.FC<Props> = ({ isOpen, onClose, layout }) => {
-  const language = useStore((s) => s.language);
+  const language = usePreferencesStore((s) => s.language);
   const t = getStrings(language);
   const [config, setConfig] = useState({
     scale: 32,
