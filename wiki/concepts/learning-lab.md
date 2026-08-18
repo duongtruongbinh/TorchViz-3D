@@ -246,7 +246,7 @@ tap to pin it, and the explicit action opens the source. No source is fetched
 during interaction. Evidence and exception data are injected only into authored
 lesson pages, so the dedicated `Nguồn chính được dùng trong bài` page remains
 ordinary links by construction. The Continual Learning domain currently has
-219 authored citation occurrences across 41 theory/lab nodes: 217 reviewed
+224 authored citation occurrences across 41 theory/lab nodes: 222 reviewed
 evidence records and two explicit link-only exceptions. The three authored
 `PaperSummary` blocks remain prose analysis and do not instantiate previews.
 

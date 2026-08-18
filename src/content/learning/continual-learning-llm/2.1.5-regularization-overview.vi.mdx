@@ -17,45 +17,48 @@ export const lessonMetadata = {
 
 ## Giữ tri thức cũ trong objective
 
-Khi học Task B sau Task A, **regularization-based continual learning** không
-replay trực tiếp raw data cũ. Thay vào đó, nó thêm một ràng buộc retention vào
+Khi học Task B sau Task A, **regularization-based approach** không replay trực
+tiếp raw data cũ. Thay vào đó, approach này thêm một ràng buộc retention vào
 objective của task mới:
 
 <BlockMath formula="\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{\mathrm{new}}+\lambda\mathcal{L}_{\mathrm{retention}}" />
 
 <InlineMath formula="\mathcal{L}_{\mathrm{new}}" /> giúp model thích nghi với
-task mới; <InlineMath formula="\lambda\mathcal{L}_{\mathrm{retention}}" /> làm
-thay đổi có thể gây quên trở nên đắt hơn. Survey mô tả parameter
+task mới; <InlineMath formula="\lambda\mathcal{L}_{\mathrm{retention}}" /> phạt
+thay đổi có thể gây quên nặng hơn. Survey mô tả parameter
 regularization là một term phạt độ lệch lớn khỏi history model trong parameter
 space <Cite paper="shi2024continualSurvey" evidence="regularization-overview-01-shi2024continualSurvey" />.
 
-Khác với **Replay**, family này không đưa raw sample lịch sử trở lại batch.
-Khác với **Architecture Expansion**, nó không chủ yếu bảo vệ tri thức bằng cách
-tạo capacity hoặc route riêng. Điểm đặt ràng buộc là **loss** của lần update
-hiện tại.
+Survey chia nhóm này thành hai hướng <Cite paper="wang2024comprehensive" evidence="regularization-overview-02-wang2024comprehensive" />:
+
+- **Weight regularization:** phạt việc các tham số quan trọng rời khỏi trạng
+  thái của model cũ.
+- **Function regularization:** phạt việc output hoặc hành vi /năng lực của model mới khác với model cũ, thường bằng knowledge distillation.
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Hai không gian ràng buộc
+## Hai regularization targets
 
-Hai node kế tiếp đi sâu vào hai cách đặt retention loss:
+Theo Wang et al., regularization-based approach được chia thành hai hướng dựa
+trên **regularization target** <Cite paper="wang2024comprehensive" evidence="regularization-overview-06-wang2024comprehensive" />. Hai node kế tiếp đi sâu
+vào từng hướng:
+
+<LessonImage
+  assetPath="continual-learning-llm/Regularizationv3.jpg"
+  alt="Minh họa regularization-based approach chia thành weight regularization, ràng buộc tham số của model cũ, và function regularization, ràng buộc hành vi của model cũ"
+/>
 
 <ComparisonMatrix
   ariaLabel="So sánh weight và function regularization"
   columns={['Weight Regularization', 'Function Regularization']}
   rows={[
-    { label: 'So sánh', values: ['Tham số hiện tại với checkpoint cũ, có thể theo importance từng tham số', 'Output hoặc representation của student với frozen teacher trên cùng input'] },
+    { label: 'So sánh', values: ['Tham số hiện tại với checkpoint cũ, có thể theo độ quan trọng từng tham số', 'Output hoặc representation của student với frozen teacher trên cùng input'] },
     { label: 'Câu hỏi chính', values: ['Trọng số quan trọng nào không nên rời quá xa?', 'Model mới còn phản hồi giống model cũ ở đâu?'] },
     { label: 'Ví dụ tiếp theo', values: ['EWC và Synaptic Intelligence', 'Knowledge distillation và Learning without Forgetting'] },
   ]}
 />
-
-Hai hướng là sibling trong cùng family: một hướng ràng buộc **parameter
-space**, hướng còn lại ràng buộc **function space**. Chúng có thể được kết hợp,
-nhưng không đồng nghĩa: giữ trọng số gần checkpoint cũ không tự động bảo đảm
-mọi output cũ, và match một tập phản hồi không buộc từng trọng số đứng yên.
 
 </MdxPage>
 
@@ -65,20 +68,23 @@ mọi output cũ, và match một tập phản hồi không buộc từng trọn
 
 Retention càng mạnh, model càng khó thay đổi để học Task B. Nếu
 <InlineMath formula="\lambda" /> quá nhỏ, forgetting có thể tăng; nếu quá lớn,
-plasticity có thể giảm. Đây là stability–plasticity trade-off mà regularization
-điều khiển, không loại bỏ.
+plasticity có thể giảm. Đây là stability–plasticity trade-off mà
+regularization-based approach điều khiển.
 
-Regularization tránh **replay raw data cũ**, nhưng không có nghĩa là zero
-storage cost. Weight regularization có thể cần checkpoint và importance
-statistics; function regularization thường cần một frozen old-model checkpoint
-để tạo teacher targets. Chất lượng retention cũng phụ thuộc vào tín hiệu và
-input được quan sát: một penalty nhỏ hoặc loss match thấp không bảo đảm mọi
-năng lực cũ được giữ trên toàn bộ input space.
+Regularization-based approach không nhất thiết phải replay **raw data cũ**,
+nhưng cũng không đồng nghĩa với zero storage cost. Wang et al. lưu ý rằng hướng
+này thường cần lưu một frozen copy của model cũ làm mốc tham chiếu <Cite paper="wang2024comprehensive" evidence="regularization-overview-03-wang2024comprehensive" />. 
+
+- Weight regularization dùng mốc đó cùng importance của tham số để đặt penalty.
+
+- Function regularization dùng model đã học trước đó làm teacher. Teacher target
+có thể được tạo từ input mới, một phần input cũ, dữ liệu ngoài không nhãn hoặc
+dữ liệu sinh <Cite paper="wang2024comprehensive" evidence="regularization-overview-04-wang2024comprehensive" />. Vì vậy, hướng này cũng có thể kết hợp với replay <Cite paper="wang2024comprehensive" evidence="regularization-overview-05-wang2024comprehensive" />.
 
 <LessonNote tone="warning">
-  Hãy chọn node tiếp theo theo nơi bạn muốn đặt ràng buộc: **Weight
-  Regularization** để học importance trong parameter space, hoặc **Function
-  Regularization** để học teacher–student và distillation trong function space.
+  **Phân tích:** retention loss chỉ ràng buộc tham số hoặc tín hiệu
+  trên những input được chọn. Loss thấp không chứng minh mọi năng lực cũ được
+  giữ trên nguyên toàn bộ input space.
 </LessonNote>
 
 </MdxPage>

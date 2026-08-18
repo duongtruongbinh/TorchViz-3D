@@ -155,7 +155,7 @@ export const continualLearningLessonReferenceCoverage = [
     ...summarized(['zheng2025spurious']),
     ...further(['shi2024unified'], 'The paper supplies theoretical context for replay but is not the source of the course fixture output.'),
   ])], 'Kết quả chạy mẫu thuộc fixture của khóa học; paper được dùng để kiểm tra phạm vi diễn giải.'),
-  coverage('regularization-overview', [claim('regularization-overview', 'Regularization adds a retention constraint relative to a history model; the course separates parameter-space and function-space follow-ups.', '§2.2.2', primary(['shi2024continualSurvey']))]),
+  coverage('regularization-overview', [claim('regularization-overview', 'The regularization-based approach adds a retention constraint relative to a history model and divides into weight and function regularization by its target.', 'Shi et al. §2.2.2; Wang et al. §4.1', primary(['shi2024continualSurvey', 'wang2024comprehensive']))]),
   coverage('parameter-regularization-ewc', [claim('parameter-regularization', 'Parameter-importance penalties trade plasticity for retention.', '§2.2.2', [
     ...summarized(['kirkpatrick2017overcoming']),
     ...primary(['zenke2017continual']),

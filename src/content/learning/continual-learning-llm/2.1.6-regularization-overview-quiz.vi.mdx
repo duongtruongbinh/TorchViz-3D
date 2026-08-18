@@ -12,19 +12,19 @@ export const lessonMetadata = {
 <MdxQuiz id="regularization-overview-quiz" questions={[
   {
     id: 'regularization-family-objective', title: 'Objective', mode: 'single',
-    prompt: 'Regularization-based continual learning thêm gì vào việc học Task B?',
+    prompt: 'Regularization-based approach thêm gì vào việc học Task B?',
     options: [
       { id: 'a', label: 'Một retention loss có trọng số bên cạnh loss của task mới.', isCorrect: true },
       { id: 'b', label: 'Toàn bộ raw data Task A vào mọi batch của Task B.' },
       { id: 'c', label: 'Một module mới tách riêng cho từng sample của Task B.' },
       { id: 'd', label: 'Một task ID bắt buộc để chọn output head.' },
     ],
-    success: 'Đúng. Family này đặt ràng buộc retention trong objective của update mới.',
+    success: 'Đúng. Approach này đặt ràng buộc retention trong objective của update mới.',
     error: 'Phân biệt regularization với replay raw data và architecture expansion.',
   },
   {
     id: 'regularization-space-split', title: 'Hai hướng', mode: 'single',
-    prompt: 'Cặp mô tả nào phân biệt đúng hai hướng regularization?',
+    prompt: 'Cặp mô tả nào phân biệt đúng hai regularization targets?',
     options: [
       { id: 'a', label: 'Weight regularization dùng replay buffer; function regularization chỉ thêm module mới.' },
       { id: 'b', label: 'Weight regularization ràng buộc tham số quan trọng; function regularization match output hoặc representation với teacher.', isCorrect: true },
