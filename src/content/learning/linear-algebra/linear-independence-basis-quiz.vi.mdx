@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'linear-independence-basis-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Independence', 'Basis', 'Dimension', 'Tọa độ theo Basis'],
+  keywords: ['linear independence', 'basis', 'dimension', 'coordinates', 'quiz'],
+  conceptIds: ['independence-test', 'basis-definition', 'dimension-definition', 'basis-coordinates'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="linear-independence-basis-quiz" questions={[
+  {
+    id: 'independence-test',
+    title: 'Independence',
+    prompt: 'Tập vector linearly independent khi phương trình c₁v₁ + ... + cₖvₖ = 0 có nghiệm nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Luôn có vô số nghiệm khác 0.' },
+      { id: 'b', label: 'Chỉ nghiệm c₁ = ... = cₖ = 0.', isCorrect: true },
+      { id: 'c', label: 'Chỉ cần c₁ = 1.' },
+      { id: 'd', label: 'Không cần có nghiệm.' },
+    ],
+    success: 'Đúng. Không có linear combination không tầm thường nào tạo vector không.',
+    error: 'Hãy nhớ định nghĩa độc lập tuyến tính.',
+  },
+  {
+    id: 'basis-definition',
+    title: 'Basis',
+    prompt: 'Một basis của subspace S cần thỏa điều nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Mọi vector có cùng norm.' },
+      { id: 'b', label: 'Chỉ cần span một phần của S.' },
+      { id: 'c', label: 'Independent và span toàn bộ S.', isCorrect: true },
+      { id: 'd', label: 'Phải là standard basis.' },
+    ],
+    success: 'Đúng. Basis vừa không dư thừa vừa đủ để sinh toàn bộ space.',
+    error: 'Kết hợp hai ý independence và span.',
+  },
+  {
+    id: 'dimension-definition',
+    title: 'Dimension',
+    prompt: 'Dimension của một finite dimensional vector space là gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Số vector bất kỳ đang được lưu trong dataset.' },
+      { id: 'b', label: 'Norm lớn nhất trong space.' },
+      { id: 'c', label: 'Số phần tử khác 0 của một vector.' },
+      { id: 'd', label: 'Số vector trong một basis của space đó.', isCorrect: true },
+    ],
+    success: 'Đúng. Mọi basis của cùng space có cùng số vector.',
+    error: 'Dimension đếm số hướng độc lập cần thiết.',
+  },
+  {
+    id: 'basis-coordinates',
+    title: 'Tọa độ theo Basis',
+    prompt: 'Nếu B có các cột tạo basis và x = Bc, vector c biểu diễn gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Tọa độ của x theo basis tạo bởi các cột của B.', isCorrect: true },
+      { id: 'b', label: 'Norm của x.' },
+      { id: 'c', label: 'Eigenvalues của B.' },
+      { id: 'd', label: 'Các hàng của B.' },
+    ],
+    success: 'Đúng. Các phần tử của c là hệ số linear combination của basis vectors.',
+    error: 'Đọc phép nhân Bc theo các cột của B.',
+  },
+]} />

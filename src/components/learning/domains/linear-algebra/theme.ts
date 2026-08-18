@@ -24,6 +24,8 @@ export type MathVisualTheme = {
   matrixHighlightRow: string;
   matrixHighlightCol: string;
   matrixHighlightCell: string;
+  matrixPivotCell: string;
+  matrixActiveRow: string;
   accentBadge: string;
   controlBg: string;
   controlText: string;
@@ -56,6 +58,8 @@ export function getMathVisualTheme(theme: LearningLabTheme): MathVisualTheme {
     matrixHighlightRow: isLight ? 'bg-blue-100/80 border-blue-400 text-blue-900' : 'bg-blue-900/40 border-blue-500 text-blue-200',
     matrixHighlightCol: isLight ? 'bg-amber-100/80 border-amber-400 text-amber-900' : 'bg-amber-900/40 border-amber-500 text-amber-200',
     matrixHighlightCell: isLight ? 'bg-emerald-100 border-emerald-500 text-emerald-900 font-bold' : 'bg-emerald-900/50 border-emerald-400 text-emerald-200 font-bold',
+    matrixPivotCell: isLight ? 'bg-amber-100 border-amber-500 text-amber-900 font-bold' : 'bg-amber-900/60 border-amber-400 text-amber-200 font-bold',
+    matrixActiveRow: isLight ? 'bg-indigo-100/80 border-indigo-400 text-indigo-900' : 'bg-indigo-900/40 border-indigo-500 text-indigo-200',
     accentBadge: isLight ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-slate-800 text-slate-300 border-slate-700',
     controlBg: isLight ? 'bg-white border-slate-300' : 'bg-slate-800 border-slate-700',
     controlText: isLight ? 'text-slate-800' : 'text-slate-200',

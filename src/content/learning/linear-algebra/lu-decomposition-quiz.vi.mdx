@@ -1,0 +1,85 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'lu-decomposition-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Vai trò của L và U',
+    'Multipliers',
+    'Giải hệ bằng LU',
+    'Permutation Matrix',
+  ],
+  keywords: [
+    'LU decomposition',
+    'triangular matrix',
+    'forward substitution',
+    'pivoting',
+    'quiz',
+  ],
+  conceptIds: [
+    'lu-factor-roles',
+    'lu-multipliers',
+    'lu-solve-order',
+    'lu-permutation',
+  ],
+  pageCount: 4,
+}
+
+<MdxQuiz id="lu-decomposition-quiz" questions={[
+  {
+    id: 'lu-factor-roles',
+    title: 'Vai trò của L và U',
+    prompt: 'Trong LU decomposition không cần row swap, phát biểu nào đúng nhất?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'L và U luôn bằng nhau.' },
+      { id: 'b', label: 'L là identity matrix trong mọi bài toán.' },
+      { id: 'c', label: 'U chứa vector b của hệ.' },
+      { id: 'd', label: 'L lưu các multipliers của elimination còn U là matrix tam giác trên sau elimination.', isCorrect: true },
+    ],
+    success: 'Đúng. LU ghi lại chính cấu trúc của Gaussian elimination.',
+    error: 'Hãy liên hệ L với các hệ số khử và U với kết quả tam giác trên.',
+  },
+  {
+    id: 'lu-multipliers',
+    title: 'Multipliers',
+    prompt: 'Nếu elimination dùng R₂ ← R₂ - 3R₁ thì multiplier tương ứng được lưu trong L là gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '3', isCorrect: true },
+      { id: 'b', label: '-3' },
+      { id: 'c', label: '1/3' },
+      { id: 'd', label: '0' },
+    ],
+    success: 'Đúng. Quy ước R₂ ← R₂ - l₂₁R₁ cho l₂₁ = 3.',
+    error: 'So sánh trực tiếp phép biến đổi với dạng R₂ ← R₂ - l₂₁R₁.',
+  },
+  {
+    id: 'lu-solve-order',
+    title: 'Giải hệ bằng LU',
+    prompt: 'Nếu A = LU, thứ tự nào đúng để giải Ax = b?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Giải Uc = b trước rồi giải Lx = c.' },
+      { id: 'b', label: 'Giải Lc = b trước rồi giải Ux = c.', isCorrect: true },
+      { id: 'c', label: 'Tính inverse của L và U trước trong mọi trường hợp.' },
+      { id: 'd', label: 'Nhân trực tiếp L với b rồi dừng.' },
+    ],
+    success: 'Đúng. Forward substitution với L đi trước, sau đó back substitution với U.',
+    error: 'Thay A = LU vào Ax = b rồi đặt c = Ux.',
+  },
+  {
+    id: 'lu-permutation',
+    title: 'Permutation Matrix',
+    prompt: 'Permutation matrix P xuất hiện trong LU có vai trò chính nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Thay mọi phần tử âm thành dương.' },
+      { id: 'b', label: 'Chuẩn hóa mọi hàng về norm bằng 1.' },
+      { id: 'c', label: 'Biểu diễn các row swaps dùng trong pivoting.', isCorrect: true },
+      { id: 'd', label: 'Biến matrix vuông thành vector.' },
+    ],
+    success: 'Đúng. P ghi lại việc hoán vị các hàng.',
+    error: 'Hãy liên hệ permutation với thao tác đổi hàng trong elimination.',
+  },
+]} />

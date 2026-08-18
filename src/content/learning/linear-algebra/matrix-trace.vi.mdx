@@ -1,0 +1,132 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'matrix-trace',
+  locale: 'vi',
+  title: 'Matrix Trace',
+  headings: [
+    'Trace là tổng đường chéo',
+    'Tính tuyến tính',
+    'Cyclic Property',
+    'Trace và Similarity',
+    'Trace và Eigenvalues',
+    'Trace trong NumPy',
+  ],
+  keywords: ['matrix trace', 'diagonal', 'cyclic property', 'similarity', 'eigenvalues', 'numpy'],
+  conceptIds: [
+    'trace-definition',
+    'trace-linearity',
+    'trace-cyclic',
+    'trace-similarity',
+    'trace-eigenvalues',
+    'trace-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Trace là tổng đường chéo
+
+Với square matrix:
+
+<BlockMath formula="A=\begin{bmatrix}a_{11}&\cdots&a_{1n}\\\vdots&\ddots&\vdots\\a_{n1}&\cdots&a_{nn}\end{bmatrix}" />
+
+trace là:
+
+<BlockMath formula="\operatorname{tr}(A)=a_{11}+a_{22}+\cdots+a_{nn}" />
+
+Trace biến một square matrix thành một scalar bằng tổng các phần tử trên đường chéo chính.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tính tuyến tính
+
+Trace thỏa:
+
+<BlockMath formula="\operatorname{tr}(A+B)=\operatorname{tr}(A)+\operatorname{tr}(B)" />
+
+và:
+
+<BlockMath formula="\operatorname{tr}(cA)=c\operatorname{tr}(A)" />
+
+Đây là một linear function trên không gian square matrices cùng kích thước.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cyclic Property
+
+Với kích thước phù hợp:
+
+<BlockMath formula="\operatorname{tr}(AB)=\operatorname{tr}(BA)" />
+
+Với ba matrix:
+
+<BlockMath formula="\operatorname{tr}(ABC)=\operatorname{tr}(BCA)=\operatorname{tr}(CAB)" />
+
+Đây là cyclic property (tính chất chu kỳ).
+
+Không được đổi thứ tự tùy ý. Trong trường hợp tổng quát:
+
+<BlockMath formula="\operatorname{tr}(ABC)\neq\operatorname{tr}(ACB)" />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Trace và Similarity
+
+Nếu:
+
+<BlockMath formula="B=P^{-1}AP" />
+
+thì <InlineMath formula="A" /> và <InlineMath formula="B" /> là similar matrices.
+
+Dùng cyclic property:
+
+<BlockMath formula="\operatorname{tr}(B)=\operatorname{tr}(P^{-1}AP)=\operatorname{tr}(APP^{-1})=\operatorname{tr}(A)" />
+
+Trace không đổi khi ta đổi basis bằng similarity transformation.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Trace và Eigenvalues
+
+Một kết quả quan trọng là:
+
+<BlockMath formula="\operatorname{tr}(A)=\lambda_1+\cdots+\lambda_n" />
+
+khi các eigenvalues được tính với algebraic multiplicity.
+
+<TraceEigenvalueLink
+  ariaLabel="Trace được tính bằng tổng các phần tử đường chéo và bằng tổng eigenvalues có kể multiplicity"
+/>
+
+Trace là một đại lượng bất biến không phụ thuộc vào cơ sở và liên hệ trực tiếp với các giá trị riêng.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Trace trong NumPy
+
+```python
+import numpy as np
+
+A = np.array([
+    [2.0, 1.0],
+    [3.0, 4.0],
+])
+
+print(np.trace(A))
+# 6.0
+```
+
+Bài tiếp theo giải thích eigenvalues và eigenvectors, nơi một số hướng đặc biệt chỉ bị scale khi matrix tác động lên chúng.
+
+</MdxPage>

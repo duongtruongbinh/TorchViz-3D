@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'orthogonality-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Orthogonal Vectors', 'Orthogonal Set', 'Orthonormal Matrix'],
+  keywords: ['orthogonal', 'orthonormal', 'dot product', 'quiz'],
+  conceptIds: ['orthogonality-dot-product', 'orthogonal-set', 'orthonormal-matrix'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="orthogonality-quiz" questions={[
+  {
+    id: 'orthogonality-dot-product',
+    title: 'Orthogonal Vectors',
+    prompt: 'Hai vector khác vector không u và v orthogonal khi nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'uᵀv = 1.' },
+      { id: 'b', label: 'u = v.' },
+      { id: 'c', label: '||u||₂ = ||v||₂.' },
+      { id: 'd', label: 'uᵀv = 0.', isCorrect: true },
+    ],
+    success: 'Đúng. Dot product bằng 0 tương ứng với góc 90 độ.',
+    error: 'Dùng công thức hình học của dot product.',
+  },
+  {
+    id: 'orthogonal-set',
+    title: 'Orthogonal Set',
+    prompt: 'Một tập các vector khác vector không đôi một orthogonal có tính chất nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Linearly independent.', isCorrect: true },
+      { id: 'b', label: 'Mọi vector bằng nhau.' },
+      { id: 'c', label: 'Mọi vector có norm bằng 0.' },
+      { id: 'd', label: 'Luôn span toàn bộ Rⁿ bất kể có bao nhiêu vector.' },
+    ],
+    success: 'Đúng. Các hướng đôi một vuông góc không thể tạo ra redundancy tuyến tính.',
+    error: 'Orthogonality loại bỏ khả năng một vector được tạo từ các vector còn lại.',
+  },
+  {
+    id: 'orthonormal-matrix',
+    title: 'Orthonormal Matrix',
+    prompt: 'Q có các cột orthonormal. Quan hệ nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'QᵀQ = 0.' },
+      { id: 'b', label: 'QᵀQ = I.', isCorrect: true },
+      { id: 'c', label: 'Q = 0.' },
+      { id: 'd', label: 'Mọi phần tử của Q bằng 1.' },
+    ],
+    success: 'Đúng. Dot product giữa các cột tạo identity matrix.',
+    error: 'Đường chéo là norm bình phương, ngoài đường chéo là dot product giữa hai cột khác nhau.',
+  },
+]} />

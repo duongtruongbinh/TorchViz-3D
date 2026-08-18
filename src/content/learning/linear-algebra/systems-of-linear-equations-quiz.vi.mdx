@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'systems-of-linear-equations-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Shape trong Ax = b',
+    'Cách đọc theo cột',
+    'Số nghiệm của hệ',
+  ],
+  keywords: [
+    'linear system',
+    'Ax=b',
+    'linear combination',
+    'solution',
+    'quiz',
+  ],
+  conceptIds: [
+    'linear-system-shape',
+    'ax-column-combination',
+    'linear-system-solution-cases',
+  ],
+  pageCount: 3,
+}
+
+<MdxQuiz id="systems-of-linear-equations-quiz" questions={[
+  {
+    id: 'linear-system-shape',
+    title: 'Shape trong Ax = b',
+    prompt: 'Một hệ có 4 phương trình và 3 ẩn được viết Ax = b. Shape nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A có shape 3×4, x thuộc R⁴ và b thuộc R³.' },
+      { id: 'b', label: 'A có shape 4×3, x thuộc R³ và b thuộc R⁴.', isCorrect: true },
+      { id: 'c', label: 'A có shape 4×4, x và b đều thuộc R⁴.' },
+      { id: 'd', label: 'A có shape 3×3 vì hệ chỉ có 3 ẩn.' },
+    ],
+    success: 'Đúng. Mỗi phương trình tạo một hàng và mỗi ẩn tạo một cột của A.',
+    error: 'Hãy liên hệ số phương trình với số hàng và số ẩn với số cột.',
+  },
+  {
+    id: 'ax-column-combination',
+    title: 'Cách đọc theo cột',
+    prompt: 'Cho A = [a₁ a₂] và x = [x₁, x₂]ᵀ. Biểu thức nào bằng Ax?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'a₁ + a₂' },
+      { id: 'b', label: 'x₁x₂(a₁ + a₂)' },
+      { id: 'c', label: 'x₁a₁ + x₂a₂', isCorrect: true },
+      { id: 'd', label: 'a₁ᵀa₂' },
+    ],
+    success: 'Đúng. Các thành phần của x là hệ số của linear combination giữa các cột của A.',
+    error: 'Hãy đọc phép nhân matrix vector theo các cột của A.',
+  },
+  {
+    id: 'linear-system-solution-cases',
+    title: 'Số nghiệm của hệ',
+    prompt: 'Trong hệ hai phương trình hai ẩn, hai đường thẳng song song nhưng khác nhau tương ứng với trường hợp nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Một nghiệm duy nhất.' },
+      { id: 'b', label: 'Vô số nghiệm.' },
+      { id: 'c', label: 'Luôn có nghiệm x = 0, y = 0.' },
+      { id: 'd', label: 'Vô nghiệm.', isCorrect: true },
+    ],
+    success: 'Đúng. Hai đường song song khác nhau không có điểm chung.',
+    error: 'Nghiệm của hệ phải nằm trên cả hai đường cùng lúc.',
+  },
+]} />

@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'svd-intuition-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['SVD Factorization', 'Singular Values', 'AtA', 'Rank'],
+  keywords: ['SVD', 'singular values', 'AtA', 'rank', 'quiz'],
+  conceptIds: ['svd-factorization', 'singular-values', 'svd-ata-link', 'rank-singular-values'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="svd-intuition-quiz" questions={[
+  {
+    id: 'svd-factorization',
+    title: 'SVD Factorization',
+    prompt: 'SVD của real matrix A có dạng nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A = U + Σ + V' },
+      { id: 'b', label: 'A = VΛV⁻¹ với mọi rectangular matrix' },
+      { id: 'c', label: 'A = QR chỉ khi A singular' },
+      { id: 'd', label: 'A = UΣVᵀ', isCorrect: true },
+    ],
+    success: 'Đúng. U và V chứa orthonormal singular vectors.',
+    error: 'Nhớ ba factors của SVD.',
+  },
+  {
+    id: 'singular-values',
+    title: 'Singular Values',
+    prompt: 'Singular values trong SVD được chọn theo quy ước nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Không âm và thường sắp giảm dần.', isCorrect: true },
+      { id: 'b', label: 'Luôn âm.' },
+      { id: 'c', label: 'Luôn bằng eigenvalues của A.' },
+      { id: 'd', label: 'Chỉ có một singular value cho mọi matrix.' },
+    ],
+    success: 'Đúng. Singular values biểu diễn các scale không âm.',
+    error: 'Sigma chứa các scale của principal singular directions.',
+  },
+  {
+    id: 'svd-ata-link',
+    title: 'AtA',
+    prompt: 'Right singular vectors của A là eigenvectors của matrix nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A + Aᵀ' },
+      { id: 'b', label: 'AᵀA', isCorrect: true },
+      { id: 'c', label: 'A⁻¹ trong mọi trường hợp' },
+      { id: 'd', label: 'Identity matrix bất kể A' },
+    ],
+    success: 'Đúng. AᵀA = VΣᵀΣVᵀ.',
+    error: 'Nhân SVD của A từ trái bằng Aᵀ.',
+  },
+  {
+    id: 'rank-singular-values',
+    title: 'Rank',
+    prompt: 'Trong exact arithmetic, rank(A) bằng gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Tổng singular values.' },
+      { id: 'b', label: 'Singular value lớn nhất.' },
+      { id: 'c', label: 'Số singular values khác 0.', isCorrect: true },
+      { id: 'd', label: 'Số phần tử của A.' },
+    ],
+    success: 'Đúng. Mỗi singular value khác 0 tương ứng với một hướng được giữ lại.',
+    error: 'Rank đếm số directions không bị collapse.',
+  },
+]} />

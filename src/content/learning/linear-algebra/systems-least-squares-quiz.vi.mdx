@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'systems-least-squares-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Least Squares Objective', 'Residual', 'Normal Equations', 'Projection'],
+  keywords: ['least squares', 'residual', 'normal equations', 'projection', 'quiz'],
+  conceptIds: ['least-squares-objective', 'least-squares-residual', 'normal-equations', 'least-squares-projection'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="systems-least-squares-quiz" questions={[
+  {
+    id: 'least-squares-objective',
+    title: 'Least Squares Objective',
+    prompt: 'Least squares chọn x để tối thiểu đại lượng nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '||A||₂ + ||b||₂' },
+      { id: 'b', label: 'det(A)' },
+      { id: 'c', label: '||b - Ax||₂²', isCorrect: true },
+      { id: 'd', label: 'trace(A)' },
+    ],
+    success: 'Đúng. Least squares tối thiểu tổng bình phương residual.',
+    error: 'Residual là b - Ax.',
+  },
+  {
+    id: 'least-squares-residual',
+    title: 'Residual',
+    prompt: 'Tại nghiệm least squares, residual e = b - Axhat có quan hệ gì với Col(A)?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'e luôn thuộc Col(A).' },
+      { id: 'b', label: 'e luôn bằng b.' },
+      { id: 'c', label: 'e phải có norm bằng 1.' },
+      { id: 'd', label: 'e orthogonal với Col(A).', isCorrect: true },
+    ],
+    success: 'Đúng. Đây là điều kiện projection gần nhất.',
+    error: 'Least squares là orthogonal projection lên column space.',
+  },
+  {
+    id: 'normal-equations',
+    title: 'Normal Equations',
+    prompt: 'Normal equations có dạng nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'AᵀA xhat = Aᵀb', isCorrect: true },
+      { id: 'b', label: 'A xhat = 0 trong mọi bài toán' },
+      { id: 'c', label: 'AAᵀ xhat = b luôn luôn' },
+      { id: 'd', label: 'A + xhat = b' },
+    ],
+    success: 'Đúng. Chúng đến từ điều kiện Aᵀ(b - Axhat) = 0.',
+    error: 'Bắt đầu từ residual orthogonal với columns of A.',
+  },
+  {
+    id: 'least-squares-projection',
+    title: 'Projection',
+    prompt: 'Vector nào là projection của b lên Col(A) tại nghiệm least squares?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'b - A xhat' },
+      { id: 'b', label: 'A xhat', isCorrect: true },
+      { id: 'c', label: 'Aᵀb' },
+      { id: 'd', label: 'xhatᵀxhat' },
+    ],
+    success: 'Đúng. A xhat nằm trong column space và gần b nhất.',
+    error: 'Output của A luôn nằm trong column space.',
+  },
+]} />

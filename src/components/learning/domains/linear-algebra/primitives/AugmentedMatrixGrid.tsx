@@ -1,0 +1,206 @@
+import type { ReactNode } from 'react';
+import { InlineMath, useLearningMdxTheme } from '../../../learningMdxComponents';
+import { getMathVisualTheme } from '../theme';
+
+export interface AugmentedMatrixGridProps {
+  name?: string | ReactNode;
+  rightBlockName?: string | ReactNode;
+  values: (number | string)[][];
+  dividerCol?: number; // 0-indexed column index after which the vertical augmented bar appears
+  pivotCell?: [number, number]; // [row, col] to highlight as active pivot
+  activeRow?: number; // 0-indexed row undergoing an elementary operation
+  activeRows?: number[]; // multiple rows undergoing operations
+  highlightCols?: number[];
+  highlightCells?: [number, number][];
+  highlightRightBlock?: boolean;
+  onCellClick?: (row: number, col: number) => void;
+  size?: 'sm' | 'md' | 'lg';
+  ariaLabel?: string;
+}
+
+export function AugmentedMatrixGrid({
+  name,
+  rightBlockName,
+  values,
+  dividerCol,
+  pivotCell,
+  activeRow,
+  activeRows,
+  highlightCols,
+  highlightCells,
+  highlightRightBlock = false,
+  onCellClick,
+  size = 'md',
+  ariaLabel,
+}: AugmentedMatrixGridProps) {
+  const themeClasses = useLearningMdxTheme();
+  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+
+  const rows = values.length;
+  const cols = values[0]?.length ?? 0;
+
+  const sizeClasses = {
+    sm: 'w-8 h-8 text-xs',
+    md: 'w-10 h-10 sm:w-11 sm:h-11 text-xs sm:text-sm',
+    lg: 'w-12 h-12 sm:w-14 sm:h-14 text-sm sm:text-base font-semibold',
+  }[size];
+
+  const hasDivider = typeof dividerCol === 'number' && dividerCol >= 0 && dividerCol < cols - 1;
+
+  const isRowActive = (r: number) => {
+    if (activeRow === r) return true;
+    if (activeRows && activeRows.includes(r)) return true;
+    return false;
+  };
+
+  const isColHighlighted = (c: number) => {
+    if (highlightCols && highlightCols.includes(c)) return true;
+    return false;
+  };
+
+  const isCellPivot = (r: number, c: number) => {
+    return pivotCell && pivotCell[0] === r && pivotCell[1] === c;
+  };
+
+  const isCellCustomHighlight = (r: number, c: number) => {
+    return highlightCells && highlightCells.some(([hr, hc]) => hr === r && hc === c);
+  };
+
+  return (
+    <div
+      className="inline-flex flex-col items-center gap-1.5 select-none"
+      aria-label={ariaLabel}
+    >
+      {rightBlockName && (
+        <div className="w-full flex justify-end pr-4">
+          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+            {typeof rightBlockName === 'string' ? (
+              <InlineMath formula={rightBlockName} />
+            ) : (
+              rightBlockName
+            )}
+          </span>
+        </div>
+      )}
+
+      <div className="inline-flex items-center gap-2 sm:gap-3">
+        {name && (
+          <div
+            className="text-sm sm:text-base font-bold italic"
+            style={{ color: theme.matrixCellText }}
+          >
+            {typeof name === 'string' ? (
+              name.startsWith('\\') ? (
+                <InlineMath formula={name} />
+              ) : (
+                `${name} =`
+              )
+            ) : (
+              name
+            )}
+          </div>
+        )}
+
+        {/* Matrix container with brackets */}
+        <div className="relative inline-flex items-center px-1.5 py-1">
+          {/* Left bracket */}
+          <div
+            className="absolute left-0 top-0 bottom-0 w-2 border-l-2 border-t-2 border-b-2 rounded-l-xs"
+            style={{ borderColor: theme.matrixBracket }}
+            aria-hidden="true"
+          />
+
+          {/* Matrix Grid */}
+          <div
+            className="relative grid gap-1.5 p-1 items-center"
+            style={{
+              gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+            }}
+          >
+            {values.map((rowVals, r) =>
+              rowVals.map((val, c) => {
+                const rowActive = isRowActive(r);
+                const colHighlight = isColHighlighted(c);
+                const isPivot = isCellPivot(r, c);
+                const isCustom = isCellCustomHighlight(r, c);
+                const isRightBlockCol = hasDivider && c > (dividerCol ?? 0);
+
+                let cellStyle = `border rounded-md transition-all flex flex-col items-center justify-center ${sizeClasses} `;
+
+                if (isPivot) {
+                  cellStyle += `${theme.matrixPivotCell} ring-2 ring-amber-400 shadow-sm scale-105 font-bold `;
+                } else if (isCustom) {
+                  cellStyle += `${theme.matrixHighlightCell} scale-105 shadow-sm `;
+                } else if (rowActive) {
+                  cellStyle += `${theme.matrixActiveRow} `;
+                } else if (colHighlight) {
+                  cellStyle += `${theme.matrixHighlightCol} `;
+                } else if (highlightRightBlock && isRightBlockCol) {
+                  cellStyle += themeClasses.isLight
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 '
+                    : 'bg-emerald-950/40 border-emerald-700 text-emerald-100 ';
+                } else {
+                  cellStyle += `${
+                    themeClasses.isLight
+                      ? 'bg-white border-slate-200 text-slate-800'
+                      : 'bg-slate-800/80 border-slate-700 text-slate-100'
+                  } `;
+                }
+
+                if (onCellClick) {
+                  cellStyle +=
+                    'cursor-pointer hover:ring-2 hover:ring-blue-400 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ';
+                }
+
+                if (onCellClick) {
+                  return (
+                    <button
+                      type="button"
+                      key={`aug-cell-${r}-${c}`}
+                      onClick={() => onCellClick(r, c)}
+                      className={cellStyle}
+                      aria-label={`Cell (${r + 1}, ${c + 1}): ${val}`}
+                    >
+                      <span className="font-mono">{val}</span>
+                    </button>
+                  );
+                }
+
+                return (
+                  <div
+                    key={`aug-cell-${r}-${c}`}
+                    className={cellStyle}
+                  >
+                    <span className="font-mono">{val}</span>
+                  </div>
+                );
+              }),
+            )}
+
+            {/* Continuous vertical divider line */}
+            {hasDivider && dividerCol !== undefined && (
+              <div
+                className="absolute top-1 bottom-1 w-0.5 pointer-events-none rounded-full"
+                style={{
+                  left: `calc(${((dividerCol + 1) / cols) * 100}% - 0.25px)`,
+                  backgroundColor: themeClasses.isLight
+                    ? '#0284c7'
+                    : '#38bdf8',
+                }}
+                aria-hidden="true"
+              />
+            )}
+          </div>
+
+          {/* Right bracket */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-2 border-r-2 border-t-2 border-b-2 rounded-r-xs"
+            style={{ borderColor: theme.matrixBracket }}
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

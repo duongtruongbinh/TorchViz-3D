@@ -84,9 +84,9 @@ test('Linear Algebra KaTeX Math Validation', async (t) => {
         while ((match = formulaRegex.exec(content)) !== null) {
           const formula = match[1];
 
-          // A TeX command like \\mathbf, \\lVert, \\begin, \\top inside the attribute is overescaped
-          // Valid TeX row break is \\ surrounded by matrix terms, but command should start with single \
-          const commandMatch = formula.match(/\\\\([a-zA-Z]+)/);
+          // A TeX command like \\mathbf, \\lVert, \\begin at start or after delimiters is overescaped.
+          // Valid TeX row breaks inside environments (e.g. \\y in cases or \\\mathbf in bmatrix) are not overescaped commands.
+          const commandMatch = formula.match(/(?:^|[\s{(=+,_-])\\\\([a-zA-Z]+)/);
           if (commandMatch) {
             overescapedErrors.push({
               file: fileName,

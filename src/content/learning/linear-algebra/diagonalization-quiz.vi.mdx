@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'diagonalization-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Factorization', 'Điều kiện Diagonalizable', 'Matrix Powers', 'Symmetric Matrix'],
+  keywords: ['diagonalization', 'eigenbasis', 'symmetric matrix', 'quiz'],
+  conceptIds: ['diagonalization-factorization', 'diagonalizable-condition', 'matrix-powers', 'symmetric-spectral-theorem'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="diagonalization-quiz" questions={[
+  {
+    id: 'diagonalization-factorization',
+    title: 'Factorization',
+    prompt: 'Nếu A diagonalizable với eigenvectors là các cột của V, factorization nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A = V + Λ' },
+      { id: 'b', label: 'A = VᵀV luôn luôn' },
+      { id: 'c', label: 'A = VΛV⁻¹', isCorrect: true },
+      { id: 'd', label: 'A = Λ trong mọi basis' },
+    ],
+    success: 'Đúng. V đổi giữa basis gốc và eigenvector basis.',
+    error: 'Bắt đầu từ AV = VΛ.',
+  },
+  {
+    id: 'diagonalizable-condition',
+    title: 'Điều kiện Diagonalizable',
+    prompt: 'Matrix n×n diagonalizable khi có điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Đúng một eigenvalue.' },
+      { id: 'b', label: 'Mọi phần tử khác 0.' },
+      { id: 'c', label: 'Trace bằng 0.' },
+      { id: 'd', label: 'n linearly independent eigenvectors.', isCorrect: true },
+    ],
+    success: 'Đúng. Các eigenvectors phải tạo được một basis.',
+    error: 'V cần invertible.',
+  },
+  {
+    id: 'matrix-powers',
+    title: 'Matrix Powers',
+    prompt: 'Nếu A = VΛV⁻¹ thì Aᵏ bằng gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'VΛᵏV⁻¹', isCorrect: true },
+      { id: 'b', label: 'VᵏΛV⁻¹' },
+      { id: 'c', label: 'kA' },
+      { id: 'd', label: 'Λ luôn luôn' },
+    ],
+    success: 'Đúng. Các V⁻¹V ở giữa triệt tiêu khi nhân lặp.',
+    error: 'Khai triển A² từ factorization.',
+  },
+  {
+    id: 'symmetric-spectral-theorem',
+    title: 'Symmetric Matrix',
+    prompt: 'Real symmetric matrix có thể được diagonalize theo dạng nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A = Q + Λ' },
+      { id: 'b', label: 'A = QΛQᵀ với Q orthogonal.', isCorrect: true },
+      { id: 'c', label: 'A luôn bằng identity matrix.' },
+      { id: 'd', label: 'A không có real eigenvalues.' },
+    ],
+    success: 'Đúng. Symmetric matrices có orthonormal eigenbasis.',
+    error: 'Đây là spectral theorem cho real symmetric matrices.',
+  },
+]} />

@@ -1,0 +1,85 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'gaussian-elimination-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Phép biến đổi hàng',
+    'Một bước khử',
+    'Nhận biết hệ vô nghiệm',
+    'Back Substitution',
+  ],
+  keywords: [
+    'Gaussian elimination',
+    'row operation',
+    'pivot',
+    'back substitution',
+    'quiz',
+  ],
+  conceptIds: [
+    'elementary-row-operations',
+    'pivot-elimination',
+    'elimination-solution-cases',
+    'back-substitution',
+  ],
+  pageCount: 4,
+}
+
+<MdxQuiz id="gaussian-elimination-quiz" questions={[
+  {
+    id: 'elementary-row-operations',
+    title: 'Phép biến đổi hàng',
+    prompt: 'Nhóm thao tác nào gồm đúng ba phép biến đổi hàng cơ bản dùng trong Gaussian elimination?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Đổi hai cột, nhân toàn bộ matrix với 0, sắp xếp các phần tử trong hàng.' },
+      { id: 'b', label: 'Đổi hai hàng, nhân một hàng với scalar khác 0, cộng bội của một hàng vào hàng khác.', isCorrect: true },
+      { id: 'c', label: 'Chuyển vị matrix, lấy inverse, cộng hai cột.' },
+      { id: 'd', label: 'Chỉ được phép cộng hai hàng với nhau.' },
+    ],
+    success: 'Đúng. Ba phép này tạo các hệ tương đương và là công cụ của elimination.',
+    error: 'Hãy nhớ ba thao tác trên các phương trình tương đương.',
+  },
+  {
+    id: 'pivot-elimination',
+    title: 'Một bước khử',
+    prompt: 'Hai hàng là [1, 1 | 3] và [2, 3 | 8]. Sau R₂ ← R₂ - 2R₁, hàng thứ hai trở thành gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '[0, 2 | 5]' },
+      { id: 'b', label: '[1, 2 | 5]' },
+      { id: 'c', label: '[0, 1 | 2]', isCorrect: true },
+      { id: 'd', label: '[2, 1 | 2]' },
+    ],
+    success: 'Đúng. [2, 3 | 8] - 2[1, 1 | 3] = [0, 1 | 2].',
+    error: 'Trừ hai lần toàn bộ hàng đầu tiên khỏi hàng thứ hai.',
+  },
+  {
+    id: 'elimination-no-solution',
+    title: 'Nhận biết hệ vô nghiệm',
+    prompt: 'Sau elimination, hệ xuất hiện hàng [0, 0, 0 | 3]. Kết luận nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Hệ có nghiệm duy nhất.' },
+      { id: 'b', label: 'Biến cuối cùng bằng 3.' },
+      { id: 'c', label: 'Hàng này có thể bỏ mà không ảnh hưởng đến hệ.' },
+      { id: 'd', label: 'Hệ vô nghiệm.', isCorrect: true },
+    ],
+    success: 'Đúng. Hàng đó tương ứng với phương trình 0 = 3 nên tạo mâu thuẫn.',
+    error: 'Hãy chuyển hàng matrix trở lại dạng phương trình.',
+  },
+  {
+    id: 'back-substitution',
+    title: 'Back Substitution',
+    prompt: 'Khi hệ đã ở dạng tam giác trên, ta thường bắt đầu giải từ đâu?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Từ phương trình cuối rồi đi ngược lên.', isCorrect: true },
+      { id: 'b', label: 'Luôn bắt đầu từ phương trình đầu.' },
+      { id: 'c', label: 'Từ cột có nhiều số 0 nhất nhưng theo thứ tự ngẫu nhiên.' },
+      { id: 'd', label: 'Phải tính inverse trước.' },
+    ],
+    success: 'Đúng. Phương trình cuối thường chỉ còn một ẩn nên có thể giải trước.',
+    error: 'Nhìn cấu trúc tam giác và tìm phương trình đơn giản nhất trước.',
+  },
+]} />

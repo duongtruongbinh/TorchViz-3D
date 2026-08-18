@@ -2,136 +2,197 @@ export const lessonMetadata = {
   domainId: 'linear-algebra',
   id: 'lu-decomposition',
   locale: 'vi',
-  title: 'Phân tích LU',
-  headings: ['Phân tích LU là gì?', 'Từ khử Gaussian đến LU', 'Ví dụ bằng số', 'Giải hệ với LU', 'LU trong PyTorch', 'Tổng kết'],
-  keywords: ['LU decomposition', 'matrix factorization', 'lower triangular', 'upper triangular', 'forward substitution'],
+  title: 'LU Decomposition',
+  headings: [
+    'Elimination được lưu lại như thế nào',
+    'Triangular Matrix và hai bước giải',
+    'Từ multipliers đến A = LU',
+    'Một ví dụ LU hoàn chỉnh',
+    'Giải Ax = b bằng LU',
+    'Row Swap và Pivoting',
+  ],
+  keywords: [
+    'LU decomposition',
+    'lower triangular',
+    'upper triangular',
+    'forward substitution',
+    'back substitution',
+    'pivoting',
+  ],
+  conceptIds: [
+    'lu-motivation',
+    'triangular-systems',
+    'lu-from-elimination',
+    'lu-factorization-example',
+    'lu-solve',
+    'lu-pivoting',
+  ],
   pageCount: 6,
 }
 
 <MdxPage page={0}>
-  # Phân tích LU
 
-  **Phân tích LU** là kỹ thuật phân tích một ma trận vuông thành tích của hai ma trận:
-  - <InlineMath formula="L" /> (Lower): ma trận tam giác dưới
-  - <InlineMath formula="U" /> (Upper): ma trận tam giác trên
+## Elimination được lưu lại như thế nào
 
-  <BlockMath formula="A = LU" />
+Gaussian elimination biến <InlineMath formula="A" /> thành một matrix tam giác trên <InlineMath formula="U" />.
 
-  <LessonNote>
-    Phân tích LU là cách hiệu quả nhất để giải nhiều hệ phương trình có cùng ma trận A nhưng khác vector b. Một khi đã có LU, việc giải chỉ còn là thay thế xuôi và ngược.
-  </LessonNote>
+Nếu phải giải nhiều hệ:
 
-  **Tại sao cần LU?**
-  - Giải <InlineMath formula="Ax = b" /> với nhiều vector <InlineMath formula="b" /> khác nhau
-  - Tính ma trận nghịch đảo
-  - Tính định thức: <InlineMath formula="\det(A) = \det(L) \cdot \det(U) = \prod u_{ii}" />
+<BlockMath formula="A\mathbf{x}_1=\mathbf{b}_1,\qquad A\mathbf{x}_2=\mathbf{b}_2,\qquad\ldots" />
+
+thì phần elimination phụ thuộc vào <InlineMath formula="A" />, không phụ thuộc vào từng vector <InlineMath formula="\mathbf{b}" />.
+
+LU decomposition lưu cấu trúc đó thành hai matrix:
+
+<BlockMath formula="A=LU" />
+
+Trong trường hợp không cần row swap:
+
+- <InlineMath formula="L" /> là lower triangular matrix và lưu các multipliers dùng trong elimination
+- <InlineMath formula="U" /> là upper triangular matrix thu được sau elimination
+
+Ta factor <InlineMath formula="A" /> một lần rồi tái sử dụng khi vế phải thay đổi.
+
 </MdxPage>
 
 <MdxPage page={1}>
-  ## Từ khử Gaussian đến LU
 
-  Phân tích LU là "ký ức" của quá trình khử Gaussian.
+## Triangular Matrix và hai bước giải
 
-  - **Ma trận U** là kết quả của quá trình khử Gaussian (dạng hàng bậc thang)
-  - **Ma trận L** ghi lại các hệ số nhân đã dùng để khử
+Upper triangular matrix có dạng:
 
-  Nếu khử Gaussian dùng phép biến đổi:
+<BlockMath formula="U=\begin{bmatrix}u_{11}&u_{12}&u_{13}\\0&u_{22}&u_{23}\\0&0&u_{33}\end{bmatrix}" />
 
-  <BlockMath formula="R_j \to R_j - l_{jk}R_k" />
+Hệ <InlineMath formula="U\mathbf{x}=\mathbf{c}" /> được giải bằng **back substitution**.
 
-  Thì <InlineMath formula="l_{jk}" /> chính là phần tử tại vị trí <InlineMath formula="(j,k)" /> của ma trận L.
+Lower triangular matrix có dạng:
 
-  <BlockMath formula="A = \begin{bmatrix} 1 & 0 & 0 \\ l_{21} & 1 & 0 \\ l_{31} & l_{32} & 1 \end{bmatrix} \begin{bmatrix} u_{11} & u_{12} & u_{13} \\ 0 & u_{22} & u_{23} \\ 0 & 0 & u_{33} \end{bmatrix}" />
+<BlockMath formula="L=\begin{bmatrix}1&0&0\\l_{21}&1&0\\l_{31}&l_{32}&1\end{bmatrix}" />
 
-  <LessonNote>
-    Ma trận L luôn có đường chéo bằng 1 (các phần tử trụ của L là 1). Đây gọi là phân tích LU với L đơn vị (unit LU).
-  </LessonNote>
+Hệ <InlineMath formula="L\mathbf{c}=\mathbf{b}" /> được giải từ trên xuống bằng **forward substitution**.
+
+Vì vậy khi:
+
+<BlockMath formula="A=LU" />
+
+thì:
+
+<BlockMath formula="A\mathbf{x}=\mathbf{b}\quad\Longrightarrow\quad LU\mathbf{x}=\mathbf{b}" />
+
+Ta tách bài toán thành hai hệ tam giác.
+
 </MdxPage>
 
 <MdxPage page={2}>
-  ## Ví dụ bằng số
 
-  Phân tích LU của ma trận:
+## Từ multipliers đến A = LU
 
-  <BlockMath formula="A = \begin{bmatrix} 2 & 1 & 1 \\ 4 & 3 & 3 \\ 6 & 5 & 6 \end{bmatrix}" />
+Xét:
 
-  **Bước 1 — Khử cột 1:**
-  - <InlineMath formula="l_{21} = 4/2 = 2" /> &rarr; <InlineMath formula="R_2 \to R_2 - 2R_1" />
-  - <InlineMath formula="l_{31} = 6/2 = 3" /> &rarr; <InlineMath formula="R_3 \to R_3 - 3R_1" />
+<BlockMath formula="A=\begin{bmatrix}1&1&1\\2&3&1\\1&-1&2\end{bmatrix}" />
 
-  <BlockMath formula="\Rightarrow U' = \begin{bmatrix} 2 & 1 & 1 \\ 0 & 1 & 1 \\ 0 & 2 & 3 \end{bmatrix}, \quad L = \begin{bmatrix} 1 & 0 & 0 \\ 2 & 1 & 0 \\ 3 & 0 & 1 \end{bmatrix}" />
+Ở cột đầu, elimination dùng:
 
-  **Bước 2 — Khử cột 2:**
-  - <InlineMath formula="l_{32} = 2/1 = 2" /> &rarr; <InlineMath formula="R_3 \to R_3 - 2R_2" />
+<BlockMath formula="l_{21}=2,\qquad l_{31}=1" />
 
-  <BlockMath formula="U = \begin{bmatrix} 2 & 1 & 1 \\ 0 & 1 & 1 \\ 0 & 0 & 1 \end{bmatrix}, \quad L = \begin{bmatrix} 1 & 0 & 0 \\ 2 & 1 & 0 \\ 3 & 2 & 1 \end{bmatrix}" />
+Sau bước này, hàng 3 có hệ số <InlineMath formula="-2" /> ở cột thứ hai.
 
-  Kiểm tra: <InlineMath formula="LU = A" /> ✓
+Để khử nó, ta dùng:
+
+<BlockMath formula="l_{32}=-2" />
+
+vì:
+
+<BlockMath formula="R_3\leftarrow R_3-l_{32}R_2=R_3+2R_2" />
+
+Các multipliers được đặt vào <InlineMath formula="L" />:
+
+<BlockMath formula="L=\begin{bmatrix}1&0&0\\2&1&0\\1&-2&1\end{bmatrix}" />
+
+Còn kết quả sau elimination là:
+
+<BlockMath formula="U=\begin{bmatrix}1&1&1\\0&1&-1\\0&0&-1\end{bmatrix}" />
+
 </MdxPage>
 
 <MdxPage page={3}>
-  ## Giải hệ với LU
 
-  Để giải <InlineMath formula="Ax = b \Rightarrow LUx = b" />:
+## Một ví dụ LU hoàn chỉnh
 
-  1. **Thay thế xuôi (Forward substitution):** Giải <InlineMath formula="Ly = b" /> để tìm y
-  2. **Thay thế ngược (Back substitution):** Giải <InlineMath formula="Ux = y" /> để tìm x
+Với các matrix vừa xây dựng:
 
-  **Ví dụ:** Với <InlineMath formula="b = [1, 3, 6]^T" />,
+<BlockMath formula="L=\begin{bmatrix}1&0&0\\2&1&0\\1&-2&1\end{bmatrix},\qquad U=\begin{bmatrix}1&1&1\\0&1&-1\\0&0&-1\end{bmatrix}" />
 
-  **Bước 1 — Giải Ly = b:**
+ta có:
 
-  <BlockMath formula="\begin{bmatrix} 1 & 0 & 0 \\ 2 & 1 & 0 \\ 3 & 2 & 1 \end{bmatrix} \begin{bmatrix} y_1 \\ y_2 \\ y_3 \end{bmatrix} = \begin{bmatrix} 1 \\ 3 \\ 6 \end{bmatrix}" />
+<BlockMath formula="LU=\begin{bmatrix}1&1&1\\2&3&1\\1&-1&2\end{bmatrix}=A" />
 
-  <BlockMath formula="\Rightarrow y_1 = 1,\; 2y_1 + y_2 = 3 \Rightarrow y_2 = 1,\; 3y_1 + 2y_2 + y_3 = 6 \Rightarrow y_3 = 1" />
+<LUFactorizationExplorer
+  ariaLabel="Các multipliers của Gaussian elimination được lưu trong L còn kết quả elimination được lưu trong U"
+/>
 
-  **Bước 2 — Giải Ux = y:**
+LU không phải một thuật toán hoàn toàn tách rời Gaussian elimination.
 
-  <BlockMath formula="\begin{bmatrix} 2 & 1 & 1 \\ 0 & 1 & 1 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix} \Rightarrow x_3 = 1,\; x_2 = 0,\; x_1 = 0" />
+Nó là cách ghi lại elimination dưới dạng factorization.
+
 </MdxPage>
 
 <MdxPage page={4}>
-  ## LU trong PyTorch
 
-  PyTorch cung cấp phân tích LU qua hàm `torch.linalg.lu`:
+## Giải Ax = b bằng LU
 
-  ```python
-  import torch
+Dùng cùng matrix <InlineMath formula="A" /> và:
 
-  A = torch.tensor([[2., 1., 1.],
-                    [4., 3., 3.],
-                    [6., 5., 6.]])
+<BlockMath formula="\mathbf{b}=\begin{bmatrix}6\\11\\5\end{bmatrix}" />
 
-  # Phân tích LU (có hoán vị — P)
-  P, L, U = torch.linalg.lu(A)
+Ta cần giải:
 
-  print("L:\n", L)
-  print("U:\n", U)
-  print("P:\n", P)
-  # L: [[1, 0, 0], [2, 1, 0], [3, 2, 1]]
-  # U: [[2, 1, 1], [0, 1, 1], [0, 0, 1]]
+<BlockMath formula="LU\mathbf{x}=\mathbf{b}" />
 
-  # Giải hệ bằng LU
-  b = torch.tensor([1., 3., 6.])
-  x = torch.linalg.solve(A, b)
-  print(x)  # tensor([0., 0., 1.])
-  ```
+Đặt:
 
-  <LessonNote>
-    PyTorch trả về thêm ma trận hoán vị P vì nó thực hiện PA = LU (LU với hoán vị) để xử lý trường hợp pivot bằng 0.
-  </LessonNote>
+<BlockMath formula="U\mathbf{x}=\mathbf{c}" />
+
+Bước đầu giải:
+
+<BlockMath formula="L\mathbf{c}=\mathbf{b}" />
+
+bằng forward substitution:
+
+<BlockMath formula="\mathbf{c}=\begin{bmatrix}6\\-1\\-3\end{bmatrix}" />
+
+Sau đó giải:
+
+<BlockMath formula="U\mathbf{x}=\mathbf{c}" />
+
+bằng back substitution:
+
+<BlockMath formula="\mathbf{x}=\begin{bmatrix}1\\2\\3\end{bmatrix}" />
+
+Phần tốn công để biến <InlineMath formula="A" /> thành triangular factors chỉ cần làm một lần nếu <InlineMath formula="A" /> không đổi.
+
 </MdxPage>
 
 <MdxPage page={5}>
-  ## Kiểm tra nhanh
 
-  <LegacyMathQuiz
-    question="Ưu điểm chính của phân tích LU so với khử Gaussian thông thường là gì?"
-    options={[
-      { text: "Nhanh hơn khi giải nhiều hệ có cùng A nhưng khác b", isCorrect: true, feedback: "Chính xác! Sau khi phân tích LU, giải với mỗi b mới chỉ cần thay thế xuôi/ngược, rẻ hơn nhiều so với làm lại khử Gaussian." },
-      { text: "LU luôn tồn tại cho mọi ma trận", isCorrect: false, feedback: "Không phải. Một số ma trận cần hoán vị (PA = LU) mới phân tích được." },
-      { text: "LU cho kết quả chính xác hơn", isCorrect: false, feedback: "Độ chính xác tương đương. LU là cách tổ chức lại khử Gaussian." },
-      { text: "LU không cần pivot", isCorrect: false, feedback: "LU vẫn cần pivot để tránh chia cho 0. PyTorch dùng PA=LU để xử lý việc này." },
-    ]}
-  />
+## Row Swap và Pivoting
+
+Factorization <InlineMath formula="A=LU" /> ở trên giả sử elimination không cần đổi hàng.
+
+Trong thực tế, row swap thường được kết hợp với LU.
+
+Ta có thể biểu diễn các row swaps bằng một permutation matrix <InlineMath formula="P" />. Một convention phổ biến viết:
+
+<BlockMath formula="PA=LU" />
+
+Trong convention này, <InlineMath formula="P" /> là phép hoán vị được áp dụng lên các hàng của <InlineMath formula="A" />.
+
+Một số thư viện định nghĩa permutation matrix theo chiều ngược lại và hiển thị factorization dưới dạng <InlineMath formula="A=PLU" />. Khi dùng API cụ thể, cần đọc đúng convention của thư viện đó.
+
+<LessonNote>
+  `np.linalg.solve` là lựa chọn trực tiếp khi mục tiêu là giải một hệ vuông có nghiệm duy nhất. Phần LU ở đây giúp ta hiểu cấu trúc tính toán đứng phía sau solver thay vì khuyến khích tự viết solver số.
+</LessonNote>
+
+Bài cuối của chapter chuyển sang một đối tượng khác cũng liên quan trực tiếp đến việc giải hệ, đó là **inverse matrix**.
+
 </MdxPage>

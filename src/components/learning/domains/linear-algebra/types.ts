@@ -1,5 +1,6 @@
 export type Vector2D = [number, number];
 
+// Chapter 1 Types
 export interface VectorPlaneProps {
   ariaLabel: string;
   x?: number;
@@ -128,6 +129,122 @@ export interface MatrixVectorProductExplorerProps {
 }
 
 export interface MatrixProductExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+// Chapter 2 Types
+export interface ColumnCombinationExplorerProps {
+  ariaLabel: string;
+  columns?: [Vector2D, Vector2D];
+  initialCoefficients?: [number, number];
+  target?: Vector2D;
+  interactive?: boolean;
+}
+
+export interface LinearSystemCasesExplorerProps {
+  ariaLabel: string;
+}
+
+export interface GaussianEliminationStepperProps {
+  ariaLabel: string;
+}
+
+export interface LUFactorizationExplorerProps {
+  ariaLabel: string;
+}
+
+export interface GaussJordanInverseStepperProps {
+  ariaLabel: string;
+}
+
+// Chapter 3 Types
+export interface SubspaceClosureExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+  defaultMode?: 'subspace' | 'affine';
+}
+
+export interface ColumnNullSpaceExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface BasisIndependenceExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface RankPivotExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface LinearTransformationExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+// Chapter 4 Types
+export interface OrthogonalityExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface ProjectionExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface GramSchmidtExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface LeastSquaresExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+// Chapter 5 Types
+export interface DeterminantAreaExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface DeterminantRowOpsExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+// Chapter 6 Types
+export interface TraceEigenvalueLinkProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface EigenvectorExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface DiagonalizationExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface PCAProjectionExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+// Chapter 7 Types
+export interface SVDGeometryExplorerProps {
+  ariaLabel: string;
+  interactive?: boolean;
+}
+
+export interface TruncatedSVDExplorerProps {
   ariaLabel: string;
   interactive?: boolean;
 }

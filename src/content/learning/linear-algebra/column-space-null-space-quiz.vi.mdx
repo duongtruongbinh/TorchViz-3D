@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'column-space-null-space-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Column Space', 'Null Space', 'Nghiệm tổng quát'],
+  keywords: ['column space', 'null space', 'solution', 'quiz'],
+  conceptIds: ['column-space-solvability', 'null-space-definition', 'solution-decomposition'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="column-space-null-space-quiz" questions={[
+  {
+    id: 'column-space-solvability',
+    title: 'Column Space',
+    prompt: 'Hệ Ax = b có nghiệm khi nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Khi b thuộc Null(A).' },
+      { id: 'b', label: 'Khi b thuộc Col(A).', isCorrect: true },
+      { id: 'c', label: 'Khi mọi phần tử của A đều dương.' },
+      { id: 'd', label: 'Chỉ khi A là identity matrix.' },
+    ],
+    success: 'Đúng. Ax luôn là linear combination của các cột của A.',
+    error: 'Hãy đọc Ax theo các cột của A.',
+  },
+  {
+    id: 'null-space-definition',
+    title: 'Null Space',
+    prompt: 'Vector x thuộc Null(A) khi nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Ax = x.' },
+      { id: 'b', label: 'Ax có norm bằng 1.' },
+      { id: 'c', label: 'Ax = 0.', isCorrect: true },
+      { id: 'd', label: 'x là một cột của A.' },
+    ],
+    success: 'Đúng. Null space chứa các input bị A đưa về vector không.',
+    error: 'Dùng trực tiếp định nghĩa của Null(A).',
+  },
+  {
+    id: 'solution-decomposition',
+    title: 'Nghiệm tổng quát',
+    prompt: 'xp là một nghiệm của Ax = b và xn thuộc Null(A). Vector nào chắc chắn cũng là nghiệm?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A + xn' },
+      { id: 'b', label: 'b + xn' },
+      { id: 'c', label: 'xpᵀxn' },
+      { id: 'd', label: 'xp + xn', isCorrect: true },
+    ],
+    success: 'Đúng. A(xp + xn) = b + 0 = b.',
+    error: 'Áp dụng tính tuyến tính của matrix multiplication.',
+  },
+]} />

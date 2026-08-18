@@ -17,6 +17,10 @@ export function AngleArc({
   label,
   color = '#ec4899',
 }: AngleArcProps) {
+  if (vec.mag(v1) < 1e-6 || vec.mag(v2) < 1e-6) {
+    return null;
+  }
+
   const ang1 = Math.atan2(v1[1], v1[0]);
   const ang2 = Math.atan2(v2[1], v2[0]);
 
@@ -39,7 +43,7 @@ export function AngleArc({
   return (
     <>
       <Plot.Parametric
-        t={[minAng, maxAng]}
+        domain={[minAng, maxAng]}
         xy={(t) => [
           center[0] + radius * Math.cos(t),
           center[1] + radius * Math.sin(t),
@@ -54,6 +58,7 @@ export function AngleArc({
           y={labelPos[1]}
           size={14}
           color={color}
+          attach="ne"
         >
           {label}
         </Text>

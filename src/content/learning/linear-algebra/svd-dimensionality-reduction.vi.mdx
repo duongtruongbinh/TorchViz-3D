@@ -1,0 +1,181 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'svd-dimensionality-reduction',
+  locale: 'vi',
+  title: 'Truncated SVD và Dimensionality Reduction',
+  headings: [
+    'Giữ các hướng quan trọng nhất',
+    'Rank k Approximation',
+    'Vì sao Singular Values quan trọng',
+    'Compression',
+    'Liên hệ với PCA',
+    'Pseudo Inverse',
+    'Truncated SVD với NumPy',
+  ],
+  keywords: ['truncated SVD', 'low rank approximation', 'dimensionality reduction', 'compression', 'PCA', 'pseudo inverse'],
+  conceptIds: [
+    'truncated-svd-intuition',
+    'rank-k-approximation',
+    'singular-value-importance',
+    'svd-compression',
+    'svd-pca-link',
+    'svd-pseudoinverse',
+    'truncated-svd-numpy',
+  ],
+  pageCount: 7,
+}
+
+<MdxPage page={0}>
+
+## Giữ các hướng quan trọng nhất
+
+SVD sắp singular values từ lớn xuống nhỏ.
+
+Nếu các singular values phía sau rất nhỏ, transformation chủ yếu hoạt động trong một số directions quan trọng.
+
+Ta có thể giữ <InlineMath formula="k" /> directions đầu:
+
+<BlockMath formula="\sigma_1,\ldots,\sigma_k" />
+
+và bỏ các directions còn lại.
+
+<TruncatedSVDExplorer
+  ariaLabel="Low rank approximation cải thiện dần khi giữ thêm các singular components lớn nhất"
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Rank k Approximation
+
+Từ:
+
+<BlockMath formula="A=U\Sigma V^\top" />
+
+giữ <InlineMath formula="k" /> components đầu:
+
+<BlockMath formula="A_k=U_k\Sigma_kV_k^\top" />
+
+Matrix <InlineMath formula="A_k" /> có rank không lớn hơn <InlineMath formula="k" />.
+
+Ta đã thay một matrix có thể phức tạp bằng một approximation chỉ giữ các directions mạnh nhất.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Vì sao Singular Values quan trọng
+
+Mỗi singular component có dạng:
+
+<BlockMath formula="\sigma_i\mathbf{u}_i\mathbf{v}_i^\top" />
+
+nên:
+
+<BlockMath formula="A=\sum_i\sigma_i\mathbf{u}_i\mathbf{v}_i^\top" />
+
+Singular value lớn hơn làm component tương ứng đóng góp mạnh hơn vào matrix.
+
+Giữ các component đầu tạo best low rank approximation theo các norm chuẩn như Frobenius norm và spectral norm.
+
+Ta dùng kết quả này như một fact, không chứng minh trong lesson cơ bản.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Compression
+
+Matrix <InlineMath formula="A\in\mathbb{R}^{m\times n}" /> cần lưu <InlineMath formula="mn" /> số.
+
+Rank <InlineMath formula="k" /> representation chỉ cần lưu gần:
+
+<BlockMath formula="mk+k+nk" />
+
+số cho <InlineMath formula="U_k" />, singular values và <InlineMath formula="V_k^\top" />.
+
+Khi <InlineMath formula="k" /> nhỏ hơn nhiều so với <InlineMath formula="\min(m,n)" />, representation có thể gọn hơn đáng kể.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Liên hệ với PCA
+
+Với centered data matrix <InlineMath formula="X_c" />:
+
+<BlockMath formula="X_c=U\Sigma V^\top" />
+
+Các columns của <InlineMath formula="V" /> là principal directions của PCA.
+
+Variance theo direction thứ <InlineMath formula="i" /> tỷ lệ với:
+
+<BlockMath formula="\sigma_i^2" />
+
+Do đó PCA có thể được thực hiện trực tiếp từ SVD của centered data.
+
+Điều này tránh phải bắt buộc tạo covariance matrix trước.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Pseudo Inverse
+
+SVD còn cho Moore Penrose pseudo inverse.
+
+Nếu:
+
+<BlockMath formula="A=U\Sigma V^\top" />
+
+thì:
+
+<BlockMath formula="A^+=V\Sigma^+U^\top" />
+
+Trong <InlineMath formula="\Sigma^+" />, các singular values khác 0 được thay bằng reciprocal.
+
+Pseudo inverse mở rộng ý tưởng inverse cho rectangular hoặc rank deficient matrices theo một nghĩa phù hợp với least squares.
+
+NumPy cung cấp:
+
+```python
+A_pinv = np.linalg.pinv(A)
+```
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Truncated SVD với NumPy
+
+```python
+import numpy as np
+
+A = np.array([
+    [3.0, 1.0],
+    [1.0, 3.0],
+    [0.0, 2.0],
+])
+
+U, s, Vt = np.linalg.svd(A, full_matrices=False)
+
+k = 1
+
+A_k = (U[:, :k] * s[:k]) @ Vt[:k, :]
+
+error = np.linalg.norm(A - A_k, ord='fro')
+
+print(A_k)
+print(error)
+```
+
+Tăng <InlineMath formula="k" /> giữ lại nhiều singular components hơn và reconstruction error không tăng.
+
+Đây là điểm kết thúc course.
+
+Các chapter trước đã lần lượt xây dựng vector, matrix, linear systems, subspaces, projections, determinants và eigenvectors.
+
+SVD gom nhiều ý tưởng đó vào một factorization chung cho mọi matrix.
+
+</MdxPage>

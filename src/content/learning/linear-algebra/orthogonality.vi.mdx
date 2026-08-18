@@ -2,78 +2,128 @@ export const lessonMetadata = {
   domainId: 'linear-algebra',
   id: 'orthogonality',
   locale: 'vi',
-  title: 'Tính Vuông góc (Orthogonality)',
-  headings: ['Orthogonality là gì?', 'Điều kiện toán học', 'Tại sao tính vuông góc lại quan trọng?', 'Liên hệ với PCA'],
-  keywords: ['orthogonal', 'perpendicular', 'dot product', 'basis', 'PCA'],
+  title: 'Orthogonality và Orthonormal Sets',
+  headings: [
+    'Vuông góc bằng Dot Product',
+    'Orthogonal Sets',
+    'Orthonormal Sets',
+    'Vì sao Orthonormal Basis đặc biệt',
+    'Orthogonality trong NumPy',
+  ],
+  keywords: ['orthogonality', 'orthogonal vectors', 'orthonormal basis', 'dot product', 'numpy'],
+  conceptIds: [
+    'orthogonality-dot-product',
+    'orthogonal-set',
+    'orthonormal-set',
+    'orthonormal-basis-benefit',
+    'orthogonality-numpy',
+  ],
   pageCount: 5,
 }
 
 <MdxPage page={0}>
-  # Tính Vuông góc (Orthogonality)
-  
-  Trong ngôn ngữ thông thường, chúng ta gọi hai đường thẳng là **vuông góc** nếu chúng tạo với nhau một góc <InlineMath formula="90^\circ" />. 
-  Trong đại số tuyến tính, khái niệm này được tổng quát hóa thành **Orthogonality**.
+
+## Vuông góc bằng Dot Product
+
+Với hai vector khác vector không:
+
+<BlockMath formula="\mathbf{u}^\top\mathbf{v}=\|\mathbf{u}\|_2\|\mathbf{v}\|_2\cos\theta" />
+
+Khi <InlineMath formula="\theta=90^\circ" />:
+
+<BlockMath formula="\mathbf{u}^\top\mathbf{v}=0" />
+
+Ta gọi hai vector là **orthogonal**.
+
+<OrthogonalityExplorer
+  ariaLabel="Hai vector orthogonal có dot product bằng zero và tạo góc chín mươi độ"
+/>
+
+<LessonNote>
+  Vector không có dot product bằng 0 với mọi vector nhưng không có hướng xác định. Khi dùng góc để diễn giải orthogonality, ta xét các vector khác vector không.
+</LessonNote>
+
 </MdxPage>
 
 <MdxPage page={1}>
-  ## 1. Điều kiện toán học
-  
-  Hai vector <InlineMath formula="\mathbf{v}" /> và <InlineMath formula="\mathbf{w}" /> được gọi là **orthogonal (vuông góc)** nếu và chỉ nếu tích vô hướng của chúng bằng 0:
-  
-  <BlockMath formula="\mathbf{v} \cdot \mathbf{w} = 0" />
-  
-  **Tại sao lại là 0?** 
-  Hãy nhớ lại công thức: <InlineMath formula="\mathbf{v} \cdot \mathbf{w} = \|\mathbf{v}\| \|\mathbf{w}\| \cos\theta" />.
-  Vì <InlineMath formula="\cos(90^\circ) = 0" />, nên tích vô hướng sẽ bằng 0 bất kể độ dài của hai vector là bao nhiêu.
+
+## Orthogonal Sets
+
+Một tập vector khác vector không:
+
+<BlockMath formula="\mathbf{q}_1,\ldots,\mathbf{q}_k" />
+
+là orthogonal nếu mọi cặp khác nhau thỏa:
+
+<BlockMath formula="\mathbf{q}_i^\top\mathbf{q}_j=0,\qquad i\neq j" />
+
+Một orthogonal set tự động linearly independent.
+
+Trực giác là mỗi vector đóng góp một hướng không bị trộn với các hướng còn lại.
+
 </MdxPage>
 
 <MdxPage page={2}>
-  ## 2. Tại sao tính vuông góc lại quan trọng?
-  
-  Tính vuông góc mang lại một lợi ích cực lớn: **Sự độc lập**.
-  
-  Nếu hai vector vuông góc, điều đó có nghĩa là sự thay đổi dọc theo hướng của vector này **không ảnh hưởng gì** đến vị trí dọc theo hướng của vector kia.
-  
-  Hãy nghĩ về hệ tọa độ <InlineMath formula="X, Y, Z" />. Trục <InlineMath formula="X" /> vuông góc với trục <InlineMath formula="Y" /> và <InlineMath formula="Z" />. Vì vậy, khi bạn di chuyển theo trục <InlineMath formula="X" />, tọa độ <InlineMath formula="Y" /> và <InlineMath formula="Z" /> của bạn không hề thay đổi. Điều này cho phép chúng ta phân tích các vấn đề phức tạp bằng cách chia nhỏ chúng thành các thành phần độc lập.
+
+## Orthonormal Sets
+
+Nếu một orthogonal set còn có:
+
+<BlockMath formula="\|\mathbf{q}_i\|_2=1" />
+
+cho mọi <InlineMath formula="i" />, ta gọi tập đó là **orthonormal**.
+
+Khi ghép các vector thành các cột của matrix <InlineMath formula="Q" />:
+
+<BlockMath formula="Q^\top Q=I" />
+
+Nếu <InlineMath formula="Q" /> là square matrix thì:
+
+<BlockMath formula="Q^{-1}=Q^\top" />
+
+Đây là lý do orthonormal matrices đặc biệt dễ làm việc.
+
 </MdxPage>
 
 <MdxPage page={3}>
-  ## 3. Liên hệ với PCA (Principal Component Analysis)
-  
-  Trong bài học về giảm chiều dữ liệu (PCA) sắp tới, bạn sẽ gặp lại khái niệm này. 
-  PCA tìm cách xoay hệ tọa độ của dữ liệu sao cho các trục mới (Principal Components) là **vuông góc với nhau**.
-  
-  Việc tìm các trục vuông góc giúp PCA:
-  - Loại bỏ sự trùng lặp thông tin (redundancy).
-  - Chia dữ liệu thành các thành phần không tương quan (uncorrelated).
-  - Giữ lại những hướng có biến thiên (variance) lớn nhất.
+
+## Vì sao Orthonormal Basis đặc biệt
+
+Nếu các cột của <InlineMath formula="Q" /> tạo orthonormal basis và:
+
+<BlockMath formula="\mathbf{x}=c_1\mathbf{q}_1+\cdots+c_k\mathbf{q}_k" />
+
+thì hệ số được lấy trực tiếp bằng dot product:
+
+<BlockMath formula="c_i=\mathbf{q}_i^\top\mathbf{x}" />
+
+Không cần giải một hệ phương trình tổng quát để tìm coordinates.
+
+Tính chất này là nền tảng của projection, QR, PCA và SVD.
+
 </MdxPage>
 
 <MdxPage page={4}>
-  ## Thực hành với PyTorch
-  
-  Khi kiểm tra tính vuông góc trong lập trình, chúng ta không bao giờ so sánh `== 0` vì sai số dấu phẩy động (floating point error). Thay vào đó, ta kiểm tra xem giá trị có **gần bằng 0** hay không.
-  
-  ```python
-  import torch
 
-  v = torch.tensor([1.0, 0.0])
-  w = torch.tensor([0.0, 1.0])
+## Orthogonality trong NumPy
 
-  dot_prod = torch.dot(v, w)
+```python
+import numpy as np
 
-  # Sử dụng torch.allclose để kiểm tra gần bằng 0
-  is_orthogonal = torch.allclose(dot_prod, torch.tensor(0.0), atol=1e-6)
-  print(f"Is orthogonal: {is_orthogonal}") # True
-  ```
-  
-  <LegacyMathQuiz
-    question="Nếu hai vector v và w là orthogonal, điều gì sau đây là ĐÚNG?"
-    options={[
-      { text: "Chúng có cùng độ dài", isCorrect: false, feedback: "Không bắt buộc." },
-      { text: "Chúng chỉ về cùng một hướng", isCorrect: false, feedback: "Đó là song song, không phải vuông góc." },
-      { text: "Hình chiếu của v lên w là một điểm (vector không)", isCorrect: true, feedback: "Chính xác! Vì không có thành phần nào của v nằm trên hướng của w." },
-      { text: "Tích vô hướng của chúng bằng 1", isCorrect: false, feedback: "Phải bằng 0 mới là vuông góc." }
-    ]}
-  />
+u = np.array([1.0, 1.0])
+v = np.array([1.0, -1.0])
+
+dot = u @ v
+print(dot)
+# 0.0
+
+is_orthogonal = np.isclose(dot, 0.0)
+print(is_orthogonal)
+# True
+```
+
+Với floating point computation, dùng tolerance thay vì yêu cầu kết quả phải đúng tuyệt đối bằng 0.
+
+Bài tiếp theo dùng orthogonality để tách một vector thành phần nằm trong một subspace và phần vuông góc với subspace đó.
+
 </MdxPage>

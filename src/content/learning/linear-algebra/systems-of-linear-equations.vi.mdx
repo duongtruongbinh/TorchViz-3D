@@ -2,127 +2,204 @@ export const lessonMetadata = {
   domainId: 'linear-algebra',
   id: 'systems-of-linear-equations',
   locale: 'vi',
-  title: 'Hệ phương trình tuyến tính',
-  headings: ['Hệ phương trình tuyến tính là gì?', 'Biểu diễn dưới dạng ma trận', 'Hệ có nghiệm duy nhất', 'Hệ vô nghiệm và vô số nghiệm', 'Giải hệ với PyTorch', 'Tổng kết'],
-  keywords: ['linear equations', 'system of equations', 'augmented matrix', 'row reduction', 'Gaussian elimination'],
+  title: 'Hệ phương trình tuyến tính và Ax = b',
+  headings: [
+    'Từ Matrix Product đến bài toán Ax = b',
+    'Từ phương trình sang dạng Matrix',
+    'Ax là Linear Combination của các cột',
+    'Ba trường hợp nghiệm trong 2D',
+    'Ma trận bổ sung',
+    'Giải hệ vuông với NumPy',
+  ],
+  keywords: [
+    'linear system',
+    'Ax=b',
+    'linear combination',
+    'augmented matrix',
+    'solution',
+    'numpy',
+  ],
+  conceptIds: [
+    'linear-system-motivation',
+    'linear-system-matrix-form',
+    'ax-column-combination',
+    'linear-system-solution-cases',
+    'augmented-matrix',
+    'linear-system-numpy',
+  ],
   pageCount: 6,
 }
 
 <MdxPage page={0}>
-  # Hệ phương trình tuyến tính
 
-  **Hệ phương trình tuyến tính** là một tập hợp các phương trình tuyến tính có cùng một tập biến số. Giải hệ phương trình là tìm giá trị của các biến thỏa mãn tất cả các phương trình cùng lúc.
+## Từ Matrix Product đến bài toán Ax = b
 
-  <LessonNote>
-    Giải hệ phương trình tuyến tính là nền tảng của đại số tuyến tính ứng dụng. Từ tính toán dòng điện trong mạch điện đến tối ưu hóa mạng neural, tất cả đều quay về giải hệ phương trình.
-  </LessonNote>
+Ở cuối Chapter 1, ta đã biết cách tính <InlineMath formula="A\mathbf{x}" />. Bây giờ ta đổi câu hỏi.
 
-  **Ví dụ về hệ 2 phương trình, 2 ẩn:**
+Thay vì biết <InlineMath formula="A" /> và <InlineMath formula="\mathbf{x}" /> rồi tính output, ta biết <InlineMath formula="A" /> và <InlineMath formula="\mathbf{b}" /> rồi cần tìm <InlineMath formula="\mathbf{x}" /> sao cho:
 
-  <BlockMath formula="\begin{cases} 2x + 3y = 7 \\ 4x - y = 1 \end{cases}" />
+<BlockMath formula="A\mathbf{x}=\mathbf{b}" />
 
-  Nghiệm của hệ này là <InlineMath formula="x = 1, y = \frac{5}{3}" />.
+Đây là dạng matrix của một hệ phương trình tuyến tính.
+
+Xét ví dụ:
+
+<BlockMath formula="\begin{cases}x+2y=5\\3x-y=1\end{cases}" />
+
+Nghiệm là:
+
+<BlockMath formula="x=1,\qquad y=2" />
+
+vì cả hai phương trình đều đúng khi thay <InlineMath formula="x=1" /> và <InlineMath formula="y=2" />.
+
+Bài toán của Chapter 2 là hiểu cách biểu diễn, biến đổi và giải những hệ như vậy.
+
 </MdxPage>
 
 <MdxPage page={1}>
-  ## Biểu diễn dưới dạng ma trận
 
-  Mọi hệ phương trình tuyến tính đều có thể viết dưới dạng ma trận:
+## Từ phương trình sang dạng Matrix
 
-  <BlockMath formula="A\mathbf{x} = \mathbf{b}" />
+Hệ:
 
-  Trong đó:
-  - <InlineMath formula="A" /> là ma trận hệ số (kích thước <InlineMath formula="m \times n" />)
-  - <InlineMath formula="\mathbf{x}" /> là vector ẩn số
-  - <InlineMath formula="\mathbf{b}" /> là vector hằng số
+<BlockMath formula="\begin{cases}x+2y=5\\3x-y=1\end{cases}" />
 
-  **Ví dụ trên viết dưới dạng ma trận:**
+có thể viết thành:
 
-  <BlockMath formula="\begin{bmatrix} 2 & 3 \\ 4 & -1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} 7 \\ 1 \end{bmatrix}" />
+<BlockMath formula="\begin{bmatrix}1&2\\3&-1\end{bmatrix}\begin{bmatrix}x\\y\end{bmatrix}=\begin{bmatrix}5\\1\end{bmatrix}" />
 
-  **Ma trận bổ sung (augmented matrix):**
+hay ngắn gọn:
 
-  <BlockMath formula="\left[ \begin{array}{cc|c} 2 & 3 & 7 \\ 4 & -1 & 1 \end{array} \right]" />
+<BlockMath formula="A\mathbf{x}=\mathbf{b}" />
 
-  Ma trận bổ sung kết hợp cả <InlineMath formula="A" /> và <InlineMath formula="\mathbf{b}" />, là cách thuận tiện để thực hiện các phép biến đổi trên hệ phương trình.
+Với hệ có <InlineMath formula="m" /> phương trình và <InlineMath formula="n" /> ẩn:
+
+<BlockMath formula="A\in\mathbb{R}^{m\times n},\qquad\mathbf{x}\in\mathbb{R}^{n},\qquad\mathbf{b}\in\mathbb{R}^{m}" />
+
+Mỗi hàng của <InlineMath formula="A" /> chứa các hệ số của một phương trình.
+
+Ví dụ, hàng đầu tiên <InlineMath formula="[1,2]" /> tạo phương trình:
+
+<BlockMath formula="x+2y=5" />
+
+Đây là cách đọc theo hàng mà ta đã gặp khi học matrix nhân vector.
+
 </MdxPage>
 
 <MdxPage page={2}>
-  ## Hệ có nghiệm duy nhất
 
-  Một hệ <InlineMath formula="n" /> phương trình, <InlineMath formula="n" /> ẩn có nghiệm duy nhất khi các phương trình **độc lập tuyến tính** với nhau.
+## Ax là Linear Combination của các cột
 
-  **Điều kiện:** Ma trận hệ số <InlineMath formula="A" /> khả nghịch, tức <InlineMath formula="\det(A) \neq 0" />.
+Ta còn có một cách đọc khác.
 
-  **Ví dụ:**
+Viết các cột của <InlineMath formula="A" /> là:
 
-  <BlockMath formula="\begin{cases} x + y = 3 \\ x - y = 1 \end{cases} \Rightarrow \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} 3 \\ 1 \end{bmatrix}" />
+<BlockMath formula="A=\begin{bmatrix}\vert&\vert\\\mathbf{a}_1&\mathbf{a}_2\\\vert&\vert\end{bmatrix}" />
 
-  Nghiệm: <InlineMath formula="x = 2, y = 1" />.
+và:
 
-  Về mặt hình học, đây là hai đường thẳng cắt nhau tại một điểm duy nhất <InlineMath formula="(2, 1)" />.
+<BlockMath formula="\mathbf{x}=\begin{bmatrix}x_1\\x_2\end{bmatrix}" />
+
+thì:
+
+<BlockMath formula="A\mathbf{x}=x_1\mathbf{a}_1+x_2\mathbf{a}_2" />
+
+Với ví dụ đang xét:
+
+<BlockMath formula="\mathbf{a}_1=\begin{bmatrix}1\\3\end{bmatrix},\qquad\mathbf{a}_2=\begin{bmatrix}2\\-1\end{bmatrix}" />
+
+Ta cần tìm hai hệ số sao cho:
+
+<BlockMath formula="x\mathbf{a}_1+y\mathbf{a}_2=\begin{bmatrix}5\\1\end{bmatrix}" />
+
+Ở nghiệm <InlineMath formula="x=1" /> và <InlineMath formula="y=2" />:
+
+<BlockMath formula="1\begin{bmatrix}1\\3\end{bmatrix}+2\begin{bmatrix}2\\-1\end{bmatrix}=\begin{bmatrix}5\\1\end{bmatrix}" />
+
+<ColumnCombinationExplorer
+  ariaLabel="Hai cột của A được nhân với các hệ số x một và x hai rồi cộng lại để tạo vector b"
+  columns={[[1, 3], [2, -1]]}
+  initialCoefficients={[1, 2]}
+  target={[5, 1]}
+  interactive={true}
+/>
+
+Cách nhìn này sẽ trở lại khi ta học vector space và column space.
+
 </MdxPage>
 
 <MdxPage page={3}>
-  ## Hệ vô nghiệm và vô số nghiệm
 
-  **Hệ vô nghiệm** xảy ra khi các phương trình mâu thuẫn nhau.
+## Ba trường hợp nghiệm trong 2D
 
-  <BlockMath formula="\begin{cases} x + y = 3 \\ x + y = 5 \end{cases}" />
+Với hai ẩn <InlineMath formula="x" /> và <InlineMath formula="y" />, mỗi phương trình tuyến tính biểu diễn một đường thẳng.
 
-  Không có <InlineMath formula="x, y" /> nào thỏa mãn cả hai phương trình. Về mặt hình học, đây là hai đường thẳng song song.
+Hai phương trình có thể tạo ba trường hợp:
 
-  **Hệ vô số nghiệm** xảy ra khi có ít phương trình hơn số ẩn, hoặc các phương trình phụ thuộc tuyến tính.
+<LinearSystemCasesExplorer
+  ariaLabel="Ba trường hợp hai đường thẳng cắt nhau song song hoặc trùng nhau tương ứng với số nghiệm của hệ"
+/>
 
-  <BlockMath formula="\begin{cases} x + y = 3 \\ 2x + 2y = 6 \end{cases}" />
+Nếu hai đường cắt nhau tại một điểm, hệ có một nghiệm duy nhất.
 
-  Phương trình thứ hai chỉ là phương trình đầu nhân với 2. Nghiệm là <InlineMath formula="x = 3 - t, y = t" /> với mọi <InlineMath formula="t \in \mathbb{R}" />.
+Nếu hai đường song song và khác nhau, hệ vô nghiệm.
 
-  <LessonNote>
-    Ba trường hợp này tương ứng với: ma trận A có hạng đầy đủ (nghiệm duy nhất), hạng thiếu do mâu thuẫn (vô nghiệm), và hạng thiếu do phụ thuộc (vô số nghiệm).
-  </LessonNote>
+Nếu hai phương trình mô tả cùng một đường, hệ có vô số nghiệm.
+
+<LessonNote>
+  Hình học đường thẳng chỉ giúp ta nhìn trực quan trong hai chiều. Khi số ẩn tăng lên, ta cần một phương pháp đại số có thể áp dụng nhất quán. Đó là khử Gaussian.
+</LessonNote>
+
 </MdxPage>
 
 <MdxPage page={4}>
-  ## Giải hệ với PyTorch
 
-  PyTorch có thể giải hệ phương trình tuyến tính bằng hàm `torch.linalg.solve`:
+## Ma trận bổ sung
 
-  ```python
-  import torch
+Khi giải hệ, ta thường ghép <InlineMath formula="A" /> và <InlineMath formula="\mathbf{b}" /> thành một ma trận bổ sung:
 
-  # Hệ phương trình:
-  # 2x + 3y = 7
-  # 4x - y = 1
-  A = torch.tensor([[2., 3.],
-                    [4., -1.]])
-  b = torch.tensor([7., 1.])
+<BlockMath formula="\left[\begin{array}{cc|c}1&2&5\\3&-1&1\end{array}\right]" />
 
-  # Giải hệ Ax = b
-  x = torch.linalg.solve(A, b)
-  print(x)  # tensor([1.0000, 1.6667])
-  # Kết quả: x = 1, y = 5/3
-  ```
+Phần bên trái dấu phân cách là các hệ số của hệ.
 
-  ```python
-  # Hệ vô nghiệm — sẽ báo lỗi
-  A_inf = torch.tensor([[1., 1.],
-                        [1., 1.]])
-  b_inf = torch.tensor([3., 5.])
-  # torch.linalg.solve(A_inf, b_inf)  # RuntimeError: singular matrix
-  ```
+Cột bên phải là vector <InlineMath formula="\mathbf{b}" />.
+
+Ma trận bổ sung giúp ta biến đổi đồng thời các hệ số và vế phải mà không phải viết lại toàn bộ phương trình sau mỗi bước.
+
+Các phép biến đổi hàng ở bài tiếp theo sẽ được thực hiện trực tiếp trên dạng này.
+
 </MdxPage>
 
 <MdxPage page={5}>
-  ## Kiểm tra nhanh
 
-  <LegacyMathQuiz
-    question="Cho hệ phương trình: x + 2y = 5 và 3x + 6y = 15. Hệ này có bao nhiêu nghiệm?"
-    options={[
-      { text: "Một nghiệm duy nhất", isCorrect: false, feedback: "Không phải. Hai phương trình thực chất chỉ là một (phương trình sau gấp 3 lần phương trình trước)." },
-      { text: "Vô số nghiệm", isCorrect: true, feedback: "Chính xác! Phương trình thứ hai là bội của phương trình thứ nhất, nên hệ có vô số nghiệm dạng x = 5 - 2t, y = t." },
-      { text: "Vô nghiệm", isCorrect: false, feedback: "Hệ có nghiệm vì hai phương trình tương đương nhau." },
-      { text: "Không xác định", isCorrect: false, feedback: "Có thể xác định được. Khi các phương trình phụ thuộc tuyến tính, hệ có vô số nghiệm." },
-    ]}
-  />
+## Giải hệ vuông với NumPy
+
+Với một hệ vuông có nghiệm duy nhất, NumPy cung cấp `np.linalg.solve`:
+
+```python
+import numpy as np
+
+A = np.array([
+    [1.0, 2.0],
+    [3.0, -1.0],
+])
+
+b = np.array([5.0, 1.0])
+
+x = np.linalg.solve(A, b)
+print(x)
+# [1. 2.]
+```
+
+Có thể kiểm tra nghiệm bằng:
+
+```python
+print(A @ x)
+# [5. 1.]
+```
+
+Nếu mục tiêu là hiểu vì sao solver tìm được nghiệm, ta cần nhìn vào quá trình biến một hệ khó thành một hệ tam giác dễ giải hơn.
+
+Bài tiếp theo trình bày **khử Gaussian**.
+
 </MdxPage>

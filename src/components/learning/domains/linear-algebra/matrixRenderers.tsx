@@ -20,18 +20,24 @@ export function MatrixExplorer({
   ],
   highlight = 'indices',
 }: MatrixExplorerProps) {
-  // If highlight is 'indices', highlight a_12 (row 0, col 1) and a_23 (row 1, col 2)
+  const rows = values.length;
+  const cols = values[0]?.length ?? 0;
+
+  // If highlight is 'indices', dynamically pick indices if present
   const highlightIndices: [number, number][] | undefined =
     highlight === 'indices'
       ? [
-          [0, 1],
-          [1, 2],
+          [0, Math.min(1, cols - 1)],
+          [Math.min(1, rows - 1), Math.min(2, cols - 1)],
         ]
       : undefined;
 
+  const sample1 = highlightIndices ? values[highlightIndices[0][0]][highlightIndices[0][1]] : null;
+  const sample2 = highlightIndices ? values[highlightIndices[1][0]][highlightIndices[1][1]] : null;
+
   return (
     <figure
-      className="my-6 flex flex-col items-center gap-3 rounded-xl border p-4 sm:p-5 shadow-sm border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
+      className="my-6 flex flex-col items-center gap-3 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
       aria-label={ariaLabel}
     >
       <div className="w-full overflow-x-auto flex justify-center py-1">
@@ -45,20 +51,28 @@ export function MatrixExplorer({
         />
       </div>
 
-      <div className="mt-2 flex flex-wrap justify-center gap-4 text-xs font-mono border-t pt-3 w-full border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded bg-emerald-500" />
-          <span>
-            <InlineMath formula="a_{12} = 2" /> (Hàng 1, Cột 2)
-          </span>
+      {highlight === 'indices' && highlightIndices && (
+        <div className="mt-2 flex flex-wrap justify-center gap-4 text-xs font-mono border-t pt-3 w-full border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-1.5">
+            <span className="inline-block w-3 h-3 rounded bg-emerald-500" />
+            <span>
+              <InlineMath
+                formula={`a_{${highlightIndices[0][0] + 1}${highlightIndices[0][1] + 1}} = ${sample1}`}
+              />{' '}
+              (Hàng {highlightIndices[0][0] + 1}, Cột {highlightIndices[0][1] + 1})
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="inline-block w-3 h-3 rounded bg-emerald-500" />
+            <span>
+              <InlineMath
+                formula={`a_{${highlightIndices[1][0] + 1}${highlightIndices[1][1] + 1}} = ${sample2}`}
+              />{' '}
+              (Hàng {highlightIndices[1][0] + 1}, Cột {highlightIndices[1][1] + 1})
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded bg-emerald-500" />
-          <span>
-            <InlineMath formula="a_{23} = 6" /> (Hàng 2, Cột 3)
-          </span>
-        </div>
-      </div>
+      )}
       <p className="text-xs text-slate-500 text-center">
         Quy ước chỉ số ma trận: <InlineMath formula="a_{ij}" /> với <InlineMath formula="i" /> là hàng trước và <InlineMath formula="j" /> là cột sau.
       </p>
@@ -90,14 +104,14 @@ export function MatrixTransposeExplorer({
 
   return (
     <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-sm border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
+      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
       aria-label={ariaLabel}
     >
       <div className="w-full overflow-x-auto flex items-center justify-center gap-4 sm:gap-8 py-2">
         {/* Matrix A */}
         <div className="flex flex-col items-center gap-1">
           <span className="text-xs font-semibold text-slate-500">
-            Ma trận gốc <InlineMath formula="A \; (2\times 3)" />
+            Ma trận gốc <InlineMath formula={`A \\; (${rows}\\times ${cols})`} />
           </span>
           <MatrixGrid
             name="A"
@@ -113,7 +127,7 @@ export function MatrixTransposeExplorer({
         {/* Matrix A^T */}
         <div className="flex flex-col items-center gap-1">
           <span className="text-xs font-semibold text-slate-500">
-            Chuyển vị <InlineMath formula="A^\top \; (3\times 2)" />
+            Chuyển vị <InlineMath formula={`A^\\top \\; (${cols}\\times ${rows})`} />
           </span>
           <MatrixGrid
             name="Aᵀ"
@@ -127,31 +141,23 @@ export function MatrixTransposeExplorer({
 
       <div className="flex flex-wrap items-center gap-2 text-xs border-t pt-3 w-full justify-center border-slate-200 dark:border-slate-800">
         <span className="text-slate-500">Chọn hàng để xem ánh xạ:</span>
-        <button
-          type="button"
-          onClick={() => setActiveRow(0)}
-          className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${
-            activeRow === 0
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-          }`}
-        >
-          Hàng 1 của A → Cột 1 của Aᵀ
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveRow(1)}
-          className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${
-            activeRow === 1
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-          }`}
-        >
-          Hàng 2 của A → Cột 2 của Aᵀ
-        </button>
+        {Array.from({ length: rows }, (_, rIdx) => (
+          <button
+            key={`row-btn-${rIdx}`}
+            type="button"
+            onClick={() => setActiveRow(rIdx)}
+            className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              activeRow === rIdx
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            Hàng {rIdx + 1} của A → Cột {rIdx + 1} của Aᵀ
+          </button>
+        ))}
       </div>
       <p className="text-xs text-slate-500 text-center font-mono">
-        <InlineMath formula="(A^\top)_{ij} = a_{ji}" /> — Kích thước biến đổi từ <InlineMath formula="m\times n" /> thành <InlineMath formula="n\times m" />.
+        <InlineMath formula="(A^\top)_{ij} = a_{ji}" />: Kích thước biến đổi từ <InlineMath formula={`${rows}\\times ${cols}`} /> thành <InlineMath formula={`${cols}\\times ${rows}`} />.
       </p>
     </figure>
   );
@@ -400,7 +406,7 @@ export function MatrixVectorProductExplorer({
 
   return (
     <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-sm border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
+      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
       aria-label={ariaLabel}
     >
       <div className="w-full overflow-x-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
@@ -408,7 +414,7 @@ export function MatrixVectorProductExplorer({
           name="A"
           values={matA}
           highlightRow={selectedRow}
-          onCellClick={(nr) => setSelectedRow(nr)}
+          onCellClick={interactive ? (nr) => setSelectedRow(nr) : undefined}
           size="md"
         />
 
@@ -422,7 +428,7 @@ export function MatrixVectorProductExplorer({
           name="Ax"
           values={vecY}
           highlightRow={selectedRow}
-          onCellClick={(nr) => setSelectedRow(nr)}
+          onCellClick={interactive ? (nr) => setSelectedRow(nr) : undefined}
           size="md"
         />
       </div>
@@ -441,7 +447,7 @@ export function MatrixVectorProductExplorer({
           <button
             type="button"
             onClick={() => setSelectedRow(0)}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+            className={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
               selectedRow === 0
                 ? 'bg-blue-600 text-white'
                 : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -452,7 +458,7 @@ export function MatrixVectorProductExplorer({
           <button
             type="button"
             onClick={() => setSelectedRow(1)}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+            className={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
               selectedRow === 1
                 ? 'bg-blue-600 text-white'
                 : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -491,7 +497,7 @@ export function MatrixProductExplorer({
 
   return (
     <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-sm border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
+      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
       aria-label={ariaLabel}
     >
       <div className="w-full overflow-x-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
@@ -499,7 +505,7 @@ export function MatrixProductExplorer({
           name="A"
           values={matA}
           highlightRow={r}
-          onCellClick={(nr) => setSelectedCell([nr, c])}
+          onCellClick={interactive ? (nr) => setSelectedCell([nr, c]) : undefined}
           size="md"
         />
 
@@ -509,7 +515,7 @@ export function MatrixProductExplorer({
           name="B"
           values={matB}
           highlightCol={c}
-          onCellClick={(_, nc) => setSelectedCell([r, nc])}
+          onCellClick={interactive ? (_, nc) => setSelectedCell([r, nc]) : undefined}
           size="md"
         />
 
@@ -519,7 +525,7 @@ export function MatrixProductExplorer({
           name="C"
           values={matC}
           highlightCell={selectedCell}
-          onCellClick={(nr, nc) => setSelectedCell([nr, nc])}
+          onCellClick={interactive ? (nr, nc) => setSelectedCell([nr, nc]) : undefined}
           size="md"
         />
       </div>

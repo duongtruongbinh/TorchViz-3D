@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'matrix-trace-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Định nghĩa Trace', 'Cyclic Property', 'Similarity'],
+  keywords: ['trace', 'cyclic', 'similarity', 'quiz'],
+  conceptIds: ['trace-definition', 'trace-cyclic', 'trace-similarity'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="matrix-trace-quiz" questions={[
+  {
+    id: 'trace-definition',
+    title: 'Định nghĩa Trace',
+    prompt: 'Trace của [[2, 5], [1, 4]] bằng bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '12' },
+      { id: 'b', label: '7' },
+      { id: 'c', label: '20' },
+      { id: 'd', label: '6', isCorrect: true },
+    ],
+    success: 'Đúng. Trace là 2 + 4 = 6.',
+    error: 'Chỉ cộng các phần tử trên đường chéo chính.',
+  },
+  {
+    id: 'trace-cyclic',
+    title: 'Cyclic Property',
+    prompt: 'Quan hệ nào đúng khi products được định nghĩa phù hợp?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'tr(ABC) = tr(BCA)', isCorrect: true },
+      { id: 'b', label: 'tr(ABC) = tr(ACB) trong mọi trường hợp' },
+      { id: 'c', label: 'tr(AB) luôn bằng det(AB)' },
+      { id: 'd', label: 'tr(A) chỉ định nghĩa cho diagonal matrix' },
+    ],
+    success: 'Đúng. Trace cho phép cyclic permutation.',
+    error: 'Cyclic không có nghĩa là đổi thứ tự tùy ý.',
+  },
+  {
+    id: 'trace-similarity',
+    title: 'Similarity',
+    prompt: 'Nếu B = P⁻¹AP thì trace của A và B có quan hệ gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'tr(B) = 0 luôn luôn' },
+      { id: 'b', label: 'tr(A) = tr(B)', isCorrect: true },
+      { id: 'c', label: 'tr(B) = det(A)' },
+      { id: 'd', label: 'Không có quan hệ nào' },
+    ],
+    success: 'Đúng. Trace invariant dưới similarity transformation.',
+    error: 'Dùng cyclic property.',
+  },
+]} />

@@ -10,7 +10,7 @@ export function clampZero(val: number, eps = 1e-10): number {
 export function cosine2D(a: vec.Vector2, b: vec.Vector2): number {
   const magA = vec.mag(a);
   const magB = vec.mag(b);
-  if (magA === 0 || magB === 0) return 0;
+  if (magA < 1e-6 || magB < 1e-6) return NaN;
   const rawCos = vec.dot(a, b) / (magA * magB);
   return clampZero(Math.max(-1, Math.min(1, rawCos)));
 }

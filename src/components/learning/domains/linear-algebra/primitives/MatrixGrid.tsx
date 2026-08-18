@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react';
 import { InlineMath, useLearningMdxTheme } from '../../../learningMdxComponents';
 import { getMathVisualTheme } from '../theme';
 
 export interface MatrixGridProps {
-  name?: string;
+  name?: string | ReactNode;
   values: (number | string)[][];
   highlightRow?: number;
   highlightCol?: number;
@@ -13,6 +14,7 @@ export interface MatrixGridProps {
   showIndices?: boolean;
   cellClassName?: (row: number, col: number) => string;
   size?: 'sm' | 'md' | 'lg';
+  ariaLabel?: string;
 }
 
 export function MatrixGrid({
@@ -27,6 +29,7 @@ export function MatrixGrid({
   showIndices = false,
   cellClassName,
   size = 'md',
+  ariaLabel,
 }: MatrixGridProps) {
   const themeClasses = useLearningMdxTheme();
   const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
@@ -36,19 +39,30 @@ export function MatrixGrid({
 
   const sizeClasses = {
     sm: 'w-8 h-8 text-xs',
-    md: 'w-11 h-11 text-sm',
-    lg: 'w-14 h-14 text-base font-semibold',
+    md: 'w-10 h-10 sm:w-11 sm:h-11 text-xs sm:text-sm',
+    lg: 'w-12 h-12 sm:w-14 sm:h-14 text-sm sm:text-base font-semibold',
   }[size];
 
   return (
-    <div className="inline-flex items-center gap-2 select-none">
+    <div
+      className="inline-flex items-center gap-2 select-none"
+      aria-label={ariaLabel}
+    >
       {name && (
-        <span
-          className="text-base font-bold italic"
+        <div
+          className="text-sm sm:text-base font-bold italic"
           style={{ color: theme.matrixCellText }}
         >
-          {name} =
-        </span>
+          {typeof name === 'string' ? (
+            name.startsWith('\\') ? (
+              <InlineMath formula={name} />
+            ) : (
+              `${name} =`
+            )
+          ) : (
+            name
+          )}
+        </div>
       )}
 
       {/* Matrix brackets container */}
@@ -57,6 +71,7 @@ export function MatrixGrid({
         <div
           className="absolute left-0 top-0 bottom-0 w-2 border-l-2 border-t-2 border-b-2 rounded-l-xs"
           style={{ borderColor: theme.matrixBracket }}
+          aria-hidden="true"
         />
 
         {/* Matrix Grid */}
@@ -66,7 +81,6 @@ export function MatrixGrid({
             gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
             gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
           }}
-          role="grid"
         >
           {values.map((rowVals, r) =>
             rowVals.map((val, c) => {
@@ -106,7 +120,7 @@ export function MatrixGrid({
 
               if (onCellClick) {
                 cellStyle +=
-                  'cursor-pointer hover:ring-2 hover:ring-blue-400 focus:outline-none ';
+                  'cursor-pointer hover:ring-2 hover:ring-blue-400 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ';
               }
 
               if (cellClassName) {
@@ -134,11 +148,10 @@ export function MatrixGrid({
                     key={`cell-${r}-${c}`}
                     onClick={() => onCellClick(r, c)}
                     className={cellStyle}
-                    role="gridcell"
                     aria-label={
                       showIndices
                         ? `Row ${r + 1}, Column ${c + 1}: ${val}`
-                        : undefined
+                        : `Cell (${r + 1}, ${c + 1}): ${val}`
                     }
                   >
                     {cellContent}
@@ -150,7 +163,6 @@ export function MatrixGrid({
                 <div
                   key={`cell-${r}-${c}`}
                   className={cellStyle}
-                  role="gridcell"
                   aria-label={
                     showIndices
                       ? `Row ${r + 1}, Column ${c + 1}: ${val}`
@@ -168,6 +180,7 @@ export function MatrixGrid({
         <div
           className="absolute right-0 top-0 bottom-0 w-2 border-r-2 border-t-2 border-b-2 rounded-r-xs"
           style={{ borderColor: theme.matrixBracket }}
+          aria-hidden="true"
         />
       </div>
     </div>
