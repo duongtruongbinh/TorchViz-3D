@@ -42,7 +42,7 @@ export const lessonMetadata = {
   <BlockMath formula="A A^{-1} = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} -2 & 1 \\ 1.5 & -0.5 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = I" />
 
   <LessonNote>
-    Nếu <InlineMath formula="A^{-1} }" /> không tồn tại, ta nói <InlineMath formula="A" /> là **ma trận suy biến (singular)**. Ma trận suy biến có định thức bằng 0.
+    Nếu <InlineMath formula="A^{-1}" /> không tồn tại, ta nói <InlineMath formula="A" /> là **ma trận suy biến (singular)**. Ma trận suy biến có định thức bằng 0.
   </LessonNote>
 </MdxPage>
 
@@ -83,7 +83,7 @@ export const lessonMetadata = {
 
   **Phương pháp Gauss-Jordan** (cho ma trận lớn hơn):
 
-  Đặt <InlineMath formula="[A | I]" /> và dùng khử Gaussian cho đến khi vế trái thành <InlineMath formula="I" />. Vế phải sẽ là <InlineMath formula="A^{-1}}" />.
+  Đặt <InlineMath formula="[A | I]" /> và dùng khử Gaussian cho đến khi vế trái thành <InlineMath formula="I" />. Vế phải sẽ là <InlineMath formula="A^{-1}" />.
 
   **Ví dụ:**
 
@@ -136,7 +136,7 @@ export const lessonMetadata = {
 <MdxPage page={5}>
   ## Kiểm tra nhanh
 
-  <MdxQuiz
+  <LegacyMathQuiz
     question="Ma trận A = [[3, 0], [0, 2]] có nghịch đảo không? Nếu có, A^{-1} là gì?"
     options={[
       { text: "Có, A^{-1} = [[1/3, 0], [0, 1/2]]", isCorrect: true, feedback: "Chính xác! Ma trận đường chéo rất dễ nghịch đảo: chỉ cần nghịch đảo từng phần tử trên đường chéo." },

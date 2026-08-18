@@ -2,7 +2,33 @@ import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxCont
 
 export const CV_MDX_COMPONENT_NAMES = ['CvExercise'] as const;
 
-const LINEAR_ALGEBRA_MDX_COMPONENT_NAMES = ['MdxQuiz'] as const;
+export const LINEAR_ALGEBRA_MDX_COMPONENT_NAMES = [
+  'LegacyMathQuiz',
+  'CoordinateRepresentationDiagram',
+  'CosineAngleExplorer',
+  'CosineMotivationDiagram',
+  'DistancePlane',
+  'DotProductAngleExplorer',
+  'DotProductPlane',
+  'EmbeddingCosineDiagram',
+  'HadamardProductGrid',
+  'L2NormTriangle',
+  'MatrixExplorer',
+  'MatrixProductExplorer',
+  'MatrixTransposeExplorer',
+  'MatrixVectorProductExplorer',
+  'NormUnitBallDiagram',
+  'NormalizationPlane',
+  'NormalizationProcess',
+  'OuterProductExplorer',
+  'ProductOverview',
+  'ScalarVectorPlane',
+  'UnitVectorPlane',
+  'VectorAdditionPlane',
+  'VectorNormPlane',
+  'VectorPlane',
+  'VectorSubtractionPlane',
+] as const;
 
 export const LLM_MDX_COMPONENT_NAMES = [
   'TrainingLifecycle',

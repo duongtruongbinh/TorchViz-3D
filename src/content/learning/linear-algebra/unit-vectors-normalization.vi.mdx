@@ -2,76 +2,132 @@ export const lessonMetadata = {
   domainId: 'linear-algebra',
   id: 'unit-vectors-normalization',
   locale: 'vi',
-  title: 'Vector Đơn vị và Chuẩn hóa',
-  headings: ['Vector Đơn vị là gì?', 'Quá trình Chuẩn hóa', 'Tại sao cần Chuẩn hóa?', 'Ví dụ với PyTorch'],
-  keywords: ['unit vector', 'normalization', 'L2 norm', 'feature scaling'],
+  title: 'Vector đơn vị và Chuẩn hóa',
+  headings: ['Tách hướng khỏi độ dài', 'Vector đơn vị', 'Chuẩn hóa một Vector', 'Ví dụ với Vector 3 4', 'Trường hợp Vector không'],
+  keywords: ['unit vector', 'normalization', 'L2 norm', 'direction'],
+  conceptIds: ['normalization-motivation', 'unit-vector', 'normalization-formula', 'normalization-example', 'zero-vector-normalization'],
   pageCount: 5,
 }
 
 <MdxPage page={0}>
-  # Vector Đơn vị và Chuẩn hóa
-  
-  Đôi khi trong AI, chúng ta không quan tâm một vector **dài bao nhiêu**, mà chỉ quan tâm nó **chỉ về hướng nào**. 
-  Để làm được điều này, chúng ta đưa mọi vector về cùng một độ dài chuẩn là **1**.
+
+## Tách hướng khỏi độ dài
+
+Hai vector
+
+<BlockMath formula="\mathbf{u}=[1,2]^\top" />
+
+và
+
+<BlockMath formula="\mathbf{v}=[2,4]^\top" />
+
+có độ dài khác nhau nhưng cùng hướng. Thực tế, <InlineMath formula="\mathbf{v}=2\mathbf{u}" />.
+
+<NormalizationPlane
+  ariaLabel="Hai vector cùng hướng nhưng khác độ dài và vector đơn vị theo cùng hướng"
+  vectors={[[1, 2], [2, 4]]}
+/>
+
+Trong nhiều phép toán, ta muốn so sánh hướng mà không để độ dài ảnh hưởng. Cách đơn giản là đưa vector về độ dài 1.
+
 </MdxPage>
 
 <MdxPage page={1}>
-  ## 1. Vector Đơn vị (Unit Vector)
-  
-  Một vector được gọi là **vector đơn vị** nếu nó có chuẩn L2 đúng bằng 1:
-  
-  <BlockMath formula="\|\mathbf{u}\|_2 = 1" />
-  
-  Hãy tưởng tượng vector đơn vị như một "kim chỉ nam". Nó không cho biết bạn đã đi bao xa, nó chỉ cho biết bạn đang đi theo hướng nào.
+
+## Vector đơn vị
+
+Một vector có L2 norm bằng 1 được gọi là **vector đơn vị**.
+
+<BlockMath formula="\lVert\mathbf{q}\rVert_2=1" />
+
+Ví dụ, hai vector chuẩn theo các trục tọa độ trong <InlineMath formula="\mathbb{R}^2" /> là:
+
+<BlockMath formula="\mathbf{e}_1=[1,0]^\top,\qquad\mathbf{e}_2=[0,1]^\top" />
+
+Cả hai đều có L2 norm bằng 1.
+
+<UnitVectorPlane
+  ariaLabel="Hai vector đơn vị e1 và e2 trên hai trục tọa độ"
+/>
+
+Vector đơn vị vẫn có hướng. Điều bị loại bỏ là thông tin về độ dài ban đầu.
+
 </MdxPage>
 
 <MdxPage page={2}>
-  ## 2. Quá trình Chuẩn hóa (Normalization)
-  
-  Để biến một vector bất kỳ <InlineMath formula="\mathbf{v}" /> (khác vector không) thành một vector đơn vị <InlineMath formula="\mathbf{u}" /> cùng hướng, ta chia mỗi thành phần của <InlineMath formula="\mathbf{v}" /> cho độ dài của chính nó:
-  
-  <BlockMath formula="\mathbf{u} = \frac{\mathbf{v}}{\|\mathbf{v}\|_2}" />
-  
-  **Ví dụ:** Nếu <InlineMath formula="\mathbf{v} = [3, 4]" />, ta biết <InlineMath formula="\|\mathbf{v}\|_2 = 5" />. 
-  Vector đơn vị sẽ là: <InlineMath formula="\mathbf{u} = [3/5, 4/5] = [0.6, 0.8]" />.
-  Kiểm tra lại: <InlineMath formula="\sqrt{0.6^2 + 0.8^2} = \sqrt{0.36 + 0.64} = 1" />.
+
+## Chuẩn hóa một Vector
+
+Với một vector khác vector không, ta có thể chia nó cho chính L2 norm của nó:
+
+<BlockMath formula="\hat{\mathbf{v}}=\frac{\mathbf{v}}{\lVert\mathbf{v}\rVert_2}" />
+
+Khi đó:
+
+<BlockMath formula="\lVert\hat{\mathbf{v}}\rVert_2=1" />
+
+Phép biến đổi này được gọi là **chuẩn hóa** hay *normalization*.
+
+<NormalizationProcess
+  ariaLabel="Vector v được chia cho độ dài để tạo vector v mũ có norm bằng một"
+/>
+
+Nếu nhân vector ban đầu với một scalar dương, kết quả sau chuẩn hóa không đổi. Đây là lý do normalization giúp tách hướng khỏi độ lớn.
+
 </MdxPage>
 
 <MdxPage page={3}>
-  ## 3. Tại sao cần Chuẩn hóa?
-  
-  Trong Machine Learning, chuẩn hóa là cực kỳ quan trọng vì:
-  
-  - **Loại bỏ ảnh hưởng của quy mô:** Nếu một feature có đơn vị là "mét" và một feature khác là "milimét", feature milimét sẽ có giá trị lớn hơn hàng nghìn lần. Điều này khiến model bị "lệch" và khó hội tụ.
-  - **Tính toán Cosine Similarity:** Khi hai vector đã được chuẩn hóa, tích vô hướng của chúng chính là cosine của góc giữa chúng.
-  - **Ổn định Gradient:** Giúp quá trình train mạng nơ-ron ổn định hơn, tránh hiện tượng gradient bị bùng nổ (exploding gradients).
+
+## Ví dụ với Vector 3 4
+
+Cho:
+
+<BlockMath formula="\mathbf{v}=[3,4]^\top" />
+
+Ta đã biết:
+
+<BlockMath formula="\lVert\mathbf{v}\rVert_2=5" />
+
+Nên vector chuẩn hóa là:
+
+<BlockMath formula="\hat{\mathbf{v}}=\frac{1}{5}[3,4]^\top=[0.6,0.8]^\top" />
+
+Kiểm tra lại:
+
+<BlockMath formula="\sqrt{0.6^2+0.8^2}=1" />
+
+Trong NumPy:
+
+```python
+import numpy as np
+
+v = np.array([3.0, 4.0])
+v_hat = v / np.linalg.norm(v)
+
+print(v_hat)                 # [0.6 0.8]
+print(np.linalg.norm(v_hat)) # 1.0
+```
+
 </MdxPage>
 
 <MdxPage page={4}>
-  ## Thực hành với PyTorch
-  
-  ```python
-  import torch
-  import torch.nn.functional as F
 
-  v = torch.tensor([3.0, 4.0])
+## Trường hợp Vector không
 
-  # Cách 1: Chia thủ công cho norm
-  u_manual = v / torch.linalg.norm(v)
+Công thức chuẩn hóa có mẫu số là <InlineMath formula="\lVert\mathbf{v}\rVert_2" />. Với vector không:
 
-  # Cách 2: Dùng hàm normalize của PyTorch (thường dùng trong thực tế)
-  u_pytorch = F.normalize(v, p=2, dim=0)
+<BlockMath formula="\lVert\mathbf{0}\rVert_2=0" />
 
-  print(u_pytorch) # tensor([0.6000, 0.8000])
-  ```
-  
-  <MdxQuiz 
-    question="Điều gì xảy ra với hướng của vector sau khi ta thực hiện chuẩn hóa (normalization)?"
-    options={[
-      { text: "Hướng bị thay đổi để trở nên vuông góc", isCorrect: false, feedback: "Sai rồi." },
-      { text: "Hướng được giữ nguyên, chỉ có độ dài thay đổi về 1", isCorrect: true, feedback: "Chính xác! Đó là mục đích của chuẩn hóa." },
-      { text: "Độ dài được giữ nguyên, chỉ có hướng thay đổi", isCorrect: false, feedback: "Ngược lại mới đúng." },
-      { text: "Cả hướng và độ dài đều thay đổi ngẫu nhiên", isCorrect: false, feedback: "Không hề ngẫu nhiên." }
-    ]}
-  />
+nên biểu thức
+
+<BlockMath formula="\frac{\mathbf{0}}{\lVert\mathbf{0}\rVert_2}" />
+
+không được xác định.
+
+<LessonNote tone="warning">
+  Không thể chuẩn hóa vector không theo công thức thông thường. Trong code, cần kiểm tra norm trước khi chia nếu dữ liệu có thể chứa vector không.
+</LessonNote>
+
+Bài tiếp theo sẽ dùng độ dài và hướng cùng lúc. Dot product cho phép gom mối quan hệ giữa hai vector thành một scalar.
+
 </MdxPage>

@@ -34,7 +34,7 @@ Khác với replay tạo lại ràng buộc bằng dữ liệu cũ, Parameter re
 
 Ma trận <InlineMath formula="\Sigma" /> biểu diễn tầm quan trọng và tương quan giữa 2 bộ trọng số (trước và sau khi cập nhật).
 
-<BlockMath formula="\Sigma=\begin{bmatrix}\Sigma_{11}&\Sigma_{12}&\cdots&\Sigma_{1n}\\\Sigma_{21}&\Sigma_{22}&\cdots&\Sigma_{2n}\\\vdots&\vdots&\ddots&\vdots\\\Sigma_{n1}&\Sigma_{n2}&\cdots&\Sigma_{nn}\end{bmatrix}" />
+<BlockMath formula="\Sigma=\begin{bmatrix}\Sigma_{11}&\Sigma_{12}&\cdots&\Sigma_{1n} \\ \Sigma_{21}&\Sigma_{22}&\cdots&\Sigma_{2n} \\ \vdots&\vdots&\ddots&\vdots \\ \Sigma_{n1}&\Sigma_{n2}&\cdots&\Sigma_{nn}\end{bmatrix}" />
 
 <LessonNote>
   Lúc này, chúng ta hiểu rằng penalty không chỉ xét từng tham số thay đổi bao nhiêu, mà còn xét việc từng cặp tham số thay đổi cùng nhau ảnh hưởng thế nào đến kiến thức cũ.
@@ -48,7 +48,7 @@ Tuy nhiên, nếu model có <InlineMath formula="n" /> tham số, ma trận đ�
 
 Vì vậy, trong thực tế ta thường bỏ các tương quan theo cặp và chỉ giữ đường chéo của <InlineMath formula="\Sigma" />:
 
-<BlockMath formula="\Sigma_{\mathrm{diag}}=\begin{bmatrix}\Omega_1&0&\cdots&0\\0&\Omega_2&\cdots&0\\\vdots&\vdots&\ddots&\vdots\\0&0&\cdots&\Omega_n\end{bmatrix}" />
+<BlockMath formula="\Sigma_{\mathrm{diag}}=\begin{bmatrix}\Omega_1&0&\cdots&0 \\ 0&\Omega_2&\cdots&0 \\ \vdots&\vdots&\ddots&\vdots \\ 0&0&\cdots&\Omega_n\end{bmatrix}" />
 
 Khi đó, penalty trở thành:
 

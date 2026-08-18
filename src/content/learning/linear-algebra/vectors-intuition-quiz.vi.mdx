@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vectors-intuition-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Vector và cách biểu diễn', 'Số chiều của Vector', 'Vector và hệ tọa độ'],
+  keywords: ['vector', 'coordinates', 'components', 'dimension', 'R^n', 'quiz'],
+  conceptIds: ['vector-coordinate-representation', 'vector-dimension', 'vector-coordinate-system'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="vectors-intuition-quiz" questions={[
+  {
+    id: 'vector-coordinate-representation',
+    title: 'Vector và cách biểu diễn',
+    prompt: 'Phát biểu nào mô tả chính xác nhất cách chúng ta sử dụng vector trong bài học?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Vector luôn là một đại lượng vật lý có hướng nên feature vector trong machine learning là một khái niệm khác.' },
+      { id: 'b', label: 'Vector chỉ là một matrix có đúng một hàng. Nếu viết thành cột thì nó trở thành một đối tượng khác.' },
+      { id: 'c', label: 'Vector có thể được biểu diễn bằng các tọa độ. Trong 2D hoặc 3D ta còn có thể dùng mũi tên để nhìn trực giác hình học.', isCorrect: true },
+      { id: 'd', label: 'Vector chỉ được định nghĩa trong hai hoặc ba chiều vì chỉ những không gian đó mới vẽ được.' },
+    ],
+    success: 'Đúng. Tọa độ là cách biểu diễn vector, còn mũi tên là một cách nhìn hình học hữu ích trong 2D và 3D.',
+    error: 'Hãy phân biệt bản thân vector với cách ta lưu hoặc vẽ nó.',
+  },
+  {
+    id: 'vector-dimension',
+    title: 'Số chiều của Vector',
+    prompt: 'Cho vector x = [2, 0, -5, 7]ᵀ. Vector này thuộc không gian nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'R⁴ vì vector có bốn thành phần.', isCorrect: true },
+      { id: 'b', label: 'R³ vì chỉ có ba thành phần khác 0.' },
+      { id: 'c', label: 'R² vì vector chỉ có thể được vẽ bằng hai trục.' },
+      { id: 'd', label: 'R¹ vì toàn bộ vector được xem là một đối tượng.' },
+    ],
+    success: 'Đúng. Số chiều bằng số thành phần của vector. Thành phần bằng 0 vẫn được tính.',
+    error: 'Hãy đếm tổng số tọa độ, không phải số phần tử khác 0.',
+  },
+  {
+    id: 'vector-coordinate-system',
+    title: 'Vector và hệ tọa độ',
+    prompt: 'Ta giữ nguyên một vector hình học nhưng đổi sang một hệ tọa độ khác. Điều nào có thể xảy ra?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Vector bắt buộc thay đổi hướng vì các trục tọa độ đã thay đổi.' },
+      { id: 'b', label: 'Số chiều của vector luôn tăng thêm một.' },
+      { id: 'c', label: 'Vector biến thành scalar vì tọa độ cũ không còn dùng được.' },
+      { id: 'd', label: 'Vector có thể giữ nguyên nhưng các con số dùng để biểu diễn nó thay đổi.', isCorrect: true },
+    ],
+    success: 'Đúng. Vector và tọa độ cần được phân biệt. Change of basis sau này sẽ làm rõ ý này.',
+    error: 'Hãy phân biệt đối tượng hình học với các con số dùng để mô tả nó.',
+  },
+]} />

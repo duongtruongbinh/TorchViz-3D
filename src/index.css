@@ -49,9 +49,8 @@
     @apply border-b border-slate-200 p-3 text-black;
   }
 
-  .learning-mdx-content code,
   .learning-mdx-content .katex {
-    @apply text-black;
+    color: inherit;
   }
 }
 

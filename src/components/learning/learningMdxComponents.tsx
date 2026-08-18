@@ -1261,12 +1261,12 @@ export function MdxPage({ children, page }: { children?: ReactNode; page: number
   return useLearningMdxLesson().pageIndex === page ? <>{children}</> : null;
 }
 
-function InlineMath({ formula }: { formula: string }) {
+export function InlineMath({ formula, className }: { formula: string; className?: string }) {
   const html = katex.renderToString(formula, { displayMode: false, throwOnError: false });
-  return <span className="px-0.5 [&_.katex]:text-inherit" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <span className={cx('px-0.5 [&_.katex]:text-inherit', className)} dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-function BlockMath({ formula }: { formula: string }) {
+export function BlockMath({ formula, className }: { formula: string; className?: string }) {
   const themeClasses = useLearningMdxTheme();
   const html = katex.renderToString(formula, { displayMode: true, throwOnError: false });
   return (
@@ -1276,6 +1276,7 @@ function BlockMath({ formula }: { formula: string }) {
         themeClasses.isLight
           ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]'
           : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]',
+        className,
       )}
       dangerouslySetInnerHTML={{ __html: html }}
     />

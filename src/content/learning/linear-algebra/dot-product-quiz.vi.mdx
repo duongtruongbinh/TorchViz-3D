@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'dot-product-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Tính Dot Product', 'Dấu và Góc', 'Orthogonality'],
+  keywords: ['dot product', 'angle', 'orthogonality', 'quiz'],
+  conceptIds: ['dot-product-calculation', 'dot-product-angle', 'dot-product-orthogonality'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="dot-product-quiz" questions={[
+  {
+    id: 'dot-product-calculation',
+    title: 'Tính Dot Product',
+    prompt: 'Cho a = [1, 2]ᵀ và b = [3, 4]ᵀ. aᵀb bằng bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '11', isCorrect: true },
+      { id: 'b', label: '10' },
+      { id: 'c', label: '[3, 8]ᵀ' },
+      { id: 'd', label: '14' },
+    ],
+    success: 'Đúng. 1×3 + 2×4 = 11.',
+    error: 'Nhân các thành phần cùng vị trí rồi cộng lại.',
+  },
+  {
+    id: 'dot-product-angle',
+    title: 'Dấu và Góc',
+    prompt: 'Hai vector khác vector không có dot product âm. Điều nào chắc chắn đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Góc giữa chúng nhỏ hơn 90°.' },
+      { id: 'b', label: 'Góc giữa chúng đúng bằng 90°.' },
+      { id: 'c', label: 'Góc giữa chúng lớn hơn 90°.', isCorrect: true },
+      { id: 'd', label: 'Hai vector có cùng độ dài.' },
+    ],
+    success: 'Đúng. Cosine của góc tù là số âm nên dot product cũng âm.',
+    error: 'Dùng công thức aᵀb = ||a||₂||b||₂ cos θ.',
+  },
+  {
+    id: 'dot-product-orthogonality',
+    title: 'Orthogonality',
+    prompt: 'Cho a và b đều khác vector không và aᵀb = 0. Kết luận nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'a và b cùng hướng.' },
+      { id: 'b', label: 'a và b vuông góc.', isCorrect: true },
+      { id: 'c', label: 'a và b có cùng norm.' },
+      { id: 'd', label: 'a = b.' },
+    ],
+    success: 'Đúng. Với hai vector khác vector không, dot product bằng 0 tương ứng với góc 90°.',
+    error: 'Hãy xem trường hợp cos θ bằng 0.',
+  },
+]} />

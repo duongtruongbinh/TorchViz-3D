@@ -1,9 +1,38 @@
 import { CheckCircle2, Circle, RotateCcw, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import type { LINEAR_ALGEBRA_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import { getStrings } from '../../../../lib/localization';
 import { useLearningMdxLesson, useLearningMdxTheme, type LearningMdxComponent } from '../../learningMdxComponents';
 import { getQuizPalette } from '../../lesson/QuizBlock';
 import { cx } from '../../theme';
+import {
+  CoordinateRepresentationDiagram,
+  CosineAngleExplorer,
+  CosineMotivationDiagram,
+  DistancePlane,
+  DotProductAngleExplorer,
+  DotProductPlane,
+  EmbeddingCosineDiagram,
+  L2NormTriangle,
+  NormUnitBallDiagram,
+  NormalizationPlane,
+  NormalizationProcess,
+  ScalarVectorPlane,
+  UnitVectorPlane,
+  VectorAdditionPlane,
+  VectorNormPlane,
+  VectorPlane,
+  VectorSubtractionPlane,
+} from './vectorRenderers';
+import {
+  HadamardProductGrid,
+  MatrixExplorer,
+  MatrixProductExplorer,
+  MatrixTransposeExplorer,
+  MatrixVectorProductExplorer,
+  OuterProductExplorer,
+  ProductOverview,
+} from './matrixRenderers';
 
 type MathQuizOption = {
   text: string;
@@ -11,9 +40,8 @@ type MathQuizOption = {
   feedback: string;
 };
 
-// The Linear Algebra lessons author a single-question, single-select quiz with
-// a per-option explanation. It is a different authored contract than the
-// canonical `questions` array used by the LLM checkpoint quizzes.
+// Legacy Linear Algebra single-question quiz component.
+// Kept for backward compatibility with not-yet-rewritten Linear Algebra lessons.
 function MathQuiz({ question, options }: { question: string; options: MathQuizOption[] }) {
   const themeClasses = useLearningMdxTheme();
   const { language } = useLearningMdxLesson();
@@ -113,5 +141,29 @@ function MathQuiz({ question, options }: { question: string; options: MathQuizOp
 }
 
 export const linearAlgebraMdxComponents = {
-  MdxQuiz: MathQuiz,
-} satisfies Record<'MdxQuiz', LearningMdxComponent>;
+  LegacyMathQuiz: MathQuiz,
+  CoordinateRepresentationDiagram,
+  CosineAngleExplorer,
+  CosineMotivationDiagram,
+  DistancePlane,
+  DotProductAngleExplorer,
+  DotProductPlane,
+  EmbeddingCosineDiagram,
+  HadamardProductGrid,
+  L2NormTriangle,
+  MatrixExplorer,
+  MatrixProductExplorer,
+  MatrixTransposeExplorer,
+  MatrixVectorProductExplorer,
+  NormUnitBallDiagram,
+  NormalizationPlane,
+  NormalizationProcess,
+  OuterProductExplorer,
+  ProductOverview,
+  ScalarVectorPlane,
+  UnitVectorPlane,
+  VectorAdditionPlane,
+  VectorNormPlane,
+  VectorPlane,
+  VectorSubtractionPlane,
+} satisfies Record<(typeof LINEAR_ALGEBRA_MDX_COMPONENT_NAMES)[number], LearningMdxComponent>;

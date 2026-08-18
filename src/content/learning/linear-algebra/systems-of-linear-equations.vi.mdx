@@ -44,7 +44,7 @@ export const lessonMetadata = {
 
   <BlockMath formula="\left[ \begin{array}{cc|c} 2 & 3 & 7 \\ 4 & -1 & 1 \end{array} \right]" />
 
-  Ma trận bổ sung kết hợp cả <InlineMath formula="A" /> và <InlineMath formula="\mathbf{b} }" />, là cách thuận tiện để thực hiện các phép biến đổi trên hệ phương trình.
+  Ma trận bổ sung kết hợp cả <InlineMath formula="A" /> và <InlineMath formula="\mathbf{b}" />, là cách thuận tiện để thực hiện các phép biến đổi trên hệ phương trình.
 </MdxPage>
 
 <MdxPage page={2}>
@@ -116,7 +116,7 @@ export const lessonMetadata = {
 <MdxPage page={5}>
   ## Kiểm tra nhanh
 
-  <MdxQuiz
+  <LegacyMathQuiz
     question="Cho hệ phương trình: x + 2y = 5 và 3x + 6y = 15. Hệ này có bao nhiêu nghiệm?"
     options={[
       { text: "Một nghiệm duy nhất", isCorrect: false, feedback: "Không phải. Hai phương trình thực chất chỉ là một (phương trình sau gấp 3 lần phương trình trước)." },

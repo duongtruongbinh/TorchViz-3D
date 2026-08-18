@@ -41,16 +41,16 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
   assert.equal(learningCatalog.tracks.length, 91);
-  assert.equal(learningCatalog.lessons.length, 681);
+  assert.equal(learningCatalog.lessons.length, 689);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 143, next: 1, locked: 537 },
+    { available: 143, next: 1, locked: 545 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 145);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 153);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 536);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));

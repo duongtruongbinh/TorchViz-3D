@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'elementwise-vs-matrix-product-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Hadamard hay Matrix Product', 'Shape của Matrix Product', 'Một phần tử của AB', 'Thứ tự phép nhân'],
+  keywords: ['Hadamard product', 'matrix multiplication', 'shape', 'quiz'],
+  conceptIds: ['hadamard-vs-matmul', 'matrix-product-shape', 'matrix-product-entry', 'matrix-product-order'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="elementwise-vs-matrix-product-quiz" questions={[
+  {
+    id: 'hadamard-vs-matmul',
+    title: 'Hadamard hay Matrix Product',
+    prompt: 'Với hai matrix NumPy A và B cùng shape 2×2, phát biểu nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A * B và A @ B luôn cho cùng kết quả.' },
+      { id: 'b', label: 'A * B là element-wise multiplication, còn A @ B là matrix multiplication.', isCorrect: true },
+      { id: 'c', label: 'A * B là outer product, còn A @ B là dot product của hai scalar.' },
+      { id: 'd', label: 'A @ B chỉ hợp lệ khi A và B là vector một chiều.' },
+    ],
+    success: 'Đúng. Hai toán tử biểu diễn hai phép nhân khác nhau.',
+    error: 'Phân biệt nhân theo từng ô với kết hợp hàng và cột.',
+  },
+  {
+    id: 'matrix-product-shape',
+    title: 'Shape của Matrix Product',
+    prompt: 'A có shape 3×5 và B có shape 5×2. Shape của AB là gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '3×2', isCorrect: true },
+      { id: 'b', label: '5×5' },
+      { id: 'c', label: '3×5' },
+      { id: 'd', label: '5×2' },
+    ],
+    success: 'Đúng. Hai kích thước 5 ở giữa khớp nhau và output giữ hai kích thước ngoài là 3 và 2.',
+    error: 'Dùng quy tắc (m×n)(n×p) tạo matrix m×p.',
+  },
+  {
+    id: 'matrix-product-entry',
+    title: 'Một phần tử của AB',
+    prompt: 'Phần tử (AB)ᵢⱼ được tạo như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Nhân phần tử Aᵢⱼ với Bᵢⱼ.' },
+      { id: 'b', label: 'Lấy dot product giữa hàng i của A và cột j của B.', isCorrect: true },
+      { id: 'c', label: 'Cộng toàn bộ hàng i của A rồi cộng toàn bộ cột j của B.' },
+      { id: 'd', label: 'Lấy outer product giữa hàng i của A và cột j của B.' },
+    ],
+    success: 'Đúng. Mỗi ô của matrix product là một dot product giữa một hàng và một cột.',
+    error: 'Hãy nhớ cách matrix multiplication tái sử dụng dot product.',
+  },
+  {
+    id: 'matrix-product-order',
+    title: 'Thứ tự phép nhân',
+    prompt: 'Với hai matrix A và B sao cho cả AB và BA đều được định nghĩa, phát biểu nào đúng trong trường hợp tổng quát?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'AB luôn bằng BA vì phép nhân matrix dùng cùng các phần tử.' },
+      { id: 'b', label: 'AB và BA luôn có cùng shape nên cũng có cùng giá trị.' },
+      { id: 'c', label: 'AB có thể khác BA.', isCorrect: true },
+      { id: 'd', label: 'AB chỉ khác BA khi A hoặc B chứa số âm.' },
+    ],
+    success: 'Đúng. Matrix multiplication thường không giao hoán nên đổi thứ tự có thể đổi kết quả.',
+    error: 'Không áp dụng tính giao hoán của phép nhân scalar cho matrix multiplication.',
+  },
+]} />

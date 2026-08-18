@@ -2,127 +2,204 @@ export const lessonMetadata = {
   domainId: 'linear-algebra',
   id: 'elementwise-vs-matrix-product',
   locale: 'vi',
-  title: 'Tích Element-wise và tích Ma trận',
-  headings: ['Hai loại tích', 'Tích Element-wise (Hadamard)', 'Tích Ma trận (Dot Product)', 'So sánh trực quan', 'Khi nào dùng loại nào?', 'Tổng kết'],
-  keywords: ['element-wise', 'hadamard product', 'matrix product', 'dot product', 'broadcasting'],
-  pageCount: 6,
+  title: 'Element-wise và Matrix Product',
+  headings: ['Không phải phép nhân nào cũng giống nhau', 'Hadamard Product', 'Outer Product', 'Matrix nhân Vector', 'Matrix nhân Matrix', 'Thứ tự phép nhân', 'Shape và NumPy'],
+  keywords: ['Hadamard product', 'outer product', 'matrix vector multiplication', 'matrix multiplication', 'matmul', 'numpy'],
+  conceptIds: ['product-distinction', 'hadamard-product', 'outer-product', 'matrix-vector-product', 'matrix-matrix-product', 'matrix-product-order', 'matrix-product-shape'],
+  pageCount: 7,
 }
 
 <MdxPage page={0}>
-  # Tích Element-wise và tích Ma trận
 
-  Có **hai cách** phổ biến để "nhân" hai ma trận với nhau, và chúng có ý nghĩa hoàn toàn khác nhau. Nhầm lẫn giữa chúng là một trong những lỗi phổ biến nhất khi học đại số tuyến tính.
+## Không phải phép nhân nào cũng giống nhau
 
-  <LessonNote>
-    Trong PyTorch, toán tử `*` thực hiện tích element-wise, còn `@` thực hiện tích ma trận. Đây là điểm khác biệt quan trọng cần nhớ!
-  </LessonNote>
+Với scalar, dấu nhân thường chỉ có một nghĩa. Với vector và matrix, có nhiều phép nhân khác nhau.
+
+Trong chapter này ta đã gặp dot product. Bây giờ ta phân biệt thêm ba phép toán:
+
+- Hadamard product, nhân theo từng phần tử
+- Outer product, tạo matrix từ hai vector
+- Matrix product, kết hợp hàng và cột bằng dot product
+
+<ProductOverview
+  ariaLabel="So sánh Hadamard outer product và matrix product"
+/>
+
+Việc phân biệt các phép toán này quan trọng vì chúng có điều kiện shape và kiểu output khác nhau.
+
 </MdxPage>
 
 <MdxPage page={1}>
-  ## Tích Element-wise (Hadamard Product)
 
-  Tích element-wise, còn gọi là **tích Hadamard**, nhân từng cặp phần tử tương ứng của hai ma trận có cùng kích thước.
+## Hadamard Product
 
-  <BlockMath formula="(A \odot B)_{ij} = a_{ij} \cdot b_{ij}" />
+Hadamard product nhân các phần tử cùng vị trí:
 
-  **Ví dụ:**
+<BlockMath formula="A\odot B=[a_{ij}b_{ij}]" />
 
-  <BlockMath formula="\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \odot \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix} = \begin{bmatrix} 1\cdot5 & 2\cdot6 \\ 3\cdot7 & 4\cdot8 \end{bmatrix} = \begin{bmatrix} 5 & 12 \\ 21 & 32 \end{bmatrix}" />
+Ví dụ:
 
-  Trong PyTorch:
-  ```python
-  import torch
+<BlockMath formula="\begin{bmatrix}1&2\\3&4\end{bmatrix}\odot\begin{bmatrix}5&6\\7&8\end{bmatrix}=\begin{bmatrix}5&12\\21&32\end{bmatrix}" />
 
-  A = torch.tensor([[1, 2], [3, 4]])
-  B = torch.tensor([[5, 6], [7, 8]])
+Hai matrix cần có cùng shape theo cách trình bày cơ bản này.
 
-  C = A * B  # tensor([[ 5, 12], [21, 32]])
-  ```
+<HadamardProductGrid
+  ariaLabel="Hai matrix cùng shape được nhân theo từng ô"
+/>
 
-  **Điều kiện:** Hai ma trận phải có cùng kích thước (hoặc tương thích broadcasting).
+Trong NumPy, toán tử `*` thực hiện element-wise multiplication:
+
+```python
+C = A * B
+```
+
+Hadamard product không phải matrix multiplication.
+
+<LessonNote>
+  Trong toán học, Hadamard product được định nghĩa cho hai matrix cùng shape. NumPy có thêm cơ chế broadcasting nên biểu thức `A * B` đôi khi vẫn chạy khi hai shape khác nhau. Broadcasting là quy tắc của array computation, không làm thay đổi định nghĩa Hadamard product ở đây.
+</LessonNote>
+
 </MdxPage>
 
 <MdxPage page={2}>
-  ## Tích Ma trận (Matrix Product)
 
-  Tích ma trận (còn gọi là tích chấm - dot product) là phép nhân theo quy tắc **hàng × cột**: mỗi phần tử <InlineMath formula="c_{ij}" /> là tổng của tích các phần tử tương ứng từ hàng <InlineMath formula="i" /> của ma trận thứ nhất và cột <InlineMath formula="j" /> của ma trận thứ hai.
+## Outer Product
 
-  <BlockMath formula="(AB)_{ij} = \sum_{k=1}^{n} a_{ik} b_{kj}" />
+Cho hai vector cột:
 
-  **Ví dụ với cùng hai ma trận:**
+<BlockMath formula="\mathbf{u}\in\mathbb{R}^m,\qquad\mathbf{v}\in\mathbb{R}^n" />
 
-  <BlockMath formula="\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix} = \begin{bmatrix} 1\cdot5+2\cdot7 & 1\cdot6+2\cdot8 \\ 3\cdot5+4\cdot7 & 3\cdot6+4\cdot8 \end{bmatrix} = \begin{bmatrix} 19 & 22 \\ 43 & 50 \end{bmatrix}" />
+Outer product là:
 
-  Trong PyTorch:
-  ```python
-  C = A @ B  # tensor([[19, 22], [43, 50]])
-  # hoặc
-  C = torch.mm(A, B)
-  ```
+<BlockMath formula="\mathbf{u}\mathbf{v}^\top\in\mathbb{R}^{m\times n}" />
 
-  **Kết quả hoàn toàn khác** so với tích element-wise!
+Mỗi phần tử của matrix kết quả là:
+
+<BlockMath formula="(\mathbf{u}\mathbf{v}^\top)_{ij}=u_i v_j" />
+
+Ví dụ:
+
+<BlockMath formula="\begin{bmatrix}1\\2\end{bmatrix}\begin{bmatrix}3&4&5\end{bmatrix}=\begin{bmatrix}3&4&5\\6&8&10\end{bmatrix}" />
+
+<OuterProductExplorer
+  ariaLabel="Một vector dài hai và một vector dài ba tạo matrix hai nhân ba"
+/>
+
+Outer product biến hai vector thành một matrix. Khi học rank và SVD ở các chapter sau, ta sẽ gặp lại cấu trúc này.
+
 </MdxPage>
 
 <MdxPage page={3}>
-  ## So sánh trực quan
 
-  | Tính chất | Element-wise (<InlineMath formula="\odot" />) | Ma trận (<InlineMath formula="\cdot" />) |
-  |---|---|---|
-  | Ký hiệu | <InlineMath formula="A \odot B" /> hoặc <InlineMath formula="A * B" /> | <InlineMath formula="AB" /> hoặc <InlineMath formula="A @ B" /> |
-  | Điều kiện | Cùng kích thước | Số cột A = số hàng B |
-  | Kết quả | Cùng kích thước | <InlineMath formula="(m \times n)(n \times p) \to (m \times p)" /> |
-  | Giao hoán | Có (<InlineMath formula="A \odot B = B \odot A" />) | Không (<InlineMath formula="AB \neq BA" />) |
-  | Kết hợp | Có | Có |
-  | Phân phối | Với phép cộng | Với phép cộng |
+## Matrix nhân Vector
 
-  <LessonNote>
-    Trong deep learning, tích ma trận được dùng để tính đầu ra của các fully-connected layer: <InlineMath formula="y = Wx + b" />. Tích element-wise được dùng trong các activation function như ReLU và các cổng trong LSTM.
-  </LessonNote>
+Cho:
+
+<BlockMath formula="A\in\mathbb{R}^{m\times n},\qquad\mathbf{x}\in\mathbb{R}^n" />
+
+thì:
+
+<BlockMath formula="A\mathbf{x}\in\mathbb{R}^m" />
+
+Nếu hàng thứ <InlineMath formula="i" /> của <InlineMath formula="A" /> là <InlineMath formula="\mathbf{a}_i^\top" />, phần tử thứ <InlineMath formula="i" /> của output là:
+
+<BlockMath formula="(A\mathbf{x})_i=\mathbf{a}_i^\top\mathbf{x}" />
+
+Tức mỗi phần tử output là một dot product giữa một hàng của matrix và vector đầu vào.
+
+<MatrixVectorProductExplorer
+  ariaLabel="Mỗi hàng của matrix được dot product với vector x để tạo một phần tử output"
+  interactive={true}
+/>
+
+Ví dụ:
+
+<BlockMath formula="\begin{bmatrix}1&2\\3&4\end{bmatrix}\begin{bmatrix}5\\6\end{bmatrix}=\begin{bmatrix}17\\39\end{bmatrix}" />
+
 </MdxPage>
 
 <MdxPage page={4}>
-  ## Khi nào dùng loại nào?
 
-  **Dùng tích ma trận (`@` hoặc `torch.mm`) khi:**
-  - Tính đầu ra của neural network layer: <InlineMath formula="h = Wx" />
-  - Biến đổi không gian vector
-  - Tính attention scores trong Transformer
-  - Nhân hệ số với nhiều điểm dữ liệu cùng lúc
+## Matrix nhân Matrix
 
-  **Dùng tích element-wise (`*`) khi:**
-  - Áp dụng mask lên ma trận
-  - Nhân trọng số (weight) với gradient
-  - Tính đạo hàm riêng (element-wise gradient)
-  - Kết hợp các đặc trưng (feature interaction)
+Cho:
 
-  **Ví dụ trong PyTorch:**
+<BlockMath formula="A\in\mathbb{R}^{m\times n},\qquad B\in\mathbb{R}^{n\times p}" />
 
-  ```python
-  batch_size, features = 32, 64
-  hidden_dim = 128
+matrix product có shape:
 
-  x = torch.randn(batch_size, features)  # đầu vào
-  W = torch.randn(features, hidden_dim)  # trọng số
+<BlockMath formula="AB\in\mathbb{R}^{m\times p}" />
 
-  # Tích ma trận: (32×64) @ (64×128) → (32×128)
-  h = x @ W  # đầu ra layer
+Phần tử hàng <InlineMath formula="i" />, cột <InlineMath formula="j" /> của kết quả là dot product giữa hàng <InlineMath formula="i" /> của <InlineMath formula="A" /> và cột <InlineMath formula="j" /> của <InlineMath formula="B" />:
 
-  # Tích element-wise với mask
-  mask = torch.randn(32, 128) > 0
-  h_masked = h * mask
-  ```
+<BlockMath formula="(AB)_{ij}=\sum_{k=1}^{n}a_{ik}b_{kj}" />
+
+<MatrixProductExplorer
+  ariaLabel="Highlight một hàng của A và một cột của B để tính một ô của AB bằng dot product"
+  interactive={true}
+/>
+
+Điều kiện quan trọng là hai kích thước ở giữa phải bằng nhau.
+
 </MdxPage>
 
 <MdxPage page={5}>
-  ## Kiểm tra nhanh
 
-  <MdxQuiz
-    question="Cho A kích thước (3, 5) và B kích thước (5, 2). Phép tính nào sau đây hợp lệ và cho kết quả kích thước (3, 2)?"
-    options={[
-      { text: "A @ B (tích ma trận)", isCorrect: true, feedback: "Chính xác! (3×5) @ (5×2) = (3×2)." },
-      { text: "A * B (tích element-wise)", isCorrect: false, feedback: "Sai vì hai ma trận có kích thước khác nhau (3×5 vs 5×2), không thể nhân element-wise." },
-      { text: "B @ A (tích ma trận ngược)", isCorrect: false, feedback: "B @ A = (5×2) @ (3×5) không hợp lệ vì 2 ≠ 3." },
-      { text: "Cả A*B và A@B đều hợp lệ", isCorrect: false, feedback: "Chỉ A@B hợp lệ. A*B yêu cầu cùng kích thước." },
-    ]}
-  />
+## Thứ tự phép nhân
+
+Matrix multiplication thường không giao hoán. Nói cách khác:
+
+<BlockMath formula="AB\neq BA" />
+
+trong trường hợp tổng quát.
+
+Ví dụ:
+
+<BlockMath formula="A=\begin{bmatrix}1&1\\0&1\end{bmatrix},\qquad B=\begin{bmatrix}1&0\\1&1\end{bmatrix}" />
+
+Ta nhận được hai kết quả khác nhau:
+
+<BlockMath formula="AB=\begin{bmatrix}2&1\\1&1\end{bmatrix},\qquad BA=\begin{bmatrix}1&1\\1&2\end{bmatrix}" />
+
+Với matrix không vuông, còn có trường hợp <InlineMath formula="AB" /> được định nghĩa nhưng <InlineMath formula="BA" /> không được định nghĩa vì shape không khớp. Vì vậy thứ tự các matrix trong một tích không thể tùy ý đổi chỗ.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Shape và NumPy
+
+Với:
+
+<BlockMath formula="A:(m\times n),\qquad B:(n\times p)" />
+
+ta có:
+
+<BlockMath formula="AB:(m\times p)" />
+
+Có thể nhớ bằng cách nhìn hai kích thước ở giữa khớp nhau, còn hai kích thước bên ngoài tạo shape của kết quả.
+
+Trong NumPy:
+
+```python
+import numpy as np
+
+A = np.array([
+    [1.0, 2.0],
+    [3.0, 4.0],
+])
+
+B = np.array([
+    [5.0, 6.0],
+    [7.0, 8.0],
+])
+
+hadamard = A * B
+matmul = A @ B
+```
+
+`A * B` và `A @ B` có thể cùng chạy với hai matrix 2×2 nhưng cho kết quả khác nhau vì chúng thực hiện hai phép toán khác nhau.
+
+Chapter 1 kết thúc ở đây. Sang Chapter 2, ta sẽ nhìn <InlineMath formula="A\mathbf{x}" /> theo một cách khác. Thay vì xem mỗi output là dot product với một hàng, ta sẽ xem <InlineMath formula="A\mathbf{x}" /> là một linear combination của các cột của <InlineMath formula="A" />.
+
 </MdxPage>

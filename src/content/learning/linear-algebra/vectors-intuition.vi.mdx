@@ -3,78 +3,160 @@ export const lessonMetadata = {
   id: 'vectors-intuition',
   locale: 'vi',
   title: 'Trực giác về Vector',
-  headings: ['Vector là gì?', 'Ba góc nhìn về Vector', 'Vector trong Machine Learning', 'Tổng kết'],
-  keywords: ['vector', 'coordinates', 'direction', 'magnitude', 'ML embeddings'],
-  pageCount: 6,
+  headings: [
+    'Khi một con số là chưa đủ',
+    'Vector trong mặt phẳng',
+    'Vector và tọa độ',
+    'Từ hai chiều đến nhiều chiều',
+    'Scalar, Vector, Matrix và Tensor',
+  ],
+  keywords: ['vector', 'scalar', 'coordinates', 'components', 'dimension', 'R^n', 'matrix', 'tensor'],
+  conceptIds: [
+    'vector-motivation',
+    'vector-geometric-representation',
+    'vector-coordinate-representation',
+    'vector-dimension',
+    'scalar-vector-matrix-tensor',
+  ],
+  pageCount: 5,
 }
 
 <MdxPage page={0}>
-  # Trực giác về Vector
-  
-  Trong toán học và AI, **vector** là một trong những khái niệm cơ bản nhất. Tuy nhiên, tùy vào việc bạn là một lập trình viên, một nhà toán học hay một kỹ sư vật lý mà bạn sẽ nhìn vector theo những cách khác nhau.
-  
-  <LessonNote>
-    Thay vì cố gắng học một định nghĩa khô khan, hãy cùng khám phá vector thông qua 3 góc nhìn phổ biến nhất.
-  </LessonNote>
+
+## Khi một con số là chưa đủ
+
+Một số đại lượng chỉ cần một giá trị để mô tả. Nhiệt độ 30°C hay khối lượng 2 kg là những ví dụ đơn giản. Một giá trị đơn như vậy được gọi là **scalar**.
+
+Nhưng nhiều đối tượng cần nhiều giá trị đi cùng nhau. Nếu một điểm nằm cách gốc tọa độ 3 đơn vị theo chiều ngang và 2 đơn vị theo chiều dọc, ta có thể gom hai giá trị đó thành một vector:
+
+<BlockMath formula="\mathbf{v}=[3,2]^\top" />
+
+Hai số 3 và 2 là các **thành phần** của vector. Chúng cùng mô tả một đối tượng duy nhất là <InlineMath formula="\mathbf{v}" />.
+
+<ComparisonMatrix
+  ariaLabel="So sánh scalar và vector"
+  columns={['Biểu diễn', 'Ý nghĩa']}
+  rows={[
+    { label: 'Scalar', values: ['30', 'Một giá trị'] },
+    { label: 'Vector', values: ['[3, 2]', 'Nhiều thành phần cùng mô tả một đối tượng'] },
+  ]}
+/>
+
+<LessonNote>
+  Trong khóa học này, scalar thường được ký hiệu bằng chữ thường như <InlineMath formula="a" />. Vector thường được ký hiệu bằng chữ thường in đậm như <InlineMath formula="\mathbf{v}" />.
+</LessonNote>
+
 </MdxPage>
 
 <MdxPage page={1}>
-  ## 1. Góc nhìn Lập trình: Vector là một "Danh sách số"
-  
-  Đối với một coder, vector đơn giản là một mảng (array) hoặc một danh sách các số. 
-  
-  ```
-  v = [1.2, -0.5, 3.1, 0.0]
-  ```
-  
-  Mỗi con số trong danh sách này gọi là một **thành phần (component)** của vector. 
-  Nếu vector có 3 số, ta gọi là vector trong không gian 3 chiều (<InlineMath formula="\mathbb{R}^3" />). Nếu nó có 512 số, ta gọi là vector 512 chiều.
-  
-  **Ví dụ trong ML:** Một tấm ảnh 28x28 pixel có thể được "trải phẳng" thành một vector 784 chiều, trong đó mỗi số là cường độ sáng của một pixel.
+
+## Vector trong mặt phẳng
+
+Với vector
+
+<BlockMath formula="\mathbf{v}=[3,2]^\top" />
+
+ta có thể vẽ một mũi tên từ gốc tọa độ đến điểm <InlineMath formula="(3,2)" />.
+
+<VectorPlane
+  ariaLabel="Vector v được vẽ từ gốc tọa độ đến điểm 3 2"
+  x={3}
+  y={2}
+  label="v"
+  showComponents={true}
+  interactive={true}
+/>
+
+Cách vẽ này cho ta một trực giác hình học về **hướng** và **độ dài** của vector. Hai khái niệm này sẽ được dùng nhiều ở các bài sau.
+
+Vì <InlineMath formula="\mathbf{v}" /> có hai thành phần thực, ta viết:
+
+<BlockMath formula="\mathbf{v}\in\mathbb{R}^2" />
+
+<InlineMath formula="\mathbb{R}^2" /> là tập các vector có hai tọa độ thực.
+
 </MdxPage>
 
 <MdxPage page={2}>
-  ## 2. Góc nhìn Vật lý: Vector là một "Mũi tên"
-  
-  Trong vật lý, vector không chỉ là những con số, mà là một **mũi tên** trong không gian. Một mũi tên được xác định bởi hai yếu tố chính:
-  
-  - **Độ dài (Magnitude/Length):** Đại diện cho cường độ, tốc độ hoặc khoảng cách.
-  - **Hướng (Direction):** Cho biết mũi tên đang chỉ về đâu.
-  
-  Khi bạn nói "xe chạy với vận tốc 60km/h về phía Bắc", bạn đang mô tả một vector. Con số 60 là độ dài, và "phía Bắc" là hướng.
+
+## Vector và tọa độ
+
+Khi viết
+
+<BlockMath formula="\mathbf{v}=[3,2]^\top" />
+
+ta đang biểu diễn vector bằng tọa độ của nó trong một hệ tọa độ đã chọn.
+
+Nên phân biệt hai ý:
+
+- **Vector** là đối tượng ta muốn mô tả
+- **Tọa độ** là các con số dùng để biểu diễn vector trong một hệ tọa độ
+
+Nếu đổi hệ tọa độ, cùng một vector hình học có thể được biểu diễn bằng các con số khác.
+
+<CoordinateRepresentationDiagram
+  ariaLabel="Cùng một vector được biểu diễn bằng hai bộ tọa độ trong hai hệ trục khác nhau"
+/>
+
+<LessonNote>
+  Trong những bài đầu, ta dùng hệ tọa độ chuẩn nên thường viết trực tiếp vector bằng các tọa độ của nó. Khi học basis và change of basis, ta sẽ quay lại sự khác nhau giữa vector và tọa độ.
+</LessonNote>
+
+Hàng hay cột cũng không phải là hướng hình học của vector. Trong toán học, vector thường được viết dạng cột để thuận tiện cho phép nhân ma trận. Trong code, vector thường được lưu bằng một mảng một chiều.
+
 </MdxPage>
 
 <MdxPage page={3}>
-  ## 3. Góc nhìn Toán học: Vector là một "Điểm"
-  
-  Trong hệ tọa độ Descartes, một vector cũng có thể được coi là một **điểm** trong không gian.
-  
-  Nếu ta coi gốc tọa độ <InlineMath formula="(0,0)" /> là điểm bắt đầu, thì vector <InlineMath formula="[x, y]" /> chính là vị trí của điểm đó trong không gian. Sự khác biệt giữa "mũi tên" và "điểm" thực ra rất mong manh: mũi tên chính là đường nối từ gốc tọa độ đến điểm đó.
+
+## Từ hai chiều đến nhiều chiều
+
+Vector không bị giới hạn ở hai hay ba chiều. Một vector tổng quát có thể được viết:
+
+<BlockMath formula="\mathbf{v}=[v_1,v_2,\ldots,v_n]^\top\in\mathbb{R}^n" />
+
+Ở đây <InlineMath formula="v_1,v_2,\ldots,v_n" /> là các thành phần và <InlineMath formula="n" /> là số chiều của vector.
+
+Ví dụ:
+
+<BlockMath formula="\mathbf{x}=[1.2,-0.5,3.1,0]^\top\in\mathbb{R}^4" />
+
+Vector này vẫn có 4 chiều dù thành phần cuối bằng 0. Số chiều được xác định bởi số thành phần, không phải số thành phần khác 0.
+
+Ta có thể vẽ trực tiếp vector 2D hoặc 3D. Với vector hàng trăm hay hàng nghìn chiều, hình mũi tên không còn hữu ích để vẽ trên màn hình, nhưng cách biểu diễn bằng tọa độ vẫn giữ nguyên.
+
+Trong machine learning, một mẫu dữ liệu cũng thường được biểu diễn bằng một feature vector:
+
+<BlockMath formula="\mathbf{x}=[x_1,x_2,\ldots,x_d]^\top" />
+
+Mỗi thành phần có thể tương ứng với một feature của mẫu.
+
 </MdxPage>
 
 <MdxPage page={4}>
-  ## Tại sao điều này quan trọng với AI?
-  
-  Trong Machine Learning, hầu hết mọi thứ đều được biểu diễn dưới dạng vector. Đây gọi là **Embedding**.
-  
-  Hãy tưởng tượng từ "Vua" và "Hoàng hậu" được biểu diễn bằng hai vector trong không gian hàng nghìn chiều. 
-  - Nếu hai từ có nghĩa gần nhau, hai vector của chúng sẽ **chỉ về hướng gần nhau** (góc nhỏ).
-  - Nếu hai từ không liên quan, chúng sẽ **chỉ về hai hướng khác nhau**.
-  
-  <LessonNote>
-    Khả năng biến "ý nghĩa" thành "tọa độ" chính là chìa khóa giúp LLM như GPT hiểu được ngôn ngữ con người.
-  </LessonNote>
-</MdxPage>
 
-<MdxPage page={5}>
-  ## Kiểm tra nhanh
-  <MdxQuiz 
-    question="Nếu bạn có một vector v = [3, 4], theo góc nhìn 'Mũi tên', điều này có nghĩa là gì?"
-    options={[
-      { text: "Một danh sách gồm hai số 3 và 4", isCorrect: false, feedback: "Đây là góc nhìn Lập trình." },
-      { text: "Một điểm nằm tại tọa độ (3, 4) hoặc một mũi tên đi từ (0,0) đến (3,4)", isCorrect: true, feedback: "Chính xác! Nó mô tả cả vị trí và hướng." },
-      { text: "Một hằng số có giá trị là 7", isCorrect: false, feedback: "Sai rồi, vector không phải là tổng các thành phần của nó." },
-      { text: "Một đường thẳng kéo dài vô tận", isCorrect: false, feedback: "Vector có độ dài hữu hạn và hướng xác định." }
-    ]}
-  />
+## Scalar, Vector, Matrix và Tensor
+
+Trong code cho machine learning, ta thường gặp các đối tượng với số trục khác nhau:
+
+<ComparisonMatrix
+  ariaLabel="So sánh scalar vector matrix và tensor theo số trục trong computing"
+  columns={['Ví dụ', 'Số trục', 'Cách hình dung']}
+  rows={[
+    { label: 'Scalar', values: ['3.5', '0', 'Một giá trị'] },
+    { label: 'Vector', values: ['[2, -1, 4]', '1', 'Một dãy thành phần'] },
+    { label: 'Matrix', values: ['m × n', '2', 'Một bảng số'] },
+    { label: 'Tensor tổng quát', values: ['shape bất kỳ', 'Tùy shape', 'Mảng nhiều chiều trong computing'] },
+  ]}
+/>
+
+Ở đây từ **tensor** được dùng theo cách quen thuộc trong các thư viện machine learning. Scalar, vector và matrix có thể xem là các trường hợp tensor có số trục lần lượt là 0, 1 và 2. Tensor tổng quát có số trục tùy theo shape. Định nghĩa tensor đầy đủ trong toán học rộng hơn cách dùng này và chưa cần thiết ở phần hiện tại.
+
+Sau bài này, ta cần giữ ba ý:
+
+1. Vector có nhiều thành phần cùng mô tả một đối tượng
+2. Vector trong <InlineMath formula="\mathbb{R}^n" /> có <InlineMath formula="n" /> tọa độ thực
+3. Hình mũi tên giúp ta hiểu vector 2D và 3D, còn tọa độ cho phép làm việc trong nhiều chiều
+
+Bài tiếp theo sẽ bắt đầu với hai phép toán cơ bản nhất trên vector là cộng vector và nhân vector với một scalar.
+
 </MdxPage>
