@@ -34,6 +34,7 @@ For Landing Page or Learning Lab work, read these before editing:
 - [docs/plans/2026-06-21-learning-lab-refactor.md](docs/plans/2026-06-21-learning-lab-refactor.md)
 - [docs/plans/2026-06-21-landing-ui-iteration.md](docs/plans/2026-06-21-landing-ui-iteration.md)
 - [docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md](docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md)
+- [docs/plans/2026-08-18-linear-algebra-full-curriculum-and-refinement.md](docs/plans/2026-08-18-linear-algebra-full-curriculum-and-refinement.md)
 - [wiki/concepts/learning-lab.md](wiki/concepts/learning-lab.md)
 
 Learning Lab is active runtime behavior. Preserve its typed-TOC -> React-free

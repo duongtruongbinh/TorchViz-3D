@@ -20,12 +20,13 @@ Learning Lab -> domain -> track -> lesson
 ```
 
 The catalog contains 13 domains, 91 tracks, and 689 lesson nodes. One hundred
-fifty-three Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, seventy-nine in `continual-learning-llm`, twenty-one in
-`linear-algebra` (sixteen in Chapter 1 alternating theory/quiz pairs, four in Chapter 2,
-and one in Chapter 4), and four tagged exercise lessons in `cv`. The other 536 nodes
-are navigable placeholders and render one shared localized "content in progress" message.
-They do not carry legacy theory or practice payloads.
+ninety Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, seventy-nine in `continual-learning-llm`, fifty-eight in
+`linear-algebra` (twenty-nine alternating theory/quiz pairs across 7 chapters
+following the Gilbert Strang and MIT 18.06 curriculum), and four tagged exercise
+lessons in `cv`. The other 499 nodes are navigable placeholders and render one
+shared localized "content in progress" message. They do not carry legacy theory
+or practice payloads.
 
 The authored LLM lessons are:
 
@@ -96,6 +97,23 @@ canonical lesson order. Both nodes publish atomically and carry the same stable
 `conceptIds`; the quiz question IDs must equal that concept set exactly. This
 prevents theory-only claims, orphan quizzes, and assessment content that was not
 taught by its paired lesson.
+
+The Linear Algebra course spans 58 published lessons across 7 chapters following
+the Gilbert Strang and MIT 18.06 curriculum:
+- Chapter 1: Vectors & Matrices (16 lessons)
+- Chapter 2: Solving Linear Equations (8 lessons)
+- Chapter 3: Vector Spaces & Subspaces (10 lessons)
+- Chapter 4: Orthogonality & Least Squares (8 lessons)
+- Chapter 5: Determinants (4 lessons)
+- Chapter 6: Eigenvalues, Eigenvectors & Trace (8 lessons)
+- Chapter 7: Singular Value Decomposition (4 lessons)
+
+All 2D Cartesian math visualizations are powered by Mafs 0.21.0 inside a bare
+`MathCanvas` wrapped by single-card `MathVisualCard` shells. Shared domain
+primitives (`MatrixEquationRow`, `MatrixGrid`, `AugmentedMatrixGrid`, `RightAngleMarker`,
+`MathSegmentedControl`) and pure calculations in `demoMath.ts` keep the domain
+maintainable and prevent duplicate rendering bugs. All Mafs assets and domain
+components remain lazy-loaded behind the linear-algebra domain loader.
 
 The authored CV exercise lessons are:
 
