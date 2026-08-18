@@ -15,9 +15,9 @@ import {
   useRole,
 } from '@floating-ui/react';
 import { BookOpen, Check, Code2, Copy, ExternalLink, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
-import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { createContext, isValidElement, useContext, useEffect, useId, useMemo, useRef, useState, type ComponentType, type ReactElement, type ReactNode } from 'react';
+import { InlineMath, BlockMath, MathInline, MathDisplay, EquationCallout } from './math';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { LearningLessonEntryPoint } from '../../core/learning/types';
 import { getStrings, type Language } from '../../lib/localization';
@@ -1261,27 +1261,7 @@ export function MdxPage({ children, page }: { children?: ReactNode; page: number
   return useLearningMdxLesson().pageIndex === page ? <>{children}</> : null;
 }
 
-export function InlineMath({ formula, className }: { formula: string; className?: string }) {
-  const html = katex.renderToString(formula, { displayMode: false, throwOnError: false });
-  return <span className={cx('px-0.5 [&_.katex]:text-inherit', className)} dangerouslySetInnerHTML={{ __html: html }} />;
-}
-
-export function BlockMath({ formula, className }: { formula: string; className?: string }) {
-  const themeClasses = useLearningMdxTheme();
-  const html = katex.renderToString(formula, { displayMode: true, throwOnError: false });
-  return (
-    <div
-      className={cx(
-        'my-4 overflow-x-auto rounded-lg border px-5 py-4 text-center text-lg font-semibold sm:text-xl [&_.katex]:text-inherit',
-        themeClasses.isLight
-          ? 'border-[#205089]/14 bg-[#EFF4FA] text-[#123B68]'
-          : 'border-[#A8B8C8]/18 bg-[#A8B8C8]/8 text-[#E5EEF8]',
-        className,
-      )}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
-}
+export { InlineMath, BlockMath, MathInline, MathDisplay, EquationCallout };
 
 function extractTextFromNode(node: ReactNode): string {
   if (typeof node === 'string') return node;
@@ -1360,6 +1340,7 @@ const sharedAuthoredMdxComponents = {
   LessonReferences,
   InlineMath,
   BlockMath,
+  EquationCallout,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
 
 export const sharedLearningMdxComponents = {

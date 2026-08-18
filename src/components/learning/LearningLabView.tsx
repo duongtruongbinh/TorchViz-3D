@@ -490,7 +490,9 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
 
         {isSidebarRendered ? (
           <div
-            ref={(element) => element?.toggleAttribute('inert', !isSidebarVisible)}
+            ref={(element) => {
+              element?.toggleAttribute('inert', !isSidebarVisible);
+            }}
             className={cx(
               'grid min-h-0 flex-1 transition-[grid-template-rows,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transform-none motion-reduce:transition-none',
               isSidebarVisible ? 'grid-rows-[1fr] translate-y-0 opacity-100' : 'pointer-events-none grid-rows-[0fr] -translate-y-3 opacity-0',
@@ -548,7 +550,9 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
       </aside>
 
       <div
-        ref={(element) => element?.toggleAttribute('inert', isSidebarVisible)}
+        ref={(element) => {
+          element?.toggleAttribute('inert', isSidebarVisible);
+        }}
         className="flex h-dvh min-h-0 min-w-0 flex-col overflow-hidden"
         aria-hidden={isSidebarVisible}
       >

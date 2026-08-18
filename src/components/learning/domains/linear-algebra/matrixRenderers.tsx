@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { InlineMath } from '../../learningMdxComponents';
 import { MatrixGrid } from './primitives/MatrixGrid';
+import { MathVisualCard } from './primitives/MathVisualCard';
 import type {
   MatrixExplorerProps,
   MatrixTransposeExplorerProps,
@@ -36,10 +37,7 @@ export function MatrixExplorer({
   const sample2 = highlightIndices ? values[highlightIndices[1][0]][highlightIndices[1][1]] : null;
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-3 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="w-full overflow-x-auto flex justify-center py-1">
         <MatrixGrid
           name="A"
@@ -76,7 +74,7 @@ export function MatrixExplorer({
       <p className="text-xs text-slate-500 text-center">
         Quy ước chỉ số ma trận: <InlineMath formula="a_{ij}" /> với <InlineMath formula="i" /> là hàng trước và <InlineMath formula="j" /> là cột sau.
       </p>
-    </figure>
+    </MathVisualCard>
   );
 }
 
@@ -103,10 +101,7 @@ export function MatrixTransposeExplorer({
   }
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="w-full overflow-x-auto flex items-center justify-center gap-4 sm:gap-8 py-2">
         {/* Matrix A */}
         <div className="flex flex-col items-center gap-1">
@@ -159,7 +154,7 @@ export function MatrixTransposeExplorer({
       <p className="text-xs text-slate-500 text-center font-mono">
         <InlineMath formula="(A^\top)_{ij} = a_{ji}" />: Kích thước biến đổi từ <InlineMath formula={`${rows}\\times ${cols}`} /> thành <InlineMath formula={`${cols}\\times ${rows}`} />.
       </p>
-    </figure>
+    </MathVisualCard>
   );
 }
 
@@ -262,10 +257,7 @@ export function HadamardProductGrid({ ariaLabel }: HadamardProductGridProps) {
   const valC = matC[r][c];
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-sm border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="w-full overflow-x-auto flex items-center justify-center gap-3 sm:gap-5 py-2">
         <MatrixGrid
           name="A"
@@ -309,7 +301,7 @@ export function HadamardProductGrid({ ariaLabel }: HadamardProductGridProps) {
       <p className="text-xs text-slate-500 text-center">
         Nhấn vào bất kỳ ô nào để xem phép nhân từng phần tử tương ứng.
       </p>
-    </figure>
+    </MathVisualCard>
   );
 }
 
@@ -329,10 +321,7 @@ export function OuterProductExplorer({ ariaLabel }: OuterProductExplorerProps) {
   const c = activeCell[1];
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-sm border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="w-full overflow-x-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
         {/* Column vector u (2x1) */}
         <MatrixGrid
@@ -379,7 +368,7 @@ export function OuterProductExplorer({ ariaLabel }: OuterProductExplorerProps) {
       <p className="text-xs text-slate-500 text-center">
         Mỗi phần tử ở vị trí (i, j) của <InlineMath formula="\mathbf{u}\mathbf{v}^\top" /> bằng tích giữa phần tử thứ i của <InlineMath formula="\mathbf{u}" /> và phần tử thứ j của <InlineMath formula="\mathbf{v}" />.
       </p>
-    </figure>
+    </MathVisualCard>
   );
 }
 
@@ -405,10 +394,7 @@ export function MatrixVectorProductExplorer({
   const calcString = `${aRow[0]}×${vecX[0][0]} + ${aRow[1]}×${vecX[1][0]} + ${aRow[2]}×${vecX[2][0]}`;
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="w-full overflow-x-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
         <MatrixGrid
           name="A"
@@ -468,7 +454,7 @@ export function MatrixVectorProductExplorer({
           </button>
         </div>
       )}
-    </figure>
+    </MathVisualCard>
   );
 }
 
@@ -496,10 +482,7 @@ export function MatrixProductExplorer({
   const c = selectedCell[1];
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="w-full overflow-x-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
         <MatrixGrid
           name="A"
@@ -565,6 +548,6 @@ export function MatrixProductExplorer({
       <p className="text-xs text-slate-500 text-center">
         Nhấn vào các ô của ma trận kết quả C để thấy tích vô hướng của hàng tương ứng trong A và cột tương ứng trong B.
       </p>
-    </figure>
+    </MathVisualCard>
   );
 }

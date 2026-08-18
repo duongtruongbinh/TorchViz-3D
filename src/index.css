@@ -1,6 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Menlo', monospace;
+
+  --color-zinc-750: #27272a;
+  --color-zinc-850: #202023;
+  --color-zinc-900: #18181b;
+  --color-zinc-950: #09090b;
+
+  --color-accent-500: #3b82f6;
+  --color-accent-600: #2563eb;
+}
 
 @layer components {
   .learning-mdx-content {
@@ -8,15 +19,15 @@
   }
 
   .learning-mdx-content h2 {
-    @apply text-xl font-black text-[#123B68];
+    @apply text-xl font-black text-[#123B68] dark:text-[#E5EEF8];
   }
 
   .learning-mdx-content h3 {
-    @apply text-base font-black;
+    @apply text-base font-black text-slate-900 dark:text-slate-100;
   }
 
   .learning-mdx-content hr {
-    @apply my-2 w-full border-0 border-t border-slate-200;
+    @apply my-2 w-full border-0 border-t border-slate-200 dark:border-slate-800;
   }
 
   .learning-mdx-content ul,
@@ -37,16 +48,16 @@
   }
 
   .learning-mdx-content table {
-    @apply my-5 w-full overflow-hidden rounded-lg border border-slate-300 bg-white text-sm text-black;
+    @apply my-5 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-100;
     border-collapse: collapse;
   }
 
   .learning-mdx-content th {
-    @apply border-b-2 border-slate-300 bg-white p-3 text-left font-bold text-black;
+    @apply border-b-2 border-slate-200 bg-slate-50 p-3 text-left font-bold text-slate-900 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-100;
   }
 
   .learning-mdx-content td {
-    @apply border-b border-slate-200 p-3 text-black;
+    @apply border-b border-slate-200 p-3 text-slate-800 dark:border-slate-800/80 dark:text-slate-200;
   }
 
   .learning-mdx-content .katex {

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { InlineMath, useLearningMdxTheme } from '../../../learningMdxComponents';
 import { getMathVisualTheme } from '../theme';
+import { MatrixBracket, MatrixNameLabel, getMatrixSizeClasses } from './matrixPrimitives';
 
 export interface MatrixGridProps {
   name?: string | ReactNode;
@@ -36,43 +37,18 @@ export function MatrixGrid({
 
   const rows = values.length;
   const cols = values[0]?.length ?? 0;
-
-  const sizeClasses = {
-    sm: 'w-8 h-8 text-xs',
-    md: 'w-10 h-10 sm:w-11 sm:h-11 text-xs sm:text-sm',
-    lg: 'w-12 h-12 sm:w-14 sm:h-14 text-sm sm:text-base font-semibold',
-  }[size];
+  const sizeClasses = getMatrixSizeClasses(size);
 
   return (
     <div
       className="inline-flex items-center gap-2 select-none"
       aria-label={ariaLabel}
     >
-      {name && (
-        <div
-          className="text-sm sm:text-base font-bold italic"
-          style={{ color: theme.matrixCellText }}
-        >
-          {typeof name === 'string' ? (
-            name.startsWith('\\') ? (
-              <InlineMath formula={name} />
-            ) : (
-              `${name} =`
-            )
-          ) : (
-            name
-          )}
-        </div>
-      )}
+      {name && <MatrixNameLabel name={name} color={theme.matrixCellText} />}
 
       {/* Matrix brackets container */}
       <div className="relative inline-flex items-center px-1.5 py-1">
-        {/* Left bracket */}
-        <div
-          className="absolute left-0 top-0 bottom-0 w-2 border-l-2 border-t-2 border-b-2 rounded-l-xs"
-          style={{ borderColor: theme.matrixBracket }}
-          aria-hidden="true"
-        />
+        <MatrixBracket side="left" borderColor={theme.matrixBracket} />
 
         {/* Matrix Grid */}
         <div
@@ -176,12 +152,7 @@ export function MatrixGrid({
           )}
         </div>
 
-        {/* Right bracket */}
-        <div
-          className="absolute right-0 top-0 bottom-0 w-2 border-r-2 border-t-2 border-b-2 rounded-r-xs"
-          style={{ borderColor: theme.matrixBracket }}
-          aria-hidden="true"
-        />
+        <MatrixBracket side="right" borderColor={theme.matrixBracket} />
       </div>
     </div>
   );

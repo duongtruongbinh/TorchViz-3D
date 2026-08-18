@@ -45,19 +45,18 @@ dù matrix vuông, cao, rộng, full rank hay rank deficient.
 
 ## A bằng U Sigma V transpose
 
-SVD viết:
-
-<BlockMath formula="A=U\Sigma V^\top" />
+<EquationCallout
+  title="Phân tích suy biến SVD"
+  badge="Định lý Trung tâm"
+  formula="A = U \Sigma V^\top"
+  explanation="Mọi ma trận thực m × n đều có thể phân tích thành các cột trực chuẩn U, ma trận đường chéo giá trị suy biến Σ, và các cột trực chuẩn V."
+/>
 
 Với reduced SVD:
 
 - Các cột của <InlineMath formula="U" /> orthonormal
 - Các cột của <InlineMath formula="V" /> orthonormal
-- <InlineMath formula="\Sigma" /> chứa singular values không âm trên đường chéo
-
-Ta thường sắp:
-
-<BlockMath formula="\sigma_1\geq\sigma_2\geq\cdots\geq0" />
+- <InlineMath formula="\Sigma" /> chứa singular values không âm trên đường chéo sắp thứ tự <InlineMath formula="\sigma_1 \ge \sigma_2 \ge \cdots \ge 0" />
 
 </MdxPage>
 

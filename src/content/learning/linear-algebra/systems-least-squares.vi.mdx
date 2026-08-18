@@ -29,11 +29,7 @@ export const lessonMetadata = {
 
 Với một hệ overdetermined, ta có thể có nhiều phương trình hơn số ẩn.
 
-Khi:
-
-<BlockMath formula="\mathbf{b}\notin\operatorname{Col}(A)" />
-
-hệ:
+Khi <InlineMath formula="\mathbf{b}\notin\operatorname{Col}(A)" />, hệ:
 
 <BlockMath formula="A\mathbf{x}=\mathbf{b}" />
 
@@ -67,17 +63,14 @@ Mục tiêu là làm residual có L2 norm nhỏ nhất.
 
 ## Residual và Normal Equations
 
-Tại nghiệm least squares, residual orthogonal với mọi cột của <InlineMath formula="A" />.
+Tại nghiệm least squares, sai số residual <InlineMath formula="\mathbf{e} = \mathbf{b} - A\hat{\mathbf{x}}" /> trực giao với mọi cột của <InlineMath formula="A" />: <InlineMath formula="A^\top(\mathbf{b} - A\hat{\mathbf{x}}) = \mathbf{0}" />.
 
-Do đó:
-
-<BlockMath formula="A^\top(\mathbf{b}-A\hat{\mathbf{x}})=\mathbf{0}" />
-
-Sắp xếp lại:
-
-<BlockMath formula="A^\top A\hat{\mathbf{x}}=A^\top\mathbf{b}" />
-
-Đây là **normal equations**.
+<EquationCallout
+  title="Phương trình chuẩn sai số bình phương tối thiểu"
+  badge="Normal Equations"
+  formula="A^\top A \hat{\mathbf{x}} = A^\top \mathbf{b}"
+  explanation="Khi ma trận A có các cột độc lập tuyến tính, A^T A khả nghịch và nghiệm duy nhất là \hat{\mathbf{x}} = (A^T A)^{-1} A^T \mathbf{b}."
+/>
 
 Nếu <InlineMath formula="A" /> có full column rank thì <InlineMath formula="A^\top A" /> invertible và nghiệm least squares là duy nhất.
 

@@ -39,23 +39,16 @@ Nếu mục tiêu chỉ là so sánh hướng, ta cần loại ảnh hưởng c�
 
 ## Công thức Cosine Similarity
 
-Từ công thức hình học của dot product:
+Từ công thức hình học của dot product <InlineMath formula="\mathbf{a}^\top\mathbf{b}=\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2\cos\theta" />, với hai vector khác không:
 
-<BlockMath formula="\mathbf{a}^\top\mathbf{b}=\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2\cos\theta" />
+<EquationCallout
+  title="Công thức Cosine Similarity"
+  badge="Định nghĩa"
+  formula="\operatorname{cos\_sim}(\mathbf{a},\mathbf{b}) = \cos\theta = \frac{\mathbf{a}^\top\mathbf{b}}{\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2}"
+  explanation="Đo lường độ tương đồng về hướng giữa hai vector độc lập với độ dài, với giá trị luôn nằm trong đoạn [-1, 1]."
+/>
 
-với hai vector khác vector không, ta suy ra:
-
-<BlockMath formula="\cos\theta=\frac{\mathbf{a}^\top\mathbf{b}}{\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2}" />
-
-Trong nhiều ứng dụng, biểu thức bên phải được gọi là **cosine similarity**:
-
-<BlockMath formula="\operatorname{cos\_sim}(\mathbf{a},\mathbf{b})=\frac{\mathbf{a}^\top\mathbf{b}}{\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2}" />
-
-Nếu cả hai vector đã được chuẩn hóa về norm bằng 1 thì:
-
-<BlockMath formula="\operatorname{cos\_sim}(\hat{\mathbf{a}},\hat{\mathbf{b}})=\hat{\mathbf{a}}^\top\hat{\mathbf{b}}" />
-
-Đây là liên kết trực tiếp giữa normalization và dot product.
+Nếu cả hai vector đã được chuẩn hóa về norm bằng 1 thì <InlineMath formula="\operatorname{cos\_sim}(\hat{\mathbf{a}},\hat{\mathbf{b}})=\hat{\mathbf{a}}^\top\hat{\mathbf{b}}" />. Đây là liên kết trực tiếp giữa normalization và dot product.
 
 </MdxPage>
 

@@ -3,7 +3,9 @@ import { Vector, Point, Plot, Text, vec } from 'mafs';
 import { Check } from 'lucide-react';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
-import { MathPlane } from './primitives/MathPlane';
+import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathCanvas } from './primitives/MathCanvas';
+import { MathRangeControl } from './primitives/MathRangeControl';
 import { AugmentedMatrixGrid } from './primitives/AugmentedMatrixGrid';
 import { MatrixGrid } from './primitives/MatrixGrid';
 import { MathStepperControls } from './primitives/MathStepperControls';
@@ -80,57 +82,37 @@ export function ColumnCombinationExplorer({
 
       {interactive && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <div className="flex flex-col gap-1">
-            <div className="flex justify-between text-xs">
-              <span className="font-semibold text-blue-600 dark:text-blue-400">
-                Hệ số x₁: <span className="font-mono font-bold">{c1}</span>
-              </span>
-              <span className="text-slate-400">x₁a₁ = [{scaledCol1[0]}, {scaledCol1[1]}]ᵀ</span>
-            </div>
-            <input
-              type="range"
-              min="-2"
-              max="4"
-              step="1"
-              value={c1}
-              onChange={(e) => setC1(Number(e.target.value))}
-              className="w-full accent-blue-600"
-              aria-label="Hệ số x1 cho cột thứ nhất"
-            />
-          </div>
+          <MathRangeControl
+            label="Hệ số x₁"
+            subLabel={`x₁a₁ = [${scaledCol1[0]}, ${scaledCol1[1]}]ᵀ`}
+            ariaLabel="Hệ số x1 cho cột thứ nhất"
+            min={-2}
+            max={4}
+            step={1}
+            value={c1}
+            onChange={setC1}
+            colorScheme="blue"
+          />
 
-          <div className="flex flex-col gap-1">
-            <div className="flex justify-between text-xs">
-              <span className="font-semibold text-amber-600 dark:text-amber-400">
-                Hệ số x₂: <span className="font-mono font-bold">{c2}</span>
-              </span>
-              <span className="text-slate-400">x₂a₂ = [{scaledCol2[0]}, {scaledCol2[1]}]ᵀ</span>
-            </div>
-            <input
-              type="range"
-              min="-2"
-              max="4"
-              step="1"
-              value={c2}
-              onChange={(e) => setC2(Number(e.target.value))}
-              className="w-full accent-amber-600"
-              aria-label="Hệ số x2 cho cột thứ hai"
-            />
-          </div>
+          <MathRangeControl
+            label="Hệ số x₂"
+            subLabel={`x₂a₂ = [${scaledCol2[0]}, ${scaledCol2[1]}]ᵀ`}
+            ariaLabel="Hệ số x2 cho cột thứ hai"
+            min={-2}
+            max={4}
+            step={1}
+            value={c2}
+            onChange={setC2}
+            colorScheme="amber"
+          />
         </div>
       )}
     </div>
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={minX}
-      maxX={maxX}
-      minY={minY}
-      maxY={maxY}
-      belowPlot={belowPlot}
-    >
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={minX} maxX={maxX} minY={minY} maxY={maxY}>
       {/* Target point b */}
       <Point x={target[0]} y={target[1]} color="#ec4899" />
       <Text x={target[0]} y={target[1]} size={14} color="#ec4899" attach="ne">
@@ -191,7 +173,8 @@ export function ColumnCombinationExplorer({
       >
         Ax
       </Text>
-    </MathPlane>
+          </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -304,14 +287,8 @@ export function LinearSystemCasesExplorer({
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-2}
-      maxX={6}
-      minY={-2}
-      maxY={5}
-      belowPlot={belowPlot}
-    >
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-2} maxX={6} minY={-2} maxY={5}>
       {selectedCase === 'unique' && (
         <>
           {/* Line 1: x + 2y = 5 => y = (5 - x) / 2 */}
@@ -351,7 +328,8 @@ export function LinearSystemCasesExplorer({
           </Text>
         </>
       )}
-    </MathPlane>
+          </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -421,10 +399,7 @@ export function GaussianEliminationStepper({
   const currentStep = steps[stepIndex];
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-sm border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
         <span>{currentStep.title}</span>
         <span className="font-mono text-slate-400">
@@ -457,7 +432,7 @@ export function GaussianEliminationStepper({
         totalSteps={steps.length}
         onStepChange={setStepIndex}
       />
-    </figure>
+    </MathVisualCard>
   );
 }
 
@@ -488,10 +463,7 @@ export function LUFactorizationExplorer({
   ];
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-sm border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="flex flex-wrap items-center justify-center gap-1.5">
         <button
           type="button"
@@ -637,7 +609,7 @@ export function LUFactorizationExplorer({
           </p>
         )}
       </div>
-    </figure>
+    </MathVisualCard>
   );
 }
 
@@ -707,10 +679,7 @@ export function GaussJordanInverseStepper({
   const currentStep = steps[stepIndex];
 
   return (
-    <figure
-      className="my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
+    <MathVisualCard ariaLabel={ariaLabel}>
       <div className="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
         <span>{currentStep.title}</span>
         <span className="font-mono text-slate-400">
@@ -745,6 +714,6 @@ export function GaussJordanInverseStepper({
         totalSteps={steps.length}
         onStepChange={setStepIndex}
       />
-    </figure>
+    </MathVisualCard>
   );
 }

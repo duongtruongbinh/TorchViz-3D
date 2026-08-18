@@ -47,13 +47,14 @@ và eigenvalues vào diagonal matrix:
 
 ## A bằng V Lambda V inverse
 
-Từ các eigen equations:
+Từ hệ phương trình trị riêng <InlineMath formula="AV=V\Lambda" />, nếu ma trận các vector riêng <InlineMath formula="V" /> khả nghịch, ta thu được dạng chéo hóa:
 
-<BlockMath formula="AV=V\Lambda" />
-
-Nếu <InlineMath formula="V" /> invertible:
-
-<BlockMath formula="A=V\Lambda V^{-1}" />
+<EquationCallout
+  title="Chéo hóa ma trận"
+  badge="Định lý Cốt lõi"
+  formula="A = V \Lambda V^{-1}"
+  explanation="Phép biến đổi A được phân tách thành 3 bước: đổi tọa độ sang hệ cơ sở vector riêng bằng V^{-1}, kéo dãn độc lập theo các trị riêng Λ, rồi đổi ngược lại bằng V."
+/>
 
 <DiagonalizationExplorer
   ariaLabel="Transformation A được nhìn như đổi sang eigenvector basis scale theo diagonal Lambda rồi đổi trở lại"
@@ -89,11 +90,7 @@ Matrix này không diagonalizable.
 
 ## Powers của Matrix
 
-Nếu:
-
-<BlockMath formula="A=V\Lambda V^{-1}" />
-
-thì:
+Nếu <InlineMath formula="A=V\Lambda V^{-1}" />, thì:
 
 <BlockMath formula="A^k=V\Lambda^kV^{-1}" />
 

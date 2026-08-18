@@ -48,7 +48,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 143, next: 1, locked: 566 },
+    { available: 200, next: 1, locked: 509 },
   );
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 190);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 520);

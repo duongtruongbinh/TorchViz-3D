@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Vector,
   Point,
@@ -11,7 +11,9 @@ import {
 } from 'mafs';
 import { InlineMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
-import { MathPlane } from './primitives/MathPlane';
+import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathCanvas } from './primitives/MathCanvas';
+import { MathRangeControl } from './primitives/MathRangeControl';
 import { AngleArc } from './primitives/AngleArc';
 import {
   cosine2D,
@@ -39,6 +41,327 @@ import type {
   Vector2D,
 } from './types';
 
+type MathVisualTheme = ReturnType<typeof getMathVisualTheme>;
+
+const GUIDE_COLOR = 'rgba(148, 163, 184, 0.6)';
+const GUIDE_COLOR_SOFT = 'rgba(148, 163, 184, 0.5)';
+const GEOMETRY_NEUTRAL = '#64748b';
+const EPSILON = 1e-6;
+
+const NORM_COLORS = {
+  l1: '#10b981',
+  l2: '#3b82f6',
+  linf: '#f59e0b',
+} as const;
+
+function useVectorVisualTheme() {
+  const themeClasses = useLearningMdxTheme();
+  return getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function snapHalf(value: number, min: number, max: number) {
+  return Math.round(clamp(value, min, max) * 2) / 2;
+}
+
+function halfGridConstraint(
+  minX: number,
+  maxX: number,
+  minY: number,
+  maxY: number,
+) {
+  return ([x, y]: vec.Vector2): vec.Vector2 => [
+    snapHalf(x, minX, maxX),
+    snapHalf(y, minY, maxY),
+  ];
+}
+
+function vectorAngleDegrees([x, y]: Vector2D) {
+  const raw = (Math.atan2(y, x) * 180) / Math.PI;
+  return ((raw + 360) % 360).toFixed(1);
+}
+
+function metricToneClass(value: number) {
+  if (value > 0.01) return 'text-emerald-600 dark:text-emerald-400';
+  if (value < -0.01) return 'text-rose-600 dark:text-rose-400';
+  return 'text-amber-600 dark:text-amber-400';
+}
+
+function VisualFooter({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`min-w-0 text-xs text-slate-700 dark:text-slate-300 sm:text-sm ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function StaticVisualCard({
+  ariaLabel,
+  children,
+}: {
+  ariaLabel: string;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className="my-6 overflow-hidden rounded-xl border border-slate-200 bg-white/70 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 sm:p-5"
+      aria-label={ariaLabel}
+    >
+      {children}
+    </div>
+  );
+}
+
+function VectorPlaneFooter({
+  label,
+  position,
+}: {
+  label: string;
+  position: Vector2D;
+}) {
+  const length = vec.mag(position).toFixed(2);
+  const angle = vectorAngleDegrees(position);
+
+  return (
+    <VisualFooter className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:items-center">
+      <div className="min-w-0 overflow-x-auto">
+        <span className="font-semibold text-blue-600 dark:text-blue-400">Vector: </span>
+        <InlineMath
+          formula={`\\mathbf{${label}} = [${position[0]}, ${position[1]}]^\\top`}
+        />
+      </div>
+      <div className="sm:text-center">
+        <span className="text-slate-500 dark:text-slate-400">Độ dài L₂: </span>
+        <span className="font-medium tabular-nums">{length}</span>
+      </div>
+      <div className="sm:text-right">
+        <span className="text-slate-500 dark:text-slate-400">Góc: </span>
+        <span className="font-medium tabular-nums">{angle}°</span>
+      </div>
+    </VisualFooter>
+  );
+}
+
+function VectorPlanePlot({
+  position,
+  label,
+  showComponents,
+  theme,
+  handle,
+}: {
+  position: Vector2D;
+  label: string;
+  showComponents: boolean;
+  theme: MathVisualTheme;
+  handle?: ReactNode;
+}) {
+  return (
+    <>
+      {showComponents && (
+        <>
+          <Line.Segment
+            point1={[position[0], 0]}
+            point2={position}
+            style="dashed"
+            color={GUIDE_COLOR}
+          />
+          <Line.Segment
+            point1={[0, position[1]]}
+            point2={position}
+            style="dashed"
+            color={GUIDE_COLOR}
+          />
+        </>
+      )}
+      <Vector tail={[0, 0]} tip={position} color={theme.vectorU} weight={3} />
+      <Text
+        x={position[0]}
+        y={position[1]}
+        size={15}
+        color={theme.vectorU}
+        attach="ne"
+      >
+        {label}
+      </Text>
+      {handle}
+    </>
+  );
+}
+
+function VectorAdditionFooter({
+  u,
+  v,
+  sum,
+  showParallelogram,
+  onToggle,
+}: {
+  u: Vector2D;
+  v: Vector2D;
+  sum: vec.Vector2;
+  showParallelogram: boolean;
+  onToggle: (value: boolean) => void;
+}) {
+  return (
+    <VisualFooter className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <label className="flex shrink-0 cursor-pointer select-none items-center gap-2">
+        <input
+          type="checkbox"
+          checked={showParallelogram}
+          onChange={(event) => onToggle(event.target.checked)}
+          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500/40 dark:border-slate-600 dark:bg-slate-900"
+        />
+        <span className="text-slate-600 dark:text-slate-400">
+          Hiện quy tắc hình bình hành
+        </span>
+      </label>
+      <div className="min-w-0 overflow-x-auto text-left font-semibold text-emerald-600 dark:text-emerald-400 sm:text-right">
+        <InlineMath
+          formula={`[${u[0]}+${v[0]}, ${u[1]}+${v[1]}]^\\top = [${sum[0]}, ${sum[1]}]^\\top`}
+        />
+      </div>
+    </VisualFooter>
+  );
+}
+
+function VectorAdditionPlot({
+  u,
+  v,
+  sum,
+  showParallelogram,
+  theme,
+  handles,
+}: {
+  u: Vector2D;
+  v: Vector2D;
+  sum: vec.Vector2;
+  showParallelogram: boolean;
+  theme: MathVisualTheme;
+  handles?: ReactNode;
+}) {
+  return (
+    <>
+      <Vector tail={[0, 0]} tip={u} color={theme.vectorU} weight={3} />
+      <Text x={u[0]} y={u[1]} size={14} color={theme.vectorU} attach="se">
+        u
+      </Text>
+
+      <Vector tail={u} tip={sum} color={theme.vectorV} style="dashed" weight={2} />
+      <Text
+        x={(u[0] + sum[0]) / 2}
+        y={(u[1] + sum[1]) / 2}
+        size={14}
+        color={theme.vectorV}
+        attach="nw"
+      >
+        v
+      </Text>
+
+      <Vector tail={[0, 0]} tip={sum} color={theme.vectorW} weight={3.5} />
+      <Text x={sum[0]} y={sum[1]} size={15} color={theme.vectorW} attach="ne">
+        u + v
+      </Text>
+
+      {showParallelogram && (
+        <>
+          <Line.Segment
+            point1={[0, 0]}
+            point2={v}
+            style="dashed"
+            color={GUIDE_COLOR_SOFT}
+          />
+          <Line.Segment
+            point1={v}
+            point2={sum}
+            style="dashed"
+            color={GUIDE_COLOR_SOFT}
+          />
+        </>
+      )}
+
+      {handles}
+    </>
+  );
+}
+
+function DotProductFooter({ a, b }: { a: Vector2D; b: Vector2D }) {
+  const dot = vec.dot(a, b);
+  const cosTheta = cosine2D(a, b);
+  const isUndefined = Number.isNaN(cosTheta);
+  const thetaDeg = isUndefined
+    ? null
+    : ((Math.acos(clamp(cosTheta, -1, 1)) * 180) / Math.PI).toFixed(0);
+
+  return (
+    <VisualFooter className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <div className="min-w-0 overflow-x-auto">
+        <InlineMath
+          formula={`\\mathbf{a}^\\top\\mathbf{b} = (${a[0]}\\times ${b[0]}) + (${a[1]}\\times ${b[1]}) = `}
+        />
+        <span className="text-base font-bold tabular-nums text-pink-600 dark:text-pink-400">
+          {dot.toFixed(1)}
+        </span>
+      </div>
+      <div className="shrink-0 text-slate-500 dark:text-slate-400">
+        {isUndefined ? (
+          <span className="italic">Không xác định (vector không)</span>
+        ) : (
+          <InlineMath
+            formula={`\\cos\\theta = ${cosTheta.toFixed(2)} \\; (\\theta = ${thetaDeg}^\\circ)`}
+          />
+        )}
+      </div>
+    </VisualFooter>
+  );
+}
+
+function DotProductPlot({
+  a,
+  b,
+  theme,
+  handle,
+}: {
+  a: Vector2D;
+  b: Vector2D;
+  theme: MathVisualTheme;
+  handle?: ReactNode;
+}) {
+  const cosTheta = cosine2D(a, b);
+  const isUndefined = Number.isNaN(cosTheta);
+  const thetaDeg = isUndefined
+    ? null
+    : ((Math.acos(clamp(cosTheta, -1, 1)) * 180) / Math.PI).toFixed(0);
+
+  return (
+    <>
+      <Vector tail={[0, 0]} tip={a} color={theme.vectorU} weight={3} />
+      <Text x={a[0]} y={a[1]} size={15} color={theme.vectorU} attach="se">
+        a
+      </Text>
+
+      <Vector tail={[0, 0]} tip={b} color={theme.vectorV} weight={3} />
+      <Text x={b[0]} y={b[1]} size={15} color={theme.vectorV} attach="ne">
+        b
+      </Text>
+
+      {!isUndefined && thetaDeg !== null && (
+        <AngleArc v1={a} v2={b} label={`θ = ${thetaDeg}°`} />
+      )}
+      {handle}
+    </>
+  );
+}
+
 // 1. VectorPlane
 function InteractiveVectorPlaneMovable({
   ariaLabel,
@@ -51,78 +374,57 @@ function InteractiveVectorPlaneMovable({
   label: string;
   showComponents: boolean;
 }) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
-
+  const theme = useVectorVisualTheme();
   const point = useMovablePoint(initial, {
-    constrain: ([px, py]) => [
-      Math.round(Math.max(-1, Math.min(5, px)) * 2) / 2,
-      Math.round(Math.max(-1, Math.min(5, py)) * 2) / 2,
-    ],
+    constrain: halfGridConstraint(-1, 5, -1, 5),
   });
-
   const currentPos: Vector2D = [point.x, point.y];
-  const length = vec.mag(currentPos).toFixed(2);
-  const rad = Math.atan2(currentPos[1], currentPos[0]);
-  const deg = (
-    (rad * 180) / Math.PI +
-    (currentPos[1] < 0 ? 360 : 0)
-  ).toFixed(1);
-
-  const belowPlot = (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3 text-xs sm:text-sm font-mono border-slate-200 dark:border-slate-800">
-      <div className="flex items-center gap-2">
-        <span className="font-semibold text-blue-600 dark:text-blue-400">
-          Vector:
-        </span>
-        <span>
-          <InlineMath
-            formula={`\\mathbf{${label}} = [${currentPos[0]}, ${currentPos[1]}]^\\top`}
-          />
-        </span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-slate-500">Độ dài L₂:</span>
-        <span>{length}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-slate-500">Góc:</span>
-        <span>{deg}°</span>
-      </div>
-    </div>
-  );
 
   return (
-    <MathPlane
+    <MathVisualCard
       ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={5}
-      minY={-1}
-      maxY={5}
-      belowPlot={belowPlot}
+      footer={<VectorPlaneFooter label={label} position={currentPos} />}
     >
-      {showComponents && (
-        <>
-          <Line.Segment
-            point1={[point.x, 0]}
-            point2={point.point}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.6)"
-          />
-          <Line.Segment
-            point1={[0, point.y]}
-            point2={point.point}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.6)"
-          />
-        </>
-      )}
-      <Vector tail={[0, 0]} tip={point.point} color={theme.vectorU} weight={3} />
-      <Text x={point.x} y={point.y} size={15} color={theme.vectorU} attach="ne">
-        {label}
-      </Text>
-      {point.element}
-    </MathPlane>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={5}>
+        <VectorPlanePlot
+          position={currentPos}
+          label={label}
+          showComponents={showComponents}
+          theme={theme}
+          handle={point.element}
+        />
+      </MathCanvas>
+    </MathVisualCard>
+  );
+}
+
+function StaticVectorPlane({
+  ariaLabel,
+  position,
+  label,
+  showComponents,
+}: {
+  ariaLabel: string;
+  position: Vector2D;
+  label: string;
+  showComponents: boolean;
+}) {
+  const theme = useVectorVisualTheme();
+
+  return (
+    <MathVisualCard
+      ariaLabel={ariaLabel}
+      footer={<VectorPlaneFooter label={label} position={position} />}
+    >
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={5}>
+        <VectorPlanePlot
+          position={position}
+          label={label}
+          showComponents={showComponents}
+          theme={theme}
+        />
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -134,87 +436,22 @@ export function VectorPlane({
   showComponents = true,
   interactive = true,
 }: VectorPlaneProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const position: Vector2D = [x, y];
 
-  if (interactive) {
-    return (
-      <InteractiveVectorPlaneMovable
-        ariaLabel={ariaLabel}
-        initial={[x, y]}
-        label={label}
-        showComponents={showComponents}
-      />
-    );
-  }
-
-  const currentPos: Vector2D = [x, y];
-  const length = vec.mag(currentPos).toFixed(2);
-  const rad = Math.atan2(currentPos[1], currentPos[0]);
-  const deg = (
-    (rad * 180) / Math.PI +
-    (currentPos[1] < 0 ? 360 : 0)
-  ).toFixed(1);
-
-  const belowPlot = (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3 text-xs sm:text-sm font-mono border-slate-200 dark:border-slate-800">
-      <div className="flex items-center gap-2">
-        <span className="font-semibold text-blue-600 dark:text-blue-400">
-          Vector:
-        </span>
-        <span>
-          <InlineMath
-            formula={`\\mathbf{${label}} = [${currentPos[0]}, ${currentPos[1]}]^\\top`}
-          />
-        </span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-slate-500">Độ dài L₂:</span>
-        <span>{length}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-slate-500">Góc:</span>
-        <span>{deg}°</span>
-      </div>
-    </div>
-  );
-
-  return (
-    <MathPlane
+  return interactive ? (
+    <InteractiveVectorPlaneMovable
       ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={5}
-      minY={-1}
-      maxY={5}
-      belowPlot={belowPlot}
-    >
-      {showComponents && (
-        <>
-          <Line.Segment
-            point1={[currentPos[0], 0]}
-            point2={currentPos}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.6)"
-          />
-          <Line.Segment
-            point1={[0, currentPos[1]]}
-            point2={currentPos}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.6)"
-          />
-        </>
-      )}
-      <Vector tail={[0, 0]} tip={currentPos} color={theme.vectorU} weight={3} />
-      <Text
-        x={currentPos[0]}
-        y={currentPos[1]}
-        size={15}
-        color={theme.vectorU}
-        attach="ne"
-      >
-        {label}
-      </Text>
-    </MathPlane>
+      initial={position}
+      label={label}
+      showComponents={showComponents}
+    />
+  ) : (
+    <StaticVectorPlane
+      ariaLabel={ariaLabel}
+      position={position}
+      label={label}
+      showComponents={showComponents}
+    />
   );
 }
 
@@ -223,8 +460,7 @@ export function CoordinateRepresentationDiagram({
   ariaLabel,
 }: CoordinateRepresentationDiagramProps) {
   const [basisMode, setBasisMode] = useState<'standard' | 'rotated'>('standard');
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const fixedVector: Vector2D = [3, 2];
   const phi = (15 * Math.PI) / 180;
@@ -240,29 +476,29 @@ export function CoordinateRepresentationDiagram({
 
   const belowPlot = (
     <>
-      <div className="mt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
+      <div className="flex flex-col gap-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:text-sm">
         <div className="flex items-center gap-2">
           <span className="font-semibold">Hệ trục:</span>
-          <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 p-0.5 bg-slate-100 dark:bg-slate-800">
+          <div className="inline-flex flex-wrap rounded-lg border border-slate-300 bg-slate-100 p-0.5 dark:border-slate-700 dark:bg-slate-800">
             <button
               type="button"
               onClick={() => setBasisMode('standard')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-                basisMode === 'standard'
+              aria-pressed={basisMode === 'standard'}
+              className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${basisMode === 'standard'
                   ? 'bg-white dark:bg-slate-700 shadow-xs text-blue-600 dark:text-blue-400'
                   : 'text-slate-600 dark:text-slate-400'
-              }`}
+                }`}
             >
               Chuẩn (e₁, e₂)
             </button>
             <button
               type="button"
               onClick={() => setBasisMode('rotated')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-                basisMode === 'rotated'
+              aria-pressed={basisMode === 'rotated'}
+              className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${basisMode === 'rotated'
                   ? 'bg-white dark:bg-slate-700 shadow-xs text-amber-600 dark:text-amber-400'
                   : 'text-slate-600 dark:text-slate-400'
-              }`}
+                }`}
             >
               Hệ trục mới (b₁, b₂)
             </button>
@@ -278,78 +514,73 @@ export function CoordinateRepresentationDiagram({
           )}
         </div>
       </div>
-      <p className="mt-2 text-xs text-slate-500 text-center">
+      <p className="mt-2 text-xs text-center text-slate-500 dark:text-slate-400">
         Vector hình học giữ nguyên hướng và độ dài trong không gian, chỉ các thành phần tọa độ thay đổi theo hệ cơ sở được chọn.
       </p>
     </>
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={5}
-      minY={-1}
-      maxY={5}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={fixedVector} color={theme.vectorU} weight={3} />
-      <Text x={fixedVector[0]} y={fixedVector[1]} size={15} color={theme.vectorU} attach="ne">
-        v
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={5}>
+        <Vector tail={[0, 0]} tip={fixedVector} color={theme.vectorU} weight={3} />
+        <Text x={fixedVector[0]} y={fixedVector[1]} size={15} color={theme.vectorU} attach="ne">
+          v
+        </Text>
 
-      {basisMode === 'standard' ? (
-        <>
-          <Line.Segment
-            point1={[fixedVector[0], 0]}
-            point2={fixedVector}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.6)"
-          />
-          <Line.Segment
-            point1={[0, fixedVector[1]]}
-            point2={fixedVector}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.6)"
-          />
-        </>
-      ) : (
-        <>
-          <Line.Segment
-            point1={[0, 0]}
-            point2={vec.scale(b1, 4.8)}
-            style="dashed"
-            color={theme.vectorV}
-            weight={2}
-          />
-          <Line.Segment
-            point1={[0, 0]}
-            point2={vec.scale(b2, 4.8)}
-            style="dashed"
-            color={theme.vectorV}
-            weight={2}
-          />
-          <Text x={b1[0] * 4.8} y={b1[1] * 4.8} size={13} color={theme.vectorV} attach="ne">
-            b₁
-          </Text>
-          <Text x={b2[0] * 4.8} y={b2[1] * 4.8} size={13} color={theme.vectorV} attach="nw">
-            b₂
-          </Text>
-          <Line.Segment
-            point1={fixedVector}
-            point2={p1}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.6)"
-          />
-          <Line.Segment
-            point1={fixedVector}
-            point2={p2}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.6)"
-          />
-        </>
-      )}
-    </MathPlane>
+        {basisMode === 'standard' ? (
+          <>
+            <Line.Segment
+              point1={[fixedVector[0], 0]}
+              point2={fixedVector}
+              style="dashed"
+              color={GUIDE_COLOR}
+            />
+            <Line.Segment
+              point1={[0, fixedVector[1]]}
+              point2={fixedVector}
+              style="dashed"
+              color={GUIDE_COLOR}
+            />
+          </>
+        ) : (
+          <>
+            <Line.Segment
+              point1={[0, 0]}
+              point2={vec.scale(b1, 4.8)}
+              style="dashed"
+              color={theme.vectorV}
+              weight={2}
+            />
+            <Line.Segment
+              point1={[0, 0]}
+              point2={vec.scale(b2, 4.8)}
+              style="dashed"
+              color={theme.vectorV}
+              weight={2}
+            />
+            <Text x={b1[0] * 4.8} y={b1[1] * 4.8} size={13} color={theme.vectorV} attach="ne">
+              b₁
+            </Text>
+            <Text x={b2[0] * 4.8} y={b2[1] * 4.8} size={13} color={theme.vectorV} attach="nw">
+              b₂
+            </Text>
+            <Line.Segment
+              point1={fixedVector}
+              point2={p1}
+              style="dashed"
+              color={GUIDE_COLOR}
+            />
+            <Line.Segment
+              point1={fixedVector}
+              point2={p2}
+              style="dashed"
+              color={GUIDE_COLOR}
+            />
+          </>
+        )}
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -366,90 +597,88 @@ function InteractiveVectorAdditionMovable({
   showParallelogram: boolean;
 }) {
   const [showP, setShowP] = useState(showParallelogram);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
-
+  const theme = useVectorVisualTheme();
   const pointU = useMovablePoint(u, {
-    constrain: ([px, py]) => [
-      Math.round(Math.max(-1, Math.min(4, px)) * 2) / 2,
-      Math.round(Math.max(-1, Math.min(4, py)) * 2) / 2,
-    ],
+    constrain: halfGridConstraint(-1, 4, -1, 4),
   });
-
   const pointV = useMovablePoint(v, {
-    constrain: ([px, py]) => [
-      Math.round(Math.max(-1, Math.min(4, px)) * 2) / 2,
-      Math.round(Math.max(-1, Math.min(4, py)) * 2) / 2,
-    ],
+    constrain: halfGridConstraint(-1, 4, -1, 4),
   });
 
   const liveU: Vector2D = [pointU.x, pointU.y];
   const liveV: Vector2D = [pointV.x, pointV.y];
   const sum = vec.add(liveU, liveV);
 
-  const belowPlot = (
-    <div className="mt-3 flex items-center justify-between border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
-      <label className="flex items-center gap-2 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={showP}
-          onChange={(e) => setShowP(e.target.checked)}
-          className="rounded text-blue-600 focus:ring-blue-500"
+  return (
+    <MathVisualCard
+      ariaLabel={ariaLabel}
+      footer={
+        <VectorAdditionFooter
+          u={liveU}
+          v={liveV}
+          sum={sum}
+          showParallelogram={showP}
+          onToggle={setShowP}
         />
-        <span className="text-slate-600 dark:text-slate-400">
-          Hiện quy tắc hình bình hành
-        </span>
-      </label>
-      <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
-        [{liveU[0]}+{liveV[0]}, {liveU[1]}+{liveV[1]}]ᵀ = [{sum[0]}, {sum[1]}]ᵀ
-      </span>
-    </div>
+      }
+    >
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={6} minY={-1} maxY={6}>
+        <VectorAdditionPlot
+          u={liveU}
+          v={liveV}
+          sum={sum}
+          showParallelogram={showP}
+          theme={theme}
+          handles={
+            <>
+              {pointU.element}
+              {pointV.element}
+            </>
+          }
+        />
+      </MathCanvas>
+    </MathVisualCard>
   );
+}
+
+function StaticVectorAddition({
+  ariaLabel,
+  u,
+  v,
+  showParallelogram,
+}: {
+  ariaLabel: string;
+  u: Vector2D;
+  v: Vector2D;
+  showParallelogram: boolean;
+}) {
+  const [showP, setShowP] = useState(showParallelogram);
+  const theme = useVectorVisualTheme();
+  const sum = vec.add(u, v);
 
   return (
-    <MathPlane
+    <MathVisualCard
       ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={6}
-      minY={-1}
-      maxY={6}
-      belowPlot={belowPlot}
+      footer={
+        <VectorAdditionFooter
+          u={u}
+          v={v}
+          sum={sum}
+          showParallelogram={showP}
+          onToggle={setShowP}
+        />
+      }
     >
-      <Vector tail={[0, 0]} tip={liveU} color={theme.vectorU} weight={3} />
-      <Text x={liveU[0]} y={liveU[1]} size={14} color={theme.vectorU} attach="se">
-        u
-      </Text>
-
-      <Vector tail={liveU} tip={sum} color={theme.vectorV} style="dashed" weight={2} />
-      <Text x={(liveU[0] + sum[0]) / 2} y={(liveU[1] + sum[1]) / 2} size={14} color={theme.vectorV} attach="nw">
-        v
-      </Text>
-
-      <Vector tail={[0, 0]} tip={sum} color={theme.vectorW} weight={3.5} />
-      <Text x={sum[0]} y={sum[1]} size={15} color={theme.vectorW} attach="ne">
-        u + v
-      </Text>
-
-      {showP && (
-        <>
-          <Line.Segment
-            point1={[0, 0]}
-            point2={liveV}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.5)"
-          />
-          <Line.Segment
-            point1={liveV}
-            point2={sum}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.5)"
-          />
-        </>
-      )}
-
-      {pointU.element}
-      {pointV.element}
-    </MathPlane>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={5}>
+        <VectorAdditionPlot
+          u={u}
+          v={v}
+          sum={sum}
+          showParallelogram={showP}
+          theme={theme}
+        />
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -460,83 +689,20 @@ export function VectorAdditionPlane({
   showParallelogram = true,
   interactive = true,
 }: VectorAdditionPlaneProps) {
-  const [showP, setShowP] = useState(showParallelogram);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
-
-  if (interactive) {
-    return (
-      <InteractiveVectorAdditionMovable
-        ariaLabel={ariaLabel}
-        u={u}
-        v={v}
-        showParallelogram={showParallelogram}
-      />
-    );
-  }
-
-  const sum = vec.add(u, v);
-
-  const belowPlot = (
-    <div className="mt-3 flex items-center justify-between border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
-      <label className="flex items-center gap-2 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={showP}
-          onChange={(e) => setShowP(e.target.checked)}
-          className="rounded text-blue-600 focus:ring-blue-500"
-        />
-        <span className="text-slate-600 dark:text-slate-400">
-          Hiện quy tắc hình bình hành
-        </span>
-      </label>
-      <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
-        [{u[0]}+{v[0]}, {u[1]}+{v[1]}]ᵀ = [{sum[0]}, {sum[1]}]ᵀ
-      </span>
-    </div>
-  );
-
-  return (
-    <MathPlane
+  return interactive ? (
+    <InteractiveVectorAdditionMovable
       ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={5}
-      minY={-1}
-      maxY={5}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={u} color={theme.vectorU} weight={3} />
-      <Text x={u[0]} y={u[1]} size={14} color={theme.vectorU} attach="se">
-        u
-      </Text>
-
-      <Vector tail={u} tip={sum} color={theme.vectorV} style="dashed" weight={2} />
-      <Text x={(u[0] + sum[0]) / 2} y={(u[1] + sum[1]) / 2} size={14} color={theme.vectorV} attach="nw">
-        v
-      </Text>
-
-      <Vector tail={[0, 0]} tip={sum} color={theme.vectorW} weight={3.5} />
-      <Text x={sum[0]} y={sum[1]} size={15} color={theme.vectorW} attach="ne">
-        u + v
-      </Text>
-
-      {showP && (
-        <>
-          <Line.Segment
-            point1={[0, 0]}
-            point2={v}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.5)"
-          />
-          <Line.Segment
-            point1={v}
-            point2={sum}
-            style="dashed"
-            color="rgba(148, 163, 184, 0.5)"
-          />
-        </>
-      )}
-    </MathPlane>
+      u={u}
+      v={v}
+      showParallelogram={showParallelogram}
+    />
+  ) : (
+    <StaticVectorAddition
+      ariaLabel={ariaLabel}
+      u={u}
+      v={v}
+      showParallelogram={showParallelogram}
+    />
   );
 }
 
@@ -553,15 +719,14 @@ export function ScalarVectorPlane({
   const resolvedAlpha: number = initialScalar ?? defaultAlpha ?? 1.5;
 
   const [alpha, setAlpha] = useState(resolvedAlpha);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const currentAlpha = interactive ? alpha : resolvedAlpha;
   const scaled = vec.scale(resolvedVector, currentAlpha);
 
   const belowPlot = (
-    <div className="mt-3 flex flex-col gap-2 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-2 text-xs sm:text-sm">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
         <span className="font-semibold">
           Hệ số vô hướng <InlineMath formula={`\\alpha = ${currentAlpha.toFixed(1)}`} />:
         </span>
@@ -572,60 +737,55 @@ export function ScalarVectorPlane({
         </span>
       </div>
       {interactive && (
-        <input
-          type="range"
-          min="-2"
-          max="2"
-          step="0.2"
+        <MathRangeControl
+          label="Điều chỉnh hệ số"
+          ariaLabel="Hệ số vô hướng alpha"
+          min={-2}
+          max={2}
+          step={0.2}
           value={currentAlpha}
-          onChange={(e) => setAlpha(Number(e.target.value))}
-          className="w-full accent-amber-500"
-          aria-label="Hệ số vô hướng alpha"
+          onChange={setAlpha}
+          colorScheme="amber"
         />
       )}
     </div>
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-4}
-      maxX={5}
-      minY={-3}
-      maxY={4}
-      belowPlot={belowPlot}
-    >
-      <Vector
-        tail={[0, 0]}
-        tip={resolvedVector}
-        color={theme.vectorU}
-        style={currentAlpha !== 1 ? 'dashed' : 'solid'}
-        weight={2}
-      />
-      <Text x={resolvedVector[0]} y={resolvedVector[1]} size={14} color={theme.vectorU} attach="ne">
-        v
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-4} maxX={5} minY={-3} maxY={4}>
+        <Vector
+          tail={[0, 0]}
+          tip={resolvedVector}
+          color={theme.vectorU}
+          style={currentAlpha !== 1 ? 'dashed' : 'solid'}
+          weight={2}
+        />
+        <Text x={resolvedVector[0]} y={resolvedVector[1]} size={14} color={theme.vectorU} attach="ne">
+          v
+        </Text>
 
-      {Math.abs(currentAlpha) > 0.05 && (
-        <>
-          <Vector
-            tail={[0, 0]}
-            tip={scaled}
-            color={currentAlpha >= 0 ? theme.vectorV : theme.vectorW}
-            weight={3.5}
-          />
-          <Text
-            x={scaled[0]}
-            y={scaled[1]}
-            size={15}
-            color={currentAlpha >= 0 ? theme.vectorV : theme.vectorW}
-            attach={currentAlpha >= 0 ? 'ne' : 'sw'}
-          >
-            αv
-          </Text>
-        </>
-      )}
-    </MathPlane>
+        {Math.abs(currentAlpha) > 0.05 && (
+          <>
+            <Vector
+              tail={[0, 0]}
+              tip={scaled}
+              color={currentAlpha >= 0 ? theme.vectorV : theme.vectorW}
+              weight={3.5}
+            />
+            <Text
+              x={scaled[0]}
+              y={scaled[1]}
+              size={15}
+              color={currentAlpha >= 0 ? theme.vectorV : theme.vectorW}
+              attach={currentAlpha >= 0 ? 'ne' : 'sw'}
+            >
+              αv
+            </Text>
+          </>
+        )}
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -635,48 +795,42 @@ export function VectorSubtractionPlane({
   u = [3, 2],
   v = [1, 3],
 }: VectorSubtractionPlaneProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const diff = vec.sub(u, v);
 
   const belowPlot = (
-    <div className="mt-3 flex items-center justify-between border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-mono">
+    <div className="flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between sm:text-sm">
       <div>
         <InlineMath
           formula={`\\mathbf{u} - \\mathbf{v} = [${u[0]}-${v[0]}, ${u[1]}-${v[1]}]^\\top = [${diff[0]}, ${diff[1]}]^\\top`}
         />
       </div>
-      <div className="text-slate-500">Mũi tên nối từ đầu v sang đầu u</div>
+      <div className="text-slate-500 dark:text-slate-400">Mũi tên nối từ đầu v sang đầu u</div>
     </div>
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-2}
-      maxX={5}
-      minY={-2}
-      maxY={4}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={u} color={theme.vectorU} weight={3} />
-      <Text x={u[0]} y={u[1]} size={14} color={theme.vectorU} attach="ne">
-        u
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-2} maxX={5} minY={-2} maxY={4}>
+        <Vector tail={[0, 0]} tip={u} color={theme.vectorU} weight={3} />
+        <Text x={u[0]} y={u[1]} size={14} color={theme.vectorU} attach="ne">
+          u
+        </Text>
 
-      <Vector tail={[0, 0]} tip={v} color={theme.vectorV} weight={3} />
-      <Text x={v[0]} y={v[1]} size={14} color={theme.vectorV} attach="nw">
-        v
-      </Text>
+        <Vector tail={[0, 0]} tip={v} color={theme.vectorV} weight={3} />
+        <Text x={v[0]} y={v[1]} size={14} color={theme.vectorV} attach="nw">
+          v
+        </Text>
 
-      <Vector tail={v} tip={u} color={theme.vectorW} weight={3.5} />
-      <Text x={(v[0] + u[0]) / 2} y={(v[1] + u[1]) / 2} size={15} color={theme.vectorW} attach="se">
-        u - v
-      </Text>
+        <Vector tail={v} tip={u} color={theme.vectorW} weight={3.5} />
+        <Text x={(v[0] + u[0]) / 2} y={(v[1] + u[1]) / 2} size={15} color={theme.vectorW} attach="se">
+          u - v
+        </Text>
 
-      <Vector tail={[0, 0]} tip={diff} color={theme.vectorW} style="dashed" weight={2} />
-    </MathPlane>
+        <Vector tail={[0, 0]} tip={diff} color={theme.vectorW} style="dashed" weight={2} />
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -690,8 +844,7 @@ export function VectorNormPlane({
   const resolvedV1: Vector2D = vectors?.[0] ?? v1 ?? [2, 1];
   const resolvedV2: Vector2D = vectors?.[1] ?? v2 ?? [4, 2];
 
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const mag1 = vec.mag(resolvedV1);
   const mag2 = vec.mag(resolvedV2);
@@ -705,7 +858,7 @@ export function VectorNormPlane({
   const scaleFactor = isCollinear ? mag2 / mag1 : null;
 
   const belowPlot = (
-    <div className="mt-3 flex items-center justify-around border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
+    <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-3 sm:items-center sm:text-sm">
       <div>
         <InlineMath formula={`\\|\\mathbf{v}_1\\|_2 = ${len1}`} />
       </div>
@@ -729,24 +882,19 @@ export function VectorNormPlane({
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={5}
-      minY={-1}
-      maxY={4}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={resolvedV1} color={theme.vectorU} weight={3.5} />
-      <Text x={resolvedV1[0]} y={resolvedV1[1]} size={15} color={theme.vectorU} attach="ne">
-        v₁
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={4}>
+        <Vector tail={[0, 0]} tip={resolvedV1} color={theme.vectorU} weight={3.5} />
+        <Text x={resolvedV1[0]} y={resolvedV1[1]} size={15} color={theme.vectorU} attach="ne">
+          v₁
+        </Text>
 
-      <Vector tail={[0, 0]} tip={resolvedV2} color={theme.vectorV} style="dashed" weight={2.5} />
-      <Text x={resolvedV2[0]} y={resolvedV2[1]} size={15} color={theme.vectorV} attach="ne">
-        v₂
-      </Text>
-    </MathPlane>
+        <Vector tail={[0, 0]} tip={resolvedV2} color={theme.vectorV} style="dashed" weight={2.5} />
+        <Text x={resolvedV2[0]} y={resolvedV2[1]} size={15} color={theme.vectorV} attach="ne">
+          v₂
+        </Text>
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -758,13 +906,12 @@ export function L2NormTriangle({
 }: L2NormTriangleProps) {
   const resolvedV: Vector2D = vector ?? v ?? [3, 4];
 
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const hypotenuse = vec.mag(resolvedV).toFixed(1);
 
   const belowPlot = (
-    <div className="mt-3 flex items-center justify-center border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
+    <div className="min-w-0 overflow-x-auto text-center text-xs sm:text-sm">
       <InlineMath
         formula={`\\|\\mathbf{v}\\|_2 = \\sqrt{${resolvedV[0]}^2 + ${resolvedV[1]}^2} = \\sqrt{${resolvedV[0] * resolvedV[0]} + ${resolvedV[1] * resolvedV[1]}} = ${hypotenuse}`}
       />
@@ -772,41 +919,36 @@ export function L2NormTriangle({
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={5}
-      minY={-1}
-      maxY={5}
-      belowPlot={belowPlot}
-    >
-      <Polygon
-        points={[
-          [0, 0],
-          [resolvedV[0], 0],
-          [resolvedV[0], resolvedV[1]],
-        ]}
-        color="#3b82f6"
-      />
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={5}>
+        <Polygon
+          points={[
+            [0, 0],
+            [resolvedV[0], 0],
+            [resolvedV[0], resolvedV[1]],
+          ]}
+          color={NORM_COLORS.l2}
+        />
 
-      <Line.Segment point1={[resolvedV[0] - 0.35, 0]} point2={[resolvedV[0] - 0.35, 0.35]} color="#64748b" />
-      <Line.Segment point1={[resolvedV[0] - 0.35, 0.35]} point2={[resolvedV[0], 0.35]} color="#64748b" />
+        <Line.Segment point1={[resolvedV[0] - 0.35, 0]} point2={[resolvedV[0] - 0.35, 0.35]} color={GEOMETRY_NEUTRAL} />
+        <Line.Segment point1={[resolvedV[0] - 0.35, 0.35]} point2={[resolvedV[0], 0.35]} color={GEOMETRY_NEUTRAL} />
 
-      <Line.Segment point1={[0, 0]} point2={[resolvedV[0], 0]} color="#64748b" weight={2} />
-      <Text x={resolvedV[0] / 2} y={-0.3} size={14} color="#64748b" attach="s">
-        {String(resolvedV[0])}
-      </Text>
+        <Line.Segment point1={[0, 0]} point2={[resolvedV[0], 0]} color={GEOMETRY_NEUTRAL} weight={2} />
+        <Text x={resolvedV[0] / 2} y={-0.3} size={14} color={GEOMETRY_NEUTRAL} attach="s">
+          {String(resolvedV[0])}
+        </Text>
 
-      <Line.Segment point1={[resolvedV[0], 0]} point2={resolvedV} color="#64748b" weight={2} />
-      <Text x={resolvedV[0] + 0.3} y={resolvedV[1] / 2} size={14} color="#64748b" attach="w">
-        {String(resolvedV[1])}
-      </Text>
+        <Line.Segment point1={[resolvedV[0], 0]} point2={resolvedV} color={GEOMETRY_NEUTRAL} weight={2} />
+        <Text x={resolvedV[0] + 0.3} y={resolvedV[1] / 2} size={14} color={GEOMETRY_NEUTRAL} attach="w">
+          {String(resolvedV[1])}
+        </Text>
 
-      <Vector tail={[0, 0]} tip={resolvedV} color={theme.vectorU} weight={3.5} />
-      <Text x={resolvedV[0] / 2 - 0.3} y={resolvedV[1] / 2 + 0.3} size={15} color={theme.vectorU} attach="nw">
-        v
-      </Text>
-    </MathPlane>
+        <Vector tail={[0, 0]} tip={resolvedV} color={theme.vectorU} weight={3.5} />
+        <Text x={resolvedV[0] / 2 - 0.3} y={resolvedV[1] / 2 + 0.3} size={15} color={theme.vectorU} attach="nw">
+          v
+        </Text>
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -821,8 +963,7 @@ export function DistancePlane({
   const start: Vector2D = x ?? p1 ?? [1, 1];
   const end: Vector2D = y ?? p2 ?? [4, 5];
 
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const diff = vec.sub(end, start);
   const dist = vec.mag(diff).toFixed(2);
@@ -833,7 +974,7 @@ export function DistancePlane({
   const maxPlotY = Math.max(5.5, start[1] + 1.5, end[1] + 1.5);
 
   const belowPlot = (
-    <div className="mt-3 flex items-center justify-center border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
+    <div className="min-w-0 overflow-x-auto text-center text-xs sm:text-sm">
       <InlineMath
         formula={`d(\\mathbf{x}, \\mathbf{y}) = \\|\\mathbf{y} - \\mathbf{x}\\|_2 = \\sqrt{(${end[0]}-${start[0]})^2 + (${end[1]}-${start[1]})^2} = ${dist}`}
       />
@@ -841,29 +982,24 @@ export function DistancePlane({
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={minPlotX}
-      maxX={maxPlotX}
-      minY={minPlotY}
-      maxY={maxPlotY}
-      belowPlot={belowPlot}
-    >
-      <Point x={start[0]} y={start[1]} color={theme.vectorU} />
-      <Text x={start[0]} y={start[1]} size={14} color={theme.vectorU} attach="nw">
-        {`x(${start[0]}, ${start[1]})`}
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={minPlotX} maxX={maxPlotX} minY={minPlotY} maxY={maxPlotY}>
+        <Point x={start[0]} y={start[1]} color={theme.vectorU} />
+        <Text x={start[0]} y={start[1]} size={14} color={theme.vectorU} attach="nw">
+          {`x(${start[0]}, ${start[1]})`}
+        </Text>
 
-      <Point x={end[0]} y={end[1]} color={theme.vectorV} />
-      <Text x={end[0]} y={end[1]} size={14} color={theme.vectorV} attach="se">
-        {`y(${end[0]}, ${end[1]})`}
-      </Text>
+        <Point x={end[0]} y={end[1]} color={theme.vectorV} />
+        <Text x={end[0]} y={end[1]} size={14} color={theme.vectorV} attach="se">
+          {`y(${end[0]}, ${end[1]})`}
+        </Text>
 
-      <Vector tail={start} tip={end} color={theme.vectorW} weight={3.5} />
-      <Text x={(start[0] + end[0]) / 2} y={(start[1] + end[1]) / 2} size={14} color={theme.vectorW} attach="se">
-        y - x
-      </Text>
-    </MathPlane>
+        <Vector tail={start} tip={end} color={theme.vectorW} weight={3.5} />
+        <Text x={(start[0] + end[0]) / 2} y={(start[1] + end[1]) / 2} size={14} color={theme.vectorW} attach="se">
+          y - x
+        </Text>
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -876,49 +1012,49 @@ export function NormUnitBallDiagram({ ariaLabel }: NormUnitBallDiagramProps) {
   const showLinf = selectedNorm === 'all' || selectedNorm === 'linf';
 
   const belowPlot = (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
-      <div className="flex items-center gap-1.5">
+    <div className="flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+      <div className="flex flex-wrap items-center gap-1.5">
         <button
           type="button"
           onClick={() => setSelectedNorm('all')}
-          className={`px-2.5 py-1 rounded-md text-xs font-semibold ${
-            selectedNorm === 'all'
+          aria-pressed={selectedNorm === 'all'}
+          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'all'
               ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
               : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-          }`}
+            }`}
         >
           Tất cả
         </button>
         <button
           type="button"
           onClick={() => setSelectedNorm('l1')}
-          className={`px-2.5 py-1 rounded-md text-xs font-semibold ${
-            selectedNorm === 'l1'
+          aria-pressed={selectedNorm === 'l1'}
+          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'l1'
               ? 'bg-emerald-600 text-white'
               : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-          }`}
+            }`}
         >
           L₁ (Hình thoi)
         </button>
         <button
           type="button"
           onClick={() => setSelectedNorm('l2')}
-          className={`px-2.5 py-1 rounded-md text-xs font-semibold ${
-            selectedNorm === 'l2'
+          aria-pressed={selectedNorm === 'l2'}
+          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'l2'
               ? 'bg-blue-600 text-white'
               : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
-          }`}
+            }`}
         >
           L₂ (Hình tròn)
         </button>
         <button
           type="button"
           onClick={() => setSelectedNorm('linf')}
-          className={`px-2.5 py-1 rounded-md text-xs font-semibold ${
-            selectedNorm === 'linf'
+          aria-pressed={selectedNorm === 'linf'}
+          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'linf'
               ? 'bg-amber-600 text-white'
               : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
-          }`}
+            }`}
         >
           L∞ (Hình vuông)
         </button>
@@ -930,41 +1066,36 @@ export function NormUnitBallDiagram({ ariaLabel }: NormUnitBallDiagramProps) {
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-2}
-      maxX={2}
-      minY={-2}
-      maxY={2}
-      belowPlot={belowPlot}
-    >
-      {showLinf && (
-        <Polygon
-          points={[
-            [-1, -1],
-            [1, -1],
-            [1, 1],
-            [-1, 1],
-          ]}
-          color="#f59e0b"
-          strokeStyle="dashed"
-        />
-      )}
-      {showL2 && (
-        <Circle center={[0, 0]} radius={1} color="#3b82f6" />
-      )}
-      {showL1 && (
-        <Polygon
-          points={[
-            [1, 0],
-            [0, 1],
-            [-1, 0],
-            [0, -1],
-          ]}
-          color="#10b981"
-        />
-      )}
-    </MathPlane>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-2} maxX={2} minY={-2} maxY={2}>
+        {showLinf && (
+          <Polygon
+            points={[
+              [-1, -1],
+              [1, -1],
+              [1, 1],
+              [-1, 1],
+            ]}
+            color={NORM_COLORS.linf}
+            strokeStyle="dashed"
+          />
+        )}
+        {showL2 && (
+          <Circle center={[0, 0]} radius={1} color={NORM_COLORS.l2} />
+        )}
+        {showL1 && (
+          <Polygon
+            points={[
+              [1, 0],
+              [0, 1],
+              [-1, 0],
+              [0, -1],
+            ]}
+            color={NORM_COLORS.l1}
+          />
+        )}
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -974,15 +1105,18 @@ export function NormalizationPlane({
   v = [3, 2],
   vectors,
 }: NormalizationPlaneProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const vectorList: Vector2D[] = vectors && vectors.length > 0 ? vectors : [v];
   const primaryVec = vectorList[0];
-  const u = vec.normalize(primaryVec);
+  const primaryMagnitude = vec.mag(primaryVec);
+  const canNormalize = primaryMagnitude > EPSILON;
+  const u: Vector2D = canNormalize
+    ? [primaryVec[0] / primaryMagnitude, primaryVec[1] / primaryMagnitude]
+    : [0, 0];
 
   const belowPlot = (
-    <div className="mt-3 flex flex-wrap items-center justify-around gap-2 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
+    <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2 sm:text-sm">
       {vectorList.map((vecItem, index) => {
         const len = vec.mag(vecItem).toFixed(2);
         return (
@@ -1005,99 +1139,89 @@ export function NormalizationPlane({
   const maxValY = Math.max(3, ...vectorList.map((item) => item[1] + 1));
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={maxValX}
-      minY={-1}
-      maxY={maxValY}
-      belowPlot={belowPlot}
-    >
-      <Circle center={[0, 0]} radius={1} strokeStyle="dashed" color="rgba(148, 163, 184, 0.6)" />
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={maxValX} minY={-1} maxY={maxValY}>
+        <Circle center={[0, 0]} radius={1} strokeStyle="dashed" color={GUIDE_COLOR} />
 
-      {vectorList.map((vecItem, index) => (
-        <g key={index}>
-          <Vector
-            tail={[0, 0]}
-            tip={vecItem}
-            color={index === 0 ? theme.vectorU : theme.vectorW}
-            weight={index === 0 ? 2.5 : 2}
-            style={index > 0 ? 'dashed' : 'solid'}
-          />
-          <Text
-            x={vecItem[0]}
-            y={vecItem[1]}
-            size={14}
-            color={index === 0 ? theme.vectorU : theme.vectorW}
-            attach="ne"
-          >
-            {vectorList.length > 1 ? `v${index + 1}` : 'v'}
-          </Text>
-        </g>
-      ))}
+        {vectorList.map((vecItem, index) => (
+          <g key={index}>
+            <Vector
+              tail={[0, 0]}
+              tip={vecItem}
+              color={index === 0 ? theme.vectorU : theme.vectorW}
+              weight={index === 0 ? 2.5 : 2}
+              style={index > 0 ? 'dashed' : 'solid'}
+            />
+            <Text
+              x={vecItem[0]}
+              y={vecItem[1]}
+              size={14}
+              color={index === 0 ? theme.vectorU : theme.vectorW}
+              attach="ne"
+            >
+              {vectorList.length > 1 ? `v${index + 1}` : 'v'}
+            </Text>
+          </g>
+        ))}
 
-      <Vector tail={[0, 0]} tip={u} color={theme.vectorV} weight={3.5} />
-      <Text x={u[0]} y={u[1]} size={15} color={theme.vectorV} attach="nw">
-        v̂
-      </Text>
-    </MathPlane>
+        {canNormalize && (
+          <>
+            <Vector tail={[0, 0]} tip={u} color={theme.vectorV} weight={3.5} />
+            <Text x={u[0]} y={u[1]} size={15} color={theme.vectorV} attach="nw">
+              v̂
+            </Text>
+          </>
+        )}
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
 // 11. UnitVectorPlane
 export function UnitVectorPlane({ ariaLabel }: UnitVectorPlaneProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const belowPlot = (
-    <div className="mt-3 flex items-center justify-around border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
+    <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-3 sm:items-center sm:text-sm">
       <div>
         <InlineMath formula="\|\mathbf{e}_1\|_2 = 1.0" />
       </div>
       <div>
         <InlineMath formula="\|\mathbf{e}_2\|_2 = 1.0" />
       </div>
-      <div className="text-slate-500 font-sans">
+      <div className="font-sans text-slate-500 dark:text-slate-400">
         Đầu mút nằm chính xác trên đường tròn đơn vị
       </div>
     </div>
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-1.5}
-      maxX={2}
-      minY={-1.5}
-      maxY={2}
-      belowPlot={belowPlot}
-    >
-      <Circle center={[0, 0]} radius={1} strokeStyle="dashed" color="rgba(148, 163, 184, 0.6)" />
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1.5} maxX={2} minY={-1.5} maxY={2}>
+        <Circle center={[0, 0]} radius={1} strokeStyle="dashed" color={GUIDE_COLOR} />
 
-      <Vector tail={[0, 0]} tip={[1, 0]} color={theme.vectorU} weight={3.5} />
-      <Text x={1} y={0} size={15} color={theme.vectorU} attach="ne">
-        e₁
-      </Text>
+        <Vector tail={[0, 0]} tip={[1, 0]} color={theme.vectorU} weight={3.5} />
+        <Text x={1} y={0} size={15} color={theme.vectorU} attach="ne">
+          e₁
+        </Text>
 
-      <Vector tail={[0, 0]} tip={[0, 1]} color={theme.vectorV} weight={3.5} />
-      <Text x={0} y={1} size={15} color={theme.vectorV} attach="nw">
-        e₂
-      </Text>
-    </MathPlane>
+        <Vector tail={[0, 0]} tip={[0, 1]} color={theme.vectorV} weight={3.5} />
+        <Text x={0} y={1} size={15} color={theme.vectorV} attach="nw">
+          e₂
+        </Text>
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
 // 12. NormalizationProcess (HTML card)
 export function NormalizationProcess({ ariaLabel }: NormalizationProcessProps) {
   return (
-    <div
-      className="my-6 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
-      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 text-center">
+    <StaticVisualCard ariaLabel={ariaLabel}>
+      <h4 className="mb-4 text-center text-sm font-bold text-slate-800 dark:text-slate-200">
         Quy trình chuẩn hóa vector <InlineMath formula="\mathbf{v} \to \hat{\mathbf{v}}" />
       </h4>
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+      <div className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-4">
         <div className="p-3 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-center">
           <span className="text-xs text-blue-600 dark:text-blue-400 font-bold block mb-1">
             1. Vector gốc
@@ -1134,11 +1258,11 @@ export function NormalizationProcess({ ariaLabel }: NormalizationProcessProps) {
           </span>
         </div>
       </div>
-      <p className="mt-3 text-xs text-slate-500 text-center">
+      <p className="mt-3 text-xs text-center text-slate-500 dark:text-slate-400">
         Hướng được bảo toàn nguyên vẹn, độ dài sau chuẩn hóa luôn bằng 1:{' '}
         <InlineMath formula="\sqrt{0.6^2 + 0.8^2} = 1.0" />
       </p>
-    </div>
+    </StaticVisualCard>
   );
 }
 
@@ -1152,70 +1276,38 @@ function InteractiveDotProductPlaneMovable({
   a: Vector2D;
   b: Vector2D;
 }) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
-
+  const theme = useVectorVisualTheme();
   const pointB = useMovablePoint(b, {
-    constrain: ([px, py]) => [
-      Math.round(Math.max(-1, Math.min(5, px)) * 2) / 2,
-      Math.round(Math.max(-1, Math.min(4, py)) * 2) / 2,
-    ],
+    constrain: halfGridConstraint(-1, 5, -1, 4),
   });
-
   const liveB: Vector2D = [pointB.x, pointB.y];
-  const dot = vec.dot(a, liveB);
-  const cosTheta = cosine2D(a, liveB);
-  const isUndefined = Number.isNaN(cosTheta);
-  const thetaDeg = isUndefined
-    ? null
-    : ((Math.acos(Math.max(-1, Math.min(1, cosTheta))) * 180) / Math.PI).toFixed(0);
-
-  const belowPlot = (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-mono">
-      <div>
-        <InlineMath
-          formula={`\\mathbf{a}^\\top\\mathbf{b} = (${a[0]}\\times ${liveB[0]}) + (${a[1]}\\times ${liveB[1]}) = `}
-        />
-        <span className="font-bold text-pink-600 dark:text-pink-400 text-base">
-          {dot.toFixed(1)}
-        </span>
-      </div>
-      <div className="text-slate-500">
-        {isUndefined ? (
-          <span className="italic">Không xác định (vector không)</span>
-        ) : (
-          <InlineMath
-            formula={`\\cos\\theta = ${cosTheta.toFixed(2)} \\; (\\theta = ${thetaDeg}^\\circ)`}
-          />
-        )}
-      </div>
-    </div>
-  );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={5}
-      minY={-1}
-      maxY={4}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={a} color={theme.vectorU} weight={3} />
-      <Text x={a[0]} y={a[1]} size={15} color={theme.vectorU} attach="se">
-        a
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={<DotProductFooter a={a} b={liveB} />}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={4}>
+        <DotProductPlot a={a} b={liveB} theme={theme} handle={pointB.element} />
+      </MathCanvas>
+    </MathVisualCard>
+  );
+}
 
-      <Vector tail={[0, 0]} tip={pointB.point} color={theme.vectorV} weight={3} />
-      <Text x={pointB.x} y={pointB.y} size={15} color={theme.vectorV} attach="ne">
-        b
-      </Text>
+function StaticDotProductPlane({
+  ariaLabel,
+  a,
+  b,
+}: {
+  ariaLabel: string;
+  a: Vector2D;
+  b: Vector2D;
+}) {
+  const theme = useVectorVisualTheme();
 
-      {!isUndefined && thetaDeg !== null && (
-        <AngleArc v1={a} v2={liveB} label={`θ = ${thetaDeg}°`} />
-      )}
-      {pointB.element}
-    </MathPlane>
+  return (
+    <MathVisualCard ariaLabel={ariaLabel} footer={<DotProductFooter a={a} b={b} />}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-1} maxX={5} minY={-1} maxY={4}>
+        <DotProductPlot a={a} b={b} theme={theme} />
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -1225,71 +1317,10 @@ export function DotProductPlane({
   b = [2, 2],
   interactive = true,
 }: DotProductPlaneProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
-
-  if (interactive) {
-    return (
-      <InteractiveDotProductPlaneMovable
-        ariaLabel={ariaLabel}
-        a={a}
-        b={b}
-      />
-    );
-  }
-
-  const dot = vec.dot(a, b);
-  const cosTheta = cosine2D(a, b);
-  const isUndefined = Number.isNaN(cosTheta);
-  const thetaDeg = isUndefined
-    ? null
-    : ((Math.acos(Math.max(-1, Math.min(1, cosTheta))) * 180) / Math.PI).toFixed(0);
-
-  const belowPlot = (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-mono">
-      <div>
-        <InlineMath
-          formula={`\\mathbf{a}^\\top\\mathbf{b} = (${a[0]}\\times ${b[0]}) + (${a[1]}\\times ${b[1]}) = `}
-        />
-        <span className="font-bold text-pink-600 dark:text-pink-400 text-base">
-          {dot.toFixed(1)}
-        </span>
-      </div>
-      <div className="text-slate-500">
-        {isUndefined ? (
-          <span className="italic">Không xác định (vector không)</span>
-        ) : (
-          <InlineMath
-            formula={`\\cos\\theta = ${cosTheta.toFixed(2)} \\; (\\theta = ${thetaDeg}^\\circ)`}
-          />
-        )}
-      </div>
-    </div>
-  );
-
-  return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-1}
-      maxX={5}
-      minY={-1}
-      maxY={4}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={a} color={theme.vectorU} weight={3} />
-      <Text x={a[0]} y={a[1]} size={15} color={theme.vectorU} attach="se">
-        a
-      </Text>
-
-      <Vector tail={[0, 0]} tip={b} color={theme.vectorV} weight={3} />
-      <Text x={b[0]} y={b[1]} size={15} color={theme.vectorV} attach="ne">
-        b
-      </Text>
-
-      {!isUndefined && thetaDeg !== null && (
-        <AngleArc v1={a} v2={b} label={`θ = ${thetaDeg}°`} />
-      )}
-    </MathPlane>
+  return interactive ? (
+    <InteractiveDotProductPlaneMovable ariaLabel={ariaLabel} a={a} b={b} />
+  ) : (
+    <StaticDotProductPlane ariaLabel={ariaLabel} a={a} b={b} />
   );
 }
 
@@ -1298,8 +1329,7 @@ export function DotProductAngleExplorer({
   ariaLabel,
 }: DotProductAngleExplorerProps) {
   const [angleDeg, setAngleDeg] = useState(60);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const lenA = 3;
   const lenB = 2.5;
@@ -1314,8 +1344,8 @@ export function DotProductAngleExplorer({
   const cosVal = clampZero(cosine2D(vecA, vecB));
 
   const belowPlot = (
-    <div className="mt-3 flex flex-col gap-3 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
-      <div className="flex items-center justify-between font-mono">
+    <div className="flex flex-col gap-3 text-xs sm:text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           Góc <InlineMath formula={`\\theta = ${angleDeg}^\\circ`} />
         </div>
@@ -1325,31 +1355,25 @@ export function DotProductAngleExplorer({
         <div>
           <InlineMath formula="\\mathbf{a}^\\top\\mathbf{b} = " />
           <span
-            className={`font-bold text-base ${
-              dot > 0.01
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : Math.abs(dot) <= 0.01
-                  ? 'text-amber-600 dark:text-amber-400'
-                  : 'text-rose-600 dark:text-rose-400'
-            }`}
+            className={`text-base font-bold ${metricToneClass(dot)}`}
           >
             {dot.toFixed(2)}
           </span>
         </div>
       </div>
 
-      <input
-        type="range"
-        min="0"
-        max="180"
-        step="5"
+      <MathRangeControl
+        label="Điều chỉnh góc giữa hai vector"
+        ariaLabel="Điều chỉnh góc giữa hai vector"
+        min={0}
+        max={180}
+        step={5}
         value={angleDeg}
-        onChange={(e) => setAngleDeg(Number(e.target.value))}
-        className="w-full accent-pink-600"
-        aria-label="Điều chỉnh góc giữa hai vector"
+        onChange={setAngleDeg}
+        colorScheme="purple"
       />
 
-      <div className="text-xs text-slate-500 text-center">
+      <div className="text-xs text-center text-slate-500 dark:text-slate-400">
         {angleDeg < 90 &&
           'Góc nhọn (<90°): cos(θ) > 0, dot product dương'}
         {angleDeg === 90 &&
@@ -1361,26 +1385,21 @@ export function DotProductAngleExplorer({
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-3}
-      maxX={4}
-      minY={-1}
-      maxY={4}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={vecA} color={theme.vectorU} weight={3} />
-      <Text x={vecA[0]} y={vecA[1]} size={14} color={theme.vectorU} attach="se">
-        a
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-3} maxX={4} minY={-1} maxY={4}>
+        <Vector tail={[0, 0]} tip={vecA} color={theme.vectorU} weight={3} />
+        <Text x={vecA[0]} y={vecA[1]} size={14} color={theme.vectorU} attach="se">
+          a
+        </Text>
 
-      <Vector tail={[0, 0]} tip={vecB} color={theme.vectorV} weight={3} />
-      <Text x={vecB[0]} y={vecB[1]} size={14} color={theme.vectorV} attach="ne">
-        b
-      </Text>
+        <Vector tail={[0, 0]} tip={vecB} color={theme.vectorV} weight={3} />
+        <Text x={vecB[0]} y={vecB[1]} size={14} color={theme.vectorV} attach="ne">
+          b
+        </Text>
 
-      <AngleArc v1={vecA} v2={vecB} label={`${angleDeg}°`} />
-    </MathPlane>
+        <AngleArc v1={vecA} v2={vecB} label={`${angleDeg}°`} />
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -1400,14 +1419,11 @@ export function CosineMotivationDiagram({
   const cos2 = cosine2D(a2, c2);
 
   return (
-    <div
-      className="my-6 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm bg-slate-50 dark:bg-slate-900"
-      aria-label={ariaLabel}
-    >
-      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 text-center">
+    <StaticVisualCard ariaLabel={ariaLabel}>
+      <h4 className="mb-4 text-center text-sm font-bold text-slate-800 dark:text-slate-200">
         So sánh hai cặp vector cùng hướng (<InlineMath formula="\theta = 0^\circ" />)
       </h4>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="p-3.5 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800/80">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">
             Cặp 1: Vector độ dài nhỏ
@@ -1454,10 +1470,10 @@ export function CosineMotivationDiagram({
           </div>
         </div>
       </div>
-      <p className="mt-3 text-xs text-slate-500 text-center">
+      <p className="mt-3 text-xs text-center text-slate-500 dark:text-slate-400">
         Dot product tăng gấp nhiều lần do độ dài lớn hơn, nhưng Cosine similarity luôn bằng 1.0 vì hướng hai cặp hoàn toàn giống nhau.
       </p>
-    </div>
+    </StaticVisualCard>
   );
 }
 
@@ -1467,8 +1483,7 @@ export function CosineAngleExplorer({
   interactive = true,
 }: CosineAngleExplorerProps) {
   const [angleDeg, setAngleDeg] = useState(45);
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const len = 3;
   const rad = (angleDeg * Math.PI) / 180;
@@ -1481,21 +1496,15 @@ export function CosineAngleExplorer({
   const cosVal = clampZero(cosine2D(vecA, vecB));
 
   const belowPlot = (
-    <div className="mt-3 flex flex-col gap-2.5 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
-      <div className="flex items-center justify-between font-mono">
+    <div className="flex flex-col gap-2.5 text-xs sm:text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <InlineMath formula={`\\theta = ${angleDeg}^\\circ`} />
         </div>
         <div>
           Cosine similarity <InlineMath formula="S_C(\mathbf{u}, \mathbf{v}) = " />
           <span
-            className={`font-bold text-base ${
-              cosVal > 0.01
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : Math.abs(cosVal) <= 0.01
-                  ? 'text-amber-600 dark:text-amber-400'
-                  : 'text-rose-600 dark:text-rose-400'
-            }`}
+            className={`text-base font-bold ${metricToneClass(cosVal)}`}
           >
             {cosVal.toFixed(2)}
           </span>
@@ -1503,19 +1512,19 @@ export function CosineAngleExplorer({
       </div>
 
       {interactive && (
-        <input
-          type="range"
-          min="0"
-          max="180"
-          step="5"
+        <MathRangeControl
+          label="Điều chỉnh góc giữa hai vector để xem cosine similarity"
+          ariaLabel="Điều chỉnh góc giữa hai vector để xem cosine similarity"
+          min={0}
+          max={180}
+          step={5}
           value={angleDeg}
-          onChange={(e) => setAngleDeg(Number(e.target.value))}
-          className="w-full accent-emerald-500"
-          aria-label="Điều chỉnh góc giữa hai vector để xem cosine similarity"
+          onChange={setAngleDeg}
+          colorScheme="emerald"
         />
       )}
 
-      <div className="text-xs text-slate-500 text-center">
+      <div className="text-xs text-center text-slate-500 dark:text-slate-400">
         {angleDeg === 0 && '0°: Cùng hướng hoàn hảo, Cosine = 1.0'}
         {angleDeg > 0 && angleDeg < 90 && 'Góc nhọn: Cùng hướng một phần, 0 < Cosine < 1.0'}
         {angleDeg === 90 && '90°: Vuông góc / Trực giao, Cosine = 0.0'}
@@ -1526,26 +1535,21 @@ export function CosineAngleExplorer({
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-3.5}
-      maxX={4}
-      minY={-1}
-      maxY={4}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={vecA} color={theme.vectorU} weight={3} />
-      <Text x={vecA[0]} y={vecA[1]} size={14} color={theme.vectorU} attach="se">
-        u
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-3.5} maxX={4} minY={-1} maxY={4}>
+        <Vector tail={[0, 0]} tip={vecA} color={theme.vectorU} weight={3} />
+        <Text x={vecA[0]} y={vecA[1]} size={14} color={theme.vectorU} attach="se">
+          u
+        </Text>
 
-      <Vector tail={[0, 0]} tip={vecB} color={theme.vectorV} weight={3} />
-      <Text x={vecB[0]} y={vecB[1]} size={14} color={theme.vectorV} attach="ne">
-        v
-      </Text>
+        <Vector tail={[0, 0]} tip={vecB} color={theme.vectorV} weight={3} />
+        <Text x={vecB[0]} y={vecB[1]} size={14} color={theme.vectorV} attach="ne">
+          v
+        </Text>
 
-      <AngleArc v1={vecA} v2={vecB} label={`θ = ${angleDeg}°`} />
-    </MathPlane>
+        <AngleArc v1={vecA} v2={vecB} label={`θ = ${angleDeg}°`} />
+      </MathCanvas>
+    </MathVisualCard>
   );
 }
 
@@ -1553,8 +1557,7 @@ export function CosineAngleExplorer({
 export function EmbeddingCosineDiagram({
   ariaLabel,
 }: EmbeddingCosineDiagramProps) {
-  const themeClasses = useLearningMdxTheme();
-  const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
+  const theme = useVectorVisualTheme();
 
   const v1: Vector2D = [3.2, 1.2];
   const v2: Vector2D = [3.0, 1.6];
@@ -1567,7 +1570,7 @@ export function EmbeddingCosineDiagram({
   const angle13 = ((Math.acos(cos13) * 180) / Math.PI).toFixed(0);
 
   const belowPlot = (
-    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-mono">
+    <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2 sm:text-sm">
       <div className="p-2.5 rounded-lg border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/30">
         <div className="font-bold text-blue-600 dark:text-blue-400">
           Vector v₁ và v₂ (Góc nhỏ)
@@ -1592,31 +1595,26 @@ export function EmbeddingCosineDiagram({
   );
 
   return (
-    <MathPlane
-      ariaLabel={ariaLabel}
-      minX={-2}
-      maxX={4.5}
-      minY={-1}
-      maxY={3.5}
-      belowPlot={belowPlot}
-    >
-      <Vector tail={[0, 0]} tip={v1} color={theme.vectorU} weight={3} />
-      <Text x={v1[0]} y={v1[1]} size={14} color={theme.vectorU} attach="se">
-        v₁
-      </Text>
+    <MathVisualCard ariaLabel={ariaLabel} footer={belowPlot}>
+      <MathCanvas ariaLabel={ariaLabel} minX={-2} maxX={4.5} minY={-1} maxY={3.5}>
+        <Vector tail={[0, 0]} tip={v1} color={theme.vectorU} weight={3} />
+        <Text x={v1[0]} y={v1[1]} size={14} color={theme.vectorU} attach="se">
+          v₁
+        </Text>
 
-      <Vector tail={[0, 0]} tip={v2} color={theme.vectorV} weight={3} />
-      <Text x={v2[0]} y={v2[1]} size={14} color={theme.vectorV} attach="ne">
-        v₂
-      </Text>
+        <Vector tail={[0, 0]} tip={v2} color={theme.vectorV} weight={3} />
+        <Text x={v2[0]} y={v2[1]} size={14} color={theme.vectorV} attach="ne">
+          v₂
+        </Text>
 
-      <Vector tail={[0, 0]} tip={v3} color={theme.vectorW} weight={3} />
-      <Text x={v3[0]} y={v3[1]} size={14} color={theme.vectorW} attach="nw">
-        v₃
-      </Text>
+        <Vector tail={[0, 0]} tip={v3} color={theme.vectorW} weight={3} />
+        <Text x={v3[0]} y={v3[1]} size={14} color={theme.vectorW} attach="nw">
+          v₃
+        </Text>
 
-      <AngleArc v1={v1} v2={v2} radius={1.2} label={`θ₁₂ ≈ ${angle12}°`} color={theme.vectorV} />
-      <AngleArc v1={v1} v2={v3} radius={0.8} label={`θ₁₃ ≈ ${angle13}°`} color={theme.vectorW} />
-    </MathPlane>
+        <AngleArc v1={v1} v2={v2} radius={1.2} label={`θ₁₂ ≈ ${angle12}°`} color={theme.vectorV} />
+        <AngleArc v1={v1} v2={v3} radius={0.8} label={`θ₁₃ ≈ ${angle13}°`} color={theme.vectorW} />
+      </MathCanvas>
+    </MathVisualCard>
   );
 }

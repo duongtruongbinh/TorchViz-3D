@@ -50,19 +50,14 @@ với <InlineMath formula="\mathbf{v}\neq\mathbf{0}" />, ta gọi:
 
 ## Phương trình Eigen
 
-Từ:
+<EquationCallout
+  title="Phương trình Trị riêng & Vector riêng"
+  badge="Định nghĩa Cốt lõi"
+  formula="A\mathbf{v} = \lambda\mathbf{v} \iff (A - \lambda I)\mathbf{v} = \mathbf{0}"
+  explanation="Vector riêng v khác không giữ nguyên phương dưới phép biến đổi A và chỉ thay đổi độ dài theo tỉ lệ λ."
+/>
 
-<BlockMath formula="A\mathbf{v}=\lambda\mathbf{v}" />
-
-ta viết:
-
-<BlockMath formula="(A-\lambda I)\mathbf{v}=\mathbf{0}" />
-
-Ta cần một nghiệm khác vector không.
-
-Điều đó xảy ra khi <InlineMath formula="A-\lambda I" /> không invertible.
-
-Với square matrix:
+Để tồn tại nghiệm <InlineMath formula="\mathbf{v}\neq\mathbf{0}" />, ma trận <InlineMath formula="A-\lambda I" /> phải không khả nghịch, dẫn đến phương trình đặc trưng <InlineMath formula="\det(A-\lambda I)=0" />.
 
 <BlockMath formula="\det(A-\lambda I)=0" />
 

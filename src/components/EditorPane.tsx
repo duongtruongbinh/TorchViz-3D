@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import type * as MonacoEditor from 'monaco-editor';
 import Editor, { Monaco, loader, type OnMount } from '@monaco-editor/react';
 import { getStrings } from '../lib/localization';
 import { usePreferencesStore } from '../store/usePreferencesStore';
@@ -81,7 +82,7 @@ const EditorPane: React.FC<EditorPaneProps> = ({
     // torchstub.nn IntelliSense: suggest nn.* when typing nn.
     monaco.languages.registerCompletionItemProvider('python', {
       triggerCharacters: ['.'],
-      provideCompletionItems: (model, position) => {
+      provideCompletionItems: (model: MonacoEditor.editor.ITextModel, position: MonacoEditor.Position) => {
         const lineContent = model.getLineContent(position.lineNumber);
         const beforeCursor = lineContent.slice(0, position.column - 1).trimEnd();
         if (!/nn\.?$/.test(beforeCursor)) return { suggestions: [] };
