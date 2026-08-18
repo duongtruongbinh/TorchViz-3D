@@ -1,0 +1,92 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'distillation-for-retention-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Teacher và student', 'Tín hiệu distillation', 'Objective', 'LwF', 'DER và DER++', 'Giới hạn'],
+  keywords: ['Quiz', 'Knowledge Distillation', 'LwF', 'DER', 'DER++'],
+  conceptIds: [
+    'teacher-student-checkpoint',
+    'distillation-signals',
+    'task-retention-objective',
+    'lwf-query-inputs',
+    'der-der-plus',
+    'distillation-limitations',
+  ],
+  pageCount: 6,
+}
+
+<MdxQuiz id="distillation-for-retention-quiz" questions={[
+  {
+    id: 'teacher-student-checkpoint', title: 'Teacher và student', mode: 'single',
+    prompt: 'Khi dùng distillation để học Task B sau Task A, hai vai trò thường được thiết lập thế nào?',
+    options: [
+      { id: 'a', label: 'Teacher và student đều được cập nhật bằng gradient của Task B.' },
+      { id: 'b', label: 'Checkpoint sau Task A được đóng băng làm teacher; model đang fine-tune tiếp làm student.', isCorrect: true },
+      { id: 'c', label: 'Teacher là model mới khởi tạo ngẫu nhiên; student là checkpoint cũ được đóng băng.' },
+      { id: 'd', label: 'Teacher chỉ là replay buffer, không phải một model tạo target.' },
+    ],
+    success: 'Đúng. Teacher là bản cố định của model trước stage hiện tại; chỉ student nhận update.',
+    error: 'Hãy xác định model nào đại diện cho hành vi cũ và model nào đang được tối ưu.',
+  },
+  {
+    id: 'distillation-signals', title: 'Tín hiệu distillation', mode: 'single',
+    prompt: 'Loss buộc hidden state của student gần hidden state ở một layer của teacher đang distill loại tín hiệu nào?',
+    options: [
+      { id: 'a', label: 'Ground-truth label distillation.' },
+      { id: 'b', label: 'Probability distillation ở output softmax.' },
+      { id: 'c', label: 'Logit distillation trước softmax.' },
+      { id: 'd', label: 'Intermediate representation distillation.', isCorrect: true },
+    ],
+    success: 'Đúng. Tín hiệu được match nằm bên trong mạng, không phải chỉ ở output cuối.',
+    error: 'Hãy nhìn vị trí nơi loss lấy tín hiệu: trước softmax, sau softmax hay ở hidden layer.',
+  },
+  {
+    id: 'task-retention-objective', title: 'Objective', mode: 'single',
+    prompt: 'Objective nào thể hiện đúng stability–plasticity trade-off của continual distillation?',
+    options: [
+      { id: 'a', label: '$L_{total}=L_{task}+\\lambda L_{retention}$.', isCorrect: true },
+      { id: 'b', label: '$L_{total}=L_{teacher}$ và bỏ hoàn toàn objective của task mới.' },
+      { id: 'c', label: '$L_{total}=L_{task}-\\lambda L_{retention}$ để khuyến khích student khác teacher.' },
+      { id: 'd', label: '$L_{total}=L_{task}$; teacher chỉ dùng khi evaluation.' },
+    ],
+    success: 'Đúng. Task loss tạo plasticity; retention loss giữ student gần hành vi teacher.',
+    error: 'Objective phải chứa đồng thời tín hiệu học task mới và tín hiệu giữ hành vi cũ.',
+  },
+  {
+    id: 'lwf-query-inputs', title: 'LwF', mode: 'single',
+    prompt: 'Phát biểu nào mô tả đúng Learning without Forgetting?',
+    options: [
+      { id: 'a', label: 'LwF không cần input vì teacher truyền trực tiếp toàn bộ tri thức qua trọng số.' },
+      { id: 'b', label: 'LwF bắt buộc lưu toàn bộ dữ liệu và label của task cũ.' },
+      { id: 'c', label: 'LwF có thể không lưu tập train cũ nhưng vẫn cần input, thường từ task mới, để hỏi teacher.', isCorrect: true },
+      { id: 'd', label: 'LwF lưu exemplar với logits cũ giống hệt DER.' },
+    ],
+    success: 'Đúng. Không lưu toàn bộ dữ liệu cũ không có nghĩa là distillation diễn ra mà không cần input truy vấn.',
+    error: 'Hãy phân biệt dữ liệu lịch sử được lưu với input hiện tại dùng để tạo teacher targets.',
+  },
+  {
+    id: 'der-der-plus', title: 'DER và DER++', mode: 'single',
+    prompt: 'Điểm khác biệt chính giữa DER và DER++ là gì?',
+    options: [
+      { id: 'a', label: 'DER++ bỏ replay exemplar và chỉ hỏi frozen teacher bằng dữ liệu mới.' },
+      { id: 'b', label: 'DER match logits lưu cùng exemplar; DER++ thêm supervised loss từ label replay.', isCorrect: true },
+      { id: 'c', label: 'DER match intermediate representations; DER++ chỉ match probabilities.' },
+      { id: 'd', label: 'DER++ cập nhật cả teacher lẫn student, còn DER chỉ cập nhật teacher.' },
+    ],
+    success: 'Đúng. DER++ giữ logit matching của DER và bổ sung replay supervision từ ground-truth label.',
+    error: 'Hãy kiểm tra buffer của hai phương pháp lưu gì và loss nào được thêm vào DER++.',
+  },
+  {
+    id: 'distillation-limitations', title: 'Giới hạn', mode: 'single',
+    prompt: 'Student match hoàn hảo teacher trên tập truy vấn Q. Ta có thể kết luận chắc chắn điều gì?',
+    options: [
+      { id: 'a', label: 'Mọi tri thức và capability cũ đã được giữ nguyên trên toàn bộ input space.' },
+      { id: 'b', label: 'Teacher không còn bias vì student đã học thêm task mới.' },
+      { id: 'c', label: 'Mọi output mới đều có target đúng từ teacher dù chúng chưa tồn tại ở checkpoint cũ.' },
+      { id: 'd', label: 'Student giữ tín hiệu được match trên Q; chưa đủ để bảo đảm hành vi ngoài Q hay toàn bộ tri thức cũ.', isCorrect: true },
+    ],
+    success: 'Đúng. Distillation chỉ ràng buộc signal và input đã quan sát.',
+    error: 'Đừng suy rộng từ retention loss trên một tập truy vấn thành bảo đảm cho toàn bộ tri thức.',
+  },
+]} />

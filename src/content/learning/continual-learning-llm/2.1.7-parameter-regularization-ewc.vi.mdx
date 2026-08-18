@@ -1,0 +1,105 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'parameter-regularization-ewc',
+  locale: 'vi',
+  title: 'Weight Regularization',
+  headings: [
+    'Tạo ràng buộc trong parameter space',
+    'Vì sao không phạt mọi tham số như nhau?',
+    'Điều khiển trade-off',
+    'EWC và Synaptic Intelligence',
+  ],
+  keywords: ['Parameter Regularization', 'EWC', 'Synaptic Intelligence', 'Sigma', 'Stability–Plasticity'],
+  conceptIds: ['regularization-objective', 'importance-matrix', 'regularization-tradeoff'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tạo ràng buộc trong parameter space
+
+Sau khi học Task A, model đang ở trạng thái tham số <InlineMath formula="\theta_A" />. Nếu sang Task B và chỉ tối ưu <InlineMath formula="\mathcal{L}_{\mathcal B}(\theta)" />, các tham số có thể di chuyển xa khỏi trạng thái đã giúp model làm tốt A.
+
+Parameter regularization thêm một penalty vào mục tiêu học Task B:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{plasticity}}+\underbrace{\lambda R(\theta,\theta_A)}_{\text{stability}}" />
+
+Khác với replay tạo lại ràng buộc bằng dữ liệu cũ, Parameter regularization tạo ràng buộc trong **parameter space**: model vẫn học Task B, nhưng nếu các trọng số của sau khi update task B quá khác so với trọng số ban đầu train trên Task A thì model phải nhận thêm một mức phạt (penalty) nhất định.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Vì sao không phạt mọi tham số như nhau?
+
+Ma trận <InlineMath formula="\Sigma" /> biểu diễn tầm quan trọng và tương quan giữa 2 bộ trọng số (trước và sau khi cập nhật).
+
+<BlockMath formula="\Sigma=\begin{bmatrix}\Sigma_{11}&\Sigma_{12}&\cdots&\Sigma_{1n}\\\Sigma_{21}&\Sigma_{22}&\cdots&\Sigma_{2n}\\\vdots&\vdots&\ddots&\vdots\\\Sigma_{n1}&\Sigma_{n2}&\cdots&\Sigma_{nn}\end{bmatrix}" />
+
+<LessonNote>
+  Lúc này, chúng ta hiểu rằng penalty không chỉ xét từng tham số thay đổi bao nhiêu, mà còn xét việc từng cặp tham số thay đổi cùng nhau ảnh hưởng thế nào đến kiến thức cũ.
+</LessonNote>
+
+Tuy nhiên, nếu model có <InlineMath formula="n" /> tham số, ma trận đầy đủ phải lưu và tính tương quan cho mọi cặp <InlineMath formula="(i,j)" />.
+
+<LessonNote tone="warning">
+  Khi đó, <InlineMath formula="\Sigma" /> cần <InlineMath formula="n^2" /> phần tử, nên chi phí lưu trữ và tính toán tăng theo <InlineMath formula="O(n^2)" />. Quy mô này quá lớn đối với LLM.
+</LessonNote>
+
+Vì vậy, trong thực tế ta thường bỏ các tương quan theo cặp và chỉ giữ đường chéo của <InlineMath formula="\Sigma" />:
+
+<BlockMath formula="\Sigma_{\mathrm{diag}}=\begin{bmatrix}\Omega_1&0&\cdots&0\\0&\Omega_2&\cdots&0\\\vdots&\vdots&\ddots&\vdots\\0&0&\cdots&\Omega_n\end{bmatrix}" />
+
+Khi đó, penalty trở thành:
+
+<BlockMath formula="R_{\Sigma}(\theta,\theta_A)=\sum_i\Omega_i(\theta_i-\theta_{A,i})^2" />
+
+<LessonNote>
+  Lúc này, chúng ta đã chuyển câu hỏi từ **tương quan giữa từng cặp trọng số** thành **mức độ quan trọng của từng trọng số**. <InlineMath formula="\Omega_i" /> càng lớn, trọng số <InlineMath formula="\theta_i" /> càng bị phạt mạnh khi rời trạng thái cũ.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Điều khiển trade-off
+
+Khi ghép hai phần lại, mục tiêu huấn luyện trở thành:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\underbrace{\mathcal{L}_{\mathcal B}(\theta)}_{\text{plasticity}}+\underbrace{\lambda\lVert\theta-\theta_A\rVert_{\Sigma}^{2}}_{\text{stability}}" />
+
+- <InlineMath formula="\mathcal{L}_{\mathcal B}(\theta)" /> giúp model học Task B; ảnh hưởng càng lớn thì plasticity càng tăng.
+- <InlineMath formula="\lambda" /> cân bằng loss mới và penalty; giá trị càng lớn thì model càng ưu tiên giữ trạng thái cũ.
+- <InlineMath formula="\Sigma" /> phân bổ penalty theo importance; tham số quan trọng được bảo vệ mạnh hơn.
+
+<LessonNote>
+  <InlineMath formula="\lambda" /> quá nhỏ khiến ràng buộc giữ Task A yếu; <InlineMath formula="\lambda" /> quá lớn có thể làm model học Task B kém. Parameter regularization không loại bỏ stability–plasticity trade-off mà dùng <InlineMath formula="\lambda" /> và <InlineMath formula="\Sigma" /> để điều khiển trade-off đó.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## EWC và Synaptic Intelligence
+
+EWC và Synaptic Intelligence là hai ví dụ được survey nêu cho nhóm parameter regularization <Cite paper="kirkpatrick2017overcoming" evidence="parameter-regularization-01-kirkpatrick2017overcoming" /> <Cite paper="zenke2017continual" evidence="parameter-regularization-02-zenke2017continual" />.
+
+<PaperSummary
+  paper="kirkpatrick2017overcoming"
+  locator="Methods; Figures 2–3"
+  question="Có thể học task mới mà vẫn giữ task cũ bằng cách hạn chế thay đổi các tham số quan trọng hay không?"
+  setup="Paper ước lượng độ quan trọng tham số bằng đường chéo Fisher information rồi thêm quadratic penalty khi học task kế tiếp; thí nghiệm gồm permuted MNIST và Atari reinforcement learning."
+  finding="Trong các setup được thử, EWC giữ hiệu năng task cũ tốt hơn fine-tuning tuần tự đồng thời vẫn cho phép học task mới."
+  limitation="Fisher diagonal là xấp xỉ cục bộ, importance phụ thuộc checkpoint và thí nghiệm không được thực hiện trên LLM sinh văn bản; không nên suy ra EWC tự động scale hiệu quả cho mọi LLM."
+  relevance="Đây là ví dụ kinh điển cho cách parameter regularization biến stability–plasticity thành một penalty có trọng số theo từng tham số."
+/>
+
+Trong taxonomy của survey, EWC thuộc nhóm parameter regularization <Cite paper="shi2024continualSurvey" evidence="parameter-regularization-03-shi2024continualSurvey" />.
+
+<LessonNote tone="warning">
+  EWC và Synaptic Intelligence ràng buộc model trong **parameter space**: chúng hạn chế thay đổi các tham số được xem là quan trọng. Tuy nhiên, penalty nhỏ trong parameter space không trực tiếp bảo đảm output hoặc representation trên task cũ vẫn giống checkpoint trước. Nói cách khác, giữ tham số chưa chắc đã giữ được cùng **functional behavior**.
+
+  Ở node **Function Regularization**, ta sẽ xem distillation đặt ràng buộc trực tiếp hơn trong function space bằng cách so phản hồi của student với teacher.
+</LessonNote>
+
+</MdxPage>

@@ -41,16 +41,16 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
   assert.equal(learningCatalog.tracks.length, 92);
-  assert.equal(learningCatalog.lessons.length, 709);
+  assert.equal(learningCatalog.lessons.length, 713);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 199, next: 1, locked: 509 },
+    { available: 203, next: 1, locked: 509 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 189);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 193);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 520);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
@@ -178,7 +178,7 @@ test('continual-learning fundamentals introduces and measures forgetting immedia
   ]);
 });
 
-test('continual-learning methods chapter covers replay, regularization, and architecture in order', () => {
+test('continual-learning methods chapter covers replay, regularization overview/subnodes, and architecture in order', () => {
   const methodsTrack = getLearningTrack(learningCatalog, 'continual-learning-llm', 'cl-llm-methods');
 
   assert.deepEqual(methodsTrack?.lessonIds, [
@@ -186,8 +186,12 @@ test('continual-learning methods chapter covers replay, regularization, and arch
     'replay-introduction-quiz',
     'replay-experience-code-lab',
     'replay-experience-code-lab-quiz',
+    'regularization-overview',
+    'regularization-overview-quiz',
     'parameter-regularization-ewc',
     'parameter-regularization-ewc-quiz',
+    'distillation-for-retention',
+    'distillation-for-retention-quiz',
     'architecture-expansion-isolation',
     'architecture-expansion-isolation-quiz',
   ]);

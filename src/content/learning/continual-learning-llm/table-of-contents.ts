@@ -97,9 +97,21 @@ export const continualLearningLessonPairs: readonly ContinualLearningLessonPair[
   }),
   lessonPair({
     trackId: 'cl-llm-methods',
+    id: 'regularization-overview',
+    titleEn: 'Regularization',
+    titleVi: 'Regularization',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
     id: 'parameter-regularization-ewc',
-    titleEn: 'Regularization-Based Methods',
-    titleVi: 'Regularization-Based Methods',
+    titleEn: 'Weight Regularization',
+    titleVi: 'Weight Regularization',
+  }),
+  lessonPair({
+    trackId: 'cl-llm-methods',
+    id: 'distillation-for-retention',
+    titleEn: 'Function Regularization',
+    titleVi: 'Function Regularization',
   }),
   lessonPair({
     trackId: 'cl-llm-methods',
@@ -311,8 +323,8 @@ const chapters: LearningTocTrackSeed[] = [
         vi: "2. Các hướng tiếp cận chính",
       },
       description: {
-        en: "Four foundational retention strategies: replaying old data, constraining parameter updates, isolating or expanding model capacity, and distilling behavior from an earlier checkpoint.",
-        vi: "Bốn chiến lược giữ năng lực cũ: phát lại dữ liệu, ràng buộc cập nhật tham số, cô lập hoặc mở rộng capacity, và distill hành vi từ checkpoint trước.",
+        en: "Retention through replay, regularization in parameter or function space, and isolated or expanded model capacity.",
+        vi: "Giữ năng lực cũ bằng replay, regularization trong parameter hoặc function space, và cô lập hoặc mở rộng capacity.",
       },
     },
     lessonIds: lessonIdsForTrack('cl-llm-methods'),

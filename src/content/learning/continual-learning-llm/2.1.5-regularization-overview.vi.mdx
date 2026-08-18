@@ -1,0 +1,84 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'regularization-overview',
+  locale: 'vi',
+  title: 'Regularization',
+  headings: [
+    'Giữ tri thức cũ trong objective',
+    'Hai không gian ràng buộc',
+    'Trade-off và ranh giới storage',
+  ],
+  keywords: ['Regularization', 'Stability–Plasticity', 'Weight Regularization', 'Function Regularization'],
+  conceptIds: ['regularization-family-objective', 'regularization-space-split', 'regularization-storage-tradeoff'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Giữ tri thức cũ trong objective
+
+Khi học Task B sau Task A, **regularization-based continual learning** không
+replay trực tiếp raw data cũ. Thay vào đó, nó thêm một ràng buộc retention vào
+objective của task mới:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{\mathrm{new}}+\lambda\mathcal{L}_{\mathrm{retention}}" />
+
+<InlineMath formula="\mathcal{L}_{\mathrm{new}}" /> giúp model thích nghi với
+task mới; <InlineMath formula="\lambda\mathcal{L}_{\mathrm{retention}}" /> làm
+thay đổi có thể gây quên trở nên đắt hơn. Survey mô tả parameter
+regularization là một term phạt độ lệch lớn khỏi history model trong parameter
+space <Cite paper="shi2024continualSurvey" evidence="regularization-overview-01-shi2024continualSurvey" />.
+
+Khác với **Replay**, family này không đưa raw sample lịch sử trở lại batch.
+Khác với **Architecture Expansion**, nó không chủ yếu bảo vệ tri thức bằng cách
+tạo capacity hoặc route riêng. Điểm đặt ràng buộc là **loss** của lần update
+hiện tại.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hai không gian ràng buộc
+
+Hai node kế tiếp đi sâu vào hai cách đặt retention loss:
+
+<ComparisonMatrix
+  ariaLabel="So sánh weight và function regularization"
+  columns={['Weight Regularization', 'Function Regularization']}
+  rows={[
+    { label: 'So sánh', values: ['Tham số hiện tại với checkpoint cũ, có thể theo importance từng tham số', 'Output hoặc representation của student với frozen teacher trên cùng input'] },
+    { label: 'Câu hỏi chính', values: ['Trọng số quan trọng nào không nên rời quá xa?', 'Model mới còn phản hồi giống model cũ ở đâu?'] },
+    { label: 'Ví dụ tiếp theo', values: ['EWC và Synaptic Intelligence', 'Knowledge distillation và Learning without Forgetting'] },
+  ]}
+/>
+
+Hai hướng là sibling trong cùng family: một hướng ràng buộc **parameter
+space**, hướng còn lại ràng buộc **function space**. Chúng có thể được kết hợp,
+nhưng không đồng nghĩa: giữ trọng số gần checkpoint cũ không tự động bảo đảm
+mọi output cũ, và match một tập phản hồi không buộc từng trọng số đứng yên.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Trade-off và ranh giới storage
+
+Retention càng mạnh, model càng khó thay đổi để học Task B. Nếu
+<InlineMath formula="\lambda" /> quá nhỏ, forgetting có thể tăng; nếu quá lớn,
+plasticity có thể giảm. Đây là stability–plasticity trade-off mà regularization
+điều khiển, không loại bỏ.
+
+Regularization tránh **replay raw data cũ**, nhưng không có nghĩa là zero
+storage cost. Weight regularization có thể cần checkpoint và importance
+statistics; function regularization thường cần một frozen old-model checkpoint
+để tạo teacher targets. Chất lượng retention cũng phụ thuộc vào tín hiệu và
+input được quan sát: một penalty nhỏ hoặc loss match thấp không bảo đảm mọi
+năng lực cũ được giữ trên toàn bộ input space.
+
+<LessonNote tone="warning">
+  Hãy chọn node tiếp theo theo nơi bạn muốn đặt ràng buộc: **Weight
+  Regularization** để học importance trong parameter space, hoặc **Function
+  Regularization** để học teacher–student và distillation trong function space.
+</LessonNote>
+
+</MdxPage>

@@ -19,14 +19,14 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 92 tracks, and 711 lesson nodes. One hundred
-ninety-one Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, seventy-nine in `continual-learning-llm`, fifty-nine in
+The catalog contains 13 domains, 92 tracks, and 713 lesson nodes. One hundred
+ninety-three Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, eighty-one in `continual-learning-llm`, fifty-nine in
 `linear-algebra` (one applied-AI overview followed by twenty-nine alternating
 theory/quiz pairs across 7 core chapters), and four tagged exercise lessons in
-`cv`. The other 520 nodes are navigable placeholders and render one
-shared localized "content in progress" message. They do not carry legacy theory
-or practice payloads.
+`cv`. The other 520 nodes are navigable placeholders and render one shared
+localized "content in progress" message. They do not carry legacy theory or
+practice payloads.
 
 The authored LLM lessons are:
 
@@ -85,7 +85,7 @@ inputs live in locale-specific MDX. LLM-specific visual and stateful components
 remain React code under the LLM domain package. English UI currently falls back
 to the Vietnamese lesson source until an English MDX file is authored.
 
-The Continual Learning course contains 39 adjacent Theory/Quiz pairs across its
+The Continual Learning course contains 40 adjacent Theory/Quiz pairs across its
 first six chapters, followed by one standalone Chapter 7 self-check lesson.
 Content through the Replay lab is the approved foundation;
 later chapters follow the Shi et al. (2025) survey notes covering regularization,
@@ -246,7 +246,7 @@ tap to pin it, and the explicit action opens the source. No source is fetched
 during interaction. Evidence and exception data are injected only into authored
 lesson pages, so the dedicated `Nguồn chính được dùng trong bài` page remains
 ordinary links by construction. The Continual Learning domain currently has
-185 authored citation occurrences across 40 theory/lab nodes: 183 reviewed
+219 authored citation occurrences across 41 theory/lab nodes: 217 reviewed
 evidence records and two explicit link-only exceptions. The three authored
 `PaperSummary` blocks remain prose analysis and do not instantiate previews.
 
@@ -383,7 +383,7 @@ rejects imports, executable expressions, spread attributes, and components
 outside the shared/domain allowlist. Raw MDX is not shipped beside the compiled
 lesson module.
 
-The Continual Learning paper audit additionally checks that all 40 non-Quiz
+The Continual Learning paper audit additionally checks that all 41 non-Quiz
 lessons have coverage, claim IDs are unique, paper IDs resolve, DOI/arXiv
 identifiers are unique, authored `Cite`/`PaperSummary` IDs belong to the lesson
 coverage, `paper-summary` decisions have a matching component, and optional MDX
@@ -394,7 +394,7 @@ a lesson. The generated snapshot currently represents 225 papers cited across
 itself, Synaptic Intelligence, the post-survey Spurious Forgetting lab paper,
 the original GEM paper used to define diagonal-based BWT, Hinton et al.'s
 foundational distillation paper, and FitNets for intermediate-representation
-distillation. Forty-one reviewed claim rows currently expose 196 of the 231
+distillation. Forty-two reviewed claim rows currently expose 196 of the 231
 registry records. The remaining records stay available as survey-intake candidates but
 are not rendered merely because they occur elsewhere in a broad survey section.
 
@@ -407,8 +407,10 @@ only when every task's best prior score is its diagonal score. Authored lessons
 and result tables should name the convention or show the formula whenever this
 distinction matters.
 
-The final Chapter 2 pair treats continual distillation as a functional
-retention constraint. A frozen earlier checkpoint supplies teacher targets while
+The Chapter 2 `Regularization` overview separates the shared retention
+objective from its `Weight Regularization` and `Function Regularization`
+follow-ups. The Function Regularization node treats continual distillation as a
+functional retention constraint. A frozen earlier checkpoint supplies teacher targets while
 the updated student optimizes both its current-task loss and a weighted
 retention loss. The authored lesson distinguishes raw logits, softened
 probabilities, and intermediate representations; contrasts LwF's dependence on

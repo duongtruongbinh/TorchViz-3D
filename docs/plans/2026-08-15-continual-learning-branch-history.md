@@ -137,28 +137,26 @@ et al., and the survey have reviewed local evidence.
 ## Regularization-based methods
 
 Chapter 2 is titled `Main Approaches` / `Các hướng tiếp cận chính`; its methods
-track now places one merged `Regularization-Based Methods` Theory/Quiz pair
-between `Replay` and `Architecture Expansion`.
+track now orders `Replay`, `Experience Replay Lab`, `Regularization`, `Weight
+Regularization`, `Function Regularization`, then `Architecture Expansion`; each
+Theory node remains adjacent to its Quiz.
 
-The six-page Theory lesson teaches:
+`Regularization` is a concise three-page overview of the shared
+`L_total = L_new + λ L_retention` objective, the parameter-space/function-space
+split, the stability–plasticity trade-off, and the checkpoint/storage boundary.
+It does not replay old raw data, but it does not claim zero storage cost.
 
-- regularization as a retention term added to the new-task objective;
-- weight regularization in parameter space, including EWC/Fisher and SI;
-- function regularization in output/representation space with a frozen teacher
-  and trainable student;
-- logits, softened probabilities with temperature, and aligned intermediate
-  representations as distinct distillation targets;
-- LwF querying the frozen teacher with new-task inputs when old inputs cannot be
-  stored;
-- checkpoint cost, query/distribution shift, teacher bias, changing output
-  spaces, class-incremental difficulty, and stability–plasticity limits;
-- DER/DER++ as a brief boundary note for replay-assisted distillation rather
-  than pure LwF.
+The restored detailed nodes preserve their canonical routes:
 
-The pair has eight matching concepts/questions, four retained lesson
-illustrations, and reviewed sources for EWC, SI, Hinton KD, FitNets, LwF, and
-DER/DER++. The canonical `parameter-regularization-ewc` id is preserved so
-existing routes remain stable.
+- `parameter-regularization-ewc` is now displayed as `Weight Regularization`;
+  it retains the EWC/Fisher and Synaptic Intelligence parameter-space lesson.
+- `distillation-for-retention` is now displayed as `Function Regularization`;
+  it restores the teacher/student, logits/probabilities/representations, LwF,
+  DER/DER++, and limitation content with all four distillation illustrations.
+
+The citation audit maps the survey-backed overview, parameter regularization,
+and distillation retention to separate reviewable claims. Existing routes for
+the detailed nodes remain stable.
 
 ## Fair evaluation and realistic benchmarks
 
