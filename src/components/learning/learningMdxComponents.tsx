@@ -21,6 +21,8 @@ import { indexLearningReferences } from '../../core/learning/referenceIndex';
 import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
 import QuizBlock, { type QuizQuestionState } from './lesson/QuizBlock';
 import { CodeBlock } from './code/CodeBlock';
+import { CodeLabStep } from './code/CodeLabStep';
+import { InteractiveStepper } from './shell/InteractiveStepper';
 import { cx, getLearningLabTheme, type LearningSemanticTone } from './theme';
 
 export type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
@@ -1167,6 +1169,8 @@ const sharedAuthoredMdxComponents = {
   InlineMath,
   BlockMath,
   EquationCallout,
+  CodeLabStep,
+  InteractiveStepper,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
 
 export const sharedLearningMdxComponents = {

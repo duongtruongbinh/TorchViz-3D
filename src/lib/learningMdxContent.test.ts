@@ -21,7 +21,7 @@ import {
 } from '../content/learning/continual-learning-llm/papers.ts';
 import { citationEvidenceTargetLabel } from '../core/learning/citationEvidence.ts';
 import { indexLearningReferences } from '../core/learning/referenceIndex.ts';
-import { parseLearningMdxPath } from '../core/learning/mdxContract.ts';
+import { parseLearningMdxPath, SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../core/learning/mdxContract.ts';
 import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComponents.ts';
 import type { LearningCatalog } from '../core/learning/types.ts';
 
@@ -486,7 +486,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'ConceptHierarchy', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'EquationCallout', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), [...SHARED_LEARNING_MDX_COMPONENT_NAMES, 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,
