@@ -75,9 +75,9 @@ export function DeterminantAreaExplorer({
         </div>
       )}
 
-      <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2 font-mono pb-1 border-b border-slate-200 dark:border-slate-800">
-          <div className="font-semibold text-blue-600 dark:text-blue-400">
+      <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2 font-mono pb-1 border-b border-slate-200">
+          <div className="font-semibold text-blue-600">
             {current.name}
           </div>
           <div className="font-bold text-sm">
@@ -86,7 +86,7 @@ export function DeterminantAreaExplorer({
             />
           </div>
         </div>
-        <p className="text-slate-600 dark:text-slate-300 mt-2">
+        <p className="text-slate-600 mt-2">
           {current.desc}
         </p>
       </div>
@@ -231,14 +231,14 @@ export function DeterminantRowOpsExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
-            <div className="font-semibold text-blue-600 dark:text-blue-400 pb-1">
+          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+            <div className="font-semibold text-blue-600 pb-1">
               {current.title}
             </div>
             <div className="text-center font-mono py-1.5">
               <BlockMath formula={current.formula} />
             </div>
-            <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-center pt-1">
+            <p className="text-emerald-600 font-semibold text-center pt-1">
               {current.rule}
             </p>
           </div>

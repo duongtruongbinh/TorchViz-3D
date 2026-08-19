@@ -18,14 +18,14 @@ const EXPECTED_CHAPTER_2_LESSONS = [
 ] as const;
 
 const EXPECTED_CHAPTER_2_SHA256_MAP: Record<string, string> = {
-  'systems-of-linear-equations.vi.mdx': '14e5779c7afbf87b51eb7f4de06a1f96be385a6ac3d43b048e608417935f973e',
-  'systems-of-linear-equations-quiz.vi.mdx': 'a16f6ba9d4be469a95c5eea7766eb8ab64974ca75d9d3c738844cb1f7c20398a',
-  'gaussian-elimination.vi.mdx': '987d7da298fa3fecb6b1a53bfb434f537b1ca0558e9fc04b01a31778984b4e59',
-  'gaussian-elimination-quiz.vi.mdx': 'a0f71479a2fb8687f378d0ae16bf3fd36734f3beb104d64dab6d62b08ed26a3f',
-  'lu-decomposition.vi.mdx': '4f769aeb687ef3cc351e15bf51476ad214bc4413a316cdd0f47acbaf82a1af42',
-  'lu-decomposition-quiz.vi.mdx': '13d4d4cc7bd15d6ce3cccdbaf2cf3f296e651c6802ac065b7529500cdf441b54',
-  'identity-inverse-matrix.vi.mdx': 'a72d39748157f9dc422ca258a03503008d53d6e3832ed65ab8fc3febb4aae39a',
-  'identity-inverse-matrix-quiz.vi.mdx': '5a954d1cd31cca26d7f09bdff86a878b62bcf402d82b44fb280737e9115c05b1',
+  '2.1.1-systems-of-linear-equations.vi.mdx': '14e5779c7afbf87b51eb7f4de06a1f96be385a6ac3d43b048e608417935f973e',
+  '2.1.2-systems-of-linear-equations-quiz.vi.mdx': 'a16f6ba9d4be469a95c5eea7766eb8ab64974ca75d9d3c738844cb1f7c20398a',
+  '2.1.3-gaussian-elimination.vi.mdx': '987d7da298fa3fecb6b1a53bfb434f537b1ca0558e9fc04b01a31778984b4e59',
+  '2.1.4-gaussian-elimination-quiz.vi.mdx': 'a0f71479a2fb8687f378d0ae16bf3fd36734f3beb104d64dab6d62b08ed26a3f',
+  '2.1.5-lu-decomposition.vi.mdx': '4f769aeb687ef3cc351e15bf51476ad214bc4413a316cdd0f47acbaf82a1af42',
+  '2.1.6-lu-decomposition-quiz.vi.mdx': '13d4d4cc7bd15d6ce3cccdbaf2cf3f296e651c6802ac065b7529500cdf441b54',
+  '2.1.7-identity-inverse-matrix.vi.mdx': 'a72d39748157f9dc422ca258a03503008d53d6e3832ed65ab8fc3febb4aae39a',
+  '2.1.8-identity-inverse-matrix-quiz.vi.mdx': '5a954d1cd31cca26d7f09bdff86a878b62bcf402d82b44fb280737e9115c05b1',
 };
 
 test('Linear Algebra Chapter 2 contains exactly 8 published lessons in locked theory-quiz order', () => {
@@ -60,7 +60,8 @@ test('All 4 Chapter 2 quiz files use canonical MdxQuiz with questions array', as
 
   for (const lessonId of EXPECTED_CHAPTER_2_LESSONS) {
     if (!lessonId.endsWith('-quiz')) continue;
-    const filePath = path.join(contentDir, `${lessonId}.vi.mdx`);
+    const nodeIndex = EXPECTED_CHAPTER_2_LESSONS.indexOf(lessonId) + 1;
+    const filePath = path.join(contentDir, `2.1.${nodeIndex}-${lessonId}.vi.mdx`);
     const source = await readFile(filePath, 'utf8');
     const componentNames = getLearningMdxComponentNames(source);
 
@@ -80,7 +81,8 @@ test('Chapter 2 theory lessons do not embed LegacyMathQuiz or any quiz component
 
   for (const lessonId of EXPECTED_CHAPTER_2_LESSONS) {
     if (lessonId.endsWith('-quiz')) continue;
-    const filePath = path.join(contentDir, `${lessonId}.vi.mdx`);
+    const nodeIndex = EXPECTED_CHAPTER_2_LESSONS.indexOf(lessonId) + 1;
+    const filePath = path.join(contentDir, `2.1.${nodeIndex}-${lessonId}.vi.mdx`);
     const source = await readFile(filePath, 'utf8');
     const componentNames = getLearningMdxComponentNames(source);
 

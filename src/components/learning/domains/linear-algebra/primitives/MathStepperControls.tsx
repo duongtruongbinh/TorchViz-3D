@@ -27,7 +27,7 @@ export function MathStepperControls({
         onClick={() => onStepChange(Math.max(0, currentStep - 1))}
         disabled={currentStep === 0}
         aria-label={prevLabel}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs sm:text-sm font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/80 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs sm:text-sm font-semibold border border-slate-300 bg-white text-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         <span>{prevLabel}</span>
@@ -49,8 +49,8 @@ export function MathStepperControls({
               <span
                 className={`transition-all rounded-full ${
                   isCurrent
-                    ? 'w-3 h-3 bg-blue-600 ring-2 ring-blue-400 ring-offset-1 dark:ring-offset-slate-900'
-                    : 'w-2.5 h-2.5 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
+                    ? 'w-3 h-3 bg-blue-600 ring-2 ring-blue-400 ring-offset-1'
+                    : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
                 }`}
               />
             </button>
@@ -63,7 +63,7 @@ export function MathStepperControls({
         onClick={() => onStepChange(Math.min(totalSteps - 1, currentStep + 1))}
         disabled={currentStep === totalSteps - 1}
         aria-label={nextLabel}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs sm:text-sm font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/80 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs sm:text-sm font-semibold border border-slate-300 bg-white text-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         <span>{nextLabel}</span>
         <ChevronRight className="w-4 h-4" aria-hidden="true" />

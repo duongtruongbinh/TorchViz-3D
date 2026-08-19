@@ -40,17 +40,17 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
-  assert.equal(learningCatalog.tracks.length, 91);
-  assert.equal(learningCatalog.lessons.length, 710);
+  assert.equal(learningCatalog.tracks.length, 92);
+  assert.equal(learningCatalog.lessons.length, 711);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 200, next: 1, locked: 509 },
+    { available: 201, next: 1, locked: 509 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 190);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 191);
   assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 520);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
@@ -267,7 +267,7 @@ test('a bare domain route resolves the first lesson by product default', () => {
     trackId: null,
     lessonId: null,
   });
-  assert.equal(route?.lesson.id, 'vectors-intuition');
+  assert.equal(route?.lesson.id, 'linear-algebra-for-ai-overview');
   assert.equal(route?.isCanonical, false);
 });
 

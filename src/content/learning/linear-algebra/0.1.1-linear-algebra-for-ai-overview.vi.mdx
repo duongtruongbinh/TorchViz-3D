@@ -1,0 +1,128 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'linear-algebra-for-ai-overview',
+  locale: 'vi',
+  title: 'Đại số tuyến tính cho AI',
+  headings: [
+    'Vì sao AI cần Toán học?',
+    'Dữ liệu qua con mắt của AI',
+    'Bản đồ ứng dụng của khóa học',
+  ],
+  keywords: ['AI', 'scalar', 'vector', 'matrix', 'tensor', 'tabular data', 'RGB image', 'representation', 'PCA', 'SVD'],
+  conceptIds: ['mathematics-for-ai-motivation', 'ai-data-representations', 'linear-algebra-ai-application-map'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Vì sao AI cần Toán học?
+
+Toán học ngày càng được nhìn nhận không chỉ như một môn học trong nhà trường, mà như một năng lực nền tảng cho khoa học, công nghệ và đổi mới sáng tạo. Ở Việt Nam, [Quyết định 2200/QĐ-TTg](https://vanban.chinhphu.vn/?pageid=27160&docid=202100) đã phê duyệt chương trình trọng điểm quốc gia phát triển Toán học đến năm 2030 nhằm thúc đẩy đồng thời nghiên cứu, ứng dụng và giáo dục Toán học. Quan điểm này không chỉ có ở Việt Nam: [Kế hoạch phát triển khoa học toán học của Australia](https://srs.amsi.org.au/wp-content/uploads/sites/73/2016/03/mathematics-decade-plan-2016-vision-for-2025.pdf) cũng coi năng lực nghiên cứu và giáo dục Toán học vững mạnh là một nền tảng cho tương lai quốc gia.
+
+Trong bài nghiên cứu tổng hợp được trình bày tại International Congress of Mathematicians 2022, Gitta Kutyniok viết: **“A fundamental mathematical understanding of artificial intelligence is inevitably necessary.”** Nói cách khác, muốn hiểu AI đến tận cơ chế thay vì chỉ sử dụng nó, ta không thể bỏ qua nền tảng Toán học [[Kutyniok, 2022]](https://arxiv.org/abs/2203.08890).
+
+<LessonImage
+  assetPath="linear-algebra/01-why-ai-needs-mathematics.png"
+  alt="Ba bước giải thích vì sao AI cần Toán học: dữ liệu bảng, ảnh và âm thanh được chuyển thành các khối số; Toán học tổ chức chúng thành vector, ma trận và tensor; người học dùng hiểu biết đó để mở mô hình AI, tìm lỗi và cải thiện kết quả"
+/>
+
+<LessonNote>
+  Mục tiêu của nhóm khi xây dựng khóa học này cũng xuất phát từ quan điểm đó: nền tảng Toán học càng vững, bạn càng có khả năng hiểu sâu, học nhanh và làm việc hiệu quả với AI. Bạn vẫn có thể thử nghiệm những demo đơn giản trên Internet mà không cần nhiều kiến thức Toán, nhưng để trở thành một nhà nghiên cứu AI (AI Researcher) hoặc kỹ sư AI (AI Engineer), chừng đó là chưa đủ.
+</LessonNote>
+
+Đại số tuyến tính là ngôn ngữ nền tảng giúp chúng ta biểu diễn, tổ chức và xử lý dữ liệu trong AI. Ở các trang tiếp theo, chúng ta sẽ bắt đầu từ những khái niệm cơ bản để hình thành một góc nhìn tổng quan. Đến trang cuối, bạn sẽ thấy các chương và khái niệm trong khóa học được ứng dụng như thế nào trong những bài toán AI thực tế.
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Dữ liệu qua con mắt của AI
+
+Hãy bắt đầu bằng hai đối tượng rất quen thuộc: **một bảng Excel và một ảnh màu RGB**. Ta sẽ nhìn trực tiếp vào từng ô dữ liệu, từng pixel và từng kênh màu để thấy chính xác mô hình AI nhận input dữ liệu đầu vào là gì.
+
+<AiDataRepresentationDemo ariaLabel="Một bảng Excel được biểu diễn bằng scalar, vector và matrix; một ảnh RGB được tách thành ba matrix rồi xếp thành tensor" />
+
+<LessonNote>
+  Ví dụ dùng ảnh `5 × 5` để ta nhìn thấy từng giá trị. Ảnh thật cũng có cấu trúc tương tự nhưng lớn hơn nhiều, chẳng hạn `1920 × 1080 × 3`. Một số thư viện đổi thứ tự trục thành `3 × 1080 × 1920`, nhưng vẫn lưu cùng ba kênh màu.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Bản đồ ứng dụng của khóa học
+
+Mỗi chương tiếp theo trả lời một nhóm câu hỏi thực tế trong AI. Bảng dưới đây giúp bạn biết kiến thức đó sẽ xuất hiện ở đâu trước khi đi vào chi tiết.
+
+<ComparisonMatrix
+  ariaLabel="Ứng dụng AI của bảy chương đại số tuyến tính"
+  rowHeaderLabel="Chương"
+  columns={['Công cụ cốt lõi', 'Ứng dụng và thuật toán AI', 'Tầm quan trọng']}
+  rows={[
+    {
+      label: '1. Vector & Ma trận',
+      values: [
+        'Vector, norm, dot product, cosine similarity và matrix product',
+        ['Embedding và similarity search', 'Dense layer và attention', 'K-nearest neighbors'],
+        'Thiết yếu. Phần lớn dữ liệu và phép tính trong AI đều được biểu diễn bằng vector và ma trận.',
+      ],
+      highlightedColumn: 2,
+    },
+    {
+      label: '2. Giải hệ phương trình tuyến tính',
+      values: [
+        'Ax = b, khử Gaussian, inverse matrix và LU decomposition',
+        ['Tìm nghiệm cho các bài toán tuyến tính', 'Ước lượng tham số', 'Các thuật toán tối ưu số'],
+        'Hữu ích khi cần tìm một đáp án chính xác và ổn định từ nhiều điều kiện cùng lúc.',
+      ],
+    },
+    {
+      label: '3. Không gian vector & Không gian con',
+      values: [
+        'Basis, dimension, rank, column space, null space và linear transformation',
+        ['Feature space và embedding space', 'Phát hiện thông tin trùng lặp', 'Low-rank adaptation như LoRA'],
+        'Giúp hiểu dữ liệu chứa bao nhiêu thông tin và mô hình đang giữ lại hoặc làm mất điều gì.',
+      ],
+    },
+    {
+      label: '4. Trực giao & Bình phương tối thiểu',
+      values: [
+        'Orthogonality, projection, Gram-Schmidt, QR và least squares',
+        ['Linear regression', 'Khớp mô hình với dữ liệu có nhiễu', 'Tách phần dự đoán và phần sai lệch'],
+        'Giúp tìm lời giải gần đúng nhất khi dữ liệu thực tế không hoàn toàn khớp với mô hình.',
+      ],
+    },
+    {
+      label: '5. Định thức',
+      values: [
+        'Determinant, khả nghịch và thay đổi thể tích qua phép biến đổi',
+        ['Gaussian models', 'Covariance matrix', 'Normalizing flows'],
+        'Giúp biết một phép biến đổi có thể đảo ngược hay làm dữ liệu co giãn bao nhiêu.',
+      ],
+    },
+    {
+      label: '6. Trị riêng & Vector riêng',
+      values: [
+        'Eigenvalue, eigenvector, diagonalization và spectral view',
+        ['PCA', 'Spectral clustering', 'Phân tích độ ổn định'],
+        'Giúp tìm những hướng mang nhiều thông tin nhất trong dữ liệu.',
+      ],
+    },
+    {
+      label: '7. Phân tích giá trị suy biến (SVD)',
+      values: [
+        'Singular values, singular vectors và low-rank approximation',
+        ['Giảm chiều và nén ảnh', 'Recommender systems', 'Xấp xỉ trọng số mô hình'],
+        'Giúp giữ lại phần quan trọng và loại bớt phần dư thừa của dữ liệu.',
+      ],
+      highlightedColumn: 2,
+    },
+  ]}
+/>
+
+<LessonNote>
+  Bạn không cần ghi nhớ toàn bộ thuật toán ở thời điểm này. Hãy dùng bản đồ này để trả lời câu hỏi **“Mình học phần này để làm gì?”** rồi quay lại đối chiếu khi bắt đầu mỗi chương.
+</LessonNote>
+
+Bây giờ ta bắt đầu với vector và ma trận, nền móng được sử dụng xuyên suốt tất cả các chương còn lại.
+
+</MdxPage>

@@ -26,22 +26,22 @@ const EXPECTED_CHAPTER_1_LESSONS = [
 ] as const;
 
 const EXPECTED_SHA256_MAP: Record<string, string> = {
-  'cosine-similarity-quiz.vi.mdx': '72fbc623435594a9caa22587e1560e26133943fd51a13807b6509a61980934e8',
-  'cosine-similarity.vi.mdx': 'ae52f431191f7b2aa1ec2a69d015e1afb176488006e9997bf71217326ca222a1',
-  'dot-product-quiz.vi.mdx': 'b1644e6baca27c79507fa8c3deb0173c481f5949fdce5d44a70c51eec560d86a',
-  'dot-product.vi.mdx': '55ad0c3dca7601293816dd159d9477fcb9743b2610d0e351253310f3cc651366',
-  'elementwise-vs-matrix-product-quiz.vi.mdx': '08df3024ccef80bf6db59c1b132da29f1721ab8d8e795badbdabdc0185d35242',
-  'elementwise-vs-matrix-product.vi.mdx': '3d0bba4d8b5fb09dd669a685bd549ef7269f7ccd342a94ffe1e1c5cff7a8b9e1',
-  'matrix-operations-quiz.vi.mdx': 'b5ffdaf837ac5cccdfda6b81e30a57bc0173c9b8830c7f926207fdfd0f6f6c0e',
-  'matrix-operations.vi.mdx': '2d1f0960962e91ecc360b8983f9efea0b40edf9f9aeddcde96529b34c40ad7e5',
-  'unit-vectors-normalization-quiz.vi.mdx': '9facda9f8e10c1cd34a3dcd2349b230dd7e2c082f2130d018d2281901066b6e4',
-  'unit-vectors-normalization.vi.mdx': '2b3832c06351b662de42bbc5d8a6bc90e89bb45c731fb79ba581f9663c7184a7',
-  'vector-norms-quiz.vi.mdx': 'efccae2419c3e6d2788ec01796b3ac0e9c3532cf3af3cc9c30660111950ef49f',
-  'vector-norms.vi.mdx': 'c0866a96331f1690560bbcdf32156484d2e03b86a7148a780e59945243c07901',
-  'vector-operations-quiz.vi.mdx': 'de0159a6d343f89f71e09f2b67dbd401f1f73442235bd0e5e79bec42cb1435ce',
-  'vector-operations.vi.mdx': 'a7a9cac4a9b0cf899f78f01e0dd77486cf74582a55d424f07e3283cbedc93d1d',
-  'vectors-intuition-quiz.vi.mdx': '586302dcfb2860695678c7d95d1a0c4be9e274f67fa6c2a9176e3299715f6239',
-  'vectors-intuition.vi.mdx': '8eef4b70076467818b7e4b19b3e87940c2395183c832410c6e02906ec0a4ebbf',
+  '1.1.12-cosine-similarity-quiz.vi.mdx': '72fbc623435594a9caa22587e1560e26133943fd51a13807b6509a61980934e8',
+  '1.1.11-cosine-similarity.vi.mdx': 'ae52f431191f7b2aa1ec2a69d015e1afb176488006e9997bf71217326ca222a1',
+  '1.1.10-dot-product-quiz.vi.mdx': 'b1644e6baca27c79507fa8c3deb0173c481f5949fdce5d44a70c51eec560d86a',
+  '1.1.9-dot-product.vi.mdx': '55ad0c3dca7601293816dd159d9477fcb9743b2610d0e351253310f3cc651366',
+  '1.1.16-elementwise-vs-matrix-product-quiz.vi.mdx': '08df3024ccef80bf6db59c1b132da29f1721ab8d8e795badbdabdc0185d35242',
+  '1.1.15-elementwise-vs-matrix-product.vi.mdx': '3d0bba4d8b5fb09dd669a685bd549ef7269f7ccd342a94ffe1e1c5cff7a8b9e1',
+  '1.1.14-matrix-operations-quiz.vi.mdx': 'b5ffdaf837ac5cccdfda6b81e30a57bc0173c9b8830c7f926207fdfd0f6f6c0e',
+  '1.1.13-matrix-operations.vi.mdx': '2d1f0960962e91ecc360b8983f9efea0b40edf9f9aeddcde96529b34c40ad7e5',
+  '1.1.8-unit-vectors-normalization-quiz.vi.mdx': '9facda9f8e10c1cd34a3dcd2349b230dd7e2c082f2130d018d2281901066b6e4',
+  '1.1.7-unit-vectors-normalization.vi.mdx': '2b3832c06351b662de42bbc5d8a6bc90e89bb45c731fb79ba581f9663c7184a7',
+  '1.1.6-vector-norms-quiz.vi.mdx': 'efccae2419c3e6d2788ec01796b3ac0e9c3532cf3af3cc9c30660111950ef49f',
+  '1.1.5-vector-norms.vi.mdx': 'c0866a96331f1690560bbcdf32156484d2e03b86a7148a780e59945243c07901',
+  '1.1.4-vector-operations-quiz.vi.mdx': 'de0159a6d343f89f71e09f2b67dbd401f1f73442235bd0e5e79bec42cb1435ce',
+  '1.1.3-vector-operations.vi.mdx': 'a7a9cac4a9b0cf899f78f01e0dd77486cf74582a55d424f07e3283cbedc93d1d',
+  '1.1.2-vectors-intuition-quiz.vi.mdx': '586302dcfb2860695678c7d95d1a0c4be9e274f67fa6c2a9176e3299715f6239',
+  '1.1.1-vectors-intuition.vi.mdx': '8eef4b70076467818b7e4b19b3e87940c2395183c832410c6e02906ec0a4ebbf',
 };
 
 
@@ -92,7 +92,8 @@ test('All 8 Chapter 1 quiz files resolve canonical MdxQuiz with questions array'
 
   for (const lessonId of EXPECTED_CHAPTER_1_LESSONS) {
     if (!lessonId.endsWith('-quiz')) continue;
-    const filePath = path.join(contentDir, `${lessonId}.vi.mdx`);
+    const nodeIndex = EXPECTED_CHAPTER_1_LESSONS.indexOf(lessonId) + 1;
+    const filePath = path.join(contentDir, `1.1.${nodeIndex}-${lessonId}.vi.mdx`);
     const source = await readFile(filePath, 'utf8');
     const componentNames = getLearningMdxComponentNames(source);
 
@@ -148,7 +149,7 @@ test('Linear Algebra component allowlist includes all required Chapter 1 visual 
     'VectorSubtractionPlane',
   ];
 
-  assert.equal(LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.length, 46);
+  assert.equal(LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.length, 47);
   for (const name of expectedComponents) {
     assert.ok(
       LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.includes(name as any),

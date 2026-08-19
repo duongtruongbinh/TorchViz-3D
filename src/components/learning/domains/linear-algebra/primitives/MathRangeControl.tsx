@@ -40,10 +40,10 @@ export function MathRangeControl({
   }[colorScheme];
 
   const valueBadgeColorClasses = {
-    blue: 'text-blue-600 dark:text-blue-400',
-    purple: 'text-purple-600 dark:text-purple-400',
-    emerald: 'text-emerald-600 dark:text-emerald-400',
-    amber: 'text-amber-600 dark:text-amber-400',
+    blue: 'text-blue-600',
+    purple: 'text-purple-600',
+    emerald: 'text-emerald-600',
+    amber: 'text-amber-600',
   }[colorScheme];
 
   return (
@@ -51,13 +51,13 @@ export function MathRangeControl({
       <div className="flex items-center justify-between text-xs sm:text-sm">
         <label
           htmlFor={inputId}
-          className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer"
+          className="font-semibold text-slate-700 flex items-center gap-1.5 cursor-pointer"
         >
           {label}
         </label>
         <div className="flex items-center gap-2">
           {subLabel && (
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="text-[11px] text-slate-500">
               {subLabel}
             </span>
           )}
@@ -80,7 +80,7 @@ export function MathRangeControl({
         aria-valuenow={value}
         aria-valuemin={min}
         aria-valuemax={max}
-        className={`w-full h-2 rounded-lg bg-slate-200 dark:bg-slate-700 cursor-pointer ${accentClasses} focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500`}
+        className={`w-full h-2 rounded-lg bg-slate-200 cursor-pointer ${accentClasses} focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500`}
       />
     </div>
   );

@@ -1,5 +1,6 @@
 import type { LINEAR_ALGEBRA_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import type { LearningMdxComponent } from '../../learningMdxComponents';
+import { AiDataRepresentationDemo } from './overviewRenderers';
 import {
   CoordinateRepresentationDiagram,
   CosineAngleExplorer,
@@ -64,6 +65,9 @@ import {
 } from './svdRenderers';
 
 export const linearAlgebraMdxComponents = {
+  // Chapter 0 (1)
+  AiDataRepresentationDemo,
+
   // Chapter 1 (24)
   CoordinateRepresentationDiagram,
   CosineAngleExplorer,

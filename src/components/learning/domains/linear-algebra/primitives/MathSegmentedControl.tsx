@@ -53,7 +53,7 @@ export function MathSegmentedControl<T extends string>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className="inline-flex flex-wrap items-center justify-center p-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-200/70 dark:bg-slate-800/90 gap-1"
+      className="inline-flex flex-wrap items-center justify-center p-1 rounded-lg border border-slate-300 bg-slate-200/70 gap-1"
     >
       {options.map((option, idx) => {
         const isSelected = option.value === value;
@@ -67,10 +67,10 @@ export function MathSegmentedControl<T extends string>({
             tabIndex={isSelected ? 0 : -1}
             onClick={() => onChange(option.value)}
             onKeyDown={(e) => handleKeyDown(e, idx)}
-            className={`inline-flex items-center justify-center gap-1.5 rounded-md font-semibold transition-all cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-900 ${sizeClasses} ${
+            className={`inline-flex items-center justify-center gap-1.5 rounded-md font-semibold transition-all cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 ${sizeClasses} ${
               isSelected
                 ? activeColorClasses
-                : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-300/60 dark:hover:bg-slate-700/60'
+                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-300/60'
             }`}
           >
             <span>{option.label}</span>

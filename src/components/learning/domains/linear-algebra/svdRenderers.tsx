@@ -64,14 +64,14 @@ export function SVDGeometryExplorer({
       subtitle="SVD phân rã mọi phép biến đổi ma trận thành chuỗi 3 bước: Quay (Vᵀ) → Co giãn (Σ) → Quay (U)."
       footer={
         <div className="space-y-3 w-full">
-          <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
-            <div className="font-semibold text-blue-600 dark:text-blue-400">
+          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+            <div className="font-semibold text-blue-600">
               {current.title}
             </div>
             <div className="text-center font-mono py-1.5">
               <BlockMath formula={current.math} />
             </div>
-            <p className="text-slate-600 dark:text-slate-300 text-center">
+            <p className="text-slate-600 text-center">
               {current.desc}
             </p>
           </div>
@@ -291,24 +291,24 @@ export function TruncatedSVDExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2 border-slate-200 dark:border-slate-800">
-              <span className="font-semibold text-blue-600 dark:text-blue-400">
+          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2 border-slate-200">
+              <span className="font-semibold text-blue-600">
                 {current.name}
               </span>
               <div className="flex items-center gap-3 font-mono text-xs">
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                <span className="text-emerald-600 font-bold">
                   Năng lượng: {current.energy}
                 </span>
-                <span className="text-slate-500 dark:text-slate-400">
+                <span className="text-slate-500">
                   Sai số Frobenius: {current.error}
                 </span>
               </div>
             </div>
-            <p className="text-slate-600 dark:text-slate-300 mt-2">
+            <p className="text-slate-600 mt-2">
               {current.desc}
             </p>
-            <div className="mt-2 text-xs font-mono text-center text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800">
+            <div className="mt-2 text-xs font-mono text-center text-slate-500 pt-1 border-t border-slate-200">
               <InlineMath formula="A_k = \sum_{i=1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^\top, \quad \|A - A_k\|_F = \sqrt{\sum_{i=k+1}^r \sigma_i^2}" />
             </div>
           </div>
@@ -324,7 +324,7 @@ export function TruncatedSVDExplorer({
         <span className="text-xl font-bold text-slate-400 px-2">≈</span>
 
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+          <span className="text-xs font-semibold text-blue-600">
             Xấp xỉ <InlineMath formula={`A_{${rankK}}`} />
           </span>
           <MatrixGrid name={`A_${rankK}`} values={current.mat} size="md" />

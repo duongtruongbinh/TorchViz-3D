@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-17
+updated: 2026-08-19
 ---
 
 # Learning Lab
@@ -19,12 +19,12 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 91 tracks, and 689 lesson nodes. One hundred
-ninety Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, seventy-nine in `continual-learning-llm`, fifty-eight in
-`linear-algebra` (twenty-nine alternating theory/quiz pairs across 7 chapters
-following the Gilbert Strang and MIT 18.06 curriculum), and four tagged exercise
-lessons in `cv`. The other 499 nodes are navigable placeholders and render one
+The catalog contains 13 domains, 92 tracks, and 711 lesson nodes. One hundred
+ninety-one Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, seventy-nine in `continual-learning-llm`, fifty-nine in
+`linear-algebra` (one applied-AI overview followed by twenty-nine alternating
+theory/quiz pairs across 7 core chapters), and four tagged exercise lessons in
+`cv`. The other 520 nodes are navigable placeholders and render one
 shared localized "content in progress" message. They do not carry legacy theory
 or practice payloads.
 
@@ -98,8 +98,10 @@ canonical lesson order. Both nodes publish atomically and carry the same stable
 prevents theory-only claims, orphan quizzes, and assessment content that was not
 taught by its paired lesson.
 
-The Linear Algebra course spans 58 published lessons across 7 chapters following
-the Gilbert Strang and MIT 18.06 curriculum:
+The Linear Algebra course is scoped to the concepts needed for applied AI. It
+starts with one standalone overview, then continues through 58 paired lessons
+across 7 core chapters:
+- Chapter 0: Linear Algebra for AI overview (1 lesson)
 - Chapter 1: Vectors & Matrices (16 lessons)
 - Chapter 2: Solving Linear Equations (8 lessons)
 - Chapter 3: Vector Spaces & Subspaces (10 lessons)
@@ -259,14 +261,18 @@ page retain the readable paper identity.
 The optional hierarchical numeric prefix keeps authored files in typed-TOC
 order without becoming part of the canonical lesson ID. The LLM course uses
 chapter-local names such as `1.1.6-language-modeling-next-token.vi.mdx` and
-`1.5.1-llm-data-pipeline-overview.vi.mdx`; other domains may continue using
-unprefixed filenames. Routes and `lessonMetadata.id` always use the lesson ID
-without this organizational prefix.
+`1.5.1-llm-data-pipeline-overview.vi.mdx`. Routes and `lessonMetadata.id`
+always use the lesson ID without this organizational prefix.
 
 The Continual Learning domain applies the prefix consistently to every authored
 file as `<chapter>.1.<node>-<lesson-id>.vi.mdx`. Its chapter number and node
 number mirror the domain TOC exactly, including adjacent Quiz nodes; Chapter 7
 ends at `7.1.1-continual-llm-synthesis.vi.mdx` because it has no Quiz node.
+
+The Linear Algebra domain uses the same `<chapter>.1.<node>-<lesson-id>.vi.mdx`
+convention for all 59 authored files. Its applied overview starts at
+`0.1.1-linear-algebra-for-ai-overview.vi.mdx`; Chapters 1 through 7 then mirror
+their TOC node order, including every adjacent Quiz node.
 
 Every navigable lesson has one TOC node. A locale-specific MDX file exists only
 when that locale has authored lesson content. File existence is not navigation

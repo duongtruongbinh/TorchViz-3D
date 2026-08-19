@@ -1,6 +1,21 @@
 import type { LearningTableOfContents, LearningTocTrackSeed } from '../../../core/learning/types.ts';
 
 const chapters: LearningTocTrackSeed[] = [
+  // Chapter 0 — Applied AI overview
+  {
+    id: 'linear-algebra-for-ai',
+    text: {
+      title: { en: '0. Overview', vi: '0. Tổng quan' },
+      description: {
+        en: 'See how tabular data, RGB images, and model features become scalars, vectors, matrices, and tensors before any AI computation begins.',
+        vi: 'Nhìn dữ liệu bảng, ảnh RGB và feature của model dưới dạng scalar, vector, ma trận và tensor trước khi bắt đầu các phép toán AI.',
+      },
+    },
+    lessonIds: [
+      { id: 'linear-algebra-for-ai-overview', status: 'available', contentStatus: 'published', title: { en: 'Linear Algebra for AI', vi: 'Đại số tuyến tính cho AI' } },
+    ],
+  },
+
   // Chapter 1 — Vectors & Matrices
   {
     id: 'vectors-matrices',
@@ -163,8 +178,8 @@ export const learningTableOfContents = {
   text: {
     title: { en: 'Linear Algebra', vi: 'Linear Algebra' },
     description: {
-      en: 'A core linear algebra foundation following the conceptual progression of Strang and MIT 18.06: vectors, matrices, solving linear systems, vector spaces, orthogonality, determinants, eigenvalues, and SVD.',
-      vi: 'Nền tảng đại số tuyến tính cốt lõi theo trình tự tiếp cận trực giác của Strang và MIT 18.06: vector, ma trận, giải hệ phương trình, không gian vector, trực giao, định thức, trị riêng và SVD.',
+      en: 'The essential linear algebra for applied AI: represent data with vectors, matrices, and tensors, then transform, compare, solve, compress, and analyze those representations with the core tools used in machine learning.',
+      vi: 'Đại số tuyến tính cốt lõi trong AI: hiểu cách dữ liệu được biểu diễn và biến đổi bằng vector, ma trận, tensor — nền tảng toán học của machine learning.',
     },
   },
   status: 'active',

@@ -8,58 +8,67 @@ import { cosine2D } from '../components/learning/domains/linear-algebra/geometry
 
 const CHAPTERS_3_TO_7_FILES = [
   // Chapter 3
-  'vector-spaces-subspaces.vi.mdx',
-  'vector-spaces-subspaces-quiz.vi.mdx',
-  'column-space-null-space.vi.mdx',
-  'column-space-null-space-quiz.vi.mdx',
-  'linear-independence-basis.vi.mdx',
-  'linear-independence-basis-quiz.vi.mdx',
-  'matrix-rank.vi.mdx',
-  'matrix-rank-quiz.vi.mdx',
-  'linear-transformations.vi.mdx',
-  'linear-transformations-quiz.vi.mdx',
+  '3.1.1-vector-spaces-subspaces.vi.mdx',
+  '3.1.2-vector-spaces-subspaces-quiz.vi.mdx',
+  '3.1.3-column-space-null-space.vi.mdx',
+  '3.1.4-column-space-null-space-quiz.vi.mdx',
+  '3.1.5-linear-independence-basis.vi.mdx',
+  '3.1.6-linear-independence-basis-quiz.vi.mdx',
+  '3.1.7-matrix-rank.vi.mdx',
+  '3.1.8-matrix-rank-quiz.vi.mdx',
+  '3.1.9-linear-transformations.vi.mdx',
+  '3.1.10-linear-transformations-quiz.vi.mdx',
 
   // Chapter 4
-  'orthogonality.vi.mdx',
-  'orthogonality-quiz.vi.mdx',
-  'orthogonal-projections.vi.mdx',
-  'orthogonal-projections-quiz.vi.mdx',
-  'gram-schmidt.vi.mdx',
-  'gram-schmidt-quiz.vi.mdx',
-  'systems-least-squares.vi.mdx',
-  'systems-least-squares-quiz.vi.mdx',
+  '4.1.1-orthogonality.vi.mdx',
+  '4.1.2-orthogonality-quiz.vi.mdx',
+  '4.1.3-orthogonal-projections.vi.mdx',
+  '4.1.4-orthogonal-projections-quiz.vi.mdx',
+  '4.1.5-gram-schmidt.vi.mdx',
+  '4.1.6-gram-schmidt-quiz.vi.mdx',
+  '4.1.7-systems-least-squares.vi.mdx',
+  '4.1.8-systems-least-squares-quiz.vi.mdx',
 
   // Chapter 5
-  'determinant-intuition.vi.mdx',
-  'determinant-intuition-quiz.vi.mdx',
-  'determinant-properties-formulas.vi.mdx',
-  'determinant-properties-formulas-quiz.vi.mdx',
+  '5.1.1-determinant-intuition.vi.mdx',
+  '5.1.2-determinant-intuition-quiz.vi.mdx',
+  '5.1.3-determinant-properties-formulas.vi.mdx',
+  '5.1.4-determinant-properties-formulas-quiz.vi.mdx',
 
   // Chapter 6
-  'matrix-trace.vi.mdx',
-  'matrix-trace-quiz.vi.mdx',
-  'eigenvalues-eigenvectors.vi.mdx',
-  'eigenvalues-eigenvectors-quiz.vi.mdx',
-  'diagonalization.vi.mdx',
-  'diagonalization-quiz.vi.mdx',
-  'pca-eigenvalues.vi.mdx',
-  'pca-eigenvalues-quiz.vi.mdx',
+  '6.1.1-matrix-trace.vi.mdx',
+  '6.1.2-matrix-trace-quiz.vi.mdx',
+  '6.1.3-eigenvalues-eigenvectors.vi.mdx',
+  '6.1.4-eigenvalues-eigenvectors-quiz.vi.mdx',
+  '6.1.5-diagonalization.vi.mdx',
+  '6.1.6-diagonalization-quiz.vi.mdx',
+  '6.1.7-pca-eigenvalues.vi.mdx',
+  '6.1.8-pca-eigenvalues-quiz.vi.mdx',
 
   // Chapter 7
-  'svd-intuition.vi.mdx',
-  'svd-intuition-quiz.vi.mdx',
-  'svd-dimensionality-reduction.vi.mdx',
-  'svd-dimensionality-reduction-quiz.vi.mdx',
+  '7.1.1-svd-intuition.vi.mdx',
+  '7.1.2-svd-intuition-quiz.vi.mdx',
+  '7.1.3-svd-dimensionality-reduction.vi.mdx',
+  '7.1.4-svd-dimensionality-reduction-quiz.vi.mdx',
 ];
 
-test('publishes exactly 58 lessons across 7 chapters in TOC', () => {
-  assert.equal(learningTableOfContents.chapters.length, 7);
+test('publishes one applied AI overview before 58 lessons across 7 core chapters', () => {
+  assert.equal(learningTableOfContents.chapters.length, 8);
+  assert.equal(learningTableOfContents.chapters[0]?.id, 'linear-algebra-for-ai');
+  assert.deepEqual(learningTableOfContents.chapters[0]?.lessonIds.map((lesson) => (
+    typeof lesson === 'string' ? lesson : lesson.id
+  )), ['linear-algebra-for-ai-overview']);
 
   const totalLessons = learningTableOfContents.chapters.reduce(
     (acc, ch) => acc + ch.lessonIds.length,
     0,
   );
-  assert.equal(totalLessons, 58);
+  assert.equal(totalLessons, 59);
+  assert.equal(learningTableOfContents.chapters.slice(1).length, 7);
+  assert.equal(learningTableOfContents.chapters.slice(1).reduce(
+    (acc, chapter) => acc + chapter.lessonIds.length,
+    0,
+  ), 58);
 
   learningTableOfContents.chapters.forEach((chapter) => {
     chapter.lessonIds.forEach((seed) => {
@@ -99,8 +108,8 @@ test('verifies LegacyMathQuiz has zero callers and is removed from allowlist', (
   assert.equal((LINEAR_ALGEBRA_MDX_COMPONENT_NAMES as readonly string[]).includes('LegacyMathQuiz'), false);
 });
 
-test('registers all 46 linear algebra visual components in allowlist', () => {
-  assert.equal(LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.length, 46);
+test('registers all 47 linear algebra visual components in allowlist', () => {
+  assert.equal(LINEAR_ALGEBRA_MDX_COMPONENT_NAMES.length, 47);
 
   const requiredComponents = [
     // Chapter 3

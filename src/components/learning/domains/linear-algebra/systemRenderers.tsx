@@ -53,7 +53,7 @@ export function ColumnCombinationExplorer({
   const maxY = Math.max(7, col1[1] + 1, col2[1] + 1, target[1] + 2, resultant[1] + 2);
 
   const belowPlot = (
-    <div className="mt-3 flex flex-col gap-3 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
+    <div className="mt-3 flex flex-col gap-3 border-t pt-3 border-slate-200 text-xs sm:text-sm">
       <div className="flex flex-wrap items-center justify-between gap-2 font-mono">
         <div className="flex items-center gap-1.5">
           <span className="text-slate-500 font-sans">Linear combination:</span>
@@ -69,11 +69,11 @@ export function ColumnCombinationExplorer({
             <InlineMath formula={`\\begin{bmatrix}${target[0]}\\\\${target[1]}\\end{bmatrix}`} />
           </span>
           {isMatched ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700">
               <Check className="w-3.5 h-3.5" /> Ax = b
             </span>
           ) : (
-            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-600">
               Chưa trùng b
             </span>
           )}
@@ -189,18 +189,18 @@ export function LinearSystemCasesExplorer({
   const theme = getMathVisualTheme(themeClasses.isLight ? 'light' : 'dark');
 
   const belowPlot = (
-    <div className="mt-3 flex flex-col gap-3 border-t pt-3 border-slate-200 dark:border-slate-800 text-xs sm:text-sm">
+    <div className="mt-3 flex flex-col gap-3 border-t pt-3 border-slate-200 text-xs sm:text-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          <span className="font-semibold text-slate-700 dark:text-slate-300">Trường hợp:</span>
-          <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 p-0.5 bg-slate-100 dark:bg-slate-800">
+          <span className="font-semibold text-slate-700">Trường hợp:</span>
+          <div className="inline-flex rounded-lg border border-slate-300 p-0.5 bg-slate-100">
             <button
               type="button"
               onClick={() => setSelectedCase('unique')}
               className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                 selectedCase === 'unique'
                   ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               1 nghiệm duy nhất
@@ -211,7 +211,7 @@ export function LinearSystemCasesExplorer({
               className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                 selectedCase === 'none'
                   ? 'bg-rose-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Vô nghiệm
@@ -222,7 +222,7 @@ export function LinearSystemCasesExplorer({
               className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                 selectedCase === 'infinite'
                   ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Vô số nghiệm
@@ -231,19 +231,19 @@ export function LinearSystemCasesExplorer({
         </div>
       </div>
 
-      <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-800/40 text-xs sm:text-sm">
+      <div className="rounded-lg p-3 border border-slate-200 bg-slate-100/70 text-xs sm:text-sm">
         {selectedCase === 'unique' && (
           <div className="space-y-1">
-            <p className="font-semibold text-blue-600 dark:text-blue-400">
+            <p className="font-semibold text-blue-600">
               Hai đường thẳng cắt nhau tại đúng một giao điểm:
             </p>
-            <p className="text-slate-600 dark:text-slate-300 font-mono">
+            <p className="text-slate-600 font-mono">
               Phương trình 1: <InlineMath formula="x + 2y = 5" /> (xanh dương)
             </p>
-            <p className="text-slate-600 dark:text-slate-300 font-mono">
+            <p className="text-slate-600 font-mono">
               Phương trình 2: <InlineMath formula="3x - y = 1" /> (vàng cam)
             </p>
-            <p className="text-emerald-600 dark:text-emerald-400 font-semibold pt-1">
+            <p className="text-emerald-600 font-semibold pt-1">
               Giao điểm duy nhất tại (x = 1, y = 2) là nghiệm của hệ.
             </p>
           </div>
@@ -251,16 +251,16 @@ export function LinearSystemCasesExplorer({
 
         {selectedCase === 'none' && (
           <div className="space-y-1">
-            <p className="font-semibold text-rose-600 dark:text-rose-400">
+            <p className="font-semibold text-rose-600">
               Hai đường thẳng song song và không có điểm chung:
             </p>
-            <p className="text-slate-600 dark:text-slate-300 font-mono">
+            <p className="text-slate-600 font-mono">
               Phương trình 1: <InlineMath formula="x + 2y = 4" /> (xanh dương)
             </p>
-            <p className="text-slate-600 dark:text-slate-300 font-mono">
+            <p className="text-slate-600 font-mono">
               Phương trình 2: <InlineMath formula="x + 2y = 1" /> (vàng cam)
             </p>
-            <p className="text-rose-600 dark:text-rose-400 font-semibold pt-1">
+            <p className="text-rose-600 font-semibold pt-1">
               Hai vế trái giống nhau nhưng vế phải khác nhau tạo ra mâu thuẫn, hệ vô nghiệm.
             </p>
           </div>
@@ -268,16 +268,16 @@ export function LinearSystemCasesExplorer({
 
         {selectedCase === 'infinite' && (
           <div className="space-y-1">
-            <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+            <p className="font-semibold text-emerald-600">
               Hai phương trình cùng biểu diễn một đường thẳng trùng khớp:
             </p>
-            <p className="text-slate-600 dark:text-slate-300 font-mono">
+            <p className="text-slate-600 font-mono">
               Phương trình 1: <InlineMath formula="x + 2y = 4" />
             </p>
-            <p className="text-slate-600 dark:text-slate-300 font-mono">
+            <p className="text-slate-600 font-mono">
               Phương trình 2: <InlineMath formula="2x + 4y = 8" /> (gấp 2 lần phương trình 1)
             </p>
-            <p className="text-emerald-600 dark:text-emerald-400 font-semibold pt-1">
+            <p className="text-emerald-600 font-semibold pt-1">
               Mọi điểm nằm trên đường thẳng đều thỏa mãn cả hai phương trình, hệ có vô số nghiệm.
             </p>
           </div>
@@ -400,7 +400,7 @@ export function GaussianEliminationStepper({
 
   return (
     <MathVisualCard ariaLabel={ariaLabel}>
-      <div className="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+      <div className="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700">
         <span>{currentStep.title}</span>
         <span className="font-mono text-slate-400">
           Bước {stepIndex + 1} / {steps.length}
@@ -417,11 +417,11 @@ export function GaussianEliminationStepper({
         />
       </div>
 
-      <div className="w-full rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm space-y-2">
+      <div className="w-full rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm space-y-2">
         <div className="text-center font-mono">
           <BlockMath formula={currentStep.operation} />
         </div>
-        <p className="text-slate-600 dark:text-slate-300 text-center">
+        <p className="text-slate-600 text-center">
           {currentStep.description}
         </p>
       </div>
@@ -471,7 +471,7 @@ export function LUFactorizationExplorer({
           className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
             viewMode === 'overview'
               ? 'bg-blue-600 text-white'
-              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              : 'bg-slate-200 text-slate-700'
           }`}
         >
           Tổng quan A = LU
@@ -482,7 +482,7 @@ export function LUFactorizationExplorer({
           className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
             viewMode === 'multipliers'
               ? 'bg-amber-600 text-white'
-              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              : 'bg-slate-200 text-slate-700'
           }`}
         >
           Multipliers trong L
@@ -493,7 +493,7 @@ export function LUFactorizationExplorer({
           className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
             viewMode === 'uResult'
               ? 'bg-purple-600 text-white'
-              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              : 'bg-slate-200 text-slate-700'
           }`}
         >
           Kết quả U
@@ -504,7 +504,7 @@ export function LUFactorizationExplorer({
           className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
             viewMode === 'verify'
               ? 'bg-emerald-600 text-white'
-              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              : 'bg-slate-200 text-slate-700'
           }`}
         >
           Kiểm tra LU = A
@@ -516,17 +516,17 @@ export function LUFactorizationExplorer({
         {viewMode === 'overview' && (
           <>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-xs font-bold text-blue-600 dark:text-blue-400">Ma trận L (Lower)</span>
+              <span className="text-xs font-bold text-blue-600">Ma trận L (Lower)</span>
               <MatrixGrid name="L" values={matrixL} size="md" />
             </div>
             <span className="text-lg font-bold text-slate-400">×</span>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-xs font-bold text-purple-600 dark:text-purple-400">Ma trận U (Upper)</span>
+              <span className="text-xs font-bold text-purple-600">Ma trận U (Upper)</span>
               <MatrixGrid name="U" values={matrixU} size="md" />
             </div>
             <span className="text-lg font-bold text-slate-400">=</span>
             <div className="flex flex-col items-center gap-1">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Ma trận gốc A</span>
+              <span className="text-xs font-bold text-slate-700">Ma trận gốc A</span>
               <MatrixGrid name="A" values={matrixA} size="md" />
             </div>
           </>
@@ -534,7 +534,7 @@ export function LUFactorizationExplorer({
 
         {viewMode === 'multipliers' && (
           <div className="flex flex-col items-center gap-2">
-            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+            <span className="text-xs font-bold text-amber-600">
               L lưu các hệ số khử (multipliers) bên dưới đường chéo chính
             </span>
             <MatrixGrid
@@ -552,7 +552,7 @@ export function LUFactorizationExplorer({
 
         {viewMode === 'uResult' && (
           <div className="flex flex-col items-center gap-2">
-            <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+            <span className="text-xs font-bold text-purple-600">
               U là ma trận tam giác trên thu được sau khi hoàn thành khử Gaussian
             </span>
             <MatrixGrid
@@ -585,26 +585,26 @@ export function LUFactorizationExplorer({
       </div>
 
       {/* Explanatory description card */}
-      <div className="w-full rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
+      <div className="w-full rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
         {viewMode === 'overview' && (
-          <p className="text-slate-600 dark:text-slate-300 text-center">
+          <p className="text-slate-600 text-center">
             LU tách ma trận A thành tích của ma trận tam giác dưới L (với các số 1 trên đường chéo) và ma trận tam giác trên U.
           </p>
         )}
         {viewMode === 'multipliers' && (
-          <div className="space-y-1 font-mono text-xs text-slate-700 dark:text-slate-300 text-center">
+          <div className="space-y-1 font-mono text-xs text-slate-700 text-center">
             <p>l₂₁ = 2 (từ R₂ ← R₂ - 2R₁)</p>
             <p>l₃₁ = 1 (từ R₃ ← R₃ - R₁)</p>
             <p>l₃₂ = -2 (từ R₃ ← R₃ - (-2)R₂ = R₃ + 2R₂)</p>
           </div>
         )}
         {viewMode === 'uResult' && (
-          <p className="text-slate-600 dark:text-slate-300 text-center">
+          <p className="text-slate-600 text-center">
             Các phần tử nằm dưới đường chéo của U đều bằng 0. Hệ Ux = c có thể giải nhanh bằng back substitution.
           </p>
         )}
         {viewMode === 'verify' && (
-          <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-center">
+          <p className="text-emerald-600 font-semibold text-center">
             Nhân từng hàng của L với từng cột của U cho lại đúng ma trận A ban đầu.
           </p>
         )}
@@ -680,7 +680,7 @@ export function GaussJordanInverseStepper({
 
   return (
     <MathVisualCard ariaLabel={ariaLabel}>
-      <div className="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+      <div className="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700">
         <span>{currentStep.title}</span>
         <span className="font-mono text-slate-400">
           Bước {stepIndex + 1} / {steps.length}
@@ -699,11 +699,11 @@ export function GaussJordanInverseStepper({
         />
       </div>
 
-      <div className="w-full rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm space-y-2">
+      <div className="w-full rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm space-y-2">
         <div className="text-center font-mono">
           <BlockMath formula={currentStep.operation} />
         </div>
-        <p className="text-slate-600 dark:text-slate-300 text-center">
+        <p className="text-slate-600 text-center">
           {currentStep.description}
         </p>
       </div>

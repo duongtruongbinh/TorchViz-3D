@@ -17,7 +17,7 @@ export const MathDisplay = memo(function MathDisplay({
   return (
     <div
       tabIndex={0}
-      className={`my-3.5 w-full max-w-full overflow-x-auto py-1 text-center text-slate-800 dark:text-slate-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 rounded [&_.katex]:text-inherit [&_.katex-display]:my-0 ${className}`}
+      className={`my-3.5 w-full max-w-full overflow-x-auto py-1 text-center text-[#123B68] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 rounded [&_.katex]:text-inherit [&_.katex-display]:my-0 ${className}`}
       aria-label={ariaLabel}
       dangerouslySetInnerHTML={{ __html: html }}
     />

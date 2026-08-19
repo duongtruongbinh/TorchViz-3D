@@ -85,9 +85,9 @@ function vectorAngleDegrees([x, y]: Vector2D) {
 }
 
 function metricToneClass(value: number) {
-  if (value > 0.01) return 'text-emerald-600 dark:text-emerald-400';
-  if (value < -0.01) return 'text-rose-600 dark:text-rose-400';
-  return 'text-amber-600 dark:text-amber-400';
+  if (value > 0.01) return 'text-emerald-600';
+  if (value < -0.01) return 'text-rose-600';
+  return 'text-amber-600';
 }
 
 function VisualFooter({
@@ -99,7 +99,7 @@ function VisualFooter({
 }) {
   return (
     <div
-      className={`min-w-0 text-xs text-slate-700 dark:text-slate-300 sm:text-sm ${className}`}
+      className={`min-w-0 text-xs text-slate-700 sm:text-sm ${className}`}
     >
       {children}
     </div>
@@ -115,7 +115,7 @@ function StaticVisualCard({
 }) {
   return (
     <div
-      className="my-6 overflow-hidden rounded-xl border border-slate-200 bg-white/70 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 sm:p-5"
+      className="my-6 overflow-hidden rounded-xl border border-slate-200 bg-white/70 p-4 shadow-sm sm:p-5"
       aria-label={ariaLabel}
     >
       {children}
@@ -136,17 +136,17 @@ function VectorPlaneFooter({
   return (
     <VisualFooter className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:items-center">
       <div className="min-w-0 overflow-x-auto">
-        <span className="font-semibold text-blue-600 dark:text-blue-400">Vector: </span>
+        <span className="font-semibold text-blue-600">Vector: </span>
         <InlineMath
           formula={`\\mathbf{${label}} = [${position[0]}, ${position[1]}]^\\top`}
         />
       </div>
       <div className="sm:text-center">
-        <span className="text-slate-500 dark:text-slate-400">Độ dài L₂: </span>
+        <span className="text-slate-500">Độ dài L₂: </span>
         <span className="font-medium tabular-nums">{length}</span>
       </div>
       <div className="sm:text-right">
-        <span className="text-slate-500 dark:text-slate-400">Góc: </span>
+        <span className="text-slate-500">Góc: </span>
         <span className="font-medium tabular-nums">{angle}°</span>
       </div>
     </VisualFooter>
@@ -219,13 +219,13 @@ function VectorAdditionFooter({
           type="checkbox"
           checked={showParallelogram}
           onChange={(event) => onToggle(event.target.checked)}
-          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500/40 dark:border-slate-600 dark:bg-slate-900"
+          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500/40"
         />
-        <span className="text-slate-600 dark:text-slate-400">
+        <span className="text-slate-600">
           Hiện quy tắc hình bình hành
         </span>
       </label>
-      <div className="min-w-0 overflow-x-auto text-left font-semibold text-emerald-600 dark:text-emerald-400 sm:text-right">
+      <div className="min-w-0 overflow-x-auto text-left font-semibold text-emerald-600 sm:text-right">
         <InlineMath
           formula={`[${u[0]}+${v[0]}, ${u[1]}+${v[1]}]^\\top = [${sum[0]}, ${sum[1]}]^\\top`}
         />
@@ -308,11 +308,11 @@ function DotProductFooter({ a, b }: { a: Vector2D; b: Vector2D }) {
         <InlineMath
           formula={`\\mathbf{a}^\\top\\mathbf{b} = (${a[0]}\\times ${b[0]}) + (${a[1]}\\times ${b[1]}) = `}
         />
-        <span className="text-base font-bold tabular-nums text-pink-600 dark:text-pink-400">
+        <span className="text-base font-bold tabular-nums text-pink-600">
           {dot.toFixed(1)}
         </span>
       </div>
-      <div className="shrink-0 text-slate-500 dark:text-slate-400">
+      <div className="shrink-0 text-slate-500">
         {isUndefined ? (
           <span className="italic">Không xác định (vector không)</span>
         ) : (
@@ -479,14 +479,14 @@ export function CoordinateRepresentationDiagram({
       <div className="flex flex-col gap-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:text-sm">
         <div className="flex items-center gap-2">
           <span className="font-semibold">Hệ trục:</span>
-          <div className="inline-flex flex-wrap rounded-lg border border-slate-300 bg-slate-100 p-0.5 dark:border-slate-700 dark:bg-slate-800">
+          <div className="inline-flex flex-wrap rounded-lg border border-slate-300 bg-slate-100 p-0.5">
             <button
               type="button"
               onClick={() => setBasisMode('standard')}
               aria-pressed={basisMode === 'standard'}
               className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${basisMode === 'standard'
-                  ? 'bg-white dark:bg-slate-700 shadow-xs text-blue-600 dark:text-blue-400'
-                  : 'text-slate-600 dark:text-slate-400'
+                  ? 'bg-white shadow-xs text-blue-600'
+                  : 'text-slate-600'
                 }`}
             >
               Chuẩn (e₁, e₂)
@@ -496,8 +496,8 @@ export function CoordinateRepresentationDiagram({
               onClick={() => setBasisMode('rotated')}
               aria-pressed={basisMode === 'rotated'}
               className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${basisMode === 'rotated'
-                  ? 'bg-white dark:bg-slate-700 shadow-xs text-amber-600 dark:text-amber-400'
-                  : 'text-slate-600 dark:text-slate-400'
+                  ? 'bg-white shadow-xs text-amber-600'
+                  : 'text-slate-600'
                 }`}
             >
               Hệ trục mới (b₁, b₂)
@@ -514,7 +514,7 @@ export function CoordinateRepresentationDiagram({
           )}
         </div>
       </div>
-      <p className="mt-2 text-xs text-center text-slate-500 dark:text-slate-400">
+      <p className="mt-2 text-xs text-center text-slate-500">
         Vector hình học giữ nguyên hướng và độ dài trong không gian, chỉ các thành phần tọa độ thay đổi theo hệ cơ sở được chọn.
       </p>
     </>
@@ -806,7 +806,7 @@ export function VectorSubtractionPlane({
           formula={`\\mathbf{u} - \\mathbf{v} = [${u[0]}-${v[0]}, ${u[1]}-${v[1]}]^\\top = [${diff[0]}, ${diff[1]}]^\\top`}
         />
       </div>
-      <div className="text-slate-500 dark:text-slate-400">Mũi tên nối từ đầu v sang đầu u</div>
+      <div className="text-slate-500">Mũi tên nối từ đầu v sang đầu u</div>
     </div>
   );
 
@@ -1019,8 +1019,8 @@ export function NormUnitBallDiagram({ ariaLabel }: NormUnitBallDiagramProps) {
           onClick={() => setSelectedNorm('all')}
           aria-pressed={selectedNorm === 'all'}
           className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'all'
-              ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
-              : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+              ? 'bg-slate-800 text-white'
+              : 'bg-slate-100 text-slate-700'
             }`}
         >
           Tất cả
@@ -1031,7 +1031,7 @@ export function NormUnitBallDiagram({ ariaLabel }: NormUnitBallDiagramProps) {
           aria-pressed={selectedNorm === 'l1'}
           className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'l1'
               ? 'bg-emerald-600 text-white'
-              : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+              : 'bg-emerald-50 text-emerald-700'
             }`}
         >
           L₁ (Hình thoi)
@@ -1042,7 +1042,7 @@ export function NormUnitBallDiagram({ ariaLabel }: NormUnitBallDiagramProps) {
           aria-pressed={selectedNorm === 'l2'}
           className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'l2'
               ? 'bg-blue-600 text-white'
-              : 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300'
+              : 'bg-blue-50 text-blue-700'
             }`}
         >
           L₂ (Hình tròn)
@@ -1053,7 +1053,7 @@ export function NormUnitBallDiagram({ ariaLabel }: NormUnitBallDiagramProps) {
           aria-pressed={selectedNorm === 'linf'}
           className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'linf'
               ? 'bg-amber-600 text-white'
-              : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+              : 'bg-amber-50 text-amber-700'
             }`}
         >
           L∞ (Hình vuông)
@@ -1189,7 +1189,7 @@ export function UnitVectorPlane({ ariaLabel }: UnitVectorPlaneProps) {
       <div>
         <InlineMath formula="\|\mathbf{e}_2\|_2 = 1.0" />
       </div>
-      <div className="font-sans text-slate-500 dark:text-slate-400">
+      <div className="font-sans text-slate-500">
         Đầu mút nằm chính xác trên đường tròn đơn vị
       </div>
     </div>
@@ -1218,47 +1218,47 @@ export function UnitVectorPlane({ ariaLabel }: UnitVectorPlaneProps) {
 export function NormalizationProcess({ ariaLabel }: NormalizationProcessProps) {
   return (
     <StaticVisualCard ariaLabel={ariaLabel}>
-      <h4 className="mb-4 text-center text-sm font-bold text-slate-800 dark:text-slate-200">
+      <h4 className="mb-4 text-center text-sm font-bold text-slate-800">
         Quy trình chuẩn hóa vector <InlineMath formula="\mathbf{v} \to \hat{\mathbf{v}}" />
       </h4>
       <div className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-4">
-        <div className="p-3 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-center">
-          <span className="text-xs text-blue-600 dark:text-blue-400 font-bold block mb-1">
+        <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 text-center">
+          <span className="text-xs text-blue-600 font-bold block mb-1">
             1. Vector gốc
           </span>
-          <span className="font-mono font-bold text-slate-800 dark:text-slate-100">
+          <span className="font-mono font-bold text-slate-800">
             <InlineMath formula="\mathbf{v} = [3, 4]^\top" />
           </span>
         </div>
 
-        <div className="p-3 rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/40 text-center">
-          <span className="text-xs text-purple-600 dark:text-purple-400 font-bold block mb-1">
+        <div className="p-3 rounded-lg border border-purple-200 bg-purple-50 text-center">
+          <span className="text-xs text-purple-600 font-bold block mb-1">
             2. Tính độ dài
           </span>
-          <span className="font-mono font-bold text-slate-800 dark:text-slate-100">
+          <span className="font-mono font-bold text-slate-800">
             <InlineMath formula="\|\mathbf{v}\|_2 = 5" />
           </span>
         </div>
 
-        <div className="p-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-center">
-          <span className="text-xs text-amber-600 dark:text-amber-400 font-bold block mb-1">
+        <div className="p-3 rounded-lg border border-amber-200 bg-amber-50 text-center">
+          <span className="text-xs text-amber-600 font-bold block mb-1">
             3. Phép chia
           </span>
-          <span className="font-mono font-bold text-slate-800 dark:text-slate-100">
+          <span className="font-mono font-bold text-slate-800">
             <InlineMath formula="\hat{\mathbf{v}} = \mathbf{v} / 5" />
           </span>
         </div>
 
-        <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-center">
-          <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold block mb-1">
+        <div className="p-3 rounded-lg border border-emerald-200 bg-emerald-50 text-center">
+          <span className="text-xs text-emerald-600 font-bold block mb-1">
             4. Vector đơn vị
           </span>
-          <span className="font-mono font-bold text-emerald-700 dark:text-emerald-300">
+          <span className="font-mono font-bold text-emerald-700">
             <InlineMath formula="[0.6, 0.8]^\top" />
           </span>
         </div>
       </div>
-      <p className="mt-3 text-xs text-center text-slate-500 dark:text-slate-400">
+      <p className="mt-3 text-xs text-center text-slate-500">
         Hướng được bảo toàn nguyên vẹn, độ dài sau chuẩn hóa luôn bằng 1:{' '}
         <InlineMath formula="\sqrt{0.6^2 + 0.8^2} = 1.0" />
       </p>
@@ -1373,7 +1373,7 @@ export function DotProductAngleExplorer({
         colorScheme="purple"
       />
 
-      <div className="text-xs text-center text-slate-500 dark:text-slate-400">
+      <div className="text-xs text-center text-slate-500">
         {angleDeg < 90 &&
           'Góc nhọn (<90°): cos(θ) > 0, dot product dương'}
         {angleDeg === 90 &&
@@ -1420,12 +1420,12 @@ export function CosineMotivationDiagram({
 
   return (
     <StaticVisualCard ariaLabel={ariaLabel}>
-      <h4 className="mb-4 text-center text-sm font-bold text-slate-800 dark:text-slate-200">
+      <h4 className="mb-4 text-center text-sm font-bold text-slate-800">
         So sánh hai cặp vector cùng hướng (<InlineMath formula="\theta = 0^\circ" />)
       </h4>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="p-3.5 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800/80">
-          <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">
+        <div className="p-3.5 rounded-lg border border-blue-200 bg-white">
+          <div className="text-xs font-bold text-blue-600 mb-2">
             Cặp 1: Vector độ dài nhỏ
           </div>
           <div className="space-y-1 font-mono text-xs">
@@ -1434,21 +1434,21 @@ export function CosineMotivationDiagram({
             </div>
             <div>
               Dot product:{' '}
-              <span className="font-bold text-slate-800 dark:text-slate-100">
+              <span className="font-bold text-slate-800">
                 {dot1.toFixed(1)}
               </span>
             </div>
             <div>
               Cosine similarity:{' '}
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+              <span className="font-bold text-emerald-600 text-sm">
                 {cos1.toFixed(2)}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="p-3.5 rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-slate-800/80">
-          <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">
+        <div className="p-3.5 rounded-lg border border-purple-200 bg-white">
+          <div className="text-xs font-bold text-purple-600 mb-2">
             Cặp 2: Vector độ dài lớn hơn
           </div>
           <div className="space-y-1 font-mono text-xs">
@@ -1457,20 +1457,20 @@ export function CosineMotivationDiagram({
             </div>
             <div>
               Dot product:{' '}
-              <span className="font-bold text-slate-800 dark:text-slate-100">
+              <span className="font-bold text-slate-800">
                 {dot2.toFixed(1)}
               </span>
             </div>
             <div>
               Cosine similarity:{' '}
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+              <span className="font-bold text-emerald-600 text-sm">
                 {cos2.toFixed(2)}
               </span>
             </div>
           </div>
         </div>
       </div>
-      <p className="mt-3 text-xs text-center text-slate-500 dark:text-slate-400">
+      <p className="mt-3 text-xs text-center text-slate-500">
         Dot product tăng gấp nhiều lần do độ dài lớn hơn, nhưng Cosine similarity luôn bằng 1.0 vì hướng hai cặp hoàn toàn giống nhau.
       </p>
     </StaticVisualCard>
@@ -1524,7 +1524,7 @@ export function CosineAngleExplorer({
         />
       )}
 
-      <div className="text-xs text-center text-slate-500 dark:text-slate-400">
+      <div className="text-xs text-center text-slate-500">
         {angleDeg === 0 && '0°: Cùng hướng hoàn hảo, Cosine = 1.0'}
         {angleDeg > 0 && angleDeg < 90 && 'Góc nhọn: Cùng hướng một phần, 0 < Cosine < 1.0'}
         {angleDeg === 90 && '90°: Vuông góc / Trực giao, Cosine = 0.0'}
@@ -1571,8 +1571,8 @@ export function EmbeddingCosineDiagram({
 
   const belowPlot = (
     <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2 sm:text-sm">
-      <div className="p-2.5 rounded-lg border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/30">
-        <div className="font-bold text-blue-600 dark:text-blue-400">
+      <div className="p-2.5 rounded-lg border border-blue-200 bg-blue-50/50">
+        <div className="font-bold text-blue-600">
           Vector v₁ và v₂ (Góc nhỏ)
         </div>
         <div>
@@ -1581,8 +1581,8 @@ export function EmbeddingCosineDiagram({
           />
         </div>
       </div>
-      <div className="p-2.5 rounded-lg border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/30">
-        <div className="font-bold text-rose-600 dark:text-rose-400">
+      <div className="p-2.5 rounded-lg border border-rose-200 bg-rose-50/50">
+        <div className="font-bold text-rose-600">
           Vector v₁ và v₃ (Góc tù)
         </div>
         <div>

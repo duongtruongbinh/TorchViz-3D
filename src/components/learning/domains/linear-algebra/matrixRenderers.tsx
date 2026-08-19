@@ -50,7 +50,7 @@ export function MatrixExplorer({
       </div>
 
       {highlight === 'indices' && highlightIndices && (
-        <div className="mt-2 flex flex-wrap justify-center gap-4 text-xs font-mono border-t pt-3 w-full border-slate-200 dark:border-slate-800">
+        <div className="mt-2 flex flex-wrap justify-center gap-4 text-xs font-mono border-t pt-3 w-full border-slate-200">
           <div className="flex items-center gap-1.5">
             <span className="inline-block w-3 h-3 rounded bg-emerald-500" />
             <span>
@@ -134,7 +134,7 @@ export function MatrixTransposeExplorer({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-xs border-t pt-3 w-full justify-center border-slate-200 dark:border-slate-800">
+      <div className="flex flex-wrap items-center gap-2 text-xs border-t pt-3 w-full justify-center border-slate-200">
         <span className="text-slate-500">Chọn hàng để xem ánh xạ:</span>
         {Array.from({ length: rows }, (_, rIdx) => (
           <button
@@ -144,7 +144,7 @@ export function MatrixTransposeExplorer({
             className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
               activeRow === rIdx
                 ? 'bg-blue-600 text-white'
-                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                : 'bg-slate-200 text-slate-700'
             }`}
           >
             Hàng {rIdx + 1} của A → Cột {rIdx + 1} của Aᵀ
@@ -162,69 +162,69 @@ export function MatrixTransposeExplorer({
 export function ProductOverview({ ariaLabel }: ProductOverviewProps) {
   return (
     <div
-      className="my-6 rounded-xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm bg-slate-50 dark:bg-slate-900"
+      className="my-6 rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm bg-slate-50"
       aria-label={ariaLabel}
     >
-      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 text-center">
+      <h4 className="text-sm font-bold text-slate-800 mb-4 text-center">
         3 loại phép nhân quan trọng trong Đại số Tuyến tính & Deep Learning
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         {/* Hadamard */}
-        <div className="p-3.5 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800/90 flex flex-col justify-between">
+        <div className="p-3.5 rounded-lg border border-blue-200 bg-white flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+              <span className="text-xs font-bold text-blue-600">
                 1. Hadamard Product
               </span>
-              <span className="text-xs font-mono font-bold bg-blue-100 dark:bg-blue-950/60 px-1.5 py-0.5 rounded text-blue-800 dark:text-blue-300">
+              <span className="text-xs font-mono font-bold bg-blue-100 px-1.5 py-0.5 rounded text-blue-800">
                 <InlineMath formula="A \odot B" />
               </span>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">
+            <p className="text-xs text-slate-600 mb-2">
               Nhân từng phần tử tương ứng cùng vị trí (i, j).
             </p>
           </div>
-          <div className="text-[11px] font-mono p-2 rounded bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+          <div className="text-[11px] font-mono p-2 rounded bg-slate-100 text-slate-700 border border-slate-200">
             <InlineMath formula="(m\times n) \odot (m\times n) \to (m\times n)" />
           </div>
         </div>
 
         {/* Outer Product */}
-        <div className="p-3.5 rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-slate-800/90 flex flex-col justify-between">
+        <div className="p-3.5 rounded-lg border border-purple-200 bg-white flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+              <span className="text-xs font-bold text-purple-600">
                 2. Outer Product
               </span>
-              <span className="text-xs font-mono font-bold bg-purple-100 dark:bg-purple-950/60 px-1.5 py-0.5 rounded text-purple-800 dark:text-purple-300">
+              <span className="text-xs font-mono font-bold bg-purple-100 px-1.5 py-0.5 rounded text-purple-800">
                 <InlineMath formula="\mathbf{u}\mathbf{v}^\top" />
               </span>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">
+            <p className="text-xs text-slate-600 mb-2">
               Tích ngoài giữa vector cột <InlineMath formula="\mathbf{u}" /> và vector hàng <InlineMath formula="\mathbf{v}^\top" /> tạo ma trận <InlineMath formula="m\times n" />.
             </p>
           </div>
-          <div className="text-[11px] font-mono p-2 rounded bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+          <div className="text-[11px] font-mono p-2 rounded bg-slate-100 text-slate-700 border border-slate-200">
             <InlineMath formula="(m\times 1) \times (1\times n) \to (m\times n)" />
           </div>
         </div>
 
         {/* Matrix Product */}
-        <div className="p-3.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-slate-800/90 flex flex-col justify-between">
+        <div className="p-3.5 rounded-lg border border-emerald-200 bg-white flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs font-bold text-emerald-600">
                 3. Matrix Product
               </span>
-              <span className="text-xs font-mono font-bold bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded text-emerald-800 dark:text-emerald-300">
+              <span className="text-xs font-mono font-bold bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800">
                 <InlineMath formula="AB" />
               </span>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">
+            <p className="text-xs text-slate-600 mb-2">
               Tích vô hướng giữa hàng <InlineMath formula="i" /> của A và cột <InlineMath formula="j" /> của B: <InlineMath formula="c_{ij} = \mathbf{a}_i^\top \mathbf{b}_j" />.
             </p>
           </div>
-          <div className="text-[11px] font-mono p-2 rounded bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+          <div className="text-[11px] font-mono p-2 rounded bg-slate-100 text-slate-700 border border-slate-200">
             <InlineMath formula="(m\times k) \times (k\times n) \to (m\times n)" />
           </div>
         </div>
@@ -267,7 +267,7 @@ export function HadamardProductGrid({ ariaLabel }: HadamardProductGridProps) {
           size="md"
         />
 
-        <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+        <span className="text-xl font-bold text-blue-600">
           ⊙
         </span>
 
@@ -290,9 +290,9 @@ export function HadamardProductGrid({ ariaLabel }: HadamardProductGridProps) {
         />
       </div>
 
-      <div className="border-t pt-3 w-full text-center border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-mono">
+      <div className="border-t pt-3 w-full text-center border-slate-200 text-xs sm:text-sm font-mono">
         Phần tử ({r + 1}, {c + 1}):{' '}
-        <span className="font-bold text-blue-600 dark:text-blue-400">
+        <span className="font-bold text-blue-600">
           <InlineMath
             formula={`c_{${r + 1}${c + 1}} = a_{${r + 1}${c + 1}} \\times b_{${r + 1}${c + 1}} = ${valA} \\times ${valB} = ${valC}`}
           />
@@ -332,7 +332,7 @@ export function OuterProductExplorer({ ariaLabel }: OuterProductExplorerProps) {
           size="md"
         />
 
-        <span className="text-xl font-bold text-purple-600 dark:text-purple-400">
+        <span className="text-xl font-bold text-purple-600">
           ×
         </span>
 
@@ -357,9 +357,9 @@ export function OuterProductExplorer({ ariaLabel }: OuterProductExplorerProps) {
         />
       </div>
 
-      <div className="border-t pt-3 w-full text-center border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-mono">
+      <div className="border-t pt-3 w-full text-center border-slate-200 text-xs sm:text-sm font-mono">
         Ô ({r + 1}, {c + 1}):{' '}
-        <span className="font-bold text-purple-600 dark:text-purple-400">
+        <span className="font-bold text-purple-600">
           <InlineMath
             formula={`(\\mathbf{u}\\mathbf{v}^\\top)_{${r + 1}${c + 1}} = u_{${r + 1}} \\times v_{${c + 1}} = ${u[r]} \\times ${v[c]} = ${outerMatrix[r][c]}`}
           />
@@ -419,9 +419,9 @@ export function MatrixVectorProductExplorer({
         />
       </div>
 
-      <div className="border-t pt-3 w-full text-center border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-mono">
+      <div className="border-t pt-3 w-full text-center border-slate-200 text-xs sm:text-sm font-mono">
         Hàng {r + 1}:{' '}
-        <span className="font-bold text-emerald-600 dark:text-emerald-400">
+        <span className="font-bold text-emerald-600">
           <InlineMath
             formula={`(A\\mathbf{x})_{${r + 1}} = ${calcString} = ${vecY[r][0]}`}
           />
@@ -436,7 +436,7 @@ export function MatrixVectorProductExplorer({
             className={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
               selectedRow === 0
                 ? 'bg-blue-600 text-white'
-                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                : 'bg-slate-200 text-slate-700'
             }`}
           >
             Tính hàng 1: <InlineMath formula="(A\mathbf{x})_1" />
@@ -447,7 +447,7 @@ export function MatrixVectorProductExplorer({
             className={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
               selectedRow === 1
                 ? 'bg-blue-600 text-white'
-                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                : 'bg-slate-200 text-slate-700'
             }`}
           >
             Tính hàng 2: <InlineMath formula="(A\mathbf{x})_2" />
@@ -513,9 +513,9 @@ export function MatrixProductExplorer({
         />
       </div>
 
-      <div className="border-t pt-3 w-full text-center border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-mono">
+      <div className="border-t pt-3 w-full text-center border-slate-200 text-xs sm:text-sm font-mono">
         Ô <InlineMath formula={`C_{${r + 1}${c + 1}} =`} /> (Hàng {r + 1} của A) · (Cột {c + 1} của B):
-        <div className="mt-1 font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+        <div className="mt-1 font-bold text-emerald-600 text-sm">
           <InlineMath
             formula={`c_{${r + 1}${c + 1}} = (${matA[r][0]}\\times ${matB[0][c]}) + (${matA[r][1]}\\times ${matB[1][c]}) = ${matC[r][c]}`}
           />
@@ -537,7 +537,7 @@ export function MatrixProductExplorer({
               className={`px-2.5 py-1 rounded text-xs font-semibold font-mono transition-colors ${
                 r === cr && c === cc
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  : 'bg-slate-200 text-slate-700'
               }`}
             >
               <InlineMath formula={`C_{${cr + 1}${cc + 1}}`} /> ({matC[cr][cc]})

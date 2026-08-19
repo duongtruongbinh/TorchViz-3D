@@ -65,16 +65,16 @@ export function TraceEigenvalueLink({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
+          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
             {tab === 'sum' ? (
               <div className="space-y-1.5">
                 <div className="text-center font-mono py-1">
                   <BlockMath formula="\operatorname{tr}(A) = a_{11} + a_{22} = 4 + 3 = 7 = \lambda_1 + \lambda_2 \; (5 + 2)" />
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 text-center">
+                <p className="text-slate-600 text-center">
                   Phương trình đặc trưng: <InlineMath formula="\det(A - \lambda I) = \lambda^2 - 7\lambda + 10 = 0 \implies \lambda_1 = 5, \lambda_2 = 2" />.
                 </p>
-                <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-center text-xs pt-1">
+                <p className="text-emerald-600 font-semibold text-center text-xs pt-1">
                   Định lý: Tổng các phần tử đường chéo luôn luôn bằng tổng các trị riêng của ma trận!
                 </p>
               </div>
@@ -83,7 +83,7 @@ export function TraceEigenvalueLink({
                 <div className="text-center font-mono py-1">
                   <BlockMath formula="\operatorname{tr}(AB) = 7 + 16 = 23 \quad \equiv \quad \operatorname{tr}(BA) = 8 + 15 = 23" />
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 text-center">
+                <p className="text-slate-600 text-center">
                   Dù tích ma trận nói chung không có tính giao hoán (<InlineMath formula="AB \neq BA" />), vết của tích luôn bằng nhau theo tính chất chu kỳ: <InlineMath formula="\operatorname{tr}(AB) = \operatorname{tr}(BA)" />.
                 </p>
               </div>
@@ -218,15 +218,15 @@ export function EigenvectorExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
+          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
             <div className="text-center font-mono py-1">
               <BlockMath formula={current.formula} />
             </div>
             <p
               className={`text-center font-semibold ${
                 current.isEigen
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-rose-600 dark:text-rose-400'
+                  ? 'text-emerald-600'
+                  : 'text-rose-600'
               }`}
             >
               {current.desc}
@@ -343,14 +343,14 @@ export function DiagonalizationExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
-            <div className="font-semibold text-blue-600 dark:text-blue-400">
+          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+            <div className="font-semibold text-blue-600">
               {steps[step].title}
             </div>
-            <p className="text-slate-600 dark:text-slate-300 mt-1">
+            <p className="text-slate-600 mt-1">
               {steps[step].desc}
             </p>
-            <div className="mt-2 text-xs font-mono text-emerald-600 dark:text-emerald-400 text-center font-semibold pt-1 border-t border-slate-200 dark:border-slate-800">
+            <div className="mt-2 text-xs font-mono text-emerald-600 text-center font-semibold pt-1 border-t border-slate-200">
               <InlineMath formula="A\mathbf{x} = V \Lambda V^{-1}\mathbf{x} = V (\Lambda (V^{-1}\mathbf{x}))" />
             </div>
           </div>
@@ -433,11 +433,11 @@ export function PCAProjectionExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
-            <p className="text-slate-600 dark:text-slate-300">
-              Trục <span className="font-bold text-blue-600 dark:text-blue-400">PC1</span> (ứng với trị riêng lớn nhất <InlineMath formula="\lambda_1" /> của ma trận hiệp phương sai) lưu giữ phương sai tối đa của tập dữ liệu.
+          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+            <p className="text-slate-600">
+              Trục <span className="font-bold text-blue-600">PC1</span> (ứng với trị riêng lớn nhất <InlineMath formula="\lambda_1" /> của ma trận hiệp phương sai) lưu giữ phương sai tối đa của tập dữ liệu.
             </p>
-            <p className="text-emerald-600 dark:text-emerald-400 font-semibold text-xs mt-1">
+            <p className="text-emerald-600 font-semibold text-xs mt-1">
               Chiếu dữ liệu đã trừ kỳ vọng (zero-mean) lên PC1 tối thiểu hóa sai số tái tạo (tổng bình phương khoảng cách chiếu).
             </p>
           </div>

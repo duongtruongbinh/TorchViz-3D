@@ -3,6 +3,7 @@ import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxCont
 export const CV_MDX_COMPONENT_NAMES = ['CvExercise'] as const;
 
 export const LINEAR_ALGEBRA_MDX_COMPONENT_NAMES = [
+  'AiDataRepresentationDemo',
   'BasisIndependenceExplorer',
   'ColumnCombinationExplorer',
   'ColumnNullSpaceExplorer',

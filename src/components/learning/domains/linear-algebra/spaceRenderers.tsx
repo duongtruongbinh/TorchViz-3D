@@ -61,8 +61,8 @@ export function SubspaceClosureExplorer({
         <div
           className={`p-2.5 rounded-lg border flex flex-col gap-1 ${
             isSubspace
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+              : 'bg-rose-50 border-rose-300 text-rose-900'
           }`}
         >
           <span className="font-bold flex items-center gap-1">
@@ -78,8 +78,8 @@ export function SubspaceClosureExplorer({
         <div
           className={`p-2.5 rounded-lg border flex flex-col gap-1 ${
             isSumOnLine
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+              : 'bg-rose-50 border-rose-300 text-rose-900'
           }`}
         >
           <span className="font-bold flex items-center gap-1">
@@ -95,8 +95,8 @@ export function SubspaceClosureExplorer({
         <div
           className={`p-2.5 rounded-lg border flex flex-col gap-1 ${
             isSubspace
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+              : 'bg-rose-50 border-rose-300 text-rose-900'
           }`}
         >
           <span className="font-bold flex items-center gap-1">
@@ -222,13 +222,13 @@ export function ColumnNullSpaceExplorer({
         </div>
       )}
 
-      <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
+      <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
         {activeSpace === 'col' ? (
           <div className="space-y-1.5">
-            <div className="font-semibold text-blue-600 dark:text-blue-400">
+            <div className="font-semibold text-blue-600">
               <InlineMath formula="\operatorname{Col}(A) = \operatorname{span}\{\mathbf{a}_1, \mathbf{a}_2, \mathbf{a}_3\} \subseteq \mathbb{R}^2" />
             </div>
-            <p className="text-slate-600 dark:text-slate-300">
+            <p className="text-slate-600">
               Vì <InlineMath formula="\mathbf{a}_2 = 2\mathbf{a}_1" /> và{' '}
               <InlineMath formula="\mathbf{a}_3 = 3\mathbf{a}_1" />, tất cả các cột đều cùng phương với{' '}
               <InlineMath formula="\mathbf{a}_1 = [1, 2]^\top" />. Do đó <InlineMath formula="\operatorname{Col}(A)" /> là đường thẳng <InlineMath formula="y = 2x" /> trong <InlineMath formula="\mathbb{R}^2" /> có số chiều bằng 1.
@@ -236,13 +236,13 @@ export function ColumnNullSpaceExplorer({
           </div>
         ) : (
           <div className="space-y-1.5 font-mono text-xs">
-            <div className="font-semibold font-sans text-purple-600 dark:text-purple-400 text-sm">
+            <div className="font-semibold font-sans text-purple-600 text-sm">
               <InlineMath formula="\operatorname{Null}(A) = \{\mathbf{x} \in \mathbb{R}^3 \mid A\mathbf{x} = \mathbf{0}\}" />
             </div>
-            <p className="text-slate-600 dark:text-slate-300 font-sans">
+            <p className="text-slate-600 font-sans">
               Hệ thuần nhất <InlineMath formula="x_1 + 2x_2 + 3x_3 = 0" /> có 2 biến tự do (<InlineMath formula="x_2, x_3" />). Cơ sở của <InlineMath formula="\operatorname{Null}(A)" /> gồm 2 vector độc lập trong <InlineMath formula="\mathbb{R}^3" />:
             </p>
-            <div className="p-2 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-center">
+            <div className="p-2 rounded bg-slate-100 border border-slate-200 text-slate-800 text-center">
               <InlineMath formula="\mathbf{n}_1 = \begin{bmatrix}-2\\1\\0\end{bmatrix}, \quad \mathbf{n}_2 = \begin{bmatrix}-3\\0\\1\end{bmatrix} \quad \Longrightarrow \quad \dim(\operatorname{Null}(A)) = 2" />
             </div>
           </div>
@@ -290,11 +290,11 @@ export function ColumnNullSpaceExplorer({
             </MathCanvas>
           </div>
         ) : (
-          <div className="w-full max-w-sm p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 flex flex-col items-center gap-3">
-            <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
+          <div className="w-full max-w-sm p-4 rounded-xl border border-slate-200 bg-white flex flex-col items-center gap-3">
+            <span className="text-xs font-semibold text-purple-600">
               Không gian nghiệm đầu vào ℝ³ (Ax = 0)
             </span>
-            <div className="w-full text-xs font-mono bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+            <div className="w-full text-xs font-mono bg-slate-50 p-3 rounded-lg border border-slate-200">
               <div className="mb-2">
                 <BlockMath formula="\mathbf{x} = x_2 \begin{bmatrix}-2\\1\\0\end{bmatrix} + x_3 \begin{bmatrix}-3\\0\\1\end{bmatrix}" />
               </div>
@@ -353,25 +353,25 @@ export function BasisIndependenceExplorer({
         </div>
       )}
 
-      <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
+      <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
         {isIndependent ? (
           <div className="space-y-1">
-            <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+            <p className="font-semibold text-emerald-600">
               Cơ sở chuẩn tắc của <InlineMath formula="\mathbb{R}^2" /> gồm 2 vector độc lập:
             </p>
-            <p className="text-slate-600 dark:text-slate-300">
+            <p className="text-slate-600">
               Phương trình <InlineMath formula="c_1\mathbf{e}_1 + c_2\mathbf{e}_2 = \mathbf{0}" /> chỉ có nghiệm tầm thường duy nhất <InlineMath formula="c_1 = c_2 = 0" />. Hai vector này sinh ra toàn bộ không gian <InlineMath formula="\mathbb{R}^2" />.
             </p>
           </div>
         ) : (
           <div className="space-y-1">
-            <p className="font-semibold text-amber-600 dark:text-amber-400">
+            <p className="font-semibold text-amber-600">
               Vector thứ ba <InlineMath formula="\mathbf{v}_3" /> là tổ hợp tuyến tính thừa:
             </p>
-            <p className="text-slate-600 dark:text-slate-300 font-mono">
+            <p className="text-slate-600 font-mono">
               <InlineMath formula="\mathbf{v}_3 = 1\mathbf{v}_1 + 1\mathbf{v}_2 \;\Longleftrightarrow\; 1\mathbf{v}_1 + 1\mathbf{v}_2 - 1\mathbf{v}_3 = \mathbf{0}" />
             </p>
-            <p className="text-slate-500 dark:text-slate-400 text-xs">
+            <p className="text-slate-500 text-xs">
               Trong không gian <InlineMath formula="\mathbb{R}^2" />, bất kỳ tập hợp nào có từ 3 vector trở lên đều chắc chắn phụ thuộc tuyến tính.
             </p>
           </div>
@@ -496,7 +496,7 @@ export function RankPivotExplorer({
                       ? item.isPivot
                         ? 'bg-amber-600 text-white shadow-xs'
                         : 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      : 'bg-slate-200 text-slate-700'
                   }`}
                 >
                   Cột {item.col + 1} ({item.isPivot ? 'Pivot' : 'Không Pivot'})
@@ -506,23 +506,23 @@ export function RankPivotExplorer({
           )}
 
           {currentInfo && (
-            <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
+            <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
               <p
                 className={`font-semibold ${
                   currentInfo.isPivot
-                    ? 'text-amber-600 dark:text-amber-400'
-                    : 'text-blue-600 dark:text-blue-400'
+                    ? 'text-amber-600'
+                    : 'text-blue-600'
                 }`}
               >
                 {currentInfo.title}
               </p>
-              <p className="text-slate-600 dark:text-slate-300 mt-1">
+              <p className="text-slate-600 mt-1">
                 {currentInfo.desc}
               </p>
             </div>
           )}
 
-          <div className="text-xs text-slate-500 font-mono text-center pt-1 border-t border-slate-200 dark:border-slate-800">
+          <div className="text-xs text-slate-500 font-mono text-center pt-1 border-t border-slate-200">
             <InlineMath formula="\operatorname{rank}(A) = 2 \quad (\text{số cột pivot}), \quad \dim(\operatorname{Null}(A)) = 3 - 2 = 1 \quad (\text{số cột không pivot})" />
           </div>
         </div>
@@ -631,11 +631,11 @@ export function LinearTransformationExplorer({
         </div>
       )}
 
-      <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
-        <div className="font-semibold text-blue-600 dark:text-blue-400">
+      <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+        <div className="font-semibold text-blue-600">
           {currentMat.name}
         </div>
-        <p className="text-slate-600 dark:text-slate-300 mt-1">
+        <p className="text-slate-600 mt-1">
           {currentMat.desc}
         </p>
         <div className="mt-2 text-xs font-mono text-slate-500 text-center">

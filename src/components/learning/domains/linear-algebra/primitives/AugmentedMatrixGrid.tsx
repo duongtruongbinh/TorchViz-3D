@@ -69,7 +69,7 @@ export function AugmentedMatrixGrid({
     >
       {rightBlockName && (
         <div className="w-full flex justify-end pr-4">
-          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+          <span className="text-xs font-bold text-emerald-600">
             {typeof rightBlockName === 'string' ? (
               <InlineMath formula={rightBlockName} />
             ) : (

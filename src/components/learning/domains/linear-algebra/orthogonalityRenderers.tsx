@@ -39,7 +39,7 @@ export function OrthogonalityExplorer({
             <InlineMath
               formula={`\\mathbf{u}^\\top\\mathbf{v} = (${u[0]}\\times ${v[0]}) + (${u[1]}\\times ${v[1]}) = `}
             />
-            <span className="font-bold text-emerald-600 dark:text-emerald-400 text-base">
+            <span className="font-bold text-emerald-600 text-base">
               {dot.toFixed(1)}
             </span>
           </div>
@@ -108,11 +108,11 @@ export function ProjectionExplorer({
             <div>
               <InlineMath formula="\mathbf{p} = \frac{\mathbf{a}^\top\mathbf{b}}{\mathbf{a}^\top\mathbf{a}}\mathbf{a} = \frac{5}{5}[2, 1]^\top = [2, 1]^\top" />
             </div>
-            <div className="text-emerald-600 dark:text-emerald-400 font-semibold">
+            <div className="text-emerald-600 font-semibold">
               <InlineMath formula="\mathbf{e} = \mathbf{b} - \mathbf{p} = [-1, 2]^\top \perp \mathbf{a}" />
             </div>
           </div>
-          <div className="border-t pt-2 border-slate-200 dark:border-slate-800 text-xs text-slate-500 font-mono flex justify-between">
+          <div className="border-t pt-2 border-slate-200 text-xs text-slate-500 font-mono flex justify-between">
             <span>
               Định lý Pythagoras: <InlineMath formula={`\\|\\mathbf{b}\\|^2 = \\|\\mathbf{p}\\|^2 + \\|\\mathbf{e}\\|^2 \\; (${magB2} = ${magP2} + ${magE2})`} />
             </span>
@@ -239,11 +239,11 @@ export function GramSchmidtExplorer({
       subtitle={currentStep.title}
       footer={
         <div className="space-y-3 w-full">
-          <div className="rounded-lg p-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-xs sm:text-sm">
+          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
             <div className="text-center font-mono py-1">
               <BlockMath formula={currentStep.math} />
             </div>
-            <p className="text-slate-600 dark:text-slate-300 text-center">
+            <p className="text-slate-600 text-center">
               {currentStep.desc}
             </p>
           </div>
@@ -373,11 +373,11 @@ export function LeastSquaresExplorer({
             <div>
               Hệ phương trình chuẩn: <InlineMath formula="A^\top A\hat{\mathbf{x}} = A^\top\mathbf{b}" />
             </div>
-            <div className="text-emerald-600 dark:text-emerald-400 font-semibold">
+            <div className="text-emerald-600 font-semibold">
               <InlineMath formula="\hat{\mathbf{b}} = A\hat{\mathbf{x}} = [2, 1]^\top" />
             </div>
           </div>
-          <p className="text-slate-500 text-xs border-t pt-2 border-slate-200 dark:border-slate-800">
+          <p className="text-slate-500 text-xs border-t pt-2 border-slate-200">
             Vector sai số <InlineMath formula="\mathbf{e} = \mathbf{b} - A\hat{\mathbf{x}} = [-1, 2]^\top" /> trực giao hoàn toàn với không gian cột <InlineMath formula="\operatorname{Col}(A)" /> (<InlineMath formula="A^\top\mathbf{e} = \mathbf{0}" />).
           </p>
         </div>
