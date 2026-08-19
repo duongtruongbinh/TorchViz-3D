@@ -409,13 +409,16 @@ distinction matters.
 
 The Chapter 2 `Regularization` overview separates the shared retention
 objective from its `Weight Regularization` and `Function Regularization`
-follow-ups. The Function Regularization node treats continual distillation as a
-functional retention constraint. A frozen earlier checkpoint supplies teacher targets while
-the updated student optimizes both its current-task loss and a weighted
-retention loss. The authored lesson distinguishes raw logits, softened
-probabilities, and intermediate representations; contrasts LwF's dependence on
-new-task query inputs with DER/DER++ replay of stored exemplars and historical
-logits; and states explicitly that matching observed signals does not guarantee
+follow-ups. The Function Regularization node opens with a Task A to Task B
+scenario: nearby weights do not guarantee preserved responses or old-task
+performance, so the retention target shifts from parameter distance to model
+behavior. It then treats continual distillation as that functional retention
+constraint. A frozen earlier checkpoint supplies teacher targets while the
+updated student optimizes both its current-task loss and a weighted retention
+loss. The authored lesson distinguishes raw logits, softened probabilities,
+and intermediate representations; contrasts LwF's dependence on new-task query
+inputs with DER/DER++ replay of stored exemplars and historical logits; and
+states explicitly that matching observed signals does not guarantee
 preservation of all unobserved knowledge.
 
 Two nodes deliberately retain large evidence sets: `dap-domain-landscape`
@@ -514,10 +517,14 @@ lesson media belongs under `src/assets/learning/<domain>/`; `docs/assets/` is
 only for documentation artifacts.
 
 Shared authored visuals are semantic and data-driven. `ConceptFlow` renders
-ordered stages, `ComparisonMatrix` renders exact cross-field comparisons, and
+ordered stages, `ConceptHierarchy` renders one rooted concept branching to peer
+children, with optional muted peers and one controlled nested reveal,
+`ComparisonMatrix` renders exact cross-field comparisons, and
 `ConceptSpectrum` renders an ordered constraint/trade-off continuum.
 `CourseCards` renders compact peer examples with an explicit example and
-takeaway inside each semantic card. They live in `learningMdxComponents.tsx`,
+takeaway inside each semantic card; a card may opt into a fixed code-native
+illustration band without changing the layout of cards that omit it. They live
+in `learningMdxComponents.tsx`,
 are registered in the global MDX allowlist, and accept only static MDX data.
 Domain lessons must reuse these grammars instead of shipping look-alike local
 card grids. `LessonImage` resolves a relative path

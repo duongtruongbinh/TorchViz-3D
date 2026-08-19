@@ -18,6 +18,24 @@ export const lessonMetadata = {
 
 ## Tạo ràng buộc trong parameter space
 
+<ConceptHierarchy
+  ariaLabel="Weight regularization là trọng tâm trong taxonomy các hướng tiếp cận Continual Learning"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    {
+      title: 'Regularization',
+      tone: 'amber',
+      visual: 'two-term-loss',
+      children: [
+        { title: 'Weight regularization', tone: 'violet' },
+        { title: 'Function regularization', tone: 'teal', muted: true },
+      ],
+    },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
+
 Sau khi học Task A, model đang ở trạng thái tham số <InlineMath formula="\theta_A" />. Nếu sang Task B và chỉ tối ưu <InlineMath formula="\mathcal{L}_{\mathcal B}(\theta)" />, các tham số có thể di chuyển xa khỏi trạng thái đã giúp model làm tốt A.
 
 Parameter regularization thêm một penalty vào mục tiêu học Task B:

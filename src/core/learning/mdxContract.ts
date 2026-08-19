@@ -8,6 +8,7 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'CourseCards',
   'EvidenceCards',
   'ConceptFlow',
+  'ConceptHierarchy',
   'ExperimentChecklist',
   'SelfCheckList',
   'ComparisonMatrix',

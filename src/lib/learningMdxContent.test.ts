@@ -395,12 +395,13 @@ test('shared visual primitives accept static semantic data', async () => {
   const source = `export const lessonMetadata = ${metadata}
 
 <ConceptFlow ariaLabel="Flow" items={[{ title: 'A', detail: 'B' }]} />
+<ConceptHierarchy ariaLabel="Hierarchy" root={{ title: 'A' }} children={[{ title: 'B', detail: 'C', tone: 'blue', visual: 'database', muted: true }, { title: 'D', children: [{ title: 'E' }, { title: 'F' }] }]} />
 <ExperimentChecklist ariaLabel="Checklist" items={[{ title: 'A', action: 'B', check: 'C' }]} />
 <ComparisonMatrix ariaLabel="Matrix" columns={['A']} rows={[{ label: 'B', values: ['C'], highlightedColumn: 0 }]} />
 <DatasetComposition ariaLabel="Dataset" totalLabel="3 samples" segments={[{ label: 'A', value: 2, valueLabel: '2' }, { label: 'B', value: 1, valueLabel: '1', tone: 'accent' }]} />
 <MetricBars ariaLabel="Metrics" items={[{ label: 'A', value: 75, valueLabel: '75%', tone: 'success' }]} />
 <ConceptSpectrum ariaLabel="Spectrum" items={[{ label: 'A', detail: 'B' }]} />
-<CourseCards ariaLabel="Cards" exampleLabel="Example" takeawayLabel="Impact" items={[{ title: 'A', example: 'B', takeaway: 'C' }]} />
+<CourseCards ariaLabel="Cards" exampleLabel="Example" takeawayLabel="Impact" items={[{ title: 'A', example: 'B', takeaway: 'C', visual: 'gradient-update' }, { title: 'D', example: 'E', takeaway: 'F', visual: 'embedding-clusters' }]} />
 <EvidenceCards ariaLabel="Evidence" items={[{ eyebrow: 'Experiment', value: '75%', label: 'Retention', insight: 'Replay helps.', tone: 'success' }]} />`;
   const inspection = await inspectLearningMdx(source, 'fixture.mdx', 'cv');
   assert.deepEqual(inspection.pageIndexes, []);
@@ -414,7 +415,7 @@ test('continual-learning visuals use global semantic primitives without shared d
     .map((file) => readFileSync(file, 'utf8'))
     .join('\n');
 
-  for (const componentName of ['ConceptFlow', 'ExperimentChecklist', 'ComparisonMatrix', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'CourseCards', 'EvidenceCards']) {
+  for (const componentName of ['ConceptFlow', 'ConceptHierarchy', 'ExperimentChecklist', 'ComparisonMatrix', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'CourseCards', 'EvidenceCards']) {
     assert.match(sharedComponents, new RegExp(`export function ${componentName}\\b`));
   }
   assert.match(sharedComponents, /aria-label=\{ariaLabel\}/);
@@ -467,7 +468,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'EquationCallout', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'ConceptHierarchy', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'EquationCallout', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,

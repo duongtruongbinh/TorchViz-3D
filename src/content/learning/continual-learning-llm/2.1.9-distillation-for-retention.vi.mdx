@@ -4,6 +4,7 @@ export const lessonMetadata = {
   locale: 'vi',
   title: 'Function Regularization',
   headings: [
+    'Tại sao weight regularization không đủ?',
     'Distillation',
     'Teacher và student từ cùng checkpoint',
     'Teacher dạy student bằng cách nào?',
@@ -22,10 +23,48 @@ export const lessonMetadata = {
     'der-der-plus',
     'distillation-limitations',
   ],
-  pageCount: 8,
+  pageCount: 9,
 }
 
 <MdxPage page={0}>
+
+## Tại sao weight regularization không đủ?
+
+<ConceptHierarchy
+  ariaLabel="Function regularization là trọng tâm trong taxonomy các hướng tiếp cận Continual Learning"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    {
+      title: 'Regularization',
+      tone: 'amber',
+      visual: 'two-term-loss',
+      children: [
+        { title: 'Weight regularization', tone: 'violet', muted: true },
+        { title: 'Function regularization', tone: 'teal' },
+      ],
+    },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
+
+Hãy bắt đầu từ checkpoint sau **Task A**. Model đang làm tốt task cũ, và bây
+giờ cần học thêm **Task B**. Weight regularization cố giữ parameter mới ở gần
+checkpoint này, với hy vọng model sẽ không quên những gì đã học.
+
+Nhưng **weight gần nhau không có nghĩa phản hồi sẽ giống nhau**. Chỉ một
+thay đổi nhỏ cũng có thể làm output vượt qua decision boundary. Parameter vẫn
+ở gần checkpoint cũ, nhưng performance trên Task A vẫn có thể giảm.
+
+Ràng buộc lúc này không còn hỏi “Làm sao để weight mới không khác quá xa weight cũ?”, mà hỏi
+“Làm sao để năng lực model mới giữ giống như model cũ?”. Đó chính là **function
+regularization**.
+
+Trang tiếp theo triển khai ý tưởng này bằng **knowledge distillation**.
+
+</MdxPage>
+
+<MdxPage page={1}>
 
 ## Function regularization qua distillation
 
@@ -40,7 +79,7 @@ Model làm mẫu được gọi là **teacher**; model học cách phản hồi 
 
 </MdxPage>
 
-<MdxPage page={1}>
+<MdxPage page={2}>
 
 ## Teacher và student từ cùng checkpoint
 
@@ -64,7 +103,7 @@ Ngay sau khi tách, teacher và student vẫn giống hệt nhau. Khác biệt c
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Teacher dạy student bằng cách nào?
 
@@ -98,7 +137,7 @@ Khi học Task B, cùng một input <InlineMath formula="x" /> được đưa qu
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Distill tín hiệu nào?
 
@@ -127,7 +166,7 @@ Trong đó idea mở rộng ý tưởng distillation từ output sang các inter
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Temperature làm phân phối mềm hơn
 
@@ -157,7 +196,7 @@ Probability distillation dùng KL divergence hoặc cross-entropy để đưa ph
 
 </MdxPage>
 
-<MdxPage page={5}>
+<MdxPage page={6}>
 
 ## DER và DER++
 
@@ -177,7 +216,7 @@ Các phương pháp này được đề xuất và đánh giá trong continual i
 
 </MdxPage>
 
-<MdxPage page={6}>
+<MdxPage page={7}>
 
 ## Nếu chúng ta không truy cập được dữ liệu cũ thì sao?
 
@@ -214,7 +253,7 @@ Không có input Task A nào được replay: các input <InlineMath formula="x_
 
 </MdxPage>
 
-<MdxPage page={7}>
+<MdxPage page={8}>
 
 ## Distillation giữ được gì?
 

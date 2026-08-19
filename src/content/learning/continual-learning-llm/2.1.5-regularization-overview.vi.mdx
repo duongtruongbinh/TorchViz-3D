@@ -17,6 +17,16 @@ export const lessonMetadata = {
 
 ## Giữ tri thức cũ trong objective
 
+<ConceptHierarchy
+  ariaLabel="Nhắc lại ba hướng tiếp cận chính, với Regularization là trọng tâm hiện tại"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    { title: 'Regularization', tone: 'amber', visual: 'two-term-loss' },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
+
 Khi học Task B sau Task A, **regularization-based approach** không replay trực
 tiếp raw data cũ. Thay vào đó, approach này thêm một ràng buộc retention vào
 objective của task mới:
@@ -29,21 +39,35 @@ thay đổi có thể gây quên nặng hơn. Survey mô tả parameter
 regularization là một term phạt độ lệch lớn khỏi history model trong parameter
 space <Cite paper="shi2024continualSurvey" evidence="regularization-overview-01-shi2024continualSurvey" />.
 
-Survey chia nhóm này thành hai hướng <Cite paper="wang2024comprehensive" evidence="regularization-overview-02-wang2024comprehensive" />:
-
-- **Weight regularization:** phạt việc các tham số quan trọng rời khỏi trạng
-  thái của model cũ.
-- **Function regularization:** phạt việc output hoặc hành vi /năng lực của model mới khác với model cũ, thường bằng knowledge distillation.
-
 </MdxPage>
 
 <MdxPage page={1}>
 
 ## Hai regularization targets
 
-Theo Wang et al., regularization-based approach được chia thành hai hướng dựa
-trên **regularization target** <Cite paper="wang2024comprehensive" evidence="regularization-overview-06-wang2024comprehensive" />. Hai node kế tiếp đi sâu
-vào từng hướng:
+Survey tiếp tục chia nhóm này thành hai hướng <Cite paper="wang2024comprehensive" evidence="regularization-overview-02-wang2024comprehensive" />:
+
+<ConceptHierarchy
+  ariaLabel="Regularization trong ba hướng tiếp cận chính, chia tiếp thành Weight và Function regularization"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    {
+      title: 'Regularization',
+      tone: 'amber',
+      visual: 'two-term-loss',
+      children: [
+        { title: 'Weight regularization', tone: 'violet' },
+        { title: 'Function regularization', tone: 'teal' },
+      ],
+    },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
+
+- **Weight regularization:** phạt việc các tham số quan trọng rời khỏi trạng
+  thái của model cũ.
+- **Function regularization:** phạt việc output hoặc hành vi /năng lực của model mới khác với model cũ, thường bằng knowledge distillation.
 
 <LessonImage
   assetPath="continual-learning-llm/Regularizationv3.jpg"
@@ -74,6 +98,11 @@ regularization-based approach điều khiển.
 Regularization-based approach không nhất thiết phải replay **raw data cũ**,
 nhưng cũng không đồng nghĩa với zero storage cost. Wang et al. lưu ý rằng hướng
 này thường cần lưu một frozen copy của model cũ làm mốc tham chiếu <Cite paper="wang2024comprehensive" evidence="regularization-overview-03-wang2024comprehensive" />. 
+
+<LessonImage
+  assetPath="continual-learning-llm/02-regularization-tradeoff-storage-doodle.png"
+  alt="Bốn doodle card minh họa regularization với lambda thấp làm rơi tri thức cũ, lambda cân bằng giữ cả cũ và mới, lambda cao chặn task mới, và frozen checkpoint cung cấp mốc tham chiếu lưu trữ"
+/>
 
 - Weight regularization dùng mốc đó cùng importance của tham số để đặt penalty.
 
