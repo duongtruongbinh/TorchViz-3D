@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw } from 'lucide-react';
-import { useLearningMdxTheme } from '../learningMdxComponents';
-import { cx } from '../theme';
 
 export type StepperLabels = {
   next: string;
@@ -49,8 +47,6 @@ export function InteractiveStepper({
 }: InteractiveStepperProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const l = { ...DEFAULT_LABELS, ...labelOverrides };
-  const themeClasses = useLearningMdxTheme();
-  const isLight = themeClasses.isLight;
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -98,51 +94,16 @@ export function InteractiveStepper({
     setIsPlaying((prev) => !prev);
   };
 
-  // --- Theme-aware colors ---
-  const containerCls = isLight
-    ? 'bg-white/80 border-[#205089]/14 text-[#334155] shadow-[0_2px_8px_rgba(32,80,137,0.06)]'
-    : 'bg-zinc-900/60 border-zinc-800 text-zinc-300';
-  const btnIdleCls = isLight
-    ? 'text-[#64748B] hover:bg-[#B8C8DA]/50 hover:text-[#205089]'
-    : 'text-zinc-400 hover:bg-zinc-800 hover:text-white';
-  const btnActiveCls = isLight
-    ? 'hover:bg-[#B8C8DA]/50 hover:text-[#205089] text-[#334155]'
-    : 'hover:bg-zinc-800 hover:text-white text-zinc-300';
-  const btnDisabledCls = isLight
-    ? 'opacity-40 cursor-not-allowed text-[#94A3B8]'
-    : 'opacity-40 cursor-not-allowed text-zinc-600';
-  const playingCls = isLight
-    ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
-    : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40';
-  const dotActiveCls = isLight
-    ? 'w-6 bg-[#205089] shadow-sm shadow-[#205089]/30'
-    : 'w-6 bg-indigo-500 shadow-sm shadow-indigo-500/50';
-  const dotPassedCls = isLight
-    ? 'w-2 bg-[#205089]/35 hover:bg-[#205089]/55'
-    : 'w-2 bg-indigo-400/50 hover:bg-indigo-400';
-  const dotFutureCls = isLight
-    ? 'w-2 bg-[#B8C8DA] hover:bg-[#9FB4CA]'
-    : 'w-2 bg-zinc-700 hover:bg-zinc-600';
-  const counterCls = isLight
-    ? 'text-[#64748B] bg-[#EFF3F8] border-[#205089]/10'
-    : 'text-zinc-400 bg-zinc-800/80 border-zinc-700/50';
-  const counterAccentCls = isLight
-    ? 'text-[#205089]'
-    : 'text-indigo-400';
-
   return (
     <div
-      className={cx(
-        'flex flex-wrap items-center justify-between gap-3 p-3 border rounded-xl backdrop-blur-sm',
-        containerCls,
-      )}
+      className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/90 border border-[#205089]/14 rounded-xl shadow-[0_2px_8px_rgba(32,80,137,0.06)] text-[#334155] backdrop-blur-sm"
       aria-label={ariaLabel}
     >
       <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={handleReset}
-          className={cx('p-1.5 rounded-lg transition-colors', btnIdleCls)}
+          className="p-1.5 rounded-lg text-[#64748B] hover:bg-[#B8C8DA]/50 hover:text-[#205089] transition-colors"
           title={l.reset}
           aria-label={l.reset}
         >
@@ -153,10 +114,11 @@ export function InteractiveStepper({
           type="button"
           onClick={handlePrev}
           disabled={!canGoPrev}
-          className={cx(
-            'p-1.5 rounded-lg transition-colors',
-            canGoPrev ? btnActiveCls : btnDisabledCls,
-          )}
+          className={`p-1.5 rounded-lg transition-colors ${
+            canGoPrev
+              ? 'text-[#334155] hover:bg-[#B8C8DA]/50 hover:text-[#205089]'
+              : 'opacity-40 cursor-not-allowed text-[#94A3B8]'
+          }`}
           title={l.previous}
           aria-label={l.previous}
         >
@@ -167,10 +129,11 @@ export function InteractiveStepper({
           <button
             type="button"
             onClick={togglePlay}
-            className={cx(
-              'p-1.5 rounded-lg transition-colors',
-              isPlaying ? playingCls : btnActiveCls,
-            )}
+            className={`p-1.5 rounded-lg transition-colors ${
+              isPlaying
+                ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                : 'text-[#334155] hover:bg-[#B8C8DA]/50 hover:text-[#205089]'
+            }`}
             title={isPlaying ? l.pause : l.play}
             aria-label={isPlaying ? l.pause : l.play}
           >
@@ -182,10 +145,11 @@ export function InteractiveStepper({
           type="button"
           onClick={handleNext}
           disabled={!canGoNext}
-          className={cx(
-            'p-1.5 rounded-lg transition-colors',
-            canGoNext ? btnActiveCls : btnDisabledCls,
-          )}
+          className={`p-1.5 rounded-lg transition-colors ${
+            canGoNext
+              ? 'text-[#334155] hover:bg-[#B8C8DA]/50 hover:text-[#205089]'
+              : 'opacity-40 cursor-not-allowed text-[#94A3B8]'
+          }`}
           title={l.next}
           aria-label={l.next}
         >
@@ -211,10 +175,13 @@ export function InteractiveStepper({
                 }}
                 title={label}
                 aria-label={label}
-                className={cx(
-                  'h-2 rounded-full transition-all',
-                  isActive ? dotActiveCls : isPassed ? dotPassedCls : dotFutureCls,
-                )}
+                className={`h-2 rounded-full transition-all ${
+                  isActive
+                    ? 'w-6 bg-[#205089] shadow-sm shadow-[#205089]/30'
+                    : isPassed
+                      ? 'w-2 bg-[#205089]/35 hover:bg-[#205089]/55'
+                      : 'w-2 bg-[#B8C8DA] hover:bg-[#9FB4CA]'
+                }`}
               />
             );
           })}
@@ -222,8 +189,8 @@ export function InteractiveStepper({
       )}
 
       {/* Step Counter Text */}
-      <div className={cx('text-xs font-mono px-2 py-0.5 rounded border', counterCls)}>
-        {l.step} <span className={cx('font-semibold', counterAccentCls)}>{currentStep + 1}</span> / {totalSteps}
+      <div className="text-xs font-mono text-[#64748B] px-2 py-0.5 rounded bg-[#EFF3F8] border border-[#205089]/10">
+        {l.step} <span className="text-[#205089] font-semibold">{currentStep + 1}</span> / {totalSteps}
       </div>
     </div>
   );
