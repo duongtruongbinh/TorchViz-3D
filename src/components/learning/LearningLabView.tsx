@@ -13,7 +13,7 @@ import { resolveRailLearningLesson } from './lesson/visibleLesson';
 import { getStrings } from '../../lib/localization';
 import { usePreferencesStore } from '../../store/usePreferencesStore';
 import LearningLabHeader from './LearningLabHeader';
-import { DOMAIN_ICONS } from './domainPresentation';
+import { getDomainIcon } from './domainPresentation';
 import { loadFullLearningCatalog, loadLearningDomainCatalog } from './learningCatalogLoader';
 import { loadLearningSearchDocuments } from './learningSearch';
 import LessonRail, { filterLessonRailGroups, type LessonRailFilter, type LessonRailProps } from './lesson/LessonRail';
@@ -521,7 +521,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
             {learningHomeDomains.map(({ domain }) => {
               const text = getDomainText(language, domain);
               const isActive = routeDomainId === domain.id;
-              const DomainIcon = DOMAIN_ICONS[domain.id];
+              const DomainIcon = getDomainIcon(domain.id);
               return (
                 <button
                   key={domain.id}

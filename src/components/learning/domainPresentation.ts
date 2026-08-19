@@ -118,3 +118,19 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     accent: 'bg-[#6D8991]',
   },
 };
+
+const DEFAULT_PALETTE = {
+  visual: 'bg-[#A7C8CF]',
+  glow: 'bg-[#E9FCFF]/38',
+  icon: 'bg-[#ECFBFD] text-[#32636C]',
+  accent: 'bg-[#4F8A94]',
+};
+
+export function getDomainCardPalette(domainId: string) {
+  return DOMAIN_CARD_PALETTES[domainId as LearningDomainId] ?? DEFAULT_PALETTE;
+}
+
+export function getDomainIcon(domainId: string): LucideIcon {
+  return DOMAIN_ICONS[domainId as LearningDomainId] ?? BookOpen;
+}
+
