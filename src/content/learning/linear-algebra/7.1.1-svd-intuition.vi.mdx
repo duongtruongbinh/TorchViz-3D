@@ -1,0 +1,161 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'svd-intuition',
+  locale: 'vi',
+  title: 'SVD: Trực giác và Cấu trúc',
+  headings: [
+    'Một Factorization cho mọi Matrix',
+    'A bằng U Sigma V transpose',
+    'Trực giác Rotate Scale Rotate',
+    'Singular Vectors',
+    'Liên hệ với AtA',
+    'Rank qua Singular Values',
+    'SVD trong NumPy',
+  ],
+  keywords: ['SVD', 'singular values', 'left singular vectors', 'right singular vectors', 'rank', 'numpy'],
+  conceptIds: [
+    'svd-universal-factorization',
+    'svd-factorization',
+    'svd-geometry',
+    'singular-vectors',
+    'svd-ata-link',
+    'rank-singular-values',
+    'svd-numpy',
+  ],
+  pageCount: 7,
+}
+
+<MdxPage page={0}>
+
+## Một Factorization cho mọi Matrix
+
+Eigen decomposition rất mạnh nhưng cần square matrix và diagonalization còn yêu cầu đủ independent eigenvectors.
+
+SVD áp dụng cho mọi real matrix:
+
+<BlockMath formula="A\in\mathbb{R}^{m\times n}" />
+
+dù matrix vuông, cao, rộng, full rank hay rank deficient.
+
+Đây là lý do SVD xuất hiện rộng rãi trong numerical linear algebra và machine learning.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## A bằng U Sigma V transpose
+
+<EquationCallout
+  title="Phân tích suy biến SVD"
+  badge="Định lý Trung tâm"
+  formula="A = U \Sigma V^\top"
+  explanation="Mọi ma trận thực m × n đều có thể phân tích thành các cột trực chuẩn U, ma trận đường chéo giá trị suy biến Σ, và các cột trực chuẩn V."
+/>
+
+Với reduced SVD:
+
+- Các cột của <InlineMath formula="U" /> orthonormal
+- Các cột của <InlineMath formula="V" /> orthonormal
+- <InlineMath formula="\Sigma" /> chứa singular values không âm trên đường chéo sắp thứ tự <InlineMath formula="\sigma_1 \ge \sigma_2 \ge \cdots \ge 0" />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Trực giác Rotate Scale Rotate
+
+Trong hình học 2D, có thể đọc SVD theo ba bước.
+
+<InlineMath formula="V^\top" /> đổi sang các right singular directions.
+
+<InlineMath formula="\Sigma" /> scale từng direction theo singular values.
+
+<InlineMath formula="U" /> đưa các directions sang output space.
+
+<SVDGeometryExplorer
+  ariaLabel="Một unit circle được biến thành ellipse qua các bước V transpose Sigma và U trong SVD"
+/>
+
+Unit circle được linear transformation biến thành ellipse hoặc bị collapse nếu có singular value bằng 0.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Singular Vectors
+
+Right singular vectors thỏa:
+
+<BlockMath formula="A\mathbf{v}_i=\sigma_i\mathbf{u}_i" />
+
+Matrix đưa input direction <InlineMath formula="\mathbf{v}_i" /> sang output direction <InlineMath formula="\mathbf{u}_i" /> và scale độ dài theo <InlineMath formula="\sigma_i" />.
+
+Vì <InlineMath formula="\mathbf{v}_i" /> và <InlineMath formula="\mathbf{u}_i" /> thuộc hai spaces khác nhau, SVD xử lý tự nhiên cả rectangular matrices.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Liên hệ với AtA
+
+Từ SVD:
+
+<BlockMath formula="A^\top A=V\Sigma^\top\Sigma V^\top" />
+
+Do đó right singular vectors là eigenvectors của <InlineMath formula="A^\top A" />.
+
+Các singular values thỏa:
+
+<BlockMath formula="\sigma_i^2=\lambda_i(A^\top A)" />
+
+Đây là cầu nối giữa eigen decomposition và SVD.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Rank qua Singular Values
+
+Trong exact arithmetic:
+
+<BlockMath formula="\operatorname{rank}(A)=\#\{i:\sigma_i>0\}" />
+
+Rank bằng số singular values khác 0.
+
+Trong floating point computation, giá trị rất nhỏ không được phân loại bằng so sánh exact zero.
+
+Numerical rank dùng một threshold phụ thuộc scale và precision.
+
+Đây là lý do `np.linalg.matrix_rank` dùng singular values.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## SVD trong NumPy
+
+```python
+import numpy as np
+
+A = np.array([
+    [3.0, 1.0],
+    [1.0, 3.0],
+    [0.0, 2.0],
+])
+
+U, s, Vt = np.linalg.svd(A, full_matrices=False)
+
+print(U.shape)
+print(s.shape)
+print(Vt.shape)
+
+A_reconstructed = (U * s) @ Vt
+
+print(np.allclose(A_reconstructed, A))
+```
+
+NumPy trả singular values dưới dạng vector một chiều `s`, không tạo matrix <InlineMath formula="\Sigma" /> đầy đủ trừ khi ta tự dựng.
+
+Bài cuối dùng singular values để tạo low rank approximation và giảm chiều.
+
+</MdxPage>

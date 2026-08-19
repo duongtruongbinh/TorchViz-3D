@@ -1,0 +1,152 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vector-operations',
+  locale: 'vi',
+  title: 'Các phép toán Vector',
+  headings: [
+    'Cộng hai Vector',
+    'Cộng theo từng thành phần',
+    'Nhân Vector với Scalar',
+    'Phép trừ Vector',
+    'Từ phép toán đến Linear Combination',
+  ],
+  keywords: ['vector addition', 'vector subtraction', 'scalar multiplication', 'linear combination'],
+  conceptIds: [
+    'vector-addition-geometry',
+    'vector-addition-components',
+    'scalar-multiplication',
+    'vector-subtraction',
+    'linear-combination-preview',
+  ],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Cộng hai Vector
+
+Giả sử ta đi 2 đơn vị sang phải và 1 đơn vị lên trên:
+
+<BlockMath formula="\mathbf{u}=[2,1]^\top" />
+
+Sau đó ta đi tiếp 1 đơn vị sang phải và 2 đơn vị lên trên:
+
+<BlockMath formula="\mathbf{v}=[1,2]^\top" />
+
+Vị trí cuối cùng có thể được mô tả bằng tổng hai vector:
+
+<BlockMath formula="\mathbf{u}+\mathbf{v}=[3,3]^\top" />
+
+<VectorAdditionPlane
+  ariaLabel="Hai vector u và v được cộng theo quy tắc nối đuôi mũi tên"
+  u={[2, 1]}
+  v={[1, 2]}
+  interactive={true}
+/>
+
+Về hình học, ta có thể đặt gốc của <InlineMath formula="\mathbf{v}" /> tại đầu của <InlineMath formula="\mathbf{u}" />. Vector từ điểm bắt đầu đến điểm cuối là <InlineMath formula="\mathbf{u}+\mathbf{v}" />.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cộng theo từng thành phần
+
+Nếu
+
+<BlockMath formula="\mathbf{u}=[u_1,u_2,\ldots,u_n]^\top" />
+
+và
+
+<BlockMath formula="\mathbf{v}=[v_1,v_2,\ldots,v_n]^\top" />
+
+thì
+
+<BlockMath formula="\mathbf{u}+\mathbf{v}=[u_1+v_1,u_2+v_2,\ldots,u_n+v_n]^\top" />
+
+Hai vector phải có cùng số chiều để phép cộng theo từng thành phần có nghĩa.
+
+Ví dụ:
+
+<BlockMath formula="[1,-2,3]^\top+[4,5,-1]^\top=[5,3,2]^\top" />
+
+<LessonNote>
+  Phép cộng vector là phép cộng theo từng thành phần. Điều này khác với các phép nhân vector và matrix mà ta sẽ gặp ở cuối chương.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Nhân Vector với Scalar
+
+Một scalar có thể thay đổi độ dài và hướng của vector.
+
+Với <InlineMath formula="\mathbf{v}=[2,1]^\top" />, ta có:
+
+<BlockMath formula="2\mathbf{v}=[4,2]^\top" />
+
+Vector mới cùng hướng với <InlineMath formula="\mathbf{v}" /> nhưng dài gấp đôi.
+
+Nếu scalar âm:
+
+<BlockMath formula="-\mathbf{v}=[-2,-1]^\top" />
+
+vector đổi sang hướng ngược lại.
+
+<ScalarVectorPlane
+  ariaLabel="Vector v thay đổi khi hệ số alpha thay đổi"
+  vector={[2, 1]}
+  initialScalar={1}
+  interactive={true}
+/>
+
+Nhân với 0 cho vector không:
+
+<BlockMath formula="0\mathbf{v}=\mathbf{0}" />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Phép trừ Vector
+
+Phép trừ được hiểu qua phép cộng với vector đối:
+
+<BlockMath formula="\mathbf{u}-\mathbf{v}=\mathbf{u}+(-\mathbf{v})" />
+
+Ví dụ:
+
+<BlockMath formula="[4,3]^\top-[1,2]^\top=[3,1]^\top" />
+
+Nếu hai vector được xem như hai điểm xuất phát từ cùng gốc, <InlineMath formula="\mathbf{u}-\mathbf{v}" /> cho ta vector đi từ đầu của <InlineMath formula="\mathbf{v}" /> đến đầu của <InlineMath formula="\mathbf{u}" />.
+
+<VectorSubtractionPlane
+  ariaLabel="Minh họa vector u trừ vector v"
+  u={[4, 3]}
+  v={[1, 2]}
+/>
+
+Cách nhìn này sẽ hữu ích khi ta định nghĩa khoảng cách bằng norm của hiệu hai vector.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Từ phép toán đến Linear Combination
+
+Hai phép toán vừa học có thể được kết hợp:
+
+<BlockMath formula="a\mathbf{u}+b\mathbf{v}" />
+
+trong đó <InlineMath formula="a" /> và <InlineMath formula="b" /> là các scalar.
+
+Ví dụ:
+
+<BlockMath formula="2[1,0]^\top+3[0,1]^\top=[2,3]^\top" />
+
+Biểu thức dạng này được gọi là một **linear combination**. Ta chưa cần phân tích sâu ở đây. Sang Chapter 2, linear combination sẽ được dùng để trả lời một câu hỏi quan trọng hơn là từ một nhóm vector, ta có thể tạo ra những vector nào.
+
+Trước đó, ta cần một cách đo độ lớn của vector. Bài tiếp theo giới thiệu **norm**.
+
+</MdxPage>

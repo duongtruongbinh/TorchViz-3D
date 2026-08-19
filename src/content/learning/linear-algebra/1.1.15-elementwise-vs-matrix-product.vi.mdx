@@ -1,0 +1,201 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'elementwise-vs-matrix-product',
+  locale: 'vi',
+  title: 'Element-wise và Matrix Product',
+  headings: ['Không phải phép nhân nào cũng giống nhau', 'Hadamard Product', 'Outer Product', 'Matrix nhân Vector', 'Matrix nhân Matrix', 'Thứ tự phép nhân', 'Shape và NumPy'],
+  keywords: ['Hadamard product', 'outer product', 'matrix vector multiplication', 'matrix multiplication', 'matmul', 'numpy'],
+  conceptIds: ['product-distinction', 'hadamard-product', 'outer-product', 'matrix-vector-product', 'matrix-matrix-product', 'matrix-product-order', 'matrix-product-shape'],
+  pageCount: 7,
+}
+
+<MdxPage page={0}>
+
+## Không phải phép nhân nào cũng giống nhau
+
+Với scalar, dấu nhân thường chỉ có một nghĩa. Với vector và matrix, có nhiều phép nhân khác nhau.
+
+Trong chapter này ta đã gặp dot product. Bây giờ ta phân biệt thêm ba phép toán:
+
+- Hadamard product, nhân theo từng phần tử
+- Outer product, tạo matrix từ hai vector
+- Matrix product, kết hợp hàng và cột bằng dot product
+
+<ProductOverview
+  ariaLabel="So sánh Hadamard outer product và matrix product"
+/>
+
+Việc phân biệt các phép toán này quan trọng vì chúng có điều kiện shape và kiểu output khác nhau.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hadamard Product
+
+Hadamard product nhân các phần tử cùng vị trí:
+
+<BlockMath formula="A\odot B=[a_{ij}b_{ij}]" />
+
+Ví dụ:
+
+<BlockMath formula="\begin{bmatrix}1&2\\3&4\end{bmatrix}\odot\begin{bmatrix}5&6\\7&8\end{bmatrix}=\begin{bmatrix}5&12\\21&32\end{bmatrix}" />
+
+Hai matrix cần có cùng shape theo cách trình bày cơ bản này.
+
+<HadamardProductGrid
+  ariaLabel="Hai matrix cùng shape được nhân theo từng ô"
+/>
+
+Trong NumPy, toán tử `*` thực hiện element-wise multiplication:
+
+```python
+C = A * B
+```
+
+Hadamard product không phải matrix multiplication.
+
+<LessonNote>
+  Trong toán học, Hadamard product được định nghĩa cho hai matrix cùng shape. NumPy có thêm cơ chế broadcasting nên biểu thức `A * B` đôi khi vẫn chạy khi hai shape khác nhau. Broadcasting là quy tắc của array computation, không làm thay đổi định nghĩa Hadamard product ở đây.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Outer Product
+
+Cho hai vector cột:
+
+<BlockMath formula="\mathbf{u}\in\mathbb{R}^m,\qquad\mathbf{v}\in\mathbb{R}^n" />
+
+Outer product là:
+
+<BlockMath formula="\mathbf{u}\mathbf{v}^\top\in\mathbb{R}^{m\times n}" />
+
+Mỗi phần tử của matrix kết quả là:
+
+<BlockMath formula="(\mathbf{u}\mathbf{v}^\top)_{ij}=u_i v_j" />
+
+Ví dụ:
+
+<BlockMath formula="\begin{bmatrix}1\\2\end{bmatrix}\begin{bmatrix}3&4&5\end{bmatrix}=\begin{bmatrix}3&4&5\\6&8&10\end{bmatrix}" />
+
+<OuterProductExplorer
+  ariaLabel="Một vector dài hai và một vector dài ba tạo matrix hai nhân ba"
+/>
+
+Outer product biến hai vector thành một matrix. Khi học rank và SVD ở các chapter sau, ta sẽ gặp lại cấu trúc này.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Matrix nhân Vector
+
+Cho:
+
+<BlockMath formula="A\in\mathbb{R}^{m\times n},\qquad\mathbf{x}\in\mathbb{R}^n" />
+
+thì:
+
+<BlockMath formula="A\mathbf{x}\in\mathbb{R}^m" />
+
+Nếu hàng thứ <InlineMath formula="i" /> của <InlineMath formula="A" /> là <InlineMath formula="\mathbf{a}_i^\top" />, phần tử thứ <InlineMath formula="i" /> của output là:
+
+<BlockMath formula="(A\mathbf{x})_i=\mathbf{a}_i^\top\mathbf{x}" />
+
+Tức mỗi phần tử output là một dot product giữa một hàng của matrix và vector đầu vào.
+
+<MatrixVectorProductExplorer
+  ariaLabel="Mỗi hàng của matrix được dot product với vector x để tạo một phần tử output"
+  interactive={true}
+/>
+
+Ví dụ:
+
+<BlockMath formula="\begin{bmatrix}1&2\\3&4\end{bmatrix}\begin{bmatrix}5\\6\end{bmatrix}=\begin{bmatrix}17\\39\end{bmatrix}" />
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Matrix nhân Matrix
+
+Cho:
+
+<BlockMath formula="A\in\mathbb{R}^{m\times n},\qquad B\in\mathbb{R}^{n\times p}" />
+
+matrix product có shape:
+
+<BlockMath formula="AB\in\mathbb{R}^{m\times p}" />
+
+Phần tử hàng <InlineMath formula="i" />, cột <InlineMath formula="j" /> của kết quả là dot product giữa hàng <InlineMath formula="i" /> của <InlineMath formula="A" /> và cột <InlineMath formula="j" /> của <InlineMath formula="B" />:
+
+<BlockMath formula="(AB)_{ij}=\sum_{k=1}^{n}a_{ik}b_{kj}" />
+
+<MatrixProductExplorer
+  ariaLabel="Highlight một hàng của A và một cột của B để tính một ô của AB bằng dot product"
+  interactive={true}
+/>
+
+Điều kiện quan trọng là hai kích thước ở giữa phải bằng nhau.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Thứ tự phép nhân
+
+Matrix multiplication thường không giao hoán. Nói cách khác:
+
+<BlockMath formula="AB\neq BA" />
+
+trong trường hợp tổng quát.
+
+Ví dụ:
+
+<BlockMath formula="A=\begin{bmatrix}1&1\\0&1\end{bmatrix},\qquad B=\begin{bmatrix}1&0\\1&1\end{bmatrix}" />
+
+Ta nhận được hai kết quả khác nhau:
+
+<BlockMath formula="AB=\begin{bmatrix}2&1\\1&1\end{bmatrix},\qquad BA=\begin{bmatrix}1&1\\1&2\end{bmatrix}" />
+
+Với matrix không vuông, còn có trường hợp <InlineMath formula="AB" /> được định nghĩa nhưng <InlineMath formula="BA" /> không được định nghĩa vì shape không khớp. Vì vậy thứ tự các matrix trong một tích không thể tùy ý đổi chỗ.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Shape và NumPy
+
+Với <InlineMath formula="A:(m\times n),\qquad B:(n\times p)" />, ta có:
+
+<BlockMath formula="AB:(m\times p)" />
+
+Có thể nhớ bằng cách nhìn hai kích thước ở giữa khớp nhau, còn hai kích thước bên ngoài tạo shape của kết quả.
+
+Trong NumPy:
+
+```python
+import numpy as np
+
+A = np.array([
+    [1.0, 2.0],
+    [3.0, 4.0],
+])
+
+B = np.array([
+    [5.0, 6.0],
+    [7.0, 8.0],
+])
+
+hadamard = A * B
+matmul = A @ B
+```
+
+`A * B` và `A @ B` có thể cùng chạy với hai matrix 2×2 nhưng cho kết quả khác nhau vì chúng thực hiện hai phép toán khác nhau.
+
+Chapter 1 kết thúc ở đây. Sang Chapter 2, ta sẽ nhìn <InlineMath formula="A\mathbf{x}" /> theo một cách khác. Thay vì xem mỗi output là dot product với một hàng, ta sẽ xem <InlineMath formula="A\mathbf{x}" /> là một linear combination của các cột của <InlineMath formula="A" />.
+
+</MdxPage>

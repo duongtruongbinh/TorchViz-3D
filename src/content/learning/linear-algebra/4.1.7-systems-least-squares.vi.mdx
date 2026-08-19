@@ -1,0 +1,148 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'systems-least-squares',
+  locale: 'vi',
+  title: 'Least Squares',
+  headings: [
+    'Khi Ax bằng b không có nghiệm',
+    'Tìm nghiệm gần nhất',
+    'Residual và Normal Equations',
+    'Least Squares là Projection',
+    'Ví dụ Fit một đường thẳng',
+    'Least Squares với NumPy',
+  ],
+  keywords: ['least squares', 'residual', 'normal equations', 'projection', 'linear regression', 'numpy'],
+  conceptIds: [
+    'least-squares-motivation',
+    'least-squares-objective',
+    'normal-equations',
+    'least-squares-projection',
+    'least-squares-line-fit',
+    'lstsq-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Khi Ax bằng b không có nghiệm
+
+Với một hệ overdetermined, ta có thể có nhiều phương trình hơn số ẩn.
+
+Khi <InlineMath formula="\mathbf{b}\notin\operatorname{Col}(A)" />, hệ:
+
+<BlockMath formula="A\mathbf{x}=\mathbf{b}" />
+
+không có nghiệm chính xác.
+
+Thay vì dừng lại, ta tìm một vector <InlineMath formula="A\hat{\mathbf{x}}" /> trong column space gần <InlineMath formula="\mathbf{b}" /> nhất.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tìm nghiệm gần nhất
+
+Least squares chọn:
+
+<BlockMath formula="\hat{\mathbf{x}}=\arg\min_{\mathbf{x}}\|\mathbf{b}-A\mathbf{x}\|_2^2" />
+
+Residual là:
+
+<BlockMath formula="\mathbf{e}=\mathbf{b}-A\hat{\mathbf{x}}" />
+
+Mục tiêu là làm residual có L2 norm nhỏ nhất.
+
+<LeastSquaresExplorer
+  ariaLabel="Vector b nằm ngoài column space được chiếu xuống điểm gần nhất A x hat và tạo residual vuông góc"
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Residual và Normal Equations
+
+Tại nghiệm least squares, sai số residual <InlineMath formula="\mathbf{e} = \mathbf{b} - A\hat{\mathbf{x}}" /> trực giao với mọi cột của <InlineMath formula="A" />: <InlineMath formula="A^\top(\mathbf{b} - A\hat{\mathbf{x}}) = \mathbf{0}" />.
+
+<EquationCallout
+  title="Phương trình chuẩn sai số bình phương tối thiểu"
+  badge="Normal Equations"
+  formula="A^\top A \hat{\mathbf{x}} = A^\top \mathbf{b}"
+  explanation="Khi ma trận A có các cột độc lập tuyến tính, A^T A khả nghịch và nghiệm duy nhất là \hat{\mathbf{x}} = (A^T A)^{-1} A^T \mathbf{b}."
+/>
+
+Nếu <InlineMath formula="A" /> có full column rank thì <InlineMath formula="A^\top A" /> invertible và nghiệm least squares là duy nhất.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Least Squares là Projection
+
+Vector:
+
+<BlockMath formula="\mathbf{p}=A\hat{\mathbf{x}}" />
+
+là orthogonal projection của <InlineMath formula="\mathbf{b}" /> lên column space của <InlineMath formula="A" />.
+
+Do đó:
+
+<BlockMath formula="\mathbf{b}=\mathbf{p}+\mathbf{e}" />
+
+với:
+
+<BlockMath formula="\mathbf{p}\in\operatorname{Col}(A),\qquad\mathbf{e}\perp\operatorname{Col}(A)" />
+
+Least squares là bài toán projection được viết dưới dạng matrix.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Ví dụ Fit một đường thẳng
+
+Giả sử có ba điểm:
+
+<BlockMath formula="(0,1),\qquad(1,2),\qquad(2,2)" />
+
+Ta fit:
+
+<BlockMath formula="y\approx c+mx" />
+
+Hệ least squares là:
+
+<BlockMath formula="\begin{bmatrix}1&0\\1&1\\1&2\end{bmatrix}\begin{bmatrix}c\\m\end{bmatrix}\approx\begin{bmatrix}1\\2\\2\end{bmatrix}" />
+
+Nghiệm least squares cho đường gần các điểm nhất theo tổng bình phương vertical residuals.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Least Squares với NumPy
+
+```python
+import numpy as np
+
+A = np.array([
+    [1.0, 0.0],
+    [1.0, 1.0],
+    [1.0, 2.0],
+])
+
+b = np.array([1.0, 2.0, 2.0])
+
+x_hat, residuals, rank, singular_values = np.linalg.lstsq(A, b, rcond=None)
+
+print(x_hat)
+print(A @ x_hat)
+```
+
+Trong code số, `np.linalg.lstsq` phù hợp hơn việc tự tạo <InlineMath formula="(A^\top A)^{-1}" />.
+
+Chapter 4 kết thúc ở đây.
+
+Ta đã đi từ orthogonality đến projection, orthonormal basis và least squares.
+
+</MdxPage>

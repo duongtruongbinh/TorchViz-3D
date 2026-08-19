@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'svd-dimensionality-reduction-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Rank k Approximation', 'Component Importance', 'PCA Link', 'Pseudo Inverse'],
+  keywords: ['truncated SVD', 'low rank', 'PCA', 'pseudo inverse', 'quiz'],
+  conceptIds: ['rank-k-approximation', 'singular-value-importance', 'svd-pca-link', 'svd-pseudoinverse'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="svd-dimensionality-reduction-quiz" questions={[
+  {
+    id: 'rank-k-approximation',
+    title: 'Rank k Approximation',
+    prompt: 'Truncated SVD giữ k singular components đầu tạo matrix Ak có rank như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Không lớn hơn k.', isCorrect: true },
+      { id: 'b', label: 'Luôn lớn hơn k.' },
+      { id: 'c', label: 'Luôn bằng số hàng của A.' },
+      { id: 'd', label: 'Không liên quan đến k.' },
+    ],
+    success: 'Đúng. Ak được tạo từ tối đa k rank one components.',
+    error: 'Mỗi singular component đóng góp tối đa một rank.',
+  },
+  {
+    id: 'singular-value-importance',
+    title: 'Component Importance',
+    prompt: 'Vì sao truncated SVD thường giữ các singular values lớn nhất?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Singular values nhỏ luôn là lỗi đo lường.' },
+      { id: 'b', label: 'Chúng tương ứng với các singular components đóng góp mạnh nhất.', isCorrect: true },
+      { id: 'c', label: 'Chỉ singular value lớn nhất mới khác 0.' },
+      { id: 'd', label: 'Thứ tự singular values không ảnh hưởng approximation.' },
+    ],
+    success: 'Đúng. Components được sắp theo scale đóng góp.',
+    error: 'Nhìn vào decomposition A = sum sigma_i u_i v_i transpose.',
+  },
+  {
+    id: 'svd-pca-link',
+    title: 'PCA Link',
+    prompt: 'Với centered data Xc = UΣVᵀ, principal directions của PCA nằm ở đâu?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Các hàng của U luôn luôn' },
+      { id: 'b', label: 'Chỉ trong singular values' },
+      { id: 'c', label: 'Các cột của V.', isCorrect: true },
+      { id: 'd', label: 'Trong vector mean của data' },
+    ],
+    success: 'Đúng. Right singular vectors là eigenvectors của XcᵀXc.',
+    error: 'PCA directions sống trong feature space.',
+  },
+  {
+    id: 'svd-pseudoinverse',
+    title: 'Pseudo Inverse',
+    prompt: 'Pseudo inverse hữu ích vì điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Biến mọi matrix thành identity matrix bằng phép cộng.' },
+      { id: 'b', label: 'Chỉ áp dụng cho diagonal matrix full rank.' },
+      { id: 'c', label: 'Luôn bằng transpose của A.' },
+      { id: 'd', label: 'Mở rộng ý tưởng inverse cho rectangular hoặc rank deficient matrices.', isCorrect: true },
+    ],
+    success: 'Đúng. SVD cho cách định nghĩa A plus ngay cả khi inverse thông thường không tồn tại.',
+    error: 'So sánh square invertible inverse với Moore Penrose pseudo inverse.',
+  },
+]} />

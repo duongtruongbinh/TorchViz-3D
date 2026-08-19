@@ -1,0 +1,136 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'determinant-intuition',
+  locale: 'vi',
+  title: 'Determinant: Trực giác Hình học',
+  headings: [
+    'Determinant đo Scale của diện tích',
+    'Ví dụ trong 2D',
+    'Dấu của Determinant',
+    'Determinant bằng zero',
+    'Liên hệ với Invertibility',
+    'Tính bằng NumPy',
+  ],
+  keywords: ['determinant', 'area scaling', 'orientation', 'singular matrix', 'invertibility', 'numpy'],
+  conceptIds: [
+    'determinant-area-scale',
+    'determinant-2d-example',
+    'determinant-sign',
+    'determinant-zero',
+    'determinant-invertibility',
+    'determinant-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Determinant đo Scale của diện tích
+
+Một matrix 2×2 biến unit square thành một parallelogram.
+
+Determinant cho biết **oriented area scale** của transformation đó.
+
+Nếu <InlineMath formula="|\det(A)|=3" />, thì diện tích sau transformation lớn gấp 3 lần diện tích ban đầu.
+
+<DeterminantAreaExplorer
+  ariaLabel="Unit square được linear transformation biến thành parallelogram với diện tích bằng trị tuyệt đối determinant"
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Ví dụ trong 2D
+
+Cho:
+
+<BlockMath formula="A=\begin{bmatrix}a&b\\c&d\end{bmatrix}" />
+
+ta có:
+
+<BlockMath formula="\det(A)=ad-bc" />
+
+Hai cột của <InlineMath formula="A" /> tạo cạnh của parallelogram.
+
+Trị tuyệt đối:
+
+<BlockMath formula="|\det(A)|" />
+
+là diện tích parallelogram đó khi unit square ban đầu có diện tích 1.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Dấu của Determinant
+
+Determinant dương nghĩa là orientation được giữ.
+
+Determinant âm nghĩa là orientation bị đảo.
+
+Ví dụ reflection qua một trục có determinant âm.
+
+Do đó determinant chứa hai loại thông tin:
+
+- Độ lớn của area hoặc volume scaling
+- Orientation có bị đảo hay không
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Determinant bằng zero
+
+Nếu:
+
+<BlockMath formula="\det(A)=0" />
+
+transformation làm collapse ít nhất một dimension.
+
+Trong 2D, unit square có thể bị ép thành một line hoặc một point.
+
+Khi đó các cột của <InlineMath formula="A" /> linearly dependent.
+
+Matrix không thể hoàn tác transformation trên toàn bộ không gian.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Liên hệ với Invertibility
+
+Với square matrix:
+
+<BlockMath formula="A\text{ invertible}\Longleftrightarrow\det(A)\neq0" />
+
+Đây là một điều kiện tương đương với việc có pivot ở mọi cột và null space chỉ chứa vector không.
+
+Chapter 2 đã nhận biết invertibility bằng elimination.
+
+Determinant cho thêm một scalar tóm tắt cùng hiện tượng đối với square matrices.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Tính bằng NumPy
+
+```python
+import numpy as np
+
+A = np.array([
+    [2.0, 1.0],
+    [0.0, 3.0],
+])
+
+det_A = np.linalg.det(A)
+print(det_A)
+# 6.0
+```
+
+Với matrix lớn và determinant có độ lớn rất lớn hoặc rất nhỏ, `np.linalg.slogdet` thường hữu ích hơn vì trả về sign và log absolute determinant.
+
+Bài tiếp theo giải thích các tính chất giúp hiểu determinant thay đổi thế nào khi matrix hoặc các hàng của matrix thay đổi.
+
+</MdxPage>

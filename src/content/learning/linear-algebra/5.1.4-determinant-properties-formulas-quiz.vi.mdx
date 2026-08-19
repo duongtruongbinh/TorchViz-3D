@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'determinant-properties-formulas-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Row Swap', 'Triangular Matrix', 'Product Rule', 'Inverse'],
+  keywords: ['determinant properties', 'row swap', 'triangular', 'product', 'inverse', 'quiz'],
+  conceptIds: ['det-row-swap', 'det-triangular', 'det-product', 'det-inverse'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="determinant-properties-formulas-quiz" questions={[
+  {
+    id: 'det-row-swap',
+    title: 'Row Swap',
+    prompt: 'Đổi chỗ hai hàng của square matrix làm determinant thay đổi thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Luôn nhân với 2.' },
+      { id: 'b', label: 'Luôn trở thành 0.' },
+      { id: 'c', label: 'Không bao giờ thay đổi.' },
+      { id: 'd', label: 'Đổi dấu.', isCorrect: true },
+    ],
+    success: 'Đúng. Một row swap nhân determinant với -1.',
+    error: 'Row swap đảo orientation.',
+  },
+  {
+    id: 'det-triangular',
+    title: 'Triangular Matrix',
+    prompt: 'Determinant của triangular matrix bằng gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Tích các phần tử trên đường chéo.', isCorrect: true },
+      { id: 'b', label: 'Tổng mọi phần tử.' },
+      { id: 'c', label: 'Norm của hàng đầu tiên.' },
+      { id: 'd', label: 'Luôn bằng 1.' },
+    ],
+    success: 'Đúng. Các phần tử ngoài đường chéo không thay đổi công thức determinant của triangular matrix.',
+    error: 'Nhìn vào các diagonal entries.',
+  },
+  {
+    id: 'det-product',
+    title: 'Product Rule',
+    prompt: 'Quan hệ nào đúng với square matrices A và B?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'det(AB) = det(A) + det(B)' },
+      { id: 'b', label: 'det(AB) = det(A)det(B)', isCorrect: true },
+      { id: 'c', label: 'det(AB) luôn bằng 0' },
+      { id: 'd', label: 'det(AB) chỉ định nghĩa khi A = B' },
+    ],
+    success: 'Đúng. Determinant của composition bằng tích các determinant.',
+    error: 'Determinant scale nhân nhau qua matrix multiplication.',
+  },
+  {
+    id: 'det-inverse',
+    title: 'Inverse',
+    prompt: 'A invertible và det(A) = 5. det(A⁻¹) bằng bao nhiêu?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '5' },
+      { id: 'b', label: '-5' },
+      { id: 'c', label: '1/5', isCorrect: true },
+      { id: 'd', label: '0' },
+    ],
+    success: 'Đúng. det(A)det(A⁻¹) = det(I) = 1.',
+    error: 'Dùng product rule với AA⁻¹ = I.',
+  },
+]} />

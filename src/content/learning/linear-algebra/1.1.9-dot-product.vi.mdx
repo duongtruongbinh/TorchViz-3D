@@ -1,0 +1,138 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'dot-product',
+  locale: 'vi',
+  title: 'Dot Product',
+  headings: ['Từ hai Vector về một Scalar', 'Cách tính Dot Product', 'Ý nghĩa hình học', 'Dấu của Dot Product', 'Tính Dot Product với NumPy'],
+  keywords: ['dot product', 'inner product', 'angle', 'orthogonality', 'numpy'],
+  conceptIds: ['dot-product-motivation', 'dot-product-formula', 'dot-product-geometry', 'dot-product-sign', 'dot-product-numpy'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Từ hai Vector về một Scalar
+
+Ta đã biết cộng vector và đo độ dài của từng vector. Bây giờ xét một câu hỏi khác. Hai vector hướng giống nhau đến mức nào?
+
+Dot product nhận hai vector cùng số chiều và trả về một scalar:
+
+<BlockMath formula="\mathbf{a}^\top\mathbf{b}" />
+
+<DotProductPlane
+  ariaLabel="Hai vector a và b với góc giữa chúng và giá trị dot product"
+  a={[3, 0]}
+  b={[2, 2]}
+  interactive={true}
+/>
+
+Giá trị này phụ thuộc cả độ dài lẫn góc giữa hai vector. Vì vậy dot product không chỉ là một phép nhân theo từng thành phần.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cách tính Dot Product
+
+Với
+
+<BlockMath formula="\mathbf{a}=[a_1,a_2,\ldots,a_n]^\top" />
+
+và
+
+<BlockMath formula="\mathbf{b}=[b_1,b_2,\ldots,b_n]^\top" />
+
+dot product được tính bằng:
+
+<BlockMath formula="\mathbf{a}^\top\mathbf{b}=\sum_{i=1}^{n}a_i b_i" />
+
+Tức là nhân các thành phần cùng vị trí rồi cộng lại.
+
+Ví dụ:
+
+<BlockMath formula="[1,2,3]^\top\cdot[4,5,6]^\top=1\cdot4+2\cdot5+3\cdot6=32" />
+
+Kết quả là một scalar, không phải một vector.
+
+<LessonNote>
+  Dot product chỉ được định nghĩa theo cách này khi hai vector có cùng số thành phần.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Ý nghĩa hình học
+
+Dot product cũng có thể được viết theo độ dài và góc giữa hai vector:
+
+<BlockMath formula="\mathbf{a}^\top\mathbf{b}=\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2\cos\theta" />
+
+Trong đó <InlineMath formula="\theta" /> là góc giữa <InlineMath formula="\mathbf{a}" /> và <InlineMath formula="\mathbf{b}" />.
+
+Công thức này cho thấy dot product thay đổi vì hai yếu tố:
+
+- Hai vector dài hay ngắn
+- Hai vector tạo với nhau góc bao nhiêu
+
+Nếu giữ nguyên độ dài và quay một vector quanh vector còn lại, dot product lớn nhất khi chúng cùng hướng, bằng 0 khi vuông góc và âm khi góc lớn hơn 90°.
+
+<DotProductAngleExplorer
+  ariaLabel="Dot product thay đổi khi góc giữa hai vector thay đổi"
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Dấu của Dot Product
+
+Với hai vector khác vector không:
+
+<ComparisonMatrix
+  ariaLabel="Ý nghĩa dấu của dot product"
+  columns={['Góc', 'Dot product']}
+  rows={[
+    { label: 'Góc nhọn', values: ['0° < θ < 90°', 'aᵀb > 0'] },
+    { label: 'Vuông góc', values: ['θ = 90°', 'aᵀb = 0'] },
+    { label: 'Góc tù', values: ['90° < θ < 180°', 'aᵀb < 0'] },
+  ]}
+/>
+
+Hai vector khác vector không được gọi là **orthogonal** khi:
+
+<BlockMath formula="\mathbf{a}^\top\mathbf{b}=0" />
+
+Ở đây ta chỉ dùng orthogonality cho một cặp vector. Về sau, khái niệm này sẽ được mở rộng cho cả tập vector và subspace.
+
+<LessonNote>
+  Nếu một trong hai vector là vector không thì dot product cũng bằng 0. Trường hợp này không nên được dùng để suy ra một góc 90° vì vector không không có hướng xác định.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Tính Dot Product với NumPy
+
+Với hai mảng một chiều, `np.dot` trả về dot product:
+
+```python
+import numpy as np
+
+a = np.array([1.0, 2.0, 3.0])
+b = np.array([4.0, 5.0, 6.0])
+
+value = np.dot(a, b)
+print(value) # 32.0
+```
+
+Toán tử `@` cũng cho cùng kết quả với hai vector một chiều:
+
+```python
+value = a @ b
+```
+
+Bài tiếp theo sẽ loại ảnh hưởng của độ dài ra khỏi dot product. Kết quả là **cosine similarity**, một đại lượng chỉ còn phụ thuộc vào góc giữa hai vector khác vector không.
+
+</MdxPage>

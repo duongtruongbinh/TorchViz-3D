@@ -1,0 +1,151 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'diagonalization',
+  locale: 'vi',
+  title: 'Diagonalization và Spectral View',
+  headings: [
+    'Đổi sang Eigenvector Basis',
+    'A bằng V Lambda V inverse',
+    'Khi nào Diagonalizable',
+    'Powers của Matrix',
+    'Symmetric Matrix',
+    'eig và eigh trong NumPy',
+  ],
+  keywords: ['diagonalization', 'eigenbasis', 'spectral decomposition', 'symmetric matrix', 'eigh', 'numpy'],
+  conceptIds: [
+    'eigenbasis-change',
+    'diagonalization-factorization',
+    'diagonalizable-condition',
+    'matrix-powers-diagonalization',
+    'symmetric-spectral-theorem',
+    'eig-eigh-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Đổi sang Eigenvector Basis
+
+Nếu một matrix có đủ independent eigenvectors để tạo basis, transformation trở nên rất đơn giản trong basis đó.
+
+Mỗi basis vector chỉ bị scale:
+
+<BlockMath formula="A\mathbf{v}_i=\lambda_i\mathbf{v}_i" />
+
+Ta gom eigenvectors vào:
+
+<BlockMath formula="V=\begin{bmatrix}\vert&&\vert\\\mathbf{v}_1&\cdots&\mathbf{v}_n\\\vert&&\vert\end{bmatrix}" />
+
+và eigenvalues vào diagonal matrix:
+
+<BlockMath formula="\Lambda=\operatorname{diag}(\lambda_1,\ldots,\lambda_n)" />
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## A bằng V Lambda V inverse
+
+Từ hệ phương trình trị riêng <InlineMath formula="AV=V\Lambda" />, nếu ma trận các vector riêng <InlineMath formula="V" /> khả nghịch, ta thu được dạng chéo hóa:
+
+<EquationCallout
+  title="Chéo hóa ma trận"
+  badge="Định lý Cốt lõi"
+  formula="A = V \Lambda V^{-1}"
+  explanation="Phép biến đổi A được phân tách thành 3 bước: đổi tọa độ sang hệ cơ sở vector riêng bằng V^{-1}, kéo dãn độc lập theo các trị riêng Λ, rồi đổi ngược lại bằng V."
+/>
+
+<DiagonalizationExplorer
+  ariaLabel="Transformation A được nhìn như đổi sang eigenvector basis scale theo diagonal Lambda rồi đổi trở lại"
+/>
+
+Ba bước là:
+
+1. <InlineMath formula="V^{-1}" /> đổi coordinates sang eigenvector basis
+2. <InlineMath formula="\Lambda" /> scale từng coordinate độc lập
+3. <InlineMath formula="V" /> đổi trở lại basis ban đầu
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Khi nào Diagonalizable
+
+Một matrix <InlineMath formula="n\times n" /> diagonalizable khi có <InlineMath formula="n" /> linearly independent eigenvectors.
+
+Không phải mọi matrix đều thỏa điều này.
+
+Ví dụ:
+
+<BlockMath formula="A=\begin{bmatrix}1&1\\0&1\end{bmatrix}" />
+
+chỉ có một independent eigenvector direction dù eigenvalue <InlineMath formula="1" /> lặp lại hai lần.
+
+Matrix này không diagonalizable.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Powers của Matrix
+
+Nếu <InlineMath formula="A=V\Lambda V^{-1}" />, thì:
+
+<BlockMath formula="A^k=V\Lambda^kV^{-1}" />
+
+Vì <InlineMath formula="\Lambda" /> diagonal:
+
+<BlockMath formula="\Lambda^k=\operatorname{diag}(\lambda_1^k,\ldots,\lambda_n^k)" />
+
+Đây là một lý do eigen decomposition hữu ích khi phân tích repeated linear dynamics.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Symmetric Matrix
+
+Real symmetric matrix thỏa:
+
+<BlockMath formula="A^\top=A" />
+
+có một tính chất mạnh hơn.
+
+Nó có một orthonormal eigenvector basis và real eigenvalues.
+
+Do đó:
+
+<BlockMath formula="A=Q\Lambda Q^\top" />
+
+với:
+
+<BlockMath formula="Q^\top Q=I" />
+
+Kết quả này thường được gọi là spectral theorem cho real symmetric matrices.
+
+Covariance matrix trong PCA là symmetric nên tính chất này đặc biệt quan trọng.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## eig và eigh trong NumPy
+
+Với matrix tổng quát:
+
+```python
+values, vectors = np.linalg.eig(A)
+```
+
+Với real symmetric matrix, dùng:
+
+```python
+values, vectors = np.linalg.eigh(A)
+```
+
+`eigh` khai thác cấu trúc symmetric hoặc Hermitian và trả eigenvectors orthonormal.
+
+Bài tiếp theo dùng chính spectral view này để xây dựng PCA.
+
+</MdxPage>

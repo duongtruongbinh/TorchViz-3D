@@ -1,0 +1,85 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'identity-inverse-matrix-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: [
+    'Định nghĩa Inverse',
+    'Nhận biết Singular Matrix',
+    'Gauss Jordan',
+    'Solve hay Inverse',
+  ],
+  keywords: [
+    'identity matrix',
+    'inverse matrix',
+    'singular matrix',
+    'Gauss-Jordan',
+    'quiz',
+  ],
+  conceptIds: [
+    'inverse-definition',
+    'inverse-existence-elimination',
+    'gauss-jordan-inverse',
+    'solve-vs-inverse',
+  ],
+  pageCount: 4,
+}
+
+<MdxQuiz id="identity-inverse-matrix-quiz" questions={[
+  {
+    id: 'inverse-definition',
+    title: 'Định nghĩa Inverse',
+    prompt: 'Phát biểu nào đúng khi A inverse tồn tại?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'AA⁻¹ = 0.' },
+      { id: 'b', label: 'A + A⁻¹ = I trong mọi trường hợp.' },
+      { id: 'c', label: 'AA⁻¹ = A⁻¹A = I.', isCorrect: true },
+      { id: 'd', label: 'A⁻¹ luôn bằng Aᵀ.' },
+    ],
+    success: 'Đúng. Inverse là phần tử hoàn tác A dưới matrix multiplication.',
+    error: 'Hãy nhớ identity matrix đóng vai trò của số 1 trong phép nhân.',
+  },
+  {
+    id: 'inverse-singular',
+    title: 'Nhận biết Singular Matrix',
+    prompt: 'A = [[1, 2], [2, 4]]. Sau R₂ ← R₂ - 2R₁, hàng thứ hai trở thành [0, 0]. Kết luận nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A inverse bằng chính A.' },
+      { id: 'b', label: 'Chỉ cần đổi dấu hàng thứ hai là có inverse.' },
+      { id: 'c', label: 'Mọi square matrix đều có inverse.' },
+      { id: 'd', label: 'A không thể row reduce thành I nên không có inverse.', isCorrect: true },
+    ],
+    success: 'Đúng. Thiếu pivot khiến phần bên trái không thể trở thành identity matrix.',
+    error: 'Hãy xem elimination có thể tạo đủ identity matrix hay không.',
+  },
+  {
+    id: 'gauss-jordan-inverse',
+    title: 'Gauss Jordan',
+    prompt: 'Nếu row reduction biến [A | I] thành [I | B], B là gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A⁻¹', isCorrect: true },
+      { id: 'b', label: 'Aᵀ' },
+      { id: 'c', label: 'A + I' },
+      { id: 'd', label: 'Vector nghiệm b' },
+    ],
+    success: 'Đúng. Các row operations biến phần phải thành inverse của A.',
+    error: 'Hãy nhớ mục tiêu của Gauss Jordan khi bắt đầu từ [A | I].',
+  },
+  {
+    id: 'solve-vs-inverse',
+    title: 'Solve hay Inverse',
+    prompt: 'Trong code, mục tiêu chỉ là tìm x của hệ Ax = b. Lựa chọn nào phù hợp hơn?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Luôn tính np.linalg.inv(A) trước rồi mới nhân với b.' },
+      { id: 'b', label: 'Dùng np.linalg.solve(A, b).', isCorrect: true },
+      { id: 'c', label: 'Dùng A * b theo element-wise multiplication.' },
+      { id: 'd', label: 'Chuyển A thành vector rồi cộng với b.' },
+    ],
+    success: 'Đúng. Khi mục tiêu là giải hệ, dùng solver trực tiếp.',
+    error: 'Phân biệt công thức toán học x = A⁻¹b với cách tính số phù hợp trong code.',
+  },
+]} />

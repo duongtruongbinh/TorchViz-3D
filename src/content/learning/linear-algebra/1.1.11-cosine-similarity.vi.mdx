@@ -1,0 +1,138 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'cosine-similarity',
+  locale: 'vi',
+  title: 'Cosine Similarity và Góc giữa hai Vector',
+  headings: ['Khi độ dài làm Dot Product khó so sánh', 'Công thức Cosine Similarity', 'Đọc giá trị Cosine', 'Vì sao Scale không ảnh hưởng', 'Cosine Similarity trong Embedding', 'Tính Cosine Similarity với NumPy'],
+  keywords: ['cosine similarity', 'angle', 'normalized vector', 'embedding', 'numpy'],
+  conceptIds: ['cosine-motivation', 'cosine-formula', 'cosine-geometry', 'cosine-scale-invariance', 'cosine-embedding', 'cosine-numpy'],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Khi độ dài làm Dot Product khó so sánh
+
+Xét hai cặp vector cùng hướng:
+
+<BlockMath formula="\mathbf{a}=[1,0]^\top,\qquad\mathbf{b}=[2,0]^\top" />
+
+và
+
+<BlockMath formula="\mathbf{a}=[1,0]^\top,\qquad\mathbf{c}=[100,0]^\top" />
+
+Ta có:
+
+<BlockMath formula="\mathbf{a}^\top\mathbf{b}=2,\qquad\mathbf{a}^\top\mathbf{c}=100" />
+
+Hai cặp đều có góc 0°, nhưng dot product khác rất nhiều vì độ dài của vector thứ hai khác nhau.
+
+<CosineMotivationDiagram
+  ariaLabel="Hai cặp vector cùng hướng nhưng có dot product khác nhau do độ dài khác nhau"
+/>
+
+Nếu mục tiêu chỉ là so sánh hướng, ta cần loại ảnh hưởng của độ dài.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Công thức Cosine Similarity
+
+Từ công thức hình học của dot product <InlineMath formula="\mathbf{a}^\top\mathbf{b}=\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2\cos\theta" />, với hai vector khác không:
+
+<EquationCallout
+  title="Công thức Cosine Similarity"
+  badge="Định nghĩa"
+  formula="\operatorname{cos\_sim}(\mathbf{a},\mathbf{b}) = \cos\theta = \frac{\mathbf{a}^\top\mathbf{b}}{\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2}"
+  explanation="Đo lường độ tương đồng về hướng giữa hai vector độc lập với độ dài, với giá trị luôn nằm trong đoạn [-1, 1]."
+/>
+
+Nếu cả hai vector đã được chuẩn hóa về norm bằng 1 thì <InlineMath formula="\operatorname{cos\_sim}(\hat{\mathbf{a}},\hat{\mathbf{b}})=\hat{\mathbf{a}}^\top\hat{\mathbf{b}}" />. Đây là liên kết trực tiếp giữa normalization và dot product.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đọc giá trị Cosine
+
+Với hai vector khác vector không, cosine similarity nằm trong khoảng:
+
+<BlockMath formula="-1\leq\operatorname{cos\_sim}(\mathbf{a},\mathbf{b})\leq1" />
+
+<CosineAngleExplorer
+  ariaLabel="Cosine similarity thay đổi từ âm một đến một khi góc giữa hai vector thay đổi"
+  interactive={true}
+/>
+
+<ComparisonMatrix
+  ariaLabel="Diễn giải cosine similarity theo góc"
+  columns={['Góc', 'Cosine']}
+  rows={[
+    { label: 'Cùng hướng', values: ['0°', '1'] },
+    { label: 'Vuông góc', values: ['90°', '0'] },
+    { label: 'Ngược hướng', values: ['180°', '-1'] },
+  ]}
+/>
+
+Các giá trị nằm giữa ba mốc này tương ứng với các góc nằm giữa 0°, 90° và 180°.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Vì sao Scale không ảnh hưởng
+
+Giả sử <InlineMath formula="c>0" />. Khi nhân một vector với <InlineMath formula="c" />:
+
+<BlockMath formula="\operatorname{cos\_sim}(c\mathbf{a},\mathbf{b})=\frac{c\mathbf{a}^\top\mathbf{b}}{c\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2}=\operatorname{cos\_sim}(\mathbf{a},\mathbf{b})" />
+
+Scale dương xuất hiện ở cả tử và mẫu nên bị triệt tiêu.
+
+Ví dụ, <InlineMath formula="[1,2]^\top" /> và <InlineMath formula="[10,20]^\top" /> có độ dài khác nhau nhưng cùng hướng. Cosine similarity của chúng bằng 1.
+
+<LessonNote>
+  Nếu nhân một vector với scalar âm, hướng bị đảo. Khi đó cosine similarity đổi dấu vì góc mới bị phản chiếu qua hướng đối diện.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Cosine Similarity trong Embedding
+
+Embedding thường biểu diễn một đối tượng bằng một vector nhiều chiều. Khi độ lớn của embedding không phải thông tin chính cần so sánh, cosine similarity là một cách phổ biến để so hướng của hai vector.
+
+<EmbeddingCosineDiagram
+  ariaLabel="Các embedding được biểu diễn bằng vector và so sánh bằng góc"
+/>
+
+Tuy nhiên, cần tách công thức hình học khỏi cách diễn giải của từng model.
+
+Cosine similarity gần 1 cho biết hai vector gần cùng hướng trong embedding space. Nó **không tự động chứng minh** hai câu có cùng nghĩa. Tương tự, cosine similarity âm không đủ để kết luận hai nội dung có nghĩa trái ngược.
+
+Cách hiểu semantic phụ thuộc vào cách embedding model được huấn luyện và dữ liệu mà embedding space phản ánh.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Tính Cosine Similarity với NumPy
+
+Ta có thể viết trực tiếp từ công thức:
+
+```python
+import numpy as np
+
+a = np.array([1.0, 2.0, 3.0])
+b = np.array([2.0, 1.0, 3.0])
+
+cosine = (a @ b) / (np.linalg.norm(a) * np.linalg.norm(b))
+print(cosine)
+```
+
+Công thức không được xác định nếu một trong hai vector có norm bằng 0. Vì vậy code thực tế cần xử lý trường hợp này trước khi chia.
+
+Đến đây, các phép toán chính trên một hoặc hai vector đã đủ để chuyển sang đối tượng tiếp theo. Bài sau giới thiệu matrix, cách tổ chức nhiều giá trị theo hàng và cột, cùng các phép toán cơ bản trên matrix.
+
+</MdxPage>

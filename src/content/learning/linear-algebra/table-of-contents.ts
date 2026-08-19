@@ -1,6 +1,21 @@
 import type { LearningTableOfContents, LearningTocTrackSeed } from '../../../core/learning/types.ts';
 
 const chapters: LearningTocTrackSeed[] = [
+  // Chapter 0 — Applied AI overview
+  {
+    id: 'linear-algebra-for-ai',
+    text: {
+      title: { en: '0. Overview', vi: '0. Tổng quan' },
+      description: {
+        en: 'See how tabular data, RGB images, and model features become scalars, vectors, matrices, and tensors before any AI computation begins.',
+        vi: 'Nhìn dữ liệu bảng, ảnh RGB và feature của model dưới dạng scalar, vector, ma trận và tensor trước khi bắt đầu các phép toán AI.',
+      },
+    },
+    lessonIds: [
+      { id: 'linear-algebra-for-ai-overview', status: 'available', contentStatus: 'published', title: { en: 'Linear Algebra for AI', vi: 'Đại số tuyến tính cho AI' } },
+    ],
+  },
+
   // Chapter 1 — Vectors & Matrices
   {
     id: 'vectors-matrices',
@@ -12,15 +27,22 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: [
-      { id: 'vectors-intuition', contentStatus: 'published', title: { en: 'Vector Intuition', vi: 'Trực giác về Vector' } },
-      { id: 'vector-operations', contentStatus: 'published', title: { en: 'Vector Operations', vi: 'Các phép toán Vector cơ bản' } },
-      { id: 'dot-product', contentStatus: 'published', title: { en: 'Dot Product', vi: 'Tích vô hướng (Dot Product)' } },
-      { id: 'vector-norms', contentStatus: 'published', title: { en: 'Vector Norms', vi: 'Chuẩn của Vector (Vector Norms)' } },
-      { id: 'unit-vectors-normalization', contentStatus: 'published', title: { en: 'Unit Vectors & Normalization', vi: 'Vector Đơn vị và Chuẩn hóa' } },
-      { id: 'cosine-similarity', contentStatus: 'published', title: { en: 'Cosine Similarity', vi: 'Độ tương đồng Cosine (Cosine Similarity)' } },
-      { id: 'orthogonality', contentStatus: 'published', title: { en: 'Orthogonality', vi: 'Tính Vuông góc (Orthogonality)' } },
-      { id: 'matrix-operations', contentStatus: 'published', title: { en: 'Matrix Operations', vi: 'Phép toán Ma trận' } },
-      { id: 'elementwise-vs-matrix-product', contentStatus: 'published', title: { en: 'Element-wise vs Matrix Product', vi: 'Tích Element-wise và tích Ma trận' } },
+      { id: 'vectors-intuition', status: 'available', contentStatus: 'published', title: { en: 'Vector Intuition', vi: 'Trực giác về Vector' } },
+      { id: 'vectors-intuition-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'vector-operations', status: 'available', contentStatus: 'published', title: { en: 'Vector Operations', vi: 'Các phép toán Vector' } },
+      { id: 'vector-operations-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'vector-norms', status: 'available', contentStatus: 'published', title: { en: 'Vector Norms', vi: 'Độ dài và Norm của Vector' } },
+      { id: 'vector-norms-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'unit-vectors-normalization', status: 'available', contentStatus: 'published', title: { en: 'Unit Vectors & Normalization', vi: 'Vector đơn vị và Chuẩn hóa' } },
+      { id: 'unit-vectors-normalization-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'dot-product', status: 'available', contentStatus: 'published', title: { en: 'Dot Product', vi: 'Dot Product' } },
+      { id: 'dot-product-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'cosine-similarity', status: 'available', contentStatus: 'published', title: { en: 'Cosine Similarity', vi: 'Cosine Similarity và Góc giữa hai Vector' } },
+      { id: 'cosine-similarity-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'matrix-operations', status: 'available', contentStatus: 'published', title: { en: 'Matrix Operations', vi: 'Ma trận và các phép toán cơ bản' } },
+      { id: 'matrix-operations-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'elementwise-vs-matrix-product', status: 'available', contentStatus: 'published', title: { en: 'Element-wise vs Matrix Product', vi: 'Element-wise và Matrix Product' } },
+      { id: 'elementwise-vs-matrix-product-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
     ],
   },
 
@@ -35,10 +57,14 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: [
-      { id: 'systems-of-linear-equations', contentStatus: 'published', title: { en: 'Systems of Linear Equations', vi: 'Hệ phương trình tuyến tính' } },
-      { id: 'gaussian-elimination', contentStatus: 'published', title: { en: 'Gaussian Elimination', vi: 'Khử Gaussian' } },
-      { id: 'lu-decomposition', contentStatus: 'published', title: { en: 'LU Decomposition', vi: 'Phân tích LU' } },
-      { id: 'identity-inverse-matrix', contentStatus: 'published', title: { en: 'Identity & Inverse Matrices', vi: 'Ma trận đơn vị và Ma trận nghịch đảo' } },
+      { id: 'systems-of-linear-equations', status: 'available', contentStatus: 'published', title: { en: 'Systems of Linear Equations', vi: 'Hệ phương trình tuyến tính và Ax = b' } },
+      { id: 'systems-of-linear-equations-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'gaussian-elimination', status: 'available', contentStatus: 'published', title: { en: 'Gaussian Elimination', vi: 'Khử Gaussian' } },
+      { id: 'gaussian-elimination-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'lu-decomposition', status: 'available', contentStatus: 'published', title: { en: 'LU Decomposition', vi: 'LU Decomposition' } },
+      { id: 'lu-decomposition-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'identity-inverse-matrix', status: 'available', contentStatus: 'published', title: { en: 'Identity & Inverse Matrices', vi: 'Identity và Inverse Matrix' } },
+      { id: 'identity-inverse-matrix-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
     ],
   },
 
@@ -53,11 +79,16 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: [
-      'vector-spaces-subspaces',
-      'column-space-null-space',
-      'linear-independence-basis',
-      'matrix-rank',
-      'linear-transformations',
+      { id: 'vector-spaces-subspaces', status: 'available', contentStatus: 'published', title: { en: 'Vector Space and Subspace', vi: 'Vector Space và Subspace' } },
+      { id: 'vector-spaces-subspaces-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'column-space-null-space', status: 'available', contentStatus: 'published', title: { en: 'Column Space & Null Space', vi: 'Column Space và Null Space' } },
+      { id: 'column-space-null-space-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'linear-independence-basis', status: 'available', contentStatus: 'published', title: { en: 'Linear Independence, Basis & Dimension', vi: 'Linear Independence, Basis và Dimension' } },
+      { id: 'linear-independence-basis-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'matrix-rank', status: 'available', contentStatus: 'published', title: { en: 'Matrix Rank', vi: 'Matrix Rank' } },
+      { id: 'matrix-rank-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'linear-transformations', status: 'available', contentStatus: 'published', title: { en: 'Linear Transformations', vi: 'Linear Transformations' } },
+      { id: 'linear-transformations-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
     ],
   },
 
@@ -72,9 +103,14 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: [
-      'orthogonal-projections',
-      'gram-schmidt',
-      'systems-least-squares',
+      { id: 'orthogonality', status: 'available', contentStatus: 'published', title: { en: 'Orthogonality & Orthonormal Sets', vi: 'Orthogonality và Orthonormal Sets' } },
+      { id: 'orthogonality-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'orthogonal-projections', status: 'available', contentStatus: 'published', title: { en: 'Orthogonal Projections', vi: 'Orthogonal Projections' } },
+      { id: 'orthogonal-projections-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'gram-schmidt', status: 'available', contentStatus: 'published', title: { en: 'Gram-Schmidt & QR', vi: 'Gram Schmidt và QR' } },
+      { id: 'gram-schmidt-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'systems-least-squares', status: 'available', contentStatus: 'published', title: { en: 'Least Squares', vi: 'Least Squares' } },
+      { id: 'systems-least-squares-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
     ],
   },
 
@@ -89,8 +125,10 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: [
-      'determinant-intuition',
-      'determinant-properties-formulas',
+      { id: 'determinant-intuition', status: 'available', contentStatus: 'published', title: { en: 'Determinant Intuition', vi: 'Determinant: Trực giác Hình học' } },
+      { id: 'determinant-intuition-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'determinant-properties-formulas', status: 'available', contentStatus: 'published', title: { en: 'Determinant Properties & Formulas', vi: 'Determinant: Tính chất và Công thức' } },
+      { id: 'determinant-properties-formulas-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
     ],
   },
 
@@ -105,10 +143,14 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: [
-      'matrix-trace',
-      'eigenvalues-eigenvectors',
-      'diagonalization',
-      'pca-eigenvalues',
+      { id: 'matrix-trace', status: 'available', contentStatus: 'published', title: { en: 'Matrix Trace', vi: 'Matrix Trace' } },
+      { id: 'matrix-trace-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'eigenvalues-eigenvectors', status: 'available', contentStatus: 'published', title: { en: 'Eigenvalues & Eigenvectors', vi: 'Eigenvalues và Eigenvectors' } },
+      { id: 'eigenvalues-eigenvectors-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'diagonalization', status: 'available', contentStatus: 'published', title: { en: 'Diagonalization & Spectral View', vi: 'Diagonalization và Spectral View' } },
+      { id: 'diagonalization-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'pca-eigenvalues', status: 'available', contentStatus: 'published', title: { en: 'PCA via Eigenvalues', vi: 'PCA qua Eigenvalues' } },
+      { id: 'pca-eigenvalues-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
     ],
   },
 
@@ -123,8 +165,10 @@ const chapters: LearningTocTrackSeed[] = [
       },
     },
     lessonIds: [
-      'svd-intuition',
-      'svd-dimensionality-reduction',
+      { id: 'svd-intuition', status: 'available', contentStatus: 'published', title: { en: 'SVD Intuition', vi: 'SVD: Trực giác và Cấu trúc' } },
+      { id: 'svd-intuition-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
+      { id: 'svd-dimensionality-reduction', status: 'available', contentStatus: 'published', title: { en: 'Truncated SVD & Dimensionality Reduction', vi: 'Truncated SVD và Dimensionality Reduction' } },
+      { id: 'svd-dimensionality-reduction-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz', vi: 'Quiz' } },
     ],
   },
 ];
@@ -133,9 +177,14 @@ export const learningTableOfContents = {
   id: 'linear-algebra',
   text: {
     title: { en: 'Linear Algebra', vi: 'Linear Algebra' },
-    description: { en: 'A complete foundation in linear algebra following Gilbert Strang\'s curriculum: vectors, matrices, solving linear systems, vector spaces, orthogonality, determinants, eigenvalues, and the SVD.', vi: 'Nền tảng đại số tuyến tính hoàn chỉnh theo giáo trình Gilbert Strang: vector, ma trận, giải hệ phương trình, không gian vector, trực giao, định thức, trị riêng và SVD.' },
+    description: {
+      en: 'The essential linear algebra for applied AI: represent data with vectors, matrices, and tensors, then transform, compare, solve, compress, and analyze those representations with the core tools used in machine learning.',
+      vi: 'Đại số tuyến tính cốt lõi trong AI: hiểu cách dữ liệu được biểu diễn và biến đổi bằng vector, ma trận, tensor — nền tảng toán học của machine learning.',
+    },
   },
   status: 'active',
+  firstLessonStatus: 'available',
+  defaultLessonStatus: 'available',
   chapters,
   sectionKinds: ['theory', 'calculation'],
 } satisfies LearningTableOfContents;

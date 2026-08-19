@@ -1,0 +1,152 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vector-norms',
+  locale: 'vi',
+  title: 'Độ dài và Norm của Vector',
+  headings: ['Đo độ lớn của Vector', 'L2 Norm', 'Từ Norm đến Khoảng cách', 'L1 và L∞ Norm', 'Tính Norm với NumPy'],
+  keywords: ['vector norm', 'L1 norm', 'L2 norm', 'L infinity norm', 'distance', 'numpy'],
+  conceptIds: ['norm-motivation', 'l2-norm', 'distance-from-norm', 'norm-comparison', 'norm-numpy'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Đo độ lớn của Vector
+
+Hai vector có thể cùng hướng nhưng khác độ dài. Ta cần một số duy nhất để mô tả độ lớn của mỗi vector.
+
+Một hàm dùng để đo độ lớn của vector được gọi là **norm**. Ký hiệu thường dùng là:
+
+<BlockMath formula="\lVert\mathbf{x}\rVert" />
+
+Một norm phải thỏa ba tính chất cốt lõi. Với vector <InlineMath formula="\mathbf{x},\mathbf{y}" /> và scalar <InlineMath formula="c" />:
+
+- <InlineMath formula="\lVert\mathbf{x}\rVert\geq0" /> và chỉ bằng 0 khi <InlineMath formula="\mathbf{x}=\mathbf{0}" />
+- <InlineMath formula="\lVert c\mathbf{x}\rVert=|c|\lVert\mathbf{x}\rVert" />
+- <InlineMath formula="\lVert\mathbf{x}+\mathbf{y}\rVert\leq\lVert\mathbf{x}\rVert+\lVert\mathbf{y}\rVert" />
+
+Ba tính chất này bảo đảm norm hoạt động như một cách đo độ lớn nhất quán.
+
+<VectorNormPlane
+  ariaLabel="Hai vector cùng hướng nhưng có độ dài khác nhau"
+  vectors={[[2, 1], [4, 2]]}
+/>
+
+Có nhiều cách định nghĩa norm. Mỗi cách nhấn mạnh một kiểu độ lớn khác nhau. Trong phần này, ta tập trung vào ba norm thường gặp là L1, L2 và L∞.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## L2 Norm
+
+Với vector hai chiều
+
+<BlockMath formula="\mathbf{x}=[x_1,x_2]^\top" />
+
+độ dài Euclid được tính bằng định lý Pythagoras:
+
+<BlockMath formula="\lVert\mathbf{x}\rVert_2=\sqrt{x_1^2+x_2^2}" />
+
+Trong <InlineMath formula="\mathbb{R}^n" />:
+
+<BlockMath formula="\lVert\mathbf{x}\rVert_2=\sqrt{\sum_{i=1}^{n}x_i^2}" />
+
+Ví dụ:
+
+<BlockMath formula="\lVert[3,4]^\top\rVert_2=\sqrt{3^2+4^2}=5" />
+
+<L2NormTriangle
+  ariaLabel="Vector 3 4 tạo tam giác vuông có độ dài 5"
+  vector={[3, 4]}
+/>
+
+L2 norm là độ dài quen thuộc khi ta nhìn vector như một mũi tên trong không gian Euclid.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Từ Norm đến Khoảng cách
+
+Nếu <InlineMath formula="\mathbf{x}" /> và <InlineMath formula="\mathbf{y}" /> là hai điểm, hiệu
+
+<BlockMath formula="\mathbf{x}-\mathbf{y}" />
+
+là vector nối giữa chúng. Vì vậy, ta có thể dùng norm của hiệu để đo khoảng cách:
+
+<BlockMath formula="d(\mathbf{x},\mathbf{y})=\lVert\mathbf{x}-\mathbf{y}\rVert_2" />
+
+Ví dụ Với <InlineMath formula="\mathbf{x}=[1,1]^\top,\qquad\mathbf{y}=[4,5]^\top" />, ta có:
+
+<BlockMath formula="d(\mathbf{x},\mathbf{y})=\lVert[-3,-4]^\top\rVert_2=5" />
+
+<DistancePlane
+  ariaLabel="Khoảng cách giữa hai điểm được tính bằng L2 norm của hiệu hai vector"
+  x={[1, 1]}
+  y={[4, 5]}
+/>
+
+Công thức này giải thích vì sao phép trừ vector ở bài trước lại liên quan trực tiếp đến khoảng cách.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## L1 và L∞ Norm
+
+L2 không phải lựa chọn duy nhất.
+
+**L1 norm** cộng trị tuyệt đối của các thành phần:
+
+<BlockMath formula="\lVert\mathbf{x}\rVert_1=\sum_{i=1}^{n}|x_i|" />
+
+**L∞ norm** lấy trị tuyệt đối lớn nhất:
+
+<BlockMath formula="\lVert\mathbf{x}\rVert_\infty=\max_i|x_i|" />
+
+Với <InlineMath formula="\mathbf{x}=[3,-4]^\top" />:
+
+<ComparisonMatrix
+  ariaLabel="So sánh ba norm của vector 3 âm 4"
+  columns={['Công thức', 'Giá trị']}
+  rows={[
+    { label: 'L1', values: ['|3| + |-4|', '7'] },
+    { label: 'L2', values: ['√(3² + (-4)²)', '5'] },
+    { label: 'L∞', values: ['max(3, 4)', '4'] },
+  ]}
+/>
+
+<NormUnitBallDiagram
+  ariaLabel="So sánh hình dạng tập các vector có norm bằng một cho L1 L2 và L infinity"
+/>
+
+Ba norm có thể tạo ra các con số khác nhau cho cùng một vector. Khi một bài toán dùng norm nào, cách đo khoảng cách và cách nhìn geometry cũng thay đổi theo norm đó.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Tính Norm với NumPy
+
+NumPy cung cấp `np.linalg.norm` để tính norm của vector.
+
+```python
+import numpy as np
+
+x = np.array([3.0, -4.0])
+
+l1 = np.linalg.norm(x, ord=1)
+l2 = np.linalg.norm(x, ord=2)
+linf = np.linalg.norm(x, ord=np.inf)
+
+print(l1)   # 7.0
+print(l2)   # 5.0
+print(linf) # 4.0
+```
+
+Khi làm việc với vector, điều cần xác định trước không phải tên hàm mà là **norm nào phù hợp với cách ta muốn đo độ lớn hoặc khoảng cách**.
+
+Bài tiếp theo dùng L2 norm cho một mục tiêu khác. Ta sẽ đưa một vector về độ dài 1 nhưng vẫn giữ nguyên hướng của nó.
+
+</MdxPage>

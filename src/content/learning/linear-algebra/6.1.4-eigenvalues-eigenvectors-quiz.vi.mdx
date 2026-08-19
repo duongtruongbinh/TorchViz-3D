@@ -1,0 +1,69 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'eigenvalues-eigenvectors-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Eigen Equation', 'Characteristic Equation', 'Scale của Eigenvector', 'Eigenvalue bằng Zero'],
+  keywords: ['eigenvalue', 'eigenvector', 'characteristic equation', 'quiz'],
+  conceptIds: ['eigen-equation', 'characteristic-equation', 'eigenvector-scale', 'zero-eigenvalue'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="eigenvalues-eigenvectors-quiz" questions={[
+  {
+    id: 'eigen-equation',
+    title: 'Eigen Equation',
+    prompt: 'v khác vector không là eigenvector của A với eigenvalue λ khi nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Av = 0 với mọi λ' },
+      { id: 'b', label: 'A + v = λ' },
+      { id: 'c', label: 'vᵀv = λ luôn luôn' },
+      { id: 'd', label: 'Av = λv', isCorrect: true },
+    ],
+    success: 'Đúng. Matrix chỉ scale eigenvector theo λ.',
+    error: 'Dùng định nghĩa eigenpair.',
+  },
+  {
+    id: 'characteristic-equation',
+    title: 'Characteristic Equation',
+    prompt: 'Eigenvalues của square matrix thỏa phương trình nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'det(A - λI) = 0', isCorrect: true },
+      { id: 'b', label: 'trace(A - λI) = 0 trong mọi trường hợp' },
+      { id: 'c', label: 'A + λI = 0' },
+      { id: 'd', label: '||A||₂ = λ' },
+    ],
+    success: 'Đúng. A - λI phải singular để có nghiệm eigenvector khác 0.',
+    error: 'Eigenvector giải một homogeneous system có nghiệm không tầm thường.',
+  },
+  {
+    id: 'eigenvector-scale',
+    title: 'Scale của Eigenvector',
+    prompt: 'v là eigenvector. Phát biểu nào đúng với c khác 0?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'cv không bao giờ là eigenvector.' },
+      { id: 'b', label: 'cv cũng là eigenvector cho cùng eigenvalue.', isCorrect: true },
+      { id: 'c', label: 'cv luôn có eigenvalue bằng c.' },
+      { id: 'd', label: 'Chỉ unit vector mới được gọi là eigenvector.' },
+    ],
+    success: 'Đúng. Eigenvector đại diện cho một hướng nên scale khác 0 không đổi eigenvalue.',
+    error: 'Thay cv vào A(cv).',
+  },
+  {
+    id: 'zero-eigenvalue',
+    title: 'Eigenvalue bằng Zero',
+    prompt: 'Square matrix A có eigenvalue 0. Kết luận nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A luôn orthogonal.' },
+      { id: 'b', label: 'A luôn bằng zero matrix.' },
+      { id: 'c', label: 'A singular.', isCorrect: true },
+      { id: 'd', label: 'A luôn diagonalizable.' },
+    ],
+    success: 'Đúng. Có vector khác 0 trong null space của A.',
+    error: 'Nếu Av = 0 với v khác 0 thì A không invertible.',
+  },
+]} />

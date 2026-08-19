@@ -1,0 +1,162 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'eigenvalues-eigenvectors',
+  locale: 'vi',
+  title: 'Eigenvalues và Eigenvectors',
+  headings: [
+    'Những hướng không bị đổi',
+    'Phương trình Eigen',
+    'Tìm Eigenvalues',
+    'Tìm Eigenvectors',
+    'Dấu và độ lớn của Eigenvalue',
+    'Tính bằng NumPy',
+  ],
+  keywords: ['eigenvalue', 'eigenvector', 'characteristic equation', 'linear transformation', 'numpy'],
+  conceptIds: [
+    'eigenvector-intuition',
+    'eigen-equation',
+    'characteristic-equation',
+    'eigenvector-solve',
+    'eigenvalue-geometry',
+    'eig-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Những hướng không bị đổi
+
+Một linear transformation thường đổi cả hướng và độ dài của vector.
+
+Nhưng có những hướng đặc biệt mà matrix chỉ scale.
+
+Nếu:
+
+<BlockMath formula="A\mathbf{v}=\lambda\mathbf{v}" />
+
+với <InlineMath formula="\mathbf{v}\neq\mathbf{0}" />, ta gọi:
+
+- <InlineMath formula="\mathbf{v}" /> là eigenvector
+- <InlineMath formula="\lambda" /> là eigenvalue tương ứng
+
+<EigenvectorExplorer
+  ariaLabel="Một eigenvector giữ nguyên đường thẳng phương sau khi matrix tác động và chỉ thay đổi scale"
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phương trình Eigen
+
+<EquationCallout
+  title="Phương trình Trị riêng & Vector riêng"
+  badge="Định nghĩa Cốt lõi"
+  formula="A\mathbf{v} = \lambda\mathbf{v} \iff (A - \lambda I)\mathbf{v} = \mathbf{0}"
+  explanation="Vector riêng v khác không giữ nguyên phương dưới phép biến đổi A và chỉ thay đổi độ dài theo tỉ lệ λ."
+/>
+
+Để tồn tại nghiệm <InlineMath formula="\mathbf{v}\neq\mathbf{0}" />, ma trận <InlineMath formula="A-\lambda I" /> phải không khả nghịch, dẫn đến phương trình đặc trưng <InlineMath formula="\det(A-\lambda I)=0" />.
+
+<BlockMath formula="\det(A-\lambda I)=0" />
+
+Đây là characteristic equation.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tìm Eigenvalues
+
+Cho:
+
+<BlockMath formula="A=\begin{bmatrix}2&1\\0&3\end{bmatrix}" />
+
+ta có:
+
+<BlockMath formula="\det(A-\lambda I)=\det\begin{bmatrix}2-\lambda&1\\0&3-\lambda\end{bmatrix}" />
+
+Vì matrix triangular:
+
+<BlockMath formula="(2-\lambda)(3-\lambda)=0" />
+
+nên:
+
+<BlockMath formula="\lambda_1=2,\qquad\lambda_2=3" />
+
+Eigenvalues của triangular matrix chính là các diagonal entries.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tìm Eigenvectors
+
+Với mỗi eigenvalue, giải:
+
+<BlockMath formula="(A-\lambda I)\mathbf{v}=\mathbf{0}" />
+
+Ví dụ với <InlineMath formula="\lambda=2" />:
+
+<BlockMath formula="\begin{bmatrix}0&1\\0&1\end{bmatrix}\mathbf{v}=\mathbf{0}" />
+
+suy ra một eigenvector có thể chọn là:
+
+<BlockMath formula="\mathbf{v}_1=\begin{bmatrix}1\\0\end{bmatrix}" />
+
+Eigenvector không duy nhất về scale.
+
+Nếu <InlineMath formula="\mathbf{v}" /> là eigenvector thì mọi <InlineMath formula="c\mathbf{v}" /> với <InlineMath formula="c\neq0" /> cũng là eigenvector cho cùng eigenvalue.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Dấu và độ lớn của Eigenvalue
+
+Trong trường hợp eigenvalue thực:
+
+- <InlineMath formula="\lambda>1" /> scale hướng đó dài hơn
+- <InlineMath formula="0<\lambda<1" /> co hướng đó lại
+- <InlineMath formula="\lambda<0" /> còn đảo hướng
+- <InlineMath formula="\lambda=0" /> đưa eigenvector về vector không
+
+Eigenvalue bằng 0 cho thấy matrix singular.
+
+Không phải mọi real matrix đều có đủ real eigenvectors.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Tính bằng NumPy
+
+```python
+import numpy as np
+
+A = np.array([
+    [2.0, 1.0],
+    [0.0, 3.0],
+])
+
+eigenvalues, eigenvectors = np.linalg.eig(A)
+
+print(eigenvalues)
+print(eigenvectors)
+```
+
+Các eigenvectors được trả về theo cột.
+
+Có thể kiểm tra từng cặp:
+
+```python
+v = eigenvectors[:, 0]
+lam = eigenvalues[0]
+
+print(np.allclose(A @ v, lam * v))
+```
+
+Bài tiếp theo hỏi khi nào toàn bộ transformation có thể được mô tả bằng một basis gồm eigenvectors.
+
+</MdxPage>

@@ -1,0 +1,194 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'lu-decomposition',
+  locale: 'vi',
+  title: 'LU Decomposition',
+  headings: [
+    'Elimination được lưu lại như thế nào',
+    'Triangular Matrix và hai bước giải',
+    'Từ multipliers đến A = LU',
+    'Một ví dụ LU hoàn chỉnh',
+    'Giải Ax = b bằng LU',
+    'Row Swap và Pivoting',
+  ],
+  keywords: [
+    'LU decomposition',
+    'lower triangular',
+    'upper triangular',
+    'forward substitution',
+    'back substitution',
+    'pivoting',
+  ],
+  conceptIds: [
+    'lu-motivation',
+    'triangular-systems',
+    'lu-from-elimination',
+    'lu-factorization-example',
+    'lu-solve',
+    'lu-pivoting',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Elimination được lưu lại như thế nào
+
+Gaussian elimination biến <InlineMath formula="A" /> thành một matrix tam giác trên <InlineMath formula="U" />.
+
+Nếu phải giải nhiều hệ:
+
+<BlockMath formula="A\mathbf{x}_1=\mathbf{b}_1,\qquad A\mathbf{x}_2=\mathbf{b}_2,\qquad\ldots" />
+
+thì phần elimination phụ thuộc vào <InlineMath formula="A" />, không phụ thuộc vào từng vector <InlineMath formula="\mathbf{b}" />.
+
+LU decomposition lưu cấu trúc đó thành hai matrix:
+
+<BlockMath formula="A=LU" />
+
+Trong trường hợp không cần row swap:
+
+- <InlineMath formula="L" /> là lower triangular matrix và lưu các multipliers dùng trong elimination
+- <InlineMath formula="U" /> là upper triangular matrix thu được sau elimination
+
+Ta factor <InlineMath formula="A" /> một lần rồi tái sử dụng khi vế phải thay đổi.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Triangular Matrix và hai bước giải
+
+Upper triangular matrix có dạng:
+
+<BlockMath formula="U=\begin{bmatrix}u_{11}&u_{12}&u_{13}\\0&u_{22}&u_{23}\\0&0&u_{33}\end{bmatrix}" />
+
+Hệ <InlineMath formula="U\mathbf{x}=\mathbf{c}" /> được giải bằng **back substitution**.
+
+Lower triangular matrix có dạng:
+
+<BlockMath formula="L=\begin{bmatrix}1&0&0\\l_{21}&1&0\\l_{31}&l_{32}&1\end{bmatrix}" />
+
+Hệ <InlineMath formula="L\mathbf{c}=\mathbf{b}" /> được giải từ trên xuống bằng **forward substitution**.
+
+Vì vậy Khi <InlineMath formula="A=LU" />, thì:
+
+<BlockMath formula="A\mathbf{x}=\mathbf{b}\quad\Longrightarrow\quad LU\mathbf{x}=\mathbf{b}" />
+
+Ta tách bài toán thành hai hệ tam giác.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Từ multipliers đến A = LU
+
+Xét:
+
+<BlockMath formula="A=\begin{bmatrix}1&1&1\\2&3&1\\1&-1&2\end{bmatrix}" />
+
+Ở cột đầu, elimination dùng:
+
+<BlockMath formula="l_{21}=2,\qquad l_{31}=1" />
+
+Sau bước này, hàng 3 có hệ số <InlineMath formula="-2" /> ở cột thứ hai.
+
+Để khử nó, ta dùng:
+
+<BlockMath formula="l_{32}=-2" />
+
+vì:
+
+<BlockMath formula="R_3\leftarrow R_3-l_{32}R_2=R_3+2R_2" />
+
+Các multipliers được đặt vào <InlineMath formula="L" />:
+
+<BlockMath formula="L=\begin{bmatrix}1&0&0\\2&1&0\\1&-2&1\end{bmatrix}" />
+
+Còn kết quả sau elimination là:
+
+<BlockMath formula="U=\begin{bmatrix}1&1&1\\0&1&-1\\0&0&-1\end{bmatrix}" />
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Một ví dụ LU hoàn chỉnh
+
+Với các matrix vừa xây dựng:
+
+<BlockMath formula="L=\begin{bmatrix}1&0&0\\2&1&0\\1&-2&1\end{bmatrix},\qquad U=\begin{bmatrix}1&1&1\\0&1&-1\\0&0&-1\end{bmatrix}" />
+
+ta có:
+
+<BlockMath formula="LU=\begin{bmatrix}1&1&1\\2&3&1\\1&-1&2\end{bmatrix}=A" />
+
+<LUFactorizationExplorer
+  ariaLabel="Các multipliers của Gaussian elimination được lưu trong L còn kết quả elimination được lưu trong U"
+/>
+
+LU không phải một thuật toán hoàn toàn tách rời Gaussian elimination.
+
+Nó là cách ghi lại elimination dưới dạng factorization.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Giải Ax = b bằng LU
+
+Dùng cùng matrix <InlineMath formula="A" /> và:
+
+<BlockMath formula="\mathbf{b}=\begin{bmatrix}6\\11\\5\end{bmatrix}" />
+
+Ta cần giải:
+
+<BlockMath formula="LU\mathbf{x}=\mathbf{b}" />
+
+Đặt:
+
+<BlockMath formula="U\mathbf{x}=\mathbf{c}" />
+
+Bước đầu giải:
+
+<BlockMath formula="L\mathbf{c}=\mathbf{b}" />
+
+bằng forward substitution:
+
+<BlockMath formula="\mathbf{c}=\begin{bmatrix}6\\-1\\-3\end{bmatrix}" />
+
+Sau đó giải:
+
+<BlockMath formula="U\mathbf{x}=\mathbf{c}" />
+
+bằng back substitution:
+
+<BlockMath formula="\mathbf{x}=\begin{bmatrix}1\\2\\3\end{bmatrix}" />
+
+Phần tốn công để biến <InlineMath formula="A" /> thành triangular factors chỉ cần làm một lần nếu <InlineMath formula="A" /> không đổi.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Row Swap và Pivoting
+
+Factorization <InlineMath formula="A=LU" /> ở trên giả sử elimination không cần đổi hàng.
+
+Trong thực tế, row swap thường được kết hợp với LU.
+
+Ta có thể biểu diễn các row swaps bằng một permutation matrix <InlineMath formula="P" />. Một convention phổ biến viết:
+
+<BlockMath formula="PA=LU" />
+
+Trong convention này, <InlineMath formula="P" /> là phép hoán vị được áp dụng lên các hàng của <InlineMath formula="A" />.
+
+Một số thư viện định nghĩa permutation matrix theo chiều ngược lại và hiển thị factorization dưới dạng <InlineMath formula="A=PLU" />. Khi dùng API cụ thể, cần đọc đúng convention của thư viện đó.
+
+<LessonNote>
+  `np.linalg.solve` là lựa chọn trực tiếp khi mục tiêu là giải một hệ vuông có nghiệm duy nhất. Phần LU ở đây giúp ta hiểu cấu trúc tính toán đứng phía sau solver thay vì khuyến khích tự viết solver số.
+</LessonNote>
+
+Bài cuối của chapter chuyển sang một đối tượng khác cũng liên quan trực tiếp đến việc giải hệ, đó là **inverse matrix**.
+
+</MdxPage>

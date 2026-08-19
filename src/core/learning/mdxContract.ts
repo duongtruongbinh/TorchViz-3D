@@ -21,6 +21,7 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'LessonReferences',
   'InlineMath',
   'BlockMath',
+  'EquationCallout',
 ] as const;
 
 export type LearningMdxMetadata = {

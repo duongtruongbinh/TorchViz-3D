@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'matrix-operations-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Shape của Matrix', 'Transpose', 'Identity Matrix'],
+  keywords: ['matrix shape', 'transpose', 'identity matrix', 'quiz'],
+  conceptIds: ['matrix-shape', 'matrix-transpose', 'identity-matrix'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="matrix-operations-quiz" questions={[
+  {
+    id: 'matrix-shape',
+    title: 'Shape của Matrix',
+    prompt: 'Matrix A có 4 hàng và 3 cột. A thuộc không gian nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'R^(3×4)' },
+      { id: 'b', label: 'R^7' },
+      { id: 'c', label: 'R^(4×3)', isCorrect: true },
+      { id: 'd', label: 'R^12 với mọi phép toán matrix' },
+    ],
+    success: 'Đúng. Shape được viết theo thứ tự số hàng rồi số cột.',
+    error: 'Nhớ thứ tự m × n nghĩa là m hàng và n cột.',
+  },
+  {
+    id: 'matrix-transpose',
+    title: 'Transpose',
+    prompt: 'Nếu A có shape 2×5 thì Aᵀ có shape nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '2×5' },
+      { id: 'b', label: '5×5' },
+      { id: 'c', label: '2×2' },
+      { id: 'd', label: '5×2', isCorrect: true },
+    ],
+    success: 'Đúng. Transpose đổi hàng thành cột nên hai kích thước đổi chỗ.',
+    error: 'Đổi vị trí số hàng và số cột.',
+  },
+  {
+    id: 'identity-matrix',
+    title: 'Identity Matrix',
+    prompt: 'Matrix nào là identity matrix 2×2?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '[[1, 0], [0, 1]]', isCorrect: true },
+      { id: 'b', label: '[[0, 1], [1, 0]]' },
+      { id: 'c', label: '[[1, 1], [1, 1]]' },
+      { id: 'd', label: '[[0, 0], [0, 0]]' },
+    ],
+    success: 'Đúng. Identity matrix có 1 trên đường chéo chính và 0 ở các vị trí còn lại.',
+    error: 'Tìm matrix có đường chéo chính bằng 1 và các phần tử ngoài đường chéo bằng 0.',
+  },
+]} />

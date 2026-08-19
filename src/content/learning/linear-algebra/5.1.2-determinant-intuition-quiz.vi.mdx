@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'determinant-intuition-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Area Scale', 'Dấu của Determinant', 'Determinant bằng Zero'],
+  keywords: ['determinant', 'area', 'orientation', 'singular', 'quiz'],
+  conceptIds: ['determinant-area-scale', 'determinant-sign', 'determinant-zero'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="determinant-intuition-quiz" questions={[
+  {
+    id: 'determinant-area-scale',
+    title: 'Area Scale',
+    prompt: 'Một linear transformation 2D có |det(A)| = 4. Điều này cho biết gì về diện tích?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Mọi vector dài gấp đúng 4 lần.' },
+      { id: 'b', label: 'Diện tích được scale theo hệ số 4.', isCorrect: true },
+      { id: 'c', label: 'A có đúng 4 cột.' },
+      { id: 'd', label: 'A luôn là diagonal matrix.' },
+    ],
+    success: 'Đúng. Trị tuyệt đối determinant là area scale trong 2D.',
+    error: 'Determinant mô tả scale của diện tích hoặc thể tích, không phải độ dài từng vector.',
+  },
+  {
+    id: 'determinant-sign',
+    title: 'Dấu của Determinant',
+    prompt: 'det(A) < 0 cho biết điều gì về orientation?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Area bắt buộc bằng 0.' },
+      { id: 'b', label: 'A luôn là identity matrix.' },
+      { id: 'c', label: 'Orientation bị đảo.', isCorrect: true },
+      { id: 'd', label: 'Mọi eigenvalue đều dương.' },
+    ],
+    success: 'Đúng. Dấu âm biểu diễn một orientation reversal.',
+    error: 'Tách magnitude và sign của determinant.',
+  },
+  {
+    id: 'determinant-zero',
+    title: 'Determinant bằng Zero',
+    prompt: 'Với square matrix A, det(A) = 0 dẫn đến kết luận nào?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'A luôn orthogonal.' },
+      { id: 'b', label: 'A luôn có full rank.' },
+      { id: 'c', label: 'A⁻¹ = A.' },
+      { id: 'd', label: 'A không invertible.', isCorrect: true },
+    ],
+    success: 'Đúng. Transformation đã collapse ít nhất một dimension.',
+    error: 'Matrix invertible cần determinant khác 0.',
+  },
+]} />

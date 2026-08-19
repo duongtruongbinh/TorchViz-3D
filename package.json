@@ -6,6 +6,10 @@
   "overrides": {
     "monaco-editor": {
       "dompurify": "3.4.11"
+    },
+    "use-resize-observer": {
+      "react": "$react",
+      "react-dom": "$react-dom"
     }
   },
   "scripts": {
@@ -22,34 +26,36 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@floating-ui/react": "^0.27.20",
     "@fontsource/be-vietnam-pro": "^5.3.0",
-    "@monaco-editor/react": "4.6.0",
-    "@react-three/drei": "9.122.0",
-    "@react-three/fiber": "8.15.12",
-    "katex": "^0.17.0",
-    "lucide-react": "^1.21.0",
-    "monaco-editor": "^0.53.0",
+    "@monaco-editor/react": "^4.7.0",
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
+    "katex": "^0.18.4",
+    "lucide-react": "^1.31.0",
+    "mafs": "0.21.0",
+    "monaco-editor": "^0.56.0",
     "pyodide": "0.25.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.0",
-    "shiki": "^4.3.1",
-    "three": "0.160.0",
-    "zustand": "^5.0.11"
+    "shiki": "^4.4.3",
+    "three": "^0.185.1",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@fontsource/inter": "5.1.1",
+    "@fontsource/inter": "^5.3.0",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/rollup": "^3.1.1",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^22.14.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^5.0.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.15",
     "remark-gfm": "^4.0.1",
-    "tailwindcss": "^3.4.17",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.1"
   },
   "allowScripts": {
     "esbuild@0.25.12": true

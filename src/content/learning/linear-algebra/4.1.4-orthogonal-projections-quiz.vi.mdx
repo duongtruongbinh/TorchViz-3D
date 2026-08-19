@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'orthogonal-projections-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Projection lên Vector', 'Residual', 'Projection Matrix'],
+  keywords: ['projection', 'residual', 'projection matrix', 'quiz'],
+  conceptIds: ['projection-vector-formula', 'projection-residual', 'projection-matrix'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="orthogonal-projections-quiz" questions={[
+  {
+    id: 'projection-vector-formula',
+    title: 'Projection lên Vector',
+    prompt: 'Nếu q là unit vector, projection của b lên q bằng gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'q + b' },
+      { id: 'b', label: '(qᵀb)q', isCorrect: true },
+      { id: 'c', label: '||b||₂q trong mọi trường hợp' },
+      { id: 'd', label: 'qᵀq' },
+    ],
+    success: 'Đúng. Với unit vector, mẫu số qᵀq bằng 1.',
+    error: 'Bắt đầu từ công thức projection tổng quát.',
+  },
+  {
+    id: 'projection-residual',
+    title: 'Residual',
+    prompt: 'p là orthogonal projection của b lên subspace S và e = b - p. Điều nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'e luôn bằng p.' },
+      { id: 'b', label: 'e luôn thuộc S.' },
+      { id: 'c', label: 'e orthogonal với S.', isCorrect: true },
+      { id: 'd', label: 'e phải có norm bằng 1.' },
+    ],
+    success: 'Đúng. Residual là phần nằm vuông góc với subspace.',
+    error: 'Projection gần nhất được đặc trưng bởi residual orthogonal.',
+  },
+  {
+    id: 'projection-matrix',
+    title: 'Projection Matrix',
+    prompt: 'Với P là orthogonal projection matrix, quan hệ nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'P² = 0.' },
+      { id: 'b', label: 'P luôn bằng identity matrix.' },
+      { id: 'c', label: 'P luôn có inverse.' },
+      { id: 'd', label: 'P² = P.', isCorrect: true },
+    ],
+    success: 'Đúng. Chiếu lần hai không thay đổi vector đã được chiếu.',
+    error: 'Hãy nghĩ điều gì xảy ra khi áp dụng projection hai lần.',
+  },
+]} />

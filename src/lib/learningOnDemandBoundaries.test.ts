@@ -29,7 +29,15 @@ test('MDX runtime capabilities follow authored component use and canonical refer
   const references = new Set(['continual-learning-llm/theory']);
 
   assert.deepEqual(
-    getLearningMdxRuntimeCapabilities('<MdxQuiz question="Q" options={[]} />', 'linear-algebra', 'vectors', references),
+    getLearningMdxRuntimeCapabilities('<OrthogonalityExplorer ariaLabel="orthogonality" />', 'linear-algebra', 'orthogonality', references),
+    { needsDomainAdapter: true, needsReferenceRuntime: false },
+  );
+  assert.deepEqual(
+    getLearningMdxRuntimeCapabilities('<MdxQuiz questions={[]} />', 'linear-algebra', 'vectors-intuition-quiz', references),
+    { needsDomainAdapter: false, needsReferenceRuntime: false },
+  );
+  assert.deepEqual(
+    getLearningMdxRuntimeCapabilities('<VectorPlane x={3} y={2} />', 'linear-algebra', 'vectors-intuition', references),
     { needsDomainAdapter: true, needsReferenceRuntime: false },
   );
   assert.deepEqual(

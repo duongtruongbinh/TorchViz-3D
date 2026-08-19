@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'vector-operations-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Cộng Vector', 'Nhân với Scalar', 'Phép trừ và Linear Combination'],
+  keywords: ['vector addition', 'scalar multiplication', 'vector subtraction', 'quiz'],
+  conceptIds: ['vector-addition', 'scalar-multiplication', 'vector-operation-transfer'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="vector-operations-quiz" questions={[
+  {
+    id: 'vector-addition',
+    title: 'Cộng Vector',
+    prompt: 'Cho u = [2, -1]ᵀ và v = [3, 4]ᵀ. Giá trị của u + v là gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '[6, -4]ᵀ' },
+      { id: 'b', label: '[1, 5]ᵀ' },
+      { id: 'c', label: '[5, -5]ᵀ' },
+      { id: 'd', label: '[5, 3]ᵀ', isCorrect: true },
+    ],
+    success: 'Đúng. Cộng vector được thực hiện theo từng thành phần.',
+    error: 'Hãy cộng hai thành phần ở cùng vị trí với nhau.',
+  },
+  {
+    id: 'scalar-multiplication',
+    title: 'Nhân với Scalar',
+    prompt: 'Nếu v khác vector không, vector -2v có quan hệ hình học nào với v?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Ngược hướng và dài gấp đôi.', isCorrect: true },
+      { id: 'b', label: 'Cùng hướng và dài gấp đôi.' },
+      { id: 'c', label: 'Vuông góc và dài gấp đôi.' },
+      { id: 'd', label: 'Có cùng đầu mút với v.' },
+    ],
+    success: 'Đúng. Dấu âm đổi hướng và độ lớn của hệ số 2 làm độ dài tăng gấp đôi.',
+    error: 'Tách ảnh hưởng của dấu và độ lớn của scalar.',
+  },
+  {
+    id: 'vector-operation-transfer',
+    title: 'Phép trừ và Linear Combination',
+    prompt: 'Biểu thức nào chắc chắn là một linear combination của u và v?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'u chia từng thành phần cho v' },
+      { id: 'b', label: '2u - 3v', isCorrect: true },
+      { id: 'c', label: 'Lấy giá trị lớn nhất giữa u và v theo từng thành phần' },
+      { id: 'd', label: 'Sắp xếp các thành phần của u rồi ghép với v' },
+    ],
+    success: 'Đúng. Linear combination được tạo bằng cách nhân các vector với scalar rồi cộng chúng lại.',
+    error: 'Hãy tìm biểu thức chỉ dùng scalar multiplication và vector addition.',
+  },
+]} />

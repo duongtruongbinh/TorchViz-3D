@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'unit-vectors-normalization-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Chuẩn hóa', 'Hướng và Scale', 'Vector không'],
+  keywords: ['unit vector', 'normalization', 'zero vector', 'quiz'],
+  conceptIds: ['normalization-calculation', 'normalization-scale', 'zero-vector-edge-case'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="unit-vectors-normalization-quiz" questions={[
+  {
+    id: 'normalization-calculation',
+    title: 'Chuẩn hóa',
+    prompt: 'Vector chuẩn hóa của v = [3, 4]ᵀ là gì?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: '[3, 4]ᵀ' },
+      { id: 'b', label: '[0.75, 1]ᵀ' },
+      { id: 'c', label: '[1.5, 2]ᵀ' },
+      { id: 'd', label: '[0.6, 0.8]ᵀ', isCorrect: true },
+    ],
+    success: 'Đúng. Chia từng thành phần cho L2 norm bằng 5.',
+    error: 'Tính L2 norm trước rồi chia toàn bộ vector cho giá trị đó.',
+  },
+  {
+    id: 'normalization-scale',
+    title: 'Hướng và Scale',
+    prompt: 'u khác vector không và v = 5u. Sau khi chuẩn hóa bằng L2 norm, quan hệ nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'u và v cho cùng một vector đơn vị.', isCorrect: true },
+      { id: 'b', label: 'Vector chuẩn hóa của v dài gấp 5 lần vector chuẩn hóa của u.' },
+      { id: 'c', label: 'Vector chuẩn hóa của v vuông góc với vector chuẩn hóa của u.' },
+      { id: 'd', label: 'Chỉ u có thể được chuẩn hóa.' },
+    ],
+    success: 'Đúng. Scale dương bị loại bỏ khi chia cho norm.',
+    error: 'Hãy xem cả tử số và norm thay đổi thế nào khi vector được nhân với 5.',
+  },
+  {
+    id: 'zero-vector-edge-case',
+    title: 'Vector không',
+    prompt: 'Vì sao không thể chuẩn hóa vector không theo công thức v / ||v||₂?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Vì vector không không có thành phần.' },
+      { id: 'b', label: 'Vì L2 norm của vector không bằng 0 nên phép chia không được xác định.', isCorrect: true },
+      { id: 'c', label: 'Vì vector không có quá nhiều hướng.' },
+      { id: 'd', label: 'Vì normalization chỉ áp dụng cho vector 2D.' },
+    ],
+    success: 'Đúng. Mẫu số bằng 0 nên công thức không xác định.',
+    error: 'Hãy tính norm của vector không.',
+  },
+]} />

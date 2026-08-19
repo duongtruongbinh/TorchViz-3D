@@ -3,6 +3,25 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-08-19 — Linear Algebra reframed for applied AI.** Added a standalone
+  Chapter 0 overview that connects tabular data and RGB images to scalar,
+  vector, matrix, and tensor representations, then leads into the operations
+  used throughout AI. Narrowed the domain description to essential applied-AI
+  linear algebra while preserving the existing 29 Theory/Quiz pairs across the
+  7 core chapters. Standardized all 59 Linear Algebra MDX filenames as
+  `<chapter>.1.<node>-<lesson-id>.vi.mdx`, starting the overview at Chapter 0
+  and keeping every theory and Quiz node in typed-TOC order.
+
+- **2026-08-18 — Linear Algebra completed with 58 lessons and audited math/visuals.**
+  Published all 7 chapters (29 theory lessons and 29 quiz lessons) following the
+  Gilbert Strang / MIT 18.06 outline. Migrated 2D Cartesian mathematics to Mafs 0.21.0
+  and consolidated shared visual primitives (`MathCanvas`, `MathVisualCard`, `MatrixEquationRow`,
+  `RightAngleMarker`, `MathSegmentedControl`, `demoMath`). Audited exact SVD Frobenius
+  energy/errors, trace cyclic property, centered PCA projection residuals, stable
+  singular determinant bounds, and rebalanced all 101 quiz questions evenly across
+  options A-D. Fragmented plan files were consolidated into
+  [one master plan](../docs/plans/2026-08-18-linear-algebra-full-curriculum-and-refinement.md).
+
 - **2026-08-17 — Learning Lab moved to recoverable on-demand boundaries.** Cold
   Home now uses canonical generated summaries and a small language-preference
   store, requesting no Workspace template, TOC, MDX, search, adapter, reference,

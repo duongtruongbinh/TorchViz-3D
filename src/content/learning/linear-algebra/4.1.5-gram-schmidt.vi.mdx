@@ -1,0 +1,156 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'gram-schmidt',
+  locale: 'vi',
+  title: 'Gram Schmidt và QR',
+  headings: [
+    'Từ Basis đến Orthonormal Basis',
+    'Bước đầu tiên',
+    'Loại phần Projection',
+    'Ví dụ hai Vector',
+    'Từ Gram Schmidt đến QR',
+    'QR với NumPy',
+  ],
+  keywords: ['Gram-Schmidt', 'orthonormal basis', 'QR decomposition', 'projection', 'numpy'],
+  conceptIds: [
+    'gram-schmidt-goal',
+    'gram-schmidt-first-vector',
+    'gram-schmidt-subtract-projection',
+    'gram-schmidt-example',
+    'gram-schmidt-qr',
+    'qr-numpy',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Từ Basis đến Orthonormal Basis
+
+Một basis bất kỳ đủ để biểu diễn mọi vector trong subspace.
+
+Nhưng orthonormal basis còn thuận tiện hơn vì:
+
+<BlockMath formula="Q^\top Q=I" />
+
+và coordinates được lấy bằng dot product.
+
+Gram Schmidt nhận một tập independent vectors:
+
+<BlockMath formula="\mathbf{a}_1,\ldots,\mathbf{a}_k" />
+
+và tạo một orthonormal set:
+
+<BlockMath formula="\mathbf{q}_1,\ldots,\mathbf{q}_k" />
+
+span cùng subspace.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bước đầu tiên
+
+Bắt đầu bằng vector đầu tiên:
+
+<BlockMath formula="\mathbf{u}_1=\mathbf{a}_1" />
+
+Sau đó normalize:
+
+<BlockMath formula="\mathbf{q}_1=\frac{\mathbf{u}_1}{\|\mathbf{u}_1\|_2}" />
+
+Vector <InlineMath formula="\mathbf{q}_1" /> có norm bằng 1 và giữ nguyên hướng của <InlineMath formula="\mathbf{a}_1" />.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Loại phần Projection
+
+Vector <InlineMath formula="\mathbf{a}_2" /> thường chứa một phần nằm theo hướng <InlineMath formula="\mathbf{q}_1" />.
+
+Ta loại phần đó:
+
+<BlockMath formula="\mathbf{u}_2=\mathbf{a}_2-(\mathbf{q}_1^\top\mathbf{a}_2)\mathbf{q}_1" />
+
+Khi đó:
+
+<BlockMath formula="\mathbf{q}_1^\top\mathbf{u}_2=0" />
+
+Sau đó normalize:
+
+<BlockMath formula="\mathbf{q}_2=\frac{\mathbf{u}_2}{\|\mathbf{u}_2\|_2}" />
+
+Quá trình tiếp tục bằng cách trừ projection lên tất cả các <InlineMath formula="\mathbf{q}_i" /> đã có.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Ví dụ hai Vector
+
+Cho:
+
+<BlockMath formula="\mathbf{a}_1=\begin{bmatrix}1\\1\end{bmatrix},\qquad\mathbf{a}_2=\begin{bmatrix}1\\0\end{bmatrix}" />
+
+Ta có:
+
+<BlockMath formula="\mathbf{q}_1=\frac{1}{\sqrt{2}}\begin{bmatrix}1\\1\end{bmatrix}" />
+
+Sau khi trừ projection của <InlineMath formula="\mathbf{a}_2" /> lên <InlineMath formula="\mathbf{q}_1" /> và normalize:
+
+<BlockMath formula="\mathbf{q}_2=\frac{1}{\sqrt{2}}\begin{bmatrix}1\\-1\end{bmatrix}" />
+
+<GramSchmidtExplorer
+  ariaLabel="Gram Schmidt trừ projection để biến hai vector độc lập thành hai vector orthonormal"
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Từ Gram Schmidt đến QR
+
+Ghép các input vectors thành các cột:
+
+<BlockMath formula="A=\begin{bmatrix}\vert&\vert\\\mathbf{a}_1&\mathbf{a}_2\\\vert&\vert\end{bmatrix}" />
+
+và orthonormal vectors thành:
+
+<BlockMath formula="Q=\begin{bmatrix}\vert&\vert\\\mathbf{q}_1&\mathbf{q}_2\\\vert&\vert\end{bmatrix}" />
+
+Ta có factorization:
+
+<BlockMath formula="A=QR" />
+
+Trong đó <InlineMath formula="Q" /> có orthonormal columns và <InlineMath formula="R" /> là upper triangular.
+
+QR là một cách tổ chức algebraic của quá trình orthogonalization.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## QR với NumPy
+
+```python
+import numpy as np
+
+A = np.array([
+    [1.0, 1.0],
+    [1.0, 0.0],
+])
+
+Q, R = np.linalg.qr(A)
+
+print(Q)
+print(R)
+print(np.allclose(Q.T @ Q, np.eye(2)))
+print(np.allclose(Q @ R, A))
+```
+
+Dấu của từng cột trong <InlineMath formula="Q" /> có thể khác ví dụ tính tay nhưng factorization vẫn đúng.
+
+Bài tiếp theo dùng projection để giải bài toán không có nghiệm chính xác bằng least squares.
+
+</MdxPage>

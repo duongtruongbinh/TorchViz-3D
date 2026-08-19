@@ -1,0 +1,55 @@
+export const lessonMetadata = {
+  domainId: 'linear-algebra',
+  id: 'cosine-similarity-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Cosine và Góc', 'Scale Invariance', 'Diễn giải Embedding'],
+  keywords: ['cosine similarity', 'angle', 'embedding', 'quiz'],
+  conceptIds: ['cosine-angle', 'cosine-scale-invariance', 'cosine-interpretation'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="cosine-similarity-quiz" questions={[
+  {
+    id: 'cosine-angle',
+    title: 'Cosine và Góc',
+    prompt: 'Hai vector khác vector không có cosine similarity bằng 0. Điều nào đúng?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Hai vector cùng hướng.' },
+      { id: 'b', label: 'Hai vector có cùng độ dài.' },
+      { id: 'c', label: 'Hai vector chắc chắn có một thành phần bằng 0.' },
+      { id: 'd', label: 'Hai vector vuông góc.', isCorrect: true },
+    ],
+    success: 'Đúng. Cosine bằng 0 tương ứng với góc 90°.',
+    error: 'Hãy nhớ các mốc cosine tại 0°, 90° và 180°.',
+  },
+  {
+    id: 'cosine-scale-invariance',
+    title: 'Scale Invariance',
+    prompt: 'Cho c > 0. Điều nào đúng với hai vector khác vector không?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'cos_sim(ca, b) = cos_sim(a, b)', isCorrect: true },
+      { id: 'b', label: 'cos_sim(ca, b) = c cos_sim(a, b)' },
+      { id: 'c', label: 'cos_sim(ca, b) luôn bằng 1' },
+      { id: 'd', label: 'cos_sim(ca, b) không còn được định nghĩa vì a đã đổi độ dài' },
+    ],
+    success: 'Đúng. Scale dương bị triệt tiêu giữa tử và mẫu.',
+    error: 'Thay ca vào cả dot product và norm rồi rút gọn.',
+  },
+  {
+    id: 'cosine-interpretation',
+    title: 'Diễn giải Embedding',
+    prompt: 'Hai embedding có cosine similarity gần 1. Kết luận nào an toàn nhất?',
+    mode: 'single',
+    options: [
+      { id: 'a', label: 'Hai câu chắc chắn có cùng nghĩa trong mọi ngữ cảnh.' },
+      { id: 'b', label: 'Hai vector gần cùng hướng trong embedding space.', isCorrect: true },
+      { id: 'c', label: 'Hai embedding chắc chắn có cùng L2 norm.' },
+      { id: 'd', label: 'Embedding model đã chứng minh hai đầu vào thuộc cùng một class.' },
+    ],
+    success: 'Đúng. Cosine mô tả quan hệ hình học giữa vector. Ý nghĩa semantic còn phụ thuộc embedding model.',
+    error: 'Không suy rộng một đại lượng hình học thành kết luận semantic tuyệt đối.',
+  },
+]} />
