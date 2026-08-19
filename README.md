@@ -52,6 +52,10 @@ TorchViz-3D brings together two integrated capabilities accessible from the unif
   <img src="docs/assets/learning-lab-catalog.png" alt="TorchViz-3D Learning Lab domain catalog and interactive curriculum index" />
 </p>
 
+<p align="center">
+  <img src="docs/assets/learning-lab-continual-learning.png" alt="Learning Lab Continual Learning for LLMs overview lesson with conceptual illustrations and curriculum navigation" />
+</p>
+
 
 ## How It Works
 
