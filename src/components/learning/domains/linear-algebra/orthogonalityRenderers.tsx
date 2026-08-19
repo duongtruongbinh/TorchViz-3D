@@ -4,9 +4,9 @@ import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxCom
 import { getMathVisualTheme } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
-import { MathStepperControls } from './primitives/MathStepperControls';
 import { AngleArc } from './primitives/AngleArc';
 import { RightAngleMarker } from './primitives/RightAngleMarker';
+import { InteractiveStepper } from '../../shell/InteractiveStepper';
 import type {
   OrthogonalityExplorerProps,
   ProjectionExplorerProps,
@@ -248,7 +248,7 @@ export function GramSchmidtExplorer({
             </p>
           </MathInfoPanel>
 
-          <MathStepperControls
+          <InteractiveStepper
             currentStep={stepIndex}
             totalSteps={steps.length}
             onStepChange={setStepIndex}

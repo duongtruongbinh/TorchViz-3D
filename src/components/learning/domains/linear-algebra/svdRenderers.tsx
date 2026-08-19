@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Vector, Plot, Text } from 'mafs';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
-import { MathStepperControls } from './primitives/MathStepperControls';
+import { InteractiveStepper } from '../../shell/InteractiveStepper';
 import { MatrixGrid } from './primitives/MatrixGrid';
 import { MatrixEquationRow } from './primitives/MatrixEquationRow';
 import type {
@@ -77,11 +77,11 @@ export function SVDGeometryExplorer({
           </MathInfoPanel>
 
           {interactive && (
-            <MathStepperControls
+            <InteractiveStepper
               currentStep={stage}
               totalSteps={stages.length}
-              onStepChange={(s) => setStage(s as 0 | 1 | 2 | 3)}
-              ariaLabel="Điều khiển các giai đoạn SVD"
+              onStepChange={useCallback((s: number) => setStage(s as 0 | 1 | 2 | 3), [])}
+              ariaLabel="SVD stage controls"
             />
           )}
         </div>

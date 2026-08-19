@@ -2,9 +2,10 @@ import { ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAler
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
-import { DiagramConnectorLayer, getDiagramAnchor, observeDiagramLayout } from './diagramPrimitives';
+import { DiagramConnectorLayer, getDiagramAnchor, observeDiagramLayout } from '../../primitives/diagramPrimitives';
 import { CodeBlock } from '../../code/CodeBlock';
-import { LlmCallout, StepPlaybackControls, TokenChip, TokenIdBadge } from './rendererPrimitives';
+import { LlmCallout, TokenChip, TokenIdBadge } from './rendererPrimitives';
+import { InteractiveStepper } from '../../shell/InteractiveStepper';
 import { getLlmRendererTheme } from './rendererTheme';
 import type {
   LlmContentRendererProps,
@@ -760,7 +761,6 @@ export function LlmTokenizerRegexWalkthrough({ content, language, themeClasses }
 export function LlmTokenizerMergeTraining({ content, language, themeClasses }: LlmContentRendererProps<LlmTokenizerMergeTrainingContent>) {
   const totalMerges = content.merges.length;
   const [completedMerges, setCompletedMerges] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
   const activeMerge = content.merges[completedMerges];
 
   type TokenSegment = { token: string; sourceIndexes: number[] };
@@ -788,22 +788,6 @@ export function LlmTokenizerMergeTraining({ content, language, themeClasses }: L
   const activePairs = activeMerge
     ? Array.from({ length: activeMerge.sourceIndexes.length / 2 }, (_, index) => [activeMerge.sourceIndexes[index * 2], activeMerge.sourceIndexes[index * 2 + 1]] as const)
     : [];
-
-  useEffect(() => {
-    if (!isPlaying) return;
-    if (completedMerges >= totalMerges) {
-      setIsPlaying(false);
-      return;
-    }
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setIsPlaying(false);
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      setCompletedMerges((current) => Math.min(current + 1, totalMerges));
-    }, 2000);
-    return () => window.clearTimeout(timer);
-  }, [completedMerges, isPlaying, totalMerges]);
 
   const tokenChips = (tokens: TokenSegment[], highlight: 'source' | 'merged' | undefined = undefined) => (
     <div className="flex flex-wrap gap-2">
@@ -837,25 +821,16 @@ export function LlmTokenizerMergeTraining({ content, language, themeClasses }: L
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className={cx('text-sm font-black tabular-nums', themeClasses.mutedText)}>
           {activeMerge
-            ? (language === 'vi' ? `Merge ${completedMerges + 1}/${totalMerges}` : `Merge ${completedMerges + 1}/${totalMerges}`)
+            ? `Merge ${completedMerges + 1}/${totalMerges}`
             : (language === 'vi' ? 'Đã hoàn tất' : 'Complete')}
         </div>
-        <StepPlaybackControls
-          isPlaying={isPlaying}
-          labels={{
-            next: language === 'vi' ? 'Merge tiếp theo' : 'Next merge',
-            pause: language === 'vi' ? 'Tạm dừng' : 'Pause',
-            play: language === 'vi' ? 'Phát' : 'Play',
-            previous: language === 'vi' ? 'Merge trước' : 'Previous merge',
-            reset: language === 'vi' ? 'Đặt lại' : 'Reset',
-          }}
-          nextDisabled={completedMerges >= totalMerges}
-          onNext={() => { setIsPlaying(false); setCompletedMerges((current) => Math.min(current + 1, totalMerges)); }}
-          onPrevious={() => { setIsPlaying(false); setCompletedMerges((current) => Math.max(current - 1, 0)); }}
-          onReset={() => { setCompletedMerges(0); setIsPlaying(false); }}
-          onTogglePlay={() => { if (isPlaying) setIsPlaying(false); else { if (completedMerges >= totalMerges) setCompletedMerges(0); setIsPlaying(true); } }}
-          previousDisabled={completedMerges === 0}
-          themeClasses={themeClasses}
+        <InteractiveStepper
+          currentStep={completedMerges}
+          totalSteps={totalMerges + 1}
+          onStepChange={setCompletedMerges}
+          allowAutoPlay={true}
+          autoPlayIntervalMs={2000}
+          ariaLabel="BPE merge step controls"
         />
       </div>
       <article className={cx('learning-lab-focus-panel min-h-72 rounded-lg border p-5', themeClasses.isLight ? 'border-[#205089]/20 bg-white' : 'border-[#A8B8C8]/24 bg-[#121A24]/48')}>

@@ -9,7 +9,7 @@ import { MathRangeControl } from './primitives/MathRangeControl';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
 import { AugmentedMatrixGrid } from './primitives/AugmentedMatrixGrid';
 import { MatrixGrid } from './primitives/MatrixGrid';
-import { MathStepperControls } from './primitives/MathStepperControls';
+import { InteractiveStepper } from '../../shell/InteractiveStepper';
 import type {
   ColumnCombinationExplorerProps,
   LinearSystemCasesExplorerProps,
@@ -404,7 +404,7 @@ export function GaussianEliminationStepper({
       </MathInfoPanel>
 
       {/* Step controls */}
-      <MathStepperControls
+      <InteractiveStepper
         currentStep={stepIndex}
         totalSteps={steps.length}
         onStepChange={setStepIndex}
@@ -652,7 +652,7 @@ export function GaussJordanInverseStepper({
       </MathInfoPanel>
 
       {/* Step Controls */}
-      <MathStepperControls
+      <InteractiveStepper
         currentStep={stepIndex}
         totalSteps={steps.length}
         onStepChange={setStepIndex}

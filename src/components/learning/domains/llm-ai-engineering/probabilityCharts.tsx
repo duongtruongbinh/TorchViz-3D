@@ -1,14 +1,6 @@
 import { cx } from '../../theme';
 import type { LlmRendererTheme } from './rendererTypes';
 
-export {
-  getDiagramAnchor,
-  observeDiagramLayout,
-  DiagramConnectorLayer,
-  type DiagramAnchor,
-  type DiagramConnectorPath,
-} from '../../primitives/diagramPrimitives';
-
 export function ProbabilityCurveChart({
   ariaLabel,
   curvePath,
