@@ -34,39 +34,28 @@ export const lessonMetadata = {
 
 ## Trade-off thay đổi theo bối cảnh
 
-Sự đánh đổi này phụ thuộc vào bốn yếu tố:
+Sự đánh đổi này phụ thuộc vào một số yếu tố trong bối cảnh thực tế:
 
 <LessonImage assetPath="continual-learning-llm/01-stability-plasticity-context-factors.png" alt="Bốn yếu tố làm thay đổi trade-off stability–plasticity: độ lệch phân phối, độ dài chuỗi cập nhật, quyền truy cập dữ liệu cũ và rủi ro của năng lực" caption="Cùng một chiến lược giữ cũ–học mới có thể cần điều chỉnh khi dữ liệu, lịch cập nhật, quyền truy cập hoặc mức rủi ro thay đổi." />
 
-<CourseCards
-  ariaLabel="Bốn yếu tố làm thay đổi trade-off stability–plasticity"
-  exampleLabel="Ví dụ"
-  takeawayLabel="Tác động lên trade-off"
-  singleColumn
-  items={[
-    {
-      title: 'Độ lệch phân phối',
-      example: 'Một LLM ban đầu được pre-train chủ yếu trên trang web phổ thông, sách và văn bản kiểu Wikipedia, sau đó tiếp tục học báo cáo X-quang chuyên ngành.',
-      takeaway: 'Dữ liệu mới càng khác dữ liệu cũ, mô hình càng cần nhiều plasticity để thích nghi; đồng thời vẫn phải kiểm tra khả năng duy trì năng lực ngôn ngữ tổng quát.',
-    },
-    {
-      title: 'Độ dài chuỗi cập nhật',
-      example: 'Mỗi tháng, model học một lô dữ liệu mới và được cập nhật một lần. Sau 24 tháng, model đã trải qua 24 giai đoạn nối tiếp; các lần cập nhật sau có thể làm suy giảm năng lực học ở những tháng đầu.',
-      takeaway: 'Chuỗi cập nhật càng dài, forgetting càng có thể tích lũy; vì vậy phải kiểm tra khả năng duy trì sau từng giai đoạn.',
-    },
-    {
-      title: 'Quyền truy cập dữ liệu cũ',
-      example: 'Replay là trộn một số mẫu dữ liệu cũ vào dữ liệu đang học để model ôn lại. Nếu chính sách riêng tư cấm lưu raw sample sau mỗi giai đoạn, cách replay trực tiếp này không thể dùng.',
-      takeaway: 'Khi không thể dùng replay trực tiếp, cần chuyển sang các kỹ thuật hợp lệ khác như regularization, distillation hoặc memory được kiểm soát.',
-    },
-    {
-      title: 'Chi phí sai lệch của năng lực',
-      example: 'Một thay đổi nhỏ về văn phong có thể chấp nhận, nhưng suy giảm safety hoặc refusal thì không.',
-      takeaway: 'Năng lực có rủi ro cao cần ưu tiên stability và đặt ngưỡng retention chặt hơn.',
-    },
-  ]}
-/>
+### 1. Độ lệch phân phối
 
-Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật (stage) <Cite paper="shi2024continualSurvey" evidence="stability-plasticity-tradeoff-02-shi2024continualSurvey" />. Các độ đo cụ thể sẽ được đề cập ở Chương 5.
+Một LLM ban đầu được pre-train chủ yếu trên trang web phổ thông, sách và văn bản kiểu Wikipedia, sau đó tiếp tục học báo cáo X-quang chuyên ngành. Dữ liệu mới càng khác dữ liệu cũ, mô hình càng cần nhiều plasticity để thích nghi; đồng thời vẫn phải kiểm tra khả năng duy trì năng lực ngôn ngữ tổng quát <Cite paper="gururangan2020dont" evidence="stability-plasticity-factor-01-gururangan" />.
+
+### 2. Độ dài chuỗi cập nhật
+
+Mỗi tháng, model học một lô dữ liệu mới và được cập nhật một lần. Sau 24 tháng, model đã trải qua 24 giai đoạn nối tiếp. Chuỗi cập nhật càng dài, catastrophic forgetting càng có thể tích lũy theo thời gian; vì vậy phải kiểm tra khả năng duy trì sau từng giai đoạn <Cite paper="jin2022lifelong" evidence="stability-plasticity-factor-02-jin" />.
+
+### 3. Quyền truy cập dữ liệu cũ
+
+Replay là trộn một số mẫu dữ liệu cũ vào dữ liệu đang học để model ôn lại. Nếu chính sách riêng tư cấm lưu raw sample sau mỗi giai đoạn, cách replay trực tiếp này không thể dùng; hệ thống phải chuyển sang các kỹ thuật hợp lệ khác như regularization, distillation hoặc memory được kiểm soát <Cite paper="chaudhry2019tiny" evidence="stability-plasticity-factor-03-chaudhry" />.
+
+### 4. Chi phí sai lệch của năng lực
+
+Một thay đổi nhỏ về văn phong có thể chấp nhận, nhưng suy giảm safety hoặc refusal thì không. Năng lực có rủi ro cao cần ưu tiên stability và đặt ngưỡng retention chặt hơn <Cite paper="qi2023fine" evidence="stability-plasticity-factor-04-qi" />.
+
+---
+
+Vì vậy, một báo cáo CL phải đo cả **khả năng tiếp thu (acquisition)** lẫn **khả năng duy trì (retention)** sau mỗi giai đoạn cập nhật (stage) <Cite paper="shi2024continualSurvey" evidence="stability-plasticity-tradeoff-06-shi2024continualSurvey" />. Các độ đo cụ thể sẽ được đề cập ở Chương 5.
 
 </MdxPage>

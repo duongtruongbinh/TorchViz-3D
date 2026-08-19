@@ -1,4 +1,4 @@
-import { Check, Code2, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
+import { Check, Code2, DatabaseBackup, Monitor, Terminal, Wrench, type LucideIcon } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import {
   createContext,
@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
   type ComponentType,
+  type CSSProperties,
   type ReactElement,
   type ReactNode,
 } from 'react';
@@ -186,7 +187,52 @@ type CourseCardItem = {
   title: string;
   example: string;
   takeaway: string;
+  visual?: 'gradient-update' | 'embedding-clusters';
 };
+
+function CourseCardVisual({ visual, isLight }: {
+  visual: NonNullable<CourseCardItem['visual']>;
+  isLight: boolean;
+}) {
+  const palette = visual === 'gradient-update'
+    ? (isLight
+        ? 'border-[#A89CCB]/24 bg-[#F8F6FC] text-[#7466A4]'
+        : 'border-[#B9A9E3]/20 bg-[#B9A9E3]/6 text-[#C8BCEF]')
+    : (isLight
+        ? 'border-[#68AAA2]/24 bg-[#F2FAF8] text-[#2D7E75]'
+        : 'border-[#79C5BB]/20 bg-[#79C5BB]/6 text-[#9EDDD5]');
+
+  return (
+    <div className={cx('grid h-20 place-items-center border-b', palette)} aria-hidden="true">
+      {visual === 'gradient-update' ? (
+        <svg viewBox="0 0 112 56" className="h-14 w-28" fill="none">
+          <circle cx="38" cy="42" r="3.5" fill="currentColor" />
+          <path d="M38 42 75 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.38" />
+          <path d="m69 13 7-1-2 7" fill="currentColor" opacity="0.38" />
+          <path d="M38 42h49" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="m82 37 7 5-7 5" fill="currentColor" />
+          <path d="M75 13v29" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 4" opacity="0.45" />
+          <path d="M69 36v6h6" stroke="currentColor" strokeWidth="1.4" opacity="0.65" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 112 56" className="h-14 w-28" fill="none">
+          <ellipse cx="34" cy="28" rx="22" ry="18" stroke="currentColor" strokeWidth="1.4" opacity="0.22" />
+          <ellipse cx="79" cy="28" rx="21" ry="18" stroke="currentColor" strokeWidth="1.4" opacity="0.22" />
+          <g fill="currentColor">
+            <circle cx="24" cy="22" r="3.5" />
+            <circle cx="38" cy="18" r="3.5" opacity="0.72" />
+            <circle cx="31" cy="34" r="3.5" opacity="0.82" />
+            <circle cx="44" cy="31" r="3.5" opacity="0.55" />
+            <circle cx="70" cy="20" r="3.5" opacity="0.58" />
+            <circle cx="84" cy="18" r="3.5" />
+            <circle cx="74" cy="34" r="3.5" opacity="0.78" />
+            <circle cx="89" cy="32" r="3.5" opacity="0.68" />
+          </g>
+        </svg>
+      )}
+    </div>
+  );
+}
 
 export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spotlight = false, singleColumn = false, threeColumns = false, featureFirst = false, numbered = true }: {
   ariaLabel: string;
@@ -203,7 +249,6 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
   const [activeIndex, setActiveIndex] = useState(0);
   const border = themeClasses.isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18';
   const titleBand = themeClasses.isLight ? 'bg-[#EAF2FA]' : 'bg-[#A8D4FF]/9';
-  const label = themeClasses.isLight ? 'text-[#205089]' : 'text-[#A8D4FF]';
   return (
     <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2', threeColumns && 'lg:grid-cols-3')} aria-label={ariaLabel} onMouseLeave={spotlight ? () => setActiveIndex(0) : undefined}>
       {items.map((item, index) => {
@@ -214,45 +259,36 @@ export function CourseCards({ ariaLabel, exampleLabel, takeawayLabel, items, spo
           : isRisk
             ? themeClasses.semantic.danger.border
             : border;
-        const semanticSurface = isPositive
-          ? themeClasses.semantic.success.surface
-          : isRisk
-            ? themeClasses.semantic.danger.surface
-            : undefined;
         const semanticTitleBand = isPositive
           ? (themeClasses.isLight ? 'bg-emerald-100/80' : 'bg-emerald-950/60')
           : isRisk
             ? (themeClasses.isLight ? 'bg-rose-100/80' : 'bg-rose-950/60')
             : titleBand;
-        const semanticLabel = isPositive
-          ? themeClasses.semantic.success.strongText
-          : isRisk
-            ? themeClasses.semantic.danger.strongText
-            : label;
         return (
           <li
             key={item.title}
             onMouseEnter={spotlight ? () => setActiveIndex(index) : undefined}
             className={cx(
-              'grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none',
+              'grid h-full overflow-hidden rounded-xl border transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none',
+              item.visual ? 'grid-rows-[auto_auto_1fr]' : 'grid-rows-[auto_1fr]',
               featureFirst && index === 0 && 'sm:row-span-2',
               featureFirst && index === items.length - 1 && 'sm:col-span-2',
               spotlight && (activeIndex === index ? 'opacity-100' : 'opacity-45'),
               semanticBorder,
-              semanticSurface,
             )}
           >
             <div className={cx('grid min-h-20 items-center gap-3 border-b px-4 py-3', numbered ? 'grid-cols-[2rem_1fr]' : 'grid-cols-1', semanticBorder, semanticTitleBand)}>
               {numbered && <span className="grid size-8 place-items-center rounded-full bg-[#205089] text-sm font-black text-white">{index + 1}</span>}
               <h3 className={cx('text-base font-black leading-6 text-balance', themeClasses.titleText)}>{item.title}</h3>
             </div>
+            {item.visual ? <CourseCardVisual visual={item.visual} isLight={themeClasses.isLight} /> : null}
             <dl className="grid content-start gap-4 p-4 text-sm leading-6">
               <div>
-                <dt className={cx('font-black', semanticLabel)}>{exampleLabel}</dt>
+                <dt className={cx('font-black', themeClasses.titleText)}>{exampleLabel}</dt>
                 <dd className={cx('mt-1', themeClasses.bodyText)}>{item.example}</dd>
               </div>
               <div>
-                <dt className={cx('font-black', semanticLabel)}>{takeawayLabel}</dt>
+                <dt className={cx('font-black', themeClasses.titleText)}>{takeawayLabel}</dt>
                 <dd className={cx('mt-1', themeClasses.bodyText)}>{item.takeaway}</dd>
               </div>
             </dl>
@@ -475,6 +511,166 @@ export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: Co
           );
         })}
       </ol>
+    </figure>
+  );
+}
+
+type ConceptHierarchyNode = {
+  title: string;
+  detail?: string;
+  tone?: 'blue' | 'amber' | 'teal' | 'violet' | 'neutral';
+  visual?: 'database' | 'two-term-loss' | 'neural-network';
+  muted?: boolean;
+  children?: ConceptHierarchyNode[];
+};
+
+function ConceptHierarchyVisual({ visual, tone, isLight }: {
+  visual: NonNullable<ConceptHierarchyNode['visual']>;
+  tone: NonNullable<ConceptHierarchyNode['tone']>;
+  isLight: boolean;
+}) {
+  const visualTones = isLight ? {
+    blue: 'text-[#3F7DB1]',
+    amber: 'text-[#A0752B]',
+    teal: 'text-[#2D7E75]',
+    violet: 'text-[#7466A4]',
+    neutral: 'text-[#52677F]',
+  } : {
+    blue: 'text-[#9BCDF2]',
+    amber: 'text-[#F2CA7B]',
+    teal: 'text-[#9EDDD5]',
+    violet: 'text-[#C8BCEF]',
+    neutral: 'text-[#B8C8DA]',
+  };
+  const termSurface = isLight ? 'border-current/22 bg-white/70' : 'border-current/25 bg-white/5';
+
+  return (
+    <div className={cx('grid min-h-16 place-items-center', visualTones[tone])} aria-hidden="true">
+      {visual === 'database' ? <DatabaseBackup className="size-10" strokeWidth={1.65} /> : null}
+      {visual === 'two-term-loss' ? (
+        <div className="flex items-center justify-center gap-2 font-mono text-xs font-bold">
+          <span className={cx('rounded-md border px-2.5 py-1.5', termSurface)}>L<sub>new</sub></span>
+          <span className="text-base font-black">+</span>
+          <span className={cx('rounded-md border px-2.5 py-1.5', termSurface)}>λL<sub>keep</sub></span>
+        </div>
+      ) : null}
+      {visual === 'neural-network' ? (
+        <svg viewBox="0 0 104 56" className="h-14 w-24" fill="none">
+          <g stroke="currentColor" strokeWidth="1.4" opacity="0.35">
+            {[14, 42].flatMap((inputY) => [8, 28, 48].map((hiddenY) => (
+              <line key={`in-${inputY}-${hiddenY}`} x1="12" y1={inputY} x2="52" y2={hiddenY} />
+            )))}
+            {[8, 28, 48].flatMap((hiddenY) => [18, 38].map((outputY) => (
+              <line key={`out-${hiddenY}-${outputY}`} x1="52" y1={hiddenY} x2="92" y2={outputY} />
+            )))}
+          </g>
+          <g fill="currentColor">
+            <circle cx="12" cy="14" r="4" />
+            <circle cx="12" cy="42" r="4" />
+            <circle cx="52" cy="8" r="4" />
+            <circle cx="52" cy="28" r="4" />
+            <circle cx="52" cy="48" r="4" />
+            <circle cx="92" cy="18" r="4" />
+            <circle cx="92" cy="38" r="4" />
+          </g>
+        </svg>
+      ) : null}
+    </div>
+  );
+}
+
+export function ConceptHierarchy({ ariaLabel, root, children }: {
+  ariaLabel: string;
+  root: ConceptHierarchyNode;
+  children: ConceptHierarchyNode[];
+}) {
+  const themeClasses = useLearningMdxTheme();
+  const connector = themeClasses.isLight ? 'bg-[#205089]/28' : 'bg-[#A8D4FF]/28';
+  const rootSurface = themeClasses.isLight
+    ? 'border-[#205089] bg-[#205089] text-white shadow-[0_10px_24px_rgba(32,80,137,0.18)]'
+    : 'border-[#A8D4FF] bg-[#A8D4FF] text-[#0B1726] shadow-[0_10px_24px_rgba(0,0,0,0.24)]';
+  const childNodeTones = themeClasses.isLight ? {
+    blue: 'border-[#79A9D1]/60 bg-[#EAF4FB] text-[#1F5C88] shadow-[0_8px_18px_rgba(63,125,177,0.08)]',
+    amber: 'border-[#D6AE65]/65 bg-[#FFF8E8] text-[#805B1D] shadow-[0_8px_18px_rgba(160,117,43,0.08)]',
+    teal: 'border-[#68AAA2]/60 bg-[#ECF8F6] text-[#216B63] shadow-[0_8px_18px_rgba(45,126,117,0.08)]',
+    violet: 'border-[#A89CCB]/60 bg-[#F4F1FB] text-[#62558B] shadow-[0_8px_18px_rgba(98,85,139,0.08)]',
+    neutral: 'border-[#205089]/16 bg-[#F5F8FC] text-[#172A43] shadow-[0_8px_18px_rgba(32,80,137,0.07)]',
+  } : {
+    blue: 'border-[#7FB4E5]/32 bg-[#7FB4E5]/10 text-[#CBE5FF] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
+    amber: 'border-[#F0BE62]/32 bg-[#F0BE62]/10 text-[#FFE0A0] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
+    teal: 'border-[#79C5BB]/32 bg-[#79C5BB]/10 text-[#BDEBE5] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
+    violet: 'border-[#B9A9E3]/32 bg-[#B9A9E3]/10 text-[#DDD3F7] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
+    neutral: 'border-[#A8D4FF]/18 bg-[#172232] text-[#F4EFE6] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
+  };
+  const columnStyle = {
+    '--concept-hierarchy-columns': Math.max(children.length, 1),
+  } as CSSProperties;
+  const railStyle = {
+    marginInline: `${50 / Math.max(children.length, 1)}%`,
+  };
+
+  return (
+    <figure className="my-6" aria-label={ariaLabel}>
+      <div className="flex justify-center">
+        <div className={cx('relative z-10 max-w-md rounded-xl border px-6 py-3 text-center', rootSurface)}>
+          <strong className="block text-base font-black leading-6 text-balance">{root.title}</strong>
+          {root.detail ? <span className="mt-1 block text-sm leading-5 text-pretty opacity-85">{root.detail}</span> : null}
+        </div>
+      </div>
+
+      {children.length ? (
+        <>
+          <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
+          <span className={cx('hidden h-px sm:block', connector)} style={railStyle} aria-hidden="true" />
+          <ul
+            className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
+            style={columnStyle}
+          >
+            {children.map((child, index) => {
+              const nestedChildren = child.children ?? [];
+              const nestedColumnStyle = {
+                '--concept-hierarchy-columns': Math.max(nestedChildren.length, 1),
+              } as CSSProperties;
+              const nestedRailStyle = {
+                marginInline: `${50 / Math.max(nestedChildren.length, 1)}%`,
+              };
+
+              return (
+                <li key={`${child.title}-${index}`} className="m-0 flex min-w-0 list-none flex-col items-stretch p-0 sm:px-2">
+                  <div className={cx('flex flex-col items-stretch', child.muted && 'opacity-35 grayscale')}>
+                    <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
+                    <div className={cx('grid min-h-14 place-items-center rounded-xl border px-4 py-3 text-center', childNodeTones[child.tone ?? 'neutral'])}>
+                      <strong className="text-base font-black leading-6 text-balance">{child.title}</strong>
+                    </div>
+                    {child.visual ? <ConceptHierarchyVisual visual={child.visual} tone={child.tone ?? 'neutral'} isLight={themeClasses.isLight} /> : null}
+                    {child.detail ? <p className={cx(child.visual ? 'mt-1' : 'mt-3', 'px-2 text-center text-sm leading-6 text-pretty', themeClasses.bodyText)}>{child.detail}</p> : null}
+                  </div>
+
+                  {nestedChildren.length ? (
+                    <div className="mt-1 sm:w-[200%] sm:-translate-x-1/4">
+                      <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
+                      <span className={cx('hidden h-px sm:block', connector)} style={nestedRailStyle} aria-hidden="true" />
+                      <ul
+                        className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
+                        style={nestedColumnStyle}
+                      >
+                        {nestedChildren.map((nestedChild, nestedIndex) => (
+                          <li key={`${nestedChild.title}-${nestedIndex}`} className={cx('m-0 min-w-0 list-none p-0 sm:px-2', nestedChild.muted && 'opacity-35 grayscale')}>
+                            <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
+                            <div className={cx('grid min-h-14 place-items-center rounded-xl border px-4 py-3 text-center', childNodeTones[nestedChild.tone ?? child.tone ?? 'neutral'])}>
+                              <strong className="text-sm font-black leading-5 text-balance">{nestedChild.title}</strong>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      ) : null}
     </figure>
   );
 }
@@ -960,6 +1156,7 @@ const sharedAuthoredMdxComponents = {
   CourseCards,
   EvidenceCards,
   ConceptFlow,
+  ConceptHierarchy,
   ExperimentChecklist,
   SelfCheckList,
   ComparisonMatrix,

@@ -12,19 +12,38 @@ export const lessonMetadata = {
 
 Sau khi biết forgetting xảy ra như thế nào, ta có thể gom các giải pháp đầu tiên thành ba nhóm dựa trên **nơi chúng đưa tín hiệu bảo tồn vào quá trình học**:
 
-<ComparisonMatrix
-  ariaLabel="So sánh ba nhóm giải pháp giảm forgetting"
-  columns={['Điểm can thiệp', 'Tín hiệu bảo tồn']}
-  rows={[
-    { label: 'Replay', values: ['Dữ liệu huấn luyện', 'Mẫu cũ xuất hiện lại trong batch'] },
-    { label: 'Regularization', values: ['Hàm mục tiêu', 'Phạt thay đổi tham số quan trọng'] },
-    { label: 'Architecture', values: ['Tham số và đường truyền', 'Cô lập hoặc mở rộng capacity'] },
+<ConceptHierarchy
+  ariaLabel="Ba hướng tiếp cận chính để giảm forgetting"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    {
+      title: 'Replay',
+      tone: 'blue',
+      visual: 'database',
+      detail: 'Can thiệp vào dữ liệu huấn luyện bằng cách đưa mẫu cũ xuất hiện lại trong batch.',
+    },
+    {
+      title: 'Regularization',
+      tone: 'amber',
+      visual: 'two-term-loss',
+      detail: 'Can thiệp vào hàm mục tiêu bằng cách phạt thay đổi ở những tham số quan trọng.',
+    },
+    {
+      title: 'Architecture',
+      tone: 'teal',
+      visual: 'neural-network',
+      detail: 'Can thiệp vào tham số và đường truyền bằng cách cô lập hoặc mở rộng capacity.',
+    },
   ]}
 />
 
 Survey còn đề cập hai hướng khác:
 
-Một taxonomy rộng hơn tách continual-learning methods thành **năm nhóm** <Cite paper="wang2024comprehensive" evidence="cl-method-taxonomy-01-wang2024comprehensive" />; các card phía trên dùng các nhãn replay, regularization, optimization, representation và architecture theo cách tổ chức đó. Trong Domain-Incremental Learning có memory, UDIL cho thấy nhiều objective hiện có có thể được nhìn dưới một khung generalization-bound thống nhất <Cite paper="shi2024unified" evidence="cl-method-taxonomy-02-shi2024unified" />; đây là ví dụ lý thuyết, không phải taxonomy dành riêng cho LLM.
+Một taxonomy rộng hơn chia continual-learning methods thành năm nhóm
+<Cite paper="wang2024comprehensive" evidence="cl-method-taxonomy-01-wang2024comprehensive" />;
+UDIL cho thấy nhiều objective trong Domain-Incremental Learning có memory có thể
+được nhìn dưới một khung generalization-bound thống nhất
+<Cite paper="shi2024unified" evidence="cl-method-taxonomy-02-shi2024unified" />.
 
 <CourseCards
   ariaLabel="Hai hướng Continual Learning được survey đề cập ngắn"
@@ -33,18 +52,20 @@ Một taxonomy rộng hơn tách continual-learning methods thành **năm nhóm*
   items={[
     {
       title: 'Optimization-based',
+      visual: 'gradient-update',
       example: 'Can thiệp trực tiếp vào cách model cập nhật: điều chỉnh hoặc chiếu gradient của task mới để bước cập nhật ít xung đột với những hướng quan trọng cho task cũ.',
       takeaway: 'Nếu gradient mới đang kéo tham số theo hướng làm tăng loss cũ, thuật toán có thể loại bỏ phần gradient gây xung đột trước khi optimizer cập nhật model.',
     },
     {
       title: 'Representation-based',
+      visual: 'embedding-clusters',
       example: 'Học biểu diễn đủ ổn định và tổng quát để nhiều task dùng chung, nhờ đó mỗi task mới không phải thay đổi mạnh phần feature đã học.',
       takeaway: 'Hai báo cáo y khoa cùng ý nghĩa nhưng viết theo văn phong khác nhau vẫn được đưa tới embedding gần nhau; model thích nghi với nguồn mới mà ít phá vỡ feature cũ.',
     },
   ]}
 />
 
-Hai hướng này không được survey về Continual LLM phân tích sâu như ba nhóm phía trên <Cite paper="shi2024continualSurvey" evidence="cl-method-taxonomy-03-shi2024continualSurvey" />, nên khóa học tạm thời chưa tách chúng thành node riêng.
+Hai hướng này chưa được survey phân tích sâu như ba nhóm phía trên, nên khóa học tạm thời chưa tách chúng thành node riêng.
 
 <LessonNote>
   Chương 2 sẽ lần lượt đi vào từng nhóm. Ta bắt đầu với Replay: đưa dữ liệu cũ trở lại quá trình học để tạo ràng buộc giữ kiến thức.

@@ -66,11 +66,11 @@ test('linear-algebra MDX filenames mirror chapter and TOC order', () => {
 });
 
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 191);
+  assert.equal(lessonFiles.length, 193);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 191);
+  assert.equal(documents.length, 193);
   const requirements = documents.find((document) => document.lessonId === 'minimal-llm-project-skeleton')?.text ?? '';
   for (const requirement of ['Google Colab', 'Python', 'uv', 'VSCode']) assert.match(requirements, new RegExp(requirement));
 });
@@ -112,7 +112,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
     .map((file) => parseLearningMdxPath(file)?.lessonId)
     .filter((lessonId): lessonId is string => typeof lessonId === 'string' && !lessonId.endsWith('-quiz'))
     .sort();
-  assert.equal(theoryIds.length, 40);
+  assert.equal(theoryIds.length, 41);
   assert.deepEqual(continualLearningLessonReferenceCoverage.map((item) => item.lessonId).sort(), theoryIds);
   assert.equal(continualLearningPapers.length, continualLearningPaperById.size);
   const claimIds = new Set<string>();
@@ -258,7 +258,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
   assert.deepEqual([...usedEvidenceIds].sort(), continualLearningCitationEvidence.map((evidence) => evidence.id).sort(), 'every reviewed evidence record must be used exactly once');
   assert.deepEqual([...usedExceptionIds].sort(), continualLearningCitationLinkOnlyExceptions.map((exception) => exception.id).sort(), 'every link-only exception must be used exactly once');
   assert.equal(paperSummaryCount, 3, 'the three authored PaperSummary occurrences must remain inventoried');
-  assert.ok(getContinualLearningLessonReferenceIds('continual-learning-llm-overview').length <= 4, 'overview must not inherit the survey introduction bibliography');
+  assert.ok(getContinualLearningLessonReferenceIds('continual-learning-llm-overview').length <= 8, 'overview must not inherit the survey introduction bibliography');
   assert.ok(getContinualLearningLessonReferenceIds('continual-llm-synthesis').length <= 2, 'synthesis must not duplicate the full course bibliography');
   const reachableIds = new Set(continualLearningLessonReferenceCoverage.flatMap((coverage) => getContinualLearningLessonReferenceIds(coverage.lessonId)));
   assert.deepEqual(
@@ -274,7 +274,7 @@ test('continual-learning paper coverage is complete, unique, and resolvable', as
 });
 
 test('continual-learning references assemble as one dedicated final runtime page', () => {
-  assert.equal(continualLearningLessonReferenceCoverage.length, 40);
+  assert.equal(continualLearningLessonReferenceCoverage.length, 41);
   const registry = readFileSync('src/components/learning/learningMdxRegistry.tsx', 'utf8');
   assert.match(registry, /const authoredPages = Array\.from\(\{ length: lesson\.pageCount \}/);
   assert.match(registry, /const referencePage = referenceCoverage \? \(/);
@@ -331,8 +331,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
   const singleQuestions = questions.filter((question) => question.mode === 'single');
   const multiQuestions = questions.filter((question) => question.mode === 'multi');
 
-  assert.equal(questions.length, 164);
-  assert.equal(singleQuestions.length, 163);
+  assert.equal(questions.length, 167);
+  assert.equal(singleQuestions.length, 166);
   assert.equal(multiQuestions.length, 1);
   assert.equal(multiQuestions[0]?.id, 'replay-constraints');
   assert.ok(questions.every((question) => question.optionCount === 4));
@@ -370,8 +370,8 @@ test('continual-learning quizzes vary correct positions and keep one defensible 
       if (question.mode === 'single') singlePositionCounts[index] += 1;
     }
   }
-  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [40, 40, 41, 42]);
-  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [40, 41, 42, 42]);
+  assert.deepEqual([...singlePositionCounts].sort((a, b) => a - b), [40, 41, 42, 43]);
+  assert.deepEqual([...allCorrectFlagCounts].sort((a, b) => a - b), [41, 41, 43, 43]);
 
   const sequenceCounts = new Map<string, number>();
   for (const inspection of quizInspections) {
@@ -395,12 +395,13 @@ test('shared visual primitives accept static semantic data', async () => {
   const source = `export const lessonMetadata = ${metadata}
 
 <ConceptFlow ariaLabel="Flow" items={[{ title: 'A', detail: 'B' }]} />
+<ConceptHierarchy ariaLabel="Hierarchy" root={{ title: 'A' }} children={[{ title: 'B', detail: 'C', tone: 'blue', visual: 'database', muted: true }, { title: 'D', children: [{ title: 'E' }, { title: 'F' }] }]} />
 <ExperimentChecklist ariaLabel="Checklist" items={[{ title: 'A', action: 'B', check: 'C' }]} />
 <ComparisonMatrix ariaLabel="Matrix" columns={['A']} rows={[{ label: 'B', values: ['C'], highlightedColumn: 0 }]} />
 <DatasetComposition ariaLabel="Dataset" totalLabel="3 samples" segments={[{ label: 'A', value: 2, valueLabel: '2' }, { label: 'B', value: 1, valueLabel: '1', tone: 'accent' }]} />
 <MetricBars ariaLabel="Metrics" items={[{ label: 'A', value: 75, valueLabel: '75%', tone: 'success' }]} />
 <ConceptSpectrum ariaLabel="Spectrum" items={[{ label: 'A', detail: 'B' }]} />
-<CourseCards ariaLabel="Cards" exampleLabel="Example" takeawayLabel="Impact" items={[{ title: 'A', example: 'B', takeaway: 'C' }]} />
+<CourseCards ariaLabel="Cards" exampleLabel="Example" takeawayLabel="Impact" items={[{ title: 'A', example: 'B', takeaway: 'C', visual: 'gradient-update' }, { title: 'D', example: 'E', takeaway: 'F', visual: 'embedding-clusters' }]} />
 <EvidenceCards ariaLabel="Evidence" items={[{ eyebrow: 'Experiment', value: '75%', label: 'Retention', insight: 'Replay helps.', tone: 'success' }]} />`;
   const inspection = await inspectLearningMdx(source, 'fixture.mdx', 'cv');
   assert.deepEqual(inspection.pageIndexes, []);
@@ -414,7 +415,7 @@ test('continual-learning visuals use global semantic primitives without shared d
     .map((file) => readFileSync(file, 'utf8'))
     .join('\n');
 
-  for (const componentName of ['ConceptFlow', 'ExperimentChecklist', 'ComparisonMatrix', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'CourseCards', 'EvidenceCards']) {
+  for (const componentName of ['ConceptFlow', 'ConceptHierarchy', 'ExperimentChecklist', 'ComparisonMatrix', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'CourseCards', 'EvidenceCards']) {
     assert.match(sharedComponents, new RegExp(`export function ${componentName}\\b`));
   }
   assert.match(sharedComponents, /aria-label=\{ariaLabel\}/);
@@ -467,7 +468,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'EquationCallout', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'ConceptHierarchy', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'EquationCallout', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,

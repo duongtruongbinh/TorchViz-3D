@@ -175,7 +175,16 @@ function CitationPreviewLink({
                   themeClasses.isLight ? 'border-[#205089]/35 text-[#294A68]' : 'border-[#9CC7EF]/40 text-[#D5E4F2]',
                 )}
               >
-                “{evidence.excerpt}”
+                “<mark
+                  className={cx(
+                    'rounded-sm px-1 py-0.5 box-decoration-clone',
+                    themeClasses.isLight
+                      ? 'bg-amber-200/70 text-[#16324F]'
+                      : 'bg-amber-400/25 text-[#E5EEF8]',
+                  )}
+                >
+                  {evidence.excerpt}
+                </mark>”
               </blockquote>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <button
@@ -327,7 +336,7 @@ export function LessonReferences() {
   return (
     <section aria-labelledby="lesson-references-heading">
       <h2 id="lesson-references-heading" className={cx('text-lg font-black text-balance', themeClasses.titleText)}>Nguồn chính được dùng trong bài</h2>
-      {referenceCourseAnalysis ? <p className={cx('mt-3 max-w-[72ch] text-sm leading-6', themeClasses.bodyText)}><strong>Phạm vi diễn giải:</strong> {referenceCourseAnalysis}</p> : null}
+      {referenceCourseAnalysis ? <p className={cx('mt-3 text-sm leading-6', themeClasses.bodyText)}><strong>Phạm vi diễn giải:</strong> {referenceCourseAnalysis}</p> : null}
       {featured.length ? <ReferencePaperList title="" papers={featured} startIndex={1} /> : null}
       {additional.length ? (
         <details className={cx('mt-5 rounded-xl border', themeClasses.isLight ? 'border-[#205089]/14 bg-[#F8FAFC]' : 'border-[#A8B8C8]/18 bg-[#121A24]/42')}>

@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'regularization-overview',
+  locale: 'vi',
+  title: 'Regularization',
+  headings: [
+    'Giữ tri thức cũ trong objective',
+    'Hai không gian ràng buộc',
+    'Trade-off và ranh giới storage',
+  ],
+  keywords: ['Regularization', 'Stability–Plasticity', 'Weight Regularization', 'Function Regularization'],
+  conceptIds: ['regularization-family-objective', 'regularization-space-split', 'regularization-storage-tradeoff'],
+  pageCount: 3,
+}
+
+<MdxPage page={0}>
+
+## Giữ tri thức cũ trong objective
+
+<ConceptHierarchy
+  ariaLabel="Nhắc lại ba hướng tiếp cận chính, với Regularization là trọng tâm hiện tại"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    { title: 'Regularization', tone: 'amber', visual: 'two-term-loss' },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
+
+Khi học Task B sau Task A, **regularization-based approach** không replay trực
+tiếp raw data cũ. Thay vào đó, approach này thêm một ràng buộc retention vào
+objective của task mới:
+
+<BlockMath formula="\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{\mathrm{new}}+\lambda\mathcal{L}_{\mathrm{retention}}" />
+
+<InlineMath formula="\mathcal{L}_{\mathrm{new}}" /> giúp model thích nghi với
+task mới; <InlineMath formula="\lambda\mathcal{L}_{\mathrm{retention}}" /> phạt
+thay đổi có thể gây quên nặng hơn. Survey mô tả parameter
+regularization là một term phạt độ lệch lớn khỏi history model trong parameter
+space <Cite paper="shi2024continualSurvey" evidence="regularization-overview-01-shi2024continualSurvey" />.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hai regularization targets
+
+Survey tiếp tục chia nhóm này thành hai hướng <Cite paper="wang2024comprehensive" evidence="regularization-overview-02-wang2024comprehensive" />:
+
+<ConceptHierarchy
+  ariaLabel="Regularization trong ba hướng tiếp cận chính, chia tiếp thành Weight và Function regularization"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    {
+      title: 'Regularization',
+      tone: 'amber',
+      visual: 'two-term-loss',
+      children: [
+        { title: 'Weight regularization', tone: 'violet' },
+        { title: 'Function regularization', tone: 'teal' },
+      ],
+    },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
+
+- **Weight regularization:** phạt việc các tham số quan trọng rời khỏi trạng
+  thái của model cũ.
+- **Function regularization:** phạt việc output hoặc hành vi /năng lực của model mới khác với model cũ, thường bằng knowledge distillation.
+
+<LessonImage
+  assetPath="continual-learning-llm/Regularizationv3.jpg"
+  alt="Minh họa regularization-based approach chia thành weight regularization, ràng buộc tham số của model cũ, và function regularization, ràng buộc hành vi của model cũ"
+/>
+
+<ComparisonMatrix
+  ariaLabel="So sánh weight và function regularization"
+  columns={['Weight Regularization', 'Function Regularization']}
+  rows={[
+    { label: 'So sánh', values: ['Tham số hiện tại với checkpoint cũ, có thể theo độ quan trọng từng tham số', 'Output hoặc representation của student với frozen teacher trên cùng input'] },
+    { label: 'Câu hỏi chính', values: ['Trọng số quan trọng nào không nên rời quá xa?', 'Model mới còn phản hồi giống model cũ ở đâu?'] },
+    { label: 'Ví dụ tiếp theo', values: ['EWC và Synaptic Intelligence', 'Knowledge distillation và Learning without Forgetting'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Trade-off và ranh giới storage
+
+Retention càng mạnh, model càng khó thay đổi để học Task B. Nếu
+<InlineMath formula="\lambda" /> quá nhỏ, forgetting có thể tăng; nếu quá lớn,
+plasticity có thể giảm. Đây là stability–plasticity trade-off mà
+regularization-based approach điều khiển.
+
+Regularization-based approach không nhất thiết phải replay **raw data cũ**,
+nhưng cũng không đồng nghĩa với zero storage cost. Wang et al. lưu ý rằng hướng
+này thường cần lưu một frozen copy của model cũ làm mốc tham chiếu <Cite paper="wang2024comprehensive" evidence="regularization-overview-03-wang2024comprehensive" />. 
+
+<LessonImage
+  assetPath="continual-learning-llm/02-regularization-tradeoff-storage-doodle.png"
+  alt="Bốn doodle card minh họa regularization với lambda thấp làm rơi tri thức cũ, lambda cân bằng giữ cả cũ và mới, lambda cao chặn task mới, và frozen checkpoint cung cấp mốc tham chiếu lưu trữ"
+/>
+
+- Weight regularization dùng mốc đó cùng importance của tham số để đặt penalty.
+
+- Function regularization dùng model đã học trước đó làm teacher. Teacher target
+có thể được tạo từ input mới, một phần input cũ, dữ liệu ngoài không nhãn hoặc
+dữ liệu sinh <Cite paper="wang2024comprehensive" evidence="regularization-overview-04-wang2024comprehensive" />. Vì vậy, hướng này cũng có thể kết hợp với replay <Cite paper="wang2024comprehensive" evidence="regularization-overview-05-wang2024comprehensive" />.
+
+<LessonNote tone="warning">
+  **Phân tích:** retention loss chỉ ràng buộc tham số hoặc tín hiệu
+  trên những input được chọn. Loss thấp không chứng minh mọi năng lực cũ được
+  giữ trên nguyên toàn bộ input space.
+</LessonNote>
+
+</MdxPage>

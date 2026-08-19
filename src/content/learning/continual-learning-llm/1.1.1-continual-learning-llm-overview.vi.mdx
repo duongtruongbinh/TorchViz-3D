@@ -5,14 +5,15 @@ export const lessonMetadata = {
   title: "Tổng quan",
   headings: [
     'LLM luôn cố định trong khi thế giới liên tục thay đổi',
-    'Vì sao không huấn luyện lại từ đầu?',
+    'Có nên huấn luyện lại từ đầu? (1)',
+    'Có nên huấn luyện lại từ đầu? (2)',
     'Vì sao không chỉ dùng RAG?',
     'Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?',
     'Mục tiêu của Continual Learning',
   ],
   keywords: ['LLM', 'Continual Learning', 'RAG', 'Statically Pre-trained', 'Fine-tune', 'Domain Adaptation'],
   conceptIds: ['statically-pretrained-nature', 'why-static-llm-insufficient', 'why-not-retrain-from-scratch', 'rag-vs-continual-learning', 'cl-core-goal', 'cl-core-challenge', 'lifelong-learning-analogy', 'method-choice'],
-  pageCount: 5,
+  pageCount: 6,
 }
 
 <MdxPage page={0}>
@@ -27,11 +28,17 @@ Large Language Model thường được tiền huấn luyện (pre-training) tr�
 
 <MdxPage page={1}>
 
-## Vì sao không huấn luyện lại từ đầu?
+## Có nên huấn luyện lại từ đầu? (1)
 
-Huấn luyện lại từ đầu trên toàn bộ dữ liệu cũ và mới là cách làm đơn giản nhưng thường quá tốn chi phí tính toán và thời gian. Thách thức cốt lõi là dữ liệu lịch sử thường bị giới hạn, trong khi mô hình LLM hiện tại quá lớn và trải qua nhiều stage như pre-training, domain adaptation và fine-tuning.
+Huấn luyện lại từ đầu trên toàn bộ dữ liệu cũ và mới là cách làm đơn giản nhưng thường quá tốn chi phí tính toán và thời gian. Theo các quy luật Scaling Laws, chi phí tính toán tăng theo quy luật lũy thừa (power-law) với dung lượng dữ liệu và số lượng tham số <Cite paper="kaplan2020scaling" evidence="overview-retrain-scaling-kaplan" />, đồng thời để huấn luyện tối ưu về mặt compute, quy mô mô hình và số lượng token huấn luyện cần được mở rộng tương đương nhau <Cite paper="hoffmann2022chinchilla" evidence="overview-retrain-scaling-hoffmann" />. Thách thức cốt lõi là dữ liệu lịch sử thường bị giới hạn, trong khi mô hình LLM hiện tại quá lớn và trải qua nhiều stage như pre-training, domain adaptation và fine-tuning.
 
 <LessonImage assetPath="continual-learning-llm/01-full-retraining-cost-and-constraints.png" alt="Bốn trở ngại của việc huấn luyện lại LLM: phải gộp dữ liệu cũ và mới, tốn thời gian và compute, thiếu dữ liệu lịch sử, và phải chạy lại nhiều stage" caption="Huấn luyện lại toàn bộ là cách trực tiếp, nhưng chi phí tăng nhanh khi model lớn, dữ liệu cũ hạn chế và pipeline có nhiều stage." />
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Có nên huấn luyện lại từ đầu? (2)
 
 Nếu toàn bộ dữ liệu lịch sử vẫn còn hợp lệ, có thể truy cập với chi phí chấp nhận được và ngân sách tính toán đủ lớn, báo cáo nên bắt đầu với hai baseline mạnh:
 
@@ -44,7 +51,7 @@ Hai baseline này cho biết mô hình có thể học mới và giữ cũ tốt
 
 </MdxPage>
 
-<MdxPage page={2}>
+<MdxPage page={3}>
 
 ## Vì sao không chỉ dùng RAG?
 
@@ -68,29 +75,31 @@ Retrieval-Augmented Generation (**RAG**) tìm tài liệu liên quan rồi đưa
   ]}
 />
 
-<LessonNote tone="warning">
-  Ví dụ, nếu mục tiêu là xây dựng chatbot thực sự **hiểu và tạo tiếng Việt** từ mô hình chỉ được train trên tiếng anh, việc cung cấp tài liệu tiếng Việt qua RAG thôi là chưa đủ. RAG giúp model đọc nội dung được truy xuất; năng lực sử dụng tiếng Việt cần được học qua quá trình tiếp tục huấn luyện hoặc thích nghi phù hợp <Cite paper="shi2024continualSurvey" evidence="overview-domain-adaptation" />.
-</LessonNote>
-
-Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt.
-
-Retrieval cũng không đồng nghĩa với một cơ chế duy nhất: survey ghi nhận một số memory-based model-editing approaches thực hiện editing thông qua retrieval <Cite paper="shi2024continualSurvey" evidence="overview-retrieval-model-editing" />. Vì vậy, khi đọc một hệ thống “có retrieval”, cần hỏi retrieval chỉ thêm context hay còn tham gia vào cơ chế cập nhật/chỉnh sửa model.
-
 <LessonImage
   assetPath="continual-learning-llm/01-rag-vs-continual-learning.png"
   alt="So sánh RAG truy xuất tài liệu vào context nhưng giữ nguyên model với Continual Learning cập nhật model để hình thành kỹ năng mới có thể sử dụng khi không truy xuất"
   caption="RAG bổ sung nguồn tham khảo cho lần trả lời; Continual Learning hướng tới năng lực hoặc hành vi được giữ lại trong model sau cập nhật."
 />
 
-Hai hướng cũng có thể bổ sung cho nhau. ClimateGPT thích nghi model cho climate domain bằng continued pre-training <Cite paper="thulke2024climategpt" evidence="overview-climategpt-cpt" />. Model tiếp tục được bổ sung năng lực làm theo instruction bằng instruction fine-tuning <Cite paper="thulke2024climategpt" evidence="overview-climategpt-ift" />. Ở tầng suy luận, hệ thống dùng RAG để tăng factuality và mở rộng bằng tri thức mới <Cite paper="thulke2024climategpt" evidence="overview-climategpt-rag" />.
+<LessonNote tone="warning">
+  Ví dụ, nếu mục tiêu là xây dựng chatbot thực sự **hiểu và tạo tiếng Việt** từ mô hình chỉ được train trên tiếng Anh, việc cung cấp tài liệu tiếng Việt qua RAG thôi là chưa đủ. RAG giúp model đọc nội dung được truy xuất; năng lực sử dụng tiếng Việt cần được học qua quá trình tiếp tục huấn luyện hoặc thích nghi phù hợp <Cite paper="dou2024sailor" evidence="overview-vietnamese-adaptation-sailor" /> <Cite paper="vo2024vimistralx" evidence="overview-vietnamese-adaptation-vimistral" />.
+</LessonNote>
+
+Khóa học này tập trung vào trường hợp thứ hai: model phải thay đổi **cách hiểu domain, cách thực hiện task, làm theo instruction hoặc alignment behavior**, chứ không chỉ đọc thêm một fact trong prompt.
+
+<LessonNote>
+  Cần lưu ý rằng Retrieval cũng không đồng nghĩa với một cơ chế duy nhất: survey ghi nhận một số memory-based model-editing approaches thực hiện editing thông qua retrieval <Cite paper="shi2024continualSurvey" evidence="overview-retrieval-model-editing" />. Vì vậy, khi đọc một hệ thống “có retrieval”, cần hỏi retrieval chỉ thêm context hay còn tham gia vào cơ chế cập nhật/chỉnh sửa model.
+
+  Hai hướng RAG + Continual Learning cũng có thể bổ sung cho nhau. ClimateGPT thích nghi model cho climate domain bằng continued pre-training <Cite paper="thulke2024climategpt" evidence="overview-climategpt-cpt" />. Model tiếp tục được bổ sung năng lực làm theo instruction bằng instruction fine-tuning <Cite paper="thulke2024climategpt" evidence="overview-climategpt-ift" />. Ở tầng suy luận, hệ thống dùng RAG để tăng factuality và mở rộng bằng tri thức mới <Cite paper="thulke2024climategpt" evidence="overview-climategpt-rag" />.
+</LessonNote>
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={4}>
 
 ## Vì sao chỉ fine-tune trên dữ liệu mới vẫn chưa đủ?
 
-Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hiện tại rồi fine-tune trên dữ liệu mới. Cách này rẻ hơn, nhưng nếu cập nhật chỉ chứa dữ liệu mới thì hàm loss cũng chỉ đánh giá mô hình trên dữ liệu mới. Mô hình không nhận được tín hiệu nào cho biết những năng lực cũ nào cần được giữ lại.
+Thay vì retrain từ đầu, lựa chọn hợp lý hơn là lấy checkpoint hiện tại rồi fine-tune trên dữ liệu mới. Cách làm này tiết kiệm hơn nhiều, nhưng khi hàm mục tiêu chỉ tập trung vào dữ liệu mới, mô hình sẽ thiếu đi cơ sở để giữ lại tri thức cũ.
 
 <LessonImage assetPath="continual-learning-llm/01-new-data-only-finetuning-loss.png" alt="Bốn bước Scratch, Tune, Loss và Forget: huấn luyện từ đầu tốn kém, fine-tune rẻ hơn, loss chỉ nhìn dữ liệu mới và kỹ năng cũ dần biến mất" caption="Fine-tune trên dữ liệu mới tiết kiệm hơn training from scratch, nhưng loss mới không phát tín hiệu bảo vệ những năng lực đã học." />
 
@@ -100,7 +109,7 @@ Thay vì retrain từ đầu, lựa chọn tự nhiên là lấy checkpoint hi�
 
 </MdxPage>
 
-<MdxPage page={4}>
+<MdxPage page={5}>
 
 ## Mục tiêu của Continual Learning
 

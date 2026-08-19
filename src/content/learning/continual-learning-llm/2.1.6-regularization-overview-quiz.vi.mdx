@@ -1,0 +1,49 @@
+export const lessonMetadata = {
+  domainId: 'continual-learning-llm',
+  id: 'regularization-overview-quiz',
+  locale: 'vi',
+  title: 'Quiz',
+  headings: ['Objective', 'Hai hướng', 'Trade-off và storage'],
+  keywords: ['Quiz', 'Regularization', 'Weight Regularization', 'Function Regularization'],
+  conceptIds: ['regularization-family-objective', 'regularization-space-split', 'regularization-storage-tradeoff'],
+  pageCount: 3,
+}
+
+<MdxQuiz id="regularization-overview-quiz" questions={[
+  {
+    id: 'regularization-family-objective', title: 'Objective', mode: 'single',
+    prompt: 'Regularization-based approach thêm gì vào việc học Task B?',
+    options: [
+      { id: 'a', label: 'Một retention loss có trọng số bên cạnh loss của task mới.', isCorrect: true },
+      { id: 'b', label: 'Toàn bộ raw data Task A vào mọi batch của Task B.' },
+      { id: 'c', label: 'Một module mới tách riêng cho từng sample của Task B.' },
+      { id: 'd', label: 'Một task ID bắt buộc để chọn output head.' },
+    ],
+    success: 'Đúng. Approach này đặt ràng buộc retention trong objective của update mới.',
+    error: 'Phân biệt regularization với replay raw data và architecture expansion.',
+  },
+  {
+    id: 'regularization-space-split', title: 'Hai hướng', mode: 'single',
+    prompt: 'Cặp mô tả nào phân biệt đúng hai regularization targets?',
+    options: [
+      { id: 'a', label: 'Weight regularization dùng replay buffer; function regularization chỉ thêm module mới.' },
+      { id: 'b', label: 'Weight regularization ràng buộc tham số quan trọng; function regularization match output hoặc representation với teacher.', isCorrect: true },
+      { id: 'c', label: 'Weight regularization chỉ dùng task ID; function regularization không cần input.' },
+      { id: 'd', label: 'Hai hướng luôn giữ nguyên cùng một tập trọng số nên không có khác biệt thực tế.' },
+    ],
+    success: 'Đúng. Hai hướng khác nhau ở không gian và tín hiệu được ràng buộc.',
+    error: 'Hãy phân biệt parameter space với function space.',
+  },
+  {
+    id: 'regularization-storage-tradeoff', title: 'Trade-off và storage', mode: 'single',
+    prompt: 'Kết luận nào chính xác về regularization?',
+    options: [
+      { id: 'a', label: 'Không replay raw data nên chắc chắn không cần lưu bất cứ thứ gì.' },
+      { id: 'b', label: 'Tăng λ luôn giữ mọi capability cũ mà không ảnh hưởng học task mới.' },
+      { id: 'c', label: 'Loss retention thấp luôn chứng minh behavior cũ đúng trên mọi input.' },
+      { id: 'd', label: 'Có thể tránh raw-data replay nhưng vẫn cần checkpoint hoặc statistics; retention mạnh cũng có thể giảm plasticity.', isCorrect: true },
+    ],
+    success: 'Đúng. Regularization có ranh giới storage và stability–plasticity riêng.',
+    error: 'Đừng đồng nhất không replay raw data với zero storage cost hoặc zero forgetting.',
+  },
+]} />

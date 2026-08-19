@@ -8,7 +8,7 @@ export const lessonMetadata = {
 
 ## Instruction đến theo dòng
 
-Instruction tuning dạy model làm theo nhiều yêu cầu của người dùng. Trong **Continual Instruction Tuning (CIT)**, các instruction không xuất hiện cùng lúc mà đến thành nhiều đợt: model có thể học tóm tắt hôm nay rồi học phân loại hoặc sinh code ở đợt sau.
+Instruction tuning dạy model làm theo nhiều yêu cầu của người dùng. Trong **Continual Instruction Tuning (CIT)**, các instruction không xuất hiện cùng lúc mà đến thành nhiều đợt: model có thể học tóm tắt hôm nay rồi học phân loại hoặc sinh code ở đợt sau <Cite paper="shi2024continualSurvey" evidence="continual-instruction-tuning-01-shi2024continualSurvey" />.
 
 Mục tiêu vì thế có hai vế: **học instruction mới** và **giữ khả năng làm theo instruction cũ**. Nếu chỉ tối ưu đợt hiện tại, gradient mới có thể ghi đè hành vi đã học; nếu giữ quá nhiều dữ liệu cũ, chi phí lưu trữ và huấn luyện lại tăng lên.
 
@@ -65,7 +65,7 @@ Chỉ chọn dữ liệu chưa giải quyết hết interference. Nhóm tiếp t
 
 #### DynaInst
 
-DynaInst là một phương pháp lifelong in-context instruction learning được đánh giá trên instruction stream quy mô lớn <Cite paper="mok2023large" evidence="continual-instruction-tuning-05-mok2023large" />. Survey mô tả cơ chế của nó là chọn động task/instance cho replay và kết hợp parameter regularization <Cite paper="shi2024continualSurvey" evidence="continual-instruction-tuning-01-shi2024continualSurvey" />; replay nhắc lại hành vi cũ còn regularization hạn chế thay đổi tham số dễ gây forgetting.
+DynaInst là một phương pháp lifelong in-context instruction learning được đánh giá trên instruction stream quy mô lớn <Cite paper="mok2023large" evidence="continual-instruction-tuning-05-mok2023large" />. Survey mô tả cơ chế của nó là chọn động task/instance cho replay và kết hợp parameter regularization <Cite paper="shi2024continualSurvey" evidence="continual-instruction-tuning-06-shi2024continualSurvey" />; replay nhắc lại hành vi cũ còn regularization hạn chế thay đổi tham số dễ gây forgetting.
 
 <PaperTradeoff
   advantages={['Phân bổ bộ nhớ theo diễn biến của stream thay vì dùng một buffer cố định.', 'Kết hợp bảo vệ ở cả mức dữ liệu và tham số.']}
@@ -76,7 +76,7 @@ DynaInst là một phương pháp lifelong in-context instruction learning đư�
 
 #### InstructionSpeak
 
-InstructionSpeak dùng **History Training** để quay lại instruction của task cũ, giảm forgetting và hỗ trợ backward transfer <Cite paper="yin2022contintin" evidence="continual-instruction-tuning-06-yin2022contintin" />. Thành phần **Negative Training** riêng nhắm tới task understanding và forward transfer.
+InstructionSpeak dùng **History Training** để quay lại instruction của task cũ, giảm forgetting và hỗ trợ backward transfer <Cite paper="yin2022contintin" evidence="continual-instruction-tuning-07-yin2022contintin" />. Thành phần **Negative Training** riêng nhắm tới task understanding và forward transfer.
 
 <PaperTradeoff
   advantages={['Không chỉ ôn đáp án đúng mà còn dùng tín hiệu âm để định hình ranh giới hành vi.', 'Nhắm tới cả forward transfer và backward transfer trong chuỗi task.']}
@@ -89,7 +89,7 @@ PEFT giảm số tham số phải cập nhật, nhưng CIT còn cần ngăn upda
 
 #### O-LoRA
 
-O-LoRA học task mới trong một **low-rank subspace trực giao** với các subspace LoRA đã dùng. Trực giác là đặt update mới theo một hướng ít giao nhau với hướng lưu task cũ để giảm interference. <Cite paper="wang2023orthogonal" evidence="continual-instruction-tuning-07-wang2023orthogonal" />
+O-LoRA học task mới trong một **low-rank subspace trực giao** với các subspace LoRA đã dùng. Trực giác là đặt update mới theo một hướng ít giao nhau với hướng lưu task cũ để giảm interference. <Cite paper="wang2023orthogonal" evidence="continual-instruction-tuning-08-wang2023orthogonal" />
 
 <PaperTradeoff
   advantages={['Không cần replay dữ liệu cũ để tách các update theo task.', 'Chỉ huấn luyện low-rank parameters thay vì toàn bộ base model.']}
@@ -100,7 +100,7 @@ O-LoRA học task mới trong một **low-rank subspace trực giao** với các
 
 #### SAPT
 
-SAPT chuẩn bị các **PEFT block** và dùng một selection module dựa trên shared attention để chọn block phù hợp với input. Model có thể chia sẻ tri thức khi cần nhưng vẫn định tuyến instruction khác nhau tới phần thích nghi phù hợp. <Cite paper="zhao2024sapt" evidence="continual-instruction-tuning-08-zhao2024sapt" />
+SAPT chuẩn bị các **PEFT block** và dùng một selection module dựa trên shared attention để chọn block phù hợp với input. Model có thể chia sẻ tri thức khi cần nhưng vẫn định tuyến instruction khác nhau tới phần thích nghi phù hợp. <Cite paper="zhao2024sapt" evidence="continual-instruction-tuning-09-zhao2024sapt" />
 
 <PaperTradeoff
   advantages={['Selection module cho phép chọn phần thích nghi theo input.', 'Shared attention tạo đường chia sẻ tri thức giữa các task thay vì cô lập hoàn toàn.']}

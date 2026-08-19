@@ -2,7 +2,7 @@ export const lessonMetadata = {
   domainId: 'continual-learning-llm',
   id: 'parameter-regularization-ewc',
   locale: 'vi',
-  title: 'Parameter Regularization',
+  title: 'Weight Regularization',
   headings: [
     'Tạo ràng buộc trong parameter space',
     'Vì sao không phạt mọi tham số như nhau?',
@@ -17,6 +17,24 @@ export const lessonMetadata = {
 <MdxPage page={0}>
 
 ## Tạo ràng buộc trong parameter space
+
+<ConceptHierarchy
+  ariaLabel="Weight regularization là trọng tâm trong taxonomy các hướng tiếp cận Continual Learning"
+  root={{ title: 'Các hướng tiếp cận chính' }}
+  children={[
+    { title: 'Replay', tone: 'blue', visual: 'database', muted: true },
+    {
+      title: 'Regularization',
+      tone: 'amber',
+      visual: 'two-term-loss',
+      children: [
+        { title: 'Weight regularization', tone: 'violet' },
+        { title: 'Function regularization', tone: 'teal', muted: true },
+      ],
+    },
+    { title: 'Architecture', tone: 'teal', visual: 'neural-network', muted: true },
+  ]}
+/>
 
 Sau khi học Task A, model đang ở trạng thái tham số <InlineMath formula="\theta_A" />. Nếu sang Task B và chỉ tối ưu <InlineMath formula="\mathcal{L}_{\mathcal B}(\theta)" />, các tham số có thể di chuyển xa khỏi trạng thái đã giúp model làm tốt A.
 
@@ -34,7 +52,7 @@ Khác với replay tạo lại ràng buộc bằng dữ liệu cũ, Parameter re
 
 Ma trận <InlineMath formula="\Sigma" /> biểu diễn tầm quan trọng và tương quan giữa 2 bộ trọng số (trước và sau khi cập nhật).
 
-<BlockMath formula="\Sigma=\begin{bmatrix}\Sigma_{11}&\Sigma_{12}&\cdots&\Sigma_{1n} \\ \Sigma_{21}&\Sigma_{22}&\cdots&\Sigma_{2n} \\ \vdots&\vdots&\ddots&\vdots \\ \Sigma_{n1}&\Sigma_{n2}&\cdots&\Sigma_{nn}\end{bmatrix}" />
+<BlockMath formula="\Sigma=\begin{bmatrix}\Sigma_{11}&\Sigma_{12}&\cdots&\Sigma_{1n}\\\Sigma_{21}&\Sigma_{22}&\cdots&\Sigma_{2n}\\\vdots&\vdots&\ddots&\vdots\\\Sigma_{n1}&\Sigma_{n2}&\cdots&\Sigma_{nn}\end{bmatrix}" />
 
 <LessonNote>
   Lúc này, chúng ta hiểu rằng penalty không chỉ xét từng tham số thay đổi bao nhiêu, mà còn xét việc từng cặp tham số thay đổi cùng nhau ảnh hưởng thế nào đến kiến thức cũ.
@@ -48,7 +66,7 @@ Tuy nhiên, nếu model có <InlineMath formula="n" /> tham số, ma trận đ�
 
 Vì vậy, trong thực tế ta thường bỏ các tương quan theo cặp và chỉ giữ đường chéo của <InlineMath formula="\Sigma" />:
 
-<BlockMath formula="\Sigma_{\mathrm{diag}}=\begin{bmatrix}\Omega_1&0&\cdots&0 \\ 0&\Omega_2&\cdots&0 \\ \vdots&\vdots&\ddots&\vdots \\ 0&0&\cdots&\Omega_n\end{bmatrix}" />
+<BlockMath formula="\Sigma_{\mathrm{diag}}=\begin{bmatrix}\Omega_1&0&\cdots&0\\0&\Omega_2&\cdots&0\\\vdots&\vdots&\ddots&\vdots\\0&0&\cdots&\Omega_n\end{bmatrix}" />
 
 Khi đó, penalty trở thành:
 
@@ -99,7 +117,7 @@ Trong taxonomy của survey, EWC thuộc nhóm parameter regularization <Cite pa
 <LessonNote tone="warning">
   EWC và Synaptic Intelligence ràng buộc model trong **parameter space**: chúng hạn chế thay đổi các tham số được xem là quan trọng. Tuy nhiên, penalty nhỏ trong parameter space không trực tiếp bảo đảm output hoặc representation trên task cũ vẫn giống checkpoint trước. Nói cách khác, giữ tham số chưa chắc đã giữ được cùng **functional behavior**.
 
-  Ở node **Các phương pháp khác**, ta sẽ xem distillation đặt ràng buộc trực tiếp hơn trong function space bằng cách so phản hồi của student với teacher.
+  Ở node **Function Regularization**, ta sẽ xem distillation đặt ràng buộc trực tiếp hơn trong function space bằng cách so phản hồi của student với teacher.
 </LessonNote>
 
 </MdxPage>
