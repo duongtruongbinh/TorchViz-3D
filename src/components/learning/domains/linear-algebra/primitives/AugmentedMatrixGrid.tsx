@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { InlineMath, useLearningMdxTheme } from '../../../learningMdxComponents';
+import { cx } from '../../../theme';
 import { getMathVisualTheme } from '../theme';
-import { MatrixBracket, MatrixNameLabel, getMatrixSizeClasses } from './matrixPrimitives';
+import { MatrixCell, MatrixDivider, MatrixFrame, MatrixNameLabel, getMatrixCellClasses, getMatrixSizeClasses } from './matrixPrimitives';
 
 export interface AugmentedMatrixGridProps {
   name?: string | ReactNode;
@@ -82,11 +83,7 @@ export function AugmentedMatrixGrid({
       <div className="inline-flex items-center gap-2 sm:gap-3">
         {name && <MatrixNameLabel name={name} color={theme.matrixCellText} />}
 
-        {/* Matrix container with brackets */}
-        <div className="relative inline-flex items-center px-1.5 py-1">
-          <MatrixBracket side="left" borderColor={theme.matrixBracket} />
-
-          {/* Matrix Grid */}
+        <MatrixFrame bracketColor={theme.matrixBracket}>
           <div
             className="relative grid gap-1.5 p-1 items-center"
             style={{
@@ -102,75 +99,43 @@ export function AugmentedMatrixGrid({
                 const isCustom = isCellCustomHighlight(r, c);
                 const isRightBlockCol = hasDivider && c > (dividerCol ?? 0);
 
-                let cellStyle = `border rounded-md transition-all flex flex-col items-center justify-center ${sizeClasses} `;
-
+                let cellStyle = '';
                 if (isPivot) {
-                  cellStyle += `${theme.matrixPivotCell} ring-2 ring-amber-400 shadow-sm scale-105 font-bold `;
+                  cellStyle = cx(theme.matrixPivotCell, 'ring-2 ring-amber-400 shadow-sm scale-105 font-bold');
                 } else if (isCustom) {
-                  cellStyle += `${theme.matrixHighlightCell} scale-105 shadow-sm `;
+                  cellStyle = cx(theme.matrixHighlightCell, 'scale-105 shadow-sm');
                 } else if (rowActive) {
-                  cellStyle += `${theme.matrixActiveRow} `;
+                  cellStyle = theme.matrixActiveRow;
                 } else if (colHighlight) {
-                  cellStyle += `${theme.matrixHighlightCol} `;
+                  cellStyle = theme.matrixHighlightCol;
                 } else if (highlightRightBlock && isRightBlockCol) {
-                  cellStyle += themeClasses.isLight
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 '
-                    : 'bg-emerald-950/40 border-emerald-700 text-emerald-100 ';
+                  cellStyle = themeClasses.isLight
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                    : 'bg-emerald-950/40 border-emerald-700 text-emerald-100';
                 } else {
-                  cellStyle += `${
-                    themeClasses.isLight
-                      ? 'bg-white border-slate-200 text-slate-800'
-                      : 'bg-slate-800/80 border-slate-700 text-slate-100'
-                  } `;
-                }
-
-                if (onCellClick) {
-                  cellStyle +=
-                    'cursor-pointer hover:ring-2 hover:ring-blue-400 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ';
-                }
-
-                if (onCellClick) {
-                  return (
-                    <button
-                      type="button"
-                      key={`aug-cell-${r}-${c}`}
-                      onClick={() => onCellClick(r, c)}
-                      className={cellStyle}
-                      aria-label={`Cell (${r + 1}, ${c + 1}): ${val}`}
-                    >
-                      <span className="font-mono">{val}</span>
-                    </button>
-                  );
+                  cellStyle = getMatrixCellClasses(themeClasses.isLight);
                 }
 
                 return (
-                  <div
+                  <MatrixCell
                     key={`aug-cell-${r}-${c}`}
+                    value={val}
+                    row={r}
+                    col={c}
+                    sizeClasses={sizeClasses}
                     className={cellStyle}
-                  >
-                    <span className="font-mono">{val}</span>
-                  </div>
+                    onClick={onCellClick}
+                  />
                 );
               }),
             )}
 
             {/* Continuous vertical divider line */}
             {hasDivider && dividerCol !== undefined && (
-              <div
-                className="absolute top-1 bottom-1 w-0.5 pointer-events-none rounded-full"
-                style={{
-                  left: `calc(${((dividerCol + 1) / cols) * 100}% - 0.25px)`,
-                  backgroundColor: themeClasses.isLight
-                    ? '#0284c7'
-                    : '#38bdf8',
-                }}
-                aria-hidden="true"
-              />
+              <MatrixDivider cols={cols} dividerCol={dividerCol} />
             )}
           </div>
-
-          <MatrixBracket side="right" borderColor={theme.matrixBracket} />
-        </div>
+        </MatrixFrame>
       </div>
     </div>
   );

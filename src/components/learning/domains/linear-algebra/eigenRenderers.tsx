@@ -3,7 +3,7 @@ import { Vector, Line, Point, Text, vec } from 'mafs';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
-import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
 import { MatrixGrid } from './primitives/MatrixGrid';
 import { MatrixEquationRow } from './primitives/MatrixEquationRow';
@@ -65,7 +65,7 @@ export function TraceEigenvalueLink({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+          <MathInfoPanel>
             {tab === 'sum' ? (
               <div className="space-y-1.5">
                 <div className="text-center font-mono py-1">
@@ -88,7 +88,7 @@ export function TraceEigenvalueLink({
                 </p>
               </div>
             )}
-          </div>
+          </MathInfoPanel>
         </div>
       }
     >
@@ -218,7 +218,7 @@ export function EigenvectorExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+          <MathInfoPanel>
             <div className="text-center font-mono py-1">
               <BlockMath formula={current.formula} />
             </div>
@@ -231,7 +231,7 @@ export function EigenvectorExplorer({
             >
               {current.desc}
             </p>
-          </div>
+          </MathInfoPanel>
         </div>
       }
     >
@@ -343,7 +343,7 @@ export function DiagonalizationExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+          <MathInfoPanel>
             <div className="font-semibold text-blue-600">
               {steps[step].title}
             </div>
@@ -353,7 +353,7 @@ export function DiagonalizationExplorer({
             <div className="mt-2 text-xs font-mono text-emerald-600 text-center font-semibold pt-1 border-t border-slate-200">
               <InlineMath formula="A\mathbf{x} = V \Lambda V^{-1}\mathbf{x} = V (\Lambda (V^{-1}\mathbf{x}))" />
             </div>
-          </div>
+          </MathInfoPanel>
         </div>
       }
     >
@@ -422,7 +422,7 @@ export function PCAProjectionExplorer({
               <button
                 type="button"
                 onClick={() => setProjected((prev) => !prev)}
-                className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${themeClasses.focusRing} ${
                   projected
                     ? 'bg-emerald-600 text-white shadow-xs'
                     : 'bg-blue-600 text-white shadow-xs'
@@ -433,14 +433,14 @@ export function PCAProjectionExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+          <MathInfoPanel>
             <p className="text-slate-600">
               Trục <span className="font-bold text-blue-600">PC1</span> (ứng với trị riêng lớn nhất <InlineMath formula="\lambda_1" /> của ma trận hiệp phương sai) lưu giữ phương sai tối đa của tập dữ liệu.
             </p>
             <p className="text-emerald-600 font-semibold text-xs mt-1">
               Chiếu dữ liệu đã trừ kỳ vọng (zero-mean) lên PC1 tối thiểu hóa sai số tái tạo (tổng bình phương khoảng cách chiếu).
             </p>
-          </div>
+          </MathInfoPanel>
         </div>
       }
     >

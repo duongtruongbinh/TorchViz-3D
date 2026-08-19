@@ -8,7 +8,6 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'CourseCards',
   'EvidenceCards',
   'ConceptFlow',
-  'StageContinuityMap',
   'ExperimentChecklist',
   'SelfCheckList',
   'ComparisonMatrix',
@@ -16,12 +15,14 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'DatasetComposition',
   'MetricBars',
   'ConceptSpectrum',
-  'Cite',
-  'PaperSummary',
-  'LessonReferences',
   'InlineMath',
   'BlockMath',
   'EquationCallout',
+] as const;
+
+export const REFERENCE_AUTHORED_MDX_COMPONENT_NAMES = [
+  'Cite',
+  'PaperSummary',
 ] as const;
 
 export type LearningMdxMetadata = {

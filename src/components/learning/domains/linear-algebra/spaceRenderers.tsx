@@ -3,7 +3,7 @@ import { Vector, Plot, Text, Polygon, Point, vec } from 'mafs';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
-import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
 import { MatrixGrid } from './primitives/MatrixGrid';
 import type {
@@ -222,7 +222,7 @@ export function ColumnNullSpaceExplorer({
         </div>
       )}
 
-      <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+      <MathInfoPanel>
         {activeSpace === 'col' ? (
           <div className="space-y-1.5">
             <div className="font-semibold text-blue-600">
@@ -247,7 +247,7 @@ export function ColumnNullSpaceExplorer({
             </div>
           </div>
         )}
-      </div>
+      </MathInfoPanel>
     </div>
   );
 
@@ -353,7 +353,7 @@ export function BasisIndependenceExplorer({
         </div>
       )}
 
-      <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+      <MathInfoPanel>
         {isIndependent ? (
           <div className="space-y-1">
             <p className="font-semibold text-emerald-600">
@@ -376,7 +376,7 @@ export function BasisIndependenceExplorer({
             </p>
           </div>
         )}
-      </div>
+      </MathInfoPanel>
     </div>
   );
 
@@ -486,27 +486,22 @@ export function RankPivotExplorer({
           {interactive && (
             <div className="flex flex-wrap items-center justify-center gap-2">
               <span className="text-xs text-slate-500">Chọn cột để khảo sát:</span>
-              {colExplanations.map((item) => (
-                <button
-                  key={item.col}
-                  type="button"
-                  onClick={() => setSelectedCol(item.col)}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                    selectedCol === item.col
-                      ? item.isPivot
-                        ? 'bg-amber-600 text-white shadow-xs'
-                        : 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-slate-200 text-slate-700'
-                  }`}
-                >
-                  Cột {item.col + 1} ({item.isPivot ? 'Pivot' : 'Không Pivot'})
-                </button>
-              ))}
+              <MathSegmentedControl
+                ariaLabel="Chọn cột để khảo sát"
+                value={String(selectedCol)}
+                onChange={(val) => setSelectedCol(Number(val))}
+                size="sm"
+                options={colExplanations.map((item) => ({
+                  value: String(item.col),
+                  label: `Cột ${item.col + 1} (${item.isPivot ? 'Pivot' : 'Không Pivot'})`,
+                  colorScheme: item.isPivot ? 'amber' : 'blue',
+                }))}
+              />
             </div>
           )}
 
           {currentInfo && (
-            <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+            <MathInfoPanel>
               <p
                 className={`font-semibold ${
                   currentInfo.isPivot
@@ -519,7 +514,7 @@ export function RankPivotExplorer({
               <p className="text-slate-600 mt-1">
                 {currentInfo.desc}
               </p>
-            </div>
+            </MathInfoPanel>
           )}
 
           <div className="text-xs text-slate-500 font-mono text-center pt-1 border-t border-slate-200">
@@ -631,7 +626,7 @@ export function LinearTransformationExplorer({
         </div>
       )}
 
-      <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+      <MathInfoPanel>
         <div className="font-semibold text-blue-600">
           {currentMat.name}
         </div>
@@ -643,7 +638,7 @@ export function LinearTransformationExplorer({
             formula={`T(\\mathbf{e}_1) = [${t_i[0]}, ${t_i[1]}]^\\top, \\quad T(\\mathbf{e}_2) = [${t_j[0]}, ${t_j[1]}]^\\top`}
           />
         </div>
-      </div>
+      </MathInfoPanel>
     </div>
   );
 

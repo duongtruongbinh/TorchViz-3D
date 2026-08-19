@@ -3,7 +3,7 @@ import { Vector, Text, Polygon, vec } from 'mafs';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
-import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
 import { MatrixGrid } from './primitives/MatrixGrid';
 import type {
@@ -75,7 +75,7 @@ export function DeterminantAreaExplorer({
         </div>
       )}
 
-      <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+      <MathInfoPanel>
         <div className="flex flex-wrap items-center justify-between gap-2 font-mono pb-1 border-b border-slate-200">
           <div className="font-semibold text-blue-600">
             {current.name}
@@ -89,7 +89,7 @@ export function DeterminantAreaExplorer({
         <p className="text-slate-600 mt-2">
           {current.desc}
         </p>
-      </div>
+      </MathInfoPanel>
     </div>
   );
 
@@ -231,7 +231,7 @@ export function DeterminantRowOpsExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+          <MathInfoPanel>
             <div className="font-semibold text-blue-600 pb-1">
               {current.title}
             </div>
@@ -241,7 +241,7 @@ export function DeterminantRowOpsExplorer({
             <p className="text-emerald-600 font-semibold text-center pt-1">
               {current.rule}
             </p>
-          </div>
+          </MathInfoPanel>
         </div>
       }
     >

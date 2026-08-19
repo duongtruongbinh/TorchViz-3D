@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { InlineMath } from '../../learningMdxComponents';
+import { InlineMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { MatrixGrid } from './primitives/MatrixGrid';
 import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathSegmentedControl } from './primitives/MathSegmentedControl';
 import type {
   MatrixExplorerProps,
   MatrixTransposeExplorerProps,
@@ -136,20 +137,16 @@ export function MatrixTransposeExplorer({
 
       <div className="flex flex-wrap items-center gap-2 text-xs border-t pt-3 w-full justify-center border-slate-200">
         <span className="text-slate-500">Chọn hàng để xem ánh xạ:</span>
-        {Array.from({ length: rows }, (_, rIdx) => (
-          <button
-            key={`row-btn-${rIdx}`}
-            type="button"
-            onClick={() => setActiveRow(rIdx)}
-            className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
-              activeRow === rIdx
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-200 text-slate-700'
-            }`}
-          >
-            Hàng {rIdx + 1} của A → Cột {rIdx + 1} của Aᵀ
-          </button>
-        ))}
+        <MathSegmentedControl
+          ariaLabel="Chọn hàng để xem ánh xạ"
+          value={activeRow !== null ? String(activeRow) : '0'}
+          onChange={(val) => setActiveRow(Number(val))}
+          size="sm"
+          options={Array.from({ length: rows }, (_, rIdx) => ({
+            value: String(rIdx),
+            label: `Hàng ${rIdx + 1} của A → Cột ${rIdx + 1} của Aᵀ`,
+          }))}
+        />
       </div>
       <p className="text-xs text-slate-500 text-center font-mono">
         <InlineMath formula="(A^\top)_{ij} = a_{ji}" />: Kích thước biến đổi từ <InlineMath formula={`${rows}\\times ${cols}`} /> thành <InlineMath formula={`${cols}\\times ${rows}`} />.
@@ -161,14 +158,11 @@ export function MatrixTransposeExplorer({
 // 20. ProductOverview
 export function ProductOverview({ ariaLabel }: ProductOverviewProps) {
   return (
-    <div
-      className="my-6 rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm bg-slate-50"
-      aria-label={ariaLabel}
+    <MathVisualCard
+      ariaLabel={ariaLabel}
+      title="3 loại phép nhân quan trọng trong Đại số Tuyến tính & Deep Learning"
     >
-      <h4 className="text-sm font-bold text-slate-800 mb-4 text-center">
-        3 loại phép nhân quan trọng trong Đại số Tuyến tính & Deep Learning
-      </h4>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 w-full">
         {/* Hadamard */}
         <div className="p-3.5 rounded-lg border border-blue-200 bg-white flex flex-col justify-between">
           <div>
@@ -229,7 +223,7 @@ export function ProductOverview({ ariaLabel }: ProductOverviewProps) {
           </div>
         </div>
       </div>
-    </div>
+    </MathVisualCard>
   );
 }
 
@@ -429,30 +423,16 @@ export function MatrixVectorProductExplorer({
       </div>
 
       {interactive && (
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setSelectedRow(0)}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
-              selectedRow === 0
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-200 text-slate-700'
-            }`}
-          >
-            Tính hàng 1: <InlineMath formula="(A\mathbf{x})_1" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedRow(1)}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ${
-              selectedRow === 1
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-200 text-slate-700'
-            }`}
-          >
-            Tính hàng 2: <InlineMath formula="(A\mathbf{x})_2" />
-          </button>
-        </div>
+        <MathSegmentedControl
+          ariaLabel="Chọn hàng để tính tích ma trận vector"
+          value={String(selectedRow)}
+          onChange={(val) => setSelectedRow(Number(val))}
+          size="sm"
+          options={[
+            { value: '0', label: <>Tính hàng 1: <InlineMath formula="(A\mathbf{x})_1" /></> },
+            { value: '1', label: <>Tính hàng 2: <InlineMath formula="(A\mathbf{x})_2" /></> },
+          ]}
+        />
       )}
     </MathVisualCard>
   );
@@ -478,6 +458,7 @@ export function MatrixProductExplorer({
     [3 * 5 + 4 * 7, 3 * 6 + 4 * 8],
   ]; // [[19, 22], [43, 50]]
 
+  const themeClasses = useLearningMdxTheme();
   const r = selectedCell[0];
   const c = selectedCell[1];
 
@@ -534,10 +515,10 @@ export function MatrixProductExplorer({
               type="button"
               key={`btn-${cr}-${cc}`}
               onClick={() => setSelectedCell([cr, cc])}
-              className={`px-2.5 py-1 rounded text-xs font-semibold font-mono transition-colors ${
+              className={`px-2.5 py-1 rounded text-xs font-semibold font-mono transition-colors cursor-pointer ${themeClasses.focusRing} ${
                 r === cr && c === cc
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-200 text-slate-700'
+                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
               }`}
             >
               <InlineMath formula={`C_{${cr + 1}${cc + 1}}`} /> ({matC[cr][cc]})

@@ -468,7 +468,14 @@ and Vietnamese-diacritic-insensitive.
 | `src/core/learning/lessonIdentity.ts` | Stable domain/lesson UI and completion identity. |
 | `src/core/learning/selectors.ts` | Pure catalog lookup helpers. |
 | `src/store/usePreferencesStore.ts` | Global language preference without Workspace dependencies. |
+| `src/components/learning/theme.ts` | Shared Learning theme tokens (`surface`, `button`, `semantic` status tones, `focusRing`). |
 | `src/components/learning/authoredTypes.ts` | Quiz and LLM renderer DTOs used by authored MDX adapters. |
+| `src/components/learning/learningMdxComponents.tsx` | Domain-neutral shared MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `MdxQuiz`). |
+| `src/components/learning/learningMdxReferences.tsx` | Lazy-loaded reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). |
+| `src/components/learning/learningMdxRegistry.tsx` | Capability-gated dynamic MDX page assembly and domain/reference loader integration. |
+| `src/components/learning/domains/continual-learning-llm/mdxComponents.tsx` | Continual Learning domain adapter (`StageContinuityMap`). |
+| `src/components/learning/domains/linear-algebra/mdxComponents.tsx` | Linear Algebra domain adapter with feature-module lazy loading (`lazyNamed`). |
+| `src/components/learning/domains/linear-algebra/primitives/` | Linear Algebra domain controls (`MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathSegmentedControl`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`). |
 | `src/components/learning/learningSearch.ts` | Cached per-domain UI adapter over generated Vite search documents. |
 | `src/components/learning/lesson/visibleLesson.ts` | Rail/detail visible-lesson selection policy. |
 | `scripts/learningContentMdx.ts` | Node/Vite MDX validation, generated runtime capabilities, per-domain search documents, and dev invalidation. |
@@ -544,6 +551,30 @@ nodes retain chapter-local numbering; Quiz nodes are excluded from visible
 numbering and use a dimmed question icon that regains emphasis on hover or
 selection. Selected rows use a solid blue surface, while completed markers
 remain green so progress continues to take precedence.
+
+### Learning UI Ownership and Component Reuse
+
+To maintain architectural clarity and prevent component sprawl, Learning Lab defines four distinct UI layers:
+
+| Layer | Files & Directories | Scope & Ownership | Reuse Rules |
+| :--- | :--- | :--- | :--- |
+| **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
+| **Reference Engine** | `src/components/learning/learningMdxReferences.tsx` | Lazy reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). | Loaded dynamically on-demand only when `needsReferenceRuntime: true`. Never eagerly bundled into shared shell or non-reference lessons. |
+| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`). | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
+| **Math Primitives** | `src/components/learning/domains/linear-algebra/primitives/` | `MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathRangeControl`, `MathSegmentedControl`, `MathStepperControls`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`. | **Domain-bound to Linear Algebra.** Do NOT promote to global shared. Consumes theme tokens for generic surfaces/borders/focus while keeping mathematical semantic coloring. |
+
+#### Component Reuse Guidelines for Coding Agents
+
+1. **Prefer Shared Authored Components:** Before inventing custom card grids or flow diagrams, reuse `CourseCards`, `EvidenceCards`, `ConceptFlow`, `ComparisonMatrix`, `PaperTradeoff`, or `DatasetComposition`.
+2. **Domain-Neutral Theme Reuse:** Domain-neutral surfaces, text hierarchy, borders, focus rings, and status states should reuse Learning theme tokens (`themeClasses.semantic`, `themeClasses.focusRing`). Domain-semantic visualization colors (vectors, matrix pivots, eigenvalues, SVD stages) remain local/domain-owned.
+3. **No Tailwind `.dark` in Theme-Context Components:** Components receiving theme via `useLearningMdxTheme()` must resolve light/dark using `themeClasses.isLight` or semantic tokens rather than Tailwind `dark:` ancestor classes.
+4. **Domain Ownership based on Semantics, not Consumer Count:** A component belongs in a domain when its API, data structure, or mathematical meaning is domain-specific (e.g. `MathCanvas`, `MatrixGrid`, `StageContinuityMap`). A component belongs in global shared when its semantics are domain-neutral, regardless of whether it currently has one or multiple callers.
+5. **Reference Capability Isolation:** `learningMdxReferences.tsx` must not be eagerly imported into the shared Learning shell or `learningMdxComponents.tsx`. The registry dynamically imports it only when `needsReferenceRuntime` is true.
+6. **No File Proliferation:** Do not split monolithic renderers into dozens of single-component files. Keep related renderers grouped in feature modules (e.g. `vectorRenderers.tsx`, `matrixRenderers.tsx`, `systemRenderers.tsx`).
+7. **Matrix Component Deduplication:** All matrix displays must keep separate public APIs (`MatrixGrid`, `AugmentedMatrixGrid`) while sharing internal frame, divider, cell, and default class logic via `matrixPrimitives.tsx` (`getMatrixCellClasses`).
+8. **Accessible One-of-N Controls:** `MathSegmentedControl` enforces WAI-ARIA `radiogroup` / `radio` roving focus (`ArrowLeft`/`Right`/`Up`/`Down`, `Home`, `End`, synchronized `tabIndex`, option-level `colorScheme`).
+9. **Co-located Domain Explanatory Panels:** Explanatory info boxes in Linear Algebra reuse `MathInfoPanel` co-located inside `MathVisualCard.tsx` rather than creating separate files or global card abstractions.
+10. **Modular Lazy Loading:** Linear Algebra renderer modules are loaded on demand via `lazyNamed` wrappers in `linear-algebra/mdxComponents.tsx`. Authored MDX files may only use components declared in `getAllowedLearningMdxComponentNames(domainId)`.
 
 ## Invariants
 

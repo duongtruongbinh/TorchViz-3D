@@ -14,6 +14,7 @@ import { getMathVisualTheme } from './theme';
 import { MathVisualCard } from './primitives/MathVisualCard';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathRangeControl } from './primitives/MathRangeControl';
+import { MathSegmentedControl } from './primitives/MathSegmentedControl';
 import { AngleArc } from './primitives/AngleArc';
 import {
   cosine2D,
@@ -106,22 +107,6 @@ function VisualFooter({
   );
 }
 
-function StaticVisualCard({
-  ariaLabel,
-  children,
-}: {
-  ariaLabel: string;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className="my-6 overflow-hidden rounded-xl border border-slate-200 bg-white/70 p-4 shadow-sm sm:p-5"
-      aria-label={ariaLabel}
-    >
-      {children}
-    </div>
-  );
-}
 
 function VectorPlaneFooter({
   label,
@@ -212,6 +197,7 @@ function VectorAdditionFooter({
   showParallelogram: boolean;
   onToggle: (value: boolean) => void;
 }) {
+  const themeClasses = useLearningMdxTheme();
   return (
     <VisualFooter className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <label className="flex shrink-0 cursor-pointer select-none items-center gap-2">
@@ -219,7 +205,7 @@ function VectorAdditionFooter({
           type="checkbox"
           checked={showParallelogram}
           onChange={(event) => onToggle(event.target.checked)}
-          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500/40"
+          className={`h-4 w-4 rounded border-slate-300 text-blue-600 ${themeClasses.focusRing}`}
         />
         <span className="text-slate-600">
           Hiện quy tắc hình bình hành
@@ -479,30 +465,16 @@ export function CoordinateRepresentationDiagram({
       <div className="flex flex-col gap-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:text-sm">
         <div className="flex items-center gap-2">
           <span className="font-semibold">Hệ trục:</span>
-          <div className="inline-flex flex-wrap rounded-lg border border-slate-300 bg-slate-100 p-0.5">
-            <button
-              type="button"
-              onClick={() => setBasisMode('standard')}
-              aria-pressed={basisMode === 'standard'}
-              className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${basisMode === 'standard'
-                  ? 'bg-white shadow-xs text-blue-600'
-                  : 'text-slate-600'
-                }`}
-            >
-              Chuẩn (e₁, e₂)
-            </button>
-            <button
-              type="button"
-              onClick={() => setBasisMode('rotated')}
-              aria-pressed={basisMode === 'rotated'}
-              className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${basisMode === 'rotated'
-                  ? 'bg-white shadow-xs text-amber-600'
-                  : 'text-slate-600'
-                }`}
-            >
-              Hệ trục mới (b₁, b₂)
-            </button>
-          </div>
+          <MathSegmentedControl<'standard' | 'rotated'>
+            ariaLabel="Chọn hệ trục tọa độ"
+            value={basisMode}
+            onChange={setBasisMode}
+            size="sm"
+            options={[
+              { value: 'standard', label: 'Chuẩn (e₁, e₂)', colorScheme: 'blue' },
+              { value: 'rotated', label: 'Hệ trục mới (b₁, b₂)', colorScheme: 'amber' },
+            ]}
+          />
         </div>
         <div className="font-mono text-xs">
           {basisMode === 'standard' ? (
@@ -1013,52 +985,18 @@ export function NormUnitBallDiagram({ ariaLabel }: NormUnitBallDiagramProps) {
 
   const belowPlot = (
     <div className="flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => setSelectedNorm('all')}
-          aria-pressed={selectedNorm === 'all'}
-          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'all'
-              ? 'bg-slate-800 text-white'
-              : 'bg-slate-100 text-slate-700'
-            }`}
-        >
-          Tất cả
-        </button>
-        <button
-          type="button"
-          onClick={() => setSelectedNorm('l1')}
-          aria-pressed={selectedNorm === 'l1'}
-          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'l1'
-              ? 'bg-emerald-600 text-white'
-              : 'bg-emerald-50 text-emerald-700'
-            }`}
-        >
-          L₁ (Hình thoi)
-        </button>
-        <button
-          type="button"
-          onClick={() => setSelectedNorm('l2')}
-          aria-pressed={selectedNorm === 'l2'}
-          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'l2'
-              ? 'bg-blue-600 text-white'
-              : 'bg-blue-50 text-blue-700'
-            }`}
-        >
-          L₂ (Hình tròn)
-        </button>
-        <button
-          type="button"
-          onClick={() => setSelectedNorm('linf')}
-          aria-pressed={selectedNorm === 'linf'}
-          className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${selectedNorm === 'linf'
-              ? 'bg-amber-600 text-white'
-              : 'bg-amber-50 text-amber-700'
-            }`}
-        >
-          L∞ (Hình vuông)
-        </button>
-      </div>
+      <MathSegmentedControl<'all' | 'l1' | 'l2' | 'linf'>
+        ariaLabel="Chọn chuẩn vector"
+        size="sm"
+        value={selectedNorm}
+        onChange={setSelectedNorm}
+        options={[
+          { value: 'all', label: 'Tất cả', colorScheme: 'slate' },
+          { value: 'l1', label: 'L₁ (Hình thoi)', colorScheme: 'emerald' },
+          { value: 'l2', label: 'L₂ (Hình tròn)', colorScheme: 'blue' },
+          { value: 'linf', label: 'L∞ (Hình vuông)', colorScheme: 'amber' },
+        ]}
+      />
       <div className="text-xs text-slate-500 font-mono">
         <InlineMath formula="\{\mathbf{x} : \|\mathbf{x}\| \le 1\}" />
       </div>
@@ -1217,7 +1155,7 @@ export function UnitVectorPlane({ ariaLabel }: UnitVectorPlaneProps) {
 // 12. NormalizationProcess (HTML card)
 export function NormalizationProcess({ ariaLabel }: NormalizationProcessProps) {
   return (
-    <StaticVisualCard ariaLabel={ariaLabel}>
+    <MathVisualCard ariaLabel={ariaLabel}>
       <h4 className="mb-4 text-center text-sm font-bold text-slate-800">
         Quy trình chuẩn hóa vector <InlineMath formula="\mathbf{v} \to \hat{\mathbf{v}}" />
       </h4>
@@ -1262,7 +1200,7 @@ export function NormalizationProcess({ ariaLabel }: NormalizationProcessProps) {
         Hướng được bảo toàn nguyên vẹn, độ dài sau chuẩn hóa luôn bằng 1:{' '}
         <InlineMath formula="\sqrt{0.6^2 + 0.8^2} = 1.0" />
       </p>
-    </StaticVisualCard>
+    </MathVisualCard>
   );
 }
 
@@ -1419,7 +1357,7 @@ export function CosineMotivationDiagram({
   const cos2 = cosine2D(a2, c2);
 
   return (
-    <StaticVisualCard ariaLabel={ariaLabel}>
+    <MathVisualCard ariaLabel={ariaLabel}>
       <h4 className="mb-4 text-center text-sm font-bold text-slate-800">
         So sánh hai cặp vector cùng hướng (<InlineMath formula="\theta = 0^\circ" />)
       </h4>
@@ -1447,7 +1385,7 @@ export function CosineMotivationDiagram({
           </div>
         </div>
 
-        <div className="p-3.5 rounded-lg border border-purple-200 bg-white">
+        <div className="p-3.5 rounded-lg border border-purple-200 bg-purple-50">
           <div className="text-xs font-bold text-purple-600 mb-2">
             Cặp 2: Vector độ dài lớn hơn
           </div>
@@ -1473,7 +1411,7 @@ export function CosineMotivationDiagram({
       <p className="mt-3 text-xs text-center text-slate-500">
         Dot product tăng gấp nhiều lần do độ dài lớn hơn, nhưng Cosine similarity luôn bằng 1.0 vì hướng hai cặp hoàn toàn giống nhau.
       </p>
-    </StaticVisualCard>
+    </MathVisualCard>
   );
 }
 

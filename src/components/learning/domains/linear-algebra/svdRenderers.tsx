@@ -3,7 +3,7 @@ import { Vector, Plot, Text } from 'mafs';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
-import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathSegmentedControl } from './primitives/MathSegmentedControl';
 import { MathStepperControls } from './primitives/MathStepperControls';
 import { MatrixGrid } from './primitives/MatrixGrid';
@@ -64,7 +64,7 @@ export function SVDGeometryExplorer({
       subtitle="SVD phân rã mọi phép biến đổi ma trận thành chuỗi 3 bước: Quay (Vᵀ) → Co giãn (Σ) → Quay (U)."
       footer={
         <div className="space-y-3 w-full">
-          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+          <MathInfoPanel>
             <div className="font-semibold text-blue-600">
               {current.title}
             </div>
@@ -74,7 +74,7 @@ export function SVDGeometryExplorer({
             <p className="text-slate-600 text-center">
               {current.desc}
             </p>
-          </div>
+          </MathInfoPanel>
 
           {interactive && (
             <MathStepperControls
@@ -291,7 +291,7 @@ export function TruncatedSVDExplorer({
             </div>
           )}
 
-          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+          <MathInfoPanel>
             <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2 border-slate-200">
               <span className="font-semibold text-blue-600">
                 {current.name}
@@ -311,7 +311,7 @@ export function TruncatedSVDExplorer({
             <div className="mt-2 text-xs font-mono text-center text-slate-500 pt-1 border-t border-slate-200">
               <InlineMath formula="A_k = \sum_{i=1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^\top, \quad \|A - A_k\|_F = \sqrt{\sum_{i=k+1}^r \sigma_i^2}" />
             </div>
-          </div>
+          </MathInfoPanel>
         </div>
       }
     >

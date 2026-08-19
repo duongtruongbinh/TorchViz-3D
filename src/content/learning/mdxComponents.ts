@@ -1,6 +1,11 @@
-import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract.ts';
+import {
+  REFERENCE_AUTHORED_MDX_COMPONENT_NAMES,
+  SHARED_LEARNING_MDX_COMPONENT_NAMES,
+} from '../../core/learning/mdxContract.ts';
 
 export const CV_MDX_COMPONENT_NAMES = ['CvExercise'] as const;
+
+export const CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES = ['StageContinuityMap'] as const;
 
 export const LINEAR_ALGEBRA_MDX_COMPONENT_NAMES = [
   'AiDataRepresentationDemo',
@@ -97,6 +102,7 @@ export const LLM_MDX_COMPONENT_NAMES = [
 
 const domainMdxComponentNames = {
   cv: CV_MDX_COMPONENT_NAMES,
+  'continual-learning-llm': CONTINUAL_LEARNING_LLM_MDX_COMPONENT_NAMES,
   'llm-ai-engineering': LLM_MDX_COMPONENT_NAMES,
   'linear-algebra': LINEAR_ALGEBRA_MDX_COMPONENT_NAMES,
 } as const;
@@ -107,5 +113,6 @@ export function getLearningDomainMdxComponentNames(domainId: string): readonly s
 
 export function getAllowedLearningMdxComponentNames(domainId: string): readonly string[] {
   const domainNames = getLearningDomainMdxComponentNames(domainId);
-  return [...SHARED_LEARNING_MDX_COMPONENT_NAMES, ...domainNames];
+  const referenceNames = domainId === 'continual-learning-llm' ? REFERENCE_AUTHORED_MDX_COMPONENT_NAMES : [];
+  return [...SHARED_LEARNING_MDX_COMPONENT_NAMES, ...referenceNames, ...domainNames];
 }

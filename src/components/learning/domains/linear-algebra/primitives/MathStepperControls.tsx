@@ -1,4 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLearningMdxTheme } from '../../../learningMdxComponents';
+import { cx } from '../../../theme';
 
 export interface MathStepperControlsProps {
   currentStep: number;
@@ -17,6 +19,13 @@ export function MathStepperControls({
   nextLabel = 'Bước tiếp theo',
   ariaLabel = 'Điều khiển các bước',
 }: MathStepperControlsProps) {
+  const themeClasses = useLearningMdxTheme();
+
+  const buttonClasses = cx(
+    'inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs sm:text-sm font-semibold border transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer',
+    themeClasses.button.secondary,
+  );
+
   return (
     <nav
       aria-label={ariaLabel}
@@ -27,7 +36,7 @@ export function MathStepperControls({
         onClick={() => onStepChange(Math.max(0, currentStep - 1))}
         disabled={currentStep === 0}
         aria-label={prevLabel}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs sm:text-sm font-semibold border border-slate-300 bg-white text-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
+        className={buttonClasses}
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         <span>{prevLabel}</span>
@@ -44,14 +53,20 @@ export function MathStepperControls({
               onClick={() => onStepChange(idx)}
               aria-current={isCurrent ? 'step' : undefined}
               aria-label={`Bước ${idx + 1} trên ${totalSteps}`}
-              className="w-8 h-8 flex items-center justify-center rounded-full cursor-pointer transition-transform hover:scale-110 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
+              className={cx(
+                'w-8 h-8 flex items-center justify-center rounded-full cursor-pointer transition-transform hover:scale-110',
+                themeClasses.focusRing,
+              )}
             >
               <span
-                className={`transition-all rounded-full ${
+                className={cx(
+                  'transition-all rounded-full',
                   isCurrent
                     ? 'w-3 h-3 bg-blue-600 ring-2 ring-blue-400 ring-offset-1'
-                    : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
-                }`}
+                    : themeClasses.isLight
+                      ? 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
+                      : 'w-2.5 h-2.5 bg-slate-600 hover:bg-slate-500',
+                )}
               />
             </button>
           );
@@ -63,7 +78,7 @@ export function MathStepperControls({
         onClick={() => onStepChange(Math.min(totalSteps - 1, currentStep + 1))}
         disabled={currentStep === totalSteps - 1}
         aria-label={nextLabel}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs sm:text-sm font-semibold border border-slate-300 bg-white text-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500"
+        className={buttonClasses}
       >
         <span>{nextLabel}</span>
         <ChevronRight className="w-4 h-4" aria-hidden="true" />
