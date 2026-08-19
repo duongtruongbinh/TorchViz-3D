@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'containerization-release-quiz',
+  locale: 'vi',
+  title: "Quiz: Docker & Release",
+  headings: [
+    'Lợi ích của Docker Caching',
+    'Khái niệm Multi-stage Build',
+    'Cơ chế Canary Deployment',
+    'Mục đích của Shadow Deployment',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Docker', 'Canary Deployment', 'Shadow Deployment', 'Containers'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="containerization-release-quiz" questions={[
+  {
+    id: 'docker-layer-caching-rule',
+    title: 'Lợi ích của Docker Caching',
+    prompt: 'Tại sao trong Dockerfile, chúng ta nên đặt lệnh `COPY requirements.txt` và `pip install` TRƯỚC lệnh `COPY . .`?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tận dụng bộ nhớ đệm Layer Cache của Docker để không phải tải và cài lại toàn bộ thư viện mỗi khi có thay đổi nhỏ trong mã nguồn Python.', isCorrect: true },
+      { id: 'opt2', label: 'Vì Docker bắt buộc phải đọc file requirements.txt trước theo quy định của Liên Hợp Quốc.' },
+      { id: 'opt3', label: 'Để file Dockerfile trông đẹp hơn.' },
+      { id: 'opt4', label: 'Để giảm dung lượng RAM của máy tính cá nhân.' },
+    ],
+    success: 'Chính xác! Docker chỉ thực thi lại các layer bị thay đổi; tách riêng dependencies giúp build image nhanh gấp 10 lần.',
+    error: 'Chưa chính xác. Đặt `COPY requirements.txt` trước giúp tận dụng Layer Caching của Docker.',
+  },
+  {
+    id: 'multi-stage-build-purpose',
+    title: 'Khái niệm Multi-stage Build',
+    prompt: 'Mục đích chính của kỹ thuật Multi-stage Build trong Docker là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tách riêng môi trường build (chứa compiler, build tools nặng) và môi trường runtime cuối cùng, giúp giảm kích thước Docker image và tăng tính bảo mật.', isCorrect: true },
+      { id: 'opt2', label: 'Tự động sao chép mã nguồn sang 10 máy tính khác.' },
+      { id: 'opt3', label: 'Huấn luyện đồng thời 2 mô hình khác nhau.' },
+      { id: 'opt4', label: 'Đổi đuôi file từ .py sang .java.' },
+    ],
+    success: 'Đúng! Multi-stage build loại bỏ các công cụ build thừa thãi, chỉ giữ lại artifacts cần thiết trong image cuối cùng.',
+    error: 'Chưa đúng. Multi-stage build giúp giảm tối đa kích thước Docker image thành phẩm.',
+  },
+  {
+    id: 'canary-deployment-concept',
+    title: 'Cơ chế Canary Deployment',
+    prompt: 'Chiến lược phát hành Canary Deployment hoạt động như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Chuyển một phần nhỏ lưu lượng người dùng (ví dụ: 5%) sang mô hình mới để theo dõi lỗi thực tế trước khi dần dần mở rộng lên 100%.', isCorrect: true },
+      { id: 'opt2', label: 'Tắt toàn bộ hệ thống trong 24 giờ để cập nhật.' },
+      { id: 'opt3', label: 'Chỉ phục vụ mô hình cho các nhân viên mang tên bắt đầu bằng chữ C.' },
+      { id: 'opt4', label: 'Xóa toàn bộ dữ liệu lịch sử của khách hàng.' },
+    ],
+    success: 'Chính xác! Canary release giảm thiểu rủi ro bằng cách thử nghiệm trên tập người dùng nhỏ trước khi rollout toàn diện.',
+    error: 'Chưa chính xác. Canary deployment chuyển dần lưu lượng sang phiên bản mới theo tỷ lệ tăng dần.',
+  },
+  {
+    id: 'shadow-deployment-usecase',
+    title: 'Mục đích của Shadow Deployment',
+    prompt: 'Khi nào một nhóm MLOps nên chọn chiến lược Shadow Deployment (Dark Launch)?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Khi triển khai các mô hình có rủi ro cực cao (tài chính, y tế, tự hành), cần so sánh kết quả thực tế trên tải thật mà hoàn toàn không ảnh hưởng đến trải nghiệm người dùng.', isCorrect: true },
+      { id: 'opt2', label: 'Khi công ty muốn tiết kiệm tối đa chi phí điện năng.' },
+      { id: 'opt3', label: 'Khi mô hình không cần dùng đến GPU.' },
+      { id: 'opt4', label: 'Khi dự án không có người quản lý.' },
+    ],
+    success: 'Đúng! Shadow deployment gửi bản sao của request thực tế tới mô hình mới trong chế độ ngầm để đánh giá an toàn tuyệt đối.',
+    error: 'Chưa đúng. Shadow deployment nhân bản request thực tế để test ngầm mô hình mới mà không làm ảnh hưởng người dùng.',
+  },
+]} />

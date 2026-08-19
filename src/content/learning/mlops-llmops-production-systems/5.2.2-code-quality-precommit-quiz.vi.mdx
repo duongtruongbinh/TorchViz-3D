@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'code-quality-precommit-quiz',
+  locale: 'vi',
+  title: "Quiz: Chuẩn hóa Code",
+  headings: [
+    'Mục đích của Code Formatter & Linter',
+    'Thời điểm Kích hoạt Pre-commit Hook',
+    'Ưu điểm của công cụ Ruff',
+    'Chống Rò rỉ Khóa Bí mật (Secrets)',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Pre-commit', 'Ruff', 'Code Quality', 'Linting'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="code-quality-precommit-quiz" questions={[
+  {
+    id: 'formatter-linter-purpose',
+    title: 'Mục đích của Code Formatter & Linter',
+    prompt: 'Lợi ích lớn nhất của việc áp dụng công cụ tự động định dạng mã nguồn (như Black/Ruff) trong một nhóm phát triển MLOps là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Thống nhất phong cách code toàn dự án, loại bỏ tranh cãi về định dạng khi Code Review và tránh các dòng Git diff thừa không đáng có.', isCorrect: true },
+      { id: 'opt2', label: 'Làm cho code chạy nhanh hơn 1 triệu lần.' },
+      { id: 'opt3', label: 'Tự động dịch mã Python sang mã C++.' },
+      { id: 'opt4', label: 'Thay thế vai trò của mô hình Deep Learning.' },
+    ],
+    success: 'Chính xác! Formatter chuẩn hóa định dạng nhất quán cho toàn bộ thành viên trong nhóm, giúp code review tập trung vào logic.',
+    error: 'Chưa chính xác. Formatter giúp thống nhất phong cách viết code và giảm thiểu diff rác trong Git.',
+  },
+  {
+    id: 'precommit-timing',
+    title: 'Thời điểm Kích hoạt Pre-commit Hook',
+    prompt: 'Khi nào Git Pre-commit Hook được tự động thực thi?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Ngay khi gõ lệnh `git commit`, trước khi commit thực sự được ghi lại vào lịch sử Git.', isCorrect: true },
+      { id: 'opt2', label: 'Khi người dùng tắt máy tính.' },
+      { id: 'opt3', label: 'Khi khách hàng mở ứng dụng trên điện thoại.' },
+      { id: 'opt4', label: 'Khi gửi email cho quản lý.' },
+    ],
+    success: 'Đúng! Pre-commit hooks chạy ngay trước khi commit được tạo để đảm bảo chỉ những code sạch mới được phép commit.',
+    error: 'Chưa đúng. Pre-commit hooks chạy ngay khi người dùng gõ lệnh `git commit` trên máy trạm.',
+  },
+  {
+    id: 'ruff-advantage',
+    title: 'Ưu điểm của công cụ Ruff',
+    prompt: 'Tại sao công cụ Ruff đang dần thay thế Flake8, Black và isort trong các dự án Python hiện đại?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Được viết bằng Rust với tốc độ nhanh hơn từ 10 đến 100 lần và tích hợp tất cả các tính năng lint, format, sort import trong một công cụ duy nhất.', isCorrect: true },
+      { id: 'opt2', label: 'Vì nó chỉ chạy được trên hệ điều hành Mac.' },
+      { id: 'opt3', label: 'Vì nó xóa bỏ tất cả các dòng comment trong code.' },
+      { id: 'opt4', label: 'Vì nó không hỗ trợ ngôn ngữ Python.' },
+    ],
+    success: 'Chính xác! Ruff đem lại tốc độ vượt trội nhờ ngôn ngữ Rust và tích hợp đa công cụ trong một.',
+    error: 'Chưa chính xác. Ruff nổi tiếng nhờ tốc độ cực nhanh (viết bằng Rust) và tích hợp linter + formatter toàn diện.',
+  },
+  {
+    id: 'secrets-leak-prevention',
+    title: 'Chống Rò rỉ Khóa Bí mật (Secrets)',
+    prompt: 'Hook `detect-secrets` trong cấu hình pre-commit có nhiệm vụ gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Quét và ngăn chặn lập trình viên vô tình commit các khóa bí mật (API Keys, AWS Access Keys, Passwords) vào kho Git công khai.', isCorrect: true },
+      { id: 'opt2', label: 'Tự động gửi mật khẩu qua tin nhắn SMS.' },
+      { id: 'opt3', label: 'Xóa toàn bộ mật mã trên máy chủ.' },
+      { id: 'opt4', label: 'Đổi tên các hàm trong code thành mã Morse.' },
+    ],
+    success: 'Đúng! `detect-secrets` phát hiện các chuỗi entropy cao và định dạng token để ngăn rò rỉ bảo mật.',
+    error: 'Chưa đúng. `detect-secrets` dùng để phát hiện và ngăn chặn việc đẩy nhầm các khóa bí mật vào Git.',
+  },
+]} />

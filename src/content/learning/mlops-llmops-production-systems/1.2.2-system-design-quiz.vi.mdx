@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'system-design-quiz',
+  locale: 'vi',
+  title: "Quiz: Kiến trúc Hệ thống",
+  headings: [
+    'Phần phụ trợ trong hệ thống ML',
+    'Lựa chọn Batch vs Real-time',
+    'Tách biệt Compute và Storage',
+    'Cơ chế Gating trong ML Lifecycle',
+  ],
+  keywords: ['MLOps', 'Quiz', 'System Design', 'Batch', 'Real-time', 'Decoupled Storage'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="system-design-quiz" questions={[
+  {
+    id: 'hidden-technical-debt-ml',
+    title: 'Phần phụ trợ trong hệ thống ML',
+    prompt: 'Theo nghiên cứu nổi tiếng của Google về "Nợ kỹ thuật trong hệ thống Machine Learning" (Hidden Technical Debt in ML Systems), nhận định nào sau đây là đúng?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Mã nguồn thuật toán ML chiếm 90% khối lượng công việc và hạ tầng của toàn bộ hệ thống.' },
+      { id: 'opt2', label: 'Thuật toán ML chỉ là một khối nhỏ ở trung tâm; phần lớn hệ thống là hạ tầng dữ liệu, kiểm thử, giám sát và phục vụ.', isCorrect: true },
+      { id: 'opt3', label: 'Không cần hệ thống giám sát nếu mô hình đã đạt độ chính xác trên 99% trong phòng lab.' },
+      { id: 'opt4', label: 'Mọi tác vụ ML sản xuất đều phải được viết hoàn toàn trong Jupyter Notebook.' },
+    ],
+    success: 'Chính xác! Mã thuật toán ML chỉ là một phần nhỏ ở trung tâm, bao quanh bởi rất nhiều thành phần kỹ thuật phần mềm phức tạp.',
+    error: 'Chưa chính xác. Mã ML chỉ chiếm một tỷ trọng nhỏ, phần lớn là hạ tầng data, test, serving và monitoring.',
+  },
+  {
+    id: 'batch-vs-realtime-decision',
+    title: 'Lựa chọn Batch vs Real-time',
+    prompt: 'Trong trường hợp nào hệ thống nên áp dụng kiến trúc Batch Inference thay vì Real-time Serving?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Hệ thống tự động lái xe cần nhận diện biển báo giao thông dưới 20 mili-giây.' },
+      { id: 'opt2', label: 'Hệ thống phát hiện gian lận thẻ tín dụng khi khách hàng vừa quẹt thẻ tại quầy POS.' },
+      { id: 'opt3', label: 'Hệ thống chấm điểm tín dụng khách hàng vào cuối mỗi ngày và tạo báo cáo rủi ro hàng đêm.', isCorrect: true },
+      { id: 'opt4', label: 'Chatbot trả lời câu hỏi trực tiếp của người dùng trên website thương mại điện tử.' },
+    ],
+    success: 'Đúng! Chấm điểm tín dụng hàng ngày chạy định kỳ cho tập khách hàng cố định, chấp nhận độ trễ vài giờ nên rất phù hợp với Batch Inference.',
+    error: 'Hãy chú ý: các trường hợp cần phản hồi ngay tức thì (< vài giây) yêu cầu Real-time, trong khi tác vụ chạy hàng đêm là Batch.',
+  },
+  {
+    id: 'decoupled-compute-storage',
+    title: 'Tách biệt Compute và Storage',
+    prompt: 'Lợi ích chính của việc tách rời tầng Lưu trữ (Storage trên S3/GCS) và tầng Tính toán (Compute trên Ray/K8s) trong MLOps là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Cho phép tắt hoặc mở rộng cụm máy tính toán linh hoạt mà không lo bị mất dữ liệu hay checkpoint mô hình.', isCorrect: true },
+      { id: 'opt2', label: 'Làm giảm tốc độ mạng khi huấn luyện trên nhiều GPU.' },
+      { id: 'opt3', label: 'Bắt buộc mọi kỹ sư phải dùng chung một máy tính cục bộ duy nhất.' },
+      { id: 'opt4', label: 'Loại bỏ hoàn toàn sự cần thiết của Git.' },
+    ],
+    success: 'Chính xác! Tách rời lưu trữ giúp tận dụng các máy GPU tạm thời (spot instances) giá rẻ và co giãn tài nguyên độc lập với dung lượng lưu trữ.',
+    error: 'Chưa đúng. Việc tách rời lưu trữ giúp dữ liệu an toàn độc lập với vòng đời của các máy tính toán.',
+  },
+  {
+    id: 'model-gating-concept',
+    title: 'Cơ chế Gating trong ML Lifecycle',
+    prompt: 'Trong vòng đời ML sản xuất, bước "Testing & Gating" trước khi đưa mô hình vào Model Registry có vai trò gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Xóa toàn bộ dữ liệu lịch sử để giải phóng ổ cứng.' },
+      { id: 'opt2', label: 'Tự động kiểm tra và ngăn chặn các mô hình không đạt tiêu chuẩn an toàn, chất lượng hoặc hiệu năng được phát hành ra production.', isCorrect: true },
+      { id: 'opt3', label: 'Tự động viết lại code Python sang ngôn ngữ Assembly.' },
+      { id: 'opt4', label: 'Tắt toàn bộ firewall của cụm máy chủ.' },
+    ],
+    success: 'Đúng! Gating là cổng kiểm duyệt tự động để đảm bảo chỉ những mô hình đạt mọi bài test chất lượng mới được triển khai.',
+    error: 'Chưa chính xác. Gating là bước bảo vệ để ngăn chặn model lỗi/kém chất lượng đi vào môi trường sản xuất.',
+  },
+]} />

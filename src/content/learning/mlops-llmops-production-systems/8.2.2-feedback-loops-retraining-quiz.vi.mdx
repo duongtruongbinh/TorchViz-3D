@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'feedback-loops-retraining-quiz',
+  locale: 'vi',
+  title: "Quiz: Chiến lược Retraining",
+  headings: [
+    'Phản hồi Trực tiếp vs Gián tiếp',
+    'Chiến lược Batch Retraining',
+    'Nguyên lý Active Learning',
+    'Tổng kết Vòng đời MLOps',
+    'Chẩn đoán: Retrain Thường xuyên nhưng Hiệu năng Không Tăng',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Active Learning', 'Human-in-the-loop', 'Feedback Loops', 'Retraining', 'Diagnostic'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="feedback-loops-retraining-quiz" questions={[
+  {
+    id: 'explicit-vs-implicit-feedback',
+    title: 'Phản hồi Trực tiếp vs Gián tiếp',
+    prompt: 'Hành động người dùng nhấp vào nút "Báo cáo nội dung sai chủ đề" trên giao diện thuộc loại phản hồi nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Phản hồi Trực tiếp (Explicit Feedback) với chất lượng nhãn rất cao và độ tin cậy lớn.', isCorrect: true },
+      { id: 'opt2', label: 'Phản hồi ngẫu nhiên từ hệ điều hành.' },
+      { id: 'opt3', label: 'Lỗi phần cứng card mạng.' },
+      { id: 'opt4', label: 'Tấn công từ chối dịch vụ DDoS.' },
+    ],
+    success: 'Chính xác! Phản hồi trực tiếp là hành động người dùng chủ động cung cấp thông tin sửa lỗi hoặc đánh giá rõ ràng.',
+    error: 'Chưa chính xác. Báo cáo trực tiếp từ người dùng là Explicit Feedback.',
+  },
+  {
+    id: 'batch-retraining-advantage',
+    title: 'Chiến lược Batch Retraining',
+    prompt: 'Tại sao hầu hết các hệ thống MLOps sản xuất lại ưa chuộng Batch Retraining định kỳ hơn là Online Learning theo từng request?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Cho phép chạy toàn diện các bài test kiểm duyệt chất lượng (Quality Gates) trên tập holdout lớn trước khi phát hành, đảm bảo an toàn tuyệt đối cho hệ thống.', isCorrect: true },
+      { id: 'opt2', label: 'Vì Batch Retraining không cần sử dụng máy tính.' },
+      { id: 'opt3', label: 'Vì Online Learning bị cấm bởi luật pháp quốc tế.' },
+      { id: 'opt4', label: 'Vì Batch Retraining làm giảm tốc độ đường truyền internet.' },
+    ],
+    success: 'Đúng! Batch retraining cho phép đánh giá toàn diện mô hình trước khi cho phép thay thế mô hình cũ trên production.',
+    error: 'Chưa đúng. Batch retraining an toàn hơn vì cho phép kiểm thử gắt gao chất lượng mô hình trước khi rollout.',
+  },
+  {
+    id: 'active-learning-strategy',
+    title: 'Nguyên lý Active Learning',
+    prompt: 'Trong chiến lược Active Learning (Uncertainty Sampling), những mẫu dữ liệu nào sẽ được ưu tiên gửi tới con người (Human-in-the-loop) để gán nhãn?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Những mẫu mà mô hình có độ tự tin thấp nhất hoặc xác suất nằm sát ranh giới quyết định giữa các lớp.', isCorrect: true },
+      { id: 'opt2', label: 'Những mẫu mà mô hình đã chắc chắn 100% là đúng.' },
+      { id: 'opt3', label: 'Những mẫu được tạo ra cách đây 10 năm.' },
+      { id: 'opt4', label: 'Những mẫu có số thứ tự là số chẵn.' },
+    ],
+    success: 'Chính xác! Gán nhãn cho các mẫu mô hình đang phân vân đem lại lượng tri thức và giá trị cải thiện mô hình cao nhất.',
+    error: 'Chưa chính xác. Active learning ưu tiên gán nhãn cho các mẫu có độ mơ hồ cao đối với mô hình hiện tại.',
+  },
+  {
+    id: 'mlops-lifecycle-summary',
+    title: 'Tổng kết Vòng đời MLOps',
+    prompt: 'Mục tiêu tối thượng của một hệ thống MLOps chuyên nghiệp là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tạo ra một chu trình tự động hóa đáng tin cậy, rút ngắn thời gian từ ý tưởng đến triển khai sản phẩm, và liên tục duy trì hiệu năng cao của mô hình trong môi trường biến đổi.', isCorrect: true },
+      { id: 'opt2', label: 'Làm cho mã nguồn trở nên phức tạp nhất có thể.' },
+      { id: 'opt3', label: 'Tiêu tốn toàn bộ ngân sách mua sắm GPU của doanh nghiệp.' },
+      { id: 'opt4', label: 'Loại bỏ hoàn toàn vai trò của con người trong mọi quyết định kinh doanh.' },
+    ],
+    success: 'Đúng! MLOps kết nối chặt chẽ giữa nghiên cứu và kỹ thuật phần mềm, mang lại giá trị bền vững và thích ứng liên tục cho doanh nghiệp.',
+    error: 'Chưa đúng. Mục tiêu cốt lõi của MLOps là tự động hóa vòng đời mô hình an toàn, nhanh chóng và duy trì chất lượng bền vững.',
+  },
+  {
+    id: 'stagnant-retraining-diagnosis',
+    title: 'Chẩn đoán: Retrain Thường xuyên nhưng Hiệu năng Không Tăng',
+    prompt: 'Pipeline tự động huấn luyện lại chạy mỗi ngày trên dữ liệu thu thập mới, nhưng chỉ số thực tế trên Production không hề cải thiện qua 3 tuần liên tiếp. Nguyên nhân cốt lõi nào có khả năng cao nhất?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Dữ liệu mới thu thập bị rơi vào vòng lặp thiên vị (Feedback Loop Bias / Filter Bubble) — chỉ chứa các bài viết do chính mô hình cũ gợi ý cho người dùng, dẫn đến việc mô hình tự học lại chính các phán đoán cũ mà không nhận được tín hiệu mới (lack of exploration/diversity).', isCorrect: true },
+      { id: 'opt2', label: 'Do hệ thống máy chủ bị thiếu dung lượng ổ cứng SSD.' },
+      { id: 'opt3', label: 'Do mạng nơ-ron từ chối học tiếp vì đã quá thông minh.' },
+      { id: 'opt4', label: 'Do người dùng không mở máy tính vào ban đêm.' },
+    ],
+    success: 'Chính xác! Khi dữ liệu huấn luyện mới chỉ xuất phát từ các tương tác do chính mô hình hiện tại phân phối, hệ thống sẽ rơi vào bẫy Feedback Loop Bias. Cần bổ sung lưu lượng Exploration (5-10%) và nhãn Active Learning để phá vỡ vòng lặp tự củng cố này.',
+    error: 'Chưa chính xác. Hiện tượng retrain không hiệu quả thường xuất phát từ Feedback Loop Bias do thiếu dữ liệu đa dạng ngoài vùng gợi ý của mô hình.',
+  },
+]} />
+

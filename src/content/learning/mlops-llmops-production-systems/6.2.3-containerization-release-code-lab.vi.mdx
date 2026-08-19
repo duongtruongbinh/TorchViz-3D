@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'containerization-release-code-lab',
+  locale: 'vi',
+  title: "Lab: Dockerfile Sản xuất",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Viết Dockerfile Chuẩn Production',
+    'Build & Run Docker Container',
+    'Kiểm thử API Endpoint từ Container',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Dockerfile', 'Docker Build', 'Container Run', 'Serving API'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ:
+1. Viết file `Dockerfile` chuẩn sản xuất với multi-stage layer caching cho ứng dụng `Made-With-ML`.
+2. Thực hiện lệnh `docker build` tạo Docker Image nhẹ và an toàn.
+3. Khởi chạy Container cục bộ và gửi request kiểm tra tính sẵn sàng của API.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Viết Dockerfile Chuẩn Production
+
+Tạo file `Dockerfile` tại thư mục gốc của repository:
+
+```dockerfile
+# 1. Base image Python slim nhẹ và ổn định
+FROM python:3.10-slim
+
+# Thiết lập biến môi trường tối ưu Python trong container
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# 2. Cài đặt các thư viện hệ thống cần thiết (nếu có)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 3. Layer Caching: Copy và cài đặt requirements TRƯỚC
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# 4. Copy toàn bộ mã nguồn và cấu hình
+COPY madewithml/ ./madewithml/
+COPY datasets/ ./datasets/
+COPY setup.py .
+
+# Cài đặt local package ở chế độ production
+RUN pip install -e .
+
+# 5. Tạo người dùng non-root vì lý do bảo mật
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+USER appuser
+
+# Expose cổng phục vụ API
+EXPOSE 8000
+
+# 6. Lệnh khởi chạy ứng dụng mặc định
+CMD ["uvicorn", "madewithml.serve:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Build & Run Docker Container
+
+Mở terminal và thực thi các lệnh Docker:
+
+```bash
+# 1. Build Docker Image với tag madewithml:latest
+docker build -t madewithml:latest .
+
+# 2. Kiểm tra danh sách và kích thước image
+docker images | grep madewithml
+
+# 3. Khởi chạy container ánh xạ cổng 8000 ra máy trạm
+docker run -d \
+    --name madewithml-service \
+    -p 8000:8000 \
+    madewithml:latest
+
+# 4. Xem log khởi động của container
+docker logs -f madewithml-service
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kiểm thử API Endpoint từ Container
+
+Gửi request kiểm thử tính sẵn sàng và chức năng suy luận:
+
+```bash
+# Kiểm tra Health Check
+curl -X GET "http://localhost:8000/docs"
+
+# Gửi request dự đoán vào container
+curl -X POST "http://localhost:8000/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "title": "Continuous Integration for Machine Learning",
+       "description": "Automating training and testing with GitHub Actions and Docker."
+     }'
+```
+
+Dọn dẹp container sau khi hoàn thành thử nghiệm:
+```bash
+docker stop madewithml-service
+docker rm madewithml-service
+```
+
+<LessonNote tone="tip">
+  Khi Docker Image đã được build thành công, bạn có thể đẩy lên **Docker Hub** hoặc **AWS ECR** (`docker push <registry>/madewithml:v1.0.0`) để phục vụ triển khai Kubernetes.
+</LessonNote>
+
+</MdxPage>

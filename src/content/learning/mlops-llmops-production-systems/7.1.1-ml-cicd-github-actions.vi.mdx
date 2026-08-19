@@ -1,0 +1,95 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'ml-cicd-github-actions',
+  locale: 'vi',
+  title: "CI/CD với GitHub Actions",
+  headings: [
+    'Sự Khác biệt giữa CI/CD Truyền thống và CI/CD cho Machine Learning',
+    '3 Giai đoạn Tự động hóa: CI, CT (Continuous Training), CD',
+    'Thiết kế Matrix Testing & Triggers trong GitHub Actions',
+    'Model Gatekeeping & Tự động Deploy lên Production Cluster',
+  ],
+  keywords: ['MLOps', 'CI/CD', 'GitHub Actions', 'Continuous Training', 'Continuous Delivery', 'Automation'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Sự Khác biệt giữa CI/CD Truyền thống và CI/CD cho Machine Learning
+
+Trong kỹ thuật phần mềm truyền thống, **CI/CD** tập trung vào việc tự động build code, chạy unit tests và deploy file nhị phân. Trong MLOps, CI/CD phức tạp hơn nhiều vì nó liên quan đến chu trình phản hồi của dữ liệu và hiệu năng mô hình.
+
+<CourseCards
+  ariaLabel="So sánh CI/CD phần mềm và CI/CD/CT trong MLOps"
+  exampleLabel="Phạm vi tự động"
+  takeawayLabel="Nhiệm vụ cốt lõi"
+  items={[
+    {
+      title: 'CI/CD Phần mềm Truyền thống',
+      example: 'Code Commit -> Chạy Lint/Unit Test -> Build Docker -> Deploy App.',
+      takeaway: 'Kiểm tra xem code có chạy đúng cú pháp và logic nghiệp vụ định sẵn hay không.',
+    },
+    {
+      title: 'CI/CD/CT trong MLOps',
+      example: 'Code & Data Commit -> Chạy Unit Test + Data Validation + Behavioral Test -> Kích hoạt Continuous Training -> So sánh Metrics -> Deploy Model.',
+      takeaway: 'Kiểm tra cả chất lượng code, độ sạch của dữ liệu và khả năng thích nghi của mô hình thực tế.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## 3 Giai đoạn Tự động hóa: CI, CT (Continuous Training), CD
+
+Một pipeline MLOps hoàn chỉnh bao gồm 3 trục chuyển động:
+
+<ConceptHierarchy
+  ariaLabel="3 trục tự động hóa CI/CD/CD trong MLOps"
+  root={{ title: 'Hệ thống Tự động hóa MLOps Toàn diện', detail: 'Vòng lặp khép kín từ code đến cập nhật mô hình trực tiếp' }}
+  children={[
+    { title: '1. Continuous Integration (CI)', detail: 'Chạy kiểm tra pre-commit, unit tests cho code tiền xử lý và data testing với Great Expectations.' },
+    { title: '2. Continuous Training (CT)', detail: 'Tự động kích hoạt job huấn luyện lại mô hình trên cụm GPU khi có dữ liệu mới hoặc phát hiện Data Drift.' },
+    { title: '3. Continuous Deployment (CD)', detail: 'Đóng gói container và phát hành mô hình mới ra API Gateway theo chiến lược Canary Release.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Thiết kế Matrix Testing & Triggers trong GitHub Actions
+
+**GitHub Actions** là nền tảng CI/CD phổ biến cho phép tự động hóa quy trình dựa trên các sự kiện (Events):
+
+<ComparisonMatrix
+  ariaLabel="Các sự kiện kích hoạt Workflow trong MLOps"
+  rowHeaderLabel="Sự kiện Kích hoạt (Trigger)"
+  columns={['Kịch bản Xảy ra', 'Hành động CI/CD Thực thi']}
+  rows={[
+    { label: '`pull_request`', values: ['Khi kỹ sư mở PR hoặc push commit mới.', 'Chạy nhanh bộ kiểm thử code (pytest), formatting (ruff) và data testing trong < 2 phút.'] },
+    { label: '`schedule` (Cron Job)', values: ['Chạy định kỳ hàng đêm (ví dụ: `0 2 * * *`).', 'Kéo dữ liệu mới nhất từ S3, chạy huấn luyện phân tán và đánh giá đa lát cắt.'] },
+    { label: '`workflow_dispatch`', values: ['Kỹ sư kích hoạt thủ công từ giao diện GitHub.', 'Chạy các tác vụ tốn kém như Hyperparameter Tuning hoặc Deploy khẩn cấp.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Model Gatekeeping & Tự động Deploy lên Production Cluster
+
+Khái niệm **Model Gatekeeping** đảm bảo mô hình chỉ được phép deploy khi vượt qua các bài kiểm tra gắt gao:
+
+<ConceptFlow
+  ariaLabel="Các cổng kiểm duyệt (Quality Gates) trong CI/CD"
+  items={[
+    { title: 'Gate 1: Code & Data Pass', detail: 'Tất cả bài test Pytest và Great Expectations đạt 100% tỷ lệ đỗ.' },
+    { title: 'Gate 2: Baseline Comparison', detail: 'Mô hình mới phải có `val_f1 >= production_model_f1` trên cùng tập kiểm thử holdout.' },
+    { title: 'Gate 3: Behavioral Test Pass', detail: 'Tỷ lệ đỗ Invariance và Directional Tests đạt chuẩn an toàn.' },
+    { title: 'Deploy Trigger', detail: 'Tự động tạo PR đăng ký Model vào MLflow Registry ở trạng thái `Staging` và thông báo tới Slack.' },
+  ]}
+/>
+
+</MdxPage>

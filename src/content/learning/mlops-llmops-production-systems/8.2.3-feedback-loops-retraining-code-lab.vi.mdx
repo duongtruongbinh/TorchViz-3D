@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'feedback-loops-retraining-code-lab',
+  locale: 'vi',
+  title: "Lab: Trigger Retraining Tự động",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Thu thập & Lọc Dữ liệu Phản hồi (Feedback Collection)',
+    'Thuật toán Active Learning Uncertainty Sampling',
+    'Kích hoạt Pipeline Tái Huấn luyện Đóng gói',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Active Learning', 'Uncertainty Sampling', 'Retraining Trigger', 'Automation'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ:
+1. Xây dựng logic ghi nhận và xử lý **Feedback logs** từ người dùng sản xuất.
+2. Cài đặt thuật toán **Uncertainty Sampling** để tự động chọn ra top các mẫu cần chuyên gia gán nhãn lại.
+3. Viết script tự động kích hoạt pipeline huấn luyện lại và chuyển giao mô hình mới.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Thu thập & Lọc Dữ liệu Phản hồi (Feedback Collection)
+
+Tạo hàm ghi nhận phản hồi sửa lỗi từ người dùng:
+
+```python
+import pandas as pd
+import json
+from pathlib import Path
+from datetime import datetime
+
+def log_user_feedback(text: str, predicted_tag: str, user_corrected_tag: str, log_dir: str = "logs/feedback"):
+    """Ghi nhận phản hồi sửa lỗi của người dùng vào log JSONL."""
+    Path(log_dir).mkdir(parents=True, exist_ok=True)
+    feedback_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "text": text,
+        "predicted_tag": predicted_tag,
+        "corrected_tag": user_corrected_tag,
+    }
+    
+    log_fp = Path(log_dir) / "user_feedback.jsonl"
+    with open(log_fp, "a") as f:
+        f.write(json.dumps(feedback_entry) + "\n")
+        
+    print(f"📝 Đã lưu phản hồi cho mẫu: '{text[:30]}...' -> Nhãn sửa: {user_corrected_tag}")
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Thuật toán Active Learning Uncertainty Sampling
+
+Chọn ra các mẫu có độ tự tin thấp nhất từ production traffic:
+
+```python
+import numpy as np
+
+def active_learning_uncertainty_sampling(unlabeled_texts: list[str], predict_proba_fn, top_k: int = 100) -> list[dict]:
+    """Lọc top_k mẫu có độ mơ hồ (uncertainty) cao nhất để gửi gán nhãn."""
+    samples_with_uncertainty = []
+    
+    for text in unlabeled_texts:
+        probs = predict_proba_fn(text) # Trả về mảng xác suất [0.45, 0.40, 0.10, 0.05]
+        # Margin of confidence: chênh lệch giữa xác suất top 1 và top 2
+        sorted_probs = np.sort(probs)[::-1]
+        margin = sorted_probs[0] - sorted_probs[1]
+        
+        samples_with_uncertainty.append({
+            "text": text,
+            "margin": margin, # Margin càng nhỏ -> Độ phân vân càng cao
+            "top_prediction": sorted_probs[0],
+        })
+        
+    # Sắp xếp tăng dần theo margin (mơ hồ nhất lên đầu)
+    samples_with_uncertainty.sort(key=lambda x: x["margin"])
+    selected_samples = samples_with_uncertainty[:top_k]
+    
+    print(f"🎯 Đã chọn ra {len(selected_samples)} mẫu mơ hồ nhất cho Human Annotation.")
+    return selected_samples
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kích hoạt Pipeline Tái Huấn luyện Đóng gói
+
+Tạo script `retrain.py` tổng hợp toàn bộ quy trình:
+
+```python
+import subprocess
+from madewithml.config import logger
+
+def trigger_full_retraining_pipeline():
+    """Kích hoạt chu trình huấn luyện phân tán, kiểm thử và deploy mô hình mới."""
+    logger.info("🚀 1. Đồng bộ dữ liệu mới từ S3 qua DVC...")
+    # subprocess.run(["dvc", "pull"], check=True)
+    
+    logger.info("🧪 2. Chạy kiểm thử chất lượng dữ liệu với Great Expectations...")
+    # subprocess.run(["pytest", "tests/data/"], check=True)
+    
+    logger.info("⚡ 3. Kích hoạt Huấn luyện Phân tán với Ray Train & MLflow...")
+    # subprocess.run(["python", "madewithml/train.py", "--num-workers", "2"], check=True)
+    
+    logger.info("🔍 4. Chạy kiểm thử hành vi Behavioral Test Suite...")
+    # subprocess.run(["pytest", "tests/model/test_behavioral.py"], check=True)
+    
+    logger.info("🎉 5. Đóng gói Docker và Canary Rollout hoàn tất!")
+
+if __name__ == "__main__":
+    trigger_full_retraining_pipeline()
+```
+
+<LessonNote tone="tip">
+  Hệ thống MLOps hoàn chỉnh của bạn giờ đây đã sẵn sàng tự động hóa, mở rộng và liên tục cải tiến trên môi trường thực tế!
+</LessonNote>
+
+</MdxPage>

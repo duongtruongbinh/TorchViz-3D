@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'feedback-loops-retraining',
+  locale: 'vi',
+  title: "Vòng lặp Phản hồi & Retraining",
+  headings: [
+    'Thu thập Dữ liệu Phản hồi từ Người dùng (Feedback Loops)',
+    'Chiến lược Huấn luyện lại: Batch Retraining vs Online Learning',
+    'Human-in-the-Loop & Active Learning',
+    'Tổng kết: Kiến trúc MLOps Toàn diện cho Kỹ sư AI',
+    'Quy tắc Thăng cấp & Phá vỡ Thiên vị Vòng lặp (Champion-Challenger & Bias Mitigation)',
+  ],
+  keywords: ['MLOps', 'Feedback Loops', 'Active Learning', 'Human-in-the-Loop', 'Continuous Training', 'Summary', 'Champion-Challenger', 'Bias'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Thu thập Dữ liệu Phản hồi từ Người dùng (Feedback Loops)
+
+Một hệ thống AI trưởng thành không dừng lại ở việc trả về kết quả dự đoán, mà liên tục lắng nghe phản hồi của người dùng cuối (User Feedback) để làm giàu kho dữ liệu huấn luyện:
+
+<CourseCards
+  ariaLabel="Hai dạng phản hồi người dùng trong MLOps"
+  exampleLabel="Dạng phản hồi"
+  takeawayLabel="Cách thức thu thập"
+  items={[
+    {
+      title: 'Phản hồi Trực tiếp (Explicit Feedback)',
+      example: 'Người dùng nhấn nút Thích/Không thích (Thumbs Up/Down), báo cáo bài viết sai chủ đề hoặc sửa lại nhãn tag.',
+      takeaway: 'Chất lượng gán nhãn cực cao nhưng số lượng ít (chỉ khoảng 1-2% người dùng thực hiện).',
+    },
+    {
+      title: 'Phản hồi Gián tiếp (Implicit Feedback)',
+      example: 'Người dùng nhấp vào xem bài viết, thời gian dừng đọc (Dwell Time), tỷ lệ bỏ qua (Skip Rate).',
+      takeaway: 'Khối lượng dữ liệu khổng lồ nhưng chứa nhiều nhiễu, cần phân tích hành vi theo ngưỡng thống kê.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chiến lược Huấn luyện lại: Batch Retraining vs Online Learning
+
+Lựa chọn phương thức cập nhật tri thức mới cho mô hình:
+
+<ComparisonMatrix
+  ariaLabel="So sánh Batch Retraining và Online Learning"
+  rowHeaderLabel="Phương thức Retrain"
+  columns={['Cơ chế Cập nhật', 'Ưu & Nhược điểm']}
+  rows={[
+    { label: 'Batch Retraining (Theo chu kỳ)', values: ['Định kỳ (hàng tuần/hàng tháng) gom toàn bộ dữ liệu mới, chạy lại pipeline huấn luyện phân tán.', 'Rất an toàn, dễ kiểm soát chất lượng qua Test suite nhưng tốn chi phí compute định kỳ.'] },
+    { label: 'Online / Continual Learning', values: ['Mô hình cập nhật trọng số liên tục sau mỗi batch request người dùng theo thời gian thực.', 'Thích ứng tức thì nhưng tiềm ẩn rủi ro Quên thảm khốc (Catastrophic Forgetting) hoặc bị tấn công thao túng dữ liệu.'] },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Hầu hết 95% doanh nghiệp công nghệ áp dụng **Batch Retraining định kỳ kết hợp trigger phát hiện Drift**, vì tính an toàn và khả năng kiểm soát chất lượng vượt trội.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Human-in-the-Loop & Active Learning
+
+Khi có hàng triệu mẫu dữ liệu mới đổ về mỗi ngày nhưng ngân sách gán nhãn có hạn, **Active Learning** giúp chọn lọc thông minh:
+
+<ConceptHierarchy
+  ariaLabel="Quy trình Active Learning chọn mẫu dữ liệu"
+  root={{ title: 'Chiến lược Active Learning', detail: 'Chỉ gửi các mẫu dữ liệu mô hình không chắc chắn cho chuyên gia gán nhãn' }}
+  children={[
+    { title: '1. Uncertainty Sampling', detail: 'Chọn các mẫu mà xác suất dự đoán nằm sát ngưỡng ranh giới (ví dụ: xác suất cao nhất < 55%).' },
+    { title: '2. Diversity Sampling', detail: 'Chọn các mẫu nằm ở các vùng phân bố mới lạ chưa từng xuất hiện trong tập huấn luyện.' },
+    { title: '3. Human Annotation', detail: 'Chuyên gia gán nhãn (Human-in-the-loop) duyệt và xác nhận nhãn chính xác cho các mẫu này.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tổng kết: Kiến trúc MLOps Toàn diện cho Kỹ sư AI
+
+Chúc mừng bạn đã làm chủ toàn bộ vòng đời phát triển hệ thống Machine Learning Sản xuất!
+
+<ConceptFlow
+  ariaLabel="Bức tranh toàn cảnh MLOps Production Lifecycle"
+  items={[
+    { title: '1. Design', detail: 'Thiết kế sản phẩm lấy giá trị nghiệp vụ làm trung tâm và kiến trúc decoupled compute/storage.' },
+    { title: '2. Data & Code', detail: 'Tiền xử lý phân tán với Ray Data, quản lý phiên bản với DVC và chuẩn hóa code với Pre-commit.' },
+    { title: '3. Train & Track', detail: 'Huấn luyện phân tán PyTorch DDP, lưu vết MLflow và đánh giá đa lát cắt (Sliced Evaluation).' },
+    { title: '4. Test & Gate', detail: 'Kiểm thử 3 trụ cột: Pytest, Great Expectations và Behavioral CheckList.' },
+    { title: '5. Serve & Monitor', detail: 'Triển khai FastAPI/Ray Serve qua Docker, giám sát Drift với Evidently và khép kín vòng lặp Retraining.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Quy tắc Thăng cấp & Phá vỡ Thiên vị Vòng lặp (Champion-Challenger & Bias Mitigation)
+
+Để hoàn thiện tư duy của một kỹ sư trưởng hệ thống AI (Lead MLOps Engineer), bạn cần nắm vững hai nguyên tắc quản trị cao nhất:
+
+<ComparisonMatrix
+  ariaLabel="Các nguyên tắc thăng cấp mô hình và phòng tránh thiên vị vòng lặp"
+  rowHeaderLabel="Nguyên tắc Vận hành Cấp cao"
+  columns={['Mô tả Cơ chế', 'Lợi ích & Bảo đảm An toàn']}
+  rows={[
+    { label: 'Champion-Challenger Pattern', values: ['Mô hình đương nhiệm (Champion) và mô hình ứng viên mới (Challenger) cùng nhận traffic song song (Shadow/Canary).', 'Chỉ thăng cấp Challenger khi nó vượt qua Champion cả về Online Business KPI lẫn các bài kiểm tra Behavioral Regression.'] },
+    { label: 'Phá vỡ Vòng lặp Tự củng cố (Feedback Loop Bias)', values: ['Mô hình chỉ gợi ý những gì nó tự tin, khiến dữ liệu thu thập tiếp theo bị bão hòa (Filter Bubble / Selection Bias).', 'Dành riêng 5–10% lưu lượng để khám phá ngẫu nhiên (Exploration Traffic) giúp thu thập dữ liệu khách quan không bị mô hình chi phối.'] },
+    { label: 'Graduation Standard: Systems Over Tools', values: ['Khả năng vẽ, giải thích, chẩn đoán sự cố và hiện thực hóa toàn bộ pipeline mà không bị phụ thuộc vào tên gọi của bất kỳ thư viện nào.', 'Biến MLOps từ danh mục công cụ (tool catalog) thành năng lực kỹ thuật hệ thống sản xuất bền vững.'] },
+  ]}
+/>
+
+</MdxPage>

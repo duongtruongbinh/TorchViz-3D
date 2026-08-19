@@ -66,6 +66,10 @@ Read [wiki/architecture.md](wiki/architecture.md) for the full pipeline, and the
 
 For Learning Lab UI/component ownership and reuse rules, consult [wiki/concepts/learning-lab.md](wiki/concepts/learning-lab.md) and [docs/plans/2026-08-19-learning-lab-ui-refactor.md](docs/plans/2026-08-19-learning-lab-ui-refactor.md) before adding or modifying visual primitives.
 
+## Learning Lab Image Generation
+
+When asked to generate illustration assets for Learning Lab lessons, always follow the canonical educational doodle template defined in [.agents/rules/learning-lab-image-generation.md](.agents/rules/learning-lab-image-generation.md). Use 16:9 landscape aspect ratio with 1–4 side-by-side rounded cards, bold black outlines, pastel header accents, minimal text, and visual metaphors.
+
 ## Gotchas
 
 See [wiki/reference/gotchas.md](wiki/reference/gotchas.md). The big ones:

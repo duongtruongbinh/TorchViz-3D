@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'distributed-training-quiz',
+  locale: 'vi',
+  title: "Quiz: Huấn luyện Phân tán",
+  headings: [
+    'Nguyên lý Data Parallelism',
+    'Cơ chế Ring All-Reduce',
+    'Lựa chọn chiến lược phân tán',
+    'Lợi ích của Mixed Precision (FP16/BF16)',
+  ],
+  keywords: ['MLOps', 'Quiz', 'DDP', 'Mixed Precision', 'Distributed Training', 'All-Reduce'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="distributed-training-quiz" questions={[
+  {
+    id: 'data-parallelism-gradient-sync',
+    title: 'Nguyên lý Data Parallelism',
+    prompt: 'Trong kiến trúc PyTorch Distributed Data Parallel (DDP), các GPU worker đồng bộ thông tin gì với nhau sau mỗi bước backward pass?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Toàn bộ dữ liệu huấn luyện thô của từng máy.' },
+      { id: 'opt2', label: 'Đạo hàm Gradient được tính toán cục bộ để lấy trung bình cộng trước khi optimizer cập nhật trọng số.', isCorrect: true },
+      { id: 'opt3', label: 'Tệp mã nguồn Python và lịch sử Git.' },
+      { id: 'opt4', label: 'Hình ảnh màn hình desktop của kỹ sư.' },
+    ],
+    success: 'Chính xác! Mỗi worker tính gradient trên batch riêng của mình, sau đó đồng bộ (All-Reduce) gradient để cùng cập nhật trọng số mô hình đồng nhất.',
+    error: 'Chưa chính xác. DDP đồng bộ Gradients giữa các worker trước bước optimizer.step().',
+  },
+  {
+    id: 'ring-allreduce-advantage',
+    title: 'Cơ chế Ring All-Reduce',
+    prompt: 'Tại sao thuật toán Ring All-Reduce được ưa chuộng hơn cấu trúc Master-Worker truyền thống khi phân tán trên nhiều GPU?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì Ring All-Reduce phân phối đều lưu lượng mạng theo vòng tròn, tránh nghẽn cổ chai băng thông tại máy chủ Master.', isCorrect: true },
+      { id: 'opt2', label: 'Vì Ring All-Reduce không cần dùng dây mạng kết nối.' },
+      { id: 'opt3', label: 'Vì Ring All-Reduce tự động giảm độ phân giải của hình ảnh.' },
+      { id: 'opt4', label: 'Vì nó làm cho mô hình không cần học nữa.' },
+    ],
+    success: 'Đúng! Ring All-Reduce truyền dữ liệu theo chuỗi vòng tròn giữa các GPU liền kề, giúp băng thông mạng độc lập với số lượng GPU.',
+    error: 'Chưa đúng. Thuật toán dạng vòng (Ring) giúp phân tán đều tải mạng, loại bỏ điểm nghẽn tại nút trung tâm.',
+  },
+  {
+    id: 'parallelism-choice-strategy',
+    title: 'Lựa chọn chiến lược phân tán',
+    prompt: 'Khi nào bạn BẮT BUỘC phải dùng Model Parallelism (hoặc Tensor/Pipeline Parallelism) thay vì chỉ dùng Data Parallelism?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Khi số lượng mẫu dữ liệu huấn luyện nhỏ hơn 100.' },
+      { id: 'opt2', label: 'Khi kích thước mô hình (tham số + activation) lớn hơn dung lượng bộ nhớ VRAM của một GPU đơn lẻ.', isCorrect: true },
+      { id: 'opt3', label: 'Khi bạn chỉ muốn huấn luyện trên máy tính bảng.' },
+      { id: 'opt4', label: 'Khi dataset được lưu dưới định dạng JSON thay vì CSV.' },
+    ],
+    success: 'Chính xác! Model Parallelism chia nhỏ các tầng của mạng nơ-ron qua nhiều GPU khi mô hình quá lớn không thể đặt vừa một GPU đơn lẻ.',
+    error: 'Chưa chính xác. Model Parallelism là giải pháp khi kích thước mô hình vượt quá VRAM của 1 GPU.',
+  },
+  {
+    id: 'mixed-precision-benefit',
+    title: 'Lợi ích của Mixed Precision (FP16/BF16)',
+    prompt: 'Lợi ích lớn nhất của việc áp dụng Mixed Precision (FP16/BF16) trong quá trình huấn luyện mạng nơ-ron là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Giảm 50% dung lượng bộ nhớ VRAM cho weights/activations và tăng tốc độ tính toán nhờ phần cứng Tensor Cores.', isCorrect: true },
+      { id: 'opt2', label: 'Loại bỏ hoàn toàn nhu cầu dùng hàm Loss.' },
+      { id: 'opt3', label: 'Làm cho mô hình không bao giờ bị Overfitting.' },
+      { id: 'opt4', label: 'Tự động sửa nhãn gán sai trong tập dữ liệu.' },
+    ],
+    success: 'Đúng! Mixed Precision giảm một nửa chi phí bộ nhớ cho tensors và tận dụng tối đa sức mạnh nhân Tensor Cores trên GPU hiện đại.',
+    error: 'Chưa đúng. Mixed Precision tối ưu bộ nhớ VRAM và tăng tốc độ xử lý ma trận trên GPU.',
+  },
+]} />

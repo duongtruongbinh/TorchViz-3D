@@ -40,18 +40,18 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
-  assert.equal(learningCatalog.tracks.length, 92);
-  assert.equal(learningCatalog.lessons.length, 713);
+  assert.equal(learningCatalog.tracks.length, 90);
+  assert.equal(learningCatalog.lessons.length, 673);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   assert.deepEqual(
     Object.fromEntries(['available', 'next', 'locked'].map((status) => [
       status,
       learningCatalog.lessons.filter((lesson) => lesson.status === status).length,
     ])),
-    { available: 203, next: 1, locked: 509 },
+    { available: 253, next: 1, locked: 419 },
   );
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 193);
-  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 520);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'published').length, 244);
+  assert.equal(learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing').length, 429);
   assert.ok(learningCatalog.domains.every((domain) => domain.text.title.en && domain.text.title.vi));
   assert.ok(learningCatalog.tracks.every((track) => track.text.title.en && track.text.title.vi));
   assert.equal(getLearningDomain(learningCatalog, 'reinforcement-learning')?.text.title.en, 'Reinforcement Learning');
@@ -63,14 +63,15 @@ test('fully published domains are prioritized without disturbing unfinished cata
 
   assert.deepEqual(
     prioritizedDomains.filter((item) => item.isReady).map((item) => item.domain.id),
-    ['linear-algebra', 'continual-learning-llm'],
+    ['linear-algebra', 'continual-learning-llm', 'mlops-llmops-production-systems'],
   );
   assert.equal(prioritizedDomains[0]?.domain.id, 'linear-algebra');
   assert.equal(prioritizedDomains[1]?.domain.id, 'continual-learning-llm');
+  assert.equal(prioritizedDomains[2]?.domain.id, 'mlops-llmops-production-systems');
   assert.deepEqual(
-    prioritizedDomains.slice(2).map((item) => item.domain.id),
+    prioritizedDomains.slice(3).map((item) => item.domain.id),
     learningCatalog.domains
-      .filter((domain) => domain.id !== 'linear-algebra' && domain.id !== 'continual-learning-llm')
+      .filter((domain) => domain.id !== 'linear-algebra' && domain.id !== 'continual-learning-llm' && domain.id !== 'mlops-llmops-production-systems')
       .map((domain) => domain.id),
   );
   assert.deepEqual(getLearningDomain(learningCatalog, 'continual-learning-llm')?.text.title, {
@@ -291,9 +292,9 @@ test('learning catalog ids resolve and first-party lessons have display text', (
 
 });
 
-test('only LLM and tagged CV exercise lessons carry authored content', () => {
+test('only LLM, Linear Algebra, Continual Learning, MLOps, and tagged CV exercise lessons carry authored content', () => {
   const missingLessons = learningCatalog.lessons.filter((lesson) => lesson.contentStatus === 'missing');
-  assert.equal(missingLessons.length, 520);
+  assert.equal(missingLessons.length, 429);
   for (const lesson of missingLessons) {
     assert.deepEqual(lesson.text?.theory, []);
     assert.deepEqual(getLearningLessonText(getStrings('vi').learningLab, lesson, 'vi').theory, ['Nội dung đang hoàn thiện.']);

@@ -1,0 +1,116 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'model-behavioral-testing-code-lab',
+  locale: 'vi',
+  title: "Lab: Xây dựng Behavioral Suite",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Viết Invariance Tests (INV) với Pytest',
+    'Viết Directional Tests (DIR) & MFT Suites',
+    'Tự động Đánh giá và Xuất Báo cáo Behavioral',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Behavioral Testing', 'CheckList', 'Invariance Test', 'Pytest'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ xây dựng bộ kiểm thử hành vi trong `tests/model/test_behavioral.py`:
+1. Viết bài test **Invariance (INV)** kiểm tra tính ổn định khi thay thế từ đồng nghĩa hoặc tên riêng.
+2. Viết bài test **Directional (DIR)** kiểm tra sự dịch chuyển xác suất khi bổ sung từ khóa định hướng.
+3. Viết bộ **Minimum Functionality Test (MFT)** kiểm tra các trường hợp cơ bản bắt buộc phải đúng 100%.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Viết Invariance Tests (INV) với Pytest
+
+Tạo file `tests/model/test_behavioral.py` kiểm tra tính bất biến:
+
+```python
+import pytest
+from madewithml.predict import predict_proba
+
+@pytest.mark.parametrize(
+    "text_a, text_b",
+    [
+        (
+            "Natural language processing with transformers by Alice",
+            "Natural language processing with transformers by Bob",
+        ),
+        (
+            "Computer vision object detection using YOLO v8",
+            "Computer vision object detection utilizing YOLO v8",
+        ),
+    ],
+)
+def test_invariance_author_and_synonyms(text_a: str, text_b: str):
+    """Kiểm tra xác suất dự đoán không thay đổi quá 5% khi đổi tên/từ đồng nghĩa."""
+    prob_a = predict_proba(text_a)
+    prob_b = predict_proba(text_b)
+    
+    # Dự đoán nhãn hàng đầu (argmax) phải giống nhau
+    assert prob_a.argmax() == prob_b.argmax()
+    
+    # Độ chênh lệch xác suất tối đa không vượt quá 0.05
+    diff = abs(prob_a.max() - prob_b.max())
+    assert diff < 0.05, f"Lệch xác suất quá cao: {diff:.4f}"
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Viết Directional Tests (DIR) & MFT Suites
+
+Thêm kiểm tra tính định hướng và chức năng tối thiểu:
+
+```python
+def test_directional_adding_mlops_keywords():
+    """Bổ sung từ khóa MLOps bắt buộc phải làm tăng xác suất nhãn MLOps."""
+    base_text = "Building and training neural network models"
+    augmented_text = "Building and training neural network models with Docker CI/CD on Kubernetes"
+    
+    prob_base = predict_proba(base_text)
+    prob_aug = predict_proba(augmented_text)
+    
+    # Giả sử index 1 là nhãn 'mlops'
+    mlops_idx = 1
+    assert prob_aug[mlops_idx] > prob_base[mlops_idx], "Xác suất nhãn MLOps không tăng khi thêm từ khóa hệ thống!"
+
+@pytest.mark.parametrize(
+    "mft_text, expected_tag",
+    [
+        ("Computer Vision ResNet CNN Image Classification", "computer-vision"),
+        ("Ray Serve FastAPI Docker Container Kubernetes", "mlops"),
+        ("BERT Tokenizer HuggingFace NLP Text Translation", "natural-language-processing"),
+    ],
+)
+def test_minimum_functionality_cases(mft_text: str, expected_tag: str):
+    """Mô hình bắt buộc phải đoán đúng 100% các câu đặc trưng tối thiểu."""
+    pred = predict_proba(mft_text)
+    # Khẳng định độ tự tin phải vượt quá 70%
+    assert pred.max() > 0.70
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tự động Đánh giá và Xuất Báo cáo Behavioral
+
+Chạy toàn bộ bài test hành vi từ terminal:
+
+```bash
+# Chạy bộ test behavioral trong tests/model/
+pytest tests/model/test_behavioral.py -v -s
+```
+
+<LessonNote tone="tip">
+  Khi bất kỳ bài test nào trong nhóm **MFT** hoặc **INV** bị Fail, hệ thống CI/CD sẽ lập tức chặn việc tạo release tag mới, bảo vệ hệ thống trước sự suy giảm chất lượng ngầm.
+</LessonNote>
+
+</MdxPage>

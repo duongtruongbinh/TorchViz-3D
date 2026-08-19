@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'preprocessing-distributed-data-quiz',
+  locale: 'vi',
+  title: "Quiz: Tiền xử lý Dữ liệu",
+  headings: [
+    'Bảo toàn phân bố nhãn khi chia tập dữ liệu',
+    'Rủi ro khi không lưu trữ Preprocessing Artifacts',
+    'Ưu điểm của Ray Data so với Pandas',
+    'Cơ chế Streaming dữ liệu vào GPU',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Preprocessing', 'Ray Data', 'Stratified Split', 'Artifacts'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="preprocessing-distributed-data-quiz" questions={[
+  {
+    id: 'stratified-split-reason',
+    title: 'Bảo toàn phân bố nhãn khi chia tập dữ liệu',
+    prompt: 'Tại sao Stratified Splitting được khuyến nghị mặc định cho các bài toán phân loại nhãn trong MLOps?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì nó làm tăng gấp đôi số lượng mẫu dữ liệu.' },
+      { id: 'opt2', label: 'Đảm bảo tỷ lệ các lớp phân loại được giữ nguyên đồng nhất giữa tập Train, Validation và Test, tránh tình trạng lớp hiếm bị thiếu ở tập test.', isCorrect: true },
+      { id: 'opt3', label: 'Vì nó tự động xóa bỏ các câu văn bản dài hơn 512 từ.' },
+      { id: 'opt4', label: 'Vì nó chỉ chạy được trên phần cứng TPU của Google.' },
+    ],
+    success: 'Chính xác! Stratified split giữ nguyên phân bố của từng nhãn ở mọi tập dữ liệu, giúp đánh giá khách quan và không bị lệch nhãn.',
+    error: 'Chưa chính xác. Stratified split có mục đích bảo tồn tỷ lệ % phân bố của các lớp nhãn trên tất cả các tập chia.',
+  },
+  {
+    id: 'preprocessing-artifact-storage',
+    title: 'Rủi ro khi không lưu trữ Preprocessing Artifacts',
+    prompt: 'Nếu bạn fit một `LabelEncoder` hoặc `Tokenizer` khi train nhưng không lưu artifact này lại để dùng cho API inference, điều gì sẽ xảy ra?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Hiện tượng Train-Serve Skew (Lệch chuẩn Huấn luyện - Phục vụ): Nhãn và token bị ánh xạ sai số nguyên, dẫn đến dự đoán hoàn toàn vô nghĩa.', isCorrect: true },
+      { id: 'opt2', label: 'API phục vụ sẽ chạy nhanh hơn 200%.' },
+      { id: 'opt3', label: 'Mô hình sẽ tự động cập nhật lại trọng số trên server.' },
+      { id: 'opt4', label: 'Không có ảnh hưởng nào xảy ra.' },
+    ],
+    success: 'Đúng! Train-Serve Skew xảy ra khi logic hoặc ánh xạ tiền xử lý lúc phục vụ khác với lúc huấn luyện, gây ra lỗi suy luận nghiêm trọng.',
+    error: 'Hãy lưu ý: Train-Serve Skew là lỗi phổ biến khi logic tiền xử lý lúc train và serve không đồng nhất.',
+  },
+  {
+    id: 'ray-data-advantages',
+    title: 'Ưu điểm của Ray Data so với Pandas',
+    prompt: 'Điểm vượt trội lớn nhất của Ray Data khi xử lý tập dữ liệu hàng chục đến hàng trăm Gigabyte là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Xử lý dữ liệu phân tán theo từng khối (blocks) và stream trực tiếp, tránh lỗi Out-Of-Memory (OOM) khi dữ liệu lớn hơn RAM.', isCorrect: true },
+      { id: 'opt2', label: 'Ray Data chỉ hỗ trợ ngôn ngữ R.' },
+      { id: 'opt3', label: 'Ray Data biến mọi văn bản thành ảnh tự động.' },
+      { id: 'opt4', label: 'Ray Data không cần máy tính để thực thi.' },
+    ],
+    success: 'Chính xác! Ray Data chia dữ liệu thành các blocks và thực thi streaming phân tán, giúp xử lý khối lượng dữ liệu khổng lồ mượt mà.',
+    error: 'Chưa đúng. Ray Data vượt trội nhờ khả năng streaming và phân tán song song tránh nghẽn bộ nhớ RAM.',
+  },
+  {
+    id: 'streaming-to-gpu',
+    title: 'Cơ chế Streaming dữ liệu vào GPU',
+    prompt: 'Phương thức `ds.iter_torch_batches(...)` trong Ray Data mang lại lợi ích gì cho vòng lặp huấn luyện PyTorch?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tự động tính đạo hàm gradient mà không cần PyTorch Autograd.' },
+      { id: 'opt2', label: 'Tạo luồng nạp dữ liệu (data streaming) liên tục vào GPU theo batch, giúp GPU không bị rảnh rỗi (idle) chờ đọc đĩa.', isCorrect: true },
+      { id: 'opt3', label: 'Xóa toàn bộ các checkpoint cũ trên ổ cứng.' },
+      { id: 'opt4', label: 'Chuyển đổi GPU thành CPU.' },
+    ],
+    success: 'Đúng! Data streaming giữ cho GPU luôn được nạp đầy dữ liệu để tính toán, tối đa hóa hiệu suất sử dụng GPU (GPU Utilization).',
+    error: 'Chưa chính xác. `iter_torch_batches` tạo pipeline nạp batch liên tục vào GPU để tối ưu tốc độ huấn luyện.',
+  },
+]} />

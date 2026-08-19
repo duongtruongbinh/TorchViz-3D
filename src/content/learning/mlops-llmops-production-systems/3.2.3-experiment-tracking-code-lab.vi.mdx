@@ -1,0 +1,127 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'experiment-tracking-code-lab',
+  locale: 'vi',
+  title: "Lab: Thực hành với MLflow",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Khởi động MLflow Tracking Server',
+    'Tích hợp MLflow Logging vào Training Loop',
+    'Truy vấn Run ID Tốt nhất bằng Python API',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'MLflow', 'Tracking UI', 'Model Registry', 'Python API'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ:
+1. Khởi động **MLflow Tracking Server** cục bộ và mở Dashboard trực quan.
+2. Tích hợp các hàm `mlflow.log_params`, `mlflow.log_metrics` và `mlflow.log_artifacts` vào mã nguồn huấn luyện.
+3. Viết hàm Python tự động truy vấn tìm ra `best_run_id` để chuyển giao cho các bước kiểm thử và phục vụ tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khởi động MLflow Tracking Server
+
+Mở một cửa sổ terminal mới và chạy lệnh khởi chạy server lưu trữ:
+
+```bash
+# Thiết lập đường dẫn lưu trữ Model Registry
+export MODEL_REGISTRY="/tmp/mlflow"
+mkdir -p $MODEL_REGISTRY
+
+# Khởi động server MLflow trên cổng 8080
+mlflow server \
+    --backend-store-uri "file://$MODEL_REGISTRY" \
+    --default-artifact-root "file://$MODEL_REGISTRY" \
+    --host 0.0.0.0 \
+    --port 8080
+```
+
+<LessonNote tone="tip">
+  Sau khi khởi động, hãy mở trình duyệt tại địa chỉ `http://localhost:8080` để xem giao diện Dashboard quản lý trực quan của MLflow!
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tích hợp MLflow Logging vào Training Loop
+
+Thêm logic log vào quá trình huấn luyện trong `train.py`:
+
+```python
+import mlflow
+import json
+from pathlib import Path
+
+def train_and_track(experiment_name: str, params: dict, metrics_history: list[dict], artifacts_dir: Path):
+    """Tự động tạo Run và ghi nhận thông tin vào MLflow."""
+    # 1. Đặt tên Experiment
+    mlflow.set_experiment(experiment_name=experiment_name)
+    
+    with mlflow.start_run() as run:
+        # 2. Log các siêu tham số cấu hình
+        mlflow.log_params(params)
+        
+        # 3. Log metrics qua từng epoch
+        for epoch_metrics in metrics_history:
+            epoch = epoch_metrics["epoch"]
+            mlflow.log_metric("train_loss", epoch_metrics["train_loss"], step=epoch)
+            mlflow.log_metric("val_loss", epoch_metrics["val_loss"], step=epoch)
+            mlflow.log_metric("val_f1", epoch_metrics["val_f1"], step=epoch)
+            
+        # 4. Lưu và log tệp artifacts
+        results_fp = artifacts_dir / "training_summary.json"
+        with open(results_fp, "w") as f:
+            json.dump({"best_f1": max(m["val_f1"] for m in metrics_history)}, f)
+            
+        mlflow.log_artifacts(str(artifacts_dir))
+        
+        print(f"✅ Đã log thành công Run ID: {run.info.run_id}")
+        return run.info.run_id
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Truy vấn Run ID Tốt nhất bằng Python API
+
+Viết hàm truy vấn tự động trong `madewithml/predict.py` để lấy Run ID có `val_loss` thấp nhất:
+
+```python
+from mlflow.tracking import MlflowClient
+
+def get_best_run_id(experiment_name: str, metric: str = "val_loss", mode: str = "ASC") -> str:
+    """Truy vấn tìm Run ID đạt hiệu năng tốt nhất trong experiment."""
+    client = MlflowClient()
+    experiment = client.get_experiment_by_name(experiment_name)
+    
+    if not experiment:
+        raise ValueError(f"Không tìm thấy experiment: {experiment_name}")
+        
+    order_by = f"metrics.{metric} {mode}"
+    runs = client.search_runs(
+        experiment_ids=[experiment.experiment_id],
+        order_by=[order_by],
+        max_results=1,
+    )
+    
+    if not runs:
+        raise ValueError(f"Chưa có run nào trong experiment {experiment_name}")
+        
+    best_run = runs[0]
+    best_id = best_run.info.run_id
+    best_metric_val = best_run.data.metrics.get(metric)
+    
+    print(f"🏆 Best Run ID: {best_id} ({metric} = {best_metric_val:.4f})")
+    return best_id
+```
+
+</MdxPage>

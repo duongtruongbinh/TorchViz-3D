@@ -1,0 +1,97 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-model-versioning-code-lab',
+  locale: 'vi',
+  title: "Lab: DVC & Remote Storage",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Khởi tạo DVC trong Git Repository',
+    'Cấu hình Remote Storage (S3 / Local Remote)',
+    'Theo dõi & Đẩy Phiên bản Dữ liệu với DVC',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'DVC', 'dvc add', 'dvc push', 'dvc pull'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ:
+1. Cài đặt và khởi tạo **DVC** trong repository hiện tại.
+2. Thiết lập một **Remote Storage** (kho lưu trữ từ xa trên S3 hoặc thư mục máy chủ).
+3. Theo dõi phiên bản của file `datasets/dataset.csv` và thực hiện `dvc push` / `dvc pull`.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khởi tạo DVC trong Git Repository
+
+Mở terminal và chạy lệnh khởi tạo DVC:
+
+```bash
+# Cài đặt DVC với hỗ trợ S3
+pip install "dvc[s3]"
+
+# Khởi tạo DVC trong thư mục git hiện tại
+dvc init
+
+# Kiểm tra các file cấu hình được sinh ra (.dvc/ và .dvcignore)
+git status
+git commit -m "Initialize DVC"
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cấu hình Remote Storage (S3 / Local Remote)
+
+Thiết lập vị trí lưu trữ từ xa cho các file nhị phân lớn:
+
+```bash
+# 1. Thêm một S3 bucket làm kho lưu trữ mặc định
+dvc remote add -d storage s3://my-mlops-bucket/dvcstore
+
+# Hoặc thiết lập local remote để thử nghiệm trên máy trạm
+# dvc remote add -d localstorage /tmp/dvcstore
+
+# 2. Cấu hình credential AWS (nếu dùng S3)
+# dvc remote modify storage access_key_id <AWS_ACCESS_KEY_ID>
+# dvc remote modify storage secret_access_key <AWS_SECRET_ACCESS_KEY>
+
+# 3. Commit cấu hình remote vào Git
+git add .dvc/config
+git commit -m "Configure DVC remote storage"
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Theo dõi & Đẩy Phiên bản Dữ liệu với DVC
+
+Quản lý phiên bản cho tập dữ liệu `datasets/dataset.csv`:
+
+```bash
+# 1. Theo dõi file dữ liệu với DVC
+dvc add datasets/dataset.csv
+
+# 2. DVC tự động tạo file pointer datasets/dataset.csv.dvc và thêm dataset.csv vào .gitignore
+git add datasets/dataset.csv.dvc datasets/.gitignore
+git commit -m "Track dataset.csv v1.0 with DVC"
+
+# 3. Đẩy file dữ liệu thực tế lên remote storage
+dvc push
+
+# 4. Kiểm tra khả năng khôi phục trên máy khác
+# rm datasets/dataset.csv
+# dvc pull
+```
+
+<LessonNote tone="tip">
+  Khi dữ liệu được cập nhật (ví dụ thêm 10,000 mẫu mới), bạn chỉ cần chạy lại `dvc add datasets/dataset.csv` và `git commit` file `.dvc` mới.
+</LessonNote>
+
+</MdxPage>

@@ -51,6 +51,10 @@ Do not create a new docs page when an existing relevant page already owns the
 topic. Update the existing page instead. Create a new page only when the work is
 substantially different in scope or needs its own long-lived reference surface.
 
+## Learning Lab Image Generation
+
+When asked to generate illustration assets for Learning Lab lessons, always follow the canonical educational doodle template defined in [.agents/rules/learning-lab-image-generation.md](.agents/rules/learning-lab-image-generation.md). Use 16:9 landscape aspect ratio with 1–4 side-by-side rounded cards, bold black outlines, pastel header accents, minimal text, and visual metaphors.
+
 ## Verification
 
 Use the narrowest verification that matches the change. For code or behavior

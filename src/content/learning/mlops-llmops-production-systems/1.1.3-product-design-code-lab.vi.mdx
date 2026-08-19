@@ -1,0 +1,108 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'product-design-code-lab',
+  locale: 'vi',
+  title: "Lab: Xác lập Bài toán & Baseline",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Xây dựng Bộ khung Đánh giá Baseline',
+    'Triển khai Heuristic Rule-based Classifier',
+    'Đo lường & Phân tích Kết quả Baseline',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Heuristic', 'Baseline', 'Python', 'Scikit-learn'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ thiết lập một kịch bản bài toán phân loại nhãn dự án công nghệ (tương tự dataset của Made-With-ML). Chúng ta sẽ tự tay viết một **Rule-based Heuristic Baseline** và đo lường độ chính xác để làm mốc so sánh cho các mô hình Machine Learning ở các chương tiếp theo.
+
+<LessonNote tone="info">
+  **Bài toán mẫu:** Dự đoán tag của một bài viết công nghệ (`computer-vision`, `natural-language-processing`, `mlops`, `other`) dựa trên Tiêu đề (`title`) và Mô tả (`description`).
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Xây dựng Bộ khung Đánh giá Baseline
+
+Hãy tạo file kịch bản `baseline_eval.py` để định nghĩa cấu trúc dữ liệu và các hàm tính toán chỉ số F1, Precision, Recall cho từng phân lớp.
+
+```python
+import numpy as np
+import pandas as pd
+from sklearn.metrics import classification_report, precision_recall_fscore_support
+
+# Định nghĩa danh sách các nhãn mục tiêu
+CLASSES = ["computer-vision", "natural-language-processing", "mlops", "other"]
+
+def load_sample_dataset() -> pd.DataFrame:
+    """Tạo tập dữ liệu mẫu để thử nghiệm nhanh."""
+    data = [
+        {"title": "Object Detection with YOLOv8", "description": "Detecting cars and pedestrians in images.", "tag": "computer-vision"},
+        {"title": "Fine-tuning LLaMA 3 with LoRA", "description": "Instruction tuning for text generation.", "tag": "natural-language-processing"},
+        {"title": "Automating ML Pipelines with GitHub Actions", "description": "Continuous training and model deployment.", "tag": "mlops"},
+        {"title": "Introduction to Python async await", "description": "Asynchronous programming basics for web.", "tag": "other"},
+    ]
+    return pd.DataFrame(data)
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Triển khai Heuristic Rule-based Classifier
+
+Chúng ta tạo một bộ luật từ khóa (Keywords Lookup) đơn giản để phân loại văn bản mà không cần huấn luyện bất kỳ trọng số nào.
+
+```python
+class KeywordHeuristicClassifier:
+    """Mô hình phân loại dựa trên luật từ khóa xuất hiện trong văn bản."""
+    
+    def __init__(self):
+        self.rules = {
+            "computer-vision": ["image", "yolo", "detection", "cv", "segmentation", "cnn", "pixel"],
+            "natural-language-processing": ["text", "llama", "gpt", "nlp", "token", "translation", "bert"],
+            "mlops": ["pipeline", "deploy", "monitoring", "actions", "tracking", "mlflow", "docker"],
+        }
+    
+    def predict_one(self, text: str) -> str:
+        text_lower = text.lower()
+        for tag, keywords in self.rules.items():
+            if any(kw in text_lower for kw in keywords):
+                return tag
+        return "other"
+    
+    def predict(self, df: pd.DataFrame) -> list[str]:
+        full_text = df["title"] + " " + df["description"]
+        return [self.predict_one(t) for t in full_text]
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Đo lường & Phân tích Kết quả Baseline
+
+Chạy đánh giá bộ phân loại Heuristic và in ra báo cáo hiệu năng:
+
+```python
+if __name__ == "__main__":
+    df = load_sample_dataset()
+    clf = KeywordHeuristicClassifier()
+    
+    y_true = df["tag"].tolist()
+    y_pred = clf.predict(df)
+    
+    print("=== KẾT QUẢ HEURISTIC BASELINE ===")
+    print(classification_report(y_true, y_pred, target_names=CLASSES, zero_division=0))
+```
+
+<LessonNote tone="tip">
+  **Kết luận rút ra:** Heuristic baseline cung cấp cho chúng ta một chuẩn tối thiểu (ví dụ: F1-score đạt ~0.65 trên tập nhỏ). Khi chúng ta phát triển mô hình BERT/Transformers ở các chương sau, mô hình ML **phải đạt F1-score cao hơn đáng kể** thì mới chứng minh được giá trị triển khai!
+</LessonNote>
+
+</MdxPage>

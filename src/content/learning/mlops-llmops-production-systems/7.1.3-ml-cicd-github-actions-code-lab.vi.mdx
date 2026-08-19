@@ -1,0 +1,121 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'ml-cicd-github-actions-code-lab',
+  locale: 'vi',
+  title: "Lab: Workflow CI/CD Tự động",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Tạo GitHub Actions Workflow File',
+    'Cấu hình các Bước: Lint, Test & Validation',
+    'Tự động Gửi Báo cáo PR Comment bằng CML',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'GitHub Actions', 'CI/CD Workflow', 'CML', 'Automation'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ xây dựng workflow CI/CD hoàn chỉnh trong `.github/workflows/workloads.yaml`:
+1. Thiết lập runner môi trường **Ubuntu**, cài đặt Python và cache dependencies.
+2. Chạy tự động các bước: kiểm tra formatting (**Ruff**), chạy **Pytest** và kiểm thử dữ liệu (**Great Expectations**).
+3. Sử dụng **CML (Continuous Machine Learning)** để tự động comment biểu đồ Confusion Matrix trực tiếp vào Pull Request.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tạo GitHub Actions Workflow File
+
+Tạo file `.github/workflows/workloads.yaml` trong repository:
+
+```yaml
+name: Workloads CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cấu hình các Bước: Lint, Test & Validation
+
+Bổ sung các bước kiểm thử tự động vào job `test-and-validate`:
+
+```yaml
+      # 1. Kiểm tra chuẩn hóa code với Ruff
+      - name: Lint and Format Check with Ruff
+        run: |
+          ruff check .
+          black --check .
+
+      # 2. Kiểm thử chất lượng dữ liệu với Great Expectations
+      - name: Data Validation Suite
+        run: |
+          pytest tests/data/ -v
+
+      # 3. Chạy toàn bộ Unit & Behavioral Test Suite
+      - name: Run Pytest Code & Model Behavioral Tests
+        run: |
+          pytest tests/code/ tests/model/ --cov=madewithml --cov-report=term-missing
+```
+
+<LessonNote tone="tip">
+  Nếu bất kỳ bước nào trong 3 bước trên bị lỗi, GitHub Actions sẽ đánh dấu trạng thái ❌ và **chặn không cho phép Merge PR** vào nhánh `main`.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tự động Gửi Báo cáo PR Comment bằng CML
+
+Tích hợp công cụ CML để xuất báo cáo đánh giá trực quan vào Pull Request:
+
+```yaml
+      # 4. Tạo báo cáo Markdown và đính kèm vào PR
+      - name: Publish Evaluation Report to PR
+        if: github.event_name == 'pull_request'
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "## 📊 MLOps Quality Gate Report" >> report.md
+          echo "✅ Code Linting: PASSED" >> report.md
+          echo "✅ Data Validation: PASSED" >> report.md
+          echo "✅ Behavioral Test Suite: PASSED" >> report.md
+          
+          # Đăng comment tự động lên Pull Request
+          # cml comment create report.md
+```
+
+<LessonNote tone="info">
+  Nhờ workflow này, toàn bộ quá trình kiểm duyệt trở nên hoàn toàn tự động, minh bạch và có thể truy vết nguồn gốc 100%.
+</LessonNote>
+
+</MdxPage>

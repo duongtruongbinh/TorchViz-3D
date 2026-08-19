@@ -1,0 +1,94 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'model-behavioral-testing',
+  locale: 'vi',
+  title: "Kiểm thử Hành vi Mô hình",
+  headings: [
+    'Tại sao Metrics Truyền thống là Chưa đủ?',
+    'Khung Kiểm thử Hành vi CheckList (Ribeiro et al.)',
+    '3 Loại Kiểm thử Cốt lõi: INVe, DIR, MFT',
+    'Phát hiện Bias & Bảo vệ Mô hình trước Adversarial Attacks',
+  ],
+  keywords: ['MLOps', 'Behavioral Testing', 'CheckList', 'Invariance Test', 'Directional Test', 'MFT'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tại sao Metrics Truyền thống là Chưa đủ?
+
+Một mô hình đạt F1-score 94% trên tập test vẫn có thể bị "lừa" một cách ngớ ngẩn khi người dùng thay đổi một đại từ xưng hô, thêm dấu chấm câu, hoặc đổi tên riêng trong câu.
+
+<CourseCards
+  ariaLabel="So sánh Benchmark Test truyền thống và Behavioral Testing"
+  exampleLabel="Phương pháp kiểm thử"
+  takeawayLabel="Hạn chế & Ưu điểm"
+  items={[
+    {
+      title: 'Tập Test Cố định (Static Test Set)',
+      example: 'Chỉ đo F1/Accuracy trên một file CSV tĩnh chứa vài nghìn mẫu đã gán nhãn.',
+      takeaway: 'Không kiểm tra được độ nhạy cảm của mô hình với các biến thể nhỏ của ngôn ngữ tự nhiên.',
+    },
+    {
+      title: 'Kiểm thử Hành vi (Behavioral Testing / CheckList)',
+      example: 'Tạo các bài test có chủ đích (Unit Tests cho Model) để kiểm tra các khả năng ngôn ngữ chuyên biệt.',
+      takeaway: 'Chỉ ra chính xác lỗ hổng tư duy và tính thiên kiến (bias) của mô hình trước khi người dùng phát hiện ra.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khung Kiểm thử Hành vi CheckList (Ribeiro et al.)
+
+Khung kiểm thử **CheckList** (đoạt giải Best Paper tại ACL 2020) đề xuất chia bài kiểm thử hành vi mô hình thành ma trận năng lực ngôn ngữ và loại hình kiểm thử:
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc ma trận kiểm thử CheckList"
+  root={{ title: 'Behavioral Test Matrix', detail: 'Đánh giá mô hình như một phần mềm hoàn chỉnh theo các tính chất toán học' }}
+  children={[
+    { title: 'Invariance Test (INV - Bất biến)', detail: 'Thay đổi các yếu tố không liên quan nhưng dự đoán của mô hình KHÔNG ĐƯỢC thay đổi.' },
+    { title: 'Directional Expectation (DIR - Định hướng)', detail: 'Bổ sung thông tin có định hướng rõ ràng khiến xác suất đầu ra PHẢI thay đổi theo hướng xác định.' },
+    { title: 'Minimum Functionality Test (MFT - Chức năng tối thiểu)', detail: 'Các câu test đơn giản kiểm tra khả năng hiểu các trường hợp ranh giới cực kỳ rõ ràng.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## 3 Loại Kiểm thử Cốt lõi: INVe, DIR, MFT
+
+Hãy xem các ví dụ cụ thể cho bài toán phân loại chủ đề bài viết công nghệ:
+
+<ComparisonMatrix
+  ariaLabel="Chi tiết 3 loại kiểm thử hành vi trong NLP/MLOps"
+  rowHeaderLabel="Loại Kiểm thử"
+  columns={['Kịch bản Test mẫu', 'Kỳ vọng Hành vi']}
+  rows={[
+    { label: 'Invariance (INV)', values: ['Đổi tên tác giả: "PyTorch by John" -> "PyTorch by Alice".', 'Xác suất dự đoán nhãn `computer-vision` phải giữ nguyên (độ lệch < 0.05).'] },
+    { label: 'Directional (DIR)', values: ['Thêm từ khóa đặc trưng: "Build transformers" -> "Build transformers and deploy Docker on AWS".', 'Xác suất dự đoán nhãn `mlops` PHẢI TĂNG LÊN so với câu gốc.'] },
+    { label: 'Minimum Functionality (MFT)', values: ['Câu siêu ngắn: "Docker Kubernetes CI/CD pipeline".', 'Mô hình BẮT BUỘC phải đoán đúng 100% nhãn `mlops` với độ tự tin cao.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Phát hiện Bias & Bảo vệ Mô hình trước Adversarial Attacks
+
+Kiểm thử hành vi đóng vai trò lá chắn an toàn (Safety Guardrail) trong MLOps:
+
+<ConceptFlow
+  ariaLabel="Quy trình tích hợp Behavioral Testing vào CI/CD Gate"
+  items={[
+    { title: '1. Synthesize Test Suite', detail: 'Tự động sinh hàng trăm mẫu câu biến thể (typos, synonyms, named entities).' },
+    { title: '2. Measure Failure Rate', detail: 'Đo tỷ lệ dự đoán sai trên từng nhóm bài test hành vi.' },
+    { title: '3. Hard Failure Threshold', detail: 'Nếu tỷ lệ trượt MFT > 0% hoặc INV Failure Rate > 5%, chặn không cho phát hành mô hình.' },
+  ]}
+/>
+
+</MdxPage>

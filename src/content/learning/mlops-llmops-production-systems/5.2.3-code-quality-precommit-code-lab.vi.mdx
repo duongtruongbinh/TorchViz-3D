@@ -1,0 +1,110 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'code-quality-precommit-code-lab',
+  locale: 'vi',
+  title: "Lab: Cấu hình Pre-commit",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Tạo Cấu hình .pre-commit-config.yaml',
+    'Cài đặt Git Hook Scripts',
+    'Kiểm tra Thủ công trên Toàn bộ Files (All Files)',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Pre-commit', '.pre-commit-config.yaml', 'Ruff', 'Black'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ:
+1. Tạo file cấu hình `.pre-commit-config.yaml` cho repository.
+2. Tích hợp các hooks chuẩn: `trailing-whitespace`, `check-yaml`, `ruff` và `black`.
+3. Cài đặt pre-commit hooks vào Git và chạy kiểm thử trên toàn bộ codebase.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tạo Cấu hình .pre-commit-config.yaml
+
+Tạo file `.pre-commit-config.yaml` ở thư mục gốc của repository:
+
+```yaml
+repos:
+  # 1. Các kiểm tra cơ bản về khoảng trắng và định dạng file
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000'] # Chặn file > 1MB không qua DVC
+
+  # 2. Linter và Formatter siêu tốc với Ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.287
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # 3. Chuẩn hóa định dạng mã nguồn với Black
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+      - id: black
+        args: [--line-length=100]
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cài đặt Git Hook Scripts
+
+Cài đặt package `pre-commit` và gắn hook vào Git lifecycle:
+
+```bash
+# Cài đặt thư viện pre-commit qua pip
+pip install pre-commit
+
+# Gắn script hook vào thư mục .git/hooks/
+pre-commit install
+
+# Đảm bảo cài đặt thành công
+pre-commit --version
+```
+
+<LessonNote tone="tip">
+  Lệnh `pre-commit install` chỉ cần chạy **1 lần duy nhất** sau khi bạn clone repository về máy trạm.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kiểm tra Thủ công trên Toàn bộ Files (All Files)
+
+Chạy kiểm tra và tự động sửa lỗi cho toàn bộ các file trong dự án:
+
+```bash
+# Chạy quét và tự động định dạng toàn bộ repository
+pre-commit run --all-files
+```
+
+Kết quả mong đợi:
+```text
+trim trailing whitespace.................................................Passed
+fix end of files.........................................................Passed
+check yaml...............................................................Passed
+check for added large files..............................................Passed
+ruff.....................................................................Passed
+black....................................................................Passed
+```
+
+<LessonNote tone="info">
+  Từ nay, mỗi khi bạn gõ `git commit`, các hook này sẽ tự động chạy trong nền và đảm bảo codebase luôn sạch đẹp 100%.
+</LessonNote>
+
+</MdxPage>

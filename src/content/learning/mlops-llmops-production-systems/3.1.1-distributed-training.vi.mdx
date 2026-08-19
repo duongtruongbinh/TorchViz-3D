@@ -1,0 +1,131 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'distributed-training',
+  locale: 'vi',
+  title: "Huấn luyện Phân tán",
+  headings: [
+    'Tại sao cần Huấn luyện Phân tán?',
+    'Phân loại: Data Parallelism vs Model Parallelism',
+    'Kiến trúc Distributed Data Parallel (DDP)',
+    'Tối ưu Tốc độ: Mixed Precision Training (FP16/BF16)',
+    'Nguyên lý Mở rộng & Độc lập Công cụ (Scaling Efficiency & DDP Invariants)',
+  ],
+  keywords: ['MLOps', 'Distributed Training', 'PyTorch DDP', 'Ray Train', 'Mixed Precision', 'GPU', 'Scaling Efficiency', 'Tool Independence'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Tại sao cần Huấn luyện Phân tán?
+
+Khi kích thước mô hình (số lượng tham số) và dung lượng dữ liệu tăng lên hàng triệu mẫu, việc huấn luyện trên một GPU đơn lẻ sẽ mất hàng tuần hoặc gặp lỗi tràn bộ nhớ (Out-Of-Memory).
+
+<CourseCards
+  ariaLabel="Hai nút thắt chính khi huấn luyện mô hình lớn"
+  exampleLabel="Nút thắt gặp phải"
+  takeawayLabel="Giải pháp phân tán"
+  items={[
+    {
+      title: 'Nút thắt Bộ nhớ (Memory Bottleneck)',
+      example: 'Weights mô hình, gradients và trạng thái optimizer (AdamW) vượt quá 24GB/80GB VRAM của 1 GPU.',
+      takeaway: 'Cần chia nhỏ mô hình (Model Parallelism / ZeRO / FSDP) qua nhiều GPU.',
+    },
+    {
+      title: 'Nút thắt Thời gian (Compute Bottleneck)',
+      example: 'Tập dữ liệu quá lớn khiến 1 GPU cần 20 ngày mới chạy xong 10 epochs.',
+      takeaway: 'Phân chia dữ liệu (Data Parallelism) để nhiều GPU cùng tính toán song song, rút ngắn thời gian xuống còn vài giờ.',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  Mục tiêu chính của huấn luyện phân tán trong MLOps là **rút ngắn chu kỳ thử nghiệm (iteration velocity)** để kỹ sư có thể thử nhiều giả thuyết hơn trong thời gian ngắn hơn.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phân loại: Data Parallelism vs Model Parallelism
+
+Có hai chiến lược phân tán mô hình cốt lõi tùy thuộc vào kích thước mạng nơ-ron và bộ nhớ phần cứng:
+
+<ComparisonMatrix
+  ariaLabel="So sánh Data Parallelism và Model Parallelism"
+  rowHeaderLabel="Phương thức Phân tán"
+  columns={['Cơ chế hoạt động', 'Khi nào áp dụng?']}
+  rows={[
+    { label: 'Data Parallelism (DDP)', values: ['Sao chép toàn bộ mô hình lên từng GPU; mỗi GPU xử lý một phần dữ liệu (sharded batch) rồi đồng bộ gradient.', 'Mô hình vừa vặn trong VRAM của 1 GPU nhưng dữ liệu rất lớn.'] },
+    { label: 'Model / Tensor Parallelism', values: ['Cắt nhỏ các lớp nơ-ron hoặc ma trận trọng số qua nhiều GPU; mỗi GPU chỉ giữ một phần mô hình.', 'Mô hình quá lớn (LLM hàng chục/hàng trăm tỷ tham số) không thể đặt vừa 1 GPU đơn lẻ.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kiến trúc Distributed Data Parallel (DDP)
+
+Trong PyTorch và Ray Train, **DistributedDataParallel (DDP)** là chuẩn mực vàng cho Data Parallelism nhờ khả năng đồng bộ gradient hiệu quả:
+
+<ConceptFlow
+  ariaLabel="Vòng lặp tính toán và đồng bộ trong PyTorch DDP"
+  items={[
+    { title: '1. Sharded Batch Forward', detail: 'Mỗi GPU worker nhận một phần batch dữ liệu riêng biệt và tính toán forward pass độc lập.' },
+    { title: '2. Local Backward Pass', detail: 'Từng worker tự động tính toán đạo hàm gradient cục bộ trên phần dữ liệu của mình.' },
+    { title: '3. All-Reduce Ring Synchronization', detail: 'Các GPU trao đổi và tính trung bình cộng gradients thông qua thuật toán Ring All-Reduce tốc độ cao.' },
+    { title: '4. Optimizer Step', detail: 'Tất cả GPU cùng cập nhật trọng số mới đồng nhất trước khi bước sang batch tiếp theo.' },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Nhờ Ring All-Reduce, băng thông truyền thông tin giữa các GPU được tối ưu hóa, tránh hiện tượng nghẽn cổ chai tại một Master node trung tâm.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tối ưu Tốc độ: Mixed Precision Training (FP16/BF16)
+
+Mặc định, PyTorch tính toán ở độ chính xác đơn **Float32 (32-bit)**. Chuyển sang **Mixed Precision (FP16 hoặc BF16)** giúp tăng tốc độ huấn luyện gấp 2-3 lần.
+
+<CourseCards
+  ariaLabel="Lợi ích của Mixed Precision Training"
+  exampleLabel="Cơ chế kỹ thuật"
+  takeawayLabel="Lợi ích thực tế"
+  items={[
+    {
+      title: 'Giảm 50% Bộ nhớ VRAM',
+      example: 'Mỗi trọng số và activation chỉ tốn 2 bytes (16-bit) thay vì 4 bytes (32-bit).',
+      takeaway: 'Cho phép tăng gấp đôi Batch Size, giúp huấn luyện ổn định và tận dụng tối đa GPU.',
+    },
+    {
+      title: 'Tận dụng Tensor Cores',
+      example: 'Các GPU hiện đại (NVIDIA A100, H100, RTX) có nhân Tensor Cores chuyên dụng xử lý ma trận 16-bit cực nhanh.',
+      takeaway: 'Tăng tốc độ xử lý phép nhân ma trận lên gấp nhiều lần so với chỉ dùng nhân CUDA thông thường.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Nguyên lý Mở rộng & Độc lập Công cụ (Scaling Efficiency & DDP Invariants)
+
+Hiểu rõ ranh giới giữa thư viện điều phối (Ray Train) và tầng truyền thông phần cứng (PyTorch DDP / NCCL):
+
+<ComparisonMatrix
+  ariaLabel="Phân biệt trách nhiệm và các nút thắt hiệu năng phân tán"
+  rowHeaderLabel="Khái niệm cốt lõi"
+  columns={['Bản chất Cơ chế', 'Hệ quả Thực tế & Chẩn đoán Sự cố']}
+  rows={[
+    { label: 'PyTorch DDP vs Ray Train', values: ['PyTorch DDP quản lý all-reduce gradients giữa các process GPU; Ray Train quản lý worker lifecycle, resource allocation và fault tolerance.', 'Ray Train không thay thế PyTorch DDP mà bọc quanh nó để tự động hóa việc setup cluster và điều phối tài nguyên.'] },
+    { label: 'Effective Batch Size', values: ['Effective Batch Size = (Per-GPU Batch Size) × (Số lượng GPUs) × (Gradient Accumulation Steps).', 'Nếu tăng GPU mà không điều chỉnh Learning Rate tương ứng (Linear Scaling Rule), mô hình có thể không hội tụ.'] },
+    { label: 'GPU Starvation (GPU bị đói dữ liệu)', values: ['DataLoader CPU nạp dữ liệu chậm hơn tốc độ tính toán ma trận của GPU.', 'Dẫn tới hiện tượng GPU Utilization thấp (<30%) dù máy đang chạy 100% công suất CPU do I/O bottleneck.'] },
+    { label: 'Scaling Efficiency < 100%', values: ['Thời gian truyền thông (Communication overhead) qua mạng tăng dần khi tăng số node.', 'Tăng gấp đôi GPU không bao giờ giúp tăng tốc độ 200% do chi phí đồng bộ gradients qua mạng liên-node (Inter-node Network).'] },
+  ]}
+/>
+
+</MdxPage>
