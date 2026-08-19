@@ -1,58 +1,99 @@
 # TorchViz-3D
 
-**TorchViz-3D turns PyTorch-style `nn.Module` code into interactive 3D neural
-network architecture diagrams, entirely in the browser.**
+**An interactive browser-based environment for exploring neural network architectures in 3D and learning the mathematics and AI concepts behind them.**
 
-[![React](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=111)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=fff)](https://vite.dev/)
-[![Pyodide](https://img.shields.io/badge/Pyodide-WASM-2f6f9f)](https://pyodide.org/)
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=111)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178c6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=fff)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?logo=tailwindcss&logoColor=fff)](https://tailwindcss.com/)
 [![Three.js](https://img.shields.io/badge/Three.js-R3F-000?logo=threedotjs&logoColor=fff)](https://threejs.org/)
+[![Pyodide](https://img.shields.io/badge/Pyodide-WASM-2f6f9f)](https://pyodide.org/)
 
-No backend. No model upload. No real PyTorch runtime. TorchViz-3D runs a
-shape-only `torchstub` inside Pyodide, traces your model into an intermediate
-graph, lays it out, and renders it as an explorable 3D scene.
+No backend. No model upload. No heavy server runtime. TorchViz-3D interprets PyTorch-style `nn.Module` code in-browser using Pyodide and a shape-oriented `torchstub`, traces the network into an intermediate graph, and renders it as an interactive 3D scene alongside a rich, interactive Learning Lab.
 
-![TorchViz-3D interface showing the editor, 3D architecture canvas, layer explorer, and build terminal](docs/assets/torchviz-studio-screenshot.png)
+<p align="center">
+  <img src="docs/assets/torchviz-workspace.png" alt="TorchViz-3D workspace showing PyTorch source editor, interactive 3D model graph, and layer inspector" />
+</p>
 
-## What It Does
 
-- **Visualize PyTorch-like models** from `nn.Module` source code in a Monaco editor.
-- **Render architecture as 3D blocks** with channels, spatial sizes, nested modules, and skip/concat edges.
-- **Trace safely in-browser** using Pyodide and a fake shape-only `torch.nn`; your code stays local.
-- **Inspect model structure** through a layer tree, parameter counts, hover/select sync, and terminal output.
-- **Catch shape problems inline** by highlighting the failed layer instead of only throwing a traceback.
-- **Start from built-in templates** including LeNet-5, Mini-ResNet, Mini-ViT, AlexNet, VGG-16, MobileNetV2, and UNet.
-- **Export diagrams** as publication-friendly SVG or screen PNG.
-- **Explore compatible demos** with MNIST/data-flow overlays and focused learning exercises.
+## Overview
+
+TorchViz-3D brings together two integrated capabilities accessible from the unified landing hub:
+
+1. **TorchViz Workspace** — A browser-native 3D modeling and inspection environment for PyTorch neural network architectures.
+2. **Learning Lab** — An interactive, domain-driven learning environment covering core mathematics, machine learning foundations, computer vision, and AI engineering.
+
+<p align="center">
+  <img src="docs/assets/torchviz-landing.png" alt="TorchViz-3D landing hub showing neural pipeline flow visualizer and direct navigation" />
+</p>
+
+
+## Features
+
+### TorchViz Workspace
+
+- **Edit PyTorch-style models** directly in an integrated Monaco code editor.
+- **Trace architectures in-browser** using Pyodide (WASM) and `torchstub` without running a Python backend or uploading code.
+- **Visualize in interactive 3D** with Three.js and React Three Fiber, showing tensor spatial dimensions, channel depths, skip/residual connections, and hierarchical container grouping.
+- **Inspect layer structures** with parameter breakdowns, node selection sync with editor code, and terminal build logs.
+- **Inline shape validation** highlights mismatched layers directly on the canvas and in the terminal.
+- **Built-in architecture templates** include LeNet-5, Mini-ResNet, Mini-ViT, AlexNet, VGG-16, MobileNetV2, and UNet.
+- **Export diagrams** as publication-ready vector SVG or screen PNG.
+
+### Learning Lab
+
+- **Curriculum organized by AI domain**, materialized from typed, React-free Tables of Contents (TOC).
+- **Rich authored MDX lessons** featuring live KaTeX mathematical formatting and interactive visualizations.
+- **Interactive mathematical visualizers** (Cartesian vectors, matrix operations, systems of linear equations, eigenspaces, PCA, and SVD) powered by Mafs.
+- **Capability-gated lazy loading**: Reference citation tools (`Cite`, `PaperSummary`) and domain adapters load on demand without bloating the initial bundle.
+- **Structured assessments & search**: In-lesson quizzes, interactive shape exercises, and fast per-domain search.
+
+<p align="center">
+  <img src="docs/assets/learning-lab-catalog.png" alt="TorchViz-3D Learning Lab domain catalog and interactive curriculum index" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/learning-lab-continual-learning.png" alt="Learning Lab Continual Learning for LLMs overview lesson with conceptual illustrations and curriculum navigation" />
+</p>
+
 
 ## How It Works
 
+### Workspace Architecture
+
 ```mermaid
 flowchart LR
-  A["EditorPane<br/>Monaco source"] --> B["Zustand store<br/>code + input shape"]
-  B --> C["WorkerService<br/>requestId guard"]
-  C --> D["Web Worker<br/>Pyodide + torchstub"]
-  D --> E["IRGraph JSON<br/>nodes, edges, stats"]
-  E --> F["computeLayout<br/>3D positions + routes"]
-  F --> G["Canvas3D<br/>React Three Fiber"]
-  F --> H["SVG / PNG export"]
+  A["PyTorch nn.Module<br/>(Monaco Editor)"] --> B["WorkerService<br/>(requestId guard)"]
+  B --> C["Pyodide Web Worker<br/>+ torchstub"]
+  C --> D["IRGraph JSON<br/>(nodes, edges, shapes)"]
+  D --> E["Layout Engine<br/>(3D positions + routes)"]
+  E --> F["Canvas3D<br/>(React Three Fiber)"]
+  E --> G["SVG / PNG Export"]
 ```
 
-The core trick is `torchstub`: a small fake `torch.nn` package that computes
-output shapes and parameter counts without tensor math. It is enough information
-to draw the architecture, while staying light enough to run in a browser.
+The core technique is **`torchstub`** (`src/lib/python_sources.ts`), a lightweight Python module that intercepts PyTorch `torch.nn` layer calls to perform shape inference and parameter counting without tensor arithmetic. This produces a clean Intermediate Representation (`IRGraph`) that the layout engine turns into a 3D isometric scene.
 
-## Try It Locally
+### Learning Lab Pipeline
+
+```text
+Typed Domain TOCs
+  → React-Free Catalog (materializeCatalog)
+  → Route Resolution & Selectors
+  → Locale-Authored MDX
+  → Capability-Gated Domain & Reference Renderers
+```
+
+Content navigation is decoupled from UI rendering. Navigation metadata lives in typed TOCs, authored content lives in locale-specific MDX files, and domain-specific visual components are loaded dynamically only when requested.
+
+
+## Quick Start
 
 ### Requirements
 
-- Node.js 20 or newer.
-- A desktop browser; the workspace is designed for screens at least 1024px wide.
-- Internet access is optional for the app runtime; external lesson references
-  still require a connection when opened.
+- **Node.js**: LTS version (Node 20+ recommended).
+- **Browser**: Modern desktop browser supporting WebGL and WebAssembly (screen width &ge; 1024px recommended for the 3D workspace).
 
-### Run
+### Installation & Run
 
 ```bash
 git clone https://github.com/duongtruongbinh/TorchViz-3D.git
@@ -61,29 +102,64 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`, pick a template or edit the model, then click
-**Visualize** or press `Ctrl/Cmd+Enter`.
+Open `http://localhost:3000` in your browser. From the landing page, choose **Workspace** to design 3D models or **Learning Lab** to explore the interactive curriculum.
 
-## Development
 
-```bash
-npm test         # node --test on src/lib/*.test.ts
-npm run build    # production build in dist/
-npm run verify   # typecheck + tests + build
-```
+## Development Commands
 
-The main runtime pipeline is:
+| Command | Purpose |
+| :--- | :--- |
+| `npm run dev` | Start Vite development server (`http://localhost:3000`) |
+| `npm run typecheck` | Run TypeScript type checks (`tsc --noEmit`) |
+| `npm test` | Run the Node test suite (`src/lib/*.test.ts`) |
+| `npm run build` | Build production bundle in `dist/` |
+| `npm run verify` | Full verification pipeline (`typecheck` + `test` + `build`) |
+| `npm run preview` | Preview production build locally |
+
+
+## Tech Stack
+
+- **Framework & Language**: React 19 · TypeScript 6 · Vite 8 · Tailwind CSS 4
+- **3D & Graphics**: Three.js · React Three Fiber · Drei · Lucide Icons
+- **In-Browser Execution**: Pyodide (Python on WebAssembly) · `torchstub` shape tracer
+- **Editor & Content**: Monaco Editor · MDX · KaTeX · Mafs · Shiki · Floating UI
+- **State Management**: Zustand · React Router
+
+
+## Project Structure
 
 ```text
-EditorPane -> zustand store -> WorkerService -> Pyodide worker + torchstub
-  -> IRGraph -> computeLayout -> Canvas3D
+src/
+├── components/
+│   ├── landing/          # Landing entry surface and flow visualizer
+│   ├── workspace/        # 3D workspace, Monaco editor pane, and inspector
+│   ├── canvas/           # Three.js / React Three Fiber 3D scene
+│   └── learning/         # Learning Lab shell, MDX registry, and domain adapters
+├── content/learning/     # Typed domain TOCs and locale-authored MDX lessons
+├── core/learning/        # React-free catalog contracts, materialization, and selectors
+├── lib/                  # Layout engine, IR types, SVG export, and route helpers
+├── store/                # Zustand stores for workspace state and preferences
+├── templates/            # Built-in PyTorch architecture templates
+└── workers/              # Pyodide Web Worker and torchstub Python source
+
+docs/                     # Architecture specifications, torchstub guide, and workflow plans
+wiki/                     # OKF knowledge bundle (concepts, subsystem guides, gotchas)
+scripts/                  # MDX validators, search generators, and build projections
 ```
+
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md) - full data flow, IR contract, layout engine, and rendering notes.
-- [Extending torchstub](docs/TORCHSTUB.md) - add support for more PyTorch layers.
-- [Knowledge bundle](wiki/index.md) - structured subsystem docs, guides, and gotchas.
-- [Workflow](docs/WORKFLOW.md) - required contribution workflow and plan format.
-- [Learning Lab](wiki/concepts/learning-lab.md) - active typed-TOC, locale-MDX, routing, Review, and exercise architecture.
-- [Learning Lab migration record](docs/plans/2026-07-14-approved-llm-lessons-mdx-migration.md) - current content-pipeline decisions and execution history.
+- [Architecture Guide](docs/ARCHITECTURE.md) — Detailed data flow, IR contract, layout algorithms, and renderer notes.
+- [Extending torchstub](docs/TORCHSTUB.md) — How to add shape inference for new PyTorch operations.
+- [Learning Lab Architecture](wiki/concepts/learning-lab.md) — UI ownership layers, component reuse rules, and MDX authoring contract.
+- [Knowledge Bundle](wiki/index.md) — Subsystem documentation, guides, and gotchas.
+- [Workflow Guide](docs/WORKFLOW.md) — Mandatory task workflow and stored plan rules.
+- [Contributing](CONTRIBUTING.md) — Development setup and contribution guidelines.
+
+
+## Scope & Notes
+
+- **Shape-Oriented Tracing:** TorchViz-3D computes layer output dimensions and parameter counts for architectural visualization; it does not execute full tensor mathematical backends.
+- **Workspace Layout:** The 3D modeling workspace is designed for desktop viewports (&ge; 1024px).
+- **Curriculum Coverage:** Learning Lab organizes curriculum across multiple AI domains; authored lesson depth varies by domain with explicit placeholder indicators for unpublished topics.
