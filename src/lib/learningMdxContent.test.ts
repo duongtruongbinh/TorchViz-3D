@@ -65,12 +65,30 @@ test('linear-algebra MDX filenames mirror chapter and TOC order', () => {
   assert.deepEqual(actualFilenames.sort(), expectedFilenames.sort());
 });
 
+test('mlops-llmops-production-systems MDX filenames mirror chapter and TOC order', () => {
+  const tracks = learningCatalog.tracks.filter((track) => track.domainId === 'mlops-llmops-production-systems');
+  const expectedFilenames = tracks.flatMap((track, trackIndex) => {
+    const chapterNum = trackIndex + 1;
+    return track.lessonIds.map((lessonId, nodeIndex) => {
+      const topicIndex = Math.floor(nodeIndex / 3) + 1;
+      const nodeNum = (nodeIndex % 3) + 1;
+      return `${chapterNum}.${topicIndex}.${nodeNum}-${lessonId}.vi.mdx`;
+    });
+  });
+  const actualFilenames = lessonFiles
+    .filter((file) => parseLearningMdxPath(file)?.domainId === 'mlops-llmops-production-systems')
+    .map((file) => file.replaceAll('\\', '/').split('/').at(-1));
+
+  assert.deepEqual(actualFilenames.sort(), expectedFilenames.sort());
+});
+
 test('every Learning Lab MDX file follows the generic catalog, locale, metadata, and component contract', async () => {
-  assert.equal(lessonFiles.length, 244);
+  assert.equal(lessonFiles.length, publishedLessonIds.length);
+  assert.ok(lessonFiles.length > 0);
   assert.ok(lessonFiles.every((file) => file.endsWith('.vi.mdx')));
   assert.deepEqual(lessonFiles.map((file) => parseLearningMdxPath(file)?.lessonId).sort(), publishedLessonIds.sort());
   const documents = await validateLearningMdxFiles(lessonFiles, learningCatalog);
-  assert.equal(documents.length, 244);
+  assert.equal(documents.length, lessonFiles.length);
   const requirements = documents.find((document) => document.lessonId === 'minimal-llm-project-skeleton')?.text ?? '';
   for (const requirement of ['Google Colab', 'Python', 'uv', 'VSCode']) assert.match(requirements, new RegExp(requirement));
 });
@@ -511,6 +529,32 @@ test('generic validation rejects unknown catalog nodes, metadata drift, and dupl
   await assert.rejects(() => validateLearningMdxSource(`export const lessonMetadata = ${validMetadata}`, 'src/content/learning/cv/missing.vi.mdx', catalog), /lesson does not exist/);
   await assert.rejects(() => validateLearningMdxSource(`export const lessonMetadata = ${validMetadata}`, 'src/content/learning/cv/convolution-basics.en.mdx', catalog), /metadata does not match/);
   await assert.rejects(() => validateLearningMdxFiles([lessonFiles[0], lessonFiles[0]], learningCatalog), /duplicate lesson locale/);
+});
+
+test('all published quiz MDX files have valid questions with correct options matching mode', async () => {
+  const quizFiles = lessonFiles.filter((file) => file.includes('-quiz.'));
+  assert.ok(quizFiles.length > 0);
+
+  for (const file of quizFiles) {
+    const inspection = await inspectLearningMdx(readFileSync(file, 'utf8'), file);
+    if (!inspection.quizQuestions.length) continue;
+
+    assert.ok(inspection.quizQuestions.length >= 1, `${file} should have at least 1 question`);
+
+    for (const q of inspection.quizQuestions) {
+      if (q.mode === 'order' || q.mode === 'categorize') {
+        assert.ok(q.optionCount >= 2, `${q.mode} question ${q.id} in ${file} must have >= 2 options`);
+      } else if (q.mode === 'multi') {
+        assert.ok(q.correctOptionIndexes.length >= 1, `Multi question ${q.id} in ${file} must have at least 1 correct answer`);
+      } else {
+        assert.equal(
+          q.correctOptionIndexes.length,
+          1,
+          `Single-choice question ${q.id} in ${file} must have exactly one correct answer (found ${q.correctOptionIndexes.length})`,
+        );
+      }
+    }
+  }
 });
 
 test('shared lesson assembly and search contain no LLM-specific branch or import', () => {
