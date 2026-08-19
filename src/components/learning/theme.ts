@@ -2,6 +2,7 @@ import type { LearningLessonStatus } from '../../core/learning/types';
 
 export type LearningLabTheme = 'dark' | 'light';
 export type LearningRailLessonTone = 'selected' | 'past' | 'future' | 'quiet';
+export type LearningSemanticTone = 'primary' | 'success' | 'warning' | 'danger' | 'accent' | 'neutral';
 
 export function cx(...classes: Array<string | false | null | undefined>): string {
   return classes.filter(Boolean).join(' ');
@@ -148,6 +149,51 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     note: isLight ? 'bg-[#F1F8F4] text-[#263B5B]' : 'bg-[#A8D4FF]/10 text-[#D7EAFE]',
   };
 
+  const semantic = {
+    primary: {
+      surface: isLight ? 'bg-[#EAF2FA]' : 'bg-[#17304A]',
+      border: isLight ? 'border-[#205089]/20' : 'border-[#A8D4FF]/25',
+      text: isLight ? 'text-[#123B68]' : 'text-[#A8D4FF]',
+      strongText: isLight ? 'text-[#0A3A6A]' : 'text-[#9ED4FF]',
+      indicator: isLight ? 'bg-[#205089]' : 'bg-[#7FB4E5]',
+    },
+    success: {
+      surface: isLight ? 'bg-emerald-50/70' : 'bg-emerald-950/40',
+      border: isLight ? 'border-emerald-300/80' : 'border-emerald-500/30',
+      text: isLight ? 'text-emerald-700' : 'text-emerald-300',
+      strongText: isLight ? 'text-emerald-800' : 'text-emerald-200',
+      indicator: isLight ? 'bg-[#2E8A5A]' : 'bg-[#6ED39B]',
+    },
+    warning: {
+      surface: isLight ? 'bg-[#FFF8D8]' : 'bg-[#F4C84A]/10',
+      border: isLight ? 'border-[#D5B43A]/35' : 'border-[#F4C84A]/24',
+      text: isLight ? 'text-[#263B5B]' : 'text-[#F2F6FA]',
+      strongText: isLight ? 'text-[#80520D]' : 'text-[#F0BE62]',
+      indicator: isLight ? 'bg-[#D5962F]' : 'bg-[#F0BE62]',
+    },
+    danger: {
+      surface: isLight ? 'bg-rose-50/70' : 'bg-rose-950/40',
+      border: isLight ? 'border-rose-300/80' : 'border-rose-500/30',
+      text: isLight ? 'text-rose-700' : 'text-rose-300',
+      strongText: isLight ? 'text-rose-800' : 'text-rose-200',
+      indicator: isLight ? 'bg-[#C45151]' : 'bg-[#EE8C8C]',
+    },
+    accent: {
+      surface: isLight ? 'bg-[#FFF9EE]' : 'bg-[#E8AF3E]/10',
+      border: isLight ? 'border-[#D5962F]/30' : 'border-[#E8AF3E]/25',
+      text: isLight ? 'text-[#80520D]' : 'text-[#FFD071]',
+      strongText: isLight ? 'text-[#442800]' : 'text-[#FFD071]',
+      indicator: isLight ? 'bg-[#D5962F]' : 'bg-[#F0BE62]',
+    },
+    neutral: {
+      surface: isLight ? 'bg-[#F8FAFC]' : 'bg-[#121A24]/42',
+      border: isLight ? 'border-[#205089]/14' : 'border-[#A8B8C8]/18',
+      text: isLight ? 'text-[#64748B]' : 'text-[#F2F6FA]/70',
+      strongText: isLight ? 'text-[#182A3C]' : 'text-[#D0DCE8]',
+      indicator: isLight ? 'bg-[#8092A6]' : 'bg-[#8EA1B5]',
+    },
+  };
+
   return {
     isLight,
     radius,
@@ -155,6 +201,7 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     button,
     rail,
     sectionAccent,
+    semantic,
     page: isLight ? 'learning-lab-light bg-[#D3DEEA] text-[#172A43]' : 'bg-[#121A24] text-[#F2F6FA]',
     content: isLight ? 'learning-lab-surface-content bg-[#D3DEEA]' : 'bg-[#121A24]',
     sidebar: isLight

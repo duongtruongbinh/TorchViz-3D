@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement } from 'react';
+import { lazy, Suspense, type ComponentType, type ReactElement } from 'react';
 
 import {
   getLearningMdxLocaleCandidates,
@@ -14,12 +14,15 @@ import type { QuizQuestionState } from './lesson/QuizBlock';
 import {
   LearningMdxLessonProvider,
   LearningMdxThemeProvider,
-  LessonReferences,
   sharedLearningMdxComponents,
   type LearningMdxComponent,
   type LearningReferencePaper,
   type LearningThemeClasses,
 } from './learningMdxComponents';
+
+const LazyLessonReferences = lazy(() => (
+  import('./learningMdxReferences').then(({ LessonReferences }) => ({ default: LessonReferences }))
+));
 
 type CompiledMdxComponent = ComponentType<{ components?: Record<string, LearningMdxComponent> }>;
 type MdxModule = {
@@ -66,12 +69,21 @@ const lessonModuleDescriptors = Object.keys(LESSON_LOADERS)
   });
 const lessonModulePromises = new Map<string, Promise<MdxModule>>();
 const domainComponentPromises = new Map<LearningDomainId, Promise<Record<string, LearningMdxComponent>>>();
+let referenceComponentsPromise: Promise<Record<string, LearningMdxComponent>> | null = null;
 
 const domainMdxComponentLoaders: Partial<Record<LearningDomainId, () => Promise<Record<string, LearningMdxComponent>>>> = {
   cv: () => import('./domains/cv/mdxComponents').then(({ cvMdxComponents }) => cvMdxComponents),
+  'continual-learning-llm': () => import('./domains/continual-learning-llm/mdxComponents').then(({ continualLearningLlmMdxComponents }) => continualLearningLlmMdxComponents),
   'llm-ai-engineering': () => import('./domains/llm-ai-engineering/mdxComponents').then(({ llmMdxComponents }) => llmMdxComponents),
   'linear-algebra': () => import('./domains/linear-algebra/mdxComponents').then(({ linearAlgebraMdxComponents }) => linearAlgebraMdxComponents),
 };
+
+function loadLearningReferenceComponents(): Promise<Record<string, LearningMdxComponent>> {
+  if (!referenceComponentsPromise) {
+    referenceComponentsPromise = import('./learningMdxReferences').then(({ referenceLearningMdxComponents }) => referenceLearningMdxComponents);
+  }
+  return referenceComponentsPromise;
+}
 
 export async function loadLearningMdxLesson({
   fallbackLocales = [],
@@ -97,13 +109,16 @@ export async function loadLearningMdxLesson({
 
   const module = await loadLessonModule(selectedModule.filePath);
   assertSelectedLearningMdxModule(module, selectedModule, lesson);
-  const [domainComponents, referenceRuntime] = await Promise.all([
+  const [domainComponents, referenceRuntime, referenceComponents] = await Promise.all([
     module.lessonRuntime.needsDomainAdapter
       ? loadDomainMdxComponents(lesson.domainId)
       : Promise.resolve({}),
     module.lessonRuntime.needsReferenceRuntime
       ? loadLearningReferenceRuntime(lesson.domainId, lesson.id)
       : Promise.resolve(emptyLearningReferenceRuntime()),
+    module.lessonRuntime.needsReferenceRuntime
+      ? loadLearningReferenceComponents()
+      : Promise.resolve({}),
   ]);
 
   return {
@@ -112,7 +127,7 @@ export async function loadLearningMdxLesson({
     locale: selectedModule.locale,
     pageCount: module.lessonMetadata.pageCount ?? 1,
     Content: module.default,
-    components: { ...sharedLearningMdxComponents, ...domainComponents },
+    components: { ...sharedLearningMdxComponents, ...referenceComponents, ...domainComponents },
     entryPoints: lesson.entryPoints,
     ...referenceRuntime,
   };
@@ -141,7 +156,9 @@ export function getLearningMdxLesson({ loadedLesson, language, quizQuestionState
     <LearningMdxThemeProvider key={`${domainId}-${lessonId}-references`} themeClasses={themeClasses}>
       <LearningMdxLessonProvider domainId={domainId} lessonId={lessonId} language={language} pageIndex={lesson.pageCount} entryPoints={lesson.entryPoints} referencePapers={lesson.referencePapers} featuredReferenceIds={lesson.featuredReferenceIds} referenceCourseAnalysis={referenceCoverage.courseAnalysis} quizQuestionStates={quizQuestionStates} onQuizQuestionStateChange={onQuizQuestionStateChange}>
         <div className="learning-mdx-content">
-          <LessonReferences />
+          <Suspense fallback={null}>
+            <LazyLessonReferences />
+          </Suspense>
         </div>
       </LearningMdxLessonProvider>
     </LearningMdxThemeProvider>

@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { InlineMath, useLearningMdxTheme } from '../../../learningMdxComponents';
+import { useLearningMdxTheme } from '../../../learningMdxComponents';
+import { cx } from '../../../theme';
 import { getMathVisualTheme } from '../theme';
-import { MatrixBracket, MatrixNameLabel, getMatrixSizeClasses } from './matrixPrimitives';
+import { MatrixCell, MatrixFrame, MatrixNameLabel, getMatrixCellClasses, getMatrixSizeClasses } from './matrixPrimitives';
 
 export interface MatrixGridProps {
   name?: string | ReactNode;
@@ -46,11 +47,7 @@ export function MatrixGrid({
     >
       {name && <MatrixNameLabel name={name} color={theme.matrixCellText} />}
 
-      {/* Matrix brackets container */}
-      <div className="relative inline-flex items-center px-1.5 py-1">
-        <MatrixBracket side="left" borderColor={theme.matrixBracket} />
-
-        {/* Matrix Grid */}
+      <MatrixFrame bracketColor={theme.matrixBracket}>
         <div
           className="grid gap-1.5 p-1"
           style={{
@@ -72,88 +69,44 @@ export function MatrixGrid({
                   ));
               const isAllMatch = highlightMode === 'all';
 
-              let cellStyle = `border rounded-md transition-all flex flex-col items-center justify-center ${sizeClasses} `;
-
+              let cellStyle = '';
               if (isCellMatch) {
-                cellStyle += theme.matrixHighlightCell + ' scale-105 shadow-sm ';
+                cellStyle = cx(theme.matrixHighlightCell, 'scale-105 shadow-sm');
               } else if (isRowMatch && isColMatch) {
-                cellStyle += theme.matrixHighlightCell + ' ';
+                cellStyle = theme.matrixHighlightCell;
               } else if (isRowMatch) {
-                cellStyle += theme.matrixHighlightRow + ' ';
+                cellStyle = theme.matrixHighlightRow;
               } else if (isColMatch) {
-                cellStyle += theme.matrixHighlightCol + ' ';
+                cellStyle = theme.matrixHighlightCol;
               } else if (isAllMatch) {
-                cellStyle += themeClasses.isLight
-                  ? 'bg-blue-50 border-blue-300 text-blue-900 '
-                  : 'bg-blue-950/50 border-blue-700 text-blue-100 ';
+                cellStyle = themeClasses.isLight
+                  ? 'bg-blue-50 border-blue-300 text-blue-900'
+                  : 'bg-blue-950/50 border-blue-700 text-blue-100';
               } else {
-                cellStyle += `${
-                  themeClasses.isLight
-                    ? 'bg-white border-slate-200 text-slate-800'
-                    : 'bg-slate-800/80 border-slate-700 text-slate-100'
-                } `;
-              }
-
-              if (onCellClick) {
-                cellStyle +=
-                  'cursor-pointer hover:ring-2 hover:ring-blue-400 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 ';
+                cellStyle = getMatrixCellClasses(themeClasses.isLight);
               }
 
               if (cellClassName) {
-                cellStyle += cellClassName(r, c) + ' ';
-              }
-
-              const cellContent = (
-                <>
-                  <span className="font-mono">{val}</span>
-                  {showIndices && (
-                    <span
-                      className="text-[10px] opacity-70 font-mono -mt-0.5"
-                      style={{ color: theme.matrixCellText }}
-                    >
-                      <InlineMath formula={`a_{${r + 1}${c + 1}}`} />
-                    </span>
-                  )}
-                </>
-              );
-
-              if (onCellClick) {
-                return (
-                  <button
-                    type="button"
-                    key={`cell-${r}-${c}`}
-                    onClick={() => onCellClick(r, c)}
-                    className={cellStyle}
-                    aria-label={
-                      showIndices
-                        ? `Row ${r + 1}, Column ${c + 1}: ${val}`
-                        : `Cell (${r + 1}, ${c + 1}): ${val}`
-                    }
-                  >
-                    {cellContent}
-                  </button>
-                );
+                cellStyle = cx(cellStyle, cellClassName(r, c));
               }
 
               return (
-                <div
+                <MatrixCell
                   key={`cell-${r}-${c}`}
+                  value={val}
+                  row={r}
+                  col={c}
+                  sizeClasses={sizeClasses}
                   className={cellStyle}
-                  aria-label={
-                    showIndices
-                      ? `Row ${r + 1}, Column ${c + 1}: ${val}`
-                      : undefined
-                  }
-                >
-                  {cellContent}
-                </div>
+                  onClick={onCellClick}
+                  showIndices={showIndices}
+                  indexTextColor={theme.matrixCellText}
+                />
               );
             }),
           )}
         </div>
-
-        <MatrixBracket side="right" borderColor={theme.matrixBracket} />
-      </div>
+      </MatrixFrame>
     </div>
   );
 }

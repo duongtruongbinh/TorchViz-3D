@@ -3,6 +3,18 @@
 A chronological record of changes to the OKF knowledge bundle. (Reserved file —
 no `type` frontmatter required.)
 
+- **2026-08-19 — Learning Lab UI Architecture Refactored & Deduplicated.**
+  Established a clear 4-layer UI architecture (Global Theme/Shell, Reference Engine,
+  Domain Adapters, Math Primitives). Extracted the reference engine (`Cite`, `PaperSummary`,
+  `LessonReferences`, `@floating-ui/react`) and Continual Learning adapter (`StageContinuityMap`)
+  into isolated dynamic modules loaded strictly on demand. Refactored Linear Algebra domain
+  controls (`MathVisualCard`, `MathRangeControl`, `MathSegmentedControl`, `MathStepperControls`,
+  `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`), eliminated duplicate matrix cell
+  and info-panel implementations, upgraded one-of-N selectors to WAI-ARIA radiogroup standards
+  with keyboard roving focus, pruned dead theme tokens, and removed Tailwind `.dark` usage in theme-context
+  components. Documented UI ownership layers and 10 agent reuse rules across the wiki and repo guides.
+  Details recorded in [docs/plans/2026-08-19-learning-lab-ui-refactor.md](../docs/plans/2026-08-19-learning-lab-ui-refactor.md).
+
 - **2026-08-19 — Linear Algebra reframed for applied AI.** Added a standalone
   Chapter 0 overview that connects tabular data and RGB images to scalar,
   vector, matrix, and tensor representations, then leads into the operations

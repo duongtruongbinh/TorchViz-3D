@@ -3,9 +3,10 @@ import { Vector, Point, Plot, Text, vec } from 'mafs';
 import { Check } from 'lucide-react';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
-import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathCanvas } from './primitives/MathCanvas';
 import { MathRangeControl } from './primitives/MathRangeControl';
+import { MathSegmentedControl } from './primitives/MathSegmentedControl';
 import { AugmentedMatrixGrid } from './primitives/AugmentedMatrixGrid';
 import { MatrixGrid } from './primitives/MatrixGrid';
 import { MathStepperControls } from './primitives/MathStepperControls';
@@ -193,45 +194,21 @@ export function LinearSystemCasesExplorer({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <span className="font-semibold text-slate-700">Trường hợp:</span>
-          <div className="inline-flex rounded-lg border border-slate-300 p-0.5 bg-slate-100">
-            <button
-              type="button"
-              onClick={() => setSelectedCase('unique')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-                selectedCase === 'unique'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              1 nghiệm duy nhất
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedCase('none')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-                selectedCase === 'none'
-                  ? 'bg-rose-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Vô nghiệm
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedCase('infinite')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-                selectedCase === 'infinite'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Vô số nghiệm
-            </button>
-          </div>
+          <MathSegmentedControl<'unique' | 'none' | 'infinite'>
+            ariaLabel="Chọn trường hợp nghiệm của hệ"
+            size="sm"
+            value={selectedCase}
+            onChange={setSelectedCase}
+            options={[
+              { value: 'unique', label: '1 nghiệm duy nhất', colorScheme: 'blue' },
+              { value: 'none', label: 'Vô nghiệm', colorScheme: 'rose' },
+              { value: 'infinite', label: 'Vô số nghiệm', colorScheme: 'emerald' },
+            ]}
+          />
         </div>
       </div>
 
-      <div className="rounded-lg p-3 border border-slate-200 bg-slate-100/70 text-xs sm:text-sm">
+      <MathInfoPanel>
         {selectedCase === 'unique' && (
           <div className="space-y-1">
             <p className="font-semibold text-blue-600">
@@ -282,7 +259,7 @@ export function LinearSystemCasesExplorer({
             </p>
           </div>
         )}
-      </div>
+      </MathInfoPanel>
     </div>
   );
 
@@ -417,14 +394,14 @@ export function GaussianEliminationStepper({
         />
       </div>
 
-      <div className="w-full rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm space-y-2">
+      <MathInfoPanel className="w-full space-y-2">
         <div className="text-center font-mono">
           <BlockMath formula={currentStep.operation} />
         </div>
         <p className="text-slate-600 text-center">
           {currentStep.description}
         </p>
-      </div>
+      </MathInfoPanel>
 
       {/* Step controls */}
       <MathStepperControls
@@ -464,52 +441,18 @@ export function LUFactorizationExplorer({
 
   return (
     <MathVisualCard ariaLabel={ariaLabel}>
-      <div className="flex flex-wrap items-center justify-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => setViewMode('overview')}
-          className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-            viewMode === 'overview'
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-200 text-slate-700'
-          }`}
-        >
-          Tổng quan A = LU
-        </button>
-        <button
-          type="button"
-          onClick={() => setViewMode('multipliers')}
-          className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-            viewMode === 'multipliers'
-              ? 'bg-amber-600 text-white'
-              : 'bg-slate-200 text-slate-700'
-          }`}
-        >
-          Multipliers trong L
-        </button>
-        <button
-          type="button"
-          onClick={() => setViewMode('uResult')}
-          className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-            viewMode === 'uResult'
-              ? 'bg-purple-600 text-white'
-              : 'bg-slate-200 text-slate-700'
-          }`}
-        >
-          Kết quả U
-        </button>
-        <button
-          type="button"
-          onClick={() => setViewMode('verify')}
-          className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
-            viewMode === 'verify'
-              ? 'bg-emerald-600 text-white'
-              : 'bg-slate-200 text-slate-700'
-          }`}
-        >
-          Kiểm tra LU = A
-        </button>
-      </div>
+      <MathSegmentedControl<'overview' | 'multipliers' | 'uResult' | 'verify'>
+        ariaLabel="Chọn chế độ xem phép phân rã LU"
+        size="sm"
+        value={viewMode}
+        onChange={setViewMode}
+        options={[
+          { value: 'overview', label: 'Tổng quan A = LU', colorScheme: 'blue' },
+          { value: 'multipliers', label: 'Multipliers trong L', colorScheme: 'amber' },
+          { value: 'uResult', label: 'Kết quả U', colorScheme: 'purple' },
+          { value: 'verify', label: 'Kiểm tra LU = A', colorScheme: 'emerald' },
+        ]}
+      />
 
       {/* Matrices Display */}
       <div className="w-full overflow-x-auto flex items-center justify-center gap-3 sm:gap-6 py-2">
@@ -585,7 +528,7 @@ export function LUFactorizationExplorer({
       </div>
 
       {/* Explanatory description card */}
-      <div className="w-full rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+      <MathInfoPanel className="w-full">
         {viewMode === 'overview' && (
           <p className="text-slate-600 text-center">
             LU tách ma trận A thành tích của ma trận tam giác dưới L (với các số 1 trên đường chéo) và ma trận tam giác trên U.
@@ -608,7 +551,7 @@ export function LUFactorizationExplorer({
             Nhân từng hàng của L với từng cột của U cho lại đúng ma trận A ban đầu.
           </p>
         )}
-      </div>
+      </MathInfoPanel>
     </MathVisualCard>
   );
 }
@@ -699,14 +642,14 @@ export function GaussJordanInverseStepper({
         />
       </div>
 
-      <div className="w-full rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm space-y-2">
+      <MathInfoPanel className="w-full space-y-2">
         <div className="text-center font-mono">
           <BlockMath formula={currentStep.operation} />
         </div>
         <p className="text-slate-600 text-center">
           {currentStep.description}
         </p>
-      </div>
+      </MathInfoPanel>
 
       {/* Step Controls */}
       <MathStepperControls

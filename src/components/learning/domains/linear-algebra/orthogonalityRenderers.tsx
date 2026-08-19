@@ -3,7 +3,7 @@ import { Vector, Line, Text, vec } from 'mafs';
 import { InlineMath, BlockMath, useLearningMdxTheme } from '../../learningMdxComponents';
 import { getMathVisualTheme } from './theme';
 import { MathCanvas } from './primitives/MathCanvas';
-import { MathVisualCard } from './primitives/MathVisualCard';
+import { MathVisualCard, MathInfoPanel } from './primitives/MathVisualCard';
 import { MathStepperControls } from './primitives/MathStepperControls';
 import { AngleArc } from './primitives/AngleArc';
 import { RightAngleMarker } from './primitives/RightAngleMarker';
@@ -239,14 +239,14 @@ export function GramSchmidtExplorer({
       subtitle={currentStep.title}
       footer={
         <div className="space-y-3 w-full">
-          <div className="rounded-lg p-3 border border-slate-200 bg-white text-xs sm:text-sm">
+          <MathInfoPanel>
             <div className="text-center font-mono py-1">
               <BlockMath formula={currentStep.math} />
             </div>
             <p className="text-slate-600 text-center">
               {currentStep.desc}
             </p>
-          </div>
+          </MathInfoPanel>
 
           <MathStepperControls
             currentStep={stepIndex}

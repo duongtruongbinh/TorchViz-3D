@@ -285,9 +285,9 @@ test('continual-learning references assemble as one dedicated final runtime page
   const referencePageAssembly = registry.slice(registry.indexOf('const referencePage ='), registry.indexOf('const pages ='));
   assert.doesNotMatch(referencePageAssembly, /citationEvidence=/, 'the final paper-map page must remain preview-free');
   assert.doesNotMatch(referencePageAssembly, /citationLinkOnlyExceptions=/, 'the final paper-map page must not receive occurrence review data');
-  const components = readFileSync('src/components/learning/learningMdxComponents.tsx', 'utf8');
-  assert.match(components, /const citation = `\[\$\{referenceIndex\}\]`/);
-  assert.match(components, /startIndex=\{featured\.length \+ 1\}/, 'additional references must continue after featured numbering');
+  const references = readFileSync('src/components/learning/learningMdxReferences.tsx', 'utf8');
+  assert.match(references, /const citation = `\[\$\{referenceIndex\}\]`/);
+  assert.match(references, /startIndex=\{featured\.length \+ 1\}/, 'additional references must continue after featured numbering');
 });
 
 test('lesson reference indexes put featured papers first and reuse one number per paper', () => {
@@ -467,7 +467,7 @@ test('a Markdown-only CV lesson uses the generic contract without invoking its o
   };
   const document = await validateLearningMdxSource(source, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, fixtureCatalog);
   assert.match(document.text, /Convolution dùng một kernel/);
-  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'StageContinuityMap', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'Cite', 'PaperSummary', 'LessonReferences', 'InlineMath', 'BlockMath', 'EquationCallout', 'CvExercise']);
+  assert.deepEqual(getAllowedLearningMdxComponentNames('cv'), ['LessonNote', 'LessonImage', 'MdxQuiz', 'MdxPage', 'RequirementCard', 'RequirementsGrid', 'CourseCards', 'EvidenceCards', 'ConceptFlow', 'ExperimentChecklist', 'SelfCheckList', 'ComparisonMatrix', 'PaperTradeoff', 'DatasetComposition', 'MetricBars', 'ConceptSpectrum', 'InlineMath', 'BlockMath', 'EquationCallout', 'CvExercise']);
   await assert.rejects(
     () => inspectLearningMdx(`${source}\n\n<AiHierarchy content={{}} />`, `src/content/learning/cv/${cvLesson.id}.vi.mdx`, 'cv'),
     /unexpected MDX component AiHierarchy/,

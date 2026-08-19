@@ -4,6 +4,7 @@ import { compile } from '@mdx-js/mdx';
 import remarkGfm from 'remark-gfm';
 import type { Plugin, ViteDevServer } from 'vite';
 import {
+  REFERENCE_AUTHORED_MDX_COMPONENT_NAMES,
   getLearningMdxComponentNames,
   parseLearningMdxPath,
   type LearningMdxMetadata,
@@ -306,9 +307,11 @@ export function getLearningMdxRuntimeCapabilities(
   referenceLessonKeys: ReadonlySet<string>,
 ): LearningMdxRuntimeCapabilities {
   const usedComponents = new Set(getLearningMdxComponentNames(source));
+  const hasDomainComponents = getLearningDomainMdxComponentNames(domainId).some((name) => usedComponents.has(name));
+  const hasReferenceComponents = REFERENCE_AUTHORED_MDX_COMPONENT_NAMES.some((name) => usedComponents.has(name));
   return {
-    needsDomainAdapter: getLearningDomainMdxComponentNames(domainId).some((name) => usedComponents.has(name)),
-    needsReferenceRuntime: referenceLessonKeys.has(`${domainId}/${lessonId}`),
+    needsDomainAdapter: hasDomainComponents,
+    needsReferenceRuntime: referenceLessonKeys.has(`${domainId}/${lessonId}`) || hasReferenceComponents,
   };
 }
 

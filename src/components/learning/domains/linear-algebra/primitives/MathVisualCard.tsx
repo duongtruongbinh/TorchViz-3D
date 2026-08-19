@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { useLearningMdxTheme } from '../../../learningMdxComponents';
+import { cx } from '../../../theme';
 
 export interface MathVisualCardProps {
   title?: string | ReactNode;
@@ -19,27 +21,35 @@ export function MathVisualCard({
   footer,
   className = '',
 }: MathVisualCardProps) {
+  const themeClasses = useLearningMdxTheme();
+  const dividerBorder = themeClasses.isLight ? 'border-[#205089]/10' : 'border-[#A8B8C8]/14';
+
   return (
     <figure
-      className={`my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs border-slate-200 bg-slate-50 ${className}`}
+      className={cx(
+        'my-6 flex flex-col items-center gap-4 rounded-xl border p-4 sm:p-5 shadow-xs transition-colors',
+        themeClasses.semantic.neutral.border,
+        themeClasses.semantic.neutral.surface,
+        className,
+      )}
       aria-label={ariaLabel}
     >
       {(title || subtitle || badge) && (
-        <div className="w-full flex flex-wrap items-center justify-between gap-2 border-b pb-3 border-slate-200">
+        <div className={cx('w-full flex flex-wrap items-center justify-between gap-2 border-b pb-3', dividerBorder)}>
           <div className="flex flex-col gap-0.5">
             {title && (
-              <span className="text-xs sm:text-sm font-semibold text-slate-800">
+              <span className={cx('text-xs sm:text-sm font-semibold', themeClasses.titleText)}>
                 {title}
               </span>
             )}
             {subtitle && (
-              <span className="text-[11px] sm:text-xs text-slate-500">
+              <span className={cx('text-[11px] sm:text-xs', themeClasses.mutedText)}>
                 {subtitle}
               </span>
             )}
           </div>
           {badge && (
-            <div className="text-xs font-mono text-slate-500">
+            <div className={cx('text-xs font-mono', themeClasses.mutedText)}>
               {badge}
             </div>
           )}
@@ -51,10 +61,33 @@ export function MathVisualCard({
       </div>
 
       {footer && (
-        <div className="w-full border-t pt-3 border-slate-200 text-xs sm:text-sm">
+        <div className={cx('w-full border-t pt-3 text-xs sm:text-sm', dividerBorder, themeClasses.bodyText)}>
           {footer}
         </div>
       )}
     </figure>
+  );
+}
+
+export function MathInfoPanel({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const themeClasses = useLearningMdxTheme();
+  return (
+    <div
+      className={cx(
+        'rounded-lg p-3 border text-xs sm:text-sm transition-colors',
+        themeClasses.semantic.neutral.border,
+        themeClasses.semantic.neutral.surface,
+        themeClasses.bodyText,
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
 }
