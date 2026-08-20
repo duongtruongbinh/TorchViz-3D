@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, GraduationCap, LibraryBig, Network } from 'lucide
 
 import type { LearningDomainId, LearningHomeDomainSummary } from '../../../core/learning/types';
 import { getStrings, type Language } from '../../../lib/localization';
-import { DOMAIN_CARD_PALETTES, DOMAIN_ICONS } from '../domainPresentation';
+import { getDomainCardPalette, getDomainIcon } from '../domainPresentation';
 import { getDomainText } from '../learningText';
 import { cx, getLearningLabTheme, type LearningLabTheme } from '../theme';
 
@@ -114,8 +114,8 @@ function DomainCard({
   mutedTone: string;
   onOpen: () => void;
 }) {
-  const DomainIcon = DOMAIN_ICONS[item.domain.id];
-  const palette = DOMAIN_CARD_PALETTES[item.domain.id];
+  const DomainIcon = getDomainIcon(item.domain.id);
+  const palette = getDomainCardPalette(item.domain.id);
   const cardTitleTone = item.isReady ? titleTone : mutedTone;
   const cardBodyTone = item.isReady ? bodyTone : mutedTone;
 

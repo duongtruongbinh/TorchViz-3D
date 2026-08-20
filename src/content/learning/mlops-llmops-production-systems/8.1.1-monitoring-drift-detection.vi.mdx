@@ -1,0 +1,115 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'monitoring-drift-detection',
+  locale: 'vi',
+  title: "Giám sát & Phát hiện Drift",
+  headings: [
+    'Tại sao Mô hình Suy thoái theo Thời gian? (Model Decay)',
+    'Phân biệt: Data Drift vs Concept Drift vs System Drift',
+    'Các Kiểm định Thống kê Phát hiện Drift (KS-Test, PSI, Wasserstein)',
+    'Vòng lặp Phản hồi Tự động Huấn luyện lại (Continuous Retraining Loop)',
+    'Nguyên lý Thống kê & Độc lập Công cụ trong Giám sát (Monitoring Invariants)',
+  ],
+  keywords: ['MLOps', 'Monitoring', 'Data Drift', 'Concept Drift', 'Evidently AI', 'Continuous Retraining', 'Tool Independence', 'Seasonality'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Tại sao Mô hình Suy thoái theo Thời gian? (Model Decay)
+
+Một mô hình Machine Learning sau khi được deploy lên Production không phải là một thực thể tĩnh vĩnh cửu. Thế giới thực liên tục thay đổi (hành vi người dùng mới, xu hướng từ vựng mới, biến động kinh tế), khiến độ chính xác của mô hình suy thoái dần theo thời gian (**Model Decay**).
+
+<CourseCards
+  ariaLabel="So sánh hệ thống phần mềm truyền thống và hệ thống học máy sau khi triển khai"
+  exampleLabel="Trạng thái vận hành"
+  takeawayLabel="Hiện tượng xảy ra"
+  items={[
+    {
+      title: 'Phần mềm Truyền thống (Deterministic Code)',
+      example: 'Code tính toán thuế hoặc logic giỏ hàng không thay đổi nếu không có ai sửa code.',
+      takeaway: 'Chỉ cần giám sát hạ tầng (CPU, RAM, Error 500, Uptime).',
+    },
+    {
+      title: 'Hệ thống Học máy (Statistical ML System)',
+      example: 'Code không đổi nhưng phân bố dữ liệu người dùng thay đổi khiến F1-score giảm từ 92% xuống còn 60%.',
+      takeaway: 'Bắt buộc phải giám sát song song cả hạ tầng kỹ thuật lẫn phân bố thống kê của dữ liệu (Data & Concept Drift).',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phân biệt: Data Drift vs Concept Drift vs System Drift
+
+Trong MLOps, có 3 dạng trôi dạt (Drift) chính cần theo dõi:
+
+<ComparisonMatrix
+  ariaLabel="Phân biệt 3 loại Drift trong hệ thống ML"
+  rowHeaderLabel="Loại Drift"
+  columns={['Khái niệm & Định nghĩa', 'Ví dụ Thực tế', 'Tác động']}
+  rows={[
+    { label: 'Data Drift (Covariate Shift)', values: ['Phân bố dữ liệu đầu vào $P(X)$ thay đổi nhưng quan hệ $P(Y|X)$ giữ nguyên.', 'Người dùng chuyển sang dùng nhiều từ lóng công nghệ mới (như LLM, Agentic AI, RAG).', 'Mô hình gặp nhiều từ ngoài từ điển (OOV) làm giảm độ tự tin.'] },
+    { label: 'Concept Drift', values: ['Mối quan hệ giữa đầu vào và nhãn mục tiêu $P(Y|X)$ bị thay đổi.', 'Trước dịch Covid-19, từ "Corona" là tên một hãng bia; sau dịch, "Corona" là tên virus bệnh dịch.', 'Cùng một từ khóa nhưng nhãn đúng của thế giới thực đã thay đổi hoàn toàn.'] },
+    { label: 'System Drift', values: ['Sự suy giảm về hiệu năng hạ tầng (P99 Latency, Throughput, Memory Leak).', 'Lưu lượng tăng đột biến khiến thời gian phản hồi tăng từ 50ms lên 2000ms.', 'Trải nghiệm người dùng bị chậm, timeout kết nối.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Các Kiểm định Thống kê Phát hiện Drift (KS-Test, PSI, Wasserstein)
+
+Để phát hiện Data Drift một cách tự động và định lượng, chúng ta so sánh tập dữ liệu tham chiếu (**Reference / Training Data**) với tập dữ liệu thực tế đang phục vụ (**Current / Production Data**):
+
+<ConceptHierarchy
+  ariaLabel="Các phương pháp thống kê đo lường Data Drift"
+  root={{ title: 'Phương pháp Đo lường Data Drift', detail: 'Đánh giá khoảng cách phân bố xác suất giữa 2 tập dữ liệu' }}
+  children={[
+    { title: 'Kolmogorov-Smirnov Test (KS-Test)', detail: 'Kiểm định phi tham số so sánh hàm phân phối tích lũy (CDF) cho dữ liệu số liên tục ($p$-value < 0.05).' },
+    { title: 'Population Stability Index (PSI)', detail: 'Chỉ số đo độ ổn định phân bố ($PSI < 0.1$: Ổn định; $PSI > 0.2$: Cần retrain khẩn cấp).' },
+    { title: 'Wasserstein Distance (Earth Mover\'s)', detail: 'Đo chi phí tối thiểu để biến đổi phân bố này thành phân bố kia.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Vòng lặp Phản hồi Tự động Huấn luyện lại (Continuous Retraining Loop)
+
+Khi phát hiện Drift, hệ thống MLOps kích hoạt chu trình khép kín:
+
+<ConceptFlow
+  ariaLabel="Vòng lặp tự động phát hiện Drift và Retraining"
+  items={[
+    { title: '1. Production Logging', detail: 'Lưu toàn bộ requests và predictions vào Data Lake (S3/Snowflake) kèm timestamp.' },
+    { title: '2. Daily Drift Job (Evidently)', detail: 'Chạy job tính PSI/KS-Test định kỳ mỗi ngày so với tập baseline.' },
+    { title: '3. Retrain Trigger', detail: 'Nếu số lượng features bị drift > 30% -> Kích hoạt GitHub Actions Workflow hoặc Ray Job huấn luyện lại trên tập dữ liệu mới gán nhãn gần nhất.' },
+    { title: '4. Quality Gate & Canary', detail: 'Mô hình mới vượt qua benchmark -> Rollout tự động thay thế phiên bản cũ.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Nguyên lý Thống kê & Độc lập Công cụ trong Giám sát (Monitoring Invariants)
+
+Dù bạn sử dụng Evidently AI, WhyLogs, Arize hay Great Expectations, nguyên lý giám sát sản xuất luôn phải giải quyết 3 bẫy phổ biến:
+
+<ComparisonMatrix
+  ariaLabel="Các cạm bẫy và nguyên tắc khi giám sát drift trên production"
+  rowHeaderLabel="Cạm bẫy Giám sát"
+  columns={['Hiện tượng Thực tế', 'Chiến lược Xử lý']}
+  rows={[
+    { label: 'Tính chu kỳ (Seasonality) vs Drift Thật', values: ['Lưu lượng người dùng cuối tuần hoặc dịp lễ mua sắm thay đổi mạnh, kích hoạt cảnh báo drift giả.', 'Sử dụng Rolling Reference Window (so sánh ngày Thứ Bảy tuần này với các ngày Thứ Bảy trước đó) thay vì so với tập train tĩnh từ 6 tháng trước.'] },
+    { label: 'Benign Drift (Drift vô hại)', values: ['Một feature thứ yếu bị drift nhưng mô hình không dựa nhiều vào feature đó (Feature Importance thấp).', 'Trọng số cảnh báo drift phải nhân với Feature Attribution/SHAP values để không kích hoạt retrain tốn kém vô ích.'] },
+    { label: 'Delayed Ground Truth Labels', values: ['Nhãn thực tế (Ground Truth) chỉ xuất hiện sau vài tuần (khách hàng thanh toán, chuyển tiền, bồi thường).', 'Không thể đo F1 tức thời; bắt buộc phải dựa vào Prediction Drift (phân bố output) và Data Drift để làm tín hiệu cảnh báo sớm (Early Indicator).'] },
+  ]}
+/>
+
+</MdxPage>

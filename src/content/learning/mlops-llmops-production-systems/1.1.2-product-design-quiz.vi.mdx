@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'product-design-quiz',
+  locale: 'vi',
+  title: "Quiz: Thiết kế Sản phẩm",
+  headings: [
+    'Bước đầu tiên trong dự án ML',
+    'Cầu nối giữa Business & ML Metric',
+    'Đánh giá Tính khả thi',
+    'Chiến lược Heuristic vs ML',
+    'Chẩn đoán: F1 Tăng nhưng Business Metric Giảm',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Product Design', 'Business Metric', 'Heuristic', 'Diagnostic'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="product-design-quiz" questions={[
+  {
+    id: 'first-step-mlops',
+    title: 'Bước đầu tiên trong dự án ML',
+    prompt: 'Khi bắt đầu một dự án Machine Learning cho sản phẩm thực tế, kỹ sư nên bắt đầu từ việc nào trước tiên?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Lựa chọn kiến trúc mô hình Deep Learning mới nhất và lớn nhất.' },
+      { id: 'opt2', label: 'Xác định bài toán kinh doanh, người dùng cuối và giá trị sản phẩm cần giải quyết.', isCorrect: true },
+      { id: 'opt3', label: 'Tối ưu hóa hyperparameter ngay trên tập dữ liệu chưa qua xử lý.' },
+      { id: 'opt4', label: 'Thuê cụm GPU lớn nhất có thể để chuẩn bị huấn luyện.' },
+    ],
+    success: 'Chính xác! Luôn bắt đầu từ vấn đề kinh doanh và nhu cầu thực tế của người dùng trước khi chọn thuật toán.',
+    error: 'Chưa chính xác. Trước khi viết code hay chọn mô hình, phải xác định rõ mục tiêu bài toán kinh doanh.',
+  },
+  {
+    id: 'business-ml-metric-bridge',
+    title: 'Cầu nối giữa Business & ML Metric',
+    prompt: 'Nếu mục tiêu kinh doanh là "giảm thiểu cảnh báo sai khiến đội ngũ kiểm duyệt nội dung bị quá tải", chỉ số ML nào cần được ưu tiên tối ưu hóa?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Recall' },
+      { id: 'opt2', label: 'Precision', isCorrect: true },
+      { id: 'opt3', label: 'Training Loss' },
+      { id: 'opt4', label: 'Epoch time' },
+    ],
+    success: 'Chính xác! Precision cao đồng nghĩa với việc các mẫu được dự đoán là vi phạm có độ tin cậy cao, hạn chế tối đa False Positives (cảnh báo sai).',
+    error: 'Chưa đúng. Để giảm cảnh báo sai (False Positive), chỉ số cần tối ưu là Precision.',
+  },
+  {
+    id: 'feasibility-check',
+    title: 'Đánh giá Tính khả thi',
+    prompt: 'Yếu tố nào sau đây KHÔNG thuộc 3 trụ cột chính khi đánh giá tính khả thi (Feasibility Assessment)?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tính sẵn có và chất lượng của dữ liệu (Data Feasibility).' },
+      { id: 'opt2', label: 'Khả năng giải quyết bằng thuật toán kỹ thuật (Technical Feasibility).' },
+      { id: 'opt3', label: 'Khả năng hoàn vốn và giá trị mang lại so với chi phí vận hành (ROI Feasibility).' },
+      { id: 'opt4', label: 'Bắt buộc phải sử dụng ngôn ngữ C++ để viết toàn bộ pipeline dữ liệu.', isCorrect: true },
+    ],
+    success: 'Đúng! Ngôn ngữ lập trình không phải là tiêu chí đánh giá tính khả thi bài toán ở giai đoạn thiết kế sản phẩm.',
+    error: 'Hãy xem lại 3 trụ cột tính khả thi: Data, Kỹ thuật và ROI (hoàn vốn/chi phí).',
+  },
+  {
+    id: 'heuristic-first',
+    title: 'Chiến lược Heuristic vs ML',
+    prompt: 'Tại sao việc xây dựng một Heuristic/Rule-based Baseline trước khi dùng mô hình ML phức tạp lại được xem là Best Practice?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì Heuristic luôn cho độ chính xác cao hơn 100% so với mọi mô hình Deep Learning.' },
+      { id: 'opt2', label: 'Cung cấp mốc chuẩn tham chiếu nhanh chóng, chi phí thấp để định lượng giá trị gia tăng của mô hình ML sau này.', isCorrect: true },
+      { id: 'opt3', label: 'Vì luật Heuristic là yêu cầu bắt buộc của mọi framework MLOps.' },
+      { id: 'opt4', label: 'Để loại bỏ hoàn toàn nhu cầu thu thập dữ liệu trong tương lai.' },
+    ],
+    success: 'Chính xác! Heuristic giúp tạo mốc tham chiếu thực tế (baseline) để chứng minh mô hình ML đem lại giá trị vượt trội xứng đáng với chi phí đầu tư.',
+    error: 'Chưa đúng. Heuristic đóng vai trò là một baseline đơn giản để so sánh hiệu năng và chi phí.',
+  },
+  {
+    id: 'offline-online-divergence',
+    title: 'Chẩn đoán: F1 Tăng nhưng Business Metric Giảm',
+    prompt: 'Một đội ngũ ML báo cáo chỉ số F1-score offline tăng 4%, nhưng khi triển khai thực tế trên sản phẩm, tỷ lệ chuyển đổi (Conversion Rate) của người dùng lại sụt giảm mạnh. Nguyên nhân nào sau đây có khả năng cao nhất?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Proxy metric ngoại tuyến không đồng nhất với hành vi người dùng, hoặc tập test offline bị Selection Bias / Data Leakage so với luồng production thực tế.', isCorrect: true },
+      { id: 'opt2', label: 'Do hệ điều hành của server huấn luyện khác với server serving.' },
+      { id: 'opt3', label: 'Do Python ngẫu nhiên sinh ra số nguyên tố khi tính toán độ chính xác.' },
+      { id: 'opt4', label: 'Do thuật toán AdamW luôn tự động giảm tỷ lệ chuyển đổi trên production.' },
+    ],
+    success: 'Chính xác! Sự phân kỳ giữa Offline metric và Online business metric thường bắt nguồn từ việc chọn sai Proxy metric, Data Leakage lúc test, hoặc tập dữ liệu test không đại diện cho traffic thực tế.',
+    error: 'Chưa chính xác. Hãy kiểm tra giả định phân phối dữ liệu test so với production traffic thực tế và sự sai lệch giữa Proxy metric và Business KPI.',
+  },
+]} />
+

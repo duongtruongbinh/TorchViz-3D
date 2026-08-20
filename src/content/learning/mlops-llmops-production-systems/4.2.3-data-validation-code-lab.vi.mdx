@@ -1,0 +1,107 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-validation-code-lab',
+  locale: 'vi',
+  title: "Lab: Kiểm thử với Great Expectations",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Khởi tạo Great Expectations Context',
+    'Xây dựng Expectation Suite cho Dataset',
+    'Tự động Hóa Kiểm tra với Checkpoint',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Great Expectations', 'Data Testing', 'Validation', 'Checkpoint'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ xây dựng bộ kiểm thử dữ liệu trong `tests/data/`:
+1. Tạo file `tests/data/test_dataset.py` sử dụng **Great Expectations** để kiểm tra tính toàn vẹn của file `datasets/dataset.csv`.
+2. Định nghĩa các Expectations về cấu trúc cột, độ dài văn bản, miền giá trị và tính duy nhất của ID.
+3. Chạy kiểm tra tự động và tích hợp vào test runner.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khởi tạo Great Expectations Context
+
+Tạo hàm bọc Pandas DataFrame bằng đối tượng `PandasDataset` của Great Expectations:
+
+```python
+import pandas as pd
+import great_expectations as gx
+from great_expectations.dataset import PandasDataset
+
+def load_and_wrap_dataset(csv_path: str) -> PandasDataset:
+    """Nạp file CSV và bọc bằng đối tượng PandasDataset của GX."""
+    df = pd.read_csv(csv_path)
+    gx_df = PandasDataset(df)
+    return gx_df
+```
+
+<LessonNote tone="tip">
+  `PandasDataset` kế thừa trực tiếp từ `pandas.DataFrame`, cho phép bạn vừa sử dụng mọi phương thức của Pandas vừa gọi trực tiếp các hàm `expect_*`.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Xây dựng Expectation Suite cho Dataset
+
+Tạo file `tests/data/test_dataset.py` với các bài kiểm thử chất lượng:
+
+```python
+import pytest
+from great_expectations.dataset import PandasDataset
+
+def test_dataset_schema_and_integrity(gx_df: PandasDataset):
+    """Kiểm tra schema và tính toàn vẹn của các trường thông tin."""
+    # 1. Kiểm tra sự tồn tại của các cột bắt buộc
+    assert gx_df.expect_table_columns_to_match_ordered_list(
+        ordered_list=["id", "created_on", "title", "description", "tag"]
+    ).success
+    
+    # 2. Kiểm tra tính duy nhất của ID
+    assert gx_df.expect_column_values_to_be_unique(column="id").success
+    
+    # 3. Kiểm tra các trường không được để trống (Null)
+    assert gx_df.expect_column_values_to_not_be_null(column="title").success
+    assert gx_df.expect_column_values_to_not_be_null(column="tag").success
+    
+    # 4. Kiểm tra nhãn mục tiêu phải thuộc tập hợp cho phép
+    allowed_tags = ["computer-vision", "mlops", "natural-language-processing", "other"]
+    assert gx_df.expect_column_values_to_be_in_set(
+        column="tag", value_set=allowed_tags
+    ).success
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tự động Hóa Kiểm tra với Checkpoint
+
+Viết hàm kiểm tra độ dài và đặc tính văn bản:
+
+```python
+def test_text_length_and_quality(gx_df: PandasDataset):
+    """Kiểm tra độ dài tiêu đề và mô tả không bị dị thường."""
+    # Tiêu đề không được quá ngắn (< 3 ký tự) hoặc quá dài (> 200 ký tự)
+    res_title = gx_df.expect_column_value_lengths_to_be_between(
+        column="title", min_value=3, max_value=200
+    )
+    assert res_title.success, f"Lỗi độ dài tiêu đề: {res_title.result}"
+    
+    print("✅ Toàn bộ bài kiểm thử dữ liệu Great Expectations đã PASS!")
+```
+
+Chạy kiểm thử dữ liệu từ terminal:
+```bash
+pytest tests/data/ -v
+```
+
+</MdxPage>

@@ -1,0 +1,150 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'preprocessing-distributed-data-code-lab',
+  locale: 'vi',
+  title: "Lab: Pipeline với Ray Data",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Khởi tạo Bộ tiền xử lý Custom Preprocessor',
+    'Phân tách Dữ liệu Stratified Split',
+    'Thực thi Biến đổi Song song với Ray Data',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Ray Data', 'Tokenization', 'LabelEncoder', 'Python'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ xây dựng module `madewithml/data.py` chuẩn:
+1. Định nghĩa lớp `CustomPreprocessor` để làm sạch văn bản, tokenize và encode nhãn.
+2. Thực hiện **Stratified Split** chia tập dữ liệu.
+3. Sử dụng **Ray Data** để phân tán thao tác biến đổi dữ liệu thành các PyTorch Tensor batches.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khởi tạo Bộ tiền xử lý Custom Preprocessor
+
+Tạo class `CustomPreprocessor` có khả năng lưu và nạp trạng thái (fitted artifacts):
+
+```python
+import re
+import numpy as np
+import pandas as pd
+from transformers import BertTokenizer
+
+class CustomPreprocessor:
+    """Bộ tiền xử lý văn bản và mã hóa nhãn mục tiêu."""
+    
+    def __init__(self, tokenizer_name: str = "google/bert_uncased_L-2_H-128_A-2"):
+        self.tokenizer = BertTokenizer.from_pretrained(tokenizer_name)
+        self.class_to_index = {}
+        self.index_to_class = {}
+        
+    def fit(self, labels: list[str]) -> "CustomPreprocessor":
+        """Xác định danh sách các lớp duy nhất và gán ID số nguyên."""
+        unique_classes = sorted(list(set(labels)))
+        self.class_to_index = {cls: idx for idx, cls in enumerate(unique_classes)}
+        self.index_to_class = {idx: cls for cls, idx in self.class_to_index.items()}
+        return self
+
+    @staticmethod
+    def clean_text(text: str) -> str:
+        """Làm sạch ký tự đặc biệt và khoảng trắng thừa."""
+        text = text.lower()
+        text = re.sub(r"http\S+", "", text)
+        text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
+        return re.sub(r"\s+", " ", text).strip()
+
+    def transform(self, batch: dict) -> dict:
+        """Tiền xử lý theo batch dữ liệu."""
+        cleaned_texts = [self.clean_text(t) for t in batch["text"]]
+        encoded = self.tokenizer(
+            cleaned_texts,
+            padding="max_length",
+            truncation=True,
+            max_length=128,
+            return_tensors="np",
+        )
+        result = {
+            "ids": encoded["input_ids"],
+            "masks": encoded["attention_mask"],
+        }
+        if "tag" in batch and self.class_to_index:
+            result["targets"] = np.array([self.class_to_index[t] for t in batch["tag"]])
+        return result
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Phân tách Dữ liệu Stratified Split
+
+Viết hàm chia dữ liệu thành Train (80%), Val (10%), Test (10%):
+
+```python
+from sklearn.model_selection import train_test_split
+
+def stratified_split(df: pd.DataFrame, train_size: float = 0.8, val_size: float = 0.1):
+    """Chia DataFrame bảo toàn phân bố nhãn."""
+    test_size = 1.0 - train_size - val_size
+    
+    train_df, holdout_df = train_test_split(
+        df, train_size=train_size, stratify=df["tag"], random_state=42
+    )
+    
+    val_relative_ratio = val_size / (val_size + test_size)
+    val_df, test_df = train_test_split(
+        holdout_df, train_size=val_relative_ratio, stratify=holdout_df["tag"], random_state=42
+    )
+    
+    print(f"📊 Tập Train: {len(train_df)} mẫu | Val: {len(val_df)} mẫu | Test: {len(test_df)} mẫu")
+    return train_df, val_df, test_df
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Thực thi Biến đổi Song song với Ray Data
+
+Tạo Dataset phân tán với Ray Data và áp dụng bộ tiền xử lý:
+
+```python
+import ray.data
+
+def create_ray_datasets(train_df: pd.DataFrame, val_df: pd.DataFrame, preprocessor: CustomPreprocessor):
+    """Tạo Ray Datasets và áp dụng map_batches song song."""
+    # Nạp DataFrame vào Ray Data
+    train_ds = ray.data.from_pandas(train_df)
+    val_ds = ray.data.from_pandas(val_df)
+    
+    # Biến đổi dữ liệu theo batch song song trên CPU
+    train_ds = train_ds.map_batches(
+        preprocessor.transform,
+        batch_format="pandas",
+        batch_size=64
+    )
+    val_ds = val_ds.map_batches(
+        preprocessor.transform,
+        batch_format="pandas",
+        batch_size=64
+    )
+    
+    # Kiểm tra một batch đầu ra
+    sample_batch = train_ds.take_batch(1)
+    print("\n=== KÍCH THƯỚC BATCH ĐẦU RA ===")
+    print(f"Input IDs shape: {sample_batch['ids'].shape}")
+    print(f"Targets shape: {sample_batch['targets'].shape}")
+    return train_ds, val_ds
+```
+
+<LessonNote tone="tip">
+  **Kết quả:** Dữ liệu giờ đây đã ở dạng tokenized arrays sẵn sàng được stream trực tiếp vào các GPU worker thông qua `ray.train`!
+</LessonNote>
+
+</MdxPage>

@@ -1,0 +1,98 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'code-quality-precommit',
+  locale: 'vi',
+  title: "Chuẩn hóa Code & Pre-commit",
+  headings: [
+    'Tại sao Cần Chuẩn hóa Code trong Dự án ML?',
+    'Bộ công cụ Linting & Formatting Hiện đại (Ruff / Black / Flake8)',
+    'Cơ chế Hoạt động của Git Pre-commit Hooks',
+    'Tự động Hóa Kiểm tra Định dạng trước khi Commit',
+  ],
+  keywords: ['MLOps', 'Pre-commit', 'Ruff', 'Black', 'Code Formatting', 'Linting'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tại sao Cần Chuẩn hóa Code trong Dự án ML?
+
+Trong các nhóm AI/ML, nhiều nhà nghiên cứu và kỹ sư cùng đóng góp mã nguồn với các phong cách viết khác nhau (thừa khoảng trắng, import lộn xộn, biến chưa sử dụng, định dạng dấu ngoặc không nhất quán).
+
+<CourseCards
+  ariaLabel="Tác hại của mã nguồn không được chuẩn hóa"
+  exampleLabel="Vấn đề phong cách"
+  takeawayLabel="Hệ quả thực tế"
+  items={[
+    {
+      title: 'Xung đột Git Merges ồn ào (Diff Clutter)',
+      example: 'Một kỹ sư sửa 1 dòng code nhưng IDE tự động format lại 500 dòng khác, tạo ra hàng trăm dòng diff thừa.',
+      takeaway: 'Code review trở nên cực kỳ khó khăn, dễ bỏ sót lỗi logic quan trọng trong hàng tá thay đổi định dạng.',
+    },
+    {
+      title: 'Lỗi Tiềm ẩn (Dead Code & Undefined Variables)',
+      example: 'Import các thư viện không tồn tại hoặc khai báo biến nhưng viết sai chính tả tên biến trong hàm.',
+      takeaway: 'Linter tĩnh phát hiện ngay lập tức các lỗi cú pháp trước khi chạy tốn kém trên GPU.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Bộ công cụ Linting & Formatting Hiện đại (Ruff / Black / Flake8)
+
+Hệ sinh thái Python MLOps hiện đại sử dụng các công cụ tự động hóa tiêu chuẩn:
+
+<ComparisonMatrix
+  ariaLabel="So sánh các công cụ chuẩn hóa mã nguồn Python"
+  rowHeaderLabel="Công cụ"
+  columns={['Nhiệm vụ cốt lõi', 'Đặc tính nổi bật']}
+  rows={[
+    { label: 'Ruff', values: ['Linter và Formatter siêu tốc độ (viết bằng Rust), thay thế Flake8, isort, Black, pydocstyle.', 'Nhanh hơn 10-100 lần so với các công cụ cũ, tự động sửa lỗi (`--fix`).'] },
+    { label: 'Black', values: ['Formatter không thỏa hiệp (The uncompromising code formatter).', 'Tự động định dạng lại toàn bộ code theo chuẩn PEP 8 thống nhất tuyệt đối.'] },
+    { label: 'isort', values: ['Sắp xếp và phân nhóm các câu lệnh `import` theo thứ tự chuẩn.', 'Phân biệt rõ ràng giữa standard library, 3rd party packages và local modules.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cơ chế Hoạt động của Git Pre-commit Hooks
+
+**Pre-commit Hooks** là các kịch bản lệnh tự động chạy ngay khi bạn gõ lệnh `git commit` nhưng **trước khi** commit được tạo ra:
+
+<ConceptFlow
+  ariaLabel="Vòng lặp kiểm tra của Git Pre-commit Hook"
+  items={[
+    { title: '1. git commit -m "..."', detail: 'Kỹ sư thực hiện thao tác tạo commit mới.' },
+    { title: '2. Run Pre-commit Hooks', detail: 'Tự động quét các file staging qua Ruff, Black, trailing-whitespace, check-yaml.' },
+    { title: '3. Pass or Block', detail: 'Nếu PASS -> Commit thành công. Nếu FAIL -> Tự động sửa lỗi hoặc chặn lại yêu cầu kỹ sư sửa trước.' },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Pre-commit hooks hoạt động hoàn toàn ở môi trường local của kỹ sư, giúp phát hiện và dọn dẹp lỗi định dạng ngay tại chỗ trước khi đẩy lên CI/CD server.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Tự động Hóa Kiểm tra Định dạng trước khi Commit
+
+Một file cấu hình `.pre-commit-config.yaml` chuẩn mực cho dự án ML bao gồm:
+
+<ConceptHierarchy
+  ariaLabel="Các nhóm hooks quan trọng trong .pre-commit-config.yaml"
+  root={{ title: '.pre-commit-config.yaml', detail: 'Tập hợp các hook bảo vệ chất lượng repo' }}
+  children={[
+    { title: '1. Basic Hygiene', detail: '`trailing-whitespace`, `end-of-file-fixer`, `check-yaml`, `check-added-large-files`.' },
+    { title: '2. Code Formatting & Linting', detail: '`ruff` hoặc `black` + `flake8` để tự động định dạng mã Python.' },
+    { title: '3. Security & Secrets', detail: '`detect-secrets` ngăn chặn vô tình commit API Keys, AWS Secrets vào repo công khai.' },
+  ]}
+/>
+
+</MdxPage>

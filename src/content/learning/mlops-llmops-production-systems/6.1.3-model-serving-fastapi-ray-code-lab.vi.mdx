@@ -1,0 +1,128 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'model-serving-fastapi-ray-code-lab',
+  locale: 'vi',
+  title: "Lab: Xây dựng Inference API",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Định nghĩa Request / Response Schema với Pydantic',
+    'Xây dựng Ray Serve Deployment với @serve.deployment',
+    'Kiểm thử API Endpoint với cURL và Python Requests',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'FastAPI', 'Ray Serve', 'Pydantic', 'Inference API'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ xây dựng file `madewithml/serve.py`:
+1. Định nghĩa cấu trúc dữ liệu `PredictPayload` và `PredictResponse` bằng **Pydantic**.
+2. Xây dựng lớp triển khai `ModelDeployment` được quản lý bởi **Ray Serve** và **FastAPI**.
+3. Khởi chạy service và gửi request dự đoán qua HTTP API.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Định nghĩa Request / Response Schema với Pydantic
+
+Tạo các lớp Schema kiểm soát định dạng dữ liệu:
+
+```python
+from pydantic import BaseModel, Field
+
+class PredictPayload(BaseModel):
+    """Schema dữ liệu gửi lên endpoint /predict."""
+    title: str = Field(..., example="Transfer Learning with PyTorch", min_length=3)
+    description: str = Field(..., example="Fine-tuning transformer models for NLP classification.", min_length=5)
+
+class PredictResponse(BaseModel):
+    """Schema kết quả dự đoán trả về."""
+    prediction: str = Field(..., example="natural-language-processing")
+    probabilities: dict[str, float]
+```
+
+<LessonNote tone="tip">
+  Pydantic sẽ tự động từ chối các request gửi chuỗi rỗng hoặc thiếu trường `title` / `description` ngay tại tầng gateway.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Xây dựng Ray Serve Deployment với @serve.deployment
+
+Kết hợp FastAPI và Ray Serve trong `madewithml/serve.py`:
+
+```python
+from ray import serve
+from fastapi import FastAPI
+import torch
+
+app = FastAPI(title="Made With ML Inference Service", version="1.0.0")
+
+@serve.deployment(num_replicas=2, ray_actor_options={"num_cpus": 1})
+@serve.ingress(app)
+class ModelDeployment:
+    def __init__(self, run_id: str):
+        """Nạp model weights và tokenizer 1 lần duy nhất khi khởi tạo replica."""
+        self.run_id = run_id
+        # Nạp artifacts từ MLflow / checkpoint path
+        print(f"🚀 Initializing ModelDeployment with Run ID: {self.run_id}")
+        self.classes = ["computer-vision", "mlops", "natural-language-processing", "other"]
+
+    @app.post("/predict", response_model=PredictResponse)
+    def predict(self, payload: PredictPayload) -> PredictResponse:
+        """Endpoint tiếp nhận request và trả về nhãn phân loại."""
+        text = f"{payload.title} {payload.description}"
+        # Giả lập tính toán logits và softmax
+        probs = {"computer-vision": 0.05, "mlops": 0.85, "natural-language-processing": 0.08, "other": 0.02}
+        best_tag = max(probs, key=probs.get)
+        
+        return PredictResponse(prediction=best_tag, probabilities=probs)
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Kiểm thử API Endpoint với cURL và Python Requests
+
+Khởi chạy và gửi request kiểm thử tới server:
+
+```bash
+# Khởi chạy Ray Serve ứng dụng
+python -c "
+import ray
+from ray import serve
+from madewithml.serve import ModelDeployment
+serve.run(ModelDeployment.bind(run_id='best_run_123'), route_prefix='/')
+"
+```
+
+Gửi request HTTP qua `curl`:
+```bash
+curl -X POST "http://127.0.0.1:8000/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "title": "MLOps on Kubernetes with Ray",
+       "description": "Deploying scalable machine learning inference pipelines in production."
+     }'
+```
+
+Kết quả phản hồi JSON:
+```json
+{
+  "prediction": "mlops",
+  "probabilities": {
+    "computer-vision": 0.05,
+    "mlops": 0.85,
+    "natural-language-processing": 0.08,
+    "other": 0.02
+  }
+}
+```
+
+</MdxPage>

@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'data-validation-quiz',
+  locale: 'vi',
+  title: "Quiz: Kiểm thử Dữ liệu",
+  headings: [
+    'Khái niệm Silent Failure trong ML',
+    'Cơ chế của Great Expectations',
+    'Phát hiện Lệch Schema',
+    'Xử lý khi Validation thất bại',
+  ],
+  keywords: ['MLOps', 'Quiz', 'Data Testing', 'Great Expectations', 'Silent Failure', 'Expectations'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="data-validation-quiz" questions={[
+  {
+    id: 'silent-failure-concept',
+    title: 'Khái niệm Silent Failure trong ML',
+    prompt: 'Tại sao hiện tượng "Silent Failure" của dữ liệu lại cực kỳ nguy hiểm trong các hệ thống Machine Learning?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì pipeline mã nguồn không ném ra Exception hay làm sập server, nhưng kết quả dự đoán của mô hình bị sai lệch hoàn toàn.', isCorrect: true },
+      { id: 'opt2', label: 'Vì loa của máy chủ bị tắt âm thanh.' },
+      { id: 'opt3', label: 'Vì mô hình tự động đổi ngôn ngữ sang tiếng Pháp.' },
+      { id: 'opt4', label: 'Vì chi phí tiền điện tăng cao.' },
+    ],
+    success: 'Chính xác! Lỗi dữ liệu âm thầm làm suy thoái mô hình mà không có cảnh báo crash ở tầng ứng dụng truyền thống.',
+    error: 'Chưa chính xác. Silent Failure là hiện tượng hệ thống vẫn chạy nhưng cho ra kết quả sai do dữ liệu đầu vào bị suy biến.',
+  },
+  {
+    id: 'great-expectations-suite',
+    title: 'Cơ chế của Great Expectations',
+    prompt: 'Một `Expectation Suite` trong Great Expectations chứa nội dung gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Một danh sách các quy tắc khai báo (assertions) định nghĩa cấu trúc, kiểu dữ liệu và miền giá trị hợp lệ của DataFrame.', isCorrect: true },
+      { id: 'opt2', label: 'Mật khẩu đăng nhập vào máy chủ cơ sở dữ liệu.' },
+      { id: 'opt3', label: 'Danh sách bài hát yêu thích của tác giả.' },
+      { id: 'opt4', label: 'Mã nguồn của hệ điều hành Linux.' },
+    ],
+    success: 'Đúng! Expectation Suite tập hợp các quy tắc kiểm tra tính hợp lệ của dữ liệu (schema, nullness, value ranges).',
+    error: 'Chưa đúng. Expectation Suite chứa các khai báo kiểm thử thuộc tính dữ liệu.',
+  },
+  {
+    id: 'schema-drift-detection',
+    title: 'Phát hiện Lệch Schema',
+    prompt: 'Quy tắc kiểm tra nào sau đây giúp phát hiện trường hợp một cột bắt buộc bị đổi tên hoặc biến mất khỏi tập dữ liệu mới?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: '`expect_column_to_exist(column="...")` hoặc `expect_table_columns_to_match_ordered_list(...)`.', isCorrect: true },
+      { id: 'opt2', label: '`time.sleep(10)`' },
+      { id: 'opt3', label: '`print("Hello World")`' },
+      { id: 'opt4', label: '`sys.exit(0)`' },
+    ],
+    success: 'Chính xác! Phương thức `expect_column_to_exist` đảm bảo cột phải hiện diện trong bảng dữ liệu trước khi xử lý tiếp.',
+    error: 'Chưa chính xác. `expect_column_to_exist` dùng để kiểm tra sự tồn tại của cột.',
+  },
+  {
+    id: 'action-on-validation-failure',
+    title: 'Xử lý khi Validation thất bại',
+    prompt: 'Khi tập dữ liệu mới nạp vào không vượt qua bộ Expectation Suite trên pipeline sản xuất, hành động đúng chuẩn MLOps là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Chặn không cho dữ liệu đi vào bước huấn luyện/suy luận, cách ly dữ liệu lỗi và gửi thông báo cảnh báo cho đội ngũ kỹ sư.', isCorrect: true },
+      { id: 'opt2', label: 'Bỏ qua cảnh báo và tiếp tục huấn luyện bình thường.' },
+      { id: 'opt3', label: 'Tự động xóa sạch toàn bộ cơ sở dữ liệu gốc.' },
+      { id: 'opt4', label: 'Tắt toàn bộ hệ thống internet của công ty.' },
+    ],
+    success: 'Đúng! Chặn đứng dữ liệu bẩn tại cửa ngõ, cách ly và phát cảnh báo là nguyên tắc cốt lõi của Data Governance trong MLOps.',
+    error: 'Chưa đúng. Cần ngăn chặn dữ liệu hỏng nạp vào hệ thống để tránh làm nhiễm bẩn mô hình.',
+  },
+]} />

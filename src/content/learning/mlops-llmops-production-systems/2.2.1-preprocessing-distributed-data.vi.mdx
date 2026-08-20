@@ -1,0 +1,123 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'preprocessing-distributed-data',
+  locale: 'vi',
+  title: "Tiền xử lý & Dữ liệu Phân tán",
+  headings: [
+    'Chiến lược Tiền xử lý Văn bản (Preprocessing Pipelines)',
+    'Phân tách Dữ liệu (Stratified Data Splitting)',
+    'Thách thức Dữ liệu Lớn & Ray Data',
+    'Chuyển đổi Dữ liệu Phân tán (Distributed Transforms)',
+    'Nguyên lý Gốc & Độc lập Công cụ trong Xử lý Dữ liệu Lớn',
+  ],
+  keywords: ['MLOps', 'Preprocessing', 'Ray Data', 'Distributed', 'Tokenization', 'Stratified Split', 'Tool Independence', 'Arrow'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Chiến lược Tiền xử lý Văn bản (Preprocessing Pipelines)
+
+Tiền xử lý là bước chuyển đổi văn bản thô chưa có cấu trúc thành các vector số học mà mạng nơ-ron có thể hiểu được.
+
+<ConceptFlow
+  ariaLabel="3 bước trong pipeline tiền xử lý văn bản"
+  items={[
+    { title: '1. Text Cleaning', detail: 'Chuyển về chữ thường (lowercase), loại bỏ ký tự đặc biệt, URL, khoảng trắng thừa.' },
+    { title: '2. Tokenization & Truncation', detail: 'Tách câu thành các subword token (BERT/RoBERTa) và đệm/cắt độ dài cố định.' },
+    { title: '3. Label Encoding', detail: 'Chuyển đổi nhãn chuỗi (mlops, nlp...) sang số nguyên (0, 1...) và lưu ánh xạ vào artifact.' },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Bộ mã hóa nhãn (`LabelEncoder`) và bộ tiền xử lý (`Tokenizer`) phải được lưu trữ thành **Artifacts** để tái sử dụng chính xác 100% trong lúc Inference!
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Phân tách Dữ liệu (Stratified Data Splitting)
+
+Khi chia tập dữ liệu thành **Train (80%)**, **Validation (10%)** và **Test (10%)**, chúng ta phải bảo tồn tỷ lệ phân bố nhãn.
+
+<ComparisonMatrix
+  ariaLabel="So sánh các chiến lược phân tách tập dữ liệu"
+  rowHeaderLabel="Chiến lược chia"
+  columns={['Đặc điểm vận hành', 'Khi nào nên dùng?']}
+  rows={[
+    { label: 'Random Split', values: ['Chia ngẫu nhiên hoàn toàn', 'Dữ liệu rất lớn và phân bố nhãn cực kỳ đồng đều.'] },
+    { label: 'Stratified Split', values: ['Đảm bảo tỷ lệ % của từng class ở train, val, test là như nhau', 'Bài toán phân loại tiêu chuẩn (Khuyến nghị mặc định).'] },
+    { label: 'Time-based Split', values: ['Chia theo mốc thời gian (Train: quá khứ, Test: tương lai)', 'Dữ liệu chuỗi thời gian, dự báo thị trường, xu hướng người dùng.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Thách thức Dữ liệu Lớn & Ray Data
+
+Khi tập dữ liệu vượt quá dung lượng RAM của một máy đơn lẻ (ví dụ: hàng trăm GB hoặc TB), các thư viện như Pandas sẽ gặp lỗi `OutOfMemory (OOM)`.
+
+<CourseCards
+  ariaLabel="Các đặc tính then chốt của Ray Data trong xử lý dữ liệu lớn"
+  exampleLabel="Cơ chế kỹ thuật"
+  takeawayLabel="Lợi ích vận hành"
+  items={[
+    {
+      title: 'Ray Data Architecture (Khối phân tán)',
+      example: 'Ray Data xử lý dữ liệu dưới dạng các khối (blocks) phân tán và hỗ trợ streaming trực tiếp từ bộ nhớ đĩa/S3 vào GPU.',
+      takeaway: 'Loại bỏ hiện tượng nghẽn bộ nhớ RAM (OOM) khi xử lý tập dữ liệu vượt quá dung lượng một máy đơn lẻ.',
+    },
+    {
+      title: 'Zero-copy Read (Đọc không sao chép)',
+      example: 'Dữ liệu được chia sẻ giữa các tiến trình mà không cần copy thừa qua bộ nhớ trung gian nhờ Apache Arrow format.',
+      takeaway: 'Tối đa hóa thông lượng dữ liệu và giảm thiểu độ trễ nạp batch vào GPU.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chuyển đổi Dữ liệu Phân tán (Distributed Transforms)
+
+Với Ray Data, các thao tác tiền xử lý văn bản và tokenize được phân tán song song trên nhiều CPU/GPU core:
+
+<ConceptHierarchy
+  ariaLabel="Các phương thức chuyển đổi dữ liệu phân tán trong Ray Data"
+  root={{ title: 'Ray Data Transformation API', detail: 'Tối ưu hóa pipeline nạp dữ liệu cho huấn luyện phân tán' }}
+  children={[
+    { title: '`ds.map_batches(...)`', detail: 'Áp dụng hàm tiền xử lý theo từng batch song song trên cụm máy tính toán.' },
+    { title: '`ds.split(...)`', detail: 'Chia tập dữ liệu thành các phân vùng không trùng lặp cho từng worker GPU khi huấn luyện phân tán.' },
+    { title: '`ds.iter_torch_batches(...)`', detail: 'Stream trực tiếp các tensor PyTorch vào GPU mà không cần nạp toàn bộ dataset vào bộ nhớ trước.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Nguyên lý Gốc & Độc lập Công cụ trong Xử lý Dữ liệu Lớn
+
+Bỏ qua tên gọi của thư viện Ray Data, Spark, Polars hay Dask, mọi hệ thống tiền xử lý phân tán đều giải quyết cùng 4 bài toán bất biến:
+
+<ComparisonMatrix
+  ariaLabel="Các nguyên lý bất biến trong kiến trúc xử lý dữ liệu phân tán"
+  rowHeaderLabel="Nguyên lý First-Principles"
+  columns={['Bản chất Cơ chế', 'Hệ quả & Trade-off khi cấu hình sai']}
+  rows={[
+    { label: 'Columnar Zero-Copy (Apache Arrow)', values: ['Lưu trữ theo cột trên bộ nhớ chia sẻ, truyền con trỏ mà không cần serialize lại.', 'Tránh lãng phí 3–5x RAM và CPU do serialization overhead.'] },
+    { label: 'Partition Sizing (Kích thước phân vùng)', values: ['Chia dữ liệu thành các block từ 100MB – 512MB.', 'Partition quá nhỏ gây overhead quản lý task; partition quá lớn gây lỗi OOM trên worker.'] },
+    { label: 'Shuffle Minimization (Giảm xáo trộn mạng)', values: ['Hạn chế tối đa các thao tác gom nhóm/sắp xếp toàn cục qua mạng.', 'Data Shuffle là nguyên nhân số 1 làm chậm pipeline do nghẽn băng thông mạng (Network I/O).'] },
+    { label: 'Lazy Streaming Execution', values: ['Định nghĩa biểu đồ tính toán trước, chỉ stream dữ liệu khi bắt đầu nạp vào GPU.', 'Giải phóng RAM ngay khi batch được xử lý xong, không cần lưu trữ toàn bộ dataset trên RAM.'] },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Nếu thay thế Ray Data bằng Apache Spark, DuckDB hoặc Polars Streaming, bạn vẫn phải tuân thủ đúng 4 nguyên lý trên để pipeline không bị nghẽn I/O hay tràn bộ nhớ.
+</LessonNote>
+
+</MdxPage>

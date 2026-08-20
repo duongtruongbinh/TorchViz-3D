@@ -5,8 +5,9 @@ import 'katex/dist/katex.min.css';
 import type { Language } from '../../../../lib/localization';
 import { cx, getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
-import { DiagramConnectorLayer, ExponentComparisonChart, getDiagramAnchor, observeDiagramLayout, ProbabilityCurveChart, ProbabilitySignComparisonChart } from './diagramPrimitives';
-import { StepPlaybackControls } from './rendererPrimitives';
+import { DiagramConnectorLayer, getDiagramAnchor, observeDiagramLayout } from '../../primitives/diagramPrimitives';
+import { ExponentComparisonChart, ProbabilityCurveChart, ProbabilitySignComparisonChart } from './probabilityCharts';
+import { InteractiveStepper } from '../../shell/InteractiveStepper';
 import { getLlmRendererTheme } from './rendererTheme';
 import type {
   LlmArInferencePipelineContent,
@@ -780,7 +781,6 @@ export function LlmNextTokenLoss({ content, position = 0, animated = false, lang
   themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   const [animationStep, setAnimationStep] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(animated);
   const totalAnimationSteps = content.sequence.length * 2;
   const activePosition = animated ? Math.floor(animationStep / 2) : Math.min(Math.max(position, 0), content.sequence.length - 1);
   const isUpdatePhase = animated && animationStep % 2 === 1;
@@ -794,24 +794,6 @@ export function LlmNextTokenLoss({ content, position = 0, animated = false, lang
   const updatedLoss = -Math.log(content.updatedDistributions[activePosition]?.[targetIndex] || Number.EPSILON);
   const renderedFormula = content.formula.replace('TARGET', targetToken === '<eos>' ? '\\text{<eos>}' : `\\text{${targetToken}}`);
 
-  useEffect(() => {
-    if (!animated || !isPlaying) return;
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setIsPlaying(false);
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      setAnimationStep((current) => {
-        if (current >= totalAnimationSteps - 1) {
-          setIsPlaying(false);
-          return current;
-        }
-        return current + 1;
-      });
-    }, 1800);
-    return () => window.clearTimeout(timer);
-  }, [animated, animationStep, isPlaying, totalAnimationSteps]);
-
   return (
     <section className="grid gap-5">
       <div className="grid gap-1">
@@ -823,24 +805,13 @@ export function LlmNextTokenLoss({ content, position = 0, animated = false, lang
           <div className={cx('text-sm font-black tabular-nums', themeClasses.mutedText)}>
             Token {activePosition + 1}/{content.sequence.length} · {isUpdatePhase ? (language === 'vi' ? 'Cập nhật' : 'Update') : (language === 'vi' ? 'Dự đoán' : 'Predict')}
           </div>
-          <StepPlaybackControls
-            isPlaying={isPlaying}
-            labels={{
-              next: language === 'vi' ? 'Bước tiếp theo' : 'Next step',
-              pause: language === 'vi' ? 'Tạm dừng' : 'Pause',
-              play: language === 'vi' ? 'Phát' : 'Play',
-              previous: language === 'vi' ? 'Bước trước' : 'Previous step',
-              reset: language === 'vi' ? 'Phát lại' : 'Replay',
-            }}
-            nextDisabled={animationStep === totalAnimationSteps - 1}
-            onNext={() => { setIsPlaying(false); setAnimationStep((current) => Math.min(totalAnimationSteps - 1, current + 1)); }}
-            onPrevious={() => { setIsPlaying(false); setAnimationStep((current) => Math.max(0, current - 1)); }}
-            onReset={() => { setAnimationStep(0); setIsPlaying(true); }}
-            onTogglePlay={() => setIsPlaying((playing) => !playing)}
-            playDisabled={!isPlaying && animationStep === totalAnimationSteps - 1}
-            presentation="loss-animation"
-            previousDisabled={animationStep === 0}
-            themeClasses={themeClasses}
+          <InteractiveStepper
+            currentStep={animationStep}
+            totalSteps={totalAnimationSteps}
+            onStepChange={setAnimationStep}
+            allowAutoPlay={true}
+            autoPlayIntervalMs={1800}
+            ariaLabel="Training step controls"
           />
         </div>
       ) : null}

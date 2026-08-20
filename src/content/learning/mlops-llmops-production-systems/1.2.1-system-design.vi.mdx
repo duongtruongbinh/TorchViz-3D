@@ -1,0 +1,136 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'system-design',
+  locale: 'vi',
+  title: "Thiết kế Kiến trúc Hệ thống",
+  headings: [
+    'Tổng quan Kiến trúc Hệ thống MLOps Đầu-cuối',
+    'So sánh: Batch Inference vs Real-time Serving',
+    'Kiến trúc Tính toán (Compute) & Lưu trữ (Storage)',
+    'Các giai đoạn trong Vòng đời ML Sản xuất',
+    'Khả năng Chịu lỗi Hệ thống & Tính Độc lập Công cụ (Resilience & Tool Independence)',
+  ],
+  keywords: ['MLOps', 'System Design', 'Batch Inference', 'Real-time Serving', 'Architecture', 'Compute', 'Resilience', 'Tool Independence'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Tổng quan Kiến trúc Hệ thống MLOps Đầu-cuối
+
+Một hệ thống Machine Learning trên sản phẩm thực tế chỉ có một phần nhỏ là thuật toán (ML code), trong khi phần lớn hệ thống là hạ tầng phụ trợ xung quanh: nạp dữ liệu, kiểm thử, giám sát, phục vụ API và quản lý tài nguyên.
+
+<ConceptHierarchy
+  ariaLabel="4 tầng kiến trúc của hệ thống MLOps"
+  root={{ title: 'Hệ thống MLOps Sản xuất', detail: 'Hạ tầng toàn diện phục vụ toàn bộ vòng đời mô hình' }}
+  children={[
+    { title: '1. Data Layer', detail: 'Lưu trữ và xử lý dữ liệu thô (Data Lake/S3, BigQuery, Feature Store).' },
+    { title: '2. Compute Layer', detail: 'Huấn luyện phân tán và tiền xử lý (Ray, Kubernetes, GPU Clusters).' },
+    { title: '3. Serving Layer', detail: 'Phục vụ API thời gian thực hoặc batch (FastAPI, Ray Serve, Triton).' },
+    { title: '4. Control Layer', detail: 'Theo dõi chỉ số, drift, versioning và CI/CD (MLflow, DVC, Evidently).' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## So sánh: Batch Inference vs Real-time Serving
+
+Một trong những quyết định kiến trúc quan trọng nhất là phương thức sinh kết quả dự đoán: định kỳ theo lô (Batch) hay tức thời theo thời gian thực (Real-time).
+
+<ComparisonMatrix
+  ariaLabel="So sánh kiến trúc Batch Inference và Real-time Serving"
+  rowHeaderLabel="Đặc tính vận hành"
+  columns={['Batch Inference (Theo lô)', 'Real-time Serving (Thời gian thực)']}
+  rows={[
+    { label: 'Độ trễ yêu cầu (Latency)', values: ['Vài phút đến vài giờ (chấp nhận trễ cao)', 'Vài mili-giây đến vài trăm mili-giây (thấp)'] },
+    { label: 'Thời điểm tính toán', values: ['Chạy định kỳ (hàng đêm, hàng tuần)', 'Khi người dùng gửi request đến API'] },
+    { label: 'Chi phí hạ tầng', values: ['Rẻ (bật máy khi cần chạy, tắt khi xong)', 'Đắt hơn (cần duy trì server 24/7 và autoscaling)'] },
+    { label: 'Khả năng chịu tải', values: ['Thông lượng (throughput) rất cao', 'Cần quản lý dynamic batching và concurrency'] },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Nếu kết quả dự đoán không thay đổi từng giây và danh sách người dùng là cố định (ví dụ: gợi ý bài viết hàng ngày), hãy ưu tiên **Batch Inference** để tiết kiệm chi phí!
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kiến trúc Tính toán (Compute) & Lưu trữ (Storage)
+
+Hệ thống ML sản xuất hiện đại tách biệt rõ ràng giữa tầng **Lưu trữ (Storage)** và tầng **Tính toán (Compute)** để tối ưu khả năng mở rộng (scalability).
+
+<CourseCards
+  ariaLabel="Kiến trúc tách rời Compute và Storage trong MLOps"
+  exampleLabel="Thành phần kiến trúc"
+  takeawayLabel="Lợi ích cốt lõi"
+  items={[
+    {
+      title: 'Decoupled Storage (Lưu trữ độc lập)',
+      example: 'Dữ liệu, checkpoint và artifact được lưu trên Object Storage (S3, GCS, MinIO) thay vì gắn cứng vào ổ đĩa của máy ảo.',
+      takeaway: 'Dữ liệu an toàn vĩnh viễn, không bị mất khi worker node tắt hoặc bị thay thế.',
+    },
+    {
+      title: 'Elastic Compute (Tính toán co giãn)',
+      example: 'Cụm worker GPU/CPU (Ray Clusters, K8s Pods) chỉ được khởi tạo khi có tác vụ huấn luyện hoặc co giãn theo lưu lượng.',
+      takeaway: 'Tối ưu hóa chi phí phần cứng, chỉ trả tiền cho tài nguyên tính toán khi đang chạy tác vụ.',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  Việc tách rời giúp chúng ta không bị mất dữ liệu hay trạng thái mô hình khi các worker node bị ngắt kết nối hoặc tắt đột ngột (Spot instances).
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Các giai đoạn trong Vòng đời ML Sản xuất
+
+Vòng đời ML sản xuất diễn ra theo chu trình lặp khép kín:
+
+<ConceptFlow
+  ariaLabel="4 giai đoạn chính trong vòng đời ML sản xuất"
+  items={[
+    { title: 'Data Ingestion & Validation', detail: 'Thu thập dữ liệu, kiểm tra schema và kiểm thử chất lượng trước khi nạp.' },
+    { title: 'Training & Tracking', detail: 'Huấn luyện phân tán, lưu vết metrics và tham số vào MLflow.' },
+    { title: 'Testing & Gating', detail: 'Kiểm thử code, dữ liệu và hành vi mô hình trước khi cho phép đăng ký vào Model Registry.' },
+    { title: 'Serving & Monitoring', detail: 'Triển khai qua API, theo dõi độ trễ, lưu lượng và phát hiện Data Drift để tự động huấn luyện lại.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Khả năng Chịu lỗi Hệ thống & Tính Độc lập Công cụ (Resilience & Tool Independence)
+
+Một kỹ sư MLOps xuất sắc phải thiết kế hệ thống đảm bảo **Graceful Degradation** và không bị phụ thuộc cứng vào bất kỳ công cụ cụ thể nào.
+
+<CourseCards
+  ariaLabel="Nguyên tắc Chịu lỗi và Độc lập Công cụ trong MLOps"
+  exampleLabel="Kịch bản Vận hành"
+  takeawayLabel="Nguyên tắc Thiết kế Bất biến"
+  items={[
+    {
+      title: 'Decoupling Critical Path (Cô lập luồng quan trọng)',
+      example: 'Nếu MLflow Tracking Server hoặc Logging Collector bị sập, Inference Service vẫn phải trả kết quả dự đoán bình thường (ghi log vào queue đệm bất đồng bộ).',
+      takeaway: 'Control plane và Observability layer không bao giờ được nằm trên critical path của luồng suy luận thời gian thực.',
+    },
+    {
+      title: 'Tool Independence (Tính độc lập công cụ)',
+      example: 'Dù thay Ray bằng K8s Jobs, MLflow bằng W&B, hay DVC bằng LakeFS, ranh giới giữa Data Ingestion, Model Artifact và Deployment Registry vẫn giữ nguyên.',
+      takeaway: 'Công cụ là chi tiết cài đặt (implementation detail); kiến trúc hệ thống và hợp đồng dữ liệu (schemas & contracts) mới là nguyên lý gốc (first principles).',
+    },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Luôn thiết kế cơ chế **Circuit Breaker** và **Fallback Rule**: nếu model inference gặp sự cố hoặc timeout, hệ thống tự động trả về baseline dự phòng (như bài viết thịnh hành nhất) thay vì trả về HTTP 500 cho người dùng.
+</LessonNote>
+
+</MdxPage>

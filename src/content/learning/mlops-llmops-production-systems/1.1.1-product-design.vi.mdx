@@ -1,0 +1,119 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'product-design',
+  locale: 'vi',
+  title: "Thiết kế Sản phẩm AI",
+  headings: [
+    'Tại sao cần Thiết kế Sản phẩm trước khi viết Code?',
+    'Xác định Mục tiêu Kinh doanh & KPI kỹ thuật',
+    'Đánh giá Tính khả thi & Dữ liệu sẵn có',
+    'Lựa chọn Giải pháp: Heuristic vs Machine Learning',
+  ],
+  keywords: ['MLOps', 'Product Design', 'Problem Formulation', 'KPIs', 'Heuristics', 'Feasibility'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tại sao cần Thiết kế Sản phẩm trước khi viết Code?
+
+Phần lớn các dự án Machine Learning thất bại không phải vì thuật toán yếu, mà vì **giải sai bài toán kinh doanh**. Trước khi xây dựng mô hình hoặc huấn luyện dữ liệu, chúng ta phải bắt đầu từ câu hỏi cốt lõi của sản phẩm.
+
+<CourseCards
+  ariaLabel="Các câu hỏi cốt lõi khi thiết kế sản phẩm AI"
+  exampleLabel="Câu hỏi đặt ra"
+  takeawayLabel="Ý nghĩa trong MLOps"
+  items={[
+    {
+      title: 'Giá trị mang lại (Value Proposition)',
+      example: 'Mô hình giúp tăng doanh thu, giảm thời gian xử lý thủ công hay nâng cao trải nghiệm người dùng như thế nào?',
+      takeaway: 'Mô hình chỉ có giá trị khi giải quyết đúng nút thắt kinh doanh thay vì chỉ tối ưu loss function đơn thuần.',
+    },
+    {
+      title: 'Người dùng cuối (End User)',
+      example: 'Ai sẽ sử dụng kết quả dự đoán của mô hình? Họ cần độ trễ bao nhiêu mili-giây và giao diện tương tác ra sao?',
+      takeaway: 'Quyết định kiến trúc phục vụ (Batch hay Real-time) và ràng buộc kỹ thuật về độ trễ P99.',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Quy tắc số 1 của MLOps:** Không bao giờ bắt đầu bằng việc chọn model kiến trúc nào, mà luôn bắt đầu bằng bài toán người dùng cần giải quyết là gì.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Xác định Mục tiêu Kinh doanh & KPI kỹ thuật
+
+Một hệ thống ML thành công phải cầu nối được giữa **Business Objective** và **ML Metric**. Không thể chỉ tối ưu Loss function mà bỏ qua tác động thực tế đến người dùng.
+
+<ComparisonMatrix
+  ariaLabel="So sánh chỉ số kinh doanh và chỉ số ML tương ứng"
+  rowHeaderLabel="Chỉ số Kinh doanh"
+  columns={['Chỉ số ML tương ứng', 'Mối quan hệ & Ý nghĩa']}
+  rows={[
+    { label: 'Tăng tỷ lệ giữ chân người dùng (Retention Rate)', values: ['F1-score / Recall cho bài toán gợi ý', 'Gợi ý đúng nội dung họ thích sẽ giữ chân người dùng lâu hơn trên nền tảng.'] },
+    { label: 'Giảm chi phí kiểm duyệt thủ công (Review Time)', values: ['Precision ở ngưỡng tự động duyệt cao', 'Đảm bảo ít cảnh báo sai để đội ngũ kiểm duyệt không bị quá tải.'] },
+    { label: 'Phản hồi người dùng tức thì (< 200ms)', values: ['P99 Latency & Batch Size tối ưu', 'Model chính xác nhưng chậm sẽ làm người dùng rời bỏ ứng dụng.'] },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Hãy luôn xác định một **Minimum Viable Metric (MVM)**: ngưỡng hiệu năng tối thiểu mà mô hình phải vượt qua thì mới được phép đưa vào thử nghiệm thực tế.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đánh giá Tính khả thi & Dữ liệu sẵn có
+
+Trước khi đầu tư tài nguyên GPU và thời gian kỹ sư, ta cần thực hiện bài toán đánh giá tính khả thi theo 3 khía cạnh:
+
+<CourseCards
+  ariaLabel="3 khía cạnh đánh giá tính khả thi bài toán ML"
+  exampleLabel="Vấn đề kiểm tra"
+  takeawayLabel="Hệ quả quyết định"
+  items={[
+    {
+      title: 'Tính sẵn có của Dữ liệu (Data Feasibility)',
+      example: 'Bạn đã có dữ liệu gán nhãn chưa? Tỷ lệ nhãn bị thiếu (missing) hoặc mất cân bằng (imbalance) là bao nhiêu?',
+      takeaway: 'Không có dữ liệu sạch và đủ đại diện thì không thể xây dựng mô hình học máy thành công.',
+    },
+    {
+      title: 'Tính khả thi Kỹ thuật (Technical Feasibility)',
+      example: 'Bài toán có thể giải quyết được bằng ML hiện đại không? Có thể trích xuất các đặc trưng phân biệt rõ ràng không?',
+      takeaway: 'Nếu bài toán quá mơ hồ hoặc nhiễu vượt quá tín hiệu, nên bắt đầu bằng heuristic đơn giản.',
+    },
+    {
+      title: 'Chi phí & Hoàn vốn (ROI Feasibility)',
+      example: 'Chi phí thu thập dữ liệu, huấn luyện và duy trì hạ tầng suy luận có thấp hơn giá trị hệ thống đem lại không?',
+      takeaway: 'Chỉ triển khai ML khi lợi ích kinh doanh vượt trội so với tổng chi phí sở hữu hạ tầng (TCO).',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Lựa chọn Giải pháp: Heuristic vs Machine Learning
+
+Đừng vội dùng Deep Learning cho mọi bài toán. Một giải pháp rule-based (heuristic) đơn giản thường là bước khởi đầu tốt nhất.
+
+<ConceptFlow
+  ariaLabel="Lộ trình nâng cấp từ Heuristic lên Mô hình phức tạp"
+  items={[
+    { title: '1. Heuristic Baseline', detail: 'Viết luật đơn giản (regex, điều kiện logic, lookup table) để có kết quả ngay lập tức và làm chuẩn so sánh.' },
+    { title: '2. Simple Model', detail: 'Thử nghiệm mô hình tuyến tính (Logistic Regression, TF-IDF) để thiết lập baseline định lượng nhanh.' },
+    { title: '3. Complex Model', detail: 'Chỉ chuyển sang Transformer / Deep Learning khi baseline đơn giản không đáp ứng đủ KPI sản phẩm.' },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Nếu một hệ thống luật 20 dòng code giải quyết được 80% bài toán với chi phí vận hành bằng 0, hãy bắt đầu với nó trước khi xây dựng pipeline ML phức tạp!
+</LessonNote>
+
+</MdxPage>

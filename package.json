@@ -18,6 +18,7 @@
     "test": "node --test src/lib/*.test.ts",
     "build": "vite build",
     "verify": "npm run typecheck && npm test && npm run build",
+    "sync:titles": "node --experimental-strip-types scripts/syncMdxTitles.ts",
     "audit:cl-citation-evidence": "node --experimental-strip-types scripts/auditContinualLearningCitationEvidence.mjs",
     "preview": "vite preview"
   },

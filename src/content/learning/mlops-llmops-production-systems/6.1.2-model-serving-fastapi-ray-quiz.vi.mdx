@@ -1,0 +1,89 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'model-serving-fastapi-ray-quiz',
+  locale: 'vi',
+  title: "Quiz: Model Serving",
+  headings: [
+    'Vai trò của Pydantic trong FastAPI',
+    'Khái niệm Dynamic Batching',
+    'Khả năng Autoscaling của Ray Serve',
+    'Chia sẻ GPU (Fractional GPU)',
+    'Chẩn đoán: P99 Latency Tăng vọt nhưng CPU Thấp',
+  ],
+  keywords: ['MLOps', 'Quiz', 'FastAPI', 'Ray Serve', 'Dynamic Batching', 'Pydantic', 'Diagnostic'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="model-serving-fastapi-ray-quiz" questions={[
+  {
+    id: 'fastapi-pydantic-validation',
+    title: 'Vai trò của Pydantic trong FastAPI',
+    prompt: 'Khi xây dựng Inference API bằng FastAPI, Pydantic đảm nhiệm chức năng quan trọng nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tự động kiểm tra và ép kiểu dữ liệu đầu vào theo định nghĩa Schema, trả về mã lỗi 422 nếu request thiếu trường hoặc sai định dạng.', isCorrect: true },
+      { id: 'opt2', label: 'Tự động huấn luyện lại mô hình mỗi khi có người gọi API.' },
+      { id: 'opt3', label: 'Xóa bớt file dữ liệu trên ổ cứng.' },
+      { id: 'opt4', label: 'Tạo ảnh đại diện cho người dùng.' },
+    ],
+    success: 'Chính xác! Pydantic đảm bảo dữ liệu gửi lên API tuân thủ đúng định dạng và kiểu dữ liệu trước khi chuyển vào hàm dự đoán.',
+    error: 'Chưa chính xác. Pydantic đóng vai trò kiểm thực dữ liệu (data validation) cho các request đầu vào.',
+  },
+  {
+    id: 'dynamic-batching-concept',
+    title: 'Khái niệm Dynamic Batching',
+    prompt: 'Kỹ thuật Dynamic Batching trong Ray Serve giải quyết bài toán gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tự động gom nhiều request đến từ các người dùng khác nhau trong một khoảng thời gian ngắn (vài ms) thành 1 batch để tận dụng khả năng tính toán song song của GPU.', isCorrect: true },
+      { id: 'opt2', label: 'Lưu tất cả request vào file text và chờ 24 giờ sau mới xử lý.' },
+      { id: 'opt3', label: 'Giảm số lượng GPU trong cụm về 0.' },
+      { id: 'opt4', label: 'Tắt kết nối internet của người dùng.' },
+    ],
+    success: 'Đúng! Dynamic Batching giúp tăng thông lượng xử lý (throughput) gấp nhiều lần mà không làm tăng đáng kể độ trễ.',
+    error: 'Chưa đúng. Dynamic Batching gom các request đồng thời lại để nạp vào GPU cùng một lúc, tăng thông lượng.',
+  },
+  {
+    id: 'ray-serve-autoscaling',
+    title: 'Khả năng Autoscaling của Ray Serve',
+    prompt: 'Cơ chế Autoscaling trong Ray Serve giúp hệ thống phục vụ mô hình như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tự động tăng số bản sao (replicas) khi lưu lượng request tăng cao và giảm bớt replicas khi vắng tải để tiết kiệm chi phí phần cứng.', isCorrect: true },
+      { id: 'opt2', label: 'Tự động mua thêm máy chủ vật lý qua thẻ tín dụng cá nhân.' },
+      { id: 'opt3', label: 'Giảm độ chính xác của mô hình khi có nhiều người truy cập.' },
+      { id: 'opt4', label: 'Tự động khởi động lại toàn bộ mạng internet.' },
+    ],
+    success: 'Chính xác! Ray Serve theo dõi số request đang chờ (backlog) để điều chỉnh số lượng replica linh hoạt.',
+    error: 'Chưa chính xác. Autoscaling tự động điều chỉnh số lượng bản sao mô hình theo tải thực tế.',
+  },
+  {
+    id: 'fractional-gpu-benefit',
+    title: 'Chia sẻ GPU (Fractional GPU)',
+    prompt: 'Cấu hình `ray_actor_options={"num_gpus": 0.25}` trong Ray Serve cho phép điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Cho phép 4 replica của mô hình chạy chung trên cùng 1 card GPU vật lý.', isCorrect: true },
+      { id: 'opt2', label: 'Bắt buộc phải mua thêm 4 card GPU mới.' },
+      { id: 'opt3', label: 'Làm hỏng 25% phần cứng của card đồ họa.' },
+      { id: 'opt4', label: 'Giảm 75% giá trị của cổ phiếu công ty.' },
+    ],
+    success: 'Đúng! Fractional GPU cho phép chia sẻ tài nguyên 1 GPU cho nhiều tác vụ/replica nhỏ, tối ưu hóa triệt để chi phí hạ tầng.',
+    error: 'Chưa đúng. `num_gpus: 0.25` cho phép 4 tiến trình chia sẻ chung tài nguyên trên 1 GPU.',
+  },
+  {
+    id: 'serving-latency-surge-diagnosis',
+    title: 'Chẩn đoán: P99 Latency Tăng vọt nhưng CPU Thấp',
+    prompt: 'Hệ thống Model Serving ghi nhận độ trễ P99 tăng vọt từ 80ms lên 900ms, nhưng mức sử dụng CPU/GPU trên server vẫn rất thấp (<20%). Nguyên nhân kiến trúc nào sau đây là thủ phạm phổ biến nhất?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Xảy ra hiện tượng nghẽn I/O đồng bộ (Synchronous Blocking Call) như tải lại model trọng số per-request, truy vấn database tuần tự không dùng Connection Pool, hoặc hàng đợi request bị nghẽn (Queue saturation).', isCorrect: true },
+      { id: 'opt2', label: 'Do mạng nơ-ron tự động đổi hệ số học sang số âm.' },
+      { id: 'opt3', label: 'Do Python đã xóa hết RAM của hệ điều hành.' },
+      { id: 'opt4', label: 'Do người dùng gõ phím quá nhanh.' },
+    ],
+    success: 'Chính xác! Khi CPU/GPU thấp nhưng latency cao, vấn đề 99% nằm ở Blocking I/O (load model từ ổ đĩa trong request handler, sync network calls đến feature store) hoặc tắc nghẽn hàng đợi (Request Queuing).',
+    error: 'Chưa chính xác. Độ trễ cao kèm CPU thấp là dấu hiệu kinh điển của blocking I/O hoặc việc load lại checkpoint trong mỗi request.',
+  },
+]} />
+

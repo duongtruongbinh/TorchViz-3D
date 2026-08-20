@@ -1,0 +1,106 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'code-testing-code-lab',
+  locale: 'vi',
+  title: "Lab: Pytest cho Pipeline ML",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Cấu hình Fixtures trong conftest.py',
+    'Viết Unit Test cho Preprocessing & Models',
+    'Chạy & Kiểm tra Test Coverage với Pytest',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Pytest', 'conftest.py', 'Coverage', 'Unit Tests'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ xây dựng bộ test suite hoàn chỉnh trong thư mục `tests/code/`:
+1. Tạo file `tests/code/conftest.py` chứa các **fixtures** khởi tạo dữ liệu mẫu và tokenizer.
+2. Viết các bài test đơn vị trong `test_data.py` và `test_predict.py`.
+3. Chạy kiểm thử tự động bằng lệnh `pytest` và đo độ bao phủ mã nguồn (**Code Coverage**).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cấu hình Fixtures trong conftest.py
+
+Tạo file `tests/code/conftest.py` để định nghĩa các tài nguyên chia sẻ:
+
+```python
+import pytest
+import pandas as pd
+from transformers import BertTokenizer
+
+@pytest.fixture(scope="module")
+def sample_df():
+    """Tạo DataFrame mẫu giả lập dữ liệu thô."""
+    data = [
+        {"id": 1, "title": "Transfer Learning with PyTorch", "description": "A guide to fine-tuning transformers.", "tag": "computer-vision"},
+        {"id": 2, "title": "Building REST APIs with FastAPI", "description": "Production ready microservices in python.", "tag": "mlops"},
+        {"id": 3, "title": "BERT for Sentiment Analysis", "description": "NLP text classification using HuggingFace.", "tag": "natural-language-processing"},
+    ]
+    return pd.DataFrame(data)
+
+@pytest.fixture(scope="module")
+def tokenizer():
+    """Khởi tạo tokenizer nhẹ phục vụ test nhanh."""
+    return BertTokenizer.from_pretrained("google/bert_uncased_L-2_H-128_A-2")
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Viết Unit Test cho Preprocessing & Models
+
+Tạo file `tests/code/test_data.py` kiểm thử các hàm tiền xử lý:
+
+```python
+import pytest
+from madewithml.data import preprocess_text, clean_text
+
+@pytest.mark.parametrize(
+    "input_text, expected_output",
+    [
+        ("Check out https://madewithml.com for ML!", "check out for ml"),
+        ("Hello, WORLD!!! 123", "hello world 123"),
+        ("   extra   spaces   ", "extra spaces"),
+    ],
+)
+def test_clean_text(input_text: str, expected_output: str):
+    """Kiểm tra tính đúng đắn của hàm loại bỏ URL và chuẩn hóa chữ thường."""
+    assert clean_text(input_text) == expected_output
+
+def test_preprocess_dataframe(sample_df):
+    """Kiểm tra tiền xử lý toàn bộ bảng dữ liệu mẫu."""
+    processed_df = preprocess_text(sample_df)
+    assert "text" in processed_df.columns
+    assert len(processed_df) == len(sample_df)
+    assert not processed_df["text"].isnull().any()
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Chạy & Kiểm tra Test Coverage với Pytest
+
+Chạy bộ test và xuất báo cáo độ bao phủ từ terminal:
+
+```bash
+# Chạy toàn bộ test suite trong tests/code/
+pytest tests/code/ -v
+
+# Chạy test kết hợp đo coverage của module madewithml
+pytest tests/code/ --cov=madewithml --cov-report=term-missing
+```
+
+<LessonNote tone="tip">
+  Khi cấu hình CI/CD, chúng ta sẽ đặt ngưỡng **Fail nếu Test Coverage < 80%** để đảm bảo mọi tính năng mới luôn được viết test đi kèm!
+</LessonNote>
+
+</MdxPage>

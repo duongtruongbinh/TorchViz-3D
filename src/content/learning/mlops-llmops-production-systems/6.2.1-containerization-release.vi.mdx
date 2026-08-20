@@ -1,0 +1,96 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'containerization-release',
+  locale: 'vi',
+  title: "Đóng gói Docker & Release",
+  headings: [
+    'Tại sao Cần Đóng gói Container với Docker?',
+    'Tối ưu Hóa Dockerfile cho AI/ML (Multi-stage Build & Layer Caching)',
+    'Chiến lược Phát hành Mô hình (Rollout Strategies)',
+    'Canary Deployment vs Blue-Green Deployment vs Shadowing',
+  ],
+  keywords: ['MLOps', 'Docker', 'Containerization', 'Rollout', 'Canary', 'Blue-Green', 'Shadow Deployment'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Tại sao Cần Đóng gói Container với Docker?
+
+Một câu nói kinh điển của các lập trình viên là: *"Mã nguồn chạy rất tốt trên máy của tôi nhưng lại lỗi trên máy chủ sản xuất!"*. Docker giải quyết bài toán này bằng cách đóng gói toàn bộ hệ điều hành, thư viện C++ (CUDA, cuDNN), Python runtime và mã nguồn thành một tệp hình ảnh độc lập (**Docker Image**).
+
+<CourseCards
+  ariaLabel="Lợi ích của Docker trong triển khai ML"
+  exampleLabel="Vấn đề môi trường"
+  takeawayLabel="Lợi ích với Docker"
+  items={[
+    {
+      title: 'Lệch phiên bản Thư viện (Dependency Hell)',
+      example: 'Máy trạm dùng PyTorch 2.1 với CUDA 12.1 trong khi máy chủ production chỉ có CUDA 11.8.',
+      takeaway: 'Docker image đóng gói cố định toàn bộ driver phụ trợ và CUDA runtime, chạy đồng nhất 100% ở bất kỳ đâu.',
+    },
+    {
+      title: 'Khả năng Điều phối với Kubernetes',
+      example: 'Cần nhân bản thêm 20 máy chủ phục vụ API trong 30 giây khi có đợt siêu sale.',
+      takeaway: 'Kubernetes có thể kéo Docker image và khởi động các Pods mới gần như tức thì.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tối ưu Hóa Dockerfile cho AI/ML (Multi-stage Build & Layer Caching)
+
+Các thư viện AI (PyTorch, Transformers) có kích thước rất lớn (hàng GB). Việc tối ưu Dockerfile là bắt buộc:
+
+<ComparisonMatrix
+  ariaLabel="Các kỹ thuật tối ưu Dockerfile cho ML"
+  rowHeaderLabel="Kỹ thuật Tối ưu"
+  columns={['Cách thức Áp dụng', 'Hiệu quả Đạt được']}
+  rows={[
+    { label: 'Layer Caching', values: ['Đặt lệnh `COPY requirements.txt` và `pip install` TRƯỚC lệnh `COPY . .`.', 'Khi chỉ sửa đổi mã nguồn Python, Docker không phải cài lại toàn bộ thư viện (tiết kiệm 10 phút build).'] },
+    { label: 'Multi-stage Build', values: ['Giai đoạn 1: Dùng base image đầy đủ compiler (gcc, g++) để build dependencies. Giai đoạn 2: Chỉ copy các packages đã build sang base image siêu nhẹ (slim/distroless).', 'Giảm kích thước Image từ 4GB xuống còn dưới 800MB.'] },
+    { label: 'Non-root User', values: ['Tạo user riêng `RUN useradd -m appuser && USER appuser`.', 'Đảm bảo tiêu chuẩn an ninh thông tin, không chạy container với quyền root.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Chiến lược Phát hành Mô hình (Rollout Strategies)
+
+Khi thay thế mô hình cũ (Model v1) bằng mô hình mới (Model v2), không bao giờ nên chuyển đổi 100% lưu lượng người dùng đột ngột.
+
+<ConceptHierarchy
+  ariaLabel="3 chiến lược rollout mô hình phổ biến trong MLOps"
+  root={{ title: 'Chiến lược Phát hành Mô hình (Release)', detail: 'Giảm thiểu rủi ro khi đưa mô hình mới ra phục vụ thực tế' }}
+  children={[
+    { title: '1. Canary Deployment', detail: 'Chuyển 5% lưu lượng sang model mới; theo dõi lỗi/độ trễ. Nếu ổn định thì tăng dần lên 25%, 50%, 100%.' },
+    { title: '2. Blue-Green Deployment', detail: 'Duy trì 2 môi trường song song (Blue = Hiện tại, Green = Mới). Chuyển router tức thì sang Green sau khi kiểm tra xong.' },
+    { title: '3. Shadow Deployment (Dark Launch)', detail: 'Gửi bản sao của 100% request thực tế tới Model mới chạy ngầm để so sánh kết quả mà không trả về cho người dùng.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## So sánh: Canary vs Blue-Green vs Shadowing
+
+Lựa chọn chiến lược triển khai phù hợp tùy theo mức độ rủi ro:
+
+<ComparisonMatrix
+  ariaLabel="So sánh các chiến lược triển khai mô hình"
+  rowHeaderLabel="Chiến lược"
+  columns={['Mức độ Rủi ro', 'Chi phí Hạ tầng', 'Trường hợp Sử dụng Phù hợp']}
+  rows={[
+    { label: 'Canary Release', values: ['Rất thấp (chỉ ảnh hưởng nhóm nhỏ)', 'Trung bình (chỉ cần scale thêm vài replica)', 'Mô hình phân loại bài viết, gợi ý sản phẩm tiêu chuẩn (Khuyến nghị).'] },
+    { label: 'Blue-Green', values: ['Thấp (dễ dàng rollback trong 1 giây)', 'Cao (gấp đôi hạ tầng trong lúc switch)', 'Các hệ thống tài chính yêu cầu thời gian downtime bằng 0 tuyệt đối.'] },
+    { label: 'Shadow Deployment', values: ['Bằng 0 (người dùng không nhìn thấy kết quả)', 'Rất cao (chạy song song 2 mô hình cho mọi request)', 'Mô hình chuẩn đoán y tế, tự hành, phê duyệt tín dụng rủi ro cao.'] },
+  ]}
+/>
+
+</MdxPage>

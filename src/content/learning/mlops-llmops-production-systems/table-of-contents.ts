@@ -1,185 +1,166 @@
 import type { LearningTableOfContents, LearningTocTrackSeed } from '../../../core/learning/types.ts';
 
 const chapters: LearningTocTrackSeed[] = [
+  // Chapter 1: System & Product Design
   {
-    id: 'data-management-versioning',
+    id: 'system-product-design',
     text: {
-      title: { en: "1.1 Data Management & Versioning", vi: "1.1 Data Management & Versioning" },
-      description: { en: "Dataset and model versioning, validation, lineage, feature stores, and data pipelines.", vi: "Versioning dataset/model, validation, lineage, feature store và data pipeline." },
+      title: { en: "1. System & Product Design", vi: "1. Thiết kế Hệ thống & Sản phẩm AI" },
+      description: {
+        en: "Define problems, metrics, business objectives, architectural choices, compute environments, and inference strategies.",
+        vi: "Xác định bài toán, KPI/Metrics, tính khả thi, kiến trúc hệ thống, môi trường tính toán và chiến lược inference.",
+      },
     },
     lessonIds: [
-      'dvc-data-version-control',
-      'data-validation-great-expectations-pandera',
-      'data-lineage',
-      'feature-stores',
-      'data-pipelines',
+      { id: 'product-design', status: 'available', contentStatus: 'published', title: { en: 'Product Design', vi: 'Thiết kế Sản phẩm AI' } },
+      { id: 'product-design-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Product Design', vi: 'Quiz: Thiết kế Sản phẩm' } },
+      { id: 'product-design-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Framing & Baseline', vi: 'Lab: Xác lập Bài toán & Baseline' } },
+      { id: 'system-design', status: 'available', contentStatus: 'published', title: { en: 'System Design', vi: 'Thiết kế Kiến trúc Hệ thống' } },
+      { id: 'system-design-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: System Design', vi: 'Quiz: Kiến trúc Hệ thống' } },
+      { id: 'system-design-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Environment & Setup', vi: 'Lab: Thiết lập Môi trường' } },
     ],
   },
+
+  // Chapter 2: Data Engineering & Preprocessing
   {
-    id: 'experiment-tracking',
+    id: 'data-engineering-preprocessing',
     text: {
-      title: { en: "1.2 Experiment Tracking", vi: "1.2 Experiment Tracking" },
-      description: { en: "Track runs, hyperparameters, metrics, artifacts, code versions, comparisons, and reports.", vi: "Theo dõi run, hyperparameter, metric, artifact, code version, so sánh và báo cáo." },
+      title: { en: "2. Data Engineering & Preprocessing", vi: "2. Kỹ thuật & Xử lý Dữ liệu" },
+      description: {
+        en: "Exploratory data analysis, cleaning, tokenization, transformations, and distributed datasets with Ray Data.",
+        vi: "Phân tích khám phá (EDA), làm sạch dữ liệu, tokenization, biến đổi đặc trưng và xử lý dữ liệu phân tán với Ray Data.",
+      },
     },
     lessonIds: [
-      'weights-biases-tracking',
-      'mlflow-tracking',
-      'experiment-tracking-fields',
-      'comparing-runs-reporting',
+      { id: 'data-preparation-eda', status: 'available', contentStatus: 'published', title: { en: 'Data Prep & EDA', vi: 'Thu thập Dữ liệu & EDA' } },
+      { id: 'data-preparation-eda-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Data Prep & EDA', vi: 'Quiz: Thu thập & EDA' } },
+      { id: 'data-preparation-eda-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: EDA with Pandas', vi: 'Lab: Phân tích Dữ liệu với Pandas' } },
+      { id: 'preprocessing-distributed-data', status: 'available', contentStatus: 'published', title: { en: 'Preprocessing & Distributed Data', vi: 'Tiền xử lý & Dữ liệu Phân tán' } },
+      { id: 'preprocessing-distributed-data-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Preprocessing', vi: 'Quiz: Tiền xử lý Dữ liệu' } },
+      { id: 'preprocessing-distributed-data-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Ray Data Pipeline', vi: 'Lab: Pipeline với Ray Data' } },
     ],
   },
+
+  // Chapter 3: Training, Experiment Tracking & Evaluation
   {
-    id: 'model-development-training-infrastructure',
+    id: 'training-tracking-evaluation',
     text: {
-      title: { en: "1.3 Training Infrastructure", vi: "1.3 Training Infrastructure" },
-      description: { en: "GPU cloud, distributed training, mixed precision, checkpoints, and training monitoring.", vi: "GPU cloud, distributed training, mixed precision, checkpoint và monitoring khi train." },
+      title: { en: "3. Training, Tracking & Evaluation", vi: "3. Huấn luyện, Thử nghiệm & Đánh giá" },
+      description: {
+        en: "Distributed training with Ray Train & PyTorch, experiment tracking with MLflow, hyperparameter tuning, and multi-slice evaluation.",
+        vi: "Huấn luyện phân tán với Ray Train & PyTorch, quản lý thử nghiệm qua MLflow, tuning siêu tham số và đánh giá đa lát cắt.",
+      },
     },
     lessonIds: [
-      'gpu-cloud-training',
-      'distributed-training',
-      'mixed-precision-training',
-      'model-checkpointing',
-      'training-monitoring-alerting',
+      { id: 'distributed-training', status: 'available', contentStatus: 'published', title: { en: 'Distributed Training', vi: 'Huấn luyện Phân tán' } },
+      { id: 'distributed-training-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Training', vi: 'Quiz: Huấn luyện Phân tán' } },
+      { id: 'distributed-training-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: PyTorch & Ray Train', vi: 'Lab: Huấn luyện với Ray Train' } },
+      { id: 'experiment-tracking', status: 'available', contentStatus: 'published', title: { en: 'Experiment Tracking', vi: 'Quản lý Thử nghiệm (Tracking)' } },
+      { id: 'experiment-tracking-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Tracking', vi: 'Quiz: Quản lý Thử nghiệm' } },
+      { id: 'experiment-tracking-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: MLflow Tracking', vi: 'Lab: Thực hành với MLflow' } },
+      { id: 'tuning-evaluation', status: 'available', contentStatus: 'published', title: { en: 'Tuning & Sliced Evaluation', vi: 'Tuning & Đánh giá Slice' } },
+      { id: 'tuning-evaluation-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Evaluation', vi: 'Quiz: Tuning & Đánh giá' } },
+      { id: 'tuning-evaluation-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Ray Tune & Slicing', vi: 'Lab: Tinh chỉnh & Đánh giá Lát cắt' } },
     ],
   },
+
+  // Chapter 4: Testing ML Systems
   {
-    id: 'model-evaluation-testing',
+    id: 'testing-ml-systems',
     text: {
-      title: { en: "1.4 Model Evaluation & Testing", vi: "1.4 Model Evaluation & Testing" },
-      description: { en: "Offline benchmarks, human evaluation, LLM-as-judge, red teaming, and online release evaluation.", vi: "Benchmark offline, human evaluation, LLM-as-judge, red teaming và đánh giá release online." },
+      title: { en: "4. Testing ML Systems", vi: "4. Kiểm thử Hệ thống ML Toàn diện" },
+      description: {
+        en: "Code unit testing, data validation suites (Great Expectations), and model behavioral testing (invariance, directional, MFT).",
+        vi: "Kiểm thử code (unit tests), kiểm thử dữ liệu (Great Expectations) và kiểm thử hành vi mô hình (invariance, directional, MFT).",
+      },
     },
     lessonIds: [
-      'task-specific-benchmarks',
-      'human-evaluation-guidelines',
-      'llm-as-judge',
-      'red-teaming',
-      'model-ab-testing',
-      'shadow-deployment',
-      'canary-releases',
-      'user-feedback-collection',
+      { id: 'code-testing', status: 'available', contentStatus: 'published', title: { en: 'Code & Pipeline Testing', vi: 'Kiểm thử Code & Pipeline' } },
+      { id: 'code-testing-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Code Testing', vi: 'Quiz: Kiểm thử Code' } },
+      { id: 'code-testing-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Pytest for ML', vi: 'Lab: Pytest cho Pipeline ML' } },
+      { id: 'data-validation', status: 'available', contentStatus: 'published', title: { en: 'Data Validation', vi: 'Kiểm thử Dữ liệu (Data Testing)' } },
+      { id: 'data-validation-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Data Validation', vi: 'Quiz: Kiểm thử Dữ liệu' } },
+      { id: 'data-validation-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Great Expectations', vi: 'Lab: Kiểm thử với Great Expectations' } },
+      { id: 'model-behavioral-testing', status: 'available', contentStatus: 'published', title: { en: 'Model Behavioral Testing', vi: 'Kiểm thử Hành vi Mô hình' } },
+      { id: 'model-behavioral-testing-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Model Testing', vi: 'Quiz: Kiểm thử Mô hình' } },
+      { id: 'model-behavioral-testing-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Behavioral Test Suite', vi: 'Lab: Xây dựng Behavioral Suite' } },
     ],
   },
+
+  // Chapter 5: Reproducibility & Versioning
   {
-    id: 'model-deployment-serving',
+    id: 'reproducibility-versioning',
     text: {
-      title: { en: "1.5 Model Deployment & Serving", vi: "1.5 Model Deployment & Serving" },
-      description: { en: "API serving, serving optimization, inference backends, and unified provider interfaces.", vi: "API serving, tối ưu serving, inference backend và interface provider thống nhất." },
+      title: { en: "5. Reproducibility & Versioning", vi: "5. Quản lý Phiên bản & Chuẩn hóa Code" },
+      description: {
+        en: "Data and model artifact versioning with DVC, environment reproducibility, pre-commit hooks, and styling standards.",
+        vi: "Quản lý phiên bản dữ liệu và mô hình với DVC, chuẩn hóa code với pre-commit hooks và quản lý môi trường.",
+      },
     },
     lessonIds: [
-      'fastapi-ml-apis',
-      'flask-ml-apis',
-      'grpc-internal-services',
-      'bentoml-serving',
-      'ray-serve',
-      'quantization-serving',
-      'pruning-model-optimization',
-      'knowledge-distillation',
-      'onnx-model-format',
-      'tensorrt-inference',
-      'ollama-serving',
-      'vllm-serving',
-      'tgi-serving',
-      'litellm-unified-api',
-      'nvidia-nim-inference',
+      { id: 'data-model-versioning', status: 'available', contentStatus: 'published', title: { en: 'Data & Model Versioning', vi: 'Versioning Dữ liệu & Model' } },
+      { id: 'data-model-versioning-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Versioning', vi: 'Quiz: Quản lý Phiên bản' } },
+      { id: 'data-model-versioning-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: DVC & Remote Storage', vi: 'Lab: DVC & Remote Storage' } },
+      { id: 'code-quality-precommit', status: 'available', contentStatus: 'published', title: { en: 'Code Quality & Pre-commit', vi: 'Chuẩn hóa Code & Pre-commit' } },
+      { id: 'code-quality-precommit-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Code Quality', vi: 'Quiz: Chuẩn hóa Code' } },
+      { id: 'code-quality-precommit-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Pre-commit Setup', vi: 'Lab: Cấu hình Pre-commit' } },
     ],
   },
+
+  // Chapter 6: Deployment & Serving
   {
-    id: 'containerization-orchestration',
+    id: 'deployment-serving',
     text: {
-      title: { en: "1.6 Containerization & Orchestration", vi: "1.6 Containerization & Orchestration" },
-      description: { en: "Docker, Compose, Kubernetes, Helm, autoscaling, and GPU scheduling.", vi: "Docker, Compose, Kubernetes, Helm, autoscaling và GPU scheduling." },
+      title: { en: "6. Deployment & Serving", vi: "6. Triển khai & Phục vụ Mô hình" },
+      description: {
+        en: "Real-time serving with FastAPI and Ray Serve, containerization with Docker, and rollout strategies (Canary, Blue-Green).",
+        vi: "Phục vụ thời gian thực với FastAPI và Ray Serve, đóng gói Docker và chiến lược rollout (Canary, Blue-Green).",
+      },
     },
     lessonIds: [
-      'docker-containerization',
-      'ml-service-dockerfile',
-      'multi-stage-builds',
-      'docker-compose-dev',
-      'kubernetes-orchestration',
-      'helm-charts',
-      'horizontal-pod-autoscaler',
-      'gpu-scheduling-k8s',
+      { id: 'model-serving-fastapi-ray', status: 'available', contentStatus: 'published', title: { en: 'FastAPI & Ray Serve', vi: 'Phục vụ với FastAPI & Ray Serve' } },
+      { id: 'model-serving-fastapi-ray-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Serving', vi: 'Quiz: Model Serving' } },
+      { id: 'model-serving-fastapi-ray-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Real-time Inference API', vi: 'Lab: Xây dựng Inference API' } },
+      { id: 'containerization-release', status: 'available', contentStatus: 'published', title: { en: 'Containerization & Rollouts', vi: 'Đóng gói Docker & Release' } },
+      { id: 'containerization-release-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Containers', vi: 'Quiz: Docker & Release' } },
+      { id: 'containerization-release-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Production Dockerfile', vi: 'Lab: Dockerfile Sản xuất' } },
     ],
   },
+
+  // Chapter 7: CI/CD Workflows for ML
   {
-    id: 'cloud-deployment',
+    id: 'cicd-workflows-ml',
     text: {
-      title: { en: "1.7 Cloud Deployment", vi: "1.7 Cloud Deployment" },
-      description: { en: "AWS, GCP, and Azure services for model hosting, storage, containers, serverless, and monitoring.", vi: "Dịch vụ AWS, GCP và Azure cho hosting model, storage, container, serverless và monitoring." },
+      title: { en: "7. CI/CD for AI Systems", vi: "7. CI/CD & Tự động hóa Pipeline" },
+      description: {
+        en: "Automated testing, continuous training (CT), and continuous delivery (CD) using GitHub Actions.",
+        vi: "Kiểm thử tự động, continuous training (CT) và continuous delivery (CD) với GitHub Actions.",
+      },
     },
     lessonIds: [
-      'aws-ec2-sagemaker',
-      'aws-lambda-ai-functions',
-      'aws-ecs-eks-containers',
-      'aws-s3-model-data-storage',
-      'aws-cloudwatch-monitoring',
-      'gcp-vertex-ai',
-      'gcp-cloud-run',
-      'gcp-gke',
-      'gcp-bigquery-ml-data',
-      'azure-ml',
-      'azure-openai-service',
-      'azure-aks',
+      { id: 'ml-cicd-github-actions', status: 'available', contentStatus: 'published', title: { en: 'CI/CD with GitHub Actions', vi: 'CI/CD với GitHub Actions' } },
+      { id: 'ml-cicd-github-actions-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: CI/CD', vi: 'Quiz: CI/CD cho ML' } },
+      { id: 'ml-cicd-github-actions-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: GitHub Actions Workflow', vi: 'Lab: Workflow CI/CD Tự động' } },
     ],
   },
+
+  // Chapter 8: Monitoring, Drift & Continuous Retraining
   {
-    id: 'monitoring-logging',
+    id: 'monitoring-drift-retraining',
     text: {
-      title: { en: "1.8 Monitoring & Logging", vi: "1.8 Monitoring & Logging" },
-      description: { en: "Cost, latency, provider errors, prompt and response quality, drift, observability, and alerts.", vi: "Cost, latency, lỗi provider, chất lượng prompt/response, drift, observability và cảnh báo." },
+      title: { en: "8. Monitoring & Maintenance", vi: "8. Giám sát, Drift & Huấn luyện lại" },
+      description: {
+        en: "Data drift and concept drift detection (Evidently), system observability (Prometheus/Grafana), and automated retraining triggers.",
+        vi: "Phát hiện Data Drift và Concept Drift (Evidently), giám sát hệ thống (Prometheus/Grafana) và tự động kích hoạt retraining.",
+      },
     },
     lessonIds: [
-      'token-usage-monitoring',
-      'latency-percentiles',
-      'provider-error-rates',
-      'prompt-quality-monitoring',
-      'response-quality-scores',
-      'hallucination-detection',
-      'behavior-drift-detection',
-      'langsmith-monitoring',
-      'helicone-analytics',
-      'langfuse-observability',
-      'prometheus-grafana',
-      'datadog-monitoring',
-      'sentry-error-tracking',
-    ],
-  },
-  {
-    id: 'ci-cd-for-ai',
-    text: {
-      title: { en: "1.9 CI/CD for AI", vi: "1.9 CI/CD for AI" },
-      description: { en: "AI pipelines, automated tests, model and prompt validation, feature flags, and deployments.", vi: "Pipeline AI, test tự động, validation model/prompt, feature flag và deployment." },
-    },
-    lessonIds: [
-      'github-actions-gitlab-ci',
-      'automated-ml-testing',
-      'model-validation-before-deployment',
-      'prompt-regression-testing',
-      'automated-model-evaluation-ci',
-      'ai-feature-flags',
-      'blue-green-deployments',
-    ],
-  },
-  {
-    id: 'llm-security-safety',
-    text: {
-      title: { en: "1.10 LLM Security & Safety", vi: "1.10 LLM Security & Safety" },
-      description: { en: "Prompt injection defense, moderation, PII handling, data residency, on-premise deployment, and audit logs.", vi: "Chống prompt injection, moderation, xử lý PII, data residency, on-premise deployment và audit log." },
-    },
-    lessonIds: [
-      'role-separation-security',
-      'input-sanitization',
-      'output-validation',
-      'suspicious-prompt-logging',
-      'file-injection-scanning',
-      'openai-moderation-api',
-      'input-pre-screening',
-      'output-post-screening',
-      'category-based-blocking',
-      'custom-moderation-classifiers',
-      'pii-detection-masking',
-      'data-residency-requirements',
-      'on-premise-deployment',
-      'compliance-audit-logs',
+      { id: 'monitoring-drift-detection', status: 'available', contentStatus: 'published', title: { en: 'Drift Detection & Monitoring', vi: 'Giám sát & Phát hiện Drift' } },
+      { id: 'monitoring-drift-detection-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Monitoring', vi: 'Quiz: Giám sát Hệ thống' } },
+      { id: 'monitoring-drift-detection-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Evidently AI Drift Suite', vi: 'Lab: Báo cáo Drift với Evidently' } },
+      { id: 'feedback-loops-retraining', status: 'available', contentStatus: 'published', title: { en: 'Feedback Loops & Retraining', vi: 'Vòng lặp Phản hồi & Retraining' } },
+      { id: 'feedback-loops-retraining-quiz', status: 'available', contentStatus: 'published', title: { en: 'Quiz: Retraining', vi: 'Quiz: Chiến lược Retraining' } },
+      { id: 'feedback-loops-retraining-code-lab', status: 'available', contentStatus: 'published', title: { en: 'Lab: Automated Retrain Trigger', vi: 'Lab: Trigger Retraining Tự động' } },
     ],
   },
 ];
@@ -187,8 +168,11 @@ const chapters: LearningTocTrackSeed[] = [
 export const learningTableOfContents = {
   id: 'mlops-llmops-production-systems',
   text: {
-    title: { en: "MLOps, LLMOps & Production", vi: "MLOps, LLMOps & Production" },
-    description: { en: "Learn how AI systems survive production: data and model versioning, experiment tracking, training infrastructure, evals, serving, containers, cloud deployment, monitoring, CI/CD, and LLM safety controls.", vi: "Học cách hệ thống AI sống được ở production: versioning data/model, experiment tracking, hạ tầng train, eval, serving, container, cloud deployment, monitoring, CI/CD và kiểm soát an toàn LLM." },
+    title: { en: "MLOps & Production Systems", vi: "MLOps & Hệ thống Sản xuất" },
+    description: {
+      en: "Learn how to responsibly design, develop, test, deploy, and monitor production-grade machine learning applications from first principles.",
+      vi: "Học cách thiết kế, phát triển, kiểm thử, triển khai và giám sát hệ thống Machine Learning thực tế trên môi trường sản xuất từ nguyên lý gốc.",
+    },
   },
   status: 'active',
   chapters,

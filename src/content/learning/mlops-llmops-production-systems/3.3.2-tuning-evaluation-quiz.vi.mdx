@@ -1,0 +1,92 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'tuning-evaluation-quiz',
+  locale: 'vi',
+  title: "Quiz: Tuning & Đánh giá",
+  headings: [
+    'Ưu điểm của ASHA Scheduler',
+    'Cạm bẫy của Aggregate Metrics',
+    'Mục tiêu của Sliced Evaluation',
+    'Phân tích Confusion Matrix',
+    'Chẩn đoán: Suy thoái Hiệu năng trên Critical Slice',
+  ],
+  keywords: ['MLOps', 'Quiz', 'ASHA', 'Sliced Evaluation', 'Confusion Matrix', 'Metrics', 'Diagnostic'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="tuning-evaluation-quiz" questions={[
+  {
+    id: 'asha-scheduler-advantage',
+    title: 'Ưu điểm của ASHA Scheduler',
+    prompt: 'Cơ chế Early Stopping thông minh trong ASHA Scheduler (Ray Tune) hoạt động như thế nào để tiết kiệm tài nguyên GPU?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tự động dừng sớm các cấu hình hyperparameter kém triển vọng ngay sau 1-2 epoch và chỉ cấp thêm tài nguyên cho các cấu hình hàng đầu.', isCorrect: true },
+      { id: 'opt2', label: 'Bắt buộc mọi thử nghiệm phải chạy tối thiểu 1000 epoch.' },
+      { id: 'opt3', label: 'Tự động xóa tập dữ liệu kiểm thử.' },
+      { id: 'opt4', label: 'Tắt toàn bộ máy tính khi phát hiện lỗi.' },
+    ],
+    success: 'Chính xác! ASHA hủy sớm các thử nghiệm kém hiệu quả để dồn tài nguyên tính toán cho các cấu hình có tiềm năng cao nhất.',
+    error: 'Chưa chính xác. ASHA giúp loại bỏ sớm các nhánh thử nghiệm có hiệu năng thấp.',
+  },
+  {
+    id: 'aggregate-metric-blindspot',
+    title: 'Cạm bẫy của Aggregate Metrics',
+    prompt: 'Tại sao một mô hình có độ chính xác tổng thể (Overall Accuracy) lên tới 95% vẫn có thể gây ra thảm họa khi triển khai thực tế?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì mô hình có thể hoạt động rất tệ (ví dụ 0% accuracy) trên một nhóm nhỏ khách hàng quan trọng hoặc nhãn hiếm (Rare Class) bị mất cân bằng.', isCorrect: true },
+      { id: 'opt2', label: 'Vì 95% là con số quá nhỏ trong lập trình.' },
+      { id: 'opt3', label: 'Vì mô hình chỉ chạy được khi có internet tốc độ cao.' },
+      { id: 'opt4', label: 'Vì GPU không thể xử lý số 95.' },
+    ],
+    success: 'Đúng! Chỉ số tổng thể che giấu các điểm mù trên các lát cắt dữ liệu nhỏ nhưng mang tính sống còn đối với sản phẩm.',
+    error: 'Chưa đúng. Điểm mù của aggregate metric nằm ở chỗ nó không phản ánh được hiệu năng trên các phân nhóm thiểu số hoặc quan trọng.',
+  },
+  {
+    id: 'sliced-evaluation-definition',
+    title: 'Mục tiêu của Sliced Evaluation',
+    prompt: 'Trong MLOps, mục đích chính của kỹ thuật Đánh giá Lát cắt (Sliced Evaluation) là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Cắt lát tập dữ liệu theo các tiêu chí nghiệp vụ (độ dài, nguồn dữ liệu, thuộc tính người dùng) để đo lường chi tiết hiệu năng và phát hiện sai sót cục bộ.', isCorrect: true },
+      { id: 'opt2', label: 'Cắt nhỏ code Python thành các file 1 dòng.' },
+      { id: 'opt3', label: 'Nén file dữ liệu thành định dạng .zip.' },
+      { id: 'opt4', label: 'Tăng tốc độ hiển thị của màn hình.' },
+    ],
+    success: 'Chính xác! Sliced evaluation giúp phát hiện các điểm yếu cụ thể của mô hình đối với từng nhóm dữ liệu đặc thù.',
+    error: 'Chưa chính xác. Đánh giá lát cắt chia dữ liệu theo tiêu chí nghiệp vụ để kiểm tra hiệu năng chi tiết.',
+  },
+  {
+    id: 'confusion-matrix-insight',
+    title: 'Phân tích Confusion Matrix',
+    prompt: 'Giá trị nằm trên đường chéo chính của một Ma trận Nhầm lẫn chuẩn hóa (Normalized Confusion Matrix) thể hiện điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Tỷ lệ dự đoán chính xác (Recall / True Positive Rate) của từng phân lớp tương ứng.', isCorrect: true },
+      { id: 'opt2', label: 'Số lượng mẫu bị thiếu trong tập train.' },
+      { id: 'opt3', label: 'Thời gian huấn luyện trung bình tính bằng giây.' },
+      { id: 'opt4', label: 'Số dòng code của mô hình.' },
+    ],
+    success: 'Đúng! Đường chéo chính của confusion matrix chuẩn hóa thể hiện tỷ lệ phần trăm mẫu được phân loại đúng cho từng nhãn mục tiêu.',
+    error: 'Chưa đúng. Đường chéo chính biểu diễn tỷ lệ dự đoán chính xác cho từng class.',
+  },
+  {
+    id: 'critical-slice-regression-gate',
+    title: 'Chẩn đoán: Suy thoái Hiệu năng trên Critical Slice',
+    prompt: 'Một mô hình ứng viên mới có F1-score trung bình toàn tập kiểm thử cao hơn 2% so với mô hình Production, nhưng F1 trên lát cắt khách hàng VIP (hoặc nhãn Vi phạm Nghiêm trọng) lại bị sụt giảm 15%. Theo nguyên tắc Quality Gate trong MLOps, bạn nên hành động như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Chặn (Block) việc promote lên Production; mở cuộc điều tra phân tích lỗi (Error Analysis) trên lát cắt suy thoái và huấn luyện bổ sung (Data-Centric AI) cho slice đó.', isCorrect: true },
+      { id: 'opt2', label: 'Vẫn lập tức deploy lên production vì điểm trung bình tổng thể vẫn cao hơn.',
+      },
+      { id: 'opt3', label: 'Xóa bỏ lát cắt khách hàng VIP khỏi tập kiểm thử để metric đẹp hơn.',
+      },
+      { id: 'opt4', label: 'Tắt toàn bộ hệ thống server và chuyển về viết tay.',
+      },
+    ],
+    success: 'Chính xác! Chất lượng sản phẩm thực tế được quyết định bởi các lát cắt sống còn (Critical Slices). Không bao giờ đánh đổi sự suy thoái nghiêm trọng trên slice trọng yếu lấy điểm số trung bình toàn cục.',
+    error: 'Chưa đúng. Trong hệ thống MLOps chuyên nghiệp, suy thoái trên critical slice là điều kiện tiên quyết để chặn release và thực hiện Error Analysis.',
+  },
+]} />
+

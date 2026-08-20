@@ -1,0 +1,98 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'tuning-evaluation',
+  locale: 'vi',
+  title: "Tuning & Đánh giá Slice",
+  headings: [
+    'Chiến lược Tinh chỉnh Siêu tham số (Ray Tune & ASHA)',
+    'Hạn chế của Aggregate Metrics (Điểm mù của chỉ số tổng thể)',
+    'Đánh giá trên Lát cắt Dữ liệu (Sliced Evaluation)',
+    'Ma trận Nhầm lẫn & Báo cáo Lớp thiểu số (Confusion Matrix)',
+  ],
+  keywords: ['MLOps', 'Hyperparameter Tuning', 'Ray Tune', 'ASHA', 'Sliced Evaluation', 'Confusion Matrix'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Chiến lược Tinh chỉnh Siêu tham số (Ray Tune & ASHA)
+
+Thay vì thử nghiệm thủ công hoặc quét lưới (Grid Search) tốn kém tài nguyên, các hệ thống MLOps sử dụng thuật toán tìm kiếm thông minh kết hợp cơ chế dừng sớm (**Early Stopping**).
+
+<CourseCards
+  ariaLabel="So sánh các chiến lược Hyperparameter Tuning"
+  exampleLabel="Cơ chế tìm kiếm"
+  takeawayLabel="Hiệu quả tính toán"
+  items={[
+    {
+      title: 'Grid Search & Random Search',
+      example: 'Thử toàn bộ mọi tổ hợp tham số và bắt buộc chạy hết toàn bộ số epoch định trước.',
+      takeaway: 'Lãng phí 70-80% compute cho các cấu hình thử nghiệm kém hiệu quả ngay từ những epoch đầu.',
+    },
+    {
+      title: 'ASHA Scheduler (Ray Tune)',
+      example: 'Chạy nhiều thử nghiệm song song; tự động hủy (prune) các cấu hình có loss cao sau 1-2 epochs và chỉ dồn tài nguyên cho top 20% cấu hình tốt nhất.',
+      takeaway: 'Tìm ra bộ siêu tham số tối ưu nhanh hơn gấp 5 lần với cùng một ngân sách GPU.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Hạn chế của Aggregate Metrics (Điểm mù của chỉ số tổng thể)
+
+Một sai lầm kinh điển trong Machine Learning là chỉ nhìn vào chỉ số tổng thể (Overall F1-score / Accuracy).
+
+<ConceptHierarchy
+  ariaLabel="Cạm bẫy của Aggregate Metrics"
+  root={{ title: 'Overall Accuracy 92%', detail: 'Tạo cảm giác mô hình hoạt động hoàn hảo trên toàn bộ hệ thống' }}
+  children={[
+    { title: 'Nhóm phổ biến: Accuracy 98%', detail: 'Dữ liệu dồi dào, văn bản chuẩn tiếng Anh chuẩn form.' },
+    { title: 'Nhóm người dùng mới: Accuracy 45%', detail: 'Văn bản ngắn, chứa từ lóng (slang), mô hình đoán sai hoàn toàn.' },
+    { title: 'Nhóm nhãn quan trọng: Recall 30%', detail: 'Nhãn gian lận/lỗi hệ thống bị bỏ lọt nghiêm trọng.' },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Mô hình có thể đạt Overall F1 cao nhờ làm rất tốt trên nhóm chiếm đa số, nhưng lại gây thất thoát doanh thu nghiêm trọng trên các nhóm khách hàng chiến lược!
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Đánh giá trên Lát cắt Dữ liệu (Sliced Evaluation)
+
+**Sliced Evaluation** là kỹ thuật chia nhỏ tập kiểm thử thành các lát cắt có ý nghĩa nghiệp vụ và đánh giá hiệu năng độc lập trên từng lát cắt:
+
+<ComparisonMatrix
+  ariaLabel="Các tiêu chí cắt lát dữ liệu trong MLOps"
+  rowHeaderLabel="Loại Lát cắt (Slice)"
+  columns={['Ví dụ cụ thể', 'Ý nghĩa phát hiện lỗi']}
+  rows={[
+    { label: 'Slice theo Chiều dài (Length)', values: ['Văn bản ngắn (< 5 từ) vs Văn bản dài (> 100 từ)', 'Phát hiện mô hình có bị phụ thuộc vào độ dài câu để suy đoán nhãn hay không.'] },
+    { label: 'Slice theo Nguồn dữ liệu (Source)', values: ['Dữ liệu từ Mobile App vs Dữ liệu từ Web Desktop', 'Kiểm tra xem định dạng viết tắt trên điện thoại có làm giảm độ chính xác không.'] },
+    { label: 'Slice theo Nhãn hiếm (Rare Classes)', values: ['Các tag chỉ chiếm < 2% tập dữ liệu', 'Đảm bảo mô hình không bỏ quên các phân lớp thiểu số quan trọng.'] },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Ma trận Nhầm lẫn & Báo cáo Lớp thiểu số (Confusion Matrix)
+
+Để đưa ra quyết định phát hành ra Production, chúng ta cần sinh báo cáo chi tiết bao gồm:
+
+<ConceptFlow
+  ariaLabel="Quy trình đánh giá đa chiều trước khi duyệt mô hình"
+  items={[
+    { title: '1. Overall Metrics', detail: 'Đo Precision, Recall, F1 macro/micro trên toàn bộ tập holdout.' },
+    { title: '2. Normalized Confusion Matrix', detail: 'Nhìn rõ lớp nào đang bị nhầm lẫn thường xuyên nhất với lớp nào.' },
+    { title: '3. Slice Gating Check', detail: 'Kiểm tra xem mọi lát cắt quan trọng có vượt qua ngưỡng Minimum Viable Metric (MVM) hay không.' },
+  ]}
+/>
+
+</MdxPage>

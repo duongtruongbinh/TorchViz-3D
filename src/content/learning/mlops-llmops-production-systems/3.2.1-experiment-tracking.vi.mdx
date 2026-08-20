@@ -1,0 +1,122 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'experiment-tracking',
+  locale: 'vi',
+  title: "Quản lý Thử nghiệm (Tracking)",
+  headings: [
+    'Tại sao cần Hệ thống Experiment Tracking?',
+    'Các Thành phần Cốt lõi cần Lưu vết (Tracking Fields)',
+    'Kiến trúc MLflow: Tracking Server & Model Registry',
+    'So sánh & Lựa chọn Mô hình Tốt nhất (Comparing Runs)',
+    'Ranh giới Kiến trúc & Độc lập Công cụ (Tracking vs Artifact vs Registry)',
+  ],
+  keywords: ['MLOps', 'Experiment Tracking', 'MLflow', 'Model Registry', 'Artifacts', 'Reproducibility', 'Tool Independence', 'Audit Trail'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Tại sao cần Hệ thống Experiment Tracking?
+
+Trong quá trình phát triển mô hình, các kỹ sư thực hiện hàng trăm lần chạy thử nghiệm với các siêu tham số (Learning rate, Batch size, Dropout), kiến trúc mạng và tập dữ liệu khác nhau.
+
+<CourseCards
+  ariaLabel="So sánh quy trình thử nghiệm thủ công và hệ thống Tracking chuẩn"
+  exampleLabel="Phương thức quản lý"
+  takeawayLabel="Hệ quả vận hành"
+  items={[
+    {
+      title: 'Quản lý Thủ công (Ghi chép / Excel)',
+      example: 'Lưu kết quả vào file Excel, đặt tên checkpoint như model_final_v2_really_final.pt.',
+      takeaway: 'Không thể tái lập kết quả, không biết checkpoint nào tương ứng với commit Git và bộ tham số nào.',
+    },
+    {
+      title: 'Hệ thống Experiment Tracking (MLflow / W&B)',
+      example: 'Tự động log tham số, đường cong loss theo từng epoch, artifact và commit hash cho mỗi lần chạy.',
+      takeaway: 'Minh bạch 100%, dễ dàng so sánh hiệu năng và tái tạo lại bất kỳ mô hình nào trong lịch sử.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Các Thành phần Cốt lõi cần Lưu vết (Tracking Fields)
+
+Một lượt chạy thử nghiệm (Run) hoàn chỉnh trong MLOps cần ghi nhận đầy đủ 4 nhóm thông tin:
+
+<ConceptHierarchy
+  ariaLabel="4 nhóm thông tin cốt lõi trong một Experiment Run"
+  root={{ title: 'Thông tin Thử nghiệm (Run Info)', detail: 'Bộ dữ liệu hoàn chỉnh để tái tạo và đánh giá mô hình' }}
+  children={[
+    { title: '1. Parameters (Tham số cấu hình)', detail: 'Learning rate, batch size, số epoch, dropout_p, optimizer type.' },
+    { title: '2. Metrics (Chỉ số theo thời gian)', detail: 'Training loss, Val loss, F1-score, Precision, Recall theo từng epoch.' },
+    { title: '3. Artifacts (Tệp đầu ra)', detail: 'File trọng số (.pt/.bin), tokenizer vocab, đồ thị confusion matrix, results.json.' },
+    { title: '4. Metadata (Môi trường)', detail: 'Git commit hash, phiên bản thư viện (requirements.txt), tên người chạy, thời gian thực thi.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Kiến trúc MLflow: Tracking Server & Model Registry
+
+**MLflow** là nền tảng quản lý vòng đời ML mã nguồn mở phổ biến nhất hiện nay, bao gồm 2 thành phần chủ chốt:
+
+<ComparisonMatrix
+  ariaLabel="So sánh MLflow Tracking và MLflow Model Registry"
+  rowHeaderLabel="Thành phần MLflow"
+  columns={['Nhiệm vụ chính', 'Đối tượng quản lý']}
+  rows={[
+    { label: 'MLflow Tracking', values: ['Ghi nhận các lần chạy thử nghiệm (Runs), so sánh biểu đồ loss/metric và lưu artifacts.', 'Tất cả các lượt thử nghiệm trong quá trình R&D (kể cả lượt thất bại).'] },
+    { label: 'MLflow Model Registry', values: ['Kho lưu trữ tập trung các mô hình ứng viên sản xuất, quản lý trạng thái phiên bản (Staging, Production, Archived).', 'Chỉ những mô hình tốt nhất vượt qua kiểm thử chất lượng mới được đăng ký.'] },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Model Registry đóng vai trò như một **Single Source of Truth** giữa đội ngũ Data Science (huấn luyện) và đội ngũ DevOps/SRE (triển khai API).
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## So sánh & Lựa chọn Mô hình Tốt nhất (Comparing Runs)
+
+Dựa trên Dashboard trực quan của MLflow Tracking UI, chúng ta có thể:
+
+<ConceptFlow
+  ariaLabel="Quy trình lọc và chọn mô hình tối ưu từ MLflow"
+  items={[
+    { title: '1. Filter & Sort', detail: 'Lọc các run có `val_loss` thấp nhất và `f1_score` cao nhất trên cùng một tập dữ liệu.' },
+    { title: '2. Parallel Coordinates', detail: 'Xem đồ thị tọa độ song song để tìm ra dải siêu tham số (Hyperparameter Region) mang lại kết quả ổn định nhất.' },
+    { title: '3. Promote to Staging', detail: 'Gán nhãn `Stage: Staging` cho run ID tốt nhất để chuyển sang bước kiểm thử tự động.' },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Ranh giới Kiến trúc & Độc lập Công cụ (Tracking vs Artifact vs Registry)
+
+Để không bị phụ thuộc vào MLflow, kỹ sư cần hiểu rõ 3 ranh giới lưu trữ độc lập trong kiến trúc quản lý thử nghiệm:
+
+<ComparisonMatrix
+  ariaLabel="3 ranh giới lưu trữ trong hệ thống quản lý thử nghiệm"
+  rowHeaderLabel="Thành phần Lưu trữ"
+  columns={['Trách nhiệm Bất biến', 'Ví dụ Công cụ Triển khai']}
+  rows={[
+    { label: 'Tracking Metadata Store', values: ['Lưu trữ có cấu trúc các thông số (params, metrics, tags, run_id, commit_hash). Thường là CSDL SQL (Postgres / MySQL / SQLite).', 'MLflow Backend Store, Weights & Biases Backend, Neptune.ai DB.'] },
+    { label: 'Artifact Store (Blob Storage)', values: ['Lưu trữ các tệp nhị phân lớn bất biến (weights .pt, tokenizer.json, confusion matrix PNG).', 'AWS S3, Google Cloud Storage, MinIO, Azure Blob.'] },
+    { label: 'Model Governance Registry', values: ['Quản lý metadata cấp cao: model lineage, semantic versioning (v1.0.0), approvals, staging/prod aliases và audit trail.', 'MLflow Registry, W&B Model Registry, AWS SageMaker Model Registry.'] },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Audit Trail & Rollback:** Nhờ liên kết chặt chẽ giữa Model Version $\rightarrow$ Run ID $\rightarrow$ Git Commit Hash $\rightarrow$ DVC Data Version, khi phát hiện lỗi trên Production, hệ thống có thể rollback về phiên bản trước đó chỉ trong vòng vài giây mà không cần đoán mò.
+</LessonNote>
+
+</MdxPage>

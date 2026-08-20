@@ -493,9 +493,10 @@ and Vietnamese-diacritic-insensitive.
 Learning Lab visual primitives live in `src/components/learning/theme.ts`.
 Controls should use `getLearningLabTheme(theme)` and the semantic theme helpers
 instead of adding unrelated colors, radii, hover states, or focus styles.
-The active Learning Lab runtime is locked to light mode. The shared theme
-contract remains in place for existing components, but new lesson-only visuals
-should not add unreachable dark variants.
+The active Learning Lab runtime is locked to Light Mode only. All shared,
+domain, and lesson-level UI components must adhere strictly to the Light Mode
+palette (#205089, #B8C8DA, #EFF3F8); do not author unreachable dark variants,
+`dark:` classes, or theme-toggle branches.
 
 `LearningLabView` keeps a shallow left sidebar: Home followed by top-level
 domains. Track and lesson structure belongs in the main course/lesson surface.
@@ -567,16 +568,16 @@ To maintain architectural clarity and prevent component sprawl, Learning Lab def
 
 | Layer | Files & Directories | Scope & Ownership | Reuse Rules |
 | :--- | :--- | :--- | :--- |
-| **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
+| **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx`, `InteractiveStepper.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`, `InteractiveStepper`, `CodeLabStep`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
 | **Reference Engine** | `src/components/learning/learningMdxReferences.tsx` | Lazy reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). | Loaded dynamically on-demand only when `needsReferenceRuntime: true`. Never eagerly bundled into shared shell or non-reference lessons. |
-| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`). | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
-| **Math Primitives** | `src/components/learning/domains/linear-algebra/primitives/` | `MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathRangeControl`, `MathSegmentedControl`, `MathStepperControls`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`. | **Domain-bound to Linear Algebra.** Do NOT promote to global shared. Consumes theme tokens for generic surfaces/borders/focus while keeping mathematical semantic coloring. |
+| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`, `mlops-llmops-production-systems`). | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
+| **Math Primitives** | `src/components/learning/domains/linear-algebra/primitives/` | `MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathRangeControl`, `MathSegmentedControl`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`. | **Domain-bound to Linear Algebra.** Do NOT promote to global shared. Consumes theme tokens for generic surfaces/borders/focus while keeping mathematical semantic coloring. |
 
 #### Component Reuse Guidelines for Coding Agents
 
 1. **Prefer Shared Authored Components:** Before inventing custom card grids or flow diagrams, reuse `CourseCards`, `EvidenceCards`, `ConceptFlow`, `ComparisonMatrix`, `PaperTradeoff`, or `DatasetComposition`.
 2. **Domain-Neutral Theme Reuse:** Domain-neutral surfaces, text hierarchy, borders, focus rings, and status states should reuse Learning theme tokens (`themeClasses.semantic`, `themeClasses.focusRing`). Domain-semantic visualization colors (vectors, matrix pivots, eigenvalues, SVD stages) remain local/domain-owned.
-3. **No Tailwind `.dark` in Theme-Context Components:** Components receiving theme via `useLearningMdxTheme()` must resolve light/dark using `themeClasses.isLight` or semantic tokens rather than Tailwind `dark:` ancestor classes.
+3. **Strict Light Mode Only (No Dark Mode Variants):** Learning Lab is permanently locked to Light Mode. Components must not include `dark:` utility classes, dark-mode color branches, or unreachable dark variants. All UI directly uses the standard Light Mode theme tokens and palettes.
 4. **Domain Ownership based on Semantics, not Consumer Count:** A component belongs in a domain when its API, data structure, or mathematical meaning is domain-specific (e.g. `MathCanvas`, `MatrixGrid`, `StageContinuityMap`). A component belongs in global shared when its semantics are domain-neutral, regardless of whether it currently has one or multiple callers.
 5. **Reference Capability Isolation:** `learningMdxReferences.tsx` must not be eagerly imported into the shared Learning shell or `learningMdxComponents.tsx`. The registry dynamically imports it only when `needsReferenceRuntime` is true.
 6. **No File Proliferation:** Do not split monolithic renderers into dozens of single-component files. Keep related renderers grouped in feature modules (e.g. `vectorRenderers.tsx`, `matrixRenderers.tsx`, `systemRenderers.tsx`).

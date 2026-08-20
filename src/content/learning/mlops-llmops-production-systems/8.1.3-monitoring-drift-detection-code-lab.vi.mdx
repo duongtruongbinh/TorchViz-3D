@@ -1,0 +1,118 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'monitoring-drift-detection-code-lab',
+  locale: 'vi',
+  title: "Lab: Báo cáo Drift với Evidently",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Chuẩn bị Tập Dữ liệu Reference & Current',
+    'Sinh Báo cáo Data Drift & Target Drift với Evidently',
+    'Xuất Dashboard HTML & Tự động Kích hoạt Cảnh báo',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Evidently AI', 'Data Drift Report', 'Monitoring Dashboard', 'Retraining'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, chúng ta sẽ:
+1. Chuẩn bị 2 tập dữ liệu: **Reference Data** (tập huấn luyện ban đầu) và **Current Data** (dữ liệu phục vụ tuần gần nhất).
+2. Sử dụng thư viện **Evidently AI** để tính toán kiểm định thống kê phát hiện Data Drift và Target Drift.
+3. Xuất báo cáo Dashboard HTML trực quan và trích xuất JSON metrics để làm điều kiện kích hoạt retraining.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Chuẩn bị Tập Dữ liệu Reference & Current
+
+Tạo script mô phỏng sự biến dịch phân bố dữ liệu:
+
+```python
+import pandas as pd
+import numpy as np
+
+def prepare_monitoring_datasets():
+    """Tạo tập Reference và Current giả lập có sự dịch chuyển phân bố."""
+    # Nạp tập dataset gốc làm Reference
+    ref_df = pd.read_csv("datasets/dataset.csv")
+    
+    # Tạo tập Current giả lập: tăng độ dài câu và đổi tỷ lệ tag MLOps
+    current_df = ref_df.sample(n=300, replace=True, random_state=42).copy()
+    current_df["title"] = current_df["title"] + " with Large Language Models and AI Agents"
+    
+    print(f"📊 Reference Shape: {ref_df.shape}, Current Shape: {current_df.shape}")
+    return ref_df, current_df
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Sinh Báo cáo Data Drift & Target Drift với Evidently
+
+Sử dụng `Report` của Evidently để đo lường độ trôi dạt:
+
+```python
+from evidently.report import Report
+from evidently.metric_preset import DataDriftPreset, TargetDriftPreset
+
+def generate_drift_report(ref_df: pd.DataFrame, current_df: pd.DataFrame, html_output: str, json_output: str):
+    """Tính toán các kiểm định thống kê và sinh báo cáo giám sát."""
+    
+    # 1. Khởi tạo Report với bộ presets chuẩn
+    report = Report(metrics=[
+        DataDriftPreset(),
+        # TargetDriftPreset(),
+    ])
+    
+    # 2. Chạy so sánh phân bố giữa 2 tập
+    report.run(reference_data=ref_df, current_data=current_df)
+    
+    # 3. Xuất file giao diện Dashboard HTML trực quan
+    report.save_html(html_output)
+    
+    # 4. Xuất kết quả định dạng JSON để phục vụ điều kiện tự động hóa
+    report.save_json(json_output)
+    print(f"✅ Đã tạo báo cáo HTML: {html_output}")
+    print(f"✅ Đã lưu metrics JSON: {json_output}")
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Xuất Dashboard HTML & Tự động Kích hoạt Cảnh báo
+
+Đọc kết quả JSON để quyết định có gửi cảnh báo hoặc kích hoạt retraining hay không:
+
+```python
+import json
+
+def check_drift_and_trigger_alert(json_path: str):
+    """Đọc kết quả drift và đưa ra quyết định tự động."""
+    with open(json_path, "r") as f:
+        metrics = json.load(f)
+        
+    # Trích xuất tỷ lệ features bị drift
+    drift_share = metrics["metrics"][0]["result"]["share_of_drifted_columns"]
+    dataset_drifted = metrics["metrics"][0]["result"]["dataset_drift"]
+    
+    print(f"📈 Tỷ lệ cột bị drift: {drift_share * 100:.1f}%")
+    print(f"🚨 Phát hiện Dataset Drift: {dataset_drifted}")
+    
+    if dataset_drifted:
+        print("⚠️ CẢNH BÁO: Phân bố dữ liệu đã bị lệch nghiêm trọng!")
+        print("🔄 Đang gửi tín hiệu Webhook kích hoạt GitHub Actions Continuous Training...")
+        # trigger_retraining_pipeline()
+    else:
+        print("✨ Hệ thống ổn định. Không cần huấn luyện lại.")
+```
+
+<LessonNote tone="tip">
+  Báo cáo HTML sinh ra bởi Evidently có thể được host trực tiếp trên **S3 / GitHub Pages** hoặc tích hợp vào hệ thống giám sát nội bộ của công ty.
+</LessonNote>
+
+</MdxPage>
