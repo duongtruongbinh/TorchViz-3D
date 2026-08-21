@@ -37,13 +37,13 @@ export const lessonMetadata = {
     prompt: 'Why did the authors choose Singular Value Decomposition (SVD) as the core analytical framework for catastrophic forgetting in LoRA?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'SVD orthogonally isolates representation energy into principal directions (preserving prior knowledge) and minor directions (accommodating new tasks) independently.', isCorrect: true },
+      { id: 'opt1', label: 'SVD decomposes weight matrices into orthonormal coordinate systems with hierarchically ordered energy levels.', isCorrect: true },
       { id: 'opt2', label: 'Because SVD is the only algorithm capable of training neural networks without backpropagation.' },
       { id: 'opt3', label: 'Because SVD compresses weight matrices to 1-bit representations for memory efficiency.' },
       { id: 'opt4', label: 'Because the authors aimed to replace Transformer matrix multiplication with LU decomposition.' },
     ],
-    success: 'Correct! SVD provides an ordered, orthonormal coordinate system that decouples critical pre-trained knowledge spaces (principal) from free learning capacities (minor), enabling precise gradient modulation.',
-    error: 'Incorrect. SVD is chosen because its orthogonal energy decomposition cleanly separates pre-trained knowledge from new learning capacity.',
+    success: 'Correct! By decomposing weight matrices into orthonormal coordinate systems with ordered energy levels, SVD enables clean, independent separation of principal directions (preserving prior knowledge) and minor directions (accommodating new tasks) for precise gradient modulation.',
+    error: 'Incorrect. Remember that SVD provides an orthonormal coordinate system with hierarchically ordered energy levels.',
   },
   {
     id: 'principal-singular-subspace-knowledge',

@@ -46,13 +46,13 @@ export const lessonMetadata = {
     prompt: 'Tại sao các tác giả bài báo lại chọn tiếp cận bài toán Catastrophic Forgetting trong LoRA dưới góc nhìn phân rã SVD?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'SVD cho phép phân tách trực giao năng lượng thành các hướng chủ đạo (chứa tri thức cũ) và hướng thứ yếu (để học tác vụ mới) một cách độc lập.', isCorrect: true },
+      { id: 'opt1', label: 'SVD phân tích ma trận trọng số thành các hệ trục trực giao trực chuẩn với mức năng lượng được xếp thứ tự.', isCorrect: true },
       { id: 'opt2', label: 'Vì SVD là thuật toán duy nhất có thể huấn luyện mạng nơ-ron mà không cần tính đạo hàm backpropagation.' },
       { id: 'opt3', label: 'Vì SVD giúp nén ma trận trọng số xuống kích thước 1 bit để tiết kiệm bộ nhớ.' },
       { id: 'opt4', label: 'Vì các tác giả muốn thay thế hoàn toàn phép nhân ma trận Transformer bằng phân rã tam giác LU.' },
     ],
-    success: 'Chính xác! SVD phân tích ma trận trọng số thành các hệ trục trực giao trực chuẩn với mức năng lượng được xếp thứ tự, giúp tách biệt rõ ràng không gian lưu giữ tri thức cốt lõi (principal) và không gian trống (minor) để điều tiết gradient chính xác.',
-    error: 'Chưa chính xác. SVD cung cấp hệ trục trực giao và phổ năng lượng để phân tách rõ ràng không gian tri thức cũ và không gian học tác vụ mới.',
+    success: 'Chính xác! Nhờ phân tích ma trận trọng số thành các hệ trục trực giao trực chuẩn với mức năng lượng được xếp thứ tự, SVD cho phép phân tách độc lập các hướng chủ đạo (Principal Subspace - nơi lưu giữ tri thức cũ) và các hướng thứ yếu (Minor Subspace - nơi học tác vụ mới) để điều tiết gradient chính xác.',
+    error: 'Chưa chính xác. Hãy nhớ lại: SVD cung cấp hệ trục trực giao trực chuẩn kèm phổ năng lượng được xếp thứ tự rõ ràng.',
   },
   {
     id: 'principal-singular-subspace-knowledge',
