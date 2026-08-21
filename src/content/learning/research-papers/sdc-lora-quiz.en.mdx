@@ -5,6 +5,7 @@ export const lessonMetadata = {
   title: 'Quiz: Abstract',
   headings: [
     'Fundamental Concept of SVD',
+    'Rationale for SVD Approach',
     'Core Knowledge Storage',
     'Singular-Subspace Drift Phenomenon',
     'Scope of Subspace Drift',
@@ -12,7 +13,7 @@ export const lessonMetadata = {
     'Inference Overhead of SDC-LoRA',
   ],
   keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'SVD', 'Spectral Calibration', 'Quiz'],
-  pageCount: 6,
+  pageCount: 7,
 };
 
 <MdxQuiz id="sdc-lora-quiz" questions={[
@@ -23,12 +24,26 @@ export const lessonMetadata = {
     mode: 'single',
     options: [
       { id: 'opt1', label: 'Decomposes a matrix into an input feature basis ($V$), an output representation basis ($U$), and an energy/scaling spectrum ($\\Sigma$).', isCorrect: true },
-      { id: 'opt2', label: 'Splits a matrix into upper and lower triangular matrices ($LU$ decomposition).' },
-      { id: 'opt3', label: 'Directly computes the matrix inverse ($W_0^{-1}$) to solve linear systems.' },
+      { id: 'opt2', label: 'Splits a matrix into upper and lower triangular matrices (LU decomposition).' },
+      { id: 'opt3', label: 'Directly computes the matrix inverse to solve linear systems.' },
       { id: 'opt4', label: 'Forces all off-diagonal elements to zero using Gaussian elimination.' },
     ],
     success: 'Correct! SVD decomposes $W_0 = U \\Sigma V^T$ into orthonormal basis matrices $V$ (input), $U$ (output), and diagonal matrix $\\Sigma$ acting as an energy gauge.',
     error: 'Incorrect. Remember the SVD breakdown $W_0 = U \\Sigma V^T$: $V$ is the input basis, $U$ is the output basis, and $\\Sigma$ reflects the energy magnitude along each direction.',
+  },
+  {
+    id: 'why-svd-approach',
+    title: 'Rationale for SVD Approach',
+    prompt: 'Why did the authors choose Singular Value Decomposition (SVD) as the core analytical framework for catastrophic forgetting in LoRA?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'SVD orthogonally isolates representation energy into principal directions (preserving prior knowledge) and minor directions (accommodating new tasks) independently.', isCorrect: true },
+      { id: 'opt2', label: 'Because SVD is the only algorithm capable of training neural networks without backpropagation.' },
+      { id: 'opt3', label: 'Because SVD compresses weight matrices to 1-bit representations for memory efficiency.' },
+      { id: 'opt4', label: 'Because the authors aimed to replace Transformer matrix multiplication with LU decomposition.' },
+    ],
+    success: 'Correct! SVD provides an ordered, orthonormal coordinate system that decouples critical pre-trained knowledge spaces (principal) from free learning capacities (minor), enabling precise gradient modulation.',
+    error: 'Incorrect. SVD is chosen because its orthogonal energy decomposition cleanly separates pre-trained knowledge from new learning capacity.',
   },
   {
     id: 'principal-singular-subspace-knowledge',
@@ -36,9 +51,9 @@ export const lessonMetadata = {
     prompt: 'According to SVD analysis in the paper, where is pre-trained knowledge predominantly concentrated within base weight matrix $W_0$?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'In the Principal Singular Subspace corresponding to the largest singular values $\\sigma_i$.', isCorrect: true },
+      { id: 'opt1', label: 'In the Principal Singular Subspace corresponding to the largest singular values.', isCorrect: true },
       { id: 'opt2', label: 'Uniformly distributed across all parametric directions.' },
-      { id: 'opt3', label: 'Exclusively in the minor subspace with smallest singular values $\\sigma_i$.', },
+      { id: 'opt3', label: 'Exclusively in the minor subspace with smallest singular values.' },
       { id: 'opt4', label: 'Only in Feed-Forward layers and absent from Attention projections.' },
     ],
     success: 'Correct! Foundational pre-trained capabilities reside in the Principal Singular Subspace with top singular values $\\sigma_i$.',
@@ -51,9 +66,9 @@ export const lessonMetadata = {
     mode: 'single',
     options: [
       { id: 'opt1', label: 'Update directions progressively shift from minor to principal subspace, allocating update energy that perturbs principal directions.', isCorrect: true },
-      { id: 'opt2', label: 'LoRA rank $r$ automatically grows with each training epoch.' },
+      { id: 'opt2', label: 'LoRA rank r automatically grows with each training epoch.' },
       { id: 'opt3', label: 'The optimizer learning rate decays to zero across tasks.' },
-      { id: 'opt4', label: 'Gradients of $A$ and $B$ cancel out completely in the backward pass.' },
+      { id: 'opt4', label: 'Gradients of A and B cancel out completely in the backward pass.' },
     ],
     success: 'Correct! Even when initialized in minor subspace, fine-tuning shifts updates toward the principal subspace, causing catastrophic forgetting.',
     error: 'Incorrect. Refer to the abstract: SD is the directional shift of updates from minor to principal subspace.',
@@ -64,9 +79,9 @@ export const lessonMetadata = {
     prompt: 'When Singular-Subspace Drift occurs, which components of the SVD system undergo angular distortion?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'Both the input feature subspace (Right Singular Vectors $V$) and output representation subspace (Left Singular Vectors $U$).', isCorrect: true },
-      { id: 'opt2', label: 'Only input vectors $V$ without affecting output vectors $U$.' },
-      { id: 'opt3', label: 'Only the diagonal singular value matrix $\\Sigma$ without rotating vectors.' },
+      { id: 'opt1', label: 'Both the input feature subspace (Right Singular Vectors V) and output representation subspace (Left Singular Vectors U).', isCorrect: true },
+      { id: 'opt2', label: 'Only input vectors V without affecting output vectors U.' },
+      { id: 'opt3', label: 'Only the diagonal singular value matrix Sigma without rotating vectors.' },
       { id: 'opt4', label: 'Only the token embedding layer.' },
     ],
     success: 'Correct! Both $V$ (input feature recognition) and $U$ (output forward propagation) undergo directional drift.',
@@ -78,10 +93,10 @@ export const lessonMetadata = {
     prompt: 'How does the Spectral Calibration factor ($\\gamma_{\\text{sc}}$) in SDC-LoRA mitigate knowledge forgetting?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'By selectively downscaling gradients along the principal singular subspace of $W_0$ while leaving minor-subspace updates intact.', isCorrect: true },
+      { id: 'opt1', label: 'By selectively downscaling gradients along the principal singular subspace of W0 while leaving minor-subspace updates intact.', isCorrect: true },
       { id: 'opt2', label: 'By completely freezing gradients across the entire model.' },
       { id: 'opt3', label: 'By doubling the learning rate on principal singular directions.' },
-      { id: 'opt4', label: 'By forcing LoRA rank $r$ to match the Transformer hidden dimension.' },
+      { id: 'opt4', label: 'By forcing LoRA rank r to match the Transformer hidden dimension.' },
     ],
     success: 'Correct! $\\gamma_{\\text{sc}}$ constrains energy growth along principal directions by downscaling gradients, while minor subspace freely absorbs new tasks.',
     error: 'Incorrect. Spectral Calibration uses $\\gamma_{\\text{sc}}$ to selectively downscale gradients along the principal subspace.',
@@ -92,9 +107,9 @@ export const lessonMetadata = {
     prompt: 'What is the deployment inference overhead of a model adapted with SDC-LoRA compared to the base model?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'Zero Inference Overhead because adapter updates $\\Delta W$ are directly merged into $W_0$ ($W = W_0 + \\Delta W$).', isCorrect: true },
+      { id: 'opt1', label: 'Zero Inference Overhead because adapter updates $\\Delta W$ are directly merged into W0 (W = W0 + Delta W).', isCorrect: true },
       { id: 'opt2', label: 'Doubled latency due to real-time SVD decomposition during every forward pass.' },
-      { id: 'opt3', label: 'Extra memory overhead for storing full $U$ and $V$ vector systems in GPU VRAM.' },
+      { id: 'opt3', label: 'Extra memory overhead for storing full U and V vector systems in GPU VRAM.' },
       { id: 'opt4', label: '50% slower Time-to-First-Token.' },
     ],
     success: 'Correct! All SDC-LoRA mechanisms operate during training. At deployment, $W = W_0 + \\Delta W$ merges seamlessly with zero latency or extra parameters.',
