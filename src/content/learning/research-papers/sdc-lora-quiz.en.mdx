@@ -62,16 +62,16 @@ export const lessonMetadata = {
   {
     id: 'singular-subspace-drift-concept',
     title: 'Singular-Subspace Drift Phenomenon',
-    prompt: 'How is "Singular-Subspace Drift" (SD) during sequential LoRA fine-tuning defined?',
+    prompt: 'How is the "Singular-Subspace Drift" (SD) phenomenon in LoRA fine-tuning accurately understood?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'Update directions progressively shift from minor to principal subspace, allocating update energy that perturbs principal directions.', isCorrect: true },
-      { id: 'opt2', label: 'LoRA rank r automatically grows with each training epoch.' },
-      { id: 'opt3', label: 'The optimizer learning rate decays to zero across tasks.' },
+      { id: 'opt1', label: 'Instead of staying confined to the Minor Subspace, LoRA updates spill over and rotate the Principal Subspace (where prior knowledge resides).', isCorrect: true },
+      { id: 'opt2', label: 'LoRA rank r automatically expands after every training epoch.' },
+      { id: 'opt3', label: 'Optimizer learning rate drops abruptly to zero when switching tasks.' },
       { id: 'opt4', label: 'Gradients of A and B cancel out completely in the backward pass.' },
     ],
-    success: 'Correct! Even when initialized in minor subspace, fine-tuning shifts updates toward the principal subspace, causing catastrophic forgetting.',
-    error: 'Incorrect. Refer to the abstract: SD is the directional shift of updates from minor to principal subspace.',
+    success: 'Correct! Instead of updating safely within the Minor Subspace (free capacity), unconstrained LoRA gradient dynamics spill over and distort the Principal Subspace, leading to catastrophic forgetting of pre-trained capabilities.',
+    error: 'Incorrect. Drift occurs when LoRA updates fail to stay confined to the Minor Subspace and end up perturbing the Principal Subspace.',
   },
   {
     id: 'drift-scope-u-and-v',

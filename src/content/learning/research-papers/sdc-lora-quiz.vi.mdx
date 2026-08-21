@@ -71,16 +71,16 @@ export const lessonMetadata = {
   {
     id: 'singular-subspace-drift-concept',
     title: 'Hiện tượng Singular-Subspace Drift',
-    prompt: 'Hiện tượng "Singular-Subspace Drift" (SD) trong quá trình fine-tune LoRA liên tục được định nghĩa là gì?',
+    prompt: 'Hiện tượng "Singular-Subspace Drift" (SD) trong quá trình fine-tune LoRA được hiểu chính xác là gì?',
     mode: 'single',
     options: [
-      { id: 'opt1', label: 'Hướng cập nhật của LoRA dần dịch chuyển từ minor sang principal subspace, dồn năng lượng làm xô lệch các hướng kỳ dị chủ đạo.', isCorrect: true },
-      { id: 'opt2', label: 'Rank r của ma trận LoRA tự động tăng dần theo số lượng epoch huấn luyện.' },
-      { id: 'opt3', label: 'Tốc độ học (learning rate) của optimizer bị giảm dần về 0 khi fine-tune qua nhiều task.' },
-      { id: 'opt4', label: 'Gradient của các ma trận A và B triệt tiêu lẫn nhau trong backward pass.' },
+      { id: 'opt1', label: 'Thay vì chỉ tác động vào vùng Minor Subspace, cập nhật LoRA dần tràn sang làm xoay lệch cả Principal Subspace (nơi chứa tri thức cũ).', isCorrect: true },
+      { id: 'opt2', label: 'Rank r của ma trận LoRA tự động phình to sau mỗi epoch huấn luyện.' },
+      { id: 'opt3', label: 'Tốc độ học (learning rate) của optimizer bị giảm đột ngột về 0 khi chuyển task.' },
+      { id: 'opt4', label: 'Gradient của các ma trận A và B triệt tiêu lẫn nhau hoàn toàn trong backward pass.' },
     ],
-    success: 'Chính xác! Dù ban đầu khởi tạo ở minor subspace, quá trình fine-tune dần dịch chuyển hướng cập nhật sang principal subspace (Singular-subspace Drift), gây xô lệch góc và làm quên tri thức cũ.',
-    error: 'Chưa chính xác. SD là sự dịch chuyển hướng cập nhật từ minor subspace sang principal subspace trong quá trình fine-tuning.',
+    success: 'Chính xác! Thay vì chỉ cập nhật an toàn trong Minor Subspace (vùng đất trống), LoRA tiêu chuẩn không có cơ chế kiểm soát nên gradient dần tràn sang làm xoay lệch góc của Principal Subspace, gây ra hiện tượng quên tri thức cũ (Catastrophic Forgetting).',
+    error: 'Chưa chính xác. Drift xảy ra khi cập nhật LoRA không chỉ nằm ở Minor Subspace mà tràn sang làm biến dạng cả Principal Subspace lưu giữ tri thức cũ.',
   },
   {
     id: 'drift-scope-u-and-v',
