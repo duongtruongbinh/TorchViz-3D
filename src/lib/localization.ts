@@ -154,7 +154,6 @@ const localizedText = {
     domainAvailable: { en: 'Available', vi: 'Sẵn sàng' },
     domainUpdating: { en: 'In progress', vi: 'Đang cập nhật' },
     domainUnupdated: { en: 'Coming soon', vi: 'Chưa cập nhật' },
-    domainPlaceholder: { en: 'Coming soon', vi: 'Chưa cập nhật' },
     openDomain: { en: "Let's go", vi: "Let's go" },
     startTrack: { en: "Let's go", vi: "Let's go" },
     contentInProgress: { en: 'Content is in progress.', vi: 'Nội dung đang hoàn thiện.' },
