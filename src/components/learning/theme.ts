@@ -1,4 +1,4 @@
-import type { LearningLessonStatus } from '../../core/learning/types';
+import type { LearningDomainReadinessState, LearningLessonStatus } from '../../core/learning/types';
 
 export type LearningLabTheme = 'dark' | 'light';
 export type LearningRailLessonTone = 'selected' | 'past' | 'future' | 'quiet';
@@ -235,6 +235,21 @@ export function getLearningLabTheme(theme: LearningLabTheme) {
     iconButton: button.icon,
     plainIconButton: button.ghost,
     navItem: button.nav,
+    domainStatusPill: (state: LearningDomainReadinessState) => {
+      if (state === 'ready') {
+        return isLight
+          ? 'border border-[#2FBF71]/34 bg-[#2FBF71]/15 text-[#2E8A5A]'
+          : 'border border-[#2FBF71]/38 bg-[#2FBF71]/20 text-[#A6E8C1]';
+      }
+      if (state === 'updating') {
+        return isLight
+          ? 'border border-[#D5962F]/45 bg-[#FFF3D6] text-[#80520D]'
+          : 'border border-[#F4C84A]/40 bg-[#F4C84A]/20 text-[#FFD071]';
+      }
+      return isLight
+        ? 'border border-[#8A94A3]/24 bg-[#8A94A3]/10 text-[#5F6B7A]'
+        : 'border border-[#8A94A3]/26 bg-[#8A94A3]/12 text-[#B4BDC7]';
+    },
     statusPill: (isPlaceholder: boolean) => isPlaceholder
       ? isLight ? 'border border-[#8A94A3]/24 bg-[#8A94A3]/10 text-[#5F6B7A]' : 'border border-[#8A94A3]/26 bg-[#8A94A3]/12 text-[#B4BDC7]'
       : isLight ? 'border border-[#2FBF71]/34 bg-[#2FBF71]/15 text-[#2E8A5A]' : 'border border-[#2FBF71]/38 bg-[#2FBF71]/20 text-[#A6E8C1]',

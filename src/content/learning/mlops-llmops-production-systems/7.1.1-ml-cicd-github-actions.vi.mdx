@@ -69,7 +69,7 @@ Một pipeline MLOps hoàn chỉnh bao gồm 3 trục chuyển động:
   columns={['Kịch bản Xảy ra', 'Hành động CI/CD Thực thi']}
   rows={[
     { label: '`pull_request`', values: ['Khi kỹ sư mở PR hoặc push commit mới.', 'Chạy nhanh bộ kiểm thử code (pytest), formatting (ruff) và data testing trong < 2 phút.'] },
-    { label: '`schedule` (Cron Job)', values: ['Chạy định kỳ hàng đêm (ví dụ: `0 2 * * *`).', 'Kéo dữ liệu mới nhất từ S3, chạy huấn luyện phân tán và đánh giá đa lát cắt.'] },
+    { label: '`schedule` (Cron Job)', values: ['Chạy định kỳ hàng đêm (ví dụ: `0 2 * * *`).', 'Kéo dữ liệu mới nhất từ S3, chạy huấn luyện phân tán và đánh giá đa phân khúc.'] },
     { label: '`workflow_dispatch`', values: ['Kỹ sư kích hoạt thủ công từ giao diện GitHub.', 'Chạy các tác vụ tốn kém như Hyperparameter Tuning hoặc Deploy khẩn cấp.'] },
   ]}
 />

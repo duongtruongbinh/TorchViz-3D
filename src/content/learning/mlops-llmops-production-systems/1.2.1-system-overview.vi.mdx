@@ -1,0 +1,267 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'system-overview',
+  locale: 'vi',
+  title: "Tổng quan Kiến trúc Hệ thống",
+  headings: [
+    'Bức tranh Toàn cảnh Kiến trúc 4 Tầng',
+    'Luồng Pipeline Thực chiến End-to-End',
+    'Nguyên lý Decoupling & Data Contracts',
+    'Case Study 1: "Mất trắng" Dự án khi Thuê GPU',
+    'Case Study 2: Thảm họa "Lỗi Ngầm" khi Thiếu Data Contract',
+    'Case Study 3: Chiến lược Hybrid & Chống Khóa Chặt Công Cụ',
+  ],
+  keywords: [
+    'MLOps', 'System Architecture', '4 Layers', 'Data Layer', 'Compute Layer', 'Serving Layer', 'Control Layer',
+    'Decoupled Storage', 'Data Contracts', 'Modular Tools', 'Hybrid Strategy', 'Vendor Lock-in', 'AWS Best Practice',
+  ],
+  pageCount: 6,
+}
+
+<MdxPage page={0}>
+
+## Bức tranh Toàn cảnh Kiến trúc 4 Tầng
+
+Một hệ thống Machine Learning trên sản phẩm thực tế chỉ có khoảng 10% là thuật toán (ML Code), trong khi 90% còn lại là hệ thống hạ tầng phụ trợ: nạp dữ liệu (Data Ingestion), kiểm thử (Testing & Validation), giám sát (Monitoring), phục vụ API (Model Serving) và điều phối tài nguyên (Resource Management).
+
+Để làm chủ sự phức tạp này, kiến trúc hệ thống MLOps chuẩn công nghiệp được module hóa thành 4 tầng độc lập:
+
+<ConceptHierarchy
+  ariaLabel="4 tầng kiến trúc cốt lõi của hệ thống MLOps"
+  root={{
+    title: 'Hệ thống MLOps Sản xuất',
+    detail: 'Hạ tầng toàn diện phục vụ toàn bộ vòng đời mô hình từ dữ liệu thô đến API người dùng',
+  }}
+  nodes={[
+    {
+      title: '1. Data Layer',
+      problem: 'Lưu trữ, làm sạch, quản lý phiên bản và chia sẻ feature (Data Lake/S3, BigQuery, Feature Store).',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: '2. Compute Layer',
+      problem: 'Cụm tính toán co giãn huấn luyện phân tán và tiền xử lý dữ liệu lớn (Ray, Kubernetes, GPU Clusters).',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '3. Serving Layer',
+      problem: 'Đóng gói suy luận theo lô hoặc cung cấp API thời gian thực với SLA độ trễ nghiêm ngặt (FastAPI, Triton).',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '4. Control Layer',
+      problem: 'Theo dõi chỉ số, phát hiện Data Drift, quản lý Model Registry và tự động hóa CI/CD (MLflow, Evidently).',
+      tone: 'violet',
+      align: 'left',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Tư duy Module:** Mỗi tầng trong 4 tầng kiến trúc này giải quyết một bài toán kỹ thuật chuyên biệt và được phát triển, kiểm thử, mở rộng hoàn toàn độc lập.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Luồng Pipeline Thực chiến End-to-End
+
+Trong môi trường doanh nghiệp, dữ liệu và mô hình di chuyển qua 4 tầng theo một chu trình khép kín và tự động:
+
+<ConceptFlow
+  ariaLabel="Luồng dữ liệu và điều khiển khép kín qua 4 tầng kiến trúc"
+  items={[
+    {
+      title: '1. Data & Model Registry',
+      detail: 'Dữ liệu từ Data Source (Snowflake) qua kiểm định chất lượng (Great Expectations), kết hợp nạp model từ Model Registry (MLflow).',
+    },
+    {
+      title: '2. Batch Prediction Pipeline',
+      detail: 'Điều phối pipeline tính toán (Kedro, Airflow, AWS Batch) để chạy suy luận hàng loạt trên dữ liệu đã chuẩn hóa.',
+    },
+    {
+      title: '3. Data Output Storage',
+      detail: 'Lưu trữ kết quả dự đoán hoàn tất vào Object Storage (S3 Bucket) an toàn, độc lập và có phiên bản rõ ràng.',
+    },
+    {
+      title: '4. Monitoring & Data Ingestion',
+      detail: 'Giám sát metrics vận hành qua CloudWatch / Grafana và tự động nạp kết quả dự đoán trở lại Data Warehouse.',
+    },
+  ]}
+/>
+
+<LessonImage
+  assetPath="mlops-llmops-production-systems/01-batch-prediction-pipeline-flow.jpg"
+  alt="Sơ đồ 4 bước Pipeline MLOps thực chiến: Data & Model Registry, Batch Pipeline, Output Bucket và Monitor & Sync"
+  caption="Luồng kiến trúc hoàn chỉnh từ Dữ liệu & Model Registry qua Batch Prediction Pipeline đến Storage và Hệ thống Giám sát."
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Nguyên lý Decoupling & Data Contracts
+
+Điểm khác biệt cốt lõi giữa hệ sinh thái MLOps chuyên nghiệp và code ML thử nghiệm là 3 nguyên tắc **Kiến trúc Tách rời (Decoupled Architecture)**:
+
+<LessonImage
+  assetPath="mlops-llmops-production-systems/02-decoupling-data-contracts.jpg"
+  alt="Minh họa 3 nguyên lý kiến trúc MLOps: Decoupled Storage, Data Contract, và Modular Tools"
+  caption="Nguyên lý tách rời hạ tầng: Lưu trữ độc lập trên Cloud Storage, kiểm định chặt chẽ bằng Data Contract, và khả năng hoán đổi module công cụ linh hoạt."
+/>
+
+<CourseCards
+  ariaLabel="3 nguyên lý kiến trúc nền tảng trong MLOps"
+  exampleLabel="Ví dụ Thực tế"
+  takeawayLabel="Nguyên tắc Thiết kế"
+  threeColumns
+  items={[
+    {
+      title: 'Decoupled Storage & Compute',
+      example: 'Dữ liệu và checkpoint lưu trên S3/MinIO; cụm worker GPU (Ray/K8s) chỉ bật khi huấn luyện và tắt ngay khi xong việc.',
+      takeaway: 'Tách rời lưu trữ giúp dữ liệu an toàn vĩnh viễn và tiết kiệm tới 70% chi phí phần cứng hạ tầng.',
+    },
+    {
+      title: 'Data Contracts & Schema Validation',
+      example: 'Đầu ra của Tầng Data và đầu vào của Tầng Serving được định nghĩa bằng Pydantic / Protobuf / JSON Schema chặt chẽ.',
+      takeaway: 'Các tầng chỉ giao tiếp qua hợp đồng dữ liệu chuẩn, cho phép thay đổi công cụ nội bộ mà không làm gãy pipeline.',
+    },
+    {
+      title: 'Modular & Swappable Tooling',
+      example: 'Dù thay Ray bằng K8s, MLflow bằng W&B, hay S3 bằng MinIO, ranh giới API và hợp đồng dữ liệu giữa các tầng vẫn giữ nguyên.',
+      takeaway: 'Công cụ chỉ là chi tiết cài đặt; kiến trúc module hóa giúp hệ thống linh hoạt và không bị khóa chặt vào nhà cung cấp (No Vendor Lock-in).',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Case Study 1: "Mất trắng" Dự án khi Thuê GPU
+
+Để hiểu vì sao **Decoupled Storage & Compute** là nguyên lý sống còn, hãy phân tích sự cố kinh điển khi thuê GPU tạm thời:
+
+<LessonImage
+  assetPath="mlops-llmops-production-systems/03-gpu-crash-case-study.jpg"
+  alt="Minh họa Case Study: Bẫy lưu trữ cục bộ khi thuê GPU, thảm họa mất dữ liệu khi bị tắt máy và giải pháp Decoupled Storage"
+  caption="Bài học thực chiến: Lưu trữ dữ liệu và checkpoint trên máy chủ thuê tạm thời sẽ dẫn đến mất trắng khi bị thu hồi máy; giải pháp là tách rời lưu trữ lên Cloud Storage."
+/>
+
+<CourseCards
+  ariaLabel="3 giai đoạn trong Case Study mất trắng dữ liệu khi thuê GPU"
+  exampleLabel="Diễn biến Thực tế"
+  takeawayLabel="Hậu quả & Bài học"
+  threeColumns
+  items={[
+    {
+      title: 'Bẫy Lưu Trữ Cục Bộ (Local Trap)',
+      example: 'Thuê GPU giá rẻ / Spot Instance, tải 50GB dataset lên ổ cục bộ (/workspace) và lưu checkpoint trực tiếp trên máy tạm.',
+      takeaway: 'Xem máy GPU như nơi lưu trữ dữ liệu lâu dài là sai lầm chí mạng vì máy có thể bị thu hồi bất kỳ lúc nào.',
+    },
+    {
+      title: 'Thảm Họa Bị Thu Hồi Máy (Disaster)',
+      example: 'Đến giờ thứ 40, máy bị tắt đột ngột hoặc bị người khác Outbid; toàn bộ instance bị xóa sạch tức thì.',
+      takeaway: 'Toàn bộ 50GB dataset, mã nguồn dở dang và 40 giờ công sức huấn luyện biến mất vĩnh viễn không thể khôi phục.',
+    },
+    {
+      title: 'Khắc Phục Chuẩn Decoupled Storage',
+      example: 'Lưu dataset trên S3/MinIO; mã nguồn tự động đồng bộ checkpoint .pt lên Cloud Storage sau mỗi epoch hoặc 15 phút.',
+      takeaway: 'Khi máy GPU bị thu hồi, chỉ cần bật instance mới ở bất kỳ đâu, kéo checkpoint về và tiếp tục huấn luyện trong 2 phút.',
+    },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  **Chân lý Bất biến:** Trong thế giới MLOps, máy chủ tính toán (GPU Compute) chỉ là tài nguyên tiêu hao tạm thời (Ephemeral / Stateless). Mọi trạng thái lâu dài (Stateful) bắt buộc phải nằm ở Object Storage độc lập!
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Case Study 2: Thảm họa "Lỗi Ngầm" khi Thiếu Data Contract
+
+Sau nguyên lý tách rời lưu trữ, **Data Contract** là "tấm khiên sinh tử" thứ hai của hệ thống MLOps. Hãy cùng phân tích sự cố rò rỉ doanh thu thực tế:
+
+<LessonImage
+  assetPath="mlops-llmops-production-systems/04-data-contract-case-study.jpg"
+  alt="Minh họa Case Study: Thay đổi schema âm thầm từ Frontend, thảm họa Lỗi Ngầm khiến doanh thu sụt giảm 40% và tấm khiên bảo vệ Data Contract"
+  caption="Thảm họa Lỗi Ngầm: Sai định dạng schema không làm sập server nhưng khiến AI đưa ra quyết định sai; Data Contract chặn đứng dữ liệu bẩn ngay tại cửa ngõ."
+/>
+
+<CourseCards
+  ariaLabel="3 giai đoạn trong Case Study Lỗi Ngầm khi thiếu Data Contract"
+  exampleLabel="Diễn biến Thực tế"
+  takeawayLabel="Tác động & Xử lý"
+  threeColumns
+  items={[
+    {
+      title: 'Thay Đổi Schema Âm Thầm (Silent Change)',
+      example: 'Frontend đổi user_age từ số 25 thành "25 tuổi" để đa ngôn ngữ, và đổi item_price từ USD sang Cent mà không báo trước.',
+      takeaway: 'Những thay đổi nhỏ ở client tưởng chừng vô hại nhưng trực tiếp phá vỡ cấu trúc đầu vào mà mô hình AI mong đợi.',
+    },
+    {
+      title: 'Thảm Họa "Lỗi Ngầm" (Silent Failure)',
+      example: 'Server không crash: Backend parse "25 tuổi" thành 0 và $100 thành $10.000. AI nghĩ khách là trẻ 0 tuổi xem hàng đắt nên dừng gợi ý.',
+      takeaway: 'Doanh số công ty sụt giảm 40% suốt 2 tuần liền mà không có bất kỳ log lỗi hay cảnh báo hệ thống nào báo động.',
+    },
+    {
+      title: 'Tấm Khiên Bảo Vệ Của Data Contract',
+      example: 'Thiết lập Pydantic Schema / Protobuf tại Ingestion Gateway: Lập tức từ chối request với mã lỗi HTTP 422 khi sai định dạng.',
+      takeaway: 'Chặn đứng dữ liệu bẩn ngay tại cửa ngõ, kích hoạt chuông cảnh báo đỏ và bảo vệ an toàn cho toàn bộ pipeline.',
+    },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  **Bài học Cốt tử:** Phần mềm truyền thống sai kiểu dữ liệu sẽ crash (Lỗi hiển hiện). Trong Machine Learning, sai kiểu dữ liệu sẽ tạo ra **Lỗi Ngầm (Silent Failure)**: mô hình vẫn chạy nhưng âm thầm đưa ra quyết định sai lầm gây thiệt hại nặng nề!
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Case Study 3: Chiến lược Hybrid & Chống Khóa Chặt Công Cụ
+
+Tại sao kiến trúc MLOps chuyên nghiệp bắt buộc phải có tính chất **Modular & Swappable Tooling**? Hãy cùng phân tích chiến lược cân bằng giữa tốc độ và chi phí:
+
+<LessonImage
+  assetPath="mlops-llmops-production-systems/05-modular-hybrid-migration.jpg"
+  alt="Minh họa Case Study 3: Chiến lược Hybrid khởi đầu nhanh với AWS Cloud Best Practice và chuyển đổi dần sang Self-hosted Stack để tiết kiệm 70% chi phí"
+  caption="Chiến lược Hybrid thông minh: Giai đoạn đầu tận dụng AWS Cloud để ra mắt nhanh theo Best Practices, sau đó hoán đổi từng module sang Self-hosted khi hệ thống mở rộng quy mô."
+/>
+
+<CourseCards
+  ariaLabel="3 giai đoạn trong chiến lược Hybrid và lộ trình chuyển đổi module"
+  exampleLabel="Bối cảnh Thực tế"
+  takeawayLabel="Nguyên tắc & Giải pháp"
+  threeColumns
+  items={[
+    {
+      title: 'Day 1: Move Fast với Cloud-First (AWS)',
+      example: 'Giai đoạn MVP tận dụng AWS (S3, ECR, EC2 GPU, CloudWatch) để ra mắt sản phẩm nhanh nhất theo chuẩn công nghiệp.',
+      takeaway: 'Bọc các dịch vụ Cloud qua Adapter Interface chuẩn, tuyệt đối không hardcode SDK độc quyền sâu trong logic mô hình.',
+    },
+    {
+      title: 'Bẫy Khóa Chặt Nhà Cung Cấp (Vendor Lock-in)',
+      example: 'Khi mở rộng đến hàng triệu người dùng, chi phí Cloud tăng vọt từ 2.000 USD lên 40.000 USD/tháng.',
+      takeaway: 'Kiến trúc nguyên khối (Monolith) sẽ buộc bạn phải chấp nhận chi phí đắt đỏ hoặc mất 6 tháng đập bỏ hệ thống viết lại từ đầu.',
+    },
+    {
+      title: 'Lộ Trình Chuyển Đổi Hybrid Từng Bước',
+      example: 'Hoán đổi từng tầng: S3 → MinIO/R2, SageMaker → Ray/K8s on Bare Metal (giảm 70% chi phí), Cloud API → FastAPI + Triton/vLLM.',
+      takeaway: 'Nhờ kiến trúc Module & Data Contract, doanh nghiệp chuyển đổi linh hoạt từng thành phần mà không làm gián đoạn hệ thống.',
+    },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  **Lời Khuyên Thực Chiến:** *Bắt đầu với Cloud-First (AWS) để đi nhanh và bám sát Best Practices; thiết kế ranh giới Module chuẩn để khi quy mô lớn lên, bạn có toàn quyền chuyển đổi sang giải pháp Hybrid / Self-Hosted nhằm tối ưu hóa chi phí triệt để.*
+</LessonNote>
+
+</MdxPage>

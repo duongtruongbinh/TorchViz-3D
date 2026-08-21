@@ -1,0 +1,180 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'serving-layer-design',
+  locale: 'vi',
+  title: "Kiến trúc Tầng Serving (Serving Layer)",
+  headings: [
+    'Bản chất & Thách thức của Model Serving',
+    'Batch Inference vs Real-time Serving',
+    'Tối ưu hóa Mô hình & High-throughput Engine',
+    'Dynamic Batching & Quản lý Concurrency',
+    'Ma trận Kỹ năng & Lộ trình Junior - Senior',
+  ],
+  keywords: [
+    'Serving Layer', 'Batch Inference', 'Real-time Serving', 'FastAPI', 'Triton', 'vLLM', 'Dynamic Batching', 'Latency SLA',
+    'Junior vs Senior',
+  ],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Bản chất & Thách thức của Model Serving
+
+Tầng Phục vụ Dự đoán (Model Serving Layer) là cửa ngõ giao tiếp trực tiếp giữa mô hình AI và người dùng cuối. Đây là nơi kiểm nghiệm chất lượng kỹ thuật thực tế của hệ thống.
+
+Một mô hình đạt độ chính xác 99% trong phòng lab sẽ hoàn toàn vô giá trị nếu API mất 5 giây để phản hồi hoặc bị sập khi có 100 người dùng truy cập cùng lúc.
+
+<ConceptHierarchy
+  ariaLabel="4 trụ cột kỹ thuật của Tầng Serving trong MLOps"
+  root={{
+    title: 'Model Serving Layer',
+    detail: 'Hạ tầng phục vụ dự đoán hiệu năng cao với cam kết SLA độ trễ nghiêm ngặt',
+  }}
+  nodes={[
+    {
+      title: '1. Serving Mode Choice',
+      problem: 'Lựa chọn giữa Batch Inference (theo lô) và Real-time Serving (thời gian thực).',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: '2. High-speed Engines',
+      problem: 'Tối ưu trọng số sang ONNX, TensorRT, vLLM để tăng tốc độ suy luận gấp 5-10 lần.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '3. Dynamic Batching',
+      problem: 'Tự động gom các request đến cùng lúc thành 1 batch tính toán trên GPU.',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '4. Safe Deployment',
+      problem: 'Phát hành mô hình an toàn qua Canary Release, Shadow Serving và Circuit Breaker.',
+      tone: 'violet',
+      align: 'left',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Chỉ số SLA Cốt lõi:** Tầng Serving được đo lường bằng **P99 Latency** (độ trễ của 99% người dùng nhanh nhất), **Throughput / RPS** (số request xử lý được trong 1 giây) và **Availability** (thời gian uptime 99.9%).
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Batch Inference vs Real-time Serving
+
+Quyết định kiến trúc quan trọng nhất ở Tầng Serving là lựa chọn phương thức tính toán dự đoán:
+
+<ComparisonMatrix
+  ariaLabel="So sánh chi tiết giữa Batch Inference và Real-time Serving"
+  rowHeaderLabel="Đặc tính kỹ thuật & vận hành"
+  columns={['Batch Inference (Theo lô)', 'Real-time Serving (Thời gian thực)']}
+  rows={[
+    { label: 'Độ trễ yêu cầu (Latency)', values: ['Vài phút đến vài giờ (chấp nhận trễ cao)', 'Vài mili-giây đến vài trăm mili-giây (SLA nghiêm ngặt)'] },
+    { label: 'Thời điểm tính toán', values: ['Chạy định kỳ theo lịch (hàng đêm, hàng tuần)', 'Tính toán ngay tức thì khi có HTTP/gRPC request'] },
+    { label: 'Chi phí hạ tầng', values: ['Rất tiết kiệm (bật máy khi chạy, tắt ngay khi xong)', 'Tốn kém hơn (phải duy trì máy chủ GPU 24/7 và autoscaling)'] },
+    { label: 'Khả năng chịu tải', values: ['Thông lượng (throughput) cực lớn trên tập dữ liệu tĩnh', 'Cần quản lý dynamic batching, concurrency và queue đệm'] },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  **Nguyên tắc Lựa chọn:** Nếu bài toán không đòi hỏi kết quả tức thì theo input người dùng vừa gõ (ví dụ: gợi ý bài viết hàng ngày, phân khúc khách hàng, chấm điểm tín dụng), hãy **luôn chọn Batch Inference** để tối ưu 80% chi phí hạ tầng!
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tối ưu hóa Mô hình & High-throughput Engine
+
+Trong môi trường phục vụ thời gian thực, việc chạy mô hình trực tiếp bằng Python thuần và PyTorch gốc thường rất chậm do ảnh hưởng của Python GIL (Global Interpreter Lock).
+
+Các hệ thống sản xuất chuyển đổi mô hình sang các engine biên dịch nhị phân tốc độ cao:
+
+<CourseCards
+  ariaLabel="Các công cụ tăng tốc độ suy luận hàng đầu"
+  exampleLabel="Công nghệ tiêu biểu"
+  takeawayLabel="Khả năng tối ưu"
+  items={[
+    {
+      title: 'ONNX Runtime & TensorRT',
+      example: 'Xuất mô hình PyTorch sang file `.onnx` hoặc build engine TensorRT tối ưu cho nhân CUDA của Nvidia.',
+      takeaway: 'Giảm 50% dung lượng bộ nhớ VRAM và giảm 3 đến 8 lần độ trễ P99 so với chạy PyTorch thông thường.',
+    },
+    {
+      title: 'vLLM & TensorRT-LLM (Cho LLM)',
+      example: 'Thuật toán PagedAttention quản lý bộ nhớ KV-Cache thông minh không bị phân mảnh bộ nhớ.',
+      takeaway: 'Tăng thông lượng phục vụ mô hình ngôn ngữ lớn gấp 10-20 lần, phục vụ hàng nghìn user đồng thời.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Dynamic Batching & Quản lý Concurrency
+
+Khi có 50 request người dùng gửi đến API trong cùng một mili-giây:
+* Nếu xử lý từng request một: GPU chỉ hoạt động 5% công suất và 49 người dùng còn lại phải xếp hàng chờ đợi lâu.
+* Nếu dùng **Dynamic Batching**: Server gom 50 request này lại thành 1 tensor duy nhất có `batch_size=50` và đẩy vào GPU tính toán 1 lần duy nhất!
+
+<CourseCards
+  ariaLabel="Cơ chế Dynamic Batching và Hàng đợi Concurrency"
+  exampleLabel="Tham số cấu hình"
+  takeawayLabel="Mục đích vận hành"
+  items={[
+    {
+      title: 'Max Batch Size & Max Delay',
+      example: 'Cấu hình trong Triton / Ray Serve: `max_batch_size = 32`, `max_batch_delay_ms = 5`.',
+      takeaway: 'Server sẽ chờ tối đa 5ms để gom đủ 32 request rồi mới bắn vào GPU, giúp cân bằng hoàn hảo giữa Throughput và Latency.',
+    },
+    {
+      title: 'Circuit Breaker & Fallback Rule',
+      example: 'Nếu GPU server bị timeout quá 200ms hoặc sập nguồn, API gateway tự động trả về kết quả Heuristic Rule dưới 5ms.',
+      takeaway: 'Bảo vệ trải nghiệm người dùng cuối, không bao giờ để lộ màn hình lỗi 500.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Ma trận Kỹ năng & Lộ trình Junior - Senior
+
+<ComparisonMatrix
+  ariaLabel="Ma trận kỹ năng Tầng Serving từ Junior đến Senior MLOps"
+  rowHeaderLabel="Tiêu chí đánh giá"
+  columns={['Junior MLOps', 'Mid-level MLOps', 'Senior MLOps / Architect']}
+  rows={[
+    {
+      label: 'Kỹ năng Phục vụ',
+      values: [
+        'Viết REST API đơn giản bằng FastAPI / Flask; nạp mô hình vào bộ nhớ RAM và trả JSON.',
+        'Đóng gói API vào Docker; tối ưu mô hình với ONNX Runtime; cấu hình Gunicorn/Uvicorn đa worker; viết load test bằng Locust.',
+        'Thiết kế cụm Serving phân tán (Ray Serve / Triton) với Dynamic Batching, Autoscaling theo RPS; chiến lược Canary / Blue-Green Release; thiết lập Circuit Breaker.',
+      ],
+    },
+    {
+      label: 'Bẫy thường gặp',
+      values: [
+        'Load file mô hình từ đĩa cứng mỗi khi có request mới thay vì load sẵn lúc khởi động; API bị treo khi có 5 request đồng thời.',
+        'Dùng Real-time Serving đắt đỏ cho bài toán chỉ cần chạy Batch định kỳ hàng đêm.',
+        'Không có cơ chế Graceful Degradation và Fallback Rule; khi model AI bị treo, toàn bộ ứng dụng người dùng bị sập theo.',
+      ],
+    },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  **Bài tập Chuyển tiếp:** Hãy sang bài Quiz và Code Lab tiếp theo để thực hành xây dựng FastAPI Serving chuyên nghiệp và đo lường P99 Latency!
+</LessonNote>
+
+</MdxPage>

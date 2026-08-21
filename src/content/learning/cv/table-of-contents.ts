@@ -6,7 +6,7 @@ export const learningTableOfContents = {
     title: { en: "Computer Vision", vi: "Computer Vision" },
     description: { en: "Follow image tensors through vision models: NCHW shape, kernels, stride, padding, convolution values, pooling effects, flattening, classifier heads, transfer learning, and visual feature reasoning.", vi: "Theo dấu tensor ảnh qua model vision: shape NCHW, kernel, stride, padding, giá trị convolution, hiệu ứng pooling, flatten, classifier head, transfer learning và suy luận feature thị giác." },
   },
-  status: 'active',
+  status: 'placeholder',
   fallbackLocales: ['vi'],
   sectionKinds: ['theory', 'code'],
   chapters: [{

@@ -4,116 +4,346 @@ export const lessonMetadata = {
   locale: 'vi',
   title: "Thiết kế Sản phẩm AI",
   headings: [
-    'Tại sao cần Thiết kế Sản phẩm trước khi viết Code?',
-    'Xác định Mục tiêu Kinh doanh & KPI kỹ thuật',
-    'Đánh giá Tính khả thi & Dữ liệu sẵn có',
-    'Lựa chọn Giải pháp: Heuristic vs Machine Learning',
+    'Nghịch lý AI: Tại sao 85% Dự án Thất bại?',
+    'Bối cảnh Doanh nghiệp & Cạm bẫy Thường gặp',
+    'Case Study Thực tế: 5 Bài học Xương máu',
+    'Khung Phương pháp Luận: Bộ 4 Nguyên tắc Vàng',
+    'Kinh nghiệm Thực chiến & Đối chiếu Tư duy',
+    'Tài liệu Tham khảo & Nguồn Nghiên cứu',
   ],
-  keywords: ['MLOps', 'Product Design', 'Problem Formulation', 'KPIs', 'Heuristics', 'Feasibility'],
-  pageCount: 4,
+  keywords: ['MLOps', 'Product Design', 'Problem Formulation', 'KPIs', 'Heuristics', 'Feasibility', 'Google Rules of ML', 'Failure Modes', 'Case Studies', 'References'],
+  pageCount: 6,
 }
 
 <MdxPage page={0}>
 
-## Tại sao cần Thiết kế Sản phẩm trước khi viết Code?
+## Nghịch lý AI: Tại sao 85% Dự án Thất bại?
 
-Phần lớn các dự án Machine Learning thất bại không phải vì thuật toán yếu, mà vì **giải sai bài toán kinh doanh**. Trước khi xây dựng mô hình hoặc huấn luyện dữ liệu, chúng ta phải bắt đầu từ câu hỏi cốt lõi của sản phẩm.
-
-<CourseCards
-  ariaLabel="Các câu hỏi cốt lõi khi thiết kế sản phẩm AI"
-  exampleLabel="Câu hỏi đặt ra"
-  takeawayLabel="Ý nghĩa trong MLOps"
+<EvidenceCards
+  singleColumn
+  ariaLabel="Thống kê tỷ lệ thất bại và hiệu quả của các dự án AI theo các nghiên cứu độc lập"
+  insightLabel="Hệ quả:"
   items={[
     {
-      title: 'Giá trị mang lại (Value Proposition)',
-      example: 'Mô hình giúp tăng doanh thu, giảm thời gian xử lý thủ công hay nâng cao trải nghiệm người dùng như thế nào?',
-      takeaway: 'Mô hình chỉ có giá trị khi giải quyết đúng nút thắt kinh doanh thay vì chỉ tối ưu loss function đơn thuần.',
+      eyebrow: 'Gartner Research Survey',
+      value: '85%',
+      label: 'Dự án không bao giờ lên được Production',
+      insight: 'Phần lớn các mô hình học máy bị đình trệ hoặc "chết non" ở giai đoạn PoC/Lab mà không thể tích hợp vào hệ thống thật.',
+      tone: 'danger',
     },
     {
-      title: 'Người dùng cuối (End User)',
-      example: 'Ai sẽ sử dụng kết quả dự đoán của mô hình? Họ cần độ trễ bao nhiêu mili-giây và giao diện tương tác ra sao?',
-      takeaway: 'Quyết định kiến trúc phục vụ (Batch hay Real-time) và ràng buộc kỹ thuật về độ trễ P99.',
+      eyebrow: 'VentureBeat AI Special Report',
+      value: '87%',
+      label: 'Dự án không tạo ra giá trị kinh doanh',
+      insight: 'Dù model có độ chính xác cao nhưng không giải quyết đúng bài toán người dùng hoặc không tương thích với luồng vận hành.',
+      tone: 'danger',
+    },
+    {
+      eyebrow: 'MIT Sloan & BCG Global Study',
+      value: '10%',
+      label: 'Doanh nghiệp thực sự có ROI tài chính',
+      insight: 'Chỉ 1/10 tổ chức thực sự chuyển hóa được năng lực AI thành lợi nhuận ròng đáng kể nhờ tư duy Product & System Design chuẩn xác.',
+      tone: 'accent',
     },
   ]}
 />
 
-<LessonNote tone="info">
-  **Quy tắc số 1 của MLOps:** Không bao giờ bắt đầu bằng việc chọn model kiến trúc nào, mà luôn bắt đầu bằng bài toán người dùng cần giải quyết là gì.
+Trong khi ngành công nghiệp không ngừng đầu tư hàng tỷ USD vào GPU và các kiến trúc mô hình ngày càng phức tạp, bức tranh thực tế tại các doanh nghiệp lại đối mặt với một nghịch lý lớn: 
+
+Hầu hết các dự án thất bại **không phải do mô hình có độ chính xác thấp hay thuật toán kém**, mà do **giải sai bài toán kinh doanh**.
+
+<ConceptHierarchy
+  ariaLabel="Cây phân cấp 4 nguyên nhân thất bại kinh điển của các dự án AI"
+  root={{
+    title: '4 Nguyên nhân Thất bại Cốt lõi',
+    detail: 'Giải sai bài toán kinh doanh và hiểu sai nhu cầu thực tế',
+  }}
+  children={[
+    {
+      title: '1. Technology-First',
+      align: 'left',
+      detail: 'Hội chứng "Cầm búa tìm đinh" (Law of the Instrument / Maslow\'s Hammer): Chọn mô hình phức tạp trước khi hiểu rõ bài toán người dùng.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Metric Disconnect',
+      align: 'left',
+      detail: 'Mismatch giữa Technical Metric và Business Metric: Tối ưu Accuracy/Loss trên tập test nhưng không đáp ứng được KPI kinh doanh thực tế.',
+      tone: 'amber',
+    },
+    {
+      title: '3. Ignored UX / SLA',
+      align: 'left',
+      detail: 'Bỏ qua bối cảnh trải nghiệm người dùng: Không đánh giá độ trễ thao tác, thiếu cơ chế fallback khi model đoán sai và làm gãy luồng tương tác.',
+      tone: 'amber',
+    },
+    {
+      title: '4. Negative ROI & TCO',
+      align: 'left',
+      detail: 'Chi phí hạ tầng vượt xa lợi nhuận: Tổng chi phí sở hữu (TCO - GPU, data, vận hành) lớn hơn giá trị thực tế mang lại.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  **Câu hỏi then chốt:** Làm thế nào để định hình bài toán đúng ngay từ đầu, biến một ý tưởng kinh doanh mơ hồ thành một hệ thống AI vừa khả thi kỹ thuật, vừa đem lại ROI rõ ràng?
 </LessonNote>
 
 </MdxPage>
 
 <MdxPage page={1}>
 
-## Xác định Mục tiêu Kinh doanh & KPI kỹ thuật
+## Bối cảnh Doanh nghiệp & Cạm bẫy Thường gặp
 
-Một hệ thống ML thành công phải cầu nối được giữa **Business Objective** và **ML Metric**. Không thể chỉ tối ưu Loss function mà bỏ qua tác động thực tế đến người dùng.
+Khi bước chân vào thực tế, một kỹ sư AI/MLOps sẽ gặp 1 trong 3 môi trường doanh nghiệp với những đặc thù dữ liệu và mục tiêu bài toán hoàn toàn khác nhau:
 
-<ComparisonMatrix
-  ariaLabel="So sánh chỉ số kinh doanh và chỉ số ML tương ứng"
-  rowHeaderLabel="Chỉ số Kinh doanh"
-  columns={['Chỉ số ML tương ứng', 'Mối quan hệ & Ý nghĩa']}
-  rows={[
-    { label: 'Tăng tỷ lệ giữ chân người dùng (Retention Rate)', values: ['F1-score / Recall cho bài toán gợi ý', 'Gợi ý đúng nội dung họ thích sẽ giữ chân người dùng lâu hơn trên nền tảng.'] },
-    { label: 'Giảm chi phí kiểm duyệt thủ công (Review Time)', values: ['Precision ở ngưỡng tự động duyệt cao', 'Đảm bảo ít cảnh báo sai để đội ngũ kiểm duyệt không bị quá tải.'] },
-    { label: 'Phản hồi người dùng tức thì (< 200ms)', values: ['P99 Latency & Batch Size tối ưu', 'Model chính xác nhưng chậm sẽ làm người dùng rời bỏ ứng dụng.'] },
+<ConceptHierarchy
+  ariaLabel="3 nhóm bài toán cốt lõi theo bối cảnh doanh nghiệp"
+  root={{
+    title: 'Bối cảnh Doanh nghiệp',
+    detail: '3 nhóm bài toán cốt lõi mà kỹ sư AI/MLOps phải đối mặt trong thực tế',
+  }}
+  children={[
+    {
+      title: '1. Startup (Early Stage)',
+      align: 'left',
+      detail: 'Bài toán: Tìm kiếm & Xác thực nhu cầu người dùng (Problem-Solution Fit) với dữ liệu ít và chi phí tối thiểu.',
+      tone: 'blue',
+    },
+    {
+      title: '2. Doanh nghiệp Ổn định',
+      align: 'left',
+      detail: 'Bài toán: Nâng cao hiệu năng & Giảm TCO hạ tầng cho hệ thống đang phục vụ hàng triệu người dùng.',
+      tone: 'teal',
+    },
+    {
+      title: '3. Khai phá R&D Mới',
+      align: 'left',
+      detail: 'Bài toán: Chuyển hóa kho Data Lake thành use case kinh doanh thực tế thay vì dự án thử nghiệm chết yểu.',
+      tone: 'violet',
+    },
   ]}
 />
 
-<LessonNote tone="tip">
-  Hãy luôn xác định một **Minimum Viable Metric (MVM)**: ngưỡng hiệu năng tối thiểu mà mô hình phải vượt qua thì mới được phép đưa vào thử nghiệm thực tế.
+<EvidenceCards
+  singleColumn
+  ariaLabel="Phân tích chi tiết 3 bối cảnh doanh nghiệp và cạm bẫy thực tế"
+  insightLabel="Cạm bẫy thực tế:"
+  items={[
+    {
+      eyebrow: 'Startup & Early Stage | Ví dụ: Harvey AI, Jasper, Cursor',
+      value: 'Fit',
+      label: 'Mục tiêu: Tốc độ kiểm chứng thị trường (Speed to Market)',
+      insight: 'Đốt tiền vào hạ tầng AI phức tạp quá sớm thay vì dùng Rule-based hoặc Prompting kết hợp Human-in-the-loop để kiểm chứng nhu cầu người dùng với chi phí bằng 0. Điển hình: Nhiều startup AI cạn kiệt vốn vì chi phí GPU trước khi có khách hàng trả phí đầu tiên.',
+      tone: 'primary',
+    },
+    {
+      eyebrow: 'Doanh nghiệp Đã Ổn định | Ví dụ: Netflix, Spotify, Uber, Shopee',
+      value: 'Scale',
+      label: 'Mục tiêu: Tối ưu hóa chuyển đổi, giảm độ trễ & chi phí vận hành',
+      insight: 'Cố gắng tăng 1-2% test accuracy bằng mô hình nặng nề khiến P99 Latency tăng vọt và chi phí GPU vượt xa lợi nhuận biên mang lại (Negative ROI). Cần cân bằng giữa Model Metrics và System SLAs.',
+      tone: 'warning',
+    },
+    {
+      eyebrow: 'Khai phá R&D Mới | Ví dụ: JPMorgan Chase, Walmart, BMW',
+      value: 'ROI',
+      label: 'Mục tiêu: Khai phá cơ hội mới từ kho dữ liệu tích lũy nhiều năm',
+      insight: 'Hội chứng "Cầm búa tìm đinh" ở mức độ nặng nhất: Huấn luyện mô hình rất đẹp mắt trong phòng lab nhưng không phòng ban nào chịu dùng vì không khớp quy trình thực tế. Cần sự đồng hành chặt chẽ của Domain Experts ngay từ ngày đầu.',
+      tone: 'accent',
+    },
+  ]}
+/>
+
+<LessonNote tone="warning">
+  Dù ở bối cảnh nào, nếu thiếu phương pháp luận định hình bài toán, dự án đều sẽ rơi vào nhóm 85% thất bại. Để hiểu rõ hơn, hãy cùng mổ xẻ 4 bài học xương máu từ các dự án thực chiến ở trang tiếp theo.
 </LessonNote>
 
 </MdxPage>
 
 <MdxPage page={2}>
 
-## Đánh giá Tính khả thi & Dữ liệu sẵn có
+## Case Study Thực tế: 5 Bài học Xương máu
 
-Trước khi đầu tư tài nguyên GPU và thời gian kỹ sư, ta cần thực hiện bài toán đánh giá tính khả thi theo 3 khía cạnh:
+Dưới đây là 5 tình huống "người thật việc thật" phản ánh những sai lầm phổ biến nhất mà các kỹ sư AI thường trải qua:
 
-<CourseCards
-  ariaLabel="3 khía cạnh đánh giá tính khả thi bài toán ML"
-  exampleLabel="Vấn đề kiểm tra"
-  takeawayLabel="Hệ quả quyết định"
+<EvidenceCards
+  singleColumn
+  ariaLabel="5 bài học xương máu từ các dự án AI thực tế"
+  insightLabel="Vấn đề:"
   items={[
     {
-      title: 'Tính sẵn có của Dữ liệu (Data Feasibility)',
+      eyebrow: 'Case 1: Thiếu Baseline Tin cậy & Scope Quá Rộng',
+      value: 'Baseline',
+      label: 'Dùng model phức tạp chứng minh năng lực nhưng không có chuẩn so sánh',
+      insight: 'Mô hình nhìn rất hoành tráng nhưng khi áp dụng vào thực tế lại không chứng minh được hiệu quả vượt trội vì thiếu một Baseline đáng tin cậy. Scope bị mở rộng vô tận, không có kịch bản nghiệm thu (Acceptance Criteria) và không định nghĩa rõ KPI thế nào là Đạt.',
+      takeaway: 'Việc đầu tiên trước khi mở IDE viết code là xây dựng Baseline Model, chốt chặt Scope và kịch bản nghiệm thu với Khách hàng/BA để chứng minh mô hình mới thực sự win baseline.',
+      tone: 'danger',
+    },
+    {
+      eyebrow: 'Case 2: Bài toán Chấm điểm Tín dụng & Hạn mức Vay',
+      value: 'Domain',
+      label: 'Performance train/test rất cao nhưng vi phạm Monotonic Constraint',
+      insight: 'Mô hình cho kết quả test rất tốt, nhưng bị nghiệp vụ bác bỏ vì vi phạm quy luật đơn điệu (Monotonic Constraint): Cùng một khách hàng, khi thu nhập tăng lên hoặc lịch sử nợ giảm đi thì hạn mức vay bắt buộc phải tăng (hoặc giữ nguyên), nhưng model lại dự đoán ngược! Đồng thời, sai số MAPE bắt buộc phải < 3% trên toàn bộ các nhóm phân khúc khách hàng, nhưng model chỉ đạt trung bình chung tốt mà bị sai lệch lớn ở phân khúc ngách.',
+      takeaway: 'Mô hình sản xuất bắt buộc phải tuân thủ Monotonic Constraints và vượt qua kiểm thử đa phân khúc (Sliced Evaluation).',
+      tone: 'warning',
+    },
+    {
+      eyebrow: 'Case 3: Thử Nghiệm Data Public vs Thực Tế Trắng Dữ Liệu',
+      value: 'Cold Start',
+      label: 'Chạy Notebook trên dataset mẫu ra kết quả tốt nhưng công ty hoàn toàn chưa có dữ liệu',
+      insight: 'Tải dataset public trên mạng về chạy Jupyter Notebook đạt độ chính xác cao và tự tin đề xuất dự án cho công ty. Tuy nhiên khi bắt tay vào triển khai thực tế thì vỡ lẽ: Công ty hoàn toàn chưa có nguồn dữ liệu nội bộ tương đương, chưa có quy trình ghi log, không biết thu thập từ đâu và chi phí gán nhãn thủ công vượt quá ngân sách.',
+      takeaway: 'Trước khi huấn luyện bất kỳ model nào, phải đánh giá tính sẵn có của dữ liệu (Data Feasibility): kiểm tra luồng thu thập thực tế, độ phủ nhãn và xây dựng pipeline thu thập dữ liệu thô (Data Collection Pipeline) trước khi viết code ML.',
+      tone: 'primary',
+    },
+    {
+      eyebrow: 'Case 4: Tự Nghĩ Bài Toán Đi Pitching & Lệch Ưu Tiên',
+      value: 'Priority',
+      label: 'Lệch điểm nghẽn cấp bách và đòi hỏi thay đổi quá nhiều quy trình',
+      insight: 'Tự ngồi trong phòng lab nghĩ ra bài toán AI rồi đem demo đi chào hàng, nhưng hóa ra đó không phải là bài toán ưu tiên cấp bách của phòng ban vận hành tại thời điểm đó. Ngoài ra, giải pháp lại đòi hỏi nhân viên phải thay đổi quá nhiều quy trình thao tác quen thuộc dẫn đến sự kháng cự và trì hoãn kéo dài.',
+      takeaway: 'Không tự phát minh bài toán trong phòng kín, luôn bắt đầu từ Top 1 điểm nghẽn của người dùng và tích hợp với mức độ xáo trộn quy trình tối thiểu (Minimum Workflow Friction).',
+      tone: 'accent',
+    },
+    {
+      eyebrow: 'Case 5: "Thần Thánh Hóa" Camera AI Trong Logistics',
+      value: 'Overkill',
+      label: 'Đề xuất Camera AI đắt đỏ cho bài toán mà cảm biến vật lý giải quyết tốt hơn',
+      insight: 'Doanh nghiệp Logistics muốn "ứng dụng AI" nên đề xuất lắp hệ thống Camera AI để nhận diện kiện hàng, đọc mã QR, đếm số lượng và phân loại theo cân nặng. Dự án đối mặt chi phí GPU khổng lồ, góc khuất camera và độ trễ nhận diện cao. Trong khi đó, giải pháp thực tế chỉ cần một băng tải tự động chạy qua cân điện tử tích hợp đầu đọc quét mã QR (Rule-based) là đã giải quyết 100% nhu cầu với chi phí thấp hơn nhiều lần và độ chính xác 99.99%.',
+      takeaway: 'Không dùng Computer Vision hay Deep Learning đắt đỏ cho những bài toán mà cảm biến phần cứng (Hardware Sensors / Rule-based) đã xử lý hoàn hảo. Luôn đánh giá giải pháp đơn giản nhất trước khi nghĩ đến AI.',
+      tone: 'neutral',
+    },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  Khi nhìn lại 5 bài học này, bạn sẽ nhận ra: **Những vấp ngã thực tế này chính là lý do ra đời của Bộ 3 Nguyên tắc Vàng từ Google và Stanford** được chuẩn hóa ở trang tiếp theo.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Khung Phương pháp Luận: Bộ 4 Nguyên tắc Vàng
+
+Được đúc kết từ tài liệu kinh điển **Rules of Machine Learning** của Google Research và giáo trình **Designing Machine Learning Systems** (Stanford CS 329S), quy trình thiết kế sản phẩm AI bắt buộc phải tuân theo 4 nguyên tắc nền tảng:
+
+<CourseCards
+  ariaLabel="Bộ 4 nguyên tắc vàng trong thiết kế sản phẩm AI"
+  exampleLabel="Nội dung nguyên tắc"
+  takeawayLabel="Ý nghĩa thực chiến"
+  items={[
+    {
+      title: '1. Problem-First, Never Model-First (Google Rule #2)',
+      example: 'Không bắt đầu bằng việc chọn kiến trúc mô hình. Luôn bắt đầu từ việc lượng hóa nỗi đau của người dùng: tiết kiệm bao nhiêu giờ, tăng bao nhiêu % chuyển đổi doanh thu (Giải quyết Case Study 4 & 5).',
+      takeaway: 'Chỉ khi xác định rõ: Sản phẩm mang lại giá trị gì cụ thể, phục vụ ai và thời gian phản hồi tối đa cho phép là bao nhiêu giây, bài toán AI mới có cơ sở thành công.',
+    },
+    {
+      title: '2. Heuristic Baseline First (Google Rule #1 & #3)',
+      example: '"Đừng ngại ra mắt sản phẩm mà chưa cần đến Machine Learning." Heuristic là các tập luật logic đơn giản (như If/Else, Regex, bảng tra cứu). Luôn bắt đầu bằng Heuristic làm chuẩn so sánh (Giải quyết Case Study 1 & 5).',
+      takeaway: 'Heuristic giúp bàn giao kết quả ngay trong ngày đầu tiên, tạo mốc đo lường chuẩn mực để chứng minh mô hình AI mới thực sự vượt trội hơn luật cũ.',
+    },
+    {
+      title: '3. Data Feasibility & Cold-Start (Stanford CS 329S)',
+      example: 'Đánh giá tính sẵn có của dữ liệu nội bộ trước khi huấn luyện mô hình. Tuyệt đối không dựa dẫm vào kết quả trên dataset mẫu từ internet (Giải quyết Case Study 3).',
+      takeaway: 'Xây dựng luồng thu thập dữ liệu và ghi log thực tế trước khi đầu tư tài nguyên GPU và công sức kỹ sư.',
+    },
+    {
+      title: '4. Design for Failure & Risk Control (Google PAIR)',
+      example: 'Mô hình học máy là hệ thống xác suất, chắc chắn có lúc đoán sai. Cần kiểm soát rủi ro khi AI đoán sai để bảo vệ uy tín thương hiệu và tránh vi phạm quy luật nghiệp vụ (Giải quyết Case Study 2).',
+      takeaway: 'Thiết kế sẵn cơ chế Fallback (tự động quay về tập luật đơn giản khi server lỗi) và cơ chế Human-in-the-loop (chuyển các ca phân vân cho con người duyệt) để bảo vệ an toàn thương hiệu.',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Đúc kết cốt lõi:** Một bài toán được định nghĩa chuẩn xác với đầy đủ ràng buộc vận hành, baseline đối chiếu và cơ chế fallback đã giải quyết xong 50% khối lượng công việc của một dự án MLOps.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kinh nghiệm Thực chiến & Đối chiếu Tư duy
+
+Từ các nguyên tắc trên, trước khi đầu tư tài nguyên GPU và thời gian kỹ sư, ta cần thực hiện bài toán đánh giá tính khả thi theo 3 trụ cột và lộ trình nâng cấp:
+
+<CourseCards
+  threeColumns
+  ariaLabel="3 khía cạnh đánh giá tính khả thi bài toán ML"
+  exampleLabel="Vấn đề kiểm tra"
+  takeawayLabel="Hậu quả quyết định"
+  items={[
+    {
+      title: '1. Tính sẵn có của Dữ liệu (Data Feasibility)',
       example: 'Bạn đã có dữ liệu gán nhãn chưa? Tỷ lệ nhãn bị thiếu (missing) hoặc mất cân bằng (imbalance) là bao nhiêu?',
       takeaway: 'Không có dữ liệu sạch và đủ đại diện thì không thể xây dựng mô hình học máy thành công.',
     },
     {
-      title: 'Tính khả thi Kỹ thuật (Technical Feasibility)',
-      example: 'Bài toán có thể giải quyết được bằng ML hiện đại không? Có thể trích xuất các đặc trưng phân biệt rõ ràng không?',
+      title: '2. Tính khả thi Kỹ thuật (Technical Feasibility)',
+      example: 'Bài toán có thể giải quyết được bằng ML hiện đại không? Tỷ lệ tín hiệu trên nhiễu (Signal-to-Noise Ratio) có đủ tốt không?',
       takeaway: 'Nếu bài toán quá mơ hồ hoặc nhiễu vượt quá tín hiệu, nên bắt đầu bằng heuristic đơn giản.',
     },
     {
-      title: 'Chi phí & Hoàn vốn (ROI Feasibility)',
-      example: 'Chi phí thu thập dữ liệu, huấn luyện và duy trì hạ tầng suy luận có thấp hơn giá trị hệ thống đem lại không?',
+      title: '3. Chi phí & Hoàn vốn (ROI & TCO Feasibility)',
+      example: 'Chi phí thu thập dữ liệu, huấn luyện và duy trì hạ tầng suy luận GPU có thấp hơn giá trị hệ thống đem lại không?',
       takeaway: 'Chỉ triển khai ML khi lợi ích kinh doanh vượt trội so với tổng chi phí sở hữu hạ tầng (TCO).',
+    },
+  ]}
+/>
+
+### Bảng Đối chiếu Tư duy: Junior vs Senior MLOps Engineer
+
+<ComparisonMatrix
+  ariaLabel="So sánh tư duy tiếp cận giữa Junior Data Scientist và Senior MLOps Engineer"
+  rowHeaderLabel="Tình huống Thực tế"
+  columns={['Junior (Tư duy Model-First)', 'Senior MLOps (Tư duy Product-First)']}
+  rows={[
+    {
+      label: 'Nhận đề bài: "Cần tự động hóa phân loại phản hồi khách hàng"',
+      values: [
+        'Tìm mô hình Transformer lớn nhất trên HuggingFace để tải về fine-tune ngay.',
+        'Xác định điểm nghẽn của đội CSKH, viết tập luật Regex làm baseline, và phân tích SLA độ trễ của app.',
+      ],
+    },
+    {
+      label: 'Định nghĩa chỉ số đo lường (Metrics)',
+      values: [
+        'Chỉ tập trung tối ưu Loss function và Accuracy trên tập test offline.',
+        'Liên kết chỉ số kỹ thuật với KPI kinh doanh: Precision ở ngưỡng tự động duyệt cao để giảm tải review thủ công, kiểm soát Sliced MAPE < 3%.',
+      ],
+    },
+    {
+      label: 'Khi mô hình dự đoán sai (False Predictions)',
+      values: [
+        'Bối rối vì test accuracy cao, cố gắng tăng số epoch và cào thêm dữ liệu.',
+        'Thiết kế nút báo cáo nhầm cho người dùng, đẩy các ca phân vân (low confidence) cho con người duyệt (Human-in-the-loop).',
+      ],
+    },
+    {
+      label: 'Khi hệ thống API chịu tải cao (High Traffic)',
+      values: [
+        'Server bị nghẽn, trả về lỗi Timeout 500 khiến trải nghiệm người dùng bị tê liệt.',
+        'Kích hoạt cơ chế Fallback về Rule-based trong dưới 5ms để đảm bảo luồng nghiệp vụ không bị gián đoạn.',
+      ],
     },
   ]}
 />
 
 </MdxPage>
 
-<MdxPage page={3}>
+<MdxPage page={5}>
 
-## Lựa chọn Giải pháp: Heuristic vs Machine Learning
+## Tài liệu Tham khảo & Nguồn Nghiên cứu
 
-Đừng vội dùng Deep Learning cho mọi bài toán. Một giải pháp rule-based (heuristic) đơn giản thường là bước khởi đầu tốt nhất.
+Dưới đây là các tài liệu nghiên cứu chuẩn mực và báo cáo độc lập được trích dẫn trong bài học:
 
-<ConceptFlow
-  ariaLabel="Lộ trình nâng cấp từ Heuristic lên Mô hình phức tạp"
-  items={[
-    { title: '1. Heuristic Baseline', detail: 'Viết luật đơn giản (regex, điều kiện logic, lookup table) để có kết quả ngay lập tức và làm chuẩn so sánh.' },
-    { title: '2. Simple Model', detail: 'Thử nghiệm mô hình tuyến tính (Logistic Regression, TF-IDF) để thiết lập baseline định lượng nhanh.' },
-    { title: '3. Complex Model', detail: 'Chỉ chuyển sang Transformer / Deep Learning khi baseline đơn giản không đáp ứng đủ KPI sản phẩm.' },
-  ]}
-/>
-
-<LessonNote tone="warning">
-  Nếu một hệ thống luật 20 dòng code giải quyết được 80% bài toán với chi phí vận hành bằng 0, hãy bắt đầu với nó trước khi xây dựng pipeline ML phức tạp!
+<LessonNote tone="info">
+  **Danh mục Báo cáo & Tài liệu Chuẩn Công nghiệp (Citations & Industry References):**
+  * **[Gartner]**: [Gartner Data Science and Machine Learning Survey](https://www.gartner.com/en/newsroom/press-releases/2018-02-13-gartner-says-nearly-half-of-cios-are-planning-to-deploy-artificial-intelligence): *"Over 85% of AI and machine learning projects fail to deliver on their initial promise or stall before reaching production."*
+  * **[VentureBeat]**: [VentureBeat Enterprise AI Special Report](https://venturebeat.com/ai/why-do-87-of-data-science-projects-never-make-it-into-production/): *"Why 87% of machine learning projects never make it into production."*
+  * **[MIT Sloan & BCG]**: [MIT Sloan Management Review & Boston Consulting Group Global Study](https://sloanreview.mit.edu/projects/expanding-ais-impact-with-organizational-learning/): *"Expanding AI's Impact With Organizational Learning: Only 10% of companies achieve significant financial benefits from AI."*
+  * **[Google Research]**: [Rules of Machine Learning: Best Practices for ML Engineering](https://developers.google.com/machine-learning/guides/rules-of-ml) (Martin Zinkevich): *Rules #1, #2, #3 for production ML.*
+  * **[Stanford CS 329S]**: [Designing Machine Learning Systems](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/) (Chip Huyen, O'Reilly & Stanford CS 329S): *Four pillars of robust ML system design.*
 </LessonNote>
 
 </MdxPage>

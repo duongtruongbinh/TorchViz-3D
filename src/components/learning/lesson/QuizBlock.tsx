@@ -432,7 +432,7 @@ function CategorizeQuestion({
   return (
     <div className="mt-5 grid gap-4">
       <div
-        className={cx('grid min-h-16 gap-2 rounded-lg border border-dashed p-3', quizPalette.categoryBank)}
+        className={cx('grid min-h-16 gap-2 rounded-xl p-3.5', quizPalette.categoryBank)}
         onDragOver={(event) => {
           event.preventDefault();
           event.dataTransfer.dropEffect = 'move';
@@ -445,15 +445,17 @@ function CategorizeQuestion({
           </div>
         )}
         <div className="flex flex-wrap gap-2">
-          {unassignedOptions.length ? unassignedOptions.map((option) => (
-            <TokenChip
-              isIncorrect={isOptionIncorrect(option)}
-              key={option.id}
-              label={text(option.label, language)}
-              optionId={option.id}
-              quizPalette={quizPalette}
-            />
-          )) : (
+          {unassignedOptions.length ? (
+            (question.oneByOne ? unassignedOptions.slice(0, 1) : unassignedOptions).map((option) => (
+              <TokenChip
+                isIncorrect={isOptionIncorrect(option)}
+                key={option.id}
+                label={text(option.label, language)}
+                optionId={option.id}
+                quizPalette={quizPalette}
+              />
+            ))
+          ) : (
             <span className={cx('text-sm font-semibold leading-6', quizPalette.categoryCaption)}>
               {completeLabel}
             </span>
@@ -469,7 +471,7 @@ function CategorizeQuestion({
             <div
               key={category.id}
               className={cx(
-                'grid min-h-28 gap-2 rounded-lg border border-dashed p-3 transition-colors',
+                'grid min-h-28 gap-2 rounded-xl border p-3.5 transition-colors',
                 hasIncorrectOption ? quizPalette.categoryZoneIncorrect : quizPalette.categoryZone,
               )}
               onDragOver={(event) => {
@@ -478,12 +480,13 @@ function CategorizeQuestion({
               }}
               onDrop={(event) => handleDrop(event, category.id)}
             >
-              <div className={cx('text-sm font-black leading-6', quizPalette.categoryTitle)}>
+              <div className={cx('text-xs font-black uppercase tracking-wide', quizPalette.categoryTitle)}>
                 {text(category.label, language)}
               </div>
               <div className="flex flex-wrap gap-2">
                 {categoryOptions.map((option) => (
                   <TokenChip
+                    isAssigned
                     isIncorrect={isOptionIncorrect(option)}
                     key={option.id}
                     label={text(option.label, language)}
@@ -501,16 +504,22 @@ function CategorizeQuestion({
 }
 
 function TokenChip({
+  isAssigned = false,
   isIncorrect,
   label,
   optionId,
   quizPalette,
 }: {
+  isAssigned?: boolean;
   isIncorrect: boolean;
   label: string;
   optionId: string;
   quizPalette: QuizPalette;
 }) {
+  const chipStyle = isAssigned
+    ? isIncorrect ? quizPalette.tokenChipAssignedIncorrect : quizPalette.tokenChipAssigned
+    : isIncorrect ? quizPalette.tokenChipIncorrect : quizPalette.tokenChip;
+
   return (
     <span
       draggable
@@ -519,8 +528,8 @@ function TokenChip({
         event.dataTransfer.setData('text/plain', optionId);
       }}
       className={cx(
-        'inline-flex min-h-9 cursor-grab items-center rounded-lg border px-3 py-1.5 text-sm font-normal leading-6 shadow-sm active:cursor-grabbing',
-        isIncorrect ? quizPalette.tokenChipIncorrect : quizPalette.tokenChip,
+        'inline-flex min-h-9 cursor-grab items-center rounded-lg px-3.5 py-2 text-sm font-normal leading-6 transition-colors active:cursor-grabbing',
+        chipStyle,
       )}
     >
       {label}
@@ -545,13 +554,15 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
       orderRow: 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84 hover:bg-[#A8B8C8]/12',
       orderRowDragging: 'opacity-55',
       dropLine: 'bg-[#D7DCE2]',
-      categoryBank: 'border-[#A8B8C8]/18 bg-[#121A24]/28',
+      categoryBank: 'bg-[#121A24]/42',
       categoryCaption: 'text-[#D7EAFE]/70',
       categoryZone: 'border-[#A8B8C8]/18 bg-[#A8B8C8]/6',
       categoryZoneIncorrect: 'border-[#FCA5A5]/42 bg-[#FCA5A5]/10',
       categoryTitle: 'text-[#F2F6FA]',
-      tokenChip: 'border-[#A8B8C8]/20 bg-[#121A24]/58 text-[#F2F6FA]/84',
-      tokenChipIncorrect: 'border-[#FCA5A5]/54 bg-[#FCA5A5]/14 text-[#FCA5A5]',
+      tokenChip: 'border-2 border-dashed border-[#A8B8C8]/30 bg-[#172232] text-[#F2F6FA]/90',
+      tokenChipIncorrect: 'border-2 border-dashed border-[#FCA5A5]/54 bg-[#FCA5A5]/14 text-[#FCA5A5]',
+      tokenChipAssigned: 'border border-[#A8B8C8]/20 bg-[#121A24]/60 text-[#F2F6FA]/90',
+      tokenChipAssignedIncorrect: 'border border-[#FCA5A5]/50 bg-[#FCA5A5]/14 text-[#FCA5A5]',
       checkButton: 'bg-[#D7DCE2] text-[#121A24] hover:bg-[#F2F6FA]',
       disabledButton: 'bg-[#A8B8C8]/8 text-[#F2F6FA]/24',
       resetButton: 'bg-[#A8B8C8]/10 text-[#F2F6FA]/76 hover:bg-[#A8B8C8]/14',
@@ -573,13 +584,15 @@ export function getQuizPalette(themeClasses: ReturnType<typeof getLearningLabThe
     orderRow: 'border-[#2F6B55]/14 bg-white text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)] hover:border-[#2F6B55]/28 hover:bg-[#F6FAF8]',
     orderRowDragging: 'opacity-55',
     dropLine: 'bg-[#6FAF93]',
-    categoryBank: 'border-[#2F6B55]/16 bg-[#F6FAF8]',
-    categoryCaption: 'text-[#1F5A46]/68',
-    categoryZone: 'border-[#2F6B55]/16 bg-white hover:bg-[#F6FAF8]',
-    categoryZoneIncorrect: 'border-[#C45151]/42 bg-[#FBECEC]',
-    categoryTitle: 'text-[#1F5A46]',
-    tokenChip: 'border-[#2F6B55]/14 bg-[#EEF7F2] text-[#1F5A46] shadow-[0_4px_12px_rgba(47,107,85,0.06)]',
-    tokenChipIncorrect: 'border-[#C45151]/48 bg-[#FBECEC] text-[#8C3333] shadow-[0_4px_12px_rgba(196,81,81,0.08)]',
+    categoryBank: 'bg-[#EFF3F8]',
+    categoryCaption: 'text-[#205089]/75',
+    categoryZone: 'border-[#205089]/16 bg-white/90 shadow-sm hover:border-[#205089]/35 hover:bg-[#F8FAFC]',
+    categoryZoneIncorrect: 'border-[#C45151]/40 bg-[#FBECEC]',
+    categoryTitle: 'text-[#172A43]',
+    tokenChip: 'border-2 border-dashed border-[#205089]/30 bg-white text-[#172A43] shadow-[0_2px_8px_rgba(32,80,137,0.06)] hover:border-[#205089]/60 hover:bg-[#FAFBFD]',
+    tokenChipIncorrect: 'border-2 border-dashed border-[#C45151]/48 bg-[#FBECEC] text-[#8C3333] shadow-[0_2px_8px_rgba(196,81,81,0.08)]',
+    tokenChipAssigned: 'border border-[#205089]/18 bg-[#F4F8FC] text-[#172A43] shadow-none hover:border-[#205089]/40 hover:bg-[#EAF2FA]',
+    tokenChipAssignedIncorrect: 'border border-[#C45151]/50 bg-[#FBECEC] text-[#8C3333]',
     checkButton: 'border border-[#CBD5E1] bg-[#E2E8F0] text-[#172A43] shadow-[0_8px_18px_rgba(15,23,42,0.10)] hover:bg-[#CBD5E1]',
     disabledButton: 'bg-[#B8C8DA]/12 text-[#64748B]/40 shadow-none',
     resetButton: 'bg-[#2F6B55]/8 text-[#1F5A46] hover:bg-[#2F6B55]/12',

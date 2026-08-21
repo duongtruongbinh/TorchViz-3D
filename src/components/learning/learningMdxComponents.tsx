@@ -306,6 +306,7 @@ type EvidenceCardItem = {
   value: string;
   label: string;
   insight: string;
+  takeaway?: string;
   tone?: LearningSemanticTone;
 };
 
@@ -317,7 +318,7 @@ export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = f
   return (
     <ol className={cx('my-6 grid gap-3', !singleColumn && 'sm:grid-cols-2')} aria-label={ariaLabel} onMouseLeave={() => setActiveIndex(0)}>
       {items.map((item, index) => {
-        const toneStyle = themeClasses.semantic[item.tone ?? 'primary'];
+        const toneStyle = themeClasses.semantic[item.tone ?? 'primary'] ?? themeClasses.semantic.primary;
         const barColor = toneStyle.indicator;
         const valueColor = toneStyle.strongText;
         return (
@@ -336,10 +337,18 @@ export function EvidenceCards({ ariaLabel, insightLabel, items, singleColumn = f
               <p className={cx('text-[0.68rem] font-black uppercase tracking-[0.14em]', themeClasses.mutedText)}>{item.eyebrow}</p>
               <strong className={cx('mt-2 block text-[1.75rem] font-black leading-tight tracking-[-0.035em] tabular-nums sm:text-[1.9rem]', valueColor)}>{item.value}</strong>
               <p className={cx('mt-1 text-sm font-bold leading-5', themeClasses.titleText)}>{item.label}</p>
-              <p className={cx('mt-4 border-t pt-3 text-sm leading-6', border, themeClasses.bodyText)}>
-                {insightLabel && <strong className={cx('mr-1.5 font-black', valueColor)}>{insightLabel}</strong>}
-                {item.insight}
-              </p>
+              <div className={cx('mt-4 border-t pt-3 text-sm leading-6', border, themeClasses.bodyText)}>
+                <p>
+                  {insightLabel && <strong className={cx('mr-1.5 font-black', valueColor)}>{insightLabel}</strong>}
+                  {item.insight}
+                </p>
+                {item.takeaway ? (
+                  <p className="mt-2.5">
+                    <strong className={cx('mr-1.5 font-black', valueColor)}>Bài học rút ra:</strong>
+                    {item.takeaway}
+                  </p>
+                ) : null}
+              </div>
             </div>
           </li>
         );
@@ -520,10 +529,13 @@ export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: Co
 type ConceptHierarchyNode = {
   title: string;
   detail?: string;
+  problem?: string;
   tone?: 'blue' | 'amber' | 'teal' | 'violet' | 'neutral';
   visual?: 'database' | 'two-term-loss' | 'neural-network';
   muted?: boolean;
+  align?: 'left' | 'center';
   children?: ConceptHierarchyNode[];
+  nodes?: ConceptHierarchyNode[];
 };
 
 function ConceptHierarchyVisual({ visual, tone, isLight }: {
@@ -581,12 +593,14 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
   );
 }
 
-export function ConceptHierarchy({ ariaLabel, root, children }: {
+export function ConceptHierarchy({ ariaLabel, root, children, nodes }: {
   ariaLabel: string;
   root: ConceptHierarchyNode;
-  children: ConceptHierarchyNode[];
+  children?: ConceptHierarchyNode[];
+  nodes?: ConceptHierarchyNode[];
 }) {
   const themeClasses = useLearningMdxTheme();
+  const childNodes = children ?? nodes ?? [];
   const connector = themeClasses.isLight ? 'bg-[#205089]/28' : 'bg-[#A8D4FF]/28';
   const rootSurface = themeClasses.isLight
     ? 'border-[#205089] bg-[#205089] text-white shadow-[0_10px_24px_rgba(32,80,137,0.18)]'
@@ -605,10 +619,10 @@ export function ConceptHierarchy({ ariaLabel, root, children }: {
     neutral: 'border-[#A8D4FF]/18 bg-[#172232] text-[#F4EFE6] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
   };
   const columnStyle = {
-    '--concept-hierarchy-columns': Math.max(children.length, 1),
+    '--concept-hierarchy-columns': Math.max(childNodes.length, 1),
   } as CSSProperties;
   const railStyle = {
-    marginInline: `${50 / Math.max(children.length, 1)}%`,
+    marginInline: `${50 / Math.max(childNodes.length, 1)}%`,
   };
 
   return (
@@ -620,7 +634,7 @@ export function ConceptHierarchy({ ariaLabel, root, children }: {
         </div>
       </div>
 
-      {children.length ? (
+      {childNodes.length ? (
         <>
           <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
           <span className={cx('hidden h-px sm:block', connector)} style={railStyle} aria-hidden="true" />
@@ -628,7 +642,7 @@ export function ConceptHierarchy({ ariaLabel, root, children }: {
             className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
             style={columnStyle}
           >
-            {children.map((child, index) => {
+            {childNodes.map((child, index) => {
               const nestedChildren = child.children ?? [];
               const nestedColumnStyle = {
                 '--concept-hierarchy-columns': Math.max(nestedChildren.length, 1),
@@ -636,16 +650,26 @@ export function ConceptHierarchy({ ariaLabel, root, children }: {
               const nestedRailStyle = {
                 marginInline: `${50 / Math.max(nestedChildren.length, 1)}%`,
               };
+              const description = child.detail ?? child.problem;
 
               return (
                 <li key={`${child.title}-${index}`} className="m-0 flex min-w-0 list-none flex-col items-stretch p-0 sm:px-2">
                   <div className={cx('flex flex-col items-stretch', child.muted && 'opacity-35 grayscale')}>
                     <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
-                    <div className={cx('grid min-h-14 place-items-center rounded-xl border px-4 py-3 text-center', childNodeTones[child.tone ?? 'neutral'])}>
-                      <strong className="text-base font-black leading-6 text-balance">{child.title}</strong>
+                    <div className={cx('grid min-h-[4.25rem] place-items-center rounded-xl border px-3 py-2.5 text-center', childNodeTones[child.tone ?? 'neutral'])}>
+                      <strong className="text-sm font-black leading-snug text-balance sm:text-base">{child.title}</strong>
                     </div>
                     {child.visual ? <ConceptHierarchyVisual visual={child.visual} tone={child.tone ?? 'neutral'} isLight={themeClasses.isLight} /> : null}
-                    {child.detail ? <p className={cx(child.visual ? 'mt-1' : 'mt-3', 'px-2 text-center text-sm leading-6 text-pretty', themeClasses.bodyText)}>{child.detail}</p> : null}
+                    {description ? (
+                      <p className={cx(
+                        child.visual ? 'mt-1' : 'mt-2.5',
+                        'px-1 text-sm leading-relaxed text-pretty',
+                        child.align === 'center' ? 'text-center' : 'text-left',
+                        themeClasses.bodyText
+                      )}>
+                        {description}
+                      </p>
+                    ) : null}
                   </div>
 
                   {nestedChildren.length ? (
@@ -1140,7 +1164,7 @@ function MdxPre({ children }: { children?: ReactNode }) {
     if (/^language-(?:output|text|plain)(?:$|\s)/.test(codeClassName)) {
       return <CodeBlock code={rawText} variant="output" copyable={false} themeClasses={themeClasses} />;
     }
-    if (/^language-(?:python|bash|sh|shell|console|json|javascript|js|typescript|ts)(?:$|\s)/.test(codeClassName)) {
+    if (/^language-/.test(codeClassName)) {
       return <CodeBlock code={rawText} variant="code" showLineNumbers themeClasses={themeClasses} />;
     }
   }

@@ -17,7 +17,7 @@ export const lessonMetadata = {
 
 ## Mục tiêu Thực hành
 
-Trong bài thực hành này, chúng ta sẽ xây dựng file `madewithml/serve.py`:
+Trong bài thực hành này, chúng ta sẽ xây dựng file `mlops_pipeline/serve.py`:
 1. Định nghĩa cấu trúc dữ liệu `PredictPayload` và `PredictResponse` bằng **Pydantic**.
 2. Xây dựng lớp triển khai `ModelDeployment` được quản lý bởi **Ray Serve** và **FastAPI**.
 3. Khởi chạy service và gửi request dự đoán qua HTTP API.
@@ -54,7 +54,7 @@ class PredictResponse(BaseModel):
 
 ## Xây dựng Ray Serve Deployment với @serve.deployment
 
-Kết hợp FastAPI và Ray Serve trong `madewithml/serve.py`:
+Kết hợp FastAPI và Ray Serve trong `mlops_pipeline/serve.py`:
 
 ```python
 from ray import serve
@@ -97,7 +97,7 @@ Khởi chạy và gửi request kiểm thử tới server:
 python -c "
 import ray
 from ray import serve
-from madewithml.serve import ModelDeployment
+from mlops_pipeline.serve import ModelDeployment
 serve.run(ModelDeployment.bind(run_id='best_run_123'), route_prefix='/')
 "
 ```

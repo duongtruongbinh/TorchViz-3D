@@ -116,8 +116,15 @@ function DomainCard({
 }) {
   const DomainIcon = getDomainIcon(item.domain.id);
   const palette = getDomainCardPalette(item.domain.id);
-  const cardTitleTone = item.isReady ? titleTone : mutedTone;
-  const cardBodyTone = item.isReady ? bodyTone : mutedTone;
+  const isDimmed = item.readinessState === 'unupdated';
+  const cardTitleTone = !isDimmed ? titleTone : mutedTone;
+  const cardBodyTone = !isDimmed ? bodyTone : mutedTone;
+
+  const statusLabel = item.readinessState === 'ready'
+    ? strings.domainAvailable
+    : item.readinessState === 'updating'
+      ? strings.domainUpdating
+      : strings.domainUnupdated;
 
   return (
     <button
@@ -127,7 +134,7 @@ function DomainCard({
         'group grid min-h-[410px] w-full grid-rows-[150px_1fr] overflow-hidden border p-0 text-left transition-[border-color,box-shadow,transform] duration-150',
         themeClasses.radius.card,
         themeClasses.focusRing,
-        item.isReady
+        !isDimmed
           ? cx(themeClasses.surface.interactiveCard, 'hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(32,80,137,0.15)]')
           : cx(themeClasses.surface.unavailable, 'hover:-translate-y-0.5'),
       )}
@@ -135,7 +142,7 @@ function DomainCard({
       <span className={cx(
         'relative grid place-items-center overflow-hidden border-b border-black/5 transition-[filter,opacity] duration-150',
         palette.visual,
-        !item.isReady && 'opacity-60 saturate-50 group-hover:opacity-70',
+        isDimmed && 'opacity-60 saturate-50 group-hover:opacity-70',
       )}>
         <span className={cx('absolute -right-9 -top-12 h-32 w-32 rounded-full blur-2xl', palette.glow)} aria-hidden="true" />
         <span className={cx('absolute -bottom-12 -left-8 h-28 w-28 rounded-full opacity-35', palette.glow)} aria-hidden="true" />
@@ -145,7 +152,7 @@ function DomainCard({
         </span>
         <span className={cx(
           'relative grid h-16 w-16 place-items-center rounded-2xl shadow-[0_12px_24px_rgba(30,42,56,0.12)] transition-transform duration-200 [&>svg]:h-8 [&>svg]:w-8',
-          item.isReady && 'group-hover:scale-105',
+          !isDimmed && 'group-hover:scale-105',
           palette.icon,
         )} aria-hidden="true">
           <DomainIcon strokeWidth={1.8} />
@@ -155,8 +162,8 @@ function DomainCard({
       <span className="flex min-h-0 flex-col p-4 sm:p-5">
         <span className="flex items-start justify-between gap-2">
           <span className={cx('min-w-0 flex-1 text-lg font-black leading-tight', cardTitleTone)}>{item.title}</span>
-          <span className={cx('shrink-0 px-2 py-0.5 text-[10px] font-black', themeClasses.radius.pill, themeClasses.statusPill(!item.isReady))}>
-            {item.isReady ? strings.domainAvailable : strings.domainPlaceholder}
+          <span className={cx('shrink-0 px-2 py-0.5 text-[10px] font-black', themeClasses.radius.pill, themeClasses.domainStatusPill(item.readinessState))}>
+            {statusLabel}
           </span>
         </span>
         <span className={cx('mt-3 line-clamp-3 block text-sm leading-5', cardBodyTone)}>{item.description}</span>
@@ -164,7 +171,7 @@ function DomainCard({
           <Metric text={strings.lessonCount(item.lessonCount)} toneClass={mutedTone} />
           <ArrowRight className={cx(
             'mb-1 h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1',
-            item.isReady ? themeClasses.accentText : mutedTone,
+            !isDimmed ? themeClasses.accentText : mutedTone,
           )} strokeWidth={2} aria-hidden="true" />
         </span>
       </span>
@@ -186,7 +193,7 @@ function CatalogMetric({ icon, value, label, hideValueInLabel = false }: { icon:
 }
 
 function buildSyllabusItem(summary: LearningHomeDomainSummary, language: Language) {
-  const { domain, isReady, lessonCount } = summary;
+  const { domain, isReady, readinessState, lessonCount } = summary;
   const text = getDomainText(language, domain);
 
   return {
@@ -195,6 +202,7 @@ function buildSyllabusItem(summary: LearningHomeDomainSummary, language: Languag
     description: text.description,
     lessonCount,
     isReady,
+    readinessState,
   };
 }
 

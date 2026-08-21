@@ -51,13 +51,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: "pip"
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
+      - name: Install uv & Dependencies
+        uses: astral-sh/setup-uv@v3
+      - run: |
+          uv pip install --system -r requirements.txt
+          uv pip install --system -e .
 ```
 
 </MdxPage>
@@ -83,7 +82,7 @@ Bổ sung các bước kiểm thử tự động vào job `test-and-validate`:
       # 3. Chạy toàn bộ Unit & Behavioral Test Suite
       - name: Run Pytest Code & Model Behavioral Tests
         run: |
-          pytest tests/code/ tests/model/ --cov=madewithml --cov-report=term-missing
+          pytest tests/code/ tests/model/ --cov=mlops_pipeline --cov-report=term-missing
 ```
 
 <LessonNote tone="tip">

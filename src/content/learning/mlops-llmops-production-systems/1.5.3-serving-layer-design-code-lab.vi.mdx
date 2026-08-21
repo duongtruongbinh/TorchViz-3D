@@ -1,0 +1,154 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'serving-layer-design-code-lab',
+  locale: 'vi',
+  title: "Lab: Đóng gói API & Đo Latency",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Xây dựng Production API với FastAPI & Lifespan',
+    'Tích hợp Circuit Breaker & Heuristic Fallback',
+    'Benchmark Đo lường P99 Latency & RPS',
+  ],
+  keywords: ['MLOps', 'Serving Layer', 'FastAPI', 'Lifespan', 'Circuit Breaker', 'Latency P99', 'Hands-on Lab'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, bạn sẽ xây dựng một dịch vụ API phục vụ mô hình đạt chuẩn sản xuất:
+1. **Khởi tạo FastAPI Server với Lifespan State:** Load trước mô hình vào bộ nhớ RAM khi server khởi động (không load lại trong request).
+2. **Thiết lập Circuit Breaker & Fallback:** Đảm bảo API luôn phản hồi trong vòng dưới 20ms ngay cả khi model gặp lỗi.
+3. **Đo lường P99 Latency:** Viết script benchmark đo độ trễ và thông lượng thực tế.
+
+<LessonNote tone="info">
+  **Quy tắc:** Server không bao giờ được phép chặn luồng chính (blocking I/O) hoặc tải lại mô hình trong từng request.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Xây dựng Production API với FastAPI & Lifespan
+
+Tạo file `mlops_pipeline/serve.py` sử dụng async lifespan context manager:
+
+```python
+from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
+from pydantic import BaseModel, Field
+import time
+from mlops_pipeline.config import logger
+
+# Bộ nhớ trạng thái toàn cục của ứng dụng
+app_state = {}
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Quản lý vòng đời khởi động và dọn dẹp của server."""
+    logger.info("Đang nạp mô hình vào bộ nhớ GPU/RAM (Warm-up)...")
+    # Mô phỏng việc load model vào bộ nhớ 1 lần duy nhất lúc khởi động
+    time.sleep(0.5)
+    app_state["model"] = lambda text: {"tag": "mlops", "confidence": 0.96}
+    logger.info("Mô hình đã sẵn sàng phục vụ!")
+    yield
+    logger.info("Đang dọn dẹp tài nguyên và tắt server...")
+    app_state.clear()
+
+app = FastAPI(title="MadeWithML Prediction Service", lifespan=lifespan)
+
+class PredictRequest(BaseModel):
+    title: str = Field(..., min_length=3)
+    description: str = Field(..., min_length=5)
+
+class PredictResponse(BaseModel):
+    predicted_tag: str
+    confidence: float
+    latency_ms: float
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tích hợp Circuit Breaker & Heuristic Fallback
+
+Xây dựng endpoint dự đoán có cơ chế phòng vệ lỗi (Graceful Degradation):
+
+```python
+@app.post("/predict", response_model=PredictResponse)
+async def predict_endpoint(request: PredictRequest):
+    """Endpoint dự đoán an toàn với Fallback Rule."""
+    start_time = time.perf_counter()
+    
+    try:
+        model = app_state.get("model")
+        if model is None:
+            raise RuntimeError("Model chưa được nạp sẵn trong bộ nhớ!")
+            
+        # Gọi mô hình dự đoán
+        result = model(f"{request.title} {request.description}")
+        predicted_tag = result["tag"]
+        confidence = result["confidence"]
+        
+    except Exception as err:
+        logger.warning(f"Sự cố suy luận ({err})! Tự động chuyển sang Heuristic Fallback Rule...")
+        # Fallback rule: gán nhãn mặc định an toàn theo từ khóa
+        predicted_tag = "mlops" if "mlops" in request.title.lower() else "computer-vision"
+        confidence = 0.50
+        
+    elapsed_ms = (time.perf_counter() - start_time) * 1000
+    return PredictResponse(
+        predicted_tag=predicted_tag,
+        confidence=confidence,
+        latency_ms=round(elapsed_ms, 2),
+    )
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Benchmark Đo lường P99 Latency & RPS
+
+Tạo file `mlops_pipeline/benchmark.py` để đo lường độ trễ phân vị:
+
+```python
+import numpy as np
+import time
+import requests
+from mlops_pipeline.config import logger
+
+def run_latency_benchmark(url: str = "http://localhost:8000/predict", num_requests: int = 100):
+    """Gửi 100 request liên tiếp và tính toán P50, P90, P99 Latency."""
+    latencies = []
+    payload = {
+        "title": "Production MLOps System",
+        "description": "Building end to end resilient ML systems on cloud.",
+    }
+    
+    logger.info(f"Bắt đầu benchmark với {num_requests} requests...")
+    for _ in range(num_requests):
+        t0 = time.perf_counter()
+        res = requests.post(url, json=payload)
+        t1 = time.perf_counter()
+        if res.status_code == 200:
+            latencies.append((t1 - t0) * 1000)
+            
+    latencies = np.array(latencies)
+    logger.info("===== KẾT QUẢ BENCHMARK =====")
+    logger.info(f"P50 (Median) Latency : {np.percentile(latencies, 50):.2f} ms")
+    logger.info(f"P90 Latency          : {np.percentile(latencies, 90):.2f} ms")
+    logger.info(f"P99 Latency (SLA)    : {np.percentile(latencies, 99):.2f} ms")
+    logger.info(f"Min / Max Latency    : {latencies.min():.2f} ms / {latencies.max():.2f} ms")
+
+if __name__ == "__main__":
+    run_latency_benchmark()
+```
+
+<LessonNote tone="tip">
+  **Thực hành tốt:** Trong SLA doanh nghiệp, P99 Latency là chỉ số quan trọng nhất vì nó phản ánh trải nghiệm của nhóm 1% khách hàng gặp độ trễ lớn nhất.
+</LessonNote>
+
+</MdxPage>

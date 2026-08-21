@@ -1,0 +1,392 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'system-overview-code-lab',
+  locale: 'vi',
+  title: "Lab: Thiết lập Môi trường",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Cấu trúc Thư mục Dự án Chuẩn MLOps',
+    'Cài đặt uv & Cài đặt Thư viện Cốt lõi',
+    'Phân tách Môi trường Dev & Production với uv',
+    'Quản lý Cấu hình Tập trung với config.py',
+  ],
+  keywords: ['MLOps', 'Hands-on Lab', 'Environment', 'Virtualenv', 'Config', 'Python', 'Logging', 'uv'],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trước khi bắt đầu bất kỳ dòng code ML nào, một dự án sản xuất phải có:
+1. **Cấu trúc thư mục module hóa** (Modular directory layout).
+2. **Môi trường ảo & Quản lý phụ thuộc chuẩn PEP 621** (`uv` & `pyproject.toml`).
+3. **Phân tách môi trường rõ ràng** (Core vs Dev/Testing dependencies).
+4. **Module cấu hình tập trung** (`config.py`) quản lý đường dẫn, biến môi trường và logging chuẩn.
+
+<LessonNote tone="info">
+  Trong bài lab này, chúng ta sẽ thiết lập khung xương (scaffold) cho toàn bộ dự án `mlops_pipeline` theo đúng chuẩn công nghiệp.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cấu trúc Thư mục Dự án Chuẩn MLOps
+
+Hãy quan sát cấu trúc cây thư mục chuẩn được áp dụng trong toàn bộ khóa học:
+
+```console
+mlops_pipeline/
+├── config.py             # Biến môi trường, đường dẫn lưu trữ, logger
+├── data.py               # Thu thập, làm sạch, tiền xử lý dữ liệu
+├── models.py             # Kiến trúc mạng nơ-ron (PyTorch / Transformers)
+├── train.py              # Huấn luyện mô hình phân tán
+├── tune.py               # Tinh chỉnh siêu tham số (Ray Tune)
+├── evaluate.py           # Đánh giá toàn diện trên từng phân khúc dữ liệu
+├── predict.py            # Dự đoán trên mẫu mới
+├── serve.py              # Phục vụ REST API thời gian thực
+└── utils.py              # Các hàm trợ giúp chung
+tests/
+├── code/                 # Unit tests cho mã nguồn
+├── data/                 # Data validation tests
+└── model/                # Model behavioral tests
+```
+
+### Câu lệnh khởi tạo nhanh khung dự án (Scaffold):
+
+**Dành cho Linux / macOS / WSL / Git Bash:**
+```bash
+# 1. Tạo các thư mục dự án và tests
+mkdir -p mlops_pipeline tests/code tests/data tests/model
+
+# 2. Khởi tạo các file mã nguồn rỗng
+touch mlops_pipeline/__init__.py \
+  mlops_pipeline/config.py \
+  mlops_pipeline/data.py \
+  mlops_pipeline/models.py \
+  mlops_pipeline/train.py \
+  mlops_pipeline/tune.py \
+  mlops_pipeline/evaluate.py \
+  mlops_pipeline/predict.py \
+  mlops_pipeline/serve.py \
+  mlops_pipeline/utils.py \
+  tests/__init__.py \
+  tests/code/__init__.py \
+  tests/data/__init__.py \
+  tests/model/__init__.py
+```
+
+**Dành cho Windows (PowerShell):**
+```powershell
+# 1. Tạo các thư mục
+New-Item -ItemType Directory -Force -Path `
+  "mlops_pipeline", `
+  "tests/code", `
+  "tests/data", `
+  "tests/model" | Out-Null
+
+# 2. Khởi tạo các file rỗng trong mlops_pipeline/
+$pipelineFiles = @(
+  "__init__", "config", "data", "models",
+  "train", "tune", "evaluate", "predict",
+  "serve", "utils"
+)
+$pipelineFiles | ForEach-Object {
+  New-Item -ItemType File -Force -Path "mlops_pipeline/$_.py" | Out-Null
+}
+
+# 3. Khởi tạo các file package rỗng trong tests/
+$testFiles = @(
+  "tests/__init__.py",
+  "tests/code/__init__.py",
+  "tests/data/__init__.py",
+  "tests/model/__init__.py"
+)
+$testFiles | ForEach-Object {
+  New-Item -ItemType File -Force -Path $_ | Out-Null
+}
+```
+
+<LessonNote tone="tip">
+  **Quy tắc vị trí làm việc (Working Directory):** Terminal của bạn luôn đứng ở thư mục gốc của dự án (nơi chứa đồng cấp cả `mlops_pipeline/`, `tests/` và `.venv`). Không `cd` vào trong thư mục con `mlops_pipeline/` để các lệnh `pytest tests/` và cú pháp import `from mlops_pipeline import ...` luôn hoạt động đồng bộ.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Cài đặt `uv` & Cài đặt Thư viện Cốt lõi
+
+Trong toàn bộ chuỗi bài thực hành MLOps, chúng ta sử dụng **`uv`** (trình quản lý dự án & package Python siêu tốc viết bằng Rust của Astral, nhanh hơn `pip` từ 10–100 lần) theo chuẩn quản trị dự án hiện đại (**PEP 621** & **`pyproject.toml`**):
+
+### 1. Cài đặt `uv` vào máy tính:
+
+```bash
+# Trên macOS và Linux:
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Trên Windows (PowerShell):
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Hoặc cài nhanh qua pip nếu đã có sẵn Python:
+pip install uv
+```
+
+### 2. Khởi tạo Dự án & Thêm Thư viện Cốt lõi:
+
+Khởi tạo cấu hình dự án với `pyproject.toml` và cài đặt các thư viện ML/Serving cốt lõi:
+
+```bash
+# Khởi tạo dự án chuẩn với pyproject.toml
+uv init --name mlops_pipeline
+
+# Cài đặt các Core/Production Dependencies
+uv add \
+  torch torchvision \
+  numpy pandas scikit-learn \
+  mlflow ray \
+  pydantic \
+  fastapi uvicorn
+```
+
+### 3. Tạo file biến môi trường `.env`:
+
+```bash
+touch .env
+echo 'MODEL_REGISTRY="/tmp/mlflow"' >> .env
+echo 'GITHUB_USERNAME="mlops-engineer"' >> .env
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Phân tách Môi trường Dev & Production với uv
+
+Một trong những vấn đề kinh điển nhất trong kỹ nghệ phần mềm là: *"Code chạy rất mượt trên máy tôi, nhưng khi gửi sang máy đồng nghiệp hoặc đưa lên máy chủ thì lỗi liên tục!"*
+
+Từ thực tế đó, những câu hỏi cốt lõi đặt ra là:
+- **Tại sao cùng một đoạn code lại chạy tốt trên máy này nhưng lại lỗi trên máy khác?**
+- **Làm sao để người khác tải dự án về là chạy được ngay mà không gặp lỗi lệch thư viện?**
+- **Tại sao không nên mang toàn bộ công cụ viết code ở máy cá nhân lên máy chủ phục vụ người dùng?**
+- **Làm sao để lập trình viên tự do thử nghiệm mà không sợ làm hỏng hay lộ dữ liệu thật của khách hàng?**
+- **Làm thế nào để phân chia môi trường làm việc rõ ràng chỉ với một công cụ duy nhất?**
+
+<LessonImage
+  assetPath="mlops-llmops-production-systems/06-environment-separation-dev-ci-prod.jpg"
+  alt="Minh họa hành trình 3 môi trường DEV, CI/TEST và PROD trong MLOps"
+  caption="Hành trình của phần mềm: Bàn làm việc (DEV) ➔ Băng chuyền kiểm định (CI/TEST) ➔ Kệ hàng phục vụ người dùng (PROD)"
+/>
+
+### Hành trình 3 Môi trường của Dự án AI
+
+<CourseCards
+  ariaLabel="Hành trình 3 môi trường của một dự án MLOps"
+  exampleLabel="Đặc trưng & Dữ liệu"
+  takeawayLabel="Mục tiêu & Bảo mật"
+  threeColumns
+  items={[
+    {
+      title: 'Môi trường DEV',
+      example: 'Kỹ sư ML & Data Scientist làm việc với dữ liệu mẫu (mock/sample data) nhỏ gọn, tuyệt đối không chứa thông tin định danh cá nhân (PII).',
+      takeaway: 'Tối ưu tốc độ lập trình & debug. Cô lập hoàn toàn khỏi database Prod để ngăn ngừa rủi ro kỹ sư vô tình xóa/sửa nhầm dữ liệu thật.',
+    },
+    {
+      title: 'Môi trường CI / TEST',
+      example: 'Hệ thống tự động (GitHub Actions) chạy trên runner sạch với tập dữ liệu kiểm định chuẩn hóa (golden dataset & fixtures).',
+      takeaway: 'Kiểm tra chất lượng tự động, phát hiện xung đột và đảm bảo zero-breaking-change trước khi code được hòa vào nhánh main.',
+    },
+    {
+      title: 'Môi trường PROD',
+      example: 'Phục vụ hàng triệu người dùng cuối với dữ liệu thực tế theo thời gian thực (Live Traffic / Dữ liệu PII nhạy cảm).',
+      takeaway: 'Đảm bảo cam kết chất lượng dịch vụ (SLA - Service Level Agreement) 99.99%, Docker siêu nhẹ (loại bỏ 100% đồ nghề dev), auto-scale tức thì và bảo mật đa tầng nghiêm ngặt.',
+    },
+  ]}
+/>
+
+### So sánh & Quản lý Phân tầng 3 Môi trường
+
+<ComparisonMatrix
+  ariaLabel="So sánh chi tiết 3 môi trường DEV, CI/TEST và PROD"
+  columns={['DEV (Phát triển)', 'CI / TEST (Kiểm định)', 'PROD (Production)']}
+  rowHeaderLabel="Tiêu chí"
+  rows={[
+    {
+      label: 'Người / Tác nhân sử dụng',
+      values: [
+        'Kỹ sư ML, Data Scientist, Lập trình viên',
+        'Hệ thống tự động hóa (CI Bot, Runner máy ảo)',
+        'Người dùng cuối (End-users) & Client Apps',
+      ],
+    },
+    {
+      label: 'Mục đích cốt lõi',
+      values: [
+        'Viết mã nguồn, debug, thử nghiệm thuật toán và kiến trúc mô hình mới',
+        'Tự động kiểm định chất lượng, chạy test suite, phát hiện lỗi trước khi xuất xưởng',
+        'Phục vụ suy luận 24/7 với độ trễ thấp, đảm bảo tính sẵn sàng cao (High Availability)',
+      ],
+    },
+    {
+      label: 'Phạm vi Dữ liệu (Data Scope)',
+      values: [
+        [
+          'Dữ liệu mẫu (sample / mock data) kích thước nhỏ',
+          'Dữ liệu giả lập (synthetic data), ẩn danh hoàn toàn',
+          'Tuyệt đối KHÔNG chứa PII (thông tin định danh cá nhân)',
+        ],
+        [
+          'Tập dữ liệu chuẩn hóa cố định (golden test dataset)',
+          'Tập fixtures bao phủ các trường hợp biên (edge cases)',
+          'Không phụ thuộc vào kết nối dữ liệu sống',
+        ],
+        [
+          'Dữ liệu thực tế của người dùng (Live Production Traffic)',
+          'Chứa thông tin nhạy cảm và PII cần bảo vệ',
+          'Tuân thủ nghiêm ngặt luật an toàn dữ liệu (GDPR, PDPA)',
+        ],
+      ],
+      highlightedColumn: 2,
+    },
+    {
+      label: 'Quyền hạn & Bảo mật',
+      values: [
+        [
+          'Quyền admin trên máy cá nhân để cài đặt linh hoạt',
+          'CÔ LẬP HOÀN TOÀN khỏi database Production',
+          'Ngăn ngừa kỹ sư vô tình xóa, cập nhật nhầm hoặc rò rỉ dữ liệu thật',
+        ],
+        [
+          'Service Account với quyền hạn tối thiểu (Least Privilege)',
+          'Môi trường máy ảo tạm thời (Ephemeral runner), hủy ngay sau khi test',
+          'Không lưu trữ khóa bảo mật dài hạn',
+        ],
+        [
+          'Kiểm soát truy cập nghiêm ngặt (IAM, RBAC, MFA)',
+          'Mã hóa dữ liệu 2 đầu (Encryption at rest & in transit)',
+          'Ghi log truy vết và audit liên tục 24/7',
+        ],
+      ],
+      highlightedColumn: 2,
+    },
+    {
+      label: 'Gói thư viện & Lệnh uv',
+      values: [
+        [
+          'uv sync',
+          'Cài Core + Dev tools (pytest, pytest-cov, ruff, pre-commit, debuggers)',
+        ],
+        [
+          'uv sync',
+          'Cài Core + Dev test runner trên máy chủ CI sạch',
+        ],
+        [
+          'uv sync --no-dev',
+          'CHỈ cài Core runtime cốt lõi (torch, fastapi, ray...)',
+          'Tuyệt đối không mang đồ nghề dev/linter lên server',
+        ],
+      ],
+      highlightedColumn: 2,
+    },
+    {
+      label: 'Kích thước & Hạ tầng',
+      values: [
+        'Máy trạm cá nhân / Cloud VM; Kích thước môi trường lớn để phục vụ debug',
+        'Máy ảo CI độc lập dùng 1 lần; Tự động kích hoạt khi có Pull Request',
+        'Docker Container siêu nhẹ (giảm hàng trăm MB), triển khai Kubernetes/Ray, auto-scale trong vài giây',
+      ],
+      highlightedColumn: 2,
+    },
+    {
+      label: 'Mức độ rủi ro & Ảnh hưởng',
+      values: [
+        'Bán kính ảnh hưởng = 0 (Sandbox cá nhân: crash thoải mái, không ảnh hưởng ai)',
+        'Rủi ro quy trình: Chặn đứng mã nguồn lỗi hoặc phá vỡ schema trước khi vào main',
+        'Tối cao (Mission-Critical): Trực tiếp quyết định doanh thu, độ trễ và cam kết chất lượng dịch vụ (SLA)',
+      ],
+      highlightedColumn: 2,
+    },
+  ]}
+/>
+
+### Cú pháp Quản lý Môi trường với `uv`
+
+```bash
+# 1. Đánh dấu và thêm các công cụ kiểm thử vào nhóm dev
+uv add --dev pytest pytest-cov pre-commit
+
+# 2. Khi ở bàn làm việc (DEV) hoặc máy kiểm định (CI): cài Core + Dev tools
+uv sync
+
+# 3. Khi đóng gói xuất xưởng lên Server phục vụ người dùng (PROD): chỉ cài Core
+uv sync --no-dev
+```
+
+### Thực thi Lệnh An toàn với `uv run`
+
+<LessonNote tone="tip">
+  **Ưu điểm của `uv run`:** Không cần kích hoạt môi trường ảo thủ công (`source .venv/bin/activate`). `uv run` tự động đồng bộ và thực thi lệnh trực tiếp trong môi trường ảo chuẩn xác.
+</LessonNote>
+
+```bash
+# Chạy toàn bộ bài test kiểm tra logic trên máy local
+uv run pytest tests/code/
+```
+
+**Kết quả màn hình dự kiến (ở bước khởi tạo dự án):**
+```text
+platform linux -- Python 3.12.x, pytest-9.x.x
+rootdir: /path/to/project
+configfile: pyproject.toml
+collected 0 items
+
+no tests ran in 0.04s
+```
+
+<LessonNote tone="info">
+  **Giải thích kết quả:** Thông báo `collected 0 items, no tests ran` xác nhận `uv` và `pytest` đã được cài đặt và liên kết cấu hình thành công! Do ở bước này chúng ta mới tạo cấu trúc thư mục rỗng, `pytest` chưa tìm thấy file `test_*.py` nào. Khi bạn viết các bài test kiểm tra logic ở các bài thực hành tiếp theo, `pytest` sẽ tự động thu thập và chạy ngay.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Quản lý Cấu hình Tập trung với config.py
+
+Mở file `mlops_pipeline/config.py` để định nghĩa tất cả hằng số, đường dẫn và logger tập trung:
+
+```python
+from pathlib import Path
+import logging
+import sys
+
+# Đường dẫn thư mục gốc dự án
+BASE_DIR = Path(__file__).parent.parent.absolute()
+DATA_DIR = Path(BASE_DIR, "datasets")
+RESULTS_DIR = Path(BASE_DIR, "results")
+LOGS_DIR = Path(BASE_DIR, "logs")
+
+# Tạo thư mục nếu chưa tồn tại
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Cấu hình logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(LOGS_DIR / "app.log"),
+    ],
+)
+logger = logging.getLogger("mlops_pipeline")
+logger.info("Môi trường MLOps đã được khởi tạo thành công!")
+```
+
+<LessonNote tone="tip">
+  **Thực hành tốt:** Không bao giờ hardcode đường dẫn tuyệt đối (như `/home/user/...`) trong code logic; luôn sử dụng biến dẫn xuất từ `BASE_DIR` hoặc biến môi trường `.env`.
+</LessonNote>
+
+</MdxPage>

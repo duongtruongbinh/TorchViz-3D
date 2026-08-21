@@ -80,7 +80,7 @@ Model <InlineMath formula="M_0" /> tiếp tục pre-train trên toàn bộ <Inli
 Sau đó, paper dùng ba tập LAMA để đánh giá quá trình cập nhật có thành công hay không. Đây là **dữ liệu đánh giá**, không phải ba kỹ thuật training:
 
 <ComparisonMatrix
-  ariaLabel="Ba lát cắt LAMA trong CKL"
+  ariaLabel="Ba phân nhóm dữ liệu LAMA trong CKL"
   columns={['Kiểm tra', 'Cập nhật tốt khi']}
   rows={[
     { label: 'InvariantLAMA', values: ['Giữ kiến thức không đổi', 'Fact A vẫn được trả lời là Nova'] },
@@ -89,7 +89,7 @@ Sau đó, paper dùng ba tập LAMA để đánh giá quá trình cập nhật c
   ]}
 />
 
-Ba lát cắt CKL mở rộng cách probing factual knowledge của LAMA để tách retention, update và acquisition <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-03-jang2022towards" /> <Cite paper="petroni2019language" evidence="knowledge-and-capability-evaluation-04-petroni2019language" />. Cách tách này giúp tránh kết luận sai rằng model "tốt hơn" chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời; survey đặt chúng trong khung evaluation cho continual LLM <Cite paper="shi2024continualSurvey" evidence="knowledge-and-capability-evaluation-05-shi2024continualSurvey" />.
+Ba phân nhóm CKL mở rộng cách probing factual knowledge của LAMA để tách retention, update và acquisition <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-03-jang2022towards" /> <Cite paper="petroni2019language" evidence="knowledge-and-capability-evaluation-04-petroni2019language" />. Cách tách này giúp tránh kết luận sai rằng model "tốt hơn" chỉ vì giữ fact cũ nhưng không cập nhật fact đã lỗi thời; survey đặt chúng trong khung evaluation cho continual LLM <Cite paper="shi2024continualSurvey" evidence="knowledge-and-capability-evaluation-05-shi2024continualSurvey" />.
 
 </MdxPage>
 

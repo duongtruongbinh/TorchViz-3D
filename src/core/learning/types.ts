@@ -127,8 +127,17 @@ export type LearningCatalog = {
   routeAliases?: LearningRouteAlias[];
 };
 
+export type LearningDomainReadinessState = 'ready' | 'updating' | 'unupdated';
+
+export type LearningDomainReadiness = {
+  domain: LearningDomain;
+  isReady: boolean;
+  readinessState: LearningDomainReadinessState;
+};
+
 export type LearningHomeDomainSummary = {
   domain: LearningDomain;
   lessonCount: number;
   isReady: boolean;
+  readinessState: LearningDomainReadinessState;
 };
