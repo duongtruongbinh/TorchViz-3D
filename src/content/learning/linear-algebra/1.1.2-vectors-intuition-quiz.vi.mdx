@@ -27,13 +27,13 @@ export const lessonMetadata = {
   {
     id: 'vector-dimension',
     title: 'Số chiều của Vector',
-    prompt: 'Cho vector x = [2, 0, -5, 7]ᵀ. Vector này thuộc không gian nào?',
+    prompt: 'Cho vector $x = [2, 0, -5, 7]^T$. Vector này thuộc không gian nào?',
     mode: 'single',
     options: [
-      { id: 'a', label: 'R⁴ vì vector có bốn thành phần.', isCorrect: true },
-      { id: 'b', label: 'R³ vì chỉ có ba thành phần khác 0.' },
-      { id: 'c', label: 'R² vì vector chỉ có thể được vẽ bằng hai trục.' },
-      { id: 'd', label: 'R¹ vì toàn bộ vector được xem là một đối tượng.' },
+      { id: 'a', label: 'R^4 vì vector có bốn thành phần.', isCorrect: true },
+      { id: 'b', label: 'R^3 vì chỉ có ba thành phần khác 0.' },
+      { id: 'c', label: 'R^2 vì vector chỉ có thể được vẽ bằng hai trục.' },
+      { id: 'd', label: 'R^1 vì toàn bộ vector được xem là một đối tượng.' },
     ],
     success: 'Đúng. Số chiều bằng số thành phần của vector. Thành phần bằng 0 vẫn được tính.',
     error: 'Hãy đếm tổng số tọa độ, không phải số phần tử khác 0.',

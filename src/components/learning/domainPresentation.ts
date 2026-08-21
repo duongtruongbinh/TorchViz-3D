@@ -6,6 +6,7 @@ import {
   Code2,
   Cpu,
   Eye,
+  GraduationCap,
   MessageSquareText,
   Network,
   RefreshCw,
@@ -31,6 +32,7 @@ export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   'ai-ethics-safety-governance': ShieldCheck,
   'reinforcement-learning': Route,
   'robot-learning': Bot,
+  'research-papers': GraduationCap,
 };
 
 export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
@@ -116,6 +118,12 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     glow: 'bg-[#F1FAFC]/38',
     icon: 'bg-[#F1FAFC] text-[#49636B]',
     accent: 'bg-[#6D8991]',
+  },
+  'research-papers': {
+    visual: 'bg-[#C2D1E8]',
+    glow: 'bg-[#F0F5FF]/42',
+    icon: 'bg-[#F0F5FF] text-[#34527D]',
+    accent: 'bg-[#5376A8]',
   },
 };
 

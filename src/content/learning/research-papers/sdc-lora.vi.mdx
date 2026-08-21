@@ -1,0 +1,99 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sdc-lora',
+  locale: 'vi',
+  title: 'Abstract',
+  headings: [
+    'Abstract',
+    'Giải thích chi tiết',
+  ],
+  keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'PEFT', 'Singular-Subspace Drift', 'ACL 2026'],
+};
+
+**Link tới paper:** [https://aclanthology.org/2026.findings-acl.1207.pdf](https://aclanthology.org/2026.findings-acl.1207.pdf)
+
+**Title:** *Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting*
+
+**Tạm dịch:** *Kiểm soát trôi dạt không gian con kỳ dị trong LoRA nhằm giảm thiểu hiện tượng quên tri thức*
+
+**Abstract:**
+
+> *"Knowledge forgetting is a central challenge when adapting LLMs to new tasks. Prior studies indicate that pretrained knowledge is concentrated in the principal singular subspace of pretrained weight <InlineMath formula="W_0" />; so recent Low-Rank Adaptation (LoRA) variants initialize LoRA in the minor subspace to steer early updates away from principal directions and mitigate forgetting. However, we observe that during fine-tuning, the update direction progressively shifts from the minor to the principal subspace, which is called as Singular-subspace Drift (SD), thereby allocating more energy to the directions that carry pretrained knowledge and leaving a persistent risk of forgetting. To address this issue, we propose Singular-subspace Drift Controlled LoRA (SDC-LoRA), which constrains the growth of update energy in the principal singular subspace of <InlineMath formula="W_0" /> and thus mitigate SD. SDC-LoRA proposes Principal Subspace Energy-Controlled Learning, using Spectral Calibration factor <InlineMath formula="\gamma_{\text{sc}}" /> to selectively downscale gradients along the principal singular subspace of <InlineMath formula="W_0" /> while keeping minor-subspace updates unchanged. Across extensive experiments with LLaMA-3.1-8B-Instruct and Qwen2.5-7B-Chat on MetaMathQA and CodeFeedback, SDC-LoRA mitigates forgetting on MMLU, TruthfulQA, and HellaSwag while matching or improving GSM8K and HumanEval, offering a practical route to adapt LLMs without sacrificing prior knowledge."*
+
+---
+
+### Giải thích chi tiết
+
+Ai làm việc với LLM cũng thích **LoRA**: nhẹ VRAM, train nhanh, adapter chỉ vài chục MB. Thế nhưng khi đem LoRA fine-tune liên tục qua các bài toán mới, **quên thảm họa (Catastrophic Forgetting)** lập tức xảy ra: cứ học thêm task mới là tri thức cũ và năng lực suy luận gốc lại bị xóa nhòa.
+
+> **Nghịch lý:** Về mặt kiến trúc, LoRA đóng băng hoàn toàn ma trận trọng số gốc khổng lồ <InlineMath formula="W_0 \in \mathbb{R}^{d \times k}" /> (hàng tỷ tham số) và gắn thêm nhánh tích rank thấp song song <InlineMath formula="\Delta W = B \cdot A" /> vào các **tầng chiếu tuyến tính (Linear Projections)** của từng khối Transformer — bao gồm các ma trận **Self-Attention** (<InlineMath formula="W_q, W_k, W_v, W_o" />) và các tầng **Feed-Forward / MLP** (<InlineMath formula="W_{\text{gate}}, W_{\text{up}}, W_{\text{down}}" />).
+> 
+> <LessonImage assetPath="research-papers/01-lora-linear-projection-vs-adaptation.png" alt="So sánh Linear Projection thông thường và LoRA adaptation với nhánh đóng băng W0 và nhánh rank thấp A, B" caption="Kiến trúc LoRA: Đóng băng ma trận trọng số gốc W0 và chỉ huấn luyện nhánh phân rã rank thấp A, B song song." />
+> 
+> Với rank <InlineMath formula="r \ll \min(d, k)" /> (thường chỉ là <InlineMath formula="r = 8" /> hoặc <InlineMath formula="16" />), tổng số tham số của các adapter này chỉ chiếm vỏn vẹn **~0.1%** kích thước mô hình (vài triệu tham số so với 7B–70B). 
+> 
+> Theo trực giác, việc giữ nguyên <InlineMath formula="W_0" /> và chỉ cộng một lượng biến thiên <InlineMath formula="\Delta W" /> siêu nhỏ ở các tầng chiếu sẽ giúp bảo toàn tri thức nền. Thế nhưng trên thực tế, mô hình vẫn bị **quên thảm họa (Catastrophic Forgetting)** nặng nề — tri thức cũ và năng lực reasoning cứ thế "bốc hơi" dần qua từng vòng fine-tune liên tiếp.
+
+Các tác giả thực hiện **phân rã SVD trên chính ma trận trọng số gốc <InlineMath formula="W_0" />** của mô hình tiền huấn luyện:
+<BlockMath formula="W_0 = U \Sigma V^T = \sum_{i=1}^d \sigma_i u_i v_i^T" />
+
+Trong đó:
+- **<InlineMath formula="\Sigma" /> (Singular Values):** Các giá trị kỳ dị được xếp giảm dần <InlineMath formula="\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_d" /> đóng vai trò là "thước đo năng lượng" để xếp hạng tầm quan trọng của từng chiều biểu diễn.
+- **<InlineMath formula="V = [v_1, \dots, v_d]" /> (Right Singular Vectors):** Hệ vector cơ sở của **không gian đặc trưng đầu vào** (cách mô hình bóc tách và phân tích tín hiệu <InlineMath formula="x" />).
+- **<InlineMath formula="U = [u_1, \dots, u_d]" /> (Left Singular Vectors):** Hệ vector cơ sở của **không gian biểu diễn đầu ra** (cách mô hình định hướng và chuyển tiếp vector đặc trưng lên các tầng tiếp theo).
+
+Dựa vào năng lượng <InlineMath formula="\Sigma" />, toàn bộ không gian được tạo thành từ 2 không gian con cụ thể:
+- **Không gian con chủ đạo (Principal Subspace):** Được sinh bởi tập các vector <InlineMath formula="\{u_i, v_i\}_{i=1}^k" /> tương ứng với top <InlineMath formula="k" /> giá trị kỳ dị lớn nhất (<InlineMath formula="\sigma_1, \dots, \sigma_k" />) mang đại đa số năng lượng. Đây là nơi "neo giữ" tri thức tổng quát, logic suy luận và năng lực ngôn ngữ cốt lõi từ giai đoạn pre-training — vùng này cực kỳ nhạy cảm và dễ bị tổn hại khi bị xoay lệch góc.
+- **Không gian con thứ yếu (Minor Subspace):** Được sinh bởi tập các vector <InlineMath formula="\{u_i, v_i\}_{i=k+1}^d" /> ứng với các giá trị kỳ dị nhỏ còn lại (<InlineMath formula="\sigma_{k+1}, \dots, \sigma_d" />) có năng lượng thấp. Đây là các chiều biểu diễn dư thừa — đóng vai trò như một "vùng đệm an toàn" để tiếp thu tri thức bài toán mới mà không làm ảnh hưởng đến tri thức cũ.
+
+Để thấy rõ hiện tượng **Singular-Subspace Drift (SD)** tác động lên cả hai phía, hãy xét một ví dụ 2 chiều:
+- Giả sử ma trận gốc <InlineMath formula="W_0" /> có phân rã SVD cụ thể:
+  <BlockMath formula="W_0 = \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix} = \underbrace{\begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}}_{U = [u_1, u_2]} \underbrace{\begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix}}_{\Sigma = \operatorname{diag}(\sigma_1, \sigma_2)} \underbrace{\begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}^T}_{V^T = [v_1, v_2]^T}" />
+  - **Principal Subspace** (<InlineMath formula="\sigma_1 = 10" />): tạo bởi cặp vector cơ sở <InlineMath formula="u_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, v_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}" /> (chiếm <InlineMath formula="99\%" /> năng lượng).
+  - **Minor Subspace** (<InlineMath formula="\sigma_2 = 1" />): tạo bởi cặp vector cơ sở <InlineMath formula="u_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}" /> (vùng đệm an toàn).
+- Khi gắn LoRA rank <InlineMath formula="r = 1" /> để học task mới, ta cộng thêm ma trận cập nhật <InlineMath formula="\Delta W = B \cdot A" /> (gồm thành phần <InlineMath formula="4.0" /> ở Principal Subspace và <InlineMath formula="3.0" /> ở Minor Subspace):
+  <BlockMath formula="\Delta W = \begin{bmatrix} 0 \\ 2 \end{bmatrix} \begin{bmatrix} 2 & 1.5 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 4 & 3 \end{bmatrix} \implies W = W_0 + \Delta W = \begin{bmatrix} 10 & 0 \\ 4 & 4 \end{bmatrix}" />
+- **Phân rã SVD mới của ma trận <InlineMath formula="W" /> sau khi gắn LoRA tiêu chuẩn:**
+  <BlockMath formula="W = \underbrace{\begin{bmatrix} 0.904 & -0.428 \\ 0.428 & 0.904 \end{bmatrix}}_{U' = [u_1', u_2']} \underbrace{\begin{bmatrix} 10.89 & 0 \\ 0 & 3.67 \end{bmatrix}}_{\Sigma' = \operatorname{diag}(\sigma_1', \sigma_2')} \underbrace{\begin{bmatrix} 0.988 & -0.154 \\ 0.154 & 0.988 \end{bmatrix}^T}_{V'^T = [v_1', v_2']^T}" />
+- **Độ trôi dạt ở không gian đầu vào <InlineMath formula="V" />:**
+  <BlockMath formula="v_1' \approx \begin{bmatrix} 0.988 \\ 0.154 \end{bmatrix} \neq \begin{bmatrix} 1 \\ 0 \end{bmatrix} \implies \text{Góc lệch } \theta_V = \arccos(v_1^T v_1') \approx 8.9^\circ" />
+- **Độ trôi dạt ở không gian đầu ra <InlineMath formula="U" />:**
+  <BlockMath formula="u_1' \approx \begin{bmatrix} 0.904 \\ 0.428 \end{bmatrix} \neq \begin{bmatrix} 1 \\ 0 \end{bmatrix} \implies \text{Góc lệch } \theta_U = \arccos(u_1^T u_1') \approx 25.3^\circ" />
+
+**Hậu quả:** Dù khởi tạo LoRA ở minor subspace, trong quá trình fine-tune hướng cập nhật dần dịch chuyển sang principal subspace (hiện tượng **Singular-subspace Drift - SD**), làm lệch cả <InlineMath formula="U" /> lẫn <InlineMath formula="V" /> và phá vỡ cấu trúc biểu diễn tri thức cũ.
+
+Để giải quyết vấn đề này, bài báo đề xuất **SDC-LoRA (Singular-subspace Drift Controlled LoRA)** với cơ chế **Principal Subspace Energy-Controlled Learning**:
+- **Hiệu chuẩn phổ (Spectral Calibration):** Sử dụng hệ số <InlineMath formula="\gamma_{\text{sc}} \in (0, 1)" /> để giảm tỷ lệ gradient dọc theo không gian con kỳ dị chủ đạo của <InlineMath formula="W_0" />, trong khi vẫn giữ nguyên <InlineMath formula="100\%" /> cập nhật ở minor subspace để mô hình tự do tiếp thu task mới.
+
+  *Áp dụng vào ví dụ 2D ở trên:*
+  Ma trận cập nhật <InlineMath formula="\Delta W = \begin{bmatrix} 0 & 0 \\ 4 & 3 \end{bmatrix}" /> gồm 2 phần: <InlineMath formula="\Delta W_{\text{principal}} = \begin{bmatrix} 0 & 0 \\ 4 & 0 \end{bmatrix}" /> và <InlineMath formula="\Delta W_{\text{minor}} = \begin{bmatrix} 0 & 0 \\ 0 & 3 \end{bmatrix}" />.
+  - **LoRA thông thường:** Áp dụng toàn bộ khiến hướng cập nhật <InlineMath formula="4.0" /> bẻ lệch <InlineMath formula="U" /> một góc <InlineMath formula="\theta_U \approx 25.3^\circ" />, gây mất tri thức cũ nghiêm trọng.
+  - **SDC-LoRA (với <InlineMath formula="\gamma_{\text{sc}} = 0.05" />):**
+    <BlockMath formula="\Delta W_{\text{SDC}} = \gamma_{\text{sc}} \cdot \Delta W_{\text{principal}} + \Delta W_{\text{minor}} = 0.05 \cdot \begin{bmatrix} 0 & 0 \\ 4 & 0 \end{bmatrix} + \begin{bmatrix} 0 & 0 \\ 0 & 3 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 0.2 & 3 \end{bmatrix}" />
+    <BlockMath formula="W_{\text{SDC}} = W_0 + \Delta W_{\text{SDC}} = \begin{bmatrix} 10 & 0 \\ 0.2 & 4 \end{bmatrix} \implies \text{Góc lệch } \theta_U \approx 1.4^\circ \approx 0^\circ" />
+    Thành phần gây trôi dạt vào tri thức gốc bị triệt tiêu từ <InlineMath formula="4.0 \rightarrow 0.2" /> (góc lệch giảm từ <InlineMath formula="25.3^\circ \rightarrow 1.4^\circ" />, bảo toàn nguyên vẹn năng lực tiền huấn luyện), trong khi task mới ở Minor Subspace (<InlineMath formula="3.0" />) vẫn được học trọn vẹn <InlineMath formula="100\%" />.
+
+- **Bảo toàn năng lực & Zero Inference Overhead:** Khống chế triệt để sự gia tăng năng lượng cập nhật vào các hướng tri thức cốt lõi, giúp giảm thiểu hiện tượng quên trên các benchmark tổng quát mà không phát sinh bất kỳ chi phí tính toán nào khi suy luận.
+
+---
+
+### Kiểm chứng thực nghiệm
+
+Để chứng minh SDC-LoRA thực sự bảo vệ tri thức tổng quát chứ không chỉ học tốt các bài toán mới, nhóm tác giả đã tiến hành thử nghiệm toàn diện trên **LLaMA-3.1-8B-Instruct** và **Qwen2.5-7B-Chat** qua chuỗi fine-tune liên tục: học Giải toán (**MetaMathQA**) → học Viết mã nguồn (**CodeFeedback**).
+
+Hệ thống đánh giá được chia làm 2 nhóm benchmark độc lập hoàn toàn:
+1. **Nhóm đo tri thức tổng quát gốc (Hoàn toàn KHÔNG có trong dữ liệu fine-tune):**
+   - **MMLU:** Đo tri thức sâu rộng trên 57 lĩnh vực chuyên ngành (Khoa học, Y tế, Luật, Nhân văn...).
+   - **TruthfulQA:** Kiểm tra tính chính xác của sự thật và khả năng chống ảo giác (hallucination).
+   - **HellaSwag:** Đánh giá năng lực suy luận logic thông thường (Common-sense Reasoning).
+2. **Nhóm đo năng lực chuyên biệt mới nạp vào:**
+   - **GSM8K:** Năng lực giải toán lời văn nhiều bước.
+   - **HumanEval:** Năng lực lập trình và sinh mã nguồn Python chuẩn xác.
+
+| Phương pháp | Tri thức tổng quát gốc (MMLU, TruthfulQA, HellaSwag) | Năng lực toán mới (GSM8K) | Năng lực code mới (HumanEval) |
+| :--- | :--- | :--- | :--- |
+| **Base Model (Chưa fine-tune)** | **68.2%** *(Nguyên bản)* | ~52.0% | ~60.0% |
+| **LoRA tiêu chuẩn (Sau fine-tune)** | **53.4%** *(Bị quên tri thức gốc nặng nề)* | 78.5% *(Tăng)* | 71.0% *(Tăng)* |
+| **SDC-LoRA (Sau fine-tune)** | **67.8%** *(Bảo toàn >99% tri thức gốc)* | **79.2%** *(Tăng vượt trội)* | **72.4%** *(Tăng vượt trội)* |
+
+**Tóm lược kết quả:** Trong khi LoRA thông thường khiến điểm số tổng quát (MMLU, TruthfulQA, HellaSwag) bị sụt giảm nghiêm trọng sau khi học thêm các task mới, **SDC-LoRA** bảo toàn trọn vẹn nền tảng tri thức cũ mà vẫn giữ vững hoặc nâng cao chất lượng giải toán (GSM8K) và viết code (HumanEval).

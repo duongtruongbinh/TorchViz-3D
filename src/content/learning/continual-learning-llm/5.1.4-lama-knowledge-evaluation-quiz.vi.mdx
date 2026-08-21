@@ -24,29 +24,29 @@ export const lessonMetadata = {
     { id: 'c', label: 'Cả ba đều là tên khác của Backward Transfer.' },
     { id: 'd', label: 'Cả ba đều chỉ đo hiệu năng trên task vừa học.' },
   ], success: 'Đúng. Ba hướng bổ sung cho nhau và trả lời ba câu hỏi khác nhau.', error: 'Hãy phân biệt đánh giá knowledge, tỷ lệ trade-off và thay đổi của năng lực nền.' },
-  { id: 'lama-probe', title: 'LAMA probe', mode: 'single', prompt: 'Fact A xuất hiện trong corpus D₀. Bằng chứng nào cho phép ta kết luận model M₀ đã học được Fact A?', options: [
-    { id: 'a', label: 'M₀ điền đúng thực thể bị che trong câu LAMA của Fact A mà không cần fine-tune thêm.', isCorrect: true },
-    { id: 'b', label: 'Loss trung bình của M₀ trên D₀ đủ thấp.' },
-    { id: 'c', label: 'Fact A xuất hiện nhiều lần trong D₀.' },
-    { id: 'd', label: 'M₁ trả lời đúng Fact A sau khi đã tiếp tục pre-train trên D₁.' },
-  ], success: 'Đúng. Paper quy ước model biết một fact khi model điền đúng thực thể bị che bằng zero-shot probe.', error: 'Fact có trong corpus chưa bảo đảm model đã học được. Cần kiểm tra trực tiếp checkpoint M₀ bằng LAMA.' },
-  { id: 'invariant-lama', title: 'InvariantLAMA', mode: 'single', prompt: 'Trước cập nhật, M₀ trả lời Fact A là "Nova". Kết quả nào cho thấy M₁ đã giữ được kiến thức không đổi sau khi học D₁?', options: [
-    { id: 'a', label: 'M₁ trả lời Fact C là "Đà Nẵng".' },
-    { id: 'b', label: 'M₁ đổi câu trả lời Fact B từ "Linh" thành "Minh".' },
-    { id: 'c', label: 'M₁ vẫn trả lời Fact A là "Nova" trên InvariantLAMA.', isCorrect: true },
-    { id: 'd', label: 'D₁ không chứa câu nào nhắc lại Fact A.' },
-  ], success: 'Đúng. InvariantLAMA so sánh khả năng trả lời fact ổn định trước và sau continual pre-training.', error: 'Hãy tìm kết quả đo trực tiếp cùng một fact không đổi trên M₀ và M₁.' },
-  { id: 'updated-new-lama', title: 'Updated và NewLAMA', mode: 'single', prompt: 'Sau khi học D₁, M₁ trả lời CEO Orbit Labs là "Minh" và trụ sở BrightAI là "Đà Nẵng". Cách diễn giải nào đúng?', options: [
-    { id: 'a', label: 'Cả hai đều thuộc UpdatedLAMA vì đều xuất hiện trong D₁.' },
+  { id: 'lama-probe', title: 'LAMA probe', mode: 'single', prompt: 'Fact A xuất hiện trong corpus $. Bằng chứng nào cho phép ta kết luận model $ đã học được Fact A?', options: [
+    { id: 'a', label: '$ điền đúng thực thể bị che trong câu LAMA của Fact A mà không cần fine-tune thêm.', isCorrect: true },
+    { id: 'b', label: 'Loss trung bình của $ trên $ đủ thấp.' },
+    { id: 'c', label: 'Fact A xuất hiện nhiều lần trong $.' },
+    { id: 'd', label: '$ trả lời đúng Fact A sau khi đã tiếp tục pre-train trên $.' },
+  ], success: 'Đúng. Paper quy ước model biết một fact khi model điền đúng thực thể bị che bằng zero-shot probe.', error: 'Fact có trong corpus chưa bảo đảm model đã học được. Cần kiểm tra trực tiếp checkpoint $ bằng LAMA.' },
+  { id: 'invariant-lama', title: 'InvariantLAMA', mode: 'single', prompt: 'Trước cập nhật, $ trả lời Fact A là "Nova". Kết quả nào cho thấy $ đã giữ được kiến thức không đổi sau khi học $?', options: [
+    { id: 'a', label: '$ trả lời Fact C là "Đà Nẵng".' },
+    { id: 'b', label: '$ đổi câu trả lời Fact B từ "Linh" thành "Minh".' },
+    { id: 'c', label: '$ vẫn trả lời Fact A là "Nova" trên InvariantLAMA.', isCorrect: true },
+    { id: 'd', label: '$ không chứa câu nào nhắc lại Fact A.' },
+  ], success: 'Đúng. InvariantLAMA so sánh khả năng trả lời fact ổn định trước và sau continual pre-training.', error: 'Hãy tìm kết quả đo trực tiếp cùng một fact không đổi trên $ và $.' },
+  { id: 'updated-new-lama', title: 'Updated và NewLAMA', mode: 'single', prompt: 'Sau khi học $, $ trả lời CEO Orbit Labs là "Minh" và trụ sở BrightAI là "Đà Nẵng". Cách diễn giải nào đúng?', options: [
+    { id: 'a', label: 'Cả hai đều thuộc UpdatedLAMA vì đều xuất hiện trong $.' },
     { id: 'b', label: '"Minh" thuộc NewLAMA; "Đà Nẵng" thuộc UpdatedLAMA.' },
-    { id: 'c', label: 'Cả hai đều thuộc NewLAMA vì M₁ chỉ học được chúng sau khi đọc D₁.' },
-    { id: 'd', label: '"Minh" thuộc UpdatedLAMA vì thay đáp án cũ; "Đà Nẵng" thuộc NewLAMA vì Fact C không có trong D₀.', isCorrect: true },
-  ], success: 'Đúng. UpdatedLAMA chấm fact cũ bị thay đổi; NewLAMA chấm fact hoàn toàn vắng mặt trong D₀.', error: 'Hãy kiểm tra fact có phiên bản cũ trong D₀ hay hoàn toàn chỉ xuất hiện từ D₁.' },
+    { id: 'c', label: 'Cả hai đều thuộc NewLAMA vì $ chỉ học được chúng sau khi đọc $.' },
+    { id: 'd', label: '"Minh" thuộc UpdatedLAMA vì thay đáp án cũ; "Đà Nẵng" thuộc NewLAMA vì Fact C không có trong $.', isCorrect: true },
+  ], success: 'Đúng. UpdatedLAMA chấm fact cũ bị thay đổi; NewLAMA chấm fact hoàn toàn vắng mặt trong $.', error: 'Hãy kiểm tra fact có phiên bản cũ trong $ hay hoàn toàn chỉ xuất hiện từ $.' },
   { id: 'fuar-definition', title: 'FUAR', mode: 'single', prompt: 'FUAR đặt lượng knowledge nào ở mẫu số?', options: [
     { id: 'a', label: 'Số fact được giữ lại cộng với số fact bị quên.' },
     { id: 'b', label: 'Số fact được cập nhật cộng với số fact mới được tiếp thu.', isCorrect: true },
     { id: 'c', label: 'Điểm OP cộng với điểm BWT của stage hiện tại.' },
-    { id: 'd', label: 'Tổng số fact xuất hiện trong cả D₀ và D₁.' },
+    { id: 'd', label: 'Tổng số fact xuất hiện trong cả $ và $.' },
   ], success: 'FUAR chia lượng bị quên cho tổng lượng được cập nhật và tiếp thu.', error: 'Hãy đọc lại tên đầy đủ: Forgotten / (Updated + Acquired) Ratio.' },
   { id: 'fuar-interpretation', title: 'Đọc FUAR', mode: 'single', prompt: 'Một model quên 20 fact nhưng cập nhật hoặc học mới tổng cộng 50 fact. Kết luận nào đúng?', options: [
     { id: 'a', label: 'FUAR = 2,5; model quên nhiều hơn lượng học được.' },

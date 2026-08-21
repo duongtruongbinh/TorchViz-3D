@@ -47,29 +47,29 @@ Ví dụ, ta đưa vào model câu **"Paris là thủ đô của [MASK]"**. Nế
 
 CKL dùng LAMA để đánh giá factual knowledge qua một chuỗi cập nhật <Cite paper="jang2022towards" evidence="knowledge-and-capability-evaluation-02-jang2022towards" />:
 
-### 1. Chuẩn bị corpus cũ D₀
+### 1. Chuẩn bị corpus cũ $
 
 Nhóm nghiên cứu có corpus <InlineMath formula="D_0" /> và checkpoint ban đầu <InlineMath formula="M_0" /> đã được pre-train trên corpus này. Họ dùng LAMA để đo xem <InlineMath formula="M_0" /> thực sự trả lời được những fact nào; một fact xuất hiện trong corpus không có nghĩa model chắc chắn đã học được nó.
 
 <ComparisonMatrix
   ariaLabel="Ví dụ các fact trong corpus D0"
-  columns={['Thông tin trong D₀', 'Probe trên model M₀']}
+  columns={['Thông tin trong $', 'Probe trên model $']}
   rows={[
     { label: 'Fact A · vẫn đúng', values: ['Thủ đô của Aurelia là Nova', '"Thủ đô của Aurelia là [MASK]" → Nova'] },
     { label: 'Fact B · sẽ lỗi thời', values: ['CEO của Orbit Labs là Linh', '"CEO của Orbit Labs là [MASK]" → Linh'] },
   ]}
 />
 
-### 2. Chuẩn bị corpus mới D₁
+### 2. Chuẩn bị corpus mới $
 
 Tiếp theo, nhóm nghiên cứu thu thập corpus mới <InlineMath formula="D_1" />. Corpus này chứa phiên bản mới của Fact B và một Fact C chưa có trong <InlineMath formula="D_0" />.
 
 <ComparisonMatrix
   ariaLabel="Ví dụ các fact trong corpus D1"
-  columns={['Thông tin trong D₁', 'Điều model cần học']}
+  columns={['Thông tin trong $', 'Điều model cần học']}
   rows={[
     { label: 'Fact B · được cập nhật', values: ['CEO của Orbit Labs hiện là Minh', 'Thay đáp án cũ Linh bằng Minh'] },
-    { label: 'Fact C · hoàn toàn mới', values: ['BrightAI đặt trụ sở tại Đà Nẵng', 'Tiếp thu một fact chưa có trong D₀'] },
+    { label: 'Fact C · hoàn toàn mới', values: ['BrightAI đặt trụ sở tại Đà Nẵng', 'Tiếp thu một fact chưa có trong $'] },
   ]}
 />
 

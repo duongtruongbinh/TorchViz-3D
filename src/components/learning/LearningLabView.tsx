@@ -1,5 +1,5 @@
 import { lazy, Suspense, type CSSProperties, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { ArrowDownWideNarrow, ArrowLeft, Home, ListTree, TableOfContents } from 'lucide-react';
+import { ArrowDownWideNarrow, ArrowLeft, GraduationCap, Home, ListTree, TableOfContents } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import learningHomeDomainData from 'virtual:learning-home-catalog';
 import {
@@ -67,6 +67,9 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [learningSearchRevision, setLearningSearchRevision] = useState(0);
   const [searchLoadState, setSearchLoadState] = useState<{ domainId: LearningDomainId; status: 'loading' | 'error' | 'success' } | null>(null);
   const [searchRetryVersion, setSearchRetryVersion] = useState(0);
+  const [researchPaperViewLevel, setResearchPaperViewLevel] = useState<'all' | 'category' | 'topic' | 'paper'>(
+    () => (Boolean(routeLessonId) ? 'paper' : 'all')
+  );
   const [, startLessonTransition] = useTransition();
   const contentAreaRef = useRef<HTMLElement | null>(null);
   const lessonRailResizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
@@ -266,25 +269,30 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     setIsSidebarOpen(false);
   };
 
-  const toggleChapter = useCallback((trackId: string) => {
+
+
+  const toggleChapter = (chapterId: string) => {
     setCollapsedChapters((current) => {
       const next = new Set(current);
-      if (next.has(trackId)) {
-        next.delete(trackId);
+      if (next.has(chapterId)) {
+        next.delete(chapterId);
       } else {
-        next.add(trackId);
+        next.add(chapterId);
       }
       return next;
     });
-  }, []);
+  };
 
   const selectLesson = useCallback((lessonId: string) => {
     const targetLesson = domainLessons.find((item) => item.id === lessonId);
     if (!targetLesson) return;
+    if (routeDomainId === 'research-papers') {
+      setResearchPaperViewLevel('paper');
+    }
     startLessonTransition(() => {
       navigate(`/learning/${targetLesson.domainId}/${targetLesson.trackId}?lesson=${lessonId}`);
     });
-  }, [domainLessons, navigate, startLessonTransition]);
+  }, [domainLessons, navigate, routeDomainId, startLessonTransition]);
 
   useEffect(() => {
     if (!selectedLesson) return;
@@ -304,12 +312,14 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [previousLesson, nextLesson, selectLesson, selectedLesson]);
+
   const clearLessonSearch = useCallback(() => setLessonSearchQuery(''), []);
   const retryCatalogLoad = useCallback(() => setCatalogRetryVersion((current) => current + 1), []);
   const retryLessonSearch = useCallback(() => setSearchRetryVersion((current) => current + 1), []);
   const openLessonRail = useCallback(() => setIsLessonRailOpen(true), []);
   const closeLessonRail = useCallback(() => setIsLessonRailOpen(false), []);
   const toggleSidebar = useCallback(() => setIsSidebarOpen((current) => !current), []);
+
   const lessonRailProps = activeTrack ? ({
     groups: filteredGroupedDomainLessons,
     collapsedTrackIds: collapsedChapters,
@@ -322,6 +332,8 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
     selectedFilter: lessonRailFilter,
     selectedLesson: railSelectedLesson,
     theme,
+    breadcrumbViewLevel: routeDomainId === 'research-papers' ? researchPaperViewLevel : undefined,
+    onBreadcrumbViewLevelChange: setResearchPaperViewLevel,
     onClearSearch: clearLessonSearch,
     onSearchChange: setLessonSearchQuery,
     onRetrySearch: retryLessonSearch,
@@ -719,7 +731,21 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
                   </div>
                 ) : null}
               </div>
-              {selectedLesson ? (
+              {routeDomainId === 'research-papers' && researchPaperViewLevel !== 'paper' ? (
+                <div className="flex h-full min-h-[460px] flex-col items-center justify-center rounded-2xl border border-dashed border-[#205089]/20 bg-white/60 p-8 text-center shadow-sm">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#205089]/10 text-[#205089] mb-4 shadow-sm">
+                    <GraduationCap className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-xl font-black text-[#123B68]">
+                    {language === 'vi' ? 'Chọn một bài báo nghiên cứu để bắt đầu' : 'Select a research paper to explore'}
+                  </h3>
+                  <p className="mt-2 max-w-md text-sm text-[#123B68]/70 leading-relaxed">
+                    {language === 'vi'
+                      ? 'Khám phá các chủ đề AI & Machine Learning từ danh mục bên trái, chọn bài báo để bắt đầu học tập và phân tích chuyên sâu.'
+                      : 'Browse through AI & Machine Learning research topics on the left, pick a paper to dive into its detailed analysis and math.'}
+                  </p>
+                </div>
+              ) : selectedLesson ? (
                 <div className="min-w-0">
                   <Suspense fallback={<LessonDetailFallback label={strings.lessonLoading} themeClasses={themeClasses} />}>
                     <LessonDetail

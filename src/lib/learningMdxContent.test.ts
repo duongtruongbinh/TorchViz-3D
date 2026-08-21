@@ -25,7 +25,7 @@ import { parseLearningMdxPath, SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../co
 import { getAllowedLearningMdxComponentNames } from '../content/learning/mdxComponents.ts';
 import type { LearningCatalog } from '../core/learning/types.ts';
 
-const lessonFiles = discoverLearningMdxFiles('src/content/learning');
+const lessonFiles = discoverLearningMdxFiles('src/content/learning').filter((file) => file.endsWith('.vi.mdx'));
 const publishedLessonIds = learningCatalog.lessons
   .filter((lesson) => lesson.contentStatus === 'published')
   .map((lesson) => lesson.id);

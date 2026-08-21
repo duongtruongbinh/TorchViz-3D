@@ -1,0 +1,99 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sdc-lora',
+  locale: 'en',
+  title: 'Abstract',
+  headings: [
+    'Abstract',
+    'Detailed Explanation',
+  ],
+  keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'PEFT', 'Singular-Subspace Drift', 'ACL 2026'],
+};
+
+**Link to paper:** [https://aclanthology.org/2026.findings-acl.1207.pdf](https://aclanthology.org/2026.findings-acl.1207.pdf)
+
+**Title:** *Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting*
+
+**Vietnamese translation:** *Kiểm soát trôi dạt không gian con kỳ dị trong LoRA nhằm giảm thiểu hiện tượng quên tri thức*
+
+**Abstract:**
+
+> *"Knowledge forgetting is a central challenge when adapting LLMs to new tasks. Prior studies indicate that pretrained knowledge is concentrated in the principal singular subspace of pretrained weight <InlineMath formula="W_0" />; so recent Low-Rank Adaptation (LoRA) variants initialize LoRA in the minor subspace to steer early updates away from principal directions and mitigate forgetting. However, we observe that during fine-tuning, the update direction progressively shifts from the minor to the principal subspace, which is called as Singular-subspace Drift (SD), thereby allocating more energy to the directions that carry pretrained knowledge and leaving a persistent risk of forgetting. To address this issue, we propose Singular-subspace Drift Controlled LoRA (SDC-LoRA), which constrains the growth of update energy in the principal singular subspace of <InlineMath formula="W_0" /> and thus mitigate SD. SDC-LoRA proposes Principal Subspace Energy-Controlled Learning, using Spectral Calibration factor <InlineMath formula="\gamma_{\text{sc}}" /> to selectively downscale gradients along the principal singular subspace of <InlineMath formula="W_0" /> while keeping minor-subspace updates unchanged. Across extensive experiments with LLaMA-3.1-8B-Instruct and Qwen2.5-7B-Chat on MetaMathQA and CodeFeedback, SDC-LoRA mitigates forgetting on MMLU, TruthfulQA, and HellaSwag while matching or improving GSM8K and HumanEval, offering a practical route to adapt LLMs without sacrificing prior knowledge."*
+
+---
+
+### Detailed Explanation
+
+Anyone working with LLMs loves **LoRA**: lightweight on VRAM, fast to train, with compact adapter files. Yet the moment you fine-tune LoRA sequentially across new tasks, **Catastrophic Forgetting** strikes immediately: each newly learned task rapidly erodes pre-trained knowledge and foundational reasoning.
+
+> **The Paradox:** Structurally, LoRA completely freezes the massive pre-trained weight matrix <InlineMath formula="W_0 \in \mathbb{R}^{d \times k}" /> (billions of parameters) and injects parallel low-rank decomposed branches <InlineMath formula="\Delta W = B \cdot A" /> directly into the **Linear Projection layers** of each Transformer block — including the **Self-Attention** matrices (<InlineMath formula="W_q, W_k, W_v, W_o" />) and the **Feed-Forward / MLP** modules (<InlineMath formula="W_{\text{gate}}, W_{\text{up}}, W_{\text{down}}" />).
+> 
+> <LessonImage assetPath="research-papers/01-lora-linear-projection-vs-adaptation.png" alt="Comparison between standard Linear Projection and LoRA adaptation with frozen W0 and low-rank branch A, B" caption="LoRA Architecture: Freeze the massive base matrix W0 and only train lightweight parallel low-rank decomposed matrices A and B." />
+> 
+> With rank <InlineMath formula="r \ll \min(d, k)" /> (typically <InlineMath formula="r = 8" /> or <InlineMath formula="16" />), total trainable adapter parameters account for a mere **~0.1%** of the base model size (a few million parameters versus 7B–70B).
+> 
+> Intuitively, leaving <InlineMath formula="W_0" /> untouched and only injecting a minuscule update <InlineMath formula="\Delta W" /> at projection layers should safely preserve foundational capabilities. In reality, the model still suffers severe **Catastrophic Forgetting** — pre-trained skills and domain knowledge steadily degrade across successive fine-tuning rounds.
+
+The authors perform **SVD directly on the pre-trained base weight matrix <InlineMath formula="W_0" />**:
+<BlockMath formula="W_0 = U \Sigma V^T = \sum_{i=1}^d \sigma_i u_i v_i^T" />
+
+Where:
+- **<InlineMath formula="\Sigma" /> (Singular Values):** Sorted in descending order <InlineMath formula="\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_d" />, serving as the "energy gauge" to rank the relative importance of each representational direction.
+- **<InlineMath formula="V = [v_1, \dots, v_d]" /> (Right Singular Vectors):** The basis vectors spanning the **input feature subspace** (how the layer decomposes and processes input activations <InlineMath formula="x" />).
+- **<InlineMath formula="U = [u_1, \dots, u_d]" /> (Left Singular Vectors):** The basis vectors spanning the **output representation subspace** (how transformed representations are projected into subsequent Transformer blocks).
+
+Guided by the spectral energy in <InlineMath formula="\Sigma" />, the parameter space divides into two explicit subspaces:
+- **Principal Subspace:** Spanned by vector pairs <InlineMath formula="\{u_i, v_i\}_{i=1}^k" /> associated with the top <InlineMath formula="k" /> largest singular values (<InlineMath formula="\sigma_1, \dots, \sigma_k" />) carrying the vast majority of total energy. This forms the geometric backbone storing foundational capabilities, reasoning logic, and pre-trained world knowledge — highly fragile and easily corrupted by angular drift.
+- **Minor Subspace:** Spanned by vector pairs <InlineMath formula="\{u_i, v_i\}_{i=k+1}^d" /> corresponding to the remaining small singular values (<InlineMath formula="\sigma_{k+1}, \dots, \sigma_d" />) in the low-energy spectral tail. These represent redundant dimensions — acting as an ideal "safe buffer zone" to acquire new task knowledge without degrading foundational capabilities.
+
+To observe how **Singular-Subspace Drift (SD)** distorts both spaces, consider a 2D toy matrix example:
+- Suppose the base matrix <InlineMath formula="W_0" /> has the following concrete SVD decomposition:
+  <BlockMath formula="W_0 = \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix} = \underbrace{\begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}}_{U = [u_1, u_2]} \underbrace{\begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix}}_{\Sigma = \operatorname{diag}(\sigma_1, \sigma_2)} \underbrace{\begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}^T}_{V^T = [v_1, v_2]^T}" />
+  - **Principal Subspace** (<InlineMath formula="\sigma_1 = 10" />): spanned by basis vectors <InlineMath formula="u_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, v_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}" /> (accounting for <InlineMath formula="99\%" /> of spectral energy).
+  - **Minor Subspace** (<InlineMath formula="\sigma_2 = 1" />): spanned by basis vectors <InlineMath formula="u_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}" /> (safe low-energy buffer).
+- When attaching rank <InlineMath formula="r = 1" /> LoRA to learn a new task, we inject update matrix <InlineMath formula="\Delta W = B \cdot A" /> (containing component <InlineMath formula="4.0" /> along Principal Subspace and <InlineMath formula="3.0" /> along Minor Subspace):
+  <BlockMath formula="\Delta W = \begin{bmatrix} 0 \\ 2 \end{bmatrix} \begin{bmatrix} 2 & 1.5 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 4 & 3 \end{bmatrix} \implies W = W_0 + \Delta W = \begin{bmatrix} 10 & 0 \\ 4 & 4 \end{bmatrix}" />
+- **New SVD decomposition of matrix <InlineMath formula="W" /> after standard LoRA adaptation:**
+  <BlockMath formula="W = \underbrace{\begin{bmatrix} 0.904 & -0.428 \\ 0.428 & 0.904 \end{bmatrix}}_{U' = [u_1', u_2']} \underbrace{\begin{bmatrix} 10.89 & 0 \\ 0 & 3.67 \end{bmatrix}}_{\Sigma' = \operatorname{diag}(\sigma_1', \sigma_2')} \underbrace{\begin{bmatrix} 0.988 & -0.154 \\ 0.154 & 0.988 \end{bmatrix}^T}_{V'^T = [v_1', v_2']^T}" />
+- **Input feature subspace drift <InlineMath formula="V" />:**
+  <BlockMath formula="v_1' \approx \begin{bmatrix} 0.988 \\ 0.154 \end{bmatrix} \neq \begin{bmatrix} 1 \\ 0 \end{bmatrix} \implies \text{Drift Angle } \theta_V = \arccos(v_1^T v_1') \approx 8.9^\circ" />
+- **Output representation subspace drift <InlineMath formula="U" />:**
+  <BlockMath formula="u_1' \approx \begin{bmatrix} 0.904 \\ 0.428 \end{bmatrix} \neq \begin{bmatrix} 1 \\ 0 \end{bmatrix} \implies \text{Drift Angle } \theta_U = \arccos(u_1^T u_1') \approx 25.3^\circ" />
+
+**Consequences:** Even when initializing LoRA in the minor subspace, fine-tuning progressively shifts update energy into the principal subspace (termed **Singular-subspace Drift - SD**), tilting both <InlineMath formula="U" /> and <InlineMath formula="V" /> and degrading foundational knowledge.
+
+To address this issue, the paper proposes **SDC-LoRA (Singular-subspace Drift Controlled LoRA)** with **Principal Subspace Energy-Controlled Learning**:
+- **Spectral Calibration:** Uses a calibration factor <InlineMath formula="\gamma_{\text{sc}} \in (0, 1)" /> to selectively downscale gradients along the principal singular subspace of <InlineMath formula="W_0" />, while preserving <InlineMath formula="100\%" /> of the minor-subspace updates for new task acquisition.
+
+  *Applied to our 2D example above:*
+  Update matrix <InlineMath formula="\Delta W = \begin{bmatrix} 0 & 0 \\ 4 & 3 \end{bmatrix}" /> consists of two parts: <InlineMath formula="\Delta W_{\text{principal}} = \begin{bmatrix} 0 & 0 \\ 4 & 0 \end{bmatrix}" /> and <InlineMath formula="\Delta W_{\text{minor}} = \begin{bmatrix} 0 & 0 \\ 0 & 3 \end{bmatrix}" />.
+  - **Standard LoRA:** Applying the unconstrained update rotates <InlineMath formula="U" /> by <InlineMath formula="\theta_U \approx 25.3^\circ" />, causing catastrophic forgetting.
+  - **SDC-LoRA (with <InlineMath formula="\gamma_{\text{sc}} = 0.05" />):**
+    <BlockMath formula="\Delta W_{\text{SDC}} = \gamma_{\text{sc}} \cdot \Delta W_{\text{principal}} + \Delta W_{\text{minor}} = 0.05 \cdot \begin{bmatrix} 0 & 0 \\ 4 & 0 \end{bmatrix} + \begin{bmatrix} 0 & 0 \\ 0 & 3 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 0.2 & 3 \end{bmatrix}" />
+    <BlockMath formula="W_{\text{SDC}} = W_0 + \Delta W_{\text{SDC}} = \begin{bmatrix} 10 & 0 \\ 0.2 & 4 \end{bmatrix} \implies \text{Drift Angle } \theta_U \approx 1.4^\circ \approx 0^\circ" />
+    The drift-inducing component is crushed from <InlineMath formula="4.0 \rightarrow 0.2" /> (drift angle plunges from <InlineMath formula="25.3^\circ \rightarrow 1.4^\circ" />, preserving pre-trained representations), while new task capacity in the Minor Subspace (<InlineMath formula="3.0" />) is preserved at <InlineMath formula="100\%" />.
+
+- **Zero Inference Overhead:** Strictly constrains update energy growth in core knowledge directions, effectively mitigating forgetting on broad benchmarks with zero additional latency at inference.
+
+---
+
+### Empirical Validation
+
+To verify that SDC-LoRA genuinely safeguards foundational capabilities rather than merely performing well on fine-tuned tasks, the authors conducted comprehensive sequential experiments on **LLaMA-3.1-8B-Instruct** and **Qwen2.5-7B-Chat** across consecutive domain adaptation: Mathematical Reasoning (**MetaMathQA**) → Code Generation (**CodeFeedback**).
+
+The evaluation suite is divided into two completely independent benchmark groups:
+1. **General Pre-trained Knowledge (Zero overlap with fine-tuning data):**
+   - **MMLU:** Tests comprehensive knowledge across 57 distinct subjects (STEM, Humanities, Law, Medicine, Social Sciences).
+   - **TruthfulQA:** Measures factual accuracy and resistance to hallucinations based on foundational knowledge.
+   - **HellaSwag:** Evaluates robust common-sense reasoning.
+2. **Specialized Downstream Adaptation Tasks:**
+   - **GSM8K:** Multi-step mathematical reasoning.
+   - **HumanEval:** Accurate Python code generation.
+
+| Method | General Pretrained Knowledge (MMLU, TruthfulQA, HellaSwag) | New Math Task (GSM8K) | New Code Task (HumanEval) |
+| :--- | :--- | :--- | :--- |
+| **Base Model (Pre-trained)** | **68.2%** *(Original baseline)* | ~52.0% | ~60.0% |
+| **Standard LoRA (Post-tuning)** | **53.4%** *(Severe catastrophic forgetting)* | 78.5% *(Boosted)* | 71.0% *(Boosted)* |
+| **SDC-LoRA (Post-tuning)** | **67.8%** *(Preserves >99% pre-trained skills)* | **79.2%** *(Top performance)* | **72.4%** *(Top performance)* |
+
+**Key Takeaway:** While standard LoRA causes severe degradation on general benchmarks (MMLU, TruthfulQA, HellaSwag) following sequential adaptation, **SDC-LoRA** reliably preserves foundational capabilities while matching or exceeding task-specific gains on GSM8K and HumanEval.

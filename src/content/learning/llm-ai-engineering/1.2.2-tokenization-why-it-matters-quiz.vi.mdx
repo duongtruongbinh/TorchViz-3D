@@ -45,12 +45,12 @@ export const lessonMetadata = {
   {
     id: 'sequence-length-cost', title: 'Chọn một đáp án', prompt: 'Nếu số token tăng gấp đôi, chi phí attention của Transformer có thể thay đổi thế nào?', mode: 'single',
     options: [
-      { id: 'four-times', label: 'Có thể tăng xấp xỉ gấp bốn vì chi phí tăng theo O(n²).', isCorrect: true },
+      { id: 'four-times', label: 'Có thể tăng xấp xỉ gấp bốn vì chi phí tăng theo $\mathcal{O}(n^2)$.', isCorrect: true },
       { id: 'same', label: 'Giữ nguyên vì attention không phụ thuộc độ dài chuỗi.' },
       { id: 'half', label: 'Giảm một nửa vì token ngắn hơn.' },
       { id: 'one-extra', label: 'Chỉ tăng thêm đúng một phép tính.' },
     ],
     success: 'Đúng. Đây là lý do chuỗi token quá dài trở nên đắt đỏ về mặt tính toán.',
-    error: 'Hãy nhớ: attention tăng theo bình phương độ dài chuỗi, O(n²).',
+    error: 'Hãy nhớ: attention tăng theo bình phương độ dài chuỗi, $\mathcal{O}(n^2)$.',
   },
 ]} />

@@ -13,7 +13,7 @@ export const lessonMetadata = {
   {
     id: 'linearity-properties',
     title: 'Linearity',
-    prompt: 'Transformation nào không linear theo định nghĩa T(0) = 0?',
+    prompt: 'Transformation nào không linear theo định nghĩa $T(0) = 0$?',
     mode: 'single',
     options: [
       { id: 'a', label: 'T(x) = Ax + b với b khác 0.', isCorrect: true },
@@ -27,7 +27,7 @@ export const lessonMetadata = {
   {
     id: 'basis-images',
     title: 'Ảnh của Basis',
-    prompt: 'Với matrix A, A e₁ bằng gì?',
+    prompt: 'Với ma trận $A$, tích $A e_1$ bằng gì?',
     mode: 'single',
     options: [
       { id: 'a', label: 'Hàng thứ nhất của A.' },
@@ -36,18 +36,18 @@ export const lessonMetadata = {
       { id: 'd', label: 'Null space của A.' },
     ],
     success: 'Đúng. Matrix nhân standard basis chọn ra cột tương ứng.',
-    error: 'Viết e₁ dưới dạng vector có 1 ở vị trí đầu.',
+    error: 'Viết $e_1$ dưới dạng vector có 1 ở vị trí đầu.',
   },
   {
     id: 'composition-matrix-product',
     title: 'Composition',
-    prompt: 'Áp dụng B trước rồi A lên x được biểu diễn bởi matrix nào?',
+    prompt: 'Áp dụng $B$ trước rồi $A$ lên $x$ được biểu diễn bởi matrix nào?',
     mode: 'single',
     options: [
       { id: 'a', label: 'BA' },
       { id: 'b', label: 'A + B' },
       { id: 'c', label: 'AB', isCorrect: true },
-      { id: 'd', label: 'AᵀB' },
+      { id: 'd', label: 'A^T * B' },
     ],
     success: 'Đúng. A(Bx) = (AB)x.',
     error: 'Theo dõi transformation được áp dụng gần x trước.',
@@ -55,7 +55,7 @@ export const lessonMetadata = {
   {
     id: 'kernel-range',
     title: 'Kernel và Range',
-    prompt: 'Range của T(x) = Ax tương ứng với space nào?',
+    prompt: 'Range của $T(x) = Ax$ tương ứng với không gian nào?',
     mode: 'single',
     options: [
       { id: 'a', label: 'Null(A)' },

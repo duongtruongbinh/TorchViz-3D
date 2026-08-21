@@ -23,15 +23,15 @@ export const lessonMetadata = {
   },
   {
     id: 'ground-truth-probability', title: 'Xác suất token đúng',
-    prompt: 'Trong công thức PPL, p(xᵢ | x₁:ᵢ₋₁) là đại lượng nào?', mode: 'single',
+    prompt: 'Trong công thức PPL, $p(x_i \mid x_{1:i-1})$ là đại lượng nào?', mode: 'single',
     options: [
       { id: 'whole-sequence', label: 'Xác suất của toàn bộ chuỗi sau khi đã nhân mọi vị trí.' },
       { id: 'highest-token', label: 'Xác suất của token có score cao nhất, dù token đó có xuất hiện thật hay không.' },
       { id: 'all-wrong-tokens', label: 'Tổng xác suất của mọi token không phải ground truth.' },
-      { id: 'correct-next-token', label: 'Xác suất model gán cho token ground truth xᵢ khi nhìn context nằm bên trái.', isCorrect: true },
+      { id: 'correct-next-token', label: 'Xác suất model gán cho token ground truth $x_i$ khi nhìn context nằm bên trái.', isCorrect: true },
     ],
     success: 'Đúng. Ở mỗi vị trí, evaluator chỉ lấy xác suất model gán cho token thực sự xuất hiện.',
-    error: 'Model tạo cả phân phối, nhưng phép tính PPL tại vị trí i dùng xác suất của token ground truth xᵢ.',
+    error: 'Model tạo cả phân phối, nhưng phép tính PPL tại vị trí i dùng xác suất của token ground truth $x_i$.',
   },
   {
     id: 'length-normalization', title: 'Chuẩn hóa độ dài',
@@ -43,7 +43,7 @@ export const lessonMetadata = {
       { id: 'sum-to-one', label: 'Để tổng xác suất của các token trong câu luôn bằng 1.' },
     ],
     success: 'Đúng. Chuẩn hóa theo L tránh việc chuỗi dài tự động có tích xác suất nhỏ hơn dù chất lượng dự đoán mỗi token như nhau.',
-    error: 'Hãy so 0.5² với 0.5⁴: tích thô khác nhau, nhưng lấy căn theo số token đều trả về 0.5.',
+    error: 'Hãy so $0.5^2$ với $0.5^4$: tích thô khác nhau, nhưng lấy căn theo số token đều trả về 0.5.',
   },
   {
     id: 'interpret-ppl-four', title: 'Cách đọc PPL',

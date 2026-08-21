@@ -11,7 +11,8 @@ export type LearningDomainId =
   | 'ai-system-design'
   | 'ai-ethics-safety-governance'
   | 'reinforcement-learning'
-  | 'robot-learning';
+  | 'robot-learning'
+  | 'research-papers';
 
 export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';
 export type LearningTrackStatus = 'available' | 'placeholder';

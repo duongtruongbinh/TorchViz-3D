@@ -12,6 +12,7 @@ import { learningTableOfContents as mlopsLlmopsProductionSystemsToc } from './ml
 import { learningTableOfContents as nlpToc } from './nlp/table-of-contents.ts';
 import { learningTableOfContents as programmingFoundationToc } from './programming-foundation/table-of-contents.ts';
 import { learningTableOfContents as reinforcementLearningToc } from './reinforcement-learning/table-of-contents.ts';
+import { learningTableOfContents as researchPapersToc } from './research-papers/table-of-contents.ts';
 import { learningTableOfContents as robotLearningToc } from './robot-learning/table-of-contents.ts';
 
 export const learningTableOfContents = [
@@ -28,6 +29,7 @@ export const learningTableOfContents = [
   reinforcementLearningToc,
   aiEthicsSafetyGovernanceToc,
   robotLearningToc,
+  researchPapersToc,
 ] satisfies LearningTableOfContents[];
 
 export const learningCatalog = materializeLearningCatalog(learningTableOfContents);
