@@ -12,8 +12,10 @@ export const lessonMetadata = {
     'Phạm vi ảnh hưởng của Drift',
     'Cơ chế Spectral Calibration',
     'Chi phí suy luận của SDC-LoRA',
+    'Thiết kế kiểm chứng thực nghiệm',
+    'Kết quả thực nghiệm của SDC-LoRA',
   ],
-  keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'SVD', 'Spectral Calibration', 'Quiz'],
+  keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'SVD', 'Spectral Calibration', 'MMLU', 'GSM8K', 'HumanEval', 'Quiz'],
   conceptIds: [
     'svd-fundamental-concept',
     'why-svd-approach',
@@ -23,8 +25,10 @@ export const lessonMetadata = {
     'drift-scope-u-and-v',
     'spectral-calibration-mechanism',
     'zero-inference-overhead',
+    'empirical-benchmark-setup',
+    'empirical-results-comparison',
   ],
-  pageCount: 8,
+  pageCount: 10,
 };
 
 <MdxQuiz id="sdc-lora-quiz" questions={[
@@ -139,5 +143,33 @@ export const lessonMetadata = {
     ],
     success: 'Chính xác! Toàn bộ cơ chế SDC-LoRA chỉ diễn ra trong lúc huấn luyện. Khi suy luận, $W = W_0 + \\Delta W$ được merge trực tiếp với độ trễ và tham số bổ sung bằng đúng 0.',
     error: 'Chưa chính xác. Một ưu điểm thực chiến lớn nhất của SDC-LoRA là Zero Inference Overhead.',
+  },
+  {
+    id: 'empirical-benchmark-setup',
+    title: 'Thiết kế kiểm chứng thực nghiệm',
+    prompt: 'Để đánh giá hiện tượng quên tri thức và hiệu quả của SDC-LoRA, các tác giả đã phân chia hệ thống benchmark đánh giá thành hai nhóm độc lập như thế nào?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Nhóm đo tri thức tổng quát gốc cần bảo vệ (MMLU, TruthfulQA, HellaSwag) và nhóm đo năng lực chuyên biệt của các tác vụ mới nạp vào (GSM8K, HumanEval).', isCorrect: true },
+      { id: 'opt2', label: 'Nhóm benchmark chạy trên phần cứng CPU và nhóm benchmark chạy trên GPU.' },
+      { id: 'opt3', label: 'Nhóm đo tốc độ gõ phím của người dùng và nhóm đo dung lượng ổ cứng.' },
+      { id: 'opt4', label: 'Nhóm kiểm tra ngôn ngữ tiếng Anh và nhóm kiểm tra ngôn ngữ máy tính nhị phân.' },
+    ],
+    success: 'Chính xác! Để kiểm chứng khả năng chống quên của mô hình mà không thiên vị dữ liệu huấn luyện, bài báo tách biệt: nhóm đo tri thức nền tảng gốc hoàn toàn không có trong tập fine-tune (MMLU, TruthfulQA, HellaSwag) và nhóm đo mức độ tiếp thu task mới (GSM8K, HumanEval).',
+    error: 'Chưa chính xác. Cần 2 nhóm benchmark độc lập để đo song song: (1) tri thức tổng quát gốc xem có bị quên không, và (2) năng lực của task mới nạp vào xem có học tốt không.',
+  },
+  {
+    id: 'empirical-results-comparison',
+    title: 'Kết quả thực nghiệm của SDC-LoRA',
+    prompt: 'Kết quả thực nghiệm trên LLaMA-3.1-8B-Instruct và Qwen2.5-7B-Chat cho thấy ưu thế vượt trội nào của SDC-LoRA so với LoRA tiêu chuẩn?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'SDC-LoRA bảo toàn gần như nguyên vẹn tri thức tổng quát (MMLU, TruthfulQA, HellaSwag) trong khi vẫn đạt điểm số tương đương hoặc cao hơn trên các tác vụ mới (GSM8K, HumanEval).', isCorrect: true },
+      { id: 'opt2', label: 'SDC-LoRA chấp nhận đánh đổi làm mất 50% điểm MMLU để tăng nhẹ điểm số viết code.' },
+      { id: 'opt3', label: 'SDC-LoRA chỉ hoạt động tốt khi fine-tune một tác vụ duy nhất và lập tức suy giảm hiệu năng khi học tác vụ thứ hai.' },
+      { id: 'opt4', label: 'SDC-LoRA làm tăng gấp 3 lần số lượng tham số huấn luyện so với full fine-tuning.' },
+    ],
+    success: 'Chính xác! Trong khi LoRA tiêu chuẩn khiến điểm số tổng quát sụt giảm nghiêm trọng sau khi học thêm các task mới, SDC-LoRA chứng minh tính thực chiến đỉnh cao: vừa chặn đứng sự suy giảm của tri thức cũ (>99% điểm gốc), vừa nâng cao năng lực giải toán (GSM8K) và viết code (HumanEval).',
+    error: 'Chưa chính xác. SDC-LoRA đạt mục tiêu kép: bảo vệ tri thức cũ (MMLU/TruthfulQA/HellaSwag) và tối ưu hóa tác vụ mới (GSM8K/HumanEval).',
   },
 ]} />

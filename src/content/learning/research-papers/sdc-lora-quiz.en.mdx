@@ -12,8 +12,10 @@ export const lessonMetadata = {
     'Scope of Subspace Drift',
     'Spectral Calibration Mechanism',
     'Inference Overhead of SDC-LoRA',
+    'Empirical Benchmark Design',
+    'Empirical Results of SDC-LoRA',
   ],
-  keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'SVD', 'Spectral Calibration', 'Quiz'],
+  keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'SVD', 'Spectral Calibration', 'MMLU', 'GSM8K', 'HumanEval', 'Quiz'],
   conceptIds: [
     'svd-fundamental-concept',
     'why-svd-approach',
@@ -23,8 +25,10 @@ export const lessonMetadata = {
     'drift-scope-u-and-v',
     'spectral-calibration-mechanism',
     'zero-inference-overhead',
+    'empirical-benchmark-setup',
+    'empirical-results-comparison',
   ],
-  pageCount: 8,
+  pageCount: 10,
 };
 
 <MdxQuiz id="sdc-lora-quiz" questions={[
@@ -39,7 +43,7 @@ export const lessonMetadata = {
       { id: 'opt3', label: 'Directly computes the matrix inverse to solve linear systems.' },
       { id: 'opt4', label: 'Forces all off-diagonal elements to zero using Gaussian elimination.' },
     ],
-    success: 'Correct! SVD decomposes $W_0 = U \\Sigma V^T$ into orthonormal basis matrices $V$ (input), $U$ (output), and diagonal matrix $\\Sigma$ acting as an energy gauge.',
+    success: 'Correct! SVD decomposes $W_0 = U \\ Sigma V^T$ into orthonormal basis matrices $V$ (input), $U$ (output), and diagonal matrix $\\Sigma$ acting as an energy gauge.',
     error: 'Incorrect. Remember the SVD breakdown $W_0 = U \\Sigma V^T$: $V$ is the input basis, $U$ is the output basis, and $\\Sigma$ reflects the energy magnitude along each direction.',
   },
   {
@@ -139,5 +143,33 @@ export const lessonMetadata = {
     ],
     success: 'Correct! All SDC-LoRA mechanisms operate during training. At deployment, $W = W_0 + \\Delta W$ merges seamlessly with zero latency or extra parameters.',
     error: 'Incorrect. A primary practical benefit of SDC-LoRA is Zero Inference Overhead.',
+  },
+  {
+    id: 'empirical-benchmark-setup',
+    title: 'Empirical Benchmark Design',
+    prompt: 'How did the authors divide the evaluation benchmarks into two independent groups to rigorously test continual learning performance?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'General foundational benchmarks (MMLU, TruthfulQA, HellaSwag) to measure forgetting, and domain-specific benchmarks (GSM8K, HumanEval) to measure new task mastery.', isCorrect: true },
+      { id: 'opt2', label: 'Benchmarks executed on CPU hardware versus benchmarks executed on GPU hardware.' },
+      { id: 'opt3', label: 'User typing speed tests versus disk storage footprint measurements.' },
+      { id: 'opt4', label: 'English language comprehension tests versus binary machine code verification.' },
+    ],
+    success: 'Correct! The paper decouples evaluation into pre-trained general reasoning benchmarks (MMLU, TruthfulQA, HellaSwag) and downstream specialized task benchmarks (GSM8K, HumanEval) to avoid data contamination.',
+    error: 'Incorrect. The evaluation requires two independent benchmark sets: (1) general pre-trained knowledge to detect forgetting, and (2) downstream tasks to evaluate new learning.',
+  },
+  {
+    id: 'empirical-results-comparison',
+    title: 'Empirical Results of SDC-LoRA',
+    prompt: 'What key empirical advantage does SDC-LoRA demonstrate over standard LoRA across experiments with LLaMA-3.1-8B-Instruct and Qwen2.5-7B-Chat?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'SDC-LoRA almost entirely preserves general reasoning capabilities (MMLU, TruthfulQA, HellaSwag) while matching or outperforming standard LoRA on newly adapted tasks (GSM8K, HumanEval).', isCorrect: true },
+      { id: 'opt2', label: 'SDC-LoRA sacrifices 50% of MMLU score to slightly improve coding benchmarks.' },
+      { id: 'opt3', label: 'SDC-LoRA only functions effectively on single-task adaptation and degrades on sequential tasks.' },
+      { id: 'opt4', label: 'SDC-LoRA triples the number of trainable parameters compared to full fine-tuning.' },
+    ],
+    success: 'Correct! While standard LoRA causes severe forgetting on general benchmarks after sequential fine-tuning, SDC-LoRA halts knowledge degradation (>99% retained) while excelling at mathematics (GSM8K) and code generation (HumanEval).',
+    error: 'Incorrect. SDC-LoRA achieves a dual win: retaining pre-trained foundational knowledge (MMLU/TruthfulQA/HellaSwag) while maximizing performance on new tasks (GSM8K/HumanEval).',
   },
 ]} />
