@@ -61,12 +61,12 @@ Tạo file `tests/code/test_data.py` kiểm thử các hàm tiền xử lý:
 
 ```python
 import pytest
-from madewithml.data import preprocess_text, clean_text
+from mlops_pipeline.data import preprocess_text, clean_text
 
 @pytest.mark.parametrize(
     "input_text, expected_output",
     [
-        ("Check out https://madewithml.com for ML!", "check out for ml"),
+        ("Check out https://mlops-pipeline.io for ML!", "check out for ml"),
         ("Hello, WORLD!!! 123", "hello world 123"),
         ("   extra   spaces   ", "extra spaces"),
     ],
@@ -95,8 +95,8 @@ Chạy bộ test và xuất báo cáo độ bao phủ từ terminal:
 # Chạy toàn bộ test suite trong tests/code/
 pytest tests/code/ -v
 
-# Chạy test kết hợp đo coverage của module madewithml
-pytest tests/code/ --cov=madewithml --cov-report=term-missing
+# Chạy test kết hợp đo coverage của module mlops_pipeline
+pytest tests/code/ --cov=mlops_pipeline --cov-report=term-missing
 ```
 
 <LessonNote tone="tip">

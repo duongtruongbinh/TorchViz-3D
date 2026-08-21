@@ -6,7 +6,7 @@ export const learningTableOfContents = {
     title: { en: "Robot Learning", vi: "Robot Learning" },
     description: { en: "Prepare for embodied AI topics: perception-action loops, robot state, control basics, imitation learning, reinforcement learning for robotics, sim-to-real gaps, safety, and evaluation.", vi: "Chuẩn bị cho embodied AI: vòng lặp perception-action, trạng thái robot, control cơ bản, imitation learning, reinforcement learning cho robotics, khoảng cách sim-to-real, safety và evaluation." },
   },
-  status: 'partial',
+  status: 'placeholder',
   sectionKinds: ['theory', 'code'],
   chapters: [{
     id: 'embodied-agents',

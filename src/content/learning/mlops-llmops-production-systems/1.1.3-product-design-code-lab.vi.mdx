@@ -8,9 +8,10 @@ export const lessonMetadata = {
     'Xây dựng Bộ khung Đánh giá Baseline',
     'Triển khai Heuristic Rule-based Classifier',
     'Đo lường & Phân tích Kết quả Baseline',
+    'Kịch bản Nghiệm thu & Báo cáo QAQC Thực tế',
   ],
-  keywords: ['MLOps', 'Hands-on Lab', 'Heuristic', 'Baseline', 'Python', 'Scikit-learn'],
-  pageCount: 4,
+  keywords: ['MLOps', 'Hands-on Lab', 'Heuristic', 'Baseline', 'Python', 'Scikit-learn', 'QAQC', 'Acceptance Testing', 'Test Report'],
+  pageCount: 5,
 }
 
 <MdxPage page={0}>
@@ -103,6 +104,75 @@ if __name__ == "__main__":
 
 <LessonNote tone="tip">
   **Kết luận rút ra:** Heuristic baseline cung cấp cho chúng ta một chuẩn tối thiểu (ví dụ: F1-score đạt ~0.65 trên tập nhỏ). Khi chúng ta phát triển mô hình BERT/Transformers ở các chương sau, mô hình ML **phải đạt F1-score cao hơn đáng kể** thì mới chứng minh được giá trị triển khai!
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Kịch bản Nghiệm thu & Báo cáo QAQC Thực tế
+
+Trong quy trình phát triển sản phẩm AI tại doanh nghiệp, mô hình đạt điểm test cao trong môi trường phát triển (Offline Validation) chỉ là điều kiện cần. Để được cấp phép đưa lên Production, hệ thống bắt buộc phải vượt qua quy trình kiểm thử độc lập của đội ngũ **QA/QC (Quality Assurance / Quality Control)** và các chuyên viên đối soát nghiệp vụ (Domain Testers).
+
+### 1. Quy trình Phối hợp giữa AI Team & QA/QC
+
+<ConceptHierarchy
+  ariaLabel="Cây phân cấp Quy trình Nghiệm thu Thực chiến giữa AI Team và Đội ngũ QA/QC"
+  root={{
+    title: 'Quy trình Nghiệm thu Thực chiến',
+    detail: 'Khung phối hợp 4 bước khép kín giữa AI Team và QA/QC Tester',
+  }}
+  nodes={[
+    {
+      title: '1. Chốt Kịch bản Nghiệm thu',
+      problem: 'AI Team và PM/BA thống nhất các ràng buộc bất biến (Invariants), Edge cases, Input rỗng/dài/ngắn và quy luật đơn điệu.',
+      align: 'left',
+      tone: 'blue',
+    },
+    {
+      title: '2. Cung cấp Test API Staging',
+      problem: 'Đóng gói mô hình thành REST API (Swagger / Postman Collection) trên Staging để QA/QC gửi request kiểm thử độc lập.',
+      align: 'left',
+      tone: 'teal',
+    },
+    {
+      title: '3. QA/QC Xuất Báo cáo Excel',
+      problem: 'QA/QC kiểm thử tự động và thủ công, ghi nhận Pass/Fail rate, latency và các ca dự đoán sai vào file Excel.',
+      align: 'left',
+      tone: 'amber',
+    },
+    {
+      title: '4. Bổ sung vào CI/CD Suite',
+      problem: 'AI Team nạp toàn bộ các dòng FAIL từ file Excel vào bộ kiểm thử tự động trong CI/CD pipeline để chống tái diễn lỗi.',
+      align: 'left',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+---
+
+### 2. Mẫu File Excel Báo cáo Nghiệm thu QA/QC (QA/QC Test Matrix)
+
+Dưới đây là cấu trúc bảng tính Excel chuẩn mà đội QA/QC thường sử dụng để nghiệm thu chất lượng hệ thống phân loại:
+
+| Test ID | Hạng mục Kịch bản | Input Test (Title & Description) | Expected Tag | Model Pred | Latency | Kết quả | Ghi chú của QA/QC |
+| :--- | :--- | :--- | :--- | :--- | :---: | :---: | :--- |
+| **TC-001** | Happy Path (Chuẩn) | *"Realtime Object Tracking using YOLOv9 on Edge Devices"* | `computer-vision` | `computer-vision` | 24ms | **PASS** | Đúng từ khóa nhận diện, latency đạt SLA |
+| **TC-002** | Happy Path (NLP) | *"Building RAG Chatbot with LangChain and LLaMA 3"* | `natural-language-processing` | `natural-language-processing` | 28ms | **PASS** | Khớp chính xác nhãn NLP |
+| **TC-003** | Ranh giới (Multimodal) | *"Vision-Language Model for OCR Invoice Extraction"* | `computer-vision` | `natural-language-processing` | 31ms | **FAIL** | Văn bản chứa cả OCR (CV) và Extraction (NLP), Heuristic bắt nhầm NLP trước |
+| **TC-004** | Edge Case (Cực ngắn) | *"FastAPI Deployment Docker"* | `mlops` | `mlops` | 18ms | **PASS** | Bắt đúng keyword `deploy` |
+| **TC-005** | Edge Case (Typo/Case) | *"yoloV8 DETECT car"* | `computer-vision` | `computer-vision` | 19ms | **PASS** | Hàm lowercase hoạt động tốt |
+| **TC-006** | Edge Case (Từ mới) | *"Neural Machine Interpretation for Vietnamese"* | `natural-language-processing` | `other` | 15ms | **FAIL** | Bộ từ khóa thiếu từ `interpretation` |
+| **TC-007** | Input Rác / Ký tự lạ | *"### @@@ $$$ !!!"* | `other` | `other` | 12ms | **PASS** | Fallback về nhãn `other` an toàn |
+| **TC-008** | SLA Latency Stress | *Văn bản dài 5000 từ mô tả kiến trúc Cloud* | `mlops` | `mlops` | 145ms | **FAIL** | Chạy đúng tag nhưng vượt ngưỡng SLA Latency 50ms |
+
+---
+
+### 3. Hành động Tiếp theo của AI Team sau khi nhận File Excel
+
+<LessonNote tone="warning">
+  **Quy tắc Vàng cho MLOps Engineer:** Không bao giờ bỏ qua các dòng **FAIL** trong file Excel của QA/QC! Mọi ca lỗi từ QA/QC phải được chuyển đổi thành **Unit Test / Integration Test tự động** trong CI/CD pipeline để đảm bảo lỗi đó không bao giờ tái diễn ở phiên bản mô hình tiếp theo (Regression Prevention).
 </LessonNote>
 
 </MdxPage>

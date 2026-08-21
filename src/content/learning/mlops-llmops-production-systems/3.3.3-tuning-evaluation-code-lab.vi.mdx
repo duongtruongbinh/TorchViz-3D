@@ -2,11 +2,11 @@ export const lessonMetadata = {
   domainId: 'mlops-llmops-production-systems',
   id: 'tuning-evaluation-code-lab',
   locale: 'vi',
-  title: "Lab: Tinh chỉnh & Đánh giá Lát cắt",
+  title: "Lab: Tinh chỉnh & Đánh giá Phân khúc",
   headings: [
     'Mục tiêu Thực hành',
     'Thiết lập Không gian Siêu tham số & ASHA với Ray Tune',
-    'Xây dựng Hàm Đánh giá Lát cắt (Sliced Evaluation)',
+    'Xây dựng Hàm Đánh giá Phân khúc (Sliced Evaluation)',
     'Trực quan hóa Ma trận Nhầm lẫn & Báo cáo',
   ],
   keywords: ['MLOps', 'Hands-on Lab', 'Ray Tune', 'Hyperparameter Search', 'Sliced Evaluation', 'Confusion Matrix'],
@@ -18,8 +18,8 @@ export const lessonMetadata = {
 ## Mục tiêu Thực hành
 
 Trong bài thực hành này, chúng ta sẽ hoàn thiện 2 module:
-1. `madewithml/tune.py`: Tìm kiếm siêu tham số tối ưu tự động bằng **Ray Tune** và thuật toán **ASHAScheduler**.
-2. `madewithml/evaluate.py`: Đo lường chi tiết hiệu năng mô hình trên các lát cắt dữ liệu (văn bản ngắn, tags hiếm) và xuất báo cáo chất lượng.
+1. `mlops_pipeline/tune.py`: Tìm kiếm siêu tham số tối ưu tự động bằng **Ray Tune** và thuật toán **ASHAScheduler**.
+2. `mlops_pipeline/evaluate.py`: Đo lường chi tiết hiệu năng mô hình trên các phân khúc dữ liệu (văn bản ngắn, tags hiếm) và xuất báo cáo chất lượng.
 
 </MdxPage>
 
@@ -27,7 +27,7 @@ Trong bài thực hành này, chúng ta sẽ hoàn thiện 2 module:
 
 ## Thiết lập Không gian Siêu tham số & ASHA với Ray Tune
 
-Tạo file `madewithml/tune.py` định nghĩa không gian tìm kiếm:
+Tạo file `mlops_pipeline/tune.py` định nghĩa không gian tìm kiếm:
 
 ```python
 from ray import tune
@@ -82,9 +82,9 @@ def tune_hyperparameters(train_ds, num_samples: int = 8):
 
 <MdxPage page={2}>
 
-## Xây dựng Hàm Đánh giá Lát cắt (Sliced Evaluation)
+## Xây dựng Hàm Đánh giá Phân khúc (Sliced Evaluation)
 
-Tạo file `madewithml/evaluate.py` để tính toán metrics theo từng nhóm nghiệp vụ:
+Tạo file `mlops_pipeline/evaluate.py` để tính toán metrics theo từng nhóm nghiệp vụ:
 
 ```python
 import numpy as np
@@ -92,10 +92,10 @@ import pandas as pd
 from sklearn.metrics import precision_recall_fscore_support
 
 def evaluate_slices(df: pd.DataFrame, y_true: np.ndarray, y_pred: np.ndarray) -> dict:
-    """Đo lường hiệu năng trên các lát cắt dữ liệu đặc thù."""
+    """Đo lường hiệu năng trên các phân khúc dữ liệu đặc thù."""
     slice_metrics = {}
     
-    # 1. Lát cắt theo độ dài tiêu đề (Ngắn vs Dài)
+    # 1. Phân khúc theo độ dài tiêu đề (Ngắn vs Dài)
     short_mask = df["text"].apply(lambda t: len(t.split()) < 8).values
     p, r, f1, _ = precision_recall_fscore_support(
         y_true[short_mask], y_pred[short_mask], average="weighted", zero_division=0

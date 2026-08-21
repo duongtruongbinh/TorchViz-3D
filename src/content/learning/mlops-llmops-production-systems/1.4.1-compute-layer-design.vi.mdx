@@ -1,0 +1,195 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'compute-layer-design',
+  locale: 'vi',
+  title: "Kiến trúc Tầng Tính toán (Compute Layer)",
+  headings: [
+    'Bản chất & Thách thức của Compute Layer',
+    'Tính toán Co giãn (Elastic Compute) & Spot Instances',
+    'Huấn luyện Phân tán (Distributed Training)',
+    'Điều phối Tài nguyên: Kubernetes vs Ray',
+    'Ma trận Kỹ năng & Lộ trình Junior - Senior',
+  ],
+  keywords: [
+    'Compute Layer', 'Elastic Compute', 'Spot Instances', 'Ray', 'Kubernetes', 'Distributed Training', 'DDP',
+    'Junior vs Senior',
+  ],
+  pageCount: 5,
+}
+
+<MdxPage page={0}>
+
+## Bản chất & Thách thức của Compute Layer
+
+Tầng Tính toán (Compute & Training Layer) là nơi biến dữ liệu thành mô hình thông minh. Đây là tầng tiêu tốn nhiều ngân sách nhất của mọi doanh nghiệp AI do chi phí máy chủ GPU/TPU đắt đỏ.
+
+Thách thức lớn nhất của Tầng Tính toán là cân bằng giữa **Hiệu năng Huấn luyện (Throughput / Speed)** và **Chi phí Hạ tầng (Cost Efficiency)**:
+
+<ConceptHierarchy
+  ariaLabel="4 trụ cột kỹ thuật của Tầng Tính toán trong MLOps"
+  root={{
+    title: 'Compute & Training Layer',
+    detail: 'Hạ tầng tính toán co giãn hiệu năng cao cho tiền xử lý và huấn luyện phân tán',
+  }}
+  nodes={[
+    {
+      title: '1. Elastic Orchestration',
+      problem: 'Tự động khởi tạo và hủy worker nodes theo nhu cầu thực tế.',
+      tone: 'blue',
+      align: 'left',
+    },
+    {
+      title: '2. Spot Optimization',
+      problem: 'Tận dụng GPU Spot giá rẻ kèm cơ chế lưu Checkpoint tự phục hồi.',
+      tone: 'teal',
+      align: 'left',
+    },
+    {
+      title: '3. Distributed Training',
+      problem: 'Phân bổ dữ liệu và mô hình trên cụm nhiều GPU bằng DDP / FSDP / Ray.',
+      tone: 'amber',
+      align: 'left',
+    },
+    {
+      title: '4. Resource Governance',
+      problem: 'Phân chia hạn ngạch GPU công bằng giữa các nhóm nghiên cứu.',
+      tone: 'violet',
+      align: 'left',
+    },
+  ]}
+/>
+
+<LessonNote tone="info">
+  **Định luật Chi phí:** Bật 8 GPU chạy trong 1 giờ có chi phí tương đương 1 GPU chạy trong 8 giờ. Hệ thống tính toán phân tán tốt giúp rút ngắn thời gian thử nghiệm (Time-to-market) mà không làm tăng tổng chi phí điện toán.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tính toán Co giãn (Elastic Compute) & Spot Instances
+
+Trong môi trường R&D, nhu cầu tính toán thay đổi rất lớn: có ngày cần huấn luyện 10 mô hình lớn cùng lúc, có ngày các kỹ sư chỉ viết code và phân tích dữ liệu.
+
+Nếu duy trì một cụm GPU cố định 24/7 (Static Provisioning), doanh nghiệp sẽ lãng phí hàng nghìn USD cho tài nguyên nhàn rỗi.
+
+<CourseCards
+  ariaLabel="So sánh máy chủ GPU cố định và tính toán co giãn Spot Instances"
+  exampleLabel="Phương thức vận hành"
+  takeawayLabel="Hiệu quả kinh tế & kỹ thuật"
+  items={[
+    {
+      title: 'Static On-demand GPU (Cố định 24/7 - Lãng phí)',
+      example: 'Thuê cố định máy chủ 8x A100 chạy liên tục 30 ngày/tháng dù chỉ thực sự train 40 giờ.',
+      takeaway: 'Chi phí hàng chục nghìn USD mỗi tháng; tỷ lệ tận dụng GPU (GPU Utilization) thường dưới 25%.',
+    },
+    {
+      title: 'Elastic Spot Clusters (Co giãn với Spot Instances)',
+      example: 'Cụm Ray / Kubernetes tự động bật máy Spot khi có job trong hàng đợi và giải phóng máy ngay khi job hoàn tất.',
+      takeaway: 'Tiết kiệm tới 70% chi phí GPU; cơ chế lưu Checkpoint định kỳ giúp job tự động tiếp tục khi máy bị thu hồi.',
+    },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  **Quy tắc Checkpointing:** Trong môi trường huấn luyện phân tán trên máy Spot, bắt buộc phải lưu checkpoint mô hình lên Object Storage độc lập ít nhất mỗi 15-30 phút một lần.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Huấn luyện Phân tán (Distributed Training)
+
+Khi dữ liệu vượt quá hàng triệu dòng hoặc kích thước mô hình vượt quá bộ nhớ VRAM của 1 GPU, bạn bắt buộc phải chuyển sang **Huấn luyện Phân tán**:
+
+<CourseCards
+  ariaLabel="2 chiến lược huấn luyện phân tán chủ đạo"
+  exampleLabel="Cơ chế phân bổ"
+  takeawayLabel="Ứng dụng thực tế"
+  items={[
+    {
+      title: 'Data Parallelism (DDP / PyTorch DDP)',
+      example: 'Mô hình được sao chép hoàn toàn trên mỗi GPU. Mỗi GPU xử lý một phần dữ liệu (mini-batch) khác nhau và đồng bộ gradient qua NCCL AllReduce.',
+      takeaway: 'Phù hợp khi mô hình vừa vặn trong VRAM của 1 card nhưng lượng dữ liệu quá lớn cần tăng tốc huấn luyện.',
+    },
+    {
+      title: 'Model / Tensor Parallelism (FSDP / DeepSpeed)',
+      example: 'Chia nhỏ trọng số, gradient và optimizer states của mô hình qua nhiều GPU (Fully Sharded Data Parallel).',
+      takeaway: 'Bắt buộc khi huấn luyện các mô hình ngôn ngữ lớn (LLM 7B, 70B tham số) không thể nhét vừa 1 GPU đơn lẻ.',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Điều phối Tài nguyên: Kubernetes vs Ray
+
+Để quản lý hàng trăm tác vụ huấn luyện trên nhiều máy chủ GPU, hệ sinh thái MLOps hiện đại dựa vào 2 công cụ điều phối hàng đầu:
+
+<ComparisonMatrix
+  ariaLabel="So sánh Kubernetes và Ray trong điều phối huấn luyện ML"
+  rowHeaderLabel="Tiêu chí kỹ thuật"
+  columns={['Kubernetes (K8s / KubeFlow)', 'Ray (Ray Core / Ray Train)']}
+  rows={[
+    {
+      label: 'Bản chất tầng điều phối',
+      values: [
+        'Điều phối container hạ tầng ở cấp độ hệ điều hành (Container-level Orchestration).',
+        'Điều phối tính toán phân tán bằng Python thuần ở cấp độ hàm/actor (Application-level Compute Framework).',
+      ],
+    },
+    {
+      label: 'Độ trễ khởi tạo tác vụ',
+      values: [
+        'Vài giây đến vài chục giây (cần pull Docker image và tạo Pod mới).',
+        'Vài mili-giây (gọi hàm phân tán trực tiếp trên cụm worker đã sẵn sàng).',
+      ],
+    },
+    {
+      label: 'Sự kết hợp hoàn hảo',
+      values: [
+        'Quản lý phần cứng máy chủ, phân bổ quota GPU, network và lưu trữ.',
+        'Chạy trực tiếp bên trong Kubernetes (KubeRay) để mang lại trải nghiệm code Python phân tán tối ưu nhất.',
+      ],
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Ma trận Kỹ năng & Lộ trình Junior - Senior
+
+<ComparisonMatrix
+  ariaLabel="Ma trận kỹ năng Tầng Tính toán từ Junior đến Senior MLOps"
+  rowHeaderLabel="Tiêu chí đánh giá"
+  columns={['Junior MLOps', 'Mid-level MLOps', 'Senior MLOps / Architect']}
+  rows={[
+    {
+      label: 'Kỹ năng Tính toán',
+      values: [
+        'Chạy script huấn luyện PyTorch / Scikit-learn trên 1 máy đơn GPU; kiểm soát biến `device="cuda"`.',
+        'Đóng gói Docker; cấu hình huấn luyện phân tán đa GPU với PyTorch DDP và Ray Train; theo dõi GPU utilization bằng `nvidia-smi`.',
+        'Thiết kế cụm K8s/Ray tự động co giãn; tối ưu băng thông mạng NCCL/InfiniBand; quản trị Spot Instances và lập kế hoạch chia sẻ GPU (Multi-tenancy).',
+      ],
+    },
+    {
+      label: 'Bẫy thường gặp',
+      values: [
+        'Bật máy GPU đắt tiền rồi quên tắt; train code bị nghẽn ở đọc file từ ổ cứng khiến GPU chỉ chạy ở mức 10-15%.',
+        'Huấn luyện phân tán bị treo (Deadlock) do không đồng bộ rank hoặc nghẽn mạng giữa các node.',
+        'Không có cơ chế giới hạn tài nguyên (Resource Quotas) khiến một kỹ sư chiếm toàn bộ GPU của cả công ty.',
+      ],
+    },
+  ]}
+/>
+
+<LessonNote tone="tip">
+  **Bài tập Chuyển tiếp:** Sang bài Quiz và Code Lab tiếp theo để thực hành cấu hình cụm Compute và lưu checkpoint tự phục hồi!
+</LessonNote>
+
+</MdxPage>

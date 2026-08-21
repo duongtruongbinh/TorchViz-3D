@@ -34,14 +34,14 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   const robotDomain = getLearningDomain(learningCatalog, 'robot-learning');
 
   assert.equal(rlDomain?.status, 'active');
-  assert.equal(robotDomain?.status, 'partial');
+  assert.equal(robotDomain?.status, 'placeholder');
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
   assert.equal(learningTableOfContents.length, 13);
   assert.equal(learningCatalog.domains.length, 13);
   assert.equal(learningCatalog.tracks.length, 90);
-  assert.equal(learningCatalog.lessons.length, 673);
+  assert.equal(learningCatalog.lessons.length, 685);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -63,21 +63,34 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(getLearningTrack(learningCatalog, 'reinforcement-learning', 'rl-fundamentals')?.text.title.en, '1.1 RL Fundamentals');
 });
 
-test('fully published domains are prioritized without disturbing unfinished catalog order', () => {
+test('fully published and updating domains are prioritized without disturbing catalog order', () => {
   const prioritizedDomains = getLearningDomainReadiness(learningCatalog);
 
   assert.deepEqual(
-    prioritizedDomains.filter((item) => item.isReady).map((item) => item.domain.id),
-    ['linear-algebra', 'continual-learning-llm', 'mlops-llmops-production-systems'],
+    prioritizedDomains.filter((item) => item.readinessState === 'ready').map((item) => item.domain.id),
+    ['linear-algebra', 'continual-learning-llm'],
   );
-  assert.equal(prioritizedDomains[0]?.domain.id, 'linear-algebra');
-  assert.equal(prioritizedDomains[1]?.domain.id, 'continual-learning-llm');
-  assert.equal(prioritizedDomains[2]?.domain.id, 'mlops-llmops-production-systems');
   assert.deepEqual(
-    prioritizedDomains.slice(3).map((item) => item.domain.id),
-    learningCatalog.domains
-      .filter((domain) => domain.id !== 'linear-algebra' && domain.id !== 'continual-learning-llm' && domain.id !== 'mlops-llmops-production-systems')
-      .map((domain) => domain.id),
+    prioritizedDomains.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
+    ['llm-ai-engineering', 'mlops-llmops-production-systems'],
+  );
+  assert.deepEqual(
+    prioritizedDomains.map((item) => item.domain.id),
+    [
+      'linear-algebra',
+      'continual-learning-llm',
+      'llm-ai-engineering',
+      'mlops-llmops-production-systems',
+      'programming-foundation',
+      'fundamentals',
+      'deep-learning',
+      'cv',
+      'nlp',
+      'ai-system-design',
+      'reinforcement-learning',
+      'ai-ethics-safety-governance',
+      'robot-learning',
+    ],
   );
   assert.deepEqual(getLearningDomain(learningCatalog, 'continual-learning-llm')?.text.title, {
     en: 'Continual Learning for LLMs',
@@ -91,8 +104,16 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
 
   assert.equal(summaries.length, 13);
   assert.deepEqual(
-    summaries.map(({ domain, isReady }) => ({ domain, isReady })),
+    summaries.map(({ domain, isReady, readinessState }) => ({ domain, isReady, readinessState })),
     readiness,
+  );
+  assert.deepEqual(
+    readiness.filter((item) => item.readinessState === 'ready').map((item) => item.domain.id),
+    ['linear-algebra', 'continual-learning-llm'],
+  );
+  assert.deepEqual(
+    readiness.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
+    ['llm-ai-engineering', 'mlops-llmops-production-systems'],
   );
   assert.deepEqual(
     summaries.map(({ domain, lessonCount }) => [

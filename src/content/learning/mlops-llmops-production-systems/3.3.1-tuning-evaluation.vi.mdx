@@ -6,7 +6,7 @@ export const lessonMetadata = {
   headings: [
     'Chiến lược Tinh chỉnh Siêu tham số (Ray Tune & ASHA)',
     'Hạn chế của Aggregate Metrics (Điểm mù của chỉ số tổng thể)',
-    'Đánh giá trên Lát cắt Dữ liệu (Sliced Evaluation)',
+    'Đánh giá trên Phân khúc Dữ liệu (Sliced Evaluation)',
     'Ma trận Nhầm lẫn & Báo cáo Lớp thiểu số (Confusion Matrix)',
   ],
   keywords: ['MLOps', 'Hyperparameter Tuning', 'Ray Tune', 'ASHA', 'Sliced Evaluation', 'Confusion Matrix'],
@@ -63,13 +63,13 @@ Một sai lầm kinh điển trong Machine Learning là chỉ nhìn vào chỉ s
 
 <MdxPage page={2}>
 
-## Đánh giá trên Lát cắt Dữ liệu (Sliced Evaluation)
+## Đánh giá trên Phân khúc Dữ liệu (Sliced Evaluation)
 
-**Sliced Evaluation** là kỹ thuật chia nhỏ tập kiểm thử thành các lát cắt có ý nghĩa nghiệp vụ và đánh giá hiệu năng độc lập trên từng lát cắt:
+**Sliced Evaluation** là kỹ thuật chia nhỏ tập kiểm thử thành các phân khúc dữ liệu có ý nghĩa nghiệp vụ và đánh giá hiệu năng độc lập trên từng phân khúc:
 
 <ComparisonMatrix
-  ariaLabel="Các tiêu chí cắt lát dữ liệu trong MLOps"
-  rowHeaderLabel="Loại Lát cắt (Slice)"
+  ariaLabel="Các tiêu chí phân khúc dữ liệu trong MLOps"
+  rowHeaderLabel="Loại Phân khúc (Slice)"
   columns={['Ví dụ cụ thể', 'Ý nghĩa phát hiện lỗi']}
   rows={[
     { label: 'Slice theo Chiều dài (Length)', values: ['Văn bản ngắn (< 5 từ) vs Văn bản dài (> 100 từ)', 'Phát hiện mô hình có bị phụ thuộc vào độ dài câu để suy đoán nhãn hay không.'] },
@@ -91,7 +91,7 @@ Một sai lầm kinh điển trong Machine Learning là chỉ nhìn vào chỉ s
   items={[
     { title: '1. Overall Metrics', detail: 'Đo Precision, Recall, F1 macro/micro trên toàn bộ tập holdout.' },
     { title: '2. Normalized Confusion Matrix', detail: 'Nhìn rõ lớp nào đang bị nhầm lẫn thường xuyên nhất với lớp nào.' },
-    { title: '3. Slice Gating Check', detail: 'Kiểm tra xem mọi lát cắt quan trọng có vượt qua ngưỡng Minimum Viable Metric (MVM) hay không.' },
+    { title: '3. Slice Gating Check', detail: 'Kiểm tra xem mọi phân khúc quan trọng có vượt qua ngưỡng Minimum Viable Metric (MVM) hay không.' },
   ]}
 />
 

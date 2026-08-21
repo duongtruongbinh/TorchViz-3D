@@ -1,0 +1,148 @@
+export const lessonMetadata = {
+  domainId: 'mlops-llmops-production-systems',
+  id: 'compute-layer-design-code-lab',
+  locale: 'vi',
+  title: "Lab: Điều phối Cụm Compute",
+  headings: [
+    'Mục tiêu Thực hành',
+    'Khởi tạo Cụm Tính toán Phân tán với Ray',
+    'Xây dựng Task Tính toán Phân tán (Ray Tasks)',
+    'Triển khai Checkpoint Tự phục hồi cho Worker',
+  ],
+  keywords: ['MLOps', 'Compute Layer', 'Ray', 'Ray Core', 'Ray Train', 'Checkpointing', 'Hands-on Lab'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Mục tiêu Thực hành
+
+Trong bài thực hành này, bạn sẽ làm quen với việc điều phối tính toán phân tán bằng **Ray** - framework tính toán phân tán chuẩn công nghiệp cho AI/ML:
+1. Khởi tạo cụm Ray Cluster cục bộ.
+2. Viết các Ray Task phân tán chạy song song trên nhiều CPU/GPU core.
+3. Thiết lập cơ chế lưu trữ Checkpoint tự phục hồi khi có worker gặp sự cố.
+
+<LessonNote tone="info">
+  Ray cho phép bạn mở rộng code Python từ 1 máy tính xách tay lên cụm hàng trăm máy chủ GPU trên đám mây mà không cần thay đổi cấu trúc thuật toán.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Khởi tạo Cụm Tính toán Phân tán với Ray
+
+Tạo file `mlops_pipeline/compute_cluster.py` để kết nối hoặc khởi tạo cụm Ray:
+
+```python
+import ray
+import os
+from mlops_pipeline.config import logger
+
+def init_compute_cluster():
+    """Khởi tạo cụm tính toán Ray Cluster."""
+    if ray.is_initialized():
+        logger.info("Ray cluster đã được khởi tạo trước đó.")
+        return
+        
+    # Lấy địa chỉ cụm từ biến môi trường (nếu có) hoặc khởi tạo cụm local
+    ray_address = os.getenv("RAY_ADDRESS", None)
+    
+    if ray_address:
+        logger.info(f"Đang kết nối tới cụm Ray từ xa: {ray_address}")
+        ray.init(address=ray_address)
+    else:
+        logger.info("Đang khởi tạo cụm Ray cục bộ với tài nguyên tự động...")
+        ray.init(num_cpus=4, ignore_reinit_error=True)
+        
+    cluster_resources = ray.cluster_resources()
+    logger.info(f"Tài nguyên cụm sẵn sàng: CPU={cluster_resources.get('CPU')}, GPU={cluster_resources.get('GPU', 0)}")
+
+if __name__ == "__main__":
+    init_compute_cluster()
+```
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Xây dựng Task Tính toán Phân tán (Ray Tasks)
+
+Sử dụng decorator `@ray.remote` để biến bất kỳ hàm Python thông thường nào thành một tác vụ tính toán phân tán bất đồng bộ:
+
+```python
+import ray
+import time
+from mlops_pipeline.config import logger
+
+@ray.remote
+def process_data_chunk(chunk_id: int, data_size: int) -> dict:
+    """Tác vụ xử lý phân tán trên một worker node."""
+    logger.info(f"[Worker {chunk_id}] Bắt đầu xử lý {data_size} mẫu...")
+    time.sleep(1.0)  # Mô phỏng thời gian tính toán
+    processed_count = data_size * 2
+    logger.info(f"[Worker {chunk_id}] Hoàn tất xử lý!")
+    return {"chunk_id": chunk_id, "processed_count": processed_count}
+
+def run_distributed_batch_processing():
+    """Chạy song song 4 task phân tán trên cụm."""
+    # Bắn 4 tác vụ song song bất đồng bộ
+    futures = [process_data_chunk.remote(i, 1000) for i in range(4)]
+    
+    # Gom kết quả khi tất cả các worker hoàn thành
+    results = ray.get(futures)
+    logger.info(f"Kết quả tổng hợp từ cụm phân tán: {results}")
+    return results
+```
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Triển khai Checkpoint Tự phục hồi cho Worker
+
+Xây dựng class quản lý trạng thái huấn luyện có khả năng lưu checkpoint tự động:
+
+```python
+import torch
+from pathlib import Path
+from mlops_pipeline.config import RESULTS_DIR, logger
+
+class CheckpointManager:
+    """Quản lý lưu và khôi phục checkpoint mô hình."""
+    
+    def __init__(self, checkpoint_dir: Path = RESULTS_DIR / "checkpoints"):
+        self.checkpoint_dir = checkpoint_dir
+        self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        
+    def save_checkpoint(self, epoch: int, model: torch.nn.Module, optimizer: torch.optim.Optimizer, loss: float):
+        """Lưu trạng thái huấn luyện an toàn."""
+        checkpoint_path = self.checkpoint_dir / f"checkpoint_epoch_{epoch}.pt"
+        torch.save({
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "loss": loss,
+        }, checkpoint_path)
+        logger.info(f"Đã lưu checkpoint an toàn tại: {checkpoint_path}")
+        
+    def load_latest_checkpoint(self, model: torch.nn.Module, optimizer: torch.optim.Optimizer) -> int:
+        """Tự động khôi phục từ checkpoint mới nhất nếu có sự cố."""
+        checkpoints = sorted(self.checkpoint_dir.glob("checkpoint_epoch_*.pt"))
+        if not checkpoints:
+            logger.info("Không tìm thấy checkpoint cũ, bắt đầu huấn luyện từ đầu (Epoch 0).")
+            return 0
+            
+        latest_cp = checkpoints[-1]
+        logger.info(f"Phát hiện sự cố trước đó! Đang khôi phục từ: {latest_cp}")
+        data = torch.load(latest_cp)
+        model.load_state_dict(data["model_state_dict"])
+        optimizer.load_state_dict(data["optimizer_state_dict"])
+        return data["epoch"] + 1
+```
+
+<LessonNote tone="tip">
+  **Thực hành tốt:** Checkpoint manager giúp hệ thống của bạn miễn nhiễm với sự cố tắt máy đột ngột trên các máy chủ Spot Instances giá rẻ.
+</LessonNote>
+
+</MdxPage>

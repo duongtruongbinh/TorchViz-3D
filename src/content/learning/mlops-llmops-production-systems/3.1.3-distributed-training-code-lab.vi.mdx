@@ -17,7 +17,7 @@ export const lessonMetadata = {
 
 ## Mục tiêu Thực hành
 
-Trong bài thực hành này, chúng ta sẽ xây dựng file huấn luyện chuẩn `madewithml/train.py`:
+Trong bài thực hành này, chúng ta sẽ xây dựng file huấn luyện chuẩn `mlops_pipeline/train.py`:
 1. Định nghĩa mô hình phân loại văn bản `FinBertClassifier` bằng **PyTorch**.
 2. Xây dựng hàm `train_loop_per_worker` tương thích với cơ chế phân tán của **Ray Train**.
 3. Cấu hình `ScalingConfig` để tự động điều phối số lượng CPU/GPU worker.
@@ -28,7 +28,7 @@ Trong bài thực hành này, chúng ta sẽ xây dựng file huấn luyện chu
 
 ## Định nghĩa Kiến trúc Mạng Nơ-ron PyTorch
 
-Tạo module `madewithml/models.py` định nghĩa lớp nơ-ron kết hợp pre-trained BERT và phân loại:
+Tạo module `mlops_pipeline/models.py` định nghĩa lớp nơ-ron kết hợp pre-trained BERT và phân loại:
 
 ```python
 import torch
@@ -136,7 +136,7 @@ def run_distributed_training(train_ds, num_workers: int = 2, use_gpu: bool = Fal
 
 <LessonNote tone="tip">
   **Chạy trên CLI:** Bạn có thể khởi chạy script phân tán này qua terminal đơn giản:
-  `python madewithml/train.py --num-workers 2 --cpu-per-worker 2`
+  `python mlops_pipeline/train.py --num-workers 2 --cpu-per-worker 2`
 </LessonNote>
 
 </MdxPage>

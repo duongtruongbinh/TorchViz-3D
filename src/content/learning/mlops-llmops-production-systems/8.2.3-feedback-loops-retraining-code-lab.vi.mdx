@@ -98,7 +98,7 @@ Tạo script `retrain.py` tổng hợp toàn bộ quy trình:
 
 ```python
 import subprocess
-from madewithml.config import logger
+from mlops_pipeline.config import logger
 
 def trigger_full_retraining_pipeline():
     """Kích hoạt chu trình huấn luyện phân tán, kiểm thử và deploy mô hình mới."""
@@ -109,7 +109,7 @@ def trigger_full_retraining_pipeline():
     # subprocess.run(["pytest", "tests/data/"], check=True)
     
     logger.info("⚡ 3. Kích hoạt Huấn luyện Phân tán với Ray Train & MLflow...")
-    # subprocess.run(["python", "madewithml/train.py", "--num-workers", "2"], check=True)
+    # subprocess.run(["python", "mlops_pipeline/train.py", "--num-workers", "2"], check=True)
     
     logger.info("🔍 4. Chạy kiểm thử hành vi Behavioral Test Suite...")
     # subprocess.run(["pytest", "tests/model/test_behavioral.py"], check=True)

@@ -47,18 +47,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Layer Caching: Copy và cài đặt requirements TRƯỚC
+# 3. Layer Caching: Cài đặt uv và dependencies siêu tốc TRƯỚC
 COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+RUN pip install uv && \
+    uv pip install --system -r requirements.txt
 
 # 4. Copy toàn bộ mã nguồn và cấu hình
-COPY madewithml/ ./madewithml/
+COPY mlops_pipeline/ ./mlops_pipeline/
 COPY datasets/ ./datasets/
 COPY setup.py .
 
 # Cài đặt local package ở chế độ production
-RUN pip install -e .
+RUN uv pip install --system -e .
 
 # 5. Tạo người dùng non-root vì lý do bảo mật
 RUN useradd -m -u 1000 appuser && \
@@ -69,7 +69,7 @@ USER appuser
 EXPOSE 8000
 
 # 6. Lệnh khởi chạy ứng dụng mặc định
-CMD ["uvicorn", "madewithml.serve:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "mlops_pipeline.serve:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 </MdxPage>
@@ -81,20 +81,20 @@ CMD ["uvicorn", "madewithml.serve:app", "--host", "0.0.0.0", "--port", "8000"]
 Mở terminal và thực thi các lệnh Docker:
 
 ```bash
-# 1. Build Docker Image với tag madewithml:latest
-docker build -t madewithml:latest .
+# 1. Build Docker Image với tag mlops_pipeline:latest
+docker build -t mlops_pipeline:latest .
 
 # 2. Kiểm tra danh sách và kích thước image
-docker images | grep madewithml
+docker images | grep mlops_pipeline
 
 # 3. Khởi chạy container ánh xạ cổng 8000 ra máy trạm
 docker run -d \
-    --name madewithml-service \
+    --name mlops-service \
     -p 8000:8000 \
-    madewithml:latest
+    mlops_pipeline:latest
 
 # 4. Xem log khởi động của container
-docker logs -f madewithml-service
+docker logs -f mlops-service
 ```
 
 </MdxPage>
@@ -120,12 +120,12 @@ curl -X POST "http://localhost:8000/predict" \
 
 Dọn dẹp container sau khi hoàn thành thử nghiệm:
 ```bash
-docker stop madewithml-service
-docker rm madewithml-service
+docker stop mlops-service
+docker rm mlops-service
 ```
 
 <LessonNote tone="tip">
-  Khi Docker Image đã được build thành công, bạn có thể đẩy lên **Docker Hub** hoặc **AWS ECR** (`docker push <registry>/madewithml:v1.0.0`) để phục vụ triển khai Kubernetes.
+  Khi Docker Image đã được build thành công, bạn có thể đẩy lên **Docker Hub** hoặc **AWS ECR** (`docker push <registry>/mlops_pipeline:v1.0.0`) để phục vụ triển khai Kubernetes.
 </LessonNote>
 
 </MdxPage>

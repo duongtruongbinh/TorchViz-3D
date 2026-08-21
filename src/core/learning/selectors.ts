@@ -1,12 +1,15 @@
 import type {
   LearningCatalog,
-  LearningDomain,
   LearningDomainId,
+  LearningDomainReadiness,
+  LearningDomainReadinessState,
   LearningHomeDomainSummary,
   LearningLesson,
   LearningRouteAlias,
   LearningTrack,
 } from './types.ts';
+
+export type { LearningDomainReadiness, LearningDomainReadinessState };
 
 export type LearningExerciseLessonTarget = {
   domainId: LearningDomainId;
@@ -46,23 +49,40 @@ export function getLearningDomain(catalog: LearningCatalog, domainId: LearningDo
   return catalog.domains.find((domain) => domain.id === domainId) ?? null;
 }
 
-export type LearningDomainReadiness = {
-  domain: LearningDomain;
-  isReady: boolean;
+export function getDomainReadinessState(catalog: LearningCatalog, domainId: LearningDomainId): LearningDomainReadinessState {
+  const domain = getLearningDomain(catalog, domainId);
+  if (domain?.status === 'placeholder') return 'unupdated';
+  if (domain?.status === 'partial') return 'updating';
+  const lessons = catalog.lessons.filter((lesson) => lesson.domainId === domainId);
+  if (lessons.length === 0) return 'unupdated';
+  const publishedCount = lessons.filter((lesson) => lesson.contentStatus === 'published').length;
+  if (publishedCount === lessons.length) return 'ready';
+  if (publishedCount > 0) return 'updating';
+  return 'unupdated';
+}
+
+const READINESS_STATE_RANK: Record<LearningDomainReadinessState, number> = {
+  ready: 0,
+  updating: 1,
+  unupdated: 2,
 };
 
 export function getLearningDomainReadiness(catalog: LearningCatalog): LearningDomainReadiness[] {
   return catalog.domains
-    .map((domain, catalogIndex) => ({
-      domain,
-      catalogIndex,
-      isReady: isDomainReady(catalog, domain.id),
-    }))
+    .map((domain, catalogIndex) => {
+      const readinessState = getDomainReadinessState(catalog, domain.id);
+      return {
+        domain,
+        catalogIndex,
+        isReady: readinessState === 'ready',
+        readinessState,
+      };
+    })
     .sort((left, right) => (
-      Number(right.isReady) - Number(left.isReady)
+      READINESS_STATE_RANK[left.readinessState] - READINESS_STATE_RANK[right.readinessState]
       || left.catalogIndex - right.catalogIndex
     ))
-    .map(({ domain, isReady }) => ({ domain, isReady }));
+    .map(({ domain, isReady, readinessState }) => ({ domain, isReady, readinessState }));
 }
 
 export function getLearningHomeDomainSummaries(catalog: LearningCatalog): LearningHomeDomainSummary[] {
@@ -70,16 +90,16 @@ export function getLearningHomeDomainSummaries(catalog: LearningCatalog): Learni
   for (const lesson of catalog.lessons) {
     lessonCountByDomain.set(lesson.domainId, (lessonCountByDomain.get(lesson.domainId) ?? 0) + 1);
   }
-  return getLearningDomainReadiness(catalog).map(({ domain, isReady }) => ({
+  return getLearningDomainReadiness(catalog).map(({ domain, isReady, readinessState }) => ({
     domain,
     lessonCount: lessonCountByDomain.get(domain.id) ?? 0,
     isReady,
+    readinessState,
   }));
 }
 
-function isDomainReady(catalog: LearningCatalog, domainId: LearningDomainId): boolean {
-  const lessons = catalog.lessons.filter((lesson) => lesson.domainId === domainId);
-  return lessons.length > 0 && lessons.every((lesson) => lesson.contentStatus === 'published');
+export function isDomainReady(catalog: LearningCatalog, domainId: LearningDomainId): boolean {
+  return getDomainReadinessState(catalog, domainId) === 'ready';
 }
 
 export function getLearningTracksForDomain(catalog: LearningCatalog, domainId: LearningDomainId): LearningTrack[] {

@@ -66,8 +66,8 @@ repos:
 Cài đặt package `pre-commit` và gắn hook vào Git lifecycle:
 
 ```bash
-# Cài đặt thư viện pre-commit qua pip
-pip install pre-commit
+# Cài đặt thư viện pre-commit qua uv
+uv pip install pre-commit ruff
 
 # Gắn script hook vào thư mục .git/hooks/
 pre-commit install
