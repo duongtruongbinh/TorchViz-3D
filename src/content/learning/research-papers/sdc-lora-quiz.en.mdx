@@ -6,6 +6,7 @@ export const lessonMetadata = {
   headings: [
     'Fundamental Concept of SVD',
     'Rationale for SVD Approach',
+    'Efficacy of Low-Rank Adaptation',
     'Core Knowledge Storage',
     'Singular-Subspace Drift Phenomenon',
     'Scope of Subspace Drift',
@@ -13,7 +14,17 @@ export const lessonMetadata = {
     'Inference Overhead of SDC-LoRA',
   ],
   keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'SVD', 'Spectral Calibration', 'Quiz'],
-  pageCount: 7,
+  conceptIds: [
+    'svd-fundamental-concept',
+    'why-svd-approach',
+    'lora-low-rank-intrinsic-dimension',
+    'principal-singular-subspace-knowledge',
+    'singular-subspace-drift-concept',
+    'drift-scope-u-and-v',
+    'spectral-calibration-mechanism',
+    'zero-inference-overhead',
+  ],
+  pageCount: 8,
 };
 
 <MdxQuiz id="sdc-lora-quiz" questions={[
@@ -44,6 +55,20 @@ export const lessonMetadata = {
     ],
     success: 'Correct! By decomposing weight matrices into orthonormal coordinate systems with ordered energy levels, SVD enables clean, independent separation of principal directions (preserving prior knowledge) and minor directions (accommodating new tasks) for precise gradient modulation.',
     error: 'Incorrect. Remember that SVD provides an orthonormal coordinate system with hierarchically ordered energy levels.',
+  },
+  {
+    id: 'lora-low-rank-intrinsic-dimension',
+    title: 'Efficacy of Low-Rank Adaptation',
+    prompt: 'Why can LoRA achieve dramatic behavioral adaptations while fine-tuning only a tiny fraction of parameters (< 1% of the backbone)?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Because task adaptation inherently resides in a low-dimensional manifold (Low Intrinsic Dimension), requiring only low-rank subspace steering rather than full-parameter reconfiguration.', isCorrect: true },
+      { id: 'opt2', label: 'Because LoRA automatically duplicates backbone weights by tenfold during forward passes.' },
+      { id: 'opt3', label: 'Because low-rank matrices bypass the Attention mechanism and switch entirely to 1D convolutions.' },
+      { id: 'opt4', label: 'Because LoRA only functions when all original backbone layers are deactivated.' },
+    ],
+    success: 'Correct! The "Low Intrinsic Dimension" hypothesis demonstrates that adapting pre-trained models to specific downstream tasks requires updates within a low-rank subspace that effectively steers existing representations without relearning them from scratch.',
+    error: 'Incorrect. Pre-trained models already possess rich representations, so downstream adaptation naturally occurs along a low-dimensional subspace (Low Intrinsic Dimension).',
   },
   {
     id: 'principal-singular-subspace-knowledge',

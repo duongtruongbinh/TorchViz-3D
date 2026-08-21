@@ -6,6 +6,7 @@ export const lessonMetadata = {
   headings: [
     'Bản chất của phân rã SVD',
     'Lý do chọn tiếp cận SVD',
+    'Hiệu quả của LoRA với ít tham số',
     'Nơi lưu giữ tri thức cốt lõi',
     'Hiện tượng Singular-Subspace Drift',
     'Phạm vi ảnh hưởng của Drift',
@@ -16,13 +17,14 @@ export const lessonMetadata = {
   conceptIds: [
     'svd-fundamental-concept',
     'why-svd-approach',
+    'lora-low-rank-intrinsic-dimension',
     'principal-singular-subspace-knowledge',
     'singular-subspace-drift-concept',
     'drift-scope-u-and-v',
     'spectral-calibration-mechanism',
     'zero-inference-overhead',
   ],
-  pageCount: 7,
+  pageCount: 8,
 };
 
 <MdxQuiz id="sdc-lora-quiz" questions={[
@@ -53,6 +55,20 @@ export const lessonMetadata = {
     ],
     success: 'Chính xác! Nhờ phân tích ma trận trọng số thành các hệ trục trực giao trực chuẩn với mức năng lượng được xếp thứ tự, SVD cho phép phân tách độc lập các hướng chủ đạo (Principal Subspace - nơi lưu giữ tri thức cũ) và các hướng thứ yếu (Minor Subspace - nơi học tác vụ mới) để điều tiết gradient chính xác.',
     error: 'Chưa chính xác. Hãy nhớ lại: SVD cung cấp hệ trục trực giao trực chuẩn kèm phổ năng lượng được xếp thứ tự rõ ràng.',
+  },
+  {
+    id: 'lora-low-rank-intrinsic-dimension',
+    title: 'Hiệu quả của LoRA với ít tham số',
+    prompt: 'Tại sao phương pháp LoRA chỉ huấn luyện một lượng rất nhỏ tham số (< 1% so với backbone) nhưng vẫn tạo ra sự thay đổi lớn và hiệu quả vượt trội trong hành vi của mô hình?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Vì sự thích ứng với tác vụ mới thực chất nằm trên một không gian chiều rất thấp (Low Intrinsic Dimension), chỉ cần điều chỉnh các hướng đặc trưng quan trọng thay vì thay đổi toàn bộ không gian tham số.', isCorrect: true },
+      { id: 'opt2', label: 'Vì LoRA tự động nhân bản các trọng số của backbone lên gấp 10 lần trong quá trình forward pass.' },
+      { id: 'opt3', label: 'Vì ma trận rank thấp của LoRA bỏ qua hoàn toàn cơ chế Attention để chuyển sang tính toán tích chập 1D.' },
+      { id: 'opt4', label: 'Vì LoRA chỉ hoạt động khi tất cả các tầng của mô hình gốc bị vô hiệu hóa hoàn toàn.' },
+    ],
+    success: 'Chính xác! Giả thuyết "Low Intrinsic Dimension" chỉ ra rằng quá trình thích nghi tác vụ mới của LLM không cần thay đổi toàn bộ không gian tham số khổng lồ, mà chỉ cần điều chỉnh một không gian con hạng thấp (Low-rank Subspace) đóng vai trò định hướng lại các biểu diễn có sẵn.',
+    error: 'Chưa chính xác. Các mô hình tiền huấn luyện đã có sẵn biểu diễn phong phú, nên việc học tác vụ mới chỉ diễn ra trên một không gian chiều thấp (Low Intrinsic Dimension).',
   },
   {
     id: 'principal-singular-subspace-knowledge',
