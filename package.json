@@ -5,7 +5,7 @@
   "type": "module",
   "overrides": {
     "monaco-editor": {
-      "dompurify": "3.4.11"
+      "dompurify": "^3.4.14"
     },
     "use-resize-observer": {
       "react": "$react",
@@ -15,16 +15,23 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "test": "node --test src/lib/*.test.ts",
+    "lint": "biome check .",
+    "test": "node --test \"src/**/*.test.ts\"",
     "build": "vite build",
     "verify": "npm run typecheck && npm test && npm run build",
-    "sync:titles": "node --experimental-strip-types scripts/syncMdxTitles.ts",
-    "audit:cl-citation-evidence": "node --experimental-strip-types scripts/auditContinualLearningCitationEvidence.mjs",
+    "sync:titles": "node scripts/syncMdxTitles.ts",
+    "audit:cl-citation-evidence": "node scripts/auditContinualLearningCitationEvidence.mjs",
+    "sync:catalog-stats": "node scripts/generateCatalogStats.ts",
+    "check:catalog-stats": "node scripts/generateCatalogStats.ts --check",
     "preview": "vite preview"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@floating-ui/react": "^0.27.20",
     "@fontsource/be-vietnam-pro": "^5.3.0",
     "@monaco-editor/react": "^4.7.0",
@@ -34,7 +41,6 @@
     "lucide-react": "^1.31.0",
     "mafs": "0.21.0",
     "monaco-editor": "^0.56.0",
-    "pyodide": "0.25.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.0",
@@ -43,6 +49,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.10",
     "@fontsource/inter": "^5.3.0",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/rollup": "^3.1.1",
@@ -51,14 +58,10 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.0.5",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.15",
+    "pyodide": "0.25.1",
     "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "vite": "^8.2.1"
-  },
-  "allowScripts": {
-    "esbuild@0.25.12": true
   }
 }
