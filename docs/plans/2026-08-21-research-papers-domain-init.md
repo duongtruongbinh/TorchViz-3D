@@ -8,6 +8,10 @@ task: "Initialize Research Papers domain, integrate in-depth paper review for SD
 supersedes: []
 ---
 
+# Lineage
+
+Genesis plan — no predecessor.
+
 # Goal
 
 Initialize the Learning Lab domain `research-papers` ("Random Research Paper") and deliver a comprehensive deep-dive module on **SDC-LoRA: Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting** (ACL 2026), covering SVD mathematical foundations, empirical results, in-depth representation mechanisms, academic debates & limitations, and a 10-question evaluation quiz.

@@ -145,7 +145,8 @@ no `type` frontmatter required.)
   LLM-from-scratch course's planned React-free visual/formula metadata, concrete
   checkpoint exercises, and code-step contracts.
 - **2026-07-02 — LLM-from-scratch gist reference alignment.** Downloaded the
-  supplied "Building LLMs From Scratch" gist into `docs/reference/` and aligned
+  supplied "Building LLMs From Scratch" gist into `docs/reference/` *(directory
+  since removed from the repo)* and aligned
   the LLM course copy/checkpoints with source-grounded paraphrases plus explicit
   placeholders for out-of-scope extension labs.
 - **2026-06-29 — Landing home redesign.** Refined the outer Landing page into a

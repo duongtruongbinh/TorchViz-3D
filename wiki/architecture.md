@@ -60,7 +60,7 @@ See [concepts/torchstub](concepts/torchstub.md) for the full mechanism.
 | Worker↔renderer contract | [ir-contract](concepts/ir-contract.md) | `src/lib/irTypes.ts` |
 | Layout engine | [layout-engine](concepts/layout-engine.md) | `src/lib/layout.ts` |
 | App state + templates | [state-store](concepts/state-store.md) | `src/store/useStore.ts` |
-| 3D rendering + taxonomy | [rendering](concepts/rendering.md) | `src/components/Canvas3D.tsx`, `src/lib/visualKind.ts` |
+| 3D rendering + taxonomy | [rendering](concepts/rendering.md) | `src/components/canvas/Canvas3D.tsx`, `src/lib/visualKind.ts` |
 | Landing/Lab scaffold | [learning-lab](concepts/learning-lab.md) | `src/components/AppShell.tsx`, `src/components/landing/*`, `src/components/learning/*`, `src/core/learning/*` |
 
 ## Key invariants
