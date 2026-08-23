@@ -27,7 +27,7 @@ const STRUCTURAL_KEYS = new Set([
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
 
-type Node = { type?: string; name?: string; value?: unknown; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; argument?: Node; operator?: string; source?: Node };
+type Node = { type?: string; name?: string; value?: unknown; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; expressions?: Node[]; quasis?: Array<{ value?: { raw?: string; cooked?: string } }>; argument?: Node; operator?: string; source?: Node };
 
 function walk(node: Node | null | undefined, visit: (node: Node, parent?: Node) => void, parent?: Node): void {
   if (!node || typeof node !== 'object') return;
@@ -47,7 +47,7 @@ function propertyName(node: Node | undefined): string | null {
 
 function assertStaticExpression(node: Node | null | undefined, label: string): void {
   if (!node) throw new Error(`${label}: empty MDX expression`);
-  if (node.type === 'Literal') return;
+  if (node.type === 'Literal' || node.type === 'JSXElement' || node.type === 'JSXFragment' || node.type === 'JSXText') return;
   if (node.type === 'ArrayExpression') {
     node.elements?.forEach((item) => assertStaticExpression(item, label));
     return;
@@ -58,6 +58,10 @@ function assertStaticExpression(node: Node | null | undefined, label: string): v
       if (!propertyName(property.key)) throw new Error(`${label}: invalid object key`);
       assertStaticExpression(property.value as Node, label);
     });
+    return;
+  }
+  if (node.type === 'TemplateLiteral') {
+    node.expressions?.forEach((item) => assertStaticExpression(item, label));
     return;
   }
   if (node.type === 'UnaryExpression' && node.operator === '-' && typeof node.argument?.value === 'number') return;
@@ -85,6 +89,9 @@ function stringsFromExpression(node: Node | null | undefined, output: string[], 
 function staticValue(node: Node | null | undefined): unknown {
   if (!node) return undefined;
   if (node.type === 'Literal') return node.value;
+  if (node.type === 'TemplateLiteral') {
+    return (node.quasis ?? []).map((quasi, i) => (quasi.value?.raw ?? '') + (staticValue(node.expressions?.[i]) ?? '')).join('');
+  }
   if (node.type === 'ArrayExpression') return node.elements?.map(staticValue) ?? [];
   if (node.type === 'ObjectExpression') return Object.fromEntries((node.properties ?? []).map((property) => [propertyName(property.key)!, staticValue(property.value as Node)]));
   if (node.type === 'UnaryExpression' && node.operator === '-') return -Number(staticValue(node.argument));

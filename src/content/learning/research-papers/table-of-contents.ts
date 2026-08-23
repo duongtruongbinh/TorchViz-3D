@@ -20,8 +20,35 @@ const chapters: LearningTocTrackSeed[] = [
       {
         id: 'sdc-lora',
         title: {
-          en: 'Abstract',
-          vi: 'Abstract',
+          en: 'SDC-LoRA (ACL 2026)',
+          vi: 'SDC-LoRA (ACL 2026)',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'sdc-lora-experiments',
+        title: {
+          en: 'Experiment Results',
+          vi: 'Experiment Results',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'sdc-lora-insights',
+        title: {
+          en: 'Key Insights',
+          vi: 'Key Insights',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'sdc-lora-debate',
+        title: {
+          en: 'Academic Debates & Limits',
+          vi: 'Tranh luận & Giới hạn',
         },
         status: 'available',
         contentStatus: 'published',
@@ -29,8 +56,8 @@ const chapters: LearningTocTrackSeed[] = [
       {
         id: 'sdc-lora-quiz',
         title: {
-          en: 'Quiz: Abstract',
-          vi: 'Quiz: Abstract',
+          en: 'Quiz: SDC-LoRA (ACL 2026)',
+          vi: 'Quiz: SDC-LoRA (ACL 2026)',
         },
         status: 'available',
         contentStatus: 'published',

@@ -2,98 +2,391 @@ export const lessonMetadata = {
   domainId: 'research-papers',
   id: 'sdc-lora',
   locale: 'vi',
-  title: 'Abstract',
+  title: 'SDC-LoRA (ACL 2026)',
   headings: [
-    'Abstract',
-    'Giải thích chi tiết',
+    'Kiến trúc LoRA',
+    'Nghịch lý',
+    'Low-Dimensional Manifold and Representation Directions',
+    'Sự tập trung năng lượng phổ',
+    'Phân rã SVD trên Ma trận Gốc',
+    'Khởi tạo LoRA trong Không gian SVD',
+    'Giả thuyết Phân tách Không gian',
+    'Hiện tượng Singular-Subspace Drift',
+    'Cơ chế SDC-LoRA',
   ],
-  keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'PEFT', 'Singular-Subspace Drift', 'ACL 2026'],
+  keywords: ['SDC-LoRA', 'Continual Learning', 'LoRA', 'Catastrophic Forgetting', 'PEFT', 'Singular-Subspace Drift', 'SVD', 'ACL 2026'],
+  pageCount: 6,
 };
+
+<MdxPage page={0}>
 
 **Link tới paper:** [https://aclanthology.org/2026.findings-acl.1207.pdf](https://aclanthology.org/2026.findings-acl.1207.pdf)
 
-**Title:** *Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting*
+**Title:** Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting
 
-**Tạm dịch:** *Kiểm soát trôi dạt không gian con kỳ dị trong LoRA nhằm giảm thiểu hiện tượng quên tri thức*
-
-**Abstract:**
-
-> *"Knowledge forgetting is a central challenge when adapting LLMs to new tasks. Prior studies indicate that pretrained knowledge is concentrated in the principal singular subspace of pretrained weight <InlineMath formula="W_0" />; so recent Low-Rank Adaptation (LoRA) variants initialize LoRA in the minor subspace to steer early updates away from principal directions and mitigate forgetting. However, we observe that during fine-tuning, the update direction progressively shifts from the minor to the principal subspace, which is called as Singular-subspace Drift (SD), thereby allocating more energy to the directions that carry pretrained knowledge and leaving a persistent risk of forgetting. To address this issue, we propose Singular-subspace Drift Controlled LoRA (SDC-LoRA), which constrains the growth of update energy in the principal singular subspace of <InlineMath formula="W_0" /> and thus mitigate SD. SDC-LoRA proposes Principal Subspace Energy-Controlled Learning, using Spectral Calibration factor <InlineMath formula="\gamma_{\text{sc}}" /> to selectively downscale gradients along the principal singular subspace of <InlineMath formula="W_0" /> while keeping minor-subspace updates unchanged. Across extensive experiments with LLaMA-3.1-8B-Instruct and Qwen2.5-7B-Chat on MetaMathQA and CodeFeedback, SDC-LoRA mitigates forgetting on MMLU, TruthfulQA, and HellaSwag while matching or improving GSM8K and HumanEval, offering a practical route to adapt LLMs without sacrificing prior knowledge."*
+**Tạm dịch:** Kiểm soát trôi dạt không gian con kỳ dị trong LoRA nhằm giảm thiểu hiện tượng quên tri thức
 
 ---
 
-### Giải thích chi tiết
+### Kiến trúc LoRA
 
-Ai làm việc với LLM cũng thích **LoRA**: nhẹ VRAM, train nhanh, adapter chỉ vài chục MB. Thế nhưng khi đem LoRA fine-tune liên tục qua các bài toán mới, **quên thảm họa (Catastrophic Forgetting)** lập tức xảy ra: cứ học thêm task mới là tri thức cũ và năng lực suy luận gốc lại bị xóa nhòa.
+Ai làm việc với LLM cũng thích **LoRA**: nhẹ VRAM, train nhanh, adapter chỉ vài chục MB.
 
-> **Nghịch lý:** Về mặt kiến trúc, LoRA đóng băng hoàn toàn ma trận trọng số gốc khổng lồ <InlineMath formula="W_0 \in \mathbb{R}^{d \times k}" /> (hàng tỷ tham số) và gắn thêm nhánh tích rank thấp song song <InlineMath formula="\Delta W = B \cdot A" /> vào các **tầng chiếu tuyến tính (Linear Projections)** của từng khối Transformer — bao gồm các ma trận **Self-Attention** (<InlineMath formula="W_q, W_k, W_v, W_o" />) và các tầng **Feed-Forward / MLP** (<InlineMath formula="W_{\text{gate}}, W_{\text{up}}, W_{\text{down}}" />).
+> Về mặt kiến trúc, ý tưởng của LoRA là đóng băng hoàn toàn các ma trận trọng số gốc <InlineMath formula="W_0" /> của mô hình tiền huấn luyện (vốn có quy mô hàng tỷ tham số):
+> <BlockMath formula="W_0 \in \mathbb{R}^{d \times k}" />
+> Ví dụ với mô hình 7B/8B (<InlineMath formula="d = 4096, k = 4096" />):
+> <BlockMath formula="W_0 \in \mathbb{R}^{4096 \times 4096}" />
+> (tương đương ~16.7 triệu tham số cho chỉ một ma trận chiếu)
+> 
+> Để thích ứng với bài toán mới, ta điều chỉnh trọng số bằng cách cộng thêm một lượng biến thiên <InlineMath formula="\Delta W" />:
+> <BlockMath formula="W = W_0 + \Delta W" />
+> Nhằm mở rộng dung lượng biểu diễn (capacity) cho task mới mà không làm bùng nổ số lượng tham số cần huấn luyện, <InlineMath formula="\Delta W" /> được gắn thêm dưới dạng tích của hai ma trận rank thấp kèm hệ số tỉ xích <InlineMath formula="\alpha" />:
+> <BlockMath formula="\Delta W \in \mathbb{R}^{d \times k} = \frac{\alpha}{r} (\underbrace{B}_{\mathbb{R}^{d \times r}} \cdot \underbrace{A}_{\mathbb{R}^{r \times k}})" />
+> Ví dụ khi chọn rank <InlineMath formula="r = 8, \alpha = 16" />:
+> <BlockMath formula="\Delta W \in \mathbb{R}^{4096 \times 4096} = \frac{16}{8} (\underbrace{B}_{4096 \times 8} \cdot \underbrace{A}_{8 \times 4096})" />
+> (tổng số tham số chỉ là <InlineMath formula="4096 \times 8 + 8 \times 4096 = 65{,}536" /> tham số — nhỏ hơn 256 lần so với <InlineMath formula="W_0" />)
 > 
 > <LessonImage assetPath="research-papers/01-lora-linear-projection-vs-adaptation.png" alt="So sánh Linear Projection thông thường và LoRA adaptation với nhánh đóng băng W0 và nhánh rank thấp A, B" caption="Kiến trúc LoRA: Đóng băng ma trận trọng số gốc W0 và chỉ huấn luyện nhánh phân rã rank thấp A, B song song." />
 > 
-> Với rank <InlineMath formula="r \ll \min(d, k)" /> (thường chỉ là <InlineMath formula="r = 8" /> hoặc <InlineMath formula="16" />), tổng số tham số của các adapter này chỉ chiếm vỏn vẹn **~0.1%** kích thước mô hình (vài triệu tham số so với 7B–70B). 
-> 
-> Theo trực giác, việc giữ nguyên <InlineMath formula="W_0" /> và chỉ cộng một lượng biến thiên <InlineMath formula="\Delta W" /> siêu nhỏ ở các tầng chiếu sẽ giúp bảo toàn tri thức nền. Thế nhưng trên thực tế, mô hình vẫn bị **quên thảm họa (Catastrophic Forgetting)** nặng nề — tri thức cũ và năng lực reasoning cứ thế "bốc hơi" dần qua từng vòng fine-tune liên tiếp.
-
-Các tác giả thực hiện **phân rã SVD trên chính ma trận trọng số gốc <InlineMath formula="W_0" />** của mô hình tiền huấn luyện:
-<BlockMath formula="W_0 = U \Sigma V^T = \sum_{i=1}^d \sigma_i u_i v_i^T" />
-
-Trong đó:
-- **<InlineMath formula="\Sigma" /> (Singular Values):** Các giá trị kỳ dị được xếp giảm dần <InlineMath formula="\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_d" /> đóng vai trò là "thước đo năng lượng" để xếp hạng tầm quan trọng của từng chiều biểu diễn.
-- **<InlineMath formula="V = [v_1, \dots, v_d]" /> (Right Singular Vectors):** Hệ vector cơ sở của **không gian đặc trưng đầu vào** (cách mô hình bóc tách và phân tích tín hiệu <InlineMath formula="x" />).
-- **<InlineMath formula="U = [u_1, \dots, u_d]" /> (Left Singular Vectors):** Hệ vector cơ sở của **không gian biểu diễn đầu ra** (cách mô hình định hướng và chuyển tiếp vector đặc trưng lên các tầng tiếp theo).
-
-Dựa vào năng lượng <InlineMath formula="\Sigma" />, toàn bộ không gian được tạo thành từ 2 không gian con cụ thể:
-- **Không gian con chủ đạo (Principal Subspace):** Được sinh bởi tập các vector <InlineMath formula="\{u_i, v_i\}_{i=1}^k" /> tương ứng với top <InlineMath formula="k" /> giá trị kỳ dị lớn nhất (<InlineMath formula="\sigma_1, \dots, \sigma_k" />) mang đại đa số năng lượng. Đây là nơi "neo giữ" tri thức tổng quát, logic suy luận và năng lực ngôn ngữ cốt lõi từ giai đoạn pre-training — vùng này cực kỳ nhạy cảm và dễ bị tổn hại khi bị xoay lệch góc.
-- **Không gian con thứ yếu (Minor Subspace):** Được sinh bởi tập các vector <InlineMath formula="\{u_i, v_i\}_{i=k+1}^d" /> ứng với các giá trị kỳ dị nhỏ còn lại (<InlineMath formula="\sigma_{k+1}, \dots, \sigma_d" />) có năng lượng thấp. Đây là các chiều biểu diễn dư thừa — đóng vai trò như một "vùng đệm an toàn" để tiếp thu tri thức bài toán mới mà không làm ảnh hưởng đến tri thức cũ.
-
-Để thấy rõ hiện tượng **Singular-Subspace Drift (SD)** tác động lên cả hai phía, hãy xét một ví dụ 2 chiều:
-- Giả sử ma trận gốc <InlineMath formula="W_0" /> có phân rã SVD cụ thể:
-  <BlockMath formula="W_0 = \begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix} = \underbrace{\begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}}_{U = [u_1, u_2]} \underbrace{\begin{bmatrix} 10 & 0 \\ 0 & 1 \end{bmatrix}}_{\Sigma = \operatorname{diag}(\sigma_1, \sigma_2)} \underbrace{\begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}^T}_{V^T = [v_1, v_2]^T}" />
-  - **Principal Subspace** (<InlineMath formula="\sigma_1 = 10" />): tạo bởi cặp vector cơ sở <InlineMath formula="u_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, v_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}" /> (chiếm <InlineMath formula="99\%" /> năng lượng).
-  - **Minor Subspace** (<InlineMath formula="\sigma_2 = 1" />): tạo bởi cặp vector cơ sở <InlineMath formula="u_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}" /> (vùng đệm an toàn).
-- Khi gắn LoRA rank <InlineMath formula="r = 1" /> để học task mới, ta cộng thêm ma trận cập nhật <InlineMath formula="\Delta W = B \cdot A" /> (gồm thành phần <InlineMath formula="4.0" /> ở Principal Subspace và <InlineMath formula="3.0" /> ở Minor Subspace):
-  <BlockMath formula="\Delta W = \begin{bmatrix} 0 \\ 2 \end{bmatrix} \begin{bmatrix} 2 & 1.5 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 4 & 3 \end{bmatrix} \implies W = W_0 + \Delta W = \begin{bmatrix} 10 & 0 \\ 4 & 4 \end{bmatrix}" />
-- **Phân rã SVD mới của ma trận <InlineMath formula="W" /> sau khi gắn LoRA tiêu chuẩn:**
-  <BlockMath formula="W = \underbrace{\begin{bmatrix} 0.904 & -0.428 \\ 0.428 & 0.904 \end{bmatrix}}_{U' = [u_1', u_2']} \underbrace{\begin{bmatrix} 10.89 & 0 \\ 0 & 3.67 \end{bmatrix}}_{\Sigma' = \operatorname{diag}(\sigma_1', \sigma_2')} \underbrace{\begin{bmatrix} 0.988 & -0.154 \\ 0.154 & 0.988 \end{bmatrix}^T}_{V'^T = [v_1', v_2']^T}" />
-- **Độ trôi dạt ở không gian đầu vào <InlineMath formula="V" />:**
-  <BlockMath formula="v_1' \approx \begin{bmatrix} 0.988 \\ 0.154 \end{bmatrix} \neq \begin{bmatrix} 1 \\ 0 \end{bmatrix} \implies \text{Góc lệch } \theta_V = \arccos(v_1^T v_1') \approx 8.9^\circ" />
-- **Độ trôi dạt ở không gian đầu ra <InlineMath formula="U" />:**
-  <BlockMath formula="u_1' \approx \begin{bmatrix} 0.904 \\ 0.428 \end{bmatrix} \neq \begin{bmatrix} 1 \\ 0 \end{bmatrix} \implies \text{Góc lệch } \theta_U = \arccos(u_1^T u_1') \approx 25.3^\circ" />
-
-**Hậu quả:** Dù khởi tạo LoRA ở minor subspace, trong quá trình fine-tune hướng cập nhật dần dịch chuyển sang principal subspace (hiện tượng **Singular-subspace Drift - SD**), làm lệch cả <InlineMath formula="U" /> lẫn <InlineMath formula="V" /> và phá vỡ cấu trúc biểu diễn tri thức cũ.
-
-Để giải quyết vấn đề này, bài báo đề xuất **SDC-LoRA (Singular-subspace Drift Controlled LoRA)** với cơ chế **Principal Subspace Energy-Controlled Learning**:
-- **Hiệu chuẩn phổ (Spectral Calibration):** Sử dụng hệ số <InlineMath formula="\gamma_{\text{sc}} \in (0, 1)" /> để giảm tỷ lệ gradient dọc theo không gian con kỳ dị chủ đạo của <InlineMath formula="W_0" />, trong khi vẫn giữ nguyên <InlineMath formula="100\%" /> cập nhật ở minor subspace để mô hình tự do tiếp thu task mới.
-
-  *Áp dụng vào ví dụ 2D ở trên:*
-  Ma trận cập nhật <InlineMath formula="\Delta W = \begin{bmatrix} 0 & 0 \\ 4 & 3 \end{bmatrix}" /> gồm 2 phần: <InlineMath formula="\Delta W_{\text{principal}} = \begin{bmatrix} 0 & 0 \\ 4 & 0 \end{bmatrix}" /> và <InlineMath formula="\Delta W_{\text{minor}} = \begin{bmatrix} 0 & 0 \\ 0 & 3 \end{bmatrix}" />.
-  - **LoRA thông thường:** Áp dụng toàn bộ khiến hướng cập nhật <InlineMath formula="4.0" /> bẻ lệch <InlineMath formula="U" /> một góc <InlineMath formula="\theta_U \approx 25.3^\circ" />, gây mất tri thức cũ nghiêm trọng.
-  - **SDC-LoRA (với <InlineMath formula="\gamma_{\text{sc}} = 0.05" />):**
-    <BlockMath formula="\Delta W_{\text{SDC}} = \gamma_{\text{sc}} \cdot \Delta W_{\text{principal}} + \Delta W_{\text{minor}} = 0.05 \cdot \begin{bmatrix} 0 & 0 \\ 4 & 0 \end{bmatrix} + \begin{bmatrix} 0 & 0 \\ 0 & 3 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 0.2 & 3 \end{bmatrix}" />
-    <BlockMath formula="W_{\text{SDC}} = W_0 + \Delta W_{\text{SDC}} = \begin{bmatrix} 10 & 0 \\ 0.2 & 4 \end{bmatrix} \implies \text{Góc lệch } \theta_U \approx 1.4^\circ \approx 0^\circ" />
-    Thành phần gây trôi dạt vào tri thức gốc bị triệt tiêu từ <InlineMath formula="4.0 \rightarrow 0.2" /> (góc lệch giảm từ <InlineMath formula="25.3^\circ \rightarrow 1.4^\circ" />, bảo toàn nguyên vẹn năng lực tiền huấn luyện), trong khi task mới ở Minor Subspace (<InlineMath formula="3.0" />) vẫn được học trọn vẹn <InlineMath formula="100\%" />.
-
-- **Bảo toàn năng lực & Zero Inference Overhead:** Khống chế triệt để sự gia tăng năng lượng cập nhật vào các hướng tri thức cốt lõi, giúp giảm thiểu hiện tượng quên trên các benchmark tổng quát mà không phát sinh bất kỳ chi phí tính toán nào khi suy luận.
+> Nhánh này được gắn song song vào các **tầng chiếu tuyến tính (Linear Projections)** của từng khối Transformer:
+> - **Self-Attention:** <InlineMath formula="W_q, W_k, W_v, W_o" />
+> - **Feed-Forward / MLP:** <InlineMath formula="W_{\text{gate}}, W_{\text{up}}, W_{\text{down}}" />
 
 ---
 
-### Kiểm chứng thực nghiệm
+### Nghịch lý
 
-Để chứng minh SDC-LoRA thực sự bảo vệ tri thức tổng quát chứ không chỉ học tốt các bài toán mới, nhóm tác giả đã tiến hành thử nghiệm toàn diện trên **LLaMA-3.1-8B-Instruct** và **Qwen2.5-7B-Chat** qua chuỗi fine-tune liên tục: học Giải toán (**MetaMathQA**) → học Viết mã nguồn (**CodeFeedback**).
+Với rank <InlineMath formula="r \ll \min(d, k)" /> (thường chỉ là <InlineMath formula="r = 8" /> hoặc <InlineMath formula="16" />), tổng số tham số của các adapter này chỉ chiếm vỏn vẹn **~0.1%** kích thước mô hình (vài triệu tham số so với 7B–70B).
 
-Hệ thống đánh giá được chia làm 2 nhóm benchmark độc lập hoàn toàn:
-1. **Nhóm đo tri thức tổng quát gốc (Hoàn toàn KHÔNG có trong dữ liệu fine-tune):**
-   - **MMLU:** Đo tri thức sâu rộng trên 57 lĩnh vực chuyên ngành (Khoa học, Y tế, Luật, Nhân văn...).
-   - **TruthfulQA:** Kiểm tra tính chính xác của sự thật và khả năng chống ảo giác (hallucination).
-   - **HellaSwag:** Đánh giá năng lực suy luận logic thông thường (Common-sense Reasoning).
-2. **Nhóm đo năng lực chuyên biệt mới nạp vào:**
-   - **GSM8K:** Năng lực giải toán lời văn nhiều bước.
-   - **HumanEval:** Năng lực lập trình và sinh mã nguồn Python chuẩn xác.
+Theo trực giác, việc giữ nguyên <InlineMath formula="W_0" /> và chỉ cộng một lượng biến thiên <InlineMath formula="\Delta W" /> siêu nhỏ ở các tầng chiếu sẽ giúp bảo toàn tri thức nền. Thế nhưng trên thực tế, mô hình vẫn bị **quên thảm họa (Catastrophic Forgetting)** — tri thức cũ và năng lực reasoning cứ thế "bốc hơi" dần qua từng vòng fine-tune liên tiếp.
 
-| Phương pháp | Tri thức tổng quát gốc (MMLU, TruthfulQA, HellaSwag) | Năng lực toán mới (GSM8K) | Năng lực code mới (HumanEval) |
-| :--- | :--- | :--- | :--- |
-| **Base Model (Chưa fine-tune)** | **68.2%** *(Nguyên bản)* | ~52.0% | ~60.0% |
-| **LoRA tiêu chuẩn (Sau fine-tune)** | **53.4%** *(Bị quên tri thức gốc nặng nề)* | 78.5% *(Tăng)* | 71.0% *(Tăng)* |
-| **SDC-LoRA (Sau fine-tune)** | **67.8%** *(Bảo toàn >99% tri thức gốc)* | **79.2%** *(Tăng vượt trội)* | **72.4%** *(Tăng vượt trội)* |
+**Câu hỏi đặt ra:** Tại sao một lượng cập nhật <InlineMath formula="\Delta W" /> siêu nhỏ lại có thể làm suy giảm tri thức khổng lồ được tích lũy từ giai đoạn pre-training? Tri thức gốc thực sự được lưu giữ ở đâu bên trong ma trận <InlineMath formula="W_0" />, và LoRA đã vô tình làm lệch những chiều biểu diễn nhạy cảm nào?
 
-**Tóm lược kết quả:** Trong khi LoRA thông thường khiến điểm số tổng quát (MMLU, TruthfulQA, HellaSwag) bị sụt giảm nghiêm trọng sau khi học thêm các task mới, **SDC-LoRA** bảo toàn trọn vẹn nền tảng tri thức cũ mà vẫn giữ vững hoặc nâng cao chất lượng giải toán (GSM8K) và viết code (HumanEval).
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Low-Dimensional Manifold and Representation Directions
+
+Để hiểu tại sao LoRA gây ra hiện tượng quên tri thức, trước hết chúng ta cần làm rõ cách mô hình ngôn ngữ lớn (LLM) lưu trữ và tổ chức thông tin trong **không gian tiềm ẩn (latent space)**.
+
+Nhiều nghiên cứu về lý thuyết biểu diễn và khả năng diễn giải mô hình đã chỉ ra hai tính chất nền tảng:
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc Không gian Tiềm ẩn của LLM"
+  root={{
+    title: 'Latent Space (LLM)',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Low-Dimensional Manifold',
+      detail: 'Mặc dù số chiều vector ẩn rất lớn (d = 4096 / 8192), tri thức thực tế chỉ phân bổ trên một đa tạp con có số chiều nội tại nhỏ hơn rất nhiều so với số chiều vật lý.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Linear Representation',
+      detail: 'Các khái niệm ngữ nghĩa trừu tượng, sự thật (facts) và chuỗi suy luận logic được mã hóa thành các hướng vector và không gian con tuyến tính cụ thể trong ma trận.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+---
+
+### Sự tập trung năng lượng phổ
+
+Trong giai đoạn tiền huấn luyện với hàng nghìn tỷ token văn bản, quá trình tối ưu nén thông tin bằng cách dồn đại đa số phương sai và tri thức quan trọng vào một số ít hướng chủ đạo.
+
+Hiện tượng này tạo ra **sự bất đẳng hướng phổ (Spectral Anisotropy)** rõ rệt trong ma trận trọng số gốc <InlineMath formula="W_0" />:
+
+<ConceptHierarchy
+  ariaLabel="Phân bổ Năng lượng trong Ma trận W0"
+  root={{
+    title: 'Parameter Space (W0)',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Principal Subspace (90% – 99%)',
+      detail: 'Trục xương sống lưu giữ năng lực cốt lõi (tri thức bách khoa, suy luận nền tảng). Cực kỳ nhạy cảm và dễ suy giảm nếu bị xoay lệch góc.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Minor Subspace (< 10%)',
+      detail: 'Gồm hàng nghìn chiều dư thừa mang năng lượng rất thấp. Đóng vai trò vùng đệm an toàn lý tưởng để học thêm task mới mà không tổn hại tri thức cũ.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Tuy nhiên, làm thế nào để nhìn thấy, phân tách ranh giới và định lượng năng lượng của từng không gian con bên trong ma trận trọng số <InlineMath formula="W_0 \in \mathbb{R}^{d \times k}" />? Một trong những cách tiếp cận phổ biến và tự nhiên nhất là sử dụng **Phân rã giá trị kỳ dị (Singular Value Decomposition - SVD)**.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Phân rã SVD trên Ma trận Gốc
+
+Một cách tự nhiên, chúng ta sử dụng **Phân rã giá trị kỳ dị (SVD)** để mổ xẻ cấu trúc không gian hình học và đo lường phân bố năng lượng bên trong ma trận trọng số gốc <InlineMath formula="W_0 \in \mathbb{R}^{d \times d}" /> của mô hình tiền huấn luyện:
+
+- **Dạng ma trận tổng quát:**
+  <BlockMath formula="W_0 = U \Sigma V^T = \underbrace{\begin{bmatrix} u_1 & u_2 & \dots & u_d \end{bmatrix}}_{U \in \mathbb{R}^{d \times d}} \underbrace{\begin{bmatrix} \sigma_1 & 0 & \dots & 0 \\ 0 & \sigma_2 & \dots & 0 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \dots & \sigma_d \end{bmatrix}}_{\Sigma \in \mathbb{R}^{d \times d}} \underbrace{\begin{bmatrix} v_1^T \\ v_2^T \\ \vdots \\ v_d^T \end{bmatrix}}_{V^T \in \mathbb{R}^{d \times d}} = \sum_{i=1}^d \sigma_i u_i v_i^T" />
+
+- **Ví dụ thay số cụ thể với ma trận 5 chiều (<InlineMath formula="d = 5" />):**
+  <BlockMath formula="W_0 = \underbrace{\begin{bmatrix} 1 & 0 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 0 & 1 \end{bmatrix}}_{U = [u_1, \dots, u_5]} \underbrace{\begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 0.2 \end{bmatrix}}_{\Sigma = \operatorname{diag}(\mathbf{10}, \mathbf{8}, 1, 0.5, 0.2)} \underbrace{\begin{bmatrix} 1 & 0 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 0 & 1 \end{bmatrix}^T}_{V^T = [v_1, \dots, v_5]^T}" />
+
+<ConceptHierarchy
+  ariaLabel="Thành phần Phân rã SVD của Ma trận W0"
+  root={{
+    title: <InlineMath formula="W_0" />,
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="1.\ U \text{ (Left Vectors)}" />,
+      detail: 'Không gian biểu diễn đầu ra: định hình và chuyển tiếp vector đặc trưng lên các tầng kế tiếp.',
+      tone: 'violet',
+    },
+    {
+      title: <InlineMath formula="2.\ \Sigma \text{ (Singular Values)}" />,
+      detail: 'Thước đo năng lượng phổ: giá trị kỳ dị càng lớn thể hiện hướng biểu diễn càng quan trọng.',
+      tone: 'amber',
+    },
+    {
+      title: <InlineMath formula="3.\ V \text{ (Right Vectors)}" />,
+      detail: 'Không gian đặc trưng đầu vào: tiếp nhận, bóc tách và phân tích tín hiệu đầu vào x.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Dựa vào năng lượng phổ <InlineMath formula="\Sigma = \operatorname{diag}(\mathbf{10}, \mathbf{8}, 1, 0.5, 0.2)" />, toàn bộ không gian tham số được phân rã thành hai ma trận thành phần:
+
+- **Không gian con chủ đạo (Principal Subspace, top 2 chiều — lưu giữ tri thức cốt lõi):**
+  <BlockMath formula="W_{0, \text{principal}} = \sum_{i=1}^2 \sigma_i u_i v_i^T = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \end{bmatrix} \quad (\approx 99.2\% \text{ energy})" />
+  <BlockMath formula="W_{0, \text{minor}} = \sum_{i=3}^5 \sigma_i u_i v_i^T = \begin{bmatrix} 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 0.2 \end{bmatrix} \quad (< 1\% \text{ energy})" />
+
+---
+
+Nhiều công trình nghiên cứu về biểu diễn tri thức trong LLM đã xác nhận: đại đa số tri thức nền tảng và năng lực suy luận cốt lõi được lưu trữ tập trung ở **Principal Subspace**. Do đó, để thích ứng với tác vụ mới mà không làm suy giảm tri thức cũ, nguyên tắc thiết kế then chốt là **hạn chế tối đa việc cập nhật hoặc làm biến dạng các hướng trong Principal Subspace**, đồng thời tận dụng triệt để **Minor Subspace** làm vùng đệm an toàn để nạp tri thức mới.
+
+Thế nhưng trong thực tế fine-tune với LoRA tiêu chuẩn, liệu lượng cập nhật <InlineMath formula="\Delta W" /> có thực sự nằm yên trong Minor Subspace như chúng ta kỳ vọng?
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Khởi tạo LoRA trong Không gian SVD
+
+Trong lý thuyết SVD, một lượng cập nhật rank thấp <InlineMath formula="r" /> được biểu diễn dưới dạng 3 ma trận:
+
+<BlockMath formula="\Delta W = U_r \Sigma_r V_r^T" />
+
+Tuy nhiên, việc duy trì 3 ma trận riêng biệt trong suốt quá trình huấn luyện sẽ làm tăng độ phức tạp và không tương thích với pipeline tính toán 2 tầng của Transformer. 
+
+Để giữ nguyên cấu trúc gọn nhẹ của LoRA, chúng ta hấp thụ ma trận giá trị kỳ dị <InlineMath formula="\Sigma_r" /> vào hai phía (hoặc chia đều qua <InlineMath formula="\sqrt{\Sigma_r}" />) để quy đổi từ dạng 3 ma trận SVD về tích của 2 ma trận <InlineMath formula="B \cdot A" />:
+
+<BlockMath formula="\Delta W = \underbrace{(U_r \sqrt{\Sigma_r})}_{B \in \mathbb{R}^{d \times r}} \cdot \underbrace{(\sqrt{\Sigma_r} V_r^T)}_{A \in \mathbb{R}^{r \times k}} = B \cdot A" />
+
+Để mô hình không bị xáo trộn ngay khi bắt đầu tinh chỉnh, LoRA thiết lập ma trận <InlineMath formula="B = 0" /> (hoặc hệ số khởi tạo bằng <InlineMath formula="0" />) trong khi <InlineMath formula="A" /> được định hướng theo các vector cơ sở của **Minor Subspace**:
+
+<BlockMath formula="\Delta W_{\text{init}} = B_{\text{init}} \cdot A = 0 \cdot A = 0 \implies W = W_0 + \Delta W_{\text{init}} = W_0" />
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc Trọng số Khi Khởi tạo LoRA"
+  root={{
+    title: <InlineMath formula="W = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 0.2 \end{bmatrix}" />,
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="1.\ W_0 = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 0.2 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-sm font-black uppercase tracking-wider text-current">FROZEN</strong>
+          <span className="mt-1 block text-xs leading-relaxed opacity-85">Lưu giữ 100% tri thức gốc ở cả Principal lẫn Minor Subspace.</span>
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: <InlineMath formula="2.\ \Delta W = \begin{bmatrix} 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-sm font-black uppercase tracking-wider text-current">Fine-tune</strong>
+          <span className="mt-1 block text-xs leading-relaxed opacity-85">Khởi tạo B = 0, hoàn toàn chưa gây ra hiện tượng drift nào.</span>
+        </span>
+      ),
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Theo kỳ vọng lý tưởng, trong suốt quá trình fine-tune, các bước cập nhật gradient sẽ chỉ đẩy <InlineMath formula="\Delta W = B \cdot A" /> phát triển bên trong **Minor Subspace** (vùng đệm an toàn) để học bài toán mới.
+
+Thế nhưng khi quan sát thực tế trong không gian SVD, điều gì thực sự xảy ra với các vector cơ sở?
+
+---
+
+### Giả thuyết Phân tách Không gian
+
+Từ quan sát rằng tri thức nền tảng nằm gần như trọn vẹn ở **Principal Subspace**, một ý tưởng kiến trúc tự nhiên được đặt ra:
+
+> **Giả thuyết:** Thay vì fine-tune LoRA ngẫu nhiên, ta có thể tách minor subspace sang LoRA để finetune và giữ lại phần principal frozen:
+
+<ConceptHierarchy
+  ariaLabel="Giả thuyết Phân tách Không gian Ma trận W0"
+  root={{
+    title: <InlineMath formula="W_0 = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 0.2 \end{bmatrix}" />,
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="1.\ W_{0, \text{principal}} = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-sm font-black uppercase tracking-wider text-current">FROZEN</strong>
+          <span className="mt-1 block text-xs leading-relaxed opacity-85">Giữ nguyên và khóa chặt 99.2% năng lượng tri thức cốt lõi.</span>
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: <InlineMath formula="2.\ W_{0, \text{minor}} \to \Delta W = \begin{bmatrix} 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & \mathbf{1} & 0 & 0 \\ 0 & 0 & 0 & \mathbf{0.5} & 0 \\ 0 & 0 & 0 & 0 & \mathbf{0.2} \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-sm font-black uppercase tracking-wider text-current">Fine-tune</strong>
+          <span className="mt-1 block text-xs leading-relaxed opacity-85">Copy sang LoRA để học và cập nhật bài toán mới.</span>
+        </span>
+      ),
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Theo kỳ vọng lý tưởng, cách phân tách này sẽ giúp các bước cập nhật gradient chỉ vận động bên trong **Minor Subspace** (vùng đệm an toàn) mà không thể chạm đến tri thức gốc.
+
+Thế nhưng khi quan sát gradient và các vector cơ sở trong quá trình huấn luyện thực tế, điều gì thực sự xảy ra?
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Hiện tượng Singular-Subspace Drift
+
+Mặc dù chúng ta mong muốn giới hạn cập nhật trong Minor Subspace, nhưng hàm mất mát của tác vụ mới <InlineMath formula="\mathcal{L}_{\text{task}}" /> và gradient <InlineMath formula="\nabla_W \mathcal{L}" /> trong quá trình huấn luyện là **hoàn toàn tự do**:
+
+- Gradient liên tục tạo ra các thành phần chiếu lên **Principal Subspace** (nơi chứa 99.2% tri thức cốt lõi).
+- Giả sử trong quá trình fine-tune, ma trận cập nhật <InlineMath formula="\Delta W = B \cdot A" /> vừa học bài toán mới (thành phần 3.0 ở Minor Subspace), vừa phát sinh thành phần trôi dạt ngoài ý muốn (giá trị 4.0 rò rỉ sang Principal Subspace):
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc Trọng số Khi LoRA Bị Trôi Dạt (Singular-Subspace Drift)"
+  root={{
+    title: <InlineMath formula="W = W_0 + \Delta W = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ \mathbf{4} & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & \mathbf{3} & 0 & 0.2 \end{bmatrix}" />,
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="1.\ W_0 = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 0.2 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-sm font-black uppercase tracking-wider text-current">FROZEN</strong>
+          <span className="mt-1 block text-xs leading-relaxed opacity-85">Tri thức gốc được đóng băng cố định.</span>
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: <InlineMath formula="2.\ \Delta W = \begin{bmatrix} 0 & 0 & 0 & 0 & 0 \\ \mathbf{4} & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & \mathbf{3} & 0 & 0 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-sm font-black uppercase tracking-wider text-current">Fine-tune (Drift)</strong>
+          <span className="mt-1 block text-xs leading-relaxed opacity-85">Rò rỉ thành phần 4.0 vào Principal Subspace.</span>
+        </span>
+      ),
+      tone: 'amber',
+    },
+  ]}
+/>
+
+**Phân rã SVD mới của ma trận <InlineMath formula="W = U' \Sigma' V'^T" />:**
+
+Sự xuất hiện của thành phần cập nhật 4.0 trong không gian chủ đạo làm xoay chuyển toàn bộ hệ trục vector kỳ dị:
+
+<BlockMath formula="W = \underbrace{\begin{bmatrix} 0.904 & -0.428 & 0 & 0 & 0 \\ 0.428 & 0.904 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 0 & 1 \end{bmatrix}}_{U' = [u_1', \dots, u_5']} \underbrace{\begin{bmatrix} \mathbf{11.46} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{6.98} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 3.01 \end{bmatrix}}_{\Sigma' = \operatorname{diag}(\sigma_1', \dots, \sigma_5')} \underbrace{\begin{bmatrix} 0.988 & -0.154 & 0 & 0 & 0 \\ 0.154 & 0.988 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 0 & 1 \end{bmatrix}^T}_{V'^T = [v_1', \dots, v_5']^T}" />
+
+- **Độ trôi dạt ở không gian đầu vào <InlineMath formula="V" />:**
+  <BlockMath formula="v_1' \approx \begin{bmatrix} 0.988 \\ 0.154 \\ 0 \\ 0 \\ 0 \end{bmatrix} \neq \begin{bmatrix} 1 \\ 0 \\ 0 \\ 0 \\ 0 \end{bmatrix} \implies \theta_V = \arccos(v_1^T v_1') \approx 8.9^\circ" />
+  <BlockMath formula="u_1' \approx \begin{bmatrix} 0.904 \\ 0.428 \\ 0 \\ 0 \\ 0 \end{bmatrix} \neq \begin{bmatrix} 1 \\ 0 \\ 0 \\ 0 \\ 0 \end{bmatrix} \implies \theta_U = \arccos(u_1^T u_1') \approx 25.3^\circ" />
+
+**Hậu quả:** Dù khởi tạo LoRA trong Minor Subspace, các bước cập nhật gradient thực tế vẫn dần trôi dạt và xâm lấn sang Principal Subspace (hiện tượng **Singular-subspace Drift - SD**). Sự bẻ lệch hệ trục <InlineMath formula="U" /> và <InlineMath formula="V" /> làm biến dạng cấu trúc tri thức gốc, trực tiếp gây ra hiện tượng **Catastrophic Forgetting** (quên lãng thảm khốc) trên các năng lực tổng quát.
+
+<LessonImage
+  assetPath="research-papers/02-singular-subspace-drift-paper.png"
+  alt="Biểu đồ phân bố năng lượng chiếu của LoRA trong các không gian con kỳ dị theo bài báo SDC-LoRA (ACL 2026)"
+  caption="Hiện tượng Singular-subspace Drift (SD) trong các phương pháp PEFT thông thường: Năng lượng cập nhật bị trôi dạt và áp đảo ở Principal Subspace."
+  aspectRatio="21 / 9"
+/>
+
+**Trạng thái khởi tạo (Hình trái):** LoRA được khởi tạo tập trung vào **Minor Subspace**, thể hiện qua đỉnh năng lượng chiếu tập trung cao vượt trội ở vùng Minor trong khi vùng Principal gần như bằng 0.
+
+**Quá trình trôi dạt khi fine-tuning (Hình giữa & phải):** Dưới tác động tự do của gradient khi huấn luyện bài toán mới, các bước cập nhật dần bị lệch hướng và rò rỉ sang **Principal Subspace** (khung đỏ bên phải). Năng lượng tích lũy tại Principal Subspace tăng vọt lên mức áp đảo, làm xoay trục hệ vector kỳ dị và trực tiếp phá hủy tri thức cũ.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Cơ chế SDC-LoRA
+
+Để giải quyết triệt để hiện tượng trôi dạt không gian kỳ dị, bài báo đề xuất **SDC-LoRA (Singular-subspace Drift Controlled LoRA)** với cơ chế **Hiệu chuẩn Phổ (Spectral Calibration)**:
+
+Thay vì để gradient tự do cập nhật mọi hướng, SDC-LoRA đưa vào hệ số suy giảm <InlineMath formula="\gamma_{\text{sc}} \in (0, 1)" /> (thường chọn <InlineMath formula="\gamma_{\text{sc}} = 0.05" />) để **hãm tỷ lệ cập nhật** dọc theo các hướng Principal Subspace của ma trận gốc <InlineMath formula="W_0" />:
+  <BlockMath formula="\Delta W_{\text{SDC}} = \gamma_{\text{sc}} \cdot \Delta W_{\text{principal}} + \Delta W_{\text{minor}}" />
+
+Áp dụng hiệu chuẩn <InlineMath formula="\gamma_{\text{sc}} = 0.05" /> vào lượng biến thiên <InlineMath formula="\Delta W" /> ở ví dụ trước, thành phần nhiễu ở Principal Subspace giảm xuống trong khi lượng cập nhật ở minor subpsace thì hoàn toàn giữ nguyên:
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc Trọng số Khi Áp Dụng Cơ Chế SDC-LoRA (Spectral Calibration)"
+  root={{
+    title: <InlineMath formula="W_{\text{SDC}} = W_0 + \Delta W_{\text{SDC}} = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ \mathbf{0.2} & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & \mathbf{3} & 0 & 0.2 \end{bmatrix}" />,
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="1.\ W_0 = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 0.2 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-sm font-black uppercase tracking-wider text-current">FROZEN</strong>
+          <span className="mt-1 block text-xs leading-relaxed opacity-85">Tri thức gốc được đóng băng cố định.</span>
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: <InlineMath formula="2.\ \Delta W_{\text{SDC}} = \begin{bmatrix} 0 & 0 & 0 & 0 & 0 \\ \mathbf{0.2} & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & \mathbf{3} & 0 & 0 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-sm font-black uppercase tracking-wider text-current">Spectral Calibrated</strong>
+          <span className="mt-1 block text-xs leading-relaxed opacity-85">Triệt tiêu 95% nhiễu trôi dạt (từ 4.0 về 0.2).</span>
+        </span>
+      ),
+      tone: 'emerald',
+    },
+  ]}
+/>
+
+- **Zero Inference Overhead:** Cơ chế hiệu chuẩn phổ <InlineMath formula="\gamma_{\text{sc}}" /> chỉ can thiệp vào các bước cập nhật gradient trong lúc huấn luyện. Khi hoàn tất fine-tune, bộ trọng số LoRA được đóng băng cố định và cộng gộp trực tiếp vào ma trận gốc (<InlineMath formula="W_{\text{final}} = W_0 + B \cdot A" />), hoàn toàn không làm phát sinh thêm bất kỳ phép tính phức tạp, bộ nhớ đệm hay độ trễ nào khi đưa vào vận hành suy luận thực tế.
+
+<LessonImage
+  assetPath="research-papers/03-sdc-lora-controlled-drift-paper.png"
+  alt="Biểu đồ phân bố năng lượng chiếu của phương pháp SDC-LoRA theo bài báo (ACL 2026)"
+  caption="Cơ chế SDC-LoRA (No SD!): Hiệu chuẩn phổ giúp giữ vững năng lượng cập nhật tại Minor Subspace và bảo vệ hoàn toàn Principal Subspace."
+  aspectRatio="21 / 9"
+/>
+
+**Trạng thái khởi tạo (Hình trái):** Tương tự các phương pháp PEFT thông thường, LoRA được khởi tạo ban đầu với phần lớn năng lượng tập trung tại **Minor Subspace**.
+
+**Quá trình fine-tuning với SDC-LoRA (Hình giữa & phải):** Nhờ hệ số hiệu chuẩn <InlineMath formula="\gamma_{\text{sc}}" />, thành phần gradient tràn vào Principal Subspace bị thu hẹp tối đa (mũi tên đỏ ngắn lại). Năng lượng cập nhật vẫn chiếm ưu thế trọn vẹn ở **Minor Subspace** (khung đỏ bên phải), hiện tượng trôi dạt (Singular-subspace Drift) bị triệt tiêu hoàn toàn (**No SD!**).
+
+</MdxPage>

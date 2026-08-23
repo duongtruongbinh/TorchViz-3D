@@ -21,6 +21,9 @@ export const SHARED_LEARNING_MDX_COMPONENT_NAMES = [
   'EquationCallout',
   'CodeLabStep',
   'InteractiveStepper',
+  'Mermaid',
+  'MermaidDiagram',
+  'Flowchart',
 ] as const;
 
 export const REFERENCE_AUTHORED_MDX_COMPONENT_NAMES = [

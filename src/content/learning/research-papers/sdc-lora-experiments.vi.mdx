@@ -1,0 +1,226 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sdc-lora-experiments',
+  locale: 'vi',
+  title: 'Experiment Results',
+  headings: [
+    'Thiết lập Thực nghiệm',
+    'Hai Trục Đánh giá Độc lập',
+    'Benchmark Giải Toán (GSM8K)',
+    'Benchmark Viết Mã Nguồn (HumanEval)',
+    'Ablation Study: Vai trò của Spectral Calibration',
+    'Phân tích Tính toán & Tài nguyên',
+  ],
+  keywords: ['SDC-LoRA', 'Continual Learning', 'LLaMA-3.1', 'Qwen2.5', 'MetaMathQA', 'CodeFeedback', 'MMLU', 'GSM8K', 'HumanEval', 'Ablation Study', 'ACL 2026'],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+### Thiết lập Thực nghiệm
+
+Để kiểm chứng toàn diện tính hiệu quả của **SDC-LoRA**, nhóm tác giả tiến hành đánh giá thực nghiệm trên hai mô hình nền tảng mã nguồn mở phổ biến:
+- **LLaMA-3.1-8B-Instruct** (Meta AI)
+- **Qwen2.5-7B-Chat** (Alibaba Cloud)
+
+Quá trình fine-tune được thực hiện với rank <InlineMath formula="r = 16" />, hệ số tỉ xích <InlineMath formula="\alpha = 32" />, chiều khống chế không gian chủ đạo <InlineMath formula="S = 256" />, gắn adapter vào toàn bộ các tầng chiếu tuyến tính: <InlineMath formula="W_q, W_k, W_v, W_o, W_{\text{gate}}, W_{\text{in}}, W_{\text{out}}" />.
+
+> **Ý nghĩa của Rank (<InlineMath formula="r" />) và Hệ số Tỉ xích (<InlineMath formula="\alpha" />):**
+> <BlockMath formula="h = \underbrace{W_0 x}_{\text{Backbone gốc}} + \underbrace{\frac{\alpha}{r} (B \cdot A x)}_{\text{Nhánh LoRA}}" />
+> - **Rank (<InlineMath formula="r = 16" />):** Chiều của không gian con cổ chai (<InlineMath formula="B \in \mathbb{R}^{d \times r}, A \in \mathbb{R}^{r \times k}" />), quy định dung lượng biểu diễn của adapter.
+> - **Alpha (<InlineMath formula="\alpha = 32" />):** Hệ số tỉ xích giúp ổn định độ lớn gradient khi người dùng thay đổi rank <InlineMath formula="r" /> mà không phải chỉnh lại Learning Rate.
+> - **Tỷ số khuếch đại (<InlineMath formula="\frac{\alpha}{r} = \frac{32}{16} = 2.0" />):** Đóng vai trò như "nút vặn âm lượng", khuếch đại tín hiệu học được từ nhánh LoRA gấp đôi so với nhánh backbone gốc cố định.
+
+**Các phương pháp đối chứng (Baselines):**
+- **LoRA tiêu chuẩn** (Hu et al., 2022)
+- **MiLoRA** (Wang et al., 2025a) — Khởi tạo trong minor subspace
+- **PiSSA** (Meng et al., 2024) — Khởi tạo từ các singular vector chủ đạo
+- **LoRA-One** (Zhang et al., 2025) — Khởi tạo xấp xỉ gradient 1 bước
+- **CorDA** (Yang et al., 2024b) — Phân rã dựa trên ma trận hiệp phương sai kích hoạt
+- **LoRA-Null** (Tang et al., 2025) — Cập nhật trong không gian null-space
+
+---
+
+### Quy trình Huấn luyện & Đánh giá Thực nghiệm
+
+Nhóm tác giả thiết lập hai kịch bản thích ứng miền (**Domain Adaptation**) độc lập nhằm kiểm tra xem mô hình khi học một kỹ năng chuyên biệt mới thì có bị đánh đổi (quên) tri thức nền tảng hay không:
+
+- **Kịch bản 1 — Chuyên môn hóa Giải toán (Math Reasoning):**
+  - *Dữ liệu huấn luyện:* **MetaMathQA** (100.000 mẫu bài toán tư duy nhiều bước).
+  - *Đánh giá năng lực mới:* **GSM8K** (đo khả năng giải toán đố qua direct prompting).
+  - *Đánh giá độ quên tri thức cũ:* **MMLU**, **TruthfulQA**, **HellaSwag**.
+
+- **Kịch bản 2 — Chuyên môn hóa Viết mã nguồn (Code Generation):**
+  - *Dữ liệu huấn luyện:* **CodeFeedback** (100.000 mẫu hướng dẫn lập trình và sửa lỗi).
+  - *Đánh giá năng lực mới:* **HumanEval** (tỷ lệ sinh code Python vượt qua bài test pass@1).
+  - *Đánh giá độ quên tri thức cũ:* **MMLU**, **TruthfulQA**, **HellaSwag**.
+
+---
+
+### Hai Trục Đánh giá Độc lập
+
+1. **Trục Năng lực Chuyên biệt Mới (Downstream Task):** Đo mức độ cải thiện trên bài toán đích (**GSM8K** và **HumanEval**).
+2. **Trục Bảo toàn Tri thức Tổng quát Gốc (Pretrained Retention):** Đo lường trên các benchmark hoàn toàn không có trong tập huấn luyện (**MMLU 57 ngành**, **TruthfulQA chống ảo giác**, **HellaSwag suy luận logic**).
+
+<LessonImage
+  assetPath="research-papers/04-figure-3-energy-ratio-trend.png"
+  alt="Hình 3: Tiến hóa của tỷ lệ năng lượng tương phản Rt và điểm benchmark MMLU, TruthfulQA, HellaSwag theo số bước fine-tune"
+  caption="Hình 3: (a) Xu hướng dâng cao của tỷ lệ năng lượng tương phản Rt hướng về Principal Subspace ở các biến thể LoRA; (b, c, d) Sự suy giảm hiệu năng tri thức tổng quát tương ứng trên MMLU, HellaSwag và TruthfulQA. SDC-LoRA (đường cam) ức chế hoàn toàn sự dâng cao này."
+  aspectRatio="21 / 9"
+/>
+
+> **Tỷ lệ Năng lượng Tương phản (<InlineMath formula="R_t" />) và Khởi tạo ban đầu (<InlineMath formula="R_0" />):**
+> <BlockMath formula="R_t = \frac{E_{p,t} - E_{m,t}}{E_{p,t} + E_{m,t}} \in [-1, 1]" />
+> - **<InlineMath formula="E_{p,t}" /> và <InlineMath formula="E_{m,t}" />:** Năng lượng cập nhật chiếu lên **Principal Subspace** (vùng tri thức gốc) và **Minor Subspace** (vùng bài toán mới).
+> - **<InlineMath formula="R_0 = 1" /> (PiSSA):** Toàn bộ năng lượng khởi tạo dồn vào Principal Subspace, gây tổn hại tri thức cũ ngay từ bước đầu.
+> - **<InlineMath formula="R_0 \approx 0" /> (LoRA, LoRA-One):** Cân bằng giữa hai không gian con.
+> - **<InlineMath formula="R_0 = -1" /> (MiLoRA, SDC-LoRA):** Khởi tạo <InlineMath formula="100\%" /> trong Minor Subspace (<InlineMath formula="E_{p,0} = 0" />), cách ly hoàn toàn khỏi tri thức gốc.
+
+**Phân tích từ Hình 3:**
+- **PiSSA:** Khởi đầu với <InlineMath formula="R_0 = 1" /> và duy trì mức năng lượng cực đại ở Principal Subspace xuyên suốt quá trình huấn luyện → sụt giảm điểm số nặng nề nhất trên cả 3 benchmark.
+- **LoRA, LoRA-One, MiLoRA:** Dù bắt đầu với <InlineMath formula="R_0 \le 0" /> nhưng <InlineMath formula="R_t" /> liên tục tăng đơn điệu theo thời gian (Singular-subspace Drift) → tri thức tổng quát bị xói mòn dần.
+- **SDC-LoRA (Cột cam):** Ghìm <InlineMath formula="R_t" /> ổn định ở mức âm sâu (<InlineMath formula="R_t \approx -0.7" /> ở hình a), nhờ đó hạn chế tối đa việc quên tri thức, duy trì độ chính xác (Accuracy) trên các biểu đồ (b, c, d) tiệm cận gần nhất với mốc ban đầu của Base Model (đường nét đứt màu đỏ).
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Benchmark Giải Toán (GSM8K)
+
+Kết quả fine-tune trên tập dữ liệu **MetaMathQA (100k mẫu)** và đánh giá trên **GSM8K** cùng các benchmark tri thức gốc (trung bình qua 5 lần chạy độc lập):
+
+| Mô hình | Phương pháp | Tham số train (%) | GSM8K (Toán) | MMLU (Tri thức) | TruthfulQA (Chân thực) | HellaSwag (Suy luận) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **LLaMA-3.1-8B** | LoRA | 33M (0.40%) | 78.76% | 58.80% | 46.14% | 56.18% |
+| | MiLoRA | 33M (0.40%) | 78.95% | 59.07% | 47.12% | 57.03% |
+| | PiSSA | 33M (0.40%) | 79.20% | 42.64% | 31.95% | 51.98% |
+| | LoRA-One | 33M (0.40%) | 79.26% | 59.67% | 47.00% | 55.95% |
+| | CorDA | 33M (0.40%) | 79.15% | 61.23% | 48.28% | 57.36% |
+| | LoRA-Null | 33M (0.40%) | 79.07% | 60.27% | 47.73% | 57.11% |
+| | **SDC-LoRA (Ours)** | 33M (0.40%) | **79.38%** | **63.37%** *(+2.14)* | **49.57%** *(+1.29)* | **58.12%** *(+0.76)* |
+| **Qwen2.5-7B** | LoRA | 32M (0.41%) | 82.00% | 66.24% | 42.23% | 54.73% |
+| | MiLoRA | 32M (0.41%) | 81.74% | 68.32% | 42.59% | 56.46% |
+| | PiSSA | 32M (0.41%) | 80.74% | 46.12% | 33.54% | 48.97% |
+| | LoRA-One | 32M (0.41%) | 82.14% | 66.02% | 43.57% | 53.53% |
+| | CorDA | 32M (0.41%) | 81.47% | 68.35% | 44.03% | 56.38% |
+| | LoRA-Null | 32M (0.41%) | 82.05% | 67.67% | 45.21% | 54.31% |
+| | **SDC-LoRA (Ours)** | 32M (0.41%) | **82.50%** | **70.13%** *(+1.78)* | **47.37%** *(+2.16)* | **57.90%** *(+1.44)* |
+
+**Nhận xét:** 
+- **PiSSA:** Dù đạt kết quả tốt ở GSM8K nhưng làm sụt giảm nghiêm trọng tri thức gốc (MMLU chỉ còn 42.64% trên LLaMA-3.1 do cập nhật trực diện vào principal subspace).
+- **SDC-LoRA:** Vượt trội hơn tất cả các phương pháp trước đó trên cả 3 chỉ số chống quên (vượt phương pháp tốt thứ nhì CorDA từ **+1.29% đến +2.16%**), đồng thời đạt độ chính xác giải toán GSM8K cao nhất (**79.38%** trên LLaMA và **82.50%** trên Qwen).
+
+<LessonImage
+  assetPath="research-papers/05-figure-6-training-loss-steps.png"
+  alt="Hình 6: Đường cong Training Loss theo các bước huấn luyện trên tập MetaMathQA"
+  caption="Hình 6: Đường cong Training Loss trên MetaMathQA. Ở 100 bước đầu (First 100 steps), SDC-LoRA hội tụ tương đương các phương pháp khác; ở 2.000 bước cuối (Last 2k steps), SDC-LoRA đạt loss thấp và ổn định hơn."
+  aspectRatio="21 / 9"
+/>
+
+**Phân tích từ Hình 6 (Training Loss Curve):**
+- **100 bước đầu (First 100 steps):** Tốc độ giảm Loss ban đầu của SDC-LoRA diễn ra nhanh chóng và tương đương hoàn toàn với LoRA tiêu chuẩn cũng như MiLoRA, chứng minh việc bổ sung hệ số hiệu chuẩn <InlineMath formula="\gamma_{\text{sc}}" /> không hề làm chậm tốc độ học ban đầu.
+- **2.000 bước cuối (Last 2k steps):** SDC-LoRA duy trì đường cong Loss mượt mà, ổn định và chạm ngưỡng Loss thấp hơn các baselines, cho thấy mô hình tiếp thu bài toán mới rất sâu sắc mà không gặp hiện tượng mất ổn định gradient.
+
+---
+
+### Phân tích Đánh đổi Learning Rate (Hình 7)
+
+<LessonImage
+  assetPath="research-papers/06-figure-7-break-learning-rate-tradeoff.png"
+  alt="Hình 7: Phân tích sự tiến hóa Rt và quan hệ đánh đổi giữa GSM8K và điểm lưu giữ tri thức"
+  caption="Hình 7: (a) Tiến hóa của Rt trong quá trình fine-tune so với MiLoRA ở các mức learning rate; (b) Quan hệ GSM8K vs. điểm lưu giữ tri thức trung bình."
+  aspectRatio="3 / 4"
+/>
+
+**Nhận xét Chuyên sâu từ Hình 7:**
+
+1. **Tiến hóa của <InlineMath formula="R_t" /> theo Learning Rate (Hình a):**
+   - Khi tăng Learning Rate từ <InlineMath formula="2\text{e-}4" /> lên <InlineMath formula="5\text{e-}4" />, **MiLoRA** bị bùng nổ hiện tượng Drift nghiêm trọng: <InlineMath formula="R_t" /> tăng vọt lên vùng dương (<InlineMath formula="R_t > 0" />), chứng tỏ năng lượng cập nhật tràn mạnh sang Principal Subspace làm mất tri thức cũ nhanh hơn.
+   - Ngược lại, **SDC-LoRA** ghìm chặt <InlineMath formula="R_t" /> ở mức âm sâu (<InlineMath formula="R_t \approx -0.7" />) bất chấp learning rate tăng cao, chứng minh cơ chế Spectral Calibration có tính bền vững tuyệt đối trước việc tinh chỉnh siêu tham số.
+
+2. **Phá vỡ biên giới hạn Trade-off (Hình b):**
+   - Đường thẳng fit của **MiLoRA** thể hiện rõ sự đánh đổi luẩn quẩn: muốn tăng điểm toán GSM8K thì buộc phải chấp nhận điểm lưu giữ tri thức (Retention) sụt giảm.
+   - **SDC-LoRA (Hình thoi cam):** Nằm hoàn toàn ở góc trên cùng bên phải — bứt phá ra khỏi đường giới hạn trade-off, vừa đạt độ chính xác giải toán cao nhất vừa bảo tồn tri thức gốc ở mức cao vượt trội.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Benchmark Viết Mã Nguồn (HumanEval)
+
+Kết quả fine-tune trên tập dữ liệu **CodeFeedback (100k mẫu)** và đánh giá trên **HumanEval (pass@1)** cùng các benchmark tri thức gốc:
+
+| Mô hình | Phương pháp | Tham số train (%) | HumanEval (Code) | MMLU (Tri thức) | TruthfulQA (Chân thực) | HellaSwag (Suy luận) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **LLaMA-3.1-8B** | LoRA | 33M (0.40%) | 48.65% | 58.70% | 47.29% | 55.77% |
+| | MiLoRA | 33M (0.40%) | 51.71% | 58.18% | 49.33% | 55.79% |
+| | PiSSA | 33M (0.40%) | 49.76% | 52.67% | 41.16% | 52.39% |
+| | LoRA-One | 33M (0.40%) | 50.85% | 59.68% | 47.61% | 51.39% |
+| | CorDA | 33M (0.40%) | 51.14% | 60.54% | 49.18% | 56.12% |
+| | LoRA-Null | 33M (0.40%) | 51.47% | 59.67% | 48.42% | 55.81% |
+| | **SDC-LoRA (Ours)** | 33M (0.40%) | **52.80%** *(+1.09)* | **62.06%** *(+1.52)* | **50.47%** *(+1.14)* | **58.89%** *(+2.77)* |
+| **Qwen2.5-7B** | LoRA | 32M (0.41%) | 68.17% | 66.44% | 43.33% | 57.27% |
+| | MiLoRA | 32M (0.41%) | 69.51% | 66.15% | 43.33% | 56.33% |
+| | PiSSA | 32M (0.41%) | 69.27% | 61.32% | 43.70% | 55.02% |
+| | LoRA-One | 32M (0.41%) | 70.12% | 67.46% | 44.55% | 57.61% |
+| | CorDA | 32M (0.41%) | 69.38% | 67.49% | 44.32% | 56.41% |
+| | LoRA-Null | 32M (0.41%) | 69.86% | 66.73% | 43.81% | 57.15% |
+| | **SDC-LoRA (Ours)** | 32M (0.41%) | **70.98%** *(+0.86)* | **70.18%** *(+2.69)* | **46.51%** *(+1.96)* | **58.63%** *(+1.02)* |
+
+**Điểm nhấn quan sát:**
+- Trên tác vụ lập trình (Code Generation), sự phân hóa tri thức giữa miền ngôn ngữ lập trình và tri thức tự nhiên là rất lớn. Các phương pháp LoRA truyền thống bị mất mát từ 10% đến 15% năng lực ngôn ngữ.
+- **SDC-LoRA** duy trì hiệu năng sinh code dẫn đầu (**52.80%** trên LLaMA và **70.98%** trên Qwen), trong khi nâng cao điểm MMLU lên **70.18%** (vượt CorDA +2.69%), khẳng định tính đa dụng trên nhiều miền dữ liệu khác nhau.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Ablation Study: Vai trò của Spectral Calibration
+
+Nhóm tác giả tiến hành thí nghiệm bóc tách (**Ablation Study**) trên LLaMA-3.1-8B (MetaMathQA) để kiểm chứng cơ chế điều khiển năng lượng (PSECL) và hệ số hiệu chuẩn phổ <InlineMath formula="\gamma_{\text{sc}}" />:
+
+| Cấu hình | Phương pháp | PSECL | SC | GSM8K (Toán) | MMLU | TruthfulQA | HellaSwag |
+| :--- | :--- | :---: | :---: | :--- | :--- | :--- | :--- |
+| **Rank r = 16** | MiLoRA (Baseline) | ✗ | ✗ | 78.95% | 59.07% | 47.12% | 57.03% |
+| | SDC-LoRA (<InlineMath formula="\gamma = 0" />) | ✓ | ✗ | 78.62% | **63.51%** | **50.21%** | **58.26%** |
+| | SDC-LoRA (Random <InlineMath formula="\gamma" />) | ✓ | ✗ | 79.27% | 60.21% | 47.47% | 57.71% |
+| | **SDC-LoRA (Ours, <InlineMath formula="\gamma_{\text{sc}}" />)** | ✓ | ✓ | **79.38%** | 63.37% | 49.57% | 58.12% |
+| **Rank r = 2** | MiLoRA (Baseline) | ✗ | ✗ | 78.86% | 61.16% | 48.33% | 58.17% |
+| *(Rank cực hẹp)* | SDC-LoRA (<InlineMath formula="\gamma = 0" />) | ✓ | ✗ | 77.19% *(Tụt dốc)* | **63.67%** | 50.03% | **58.51%** |
+| | SDC-LoRA (Random <InlineMath formula="\gamma" />) | ✓ | ✗ | 78.58% | 61.32% | 49.69% | 58.18% |
+| | **SDC-LoRA (Ours, <InlineMath formula="\gamma_{\text{sc}}" />)** | ✓ | ✓ | **78.65%** | 63.41% | **50.23%** | 58.36% |
+
+**Ý nghĩa từ thí nghiệm:**
+1. **Nếu đặt <InlineMath formula="\gamma = 0" /> (Khóa hoàn toàn Principal Subspace):** Điểm chống quên rất cao, nhưng ở cấu hình rank hẹp (<InlineMath formula="r = 2" />), mô hình bị giới hạn năng lực học tập nghiêm trọng khiến điểm toán GSM8K rơi từ 78.65% xuống còn 77.19%.
+2. **Nếu chọn Random <InlineMath formula="\gamma" />:** Không ngăn được hiện tượng Drift, điểm MMLU suy giảm đáng kể.
+3. **Hệ số hiệu chuẩn phổ <InlineMath formula="\gamma_{\text{sc}}" />:** Tạo ra điểm cân bằng tối ưu toán học giữa việc tiếp thu bài toán mới và bảo tồn tri thức gốc.
+
+<LessonImage
+  assetPath="research-papers/07-figure-4-gamma-strategies-evolution.png"
+  alt="Hình 4: Tiến hóa của Rt trong quá trình fine-tuning dưới các chiến lược gamma khác nhau"
+  caption="Hình 4: Tiến hóa của Rt dưới các chiến lược gamma khác nhau. SDC-LoRA (đường cam) ức chế đà tăng của Rt một cách ổn định, trong khi Random gamma (đường xanh lá) vẫn bị trôi dạt nhanh chóng tương tự MiLoRA."
+  aspectRatio="21 / 9"
+/>
+
+<LessonImage
+  assetPath="research-papers/08-figure-5-spectral-calibration-heatmap.png"
+  alt="Hình 5: Heatmap phân bố hệ số hiệu chuẩn phổ gamma_sc theo từng tầng và loại tham số"
+  caption="Hình 5: Heatmap phân bố hệ số hiệu chuẩn phổ gamma_sc theo từng tầng (Layer index) và loại tham số chiếu (Parameter type) trên MetaMath và CodeFeedback. Tầng nông và tầng sâu có gamma_sc nhỏ hơn (cần hãm mạnh hơn), chứng minh tính thích ứng động theo cấu trúc mô hình."
+  aspectRatio="21 / 9"
+/>
+
+---
+
+### Phân tích Tính toán & Tài nguyên
+
+So sánh chi phí huấn luyện trên MetaMathQA giữa LoRA tiêu chuẩn và SDC-LoRA:
+
+| Chỉ số tài nguyên | LoRA tiêu chuẩn | SDC-LoRA (Đề xuất) | Chênh lệch |
+| :--- | :--- | :--- | :--- |
+| **Thời gian huấn luyện** | 4h 37min | 4h 45min | +3% (Không đáng kể) |
+| **Bộ nhớ VRAM khởi tạo** | 15.08 GB | 16.93 GB | +1.85 GB (Tính SVD 1 bước ban đầu) |
+| **Bộ nhớ VRAM đỉnh khi Fine-tune** | 23.27 GB | 23.17 GB | **Gần như tương đương (Tiết kiệm hơn 0.1 GB)** |
+
+**Kết luận thực nghiệm:** SDC-LoRA khắc phục triệt để hiện tượng quên tri thức (Knowledge Forgetting) khi thích ứng miền chuyên biệt (Domain Adaptation) mà không phải đánh đổi độ chính xác của tác vụ mới và không làm gia tăng chi phí phần cứng khi triển khai thực tế.
+
+</MdxPage>

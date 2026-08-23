@@ -1,0 +1,277 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sdc-lora-insights',
+  locale: 'vi',
+  title: 'Key Insights',
+  headings: [
+    'Bản chất Hình học của Singular-subspace Drift',
+    'Nghịch lý Khởi tạo & Động lực học Huấn luyện',
+    'Spectral Calibration: Van Xả Áp Suất Toán Học',
+    'Ý nghĩa Kỹ thuật & Định hướng Tương lai',
+  ],
+  keywords: [
+    'SDC-LoRA Insights',
+    'Singular-subspace Drift',
+    'Spectral Calibration',
+    'Initialization Paradox',
+    'Capacity Bottleneck',
+    'Zero-Overhead Inference',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+### Bản chất Hình học của Singular-subspace Drift
+
+Tại sao một adapter LoRA chỉ chiếm **~0.1%** tổng số tham số lại có thể gây ra hiện tượng **quên lãng thảm khốc (Catastrophic Forgetting)** nghiêm trọng đến vậy trên các mô hình ngôn ngữ lớn?
+
+> **Căn nguyên Toán học:** Tri thức của mô hình tiền huấn luyện không phân bố đồng đều trên mọi hướng của ma trận trọng số <InlineMath formula="W_0 \in \mathbb{R}^{d \times k}" />, mà tập trung mật độ cao nhất tại **Principal Subspace** — không gian con được căng bởi các vector kỳ dị ứng với các giá trị kỳ dị lớn nhất:
+> <BlockMath formula="W_0 = \underbrace{U_p \Sigma_p V_p^T}_{\text{Principal Subspace}} + \underbrace{U_m \Sigma_m V_m^T}_{\text{Minor Subspace}}" />
+
+---
+
+### Cơ chế Xoay trục Hình học (Rotational Misalignment)
+
+Khi tiến hành fine-tuning bài toán mới với LoRA tiêu chuẩn, hàm mất mát <InlineMath formula="\mathcal{L}_{\text{new}}" /> chỉ phát tín hiệu tối ưu hóa cho tác vụ đích. Do không có bất kỳ ràng buộc định hướng nào đối với gradient, các bước cập nhật trọng số vô tình tạo ra tích vô hướng lớn chiếu lên các hướng kỳ dị chủ đạo:
+
+<Mermaid
+  caption="Lưu đồ Flowchart: Cơ chế rẽ nhánh từ Gradient tự do dẫn đến rò rỉ không gian kỳ dị và quên tri thức"
+  chart={`flowchart LR
+    A("Gradient tự do<br/>$\\nabla \\mathcal{L}_{\\text{new}}$") --> B("Chiếu lên<br/>ma trận $W_0$")
+    B --> C{"Tích vô hướng<br/>vào $U_p, V_p$?"}
+    C -->|Lớn / Rò rỉ| D("Xoay lệch hệ trục<br/>$(\\theta_U, \\theta_V)$")
+    D --> E("Quên lãng thảm khốc:<br/>Sụt giảm $\\Delta \\text{Acc}$!")
+    C -->|Triệt tiêu $\\gamma_{\\text{sc}}$| F("Bảo toàn tri thức<br/>gốc của $W_0$")
+`}
+/>
+
+- **Độ lệch góc xoay (<InlineMath formula="\theta_U, \theta_V" />):** Dù độ lớn tuyệt đối của <InlineMath formula="\Delta W" /> rất nhỏ, sự xoay lệch góc của các vector cơ sở <InlineMath formula="u_1 \to u_1'" /> (lên tới hơn <InlineMath formula="25^\circ" />) làm biến dạng hoàn toàn không gian biểu diễn đặc trưng (representation manifold).
+- **Hệ quả trực tiếp:** Các năng lực nền tảng như suy luận đa bước, ghi nhớ sự thật chuyên ngành (MMLU) và đối sánh logic (HellaSwag) bị suy thoái nhanh chóng ngay trong vài trăm bước huấn luyện đầu tiên.
+
+---
+
+### Quy luật Dâng cao Năng lượng Tương phản (<InlineMath formula="R_t" />)
+
+Theo dõi động lực học năng lượng xuyên suốt quá trình fine-tune cho thấy:
+
+| Hiện tượng | Diễn biến Năng lượng | Tác động lên Tri thức Gốc |
+| :--- | :--- | :--- |
+| **LoRA tiêu chuẩn** | <InlineMath formula="R_t" /> tăng đơn điệu từ <InlineMath formula="R_0 \le 0" /> lên vùng dương | Tri thức bị xói mòn liên tục theo số bước train |
+| **PiSSA** | <InlineMath formula="R_0 = 1" /> duy trì mức cực đại ở Principal | Phá hủy tri thức gốc nặng nề nhất ngay từ đầu |
+| **SDC-LoRA** | Ghìm chặt <InlineMath formula="R_t \approx -0.7" /> (vùng âm sâu) suốt quá trình | Bảo tồn nguyên vẹn cấu trúc manifold của mô hình gốc |
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Nghịch lý Khởi tạo (The Initialization Paradox)
+
+Một trong những phát hiện sâu sắc nhất của bài báo là sự đối lập hoàn toàn giữa mục tiêu **học nhanh tác vụ mới** và **bảo vệ tri thức đã học**:
+
+| Phương pháp | Bản chất Chiến lược Khởi tạo | Diễn biến & Đánh đổi |
+| :--- | :--- | :--- |
+| **PiSSA (Principal Init)** | Khởi tạo vào Top Singular Vectors (<InlineMath formula="R_0 = 1" />) | Hội tụ task mới cực nhanh nhưng xóa sổ tri thức cũ ngay từ bước 0 |
+| **MiLoRA (Minor Init)** | Khởi tạo vào Minor Subspace (<InlineMath formula="R_0 = -1" />) | An toàn lúc đầu, nhưng bị trôi dạt (Drift) sau vài trăm bước |
+| **SDC-LoRA (Controlled)** | Khởi tạo Minor (<InlineMath formula="R_0 = -1" />) + Khống chế phổ (<InlineMath formula="\gamma_{\text{sc}}" />) | **Vừa học tốt task mới, vừa triệt tiêu hoàn toàn hiện tượng Drift!** |
+
+---
+
+#### 1. PiSSA (Khởi tạo Không gian Chủ đạo — Principal Subspace)
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc ma trận khởi tạo của PiSSA"
+  root={{
+    title: <InlineMath formula="W_{\text{PiSSA}} = W_0 + \Delta W_{\text{init}}" />,
+    tone: 'red',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="W_{0, \text{residual}} = \begin{bmatrix} 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0.5 & 0 \\ 0 & 0 & 0 & 0 & 0.2 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-xs font-black uppercase tracking-wider text-rose-700">FROZEN (Mất 90% tri thức)</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-85">Chỉ giữ lại các giá trị kỳ dị nhỏ ở Minor. Toàn bộ Principal Subspace bị bốc tách sang LoRA.</span>
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: <InlineMath formula="\Delta W_{\text{init}} = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-xs font-black uppercase tracking-wider text-teal-700">TRAINABLE (R0 = 1)</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-85">Adapter nhận trọn vẹn Top Singular Values. Tối ưu cực nhanh cho task mới nhưng lập tức xóa sạch tri thức cũ!</span>
+        </span>
+      ),
+      tone: 'red',
+    },
+  ]}
+/>
+
+---
+
+#### 2. MiLoRA (Khởi tạo Không gian Phụ — Minor Subspace)
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc ma trận khởi tạo của MiLoRA"
+  root={{
+    title: <InlineMath formula="W_{\text{MiLoRA}} = W_0 + \Delta W_{\text{init}}" />,
+    tone: 'amber',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="W_{0, \text{residual}} = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-xs font-black uppercase tracking-wider text-teal-700">FROZEN (Giữ 90% tri thức)</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-85">Khóa an toàn các hướng chính yếu của Principal Subspace ở bước đầu t = 0.</span>
+        </span>
+      ),
+      tone: 'blue',
+    },
+    {
+      title: <InlineMath formula="\Delta W_{\text{init}} = \begin{bmatrix} 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & \mathbf{1} & 0 & 0 \\ 0 & 0 & 0 & \mathbf{0.5} & 0 \\ 0 & 0 & 0 & 0 & \mathbf{0.2} \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-xs font-black uppercase tracking-wider text-amber-700">TRAINABLE (R0 = -1)</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-85">Adapter khởi tạo ở Minor. Tuy nhiên khi train (t &gt; 0), gradient tự do không bị hãm sẽ gây xoay lệch hàng 1 và 2!</span>
+        </span>
+      ),
+      tone: 'amber',
+    },
+  ]}
+/>
+
+---
+
+#### 3. SDC-LoRA (Khởi tạo Minor + Khống chế Phổ — Controlled Subspace)
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc ma trận khởi tạo và huấn luyện của SDC-LoRA"
+  root={{
+    title: <InlineMath formula="W_{\text{SDC}} = W_{0, \text{principal}} + \Delta W_{\text{SDC}}(t)" />,
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="W_{0, \text{principal}} = \begin{bmatrix} \mathbf{10} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{8} & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-xs font-black uppercase tracking-wider text-blue-700">FROZEN (100% Bảo toàn)</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-85">Trục xương sống tri thức gốc được cố định tuyệt đối trong suốt quá trình tinh chỉnh.</span>
+        </span>
+      ),
+      tone: 'blue',
+    },
+    {
+      title: <InlineMath formula="\Delta W_{\text{SDC}} = \begin{bmatrix} \mathbf{\gamma_{\text{sc}} \cdot \delta_1} & 0 & 0 & 0 & 0 \\ 0 & \mathbf{\gamma_{\text{sc}} \cdot \delta_2} & 0 & 0 & 0 \\ 0 & 0 & \mathbf{1 + \delta_3} & 0 & 0 \\ 0 & 0 & 0 & \mathbf{0.5 + \delta_4} & 0 \\ 0 & 0 & 0 & 0 & \mathbf{0.2 + \delta_5} \end{bmatrix}" />,
+      detail: (
+        <span className="block text-center">
+          <strong className="block text-xs font-black uppercase tracking-wider text-teal-700">SPECTRAL CALIBRATION (γ_sc = 0.05)</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-85">Nhánh Principal bị hãm 95% (nhiễu ≈ 0), trong khi nhánh Minor học tự do 100% dung lượng task mới!</span>
+        </span>
+      ),
+      tone: 'teal',
+    },
+  ]}
+/>
+
+---
+
+### Tại sao Khởi tạo Minor Subspace đơn thuần là Chưa Đủ?
+
+Nhiều nghiên cứu trước đây (như MiLoRA) cho rằng chỉ cần khởi tạo adapter trong **Minor Subspace** (<InlineMath formula="R_0 = -1" />) là đã đủ cách ly tri thức. Tuy nhiên, bài báo SDC-LoRA đã chỉ ra lỗ hổng cốt tử:
+
+1. **Khởi tạo chỉ quyết định bước <InlineMath formula="t = 0" />:** Điểm xuất phát nằm ở Minor Subspace không có tác dụng ngăn cản gradient của các bước <InlineMath formula="t > 0" /> tràn ngược sang Principal Subspace.
+2. **Hiện tượng bùng nổ khi tăng Learning Rate:** Khi thử nghiệm với các mức Learning Rate lớn hơn (<InlineMath formula="lr = 2\text{e-}4 \to 5\text{e-}4" />), tốc độ trôi dạt của MiLoRA tăng vọt, khiến <InlineMath formula="R_t" /> nhanh chóng chuyển từ âm sang dương.
+
+---
+
+### Phá vỡ Biên Giới hạn Đánh đổi (Trade-off Frontier)
+
+Trong thực hành huấn luyện truyền thống, các kỹ sư luôn phải đối mặt với đường cong đánh đổi tuyến tính (Trade-off Frontier):
+
+- Muốn mô hình giải toán **GSM8K** đạt điểm cao → Phải tăng Learning Rate hoặc train nhiều epoch hơn → Chấp nhận điểm **MMLU / Retention** sụt giảm.
+- Muốn giữ tri thức gốc → Phải giảm Learning Rate → Mô hình học tác vụ mới rất chậm hoặc chưa hội tụ.
+
+> **Đột phá từ SDC-LoRA:** Nhờ cơ chế Spectral Calibration độc lập hãm riêng nhánh Principal, SDC-LoRA **phá vỡ hoàn toàn biên giới hạn đánh đổi này**. Mô hình có thể đẩy cao Learning Rate để đạt độ chính xác giải toán tối đa mà tỷ lệ <InlineMath formula="R_t" /> vẫn nằm cố định trong vùng âm an toàn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Spectral Calibration: Van Xả Áp Suất Toán Học
+
+Một câu hỏi tự nhiên được đặt ra: *Tại sao không triệt tiêu hoàn toàn gradient ở Principal Subspace bằng cách đặt <InlineMath formula="\gamma = 0" /> (khóa cứng <InlineMath formula="100\%" />)?*
+
+Bài báo đã làm sáng tỏ hiện tượng **Nghẽn Dung lượng (Capacity Bottleneck)** thông qua thí nghiệm Ablation Study:
+
+---
+
+### So sánh Chiến lược Hiệu chuẩn Phổ
+
+| Chiến lược | Cơ chế Gradient | Dung lượng Học tập | Mức độ Chống quên |
+| :--- | :--- | :--- | :--- |
+| **Khóa hoàn toàn (<InlineMath formula="\gamma = 0" />)** | Cấm tuyệt đối cập nhật vào Principal Subspace | Bị bóp nghẹt nghiêm trọng ở rank hẹp (<InlineMath formula="r = 2" />) | Điểm Retention cao nhất nhưng điểm task mới sụt giảm |
+| **Random Scaling** | Gán ngẫu nhiên các hệ số <InlineMath formula="\gamma" /> | Không kiểm soát được hướng năng lượng | Vẫn bị trôi dạt, MMLU tụt nhanh |
+| **Spectral Calibration (<InlineMath formula="\gamma_{\text{sc}}" />)** | Hãm tỷ lệ có chọn lọc dựa trên phổ kỳ dị | Cân bằng hoàn hảo giữa học mới và giữ cũ | **Đạt kết quả tối ưu toàn diện ở cả hai trục** |
+
+> **Nguyên lý Van Xả Áp Suất:** Hệ số <InlineMath formula="\gamma_{\text{sc}} \in (0, 1)" /> đóng vai trò như một van xả vi mô. Nó cho phép một lượng cực nhỏ gradient cần thiết (<InlineMath formula="\sim 5\%" />) đi qua để duy trì tính linh hoạt biểu diễn của ma trận, trong khi dập tắt <InlineMath formula="95\%" /> thành phần nhiễu gây xoay trục kỳ dị.
+
+---
+
+### Động lực học Phân hóa theo Tầng & Module
+
+Phân tích Heatmap phân bố hệ số hiệu chuẩn phổ <InlineMath formula="\gamma_{\text{sc}}" /> (Hình 5 từ bài báo) mang lại 2 hiểu biết quan trọng về cấu trúc LLM:
+
+1. **Phân hóa theo Độ sâu (Layer Depth):**
+   - **Tầng nông (Early Layers) & Tầng sâu (Late Layers):** Có giá trị <InlineMath formula="\gamma_{\text{sc}}" /> nhỏ hơn (được hãm chặt hơn). Tầng nông chịu trách nhiệm trích xuất đặc trưng ngôn ngữ cơ bản, tầng sâu quyết định phân phối xác suất từ vựng đầu ra — cả hai đều là những vùng nhạy cảm nhất của mô hình.
+   - **Tầng giữa (Middle Layers):** Có <InlineMath formula="\gamma_{\text{sc}}" /> lớn hơn, thể hiện mức độ linh hoạt cao hơn để tiếp nhận mẫu tư duy mới.
+
+2. **Phân hóa theo Module (Attention vs. MLP):**
+   - Các tầng **Feed-Forward / MLP** (<InlineMath formula="W_{\text{gate}}, W_{\text{in}}, W_{\text{out}}" />) nhạy cảm với hiện tượng trôi dạt hơn các tầng Self-Attention (<InlineMath formula="W_q, W_k, W_v, W_o" />). Điều này hoàn toàn trùng khớp với các phát hiện gần đây trong lĩnh vực Mechanistic Interpretability: khối MLP chính là nơi lưu trữ tri thức sự kiện (Factual Knowledge Storage) của mạng Transformer.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Ý nghĩa Kỹ thuật & Định hướng Tương lai
+
+Từ các kết quả nghiên cứu và thực nghiệm của **SDC-LoRA (ACL 2026)**, chúng ta rút ra những bài học kỹ thuật quan trọng cho việc tinh chỉnh và phát triển các mô hình ngôn ngữ lớn:
+
+---
+
+### 1. Triển khai Thực tế với Zero-Overhead Inference
+
+Một ưu thế vượt trội của SDC-LoRA so với các phương pháp Regularization hay Architecture-expansion là **hoàn toàn không làm tăng chi phí khi đưa vào vận hành (Production)**:
+
+- **Trong lúc huấn luyện:** Chi phí tính toán SVD chỉ diễn ra **1 lần duy nhất** tại bước khởi tạo ban đầu (<InlineMath formula="+3\%" /> thời gian train, thêm <InlineMath formula="1.85" /> GB VRAM khởi tạo).
+- **Khi xuất bản mô hình:** Trọng số thích ứng được gộp trực tiếp vào ma trận gốc:
+  <BlockMath formula="W_{\text{deploy}} = W_0 + \frac{\alpha}{r} (B \cdot A)" />
+- **Hiệu năng suy luận:** Độ trễ (Latency), dung lượng bộ nhớ VRAM và thông lượng xử lý (Throughput) **giống hệt <InlineMath formula="100\%" />** mô hình Base ban đầu.
+
+---
+
+### 2. So sánh Toàn diện Các Phương pháp PEFT
+
+| Phương pháp | Không gian Khởi tạo | Cơ chế Huấn luyện | Rủi ro Quên Tri thức |
+| :--- | :--- | :--- | :--- |
+| **Standard LoRA** | Ngẫu nhiên (Gaussian) | Cập nhật tự do | Trung bình (Drift tăng dần) |
+| **PiSSA** | Principal Subspace | Cập nhật tự do | Cực kỳ cao (Xóa ngay từ đầu) |
+| **MiLoRA** | Minor Subspace | Cập nhật tự do | Cao (Drift sau vài trăm bước) |
+| **CorDA** | Hiệp phương sai kích hoạt | Cập nhật tự do | Trung bình khá |
+| **LoRA-Null** | Null Space | Khóa hoàn toàn (<InlineMath formula="\gamma = 0" />) | Thấp (Bị nghẽn dung lượng ở rank hẹp) |
+| **SDC-LoRA** | Minor Subspace | Hiệu chuẩn phổ (<InlineMath formula="\gamma_{\text{sc}}" />) | **THẤP NHẤT & CÂN BẰNG TỐI ƯU TOÀN DIỆN** |
+
+---
+
+### 3. Hướng Mở rộng Nghiên cứu Tiếp theo
+
+Bài báo SDC-LoRA đã mở ra nền móng toán học vững chắc cho việc kiểm soát không gian con kỳ dị trong Parameter-Efficient Fine-Tuning. Những hướng nghiên cứu tiềm năng tiếp theo bao gồm:
+
+- **Học Tăng cường & Căn chỉnh Hành vi (RLHF / DPO):** Khống chế hiện tượng Alignment Tax (suy giảm năng lực suy luận khi căn chỉnh an toàn).
+- **Mô hình Đa phương thức (Multimodal LLMs):** Bảo vệ tri thức ngôn ngữ cốt lõi khi nạp thêm adapter thị giác / âm thanh.
+- **Continual Learning Tuần tự Nhiều Miền (Sequential Lifelong Learning):** Mở rộng cơ chế hiệu chuẩn phổ động qua chuỗi hàng chục tác vụ nối tiếp nhau mà không cần replay dữ liệu cũ.
+
+</MdxPage>

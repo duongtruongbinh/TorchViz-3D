@@ -1,54 +1,35 @@
 ---
-title: "Research Papers Domain Init & SDC-LoRA Curriculum Structure"
+title: "Research Papers Domain & SDC-LoRA Paper Review"
 status: done
 created: 2026-08-21T10:25:00+07:00
-updated: 2026-08-21T10:35:00+07:00
-author: Antigravity
-task: "Tạo domain mới về Research Papers và khởi tạo cấu trúc chương / node cho bài SDC-LoRA"
+updated: 2026-08-23T21:15:00+07:00
+author: nmkhiem
+task: "Khởi tạo domain Research Papers, tích hợp bài review chuyên sâu paper SDC-LoRA (ACL 2026) cùng Flowchart/Mermaid components"
 supersedes: []
 ---
 
 # Goal
 
-Khởi tạo Learning Lab domain mới `research-papers` ("Research Papers" / "Paper Nghiên cứu") trên nhánh `feat/research-papers-domain`, tích hợp vào type system, catalog metadata, domain presentation (icon/palette), và định nghĩa cấu trúc chương / node đầu tiên cho paper **SDC-LoRA: Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting** (ACL 2026).
+Khởi tạo Learning Lab domain `research-papers` ("Random Research Paper") và hoàn thiện module đánh giá chuyên sâu bài báo **SDC-LoRA: Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting** (ACL 2026), bao gồm lý thuyết toán học phân rã SVD, kết quả thực nghiệm, phân tích cơ chế chuyên sâu, tranh luận học thuật, và bài trắc nghiệm 10 câu hỏi.
 
-# Lineage
+# Key Deliverables
 
-Genesis plan — no predecessor (`supersedes: []`).
+1. **Domain & Catalog Registration:**
+   - Đăng ký `research-papers` vào `LearningDomainId`, palette Slate/Indigo (`#C2D1E8`, `#5376A8`), icon `GraduationCap`.
+   - Cập nhật TOC và catalog test suite (`learningCatalog.test.ts`).
 
-# Decisions (locked)
+2. **SDC-LoRA Curriculum (5 nodes):**
+   - `sdc-lora`: Bối cảnh LoRA, hiện tượng trôi dạt không gian con kỳ dị (Singular-Subspace Drift) và cơ chế Spectral Calibration ($\gamma_{\text{sc}}$).
+   - `sdc-lora-experiments`: Kết quả thực nghiệm (LLaMA-3.1, Qwen2.5, GSM8K, MMLU), đường cong loss và phân tích phá vỡ trade-off learning rate.
+   - `sdc-lora-insights`: Phân tích chuyên sâu gradient tự do gây trôi dạt góc $\theta_U, \theta_V$ và quy luật dâng cao năng lượng tương phản ($R_t$).
+   - `sdc-lora-debate`: Tranh luận học thuật (SVD offline cost, scaling law, tương thích quantization/DoRA/QLoRA) và giới hạn nghiên cứu.
+   - `sdc-lora-quiz`: 10 câu hỏi trắc nghiệm đánh giá kiến thức lý thuyết & thực nghiệm.
 
-1. **Domain ID**: `research-papers` (nhất quán với các domain hiện có như `continual-learning-llm`, `deep-learning`, `llm-ai-engineering`).
-2. **Domain Presentation**:
-   - Icon: `GraduationCap` từ `lucide-react`.
-   - Card Palette: Slate/Indigo (`#C2D1E8`, `#5376A8`) cho Research Papers.
-3. **Cấu trúc SDC-LoRA (Chapter 1)**:
-   - Track ID: `sdc-lora-paper`
-   - Áp dụng pattern bài học chuẩn (Theory + Quiz pair) gồm 6 cặp bài học (12 node):
-     1. `sdc-lora-motivation-and-context` / `sdc-lora-motivation-and-context-quiz`: Bối cảnh LoRA & Thách thức Catastrophic Forgetting trong PEFT.
-     2. `sdc-lora-singular-subspace-analysis` / `sdc-lora-singular-subspace-analysis-quiz`: Phân rã không gian con kỳ dị ($W_0 = U \Sigma V^T$), Principal Subspace vs Minor Subspace.
-     3. `sdc-lora-drift-phenomenon` / `sdc-lora-drift-phenomenon-quiz`: Hiện tượng Singular-Subspace Drift (SD) trong quá trình fine-tuning.
-     4. `sdc-lora-mathematical-formulation` / `sdc-lora-mathematical-formulation-quiz`: Cơ chế kiểm soát năng lượng Principal Subspace & Hệ số chuẩn hóa phổ ($\gamma_{sc}$).
-     5. `sdc-lora-algorithm-and-implementation` / `sdc-lora-algorithm-and-implementation-quiz`: Thuật toán SDC-LoRA, tính toán SVD offline và độ phức tạp runtime.
-     6. `sdc-lora-empirical-results-and-takeaways` / `sdc-lora-empirical-results-and-takeaways-quiz`: Kết quả thực nghiệm (LLaMA-3.1, Qwen2.5, MMLU, GSM8K), so sánh ablation và bài học cốt lõi.
+3. **Visual & Runtime Components:**
+   - Bổ sung component `MermaidDiagram` hỗ trợ công thức KaTeX trong node đồ thị.
+   - Bổ sung component `Flowchart` hỗ trợ lưu đồ quy trình từng bước.
+   - Hỗ trợ `TemplateLiteral` trong MDX static analyzer (`learningContentMdx.ts`).
 
-# Phases
+# Verification
 
-## Phase 1 — Type System & Core Catalog Registration
-- Cập nhật `src/core/learning/types.ts`: Thêm `'research-papers'` vào `LearningDomainId`.
-- Cập nhật `src/components/learning/domainPresentation.ts`: Bổ sung icon và bảng màu card cho `research-papers`.
-
-## Phase 2 — Table of Contents & TOC Index Registration
-- Tạo `src/content/learning/research-papers/table-of-contents.ts`: Định nghĩa metadata domain, track `sdc-lora-paper` cùng 6 cặp theory/quiz nodes.
-- Cập nhật `src/content/learning/index.ts`: Import và đăng ký `researchPapersToc` vào `learningTableOfContents`.
-
-## Phase 3 — Verification & Documentation
-- Chạy `npm run verify` (kiểm tra typecheck TypeScript, test suite và build production).
-- Cập nhật `src/lib/learningCatalog.test.ts` và `wiki/concepts/learning-lab.md` để ghi nhận domain thứ 14.
-
-# Out of scope
-- Soạn thảo chi tiết toàn bộ nội dung file `.mdx` của từng bài học trong phase init này (sẽ triển khai theo từng bài mdx chuyên sâu tiếp theo).
-
-# Execution log
-- 2026-08-21 — Tạo branch `feat/research-papers-domain` và viết genesis plan.
-- 2026-08-21 — Khởi tạo domain `research-papers`, định nghĩa 6 cặp theory/quiz cho paper SDC-LoRA (ACL 2026), cấu hình icon/palette, cập nhật test suite và wiki documentation. `npm run verify` pass 100%.
+- `npm run verify` (typecheck, 152 tests, production build) pass 100%.

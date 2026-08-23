@@ -304,7 +304,7 @@ function SectionShell({
   className?: string;
 }) {
   return (
-    <section className={cx('learning-lab-lesson-page-section border-t px-5 py-5 first:border-t-0 md:px-6 md:py-6', sectionDivider, className)}>
+    <section className={cx('learning-lab-lesson-page-section min-w-0 max-w-full border-t px-5 py-5 first:border-t-0 md:px-6 md:py-6', sectionDivider, className)}>
       {children}
     </section>
   );

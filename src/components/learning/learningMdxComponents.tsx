@@ -24,6 +24,8 @@ import { CodeBlock } from './code/CodeBlock';
 import { CodeLabStep } from './code/CodeLabStep';
 import { InteractiveStepper } from './shell/InteractiveStepper';
 import { cx, getLearningLabTheme, type LearningSemanticTone } from './theme';
+import { Mermaid, MermaidDiagram } from './MermaidDiagram';
+import { Flowchart } from './Flowchart';
 
 export type LearningThemeClasses = ReturnType<typeof getLearningLabTheme>;
 export type LearningReferencePaper = {
@@ -378,6 +380,7 @@ export function LessonNote({ children, tone = 'default' }: { children?: ReactNod
   );
 }
 
+// Auto-glob all lesson image assets in src/assets/learning/
 const LESSON_IMAGE_LOADERS = import.meta.glob('../../assets/learning/**/*.{png,jpg,jpeg,webp,svg}', {
   import: 'default',
   query: '?url',
@@ -527,9 +530,9 @@ export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: Co
 }
 
 type ConceptHierarchyNode = {
-  title: string;
-  detail?: string;
-  problem?: string;
+  title: ReactNode;
+  detail?: ReactNode;
+  problem?: ReactNode;
   tone?: 'blue' | 'amber' | 'teal' | 'violet' | 'neutral';
   visual?: 'database' | 'two-term-loss' | 'neural-network';
   muted?: boolean;
@@ -626,10 +629,10 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes }: {
   };
 
   return (
-    <figure className="my-6" aria-label={ariaLabel}>
+    <figure className="my-6 w-full max-w-full overflow-x-auto" aria-label={ariaLabel}>
       <div className="flex justify-center">
-        <div className={cx('relative z-10 max-w-md rounded-xl border px-6 py-3 text-center', rootSurface)}>
-          <strong className="block text-base font-black leading-6 text-balance">{root.title}</strong>
+        <div className={cx('relative z-10 max-w-full rounded-xl border px-4 py-3 text-center sm:max-w-3xl sm:px-6', rootSurface)}>
+          <strong className="block text-base font-black leading-6">{root.title}</strong>
           {root.detail ? <span className="mt-1 block text-sm leading-5 text-pretty opacity-85">{root.detail}</span> : null}
         </div>
       </div>
@@ -653,11 +656,11 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes }: {
               const description = child.detail ?? child.problem;
 
               return (
-                <li key={`${child.title}-${index}`} className="m-0 flex min-w-0 list-none flex-col items-stretch p-0 sm:px-2">
+                <li key={index} className="m-0 flex min-w-0 list-none flex-col items-stretch p-0 sm:px-2">
                   <div className={cx('flex flex-col items-stretch', child.muted && 'opacity-35 grayscale')}>
                     <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
-                    <div className={cx('grid min-h-[4.25rem] place-items-center rounded-xl border px-3 py-2.5 text-center', childNodeTones[child.tone ?? 'neutral'])}>
-                      <strong className="text-sm font-black leading-snug text-balance sm:text-base">{child.title}</strong>
+                    <div className={cx('flex min-h-[4.25rem] w-full flex-col items-center justify-center rounded-xl border px-3 py-3 text-center', childNodeTones[child.tone ?? 'neutral'])}>
+                      <strong className="text-sm font-black leading-snug sm:text-base">{child.title}</strong>
                     </div>
                     {child.visual ? <ConceptHierarchyVisual visual={child.visual} tone={child.tone ?? 'neutral'} isLight={themeClasses.isLight} /> : null}
                     {description ? (
@@ -683,8 +686,8 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes }: {
                         {nestedChildren.map((nestedChild, nestedIndex) => (
                           <li key={`${nestedChild.title}-${nestedIndex}`} className={cx('m-0 min-w-0 list-none p-0 sm:px-2', nestedChild.muted && 'opacity-35 grayscale')}>
                             <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
-                            <div className={cx('grid min-h-14 place-items-center rounded-xl border px-4 py-3 text-center', childNodeTones[nestedChild.tone ?? child.tone ?? 'neutral'])}>
-                              <strong className="text-sm font-black leading-5 text-balance">{nestedChild.title}</strong>
+                            <div className={cx('flex min-h-14 w-full flex-col items-center justify-center rounded-xl border px-3 py-2 text-center sm:px-4 sm:py-3', childNodeTones[nestedChild.tone ?? child.tone ?? 'neutral'])}>
+                              <strong className="text-sm font-black leading-5">{nestedChild.title}</strong>
                             </div>
                           </li>
                         ))}
@@ -1195,7 +1198,12 @@ const sharedAuthoredMdxComponents = {
   EquationCallout,
   CodeLabStep,
   InteractiveStepper,
+  Mermaid,
+  MermaidDiagram,
+  Flowchart,
 } satisfies Record<typeof SHARED_LEARNING_MDX_COMPONENT_NAMES[number], LearningMdxComponent>;
+
+export { Mermaid, MermaidDiagram, Flowchart };
 
 export const sharedLearningMdxComponents = {
   a: MdxLink,
@@ -1204,3 +1212,4 @@ export const sharedLearningMdxComponents = {
   pre: MdxPre,
   ...sharedAuthoredMdxComponents,
 };
+
