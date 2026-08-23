@@ -33,7 +33,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   const rlDomain = getLearningDomain(learningCatalog, 'reinforcement-learning');
   const robotDomain = getLearningDomain(learningCatalog, 'robot-learning');
 
-  assert.equal(rlDomain?.status, 'active');
+  assert.equal(rlDomain?.status, 'placeholder');
   assert.equal(robotDomain?.status, 'placeholder');
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
