@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Mafs, Coordinates } from 'mafs';
 import 'mafs/core.css';
 import { useLearningMdxTheme } from '../../../learningMdxComponents';

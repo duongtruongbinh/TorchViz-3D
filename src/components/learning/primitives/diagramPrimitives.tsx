@@ -22,7 +22,9 @@ export function getDiagramAnchor(element: HTMLElement, canvasRect: DOMRect): Dia
 export function observeDiagramLayout(canvas: HTMLElement, elements: HTMLElement[], update: () => void) {
   const frameId = window.requestAnimationFrame(update);
   const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
-  [canvas, ...elements].forEach((element) => observer?.observe(element));
+  [canvas, ...elements].forEach((element) => {
+    observer?.observe(element);
+  });
   window.addEventListener('resize', update);
   return () => {
     window.cancelAnimationFrame(frameId);

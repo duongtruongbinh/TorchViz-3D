@@ -18,12 +18,12 @@ import type { LearningLessonEntryPoint } from '../../core/learning/types';
 import { getStrings, type Language } from '../../lib/localization';
 import type { LearningCitationEvidence, LearningCitationLinkOnlyException } from '../../core/learning/citationEvidence';
 import { indexLearningReferences } from '../../core/learning/referenceIndex';
-import { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
+import type { SHARED_LEARNING_MDX_COMPONENT_NAMES } from '../../core/learning/mdxContract';
 import QuizBlock, { type QuizQuestionState } from './lesson/QuizBlock';
 import { CodeBlock } from './code/CodeBlock';
 import { CodeLabStep } from './code/CodeLabStep';
 import { InteractiveStepper } from './shell/InteractiveStepper';
-import { cx, getLearningLabTheme, type LearningSemanticTone } from './theme';
+import { cx, type getLearningLabTheme, type LearningSemanticTone } from './theme';
 import { Mermaid, MermaidDiagram } from './MermaidDiagram';
 import { Flowchart } from './Flowchart';
 
@@ -1119,7 +1119,7 @@ export function MdxQuiz({ id, questions }: { id: string; questions: AuthoredQuiz
 }
 
 export function MdxPage({ children, page }: { children?: ReactNode; page: number }) {
-  return useLearningMdxLesson().pageIndex === page ? <>{children}</> : null;
+  return useLearningMdxLesson().pageIndex === page ? children : null;
 }
 
 export { InlineMath, BlockMath, MathInline, MathDisplay, EquationCallout };

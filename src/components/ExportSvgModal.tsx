@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { FileDown, Image, ImageDown } from 'lucide-react';
-import { LayoutData } from '../lib/irTypes';
+import type { LayoutData } from '../lib/irTypes';
 import { generateSVG } from '../lib/svgExport';
 import { getStrings } from '../lib/localization';
 import { usePreferencesStore } from '../store/usePreferencesStore';

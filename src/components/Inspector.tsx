@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { IRGraph, IRNode, findNodeById } from '../lib/irTypes';
+import { type IRGraph, type IRNode, findNodeById } from '../lib/irTypes';
 import { formatNumber } from '../lib/stats';
 import { getVisualMeta } from '../lib/visualKind';
 import { getLayerInsight } from '../lib/layerInsights';

@@ -37,7 +37,6 @@ export const EquationCallout = memo(function EquationCallout({
       )}
 
       <div
-        tabIndex={0}
         className="w-full max-w-full overflow-x-auto py-2 text-center text-lg font-medium [&_.katex]:text-inherit [&_.katex-display]:my-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 rounded"
         dangerouslySetInnerHTML={{ __html: html }}
       />

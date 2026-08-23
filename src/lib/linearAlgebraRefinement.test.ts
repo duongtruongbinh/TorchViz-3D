@@ -176,7 +176,7 @@ test('Linear Algebra Full Refinement Audit & Correctness', async (t) => {
     const errRank1 = Math.sqrt(1 * 1 + 1 * 1); // sqrt(2) ~ 1.414
     const errRank2 = Math.sqrt(1 * 1); // 1.0
 
-    assert.ok(Math.abs(errRank1 - 1.4142) < 0.001);
+    assert.ok(Math.abs(errRank1 - Math.SQRT2) < 0.001);
     assert.equal(errRank2, 1.0);
   });
 

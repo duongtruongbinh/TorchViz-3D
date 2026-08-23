@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { getVisualKind, type VisualKind } from '../../lib/visualKind';
 import {
   AdaptiveAvgPoolEffect,

@@ -2,7 +2,7 @@ import { Angry, ArrowDown, ArrowLeft, ArrowRight, Braces, CheckCircle2, ChevronR
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { LearningLessonExtra, LearningTokenExample } from '../../authoredTypes';
 import { getStrings, type Language } from '../../../../lib/localization';
-import { cx, getLearningLabTheme } from '../../theme';
+import { cx, type getLearningLabTheme } from '../../theme';
 import { ExtraFrame } from '../../learningMdxComponents';
 import { getLearningLocalizedText as text } from '../../learningText';
 import { scrollLearningLabElementIntoView } from '../../lesson/scrolling';
@@ -560,7 +560,6 @@ function TokenExampleGroup({ item, isActive, toneIndex, language, themeClasses, 
   return (
     <div
       data-active={isActive ? 'true' : undefined}
-      tabIndex={0}
       onFocus={() => onActivate(item.label.en)}
       onMouseEnter={() => onActivate(item.label.en)}
       className={cx(
@@ -898,7 +897,6 @@ export function LlmConceptPanelBlock({ extra, language, themeClasses }: {
                       <div
                         key={text(item.title, language)}
                         data-active={isActive ? 'true' : undefined}
-                        tabIndex={0}
                         onFocus={() => setActiveOutlineItemKey(itemKey)}
                         onMouseEnter={() => setActiveOutlineItemKey(itemKey)}
                         className={cx(
@@ -1578,7 +1576,6 @@ function ConceptHighlightRow({
   return (
     <div
       data-active={isActive ? 'true' : undefined}
-      tabIndex={0}
       onFocus={onActivate}
       onMouseEnter={onActivate}
       className={cx(
@@ -1632,7 +1629,6 @@ function LlmScaleFactorCard({
   return (
     <div
       data-active={isActive ? 'true' : undefined}
-      tabIndex={0}
       onFocus={onActivate}
       onMouseEnter={onActivate}
       className={cx(
