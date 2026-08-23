@@ -13,7 +13,7 @@ const chapters: LearningTocTrackSeed[] = [
       },
       description: {
         en: 'Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting (ACL 2026).',
-        vi: 'Singular-Subspace Drift Controlled LoRA to Mitigate Knowledge Forgetting (ACL 2026).',
+        vi: 'Kiểm soát trôi dạt không gian con kỳ dị trong LoRA nhằm giảm thiểu quên lãng tri thức (ACL 2026).',
       },
     },
     lessonIds: [
@@ -75,7 +75,7 @@ export const learningTableOfContents = {
     },
     description: {
       en: 'Deep dives into impactful machine learning and AI research papers: mathematical foundations, failure modes, novel mechanisms, and empirical findings.',
-      vi: 'Deep dives into impactful machine learning and AI research papers: mathematical foundations, failure modes, novel mechanisms, and empirical findings.',
+      vi: 'Phân tích chuyên sâu các bài báo nghiên cứu AI và Machine Learning nổi bật: nền tảng toán học, cơ chế hoạt động, phân tích lỗi và phát hiện thực nghiệm.',
     },
   },
   status: 'active',
