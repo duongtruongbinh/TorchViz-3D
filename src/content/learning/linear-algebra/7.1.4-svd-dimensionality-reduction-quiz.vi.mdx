@@ -13,7 +13,7 @@ export const lessonMetadata = {
   {
     id: 'rank-k-approximation',
     title: 'Rank k Approximation',
-    prompt: 'Truncated SVD giữ k singular components đầu tạo matrix Ak có rank như thế nào?',
+    prompt: 'Truncated SVD giữ $k$ singular components đầu tạo ma trận $A_k$ có rank như thế nào?',
     mode: 'single',
     options: [
       { id: 'a', label: 'Không lớn hơn k.', isCorrect: true },
@@ -21,8 +21,8 @@ export const lessonMetadata = {
       { id: 'c', label: 'Luôn bằng số hàng của A.' },
       { id: 'd', label: 'Không liên quan đến k.' },
     ],
-    success: 'Đúng. Ak được tạo từ tối đa k rank one components.',
-    error: 'Mỗi singular component đóng góp tối đa một rank.',
+    success: 'Đúng. $A_k$ được tạo từ tối đa $k$ rank-one components.',
+    error: 'Mỗi singular component đóng góp tối đa một đơn vị rank.',
   },
   {
     id: 'singular-value-importance',
@@ -31,17 +31,17 @@ export const lessonMetadata = {
     mode: 'single',
     options: [
       { id: 'a', label: 'Singular values nhỏ luôn là lỗi đo lường.' },
-      { id: 'b', label: 'Chúng tương ứng với các singular components đóng góp mạnh nhất.', isCorrect: true },
+      { id: 'b', label: 'Chúng tương ứng với các singular components đóng góp năng lượng mạnh nhất.', isCorrect: true },
       { id: 'c', label: 'Chỉ singular value lớn nhất mới khác 0.' },
       { id: 'd', label: 'Thứ tự singular values không ảnh hưởng approximation.' },
     ],
-    success: 'Đúng. Components được sắp theo scale đóng góp.',
-    error: 'Nhìn vào decomposition A = sum sigma_i u_i v_i transpose.',
+    success: 'Đúng. Các components được sắp xếp theo mức độ đóng góp variance/energy giảm dần.',
+    error: 'Khai triển SVD: $A = \\sum \\sigma_i u_i v_i^T$.',
   },
   {
     id: 'svd-pca-link',
     title: 'PCA Link',
-    prompt: 'Với centered data Xc = UΣVᵀ, principal directions của PCA nằm ở đâu?',
+    prompt: 'Với dữ liệu đã chuẩn hóa trọng tâm $X_c = U \\Sigma V^T$, các hướng chính (principal directions) của PCA nằm ở đâu?',
     mode: 'single',
     options: [
       { id: 'a', label: 'Các hàng của U luôn luôn' },
@@ -49,13 +49,13 @@ export const lessonMetadata = {
       { id: 'c', label: 'Các cột của V.', isCorrect: true },
       { id: 'd', label: 'Trong vector mean của data' },
     ],
-    success: 'Đúng. Right singular vectors là eigenvectors của XcᵀXc.',
-    error: 'PCA directions sống trong feature space.',
+    success: 'Đúng. Right singular vectors (cột của $V$) chính là các eigenvectors của ma trận hiệp phương sai $X_c^T X_c$.',
+    error: 'Các hướng chính PCA nằm trong không gian đặc trưng (các cột của $V$).',
   },
   {
     id: 'svd-pseudoinverse',
     title: 'Pseudo Inverse',
-    prompt: 'Pseudo inverse hữu ích vì điều gì?',
+    prompt: 'Ma trận giả nghịch đảo (Pseudo-inverse $A^+$) hữu ích vì điều gì?',
     mode: 'single',
     options: [
       { id: 'a', label: 'Biến mọi matrix thành identity matrix bằng phép cộng.' },
@@ -63,7 +63,7 @@ export const lessonMetadata = {
       { id: 'c', label: 'Luôn bằng transpose của A.' },
       { id: 'd', label: 'Mở rộng ý tưởng inverse cho rectangular hoặc rank deficient matrices.', isCorrect: true },
     ],
-    success: 'Đúng. SVD cho cách định nghĩa A plus ngay cả khi inverse thông thường không tồn tại.',
-    error: 'So sánh square invertible inverse với Moore Penrose pseudo inverse.',
+    success: 'Đúng. SVD cho cách định nghĩa $A^+$ ngay cả khi ma trận nghịch đảo thông thường không tồn tại.',
+    error: 'So sánh square invertible inverse với Moore-Penrose pseudo-inverse.',
   },
 ]} />

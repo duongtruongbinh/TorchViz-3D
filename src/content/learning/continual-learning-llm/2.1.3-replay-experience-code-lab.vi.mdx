@@ -974,7 +974,7 @@ print(multiseed_df.to_string(index=False))
 
 ## Ngưỡng Replay
 
-Mean cho biết xu hướng chung; standard deviation cho biết kết quả thay đổi bao nhiêu giữa các seed. Ta còn dùng một gate có chủ đích cho demo: **Task A ≥ 80% và Task B ≥ 90%**.
+Mean cho biết xu hướng chung; standard deviation cho biết kết quả thay đổi bao nhiêu giữa các seed. Ta còn dùng một gate có chủ đích cho demo: **Task A >= 80% và Task B >= 90%**.
 
 ```python
 multiseed_summary = (
@@ -1077,7 +1077,7 @@ Notebook và paper dùng cách thí nghiệm khác nhau, nên không thể so s�
     },
     {
       eyebrow: 'Paper · Không replay',
-      value: '≈100% → ≈10%',
+      value: '~ 100% → ~ 10%',
       label: 'Điểm Task cũ khi bắt đầu học Task mới',
       insight: 'Chỉ sau khoảng 150 bước cập nhật, điểm task cũ đã giảm rất mạnh; không cần chờ train xong mới thấy forgetting.',
       tone: 'danger',
@@ -1118,13 +1118,13 @@ Bốn kết quả dưới đây cho thấy paper còn đi xa hơn thí nghiệm 
   items={[
     {
       eyebrow: '1 · Forgetting xảy ra sớm',
-      value: '≈10% sau 150 bước',
+      value: '~ 10% sau 150 bước',
       insight: 'Do tính chất greedy của Gradient Descent, trong những bước đầu, gradient từ task mới rất lớn. Khi không có dữ liệu cũ để giữ hướng ngược lại, kiến thức cũ bị phá rất nhanh dù kiến thức nền chưa chắc đã biến mất.',
       tone: 'danger',
     },
     {
       eyebrow: '2 · Khả năng khôi phục sau replay',
-      value: '≈100% new, ≈96% old',
+      value: '~ 100% new, ~ 96% old',
       insight: 'Model chỉ học lại trên một nửa dữ liệu task cũ nhưng vẫn trả lời đúng gần như toàn bộ nửa còn lại. Cần nhận xét rằng nếu kiến thức cũ đã bị xóa sạch, khả năng khôi phục trên các mẫu không dùng để học lại sẽ khó đạt mức này. Điểm giảm vì thế chủ yếu phản ánh việc model mất cách truy xuất đúng, không phải do quên.',
       tone: 'success',
     },

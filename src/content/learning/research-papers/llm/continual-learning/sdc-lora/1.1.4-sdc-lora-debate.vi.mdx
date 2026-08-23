@@ -1,0 +1,247 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sdc-lora-debate',
+  locale: 'vi',
+  title: 'Tranh luận & Giới hạn',
+  headings: [
+    'Static Weight SVD vs Dynamic Activation Space',
+    'Nghịch lý Quá Bảo Thủ — Khi nào Không Nên Khóa Phổ?',
+    'Thách thức Continual Learning Đa Chặng',
+    'Tổng kết Giới hạn Kỹ thuật & Hướng dẫn Thực thi',
+  ],
+  keywords: [
+    'SDC-LoRA Debate',
+    'Static Weight SVD',
+    'Activation Covariance',
+    'CorDA',
+    'Knowledge Augmentation',
+    'Continual Learning',
+    'Orthogonal SDC-LoRA',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+### Tranh luận 1: Static Weight SVD vs Dynamic Activation Space
+
+Một trong những chủ đề tranh luận sôi nổi nhất giữa các nhà nghiên cứu PEFT xoay quanh câu hỏi: *Không gian con nào định vị tri thức nền tảng chính xác và hiệu quả nhất?*
+
+---
+
+#### 1. Static Weight SVD (SDC-LoRA, PiSSA, MiLoRA)
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc, ưu điểm và nhược điểm của Static Weight SVD"
+  root={{
+    title: <span>Static Weight SVD (<InlineMath formula="W_0 = U \Sigma V^T" />)</span>,
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Cơ chế Cốt lõi',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-bold text-blue-800">Phân rã Ma trận Tĩnh</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-90">Phân rã trực tiếp ma trận trọng số gốc <InlineMath formula="W_0" /> thành <InlineMath formula="U \Sigma V^T" />. Tách <InlineMath formula="90\% - 99\%" /> năng lượng phổ vào Principal Subspace làm trục xương sống.</span>
+        </span>
+      ),
+      tone: 'blue',
+    },
+    {
+      title: '2. Ưu điểm Vượt trội',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-bold text-teal-800">Data-Free (100%) & Zero Forward Cost</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-90">Không cần tập dữ liệu hiệu chuẩn (Calibration Dataset). Bất biến với mọi phân phối đầu vào và chỉ tính SVD đúng 1 lần duy nhất trước khi huấn luyện.</span>
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '3. Hạn chế Lý thuyết',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-bold text-amber-800">Bỏ qua Tần suất Kích hoạt</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-90">Giả định mọi hướng có giá trị kỳ dị <InlineMath formula="\sigma_i" /> lớn trong <InlineMath formula="W_0" /> đều quan trọng như nhau trong suy luận, bất kể câu prompt thực tế có kích hoạt hướng đó hay không.</span>
+        </span>
+      ),
+      tone: 'amber',
+    },
+  ]}
+/>
+
+---
+
+#### 2. Dynamic Activation Space (CorDA, Fisher Information Matrix)
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc, ưu điểm và nhược điểm của Dynamic Activation Space"
+  root={{
+    title: <span>Dynamic Activation Space (<InlineMath formula="X X^T" /> & Fisher <InlineMath formula="F" />)</span>,
+    tone: 'amber',
+  }}
+  nodes={[
+    {
+      title: '1. Cơ chế Cốt lõi',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-bold text-amber-800">Cân trọng số theo Kích hoạt</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-90">Chạy forward pass tập dữ liệu mẫu để thu thập ma trận hiệp phương sai <InlineMath formula="\Sigma_X = \mathbb{E}[X^T X]" />, sau đó phân rã SVD trên ma trận có trọng số <InlineMath formula="\tilde{W} = \Sigma_X^{1/2} W_0" />.</span>
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '2. Ưu điểm Vượt trội',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-bold text-teal-800">Bám sát Luồng Suy luận Thực tế</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-90">Chỉ bảo vệ những hướng vector thực sự được dòng token kích hoạt mạnh mẽ khi sinh văn bản (<InlineMath formula="Y = X W_0" />), tối ưu hóa chính xác theo ngữ cảnh sử dụng.</span>
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '3. Hạn chế',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-bold text-rose-800">Domain Bias & Chi phí Tính toán</strong>
+          <span className="mt-1 block text-[11px] leading-relaxed opacity-90">Phụ thuộc nặng vào Calibration Dataset: nếu dữ liệu mẫu bị lệch phân phối, mô hình sẽ bỏ quên các miền tri thức khác. Đòi hỏi forward pass hàng nghìn sequence qua mô hình lớn.</span>
+        </span>
+      ),
+      tone: 'red',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Tranh luận 2: Nghịch lý "Quá Bảo Thủ" — Khi nào Không Nên Khóa Phổ?
+
+Cơ chế hãm nhánh Principal (<InlineMath formula="\gamma_{\text{sc}} = 0.05" />) giúp bảo vệ 100\% tri thức cũ. Nhưng liệu sự bảo vệ này có biến mô hình thành một hệ thống **"quá bảo thủ"** không thể tiếp thu những thông tin mâu thuẫn với tri thức cũ?
+
+---
+
+### Phân loại Tác vụ Huấn luyện
+
+<ConceptHierarchy
+  ariaLabel="Phân loại Tác vụ và Khả năng Thích ứng của SDC-LoRA"
+  root={{
+    title: 'Phân loại Mục tiêu Fine-Tuning',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Bổ sung Tri thức Mới (Knowledge Augmentation)',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-black text-teal-700 uppercase">Phù hợp 100% với SDC-LoRA</strong>
+          <span className="mt-1 block text-[11px]">Học thêm miền mới (Toán học, Lập trình, Y tế, Luật pháp). Tri thức mới được ghi vào Minor Subspace mà không phá vỡ tri thức phổ thông cũ.</span>
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '2. Chỉnh sửa & Xóa Tri thức (Knowledge Editing / Unlearning)',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-black text-amber-700 uppercase">Cần Mở Rộng Hệ Số Gamma</strong>
+          <span className="mt-1 block text-[11px]">Khi muốn cập nhật sự thật đã lỗi thời (Fact Revision) hoặc loại bỏ tri thức độc hại, việc khóa Principal Subspace sẽ khiến mô hình khó ghi đè thông tin cũ.</span>
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '3. Căn chỉnh Hành vi (Safety & Instruction Tuning)',
+      detail: (
+        <span className="block">
+          <strong className="block text-xs font-black text-violet-700 uppercase">Cần Tinh Chỉnh Theo Tầng</strong>
+          <span className="mt-1 block text-[11px]">Thay đổi phong cách hội thoại hoặc định dạng phản hồi đòi hỏi tác động vừa phải lên cả 2 không gian con.</span>
+        </span>
+      ),
+      tone: 'violet',
+    },
+  ]}
+/>
+
+---
+
+> **Kết luận Thực tế:** SDC-LoRA được thiết kế tối ưu nhất cho bài toán **Domain Adaptation** và **Task Specialization** — nơi tri thức nền tảng của Base Model là tài sản quý giá cần được bảo tồn nguyên vẹn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Tranh luận 3: Thách thức Continual Learning Đa Chặng (Multi-Task Sequence)
+
+Bài báo SDC-LoRA đã chứng minh sự vượt trội rõ rệt trên các kịch bản Domain Adaptation độc lập. Tuy nhiên, trong môi trường học liên tục nhiều chặng liên tiếp:
+
+<BlockMath formula="T_1 \xrightarrow{\text{fine-tune}} T_2 \xrightarrow{\text{fine-tune}} T_3 \xrightarrow{\text{fine-tune}} \dots \xrightarrow{\text{fine-tune}} T_k" />
+
+Một câu hỏi học thuật lớn xuất hiện: *Liệu Minor Subspace có bị cạn kiệt dung lượng (Capacity Saturation)?*
+
+---
+
+### Phân tích Nguy cơ Cạn kiệt Không gian Phụ
+
+1. **Giới hạn số chiều của Minor Subspace:** Dù số chiều vật lý rất lớn (<InlineMath formula="d - r" />), việc nạp liên tục hàng chục task mới vào cùng một adapter hoặc merge liên tiếp có thể dẫn đến hiện tượng **chồng lấn biểu diễn (Representation Overlap)**.
+2. **Nhiễu tích tụ qua các chu kỳ:** Mặc dù mỗi chặng chỉ rò rỉ một lượng gradient rất nhỏ (<InlineMath formula="\gamma_{\text{sc}} \cdot \nabla \approx 5\%" />), sau <InlineMath formula="k = 20" /> chặng học liên tiếp, tổng lượng xoay trục tích lũy có thể đạt tới ngưỡng gây suy thoái.
+
+---
+
+### Hướng Giải pháp Đột phá cho Tương lai
+
+<Mermaid
+  caption="Sơ đồ Kiến trúc Mở rộng: Orthogonal SDC-LoRA cho Continual Learning Đa Chặng"
+  chart={`flowchart LR
+    Task1("Task 1:<br/>Minor Subspace 1") --> Orth1{"Trực giao hóa<br/>(Gram-Schmidt)"}
+    Orth1 --> Task2("Task 2:<br/>Minor Subspace 2")
+    Task2 --> Orth2{"Trực giao hóa"}
+    Orth2 --> TaskN("Task N:<br/>Minor Subspace N")
+    style Task1 fill:#EFF3F8,stroke:#205089,stroke-width:1.5px
+    style Task2 fill:#EAF4FB,stroke:#3F7DB1,stroke-width:1.5px
+    style TaskN fill:#F2FAF9,stroke:#2D7E75,stroke-width:1.5px
+`}
+/>
+
+- **Orthogonal Subspace Allocation:** Phân chia Minor Subspace thành các không gian con trực giao cho từng chặng, đảm bảo các adapter của task sau không ghi đè lên task trước.
+- **Dynamic Spectral Calibration:** Tự động điều chỉnh <InlineMath formula="\gamma_{\text{sc}}^{(t)}" /> giảm dần theo số chặng huấn luyện để khóa chặt hơn các hướng đã tích lũy tri thức.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Tổng kết Giới hạn Kỹ thuật & Hướng dẫn Thực thi
+
+Để ứng dụng SDC-LoRA hiệu quả nhất trong môi trường Production, các kỹ sư cần lưu ý những giới hạn thực tế sau:
+
+---
+
+### 1. Chi phí Tính toán SVD trên Mô hình Siêu Lớn (70B+)
+
+- **Thách thức:** Tính SVD chính xác (Exact SVD) cho ma trận kích thước lớn (<InlineMath formula="d \times k \approx 8192 \times 28672" /> trên LLaMA-3-70B) đòi hỏi bộ nhớ RAM và thời gian tính toán ban đầu đáng kể.
+- **Giải pháp tối ưu:**
+  - Sử dụng thuật toán **Truncated SVD** hoặc **Randomized SVD** để chỉ tính đúng <InlineMath formula="r" /> giá trị kỳ dị hàng đầu.
+  - Sử dụng thư viện tăng tốc GPU (như `torch.linalg.svd_lowrank`) giúp hoàn thành việc phân rã ma trận cho mô hình 70B chỉ trong vòng chưa đầy **3 phút**.
+
+---
+
+### 2. Ma trận Quyết định (Decision Matrix)
+
+| Tiêu chí Dự án | Nên dùng SDC-LoRA | Nên dùng LoRA thường / Full FT |
+| :--- | :--- | :--- |
+| **Mục tiêu chính** | Học chuyên sâu domain (Toán, Code, Y học) | Tinh chỉnh phong cách nói chuyện đơn giản |
+| **Yêu cầu Retention** | Cực cao (Không được làm hỏng điểm MMLU) | Không quan trọng (Chỉ phục vụ 1 task duy nhất) |
+| **Tài nguyên Inference** | Khắt khe (Yêu cầu Zero-Overhead) | Cho phép load nhiều adapter động cùng lúc |
+| **Learning Rate áp dụng** | Cao (<InlineMath formula="2\text{e-}4 \to 5\text{e-}4" />) mà không sợ hỏng model | Bắt buộc phải giữ Learning Rate thấp |
+
+---
+
+### 3. Thông điệp Cốt lõi
+
+> **Bài học sâu sắc nhất từ SDC-LoRA:** Quên lãng thảm khốc trong PEFT không phải là định mệnh tất yếu của quá trình fine-tuning, mà là hệ quả của việc **cập nhật gradient thiếu định hướng hình học**. Bằng việc kết hợp đại số tuyến tính (SVD) với điều khiển động lực học phổ, chúng ta có thể mở khóa toàn bộ tiềm năng học tập của mô hình mà không đánh đổi bất kỳ tri thức nền tảng nào.
+
+</MdxPage>

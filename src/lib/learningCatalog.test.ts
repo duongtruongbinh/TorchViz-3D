@@ -37,11 +37,10 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(robotDomain?.status, 'placeholder');
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'fundamentals'));
   assert.ok(learningCatalog.domains.some((domain) => domain.id === 'cv'));
-  assert.ok(learningCatalog.domains.some((domain) => domain.id === 'nlp'));
-  assert.equal(learningTableOfContents.length, 13);
-  assert.equal(learningCatalog.domains.length, 13);
-  assert.equal(learningCatalog.tracks.length, 90);
-  assert.equal(learningCatalog.lessons.length, 685);
+  assert.equal(learningTableOfContents.length, 14);
+  assert.equal(learningCatalog.domains.length, 14);
+  assert.equal(learningCatalog.tracks.length, 91);
+  assert.equal(learningCatalog.lessons.length, 690);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,
@@ -68,7 +67,7 @@ test('fully published and updating domains are prioritized without disturbing ca
 
   assert.deepEqual(
     prioritizedDomains.filter((item) => item.readinessState === 'ready').map((item) => item.domain.id),
-    ['linear-algebra', 'continual-learning-llm'],
+    ['linear-algebra', 'continual-learning-llm', 'research-papers'],
   );
   assert.deepEqual(
     prioritizedDomains.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),
@@ -79,6 +78,7 @@ test('fully published and updating domains are prioritized without disturbing ca
     [
       'linear-algebra',
       'continual-learning-llm',
+      'research-papers',
       'llm-ai-engineering',
       'mlops-llmops-production-systems',
       'programming-foundation',
@@ -102,14 +102,14 @@ test('Learning Home summaries preserve canonical domain metadata, order, readine
   const readiness = getLearningDomainReadiness(learningCatalog);
   const summaries = getLearningHomeDomainSummaries(learningCatalog);
 
-  assert.equal(summaries.length, 13);
+  assert.equal(summaries.length, 14);
   assert.deepEqual(
     summaries.map(({ domain, isReady, readinessState }) => ({ domain, isReady, readinessState })),
     readiness,
   );
   assert.deepEqual(
     readiness.filter((item) => item.readinessState === 'ready').map((item) => item.domain.id),
-    ['linear-algebra', 'continual-learning-llm'],
+    ['linear-algebra', 'continual-learning-llm', 'research-papers'],
   );
   assert.deepEqual(
     readiness.filter((item) => item.readinessState === 'updating').map((item) => item.domain.id),

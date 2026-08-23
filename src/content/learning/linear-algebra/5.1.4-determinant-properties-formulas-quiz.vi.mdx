@@ -55,7 +55,7 @@ export const lessonMetadata = {
   {
     id: 'det-inverse',
     title: 'Inverse',
-    prompt: 'A invertible và det(A) = 5. det(A⁻¹) bằng bao nhiêu?',
+    prompt: 'Cho ma trận khả nghịch $A$ với $\\det(A) = 5$. Giá trị $\\det(A^{-1})$ bằng bao nhiêu?',
     mode: 'single',
     options: [
       { id: 'a', label: '5' },
@@ -63,7 +63,7 @@ export const lessonMetadata = {
       { id: 'c', label: '1/5', isCorrect: true },
       { id: 'd', label: '0' },
     ],
-    success: 'Đúng. det(A)det(A⁻¹) = det(I) = 1.',
-    error: 'Dùng product rule với AA⁻¹ = I.',
+    success: 'Đúng. $\\det(A) \\det(A^{-1}) = \\det(I) = 1 \\implies \\det(A^{-1}) = 1/5$.',
+    error: 'Dùng công thức $\\det(A) \\det(A^{-1}) = 1$.',
   },
 ]} />

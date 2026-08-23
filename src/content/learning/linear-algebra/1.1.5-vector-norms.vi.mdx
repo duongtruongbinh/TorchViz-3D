@@ -3,7 +3,7 @@ export const lessonMetadata = {
   id: 'vector-norms',
   locale: 'vi',
   title: 'Độ dài và Norm của Vector',
-  headings: ['Đo độ lớn của Vector', 'L2 Norm', 'Từ Norm đến Khoảng cách', 'L1 và L∞ Norm', 'Tính Norm với NumPy'],
+  headings: ['Đo độ lớn của Vector', 'L2 Norm', 'Từ Norm đến Khoảng cách', 'L1 và L-infinity Norm', 'Tính Norm với NumPy'],
   keywords: ['vector norm', 'L1 norm', 'L2 norm', 'L infinity norm', 'distance', 'numpy'],
   conceptIds: ['norm-motivation', 'l2-norm', 'distance-from-norm', 'norm-comparison', 'norm-numpy'],
   pageCount: 5,
@@ -32,7 +32,7 @@ Ba tính chất này bảo đảm norm hoạt động như một cách đo độ
   vectors={[[2, 1], [4, 2]]}
 />
 
-Có nhiều cách định nghĩa norm. Mỗi cách nhấn mạnh một kiểu độ lớn khác nhau. Trong phần này, ta tập trung vào ba norm thường gặp là L1, L2 và L∞.
+Có nhiều cách định nghĩa norm. Mỗi cách nhấn mạnh một kiểu độ lớn khác nhau. Trong phần này, ta tập trung vào ba norm thường gặp là <InlineMath formula="L_1" />, <InlineMath formula="L_2" /> và <InlineMath formula="L_\infty" />.
 
 </MdxPage>
 
@@ -93,15 +93,15 @@ Công thức này giải thích vì sao phép trừ vector ở bài trước l�
 
 <MdxPage page={3}>
 
-## L1 và L∞ Norm
+## L1 và L-infinity Norm
 
-L2 không phải lựa chọn duy nhất.
+<InlineMath formula="L_2" /> không phải lựa chọn duy nhất.
 
 **L1 norm** cộng trị tuyệt đối của các thành phần:
 
 <BlockMath formula="\lVert\mathbf{x}\rVert_1=\sum_{i=1}^{n}|x_i|" />
 
-**L∞ norm** lấy trị tuyệt đối lớn nhất:
+**L-infinity norm** lấy trị tuyệt đối lớn nhất:
 
 <BlockMath formula="\lVert\mathbf{x}\rVert_\infty=\max_i|x_i|" />
 
@@ -112,8 +112,8 @@ Với <InlineMath formula="\mathbf{x}=[3,-4]^\top" />:
   columns={['Công thức', 'Giá trị']}
   rows={[
     { label: 'L1', values: ['|3| + |-4|', '7'] },
-    { label: 'L2', values: ['√(3² + (-4)²)', '5'] },
-    { label: 'L∞', values: ['max(3, 4)', '4'] },
+    { label: 'L2', values: ['sqrt(3^2 + (-4)^2)', '5'] },
+    { label: 'L-infinity', values: ['max(|3|, |-4|)', '4'] },
   ]}
 />
 

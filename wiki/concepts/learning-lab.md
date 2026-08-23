@@ -19,14 +19,14 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 13 domains, 92 tracks, and 713 lesson nodes. One hundred
+The catalog contains 14 domains, 91 tracks, and 685 lesson nodes. One hundred
 ninety-three Vietnamese-first lessons have authored content: forty-nine in
 `llm-ai-engineering`, eighty-one in `continual-learning-llm`, fifty-nine in
 `linear-algebra` (one applied-AI overview followed by twenty-nine alternating
 theory/quiz pairs across 7 core chapters), and four tagged exercise lessons in
-`cv`. The other 520 nodes are navigable placeholders and render one shared
-localized "content in progress" message. They do not carry legacy theory or
-practice payloads.
+`cv`. The other 441 nodes (including the newly added `research-papers` domain)
+are navigable placeholders and render one shared localized "content in progress"
+message. They do not carry legacy theory or practice payloads.
 
 The authored LLM lessons are:
 
