@@ -28,9 +28,9 @@ async function getMermaidInstance() {
       flowchart: {
         htmlLabels: true,
         curve: 'basis',
-        padding: 16,
-        nodeSpacing: 35,
-        rankSpacing: 40,
+        padding: 24,
+        nodeSpacing: 40,
+        rankSpacing: 45,
         useMaxWidth: true,
       },
     });
@@ -60,20 +60,34 @@ export function MermaidDiagram({ chart, caption }: { chart: string; caption?: st
           const token = `KATEXMATH${counter++}END`;
           try {
             const html = katex.renderToString(math.trim(), { throwOnError: false, displayMode: false });
-            mathTokens.set(token, html);
+            const wrappedHtml = `<span class="katex-mermaid-wrap" style="display:inline-block;vertical-align:middle;padding:2px 0;line-height:1.3;">${html}</span>`;
+            mathTokens.set(token, wrappedHtml);
           } catch {
             mathTokens.set(token, math);
           }
-          return token;
+          return `<span style="display:inline-block;padding:4px 0;line-height:1.6;">${token}</span>`;
         });
 
         // 2. Render biểu đồ SVG với Mermaid
         const { svg } = await mermaid.render(uniqueId, sanitizedChart.trim());
 
-        // 3. Khôi phục lại toàn bộ mã HTML của KaTeX vào SVG
+        // 3. Khôi phục lại toàn bộ mã HTML của KaTeX vào SVG và tiêm override style chống clip
         let finalSvg = svg;
         for (const [token, html] of mathTokens.entries()) {
           finalSvg = finalSvg.replaceAll(token, html);
+        }
+
+        // Đảm bảo foreignObject và div nhãn bên trong không bị cắt góc
+        const styleOverride = `<style>
+          #${uniqueId} foreignObject { overflow: visible !important; }
+          #${uniqueId} foreignObject > div { overflow: visible !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; line-height: 1.5 !important; padding: 2px 4px !important; }
+          #${uniqueId} .node text, #${uniqueId} .node span { overflow: visible !important; }
+        </style>`;
+
+        if (finalSvg.includes('</svg>')) {
+          finalSvg = finalSvg.replace('</svg>', `${styleOverride}</svg>`);
+        } else {
+          finalSvg += styleOverride;
         }
 
         if (isActive) {
@@ -108,7 +122,7 @@ export function MermaidDiagram({ chart, caption }: { chart: string; caption?: st
     <figure className="my-6 grid justify-items-center gap-2 w-full">
       <div
         ref={containerRef}
-        className="w-full overflow-x-auto flex justify-center py-6 px-6 rounded-xl border border-[#205089]/14 bg-[#F8FAFC]/75 shadow-sm transition-all [&_svg]:max-w-none [&_svg]:h-auto [&_svg]:overflow-visible"
+        className="w-full overflow-x-auto flex justify-center py-6 px-6 rounded-xl border border-[#205089]/14 bg-[#F8FAFC]/75 shadow-sm transition-all [&_svg]:max-w-none [&_svg]:h-auto [&_svg]:overflow-visible [&_foreignObject]:overflow-visible [&_.node]:overflow-visible [&_.label]:overflow-visible [&_.label]:leading-relaxed"
         dangerouslySetInnerHTML={{ __html: svgContent }}
       />
       {caption && (
