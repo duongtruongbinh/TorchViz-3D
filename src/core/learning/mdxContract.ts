@@ -60,7 +60,7 @@ export type LearningMdxSearchDocument = LearningMdxPath & {
 
 export function parseLearningMdxPath(filePath: string): LearningMdxPath | null {
   const normalizedPath = filePath.replaceAll('\\', '/');
-  const match = normalizedPath.match(/(?:^|\/)learning\/([^/]+)\/([^/]+?)\.([a-z]{2,3}(?:-[a-z0-9]+)*)\.mdx$/i);
+  const match = normalizedPath.match(/(?:^|\/)learning\/([^/]+)\/(?:.*\/)?([^/]+?)\.([a-z]{2,3}(?:-[a-z0-9]+)*)\.mdx$/i);
   return match ? {
     domainId: match[1],
     lessonId: match[2].replace(/^\d+(?:\.\d+)+-/, ''),

@@ -63,7 +63,7 @@ Nhóm tác giả thiết lập hai kịch bản thích ứng miền (**Domain Ad
 2. **Trục Bảo toàn Tri thức Tổng quát Gốc (Pretrained Retention):** Đo lường trên các benchmark hoàn toàn không có trong tập huấn luyện (**MMLU 57 ngành**, **TruthfulQA chống ảo giác**, **HellaSwag suy luận logic**).
 
 <LessonImage
-  assetPath="research-papers/04-figure-3-energy-ratio-trend.png"
+  assetPath="research-papers/llm/continual-learning/sdc-lora/04-figure-3-energy-ratio-trend.png"
   alt="Hình 3: Tiến hóa của tỷ lệ năng lượng tương phản Rt và điểm benchmark MMLU, TruthfulQA, HellaSwag theo số bước fine-tune"
   caption="Hình 3: (a) Xu hướng dâng cao của tỷ lệ năng lượng tương phản Rt hướng về Principal Subspace ở các biến thể LoRA; (b, c, d) Sự suy giảm hiệu năng tri thức tổng quát tương ứng trên MMLU, HellaSwag và TruthfulQA. SDC-LoRA (đường cam) ức chế hoàn toàn sự dâng cao này."
   aspectRatio="21 / 9"
@@ -111,7 +111,7 @@ Kết quả fine-tune trên tập dữ liệu **MetaMathQA (100k mẫu)** và đ
 - **SDC-LoRA:** Vượt trội hơn tất cả các phương pháp trước đó trên cả 3 chỉ số chống quên (vượt phương pháp tốt thứ nhì CorDA từ **+1.29% đến +2.16%**), đồng thời đạt độ chính xác giải toán GSM8K cao nhất (**79.38%** trên LLaMA và **82.50%** trên Qwen).
 
 <LessonImage
-  assetPath="research-papers/05-figure-6-training-loss-steps.png"
+  assetPath="research-papers/llm/continual-learning/sdc-lora/05-figure-6-training-loss-steps.png"
   alt="Hình 6: Đường cong Training Loss theo các bước huấn luyện trên tập MetaMathQA"
   caption="Hình 6: Đường cong Training Loss trên MetaMathQA. Ở 100 bước đầu (First 100 steps), SDC-LoRA hội tụ tương đương các phương pháp khác; ở 2.000 bước cuối (Last 2k steps), SDC-LoRA đạt loss thấp và ổn định hơn."
   aspectRatio="21 / 9"
@@ -126,7 +126,7 @@ Kết quả fine-tune trên tập dữ liệu **MetaMathQA (100k mẫu)** và đ
 ### Phân tích Đánh đổi Learning Rate (Hình 7)
 
 <LessonImage
-  assetPath="research-papers/06-figure-7-break-learning-rate-tradeoff.png"
+  assetPath="research-papers/llm/continual-learning/sdc-lora/06-figure-7-break-learning-rate-tradeoff.png"
   alt="Hình 7: Phân tích sự tiến hóa Rt và quan hệ đánh đổi giữa GSM8K và điểm lưu giữ tri thức"
   caption="Hình 7: (a) Tiến hóa của Rt trong quá trình fine-tune so với MiLoRA ở các mức learning rate; (b) Quan hệ GSM8K vs. điểm lưu giữ tri thức trung bình."
   aspectRatio="3 / 4"
@@ -196,14 +196,14 @@ Nhóm tác giả tiến hành thí nghiệm bóc tách (**Ablation Study**) trê
 3. **Hệ số hiệu chuẩn phổ <InlineMath formula="\gamma_{\text{sc}}" />:** Tạo ra điểm cân bằng tối ưu toán học giữa việc tiếp thu bài toán mới và bảo tồn tri thức gốc.
 
 <LessonImage
-  assetPath="research-papers/07-figure-4-gamma-strategies-evolution.png"
+  assetPath="research-papers/llm/continual-learning/sdc-lora/07-figure-4-gamma-strategies-evolution.png"
   alt="Hình 4: Tiến hóa của Rt trong quá trình fine-tuning dưới các chiến lược gamma khác nhau"
   caption="Hình 4: Tiến hóa của Rt dưới các chiến lược gamma khác nhau. SDC-LoRA (đường cam) ức chế đà tăng của Rt một cách ổn định, trong khi Random gamma (đường xanh lá) vẫn bị trôi dạt nhanh chóng tương tự MiLoRA."
   aspectRatio="21 / 9"
 />
 
 <LessonImage
-  assetPath="research-papers/08-figure-5-spectral-calibration-heatmap.png"
+  assetPath="research-papers/llm/continual-learning/sdc-lora/08-figure-5-spectral-calibration-heatmap.png"
   alt="Hình 5: Heatmap phân bố hệ số hiệu chuẩn phổ gamma_sc theo từng tầng và loại tham số"
   caption="Hình 5: Heatmap phân bố hệ số hiệu chuẩn phổ gamma_sc theo từng tầng (Layer index) và loại tham số chiếu (Parameter type) trên MetaMath và CodeFeedback. Tầng nông và tầng sâu có gamma_sc nhỏ hơn (cần hãm mạnh hơn), chứng minh tính thích ứng động theo cấu trúc mô hình."
   aspectRatio="21 / 9"

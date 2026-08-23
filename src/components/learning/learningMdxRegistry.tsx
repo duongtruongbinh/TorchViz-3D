@@ -61,7 +61,7 @@ export type LearningMdxLessonDescriptor = {
   pages: ReactElement[];
 };
 
-const LESSON_LOADERS = import.meta.glob<MdxModule>('../../content/learning/*/*.mdx');
+const LESSON_LOADERS = import.meta.glob<MdxModule>('../../content/learning/**/*.mdx');
 const lessonModuleDescriptors = Object.keys(LESSON_LOADERS)
   .flatMap((filePath): LessonModuleDescriptor[] => {
     const parsed = parseLearningMdxPath(filePath);

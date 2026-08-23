@@ -46,7 +46,7 @@ Ai làm việc với LLM cũng thích **LoRA**: nhẹ VRAM, train nhanh, adapter
 > <BlockMath formula="\Delta W \in \mathbb{R}^{4096 \times 4096} = \frac{16}{8} (\underbrace{B}_{4096 \times 8} \cdot \underbrace{A}_{8 \times 4096})" />
 > (tổng số tham số chỉ là <InlineMath formula="4096 \times 8 + 8 \times 4096 = 65{,}536" /> tham số — nhỏ hơn 256 lần so với <InlineMath formula="W_0" />)
 > 
-> <LessonImage assetPath="research-papers/01-lora-linear-projection-vs-adaptation.png" alt="So sánh Linear Projection thông thường và LoRA adaptation với nhánh đóng băng W0 và nhánh rank thấp A, B" caption="Kiến trúc LoRA: Đóng băng ma trận trọng số gốc W0 và chỉ huấn luyện nhánh phân rã rank thấp A, B song song." />
+> <LessonImage assetPath="research-papers/llm/continual-learning/sdc-lora/01-lora-linear-projection-vs-adaptation.png" alt="So sánh Linear Projection thông thường và LoRA adaptation với nhánh đóng băng W0 và nhánh rank thấp A, B" caption="Kiến trúc LoRA: Đóng băng ma trận trọng số gốc W0 và chỉ huấn luyện nhánh phân rã rank thấp A, B song song." />
 > 
 > Nhánh này được gắn song song vào các **tầng chiếu tuyến tính (Linear Projections)** của từng khối Transformer:
 > - **Self-Attention:** <InlineMath formula="W_q, W_k, W_v, W_o" />
@@ -323,7 +323,7 @@ Sự xuất hiện của thành phần cập nhật 4.0 trong không gian chủ 
 **Hậu quả:** Dù khởi tạo LoRA trong Minor Subspace, các bước cập nhật gradient thực tế vẫn dần trôi dạt và xâm lấn sang Principal Subspace (hiện tượng **Singular-subspace Drift - SD**). Sự bẻ lệch hệ trục <InlineMath formula="U" /> và <InlineMath formula="V" /> làm biến dạng cấu trúc tri thức gốc, trực tiếp gây ra hiện tượng **Catastrophic Forgetting** (quên lãng thảm khốc) trên các năng lực tổng quát.
 
 <LessonImage
-  assetPath="research-papers/02-singular-subspace-drift-paper.png"
+  assetPath="research-papers/llm/continual-learning/sdc-lora/02-singular-subspace-drift-paper.png"
   alt="Biểu đồ phân bố năng lượng chiếu của LoRA trong các không gian con kỳ dị theo bài báo SDC-LoRA (ACL 2026)"
   caption="Hiện tượng Singular-subspace Drift (SD) trong các phương pháp PEFT thông thường: Năng lượng cập nhật bị trôi dạt và áp đảo ở Principal Subspace."
   aspectRatio="21 / 9"
@@ -379,7 +379,7 @@ Thay vì để gradient tự do cập nhật mọi hướng, SDC-LoRA đưa vào
 - **Zero Inference Overhead:** Cơ chế hiệu chuẩn phổ <InlineMath formula="\gamma_{\text{sc}}" /> chỉ can thiệp vào các bước cập nhật gradient trong lúc huấn luyện. Khi hoàn tất fine-tune, bộ trọng số LoRA được đóng băng cố định và cộng gộp trực tiếp vào ma trận gốc (<InlineMath formula="W_{\text{final}} = W_0 + B \cdot A" />), hoàn toàn không làm phát sinh thêm bất kỳ phép tính phức tạp, bộ nhớ đệm hay độ trễ nào khi đưa vào vận hành suy luận thực tế.
 
 <LessonImage
-  assetPath="research-papers/03-sdc-lora-controlled-drift-paper.png"
+  assetPath="research-papers/llm/continual-learning/sdc-lora/03-sdc-lora-controlled-drift-paper.png"
   alt="Biểu đồ phân bố năng lượng chiếu của phương pháp SDC-LoRA theo bài báo (ACL 2026)"
   caption="Cơ chế SDC-LoRA (No SD!): Hiệu chuẩn phổ giúp giữ vững năng lượng cập nhật tại Minor Subspace và bảo vệ hoàn toàn Principal Subspace."
   aspectRatio="21 / 9"
