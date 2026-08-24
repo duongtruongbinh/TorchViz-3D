@@ -80,7 +80,7 @@ test('Learning Content Math & KaTeX Validation', async (t) => {
           const textOnly = rawLine
             .replace(/<(InlineMath|BlockMath)\s+formula="[^"]*"\s*\/>/g, '')
             .replace(/\$\$[\s\S]*?\$\$/g, '')
-            .replace(/\$[^\$]+?\$/g, '');
+            .replace(/\$[^$]+?\$/g, '');
 
           // Check for unrendered mathematical characters
           for (const pattern of UNRENDERED_MATH_PATTERNS) {
@@ -118,10 +118,9 @@ test('Learning Content Math & KaTeX Validation', async (t) => {
       const relPath = path.relative(process.cwd(), filePath);
 
       // Match all $...$ inline math inside the quiz
-      const mathRegex = /\$([^\$\n]+?)\$/g;
-      let match: RegExpExecArray | null;
+      const mathRegex = /\$([^$\n]+?)\$/g;
 
-      while ((match = mathRegex.exec(content)) !== null) {
+      for (let match = mathRegex.exec(content); match !== null; match = mathRegex.exec(content)) {
         let formula = match[1].trim();
         if (!formula) continue;
 

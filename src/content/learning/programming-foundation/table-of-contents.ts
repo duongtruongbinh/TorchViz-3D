@@ -197,7 +197,7 @@ export const learningTableOfContents = {
     title: { en: "Programming", vi: "Programming" },
     description: { en: "Build the Python fluency needed for AI work: functions, classes, files, debugging, NumPy-style arrays, project structure, async API calls, and clean code habits that make model experiments reliable.", vi: "Xây nền Python cho công việc AI: function, class, file, debugging, array kiểu NumPy, cấu trúc project, async API call và thói quen code sạch để thử nghiệm model đáng tin cậy." },
   },
-  status: 'active',
+  status: 'placeholder',
   chapters,
   sectionKinds: ['theory', 'code'],
 } satisfies LearningTableOfContents;

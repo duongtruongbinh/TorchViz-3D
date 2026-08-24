@@ -1,15 +1,18 @@
 ---
 title: "MLOps Domain — Curriculum Init, Architecture Expansion & 3-Tier Catalog Readiness"
-status: completed
-created: 2026-08-20
-updated: 2026-08-21
+status: done
+created: 2026-08-20T00:00:00+07:00
+updated: 2026-08-24T00:00:00+07:00
 author: Antigravity
-supersedes: ["2026-08-20-mlops-448-question-bank-enhancement.md"]
+supersedes: []
 ---
 
 # Summary
 
 Initialised and expanded the `mlops-llmops-production-systems` Learning Lab domain (8 chapters, 18 topics, 54 triplet lessons: theory + quiz + code lab) based on Made-With-ML with comprehensive Vietnamese localization, visual metaphors, and architectural decoupling principles:
+
+> Note (2026-08-24): scope expanded after this plan shipped — the domain now
+> carries 21 topics / 63 published lessons (v2 expansion, commit `e5882e9`).
 
 - **Chapter 1 Architecture Breakdown & Modularization**:
   - Expanded generic system design into 6 specialized topic triplets:

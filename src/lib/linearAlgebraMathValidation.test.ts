@@ -33,9 +33,8 @@ test('Linear Algebra KaTeX Math Validation', async (t) => {
 
         // Match all InlineMath and BlockMath occurrences
         const formulaRegex = /<(InlineMath|BlockMath)\s+formula="([^"]+)"/g;
-        let match: RegExpExecArray | null;
 
-        while ((match = formulaRegex.exec(content)) !== null) {
+        for (let match = formulaRegex.exec(content); match !== null; match = formulaRegex.exec(content)) {
           const isBlock = match[1] === 'BlockMath';
           const rawFormula = match[2];
           totalFormulasTested++;
@@ -79,9 +78,8 @@ test('Linear Algebra KaTeX Math Validation', async (t) => {
         const content = fs.readFileSync(filePath, 'utf8');
 
         const formulaRegex = /<(?:InlineMath|BlockMath)\s+formula="([^"]+)"/g;
-        let match: RegExpExecArray | null;
 
-        while ((match = formulaRegex.exec(content)) !== null) {
+        for (let match = formulaRegex.exec(content); match !== null; match = formulaRegex.exec(content)) {
           const formula = match[1];
 
           // A TeX command like \\mathbf, \\lVert, \\begin at start or after delimiters is overescaped.

@@ -105,15 +105,15 @@ export function ExponentComparisonChart({ length, product }: {
   const pointColor = '#5BAA12';
   const minProduct = 0.05;
   const minValue = 0.4;
-  const maxValue = Math.max(2.2, Math.pow(minProduct, -1 / length));
+  const maxValue = Math.max(2.2, minProduct ** (-1 / length));
   const xFor = (value: number) => 12 + ((value - minProduct) / (1 - minProduct)) * 82;
   const yFor = (value: number) => 88 - ((value - minValue) / (maxValue - minValue)) * 74;
   const curvePath = (exponent: number) => Array.from({ length: 96 }, (_, index) => {
     const value = minProduct + index * 0.01;
-    return `${index === 0 ? 'M' : 'L'} ${xFor(value).toFixed(2)} ${yFor(Math.pow(value, exponent)).toFixed(2)}`;
+    return `${index === 0 ? 'M' : 'L'} ${xFor(value).toFixed(2)} ${yFor(value ** exponent).toFixed(2)}`;
   }).join(' ');
-  const normalized = Math.pow(product, 1 / length);
-  const perplexity = Math.pow(product, -1 / length);
+  const normalized = product ** (1 / length);
+  const perplexity = product ** (-1 / length);
   const pointX = xFor(product);
 
   return (

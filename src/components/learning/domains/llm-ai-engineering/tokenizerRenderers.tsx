@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowLeftRight, ArrowRight, Braces, CheckCircle2, CircleAlert, Coffee, CornerDownLeft, Cpu, Database, Info, Route, Scissors, SlidersHorizontal, Sparkles, Type, type LucideIcon, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
-import { cx, getLearningLabTheme } from '../../theme';
+import { cx, type getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
 import { DiagramConnectorLayer, getDiagramAnchor, observeDiagramLayout } from '../../primitives/diagramPrimitives';
 import { CodeBlock } from '../../code/CodeBlock';

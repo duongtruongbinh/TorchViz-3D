@@ -83,7 +83,7 @@ is desktop-oriented; Landing and Learning Lab remain responsive.
 
 ```bash
 npm run dev      # local dev server (http://localhost:3000)
-npm test         # node --test on src/lib/*.test.ts
+npm test         # node --test on src/**/*.test.ts
 npm run build    # production build to dist/
 npm run verify   # typecheck + tests + production build
 ```

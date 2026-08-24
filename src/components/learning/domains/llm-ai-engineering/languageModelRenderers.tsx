@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import type { Language } from '../../../../lib/localization';
-import { cx, getLearningLabTheme } from '../../theme';
+import { cx, type getLearningLabTheme } from '../../theme';
 import { getLearningLocalizedText as text } from '../../learningText';
 import { DiagramConnectorLayer, getDiagramAnchor, observeDiagramLayout } from '../../primitives/diagramPrimitives';
 import { ExponentComparisonChart, ProbabilityCurveChart, ProbabilitySignComparisonChart } from './probabilityCharts';
@@ -1069,8 +1069,8 @@ export function LlmLossDerivation({ content, language, themeClasses }: LlmConten
                     <input type="range" min="0.05" max="1" step="0.01" value={productProbability} onChange={(event) => setProductProbability(Number(event.target.value))} className="w-full accent-[#5BAA12]" aria-label="Tích xác suất dùng để so sánh số mũ một trên L và âm một trên L" />
                     <div className={cx('flex justify-between text-xs font-semibold', themeClasses.mutedText)}><span>0.05</span><span>0.50</span><span>1.00</span></div>
                     <div className="grid gap-1 text-sm font-black tabular-nums">
-                      <span className={cx('flex items-baseline gap-1', themeClasses.titleText)}><span dangerouslySetInnerHTML={{ __html: katex.renderToString('(\\prod_i p_i)^{1/L}=', { throwOnError: false }) }} />{Math.pow(productProbability, 1 / step.exponentComparison.length).toFixed(3)}</span>
-                      <span className={cx('flex items-baseline gap-1', themeClasses.accentText)}><span dangerouslySetInnerHTML={{ __html: katex.renderToString('(\\prod_i p_i)^{-1/L}=', { throwOnError: false }) }} />{Math.pow(productProbability, -1 / step.exponentComparison.length).toFixed(3)}</span>
+                      <span className={cx('flex items-baseline gap-1', themeClasses.titleText)}><span dangerouslySetInnerHTML={{ __html: katex.renderToString('(\\prod_i p_i)^{1/L}=', { throwOnError: false }) }} />{(productProbability ** (1 / step.exponentComparison.length)).toFixed(3)}</span>
+                      <span className={cx('flex items-baseline gap-1', themeClasses.accentText)}><span dangerouslySetInnerHTML={{ __html: katex.renderToString('(\\prod_i p_i)^{-1/L}=', { throwOnError: false }) }} />{(productProbability ** (-1 / step.exponentComparison.length)).toFixed(3)}</span>
                     </div>
                   </div>
                   <ExponentComparisonChart length={step.exponentComparison.length} product={productProbability} />

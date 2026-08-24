@@ -150,8 +150,7 @@ test('Mafs constraint purity: Mafs constrain callbacks do not mutate React state
   for (const [name, source] of [['vectorRenderers', vectorRenderers], ['systemRenderers', systemRenderers]]) {
     // Check that constrain callbacks do not call setState or callbacks
     const constrainRegex = /constrain:\s*\([^)]*\)\s*=>\s*\{([^}]*)\}/g;
-    let match: RegExpExecArray | null;
-    while ((match = constrainRegex.exec(source)) !== null) {
+    for (let match = constrainRegex.exec(source); match !== null; match = constrainRegex.exec(source)) {
       const body = match[1];
       assert.ok(
         !body.includes('set') && !body.includes('onPosChange'),

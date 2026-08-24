@@ -33,11 +33,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
       - name: Typecheck
         run: npm run typecheck
 
       - name: Unit tests
         run: npm test
+
+      - name: Catalog stats drift check
+        run: npm run check:catalog-stats
 
       - name: Production build
         run: npm run build

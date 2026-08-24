@@ -71,7 +71,7 @@ rule already covers the name (e.g. `/conv/i` matches `ConvTranspose2d`), you're
 done. Otherwise add a `KIND_RULES` entry (mind ordering: specific before
 generic) and, if it's a new category, a `META_MAP` entry.
 
-> Note: color is **not** in `constants.ts` (the prose docs are stale on this).
+> Note: color is **not** in `constants.ts` — op colors live in `visualKind.ts`.
 
 ### 4. (Optional) expose it under `F`
 
@@ -87,7 +87,7 @@ output shape; the param count matches real PyTorch; a deliberately wrong input
 shape shows a red error node, not a crash. Then:
 
 ```bash
-npm test    # node --test on src/lib/*.test.ts
+npm test    # node --test on src/**/*.test.ts
 ```
 
 ## Conventions

@@ -33,7 +33,11 @@ function walk(node: Node | null | undefined, visit: (node: Node, parent?: Node) 
   if (!node || typeof node !== 'object') return;
   visit(node, parent);
   for (const value of Object.values(node)) {
-    if (Array.isArray(value)) value.forEach((child) => walk(child as Node, visit, node));
+    if (Array.isArray(value)) {
+      value.forEach((child) => {
+        walk(child as Node, visit, node);
+      });
+    }
     else if (value && typeof value === 'object') walk(value as Node, visit, node);
   }
 }
@@ -49,7 +53,9 @@ function assertStaticExpression(node: Node | null | undefined, label: string): v
   if (!node) throw new Error(`${label}: empty MDX expression`);
   if (node.type === 'Literal' || node.type === 'JSXElement' || node.type === 'JSXFragment' || node.type === 'JSXText') return;
   if (node.type === 'ArrayExpression') {
-    node.elements?.forEach((item) => assertStaticExpression(item, label));
+    node.elements?.forEach((item) => {
+      assertStaticExpression(item, label);
+    });
     return;
   }
   if (node.type === 'ObjectExpression') {
@@ -61,7 +67,9 @@ function assertStaticExpression(node: Node | null | undefined, label: string): v
     return;
   }
   if (node.type === 'TemplateLiteral') {
-    node.expressions?.forEach((item) => assertStaticExpression(item, label));
+    node.expressions?.forEach((item) => {
+      assertStaticExpression(item, label);
+    });
     return;
   }
   if (node.type === 'UnaryExpression' && node.operator === '-' && typeof node.argument?.value === 'number') return;
@@ -81,7 +89,11 @@ function stringsFromExpression(node: Node | null | undefined, output: string[], 
     return;
   }
   for (const value of Object.values(node)) {
-    if (Array.isArray(value)) value.forEach((child) => stringsFromExpression(child as Node, output, parentKey));
+    if (Array.isArray(value)) {
+      value.forEach((child) => {
+        stringsFromExpression(child as Node, output, parentKey);
+      });
+    }
     else if (value && typeof value === 'object') stringsFromExpression(value as Node, output, parentKey);
   }
 }

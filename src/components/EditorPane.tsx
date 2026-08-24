@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type * as MonacoEditor from 'monaco-editor';
-import Editor, { Monaco, loader, type OnMount } from '@monaco-editor/react';
+import Editor, { type Monaco, loader, type OnMount } from '@monaco-editor/react';
 import { getStrings } from '../lib/localization';
 import { usePreferencesStore } from '../store/usePreferencesStore';
 

@@ -68,7 +68,7 @@ export default function LearningLabView({ onBackToLanding }: LearningLabViewProp
   const [searchLoadState, setSearchLoadState] = useState<{ domainId: LearningDomainId; status: 'loading' | 'error' | 'success' } | null>(null);
   const [searchRetryVersion, setSearchRetryVersion] = useState(0);
   const [researchPaperViewLevel, setResearchPaperViewLevel] = useState<'all' | 'category' | 'topic' | 'paper'>(
-    () => (Boolean(routeLessonId) ? 'paper' : 'all')
+    () => (routeLessonId ? 'paper' : 'all')
   );
   const [, startLessonTransition] = useTransition();
   const contentAreaRef = useRef<HTMLElement | null>(null);
