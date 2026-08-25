@@ -1,0 +1,522 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sculpting-subspaces-experiments',
+  locale: 'vi',
+  title: 'Phần 4: Kết quả Thực nghiệm',
+  headings: [
+    'Thiết lập Benchmark & Giao thức Đánh giá',
+    'Các Phương pháp Baseline Đối sánh',
+    'Bảng 1: Kết quả Chính trên Chuỗi 5 & 15 Tác vụ (T5-Large)',
+    'Bảng 2: Hiệu năng trên Benchmark Đa miền Thực tế TRACE (LLaMA-2 7B-Chat)',
+    'Bảng 3: Bảo tồn Năng lực Ngôn ngữ Tổng quát (General Capabilities)',
+    'Bảng 4: Đánh giá Safety Alignment & Instruction Following (GPT-4 Judge)',
+    'Bảng 8 & 9: Khảo sát Độ nhạy Siêu tham số (mrr & trr Sensitivity)',
+    'Phân tích Ablation Study: Vai trò của Rank & Phép Chiếu',
+    'Phân tích Phổ Kỳ dị theo Tầng trên Granite 8B (Figures 7–13)',
+    'Đối chiếu & Giải đáp các Câu hỏi Nghiên cứu',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'Experimental Results',
+    'T5-Large',
+    'LLaMA-2 7B',
+    'TRACE Benchmark',
+    'Average Accuracy',
+    'Backward Transfer',
+    'Ablation Study',
+    'Safety Evaluation',
+    'Instruction Following',
+    'Research Questions',
+  ],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+
+### Thiết lập Benchmark & Giao thức Đánh giá
+
+Nghiên cứu tiến hành đánh giá thực nghiệm toàn diện trên nhiều kiến trúc mô hình tiêu biểu: **T5-Large (Encoder-Decoder - 770M tham số)**, **LLaMA-2 7B (Decoder-Only - 7B tham số)** và **Mistral-7B (Decoder-Only - 7B tham số)**. Chuyên đề này tập trung trình bày kết quả trên T5-Large và LLaMA-2 7B — hai kiến trúc đại diện cho hai dòng mô hình chính.
+
+<ConceptHierarchy
+  ariaLabel="3 Bộ Benchmark Đánh giá Học Liên tục"
+  root={{
+    title: '3 Bộ Benchmark Đánh giá Thực nghiệm',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Standard CL (5 Tác vụ)',
+      detail: (
+        <span>
+          5 bài toán phân loại văn bản kinh điển: <em>AG News, Amazon Reviews, Yelp Reviews, DBpedia, Yahoo Answers</em>. Đánh giá khả năng chống quên cơ bản trên miền phân phối hẹp.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '2. Extended CL (15 Tác vụ)',
+      detail: (
+        <span>
+          Chuỗi 15 tác vụ kéo dài kết hợp từ <strong>GLUE</strong> (<em>MNLI, QQP, RTE, SST-2</em>), <strong>SuperGLUE</strong> (<em>WiC, CB, COPA, MultiRC, BoolQ</em>), <em>IMDB</em> và 5 tác vụ cơ bản. Đánh giá tính bền vững khi chuỗi học kéo dài.
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '3. TRACE Benchmark (8 Tác vụ Đa miền)',
+      detail: (
+        <span>
+          Benchmark đa miền thực tế dành riêng cho <strong>LLaMA-2 7B-Chat</strong> gồm suy luận toán học (GSM8K), viết code (CodeX), hiểu đa ngôn ngữ và tri thức chuyên ngành.
+        </span>
+      ),
+      tone: 'teal',
+    },
+  ]}
+/>
+
+---
+
+<ConceptHierarchy
+  ariaLabel="Các Chỉ số Đo lường Hiệu năng và Độ Bền vững"
+  root={{
+    title: 'Các Chỉ số Đo lường (Evaluation Metrics)',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: 'Average Accuracy (AA)',
+      detail: (
+        <span>
+          Độ chính xác trung bình trên toàn bộ <InlineMath formula="T" /> tác vụ sau khi hoàn thành khóa huấn luyện tác vụ cuối cùng: <InlineMath formula="\text{AA} = \frac{1}{T} \sum_{i=1}^T R_{T, i}" />.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: 'Backward Transfer (BWT)',
+      detail: (
+        <span>
+          Mức độ ảnh hưởng của việc học tác vụ mới lên các tác vụ cũ: <InlineMath formula="\text{BWT} = \frac{1}{T-1}\sum_{i=1}^{T-1} (R_{T, i} - R_{i, i})" /> (càng gần 0 hoặc dương chứng tỏ không bị quên lãng).
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: 'Tăng trưởng Tham số (Parameter Growth)',
+      detail: 'Tỷ lệ % tham số hoặc dung lượng bộ nhớ phát sinh thêm sau mỗi tác vụ mới (OSFT đạt chuẩn 0% Zero Parameter Growth).',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+---
+
+### Các Phương pháp Baseline Đối sánh
+
+<ConceptHierarchy
+  ariaLabel="Phân nhóm các Phương pháp Baseline Đối sánh"
+  root={{
+    title: '3 Nhóm Baseline Đối sánh Thực nghiệm',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Upper Bound (Trần Hiệu năng)',
+      detail: 'Multi-task Learning (MTL): Huấn luyện đồng thời trên toàn bộ dữ liệu của tất cả các tác vụ để lấy mốc tham chiếu lý tưởng.',
+      tone: 'neutral',
+    },
+    {
+      title: '2. Sequential Fine-Tuning',
+      detail: (
+        <span>
+          <strong>Full Seq FT:</strong> Không kiểm soát gradient, gây sụp đổ tri thức cũ nặng nề.<br />
+          <strong>LoRA Seq FT:</strong> Huấn luyện tuần tự trên một nhánh LoRA duy nhất.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '3. Continual Learning Baselines',
+      detail: (
+        <span>
+          <strong>O-LoRA:</strong> Ép trực giao giữa các adapter LoRA riêng biệt của từng task.<br />
+          <strong>InfLoRA:</strong> Khởi tạo LoRA trên không gian tri thức cốt lõi.<br />
+          <strong>EWC:</strong> Regularization dựa trên thông tin Fisher.<br />
+          <strong>L2P & DualPrompt:</strong> Continual Learning dựa trên Prompt tuning.
+        </span>
+      ),
+      tone: 'teal',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Bảng 1: Kết quả Chính trên Chuỗi 5 & 15 Tác vụ (T5-Large)
+
+| Phương pháp | 5-Task Order 1 | 5-Task Order 2 | 5-Task Order 3 | **5-Task avg** | 15-Task Order 4 | 15-Task Order 5 | 15-Task Order 6 | **15-Task avg** |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **SeqFT** | 18.9% | 24.9% | 41.7% | 28.5% | 7.4% | 7.4% | 7.5% | 7.4% |
+| **SeqLoRA** | 44.6% | 32.7% | 53.7% | 43.7% | 2.3% | 0.6% | 1.9% | 1.6% |
+| **IncLoRA** | 66.0% | 64.9% | 68.3% | 66.4% | 63.3% | 58.5% | 61.7% | 61.2% |
+| **Replay** | 55.2% | 56.9% | 61.3% | 57.8% | 55.0% | 54.6% | 53.1% | 54.2% |
+| **EWC** | 48.7% | 47.7% | 54.5% | 50.3% | 45.3% | 44.5% | 45.6% | 45.1% |
+| **LwF** | 54.4% | 53.1% | 49.6% | 52.3% | 50.1% | 43.1% | 47.4% | 46.9% |
+| **L2P** | 60.3% | 61.7% | 61.1% | 60.7% | 57.5% | 53.8% | 56.9% | 56.1% |
+| **O-LoRA** | **75.4%** | **75.7%** | 76.3% | 75.8% | **72.3%** | 64.8% | 71.6% | 69.6% |
+| **OSFT (Ours)** | 75.3% | 74.0% | **78.4%** | **75.9%** | 71.6% | **69.6%** | **72.7%** | **71.3%** |
+| *PerTaskFT* | *70.0%* | *70.0%* | *70.0%* | *70.0%* | *78.1%* | *78.1%* | *78.1%* | *78.1%* |
+| *MTL (Upper Bound)* | *80.0%* | *80.0%* | *80.0%* | *80.0%* | *76.5%* | *76.5%* | *76.5%* | *76.5%* |
+
+> **Nhận xét then chốt:**
+> - Trên chuỗi 5 tác vụ, **OSFT (75.9%) gần như ngang bằng O-LoRA (75.8%)** — cả hai đều vượt trội các baseline khác.
+> - Trên chuỗi 15 tác vụ kéo dài, **OSFT vượt O-LoRA +1.7%** (71.3% so với 69.6%), cho thấy ưu thế tăng dần khi chuỗi học kéo dài.
+> - SeqLoRA sụp đổ hoàn toàn trên 15 tasks (chỉ còn 1.6%), chứng minh adapter rank cố định không thể mở rộng cho chuỗi dài.
+
+---
+
+**Hướng dẫn đọc Bảng số liệu 1 (T5-Large 5 & 15 Tasks):**
+* **Cột AA (Average Accuracy):** Độ chính xác trung bình sau khi học xong chuỗi (càng cao càng tốt).
+* **3 Order xáo trộn:** Mỗi cấu hình chạy trên 3 thứ tự tác vụ ngẫu nhiên khác nhau để kiểm chứng tính bền vững.
+* **PerTaskFT (70.0%):** Huấn luyện 5 mô hình riêng biệt — là trần hiệu năng của phương pháp cô lập tuyệt đối nhưng đắt chi phí gấp 5.
+
+---
+
+#### 2 Insight & Lời khuyên Kỹ thuật từ Bảng 1:
+* **Bẫy Sụp đổ của SeqLoRA trên Chuỗi dài:** SeqLoRA dùng adapter rank cố định nên khi chuỗi kéo dài (15 tasks), dung lượng biểu diễn bị nghẽn dẫn đến sụp đổ hoàn toàn (chỉ còn 1.6% trên 15-task).
+* **OSFT vs O-LoRA — Lợi thế mở rộng dài hạn:** Trên 5-task cả hai gần ngang nhau (75.9 vs 75.8), nhưng trên 15-task OSFT tỏ rõ ưu thế (+1.7%) nhờ cơ chế rank thích ứng không tích lũy adapter.
+* **Lời khuyên thực hành:** Với các hệ thống Continual Learning vận hành dài hạn, OSFT là lựa chọn vượt trội vì duy trì chi phí tham số hằng số <InlineMath formula="O(1)" /> và tận dụng 100% dung lượng biểu diễn.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Bảng 2: Hiệu năng trên Benchmark Đa miền Thực tế TRACE (LLaMA-2 7B-Chat)
+
+| Phương pháp | **Average Accuracy (AA)** | **Backward Transfer (BT)** |
+| :--- | :---: | :---: |
+| **SeqFT** | 23.0% | -8.3% |
+| **LoRASeqFT** | 9.2% | -24.6% |
+| **O-LoRA** | 41.3% | **-6.2%** |
+| **OSFT (Ours)** | **48.4%** | -7.1% |
+| *PerTaskFT* | *57.6%* | *—* |
+| *MTL (Upper Bound)* | *52.3%* | *—* |
+
+> **Nhận xét then chốt:**
+> - **OSFT đạt 48.4% AA**, vượt O-LoRA tới **+7.1 điểm** (48.4% vs 41.3%) trên 8 tác vụ đa miền thực tế.
+> - OSFT thậm chí tiệm cận mức trần **MTL (52.3%)** — phương pháp huấn luyện đồng thời trên toàn bộ dữ liệu (không tuần tự).
+> - **BWT của OSFT (-7.1%)** hơi cao hơn O-LoRA (-6.2%), phản ánh sự đánh đổi: OSFT ưu tiên khả năng học tác vụ mới (Learnability) mạnh hơn đáng kể trong khi chấp nhận mức quên lãng nhẹ hơn một chút.
+
+---
+
+### Bảng 3: Bảo tồn Năng lực Ngôn ngữ Tổng quát (General Capabilities)
+
+| Mô hình / Phương pháp | MMLU | GSM | BBH | TydiQA | BoolQA | PIQA |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **LLaMA-2 7B-Chat (Base)** | 46.6 | **26.1** | **40.2** | 23.5 | 70.5 | 76.2 |
+| **OSFT (Ours)** | **47.7** | 7.7 | 34.2 | **35.8** | **76.6** | **77.6** |
+
+> **Nhận xét then chốt:**
+> - OSFT **cải thiện** MMLU (+1.1), TydiQA (+12.3), BoolQA (+6.1) và PIQA (+1.4) so với mô hình Base.
+> - **Điểm yếu cần lưu ý:** GSM (Toán suy luận chuỗi) suy thoái mạnh từ 26.1 → **7.7** (-18.4 điểm). Đây là hạn chế đã biết — việc huấn luyện liên tục mà không bổ sung Chain-of-Thought supervision không đủ để bảo vệ năng lực suy luận toán học bậc cao.
+> - BBH (Big-Bench Hard) cũng giảm từ 40.2 → 34.2 (-6.0 điểm), cho thấy các tác vụ suy luận phức tạp nhiều bước chịu ảnh hưởng nhất từ quá trình học liên tục.
+
+---
+
+### Bảng 4: Đánh giá Safety Alignment & Instruction Following (GPT-4 Judge)
+
+| Phương pháp vs Base LLaMA-2 | Instruction Win | Instruction Tie | Instruction Lose | Safety Win | Safety Tie | Safety Lose |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Replay** | 10% | 18% | 72% | 0% | 88% | 12% |
+| **LoRASeqFT** | 3% | 4% | 94% | 0% | 86% | 14% |
+| **SeqFT** | 14% | 34% | 53% | 0% | 98% | 2% |
+| **OSFT (Ours)** | **24%** | **56%** | **20%** | **18%** | **78%** | **4%** |
+
+> **Nhận xét then chốt:**
+> - **Safety:** OSFT đạt Win + Tie = **96%** (18% + 78%), gần như hoàn toàn bảo tồn rào chắn an toàn so với Base Model. Đáng chú ý, OSFT là phương pháp **duy nhất** có tỷ lệ Win > 0% về Safety (18%), cho thấy OSFT thậm chí có thể **cải thiện** an toàn trong một số trường hợp.
+> - **Instruction Following:** OSFT đạt Win + Tie = **80%** (24% + 56%), vượt xa tất cả các baseline (LoRASeqFT chỉ 7%, SeqFT chỉ 48%).
+
+---
+
+**Hướng dẫn đọc Bảng 2, 3 & 4 (TRACE, General Capabilities, Safety):**
+* **Bảng 2 (TRACE):** Cột **AA** đo độ chính xác tổng hợp trên 8 tác vụ; cột **BT** đo mức độ bảo tồn tác vụ cũ (càng gần 0 càng ít quên).
+* **Bảng 3 (Năng lực Tổng quát):** So sánh OSFT sau khi học liên tục với mô hình Base ban đầu trên 6 benchmark đa dạng. OSFT cải thiện trên 4/6 benchmark nhưng **suy thoái mạnh trên GSM (Toán suy luận)** — một hạn chế quan trọng cần lưu ý.
+* **Bảng 4 (Safety & Instruction qua GPT-4):** Win + Tie cao chứng tỏ rào chắn an toàn (96%) và khả năng tuân thủ chỉ dẫn (80%) được bảo vệ nguyên vẹn.
+
+---
+
+#### 2 Insight Sống còn về Alignment & Safety từ Thực nghiệm:
+* **Hàng rào Thép Bảo vệ Safety (96%):** OSFT là phương pháp duy nhất vừa bảo tồn (Tie 78%) vừa có thể cải thiện (Win 18%) an toàn. Cơ chế đóng băng không gian High-Rank — nơi tập trung các hướng căn chỉnh đạo đức RLHF — ngăn gradient tác vụ mới phá hủy rào chắn an toàn.
+* **Cảnh báo về Suy thoái Suy luận Toán học (GSM: -18.4 điểm):** Đây là điểm yếu quan trọng nhất của OSFT. Năng lực suy luận chuỗi (Chain-of-Thought) nằm phân tán trên toàn bộ ma trận trọng số và không hoàn toàn tập trung ở High-Rank, nên vẫn bị ảnh hưởng khi cập nhật Low-Rank. Cần bổ sung Chain-of-Thought augmentation trong tập huấn luyện để khắc phục.
+* **Lời khuyên thực hành:** Khi triển khai OSFT trong production, **bắt buộc phải kiểm toán riêng biệt năng lực suy luận toán học** (GSM8K, MATH) bên cạnh Safety Drift và Instruction Following.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Bảng 8 & 9: Khảo sát Độ nhạy Siêu tham số (mrr & trr Sensitivity)
+
+| Minimum Retention Ratio (`mrr`) | Order 1 AA (%) | Order 1 BWT (%) | Order 2 AA (%) | Order 2 BWT (%) |
+| :--- | :---: | :---: | :---: | :---: |
+| `mrr = 0.05` | 78.9% | -1.4% | 77.8% | -1.8% |
+| `mrr = 0.10` *(Mặc định / Tối ưu)* | **79.6%** | **-0.8%** | **78.4%** | **-1.2%** |
+| `mrr = 0.15` | 79.1% | -0.9% | 78.0% | -1.3% |
+| `mrr = 0.20` | 77.8% | -0.6% | 76.9% | -0.9% |
+
+| Target Retention Ratio (`trr`) | Order 1 AA (%) | Order 1 BWT (%) | Order 2 AA (%) | Order 2 BWT (%) |
+| :--- | :---: | :---: | :---: | :---: |
+| `trr = 0.70` | 78.4% | -1.2% | 77.2% | -1.5% |
+| `trr = 0.80` *(Mặc định / Tối ưu)* | **79.6%** | **-0.8%** | **78.4%** | **-1.2%** |
+| `trr = 0.85` | 79.2% | -0.7% | 78.1% | -1.0% |
+| `trr = 0.90` | 77.5% | -0.5% | 76.3% | -0.8% |
+
+---
+
+**Hướng dẫn đọc Bảng 8 & 9 (Ablation Sensitivity):**
+* **Khảo sát `mrr` (Rank tối thiểu):** Tại `mrr = 0.10`, mô hình đạt điểm ngọt (*sweet spot*) với AA cao nhất (79.6%) và quên lãng thấp nhất (-0.8%).
+* **Khảo sát `trr` (Rank mục tiêu tối đa):** `trr = 0.80` cung cấp biên độ tối ưu để bảo vệ tri thức cũ mà vẫn chừa lại 20% không gian Low-Rank cho tác vụ mới.
+
+---
+
+### Phân tích Ablation Study: Vai trò của Rank & Phép Chiếu
+
+Để chứng minh tính hiệu quả của từng mắt xích trong thuật toán, nhóm tác giả tiến hành bóc tách thực nghiệm (Ablation Study) qua 3 khía cạnh quyết định:
+
+<ConceptHierarchy
+  ariaLabel="3 Trục Khảo sát Ablation Study"
+  root={{
+    title: '3 Trục Khảo sát Ablation Study',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Phân bổ Rank Thích ứng (Adaptive Rank)',
+      detail: (
+        <span>
+          Cơ chế tính điểm quan trọng tầng <InlineMath formula="I^{(l)}" /> tự động dồn dung lượng bảo vệ vào các tầng nhạy cảm và giải phóng các tầng ngữ cảnh, giúp tăng thêm <strong>+3.8% độ chính xác trung bình</strong> so với việc áp đặt rank cố định (<InlineMath formula="r = 50\%" />).
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '2. Phép Chiếu Trực giao 2 Phía (Two-Sided Projection)',
+      detail: (
+        <span>
+          Chiếu gradient đồng thời qua cả hai không gian vector kỳ dị trái và phải <InlineMath formula="(U_{\text{high}}, V_{\text{high}})" /> giúp triệt tiêu can thiệp tri thức cũ tốt hơn <strong>4.2%</strong> so với việc chỉ chiếu một phía (<InlineMath formula="U" /> hoặc <InlineMath formula="V" />).
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '3. Độ Bền vững Siêu tham số (mrr & trr)',
+      detail: (
+        <span>
+          Mô hình duy trì độ ổn định vượt trội khi <InlineMath formula="\text{mrr} \in [0.05, 0.15]" /> và <InlineMath formula="\text{trr} \in [0.70, 0.85]" /> mà không đòi hỏi tinh chỉnh quá mức theo từng bộ dữ liệu.
+        </span>
+      ),
+      tone: 'amber',
+    },
+  ]}
+/>
+
+---
+
+### Phân tích Phổ Kỳ dị theo Tầng trên Granite 8B (Figures 7–13)
+
+Khảo sát thống kê phổ kỳ dị (Min, Max, Mean, Median) trên toàn bộ 40 tầng của **Granite 8B** hé lộ sự phân hóa sâu sắc giữa hai khối chức năng **Self-Attention** và **MLP**:
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/07-figure-7-q-proj-singular-stats.png"
+  alt="Figure 7: Thống kê Giá trị Kỳ dị cho q_proj (Granite 8B)"
+  caption="Figure 7 (q_proj): Giá trị Max đạt đỉnh 9.7 tại Layer 0 rồi dao động quanh 3.5–4.5; rơi về 0 tại các tầng thưa (Layers 20, 23, 24, 26, 27, 29). Mean và Median duy trì ổn định quanh mức 0.5."
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/08-figure-8-k-proj-singular-stats.png"
+  alt="Figure 8: Thống kê Giá trị Kỳ dị cho k_proj (Granite 8B)"
+  caption="Figure 8 (k_proj): Đỉnh Max đạt 6.5 ở Layer 0 rồi thoải dốc dần xuống mức ~2.0 ở các tầng sâu, thể hiện khóa truy xuất ngữ cảnh suy giảm biên độ ở tầng cao."
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/09-figure-9-v-proj-singular-stats.png"
+  alt="Figure 9: Thống kê Giá trị Kỳ dị cho v_proj (Granite 8B)"
+  caption="Figure 9 (v_proj): Hành vi bùng nổ ở chặng cuối — giá trị Max tăng vọt từ 1.1 (tầng giữa) lên đỉnh 3.2 tại Layer 38; Mean và Median tăng gấp đôi từ 0.5 lên 1.25 để tổng hợp giá trị ngữ nghĩa."
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/10-figure-10-o-proj-singular-stats.png"
+  alt="Figure 10: Thống kê Giá trị Kỳ dị cho o_proj (Granite 8B)"
+  caption="Figure 10 (o_proj): Giá trị Max tăng dốc đứng ở các tầng cuối, chạm mốc 6.4 tại Layer 39, trong khi Mean và Median nhấc nhẹ từ 0.5 lên 0.8."
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/11-figure-11-gate-proj-singular-stats.png"
+  alt="Figure 11: Thống kê Giá trị Kỳ dị cho gate_proj (Granite 8B)"
+  caption="Figure 11 (gate_proj): Cơ chế cổng kích hoạt đạt đỉnh Max cực lớn ~11.0 ở các tầng đầu (Layers 6–7), và duy trì Mean/Median cao liên tục ~1.2 qua toàn bộ 40 tầng."
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/12-figure-12-up-proj-singular-stats.png"
+  alt="Figure 12: Thống kê Giá trị Kỳ dị cho up_proj (Granite 8B)"
+  caption="Figure 12 (up_proj): Đồ thị hình chữ U rõ rệt — Max đạt 8.9 tại Layer 0, chạm đáy ở tầng 3 (~2.5), và bùng nổ mạnh nhất ở Layer 39 (>10.0). Mean/Median ổn định ở mức 1.3."
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/13-figure-13-down-proj-singular-stats.png"
+  alt="Figure 13: Thống kê Giá trị Kỳ dị cho down_proj (Granite 8B)"
+  caption="Figure 13 (down_proj): Giá trị Max duy trì mức cao 6.0–7.0 ở các tầng đầu/giữa (Layers 9–14) và bật tăng vọt lên 8.7 tại Layer 39. Mean duy trì mức 1.3–1.4."
+/>
+
+---
+
+**Hướng dẫn đọc biểu đồ thống kê phổ kỳ dị (Figures 7–13):**
+* **Trục hoành (X):** Chỉ số tầng mạng (từ Layer 0 đến Layer 39 của Granite 8B).
+* **Trục tung (Y):** Giá trị kỳ dị của ma trận trọng số.
+* **4 Đường chỉ số cốt lõi:**
+  * **Đường Cam (Max):** Hướng biến thiên nhạy cảm nhất của ma trận — quyết định cấu trúc không gian High-Rank.
+  * **Đường Xanh Lá (Mean) & Đỏ (Median):** Mức độ phân bổ năng lượng tổng quát của tầng.
+  * **Đường Xanh Dương (Min):** Sát mốc 0, chứng minh luôn tồn tại một không gian null-space / Low-Rank rộng lớn hoàn toàn không bị tri thức cũ chi phối.
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/14-figure-14-singular-heatmap.png"
+  alt="Figure 14: Heatmap Giá trị Kỳ dị Trung bình qua 40 Tầng (Granite 8B)"
+  caption="Figure 14: Bản đồ nhiệt (Heatmap) giá trị kỳ dị trung bình qua 40 tầng và 7 loại ma trận chiếu của Granite 8B. Khối MLP đỏ rực áp đảo hoàn toàn so với Self-Attention, và v_proj bừng sáng ở các tầng cuối."
+/>
+
+---
+
+**Hướng dẫn đọc bản đồ nhiệt Heatmap (Figure 14):**
+* **Trục hoành (X):** 7 loại ma trận chiếu (3 ma trận MLP `down_proj`, `gate_proj`, `up_proj` và 4 ma trận Attention `k_proj`, `o_proj`, `q_proj`, `v_proj`).
+* **Trục tung (Y):** Chỉ số tầng mạng (Layer 0 ở trên cùng đến Layer 39 ở dưới cùng).
+* **3 Vùng màu đặc trưng:**
+  * **Cột MLP (Đỏ Đậm, 1.15–1.43):** Năng lượng kỳ dị cực cao và đồng đều trên cả 40 tầng — là "kho lưu trữ tri thức chính" của mô hình.
+  * **Cột Attention Tầng Giữa (Xanh Dương, 0.00–0.70):** Năng lượng kỳ dị thấp và xuất hiện các tầng thưa (0.00) — là vùng có tính linh hoạt cao nhất để tiếp thu task mới.
+  * **Chân cột `self_attn.v_proj` (Cam Đỏ, 0.90–1.26):** Bừng sáng ở các tầng 34–39 — đóng vai trò phối hợp ngữ nghĩa chặng cuối.
+
+---
+
+#### 3 Insight Cốt lõi & Lời khuyên Tối ưu Thực hành từ Figures 7–14:
+* **Tính Bất đối xứng giữa MLP và Attention:** Các ma trận MLP nắm giữ năng lượng kỳ dị áp đảo (Mean ~1.3–1.4) so với Attention (Mean ~0.4–0.7). Vì vậy, khi cần bảo vệ tri thức cũ, khối MLP bắt buộc phải được ưu tiên phân bổ rank bảo vệ cao hơn.
+* **Cơ chế Phân hóa Hai Cực của Attention:** Attention tập trung biến động mạnh ở 2 đầu (Layer 0 với `q_proj`/`k_proj` và Layers 35–39 với `v_proj`/`o_proj`), trong khi các tầng giữa (Layers 10–30) có phổ rất phẳng và ổn định.
+* **Lời khuyên thực hành cho Kỹ sư:**
+  1. **Khi Fine-tune Giới hạn Tài nguyên (Budget Tuning):** Hãy ưu tiên phân bổ rank thích ứng trên các khối **MLP Feed-Forward** và `v_proj` — đây là nơi chi phối hơn 80% năng lực biểu diễn của mô hình.
+  2. **Tận dụng Vùng Tầng Giữa của Attention:** Tự do gán rank bảo tồn thấp (<InlineMath formula="r^{(l)} \approx 0.10" />) ở các tầng giữa của Attention để tối đa hóa khả năng học nhanh (Plasticity) mà không lo suy thoái tri thức.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Đối chiếu & Giải đáp các Câu hỏi Nghiên cứu
+
+Trải qua các kết quả thực nghiệm đắt giá trên cả **T5-Large** và **LLaMA-2 7B**, toàn bộ các thắc mắc lớn ban đầu đã có câu trả lời thực chứng rõ ràng:
+
+<ConceptHierarchy
+  ariaLabel="6 Câu hỏi Đã Được Giải Mã Qua Thực Nghiệm"
+  root={{
+    title: '6 Câu hỏi Đã Có Lời Giải Thực Nghiệm Rõ Ràng',
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: '1. Full Fine-Tuning có thật sự vượt trội hơn LoRA?',
+      detail: (
+        <span>
+          <strong>Đã giải mã:</strong> Vượt SOTA O-LoRA tới <strong>+7.1%</strong> trên TRACE (48.4% vs 41.3%) và <strong>+1.7%</strong> trên chuỗi 15 task dài (71.3% vs 69.6%). Full FT khai phóng toàn bộ dung lượng biểu diễn mà vẫn duy trì <strong>0% tăng trưởng tham số</strong>.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '2. Phép chiếu trực giao có triệt tiêu được quên lãng?',
+      detail: (
+        <span>
+          <strong>Đã giải mã:</strong> Trên TRACE, Backward Transfer (BT) của OSFT đạt <strong>-7.1%</strong> (bỏ xa mức -24.6% của LoRASeqFT). Trên T5-Large, BT đạt <strong>-3.7%</strong> (5 tasks Order 1) và <strong>-5.5%</strong> (15 tasks Order 4), giữ vững tri thức cũ ở mức tiệm cận tối ưu.
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '3. Cơ chế nào giúp bảo vệ Safety (96%) và Instruction Following (80%)?',
+      detail: (
+        <span>
+          <strong>Đã giải mã:</strong> Các vector căn chỉnh RLHF và tuân thủ chỉ dẫn của mô hình Chat nằm chủ yếu ở không gian <strong>High-Rank Subspace</strong>. Việc khóa chặt không gian này ngăn gradient tác vụ mới phá hủy các rào chắn đạo đức (Safety Win+Tie = 18%+78% = 96%, Instruction Win+Tie = 24%+56% = 80%).
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '4. Mô hình có hoạt động độc lập (Không Replay, Không Task-ID)?',
+      detail: (
+        <span>
+          <strong>Đã giải mã:</strong> Toàn bộ 8 tác vụ trên TRACE được kiểm chứng theo chuẩn <strong>Task-Agnostic Inference</strong> — không cần Task-ID khi suy luận và không lưu trữ bất kỳ mẫu dữ liệu cũ nào để huấn luyện lại.
+        </span>
+      ),
+      tone: 'blue',
+    },
+    {
+      title: '5. Phân bổ Rank theo tầng có thật sự cần thiết?',
+      detail: (
+        <span>
+          <strong>Đã giải mã (Ablation Bảng 8 & 9):</strong> Cơ chế Adaptive Rank dựa trên Cosine Importance <InlineMath formula="I^{(l)}" /> (mrr=0.10, trr=0.80) đạt <strong>79.6%</strong>, vượt xa cấu hình halved mrr/trr (<strong>51.5%</strong> — giảm 28.1 điểm) và cấu hình rank phẳng toàn cục (<strong>55.8%</strong> — giảm 23.8 điểm).
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '6. Phép chiếu trực giao có thật sự mang tính quyết định?',
+      detail: (
+        <span>
+          <strong>Đã giải mã (Ablation Bảng 9):</strong> Khi bỏ phép chiếu trực giao (Unconstrained low-rank updates), độ chính xác sụp đổ từ <strong>79.6% xuống còn 31.2%</strong> (suy giảm 48.4 điểm / ~50 điểm), chứng minh phép chiếu gradient là điều kiện tiên quyết để ngăn vector kỳ dị trôi dạt vào vùng tri thức cũ.
+        </span>
+      ),
+      tone: 'teal',
+    },
+  ]}
+/>
+
+---
+
+#### Đúc kết & Hướng dẫn Thực thi Kỹ thuật (Engineering Checklist):
+* **Trước khi Train (Calibration Phase):** Chỉ cần chạy forward ~500 mẫu để tính điểm nhạy cảm <InlineMath formula="I^{(l)}" />, luôn clip cosine âm về 0 trước khi chuẩn hóa trung bình 1.
+* **Cấu hình Siêu tham số:** Khởi đầu an toàn với <InlineMath formula="\text{mrr} = 0.10" /> và <InlineMath formula="\text{trr} = 0.80" /> — cặp siêu tham số này đã được chứng minh bền vững trên đa dạng kiến trúc từ T5 đến LLaMA-2 và Granite 8B.
+* **Quản lý Bộ nhớ Optimizer:** Không update ma trận dense đầy đủ. Dùng cơ chế tái tham số hóa <InlineMath formula="W_{\text{eff}} = W_{\text{high}} + U_{\text{low}} \Sigma_{\text{low}} V_{\text{low}}^\top" /> kết hợp Gradient Hooks để AdamW chỉ tiêu thụ bộ nhớ trên các nhân tử Low-Rank nhỏ gọn.
+* **Kiểm định Sau Huấn luyện:** Luôn kiểm toán đồng thời cả 3 trục: Độ chính xác tác vụ mới (Learnability), Độ suy thoái tác vụ cũ (Backward Transfer), và Rào chắn an toàn (Safety Drift).
+
+---
+
+<ConceptHierarchy
+  ariaLabel="Câu hỏi lớn cuối cùng cho Phần Kết luận"
+  root={{
+    title: 'Câu hỏi Lớn Cuối cùng Chờ đón ở Phần 5',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '7. Khi chuỗi tác vụ tiến tới 50–100 task, không gian Low-Rank có bị cạn kiệt?',
+      detail: (
+        <span>
+          <strong>Đón đọc tại Phần 5 (Conclusion & Discussion):</strong> Phân tích dung lượng không gian con lý thuyết của các mô hình 7B–70B, giới hạn dung lượng khả dụng và các chân trời nghiên cứu tiếp theo của Continual Learning.
+        </span>
+      ),
+      tone: 'violet',
+    },
+  ]}
+/>
+
+</MdxPage>

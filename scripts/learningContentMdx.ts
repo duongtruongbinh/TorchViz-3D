@@ -22,12 +22,14 @@ const STRUCTURAL_KEYS = new Set([
   'id', 'kind', 'locale', 'domainId', 'sectionRefId', 'image', 'href', 'depth', 'mode',
   'interactionPlacement', 'categoryId', 'correctOrder', 'isCorrect', 'compact',
   'hideUnsortedLabel', 'page', 'pageCount', 'step', 'icon',
+  'headingContract',
   'evidence', 'exception',
   'opType', 'inputShape', 'outputShape', 'config', 'kernel', 'stride', 'padding', 'dilation',
 ]);
 const ALLOWED_EXPORTS = new Set(['lessonMetadata']);
+const CONCEPT_HIERARCHY_TONES = new Set(['blue', 'amber', 'teal', 'violet', 'neutral']);
 
-type Node = { type?: string; name?: string; value?: unknown; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; expressions?: Node[]; quasis?: Array<{ value?: { raw?: string; cooked?: string } }>; argument?: Node; operator?: string; source?: Node };
+type Node = { type?: string; name?: string; value?: unknown; depth?: number; children?: Node[]; attributes?: Node[]; data?: { estree?: Node }; body?: Node[]; declarations?: Node[]; id?: Node; init?: Node; key?: Node; computed?: boolean; properties?: Node[]; elements?: Array<Node | null>; expression?: Node; expressions?: Node[]; quasis?: Array<{ value?: { raw?: string; cooked?: string } }>; argument?: Node; operator?: string; source?: Node };
 
 function walk(node: Node | null | undefined, visit: (node: Node, parent?: Node) => void, parent?: Node): void {
   if (!node || typeof node !== 'object') return;
@@ -47,6 +49,12 @@ function propertyName(node: Node | undefined): string | null {
   if (node.type === 'Identifier') return node.name ?? null;
   if (node.type === 'Literal' && typeof node.value === 'string') return node.value;
   return null;
+}
+
+function mdastText(node: Node | null | undefined): string {
+  if (!node) return '';
+  if ((node.type === 'text' || node.type === 'inlineCode') && typeof node.value === 'string') return node.value;
+  return (node.children ?? []).map(mdastText).join('');
 }
 
 function assertStaticExpression(node: Node | null | undefined, label: string): void {
@@ -110,8 +118,26 @@ function staticValue(node: Node | null | undefined): unknown {
   return undefined;
 }
 
+function assertConceptHierarchyData(value: unknown, filePath: string): void {
+  if (Array.isArray(value)) {
+    value.forEach((item) => {
+      assertConceptHierarchyData(item, filePath);
+    });
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+  const record = value as Record<string, unknown>;
+  if (record.tone !== undefined && (typeof record.tone !== 'string' || !CONCEPT_HIERARCHY_TONES.has(record.tone))) {
+    throw new Error(`${filePath}: unsupported ConceptHierarchy tone ${String(record.tone)}`);
+  }
+  Object.values(record).forEach((item) => {
+    assertConceptHierarchyData(item, filePath);
+  });
+}
+
 export type LearningMdxInspection = {
   metadata: Record<string, unknown>;
+  authoredHeadings: string[];
   pageIndexes: number[];
   quizQuestionIds: string[];
   quizQuestions: LearningMdxQuizQuestionInspection[];
@@ -138,6 +164,7 @@ export type LearningMdxQuizQuestionInspection = {
   id: string;
   mode: string;
   optionCount: number;
+  optionLabelLengths: number[];
   correctOptionIndexes: number[];
 };
 
@@ -150,6 +177,8 @@ export async function inspectLearningMdx(
   const searchParts: string[] = [];
   let metadataExports = 0;
   let metadata: Record<string, unknown> = {};
+  const levelTwoHeadings: string[] = [];
+  const levelThreeHeadings: string[] = [];
   const pageIndexes: number[] = [];
   const quizQuestionIds: string[] = [];
   const quizQuestions: LearningMdxQuizQuestionInspection[] = [];
@@ -161,6 +190,10 @@ export async function inspectLearningMdx(
     remarkPlugins: [remarkGfm, () => (tree: Node) => {
       walk(tree, (node) => {
         if (node.type === 'text' && typeof node.value === 'string') searchParts.push(node.value);
+        if (node.type === 'heading' && (node.depth === 2 || node.depth === 3)) {
+          const heading = mdastText(node).trim();
+          if (heading) (node.depth === 3 ? levelThreeHeadings : levelTwoHeadings).push(heading);
+        }
         if (node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement') {
           if (!node.name || !allowedComponents.has(node.name)) {
             throw new Error(`${filePath}: unexpected MDX component ${node.name ?? '<fragment>'}`);
@@ -205,6 +238,9 @@ export async function inspectLearningMdx(
           }
           for (const attribute of node.attributes ?? []) {
             if (attribute.type === 'mdxJsxExpressionAttribute') throw new Error(`${filePath}: spread attributes are not allowed`);
+            if (node.name === 'ConceptHierarchy' && attribute.name === 'density' && typeof attribute.value === 'string' && !['default', 'compact'].includes(attribute.value)) {
+              throw new Error(`${filePath}: unsupported ConceptHierarchy density ${attribute.value}`);
+            }
             if (typeof attribute.value === 'string' && !STRUCTURAL_KEYS.has(attribute.name ?? '')) searchParts.push(attribute.value);
             const expression = attribute.value && typeof attribute.value === 'object'
               ? (attribute.value as Node).data?.estree?.body?.[0]?.expression
@@ -215,13 +251,16 @@ export async function inspectLearningMdx(
             }
             if (!expression) continue;
             assertStaticExpression(expression, filePath);
+            if (node.name === 'ConceptHierarchy' && ['root', 'children', 'nodes', 'connections'].includes(attribute.name ?? '')) {
+              assertConceptHierarchyData(staticValue(expression), filePath);
+            }
             stringsFromExpression(expression, searchParts, attribute.name);
             if (node.name === 'MdxPage' && attribute.name === 'page') pageIndexes.push(Number(staticValue(expression)));
             if (node.name === 'MdxQuiz' && attribute.name === 'questions') {
               const questions = staticValue(expression) as Array<{
                 id?: unknown;
                 mode?: unknown;
-                options?: Array<{ isCorrect?: unknown }>;
+                options?: Array<{ label?: unknown; isCorrect?: unknown }>;
               }>;
               for (const question of questions) {
                 const options = Array.isArray(question.options) ? question.options : [];
@@ -231,6 +270,9 @@ export async function inspectLearningMdx(
                   id,
                   mode: String(question.mode ?? ''),
                   optionCount: options.length,
+                  optionLabelLengths: options.map((option) => (
+                    typeof option.label === 'string' ? [...option.label.trim()].length : 0
+                  )),
                   correctOptionIndexes: options.flatMap((option, index) => option.isCorrect === true ? [index] : []),
                 });
               }
@@ -270,6 +312,7 @@ export async function inspectLearningMdx(
   if (metadataExports !== 1) throw new Error(`${filePath}: expected exactly one lessonMetadata export`);
   return {
     metadata,
+    authoredHeadings: levelThreeHeadings.length ? levelThreeHeadings : levelTwoHeadings,
     pageIndexes,
     quizQuestionIds,
     quizQuestions,
@@ -369,6 +412,9 @@ export async function validateLearningMdxSource(
   }
   const inspection = await inspectLearningMdx(source, filePath, parsed.domainId);
   assertLearningMdxMetadata(inspection.metadata, parsed, filePath);
+  if (inspection.metadata.headingContract === 'exact' && JSON.stringify(inspection.metadata.headings) !== JSON.stringify(inspection.authoredHeadings)) {
+    throw new Error(`${filePath}: metadata headings must exactly match authored headings`);
+  }
   const catalogTitle = (lesson.text?.title as Record<string, string> | undefined)?.[parsed.locale];
   if (catalogTitle && inspection.metadata.title !== catalogTitle) {
     throw new Error(`${filePath}: metadata title does not match the catalog title for ${parsed.locale}`);
@@ -431,6 +477,9 @@ function assertLearningMdxMetadata(
     if (!Array.isArray(values) || !values.length || values.some((value) => typeof value !== 'string' || !value.trim())) {
       throw new Error(`${filePath}: ${key} must be a non-empty string array`);
     }
+  }
+  if (metadata.headingContract !== undefined && metadata.headingContract !== 'exact') {
+    throw new Error(`${filePath}: headingContract must be exact when provided`);
   }
   if (metadata.conceptIds !== undefined) {
     const conceptIds = metadata.conceptIds;

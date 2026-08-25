@@ -1,7 +1,7 @@
 ---
 title: Learning Lab
 type: Active Subsystem
-updated: 2026-08-24
+updated: 2026-08-25
 ---
 
 # Learning Lab
@@ -19,18 +19,18 @@ domain-first route:
 Learning Lab -> domain -> track -> lesson
 ```
 
-The catalog contains 14 domains, 91 tracks, and 690 lesson nodes. Two hundred
-sixty-one Vietnamese-first lessons have authored content: forty-nine in
-`llm-ai-engineering`, eighty-one in `continual-learning-llm`, fifty-nine in
-`linear-algebra` (one applied-AI overview followed by twenty-nine alternating
-theory/quiz pairs across 7 core chapters), four tagged exercise lessons in
-`cv`, sixty-three in `mlops-llmops-production-systems`, and five in
-`research-papers`. The other 429 nodes are navigable placeholders and render
-one shared localized "content in progress" message. They do not carry legacy
-theory or practice payloads. (These headline counts are verified against the
-typed catalog by `npm run check:catalog-stats`; see
+The catalog contains 14 domains, 92 tracks, and 697 lesson nodes. Two hundred
+sixty-eight Vietnamese-first lessons have authored content: forty-nine in
+`llm-ai-engineering`, eighty-one in `continual-learning-llm`, sixty-three in
+`mlops-llmops-production-systems`, fifty-nine in `linear-algebra` (one applied-AI
+overview followed by twenty-nine alternating theory/quiz pairs across 7 core
+chapters), twelve in `research-papers`, and four tagged exercise lessons in `cv`.
+The other 429 nodes are navigable placeholders and render one shared localized
+"content in progress" message. They do not carry legacy theory or practice
+payloads. These headline counts are verified against the typed catalog by
+`npm run check:catalog-stats`; see
 [catalog-stats](../reference/catalog-stats.md) for the generated per-domain
-breakdown.)
+breakdown.
 
 The authored LLM lessons are:
 
@@ -267,6 +267,13 @@ order without becoming part of the canonical lesson ID. The LLM course uses
 chapter-local names such as `1.1.6-language-modeling-next-token.vi.mdx` and
 `1.5.1-llm-data-pipeline-overview.vi.mdx`. Routes and `lessonMetadata.id`
 always use the lesson ID without this organizational prefix.
+
+New or deeply audited authored lessons can opt into strict heading validation
+with `lessonMetadata.headingContract: 'exact'`. For these lessons, the ordered
+`lessonMetadata.headings` array must match the authored Markdown heading list
+exactly; generic MDX validation fails on missing, renamed, or reordered
+headings. Existing lessons remain on the legacy metadata contract until they are
+audited, so enabling the flag is an explicit content-migration step.
 
 The Continual Learning domain applies the prefix consistently to every authored
 file as `<chapter>.1.<node>-<lesson-id>.vi.mdx`. Its chapter number and node
@@ -525,7 +532,9 @@ only for documentation artifacts.
 
 Shared authored visuals are semantic and data-driven. `ConceptFlow` renders
 ordered stages, `ConceptHierarchy` renders one rooted concept branching to peer
-children, with optional muted peers and one controlled nested reveal,
+children, with optional muted peers, nested levels, and convergent connections.
+Its established spacing and typography remain the default; unusually dense
+paper-taxonomy diagrams may opt into `density="compact"` locally.
 `ComparisonMatrix` renders exact cross-field comparisons, and
 `ConceptSpectrum` renders an ordered constraint/trade-off continuum.
 `CourseCards` renders compact peer examples with an explicit example and
