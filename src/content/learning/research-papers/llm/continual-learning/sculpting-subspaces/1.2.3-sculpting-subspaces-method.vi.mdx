@@ -9,10 +9,12 @@ export const lessonMetadata = {
     'Đo lường Độ quan trọng Tầng (Layer Importance)',
     'Phân bổ Rank Thích ứng (Adaptive Rank Selection)',
     'Chiếu Gradient Trực giao (Orthogonal Gradient Projection)',
+    'Cơ chế Thực thi Thực tế (Reparameterization & Gradient Hooks)',
     'Các Bước Thực thi của Thuật toán (Algorithm Steps)',
     'Cơ sở Lý thuyết Hessian & Cận Quên lãng',
     'Kiểm chứng Thực nghiệm Giả thuyết Không gian con',
   ],
+  headingContract: 'exact',
   keywords: [
     'Methodology',
     'SVD',
@@ -40,13 +42,13 @@ Trong đó mỗi ma trận trọng số tại tầng <InlineMath formula="l" /> 
 > **Ví dụ cụ thể trên LLaMA-2 7B (<InlineMath formula="d = 4096, d_{\text{ffn}} = 11008" />):**
 >
 > - **Self-Attention (<InlineMath formula="W_q, W_k, W_v, W_o" />):**
-> <BlockMath formula="4096 \times 4096 = 16{,}777{,}216 \approx 16.78 \times 10^6 \text{ (tham số / ma trận)}" />
+> <BlockMath formula="4096 \times 4096 = 16{,}777{,}216 \approx 16.78 \times 10^6 \text{ parameters / matrix}" />
 >
 > - **Feed-Forward / MLP (<InlineMath formula="W_{\text{gate}}, W_{\text{up}}, W_{\text{down}}" />):**
-> <BlockMath formula="11008 \times 4096 = 45{,}088{,}768 \approx 45.09 \times 10^6 \text{ (tham số / ma trận)}" />
+> <BlockMath formula="11008 \times 4096 = 45{,}088{,}768 \approx 45.09 \times 10^6 \text{ parameters / matrix}" />
 >
 > - **Quy mô toàn mạng (32 tầng Transformer):**
-> <BlockMath formula="\text{Total Parameters} \approx 32 \times (4 \times 16.78\text{M} + 3 \times 45.09\text{M}) \approx 7 \times 10^9 \text{ (7 tỷ tham số)}" />
+> <BlockMath formula="\text{Total Parameters} \approx 32 \times (4 \times 16.78\text{M} + 3 \times 45.09\text{M}) \approx 7 \times 10^9 \text{ (7B parameters)}" />
 
 Trong bài toán học liên tục (**Continual Learning**), mô hình phải tiếp nhận tuần tự chuỗi tác vụ:
 
@@ -124,7 +126,7 @@ Mức độ nhạy cảm giữa các tầng Transformer là không đồng đề
           Vector đầu vào <InlineMath formula="X_i^{(l)}" /> từ <InlineMath formula="N" /> mẫu hiệu chuẩn.
         </span>
       ),
-      tone: 'sky',
+      tone: 'blue',
     },
     {
       title: '2. Phép biến đổi Tuyến tính',
@@ -172,9 +174,9 @@ Mức độ nhạy cảm giữa các tầng Transformer là không đồng đề
 >    <BlockMath formula="\mu_S = \frac{0.97 + 0.60 + 0.30}{3} \approx \mathbf{0.623}" />
 >
 > 3. **Bước 3: Chuẩn hóa để thu được <InlineMath formula="I^{(l)} = \frac{\bar{S}^{(l)}}{\mu_S}" />:**
->    <BlockMath formula="I^{(1)} = \frac{0.97}{0.623} \approx \mathbf{1.56} \quad (\text{Tầng 1 ổn định cao, bảo vệ rank tối đa})" />
->    <BlockMath formula="I^{(2)} = \frac{0.60}{0.623} \approx \mathbf{0.96} \quad (\text{Tầng 2 mức độ nhạy cảm trung bình})" />
->    <BlockMath formula="I^{(3)} = \frac{0.30}{0.623} \approx \mathbf{0.48} \quad (\text{Tầng 3 biến đổi mạnh, giải phóng rank để học mới})" />
+>    <BlockMath formula="I^{(1)} = \frac{0.97}{0.623} \approx \mathbf{1.56} \quad (\text{high retention rank})" />
+>    <BlockMath formula="I^{(2)} = \frac{0.60}{0.623} \approx \mathbf{0.96} \quad (\text{medium retention rank})" />
+>    <BlockMath formula="I^{(3)} = \frac{0.30}{0.623} \approx \mathbf{0.48} \quad (\text{low retention rank})" />
 
 ---
 
@@ -194,7 +196,7 @@ Tỷ lệ bảo tồn <InlineMath formula="r_{\text{frac}}^{(l)}" /> và số l�
 > **Ví dụ Phân bổ Cụ thể:**
 >
 > * **Tầng 1 (<InlineMath formula="I^{(1)} = 1.56" />):**
->   <BlockMath formula="\begin{aligned} r^{(1)} &= 0.1 + 1.56 \times 0.7 = 1.192 \xrightarrow{\text{kẹp}} \mathbf{100\%} \\ k^{(1)} &= \lfloor 1.0 \times 4096 \rfloor = \mathbf{4096} \text{ vector} \end{aligned}" />
+>   <BlockMath formula="\begin{aligned} r^{(1)} &= 0.1 + 1.56 \times 0.7 = 1.192 \xrightarrow{\text{clamp}} \mathbf{100\%} \\ k^{(1)} &= \lfloor 1.0 \times 4096 \rfloor = \mathbf{4096} \text{ vectors} \end{aligned}" />
 >   *(Khóa chặt toàn bộ 4096 vector High-Rank, bảo vệ tuyệt đối tri thức cốt lõi).*
 >
 > * **Tầng 2 (<InlineMath formula="I^{(2)} = 0.96" />):**
@@ -222,22 +224,22 @@ Về mặt giải tích, để đảm bảo gradient không làm biến đổi b
 <BlockMath formula="\nabla W_{\text{proj}}^{(l)} = \nabla W^{(l)} - U_{\text{high}}^{(l)} (U_{\text{high}}^{(l)})^\top \nabla W^{(l)} V_{\text{high}}^{(l)} (V_{\text{high}}^{(l)})^\top" />
 
 > **Ví dụ Tính toán Trực quan bằng Số Cụ thể (Ma trận 2 × 2):**
-> 
+>
 > Giả sử không gian High-Rank cần bảo vệ của tri thức cũ có hướng vector kỳ dị chính:
 > <BlockMath formula="U_{\text{high}} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, \quad V_{\text{high}} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}" />
-> 
+>
 > Ma trận toán tử chiếu High-Rank tương ứng là:
 > <BlockMath formula="P_U = U_{\text{high}} U_{\text{high}}^\top = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}, \quad P_V = V_{\text{high}} V_{\text{high}}^\top = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}" />
-> 
+>
 > Khi học tác vụ mới, giả sử lan truyền ngược tính ra gradient thô:
 > <BlockMath formula="\nabla W = \begin{bmatrix} 4 & 2 \\ 3 & 5 \end{bmatrix}" />
-> 
+>
 > **Bước 1: Tính thành phần can thiệp (xâm lấn) vào không gian High-Rank cũ:**
 > <BlockMath formula="P_{\text{high}} = P_U \cdot \nabla W \cdot P_V = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 4 & 2 \\ 3 & 5 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} \mathbf{4} & 0 \\ 0 & 0 \end{bmatrix}" />
-> 
+>
 > **Bước 2: Trừ thành phần can thiệp để thu được gradient trực giao an toàn:**
 > <BlockMath formula="\nabla W_{\text{proj}} = \nabla W - P_{\text{high}} = \begin{bmatrix} 4 & 2 \\ 3 & 5 \end{bmatrix} - \begin{bmatrix} 4 & 0 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} \mathbf{0} & \mathbf{2} \\ \mathbf{3} & \mathbf{5} \end{bmatrix}" />
-> 
+>
 > **Ý nghĩa hình học:**
 > * Phần tử vị trí <InlineMath formula="(1, 1)" /> mang năng lượng tri thức cũ bị **triệt tiêu hoàn toàn về 0** (<InlineMath formula="4 - 4 = 0" />), bảo vệ trọn vẹn bài cũ.
 > * Các phần tử tại vị trí <InlineMath formula="(1, 2) = 2" />, <InlineMath formula="(2, 1) = 3" /> và <InlineMath formula="(2, 2) = 5" /> nằm trong không gian Low-Rank được **giữ nguyên 100%** để học tác vụ mới mà không chịu bất kỳ sự cản trở nào.

@@ -408,12 +408,40 @@ test('generic MDX contract rejects imports, executable expressions, and unknown 
   await assert.rejects(() => inspectLearningMdx(`export const lessonMetadata = ${metadata};\n\n<Unknown />`, 'fixture.mdx', 'cv'), /unexpected MDX component/i);
 });
 
+test('generic MDX contract rejects metadata heading drift', async () => {
+  const catalogText = { title: { en: 'CV', vi: 'CV' }, description: { en: '', vi: '' } };
+  const catalog: LearningCatalog = {
+    domains: [{ id: 'cv', text: catalogText, status: 'active', trackIds: ['cv-basics'] }],
+    tracks: [{ id: 'cv-basics', text: catalogText, domainId: 'cv', lessonIds: ['x'], status: 'available' }],
+    lessons: [{ id: 'x', domainId: 'cv', trackId: 'cv-basics', status: 'available', contentStatus: 'published', tags: [], entryPoints: [], text: { title: { en: 'x', vi: 'x' }, theory: [] }, sections: [] }],
+  };
+  const filePath = 'src/content/learning/cv/x.vi.mdx';
+  const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'x', headings: ['Declared'], headingContract: 'exact', keywords: ['x'] }";
+
+  await assert.rejects(
+    () => validateLearningMdxSource(`export const lessonMetadata = ${metadata}\n\n### Authored`, filePath, catalog),
+    /metadata headings must exactly match authored headings/,
+  );
+});
+
+test('ConceptHierarchy rejects unsupported semantic variants', async () => {
+  const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'x', headings: ['x'], keywords: ['x'] }";
+  await assert.rejects(
+    () => inspectLearningMdx(`export const lessonMetadata = ${metadata}\n\n<ConceptHierarchy ariaLabel="Hierarchy" root={{ title: 'A' }} nodes={[{ title: 'B', tone: 'sky' }]} />`, 'fixture.mdx', 'cv'),
+    /unsupported ConceptHierarchy tone sky/,
+  );
+  await assert.rejects(
+    () => inspectLearningMdx(`export const lessonMetadata = ${metadata}\n\n<ConceptHierarchy density="dense" ariaLabel="Hierarchy" root={{ title: 'A' }} />`, 'fixture.mdx', 'cv'),
+    /unsupported ConceptHierarchy density dense/,
+  );
+});
+
 test('shared visual primitives accept static semantic data', async () => {
   const metadata = "{ domainId: 'cv', id: 'x', locale: 'vi', title: 'x', headings: ['x'], keywords: ['x'] }";
   const source = `export const lessonMetadata = ${metadata}
 
 <ConceptFlow ariaLabel="Flow" items={[{ title: 'A', detail: 'B' }]} />
-<ConceptHierarchy ariaLabel="Hierarchy" root={{ title: 'A' }} children={[{ title: 'B', detail: 'C', tone: 'blue', visual: 'database', muted: true }, { title: 'D', children: [{ title: 'E' }, { title: 'F' }] }]} />
+<ConceptHierarchy density="compact" ariaLabel="Hierarchy" root={{ title: 'A' }} children={[{ title: 'B', detail: 'C', tone: 'blue', visual: 'database', muted: true }, { title: 'D', children: [{ title: 'E' }, { title: 'F' }], deepConnections: [{ parents: [0, 1], children: [{ title: 'G' }] }] }]} connections={[{ parents: [0, 1], children: [{ title: 'H' }] }]} />
 <ExperimentChecklist ariaLabel="Checklist" items={[{ title: 'A', action: 'B', check: 'C' }]} />
 <ComparisonMatrix ariaLabel="Matrix" columns={['A']} rows={[{ label: 'B', values: ['C'], highlightedColumn: 0 }]} />
 <DatasetComposition ariaLabel="Dataset" totalLabel="3 samples" segments={[{ label: 'A', value: 2, valueLabel: '2' }, { label: 'B', value: 1, valueLabel: '1', tone: 'accent' }]} />
@@ -554,6 +582,54 @@ test('all published quiz MDX files have valid questions with correct options mat
         );
       }
     }
+  }
+});
+
+test('Sculpting Subspaces uses mixed assessment modes without answer-length leakage', async () => {
+  const file = lessonFiles.find((candidate) => (
+    parseLearningMdxPath(candidate)?.lessonId === 'sculpting-subspaces-quiz'
+  ));
+  assert.ok(file, 'missing Sculpting Subspaces quiz MDX');
+
+  const inspection = await inspectLearningMdx(readFileSync(file, 'utf8'), file);
+  assert.equal(inspection.quizQuestions.length, 16);
+  assert.deepEqual(inspection.metadata.conceptIds, inspection.quizQuestionIds);
+  const modeCounts = Object.fromEntries(['single', 'multi', 'order', 'categorize'].map((mode) => [
+    mode,
+    inspection.quizQuestions.filter((question) => question.mode === mode).length,
+  ]));
+  assert.deepEqual(modeCounts, { single: 7, multi: 4, order: 2, categorize: 3 });
+
+  const singleQuestions = inspection.quizQuestions.filter((question) => question.mode === 'single');
+  const multiQuestions = inspection.quizQuestions.filter((question) => question.mode === 'multi');
+  assert.ok(singleQuestions.every((question) => question.optionCount === 4));
+  assert.ok(singleQuestions.every((question) => question.correctOptionIndexes.length === 1));
+  assert.ok(multiQuestions.every((question) => question.optionCount === 4));
+  assert.ok(multiQuestions.every((question) => question.correctOptionIndexes.length >= 2));
+
+  for (const question of singleQuestions) {
+    const longestLength = Math.max(...question.optionLabelLengths);
+    const shortestLength = Math.min(...question.optionLabelLengths);
+    const longestIndexes = question.optionLabelLengths.flatMap((length, index) => (
+      length === longestLength ? [index] : []
+    ));
+    assert.ok(longestLength <= shortestLength * 1.35, `${question.id} options should stay close in length`);
+    assert.ok(
+      longestIndexes.length > 1 || !longestIndexes.includes(question.correctOptionIndexes[0]!),
+      `${question.id} must not expose the correct answer as uniquely longest`,
+    );
+  }
+
+  const correctPositions = singleQuestions.map((question) => question.correctOptionIndexes[0]!);
+  assert.equal(new Set(correctPositions).size, 4, 'the quiz should use all four answer positions');
+  for (let index = 0; index + 2 < correctPositions.length; index += 1) {
+    const [first, second, third] = correctPositions.slice(index, index + 3) as [number, number, number];
+    const firstStep = (second - first + 4) % 4;
+    const secondStep = (third - second + 4) % 4;
+    assert.ok(
+      !(firstStep === secondStep && (firstStep === 1 || firstStep === 3)),
+      'the quiz should not expose a cyclic three-answer pattern',
+    );
   }
 });
 

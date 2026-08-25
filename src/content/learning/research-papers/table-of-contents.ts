@@ -131,6 +131,15 @@ const chapters: LearningTocTrackSeed[] = [
         status: 'available',
         contentStatus: 'published',
       },
+      {
+        id: 'sculpting-subspaces-quiz',
+        title: {
+          en: 'Quiz: Sculpting Subspaces (ICLR 2026)',
+          vi: 'Quiz: Sculpting Subspaces (ICLR 2026)',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
     ],
   },
 ];

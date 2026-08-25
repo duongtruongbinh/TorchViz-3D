@@ -37,6 +37,7 @@ export type LearningMdxMetadata = {
   locale: string;
   title: string;
   headings: string[];
+  headingContract?: 'exact';
   keywords: string[];
   conceptIds?: string[];
   referenceIds?: string[];

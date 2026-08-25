@@ -40,7 +40,7 @@ test('typed catalog materializes domain metadata and content lifecycle counts', 
   assert.equal(learningTableOfContents.length, 14);
   assert.equal(learningCatalog.domains.length, 14);
   assert.equal(learningCatalog.tracks.length, 92);
-  assert.equal(learningCatalog.lessons.length, 696);
+  assert.equal(learningCatalog.lessons.length, 697);
   assert.equal(learningCatalog.routeAliases?.length, 7);
   const lifecycleCounts = Object.fromEntries(['available', 'next', 'locked'].map((status) => [
     status,

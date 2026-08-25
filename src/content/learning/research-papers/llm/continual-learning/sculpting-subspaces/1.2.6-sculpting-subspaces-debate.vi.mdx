@@ -8,7 +8,9 @@ export const lessonMetadata = {
     'Tranh luận 2: Bẫy AA và Ảo tưởng Tái lập (Engineering Nondeterminism)',
     'Tranh luận 3: Sự Tiến hóa của Phân bổ Rank: Bản Cũ vs Bản ICLR 2026 Final',
     'Tranh luận 4: Những Phát hiện Cốt lõi & Bài học Thực chiến',
+    '5 Bài học Đắt giá cho Kỹ sư & Nhà Nghiên cứu AI',
   ],
+  headingContract: 'exact',
   keywords: [
     'Sculpting Subspaces Debate',
     'Academic Debates',
@@ -188,9 +190,9 @@ Những bất ổn định phát hiện trong quá trình tái lập đã giúp 
 
 <LessonNote tone="warning">
   **Câu hỏi Tranh biện Cốt lõi (The Core Debate Question):**
-  
+
   *Tại sao nhóm tác giả ICLR 2026 báo cáo góc tương tự Cosine thực nghiệm thường đạt mức **0.5 – 0.8**, trong khi bản thử nghiệm thô trên slice dữ liệu cũ lại cho giá trị trung bình tiệm cận **0.004**?*
-  
+
   Khoảng cách chênh lệch hàng trăm lần này chỉ ra rằng: **Hình học không gian kích hoạt (Activation Geometry) và quy trình trích xuất token calibration** vẫn còn những chi tiết kỹ thuật ẩn (*Underspecification*) chưa được mô tả cặn kẽ trong bài báo.
 </LessonNote>
 
@@ -236,7 +238,7 @@ Từ toàn bộ hành trình phân tích lý thuyết và kiểm chứng thực 
 
 ---
 
-### 5 Bài học Đắt giá cho Kỹ sư & Nhà Nghiên cứu AI:
+### 5 Bài học Đắt giá cho Kỹ sư & Nhà Nghiên cứu AI
 
 1. **Same Seed không bằng Deterministic Training:** Với mô hình quy mô lớn trên GPU, quy trình kiểm định bắt buộc phải xác nhận tính trùng khớp bitwise của checkpoint trước khi đưa ra kết luận khoa học.
 2. **Functional Similarity không bằng Parameter Equivalence:** Hai mô hình có độ chính xác Task 1 gần như y hệt (99.9%) vẫn có thể nằm ở tọa độ không gian đủ khác biệt để bộ điều khiển rank đưa ra quyết định trái ngược nhau.
