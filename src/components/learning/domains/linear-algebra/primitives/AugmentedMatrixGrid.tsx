@@ -46,12 +46,12 @@ export function AugmentedMatrixGrid({
 
   const isRowActive = (r: number) => {
     if (activeRow === r) return true;
-    if (activeRows && activeRows.includes(r)) return true;
+    if (activeRows?.includes(r)) return true;
     return false;
   };
 
   const isColHighlighted = (c: number) => {
-    if (highlightCols && highlightCols.includes(c)) return true;
+    if (highlightCols?.includes(c)) return true;
     return false;
   };
 
@@ -60,7 +60,7 @@ export function AugmentedMatrixGrid({
   };
 
   const isCellCustomHighlight = (r: number, c: number) => {
-    return highlightCells && highlightCells.some(([hr, hc]) => hr === r && hc === c);
+    return highlightCells?.some(([hr, hc]) => hr === r && hc === c);
   };
 
   return (

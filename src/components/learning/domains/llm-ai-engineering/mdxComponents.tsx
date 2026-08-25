@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
 import type { LearningLessonExtra } from '../../authoredTypes';
-import { LLM_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
+import type { LLM_MDX_COMPONENT_NAMES } from '../../../../content/learning/mdxComponents';
 import {
   ExtraFrame,
   useLearningMdxLesson,

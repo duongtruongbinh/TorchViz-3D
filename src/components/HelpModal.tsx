@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Binary, Boxes, Download, Navigation, Workflow, X, type LucideIcon } from 'lucide-react';
 import { getStrings } from '../lib/localization';
 import { usePreferencesStore } from '../store/usePreferencesStore';

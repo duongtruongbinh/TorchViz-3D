@@ -111,7 +111,7 @@ Open `http://localhost:3000` in your browser. From the landing page, choose **Wo
 | :--- | :--- |
 | `npm run dev` | Start Vite development server (`http://localhost:3000`) |
 | `npm run typecheck` | Run TypeScript type checks (`tsc --noEmit`) |
-| `npm test` | Run the Node test suite (`src/lib/*.test.ts`) |
+| `npm test` | Run the Node test suite (`src/**/*.test.ts`) |
 | `npm run build` | Build production bundle in `dist/` |
 | `npm run verify` | Full verification pipeline (`typecheck` + `test` + `build`) |
 | `npm run preview` | Preview production build locally |
@@ -134,13 +134,16 @@ src/
 │   ├── landing/          # Landing entry surface and flow visualizer
 │   ├── workspace/        # 3D workspace, Monaco editor pane, and inspector
 │   ├── canvas/           # Three.js / React Three Fiber 3D scene
+│   ├── exercises/        # Shape/conv/value exercise engines shared with Learning Lab
+│   ├── mnist-demo/       # Forward-pass MNIST animation demo
+│   ├── operation-effects/ # Operation visual effect primitives for the canvas
 │   └── learning/         # Learning Lab shell, MDX registry, and domain adapters
 ├── content/learning/     # Typed domain TOCs and locale-authored MDX lessons
 ├── core/learning/        # React-free catalog contracts, materialization, and selectors
-├── lib/                  # Layout engine, IR types, SVG export, and route helpers
+├── lib/                  # Layout engine, IR types, torchstub Python source, SVG export, and route helpers
 ├── store/                # Zustand stores for workspace state and preferences
 ├── templates/            # Built-in PyTorch architecture templates
-└── workers/              # Pyodide Web Worker and torchstub Python source
+└── workers/              # Pyodide Web Worker host
 
 docs/                     # Architecture specifications, torchstub guide, and workflow plans
 wiki/                     # OKF knowledge bundle (concepts, subsystem guides, gotchas)

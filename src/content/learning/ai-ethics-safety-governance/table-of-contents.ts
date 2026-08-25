@@ -96,7 +96,7 @@ export const learningTableOfContents = {
     title: { en: "AI Ethics, Safety & Governance", vi: "AI Ethics, Safety & Governance" },
     description: { en: "Handle AI risk with practical discipline: bias, privacy, hallucination, evaluation, red teaming, safety filters, model cards, audit trails, governance checklists, and deployment review habits.", vi: "Quản lý rủi ro AI bằng kỷ luật thực tế: bias, privacy, hallucination, evaluation, red teaming, safety filter, model card, audit trail, checklist governance và thói quen review trước khi deploy." },
   },
-  status: 'active',
+  status: 'placeholder',
   chapters,
   sectionKinds: ['theory', 'code'],
 } satisfies LearningTableOfContents;

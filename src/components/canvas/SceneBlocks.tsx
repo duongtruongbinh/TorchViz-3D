@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { RoundedBox, Html, Text, Billboard, Edges } from '@react-three/drei';
 import * as THREE from 'three';
-import { LayoutNode, LayoutData } from '../../lib/irTypes';
+import type { LayoutNode, LayoutData } from '../../lib/irTypes';
 import { usePreferencesStore } from '../../store/usePreferencesStore';
 import { getStrings } from '../../lib/localization';
 import { getVisualMeta, getActivationSubKind, type VisualKind } from '../../lib/visualKind';
@@ -360,8 +360,7 @@ export const KindShape: React.FC<{
   if (kind === 'Flatten' || kind === 'Reshape' || kind === 'Permute' || kind === 'Slice') return <TransformBlock w={w} h={h} d={d} color={color} isActive={isActive} hasError={hasError} errorPulse={errorPulse} />;
 
   return (
-    <>
-      <RoundedBox args={[w, h, d]} radius={cornerRadius} smoothness={2}>
+    <RoundedBox args={[w, h, d]} radius={cornerRadius} smoothness={2}>
         <meshPhysicalMaterial
           color={color}
           metalness={0.05}
@@ -371,7 +370,6 @@ export const KindShape: React.FC<{
           emissiveIntensity={hasError ? errorPulse : isActive ? 0.25 : 0.0}
         />
       </RoundedBox>
-    </>
   );
 });
 

@@ -78,7 +78,7 @@ export function syncMdxTitles(options: { fix?: boolean } = {}): TitleSyncResult[
 }
 
 // Run CLI directly if executed from node
-if (process.argv[1] && process.argv[1].endsWith('syncMdxTitles.ts')) {
+if (process.argv[1]?.endsWith('syncMdxTitles.ts')) {
   const shouldFix = process.argv.includes('--fix');
   const results = syncMdxTitles({ fix: shouldFix });
   const mismatches = results.filter((r) => r.status === 'mismatched');

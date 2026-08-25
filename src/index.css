@@ -75,7 +75,7 @@ body {
   background: #09090b;
   color: #e4e4e7;
   overflow: hidden;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -612,7 +612,7 @@ body {
 
 .learning-lab {
   --learning-lab-muted-opacity: 0.5;
-  font-family: 'Be Vietnam Pro', Inter, system-ui, sans-serif;
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
 }
 
 .learning-lab .learning-lab-muted {
@@ -1019,7 +1019,7 @@ body {
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
   color: var(--text);
   background: var(--canvas-bg);
   -webkit-font-smoothing: antialiased;

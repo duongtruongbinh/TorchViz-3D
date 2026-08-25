@@ -117,7 +117,7 @@ export const learningTableOfContents = {
     title: { en: "Deep Learning", vi: "Deep Learning" },
     description: { en: "Understand how neural networks move tensors through layers: activations, gradients, normalization, residuals, CNNs, RNNs, attention, PyTorch modules, training loops, and transfer learning.", vi: "Hiểu cách neural network đưa tensor qua các layer: activation, gradient, normalization, residual, CNN, RNN, attention, PyTorch module, training loop và transfer learning." },
   },
-  status: 'active',
+  status: 'placeholder',
   chapters,
   sectionKinds: ['theory', 'code'],
 } satisfies LearningTableOfContents;

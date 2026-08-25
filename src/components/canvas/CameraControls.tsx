@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Layers, Layers2, RefreshCcw } from 'lucide-react';
 import * as THREE from 'three';
-import { LayoutData } from '../../lib/irTypes';
+import type { LayoutData } from '../../lib/irTypes';
 import { usePreferencesStore } from '../../store/usePreferencesStore';
 import { getStrings } from '../../lib/localization';
 import { Z_INDEX_RECENTER_BUTTON } from '../../lib/constants';
@@ -204,7 +204,7 @@ export const CameraFitController: React.FC<{
 
     active.elapsed += delta;
     const t = Math.min(1, active.elapsed / active.duration);
-    const eased = 1 - Math.pow(1 - t, 3);
+    const eased = 1 - (1 - t) ** 3;
 
     camera.position.lerpVectors(active.fromPosition, active.toPosition, eased);
     controls?.target?.lerpVectors(active.fromTarget, active.toTarget, eased);

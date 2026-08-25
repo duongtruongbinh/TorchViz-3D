@@ -201,7 +201,9 @@ function collectSectionReferences(source) {
     const sectionId = stack.at(-1);
     if (!sectionId) continue;
     sectionRefs[sectionId] ??= new Set();
-    ids.forEach((id) => sectionRefs[sectionId].add(id));
+    ids.forEach((id) => {
+      sectionRefs[sectionId].add(id);
+    });
   }
   return Object.fromEntries(Object.entries(sectionRefs).map(([id, values]) => [id, [...values].sort()]));
 }

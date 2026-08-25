@@ -110,7 +110,7 @@ export const learningTableOfContents = {
     title: { en: "Machine Learning", vi: "Machine Learning" },
     description: { en: "Move from data splits and evaluation into regression, classification, trees, ensembles, unsupervised learning, tuning, and practical Scikit-Learn workflows for baseline AI systems.", vi: "Đi từ chia dữ liệu và evaluation đến regression, classification, tree, ensemble, unsupervised learning, tuning và workflow Scikit-Learn thực tế cho hệ thống AI baseline." },
   },
-  status: 'active',
+  status: 'placeholder',
   chapters,
   sectionKinds: ['theory', 'code'],
 } satisfies LearningTableOfContents;

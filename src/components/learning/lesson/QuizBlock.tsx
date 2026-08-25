@@ -24,7 +24,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { LearningLessonExtra } from '../authoredTypes';
 import { getStrings, type Language } from '../../../lib/localization';
 import { getLearningLocalizedText as text } from '../learningText';
-import { cx, getLearningLabTheme } from '../theme';
+import { cx, type getLearningLabTheme } from '../theme';
 import { scrollLearningLabElementIntoView } from './scrolling';
 
 export default function QuizBlock({

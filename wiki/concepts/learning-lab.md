@@ -27,7 +27,10 @@ overview followed by twenty-nine alternating theory/quiz pairs across 7 core
 chapters), twelve in `research-papers`, and four tagged exercise lessons in `cv`.
 The other 429 nodes are navigable placeholders and render one shared localized
 "content in progress" message. They do not carry legacy theory or practice
-payloads.
+payloads. These headline counts are verified against the typed catalog by
+`npm run check:catalog-stats`; see
+[catalog-stats](../reference/catalog-stats.md) for the generated per-domain
+breakdown.
 
 The authored LLM lessons are:
 
@@ -247,8 +250,8 @@ tap to pin it, and the explicit action opens the source. No source is fetched
 during interaction. Evidence and exception data are injected only into authored
 lesson pages, so the dedicated `Nguồn chính được dùng trong bài` page remains
 ordinary links by construction. The Continual Learning domain currently has
-224 authored citation occurrences across 41 theory/lab nodes: 222 reviewed
-evidence records and two explicit link-only exceptions. The three authored
+222 authored citation occurrences across 41 theory/lab nodes: 221 reviewed
+evidence records and one explicit link-only exception. The three authored
 `PaperSummary` blocks remain prose analysis and do not instantiate previews.
 
 Inline citation text is numeric and lesson-local: `[1]`, `[2]`, and so on. The
@@ -398,12 +401,14 @@ coverage, `paper-summary` decisions have a matching component, and optional MDX
 `referenceIds` match the structured citations authored in that file. It also
 rejects missing publication years and Scholar fallbacks on any source exposed by
 a lesson. The generated snapshot currently represents 225 papers cited across
-30 taught survey sections, plus six explicitly registered sources: the survey
+30 taught survey sections, plus ten explicitly registered sources: the survey
 itself, Synaptic Intelligence, the post-survey Spurious Forgetting lab paper,
 the original GEM paper used to define diagonal-based BWT, Hinton et al.'s
-foundational distillation paper, and FitNets for intermediate-representation
-distillation. Forty-two reviewed claim rows currently expose 196 of the 231
-registry records. The remaining records stay available as survey-intake candidates but
+foundational distillation paper, FitNets for intermediate-representation
+distillation, the Kaplan et al. scaling-laws paper, the Chinchilla
+compute-optimal training paper, Vi-Mistral-X for Vietnamese continual
+pre-training, and Qi et al.'s safety-compromise fine-tuning paper. Forty-two
+reviewed claim rows currently expose 196 of the 235 registry records. The remaining records stay available as survey-intake candidates but
 are not rendered merely because they occur elsewhere in a broad survey section.
 
 The core metrics lesson treats metric names as incomplete without their
@@ -439,7 +444,7 @@ currently unused `kandel2000principles` book record because the cited 2000
 edition has no stable open primary landing page in the survey metadata.
 
 Search indexes catalog metadata for all nodes and authored body text only for
-published MDX. The shared placeholder body is not indexed, preventing 536
+published MDX. The shared placeholder body is not indexed, preventing 429
 missing nodes from overwhelming authored results. Matching is case-insensitive
 and Vietnamese-diacritic-insensitive.
 
@@ -463,7 +468,7 @@ and Vietnamese-diacritic-insensitive.
 | `src/components/learning/domains/llm-ai-engineering/rendererTypes.ts` | Domain-local authored-content shapes shared by the LLM renderer families. |
 | `src/components/learning/domains/llm-ai-engineering/rendererTheme.ts` | Semantic light/dark tokens shared by repeated LLM visual roles. |
 | `src/components/learning/domains/llm-ai-engineering/rendererPrimitives.tsx` | Typed token, ID, callout, and playback primitives used by LLM renderers. |
-| `src/components/learning/domains/llm-ai-engineering/diagramPrimitives.tsx` | Shared DOM measurement, connector SVG, and probability-curve infrastructure for LLM diagrams. |
+| `src/components/learning/domains/llm-ai-engineering/probabilityCharts.tsx` | Shared probability-curve, sign-comparison, and exponent-comparison charts for LLM diagrams. |
 | `src/components/learning/domains/cv/mdxComponents.tsx` | CV-only MDX adapter that lazy-loads shared exercise surfaces. |
 | `src/components/exercises/*` | Shared exercise engines, registry, and Workspace launcher. |
 | `src/content/learning/<domain-id>/table-of-contents.ts` | One typed React-free catalog manifest per domain. |
@@ -472,7 +477,7 @@ and Vietnamese-diacritic-insensitive.
 | `src/content/learning/continual-learning-llm/papers.generated.ts` | Generated pinned-survey bibliography and complete section citation sets; do not hand-edit. |
 | `src/content/learning/continual-learning-llm/citationEvidence.ts` | Hand-reviewed occurrence-level excerpts and verification targets for inline citations. |
 | `src/core/learning/citationEvidence.ts` | React-free shared citation-evidence contract and target labels. |
-| `src/content/learning/index.ts` | Concrete catalog assembly over the thirteen domain TOCs. |
+| `src/content/learning/index.ts` | Concrete catalog assembly over the fourteen domain TOCs. |
 | `src/content/learning/mdxComponents.ts` | React-free shared/domain MDX component allowlist. |
 | `src/core/learning/types.ts` | React-free catalog contracts. |
 | `src/core/learning/materializeCatalog.ts` | Pure catalog construction and invariant validation. |
@@ -578,9 +583,9 @@ To maintain architectural clarity and prevent component sprawl, Learning Lab def
 
 | Layer | Files & Directories | Scope & Ownership | Reuse Rules |
 | :--- | :--- | :--- | :--- |
-| **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx`, `InteractiveStepper.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`, `InteractiveStepper`, `CodeLabStep`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
+| **Global Theme & Shell** | `src/components/learning/theme.ts`, `learningMdxComponents.tsx`, `LearningLabView.tsx`, `shell/InteractiveStepper.tsx`, `code/CodeLabStep.tsx` | App-wide theme tokens (`surface`, `button`, `semantic` tones, `focusRing`), global MDX components (`CourseCards`, `EvidenceCards`, `ConceptFlow`, `LessonNote`, `LessonImage`, `MdxQuiz`, `InteractiveStepper`, `CodeLabStep`). | Reusable by all courses. Must stay domain-neutral. Uses `themeClasses.semantic` for status colors. |
 | **Reference Engine** | `src/components/learning/learningMdxReferences.tsx` | Lazy reference runtime (`Cite`, `PaperSummary`, `LessonReferences`, `@floating-ui/react`). | Loaded dynamically on-demand only when `needsReferenceRuntime: true`. Never eagerly bundled into shared shell or non-reference lessons. |
-| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`, `mlops-llmops-production-systems`). | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
+| **Domain Adapters** | `src/components/learning/domains/<domain>/mdxComponents.tsx` | Domain-specific MDX component mappings (`linear-algebra`, `continual-learning-llm`, `cv`, `llm-ai-engineering`). The `mlops-llmops-production-systems` domain uses only shared MDX components and ships no adapter. | Encapsulates domain visuals (`StageContinuityMap`, `CvExercise`, math visualizers). Lazy loaded per domain. |
 | **Math Primitives** | `src/components/learning/domains/linear-algebra/primitives/` | `MathCanvas`, `MathVisualCard`, `MathInfoPanel`, `MathRangeControl`, `MathSegmentedControl`, `MatrixGrid`, `AugmentedMatrixGrid`, `matrixPrimitives.tsx`. | **Domain-bound to Linear Algebra.** Do NOT promote to global shared. Consumes theme tokens for generic surfaces/borders/focus while keeping mathematical semantic coloring. |
 
 #### Component Reuse Guidelines for Coding Agents

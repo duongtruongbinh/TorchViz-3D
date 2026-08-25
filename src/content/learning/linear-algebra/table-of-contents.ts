@@ -183,6 +183,7 @@ export const learningTableOfContents = {
     },
   },
   status: 'active',
+  fallbackLocales: ['vi'],
   firstLessonStatus: 'available',
   defaultLessonStatus: 'available',
   chapters,

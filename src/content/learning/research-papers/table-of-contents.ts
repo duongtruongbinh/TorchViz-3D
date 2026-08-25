@@ -157,6 +157,7 @@ export const learningTableOfContents = {
     },
   },
   status: 'active',
+  fallbackLocales: ['vi'],
   chapters,
   sectionKinds: ['theory', 'code'],
 } satisfies LearningTableOfContents;

@@ -41,7 +41,6 @@ export function StageContinuityMap({ ariaLabel, items }: { ariaLabel: string; it
               <p className={cx('text-sm leading-6 text-pretty', themeClasses.bodyText)}>{item.verticalDetail}</p>
             </section>
             <section
-              tabIndex={0}
               className={cx(
                 'rounded-xl border p-5 opacity-45 transition-[opacity,transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:opacity-100 hover:shadow-[0_14px_30px_rgba(25,55,85,0.12)] focus-visible:-translate-y-0.5 focus-visible:opacity-100 focus-visible:shadow-[0_14px_30px_rgba(25,55,85,0.12)] motion-reduce:transform-none',
                 themeClasses.focusRing,

@@ -12,7 +12,7 @@ async function getMermaidInstance() {
   if (typeof window === 'undefined') return null;
   let mermaidModule: any;
   try {
-    // @ts-ignore
+    // @ts-expect-error
     mermaidModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs');
   } catch (err) {
     console.error('Không thể tải Mermaid từ CDN:', err);

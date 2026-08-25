@@ -63,8 +63,7 @@ export function MatrixGrid({
                 (highlightCell &&
                   highlightCell[0] === r &&
                   highlightCell[1] === c) ||
-                (highlightIndices &&
-                  highlightIndices.some(
+                (highlightIndices?.some(
                     ([hr, hc]) => hr === r && hc === c,
                   ));
               const isAllMatch = highlightMode === 'all';

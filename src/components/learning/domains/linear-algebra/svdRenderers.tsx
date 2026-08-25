@@ -56,6 +56,7 @@ export function SVDGeometryExplorer({
 
   const current = stages[stage];
   const angleU = Math.PI / 4; // 45 deg
+  const handleStepChange = useCallback((s: number) => setStage(s as 0 | 1 | 2 | 3), []);
 
   return (
     <MathVisualCard
@@ -80,7 +81,7 @@ export function SVDGeometryExplorer({
             <InteractiveStepper
               currentStep={stage}
               totalSteps={stages.length}
-              onStepChange={useCallback((s: number) => setStage(s as 0 | 1 | 2 | 3), [])}
+              onStepChange={handleStepChange}
               ariaLabel="SVD stage controls"
             />
           )}
