@@ -1,0 +1,575 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sculpting-subspaces-introduction',
+  locale: 'vi',
+  title: 'Phần 2: Giới thiệu & Tổng quan Nghiên cứu',
+  headings: [
+    'Bối cảnh & Thách thức Học Liên tục',
+    'Nghịch lý Quên lãng Thảm khốc trong LLM',
+    'Tổng quan 3 Nhánh Tiếp cận Trong Nghiên cứu Hiện tại',
+    'Nhánh 1: Giới hạn Tham số (Parameter-Restricted Approaches)',
+    'Nhánh 2: Không gian Kỳ dị SVD (SVD Subspace Methods)',
+    'Nhánh 3: Full Fine-Tuning Truyền thống',
+    'Động lực Cốt lõi: 2 Rào cản Lớn Thúc đẩy Nghiên cứu',
+    'Đóng góp: Sculpting Subspaces (Giao thoa giữa SVD và Full Fine-Tuning)',
+    '4 Khác biệt Cốt lõi với Gradient Projection trên Kích hoạt (GPM / SGP)',
+    '4 Đóng góp Cốt lõi của Bài báo',
+    'Đối chiếu & Giải đáp các Câu hỏi Nghiên cứu',
+  ],
+  keywords: [
+    'Sculpting Subspaces',
+    'Introduction',
+    'Related Work',
+    'SVD Subspace Methods',
+    'Full Fine-Tuning',
+    'Parameter-Restricted',
+    'SDC-LoRA',
+    'MiLoRA',
+    'PiSSA',
+    'GPM',
+    'SGP',
+    'EWC',
+    'Dormant Directions',
+    'Orthogonal Projection',
+    'Adaptive Rank',
+    'Continual Learning',
+    'Research Questions',
+  ],
+  pageCount: 4,
+};
+
+<MdxPage page={0}>
+
+### Bối cảnh & Thách thức Học Liên tục
+
+Các mô hình ngôn ngữ lớn như **GPT-3**, **PaLM** và **LLaMA-2** đã chứng minh sự linh hoạt đáng kinh ngạc trên nhiều tác vụ: từ phân loại văn bản, dịch thuật đa ngôn ngữ đến suy luận phức tạp và sinh mã nguồn.
+
+Tuy nhiên, khi đưa LLM vào triển khai trong môi trường doanh nghiệp thực tế, hệ thống phải đối mặt với yêu cầu thích nghi liên tục:
+- **Trợ lý ảo doanh nghiệp:** Cần liên tục cập nhật thông tin về các dòng sản phẩm mới, chính sách thay đổi và nhu cầu khách hàng phát sinh theo từng quý.
+- **Mô hình Y tế & Pháp lý:** Cần liên tục hấp thu các công trình nghiên cứu mới nhất, phác đồ điều trị cập nhật và các văn bản luật sửa đổi.
+
+<ConceptHierarchy
+  ariaLabel="Thế lưỡng nan trong Thích nghi Dữ liệu"
+  root={{
+    title: 'Continual Data Adaptation',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Retraining from Scratch',
+      detail: 'Gộp toàn bộ dữ liệu lịch sử và dữ liệu mới để huấn luyện lại từ checkpoint số 0.',
+      problem: 'Tốn kém chi phí khổng lồ (hàng trăm nghìn USD, nhiều tuần tính toán GPU), không thể mở rộng quy mô.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Sequential Fine-Tuning',
+      detail: 'Huấn luyện tuần tự trực tiếp trên dữ liệu mới bằng gradient descent thông thường.',
+      problem: 'Gây quên lãng thảm khốc (Catastrophic Forgetting), gradient mới ghi đè làm xóa sạch tri thức cũ.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Việc huấn luyện lại từ đầu (**Retraining from scratch**) mỗi khi có tập dữ liệu hoặc tác vụ mới xuất hiện là hoàn toàn bất khả thi về mặt chi phí tính toán và thời gian vận hành.
+
+---
+
+### Nghịch lý Quên lãng Thảm khốc trong LLM
+
+Khi huấn luyện tuần tự qua chuỗi tác vụ <InlineMath formula="D_1 \to D_2 \to \dots \to D_T" />, mạng nơ-ron sâu mắc phải hiện tượng **quên lãng thảm khốc** (**Catastrophic Forgetting**).
+
+Nguyên nhân cốt lõi bắt nguồn từ bản chất **biểu diễn phân tán** (**Distributed Representations**):
+- Các tham số trong mạng không hoạt động độc lập mà đan xen lẫn nhau để biểu diễn tri thức của các tác vụ cũ <InlineMath formula="D_1, \dots, D_{t-1}" />.
+- Khi thực hiện lan truyền ngược để tối ưu hàm mất mát cho tác vụ mới <InlineMath formula="D_t" />, vector gradient sẽ thay đổi các trọng số này một cách thiếu kiểm soát, vô tình phá hủy cấu trúc hình học của tri thức đã tích lũy.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Tổng quan 3 Nhánh Tiếp cận Trong Nghiên cứu Hiện tại
+
+Các phương pháp hiện tại nhằm giảm thiểu quên lãng trong LLM phân tách thành ba triết lý cấu trúc rõ rệt ở Level 1:
+
+<ConceptHierarchy
+  ariaLabel="Phân loại 3 Nhánh Tiếp cận Continual Learning"
+  root={{
+    title: 'Phân loại Nghiên cứu Continual Learning',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Parameter-Restricted (PEFT)',
+      tone: 'amber',
+    },
+    {
+      title: (
+        <span className="block text-center">
+          <span className="block font-bold">2. SVD Subspace Methods</span>
+          <span className="mt-0.5 block text-xs tracking-tight opacity-80">
+            <InlineMath formula="W = U \Sigma V^\top" />
+          </span>
+        </span>
+      ),
+      tone: 'violet',
+      children: [
+        {
+          title: (
+            <span className="block text-center">
+              <span className="block font-semibold">1. High-Rank Subspace</span>
+              <span className="mt-0.5 block text-xs tracking-tight text-current/80">
+                <InlineMath formula="(U_{\text{high}}, \Sigma_{\text{high}}, V_{\text{high}}^\top)" />
+              </span>
+            </span>
+          ),
+          detail: 'Gắn liền với các giá trị kỳ dị lớn (mật độ năng lượng cao), mã hóa toàn bộ tri thức cốt lõi của các tác vụ cũ. Được BẢO VỆ TUYỆT ĐỐI.',
+          tone: 'amber',
+        },
+        {
+          title: (
+            <span className="block text-center">
+              <span className="block font-semibold">2. Low-Rank Subspace</span>
+              <span className="mt-0.5 block text-xs tracking-tight text-current/80">
+                <InlineMath formula="(U_{\text{low}}, \Sigma_{\text{low}}, V_{\text{low}}^\top)" />
+              </span>
+            </span>
+          ),
+          detail: 'Gắn liền với các giá trị kỳ dị nhỏ (vùng dung lượng dư thừa). DÀNH ĐỂ CẬP NHẬT TÁC VỤ MỚI thông qua chiếu gradient trực giao.',
+          tone: 'teal',
+        },
+      ],
+    },
+    {
+      title: '3. Full Fine-Tuning (Toàn phần)',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+---
+
+### Nhánh 1: Giới hạn Tham số (Parameter-Restricted Approaches)
+
+Nhóm phương pháp này cô lập tri thức tác vụ bằng cách chỉ cho phép một tập con nhỏ trọng số hoặc nhánh adapter phụ trợ được thay đổi:
+
+<ConceptHierarchy
+  ariaLabel="Chi tiết Nhánh 1 trong Phân loại Nghiên cứu Continual Learning"
+  root={{
+    title: 'Phân loại Nghiên cứu Continual Learning',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Parameter-Restricted (PEFT)',
+      tone: 'amber',
+      children: [
+        {
+          title: 'PEFT & LoRA Tiêu chuẩn',
+          detail: (
+            <span>
+              Đóng băng mô hình gốc <InlineMath formula="W_0" /> và gắn thêm nhánh adapter rank thấp <InlineMath formula="B \cdot A" /> (Houlsby et al., 2019; Wang et al., 2023a). Giới hạn năng lực biểu diễn và số tham số tăng tuyến tính theo task.
+            </span>
+          ),
+          tone: 'amber',
+        },
+        {
+          title: 'Sparse Fine-Tuning',
+          detail: 'Chỉ cập nhật một phần nhỏ trọng số gốc dựa trên heuristic độ lớn gradient (Panda et al., 2024; Bhardwaj et al., 2025). Thiếu cơ sở toán học về độ cong Hessian so với SVD.',
+          tone: 'teal',
+        },
+      ],
+    },
+    {
+      title: '2. SVD Subspace Methods',
+      tone: 'neutral',
+      muted: true,
+    },
+    {
+      title: '3. Full Fine-Tuning (Toàn phần)',
+      tone: 'neutral',
+      muted: true,
+    },
+  ]}
+/>
+
+---
+
+### Nhánh 2: Không gian Kỳ dị SVD (SVD Subspace Methods)
+
+Nhóm phương pháp này phân rã ma trận trọng số <InlineMath formula="W = U \Sigma V^\top" /> để điều hướng việc cập nhật vào các không gian con kỳ dị cụ thể:
+
+<ConceptHierarchy
+  ariaLabel="Chi tiết Nhánh 2 trong Phân loại Nghiên cứu Continual Learning"
+  root={{
+    title: 'Phân loại Nghiên cứu Continual Learning',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Parameter-Restricted (PEFT)',
+      tone: 'amber',
+      children: [
+        {
+          title: 'PEFT & LoRA Tiêu chuẩn',
+          tone: 'amber',
+        },
+      ],
+    },
+    {
+      title: '2. SVD Subspace Methods',
+      tone: 'violet',
+    },
+    {
+      title: '3. Full Fine-Tuning (Toàn phần)',
+      tone: 'neutral',
+      muted: true,
+    },
+  ]}
+  connections={[
+    {
+      parents: [0, 1],
+      children: [
+        {
+          title: '1. MiLoRA (Wang et al., 2025)',
+          detail: 'Đóng băng thành phần kỳ dị lớn (High-SV) và chỉ fine-tune thành phần kỳ dị nhỏ (Low-SV) dưới dạng LoRA. Cấu trúc gần với OSFT nhất nhưng vẫn dùng rank cố định và phát sinh adapter ngoài.',
+          tone: 'amber',
+        },
+        {
+          title: '2. PiSSA (Meng et al., 2024)',
+          detail: 'Ngược lại với MiLoRA: Đóng băng thành phần kỳ dị nhỏ (Low-SV) và chỉ fine-tune thành phần kỳ dị lớn (High-SV) để tối đa hóa tốc độ hội tụ ban đầu.',
+          tone: 'teal',
+        },
+        {
+          title: '3. SDC-LoRA (ACL 2026)',
+          detail: (
+            <span>
+              Giữ rank LoRA cố định <InlineMath formula="r" /> toàn cục, kiểm soát trôi dạt không gian kỳ dị bằng hàm phạt mềm (Weighted Drift Penalty) có trọng số <InlineMath formula="\Sigma" /> trong hàm Loss.
+            </span>
+          ),
+          tone: 'violet',
+        },
+      ],
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Nhánh 3: Full Fine-Tuning Truyền thống
+
+Nhóm phương pháp này tối ưu hóa trực tiếp trên toàn bộ ma trận trọng số đầy đủ nhưng gặp phải các rào cản nghiêm trọng về quên lãng, xấp xỉ Hessian hoặc bùng nổ bộ nhớ:
+
+<ConceptHierarchy
+  ariaLabel="Chi tiết các Phương pháp Full Fine-Tuning Truyền thống"
+  root={{
+    title: 'Phân loại Nghiên cứu Continual Learning',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Parameter-Restricted (PEFT)',
+      tone: 'neutral',
+      muted: true,
+    },
+    {
+      title: '2. SVD Subspace Methods',
+      tone: 'neutral',
+      muted: true,
+    },
+    {
+      title: '3. Full Fine-Tuning (Toàn phần)',
+      tone: 'teal',
+      children: [
+        {
+          title: 'Sequential Fine-Tuning',
+          detail: 'Gradient mới cập nhật trực tiếp không ràng buộc, ghi đè và phá hủy hoàn toàn không gian biểu diễn của các tác vụ cũ (Quên lãng thảm khốc).',
+          tone: 'amber',
+        },
+        {
+          title: 'Regularization (EWC)',
+          detail: 'Phạt dịch chuyển trọng số dựa trên đường chéo ma trận Fisher. Giả định độc lập tham số sụp đổ hoàn toàn trên các LLM hàng tỷ tham số.',
+          tone: 'violet',
+        },
+        {
+          title: 'Model Merging (TIES)',
+          detail: 'Trộn checkpoint sau khi huấn luyện độc lập từng task. Xung đột tri thức tích lũy qua chuỗi tác vụ dài dẫn đến suy giảm độ chính xác trầm trọng.',
+          tone: 'neutral',
+        },
+        {
+          title: 'Activation Proj (GPM / SGP)',
+          detail: (
+            <span>
+              Chiếu gradient trực giao dựa trên ma trận kích hoạt dữ liệu <InlineMath formula="O(T)" />. Bùng nổ bộ nhớ VRAM khi số lượng tác vụ tăng lên.
+            </span>
+          ),
+          tone: 'teal',
+        },
+      ],
+    },
+  ]}
+/>
+
+---
+
+### Động lực Cốt lõi: 2 Rào cản Lớn Thúc đẩy Nghiên cứu
+
+Khi đối chiếu giữa trường phái **Parameter-Restricted (LoRA & SVD-PEFT)** và **Full Fine-Tuning**, nhóm tác giả nhận diện hai nghịch lý và câu hỏi mang tính quyết định:
+
+<ConceptHierarchy
+  ariaLabel="2 Động lực Cốt lõi Thúc đẩy Nghiên cứu Sculpting Subspaces"
+  root={{
+    title: '2 Động lực Nghiên cứu Cốt lõi',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Nghịch lý Năng lực: Tại sao ép LoRA khi có thể Full Fine-Tune?',
+      detail: (
+        <span>
+          PEFT ép cập nhật vào rank thấp hẹp <InlineMath formula="r \ll d" />, gây nghẽn nghiêm trọng <strong>dung lượng biểu diễn</strong> khi học tác vụ suy luận phức tạp. Nếu có thể kiểm soát trôi dạt hình học trực tiếp trên toàn bộ ma trận trọng số <InlineMath formula="W" />, mô hình sẽ tận dụng 100% sức mạnh mà không cần cấy thêm adapter phụ trợ.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '2. Nghịch lý Dị thể Tầng: Tại sao ép Rank bảo tồn cố định toàn cục?',
+      detail: (
+        <span>
+          Các nghiên cứu SVD trước đây (MiLoRA, SDC-LoRA) áp đặt rank <InlineMath formula="r" /> cố định cho mọi tầng. Tuy nhiên, các tầng trong Transformer có <strong>tính dị thể sâu sắc (Layer Heterogeneity)</strong>: tầng trích xuất đặc trưng cơ bản cần rank bảo vệ cao, trong khi tầng ngữ cảnh linh hoạt cần rank thấp để tăng tính dẻo dai (Plasticity). Cần một cơ chế tự động cấp rank thích ứng <InlineMath formula="I^{(l)}" /> cho từng tầng.
+        </span>
+      ),
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Hai phát hiện trên dẫn trực tiếp đến sự ra đời của **Sculpting Subspaces (OSFT)** — giải pháp kết hợp trọn vẹn sức mạnh của **Full Fine-Tuning** và **Không gian Kỳ dị SVD Thích ứng theo Tầng**.
+
+---
+
+### Đóng góp: Sculpting Subspaces (Giao thoa giữa SVD và Full Fine-Tuning)
+
+Khác với các phương pháp truyền thống, **Sculpting Subspaces (OSFT)** kết hợp độc đáo giữa năng lực biểu diễn của **Full Fine-Tuning** và khả năng định vị hình học của **SVD** để bảo tồn tri thức mà không tốn thêm bộ nhớ:
+
+<ConceptHierarchy
+  ariaLabel="Vị trí Đóng góp của Sculpting Subspaces trong Phân loại Nghiên cứu"
+  root={{
+    title: 'Phân loại Nghiên cứu Continual Learning',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Parameter-Restricted (PEFT)',
+      tone: 'neutral',
+      muted: true,
+    },
+    {
+      title: '2. SVD Subspace Methods',
+      tone: 'violet',
+    },
+    {
+      title: '3. Full Fine-Tuning (Toàn phần)',
+      tone: 'teal',
+    },
+  ]}
+  connections={[
+    {
+      parents: [1, 2],
+      children: [
+        {
+          title: 'Sculpting Subspaces (OSFT - Ours)',
+          detail: (
+            <span>
+              Chiếu gradient trực giao trên toàn bộ ma trận trọng số <InlineMath formula="W" /> vào không gian kỳ dị Low-Rank <InlineMath formula="(U_{\text{low}}, V_{\text{low}}^\top)" />. Đạt 100% dung lượng biểu diễn, không thêm adapter phụ trợ, chi phí bộ nhớ hằng số <InlineMath formula="O(1)" />.
+            </span>
+          ),
+          tone: 'teal',
+        },
+      ],
+    },
+  ]}
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/02-figure-2-method-overview.png"
+  alt="Figure 2: Tổng quan Phương pháp Sculpting Subspaces (OSFT)"
+  caption="Figure 2: Kiến trúc 3 bước đồng bộ của OSFT: Đo góc kích hoạt tầng (Layer Cosine Similarity) -> Phân tách SVD High/Low Rank -> Ràng buộc gradient trực giao qua Reparameterization & Gradient Hooks."
+/>
+
+---
+
+> **Lời khuyên học tập:** Sơ đồ tổng quan kiến trúc trên tích hợp toàn bộ các phát minh cốt lõi của bài báo. Nếu bạn thấy có nhiều ký hiệu hay công thức mới, hãy cứ tiếp tục đọc tiếp các phần sau. Sau khi hoàn thành toàn bộ bài học (đặc biệt là Phần 3 về Phương pháp), hãy quay lại nhìn lại sơ đồ này — bạn sẽ thấy toàn bộ bức tranh kiến trúc trở nên dễ hiểu hơn rất nhiều!
+
+---
+
+### 4 Khác biệt Cốt lõi với Gradient Projection trên Kích hoạt (GPM / SGP)
+
+Dòng nghiên cứu chiếu gradient trực giao tiêu biểu gồm **Gradient Projection Memory (GPM)** (*Saha et al., 2021*) và **Scaled Gradient Projection (SGP)** (*Saha & Roy, 2023*). OSFT khác biệt hoàn toàn với GPM/SGP ở 4 khía cạnh mang tính quyết định:
+
+<ConceptHierarchy
+  ariaLabel="4 Khác biệt Cốt lõi Giữa OSFT và GPM/SGP"
+  root={{
+    title: 'So sánh OSFT vs GPM / SGP',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Đối tượng Phân rã SVD (Object of SVD)',
+      detail: 'OSFT phân rã SVD trực tiếp trên ma trận trọng số (Weights) để xấp xỉ hướng cong lớn, trong khi GPM/SGP phân rã trên kích hoạt dữ liệu (Activations).',
+      tone: 'amber',
+    },
+    {
+      title: '2. Khả năng Mở rộng Bộ nhớ (Memory Scalability)',
+      detail: (
+        <span>
+          OSFT chỉ tốn bộ nhớ hằng số <InlineMath formula="O(1)" /> (chỉ lưu vector kỳ dị của trọng số hiện tại). GPM/SGP tích lũy cơ sở kích hoạt tăng tuyến tính theo số tác vụ <InlineMath formula="O(T)" />, làm bùng nổ VRAM trên LLM.
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '3. Phân bổ Rank Thích ứng (Adaptive Ranks)',
+      detail: 'OSFT sử dụng điểm quan trọng Cosine từng tầng để phân bổ rank linh hoạt, đạt sự cân bằng tối ưu giữa Stability và Plasticity.',
+      tone: 'teal',
+    },
+    {
+      title: '4. Quy mô Kiểm chứng (Target Scale)',
+      detail: 'OSFT là phương pháp chiếu Weight-SVD đầu tiên được xác thực thành công trên LLM hàng tỷ tham số (LLaMA-2 7B), trong khi GPM/SGP chỉ chạy trên các mô hình nhỏ.',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+---
+
+### 4 Đóng góp Cốt lõi của Bài báo
+
+<ConceptHierarchy
+  ariaLabel="4 Đóng góp Chính của Sculpting Subspaces"
+  root={{
+    title: '4 Đóng góp Cốt lõi',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Tiếp cận Hình học & Adaptive SVD',
+      detail: 'Đề xuất phân tách không gian con dựa trên Adaptive SVD để tái sử dụng hướng dư thừa mà không gây can thiệp tri thức cũ.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Full Fine-Tuning (0% Parameter Growth)',
+      detail: 'Cập nhật toàn bộ tham số mô hình nhưng giữ nguyên kích thước mạng, không thêm adapter phụ trợ hay tăng chi phí lưu trữ.',
+      tone: 'teal',
+    },
+    {
+      title: '3. Hiệu năng SOTA & Bảo toàn Năng lực',
+      detail: 'Vượt baseline O-LoRA tới 7% trên cả T5-Large và LLaMA-2 7B; triệt tiêu quên lãng, bảo toàn năng lực tổng quát và độ an toàn.',
+      tone: 'violet',
+    },
+    {
+      title: '4. Kiểm chứng Lý thuyết & Thực nghiệm',
+      detail: 'Chứng minh toán học qua xấp xỉ Hessian bậc 2 và thực nghiệm xác thực tính khả thi của việc điêu khắc không gian con.',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+Phương pháp đạt được sự kết hợp hoàn hảo giữa **dung lượng biểu diễn tối đa của Full-Model Fine-Tuning** với **cơ chế ràng buộc hình học vững chắc có chi phí bộ nhớ không đổi <InlineMath formula="O(1)" />**, giải quyết trọn vẹn bài toán học liên tục trên các mô hình ngôn ngữ lớn hiện đại.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Đối chiếu & Giải đáp các Câu hỏi Nghiên cứu
+
+Sau khi đi qua bức tranh toàn cảnh về 3 nhánh tiếp cận và phát kiến **Sculpting Subspaces (OSFT)**, chúng ta hãy cùng đối chiếu lại **6 câu hỏi then chốt** đã đặt ra từ Phần 1:
+
+<ConceptHierarchy
+  ariaLabel="Các câu hỏi đã được làm sáng tỏ ở Phần 2"
+  root={{
+    title: '3 Câu hỏi Đã Có Lời Giải Sáng tỏ ở Phần 2',
+    tone: 'teal',
+  }}
+  nodes={[
+    {
+      title: '1. Tại sao phải Full Fine-Tuning thay vì LoRA?',
+      detail: (
+        <span>
+          <strong>Lời giải:</strong> PEFT ép toàn bộ cập nhật vào rank thấp hẹp <InlineMath formula="r \ll d" />, gây nghẽn nghiêm trọng năng lực biểu diễn khi học tác vụ suy luận phức tạp. Full FT khai phóng 100% dung lượng ma trận trọng số, trong khi cơ chế chiếu trực giao giữ chi phí bộ nhớ không đổi <InlineMath formula="O(1)" />.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '2. Tại sao lại là không gian SVD?',
+      detail: (
+        <span>
+          <strong>Lời giải:</strong> Không gian SVD phân tách rành mạch hình học giữa <strong>High-Rank</strong> (mật độ năng lượng cao, mã hóa tri thức cốt lõi) và <strong>Low-Rank</strong> (hướng năng lượng thấp). Đây là phép phân rã tự nhiên nhất để cô lập vùng cấm xâm phạm.
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '3. Khóa hướng cũ rồi thì còn chỗ nào để học bài mới?',
+      detail: (
+        <span>
+          <strong>Lời giải:</strong> Tái sử dụng <strong>không gian Low-Rank (Low-Rank Subspace)</strong>. Do LLM có tính dư thừa tham số cực lớn, phần không gian Low-Rank vẫn đủ rộng lớn để dung nạp tri thức mới mà hoàn toàn không chạm vào tri thức cũ.
+        </span>
+      ),
+      tone: 'teal',
+    },
+  ]}
+/>
+
+---
+
+<ConceptHierarchy
+  ariaLabel="Các câu hỏi mở then chốt dành cho các phần tiếp theo"
+  root={{
+    title: '4 Câu hỏi Then chốt Chờ đón ở Các Phần Tiếp theo',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '4. Thuật toán chiếu gradient và công thức toán học thực thi cụ thể ra sao?',
+      detail: (
+        <span>
+          <strong>Đón đọc tại Phần 3 (Methodology):</strong> Cơ chế tính điểm nhạy cảm tầng <InlineMath formula="I^{(l)}" /> qua Cosine Similarity, thuật toán cấp rank thích ứng <InlineMath formula="r^{(l)}, k^{(l)}" />, công thức chiếu trực giao <InlineMath formula="\nabla W_{\text{proj}}" /> và chứng minh toán học xấp xỉ Hessian bậc 2.
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '5. Thiết lập thực nghiệm có đúng chuẩn Continual Learning (Không Replay, Không Task-ID)?',
+      detail: (
+        <span>
+          <strong>Đón đọc tại Phần 4 (Experiments):</strong> Benchmark TRACE chuẩn mực với 8 tác vụ đa dạng trên LLaMA-2 7B & T5-Large, chứng minh triệt tiêu quên lãng và vượt trội toàn diện so với các baseline SOTA.
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '6. Tại sao phương pháp này lại giữ Safety (96%) và Instruction Following (80%) vượt trội?',
+      detail: (
+        <span>
+          <strong>Đón đọc tại Phần 4 & 5 (Experiments & Discussion):</strong> Khám phá cách High-Rank Subspace bảo vệ toàn vẹn các vector căn chỉnh hành vi (Alignment vectors) của mô hình nền tảng.
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '7. Học chuỗi cực dài (15–20 task) liệu có bị cạn kiệt không gian con?',
+      detail: (
+        <span>
+          <strong>Đón đọc tại Phần 5 (Discussion & Frontiers):</strong> Phân tích giới hạn dung lượng lý thuyết của không gian Low-Rank và các hướng nghiên cứu mở rộng trong tương lai.
+        </span>
+      ),
+      tone: 'blue',
+    },
+  ]}
+/>
+
+</MdxPage>

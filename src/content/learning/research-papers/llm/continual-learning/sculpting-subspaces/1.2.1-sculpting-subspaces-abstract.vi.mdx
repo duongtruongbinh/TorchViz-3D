@@ -1,0 +1,179 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sculpting-subspaces-abstract',
+  locale: 'vi',
+  title: 'Phần 1: Tóm tắt (Abstract)',
+  headings: [
+    'Abstract',
+    'Chỉ số Đóng góp Nổi bật',
+    'Các Câu hỏi Nảy sinh sau khi Đọc Tóm tắt',
+  ],
+  keywords: [
+    'Sculpting Subspaces',
+    'Abstract',
+    'Continual Learning',
+    'Catastrophic Forgetting',
+    'Adaptive SVD',
+    'Orthogonal Projection',
+    'Zero Parameter Overhead',
+    'Research Questions',
+  ],
+  pageCount: 2,
+};
+
+<MdxPage page={0}>
+
+**Paper:** [Link to Paper](https://openreview.net/pdf?id=vQcyqsGJDw)
+
+**Mã nguồn:** [Link to Code (mini_trainer)](https://github.com/Red-Hat-AI-Innovation-Team/mini_trainer) | [Subspace Repo](https://github.com/Red-Hat-AI-Innovation-Team/orthogonal-subspace-learning)
+
+**Title:** Sculpting Subspaces: Constrained Full Fine-Tuning in LLMs for Continual Learning
+
+**Tác giả:** Nikhil Shivakumar Nayak, Krishnateja Killamsetty, Ligong Han, Abhishek Bhandwaldar, Prateek Chanda, Kai Xu, Hao Wang, Aldo Pareja, Oleg Silkin, Mustafa Eyceoz, Akash Srivastava (*Red Hat AI Innovation, IBM Research, IIT Bombay, MIT-IBM Watson AI Lab*)
+
+---
+
+### Abstract
+
+<ConceptHierarchy
+  ariaLabel="Tóm tắt Toàn cảnh Bài báo Sculpting Subspaces"
+  root={{
+    title: 'Sculpting Subspaces (ICLR 2026)',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Bối cảnh & Thách thức',
+      detail: 'Học liên tục (Continual Learning) trên LLM dễ gặp quên lãng thảm khốc (Catastrophic Forgetting) làm sụt giảm nghiêm trọng hiệu năng trên các tác vụ cũ.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Hạn chế của PEFT',
+      detail: 'Các phương pháp LoRA/PEFT bị giới hạn dung lượng biểu diễn và làm bùng nổ tham số khi chuỗi tác vụ kéo dài.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Giải pháp Đề xuất',
+      detail: 'Kỹ thuật Continual Full Fine-Tuning dựa trên Adaptive SVD để tự động nhận diện không gian con tri thức cốt lõi và ép gradient tác vụ mới trực giao (Orthogonal Projection).',
+      tone: 'teal',
+    },
+    {
+      title: '4. Zero Parameter Overhead & Không Quên lãng',
+      detail: 'Cập nhật trực tiếp toàn bộ trọng số (Full Fine-Tuning) nhưng giữ nguyên 100% kích thước mạng, hoàn toàn không thêm adapter phụ trợ, không cần lưu trữ dữ liệu/gradient cũ và triệt tiêu quên lãng về gần bằng 0.',
+      tone: 'blue',
+    },
+  ]}
+/>
+
+---
+
+### Chỉ số Đóng góp Nổi bật
+
+<MetricBars
+  ariaLabel="Các chỉ số thực nghiệm nổi bật của Sculpting Subspaces"
+  columns={2}
+  max={100}
+  items={[
+    {
+      label: 'Độ chính xác Trung bình vượt trội',
+      valueLabel: '+7.1%',
+      value: 71,
+      detail: 'Cao hơn baseline SOTA O-LoRA trên benchmark TRACE 8 tác vụ (LLaMA-2 7B-Chat): 48.4% vs 41.3%',
+      tone: 'primary',
+    },
+    {
+      label: 'Tăng trưởng Tham số (Parameter Growth)',
+      valueLabel: '0%',
+      value: 0,
+      detail: 'Cập nhật trực tiếp full weight, hoàn toàn không thêm adapter phụ trợ',
+      tone: 'neutral',
+    },
+    {
+      label: 'Tỷ lệ Giữ vững Độ An toàn (Safety)',
+      valueLabel: '96%',
+      value: 96,
+      detail: 'Tỷ lệ Thắng + Hòa về Safety Alignment so với mô hình Base LLaMA-2 Chat',
+      tone: 'accent',
+    },
+    {
+      label: 'Tuân thủ Chỉ dẫn (Instruction Following)',
+      valueLabel: '80%',
+      value: 80,
+      detail: 'Tỷ lệ Thắng + Hòa về Instruction-Following (so với 7% của LoRASeqFT)',
+      tone: 'primary',
+    },
+  ]}
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/01-figure-1-trace-pareto-frontier.png"
+  alt="Figure 1: Pareto Frontier trên Benchmark TRACE"
+  caption="Figure 1: Đường biên Pareto tối ưu giữa Khả năng học tác vụ mới (Learnability) và Độ lưu giữ tri thức cũ (Backward Transfer) trên TRACE Benchmark (LLaMA-2 7B)."
+/>
+
+---
+
+**Hướng dẫn đọc biểu đồ (Figure 1):**
+* **Trục hoành (X - Learnability):** Khả năng học tác vụ mới (càng sang phải điểm số càng cao).
+* **Trục tung (Y - Backward Transfer):** Mức độ bảo tồn tri thức cũ (mốc 0% là hoàn toàn không quên; giá trị âm càng lớn thể hiện quên lãng càng nặng).
+* **Hai mốc Trần Lý tưởng (Upper Bounds):**
+  * **PerTaskFT (800%):** Huấn luyện 8 mô hình riêng biệt độc lập cho 8 tác vụ (<InlineMath formula="8 \times 100\% = 800\%" /> tham số) — không bị can thiệp chéo nên <InlineMath formula="\text{BT} = 0\%" />, đóng vai trò trần hiệu năng học đơn lẻ từng task.
+  * **MTL (100%):** Multi-Task Learning huấn luyện Offline đồng thời trên toàn bộ dữ liệu của cả 8 tác vụ cùng lúc — không có yếu tố học tuần tự nên <InlineMath formula="\text{BT} = 0\%" />.
+* **Vị trí thống trị của OSFT (Our Method - 56%):** Học tuần tự liên tục trên **duy nhất 1 mô hình** (0% tham số tăng thêm), đạt điểm số tiệm cận sát nút 2 mốc trần lý tưởng và bỏ xa toàn bộ các phương pháp Continual Learning khác trên đường biên Pareto.
+* **Tại sao Replay lại kém trên trục X (Learnability thấp)?**
+  * Trên Figure 1, Replay đạt điểm Learnability khiêm tốn (Overall AA chỉ đạt **35.9%** theo Bảng 2 TRACE). Learnability trên trục X thể hiện khả năng tiếp thu task mới, không hoàn toàn đồng nhất với Average Accuracy tổng hợp nhưng tương quan chặt chẽ.
+  * **Xung đột Gradient (<InlineMath formula="\nabla_{\text{new}} \leftrightarrow \nabla_{\text{replay}}" />):** Khi vừa học task mới vừa phát lại mẫu cũ trong buffer (<InlineMath formula="\mathcal{L} = \mathcal{L}_{\text{new}} + \lambda \mathcal{L}_{\text{replay}}" />), hai hướng gradient thường đối nghịch nhau (<InlineMath formula="\langle \nabla_{\text{new}}, \nabla_{\text{replay}} \rangle < 0" />), làm triệt tiêu năng lực tối ưu hóa trên tác vụ mới.
+  * **Mất tính khả biến (Plasticity Loss) & Overfit Buffer:** Việc liên tục bị gò ép để khớp với tập mẫu nhỏ trong buffer cũ làm giảm độ nhạy bén thích ứng của mạng.
+  * **Ưu thế của OSFT:** Không trộn dữ liệu cũ → dồn 100% gradient tối ưu hóa task mới trong không gian Low-Rank, trong khi không gian High-Rank được bảo vệ tuyệt đối bằng phép chiếu trực giao.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Các Câu hỏi Nảy sinh sau khi Đọc Tóm tắt
+
+Vừa đọc xong bản tóm tắt với những con số quá đẹp (*0% thêm tham số, không quên lãng, vượt SOTA tới 7%*), bất kỳ ai cũng sẽ bật ra ngay hàng loạt câu hỏi nghi vấn:
+
+<ConceptHierarchy
+  ariaLabel="Các câu hỏi phản biện thực tế nảy sinh sau Abstract"
+  root={{
+    title: 'Những Thắc mắc Tự nhiên',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Tại sao phải Full Fine-Tuning, có quá tốn kém không?',
+      detail: 'LoRA train vừa nhẹ vừa rẻ. Quay lại Full Fine-Tuning có thật sự cần thiết không, hay chỉ làm tốn thêm VRAM và GPU vô ích?',
+      tone: 'amber',
+    },
+    {
+      title: '2. Tại sao lại là không gian SVD mà không phải cách khác?',
+      detail: 'Tại sao lại dùng SVD để chia không gian con? Có gì đặc biệt ở các giá trị kỳ dị (Singular Values) mà các phép chiếu gradient thông thường không làm được?',
+      tone: 'teal',
+    },
+    {
+      title: '3. Khóa hướng cũ rồi thì còn chỗ nào để học bài mới?',
+      detail: 'Nếu các hướng quan trọng nhất đều bị đóng băng để bảo vệ bài cũ, phần không gian con Low-Rank còn lại liệu có quá hẹp để học các tác vụ mới phức tạp?',
+      tone: 'violet',
+    },
+    {
+      title: '4. Thiết lập bài toán ra sao, có đúng chuẩn kịch bản Continual Learning?',
+      detail: 'Có dùng dữ liệu cũ để replay không? Khi suy luận có cần biết Task-ID hay gắn adapter riêng không, hay mô hình phải tự thích ứng như một hệ thống thống nhất duy nhất?',
+      tone: 'amber',
+    },
+    {
+      title: '5. Học chuỗi dài 15–20 task thì có bị cạn kiệt không gian?',
+      detail: 'Mỗi task mới lại chiếm thêm một phần không gian con. Đến task thứ 10 hay 15 thì mô hình còn chỗ trống nào để học tiếp hay sẽ bị bão hòa?',
+      tone: 'blue',
+    },
+    {
+      title: '6. Tại sao Full FT có ràng buộc lại giữ Safety tốt hơn LoRA?',
+      detail: 'Fine-tune full weight thường rất dễ làm "hỏng" bộ căn chỉnh (alignment) an toàn. Cơ chế nào giúp phương pháp này đạt tới 96% độ an toàn so với base model?',
+      tone: 'neutral',
+    },
+  ]}
+/>
+
+</MdxPage>

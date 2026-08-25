@@ -181,7 +181,7 @@ Một trong những phát hiện sâu sắc nhất của bài báo là sự đ�
 
 ### Tại sao Khởi tạo Minor Subspace đơn thuần là Chưa Đủ?
 
-Nhiều nghiên cứu trước đây (như MiLoRA) cho rằng chỉ cần khởi tạo adapter trong **Minor Subspace** (<InlineMath formula="R_0 = -1" />) là đã đủ cách ly tri thức. Tuy nhiên, bài báo SDC-LoRA đã chỉ ra lỗ hổng cốt tử:
+Nhiều nghiên cứu trước đây (như MiLoRA) cho rằng chỉ cần khởi tạo adapter trong **Minor Subspace** (<InlineMath formula="R_0 = -1" />) là đã đủ cách ly tri thức. Tuy nhiên, bài báo SDC-LoRA đã chỉ ra lỗ hổng then chốt:
 
 1. **Khởi tạo chỉ quyết định bước <InlineMath formula="t = 0" />:** Điểm xuất phát nằm ở Minor Subspace không có tác dụng ngăn cản gradient của các bước <InlineMath formula="t > 0" /> tràn ngược sang Principal Subspace.
 2. **Hiện tượng bùng nổ khi tăng Learning Rate:** Khi thử nghiệm với các mức Learning Rate lớn hơn (<InlineMath formula="lr = 2\text{e-}4 \to 5\text{e-}4" />), tốc độ trôi dạt của MiLoRA tăng vọt, khiến <InlineMath formula="R_t" /> nhanh chóng chuyển từ âm sang dương.
@@ -195,7 +195,7 @@ Trong thực hành huấn luyện truyền thống, các kỹ sư luôn phải �
 - Muốn mô hình giải toán **GSM8K** đạt điểm cao → Phải tăng Learning Rate hoặc train nhiều epoch hơn → Chấp nhận điểm **MMLU / Retention** sụt giảm.
 - Muốn giữ tri thức gốc → Phải giảm Learning Rate → Mô hình học tác vụ mới rất chậm hoặc chưa hội tụ.
 
-> **Đột phá từ SDC-LoRA:** Nhờ cơ chế Spectral Calibration độc lập hãm riêng nhánh Principal, SDC-LoRA **phá vỡ hoàn toàn biên giới hạn đánh đổi này**. Mô hình có thể đẩy cao Learning Rate để đạt độ chính xác giải toán tối đa mà tỷ lệ <InlineMath formula="R_t" /> vẫn nằm cố định trong vùng âm an toàn.
+> **Đóng góp từ SDC-LoRA:** Nhờ cơ chế Spectral Calibration độc lập hãm riêng nhánh Principal, SDC-LoRA **phá vỡ hoàn toàn biên giới hạn đánh đổi này**. Mô hình có thể đẩy cao Learning Rate để đạt độ chính xác giải toán tối đa mà tỷ lệ <InlineMath formula="R_t" /> vẫn nằm cố định trong vùng âm an toàn.
 
 </MdxPage>
 

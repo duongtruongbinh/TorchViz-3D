@@ -529,6 +529,11 @@ export function ConceptFlow({ ariaLabel, items }: { ariaLabel: string; items: Co
   );
 }
 
+type ConceptHierarchyDeepConnection = {
+  parents: number[];
+  children: ConceptHierarchyNode[];
+};
+
 type ConceptHierarchyNode = {
   title: ReactNode;
   detail?: ReactNode;
@@ -539,6 +544,7 @@ type ConceptHierarchyNode = {
   align?: 'left' | 'center';
   children?: ConceptHierarchyNode[];
   nodes?: ConceptHierarchyNode[];
+  deepConnections?: ConceptHierarchyDeepConnection[];
 };
 
 function ConceptHierarchyVisual({ visual, tone, isLight }: {
@@ -596,30 +602,31 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
   );
 }
 
-export function ConceptHierarchy({ ariaLabel, root, children, nodes }: {
+export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections }: {
   ariaLabel: string;
   root: ConceptHierarchyNode;
   children?: ConceptHierarchyNode[];
   nodes?: ConceptHierarchyNode[];
+  connections?: ConceptHierarchyDeepConnection[];
 }) {
   const themeClasses = useLearningMdxTheme();
   const childNodes = children ?? nodes ?? [];
   const connector = themeClasses.isLight ? 'bg-[#205089]/28' : 'bg-[#A8D4FF]/28';
   const rootSurface = themeClasses.isLight
-    ? 'border-[#205089] bg-[#205089] text-white shadow-[0_10px_24px_rgba(32,80,137,0.18)]'
-    : 'border-[#A8D4FF] bg-[#A8D4FF] text-[#0B1726] shadow-[0_10px_24px_rgba(0,0,0,0.24)]';
+    ? 'border-[#205089] bg-[#205089] text-white shadow-[0_4px_12px_rgba(32,80,137,0.15)]'
+    : 'border-[#A8D4FF] bg-[#A8D4FF] text-[#0B1726] shadow-[0_4px_12px_rgba(0,0,0,0.2)]';
   const childNodeTones = themeClasses.isLight ? {
-    blue: 'border-[#79A9D1]/60 bg-[#EAF4FB] text-[#1F5C88] shadow-[0_8px_18px_rgba(63,125,177,0.08)]',
-    amber: 'border-[#D6AE65]/65 bg-[#FFF8E8] text-[#805B1D] shadow-[0_8px_18px_rgba(160,117,43,0.08)]',
-    teal: 'border-[#68AAA2]/60 bg-[#ECF8F6] text-[#216B63] shadow-[0_8px_18px_rgba(45,126,117,0.08)]',
-    violet: 'border-[#A89CCB]/60 bg-[#F4F1FB] text-[#62558B] shadow-[0_8px_18px_rgba(98,85,139,0.08)]',
-    neutral: 'border-[#205089]/16 bg-[#F5F8FC] text-[#172A43] shadow-[0_8px_18px_rgba(32,80,137,0.07)]',
+    blue: 'border-[#79A9D1]/60 bg-[#EAF4FB] text-[#1F5C88] shadow-[0_2px_8px_rgba(63,125,177,0.06)]',
+    amber: 'border-[#D6AE65]/65 bg-[#FFF8E8] text-[#805B1D] shadow-[0_2px_8px_rgba(160,117,43,0.06)]',
+    teal: 'border-[#68AAA2]/60 bg-[#ECF8F6] text-[#216B63] shadow-[0_2px_8px_rgba(45,126,117,0.06)]',
+    violet: 'border-[#A89CCB]/60 bg-[#F4F1FB] text-[#62558B] shadow-[0_2px_8px_rgba(98,85,139,0.06)]',
+    neutral: 'border-[#205089]/16 bg-[#F5F8FC] text-[#172A43] shadow-[0_2px_8px_rgba(32,80,137,0.05)]',
   } : {
-    blue: 'border-[#7FB4E5]/32 bg-[#7FB4E5]/10 text-[#CBE5FF] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
-    amber: 'border-[#F0BE62]/32 bg-[#F0BE62]/10 text-[#FFE0A0] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
-    teal: 'border-[#79C5BB]/32 bg-[#79C5BB]/10 text-[#BDEBE5] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
-    violet: 'border-[#B9A9E3]/32 bg-[#B9A9E3]/10 text-[#DDD3F7] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
-    neutral: 'border-[#A8D4FF]/18 bg-[#172232] text-[#F4EFE6] shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
+    blue: 'border-[#7FB4E5]/32 bg-[#7FB4E5]/10 text-[#CBE5FF] shadow-[0_4px_12px_rgba(0,0,0,0.15)]',
+    amber: 'border-[#F0BE62]/32 bg-[#F0BE62]/10 text-[#FFE0A0] shadow-[0_4px_12px_rgba(0,0,0,0.15)]',
+    teal: 'border-[#79C5BB]/32 bg-[#79C5BB]/10 text-[#BDEBE5] shadow-[0_4px_12px_rgba(0,0,0,0.15)]',
+    violet: 'border-[#B9A9E3]/32 bg-[#B9A9E3]/10 text-[#DDD3F7] shadow-[0_4px_12px_rgba(0,0,0,0.15)]',
+    neutral: 'border-[#A8D4FF]/18 bg-[#172232] text-[#F4EFE6] shadow-[0_4px_12px_rgba(0,0,0,0.15)]',
   };
   const columnStyle = {
     '--concept-hierarchy-columns': Math.max(childNodes.length, 1),
@@ -629,17 +636,17 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes }: {
   };
 
   return (
-    <figure className="my-6 w-full max-w-full overflow-x-auto" aria-label={ariaLabel}>
+    <figure className="my-4 w-full max-w-full overflow-x-auto" aria-label={ariaLabel}>
       <div className="flex justify-center">
-        <div className={cx('relative z-10 max-w-full rounded-xl border px-4 py-3 text-center sm:max-w-3xl sm:px-6', rootSurface)}>
-          <strong className="block text-base font-black leading-6">{root.title}</strong>
-          {root.detail ? <span className="mt-1 block text-sm leading-5 text-pretty opacity-85">{root.detail}</span> : null}
+        <div className={cx('relative z-10 max-w-full rounded-lg border px-3.5 py-1.5 text-center sm:max-w-xl sm:px-5', rootSurface)}>
+          <strong className="block text-xs font-bold leading-snug sm:text-sm">{root.title}</strong>
+          {root.detail ? <span className="mt-0.5 block text-xs leading-4 text-pretty opacity-85">{root.detail}</span> : null}
         </div>
       </div>
 
       {childNodes.length ? (
         <>
-          <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
+          <span className={cx('mx-auto block h-3.5 w-px', connector)} aria-hidden="true" />
           <span className={cx('hidden h-px sm:block', connector)} style={railStyle} aria-hidden="true" />
           <ul
             className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
@@ -654,19 +661,21 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes }: {
                 marginInline: `${50 / Math.max(nestedChildren.length, 1)}%`,
               };
               const description = child.detail ?? child.problem;
+              const nodesWithChildrenCount = childNodes.filter((n) => (n.children?.length ?? 0) > 0 || (n.nodes?.length ?? 0) > 0).length;
+              const isSingleExpandingNode = !connections?.length && nodesWithChildrenCount === 1;
 
               return (
-                <li key={index} className="m-0 flex min-w-0 list-none flex-col items-stretch p-0 sm:px-2">
+                <li key={index} className="m-0 flex min-w-0 list-none flex-col items-stretch p-0 sm:px-1.5">
                   <div className={cx('flex flex-col items-stretch', child.muted && 'opacity-35 grayscale')}>
-                    <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
-                    <div className={cx('flex min-h-[4.25rem] w-full flex-col items-center justify-center rounded-xl border px-3 py-3 text-center', childNodeTones[child.tone ?? 'neutral'])}>
-                      <strong className="text-sm font-black leading-snug sm:text-base">{child.title}</strong>
+                    <span className={cx('mx-auto block h-3 w-px', connector)} aria-hidden="true" />
+                    <div className={cx('flex min-h-10 w-full flex-col items-center justify-center rounded-lg border px-2.5 py-1.5 text-center sm:min-h-11 sm:px-3 sm:py-2', childNodeTones[child.tone ?? 'neutral'])}>
+                      <strong className="text-xs font-bold leading-tight sm:text-xs">{child.title}</strong>
                     </div>
                     {child.visual ? <ConceptHierarchyVisual visual={child.visual} tone={child.tone ?? 'neutral'} isLight={themeClasses.isLight} /> : null}
                     {description ? (
                       <p className={cx(
-                        child.visual ? 'mt-1' : 'mt-2.5',
-                        'px-1 text-sm leading-relaxed text-pretty',
+                        child.visual ? 'mt-1' : 'mt-1.5',
+                        'px-0.5 text-xs leading-relaxed text-pretty',
                         child.align === 'center' ? 'text-center' : 'text-left',
                         themeClasses.bodyText
                       )}>
@@ -676,28 +685,264 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes }: {
                   </div>
 
                   {nestedChildren.length ? (
-                    <div className="mt-1 sm:w-[200%] sm:-translate-x-1/4">
-                      <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
+                    <div
+                      className="mt-2 sm:mt-2.5 sm:relative"
+                      style={isSingleExpandingNode && childNodes.length > 1 ? {
+                        width: `${childNodes.length * 100}%`,
+                        transform: `translateX(-${(index / childNodes.length) * 100}%)`,
+                      } : undefined}
+                    >
+                      <span
+                        className={cx('hidden h-3.5 w-px sm:block', connector)}
+                        style={isSingleExpandingNode && childNodes.length > 1 ? {
+                          marginLeft: `${((index + 0.5) / childNodes.length) * 100}%`,
+                          transform: 'translateX(-50%)',
+                        } : {
+                          marginLeft: '50%',
+                          transform: 'translateX(-50%)',
+                        }}
+                        aria-hidden="true"
+                      />
                       <span className={cx('hidden h-px sm:block', connector)} style={nestedRailStyle} aria-hidden="true" />
                       <ul
                         className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
                         style={nestedColumnStyle}
                       >
-                        {nestedChildren.map((nestedChild, nestedIndex) => (
-                          <li key={`${nestedChild.title}-${nestedIndex}`} className={cx('m-0 min-w-0 list-none p-0 sm:px-2', nestedChild.muted && 'opacity-35 grayscale')}>
-                            <span className={cx('mx-auto block h-5 w-px', connector)} aria-hidden="true" />
-                            <div className={cx('flex min-h-14 w-full flex-col items-center justify-center rounded-xl border px-3 py-2 text-center sm:px-4 sm:py-3', childNodeTones[nestedChild.tone ?? child.tone ?? 'neutral'])}>
-                              <strong className="text-sm font-black leading-5">{nestedChild.title}</strong>
-                            </div>
-                          </li>
-                        ))}
+                        {nestedChildren.map((nestedChild, nestedIndex) => {
+                          const nestedDescription = nestedChild.detail ?? nestedChild.problem;
+                          const deepChildren = nestedChild.children ?? [];
+                          const deepColumnStyle = {
+                            '--concept-hierarchy-columns': Math.max(deepChildren.length, 1),
+                          } as CSSProperties;
+                          const deepRailStyle = {
+                            marginInline: `${50 / Math.max(deepChildren.length, 1)}%`,
+                          };
+
+                          return (
+                            <li key={`${nestedChild.title}-${nestedIndex}`} className={cx('m-0 min-w-0 list-none p-0 sm:px-1.5', nestedChild.muted && 'opacity-35 grayscale')}>
+                              <span className={cx('mx-auto block h-2.5 w-px', connector)} aria-hidden="true" />
+                              <div className={cx('flex min-h-9 w-full flex-col items-center justify-center rounded-lg border px-2 py-1 text-center sm:min-h-9.5 sm:px-2.5 sm:py-1.5', childNodeTones[nestedChild.tone ?? child.tone ?? 'neutral'])}>
+                                <strong className="text-xs font-bold leading-tight">{nestedChild.title}</strong>
+                              </div>
+                              {nestedDescription ? (
+                                <p className={cx(
+                                  'mt-1 px-0.5 text-xs leading-relaxed text-pretty',
+                                  nestedChild.align === 'center' ? 'text-center' : 'text-left',
+                                  themeClasses.bodyText
+                                )}>
+                                  {nestedDescription}
+                                </p>
+                              ) : null}
+
+                              {deepChildren.length ? (
+                                <div className="mt-1 w-full">
+                                  <span className={cx('mx-auto block h-2.5 w-px', connector)} aria-hidden="true" />
+                                  <span className={cx('hidden h-px sm:block', connector)} style={deepRailStyle} aria-hidden="true" />
+                                  <ul
+                                    className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
+                                    style={deepColumnStyle}
+                                  >
+                                    {deepChildren.map((deepChild, deepIndex) => {
+                                      const deepDescription = deepChild.detail ?? deepChild.problem;
+                                      return (
+                                        <li key={`${deepChild.title}-${deepIndex}`} className={cx('m-0 min-w-0 list-none p-0 sm:px-1', deepChild.muted && 'opacity-35 grayscale')}>
+                                          <span className={cx('mx-auto block h-2 w-px', connector)} aria-hidden="true" />
+                                          <div className={cx('flex min-h-8.5 w-full flex-col items-center justify-center rounded-lg border px-1.5 py-1 text-center', childNodeTones[deepChild.tone ?? nestedChild.tone ?? 'neutral'])}>
+                                            <strong className="text-xs font-bold leading-tight">{deepChild.title}</strong>
+                                          </div>
+                                          {deepDescription ? (
+                                            <p className={cx(
+                                              'mt-1 px-0.5 text-xs leading-relaxed text-pretty',
+                                              deepChild.align === 'center' ? 'text-center' : 'text-left',
+                                              themeClasses.bodyText
+                                            )}>
+                                              {deepDescription}
+                                            </p>
+                                          ) : null}
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                </div>
+                              ) : null}
+                            </li>
+                          );
+                        })}
                       </ul>
+
+                      {child.deepConnections?.map((connection, connIndex) => {
+                        const totalCols = Math.max(nestedChildren.length, 1);
+                        const firstCol = connection.parents[0] ?? 0;
+                        const lastCol = connection.parents[connection.parents.length - 1] ?? firstCol;
+                        const firstCenter = ((firstCol + 0.5) / totalCols) * 100;
+                        const lastCenter = ((lastCol + 0.5) / totalCols) * 100;
+                        const midpoint = (firstCenter + lastCenter) / 2;
+                        const connChildren = connection.children ?? [];
+                        const connColStyle = {
+                          '--concept-hierarchy-columns': Math.max(connChildren.length, 1),
+                        } as CSSProperties;
+                        const connRailStyle = {
+                          marginInline: `${50 / Math.max(connChildren.length, 1)}%`,
+                        };
+
+                        return (
+                          <div key={connIndex} className="relative mt-2 w-full">
+                            {/* Vertical drop lines from each parent */}
+                            {connection.parents.map((pIndex) => (
+                              <span
+                                key={pIndex}
+                                className={cx('hidden sm:block absolute h-3 w-px -top-2', connector)}
+                                style={{
+                                  left: `${((pIndex + 0.5) / totalCols) * 100}%`,
+                                  transform: 'translateX(-50%)',
+                                }}
+                                aria-hidden="true"
+                              />
+                            ))}
+
+                            {/* Horizontal bridge between parents */}
+                            <span
+                              className={cx('hidden sm:block absolute h-px top-1', connector)}
+                              style={{
+                                left: `${firstCenter}%`,
+                                width: `${lastCenter - firstCenter}%`,
+                              }}
+                              aria-hidden="true"
+                            />
+
+                            {/* Vertical stem from midpoint down to children */}
+                            <span
+                              className={cx('hidden sm:block absolute h-3 w-px top-1', connector)}
+                              style={{
+                                left: `${midpoint}%`,
+                                transform: 'translateX(-50%)',
+                              }}
+                              aria-hidden="true"
+                            />
+
+                            {/* Sub-branch rail for converged children */}
+                            <div className="pt-4">
+                              <span className={cx('mx-auto block sm:hidden h-2.5 w-px', connector)} aria-hidden="true" />
+                              <span className={cx('hidden h-px sm:block', connector)} style={connRailStyle} aria-hidden="true" />
+                              <ul
+                                className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
+                                style={connColStyle}
+                              >
+                                {connChildren.map((deepChild, deepIndex) => {
+                                  const deepDescription = deepChild.detail ?? deepChild.problem;
+                                  return (
+                                    <li key={`${deepChild.title}-${deepIndex}`} className={cx('m-0 min-w-0 list-none p-0 sm:px-1', deepChild.muted && 'opacity-35 grayscale')}>
+                                      <span className={cx('mx-auto block h-2 w-px', connector)} aria-hidden="true" />
+                                      <div className={cx('flex min-h-8.5 w-full flex-col items-center justify-center rounded-lg border px-1.5 py-1 text-center', childNodeTones[deepChild.tone ?? child.tone ?? 'neutral'])}>
+                                        <strong className="text-xs font-bold leading-tight">{deepChild.title}</strong>
+                                      </div>
+                                      {deepDescription ? (
+                                        <p className={cx(
+                                          'mt-1 px-0.5 text-xs leading-relaxed text-pretty',
+                                          deepChild.align === 'center' ? 'text-center' : 'text-left',
+                                          themeClasses.bodyText
+                                        )}>
+                                          {deepDescription}
+                                        </p>
+                                      ) : null}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : null}
                 </li>
               );
             })}
           </ul>
+
+          {connections?.map((connection, connIndex) => {
+            const totalCols = Math.max(childNodes.length, 1);
+            const firstCol = connection.parents[0] ?? 0;
+            const lastCol = connection.parents[connection.parents.length - 1] ?? firstCol;
+            const firstCenter = ((firstCol + 0.5) / totalCols) * 100;
+            const lastCenter = ((lastCol + 0.5) / totalCols) * 100;
+            const midpoint = (firstCenter + lastCenter) / 2;
+            const connChildren = connection.children ?? [];
+            const connColStyle = {
+              '--concept-hierarchy-columns': Math.max(connChildren.length, 1),
+            } as CSSProperties;
+            const connRailStyle = {
+              marginInline: `${50 / Math.max(connChildren.length, 1)}%`,
+            };
+
+            return (
+              <div key={connIndex} className="relative mt-2 w-full">
+                {/* Vertical drop lines from each connected parent pillar */}
+                {connection.parents.map((pIndex) => (
+                  <span
+                    key={pIndex}
+                    className={cx('hidden sm:block absolute h-3.5 w-px -top-2', connector)}
+                    style={{
+                      left: `${((pIndex + 0.5) / totalCols) * 100}%`,
+                      transform: 'translateX(-50%)',
+                    }}
+                    aria-hidden="true"
+                  />
+                ))}
+
+                {/* Horizontal bridge between pillars */}
+                <span
+                  className={cx('hidden sm:block absolute h-px top-1.5', connector)}
+                  style={{
+                    left: `${firstCenter}%`,
+                    width: `${lastCenter - firstCenter}%`,
+                  }}
+                  aria-hidden="true"
+                />
+
+                {/* Vertical stem from midpoint down to children */}
+                <span
+                  className={cx('hidden sm:block absolute h-3.5 w-px top-1.5', connector)}
+                  style={{
+                    left: `${midpoint}%`,
+                    transform: 'translateX(-50%)',
+                  }}
+                  aria-hidden="true"
+                />
+
+                {/* Sub-branch rail for converged children */}
+                <div className="pt-5">
+                  <span className={cx('mx-auto block sm:hidden h-2.5 w-px', connector)} aria-hidden="true" />
+                  <span className={cx('hidden h-px sm:block', connector)} style={connRailStyle} aria-hidden="true" />
+                  <ul
+                    className="m-0 grid list-none gap-0 p-0 sm:grid-cols-[repeat(var(--concept-hierarchy-columns),minmax(0,1fr))]"
+                    style={connColStyle}
+                  >
+                    {connChildren.map((deepChild, deepIndex) => {
+                      const deepDescription = deepChild.detail ?? deepChild.problem;
+                      return (
+                        <li key={`${deepChild.title}-${deepIndex}`} className={cx('m-0 min-w-0 list-none p-0 sm:px-1', deepChild.muted && 'opacity-35 grayscale')}>
+                          <span className={cx('mx-auto block h-2 w-px', connector)} aria-hidden="true" />
+                          <div className={cx('flex min-h-8.5 w-full flex-col items-center justify-center rounded-lg border px-1.5 py-1 text-center', childNodeTones[deepChild.tone ?? 'neutral'])}>
+                            <strong className="text-xs font-bold leading-tight">{deepChild.title}</strong>
+                          </div>
+                          {deepDescription ? (
+                            <p className={cx(
+                              'mt-1 px-0.5 text-xs leading-relaxed text-pretty',
+                              deepChild.align === 'center' ? 'text-center' : 'text-left',
+                              themeClasses.bodyText
+                            )}>
+                              {deepDescription}
+                            </p>
+                          ) : null}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            );
+          })}
         </>
       ) : null}
     </figure>

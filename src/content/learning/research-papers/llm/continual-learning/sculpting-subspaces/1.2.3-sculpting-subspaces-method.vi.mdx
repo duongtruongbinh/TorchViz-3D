@@ -1,0 +1,385 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'sculpting-subspaces-method',
+  locale: 'vi',
+  title: 'Phần 3: Phương pháp & Cơ chế',
+  headings: [
+    'Thiết lập Bài toán & Ký hiệu Toán học',
+    'Phân tách Không gian con qua SVD',
+    'Đo lường Độ quan trọng Tầng (Layer Importance)',
+    'Phân bổ Rank Thích ứng (Adaptive Rank Selection)',
+    'Chiếu Gradient Trực giao (Orthogonal Gradient Projection)',
+    'Các Bước Thực thi của Thuật toán (Algorithm Steps)',
+    'Cơ sở Lý thuyết Hessian & Cận Quên lãng',
+    'Kiểm chứng Thực nghiệm Giả thuyết Không gian con',
+  ],
+  keywords: [
+    'Methodology',
+    'SVD',
+    'Layer Importance',
+    'Adaptive Rank',
+    'Orthogonal Projection',
+    'Hessian Curvature',
+    'Taylor Expansion',
+    'Algorithm 1',
+    'Spectral Analysis',
+  ],
+  pageCount: 5,
+};
+
+<MdxPage page={0}>
+
+### Thiết lập Bài toán & Ký hiệu Toán học
+
+Xét một mô hình ngôn ngữ lớn (LLM) bao gồm tập hợp <InlineMath formula="L" /> tầng với các ma trận trọng số:
+
+<BlockMath formula="\theta = \{W^{(1)}, W^{(2)}, \dots, W^{(L)}\}" />
+
+Trong đó mỗi ma trận trọng số tại tầng <InlineMath formula="l" /> có kích thước <InlineMath formula="W^{(l)} \in \mathbb{R}^{d_O^{(l)} \times d_I^{(l)}}" /> (chứa từ hàng chục đến hàng trăm triệu tham số).
+
+> **Ví dụ cụ thể trên LLaMA-2 7B (<InlineMath formula="d = 4096, d_{\text{ffn}} = 11008" />):**
+>
+> - **Self-Attention (<InlineMath formula="W_q, W_k, W_v, W_o" />):**
+> <BlockMath formula="4096 \times 4096 = 16{,}777{,}216 \approx 16.78 \times 10^6 \text{ (tham số / ma trận)}" />
+>
+> - **Feed-Forward / MLP (<InlineMath formula="W_{\text{gate}}, W_{\text{up}}, W_{\text{down}}" />):**
+> <BlockMath formula="11008 \times 4096 = 45{,}088{,}768 \approx 45.09 \times 10^6 \text{ (tham số / ma trận)}" />
+>
+> - **Quy mô toàn mạng (32 tầng Transformer):**
+> <BlockMath formula="\text{Total Parameters} \approx 32 \times (4 \times 16.78\text{M} + 3 \times 45.09\text{M}) \approx 7 \times 10^9 \text{ (7 tỷ tham số)}" />
+
+Trong bài toán học liên tục (**Continual Learning**), mô hình phải tiếp nhận tuần tự chuỗi tác vụ:
+
+<BlockMath formula="\{D_1, D_2, \dots, D_T\}" />
+
+Mỗi tác vụ <InlineMath formula="D_t" /> được định nghĩa bởi tập dữ liệu huấn luyện gồm <InlineMath formula="n_t" /> cặp mẫu:
+
+<BlockMath formula="D_t = \{(x_i^t, y_i^t)\}_{i=1}^{n_t}" />
+
+#### Mục tiêu Kỹ thuật:
+Khi tiếp nhận tác vụ mới <InlineMath formula="D_t" />, ta cần điều chỉnh tập tham số <InlineMath formula="\theta" /> sao cho:
+1. Đạt hiệu năng tối ưu trên tác vụ hiện tại <InlineMath formula="D_t" />.
+2. Giữ nguyên vẹn độ chính xác trên tất cả các tác vụ đã học trước đó <InlineMath formula="D_1, \dots, D_{t-1}" /> mà không cần phải truy cập lại toàn bộ dữ liệu lịch sử.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Phân tách Không gian con qua SVD
+
+Các bằng chứng thực nghiệm gần đây chỉ ra rằng ma trận trọng số của mạng nơ-ron sâu có **tính dư thừa phổ rất cao** (**Spectral Redundancy**). Các hướng tương ứng với giá trị kỳ dị nhỏ đóng góp rất ít vào hiệu năng của mô hình, trong khi các giá trị kỳ dị lớn nắm giữ tri thức bản chất.
+
+Tại mỗi đầu chặng khi bắt đầu học tác vụ mới, ta thực hiện phân rã **Singular Value Decomposition (SVD)** trên ma trận trọng số <InlineMath formula="W^{(l)}" /> của từng tầng:
+
+<BlockMath formula="W^{(l)} = U^{(l)} \Sigma^{(l)} (V^{(l)})^\top" />
+
+*Trong đó:*
+- <InlineMath formula="\Sigma^{(l)} = \text{diag}(\sigma_1^{(l)}, \sigma_2^{(l)}, \dots)" /> chứa các giá trị kỳ dị xếp theo thứ tự giảm dần: <InlineMath formula="\sigma_1^{(l)} \ge \sigma_2^{(l)} \ge \dots \ge \sigma_r^{(l)} > 0" />.
+- <InlineMath formula="U^{(l)}" /> và <InlineMath formula="V^{(l)}" /> là các ma trận trực giao chứa các vector kỳ dị trái và phải.
+
+<ConceptHierarchy
+  ariaLabel="Cấu trúc Phân tách Không gian con của Trọng số W(l)"
+  root={{
+    title: <InlineMath formula="W^{(l)} = U^{(l)} \Sigma^{(l)} (V^{(l)})^\top" />,
+    detail: 'Phân rã SVD xác định 2 không gian con bổ trợ nhau tại tầng l',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: <InlineMath formula="\text{1. High-Rank } (U_{\text{high}}^{(l)}, V_{\text{high}}^{(l)})" />,
+      detail: 'Chứa các vector có giá trị kỳ dị lớn nhất, lưu giữ toàn bộ tri thức cốt lõi của các tác vụ cũ.',
+      problem: 'Bảo vệ tuyệt đối: Cấm mọi biến đổi gradient xâm phạm.',
+      tone: 'amber',
+    },
+    {
+      title: <InlineMath formula="\text{2. Low-Rank } (U_{\text{low}}^{(l)}, V_{\text{low}}^{(l)})" />,
+      detail: 'Chứa các vector có giá trị kỳ dị nhỏ, đại diện cho vùng tham số dư thừa của mạng.',
+      problem: 'Dành riêng cho việc học tác vụ mới qua phép chiếu trực giao.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Phép phân rã SVD này chỉ cần thực hiện **một lần duy nhất** tại đầu mỗi tác vụ, tạo ra chi phí tính toán không đáng kể so với toàn bộ thời gian huấn luyện.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Đo lường Độ quan trọng Tầng (Layer Importance)
+
+Mức độ nhạy cảm giữa các tầng Transformer là không đồng đều. Để lượng hóa sự khác biệt này, các tác giả đo độ tương tự Cosine giữa vector kích hoạt đầu vào và đầu ra qua phép biến đổi tuyến tính của từng tầng:
+
+<ConceptHierarchy
+  ariaLabel="Cơ chế Đo lường Độ quan trọng Tầng qua Cosine Similarity"
+  root={{
+    title: 'Input-Output Cosine Similarity',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Kích hoạt Đầu vào',
+      detail: (
+        <span>
+          Vector đầu vào <InlineMath formula="X_i^{(l)}" /> từ <InlineMath formula="N" /> mẫu hiệu chuẩn.
+        </span>
+      ),
+      tone: 'sky',
+    },
+    {
+      title: '2. Phép biến đổi Tuyến tính',
+      detail: (
+        <span>
+          Vector đầu ra tuyến tính <InlineMath formula="Y_i^{(l)} = W^{(l)} X_i^{(l)}" />.
+        </span>
+      ),
+      tone: 'violet',
+    },
+    {
+      title: '3. Độ quan trọng Tầng',
+      detail: (
+        <span>
+          Tính trung bình góc <InlineMath formula="\cos(X_i^{(l)}, Y_i^{(l)})" /> trên <InlineMath formula="N" /> mẫu.
+        </span>
+      ),
+      tone: 'teal',
+    },
+  ]}
+/>
+
+<BlockMath formula="I^{(l)} = \frac{1}{N} \sum_{i=1}^N \frac{\langle X_i^{(l)}, Y_i^{(l)} \rangle}{\|X_i^{(l)}\|_2 \|Y_i^{(l)}\|_2}" />
+
+* **<InlineMath formula="\cos\theta" /> càng cao (<InlineMath formula="\approx 0.5 - 0.8" />):** <InlineMath formula="X" /> và <InlineMath formula="Y" /> càng đồng hướng (ít bị làm lệch) → Tầng đó **càng ổn định và giữ vai trò bảo tồn tri thức cốt lõi** → **Cần rank bảo tồn cao (<InlineMath formula="r^{(l)}" /> lớn)** để chống quên.
+* **<InlineMath formula="\cos\theta" /> càng thấp (<InlineMath formula="\ll 0.5" />):** <InlineMath formula="X" /> và <InlineMath formula="Y" /> càng lệch hướng (xoay góc lớn) → Tầng đó **càng biến đổi đặc trưng sâu và giàu tính dẻo dai (Plasticity)** → **Cần rank bảo tồn thấp (<InlineMath formula="r^{(l)}" /> nhỏ)** để nhường chỗ học mới.
+
+<LessonNote tone="tip">
+  **Cơ chế Clip Cosine Âm (ICLR 2026 Final Update):** Trước khi chuẩn hóa trung bình (<InlineMath formula="\frac{1}{L} \sum_{l=1}^L I^{(l)} = 1" />), mọi giá trị cosine thô âm (nếu có) đều được **clip về 0** (<InlineMath formula="I_{\text{raw}}^{(l)} < 0 \implies I_{\text{raw}}^{(l)} = 0" />). Điều này đảm bảo tỷ lệ bảo tồn luôn thỏa mãn chặn dưới: <InlineMath formula="r^{(l)} \ge \text{mrr}" />.
+</LessonNote>
+
+---
+
+> **Ví dụ Tính toán:**
+>
+> 1. **Bước 1: Chạy forward pass <InlineMath formula="N = 3" /> mẫu calibration (khoảng ~500 mẫu trong thực tế) để đo góc xoay:**
+>      - **Mẫu 1:** <InlineMath formula="X_1 = [1, 2]^\top, \ Y_1 = [1.2, 1.9]^\top \implies \cos(\theta_1) \approx \mathbf{0.995}" />
+>      - **Mẫu 2:** <InlineMath formula="X_2 = [3, 1]^\top, \ Y_2 = [2.5, 2.0]^\top \implies \cos(\theta_2) \approx \mathbf{0.938}" />
+>      - **Mẫu 3:** <InlineMath formula="X_3 = [2, 2]^\top, \ Y_3 = [1.5, 2.5]^\top \implies \cos(\theta_3) \approx \mathbf{0.971}" />
+>    <BlockMath formula="\bar{S}^{(1)} = \frac{0.995 + 0.938 + 0.971}{3} \approx \mathbf{0.97}" />
+>    *Tại Tầng 2 & 3:* Tính tương tự.
+>      <BlockMath formula="\bar{S}^{(2)} = 0.60, \qquad \bar{S}^{(3)} = 0.30" />
+>
+> 2. **Bước 2: Tính giá trị trung bình toàn mạng <InlineMath formula="\mu_S" />:**
+>    <BlockMath formula="\mu_S = \frac{0.97 + 0.60 + 0.30}{3} \approx \mathbf{0.623}" />
+>
+> 3. **Bước 3: Chuẩn hóa để thu được <InlineMath formula="I^{(l)} = \frac{\bar{S}^{(l)}}{\mu_S}" />:**
+>    <BlockMath formula="I^{(1)} = \frac{0.97}{0.623} \approx \mathbf{1.56} \quad (\text{Tầng 1 ổn định cao, bảo vệ rank tối đa})" />
+>    <BlockMath formula="I^{(2)} = \frac{0.60}{0.623} \approx \mathbf{0.96} \quad (\text{Tầng 2 mức độ nhạy cảm trung bình})" />
+>    <BlockMath formula="I^{(3)} = \frac{0.30}{0.623} \approx \mathbf{0.48} \quad (\text{Tầng 3 biến đổi mạnh, giải phóng rank để học mới})" />
+
+---
+
+### Phân bổ Rank Thích ứng (Adaptive Rank Selection)
+
+Tỷ lệ bảo tồn <InlineMath formula="r_{\text{frac}}^{(l)}" /> và số lượng vector kỳ dị nguyên <InlineMath formula="k^{(l)}" /> cần bảo vệ tại tầng <InlineMath formula="l" /> được tính bằng hàm làm tròn xuống (**floor**):
+
+<BlockMath formula="r_{\text{frac}}^{(l)} = \text{mrr} + I^{(l)} \cdot (\text{trr} - \text{mrr}) \quad \implies \quad k^{(l)} = \lfloor r_{\text{frac}}^{(l)} \cdot \min(d_O, d_I) \rfloor" />
+
+* Trong đó:
+* <InlineMath formula="\text{mrr} = 0.1" /> (tỷ lệ bảo tồn tối thiểu)
+* <InlineMath formula="\text{trr} = 0.8" /> (tỷ lệ bảo tồn mục tiêu)
+* Chiều ma trận trọng số <InlineMath formula="d = \min(d_O, d_I) = 4096" /> (chuẩn LLaMA-2 7B)
+
+---
+
+> **Ví dụ Phân bổ Cụ thể:**
+>
+> * **Tầng 1 (<InlineMath formula="I^{(1)} = 1.56" />):**
+>   <BlockMath formula="\begin{aligned} r^{(1)} &= 0.1 + 1.56 \times 0.7 = 1.192 \xrightarrow{\text{kẹp}} \mathbf{100\%} \\ k^{(1)} &= \lfloor 1.0 \times 4096 \rfloor = \mathbf{4096} \text{ vector} \end{aligned}" />
+>   *(Khóa chặt toàn bộ 4096 vector High-Rank, bảo vệ tuyệt đối tri thức cốt lõi).*
+>
+> * **Tầng 2 (<InlineMath formula="I^{(2)} = 0.96" />):**
+>   <BlockMath formula="\begin{aligned} r^{(2)} &= 0.1 + 0.96 \times 0.7 = \mathbf{77.2\%} \\ k^{(2)} &= \lfloor 0.772 \times 4096 \rfloor = \mathbf{3162} \text{ vector} \end{aligned}" />
+>   *(Bảo vệ 3162 vector High-Rank, dành 934 vector Low-Rank để học).*
+>
+> * **Tầng 3 (<InlineMath formula="I^{(3)} = 0.48" />):**
+>   <BlockMath formula="\begin{aligned} r^{(3)} &= 0.1 + 0.48 \times 0.7 = \mathbf{43.6\%} \\ k^{(3)} &= \lfloor 0.436 \times 4096 \rfloor = \mathbf{1785} \text{ vector} \end{aligned}" />
+>   *(Chỉ bảo vệ 1785 vector, giải phóng tới 2311 vector Low-Rank cho tác vụ mới).*
+
+| Tầng <InlineMath formula="l" /> | Điểm <InlineMath formula="I^{(l)}" /> | Tỷ lệ <InlineMath formula="r_{\text{frac}}^{(l)}" /> | Không gian High-Rank <InlineMath formula="k^{(l)}" /> (Bảo vệ) | Không gian Low-Rank (Học mới) | Vai trò điều tiết |
+| :---: | :---: | :---: | :---: | :---: | :--- |
+| **Tầng 1** | **<InlineMath formula="1.56" />** | **<InlineMath formula="100\%" />** | **<InlineMath formula="4096" />** vector | **<InlineMath formula="0" />** vector | Khóa chặt toàn bộ tri thức cốt lõi |
+| **Tầng 2** | **<InlineMath formula="0.96" />** | **<InlineMath formula="77.2\%" />** | **<InlineMath formula="3162" />** vector | **<InlineMath formula="934" />** vector | Nhạy cảm trung bình, bảo vệ phần lớn |
+| **Tầng 3** | **<InlineMath formula="0.48" />** | **<InlineMath formula="43.6\%" />** | **<InlineMath formula="1785" />** vector | **<InlineMath formula="2311" />** vector | Giải phóng dung lượng lớn để học mới |
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Chiếu Gradient Trực giao (Orthogonal Gradient Projection)
+
+Về mặt giải tích, để đảm bảo gradient không làm biến đổi bất kỳ thành phần nào trong không gian High-Rank của tri thức cũ, gradient đầy đủ được chiếu trực giao theo Phương trình 4:
+
+<BlockMath formula="\nabla W_{\text{proj}}^{(l)} = \nabla W^{(l)} - U_{\text{high}}^{(l)} (U_{\text{high}}^{(l)})^\top \nabla W^{(l)} V_{\text{high}}^{(l)} (V_{\text{high}}^{(l)})^\top" />
+
+> **Ví dụ Tính toán Trực quan bằng Số Cụ thể (Ma trận 2 × 2):**
+> 
+> Giả sử không gian High-Rank cần bảo vệ của tri thức cũ có hướng vector kỳ dị chính:
+> <BlockMath formula="U_{\text{high}} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, \quad V_{\text{high}} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}" />
+> 
+> Ma trận toán tử chiếu High-Rank tương ứng là:
+> <BlockMath formula="P_U = U_{\text{high}} U_{\text{high}}^\top = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}, \quad P_V = V_{\text{high}} V_{\text{high}}^\top = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}" />
+> 
+> Khi học tác vụ mới, giả sử lan truyền ngược tính ra gradient thô:
+> <BlockMath formula="\nabla W = \begin{bmatrix} 4 & 2 \\ 3 & 5 \end{bmatrix}" />
+> 
+> **Bước 1: Tính thành phần can thiệp (xâm lấn) vào không gian High-Rank cũ:**
+> <BlockMath formula="P_{\text{high}} = P_U \cdot \nabla W \cdot P_V = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 4 & 2 \\ 3 & 5 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} \mathbf{4} & 0 \\ 0 & 0 \end{bmatrix}" />
+> 
+> **Bước 2: Trừ thành phần can thiệp để thu được gradient trực giao an toàn:**
+> <BlockMath formula="\nabla W_{\text{proj}} = \nabla W - P_{\text{high}} = \begin{bmatrix} 4 & 2 \\ 3 & 5 \end{bmatrix} - \begin{bmatrix} 4 & 0 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} \mathbf{0} & \mathbf{2} \\ \mathbf{3} & \mathbf{5} \end{bmatrix}" />
+> 
+> **Ý nghĩa hình học:**
+> * Phần tử vị trí <InlineMath formula="(1, 1)" /> mang năng lượng tri thức cũ bị **triệt tiêu hoàn toàn về 0** (<InlineMath formula="4 - 4 = 0" />), bảo vệ trọn vẹn bài cũ.
+> * Các phần tử tại vị trí <InlineMath formula="(1, 2) = 2" />, <InlineMath formula="(2, 1) = 3" /> và <InlineMath formula="(2, 2) = 5" /> nằm trong không gian Low-Rank được **giữ nguyên 100%** để học tác vụ mới mà không chịu bất kỳ sự cản trở nào.
+
+---
+
+### Cơ chế Thực thi Thực tế (Reparameterization & Gradient Hooks)
+
+Trong thực tế triển khai (**Section 3.6 & Algorithm 1** của bài báo ICLR 2026), thay vì cập nhật ma trận dense <InlineMath formula="W" /> tốn kém, OSFT sử dụng cơ chế tái tham số hóa cực kỳ thanh lịch và tiết kiệm bộ nhớ:
+
+<ConceptHierarchy
+  ariaLabel="Cơ chế Tái tham số hóa SVD và Gradient Hooks"
+  root={{
+    title: 'Quy trình Tái tham số hóa W = W_high + W_low',
+    tone: 'blue',
+  }}
+  nodes={[
+    {
+      title: '1. Phân tách và Đóng băng High-Rank (Frozen Buffers)',
+      detail: (
+        <span>
+          Các nhân tử High-Rank (<InlineMath formula="U_{\text{high}}, \Sigma_{\text{high}}, V_{\text{high}}" />) được lưu dưới dạng <strong>Frozen Buffers</strong> (không huấn luyện, không tốn bộ nhớ lưu trạng thái optimizer AdamW).
+        </span>
+      ),
+      tone: 'amber',
+    },
+    {
+      title: '2. Tái tạo Động & Huấn luyện Low-Rank (Trainable SVD Factors)',
+      detail: (
+        <span>
+          Trong Forward Pass, ma trận hiệu dụng được tái tạo on-the-fly: <InlineMath formula="W = W_{\text{high}} + U_{\text{low}} \Sigma_{\text{low}} V_{\text{low}}^\top" />. Lan truyền ngược chỉ tính gradient cho các nhân tử Low-Rank (<InlineMath formula="\nabla U_{\text{low}}, \nabla V_{\text{low}}" />).
+        </span>
+      ),
+      tone: 'teal',
+    },
+    {
+      title: '3. Duy trì Trực giao Bằng Gradient Hooks (Anti-Drift)',
+      detail: (
+        <span>
+          Một <strong>Gradient Hook</strong> tự động chiếu <InlineMath formula="\nabla U_{\text{low}}" /> vuông góc với <InlineMath formula="U_{\text{high}}" /> sau mỗi bước backward. Optimizer chỉ cập nhật các nhân tử Low-Rank đã được chiếu an toàn.
+        </span>
+      ),
+      tone: 'violet',
+    },
+  ]}
+/>
+
+---
+
+### Các Bước Thực thi của Thuật toán (Algorithm Steps)
+
+- **Bước 1: Khởi tạo:** Thiết lập <InlineMath formula="\text{mrr} = 0.1, \text{trr} = 0.8" />.
+- **Bước 2: Phân tích Đầu Task (Single Forward Calibration ~500 mẫu):**
+  - Đo kích hoạt để tính độ quan trọng tầng <InlineMath formula="I^{(l)}" /> (clip âm về 0 và chuẩn hóa trung bình 1).
+  - Phân rã SVD một lần trên từng ma trận trọng số <InlineMath formula="W^{(l)}" />, tách thành <InlineMath formula="k^{(l)} = \lfloor r_{\text{frac}}^{(l)} \min(d_O, d_I) \rfloor" /> vector High-Rank (đóng băng) và Low-Rank (huấn luyện).
+- **Bước 3: Huấn luyện có Ràng buộc Trực giao:**
+  - Forward tái tạo <InlineMath formula="W_{\text{eff}} = W_{\text{high}} + W_{\text{low}}" />.
+  - Backward qua Gradient Hooks duy trì trực giao, AdamW chỉ tối ưu hóa các nhân tử Low-Rank.
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Cơ sở Lý thuyết Hessian & Cận Quên lãng
+
+Về mặt lý thuyết tối ưu hóa, mức độ quên lãng khi học tác vụ mới phụ thuộc trực tiếp vào **độ cong của bề mặt hàm mất mát (ma trận Hessian <InlineMath formula="H_k = \nabla^2 \mathcal{L}_k" />)**:
+
+* **Bản chất hình học:** Các hướng có độ cong lớn (giá trị riêng lớn của Hessian) là các hướng cực kỳ nhạy cảm — chỉ cần một dịch chuyển nhỏ cũng làm bùng nổ hàm mất mát tác vụ cũ.
+* **Cầu nối với SVD trọng số:** Các vector kỳ dị lớn của ma trận trọng số tương quan chặt chẽ với các hướng cong lớn nhất của Hessian. Do đó, việc bảo vệ không gian **High-Rank** đồng nghĩa với việc đóng băng các hướng nhạy cảm nhất.
+* **Cận quên lãng tối ưu:** Việc phân bổ rank thích ứng theo tầng (<InlineMath formula="I^{(l)}" />) mang lại cận chặn sai số lý thuyết chặt hơn so với Full Fine-Tuning không ràng buộc hay phương pháp cố định rank toàn cục.
+
+<LessonNote tone="info">
+  **Chi tiết Khai triển & Chứng minh Toán học:** Bạn đọc quan tâm đến các bước khai triển Taylor bậc 2 đầy đủ, hệ phân cấp cận quên lãng (*Hierarchy of Forgetting Bounds*) và xấp xỉ Hessian có thể tham khảo chi tiết tại **Section 3.3 & Appendix** trong [bài báo gốc](https://openreview.net/pdf?id=vQcyqsGJDw).
+</LessonNote>
+
+---
+
+### Kiểm chứng Thực nghiệm Giả thuyết Không gian con
+
+Để kiểm chứng trong thực tế liệu không gian Low-Rank có thực sự "trơ" với tri thức cũ hay không, nhóm tác giả đo chuẩn đầu ra khi chiếu dữ liệu tác vụ cũ lên từng cặp vector kỳ dị <InlineMath formula="u_i v_i^\top" /> (thử nghiệm trên mô hình **Granite 8B** — mô hình nội bộ của IBM với kiến trúc Decoder-Only tương đương LLaMA, được nhóm Red Hat/IBM sử dụng để xác thực phương pháp):
+
+* **Top 1–2 Vector kỳ dị lớn nhất:** Chuẩn kích hoạt đạt **55.5** và **18.1** (tập trung hầu hết tri thức).
+* **Từ vector thứ 3 trở đi:** Chuẩn kích hoạt giảm dốc đứng xuống **1.8** và nhanh chóng tiệm cận **0**.
+
+Kết quả thực nghiệm xác nhận vững chắc: **Không gian Low-Rank hoàn toàn không bị kích hoạt bởi tác vụ cũ và có thể tự do tái sử dụng để học tác vụ mới mà không gây can thiệp.**
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/03-figure-6-singular-activation-norms.png"
+  alt="Figure 6: Chuẩn L2 Tích Ma trận - Vector Qua Các Vector Kỳ Dị"
+  caption="Figure 6: Chuẩn đầu ra kích hoạt giảm dốc đứng từ 55.5 và 18.1 xuống tiệm cận 0 sau các vector kỳ dị đầu tiên (Granite 8B, Layer 34), chứng minh không gian Low-Rank hoàn toàn không bị tác vụ cũ kích hoạt."
+/>
+
+---
+
+**Hướng dẫn đọc biểu đồ chuẩn kích hoạt kỳ dị (Figure 6):**
+* **Trục hoành (X):** Chỉ số vector kỳ dị (<InlineMath formula="i" />) xếp giảm dần từ 1 đến 4096 theo giá trị kỳ dị.
+* **Trục tung (Y):** Chuẩn <InlineMath formula="L_2" /> đầu ra kích hoạt của dữ liệu tác vụ cũ.
+* **Đỉnh dốc đứng (Đầu phổ):** Chỉ 2–3 vector đầu tiên là nhận năng lượng kích hoạt cực lớn (55.5 và 18.1), mang tri thức cốt lõi. Dải giữa (từ index ~50 đến ~3500) tiệm cận 0.
+* **Hiện tượng nhấc đuôi ở cuối phổ (<InlineMath formula="i > 3500" />):** Các vector kỳ dị nhỏ nhất có chuẩn nhấc nhẹ lên (~8–10) do đây là các hướng nhiễu tần số cao / null-space.
+* **Ý nghĩa thiết lập <InlineMath formula="\text{trr} = 0.80" />:** OSFT chỉ bảo vệ tối đa 80% rank đầu và cố tình giải phóng 20% rank ở đuôi cuối làm không gian Low-Rank mở để tiếp thu kiến thức mới.
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/04-figure-3-v-proj-low-rank.png"
+  alt="Figure 3: Ảnh hưởng của Cắt giảm Rank trên attn.v_proj (Granite 8B)"
+  caption="Figure 3: Hiệu năng trên 6 benchmark khi cắt giảm rank (10%, 50%, 99%) trên ma trận attn.v_proj. Các tầng giữa (layers 28-34) giữ vững độ chính xác ngay cả khi nén tới 99% rank."
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/05-figure-4-gate-proj-low-rank.png"
+  alt="Figure 4: Ảnh hưởng của Cắt giảm Rank trên mlp.gate_proj (FC_IN)"
+  caption="Figure 4: Hiệu năng trên 6 benchmark khi cắt giảm rank trên ma trận mlp.gate_proj (FC_IN), chứng minh tính dư thừa tham số cao ở các tầng mạng sâu."
+/>
+
+---
+
+<LessonImage
+  assetPath="research-papers/llm/continual-learning/sculpting-subspaces/06-figure-5-down-proj-low-rank.png"
+  alt="Figure 5: Ảnh hưởng của Cắt giảm Rank trên mlp.down_proj (FC_OUT)"
+  caption="Figure 5: Hiệu năng trên 6 benchmark khi cắt giảm rank trên ma trận mlp.down_proj (FC_OUT) qua các tầng của Granite 8B."
+/>
+
+---
+
+**Hướng dẫn đọc biểu đồ nén rank theo tầng (Figures 3, 4, 5):**
+* **6 Ô đồ thị:** Đại diện cho 6 benchmark đánh giá đa chiều (*IFEval, BBH, MATH Lvl 5, GPQA, MUSR, MMLU-PRO*).
+* **Trục hoành (X):** Chỉ số tầng mạng (Layers 29, 34, 39 của Granite 8B).
+* **3 Mức cắt giảm rank (Rank Reduction):**
+  * **Đường Đỏ (10% reduction):** Giữ lại 90% rank kỳ dị lớn nhất — bám sát baseline nét đứt xám.
+  * **Đường Xanh Lá (50% reduction):** Giữ lại 50% rank — hiệu năng vẫn duy trì ổn định.
+  * **Đường Xanh Dương (99% reduction — Cực hạn):** Cắt bỏ 99% rank (chỉ giữ lại vỏn vẹn **Top 1% rank gốc**, tương đương ~41 vector kỳ dị) — tại các tầng giữa (Layer 34), mô hình vẫn giữ nguyên vẹn 100% độ chính xác, chứng minh 99% không gian còn lại hoàn toàn tự do để học bài mới.
+
+---
+
+#### 3 Lời khuyên Thực hành từ Tác giả:
+* **Không áp đặt rank cố định (No Uniform Rank):** Việc gán cứng rank cho mọi tầng sẽ gây thừa thãi ở tầng giữa và thiếu hụt nghiêm trọng ở tầng cuối (Layer 39).
+* **Phân bổ thích ứng qua <InlineMath formula="I^{(l)}" />:** Tự động dồn dung lượng bảo vệ vào các tầng nhạy cảm (tầng đầu/cuối) và giải phóng tối đa các tầng giữa (Layers 28–34) để học bài mới.
+* **Khai thác dư địa MLP & <InlineMath formula="v\_proj" />:** Đây là các khối ma trận có độ dư thừa cao nhất, nơi không gian Low-Rank mang lại khả năng tiếp thu kiến thức mới vượt trội.
+
+</MdxPage>
