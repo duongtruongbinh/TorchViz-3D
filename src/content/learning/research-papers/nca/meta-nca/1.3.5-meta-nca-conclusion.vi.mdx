@@ -1,0 +1,92 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'meta-nca-conclusion',
+  locale: 'vi',
+  title: 'Kết luận',
+  headings: [
+    'Ba đóng góp được hỗ trợ bởi paper',
+    'MetaNCA phù hợp với mục tiêu nào?',
+    'Hướng nghiên cứu tiếp theo',
+    'Thông điệp cuối cùng',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'MetaNCA',
+    'Weight-Space Learning',
+    'Architecture Generalization',
+    'Research Limitations',
+    'Future Work',
+  ],
+  pageCount: 3,
+};
+
+<MdxPage page={0}>
+
+### Ba đóng góp được hỗ trợ bởi paper
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Ba đóng góp chính của MetaNCA"
+  root={{ title: 'MetaNCA contributions', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Local rule trên target graph',
+      detail: 'Update trực tiếp task-network weights từ forward và backward neighborhoods.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Weight Transformer',
+      detail: 'Linear attention tổng hợp neighborhood có kích thước thay đổi mà không materialize full attention matrix.',
+      tone: 'teal',
+    },
+    {
+      title: '3. Architecture variation',
+      detail: 'Một learned rule được đánh giá trên nhiều MLP, CNN và ResNet configuration.',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Điểm mới quan trọng nhất là **đặt developmental update rule trực tiếp lên các cạnh của computation graph**. Rule xử lý từng cạnh bằng cùng một phép tính, nên output của nó không phải một vector có độ dài cố định bằng tổng số weights. Nhờ vậy, cùng một rule có thể chạy trên mạng có số cạnh khác, chẳng hạn hai MLP với hidden width `128` và `256`.
+
+Paper cũng cho thấy việc meta-train trên nhiều width hoặc kernel size cải thiện kết quả ở một số giá trị chưa dùng để học rule. Đây là empirical observation trong các lưới MLP, CNN và ResNet được khảo sát, chưa phải bảo đảm generalization cho mọi network family.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### MetaNCA phù hợp với mục tiêu nào?
+
+| Nếu mục tiêu là | Bằng chứng hiện có ủng hộ | Vai trò hợp lý của MetaNCA |
+| :--- | :--- | :--- |
+| Peak accuracy trên một architecture | Backpropagation với optimizer chuyên biệt | Baseline nghiên cứu; CIFAR-100 vẫn thấp hơn Adam trên cùng ResNet |
+| Sinh weights cho nhiều network shape | Hypernetwork hoặc weight-space method tùy constraint | Hướng đáng thử khi muốn rule đọc quan hệ giữa các cạnh liền kề |
+| Nghiên cứu learned local rules | NCA, learned plasticity và developmental methods | Framework cập nhật trực tiếp task-network edges |
+
+Không có dữ liệu trong paper để khuyến nghị triển khai MetaNCA ngay trên IoT, neuromorphic chip hoặc production system. Những ứng dụng đó là **research hypotheses**, không phải demonstrated use cases.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Hướng nghiên cứu tiếp theo
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Các thí nghiệm tiếp theo có thể kiểm tra MetaNCA"
+  root={{ title: 'Bốn hướng kiểm chứng tiếp', subtitle: 'Các khoảng trống bằng chứng còn lại', tone: 'blue' }}
+  nodes={[
+    { title: '1. Ablation', detail: 'So sánh update rates, absolute initialization và RoPE variants.', tone: 'teal' },
+    { title: '2. Optimization', detail: 'Đo uncertainty, convergence, compute và accuracy so với task-specific training.', tone: 'amber' },
+    { title: '3. New families', detail: 'Meta-train một rule chung rồi test topology hoặc operation family chưa thấy.', tone: 'violet' },
+    { title: '4. Robustness', detail: 'Damage weights hoặc edges rồi đo recovery thay vì suy luận self-repair từ cảm hứng NCA.', tone: 'blue' },
+  ]}
+/>
+
+### Thông điệp cuối cùng
+
+MetaNCA không chứng minh rằng backpropagation đã lỗi thời. Paper chứng minh một điều hẹp hơn: **một learned local rule có thể phát triển task-network weights trên nhiều configuration trong từng family và vượt random baseline; CNN lớn nhất đạt khoảng 2 triệu parameters**.
+
+Đó là một proof of concept rõ ràng cho architecture-generating local rules, đồng thời mở ra nhiều câu hỏi chưa được trả lời về optimization quality, compute cost, robustness và generalization xa phân phối meta-training.
+
+</MdxPage>

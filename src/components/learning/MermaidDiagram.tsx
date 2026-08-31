@@ -53,10 +53,13 @@ export function MermaidDiagram({ chart, caption }: { chart: string; caption?: st
         const mermaid = await getMermaidInstance();
         const uniqueId = `mermaid_chart_${id}_${Date.now()}`;
 
-        // 1. Thay thế các công thức $...$ bằng token an toàn để Mermaid không bị lỗi cú pháp ký tự đặc biệt
+        // 1. Chuyển đổi literal \n thành <br/> để Mermaid htmlLabels tự động xuống dòng đẹp
+        let sanitizedChart = chart.replace(/\\n/g, '<br/>');
+
+        // 2. Thay thế các công thức $...$ bằng token an toàn để Mermaid không bị lỗi cú pháp ký tự đặc biệt
         const mathTokens = new Map<string, string>();
         let counter = 0;
-        const sanitizedChart = chart.replace(/\$([^$]+)\$/g, (_, math: string) => {
+        sanitizedChart = sanitizedChart.replace(/\$([^$]+)\$/g, (_, math: string) => {
           const token = `KATEXMATH${counter++}END`;
           try {
             const html = katex.renderToString(math.trim(), { throwOnError: false, displayMode: false });
@@ -77,11 +80,15 @@ export function MermaidDiagram({ chart, caption }: { chart: string; caption?: st
           finalSvg = finalSvg.replaceAll(token, html);
         }
 
-        // Đảm bảo foreignObject và div nhãn bên trong không bị cắt góc
+        // Đảm bảo foreignObject và div nhãn bên trong không bị cắt góc và các block được bo góc mềm mại
         const styleOverride = `<style>
           #${uniqueId} foreignObject { overflow: visible !important; }
-          #${uniqueId} foreignObject > div { overflow: visible !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; line-height: 1.5 !important; padding: 2px 4px !important; }
-          #${uniqueId} .node text, #${uniqueId} .node span { overflow: visible !important; }
+          #${uniqueId} foreignObject > div { overflow: visible !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; line-height: 1.5 !important; padding: 4px 8px !important; }
+          #${uniqueId} .node rect, #${uniqueId} .node polygon { rx: 10px !important; ry: 10px !important; stroke-width: 1.5px !important; stroke: #93C5FD !important; fill: #F0F6FC !important; }
+          #${uniqueId} .cluster rect { rx: 12px !important; ry: 12px !important; stroke-width: 1.5px !important; stroke: #CBD5E1 !important; fill: rgba(248, 250, 252, 0.6) !important; }
+          #${uniqueId} .node text, #${uniqueId} .node span { overflow: visible !important; font-family: "Be Vietnam Pro", system-ui, sans-serif !important; font-size: 12.5px !important; font-weight: 500 !important; color: #1E293B !important; }
+          #${uniqueId} .edgePath path { stroke-width: 1.5px !important; stroke: #64748B !important; }
+          #${uniqueId} .edgeLabel { font-family: "Be Vietnam Pro", system-ui, sans-serif !important; font-size: 11px !important; color: #475569 !important; background-color: #FFFFFF !important; padding: 1px 4px !important; border-radius: 4px !important; }
         </style>`;
 
         if (finalSvg.includes('</svg>')) {
@@ -122,7 +129,7 @@ export function MermaidDiagram({ chart, caption }: { chart: string; caption?: st
     <figure className="my-6 grid justify-items-center gap-2 w-full">
       <div
         ref={containerRef}
-        className="w-full overflow-x-auto flex justify-center py-6 px-6 rounded-xl border border-[#205089]/14 bg-[#F8FAFC]/75 shadow-sm transition-all [&_svg]:max-w-none [&_svg]:h-auto [&_svg]:overflow-visible [&_foreignObject]:overflow-visible [&_.node]:overflow-visible [&_.label]:overflow-visible [&_.label]:leading-relaxed"
+        className="w-full overflow-x-auto flex justify-center py-4 px-2 bg-transparent transition-all [&_svg]:max-w-none [&_svg]:h-auto [&_svg]:overflow-visible [&_foreignObject]:overflow-visible [&_.node]:overflow-visible [&_.label]:overflow-visible [&_.label]:leading-relaxed"
         dangerouslySetInnerHTML={{ __html: svgContent }}
       />
       {caption && (

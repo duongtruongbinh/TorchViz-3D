@@ -1,0 +1,316 @@
+export const lessonMetadata = {
+  domainId: 'research-papers',
+  id: 'meta-nca-method',
+  locale: 'vi',
+  title: 'Phương pháp',
+  headings: [
+    'Tổng quan chu trình cập nhật cục bộ của MetaNCA',
+    'Bước 1: Chọn liên kết (Select Edge)',
+    'Bước 2: Xác định lân cận — Trao đổi thông tin trên đồ thị',
+    'Bước 3: Tổng hợp thông điệp — Weight Transformer và Linear Attention',
+    'Bước 3: Ghép Perception Vector 49 chiều',
+    'Bước 4: Cập nhật cục bộ và Huấn luyện quy tắc (Meta-training)',
+    'Quy trình triển khai khi suy luận (Inference)',
+    'Ranh giới của phương pháp',
+  ],
+  headingContract: 'exact',
+  keywords: [
+    'MetaNCA',
+    'Weight Transformer',
+    'Linear Attention',
+    '5D RoPE',
+    'Computation Graph',
+    'Perception Vector',
+    'Stochastic Mask',
+    'Muon Optimizer',
+  ],
+  pageCount: 8,
+};
+
+<MdxPage page={0}>
+
+### Tổng quan chu trình cập nhật cục bộ của MetaNCA
+
+Để tự điều chỉnh các trọng số ngẫu nhiên thành một mạng nơ-ron hoạt động chính xác mà **hoàn toàn không cần tính gradient khi suy luận**, MetaNCA thực hiện một chu trình cập nhật cục bộ gồm 4 bước:
+
+1. **Bước 1: Chọn liên kết (Select Edge):** Mỗi kết nối được biểu diễn bằng scalar weight ghép với hidden state 16 chiều; năm chỉ số vị trí được lưu riêng.
+2. **Bước 2: Xác định lân cận (Identify Neighbors):** Lấy thông tin từ hai tập liên kết kết nối trực tiếp: phía trước (Backward) và phía sau (Forward) trên đồ thị.
+3. **Bước 3: Tổng hợp thông điệp (Aggregate Messages):** Sử dụng Weight Transformer với Linear Attention và 5D RoPE để nén các lân cận biến thiên thành một Vector nhận thức có kích thước cố định.
+4. **Bước 4: Cập nhật cục bộ (Local Update):** Mạng MLP quy tắc chung tính toán mức điều chỉnh để cập nhật trọng số và bộ nhớ qua 10 vòng lặp.
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/05-meta-nca-method-pipeline.jpg"
+  alt="Quy trình cập nhật cục bộ 4 bước của MetaNCA: Chọn liên kết, Lấy tập lân cận, Weight Transformer và Cập nhật cục bộ"
+  caption="Bốn bước trong một vòng lặp cập nhật cục bộ của MetaNCA trên từng liên kết của đồ thị mạng."
+/>
+
+Toàn bộ chu trình 4 bước này được **lặp đi lặp lại qua <InlineMath formula="T = 10" /> vòng lặp**. Mọi trọng số trên toàn mạng đều dùng chung một mạng quy tắc duy nhất, giúp mô hình tự hoàn thiện chức năng mà không bị phụ thuộc vào kích thước cố định.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+### Bước 1: Chọn liên kết (Select Edge)
+
+Thay vì xem mỗi liên kết chỉ là một con số tĩnh đơn độc, MetaNCA giả định rằng mỗi liên kết là một **tế bào sống** có vị trí không gian và khả năng ghi nhớ:
+
+<BlockMath formula="\text{cell}_{uv}^{(t)} = \big[ \underbrace{w_{uv}^{(t)}}_{1} \;\parallel\; \underbrace{\mathbf{h}_{uv}^{(t)}}_{16} \big] \in \mathbb{R}^{17}" />
+
+- <InlineMath formula="w_{uv}^{(t)} \in \mathbb{R}" /> là trọng số thực sự được dùng để tính toán forward pass của mô hình.
+- <InlineMath formula="h_{uv}^{(t)} \in \mathbb{R}^{16}" /> là vector bộ nhớ ẩn giúp liên kết lưu trữ ngữ cảnh và tích lũy tín hiệu qua từng vòng lặp.
+
+**Khởi tạo hidden state từ năm chỉ số vị trí:**
+Weights được khởi tạo ngẫu nhiên, còn <InlineMath formula="\mathbf{h}^{(0)}" /> được khởi tạo bằng sinusoidal absolute positional encoding trên:
+
+<BlockMath formula="\mathbf{pos} = \big[ \underbrace{l}_{\text{tầng}}, \; \underbrace{u}_{\text{nơ-ron / kênh vào}}, \; \underbrace{v}_{\text{nơ-ron / kênh ra}}, \; \underbrace{k_x, \; k_y}_{\text{tọa độ không gian}} \big] \in \mathbb{R}^5" />
+
+Trong đó, <InlineMath formula="k_x, k_y" /> là tọa độ không gian bên trong bộ lọc (kernel):
+- Với mạng **MLP** thông thường (không có kích thước không gian): mặc định cố định <InlineMath formula="k_x = 0, k_y = 0" />.
+- Với mạng **CNN** (bộ lọc <InlineMath formula="3 \times 3" />): 9 trọng số được định vị tương ứng theo lưới tọa độ:
+
+| Vị trí | <InlineMath formula="k_x = -1" /> | <InlineMath formula="k_x = 0" /> | <InlineMath formula="k_x = +1" /> |
+| :--- | :---: | :---: | :---: |
+| **<InlineMath formula="k_y = -1" />** | <InlineMath formula="(-1, -1)" /> | <InlineMath formula="(0, -1)" /> | <InlineMath formula="(+1, -1)" /> |
+| **<InlineMath formula="k_y = 0" />** | <InlineMath formula="(-1, 0)" /> | <InlineMath formula="(0, 0)" /> | <InlineMath formula="(+1, 0)" /> |
+| **<InlineMath formula="k_y = +1" />** | <InlineMath formula="(-1, +1)" /> | <InlineMath formula="(0, +1)" /> | <InlineMath formula="(+1, +1)" /> |
+
+**Ví dụ thế số cụ thể:**
+- Trọng số nối từ kênh 2 sang kênh 5 ở Tầng 1, nằm tại góc trên-trái của kernel CNN <InlineMath formula="3 \times 3" />:
+  <BlockMath formula="\mathbf{pos} = [l=1, \; u=2, \; v=5, \; k_x=-1, \; k_y=-1] \in \mathbb{R}^5" />
+- Trọng số nối từ nơ-ron 10 sang nơ-ron 20 ở Tầng 2 của mạng MLP:
+  <BlockMath formula="\mathbf{pos} = [l=2, \; u=10, \; v=20, \; k_x=0, \; k_y=0] \in \mathbb{R}^5" />
+
+Sau đó, vector 5 chiều này được đưa qua hàm mã hóa Sinusoidal (tương tự cơ chế **Positional Encoding** trong Transformer kinh điển) để chuyển thành vector 16 con số nạp làm giá trị ban đầu cho bộ nhớ ẩn <InlineMath formula="h_{uv}^{(0)}" />:
+
+<BlockMath formula="h_{uv}^{(0)} = \operatorname{Sinusoidal}(\mathbf{pos}) \in \mathbb{R}^{16}" />
+
+<BlockMath formula="\text{cell}_{uv}^{(0)} = \big[ \underbrace{w_0}_{\text{trọng số thực ban đầu}} \;\parallel\; \underbrace{h_{uv}^{(0)}}_{\text{16 con số nạp từ Positional Encoding}} \big] \in \mathbb{R}^{1 + 16}" />
+
+Đây là **absolute initialization** của hidden state. Nó khác với RoPE: RoPE được áp dụng sau feature map lên Query và Key trong Weight Transformer. Ở các bước <InlineMath formula="t = 1 \dots 10" />, hidden state tiếp tục được rule network cập nhật.
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+### Bước 2: Xác định lân cận — Trao đổi thông tin trên đồ thị
+
+Để toàn bộ mạng nơ-ron tự phối hợp đồng bộ mà không cần cơ chế chú ý toàn cục đắt đỏ, các tế bào cần trao đổi thông tin một cách cục bộ. Nhóm tác giả quy định rằng: **chỉ những tế bào có liên kết trực tiếp mới được quyền trao đổi thông tin với nhau**.
+
+Khi quan sát một nơ-ron thông thường trong mạng, nó luôn có hai luồng liên kết trực tiếp:
+- Các liên kết từ các nơ-ron ở tầng trước đó đi vào (**Backward**).
+- Các liên kết đi tới các nơ-ron ở tầng tiếp theo (**Forward**).
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/06a-meta-nca-graph-numbers.jpg"
+  alt="Minh họa 4 tầng nơ-ron với các giá trị số trọng số cụ thể nối giữa các nơ-ron"
+  caption="Ví dụ cụ thể: Trọng số đang xét mang giá trị 0.50 chỉ trao đổi tín hiệu trực tiếp với các trọng số lân cận 0.25 (tầng trước) và -0.80 (tầng sau)."
+/>
+
+Lúc này, thay vì xem trọng số như một con số tĩnh cô lập trong ma trận, ta nhìn <InlineMath formula="w = (u \to v)" /> như một **cạnh định hướng trên đồ thị**:
+- Nơ-ron nguồn <InlineMath formula="u" /> tiếp nhận thông điệp từ các liên kết đi vào <InlineMath formula="(k \to u)" />.
+- Nơ-ron đích <InlineMath formula="v" /> lan truyền thông điệp tới các liên kết đi tiếp <InlineMath formula="(v \to k')" />.
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/06-meta-nca-graph-neighborhoods.jpg"
+  alt="Minh họa 4 tầng nơ-ron: Cạnh trung tâm w = (u -> v), lân cận phía trước k -> u và lân cận phía sau v -> k'"
+  caption="Mô hình toán học: Góc nhìn từ cạnh trung tâm w = (u -> v), các cạnh k -> u ở phía trước (Backward), các cạnh v -> k' ở phía sau (Forward)."
+/>
+
+Trong các kiến trúc mạng thực tế (như ResNet hay DenseNet), một nơ-ron không chỉ nối với 1 nơ-ron kế bên mà có thể nhận **nhiều liên kết cùng lúc**, bao gồm cả các **đường nối tắt (skip-connection)** nhảy cóc qua nhiều tầng:
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/06b-meta-nca-skip-connections.jpg"
+  alt="Minh họa tập lân cận gồm nhiều liên kết và hỗ trợ skip-connection trong mạng nơ-ron sâu"
+  caption="Tập lân cận thực tế: Nơ-ron u có thể nhận nhiều liên kết đi vào (kể cả skip-connection từ tầng L-2), và nơ-ron v có thể phát ra nhiều liên kết tới các tầng sau."
+/>
+
+Từ mô hình đồ thị linh hoạt trên, hai tập hợp lân cận được định nghĩa tường minh:
+
+**Tập các liên kết từ tầng trước đi vào (Backward neighborhood):**
+
+<BlockMath formula="N_b(w) = \big\{ (k \to u) \in \mathcal{E} \big\}" />
+
+**Tập các liên kết đi tới tầng tiếp theo (Forward neighborhood):**
+
+<BlockMath formula="N_f(w) = \big\{ (v \to k) \in \mathcal{E} \big\}" />
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/06c-meta-nca-cnn-neighborhoods.jpg"
+  alt="Minh họa tập lân cận Backward N_b(w), trọng số trung tâm w và Forward N_f(w) trên các bộ lọc tích chập CNN 3D"
+  caption="Mở rộng cho mạng CNN: Cạnh trung tâm w (màu xanh lá) cùng các tập lân cận Backward N_b(w) (màu đỏ) và Forward N_f(w) (màu xanh dương) trên các khối bộ lọc 3D."
+/>
+
+Định nghĩa theo cạnh không phụ thuộc vào một weight-matrix shape cố định. Tuy nhiên, paper lưu ý rằng khi sang một architecture family mới, ta vẫn phải ánh xạ định nghĩa neighborhood vào connectivity của family đó.
+
+<LessonNote tone="info">
+  **Thuật ngữ:** Forward và Backward ở đây chỉ hai phía của graph neighborhood, không phải forward pass và backward pass tính gradient.
+</LessonNote>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+### Bước 3: Tổng hợp thông điệp — Weight Transformer và Linear Attention
+
+Sau khi đã xác định được tập lân cận, tế bào trung tâm sử dụng **Cơ chế chú ý (Attention)** để thu thập thông điệp từ các liên kết xung quanh:
+- Tế bào trung tâm đóng vai trò là truy vấn (*Query* <InlineMath formula="q" />).
+- Các tế bào lân cận đóng vai trò là khóa (*Key* <InlineMath formula="k" />) và giá trị (*Value* <InlineMath formula="v" />).
+
+Cell trung tâm được chiếu thành Query; các cell lân cận được chiếu thành Key và Value:
+
+<BlockMath formula="q = W_Q[w \parallel \mathbf{h}], \qquad K = W_K[w_j \parallel \mathbf{h}_j], \qquad V = W_V[w_j \parallel \mathbf{h}_j]" />
+
+**Nút thắt của Softmax Attention và Giải pháp Linear Attention:**
+Cơ chế Softmax Attention truyền thống bắt buộc phải tính từng cặp với chi phí bậc hai <InlineMath formula="\mathcal{O}(N^2)" />:
+
+<BlockMath formula="\operatorname{Attention}(Q, K, V)_i = \frac{\sum_{j=1}^N \exp\left(\frac{q_i^\top k_j}{\sqrt{d_k}}\right) v_j}{\sum_{j=1}^N \exp\left(\frac{q_i^\top k_j}{\sqrt{d_k}}\right)}" />
+
+MetaNCA áp dụng feature map trước phép quay:
+
+<BlockMath formula="\psi(x) = \operatorname{ELU}(x) + 1, \qquad \widetilde{Q}_r = R_r\psi(Q), \quad \widetilde{K}_r = R_r\psi(K)" />
+
+Mỗi head <InlineMath formula="r" /> ứng với một trong năm chỉ số <InlineMath formula="[l,u,v,k_x,k_y]" />. Kernelized linear attention của head đó là:
+
+<BlockMath formula="A_r = D_r^{-1}\widetilde{Q}_r\widetilde{K}_r^{\top}V, \qquad D_r = \widetilde{Q}_r\widetilde{K}_r^{\top}\mathbf{1} + \varepsilon" />
+
+Nhờ đổi thứ tự nhân, implementation không cần materialize full attention matrix. Đây là lý do paper mô tả chi phí theo neighborhood size là tuyến tính; không nên suy ra rằng toàn bộ rollout có chi phí hằng số.
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/07-meta-nca-linear-attention-pool.jpg"
+  alt="So sánh cơ chế tính toán Softmax Attention O(N^2) và Linear Attention O(N)"
+  caption="Hình 7: So sánh cơ chế tính toán giữa Softmax Attention (so khớp từng cặp N x N) và Linear Attention (gom vào Memory Pool O(N))."
+/>
+
+Mô hình chạy hai khối Linear Attention độc lập để thu thập thông điệp hai chiều:
+- **Khối Forward:** Thu thập thông điệp từ tập lân cận Forward <InlineMath formula="\mathcal{N}_f(w)" /> (các liên kết đi ra từ nơ-ron <InlineMath formula="v" />).
+- **Khối Backward:** Thu thập thông điệp từ tập lân cận Backward <InlineMath formula="\mathcal{N}_b(w)" /> (các liên kết đi vào nơ-ron <InlineMath formula="u" />).
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+### Bước 3: Ghép Perception Vector 49 chiều
+
+Cả forward và backward attention block trả về vector 16 chiều dù neighborhood có bao nhiêu cạnh. Neighborhood size biến mất khỏi **output shape**, nhưng compute vẫn tăng tuyến tính theo số cạnh lân cận.
+
+Khi ghép hai thông điệp <InlineMath formula="a_f, a_b" /> với trạng thái hiện tại của liên kết, ta thu được **Vector nhận thức (Perception Vector <InlineMath formula="\mathbf{p}_w" />)** có kích thước cố định 49 chiều:
+
+<BlockMath formula="\mathbf{p}_w = \big[ \underbrace{w_{uv}}_{1} \;\parallel\; \underbrace{\mathbf{h}_{uv}}_{16} \;\parallel\; \underbrace{a_f}_{16} \;\parallel\; \underbrace{a_b}_{16} \big] \in \mathbb{R}^{1 + 16 + 16 + 16} = \mathbb{R}^{49}" />
+
+Toàn bộ thông tin bối cảnh của liên kết đã được nén hoàn chỉnh thành đúng **49 con số cố định**, sẵn sàng nạp vào mạng quy tắc chung <InlineMath formula="\text{MLP}_{\text{rule}}" /> để tính toán mức cập nhật ở bước tiếp theo.
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+### Bước 4: Cập nhật cục bộ và Huấn luyện quy tắc (Meta-training)
+
+Sau khi Vector nhận thức <InlineMath formula="\mathbf{p}_w \in \mathbb{R}^{49}" /> đã nén toàn bộ thông điệp lân cận và trạng thái hiện tại, mục tiêu của chúng ta là xác định qua mỗi bước, trọng số thực và vector bộ nhớ ẩn cần thay đổi một lượng bao nhiêu:
+
+<BlockMath formula="[w_{\text{mới}}, \; h_{\text{mới}}] = [w_{\text{cũ}} + \Delta w, \; h_{\text{cũ}} + \Delta h_w]" />
+
+Để tính toán lượng biến thiên <InlineMath formula="[\Delta w, \Delta h_w]" />, tế bào đưa trực tiếp <InlineMath formula="\mathbf{p}_w" /> vào một mạng quy tắc chung <InlineMath formula="\text{MLP}_{\text{rule}}" />:
+
+<BlockMath formula="[\Delta w^{(t)}, \Delta h_w^{(t)}] = \operatorname{MLP}_{\text{rule}}(\mathbf{p}_w^{(t)})" />
+
+<BlockMath formula="\begin{aligned} w^{(t+1)} &= w^{(t)} + \Delta w^{(t)} \\ h_w^{(t+1)} &= h_w^{(t)} + \Delta h_w^{(t)} \end{aligned}" />
+
+Phép cập nhật trên được lặp với <InlineMath formula="t = 0,\ldots,9" /> để thu được <InlineMath formula="w^{(10)}" /> và <InlineMath formula="\mathbf{h}^{(10)}" />.
+
+Bộ trọng số cuối cùng <InlineMath formula="w^{(10)}" /> sau 10 bước tự sinh trưởng sẽ được nạp trực tiếp vào mô hình để thực hiện tác vụ chính (ví dụ: phân loại ảnh classification) như một mạng nơ-ron thông thường.
+
+**Tăng cường ổn định bằng mặt nạ ngẫu nhiên (Stochastic Mask):**
+Để mô phỏng asynchronous updates, MetaNCA dùng mặt nạ nhị phân <InlineMath formula="m_w^{(t)} \in \{0, 1\}" /> và áp dụng update ngẫu nhiên lên 80% weights ở mỗi bước. Paper không có ablation chứng minh 80% là tối ưu hoặc ổn định hơn 100%:
+
+<BlockMath formula="\begin{aligned} w^{(t+1)} &= w^{(t)} + m_w^{(t)} \Delta w^{(t)} \\ h_w^{(t+1)} &= h_w^{(t)} + m_w^{(t)} \Delta h_w^{(t)} \end{aligned}" />
+
+**Làm thế nào để huấn luyện mạng quy tắc <InlineMath formula="\text{MLP}_{\text{rule}}" />?**
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Hai giai đoạn vận hành của MetaNCA"
+  root={{ title: 'Hai giai đoạn vận hành của MetaNCA', subtitle: 'Phân tách hoàn toàn giữa huấn luyện quy tắc và sinh trọng số khi triển khai', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Giai đoạn Huấn luyện quy tắc (Meta-training)',
+      detail: 'Dùng Unroll 10 bước và giải thuật BPTT (Backpropagation Through Time) truyền ngược gradient để tối ưu mạng quy tắc MLP bằng Muon Optimizer.',
+      tone: 'violet',
+    },
+    {
+      title: '2. Giai đoạn Sinh trọng số khi triển khai (Inference)',
+      detail: 'Mạng quy tắc chỉ chạy forward pass qua 10 bước rollout. Mỗi bước dùng Stochastic Mask chọn 80% trọng số để cập nhật — hoàn toàn không cần gradient hay backprop.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+<LessonImage
+  assetPath="research-papers/nca/meta-nca/08-meta-nca-unroll-training.jpg"
+  alt="Sơ đồ chu trình Unroll 10 bước cập nhật trọng số và luồng truyền ngược BPTT trong Meta-training của MetaNCA"
+  caption="Sơ đồ Unroll 10 bước sinh trưởng trọng số và luồng đạo hàm BPTT truyền ngược qua từng bước để huấn luyện mạng quy tắc chung."
+/>
+
+**Bản chất của Unroll và BPTT trong Meta-training:**
+- **Unroll (Mở chuỗi thời gian để nắm bắt động lực học sinh trưởng):** Nếu chỉ chạy 1 bước cập nhật, mô hình chỉ thấy một lát cắt tĩnh tức thời. Việc trải phẳng (unroll) chuỗi 10 bước <InlineMath formula="w^{(0)} \to w^{(1)} \to \dots \to w^{(10)}" /> cho phép các tế bào tự do phát triển và tương tác qua thời gian, bộc lộ toàn bộ hành vi động học (dynamics) của quá trình tự tổ chức mạng.
+- **BPTT (Backpropagation Through Time):** Sau khi các tế bào hoàn tất 10 bước tự sinh trưởng để tạo ra bộ trọng số <InlineMath formula="w^{(10)}" />, hàm mất mát (Task Loss) được tính toán trên dữ liệu. Giải thuật BPTT truyền ngược gradient xuyên suốt chuỗi 10 bước phát triển này (từ bước 10 lùi về bước 1), rót đạo hàm vào mạng quy tắc cục bộ <InlineMath formula="\text{MLP}_{\text{rule}}" /> để tối ưu hóa tham số bằng **Muon Optimizer**.
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+### Quy trình triển khai khi suy luận (Inference)
+
+Sau khi mạng quy tắc <InlineMath formula="\text{MLP}_{\text{rule}}" /> đã được huấn luyện thành công ở giai đoạn Meta-training, việc sinh ra một mạng nơ-ron hoạt động hoàn hảo khi triển khai thực tế diễn ra qua **4 bước cực kỳ nhanh chóng**:
+
+1. **Cố định quy tắc:** Dùng rule network đã meta-train (82K parameters cho MLP; 126K cho CNN/ResNet trong paper).
+
+2. **Khởi tạo mô hình đích (Init Target Model):**
+   Khởi tạo một cấu hình thuộc family mà rule đã được học, với weights ngẫu nhiên và hidden states từ absolute positional encoding.
+
+3. **Rollout 10 bước cập nhật cục bộ (Forward Pass):**
+   Toàn bộ các trọng số trong mạng đồng loạt đóng vai trò là các tế bào, thực hiện trao đổi thông điệp lân cận và cập nhật qua mạng quy tắc <InlineMath formula="\text{MLP}_{\text{rule}}" /> (kèm Stochastic Mask 80%):
+   <BlockMath formula="\text{cell}^{(0)} \xrightarrow{\text{Step 1}} \text{cell}^{(1)} \xrightarrow{\text{Step 2}} \dots \xrightarrow{\text{Step 10}} \text{cell}^{(10)}" />
+   Quá trình sinh task weights này chỉ đánh giá rule đã học; không chạy backpropagation.
+
+4. **Thu hoạch trọng số hoàn chỉnh:**
+   Sau 10 bước, lấy <InlineMath formula="w^{(10)}" /> làm weights của task network. Paper không báo cáo latency vài mili-giây; parity với Adam chỉ được quan sát cho MLP <InlineMath formula="[784,50,50,10]" />, không phải mọi thí nghiệm.
+
+**So sánh giữa hai giai đoạn:**
+
+| Đặc điểm | Giai đoạn Huấn luyện quy tắc (Meta-training) | Giai đoạn Sinh trọng số khi suy luận (Inference) |
+| :--- | :--- | :--- |
+| **Mục tiêu** | Dạy mạng quy tắc <InlineMath formula="\text{MLP}_{\text{rule}}" /> học cách điều phối | Dùng quy tắc đã học để sinh trọng số cho mạng đích |
+| **Chi phí Gradient** | Có (BPTT truyền ngược qua 10 bước unroll) | **Hoàn toàn 0 gradient** (chỉ forward pass 10 bước) |
+| **Tốc độ thực thi** | Paper không báo cáo compute-normalized training cost | Cần thêm 10 local-rule steps trước task inference; paper không báo cáo latency |
+| **Đối tượng thay đổi** | Tham số của mạng quy tắc <InlineMath formula="\text{MLP}_{\text{rule}}" /> | Giá trị trọng số <InlineMath formula="w^{(t)}" /> của mạng đích |
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+### Ranh giới của phương pháp
+
+<ConceptHierarchy
+  density="compact"
+  ariaLabel="Ranh giới phương pháp của MetaNCA"
+  root={{ title: 'Ba giới hạn cần giữ', subtitle: 'Điều kiến trúc local rule chưa tự động bảo đảm', tone: 'blue' }}
+  nodes={[
+    {
+      title: '1. Local không đồng nghĩa gradient-free training',
+      detail: 'Task-weight generation là local và không backprop; meta-training vẫn dùng global task loss và backpropagation.',
+      tone: 'teal',
+    },
+    {
+      title: '2. Graph definition cần adapter',
+      detail: 'Neighborhood có định nghĩa chung, nhưng một family mới vẫn cần ánh xạ connectivity riêng.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Rule chưa tổng quát qua mọi family',
+      detail: 'Paper huấn luyện rule riêng cho MLP, CNN và ResNet; cross-family rule được để lại cho future work.',
+      tone: 'amber',
+    },
+  ]}
+/>
+
+</MdxPage>
