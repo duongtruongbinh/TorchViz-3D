@@ -12,7 +12,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { InlineMath, BlockMath, MathInline, MathDisplay, EquationCallout } from './math';
+import { InlineMath, BlockMath, MathInline, MathDisplay, EquationCallout, renderMathToString } from './math';
 import type { LearningLessonExtra } from './authoredTypes';
 import type { LearningLessonEntryPoint } from '../../core/learning/types';
 import { getStrings, type Language } from '../../lib/localization';
@@ -616,6 +616,35 @@ function conceptHierarchyRailStyle(count: number) {
   return { marginInline: `${50 / Math.max(count, 1)}%` };
 }
 
+function renderContentWithMath(content: ReactNode): ReactNode {
+  if (typeof content !== 'string') return content;
+  const regex = /(\$([^\$]+)\$|\\\((.+?)\\\))/g;
+  if (!regex.test(content)) return content;
+
+  const parts: ReactNode[] = [];
+  let lastIndex = 0;
+  content.replace(regex, (match, _p1, math1, math2, offset) => {
+    if (offset > lastIndex) {
+      parts.push(content.slice(lastIndex, offset));
+    }
+    const formula = (math1 || math2 || '').trim();
+    const html = renderMathToString(formula, { displayMode: false });
+    parts.push(
+      <span
+        key={offset}
+        className="inline-block px-0.5 align-baseline text-inherit [&_.katex]:text-inherit [&_.katex-html]:text-inherit"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+    lastIndex = offset + match.length;
+    return match;
+  });
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+  return parts;
+}
+
 function ConceptHierarchyNodeCard({
   node,
   fallbackTone,
@@ -657,7 +686,7 @@ function ConceptHierarchyNodeCard({
   return (
     <div className={cx('flex flex-col items-stretch', node.muted && 'opacity-35 grayscale')}>
       <div className={cx('flex w-full flex-col items-center justify-center border text-center', cardClass, toneClasses[tone])}>
-        <strong className={titleClass}>{node.title}</strong>
+        <strong className={titleClass}>{renderContentWithMath(node.title)}</strong>
       </div>
       {node.visual ? <ConceptHierarchyVisual visual={node.visual} tone={tone} isLight={isLight} /> : null}
       {description ? (
@@ -667,7 +696,7 @@ function ConceptHierarchyNodeCard({
           node.align === 'center' ? 'text-center' : 'text-left',
           bodyText,
         )}>
-          {description}
+          {renderContentWithMath(description)}
         </p>
       ) : null}
     </div>
@@ -795,8 +824,8 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections
           compact ? 'rounded-lg px-3.5 py-1.5 sm:max-w-xl sm:px-5' : 'rounded-xl px-4 py-3 sm:max-w-3xl sm:px-6',
           rootSurface,
         )}>
-          <strong className={cx('block', compact ? 'text-xs font-bold leading-snug sm:text-sm' : 'text-base font-black leading-6')}>{root.title}</strong>
-          {root.detail ? <span className={cx('block text-pretty opacity-85', compact ? 'mt-0.5 text-xs leading-4' : 'mt-1 text-sm leading-5')}>{root.detail}</span> : null}
+          <strong className={cx('block', compact ? 'text-xs font-bold leading-snug sm:text-sm' : 'text-base font-black leading-6')}>{renderContentWithMath(root.title)}</strong>
+          {root.detail ? <span className={cx('block text-pretty opacity-85', compact ? 'mt-0.5 text-xs leading-4' : 'mt-1 text-sm leading-5')}>{renderContentWithMath(root.detail)}</span> : null}
         </div>
       </div>
 
@@ -1213,7 +1242,7 @@ export function MetricBars({ ariaLabel, items, max = 100, columns = 1 }: {
             : Math.min(width, Math.max(0, item.baselineValue) / safeMax * 100);
           const gainWidth = Math.max(0, width - baselineWidth);
           const opacity = item.shadeByValue ? 0.15 + width / 100 * 0.85 : 1;
-          const toneIndicator = themeClasses.semantic[item.tone ?? 'neutral'].indicator;
+          const toneIndicator = (themeClasses.semantic[item.tone as keyof typeof themeClasses.semantic] ?? themeClasses.semantic.neutral).indicator;
           return (
             <li
               key={`${item.label}-${index}`}
@@ -1388,6 +1417,9 @@ function MdxPre({ children }: { children?: ReactNode }) {
 
   if (typeof codeClassName === 'string') {
     const rawText = extractTextFromNode(codeElement.props?.children).replace(/\n$/, '');
+    if (/^language-mermaid(?:$|\s)/.test(codeClassName)) {
+      return <MermaidDiagram chart={rawText} />;
+    }
     if (/^language-(?:output|text|plain)(?:$|\s)/.test(codeClassName)) {
       return <CodeBlock code={rawText} variant="output" copyable={false} themeClasses={themeClasses} />;
     }

@@ -142,6 +142,84 @@ const chapters: LearningTocTrackSeed[] = [
       },
     ],
   },
+  {
+    id: 'meta-nca-paper',
+    text: {
+      title: {
+        en: 'Computer Vision > Cellular Automata > (2026) MetaNCA',
+        vi: 'Computer Vision > Cellular Automata > (2026) MetaNCA',
+      },
+      description: {
+        en: 'Architecture Generalization with Meta Neural Cellular Automata (Mythos Scientific, 2026).',
+        vi: 'Tổng quát hóa kiến trúc mạng với Meta Neural Cellular Automata (Mythos Scientific, 2026).',
+      },
+    },
+    lessonIds: [
+      {
+        id: 'meta-nca-abstract',
+        title: {
+          en: 'Abstract',
+          vi: 'Tóm tắt',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'meta-nca-introduction',
+        title: {
+          en: 'Context',
+          vi: 'Bối cảnh',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'meta-nca-method',
+        title: {
+          en: 'Method',
+          vi: 'Phương pháp',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'meta-nca-experiments',
+        title: {
+          en: 'Experiments',
+          vi: 'Thực nghiệm',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'meta-nca-conclusion',
+        title: {
+          en: 'Conclusion',
+          vi: 'Kết luận',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'meta-nca-debate',
+        title: {
+          en: 'Critical review',
+          vi: 'Phản biện',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+      {
+        id: 'meta-nca-quiz',
+        title: {
+          en: 'Quiz',
+          vi: 'Quiz',
+        },
+        status: 'available',
+        contentStatus: 'published',
+      },
+    ],
+  },
 ];
 
 export const learningTableOfContents = {
