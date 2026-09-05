@@ -527,6 +527,16 @@ type ConceptVisual =
     | 'selection'
     | 'crossover'
     | 'mutation'
+    | 'population'
+    | 'fitness-score'
+    | 'selective-inheritance'
+    | 'encoding'
+    | 'evolution-strategy'
+    | 'quality-diversity'
+    | 'combinatorial'
+    | 'optimization-landscape'
+    | 'genetic-algorithm'
+    | 'genetic-programming'
     | 'dna'
     | 'binary-vector'
     | 'feasible-decode'
@@ -704,12 +714,14 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
           <ListFilter className="ml-0.5 size-5" strokeWidth={1.8} />
         </div>
       ) : null}
+      {isSemanticConceptVisual(visual) ? <SemanticConceptSvg visual={visual} /> : null}
       {formula ? (
-        <div className={cx(
-          'max-w-full px-2 text-center text-lg font-semibold [&_.katex]:max-w-full',
-          visual === 'second-order' && 'text-sm sm:text-base',
-          visual === 'crossover' && 'text-sm',
-        )}>
+        <div
+          className={cx(
+            'max-w-full px-1 text-center font-semibold whitespace-nowrap [&_.katex]:whitespace-nowrap [&_.katex-html]:whitespace-nowrap',
+            visual === 'second-order' ? 'text-sm sm:text-base' : visual === 'crossover' ? 'text-xs sm:text-sm' : 'text-base sm:text-lg',
+          )}
+        >
           <InlineMath formula={formula} />
         </div>
       ) : null}
@@ -721,6 +733,230 @@ function ConceptHierarchyVisual({ visual, tone, isLight }: {
 type ConceptHierarchyDensity = 'default' | 'compact';
 type ConceptHierarchyTone = NonNullable<ConceptHierarchyNode['tone']>;
 type ConceptHierarchyToneClasses = Record<ConceptHierarchyTone, string>;
+
+type SemanticConceptVisual = Extract<ConceptVisual,
+  | 'population'
+  | 'fitness-score'
+  | 'selective-inheritance'
+  | 'encoding'
+  | 'evolution-strategy'
+  | 'quality-diversity'
+  | 'combinatorial'
+  | 'optimization-landscape'
+  | 'genetic-algorithm'
+  | 'genetic-programming'
+>;
+
+const SEMANTIC_CONCEPT_VISUALS = new Set<ConceptVisual>([
+  'population',
+  'fitness-score',
+  'selective-inheritance',
+  'encoding',
+  'evolution-strategy',
+  'quality-diversity',
+  'combinatorial',
+  'optimization-landscape',
+  'genetic-algorithm',
+  'genetic-programming',
+]);
+
+function isSemanticConceptVisual(visual: ConceptVisual): visual is SemanticConceptVisual {
+  return SEMANTIC_CONCEPT_VISUALS.has(visual);
+}
+
+function SemanticConceptSvg({ visual }: { visual: SemanticConceptVisual }) {
+  const svgClass = 'h-16 w-28 overflow-visible';
+
+  if (visual === 'population') {
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        <ellipse cx="56" cy="32" rx="45" ry="24" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.28" />
+        <g fill="currentColor" stroke="white" strokeWidth="2">
+          <circle cx="25" cy="23" r="5" opacity="0.48" />
+          <circle cx="44" cy="16" r="4" opacity="0.72" />
+          <circle cx="68" cy="20" r="6" opacity="0.9" />
+          <circle cx="88" cy="27" r="4.5" opacity="0.58" />
+          <circle cx="31" cy="43" r="6" opacity="0.82" />
+          <circle cx="54" cy="37" r="4.5" opacity="0.42" />
+          <circle cx="76" cy="44" r="5.5" opacity="0.68" />
+        </g>
+      </svg>
+    );
+  }
+
+  if (visual === 'fitness-score') {
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        <g stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+          <circle cx="18" cy="14" r="5" fill="currentColor" opacity="0.38" />
+          <circle cx="18" cy="32" r="5" fill="currentColor" opacity="0.62" />
+          <circle cx="18" cy="50" r="5" fill="currentColor" opacity="0.9" />
+          <path d="M29 14H51M29 32H70M29 50H91" opacity="0.3" />
+          <path d="M45 11V17M64 29V35M85 47V53" />
+          <path d="m94 46 3 3 6-7" strokeWidth="2.4" />
+        </g>
+      </svg>
+    );
+  }
+
+  if (visual === 'selective-inheritance') {
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        <g fill="currentColor">
+          <circle cx="22" cy="11" r="4" opacity="0.25" />
+          <circle cx="39" cy="11" r="4" opacity="0.75" />
+          <circle cx="56" cy="11" r="4" opacity="0.3" />
+          <circle cx="73" cy="11" r="4" opacity="0.9" />
+          <circle cx="90" cy="11" r="4" opacity="0.42" />
+        </g>
+        <path d="M23 21H89L67 39V46H45V39L23 21Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" opacity="0.75" />
+        <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M40 55h8m4 0h8m4 0h8" opacity="0.72" />
+          <path d="M40 60h8m4 0h8m4 0h8" opacity="0.38" />
+        </g>
+      </svg>
+    );
+  }
+
+  if (visual === 'encoding') {
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        <g stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
+          <rect x="5" y="13" width="16" height="10" rx="2" opacity="0.4" />
+          <rect x="5" y="27" width="22" height="10" rx="2" opacity="0.75" />
+          <rect x="5" y="41" width="13" height="10" rx="2" opacity="0.55" />
+          <path d="M31 32h9m-3-3 3 3-3 3" />
+          {[0, 1, 2, 3].map((index) => (
+            <rect key={index} x={46 + index * 11} y="25" width="8" height="14" rx="1.5" fill="currentColor" opacity={index === 0 || index === 2 ? 0.82 : 0.12} />
+          ))}
+          <path d="M91 32h8m-3-3 3 3-3 3" />
+          <rect x="103" y="20" width="5" height="10" rx="1" fill="currentColor" opacity="0.82" />
+          <rect x="103" y="34" width="5" height="10" rx="1" fill="currentColor" opacity="0.82" />
+        </g>
+      </svg>
+    );
+  }
+
+  if (visual === 'evolution-strategy') {
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        <ellipse cx="48" cy="34" rx="32" ry="20" transform="rotate(-15 48 34)" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.35" />
+        <g fill="currentColor">
+          <circle cx="25" cy="40" r="3" opacity="0.35" />
+          <circle cx="35" cy="24" r="3.5" opacity="0.5" />
+          <circle cx="46" cy="45" r="3" opacity="0.55" />
+          <circle cx="58" cy="18" r="3" opacity="0.68" />
+          <circle cx="67" cy="35" r="4" opacity="0.82" />
+          <circle cx="48" cy="34" r="5" />
+          <circle cx="86" cy="20" r="5" opacity="0.9" />
+        </g>
+        <path d="M57 30 78 22m-4-3 4 3-3 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (visual === 'quality-diversity') {
+    const cells = [0.18, 0.72, 0.32, 0.88, 0.46, 0.58, 0.9, 0.24, 0.66, 0.38, 0.8, 0.52];
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        <g stroke="currentColor" strokeWidth="1.2">
+          {cells.map((opacity, index) => {
+            const column = index % 4;
+            const row = Math.floor(index / 4);
+            return (
+              <rect
+                key={index}
+                x={22 + column * 18}
+                y={7 + row * 17}
+                width="14"
+                height="13"
+                rx="2"
+                fill="currentColor"
+                opacity={opacity}
+              />
+            );
+          })}
+        </g>
+        <path d="M20 58H96M20 58V5" stroke="currentColor" strokeWidth="1.4" opacity="0.32" />
+      </svg>
+    );
+  }
+
+  if (visual === 'combinatorial') {
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        <path d="M18 43 35 16 58 24 86 12 94 46 63 52 18 43Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M35 16 63 52M58 24 94 46" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 4" opacity="0.22" />
+        <g fill="white" stroke="currentColor" strokeWidth="2">
+          <circle cx="18" cy="43" r="5" />
+          <circle cx="35" cy="16" r="5" />
+          <circle cx="58" cy="24" r="5" />
+          <circle cx="86" cy="12" r="5" />
+          <circle cx="94" cy="46" r="5" />
+          <circle cx="63" cy="52" r="5" />
+        </g>
+      </svg>
+    );
+  }
+
+  if (visual === 'optimization-landscape') {
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        <path d="M7 16C21 16 24 49 39 49S55 23 68 23s15 25 37 25" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <g fill="currentColor">
+          <circle cx="21" cy="27" r="3.5" opacity="0.42" />
+          <circle cx="39" cy="49" r="4.5" />
+          <circle cx="68" cy="23" r="3.5" opacity="0.65" />
+          <circle cx="91" cy="42" r="3.5" opacity="0.32" />
+        </g>
+        <path d="M39 9v28m-4-4 4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.72" />
+      </svg>
+    );
+  }
+
+  if (visual === 'genetic-algorithm') {
+    const cells = [0, 1, 2, 3, 4, 5];
+    return (
+      <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+        {cells.map((index) => (
+          <rect key={`top-${index}`} x={18 + index * 13} y="8" width="9" height="11" rx="1.5" fill="currentColor" opacity={index < 3 ? 0.82 : 0.24} />
+        ))}
+        {cells.map((index) => (
+          <rect key={`middle-${index}`} x={18 + index * 13} y="25" width="9" height="11" rx="1.5" fill="currentColor" opacity={index < 3 ? 0.24 : 0.82} />
+        ))}
+        <path d="M56 5v34" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.45" />
+        <path d="M56 39v7m-3-3 3 3 3-3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+        {cells.map((index) => (
+          <rect key={`bottom-${index}`} x={18 + index * 13} y="50" width="9" height="11" rx="1.5" fill="currentColor" opacity={0.82} />
+        ))}
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 112 64" className={svgClass} fill="none" aria-hidden="true">
+      <g stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+        <path d="M24 10v10M24 20 13 32M24 20l11 12M13 32l-7 12M13 32l7 12M35 32l-6 12M35 32l8 12" />
+        <circle cx="24" cy="8" r="4" fill="currentColor" />
+        <circle cx="13" cy="32" r="3.5" fill="white" />
+        <circle cx="35" cy="32" r="3.5" fill="white" />
+        <circle cx="6" cy="46" r="3" fill="currentColor" opacity="0.4" />
+        <circle cx="20" cy="46" r="3" fill="currentColor" opacity="0.62" />
+        <circle cx="29" cy="46" r="3" fill="currentColor" opacity="0.78" />
+        <circle cx="43" cy="46" r="3" fill="currentColor" />
+        <path d="M61 51C71 46 79 37 88 25c5-7 10-11 18-14" strokeWidth="2" />
+      </g>
+      <g fill="currentColor">
+        <circle cx="65" cy="48" r="3" opacity="0.35" />
+        <circle cx="73" cy="40" r="3" opacity="0.5" />
+        <circle cx="82" cy="34" r="3" opacity="0.68" />
+        <circle cx="91" cy="22" r="3.5" opacity="0.84" />
+        <circle cx="103" cy="13" r="4" />
+        <circle cx="94" cy="43" r="2.5" opacity="0.2" />
+      </g>
+    </svg>
+  );
+}
 
 function conceptHierarchyGridStyle(count: number) {
   return {
@@ -761,6 +997,30 @@ function renderContentWithMath(content: ReactNode): ReactNode {
   return parts;
 }
 
+const toneHeaderTints: Record<ConceptHierarchyTone, string> = {
+  blue: 'border-b border-[#79A9D1]/30 bg-[#F0F6FB] text-[#1A4B7C]',
+  amber: 'border-b border-[#D6AE65]/35 bg-[#FDF8EE] text-[#875C16]',
+  teal: 'border-b border-[#68AAA2]/35 bg-[#F0F8F6] text-[#1C685E]',
+  violet: 'border-b border-[#A89CCB]/35 bg-[#F5F2FB] text-[#594883]',
+  neutral: 'border-b border-[#B8C8DA]/50 bg-[#F8FAFC] text-[#1E293B]',
+};
+
+const toneBorderHover: Record<ConceptHierarchyTone, string> = {
+  blue: 'hover:border-[#205089]/45 hover:shadow-[0_8px_20px_rgba(32,80,137,0.09)]',
+  amber: 'hover:border-[#D6AE65]/80 hover:shadow-[0_8px_20px_rgba(180,126,36,0.09)]',
+  teal: 'hover:border-[#68AAA2]/80 hover:shadow-[0_8px_20px_rgba(35,119,108,0.09)]',
+  violet: 'hover:border-[#A89CCB]/80 hover:shadow-[0_8px_20px_rgba(102,85,147,0.09)]',
+  neutral: 'hover:border-[#205089]/35 hover:shadow-[0_8px_20px_rgba(32,80,137,0.07)]',
+};
+
+const darkHeaderTints: Record<ConceptHierarchyTone, string> = {
+  blue: 'border-b border-[#7FB4E5]/20 bg-[#7FB4E5]/10 text-[#CBE5FF]',
+  amber: 'border-b border-[#F0BE62]/20 bg-[#F0BE62]/10 text-[#FFE0A0]',
+  teal: 'border-b border-[#79C5BB]/20 bg-[#79C5BB]/10 text-[#BDEBE5]',
+  violet: 'border-b border-[#B9A9E3]/20 bg-[#B9A9E3]/10 text-[#DDD3F7]',
+  neutral: 'border-b border-[#A8D4FF]/15 bg-[#172232] text-[#F4EFE6]',
+};
+
 function ConceptHierarchyNodeCard({
   node,
   fallbackTone,
@@ -781,42 +1041,100 @@ function ConceptHierarchyNodeCard({
   const tone = node.tone ?? fallbackTone;
   const description = node.detail ?? node.problem;
   const compact = density === 'compact';
-  const cardClass = compact
-    ? level === 'primary'
-      ? 'min-h-10 rounded-lg px-2.5 py-1.5 sm:min-h-11 sm:px-3 sm:py-2'
-      : level === 'nested'
-        ? 'min-h-9 rounded-lg px-2 py-1 sm:min-h-9.5 sm:px-2.5 sm:py-1.5'
-        : 'min-h-8.5 rounded-lg px-1.5 py-1'
-    : level === 'primary'
-      ? 'min-h-[3.25rem] rounded-xl px-3 py-2.5'
-      : 'min-h-12 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5';
+  const hasContent = Boolean(description || node.visual);
+
+  let mainText: ReactNode = description;
+  let exampleText: ReactNode = node.example;
+  let examplePrefix = node.examplePrefix ?? 'Ví dụ';
+
+  if (!exampleText && typeof description === 'string') {
+    const match = description.match(/^([\s\S]*?)(?:[\.\;]\s*|\n+|(?:^|\s+)(?=(?:Ví dụ|Example|Tiêu biểu)\s*:))(Ví dụ|Example|Tiêu biểu)\s*:\s*([\s\S]+)$/i);
+    if (match) {
+      const rawMain = match[1].trim();
+      mainText = rawMain ? (rawMain.endsWith('.') ? rawMain : rawMain + '.') : '';
+      examplePrefix = match[2];
+      exampleText = match[3].trim();
+    }
+  }
+
   const titleClass = compact
     ? 'text-xs font-bold leading-tight'
     : level === 'primary'
-      ? 'text-sm font-black leading-snug sm:text-base'
-      : 'text-sm font-black leading-5';
+      ? 'text-sm font-bold leading-snug sm:text-base'
+      : 'text-sm font-bold leading-5';
+
+  if (!hasContent) {
+    const cardClass = compact
+      ? level === 'primary'
+        ? 'min-h-10 rounded-lg px-2.5 py-1.5 sm:min-h-11 sm:px-3 sm:py-2'
+        : level === 'nested'
+          ? 'min-h-9 rounded-lg px-2 py-1 sm:min-h-9.5 sm:px-2.5 sm:py-1.5'
+          : 'min-h-8.5 rounded-lg px-1.5 py-1'
+      : level === 'primary'
+        ? 'min-h-[3.25rem] rounded-xl px-3 py-2.5'
+        : 'min-h-12 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5';
+
+    return (
+      <div className={cx('flex flex-col items-stretch', node.muted && 'opacity-35 grayscale')}>
+        <div
+          className={cx(
+            'flex w-full flex-col items-center justify-center border text-center transition-all duration-200 ease-out hover:-translate-y-0.5',
+            cardClass,
+            toneClasses[tone],
+          )}
+        >
+          <strong className={titleClass}>{renderContentWithMath(node.title)}</strong>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={cx('flex flex-col items-stretch', node.muted && 'opacity-35 grayscale')}>
-      <div className={cx('flex w-full flex-col items-center justify-center border text-center', cardClass, toneClasses[tone])}>
-        <strong className={titleClass}>{renderContentWithMath(node.title)}</strong>
-      </div>
-      {node.visual ? <ConceptHierarchyVisual visual={node.visual} tone={tone} isLight={isLight} /> : null}
-      {description ? (
-        <p className={cx(
-          compact ? 'mt-1 px-0.5 text-xs leading-relaxed' : cx(node.visual ? 'mt-1' : 'mt-2.5', 'px-1 text-sm leading-relaxed'),
-          'text-pretty',
-          node.align === 'center' ? 'text-center' : 'text-left',
-          bodyText,
-        )}>
-          {renderContentWithMath(description)}
-          {node.example ? (
-            <span className="mt-2 block">
-              <strong>{node.examplePrefix ?? 'Ví dụ'}:</strong> {renderContentWithMath(node.example)}
-            </span>
+    <div className={cx('flex h-full flex-col items-stretch', node.muted && 'opacity-35 grayscale')}>
+      <div
+        className={cx(
+          'group flex h-full w-full flex-col overflow-hidden rounded-xl border border-[#B8C8DA]/70 bg-white shadow-[0_2px_8px_rgba(32,80,137,0.04)] transition-all duration-200 ease-out hover:-translate-y-0.5',
+          isLight ? toneBorderHover[tone] : 'hover:border-[#A8D4FF]/40',
+        )}
+      >
+        <div
+          className={cx(
+            'flex w-full items-center px-3.5 py-2.5 transition-colors',
+            node.align === 'center' ? 'justify-center text-center' : 'justify-start text-left',
+            isLight ? toneHeaderTints[tone] : darkHeaderTints[tone],
+          )}
+        >
+          <strong className={cx(titleClass, 'tracking-tight')}>{renderContentWithMath(node.title)}</strong>
+        </div>
+
+        <div className={cx('flex flex-1 flex-col justify-start', compact ? 'p-3' : 'p-3.5 sm:p-4')}>
+          {node.visual ? (
+            <div className="my-1.5 flex items-center justify-center py-1 transition-transform duration-200 group-hover:scale-[1.03]">
+              <ConceptHierarchyVisual visual={node.visual} tone={tone} isLight={isLight} />
+            </div>
           ) : null}
-        </p>
-      ) : null}
+
+          {mainText ? (
+            <p
+              className={cx(
+                compact ? 'text-xs leading-relaxed' : 'text-xs sm:text-sm leading-relaxed',
+                'text-pretty mb-2',
+                node.align === 'center' ? 'text-center' : 'text-left',
+                bodyText,
+              )}
+            >
+              {renderContentWithMath(mainText)}
+            </p>
+          ) : null}
+
+          {exampleText ? (
+            <div className="mt-auto pt-2.5 border-t border-[#B8C8DA]/45 text-xs sm:text-sm leading-relaxed text-[#475569]">
+              <span className="font-bold text-[#1E293B]">{examplePrefix}:</span>{' '}
+              {renderContentWithMath(exampleText)}
+            </div>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -883,7 +1201,7 @@ function ConceptHierarchyConnections({
             style={conceptHierarchyGridStyle(connection.children.length)}
           >
             {connection.children.map((child, childIndex) => (
-              <li key={childIndex} className={cx('m-0 min-w-0 list-none p-0', density === 'compact' ? 'sm:px-1' : 'sm:px-2')}>
+              <li key={childIndex} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', density === 'compact' ? 'sm:px-1' : 'sm:px-2')}>
                 <span className={cx('mx-auto block w-px', density === 'compact' ? 'h-2' : 'h-5', connector)} aria-hidden="true" />
                 <ConceptHierarchyNodeCard
                   node={child}
@@ -1000,7 +1318,7 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections
                           const deepChildren = nestedChild.children ?? nestedChild.nodes ?? [];
 
                           return (
-                            <li key={nestedIndex} className={cx('m-0 min-w-0 list-none p-0', compact ? 'sm:px-1.5' : 'sm:px-2')}>
+                            <li key={nestedIndex} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', compact ? 'sm:px-1.5' : 'sm:px-2')}>
                               <span className={cx('mx-auto block w-px', compact ? 'h-2.5' : 'h-5', connector)} aria-hidden="true" />
                               <ConceptHierarchyNodeCard
                                 node={nestedChild}
@@ -1021,7 +1339,7 @@ export function ConceptHierarchy({ ariaLabel, root, children, nodes, connections
                                     style={conceptHierarchyGridStyle(deepChildren.length)}
                                   >
                                     {deepChildren.map((deepChild, deepIndex) => (
-                                      <li key={deepIndex} className={cx('m-0 min-w-0 list-none p-0', compact ? 'sm:px-1' : 'sm:px-2')}>
+                                      <li key={deepIndex} className={cx('m-0 flex min-w-0 list-none flex-col items-stretch p-0', compact ? 'sm:px-1' : 'sm:px-2')}>
                                         <span className={cx('mx-auto block w-px', compact ? 'h-2' : 'h-5', connector)} aria-hidden="true" />
                                         <ConceptHierarchyNodeCard
                                           node={deepChild}

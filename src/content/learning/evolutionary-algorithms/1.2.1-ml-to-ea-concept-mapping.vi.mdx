@@ -55,19 +55,19 @@ Tự nhiên không hề cần đạo hàm để tính xem cổ hươu phải dà
     {
       title: 'Quần thể Đa dạng',
       detail: 'Duy trì đồng thời nhiều biến thể cá thể khác nhau thay vì chỉ thăm dò một điểm đơn lẻ.',
-      visual: 'space',
+      visual: 'population',
       tone: 'blue',
     },
     {
       title: 'Chấm điểm Thích nghi',
       detail: 'Môi trường đóng vai trò hàm đánh giá, đo lường độ sinh tồn của từng cá thể.',
-      visual: 'objective',
+      visual: 'fitness-score',
       tone: 'teal',
     },
     {
       title: 'Kế thừa có Chọn lọc',
       detail: 'Giữ lại các cá thể ưu tú nhất để trao đổi và truyền lại thông tin cho thế hệ kế tiếp.',
-      visual: 'solution',
+      visual: 'selective-inheritance',
       tone: 'amber',
     },
   ]}
@@ -115,7 +115,7 @@ Dưới đây là sơ đồ phân cấp quy đổi toàn diện từ khái niệ
         {
           title: 'Tập điểm thử nghiệm',
           detail: 'Nhóm gồm $N$ vector trọng số ngẫu nhiên cùng chạy thử và đánh giá song song.',
-          visual: 'space',
+          visual: 'population',
           tone: 'teal',
         },
       ],
@@ -151,7 +151,7 @@ Dưới đây là sơ đồ phân cấp quy đổi toàn diện từ khái niệ
         {
           title: 'Bước cập nhật Gradient',
           detail: 'Chọn các bộ $w$ có điểm tốt rồi tạo biến thể ngẫu nhiên qua từng thế hệ; biến thể chỉ được giữ lại nếu cơ chế đánh giá và chọn lọc ưu tiên nó.',
-          visual: 'zero-order',
+          visual: 'first-order',
           tone: 'teal',
         },
       ],
