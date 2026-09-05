@@ -1,0 +1,177 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'genotype-phenotype-representation',
+  locale: 'vi',
+  title: "Genotype & Phenotype: Không gian Biểu diễn",
+  headings: [
+    'Làm sao để Máy tính làm việc với Bài toán Thực tế?',
+    'Cơ chế Mã hóa (Encode) & Giải mã (Decode)',
+    'Mở rộng: Genotype Không chỉ là Chuỗi Bit',
+    'Khi nào nên Phân tách Genotype & Phenotype?',
+  ],
+  keywords: ['Genotype', 'Phenotype', 'Representation', 'Encoding', 'Decoding', 'Feature Selection', 'One-Max'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Làm sao để Máy tính làm việc với Bài toán Thực tế?
+
+Trong Machine Learning và kỹ thuật phần mềm, các bài toán tối ưu ngoài đời thực có hình thái vô cùng đa dạng:
+- Tập danh sách các cột đặc trưng cần giữ lại trong bảng dữ liệu.
+- Lộ trình giao hàng đi qua 20 thành phố theo thứ tự tối ưu.
+- Cấu trúc cây quyết định hoặc đồ thị kết nối giữa các tầng mạng nơ-ron.
+- Hình dáng khí động học của cánh máy bay hoặc sơ đồ vi mạch bán dẫn.
+
+Một cách thiết kế phổ biến là **phân tách Biểu diễn có thể biến đổi (Genotype) và Giải pháp được đánh giá (Phenotype)**. Sự phân tách hữu ích khi cần decoder hoặc repair; với biểu diễn trực tiếp như One-Max, hai khái niệm có thể trùng nhau.
+
+<ConceptFlow
+  ariaLabel="Cơ chế tương đồng giữa Sinh học và Máy tính trong phân tách biểu diễn"
+  items={[
+    {
+      title: '1. Sinh học Tự nhiên',
+      detail: 'Mã gen ADN (Genotype) được cơ thể giải mã (Decode) để thể hiện ra các đặc điểm thể chất bên ngoài (Phenotype) như màu lông hay chiều cao.',
+      visual: 'dna',
+      tone: 'amber',
+    },
+    {
+      title: '2. Máy tính & AI',
+      detail: 'Bài toán thực tế được đổi thành chuỗi bit / vector để máy tính dễ dàng chỉnh sửa, thao tác ghép nối, đột biến; sau đó giải mã (Decode) ngược lại thành giải pháp gốc.',
+      visual: 'encoding',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+Ở trang tiếp theo, chúng ta sẽ khảo sát một bài toán thực tế và cách thiết lập cầu nối Encode / Decode để giải quyết nó!
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Cơ chế Mã hóa (Encode) & Giải mã (Decode)
+
+Xét tập dữ liệu dự đoán giá nhà gồm 6 đặc trưng đầu vào, trong đó có 3 cột cốt lõi và 3 cột nhiễu ngẫu nhiên:
+
+<BlockMath formula="\mathcal{F} = \big[ \, \text{sqft}, \; \text{noisy\_beds}, \; \text{location\_idx}, \; \text{noisy\_year}, \; \text{bathrooms}, \; \text{noisy\_dist} \, \big]" />
+
+Dữ liệu thực tế được lưu dưới dạng bảng (Tabular Data) với các dòng mẫu:
+
+| Mẫu | sqft (<InlineMath formula="x_0" />) | noisy_beds (<InlineMath formula="x_1" />) | location_idx (<InlineMath formula="x_2" />) | noisy_year (<InlineMath formula="x_3" />) | bathrooms (<InlineMath formula="x_4" />) | noisy_dist (<InlineMath formula="x_5" />) | Giá nhà (<InlineMath formula="y" />) |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **#01** | `+1.42` | `+0.12` | `-0.85` | `+1.20` | `+0.75` | `-0.30` | **+9.38** |
+| **#02** | `-0.65` | `+1.45` | `+0.40` | `-0.95` | `-1.10` | `+0.80` | **-7.35** |
+| **#03** | `+0.89` | `-0.80` | `-1.15` | `+0.45` | `+1.30` | `+0.15` | **+10.76** |
+
+Để thuật toán có thể tự động chọn lọc các cột tối ưu, ta thiết lập cầu nối hai chiều giữa **nghiệp vụ** và **máy tính**:
+
+### 1. Mã hóa (Encode)
+
+Mỗi quyết định chọn cột quy đổi thành 1 bit nhị phân (`1` = Giữ lại, `0` = Loại bỏ). Chuỗi bit này là **Genotype (Kiểu gen)** được lưu trữ trong bộ nhớ:
+
+<BlockMath formula="\begin{array}{cccccc}
+\text{sqft} & \text{noisy\_beds} & \text{location\_idx} & \text{noisy\_year} & \text{bathrooms} & \text{noisy\_dist} \\
+[\; \mathbf{1}, & 0, & \mathbf{1}, & 0, & \mathbf{1}, & 0 \;]
+\end{array}" />
+
+### 2. Thao tác & Biến đổi (Chỉnh sửa trên Genotype)
+
+Khi đã nằm dưới dạng bit, thuật toán dễ thực hiện biến đổi di truyền. Tuy nhiên, ràng buộc liên kết giữa các bit vẫn có thể tạo nghiệm không hợp lệ; khi đó cần toán tử bảo toàn tính khả thi, repair hoặc penalty:
+
+- **Đột biến (Mutation):** Lật ngẫu nhiên 1 bit (ví dụ đổi vị trí thứ 2 từ `0` thành `1` để thử nghiệm thêm cột mới):
+<BlockMath formula="[1, \; \mathbf{0}, \; 1, \; 0, \; 1, \; 0] \xrightarrow{\quad\text{Đột biến bit}\quad} [1, \; \mathbf{1}, \; 1, \; 0, \; 1, \; 0]" />
+
+- **Lai ghép (Crossover):** Cắt ghép nửa đầu của cá thể bố và nửa sau của cá thể mẹ để tạo ra lời giải con lai mới.
+
+### 3. Giải mã (Decode)
+
+Bộ giải mã đọc chuỗi bit sau khi biến đổi và lọc đúng các cột mang giá trị `1` để khởi tạo mô hình học máy thực tế — đây chính là **Phenotype (Kiểu hình)**:
+
+<BlockMath formula="[\mathbf{1}, 0, \mathbf{1}, 0, \mathbf{1}, 0] \xrightarrow{\quad\text{Decode}\quad} \{\text{sqft}, \, \text{location\_idx}, \, \text{bathrooms}\}" />
+
+Mô hình sau khi giải mã sẽ được huấn luyện trên tập dữ liệu để đo điểm thích nghi (<InlineMath formula="R^2" /> hoặc <InlineMath formula="-\text{MAE}" />).
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Mở rộng: Genotype Không chỉ là Chuỗi Bit
+
+Chuỗi bit nhị phân trong bài toán Chọn lọc đặc trưng ở trên là dạng biểu diễn kinh điển nhất — gắn liền với bài toán **One-Max** (bài toán "Hello World" nhập môn của Thuật toán Di truyền).
+
+Trong bài toán One-Max, mục tiêu là tìm một chuỗi nhị phân <InlineMath formula="L" /> bit sao cho tổng số lượng bit 1 đạt tối đa:
+
+<BlockMath formula="\text{Fitness}(\mathbf{x}) = \sum_{i=1}^L x_i \quad \text{với} \quad x_i \in \{0, 1\}" />
+
+**Ví dụ:** Với chuỗi có độ dài <InlineMath formula="L = 6" /> bit:
+
+<BlockMath formula="\begin{aligned}
+\text{Chuỗi ngẫu nhiên:} \quad & \mathbf{x}_A = [1, \, 0, \, 1, \, 1, \, 0, \, 0] \\
+& \text{Fitness}(\mathbf{x}_A) = 3 \\[6pt]
+\text{Chuỗi tối ưu toàn cục:} \quad & \mathbf{x}^* = [1, \, 1, \, 1, \, 1, \, 1, \, 1] \\
+& \text{Fitness}(\mathbf{x}^*) = 6
+\end{aligned}" />
+
+Đây là trường hợp lý tưởng nhất vì **Genotype trùng khớp trực tiếp với Phenotype** (không cần hàm giải mã phức tạp).
+
+Trong thực tế, **Genotype phải là cấu trúc dữ liệu đi kèm toán tử phù hợp**. Không thể tùy ý dùng crossover của chuỗi bit cho hoán vị hoặc cây mà vẫn giữ nghiệm hợp lệ:
+
+<ConceptFlow
+  ariaLabel="Các dạng biểu diễn Genotype phổ biến trong thực tế"
+  items={[
+    {
+      title: '1. Vector Số thực',
+      detail: 'Tối ưu bộ trọng số w liên tục trong học máy và deep learning.',
+      visual: 'real-vector',
+      tone: 'blue',
+    },
+    {
+      title: '2. Mảng Hoán vị',
+      detail: 'Sắp xếp thứ tự các điểm đến trong bài toán Người giao hàng (TSP) hay lịch trình.',
+      visual: 'permutation',
+      tone: 'amber',
+    },
+    {
+      title: '3. Cây Biểu thức / Đồ thị',
+      detail: 'Tự động sinh công thức toán học (GP) hoặc kiến trúc mạng nơ-ron (NAS).',
+      visual: 'tree-graph',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Khi nào nên Phân tách Genotype & Phenotype?
+
+Khi phenotype khó chỉnh sửa trực tiếp, một genotype gọn hơn có thể mang lại ba lợi ích. Đây là quyết định thiết kế, không phải yêu cầu bắt buộc của mọi EA:
+
+<ConceptFlow
+  ariaLabel="3 lợi ích cốt lõi của việc phân tách Genotype và Phenotype"
+  items={[
+    {
+      title: '1. Kiểm soát tính hợp lệ',
+      detail: 'Decoder, repair hoặc toán tử chuyên biệt có thể biến genotype thành nghiệm khả thi; chuỗi bit tự nó không bảo đảm mọi ràng buộc.',
+      visual: 'feasible-decode',
+      tone: 'teal',
+    },
+    {
+      title: '2. Thao tác hiệu quả',
+      detail: 'Biểu diễn gọn giúp sao chép và biến đổi rẻ hơn so với dựng toàn bộ phenotype ở mỗi phép toán.',
+      visual: 'binary-vector',
+      tone: 'amber',
+    },
+    {
+      title: '3. Tách biệt trách nhiệm',
+      detail: 'Vòng lặp đánh giá và chọn lọc có thể dùng lại, nhưng representation, decoder, constraint handling và variation vẫn phải phù hợp từng bài toán.',
+      visual: 'decode',
+      tone: 'violet',
+    },
+  ]}
+/>
+
+Ở bài học tiếp theo, chúng ta sẽ khám phá hai công cụ then chốt giúp thuật toán biến đổi và lai tạo các chuỗi Genotype này: **Lai ghép (Crossover) & Đột biến (Mutation)**!
+
+</MdxPage>

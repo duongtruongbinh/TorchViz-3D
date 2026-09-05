@@ -12,6 +12,7 @@ export type LearningDomainId =
   | 'ai-ethics-safety-governance'
   | 'reinforcement-learning'
   | 'robot-learning'
+  | 'evolutionary-algorithms'
   | 'research-papers';
 
 export type LearningDomainStatus = 'active' | 'partial' | 'placeholder';

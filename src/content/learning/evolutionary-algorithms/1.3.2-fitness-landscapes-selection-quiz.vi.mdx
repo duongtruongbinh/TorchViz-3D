@@ -1,0 +1,73 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'fitness-landscapes-selection-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+    'Bản chất của Fitness Landscape',
+    'Hậu quả của Áp lực Chọn lọc Quá cao',
+    'Cân bằng Exploration vs Exploitation',
+    'Chiến lược Giảm dần Bước Đột biến',
+  ],
+  keywords: ['Quiz', 'Fitness Landscape', 'Selection Pressure', 'Exploration', 'Exploitation'],
+  pageCount: 4,
+}
+
+<MdxQuiz id="fitness-landscapes-selection-quiz" questions={[
+  {
+    id: 'fitness-landscape-nature',
+    title: 'Bản chất của Fitness Landscape',
+    prompt: 'Trong bài toán tối ưu hóa, khái niệm Fitness Landscape mô tả điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Tốc độ quay của quạt tản nhiệt GPU khi huấn luyện mô hình.' },
+      { id: 'opt3', label: 'Số lượng dòng code trong thư viện PyTorch.' },
+      { id: 'opt1', label: 'Ánh xạ từ mỗi nghiệm trong không gian tìm kiếm sang giá trị fitness.', isCorrect: true },
+      { id: 'opt4', label: 'Phân bố các cá thể hiện tại theo thời gian, không phụ thuộc giá trị hàm mục tiêu.' },
+    ],
+    success: 'Chính xác! Fitness Landscape là bề mặt đa chiều thể hiện độ cao (Fitness) ứng với từng tọa độ giải pháp trong không gian tìm kiếm.',
+    error: 'Chưa chính xác. Fitness Landscape là bề mặt biểu diễn giá trị hàm mục tiêu trên toàn bộ không gian tham số.',
+  },
+  {
+    id: 'selection-pressure-high-consequence',
+    title: 'Hậu quả của Áp lực Chọn lọc Quá cao',
+    prompt: 'Điều gì sẽ xảy ra nếu ta thiết lập Áp lực Chọn lọc (Selection Pressure) quá cao ngay từ những thế hệ đầu tiên?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Độ đa dạng giảm nhanh, làm tăng nguy cơ hội tụ sớm vào một vùng nghiệm.', isCorrect: true },
+      { id: 'opt2', label: 'Fitness trung bình luôn tăng nhanh mà không làm thay đổi độ đa dạng của quần thể.' },
+      { id: 'opt3', label: 'Bộ nhớ RAM máy tính sẽ bị tràn ngay lập tức.' },
+      { id: 'opt4', label: 'Tất cả các cá thể sẽ tự động biến thành số nguyên.' },
+    ],
+    success: 'Đúng vậy! Áp lực chọn lọc quá gắt gao khiến một cá thể "tốt tạm thời" nhanh chóng nhân bản chiếm lĩnh toàn bộ quần thể, dập tắt cơ hội khám phá các khu vực tiềm năng khác.',
+    error: 'Hãy cẩn thận: Khi chỉ cá thể mạnh nhất được sinh sản, quần thể sẽ mất đi độ đa dạng rất nhanh và rơi vào bẫy hội tụ sớm.',
+  },
+  {
+    id: 'exploration-vs-exploitation-tradeoff',
+    title: 'Cân bằng Exploration vs Exploitation',
+    prompt: 'Hành động nào sau đây giúp tăng cường khả năng Thám hiểm (Exploration) của Thuật toán Tiến hóa?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Chỉ giữ lại duy nhất 1 cá thể tốt nhất và xóa bỏ 99% cá thể còn lại.' },
+      { id: 'opt3', label: 'Giảm số lượng thế hệ xuống còn 1.' },
+      { id: 'opt4', label: 'Tắt hoàn toàn toán tử đột biến.' },
+      { id: 'opt1', label: 'Tăng số ứng viên và mở rộng step size của mutation.', isCorrect: true },
+    ],
+    success: 'Rất chuẩn! Quần thể đông đảo phân tán trên không gian rộng lớn, kết hợp với các bước đột biến lớn, giúp thuật toán rà soát được nhiều khu vực mới trên bản đồ tìm kiếm.',
+    error: 'Chưa đúng. Để mở rộng thám hiểm (Exploration), ta cần nhiều ứng viên hơn và các bước nhảy ngẫu nhiên đủ lớn để vượt qua các thung lũng sâu.',
+  },
+  {
+    id: 'mutation-decay-strategy',
+    title: 'Chiến lược Giảm dần Bước Đột biến',
+    prompt: 'Giảm dần Mutation Step Size có vai trò gần nhất với kỹ thuật nào trong Deep Learning?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Data Augmentation để mở rộng phân bố dữ liệu quan sát được khi huấn luyện.' },
+      { id: 'opt1', label: 'Learning Rate Scheduling để thu nhỏ bước cập nhật.', isCorrect: true },
+      { id: 'opt3', label: 'Dropout (Tắt ngẫu nhiên một số nơ-ron).' },
+      { id: 'opt4', label: 'Batch Normalization (Chuẩn hóa batch).' },
+    ],
+    success: 'Đúng về vai trò thu nhỏ bước tìm kiếm. Đây là phép tương tự, không phải hai cơ chế đồng nhất; EA cũng có thể tự thích nghi hoặc tăng lại step size.',
+    error: 'Hãy liên hệ với tốc độ di chuyển trong không gian tham số: Mutation Step Size quyết định độ xa của bước nhảy, tương đương Learning Rate.',
+  },
+]} />

@@ -1,0 +1,276 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'gradient-limits-blackbox',
+  locale: 'vi',
+  title: "Khi nào Gradient Descent Thất bại?",
+  headings: [
+    'Gradient Descent is all you need?',
+    'Một số hạn chế của Gradient Descent',
+    'Tối ưu hóa Bậc Không (Zero-Order Optimization)',
+    'Bức tranh Nghiên cứu & Ứng dụng của Thuật toán Tiến hóa',
+  ],
+  keywords: ['Gradient Descent', 'Black-Box Optimization', 'Zero-Order', 'Loss Landscape'],
+  pageCount: 4,
+}
+
+<MdxPage page={0}>
+
+## Gradient Descent is all you need?
+
+Nhiều bài toán trong khoa học dữ liệu và trí tuệ nhân tạo có thể được mô hình hóa thành Optimization Problem: tìm phương án tốt nhất trong một không gian nghiệm. Với mô hình khả vi, họ thuật toán quen thuộc nhất là **Gradient Descent** (như SGD hoặc Adam):
+
+<ConceptFlow
+  ariaLabel="Quy trình tối ưu của Gradient Descent"
+  items={[
+    {
+      title: '1. Tính Dự đoán',
+      detail: 'Nạp dữ liệu X vào mô hình dự đoán đầu ra.',
+      formula: '\\hat{y} = f(X; \\theta)',
+    },
+    {
+      title: '2. Đo lường Loss',
+      detail: 'Tính sai số so với nhãn thực tế.',
+      formula: '\\mathcal{L} = \\mathcal{L}(\\hat{y}, y)',
+    },
+    {
+      title: '3. Bước theo Gradient',
+      detail: 'Cập nhật trọng số theo hướng dốc nhất ngược gradient.',
+      formula: '\\theta \\leftarrow \\theta - \\eta \\nabla_\\theta \\mathcal{L}',
+    },
+  ]}
+/>
+
+
+Gradient cho biết muốn giảm Loss nhanh nhất thì mỗi tham số <InlineMath formula="\theta_i" /> phải tăng hay giảm bao nhiêu.
+
+
+Một bài toán tối ưu cần xác định biến quyết định, miền nghiệm khả thi và hàm mục tiêu. Ràng buộc có thể được viết tường minh hoặc đã nằm trong định nghĩa miền nghiệm:
+
+<ConceptHierarchy
+  ariaLabel="Các thành phần cốt lõi của bài toán tối ưu"
+  root={{
+    title: 'Thành phần của Bài toán Tối ưu',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Nghiệm ứng viên (Solution)',
+      align: 'left',
+      detail: 'Cấu hình tham số cụ thể đem đi thử nghiệm. Ví dụ: Vector trọng số $w$ của mô hình, hoặc một lộ trình giao hàng cụ thể.',
+      tone: 'teal',
+      visual: 'solution',
+    },
+    {
+      title: '2. Không gian tìm kiếm (Space)',
+      align: 'left',
+      detail: 'Tập hợp chứa toàn bộ nghiệm khả dĩ. Ví dụ: Không gian liên tục $\\mathbb{R}^D$ của mạng nơ-ron, hoặc $N!$ hoán vị lộ trình đường đi.',
+      tone: 'amber',
+      visual: 'space',
+    },
+    {
+      title: '3. Hàm mục tiêu (Objective)',
+      align: 'left',
+      detail: 'Thước đo định lượng chấm điểm tốt hay tệ. Ví dụ: Hàm mất mát MSE cần tối thiểu hóa, hoặc tổng thời gian di chuyển.',
+      tone: 'violet',
+      visual: 'objective',
+    },
+    {
+      title: '4. Các ràng buộc (Constraints)',
+      align: 'left',
+      detail: 'Điều kiện bổ sung mà nghiệm khả thi phải thỏa mãn, nếu bài toán có ràng buộc tường minh. Ví dụ: tải trọng xe không vượt quá 5 tấn.',
+      tone: 'neutral',
+      visual: 'constraints',
+    },
+  ]}
+/>
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Một số hạn chế của Gradient Descent
+
+Gradient Descent không phải lựa chọn trực tiếp hoặc không có bảo đảm tìm nghiệm toàn cục trong các tình huống sau:
+
+<ConceptHierarchy
+  ariaLabel="Hạn chế của Gradient Descent"
+  root={{
+    title: 'Hạn chế',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Không gian Rời rạc (Discrete)',
+      align: 'left',
+      detail: 'Đạo hàm không tồn tại trên tập số nguyên rời rạc {0, 1}. Ví dụ: Bài toán Chọn lọc đặc trưng (Feature Selection) hoặc xếp lịch trình đồ thị.',
+      tone: 'amber',
+    },
+    {
+      title: '2. Bẫy Cực tiểu (Multi-Modal)',
+      align: 'left',
+      detail: 'Tồn tại nhiều cực tiểu địa phương. Một quỹ đạo Gradient Descent có thể hội tụ vào nghiệm cục bộ; khởi tạo lại hoặc nhiễu ngẫu nhiên giúp giảm rủi ro nhưng không bảo đảm nghiệm toàn cục.',
+      tone: 'violet',
+    },
+    {
+      title: '3. Hàm Hộp đen (Black-Box)',
+      align: 'left',
+      detail: 'Hệ thống đóng kín, không thể tiếp cận cấu trúc bên trong để tính đạo hàm ngược (backpropagation). Ví dụ: Mô phỏng vật lý, điều khiển robot hoặc dịch vụ bên thứ ba qua API — nơi bài toán vận hành quá phức tạp và hệ thống chỉ trả về điểm số đánh giá sau mỗi lần thử nghiệm.',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+<LocalMinimaTrapExplorer />
+
+<GradientFailureModesVisualizer />
+
+<BlackBoxFunctionVisualizer />
+
+
+**Điểm mấu chốt:** Backpropagation cần một đường tính toán khả vi mà ta có thể truy cập. Với simulator hoặc dịch vụ chỉ nhận <InlineMath formula="\theta" /> và trả về điểm số, gradient không có sẵn; khi đó ta cần ước lượng gradient qua truy vấn hoặc dùng phương pháp tối ưu không yêu cầu đạo hàm.
+
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tối ưu hóa Bậc Không (Zero-Order Optimization)
+
+Các phương pháp tối ưu truyền thống đều dựa vào đạo hàm để lần theo độ dốc:
+
+<ConceptHierarchy
+  ariaLabel="Các phương pháp tối ưu dựa trên đạo hàm"
+  root={{
+    title: 'Dùng Đạo hàm',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Bậc Một (First-Order)',
+      align: 'left',
+      detail: 'Dùng gradient hoặc subgradient như Gradient Descent và Adam. Phương pháp cần tín hiệu đạo hàm phù hợp, nhưng không phải mọi biến thể đều đòi hỏi khả vi liên tục.',
+      tone: 'teal',
+      visual: 'first-order',
+    },
+    {
+      title: '2. Bậc Hai (Second-Order)',
+      align: 'left',
+      detail: 'Dùng thêm thông tin độ cong như Newton và ma trận Hessian. Có thể hội tụ nhanh gần nghiệm dưới các điều kiện thích hợp, đổi lại chi phí tính toán và bộ nhớ lớn.',
+      tone: 'violet',
+      visual: 'second-order',
+    },
+  ]}
+/>
+
+Khi không thể tính được đạo hàm, nhưng mỗi lần nạp tham số <InlineMath formula="\theta" /> ta đều nhận lại một điểm số tương ứng <InlineMath formula="f(\theta)" />, hướng đi tự nhiên nhất là thực hiện chiến lược **THĂM DÒ**:
+
+<ConceptFlow
+  ariaLabel="3 bước cốt lõi của tối ưu hóa Black-Box Zero-Order"
+  items={[
+    { title: '1. Thăm dò (Probe)', detail: 'Rải các điểm thử nghiệm $\\theta$ xung quanh không gian tìm kiếm.', visual: 'zero-order', tone: 'blue' },
+    { title: '2. Đo Điểm (Query)', detail: 'Truy vấn Hộp đen để nhận điểm số mục tiêu $f(\\theta)$.', visual: 'evaluation', tone: 'amber' },
+    { title: '3. Chọn lọc (Select)', detail: 'Giữ lại ứng viên tốt nhất làm mốc cho thế hệ kế tiếp.', visual: 'selection', tone: 'teal' },
+  ]}
+/>
+
+Đó chính là bản chất của **Tối ưu hóa Bậc Không (Zero-Order Optimization)**!
+
+Dưới đây là mô phỏng cách Zero-Order Optimization cải thiện nghiệm qua các lần truy vấn mà không dùng đạo hàm. Mô phỏng tìm được vùng tốt trong ví dụ này, nhưng đó không phải bảo đảm tổng quát về nghiệm toàn cục:
+
+<ZeroOrderSamplingVisualizer />
+
+**Tổng kết:** Tối ưu hóa Bậc Không cho phép làm việc với hàm Hộp đen bằng các lần thử nghiệm và đo điểm. Đổi lại, số lần đánh giá thường tăng nhanh theo số chiều, nên ngân sách truy vấn và chiến lược lấy mẫu trở thành nút thắt chính.
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Bức tranh Nghiên cứu & Ứng dụng của Thuật toán Tiến hóa
+
+Nếu chỉ thăm dò từng điểm đơn lẻ một cách ngẫu nhiên (Random Search), việc tìm ra nghiệm tối ưu trong không gian nhiều chiều chẳng khác nào "mò kim đáy bể". Để giải quyết bài toán này, các nhà nghiên cứu đã phát triển **Thuật toán Tiến hóa (Evolutionary Algorithms - EA)** — thay vì một nghiệm đơn lẻ, ta duy trì cả một **quần thể** cá thể cùng trao đổi thông tin di truyền để thăm dò thông minh.
+
+Dưới đây là 4 trụ cột nghiên cứu và ứng dụng tiêu biểu của Thuật toán Tiến hóa trong trí tuệ nhân tạo hiện đại:
+
+<ConceptHierarchy
+  ariaLabel="4 trụ cột nghiên cứu và ứng dụng của Thuật toán Tiến hóa"
+  root={{
+    title: 'Hệ sinh thái Nghiên cứu Evolutionary Algorithms',
+    tone: 'blue',
+  }}
+  children={[
+    {
+      title: '1. Tìm kiếm Kiến trúc Mạng (NAS)',
+      align: 'left',
+      detail: 'Thuật toán có thể tìm kiếm các lựa chọn kiến trúc rời rạc như số layer, kích thước kernel và skip connection. Đây là một họ phương pháp NAS bên cạnh các cách thư giãn khả vi và Bayesian optimization.',
+      example: 'Tiêu biểu: NEAT, HyperNEAT, Evolutionary NAS (Google AmoebaNet).',
+      tone: 'teal',
+      visual: 'neural-network',
+    },
+    {
+      title: '2. Tìm kiếm Chính sách Robot (ES)',
+      align: 'left',
+      detail: 'Evolution Strategies có thể đánh giá nhiều nhiễu tham số song song để tối ưu chính sách khi gradient qua môi trường không có sẵn. Cách này vẫn cần nhiều lượt tương tác và không thay thế mọi thuật toán Reinforcement Learning.',
+      example: 'Tiêu biểu: OpenAI Evolution Strategies (ES as a Scalable Alternative to RL), CMA-ES.',
+      tone: 'blue',
+      visual: 'evolution-strategy',
+    },
+    {
+      title: '3. Tìm kiếm Đa dạng Chiến lược (QD)',
+      align: 'left',
+      detail: 'Thay vì chỉ tìm một nghiệm duy nhất có điểm số cao nhất, thuật toán chủ động khai phá một kho tàng các giải pháp đa dạng và độc lạ, giúp hệ thống robot hay game AI tự thích nghi linh hoạt khi gặp sự cố bất ngờ.',
+      example: 'Tiêu biểu: MAP-Elites, Novelty Search trong Game AI và Robotics.',
+      tone: 'violet',
+      visual: 'quality-diversity',
+    },
+    {
+      title: '4. Tối ưu hóa Tổ hợp & Rời rạc (Discrete)',
+      align: 'left',
+      detail: 'Tìm kiếm phương án bố trí, chọn lọc hoặc ghép nối trong không gian tổ hợp lớn, nơi biểu diễn rời rạc khiến gradient thông thường không áp dụng trực tiếp.',
+      example: 'Tiêu biểu: Bố trí chip phần cứng (Floorplanning), Tối ưu lộ trình (VRP), Chọn lọc đặc trưng (Feature Selection).',
+      tone: 'amber',
+      visual: 'combinatorial',
+    },
+  ]}
+/>
+
+### Lộ trình của Chuỗi Bài học
+
+Chuỗi bài học này sẽ đồng hành cùng bạn đi từ trực giác tối ưu hóa nền tảng đến các kỹ thuật tiến hóa hiện đại nhất trong AI:
+
+<ConceptFlow
+  ariaLabel="Lộ trình 5 chương của chuỗi bài học Thuật toán Tiến hóa"
+  items={[
+    {
+      title: 'Tư duy Tối ưu hóa',
+      detail: 'Chuyển dịch từ Gradient Descent sang Black-Box, cơ chế chọn lọc tự nhiên và không gian biểu diễn.',
+      visual: 'optimization-landscape',
+      tone: 'blue',
+    },
+    {
+      title: 'Giải thuật Di truyền (GA)',
+      detail: 'Làm chủ các toán tử chọn lọc, lai ghép, đột biến và giải quyết bài toán tối ưu tổ hợp trong ML.',
+      visual: 'genetic-algorithm',
+      tone: 'teal',
+    },
+    {
+      title: 'Chiến lược Tiến hóa (ES)',
+      detail: 'Khảo sát CMA-ES và Differential Evolution (DE), hai phương pháp phổ biến cho tối ưu tham số liên tục không dùng gradient trực tiếp.',
+      visual: 'evolution-strategy',
+      tone: 'amber',
+    },
+    {
+      title: 'Lập trình Di truyền & Đa mục tiêu',
+      detail: 'Tự động khám phá công thức toán học (Symbolic Regression) và cân bằng đánh đổi Pareto với NSGA-II.',
+      visual: 'genetic-programming',
+      tone: 'violet',
+    },
+    {
+      title: 'Neuroevolution & AI Hiện đại',
+      detail: 'Đưa tiến hóa vào Deep Learning: tối ưu chính sách bằng ES không backpropagate qua môi trường, AutoML (NAS) và Quality Diversity.',
+      visual: 'neural-network',
+      tone: 'teal',
+    },
+  ]}
+/>
+
+</MdxPage>

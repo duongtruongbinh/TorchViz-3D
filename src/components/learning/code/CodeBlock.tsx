@@ -118,14 +118,15 @@ function renderLine(lineTokens: PythonTokens[number] | undefined, fallback: stri
 }
 
 function renderOutputText(source: string) {
-  const parts = source.split(/(==[^=\n]+==)/g);
+  const parts = source.split(/(==[^\n]+?==)/g);
   return parts.map((part, i) => {
     if (part.startsWith('==') && part.endsWith('==') && part.length > 4) {
       const content = part.slice(2, -2);
       return (
         <mark
           key={i}
-          className="rounded bg-[#FFD700] px-1 py-0.5 font-extrabold text-[#0B1220] shadow-[0_0_8px_rgba(255,215,0,0.6)]"
+          style={{ backgroundColor: '#FFD700', color: '#0B1220' }}
+          className="rounded px-1.5 py-0.5 font-extrabold shadow-[0_0_8px_rgba(255,215,0,0.6)]"
         >
           {content}
         </mark>
@@ -147,7 +148,7 @@ export function CodeBlock({
 }: CodeBlockProps) {
   const isOutput = variant === 'output';
   const rawSource = Array.isArray(code) ? code.join('\n') : String(code ?? '');
-  const cleanSourceForCopy = rawSource.replace(/==([^=\n]+)==/g, '$1');
+  const cleanSourceForCopy = rawSource.replace(/==([^\n]+?)==/g, '$1');
   const rawLines = rawSource.split('\n');
   // Output is never tokenized; pass '' so the hook never highlights plain text.
   const tokens = usePythonTokens(isOutput ? '' : rawSource);
@@ -162,7 +163,7 @@ export function CodeBlock({
             Output
           </span>
         ) : (
-          <span className="flex items-center" aria-label={`${label} code window`}>
+          <span className="flex items-center" role="img" aria-label={`${label} code window`}>
             <span className="flex items-center gap-1.5" aria-hidden="true">
               <span className="h-2 w-2 rounded-full bg-[#D86B72]" />
               <span className="h-2 w-2 rounded-full bg-[#CDA24F]" />

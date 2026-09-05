@@ -13,6 +13,7 @@ import {
   Route,
   ServerCog,
   ShieldCheck,
+  Dna,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -32,6 +33,7 @@ export const DOMAIN_ICONS: Record<LearningDomainId, LucideIcon> = {
   'ai-ethics-safety-governance': ShieldCheck,
   'reinforcement-learning': Route,
   'robot-learning': Bot,
+  'evolutionary-algorithms': Dna,
   'research-papers': GraduationCap,
 };
 
@@ -118,6 +120,12 @@ export const DOMAIN_CARD_PALETTES: Record<LearningDomainId, {
     glow: 'bg-[#F1FAFC]/38',
     icon: 'bg-[#F1FAFC] text-[#49636B]',
     accent: 'bg-[#6D8991]',
+  },
+  'evolutionary-algorithms': {
+    visual: 'bg-[#B4D6C1]',
+    glow: 'bg-[#EBF7F0]/42',
+    icon: 'bg-[#EEF8F2] text-[#2C5E40]',
+    accent: 'bg-[#4B8B64]',
   },
   'research-papers': {
     visual: 'bg-[#C2D1E8]',

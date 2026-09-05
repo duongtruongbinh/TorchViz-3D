@@ -242,6 +242,7 @@ function QuizQuestion({
           language={language}
           question={question}
           quizPalette={quizPalette}
+          themeClasses={themeClasses}
           onAssign={assignCategoryOption}
         />
       ) : (
@@ -403,6 +404,7 @@ function CategorizeQuestion({
   language,
   question,
   quizPalette,
+  themeClasses,
   onAssign,
 }: {
   assignments: Record<string, string>;
@@ -410,6 +412,7 @@ function CategorizeQuestion({
   language: Language;
   question: Extract<LearningLessonExtra, { kind: 'quiz' }>['questions'][number];
   quizPalette: QuizPalette;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
   onAssign: (optionId: string, categoryId: string | null) => void;
 }) {
   const strings = getStrings(language).learningLab;
@@ -453,6 +456,7 @@ function CategorizeQuestion({
                 label={text(option.label, language)}
                 optionId={option.id}
                 quizPalette={quizPalette}
+                themeClasses={themeClasses}
               />
             ))
           ) : (
@@ -492,6 +496,7 @@ function CategorizeQuestion({
                     label={text(option.label, language)}
                     optionId={option.id}
                     quizPalette={quizPalette}
+                    themeClasses={themeClasses}
                   />
                 ))}
               </div>
@@ -509,12 +514,14 @@ function TokenChip({
   label,
   optionId,
   quizPalette,
+  themeClasses,
 }: {
   isAssigned?: boolean;
   isIncorrect: boolean;
   label: string;
   optionId: string;
   quizPalette: QuizPalette;
+  themeClasses: ReturnType<typeof getLearningLabTheme>;
 }) {
   const chipStyle = isAssigned
     ? isIncorrect ? quizPalette.tokenChipAssignedIncorrect : quizPalette.tokenChipAssigned
@@ -532,7 +539,7 @@ function TokenChip({
         chipStyle,
       )}
     >
-      {label}
+      {renderQuizText(label, themeClasses)}
     </span>
   );
 }

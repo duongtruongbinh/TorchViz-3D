@@ -1,0 +1,88 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'crossover-mutation-operators-quiz',
+  locale: 'vi',
+  title: "Quiz",
+  headings: [
+    'Vai trò Cốt lõi của Lai ghép (Crossover)',
+    'Khắc phục Thiên vị Vị trí (Positional Bias)',
+    'Giới hạn của Crossover và Nhu cầu Đột biến',
+    'Phối hợp giữa Lai ghép & Đột biến',
+    'Thiết lập Tỷ lệ Đột biến (Mutation Rate) Hợp lý',
+  ],
+  keywords: ['Quiz', 'Crossover', 'Mutation', 'Uniform Crossover', 'Bit-flip Mutation', 'Genetic Operators', 'Collaboration'],
+  pageCount: 5,
+}
+
+<MdxQuiz id="crossover-mutation-operators-quiz" questions={[
+  {
+    id: 'crossover-primary-role',
+    title: 'Vai trò Cốt lõi của Lai ghép (Crossover)',
+    prompt: 'Trong giải thuật di truyền, Crossover trực tiếp thực hiện điều gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Tạo ra các giá trị gen hoàn toàn mới chưa từng xuất hiện trong quần thể ban đầu.' },
+      { id: 'opt1', label: 'Tái tổ hợp allele đang có từ hai cha mẹ.', isCorrect: true },
+      { id: 'opt3', label: 'Đo lường sai số dự đoán của mô hình trên tập dữ liệu kiểm thử.' },
+      { id: 'opt4', label: 'Loại bỏ hoàn toàn các cá thể có điểm thích nghi thấp ra khỏi bộ nhớ RAM.' },
+    ],
+    success: 'Đúng. Crossover tái tổ hợp vật liệu di truyền có sẵn. Nó có thể tạo tổ hợp tốt hoặc xấu; fitness và selection mới xác định kết quả.',
+    error: 'Chưa chính xác. Crossover chỉ xáo trộn và tái tổ hợp các gen sẵn có giữa cha mẹ; việc sinh ra gen hoàn toàn mới là nhiệm vụ của Đột biến (Mutation).',
+  },
+  {
+    id: 'positional-bias-uniform',
+    title: 'Khắc phục Thiên vị Vị trí (Positional Bias)',
+    prompt: 'Điểm hạn chế lớn nhất của phép lai theo điểm cắt (K-Point Crossover) so với phép lai đồng nhất (Uniform Crossover) là gì?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'K-Point luôn làm giảm fitness vì chỉ có Uniform Crossover mới bảo toàn được mọi allele tốt.' },
+      { id: 'opt3', label: 'K-Point Crossover làm thay đổi độ dài của chuỗi nhiễm sắc thể con.' },
+      { id: 'opt1', label: 'K-Point phụ thuộc vị trí điểm cắt nên các gene liền kề có xu hướng được giữ cùng nhau.', isCorrect: true },
+      { id: 'opt4', label: 'K-Point Crossover chỉ áp dụng được trên số thực, không áp dụng được trên chuỗi bit.' },
+    ],
+    success: 'Hoàn toàn chính xác! K-Point Crossover bị phụ thuộc vào thứ tự sắp xếp gen; trong khi Uniform Crossover cho phép từng vị trí gen hoán đổi hoàn toàn độc lập với xác suất 50%.',
+    error: 'Chưa đúng. Điểm yếu lớn nhất của K-Point Crossover là tính liên kết vị trí: nó khó bảo toàn được các cặp gen tốt nếu chúng nằm ở hai đầu đối diện của chuỗi bit.',
+  },
+  {
+    id: 'crossover-limitation-mutation-need',
+    title: 'Giới hạn của Crossover và Nhu cầu Đột biến',
+    prompt: 'Nếu mọi cha mẹ đều mang bit 1 tại cùng một locus, crossover nhị phân chuẩn có thể tạo bit 0 tại locus đó không?',
+    mode: 'single',
+    options: [
+      { id: 'opt1', label: 'Không; cần mutation hoặc nguồn allele khác để đưa bit 0 trở lại.', isCorrect: true },
+      { id: 'opt2', label: 'Có thể. Crossover sẽ tự động phát hiện cột nhiễu và chuyển thành bit 0.' },
+      { id: 'opt3', label: 'Có thể. Chỉ cần tăng số điểm cắt lên 10 điểm cắt là bit 1 sẽ tự biến mất.' },
+      { id: 'opt4', label: 'Không thể. Nhưng có thể khắc phục bằng cách tăng kích thước tập dữ liệu huấn luyện.' },
+    ],
+    success: 'Đúng. Crossover không tạo allele mới tại locus đó. Mutation là cơ chế thông dụng để khôi phục khả năng tiếp cận bit 0, dù một số thuật toán có thể dùng variation khác.',
+    error: 'Chưa chính xác. Crossover chỉ là phép hoán đổi vị trí gen giữa 2 cá thể. Nếu cả hai cá thể cha mẹ đều có bit 1, mọi phép cắt ghép đều chỉ sinh ra con mang bit 1.',
+  },
+  {
+    id: 'crossover-mutation-collaboration',
+    title: 'Phối hợp giữa Lai ghép & Đột biến',
+    prompt: 'Phát biểu nào mô tả đúng cách Crossover và Mutation bổ trợ nhau?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Đột biến chạy trước để tạo ra 100% nghiệm tối ưu, sau đó Lai ghép chỉ dùng để in kết quả ra màn hình.' },
+      { id: 'opt3', label: 'Hai toán tử này triệt tiêu lẫn nhau nên chỉ được phép chọn dùng một trong hai trong toàn bộ giải thuật.' },
+      { id: 'opt4', label: 'Lai ghép dùng để tính đạo hàm gradient, còn Đột biến dùng để cập nhật trọng số learning rate.' },
+      { id: 'opt1', label: 'Crossover tái tổ hợp allele; Mutation tạo biến thể ngẫu nhiên, rồi selection lọc kết quả.', isCorrect: true },
+    ],
+    success: 'Đúng. Hai toán tử tạo ứng viên theo hai cách khác nhau; không toán tử nào biết trước biến thể nào tốt.',
+    error: 'Crossover tái tổ hợp thông tin có sẵn, Mutation tạo thay đổi ngẫu nhiên và selection giữ các kết quả được đánh giá tốt.',
+  },
+  {
+    id: 'mutation-rate-tuning',
+    title: 'Thiết lập Tỷ lệ Đột biến (Mutation Rate) Hợp lý',
+    prompt: 'Điều gì sẽ xảy ra nếu một kỹ sư ML thiết lập tỷ lệ đột biến quá cao (ví dụ: p_m = 0.5 trên chuỗi bit nhị phân)?',
+    mode: 'single',
+    options: [
+      { id: 'opt2', label: 'Thuật toán sẽ hội tụ nhanh gấp đôi về nghiệm tối ưu toàn cục.' },
+      { id: 'opt1', label: 'Mỗi bit con gần như độc lập với bit cha, làm suy yếu mạnh khả năng kế thừa.', isCorrect: true },
+      { id: 'opt3', label: 'Quần thể sẽ giữ nguyên genotype của cha mẹ vì xác suất mutation cao làm mọi bit bị khóa.' },
+      { id: 'opt4', label: 'Hàm mất mát của mô hình sẽ trở nên khả vi và dùng được Gradient Descent.' },
+    ],
+    success: 'Đúng. Với bit-flip độc lập và $p_m=0.5$, mỗi bit đầu ra phân bố 0/1 như nhau bất kể bit cha. Quy tắc khởi đầu thường dùng là $1/D$, rồi điều chỉnh theo bài toán.',
+    error: 'Xét riêng một bit: với xác suất lật 0.5, phân bố bit con không còn phụ thuộc vào giá trị bit cha.',
+  },
+]} />

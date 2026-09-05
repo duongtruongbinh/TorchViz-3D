@@ -31,15 +31,29 @@ Each lesson must deliver an intuitive learning curve, following the progression:
 - **Architectural Flow Design:** Component block diagrams and sequential stages.
 - **Trade-offs & Best Practices:** Pros/cons analysis across solutions with production deployment standards.
 
+### D. Section Structure & Heading Pacing (No Stacked Headings)
+- **No Consecutive Section and Subsection Headers:** At the beginning of each page or section, never place a section heading (`## Heading`) immediately followed by an ochre/orange subsection (`### Subheading`, rendered in `#7A5A32`) without breathing room or introductory prose.
+- **Mandatory Lead-in Narrative:** Every page and major heading must open with introductory context, intuitive framing, or a motivating question before branching into granular subsections. Stacking headings creates visual crowding and jarring double accent jumps.
+
 ---
 
 ## 2. Terminology & Phrasing Standards
 
-### A. Typography & Bold Usage
+### A. Typography, Bold Usage & Callout Cleanliness
 - **Minimize italics (*italics*):** Italics reduce scannability and legibility in technical reading. Use regular text or selective bolding instead.
 - **Selective and Concise Bold (**bold**):**
-  - Only bold core technical terms, key concepts, or critical scannable anchors.
+  - Only bold core technical terms, key concepts, or critical scannable anchors upon first introduction.
   - Bold phrases must be **concise (1–4 words)**; never bold entire sentences or long paragraphs.
+- **Critical Scrutiny Before Bolding Labels or Standalone Phrases:**
+  - Before creating any bold line or label (e.g., `**Cơ chế Đột biến Lật bit trên chuỗi 6 đặc trưng:**`, `**Đặc trưng Phenotype:**`), deliberately ask:
+    1. Is this bold line truly necessary?
+    2. Will the reader naturally understand the content without it?
+    3. Has the section title, subsection title, or surrounding text already stated this information?
+  - If redundant or self-evident, eliminate the bold line completely.
+- **No Callout Notes (`<LessonNote>`) Unless Explicitly Requested:**
+  - **Mandatory Rule:** ONLY use callout notes (`<LessonNote>`) when the user explicitly requests them in the prompt. By default, never use callout notes.
+  - Present all notes, warnings, key takeaways, and insights as clean regular markdown prose (e.g. standard paragraphs or bullet lists) instead of callouts.
+  - If a callout note is explicitly requested by the user, keep all text inside `<LessonNote>` in clean, regular font weight with ZERO bolding (no bold inside callouts). Do not bold arbitrarily across regular paragraphs.
 
 ### B. Retain Standard Technical English Terms
 Keep foundational terms in standard English across titles and prose for academic precision and global reference:
@@ -123,6 +137,13 @@ For any section containing extended theoretical prose, multi-step proofs, or abs
 - **Layout:** 2 to 4 side-by-side rounded panels on white or soft pastel backgrounds.
 - **Drawing Style:** Bold black hand-drawn outlines, elegant pastel accent colors, friendly stick-figure mascot demonstrating actions.
 - **Visual-First Principle:** Illustrations must explain the concept via objects, arrows, boxes, balance scales, and data streams with minimal text (1–3 word labels).
+
+### E. Component Selection Priority & Constraints
+- **Restrict Callout Notes (`<LessonNote>`):** ONLY use callout notes (`<LessonNote>`) when explicitly requested by the user. By default, present all notes, warnings, insights, and takeaways as clean regular markdown prose or standard lists.
+- **Restrict `<ConceptFlow>` and `<CourseCards>`:** Do NOT use `<ConceptFlow>` or `<CourseCards>` unless explicitly requested by the user.
+- **Prioritize `<ConceptHierarchy>` and Hero Cards:**
+  - For structured taxonomies, branching breakdowns, and multi-step architectures, prioritize `<ConceptHierarchy>`.
+  - For standalone key properties, performance metrics, or comparisons, prioritize Hero Cards (`<MetricBars>` or concise spotlight metric cards).
 
 ---
 

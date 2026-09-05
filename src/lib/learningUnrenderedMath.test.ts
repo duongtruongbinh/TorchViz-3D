@@ -5,37 +5,32 @@ import path from 'node:path';
 import katex from 'katex';
 
 const LEARNING_CONTENT_DIR = path.resolve(process.cwd(), 'src/content/learning');
+const LEARNING_RENDERER_FILES = [
+  path.resolve(process.cwd(), 'src/components/learning/learningMdxComponents.tsx'),
+  ...getAllFiles(
+    path.resolve(process.cwd(), 'src/components/learning/domains/evolutionary-algorithms'),
+    '.tsx',
+  ),
+];
 
 // Regex patterns to identify raw unrendered math symbols
 const UNRENDERED_MATH_PATTERNS = [
-  { name: 'Greek Sigma (Σ)', regex: /Σ/ },
-  { name: 'Greek sigma (σ)', regex: /σ/ },
-  { name: 'Greek theta (θ)', regex: /θ/ },
-  { name: 'Greek lambda (λ)', regex: /λ/ },
-  { name: 'Greek Delta (Δ)', regex: /Δ/ },
-  { name: 'Superscript T (ᵀ)', regex: /ᵀ/ },
-  { name: 'Superscript minus (⁻)', regex: /⁻/ },
-  { name: 'Superscript plus (⁺)', regex: /⁺/ },
-  { name: 'Superscript numbers (⁰¹²³⁴⁵⁶⁷⁸⁹)', regex: /[⁰¹²³⁴⁵⁶⁷⁸⁹]/ },
-  { name: 'Subscript numbers (₀₁₂₃₄₅₆₇₈₉)', regex: /[₀₁₂₃₄₅₆₇₈₉]/ },
-  { name: 'Subscript letters (ᵢⱼₖₙₘ)', regex: /[ᵢⱼₖₙₘ]/ },
-  { name: 'Square root (√)', regex: /√/ },
-  { name: 'Infinity (∞)', regex: /∞/ },
-  { name: 'Hadamard product (⊙)', regex: /⊙/ },
-  { name: 'Product symbol (∏)', regex: /∏/ },
-  { name: 'Sum symbol (∑)', regex: /∑/ },
-  { name: 'Double vertical bar (‖)', regex: /‖/ },
+  { name: 'Greek letter', regex: /[\u0370-\u03FF\u1F00-\u1FFF]/u },
+  { name: 'superscript or subscript character', regex: /[\u1D2C-\u1D6A\u2070-\u209F]/u },
+  { name: 'relation or set operator', regex: /[≈≠≤≥∈∉⊂⊆∪∩]/u },
+  { name: 'number-set symbol', regex: /[ℝℤℕℚℂ]/u },
+  { name: 'mathematical operator', regex: /[√∞⊙∏∑‖∥]/u },
 ];
 
-function getAllMdxFiles(dir: string): string[] {
+function getAllFiles(dir: string, extension: string): string[] {
   const results: string[] = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...getAllMdxFiles(fullPath));
-    } else if (entry.isFile() && entry.name.endsWith('.mdx')) {
+      results.push(...getAllFiles(fullPath, extension));
+    } else if (entry.isFile() && entry.name.endsWith(extension)) {
       results.push(fullPath);
     }
   }
@@ -43,8 +38,69 @@ function getAllMdxFiles(dir: string): string[] {
   return results;
 }
 
+type UnrenderedMathError = {
+  file: string;
+  line: number;
+  character: string;
+  lineContent: string;
+};
+
+function findUnrenderedMath(
+  filePaths: string[],
+  skipCodeBlocks: boolean,
+): UnrenderedMathError[] {
+  const errors: UnrenderedMathError[] = [];
+
+  for (const filePath of filePaths) {
+    const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
+    let inCodeBlock = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const rawLine = lines[i];
+      const trimmed = rawLine.trim();
+
+      if (skipCodeBlocks && trimmed.startsWith('```')) {
+        inCodeBlock = !inCodeBlock;
+        continue;
+      }
+      if (inCodeBlock) continue;
+
+      const textOnly = rawLine
+        .replace(/<(InlineMath|BlockMath)\s+formula="[^"]*"\s*\/>/g, '')
+        .replace(/\$\$[\s\S]*?\$\$/g, '')
+        .replace(/\$[^$]+?\$/g, '');
+
+      for (const pattern of UNRENDERED_MATH_PATTERNS) {
+        if (pattern.regex.test(textOnly)) {
+          errors.push({
+            file: path.relative(process.cwd(), filePath),
+            line: i + 1,
+            character: pattern.name,
+            lineContent: trimmed,
+          });
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+
+function assertNoUnrenderedMath(errors: UnrenderedMathError[], scope: string): void {
+  if (errors.length === 0) return;
+
+  const details = errors
+    .map((error) =>
+      `[${error.file}:${error.line}] Found raw ${error.character}\n   Line: ${error.lineContent}`,
+    )
+    .join('\n');
+  assert.fail(
+    `Found ${errors.length} unrendered math characters outside KaTeX in ${scope}:\n${details}`,
+  );
+}
+
 test('Learning Content Math & KaTeX Validation', async (t) => {
-  const mdxFiles = getAllMdxFiles(LEARNING_CONTENT_DIR);
+  const mdxFiles = getAllFiles(LEARNING_CONTENT_DIR, '.mdx');
 
   await t.test('discovers all MDX lessons and quizzes across all domains', () => {
     assert.ok(
@@ -56,58 +112,16 @@ test('Learning Content Math & KaTeX Validation', async (t) => {
   await t.test(
     'ensures no raw unrendered math symbols exist outside KaTeX blocks',
     () => {
-      const errors: Array<{ file: string; line: number; character: string; lineContent: string }> = [];
-
-      for (const filePath of mdxFiles) {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        const lines = content.split('\n');
-        let inCodeBlock = false;
-
-        for (let i = 0; i < lines.length; i++) {
-          const rawLine = lines[i];
-          const trimmed = rawLine.trim();
-
-          if (trimmed.startsWith('```')) {
-            inCodeBlock = !inCodeBlock;
-            continue;
-          }
-          if (inCodeBlock) continue;
-
-          // Strip formulas that are already properly wrapped in KaTeX:
-          // 1. <InlineMath formula="..." />
-          // 2. <BlockMath formula="..." />
-          // 3. $ ... $ or $$ ... $$
-          const textOnly = rawLine
-            .replace(/<(InlineMath|BlockMath)\s+formula="[^"]*"\s*\/>/g, '')
-            .replace(/\$\$[\s\S]*?\$\$/g, '')
-            .replace(/\$[^$]+?\$/g, '');
-
-          // Check for unrendered mathematical characters
-          for (const pattern of UNRENDERED_MATH_PATTERNS) {
-            const match = pattern.regex.exec(textOnly);
-            if (match) {
-              const relPath = path.relative(process.cwd(), filePath);
-              errors.push({
-                file: relPath,
-                line: i + 1,
-                character: pattern.name,
-                lineContent: trimmed,
-              });
-            }
-          }
-        }
-      }
-
-      if (errors.length > 0) {
-        const details = errors
-          .map((e) => `[${e.file}:${e.line}] Found raw ${e.character}\n   Line: ${e.lineContent}`)
-          .join('\n');
-        assert.fail(
-          `Found ${errors.length} unrendered math characters outside KaTeX across MDX files:\n${details}`,
-        );
-      }
+      assertNoUnrenderedMath(findUnrenderedMath(mdxFiles, true), 'MDX files');
     },
   );
+
+  await t.test('checks shared and evolutionary visual renderers for raw math symbols', () => {
+    assertNoUnrenderedMath(
+      findUnrenderedMath(LEARNING_RENDERER_FILES, false),
+      'Learning renderer files',
+    );
+  });
 
   await t.test('validates all KaTeX formulas inside quiz blocks ($ ... $)', () => {
     let totalQuizFormulas = 0;

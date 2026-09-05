@@ -1,0 +1,411 @@
+export const lessonMetadata = {
+  domainId: 'evolutionary-algorithms',
+  id: 'ea-vs-gd-rastrigin-code-lab',
+  locale: 'vi',
+  title: "Code",
+  headings: [
+    'Nghịch lý & Động lực Thực nghiệm',
+    'Tái hiện một Quỹ đạo Gradient Descent bị Kẹt',
+    'Tiến hóa Thực chiến: Bầy Cá thể Vượt Bẫy',
+    'Thực nghiệm Định lượng: Monte Carlo 100 Lần chạy',
+    'Giới hạn Quần thể: Khi Giảm từ 50 xuống 10 Cá thể',
+    'Tác động của Tỷ lệ Elites',
+    'Hội tụ Tiệm cận vs Ngân sách Thực tế: Kẹt hay Chậm?',
+    'Cẩm nang Quyết định: Khi nào dùng GD vs EA?',
+  ],
+  keywords: ['Code Lab', 'Rastrigin', 'Head-to-Head', 'Gradient Descent', 'Evolutionary Algorithm', 'Monte Carlo', 'Population Size', 'Elitism', 'Asymptotic Convergence', 'Python'],
+  pageCount: 8,
+}
+
+<MdxPage page={0}>
+
+## Nghịch lý & Động lực Thực nghiệm
+
+Hai bài thực hành trước tạo ra một điểm so sánh đáng chú ý:
+
+1. **Ở Lab 1:** Ta quan sát một cấu hình Gradient Descent hội tụ vào cực tiểu cục bộ trên hàm Rastrigin.
+2. **Ở Lab 2:** Chúng ta lại mang Thuật toán Tiến hóa đi giải... **Hồi quy Tuyến tính (Linear Regression)**!
+
+
+Trong bài hồi quy tuyến tính của lab, MSE là hàm lồi và ma trận thiết kế có hạng đầy đủ nên nghiệm least-squares là duy nhất. Gradient Descent hoặc `np.linalg.lstsq` phù hợp hơn; dùng EA với <InlineMath formula="60 \times 50 = 3.000" /> lần tính MSE chủ yếu nhằm minh họa ánh xạ khái niệm, không phải lựa chọn hiệu quả cho bài toán này.
+
+
+Ta sẽ áp dụng thuật toán tiến hóa vừa học cho Rastrigin và so sánh với một cấu hình Gradient Descent dễ hội tụ vào cực tiểu địa phương.
+
+Trong bài này, ta so sánh hai cấu hình trên cùng hàm đa cực trị và cùng nêu rõ ngân sách đánh giá để tránh suy rộng kết quả ngoài thiết lập thí nghiệm.
+
+</MdxPage>
+
+<MdxPage page={1}>
+
+## Tái hiện một Quỹ đạo Gradient Descent bị Kẹt
+
+Hàm Rastrigin 1 chiều có phương trình:
+
+<BlockMath formula="f(x) = 10 + x^2 - 10 \cos(2\pi x)" />
+
+Cực tiểu toàn cục nằm tại <InlineMath formula="x^* = 0" /> với <InlineMath formula="f(0) = 0" />. Nhưng cứ mỗi chu kỳ 1 đơn vị, thành phần hình sin lại tạo ra một "hố bẫy" cực tiểu cục bộ với đạo hàm bằng 0: <InlineMath formula="f'(x) = 0" />.
+
+Hãy quan sát số phận của Gradient Descent khi xuất phát từ các điểm khác nhau:
+
+```python
+import numpy as np
+
+def rastrigin(x):
+    return 10.0 + x**2 - 10.0 * np.cos(2.0 * np.pi * x)
+
+def rastrigin_grad(x):
+    return 2.0 * x + 20.0 * np.pi * np.sin(2.0 * np.pi * x)
+
+def gradient_descent(x_init, lr=0.005, steps=150):
+    x = x_init
+    for _ in range(steps):
+        grad = rastrigin_grad(x)
+        x = x - lr * grad
+    return x, rastrigin(x)
+
+# Thử nghiệm với các điểm xuất phát x0
+test_starts = [0.4, 1.4, 2.3, 3.8]
+print("=== KẾT QUẢ GRADIENT DESCENT ===")
+for x0 in test_starts:
+    final_x, final_loss = gradient_descent(x0)
+    print(f"Xuất phát x0 = {x0:4.1f} -> Dừng lại x = {final_x:6.3f} | Loss = {final_loss:6.3f}")
+```
+
+```output
+=== KẾT QUẢ GRADIENT DESCENT ===
+Xuất phát x0 =  0.4 -> Dừng lại x =  0.000 | Loss =  0.000
+Xuất phát x0 =  1.4 -> Dừng lại x =  0.994 | Loss =  0.995
+Xuất phát x0 =  2.3 -> Dừng lại x =  1.990 | Loss =  3.980
+Xuất phát x0 =  3.8 -> Dừng lại x =  3.980 | Loss = 15.919
+```
+
+
+Gradient Descent dùng thông tin cục bộ tại một điểm. Khi một quỹ đạo xác định hội tụ vào điểm dừng cục bộ có <InlineMath formula="f'(x) = 0" />, nó không tự rời điểm đó nếu không có restart, nhiễu hoặc một quy tắc cập nhật khác.
+
+
+</MdxPage>
+
+<MdxPage page={2}>
+
+## Tiến hóa Thực chiến: Bầy Cá thể Vượt Bẫy
+
+Bây giờ ta áp dụng đúng cấu trúc **Thuật toán Tiến hóa Tối giản (Minimal EA)** từ Lab 2 lên hàm Rastrigin:
+1. **Quần thể:** 50 cá thể ngẫu nhiên phân tán trên đoạn <InlineMath formula="[-4.5, 4.5]" />.
+2. **Đánh giá Fitness:** Điểm số là hàm Rastrigin (cần cực tiểu hóa về 0).
+3. **Bảo tồn Ưu tú:** Giữ lại Top 10 cá thể tốt nhất (Elitism).
+4. **Sinh sản & Đột biến:** Nhân bản 40 cá thể con từ Top 10 kèm nhiễu Gaussian <InlineMath formula="\mathcal{N}(0, \sigma=0.35)" />.
+
+```python
+def run_minimal_ea(pop_size=50, generations=40, top_k=10, mutation_sigma=0.35, seed=42, verbose=False):
+    np.random.seed(seed)
+    population = np.random.uniform(-4.5, 4.5, size=(pop_size, 1))
+
+    for gen in range(generations):
+        # Đánh giá hàm mục tiêu
+        losses = rastrigin(population.flatten())
+        sorted_indices = np.argsort(losses)
+        elites = population[sorted_indices[:top_k]]
+
+        # Nhân bản và đột biến
+        offspring_copies = elites[np.random.choice(top_k, size=pop_size - top_k)]
+        mutations = np.random.normal(0, mutation_sigma, size=offspring_copies.shape)
+        offspring = offspring_copies + mutations
+
+        population = np.vstack([elites, offspring])
+
+        if verbose and (gen + 1) in [1, 5, 15, 40]:
+            best_x = elites[0, 0]
+            best_loss = losses[sorted_indices[0]]
+            print(f"Gen {gen+1:02d} | Best x = {best_x:7.4f} | Best Loss = {best_loss:7.4f}")
+
+    return elites[0, 0], losses[sorted_indices[0]]
+
+print("=== TIẾN HÓA TRÊN ĐỊA HÌNH RASTRIGIN ===")
+best_x, best_loss = run_minimal_ea(verbose=True)
+```
+
+```output
+=== TIẾN HÓA TRÊN ĐỊA HÌNH RASTRIGIN ===
+Gen 01 | Best x = -0.0482 | Best Loss =  0.4580
+Gen 05 | Best x =  0.0135 | Best Loss =  0.0360
+Gen 15 | Best x = -0.0019 | Best Loss =  0.0007
+Gen 40 | Best x =  0.0000 | Best Loss =  0.0000
+```
+
+Vẽ đồ thị so sánh trực quan giữa **Quỹ đạo kẹt bẫy của Gradient Descent** và **Bầy cá thể Tiến hóa vượt bẫy**:
+
+<LessonImage
+  assetPath="evolutionary-algorithms/12-ea-vs-gd-rastrigin-trajectories.png"
+  alt="So sánh trực quan quỹ đạo Gradient Descent bị kẹt trong hố cục bộ vs Quần thể tiến hóa co cụm về đáy vực toàn cục"
+  caption="Kết quả với cấu hình và seed của lab: ba trong bốn quỹ đạo Gradient Descent hội tụ vào cực tiểu cục bộ; quần thể EA tìm được vùng quanh x* = 0 sau nhiều lượt đánh giá song song."
+/>
+
+
+Trong thiết lập này, đột biến Gaussian tạo các bước thăm dò ngẫu nhiên quanh nhiều elite, còn elitism giữ lại điểm tốt nhất đã tìm thấy. Sự phối hợp đó giúp quần thể có cơ hội thử nhiều basin hơn một quỹ đạo Gradient Descent đơn lẻ.
+
+
+</MdxPage>
+
+<MdxPage page={3}>
+
+## Thực nghiệm Định lượng: Monte Carlo 100 Lần chạy
+
+Một lần chạy thử nghiệm chịu ảnh hưởng của seed. Ta lặp lại **100 lần chạy độc lập** để đo độ ổn định trong đúng cấu hình của lab:
+- Mỗi lần chạy, khởi tạo điểm xuất phát ngẫu nhiên trên khoảng <InlineMath formula="[-4.5, 4.5]" />.
+- Thuật toán được coi là **Thành công** nếu tìm được nghiệm có <InlineMath formula="f(x) < 0.05" /> (hội tụ vào đáy vực toàn cục <InlineMath formula="x^* = 0" />).
+
+```python
+np.random.seed(123)
+n_runs = 100
+threshold = 0.05
+
+gd_success = 0
+ea_success = 0
+
+for r in range(n_runs):
+    # 1. Gradient Descent từ điểm khởi tạo ngẫu nhiên
+    x0 = np.random.uniform(-4.5, 4.5)
+    final_x, final_loss = gradient_descent(x0)
+    if final_loss < threshold:
+        gd_success += 1
+
+    # 2. Thuật toán Tiến hóa với seed ngẫu nhiên
+    best_x, best_loss = run_minimal_ea(seed=r + 1000)
+    if best_loss < threshold:
+        ea_success += 1
+
+print(f"=== BÁO CÁO THỰC NGHIỆM MONTE CARLO (100 RUNS) ===")
+print(f"Tỷ lệ Thành công của Gradient Descent : {gd_success:3d} / {n_runs} ({gd_success}%)")
+print(f"Tỷ lệ Thành công của Thuật toán EA    : {ea_success:3d} / {n_runs} ({ea_success}%)")
+```
+
+```output
+=== BÁO CÁO THỰC NGHIỆM MONTE CARLO (100 RUNS) ===
+Tỷ lệ Thành công của Gradient Descent :   7 / 100 (7%)
+Tỷ lệ Thành công của Thuật toán EA    : 100 / 100 (100%)
+```
+
+Đồ thị thống kê tỷ lệ hội tụ thành công về Cực tiểu Toàn cục:
+
+<LessonImage
+  assetPath="evolutionary-algorithms/13-ea-vs-gd-monte-carlo-success-rate.png"
+  alt="Biểu đồ cột so sánh tỷ lệ thành công giữa Gradient Descent 7% và Thuật toán tiến hóa 100%"
+  caption="Thực nghiệm 100 seed với hyperparameter và tiêu chí thành công cố định của lab: GD đạt 7/100 và EA đạt 100/100. Đây là kết quả của thiết lập minh họa, không phải xếp hạng tổng quát giữa hai họ thuật toán."
+/>
+
+</MdxPage>
+
+<MdxPage page={4}>
+
+## Giới hạn Quần thể: Khi Giảm từ 50 xuống 10 Cá thể
+
+Ở 100 seed trên, quần thể 50 cá thể đạt tỷ lệ thành công quan sát được là 100%. Điều gì xảy ra nếu ta **cắt giảm ngân sách tính toán**, thu hẹp quần thể từ 50 xuống chỉ còn **10 cá thể** (`pop_size = 10`, `top_k = 2`)?
+
+Hãy cùng chạy kiểm chứng Monte Carlo 100 lần để quan sát sự sụt giảm hiệu năng:
+
+```python
+# Kiểm nghiệm độ nhạy theo quy mô quần thể
+test_configs = [(50, 10), (20, 4), (10, 2), (5, 1)]
+print("=== KHẢO SÁT TỶ LỆ THÀNH CÔNG THEO QUY MÔ QUẦN THỂ ===")
+
+for pop_size, top_k in test_configs:
+    success = 0
+    for r in range(100):
+        best_x, best_loss = run_minimal_ea(pop_size=pop_size, top_k=top_k, seed=r + 1000)
+        if best_loss < 0.05:
+            success += 1
+    print(f"Quần thể {pop_size:2d} cá thể (Top {top_k:2d} Elites) -> Tỷ lệ thành công: {success:3d}%")
+```
+
+```output
+=== KHẢO SÁT TỶ LỆ THÀNH CÔNG THEO QUY MÔ QUẦN THỂ ===
+Quần thể 50 cá thể (Top 10 Elites) -> Tỷ lệ thành công: 100%
+Quần thể 20 cá thể (Top  4 Elites) -> Tỷ lệ thành công:  93%
+Quần thể 10 cá thể (Top  2 Elites) -> Tỷ lệ thành công:  68%
+Quần thể  5 cá thể (Top  1 Elites) -> Tỷ lệ thành công:  38%
+```
+
+Biểu đồ so sánh tác động của quy mô quần thể đến khả năng hội tụ nghiệm toàn cục:
+
+<LessonImage
+  assetPath="evolutionary-algorithms/14-population-size-vs-success-rate.png"
+  alt="Biểu đồ tác động của quy mô quần thể đến tỷ lệ hội tụ thành công trên hàm Rastrigin"
+  caption="Trong cấu hình và 100 seed của lab, giảm quần thể từ 50 xuống 10 làm tỷ lệ đạt ngưỡng giảm từ 100/100 xuống 68/100. Kết quả cho thấy độ nhạy với ngân sách lấy mẫu, không phải quy luật cố định cho mọi EA."
+/>
+
+
+**Bài học then chốt về Kích thước Quần thể:**
+- Khi chỉ có **10 cá thể** khởi tạo trên đoạn <InlineMath formula="[-4.5, 4.5]" />, độ phủ ban đầu thưa hơn đáng kể so với quần thể 50 cá thể.
+- Nếu ngẫu nhiên không có cá thể nào rơi gần <InlineMath formula="x^* = 0" />, bầy 2 Elites sẽ chọn nhầm đáy hố phụ (ví dụ <InlineMath formula="x \approx 2.0" />).
+- Với chỉ 8 cá thể con mỗi thế hệ, thuật toán có ít phép thử ngẫu nhiên hơn và dễ hết ngân sách trước khi tìm được basin trung tâm.
+
+
+</MdxPage>
+
+<MdxPage page={5}>
+
+## Tác động của Tỷ lệ Elites
+
+Bên cạnh quy mô quần thể, việc **tăng hoặc giảm số lượng cá thể ưu tú (`top_k`)** trên cùng một quần thể 50 cá thể sẽ tạo ra sự khác biệt như thế nào?
+
+Cùng chạy kiểm nghiệm 100 lần Monte Carlo khi thay đổi `top_k` từ 2 đến 48 cá thể:
+
+```python
+test_elites = [2, 5, 10, 20, 35, 48]
+print("=== KHẢO SÁT TÁC ĐỘNG CỦA TỶ LỆ ELITES (POP = 50) ===")
+
+for k in test_elites:
+    success = 0
+    for r in range(100):
+        best_x, best_loss = run_minimal_ea(pop_size=50, top_k=k, seed=r + 1000)
+        if best_loss < 0.05:
+            success += 1
+    print(f"Top {k:2d} / 50 Elites ({k*2:2d}%) -> Tỷ lệ thành công: {success:3d}%")
+```
+
+```output
+=== KHẢO SÁT TÁC ĐỘNG CỦA TỶ LỆ ELITES (POP = 50) ===
+Top  2 / 50 Elites ( 4%) -> Tỷ lệ thành công: 100%
+Top  5 / 50 Elites (10%) -> Tỷ lệ thành công: 100%
+Top 10 / 50 Elites (20%) -> Tỷ lệ thành công: 100%
+Top 20 / 50 Elites (40%) -> Tỷ lệ thành công: 100%
+Top 35 / 50 Elites (70%) -> Tỷ lệ thành công:  97%
+Top 48 / 50 Elites (96%) -> Tỷ lệ thành công:  46%
+```
+
+Kết quả cho thấy tỷ lệ elite quá cao làm giảm mạnh số cá thể mới: `top_k=48` chỉ tạo 2 offspring mỗi thế hệ. Trong ngân sách 40 thế hệ của lab, số lần thăm dò ít hơn làm tỷ lệ đạt ngưỡng giảm còn 46/100. Đây là tương tác giữa tỷ lệ elite, mutation và ngân sách; không thể kết luận rằng ít elite luôn tốt hơn.
+
+
+### Cơ chế thay mới Quần thể
+
+- Trong quần thể 50 cá thể, việc giữ lại 48 Elites đồng nghĩa mỗi thế hệ chỉ có <InlineMath formula="50 - 48 = 2" /> cá thể con được sinh mới (chỉ 4% quần thể được đổi mới).
+- Các elite kém hơn không bất tử: chúng vẫn có thể bị đẩy khỏi Top 48 khi offspring tốt hơn xuất hiện. Tuy nhiên, tốc độ thay mới tối đa chỉ là 2 cá thể mỗi thế hệ.
+- Vì vậy cấu hình này vẫn có thể tiến bộ, nhưng thường cần nhiều thế hệ hơn để tích lũy đủ đề xuất mới.
+
+
+</MdxPage>
+
+<MdxPage page={6}>
+
+## Hội tụ Tiệm cận vs Ngân sách Thực tế: Kẹt hay Chậm?
+
+Một câu hỏi sâu sắc thường được đặt ra: **"Có phải thuật toán chỉ đang bò chậm thôi chứ không thực sự chết cứng? Nếu cho số thế hệ chạy ra vô cùng, liệu nó có chắc chắn chạm tới Global Minimum?"**
+
+Câu trả lời phụ thuộc vào điều kiện xác suất. Gaussian có mật độ dương trên toàn trục số, nên mỗi **lân cận có thể tích dương** quanh nghiệm toàn cục có xác suất được lấy mẫu. Với elitism và các lần lấy mẫu tiếp tục có xác suất không triệt tiêu, xác suất từng đi vào một lân cận như vậy có thể tiến tới 1 khi <InlineMath formula="T \to \infty" />. Điều này không có nghĩa xác suất chạm đúng một điểm thực liên tục bằng 100%, và cũng không áp dụng vô điều kiện cho mọi EA.
+
+Hãy cùng kiểm chứng bằng cách cho trường hợp bị coi là "kẹt bẫy" ở thế hệ 40 (với `top_k = 48`) **chạy tiếp đến thế hệ 1.000**:
+
+```python
+# Chạy tiếp trường hợp kẹt (Seed 1005) tới thế hệ 1000
+np.random.seed(1005)
+pop = np.random.uniform(-4.5, 4.5, size=(50, 1))
+
+print("--- KIỂM NGHIỆM HỘI TỤ DÀI HẠN (1000 THẾ HỆ) ---")
+for gen in range(1, 1001):
+    losses = rastrigin(pop.flatten())
+    idx = np.argsort(losses)
+    elites = pop[idx[:48]]
+    offspring = elites[np.random.choice(48, size=2)] + np.random.normal(0, 0.35, size=(2, 1))
+    pop = np.vstack([elites, offspring])
+
+    if gen in [40, 100, 300, 500, 800, 1000]:
+        best_loss = np.min(losses)
+        best_x = elites[0, 0]
+        print(f"Gen {gen:4d} | Best x = {best_x:7.4f} | Loss = {best_loss:7.4f}")
+```
+
+```output
+--- KIỂM NGHIỆM HỘI TỤ DÀI HẠN (1000 THẾ HỆ) ---
+Gen   40 | Best x = -0.9901 | Loss =  0.9997
+Gen  100 | Best x = -0.9901 | Loss =  0.9997
+Gen  300 | Best x = -0.0393 | Loss =  0.3043
+Gen  500 | Best x = -0.0201 | Loss =  0.0802
+Gen  800 | Best x =  0.0027 | Loss =  0.0015
+Gen 1000 | Best x =  0.0005 | Loss =  0.0000
+```
+
+Biểu đồ tiến trình hội tụ qua 1.000 thế hệ:
+
+<LessonImage
+  assetPath="evolutionary-algorithms/17-asymptotic-convergence-budget.png"
+  alt="Biểu đồ hội tụ dài hạn của cấu hình Top 48 Elites qua 1000 thế hệ"
+  caption="Biểu đồ hội tụ Top 48 Elites qua 1.000 thế hệ: Đường cong đi ngang bất động (plateau) suốt hơn 200 thế hệ đầu ở Loss xấp xỉ 0.9997 do chỉ có 2 cá thể con mới mỗi vòng. Đến khoảng thế hệ 250, một đột biến may mắn rơi trúng hố trung tâm khiến Loss đột ngột giảm mạnh và tiếp tục hội tụ về nghiệm toàn cục ở thế hệ 1.000."
+/>
+
+
+**Khoảng cách giữa Lý thuyết và Thực tế Kỹ thuật:**
+- **Gradient Descent xác định trong lab:** Khi đã ở đúng điểm dừng cục bộ, cùng quy tắc cập nhật sẽ không tự thoát nếu không có nhiễu, restart hay momentum phù hợp.
+- **EA trong lab:** Đột biến Gaussian vẫn có xác suất đi vào mọi lân cận có độ đo dương, nhưng thời gian chờ có thể vượt xa ngân sách thực tế.
+- **Trong kỹ nghệ Machine Learning:** Ngân sách tính toán (GPU time, CPU hours) hữu hạn. Một cấu hình chưa đạt tiêu chí trong ngân sách được xem là thất bại của lần chạy đó, dù về lý thuyết nó còn có thể cải thiện nếu tiếp tục lấy mẫu.
+
+
+</MdxPage>
+
+<MdxPage page={7}>
+
+## Cẩm nang Quyết định: Khi nào dùng GD vs EA?
+
+Kết quả thực nghiệm trên làm sáng tỏ hoàn toàn nghịch lý ban đầu. Dưới đây là bảng ma trận đúc kết nguyên lý chọn lựa thuật toán trong thực tế kỹ thuật Machine Learning / Data Science:
+
+<ComparisonMatrix
+  ariaLabel="So sánh toàn diện tiêu chí lựa chọn giữa Gradient Descent và Thuật toán Tiến hóa"
+  rowHeaderLabel="Tiêu chí So sánh"
+  columns={['Gradient Descent (GD / SGD)', 'Thuật toán Tiến hóa (EA / GA)']}
+  rows={[
+    {
+      label: 'Bề mặt Hàm mục tiêu',
+      values: [
+        'Hàm khả vi; đặc biệt hiệu quả khi gradient rẻ và nghiệm dừng cục bộ đáp ứng mục tiêu.',
+        'Hàm hộp đen, biến rời rạc hoặc landscape cần thăm dò đa điểm.',
+      ],
+    },
+    {
+      label: 'Yêu cầu Đạo hàm',
+      values: [
+        'Cần gradient thật hoặc gradient ước lượng đủ tin cậy cho quy tắc cập nhật.',
+        'Biến thể được dạy ở đây chỉ cần giá trị hàm; một số ES vẫn ước lượng hướng cập nhật từ các truy vấn.',
+      ],
+    },
+    {
+      label: 'Quy mô Chiều tham số',
+      values: [
+        'Thường mở rộng tốt tới mô hình rất nhiều tham số khi có backpropagation hiệu quả.',
+        'Thích hợp với không gian số chiều vừa và nhỏ (vài chục đến vài ngàn tham số). Khó mở rộng ở không gian cực lớn.',
+      ],
+    },
+    {
+      label: 'Chi phí Tính toán',
+      values: [
+        'Cực kỳ tiết kiệm: Chỉ cần tính đạo hàm một lượt (1 backward pass) cho mỗi bước cập nhật.',
+        'Tốn kém hơn: Mỗi thế hệ cần đánh giá điểm số cho toàn bộ N cá thể (N forward passes).',
+      ],
+    },
+    {
+      label: 'Trường hợp Sử dụng Điển hình',
+      values: [
+        'Huấn luyện trọng số Mạng Nơ-ron Sâu, Hồi quy Tuyến tính, Logistic Regression.',
+        'Chọn tập đặc trưng (Feature Selection), Tối ưu Siêu tham số (Hyperparameter Tuning), Thiết kế Kiến trúc Mạng (NAS), Điều khiển Robot (RL).',
+      ],
+    },
+  ]}
+/>
+
+
+**Heuristic lựa chọn:**
+- Nếu có gradient tin cậy và chi phí backpropagation hợp lý, hãy dùng gradient-based method làm baseline, kể cả khi bài toán không lồi.
+- Nếu biến rời rạc, hàm hộp đen hoặc cần một quần thể nghiệm đa dạng, hãy benchmark EA với các phương pháp derivative-free khác dưới cùng ngân sách đánh giá.
+
+
+---
+
+### Cầu nối sang Chủ đề 1.3: Fitness Landscape & Áp lực Chọn lọc
+
+Thực nghiệm Rastrigin vừa qua đã cho thấy: sự thành bại của thuật toán phụ thuộc trực tiếp vào **bản đồ địa hình** mà nó phải vượt qua:
+- Tại sao địa hình lòng chảo đơn cực (Convex) lại dễ dàng với GD, nhưng địa hình hiểm trở đa cực (Multimodal) lại khiến cá thể bị kẹt?
+- Khi bầy cá thể thám hiểm địa hình hiểm trở, làm thế nào để điều phối **áp lực chọn lọc (Selection Pressure)** sao cho quần thể không bị hội tụ sớm — kéo nhau rơi xuống cùng một thung lũng giả tạo?
+
+Hãy cùng bước sang **Chủ đề 1.3: Fitness Landscape & Áp lực Chọn lọc** để giải mã bức tranh toán học toàn cảnh về bề mặt địa hình tối ưu và nguyên lý bảo toàn sự đa dạng cho quần thể!
+
+
+</MdxPage>

@@ -15,7 +15,7 @@
 
 @layer components {
   .learning-mdx-content {
-    @apply grid gap-5 py-1;
+    @apply grid min-w-0 max-w-full gap-5 py-1;
   }
 
   .learning-mdx-content > h1 {
